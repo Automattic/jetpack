@@ -64,6 +64,7 @@ class StripDocsNodeVisitorTest extends TestCase {
 		list( $newDoc ) = $traverser->traverse( array( $oldDoc ) );
 		'@phan-var \PHPStan\PhpDocParser\Ast\PhpDoc\PhpDocNode $newDoc';
 		$actual = $printer->printFormatPreserving( $newDoc, $oldDoc, $tokens );
+		$actual = preg_replace( '/[ \t]+\n/', "\n", $actual );
 
 		$this->assertSame( $expect, $actual );
 		$this->assertSame( $expectOutput, $output->fetch() );
@@ -263,7 +264,7 @@ class StripDocsNodeVisitorTest extends TestCase {
 				PHPDOC,
 				<<<'PHPDOC'
 				/**
-				 * @deprecated 
+				 * @deprecated
 				 */
 				PHPDOC,
 			),
@@ -402,16 +403,16 @@ class StripDocsNodeVisitorTest extends TestCase {
 				 * @inherits FooBar
 				 * @phan-closure-scope FooBar
 				 * @phanclosurescope FooBar
-				 * @abstract 
-				 * @internal 
-				 * @no-named-arguments 
-				 * @phan-read-only 
-				 * @phan-write-only 
-				 * @phan-immutable 
-				 * @phan-side-effect-free 
-				 * @readonly 
-				 * @seal-methods 
-				 * @seal-properties 
+				 * @abstract
+				 * @internal
+				 * @no-named-arguments
+				 * @phan-read-only
+				 * @phan-write-only
+				 * @phan-immutable
+				 * @phan-side-effect-free
+				 * @readonly
+				 * @seal-methods
+				 * @seal-properties
 				 */
 				PHPDOC,
 			),

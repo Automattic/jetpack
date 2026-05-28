@@ -9,7 +9,7 @@
 namespace PHPUnit;
 
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  */
 interface Exception extends \Throwable
 {
@@ -17,8 +17,8 @@ interface Exception extends \Throwable
 namespace PHPUnit\Event;
 
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final class CollectingDispatcher implements \PHPUnit\Event\Dispatcher
 {
@@ -33,8 +33,8 @@ final class CollectingDispatcher implements \PHPUnit\Event\Dispatcher
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final class DeferringDispatcher implements \PHPUnit\Event\SubscribableDispatcher
 {
@@ -55,8 +55,8 @@ final class DeferringDispatcher implements \PHPUnit\Event\SubscribableDispatcher
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final class DirectDispatcher implements \PHPUnit\Event\SubscribableDispatcher
 {
@@ -88,8 +88,8 @@ final class DirectDispatcher implements \PHPUnit\Event\SubscribableDispatcher
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 interface Dispatcher
 {
@@ -99,8 +99,8 @@ interface Dispatcher
     public function dispatch(\PHPUnit\Event\Event $event): void;
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 interface SubscribableDispatcher extends \PHPUnit\Event\Dispatcher
 {
@@ -111,8 +111,8 @@ interface SubscribableDispatcher extends \PHPUnit\Event\Dispatcher
     public function registerTracer(\PHPUnit\Event\Tracer\Tracer $tracer): void;
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final class DispatchingEmitter implements \PHPUnit\Event\Emitter
 {
@@ -763,8 +763,8 @@ final class DispatchingEmitter implements \PHPUnit\Event\Emitter
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 interface Emitter
 {
@@ -989,7 +989,7 @@ interface Emitter
     public function applicationFinished(int $shellExitCode): void;
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  */
 interface Event
 {
@@ -1001,7 +1001,7 @@ interface Event
 }
 /**
  * @template-implements \IteratorAggregate<non-negative-int, Event>
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final class EventCollection implements \Countable, \IteratorAggregate
 {
@@ -1029,12 +1029,12 @@ final class EventCollection implements \Countable, \IteratorAggregate
 }
 /**
  * @template-implements \Iterator<non-negative-int, Event>
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final class EventCollectionIterator implements \Iterator
 {
     /**
-     * @internal 
+     * @internal
      */
     public function __construct(\PHPUnit\Event\EventCollection $events)
     {
@@ -1059,92 +1059,92 @@ final class EventCollectionIterator implements \Iterator
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final class EventAlreadyAssignedException extends \RuntimeException implements \PHPUnit\Event\Exception
 {
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final class EventFacadeIsSealedException extends \RuntimeException implements \PHPUnit\Event\Exception
 {
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  */
 interface Exception extends \PHPUnit\Exception
 {
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final class InvalidArgumentException extends \InvalidArgumentException implements \PHPUnit\Event\Exception
 {
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final class InvalidEventException extends \RuntimeException implements \PHPUnit\Event\Exception
 {
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final class InvalidSubscriberException extends \RuntimeException implements \PHPUnit\Event\Exception
 {
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final class MapError extends \RuntimeException implements \PHPUnit\Event\Exception
 {
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final class NoPreviousThrowableException extends \RuntimeException implements \PHPUnit\Event\Exception
 {
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final class RuntimeException extends \RuntimeException implements \PHPUnit\Event\Exception
 {
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final class SubscriberTypeAlreadyRegisteredException extends \RuntimeException implements \PHPUnit\Event\Exception
 {
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final class UnknownEventException extends \RuntimeException implements \PHPUnit\Event\Exception
 {
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final class UnknownEventTypeException extends \RuntimeException implements \PHPUnit\Event\Exception
 {
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final class UnknownSubscriberException extends \RuntimeException implements \PHPUnit\Event\Exception
 {
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final class UnknownSubscriberTypeException extends \RuntimeException implements \PHPUnit\Event\Exception
 {
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final class Facade
 {
@@ -1192,14 +1192,14 @@ final class Facade
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  */
 interface Subscriber
 {
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final class TypeMap
 {
@@ -1234,12 +1234,12 @@ namespace PHPUnit\Event\Application;
 
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final readonly class Finished implements \PHPUnit\Event\Event
 {
     /**
-     * @internal 
+     * @internal
      */
     public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo, int $shellExitCode)
     {
@@ -1258,7 +1258,7 @@ final readonly class Finished implements \PHPUnit\Event\Event
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  */
 interface FinishedSubscriber extends \PHPUnit\Event\Subscriber
 {
@@ -1266,12 +1266,12 @@ interface FinishedSubscriber extends \PHPUnit\Event\Subscriber
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final readonly class Started implements \PHPUnit\Event\Event
 {
     /**
-     * @internal 
+     * @internal
      */
     public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo, \PHPUnit\Event\Runtime\Runtime $runtime)
     {
@@ -1290,7 +1290,7 @@ final readonly class Started implements \PHPUnit\Event\Event
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  */
 interface StartedSubscriber extends \PHPUnit\Event\Subscriber
 {
@@ -1299,8 +1299,8 @@ interface StartedSubscriber extends \PHPUnit\Event\Subscriber
 namespace PHPUnit\Event\Code;
 
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final class NoTestCaseObjectOnCallStackException extends \RuntimeException implements \PHPUnit\Event\Exception
 {
@@ -1310,14 +1310,14 @@ final class NoTestCaseObjectOnCallStackException extends \RuntimeException imple
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final readonly class ClassMethod
 {
     /**
      * @param class-string     $className
      * @param non-empty-string $methodName
-     * @internal 
+     * @internal
      */
     public function __construct(string $className, string $methodName)
     {
@@ -1337,12 +1337,12 @@ final readonly class ClassMethod
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final readonly class ComparisonFailure
 {
     /**
-     * @internal 
+     * @internal
      */
     public function __construct(string $expected, string $actual, string $diff)
     {
@@ -1358,8 +1358,8 @@ final readonly class ComparisonFailure
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class ComparisonFailureBuilder
 {
@@ -1369,7 +1369,7 @@ final readonly class ComparisonFailureBuilder
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final readonly class Phpt extends \PHPUnit\Event\Code\Test
 {
@@ -1391,13 +1391,13 @@ final readonly class Phpt extends \PHPUnit\Event\Code\Test
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 abstract readonly class Test
 {
     /**
      * @param non-empty-string $file
-     * @internal 
+     * @internal
      */
     public function __construct(string $file)
     {
@@ -1432,7 +1432,7 @@ abstract readonly class Test
 /**
  * @template-implements \IteratorAggregate<non-negative-int, Test>
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final readonly class TestCollection implements \Countable, \IteratorAggregate
 {
@@ -1457,12 +1457,12 @@ final readonly class TestCollection implements \Countable, \IteratorAggregate
 }
 /**
  * @template-implements \Iterator<non-negative-int, Test>
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final class TestCollectionIterator implements \Iterator
 {
     /**
-     * @internal 
+     * @internal
      */
     public function __construct(\PHPUnit\Event\Code\TestCollection $tests)
     {
@@ -1488,12 +1488,12 @@ final class TestCollectionIterator implements \Iterator
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final readonly class TestDox
 {
     /**
-     * @internal 
+     * @internal
      */
     public function __construct(string $prettifiedClassName, string $prettifiedMethodName, string $prettifiedAndColorizedMethodName)
     {
@@ -1506,8 +1506,8 @@ final readonly class TestDox
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final class TestDoxBuilder
 {
@@ -1524,7 +1524,7 @@ final class TestDoxBuilder
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final readonly class TestMethod extends \PHPUnit\Event\Code\Test
 {
@@ -1533,7 +1533,7 @@ final readonly class TestMethod extends \PHPUnit\Event\Code\Test
      * @param non-empty-string $methodName
      * @param non-empty-string $file
      * @param non-negative-int $line
-     * @internal 
+     * @internal
      */
     public function __construct(string $className, string $methodName, string $file, int $line, \PHPUnit\Event\Code\TestDox $testDox, \PHPUnit\Metadata\MetadataCollection $metadata, \PHPUnit\Event\TestData\TestDataCollection $testData)
     {
@@ -1588,8 +1588,8 @@ final readonly class TestMethod extends \PHPUnit\Event\Code\Test
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class TestMethodBuilder
 {
@@ -1605,13 +1605,13 @@ final readonly class TestMethodBuilder
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final readonly class Throwable
 {
     /**
      * @param class-string $className
-     * @internal 
+     * @internal
      */
     public function __construct(string $className, string $message, string $description, string $stackTrace, ?self $previous)
     {
@@ -1651,8 +1651,8 @@ final readonly class Throwable
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class ThrowableBuilder
 {
@@ -1682,7 +1682,7 @@ enum Code : string
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final readonly class IssueTrigger
 {
@@ -1709,12 +1709,12 @@ namespace PHPUnit\Event\Runtime;
 
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final readonly class OperatingSystem
 {
     /**
-     * @internal 
+     * @internal
      */
     public function __construct()
     {
@@ -1728,12 +1728,12 @@ final readonly class OperatingSystem
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final readonly class PHP
 {
     /**
-     * @internal 
+     * @internal
      */
     public function __construct()
     {
@@ -1768,12 +1768,12 @@ final readonly class PHP
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final readonly class PHPUnit
 {
     /**
-     * @internal 
+     * @internal
      */
     public function __construct()
     {
@@ -1787,12 +1787,12 @@ final readonly class PHPUnit
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final readonly class Runtime
 {
     /**
-     * @internal 
+     * @internal
      */
     public function __construct()
     {
@@ -1814,7 +1814,7 @@ namespace PHPUnit\Event\Telemetry;
 
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final readonly class Duration
 {
@@ -1848,12 +1848,12 @@ final readonly class Duration
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final readonly class GarbageCollectorStatus
 {
     /**
-     * @internal 
+     * @internal
      */
     public function __construct(int $runs, int $collected, int $threshold, int $roots, float $applicationTime, float $collectorTime, float $destructorTime, float $freeTime, bool $running, bool $protected, bool $full, int $bufferSize)
     {
@@ -1896,8 +1896,8 @@ final readonly class GarbageCollectorStatus
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 interface GarbageCollectorStatusProvider
 {
@@ -1905,7 +1905,7 @@ interface GarbageCollectorStatusProvider
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final readonly class HRTime
 {
@@ -1927,12 +1927,12 @@ final readonly class HRTime
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final readonly class Info
 {
     /**
-     * @internal 
+     * @internal
      */
     public function __construct(\PHPUnit\Event\Telemetry\Snapshot $current, \PHPUnit\Event\Telemetry\Duration $durationSinceStart, \PHPUnit\Event\Telemetry\MemoryUsage $memorySinceStart, \PHPUnit\Event\Telemetry\Duration $durationSincePrevious, \PHPUnit\Event\Telemetry\MemoryUsage $memorySincePrevious)
     {
@@ -1966,8 +1966,8 @@ final readonly class Info
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 interface MemoryMeter
 {
@@ -1976,7 +1976,7 @@ interface MemoryMeter
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final readonly class MemoryUsage
 {
@@ -1992,12 +1992,12 @@ final readonly class MemoryUsage
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final readonly class Snapshot
 {
     /**
-     * @internal 
+     * @internal
      */
     public function __construct(\PHPUnit\Event\Telemetry\HRTime $time, \PHPUnit\Event\Telemetry\MemoryUsage $memoryUsage, \PHPUnit\Event\Telemetry\MemoryUsage $peakMemoryUsage, \PHPUnit\Event\Telemetry\GarbageCollectorStatus $garbageCollectorStatus)
     {
@@ -2016,21 +2016,21 @@ final readonly class Snapshot
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 interface StopWatch
 {
     public function current(): \PHPUnit\Event\Telemetry\HRTime;
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class System
 {
     /**
-     * @internal 
+     * @internal
      */
     public function __construct(\PHPUnit\Event\Telemetry\StopWatch $stopWatch, \PHPUnit\Event\Telemetry\MemoryMeter $memoryMeter, \PHPUnit\Event\Telemetry\GarbageCollectorStatusProvider $garbageCollectorStatusProvider)
     {
@@ -2040,8 +2040,8 @@ final readonly class System
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class SystemGarbageCollectorStatusProvider implements \PHPUnit\Event\Telemetry\GarbageCollectorStatusProvider
 {
@@ -2050,8 +2050,8 @@ final readonly class SystemGarbageCollectorStatusProvider implements \PHPUnit\Ev
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class SystemMemoryMeter implements \PHPUnit\Event\Telemetry\MemoryMeter
 {
@@ -2063,8 +2063,8 @@ final readonly class SystemMemoryMeter implements \PHPUnit\Event\Telemetry\Memor
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class SystemStopWatch implements \PHPUnit\Event\Telemetry\StopWatch
 {
@@ -2076,14 +2076,14 @@ final readonly class SystemStopWatch implements \PHPUnit\Event\Telemetry\StopWat
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  * @codeCoverageIgnore
  */
 final class SystemStopWatchWithOffset implements \PHPUnit\Event\Telemetry\StopWatch
 {
     /**
-     * @internal 
+     * @internal
      */
     public function __construct(\PHPUnit\Event\Telemetry\HRTime $offset)
     {
@@ -2099,13 +2099,13 @@ namespace PHPUnit\Event\Test;
 
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final readonly class AdditionalInformationProvided implements \PHPUnit\Event\Event
 {
     /**
      * @param non-empty-string $additionalInformation
-     * @internal 
+     * @internal
      */
     public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo, \PHPUnit\Event\Code\TestMethod $test, string $additionalInformation)
     {
@@ -2130,7 +2130,7 @@ final readonly class AdditionalInformationProvided implements \PHPUnit\Event\Eve
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  */
 interface AdditionalInformationProvidedSubscriber extends \PHPUnit\Event\Subscriber
 {
@@ -2138,13 +2138,13 @@ interface AdditionalInformationProvidedSubscriber extends \PHPUnit\Event\Subscri
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final readonly class ComparatorRegistered implements \PHPUnit\Event\Event
 {
     /**
      * @param class-string<\SebastianBergmann\Comparator\Comparator> $className
-     * @internal 
+     * @internal
      */
     public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo, string $className)
     {
@@ -2166,7 +2166,7 @@ final readonly class ComparatorRegistered implements \PHPUnit\Event\Event
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  */
 interface ComparatorRegisteredSubscriber extends \PHPUnit\Event\Subscriber
 {
@@ -2174,12 +2174,12 @@ interface ComparatorRegisteredSubscriber extends \PHPUnit\Event\Subscriber
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final readonly class CustomTestMethodInvocationUsed implements \PHPUnit\Event\Event
 {
     /**
-     * @internal 
+     * @internal
      */
     public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo, \PHPUnit\Event\Code\TestMethod $test, \PHPUnit\Event\Code\ClassMethod $customTestMethodInvocation)
     {
@@ -2201,7 +2201,7 @@ final readonly class CustomTestMethodInvocationUsed implements \PHPUnit\Event\Ev
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  */
 interface CustomTestMethodInvocationUsedSubscriber extends \PHPUnit\Event\Subscriber
 {
@@ -2209,13 +2209,13 @@ interface CustomTestMethodInvocationUsedSubscriber extends \PHPUnit\Event\Subscr
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final readonly class AfterLastTestMethodCalled implements \PHPUnit\Event\Event
 {
     /**
      * @param class-string<\PHPUnit\Framework\TestCase> $testClassName
-     * @internal 
+     * @internal
      */
     public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo, string $testClassName, \PHPUnit\Event\Code\ClassMethod $calledMethod)
     {
@@ -2240,7 +2240,7 @@ final readonly class AfterLastTestMethodCalled implements \PHPUnit\Event\Event
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  */
 interface AfterLastTestMethodCalledSubscriber extends \PHPUnit\Event\Subscriber
 {
@@ -2248,13 +2248,13 @@ interface AfterLastTestMethodCalledSubscriber extends \PHPUnit\Event\Subscriber
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final readonly class AfterLastTestMethodErrored implements \PHPUnit\Event\Event
 {
     /**
      * @param class-string<\PHPUnit\Framework\TestCase> $testClassName
-     * @internal 
+     * @internal
      */
     public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo, string $testClassName, \PHPUnit\Event\Code\ClassMethod $calledMethod, \PHPUnit\Event\Code\Throwable $throwable)
     {
@@ -2282,7 +2282,7 @@ final readonly class AfterLastTestMethodErrored implements \PHPUnit\Event\Event
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  */
 interface AfterLastTestMethodErroredSubscriber extends \PHPUnit\Event\Subscriber
 {
@@ -2290,13 +2290,13 @@ interface AfterLastTestMethodErroredSubscriber extends \PHPUnit\Event\Subscriber
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final readonly class AfterLastTestMethodFailed implements \PHPUnit\Event\Event
 {
     /**
      * @param class-string<\PHPUnit\Framework\TestCase> $testClassName
-     * @internal 
+     * @internal
      */
     public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo, string $testClassName, \PHPUnit\Event\Code\ClassMethod $calledMethod, \PHPUnit\Event\Code\Throwable $throwable)
     {
@@ -2324,7 +2324,7 @@ final readonly class AfterLastTestMethodFailed implements \PHPUnit\Event\Event
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  */
 interface AfterLastTestMethodFailedSubscriber extends \PHPUnit\Event\Subscriber
 {
@@ -2332,13 +2332,13 @@ interface AfterLastTestMethodFailedSubscriber extends \PHPUnit\Event\Subscriber
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final readonly class AfterLastTestMethodFinished implements \PHPUnit\Event\Event
 {
     /**
      * @param class-string<\PHPUnit\Framework\TestCase> $testClassName
-     * @internal 
+     * @internal
      */
     public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo, string $testClassName, \PHPUnit\Event\Code\ClassMethod ...$calledMethods)
     {
@@ -2366,7 +2366,7 @@ final readonly class AfterLastTestMethodFinished implements \PHPUnit\Event\Event
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  */
 interface AfterLastTestMethodFinishedSubscriber extends \PHPUnit\Event\Subscriber
 {
@@ -2374,12 +2374,12 @@ interface AfterLastTestMethodFinishedSubscriber extends \PHPUnit\Event\Subscribe
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final readonly class AfterTestMethodCalled implements \PHPUnit\Event\Event
 {
     /**
-     * @internal 
+     * @internal
      */
     public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo, \PHPUnit\Event\Code\TestMethod $test, \PHPUnit\Event\Code\ClassMethod $calledMethod)
     {
@@ -2392,7 +2392,7 @@ final readonly class AfterTestMethodCalled implements \PHPUnit\Event\Event
     }
     /**
      * @return class-string
-     * @deprecated 
+     * @deprecated
      */
     public function testClassName(): string
     {
@@ -2408,7 +2408,7 @@ final readonly class AfterTestMethodCalled implements \PHPUnit\Event\Event
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  */
 interface AfterTestMethodCalledSubscriber extends \PHPUnit\Event\Subscriber
 {
@@ -2416,12 +2416,12 @@ interface AfterTestMethodCalledSubscriber extends \PHPUnit\Event\Subscriber
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final readonly class AfterTestMethodErrored implements \PHPUnit\Event\Event
 {
     /**
-     * @internal 
+     * @internal
      */
     public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo, \PHPUnit\Event\Code\TestMethod $test, \PHPUnit\Event\Code\ClassMethod $calledMethod, \PHPUnit\Event\Code\Throwable $throwable)
     {
@@ -2434,7 +2434,7 @@ final readonly class AfterTestMethodErrored implements \PHPUnit\Event\Event
     }
     /**
      * @return class-string
-     * @deprecated 
+     * @deprecated
      */
     public function testClassName(): string
     {
@@ -2453,7 +2453,7 @@ final readonly class AfterTestMethodErrored implements \PHPUnit\Event\Event
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  */
 interface AfterTestMethodErroredSubscriber extends \PHPUnit\Event\Subscriber
 {
@@ -2461,12 +2461,12 @@ interface AfterTestMethodErroredSubscriber extends \PHPUnit\Event\Subscriber
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final readonly class AfterTestMethodFailed implements \PHPUnit\Event\Event
 {
     /**
-     * @internal 
+     * @internal
      */
     public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo, \PHPUnit\Event\Code\TestMethod $test, \PHPUnit\Event\Code\ClassMethod $calledMethod, \PHPUnit\Event\Code\Throwable $throwable)
     {
@@ -2491,7 +2491,7 @@ final readonly class AfterTestMethodFailed implements \PHPUnit\Event\Event
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  */
 interface AfterTestMethodFailedSubscriber extends \PHPUnit\Event\Subscriber
 {
@@ -2499,12 +2499,12 @@ interface AfterTestMethodFailedSubscriber extends \PHPUnit\Event\Subscriber
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final readonly class AfterTestMethodFinished implements \PHPUnit\Event\Event
 {
     /**
-     * @internal 
+     * @internal
      */
     public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo, \PHPUnit\Event\Code\TestMethod $test, \PHPUnit\Event\Code\ClassMethod ...$calledMethods)
     {
@@ -2517,7 +2517,7 @@ final readonly class AfterTestMethodFinished implements \PHPUnit\Event\Event
     }
     /**
      * @return class-string
-     * @deprecated 
+     * @deprecated
      */
     public function testClassName(): string
     {
@@ -2536,7 +2536,7 @@ final readonly class AfterTestMethodFinished implements \PHPUnit\Event\Event
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  */
 interface AfterTestMethodFinishedSubscriber extends \PHPUnit\Event\Subscriber
 {
@@ -2544,13 +2544,13 @@ interface AfterTestMethodFinishedSubscriber extends \PHPUnit\Event\Subscriber
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final readonly class BeforeFirstTestMethodCalled implements \PHPUnit\Event\Event
 {
     /**
      * @param class-string<\PHPUnit\Framework\TestCase> $testClassName
-     * @internal 
+     * @internal
      */
     public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo, string $testClassName, \PHPUnit\Event\Code\ClassMethod $calledMethod)
     {
@@ -2575,7 +2575,7 @@ final readonly class BeforeFirstTestMethodCalled implements \PHPUnit\Event\Event
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  */
 interface BeforeFirstTestMethodCalledSubscriber extends \PHPUnit\Event\Subscriber
 {
@@ -2583,13 +2583,13 @@ interface BeforeFirstTestMethodCalledSubscriber extends \PHPUnit\Event\Subscribe
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final readonly class BeforeFirstTestMethodErrored implements \PHPUnit\Event\Event
 {
     /**
      * @param class-string<\PHPUnit\Framework\TestCase> $testClassName
-     * @internal 
+     * @internal
      */
     public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo, string $testClassName, \PHPUnit\Event\Code\ClassMethod $calledMethod, \PHPUnit\Event\Code\Throwable $throwable)
     {
@@ -2617,7 +2617,7 @@ final readonly class BeforeFirstTestMethodErrored implements \PHPUnit\Event\Even
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  */
 interface BeforeFirstTestMethodErroredSubscriber extends \PHPUnit\Event\Subscriber
 {
@@ -2625,13 +2625,13 @@ interface BeforeFirstTestMethodErroredSubscriber extends \PHPUnit\Event\Subscrib
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final readonly class BeforeFirstTestMethodFailed implements \PHPUnit\Event\Event
 {
     /**
      * @param class-string<\PHPUnit\Framework\TestCase> $testClassName
-     * @internal 
+     * @internal
      */
     public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo, string $testClassName, \PHPUnit\Event\Code\ClassMethod $calledMethod, \PHPUnit\Event\Code\Throwable $throwable)
     {
@@ -2659,7 +2659,7 @@ final readonly class BeforeFirstTestMethodFailed implements \PHPUnit\Event\Event
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  */
 interface BeforeFirstTestMethodFailedSubscriber extends \PHPUnit\Event\Subscriber
 {
@@ -2667,13 +2667,13 @@ interface BeforeFirstTestMethodFailedSubscriber extends \PHPUnit\Event\Subscribe
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final readonly class BeforeFirstTestMethodFinished implements \PHPUnit\Event\Event
 {
     /**
      * @param class-string<\PHPUnit\Framework\TestCase> $testClassName
-     * @internal 
+     * @internal
      */
     public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo, string $testClassName, \PHPUnit\Event\Code\ClassMethod ...$calledMethods)
     {
@@ -2701,7 +2701,7 @@ final readonly class BeforeFirstTestMethodFinished implements \PHPUnit\Event\Eve
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  */
 interface BeforeFirstTestMethodFinishedSubscriber extends \PHPUnit\Event\Subscriber
 {
@@ -2709,12 +2709,12 @@ interface BeforeFirstTestMethodFinishedSubscriber extends \PHPUnit\Event\Subscri
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final readonly class BeforeTestMethodCalled implements \PHPUnit\Event\Event
 {
     /**
-     * @internal 
+     * @internal
      */
     public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo, \PHPUnit\Event\Code\TestMethod $test, \PHPUnit\Event\Code\ClassMethod $calledMethod)
     {
@@ -2727,7 +2727,7 @@ final readonly class BeforeTestMethodCalled implements \PHPUnit\Event\Event
     }
     /**
      * @return class-string
-     * @deprecated 
+     * @deprecated
      */
     public function testClassName(): string
     {
@@ -2743,7 +2743,7 @@ final readonly class BeforeTestMethodCalled implements \PHPUnit\Event\Event
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  */
 interface BeforeTestMethodCalledSubscriber extends \PHPUnit\Event\Subscriber
 {
@@ -2751,12 +2751,12 @@ interface BeforeTestMethodCalledSubscriber extends \PHPUnit\Event\Subscriber
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final readonly class BeforeTestMethodErrored implements \PHPUnit\Event\Event
 {
     /**
-     * @internal 
+     * @internal
      */
     public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo, \PHPUnit\Event\Code\TestMethod $test, \PHPUnit\Event\Code\ClassMethod $calledMethod, \PHPUnit\Event\Code\Throwable $throwable)
     {
@@ -2769,7 +2769,7 @@ final readonly class BeforeTestMethodErrored implements \PHPUnit\Event\Event
     }
     /**
      * @return class-string
-     * @deprecated 
+     * @deprecated
      */
     public function testClassName(): string
     {
@@ -2788,7 +2788,7 @@ final readonly class BeforeTestMethodErrored implements \PHPUnit\Event\Event
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  */
 interface BeforeTestMethodErroredSubscriber extends \PHPUnit\Event\Subscriber
 {
@@ -2796,12 +2796,12 @@ interface BeforeTestMethodErroredSubscriber extends \PHPUnit\Event\Subscriber
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final readonly class BeforeTestMethodFailed implements \PHPUnit\Event\Event
 {
     /**
-     * @internal 
+     * @internal
      */
     public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo, \PHPUnit\Event\Code\TestMethod $test, \PHPUnit\Event\Code\ClassMethod $calledMethod, \PHPUnit\Event\Code\Throwable $throwable)
     {
@@ -2826,7 +2826,7 @@ final readonly class BeforeTestMethodFailed implements \PHPUnit\Event\Event
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  */
 interface BeforeTestMethodFailedSubscriber extends \PHPUnit\Event\Subscriber
 {
@@ -2834,12 +2834,12 @@ interface BeforeTestMethodFailedSubscriber extends \PHPUnit\Event\Subscriber
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final readonly class BeforeTestMethodFinished implements \PHPUnit\Event\Event
 {
     /**
-     * @internal 
+     * @internal
      */
     public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo, \PHPUnit\Event\Code\TestMethod $test, \PHPUnit\Event\Code\ClassMethod ...$calledMethods)
     {
@@ -2852,7 +2852,7 @@ final readonly class BeforeTestMethodFinished implements \PHPUnit\Event\Event
     }
     /**
      * @return class-string
-     * @deprecated 
+     * @deprecated
      */
     public function testClassName(): string
     {
@@ -2871,7 +2871,7 @@ final readonly class BeforeTestMethodFinished implements \PHPUnit\Event\Event
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  */
 interface BeforeTestMethodFinishedSubscriber extends \PHPUnit\Event\Subscriber
 {
@@ -2879,12 +2879,12 @@ interface BeforeTestMethodFinishedSubscriber extends \PHPUnit\Event\Subscriber
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final readonly class PostConditionCalled implements \PHPUnit\Event\Event
 {
     /**
-     * @internal 
+     * @internal
      */
     public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo, \PHPUnit\Event\Code\TestMethod $test, \PHPUnit\Event\Code\ClassMethod $calledMethod)
     {
@@ -2897,7 +2897,7 @@ final readonly class PostConditionCalled implements \PHPUnit\Event\Event
     }
     /**
      * @return class-string
-     * @deprecated 
+     * @deprecated
      */
     public function testClassName(): string
     {
@@ -2913,7 +2913,7 @@ final readonly class PostConditionCalled implements \PHPUnit\Event\Event
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  */
 interface PostConditionCalledSubscriber extends \PHPUnit\Event\Subscriber
 {
@@ -2921,12 +2921,12 @@ interface PostConditionCalledSubscriber extends \PHPUnit\Event\Subscriber
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final readonly class PostConditionErrored implements \PHPUnit\Event\Event
 {
     /**
-     * @internal 
+     * @internal
      */
     public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo, \PHPUnit\Event\Code\TestMethod $test, \PHPUnit\Event\Code\ClassMethod $calledMethod, \PHPUnit\Event\Code\Throwable $throwable)
     {
@@ -2939,7 +2939,7 @@ final readonly class PostConditionErrored implements \PHPUnit\Event\Event
     }
     /**
      * @return class-string
-     * @deprecated 
+     * @deprecated
      */
     public function testClassName(): string
     {
@@ -2958,7 +2958,7 @@ final readonly class PostConditionErrored implements \PHPUnit\Event\Event
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  */
 interface PostConditionErroredSubscriber extends \PHPUnit\Event\Subscriber
 {
@@ -2966,12 +2966,12 @@ interface PostConditionErroredSubscriber extends \PHPUnit\Event\Subscriber
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final readonly class PostConditionFailed implements \PHPUnit\Event\Event
 {
     /**
-     * @internal 
+     * @internal
      */
     public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo, \PHPUnit\Event\Code\TestMethod $test, \PHPUnit\Event\Code\ClassMethod $calledMethod, \PHPUnit\Event\Code\Throwable $throwable)
     {
@@ -2996,7 +2996,7 @@ final readonly class PostConditionFailed implements \PHPUnit\Event\Event
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  */
 interface PostConditionFailedSubscriber extends \PHPUnit\Event\Subscriber
 {
@@ -3004,12 +3004,12 @@ interface PostConditionFailedSubscriber extends \PHPUnit\Event\Subscriber
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final readonly class PostConditionFinished implements \PHPUnit\Event\Event
 {
     /**
-     * @internal 
+     * @internal
      */
     public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo, \PHPUnit\Event\Code\TestMethod $test, \PHPUnit\Event\Code\ClassMethod ...$calledMethods)
     {
@@ -3022,7 +3022,7 @@ final readonly class PostConditionFinished implements \PHPUnit\Event\Event
     }
     /**
      * @return class-string
-     * @deprecated 
+     * @deprecated
      */
     public function testClassName(): string
     {
@@ -3041,7 +3041,7 @@ final readonly class PostConditionFinished implements \PHPUnit\Event\Event
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  */
 interface PostConditionFinishedSubscriber extends \PHPUnit\Event\Subscriber
 {
@@ -3049,12 +3049,12 @@ interface PostConditionFinishedSubscriber extends \PHPUnit\Event\Subscriber
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final readonly class PreConditionCalled implements \PHPUnit\Event\Event
 {
     /**
-     * @internal 
+     * @internal
      */
     public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo, \PHPUnit\Event\Code\TestMethod $test, \PHPUnit\Event\Code\ClassMethod $calledMethod)
     {
@@ -3067,7 +3067,7 @@ final readonly class PreConditionCalled implements \PHPUnit\Event\Event
     }
     /**
      * @return class-string
-     * @deprecated 
+     * @deprecated
      */
     public function testClassName(): string
     {
@@ -3083,7 +3083,7 @@ final readonly class PreConditionCalled implements \PHPUnit\Event\Event
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  */
 interface PreConditionCalledSubscriber extends \PHPUnit\Event\Subscriber
 {
@@ -3091,12 +3091,12 @@ interface PreConditionCalledSubscriber extends \PHPUnit\Event\Subscriber
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final readonly class PreConditionErrored implements \PHPUnit\Event\Event
 {
     /**
-     * @internal 
+     * @internal
      */
     public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo, \PHPUnit\Event\Code\TestMethod $test, \PHPUnit\Event\Code\ClassMethod $calledMethod, \PHPUnit\Event\Code\Throwable $throwable)
     {
@@ -3109,7 +3109,7 @@ final readonly class PreConditionErrored implements \PHPUnit\Event\Event
     }
     /**
      * @return class-string
-     * @deprecated 
+     * @deprecated
      */
     public function testClassName(): string
     {
@@ -3128,7 +3128,7 @@ final readonly class PreConditionErrored implements \PHPUnit\Event\Event
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  */
 interface PreConditionErroredSubscriber extends \PHPUnit\Event\Subscriber
 {
@@ -3136,12 +3136,12 @@ interface PreConditionErroredSubscriber extends \PHPUnit\Event\Subscriber
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final readonly class PreConditionFailed implements \PHPUnit\Event\Event
 {
     /**
-     * @internal 
+     * @internal
      */
     public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo, \PHPUnit\Event\Code\TestMethod $test, \PHPUnit\Event\Code\ClassMethod $calledMethod, \PHPUnit\Event\Code\Throwable $throwable)
     {
@@ -3166,7 +3166,7 @@ final readonly class PreConditionFailed implements \PHPUnit\Event\Event
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  */
 interface PreConditionFailedSubscriber extends \PHPUnit\Event\Subscriber
 {
@@ -3174,12 +3174,12 @@ interface PreConditionFailedSubscriber extends \PHPUnit\Event\Subscriber
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final readonly class PreConditionFinished implements \PHPUnit\Event\Event
 {
     /**
-     * @internal 
+     * @internal
      */
     public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo, \PHPUnit\Event\Code\TestMethod $test, \PHPUnit\Event\Code\ClassMethod ...$calledMethods)
     {
@@ -3192,7 +3192,7 @@ final readonly class PreConditionFinished implements \PHPUnit\Event\Event
     }
     /**
      * @return class-string
-     * @deprecated 
+     * @deprecated
      */
     public function testClassName(): string
     {
@@ -3211,7 +3211,7 @@ final readonly class PreConditionFinished implements \PHPUnit\Event\Event
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  */
 interface PreConditionFinishedSubscriber extends \PHPUnit\Event\Subscriber
 {
@@ -3219,13 +3219,13 @@ interface PreConditionFinishedSubscriber extends \PHPUnit\Event\Subscriber
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final readonly class ConsideredRisky implements \PHPUnit\Event\Event
 {
     /**
      * @param non-empty-string $message
-     * @internal 
+     * @internal
      */
     public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo, \PHPUnit\Event\Code\Test $test, string $message)
     {
@@ -3250,7 +3250,7 @@ final readonly class ConsideredRisky implements \PHPUnit\Event\Event
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  */
 interface ConsideredRiskySubscriber extends \PHPUnit\Event\Subscriber
 {
@@ -3258,7 +3258,7 @@ interface ConsideredRiskySubscriber extends \PHPUnit\Event\Subscriber
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final readonly class DeprecationTriggered implements \PHPUnit\Event\Event
 {
@@ -3267,7 +3267,7 @@ final readonly class DeprecationTriggered implements \PHPUnit\Event\Event
      * @param non-empty-string $file
      * @param positive-int     $line
      * @param non-empty-string $stackTrace
-     * @internal 
+     * @internal
      */
     public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo, \PHPUnit\Event\Code\Test $test, string $message, string $file, int $line, bool $suppressed, bool $ignoredByBaseline, bool $ignoredByTest, \PHPUnit\Event\Code\IssueTrigger\IssueTrigger $trigger, string $stackTrace)
     {
@@ -3322,7 +3322,7 @@ final readonly class DeprecationTriggered implements \PHPUnit\Event\Event
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  */
 interface DeprecationTriggeredSubscriber extends \PHPUnit\Event\Subscriber
 {
@@ -3330,7 +3330,7 @@ interface DeprecationTriggeredSubscriber extends \PHPUnit\Event\Subscriber
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final readonly class ErrorTriggered implements \PHPUnit\Event\Event
 {
@@ -3338,7 +3338,7 @@ final readonly class ErrorTriggered implements \PHPUnit\Event\Event
      * @param non-empty-string $message
      * @param non-empty-string $file
      * @param positive-int     $line
-     * @internal 
+     * @internal
      */
     public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo, \PHPUnit\Event\Code\Test $test, string $message, string $file, int $line, bool $suppressed)
     {
@@ -3378,7 +3378,7 @@ final readonly class ErrorTriggered implements \PHPUnit\Event\Event
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  */
 interface ErrorTriggeredSubscriber extends \PHPUnit\Event\Subscriber
 {
@@ -3386,7 +3386,7 @@ interface ErrorTriggeredSubscriber extends \PHPUnit\Event\Subscriber
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final readonly class NoticeTriggered implements \PHPUnit\Event\Event
 {
@@ -3394,7 +3394,7 @@ final readonly class NoticeTriggered implements \PHPUnit\Event\Event
      * @param non-empty-string $message
      * @param non-empty-string $file
      * @param positive-int     $line
-     * @internal 
+     * @internal
      */
     public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo, \PHPUnit\Event\Code\Test $test, string $message, string $file, int $line, bool $suppressed, bool $ignoredByBaseline)
     {
@@ -3437,7 +3437,7 @@ final readonly class NoticeTriggered implements \PHPUnit\Event\Event
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  */
 interface NoticeTriggeredSubscriber extends \PHPUnit\Event\Subscriber
 {
@@ -3445,7 +3445,7 @@ interface NoticeTriggeredSubscriber extends \PHPUnit\Event\Subscriber
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final readonly class PhpDeprecationTriggered implements \PHPUnit\Event\Event
 {
@@ -3453,7 +3453,7 @@ final readonly class PhpDeprecationTriggered implements \PHPUnit\Event\Event
      * @param non-empty-string $message
      * @param non-empty-string $file
      * @param positive-int     $line
-     * @internal 
+     * @internal
      */
     public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo, \PHPUnit\Event\Code\Test $test, string $message, string $file, int $line, bool $suppressed, bool $ignoredByBaseline, bool $ignoredByTest, \PHPUnit\Event\Code\IssueTrigger\IssueTrigger $trigger)
     {
@@ -3502,7 +3502,7 @@ final readonly class PhpDeprecationTriggered implements \PHPUnit\Event\Event
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  */
 interface PhpDeprecationTriggeredSubscriber extends \PHPUnit\Event\Subscriber
 {
@@ -3510,7 +3510,7 @@ interface PhpDeprecationTriggeredSubscriber extends \PHPUnit\Event\Subscriber
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final readonly class PhpNoticeTriggered implements \PHPUnit\Event\Event
 {
@@ -3518,7 +3518,7 @@ final readonly class PhpNoticeTriggered implements \PHPUnit\Event\Event
      * @param non-empty-string $message
      * @param non-empty-string $file
      * @param positive-int     $line
-     * @internal 
+     * @internal
      */
     public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo, \PHPUnit\Event\Code\Test $test, string $message, string $file, int $line, bool $suppressed, bool $ignoredByBaseline)
     {
@@ -3561,7 +3561,7 @@ final readonly class PhpNoticeTriggered implements \PHPUnit\Event\Event
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  */
 interface PhpNoticeTriggeredSubscriber extends \PHPUnit\Event\Subscriber
 {
@@ -3569,7 +3569,7 @@ interface PhpNoticeTriggeredSubscriber extends \PHPUnit\Event\Subscriber
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final readonly class PhpWarningTriggered implements \PHPUnit\Event\Event
 {
@@ -3577,7 +3577,7 @@ final readonly class PhpWarningTriggered implements \PHPUnit\Event\Event
      * @param non-empty-string $message
      * @param non-empty-string $file
      * @param positive-int     $line
-     * @internal 
+     * @internal
      */
     public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo, \PHPUnit\Event\Code\Test $test, string $message, string $file, int $line, bool $suppressed, bool $ignoredByBaseline)
     {
@@ -3620,7 +3620,7 @@ final readonly class PhpWarningTriggered implements \PHPUnit\Event\Event
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  */
 interface PhpWarningTriggeredSubscriber extends \PHPUnit\Event\Subscriber
 {
@@ -3628,13 +3628,13 @@ interface PhpWarningTriggeredSubscriber extends \PHPUnit\Event\Subscriber
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final readonly class PhpunitDeprecationTriggered implements \PHPUnit\Event\Event
 {
     /**
      * @param non-empty-string $message
-     * @internal 
+     * @internal
      */
     public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo, \PHPUnit\Event\Code\Test $test, string $message)
     {
@@ -3659,7 +3659,7 @@ final readonly class PhpunitDeprecationTriggered implements \PHPUnit\Event\Event
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  */
 interface PhpunitDeprecationTriggeredSubscriber extends \PHPUnit\Event\Subscriber
 {
@@ -3667,13 +3667,13 @@ interface PhpunitDeprecationTriggeredSubscriber extends \PHPUnit\Event\Subscribe
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final readonly class PhpunitErrorTriggered implements \PHPUnit\Event\Event
 {
     /**
      * @param non-empty-string $message
-     * @internal 
+     * @internal
      */
     public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo, \PHPUnit\Event\Code\Test $test, string $message)
     {
@@ -3698,7 +3698,7 @@ final readonly class PhpunitErrorTriggered implements \PHPUnit\Event\Event
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  */
 interface PhpunitErrorTriggeredSubscriber extends \PHPUnit\Event\Subscriber
 {
@@ -3706,13 +3706,13 @@ interface PhpunitErrorTriggeredSubscriber extends \PHPUnit\Event\Subscriber
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final readonly class PhpunitNoticeTriggered implements \PHPUnit\Event\Event
 {
     /**
      * @param non-empty-string $message
-     * @internal 
+     * @internal
      */
     public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo, \PHPUnit\Event\Code\Test $test, string $message)
     {
@@ -3737,7 +3737,7 @@ final readonly class PhpunitNoticeTriggered implements \PHPUnit\Event\Event
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  */
 interface PhpunitNoticeTriggeredSubscriber extends \PHPUnit\Event\Subscriber
 {
@@ -3745,13 +3745,13 @@ interface PhpunitNoticeTriggeredSubscriber extends \PHPUnit\Event\Subscriber
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final readonly class PhpunitWarningTriggered implements \PHPUnit\Event\Event
 {
     /**
      * @param non-empty-string $message
-     * @internal 
+     * @internal
      */
     public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo, \PHPUnit\Event\Code\Test $test, string $message, bool $ignoredByTest)
     {
@@ -3779,7 +3779,7 @@ final readonly class PhpunitWarningTriggered implements \PHPUnit\Event\Event
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  */
 interface PhpunitWarningTriggeredSubscriber extends \PHPUnit\Event\Subscriber
 {
@@ -3787,7 +3787,7 @@ interface PhpunitWarningTriggeredSubscriber extends \PHPUnit\Event\Subscriber
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final readonly class WarningTriggered implements \PHPUnit\Event\Event
 {
@@ -3795,7 +3795,7 @@ final readonly class WarningTriggered implements \PHPUnit\Event\Event
      * @param non-empty-string $message
      * @param non-empty-string $file
      * @param positive-int     $line
-     * @internal 
+     * @internal
      */
     public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo, \PHPUnit\Event\Code\Test $test, string $message, string $file, int $line, bool $suppressed, bool $ignoredByBaseline)
     {
@@ -3838,7 +3838,7 @@ final readonly class WarningTriggered implements \PHPUnit\Event\Event
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  */
 interface WarningTriggeredSubscriber extends \PHPUnit\Event\Subscriber
 {
@@ -3846,12 +3846,12 @@ interface WarningTriggeredSubscriber extends \PHPUnit\Event\Subscriber
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final readonly class DataProviderMethodCalled implements \PHPUnit\Event\Event
 {
     /**
-     * @internal 
+     * @internal
      */
     public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo, \PHPUnit\Event\Code\ClassMethod $testMethod, \PHPUnit\Event\Code\ClassMethod $dataProviderMethod)
     {
@@ -3873,7 +3873,7 @@ final readonly class DataProviderMethodCalled implements \PHPUnit\Event\Event
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  */
 interface DataProviderMethodCalledSubscriber extends \PHPUnit\Event\Subscriber
 {
@@ -3881,12 +3881,12 @@ interface DataProviderMethodCalledSubscriber extends \PHPUnit\Event\Subscriber
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final readonly class DataProviderMethodFinished implements \PHPUnit\Event\Event
 {
     /**
-     * @internal 
+     * @internal
      */
     public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo, \PHPUnit\Event\Code\ClassMethod $testMethod, \PHPUnit\Event\Code\ClassMethod ...$calledMethods)
     {
@@ -3911,7 +3911,7 @@ final readonly class DataProviderMethodFinished implements \PHPUnit\Event\Event
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  */
 interface DataProviderMethodFinishedSubscriber extends \PHPUnit\Event\Subscriber
 {
@@ -3919,13 +3919,13 @@ interface DataProviderMethodFinishedSubscriber extends \PHPUnit\Event\Subscriber
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final readonly class Finished implements \PHPUnit\Event\Event
 {
     /**
      * @param non-negative-int $numberOfAssertionsPerformed
-     * @internal 
+     * @internal
      */
     public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo, \PHPUnit\Event\Code\Test $test, int $numberOfAssertionsPerformed)
     {
@@ -3950,7 +3950,7 @@ final readonly class Finished implements \PHPUnit\Event\Event
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  */
 interface FinishedSubscriber extends \PHPUnit\Event\Subscriber
 {
@@ -3958,12 +3958,12 @@ interface FinishedSubscriber extends \PHPUnit\Event\Subscriber
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final readonly class PreparationErrored implements \PHPUnit\Event\Event
 {
     /**
-     * @internal 
+     * @internal
      */
     public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo, \PHPUnit\Event\Code\Test $test, \PHPUnit\Event\Code\Throwable $throwable)
     {
@@ -3985,7 +3985,7 @@ final readonly class PreparationErrored implements \PHPUnit\Event\Event
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  */
 interface PreparationErroredSubscriber extends \PHPUnit\Event\Subscriber
 {
@@ -3993,12 +3993,12 @@ interface PreparationErroredSubscriber extends \PHPUnit\Event\Subscriber
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final readonly class PreparationFailed implements \PHPUnit\Event\Event
 {
     /**
-     * @internal 
+     * @internal
      */
     public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo, \PHPUnit\Event\Code\Test $test, \PHPUnit\Event\Code\Throwable $throwable)
     {
@@ -4020,7 +4020,7 @@ final readonly class PreparationFailed implements \PHPUnit\Event\Event
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  */
 interface PreparationFailedSubscriber extends \PHPUnit\Event\Subscriber
 {
@@ -4028,12 +4028,12 @@ interface PreparationFailedSubscriber extends \PHPUnit\Event\Subscriber
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final readonly class PreparationStarted implements \PHPUnit\Event\Event
 {
     /**
-     * @internal 
+     * @internal
      */
     public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo, \PHPUnit\Event\Code\Test $test)
     {
@@ -4052,7 +4052,7 @@ final readonly class PreparationStarted implements \PHPUnit\Event\Event
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  */
 interface PreparationStartedSubscriber extends \PHPUnit\Event\Subscriber
 {
@@ -4060,12 +4060,12 @@ interface PreparationStartedSubscriber extends \PHPUnit\Event\Subscriber
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final readonly class Prepared implements \PHPUnit\Event\Event
 {
     /**
-     * @internal 
+     * @internal
      */
     public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo, \PHPUnit\Event\Code\Test $test)
     {
@@ -4084,7 +4084,7 @@ final readonly class Prepared implements \PHPUnit\Event\Event
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  */
 interface PreparedSubscriber extends \PHPUnit\Event\Subscriber
 {
@@ -4092,12 +4092,12 @@ interface PreparedSubscriber extends \PHPUnit\Event\Subscriber
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final readonly class Errored implements \PHPUnit\Event\Event
 {
     /**
-     * @internal 
+     * @internal
      */
     public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo, \PHPUnit\Event\Code\Test $test, \PHPUnit\Event\Code\Throwable $throwable)
     {
@@ -4119,7 +4119,7 @@ final readonly class Errored implements \PHPUnit\Event\Event
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  */
 interface ErroredSubscriber extends \PHPUnit\Event\Subscriber
 {
@@ -4127,12 +4127,12 @@ interface ErroredSubscriber extends \PHPUnit\Event\Subscriber
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final readonly class Failed implements \PHPUnit\Event\Event
 {
     /**
-     * @internal 
+     * @internal
      */
     public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo, \PHPUnit\Event\Code\Test $test, \PHPUnit\Event\Code\Throwable $throwable, ?\PHPUnit\Event\Code\ComparisonFailure $comparisonFailure)
     {
@@ -4166,7 +4166,7 @@ final readonly class Failed implements \PHPUnit\Event\Event
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  */
 interface FailedSubscriber extends \PHPUnit\Event\Subscriber
 {
@@ -4174,12 +4174,12 @@ interface FailedSubscriber extends \PHPUnit\Event\Subscriber
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final readonly class MarkedIncomplete implements \PHPUnit\Event\Event
 {
     /**
-     * @internal 
+     * @internal
      */
     public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo, \PHPUnit\Event\Code\Test $test, \PHPUnit\Event\Code\Throwable $throwable)
     {
@@ -4201,7 +4201,7 @@ final readonly class MarkedIncomplete implements \PHPUnit\Event\Event
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  */
 interface MarkedIncompleteSubscriber extends \PHPUnit\Event\Subscriber
 {
@@ -4209,12 +4209,12 @@ interface MarkedIncompleteSubscriber extends \PHPUnit\Event\Subscriber
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final readonly class Passed implements \PHPUnit\Event\Event
 {
     /**
-     * @internal 
+     * @internal
      */
     public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo, \PHPUnit\Event\Code\Test $test)
     {
@@ -4233,7 +4233,7 @@ final readonly class Passed implements \PHPUnit\Event\Event
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  */
 interface PassedSubscriber extends \PHPUnit\Event\Subscriber
 {
@@ -4241,12 +4241,12 @@ interface PassedSubscriber extends \PHPUnit\Event\Subscriber
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final readonly class Skipped implements \PHPUnit\Event\Event
 {
     /**
-     * @internal 
+     * @internal
      */
     public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo, \PHPUnit\Event\Code\Test $test, string $message)
     {
@@ -4268,7 +4268,7 @@ final readonly class Skipped implements \PHPUnit\Event\Event
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  */
 interface SkippedSubscriber extends \PHPUnit\Event\Subscriber
 {
@@ -4276,13 +4276,13 @@ interface SkippedSubscriber extends \PHPUnit\Event\Subscriber
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final readonly class PrintedUnexpectedOutput implements \PHPUnit\Event\Event
 {
     /**
      * @param non-empty-string $output
-     * @internal 
+     * @internal
      */
     public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo, string $output)
     {
@@ -4304,7 +4304,7 @@ final readonly class PrintedUnexpectedOutput implements \PHPUnit\Event\Event
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  */
 interface PrintedUnexpectedOutputSubscriber extends \PHPUnit\Event\Subscriber
 {
@@ -4312,13 +4312,13 @@ interface PrintedUnexpectedOutputSubscriber extends \PHPUnit\Event\Subscriber
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final readonly class MockObjectCreated implements \PHPUnit\Event\Event
 {
     /**
      * @param class-string $className
-     * @internal 
+     * @internal
      */
     public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo, string $className)
     {
@@ -4340,7 +4340,7 @@ final readonly class MockObjectCreated implements \PHPUnit\Event\Event
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  */
 interface MockObjectCreatedSubscriber extends \PHPUnit\Event\Subscriber
 {
@@ -4348,13 +4348,13 @@ interface MockObjectCreatedSubscriber extends \PHPUnit\Event\Subscriber
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final readonly class MockObjectForIntersectionOfInterfacesCreated implements \PHPUnit\Event\Event
 {
     /**
      * @param list<class-string> $interfaces
-     * @internal 
+     * @internal
      */
     public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo, array $interfaces)
     {
@@ -4376,7 +4376,7 @@ final readonly class MockObjectForIntersectionOfInterfacesCreated implements \PH
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  */
 interface MockObjectForIntersectionOfInterfacesCreatedSubscriber extends \PHPUnit\Event\Subscriber
 {
@@ -4384,13 +4384,13 @@ interface MockObjectForIntersectionOfInterfacesCreatedSubscriber extends \PHPUni
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final readonly class PartialMockObjectCreated implements \PHPUnit\Event\Event
 {
     /**
      * @param class-string $className
-     * @internal 
+     * @internal
      */
     public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo, string $className, string ...$methodNames)
     {
@@ -4418,7 +4418,7 @@ final readonly class PartialMockObjectCreated implements \PHPUnit\Event\Event
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  */
 interface PartialMockObjectCreatedSubscriber extends \PHPUnit\Event\Subscriber
 {
@@ -4426,13 +4426,13 @@ interface PartialMockObjectCreatedSubscriber extends \PHPUnit\Event\Subscriber
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final readonly class TestStubCreated implements \PHPUnit\Event\Event
 {
     /**
      * @param class-string $className
-     * @internal 
+     * @internal
      */
     public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo, string $className)
     {
@@ -4454,7 +4454,7 @@ final readonly class TestStubCreated implements \PHPUnit\Event\Event
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  */
 interface TestStubCreatedSubscriber extends \PHPUnit\Event\Subscriber
 {
@@ -4462,13 +4462,13 @@ interface TestStubCreatedSubscriber extends \PHPUnit\Event\Subscriber
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final readonly class TestStubForIntersectionOfInterfacesCreated implements \PHPUnit\Event\Event
 {
     /**
      * @param list<class-string> $interfaces
-     * @internal 
+     * @internal
      */
     public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo, array $interfaces)
     {
@@ -4490,14 +4490,14 @@ final readonly class TestStubForIntersectionOfInterfacesCreated implements \PHPU
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  */
 interface TestStubForIntersectionOfInterfacesCreatedSubscriber extends \PHPUnit\Event\Subscriber
 {
     public function notify(\PHPUnit\Event\Test\TestStubForIntersectionOfInterfacesCreated $event): void;
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final class NoComparisonFailureException extends \RuntimeException implements \PHPUnit\Event\Exception
 {
@@ -4505,14 +4505,14 @@ final class NoComparisonFailureException extends \RuntimeException implements \P
 namespace PHPUnit\Event\TestData;
 
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final class NoDataSetFromDataProviderException extends \RuntimeException implements \PHPUnit\Event\Exception
 {
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final readonly class DataFromDataProvider extends \PHPUnit\Event\TestData\TestData
 {
@@ -4523,7 +4523,7 @@ final readonly class DataFromDataProvider extends \PHPUnit\Event\TestData\TestDa
     {
     }
     /**
-     * @internal 
+     * @internal
      */
     public function dataAsStringForResultOutput(): string
     {
@@ -4534,7 +4534,7 @@ final readonly class DataFromDataProvider extends \PHPUnit\Event\TestData\TestDa
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final readonly class DataFromTestDependency extends \PHPUnit\Event\TestData\TestData
 {
@@ -4547,7 +4547,7 @@ final readonly class DataFromTestDependency extends \PHPUnit\Event\TestData\Test
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 abstract readonly class TestData
 {
@@ -4572,7 +4572,7 @@ abstract readonly class TestData
 }
 /**
  * @template-implements \IteratorAggregate<non-negative-int, TestData>
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final readonly class TestDataCollection implements \Countable, \IteratorAggregate
 {
@@ -4609,12 +4609,12 @@ final readonly class TestDataCollection implements \Countable, \IteratorAggregat
 }
 /**
  * @template-implements \Iterator<non-negative-int, TestData>
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final class TestDataCollectionIterator implements \Iterator
 {
     /**
-     * @internal 
+     * @internal
      */
     public function __construct(\PHPUnit\Event\TestData\TestDataCollection $data)
     {
@@ -4642,13 +4642,13 @@ namespace PHPUnit\Event\TestRunner;
 
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final readonly class BootstrapFinished implements \PHPUnit\Event\Event
 {
     /**
      * @param non-empty-string $filename
-     * @internal 
+     * @internal
      */
     public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo, string $filename)
     {
@@ -4670,7 +4670,7 @@ final readonly class BootstrapFinished implements \PHPUnit\Event\Event
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  */
 interface BootstrapFinishedSubscriber extends \PHPUnit\Event\Subscriber
 {
@@ -4678,12 +4678,12 @@ interface BootstrapFinishedSubscriber extends \PHPUnit\Event\Subscriber
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final readonly class ChildProcessErrored implements \PHPUnit\Event\Event
 {
     /**
-     * @internal 
+     * @internal
      */
     public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo)
     {
@@ -4699,7 +4699,7 @@ final readonly class ChildProcessErrored implements \PHPUnit\Event\Event
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  */
 interface ChildProcessErroredSubscriber extends \PHPUnit\Event\Subscriber
 {
@@ -4707,12 +4707,12 @@ interface ChildProcessErroredSubscriber extends \PHPUnit\Event\Subscriber
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final readonly class ChildProcessFinished implements \PHPUnit\Event\Event
 {
     /**
-     * @internal 
+     * @internal
      */
     public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo, string $stdout, string $stderr)
     {
@@ -4734,7 +4734,7 @@ final readonly class ChildProcessFinished implements \PHPUnit\Event\Event
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  */
 interface ChildProcessFinishedSubscriber extends \PHPUnit\Event\Subscriber
 {
@@ -4742,12 +4742,12 @@ interface ChildProcessFinishedSubscriber extends \PHPUnit\Event\Subscriber
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final readonly class ChildProcessStarted implements \PHPUnit\Event\Event
 {
     /**
-     * @internal 
+     * @internal
      */
     public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo)
     {
@@ -4763,19 +4763,19 @@ final readonly class ChildProcessStarted implements \PHPUnit\Event\Event
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  */
 interface ChildProcessStartedSubscriber extends \PHPUnit\Event\Subscriber
 {
     public function notify(\PHPUnit\Event\TestRunner\ChildProcessStarted $event): void;
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final readonly class Configured implements \PHPUnit\Event\Event
 {
     /**
-     * @internal 
+     * @internal
      */
     public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo, \PHPUnit\TextUI\Configuration\Configuration $configuration)
     {
@@ -4794,7 +4794,7 @@ final readonly class Configured implements \PHPUnit\Event\Event
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  */
 interface ConfiguredSubscriber extends \PHPUnit\Event\Subscriber
 {
@@ -4802,13 +4802,13 @@ interface ConfiguredSubscriber extends \PHPUnit\Event\Subscriber
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final readonly class DeprecationTriggered implements \PHPUnit\Event\Event
 {
     /**
      * @param non-empty-string $message
-     * @internal 
+     * @internal
      */
     public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo, string $message)
     {
@@ -4830,7 +4830,7 @@ final readonly class DeprecationTriggered implements \PHPUnit\Event\Event
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  */
 interface DeprecationTriggeredSubscriber extends \PHPUnit\Event\Subscriber
 {
@@ -4838,12 +4838,12 @@ interface DeprecationTriggeredSubscriber extends \PHPUnit\Event\Subscriber
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final readonly class EventFacadeSealed implements \PHPUnit\Event\Event
 {
     /**
-     * @internal 
+     * @internal
      */
     public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo)
     {
@@ -4859,7 +4859,7 @@ final readonly class EventFacadeSealed implements \PHPUnit\Event\Event
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  */
 interface EventFacadeSealedSubscriber extends \PHPUnit\Event\Subscriber
 {
@@ -4867,12 +4867,12 @@ interface EventFacadeSealedSubscriber extends \PHPUnit\Event\Subscriber
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final readonly class ExecutionAborted implements \PHPUnit\Event\Event
 {
     /**
-     * @internal 
+     * @internal
      */
     public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo)
     {
@@ -4888,7 +4888,7 @@ final readonly class ExecutionAborted implements \PHPUnit\Event\Event
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  */
 interface ExecutionAbortedSubscriber extends \PHPUnit\Event\Subscriber
 {
@@ -4896,12 +4896,12 @@ interface ExecutionAbortedSubscriber extends \PHPUnit\Event\Subscriber
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final readonly class ExecutionFinished implements \PHPUnit\Event\Event
 {
     /**
-     * @internal 
+     * @internal
      */
     public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo)
     {
@@ -4917,7 +4917,7 @@ final readonly class ExecutionFinished implements \PHPUnit\Event\Event
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  */
 interface ExecutionFinishedSubscriber extends \PHPUnit\Event\Subscriber
 {
@@ -4925,12 +4925,12 @@ interface ExecutionFinishedSubscriber extends \PHPUnit\Event\Subscriber
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final readonly class ExecutionStarted implements \PHPUnit\Event\Event
 {
     /**
-     * @internal 
+     * @internal
      */
     public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo, \PHPUnit\Event\TestSuite\TestSuite $testSuite)
     {
@@ -4949,7 +4949,7 @@ final readonly class ExecutionStarted implements \PHPUnit\Event\Event
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  */
 interface ExecutionStartedSubscriber extends \PHPUnit\Event\Subscriber
 {
@@ -4957,14 +4957,14 @@ interface ExecutionStartedSubscriber extends \PHPUnit\Event\Subscriber
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final readonly class ExtensionBootstrapped implements \PHPUnit\Event\Event
 {
     /**
      * @param class-string          $className
      * @param array<string, string> $parameters
-     * @internal 
+     * @internal
      */
     public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo, string $className, array $parameters)
     {
@@ -4992,7 +4992,7 @@ final readonly class ExtensionBootstrapped implements \PHPUnit\Event\Event
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  */
 interface ExtensionBootstrappedSubscriber extends \PHPUnit\Event\Subscriber
 {
@@ -5000,7 +5000,7 @@ interface ExtensionBootstrappedSubscriber extends \PHPUnit\Event\Subscriber
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final readonly class ExtensionLoadedFromPhar implements \PHPUnit\Event\Event
 {
@@ -5008,7 +5008,7 @@ final readonly class ExtensionLoadedFromPhar implements \PHPUnit\Event\Event
      * @param non-empty-string $filename
      * @param non-empty-string $name
      * @param non-empty-string $version
-     * @internal 
+     * @internal
      */
     public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo, string $filename, string $name, string $version)
     {
@@ -5042,7 +5042,7 @@ final readonly class ExtensionLoadedFromPhar implements \PHPUnit\Event\Event
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  */
 interface ExtensionLoadedFromPharSubscriber extends \PHPUnit\Event\Subscriber
 {
@@ -5050,12 +5050,12 @@ interface ExtensionLoadedFromPharSubscriber extends \PHPUnit\Event\Subscriber
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final readonly class Finished implements \PHPUnit\Event\Event
 {
     /**
-     * @internal 
+     * @internal
      */
     public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo)
     {
@@ -5071,7 +5071,7 @@ final readonly class Finished implements \PHPUnit\Event\Event
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  */
 interface FinishedSubscriber extends \PHPUnit\Event\Subscriber
 {
@@ -5079,12 +5079,12 @@ interface FinishedSubscriber extends \PHPUnit\Event\Subscriber
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final readonly class GarbageCollectionDisabled implements \PHPUnit\Event\Event
 {
     /**
-     * @internal 
+     * @internal
      */
     public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo)
     {
@@ -5100,7 +5100,7 @@ final readonly class GarbageCollectionDisabled implements \PHPUnit\Event\Event
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  */
 interface GarbageCollectionDisabledSubscriber extends \PHPUnit\Event\Subscriber
 {
@@ -5108,12 +5108,12 @@ interface GarbageCollectionDisabledSubscriber extends \PHPUnit\Event\Subscriber
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final readonly class GarbageCollectionEnabled implements \PHPUnit\Event\Event
 {
     /**
-     * @internal 
+     * @internal
      */
     public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo)
     {
@@ -5129,7 +5129,7 @@ final readonly class GarbageCollectionEnabled implements \PHPUnit\Event\Event
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  */
 interface GarbageCollectionEnabledSubscriber extends \PHPUnit\Event\Subscriber
 {
@@ -5137,12 +5137,12 @@ interface GarbageCollectionEnabledSubscriber extends \PHPUnit\Event\Subscriber
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final readonly class GarbageCollectionTriggered implements \PHPUnit\Event\Event
 {
     /**
-     * @internal 
+     * @internal
      */
     public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo)
     {
@@ -5158,7 +5158,7 @@ final readonly class GarbageCollectionTriggered implements \PHPUnit\Event\Event
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  */
 interface GarbageCollectionTriggeredSubscriber extends \PHPUnit\Event\Subscriber
 {
@@ -5166,12 +5166,12 @@ interface GarbageCollectionTriggeredSubscriber extends \PHPUnit\Event\Subscriber
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final readonly class NoticeTriggered implements \PHPUnit\Event\Event
 {
     /**
-     * @internal 
+     * @internal
      */
     public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo, string $message)
     {
@@ -5190,7 +5190,7 @@ final readonly class NoticeTriggered implements \PHPUnit\Event\Event
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  */
 interface NoticeTriggeredSubscriber extends \PHPUnit\Event\Subscriber
 {
@@ -5198,12 +5198,12 @@ interface NoticeTriggeredSubscriber extends \PHPUnit\Event\Subscriber
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final readonly class Started implements \PHPUnit\Event\Event
 {
     /**
-     * @internal 
+     * @internal
      */
     public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo)
     {
@@ -5219,7 +5219,7 @@ final readonly class Started implements \PHPUnit\Event\Event
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  */
 interface StartedSubscriber extends \PHPUnit\Event\Subscriber
 {
@@ -5227,14 +5227,14 @@ interface StartedSubscriber extends \PHPUnit\Event\Subscriber
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final readonly class StaticAnalysisForCodeCoverageFinished implements \PHPUnit\Event\Event
 {
     /**
      * @param non-negative-int $cacheHits
      * @param non-negative-int $cacheMisses
-     * @internal 
+     * @internal
      */
     public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo, int $cacheHits, int $cacheMisses)
     {
@@ -5262,7 +5262,7 @@ final readonly class StaticAnalysisForCodeCoverageFinished implements \PHPUnit\E
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  */
 interface StaticAnalysisForCodeCoverageFinishedSubscriber extends \PHPUnit\Event\Subscriber
 {
@@ -5270,12 +5270,12 @@ interface StaticAnalysisForCodeCoverageFinishedSubscriber extends \PHPUnit\Event
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final readonly class StaticAnalysisForCodeCoverageStarted implements \PHPUnit\Event\Event
 {
     /**
-     * @internal 
+     * @internal
      */
     public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo)
     {
@@ -5291,7 +5291,7 @@ final readonly class StaticAnalysisForCodeCoverageStarted implements \PHPUnit\Ev
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  */
 interface StaticAnalysisForCodeCoverageStartedSubscriber extends \PHPUnit\Event\Subscriber
 {
@@ -5299,13 +5299,13 @@ interface StaticAnalysisForCodeCoverageStartedSubscriber extends \PHPUnit\Event\
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final readonly class WarningTriggered implements \PHPUnit\Event\Event
 {
     /**
      * @param non-empty-string $message
-     * @internal 
+     * @internal
      */
     public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo, string $message)
     {
@@ -5327,7 +5327,7 @@ final readonly class WarningTriggered implements \PHPUnit\Event\Event
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  */
 interface WarningTriggeredSubscriber extends \PHPUnit\Event\Subscriber
 {
@@ -5337,12 +5337,12 @@ namespace PHPUnit\Event\TestSuite;
 
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final readonly class Filtered implements \PHPUnit\Event\Event
 {
     /**
-     * @internal 
+     * @internal
      */
     public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo, \PHPUnit\Event\TestSuite\TestSuite $testSuite)
     {
@@ -5361,7 +5361,7 @@ final readonly class Filtered implements \PHPUnit\Event\Event
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  */
 interface FilteredSubscriber extends \PHPUnit\Event\Subscriber
 {
@@ -5369,12 +5369,12 @@ interface FilteredSubscriber extends \PHPUnit\Event\Subscriber
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final readonly class Finished implements \PHPUnit\Event\Event
 {
     /**
-     * @internal 
+     * @internal
      */
     public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo, \PHPUnit\Event\TestSuite\TestSuite $testSuite)
     {
@@ -5393,7 +5393,7 @@ final readonly class Finished implements \PHPUnit\Event\Event
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  */
 interface FinishedSubscriber extends \PHPUnit\Event\Subscriber
 {
@@ -5401,12 +5401,12 @@ interface FinishedSubscriber extends \PHPUnit\Event\Subscriber
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final readonly class Loaded implements \PHPUnit\Event\Event
 {
     /**
-     * @internal 
+     * @internal
      */
     public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo, \PHPUnit\Event\TestSuite\TestSuite $testSuite)
     {
@@ -5425,7 +5425,7 @@ final readonly class Loaded implements \PHPUnit\Event\Event
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  */
 interface LoadedSubscriber extends \PHPUnit\Event\Subscriber
 {
@@ -5433,12 +5433,12 @@ interface LoadedSubscriber extends \PHPUnit\Event\Subscriber
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final readonly class Skipped implements \PHPUnit\Event\Event
 {
     /**
-     * @internal 
+     * @internal
      */
     public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo, \PHPUnit\Event\TestSuite\TestSuite $testSuite, string $message)
     {
@@ -5460,7 +5460,7 @@ final readonly class Skipped implements \PHPUnit\Event\Event
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  */
 interface SkippedSubscriber extends \PHPUnit\Event\Subscriber
 {
@@ -5468,12 +5468,12 @@ interface SkippedSubscriber extends \PHPUnit\Event\Subscriber
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final readonly class Sorted implements \PHPUnit\Event\Event
 {
     /**
-     * @internal 
+     * @internal
      */
     public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo, int $executionOrder, int $executionOrderDefects, bool $resolveDependencies)
     {
@@ -5498,7 +5498,7 @@ final readonly class Sorted implements \PHPUnit\Event\Event
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  */
 interface SortedSubscriber extends \PHPUnit\Event\Subscriber
 {
@@ -5506,12 +5506,12 @@ interface SortedSubscriber extends \PHPUnit\Event\Subscriber
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final readonly class Started implements \PHPUnit\Event\Event
 {
     /**
-     * @internal 
+     * @internal
      */
     public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo, \PHPUnit\Event\TestSuite\TestSuite $testSuite)
     {
@@ -5530,7 +5530,7 @@ final readonly class Started implements \PHPUnit\Event\Event
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  */
 interface StartedSubscriber extends \PHPUnit\Event\Subscriber
 {
@@ -5538,13 +5538,13 @@ interface StartedSubscriber extends \PHPUnit\Event\Subscriber
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 abstract readonly class TestSuite
 {
     /**
      * @param non-empty-string $name
-     * @internal 
+     * @internal
      */
     public function __construct(string $name, int $size, \PHPUnit\Event\Code\TestCollection $tests)
     {
@@ -5581,8 +5581,8 @@ abstract readonly class TestSuite
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class TestSuiteBuilder
 {
@@ -5595,13 +5595,13 @@ final readonly class TestSuiteBuilder
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final readonly class TestSuiteForTestClass extends \PHPUnit\Event\TestSuite\TestSuite
 {
     /**
      * @param class-string $name
-     * @internal 
+     * @internal
      */
     public function __construct(string $name, int $size, \PHPUnit\Event\Code\TestCollection $tests, string $file, int $line)
     {
@@ -5624,7 +5624,7 @@ final readonly class TestSuiteForTestClass extends \PHPUnit\Event\TestSuite\Test
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final readonly class TestSuiteForTestMethodWithDataProvider extends \PHPUnit\Event\TestSuite\TestSuite
 {
@@ -5632,7 +5632,7 @@ final readonly class TestSuiteForTestMethodWithDataProvider extends \PHPUnit\Eve
      * @param non-empty-string $name
      * @param class-string     $className
      * @param non-empty-string $methodName
-     * @internal 
+     * @internal
      */
     public function __construct(string $name, int $size, \PHPUnit\Event\Code\TestCollection $tests, string $className, string $methodName, string $file, int $line)
     {
@@ -5661,7 +5661,7 @@ final readonly class TestSuiteForTestMethodWithDataProvider extends \PHPUnit\Eve
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final readonly class TestSuiteWithName extends \PHPUnit\Event\TestSuite\TestSuite
 {
@@ -5672,7 +5672,7 @@ final readonly class TestSuiteWithName extends \PHPUnit\Event\TestSuite\TestSuit
 namespace PHPUnit\Event\Tracer;
 
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  */
 interface Tracer
 {
@@ -5681,7 +5681,7 @@ interface Tracer
 namespace PHPUnit\Framework;
 
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  */
 abstract class Assert
 {
@@ -5783,7 +5783,7 @@ abstract class Assert
      * @param iterable<mixed>                                                                                                                                                   $haystack
      * @throws Exception
      * @throws ExpectationFailedException
-     * @deprecated 
+     * @deprecated
      */
     final public static function assertContainsOnly(string $type, iterable $haystack, ?bool $isNativeType = null, string $message = ''): void
     {
@@ -5908,7 +5908,7 @@ abstract class Assert
      * @param iterable<mixed>                                                                                                                                                   $haystack
      * @throws Exception
      * @throws ExpectationFailedException
-     * @deprecated 
+     * @deprecated
      */
     final public static function assertNotContainsOnly(string $type, iterable $haystack, ?bool $isNativeType = null, string $message = ''): void
     {
@@ -6868,7 +6868,7 @@ abstract class Assert
     /**
      * @param 'array'|'bool'|'boolean'|'callable'|'double'|'float'|'int'|'integer'|'iterable'|'null'|'numeric'|'object'|'real'|'resource (closed)'|'resource'|'scalar'|'string' $type
      * @throws Exception
-     * @deprecated 
+     * @deprecated
      */
     final public static function containsOnly(string $type): \PHPUnit\Framework\Constraint\TraversableContainsOnly
     {
@@ -7006,7 +7006,7 @@ abstract class Assert
     /**
      * @param 'array'|'bool'|'boolean'|'callable'|'double'|'float'|'int'|'integer'|'iterable'|'null'|'numeric'|'object'|'real'|'resource (closed)'|'resource'|'scalar'|'string' $type
      * @throws UnknownNativeTypeException
-     * @deprecated 
+     * @deprecated
      */
     final public static function isType(string $type): \PHPUnit\Framework\Constraint\IsType
     {
@@ -7080,7 +7080,7 @@ abstract class Assert
  * @param non-empty-list<array-key> $keysToBeConsidered
  * @throws Exception
  * @throws ExpectationFailedException
- * @no-named-arguments 
+ * @no-named-arguments
  * @see Assert::assertArrayIsEqualToArrayOnlyConsideringListOfKeys
  */
 function assertArrayIsEqualToArrayOnlyConsideringListOfKeys(array $expected, array $actual, array $keysToBeConsidered, string $message = '', ...$func_get_args): void
@@ -7092,7 +7092,7 @@ function assertArrayIsEqualToArrayOnlyConsideringListOfKeys(array $expected, arr
  * @param non-empty-list<array-key> $keysToBeIgnored
  * @throws Exception
  * @throws ExpectationFailedException
- * @no-named-arguments 
+ * @no-named-arguments
  * @see Assert::assertArrayIsEqualToArrayIgnoringListOfKeys
  */
 function assertArrayIsEqualToArrayIgnoringListOfKeys(array $expected, array $actual, array $keysToBeIgnored, string $message = '', ...$func_get_args): void
@@ -7104,7 +7104,7 @@ function assertArrayIsEqualToArrayIgnoringListOfKeys(array $expected, array $act
  * @param non-empty-list<array-key> $keysToBeConsidered
  * @throws Exception
  * @throws ExpectationFailedException
- * @no-named-arguments 
+ * @no-named-arguments
  * @see Assert::assertArrayIsIdenticalToArrayOnlyConsideringListOfKeys
  */
 function assertArrayIsIdenticalToArrayOnlyConsideringListOfKeys(array $expected, array $actual, array $keysToBeConsidered, string $message = '', ...$func_get_args): void
@@ -7116,7 +7116,7 @@ function assertArrayIsIdenticalToArrayOnlyConsideringListOfKeys(array $expected,
  * @param non-empty-list<array-key> $keysToBeIgnored
  * @throws Exception
  * @throws ExpectationFailedException
- * @no-named-arguments 
+ * @no-named-arguments
  * @see Assert::assertArrayIsIdenticalToArrayIgnoringListOfKeys
  */
 function assertArrayIsIdenticalToArrayIgnoringListOfKeys(array $expected, array $actual, array $keysToBeIgnored, string $message = '', ...$func_get_args): void
@@ -7126,7 +7126,7 @@ function assertArrayIsIdenticalToArrayIgnoringListOfKeys(array $expected, array 
  * @param array<mixed>|\ArrayAccess<array-key, mixed> $array
  * @throws Exception
  * @throws ExpectationFailedException
- * @no-named-arguments 
+ * @no-named-arguments
  * @see Assert::assertArrayHasKey
  */
 function assertArrayHasKey(mixed $key, array|\ArrayAccess $array, string $message = '', ...$func_get_args): void
@@ -7136,7 +7136,7 @@ function assertArrayHasKey(mixed $key, array|\ArrayAccess $array, string $messag
  * @param array<mixed>|\ArrayAccess<array-key, mixed> $array
  * @throws Exception
  * @throws ExpectationFailedException
- * @no-named-arguments 
+ * @no-named-arguments
  * @see Assert::assertArrayNotHasKey
  */
 function assertArrayNotHasKey(mixed $key, array|\ArrayAccess $array, string $message = '', ...$func_get_args): void
@@ -7145,7 +7145,7 @@ function assertArrayNotHasKey(mixed $key, array|\ArrayAccess $array, string $mes
 /**
  * @phan-assert list<mixed> $array
  * @throws ExpectationFailedException
- * @no-named-arguments 
+ * @no-named-arguments
  * @see Assert::assertIsList
  */
 function assertIsList(mixed $array, string $message = '', ...$func_get_args): void
@@ -7155,7 +7155,7 @@ function assertIsList(mixed $array, string $message = '', ...$func_get_args): vo
  * @param iterable<mixed> $haystack
  * @throws Exception
  * @throws ExpectationFailedException
- * @no-named-arguments 
+ * @no-named-arguments
  * @see Assert::assertContains
  */
 function assertContains(mixed $needle, iterable $haystack, string $message = '', ...$func_get_args): void
@@ -7164,7 +7164,7 @@ function assertContains(mixed $needle, iterable $haystack, string $message = '',
 /**
  * @param iterable<mixed> $haystack
  * @throws ExpectationFailedException
- * @no-named-arguments 
+ * @no-named-arguments
  * @see Assert::assertContainsEquals
  */
 function assertContainsEquals(mixed $needle, iterable $haystack, string $message = '', ...$func_get_args): void
@@ -7174,7 +7174,7 @@ function assertContainsEquals(mixed $needle, iterable $haystack, string $message
  * @param iterable<mixed> $haystack
  * @throws Exception
  * @throws ExpectationFailedException
- * @no-named-arguments 
+ * @no-named-arguments
  * @see Assert::assertNotContains
  */
 function assertNotContains(mixed $needle, iterable $haystack, string $message = '', ...$func_get_args): void
@@ -7183,7 +7183,7 @@ function assertNotContains(mixed $needle, iterable $haystack, string $message = 
 /**
  * @param iterable<mixed> $haystack
  * @throws ExpectationFailedException
- * @no-named-arguments 
+ * @no-named-arguments
  * @see Assert::assertNotContainsEquals
  */
 function assertNotContainsEquals(mixed $needle, iterable $haystack, string $message = '', ...$func_get_args): void
@@ -7194,8 +7194,8 @@ function assertNotContainsEquals(mixed $needle, iterable $haystack, string $mess
  * @param iterable<mixed>                                                                                                                                                   $haystack
  * @throws Exception
  * @throws ExpectationFailedException
- * @deprecated 
- * @no-named-arguments 
+ * @deprecated
+ * @no-named-arguments
  * @see Assert::assertContainsOnly
  */
 function assertContainsOnly(string $type, iterable $haystack, ?bool $isNativeType = null, string $message = '', ...$func_get_args): void
@@ -7205,7 +7205,7 @@ function assertContainsOnly(string $type, iterable $haystack, ?bool $isNativeTyp
  * @phan-assert iterable<array<mixed>> $haystack
  * @param iterable<mixed> $haystack
  * @throws ExpectationFailedException
- * @no-named-arguments 
+ * @no-named-arguments
  * @see Assert::assertContainsOnlyArray
  */
 function assertContainsOnlyArray(iterable $haystack, string $message = '', ...$func_get_args): void
@@ -7215,7 +7215,7 @@ function assertContainsOnlyArray(iterable $haystack, string $message = '', ...$f
  * @phan-assert iterable<bool> $haystack
  * @param iterable<mixed> $haystack
  * @throws ExpectationFailedException
- * @no-named-arguments 
+ * @no-named-arguments
  * @see Assert::assertContainsOnlyBool
  */
 function assertContainsOnlyBool(iterable $haystack, string $message = '', ...$func_get_args): void
@@ -7225,7 +7225,7 @@ function assertContainsOnlyBool(iterable $haystack, string $message = '', ...$fu
  * @phan-assert iterable<callable> $haystack
  * @param iterable<mixed> $haystack
  * @throws ExpectationFailedException
- * @no-named-arguments 
+ * @no-named-arguments
  * @see Assert::assertContainsOnlyCallable
  */
 function assertContainsOnlyCallable(iterable $haystack, string $message = '', ...$func_get_args): void
@@ -7235,7 +7235,7 @@ function assertContainsOnlyCallable(iterable $haystack, string $message = '', ..
  * @phan-assert iterable<float> $haystack
  * @param iterable<mixed> $haystack
  * @throws ExpectationFailedException
- * @no-named-arguments 
+ * @no-named-arguments
  * @see Assert::assertContainsOnlyFloat
  */
 function assertContainsOnlyFloat(iterable $haystack, string $message = '', ...$func_get_args): void
@@ -7245,7 +7245,7 @@ function assertContainsOnlyFloat(iterable $haystack, string $message = '', ...$f
  * @phan-assert iterable<int> $haystack
  * @param iterable<mixed> $haystack
  * @throws ExpectationFailedException
- * @no-named-arguments 
+ * @no-named-arguments
  * @see Assert::assertContainsOnlyInt
  */
 function assertContainsOnlyInt(iterable $haystack, string $message = '', ...$func_get_args): void
@@ -7255,7 +7255,7 @@ function assertContainsOnlyInt(iterable $haystack, string $message = '', ...$fun
  * @phan-assert iterable<iterable<mixed>> $haystack
  * @param iterable<mixed> $haystack
  * @throws ExpectationFailedException
- * @no-named-arguments 
+ * @no-named-arguments
  * @see Assert::assertContainsOnlyIterable
  */
 function assertContainsOnlyIterable(iterable $haystack, string $message = '', ...$func_get_args): void
@@ -7265,7 +7265,7 @@ function assertContainsOnlyIterable(iterable $haystack, string $message = '', ..
  * @phan-assert iterable<null> $haystack
  * @param iterable<mixed> $haystack
  * @throws ExpectationFailedException
- * @no-named-arguments 
+ * @no-named-arguments
  * @see Assert::assertContainsOnlyNull
  */
 function assertContainsOnlyNull(iterable $haystack, string $message = '', ...$func_get_args): void
@@ -7275,7 +7275,7 @@ function assertContainsOnlyNull(iterable $haystack, string $message = '', ...$fu
  * @phan-assert iterable<numeric> $haystack
  * @param iterable<mixed> $haystack
  * @throws ExpectationFailedException
- * @no-named-arguments 
+ * @no-named-arguments
  * @see Assert::assertContainsOnlyNumeric
  */
 function assertContainsOnlyNumeric(iterable $haystack, string $message = '', ...$func_get_args): void
@@ -7285,7 +7285,7 @@ function assertContainsOnlyNumeric(iterable $haystack, string $message = '', ...
  * @phan-assert iterable<object> $haystack
  * @param iterable<mixed> $haystack
  * @throws ExpectationFailedException
- * @no-named-arguments 
+ * @no-named-arguments
  * @see Assert::assertContainsOnlyObject
  */
 function assertContainsOnlyObject(iterable $haystack, string $message = '', ...$func_get_args): void
@@ -7295,7 +7295,7 @@ function assertContainsOnlyObject(iterable $haystack, string $message = '', ...$
  * @phan-assert iterable<resource> $haystack
  * @param iterable<mixed> $haystack
  * @throws ExpectationFailedException
- * @no-named-arguments 
+ * @no-named-arguments
  * @see Assert::assertContainsOnlyResource
  */
 function assertContainsOnlyResource(iterable $haystack, string $message = '', ...$func_get_args): void
@@ -7305,7 +7305,7 @@ function assertContainsOnlyResource(iterable $haystack, string $message = '', ..
  * @phan-assert iterable<resource> $haystack
  * @param iterable<mixed> $haystack
  * @throws ExpectationFailedException
- * @no-named-arguments 
+ * @no-named-arguments
  * @see Assert::assertContainsOnlyClosedResource
  */
 function assertContainsOnlyClosedResource(iterable $haystack, string $message = '', ...$func_get_args): void
@@ -7315,7 +7315,7 @@ function assertContainsOnlyClosedResource(iterable $haystack, string $message = 
  * @phan-assert iterable<scalar> $haystack
  * @param iterable<mixed> $haystack
  * @throws ExpectationFailedException
- * @no-named-arguments 
+ * @no-named-arguments
  * @see Assert::assertContainsOnlyScalar
  */
 function assertContainsOnlyScalar(iterable $haystack, string $message = '', ...$func_get_args): void
@@ -7325,7 +7325,7 @@ function assertContainsOnlyScalar(iterable $haystack, string $message = '', ...$
  * @phan-assert iterable<string> $haystack
  * @param iterable<mixed> $haystack
  * @throws ExpectationFailedException
- * @no-named-arguments 
+ * @no-named-arguments
  * @see Assert::assertContainsOnlyString
  */
 function assertContainsOnlyString(iterable $haystack, string $message = '', ...$func_get_args): void
@@ -7338,7 +7338,7 @@ function assertContainsOnlyString(iterable $haystack, string $message = '', ...$
  * @param iterable<mixed> $haystack
  * @throws Exception
  * @throws ExpectationFailedException
- * @no-named-arguments 
+ * @no-named-arguments
  * @see Assert::assertContainsOnlyInstancesOf
  */
 function assertContainsOnlyInstancesOf(string $className, iterable $haystack, string $message = '', ...$func_get_args): void
@@ -7349,8 +7349,8 @@ function assertContainsOnlyInstancesOf(string $className, iterable $haystack, st
  * @param iterable<mixed>                                                                                                                                                   $haystack
  * @throws Exception
  * @throws ExpectationFailedException
- * @deprecated 
- * @no-named-arguments 
+ * @deprecated
+ * @no-named-arguments
  * @see Assert::assertNotContainsOnly
  */
 function assertNotContainsOnly(string $type, iterable $haystack, ?bool $isNativeType = null, string $message = '', ...$func_get_args): void
@@ -7359,7 +7359,7 @@ function assertNotContainsOnly(string $type, iterable $haystack, ?bool $isNative
 /**
  * @param iterable<mixed> $haystack
  * @throws ExpectationFailedException
- * @no-named-arguments 
+ * @no-named-arguments
  * @see Assert::assertContainsNotOnlyArray
  */
 function assertContainsNotOnlyArray(iterable $haystack, string $message = '', ...$func_get_args): void
@@ -7368,7 +7368,7 @@ function assertContainsNotOnlyArray(iterable $haystack, string $message = '', ..
 /**
  * @param iterable<mixed> $haystack
  * @throws ExpectationFailedException
- * @no-named-arguments 
+ * @no-named-arguments
  * @see Assert::assertContainsNotOnlyBool
  */
 function assertContainsNotOnlyBool(iterable $haystack, string $message = '', ...$func_get_args): void
@@ -7377,7 +7377,7 @@ function assertContainsNotOnlyBool(iterable $haystack, string $message = '', ...
 /**
  * @param iterable<mixed> $haystack
  * @throws ExpectationFailedException
- * @no-named-arguments 
+ * @no-named-arguments
  * @see Assert::assertContainsNotOnlyCallable
  */
 function assertContainsNotOnlyCallable(iterable $haystack, string $message = '', ...$func_get_args): void
@@ -7386,7 +7386,7 @@ function assertContainsNotOnlyCallable(iterable $haystack, string $message = '',
 /**
  * @param iterable<mixed> $haystack
  * @throws ExpectationFailedException
- * @no-named-arguments 
+ * @no-named-arguments
  * @see Assert::assertContainsNotOnlyFloat
  */
 function assertContainsNotOnlyFloat(iterable $haystack, string $message = '', ...$func_get_args): void
@@ -7395,7 +7395,7 @@ function assertContainsNotOnlyFloat(iterable $haystack, string $message = '', ..
 /**
  * @param iterable<mixed> $haystack
  * @throws ExpectationFailedException
- * @no-named-arguments 
+ * @no-named-arguments
  * @see Assert::assertContainsNotOnlyInt
  */
 function assertContainsNotOnlyInt(iterable $haystack, string $message = '', ...$func_get_args): void
@@ -7404,7 +7404,7 @@ function assertContainsNotOnlyInt(iterable $haystack, string $message = '', ...$
 /**
  * @param iterable<mixed> $haystack
  * @throws ExpectationFailedException
- * @no-named-arguments 
+ * @no-named-arguments
  * @see Assert::assertContainsNotOnlyIterable
  */
 function assertContainsNotOnlyIterable(iterable $haystack, string $message = '', ...$func_get_args): void
@@ -7413,7 +7413,7 @@ function assertContainsNotOnlyIterable(iterable $haystack, string $message = '',
 /**
  * @param iterable<mixed> $haystack
  * @throws ExpectationFailedException
- * @no-named-arguments 
+ * @no-named-arguments
  * @see Assert::assertContainsNotOnlyNull
  */
 function assertContainsNotOnlyNull(iterable $haystack, string $message = '', ...$func_get_args): void
@@ -7422,7 +7422,7 @@ function assertContainsNotOnlyNull(iterable $haystack, string $message = '', ...
 /**
  * @param iterable<mixed> $haystack
  * @throws ExpectationFailedException
- * @no-named-arguments 
+ * @no-named-arguments
  * @see Assert::assertContainsNotOnlyNumeric
  */
 function assertContainsNotOnlyNumeric(iterable $haystack, string $message = '', ...$func_get_args): void
@@ -7431,7 +7431,7 @@ function assertContainsNotOnlyNumeric(iterable $haystack, string $message = '', 
 /**
  * @param iterable<mixed> $haystack
  * @throws ExpectationFailedException
- * @no-named-arguments 
+ * @no-named-arguments
  * @see Assert::assertContainsNotOnlyObject
  */
 function assertContainsNotOnlyObject(iterable $haystack, string $message = '', ...$func_get_args): void
@@ -7440,7 +7440,7 @@ function assertContainsNotOnlyObject(iterable $haystack, string $message = '', .
 /**
  * @param iterable<mixed> $haystack
  * @throws ExpectationFailedException
- * @no-named-arguments 
+ * @no-named-arguments
  * @see Assert::assertContainsNotOnlyResource
  */
 function assertContainsNotOnlyResource(iterable $haystack, string $message = '', ...$func_get_args): void
@@ -7449,7 +7449,7 @@ function assertContainsNotOnlyResource(iterable $haystack, string $message = '',
 /**
  * @param iterable<mixed> $haystack
  * @throws ExpectationFailedException
- * @no-named-arguments 
+ * @no-named-arguments
  * @see Assert::assertContainsNotOnlyClosedResource
  */
 function assertContainsNotOnlyClosedResource(iterable $haystack, string $message = '', ...$func_get_args): void
@@ -7458,7 +7458,7 @@ function assertContainsNotOnlyClosedResource(iterable $haystack, string $message
 /**
  * @param iterable<mixed> $haystack
  * @throws ExpectationFailedException
- * @no-named-arguments 
+ * @no-named-arguments
  * @see Assert::assertContainsNotOnlyScalar
  */
 function assertContainsNotOnlyScalar(iterable $haystack, string $message = '', ...$func_get_args): void
@@ -7467,7 +7467,7 @@ function assertContainsNotOnlyScalar(iterable $haystack, string $message = '', .
 /**
  * @param iterable<mixed> $haystack
  * @throws ExpectationFailedException
- * @no-named-arguments 
+ * @no-named-arguments
  * @see Assert::assertContainsNotOnlyString
  */
 function assertContainsNotOnlyString(iterable $haystack, string $message = '', ...$func_get_args): void
@@ -7478,7 +7478,7 @@ function assertContainsNotOnlyString(iterable $haystack, string $message = '', .
  * @param iterable<mixed> $haystack
  * @throws Exception
  * @throws ExpectationFailedException
- * @no-named-arguments 
+ * @no-named-arguments
  * @see Assert::assertContainsNotOnlyInstancesOf
  */
 function assertContainsNotOnlyInstancesOf(string $className, iterable $haystack, string $message = '', ...$func_get_args): void
@@ -7489,7 +7489,7 @@ function assertContainsNotOnlyInstancesOf(string $className, iterable $haystack,
  * @throws Exception
  * @throws ExpectationFailedException
  * @throws GeneratorNotSupportedException
- * @no-named-arguments 
+ * @no-named-arguments
  * @see Assert::assertCount
  */
 function assertCount(int $expectedCount, \Countable|iterable $haystack, string $message = '', ...$func_get_args): void
@@ -7500,7 +7500,7 @@ function assertCount(int $expectedCount, \Countable|iterable $haystack, string $
  * @throws Exception
  * @throws ExpectationFailedException
  * @throws GeneratorNotSupportedException
- * @no-named-arguments 
+ * @no-named-arguments
  * @see Assert::assertNotCount
  */
 function assertNotCount(int $expectedCount, \Countable|iterable $haystack, string $message = '', ...$func_get_args): void
@@ -7508,7 +7508,7 @@ function assertNotCount(int $expectedCount, \Countable|iterable $haystack, strin
 }
 /**
  * @throws ExpectationFailedException
- * @no-named-arguments 
+ * @no-named-arguments
  * @see Assert::assertEquals
  */
 function assertEquals(mixed $expected, mixed $actual, string $message = '', ...$func_get_args): void
@@ -7516,7 +7516,7 @@ function assertEquals(mixed $expected, mixed $actual, string $message = '', ...$
 }
 /**
  * @throws ExpectationFailedException
- * @no-named-arguments 
+ * @no-named-arguments
  * @see Assert::assertEqualsCanonicalizing
  */
 function assertEqualsCanonicalizing(mixed $expected, mixed $actual, string $message = '', ...$func_get_args): void
@@ -7524,7 +7524,7 @@ function assertEqualsCanonicalizing(mixed $expected, mixed $actual, string $mess
 }
 /**
  * @throws ExpectationFailedException
- * @no-named-arguments 
+ * @no-named-arguments
  * @see Assert::assertEqualsIgnoringCase
  */
 function assertEqualsIgnoringCase(mixed $expected, mixed $actual, string $message = '', ...$func_get_args): void
@@ -7532,7 +7532,7 @@ function assertEqualsIgnoringCase(mixed $expected, mixed $actual, string $messag
 }
 /**
  * @throws ExpectationFailedException
- * @no-named-arguments 
+ * @no-named-arguments
  * @see Assert::assertEqualsWithDelta
  */
 function assertEqualsWithDelta(mixed $expected, mixed $actual, float $delta, string $message = '', ...$func_get_args): void
@@ -7540,7 +7540,7 @@ function assertEqualsWithDelta(mixed $expected, mixed $actual, float $delta, str
 }
 /**
  * @throws ExpectationFailedException
- * @no-named-arguments 
+ * @no-named-arguments
  * @see Assert::assertNotEquals
  */
 function assertNotEquals(mixed $expected, mixed $actual, string $message = '', ...$func_get_args): void
@@ -7548,7 +7548,7 @@ function assertNotEquals(mixed $expected, mixed $actual, string $message = '', .
 }
 /**
  * @throws ExpectationFailedException
- * @no-named-arguments 
+ * @no-named-arguments
  * @see Assert::assertNotEqualsCanonicalizing
  */
 function assertNotEqualsCanonicalizing(mixed $expected, mixed $actual, string $message = '', ...$func_get_args): void
@@ -7556,7 +7556,7 @@ function assertNotEqualsCanonicalizing(mixed $expected, mixed $actual, string $m
 }
 /**
  * @throws ExpectationFailedException
- * @no-named-arguments 
+ * @no-named-arguments
  * @see Assert::assertNotEqualsIgnoringCase
  */
 function assertNotEqualsIgnoringCase(mixed $expected, mixed $actual, string $message = '', ...$func_get_args): void
@@ -7564,7 +7564,7 @@ function assertNotEqualsIgnoringCase(mixed $expected, mixed $actual, string $mes
 }
 /**
  * @throws ExpectationFailedException
- * @no-named-arguments 
+ * @no-named-arguments
  * @see Assert::assertNotEqualsWithDelta
  */
 function assertNotEqualsWithDelta(mixed $expected, mixed $actual, float $delta, string $message = '', ...$func_get_args): void
@@ -7572,7 +7572,7 @@ function assertNotEqualsWithDelta(mixed $expected, mixed $actual, float $delta, 
 }
 /**
  * @throws ExpectationFailedException
- * @no-named-arguments 
+ * @no-named-arguments
  * @see Assert::assertObjectEquals
  */
 function assertObjectEquals(object $expected, object $actual, string $method = 'equals', string $message = '', ...$func_get_args): void
@@ -7580,7 +7580,7 @@ function assertObjectEquals(object $expected, object $actual, string $method = '
 }
 /**
  * @throws ExpectationFailedException
- * @no-named-arguments 
+ * @no-named-arguments
  * @see Assert::assertObjectNotEquals
  */
 function assertObjectNotEquals(object $expected, object $actual, string $method = 'equals', string $message = '', ...$func_get_args): void
@@ -7589,7 +7589,7 @@ function assertObjectNotEquals(object $expected, object $actual, string $method 
 /**
  * @throws ExpectationFailedException
  * @throws GeneratorNotSupportedException
- * @no-named-arguments 
+ * @no-named-arguments
  * @see Assert::assertEmpty
  */
 function assertEmpty(mixed $actual, string $message = '', ...$func_get_args): void
@@ -7598,7 +7598,7 @@ function assertEmpty(mixed $actual, string $message = '', ...$func_get_args): vo
 /**
  * @throws ExpectationFailedException
  * @throws GeneratorNotSupportedException
- * @no-named-arguments 
+ * @no-named-arguments
  * @see Assert::assertNotEmpty
  */
 function assertNotEmpty(mixed $actual, string $message = '', ...$func_get_args): void
@@ -7606,7 +7606,7 @@ function assertNotEmpty(mixed $actual, string $message = '', ...$func_get_args):
 }
 /**
  * @throws ExpectationFailedException
- * @no-named-arguments 
+ * @no-named-arguments
  * @see Assert::assertGreaterThan
  */
 function assertGreaterThan(mixed $minimum, mixed $actual, string $message = '', ...$func_get_args): void
@@ -7614,7 +7614,7 @@ function assertGreaterThan(mixed $minimum, mixed $actual, string $message = '', 
 }
 /**
  * @throws ExpectationFailedException
- * @no-named-arguments 
+ * @no-named-arguments
  * @see Assert::assertGreaterThanOrEqual
  */
 function assertGreaterThanOrEqual(mixed $minimum, mixed $actual, string $message = '', ...$func_get_args): void
@@ -7622,7 +7622,7 @@ function assertGreaterThanOrEqual(mixed $minimum, mixed $actual, string $message
 }
 /**
  * @throws ExpectationFailedException
- * @no-named-arguments 
+ * @no-named-arguments
  * @see Assert::assertLessThan
  */
 function assertLessThan(mixed $maximum, mixed $actual, string $message = '', ...$func_get_args): void
@@ -7630,7 +7630,7 @@ function assertLessThan(mixed $maximum, mixed $actual, string $message = '', ...
 }
 /**
  * @throws ExpectationFailedException
- * @no-named-arguments 
+ * @no-named-arguments
  * @see Assert::assertLessThanOrEqual
  */
 function assertLessThanOrEqual(mixed $maximum, mixed $actual, string $message = '', ...$func_get_args): void
@@ -7638,7 +7638,7 @@ function assertLessThanOrEqual(mixed $maximum, mixed $actual, string $message = 
 }
 /**
  * @throws ExpectationFailedException
- * @no-named-arguments 
+ * @no-named-arguments
  * @see Assert::assertFileEquals
  */
 function assertFileEquals(string $expected, string $actual, string $message = '', ...$func_get_args): void
@@ -7646,7 +7646,7 @@ function assertFileEquals(string $expected, string $actual, string $message = ''
 }
 /**
  * @throws ExpectationFailedException
- * @no-named-arguments 
+ * @no-named-arguments
  * @see Assert::assertFileEqualsCanonicalizing
  */
 function assertFileEqualsCanonicalizing(string $expected, string $actual, string $message = '', ...$func_get_args): void
@@ -7654,7 +7654,7 @@ function assertFileEqualsCanonicalizing(string $expected, string $actual, string
 }
 /**
  * @throws ExpectationFailedException
- * @no-named-arguments 
+ * @no-named-arguments
  * @see Assert::assertFileEqualsIgnoringCase
  */
 function assertFileEqualsIgnoringCase(string $expected, string $actual, string $message = '', ...$func_get_args): void
@@ -7662,7 +7662,7 @@ function assertFileEqualsIgnoringCase(string $expected, string $actual, string $
 }
 /**
  * @throws ExpectationFailedException
- * @no-named-arguments 
+ * @no-named-arguments
  * @see Assert::assertFileNotEquals
  */
 function assertFileNotEquals(string $expected, string $actual, string $message = '', ...$func_get_args): void
@@ -7670,7 +7670,7 @@ function assertFileNotEquals(string $expected, string $actual, string $message =
 }
 /**
  * @throws ExpectationFailedException
- * @no-named-arguments 
+ * @no-named-arguments
  * @see Assert::assertFileNotEqualsCanonicalizing
  */
 function assertFileNotEqualsCanonicalizing(string $expected, string $actual, string $message = '', ...$func_get_args): void
@@ -7678,7 +7678,7 @@ function assertFileNotEqualsCanonicalizing(string $expected, string $actual, str
 }
 /**
  * @throws ExpectationFailedException
- * @no-named-arguments 
+ * @no-named-arguments
  * @see Assert::assertFileNotEqualsIgnoringCase
  */
 function assertFileNotEqualsIgnoringCase(string $expected, string $actual, string $message = '', ...$func_get_args): void
@@ -7686,7 +7686,7 @@ function assertFileNotEqualsIgnoringCase(string $expected, string $actual, strin
 }
 /**
  * @throws ExpectationFailedException
- * @no-named-arguments 
+ * @no-named-arguments
  * @see Assert::assertStringEqualsFile
  */
 function assertStringEqualsFile(string $expectedFile, string $actualString, string $message = '', ...$func_get_args): void
@@ -7694,7 +7694,7 @@ function assertStringEqualsFile(string $expectedFile, string $actualString, stri
 }
 /**
  * @throws ExpectationFailedException
- * @no-named-arguments 
+ * @no-named-arguments
  * @see Assert::assertStringEqualsFileCanonicalizing
  */
 function assertStringEqualsFileCanonicalizing(string $expectedFile, string $actualString, string $message = '', ...$func_get_args): void
@@ -7702,7 +7702,7 @@ function assertStringEqualsFileCanonicalizing(string $expectedFile, string $actu
 }
 /**
  * @throws ExpectationFailedException
- * @no-named-arguments 
+ * @no-named-arguments
  * @see Assert::assertStringEqualsFileIgnoringCase
  */
 function assertStringEqualsFileIgnoringCase(string $expectedFile, string $actualString, string $message = '', ...$func_get_args): void
@@ -7710,7 +7710,7 @@ function assertStringEqualsFileIgnoringCase(string $expectedFile, string $actual
 }
 /**
  * @throws ExpectationFailedException
- * @no-named-arguments 
+ * @no-named-arguments
  * @see Assert::assertStringNotEqualsFile
  */
 function assertStringNotEqualsFile(string $expectedFile, string $actualString, string $message = '', ...$func_get_args): void
@@ -7718,7 +7718,7 @@ function assertStringNotEqualsFile(string $expectedFile, string $actualString, s
 }
 /**
  * @throws ExpectationFailedException
- * @no-named-arguments 
+ * @no-named-arguments
  * @see Assert::assertStringNotEqualsFileCanonicalizing
  */
 function assertStringNotEqualsFileCanonicalizing(string $expectedFile, string $actualString, string $message = '', ...$func_get_args): void
@@ -7726,7 +7726,7 @@ function assertStringNotEqualsFileCanonicalizing(string $expectedFile, string $a
 }
 /**
  * @throws ExpectationFailedException
- * @no-named-arguments 
+ * @no-named-arguments
  * @see Assert::assertStringNotEqualsFileIgnoringCase
  */
 function assertStringNotEqualsFileIgnoringCase(string $expectedFile, string $actualString, string $message = '', ...$func_get_args): void
@@ -7734,7 +7734,7 @@ function assertStringNotEqualsFileIgnoringCase(string $expectedFile, string $act
 }
 /**
  * @throws ExpectationFailedException
- * @no-named-arguments 
+ * @no-named-arguments
  * @see Assert::assertIsReadable
  */
 function assertIsReadable(string $filename, string $message = '', ...$func_get_args): void
@@ -7742,7 +7742,7 @@ function assertIsReadable(string $filename, string $message = '', ...$func_get_a
 }
 /**
  * @throws ExpectationFailedException
- * @no-named-arguments 
+ * @no-named-arguments
  * @see Assert::assertIsNotReadable
  */
 function assertIsNotReadable(string $filename, string $message = '', ...$func_get_args): void
@@ -7750,7 +7750,7 @@ function assertIsNotReadable(string $filename, string $message = '', ...$func_ge
 }
 /**
  * @throws ExpectationFailedException
- * @no-named-arguments 
+ * @no-named-arguments
  * @see Assert::assertIsWritable
  */
 function assertIsWritable(string $filename, string $message = '', ...$func_get_args): void
@@ -7758,7 +7758,7 @@ function assertIsWritable(string $filename, string $message = '', ...$func_get_a
 }
 /**
  * @throws ExpectationFailedException
- * @no-named-arguments 
+ * @no-named-arguments
  * @see Assert::assertIsNotWritable
  */
 function assertIsNotWritable(string $filename, string $message = '', ...$func_get_args): void
@@ -7766,7 +7766,7 @@ function assertIsNotWritable(string $filename, string $message = '', ...$func_ge
 }
 /**
  * @throws ExpectationFailedException
- * @no-named-arguments 
+ * @no-named-arguments
  * @see Assert::assertDirectoryExists
  */
 function assertDirectoryExists(string $directory, string $message = '', ...$func_get_args): void
@@ -7774,7 +7774,7 @@ function assertDirectoryExists(string $directory, string $message = '', ...$func
 }
 /**
  * @throws ExpectationFailedException
- * @no-named-arguments 
+ * @no-named-arguments
  * @see Assert::assertDirectoryDoesNotExist
  */
 function assertDirectoryDoesNotExist(string $directory, string $message = '', ...$func_get_args): void
@@ -7782,7 +7782,7 @@ function assertDirectoryDoesNotExist(string $directory, string $message = '', ..
 }
 /**
  * @throws ExpectationFailedException
- * @no-named-arguments 
+ * @no-named-arguments
  * @see Assert::assertDirectoryIsReadable
  */
 function assertDirectoryIsReadable(string $directory, string $message = '', ...$func_get_args): void
@@ -7790,7 +7790,7 @@ function assertDirectoryIsReadable(string $directory, string $message = '', ...$
 }
 /**
  * @throws ExpectationFailedException
- * @no-named-arguments 
+ * @no-named-arguments
  * @see Assert::assertDirectoryIsNotReadable
  */
 function assertDirectoryIsNotReadable(string $directory, string $message = '', ...$func_get_args): void
@@ -7798,7 +7798,7 @@ function assertDirectoryIsNotReadable(string $directory, string $message = '', .
 }
 /**
  * @throws ExpectationFailedException
- * @no-named-arguments 
+ * @no-named-arguments
  * @see Assert::assertDirectoryIsWritable
  */
 function assertDirectoryIsWritable(string $directory, string $message = '', ...$func_get_args): void
@@ -7806,7 +7806,7 @@ function assertDirectoryIsWritable(string $directory, string $message = '', ...$
 }
 /**
  * @throws ExpectationFailedException
- * @no-named-arguments 
+ * @no-named-arguments
  * @see Assert::assertDirectoryIsNotWritable
  */
 function assertDirectoryIsNotWritable(string $directory, string $message = '', ...$func_get_args): void
@@ -7814,7 +7814,7 @@ function assertDirectoryIsNotWritable(string $directory, string $message = '', .
 }
 /**
  * @throws ExpectationFailedException
- * @no-named-arguments 
+ * @no-named-arguments
  * @see Assert::assertFileExists
  */
 function assertFileExists(string $filename, string $message = '', ...$func_get_args): void
@@ -7822,7 +7822,7 @@ function assertFileExists(string $filename, string $message = '', ...$func_get_a
 }
 /**
  * @throws ExpectationFailedException
- * @no-named-arguments 
+ * @no-named-arguments
  * @see Assert::assertFileDoesNotExist
  */
 function assertFileDoesNotExist(string $filename, string $message = '', ...$func_get_args): void
@@ -7830,7 +7830,7 @@ function assertFileDoesNotExist(string $filename, string $message = '', ...$func
 }
 /**
  * @throws ExpectationFailedException
- * @no-named-arguments 
+ * @no-named-arguments
  * @see Assert::assertFileIsReadable
  */
 function assertFileIsReadable(string $file, string $message = '', ...$func_get_args): void
@@ -7838,7 +7838,7 @@ function assertFileIsReadable(string $file, string $message = '', ...$func_get_a
 }
 /**
  * @throws ExpectationFailedException
- * @no-named-arguments 
+ * @no-named-arguments
  * @see Assert::assertFileIsNotReadable
  */
 function assertFileIsNotReadable(string $file, string $message = '', ...$func_get_args): void
@@ -7846,7 +7846,7 @@ function assertFileIsNotReadable(string $file, string $message = '', ...$func_ge
 }
 /**
  * @throws ExpectationFailedException
- * @no-named-arguments 
+ * @no-named-arguments
  * @see Assert::assertFileIsWritable
  */
 function assertFileIsWritable(string $file, string $message = '', ...$func_get_args): void
@@ -7854,7 +7854,7 @@ function assertFileIsWritable(string $file, string $message = '', ...$func_get_a
 }
 /**
  * @throws ExpectationFailedException
- * @no-named-arguments 
+ * @no-named-arguments
  * @see Assert::assertFileIsNotWritable
  */
 function assertFileIsNotWritable(string $file, string $message = '', ...$func_get_args): void
@@ -7863,7 +7863,7 @@ function assertFileIsNotWritable(string $file, string $message = '', ...$func_ge
 /**
  * @throws ExpectationFailedException
  * @phan-assert true $condition
- * @no-named-arguments 
+ * @no-named-arguments
  * @see Assert::assertTrue
  */
 function assertTrue(mixed $condition, string $message = '', ...$func_get_args): void
@@ -7872,7 +7872,7 @@ function assertTrue(mixed $condition, string $message = '', ...$func_get_args): 
 /**
  * @throws ExpectationFailedException
  * @phan-assert !true $condition
- * @no-named-arguments 
+ * @no-named-arguments
  * @see Assert::assertNotTrue
  */
 function assertNotTrue(mixed $condition, string $message = '', ...$func_get_args): void
@@ -7881,7 +7881,7 @@ function assertNotTrue(mixed $condition, string $message = '', ...$func_get_args
 /**
  * @throws ExpectationFailedException
  * @phan-assert false $condition
- * @no-named-arguments 
+ * @no-named-arguments
  * @see Assert::assertFalse
  */
 function assertFalse(mixed $condition, string $message = '', ...$func_get_args): void
@@ -7890,7 +7890,7 @@ function assertFalse(mixed $condition, string $message = '', ...$func_get_args):
 /**
  * @throws ExpectationFailedException
  * @phan-assert !false $condition
- * @no-named-arguments 
+ * @no-named-arguments
  * @see Assert::assertNotFalse
  */
 function assertNotFalse(mixed $condition, string $message = '', ...$func_get_args): void
@@ -7899,7 +7899,7 @@ function assertNotFalse(mixed $condition, string $message = '', ...$func_get_arg
 /**
  * @throws ExpectationFailedException
  * @phan-assert null $actual
- * @no-named-arguments 
+ * @no-named-arguments
  * @see Assert::assertNull
  */
 function assertNull(mixed $actual, string $message = '', ...$func_get_args): void
@@ -7908,7 +7908,7 @@ function assertNull(mixed $actual, string $message = '', ...$func_get_args): voi
 /**
  * @throws ExpectationFailedException
  * @phan-assert !null $actual
- * @no-named-arguments 
+ * @no-named-arguments
  * @see Assert::assertNotNull
  */
 function assertNotNull(mixed $actual, string $message = '', ...$func_get_args): void
@@ -7916,7 +7916,7 @@ function assertNotNull(mixed $actual, string $message = '', ...$func_get_args): 
 }
 /**
  * @throws ExpectationFailedException
- * @no-named-arguments 
+ * @no-named-arguments
  * @see Assert::assertFinite
  */
 function assertFinite(mixed $actual, string $message = '', ...$func_get_args): void
@@ -7924,7 +7924,7 @@ function assertFinite(mixed $actual, string $message = '', ...$func_get_args): v
 }
 /**
  * @throws ExpectationFailedException
- * @no-named-arguments 
+ * @no-named-arguments
  * @see Assert::assertInfinite
  */
 function assertInfinite(mixed $actual, string $message = '', ...$func_get_args): void
@@ -7932,7 +7932,7 @@ function assertInfinite(mixed $actual, string $message = '', ...$func_get_args):
 }
 /**
  * @throws ExpectationFailedException
- * @no-named-arguments 
+ * @no-named-arguments
  * @see Assert::assertNan
  */
 function assertNan(mixed $actual, string $message = '', ...$func_get_args): void
@@ -7940,7 +7940,7 @@ function assertNan(mixed $actual, string $message = '', ...$func_get_args): void
 }
 /**
  * @throws ExpectationFailedException
- * @no-named-arguments 
+ * @no-named-arguments
  * @see Assert::assertObjectHasProperty
  */
 function assertObjectHasProperty(string $propertyName, object $object, string $message = '', ...$func_get_args): void
@@ -7948,7 +7948,7 @@ function assertObjectHasProperty(string $propertyName, object $object, string $m
 }
 /**
  * @throws ExpectationFailedException
- * @no-named-arguments 
+ * @no-named-arguments
  * @see Assert::assertObjectNotHasProperty
  */
 function assertObjectNotHasProperty(string $propertyName, object $object, string $message = '', ...$func_get_args): void
@@ -7959,7 +7959,7 @@ function assertObjectNotHasProperty(string $propertyName, object $object, string
  * @param ExpectedType $expected
  * @throws ExpectationFailedException
  * @phan-assert ExpectedType $actual
- * @no-named-arguments 
+ * @no-named-arguments
  * @see Assert::assertSame
  */
 function assertSame(mixed $expected, mixed $actual, string $message = '', ...$func_get_args): void
@@ -7967,7 +7967,7 @@ function assertSame(mixed $expected, mixed $actual, string $message = '', ...$fu
 }
 /**
  * @throws ExpectationFailedException
- * @no-named-arguments 
+ * @no-named-arguments
  * @see Assert::assertNotSame
  */
 function assertNotSame(mixed $expected, mixed $actual, string $message = '', ...$func_get_args): void
@@ -7980,7 +7980,7 @@ function assertNotSame(mixed $expected, mixed $actual, string $message = '', ...
  * @throws ExpectationFailedException
  * @throws UnknownClassOrInterfaceException
  * @phan-assert ExpectedType $actual
- * @no-named-arguments 
+ * @no-named-arguments
  * @see Assert::assertInstanceOf
  */
 function assertInstanceOf(string $expected, mixed $actual, string $message = '', ...$func_get_args): void
@@ -7992,7 +7992,7 @@ function assertInstanceOf(string $expected, mixed $actual, string $message = '',
  * @throws Exception
  * @throws ExpectationFailedException
  * @phan-assert !ExpectedType $actual
- * @no-named-arguments 
+ * @no-named-arguments
  * @see Assert::assertNotInstanceOf
  */
 function assertNotInstanceOf(string $expected, mixed $actual, string $message = '', ...$func_get_args): void
@@ -8002,7 +8002,7 @@ function assertNotInstanceOf(string $expected, mixed $actual, string $message = 
  * @throws Exception
  * @throws ExpectationFailedException
  * @phan-assert array<mixed> $actual
- * @no-named-arguments 
+ * @no-named-arguments
  * @see Assert::assertIsArray
  */
 function assertIsArray(mixed $actual, string $message = '', ...$func_get_args): void
@@ -8012,7 +8012,7 @@ function assertIsArray(mixed $actual, string $message = '', ...$func_get_args): 
  * @throws Exception
  * @throws ExpectationFailedException
  * @phan-assert bool $actual
- * @no-named-arguments 
+ * @no-named-arguments
  * @see Assert::assertIsBool
  */
 function assertIsBool(mixed $actual, string $message = '', ...$func_get_args): void
@@ -8022,7 +8022,7 @@ function assertIsBool(mixed $actual, string $message = '', ...$func_get_args): v
  * @throws Exception
  * @throws ExpectationFailedException
  * @phan-assert float $actual
- * @no-named-arguments 
+ * @no-named-arguments
  * @see Assert::assertIsFloat
  */
 function assertIsFloat(mixed $actual, string $message = '', ...$func_get_args): void
@@ -8032,7 +8032,7 @@ function assertIsFloat(mixed $actual, string $message = '', ...$func_get_args): 
  * @throws Exception
  * @throws ExpectationFailedException
  * @phan-assert int $actual
- * @no-named-arguments 
+ * @no-named-arguments
  * @see Assert::assertIsInt
  */
 function assertIsInt(mixed $actual, string $message = '', ...$func_get_args): void
@@ -8042,7 +8042,7 @@ function assertIsInt(mixed $actual, string $message = '', ...$func_get_args): vo
  * @throws Exception
  * @throws ExpectationFailedException
  * @phan-assert numeric $actual
- * @no-named-arguments 
+ * @no-named-arguments
  * @see Assert::assertIsNumeric
  */
 function assertIsNumeric(mixed $actual, string $message = '', ...$func_get_args): void
@@ -8052,7 +8052,7 @@ function assertIsNumeric(mixed $actual, string $message = '', ...$func_get_args)
  * @throws Exception
  * @throws ExpectationFailedException
  * @phan-assert object $actual
- * @no-named-arguments 
+ * @no-named-arguments
  * @see Assert::assertIsObject
  */
 function assertIsObject(mixed $actual, string $message = '', ...$func_get_args): void
@@ -8062,7 +8062,7 @@ function assertIsObject(mixed $actual, string $message = '', ...$func_get_args):
  * @throws Exception
  * @throws ExpectationFailedException
  * @phan-assert resource $actual
- * @no-named-arguments 
+ * @no-named-arguments
  * @see Assert::assertIsResource
  */
 function assertIsResource(mixed $actual, string $message = '', ...$func_get_args): void
@@ -8072,7 +8072,7 @@ function assertIsResource(mixed $actual, string $message = '', ...$func_get_args
  * @throws Exception
  * @throws ExpectationFailedException
  * @phan-assert resource $actual
- * @no-named-arguments 
+ * @no-named-arguments
  * @see Assert::assertIsClosedResource
  */
 function assertIsClosedResource(mixed $actual, string $message = '', ...$func_get_args): void
@@ -8082,7 +8082,7 @@ function assertIsClosedResource(mixed $actual, string $message = '', ...$func_ge
  * @throws Exception
  * @throws ExpectationFailedException
  * @phan-assert string $actual
- * @no-named-arguments 
+ * @no-named-arguments
  * @see Assert::assertIsString
  */
 function assertIsString(mixed $actual, string $message = '', ...$func_get_args): void
@@ -8092,7 +8092,7 @@ function assertIsString(mixed $actual, string $message = '', ...$func_get_args):
  * @throws Exception
  * @throws ExpectationFailedException
  * @phan-assert scalar $actual
- * @no-named-arguments 
+ * @no-named-arguments
  * @see Assert::assertIsScalar
  */
 function assertIsScalar(mixed $actual, string $message = '', ...$func_get_args): void
@@ -8102,7 +8102,7 @@ function assertIsScalar(mixed $actual, string $message = '', ...$func_get_args):
  * @throws Exception
  * @throws ExpectationFailedException
  * @phan-assert callable $actual
- * @no-named-arguments 
+ * @no-named-arguments
  * @see Assert::assertIsCallable
  */
 function assertIsCallable(mixed $actual, string $message = '', ...$func_get_args): void
@@ -8112,7 +8112,7 @@ function assertIsCallable(mixed $actual, string $message = '', ...$func_get_args
  * @throws Exception
  * @throws ExpectationFailedException
  * @phan-assert iterable<mixed> $actual
- * @no-named-arguments 
+ * @no-named-arguments
  * @see Assert::assertIsIterable
  */
 function assertIsIterable(mixed $actual, string $message = '', ...$func_get_args): void
@@ -8122,7 +8122,7 @@ function assertIsIterable(mixed $actual, string $message = '', ...$func_get_args
  * @throws Exception
  * @throws ExpectationFailedException
  * @phan-assert !array<mixed> $actual
- * @no-named-arguments 
+ * @no-named-arguments
  * @see Assert::assertIsNotArray
  */
 function assertIsNotArray(mixed $actual, string $message = '', ...$func_get_args): void
@@ -8132,7 +8132,7 @@ function assertIsNotArray(mixed $actual, string $message = '', ...$func_get_args
  * @throws Exception
  * @throws ExpectationFailedException
  * @phan-assert !bool $actual
- * @no-named-arguments 
+ * @no-named-arguments
  * @see Assert::assertIsNotBool
  */
 function assertIsNotBool(mixed $actual, string $message = '', ...$func_get_args): void
@@ -8142,7 +8142,7 @@ function assertIsNotBool(mixed $actual, string $message = '', ...$func_get_args)
  * @throws Exception
  * @throws ExpectationFailedException
  * @phan-assert !float $actual
- * @no-named-arguments 
+ * @no-named-arguments
  * @see Assert::assertIsNotFloat
  */
 function assertIsNotFloat(mixed $actual, string $message = '', ...$func_get_args): void
@@ -8152,7 +8152,7 @@ function assertIsNotFloat(mixed $actual, string $message = '', ...$func_get_args
  * @throws Exception
  * @throws ExpectationFailedException
  * @phan-assert !int $actual
- * @no-named-arguments 
+ * @no-named-arguments
  * @see Assert::assertIsNotInt
  */
 function assertIsNotInt(mixed $actual, string $message = '', ...$func_get_args): void
@@ -8162,7 +8162,7 @@ function assertIsNotInt(mixed $actual, string $message = '', ...$func_get_args):
  * @throws Exception
  * @throws ExpectationFailedException
  * @phan-assert !numeric $actual
- * @no-named-arguments 
+ * @no-named-arguments
  * @see Assert::assertIsNotNumeric
  */
 function assertIsNotNumeric(mixed $actual, string $message = '', ...$func_get_args): void
@@ -8172,7 +8172,7 @@ function assertIsNotNumeric(mixed $actual, string $message = '', ...$func_get_ar
  * @throws Exception
  * @throws ExpectationFailedException
  * @phan-assert !object $actual
- * @no-named-arguments 
+ * @no-named-arguments
  * @see Assert::assertIsNotObject
  */
 function assertIsNotObject(mixed $actual, string $message = '', ...$func_get_args): void
@@ -8182,7 +8182,7 @@ function assertIsNotObject(mixed $actual, string $message = '', ...$func_get_arg
  * @throws Exception
  * @throws ExpectationFailedException
  * @phan-assert !resource $actual
- * @no-named-arguments 
+ * @no-named-arguments
  * @see Assert::assertIsNotResource
  */
 function assertIsNotResource(mixed $actual, string $message = '', ...$func_get_args): void
@@ -8192,7 +8192,7 @@ function assertIsNotResource(mixed $actual, string $message = '', ...$func_get_a
  * @throws Exception
  * @throws ExpectationFailedException
  * @phan-assert !resource $actual
- * @no-named-arguments 
+ * @no-named-arguments
  * @see Assert::assertIsNotClosedResource
  */
 function assertIsNotClosedResource(mixed $actual, string $message = '', ...$func_get_args): void
@@ -8202,7 +8202,7 @@ function assertIsNotClosedResource(mixed $actual, string $message = '', ...$func
  * @throws Exception
  * @throws ExpectationFailedException
  * @phan-assert !string $actual
- * @no-named-arguments 
+ * @no-named-arguments
  * @see Assert::assertIsNotString
  */
 function assertIsNotString(mixed $actual, string $message = '', ...$func_get_args): void
@@ -8212,7 +8212,7 @@ function assertIsNotString(mixed $actual, string $message = '', ...$func_get_arg
  * @throws Exception
  * @throws ExpectationFailedException
  * @phan-assert !scalar $actual
- * @no-named-arguments 
+ * @no-named-arguments
  * @see Assert::assertIsNotScalar
  */
 function assertIsNotScalar(mixed $actual, string $message = '', ...$func_get_args): void
@@ -8222,7 +8222,7 @@ function assertIsNotScalar(mixed $actual, string $message = '', ...$func_get_arg
  * @throws Exception
  * @throws ExpectationFailedException
  * @phan-assert !callable $actual
- * @no-named-arguments 
+ * @no-named-arguments
  * @see Assert::assertIsNotCallable
  */
 function assertIsNotCallable(mixed $actual, string $message = '', ...$func_get_args): void
@@ -8232,7 +8232,7 @@ function assertIsNotCallable(mixed $actual, string $message = '', ...$func_get_a
  * @throws Exception
  * @throws ExpectationFailedException
  * @phan-assert !iterable<mixed> $actual
- * @no-named-arguments 
+ * @no-named-arguments
  * @see Assert::assertIsNotIterable
  */
 function assertIsNotIterable(mixed $actual, string $message = '', ...$func_get_args): void
@@ -8240,7 +8240,7 @@ function assertIsNotIterable(mixed $actual, string $message = '', ...$func_get_a
 }
 /**
  * @throws ExpectationFailedException
- * @no-named-arguments 
+ * @no-named-arguments
  * @see Assert::assertMatchesRegularExpression
  */
 function assertMatchesRegularExpression(string $pattern, string $string, string $message = '', ...$func_get_args): void
@@ -8248,7 +8248,7 @@ function assertMatchesRegularExpression(string $pattern, string $string, string 
 }
 /**
  * @throws ExpectationFailedException
- * @no-named-arguments 
+ * @no-named-arguments
  * @see Assert::assertDoesNotMatchRegularExpression
  */
 function assertDoesNotMatchRegularExpression(string $pattern, string $string, string $message = '', ...$func_get_args): void
@@ -8260,7 +8260,7 @@ function assertDoesNotMatchRegularExpression(string $pattern, string $string, st
  * @throws Exception
  * @throws ExpectationFailedException
  * @throws GeneratorNotSupportedException
- * @no-named-arguments 
+ * @no-named-arguments
  * @see Assert::assertSameSize
  */
 function assertSameSize(\Countable|iterable $expected, \Countable|iterable $actual, string $message = '', ...$func_get_args): void
@@ -8272,7 +8272,7 @@ function assertSameSize(\Countable|iterable $expected, \Countable|iterable $actu
  * @throws Exception
  * @throws ExpectationFailedException
  * @throws GeneratorNotSupportedException
- * @no-named-arguments 
+ * @no-named-arguments
  * @see Assert::assertNotSameSize
  */
 function assertNotSameSize(\Countable|iterable $expected, \Countable|iterable $actual, string $message = '', ...$func_get_args): void
@@ -8280,7 +8280,7 @@ function assertNotSameSize(\Countable|iterable $expected, \Countable|iterable $a
 }
 /**
  * @throws ExpectationFailedException
- * @no-named-arguments 
+ * @no-named-arguments
  * @see Assert::assertStringContainsStringIgnoringLineEndings
  */
 function assertStringContainsStringIgnoringLineEndings(string $needle, string $haystack, string $message = '', ...$func_get_args): void
@@ -8288,7 +8288,7 @@ function assertStringContainsStringIgnoringLineEndings(string $needle, string $h
 }
 /**
  * @throws ExpectationFailedException
- * @no-named-arguments 
+ * @no-named-arguments
  * @see Assert::assertStringEqualsStringIgnoringLineEndings
  */
 function assertStringEqualsStringIgnoringLineEndings(string $expected, string $actual, string $message = '', ...$func_get_args): void
@@ -8296,7 +8296,7 @@ function assertStringEqualsStringIgnoringLineEndings(string $expected, string $a
 }
 /**
  * @throws ExpectationFailedException
- * @no-named-arguments 
+ * @no-named-arguments
  * @see Assert::assertFileMatchesFormat
  */
 function assertFileMatchesFormat(string $format, string $actualFile, string $message = '', ...$func_get_args): void
@@ -8304,7 +8304,7 @@ function assertFileMatchesFormat(string $format, string $actualFile, string $mes
 }
 /**
  * @throws ExpectationFailedException
- * @no-named-arguments 
+ * @no-named-arguments
  * @see Assert::assertFileMatchesFormatFile
  */
 function assertFileMatchesFormatFile(string $formatFile, string $actualFile, string $message = '', ...$func_get_args): void
@@ -8312,7 +8312,7 @@ function assertFileMatchesFormatFile(string $formatFile, string $actualFile, str
 }
 /**
  * @throws ExpectationFailedException
- * @no-named-arguments 
+ * @no-named-arguments
  * @see Assert::assertStringMatchesFormat
  */
 function assertStringMatchesFormat(string $format, string $string, string $message = '', ...$func_get_args): void
@@ -8320,7 +8320,7 @@ function assertStringMatchesFormat(string $format, string $string, string $messa
 }
 /**
  * @throws ExpectationFailedException
- * @no-named-arguments 
+ * @no-named-arguments
  * @see Assert::assertStringMatchesFormatFile
  */
 function assertStringMatchesFormatFile(string $formatFile, string $string, string $message = '', ...$func_get_args): void
@@ -8330,7 +8330,7 @@ function assertStringMatchesFormatFile(string $formatFile, string $string, strin
  * @param non-empty-string $prefix
  * @throws ExpectationFailedException
  * @throws InvalidArgumentException
- * @no-named-arguments 
+ * @no-named-arguments
  * @see Assert::assertStringStartsWith
  */
 function assertStringStartsWith(string $prefix, string $string, string $message = '', ...$func_get_args): void
@@ -8340,7 +8340,7 @@ function assertStringStartsWith(string $prefix, string $string, string $message 
  * @param non-empty-string $prefix
  * @throws ExpectationFailedException
  * @throws InvalidArgumentException
- * @no-named-arguments 
+ * @no-named-arguments
  * @see Assert::assertStringStartsNotWith
  */
 function assertStringStartsNotWith(string $prefix, string $string, string $message = '', ...$func_get_args): void
@@ -8348,7 +8348,7 @@ function assertStringStartsNotWith(string $prefix, string $string, string $messa
 }
 /**
  * @throws ExpectationFailedException
- * @no-named-arguments 
+ * @no-named-arguments
  * @see Assert::assertStringContainsString
  */
 function assertStringContainsString(string $needle, string $haystack, string $message = '', ...$func_get_args): void
@@ -8356,7 +8356,7 @@ function assertStringContainsString(string $needle, string $haystack, string $me
 }
 /**
  * @throws ExpectationFailedException
- * @no-named-arguments 
+ * @no-named-arguments
  * @see Assert::assertStringContainsStringIgnoringCase
  */
 function assertStringContainsStringIgnoringCase(string $needle, string $haystack, string $message = '', ...$func_get_args): void
@@ -8364,7 +8364,7 @@ function assertStringContainsStringIgnoringCase(string $needle, string $haystack
 }
 /**
  * @throws ExpectationFailedException
- * @no-named-arguments 
+ * @no-named-arguments
  * @see Assert::assertStringNotContainsString
  */
 function assertStringNotContainsString(string $needle, string $haystack, string $message = '', ...$func_get_args): void
@@ -8372,7 +8372,7 @@ function assertStringNotContainsString(string $needle, string $haystack, string 
 }
 /**
  * @throws ExpectationFailedException
- * @no-named-arguments 
+ * @no-named-arguments
  * @see Assert::assertStringNotContainsStringIgnoringCase
  */
 function assertStringNotContainsStringIgnoringCase(string $needle, string $haystack, string $message = '', ...$func_get_args): void
@@ -8382,7 +8382,7 @@ function assertStringNotContainsStringIgnoringCase(string $needle, string $hayst
  * @param non-empty-string $suffix
  * @throws ExpectationFailedException
  * @throws InvalidArgumentException
- * @no-named-arguments 
+ * @no-named-arguments
  * @see Assert::assertStringEndsWith
  */
 function assertStringEndsWith(string $suffix, string $string, string $message = '', ...$func_get_args): void
@@ -8392,7 +8392,7 @@ function assertStringEndsWith(string $suffix, string $string, string $message = 
  * @param non-empty-string $suffix
  * @throws ExpectationFailedException
  * @throws InvalidArgumentException
- * @no-named-arguments 
+ * @no-named-arguments
  * @see Assert::assertStringEndsNotWith
  */
 function assertStringEndsNotWith(string $suffix, string $string, string $message = '', ...$func_get_args): void
@@ -8402,7 +8402,7 @@ function assertStringEndsNotWith(string $suffix, string $string, string $message
  * @throws Exception
  * @throws ExpectationFailedException
  * @throws \PHPUnit\Util\Xml\XmlException
- * @no-named-arguments 
+ * @no-named-arguments
  * @see Assert::assertXmlFileEqualsXmlFile
  */
 function assertXmlFileEqualsXmlFile(string $expectedFile, string $actualFile, string $message = '', ...$func_get_args): void
@@ -8411,7 +8411,7 @@ function assertXmlFileEqualsXmlFile(string $expectedFile, string $actualFile, st
 /**
  * @throws \PHPUnit\Util\Exception
  * @throws ExpectationFailedException
- * @no-named-arguments 
+ * @no-named-arguments
  * @see Assert::assertXmlFileNotEqualsXmlFile
  */
 function assertXmlFileNotEqualsXmlFile(string $expectedFile, string $actualFile, string $message = '', ...$func_get_args): void
@@ -8420,7 +8420,7 @@ function assertXmlFileNotEqualsXmlFile(string $expectedFile, string $actualFile,
 /**
  * @throws ExpectationFailedException
  * @throws \PHPUnit\Util\Xml\XmlException
- * @no-named-arguments 
+ * @no-named-arguments
  * @see Assert::assertXmlStringEqualsXmlFile
  */
 function assertXmlStringEqualsXmlFile(string $expectedFile, string $actualXml, string $message = '', ...$func_get_args): void
@@ -8429,7 +8429,7 @@ function assertXmlStringEqualsXmlFile(string $expectedFile, string $actualXml, s
 /**
  * @throws ExpectationFailedException
  * @throws \PHPUnit\Util\Xml\XmlException
- * @no-named-arguments 
+ * @no-named-arguments
  * @see Assert::assertXmlStringNotEqualsXmlFile
  */
 function assertXmlStringNotEqualsXmlFile(string $expectedFile, string $actualXml, string $message = '', ...$func_get_args): void
@@ -8438,7 +8438,7 @@ function assertXmlStringNotEqualsXmlFile(string $expectedFile, string $actualXml
 /**
  * @throws ExpectationFailedException
  * @throws \PHPUnit\Util\Xml\XmlException
- * @no-named-arguments 
+ * @no-named-arguments
  * @see Assert::assertXmlStringEqualsXmlString
  */
 function assertXmlStringEqualsXmlString(string $expectedXml, string $actualXml, string $message = '', ...$func_get_args): void
@@ -8447,7 +8447,7 @@ function assertXmlStringEqualsXmlString(string $expectedXml, string $actualXml, 
 /**
  * @throws ExpectationFailedException
  * @throws \PHPUnit\Util\Xml\XmlException
- * @no-named-arguments 
+ * @no-named-arguments
  * @see Assert::assertXmlStringNotEqualsXmlString
  */
 function assertXmlStringNotEqualsXmlString(string $expectedXml, string $actualXml, string $message = '', ...$func_get_args): void
@@ -8455,7 +8455,7 @@ function assertXmlStringNotEqualsXmlString(string $expectedXml, string $actualXm
 }
 /**
  * @throws ExpectationFailedException
- * @no-named-arguments 
+ * @no-named-arguments
  * @see Assert::assertThat
  */
 function assertThat(mixed $value, \PHPUnit\Framework\Constraint\Constraint $constraint, string $message = '', ...$func_get_args): void
@@ -8463,7 +8463,7 @@ function assertThat(mixed $value, \PHPUnit\Framework\Constraint\Constraint $cons
 }
 /**
  * @throws ExpectationFailedException
- * @no-named-arguments 
+ * @no-named-arguments
  * @see Assert::assertJson
  */
 function assertJson(string $actual, string $message = '', ...$func_get_args): void
@@ -8471,7 +8471,7 @@ function assertJson(string $actual, string $message = '', ...$func_get_args): vo
 }
 /**
  * @throws ExpectationFailedException
- * @no-named-arguments 
+ * @no-named-arguments
  * @see Assert::assertJsonStringEqualsJsonString
  */
 function assertJsonStringEqualsJsonString(string $expectedJson, string $actualJson, string $message = '', ...$func_get_args): void
@@ -8479,7 +8479,7 @@ function assertJsonStringEqualsJsonString(string $expectedJson, string $actualJs
 }
 /**
  * @throws ExpectationFailedException
- * @no-named-arguments 
+ * @no-named-arguments
  * @see Assert::assertJsonStringNotEqualsJsonString
  */
 function assertJsonStringNotEqualsJsonString(string $expectedJson, string $actualJson, string $message = '', ...$func_get_args): void
@@ -8487,7 +8487,7 @@ function assertJsonStringNotEqualsJsonString(string $expectedJson, string $actua
 }
 /**
  * @throws ExpectationFailedException
- * @no-named-arguments 
+ * @no-named-arguments
  * @see Assert::assertJsonStringEqualsJsonFile
  */
 function assertJsonStringEqualsJsonFile(string $expectedFile, string $actualJson, string $message = '', ...$func_get_args): void
@@ -8495,7 +8495,7 @@ function assertJsonStringEqualsJsonFile(string $expectedFile, string $actualJson
 }
 /**
  * @throws ExpectationFailedException
- * @no-named-arguments 
+ * @no-named-arguments
  * @see Assert::assertJsonStringNotEqualsJsonFile
  */
 function assertJsonStringNotEqualsJsonFile(string $expectedFile, string $actualJson, string $message = '', ...$func_get_args): void
@@ -8503,7 +8503,7 @@ function assertJsonStringNotEqualsJsonFile(string $expectedFile, string $actualJ
 }
 /**
  * @throws ExpectationFailedException
- * @no-named-arguments 
+ * @no-named-arguments
  * @see Assert::assertJsonFileEqualsJsonFile
  */
 function assertJsonFileEqualsJsonFile(string $expectedFile, string $actualFile, string $message = '', ...$func_get_args): void
@@ -8511,7 +8511,7 @@ function assertJsonFileEqualsJsonFile(string $expectedFile, string $actualFile, 
 }
 /**
  * @throws ExpectationFailedException
- * @no-named-arguments 
+ * @no-named-arguments
  * @see Assert::assertJsonFileNotEqualsJsonFile
  */
 function assertJsonFileNotEqualsJsonFile(string $expectedFile, string $actualFile, string $message = '', ...$func_get_args): void
@@ -8727,7 +8727,7 @@ function callback(callable $callback): \PHPUnit\Framework\Constraint\Callback
 {
 }
 /**
- * @deprecated 
+ * @deprecated
  */
 function any(): \PHPUnit\Framework\MockObject\Rule\AnyInvokedCount
 {
@@ -8754,8 +8754,8 @@ function throwException(\Throwable $exception): \PHPUnit\Framework\MockObject\St
 {
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final class DataProviderTestSuite extends \PHPUnit\Framework\TestSuite
 {
@@ -8782,8 +8782,8 @@ final class DataProviderTestSuite extends \PHPUnit\Framework\TestSuite
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 class AssertionFailedError extends \PHPUnit\Framework\Exception implements \PHPUnit\Framework\SelfDescribing
 {
@@ -8792,15 +8792,15 @@ class AssertionFailedError extends \PHPUnit\Framework\Exception implements \PHPU
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final class EmptyStringException extends \PHPUnit\Framework\InvalidArgumentException
 {
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final class ErrorLogNotWritableException extends \PHPUnit\Framework\Exception
 {
@@ -8810,8 +8810,8 @@ final class ErrorLogNotWritableException extends \PHPUnit\Framework\Exception
 }
 /**
  * @see http://fabien.potencier.org/article/9/php-serialization-stack-traces-and-exceptions
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 class Exception extends \RuntimeException implements \PHPUnit\Exception
 {
@@ -8833,7 +8833,7 @@ class Exception extends \RuntimeException implements \PHPUnit\Exception
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final class ExpectationFailedException extends \PHPUnit\Framework\AssertionFailedError
 {
@@ -8845,8 +8845,8 @@ final class ExpectationFailedException extends \PHPUnit\Framework\AssertionFaile
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final class GeneratorNotSupportedException extends \PHPUnit\Framework\InvalidArgumentException
 {
@@ -8855,29 +8855,29 @@ final class GeneratorNotSupportedException extends \PHPUnit\Framework\InvalidArg
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 interface IncompleteTest extends \Throwable
 {
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final class IncompleteTestError extends \PHPUnit\Framework\AssertionFailedError implements \PHPUnit\Framework\IncompleteTest
 {
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 abstract class InvalidArgumentException extends \PHPUnit\Framework\Exception
 {
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final class InvalidDataProviderException extends \PHPUnit\Framework\Exception
 {
@@ -8889,22 +8889,22 @@ final class InvalidDataProviderException extends \PHPUnit\Framework\Exception
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final class InvalidDependencyException extends \PHPUnit\Framework\AssertionFailedError implements \PHPUnit\Framework\SkippedTest
 {
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final class NoChildTestSuiteException extends \PHPUnit\Framework\Exception
 {
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final class ActualValueIsNotAnObjectException extends \PHPUnit\Framework\Exception
 {
@@ -8913,8 +8913,8 @@ final class ActualValueIsNotAnObjectException extends \PHPUnit\Framework\Excepti
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final class ComparisonMethodDoesNotAcceptParameterTypeException extends \PHPUnit\Framework\Exception
 {
@@ -8923,8 +8923,8 @@ final class ComparisonMethodDoesNotAcceptParameterTypeException extends \PHPUnit
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final class ComparisonMethodDoesNotDeclareBoolReturnTypeException extends \PHPUnit\Framework\Exception
 {
@@ -8933,8 +8933,8 @@ final class ComparisonMethodDoesNotDeclareBoolReturnTypeException extends \PHPUn
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final class ComparisonMethodDoesNotDeclareExactlyOneParameterException extends \PHPUnit\Framework\Exception
 {
@@ -8943,8 +8943,8 @@ final class ComparisonMethodDoesNotDeclareExactlyOneParameterException extends \
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final class ComparisonMethodDoesNotDeclareParameterTypeException extends \PHPUnit\Framework\Exception
 {
@@ -8953,8 +8953,8 @@ final class ComparisonMethodDoesNotDeclareParameterTypeException extends \PHPUni
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final class ComparisonMethodDoesNotExistException extends \PHPUnit\Framework\Exception
 {
@@ -8964,8 +8964,8 @@ final class ComparisonMethodDoesNotExistException extends \PHPUnit\Framework\Exc
 }
 /**
  * @immutable
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final class PhptAssertionFailedError extends \PHPUnit\Framework\AssertionFailedError
 {
@@ -8992,36 +8992,36 @@ final class PhptAssertionFailedError extends \PHPUnit\Framework\AssertionFailedE
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final class ProcessIsolationException extends \PHPUnit\Framework\Exception
 {
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 interface SkippedTest extends \Throwable
 {
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final class SkippedTestSuiteError extends \PHPUnit\Framework\AssertionFailedError implements \PHPUnit\Framework\SkippedTest
 {
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final class SkippedWithMessageException extends \PHPUnit\Framework\AssertionFailedError implements \PHPUnit\Framework\SkippedTest
 {
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final class UnknownClassOrInterfaceException extends \PHPUnit\Framework\InvalidArgumentException
 {
@@ -9030,8 +9030,8 @@ final class UnknownClassOrInterfaceException extends \PHPUnit\Framework\InvalidA
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final class UnknownNativeTypeException extends \PHPUnit\Framework\InvalidArgumentException
 {
@@ -9040,8 +9040,8 @@ final class UnknownNativeTypeException extends \PHPUnit\Framework\InvalidArgumen
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final class ExecutionOrderDependency implements \Stringable
 {
@@ -9106,7 +9106,7 @@ final class ExecutionOrderDependency implements \Stringable
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  */
 enum NativeType : string
 {
@@ -9125,8 +9125,8 @@ enum NativeType : string
     case String = 'string';
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 interface Reorderable
 {
@@ -9141,23 +9141,23 @@ interface Reorderable
     public function requires(): array;
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 interface SelfDescribing
 {
     public function toString(): string;
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  */
 interface Test extends \Countable
 {
     public function run(): void;
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class TestBuilder
 {
@@ -9172,13 +9172,13 @@ final readonly class TestBuilder
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  */
 abstract class TestCase extends \PHPUnit\Framework\Assert implements \PHPUnit\Framework\Reorderable, \PHPUnit\Framework\SelfDescribing, \PHPUnit\Framework\Test
 {
     /**
      * @param non-empty-string $name
-     * @internal 
+     * @internal
      */
     final public function __construct(string $name)
     {
@@ -9221,19 +9221,19 @@ abstract class TestCase extends \PHPUnit\Framework\Assert implements \PHPUnit\Fr
     }
     /**
      * @throws Exception
-     * @internal 
+     * @internal
      */
     public function toString(): string
     {
     }
     /**
-     * @internal 
+     * @internal
      */
     final public function count(): int
     {
     }
     /**
-     * @internal 
+     * @internal
      */
     final public function status(): \PHPUnit\Framework\TestStatus\TestStatus
     {
@@ -9247,86 +9247,86 @@ abstract class TestCase extends \PHPUnit\Framework\Assert implements \PHPUnit\Fr
      * @throws \PHPUnit\Event\NoPreviousThrowableException
      * @throws ProcessIsolationException
      * @throws \SebastianBergmann\CodeCoverage\UnintentionallyCoveredCodeException
-     * @internal 
+     * @internal
      */
     final public function run(): void
     {
     }
     /**
      * @return list<string>
-     * @internal 
+     * @internal
      */
     final public function groups(): array
     {
     }
     /**
      * @param list<string> $groups
-     * @internal 
+     * @internal
      */
     final public function setGroups(array $groups): void
     {
     }
     /**
-     * @internal 
+     * @internal
      */
     final public function nameWithDataSet(): string
     {
     }
     /**
      * @return non-empty-string
-     * @internal 
+     * @internal
      */
     final public function name(): string
     {
     }
     /**
-     * @internal 
+     * @internal
      */
     final public function size(): \PHPUnit\Framework\TestSize\TestSize
     {
     }
     /**
-     * @internal 
+     * @internal
      * @phpstan-assert-if-true non-empty-string $this->output()
      */
     final public function hasUnexpectedOutput(): bool
     {
     }
     /**
-     * @internal 
+     * @internal
      */
     final public function output(): string
     {
     }
     /**
-     * @internal 
+     * @internal
      */
     final public function doesNotPerformAssertions(): bool
     {
     }
     /**
-     * @internal 
+     * @internal
      */
     final public function expectsOutput(): bool
     {
     }
     /**
      * @throws \Throwable
-     * @internal 
+     * @internal
      */
     final public function runBare(): void
     {
     }
     /**
      * @param list<ExecutionOrderDependency> $dependencies
-     * @internal 
+     * @internal
      */
     final public function setDependencies(array $dependencies): void
     {
     }
     /**
      * @param array<non-empty-string, array<mixed>> $dependencyInput
-     * @internal 
+     * @internal
      * @codeCoverageIgnore
      */
     final public function setDependencyInput(array $dependencyInput): void
@@ -9334,77 +9334,77 @@ abstract class TestCase extends \PHPUnit\Framework\Assert implements \PHPUnit\Fr
     }
     /**
      * @return array<non-empty-string, array<mixed>>
-     * @internal 
+     * @internal
      */
     final public function dependencyInput(): array
     {
     }
     /**
-     * @internal 
+     * @internal
      */
     final public function hasDependencyInput(): bool
     {
     }
     /**
-     * @internal 
+     * @internal
      */
     final public function setBackupGlobals(bool $backupGlobals): void
     {
     }
     /**
      * @param list<string> $backupGlobalsExcludeList
-     * @internal 
+     * @internal
      */
     final public function setBackupGlobalsExcludeList(array $backupGlobalsExcludeList): void
     {
     }
     /**
-     * @internal 
+     * @internal
      */
     final public function setBackupStaticProperties(bool $backupStaticProperties): void
     {
     }
     /**
      * @param array<string,list<class-string>> $backupStaticPropertiesExcludeList
-     * @internal 
+     * @internal
      */
     final public function setBackupStaticPropertiesExcludeList(array $backupStaticPropertiesExcludeList): void
     {
     }
     /**
-     * @internal 
+     * @internal
      */
     final public function setRunTestInSeparateProcess(bool $runTestInSeparateProcess): void
     {
     }
     /**
-     * @internal 
+     * @internal
      */
     final public function setRunClassInSeparateProcess(bool $runClassInSeparateProcess): void
     {
     }
     /**
-     * @internal 
+     * @internal
      */
     final public function setPreserveGlobalState(bool $preserveGlobalState): void
     {
     }
     /**
-     * @internal 
+     * @internal
      * @codeCoverageIgnore
      */
     final public function setInIsolation(bool $inIsolation): void
     {
     }
     /**
-     * @internal 
+     * @internal
      * @codeCoverageIgnore
      */
     final public function result(): mixed
     {
     }
     /**
-     * @internal 
+     * @internal
      */
     final public function setResult(mixed $result): void
     {
@@ -9412,97 +9412,97 @@ abstract class TestCase extends \PHPUnit\Framework\Assert implements \PHPUnit\Fr
     /**
      * @template RealInstanceType of object
      * @param class-string<RealInstanceType> $type
-     * @internal 
+     * @internal
      */
     final public function registerMockObject(string $type, \PHPUnit\Framework\MockObject\MockObject $mockObject): void
     {
     }
     /**
      * @param non-negative-int $count
-     * @internal 
+     * @internal
      */
     final public function addToAssertionCount(int $count): void
     {
     }
     /**
      * @return non-negative-int
-     * @internal 
+     * @internal
      */
     final public function numberOfAssertionsPerformed(): int
     {
     }
     /**
-     * @internal 
+     * @internal
      */
     final public function usesDataProvider(): bool
     {
     }
     /**
-     * @internal 
+     * @internal
      */
     final public function dataName(): int|string
     {
     }
     /**
-     * @internal 
+     * @internal
      */
     final public function dataSetAsString(): string
     {
     }
     /**
-     * @internal 
+     * @internal
      */
     final public function dataSetAsStringWithData(): string
     {
     }
     /**
      * @return array<mixed>
-     * @internal 
+     * @internal
      */
     final public function providedData(): array
     {
     }
     /**
-     * @internal 
+     * @internal
      */
     final public function sortId(): string
     {
     }
     /**
      * @return list<ExecutionOrderDependency>
-     * @internal 
+     * @internal
      */
     final public function provides(): array
     {
     }
     /**
      * @return list<ExecutionOrderDependency>
-     * @internal 
+     * @internal
      */
     final public function requires(): array
     {
     }
     /**
      * @param array<mixed> $data
-     * @internal 
+     * @internal
      */
     final public function setData(int|string $dataName, array $data): void
     {
     }
     /**
-     * @internal 
+     * @internal
      */
     final public function valueObjectForEvents(): \PHPUnit\Event\Code\TestMethod
     {
     }
     /**
-     * @internal 
+     * @internal
      */
     final public function wasPrepared(): bool
     {
     }
     /**
-     * @deprecated 
+     * @deprecated
      */
     final protected function any(): \PHPUnit\Framework\MockObject\Rule\AnyInvokedCount
     {
@@ -9692,7 +9692,7 @@ abstract class TestCase extends \PHPUnit\Framework\Assert implements \PHPUnit\Fr
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final readonly class ChildProcessResultProcessor
 {
@@ -9707,8 +9707,8 @@ final readonly class ChildProcessResultProcessor
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final class SeparateProcessTestRunner
 {
@@ -9725,8 +9725,8 @@ final class SeparateProcessTestRunner
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final class TestRunner
 {
@@ -9744,8 +9744,8 @@ final class TestRunner
 }
 /**
  * @template-implements \IteratorAggregate<non-negative-int, Test>
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 class TestSuite implements \IteratorAggregate, \PHPUnit\Framework\Reorderable, \PHPUnit\Framework\Test
 {
@@ -9883,8 +9883,8 @@ class TestSuite implements \IteratorAggregate, \PHPUnit\Framework\Reorderable, \
 }
 /**
  * @template-implements \RecursiveIterator<non-negative-int, Test>
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final class TestSuiteIterator implements \RecursiveIterator
 {
@@ -9923,7 +9923,7 @@ namespace PHPUnit\Framework\Attributes;
 
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 #[\Attribute(\Attribute::TARGET_METHOD)]
 final readonly class After
@@ -9937,7 +9937,7 @@ final readonly class After
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 #[\Attribute(\Attribute::TARGET_METHOD)]
 final readonly class AfterClass
@@ -9951,7 +9951,7 @@ final readonly class AfterClass
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 #[\Attribute(\Attribute::TARGET_CLASS | \Attribute::TARGET_METHOD)]
 final readonly class AllowMockObjectsWithoutExpectations
@@ -9959,7 +9959,7 @@ final readonly class AllowMockObjectsWithoutExpectations
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 #[\Attribute(\Attribute::TARGET_CLASS | \Attribute::TARGET_METHOD)]
 final readonly class BackupGlobals
@@ -9973,7 +9973,7 @@ final readonly class BackupGlobals
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 #[\Attribute(\Attribute::TARGET_CLASS | \Attribute::TARGET_METHOD)]
 final readonly class BackupStaticProperties
@@ -9987,7 +9987,7 @@ final readonly class BackupStaticProperties
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 #[\Attribute(\Attribute::TARGET_METHOD)]
 final readonly class Before
@@ -10001,7 +10001,7 @@ final readonly class Before
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 #[\Attribute(\Attribute::TARGET_METHOD)]
 final readonly class BeforeClass
@@ -10015,7 +10015,7 @@ final readonly class BeforeClass
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 #[\Attribute(\Attribute::TARGET_CLASS | \Attribute::IS_REPEATABLE)]
 final readonly class CoversClass
@@ -10035,7 +10035,7 @@ final readonly class CoversClass
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 #[\Attribute(\Attribute::TARGET_CLASS | \Attribute::IS_REPEATABLE)]
 final readonly class CoversClassesThatExtendClass
@@ -10055,7 +10055,7 @@ final readonly class CoversClassesThatExtendClass
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 #[\Attribute(\Attribute::TARGET_CLASS | \Attribute::IS_REPEATABLE)]
 final readonly class CoversClassesThatImplementInterface
@@ -10075,7 +10075,7 @@ final readonly class CoversClassesThatImplementInterface
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 #[\Attribute(\Attribute::TARGET_CLASS | \Attribute::IS_REPEATABLE)]
 final readonly class CoversFunction
@@ -10095,7 +10095,7 @@ final readonly class CoversFunction
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 #[\Attribute(\Attribute::TARGET_CLASS | \Attribute::IS_REPEATABLE)]
 final readonly class CoversMethod
@@ -10122,7 +10122,7 @@ final readonly class CoversMethod
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 #[\Attribute(\Attribute::TARGET_CLASS | \Attribute::IS_REPEATABLE)]
 final readonly class CoversNamespace
@@ -10142,7 +10142,7 @@ final readonly class CoversNamespace
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 #[\Attribute(\Attribute::TARGET_CLASS | \Attribute::TARGET_METHOD)]
 final readonly class CoversNothing
@@ -10150,7 +10150,7 @@ final readonly class CoversNothing
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 #[\Attribute(\Attribute::TARGET_CLASS | \Attribute::IS_REPEATABLE)]
 final readonly class CoversTrait
@@ -10170,7 +10170,7 @@ final readonly class CoversTrait
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 #[\Attribute(\Attribute::TARGET_METHOD | \Attribute::IS_REPEATABLE)]
 final readonly class DataProvider
@@ -10193,7 +10193,7 @@ final readonly class DataProvider
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 #[\Attribute(\Attribute::TARGET_METHOD | \Attribute::IS_REPEATABLE)]
 final readonly class DataProviderExternal
@@ -10223,7 +10223,7 @@ final readonly class DataProviderExternal
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 #[\Attribute(\Attribute::TARGET_METHOD | \Attribute::IS_REPEATABLE)]
 final readonly class Depends
@@ -10243,7 +10243,7 @@ final readonly class Depends
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 #[\Attribute(\Attribute::TARGET_METHOD | \Attribute::IS_REPEATABLE)]
 final readonly class DependsExternal
@@ -10270,7 +10270,7 @@ final readonly class DependsExternal
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 #[\Attribute(\Attribute::TARGET_METHOD | \Attribute::IS_REPEATABLE)]
 final readonly class DependsExternalUsingDeepClone
@@ -10297,7 +10297,7 @@ final readonly class DependsExternalUsingDeepClone
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 #[\Attribute(\Attribute::TARGET_METHOD | \Attribute::IS_REPEATABLE)]
 final readonly class DependsExternalUsingShallowClone
@@ -10324,7 +10324,7 @@ final readonly class DependsExternalUsingShallowClone
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 #[\Attribute(\Attribute::TARGET_METHOD | \Attribute::IS_REPEATABLE)]
 final readonly class DependsOnClass
@@ -10344,7 +10344,7 @@ final readonly class DependsOnClass
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 #[\Attribute(\Attribute::TARGET_METHOD | \Attribute::IS_REPEATABLE)]
 final readonly class DependsOnClassUsingDeepClone
@@ -10364,7 +10364,7 @@ final readonly class DependsOnClassUsingDeepClone
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 #[\Attribute(\Attribute::TARGET_METHOD | \Attribute::IS_REPEATABLE)]
 final readonly class DependsOnClassUsingShallowClone
@@ -10384,7 +10384,7 @@ final readonly class DependsOnClassUsingShallowClone
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 #[\Attribute(\Attribute::TARGET_METHOD | \Attribute::IS_REPEATABLE)]
 final readonly class DependsUsingDeepClone
@@ -10404,7 +10404,7 @@ final readonly class DependsUsingDeepClone
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 #[\Attribute(\Attribute::TARGET_METHOD | \Attribute::IS_REPEATABLE)]
 final readonly class DependsUsingShallowClone
@@ -10424,7 +10424,7 @@ final readonly class DependsUsingShallowClone
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 #[\Attribute(\Attribute::TARGET_CLASS)]
 final readonly class DisableReturnValueGenerationForTestDoubles
@@ -10432,7 +10432,7 @@ final readonly class DisableReturnValueGenerationForTestDoubles
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 #[\Attribute(\Attribute::TARGET_CLASS | \Attribute::TARGET_METHOD)]
 final readonly class DoesNotPerformAssertions
@@ -10440,7 +10440,7 @@ final readonly class DoesNotPerformAssertions
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 #[\Attribute(\Attribute::TARGET_CLASS | \Attribute::TARGET_METHOD | \Attribute::IS_REPEATABLE)]
 final readonly class ExcludeGlobalVariableFromBackup
@@ -10460,7 +10460,7 @@ final readonly class ExcludeGlobalVariableFromBackup
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 #[\Attribute(\Attribute::TARGET_CLASS | \Attribute::TARGET_METHOD | \Attribute::IS_REPEATABLE)]
 final readonly class ExcludeStaticPropertyFromBackup
@@ -10487,7 +10487,7 @@ final readonly class ExcludeStaticPropertyFromBackup
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 #[\Attribute(\Attribute::TARGET_CLASS | \Attribute::TARGET_METHOD | \Attribute::IS_REPEATABLE)]
 final readonly class Group
@@ -10507,7 +10507,7 @@ final readonly class Group
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 #[\Attribute(\Attribute::TARGET_CLASS | \Attribute::TARGET_METHOD)]
 final readonly class IgnoreDeprecations
@@ -10527,8 +10527,8 @@ final readonly class IgnoreDeprecations
 }
 /**
  * @immutable
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 #[\Attribute(\Attribute::TARGET_CLASS | \Attribute::TARGET_METHOD)]
 final readonly class IgnorePhpunitDeprecations
@@ -10536,7 +10536,7 @@ final readonly class IgnorePhpunitDeprecations
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 #[\Attribute(\Attribute::TARGET_METHOD)]
 final readonly class IgnorePhpunitWarnings
@@ -10556,7 +10556,7 @@ final readonly class IgnorePhpunitWarnings
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 #[\Attribute(\Attribute::TARGET_CLASS)]
 final readonly class Large
@@ -10564,7 +10564,7 @@ final readonly class Large
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 #[\Attribute(\Attribute::TARGET_CLASS)]
 final readonly class Medium
@@ -10572,7 +10572,7 @@ final readonly class Medium
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 #[\Attribute(\Attribute::TARGET_METHOD)]
 final readonly class PostCondition
@@ -10586,7 +10586,7 @@ final readonly class PostCondition
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 #[\Attribute(\Attribute::TARGET_METHOD)]
 final readonly class PreCondition
@@ -10600,7 +10600,7 @@ final readonly class PreCondition
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 #[\Attribute(\Attribute::TARGET_CLASS | \Attribute::TARGET_METHOD)]
 final readonly class PreserveGlobalState
@@ -10614,7 +10614,7 @@ final readonly class PreserveGlobalState
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 #[\Attribute(\Attribute::TARGET_CLASS | \Attribute::TARGET_METHOD | \Attribute::IS_REPEATABLE)]
 final readonly class RequiresEnvironmentVariable
@@ -10631,7 +10631,7 @@ final readonly class RequiresEnvironmentVariable
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 #[\Attribute(\Attribute::TARGET_CLASS | \Attribute::TARGET_METHOD | \Attribute::IS_REPEATABLE)]
 final readonly class RequiresFunction
@@ -10651,7 +10651,7 @@ final readonly class RequiresFunction
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 #[\Attribute(\Attribute::TARGET_CLASS | \Attribute::TARGET_METHOD | \Attribute::IS_REPEATABLE)]
 final readonly class RequiresMethod
@@ -10678,7 +10678,7 @@ final readonly class RequiresMethod
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 #[\Attribute(\Attribute::TARGET_CLASS | \Attribute::TARGET_METHOD)]
 final readonly class RequiresOperatingSystem
@@ -10698,7 +10698,7 @@ final readonly class RequiresOperatingSystem
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 #[\Attribute(\Attribute::TARGET_CLASS | \Attribute::TARGET_METHOD)]
 final readonly class RequiresOperatingSystemFamily
@@ -10718,7 +10718,7 @@ final readonly class RequiresOperatingSystemFamily
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 #[\Attribute(\Attribute::TARGET_CLASS | \Attribute::TARGET_METHOD)]
 final readonly class RequiresPhp
@@ -10738,7 +10738,7 @@ final readonly class RequiresPhp
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 #[\Attribute(\Attribute::TARGET_CLASS | \Attribute::TARGET_METHOD | \Attribute::IS_REPEATABLE)]
 final readonly class RequiresPhpExtension
@@ -10765,7 +10765,7 @@ final readonly class RequiresPhpExtension
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 #[\Attribute(\Attribute::TARGET_CLASS | \Attribute::TARGET_METHOD)]
 final readonly class RequiresPhpunit
@@ -10785,7 +10785,7 @@ final readonly class RequiresPhpunit
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 #[\Attribute(\Attribute::TARGET_CLASS | \Attribute::TARGET_METHOD | \Attribute::IS_REPEATABLE)]
 final readonly class RequiresPhpunitExtension
@@ -10805,7 +10805,7 @@ final readonly class RequiresPhpunitExtension
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 #[\Attribute(\Attribute::TARGET_CLASS | \Attribute::TARGET_METHOD | \Attribute::IS_REPEATABLE)]
 final readonly class RequiresSetting
@@ -10832,8 +10832,8 @@ final readonly class RequiresSetting
 }
 /**
  * @immutable
- * @no-named-arguments 
- * @deprecated 
+ * @no-named-arguments
+ * @deprecated
  */
 #[\Attribute(\Attribute::TARGET_CLASS)]
 final readonly class RunClassInSeparateProcess
@@ -10841,7 +10841,7 @@ final readonly class RunClassInSeparateProcess
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 #[\Attribute(\Attribute::TARGET_METHOD)]
 final readonly class RunInSeparateProcess
@@ -10849,7 +10849,7 @@ final readonly class RunInSeparateProcess
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 #[\Attribute(\Attribute::TARGET_CLASS)]
 final readonly class RunTestsInSeparateProcesses
@@ -10857,7 +10857,7 @@ final readonly class RunTestsInSeparateProcesses
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 #[\Attribute(\Attribute::TARGET_CLASS)]
 final readonly class Small
@@ -10865,7 +10865,7 @@ final readonly class Small
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 #[\Attribute(\Attribute::TARGET_METHOD)]
 final readonly class Test
@@ -10873,7 +10873,7 @@ final readonly class Test
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 #[\Attribute(\Attribute::TARGET_CLASS | \Attribute::TARGET_METHOD)]
 final readonly class TestDox
@@ -10893,7 +10893,7 @@ final readonly class TestDox
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 #[\Attribute(\Attribute::TARGET_METHOD)]
 final readonly class TestDoxFormatter
@@ -10913,7 +10913,7 @@ final readonly class TestDoxFormatter
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 #[\Attribute(\Attribute::TARGET_METHOD)]
 final readonly class TestDoxFormatterExternal
@@ -10940,7 +10940,7 @@ final readonly class TestDoxFormatterExternal
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 #[\Attribute(\Attribute::TARGET_METHOD | \Attribute::IS_REPEATABLE)]
 final readonly class TestWith
@@ -10967,7 +10967,7 @@ final readonly class TestWith
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 #[\Attribute(\Attribute::TARGET_METHOD | \Attribute::IS_REPEATABLE)]
 final readonly class TestWithJson
@@ -10994,7 +10994,7 @@ final readonly class TestWithJson
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 #[\Attribute(\Attribute::TARGET_CLASS | \Attribute::TARGET_METHOD | \Attribute::IS_REPEATABLE)]
 final readonly class Ticket
@@ -11014,7 +11014,7 @@ final readonly class Ticket
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 #[\Attribute(\Attribute::TARGET_CLASS | \Attribute::IS_REPEATABLE)]
 final readonly class UsesClass
@@ -11034,7 +11034,7 @@ final readonly class UsesClass
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 #[\Attribute(\Attribute::TARGET_CLASS | \Attribute::IS_REPEATABLE)]
 final readonly class UsesClassesThatExtendClass
@@ -11054,7 +11054,7 @@ final readonly class UsesClassesThatExtendClass
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 #[\Attribute(\Attribute::TARGET_CLASS | \Attribute::IS_REPEATABLE)]
 final readonly class UsesClassesThatImplementInterface
@@ -11074,7 +11074,7 @@ final readonly class UsesClassesThatImplementInterface
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 #[\Attribute(\Attribute::TARGET_CLASS | \Attribute::IS_REPEATABLE)]
 final readonly class UsesFunction
@@ -11094,7 +11094,7 @@ final readonly class UsesFunction
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 #[\Attribute(\Attribute::TARGET_CLASS | \Attribute::IS_REPEATABLE)]
 final readonly class UsesMethod
@@ -11121,7 +11121,7 @@ final readonly class UsesMethod
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 #[\Attribute(\Attribute::TARGET_CLASS | \Attribute::IS_REPEATABLE)]
 final readonly class UsesNamespace
@@ -11141,7 +11141,7 @@ final readonly class UsesNamespace
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 #[\Attribute(\Attribute::TARGET_CLASS | \Attribute::IS_REPEATABLE)]
 final readonly class UsesTrait
@@ -11161,7 +11161,7 @@ final readonly class UsesTrait
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 #[\Attribute(\Attribute::TARGET_CLASS | \Attribute::TARGET_METHOD | \Attribute::IS_REPEATABLE)]
 final readonly class WithEnvironmentVariable
@@ -11184,7 +11184,7 @@ final readonly class WithEnvironmentVariable
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 #[\Attribute(\Attribute::TARGET_METHOD)]
 final readonly class WithoutErrorHandler
@@ -11193,7 +11193,7 @@ final readonly class WithoutErrorHandler
 namespace PHPUnit\Framework\Constraint;
 
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final class IsFalse extends \PHPUnit\Framework\Constraint\Constraint
 {
@@ -11202,7 +11202,7 @@ final class IsFalse extends \PHPUnit\Framework\Constraint\Constraint
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final class IsTrue extends \PHPUnit\Framework\Constraint\Constraint
 {
@@ -11212,7 +11212,7 @@ final class IsTrue extends \PHPUnit\Framework\Constraint\Constraint
 }
 /**
  * @template CallbackInput of mixed
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final class Callback extends \PHPUnit\Framework\Constraint\Constraint
 {
@@ -11230,7 +11230,7 @@ final class Callback extends \PHPUnit\Framework\Constraint\Constraint
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  */
 class Count extends \PHPUnit\Framework\Constraint\Constraint
 {
@@ -11260,7 +11260,7 @@ class Count extends \PHPUnit\Framework\Constraint\Constraint
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final class GreaterThan extends \PHPUnit\Framework\Constraint\Constraint
 {
@@ -11272,7 +11272,7 @@ final class GreaterThan extends \PHPUnit\Framework\Constraint\Constraint
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final class IsEmpty extends \PHPUnit\Framework\Constraint\Constraint
 {
@@ -11281,7 +11281,7 @@ final class IsEmpty extends \PHPUnit\Framework\Constraint\Constraint
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final class LessThan extends \PHPUnit\Framework\Constraint\Constraint
 {
@@ -11293,7 +11293,7 @@ final class LessThan extends \PHPUnit\Framework\Constraint\Constraint
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final class SameSize extends \PHPUnit\Framework\Constraint\Count
 {
@@ -11306,7 +11306,7 @@ final class SameSize extends \PHPUnit\Framework\Constraint\Count
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  */
 abstract class Constraint implements \Countable, \PHPUnit\Framework\SelfDescribing
 {
@@ -11359,7 +11359,7 @@ abstract class Constraint implements \Countable, \PHPUnit\Framework\SelfDescribi
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final class IsEqual extends \PHPUnit\Framework\Constraint\Constraint
 {
@@ -11377,7 +11377,7 @@ final class IsEqual extends \PHPUnit\Framework\Constraint\Constraint
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final class IsEqualCanonicalizing extends \PHPUnit\Framework\Constraint\Constraint
 {
@@ -11395,7 +11395,7 @@ final class IsEqualCanonicalizing extends \PHPUnit\Framework\Constraint\Constrai
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final class IsEqualIgnoringCase extends \PHPUnit\Framework\Constraint\Constraint
 {
@@ -11413,7 +11413,7 @@ final class IsEqualIgnoringCase extends \PHPUnit\Framework\Constraint\Constraint
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final class IsEqualWithDelta extends \PHPUnit\Framework\Constraint\Constraint
 {
@@ -11431,8 +11431,8 @@ final class IsEqualWithDelta extends \PHPUnit\Framework\Constraint\Constraint
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final class Exception extends \PHPUnit\Framework\Constraint\Constraint
 {
@@ -11444,8 +11444,8 @@ final class Exception extends \PHPUnit\Framework\Constraint\Constraint
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final class ExceptionCode extends \PHPUnit\Framework\Constraint\Constraint
 {
@@ -11457,8 +11457,8 @@ final class ExceptionCode extends \PHPUnit\Framework\Constraint\Constraint
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final class ExceptionMessageIsOrContains extends \PHPUnit\Framework\Constraint\Constraint
 {
@@ -11470,8 +11470,8 @@ final class ExceptionMessageIsOrContains extends \PHPUnit\Framework\Constraint\C
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final class ExceptionMessageMatchesRegularExpression extends \PHPUnit\Framework\Constraint\Constraint
 {
@@ -11483,7 +11483,7 @@ final class ExceptionMessageMatchesRegularExpression extends \PHPUnit\Framework\
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final class DirectoryExists extends \PHPUnit\Framework\Constraint\Constraint
 {
@@ -11492,7 +11492,7 @@ final class DirectoryExists extends \PHPUnit\Framework\Constraint\Constraint
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final class FileExists extends \PHPUnit\Framework\Constraint\Constraint
 {
@@ -11501,7 +11501,7 @@ final class FileExists extends \PHPUnit\Framework\Constraint\Constraint
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final class IsReadable extends \PHPUnit\Framework\Constraint\Constraint
 {
@@ -11510,7 +11510,7 @@ final class IsReadable extends \PHPUnit\Framework\Constraint\Constraint
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final class IsWritable extends \PHPUnit\Framework\Constraint\Constraint
 {
@@ -11519,7 +11519,7 @@ final class IsWritable extends \PHPUnit\Framework\Constraint\Constraint
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final class IsAnything extends \PHPUnit\Framework\Constraint\Constraint
 {
@@ -11537,7 +11537,7 @@ final class IsAnything extends \PHPUnit\Framework\Constraint\Constraint
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final class IsIdentical extends \PHPUnit\Framework\Constraint\Constraint
 {
@@ -11555,7 +11555,7 @@ final class IsIdentical extends \PHPUnit\Framework\Constraint\Constraint
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final class JsonMatches extends \PHPUnit\Framework\Constraint\Constraint
 {
@@ -11567,7 +11567,7 @@ final class JsonMatches extends \PHPUnit\Framework\Constraint\Constraint
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final class IsFinite extends \PHPUnit\Framework\Constraint\Constraint
 {
@@ -11576,7 +11576,7 @@ final class IsFinite extends \PHPUnit\Framework\Constraint\Constraint
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final class IsInfinite extends \PHPUnit\Framework\Constraint\Constraint
 {
@@ -11585,7 +11585,7 @@ final class IsInfinite extends \PHPUnit\Framework\Constraint\Constraint
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final class IsNan extends \PHPUnit\Framework\Constraint\Constraint
 {
@@ -11594,7 +11594,7 @@ final class IsNan extends \PHPUnit\Framework\Constraint\Constraint
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final class ObjectEquals extends \PHPUnit\Framework\Constraint\Constraint
 {
@@ -11606,7 +11606,7 @@ final class ObjectEquals extends \PHPUnit\Framework\Constraint\Constraint
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final class ObjectHasProperty extends \PHPUnit\Framework\Constraint\Constraint
 {
@@ -11618,7 +11618,7 @@ final class ObjectHasProperty extends \PHPUnit\Framework\Constraint\Constraint
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  */
 abstract class BinaryOperator extends \PHPUnit\Framework\Constraint\Operator
 {
@@ -11648,7 +11648,7 @@ abstract class BinaryOperator extends \PHPUnit\Framework\Constraint\Operator
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final class LogicalAnd extends \PHPUnit\Framework\Constraint\BinaryOperator
 {
@@ -11666,7 +11666,7 @@ final class LogicalAnd extends \PHPUnit\Framework\Constraint\BinaryOperator
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final class LogicalNot extends \PHPUnit\Framework\Constraint\UnaryOperator
 {
@@ -11684,7 +11684,7 @@ final class LogicalNot extends \PHPUnit\Framework\Constraint\UnaryOperator
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final class LogicalOr extends \PHPUnit\Framework\Constraint\BinaryOperator
 {
@@ -11705,7 +11705,7 @@ final class LogicalOr extends \PHPUnit\Framework\Constraint\BinaryOperator
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final class LogicalXor extends \PHPUnit\Framework\Constraint\BinaryOperator
 {
@@ -11729,7 +11729,7 @@ final class LogicalXor extends \PHPUnit\Framework\Constraint\BinaryOperator
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  */
 abstract class Operator extends \PHPUnit\Framework\Constraint\Constraint
 {
@@ -11747,7 +11747,7 @@ abstract class Operator extends \PHPUnit\Framework\Constraint\Constraint
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  */
 abstract class UnaryOperator extends \PHPUnit\Framework\Constraint\Operator
 {
@@ -11777,7 +11777,7 @@ abstract class UnaryOperator extends \PHPUnit\Framework\Constraint\Operator
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final class IsJson extends \PHPUnit\Framework\Constraint\Constraint
 {
@@ -11786,7 +11786,7 @@ final class IsJson extends \PHPUnit\Framework\Constraint\Constraint
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final class RegularExpression extends \PHPUnit\Framework\Constraint\Constraint
 {
@@ -11798,7 +11798,7 @@ final class RegularExpression extends \PHPUnit\Framework\Constraint\Constraint
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final class StringContains extends \PHPUnit\Framework\Constraint\Constraint
 {
@@ -11813,7 +11813,7 @@ final class StringContains extends \PHPUnit\Framework\Constraint\Constraint
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final class StringEndsWith extends \PHPUnit\Framework\Constraint\Constraint
 {
@@ -11828,7 +11828,7 @@ final class StringEndsWith extends \PHPUnit\Framework\Constraint\Constraint
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final class StringEqualsStringIgnoringLineEndings extends \PHPUnit\Framework\Constraint\Constraint
 {
@@ -11840,7 +11840,7 @@ final class StringEqualsStringIgnoringLineEndings extends \PHPUnit\Framework\Con
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final class StringMatchesFormatDescription extends \PHPUnit\Framework\Constraint\Constraint
 {
@@ -11852,7 +11852,7 @@ final class StringMatchesFormatDescription extends \PHPUnit\Framework\Constraint
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final class StringStartsWith extends \PHPUnit\Framework\Constraint\Constraint
 {
@@ -11867,7 +11867,7 @@ final class StringStartsWith extends \PHPUnit\Framework\Constraint\Constraint
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final class ArrayHasKey extends \PHPUnit\Framework\Constraint\Constraint
 {
@@ -11879,7 +11879,7 @@ final class ArrayHasKey extends \PHPUnit\Framework\Constraint\Constraint
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final class IsList extends \PHPUnit\Framework\Constraint\Constraint
 {
@@ -11888,7 +11888,7 @@ final class IsList extends \PHPUnit\Framework\Constraint\Constraint
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  */
 abstract class TraversableContains extends \PHPUnit\Framework\Constraint\Constraint
 {
@@ -11906,19 +11906,19 @@ abstract class TraversableContains extends \PHPUnit\Framework\Constraint\Constra
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final class TraversableContainsEqual extends \PHPUnit\Framework\Constraint\TraversableContains
 {
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final class TraversableContainsIdentical extends \PHPUnit\Framework\Constraint\TraversableContains
 {
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final class TraversableContainsOnly extends \PHPUnit\Framework\Constraint\Constraint
 {
@@ -11942,7 +11942,7 @@ final class TraversableContainsOnly extends \PHPUnit\Framework\Constraint\Constr
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final class IsInstanceOf extends \PHPUnit\Framework\Constraint\Constraint
 {
@@ -11957,7 +11957,7 @@ final class IsInstanceOf extends \PHPUnit\Framework\Constraint\Constraint
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final class IsNull extends \PHPUnit\Framework\Constraint\Constraint
 {
@@ -11966,7 +11966,7 @@ final class IsNull extends \PHPUnit\Framework\Constraint\Constraint
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final class IsType extends \PHPUnit\Framework\Constraint\Constraint
 {
@@ -11980,8 +11980,8 @@ final class IsType extends \PHPUnit\Framework\Constraint\Constraint
 namespace PHPUnit\Framework\MockObject;
 
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class ConfigurableMethod
 {
@@ -12019,15 +12019,15 @@ final readonly class ConfigurableMethod
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final class BadMethodCallException extends \BadMethodCallException implements \PHPUnit\Framework\MockObject\Exception
 {
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final class CannotUseOnlyMethodsException extends \PHPUnit\Framework\Exception implements \PHPUnit\Framework\MockObject\Exception
 {
@@ -12036,15 +12036,15 @@ final class CannotUseOnlyMethodsException extends \PHPUnit\Framework\Exception i
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 interface Exception extends \PHPUnit\Exception
 {
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final class IncompatibleReturnValueException extends \PHPUnit\Framework\Exception implements \PHPUnit\Framework\MockObject\Exception
 {
@@ -12053,8 +12053,8 @@ final class IncompatibleReturnValueException extends \PHPUnit\Framework\Exceptio
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final class MatchBuilderNotFoundException extends \PHPUnit\Framework\Exception implements \PHPUnit\Framework\MockObject\Exception
 {
@@ -12063,8 +12063,8 @@ final class MatchBuilderNotFoundException extends \PHPUnit\Framework\Exception i
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final class MatcherAlreadyRegisteredException extends \PHPUnit\Framework\Exception implements \PHPUnit\Framework\MockObject\Exception
 {
@@ -12073,8 +12073,8 @@ final class MatcherAlreadyRegisteredException extends \PHPUnit\Framework\Excepti
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final class MethodCannotBeConfiguredException extends \PHPUnit\Framework\Exception implements \PHPUnit\Framework\MockObject\Exception
 {
@@ -12083,8 +12083,8 @@ final class MethodCannotBeConfiguredException extends \PHPUnit\Framework\Excepti
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final class MethodNameAlreadyConfiguredException extends \PHPUnit\Framework\Exception implements \PHPUnit\Framework\MockObject\Exception
 {
@@ -12093,8 +12093,8 @@ final class MethodNameAlreadyConfiguredException extends \PHPUnit\Framework\Exce
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final class MethodNameNotConfiguredException extends \PHPUnit\Framework\Exception implements \PHPUnit\Framework\MockObject\Exception
 {
@@ -12103,8 +12103,8 @@ final class MethodNameNotConfiguredException extends \PHPUnit\Framework\Exceptio
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final class MethodParametersAlreadyConfiguredException extends \PHPUnit\Framework\Exception implements \PHPUnit\Framework\MockObject\Exception
 {
@@ -12113,7 +12113,7 @@ final class MethodParametersAlreadyConfiguredException extends \PHPUnit\Framewor
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final class NeverReturningMethodException extends \RuntimeException implements \PHPUnit\Framework\MockObject\Exception
 {
@@ -12126,8 +12126,8 @@ final class NeverReturningMethodException extends \RuntimeException implements \
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final class NoMoreReturnValuesConfiguredException extends \PHPUnit\Framework\Exception implements \PHPUnit\Framework\MockObject\Exception
 {
@@ -12136,8 +12136,8 @@ final class NoMoreReturnValuesConfiguredException extends \PHPUnit\Framework\Exc
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final class ReturnValueNotConfiguredException extends \PHPUnit\Framework\Exception implements \PHPUnit\Framework\MockObject\Exception
 {
@@ -12146,15 +12146,15 @@ final class ReturnValueNotConfiguredException extends \PHPUnit\Framework\Excepti
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final class RuntimeException extends \RuntimeException implements \PHPUnit\Framework\MockObject\Exception
 {
 }
 /**
  * @template MockedType
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final class MockBuilder extends \PHPUnit\Framework\MockObject\TestDoubleBuilder
 {
@@ -12190,8 +12190,8 @@ final class MockBuilder extends \PHPUnit\Framework\MockObject\TestDoubleBuilder
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 trait DoubledCloneMethod
 {
@@ -12201,8 +12201,8 @@ trait DoubledCloneMethod
     abstract public function __phpunit_state(): \PHPUnit\Framework\MockObject\TestDoubleState;
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 trait Method
 {
@@ -12212,8 +12212,8 @@ trait Method
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 trait MockObjectApi
 {
@@ -12234,8 +12234,8 @@ trait MockObjectApi
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 trait ProxiedCloneMethod
 {
@@ -12245,8 +12245,8 @@ trait ProxiedCloneMethod
     abstract public function __phpunit_state(): \PHPUnit\Framework\MockObject\TestDoubleState;
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 trait StubApi
 {
@@ -12262,8 +12262,8 @@ trait StubApi
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final class TestDoubleState
 {
@@ -12295,19 +12295,19 @@ final class TestDoubleState
 interface InvocationStubber
 {
     /**
-     * @no-named-arguments 
+     * @no-named-arguments
      * @param \PHPUnit\Framework\Constraint\Constraint|non-empty-string|Runtime\PropertyHook $constraint
      * @return $this
      */
     public function method(\PHPUnit\Framework\Constraint\Constraint|\PHPUnit\Framework\MockObject\Runtime\PropertyHook|string $constraint): self;
     /**
-     * @no-named-arguments 
+     * @no-named-arguments
      * @param non-empty-string $id
      * @return $this
      */
     public function id(string $id): self;
     /**
-     * @no-named-arguments 
+     * @no-named-arguments
      * @param non-empty-string $id
      * @return $this
      */
@@ -12317,67 +12317,67 @@ interface InvocationStubber
      */
     public function with(mixed ...$arguments): self;
     /**
-     * @no-named-arguments 
+     * @no-named-arguments
      * @return $this
      */
     public function withAnyParameters(): self;
     /**
-     * @no-named-arguments 
+     * @no-named-arguments
      * @return $this
      */
     public function will(\PHPUnit\Framework\MockObject\Stub\Stub $stub): self;
     /**
-     * @no-named-arguments 
+     * @no-named-arguments
      * @return $this
      */
     public function willReturn(mixed $value, mixed ...$nextValues): self;
     /**
-     * @no-named-arguments 
+     * @no-named-arguments
      * @return $this
      */
     public function willReturnReference(mixed &$reference): self;
     /**
-     * @no-named-arguments 
+     * @no-named-arguments
      * @param array<int, array<int, mixed>> $valueMap
      * @return $this
      */
     public function willReturnMap(array $valueMap): self;
     /**
-     * @no-named-arguments 
+     * @no-named-arguments
      * @return $this
      */
     public function willReturnArgument(int $argumentIndex): self;
     /**
-     * @no-named-arguments 
+     * @no-named-arguments
      * @return $this
      */
     public function willReturnCallback(callable $callback): self;
     /**
-     * @no-named-arguments 
+     * @no-named-arguments
      * @return $this
      */
     public function willReturnSelf(): self;
     /**
-     * @no-named-arguments 
+     * @no-named-arguments
      * @return $this
      */
     public function willReturnOnConsecutiveCalls(mixed ...$values): self;
     /**
-     * @no-named-arguments 
+     * @no-named-arguments
      * @return $this
      */
     public function willThrowException(\Throwable $exception): self;
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  */
 interface MockObject extends \PHPUnit\Framework\MockObject\Stub
 {
     public function expects(\PHPUnit\Framework\MockObject\Rule\InvocationOrder $invocationRule): \PHPUnit\Framework\MockObject\InvocationStubber;
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 interface MockObjectInternal extends \PHPUnit\Framework\MockObject\MockObject, \PHPUnit\Framework\MockObject\StubInternal
 {
@@ -12386,15 +12386,15 @@ interface MockObjectInternal extends \PHPUnit\Framework\MockObject\MockObject, \
     public function __phpunit_verify(bool $unsetInvocationMocker = true): void;
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  */
 interface Stub
 {
     public function method(\PHPUnit\Framework\Constraint\Constraint|\PHPUnit\Framework\MockObject\Runtime\PropertyHook|string $constraint): \PHPUnit\Framework\MockObject\InvocationStubber;
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 interface StubInternal extends \PHPUnit\Framework\MockObject\Stub
 {
@@ -12403,8 +12403,8 @@ interface StubInternal extends \PHPUnit\Framework\MockObject\Stub
     public function __phpunit_unsetInvocationMocker(): void;
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class Invocation implements \PHPUnit\Framework\SelfDescribing
 {
@@ -12448,8 +12448,8 @@ final readonly class Invocation implements \PHPUnit\Framework\SelfDescribing
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final class InvocationHandler
 {
@@ -12499,8 +12499,8 @@ final class InvocationHandler
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final class InvocationStubberImplementation implements \PHPUnit\Framework\MockObject\InvocationStubber
 {
@@ -12584,8 +12584,8 @@ final class InvocationStubberImplementation implements \PHPUnit\Framework\MockOb
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final class Matcher
 {
@@ -12647,8 +12647,8 @@ final class Matcher
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final class MethodNameConstraint extends \PHPUnit\Framework\Constraint\Constraint
 {
@@ -12660,8 +12660,8 @@ final class MethodNameConstraint extends \PHPUnit\Framework\Constraint\Constrain
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final class ReturnValueGenerator
 {
@@ -12675,7 +12675,7 @@ final class ReturnValueGenerator
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  * @template MockedType
  */
 abstract class TestDoubleBuilder
@@ -12768,7 +12768,7 @@ abstract class TestDoubleBuilder
 }
 /**
  * @template MockedType
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final class TestStubBuilder extends \PHPUnit\Framework\MockObject\TestDoubleBuilder
 {
@@ -12799,8 +12799,8 @@ final class TestStubBuilder extends \PHPUnit\Framework\MockObject\TestDoubleBuil
 namespace PHPUnit\Framework\MockObject\Generator;
 
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class DoubledClass
 {
@@ -12828,8 +12828,8 @@ final readonly class DoubledClass
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final class DoubledMethod
 {
@@ -12877,8 +12877,8 @@ final class DoubledMethod
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final class DoubledMethodSet
 {
@@ -12896,8 +12896,8 @@ final class DoubledMethodSet
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final class ClassIsAnonymousException extends \PHPUnit\Framework\Exception implements \PHPUnit\Framework\MockObject\Generator\Exception
 {
@@ -12906,8 +12906,8 @@ final class ClassIsAnonymousException extends \PHPUnit\Framework\Exception imple
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final class ClassIsEnumerationException extends \PHPUnit\Framework\Exception implements \PHPUnit\Framework\MockObject\Generator\Exception
 {
@@ -12916,8 +12916,8 @@ final class ClassIsEnumerationException extends \PHPUnit\Framework\Exception imp
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final class ClassIsFinalException extends \PHPUnit\Framework\Exception implements \PHPUnit\Framework\MockObject\Generator\Exception
 {
@@ -12926,8 +12926,8 @@ final class ClassIsFinalException extends \PHPUnit\Framework\Exception implement
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final class DuplicateMethodException extends \PHPUnit\Framework\Exception implements \PHPUnit\Framework\MockObject\Generator\Exception
 {
@@ -12939,15 +12939,15 @@ final class DuplicateMethodException extends \PHPUnit\Framework\Exception implem
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 interface Exception extends \PHPUnit\Framework\MockObject\Exception
 {
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final class InvalidClassNameException extends \PHPUnit\Framework\Exception implements \PHPUnit\Framework\MockObject\Generator\Exception
 {
@@ -12956,8 +12956,8 @@ final class InvalidClassNameException extends \PHPUnit\Framework\Exception imple
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final class InvalidMethodNameException extends \PHPUnit\Framework\Exception implements \PHPUnit\Framework\MockObject\Generator\Exception
 {
@@ -12966,7 +12966,7 @@ final class InvalidMethodNameException extends \PHPUnit\Framework\Exception impl
     }
 }
 /**
- * @internal 
+ * @internal
  */
 final class MethodNamedMethodException extends \PHPUnit\Framework\Exception implements \PHPUnit\Framework\MockObject\Generator\Exception
 {
@@ -12975,8 +12975,8 @@ final class MethodNamedMethodException extends \PHPUnit\Framework\Exception impl
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final class NameAlreadyInUseException extends \PHPUnit\Framework\Exception implements \PHPUnit\Framework\MockObject\Generator\Exception
 {
@@ -12988,22 +12988,22 @@ final class NameAlreadyInUseException extends \PHPUnit\Framework\Exception imple
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final class ReflectionException extends \PHPUnit\Framework\Exception implements \PHPUnit\Framework\MockObject\Generator\Exception
 {
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final class RuntimeException extends \PHPUnit\Framework\Exception implements \PHPUnit\Framework\MockObject\Generator\Exception
 {
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final class UnknownInterfaceException extends \PHPUnit\Framework\Exception implements \PHPUnit\Framework\MockObject\Generator\Exception
 {
@@ -13012,8 +13012,8 @@ final class UnknownInterfaceException extends \PHPUnit\Framework\Exception imple
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final class UnknownTypeException extends \PHPUnit\Framework\Exception implements \PHPUnit\Framework\MockObject\Generator\Exception
 {
@@ -13022,8 +13022,8 @@ final class UnknownTypeException extends \PHPUnit\Framework\Exception implements
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final class Generator
 {
@@ -13070,8 +13070,8 @@ final class Generator
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class HookedProperty
 {
@@ -13104,8 +13104,8 @@ final readonly class HookedProperty
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final class HookedPropertyGenerator
 {
@@ -13118,8 +13118,8 @@ final class HookedPropertyGenerator
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 trait TemplateLoader
 {
@@ -13134,8 +13134,8 @@ trait TemplateLoader
 namespace PHPUnit\Framework\MockObject\Rule;
 
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final class AnyInvokedCount extends \PHPUnit\Framework\MockObject\Rule\InvocationOrder
 {
@@ -13150,8 +13150,8 @@ final class AnyInvokedCount extends \PHPUnit\Framework\MockObject\Rule\Invocatio
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final class AnyParameters implements \PHPUnit\Framework\MockObject\Rule\ParametersRule
 {
@@ -13166,8 +13166,8 @@ final class AnyParameters implements \PHPUnit\Framework\MockObject\Rule\Paramete
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 abstract class InvocationOrder implements \PHPUnit\Framework\SelfDescribing
 {
@@ -13187,8 +13187,8 @@ abstract class InvocationOrder implements \PHPUnit\Framework\SelfDescribing
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final class InvokedAtLeastCount extends \PHPUnit\Framework\MockObject\Rule\InvocationOrder
 {
@@ -13209,8 +13209,8 @@ final class InvokedAtLeastCount extends \PHPUnit\Framework\MockObject\Rule\Invoc
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final class InvokedAtLeastOnce extends \PHPUnit\Framework\MockObject\Rule\InvocationOrder
 {
@@ -13228,8 +13228,8 @@ final class InvokedAtLeastOnce extends \PHPUnit\Framework\MockObject\Rule\Invoca
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final class InvokedAtMostCount extends \PHPUnit\Framework\MockObject\Rule\InvocationOrder
 {
@@ -13250,8 +13250,8 @@ final class InvokedAtMostCount extends \PHPUnit\Framework\MockObject\Rule\Invoca
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final class InvokedCount extends \PHPUnit\Framework\MockObject\Rule\InvocationOrder
 {
@@ -13275,8 +13275,8 @@ final class InvokedCount extends \PHPUnit\Framework\MockObject\Rule\InvocationOr
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class MethodName
 {
@@ -13303,8 +13303,8 @@ final readonly class MethodName
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final class Parameters implements \PHPUnit\Framework\MockObject\Rule\ParametersRule
 {
@@ -13329,7 +13329,7 @@ final class Parameters implements \PHPUnit\Framework\MockObject\Rule\ParametersR
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  */
 interface ParametersRule
 {
@@ -13342,20 +13342,20 @@ interface ParametersRule
 namespace PHPUnit\Framework\MockObject\Runtime;
 
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final readonly class PropertyGetHook extends \PHPUnit\Framework\MockObject\Runtime\PropertyHook
 {
     /**
      * @return non-empty-string
-     * @internal 
+     * @internal
      */
     public function asString(): string
     {
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  */
 abstract readonly class PropertyHook
 {
@@ -13385,18 +13385,18 @@ abstract readonly class PropertyHook
     }
     /**
      * @return non-empty-string
-     * @internal 
+     * @internal
      */
     abstract public function asString(): string;
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final readonly class PropertySetHook extends \PHPUnit\Framework\MockObject\Runtime\PropertyHook
 {
     /**
      * @return non-empty-string
-     * @internal 
+     * @internal
      */
     public function asString(): string
     {
@@ -13405,8 +13405,8 @@ final readonly class PropertySetHook extends \PHPUnit\Framework\MockObject\Runti
 namespace PHPUnit\Framework\MockObject\Stub;
 
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final class ConsecutiveCalls implements \PHPUnit\Framework\MockObject\Stub\Stub
 {
@@ -13424,8 +13424,8 @@ final class ConsecutiveCalls implements \PHPUnit\Framework\MockObject\Stub\Stub
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class Exception implements \PHPUnit\Framework\MockObject\Stub\Stub
 {
@@ -13440,8 +13440,8 @@ final readonly class Exception implements \PHPUnit\Framework\MockObject\Stub\Stu
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class ReturnArgument implements \PHPUnit\Framework\MockObject\Stub\Stub
 {
@@ -13453,8 +13453,8 @@ final readonly class ReturnArgument implements \PHPUnit\Framework\MockObject\Stu
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final class ReturnCallback implements \PHPUnit\Framework\MockObject\Stub\Stub
 {
@@ -13466,8 +13466,8 @@ final class ReturnCallback implements \PHPUnit\Framework\MockObject\Stub\Stub
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final class ReturnReference implements \PHPUnit\Framework\MockObject\Stub\Stub
 {
@@ -13479,8 +13479,8 @@ final class ReturnReference implements \PHPUnit\Framework\MockObject\Stub\Stub
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final class ReturnSelf implements \PHPUnit\Framework\MockObject\Stub\Stub
 {
@@ -13492,8 +13492,8 @@ final class ReturnSelf implements \PHPUnit\Framework\MockObject\Stub\Stub
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class ReturnStub implements \PHPUnit\Framework\MockObject\Stub\Stub
 {
@@ -13505,8 +13505,8 @@ final readonly class ReturnStub implements \PHPUnit\Framework\MockObject\Stub\St
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class ReturnValueMap implements \PHPUnit\Framework\MockObject\Stub\Stub
 {
@@ -13521,8 +13521,8 @@ final readonly class ReturnValueMap implements \PHPUnit\Framework\MockObject\Stu
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 interface Stub
 {
@@ -13531,8 +13531,8 @@ interface Stub
 namespace PHPUnit\Framework\TestSize;
 
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  * @immutable
  */
 abstract readonly class Known extends \PHPUnit\Framework\TestSize\TestSize
@@ -13543,8 +13543,8 @@ abstract readonly class Known extends \PHPUnit\Framework\TestSize\TestSize
     abstract public function isGreaterThan(self $other): bool;
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  * @immutable
  */
 final readonly class Large extends \PHPUnit\Framework\TestSize\Known
@@ -13560,8 +13560,8 @@ final readonly class Large extends \PHPUnit\Framework\TestSize\Known
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  * @immutable
  */
 final readonly class Medium extends \PHPUnit\Framework\TestSize\Known
@@ -13577,8 +13577,8 @@ final readonly class Medium extends \PHPUnit\Framework\TestSize\Known
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  * @immutable
  */
 final readonly class Small extends \PHPUnit\Framework\TestSize\Known
@@ -13594,8 +13594,8 @@ final readonly class Small extends \PHPUnit\Framework\TestSize\Known
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  * @immutable
  */
 abstract readonly class TestSize
@@ -13645,8 +13645,8 @@ abstract readonly class TestSize
     abstract public function asString(): string;
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  * @immutable
  */
 final readonly class Unknown extends \PHPUnit\Framework\TestSize\TestSize
@@ -13662,8 +13662,8 @@ namespace PHPUnit\Framework\TestStatus;
 
 /**
  * @immutable
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class Deprecation extends \PHPUnit\Framework\TestStatus\Known
 {
@@ -13679,8 +13679,8 @@ final readonly class Deprecation extends \PHPUnit\Framework\TestStatus\Known
 }
 /**
  * @immutable
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class Error extends \PHPUnit\Framework\TestStatus\Known
 {
@@ -13696,8 +13696,8 @@ final readonly class Error extends \PHPUnit\Framework\TestStatus\Known
 }
 /**
  * @immutable
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class Failure extends \PHPUnit\Framework\TestStatus\Known
 {
@@ -13713,8 +13713,8 @@ final readonly class Failure extends \PHPUnit\Framework\TestStatus\Known
 }
 /**
  * @immutable
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class Incomplete extends \PHPUnit\Framework\TestStatus\Known
 {
@@ -13730,8 +13730,8 @@ final readonly class Incomplete extends \PHPUnit\Framework\TestStatus\Known
 }
 /**
  * @immutable
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 abstract readonly class Known extends \PHPUnit\Framework\TestStatus\TestStatus
 {
@@ -13741,8 +13741,8 @@ abstract readonly class Known extends \PHPUnit\Framework\TestStatus\TestStatus
 }
 /**
  * @immutable
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class Notice extends \PHPUnit\Framework\TestStatus\Known
 {
@@ -13758,8 +13758,8 @@ final readonly class Notice extends \PHPUnit\Framework\TestStatus\Known
 }
 /**
  * @immutable
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class Risky extends \PHPUnit\Framework\TestStatus\Known
 {
@@ -13775,8 +13775,8 @@ final readonly class Risky extends \PHPUnit\Framework\TestStatus\Known
 }
 /**
  * @immutable
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class Skipped extends \PHPUnit\Framework\TestStatus\Known
 {
@@ -13792,8 +13792,8 @@ final readonly class Skipped extends \PHPUnit\Framework\TestStatus\Known
 }
 /**
  * @immutable
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class Success extends \PHPUnit\Framework\TestStatus\Known
 {
@@ -13809,8 +13809,8 @@ final readonly class Success extends \PHPUnit\Framework\TestStatus\Known
 }
 /**
  * @immutable
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 abstract readonly class TestStatus
 {
@@ -13924,8 +13924,8 @@ abstract readonly class TestStatus
 }
 /**
  * @immutable
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class Unknown extends \PHPUnit\Framework\TestStatus\TestStatus
 {
@@ -13941,8 +13941,8 @@ final readonly class Unknown extends \PHPUnit\Framework\TestStatus\TestStatus
 }
 /**
  * @immutable
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class Warning extends \PHPUnit\Framework\TestStatus\Known
 {
@@ -13959,8 +13959,8 @@ final readonly class Warning extends \PHPUnit\Framework\TestStatus\Known
 namespace PHPUnit\Logging;
 
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class EventLogger implements \PHPUnit\Event\Tracer\Tracer
 {
@@ -13974,8 +13974,8 @@ final readonly class EventLogger implements \PHPUnit\Event\Tracer\Tracer
 namespace PHPUnit\Logging\JUnit;
 
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final class JunitXmlLogger
 {
@@ -14044,8 +14044,8 @@ final class JunitXmlLogger
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 abstract readonly class Subscriber
 {
@@ -14057,8 +14057,8 @@ abstract readonly class Subscriber
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class TestErroredSubscriber extends \PHPUnit\Logging\JUnit\Subscriber implements \PHPUnit\Event\Test\ErroredSubscriber
 {
@@ -14070,8 +14070,8 @@ final readonly class TestErroredSubscriber extends \PHPUnit\Logging\JUnit\Subscr
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class TestFailedSubscriber extends \PHPUnit\Logging\JUnit\Subscriber implements \PHPUnit\Event\Test\FailedSubscriber
 {
@@ -14083,8 +14083,8 @@ final readonly class TestFailedSubscriber extends \PHPUnit\Logging\JUnit\Subscri
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class TestFinishedSubscriber extends \PHPUnit\Logging\JUnit\Subscriber implements \PHPUnit\Event\Test\FinishedSubscriber
 {
@@ -14096,8 +14096,8 @@ final readonly class TestFinishedSubscriber extends \PHPUnit\Logging\JUnit\Subsc
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class TestMarkedIncompleteSubscriber extends \PHPUnit\Logging\JUnit\Subscriber implements \PHPUnit\Event\Test\MarkedIncompleteSubscriber
 {
@@ -14109,8 +14109,8 @@ final readonly class TestMarkedIncompleteSubscriber extends \PHPUnit\Logging\JUn
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class TestPreparationErroredSubscriber extends \PHPUnit\Logging\JUnit\Subscriber implements \PHPUnit\Event\Test\PreparationErroredSubscriber
 {
@@ -14122,8 +14122,8 @@ final readonly class TestPreparationErroredSubscriber extends \PHPUnit\Logging\J
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class TestPreparationFailedSubscriber extends \PHPUnit\Logging\JUnit\Subscriber implements \PHPUnit\Event\Test\PreparationFailedSubscriber
 {
@@ -14135,8 +14135,8 @@ final readonly class TestPreparationFailedSubscriber extends \PHPUnit\Logging\JU
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class TestPreparationStartedSubscriber extends \PHPUnit\Logging\JUnit\Subscriber implements \PHPUnit\Event\Test\PreparationStartedSubscriber
 {
@@ -14148,8 +14148,8 @@ final readonly class TestPreparationStartedSubscriber extends \PHPUnit\Logging\J
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class TestPreparedSubscriber extends \PHPUnit\Logging\JUnit\Subscriber implements \PHPUnit\Event\Test\PreparedSubscriber
 {
@@ -14161,8 +14161,8 @@ final readonly class TestPreparedSubscriber extends \PHPUnit\Logging\JUnit\Subsc
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class TestPrintedUnexpectedOutputSubscriber extends \PHPUnit\Logging\JUnit\Subscriber implements \PHPUnit\Event\Test\PrintedUnexpectedOutputSubscriber
 {
@@ -14171,8 +14171,8 @@ final readonly class TestPrintedUnexpectedOutputSubscriber extends \PHPUnit\Logg
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class TestRunnerExecutionFinishedSubscriber extends \PHPUnit\Logging\JUnit\Subscriber implements \PHPUnit\Event\TestRunner\ExecutionFinishedSubscriber
 {
@@ -14181,8 +14181,8 @@ final readonly class TestRunnerExecutionFinishedSubscriber extends \PHPUnit\Logg
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class TestSkippedSubscriber extends \PHPUnit\Logging\JUnit\Subscriber implements \PHPUnit\Event\Test\SkippedSubscriber
 {
@@ -14194,8 +14194,8 @@ final readonly class TestSkippedSubscriber extends \PHPUnit\Logging\JUnit\Subscr
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class TestSuiteFinishedSubscriber extends \PHPUnit\Logging\JUnit\Subscriber implements \PHPUnit\Event\TestSuite\FinishedSubscriber
 {
@@ -14204,8 +14204,8 @@ final readonly class TestSuiteFinishedSubscriber extends \PHPUnit\Logging\JUnit\
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class TestSuiteSkippedSubscriber extends \PHPUnit\Logging\JUnit\Subscriber implements \PHPUnit\Event\TestSuite\SkippedSubscriber
 {
@@ -14214,8 +14214,8 @@ final readonly class TestSuiteSkippedSubscriber extends \PHPUnit\Logging\JUnit\S
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class TestSuiteStartedSubscriber extends \PHPUnit\Logging\JUnit\Subscriber implements \PHPUnit\Event\TestSuite\StartedSubscriber
 {
@@ -14232,8 +14232,8 @@ interface Exception extends \PHPUnit\Exception
 {
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class InfrastructureInformationProvider
 {
@@ -14263,8 +14263,8 @@ final readonly class InfrastructureInformationProvider
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final class OtrXmlLogger
 {
@@ -14316,8 +14316,8 @@ final class OtrXmlLogger
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 enum Status : string
 {
@@ -14328,8 +14328,8 @@ enum Status : string
     case Successful = 'SUCCESSFUL';
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class AfterLastTestMethodErroredSubscriber extends \PHPUnit\Logging\OpenTestReporting\Subscriber implements \PHPUnit\Event\Test\AfterLastTestMethodErroredSubscriber
 {
@@ -14341,8 +14341,8 @@ final readonly class AfterLastTestMethodErroredSubscriber extends \PHPUnit\Loggi
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class AfterLastTestMethodFailedSubscriber extends \PHPUnit\Logging\OpenTestReporting\Subscriber implements \PHPUnit\Event\Test\AfterLastTestMethodFailedSubscriber
 {
@@ -14354,8 +14354,8 @@ final readonly class AfterLastTestMethodFailedSubscriber extends \PHPUnit\Loggin
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class BeforeFirstTestMethodErroredSubscriber extends \PHPUnit\Logging\OpenTestReporting\Subscriber implements \PHPUnit\Event\Test\BeforeFirstTestMethodErroredSubscriber
 {
@@ -14367,8 +14367,8 @@ final readonly class BeforeFirstTestMethodErroredSubscriber extends \PHPUnit\Log
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class BeforeFirstTestMethodFailedSubscriber extends \PHPUnit\Logging\OpenTestReporting\Subscriber implements \PHPUnit\Event\Test\BeforeFirstTestMethodFailedSubscriber
 {
@@ -14380,8 +14380,8 @@ final readonly class BeforeFirstTestMethodFailedSubscriber extends \PHPUnit\Logg
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 abstract readonly class Subscriber
 {
@@ -14393,8 +14393,8 @@ abstract readonly class Subscriber
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class TestAbortedSubscriber extends \PHPUnit\Logging\OpenTestReporting\Subscriber implements \PHPUnit\Event\Test\MarkedIncompleteSubscriber
 {
@@ -14406,8 +14406,8 @@ final readonly class TestAbortedSubscriber extends \PHPUnit\Logging\OpenTestRepo
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class TestErroredSubscriber extends \PHPUnit\Logging\OpenTestReporting\Subscriber implements \PHPUnit\Event\Test\ErroredSubscriber
 {
@@ -14419,8 +14419,8 @@ final readonly class TestErroredSubscriber extends \PHPUnit\Logging\OpenTestRepo
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class TestFailedSubscriber extends \PHPUnit\Logging\OpenTestReporting\Subscriber implements \PHPUnit\Event\Test\FailedSubscriber
 {
@@ -14432,8 +14432,8 @@ final readonly class TestFailedSubscriber extends \PHPUnit\Logging\OpenTestRepor
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class TestFinishedSubscriber extends \PHPUnit\Logging\OpenTestReporting\Subscriber implements \PHPUnit\Event\Test\FinishedSubscriber
 {
@@ -14445,8 +14445,8 @@ final readonly class TestFinishedSubscriber extends \PHPUnit\Logging\OpenTestRep
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class TestPreparationErroredSubscriber extends \PHPUnit\Logging\OpenTestReporting\Subscriber implements \PHPUnit\Event\Test\PreparationErroredSubscriber
 {
@@ -14458,8 +14458,8 @@ final readonly class TestPreparationErroredSubscriber extends \PHPUnit\Logging\O
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class TestPreparationFailedSubscriber extends \PHPUnit\Logging\OpenTestReporting\Subscriber implements \PHPUnit\Event\Test\PreparationFailedSubscriber
 {
@@ -14471,8 +14471,8 @@ final readonly class TestPreparationFailedSubscriber extends \PHPUnit\Logging\Op
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class TestPreparedSubscriber extends \PHPUnit\Logging\OpenTestReporting\Subscriber implements \PHPUnit\Event\Test\PreparedSubscriber
 {
@@ -14484,8 +14484,8 @@ final readonly class TestPreparedSubscriber extends \PHPUnit\Logging\OpenTestRep
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class TestRunnerFinishedSubscriber extends \PHPUnit\Logging\OpenTestReporting\Subscriber implements \PHPUnit\Event\TestRunner\ExecutionFinishedSubscriber
 {
@@ -14497,8 +14497,8 @@ final readonly class TestRunnerFinishedSubscriber extends \PHPUnit\Logging\OpenT
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class TestRunnerStartedSubscriber extends \PHPUnit\Logging\OpenTestReporting\Subscriber implements \PHPUnit\Event\Application\StartedSubscriber
 {
@@ -14510,8 +14510,8 @@ final readonly class TestRunnerStartedSubscriber extends \PHPUnit\Logging\OpenTe
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class TestSkippedSubscriber extends \PHPUnit\Logging\OpenTestReporting\Subscriber implements \PHPUnit\Event\Test\SkippedSubscriber
 {
@@ -14523,8 +14523,8 @@ final readonly class TestSkippedSubscriber extends \PHPUnit\Logging\OpenTestRepo
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class TestSuiteFinishedSubscriber extends \PHPUnit\Logging\OpenTestReporting\Subscriber implements \PHPUnit\Event\TestSuite\FinishedSubscriber
 {
@@ -14536,8 +14536,8 @@ final readonly class TestSuiteFinishedSubscriber extends \PHPUnit\Logging\OpenTe
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class TestSuiteSkippedSubscriber extends \PHPUnit\Logging\OpenTestReporting\Subscriber implements \PHPUnit\Event\TestSuite\SkippedSubscriber
 {
@@ -14549,8 +14549,8 @@ final readonly class TestSuiteSkippedSubscriber extends \PHPUnit\Logging\OpenTes
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class TestSuiteStartedSubscriber extends \PHPUnit\Logging\OpenTestReporting\Subscriber implements \PHPUnit\Event\TestSuite\StartedSubscriber
 {
@@ -14564,8 +14564,8 @@ final readonly class TestSuiteStartedSubscriber extends \PHPUnit\Logging\OpenTes
 namespace PHPUnit\Logging\TeamCity;
 
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 abstract readonly class Subscriber
 {
@@ -14577,8 +14577,8 @@ abstract readonly class Subscriber
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class TestConsideredRiskySubscriber extends \PHPUnit\Logging\TeamCity\Subscriber implements \PHPUnit\Event\Test\ConsideredRiskySubscriber
 {
@@ -14590,8 +14590,8 @@ final readonly class TestConsideredRiskySubscriber extends \PHPUnit\Logging\Team
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class TestErroredSubscriber extends \PHPUnit\Logging\TeamCity\Subscriber implements \PHPUnit\Event\Test\ErroredSubscriber
 {
@@ -14603,8 +14603,8 @@ final readonly class TestErroredSubscriber extends \PHPUnit\Logging\TeamCity\Sub
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class TestFailedSubscriber extends \PHPUnit\Logging\TeamCity\Subscriber implements \PHPUnit\Event\Test\FailedSubscriber
 {
@@ -14616,8 +14616,8 @@ final readonly class TestFailedSubscriber extends \PHPUnit\Logging\TeamCity\Subs
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class TestFinishedSubscriber extends \PHPUnit\Logging\TeamCity\Subscriber implements \PHPUnit\Event\Test\FinishedSubscriber
 {
@@ -14629,8 +14629,8 @@ final readonly class TestFinishedSubscriber extends \PHPUnit\Logging\TeamCity\Su
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class TestMarkedIncompleteSubscriber extends \PHPUnit\Logging\TeamCity\Subscriber implements \PHPUnit\Event\Test\MarkedIncompleteSubscriber
 {
@@ -14642,8 +14642,8 @@ final readonly class TestMarkedIncompleteSubscriber extends \PHPUnit\Logging\Tea
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class TestPreparationErroredSubscriber extends \PHPUnit\Logging\TeamCity\Subscriber implements \PHPUnit\Event\Test\PreparationErroredSubscriber
 {
@@ -14655,8 +14655,8 @@ final readonly class TestPreparationErroredSubscriber extends \PHPUnit\Logging\T
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class TestPreparationFailedSubscriber extends \PHPUnit\Logging\TeamCity\Subscriber implements \PHPUnit\Event\Test\PreparationFailedSubscriber
 {
@@ -14668,8 +14668,8 @@ final readonly class TestPreparationFailedSubscriber extends \PHPUnit\Logging\Te
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class TestPreparationStartedSubscriber extends \PHPUnit\Logging\TeamCity\Subscriber implements \PHPUnit\Event\Test\PreparationStartedSubscriber
 {
@@ -14681,8 +14681,8 @@ final readonly class TestPreparationStartedSubscriber extends \PHPUnit\Logging\T
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class TestPreparedSubscriber extends \PHPUnit\Logging\TeamCity\Subscriber implements \PHPUnit\Event\Test\PreparedSubscriber
 {
@@ -14691,8 +14691,8 @@ final readonly class TestPreparedSubscriber extends \PHPUnit\Logging\TeamCity\Su
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class TestRunnerExecutionFinishedSubscriber extends \PHPUnit\Logging\TeamCity\Subscriber implements \PHPUnit\Event\TestRunner\ExecutionFinishedSubscriber
 {
@@ -14701,8 +14701,8 @@ final readonly class TestRunnerExecutionFinishedSubscriber extends \PHPUnit\Logg
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class TestSkippedSubscriber extends \PHPUnit\Logging\TeamCity\Subscriber implements \PHPUnit\Event\Test\SkippedSubscriber
 {
@@ -14714,8 +14714,8 @@ final readonly class TestSkippedSubscriber extends \PHPUnit\Logging\TeamCity\Sub
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class TestSuiteBeforeFirstTestMethodErroredSubscriber extends \PHPUnit\Logging\TeamCity\Subscriber implements \PHPUnit\Event\Test\BeforeFirstTestMethodErroredSubscriber
 {
@@ -14727,8 +14727,8 @@ final readonly class TestSuiteBeforeFirstTestMethodErroredSubscriber extends \PH
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class TestSuiteBeforeFirstTestMethodFailedSubscriber extends \PHPUnit\Logging\TeamCity\Subscriber implements \PHPUnit\Event\Test\BeforeFirstTestMethodFailedSubscriber
 {
@@ -14740,8 +14740,8 @@ final readonly class TestSuiteBeforeFirstTestMethodFailedSubscriber extends \PHP
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class TestSuiteFinishedSubscriber extends \PHPUnit\Logging\TeamCity\Subscriber implements \PHPUnit\Event\TestSuite\FinishedSubscriber
 {
@@ -14750,8 +14750,8 @@ final readonly class TestSuiteFinishedSubscriber extends \PHPUnit\Logging\TeamCi
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class TestSuiteSkippedSubscriber extends \PHPUnit\Logging\TeamCity\Subscriber implements \PHPUnit\Event\TestSuite\SkippedSubscriber
 {
@@ -14763,8 +14763,8 @@ final readonly class TestSuiteSkippedSubscriber extends \PHPUnit\Logging\TeamCit
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class TestSuiteStartedSubscriber extends \PHPUnit\Logging\TeamCity\Subscriber implements \PHPUnit\Event\TestSuite\StartedSubscriber
 {
@@ -14773,8 +14773,8 @@ final readonly class TestSuiteStartedSubscriber extends \PHPUnit\Logging\TeamCit
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final class TeamCityLogger
 {
@@ -14860,8 +14860,8 @@ final class TeamCityLogger
 namespace PHPUnit\Logging\TestDox;
 
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class HtmlRenderer
 {
@@ -14873,8 +14873,8 @@ final readonly class HtmlRenderer
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final class NamePrettifier
 {
@@ -14895,8 +14895,8 @@ final class NamePrettifier
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class PlainTextRenderer
 {
@@ -14908,8 +14908,8 @@ final readonly class PlainTextRenderer
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 abstract readonly class Subscriber
 {
@@ -14921,8 +14921,8 @@ abstract readonly class Subscriber
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class TestConsideredRiskySubscriber extends \PHPUnit\Logging\TestDox\Subscriber implements \PHPUnit\Event\Test\ConsideredRiskySubscriber
 {
@@ -14931,8 +14931,8 @@ final readonly class TestConsideredRiskySubscriber extends \PHPUnit\Logging\Test
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class TestErroredSubscriber extends \PHPUnit\Logging\TestDox\Subscriber implements \PHPUnit\Event\Test\ErroredSubscriber
 {
@@ -14941,8 +14941,8 @@ final readonly class TestErroredSubscriber extends \PHPUnit\Logging\TestDox\Subs
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class TestFailedSubscriber extends \PHPUnit\Logging\TestDox\Subscriber implements \PHPUnit\Event\Test\FailedSubscriber
 {
@@ -14951,8 +14951,8 @@ final readonly class TestFailedSubscriber extends \PHPUnit\Logging\TestDox\Subsc
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class TestFinishedSubscriber extends \PHPUnit\Logging\TestDox\Subscriber implements \PHPUnit\Event\Test\FinishedSubscriber
 {
@@ -14964,8 +14964,8 @@ final readonly class TestFinishedSubscriber extends \PHPUnit\Logging\TestDox\Sub
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class TestMarkedIncompleteSubscriber extends \PHPUnit\Logging\TestDox\Subscriber implements \PHPUnit\Event\Test\MarkedIncompleteSubscriber
 {
@@ -14974,8 +14974,8 @@ final readonly class TestMarkedIncompleteSubscriber extends \PHPUnit\Logging\Tes
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class TestPassedSubscriber extends \PHPUnit\Logging\TestDox\Subscriber implements \PHPUnit\Event\Test\PassedSubscriber
 {
@@ -14984,8 +14984,8 @@ final readonly class TestPassedSubscriber extends \PHPUnit\Logging\TestDox\Subsc
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class TestPreparedSubscriber extends \PHPUnit\Logging\TestDox\Subscriber implements \PHPUnit\Event\Test\PreparedSubscriber
 {
@@ -14994,8 +14994,8 @@ final readonly class TestPreparedSubscriber extends \PHPUnit\Logging\TestDox\Sub
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class TestSkippedSubscriber extends \PHPUnit\Logging\TestDox\Subscriber implements \PHPUnit\Event\Test\SkippedSubscriber
 {
@@ -15004,8 +15004,8 @@ final readonly class TestSkippedSubscriber extends \PHPUnit\Logging\TestDox\Subs
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class TestTriggeredDeprecationSubscriber extends \PHPUnit\Logging\TestDox\Subscriber implements \PHPUnit\Event\Test\DeprecationTriggeredSubscriber
 {
@@ -15014,8 +15014,8 @@ final readonly class TestTriggeredDeprecationSubscriber extends \PHPUnit\Logging
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class TestTriggeredNoticeSubscriber extends \PHPUnit\Logging\TestDox\Subscriber implements \PHPUnit\Event\Test\NoticeTriggeredSubscriber
 {
@@ -15024,8 +15024,8 @@ final readonly class TestTriggeredNoticeSubscriber extends \PHPUnit\Logging\Test
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class TestTriggeredPhpDeprecationSubscriber extends \PHPUnit\Logging\TestDox\Subscriber implements \PHPUnit\Event\Test\PhpDeprecationTriggeredSubscriber
 {
@@ -15034,8 +15034,8 @@ final readonly class TestTriggeredPhpDeprecationSubscriber extends \PHPUnit\Logg
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class TestTriggeredPhpNoticeSubscriber extends \PHPUnit\Logging\TestDox\Subscriber implements \PHPUnit\Event\Test\PhpNoticeTriggeredSubscriber
 {
@@ -15044,8 +15044,8 @@ final readonly class TestTriggeredPhpNoticeSubscriber extends \PHPUnit\Logging\T
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class TestTriggeredPhpWarningSubscriber extends \PHPUnit\Logging\TestDox\Subscriber implements \PHPUnit\Event\Test\PhpWarningTriggeredSubscriber
 {
@@ -15054,8 +15054,8 @@ final readonly class TestTriggeredPhpWarningSubscriber extends \PHPUnit\Logging\
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class TestTriggeredPhpunitDeprecationSubscriber extends \PHPUnit\Logging\TestDox\Subscriber implements \PHPUnit\Event\Test\PhpunitDeprecationTriggeredSubscriber
 {
@@ -15064,8 +15064,8 @@ final readonly class TestTriggeredPhpunitDeprecationSubscriber extends \PHPUnit\
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class TestTriggeredPhpunitErrorSubscriber extends \PHPUnit\Logging\TestDox\Subscriber implements \PHPUnit\Event\Test\PhpunitErrorTriggeredSubscriber
 {
@@ -15074,8 +15074,8 @@ final readonly class TestTriggeredPhpunitErrorSubscriber extends \PHPUnit\Loggin
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class TestTriggeredPhpunitWarningSubscriber extends \PHPUnit\Logging\TestDox\Subscriber implements \PHPUnit\Event\Test\PhpunitWarningTriggeredSubscriber
 {
@@ -15084,8 +15084,8 @@ final readonly class TestTriggeredPhpunitWarningSubscriber extends \PHPUnit\Logg
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class TestTriggeredWarningSubscriber extends \PHPUnit\Logging\TestDox\Subscriber implements \PHPUnit\Event\Test\WarningTriggeredSubscriber
 {
@@ -15095,8 +15095,8 @@ final readonly class TestTriggeredWarningSubscriber extends \PHPUnit\Logging\Tes
 }
 /**
  * @immutable
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class TestResult
 {
@@ -15122,8 +15122,8 @@ final readonly class TestResult
 /**
  * @template-implements \IteratorAggregate<non-negative-int, TestResult>
  * @immutable
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class TestResultCollection implements \IteratorAggregate
 {
@@ -15145,8 +15145,8 @@ final readonly class TestResultCollection implements \IteratorAggregate
 }
 /**
  * @template-implements \Iterator<non-negative-int, TestResult>
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final class TestResultCollectionIterator implements \Iterator
 {
@@ -15173,8 +15173,8 @@ final class TestResultCollectionIterator implements \Iterator
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final class TestResultCollector
 {
@@ -15246,7 +15246,7 @@ namespace PHPUnit\Metadata;
 
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final readonly class After extends \PHPUnit\Metadata\Metadata
 {
@@ -15259,7 +15259,7 @@ final readonly class After extends \PHPUnit\Metadata\Metadata
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final readonly class AfterClass extends \PHPUnit\Metadata\Metadata
 {
@@ -15272,7 +15272,7 @@ final readonly class AfterClass extends \PHPUnit\Metadata\Metadata
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final readonly class AllowMockObjectsWithoutExpectations extends \PHPUnit\Metadata\Metadata
 {
@@ -15282,7 +15282,7 @@ final readonly class AllowMockObjectsWithoutExpectations extends \PHPUnit\Metada
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final readonly class BackupGlobals extends \PHPUnit\Metadata\Metadata
 {
@@ -15295,7 +15295,7 @@ final readonly class BackupGlobals extends \PHPUnit\Metadata\Metadata
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final readonly class BackupStaticProperties extends \PHPUnit\Metadata\Metadata
 {
@@ -15308,7 +15308,7 @@ final readonly class BackupStaticProperties extends \PHPUnit\Metadata\Metadata
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final readonly class Before extends \PHPUnit\Metadata\Metadata
 {
@@ -15321,7 +15321,7 @@ final readonly class Before extends \PHPUnit\Metadata\Metadata
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final readonly class BeforeClass extends \PHPUnit\Metadata\Metadata
 {
@@ -15334,7 +15334,7 @@ final readonly class BeforeClass extends \PHPUnit\Metadata\Metadata
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final readonly class CoversClass extends \PHPUnit\Metadata\Metadata
 {
@@ -15350,7 +15350,7 @@ final readonly class CoversClass extends \PHPUnit\Metadata\Metadata
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final readonly class CoversClassesThatExtendClass extends \PHPUnit\Metadata\Metadata
 {
@@ -15366,7 +15366,7 @@ final readonly class CoversClassesThatExtendClass extends \PHPUnit\Metadata\Meta
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final readonly class CoversClassesThatImplementInterface extends \PHPUnit\Metadata\Metadata
 {
@@ -15382,7 +15382,7 @@ final readonly class CoversClassesThatImplementInterface extends \PHPUnit\Metada
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final readonly class CoversFunction extends \PHPUnit\Metadata\Metadata
 {
@@ -15398,7 +15398,7 @@ final readonly class CoversFunction extends \PHPUnit\Metadata\Metadata
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final readonly class CoversMethod extends \PHPUnit\Metadata\Metadata
 {
@@ -15420,7 +15420,7 @@ final readonly class CoversMethod extends \PHPUnit\Metadata\Metadata
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final readonly class CoversNamespace extends \PHPUnit\Metadata\Metadata
 {
@@ -15436,7 +15436,7 @@ final readonly class CoversNamespace extends \PHPUnit\Metadata\Metadata
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final readonly class CoversNothing extends \PHPUnit\Metadata\Metadata
 {
@@ -15446,7 +15446,7 @@ final readonly class CoversNothing extends \PHPUnit\Metadata\Metadata
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final readonly class CoversTrait extends \PHPUnit\Metadata\Metadata
 {
@@ -15462,7 +15462,7 @@ final readonly class CoversTrait extends \PHPUnit\Metadata\Metadata
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final readonly class DataProvider extends \PHPUnit\Metadata\Metadata
 {
@@ -15487,7 +15487,7 @@ final readonly class DataProvider extends \PHPUnit\Metadata\Metadata
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final readonly class DependsOnClass extends \PHPUnit\Metadata\Metadata
 {
@@ -15509,7 +15509,7 @@ final readonly class DependsOnClass extends \PHPUnit\Metadata\Metadata
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final readonly class DependsOnMethod extends \PHPUnit\Metadata\Metadata
 {
@@ -15537,7 +15537,7 @@ final readonly class DependsOnMethod extends \PHPUnit\Metadata\Metadata
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final readonly class DisableReturnValueGenerationForTestDoubles extends \PHPUnit\Metadata\Metadata
 {
@@ -15547,7 +15547,7 @@ final readonly class DisableReturnValueGenerationForTestDoubles extends \PHPUnit
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final readonly class DoesNotPerformAssertions extends \PHPUnit\Metadata\Metadata
 {
@@ -15556,14 +15556,14 @@ final readonly class DoesNotPerformAssertions extends \PHPUnit\Metadata\Metadata
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  */
 interface Exception extends \PHPUnit\Exception
 {
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final class InvalidAttributeException extends \RuntimeException implements \PHPUnit\Exception
 {
@@ -15579,20 +15579,20 @@ final class InvalidAttributeException extends \RuntimeException implements \PHPU
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final class InvalidVersionRequirementException extends \RuntimeException implements \PHPUnit\Metadata\Exception
 {
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final class NoVersionRequirementException extends \RuntimeException implements \PHPUnit\Metadata\Exception
 {
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final readonly class ExcludeGlobalVariableFromBackup extends \PHPUnit\Metadata\Metadata
 {
@@ -15608,7 +15608,7 @@ final readonly class ExcludeGlobalVariableFromBackup extends \PHPUnit\Metadata\M
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final readonly class ExcludeStaticPropertyFromBackup extends \PHPUnit\Metadata\Metadata
 {
@@ -15630,7 +15630,7 @@ final readonly class ExcludeStaticPropertyFromBackup extends \PHPUnit\Metadata\M
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final readonly class Group extends \PHPUnit\Metadata\Metadata
 {
@@ -15646,7 +15646,7 @@ final readonly class Group extends \PHPUnit\Metadata\Metadata
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final readonly class IgnoreDeprecations extends \PHPUnit\Metadata\Metadata
 {
@@ -15662,8 +15662,8 @@ final readonly class IgnoreDeprecations extends \PHPUnit\Metadata\Metadata
 }
 /**
  * @immutable
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class IgnorePhpunitDeprecations extends \PHPUnit\Metadata\Metadata
 {
@@ -15673,7 +15673,7 @@ final readonly class IgnorePhpunitDeprecations extends \PHPUnit\Metadata\Metadat
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final readonly class IgnorePhpunitWarnings extends \PHPUnit\Metadata\Metadata
 {
@@ -15689,7 +15689,7 @@ final readonly class IgnorePhpunitWarnings extends \PHPUnit\Metadata\Metadata
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 abstract readonly class Metadata
 {
@@ -15852,13 +15852,13 @@ abstract readonly class Metadata
     {
     }
     /**
-     * @internal 
+     * @internal
      */
     public static function ignorePhpunitDeprecationsOnClass(): \PHPUnit\Metadata\IgnorePhpunitDeprecations
     {
     }
     /**
-     * @internal 
+     * @internal
      */
     public static function ignorePhpunitDeprecationsOnMethod(): \PHPUnit\Metadata\IgnorePhpunitDeprecations
     {
@@ -16234,7 +16234,7 @@ abstract readonly class Metadata
     }
     /**
      * @phpstan-assert-if-true IgnorePhpunitDeprecations $this
-     * @internal 
+     * @internal
      */
     public function isIgnorePhpunitDeprecations(): bool
     {
@@ -16423,7 +16423,7 @@ abstract readonly class Metadata
 /**
  * @template-implements \IteratorAggregate<non-negative-int, Metadata>
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final readonly class MetadataCollection implements \Countable, \IteratorAggregate
 {
@@ -16544,7 +16544,7 @@ final readonly class MetadataCollection implements \Countable, \IteratorAggregat
     {
     }
     /**
-     * @internal 
+     * @internal
      */
     public function isIgnorePhpunitDeprecations(): self
     {
@@ -16642,7 +16642,7 @@ final readonly class MetadataCollection implements \Countable, \IteratorAggregat
 }
 /**
  * @template-implements \Iterator<non-negative-int, Metadata>
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final class MetadataCollectionIterator implements \Iterator
 {
@@ -16670,7 +16670,7 @@ final class MetadataCollectionIterator implements \Iterator
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final readonly class PostCondition extends \PHPUnit\Metadata\Metadata
 {
@@ -16683,7 +16683,7 @@ final readonly class PostCondition extends \PHPUnit\Metadata\Metadata
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final readonly class PreCondition extends \PHPUnit\Metadata\Metadata
 {
@@ -16696,7 +16696,7 @@ final readonly class PreCondition extends \PHPUnit\Metadata\Metadata
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final readonly class PreserveGlobalState extends \PHPUnit\Metadata\Metadata
 {
@@ -16709,7 +16709,7 @@ final readonly class PreserveGlobalState extends \PHPUnit\Metadata\Metadata
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final readonly class RequiresEnvironmentVariable extends \PHPUnit\Metadata\Metadata
 {
@@ -16725,7 +16725,7 @@ final readonly class RequiresEnvironmentVariable extends \PHPUnit\Metadata\Metad
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final readonly class RequiresFunction extends \PHPUnit\Metadata\Metadata
 {
@@ -16741,7 +16741,7 @@ final readonly class RequiresFunction extends \PHPUnit\Metadata\Metadata
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final readonly class RequiresMethod extends \PHPUnit\Metadata\Metadata
 {
@@ -16763,7 +16763,7 @@ final readonly class RequiresMethod extends \PHPUnit\Metadata\Metadata
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final readonly class RequiresOperatingSystem extends \PHPUnit\Metadata\Metadata
 {
@@ -16779,7 +16779,7 @@ final readonly class RequiresOperatingSystem extends \PHPUnit\Metadata\Metadata
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final readonly class RequiresOperatingSystemFamily extends \PHPUnit\Metadata\Metadata
 {
@@ -16795,7 +16795,7 @@ final readonly class RequiresOperatingSystemFamily extends \PHPUnit\Metadata\Met
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final readonly class RequiresPhp extends \PHPUnit\Metadata\Metadata
 {
@@ -16808,7 +16808,7 @@ final readonly class RequiresPhp extends \PHPUnit\Metadata\Metadata
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final readonly class RequiresPhpExtension extends \PHPUnit\Metadata\Metadata
 {
@@ -16836,7 +16836,7 @@ final readonly class RequiresPhpExtension extends \PHPUnit\Metadata\Metadata
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final readonly class RequiresPhpunit extends \PHPUnit\Metadata\Metadata
 {
@@ -16849,7 +16849,7 @@ final readonly class RequiresPhpunit extends \PHPUnit\Metadata\Metadata
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final readonly class RequiresPhpunitExtension extends \PHPUnit\Metadata\Metadata
 {
@@ -16865,7 +16865,7 @@ final readonly class RequiresPhpunitExtension extends \PHPUnit\Metadata\Metadata
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final readonly class RequiresSetting extends \PHPUnit\Metadata\Metadata
 {
@@ -16887,7 +16887,7 @@ final readonly class RequiresSetting extends \PHPUnit\Metadata\Metadata
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final readonly class RunClassInSeparateProcess extends \PHPUnit\Metadata\Metadata
 {
@@ -16897,7 +16897,7 @@ final readonly class RunClassInSeparateProcess extends \PHPUnit\Metadata\Metadat
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final readonly class RunInSeparateProcess extends \PHPUnit\Metadata\Metadata
 {
@@ -16907,7 +16907,7 @@ final readonly class RunInSeparateProcess extends \PHPUnit\Metadata\Metadata
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final readonly class RunTestsInSeparateProcesses extends \PHPUnit\Metadata\Metadata
 {
@@ -16917,7 +16917,7 @@ final readonly class RunTestsInSeparateProcesses extends \PHPUnit\Metadata\Metad
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final readonly class Test extends \PHPUnit\Metadata\Metadata
 {
@@ -16927,7 +16927,7 @@ final readonly class Test extends \PHPUnit\Metadata\Metadata
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final readonly class TestDox extends \PHPUnit\Metadata\Metadata
 {
@@ -16943,7 +16943,7 @@ final readonly class TestDox extends \PHPUnit\Metadata\Metadata
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final readonly class TestDoxFormatter extends \PHPUnit\Metadata\Metadata
 {
@@ -16965,7 +16965,7 @@ final readonly class TestDoxFormatter extends \PHPUnit\Metadata\Metadata
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final readonly class TestWith extends \PHPUnit\Metadata\Metadata
 {
@@ -16990,7 +16990,7 @@ final readonly class TestWith extends \PHPUnit\Metadata\Metadata
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final readonly class UsesClass extends \PHPUnit\Metadata\Metadata
 {
@@ -17006,7 +17006,7 @@ final readonly class UsesClass extends \PHPUnit\Metadata\Metadata
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final readonly class UsesClassesThatExtendClass extends \PHPUnit\Metadata\Metadata
 {
@@ -17022,7 +17022,7 @@ final readonly class UsesClassesThatExtendClass extends \PHPUnit\Metadata\Metada
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final readonly class UsesClassesThatImplementInterface extends \PHPUnit\Metadata\Metadata
 {
@@ -17038,7 +17038,7 @@ final readonly class UsesClassesThatImplementInterface extends \PHPUnit\Metadata
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final readonly class UsesFunction extends \PHPUnit\Metadata\Metadata
 {
@@ -17054,7 +17054,7 @@ final readonly class UsesFunction extends \PHPUnit\Metadata\Metadata
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final readonly class UsesMethod extends \PHPUnit\Metadata\Metadata
 {
@@ -17076,7 +17076,7 @@ final readonly class UsesMethod extends \PHPUnit\Metadata\Metadata
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final readonly class UsesNamespace extends \PHPUnit\Metadata\Metadata
 {
@@ -17092,7 +17092,7 @@ final readonly class UsesNamespace extends \PHPUnit\Metadata\Metadata
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final readonly class UsesTrait extends \PHPUnit\Metadata\Metadata
 {
@@ -17108,7 +17108,7 @@ final readonly class UsesTrait extends \PHPUnit\Metadata\Metadata
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final readonly class WithEnvironmentVariable extends \PHPUnit\Metadata\Metadata
 {
@@ -17127,7 +17127,7 @@ final readonly class WithEnvironmentVariable extends \PHPUnit\Metadata\Metadata
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final readonly class WithoutErrorHandler extends \PHPUnit\Metadata\Metadata
 {
@@ -17138,8 +17138,8 @@ final readonly class WithoutErrorHandler extends \PHPUnit\Metadata\Metadata
 namespace PHPUnit\Metadata\Api;
 
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final class CodeCoverage
 {
@@ -17162,8 +17162,8 @@ final class CodeCoverage
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class DataProvider
 {
@@ -17178,8 +17178,8 @@ final readonly class DataProvider
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class Dependencies
 {
@@ -17193,8 +17193,8 @@ final readonly class Dependencies
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final class Groups
 {
@@ -17215,8 +17215,8 @@ final class Groups
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final class HookMethods
 {
@@ -17232,8 +17232,8 @@ final class HookMethods
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class ProvidedData
 {
@@ -17254,8 +17254,8 @@ final readonly class ProvidedData
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class Requirements
 {
@@ -17274,8 +17274,8 @@ final readonly class Requirements
 namespace PHPUnit\Metadata\Parser;
 
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class AttributeParser implements \PHPUnit\Metadata\Parser\Parser
 {
@@ -17301,8 +17301,8 @@ final readonly class AttributeParser implements \PHPUnit\Metadata\Parser\Parser
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final class CachingParser implements \PHPUnit\Metadata\Parser\Parser
 {
@@ -17331,8 +17331,8 @@ final class CachingParser implements \PHPUnit\Metadata\Parser\Parser
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 interface Parser
 {
@@ -17352,8 +17352,8 @@ interface Parser
     public function forClassAndMethod(string $className, string $methodName): \PHPUnit\Metadata\MetadataCollection;
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final class Registry
 {
@@ -17365,7 +17365,7 @@ namespace PHPUnit\Metadata\Version;
 
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final readonly class ComparisonRequirement extends \PHPUnit\Metadata\Version\Requirement
 {
@@ -17384,7 +17384,7 @@ final readonly class ComparisonRequirement extends \PHPUnit\Metadata\Version\Req
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final readonly class ConstraintRequirement extends \PHPUnit\Metadata\Version\Requirement
 {
@@ -17400,7 +17400,7 @@ final readonly class ConstraintRequirement extends \PHPUnit\Metadata\Version\Req
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 abstract readonly class Requirement
 {
@@ -17417,8 +17417,8 @@ abstract readonly class Requirement
 namespace PHPUnit\Runner;
 
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class BackedUpEnvironmentVariable
 {
@@ -17434,8 +17434,8 @@ final readonly class BackedUpEnvironmentVariable
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  * @codeCoverageIgnore
  */
 final class CodeCoverage
@@ -17478,8 +17478,8 @@ final class CodeCoverage
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 enum CodeCoverageInitializationStatus
 {
@@ -17488,8 +17488,8 @@ enum CodeCoverageInitializationStatus
     case FAILED;
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final class ErrorHandler
 {
@@ -17534,8 +17534,8 @@ final class ErrorHandler
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final class ClassCannotBeFoundException extends \RuntimeException implements \PHPUnit\Runner\Exception
 {
@@ -17544,8 +17544,8 @@ final class ClassCannotBeFoundException extends \RuntimeException implements \PH
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final class ClassDoesNotExtendTestCaseException extends \RuntimeException implements \PHPUnit\Runner\Exception
 {
@@ -17554,8 +17554,8 @@ final class ClassDoesNotExtendTestCaseException extends \RuntimeException implem
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final class ClassIsAbstractException extends \RuntimeException implements \PHPUnit\Runner\Exception
 {
@@ -17564,15 +17564,15 @@ final class ClassIsAbstractException extends \RuntimeException implements \PHPUn
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final class CodeCoverageFileExistsException extends \RuntimeException implements \PHPUnit\Runner\Exception
 {
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final class DirectoryDoesNotExistException extends \RuntimeException implements \PHPUnit\Runner\Exception
 {
@@ -17581,22 +17581,22 @@ final class DirectoryDoesNotExistException extends \RuntimeException implements 
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final class ErrorException extends \Error implements \PHPUnit\Runner\Exception
 {
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 interface Exception extends \PHPUnit\Exception
 {
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final class FileDoesNotExistException extends \RuntimeException implements \PHPUnit\Runner\Exception
 {
@@ -17605,15 +17605,15 @@ final class FileDoesNotExistException extends \RuntimeException implements \PHPU
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final class InvalidOrderException extends \RuntimeException implements \PHPUnit\Runner\Exception
 {
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final class ParameterDoesNotExistException extends \RuntimeException implements \PHPUnit\Runner\Exception
 {
@@ -17622,8 +17622,8 @@ final class ParameterDoesNotExistException extends \RuntimeException implements 
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class HookMethod
 {
@@ -17644,8 +17644,8 @@ final readonly class HookMethod
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final class HookMethodCollection
 {
@@ -17678,8 +17678,8 @@ final class HookMethodCollection
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final class ShutdownHandler
 {
@@ -17691,8 +17691,8 @@ final class ShutdownHandler
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final class TestSuiteLoader
 {
@@ -17705,8 +17705,8 @@ final class TestSuiteLoader
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final class TestSuiteSorter
 {
@@ -17727,7 +17727,7 @@ final class TestSuiteSorter
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final class Version
 {
@@ -17759,8 +17759,8 @@ final class Version
 namespace PHPUnit\Runner\Baseline;
 
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final class Baseline
 {
@@ -17779,22 +17779,22 @@ final class Baseline
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final class CannotLoadBaselineException extends \RuntimeException implements \PHPUnit\Runner\Exception
 {
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final class CannotWriteBaselineException extends \RuntimeException implements \PHPUnit\Runner\Exception
 {
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final class FileDoesNotHaveLineException extends \RuntimeException implements \PHPUnit\Runner\Exception
 {
@@ -17803,8 +17803,8 @@ final class FileDoesNotHaveLineException extends \RuntimeException implements \P
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class Generator
 {
@@ -17823,8 +17823,8 @@ final readonly class Generator
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class Issue
 {
@@ -17868,8 +17868,8 @@ final readonly class Issue
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class Reader
 {
@@ -17882,8 +17882,8 @@ final readonly class Reader
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  * @see Copied from https://github.com/phpstan/phpstan-src/blob/1.10.33/src/File/ParentDirectoryRelativePathHelper.php
  */
 final readonly class RelativePathCalculator
@@ -17910,8 +17910,8 @@ final readonly class RelativePathCalculator
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 abstract readonly class Subscriber
 {
@@ -17923,8 +17923,8 @@ abstract readonly class Subscriber
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class TestTriggeredDeprecationSubscriber extends \PHPUnit\Runner\Baseline\Subscriber implements \PHPUnit\Event\Test\DeprecationTriggeredSubscriber
 {
@@ -17937,8 +17937,8 @@ final readonly class TestTriggeredDeprecationSubscriber extends \PHPUnit\Runner\
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class TestTriggeredNoticeSubscriber extends \PHPUnit\Runner\Baseline\Subscriber implements \PHPUnit\Event\Test\NoticeTriggeredSubscriber
 {
@@ -17951,8 +17951,8 @@ final readonly class TestTriggeredNoticeSubscriber extends \PHPUnit\Runner\Basel
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class TestTriggeredPhpDeprecationSubscriber extends \PHPUnit\Runner\Baseline\Subscriber implements \PHPUnit\Event\Test\PhpDeprecationTriggeredSubscriber
 {
@@ -17965,8 +17965,8 @@ final readonly class TestTriggeredPhpDeprecationSubscriber extends \PHPUnit\Runn
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class TestTriggeredPhpNoticeSubscriber extends \PHPUnit\Runner\Baseline\Subscriber implements \PHPUnit\Event\Test\PhpNoticeTriggeredSubscriber
 {
@@ -17979,8 +17979,8 @@ final readonly class TestTriggeredPhpNoticeSubscriber extends \PHPUnit\Runner\Ba
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class TestTriggeredPhpWarningSubscriber extends \PHPUnit\Runner\Baseline\Subscriber implements \PHPUnit\Event\Test\PhpWarningTriggeredSubscriber
 {
@@ -17993,8 +17993,8 @@ final readonly class TestTriggeredPhpWarningSubscriber extends \PHPUnit\Runner\B
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class TestTriggeredWarningSubscriber extends \PHPUnit\Runner\Baseline\Subscriber implements \PHPUnit\Event\Test\WarningTriggeredSubscriber
 {
@@ -18007,8 +18007,8 @@ final readonly class TestTriggeredWarningSubscriber extends \PHPUnit\Runner\Base
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class Writer
 {
@@ -18023,8 +18023,8 @@ final readonly class Writer
 namespace PHPUnit\Runner\DeprecationCollector;
 
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final class Collector
 {
@@ -18051,8 +18051,8 @@ final class Collector
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final class Facade
 {
@@ -18083,8 +18083,8 @@ final class Facade
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final class InIsolationCollector
 {
@@ -18108,8 +18108,8 @@ final class InIsolationCollector
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 abstract class Subscriber
 {
@@ -18121,8 +18121,8 @@ abstract class Subscriber
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final class TestPreparedSubscriber extends \PHPUnit\Runner\DeprecationCollector\Subscriber implements \PHPUnit\Event\Test\PreparedSubscriber
 {
@@ -18131,8 +18131,8 @@ final class TestPreparedSubscriber extends \PHPUnit\Runner\DeprecationCollector\
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final class TestTriggeredDeprecationSubscriber extends \PHPUnit\Runner\DeprecationCollector\Subscriber implements \PHPUnit\Event\Test\DeprecationTriggeredSubscriber
 {
@@ -18143,15 +18143,15 @@ final class TestTriggeredDeprecationSubscriber extends \PHPUnit\Runner\Deprecati
 namespace PHPUnit\Runner\Extension;
 
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  */
 interface Extension
 {
     public function bootstrap(\PHPUnit\TextUI\Configuration\Configuration $configuration, \PHPUnit\Runner\Extension\Facade $facade, \PHPUnit\Runner\Extension\ParameterCollection $parameters): void;
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class ExtensionBootstrapper
 {
@@ -18167,7 +18167,7 @@ final readonly class ExtensionBootstrapper
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final class Facade
 {
@@ -18218,7 +18218,7 @@ final class Facade
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final readonly class ParameterCollection
 {
@@ -18239,8 +18239,8 @@ final readonly class ParameterCollection
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class PharLoader
 {
@@ -18255,22 +18255,22 @@ final readonly class PharLoader
 namespace PHPUnit\Runner\Filter;
 
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final class ExcludeGroupFilterIterator extends \PHPUnit\Runner\Filter\GroupFilterIterator
 {
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final class ExcludeNameFilterIterator extends \PHPUnit\Runner\Filter\NameFilterIterator
 {
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final class Factory
 {
@@ -18313,8 +18313,8 @@ final class Factory
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 abstract class GroupFilterIterator extends \RecursiveFilterIterator
 {
@@ -18335,22 +18335,22 @@ abstract class GroupFilterIterator extends \RecursiveFilterIterator
     abstract protected function doAccept(string $id, array $groupTests): bool;
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final class IncludeGroupFilterIterator extends \PHPUnit\Runner\Filter\GroupFilterIterator
 {
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final class IncludeNameFilterIterator extends \PHPUnit\Runner\Filter\NameFilterIterator
 {
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 abstract class NameFilterIterator extends \RecursiveFilterIterator
 {
@@ -18367,8 +18367,8 @@ abstract class NameFilterIterator extends \RecursiveFilterIterator
     abstract protected function doAccept(bool $result): bool;
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final class TestIdFilterIterator extends \RecursiveFilterIterator
 {
@@ -18386,8 +18386,8 @@ final class TestIdFilterIterator extends \RecursiveFilterIterator
 namespace PHPUnit\Runner\GarbageCollection;
 
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final class GarbageCollectionHandler
 {
@@ -18405,8 +18405,8 @@ final class GarbageCollectionHandler
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class ExecutionFinishedSubscriber extends \PHPUnit\Runner\GarbageCollection\Subscriber implements \PHPUnit\Event\TestRunner\ExecutionFinishedSubscriber
 {
@@ -18419,8 +18419,8 @@ final readonly class ExecutionFinishedSubscriber extends \PHPUnit\Runner\Garbage
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class ExecutionStartedSubscriber extends \PHPUnit\Runner\GarbageCollection\Subscriber implements \PHPUnit\Event\TestRunner\ExecutionStartedSubscriber
 {
@@ -18433,8 +18433,8 @@ final readonly class ExecutionStartedSubscriber extends \PHPUnit\Runner\GarbageC
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 abstract readonly class Subscriber
 {
@@ -18446,8 +18446,8 @@ abstract readonly class Subscriber
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class TestFinishedSubscriber extends \PHPUnit\Runner\GarbageCollection\Subscriber implements \PHPUnit\Event\Test\FinishedSubscriber
 {
@@ -18462,15 +18462,15 @@ final readonly class TestFinishedSubscriber extends \PHPUnit\Runner\GarbageColle
 namespace PHPUnit\Runner\Phpt;
 
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final class InvalidPhptFileException extends \RuntimeException implements \PHPUnit\Runner\Exception
 {
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final class PhptExternalFileCannotBeLoadedException extends \RuntimeException implements \PHPUnit\Runner\Exception
 {
@@ -18479,8 +18479,8 @@ final class PhptExternalFileCannotBeLoadedException extends \RuntimeException im
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final class UnsupportedPhptSectionException extends \RuntimeException implements \PHPUnit\Runner\Exception
 {
@@ -18489,8 +18489,8 @@ final class UnsupportedPhptSectionException extends \RuntimeException implements
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  * @see https://qa.php.net/phpt_details.php
  */
 final readonly class Parser
@@ -18519,8 +18519,8 @@ final readonly class Parser
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  * @see https://qa.php.net/phpt_details.php
  */
 final readonly class Renderer
@@ -18544,8 +18544,8 @@ final readonly class Renderer
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  * @see https://qa.php.net/phpt_details.php
  */
 final readonly class TestCase implements \PHPUnit\Framework\Reorderable, \PHPUnit\Framework\SelfDescribing, \PHPUnit\Framework\Test
@@ -18594,7 +18594,7 @@ final readonly class TestCase implements \PHPUnit\Framework\Reorderable, \PHPUni
     {
     }
     /**
-     * @internal 
+     * @internal
      */
     public function valueObjectForEvents(): \PHPUnit\Event\Code\Phpt
     {
@@ -18603,8 +18603,8 @@ final readonly class TestCase implements \PHPUnit\Framework\Reorderable, \PHPUni
 namespace PHPUnit\Runner\ResultCache;
 
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final class DefaultResultCache implements \PHPUnit\Runner\ResultCache\ResultCache
 {
@@ -18637,8 +18637,8 @@ final class DefaultResultCache implements \PHPUnit\Runner\ResultCache\ResultCach
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class NullResultCache implements \PHPUnit\Runner\ResultCache\ResultCache
 {
@@ -18662,8 +18662,8 @@ final readonly class NullResultCache implements \PHPUnit\Runner\ResultCache\Resu
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 interface ResultCache
 {
@@ -18675,8 +18675,8 @@ interface ResultCache
     public function persist(): void;
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final class ResultCacheHandler
 {
@@ -18720,8 +18720,8 @@ final class ResultCacheHandler
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class ResultCacheId
 {
@@ -18742,8 +18742,8 @@ final readonly class ResultCacheId
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 abstract readonly class Subscriber
 {
@@ -18755,8 +18755,8 @@ abstract readonly class Subscriber
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class TestConsideredRiskySubscriber extends \PHPUnit\Runner\ResultCache\Subscriber implements \PHPUnit\Event\Test\ConsideredRiskySubscriber
 {
@@ -18765,8 +18765,8 @@ final readonly class TestConsideredRiskySubscriber extends \PHPUnit\Runner\Resul
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class TestErroredSubscriber extends \PHPUnit\Runner\ResultCache\Subscriber implements \PHPUnit\Event\Test\ErroredSubscriber
 {
@@ -18775,8 +18775,8 @@ final readonly class TestErroredSubscriber extends \PHPUnit\Runner\ResultCache\S
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class TestFailedSubscriber extends \PHPUnit\Runner\ResultCache\Subscriber implements \PHPUnit\Event\Test\FailedSubscriber
 {
@@ -18785,8 +18785,8 @@ final readonly class TestFailedSubscriber extends \PHPUnit\Runner\ResultCache\Su
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class TestFinishedSubscriber extends \PHPUnit\Runner\ResultCache\Subscriber implements \PHPUnit\Event\Test\FinishedSubscriber
 {
@@ -18799,8 +18799,8 @@ final readonly class TestFinishedSubscriber extends \PHPUnit\Runner\ResultCache\
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class TestMarkedIncompleteSubscriber extends \PHPUnit\Runner\ResultCache\Subscriber implements \PHPUnit\Event\Test\MarkedIncompleteSubscriber
 {
@@ -18809,8 +18809,8 @@ final readonly class TestMarkedIncompleteSubscriber extends \PHPUnit\Runner\Resu
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class TestPreparedSubscriber extends \PHPUnit\Runner\ResultCache\Subscriber implements \PHPUnit\Event\Test\PreparedSubscriber
 {
@@ -18819,8 +18819,8 @@ final readonly class TestPreparedSubscriber extends \PHPUnit\Runner\ResultCache\
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class TestSkippedSubscriber extends \PHPUnit\Runner\ResultCache\Subscriber implements \PHPUnit\Event\Test\SkippedSubscriber
 {
@@ -18833,8 +18833,8 @@ final readonly class TestSkippedSubscriber extends \PHPUnit\Runner\ResultCache\S
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class TestSuiteFinishedSubscriber extends \PHPUnit\Runner\ResultCache\Subscriber implements \PHPUnit\Event\TestSuite\FinishedSubscriber
 {
@@ -18843,8 +18843,8 @@ final readonly class TestSuiteFinishedSubscriber extends \PHPUnit\Runner\ResultC
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class TestSuiteStartedSubscriber extends \PHPUnit\Runner\ResultCache\Subscriber implements \PHPUnit\Event\TestSuite\StartedSubscriber
 {
@@ -18855,8 +18855,8 @@ final readonly class TestSuiteStartedSubscriber extends \PHPUnit\Runner\ResultCa
 namespace PHPUnit\TestRunner;
 
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class IssueFilter
 {
@@ -18870,8 +18870,8 @@ final readonly class IssueFilter
 namespace PHPUnit\TestRunner\TestResult;
 
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final class Collector
 {
@@ -18997,8 +18997,8 @@ final class Collector
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final class Facade
 {
@@ -19013,8 +19013,8 @@ final class Facade
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final class PassedTests
 {
@@ -19053,8 +19053,8 @@ final class PassedTests
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class AfterTestClassMethodErroredSubscriber extends \PHPUnit\TestRunner\TestResult\Subscriber implements \PHPUnit\Event\Test\AfterLastTestMethodErroredSubscriber
 {
@@ -19063,8 +19063,8 @@ final readonly class AfterTestClassMethodErroredSubscriber extends \PHPUnit\Test
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class AfterTestClassMethodFailedSubscriber extends \PHPUnit\TestRunner\TestResult\Subscriber implements \PHPUnit\Event\Test\AfterLastTestMethodFailedSubscriber
 {
@@ -19073,8 +19073,8 @@ final readonly class AfterTestClassMethodFailedSubscriber extends \PHPUnit\TestR
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class BeforeTestClassMethodErroredSubscriber extends \PHPUnit\TestRunner\TestResult\Subscriber implements \PHPUnit\Event\Test\BeforeFirstTestMethodErroredSubscriber
 {
@@ -19083,8 +19083,8 @@ final readonly class BeforeTestClassMethodErroredSubscriber extends \PHPUnit\Tes
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class BeforeTestClassMethodFailedSubscriber extends \PHPUnit\TestRunner\TestResult\Subscriber implements \PHPUnit\Event\Test\BeforeFirstTestMethodFailedSubscriber
 {
@@ -19093,8 +19093,8 @@ final readonly class BeforeTestClassMethodFailedSubscriber extends \PHPUnit\Test
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class ChildProcessErroredSubscriber extends \PHPUnit\TestRunner\TestResult\Subscriber implements \PHPUnit\Event\TestRunner\ChildProcessErroredSubscriber
 {
@@ -19103,8 +19103,8 @@ final readonly class ChildProcessErroredSubscriber extends \PHPUnit\TestRunner\T
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class ExecutionStartedSubscriber extends \PHPUnit\TestRunner\TestResult\Subscriber implements \PHPUnit\Event\TestRunner\ExecutionStartedSubscriber
 {
@@ -19113,8 +19113,8 @@ final readonly class ExecutionStartedSubscriber extends \PHPUnit\TestRunner\Test
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 abstract readonly class Subscriber
 {
@@ -19126,8 +19126,8 @@ abstract readonly class Subscriber
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class TestConsideredRiskySubscriber extends \PHPUnit\TestRunner\TestResult\Subscriber implements \PHPUnit\Event\Test\ConsideredRiskySubscriber
 {
@@ -19136,8 +19136,8 @@ final readonly class TestConsideredRiskySubscriber extends \PHPUnit\TestRunner\T
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class TestErroredSubscriber extends \PHPUnit\TestRunner\TestResult\Subscriber implements \PHPUnit\Event\Test\ErroredSubscriber
 {
@@ -19146,8 +19146,8 @@ final readonly class TestErroredSubscriber extends \PHPUnit\TestRunner\TestResul
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class TestFailedSubscriber extends \PHPUnit\TestRunner\TestResult\Subscriber implements \PHPUnit\Event\Test\FailedSubscriber
 {
@@ -19156,8 +19156,8 @@ final readonly class TestFailedSubscriber extends \PHPUnit\TestRunner\TestResult
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class TestFinishedSubscriber extends \PHPUnit\TestRunner\TestResult\Subscriber implements \PHPUnit\Event\Test\FinishedSubscriber
 {
@@ -19166,8 +19166,8 @@ final readonly class TestFinishedSubscriber extends \PHPUnit\TestRunner\TestResu
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class TestMarkedIncompleteSubscriber extends \PHPUnit\TestRunner\TestResult\Subscriber implements \PHPUnit\Event\Test\MarkedIncompleteSubscriber
 {
@@ -19176,8 +19176,8 @@ final readonly class TestMarkedIncompleteSubscriber extends \PHPUnit\TestRunner\
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class TestPreparedSubscriber extends \PHPUnit\TestRunner\TestResult\Subscriber implements \PHPUnit\Event\Test\PreparedSubscriber
 {
@@ -19186,8 +19186,8 @@ final readonly class TestPreparedSubscriber extends \PHPUnit\TestRunner\TestResu
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class TestRunnerTriggeredDeprecationSubscriber extends \PHPUnit\TestRunner\TestResult\Subscriber implements \PHPUnit\Event\TestRunner\DeprecationTriggeredSubscriber
 {
@@ -19196,8 +19196,8 @@ final readonly class TestRunnerTriggeredDeprecationSubscriber extends \PHPUnit\T
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class TestRunnerTriggeredNoticeSubscriber extends \PHPUnit\TestRunner\TestResult\Subscriber implements \PHPUnit\Event\TestRunner\NoticeTriggeredSubscriber
 {
@@ -19206,8 +19206,8 @@ final readonly class TestRunnerTriggeredNoticeSubscriber extends \PHPUnit\TestRu
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class TestRunnerTriggeredWarningSubscriber extends \PHPUnit\TestRunner\TestResult\Subscriber implements \PHPUnit\Event\TestRunner\WarningTriggeredSubscriber
 {
@@ -19216,8 +19216,8 @@ final readonly class TestRunnerTriggeredWarningSubscriber extends \PHPUnit\TestR
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class TestSkippedSubscriber extends \PHPUnit\TestRunner\TestResult\Subscriber implements \PHPUnit\Event\Test\SkippedSubscriber
 {
@@ -19226,8 +19226,8 @@ final readonly class TestSkippedSubscriber extends \PHPUnit\TestRunner\TestResul
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class TestSuiteFinishedSubscriber extends \PHPUnit\TestRunner\TestResult\Subscriber implements \PHPUnit\Event\TestSuite\FinishedSubscriber
 {
@@ -19236,8 +19236,8 @@ final readonly class TestSuiteFinishedSubscriber extends \PHPUnit\TestRunner\Tes
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class TestSuiteSkippedSubscriber extends \PHPUnit\TestRunner\TestResult\Subscriber implements \PHPUnit\Event\TestSuite\SkippedSubscriber
 {
@@ -19246,8 +19246,8 @@ final readonly class TestSuiteSkippedSubscriber extends \PHPUnit\TestRunner\Test
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class TestSuiteStartedSubscriber extends \PHPUnit\TestRunner\TestResult\Subscriber implements \PHPUnit\Event\TestSuite\StartedSubscriber
 {
@@ -19256,8 +19256,8 @@ final readonly class TestSuiteStartedSubscriber extends \PHPUnit\TestRunner\Test
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class TestTriggeredDeprecationSubscriber extends \PHPUnit\TestRunner\TestResult\Subscriber implements \PHPUnit\Event\Test\DeprecationTriggeredSubscriber
 {
@@ -19266,8 +19266,8 @@ final readonly class TestTriggeredDeprecationSubscriber extends \PHPUnit\TestRun
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class TestTriggeredErrorSubscriber extends \PHPUnit\TestRunner\TestResult\Subscriber implements \PHPUnit\Event\Test\ErrorTriggeredSubscriber
 {
@@ -19276,8 +19276,8 @@ final readonly class TestTriggeredErrorSubscriber extends \PHPUnit\TestRunner\Te
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class TestTriggeredNoticeSubscriber extends \PHPUnit\TestRunner\TestResult\Subscriber implements \PHPUnit\Event\Test\NoticeTriggeredSubscriber
 {
@@ -19286,8 +19286,8 @@ final readonly class TestTriggeredNoticeSubscriber extends \PHPUnit\TestRunner\T
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class TestTriggeredPhpDeprecationSubscriber extends \PHPUnit\TestRunner\TestResult\Subscriber implements \PHPUnit\Event\Test\PhpDeprecationTriggeredSubscriber
 {
@@ -19296,8 +19296,8 @@ final readonly class TestTriggeredPhpDeprecationSubscriber extends \PHPUnit\Test
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class TestTriggeredPhpNoticeSubscriber extends \PHPUnit\TestRunner\TestResult\Subscriber implements \PHPUnit\Event\Test\PhpNoticeTriggeredSubscriber
 {
@@ -19306,8 +19306,8 @@ final readonly class TestTriggeredPhpNoticeSubscriber extends \PHPUnit\TestRunne
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class TestTriggeredPhpWarningSubscriber extends \PHPUnit\TestRunner\TestResult\Subscriber implements \PHPUnit\Event\Test\PhpWarningTriggeredSubscriber
 {
@@ -19316,8 +19316,8 @@ final readonly class TestTriggeredPhpWarningSubscriber extends \PHPUnit\TestRunn
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class TestTriggeredPhpunitDeprecationSubscriber extends \PHPUnit\TestRunner\TestResult\Subscriber implements \PHPUnit\Event\Test\PhpunitDeprecationTriggeredSubscriber
 {
@@ -19326,8 +19326,8 @@ final readonly class TestTriggeredPhpunitDeprecationSubscriber extends \PHPUnit\
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class TestTriggeredPhpunitErrorSubscriber extends \PHPUnit\TestRunner\TestResult\Subscriber implements \PHPUnit\Event\Test\PhpunitErrorTriggeredSubscriber
 {
@@ -19336,8 +19336,8 @@ final readonly class TestTriggeredPhpunitErrorSubscriber extends \PHPUnit\TestRu
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class TestTriggeredPhpunitNoticeSubscriber extends \PHPUnit\TestRunner\TestResult\Subscriber implements \PHPUnit\Event\Test\PhpunitNoticeTriggeredSubscriber
 {
@@ -19346,8 +19346,8 @@ final readonly class TestTriggeredPhpunitNoticeSubscriber extends \PHPUnit\TestR
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class TestTriggeredPhpunitWarningSubscriber extends \PHPUnit\TestRunner\TestResult\Subscriber implements \PHPUnit\Event\Test\PhpunitWarningTriggeredSubscriber
 {
@@ -19356,8 +19356,8 @@ final readonly class TestTriggeredPhpunitWarningSubscriber extends \PHPUnit\Test
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class TestTriggeredWarningSubscriber extends \PHPUnit\TestRunner\TestResult\Subscriber implements \PHPUnit\Event\Test\WarningTriggeredSubscriber
 {
@@ -19366,8 +19366,8 @@ final readonly class TestTriggeredWarningSubscriber extends \PHPUnit\TestRunner\
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class TestResult
 {
@@ -19683,8 +19683,8 @@ final readonly class TestResult
 namespace PHPUnit\TestRunner\TestResult\Issues;
 
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final class Issue
 {
@@ -19742,8 +19742,8 @@ final class Issue
 namespace PHPUnit\TextUI;
 
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class Application
 {
@@ -19755,8 +19755,8 @@ final readonly class Application
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final class CannotOpenSocketException extends \RuntimeException implements \PHPUnit\TextUI\Exception
 {
@@ -19765,15 +19765,15 @@ final class CannotOpenSocketException extends \RuntimeException implements \PHPU
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 interface Exception extends \Throwable
 {
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final class InvalidSocketException extends \RuntimeException implements \PHPUnit\TextUI\Exception
 {
@@ -19782,15 +19782,15 @@ final class InvalidSocketException extends \RuntimeException implements \PHPUnit
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final class RuntimeException extends \RuntimeException implements \PHPUnit\TextUI\Exception
 {
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final class TestDirectoryNotFoundException extends \RuntimeException implements \PHPUnit\TextUI\Exception
 {
@@ -19799,8 +19799,8 @@ final class TestDirectoryNotFoundException extends \RuntimeException implements 
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final class TestFileNotFoundException extends \RuntimeException implements \PHPUnit\TextUI\Exception
 {
@@ -19809,8 +19809,8 @@ final class TestFileNotFoundException extends \RuntimeException implements \PHPU
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final class Help
 {
@@ -19822,8 +19822,8 @@ final class Help
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class ShellExitCodeCalculator
 {
@@ -19832,8 +19832,8 @@ final readonly class ShellExitCodeCalculator
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final class TestRunner
 {
@@ -19845,8 +19845,8 @@ final class TestRunner
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class TestSuiteFilterProcessor
 {
@@ -19861,8 +19861,8 @@ final readonly class TestSuiteFilterProcessor
 namespace PHPUnit\TextUI\CliArguments;
 
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final class Builder
 {
@@ -19875,8 +19875,8 @@ final class Builder
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  * @immutable
  */
 final readonly class Configuration
@@ -21278,15 +21278,15 @@ final readonly class Configuration
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final class Exception extends \RuntimeException implements \PHPUnit\Exception
 {
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class XmlConfigurationFileFinder
 {
@@ -21297,16 +21297,16 @@ final readonly class XmlConfigurationFileFinder
 namespace PHPUnit\TextUI\Command;
 
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 interface Command
 {
     public function execute(): \PHPUnit\TextUI\Command\Result;
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class AtLeastVersionCommand implements \PHPUnit\TextUI\Command\Command
 {
@@ -21318,8 +21318,8 @@ final readonly class AtLeastVersionCommand implements \PHPUnit\TextUI\Command\Co
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class CheckPhpConfigurationCommand implements \PHPUnit\TextUI\Command\Command
 {
@@ -21331,8 +21331,8 @@ final readonly class CheckPhpConfigurationCommand implements \PHPUnit\TextUI\Com
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class GenerateConfigurationCommand implements \PHPUnit\TextUI\Command\Command
 {
@@ -21341,8 +21341,8 @@ final readonly class GenerateConfigurationCommand implements \PHPUnit\TextUI\Com
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class ListGroupsCommand implements \PHPUnit\TextUI\Command\Command
 {
@@ -21357,8 +21357,8 @@ final readonly class ListGroupsCommand implements \PHPUnit\TextUI\Command\Comman
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class ListTestFilesCommand implements \PHPUnit\TextUI\Command\Command
 {
@@ -21376,8 +21376,8 @@ final readonly class ListTestFilesCommand implements \PHPUnit\TextUI\Command\Com
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class ListTestSuitesCommand implements \PHPUnit\TextUI\Command\Command
 {
@@ -21389,8 +21389,8 @@ final readonly class ListTestSuitesCommand implements \PHPUnit\TextUI\Command\Co
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class ListTestsAsTextCommand implements \PHPUnit\TextUI\Command\Command
 {
@@ -21405,8 +21405,8 @@ final readonly class ListTestsAsTextCommand implements \PHPUnit\TextUI\Command\C
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class ListTestsAsXmlCommand implements \PHPUnit\TextUI\Command\Command
 {
@@ -21421,8 +21421,8 @@ final readonly class ListTestsAsXmlCommand implements \PHPUnit\TextUI\Command\Co
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class MigrateConfigurationCommand implements \PHPUnit\TextUI\Command\Command
 {
@@ -21434,8 +21434,8 @@ final readonly class MigrateConfigurationCommand implements \PHPUnit\TextUI\Comm
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class ShowHelpCommand implements \PHPUnit\TextUI\Command\Command
 {
@@ -21447,8 +21447,8 @@ final readonly class ShowHelpCommand implements \PHPUnit\TextUI\Command\Command
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class ShowVersionCommand implements \PHPUnit\TextUI\Command\Command
 {
@@ -21457,8 +21457,8 @@ final readonly class ShowVersionCommand implements \PHPUnit\TextUI\Command\Comma
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class VersionCheckCommand implements \PHPUnit\TextUI\Command\Command
 {
@@ -21470,8 +21470,8 @@ final readonly class VersionCheckCommand implements \PHPUnit\TextUI\Command\Comm
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  * @codeCoverageIgnore
  */
 final readonly class WarmCodeCoverageCacheCommand implements \PHPUnit\TextUI\Command\Command
@@ -21489,8 +21489,8 @@ final readonly class WarmCodeCoverageCacheCommand implements \PHPUnit\TextUI\Com
 }
 /**
  * @immutable
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class Result
 {
@@ -21511,8 +21511,8 @@ final readonly class Result
 namespace PHPUnit\TextUI\Configuration;
 
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final class BootstrapLoader
 {
@@ -21525,7 +21525,7 @@ final class BootstrapLoader
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  * @codeCoverageIgnore
  */
 final readonly class Builder
@@ -21539,8 +21539,8 @@ final readonly class Builder
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final class CodeCoverageFilterRegistry
 {
@@ -21568,7 +21568,7 @@ final class CodeCoverageFilterRegistry
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final readonly class Configuration
 {
@@ -22236,7 +22236,7 @@ final readonly class Configuration
     {
     }
     /**
-     * @deprecated 
+     * @deprecated
      */
     public function includeTestSuite(): string
     {
@@ -22248,7 +22248,7 @@ final readonly class Configuration
     {
     }
     /**
-     * @deprecated 
+     * @deprecated
      */
     public function excludeTestSuite(): string
     {
@@ -22316,8 +22316,8 @@ final readonly class Configuration
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final class BootstrapScriptDoesNotExistException extends \RuntimeException implements \PHPUnit\TextUI\Configuration\Exception
 {
@@ -22326,113 +22326,113 @@ final class BootstrapScriptDoesNotExistException extends \RuntimeException imple
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final class BootstrapScriptException extends \RuntimeException implements \PHPUnit\TextUI\Configuration\Exception
 {
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final class CodeCoverageReportNotConfiguredException extends \RuntimeException implements \PHPUnit\TextUI\Configuration\Exception
 {
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final class ConfigurationCannotBeBuiltException extends \RuntimeException implements \PHPUnit\TextUI\Configuration\Exception
 {
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 interface Exception extends \PHPUnit\TextUI\Exception
 {
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final class FilterNotConfiguredException extends \RuntimeException implements \PHPUnit\TextUI\Configuration\Exception
 {
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final class LoggingNotConfiguredException extends \RuntimeException implements \PHPUnit\TextUI\Configuration\Exception
 {
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final class NoBaselineException extends \RuntimeException implements \PHPUnit\TextUI\Configuration\Exception
 {
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final class NoBootstrapException extends \RuntimeException implements \PHPUnit\TextUI\Configuration\Exception
 {
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final class NoCacheDirectoryException extends \RuntimeException implements \PHPUnit\TextUI\Configuration\Exception
 {
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final class NoConfigurationFileException extends \RuntimeException implements \PHPUnit\TextUI\Configuration\Exception
 {
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final class NoCoverageCacheDirectoryException extends \RuntimeException implements \PHPUnit\TextUI\Configuration\Exception
 {
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final class NoCustomCssFileException extends \RuntimeException implements \PHPUnit\TextUI\Configuration\Exception
 {
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final class NoDefaultTestSuiteException extends \RuntimeException implements \PHPUnit\TextUI\Configuration\Exception
 {
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final class NoPharExtensionDirectoryException extends \RuntimeException implements \PHPUnit\TextUI\Configuration\Exception
 {
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final class SpecificDeprecationToStopOnNotConfiguredException extends \RuntimeException implements \PHPUnit\TextUI\Configuration\Exception
 {
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class Merger
 {
@@ -22446,8 +22446,8 @@ final readonly class Merger
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class PhpHandler
 {
@@ -22456,8 +22456,8 @@ final readonly class PhpHandler
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final class Registry
 {
@@ -22484,8 +22484,8 @@ final class Registry
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final class SourceFilter
 {
@@ -22503,8 +22503,8 @@ final class SourceFilter
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final class SourceMapper
 {
@@ -22525,8 +22525,8 @@ final class SourceMapper
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class TestSuiteBuilder
 {
@@ -22541,7 +22541,7 @@ final readonly class TestSuiteBuilder
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  * @immutable
  */
 final readonly class Constant
@@ -22557,7 +22557,7 @@ final readonly class Constant
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  * @immutable
  * @template-implements \IteratorAggregate<non-negative-int, Constant>
  */
@@ -22583,7 +22583,7 @@ final readonly class ConstantCollection implements \Countable, \IteratorAggregat
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  * @template-implements \Iterator<non-negative-int, Constant>
  */
 final class ConstantCollectionIterator implements \Iterator
@@ -22611,7 +22611,7 @@ final class ConstantCollectionIterator implements \Iterator
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  * @immutable
  */
 final readonly class Directory
@@ -22624,7 +22624,7 @@ final readonly class Directory
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  * @immutable
  * @template-implements \IteratorAggregate<non-negative-int, Directory>
  */
@@ -22653,7 +22653,7 @@ final readonly class DirectoryCollection implements \Countable, \IteratorAggrega
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  * @template-implements \Iterator<non-negative-int, Directory>
  */
 final class DirectoryCollectionIterator implements \Iterator
@@ -22681,7 +22681,7 @@ final class DirectoryCollectionIterator implements \Iterator
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  * @immutable
  */
 final readonly class ExtensionBootstrap
@@ -22708,7 +22708,7 @@ final readonly class ExtensionBootstrap
 }
 /**
  * @template-implements \IteratorAggregate<non-negative-int, ExtensionBootstrap>
- * @no-named-arguments 
+ * @no-named-arguments
  * @immutable
  */
 final readonly class ExtensionBootstrapCollection implements \IteratorAggregate
@@ -22730,7 +22730,7 @@ final readonly class ExtensionBootstrapCollection implements \IteratorAggregate
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  * @template-implements \Iterator<non-negative-int, ExtensionBootstrap>
  */
 final class ExtensionBootstrapCollectionIterator implements \Iterator
@@ -22758,7 +22758,7 @@ final class ExtensionBootstrapCollectionIterator implements \Iterator
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  * @immutable
  */
 final readonly class File
@@ -22777,7 +22777,7 @@ final readonly class File
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  * @immutable
  * @template-implements \IteratorAggregate<non-negative-int, File>
  */
@@ -22806,7 +22806,7 @@ final readonly class FileCollection implements \Countable, \IteratorAggregate
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  * @template-implements \Iterator<non-negative-int, File>
  */
 final class FileCollectionIterator implements \Iterator
@@ -22834,7 +22834,7 @@ final class FileCollectionIterator implements \Iterator
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  * @immutable
  */
 final readonly class FilterDirectory
@@ -22859,7 +22859,7 @@ final readonly class FilterDirectory
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  * @immutable
  * @template-implements \IteratorAggregate<non-negative-int, FilterDirectory>
  */
@@ -22888,7 +22888,7 @@ final readonly class FilterDirectoryCollection implements \Countable, \IteratorA
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  * @template-implements \Iterator<non-negative-int, FilterDirectory>
  */
 final class FilterDirectoryCollectionIterator implements \Iterator
@@ -22916,7 +22916,7 @@ final class FilterDirectoryCollectionIterator implements \Iterator
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  * @immutable
  */
 final readonly class Group
@@ -22929,7 +22929,7 @@ final readonly class Group
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  * @immutable
  * @template-implements \IteratorAggregate<non-negative-int, Group>
  */
@@ -22961,7 +22961,7 @@ final readonly class GroupCollection implements \IteratorAggregate
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  * @template-implements \Iterator<non-negative-int, Group>
  */
 final class GroupCollectionIterator implements \Iterator
@@ -22989,7 +22989,7 @@ final class GroupCollectionIterator implements \Iterator
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  * @immutable
  */
 final readonly class IniSetting
@@ -23005,7 +23005,7 @@ final readonly class IniSetting
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  * @immutable
  * @template-implements \IteratorAggregate<non-negative-int, IniSetting>
  */
@@ -23031,7 +23031,7 @@ final readonly class IniSettingCollection implements \Countable, \IteratorAggreg
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  * @template-implements \Iterator<non-negative-int, IniSetting>
  */
 final class IniSettingCollectionIterator implements \Iterator
@@ -23059,7 +23059,7 @@ final class IniSettingCollectionIterator implements \Iterator
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  * @immutable
  */
 final readonly class Php
@@ -23102,7 +23102,7 @@ final readonly class Php
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  * @immutable
  */
 final readonly class Source
@@ -23195,7 +23195,7 @@ final readonly class Source
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  * @immutable
  */
 final readonly class TestDirectory
@@ -23233,7 +23233,7 @@ final readonly class TestDirectory
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  * @immutable
  * @template-implements \IteratorAggregate<non-negative-int, TestDirectory>
  */
@@ -23262,7 +23262,7 @@ final readonly class TestDirectoryCollection implements \Countable, \IteratorAgg
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  * @template-implements \Iterator<non-negative-int, TestDirectory>
  */
 final class TestDirectoryCollectionIterator implements \Iterator
@@ -23290,7 +23290,7 @@ final class TestDirectoryCollectionIterator implements \Iterator
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  * @immutable
  */
 final readonly class TestFile
@@ -23322,7 +23322,7 @@ final readonly class TestFile
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  * @immutable
  * @template-implements \IteratorAggregate<non-negative-int, TestFile>
  */
@@ -23351,7 +23351,7 @@ final readonly class TestFileCollection implements \Countable, \IteratorAggregat
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  * @template-implements \Iterator<non-negative-int, TestFile>
  */
 final class TestFileCollectionIterator implements \Iterator
@@ -23379,7 +23379,7 @@ final class TestFileCollectionIterator implements \Iterator
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  * @immutable
  */
 final readonly class TestSuite
@@ -23407,7 +23407,7 @@ final readonly class TestSuite
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  * @immutable
  * @template-implements \IteratorAggregate<non-negative-int, TestSuite>
  */
@@ -23436,7 +23436,7 @@ final readonly class TestSuiteCollection implements \Countable, \IteratorAggrega
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  * @template-implements \Iterator<non-negative-int, TestSuite>
  */
 final class TestSuiteCollectionIterator implements \Iterator
@@ -23464,7 +23464,7 @@ final class TestSuiteCollectionIterator implements \Iterator
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  * @immutable
  */
 final readonly class Variable
@@ -23483,7 +23483,7 @@ final readonly class Variable
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  * @immutable
  * @template-implements \IteratorAggregate<non-negative-int, Variable>
  */
@@ -23509,7 +23509,7 @@ final readonly class VariableCollection implements \Countable, \IteratorAggregat
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  * @template-implements \Iterator<non-negative-int, Variable>
  */
 final class VariableCollectionIterator implements \Iterator
@@ -23539,8 +23539,8 @@ final class VariableCollectionIterator implements \Iterator
 namespace PHPUnit\TextUI\Output;
 
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final class Facade
 {
@@ -23563,8 +23563,8 @@ final class Facade
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final class DefaultPrinter implements \PHPUnit\TextUI\Output\Printer
 {
@@ -23600,8 +23600,8 @@ final class DefaultPrinter implements \PHPUnit\TextUI\Output\Printer
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class NullPrinter implements \PHPUnit\TextUI\Output\Printer
 {
@@ -23613,8 +23613,8 @@ final readonly class NullPrinter implements \PHPUnit\TextUI\Output\Printer
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 interface Printer
 {
@@ -23622,8 +23622,8 @@ interface Printer
     public function flush(): void;
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final class SummaryPrinter
 {
@@ -23637,8 +23637,8 @@ final class SummaryPrinter
 namespace PHPUnit\TextUI\Output\Default;
 
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final class ResultPrinter
 {
@@ -23650,7 +23650,7 @@ final class ResultPrinter
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final readonly class UnexpectedOutputPrinter implements \PHPUnit\Event\Test\PrintedUnexpectedOutputSubscriber
 {
@@ -23664,8 +23664,8 @@ final readonly class UnexpectedOutputPrinter implements \PHPUnit\Event\Test\Prin
 namespace PHPUnit\TextUI\Output\Default\ProgressPrinter;
 
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final class ProgressPrinter
 {
@@ -23737,8 +23737,8 @@ final class ProgressPrinter
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class BeforeTestClassMethodErroredSubscriber extends \PHPUnit\TextUI\Output\Default\ProgressPrinter\Subscriber implements \PHPUnit\Event\Test\BeforeFirstTestMethodErroredSubscriber
 {
@@ -23747,8 +23747,8 @@ final readonly class BeforeTestClassMethodErroredSubscriber extends \PHPUnit\Tex
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class ChildProcessErroredSubscriber extends \PHPUnit\TextUI\Output\Default\ProgressPrinter\Subscriber implements \PHPUnit\Event\TestRunner\ChildProcessErroredSubscriber
 {
@@ -23757,8 +23757,8 @@ final readonly class ChildProcessErroredSubscriber extends \PHPUnit\TextUI\Outpu
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 abstract readonly class Subscriber
 {
@@ -23770,8 +23770,8 @@ abstract readonly class Subscriber
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class TestConsideredRiskySubscriber extends \PHPUnit\TextUI\Output\Default\ProgressPrinter\Subscriber implements \PHPUnit\Event\Test\ConsideredRiskySubscriber
 {
@@ -23780,8 +23780,8 @@ final readonly class TestConsideredRiskySubscriber extends \PHPUnit\TextUI\Outpu
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class TestErroredSubscriber extends \PHPUnit\TextUI\Output\Default\ProgressPrinter\Subscriber implements \PHPUnit\Event\Test\ErroredSubscriber
 {
@@ -23790,8 +23790,8 @@ final readonly class TestErroredSubscriber extends \PHPUnit\TextUI\Output\Defaul
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class TestFailedSubscriber extends \PHPUnit\TextUI\Output\Default\ProgressPrinter\Subscriber implements \PHPUnit\Event\Test\FailedSubscriber
 {
@@ -23800,8 +23800,8 @@ final readonly class TestFailedSubscriber extends \PHPUnit\TextUI\Output\Default
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class TestFinishedSubscriber extends \PHPUnit\TextUI\Output\Default\ProgressPrinter\Subscriber implements \PHPUnit\Event\Test\FinishedSubscriber
 {
@@ -23810,8 +23810,8 @@ final readonly class TestFinishedSubscriber extends \PHPUnit\TextUI\Output\Defau
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class TestMarkedIncompleteSubscriber extends \PHPUnit\TextUI\Output\Default\ProgressPrinter\Subscriber implements \PHPUnit\Event\Test\MarkedIncompleteSubscriber
 {
@@ -23820,8 +23820,8 @@ final readonly class TestMarkedIncompleteSubscriber extends \PHPUnit\TextUI\Outp
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class TestPreparedSubscriber extends \PHPUnit\TextUI\Output\Default\ProgressPrinter\Subscriber implements \PHPUnit\Event\Test\PreparedSubscriber
 {
@@ -23830,8 +23830,8 @@ final readonly class TestPreparedSubscriber extends \PHPUnit\TextUI\Output\Defau
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class TestRunnerExecutionStartedSubscriber extends \PHPUnit\TextUI\Output\Default\ProgressPrinter\Subscriber implements \PHPUnit\Event\TestRunner\ExecutionStartedSubscriber
 {
@@ -23840,8 +23840,8 @@ final readonly class TestRunnerExecutionStartedSubscriber extends \PHPUnit\TextU
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class TestSkippedSubscriber extends \PHPUnit\TextUI\Output\Default\ProgressPrinter\Subscriber implements \PHPUnit\Event\Test\SkippedSubscriber
 {
@@ -23850,8 +23850,8 @@ final readonly class TestSkippedSubscriber extends \PHPUnit\TextUI\Output\Defaul
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class TestSuiteSkippedSubscriber extends \PHPUnit\TextUI\Output\Default\ProgressPrinter\Subscriber implements \PHPUnit\Event\TestSuite\SkippedSubscriber
 {
@@ -23860,8 +23860,8 @@ final readonly class TestSuiteSkippedSubscriber extends \PHPUnit\TextUI\Output\D
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class TestTriggeredDeprecationSubscriber extends \PHPUnit\TextUI\Output\Default\ProgressPrinter\Subscriber implements \PHPUnit\Event\Test\DeprecationTriggeredSubscriber
 {
@@ -23870,8 +23870,8 @@ final readonly class TestTriggeredDeprecationSubscriber extends \PHPUnit\TextUI\
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class TestTriggeredErrorSubscriber extends \PHPUnit\TextUI\Output\Default\ProgressPrinter\Subscriber implements \PHPUnit\Event\Test\ErrorTriggeredSubscriber
 {
@@ -23880,8 +23880,8 @@ final readonly class TestTriggeredErrorSubscriber extends \PHPUnit\TextUI\Output
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class TestTriggeredNoticeSubscriber extends \PHPUnit\TextUI\Output\Default\ProgressPrinter\Subscriber implements \PHPUnit\Event\Test\NoticeTriggeredSubscriber
 {
@@ -23890,8 +23890,8 @@ final readonly class TestTriggeredNoticeSubscriber extends \PHPUnit\TextUI\Outpu
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class TestTriggeredPhpDeprecationSubscriber extends \PHPUnit\TextUI\Output\Default\ProgressPrinter\Subscriber implements \PHPUnit\Event\Test\PhpDeprecationTriggeredSubscriber
 {
@@ -23900,8 +23900,8 @@ final readonly class TestTriggeredPhpDeprecationSubscriber extends \PHPUnit\Text
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class TestTriggeredPhpNoticeSubscriber extends \PHPUnit\TextUI\Output\Default\ProgressPrinter\Subscriber implements \PHPUnit\Event\Test\PhpNoticeTriggeredSubscriber
 {
@@ -23910,8 +23910,8 @@ final readonly class TestTriggeredPhpNoticeSubscriber extends \PHPUnit\TextUI\Ou
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class TestTriggeredPhpWarningSubscriber extends \PHPUnit\TextUI\Output\Default\ProgressPrinter\Subscriber implements \PHPUnit\Event\Test\PhpWarningTriggeredSubscriber
 {
@@ -23920,8 +23920,8 @@ final readonly class TestTriggeredPhpWarningSubscriber extends \PHPUnit\TextUI\O
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class TestTriggeredPhpunitDeprecationSubscriber extends \PHPUnit\TextUI\Output\Default\ProgressPrinter\Subscriber implements \PHPUnit\Event\Test\PhpunitDeprecationTriggeredSubscriber
 {
@@ -23930,8 +23930,8 @@ final readonly class TestTriggeredPhpunitDeprecationSubscriber extends \PHPUnit\
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class TestTriggeredPhpunitNoticeSubscriber extends \PHPUnit\TextUI\Output\Default\ProgressPrinter\Subscriber implements \PHPUnit\Event\Test\PhpunitNoticeTriggeredSubscriber
 {
@@ -23940,8 +23940,8 @@ final readonly class TestTriggeredPhpunitNoticeSubscriber extends \PHPUnit\TextU
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class TestTriggeredPhpunitWarningSubscriber extends \PHPUnit\TextUI\Output\Default\ProgressPrinter\Subscriber implements \PHPUnit\Event\Test\PhpunitWarningTriggeredSubscriber
 {
@@ -23950,8 +23950,8 @@ final readonly class TestTriggeredPhpunitWarningSubscriber extends \PHPUnit\Text
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class TestTriggeredWarningSubscriber extends \PHPUnit\TextUI\Output\Default\ProgressPrinter\Subscriber implements \PHPUnit\Event\Test\WarningTriggeredSubscriber
 {
@@ -23962,8 +23962,8 @@ final readonly class TestTriggeredWarningSubscriber extends \PHPUnit\TextUI\Outp
 namespace PHPUnit\TextUI\Output\TestDox;
 
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class ResultPrinter
 {
@@ -23980,15 +23980,15 @@ final readonly class ResultPrinter
 namespace PHPUnit\TextUI\XmlConfiguration;
 
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final class CannotFindSchemaException extends \RuntimeException implements \PHPUnit\TextUI\Configuration\Exception
 {
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  * @immutable
  */
 abstract readonly class Configuration
@@ -24034,8 +24034,8 @@ abstract readonly class Configuration
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  * @immutable
  */
 final readonly class DefaultConfiguration extends \PHPUnit\TextUI\XmlConfiguration\Configuration
@@ -24048,15 +24048,15 @@ final readonly class DefaultConfiguration extends \PHPUnit\TextUI\XmlConfigurati
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final class Exception extends \RuntimeException implements \PHPUnit\Exception
 {
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class Generator
 {
@@ -24065,8 +24065,8 @@ final readonly class Generator
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  * @immutable
  */
 final readonly class Groups
@@ -24088,8 +24088,8 @@ final readonly class Groups
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  * @immutable
  */
 final readonly class LoadedFromFileConfiguration extends \PHPUnit\TextUI\XmlConfiguration\Configuration
@@ -24117,8 +24117,8 @@ final readonly class LoadedFromFileConfiguration extends \PHPUnit\TextUI\XmlConf
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class Loader
 {
@@ -24130,8 +24130,8 @@ final readonly class Loader
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class MigrationBuilder
 {
@@ -24143,15 +24143,15 @@ final readonly class MigrationBuilder
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final class MigrationException extends \RuntimeException implements \PHPUnit\Exception
 {
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class ConvertLogTypes implements \PHPUnit\TextUI\XmlConfiguration\Migration
 {
@@ -24160,50 +24160,50 @@ final readonly class ConvertLogTypes implements \PHPUnit\TextUI\XmlConfiguration
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class CoverageCloverToReport extends \PHPUnit\TextUI\XmlConfiguration\LogToReportMigration
 {
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class CoverageCrap4jToReport extends \PHPUnit\TextUI\XmlConfiguration\LogToReportMigration
 {
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class CoverageHtmlToReport extends \PHPUnit\TextUI\XmlConfiguration\LogToReportMigration
 {
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class CoveragePhpToReport extends \PHPUnit\TextUI\XmlConfiguration\LogToReportMigration
 {
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class CoverageTextToReport extends \PHPUnit\TextUI\XmlConfiguration\LogToReportMigration
 {
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class CoverageXmlToReport extends \PHPUnit\TextUI\XmlConfiguration\LogToReportMigration
 {
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class IntroduceCacheDirectoryAttribute implements \PHPUnit\TextUI\XmlConfiguration\Migration
 {
@@ -24212,8 +24212,8 @@ final readonly class IntroduceCacheDirectoryAttribute implements \PHPUnit\TextUI
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class IntroduceCoverageElement implements \PHPUnit\TextUI\XmlConfiguration\Migration
 {
@@ -24222,8 +24222,8 @@ final readonly class IntroduceCoverageElement implements \PHPUnit\TextUI\XmlConf
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 abstract readonly class LogToReportMigration implements \PHPUnit\TextUI\XmlConfiguration\Migration
 {
@@ -24243,16 +24243,16 @@ abstract readonly class LogToReportMigration implements \PHPUnit\TextUI\XmlConfi
     abstract protected function toReportFormat(\DOMElement $logNode): \DOMElement;
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 interface Migration
 {
     public function migrate(\DOMDocument $document): void;
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class MoveAttributesFromFilterWhitelistToCoverage implements \PHPUnit\TextUI\XmlConfiguration\Migration
 {
@@ -24264,8 +24264,8 @@ final readonly class MoveAttributesFromFilterWhitelistToCoverage implements \PHP
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class MoveAttributesFromRootToCoverage implements \PHPUnit\TextUI\XmlConfiguration\Migration
 {
@@ -24277,8 +24277,8 @@ final readonly class MoveAttributesFromRootToCoverage implements \PHPUnit\TextUI
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class MoveCoverageDirectoriesToSource implements \PHPUnit\TextUI\XmlConfiguration\Migration
 {
@@ -24290,8 +24290,8 @@ final readonly class MoveCoverageDirectoriesToSource implements \PHPUnit\TextUI\
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class MoveWhitelistExcludesToCoverage implements \PHPUnit\TextUI\XmlConfiguration\Migration
 {
@@ -24303,8 +24303,8 @@ final readonly class MoveWhitelistExcludesToCoverage implements \PHPUnit\TextUI\
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class MoveWhitelistIncludesToCoverage implements \PHPUnit\TextUI\XmlConfiguration\Migration
 {
@@ -24316,8 +24316,8 @@ final readonly class MoveWhitelistIncludesToCoverage implements \PHPUnit\TextUI\
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class RemoveBeStrictAboutResourceUsageDuringSmallTestsAttribute implements \PHPUnit\TextUI\XmlConfiguration\Migration
 {
@@ -24326,8 +24326,8 @@ final readonly class RemoveBeStrictAboutResourceUsageDuringSmallTestsAttribute i
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class RemoveBeStrictAboutTodoAnnotatedTestsAttribute implements \PHPUnit\TextUI\XmlConfiguration\Migration
 {
@@ -24336,8 +24336,8 @@ final readonly class RemoveBeStrictAboutTodoAnnotatedTestsAttribute implements \
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class RemoveCacheResultFileAttribute implements \PHPUnit\TextUI\XmlConfiguration\Migration
 {
@@ -24346,8 +24346,8 @@ final readonly class RemoveCacheResultFileAttribute implements \PHPUnit\TextUI\X
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class RemoveCacheTokensAttribute implements \PHPUnit\TextUI\XmlConfiguration\Migration
 {
@@ -24356,8 +24356,8 @@ final readonly class RemoveCacheTokensAttribute implements \PHPUnit\TextUI\XmlCo
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class RemoveConversionToExceptionsAttributes implements \PHPUnit\TextUI\XmlConfiguration\Migration
 {
@@ -24366,8 +24366,8 @@ final readonly class RemoveConversionToExceptionsAttributes implements \PHPUnit\
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class RemoveCoverageElementCacheDirectoryAttribute implements \PHPUnit\TextUI\XmlConfiguration\Migration
 {
@@ -24376,8 +24376,8 @@ final readonly class RemoveCoverageElementCacheDirectoryAttribute implements \PH
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class RemoveCoverageElementProcessUncoveredFilesAttribute implements \PHPUnit\TextUI\XmlConfiguration\Migration
 {
@@ -24386,8 +24386,8 @@ final readonly class RemoveCoverageElementProcessUncoveredFilesAttribute impleme
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class RemoveEmptyFilter implements \PHPUnit\TextUI\XmlConfiguration\Migration
 {
@@ -24399,8 +24399,8 @@ final readonly class RemoveEmptyFilter implements \PHPUnit\TextUI\XmlConfigurati
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class RemoveListeners implements \PHPUnit\TextUI\XmlConfiguration\Migration
 {
@@ -24409,8 +24409,8 @@ final readonly class RemoveListeners implements \PHPUnit\TextUI\XmlConfiguration
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class RemoveLogTypes implements \PHPUnit\TextUI\XmlConfiguration\Migration
 {
@@ -24419,8 +24419,8 @@ final readonly class RemoveLogTypes implements \PHPUnit\TextUI\XmlConfiguration\
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class RemoveLoggingElements implements \PHPUnit\TextUI\XmlConfiguration\Migration
 {
@@ -24429,8 +24429,8 @@ final readonly class RemoveLoggingElements implements \PHPUnit\TextUI\XmlConfigu
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class RemoveNoInteractionAttribute implements \PHPUnit\TextUI\XmlConfiguration\Migration
 {
@@ -24439,8 +24439,8 @@ final readonly class RemoveNoInteractionAttribute implements \PHPUnit\TextUI\Xml
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class RemovePrinterAttributes implements \PHPUnit\TextUI\XmlConfiguration\Migration
 {
@@ -24449,8 +24449,8 @@ final readonly class RemovePrinterAttributes implements \PHPUnit\TextUI\XmlConfi
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class RemoveRegisterMockObjectsFromTestArgumentsRecursivelyAttribute implements \PHPUnit\TextUI\XmlConfiguration\Migration
 {
@@ -24459,8 +24459,8 @@ final readonly class RemoveRegisterMockObjectsFromTestArgumentsRecursivelyAttrib
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class RemoveTestDoxGroupsElement implements \PHPUnit\TextUI\XmlConfiguration\Migration
 {
@@ -24469,8 +24469,8 @@ final readonly class RemoveTestDoxGroupsElement implements \PHPUnit\TextUI\XmlCo
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class RemoveTestSuiteLoaderAttributes implements \PHPUnit\TextUI\XmlConfiguration\Migration
 {
@@ -24479,8 +24479,8 @@ final readonly class RemoveTestSuiteLoaderAttributes implements \PHPUnit\TextUI\
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class RemoveVerboseAttribute implements \PHPUnit\TextUI\XmlConfiguration\Migration
 {
@@ -24489,8 +24489,8 @@ final readonly class RemoveVerboseAttribute implements \PHPUnit\TextUI\XmlConfig
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class RenameBackupStaticAttributesAttribute implements \PHPUnit\TextUI\XmlConfiguration\Migration
 {
@@ -24499,8 +24499,8 @@ final readonly class RenameBackupStaticAttributesAttribute implements \PHPUnit\T
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class RenameBeStrictAboutCoversAnnotationAttribute implements \PHPUnit\TextUI\XmlConfiguration\Migration
 {
@@ -24509,8 +24509,8 @@ final readonly class RenameBeStrictAboutCoversAnnotationAttribute implements \PH
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class RenameForceCoversAnnotationAttribute implements \PHPUnit\TextUI\XmlConfiguration\Migration
 {
@@ -24519,8 +24519,8 @@ final readonly class RenameForceCoversAnnotationAttribute implements \PHPUnit\Te
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class ReplaceRestrictDeprecationsWithIgnoreDeprecations implements \PHPUnit\TextUI\XmlConfiguration\Migration
 {
@@ -24532,8 +24532,8 @@ final readonly class ReplaceRestrictDeprecationsWithIgnoreDeprecations implement
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class UpdateSchemaLocation implements \PHPUnit\TextUI\XmlConfiguration\Migration
 {
@@ -24542,8 +24542,8 @@ final readonly class UpdateSchemaLocation implements \PHPUnit\TextUI\XmlConfigur
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class Migrator
 {
@@ -24557,8 +24557,8 @@ final readonly class Migrator
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  * @template-implements \IteratorAggregate<int, \DOMNode>
  */
 final class SnapshotNodeList implements \Countable, \IteratorAggregate
@@ -24580,8 +24580,8 @@ final class SnapshotNodeList implements \Countable, \IteratorAggregate
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  * @immutable
  */
 final readonly class PHPUnit
@@ -24822,16 +24822,16 @@ final readonly class PHPUnit
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  * @immutable
  */
 final readonly class FailedSchemaDetectionResult extends \PHPUnit\TextUI\XmlConfiguration\SchemaDetectionResult
 {
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  * @immutable
  */
 abstract readonly class SchemaDetectionResult
@@ -24850,8 +24850,8 @@ abstract readonly class SchemaDetectionResult
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class SchemaDetector
 {
@@ -24863,8 +24863,8 @@ final readonly class SchemaDetector
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  * @immutable
  */
 final readonly class SuccessfulSchemaDetectionResult extends \PHPUnit\TextUI\XmlConfiguration\SchemaDetectionResult
@@ -24887,8 +24887,8 @@ final readonly class SuccessfulSchemaDetectionResult extends \PHPUnit\TextUI\Xml
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class SchemaFinder
 {
@@ -24906,8 +24906,8 @@ final readonly class SchemaFinder
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class TestSuiteMapper
 {
@@ -24924,8 +24924,8 @@ final readonly class TestSuiteMapper
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  * @immutable
  */
 final readonly class ValidationResult
@@ -24944,8 +24944,8 @@ final readonly class ValidationResult
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class Validator
 {
@@ -24956,8 +24956,8 @@ final readonly class Validator
 namespace PHPUnit\TextUI\XmlConfiguration\CodeCoverage;
 
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  * @immutable
  */
 final readonly class CodeCoverage
@@ -25077,8 +25077,8 @@ final readonly class CodeCoverage
 namespace PHPUnit\TextUI\XmlConfiguration\CodeCoverage\Report;
 
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  * @immutable
  */
 final readonly class Clover
@@ -25091,8 +25091,8 @@ final readonly class Clover
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  * @immutable
  */
 final readonly class Cobertura
@@ -25105,8 +25105,8 @@ final readonly class Cobertura
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  * @immutable
  */
 final readonly class Crap4j
@@ -25122,8 +25122,8 @@ final readonly class Crap4j
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  * @immutable
  */
 final readonly class Html
@@ -25169,8 +25169,8 @@ final readonly class Html
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  * @immutable
  */
 final readonly class OpenClover
@@ -25183,8 +25183,8 @@ final readonly class OpenClover
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  * @immutable
  */
 final readonly class Php
@@ -25197,8 +25197,8 @@ final readonly class Php
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  * @immutable
  */
 final readonly class Text
@@ -25217,8 +25217,8 @@ final readonly class Text
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  * @immutable
  */
 final readonly class Xml
@@ -25236,8 +25236,8 @@ final readonly class Xml
 namespace PHPUnit\TextUI\XmlConfiguration\Logging;
 
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  * @immutable
  */
 final readonly class Junit
@@ -25250,8 +25250,8 @@ final readonly class Junit
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  * @immutable
  */
 final readonly class Logging
@@ -25306,8 +25306,8 @@ final readonly class Logging
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  * @immutable
  */
 final readonly class Otr
@@ -25323,8 +25323,8 @@ final readonly class Otr
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  * @immutable
  */
 final readonly class TeamCity
@@ -25339,8 +25339,8 @@ final readonly class TeamCity
 namespace PHPUnit\TextUI\XmlConfiguration\Logging\TestDox;
 
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  * @immutable
  */
 final readonly class Html
@@ -25353,8 +25353,8 @@ final readonly class Html
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  * @immutable
  */
 final readonly class Text
@@ -25369,8 +25369,8 @@ final readonly class Text
 namespace PHPUnit\Util;
 
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final class Color
 {
@@ -25391,15 +25391,15 @@ final class Color
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 interface Exception extends \Throwable
 {
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final class InvalidDirectoryException extends \RuntimeException implements \PHPUnit\Util\Exception
 {
@@ -25408,15 +25408,15 @@ final class InvalidDirectoryException extends \RuntimeException implements \PHPU
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final class InvalidJsonException extends \RuntimeException implements \PHPUnit\Util\Exception
 {
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final class InvalidVersionOperatorException extends \RuntimeException implements \PHPUnit\Util\Exception
 {
@@ -25425,7 +25425,7 @@ final class InvalidVersionOperatorException extends \RuntimeException implements
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final class ExcludeList
 {
@@ -25450,7 +25450,7 @@ final class ExcludeList
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final class Exporter
 {
@@ -25468,8 +25468,8 @@ final class Exporter
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class Filesystem
 {
@@ -25485,8 +25485,8 @@ final readonly class Filesystem
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class Filter
 {
@@ -25498,8 +25498,8 @@ final readonly class Filter
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class GlobalState
 {
@@ -25528,8 +25528,8 @@ final readonly class GlobalState
 }
 /**
  * @immutable
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class GlobalStateResult
 {
@@ -25553,8 +25553,8 @@ final readonly class GlobalStateResult
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class Json
 {
@@ -25572,8 +25572,8 @@ final readonly class Json
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class Reflection
 {
@@ -25601,8 +25601,8 @@ final readonly class Reflection
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class Sanitizer
 {
@@ -25614,8 +25614,8 @@ final readonly class Sanitizer
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class Test
 {
@@ -25630,8 +25630,8 @@ final readonly class Test
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class ThrowableToStringMapper
 {
@@ -25640,7 +25640,7 @@ final readonly class ThrowableToStringMapper
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  * @immutable
  */
 final readonly class VersionComparisonOperator
@@ -25660,8 +25660,8 @@ final readonly class VersionComparisonOperator
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class Xml
 {
@@ -25675,8 +25675,8 @@ final readonly class Xml
 namespace PHPUnit\Util\Http;
 
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 interface Downloader
 {
@@ -25686,8 +25686,8 @@ interface Downloader
     public function download(string $url): false|string;
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  * @codeCoverageIgnore
  */
 final class PhpDownloader implements \PHPUnit\Util\Http\Downloader
@@ -25702,16 +25702,16 @@ final class PhpDownloader implements \PHPUnit\Util\Http\Downloader
 namespace PHPUnit\Util\PHP;
 
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final class PhpProcessException extends \RuntimeException implements \PHPUnit\Util\Exception
 {
 }
 /**
  * @immutable
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class Job
 {
@@ -25782,8 +25782,8 @@ final readonly class Job
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class JobRunner
 {
@@ -25805,8 +25805,8 @@ final readonly class JobRunner
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final class JobRunnerRegistry
 {
@@ -25826,8 +25826,8 @@ final class JobRunnerRegistry
 }
 /**
  * @immutable
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class Result
 {
@@ -25844,15 +25844,15 @@ final readonly class Result
 namespace PHPUnit\Util\Xml;
 
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final class XmlException extends \RuntimeException implements \PHPUnit\Util\Exception
 {
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class Loader
 {
@@ -26185,7 +26185,7 @@ final class Version
 namespace SebastianBergmann\CodeCoverage\Data;
 
 /**
- * @internal 
+ * @internal
  * @phpstan-import-type TestIdType from ProcessedCodeCoverageData
  * @phpstan-import-type XdebugBranchCoverageType from \SebastianBergmann\CodeCoverage\Driver\XdebugDriver
  */
@@ -26227,7 +26227,7 @@ final class ProcessedBranchCoverageData
     }
 }
 /**
- * @internal 
+ * @internal
  */
 final class ProcessedClassType
 {
@@ -26271,7 +26271,7 @@ final class ProcessedClassType
     }
 }
 /**
- * @internal 
+ * @internal
  * @phpstan-import-type XdebugFunctionCoverageType from \SebastianBergmann\CodeCoverage\Driver\XdebugDriver
  * @phan-type TestIdType string
  * @phan-type FunctionCoverageType array<string, array<string, ProcessedFunctionCoverageData>>
@@ -26323,7 +26323,7 @@ final class ProcessedCodeCoverageData
     }
 }
 /**
- * @internal 
+ * @internal
  * @phpstan-import-type TestIdType from ProcessedCodeCoverageData
  * @phpstan-import-type XdebugFunctionCoverageType from \SebastianBergmann\CodeCoverage\Driver\XdebugDriver
  */
@@ -26364,7 +26364,7 @@ final readonly class ProcessedFunctionCoverageData
     }
 }
 /**
- * @internal 
+ * @internal
  */
 final class ProcessedFunctionType
 {
@@ -26388,7 +26388,7 @@ final class ProcessedFunctionType
     }
 }
 /**
- * @internal 
+ * @internal
  */
 final class ProcessedMethodType
 {
@@ -26412,7 +26412,7 @@ final class ProcessedMethodType
     }
 }
 /**
- * @internal 
+ * @internal
  * @phpstan-import-type TestIdType from ProcessedCodeCoverageData
  * @phpstan-import-type XdebugPathCoverageType from \SebastianBergmann\CodeCoverage\Driver\XdebugDriver
  */
@@ -26447,7 +26447,7 @@ final class ProcessedPathCoverageData
     }
 }
 /**
- * @internal 
+ * @internal
  */
 final class ProcessedTraitType
 {
@@ -26491,7 +26491,7 @@ final class ProcessedTraitType
     }
 }
 /**
- * @internal 
+ * @internal
  * @phpstan-import-type XdebugFunctionsCoverageType from \SebastianBergmann\CodeCoverage\Driver\XdebugDriver
  * @phpstan-import-type XdebugCodeCoverageWithoutPathCoverageType from \SebastianBergmann\CodeCoverage\Driver\XdebugDriver
  * @phpstan-import-type XdebugCodeCoverageWithPathCoverageType from \SebastianBergmann\CodeCoverage\Driver\XdebugDriver
@@ -26565,7 +26565,7 @@ final class RawCodeCoverageData
 namespace SebastianBergmann\CodeCoverage\Driver;
 
 /**
- * @internal 
+ * @internal
  */
 abstract class Driver
 {
@@ -26615,7 +26615,7 @@ abstract class Driver
     abstract public function stop(): \SebastianBergmann\CodeCoverage\Data\RawCodeCoverageData;
 }
 /**
- * @internal 
+ * @internal
  */
 final class PcovDriver extends \SebastianBergmann\CodeCoverage\Driver\Driver
 {
@@ -26664,7 +26664,7 @@ final class Selector
     }
 }
 /**
- * @internal 
+ * @internal
  * @see https://xdebug.org/docs/code_coverage#xdebug_get_code_coverage
  * @phan-type XdebugLinesCoverageType array<int, int>
  * @phan-type XdebugBranchCoverageType array{
@@ -26748,7 +26748,7 @@ final class XdebugVersionNotSupportedException extends \RuntimeException impleme
 namespace SebastianBergmann\CodeCoverage\Node;
 
 /**
- * @internal 
+ * @internal
  */
 abstract class AbstractNode implements \Countable
 {
@@ -26853,7 +26853,7 @@ abstract class AbstractNode implements \Countable
     abstract public function numberOfTestedFunctions(): int;
 }
 /**
- * @internal 
+ * @internal
  * @phpstan-import-type TestType from \SebastianBergmann\CodeCoverage\CodeCoverage
  */
 final readonly class Builder
@@ -26866,7 +26866,7 @@ final readonly class Builder
     }
 }
 /**
- * @internal 
+ * @internal
  */
 final readonly class CrapIndex
 {
@@ -26879,7 +26879,7 @@ final readonly class CrapIndex
 }
 /**
  * @template-implements \IteratorAggregate<int, AbstractNode>
- * @internal 
+ * @internal
  */
 final class Directory extends \SebastianBergmann\CodeCoverage\Node\AbstractNode implements \IteratorAggregate
 {
@@ -26981,7 +26981,7 @@ final class Directory extends \SebastianBergmann\CodeCoverage\Node\AbstractNode 
     }
 }
 /**
- * @internal 
+ * @internal
  * @phpstan-import-type TestType from \SebastianBergmann\CodeCoverage\CodeCoverage
  * @phpstan-import-type LinesType from \SebastianBergmann\CodeCoverage\StaticAnalysis\AnalysisResult
  */
@@ -27088,7 +27088,7 @@ final class File extends \SebastianBergmann\CodeCoverage\Node\AbstractNode
 }
 /**
  * @template-implements \RecursiveIterator<int, AbstractNode>
- * @internal 
+ * @internal
  */
 final class Iterator implements \RecursiveIterator
 {
@@ -27260,7 +27260,7 @@ final readonly class Facade
     }
 }
 /**
- * @internal 
+ * @internal
  */
 abstract class Renderer
 {
@@ -27302,7 +27302,7 @@ abstract class Renderer
     }
 }
 /**
- * @internal 
+ * @internal
  */
 final class Dashboard extends \SebastianBergmann\CodeCoverage\Report\Html\Renderer
 {
@@ -27311,7 +27311,7 @@ final class Dashboard extends \SebastianBergmann\CodeCoverage\Report\Html\Render
     }
 }
 /**
- * @internal 
+ * @internal
  */
 final class Directory extends \SebastianBergmann\CodeCoverage\Report\Html\Renderer
 {
@@ -27320,7 +27320,7 @@ final class Directory extends \SebastianBergmann\CodeCoverage\Report\Html\Render
     }
 }
 /**
- * @internal 
+ * @internal
  */
 final class File extends \SebastianBergmann\CodeCoverage\Report\Html\Renderer
 {
@@ -27331,7 +27331,7 @@ final class File extends \SebastianBergmann\CodeCoverage\Report\Html\Renderer
 namespace SebastianBergmann\CodeCoverage\Report\Xml;
 
 /**
- * @internal 
+ * @internal
  */
 final readonly class BuildInformation
 {
@@ -27340,7 +27340,7 @@ final readonly class BuildInformation
     }
 }
 /**
- * @internal 
+ * @internal
  */
 final class Coverage
 {
@@ -27352,7 +27352,7 @@ final class Coverage
     }
 }
 /**
- * @internal 
+ * @internal
  */
 final class Directory extends \SebastianBergmann\CodeCoverage\Report\Xml\Node
 {
@@ -27374,7 +27374,7 @@ final class Facade
     }
 }
 /**
- * @internal 
+ * @internal
  */
 class File
 {
@@ -27393,7 +27393,7 @@ class File
     }
 }
 /**
- * @internal 
+ * @internal
  */
 final readonly class Method
 {
@@ -27402,7 +27402,7 @@ final readonly class Method
     }
 }
 /**
- * @internal 
+ * @internal
  */
 abstract class Node
 {
@@ -27424,7 +27424,7 @@ abstract class Node
     }
 }
 /**
- * @internal 
+ * @internal
  */
 final class Project extends \SebastianBergmann\CodeCoverage\Report\Xml\Node
 {
@@ -27451,7 +27451,7 @@ final class Project extends \SebastianBergmann\CodeCoverage\Report\Xml\Node
     }
 }
 /**
- * @internal 
+ * @internal
  */
 final class Report extends \SebastianBergmann\CodeCoverage\Report\Xml\File
 {
@@ -27475,7 +27475,7 @@ final class Report extends \SebastianBergmann\CodeCoverage\Report\Xml\File
     }
 }
 /**
- * @internal 
+ * @internal
  */
 final readonly class Source
 {
@@ -27487,7 +27487,7 @@ final readonly class Source
     }
 }
 /**
- * @internal 
+ * @internal
  * @phpstan-import-type TestType from \SebastianBergmann\CodeCoverage\CodeCoverage
  */
 final readonly class Tests
@@ -27503,7 +27503,7 @@ final readonly class Tests
     }
 }
 /**
- * @internal 
+ * @internal
  */
 final readonly class Totals
 {
@@ -27530,7 +27530,7 @@ final readonly class Totals
     }
 }
 /**
- * @internal 
+ * @internal
  */
 final readonly class Unit
 {
@@ -27544,7 +27544,7 @@ final readonly class Unit
 namespace SebastianBergmann\CodeCoverage\StaticAnalysis;
 
 /**
- * @internal 
+ * @internal
  */
 final readonly class CacheWarmer
 {
@@ -27556,7 +27556,7 @@ final readonly class CacheWarmer
     }
 }
 /**
- * @internal 
+ * @internal
  */
 final class CachingSourceAnalyser implements \SebastianBergmann\CodeCoverage\StaticAnalysis\SourceAnalyser
 {
@@ -27583,7 +27583,7 @@ final class CachingSourceAnalyser implements \SebastianBergmann\CodeCoverage\Sta
     }
 }
 /**
- * @internal 
+ * @internal
  */
 final class FileAnalyser
 {
@@ -27598,7 +27598,7 @@ final class FileAnalyser
     }
 }
 /**
- * @internal 
+ * @internal
  */
 final readonly class ParsingSourceAnalyser implements \SebastianBergmann\CodeCoverage\StaticAnalysis\SourceAnalyser
 {
@@ -27610,7 +27610,7 @@ final readonly class ParsingSourceAnalyser implements \SebastianBergmann\CodeCov
     }
 }
 /**
- * @internal 
+ * @internal
  */
 interface SourceAnalyser
 {
@@ -27621,7 +27621,7 @@ interface SourceAnalyser
 }
 /**
  * @phan-type LinesType array<int, int>
- * @internal 
+ * @internal
  */
 final readonly class AnalysisResult
 {
@@ -27677,7 +27677,7 @@ final readonly class AnalysisResult
     }
 }
 /**
- * @internal 
+ * @internal
  */
 final readonly class Class_
 {
@@ -27760,7 +27760,7 @@ final readonly class Class_
     }
 }
 /**
- * @internal 
+ * @internal
  */
 final readonly class Function_
 {
@@ -27819,7 +27819,7 @@ final readonly class Function_
     }
 }
 /**
- * @internal 
+ * @internal
  */
 final readonly class Interface_
 {
@@ -27871,7 +27871,7 @@ final readonly class Interface_
     }
 }
 /**
- * @internal 
+ * @internal
  */
 final readonly class LinesOfCode
 {
@@ -27903,7 +27903,7 @@ final readonly class LinesOfCode
     }
 }
 /**
- * @internal 
+ * @internal
  */
 final readonly class Method
 {
@@ -27952,7 +27952,7 @@ final readonly class Method
     }
 }
 /**
- * @internal 
+ * @internal
  */
 final readonly class Trait_
 {
@@ -28018,7 +28018,7 @@ final readonly class Trait_
     }
 }
 /**
- * @internal 
+ * @internal
  */
 enum Visibility : string
 {
@@ -28027,7 +28027,7 @@ enum Visibility : string
     case Private = 'private';
 }
 /**
- * @internal 
+ * @internal
  */
 final class AttributeParentConnectingVisitor implements \PhpParser\NodeVisitor
 {
@@ -28045,7 +28045,7 @@ final class AttributeParentConnectingVisitor implements \PhpParser\NodeVisitor
     }
 }
 /**
- * @internal 
+ * @internal
  */
 final class CodeUnitFindingVisitor extends \PhpParser\NodeVisitorAbstract
 {
@@ -28087,7 +28087,7 @@ final class CodeUnitFindingVisitor extends \PhpParser\NodeVisitorAbstract
     }
 }
 /**
- * @internal 
+ * @internal
  * @phpstan-import-type LinesType from AnalysisResult
  */
 final class ExecutableLinesFindingVisitor extends \PhpParser\NodeVisitorAbstract
@@ -28109,7 +28109,7 @@ final class ExecutableLinesFindingVisitor extends \PhpParser\NodeVisitorAbstract
     }
 }
 /**
- * @internal 
+ * @internal
  */
 final class IgnoredLinesFindingVisitor extends \PhpParser\NodeVisitorAbstract
 {
@@ -28136,7 +28136,7 @@ final class InvalidCodeCoverageTargetException extends \RuntimeException impleme
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final class Class_ extends \SebastianBergmann\CodeCoverage\Test\Target\Target
 {
@@ -28170,7 +28170,7 @@ final class Class_ extends \SebastianBergmann\CodeCoverage\Test\Target\Target
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final class ClassesThatExtendClass extends \SebastianBergmann\CodeCoverage\Test\Target\Target
 {
@@ -28204,7 +28204,7 @@ final class ClassesThatExtendClass extends \SebastianBergmann\CodeCoverage\Test\
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final class ClassesThatImplementInterface extends \SebastianBergmann\CodeCoverage\Test\Target\Target
 {
@@ -28238,7 +28238,7 @@ final class ClassesThatImplementInterface extends \SebastianBergmann\CodeCoverag
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final class Function_ extends \SebastianBergmann\CodeCoverage\Test\Target\Target
 {
@@ -28274,8 +28274,8 @@ final class Function_ extends \SebastianBergmann\CodeCoverage\Test\Target\Target
  * @phpstan-import-type TargetMap from Mapper
  * @phpstan-import-type TargetMapPart from Mapper
  * @immutable
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class MapBuilder
 {
@@ -28291,8 +28291,8 @@ final readonly class MapBuilder
  * @phan-type TargetMapPart array<non-empty-string, array<non-empty-string, list<positive-int>>>
  * @phan-type ReverseLookup array<non-empty-string, non-empty-string>
  * @immutable
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class Mapper
 {
@@ -28326,7 +28326,7 @@ final readonly class Mapper
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final class Method extends \SebastianBergmann\CodeCoverage\Test\Target\Target
 {
@@ -28366,7 +28366,7 @@ final class Method extends \SebastianBergmann\CodeCoverage\Test\Target\Target
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final class Namespace_ extends \SebastianBergmann\CodeCoverage\Test\Target\Target
 {
@@ -28400,7 +28400,7 @@ final class Namespace_ extends \SebastianBergmann\CodeCoverage\Test\Target\Targe
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 abstract class Target
 {
@@ -28484,7 +28484,7 @@ abstract class Target
 /**
  * @template-implements \IteratorAggregate<int, Target>
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final readonly class TargetCollection implements \Countable, \IteratorAggregate
 {
@@ -28515,7 +28515,7 @@ final readonly class TargetCollection implements \Countable, \IteratorAggregate
 }
 /**
  * @template-implements \Iterator<int, Target>
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final class TargetCollectionIterator implements \Iterator
 {
@@ -28539,8 +28539,8 @@ final class TargetCollectionIterator implements \Iterator
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final readonly class TargetCollectionValidator
 {
@@ -28550,7 +28550,7 @@ final readonly class TargetCollectionValidator
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final class Trait_ extends \SebastianBergmann\CodeCoverage\Test\Target\Target
 {
@@ -28584,7 +28584,7 @@ final class Trait_ extends \SebastianBergmann\CodeCoverage\Test\Target\Target
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final readonly class ValidationFailure extends \SebastianBergmann\CodeCoverage\Test\Target\ValidationResult
 {
@@ -28600,7 +28600,7 @@ final readonly class ValidationFailure extends \SebastianBergmann\CodeCoverage\T
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 abstract readonly class ValidationResult
 {
@@ -28628,7 +28628,7 @@ abstract readonly class ValidationResult
 }
 /**
  * @immutable
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final readonly class ValidationSuccess extends \SebastianBergmann\CodeCoverage\Test\Target\ValidationResult
 {
@@ -28847,7 +28847,7 @@ final class DirectoryCouldNotBeCreatedException extends \RuntimeException implem
 {
 }
 /**
- * @internal 
+ * @internal
  */
 final class Filesystem
 {
@@ -28866,7 +28866,7 @@ final class Filesystem
     }
 }
 /**
- * @internal 
+ * @internal
  */
 final readonly class Percentage
 {
@@ -28884,7 +28884,7 @@ final readonly class Percentage
     }
 }
 /**
- * @internal 
+ * @internal
  */
 final readonly class Xml
 {
@@ -28899,8 +28899,8 @@ final readonly class Xml
 namespace SebastianBergmann\Comparator;
 
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 class ArrayComparator extends \SebastianBergmann\Comparator\Comparator
 {
@@ -28916,8 +28916,8 @@ class ArrayComparator extends \SebastianBergmann\Comparator\Comparator
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final class ClosureComparator extends \SebastianBergmann\Comparator\Comparator
 {
@@ -28929,7 +28929,7 @@ final class ClosureComparator extends \SebastianBergmann\Comparator\Comparator
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  */
 abstract class Comparator
 {
@@ -28946,7 +28946,7 @@ abstract class Comparator
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final class ComparisonFailure extends \RuntimeException
 {
@@ -28985,8 +28985,8 @@ final class ComparisonFailure extends \RuntimeException
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final class DOMNodeComparator extends \SebastianBergmann\Comparator\ObjectComparator
 {
@@ -29002,8 +29002,8 @@ final class DOMNodeComparator extends \SebastianBergmann\Comparator\ObjectCompar
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final class DateTimeComparator extends \SebastianBergmann\Comparator\ObjectComparator
 {
@@ -29019,8 +29019,8 @@ final class DateTimeComparator extends \SebastianBergmann\Comparator\ObjectCompa
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final class EnumerationComparator extends \SebastianBergmann\Comparator\Comparator
 {
@@ -29035,8 +29035,8 @@ final class EnumerationComparator extends \SebastianBergmann\Comparator\Comparat
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final class ExceptionComparator extends \SebastianBergmann\Comparator\ObjectComparator
 {
@@ -29045,7 +29045,7 @@ final class ExceptionComparator extends \SebastianBergmann\Comparator\ObjectComp
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final class Factory
 {
@@ -29069,8 +29069,8 @@ final class Factory
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final class MockObjectComparator extends \SebastianBergmann\Comparator\ObjectComparator
 {
@@ -29079,8 +29079,8 @@ final class MockObjectComparator extends \SebastianBergmann\Comparator\ObjectCom
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final class NumberComparator extends \SebastianBergmann\Comparator\ObjectComparator
 {
@@ -29096,8 +29096,8 @@ final class NumberComparator extends \SebastianBergmann\Comparator\ObjectCompara
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final class NumericComparator extends \SebastianBergmann\Comparator\ScalarComparator
 {
@@ -29112,8 +29112,8 @@ final class NumericComparator extends \SebastianBergmann\Comparator\ScalarCompar
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 class ObjectComparator extends \SebastianBergmann\Comparator\ArrayComparator
 {
@@ -29135,8 +29135,8 @@ class ObjectComparator extends \SebastianBergmann\Comparator\ArrayComparator
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final class ResourceComparator extends \SebastianBergmann\Comparator\Comparator
 {
@@ -29151,8 +29151,8 @@ final class ResourceComparator extends \SebastianBergmann\Comparator\Comparator
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 class ScalarComparator extends \SebastianBergmann\Comparator\Comparator
 {
@@ -29167,8 +29167,8 @@ class ScalarComparator extends \SebastianBergmann\Comparator\Comparator
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final class SplObjectStorageComparator extends \SebastianBergmann\Comparator\Comparator
 {
@@ -29183,8 +29183,8 @@ final class SplObjectStorageComparator extends \SebastianBergmann\Comparator\Com
     }
 }
 /**
- * @no-named-arguments 
- * @internal 
+ * @no-named-arguments
+ * @internal
  */
 final class TypeComparator extends \SebastianBergmann\Comparator\Comparator
 {
@@ -29199,13 +29199,13 @@ final class TypeComparator extends \SebastianBergmann\Comparator\Comparator
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  */
 interface Exception extends \Throwable
 {
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final class RuntimeException extends \RuntimeException implements \SebastianBergmann\Comparator\Exception
 {
@@ -29724,7 +29724,7 @@ final readonly class Exporter
 namespace SebastianBergmann\FileIterator;
 
 /**
- * @internal 
+ * @internal
  */
 final class ExcludeIterator extends \RecursiveFilterIterator
 {
@@ -29748,7 +29748,7 @@ final class ExcludeIterator extends \RecursiveFilterIterator
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final class Facade
 {
@@ -29764,7 +29764,7 @@ final class Facade
     }
 }
 /**
- * @internal 
+ * @internal
  */
 final class Factory
 {
@@ -29781,7 +29781,7 @@ final class Factory
 }
 /**
  * @template-extends \FilterIterator<int, \SplFileInfo, \Iterator>
- * @internal 
+ * @internal
  */
 final class Iterator extends \FilterIterator
 {
@@ -30227,7 +30227,7 @@ final class TimeSinceStartOfRequestNotAvailableException extends \RuntimeExcepti
 namespace SebastianBergmann\Type;
 
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final readonly class Parameter
 {
@@ -30248,7 +30248,7 @@ final readonly class Parameter
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final class ReflectionMapper
 {
@@ -30266,7 +30266,7 @@ final class ReflectionMapper
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final readonly class TypeName
 {
@@ -30308,19 +30308,19 @@ final readonly class TypeName
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  */
 interface Exception extends \Throwable
 {
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final class RuntimeException extends \RuntimeException implements \SebastianBergmann\Type\Exception
 {
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final class CallableType extends \SebastianBergmann\Type\Type
 {
@@ -30344,7 +30344,7 @@ final class CallableType extends \SebastianBergmann\Type\Type
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final class FalseType extends \SebastianBergmann\Type\Type
 {
@@ -30365,7 +30365,7 @@ final class FalseType extends \SebastianBergmann\Type\Type
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final class GenericObjectType extends \SebastianBergmann\Type\Type
 {
@@ -30389,7 +30389,7 @@ final class GenericObjectType extends \SebastianBergmann\Type\Type
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final class IntersectionType extends \SebastianBergmann\Type\Type
 {
@@ -30428,7 +30428,7 @@ final class IntersectionType extends \SebastianBergmann\Type\Type
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final class IterableType extends \SebastianBergmann\Type\Type
 {
@@ -30455,7 +30455,7 @@ final class IterableType extends \SebastianBergmann\Type\Type
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final class MixedType extends \SebastianBergmann\Type\Type
 {
@@ -30482,7 +30482,7 @@ final class MixedType extends \SebastianBergmann\Type\Type
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final class NeverType extends \SebastianBergmann\Type\Type
 {
@@ -30503,7 +30503,7 @@ final class NeverType extends \SebastianBergmann\Type\Type
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final class NullType extends \SebastianBergmann\Type\Type
 {
@@ -30530,7 +30530,7 @@ final class NullType extends \SebastianBergmann\Type\Type
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final class ObjectType extends \SebastianBergmann\Type\Type
 {
@@ -30557,7 +30557,7 @@ final class ObjectType extends \SebastianBergmann\Type\Type
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final class SimpleType extends \SebastianBergmann\Type\Type
 {
@@ -30587,7 +30587,7 @@ final class SimpleType extends \SebastianBergmann\Type\Type
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final class StaticType extends \SebastianBergmann\Type\Type
 {
@@ -30611,7 +30611,7 @@ final class StaticType extends \SebastianBergmann\Type\Type
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final class TrueType extends \SebastianBergmann\Type\Type
 {
@@ -30632,7 +30632,7 @@ final class TrueType extends \SebastianBergmann\Type\Type
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  */
 abstract class Type
 {
@@ -30746,7 +30746,7 @@ abstract class Type
     abstract public function allowsNull(): bool;
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final class UnionType extends \SebastianBergmann\Type\Type
 {
@@ -30788,7 +30788,7 @@ final class UnionType extends \SebastianBergmann\Type\Type
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final class UnknownType extends \SebastianBergmann\Type\Type
 {
@@ -30815,7 +30815,7 @@ final class UnknownType extends \SebastianBergmann\Type\Type
     }
 }
 /**
- * @no-named-arguments 
+ * @no-named-arguments
  */
 final class VoidType extends \SebastianBergmann\Type\Type
 {

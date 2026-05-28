@@ -96,7 +96,9 @@ class StripDocsNodeVisitor extends NodeVisitorAbstract {
 			list( $newDoc ) = $this->traverser->traverse( array( $oldDoc ) );
 			'@phan-var \PHPStan\PhpDocParser\Ast\PhpDoc\PhpDocNode $newDoc';
 			if ( $newDoc->children ) {
-				$node->setDocComment( new Doc( $this->printer->printFormatPreserving( $newDoc, $oldDoc, $tokens ) ) );
+				$text = $this->printer->printFormatPreserving( $newDoc, $oldDoc, $tokens );
+				$text = preg_replace( '/[ \t]+\n/', "\n", $text );
+				$node->setDocComment( new Doc( $text ) );
 			}
 		}
 	}
