@@ -11,6 +11,16 @@ namespace Automattic\Jetpack\Search;
 
 // phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
 
+// Each pill carries `wp-block-button__link` so it inherits the theme's core
+// button palette — including on classic themes, whose block CSS styles
+// `.wp-block-button__link` but never the newer `.wp-element-button` class.
+// Without the older class a pill falls through to WordPress core's
+// `#32373c` classic-theme button default instead of the theme's own color,
+// so it stops tracking the theme (and stops matching the Load More button,
+// which already carries the class). That class is only styled when the core
+// Button block's stylesheet is on the page, so pull it in explicitly.
+wp_enqueue_style( 'wp-block-button' );
+
 // First-paint FOUC guard: emit `hidden` on the wrapper when the seeded state
 // has no active filters, so the "Active filters:" heading doesn't briefly
 // render before hydration and push siblings ~30px down — `data-wp-bind--hidden`
@@ -67,7 +77,7 @@ $in_interactive_scope = isset( $block ) && $block instanceof \WP_Block
 			<li>
 				<button
 					type="button"
-					class="wp-element-button jetpack-search-active-filters__pill"
+					class="wp-element-button wp-block-button__link jetpack-search-active-filters__pill"
 					data-wp-on--click="actions.onRemovePill"
 					data-wp-bind--aria-label="context.pill.ariaLabel"
 				>

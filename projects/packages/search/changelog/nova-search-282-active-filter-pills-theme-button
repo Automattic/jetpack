@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Search Blocks: active-filter pills now track the theme's button palette on classic themes instead of falling back to WordPress core's default button color.

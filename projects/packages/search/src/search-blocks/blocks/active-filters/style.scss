@@ -26,9 +26,13 @@
 		padding: 0;
 	}
 
-	// Pills carry `wp-element-button` so they adopt the active theme's
-	// button palette (theme.json → styles.elements.button). We only
-	// override what we need — pill shape, spacing, and remove-icon weight.
+	// Pills carry `wp-block-button__link` + `wp-element-button` so they adopt
+	// the active theme's button palette on both block themes (theme.json →
+	// styles.elements.button) and classic themes (whose block CSS styles
+	// `.wp-block-button__link`) — mirroring the Load More button's class set.
+	// These two-class rules (0,2,0) outrank the core/theme single-class button
+	// rules, so we keep the pill shape, spacing, and remove-icon weight while
+	// the theme drives the colors.
 	.jetpack-search-active-filters__pill {
 		display: inline-flex;
 		align-items: center;
