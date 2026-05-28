@@ -2,12 +2,11 @@
  * External dependencies
  */
 import { isSimpleSite } from '@automattic/jetpack-script-data';
-import { Button } from '@wordpress/components';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { createInterpolateElement, useCallback, useMemo } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { page, search, shield, trash } from '@wordpress/icons';
-import { EmptyState, Link } from '@wordpress/ui';
+import { Button, EmptyState, Link } from '@wordpress/ui';
 /**
  * Internal dependencies
  */
@@ -216,11 +215,10 @@ const EmptyResponses = ( {
 					<EmptyState.Description>{ wrapperBody }</EmptyState.Description>
 					<EmptyState.Actions>
 						<Button
-							variant="primary"
-							isBusy={ isInstallingAkismet }
+							variant="solid"
+							loading={ isInstallingAkismet }
 							disabled={ isInstallingAkismet || ! canPerformAkismetAction }
 							onClick={ handleAkismetSetup }
-							__next40pxDefaultSize
 						>
 							{ wrapperButtonText }
 						</Button>
