@@ -192,6 +192,9 @@ class Themes extends Module {
 		}
 
 		$query_params = array();
+		if ( ! isset( $url['query'] ) ) {
+			return $redirect_url;
+		}
 		wp_parse_str( $url['query'], $query_params );
 		if (
 			! isset( $_POST['newcontent'] ) || // phpcs:ignore WordPress.Security.NonceVerification.Missing -- 'wp_redirect' gets fired for a lot of things. We're only using $_POST['newcontent'] to limit action to redirects from theme edits, we're not doing anything with or in response to the post itself.

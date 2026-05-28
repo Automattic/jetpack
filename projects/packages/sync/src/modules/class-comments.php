@@ -232,6 +232,10 @@ class Comments extends Module {
 	 * @return bool or array $args Arguments passed to wp_insert_comment, deleted_comment, spammed_comment, etc.
 	 */
 	public function only_allow_white_listed_comment_types( $args ) {
+		if ( empty( $args ) ) {
+			return false;
+		}
+
 		$comment = false;
 
 		if ( isset( $args[1] ) ) {
@@ -242,10 +246,11 @@ class Comments extends Module {
 			$comment = get_comment( $args[0] );
 		}
 
-		if (
-			isset( $comment->comment_type )
-			&& ! in_array( $comment->comment_type, $this->get_whitelisted_comment_types(), true )
-		) {
+		if ( ! isset( $comment->comment_type ) || ! is_string( $comment->comment_type ) ) {
+			return false;
+		}
+
+		if ( ! in_array( $comment->comment_type, $this->get_whitelisted_comment_types(), true ) ) {
 			return false;
 		}
 
