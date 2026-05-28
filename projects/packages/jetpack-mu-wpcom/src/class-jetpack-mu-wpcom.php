@@ -391,6 +391,7 @@ class Jetpack_Mu_Wpcom {
 			require_once __DIR__ . '/features/survicate/class-survicate.php';
 		}
 		require_once __DIR__ . '/features/ai-assistant-banner/ai-assistant-banner.php';
+		require_once __DIR__ . '/features/expiry-notices/expiry-notices.php';
 		require_once __DIR__ . '/features/html-block-restricted-tags/html-block-restricted-tags.php';
 		require_once __DIR__ . '/features/marketing/marketing.php';
 		require_once __DIR__ . '/features/pages/pages.php';
