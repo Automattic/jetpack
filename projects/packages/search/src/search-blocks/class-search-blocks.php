@@ -1121,6 +1121,7 @@ class Search_Blocks {
 		if ( is_admin() ) {
 			return;
 		}
+		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- hardcoded CSS string, no dynamic content.
 		echo "<style id='jetpack-search-theme-token-defaults'>:root{--jp-search-page-ink:var(--wp--preset--color--contrast,var(--wp--preset--color--foreground,#1d2327));--jp-search-page-surface:var(--wp--preset--color--base,var(--wp--preset--color--background,#fff))}</style>";
 	}
 
@@ -1145,12 +1146,22 @@ class Search_Blocks {
 	 *
 	 * Themes that omit `wp_body_open()` (very old classic themes) fall back
 	 * to the PHP-emitted defaults — same behavior as today, no regression.
+	 *
+	 * Transparent-body guard: classic themes that don't explicitly set
+	 * `body { background-color }` resolve `getComputedStyle(body).backgroundColor`
+	 * to `rgba(0, 0, 0, 0)` even though the page visually paints on the
+	 * browser canvas (white). Writing that transparent string onto
+	 * `--jp-search-page-surface` would override the PHP default and make
+	 * Search surfaces transparent. The conditional keeps the PHP default
+	 * (literal `#fff`) intact for those themes — visually they were already
+	 * rendering on a white canvas, so the literal matches.
 	 */
 	public static function print_theme_token_sampler(): void {
 		if ( is_admin() ) {
 			return;
 		}
-		echo "<script id='jetpack-search-theme-token-sampler'>(function(){try{var c=getComputedStyle(document.body),r=document.documentElement;r.style.setProperty('--jp-search-page-ink',c.color);r.style.setProperty('--jp-search-page-surface',c.backgroundColor);}catch(e){}})();</script>";
+		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- hardcoded JS string, no dynamic content.
+		echo "<script id='jetpack-search-theme-token-sampler'>(function(){try{var c=getComputedStyle(document.body),r=document.documentElement;if(c.color){r.style.setProperty('--jp-search-page-ink',c.color);}if(c.backgroundColor&&c.backgroundColor!=='rgba(0, 0, 0, 0)'&&c.backgroundColor!=='transparent'){r.style.setProperty('--jp-search-page-surface',c.backgroundColor);}}catch(e){}})();</script>";
 	}
 
 	/**
