@@ -28,6 +28,9 @@ export default function PricingGate( { onDismiss }: { onDismiss: VoidFunction } 
 		select => select( socialStore ).isSavingSocialModuleSettings(),
 		[]
 	);
+	// Snapshot from page-load script data (not a live store value); the
+	// `! isSocialEnabled` branch in onStartForFree reloads the page, matching
+	// the legacy pricing page's behaviour.
 	const { is_publicize_enabled: isSocialEnabled } = getSocialScriptData();
 
 	const onGetSocial = useCallback( () => {

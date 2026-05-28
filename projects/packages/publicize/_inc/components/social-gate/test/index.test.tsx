@@ -59,6 +59,16 @@ describe( 'SocialGate', () => {
 		expect( screen.getByText( 'pricing-gate' ) ).toBeInTheDocument();
 	} );
 
+	it( 'renders children on a WPcom (non-Jetpack) site even when pricing would show', () => {
+		mockState( { paid: false, showPricingPage: true, jetpackSite: false } );
+		render(
+			<SocialGate>
+				<div>tabs</div>
+			</SocialGate>
+		);
+		expect( screen.getByText( 'tabs' ) ).toBeInTheDocument();
+	} );
+
 	it( 'renders children (tabs) on the happy path', () => {
 		mockState( {} );
 		render(
