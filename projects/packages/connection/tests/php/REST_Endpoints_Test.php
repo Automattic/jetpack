@@ -2066,6 +2066,28 @@ class REST_Endpoints_Test extends TestCase {
 	}
 
 	/**
+	 * Testing the `/jetpack/v4/connection/test-wpcom` callback directly.
+	 * We call the method on the REST_Connector instance rather than dispatching through
+	 * the REST server, because the permission check requires a real keypair signature
+	 * that can't be easily mocked (the public key is a class constant).
+	 */
+	public function test_connection_test_for_external_returns_response() {
+		$connector = new REST_Connector( new Manager() );
+		$response  = $connector->connection_test_for_external();
+		$data      = $response->get_data();
+
+		$this->assertArrayHasKey( 'code', $data );
+		// Without OpenSSL seal support the endpoint returns 'action_required';
+		// with it, the encrypted result is returned as 'response'.
+		$this->assertContains( $data['code'], array( 'response', 'action_required' ) );
+
+		if ( 'response' === $data['code'] ) {
+			$this->assertArrayHasKey( 'debug', $data );
+			$this->assertIsArray( $data['debug'] );
+		}
+	}
+
+	/**
 	 * Testing the `/jetpack/v4/connection/test-wpcom` endpoint with an expired timestamp.
 	 */
 	public function test_connection_test_wpcom_expired_signature() {

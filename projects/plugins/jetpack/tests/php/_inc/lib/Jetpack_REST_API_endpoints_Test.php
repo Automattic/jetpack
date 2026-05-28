@@ -1303,6 +1303,17 @@ class Jetpack_REST_API_endpoints_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Test that Jetpack hooks into jetpack_connection_tests_loaded to register its tests.
+	 */
+	public function test_jetpack_registers_connection_tests_hook() {
+		$jetpack = Jetpack::init();
+		$this->assertIsInt(
+			has_action( 'jetpack_connection_tests_loaded', array( $jetpack, 'register_jetpack_connection_tests' ) ),
+			'Jetpack should hook register_jetpack_connection_tests onto jetpack_connection_tests_loaded.'
+		);
+	}
+
+	/**
 	 * Test that Jetpack-specific connection tests (sync health) are registered
 	 * on the Connection_Health_Tests suite via the jetpack_connection_tests_loaded action.
 	 */
