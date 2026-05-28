@@ -1,7 +1,6 @@
 /**
  * External dependencies
  */
-
 import { Text, Button, ThemeProvider } from '@automattic/jetpack-components';
 import { Popover, Dropdown } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';

@@ -1,7 +1,6 @@
 /**
  * External dependencies
  */
-
 import { Text } from '@automattic/jetpack-components';
 import { Spinner } from '@wordpress/components';
 import { useDebounce } from '@wordpress/compose';
