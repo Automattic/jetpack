@@ -1451,51 +1451,34 @@ CSS;
 		border-left-color: color-mix(in sRGB, currentColor 15%, transparent);
 	}
 }
-/* Sidebar-showing rules (>= 992px). The corner-join is structural, not
- * decorative: the columns row is pulled flush against the search-input
- * hairline, and visual breathing room is re-added as internal column
- * padding. Three sources of vertical gap have to be neutralised for the
- * column's `border-left` to start *at* the hairline:
+/* Sidebar-showing rules (>= 992px). The corner-join is structural: the
+ * columns row is pulled flush to the search-input hairline and breathing
+ * room re-added as internal column padding, so the filters column's
+ * `border-left` runs the row's full height — hairline (top) to end-of-div
+ * (bottom). Three vertical gaps are neutralised:
  *
- *   a) The outer `wp:group`'s declared `spacing.blockGap` (1.5rem in the
- *      templates) or the theme's default block-gap (e.g. TT5 falls back
- *      to 1.2rem when the block-layout system doesn't emit the
- *      per-container override for templates rendered into a `<template>`
- *      element). Both manifest as `margin-block-start` on the columns row.
+ *   a) `margin-block-start` on the row (outer group's `spacing.blockGap` or
+ *      the theme's default block-gap) — zeroed.
  *
- *   b) `.is-layout-flex { align-items: center }` (theme default, also in
- *      WordPress core), which vertically centres the shorter filters
- *      column inside the taller results column, dropping the sidebar's
- *      top edge below the row's top. We override to `stretch` rather than
- *      `flex-start` so the column also grows to the full row height — the
- *      `border-left` then reaches the bottom of the div, not just the
- *      bottom of the (shorter) filter list. The column is flow layout, so
- *      its content stays top-aligned regardless.
+ *   b) `.is-layout-flex { align-items: center }` (theme/core default), which
+ *      centres the shorter filters column and drops its top edge. Overridden
+ *      to `stretch` (not `flex-start`) so the column also grows to full row
+ *      height; it's flow layout, so its content stays top-aligned regardless.
  *
- *   c) Overlay-only: the `__content > .wp-block-group:first-child` rule
- *      (SEARCH-243) gives the alignwide group a `padding: .5em 2em 2em`
- *      to "clear the 60px header strip." But the search-input is
- *      `position: absolute` in the overlay — it doesn't take flow space —
- *      so the 0.5em top-pad just pushes the columns row 8px below the
- *      card's `::before` hairline at `top: 60px`. The matching 2em
- *      *bottom*-pad sits below the columns row, inside the group but
- *      outside the columns, so the stretched column — and its
- *      `border-left` — stops 2em short of the card's bottom edge. Zero
- *      both on the group and re-add the 2em as `padding-bottom` on the
- *      columns themselves (overlay-scoped) so the divider runs to the card
- *      edge while the powered-by row keeps its breathing room.
+ *   c) Overlay-only: SEARCH-243's `padding: .5em 2em 2em` on the alignwide
+ *      group sits outside the columns, so the stretched column stops 0.5em
+ *      below the `::before` hairline (top) and 2em short of the card edge
+ *      (bottom). Zeroed on the group and re-added as column `padding-top` /
+ *      `padding-bottom` so the divider reaches both edges while content keeps
+ *      its breathing room.
  *
- * The `.is-layout-flex` class match bumps the columns selector to
- * specificity (0,3,0), enough to outrank any per-container `blockGap`
- * CSS WP might emit (typically (0,1,0)). The `:has(> filters-column)`
- * scope keeps these overrides off any unrelated `wp:columns` block.
- *
- * The layout fine-tuning rules below (`align-items`, `margin-block-start`,
- * overlay `padding-top`, column `padding-top`) target the columns row itself
- * and its parent group — `@container` can't reach those from inside the
- * named container, so they stay viewport-driven. Effect is harmless when the
- * sidebar is collapsed via `@container` (align-items has no effect with one
- * visible column; the margin/padding tightening is universally fine). */
+ * `.is-layout-flex` bumps the columns selector to (0,3,0) to outrank
+ * per-container `blockGap` CSS; `:has(> filters-column)` scopes it to our
+ * rows. These target the row/group, which `@container` can't reach from
+ * inside the named container, so they stay viewport-driven — harmless when
+ * the sidebar collapses below 992px. (b) is also a no-op wherever WP core's
+ * `.wp-block-columns { align-items: normal !important }` is present; see
+ * AGENTS.md. */
 @media (min-width: 992px) {
 	/* Sidebar shown, popover-in-results-header hidden. The `@container
 	 * (max-width: 991.98px)` block below re-shows the popover when the

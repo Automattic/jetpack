@@ -63,6 +63,10 @@ WordPress derives `.wp-block-jetpack-search-{bare-slug}` from the full block nam
 
 Manual wrapper classes (set via `useBlockProps({ className })` and the matching `get_block_wrapper_attributes()` call in `render.php`) don't have to track the slug exactly — they're just CSS hooks.
 
+## Sidebar layout: `.wp-block-columns` align-items reset
+
+The filters sidebar's `border-left` hairline (`.jetpack-search-layout__filters-column`) runs the full height of the columns row only when that row stretches its children. `search_layout_inline_css()` sets `align-items: stretch` on the row to force this, but be aware: **WP core's `wp-includes/blocks/columns/style.css` ships `.wp-block-columns { align-items: normal !important }`.** Where present (recent core, no theme override), that `!important` rule wins regardless of our selector's specificity — `align-items` on the row resolves to `normal` (which itself stretches), so our `stretch` is a redundant no-op there. It only does real work on sites where that core reset is absent or overridden, where the row would otherwise fall back to `.is-layout-flex { align-items: center }`. The upshot for testing: a stock dev env (core reset present) won't show a *difference* from this rule — to see it bite, neutralise the core reset (delete the `.wp-block-columns` align-items rule from the CSSOM) first. The overlay's bottom-edge fix is a pure `padding` move and is independent of all this.
+
 ## Theme tokens & `var()` chains
 
 The search-blocks bundle uses its own postcss config (`postcss.blocks.config.js`) with `postcss-custom-properties` set to `preserve: true`. Every `var(--foo, fallback)` ships as two declarations: a literal substitution (the deepest fallback) followed by the full `var()` call. The browser cascade picks the var when defined and falls through to the literal otherwise — runtime theme tokens work, and there's always a static safety net.
