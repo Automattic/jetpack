@@ -451,7 +451,7 @@ jobs:
   update_nonwpcom_mirrors:
     name: Push to mirror repos
     runs-on: ubuntu-latest
-    needs: [ merge_artifacts ]
+    needs: [ prepare, merge_artifacts ]
     concurrency:
       group: build-push_nonwpcom
       queue: max
@@ -475,6 +475,7 @@ jobs:
       - name: Extract build archive
         run: tar --xz -xvvf jetpack-build.tar.xz build
       - name: Filter mirrors.txt
+        if: ${{ fromJson( needs.prepare.outputs.build_matrix ).wpcom }}
         run: |
           # Skip the plugins pushed by update_wpcom_mirrors
           grep -vFx -e 'Automattic/jetpack-production' -e 'Automattic/jetpack-mu-wpcom-plugin' build/mirrors.txt > build/mirrors.txt.tmp || true
