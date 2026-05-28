@@ -1,10 +1,12 @@
-import type { ButtonProps } from '@automattic/jetpack-components';
 import type { IconType } from '@wordpress/components';
 
-type ProductButtonProps = Pick<
-	ButtonProps,
-	'size' | 'variant' | 'weight' | 'disabled' | 'className'
->;
+type ProductButtonProps = {
+	size?: 'normal' | 'small';
+	variant?: 'primary' | 'secondary' | 'tertiary' | 'link';
+	weight?: 'bold' | 'regular';
+	disabled?: boolean;
+	className?: string;
+};
 
 export type AdditionalAction = ProductButtonProps & {
 	label: string;

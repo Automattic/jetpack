@@ -1,5 +1,5 @@
-import { Button } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
+import { Button, Link } from '@wordpress/ui';
 import type { IconType } from '@wordpress/components';
 import type { FC, MouseEvent } from 'react';
 
@@ -16,25 +16,92 @@ export type SecondaryButtonProps = {
 	iconSize?: number;
 	disabled?: boolean;
 	isLoading?: boolean;
+	loadingAnnouncement?: string;
 	className?: string;
+	id?: string;
 	'aria-labelledby'?: string;
 };
 
-// SecondaryButton component
+const variantMap = {
+	primary: 'solid',
+	secondary: 'outline',
+	tertiary: 'minimal',
+} as const;
+
+const sizeMap = {
+	normal: 'default',
+	small: 'small',
+} as const;
+
 const SecondaryButton: FC< SecondaryButtonProps > = props => {
-	const { shouldShowButton = () => true, ...buttonProps } = {
-		size: 'small' as const,
-		variant: 'secondary' as const,
-		weight: 'regular' as const,
-		label: __( 'Learn more', 'jetpack-my-jetpack' ),
-		...props,
-	};
+	const {
+		shouldShowButton = () => true,
+		size = 'small',
+		variant = 'secondary',
+		label = __( 'Learn more', 'jetpack-my-jetpack' ),
+		href,
+		onClick,
+		isExternalLink,
+		disabled,
+		isLoading,
+		loadingAnnouncement,
+		className,
+		id,
+		'aria-labelledby': ariaLabelledBy,
+	} = props;
 
 	if ( ! shouldShowButton() ) {
-		return false;
+		return null;
 	}
 
-	return <Button { ...buttonProps }>{ buttonProps.label }</Button>;
+	if ( variant === 'link' ) {
+		return (
+			<Link
+				id={ id }
+				href={ href ?? '#' }
+				openInNewTab={ isExternalLink }
+				onClick={ onClick }
+				className={ className }
+				aria-labelledby={ ariaLabelledBy }
+			>
+				{ label }
+			</Link>
+		);
+	}
+
+	const sharedProps = {
+		variant: variantMap[ variant ],
+		size: sizeMap[ size ],
+		disabled,
+		loading: isLoading,
+		loadingAnnouncement,
+		onClick,
+		className,
+		id,
+		'aria-labelledby': ariaLabelledBy,
+	};
+
+	if ( href ) {
+		return (
+			<Button
+				{ ...sharedProps }
+				nativeButton={ false }
+				render={
+					<a
+						href={ href }
+						{ ...( isExternalLink && {
+							target: '_blank',
+							rel: 'noopener noreferrer',
+						} ) }
+					/>
+				}
+			>
+				{ label }
+			</Button>
+		);
+	}
+
+	return <Button { ...sharedProps }>{ label }</Button>;
 };
 
 export default SecondaryButton;
