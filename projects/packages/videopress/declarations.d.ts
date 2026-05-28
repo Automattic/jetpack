@@ -14,6 +14,18 @@ declare module '*.mdx';
  * object types on the same global property.
  */
 type ClassicEditorWp = {
-	media?: ( opts: unknown ) => unknown;
+	media?: ( opts: unknown ) => WpMediaFrame;
 	apiFetch?: ( options: Record< string, unknown > ) => Promise< Response >;
+};
+
+/** Attachment shape returned by `wp.media`'s selection model. */
+type WpMediaAttachment = { id: number; url: string };
+
+/** Subset of the `wp.media` modal frame interface this package uses. */
+type WpMediaFrame = {
+	on: ( evt: 'select' | 'close', fn: () => void ) => void;
+	state: () => {
+		get: ( k: string ) => { first: () => { toJSON: () => WpMediaAttachment } };
+	};
+	open: () => void;
 };
