@@ -44,11 +44,10 @@ if ( function_exists( 'wp_interactivity_state' ) && ( ! empty( $scope['include']
 
 // Load the WordPress.com Tracks consumer (drains `window._tkq`) so the
 // TrainTracks render/interact events the store pushes actually get sent.
-// Same handle + src as instant search's `load_and_initialize_tracks()`;
-// enqueuing here loads it exactly on pages where the Search blocks render,
+// Enqueuing here loads it exactly on pages where the Search blocks render,
 // across all blocks experiences. Skipped when tracking is suppressed.
 if ( ! Search_Blocks::is_tracking_disabled() ) {
-	wp_enqueue_script( 'jp-tracks', '//stats.wp.com/w.js', array(), gmdate( 'YW' ), true );
+	Helper::enqueue_tracks_script();
 }
 
 $panel_content = $content; // @phan-suppress-current-line PhanUndeclaredGlobalVariable -- $content is provided by WP at block render.
