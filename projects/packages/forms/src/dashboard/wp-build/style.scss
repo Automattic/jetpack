@@ -28,16 +28,41 @@ body.jetpack-forms-responses {
 		margin-bottom: 0;
 	}
 
-	// Continue the layout mixin's flex chain through the DataViews surface so
-	// the table fills the bounded middle and its pagination footer pins to the
-	// bottom (mirrors Newsletter's Subscribers DataViews chain). The mixin
-	// already flexes the page's scrollable middle and its direct child; walk
-	// the rest down to `.dataviews-wrapper`.
+	// DataViews owns its own internal vertical layout: `.dataviews-wrapper` is a
+	// `display: flex; flex-direction: column` surface whose toolbar, filters row
+	// and pagination footer are `flex-shrink: 0` (natural height, pinned
+	// top/bottom) while the results/empty area is the only `flex-grow: 1` child.
+	// Here `.dataviews-wrapper` is the *direct* scrollable middle of the page
+	// (`.jp-admin-page__page > :not(:first-child)`), unlike Newsletter where it
+	// sits a few wrappers deeper inside a tab panel. The layout mixin blanket-
+	// styles that middle's direct children with `flex: 1 1 auto; display: flex`
+	// to bridge `<AdminPage>`'s `Container > Col` grid — but here those "direct
+	// children" ARE the wrapper's own toolbar/results/footer, so the blanket
+	// would stretch the toolbar (its custom `jp-forms-dataviews__view-actions`
+	// class never picked up DataViews' native `flex-shrink: 0`) and push it into
+	// the middle of the page. Restore DataViews' intended per-child flex roles:
+	// the wrapper grows and scrolls, the toolbar + filters + footer stay natural
+	// height where they belong, and only the results area absorbs the leftover
+	// space so the JetpackFooter pins to the viewport bottom in every data state.
 	.jp-admin-page:has(.dataviews-wrapper) {
 
 		.dataviews-wrapper {
 			flex: 1 1 auto;
 			min-block-size: 0;
+
+			.jp-forms-dataviews__view-actions,
+			.jp-forms-dataviews-filters__container,
+			.dataviews-footer {
+				flex: 0 0 auto;
+				min-block-size: 0;
+			}
+
+			.dataviews-layout__container,
+			.dataviews-no-results,
+			.dataviews-loading {
+				flex: 1 1 auto;
+				min-block-size: 0;
+			}
 		}
 	}
 }
