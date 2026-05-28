@@ -72,11 +72,11 @@ function pcg_force_handle_set_bypass(): never {
  */
 function pcg_force_render_bypass_form() {
 	?>
-	<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" style="display:inline-block;margin-inline-end:8px;">
+	<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" style="display:inline;">
 		<input type="hidden" name="action" value="pcg_force_set_bypass" />
 		<?php wp_nonce_field( 'pcg_force_set_bypass' ); ?>
-		<button type="submit" class="button">
-			<?php esc_html_e( 'Disable check for 10 minutes', 'jetpack-mu-wpcom' ); ?>
+		<button type="submit" class="button-link">
+			<?php esc_html_e( 'disable PCG checks for 10 minutes', 'jetpack-mu-wpcom' ); ?>
 		</button>
 	</form>
 	<?php

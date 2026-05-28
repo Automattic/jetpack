@@ -274,9 +274,8 @@ function pcg_guard_render_block_notice() {
 		<ul style="list-style:disc;padding-inline-start:24px;">
 			<?php foreach ( $messages as $plugin => $reason ) : ?>
 				<li>
-					<?php if ( '' !== (string) $plugin ) : ?>
-						<code><?php echo esc_html( $plugin ); ?></code> — <?php echo esc_html( $reason ); ?>
-						<?php
+					<?php
+					if ( '' !== (string) $plugin ) {
 						$retry_url = wp_nonce_url(
 							add_query_arg(
 								array(
@@ -288,20 +287,23 @@ function pcg_guard_render_block_notice() {
 							),
 							'activate-plugin_' . $plugin
 						);
-						?>
-						<a href="<?php echo esc_url( $retry_url ); ?>" class="button button-secondary" style="margin-inline-start:8px;">
-							<?php esc_html_e( 'Activate anyway', 'jetpack-mu-wpcom' ); ?>
-						</a>
-					<?php else : ?>
-						<?php echo esc_html( $reason ); ?>
-					<?php endif; ?>
+						printf(
+							'<code>%1$s</code> — %2$s <a href="%3$s" class="button button-link" style="margin-inline-start:6px;">%4$s</a>',
+							esc_html( $plugin ),
+							esc_html( $reason ),
+							esc_url( $retry_url ),
+							esc_html__( 'Activate anyway', 'jetpack-mu-wpcom' )
+						);
+					} else {
+						echo esc_html( $reason );
+					}
+					?>
 				</li>
 			<?php endforeach; ?>
 		</ul>
-		<p><?php esc_html_e( 'No plugins were activated to prevent a site crash. Investigate the error before trying again.', 'jetpack-mu-wpcom' ); ?></p>
-		<p>
+		<p style="margin-block-end:0;">
+			<?php esc_html_e( 'No plugins were activated to prevent a site crash. Investigate the error before trying again, or:', 'jetpack-mu-wpcom' ); ?>
 			<?php pcg_force_render_bypass_form(); ?>
-			<span class="description"><?php esc_html_e( 'Skips PCG checks for activations and updates while the bypass is active.', 'jetpack-mu-wpcom' ); ?></span>
 		</p>
 	</div>
 	<?php
