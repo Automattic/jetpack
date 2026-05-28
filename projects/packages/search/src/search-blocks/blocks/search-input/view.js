@@ -17,7 +17,9 @@ const debounceTimers = new WeakMap();
 /**
  * Focus an input and place the cursor at the end of its current value, so
  * a visitor opening Search with a query already in flight can keep typing
- * to refine it without manually re-positioning the caret.
+ * to refine it without manually re-positioning the caret. The overlay
+ * bundle (`overlay-bootstrap/index.js`'s `openOverlay()`) carries an
+ * inlined duplicate of these three lines — when changing one, change both.
  *
  * @param {HTMLInputElement|null} input - The input to focus.
  */
@@ -26,7 +28,7 @@ function focusInputWithCursorAtEnd( input ) {
 		return;
 	}
 	input.focus();
-	const len = input.value?.length ?? 0;
+	const len = input.value.length;
 	// `setSelectionRange` throws on input types that don't support text
 	// selection. `type="search"` does, but the guard keeps things safe
 	// if the input shape ever changes.

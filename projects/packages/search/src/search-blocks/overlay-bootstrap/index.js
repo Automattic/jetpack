@@ -162,8 +162,9 @@ async function openOverlay( triggerEl ) {
 		// Drop the caret at the end of any pre-existing query so the
 		// visitor can keep typing to refine without hitting `End`. Mirrors
 		// `focusInputWithCursorAtEnd()` in the search-input view bundle;
-		// inlined here to avoid a cross-bundle import for ~3 lines.
-		const len = input.value?.length ?? 0;
+		// inlined here to avoid a cross-bundle import for ~3 lines. When
+		// changing this block, change the sibling helper too.
+		const len = input.value.length;
 		try {
 			input.setSelectionRange( len, len );
 		} catch {
