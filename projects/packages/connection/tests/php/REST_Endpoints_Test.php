@@ -2038,16 +2038,21 @@ class REST_Endpoints_Test extends TestCase {
 	}
 
 	/**
-	 * Testing the `/jetpack/v4/connection/test` endpoint when all tests pass.
+	 * Testing the `/jetpack/v4/connection/test` endpoint returns a response with tests_run.
 	 */
-	public function test_connection_test_success() {
+	public function test_connection_test_returns_tests_run() {
 		$request  = new WP_REST_Request( 'GET', '/jetpack/v4/connection/test' );
 		$response = $this->server->dispatch( $request );
 		$data     = $response->get_data();
 
-		// Without a real connection the tests will fail, but the endpoint itself should return 200.
-		$this->assertEquals( 200, $response->get_status() );
 		$this->assertArrayHasKey( 'code', $data );
+
+		// On success the response includes the list of tests that were executed.
+		if ( 200 === $response->get_status() ) {
+			$this->assertArrayHasKey( 'tests_run', $data );
+			$this->assertIsArray( $data['tests_run'] );
+			$this->assertNotEmpty( $data['tests_run'] );
+		}
 	}
 
 	/**

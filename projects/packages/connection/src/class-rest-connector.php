@@ -1118,13 +1118,15 @@ class REST_Connector {
 	 * @return WP_REST_Response|WP_Error
 	 */
 	public function connection_test() {
-		$cxntests = new Connection_Health_Tests();
+		$cxntests  = new Connection_Health_Tests();
+		$tests_run = array_keys( $cxntests->list_tests() );
 
 		if ( $cxntests->pass() ) {
 			return rest_ensure_response(
 				array(
-					'code'    => 'success',
-					'message' => __( 'All connection tests passed.', 'jetpack-connection' ),
+					'code'      => 'success',
+					'message'   => __( 'All connection tests passed.', 'jetpack-connection' ),
+					'tests_run' => $tests_run,
 				)
 			);
 		}
