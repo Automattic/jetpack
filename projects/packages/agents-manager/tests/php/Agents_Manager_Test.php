@@ -2,25 +2,22 @@
 /**
  * Agents Manager Tests File
  *
- * @package automattic/jetpack-mu-wpcom
+ * @package automattic/jetpack-agents-manager
  */
 
-namespace A8C\FSE;
+namespace Automattic\Jetpack\Agents_Manager;
 
 use Automattic\Jetpack\Constants;
-use Automattic\Jetpack\Jetpack_Mu_Wpcom;
 use Automattic\Jetpack\Status\Cache;
 use Brain\Monkey\Functions;
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\Attributes\PreserveGlobalState;
-use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 
-require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/agents-manager/class-agents-manager.php';
+require_once __DIR__ . '/../../src/class-agents-manager.php';
 
 /**
  * Class Agents_Manager_Test
  *
- * @covers \A8C\FSE\Agents_Manager
+ * @covers \Automattic\Jetpack\Agents_Manager\Agents_Manager
  */
 #[CoversClass( Agents_Manager::class )]
 class Agents_Manager_Test extends \WorDBless\BaseTestCase {
@@ -72,6 +69,21 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 	 */
 	public function set_up() {
 		parent::set_up();
+
+		// Reset wpcom_is_proxied_request to a sane per-test default. Once any test
+		// stubs it via Brain\Monkey, Patchwork keeps the function defined for the
+		// rest of the process, so function_exists() in the source starts returning
+		// true even in tests that want to exercise the $_SERVER / constant fallback.
+		// Mirror that fallback here so those tests still behave correctly.
+		Functions\when( 'wpcom_is_proxied_request' )->alias(
+			static function () {
+				if ( isset( $_SERVER['A8C_PROXIED_REQUEST'] ) ) {
+					return (bool) $_SERVER['A8C_PROXIED_REQUEST'];
+				}
+				return Constants::is_true( 'A8C_PROXIED_REQUEST' );
+			}
+		);
+
 		$this->agents_manager = new Agents_Manager();
 
 		// Save original superglobal values that tests may modify.
@@ -497,7 +509,6 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 
 	/**
 	 * Tests that should_display_menu_panel respects the agents_manager_use_unified_experience filter.
-	 *
 	 * External code (e.g. mu-plugins in test environments) should be able to control
 	 * whether the admin bar menu panel is displayed via the filter.
 	 */
@@ -538,12 +549,7 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 
 	/**
 	 * Tests that should_use_unified_experience returns false for non-Automattician users on Simple sites.
-	 *
-	 * @runInSeparateProcess
-	 * @preserveGlobalState disabled
 	 */
-	#[RunInSeparateProcess]
-	#[PreserveGlobalState( false )]
 	public function test_should_use_unified_experience_returns_false_for_non_automattician() {
 		// Simulate being on a Simple site.
 		Constants::set_constant( 'IS_WPCOM', true );
@@ -570,12 +576,7 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 
 	/**
 	 * Tests that should_use_unified_experience returns true for Automattician with opt-in enabled on Simple sites.
-	 *
-	 * @runInSeparateProcess
-	 * @preserveGlobalState disabled
 	 */
-	#[RunInSeparateProcess]
-	#[PreserveGlobalState( false )]
 	public function test_should_use_unified_experience_returns_true_for_automattician_with_opt_in() {
 		// Simulate being on a Simple site.
 		Constants::set_constant( 'IS_WPCOM', true );
@@ -606,12 +607,7 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 
 	/**
 	 * Tests that should_use_unified_experience returns false for Automattician without opt-in on Simple sites.
-	 *
-	 * @runInSeparateProcess
-	 * @preserveGlobalState disabled
 	 */
-	#[RunInSeparateProcess]
-	#[PreserveGlobalState( false )]
 	public function test_should_use_unified_experience_returns_false_for_automattician_without_opt_in() {
 		// Simulate being on a Simple site.
 		Constants::set_constant( 'IS_WPCOM', true );
@@ -651,7 +647,6 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 
 	/**
 	 * Tests that should_use_unified_experience returns false on Atomic site when API call fails.
-	 *
 	 * On Atomic sites, the decision is delegated to wpcom via the /me endpoint.
 	 * If the API call fails, it should return false.
 	 */
@@ -677,14 +672,8 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 
 	/**
 	 * Tests that should_use_unified_experience returns false when wpcom_is_proxied_request returns false.
-	 *
 	 * On Simple sites, proxy detection uses the wpcom_is_proxied_request function.
-	 *
-	 * @runInSeparateProcess
-	 * @preserveGlobalState disabled
 	 */
-	#[RunInSeparateProcess]
-	#[PreserveGlobalState( false )]
 	public function test_should_use_unified_experience_returns_false_when_wpcom_proxy_function_returns_false() {
 		// Simulate being on a Simple site.
 		Constants::set_constant( 'IS_WPCOM', true );
@@ -712,7 +701,6 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 
 	/**
 	 * Tests that should_use_unified_experience returns false on WoA when not proxied (no constant/server var).
-	 *
 	 * On WoA/Garden sites, proxy detection falls back to A8C_PROXIED_REQUEST constant or server variable.
 	 */
 	public function test_should_use_unified_experience_returns_false_on_woa_when_not_proxied() {
@@ -736,15 +724,9 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 
 	/**
 	 * Tests that should_use_unified_experience checks proxy via A8C_PROXIED_REQUEST constant on WoA.
-	 *
 	 * On WoA/Garden sites where wpcom_is_proxied_request doesn't exist,
 	 * proxy detection uses the A8C_PROXIED_REQUEST constant.
-	 *
-	 * @runInSeparateProcess
-	 * @preserveGlobalState disabled
 	 */
-	#[RunInSeparateProcess]
-	#[PreserveGlobalState( false )]
 	public function test_should_use_unified_experience_uses_constant_for_proxy_on_woa() {
 		// Simulate being on an Atomic (WoA) site with proxy via constant.
 		Cache::set( 'is_woa_site', true );
@@ -771,15 +753,9 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 
 	/**
 	 * Tests that should_use_unified_experience checks proxy via $_SERVER on WoA.
-	 *
 	 * On WoA/Garden sites where wpcom_is_proxied_request doesn't exist,
 	 * proxy detection can also use the A8C_PROXIED_REQUEST server variable.
-	 *
-	 * @runInSeparateProcess
-	 * @preserveGlobalState disabled
 	 */
-	#[RunInSeparateProcess]
-	#[PreserveGlobalState( false )]
 	public function test_should_use_unified_experience_uses_server_var_for_proxy_on_woa() {
 		// Simulate being on an Atomic (WoA) site with proxy via server variable.
 		Cache::set( 'is_woa_site', true );
@@ -806,12 +782,7 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 
 	/**
 	 * Tests that fetch_unified_experience_preference returns true when API returns unified_ai_chat enabled.
-	 *
-	 * @runInSeparateProcess
-	 * @preserveGlobalState disabled
 	 */
-	#[RunInSeparateProcess]
-	#[PreserveGlobalState( false )]
 	public function test_fetch_unified_experience_preference_returns_true_when_api_returns_enabled() {
 		// Simulate being on an Atomic (WoA) site with proxy.
 		Cache::set( 'is_woa_site', true );
@@ -845,12 +816,7 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 
 	/**
 	 * Tests that fetch_unified_experience_preference returns false when API returns unified_ai_chat disabled.
-	 *
-	 * @runInSeparateProcess
-	 * @preserveGlobalState disabled
 	 */
-	#[RunInSeparateProcess]
-	#[PreserveGlobalState( false )]
 	public function test_fetch_unified_experience_preference_returns_false_when_api_returns_disabled() {
 		// Simulate being on an Atomic (WoA) site with proxy.
 		Cache::set( 'is_woa_site', true );
@@ -884,12 +850,7 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 
 	/**
 	 * Tests that fetch_unified_experience_preference uses cached value on subsequent calls.
-	 *
-	 * @runInSeparateProcess
-	 * @preserveGlobalState disabled
 	 */
-	#[RunInSeparateProcess]
-	#[PreserveGlobalState( false )]
 	public function test_fetch_unified_experience_preference_uses_cache() {
 		// Simulate being on an Atomic (WoA) site with proxy.
 		Cache::set( 'is_woa_site', true );
@@ -939,12 +900,7 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 
 	/**
 	 * Tests that fetch_unified_experience_preference caches API failures.
-	 *
-	 * @runInSeparateProcess
-	 * @preserveGlobalState disabled
 	 */
-	#[RunInSeparateProcess]
-	#[PreserveGlobalState( false )]
 	public function test_fetch_unified_experience_preference_caches_failures() {
 		// Simulate being on an Atomic (WoA) site with proxy.
 		Cache::set( 'is_woa_site', true );
@@ -1090,15 +1046,10 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 
 	/**
 	 * Tests that is_dev_mode returns true when request is proxied via constant.
-	 *
-	 * @runInSeparateProcess
-	 * @preserveGlobalState disabled
 	 */
-	#[RunInSeparateProcess]
-	#[PreserveGlobalState( false )]
 	public function test_is_dev_mode_returns_true_when_proxied_via_constant() {
 		update_option( 'siteurl', 'https://example.com' );
-		define( 'A8C_PROXIED_REQUEST', true );
+		Constants::set_constant( 'A8C_PROXIED_REQUEST', true );
 
 		$result = $this->call_is_dev_mode();
 
@@ -1121,16 +1072,11 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 
 	/**
 	 * Tests that is_dev_mode returns true for Atomic client ID 1.
-	 *
-	 * @runInSeparateProcess
-	 * @preserveGlobalState disabled
 	 */
-	#[RunInSeparateProcess]
-	#[PreserveGlobalState( false )]
 	public function test_is_dev_mode_returns_true_for_atomic_client_id_1() {
 		update_option( 'siteurl', 'https://example.com' );
-		define( 'AT_PROXIED_REQUEST', true );
-		define( 'ATOMIC_CLIENT_ID', 1 );
+		Constants::set_constant( 'AT_PROXIED_REQUEST', true );
+		Constants::set_constant( 'ATOMIC_CLIENT_ID', 1 );
 
 		$result = $this->call_is_dev_mode();
 
@@ -1139,16 +1085,11 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 
 	/**
 	 * Tests that is_dev_mode returns false for non-allowed Atomic client IDs.
-	 *
-	 * @runInSeparateProcess
-	 * @preserveGlobalState disabled
 	 */
-	#[RunInSeparateProcess]
-	#[PreserveGlobalState( false )]
 	public function test_is_dev_mode_returns_false_for_non_allowed_atomic_client_id() {
 		update_option( 'siteurl', 'https://example.com' );
-		define( 'AT_PROXIED_REQUEST', true );
-		define( 'ATOMIC_CLIENT_ID', 999 );
+		Constants::set_constant( 'AT_PROXIED_REQUEST', true );
+		Constants::set_constant( 'ATOMIC_CLIENT_ID', 999 );
 
 		$result = $this->call_is_dev_mode();
 
@@ -1157,16 +1098,11 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 
 	/**
 	 * Tests that is_dev_mode returns false when AT_PROXIED_REQUEST is false.
-	 *
-	 * @runInSeparateProcess
-	 * @preserveGlobalState disabled
 	 */
-	#[RunInSeparateProcess]
-	#[PreserveGlobalState( false )]
 	public function test_is_dev_mode_returns_false_when_at_proxied_request_is_false() {
 		update_option( 'siteurl', 'https://example.com' );
-		define( 'AT_PROXIED_REQUEST', false );
-		define( 'ATOMIC_CLIENT_ID', 1 );
+		Constants::set_constant( 'AT_PROXIED_REQUEST', false );
+		Constants::set_constant( 'ATOMIC_CLIENT_ID', 1 );
 
 		$result = $this->call_is_dev_mode();
 
@@ -1186,12 +1122,7 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 
 	/**
 	 * Tests that is_dev_mode returns true when wpcom_is_proxied_request function exists and returns true.
-	 *
-	 * @runInSeparateProcess
-	 * @preserveGlobalState disabled
 	 */
-	#[RunInSeparateProcess]
-	#[PreserveGlobalState( false )]
 	public function test_is_dev_mode_returns_true_when_wpcom_proxy_function_returns_true() {
 		update_option( 'siteurl', 'https://example.com' );
 
@@ -1222,7 +1153,6 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 
 	/**
 	 * Helper to call get_variant and return a boolean (true = variant found, false = null).
-	 *
 	 * Convenience wrapper used by tests that only care whether scripts are loaded.
 	 *
 	 * @return bool True if a variant was returned (scripts will load), false if null.
@@ -1250,7 +1180,6 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 
 	/**
 	 * Tests that get_variant returns wp-admin-disconnected on the frontend for eligible logged-in editors.
-	 *
 	 * Covers the frontend loading path in get_variant(): a logged-in editor (can edit_posts + member of blog)
 	 * on a non-admin, non-P2 page with unified experience enabled should get the wp-admin-disconnected variant.
 	 */
@@ -1281,7 +1210,6 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 
 	/**
 	 * Tests that should_enqueue_script returns false in customizer preview.
-	 *
 	 * The is_customize_preview() function checks global $wp_customize, so we set it up directly
 	 * rather than trying to stub the core WordPress function.
 	 */
@@ -1309,7 +1237,6 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 
 	/**
 	 * Tests that should_enqueue_script returns false when preview=true query param is set.
-	 *
 	 * This prevents loading in dashboard site preview iframes, theme preview, and Calypso iframe embeds.
 	 */
 	public function test_should_enqueue_script_returns_false_when_preview_query_param_is_true() {
@@ -1321,7 +1248,6 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 
 	/**
 	 * Tests that should_enqueue_script returns false when URL contains gutenberg-core path.
-	 *
 	 * This prevents loading during Gutenberg asset requests.
 	 */
 	public function test_should_enqueue_script_returns_false_for_gutenberg_core_asset_requests() {
@@ -1354,7 +1280,6 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 
 	/**
 	 * Tests that should_enqueue_script returns false when preview=true even if unified experience is enabled.
-	 *
 	 * The preview check should take precedence over the unified experience filter.
 	 */
 	public function test_should_enqueue_script_preview_check_takes_precedence_over_unified_experience() {
@@ -1709,7 +1634,6 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 
 	/**
 	 * Tests that enqueue_scripts includes sectionName as wp-admin for widgets screen.
-	 *
 	 * The widgets screen has the block editor but no Gutenberg top bar,
 	 * so it should be treated as wp-admin.
 	 */
@@ -2042,7 +1966,6 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 
 	/**
 	 * Tests that scripts are not enqueued on P2 frontend.
-	 *
 	 * This verifies the P2 frontend detection logic that prevents Agents Manager
 	 * from loading on P2 sites when not in admin context.
 	 */
@@ -2192,7 +2115,6 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 
 	/**
 	 * Tests that is_enabled returns false for widgets screen even if block editor filter is true.
-	 *
 	 * The widgets screen has the block editor flag but is excluded from is_block_editor().
 	 */
 	public function test_is_enabled_returns_false_for_widgets_screen_with_block_editor_filter() {
@@ -2220,7 +2142,6 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 
 	/**
 	 * Tests that is_enabled prioritises the unified experience filter over the block editor filter.
-	 *
 	 * When the unified experience filter is true, is_enabled should return true
 	 * regardless of block editor state.
 	 */
@@ -2267,7 +2188,6 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 
 	/**
 	 * Tests that should_enqueue_script returns false on WooCommerce Admin home page.
-	 *
 	 * This verifies the WooCommerce Admin exclusion to avoid UI conflicts,
 	 * matching the same exclusion in Help_Center::enqueue_wp_admin_scripts().
 	 */

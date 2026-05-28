@@ -2,10 +2,10 @@
 /**
  * WP_REST_Agents_Manager_Persisted_Open_State file.
  *
- * @package automattic/jetpack-mu-wpcom
+ * @package automattic/jetpack-agents-manager
  */
 
-namespace A8C\FSE;
+namespace Automattic\Jetpack\Agents_Manager;
 
 use Automattic\Jetpack\Connection\Client;
 

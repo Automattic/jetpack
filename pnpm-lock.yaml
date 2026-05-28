@@ -1976,6 +1976,8 @@ importers:
         specifier: 6.0.1
         version: 6.0.1(webpack@5.105.2)
 
+  projects/packages/agents-manager: {}
+
   projects/packages/assets:
     dependencies:
       '@automattic/jetpack-script-data':

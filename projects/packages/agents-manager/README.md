@@ -2,6 +2,16 @@
 
 The Agents Manager provides REST API endpoints for managing AI agent-related state and preferences for WordPress.com users.
 
+This feature is loaded for WordPress.com-connected users via the `load_wpcom_user_features()` method in `Jetpack_Mu_Wpcom`.
+
+Otherwise, you can load it by installing the `@automattic/jetpack-agents-manager` Composer package and instantiate it by calling the `Agents_Manager::init()` method. Example:
+
+```php
+use Automattic\Jetpack\Agents_Manager\Agents_Manager;
+
+add_action( 'plugins_loaded', array( Agents_Manager::class, 'init' ) );
+```
+
 ## Features
 
 - Persisted open state management via REST API
@@ -50,29 +60,14 @@ All parameters are optional; only provided parameters will be updated.
 
 The Agents Manager automatically limits router history entries to 50 via the `calypso_preferences_update` filter. When the limit is exceeded, it keeps the last 49 entries and prepends a root entry to ensure the back button always works.
 
-## Development
+## Using this package in your WordPress plugin
 
-This feature is loaded for WordPress.com-connected users via the `load_wpcom_user_features()` method in `Jetpack_Mu_Wpcom`.
+If you plan on using this package in your WordPress plugin, we would recommend that you use [Jetpack Autoloader](https://packagist.org/packages/automattic/jetpack-autoloader) as your autoloader. This will allow for maximum interoperability with other plugins that use this package as well.
 
-To develop this feature, follow the standard [`jetpack-mu-wpcom` development process](https://github.com/Automattic/jetpack/blob/trunk/projects/packages/jetpack-mu-wpcom/README.md).
+## Security
 
-### How to develop the Help Center
+Need to report a security vulnerability? Go to [https://automattic.com/security/](https://automattic.com/security/) or directly to our security bug bounty site [https://hackerone.com/automattic](https://hackerone.com/automattic).
 
-This currently gets loaded via the help-center Calypso app.
+## License
 
-#### In Calypso
-
-Follow the classic Calypso development setup. Run `yarn start` and edit away. Nothing else should be needed.
-
-#### In Simple sites
-
-0. Go to Calypso repository root.
-1. cd into `apps/help-center` (note: This currently gets loaded via `help-center`).
-2. run `yarn dev --sync`.
-3. Sandbox your site and `widgets.wp.com`.
-4. Your changes should be reflected on the site live.
-
-
-## Deployment
-
-After every change to the Agents Manager PHP files, deploy `jetpack-mu-wpcom`.
+agents-manager is licensed under [GNU General Public License v2 (or later)](./LICENSE.txt)
