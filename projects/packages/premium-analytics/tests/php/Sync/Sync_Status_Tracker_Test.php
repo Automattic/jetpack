@@ -108,13 +108,6 @@ class Sync_Status_Tracker_Test extends TestCase {
 		$this->assertSame( 1730000123, $data['premium_analytics']['initial_full_sync_finished'] );
 	}
 
-	public function test_script_data_tolerates_non_array_input() {
-		$data = Sync_Status_Tracker::inject_script_data( null );
-
-		$this->assertIsArray( $data );
-		$this->assertArrayHasKey( 'premium_analytics', $data );
-	}
-
 	public function test_configure_registers_hooks() {
 		Sync_Status_Tracker::configure();
 

@@ -3,7 +3,18 @@
 # /build/**  production-include
 /vendor/automattic/jetpack-autoloader/**    production-include
 /vendor/automattic/jetpack-composer-plugin/**    production-include
+/jetpack_vendor/automattic/jetpack-a8c-mc-stats/**    production-include
+/jetpack_vendor/automattic/jetpack-admin-ui/**    production-include
+/jetpack_vendor/automattic/jetpack-assets/**    production-include
+/jetpack_vendor/automattic/jetpack-connection/**    production-include
+/jetpack_vendor/automattic/jetpack-constants/**    production-include
+/jetpack_vendor/automattic/jetpack-ip/**    production-include
+/jetpack_vendor/automattic/jetpack-password-checker/**    production-include
 /jetpack_vendor/automattic/jetpack-premium-analytics/**    production-include
+/jetpack_vendor/automattic/jetpack-redirect/**    production-include
+/jetpack_vendor/automattic/jetpack-roles/**    production-include
+/jetpack_vendor/automattic/jetpack-status/**    production-include
+/jetpack_vendor/automattic/jetpack-sync/**    production-include
 
 # Files to exclude from the mirror repo, but included in the monorepo.
 # (see also entries in the monorepo root .gitattributes)

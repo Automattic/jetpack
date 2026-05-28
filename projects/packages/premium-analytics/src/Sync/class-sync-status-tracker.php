@@ -74,6 +74,7 @@ class Sync_Status_Tracker {
 		if ( ! $module ) {
 			return;
 		}
+		'@phan-var \Automattic\Jetpack\Sync\Modules\Full_Sync_Immediately|\Automattic\Jetpack\Sync\Modules\Full_Sync $module';
 
 		self::maybe_set_milestone( $module->get_status(), $actions );
 	}
@@ -126,11 +127,7 @@ class Sync_Status_Tracker {
 	 * @param array $data The script data passed by the assets package.
 	 * @return array
 	 */
-	public static function inject_script_data( $data ) {
-		if ( ! is_array( $data ) ) {
-			$data = array();
-		}
-
+	public static function inject_script_data( array $data ): array {
 		$data['premium_analytics'] = array(
 			'initial_full_sync_finished' => (int) get_option( self::INITIAL_FULL_SYNC_OPTION, 0 ),
 		);
