@@ -132,6 +132,7 @@ $context_json = $emit_context
 			data-wp-bind--value="state.searchQuery"
 			data-wp-on--input="actions.onSearchInput"
 			data-wp-on--keydown="actions.onSearchKeydown"
+			data-wp-init="callbacks.initFocusInputIfHasQuery"
 		/>
 		<button
 			type="button"

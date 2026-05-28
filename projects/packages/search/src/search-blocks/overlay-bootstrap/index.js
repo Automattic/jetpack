@@ -159,6 +159,16 @@ async function openOverlay( triggerEl ) {
 	const input = overlay.querySelector( 'input[type="search"]' );
 	if ( input ) {
 		input.focus();
+		// Drop the caret at the end of any pre-existing query so the
+		// visitor can keep typing to refine without hitting `End`. Mirrors
+		// `focusInputWithCursorAtEnd()` in the search-input view bundle;
+		// inlined here to avoid a cross-bundle import for ~3 lines.
+		const len = input.value?.length ?? 0;
+		try {
+			input.setSelectionRange( len, len );
+		} catch {
+			/* noop */
+		}
 	}
 }
 
