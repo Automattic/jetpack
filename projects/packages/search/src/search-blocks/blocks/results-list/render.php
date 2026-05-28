@@ -322,20 +322,15 @@ if ( '' === $error_message ) {
 					<a
 						class="jetpack-search-results__image-link"
 						data-wp-bind--href="context.result.permalink"
+						data-wp-bind--hidden="!context.result.imageUrl"
 						tabindex="-1"
 						aria-hidden="true"
 					>
 						<img
 							class="jetpack-search-results__image"
 							data-wp-bind--src="context.result.imageUrl"
-							data-wp-bind--hidden="!context.result.imageUrl"
 							alt=""
 						/>
-						<span
-							class="jetpack-search-results__image-placeholder"
-							data-wp-bind--hidden="context.result.imageUrl"
-							aria-hidden="true"
-						></span>
 					</a>
 				<?php endif; ?>
 			</li>

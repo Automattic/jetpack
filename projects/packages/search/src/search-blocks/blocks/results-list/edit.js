@@ -42,6 +42,7 @@ const SAMPLE_RESULTS = [
 		path: 'example.com/articles/first',
 		author: __( 'Sample Author', 'jetpack-search-pkg' ),
 		date: 'Apr 1, 2026',
+		hasImage: true,
 	},
 	{
 		title: __( 'Another relevant post', 'jetpack-search-pkg' ),
@@ -52,7 +53,11 @@ const SAMPLE_RESULTS = [
 		path: 'example.com/guides/another',
 		author: __( 'A. Writer, B. Editor', 'jetpack-search-pkg' ),
 		date: 'Mar 22, 2026',
+		hasImage: true,
 	},
+	// Third row demonstrates the image-less collapse — image column drops out,
+	// text fills the row. Mirrors the runtime behavior when a result's
+	// `imageUrl` is empty.
 	{
 		title: __( 'Older archived entry', 'jetpack-search-pkg' ),
 		contentSnippet: __(
@@ -263,9 +268,9 @@ function renderExpandedPreview( results ) {
 							) }
 						</div>
 					</div>
-					<a className="jetpack-search-results__image-link" tabIndex={ -1 } aria-hidden="true">
-						<span className="jetpack-search-results__image-placeholder" aria-hidden="true" />
-					</a>
+					{ result.hasImage && (
+						<a className="jetpack-search-results__image-link" tabIndex={ -1 } aria-hidden="true" />
+					) }
 				</li>
 			) ) }
 		</ul>
