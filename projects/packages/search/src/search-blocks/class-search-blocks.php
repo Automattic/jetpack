@@ -1466,7 +1466,11 @@ CSS;
  *   b) `.is-layout-flex { align-items: center }` (theme default, also in
  *      WordPress core), which vertically centres the shorter filters
  *      column inside the taller results column, dropping the sidebar's
- *      top edge below the row's top.
+ *      top edge below the row's top. We override to `stretch` rather than
+ *      `flex-start` so the column also grows to the full row height — the
+ *      `border-left` then reaches the bottom of the div, not just the
+ *      bottom of the (shorter) filter list. The column is flow layout, so
+ *      its content stays top-aligned regardless.
  *
  *   c) Overlay-only: the `__content > .wp-block-group:first-child` rule
  *      (SEARCH-243) gives the alignwide group a `padding: .5em 2em 2em`
@@ -1494,7 +1498,7 @@ CSS;
 		display: none;
 	}
 	.wp-block-columns.is-layout-flex:has(> .jetpack-search-layout__filters-column) {
-		align-items: flex-start;
+		align-items: stretch;
 		margin-block-start: 0;
 	}
 	.jetpack-search-block-overlay__content > .wp-block-group:first-child:has(.jetpack-search-layout__filters-column) {
