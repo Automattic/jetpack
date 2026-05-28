@@ -113,21 +113,7 @@ export const Default: StoryObj< typeof AreaChart > = Template.bind( {} );
 Default.args = {
 	...areaChartStoryArgs,
 	showLegend: true,
-};
-
-export const Zoomable: StoryObj< typeof AreaChart > = Template.bind( {} );
-Zoomable.args = {
-	...areaChartStoryArgs,
-	showLegend: true,
 	zoomable: true,
-};
-Zoomable.parameters = {
-	docs: {
-		description: {
-			story:
-				'Drag horizontally on the plot to select a range. The X axis rescales to that range. Click the reset button in the top-right to return to the full view.',
-		},
-	},
 };
 
 // Same series rendered as overlapping (non-stacked) filled areas.
