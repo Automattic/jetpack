@@ -135,3 +135,16 @@ Block edit components mirror the server `render.php` so the canvas preview match
 - **`previewSelected` fallback.** When a saved `defaultSort` no longer appears in `availableSortOptions` (author just unchecked it), fall back to the first visible option for the preview. The render callback already does this; the edit component has to do it too.
 - **Snap empty selections to the full set.** Persisting `availableSortOptions: []` would make the renderer fall back to "all options" while every inspector checkbox stays unchecked — invisible mismatch. The setter writes the canonical full set back instead.
 - **Per-instance IDs.** Edit components that emit `<label htmlFor=…>` use `useId()` — the editor canvas may render the same block twice, and a shared static id breaks the label→control association on the second instance.
+
+## Comments
+
+Code is the source of truth — well-named identifiers should make most code easier to read than any prose attached to it. Default to **no comment**.
+
+Narrow exceptions:
+
+- **Linting requires it** (phpcs short description, JSDoc on exports). Meet the linter's minimum, nothing more.
+- **The code is non-obvious** — a workaround, a hidden constraint, a counter-intuitive choice. Keep it short and inline next to the line(s) it explains.
+
+Do not restate what the code does. Do not narrate the flow. Do not write paragraph-long block comments for routine cascades, fallback chains, or two-declaration patterns where the source already reads clearly.
+
+If a surprise is global enough that a future agent landing in unrelated code could hit it, document it here in AGENTS.md — not as a comment in the file. The file comment risks rotting; AGENTS.md is what agents read first.
