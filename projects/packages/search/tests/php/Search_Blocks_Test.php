@@ -2016,9 +2016,10 @@ class Search_Blocks_Test extends TestCase {
 	public function test_build_initial_state_merges_post_type_alias_with_post_types_array() {
 		$original_get   = $_GET;
 		$original_query = $GLOBALS['wp_query'] ?? null;
-		// `post_types` first so the array-form selections seed `$out['post_types']`
-		// before the scalar `post_type` branch adds `'product'` (already present,
-		// dedup drops it). Iteration order is insertion order in PHP `foreach`.
+		// The production code produces the same deduplicated set regardless of
+		// `$_GET` key order; this ordering is what `assertSame` (strict on
+		// element order) below expects. `array_unique` keeps the first occurrence,
+		// so iterating `post_types` first means the result reads `[post, product]`.
 		$_GET                = array(
 			'post_types' => array( 'post', 'product' ),
 			'post_type'  => 'product',
