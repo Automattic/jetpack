@@ -2896,7 +2896,11 @@ function uploadAndInsertImage( file ) {
 	if ( ! content ) return;
 
 	const figure = document.createElement( 'figure' );
-	figure.className = 'bw-image-figure bw-image-uploading';
+	// Apply size-large up-front so the placeholder renders at the same
+	// 75% width the figure will land at after upload. Without it the
+	// locally-previewed image renders at its natural pixel size and
+	// snaps narrower the moment the swap runs.
+	figure.className = 'bw-image-figure bw-image-uploading size-large';
 	const img = document.createElement( 'img' );
 	const localUrl = URL.createObjectURL( file );
 	img.src = localUrl;
@@ -5459,5 +5463,45 @@ window.addEventListener( 'pageshow', event => {
 window.addEventListener( 'pagehide', () => {
 	if ( autosaveTimer ) {
 		clearInterval( autosaveTimer );
+	}
+} );
+
+// File-drop safety net: .bw-content has min-height:60vh but doesn't
+// fill the rest of the viewport, and a long post can extend below the
+// viewport entirely. A file dropped outside .bw-content would otherwise
+// be opened by the browser. Catch file drags at the window level so
+// dropping anywhere on the Write page inserts at the end of the post
+// instead of navigating away from the editor.
+window.addEventListener( 'dragover', event => {
+	if ( ! event.dataTransfer?.types?.includes( 'Files' ) ) return;
+	event.preventDefault();
+	event.dataTransfer.dropEffect = 'copy';
+} );
+
+window.addEventListener( 'drop', event => {
+	if ( ! event.dataTransfer?.types?.includes( 'Files' ) ) return;
+	// The editor (.bw-content) and the image-modal overlay each have
+	// their own data-wp-on--drop handlers; those fire on the inner
+	// target first and bubble up to here. Only handle drops that
+	// landed outside both.
+	const target = event.target;
+	if (
+		target instanceof Element &&
+		( target.closest( '.bw-content' ) || target.closest( '.bw-image-overlay:not([hidden])' ) )
+	) {
+		return;
+	}
+	event.preventDefault();
+
+	const images = Array.from( event.dataTransfer.files || [] ).filter( f =>
+		f.type.startsWith( 'image/' )
+	);
+	if ( ! images.length ) return;
+
+	const content = getContent();
+	if ( ! content ) return;
+	placeCursorAtEnd( content );
+	for ( const file of images ) {
+		uploadAndInsertImage( file );
 	}
 } );
