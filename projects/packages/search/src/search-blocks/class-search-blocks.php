@@ -125,8 +125,6 @@ class Search_Blocks {
 		add_action( 'init', array( static::class, 'register_blocks' ) );
 		add_filter( 'block_categories_all', array( static::class, 'register_block_category' ) );
 		add_action( 'enqueue_block_editor_assets', array( static::class, 'enqueue_editor_assets' ) );
-		// Priority 1 so `:root` defaults are defined before any block CSS reads them.
-		add_action( 'wp_head', array( static::class, 'print_theme_token_defaults_style' ), 1 );
 		add_action( 'wp_body_open', array( static::class, 'print_theme_token_sampler' ) );
 		// Relativize `jetpack-search/*` Script Module URLs whose host matches
 		// the site canonical so the rendered `<script type="module">` is
@@ -1101,21 +1099,9 @@ class Search_Blocks {
 	}
 
 	/**
-	 * Print the `:root` defaults for `--jp-search-page-ink` /
-	 * `--jp-search-page-surface`. `print_theme_token_sampler()` overrides
-	 * these once `<body>` exists. See AGENTS.md § Theme tokens & `var()` chains.
-	 */
-	public static function print_theme_token_defaults_style(): void {
-		if ( is_admin() ) {
-			return;
-		}
-		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- hardcoded CSS string, no dynamic content.
-		echo "<style id='jetpack-search-theme-token-defaults'>:root{--jp-search-page-ink:var(--wp--preset--color--contrast,var(--wp--preset--color--foreground,#1d2327));--jp-search-page-surface:var(--wp--preset--color--base,var(--wp--preset--color--background,#fff))}</style>";
-	}
-
-	/**
-	 * Print the body-sampler `<script>` that overrides the `:root` defaults
-	 * with the body's resolved `color` / `backgroundColor`. Surface is skipped
+	 * Print the body-sampler `<script>` that sets `--jp-search-page-ink` /
+	 * `--jp-search-page-surface` on `:root` from the body's resolved `color` /
+	 * `backgroundColor`. Surface is skipped
 	 * when bg resolves to `transparent` — classic themes without an explicit
 	 * `body { background-color }` paint on the browser canvas, where the PHP
 	 * default already matches. See AGENTS.md § Theme tokens & `var()` chains.

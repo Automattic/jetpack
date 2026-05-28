@@ -81,7 +81,7 @@ The chain reaches each layer in order:
 1. `--jp-search-page-*` — sampled from `body`'s computed `color` / `backgroundColor` at `wp_body_open` (see `Search_Blocks::print_theme_token_sampler()`). Theme-accurate regardless of palette slug convention, so themes that emit positional slugs like wp.com Global Styles' `--wp--preset--color--theme-1`/`--theme-2` still drive Search surfaces to the right value.
 2. WP 6.1+ `--base`/`--contrast` pair.
 3. Legacy `--background`/`--foreground` pair (TT1, Kaze, many WPCOM themes).
-4. Static literal — also emitted by the PHP `:root` defaults (`print_theme_token_defaults_style()` at `wp_head` priority 1) so the custom props are always defined even when JS doesn't run.
+4. Static literal — postcss-custom-properties emits this as a separate declaration alongside the `var()` call, so the surface always has a paintable value even when no var resolves.
 
 Guard the sampler against `getComputedStyle().backgroundColor === 'rgba(0, 0, 0, 0)'` — classic themes that don't set body bg resolve to transparent, and writing that would override the PHP default and paint surfaces transparent.
 
