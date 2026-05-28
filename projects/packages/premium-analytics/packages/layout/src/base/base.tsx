@@ -2,10 +2,11 @@
  * External dependencies
  */
 import { Stack } from '@wordpress/ui';
+import type { ReactNode } from 'react';
 
 type BaseLayoutProps = {
-	header: React.ReactNode;
-	children: React.ReactNode;
+	header: ReactNode;
+	children: ReactNode;
 };
 
 /**
