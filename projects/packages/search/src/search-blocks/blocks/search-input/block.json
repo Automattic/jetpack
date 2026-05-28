@@ -29,7 +29,9 @@
 			"type": "array",
 			"default": [],
 			"items": { "type": "string" }
-		}
+		},
+		"width": { "type": "number" },
+		"widthUnit": { "type": "string" }
 	},
 	"textdomain": "jetpack-search-pkg",
 	"render": "file:./render.php",

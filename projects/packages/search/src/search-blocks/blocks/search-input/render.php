@@ -92,9 +92,29 @@ $emit_context = ! empty( $context );
 $context_json = $emit_context
 	? wp_json_encode( $context, JSON_HEX_AMP | JSON_UNESCAPED_SLASHES )
 	: '';
+
+// Mirrors `render_block_core_search()`'s width handling: both halves of the
+// (value, unit) pair must be present, then emit `width: <n><unit>;` on the
+// wrapper. The inside-wrapper's `display:flex` + `min-width:0` on the field
+// shrinks the visible text area in step; icon + clear stay at natural width.
+// `widthUnit` is allowlisted against the same units the editor offers —
+// `block.json` only types it as a free-form string, so a REST write or a
+// future migration can't smuggle an arbitrary unit into the inline style.
+$wrapper_extra_attrs = array();
+$allowed_width_units = array( 'px', '%' );
+$raw_width_unit      = (string) ( $attributes['widthUnit'] ?? '' );
+$width_unit          = in_array( $raw_width_unit, $allowed_width_units, true ) ? $raw_width_unit : '';
+$has_width           = isset( $attributes['width'] ) && '' !== $attributes['width'] && '' !== $width_unit;
+if ( $has_width ) {
+	$wrapper_extra_attrs['style'] = sprintf(
+		'width:%d%s;',
+		(int) $attributes['width'],
+		$width_unit
+	);
+}
 ?>
 <div
-	<?php echo wp_kses_data( get_block_wrapper_attributes() ); ?>
+	<?php echo wp_kses_data( get_block_wrapper_attributes( $wrapper_extra_attrs ) ); ?>
 	data-wp-interactive="jetpack-search"
 	<?php if ( $emit_context ) : ?>
 	data-wp-context='<?php echo esc_attr( $context_json ); ?>'

@@ -14,10 +14,34 @@ import {
 	PanelBody,
 	TextControl,
 	ToggleControl,
+	__experimentalUnitControl as UnitControl, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 } from '@wordpress/components';
 import { useId } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import PostTypeScopeControl from '../../editor/post-type-control';
+
+// Width control constants mirror `core/search`'s defaults so authors get the
+// same feel across the two blocks (`packages/block-library/src/search/utils.js`).
+// `MIN_WIDTH` is the px floor for any non-percentage unit — below ~220 px the
+// field can't reliably show a useful placeholder + clear button.
+const MIN_WIDTH = 220;
+const PX_WIDTH_DEFAULT = 350;
+const PC_WIDTH_DEFAULT = 50;
+const WIDTH_UNITS = [
+	{ value: 'px', label: 'px', default: PX_WIDTH_DEFAULT },
+	{ value: '%', label: '%', default: PC_WIDTH_DEFAULT },
+];
+
+/**
+ * Whether a unit is the percentage unit. Used to clamp max=100 and to swap
+ * `MIN_WIDTH` out of the way (a 220% width isn't meaningful).
+ *
+ * @param {string} unit - The unit symbol.
+ * @return {boolean} True for '%'.
+ */
+function isPercentageUnit( unit ) {
+	return unit === '%';
+}
 
 // Mirrors the enum on `block.json::attributes.suggestionTypes.items.enum`
 // and the canonical order rendered by `suggestion-rows.js::TYPE_ORDER`.
@@ -95,10 +119,20 @@ function SearchGlyph() {
  * @return {object} Rendered element.
  */
 export default function SearchInputEdit( { attributes, setAttributes } ) {
-	const blockProps = useBlockProps();
+	// Width is opt-in: only emit the inline style when the author has set both
+	// halves of the (value, unit) pair, mirroring `render_block_core_search`'s
+	// `! empty( $width ) && ! empty( $widthUnit )` gate.
+	const width = attributes?.width;
+	const widthUnit = attributes?.widthUnit;
+	const hasWidth = width !== undefined && width !== null && !! widthUnit;
+	// `useBlockProps` drops a `style: undefined` entry on its own, so no need
+	// to gate the call on `wrapperStyle` — keeps the call site to one line.
+	const wrapperStyle = hasWidth ? { width: `${ width }${ widthUnit }` } : undefined;
+	const blockProps = useBlockProps( { style: wrapperStyle } );
 	// Per-instance id keeps the label→input association valid when the editor
 	// renders more than one Search Input on the same canvas.
 	const inputId = useId();
+	const widthInputId = useId();
 	const defaultPlaceholder = __( 'Search…', 'jetpack-search-pkg' );
 	// Match render.php: a whitespace-only placeholder falls back to the
 	// translated default in the preview so the editor mirrors the front end.
@@ -201,6 +235,53 @@ export default function SearchInputEdit( { attributes, setAttributes } ) {
 							</p>
 						</fieldset>
 					) }
+				</PanelBody>
+				<PanelBody title={ __( 'Dimensions', 'jetpack-search-pkg' ) } initialOpen={ false }>
+					{ /* Mirrors core/search's width control — UnitControl with px / %
+						units, MIN_WIDTH floor on non-percentage units, max=100 on %.
+						Switching units snaps to a sensible default (350 px ↔ 50 %)
+						so a 350 → % transition doesn't leave a meaningless 350%. */ }
+					<UnitControl
+						__next40pxDefaultSize
+						__nextHasNoMarginBottom
+						label={ __( 'Width', 'jetpack-search-pkg' ) }
+						id={ widthInputId }
+						min={ isPercentageUnit( widthUnit ) ? 0 : MIN_WIDTH }
+						max={ isPercentageUnit( widthUnit ) ? 100 : undefined }
+						step={ 1 }
+						units={ WIDTH_UNITS }
+						value={ hasWidth ? `${ width }${ widthUnit }` : '' }
+						onChange={ newValue => {
+							if ( ! newValue ) {
+								setAttributes( { width: undefined, widthUnit: undefined } );
+								return;
+							}
+							// UnitControl emits a concatenated string like `300px` — the
+							// number plus its currently-selected unit. Save BOTH halves
+							// on every keystroke; without this, `width` lands but
+							// `widthUnit` only sets through `onUnitChange` (which fires
+							// only on explicit unit-picker changes). Fall back to the
+							// existing widthUnit, then to the first unit in WIDTH_UNITS,
+							// so the very first keystroke on a fresh block persists a
+							// usable pair.
+							const parsed = parseInt( newValue, 10 );
+							const unitMatch = String( newValue ).match( /[^\d.]+$/ );
+							const unit = unitMatch?.[ 0 ] || widthUnit || WIDTH_UNITS[ 0 ].value;
+							setAttributes( {
+								width: Number.isNaN( parsed ) ? undefined : parsed,
+								widthUnit: unit,
+							} );
+						} }
+						onUnitChange={ newUnit => {
+							setAttributes( {
+								width: isPercentageUnit( newUnit ) ? PC_WIDTH_DEFAULT : PX_WIDTH_DEFAULT,
+								widthUnit: newUnit,
+							} );
+						} }
+					/>
+					<p className="components-base-control__help" style={ HELP_STYLE }>
+						{ __( 'Leave empty to use the full container width.', 'jetpack-search-pkg' ) }
+					</p>
 				</PanelBody>
 				<PanelBody title={ __( 'Post types', 'jetpack-search-pkg' ) } initialOpen={ false }>
 					<p className="components-base-control__help" style={ HELP_STYLE }>
