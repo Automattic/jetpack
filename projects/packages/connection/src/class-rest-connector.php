@@ -1148,7 +1148,6 @@ class REST_Connector {
 		// Since we are running this test for inclusion in the WP.com testing suite,
 		// let's not try to run them as part of these results.
 		add_filter( 'jetpack_debugger_run_self_test', '__return_false' );
-
 		$cxntests = new Connection_Health_Tests();
 
 		if ( $cxntests->pass() ) {
@@ -1251,7 +1250,7 @@ class REST_Connector {
 			|| 1 !== openssl_verify(
 				$signature_data,
 				$signature,
-				$pub_key ? $pub_key : static::JETPACK__DEBUGGER_PUBLIC_KEY
+				is_string( $pub_key ) ? $pub_key : static::JETPACK__DEBUGGER_PUBLIC_KEY
 			)
 		) {
 			return false;
