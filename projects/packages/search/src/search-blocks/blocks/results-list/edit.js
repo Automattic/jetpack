@@ -128,7 +128,13 @@ export default function ResultsListEdit( { attributes, setAttributes } ) {
 	const blockProps = useBlockProps( {
 		className: `jetpack-search-results--${ layout }`,
 	} );
+	// Defaults mirror render.php so the inspector placeholder matches what
+	// visitors actually see when the field is left empty.
 	const noResultsDefault = __( 'No results found. Try a different search.', 'jetpack-search-pkg' );
+	const noResultsWithFiltersDefault = __(
+		'No results match these filters. Try clearing some, or searching for something else.',
+		'jetpack-search-pkg'
+	);
 	const errorDefault = __( 'Something went wrong. Please try again.', 'jetpack-search-pkg' );
 	return (
 		<>
@@ -164,6 +170,18 @@ export default function ResultsListEdit( { attributes, setAttributes } ) {
 						onChange={ value => setAttributes( { noResultsMessage: value } ) }
 						help={ __(
 							'Shown when a search returns nothing. Leave empty for the default.',
+							'jetpack-search-pkg'
+						) }
+					/>
+					<TextControl
+						__next40pxDefaultSize
+						__nextHasNoMarginBottom
+						label={ __( 'No-results message (when filters are active)', 'jetpack-search-pkg' ) }
+						value={ attributes?.noResultsWithFiltersMessage || '' }
+						placeholder={ noResultsWithFiltersDefault }
+						onChange={ value => setAttributes( { noResultsWithFiltersMessage: value } ) }
+						help={ __(
+							'Shown when active filters return zero results. Leave empty for the default.',
 							'jetpack-search-pkg'
 						) }
 					/>

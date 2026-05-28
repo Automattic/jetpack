@@ -41,6 +41,52 @@
 		padding: 0;
 	}
 
+	// Empty/error regions share a centered presentation with reserved vertical
+	// space so the message reads as intentional in the overlay's wide results
+	// column instead of clinging to the top-left edge. Visual treatment matches
+	// the package's other muted-text regions (`__meta`, `__path`, the filter
+	// empty states): plain `<p>` with `opacity: 0.6`, no icon or heading — the
+	// package doesn't use either elsewhere. The `&[hidden]` rule on the inner
+	// `<p>` is load-bearing for no-results specifically: two `<p>` variants
+	// live inside one region and toggle via
+	// `data-wp-bind--hidden="state.hasActiveFilters"` to swap the copy when
+	// filters are active. Without it, the inactive variant would still take a
+	// line of vertical space.
+	.jetpack-search-results__no-results,
+	.jetpack-search-results__error {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		text-align: center;
+		gap: 0.25rem;
+		min-height: 12rem;
+		margin: 0;
+		padding: 2rem 1rem;
+		opacity: 0.6;
+
+		&[hidden] {
+			display: none;
+		}
+
+		p {
+			max-width: 36ch;
+			margin: 0;
+			// `rem` (not `em`) so the size is anchored to the root font-size
+			// rather than the theme's body font, which on themes like
+			// Twenty Twenty-Five is large enough that a relative `0.875em`
+			// still reads as the primary body size. ~14px is comparable to
+			// the package's other muted-text regions (`__path` 0.8125rem,
+			// `__meta` 0.9rem).
+			font-size: 0.875rem;
+			line-height: 1.5;
+
+			&[hidden] {
+				display: none;
+			}
+		}
+	}
+
 	.jetpack-search-results__item {
 		display: flex;
 		align-items: flex-start;

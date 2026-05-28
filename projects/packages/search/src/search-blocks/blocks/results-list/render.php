@@ -117,6 +117,14 @@ if ( '' === $no_results_message ) {
 	$no_results_message = __( 'No results found. Try a different search.', 'jetpack-search-pkg' );
 }
 
+// Filter-aware variant — shown when `state.hasActiveFilters` is true. Both
+// variants live in the markup so the store's existing reactive getter picks
+// which `<p>` is visible without a store-side message-resolution branch.
+$no_results_with_filters_message = trim( (string) ( $attrs['noResultsWithFiltersMessage'] ?? '' ) );
+if ( '' === $no_results_with_filters_message ) {
+	$no_results_with_filters_message = __( 'No results match these filters. Try clearing some, or searching for something else.', 'jetpack-search-pkg' );
+}
+
 $error_message = trim( (string) ( $attrs['errorMessage'] ?? '' ) );
 if ( '' === $error_message ) {
 	$error_message = __( 'Something went wrong. Please try again.', 'jetpack-search-pkg' );
@@ -336,9 +344,19 @@ if ( '' === $error_message ) {
 	<div
 		class="jetpack-search-results__no-results"
 		data-wp-bind--hidden="!state.showNoResults"
+		role="status"
 		hidden
 	>
-		<p><?php echo esc_html( $no_results_message ); ?></p>
+		<?php
+		// Both `<p>` variants render without an initial `hidden` attribute —
+		// the outer wrapper's `hidden` covers them on the SSR path, and the IA
+		// runtime resolves the inner `data-wp-bind--hidden` atomically when it
+		// reveals the region. Don't remove the outer `hidden` without also
+		// adding initial `hidden` to one of the variants, or both messages
+		// will flash briefly on hydration.
+		?>
+		<p data-wp-bind--hidden="state.hasActiveFilters"><?php echo esc_html( $no_results_message ); ?></p>
+		<p data-wp-bind--hidden="!state.hasActiveFilters"><?php echo esc_html( $no_results_with_filters_message ); ?></p>
 	</div>
 	<div
 		class="jetpack-search-results__error"
