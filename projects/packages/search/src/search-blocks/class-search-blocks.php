@@ -2395,14 +2395,18 @@ HTML;
 				continue;
 			}
 			if ( 'post_type' === $filter_key ) {
-				if ( ! is_scalar( $values ) ) {
+				// `is_string` (not `is_scalar`) keeps the gate consistent with
+				// `parse_url_filter_logic`'s value check — `$_GET` only ever
+				// carries strings or arrays, and the array case takes the
+				// `is_array( $values )` branch immediately below.
+				if ( ! is_string( $values ) ) {
 					continue;
 				}
 				// `sanitize_key`, not `sanitize_text_field` — post-type slugs are
 				// always lowercase + `[a-z0-9_-]`; the lowercase pass keeps a
 				// `?post_type=Product` URL from reaching ES with the wrong case
 				// and silently returning zero results.
-				$slug = sanitize_key( (string) $values );
+				$slug = sanitize_key( $values );
 				if ( '' === $slug ) {
 					continue;
 				}

@@ -1142,8 +1142,9 @@ const { state, actions } = store( NAMESPACE, {
 				staticFilterSelections,
 				state.filterConfigs
 			).gated;
-			// Per-instance scope is session-local and never serialized; popstate
-			// keeps whatever the last input set.
+			// Static post-type scope is a page-level property of the
+			// `search-results` block, PHP-seeded once at template render;
+			// it is never URL-serialized and needs no popstate handling.
 			yield actions.search( { syncUrl: false } );
 		},
 

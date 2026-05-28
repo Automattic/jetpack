@@ -14,8 +14,8 @@
  * own block.json, so an author can drop e.g. `jetpack-search/filter-wc-stock-
  * status` directly on a page without this wrapper. This block is for
  * grouping/spacing/layout, not for gating insertion. Product scope is set
- * elsewhere — the `product-results` page template, or a `search-input`
- * configured with `postTypeMode: 'include', postTypes: [ 'product' ]`.
+ * elsewhere — on the parent `search-results` block's "Search scope"
+ * inspector panel (the `product-results` page template pre-configures it).
  */
 import { InnerBlocks, useBlockProps } from '@wordpress/block-editor';
 
