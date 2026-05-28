@@ -1230,6 +1230,23 @@ class Search_Blocks {
 .jetpack-search-block-overlay__card button[aria-expanded="true"] {
 	color: var(--jp-search-overlay-ink);
 }
+/* Load More is a solid theme `core/button` on the search page, which is right
+ * there. Inside the overlay card it sits on the resolved card surface, where the
+ * theme's solid button background (and its accent `:hover`, e.g. Twenty Sixteen's
+ * #007acc) reads as a heavy slab that clashes with the card's otherwise
+ * `currentColor`-ghost controls (close, sort/filter triggers, active-filter
+ * pills). Card-scoped (0,2,0 / 0,2,1) so it only restyles the in-overlay button
+ * to the same ghost affordance — the page button is untouched. */
+.jetpack-search-block-overlay__card .jetpack-search-load-more__button {
+	background: transparent;
+	border: 1px solid;
+	border-color: color-mix(in sRGB, currentColor 20%, transparent);
+	color: var(--jp-search-overlay-ink);
+}
+.jetpack-search-block-overlay__card .jetpack-search-load-more__button:hover:not(:disabled),
+.jetpack-search-block-overlay__card .jetpack-search-load-more__button:focus-visible {
+	background: color-mix(in sRGB, currentColor 8%, transparent);
+}
 /* Promote the first child (search-input) to a 60px header strip flush with
  * the close button, matching the legacy `__box` header. Suppress the input
  * block's own border-bottom — the card's `::before` hairline handles the
