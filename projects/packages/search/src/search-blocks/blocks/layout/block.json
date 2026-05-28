@@ -34,6 +34,7 @@
 		}
 	},
 	"attributes": {
+		"tagName": { "type": "string", "default": "div" },
 		"width": { "type": "number" },
 		"widthUnit": { "type": "string" }
 	},

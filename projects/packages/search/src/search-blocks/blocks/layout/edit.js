@@ -31,13 +31,10 @@ const WIDTH_UNITS = [
 	{ value: '%', label: '%', default: PC_WIDTH_DEFAULT },
 ];
 
-const HELP_STYLE = {
-	marginTop: 8,
-	marginBottom: 0,
-	fontSize: 12,
-	fontStyle: 'normal',
-	color: 'rgb(117, 117, 117)',
-};
+// Only the top gap after the UnitControl — color, font-size, and font-style
+// come from the `components-base-control__help` class (which also tracks WP's
+// dark color scheme; a hardcoded color here would override it).
+const HELP_STYLE = { marginTop: 8 };
 
 /**
  * Whether a unit is the percentage unit. Used to clamp max=100 and to drop the
@@ -77,10 +74,14 @@ export default function LayoutEdit( { attributes, setAttributes } ) {
 		layout: usedLayout,
 		renderAppender: InnerBlocks.ButtonBlockAppender,
 	} );
+	// Render the saved semantic tag so the preview matches render.php; the
+	// templates set `main`, ad-hoc insertions default to `div` (no second
+	// `<main>` landmark). Capitalized binding so JSX treats it as the element.
+	const TagName = attributes?.tagName || 'div';
 	return (
 		<>
 			<InspectorControls>
-				<PanelBody title={ __( 'Dimensions', 'jetpack-search-pkg' ) } initialOpen={ false }>
+				<PanelBody title={ __( 'Width', 'jetpack-search-pkg' ) } initialOpen={ false }>
 					{ /* UnitControl with px / % units, MIN_WIDTH floor on non-percentage
 						units, max=100 on %. Switching units snaps to a sensible default
 						so a px → % transition doesn't leave a meaningless 1100%. */ }
@@ -124,7 +125,7 @@ export default function LayoutEdit( { attributes, setAttributes } ) {
 					</p>
 				</PanelBody>
 			</InspectorControls>
-			<main { ...innerBlocksProps } />
+			<TagName { ...innerBlocksProps } />
 		</>
 	);
 }

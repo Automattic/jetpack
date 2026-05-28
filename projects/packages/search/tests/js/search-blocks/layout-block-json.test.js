@@ -16,6 +16,12 @@ describe( 'layout block.json', () => {
 		expect( attrs.widthUnit ).toEqual( { type: 'string' } );
 	} );
 
+	it( 'defaults tagName to div so ad-hoc insertions add no second <main> landmark', () => {
+		// The templates set tagName="main" explicitly; everywhere else the block
+		// is a plain div, avoiding a duplicate-main ARIA landmark violation.
+		expect( blockJson.attributes.tagName ).toEqual( { type: 'string', default: 'div' } );
+	} );
+
 	it( 'declares spacing, border, dimensions, and constrained layout supports', () => {
 		const supports = blockJson.supports;
 		expect( supports.spacing ).toEqual( {

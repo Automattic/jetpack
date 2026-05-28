@@ -232,25 +232,28 @@ class Search_Blocks {
 	 * @return \WP_Theme_JSON_Data Updated theme JSON data.
 	 */
 	public static function force_search_layout_block_supports( $theme_json_data ) {
-		$data = $theme_json_data->get_data();
-		if ( ! isset( $data['settings']['blocks'] ) ) {
-			$data['settings']['blocks'] = array();
-		}
-		$data['settings']['blocks']['jetpack-search/layout'] = array(
-			'spacing'    => array(
-				'padding'  => true,
-				'margin'   => true,
-				'blockGap' => true,
-			),
-			'border'     => array(
-				'color'  => true,
-				'radius' => true,
-				'style'  => true,
-				'width'  => true,
-			),
-			'dimensions' => array(
-				'minHeight' => true,
-			),
+		$data     = $theme_json_data->get_data();
+		$existing = $data['settings']['blocks']['jetpack-search/layout'] ?? array();
+		// Merge rather than overwrite so a theme that pre-configures other
+		// settings for this block (e.g. typography) keeps them.
+		$data['settings']['blocks']['jetpack-search/layout'] = array_replace_recursive(
+			$existing,
+			array(
+				'spacing'    => array(
+					'padding'  => true,
+					'margin'   => true,
+					'blockGap' => true,
+				),
+				'border'     => array(
+					'color'  => true,
+					'radius' => true,
+					'style'  => true,
+					'width'  => true,
+				),
+				'dimensions' => array(
+					'minHeight' => true,
+				),
+			)
 		);
 		$theme_json_class                                    = get_class( $theme_json_data );
 		return new $theme_json_class( $data, 'theme' );
