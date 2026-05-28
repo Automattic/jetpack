@@ -234,6 +234,20 @@ class Search_Blocks {
 	}
 
 	/**
+	 * Whether TrainTracks analytics are suppressed for this request. Mirrors
+	 * instant search (Helper::get_search_options): the `?disable_tracking=1`
+	 * crawler/QA param plus the `jetpack_instant_search_disable_tracking`
+	 * operator filter. Gates both the `_tkq` pushes (seeded into
+	 * `state.disableTracking`) and whether the Tracks consumer script loads.
+	 *
+	 * @return bool
+	 */
+	public static function is_tracking_disabled(): bool {
+		return ( class_exists( Helper::class ) && Helper::is_tracking_disabled() )
+			|| apply_filters( 'jetpack_instant_search_disable_tracking', false );
+	}
+
+	/**
 	 * Short-circuit the main front-end search query when the blocks own results
 	 * (see AGENTS.md § Search experiences). Registered only when
 	 * `owns_search_results()` is true and off `is_admin()`.
@@ -1981,8 +1995,7 @@ HTML;
 			// TrainTracks gate, mirroring instant search's `disableTracking`
 			// (Helper::get_search_options): suppresses `_tkq` pushes for
 			// `?disable_tracking=1` crawlers/QA and the filter override.
-			'disableTracking'            => ( class_exists( Helper::class ) && Helper::is_tracking_disabled() )
-				|| apply_filters( 'jetpack_instant_search_disable_tracking', false ),
+			'disableTracking'            => static::is_tracking_disabled(),
 			// Threaded through url-state so `?orderby=price_asc` round-trips on Woo only.
 			'isWooCommerceBlocksEnabled' => self::woocommerce_blocks_enabled(),
 			'homeUrl'                    => function_exists( 'home_url' ) ? home_url() : '',
