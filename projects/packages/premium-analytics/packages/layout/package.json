@@ -1,17 +1,13 @@
 {
-	"name": "@next-woo-analytics/layout",
-	"description": "WooCommerce Analytics layout",
-	"version": "1.0.0",
+	"name": "@automattic/jetpack-premium-analytics-layout",
+	"description": "Premium Analytics layout primitives",
+	"version": "0.1.0",
 	"private": true,
 	"type": "module",
-	"wpModule": true,
 	"main": "src/index.ts",
-	"exports": {
-		".": "./build/src/index.js"
-	},
+	"types": "src/index.ts",
+	"sideEffects": false,
 	"dependencies": {
-		"@automattic/ui": "*",
-		"@wordpress/components": "*",
-		"@wordpress/ui": "*"
+		"@wordpress/ui": "0.13.0"
 	}
 }
