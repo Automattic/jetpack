@@ -45,11 +45,11 @@ jetpack build packages/premium-analytics   # via Jetpack CLI
 
    ```json
    {
-     "name": "<name>-route",
-     "route": {
-       "path": "/<name>",
-       "page": "jetpack-premium-analytics"
-     }
+   	"name": "<name>-route",
+   	"route": {
+   		"path": "/<name>",
+   		"page": "jetpack-premium-analytics"
+   	}
    }
    ```
 
@@ -84,16 +84,26 @@ Serves two purposes:
 
 ## Internal packages (`packages/*`)
 
-App-internal modules discovered by `@wordpress/build`. Types/IDE resolve
-`@jetpack-premium-analytics/<dir>` imports via the `tsconfig.json` `paths` alias
-(`pnpm typecheck`).
+App-internal modules used only by this package — never published to npm, never
+shared across the monorepo. Resolution is entirely in-tree (the local symlink);
+the `@jetpack-premium-analytics/*` scope is never looked up against any registry.
 
-To import one from a route/another package, the build also needs it symlinked in
-`node_modules` under that specifier. Name the package
-`@automattic/jetpack-premium-analytics-<dir>` (a bare `@jetpack-premium-analytics/*`
-name fails the repo name lint and `_@…` is invalid to pnpm), then add a `link:`
-dep in this package's `projects/packages/premium-analytics/package.json`
-(not the repo root `package.json`; routes aren't workspace members):
+**The dual naming is structural.** `@wordpress/build` derives the import
+specifier as `@<wpPlugin.packageNamespace>/<dir>`, so the specifier here is
+always `@jetpack-premium-analytics/<dir>`. The package's own `name` field has
+to be different (`@automattic/jetpack-premium-analytics-<dir>`) because pnpm
+rejects the `_@…` escape and the repo name lint (`lint-project-structure.sh`)
+rejects the bare `@jetpack-premium-analytics/*` scope. They don't need to
+match: pnpm symlinks under the **dep key**, so the import resolves regardless
+of the linked package's `name`.
+
+Types/IDE: the `tsconfig.json` `paths` alias maps the specifier to
+`./packages/<dir>/src` (covered by `pnpm typecheck`).
+
+Build: to import one from a route or another package, add a `link:` dep on
+**this package's `package.json`** (`projects/packages/premium-analytics/package.json` —
+routes aren't workspace members, so the dep belongs here, not in the route's
+`package.json`):
 
 ```jsonc
 "dependencies": { "@jetpack-premium-analytics/<dir>": "link:packages/<dir>" }
