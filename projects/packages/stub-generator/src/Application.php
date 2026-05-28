@@ -256,11 +256,11 @@ class Application extends SingleCommandApplication {
 	 * Strip descriptions and unrecognized tags from doc comments.
 	 *
 	 * @param \PhpParser\Node[] $stmts Stubs.
-	 * @param boolean           $keepTags Whether to keep unrecognized tags.
+	 * @param bool              $keepTags Whether to keep unrecognized tags.
 	 * @param OutputInterface   $output OutputInterface.
 	 * @return \PhpParser\Node[] $stmts, with attributes modified.
 	 */
-	protected function stripDocs( array $stmts, $keepTags, OutputInterface $output ): array {
+	protected function stripDocs( array $stmts, bool $keepTags, OutputInterface $output ): array {
 		$traverser = new NodeTraverser();
 		$traverser->addVisitor( new StripDocsNodeVisitor( $output, $keepTags ) );
 		return $traverser->traverse( $stmts );

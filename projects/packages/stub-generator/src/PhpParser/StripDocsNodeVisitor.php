@@ -68,7 +68,7 @@ class StripDocsNodeVisitor extends NodeVisitorAbstract {
 	 * @param OutputInterface $output OutputInterface.
 	 * @param bool            $keepTags Whether to keep unrecognized tags.
 	 */
-	public function __construct( OutputInterface $output, $keepTags ) {
+	public function __construct( OutputInterface $output, bool $keepTags ) {
 		$this->output    = $output;
 		$config          = new ParserConfig(
 			array(
