@@ -72,63 +72,84 @@ class WP_REST_WPCOM_Smart_Dictation_Client_Secret_Test extends \WorDBless\BaseTe
 	}
 
 	/**
-	 * Tests that register_rest_route registers the expected route.
+	 * Tests that register_rest_route registers the expected routes.
 	 */
-	public function test_register_rest_route_registers_route() {
+	public function test_register_rest_route_registers_routes() {
 		$this->controller->register_rest_route();
 
 		$routes = rest_get_server()->get_routes();
 
 		$this->assertArrayHasKey( '/wpcom/v2/dictation-client-secret', $routes );
+		$this->assertArrayHasKey( '/wpcom/v2/dictation-client-secret/settle', $routes );
+		$this->assertArrayHasKey( '/wpcom/v2/dictation-client-secret/remaining-time', $routes );
 	}
 
 	/**
-	 * Tests that the POST endpoint requires authentication.
+	 * Tests that the endpoints require authentication.
 	 */
-	public function test_post_endpoint_requires_authentication() {
+	public function test_endpoints_require_authentication() {
 		$this->controller->register_rest_route();
 
-		$routes     = rest_get_server()->get_routes();
-		$route_data = $routes['/wpcom/v2/dictation-client-secret'];
+		$routes             = rest_get_server()->get_routes();
+		$expected_endpoints = array(
+			'/wpcom/v2/dictation-client-secret'        => 'POST',
+			'/wpcom/v2/dictation-client-secret/settle' => 'POST',
+			'/wpcom/v2/dictation-client-secret/remaining-time' => 'GET',
+		);
 
-		$post_endpoint = null;
-		foreach ( $route_data as $endpoint ) {
-			if ( isset( $endpoint['methods']['POST'] ) && $endpoint['methods']['POST'] ) {
-				$post_endpoint = $endpoint;
-				break;
+		foreach ( $expected_endpoints as $route => $method ) {
+			$route_endpoint = null;
+			foreach ( $routes[ $route ] as $endpoint ) {
+				if ( isset( $endpoint['methods'][ $method ] ) && $endpoint['methods'][ $method ] ) {
+					$route_endpoint = $endpoint;
+					break;
+				}
 			}
+
+			$this->assertNotNull( $route_endpoint );
+			$this->assertEquals( 'is_user_logged_in', $route_endpoint['permission_callback'] );
 		}
-
-		$this->assertNotNull( $post_endpoint );
-		$this->assertEquals( 'is_user_logged_in', $post_endpoint['permission_callback'] );
 	}
 
 	/**
-	 * Tests that the endpoint validates session instructions.
+	 * Tests that the endpoint allows optional session instructions.
 	 */
-	public function test_get_client_secret_requires_session_instructions() {
-		$request = new \WP_REST_Request( 'POST', '/wpcom/v2/dictation-client-secret' );
-		$request->set_param( 'session', array() );
-
-		$response = $this->controller->get_client_secret( $request );
-
-		$this->assertInstanceOf( \WP_Error::class, $response );
-		$this->assertSame( 'invalid_session', $response->get_error_code() );
-		$this->assertSame( 400, $response->get_error_data()['status'] );
+	public function test_validate_session_allows_optional_instructions() {
+		$this->assertTrue( $this->controller->validate_session( null ) );
+		$this->assertTrue( $this->controller->validate_session( array() ) );
+		$this->assertTrue( $this->controller->validate_session( array( 'instructions' => 'Write clearly.' ) ) );
 	}
 
 	/**
-	 * Tests that the endpoint validates object session instructions.
+	 * Tests that the endpoint rejects unsupported session fields.
 	 */
-	public function test_get_client_secret_requires_object_session_instructions() {
+	public function test_create_client_secret_rejects_unsupported_session_fields() {
 		$request = new \WP_REST_Request( 'POST', '/wpcom/v2/dictation-client-secret' );
-		$request->set_param( 'session', (object) array() );
+		$request->set_param(
+			'session',
+			array(
+				'instructions' => 'Write clearly.',
+				'voice'        => 'alloy',
+			)
+		);
 
-		$response = $this->controller->get_client_secret( $request );
+		$response = $this->controller->create_client_secret( $request );
 
 		$this->assertInstanceOf( \WP_Error::class, $response );
-		$this->assertSame( 'invalid_session', $response->get_error_code() );
-		$this->assertSame( 400, $response->get_error_data()['status'] );
+		$this->assertSame( 'rest_invalid_param', $response->get_error_code() );
+	}
+
+	/**
+	 * Tests that the endpoint rejects invalid session instructions.
+	 */
+	public function test_create_client_secret_rejects_non_string_session_instructions() {
+		$request = new \WP_REST_Request( 'POST', '/wpcom/v2/dictation-client-secret' );
+		$request->set_param( 'session', array( 'instructions' => array() ) );
+
+		$response = $this->controller->create_client_secret( $request );
+
+		$this->assertInstanceOf( \WP_Error::class, $response );
+		$this->assertSame( 'rest_invalid_param', $response->get_error_code() );
 	}
 
 	/**
