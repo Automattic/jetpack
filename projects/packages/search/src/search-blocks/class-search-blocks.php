@@ -1143,9 +1143,22 @@ class Search_Blocks {
 	--jp-search-overlay-ink: var(--wp--preset--color--contrast, var(--wp--preset--color--foreground, #1d2327));
 	background: var(--jp-search-overlay-surface);
 	color: var(--jp-search-overlay-ink);
+	border: 1px solid rgba(128, 128, 128, 0.25);
 	border-radius: 4px;
 	box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
 	padding-top: 60px;
+}
+/* Token-aware card / scrim separation (SEARCH-270): tint the resolved surface
+ * ~5% toward ink and paint the hairline border with the same ink-over-surface
+ * mix used for the header `::before`. Both auto-invert polarity per theme, so
+ * dark themes get a card that visibly layers above the scrim without losing
+ * the themed surface color. The static `rgba(128,128,128,.25)` border + the
+ * un-tinted token chain stay as the fallback for browsers without `color-mix`. */
+@supports (background: color-mix(in sRGB, black 50%, white)) {
+	.jetpack-search-block-overlay__card {
+		--jp-search-overlay-surface: color-mix(in sRGB, var(--wp--preset--color--contrast, var(--wp--preset--color--foreground, #1d2327)) 5%, var(--wp--preset--color--base, var(--wp--preset--color--background, #fff)));
+		border-color: color-mix(in sRGB, var(--jp-search-overlay-ink) 20%, var(--jp-search-overlay-surface));
+	}
 }
 /* Single hairline over the full 60px header strip — siblings paint with a seam (SEARCH-260). */
 .jetpack-search-block-overlay__card::before {
@@ -1269,6 +1282,7 @@ class Search_Blocks {
 	}
 	.jetpack-search-block-overlay__card {
 		min-height: 100vh;
+		border: 0;
 		border-radius: 0;
 		box-shadow: none;
 	}
@@ -1390,13 +1404,6 @@ CSS;
 		flex-basis: 100% !important;
 	}
 }
-/* Sidebar is showing; hide the in-header popover entirely so a stale
- * `is-popover-open` class can't leak its panel into view. */
-@media (min-width: 992px) {
-	.jetpack-search-layout__results-header .jetpack-search-filters-popover {
-		display: none;
-	}
-}
 /* Sidebar left divider tracks `currentColor` so the hairline stays subtle on
  * light themes and visible on dark themes, matching the search-input
  * underline. We only set color; each template's column block sets
@@ -1409,6 +1416,49 @@ CSS;
 @supports (border-color: color-mix(in sRGB, black 50%, white)) {
 	.jetpack-search-layout__filters-column {
 		border-left-color: color-mix(in sRGB, currentColor 15%, transparent);
+	}
+}
+/* Sidebar-showing rules (>= 992px). The corner-join is structural, not
+ * decorative: the columns row is pulled flush against the search-input
+ * hairline, and visual breathing room is re-added as internal column
+ * padding. Three sources of vertical gap have to be neutralised for the
+ * column's `border-left` to start *at* the hairline:
+ *
+ *   a) The outer `wp:group`'s declared `spacing.blockGap` (1.5rem in the
+ *      templates) or the theme's default block-gap (e.g. TT5 falls back
+ *      to 1.2rem when the block-layout system doesn't emit the
+ *      per-container override for templates rendered into a `<template>`
+ *      element). Both manifest as `margin-block-start` on the columns row.
+ *
+ *   b) `.is-layout-flex { align-items: center }` (theme default, also in
+ *      WordPress core), which vertically centres the shorter filters
+ *      column inside the taller results column, dropping the sidebar's
+ *      top edge below the row's top.
+ *
+ *   c) Overlay-only: the `__content > .wp-block-group:first-child` rule
+ *      (SEARCH-243) gives the alignwide group a `padding: .5em 2em 2em`
+ *      to "clear the 60px header strip." But the search-input is
+ *      `position: absolute` in the overlay — it doesn't take flow space —
+ *      so the 0.5em top-pad just pushes the columns row 8px below the
+ *      card's `::before` hairline at `top: 60px`.
+ *
+ * The `.is-layout-flex` class match bumps the columns selector to
+ * specificity (0,3,0), enough to outrank any per-container `blockGap`
+ * CSS WP might emit (typically (0,1,0)). The `:has(> filters-column)`
+ * scope keeps these overrides off any unrelated `wp:columns` block. */
+@media (min-width: 992px) {
+	.jetpack-search-layout__results-header .jetpack-search-filters-popover {
+		display: none;
+	}
+	.wp-block-columns.is-layout-flex:has(> .jetpack-search-layout__filters-column) {
+		align-items: flex-start;
+		margin-block-start: 0;
+	}
+	.jetpack-search-block-overlay__content > .wp-block-group:first-child:has(.jetpack-search-layout__filters-column) {
+		padding-top: 0;
+	}
+	.wp-block-columns:has(> .jetpack-search-layout__filters-column) > .wp-block-column {
+		padding-top: 0.5em;
 	}
 }
 CSS;

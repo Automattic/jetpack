@@ -160,10 +160,13 @@ describe( 'ResultsListEdit', () => {
 		expect( setAttributes ).toHaveBeenCalledWith( { autoProductView: false } );
 	} );
 
-	it( 'exposes message controls for the empty and error states in the inspector', () => {
+	it( 'exposes message controls for the empty, filtered-empty, and error states in the inspector', () => {
 		render( <ResultsListEdit attributes={ {} } setAttributes={ jest.fn() } /> );
 
 		expect( screen.getByRole( 'textbox', { name: 'No-results message' } ) ).toBeInTheDocument();
+		expect(
+			screen.getByRole( 'textbox', { name: 'No-results message (when filters are active)' } )
+		).toBeInTheDocument();
 		expect( screen.getByRole( 'textbox', { name: 'Error message' } ) ).toBeInTheDocument();
 	} );
 
@@ -176,6 +179,20 @@ describe( 'ResultsListEdit', () => {
 			target: { value: 'Try a broader query.' },
 		} );
 		expect( setAttributes ).toHaveBeenCalledWith( { noResultsMessage: 'Try a broader query.' } );
+	} );
+
+	it( 'updates the noResultsWithFiltersMessage attribute when the filtered-empty control changes', () => {
+		const setAttributes = jest.fn();
+		render( <ResultsListEdit attributes={ {} } setAttributes={ setAttributes } /> );
+
+		// eslint-disable-next-line testing-library/prefer-user-event -- @testing-library/user-event isn't a dep of the search package; results-sort-edit.test.jsx uses fireEvent for the same reason.
+		fireEvent.change(
+			screen.getByRole( 'textbox', { name: 'No-results message (when filters are active)' } ),
+			{ target: { value: 'Try removing a filter.' } }
+		);
+		expect( setAttributes ).toHaveBeenCalledWith( {
+			noResultsWithFiltersMessage: 'Try removing a filter.',
+		} );
 	} );
 
 	it( 'updates the errorMessage attribute when the error control changes', () => {
@@ -197,6 +214,7 @@ describe( 'ResultsListEdit', () => {
 				attributes={ {
 					layout: 'expanded',
 					noResultsMessage: 'Try a broader query.',
+					noResultsWithFiltersMessage: 'Clear a filter to see results.',
 					errorMessage: 'Search is offline right now.',
 				} }
 				setAttributes={ jest.fn() }
@@ -207,6 +225,7 @@ describe( 'ResultsListEdit', () => {
 		// the empty and error copy live in the Inspector controls only.
 		expect( screen.getByText( 'First sample result' ) ).toBeInTheDocument();
 		expect( screen.queryByText( 'Try a broader query.' ) ).not.toBeInTheDocument();
+		expect( screen.queryByText( 'Clear a filter to see results.' ) ).not.toBeInTheDocument();
 		expect( screen.queryByText( 'Search is offline right now.' ) ).not.toBeInTheDocument();
 	} );
 } );
