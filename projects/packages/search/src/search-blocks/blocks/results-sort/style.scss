@@ -151,12 +151,10 @@
 		display: flex;
 		flex-direction: column;
 		padding: 4px;
-		// See the matching note in filters-popover/style.scss: the shorthand
-		// drops to `transparent` on themes that don't define
-		// `--wp--preset--color--base`, so use the longhand with the same
-		// fallback chain the overlay card and suggestions panel use.
-		background-color: var(--wp--preset--color--base, var(--wp--preset--color--background, #fff));
-		color: var(--wp--preset--color--contrast, var(--wp--preset--color--foreground, inherit));
+		// `background-color` longhand (not shorthand) — `background:` collapses
+		// to `transparent` when the var resolves to nothing.
+		background-color: var(--jp-search-page-surface, var(--wp--preset--color--base, var(--wp--preset--color--background, #fff)));
+		color: var(--jp-search-page-ink, var(--wp--preset--color--contrast, var(--wp--preset--color--foreground, inherit)));
 		// Reset the inherited theme base size so menu items track the
 		// search-results title (also 1rem) instead of the host theme's
 		// oversized default. `font: inherit` on menu items picks this up.

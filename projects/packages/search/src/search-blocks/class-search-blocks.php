@@ -125,6 +125,7 @@ class Search_Blocks {
 		add_action( 'init', array( static::class, 'register_blocks' ) );
 		add_filter( 'block_categories_all', array( static::class, 'register_block_category' ) );
 		add_action( 'enqueue_block_editor_assets', array( static::class, 'enqueue_editor_assets' ) );
+		add_action( 'wp_body_open', array( static::class, 'print_theme_token_sampler' ) );
 		// Relativize `jetpack-search/*` Script Module URLs whose host matches
 		// the site canonical so the rendered `<script type="module">` is
 		// same-origin with the page. ES modules go through CORS even without
@@ -1098,17 +1099,31 @@ class Search_Blocks {
 	}
 
 	/**
+	 * Print the body-sampler `<script>` that sets `--jp-search-page-ink` /
+	 * `--jp-search-page-surface` on `:root` from the body's resolved `color` /
+	 * `backgroundColor`. Skips writing surface when bg is transparent (the
+	 * theme paints on the browser canvas) or when bg equals ink (vintage
+	 * frame-themes like Twenty Sixteen use body as a colored border around a
+	 * lighter `.site` content wrapper). See AGENTS.md § Theme tokens.
+	 */
+	public static function print_theme_token_sampler(): void {
+		if ( is_admin() ) {
+			return;
+		}
+		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- hardcoded JS string, no dynamic content.
+		echo "<script id='jetpack-search-theme-token-sampler'>(function(){try{var c=getComputedStyle(document.body),r=document.documentElement,ink=c.color,bg=c.backgroundColor;if(ink){r.style.setProperty('--jp-search-page-ink',ink);}if(bg&&bg!==ink&&bg!=='rgba(0, 0, 0, 0)'&&bg!=='transparent'){r.style.setProperty('--jp-search-page-surface',bg);}}catch(e){}})();</script>";
+	}
+
+	/**
 	 * Inline CSS for the overlay modal chrome. Block content brings its own
 	 * theme styling; this is just the scrim, centered card, 60px header strip,
 	 * close button, mobile padding tweaks, and scroll lock. The responsive
 	 * sidebar-collapse + in-header popover rules shared with the page
 	 * templates live in `search_layout_inline_css()`.
 	 *
-	 * Surface/ink follow a two-step token fallback: newer `base`/`contrast`
-	 * (TT2/TT3/TT5-family) first, then legacy `background`/`foreground` (TT1,
-	 * Kaze, many WPCOM themes). #49125's hardcoded `#fff` resurrected the
-	 * white-on-white bug on legacy themes; the chain fixes it. Hoisted onto
-	 * two custom props so in-card surfaces (suggestions panel) share one source.
+	 * Surface/ink hoist `--jp-search-page-*` (with the legacy
+	 * `--wp--preset--color--*` chain as fallback — see AGENTS.md § Theme
+	 * tokens) onto two custom props so in-card surfaces share one source.
 	 * Hairlines use `color-mix(--jp-search-overlay-ink, --jp-search-overlay-surface)`.
 	 *
 	 * @return string
@@ -1139,8 +1154,8 @@ class Search_Blocks {
 	position: relative;
 	width: 100%;
 	max-width: 1080px;
-	--jp-search-overlay-surface: var(--wp--preset--color--base, var(--wp--preset--color--background, #fff));
-	--jp-search-overlay-ink: var(--wp--preset--color--contrast, var(--wp--preset--color--foreground, #1d2327));
+	--jp-search-overlay-surface: var(--jp-search-page-surface, var(--wp--preset--color--base, var(--wp--preset--color--background, #fff)));
+	--jp-search-overlay-ink: var(--jp-search-page-ink, var(--wp--preset--color--contrast, var(--wp--preset--color--foreground, #1d2327)));
 	background: var(--jp-search-overlay-surface);
 	color: var(--jp-search-overlay-ink);
 	border: 1px solid rgba(128, 128, 128, 0.25);
@@ -1156,7 +1171,7 @@ class Search_Blocks {
  * un-tinted token chain stay as the fallback for browsers without `color-mix`. */
 @supports (background: color-mix(in sRGB, black 50%, white)) {
 	.jetpack-search-block-overlay__card {
-		--jp-search-overlay-surface: color-mix(in sRGB, var(--wp--preset--color--contrast, var(--wp--preset--color--foreground, #1d2327)) 5%, var(--wp--preset--color--base, var(--wp--preset--color--background, #fff)));
+		--jp-search-overlay-surface: color-mix(in sRGB, var(--jp-search-page-ink, var(--wp--preset--color--contrast, var(--wp--preset--color--foreground, #1d2327))) 5%, var(--jp-search-page-surface, var(--wp--preset--color--base, var(--wp--preset--color--background, #fff))));
 		border-color: color-mix(in sRGB, var(--jp-search-overlay-ink) 20%, var(--jp-search-overlay-surface));
 	}
 }
@@ -1250,6 +1265,7 @@ class Search_Blocks {
 	height: 100%;
 	font-size: 18px;
 	line-height: 1;
+	margin: 0;
 	padding: 0;
 	background: transparent;
 }
