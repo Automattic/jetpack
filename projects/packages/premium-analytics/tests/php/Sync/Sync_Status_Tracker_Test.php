@@ -37,6 +37,7 @@ class Sync_Status_Tracker_Test extends TestCase {
 	public function tear_down() {
 		delete_option( Sync_Status_Tracker::INITIAL_FULL_SYNC_OPTION );
 		remove_all_actions( Sync_Status_Tracker::MILESTONE_ACTION );
+		remove_all_filters( 'jetpack_premium_analytics_sync_module_name' );
 		\WorDBless\Options::init()->clear_options();
 	}
 
@@ -124,8 +125,6 @@ class Sync_Status_Tracker_Test extends TestCase {
 		);
 
 		$this->assertSame( 1730000123, (int) get_option( Sync_Status_Tracker::INITIAL_FULL_SYNC_OPTION ) );
-
-		remove_all_filters( 'jetpack_premium_analytics_sync_module_name' );
 	}
 
 	public function test_script_data_reports_zero_before_milestone() {
