@@ -17,6 +17,7 @@
 		"noResultsWithFiltersMessage": { "type": "string", "default": "" },
 		"errorMessage": { "type": "string", "default": "" }
 	},
+	"usesContext": [ "jetpack-search/postTypeMode", "jetpack-search/postTypes" ],
 	"supports": {
 		"html": false,
 		"interactivity": true
