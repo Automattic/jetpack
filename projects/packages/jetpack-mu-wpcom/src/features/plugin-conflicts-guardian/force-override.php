@@ -47,8 +47,10 @@ function pcg_force_bypass_key() {
 
 /**
  * Admin-post handler — sets the bypass transient and redirects back.
+ *
+ * @return never
  */
-function pcg_force_handle_set_bypass() {
+function pcg_force_handle_set_bypass(): never {
 	if ( ! current_user_can( 'activate_plugins' ) ) {
 		wp_die( esc_html__( 'You do not have permission to do that.', 'jetpack-mu-wpcom' ), 403 );
 	}
