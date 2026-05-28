@@ -3,7 +3,7 @@
  */
 import analytics from '@automattic/jetpack-analytics';
 import { getSiteData, getSiteType } from '@automattic/jetpack-script-data';
-import { DataForm, type Field } from '@wordpress/dataviews/wp';
+import { DataForm, type Field } from '@wordpress/dataviews';
 import { createInterpolateElement, useCallback } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { Button, Card, Fieldset, Text } from '@wordpress/ui';

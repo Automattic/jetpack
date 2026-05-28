@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Base styles: Update admin-page-layout mixin's header selector from `> header` to `> :first-child` so it keeps matching after @wordpress/admin-ui 2.1 changed the page header element from `<header>` to `<div>`.

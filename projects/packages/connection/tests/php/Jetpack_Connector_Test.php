@@ -379,6 +379,66 @@ class Jetpack_Connector_Test extends TestCase {
 		$this->assertStringContainsString( 'jetpack-connect-all.svg', $url );
 	}
 
+	/* ── get_connected_plugin_families() ─────────────────────────── */
+
+	/**
+	 * Test that no families are detected when no plugins are connected.
+	 */
+	public function test_plugin_families_default() {
+		$families = Jetpack_Connector::get_connected_plugin_families();
+		$this->assertFalse( $families['has_woo'] );
+		$this->assertFalse( $families['has_a4a'] );
+	}
+
+	/**
+	 * Test that only Jetpack-family plugins don't trigger woo or a4a flags.
+	 */
+	public function test_plugin_families_jetpack_only() {
+		Plugin_Storage::configure();
+		Plugin_Storage::upsert( 'jetpack', array( 'name' => 'Jetpack' ) );
+
+		$families = Jetpack_Connector::get_connected_plugin_families();
+		$this->assertFalse( $families['has_woo'] );
+		$this->assertFalse( $families['has_a4a'] );
+	}
+
+	/**
+	 * Test that woocommerce-prefixed slugs set has_woo.
+	 */
+	public function test_plugin_families_woo() {
+		Plugin_Storage::configure();
+		Plugin_Storage::upsert( 'woocommerce', array( 'name' => 'WooCommerce' ) );
+
+		$families = Jetpack_Connector::get_connected_plugin_families();
+		$this->assertTrue( $families['has_woo'] );
+		$this->assertFalse( $families['has_a4a'] );
+	}
+
+	/**
+	 * Test that automattic-prefixed slugs set has_a4a.
+	 */
+	public function test_plugin_families_a4a() {
+		Plugin_Storage::configure();
+		Plugin_Storage::upsert( 'automattic-for-agencies-client', array( 'name' => 'Automattic for Agencies' ) );
+
+		$families = Jetpack_Connector::get_connected_plugin_families();
+		$this->assertFalse( $families['has_woo'] );
+		$this->assertTrue( $families['has_a4a'] );
+	}
+
+	/**
+	 * Test that both flags are set when both families are present.
+	 */
+	public function test_plugin_families_woo_and_a4a() {
+		Plugin_Storage::configure();
+		Plugin_Storage::upsert( 'woocommerce', array( 'name' => 'WooCommerce' ) );
+		Plugin_Storage::upsert( 'automattic-for-agencies-client', array( 'name' => 'Automattic for Agencies' ) );
+
+		$families = Jetpack_Connector::get_connected_plugin_families();
+		$this->assertTrue( $families['has_woo'] );
+		$this->assertTrue( $families['has_a4a'] );
+	}
+
 	/* ── resolve_user_fields() ─────────────────────────────────── */
 
 	/**
@@ -762,17 +822,12 @@ class Jetpack_Connector_Test extends TestCase {
 	}
 
 	/**
-	 * Call the private get_connector_logo_url() method via reflection.
+	 * Call get_connector_logo_url().
 	 *
 	 * @return string Logo URL.
 	 */
 	private function call_get_connector_logo_url() {
-		$method = new \ReflectionMethod( Jetpack_Connector::class, 'get_connector_logo_url' );
-		if ( PHP_VERSION_ID < 80100 ) {
-			$method->setAccessible( true );
-		}
-
-		return $method->invoke( null );
+		return Jetpack_Connector::get_connector_logo_url();
 	}
 
 	/**

@@ -19,4 +19,10 @@ namespace Automattic\Jetpack\Search;
 	// @phan-suppress-next-line PhanUndeclaredGlobalVariable -- $content is provided by WP at block render.
 	echo $content; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Inner block HTML is already escaped by each child block's renderer.
 	?>
+	<p
+		class="jetpack-search-filters__empty"
+		data-wp-interactive="jetpack-search"
+		data-wp-bind--hidden="!state.showFiltersEmpty"
+		hidden
+	><?php esc_html_e( 'No filters available', 'jetpack-search-pkg' ); ?></p>
 </div>

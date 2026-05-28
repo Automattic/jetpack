@@ -5,7 +5,7 @@ import analytics from '@automattic/jetpack-analytics';
 import getRedirectUrl from '@automattic/jetpack-components/tools/jp-redirect';
 import { getSiteType, isSimpleSite } from '@automattic/jetpack-script-data';
 import { ToggleControl } from '@wordpress/components';
-import { DataForm, type Field } from '@wordpress/dataviews/wp';
+import { DataForm, type Field } from '@wordpress/dataviews';
 import { useCallback, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Card, Link } from '@wordpress/ui';

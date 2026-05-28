@@ -44,6 +44,20 @@
 	.jetpack-block-nudge {
 		max-width: none;
 	}
+
+	// Trigger button preview (pop-up display mode).
+	.donations__trigger-button {
+		display: inline-flex;
+		align-items: center;
+		gap: 8px;
+		cursor: default;
+		pointer-events: none;
+	}
+
+	.donations__trigger-icon {
+		flex-shrink: 0;
+		fill: currentColor;
+	}
 }
 
 .jetpack-donations__currency-toggle {
@@ -71,6 +85,40 @@
 .jp-donations-style-panel.components-panel__body > *:not(.components-panel__body-title) {
 	border-top: 0;
 	border-bottom: 0;
+}
+
+// Icon picker grid in the Display panel.
+.jetpack-donations__icon-picker {
+	display: grid;
+	grid-template-columns: repeat(4, 1fr);
+	gap: 4px;
+	margin-block-start: 4px;
+
+	.jetpack-donations__icon-option {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		width: 100%;
+		min-height: 36px;
+		padding: 4px;
+		border: 1px solid #ddd;
+		border-radius: 4px;
+		background: transparent;
+		cursor: pointer;
+
+		&:hover {
+			border-color: #1e1e1e;
+		}
+
+		&.is-pressed,
+		&.is-pressed:hover {
+			border-color: var(--wp-components-color-foreground, #1e1e1e);
+		}
+
+		svg {
+			display: block;
+		}
+	}
 }
 
 // Make labels inside our custom style panels inherit text color from the

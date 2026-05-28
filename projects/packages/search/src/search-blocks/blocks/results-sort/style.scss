@@ -151,10 +151,12 @@
 		display: flex;
 		flex-direction: column;
 		padding: 4px;
-		background: var(--wp--preset--color--base);
-		// The menu owns its surface, so don't inherit a low-contrast body
-		// accent color from the surrounding page.
-		color: var(--wp--preset--color--contrast);
+		// See the matching note in filters-popover/style.scss: the shorthand
+		// drops to `transparent` on themes that don't define
+		// `--wp--preset--color--base`, so use the longhand with the same
+		// fallback chain the overlay card and suggestions panel use.
+		background-color: var(--wp--preset--color--base, var(--wp--preset--color--background, #fff));
+		color: var(--wp--preset--color--contrast, var(--wp--preset--color--foreground, inherit));
 		// Reset the inherited theme base size so menu items track the
 		// search-results title (also 1rem) instead of the host theme's
 		// oversized default. `font: inherit` on menu items picks this up.

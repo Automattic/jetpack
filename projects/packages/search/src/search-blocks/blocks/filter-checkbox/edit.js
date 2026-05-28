@@ -29,7 +29,7 @@ import {
 	__experimentalToggleGroupControlOption as ToggleGroupControlOption,
 } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
-import { useMemo } from '@wordpress/element';
+import { useEffect, useMemo, useRef } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { normalizeDisplayStyle } from '../display-style.js';
 
@@ -364,6 +364,62 @@ export default function FilterCheckboxEdit( { attributes, setAttributes } ) {
 	// always returns zero results. Hiding the control on those variations
 	// keeps authors from setting it by mistake.
 	const isTaxonomyFilter = attributes?.filterType === 'taxonomy';
+
+	// Default the label to the taxonomy's display name when the current
+	// custom-taxonomy selection has an empty label, except immediately after
+	// the author manually clears that same slug. Changing the slug — or
+	// leaving and re-entering the Custom Taxonomy variation — drops the guard
+	// so the picker can seed again. Built-in variations don't pass this gate;
+	// they already get a hardcoded default via variationDefaultLabel().
+	//
+	// Both refs reset whenever the component unmounts (Code/Visual editor
+	// toggle, certain undo sequences). That means a saved post whose `label`
+	// is the empty string re-seeds on the next editor open — by design,
+	// since `labelHelp` already tells authors a label is required for the
+	// front-end heading to render. There's no "persistently empty" custom
+	// taxonomy label state.
+	const manuallyClearedTaxonomyRef = useRef( null );
+	const previousCustomTaxonomyStateRef = useRef( {
+		isCustomTaxonomy,
+		taxonomy,
+		rawLabel,
+	} );
+	useEffect( () => {
+		const previous = previousCustomTaxonomyStateRef.current;
+		if ( previous.isCustomTaxonomy !== isCustomTaxonomy || previous.taxonomy !== taxonomy ) {
+			manuallyClearedTaxonomyRef.current = null;
+		}
+		if (
+			isCustomTaxonomy &&
+			previous.isCustomTaxonomy &&
+			previous.taxonomy === taxonomy &&
+			previous.rawLabel &&
+			! rawLabel
+		) {
+			manuallyClearedTaxonomyRef.current = taxonomy;
+		}
+		previousCustomTaxonomyStateRef.current = {
+			isCustomTaxonomy,
+			taxonomy,
+			rawLabel,
+		};
+		if ( ! isCustomTaxonomy ) {
+			return;
+		}
+		if ( ! Array.isArray( taxonomies ) || ! taxonomy ) {
+			return;
+		}
+		if ( rawLabel ) {
+			return;
+		}
+		if ( manuallyClearedTaxonomyRef.current === taxonomy ) {
+			return;
+		}
+		const match = taxonomies.find( t => t?.slug === taxonomy );
+		if ( match?.name ) {
+			setAttributes( { label: match.name } );
+		}
+	}, [ isCustomTaxonomy, taxonomies, taxonomy, rawLabel, setAttributes ] );
 
 	// Swapping the filter type via the inspector shouldn't wipe an author's
 	// custom label, but when the stored label still matches the prior

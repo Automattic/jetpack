@@ -73,6 +73,9 @@ const buildCustomStyles = ( attributes, scope ) => {
 		buttonAlignment,
 		buttonBorderRadius,
 		contentAlignment,
+		blockBorder,
+		blockBorderRadius,
+		displayMode,
 	} = attributes;
 
 	const rules = [];
@@ -188,6 +191,20 @@ const buildCustomStyles = ( attributes, scope ) => {
 		} else {
 			rules.push( `${ scope } .donations__donate-button-wrapper{text-align:${ buttonAlignment }}` );
 		}
+	}
+
+	if ( displayMode !== 'modal' ) {
+		const wrapperBorderDecls = [
+			...borderDecls( blockBorder ),
+			...radiusDecls( blockBorderRadius ),
+		];
+		if ( wrapperBorderDecls.length ) {
+			rules.push( `.wp-block-jetpack-donations${ scope }{${ wrapperBorderDecls.join( ';' ) }}` );
+		}
+	}
+
+	if ( displayMode === 'modal' && [ 'left', 'center', 'right' ].includes( contentAlignment ) ) {
+		rules.push( `${ scope }{text-align:${ contentAlignment }}` );
 	}
 
 	return rules.join( '' );

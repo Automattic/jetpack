@@ -18,6 +18,7 @@
 		{ "name": "default", "label": "Default", "isDefault": true },
 		{ "name": "compact", "label": "Compact" }
 	],
+	"usesContext": [ "jetpack-search/inInteractiveScope" ],
 	"textdomain": "jetpack-search-pkg",
 	"attributes": {
 		"label": { "type": "string", "default": "" },

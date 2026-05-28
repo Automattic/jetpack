@@ -33,6 +33,11 @@ class Create_AI_Podcast_Page {
 	const STYLE_HANDLE      = 'jetpack-create-ai-podcast';
 	const EPISODES_PER_PAGE = 5;
 
+	/**
+	 * Maximum number of posts that can be selected when generating from specific posts.
+	 */
+	const MAX_SELECTED_POSTS = 25;
+
 	const POST_PUBLISH_PROMO_SCRIPT_HANDLE    = 'jetpack-post-publish-podcast-promo';
 	const POST_PUBLISH_PROMO_DISMISSED_OPTION = 'jetpack_posts_to_podcast_post_publish_promo_dismissed';
 	const POST_PUBLISH_PROMO_MIN_POSTS        = 5;
@@ -342,7 +347,10 @@ class Create_AI_Podcast_Page {
 	 * @return array<string, mixed>
 	 */
 	private static function build_localized_data(): array {
+		$max_posts = self::MAX_SELECTED_POSTS;
+
 		return array(
+			'maxPosts'  => $max_posts,
 			'endpoints' => array(
 				'enqueue'  => '/wpcom/v2/posts-to-podcast',
 				'job'      => '/wpcom/v2/posts-to-podcast/jobs/',
@@ -404,6 +412,8 @@ class Create_AI_Podcast_Page {
 				'noPostsFound'        => __( 'No posts match.', 'jetpack-podcast' ),
 				'loadingPosts'        => __( 'Loading posts…', 'jetpack-podcast' ),
 				'pickPosts'           => __( 'Select at least one post to continue.', 'jetpack-podcast' ),
+				// translators: %d: maximum number of posts that can be selected.
+				'maxPostsReached'     => sprintf( __( 'You can select up to %d posts.', 'jetpack-podcast' ), $max_posts ),
 				'upgradeCta'          => __( 'Upgrade plan', 'jetpack-podcast' ),
 				'episodesTitle'       => __( 'Generated podcasts', 'jetpack-podcast' ),
 				'episodesEmpty'       => __( 'No generated podcasts yet.', 'jetpack-podcast' ),
@@ -630,9 +640,8 @@ class Create_AI_Podcast_Page {
 	 * Simple (wpcom) path: rest_do_request can't reach the posts-to-podcast
 	 * endpoint here — the wpcom REST plugin loader gates the endpoint files
 	 * behind REST_API_PLUGINS, which isn't set in admin context. Call the
-	 * underlying wpcom helpers directly. Permissions are still enforced
-	 * (admin caps required to render this page, automattician gate replicated
-	 * below).
+	 * underlying wpcom helpers directly. Permissions are still enforced via
+	 * the admin caps required to render this page.
 	 *
 	 * @return array
 	 */
@@ -641,11 +650,6 @@ class Create_AI_Podcast_Page {
 			'quota'    => null,
 			'episodes' => self::empty_episodes_envelope(),
 		);
-
-		if ( function_exists( 'is_automattician' ) && ! is_automattician() ) {
-			$bootstrap['quota'] = array( 'notAvailable' => true );
-			return $bootstrap;
-		}
 
 		if ( ! function_exists( 'require_lib' ) ) {
 			return $bootstrap;
@@ -810,6 +814,17 @@ class Create_AI_Podcast_Page {
 								id="jetpack-create-ai-podcast-posts-search"
 								placeholder="<?php echo esc_attr__( 'Type to filter…', 'jetpack-podcast' ); ?>"
 							>
+							<p class="jetpack-create-ai-podcast__field-hint">
+								<?php
+								echo esc_html(
+									sprintf(
+										/* translators: %d: maximum number of posts that can be selected. */
+										__( 'You can choose up to %d posts.', 'jetpack-podcast' ),
+										self::MAX_SELECTED_POSTS
+									)
+								);
+								?>
+							</p>
 							<div class="jetpack-create-ai-podcast__posts" data-region="posts"></div>
 						</div>
 

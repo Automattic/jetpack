@@ -1,4 +1,0 @@
-Significance: patch
-Type: removed
-
-Remove dead legacy grunion assets: grunion-admin.js, grunion-frontend.js, grunion-admin.css, and 13 unused images.

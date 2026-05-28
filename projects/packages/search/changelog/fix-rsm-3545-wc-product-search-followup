@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Search: reject experience requests combined with ai_answers_enabled or search_suggestions_enabled instead of silently dropping them, and gate the WooCommerce product-search template override on the active experience so a stale option can't keep rerouting after a switch away from a server-rendered experience.

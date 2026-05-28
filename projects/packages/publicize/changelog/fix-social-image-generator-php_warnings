@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-SIG: Prevent PHP warning when setting key doesn't exist. 

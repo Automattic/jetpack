@@ -16,6 +16,33 @@ Do not re-implement any of this in the subclass:
 - **WP < 6.9 compatibility** — guards every call to `wp_register_ability_category()` and `wp_register_ability()` with `function_exists()`.
 - **Category auto-injection** — if a spec in `get_abilities()` omits the `category` key, the base class injects `get_category_slug()`. Don't set `category` manually.
 
+### When the category is registered upstream (preferred for site-wide abilities)
+
+The skill steers you toward shared/core categories (e.g. `site`) when the abilities are general site management. In that case **you don't register the category** — WordPress core / wpcom already did. Override `register_category()` to a no-op:
+
+```php
+public static function get_category_slug(): string {
+    return 'site';
+}
+
+// Required by the abstract parent but unused — the `site` category is
+// already registered upstream so we don't re-declare it.
+public static function get_category_definition(): array {
+    return array(
+        'label'       => __( 'Site', 'jetpack-<pkg>' ),
+        'description' => __( 'Site-wide management abilities (registered upstream).', 'jetpack-<pkg>' ),
+    );
+}
+
+// `Registrar::init()` still hooks this onto `wp_abilities_api_categories_init`;
+// making it a no-op avoids "already registered" notices.
+public static function register_category() {
+    // No-op: `site` is registered upstream.
+}
+```
+
+`register_abilities()` keeps its normal behavior. Ability slugs are still product-namespaced (`jetpack-backup/get-backup-overview`) — the category and the slug prefix are independent.
+
 The subclass just needs the three abstract getters plus execute + permission callbacks.
 
 ## Plugin-context template
@@ -108,6 +135,10 @@ class <Name>_Abilities extends Registrar {
 						'destructive' => false,
 						'idempotent'  => true,
 					),
+					'mcp'          => array(
+						'public' => true,
+						'type'   => 'tool',
+					),
 					'show_in_rest' => true,
 				),
 			),
@@ -149,6 +180,10 @@ class <Name>_Abilities extends Registrar {
 						'readonly'    => false,
 						'destructive' => false,
 						'idempotent'  => true,
+					),
+					'mcp'          => array(
+						'public' => true,
+						'type'   => 'tool',
 					),
 					'show_in_rest' => true,
 				),

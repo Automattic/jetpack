@@ -12,6 +12,22 @@ jest.mock( '@wordpress/components', () => ( {
 			{ children }
 		</section>
 	),
+	Placeholder: ( { label, instructions, children } ) => (
+		<div data-testid="placeholder" aria-label={ label }>
+			<p>{ instructions }</p>
+			{ children }
+		</div>
+	),
+	Button: ( { children, href, ...rest } ) =>
+		href ? (
+			<a href={ href } { ...rest }>
+				{ children }
+			</a>
+		) : (
+			<button type="button" { ...rest }>
+				{ children }
+			</button>
+		),
 	ToggleControl: ( { label, checked, onChange } ) => {
 		const id = `toggle-${ String( label ).toLowerCase().replace( /\s+/g, '-' ) }`;
 		return (
@@ -44,6 +60,13 @@ jest.mock( '@wordpress/components', () => ( {
 } ) );
 
 describe( 'AiAnswerEdit', () => {
+	afterEach( () => {
+		// `supportsPaidSearch()` reads window.JetpackSearchBlocksConfig on
+		// every render, so resetting between tests keeps a single case
+		// from pinning the gate state for everything that follows.
+		delete globalThis.JetpackSearchBlocksConfig;
+	} );
+
 	it( 'renders the default heading when none is set', () => {
 		render( <AiAnswerEdit attributes={ {} } setAttributes={ () => {} } /> );
 		expect( screen.getByText( 'AI answer' ) ).toBeInTheDocument();
@@ -89,5 +112,32 @@ describe( 'AiAnswerEdit', () => {
 			target: { value: 'Quick reply' },
 		} );
 		expect( setAttributes ).toHaveBeenCalledWith( { heading: 'Quick reply' } );
+	} );
+
+	it( 'renders the upgrade Placeholder instead of the preview when supportsPaidSearch is false', () => {
+		globalThis.JetpackSearchBlocksConfig = { supportsPaidSearch: false };
+		render( <AiAnswerEdit attributes={ {} } setAttributes={ () => {} } /> );
+
+		expect( screen.getByTestId( 'placeholder' ) ).toBeInTheDocument();
+		// The Upgrade button is a link to the search upgrade page — utm
+		// suffix differentiates this surface in analytics.
+		const upgradeLink = screen.getByRole( 'link', { name: 'Upgrade Jetpack Search' } );
+		expect( upgradeLink ).toHaveAttribute(
+			'href',
+			'https://jetpack.com/upgrade/search/?utm_source=ai-answer-block'
+		);
+		// Preview / inspector are hidden so the author isn't tweaking
+		// attributes for a block that won't render.
+		expect( screen.queryByText( 'Getting started with WordPress' ) ).not.toBeInTheDocument();
+		expect( screen.queryByTestId( 'inspector' ) ).not.toBeInTheDocument();
+		expect( screen.queryByText( 'Show more' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'renders the preview when supportsPaidSearch is explicitly true', () => {
+		globalThis.JetpackSearchBlocksConfig = { supportsPaidSearch: true };
+		render( <AiAnswerEdit attributes={ {} } setAttributes={ () => {} } /> );
+
+		expect( screen.queryByTestId( 'placeholder' ) ).not.toBeInTheDocument();
+		expect( screen.getByText( 'AI answer' ) ).toBeInTheDocument();
 	} );
 } );

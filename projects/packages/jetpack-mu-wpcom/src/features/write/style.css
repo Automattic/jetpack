@@ -265,6 +265,12 @@
 	outline: none;
 }
 
+/* "Save draft" only appears in the kebab menu on narrow screens
+   where the standalone toolbar button is hidden. */
+.bw-more-save-draft {
+	display: none;
+}
+
 /* ===== Recovery banner ===== */
 .bw-recovery-banner {
 	position: fixed;
@@ -272,6 +278,7 @@
 	left: 0;
 	right: 0;
 	z-index: 100001;
+	box-sizing: border-box;
 	height: 44px;
 	background: #fef8ee;
 	border-bottom: 1px solid #f0e0c0;
@@ -1151,6 +1158,10 @@
 	text-wrap: stable;
 }
 
+.bw-content mark.has-inline-color {
+	background-color: transparent;
+}
+
 .bw-content.bw-is-empty {
 	position: relative;
 }
@@ -1202,6 +1213,21 @@
 	margin: 1.5em 0;
 	color: #555;
 	font-style: italic;
+}
+
+.bw-content blockquote cite {
+	display: block;
+	font-style: normal;
+	font-size: 0.9em;
+	color: #777;
+	margin-top: 0.5em;
+	outline: none;
+}
+
+.bw-content blockquote cite:empty::before {
+	content: attr(data-placeholder);
+	color: #aaa;
+	pointer-events: none;
 }
 
 .bw-content hr {
@@ -1270,9 +1296,50 @@
 /* Images in content */
 .bw-content figure,
 .bw-content .bw-image-figure {
-	margin: 2em 0;
+	margin: 2em auto;
 	padding: 0;
 	position: relative;
+	text-align: center;
+}
+
+/* Image size presets.
+ * Map to core wp:image sizeSlug values; Full is the default (no constraint).
+ * `width` (not max-width) is applied at the figure level so the figure
+ * renders at the same visual width across alignments: a floated figure
+ * with only max-width shrink-to-fits to the img's natural size, while a
+ * block-level figure expands to the cap, producing different widths for
+ * left/right vs. center.  width forces a consistent box. */
+.bw-content figure.size-thumbnail {
+	width: 150px;
+	max-width: 100%;
+}
+
+.bw-content figure.size-medium {
+	width: 50%;
+}
+
+.bw-content figure.size-large {
+	width: 75%;
+}
+
+.bw-content figure.size-full {
+	width: 100%;
+}
+
+.bw-content figure.size-thumbnail img,
+.bw-content figure.size-medium img,
+.bw-content figure.size-large img,
+.bw-content figure.size-full img {
+	max-width: 100%;
+	height: auto;
+}
+
+/* Center images horizontally inside the figure.  For sized figures the
+ * img already fills the figure box, so this is a no-op visually; for
+ * URL-pasted (non-sized) figures it centers a smaller-than-parent img. */
+.bw-content figure img {
+	margin-left: auto;
+	margin-right: auto;
 }
 
 .bw-content figure .bw-img-controls,
@@ -1405,6 +1472,85 @@
 	background: rgba(33, 113, 177, 0.85);
 }
 
+/* Size button — mirrors .bw-img-caption-btn styling, sits to its right. */
+.bw-img-size {
+	position: absolute;
+	bottom: 10px;
+	left: 130px;
+	padding: 4px 10px;
+	border-radius: 4px;
+	background: rgba(0, 0, 0, 0.6);
+	backdrop-filter: blur(4px);
+	color: #fff;
+	border: none;
+	font-size: 11px;
+	font-weight: 600;
+	cursor: pointer;
+	opacity: 0;
+	transform: scale(0.8);
+	transition: opacity 0.15s ease, transform 0.15s ease, background 0.15s ease;
+	z-index: 5;
+}
+
+.bw-img-controls:hover .bw-img-size,
+.bw-img-controls:focus-within .bw-img-size {
+	opacity: 1;
+	transform: scale(1);
+}
+
+.bw-img-size:hover {
+	background: rgba(33, 113, 177, 0.85);
+}
+
+.bw-img-size-menu {
+	position: absolute;
+	bottom: 40px;
+	left: 130px;
+	z-index: 6;
+	background: rgba(0, 0, 0, 0.8);
+	backdrop-filter: blur(8px);
+	border-radius: 6px;
+	padding: 4px;
+	min-width: 110px;
+	box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+	animation: bw-fade-in 0.12s ease;
+}
+
+.bw-img-size-menu[hidden] {
+	display: none;
+}
+
+.bw-img-size-option {
+	display: block;
+	width: 100%;
+	padding: 6px 10px 6px 24px;
+	border: none;
+	border-radius: 4px;
+	background: transparent;
+	text-align: start;
+	cursor: pointer;
+	font-family: inherit;
+	font-size: 12px;
+	color: #fff;
+	position: relative;
+	transition: background 0.1s ease;
+}
+
+.bw-img-size-option:hover {
+	background: rgba(255, 255, 255, 0.15);
+}
+
+.bw-img-size-option[aria-checked="true"] {
+	font-weight: 700;
+}
+
+.bw-img-size-option[aria-checked="true"]::before {
+	content: "✓";
+	position: absolute;
+	left: 8px;
+	font-weight: 700;
+}
+
 /* Figcaption.
  * `.wp-element-caption` is the class on saved markup served by the server
  * before JS upgrades it to `.bw-figcaption` — match both so reloaded
@@ -1454,7 +1600,8 @@
 	border: none;
 }
 
-/* Figure keyboard selection highlight */
+/* Two-step Backspace/Delete highlight: shown after the first press
+ * to confirm which figure the next press will delete. */
 .bw-figure-selected {
 	outline: 3px solid var(--wp-admin-theme-color, #3858e9);
 	outline-offset: 4px;
@@ -1690,6 +1837,129 @@
 	cursor: pointer;
 }
 
+/* ===== Post picker modal ===== */
+.bw-postpicker-overlay {
+	position: fixed;
+	inset: 0;
+	z-index: 1000001;
+	background: rgba(0, 0, 0, 0.4);
+	backdrop-filter: blur(4px);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	animation: bw-fade-in 0.15s ease;
+}
+
+.bw-postpicker-overlay[hidden] {
+	display: none;
+}
+
+.bw-postpicker-modal {
+	background: #fff;
+	border-radius: 12px;
+	padding: 32px;
+	width: 420px;
+	max-width: 90vw;
+	box-shadow: 0 8px 40px rgba(0, 0, 0, 0.15);
+	animation: bw-modal-appear 0.1s ease-out;
+}
+
+.bw-postpicker-title {
+	margin: 0 0 20px;
+	padding-bottom: 16px;
+	border-bottom: 1px solid #f0f0f0;
+	font-size: 18px;
+	font-weight: 600;
+	color: #1a1a1a;
+}
+
+.bw-postpicker-error {
+	font-size: 13px;
+	color: #d63638;
+	margin: 0 0 16px;
+}
+
+.bw-postpicker-error[hidden] {
+	display: none;
+}
+
+.bw-postpicker-label {
+	font-size: 11px;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.08em;
+	color: #999;
+	margin: 0 0 8px;
+	padding: 0 12px;
+	text-align: end;
+}
+
+.bw-postpicker-list {
+	margin-bottom: 0;
+}
+
+.bw-postpicker-item {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	width: 100%;
+	padding: 10px 12px;
+	border: none;
+	border-radius: 8px;
+	background: transparent;
+	cursor: pointer;
+	font-family: inherit;
+	text-align: start;
+	transition: background 0.1s ease;
+}
+
+.bw-postpicker-item:hover {
+	background: #f5f5f5;
+}
+
+.bw-postpicker-item-title {
+	font-size: 14px;
+	font-weight: 500;
+	color: #1a1a1a;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	flex: 1;
+}
+
+.bw-postpicker-item-untitled {
+	color: #999;
+	font-style: italic;
+}
+
+.bw-postpicker-item-date {
+	font-size: 12px;
+	color: #999;
+	flex-shrink: 0;
+	margin-inline-start: 12px;
+}
+
+.bw-postpicker-empty {
+	padding: 20px 0;
+	text-align: center;
+	color: #999;
+	font-size: 14px;
+	margin: 0 0 16px;
+}
+
+.bw-postpicker-input-row {
+	display: flex;
+	gap: 8px;
+	align-items: center;
+}
+
+.bw-postpicker-go {
+	flex-shrink: 0;
+	border-radius: 8px;
+	padding: 10px 16px;
+	white-space: nowrap;
+}
+
 /* ===== Floating "Write" FAB (shown on other pages) ===== */
 .bw-write-fab {
 	position: fixed;
@@ -1758,16 +2028,32 @@
 		padding: 0 16px;
 	}
 
+	.bw-recovery-banner,
+	.bw-disclaimer-banner {
+		padding: 0 16px;
+	}
+
+	.bw-recovery-btn {
+		height: auto;
+		padding: 8px 12px;
+	}
+
 	.bw-btn-draft {
 		display: none;
 	}
 
-	/* Toolbar scrolls horizontally on mobile */
+	.bw-more-save-draft:not([hidden]) {
+		display: block;
+	}
+
+	/* Toolbar scrolls horizontally on mobile. Avoid -webkit-overflow-scrolling:
+	   touch — it's deprecated and historically traps position:fixed descendants
+	   (like .bw-heading-menu / .bw-color-menu) inside this scroll container on
+	   iOS Safari, so the dropdowns can't paint outside the toolbar's bounds. */
 	.bw-toolbar-scroll {
 		justify-content: flex-start;
 		padding: 0 12px;
 		overflow-x: auto;
-		-webkit-overflow-scrolling: touch;
 		scrollbar-width: none;
 	}
 
@@ -1775,13 +2061,16 @@
 		display: none;
 	}
 
-	/* Escape the overflow scroll container on mobile */
+	/* Escape the overflow scroll container on mobile. Switching to position:
+	   fixed leaves the toolbar's stacking context, so the base z-index of 210
+	   no longer beats .bw-toolbar (99999) — re-declare a value above it. */
 	.bw-heading-menu {
 		position: fixed;
 		top: 104px;
 		left: 16px;
 		transform: none;
 		margin-top: 0;
+		z-index: 100000;
 	}
 
 	.bw-color-menu {
@@ -1791,6 +2080,7 @@
 		left: auto;
 		transform: none;
 		margin-top: 0;
+		z-index: 100000;
 	}
 
 	.bw-color-menu:not([hidden]) {

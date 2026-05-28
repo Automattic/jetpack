@@ -11,8 +11,35 @@
  */
 class PCG_Load_Tester {
 
-	const PROBE_TIMEOUT  = 15;
-	const TOKEN_LIFETIME = 30;
+	const PROBE_TIMEOUT = 15;
+
+	/**
+	 * Probe-token transient TTL, in seconds.
+	 *
+	 * Must outlast the *whole* probe, not a single hop: each followed
+	 * redirect (`redirects => 5`) is a fresh request that re-reads the same
+	 * transient, so the worst case is `PROBE_TIMEOUT` × several hops. The
+	 * old 30s was shorter than that and a slow redirect chain (e.g. the
+	 * force_ssl_admin http→https bounce on a sluggish site) could outlive
+	 * the token, making the endpoint bail with "Invalid or expired probe
+	 * token." `test()` deletes the transient in its `finally` block anyway,
+	 * so a generous TTL never leaks.
+	 */
+	const TOKEN_LIFETIME = 300;
+
+	/**
+	 * Engine-fatal mask used by the probe shutdown classifier. Anything
+	 * outside this mask (notice, warning, deprecation, or `error_get_last`
+	 * returning null after a clean `exit`) is treated as not-a-fatal.
+	 *
+	 * `E_RECOVERABLE_ERROR` is included even though it's "catchable" by a
+	 * custom `set_error_handler` — by the time PHP shutdown fires with
+	 * `error_get_last()` still pointing at it, no handler caught it, so
+	 * it terminated execution like any other fatal. The probe context
+	 * doesn't install a recovery handler, so the only way this errno
+	 * lands in `error_get_last()` here is the uncaught path.
+	 */
+	const SHUTDOWN_FATAL_MASK = E_ERROR | E_PARSE | E_CORE_ERROR | E_COMPILE_ERROR | E_USER_ERROR | E_RECOVERABLE_ERROR;
 
 	/** Activation guard: plugins are inactive; endpoint require_once's each. */
 	const MODE_ACTIVATION = 'activation';
@@ -80,13 +107,6 @@ class PCG_Load_Tester {
 		$front_result = $this->parse_response( $responses['front'] );
 		$admin_result = $this->parse_response( $responses['admin'] );
 
-		// Log transport-level errors (most often timeouts at PROBE_TIMEOUT)
-		// so we can see how often they fire before deciding whether to
-		// scale the timeout with batch size.
-		if ( $this->is_error( $front_result ) || $this->is_error( $admin_result ) ) {
-			$this->log_probe_error( $mode, $plugin_mains, $front_result, $admin_result );
-		}
-
 		// fatal/throwable wins; an inconclusive `error` from one probe must
 		// not shadow a real fatal from the other. Front-end is the canonical
 		// "site works" signal when neither probe captured a fatal.
@@ -96,6 +116,17 @@ class PCG_Load_Tester {
 		if ( $this->is_block( $admin_result ) ) {
 			return $admin_result;
 		}
+
+		// Neither probe blocked. Log if either verdict was a transport-level
+		// error or a synthesized ok-inconclusive (HTTP 500, marker+non-JSON,
+		// redirect-budget exhaustion) — those are the allow paths under the
+		// "only block on captured fatal" policy, and the log is how we
+		// measure how often we let an activation/update through despite a
+		// suspicious signal.
+		if ( $this->is_anomalous_allow( $front_result ) || $this->is_anomalous_allow( $admin_result ) ) {
+			$this->log_probe_anomaly( $mode, $plugin_mains, $front_result, $admin_result );
+		}
+
 		return $front_result;
 	}
 
@@ -124,10 +155,37 @@ class PCG_Load_Tester {
 	}
 
 	/**
-	 * Log a probe transport error to logstash whenever either probe came
-	 * back as `error` (timeout at PROBE_TIMEOUT, connection failure,
-	 * non-JSON body). Lets us measure timeout frequency vs. batch size
-	 * before deciding whether to scale `PROBE_TIMEOUT` with N.
+	 * Whether a verdict is one we chose to allow despite a suspicious
+	 * signal — either a transport `error` or a synthesized
+	 * `ok-inconclusive` from `parse_response` (HTTP 500, marker+non-JSON,
+	 * redirect-budget exhaustion, dropped probe query on redirect). We log
+	 * these so the dashboard can show the rate at which we're letting
+	 * activations through without a captured verdict — the cost of the
+	 * "only block on captured fatal" policy.
+	 *
+	 * @param array $result Probe verdict.
+	 * @return bool
+	 */
+	protected function is_anomalous_allow( $result ) {
+		if ( $this->is_error( $result ) ) {
+			return true;
+		}
+		$status = is_array( $result ) ? (string) ( $result['status'] ?? '' ) : '';
+		// `ok-shutdown` means the probe reached PHP shutdown without a
+		// wp_loaded/admin_init verdict — bootstrap died silently or a
+		// plugin called `exit` during init. Not a captured fatal, so we
+		// allow under the policy, but the rate is worth logging because
+		// it's the new replacement for the old "marker present, no
+		// JSON body" class.
+		return 'ok-inconclusive' === $status || 'ok-shutdown' === $status;
+	}
+
+	/**
+	 * Log a probe anomaly (transport error or synthesized
+	 * ok-inconclusive) to logstash whenever either probe came back as
+	 * such. Lets us measure how often we silently allow despite a
+	 * suspicious signal — the observability backstop for the
+	 * "only block on captured fatal" policy.
 	 *
 	 * @param string   $mode         Probe mode constant.
 	 * @param string[] $plugin_mains Absolute paths to plugin main PHP files.
@@ -135,16 +193,36 @@ class PCG_Load_Tester {
 	 * @param array    $admin_result Admin probe verdict.
 	 * @return void
 	 */
-	protected function log_probe_error( $mode, array $plugin_mains, array $front_result, array $admin_result ) {
+	protected function log_probe_anomaly( $mode, array $plugin_mains, array $front_result, array $admin_result ) {
 		pcg_log_event(
-			'Probe transport error',
+			'Probe anomaly allowed',
 			array(
 				'mode'    => $mode,
 				'plugins' => $this->relative_basenames( $plugin_mains ),
-				'front'   => $this->probe_error_reason( $front_result ),
-				'admin'   => $this->probe_error_reason( $admin_result ),
+				'front'   => $this->probe_anomaly_label( $front_result ),
+				'admin'   => $this->probe_anomaly_label( $admin_result ),
 			)
 		);
+	}
+
+	/**
+	 * One-line label for an anomalous-allow verdict — `<status>: <reason>`.
+	 * Lets a single log entry name both the class of allow (error vs
+	 * ok-inconclusive) and the underlying cause (HTTP 500, redirect
+	 * cycle, intercepted loopback, etc.). Reasons are author-written
+	 * sentences from `parse_response` and `pcg_log_event` already caps
+	 * payload size, so we don't truncate here.
+	 *
+	 * @param array $result Probe verdict.
+	 * @return string
+	 */
+	protected function probe_anomaly_label( array $result ) {
+		if ( ! $this->is_anomalous_allow( $result ) ) {
+			return '';
+		}
+		$status = (string) ( $result['status'] ?? '' );
+		$reason = (string) ( $result['reason'] ?? $result['message'] ?? '' );
+		return '' !== $reason ? $status . ': ' . $reason : $status;
 	}
 
 	/**
@@ -163,17 +241,6 @@ class PCG_Load_Tester {
 				: (string) $path;
 		}
 		return $out;
-	}
-
-	/**
-	 * One-line reason from a probe verdict — `reason` if set, else
-	 * `status`, else empty. Used for diagnostic logs.
-	 *
-	 * @param array $result Probe verdict.
-	 * @return string
-	 */
-	protected function probe_error_reason( array $result ) {
-		return (string) ( $result['reason'] ?? $result['status'] ?? '' );
 	}
 
 	/**
@@ -277,31 +344,57 @@ class PCG_Load_Tester {
 			);
 		}
 
+		// Policy: only block on a captured fatal (status=fatal from the
+		// shutdown handler's classify_shutdown, or status=throwable from
+		// the require-time catch). HTTP 500 and "marker present, no JSON
+		// verdict" are guesses at a fatal from outside the request — on
+		// real traffic, each is dominated by upstream LBs, edge proxies,
+		// intercepting plugins, engine death (segfault/OOM/FastCGI
+		// termination), or a mid-stream connection drop. Treat as
+		// `ok-inconclusive` (allow + log) so the user can proceed and
+		// `log_probe_anomaly` records the rate.
 		if ( 500 === $code ) {
 			return array(
-				'status'  => 'fatal',
-				'message' => 'Probe request returned HTTP 500 without a JSON verdict; the plugin likely fatals during load.',
+				'status' => 'ok-inconclusive',
+				'reason' => 'Probe loopback returned HTTP 500 without a JSON verdict; no captured fatal, so treating as inconclusive ok. Could be an upstream LB, edge proxy, intercepting plugin, or a real engine death we can\'t verify.',
 			);
 		}
 
 		if ( $code >= 200 && $code < 300 ) {
-			// Followed a redirect whose destination dropped the probe
-			// query. Bootstrap rendered cleanly, so don't block.
+			// Marker present + non-JSON 200: the probe endpoint ran but no
+			// verdict was written. With the shutdown handler always emitting
+			// a verdict, this branch is reachable mainly when the engine
+			// itself died (segfault, OOM kill, FastCGI process terminated)
+			// or a mid-stream connection drop / re-entry-guarded partial
+			// body. None is a captured fatal we can confidently attribute
+			// to a plugin, so allow + log per the policy above.
+			if ( $this->probe_endpoint_was_reached( $response ) ) {
+				return array(
+					'status' => 'ok-inconclusive',
+					'reason' => sprintf(
+						'Probe endpoint ran but no JSON verdict was emitted (HTTP %d). No captured PHP fatal, so treating as inconclusive ok. Most likely engine death (segfault / OOM kill / process terminated) or a connection drop mid-response.',
+						$code
+					),
+				);
+			}
+			// No marker, but a redirect was followed: the destination dropped
+			// the probe query and landed on a clean page. Bootstrap rendered
+			// fine, so don't block.
 			if ( $redirect_count > 0 ) {
 				return array(
 					'status' => 'ok-inconclusive',
 					'reason' => sprintf( 'Probe followed %d redirect(s) but destination dropped the probe query; treating as inconclusive ok.', $redirect_count ),
 				);
 			}
-			// Probe endpoint always emits JSON; a 2xx without one and no
-			// redirect means the bootstrap was terminated mid-flight
-			// (exit/die during load/init/admin_init).
+			// No marker and no redirect: the loopback never reached our
+			// endpoint — a full-page/edge cache, a security plugin, or a
+			// maintenance page answered with a 200. We learned nothing about
+			// the plugin, so this is an inconclusive transport `error` (logged,
+			// non-blocking) — NOT a fatal. Blocking here would reject a
+			// perfectly healthy plugin.
 			return array(
-				'status'  => 'fatal',
-				'message' => sprintf(
-					'Probe completed without a verdict (HTTP %d, non-JSON body). A plugin in the batch may have terminated the request during load, init, or admin_init.',
-					$code
-				),
+				'status' => 'error',
+				'reason' => sprintf( 'Probe loopback returned HTTP %d without reaching the PCG endpoint (cache or intercepting plugin).', $code ),
 			);
 		}
 
@@ -309,6 +402,21 @@ class PCG_Load_Tester {
 			'status' => 'error',
 			'reason' => sprintf( 'Probe returned HTTP %d without a verdict payload.', $code ),
 		);
+	}
+
+	/**
+	 * Whether the probe endpoint actually executed for this response.
+	 *
+	 * `probe-endpoint.php` sends `X-PCG-Probe: 1` the instant it recognises a
+	 * probe request. Its absence means the loopback was answered by something
+	 * else (cache layer, security plugin, maintenance page) before our code
+	 * ran. Header lookup is case-insensitive via `Requests`' Headers object.
+	 *
+	 * @param \WpOrg\Requests\Response $response Probe response.
+	 * @return bool
+	 */
+	protected function probe_endpoint_was_reached( $response ) {
+		return isset( $response->headers ) && isset( $response->headers['x-pcg-probe'] );
 	}
 
 	/**
@@ -373,6 +481,35 @@ class PCG_Load_Tester {
 			}
 		);
 		return $hooks;
+	}
+
+	/**
+	 * Classify a PHP shutdown into a probe verdict. Returns `fatal` only
+	 * for the engine-fatal error mask; anything else becomes
+	 * `ok-shutdown`, signalling that the bootstrap reached PHP shutdown
+	 * without a captured fatal but didn't reach the wp_loaded/admin_init
+	 * verdict point (typical of a plugin calling `exit` during init).
+	 *
+	 * Pure helper so the probe endpoint's shutdown handler can be
+	 * exercised without firing PHP shutdown in tests.
+	 *
+	 * @param array|null $error Result of `error_get_last()`.
+	 * @return array Probe verdict.
+	 */
+	public static function classify_shutdown( $error ) {
+		if ( is_array( $error ) && 0 !== ( ( (int) ( $error['type'] ?? 0 ) ) & self::SHUTDOWN_FATAL_MASK ) ) {
+			return array(
+				'status'  => 'fatal',
+				'errno'   => (int) $error['type'],
+				'message' => (string) ( $error['message'] ?? '' ),
+				'file'    => (string) ( $error['file'] ?? '' ),
+				'line'    => (int) ( $error['line'] ?? 0 ),
+			);
+		}
+		return array(
+			'status' => 'ok-shutdown',
+			'reason' => 'Probe reached shutdown without a captured fatal; bootstrap exited before wp_loaded/admin_init (likely a plugin-initiated exit/redirect during init).',
+		);
 	}
 
 	/**

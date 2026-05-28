@@ -1,4 +1,0 @@
-Significance: patch
-Type: changed
-
-Comment: Pre-release polish for the modernized VideoPress dashboard (gated behind rsm_jetpack_ui_modernization_videopress): empty states on the Most viewed / Top videos by watch time cards, neutral-toned date range button, breadcrumb on the Video details page now routes back to the tab the user came from, 660px ribbon on Settings + Video details, page-canvas color fix, monotone chart curve to stop apparent-negative dips, hidden grid filename on Library, and a clearer "Reset to site default" label on the row actions. Also fixes a free-tier counting bug where local (non-VideoPress) video attachments were gating a free user's first VideoPress upload, removes the now-unused mock hooks and fixtures, and renames CamelCase component folders/files to kebab-case.

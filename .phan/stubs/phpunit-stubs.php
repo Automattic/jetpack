@@ -1,6 +1,6 @@
 <?php
 /**
- * Stubs automatically generated from PHPUnit 12.5.25
+ * Stubs automatically generated from PHPUnit 12.5.28
  * using the definition file `tools/stubs/phpunit-stub-defs.php` in the Jetpack monorepo.
  *
  * Do not edit this directly! Run tools/stubs/update-stubs.sh to regenerate it.
@@ -7375,7 +7375,7 @@ abstract class Assert
     {
     }
     /**
-     * Asserts that two XML files are equal.
+     * Asserts that two XML files are equal, ignoring comments.
      *
      * @throws Exception
      * @throws ExpectationFailedException
@@ -7385,7 +7385,7 @@ abstract class Assert
     {
     }
     /**
-     * Asserts that two XML files are not equal.
+     * Asserts that two XML files are not equal, ignoring comments.
      *
      * @throws \PHPUnit\Util\Exception
      * @throws ExpectationFailedException
@@ -7394,7 +7394,7 @@ abstract class Assert
     {
     }
     /**
-     * Asserts that two XML documents are equal.
+     * Asserts that two XML documents are equal, ignoring comments.
      *
      * @throws ExpectationFailedException
      * @throws \PHPUnit\Util\Xml\XmlException
@@ -7403,7 +7403,7 @@ abstract class Assert
     {
     }
     /**
-     * Asserts that two XML documents are not equal.
+     * Asserts that two XML documents are not equal, ignoring comments.
      *
      * @throws ExpectationFailedException
      * @throws \PHPUnit\Util\Xml\XmlException
@@ -7412,7 +7412,7 @@ abstract class Assert
     {
     }
     /**
-     * Asserts that two XML documents are equal.
+     * Asserts that two XML documents are equal, ignoring comments.
      *
      * @throws ExpectationFailedException
      * @throws \PHPUnit\Util\Xml\XmlException
@@ -7421,7 +7421,7 @@ abstract class Assert
     {
     }
     /**
-     * Asserts that two XML documents are not equal.
+     * Asserts that two XML documents are not equal, ignoring comments.
      *
      * @throws ExpectationFailedException
      * @throws \PHPUnit\Util\Xml\XmlException
@@ -9800,7 +9800,7 @@ function assertStringEndsNotWith(string $suffix, string $string, string $message
 {
 }
 /**
- * Asserts that two XML files are equal.
+ * Asserts that two XML files are equal, ignoring comments.
  *
  * @throws Exception
  * @throws ExpectationFailedException
@@ -9814,7 +9814,7 @@ function assertXmlFileEqualsXmlFile(string $expectedFile, string $actualFile, st
 {
 }
 /**
- * Asserts that two XML files are not equal.
+ * Asserts that two XML files are not equal, ignoring comments.
  *
  * @throws \PHPUnit\Util\Exception
  * @throws ExpectationFailedException
@@ -9827,7 +9827,7 @@ function assertXmlFileNotEqualsXmlFile(string $expectedFile, string $actualFile,
 {
 }
 /**
- * Asserts that two XML documents are equal.
+ * Asserts that two XML documents are equal, ignoring comments.
  *
  * @throws ExpectationFailedException
  * @throws \PHPUnit\Util\Xml\XmlException
@@ -9840,7 +9840,7 @@ function assertXmlStringEqualsXmlFile(string $expectedFile, string $actualXml, s
 {
 }
 /**
- * Asserts that two XML documents are not equal.
+ * Asserts that two XML documents are not equal, ignoring comments.
  *
  * @throws ExpectationFailedException
  * @throws \PHPUnit\Util\Xml\XmlException
@@ -9853,7 +9853,7 @@ function assertXmlStringNotEqualsXmlFile(string $expectedFile, string $actualXml
 {
 }
 /**
- * Asserts that two XML documents are equal.
+ * Asserts that two XML documents are equal, ignoring comments.
  *
  * @throws ExpectationFailedException
  * @throws \PHPUnit\Util\Xml\XmlException
@@ -9866,7 +9866,7 @@ function assertXmlStringEqualsXmlString(string $expectedXml, string $actualXml, 
 {
 }
 /**
- * Asserts that two XML documents are not equal.
+ * Asserts that two XML documents are not equal, ignoring comments.
  *
  * @throws ExpectationFailedException
  * @throws \PHPUnit\Util\Xml\XmlException
@@ -28847,13 +28847,13 @@ final readonly class Loader
     /**
      * @throws XmlException
      */
-    public function loadFile(string $filename): \DOMDocument
+    public function loadFile(string $filename, bool $ignoreComments = false): \DOMDocument
     {
     }
     /**
      * @throws XmlException
      */
-    public function load(string $actual): \DOMDocument
+    public function load(string $actual, bool $ignoreComments = false): \DOMDocument
     {
     }
 }
@@ -32024,6 +32024,18 @@ final class ComparisonFailure extends \RuntimeException
     public function __construct(mixed $expected, mixed $actual, string $expectedAsString, string $actualAsString, string $message = '')
     {
     }
+    /**
+     * @return array{expected: mixed, actual: mixed, expectedAsString: string, actualAsString: string, message: string}
+     */
+    public function __serialize(): array
+    {
+    }
+    /**
+     * @param array{expected: mixed, actual: mixed, expectedAsString: string, actualAsString: string, message: string} $data
+     */
+    public function __unserialize(array $data): void
+    {
+    }
     public function getActual(): mixed
     {
     }
@@ -32830,13 +32842,23 @@ final class Runtime
     }
     /**
      * Parses the loaded php.ini file (if any) as well as all
-     * additional php.ini files from the additional ini dir for
-     * a list of all configuration settings loaded from files
-     * at startup. Then checks for each php.ini setting passed
-     * via the `$values` parameter whether this setting has
-     * been changed at runtime. Returns an array of strings
-     * where each string has the format `key=value` denoting
-     * the name of a changed php.ini setting with its new value.
+     * additional php.ini files from the additional ini dir into a
+     * single merged map of settings, and also obtains the compiled-in
+     * defaults by spawning a `php -n` child once per process.
+     * Then checks for each setting passed via the `$values` parameter
+     * whether the runtime value (`ini_get()`) differs from what the
+     * ini files specified or, when a setting is not configured in any
+     * ini file, from the compiled-in default. Returns an array of
+     * `key=value` strings for the changed settings.
+     *
+     * A setting whose runtime value is the empty string but that is
+     * absent from both the ini files and the compiled-in defaults is
+     * left alone: there is no evidence that it was overridden, so it
+     * is not forwarded. This avoids spurious empty overrides for
+     * settings of extensions that are not visible to the compiled-in
+     * defaults probe (e.g. extensions loaded only via php.ini), which
+     * would otherwise break child processes (see
+     * https://github.com/sebastianbergmann/environment/issues/99).
      *
      * @param list<string> $values
      *

@@ -1,10 +1,10 @@
-import JetpackFooter from '@automattic/jetpack-components/jetpack-footer';
-import JetpackLogo from '@automattic/jetpack-components/jetpack-logo';
-import { Page } from '@wordpress/admin-ui';
+import analytics from '@automattic/jetpack-analytics';
+import AdminPage from '@automattic/jetpack-components/admin-page';
+import { getSiteData, getSiteType } from '@automattic/jetpack-script-data';
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { useNavigate } from '@wordpress/route';
-import { Stack, Tabs } from '@wordpress/ui';
+import { Tabs } from '@wordpress/ui';
 import { getNewsletterScriptData } from '../../src/settings/script-data';
 import './newsletter-page.scss';
 import type { ReactNode } from 'react';
@@ -47,11 +47,12 @@ const SUBTITLES: Record< NewsletterTab, () => string > = {
 };
 
 /**
- * Shared chrome for the unified Newsletter page — owns the `Page` from
- * `@wordpress/admin-ui` plus the Subscribers / Settings tab nav. The shell
- * always passes `hasPadding={ false }` to `Page` and applies its own padding
- * to the tab bar + content via `newsletter-page.scss`, so the bar holds a
- * consistent position no matter which tab is active.
+ * Shared chrome for the unified Newsletter page — owns the `AdminPage` from
+ * `@automattic/jetpack-components` plus the Subscribers / Settings tab nav.
+ * `AdminPage` supplies the Jetpack header (logo + title) and footer and the
+ * shared `jetpack-admin-page-layout-wp-build` layout (fixed-position content
+ * column, scrolling middle, pinned footer); the shell adds the tab bar +
+ * content padding via `newsletter-page.scss`.
  *
  * The Subscribers tab is hidden when
  * `jetpack_wp_admin_subscriber_management_enabled` is filtered to false
@@ -87,6 +88,12 @@ export default function NewsletterPage( {
 			if ( next !== 'subscribers' && next !== 'settings' ) {
 				return;
 			}
+			if ( next !== activeTab ) {
+				analytics.tracks.recordEvent( 'jetpack_newsletter_tab_view', {
+					site_type: getSiteType(),
+					tab: next,
+				} );
+			}
 			navigate( {
 				search: {
 					tab: next === 'settings' ? 'settings' : undefined,
@@ -95,34 +102,28 @@ export default function NewsletterPage( {
 				},
 			} as unknown as Parameters< typeof navigate >[ 0 ] );
 		},
-		[ navigate ]
+		[ activeTab, navigate ]
 	);
 
 	const contentClass = contentHasPadding
 		? 'jetpack-newsletter-page__content jetpack-newsletter-page__content--padded'
 		: 'jetpack-newsletter-page__content';
 
-	// Render the Jetpack mark alongside the product name in the page header,
-	// matching the title convention other modernized Jetpack products
-	// (Forms, Backup, VideoPress) use on the wp-build chassis.
-	const title = (
-		<Stack direction="row" align="center" gap="sm">
-			<JetpackLogo height={ 20 } showText={ false } />
-			{ /* "Newsletter" is a product name, do not translate. */ }
-			<span>{ PRODUCT_NAME }</span>
-		</Stack>
-	);
-
 	return (
-		<Page
-			title={ title }
-			ariaLabel={ PRODUCT_NAME }
+		<AdminPage
+			apiRoot={ getSiteData()?.rest_root }
+			apiNonce={ getSiteData()?.rest_nonce }
+			title={ PRODUCT_NAME }
 			subTitle={ SUBTITLES[ activeTab ]() }
 			actions={ actions }
-			hasPadding={ false }
+			showFooter={ ! hideFooter }
 		>
 			{ subscribersEnabled ? (
-				<Tabs.Root value={ activeTab } onValueChange={ onTabChange }>
+				<Tabs.Root
+					className="jetpack-newsletter-tabs"
+					value={ activeTab }
+					onValueChange={ onTabChange }
+				>
 					<div className="jp-admin-page-tabs jp-admin-page-tabs--minimal">
 						<Tabs.List variant="minimal">
 							<Tabs.Tab value="subscribers">{ __( 'Subscribers', 'jetpack-newsletter' ) }</Tabs.Tab>
@@ -134,7 +135,6 @@ export default function NewsletterPage( {
 			) : (
 				<div className={ contentClass }>{ children }</div>
 			) }
-			{ ! hideFooter && <JetpackFooter /> }
-		</Page>
+		</AdminPage>
 	);
 }

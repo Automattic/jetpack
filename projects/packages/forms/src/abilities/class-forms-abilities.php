@@ -161,6 +161,10 @@ class Forms_Abilities extends Registrar {
 					'idempotent'  => true,
 				),
 				'show_in_rest' => true,
+				'mcp'          => array(
+					'public' => true,
+					'type'   => 'tool', // default is already "tool", but can be explicit.
+				),
 			),
 		);
 	}
@@ -192,6 +196,10 @@ class Forms_Abilities extends Registrar {
 					'idempotent'  => true,
 				),
 				'show_in_rest' => true,
+				'mcp'          => array(
+					'public' => true,
+					'type'   => 'tool', // default is already "tool", but can be explicit.
+				),
 			),
 		);
 	}
@@ -233,6 +241,10 @@ class Forms_Abilities extends Registrar {
 					'idempotent'  => false,
 				),
 				'show_in_rest' => true,
+				'mcp'          => array(
+					'public' => true,
+					'type'   => 'tool', // default is already "tool", but can be explicit.
+				),
 			),
 		);
 	}
@@ -264,6 +276,10 @@ class Forms_Abilities extends Registrar {
 					'idempotent'  => true,
 				),
 				'show_in_rest' => true,
+				'mcp'          => array(
+					'public' => true,
+					'type'   => 'tool', // default is already "tool", but can be explicit.
+				),
 			),
 		);
 	}
@@ -337,6 +353,10 @@ class Forms_Abilities extends Registrar {
 					'idempotent'  => true,
 				),
 				'show_in_rest' => true,
+				'mcp'          => array(
+					'public' => true,
+					'type'   => 'tool', // default is already "tool", but can be explicit.
+				),
 			),
 		);
 	}
@@ -377,6 +397,10 @@ class Forms_Abilities extends Registrar {
 					'idempotent'  => true,
 				),
 				'show_in_rest' => true,
+				'mcp'          => array(
+					'public' => true,
+					'type'   => 'tool', // default is already "tool", but can be explicit.
+				),
 			),
 		);
 	}
@@ -415,6 +439,10 @@ class Forms_Abilities extends Registrar {
 					'idempotent'  => true,
 				),
 				'show_in_rest' => true,
+				'mcp'          => array(
+					'public' => true,
+					'type'   => 'tool', // default is already "tool", but can be explicit.
+				),
 			),
 		);
 	}
@@ -464,6 +492,10 @@ class Forms_Abilities extends Registrar {
 					'idempotent'  => true,
 				),
 				'show_in_rest' => true,
+				'mcp'          => array(
+					'public' => true,
+					'type'   => 'tool', // default is already "tool", but can be explicit.
+				),
 			),
 		);
 	}

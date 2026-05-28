@@ -5,6 +5,73 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [7.1.0] - 2026-05-25
+### Added
+- Experience Selector: Add a new "Overlay search" card backed by the experimental blocks-powered overlay; the legacy preact Overlay is renamed to "Overlay search (legacy)" when the new card is visible. [#48994]
+- Experience Selector: Release the blocks-powered Overlay as an experimental option, surfaced as an "Overlay search (blocks)" card with a Beta badge alongside the preact Overlay. [#49118]
+- Search: Internal — add a `Filter_Static` helper class and a `staticFilterSelections` seed slot on the shared Interactivity state. Foundation for the upcoming `jetpack-search/filter-static` block. [#49039]
+- Search Blocks: Add a "Post types" setting to the Search Input block so authors can scope a search to specific post types directly on the input. [#49078]
+- Search Blocks: Add an opt-in "Load on scroll" mode to the Load More block. [#49046]
+- Search Blocks: Embedded search experience now works on classic themes, with an "Edit search template" link that opens the bundled template in the block editor. [#49117]
+- Search Blocks: The Filters and Product Filters containers now show a "No filters available" empty state when a search resolves with no facets to show. [#49089]
+- Search Blocks overlay: Add an "Edit the Search overlay" entry point in the Jetpack Search dashboard that opens the experimental overlay template in the block editor. A "Restore default" link reverts to the bundled template. [#49028]
+
+### Changed
+- Search: Internal — store now recognizes a `kind: 'static'` flag on `filterConfigs` entries to round-trip single-select selections through scalar `?filter_id=value` URL params. Foundation for the upcoming `jetpack-search/filter-static` block. [#49038]
+- Search Blocks: Add a small top gap between the Search Input header and the first row of results inside the blocks-powered Overlay. [#49120]
+- Search Blocks: Add horizontal gutters and a content-width cap to the Embedded search page on classic themes. Honors `--wp--style--global--wide-size` when a classic theme ships `theme.json`. [#49127]
+- Search Blocks: Add a test-only helper for the paid-search gate. No runtime behavior change. [#49035]
+- Search Blocks: Default the Clear Filters button to the Compact style in the Filters and Product Filters compositions. [#49087]
+- Search Blocks: Enable the Interactivity-API Search blocks by default. The `jetpack_search_blocks_enabled` filter is retained as a kill-switch. [#49037]
+- Search Blocks: Add an opt-in responsive `displayMode` to the Filters popover — inline filters on wider screens that collapse to the popover trigger on narrow ones. [#49045]
+- Search Blocks: Gate the AI Answer block behind a paid Search plan. [#49033]
+- Search blocks: Skip the server-side search query in the Embedded and blocks Overlay experiences, where results are fetched client-side. [#49074]
+- Search Blocks: Require WooCommerce 6.5 or newer for the WooCommerce-only filter blocks to register. [#49091]
+- Search Blocks: The WooCommerce filter blocks (product attribute, price, rating, and stock-status filters) now follow WooCommerce's active state instead of being force-disabled. The `jetpack_search_woocommerce_blocks_enabled` filter remains available to force the gate either way. [#49085]
+- Search dashboard: Rename the "Plan & Usage" tab to "Overview". [#49041]
+- Search dashboard: Route tabs via the URL hash (`#/<slug>`) instead of the `?tab=<slug>` query parameter. Existing `?tab=<slug>` URLs are normalized on mount. [#49042]
+
+### Fixed
+- Instant Search: Scope the search suggestions dropdown to the overlay box input, stopping it from leaking onto the WP Admin bar search. [#49090]
+- Search Blocks: Hide the Load More button while the "Loading…" indicator is showing. [#49044]
+- Search Blocks: Overlay shell honors theme color tokens, so the modal stays readable on dark block themes. [#49125]
+- Search blocks: Render the active theme's header/footer template parts on the search page instead of the hardcoded `header` / `footer` slugs. [#49026]
+- Search Blocks: The Search Input suggestions panel inside the blocks-powered Overlay now renders cleanly on top of the results and filters area. [#49124]
+- Search Blocks overlay: Auto-open on initial page load when the URL contains `?s=` or `?q=`. [#49073]
+- Search Dashboard: Gate Reader Chat controls by Search plan support and usage status, and show a Preview badge beside the Reader Chat toggle. [#48890]
+- Search Dashboard: Improve Overview tab responsiveness at tablet widths. [#49128]
+- Search dashboard: Mirror the `jetpack_search_blocks_enabled` server default in the React initial state so the Experience Selector renders on stock sites. [#49116]
+- Search Dashboard: Route sites without instant search support (including Atomic) to the pricing upsell page instead of showing the Overview tab's mocked-only state. [#49119]
+
+## [7.0.0] - 2026-05-21
+### Added
+- Search: Add a "Compact" block style to the Clear Filters block and stop it inheriting the core Button block styling that rendered oversized on some themes — the default now uses the theme's lighter button baseline. [#48946]
+- Search: add an AI Answer block (`jetpack-search/ai-answer`) so authors can surface the AI Answers panel inside the embedded search template — previously only the instant-search overlay could render it. [#48986]
+- Search: Make the Load More block match the theme's regular core/button look and add a "Compact" block style so authors can right-size it without custom CSS. [#48984]
+- Search: surface the "Enable search suggestions" and "Enable AI Answers" toggles in the search customizer's Additional settings panel, alongside their existing home on the search dashboard. [#48990]
+- Search Blocks: Add experimental opt-in to replace the legacy instant-search overlay with the server-rendered Search blocks template; gated behind the `jetpack_search_overlay_block_template_enabled` filter (default false). [#48987]
+- Search Blocks: add optional autocomplete suggestions dropdown to the Search Input block — query, taxonomy, and post suggestions powered by the WPCOM search-suggestions endpoint. Authors opt in per block via the new "Show search suggestions" inspector toggle. Taxonomy picks apply as an inline filter when a matching filter block is on the page, otherwise navigate to the archive URL. [#48985]
+- Search dashboard: add a "WooCommerce Product Search" control that, when enabled, serves product searches from a dedicated Site-Editor-editable Jetpack Search template instead of WooCommerce's default product search template. [#48936]
+- Search Dashboard: add an "Additional settings" heading above the feature toggles in the search-blocks settings view. The heading only renders when at least one of those settings is available, so it never appears orphaned. [#48948]
+
+### Changed
+- Build: collapse the per-directory `production-exclude` rules for `src/**/*.js` into a single broad exclude with an explicit carve-out for `src/widgets/**/*.js` (which has no build step and must ship). [#48983]
+- Replace internal ContextualUpgradeTrigger upgrade prompts with @wordpress/ui Notice composition. Internal refactor with a Notice-style visual refresh. [#48909]
+- Search: Normalize page tabs onto shared minimal variant + jp-admin-page-tabs--minimal wrapper modifier. Bump @wordpress/ui to 0.13.0. [#48964]
+- Search: the AI Answer block (`jetpack-search/ai-answer`) no longer gates on the site-wide `jetpack_search_ai_answers_enabled` option — block presence in post content is the only switch. The option still governs the instant-search overlay. [#48993]
+- Search Blocks: let authors pick which suggestion sections appear in the Search Input dropdown (query completions, categories & tags, post titles) via a new per-block suggestionTypes attribute. Existing blocks default to all three. [#48991]
+- Update package dependencies. [#48405]
+- Update package dependencies. [#49012]
+
+### Fixed
+- AI Answers: Fix the answer panel colors in dark mode. [#49019]
+- Instant Search: Prevent the search modal from triggering on third-party form submissions. Forms embedding an input named "s" (e.g. ActiveCampaign sign-up widgets) would incorrectly open the search overlay and block the submission. The fix checks that the form's action URL shares the same origin as the site before intercepting. [#48958]
+- Phan: Address PhanPluginDuplicateConditionalNullCoalescing violations. [#48887]
+- Search: reject experience requests combined with ai_answers_enabled or search_suggestions_enabled instead of silently dropping them, and gate the WooCommerce product-search template override on the active experience so a stale option can't keep rerouting after a switch away from a server-rendered experience. [#48956]
+- Search Blocks: cap the filter-checkbox list at its configured "Maximum items" even after the session has retained options across multiple searches. [#48989]
+- Search Dashboard: Hide the AI Agent Access toggle for private sites and improve related settings spacing. [#48912]
+- Search dashboard: let the toggle description text span the full settings card width instead of wrapping in a narrow 7-column band. [#48944]
+
 ## [0.60.0] - 2026-05-19
 ### Added
 - Add a `wp jetpack-search backfill_taxonomy_slot_mapping [--mode=mirror|rebuild]` command for backfilling custom-taxonomy slot mappings. [#48849]
@@ -1665,6 +1732,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies.
 - Update PHPUnit configs to include just what needs coverage rather than include everything then try to exclude stuff that doesn't.
 
+[7.1.0]: https://github.com/Automattic/jetpack-search/compare/v7.0.0...v7.1.0
+[7.0.0]: https://github.com/Automattic/jetpack-search/compare/v0.60.0...v7.0.0
 [0.60.0]: https://github.com/Automattic/jetpack-search/compare/v0.59.0...v0.60.0
 [0.59.0]: https://github.com/Automattic/jetpack-search/compare/v0.58.0...v0.59.0
 [0.58.0]: https://github.com/Automattic/jetpack-search/compare/v0.57.0...v0.58.0

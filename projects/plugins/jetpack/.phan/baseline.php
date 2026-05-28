@@ -50,12 +50,12 @@ return [
     // PhanTypeInvalidLeftOperandOfBitwiseOp : 4 occurrences
     // PhanTypeInvalidLeftOperandOfNumericOp : 4 occurrences
     // PhanTypeInvalidRightOperandOfBitwiseOp : 4 occurrences
-    // PhanDeprecatedFunctionInternal : 3 occurrences
     // PhanDeprecatedTrait : 3 occurrences
     // PhanStaticPropIsStaticType : 3 occurrences
     // PhanTypeMismatchArgumentReal : 3 occurrences
     // PhanTypeObjectUnsetDeclaredProperty : 3 occurrences
     // PhanUndeclaredMethodInCallable : 3 occurrences
+    // PhanDeprecatedFunctionInternal : 2 occurrences
     // PhanImpossibleConditionInLoop : 2 occurrences
     // PhanNonClassMethodCall : 2 occurrences
     // PhanParamTooMany : 2 occurrences
@@ -120,7 +120,6 @@ return [
         '_inc/lib/core-api/wpcom-endpoints/memberships.php' => ['PhanPluginUnreachableCode', 'PhanTypeArraySuspicious'],
         '_inc/lib/core-api/wpcom-endpoints/publicize-connection-test-results.php' => ['PhanPluginMixedKeyNoKey', 'PhanTypeMismatchArgument'],
         '_inc/lib/core-api/wpcom-endpoints/service-api-keys.php' => ['PhanTypeArraySuspicious', 'PhanTypeMismatchReturnProbablyReal'],
-        '_inc/lib/debugger/class-jetpack-cxn-test-base.php' => ['PhanDeprecatedFunctionInternal', 'PhanTypeArraySuspiciousNullable', 'PhanTypeMismatchArgumentInternal', 'PhanTypeMismatchReturn'],
         '_inc/lib/debugger/class-jetpack-debug-data.php' => ['PhanTypeMismatchArgument'],
         '_inc/lib/debugger/class-jetpack-debugger.php' => ['PhanTypeMismatchArgumentProbablyReal'],
         '_inc/lib/debugger/debug-functions.php' => ['PhanTypeMismatchReturnProbablyReal'],
