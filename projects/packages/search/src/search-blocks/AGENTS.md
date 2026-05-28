@@ -83,7 +83,10 @@ The chain reaches each layer in order:
 3. Legacy `--background`/`--foreground` pair (TT1, Kaze, many WPCOM themes).
 4. Static literal — postcss-custom-properties emits this as a separate declaration alongside the `var()` call, so the surface always has a paintable value even when no var resolves.
 
-Guard the sampler against `getComputedStyle().backgroundColor === 'rgba(0, 0, 0, 0)'` — classic themes that don't set body bg resolve to transparent, and writing that would override the PHP default and paint surfaces transparent.
+Two guards in the sampler against degenerate cases:
+
+- `backgroundColor === 'rgba(0, 0, 0, 0)'` / `'transparent'` — classic themes that don't set body bg resolve to transparent; the theme paints on the browser canvas instead. Skip the surface write so the SCSS chain's literal fallback wins.
+- `backgroundColor === color` — vintage frame-themes (Twenty Sixteen and similar) use `<body>` as a colored border around a lighter `.site` content wrapper, so body's resolved bg matches body's resolved color. Sampling that pair would paint same-color ink on same-color surface. Skip the surface write so the chain's literal fallback wins; ink still samples (it matches the content wrapper's text color via the cascade).
 
 ## URL format
 

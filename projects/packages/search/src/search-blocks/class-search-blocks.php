@@ -1101,17 +1101,17 @@ class Search_Blocks {
 	/**
 	 * Print the body-sampler `<script>` that sets `--jp-search-page-ink` /
 	 * `--jp-search-page-surface` on `:root` from the body's resolved `color` /
-	 * `backgroundColor`. Surface is skipped
-	 * when bg resolves to `transparent` — classic themes without an explicit
-	 * `body { background-color }` paint on the browser canvas, where the PHP
-	 * default already matches. See AGENTS.md § Theme tokens & `var()` chains.
+	 * `backgroundColor`. Skips writing surface when bg is transparent (the
+	 * theme paints on the browser canvas) or when bg equals ink (vintage
+	 * frame-themes like Twenty Sixteen use body as a colored border around a
+	 * lighter `.site` content wrapper). See AGENTS.md § Theme tokens.
 	 */
 	public static function print_theme_token_sampler(): void {
 		if ( is_admin() ) {
 			return;
 		}
 		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- hardcoded JS string, no dynamic content.
-		echo "<script id='jetpack-search-theme-token-sampler'>(function(){try{var c=getComputedStyle(document.body),r=document.documentElement;if(c.color){r.style.setProperty('--jp-search-page-ink',c.color);}if(c.backgroundColor&&c.backgroundColor!=='rgba(0, 0, 0, 0)'&&c.backgroundColor!=='transparent'){r.style.setProperty('--jp-search-page-surface',c.backgroundColor);}}catch(e){}})();</script>";
+		echo "<script id='jetpack-search-theme-token-sampler'>(function(){try{var c=getComputedStyle(document.body),r=document.documentElement,ink=c.color,bg=c.backgroundColor;if(ink){r.style.setProperty('--jp-search-page-ink',ink);}if(bg&&bg!==ink&&bg!=='rgba(0, 0, 0, 0)'&&bg!=='transparent'){r.style.setProperty('--jp-search-page-surface',bg);}}catch(e){}})();</script>";
 	}
 
 	/**
