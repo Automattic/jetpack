@@ -87,6 +87,15 @@ add_filter( 'pcg_rollout_percentage', fn () => 10 ); // 10% cohort
 
 Bucketing is `crc32(blog_id) % 100`, so ramping from 10% → 50% strictly adds blogs (no reshuffling between tiers). The gate only narrows — emergency-override filters at priority > 100 on `pcg_guard_activation` / `pcg_guard_updates` can still re-enable or disable a blog.
 
+## Force override
+
+The activation block notice and the post-update notice both expose two opt-out controls for site admins who want to push through a verdict they disagree with:
+
+- **Activate anyway / Retry without check** — re-runs the original activate / upgrade action with `pcg_force=1`. The current request's own admin nonce is still required; PCG just steps out of the way.
+- **Disable check for 10 minutes** — sets a user-scoped transient (`pcg_force_bypass_<user_id>`) that lets the same user retry without re-confirming. Both guards consult `pcg_force_override_active()` and return early.
+
+Every override is logged to logstash via `pcg_log_event( 'Force override used' )` / `'Force bypass enabled'` so we can see who is bypassing and why.
+
 ## Limitations
 
 - Only catches errors hit while `require`-ing the main file and during `plugins_loaded` / `init` / `admin_init` callbacks. Errors that surface only on later hooks (e.g. `template_redirect`, REST) are invisible.

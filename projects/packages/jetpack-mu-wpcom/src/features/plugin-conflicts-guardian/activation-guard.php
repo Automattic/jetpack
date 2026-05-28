@@ -21,6 +21,9 @@ function pcg_guard_maybe_block_activation() {
 	if ( ! current_user_can( 'activate_plugins' ) ) {
 		return;
 	}
+	if ( pcg_force_override_active() ) {
+		return;
+	}
 
 	// Bulk-action submissions from the bottom dropdown send `action=-1`
 	// and the real action in `action2`.
@@ -273,6 +276,22 @@ function pcg_guard_render_block_notice() {
 				<li>
 					<?php if ( '' !== (string) $plugin ) : ?>
 						<code><?php echo esc_html( $plugin ); ?></code> — <?php echo esc_html( $reason ); ?>
+						<?php
+						$retry_url = wp_nonce_url(
+							add_query_arg(
+								array(
+									'action'    => 'activate',
+									'plugin'    => $plugin,
+									'pcg_force' => '1',
+								),
+								self_admin_url( 'plugins.php' )
+							),
+							'activate-plugin_' . $plugin
+						);
+						?>
+						<a href="<?php echo esc_url( $retry_url ); ?>" class="button button-secondary" style="margin-inline-start:8px;">
+							<?php esc_html_e( 'Activate anyway', 'jetpack-mu-wpcom' ); ?>
+						</a>
 					<?php else : ?>
 						<?php echo esc_html( $reason ); ?>
 					<?php endif; ?>
@@ -280,6 +299,10 @@ function pcg_guard_render_block_notice() {
 			<?php endforeach; ?>
 		</ul>
 		<p><?php esc_html_e( 'No plugins were activated to prevent a site crash. Investigate the error before trying again.', 'jetpack-mu-wpcom' ); ?></p>
+		<p>
+			<?php pcg_force_render_bypass_form(); ?>
+			<span class="description"><?php esc_html_e( 'Skips PCG checks for activations and updates while the bypass is active.', 'jetpack-mu-wpcom' ); ?></span>
+		</p>
 	</div>
 	<?php
 }
