@@ -125,10 +125,6 @@ class WPCOM_Smart_Dictation {
 	 * Enqueue the Smart Dictation assets.
 	 */
 	public static function enqueue_scripts() {
-		if ( ! ( new Host() )->is_wpcom_simple() ) {
-			return;
-		}
-
 		if ( self::is_block_editor() && 'en' === self::determine_iso_639_locale() && ( self::is_proxied() || self::current_user_is_in_paid_rollout() ) ) {
 			$asset_file = self::get_assets_json( 'widgets.wp.com/wpcom-smart-dictation/wpcom-smart-dictation.asset.json' );
 			$is_a11n    = function_exists( '\is_automattician' ) && \is_automattician();
