@@ -5,6 +5,7 @@ import { __ } from '@wordpress/i18n';
 import { useNavigate } from '@wordpress/route';
 import { Tabs, Tooltip } from '@wordpress/ui';
 import { ModernizationProvider } from '../hooks/use-is-modernized';
+import SocialGate from './social-gate';
 // Define the `--color-facebook`, `--color-twitter`, ... custom properties
 // that `SocialServiceIcon` (and friends) consume to paint per-service
 // brand colours. The legacy `social-admin-page` webpack bundle inlines
@@ -77,21 +78,27 @@ export default function SocialPage( { activeTab, actions, children }: Props ): J
 					subTitle={ SUBTITLES[ activeTab ]() }
 					actions={ actions }
 				>
-					<Tabs.Root
-						className="jetpack-social-tabs"
-						value={ activeTab }
-						onValueChange={ onTabChange }
-					>
-						<div className="jp-admin-page-tabs jp-admin-page-tabs--minimal">
-							<Tabs.List variant="minimal">
-								<Tabs.Tab value="overview">{ __( 'Overview', 'jetpack-publicize-pkg' ) }</Tabs.Tab>
-								<Tabs.Tab value="settings">{ __( 'Settings', 'jetpack-publicize-pkg' ) }</Tabs.Tab>
-							</Tabs.List>
-						</div>
-						<div className="jetpack-social-page__content jetpack-social-page__content--padded">
-							{ children }
-						</div>
-					</Tabs.Root>
+					<SocialGate>
+						<Tabs.Root
+							className="jetpack-social-tabs"
+							value={ activeTab }
+							onValueChange={ onTabChange }
+						>
+							<div className="jp-admin-page-tabs jp-admin-page-tabs--minimal">
+								<Tabs.List variant="minimal">
+									<Tabs.Tab value="overview">
+										{ __( 'Overview', 'jetpack-publicize-pkg' ) }
+									</Tabs.Tab>
+									<Tabs.Tab value="settings">
+										{ __( 'Settings', 'jetpack-publicize-pkg' ) }
+									</Tabs.Tab>
+								</Tabs.List>
+							</div>
+							<div className="jetpack-social-page__content jetpack-social-page__content--padded">
+								{ children }
+							</div>
+						</Tabs.Root>
+					</SocialGate>
 				</AdminPage>
 			</Tooltip.Provider>
 		</ModernizationProvider>
