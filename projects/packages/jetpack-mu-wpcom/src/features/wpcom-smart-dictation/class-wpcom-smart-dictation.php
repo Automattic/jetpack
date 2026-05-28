@@ -5,7 +5,7 @@
  * @package automattic/jetpack-mu-wpcom
  */
 
-namespace A8C\FSE;
+namespace A8C\WPCOM_DICTATION;
 
 use Automattic\Jetpack\Status\Host;
 
@@ -23,6 +23,20 @@ class WPCOM_Smart_Dictation {
 	 */
 	public static function init() {
 		add_action( 'admin_enqueue_scripts', array( self::class, 'enqueue_scripts' ), 100 );
+		add_action( 'rest_api_init', array( self::class, 'register_rest_api' ) );
+	}
+
+	/**
+	 * Register the Smart Dictation endpoints.
+	 */
+	public static function register_rest_api() {
+		if ( ( new Host() )->is_wpcom_simple() ) {
+			return;
+		}
+
+		require_once __DIR__ . '/class-wp-rest-wpcom-smart-dictation-client-secret.php';
+		$controller = new WP_REST_WPCOM_Smart_Dictation_Client_Secret();
+		$controller->register_rest_route();
 	}
 
 	/**
@@ -111,10 +125,6 @@ class WPCOM_Smart_Dictation {
 	 * Enqueue the Smart Dictation assets.
 	 */
 	public static function enqueue_scripts() {
-		if ( ! ( new Host() )->is_wpcom_simple() ) {
-			return;
-		}
-
 		if ( self::is_block_editor() && 'en' === self::determine_iso_639_locale() && ( self::is_proxied() || self::current_user_is_in_paid_rollout() ) ) {
 			$asset_file = self::get_assets_json( 'widgets.wp.com/wpcom-smart-dictation/wpcom-smart-dictation.asset.json' );
 			$is_a11n    = function_exists( '\is_automattician' ) && \is_automattician();
