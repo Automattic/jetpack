@@ -495,7 +495,7 @@ export default function VideoPressEdit( {
 						'Impossible to get a video preview after ten attempts.',
 						'jetpack-videopress-pkg'
 					) }
-					onNoticeRemove={ invalidateResolution }
+					onNoticeRemove={ invalidateResolution as unknown as () => void }
 				>
 					<div className="videopress-uploader__error-actions">
 						<Button variant="primary" onClick={ invalidateResolution as unknown as () => void }>

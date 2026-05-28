@@ -1,4 +1,5 @@
 import '@wordpress/api-fetch';
+import '@wordpress/element';
 
 declare module '@wordpress/api-fetch' {
 	// `Parse` matches the upstream generic signature; we don't use it but
@@ -9,4 +10,15 @@ declare module '@wordpress/api-fetch' {
 		global?: boolean;
 		formData?: Array< Array< string | Blob > >;
 	}
+}
+
+declare module '@wordpress/element' {
+	// Upstream omits `isNative` from the web Platform shim's type even though
+	// it exists at runtime (mirrors React Native's Platform API).
+	const Platform: {
+		OS: 'web' | 'ios' | 'android';
+		select< T >( spec: { web?: T; native?: T; default?: T } ): T | undefined;
+		isWeb: boolean;
+		isNative: boolean;
+	};
 }

@@ -18,7 +18,7 @@ import type {
 } from '../../types';
 import type { MediaTokenProps } from '../get-media-token/types';
 
-const isNative = Platform.OS !== 'web';
+const isNative = Platform.isNative;
 
 const debug = debugFactory( 'videopress:lib:fetch-video-item' );
 
