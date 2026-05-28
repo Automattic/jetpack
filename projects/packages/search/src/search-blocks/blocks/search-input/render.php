@@ -152,6 +152,7 @@ if ( $has_width ) {
 			data-wp-bind--value="state.searchQuery"
 			data-wp-on--input="actions.onSearchInput"
 			data-wp-on--keydown="actions.onSearchKeydown"
+			data-wp-init="callbacks.initFocusInputIfHasQuery"
 		/>
 		<button
 			type="button"
