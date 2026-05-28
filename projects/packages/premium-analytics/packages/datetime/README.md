@@ -2,10 +2,6 @@
 
 Date and timezone utilities for Jetpack Premium Analytics.
 
-Internal package — bundled with `@automattic/jetpack-premium-analytics`,
-not published to npm. Imported as `@jetpack-premium-analytics/datetime`
-(see the parent `README.md` → "Internal packages" for the naming convention).
-
 ## Overview
 
 Provides timezone-aware date handling and comparison range calculations
