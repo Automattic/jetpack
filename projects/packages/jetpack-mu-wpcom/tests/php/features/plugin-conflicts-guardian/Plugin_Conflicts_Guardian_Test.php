@@ -11,6 +11,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/plugin-conflicts-guardian/pcg-log.php';
 require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/plugin-conflicts-guardian/class-pcg-load-tester.php';
 require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/plugin-conflicts-guardian/class-pcg-rollout.php';
+require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/plugin-conflicts-guardian/force-override.php';
 // probe-endpoint.php registers a shutdown handler and reads $_GET on
 // require; the entry function `pcg_maybe_handle_probe()` is the one
 // that does that work, and it bails immediately when `$_GET['pcg_probe']`
