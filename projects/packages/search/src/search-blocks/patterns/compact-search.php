@@ -28,7 +28,7 @@ register_block_pattern(
 <!-- wp:group {"className":"jetpack-search-compact-toolbar","layout":{"type":"flex","flexWrap":"nowrap"}} -->
 <div class="wp-block-group jetpack-search-compact-toolbar">
 <!-- wp:jetpack-search/search-input /-->
-<!-- wp:jetpack-search/filters-popover {"displayMode":"popover-always"} -->
+<!-- wp:jetpack-search/filters-popover -->
 <!-- wp:jetpack-search/active-filters /-->
 <!-- wp:jetpack-search/filter-checkbox {"filterType":"taxonomy","taxonomy":"category"} /-->
 <!-- wp:jetpack-search/filter-checkbox {"filterType":"taxonomy","taxonomy":"post_tag"} /-->
