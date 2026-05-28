@@ -30,9 +30,14 @@ Current slug shapes — match one if it fits, but new shapes are fine when nothi
 - **Filters:** `filter-{kind}` (e.g. `filter-checkbox`, `filter-date`). Visitor-facing titles read "Filter by X". Author-configured scoping (post-type bounds for the whole search experience) lives on the `search-results` block's "Search scope" inspector panel, not as a standalone filter block — same shape as core's Query Loop carrying `postType` on the block that renders the results.
 - **Filter compositions:** `filters` for the default vertical stack; layout-suffixed `filters-{layout}` for variants (e.g. `filters-popover`, `filters-product`).
 - **Results region:** `search-results` for the container; `results-{role}` for atoms inside it (`results-list`, `results-count`, `results-sort`, `results-load-more`).
+- **Page wrapper:** `layout` — the top-level `<main>` shell that frames the whole embedded Search experience (the `jetpack-search.html` / `jetpack-search-product-results.html` templates wrap their content in it). Bare role noun matching the `jetpack-search-layout__*` CSS family.
 - **Standalone:** bare role slug (`search-input`, `powered-by`, `active-filters`).
 
 Titles aim to read naturally in the inserter, not mirror the slug shape — "Sort By" not "Results Sort", "Collapsible Filters" not "Filters Popover".
+
+## Search Layout forced controls
+
+`Search_Blocks::force_search_layout_block_supports()` (hooked on `wp_theme_json_data_theme`, always-on in `init()`) injects `settings.blocks['jetpack-search/layout']` with spacing / border / dimensions enabled. This is what makes the `layout` block's margin/padding/border/min-height panels appear regardless of the active theme's `appearanceTools` opt-in — block-level `supports` alone stay gated behind the theme's global `settings.*`, and per-block theme.json settings override that gate for one block only. It's registered unconditionally (not behind the experience or `block_templates_active()`) so the controls are present in both the Site Editor and the classic-theme singleton-CPT editors. The block's own `block.json` `supports` still has to declare each capability — the theme.json settings control UI availability, the supports control serialization; both are required. Scoped to the one block, so no other `core/group` on the site changes behavior.
 
 ## Shared store / bundles
 

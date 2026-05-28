@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Search Blocks: add a Search Layout wrapper block with a Width control and theme-independent spacing/border/dimension controls for the embedded Search template.
