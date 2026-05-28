@@ -109,6 +109,20 @@ Default.args = {
 	...lineChartStoryArgs,
 };
 
+export const Zoomable: StoryObj< typeof LineChart > = Template.bind( {} );
+Zoomable.args = {
+	...lineChartStoryArgs,
+	zoomable: true,
+};
+Zoomable.parameters = {
+	docs: {
+		description: {
+			story:
+				'Drag horizontally on the plot to select a range. The X axis rescales to that range. Click the reset button in the top-right to return to the full view.',
+		},
+	},
+};
+
 export const FixedDimensions: StoryObj< typeof LineChart > = Template.bind( {} );
 FixedDimensions.args = {
 	...lineChartStoryArgs,
