@@ -1290,4 +1290,27 @@ class Jetpack_REST_API_endpoints_Test extends WP_UnitTestCase {
 		$this->assertResponseStatus( 401, $response );
 		$this->assertResponseData( array( 'code' => 'invalid_permission_fetch_features' ), $response );
 	}
+	// ---- Connection test endpoints (migrated to Connection package) ----
+
+	/**
+	 * Test the 'connection/test' and 'connection/test-wpcom' routes are registered.
+	 * Auth behavior is tested in the Connection package; here we verify the wiring.
+	 */
+	public function test_connection_test_routes_are_registered() {
+		$routes = $this->server->get_routes();
+		$this->assertArrayHasKey( '/jetpack/v4/connection/test', $routes );
+		$this->assertArrayHasKey( '/jetpack/v4/connection/test-wpcom', $routes );
+	}
+
+	/**
+	 * Test that Jetpack-specific connection tests (sync health) are registered
+	 * on the Connection_Health_Tests suite via the jetpack_connection_tests_loaded action.
+	 */
+	public function test_jetpack_connection_tests_registered() {
+		$cxntests = new Automattic\Jetpack\Connection\Connection_Health_Tests();
+		$tests    = $cxntests->list_tests();
+
+		$test_names = array_keys( $tests );
+		$this->assertContains( 'test__sync_health', $test_names, 'Jetpack sync health test should be registered on the connection test suite.' );
+	}
 } // class end
