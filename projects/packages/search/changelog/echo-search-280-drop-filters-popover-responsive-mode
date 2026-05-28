@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Search Blocks: drop the filters-popover responsive display mode; the block is always a popover.
