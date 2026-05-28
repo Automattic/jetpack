@@ -32,9 +32,11 @@ class Sync_Status_Tracker {
 	const INITIAL_FULL_SYNC_OPTION = 'jetpack_premium_analytics_initial_full_sync_finished';
 
 	/**
-	 * Sync-module name whose end-of-sync event flips the milestone. Provided by
-	 * a consumer plugin (e.g. WooCommerce Analytics) that registers a custom
-	 * full-sync module under this key.
+	 * Default sync-module name whose end-of-sync event flips the milestone.
+	 * Currently provided by WooCommerce Analytics, which registers a custom
+	 * full-sync module under this key. Consumers can override via the
+	 * `jetpack_premium_analytics_sync_module_name` filter — see
+	 * {@see get_analytics_sync_module()}.
 	 */
 	const ANALYTICS_SYNC_MODULE = 'woocommerce_analytics';
 
@@ -66,10 +68,6 @@ class Sync_Status_Tracker {
 	 * @return void
 	 */
 	public static function on_sync_processed_actions( array $actions ): void {
-		if ( ! class_exists( 'Automattic\Jetpack\Sync\Modules' ) ) {
-			return;
-		}
-
 		$module = Modules::get_module( 'full-sync' );
 		if ( ! $module ) {
 			return;
@@ -77,6 +75,22 @@ class Sync_Status_Tracker {
 		'@phan-var \Automattic\Jetpack\Sync\Modules\Full_Sync_Immediately|\Automattic\Jetpack\Sync\Modules\Full_Sync $module';
 
 		self::maybe_set_milestone( $module->get_status(), $actions );
+	}
+
+	/**
+	 * Resolve the configured sync-module name for analytics.
+	 *
+	 * @return string
+	 */
+	public static function get_analytics_sync_module(): string {
+		/**
+		 * Filter the sync-module name whose end-of-sync flips the analytics
+		 * milestone. Consumer plugins that register a custom full-sync module
+		 * under a different key can override this.
+		 *
+		 * @param string $module_name Default: 'woocommerce_analytics'.
+		 */
+		return (string) apply_filters( 'jetpack_premium_analytics_sync_module_name', self::ANALYTICS_SYNC_MODULE );
 	}
 
 	/**
@@ -96,7 +110,8 @@ class Sync_Status_Tracker {
 			return;
 		}
 
-		if ( empty( $full_status['config'][ self::ANALYTICS_SYNC_MODULE ] ) ) {
+		$module_name = self::get_analytics_sync_module();
+		if ( empty( $full_status['config'][ $module_name ] ) ) {
 			return;
 		}
 
@@ -108,7 +123,13 @@ class Sync_Status_Tracker {
 		// The last update_status() call in Full_Sync_Immediately::send() runs
 		// after jetpack_full_sync_end fires, so the action's own timestamp is
 		// the most reliable "finished at" value. Note: Year 2038 problem.
-		$finished_at             = (int) $end_action[3];
+		$finished_at = isset( $end_action[3] ) ? (int) $end_action[3] : 0;
+		if ( $finished_at <= 0 ) {
+			// Defensive: avoid persisting a zero timestamp, which would equal
+			// the "not yet set" sentinel and cause the listener to re-trigger
+			// on the next batch.
+			return;
+		}
 		$full_status['finished'] = $finished_at;
 		update_option( self::INITIAL_FULL_SYNC_OPTION, $finished_at );
 

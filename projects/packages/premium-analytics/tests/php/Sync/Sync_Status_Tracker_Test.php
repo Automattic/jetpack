@@ -92,6 +92,40 @@ class Sync_Status_Tracker_Test extends TestCase {
 		$this->assertSame( 0, (int) get_option( Sync_Status_Tracker::INITIAL_FULL_SYNC_OPTION, 0 ) );
 	}
 
+	public function test_milestone_noop_when_end_action_timestamp_is_zero() {
+		Sync_Status_Tracker::maybe_set_milestone(
+			self::FULL_STATUS_WITH_ANALYTICS,
+			array( array( 'jetpack_full_sync_end', array(), 0, 0 ) )
+		);
+
+		$this->assertSame( 0, (int) get_option( Sync_Status_Tracker::INITIAL_FULL_SYNC_OPTION, 0 ) );
+	}
+
+	public function test_milestone_noop_when_end_action_missing_timestamp() {
+		Sync_Status_Tracker::maybe_set_milestone(
+			self::FULL_STATUS_WITH_ANALYTICS,
+			array( array( 'jetpack_full_sync_end', array(), 0 ) )
+		);
+
+		$this->assertSame( 0, (int) get_option( Sync_Status_Tracker::INITIAL_FULL_SYNC_OPTION, 0 ) );
+	}
+
+	public function test_filter_overrides_analytics_sync_module() {
+		add_filter(
+			'jetpack_premium_analytics_sync_module_name',
+			static fn() => 'custom_module_name'
+		);
+
+		Sync_Status_Tracker::maybe_set_milestone(
+			array( 'config' => array( 'custom_module_name' => true ) ),
+			array( array( 'jetpack_full_sync_end', array(), 0, 1730000123 ) )
+		);
+
+		$this->assertSame( 1730000123, (int) get_option( Sync_Status_Tracker::INITIAL_FULL_SYNC_OPTION ) );
+
+		remove_all_filters( 'jetpack_premium_analytics_sync_module_name' );
+	}
+
 	public function test_script_data_reports_zero_before_milestone() {
 		$data = Sync_Status_Tracker::inject_script_data( array( 'site' => array() ) );
 
