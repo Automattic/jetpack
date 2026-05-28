@@ -344,8 +344,17 @@ if ( '' === $error_message ) {
 	<div
 		class="jetpack-search-results__no-results"
 		data-wp-bind--hidden="!state.showNoResults"
+		role="status"
 		hidden
 	>
+		<?php
+		// Both `<p>` variants render without an initial `hidden` attribute —
+		// the outer wrapper's `hidden` covers them on the SSR path, and the IA
+		// runtime resolves the inner `data-wp-bind--hidden` atomically when it
+		// reveals the region. Don't remove the outer `hidden` without also
+		// adding initial `hidden` to one of the variants, or both messages
+		// will flash briefly on hydration.
+		?>
 		<p data-wp-bind--hidden="state.hasActiveFilters"><?php echo esc_html( $no_results_message ); ?></p>
 		<p data-wp-bind--hidden="!state.hasActiveFilters"><?php echo esc_html( $no_results_with_filters_message ); ?></p>
 	</div>

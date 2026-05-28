@@ -214,6 +214,7 @@ describe( 'ResultsListEdit', () => {
 				attributes={ {
 					layout: 'expanded',
 					noResultsMessage: 'Try a broader query.',
+					noResultsWithFiltersMessage: 'Clear a filter to see results.',
 					errorMessage: 'Search is offline right now.',
 				} }
 				setAttributes={ jest.fn() }
@@ -224,6 +225,7 @@ describe( 'ResultsListEdit', () => {
 		// the empty and error copy live in the Inspector controls only.
 		expect( screen.getByText( 'First sample result' ) ).toBeInTheDocument();
 		expect( screen.queryByText( 'Try a broader query.' ) ).not.toBeInTheDocument();
+		expect( screen.queryByText( 'Clear a filter to see results.' ) ).not.toBeInTheDocument();
 		expect( screen.queryByText( 'Search is offline right now.' ) ).not.toBeInTheDocument();
 	} );
 } );
