@@ -168,13 +168,25 @@ function pcg_update_guard_render_retry_notice() {
 	);
 	?>
 	<div class="notice notice-warning">
-		<p style="margin-block-end:0;">
-			<strong><?php esc_html_e( 'WordPress.com blocked the last plugin update because the package failed PCG checks.', 'jetpack-mu-wpcom' ); ?></strong>
-			<code><?php echo esc_html( $slug ); ?></code> —
-			<a href="<?php echo esc_url( $retry ); ?>" class="button-link"><?php esc_html_e( 'retry without check', 'jetpack-mu-wpcom' ); ?></a>
-			<?php esc_html_e( 'or', 'jetpack-mu-wpcom' ); ?>
-			<?php pcg_force_render_bypass_form(); ?>.
+		<p>
+			<strong><?php esc_html_e( 'WordPress.com blocked the last plugin update because the package failed PCG checks:', 'jetpack-mu-wpcom' ); ?></strong>
+			<code><?php echo esc_html( $slug ); ?></code>.
+			<?php esc_html_e( 'Try one of these overrides:', 'jetpack-mu-wpcom' ); ?>
 		</p>
+		<ul style="list-style:disc;padding-inline-start:24px;margin-block-end:0;">
+			<li>
+				<a href="<?php echo esc_url( $retry ); ?>" class="button-link">
+					<?php
+					printf(
+						/* translators: %s: plugin slug. */
+						esc_html__( 'Retry %s without check', 'jetpack-mu-wpcom' ),
+						'<code>' . esc_html( $slug ) . '</code>' // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- $slug is escaped above.
+					);
+					?>
+				</a>
+			</li>
+			<li><?php pcg_force_render_bypass_form(); ?></li>
+		</ul>
 	</div>
 	<?php
 }

@@ -274,37 +274,47 @@ function pcg_guard_render_block_notice() {
 		<ul style="list-style:disc;padding-inline-start:24px;">
 			<?php foreach ( $messages as $plugin => $reason ) : ?>
 				<li>
-					<?php
-					if ( '' !== (string) $plugin ) {
-						$retry_url = wp_nonce_url(
-							add_query_arg(
-								array(
-									'action'    => 'activate',
-									'plugin'    => $plugin,
-									'pcg_force' => '1',
-								),
-								self_admin_url( 'plugins.php' )
-							),
-							'activate-plugin_' . $plugin
-						);
-						printf(
-							'<code>%1$s</code> — %2$s <a href="%3$s" class="button button-link" style="margin-inline-start:6px;">%4$s</a>',
-							esc_html( $plugin ),
-							esc_html( $reason ),
-							esc_url( $retry_url ),
-							esc_html__( 'Activate anyway', 'jetpack-mu-wpcom' )
-						);
-					} else {
-						echo esc_html( $reason );
-					}
-					?>
+					<?php if ( '' !== (string) $plugin ) : ?>
+						<code><?php echo esc_html( $plugin ); ?></code> — <?php echo esc_html( $reason ); ?>
+					<?php else : ?>
+						<?php echo esc_html( $reason ); ?>
+					<?php endif; ?>
 				</li>
 			<?php endforeach; ?>
 		</ul>
-		<p style="margin-block-end:0;">
-			<?php esc_html_e( 'No plugins were activated to prevent a site crash. Investigate the error before trying again, or:', 'jetpack-mu-wpcom' ); ?>
-			<?php pcg_force_render_bypass_form(); ?>
-		</p>
+		<p><?php esc_html_e( 'No plugins were activated to prevent a site crash. Investigate the error before trying again, or:', 'jetpack-mu-wpcom' ); ?></p>
+		<ul style="list-style:disc;padding-inline-start:24px;margin-block-end:0;">
+			<?php foreach ( $messages as $plugin => $reason ) : ?>
+				<?php
+				if ( '' === (string) $plugin ) {
+					continue;
+				}
+				$retry_url = wp_nonce_url(
+					add_query_arg(
+						array(
+							'action'    => 'activate',
+							'plugin'    => $plugin,
+							'pcg_force' => '1',
+						),
+						self_admin_url( 'plugins.php' )
+					),
+					'activate-plugin_' . $plugin
+				);
+				?>
+				<li>
+					<a href="<?php echo esc_url( $retry_url ); ?>" class="button-link">
+						<?php
+						printf(
+							/* translators: %s: plugin basename, e.g. "akismet/akismet.php". */
+							esc_html__( 'Activate %s anyway', 'jetpack-mu-wpcom' ),
+							'<code>' . esc_html( $plugin ) . '</code>' // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- $plugin is escaped above.
+						);
+						?>
+					</a>
+				</li>
+			<?php endforeach; ?>
+			<li><?php pcg_force_render_bypass_form(); ?></li>
+		</ul>
 	</div>
 	<?php
 }
