@@ -174,14 +174,19 @@ function pcg_update_guard_render_retry_notice() {
 			<?php esc_html_e( 'Try one of these overrides:', 'jetpack-mu-wpcom' ); ?>
 		</p>
 		<ul style="list-style:disc;padding-inline-start:24px;margin-block-end:0;">
+			<?php $plugin_name = function_exists( 'pcg_guard_plugin_display_name' ) ? pcg_guard_plugin_display_name( $slug ) : ''; ?>
 			<li>
 				<a href="<?php echo esc_url( $retry ); ?>" class="button-link">
 					<?php
-					printf(
-						/* translators: %s: plugin slug. */
-						esc_html__( 'Retry %s without check', 'jetpack-mu-wpcom' ),
-						'<code>' . esc_html( $slug ) . '</code>' // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- $slug is escaped above.
-					);
+					if ( '' !== $plugin_name ) {
+						printf(
+							/* translators: %s: plugin display name. */
+							esc_html__( 'Retry %s without check', 'jetpack-mu-wpcom' ),
+							esc_html( $plugin_name )
+						);
+					} else {
+						esc_html_e( 'Retry without check', 'jetpack-mu-wpcom' );
+					}
 					?>
 				</a>
 			</li>

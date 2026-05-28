@@ -76,7 +76,7 @@ function pcg_force_render_bypass_form() {
 		<input type="hidden" name="action" value="pcg_force_set_bypass" />
 		<?php wp_nonce_field( 'pcg_force_set_bypass' ); ?>
 		<button type="submit" class="button-link">
-			<?php esc_html_e( 'disable PCG checks for 10 minutes', 'jetpack-mu-wpcom' ); ?>
+			<?php esc_html_e( 'Disable checks for 10 minutes', 'jetpack-mu-wpcom' ); ?>
 		</button>
 	</form>
 	<?php

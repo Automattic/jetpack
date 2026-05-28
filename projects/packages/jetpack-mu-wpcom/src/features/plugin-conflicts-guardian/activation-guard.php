@@ -254,6 +254,25 @@ function pcg_guard_format_block_reason( $result ) {
 }
 
 /**
+ * Look up a plugin's human-readable Name header. Returns '' when the
+ * file is unreadable or the header is empty.
+ *
+ * @param string $basename Plugin basename (e.g. "akismet/akismet.php").
+ * @return string
+ */
+function pcg_guard_plugin_display_name( $basename ) {
+	$path = WP_PLUGIN_DIR . '/' . ltrim( $basename, '/' );
+	if ( ! is_file( $path ) ) {
+		return '';
+	}
+	if ( ! function_exists( 'get_plugin_data' ) ) {
+		require_once ABSPATH . 'wp-admin/includes/plugin.php';
+	}
+	$data = get_plugin_data( $path, false, false );
+	return isset( $data['Name'] ) ? (string) $data['Name'] : '';
+}
+
+/**
  * Render the admin notice. Messages are pulled from a per-user transient
  * set by the guard before the redirect.
  */
@@ -289,7 +308,7 @@ function pcg_guard_render_block_notice() {
 				if ( '' === (string) $plugin ) {
 					continue;
 				}
-				$retry_url = wp_nonce_url(
+				$retry_url   = wp_nonce_url(
 					add_query_arg(
 						array(
 							'action'    => 'activate',
@@ -300,15 +319,20 @@ function pcg_guard_render_block_notice() {
 					),
 					'activate-plugin_' . $plugin
 				);
+				$plugin_name = pcg_guard_plugin_display_name( $plugin );
 				?>
 				<li>
 					<a href="<?php echo esc_url( $retry_url ); ?>" class="button-link">
 						<?php
-						printf(
-							/* translators: %s: plugin basename, e.g. "akismet/akismet.php". */
-							esc_html__( 'Activate %s anyway', 'jetpack-mu-wpcom' ),
-							'<code>' . esc_html( $plugin ) . '</code>' // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- $plugin is escaped above.
-						);
+						if ( '' !== $plugin_name ) {
+							printf(
+								/* translators: %s: plugin display name. */
+								esc_html__( 'Activate %s anyway', 'jetpack-mu-wpcom' ),
+								esc_html( $plugin_name )
+							);
+						} else {
+							esc_html_e( 'Activate anyway', 'jetpack-mu-wpcom' );
+						}
 						?>
 					</a>
 				</li>
