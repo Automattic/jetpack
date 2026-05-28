@@ -24,33 +24,56 @@ class Subscriptions_Block_Test extends WP_UnitTestCase {
 	 * Test render_for_website exposes the custom success message to frontend code.
 	 */
 	public function test_render_for_website_includes_custom_success_message_in_form() {
-		\Jetpack_Subscriptions_Widget::$instance_count = 1;
-
 		$result = \Automattic\Jetpack\Extensions\Subscriptions\render_for_website(
-			array(
-				'widget_id'                         => 1,
-				'subscribe_email'                   => '',
-				'is_paid_subscriber'                => false,
-				'wrapper_attributes'                => 'class="wp-block-jetpack-subscriptions"',
-				'subscribe_placeholder'             => 'Type your email',
-				'submit_button_text'                => 'Subscribe',
-				'submit_button_text_subscribed'     => 'Subscribed',
-				'submit_button_text_upgrade'        => 'Upgrade subscription',
-				'success_message'                   => 'Custom subscription success.',
-				'show_subscribers_total'            => false,
-				'subscribers_total'                 => 0,
-				'referer'                           => 'https://example.org/post',
-				'source'                            => 'subscribe-block',
-				'app_source'                        => null,
-				'class_name'                        => '',
-				'selected_newsletter_categories'    => array(),
-				'preselected_newsletter_categories' => false,
-			),
+			$this->get_render_for_website_data(),
 			array(),
 			array()
 		);
 
 		$this->assertStringContainsString( 'name="success_message"', $result );
 		$this->assertStringContainsString( 'value="Custom subscription success."', $result );
+	}
+
+	/**
+	 * Test render_for_website does not expose a custom success message when one is not set.
+	 */
+	public function test_render_for_website_omits_custom_success_message_when_not_set() {
+		$data = $this->get_render_for_website_data();
+		unset( $data['success_message'] );
+
+		$result = \Automattic\Jetpack\Extensions\Subscriptions\render_for_website(
+			$data,
+			array(),
+			array()
+		);
+
+		$this->assertStringNotContainsString( 'name="success_message"', $result );
+	}
+
+	/**
+	 * Get render_for_website test data.
+	 *
+	 * @return array
+	 */
+	private function get_render_for_website_data() {
+		return array(
+			'widget_id'                         => 1,
+			'subscribe_email'                   => '',
+			'is_paid_subscriber'                => false,
+			'wrapper_attributes'                => 'class="wp-block-jetpack-subscriptions"',
+			'subscribe_placeholder'             => 'Type your email',
+			'submit_button_text'                => 'Subscribe',
+			'submit_button_text_subscribed'     => 'Subscribed',
+			'submit_button_text_upgrade'        => 'Upgrade subscription',
+			'success_message'                   => 'Custom subscription success.',
+			'show_subscribers_total'            => false,
+			'subscribers_total'                 => 0,
+			'referer'                           => 'https://example.org/post',
+			'source'                            => 'subscribe-block',
+			'app_source'                        => null,
+			'class_name'                        => '',
+			'selected_newsletter_categories'    => array(),
+			'preselected_newsletter_categories' => false,
+		);
 	}
 }

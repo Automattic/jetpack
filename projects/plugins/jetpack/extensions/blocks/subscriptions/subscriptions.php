@@ -755,6 +755,7 @@ function render_for_website( $data, $classes, $styles ) {
 	$form_url             = 'https://wordpress.com/email-subscriptions';
 	$post_access_level    = get_post_access_level_for_current_post();
 	$is_button_only_style = ! empty( $data['class_name'] ) ? is_button_only_style( $data['class_name'] ) : false;
+	$success_message      = $data['success_message'] ?? null;
 
 	// Post ID is used for pulling post-specific paid status, and returning to the right post after confirming subscription
 	$post_id = null;
@@ -774,11 +775,12 @@ function render_for_website( $data, $classes, $styles ) {
 
 	ob_start();
 
-	Jetpack_Subscriptions_Widget::render_widget_status_messages(
-		array(
-			'success_message' => $data['success_message'],
-		)
-	);
+	$status_messages = array();
+	if ( isset( $success_message ) ) {
+		$status_messages['success_message'] = $success_message;
+	}
+
+	Jetpack_Subscriptions_Widget::render_widget_status_messages( $status_messages );
 	?>
 	<div <?php echo wp_kses_data( $data['wrapper_attributes'] ); ?>>
 		<div class="wp-block-jetpack-subscriptions__container<?php echo ! $is_subscribed ? ' is-not-subscriber' : ''; ?>">
@@ -865,7 +867,9 @@ function render_for_website( $data, $classes, $styles ) {
 							<input type="hidden" name="app_source" value="<?php echo esc_attr( $data['app_source'] ); ?>"/>
 							<input type="hidden" name="redirect_fragment" value="<?php echo esc_attr( $form_id ); ?>"/>
 							<input type="hidden" name="lang" value="<?php echo esc_attr( $lang ); ?>"/>
-							<input type="hidden" name="success_message" value="<?php echo esc_attr( $data['success_message'] ); ?>"/>
+							<?php if ( isset( $success_message ) ) : ?>
+								<input type="hidden" name="success_message" value="<?php echo esc_attr( $success_message ); ?>"/>
+							<?php endif; ?>
 							<?php
 							wp_nonce_field( 'blogsub_subscribe_' . $blog_id );
 
