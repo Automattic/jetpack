@@ -1221,10 +1221,17 @@ class Search_Blocks {
  * mix used for the header `::before`. Both auto-invert polarity per theme, so
  * dark themes get a card that visibly layers above the scrim without losing
  * the themed surface color. The static `rgba(128,128,128,.25)` border + the
- * un-tinted token chain stay as the fallback for browsers without `color-mix`. */
+ * un-tinted token chain stay as the fallback for browsers without `color-mix`.
+ *
+ * The tint inputs read `--jp-search-page-*` first (theme-accurate values
+ * from the JS body sampler, SEARCH-274), then fall back to the
+ * `--wp--preset--color--*` chain so themes that don't expose
+ * `--base`/`--contrast` (wp.com Global Styles palettes that emit
+ * positional `--theme-N` slugs) still drive the tint from the page's
+ * actual surface and ink rather than the literal fallbacks. */
 @supports (background: color-mix(in sRGB, black 50%, white)) {
 	.jetpack-search-block-overlay__card {
-		--jp-search-overlay-surface: color-mix(in sRGB, var(--wp--preset--color--contrast, var(--wp--preset--color--foreground, #1d2327)) 5%, var(--wp--preset--color--base, var(--wp--preset--color--background, #fff)));
+		--jp-search-overlay-surface: color-mix(in sRGB, var(--jp-search-page-ink, var(--wp--preset--color--contrast, var(--wp--preset--color--foreground, #1d2327))) 5%, var(--jp-search-page-surface, var(--wp--preset--color--base, var(--wp--preset--color--background, #fff))));
 		border-color: color-mix(in sRGB, var(--jp-search-overlay-ink) 20%, var(--jp-search-overlay-surface));
 	}
 }
