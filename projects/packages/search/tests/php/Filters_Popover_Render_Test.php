@@ -90,8 +90,7 @@ class Filters_Popover_Render_Test extends TestCase {
 	/**
 	 * The panel must NOT carry the `hidden` HTML attribute or `role="dialog"` —
 	 * class-driven visibility via `.is-popover-open` keeps sighted and AT users
-	 * in sync. Regression guard for PR feedback by Copilot on
-	 * filters-popover/style.scss.
+	 * in sync.
 	 */
 	public function test_panel_has_no_hidden_attribute_or_dialog_role() {
 		$markup = $this->render();
@@ -111,8 +110,7 @@ class Filters_Popover_Render_Test extends TestCase {
 	/**
 	 * The panel must expose a labelled landmark (`role="region"` +
 	 * `aria-label="Search filters"`) so AT users navigating by landmarks can
-	 * find the filter controls. Regression guard for PR feedback by claude[bot]
-	 * on filters-popover.
+	 * find the filter controls.
 	 */
 	public function test_panel_exposes_search_filters_landmark() {
 		$markup = $this->render();
