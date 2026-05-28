@@ -14,11 +14,6 @@ use Automattic\Jetpack\Status\Host;
  */
 class WPCOM_Smart_Dictation {
 	/**
-	 * Percentage of users eligible for Smart Dictation.
-	 */
-	private const USER_ROLLOUT_PERCENTAGE = 100;
-
-	/**
 	 * WPCOM_Smart_Dictation constructor.
 	 */
 	public static function init() {
@@ -84,20 +79,10 @@ class WPCOM_Smart_Dictation {
 	}
 
 	/**
-	 * Returns whether the current user is in the rollout.
-	 */
-	private static function current_user_is_in_rollout() {
-		$user_id = get_current_user_id();
-
-		return 0 !== $user_id
-			&& $user_id % 100 < self::USER_ROLLOUT_PERCENTAGE;
-	}
-
-	/**
 	 * Enqueue the Smart Dictation assets.
 	 */
 	public static function enqueue_scripts() {
-		if ( self::is_block_editor() && 'en' === self::determine_iso_639_locale() && ( self::is_proxied() || self::current_user_is_in_rollout() ) ) {
+		if ( self::is_block_editor() && 'en' === self::determine_iso_639_locale() ) {
 			$asset_file = self::get_assets_json( 'widgets.wp.com/wpcom-smart-dictation/wpcom-smart-dictation.asset.json' );
 			$is_a11n    = function_exists( '\is_automattician' ) && \is_automattician();
 			$version    = ( is_array( $asset_file ) && isset( $asset_file['version'] ) )
