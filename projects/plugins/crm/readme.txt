@@ -362,53 +362,11 @@ We offer a full, no-hassle refund within 14 days. You can read more about that, 
 
 
 == Changelog ==
-### 6.8.0 - 2026-05-13
-#### Added
-- Exports: Add tags as an exportable field for contacts, companies, quotes, invoices, and transactions.
-- Click 2 Call: Add `sip:` prefix.
-- Permissions: Add new jpcrm_perms_manage_options() function.
-- Storage: Add new `jpcrm_storage_dir_info` filter.
-
+### 6.8.1 - 2026-05-28
 #### Changed
-- Adjust header logo and spacing.
-- Code Quality: Fix whitespace, indentation, and comment formatting throughout codebase.
-- Improve PHP 8.5 compatibility.
-- Internal: No longer require automattic/jetpack-changelogger as a per-project dev dependency.
-- Listview: Add docs link when no objects are found.
-- Settings: Update general settings section header.
-- Switch to Native TypeScript compiler based on Go.
-- Tested up to WordPress 7.0.
-- Update dependencies.
+- Remove unneeded development and documentation files from the published plugin.
 - Update package dependencies.
 
-#### Removed
-- Remove experimental automations module.
-- Remove unused legacy code.
-
 #### Fixed
-- API: Fix object and tag retrieval.
-- Click 2 Call: Catch JavaScript error when creating links.
-- Client Portal: Harden quote acceptance checks.
-- Client Portal: Restrict various contact functions to admins.
-- Compatibility: Clean up deprecated CSS.
-- Dashboard: Fix week 53 appearing at end of dashboard contact chart when using weekly view.
-- Ensure proper flags are used with `json_encode()`.
-- Escape DOM-sourced values.
-- File Uploads: Clean up upload logic.
-- Fix a small bug causing the contact panel on the email view to show incorrect values.
-- Fix double dash typo that was incorrectly converted into a comparison operator in DAL3 ObjectLayer.
-- Fix JavaScript syntax error in list view caused by newline before PHP tag.
-- Fix PHP warning when used with the new 'Modern' admin UI color scheme.
-- Fix various PHP warnings.
-- Improve sanitization and escaping of strings.
-- Listview: Fix "Showing X of Y items" text.
-- Listview: Fix Transactions Total column showing $0.00.
-- Listview: Handle out-of-range page requests gracefully.
-- Listview: Sanitize request params.
-- Mail Delivery: Harden setting permissions.
-- Remove redundant esc_html__() wrapper from export heading to prevent double escaping and ensure proper string rendering.
-- Storage: Prevent PHP errors when storage dir is not writable.
-- System Status: Update messaging when assets dir is not correctly configured.
-- Use proper escaping functions on strings.
-- WooSync: Skip tag insertion if there are no tags to insert.
+- Client Portal: Prevent PHP fatal when downloading PDFs.
 
