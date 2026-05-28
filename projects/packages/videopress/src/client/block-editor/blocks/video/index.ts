@@ -17,8 +17,7 @@ import './style.scss';
 // Extend the core/embed block
 import '../../extend/core-embed';
 
-export const { name, title, description, attributes } = metadata;
-const { category } = metadata;
+export const { name, title, description, attributes, category } = metadata;
 
 registerBlockType( name, {
 	edit: Edit,

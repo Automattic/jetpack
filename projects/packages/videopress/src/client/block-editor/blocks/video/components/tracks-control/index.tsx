@@ -129,12 +129,9 @@ export default function TracksControl( {
 		newUploadedTrack => {
 			uploadTrackForGuid( newUploadedTrack, guid )
 				.then( src => {
-					const errorResponse = src as { error?: string; message?: string };
-					if ( errorResponse?.error ) {
+					if ( typeof src !== 'string' ) {
 						debug( 'catch at regular response', src );
-						setFormErrorMessage(
-							`Track error: ${ errorResponse?.message || errorResponse.error }`
-						);
+						setFormErrorMessage( `Track error: ${ src.message || src.error }` );
 						return;
 					}
 					/*
