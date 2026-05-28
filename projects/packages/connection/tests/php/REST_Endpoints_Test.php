@@ -2048,7 +2048,10 @@ class REST_Endpoints_Test extends TestCase {
 			function ( $cxntests ) {
 				$reflection = new \ReflectionClass( $cxntests );
 				$prop       = $reflection->getProperty( 'tests' );
-				$prop->setAccessible( true );
+				// @todo Remove this call once we no longer need to support PHP <8.1.
+				if ( PHP_VERSION_ID < 80100 ) {
+					$prop->setAccessible( true );
+				}
 				$prop->setValue( $cxntests, array() );
 			},
 			PHP_INT_MAX
