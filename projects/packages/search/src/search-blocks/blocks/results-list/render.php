@@ -86,8 +86,9 @@ if ( 'card' === $layout ) {
 // `autoProductView` attribute (default on). The non-Woo collapse below is
 // still the final gate, so this can never force `product` on a non-Woo site.
 $auto_product_view  = $attrs['autoProductView'] ?? true;
+$block_context      = $block instanceof \WP_Block ? $block->context : array();
 $is_product_request = Search_Blocks::request_is_product_only()
-	|| Search_Blocks::scope_is_product_only( $block->context ?? array() );
+	|| Search_Blocks::scope_is_product_only( $block_context );
 if ( $auto_product_view && Search_Blocks::woocommerce_blocks_enabled() && $is_product_request ) {
 	$layout = 'product';
 }
