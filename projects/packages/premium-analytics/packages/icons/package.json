@@ -1,0 +1,13 @@
+{
+	"private": true,
+	"name": "@automattic/jetpack-premium-analytics-icons",
+	"version": "0.1.0",
+	"type": "module",
+	"main": "src/index.ts",
+	"types": "src/index.ts",
+	"sideEffects": false,
+	"dependencies": {
+		"@wordpress/icons": "^13.0.0",
+		"@wordpress/primitives": "4.46.0"
+	}
+}
