@@ -1007,6 +1007,69 @@ class Search_Blocks_Test extends TestCase {
 	}
 
 	/**
+	 * `pattern_content_from_template()` returns the chrome-free overlay layout
+	 * ready to register as a pattern: an alignwide content group, no page chrome,
+	 * and the search blocks intact.
+	 */
+	public function test_pattern_content_from_template_returns_chrome_free_layout() {
+		$content = Search_Blocks::pattern_content_from_template( 'jetpack-search-overlay.html' );
+
+		$this->assertNotEmpty( $content, 'Content must be non-empty when the bundled template exists.' );
+		$this->assertStringStartsWith( '<!-- wp:group {"align":"wide"', $content, 'Content must start at the alignwide group.' );
+		$this->assertStringEndsWith( '<!-- /wp:group -->', $content, 'Content must end at the group close.' );
+		$this->assertStringNotContainsString( 'wp:template-part', $content, 'Overlay templates carry no template-parts.' );
+		$this->assertStringNotContainsString( '<main', $content, 'Overlay templates carry no main wrapper.' );
+		$this->assertStringContainsString( 'wp:jetpack-search/search-input', $content, 'Search input block must remain.' );
+		$this->assertStringContainsString( 'wp:jetpack-search/filters', $content, 'Sidebar filters composition must remain.' );
+	}
+
+	/**
+	 * Same contract for the WooCommerce product overlay template, keeping the
+	 * product-only blocks (filters-product, results-list layout=product,
+	 * filter-wc-price) intact.
+	 */
+	public function test_pattern_content_from_template_returns_product_layout() {
+		$content = Search_Blocks::pattern_content_from_template( 'jetpack-search-overlay-product.html' );
+
+		$this->assertNotEmpty( $content, 'Content must be non-empty when the bundled product template exists.' );
+		$this->assertStringStartsWith( '<!-- wp:group {"align":"wide"', $content, 'Content must start at the alignwide group.' );
+		$this->assertStringNotContainsString( 'wp:template-part', $content, 'Overlay templates carry no template-parts.' );
+		$this->assertStringNotContainsString( '<main', $content, 'Overlay templates carry no main wrapper.' );
+		$this->assertStringContainsString( 'wp:jetpack-search/filters-product', $content, 'Product filters composition must remain.' );
+		$this->assertStringContainsString( '"layout":"product"', $content, 'Results-list must keep the product layout.' );
+		$this->assertStringContainsString( 'wp:jetpack-search/filter-wc-price', $content, 'WC-only price filter must remain.' );
+	}
+
+	/**
+	 * Missing template file yields an empty string — the pattern files skip
+	 * registration on empty content, so a bad path registers no pattern rather
+	 * than a blank one or a fatal.
+	 */
+	public function test_pattern_content_from_template_returns_empty_on_missing_file() {
+		$this->assertSame( '', Search_Blocks::pattern_content_from_template( 'does-not-exist.html' ) );
+	}
+
+	/**
+	 * The bundled pattern files register their patterns with the derived,
+	 * non-empty content from their layout templates.
+	 */
+	public function test_pattern_files_register_their_patterns() {
+		$registry = \WP_Block_Patterns_Registry::get_instance();
+		$patterns = __DIR__ . '/../../src/search-blocks/patterns';
+
+		require $patterns . '/blog-search.php';
+		require $patterns . '/wc-product-search.php';
+
+		foreach ( array( 'jetpack-search/blog-search-page', 'jetpack-search/wc-product-search-page' ) as $name ) {
+			$pattern = $registry->get_registered( $name );
+			$this->assertIsArray( $pattern, "Pattern $name must be registered." );
+			if ( is_array( $pattern ) ) {
+				$this->assertNotEmpty( $pattern['content'], "Pattern $name must have content." );
+			}
+		}
+	}
+
+	/**
 	 * With the override on, `init()` registers both the product-search
 	 * Template and the priority-20 routing filter.
 	 */

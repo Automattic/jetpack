@@ -983,6 +983,25 @@ class Search_Blocks {
 	}
 
 	/**
+	 * Derive a block-pattern's content from a chrome-free layout template (the
+	 * overlay templates, which already ship without header/footer/main page
+	 * chrome), so patterns stay in sync with the template they mirror instead of
+	 * carrying a hand-copied second copy of the layout.
+	 *
+	 * @param string $template_file Template basename under `templates/`.
+	 * @return string Block markup ready for `register_block_pattern()`, or '' when unreadable.
+	 */
+	public static function pattern_content_from_template( string $template_file ): string {
+		$template_path = __DIR__ . '/templates/' . basename( $template_file );
+		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- local, bundled template file.
+		$raw = is_readable( $template_path ) ? (string) file_get_contents( $template_path ) : '';
+		if ( '' === $raw ) {
+			return '';
+		}
+		return trim( static::substitute_template_placeholders( $raw ) );
+	}
+
+	/**
 	 * Build the full search page template content.
 	 *
 	 * Markup lives in `templates/jetpack-search.html` with a `{{FILTER_HEADING}}`
