@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+My Jetpack: render the Overview connection and Help footers full-width by lifting them out of the centered content container

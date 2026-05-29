@@ -2,9 +2,7 @@ import { getRedirectUrl } from '@automattic/jetpack-components';
 import { Button } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { useCallback } from 'react';
-import { FullWidthSeparator } from '../full-width-separator';
 import { HelpCards } from './cards';
-import { HelpFooter } from './footer';
 import styles from './styles.module.scss';
 import { useHelpTracking } from './use-help-tracking';
 
@@ -46,8 +44,6 @@ export function HelpContent() {
 				</span>
 			</Button>
 			<HelpCards />
-			<FullWidthSeparator />
-			<HelpFooter />
 		</section>
 	);
 }
