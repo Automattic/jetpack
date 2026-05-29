@@ -29,6 +29,20 @@
 		@include jetpack-admin-page-layout;
 	}
 
+	// Defend @wordpress/ui Button against wp-admin's unlayered anchor styles
+	// when Button renders as an <a> via nativeButton={false} + render={<a/>}.
+	// @wordpress/ui's component rules live inside @layer wp-ui-components, and
+	// per CSS Cascade Layers, unlayered wp-admin rules like `a { color, …}`
+	// win over them — so the rendered anchor inherits wp-admin's blue link
+	// color and underline instead of the Button's intended foreground. We
+	// target the stable `__button` suffix that @wordpress/ui's CSS modules
+	// emit, and bump specificity with #my-jetpack-container so wp-admin's
+	// bare `a` cannot win.
+	#my-jetpack-container a[class*="__button"] {
+		color: var(--wp-ui-button-foreground-color);
+		text-decoration: none;
+	}
+
 	#my-jetpack-container {
 		height: 100%;
 
