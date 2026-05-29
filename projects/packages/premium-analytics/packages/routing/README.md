@@ -1,4 +1,4 @@
-# @next-woo-analytics/routing
+# @jetpack-premium-analytics/routing
 
 Utilities for handling **routing and URL search parameters** in
 WooCommerce Analytics with TypeScript integration.
@@ -27,7 +27,7 @@ parameters are handled consistently across the application.
 ### Date Range Navigation
 
 ```typescript
-import { writeDateRangeToSearch } from '@next-woo-analytics/routing';
+import { writeDateRangeToSearch } from '@jetpack-premium-analytics/routing';
 import { useNavigate } from '@wordpress/route';
 
 function DateRangeSelector() {
@@ -47,7 +47,7 @@ function DateRangeSelector() {
 ### Comparison Parameter Management
 
 ```typescript
-import { writeComparisonToSearch } from '@next-woo-analytics/routing';
+import { writeComparisonToSearch } from '@jetpack-premium-analytics/routing';
 
 function ComparisonSelector() {
   const navigate = useNavigate();
