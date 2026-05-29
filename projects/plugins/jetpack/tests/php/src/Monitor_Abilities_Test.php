@@ -163,6 +163,7 @@ class Monitor_Abilities_Test extends WP_UnitTestCase {
 	 *
 	 * @param string $slug Ability slug to inspect.
 	 */
+	#[DataProvider( 'provider_ability_slugs' )]
 	public function test_abilities_expose_public_mcp_tool_metadata( string $slug ) {
 		$meta = Monitor_Abilities::get_abilities()[ $slug ]['meta'];
 		$this->assertTrue( $meta['show_in_rest'], "{$slug} should be exposed in REST." );
@@ -174,7 +175,7 @@ class Monitor_Abilities_Test extends WP_UnitTestCase {
 	/**
 	 * @return array<string, array{0: string}>
 	 */
-	public function provider_ability_slugs(): array {
+	public static function provider_ability_slugs(): array {
 		return array(
 			'get-monitor-status' => array( 'jetpack-monitor/get-monitor-status' ),
 			'set-notifications'  => array( 'jetpack-monitor/set-notifications' ),
