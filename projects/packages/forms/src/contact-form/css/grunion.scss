@@ -959,7 +959,7 @@
 	border-right: none !important;
 	border-top-right-radius: unset !important;
 	border-bottom-right-radius: unset !important;
-	background-color: var(--jetpack--contact-form--input-background);
+	background-color: inherit;
 }
 
 :where(.wp-block-jetpack-contact-form.is-style-outlined) .notched-label__notch {
@@ -972,7 +972,7 @@
 	transition: border 150ms linear;
 	border-left: none !important;
 	border-right: none !important;
-	background-color: var(--jetpack--contact-form--input-background);
+	background-color: inherit;
 }
 
 :where(.wp-block-jetpack-contact-form.is-style-outlined) .notched-label__filler {
@@ -984,7 +984,7 @@
 	border-left: none !important;
 	border-right: none !important;
 	border-radius: unset !important;
-	background-color: var(--jetpack--contact-form--input-background);
+	background-color: inherit;
 }
 
 :where(.wp-block-jetpack-contact-form.is-style-outlined) .notched-label__trailing {
@@ -999,7 +999,7 @@
 	border-left: none !important;
 	border-top-left-radius: unset !important;
 	border-bottom-left-radius: unset !important;
-	background-color: var(--jetpack--contact-form--input-background);
+	background-color: inherit;
 }
 
 /* Preserve the background color for the checkbox multiple and radio
