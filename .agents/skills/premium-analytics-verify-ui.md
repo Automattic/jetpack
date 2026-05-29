@@ -1,12 +1,16 @@
 ---
 description: >
-  Start the wp-verify WordPress environment, build premium-analytics, navigate to the
-  Analytics admin page with Playwright, and assert the dashboard root mounts without
-  uncaught JS exceptions. Use after any premium-analytics UI change as the
-  agent-verifiable step in the Definition of Done. Runs from inside `jetpack-ai-sandbox`
-  (Docker socket + Playwright/Chromium baked into the image) or from the host
-  (WordPress published to `localhost:${WP_VERIFY_HOST_PORT:-8080}`; host needs
-  Playwright on PATH).
+  Start the wp-verify WordPress environment, navigate to the Analytics admin page
+  with Playwright against the already-built premium-analytics package, and assert
+  the dashboard root mounts without uncaught JS exceptions. The skill **does not
+  build** — pre-flight checks that build artifacts exist and exits with the exact
+  `pnpm --filter ... build` command to run if they don't, so the caller stays in
+  control of the build step (the orchestrator `/premium-analytics-implement-task`
+  runs the build in its own Step 3 before invoking this skill). Use after any
+  premium-analytics UI change as the agent-verifiable step in the Definition of
+  Done. Runs from inside `jetpack-ai-sandbox` (Docker socket + Playwright/Chromium
+  baked into the image) or from the host (WordPress published to
+  `localhost:${WP_VERIFY_HOST_PORT:-18080}`; host needs Playwright on PATH).
 allowed-tools: Bash(docker:*), Bash(node:*), Bash(npx:*), Bash(playwright:*), Bash(npm:*), Bash(pnpm:*), Bash(bash:*), Bash(curl:*), Bash(sleep:*), Bash(test:*), Bash(mkdir:*), Bash(cat:*), Bash(cp:*), Bash(tr:*), Bash(sed:*), Bash(grep:*), Bash(git symbolic-ref:*), Bash(git rev-parse:*), Bash(git add:*), Bash(git diff:*), Bash(git commit:*), Bash(git remote:*), Bash(git rm:*), Write, Read
 ---
 

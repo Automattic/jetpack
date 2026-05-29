@@ -19,11 +19,21 @@ You are authorized to: push commits, comment on the PR, add/remove `[Status] *` 
   ```
   If that fails (no PR for this branch), stop and tell the user.
 ## Pre-flight
-1. **Repo detection** — detect the current repo and store for all subsequent API calls:
+1. **Repo detection** — detect the current repo and store for all subsequent API calls. Validate it actually is a jetpack repo (name ends with `/jetpack`) so the skill doesn't make API calls against an unintended repo on a misconfigured remote:
    ```bash
-   REPO=$(gh repo view --json nameWithOwner -q .nameWithOwner)
+   REPO=$(gh repo view --json nameWithOwner -q .nameWithOwner) || {
+     echo "ERROR: gh repo view failed — confirm gh auth + the current directory is a git repo with a github.com remote" >&2
+     exit 1
+   }
+   case "$REPO" in
+     */jetpack) ;;
+     *)
+       echo "ERROR: repo '$REPO' is not a jetpack repo (name must end with /jetpack)" >&2
+       echo "       This skill is jetpack-specific (paths, labels, and conventions baked in)." >&2
+       exit 1
+       ;;
+   esac
    ```
-   Must be a jetpack repo (name ends with `/jetpack`). Fail if `gh repo view` errors.
 2. **Auth** — `gh auth status` must succeed.
 3. **Branch** — capture the current branch (`BRANCH=$(git rev-parse --abbrev-ref HEAD)`). The loop assumes commits go on this branch, not `trunk`.
 4. **Rebase target** — derive from the PR's actual base, not from a hardcoded remote name. Different contributors use different conventions (maintainers often have `origin` → `Automattic/jetpack`; external contributors typically have `origin` → their fork and `upstream` → `Automattic/jetpack`). Look up the PR's base repo + ref, then find the local remote whose URL matches:
@@ -49,9 +59,9 @@ You are authorized to: push commits, comment on the PR, add/remove `[Status] *` 
    test -f /tmp/pr-review-state.json || echo '{"addressed_ids": [], "rerun_counts": {}}' > /tmp/pr-review-state.json
    ```
    The file is per-container ephemeral by design — each new review cycle resets it at the start, and a single cycle typically completes within one container lifetime, so loss on container restart is harmless (worst case: idempotent re-processing of already-addressed comments).
-6. **PR-owner set** — compute once per round (assignees can change):
+6. **PR-owner set** — compute once per round (assignees can change). `--repo "$REPO"` is required even though `gh pr view` defaults to the current repo, because earlier steps may have `cd`'d into a subdirectory whose nearest enclosing `.git` resolves to a different repo (e.g. a nested clone for cross-repo experiments) — passing it explicitly matches every other API call below:
    ```bash
-   gh pr view <PR> --json author,assignees \
+   gh pr view <PR> --repo "$REPO" --json author,assignees \
      -q '[.author.login] + [.assignees[].login] | unique | .[]'
    ```
    Cache as `OWNERS` for that round. Used for source filtering below.
