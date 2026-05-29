@@ -55,7 +55,8 @@
 		cursor: pointer;
 		transition:
 			background-color 0.2s ease,
-			border-color 0.2s ease;
+			border-color 0.2s ease,
+			box-shadow 0.2s ease;
 
 		@supports (border-color: color-mix(in sRGB, black 50%, white)) {
 			background: color-mix(in sRGB, currentColor 14%, transparent);
@@ -70,6 +71,19 @@
 			@supports (background: color-mix(in sRGB, black 50%, white)) {
 				background: color-mix(in sRGB, currentColor 24%, transparent);
 				border-color: color-mix(in sRGB, currentColor 52%, transparent);
+			}
+		}
+
+		// Keyboard focus ring, matching `_chip.scss`: a solid `currentColor` ring
+		// for UAs without color-mix, upgraded to a translucent one where
+		// supported. Replaces the native outline so the ring tracks the theme ink
+		// and stays consistent with the filter chips regardless of UA defaults.
+		&:focus-visible {
+			outline: none;
+			box-shadow: 0 0 0 2px currentColor;
+
+			@supports (box-shadow: 0 0 0 2px color-mix(in sRGB, black 50%, white)) {
+				box-shadow: 0 0 0 2px color-mix(in sRGB, currentColor 28%, transparent);
 			}
 		}
 	}
