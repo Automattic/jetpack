@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-My Jetpack: render the Overview connection and Help footers full-width, and keep the gray page surface scoped to the tab content so the area below the footer reads white instead of leaving a gray gap above the page footer
+My Jetpack: render the Overview and Help footers full-width and remove the gray gap below them.
