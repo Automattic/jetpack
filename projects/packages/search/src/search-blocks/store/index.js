@@ -590,12 +590,10 @@ const { state, actions } = store( NAMESPACE, {
 		// `computeResultsCountText()` for the lockstep logic.
 
 		/**
-		 * Skeleton visibility — shown whenever a fetch is in flight with no
-		 * results yet, so the initial client-side search gets a skeleton and
-		 * not just the pre-hydration window. A reload that already has results
-		 * keeps them (no flash). SSR can't evaluate this getter, so the
-		 * skeleton markup carries a literal `hidden` attribute off the initial
-		 * load; the IA runtime takes over after hydration.
+		 * Skeleton visibility. SSR can't evaluate a getter, so the skeleton
+		 * markup carries a literal `hidden` off the initial paint; this getter
+		 * takes over after hydration so the in-flight initial search shows the
+		 * skeleton (a reload that already has results keeps them — no flash).
 		 *
 		 * @return {boolean} True when the skeleton should be hidden.
 		 */

@@ -457,11 +457,13 @@ class Results_List_Render_Test extends TestCase {
 	public function test_skeleton_items_present_but_hidden_when_not_initial_loading() {
 		$markup = $this->render();
 
-		$this->assertStringContainsString( 'jetpack-search-results__item--skeleton', $markup );
-		// Each skeleton `<li>` carries a static `hidden` attribute. Match
-		// `hidden` only as a standalone attribute so `data-wp-bind--hidden` and
-		// `aria-hidden` don't false-positive.
-		$this->assertSame( 1, preg_match( '/<li[^>]*--skeleton[^>]*\s+hidden(?=\s|\/|>|=)/', $markup ) );
+		$total_skeletons = preg_match_all( '/jetpack-search-results__item--skeleton/', $markup );
+		$this->assertGreaterThan( 0, $total_skeletons );
+		// *Every* skeleton `<li>` carries a static `hidden` attribute, not just
+		// one. Match `hidden` only as a standalone attribute so
+		// `data-wp-bind--hidden` and `aria-hidden` don't false-positive.
+		$hidden_skeletons = preg_match_all( '/<li[^>]*--skeleton[^>]*\s+hidden(?=\s|\/|>|=)/', $markup );
+		$this->assertSame( $total_skeletons, $hidden_skeletons );
 	}
 
 	/**
