@@ -138,8 +138,7 @@ export default function ExperienceOption( { experience, disabled = false } ) {
 	const [ isConfirmOpen, setConfirmOpen ] = useState( false );
 
 	const isActive = active === experience;
-	const isRecommended = experience === EXPERIENCE.EMBEDDED;
-	const isBeta = experience === EXPERIENCE.OVERLAY_BLOCKS;
+	const isBeta = experience === EXPERIENCE.OVERLAY_BLOCKS || experience === EXPERIENCE.EMBEDDED;
 	const linksDisabled = isUpdating || ! isActive;
 
 	const Preview = PREVIEWS[ experience ];
@@ -183,9 +182,6 @@ export default function ExperienceOption( { experience, disabled = false } ) {
 					<h3 id={ titleId } className="jp-search-experience-option__title">
 						{ getCardTitle( experience ) }
 					</h3>
-					{ isRecommended && (
-						<Badge intent="informational">{ __( 'Recommended', 'jetpack-search-pkg' ) }</Badge>
-					) }
 					{ isBeta && <Badge intent="informational">{ __( 'Beta', 'jetpack-search-pkg' ) }</Badge> }
 				</Stack>
 				<CardCopy experience={ experience } />
