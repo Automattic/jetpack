@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Search Blocks: fix filters popover breaking the results-header layout on sites whose theme defines `.is-popover-open` styles. Renamed the Interactivity API toggle class to `jetpack-search-filters-popover-open` (avoiding theme class-name clashes) and raised the panel's CSS specificity from (0,1,0) to (0,2,0) so `position: absolute` is not overridden by generic theme rules.

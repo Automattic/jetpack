@@ -84,7 +84,7 @@ class Filters_Popover_Render_Test extends TestCase {
 		$this->assertStringContainsString( 'jetpack-search-filters-popover__trigger', $markup );
 		$this->assertStringContainsString( 'jetpack-search-filters-popover__panel', $markup );
 		$this->assertStringContainsString( 'data-wp-on--click="actions.toggleFilterPopover"', $markup );
-		$this->assertStringContainsString( 'data-wp-class--is-popover-open="state.isFilterPopoverOpen"', $markup );
+		$this->assertStringContainsString( 'data-wp-class--jetpack-search-filters-popover-open="state.isFilterPopoverOpen"', $markup );
 	}
 
 	/**
