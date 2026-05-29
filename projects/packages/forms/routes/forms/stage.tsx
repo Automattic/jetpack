@@ -14,14 +14,15 @@ import { dateI18n, getSettings as getDateSettings } from '@wordpress/date';
 import { useEffect, useMemo, useState, useCallback } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { useSearch, useNavigate } from '@wordpress/route';
-import { Badge } from '@wordpress/ui';
+import { Badge, EmptyState } from '@wordpress/ui';
 import * as React from 'react';
 /**
  * Internal dependencies
  */
 import IntegrationsModal from '../../src/blocks/contact-form/components/jetpack-integrations-modal';
+import { icon as formBlockIcon } from '../../src/blocks/contact-form/icon.jsx';
 import CreateFormButton from '../../src/dashboard/components/create-form-button/index.tsx';
-import { EmptyWrapper, NoResults } from '../../src/dashboard/components/empty-responses/index.tsx';
+import { NoResults } from '../../src/dashboard/components/empty-responses/index.tsx';
 import { FormNameModal } from '../../src/dashboard/components/form-name-modal';
 import {
 	FORM_STATUSES,
@@ -612,13 +613,15 @@ function StageInner() {
 					hasActiveFilters ? (
 						<NoResults />
 					) : (
-						<EmptyWrapper
-							heading={ __( "You're set up. No forms yet.", 'jetpack-forms' ) }
-							body={ __(
-								'Create a form to manage and reuse it across your site.',
-								'jetpack-forms'
-							) }
-							actions={
+						<EmptyState.Root>
+							<EmptyState.Icon icon={ formBlockIcon } />
+							<EmptyState.Title>
+								{ __( "You're set up. No forms yet.", 'jetpack-forms' ) }
+							</EmptyState.Title>
+							<EmptyState.Description>
+								{ __( 'Create a form to manage and reuse it across your site.', 'jetpack-forms' ) }
+							</EmptyState.Description>
+							<EmptyState.Actions>
 								<HStack justify="center" spacing="2">
 									<CreateFormButton
 										label={ __( 'Create a new form', 'jetpack-forms' ) }
@@ -631,8 +634,8 @@ function StageInner() {
 										</Button>
 									) }
 								</HStack>
-							}
-						/>
+							</EmptyState.Actions>
+						</EmptyState.Root>
 					)
 				}
 				view={ view }
