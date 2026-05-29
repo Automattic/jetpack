@@ -1,7 +1,7 @@
 import { Path } from '@wordpress/components';
 import renderMaterialIcon from '../shared/components/render-material-icon.jsx';
 
-export const icon = renderMaterialIcon(
+const iconPaths = (
 	<>
 		<Path fillRule="evenodd" clipRule="evenodd" d="M18 9H13V7.5H18V9Z" />
 		<Path fillRule="evenodd" clipRule="evenodd" d="M18 16.5H13V15H18V16.5Z" />
@@ -22,3 +22,8 @@ export const icon = renderMaterialIcon(
 		/>
 	</>
 );
+
+export const blockIcon = renderMaterialIcon( iconPaths );
+
+// Static SVG element for @wordpress/ui EmptyState (expects an element, not a component).
+export const icon = blockIcon();
