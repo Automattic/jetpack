@@ -4,8 +4,8 @@ Pre-flight plugin-activation check. When an admin clicks Activate (or finishes a
 
 Two independent filters:
 
-- `pcg_guard_activation` — enables the activation probe and the syntax-only install/update gate. Defaults `true`.
-- `pcg_guard_updates` — enables the post-update health check + rollback flow. Defaults `true`.
+- `pcg_guard_activation` — enables the activation probe. Defaults `true`.
+- `pcg_guard_updates` — enables the syntax-only install/update gate and the post-update health check + rollback flow. Defaults `true`.
 
 ## Files
 
