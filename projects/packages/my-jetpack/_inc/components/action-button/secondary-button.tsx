@@ -1,19 +1,15 @@
 import { __ } from '@wordpress/i18n';
 import { Button, Link } from '@wordpress/ui';
-import type { IconType } from '@wordpress/components';
 import type { FC, MouseEvent } from 'react';
 
 export type SecondaryButtonProps = {
 	href?: string;
 	size?: 'normal' | 'small';
 	variant?: 'primary' | 'secondary' | 'link' | 'tertiary';
-	weight?: 'bold' | 'regular';
 	label?: string;
 	shouldShowButton?: () => boolean;
 	onClick?: ( () => void ) | ( ( e: MouseEvent< HTMLButtonElement > ) => void );
 	isExternalLink?: boolean;
-	icon?: IconType;
-	iconSize?: number;
 	disabled?: boolean;
 	isLoading?: boolean;
 	loadingAnnouncement?: string;
