@@ -180,7 +180,6 @@ if ( ! class_exists( 'Jetpack_Data' ) ) {
 require_once __DIR__ . '/frontend-notices/wpcomsh-frontend-notices.php';
 
 // wp-admin Notices
-require_once __DIR__ . '/notices/plan-notices.php';
 require_once __DIR__ . '/notices/storage-notices.php';
 require_once __DIR__ . '/notices/php-version-notices.php';
 require_once __DIR__ . '/notices/media-library-private-site-cdn-notice.php';

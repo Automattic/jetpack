@@ -30,6 +30,12 @@ if ( ! function_exists( 'wpcom_expiry_get_purchases' ) ) {
 }
 // @codeCoverageIgnoreEnd
 
+// @codeCoverageIgnoreStart -- file-load admin-only require runs at bootstrap.
+if ( is_admin() ) {
+	require_once __DIR__ . '/admin-banner.php';
+}
+// @codeCoverageIgnoreEnd
+
 /**
  * Register the dismiss meta keys. Gated on admin / REST so we don't pay the
  * register_meta cost on every front-end request.

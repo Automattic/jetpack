@@ -1,0 +1,15 @@
+#wpcom-expiry-banner {
+
+	.wpcom-expiry-banner__actions {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 8px;
+		align-items: center;
+	}
+
+	.wpcom-expiry-banner__remind {
+		// Outline-style secondary button, matching the Figma design where the
+		// dismiss action sits next to the primary "Renew now" CTA.
+		background: transparent;
+	}
+}

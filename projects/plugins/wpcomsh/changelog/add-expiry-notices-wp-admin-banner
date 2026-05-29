@@ -1,0 +1,4 @@
+Significance: patch
+Type: removed
+
+Removed the legacy plan-renewal admin notice; replaced by the new sitewide expiry-notices system in jetpack-mu-wpcom.

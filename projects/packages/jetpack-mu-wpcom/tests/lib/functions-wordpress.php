@@ -33,6 +33,20 @@ if ( ! function_exists( 'add_blog_option' ) ) {
 	}
 }
 
+if ( ! function_exists( 'wpcom_expiry_get_purchases' ) ) {
+	/**
+	 * Test seam for the expiry-notices wrapper. Shadows the production
+	 * function without redefining wpcom_get_site_purchases() globally, which
+	 * would change behaviour for unrelated features that use
+	 * function_exists() guards on it.
+	 *
+	 * @return array
+	 */
+	function wpcom_expiry_get_purchases() {
+		return $GLOBALS['wpcom_get_site_purchases_test_value'] ?? array();
+	}
+}
+
 if ( ! function_exists( 'wpcom_rest_api_v2_load_plugin' ) ) {
 	/**
 	 * A drop-in for a WordPress.com function.

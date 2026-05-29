@@ -15,7 +15,6 @@
 			<exclude>tests/feature-manager/FeatureHookTest.php</exclude>
 			<exclude>tests/FrontendNoticesTest.php</exclude>
 			<exclude>tests/FunctionsTest.php</exclude>
-			<exclude>tests/PlanNoticesTest.php</exclude>
 			<exclude>tests/WpcomFeaturesTest.php</exclude>
 			<exclude>tests/WpcomSitePurchaseTest.php</exclude>
 			<exclude>tests/WpcomshPremiumAnalyticsTest.php</exclude>
@@ -24,7 +23,6 @@
 			<file>tests/feature-manager/FeatureHookTest.php</file>
 			<file>tests/FrontendNoticesTest.php</file>
 			<file>tests/FunctionsTest.php</file>
-			<file>tests/PlanNoticesTest.php</file>
 			<file>tests/WpcomFeaturesTest.php</file>
 			<file>tests/WpcomSitePurchaseTest.php</file>
 			<file>tests/WpcomshPremiumAnalyticsTest.php</file>
