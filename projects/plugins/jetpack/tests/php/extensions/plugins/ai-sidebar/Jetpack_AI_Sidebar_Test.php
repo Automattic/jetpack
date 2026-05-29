@@ -109,9 +109,31 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 		remove_all_filters( 'jetpack_ai_sidebar_preview_enabled' );
 		remove_all_filters( 'jetpack_ai_sidebar_preview_features' );
 		remove_all_filters( 'jetpack_ai_sidebar_agents_manager_data' );
+		remove_filter( 'jetpack_is_connection_ready', '__return_true', 1000 );
+		remove_filter( 'jetpack_gutenberg', '__return_true' );
+		remove_filter( 'jetpack_set_available_extensions', array( __CLASS__, 'get_sidebar_extension_allowlist' ) );
 		remove_action( 'admin_enqueue_scripts', array( Jetpack_AI_Sidebar::class, 'maybe_enqueue_abilities_script' ), 201 );
 		remove_action( 'admin_enqueue_scripts', array( Jetpack_AI_Sidebar::class, 'maybe_patch_jetpack_ai_sidebar_preview_data' ), 250 );
 		remove_action( 'jetpack_register_gutenberg_extensions', array( Jetpack_AI_Sidebar::class, 'register_block_transformations_extension' ), 99 );
+	}
+
+	/**
+	 * Limit Jetpack Gutenberg availability checks to the sidebar extension under test.
+	 *
+	 * @return array
+	 */
+	public static function get_sidebar_extension_allowlist() {
+		return array( AiAssistantPlugin\AI_SIDEBAR_BLOCK_TRANSFORMATIONS_EXTENSION );
+	}
+
+	/**
+	 * Enable Jetpack Gutenberg availability checks for the sidebar extension under test.
+	 */
+	private function enable_sidebar_extension_availability_checks() {
+		add_filter( 'jetpack_is_connection_ready', '__return_true', 1000 );
+		add_filter( 'jetpack_gutenberg', '__return_true' );
+		add_filter( 'jetpack_set_available_extensions', array( __CLASS__, 'get_sidebar_extension_allowlist' ) );
+		Status_Cache::clear();
 	}
 
 	/**
@@ -528,6 +550,7 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	public function test_register_block_transformations_extension_marks_feature_available() {
 		$this->set_block_editor_screen();
 		$this->make_legacy_block_toolbar_extensions_available();
+		$this->enable_sidebar_extension_availability_checks();
 		add_filter( 'jetpack_ai_sidebar_enabled', '__return_true' );
 		add_filter( 'jetpack_ai_sidebar_preview_enabled', '__return_true' );
 		add_filter(
@@ -544,6 +567,7 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 		$this->assertTrue( \Jetpack_Gutenberg::is_available( AiAssistantPlugin\AI_SIDEBAR_BLOCK_TRANSFORMATIONS_EXTENSION ) );
 		$this->assertTrue( \Jetpack_Gutenberg::is_available( 'ai-assistant-support' ) );
 		$this->assertTrue( \Jetpack_Gutenberg::is_available( 'ai-assistant-image-extension' ) );
+		$this->assertTrue( \Jetpack_Gutenberg::get_availability()[ AiAssistantPlugin\AI_SIDEBAR_BLOCK_TRANSFORMATIONS_EXTENSION ]['available'] );
 	}
 
 	/**
@@ -552,6 +576,7 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	public function test_register_block_transformations_extension_skips_when_toolbar_button_disabled() {
 		$this->set_block_editor_screen();
 		$this->make_legacy_block_toolbar_extensions_available();
+		$this->enable_sidebar_extension_availability_checks();
 		add_filter(
 			'jetpack_ai_sidebar_preview_features',
 			static function ( $features ) {
@@ -564,6 +589,9 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 		Jetpack_AI_Sidebar::register_block_transformations_extension();
 
 		$this->assertFalse( \Jetpack_Gutenberg::is_available( AiAssistantPlugin\AI_SIDEBAR_BLOCK_TRANSFORMATIONS_EXTENSION ) );
+		$availability = \Jetpack_Gutenberg::get_availability()[ AiAssistantPlugin\AI_SIDEBAR_BLOCK_TRANSFORMATIONS_EXTENSION ];
+		$this->assertFalse( $availability['available'] );
+		$this->assertSame( 'jetpack_ai_sidebar_feature_disabled', $availability['unavailable_reason'] );
 	}
 
 	/**

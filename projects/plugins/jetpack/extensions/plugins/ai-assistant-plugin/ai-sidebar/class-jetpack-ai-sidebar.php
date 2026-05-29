@@ -416,6 +416,10 @@ class Jetpack_AI_Sidebar {
 			! self::has_block_transformations_enabled()
 			|| true !== ( $preview_config['features']['blockToolbarButton'] ?? false )
 		) {
+			\Jetpack_Gutenberg::set_extension_unavailable(
+				AI_SIDEBAR_BLOCK_TRANSFORMATIONS_EXTENSION,
+				'jetpack_ai_sidebar_feature_disabled'
+			);
 			return;
 		}
 
