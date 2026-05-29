@@ -116,24 +116,26 @@ export default function PricingGate( { onDismiss }: { onDismiss: VoidFunction } 
 							</li>
 						) ) }
 					</ul>
-					<Button variant="solid" onClick={ onGetSocial }>
-						{ __( 'Get Social', 'jetpack-publicize-pkg' ) }
-					</Button>
-					<Button
-						variant="outline"
-						onClick={ onStartForFree }
-						loading={ isEnabling }
-						loadingAnnouncement={ __( 'Please wait…', 'jetpack-publicize-pkg' ) }
-						disabled={ isEnabling }
-					>
-						{ isEnabling
-							? __( 'Please wait…', 'jetpack-publicize-pkg' )
-							: _x(
-									'Start for free',
-									'Pricing page CTA for Social admin page',
-									'jetpack-publicize-pkg'
-							  ) }
-					</Button>
+					<div className="jetpack-social-gate__actions">
+						<Button variant="solid" onClick={ onGetSocial }>
+							{ __( 'Get Social', 'jetpack-publicize-pkg' ) }
+						</Button>
+						<Button
+							variant="outline"
+							onClick={ onStartForFree }
+							loading={ isEnabling }
+							loadingAnnouncement={ __( 'Please wait…', 'jetpack-publicize-pkg' ) }
+							disabled={ isEnabling }
+						>
+							{ isEnabling
+								? __( 'Please wait…', 'jetpack-publicize-pkg' )
+								: _x(
+										'Start for free',
+										'Pricing page CTA for Social admin page',
+										'jetpack-publicize-pkg'
+								  ) }
+						</Button>
+					</div>
 				</Card.Content>
 			</Card.Root>
 		</div>
