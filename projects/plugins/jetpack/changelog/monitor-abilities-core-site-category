@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+Monitor abilities: register under the WordPress core site ability category instead of a plugin-scoped jetpack-monitor category
