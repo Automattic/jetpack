@@ -44,6 +44,7 @@ import {
 	search,
 	starFilled,
 	store,
+	stretchWide,
 	swatch,
 	tag,
 	tool,
@@ -70,6 +71,7 @@ const BLOCK_ICONS = {
 	'jetpack-search/filters': greened( filter ),
 	'jetpack-search/filters-popover': greened( funnel ),
 	'jetpack-search/filters-product': greened( store ),
+	'jetpack-search/layout': greened( stretchWide ),
 	'jetpack-search/active-filters': greened( pin ),
 	'jetpack-search/clear-filters': greened( reset ),
 	// The "Powered by Jetpack Search" block advertises Jetpack ownership in

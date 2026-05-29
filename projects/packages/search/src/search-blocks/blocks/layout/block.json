@@ -1,0 +1,43 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "jetpack-search/layout",
+	"version": "0.1.0",
+	"title": "Search Layout",
+	"category": "jetpack-search",
+	"description": "Centered page wrapper for the Jetpack Search experience. Controls the search region's width, margin, padding, and border.",
+	"keywords": [ "search", "layout", "wrapper" ],
+	"supports": {
+		"html": false,
+		"spacing": {
+			"padding": true,
+			"margin": true,
+			"blockGap": true
+		},
+		"__experimentalBorder": {
+			"color": true,
+			"radius": true,
+			"style": true,
+			"width": true,
+			"__experimentalDefaultControls": {
+				"color": true,
+				"radius": true,
+				"style": true,
+				"width": true
+			}
+		},
+		"dimensions": {
+			"minHeight": true
+		},
+		"layout": {
+			"default": { "type": "constrained" }
+		}
+	},
+	"attributes": {
+		"tagName": { "type": "string", "default": "div" },
+		"width": { "type": "number" },
+		"widthUnit": { "type": "string" }
+	},
+	"textdomain": "jetpack-search-pkg",
+	"render": "file:./render.php"
+}
