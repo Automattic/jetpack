@@ -76,9 +76,9 @@ class Monitor_Abilities_Test extends WP_UnitTestCase {
 				wp_unregister_ability( $slug );
 			}
 		}
-		if ( function_exists( 'wp_unregister_ability_category' ) ) {
-			wp_unregister_ability_category( Monitor_Abilities::get_category_slug() );
-		}
+		// Note: we intentionally do NOT unregister the category here — Monitor
+		// abilities live under the WordPress core `site` category, which this
+		// registrar never registers and must never tear down.
 
 		delete_transient( 'monitor_last_downtime' );
 		delete_option( 'monitor_receive_notifications' );
@@ -92,27 +92,65 @@ class Monitor_Abilities_Test extends WP_UnitTestCase {
 	 * `doing_action()`, so direct invocation outside the hook is rejected.
 	 */
 	private function fire_abilities_lifecycle(): void {
+		// Monitor abilities live under the core `site` category, which in
+		// production is registered by WordPress core on the
+		// `wp_abilities_api_categories_init` action. The isolated unit-test
+		// lifecycle does not carry core's registration over, so without this
+		// the category is absent when `register_abilities()` runs and
+		// `wp_register_ability()` rejects every ability ("category not
+		// registered"). Register the `site` category here, scoped to the
+		// categories-init action (where `wp_register_ability_category()` is
+		// permitted) and guarded so a re-fire — or a build where core already
+		// registered it — does not trigger an "already registered" notice.
+		$ensure_site_category = static function () {
+			if (
+				function_exists( 'wp_has_ability_category' )
+				&& function_exists( 'wp_register_ability_category' )
+				&& ! wp_has_ability_category( 'site' )
+			) {
+				wp_register_ability_category(
+					'site',
+					array(
+						'label'       => 'Site',
+						'description' => 'Abilities that retrieve or modify site information and settings.',
+					)
+				);
+			}
+		};
+		add_action( Registrar::CATEGORIES_INIT_ACTION, $ensure_site_category, 1 );
+
 		add_action( Registrar::CATEGORIES_INIT_ACTION, array( Monitor_Abilities::class, 'register_category' ) );
 		add_action( Registrar::ABILITIES_INIT_ACTION, array( Monitor_Abilities::class, 'register_abilities' ) );
 		do_action( Registrar::CATEGORIES_INIT_ACTION );
 		do_action( Registrar::ABILITIES_INIT_ACTION );
+
+		remove_action( Registrar::CATEGORIES_INIT_ACTION, $ensure_site_category, 1 );
 	}
 
 	// -------------------- Abstract getters --------------------
 
 	/**
-	 * Category slug is namespaced under the plugin.
+	 * Category slug is the WordPress core `site` category.
 	 */
-	public function test_category_slug_is_plugin_scoped() {
-		$this->assertSame( 'jetpack-monitor', Monitor_Abilities::get_category_slug() );
+	public function test_category_slug_is_core_site_category() {
+		$this->assertSame( 'site', Monitor_Abilities::get_category_slug() );
 	}
 
-	public function test_category_definition_has_label_and_description() {
-		$def = Monitor_Abilities::get_category_definition();
-		$this->assertArrayHasKey( 'label', $def );
-		$this->assertArrayHasKey( 'description', $def );
-		$this->assertIsString( $def['label'] );
-		$this->assertIsString( $def['description'] );
+	public function test_register_category_is_a_noop() {
+		// The `site` category is owned by WordPress core; this registrar must
+		// not register a plugin-scoped category of its own.
+		if ( ! function_exists( 'wp_has_ability_category' ) ) {
+			$this->markTestSkipped( 'Abilities API not available in this WP version.' );
+		}
+
+		add_action( Registrar::CATEGORIES_INIT_ACTION, array( Monitor_Abilities::class, 'register_category' ) );
+		do_action( Registrar::CATEGORIES_INIT_ACTION );
+
+		// Firing the registrar's (no-op) category callback must not have created
+		// a legacy `jetpack-monitor` category. `wp_has_ability_category()`
+		// returns a clean bool (no `_doing_it_wrong`), unlike
+		// `wp_get_ability_category()` which flags an unregistered lookup.
+		$this->assertFalse( wp_has_ability_category( 'jetpack-monitor' ) );
 	}
 
 	public function test_abilities_map_is_non_empty_and_namespaced() {
@@ -273,7 +311,7 @@ class Monitor_Abilities_Test extends WP_UnitTestCase {
 			$registered = wp_get_ability( $slug );
 			$this->assertNotNull( $registered, "Ability {$slug} should be registered." );
 			$this->assertSame(
-				'jetpack-monitor',
+				'site',
 				$registered->get_category(),
 				"Ability {$slug} should have category auto-injected."
 			);
