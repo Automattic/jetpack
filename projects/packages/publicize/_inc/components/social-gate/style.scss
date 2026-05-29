@@ -38,13 +38,7 @@
 		margin-bottom: 16px;
 	}
 
-	&__price-amount {
-		font-size: 28px;
-		font-weight: 600;
-	}
-
 	&__price-was {
-		margin-inline-start: 8px;
 		text-decoration: line-through;
 		color: var(--wpds-color-fg-content-neutral, #50575e);
 	}
@@ -56,23 +50,17 @@
 	}
 
 	&__features {
+		// `Stack` sets `display: flex` from a `@layer`; this unlayered rule wins,
+		// keeping the list shrink-wrapped and centered, rows left-aligned.
+		display: inline-flex;
 		list-style: none;
 		margin: 0 0 24px;
 		padding: 0;
 		text-align: start;
-		display: inline-block;
 	}
 
-	&__feature {
-		display: flex;
-		align-items: center;
-		gap: 8px;
-		margin-bottom: 8px;
-	}
-
-	&__actions {
-		display: flex;
-		justify-content: center;
-		gap: 12px;
+	&__feature svg {
+		// Keep the checkmark from shrinking when a feature label wraps to two lines.
+		flex-shrink: 0;
 	}
 }

@@ -1,10 +1,11 @@
 import getRedirectUrl from '@automattic/jetpack-components/tools/jp-redirect';
 import { getScriptData } from '@automattic/jetpack-script-data';
+import { formatCurrency } from '@automattic/number-formatters';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useCallback } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
 import { Icon, check } from '@wordpress/icons';
-import { Button, Card } from '@wordpress/ui';
+import { Button, Card, Stack, Text } from '@wordpress/ui';
 import useProductInfo from '../../hooks/use-product-info';
 import { store as socialStore } from '../../social-store';
 import { getRefreshPlanQuery, getSocialScriptData } from '../../utils';
@@ -39,13 +40,10 @@ export default function PricingGate( { onDismiss }: { onDismiss: VoidFunction } 
 	const monthlyPrice = productInfo?.v1?.price ?? null;
 	const introPrice = productInfo?.v1?.introOffer ?? null;
 
+	// Drop the trailing `.00` the currency would otherwise add, but keep cents
+	// when the price isn't a whole unit.
 	const formatPrice = useCallback(
-		( amount: number ) =>
-			new Intl.NumberFormat( undefined, {
-				style: 'currency',
-				currency,
-				maximumFractionDigits: 0,
-			} ).format( amount ),
+		( amount: number ) => formatCurrency( amount, currency, { stripZeros: true } ),
 		[ currency ]
 	);
 
@@ -95,28 +93,40 @@ export default function PricingGate( { onDismiss }: { onDismiss: VoidFunction } 
 					</p>
 					{ monthlyPrice != null && (
 						<div className="jetpack-social-gate__price">
-							<span className="jetpack-social-gate__price-amount">
-								{ formatPrice( introPrice ?? monthlyPrice ) }
-							</span>
-							{ introPrice != null && (
-								<span className="jetpack-social-gate__price-was">
-									{ formatPrice( monthlyPrice ) }
-								</span>
-							) }
+							<Stack direction="row" justify="center" align="baseline" gap="sm">
+								<Text variant="heading-2xl">{ formatPrice( introPrice ?? monthlyPrice ) }</Text>
+								{ introPrice != null && (
+									<Text className="jetpack-social-gate__price-was">
+										{ formatPrice( monthlyPrice ) }
+									</Text>
+								) }
+							</Stack>
 							<span className="jetpack-social-gate__price-legend">
 								{ __( 'per month, billed yearly', 'jetpack-publicize-pkg' ) }
 							</span>
 						</div>
 					) }
-					<ul className="jetpack-social-gate__features">
+					<Stack
+						className="jetpack-social-gate__features"
+						direction="column"
+						gap="sm"
+						render={ <ul /> }
+					>
 						{ PAID_FEATURES.map( ( feature, index ) => (
-							<li key={ index } className="jetpack-social-gate__feature">
+							<Stack
+								key={ index }
+								className="jetpack-social-gate__feature"
+								direction="row"
+								align="center"
+								gap="sm"
+								render={ <li /> }
+							>
 								<Icon icon={ check } />
 								<span>{ feature }</span>
-							</li>
+							</Stack>
 						) ) }
-					</ul>
-					<div className="jetpack-social-gate__actions">
+					</Stack>
+					<Stack className="jetpack-social-gate__actions" direction="row" justify="center" gap="md">
 						<Button variant="solid" onClick={ onGetSocial }>
 							{ __( 'Get Social', 'jetpack-publicize-pkg' ) }
 						</Button>
@@ -135,7 +145,7 @@ export default function PricingGate( { onDismiss }: { onDismiss: VoidFunction } 
 										'jetpack-publicize-pkg'
 								  ) }
 						</Button>
-					</div>
+					</Stack>
 				</Card.Content>
 			</Card.Root>
 		</div>
