@@ -6,7 +6,6 @@ import {
 	QueryClientProvider,
 	QueryCache,
 } from '@tanstack/react-query';
-import { useExperiments } from '@automattic/admin-toolkit';
 import { ReactNode, lazy, Suspense } from 'react';
 
 /**
@@ -137,11 +136,12 @@ export const AnalyticsQueryClientProvider = ( {
 }: {
 	children: ReactNode;
 } ) => {
-	const { enabledExperiments } = useExperiments();
 	return (
 		<QueryClientProvider client={ queryClient }>
 			<>{ children }</>
-			{ enabledExperiments[ 'tanstack/query-dev-tool' ] && (
+			{ /* Upstream gates this behind an admin-toolkit experiment flag; that
+			     system isn't available here, so show devtools in dev builds only. */ }
+			{ process.env.NODE_ENV !== 'production' && (
 				<Suspense fallback={ null }>
 					<ReactQueryDevtoolsProduction initialIsOpen={ true } />
 				</Suspense>
