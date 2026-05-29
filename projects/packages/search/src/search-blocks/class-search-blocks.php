@@ -1261,11 +1261,9 @@ class Search_Blocks {
 	.jetpack-search-block-overlay__card {
 		--jp-search-overlay-surface: color-mix(in sRGB, var(--jp-search-page-ink, var(--wp--preset--color--contrast, var(--wp--preset--color--foreground, #1d2327))) 5%, var(--jp-search-page-surface, var(--wp--preset--color--base, var(--wp--preset--color--background, #fff))));
 		border-color: color-mix(in sRGB, var(--jp-search-overlay-ink) 20%, var(--jp-search-overlay-surface));
-		/* Tint the elevation shadow from ink so it inverts polarity with the theme
-		 * (SEARCH-289): a dark drop shadow on light cards, a soft light halo on dark
-		 * cards. A flat black shadow is invisible against the dark scrim on dark
-		 * themes, leaving the card melted into the page. The static black `box-shadow`
-		 * above stays as the no-`color-mix` fallback. */
+		/* Ink-derived shadow inverts polarity per theme (SEARCH-289): a dark drop
+		 * shadow on light cards, a soft light halo on dark — a flat black shadow is
+		 * invisible against the dark scrim. Static black above is the fallback. */
 		box-shadow: 0 8px 32px color-mix(in sRGB, var(--jp-search-overlay-ink) 22%, transparent);
 	}
 }
