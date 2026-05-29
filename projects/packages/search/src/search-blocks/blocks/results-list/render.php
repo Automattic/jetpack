@@ -102,6 +102,12 @@ $features      = $resolve_layout( $layout );
 $wrapper_class = 'jetpack-search-results--' . $features['modifier'];
 $wrapper_attrs = get_block_wrapper_attributes( array( 'class' => $wrapper_class ) );
 
+// Hand the resolved layout to the store so the TrainTracks `ui_algo` matches
+// what visitors actually see. Deep-merges onto the global seed.
+if ( function_exists( 'wp_interactivity_state' ) ) {
+	wp_interactivity_state( 'jetpack-search', array( 'resultsLayout' => $layout ) );
+}
+
 // Pre-hydration loading state. Skeleton items below render server-side only
 // when the URL carries a query/filter that will trigger an initial fetch on
 // hydration; otherwise emitting them would freeze placeholder rows on a bare
@@ -172,7 +178,10 @@ if ( '' === $error_message ) {
 			data-wp-each--result="state.results"
 			data-wp-key="context.result.id"
 		>
-			<li class="jetpack-search-results__item">
+			<li
+				class="jetpack-search-results__item"
+				data-wp-on--click="actions.recordResultInteract"
+			>
 				<?php if ( $features['show_image'] && 'product' === $layout ) : ?>
 					<a
 						class="jetpack-search-results__product-image-link"
