@@ -33,7 +33,7 @@ function pcg_update_guard_check( $source, $remote_source, $upgrader, $hook_extra
 	if ( is_wp_error( $source ) ) {
 		return $source;
 	}
-	if ( ! apply_filters( 'pcg_guard_activation', true ) ) {
+	if ( ! apply_filters( 'pcg_guard_updates', true ) ) {
 		return $source;
 	}
 	$type   = $hook_extra['type'] ?? '';
@@ -62,7 +62,7 @@ function pcg_update_guard_check( $source, $remote_source, $upgrader, $hook_extra
 	$first = $scan['errors'][0];
 
 	pcg_update_guard_log_blocked( $action, $hook_extra, $scan, (string) $source );
-	pcg_update_guard_stash_retry_context( $action, $hook_extra );
+	pcg_update_guard_stash_retry_context( $action, $hook_extra, (string) $source );
 
 	return new WP_Error(
 		'pcg_update_parse_error',
@@ -117,13 +117,18 @@ function pcg_update_guard_log_blocked( $action, array $hook_extra, array $scan, 
  *
  * @param string $action     `install` or `update`.
  * @param array  $hook_extra Hook payload from `upgrader_source_selection`.
+ * @param string $source     Extracted package directory — fallback slug source on installs,
+ *                           since `Plugin_Upgrader::install()` doesn't populate `hook_extra['plugin']`.
  * @return void
  */
-function pcg_update_guard_stash_retry_context( $action, array $hook_extra ) {
+function pcg_update_guard_stash_retry_context( $action, array $hook_extra, $source = '' ) {
 	if ( ! is_user_logged_in() || ! current_user_can( 'update_plugins' ) ) {
 		return;
 	}
 	$slug = (string) ( $hook_extra['plugin'] ?? '' );
+	if ( '' === $slug && '' !== $source ) {
+		$slug = basename( untrailingslashit( $source ) );
+	}
 	if ( '' === $slug ) {
 		return;
 	}
