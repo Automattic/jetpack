@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+JSON API: add unit tests for the REST-live /sites/%s/users endpoint, covering callback() shape, filtering/pagination, authorization, and REST-vs-XML-RPC param parity.
