@@ -35,6 +35,7 @@ import { SingleChartContext, type SingleChartRef } from '../private/single-chart
 import { SvgEmptyState } from '../private/svg-empty-state';
 import { getCurveType, getFormatter, guessOptimalNumTicks } from '../private/time-axis';
 import { withResponsive } from '../private/with-responsive';
+import { useXZoom, ZoomResetButton, ZoomSelectionRect } from '../private/x-zoom';
 import styles from './area-chart.module.scss';
 import { AreaChartScalesRef, HoverGlyphs, validateData } from './private';
 import type { AreaChartProps } from './types';
@@ -68,6 +69,7 @@ const AreaChartInternal = forwardRef< SingleChartRef, AreaChartProps >(
 			onPointerUp,
 			onPointerMove,
 			onPointerOut,
+			zoomable = false,
 			rescaleYOnLegendToggle = true,
 			children,
 			gridVisibility,
@@ -86,6 +88,12 @@ const AreaChartInternal = forwardRef< SingleChartRef, AreaChartProps >(
 		const [ selectedIndex, setSelectedIndex ] = useState< number | undefined >( undefined );
 		const [ isNavigating, setIsNavigating ] = useState( false );
 		const internalChartRef = useRef< SingleChartRef >( null );
+
+		const zoom = useXZoom< Date >( {
+			enabled: zoomable,
+			chartRef: internalChartRef,
+			userHandlers: { onPointerDown, onPointerMove, onPointerUp },
+		} );
 
 		const { legendChildren, nonLegendChildren } = useChartChildren( children, 'AreaChart' );
 		const [ measuredChartHeight, setMeasuredChartHeight ] = useState< number | undefined >();
@@ -212,6 +220,7 @@ const AreaChartInternal = forwardRef< SingleChartRef, AreaChartProps >(
 				xScale: {
 					type: 'time' as const,
 					...options?.xScale,
+					...( zoom.domain ? { domain: zoom.domain } : {} ),
 				},
 				yScale: {
 					type: 'linear' as const,
@@ -222,7 +231,7 @@ const AreaChartInternal = forwardRef< SingleChartRef, AreaChartProps >(
 					...options?.yScale,
 				},
 			};
-		}, [ options, dataSorted, width, stacked, fixedYDomain ] );
+		}, [ options, dataSorted, width, stacked, fixedYDomain, zoom.domain ] );
 
 		const defaultMargin = useChartMargin( height, chartOptions, dataSorted, theme );
 
@@ -381,7 +390,8 @@ const AreaChartInternal = forwardRef< SingleChartRef, AreaChartProps >(
 								onBlur={ onChartBlur }
 							>
 								{ chartHeight > 0 && (
-									<div ref={ chartRef }>
+									<div ref={ chartRef } style={ { position: 'relative' } }>
+										{ zoomable && zoom.domain && <ZoomResetButton onClick={ zoom.reset } /> }
 										<XYChart
 											theme={ theme }
 											width={ width }
@@ -389,9 +399,9 @@ const AreaChartInternal = forwardRef< SingleChartRef, AreaChartProps >(
 											margin={ { ...defaultMargin, ...margin } }
 											xScale={ chartOptions.xScale }
 											yScale={ chartOptions.yScale }
-											onPointerDown={ onPointerDown }
-											onPointerUp={ onPointerUp }
-											onPointerMove={ onPointerMove }
+											onPointerDown={ zoom.handlers.onPointerDown }
+											onPointerUp={ zoom.handlers.onPointerUp }
+											onPointerMove={ zoom.handlers.onPointerMove }
 											onPointerOut={ onPointerOut }
 											pointerEventsDataKey="nearest"
 										>
@@ -459,6 +469,7 @@ const AreaChartInternal = forwardRef< SingleChartRef, AreaChartProps >(
 												height={ height || chartHeight }
 												margin={ margin }
 											/>
+											{ zoomable && <ZoomSelectionRect drag={ zoom.drag } /> }
 										</XYChart>
 									</div>
 								) }

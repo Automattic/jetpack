@@ -48,6 +48,12 @@ export interface AreaChartProps extends BaseChartProps< SeriesData[] > {
 	 */
 	withStroke?: boolean;
 	/**
+	 * Enable drag-to-zoom on the X axis. The user drags horizontally to
+	 * select a range; the X axis rescales to that range. A small reset
+	 * button appears in the top-right of the chart while zoomed.
+	 */
+	zoomable?: boolean;
+	/**
 	 * When using an interactive legend, controls whether the Y axis rescales
 	 * to fit only the visible series. Defaults to `true`, matching the
 	 * intuitive default for LineChart and BarChart. Set to `false` to pin

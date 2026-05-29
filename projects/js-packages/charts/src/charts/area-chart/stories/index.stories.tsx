@@ -113,6 +113,7 @@ export const Default: StoryObj< typeof AreaChart > = Template.bind( {} );
 Default.args = {
 	...areaChartStoryArgs,
 	showLegend: true,
+	zoomable: true,
 };
 
 // Same series rendered as overlapping (non-stacked) filled areas.
