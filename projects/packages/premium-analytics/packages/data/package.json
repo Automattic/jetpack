@@ -1,0 +1,23 @@
+{
+	"name": "@next-woo-analytics/data",
+	"version": "1.0.0",
+	"type": "module",
+	"wpModule": true,
+	"main": "src/index.ts",
+	"exports": {
+		".": "./build/src/index.js"
+	},
+	"dependencies": {
+		"date-fns": "*",
+		"@date-fns/tz": "*",
+		"@tanstack/react-query": "*",
+		"@tanstack/react-router": "*",
+		"@wordpress/api-fetch": "*",
+		"@wordpress/url": "*",
+		"@next-woo-analytics/datetime": "workspace:*",
+		"@automattic/admin-toolkit": "*"
+	},
+	"devDependencies": {
+		"@tanstack/react-query-devtools": "*"
+	}
+}
