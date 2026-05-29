@@ -8,3 +8,4 @@
 routes/**         production-exclude
 packages/**       production-exclude
 shims/**          production-exclude
+docs/**           production-exclude
