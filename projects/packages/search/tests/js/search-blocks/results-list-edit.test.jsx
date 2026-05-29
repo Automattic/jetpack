@@ -164,41 +164,6 @@ describe( 'ResultsListEdit', () => {
 		expect( screen.getByText( '$19.99' ) ).toBeInTheDocument();
 	} );
 
-	it( 'shows the auto-product-view toggle, defaulting on when the attribute is unset', () => {
-		render( <ResultsListEdit attributes={ {} } setAttributes={ jest.fn() } /> );
-
-		expect(
-			screen.getByRole( 'checkbox', {
-				name: 'Auto-switch to Product view for product searches',
-			} )
-		).toBeChecked();
-	} );
-
-	it( 'reflects autoProductView=false as an unchecked toggle', () => {
-		render(
-			<ResultsListEdit attributes={ { autoProductView: false } } setAttributes={ jest.fn() } />
-		);
-
-		expect(
-			screen.getByRole( 'checkbox', {
-				name: 'Auto-switch to Product view for product searches',
-			} )
-		).not.toBeChecked();
-	} );
-
-	it( 'updates the autoProductView attribute when the toggle changes', () => {
-		const setAttributes = jest.fn();
-		render( <ResultsListEdit attributes={ {} } setAttributes={ setAttributes } /> );
-
-		// eslint-disable-next-line testing-library/prefer-user-event -- @testing-library/user-event isn't a dep of the search package; results-sort-edit.test.jsx uses fireEvent for the same reason.
-		fireEvent.click(
-			screen.getByRole( 'checkbox', {
-				name: 'Auto-switch to Product view for product searches',
-			} )
-		);
-		expect( setAttributes ).toHaveBeenCalledWith( { autoProductView: false } );
-	} );
-
 	it( 'exposes message controls for the empty, filtered-empty, and error states in the inspector', () => {
 		render( <ResultsListEdit attributes={ {} } setAttributes={ jest.fn() } /> );
 
@@ -342,16 +307,6 @@ describe( 'ResultsListEdit on non-WooCommerce sites (RSM-2805)', () => {
 		expect( screen.getByRole( 'radio', { name: 'Expanded' } ) ).toBeInTheDocument();
 		expect(
 			screen.queryByRole( 'radio', { name: 'Product (for WooCommerce stores)' } )
-		).not.toBeInTheDocument();
-	} );
-
-	it( 'omits the auto-product-view toggle (the product layout it controls is WC-only)', () => {
-		render( <ResultsListEdit attributes={ {} } setAttributes={ jest.fn() } /> );
-
-		expect(
-			screen.queryByRole( 'checkbox', {
-				name: 'Auto-switch to Product view for product searches',
-			} )
 		).not.toBeInTheDocument();
 	} );
 

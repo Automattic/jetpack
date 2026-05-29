@@ -2220,46 +2220,6 @@ HTML;
 	}
 
 	/**
-	 * Whether the URL scopes the request to exactly `product` — via the
-	 * Jetpack Search array shape `?post_types[]=product` or the scalar
-	 * `?post_type=product`. Used by results-list to auto-switch to the
-	 * product layout. "Exactly product" is deliberate: a mixed request keeps
-	 * the saved layout so non-product results don't render as product cards.
-	 *
-	 * Reads `$_GET` directly — post-type scope isn't a visitor-facing filter,
-	 * so it never lands in `activeFilters`. Not memoized: one caller, one
-	 * call per request.
-	 *
-	 * @return bool
-	 */
-	public static function request_is_product_only(): bool {
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- read-only URL state; sanitized per-value below.
-		$raw = wp_unslash( $_GET );
-		if ( ! is_array( $raw ) ) {
-			return false;
-		}
-
-		$requested = array();
-		foreach ( array( 'post_type', 'post_types' ) as $param ) {
-			if ( ! isset( $raw[ $param ] ) ) {
-				continue;
-			}
-			$values = is_array( $raw[ $param ] ) ? $raw[ $param ] : array( $raw[ $param ] );
-			foreach ( $values as $value ) {
-				if ( ! is_scalar( $value ) ) {
-					continue;
-				}
-				$slug = sanitize_key( (string) $value );
-				if ( '' !== $slug ) {
-					$requested[ $slug ] = true;
-				}
-			}
-		}
-
-		return array( 'product' ) === array_keys( $requested );
-	}
-
-	/**
 	 * Pre-hydration view state for a filter block's wrapper. Centralizes the
 	 * seeded-state read shared by filter-checkbox and filter-date so each
 	 * render.php branches on a single struct rather than re-deriving the
