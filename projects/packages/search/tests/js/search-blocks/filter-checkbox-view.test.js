@@ -428,14 +428,17 @@ describe( 'syncFilterWrapperVisibility callback', () => {
 		captured.state.aggregations = {};
 		captured.state.retainedFilterOptions = {};
 		captured.state.filterConfigs = {};
-		captured.state.skeletonHidden = true;
+		// `skeletonHidden` is derived — drive it via the fetch lifecycle.
+		captured.state.isLoading = false;
+		captured.state.results = [];
 		contextRef.current = { filterKey: 'category', wrapperHidden: true };
 	} );
 
 	const run = () => captured.callbacks.syncFilterWrapperVisibility();
 
 	it( 'keeps the wrapper visible while the skeleton is still showing', () => {
-		captured.state.skeletonHidden = false;
+		captured.state.isLoading = true;
+		captured.state.results = [];
 		captured.state.aggregations = {};
 		run();
 		expect( contextRef.current.wrapperHidden ).toBe( false );

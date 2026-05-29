@@ -108,11 +108,11 @@ if ( function_exists( 'wp_interactivity_state' ) ) {
 	wp_interactivity_state( 'jetpack-search', array( 'resultsLayout' => $layout ) );
 }
 
-// Pre-hydration loading state. Skeleton items below render server-side only
-// when the URL carries a query/filter that will trigger an initial fetch on
-// hydration; otherwise emitting them would freeze placeholder rows on a bare
-// /search/ page where no fetch ever fires. Once JS hydrates,
-// `data-wp-bind--hidden="state.skeletonHidden"` takes over visibility.
+// Skeleton items always render so the IA runtime can re-show them on a
+// client-side search from a bare /search/ page. The literal `hidden` keeps
+// them out of the pre-hydration paint unless the URL already carries a
+// query/filter that fires an initial fetch on hydration; afterwards
+// `data-wp-bind--hidden="state.skeletonHidden"` drives visibility reactively.
 $is_initial_loading = Search_Blocks::is_initial_loading();
 $skeleton_count     = 'compact' === $layout ? 6 : 4;
 
@@ -146,34 +146,33 @@ if ( '' === $error_message ) {
 		class="jetpack-search-results__list"
 		aria-live="polite"
 	>
-		<?php if ( $is_initial_loading ) : ?>
-			<?php for ( $i = 0; $i < $skeleton_count; $i++ ) : ?>
-				<li
-					class="jetpack-search-results__item jetpack-search-results__item--skeleton"
-					data-wp-bind--hidden="state.skeletonHidden"
-					aria-hidden="true"
-				>
-					<?php if ( 'product' === $layout ) : ?>
-						<div class="jetpack-search-skeleton jetpack-search-skeleton--product-image"></div>
-						<div class="jetpack-search-results__copy">
-							<div class="jetpack-search-skeleton jetpack-search-skeleton--title"></div>
-							<div class="jetpack-search-skeleton jetpack-search-skeleton--title-secondary"></div>
-						</div>
-					<?php elseif ( 'compact' === $layout ) : ?>
-						<div class="jetpack-search-results__copy">
-							<div class="jetpack-search-skeleton jetpack-search-skeleton--title"></div>
-						</div>
-					<?php else : ?>
-						<div class="jetpack-search-results__copy">
-							<div class="jetpack-search-skeleton jetpack-search-skeleton--title"></div>
-							<div class="jetpack-search-skeleton jetpack-search-skeleton--path"></div>
-							<div class="jetpack-search-skeleton jetpack-search-skeleton--meta"></div>
-						</div>
-						<div class="jetpack-search-skeleton jetpack-search-skeleton--image"></div>
-					<?php endif; ?>
-				</li>
-			<?php endfor; ?>
-		<?php endif; ?>
+		<?php for ( $i = 0; $i < $skeleton_count; $i++ ) : ?>
+			<li
+				class="jetpack-search-results__item jetpack-search-results__item--skeleton"
+				data-wp-bind--hidden="state.skeletonHidden"
+				aria-hidden="true"
+				<?php echo $is_initial_loading ? '' : 'hidden'; ?>
+			>
+				<?php if ( 'product' === $layout ) : ?>
+					<div class="jetpack-search-skeleton jetpack-search-skeleton--product-image"></div>
+					<div class="jetpack-search-results__copy">
+						<div class="jetpack-search-skeleton jetpack-search-skeleton--title"></div>
+						<div class="jetpack-search-skeleton jetpack-search-skeleton--title-secondary"></div>
+					</div>
+				<?php elseif ( 'compact' === $layout ) : ?>
+					<div class="jetpack-search-results__copy">
+						<div class="jetpack-search-skeleton jetpack-search-skeleton--title"></div>
+					</div>
+				<?php else : ?>
+					<div class="jetpack-search-results__copy">
+						<div class="jetpack-search-skeleton jetpack-search-skeleton--title"></div>
+						<div class="jetpack-search-skeleton jetpack-search-skeleton--path"></div>
+						<div class="jetpack-search-skeleton jetpack-search-skeleton--meta"></div>
+					</div>
+					<div class="jetpack-search-skeleton jetpack-search-skeleton--image"></div>
+				<?php endif; ?>
+			</li>
+		<?php endfor; ?>
 		<template
 			data-wp-each--result="state.results"
 			data-wp-key="context.result.id"

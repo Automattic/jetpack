@@ -179,12 +179,11 @@ describe( 'store actions', () => {
 		jest.restoreAllMocks();
 	} );
 
-	it( 'flips skeletonHidden once the first search resolves (success or error)', async () => {
-		// `skeletonHidden` gates the pre-hydration placeholders. Once the
-		// first fetch completes, JS owns the DOM and the skeleton must
-		// disappear for the rest of the session — both the success path
-		// and the error path of `search()` need to flip the flag.
-		state.skeletonHidden = false;
+	it( 'hides the skeleton once a search resolves (success or error)', async () => {
+		// `skeletonHidden` derives from an in-flight fetch with no results yet.
+		// Once `search()` settles — success or error — `isLoading` is false so
+		// the skeleton is hidden again. The error path clears `results`, so the
+		// derived flag must still resolve to hidden and not strand placeholders.
 		global.fetch.mockResolvedValueOnce(
 			createResponse( {
 				results: [ createResult( 'Fresh hit' ) ],
@@ -197,10 +196,6 @@ describe( 'store actions', () => {
 		expect( state.skeletonHidden ).toBe( true );
 		expect( state.isLoading ).toBe( false );
 
-		// Reset and confirm the error path also closes the skeleton —
-		// otherwise a connection failure would leave placeholders on screen
-		// indefinitely with no visible loading indicator.
-		state.skeletonHidden = false;
 		global.fetch.mockRejectedValueOnce( new Error( 'network down' ) );
 		await runGenerator( actions.search( { syncUrl: false } ) );
 		expect( state.skeletonHidden ).toBe( true );
@@ -738,6 +733,23 @@ describe( 'store getters', () => {
 		expect( state.activeFilterCount ).toBe( 2 );
 	} );
 
+	it( 'shows the skeleton only while a fetch is in flight with no results yet', () => {
+		// The initial client-side search must surface the skeleton; a reload
+		// that already has results keeps them visible (no flash).
+		state.isLoading = false;
+		state.results = [];
+		expect( state.skeletonHidden ).toBe( true );
+
+		state.isLoading = true;
+		expect( state.skeletonHidden ).toBe( false );
+
+		state.results = [ { title: 'Fresh hit' } ];
+		expect( state.skeletonHidden ).toBe( true );
+
+		state.isLoading = false;
+		expect( state.skeletonHidden ).toBe( true );
+	} );
+
 	it( 'surfaces showNoResults for an explicit-but-empty `?s=` deep link (SEARCH-183)', () => {
 		// Empty `?s=` URL — `searchQuery` is `''` but `hasSearchParam` is true,
 		// so the initial search fires (covered by other tests). If that search
@@ -1130,14 +1142,13 @@ describe( 'store callbacks', () => {
 			fresh.state.filterConfigs = { category: { filterKey: 'category' } };
 			fresh.state.activeFilters = { foo: [ 'bar' ] };
 			fresh.state.isLoading = true;
-			fresh.state.skeletonHidden = false;
 
 			captured.callbacks.initialize();
 
 			expect( fresh.state.activeFilters ).toEqual( {} );
 			expect( search ).not.toHaveBeenCalled();
 			expect( fresh.state.isLoading ).toBe( false );
-			// Skeleton flips closed even though no fetch fires — otherwise the
+			// Skeleton derives closed once `isLoading` clears — otherwise the
 			// pre-hydration placeholders would linger forever on a deep link
 			// whose only filter keys are stale and get gated out.
 			expect( fresh.state.skeletonHidden ).toBe( true );
