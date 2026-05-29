@@ -983,6 +983,33 @@ class Search_Blocks {
 	}
 
 	/**
+	 * Derive a block-pattern's content from a page template, so patterns stay in
+	 * sync with the template they mirror instead of carrying a hand-copied second
+	 * copy of the layout. Strips the page chrome (header/footer template-parts and
+	 * the `main` group wrapper) by keeping only the markup between the `<main>`
+	 * tags — the inner content group, alignment and all.
+	 *
+	 * @param string $template_file Template basename under `templates/`.
+	 * @return string Block markup ready for `register_block_pattern()`, or '' when unreadable.
+	 */
+	public static function pattern_content_from_template( string $template_file ): string {
+		$template_path = __DIR__ . '/templates/' . $template_file;
+		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- local, bundled template file.
+		$raw = is_readable( $template_path ) ? (string) file_get_contents( $template_path ) : '';
+		if ( '' === $raw ) {
+			return '';
+		}
+		$raw   = static::substitute_template_placeholders( $raw );
+		$open  = strpos( $raw, '<main' );
+		$start = false === $open ? false : strpos( $raw, '>', $open );
+		$end   = strrpos( $raw, '</main>' );
+		if ( false === $start || false === $end || $end <= $start ) {
+			return trim( $raw );
+		}
+		return trim( substr( $raw, $start + 1, $end - $start - 1 ) );
+	}
+
+	/**
 	 * Build the full search page template content.
 	 *
 	 * Markup lives in `templates/jetpack-search.html` with a `{{FILTER_HEADING}}`

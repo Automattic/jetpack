@@ -1007,6 +1007,36 @@ class Search_Blocks_Test extends TestCase {
 	}
 
 	/**
+	 * `pattern_content_from_template()` derives a pattern's content from a page
+	 * template: it strips the page chrome (header/footer template-parts and the
+	 * `main` group wrapper) and keeps the inner alignwide content group, with the
+	 * `{{FILTER_HEADING}}` placeholder substituted.
+	 */
+	public function test_pattern_content_from_template_strips_chrome_keeps_content() {
+		$content = Search_Blocks::pattern_content_from_template( 'jetpack-search.html' );
+
+		$this->assertNotEmpty( $content, 'Content must be non-empty when the bundled template exists.' );
+		$this->assertStringStartsWith( '<!-- wp:group {"align":"wide"', $content, 'Content must start at the inner alignwide group.' );
+		$this->assertStringEndsWith( '<!-- /wp:group -->', $content, 'Content must end at the inner group close.' );
+		$this->assertStringNotContainsString( 'wp:template-part', $content, 'Header/footer template-parts must be stripped.' );
+		$this->assertStringNotContainsString( '<main', $content, 'The main wrapper must be stripped.' );
+		$this->assertStringNotContainsString( 'tagName', $content, 'The main group comment must be stripped.' );
+		$this->assertStringNotContainsString( '{{', $content, 'Placeholders must be substituted.' );
+		$this->assertStringContainsString( 'wp:jetpack-search/search-input', $content, 'Search input block must remain.' );
+		$this->assertStringContainsString( 'wp:jetpack-search/filters', $content, 'Sidebar filters composition must remain.' );
+		$this->assertStringContainsString( 'Filter options', $content, 'Sidebar heading placeholder must be substituted.' );
+	}
+
+	/**
+	 * Missing template file yields an empty string — `register_block_pattern()`
+	 * tolerates empty content, so a bad path degrades to a no-op pattern rather
+	 * than a fatal.
+	 */
+	public function test_pattern_content_from_template_returns_empty_on_missing_file() {
+		$this->assertSame( '', Search_Blocks::pattern_content_from_template( 'does-not-exist.html' ) );
+	}
+
+	/**
 	 * With the override on, `init()` registers both the product-search
 	 * Template and the priority-20 routing filter.
 	 */
