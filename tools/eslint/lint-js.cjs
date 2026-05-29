@@ -18,12 +18,10 @@ const PRUNE_HELP_MESSAGE =
 
 const SUPPRESSIONS_FILE = path.join( __dirname, 'suppressions.json' );
 
-// Resolve the ESLint binary via its package.json bin field.
-const eslintPkgPath = require.resolve( 'eslint/package.json' );
-const eslintBin = path.join( path.dirname( eslintPkgPath ), require( eslintPkgPath ).bin.eslint );
-
-// Resolve Prettier via the js-tools workspace (which declares prettier as a dep).
+// Resolve ESLint and Prettier via the js-tools workspace (which declares them as deps).
 const jstoolsDir = path.join( __dirname, '..', 'js-tools' );
+const eslintPkgPath = require.resolve( 'eslint/package.json', { paths: [ jstoolsDir ] } );
+const eslintBin = path.join( path.dirname( eslintPkgPath ), require( eslintPkgPath ).bin.eslint );
 const prettierPkgPath = require.resolve( 'prettier/package.json', { paths: [ jstoolsDir ] } );
 const prettierPkgData = require( prettierPkgPath );
 const prettierBinRelative =
