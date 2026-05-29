@@ -1,5 +1,13 @@
 @use "@automattic/jetpack-base-styles/admin-page-layout" as *;
 
+// Bring @wordpress/ui design tokens (--wpds-*) into :root for every My Jetpack
+// route. Without this, the @wordpress/ui Button class hooks land on elements
+// but the var() lookups for color and dimension all resolve to empty, so the
+// chrome falls through to wp-admin defaults. The JS-side equivalent gets
+// mis-detected by the WordPress dependency-extraction webpack plugin as a
+// script handle ("wp-theme/design-tokens.css") and blanks the page.
+@import "@wordpress/theme/design-tokens.css";
+
 :global {
 
 	// Apply the shared admin-page-layout mixin so the main My Jetpack page
