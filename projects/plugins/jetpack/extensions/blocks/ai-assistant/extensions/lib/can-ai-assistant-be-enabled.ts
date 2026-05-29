@@ -10,12 +10,12 @@ import { select } from '@wordpress/data';
 import { getFeatureAvailability } from '../../lib/utils/get-feature-availability';
 
 export const AI_ASSISTANT_SUPPORT_NAME = 'ai-assistant-support';
-export const JETPACK_AI_SIDEBAR_BLOCK_TOOLBAR = 'ai-sidebar-block-toolbar';
+export const JETPACK_AI_SIDEBAR_BLOCK_TRANSFORMATIONS = 'ai-sidebar-block-transformations';
 
 // Check if the AI Assistant support is enabled.
 export const isAiAssistantSupportEnabled = getFeatureAvailability( AI_ASSISTANT_SUPPORT_NAME );
-export const isJetpackAiSidebarBlockToolbarEnabled = getFeatureAvailability(
-	JETPACK_AI_SIDEBAR_BLOCK_TOOLBAR
+export const isJetpackAiSidebarBlockTransformationsEnabled = getFeatureAvailability(
+	JETPACK_AI_SIDEBAR_BLOCK_TRANSFORMATIONS
 );
 
 /**

@@ -17,14 +17,14 @@ use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
 
-const AM_ASSET_BASE_PATH                 = 'widgets.wp.com/agents-manager/';
-const AI_SIDEBAR_ASSET_TRANSIENT         = 'jetpack_ai_sidebar_asset';
-const AI_SIDEBAR_JS_URL                  = 'https://' . AM_ASSET_BASE_PATH . 'jetpack-ai-sidebar.min.js';
-const AI_SIDEBAR_CSS_URL                 = 'https://' . AM_ASSET_BASE_PATH . 'jetpack-ai-sidebar.css';
-const AI_SIDEBAR_RTL_CSS_URL             = 'https://' . AM_ASSET_BASE_PATH . 'jetpack-ai-sidebar.rtl.css';
-const AI_SIDEBAR_PROVIDER_URL            = 'https://' . AM_ASSET_BASE_PATH . 'jetpack-ai-sidebar.provider.mjs';
-const AI_SIDEBAR_AGENT_ID                = 'wp-orchestrator';
-const AI_SIDEBAR_BLOCK_TOOLBAR_EXTENSION = 'ai-sidebar-block-toolbar';
+const AM_ASSET_BASE_PATH                         = 'widgets.wp.com/agents-manager/';
+const AI_SIDEBAR_ASSET_TRANSIENT                 = 'jetpack_ai_sidebar_asset';
+const AI_SIDEBAR_JS_URL                          = 'https://' . AM_ASSET_BASE_PATH . 'jetpack-ai-sidebar.min.js';
+const AI_SIDEBAR_CSS_URL                         = 'https://' . AM_ASSET_BASE_PATH . 'jetpack-ai-sidebar.css';
+const AI_SIDEBAR_RTL_CSS_URL                     = 'https://' . AM_ASSET_BASE_PATH . 'jetpack-ai-sidebar.rtl.css';
+const AI_SIDEBAR_PROVIDER_URL                    = 'https://' . AM_ASSET_BASE_PATH . 'jetpack-ai-sidebar.provider.mjs';
+const AI_SIDEBAR_AGENT_ID                        = 'wp-orchestrator';
+const AI_SIDEBAR_BLOCK_TRANSFORMATIONS_EXTENSION = 'ai-sidebar-block-transformations';
 
 /**
  * Initializes the Agents Manager package and registers the Jetpack AI
@@ -73,8 +73,8 @@ class Jetpack_AI_Sidebar {
 		// Agents Manager package enqueue (priority 101).
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'maybe_patch_jetpack_ai_sidebar_preview_data' ), 250 );
 
-		// Let editor JS know when the Jetpack AI Sidebar toolbar replacement is active.
-		add_action( 'jetpack_register_gutenberg_extensions', array( __CLASS__, 'register_block_toolbar_extension' ), 99 );
+		// Let editor JS know when Jetpack AI Sidebar block transformations are active.
+		add_action( 'jetpack_register_gutenberg_extensions', array( __CLASS__, 'register_block_transformations_extension' ), 99 );
 	}
 
 	// ──────────────────────────────────────────────────
@@ -390,7 +390,7 @@ class Jetpack_AI_Sidebar {
 	}
 
 	/**
-	 * Whether Jetpack AI Sidebar content-editing block toolbar controls are active.
+	 * Whether Jetpack AI Sidebar block transformations are active.
 	 *
 	 * @return bool
 	 */
@@ -404,16 +404,16 @@ class Jetpack_AI_Sidebar {
 	}
 
 	/**
-	 * Register the Jetpack AI Sidebar block toolbar replacement feature.
+	 * Register the Jetpack AI Sidebar block transformations feature.
 	 *
 	 * @return void
 	 */
-	public static function register_block_toolbar_extension(): void {
+	public static function register_block_transformations_extension(): void {
 		if ( ! self::has_block_transformations_enabled() ) {
 			return;
 		}
 
-		\Jetpack_Gutenberg::set_extension_available( AI_SIDEBAR_BLOCK_TOOLBAR_EXTENSION );
+		\Jetpack_Gutenberg::set_extension_available( AI_SIDEBAR_BLOCK_TRANSFORMATIONS_EXTENSION );
 	}
 
 	/**
