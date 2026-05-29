@@ -490,5 +490,4 @@ class Results_List_Render_Test extends TestCase {
 		$hidden_skeletons = preg_match_all( '/<li[^>]*--skeleton[^>]*\s+hidden(?=\s|\/|>|=)/', $markup );
 		$this->assertSame( $total_skeletons, $hidden_skeletons );
 	}
-
 }
