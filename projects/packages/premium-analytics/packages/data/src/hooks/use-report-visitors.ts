@@ -9,18 +9,14 @@ type UseReportVisitorsOptions = {
 	enabled?: boolean;
 };
 
-export function useReportVisitors(
-	params: ReportParams,
-	options?: UseReportVisitorsOptions
-) {
-	return useReport( ( p ) => reportVisitorsQuery( p ), params, {
+/**
+ *
+ * @param params
+ * @param options
+ */
+export function useReportVisitors( params: ReportParams, options?: UseReportVisitorsOptions ) {
+	return useReport( p => reportVisitorsQuery( p ), params, {
 		enabled: options?.enabled,
-		disabledComparisonKey: [
-			'reports',
-			'visitors',
-			'by-date',
-			'__comparison__',
-			'disabled',
-		],
+		disabledComparisonKey: [ 'reports', 'visitors', 'by-date', '__comparison__', 'disabled' ],
 	} );
 }

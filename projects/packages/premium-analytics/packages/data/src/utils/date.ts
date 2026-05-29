@@ -1,14 +1,14 @@
 /**
  * External dependencies
  */
-import { select } from '@wordpress/data';
-import { store as coreStore, type Settings } from '@wordpress/core-data';
+import { type TZDate } from '@date-fns/tz';
 import {
 	toLocalTZ,
 	formatToTimezoneNaiveString as _formatNaive,
 	dateToISOStringWithTZ as _toISOWithTZ,
 } from '@jetpack-premium-analytics/datetime';
-import { type TZDate } from '@date-fns/tz';
+import { store as coreStore, type Settings } from '@wordpress/core-data';
+import { select } from '@wordpress/data';
 
 type FullSettings = Settings & {
 	gmt_offset: number;
@@ -16,8 +16,7 @@ type FullSettings = Settings & {
 
 let DEFAULT_TIME_ZONE: string;
 try {
-	DEFAULT_TIME_ZONE =
-		Intl.DateTimeFormat().resolvedOptions().timeZone ?? '+00:00';
+	DEFAULT_TIME_ZONE = Intl.DateTimeFormat().resolvedOptions().timeZone ?? '+00:00';
 } catch {
 	DEFAULT_TIME_ZONE = '+00:00';
 }
@@ -37,9 +36,10 @@ function formatGmtOffset( offset: number | undefined ): string {
 	const abs = Math.abs( offset );
 	const hours = Math.floor( abs );
 	const minutes = Math.floor( ( abs - hours ) * 60 + 1e-6 );
-	return `${ sign }${ String( hours ).padStart( 2, '0' ) }:${ String(
-		minutes
-	).padStart( 2, '0' ) }`;
+	return `${ sign }${ String( hours ).padStart( 2, '0' ) }:${ String( minutes ).padStart(
+		2,
+		'0'
+	) }`;
 }
 
 /*
@@ -50,11 +50,11 @@ function formatGmtOffset( offset: number | undefined ): string {
  * @param {string} timezone - The timezone to use.
  * @return {string} The timezone.
  */
+/**
+ *
+ */
 export function getSiteTimezone() {
-	const siteSettings = select( coreStore ).getEntityRecord(
-		'root',
-		'site'
-	) as FullSettings;
+	const siteSettings = select( coreStore ).getEntityRecord( 'root', 'site' ) as FullSettings;
 
 	if ( ! siteSettings ) {
 		return DEFAULT_TIME_ZONE;
@@ -71,14 +71,9 @@ export function getSiteTimezone() {
  * @return {string} The site's GMT offset.
  */
 export function getSiteGmtOffset(): string {
-	const siteSettings = select( coreStore ).getEntityRecord(
-		'root',
-		'site'
-	) as FullSettings;
+	const siteSettings = select( coreStore ).getEntityRecord( 'root', 'site' ) as FullSettings;
 	if ( ! siteSettings ) {
-		throw new Error(
-			'getSiteGmtOffset() called before core settings are ready'
-		);
+		throw new Error( 'getSiteGmtOffset() called before core settings are ready' );
 	}
 	return formatGmtOffset( siteSettings?.gmt_offset ) || DEFAULT_TIME_ZONE;
 }
@@ -88,11 +83,10 @@ export function getSiteGmtOffset(): string {
  * - Accepts number | string | Date (or undefined -> now)
  * - Uses site timezone by default
  * - Returns TZDate (timezone-aware)
+ * @param value
+ * @param timezone
  */
-export function localTZDate(
-	value?: number | string | Date,
-	timezone?: string
-): TZDate {
+export function localTZDate( value?: number | string | Date, timezone?: string ): TZDate {
 	const tz = timezone ?? getSiteTimezone();
 	return toLocalTZ( value, tz );
 }
@@ -100,11 +94,10 @@ export function localTZDate(
 /**
  * Same semantics as your current helper:
  * TZ-aware -> timezone-naive "YYYY-MM-DDTHH:mm:ss.SSS"
+ * @param date
+ * @param timezone
  */
-export function formatToTimezoneNaiveString(
-	date: Date,
-	timezone?: string
-): string {
+export function formatToTimezoneNaiveString( date: Date, timezone?: string ): string {
 	const tz = timezone ?? getSiteTimezone();
 	return _formatNaive( date, tz );
 }
@@ -112,11 +105,10 @@ export function formatToTimezoneNaiveString(
 /**
  * Same semantics as your current helper:
  * TZ-aware -> ISO with offset "YYYY-MM-DDTHH:mm:ss.SSSxxx"
+ * @param date
+ * @param timezone
  */
-export function dateToISOStringWithLocalTZ(
-	date: Date,
-	timezone?: string
-): string {
+export function dateToISOStringWithLocalTZ( date: Date, timezone?: string ): string {
 	const tz = timezone ?? getSiteTimezone();
 	return _toISOWithTZ( date, tz );
 }

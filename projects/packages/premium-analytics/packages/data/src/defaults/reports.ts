@@ -3,7 +3,6 @@
  */
 import { getComparisonRangeFromPreset } from '@jetpack-premium-analytics/datetime';
 import { differenceInCalendarDays, startOfDay } from 'date-fns';
-
 /**
  * Internal dependencies
  */
@@ -26,6 +25,7 @@ const DEFAULT_PRESET: PresetType = 'last-30-days';
  * - Launched today         → today
  * - Launched ≤ 7 days ago  → last-7-days
  * - Launched > 7 days ago  → last-30-days
+ * @param launchedDate
  */
 export function getDefaultPreset( launchedDate?: string ): PresetType {
 	if ( ! launchedDate ) {
@@ -53,6 +53,8 @@ export function getDefaultPreset( launchedDate?: string ): PresetType {
  *
  * Callers that need a dynamic default (e.g. based on store
  * age) should resolve the preset externally and pass it in.
+ * @param withComparison
+ * @param preset
  */
 export const getDefaultQueryParams = (
 	/**
@@ -73,11 +75,7 @@ export const getDefaultQueryParams = (
 
 	const { from: fromString, to: toString } = range;
 
-	const interval = getDefaultIntervalForPeriod(
-		undefined,
-		fromString,
-		toString
-	);
+	const interval = getDefaultIntervalForPeriod( undefined, fromString, toString );
 
 	if ( ! withComparison ) {
 		return {

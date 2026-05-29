@@ -4,13 +4,9 @@
 import { fetchReportCustomers } from '../../api/report-customers-fetch';
 import type { Override } from '../../utils/types';
 
-type ReportsCustomersNewReturningResponse = Awaited<
-	ReturnType< typeof fetchReportCustomers >
->;
-type RawCustomersNewReturningSummary =
-	ReportsCustomersNewReturningResponse[ 'summary' ];
-type RawCustomersNewReturningItem =
-	ReportsCustomersNewReturningResponse[ 'data' ][ number ];
+type ReportsCustomersNewReturningResponse = Awaited< ReturnType< typeof fetchReportCustomers > >;
+type RawCustomersNewReturningSummary = ReportsCustomersNewReturningResponse[ 'summary' ];
+type RawCustomersNewReturningItem = ReportsCustomersNewReturningResponse[ 'data' ][ number ];
 
 /**
  * Processed summary (numbers for calculations)
@@ -46,6 +42,7 @@ type SanitizedCustomersNewReturningResponse = {
 
 /**
  * Sanitize/process a single customer item by converting strings to numbers
+ * @param item
  */
 function sanitizeCustomerItem(
 	item: RawCustomersNewReturningItem
@@ -59,6 +56,7 @@ function sanitizeCustomerItem(
 
 /**
  * Sanitize/process the summary by converting strings to numbers
+ * @param summary
  */
 function sanitizeCustomerSummary(
 	summary: RawCustomersNewReturningSummary
@@ -68,15 +66,14 @@ function sanitizeCustomerSummary(
 		total_net_sales: parseFloat( summary.total_net_sales ),
 		total_orders: parseInt( summary.total_orders, 10 ),
 		new_customer_sales: parseFloat( summary.new_customer_sales ),
-		returning_customer_sales: parseFloat(
-			summary.returning_customer_sales
-		),
+		returning_customer_sales: parseFloat( summary.returning_customer_sales ),
 	};
 }
 
 /**
  * Sanitize the response from the reports/customers/new-returning endpoint
  * Converts string values to numbers for easier calculations and charting.
+ * @param response
  */
 export const sanitizeReportCustomersResponse = (
 	response: ReportsCustomersNewReturningResponse

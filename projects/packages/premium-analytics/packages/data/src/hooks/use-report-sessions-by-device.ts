@@ -32,14 +32,8 @@ export function useReportSessionsByDevice(
 	params: ReportParams,
 	options?: UseReportSessionsByDeviceOptions
 ) {
-	return useReport( ( p ) => reportSessionsByDeviceQuery( p ), params, {
+	return useReport( p => reportSessionsByDeviceQuery( p ), params, {
 		enabled: options?.enabled,
-		disabledComparisonKey: [
-			'reports',
-			'sessions',
-			'by-device',
-			'__comparison__',
-			'disabled',
-		],
+		disabledComparisonKey: [ 'reports', 'sessions', 'by-device', '__comparison__', 'disabled' ],
 	} );
 }

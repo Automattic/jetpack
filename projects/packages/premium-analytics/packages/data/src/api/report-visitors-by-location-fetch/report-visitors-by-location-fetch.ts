@@ -3,12 +3,11 @@
  */
 import apiFetch from '@wordpress/api-fetch';
 import { addQueryArgs } from '@wordpress/url';
-
 /**
  * Internal dependencies
  */
-import type { BaseReportParams } from '../../utils/types';
 import { reportsPath } from '../constants';
+import type { BaseReportParams } from '../../utils/types';
 
 type VisitorsByLocationReportDataItem = {
 	country_code: string;
@@ -39,6 +38,13 @@ export type RequestReportVisitorsByLocationParams = BaseReportParams & {
  *
  * This endpoint is proxied through `/wc/v3/woocommerce-analytics/proxy/reports/...`
  * and ultimately served by wpcom analytics.
+ * @param root0
+ * @param root0.from
+ * @param root0.to
+ * @param root0.interval
+ * @param root0.group_by
+ * @param root0.country_code
+ * @param root0.limit
  */
 export async function fetchReportVisitorsByLocation( {
 	from,

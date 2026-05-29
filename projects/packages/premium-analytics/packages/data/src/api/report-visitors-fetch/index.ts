@@ -1,4 +1,1 @@
-export {
-	fetchReportVisitors,
-	type RequestReportVisitorsParams,
-} from './report-visitors-fetch';
+export { fetchReportVisitors, type RequestReportVisitorsParams } from './report-visitors-fetch';

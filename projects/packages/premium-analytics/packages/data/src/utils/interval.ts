@@ -2,24 +2,23 @@
  * External dependencies
  */
 import { differenceInHours } from 'date-fns';
-
 /**
  * Internal dependencies
  */
-import type { IntervalType } from './search';
 import { localTZDate } from './date';
+import type { IntervalType } from './search';
 
-function getAllowedIntervalsByRange(
-	from: string,
-	to: string
-): IntervalType[] {
+/**
+ *
+ * @param from
+ * @param to
+ */
+function getAllowedIntervalsByRange( from: string, to: string ): IntervalType[] {
 	// Use hours instead of days to handle ranges that are 1 second short of a full day.
 	// E.g., '2024-11-01 00:00:00' to '2025-10-31 23:59:59' is 8759 hours (364.958 days),
 	// which rounds to 365 days, correctly categorizing it as a yearly interval.
 	const daysDiff = Math.round(
-		Math.abs(
-			differenceInHours( localTZDate( to ), localTZDate( from ) ) / 24
-		)
+		Math.abs( differenceInHours( localTZDate( to ), localTZDate( from ) ) / 24 )
 	);
 
 	if ( daysDiff >= 1095 ) {
@@ -42,6 +41,9 @@ function getAllowedIntervalsByRange(
 /**
  * Returns the allowed selectable intervals for a specific period.
  *
+ * @param  period
+ * @param  from
+ * @param  to
  * @return {Array} Array containing allowed intervals.
  */
 function getAllowedIntervalsForPeriod(
@@ -69,6 +71,12 @@ function getAllowedIntervalsForPeriod(
 	}
 }
 
+/**
+ *
+ * @param period
+ * @param from
+ * @param to
+ */
 export function getDefaultIntervalForPeriod(
 	period: string | undefined,
 	from: string,
@@ -77,6 +85,12 @@ export function getDefaultIntervalForPeriod(
 	return getAllowedIntervalsForPeriod( period, from, to )?.[ 0 ] ?? 'day';
 }
 
+/**
+ *
+ * @param period
+ * @param from
+ * @param to
+ */
 export function getDateFormatFromInterval(
 	period: string | undefined, // Pass in undefined to use the default interval.
 	from: string,

@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { onlineManager } from '@tanstack/react-query';
 import {
 	createContext,
 	useContext,
@@ -9,15 +10,10 @@ import {
 	useSyncExternalStore,
 	type ReactNode,
 } from 'react';
-import { onlineManager } from '@tanstack/react-query';
-
 /**
  * Internal dependencies
  */
-import {
-	globalErrorManager,
-	type GlobalErrorType,
-} from './global-error-manager';
+import { globalErrorManager, type GlobalErrorType } from './global-error-manager';
 
 interface GlobalErrorContextValue {
 	globalError: GlobalErrorType;
@@ -26,13 +22,13 @@ interface GlobalErrorContextValue {
 	isGlobalError: boolean;
 }
 
-const GlobalErrorContext = createContext< GlobalErrorContextValue | null >(
-	null
-);
+const GlobalErrorContext = createContext< GlobalErrorContextValue | null >( null );
 
 /**
  * Connects React to the global error manager via useSyncExternalStore.
  * Also subscribes to network status changes via onlineManager.
+ * @param root0
+ * @param root0.children
  */
 export function GlobalErrorProvider( { children }: { children: ReactNode } ) {
 	const globalError = useSyncExternalStore(
@@ -54,7 +50,7 @@ export function GlobalErrorProvider( { children }: { children: ReactNode } ) {
 			globalErrorManager.setError( 'network' );
 		}
 
-		const unsubscribe = onlineManager.subscribe( ( isOnline ) => {
+		const unsubscribe = onlineManager.subscribe( isOnline => {
 			if ( ! isOnline ) {
 				globalErrorManager.setError( 'network' );
 			} else if ( globalErrorManager.getError() === 'network' ) {
@@ -76,9 +72,7 @@ export function GlobalErrorProvider( { children }: { children: ReactNode } ) {
 	);
 
 	return (
-		<GlobalErrorContext.Provider value={ contextValue }>
-			{ children }
-		</GlobalErrorContext.Provider>
+		<GlobalErrorContext.Provider value={ contextValue }>{ children }</GlobalErrorContext.Provider>
 	);
 }
 

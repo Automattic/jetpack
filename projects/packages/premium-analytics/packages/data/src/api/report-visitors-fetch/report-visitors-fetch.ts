@@ -3,12 +3,11 @@
  */
 import apiFetch from '@wordpress/api-fetch';
 import { addQueryArgs } from '@wordpress/url';
-
 /**
  * Internal dependencies
  */
-import type { BaseReportParams } from '../../utils/types';
 import { reportsPath } from '../constants';
+import type { BaseReportParams } from '../../utils/types';
 
 type ReportsVisitorsByDateSummary = {
 	active_sessions: string;
@@ -28,6 +27,13 @@ type ReportsVisitorsByDateResponse = {
 
 export type RequestReportVisitorsParams = BaseReportParams;
 
+/**
+ *
+ * @param root0
+ * @param root0.from
+ * @param root0.to
+ * @param root0.interval
+ */
 export async function fetchReportVisitors( {
 	from,
 	to,

@@ -19,7 +19,5 @@ export function hasProductFilters( filters?: FilterCondition[] ): boolean {
 		return false;
 	}
 
-	return filters.some( ( filter ) =>
-		PRODUCT_FILTER_KEYS.includes( filter.key )
-	);
+	return filters.some( filter => PRODUCT_FILTER_KEYS.includes( filter.key ) );
 }

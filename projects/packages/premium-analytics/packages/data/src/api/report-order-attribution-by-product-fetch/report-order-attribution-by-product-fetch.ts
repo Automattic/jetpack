@@ -3,13 +3,12 @@
  */
 import apiFetch from '@wordpress/api-fetch';
 import { addQueryArgs } from '@wordpress/url';
-
 /**
  * Internal dependencies
  */
-import type { BaseReportParams } from '../../utils/types';
 import { reportsPath } from '../constants';
 import type { FilterCondition } from '../../types/filter-condition';
+import type { BaseReportParams } from '../../utils/types';
 import type { ORDER_ATTRIBUTION_VIEWS } from '../report-order-attribution-summary-fetch/report-order-attribution-summary-fetch';
 
 type OrderAttributionView = ( typeof ORDER_ATTRIBUTION_VIEWS )[ number ];

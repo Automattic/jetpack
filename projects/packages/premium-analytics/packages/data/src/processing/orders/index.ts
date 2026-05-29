@@ -2,12 +2,10 @@
  * Internal dependencies
  */
 import { fetchReportOrders } from '../../api/report-orders-fetch';
-import type { Override } from '../../utils/types';
 import { safeParseFloat, safeParseInt } from '../../utils/parsing';
+import type { Override } from '../../utils/types';
 
-type ReportsOrdersByDateResponse = Awaited<
-	ReturnType< typeof fetchReportOrders >
->;
+type ReportsOrdersByDateResponse = Awaited< ReturnType< typeof fetchReportOrders > >;
 type RawOrdersReportDataItem = ReportsOrdersByDateResponse[ 'data' ][ number ];
 type SanitizedOrdersByDateItem = Override<
 	RawOrdersReportDataItem,
@@ -32,10 +30,9 @@ type SanitizedOrdersByDateItem = Override<
 
 /**
  * Sanitize/process a single order item by converting strings to numbers
+ * @param item
  */
-function sanitizeOrderItem(
-	item: RawOrdersReportDataItem
-): SanitizedOrdersByDateItem {
+function sanitizeOrderItem( item: RawOrdersReportDataItem ): SanitizedOrdersByDateItem {
 	return {
 		...item,
 		average_order_value: safeParseFloat( item.average_order_value ),
@@ -70,6 +67,7 @@ type SanitizedOrdersByDateResponse = {
  *
  * The `summary` single item has basically the same structure
  * as the `data` array items, so we can use the same mapper function for both.
+ * @param response
  */
 export const sanitizeReportOrdersResponse = (
 	response: ReportsOrdersByDateResponse

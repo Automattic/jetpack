@@ -7,34 +7,27 @@ import {
 	type ComparisonPresetId,
 	type PrimaryPresetId,
 } from '@jetpack-premium-analytics/datetime';
-
 /**
  * Internal dependencies
  */
-import { getDefaultQueryParams } from '../defaults';
 import { ORDER_ATTRIBUTION_VIEWS } from '../api/report-order-attribution-summary-fetch';
+import { getDefaultQueryParams } from '../defaults';
 import { getDefaultIntervalForPeriod } from './interval';
 import { computeDateRangeFromPreset } from './preset-date-range';
-import type { FilterCondition } from '../types/filter-condition';
 import type { DateType } from './types';
+import type { FilterCondition } from '../types/filter-condition';
 
 export type { FilterCondition };
 
 /**
  * Re-export SelectablePresetId as PresetType for backward compatibility.
- * The canonical type now lives in @jetpack-premium-analytics/datetime.
+ * The canonical type now lives in `@jetpack-premium-analytics/datetime`.
  */
 export type PresetType = SelectablePresetId;
 
 type OrderAttributionView = ( typeof ORDER_ATTRIBUTION_VIEWS )[ number ];
 
-export type IntervalType =
-	| 'hour'
-	| 'day'
-	| 'week'
-	| 'month'
-	| 'quarter'
-	| 'year';
+export type IntervalType = 'hour' | 'day' | 'week' | 'month' | 'quarter' | 'year';
 
 /*
  * ReportParams are the expected params present in the client URL.
@@ -64,18 +57,15 @@ type PartialComparisonFields = Partial<
 /*
  * Checks if the comparison is present in the search params.
  */
-export function hasComparisonEnabled< T extends PartialComparisonFields >(
-	p: T
-) {
-	return (
-		p.comp === '1' && !! p.compare_from?.trim() && !! p.compare_to?.trim()
-	);
+/**
+ *
+ * @param p
+ */
+export function hasComparisonEnabled< T extends PartialComparisonFields >( p: T ) {
+	return p.comp === '1' && !! p.compare_from?.trim() && !! p.compare_to?.trim();
 }
 
-type NormalizeReportParamsArgType = Omit<
-	ReportParams,
-	'from' | 'to' | 'interval' | 'preset'
-> & {
+type NormalizeReportParamsArgType = Omit< ReportParams, 'from' | 'to' | 'interval' | 'preset' > & {
 	from?: string;
 	to?: string;
 	interval?: string;
@@ -86,8 +76,8 @@ type NormalizeReportParamsArgType = Omit<
  * Returns normalized params for the report request query.
  * When no defined, it will use the defaults.
  *
- * @param {NormalizeReportParamsArgType} [search]        URL search params.
- * @param {PresetType}                   [defaultPreset] Override the fallback preset.
+ * @param {NormalizeReportParamsArgType} [search]        - URL search params.
+ * @param {PresetType}                   [defaultPreset] - Override the fallback preset.
  */
 export function normalizeReportParams(
 	search?: NormalizeReportParamsArgType,

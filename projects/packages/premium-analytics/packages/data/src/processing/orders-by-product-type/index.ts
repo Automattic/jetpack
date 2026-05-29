@@ -1,12 +1,12 @@
 /**
  * Internal dependencies
  */
+import { safeParseFloat, safeParseInt } from '../../utils/parsing';
 import type {
 	ReportsOrdersByDateResponse,
 	RequestReportOrdersParams,
 } from '../../api/report-orders-fetch';
 import type { Override } from '../../utils/types';
-import { safeParseFloat, safeParseInt } from '../../utils/parsing';
 
 /**
  * Re-export the request params type for backwards compatibility.
@@ -37,6 +37,7 @@ type SanitizedOrdersByProductTypeByDateItem = Override<
 
 /**
  * Sanitize/process a single orders by product type item by converting strings to numbers
+ * @param item
  */
 function sanitizeOrdersByProductTypeItem(
 	item: RawOrdersByProductTypeReportDataItem
@@ -71,6 +72,7 @@ type SanitizedOrdersByProductTypeByDateResponse = {
  *
  * The `summary` single item has basically the same structure
  * as the `data` array items, so we can use the same mapper function for both.
+ * @param response
  */
 export const sanitizeReportOrdersByProductTypeResponse = (
 	response: ReportsOrdersByProductTypeByDateResponse

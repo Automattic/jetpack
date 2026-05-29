@@ -1,22 +1,19 @@
 /**
  * External dependencies
  */
-import type { UseQueryOptions } from '@tanstack/react-query';
 
 /**
  * Internal dependencies
  */
-import {
-	fetchReportOrderAttributionSummary,
-	fetchReportOrderAttributionByProduct,
-} from '../api';
+import { fetchReportOrderAttributionSummary, fetchReportOrderAttributionByProduct } from '../api';
 import {
 	sanitizeReportOrderAttributionSummaryResponse,
 	normalizeOrderAttributionByProductResponse,
 	type SanitizedOrderAttributionSummaryResponse,
 } from '../processing/order-attribution';
-import type { FilterCondition } from '../types/filter-condition';
 import { hasProductFilters } from '../utils/product-filters';
+import type { FilterCondition } from '../types/filter-condition';
+import type { UseQueryOptions } from '@tanstack/react-query';
 
 type ReportOrderAttributionSummaryParams = Parameters<
 	typeof fetchReportOrderAttributionSummary
@@ -29,10 +26,9 @@ type ReportOrderAttributionSummaryParams = Parameters<
  *
  * Note: All comparison parameters are included in the query key because
  * order attribution returns both primary and comparison data in a single response.
+ * @param params
  */
-const getReportOrderAttributionQueryKey = (
-	params: ReportOrderAttributionSummaryParams
-) =>
+const getReportOrderAttributionQueryKey = ( params: ReportOrderAttributionSummaryParams ) =>
 	[
 		'reports',
 		'order-attribution',
@@ -80,43 +76,37 @@ export function reportOrderAttributionSummaryQuery(
 				const shouldFetchComparison =
 					compare_from &&
 					compare_to &&
-					( compare_from !== params.from ||
-						compare_to !== params.to );
+					( compare_from !== params.from || compare_to !== params.to );
 
 				// Fetch both periods in parallel for better performance
-				const [ currentResponse, previousResponse ] = await Promise.all(
-					[
-						fetchReportOrderAttributionByProduct( {
-							from: params.from,
-							to: params.to,
-							interval: params.interval,
-							view: params.view,
-							filters: params.filters,
-							date_type: params.date_type,
-						} ),
-						shouldFetchComparison
-							? fetchReportOrderAttributionByProduct( {
-									from: compare_from,
-									to: compare_to,
-									interval: params.interval,
-									view: params.view,
-									filters: params.filters,
-									date_type: params.date_type,
-							  } )
-							: Promise.resolve( undefined ),
-					]
-				);
+				const [ currentResponse, previousResponse ] = await Promise.all( [
+					fetchReportOrderAttributionByProduct( {
+						from: params.from,
+						to: params.to,
+						interval: params.interval,
+						view: params.view,
+						filters: params.filters,
+						date_type: params.date_type,
+					} ),
+					shouldFetchComparison
+						? fetchReportOrderAttributionByProduct( {
+								from: compare_from,
+								to: compare_to,
+								interval: params.interval,
+								view: params.view,
+								filters: params.filters,
+								date_type: params.date_type,
+						  } )
+						: Promise.resolve( undefined ),
+				] );
 
 				// Normalize to match the regular API structure (includes both periods)
-				const normalizedResponse =
-					normalizeOrderAttributionByProductResponse(
-						currentResponse,
-						previousResponse
-					);
-
-				return sanitizeReportOrderAttributionSummaryResponse(
-					normalizedResponse
+				const normalizedResponse = normalizeOrderAttributionByProductResponse(
+					currentResponse,
+					previousResponse
 				);
+
+				return sanitizeReportOrderAttributionSummaryResponse( normalizedResponse );
 			}
 
 			// Regular API path: Returns both primary and comparison in one response
@@ -128,17 +118,13 @@ export function reportOrderAttributionSummaryQuery(
 		 * Enable the query only when all required parameters are present.
 		 * The 'view' parameter is required for order attribution queries.
 		 */
-		enabled: !! (
-			params.from &&
-			params.to &&
-			params.interval &&
-			params.view
-		),
+		enabled: !! ( params.from && params.to && params.interval && params.view ),
 
 		/**
 		 * Keep previous data while fetching to prevent flash of empty state.
 		 * This provides a smoother user experience during data refetching.
+		 * @param previousData
 		 */
-		placeholderData: ( previousData ) => previousData,
+		placeholderData: previousData => previousData,
 	};
 }

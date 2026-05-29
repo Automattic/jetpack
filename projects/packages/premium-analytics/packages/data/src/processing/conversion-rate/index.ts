@@ -2,19 +2,17 @@
  * External dependencies
  */
 import { __ } from '@wordpress/i18n';
-
 /**
  * Internal dependencies
  */
 import { fetchReportConversionRate } from '../../api/report-conversion-rate-fetch';
-import type { Override } from '../../utils/types';
 import { safeParseInt } from '../../utils/parsing';
+import type { Override } from '../../utils/types';
 
 type ReportsConversionRateByDateResponse = Awaited<
 	ReturnType< typeof fetchReportConversionRate >
 >;
-type RawConversionRateReportDataItem =
-	ReportsConversionRateByDateResponse[ 'data' ][ number ];
+type RawConversionRateReportDataItem = ReportsConversionRateByDateResponse[ 'data' ][ number ];
 type SanitizedConversionRateByDateItem = Override<
 	RawConversionRateReportDataItem,
 	{
@@ -30,6 +28,7 @@ type SanitizedConversionRateByDateItem = Override<
 /**
  * Sanitize/process a single conversion rate item by converting strings to numbers
  * and calculating the conversion rate
+ * @param item
  */
 function sanitizeConversionRateItem(
 	item: RawConversionRateReportDataItem
@@ -42,8 +41,7 @@ function sanitizeConversionRateItem(
 
 	// Calculate conversion rate as decimal (e.g., 0.035 for 3.5%)
 	// This format works with formatMetricValue 'percentage' type
-	const conversionRate =
-		activeSessionsNum > 0 ? completedCheckoutNum / activeSessionsNum : 0;
+	const conversionRate = activeSessionsNum > 0 ? completedCheckoutNum / activeSessionsNum : 0;
 
 	return {
 		...item,
@@ -82,6 +80,7 @@ type SanitizedConversionRateByDateResponse = {
  *
  * The `summary` single item has basically the same structure
  * as the `data` array items, so we can use the same mapper function for both.
+ * @param response
  */
 export const sanitizeReportConversionRateResponse = (
 	response: ReportsConversionRateByDateResponse
@@ -97,9 +96,7 @@ export const sanitizeReportConversionRateResponse = (
 		date_end: '',
 	};
 
-	const sanitizedSummary = sanitizeConversionRateItem(
-		response?.summary || defaultSummary
-	);
+	const sanitizedSummary = sanitizeConversionRateItem( response?.summary || defaultSummary );
 
 	// Create funnel steps from the summary data
 	const steps: FunnelStep[] = [
@@ -115,9 +112,7 @@ export const sanitizeReportConversionRateResponse = (
 			count: sanitizedSummary.with_cart_addition,
 			rate:
 				sanitizedSummary.active_sessions > 0
-					? ( sanitizedSummary.with_cart_addition /
-							sanitizedSummary.active_sessions ) *
-					  100
+					? ( sanitizedSummary.with_cart_addition / sanitizedSummary.active_sessions ) * 100
 					: 0,
 		},
 		{
@@ -126,9 +121,7 @@ export const sanitizeReportConversionRateResponse = (
 			count: sanitizedSummary.reached_checkout,
 			rate:
 				sanitizedSummary.active_sessions > 0
-					? ( sanitizedSummary.reached_checkout /
-							sanitizedSummary.active_sessions ) *
-					  100
+					? ( sanitizedSummary.reached_checkout / sanitizedSummary.active_sessions ) * 100
 					: 0,
 		},
 		{
@@ -137,18 +130,14 @@ export const sanitizeReportConversionRateResponse = (
 			count: sanitizedSummary.completed_checkout,
 			rate:
 				sanitizedSummary.active_sessions > 0
-					? ( sanitizedSummary.completed_checkout /
-							sanitizedSummary.active_sessions ) *
-					  100
+					? ( sanitizedSummary.completed_checkout / sanitizedSummary.active_sessions ) * 100
 					: 0,
 		},
 	];
 
 	return {
 		summary: sanitizedSummary,
-		data: response?.data
-			? response.data.map( sanitizeConversionRateItem )
-			: [],
+		data: response?.data ? response.data.map( sanitizeConversionRateItem ) : [],
 		steps,
 		overallRate: sanitizedSummary.conversion_rate,
 	};

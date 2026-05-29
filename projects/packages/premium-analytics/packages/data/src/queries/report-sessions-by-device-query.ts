@@ -1,7 +1,6 @@
 /**
  * External dependencies
  */
-import type { UseQueryOptions } from '@tanstack/react-query';
 
 /**
  * Internal dependencies
@@ -9,14 +8,12 @@ import type { UseQueryOptions } from '@tanstack/react-query';
 import { fetchReportSessionsByDevice } from '../api/report-sessions-by-device-fetch';
 import { sanitizeReportSessionsByDeviceResponse } from '../processing/sessions-by-device';
 import type { ReportDataMap } from '../types';
+import type { UseQueryOptions } from '@tanstack/react-query';
 
-type RequestReportSessionsByDeviceParams = Parameters<
-	typeof fetchReportSessionsByDevice
->[ 0 ];
+type RequestReportSessionsByDeviceParams = Parameters< typeof fetchReportSessionsByDevice >[ 0 ];
 
-const getReportSessionsByDeviceQueryKey = (
-	p: RequestReportSessionsByDeviceParams
-) => [ 'reports', 'sessions', 'by-device', p.from, p.to ] as const;
+const getReportSessionsByDeviceQueryKey = ( p: RequestReportSessionsByDeviceParams ) =>
+	[ 'reports', 'sessions', 'by-device', p.from, p.to ] as const;
 
 /**
  * Creates query options for fetching sessions by device report data.
@@ -41,7 +38,8 @@ export function reportSessionsByDeviceQuery(
 
 		/**
 		 * Keep previous data while fetching new data to prevent blank states
+		 * @param previousData
 		 */
-		placeholderData: ( previousData ) => previousData,
+		placeholderData: previousData => previousData,
 	};
 }

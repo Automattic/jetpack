@@ -1,7 +1,6 @@
 /**
  * External dependencies
  */
-import type { UseQueryOptions } from '@tanstack/react-query';
 
 /**
  * Internal dependencies
@@ -9,6 +8,7 @@ import type { UseQueryOptions } from '@tanstack/react-query';
 import { fetchReportOrders } from '../api';
 import { sanitizeReportOrdersResponse } from '../processing/orders';
 import type { ReportDataMap } from '../types';
+import type { UseQueryOptions } from '@tanstack/react-query';
 
 type RequestReportOrdersParams = Parameters< typeof fetchReportOrders >[ 0 ];
 
@@ -22,6 +22,10 @@ const getReportOrdersQueryKey = ( p: RequestReportOrdersParams ) => [
 	p.filters || [],
 ];
 
+/**
+ *
+ * @param params
+ */
 export function reportOrdersQuery(
 	params: RequestReportOrdersParams
 ): UseQueryOptions< ReportDataMap[ 'orders' ] > {
@@ -39,7 +43,8 @@ export function reportOrdersQuery(
 
 		/**
 		 * Keep previous data while fetching new data to prevent blank states
+		 * @param previousData
 		 */
-		placeholderData: ( previousData ) => previousData,
+		placeholderData: previousData => previousData,
 	};
 }

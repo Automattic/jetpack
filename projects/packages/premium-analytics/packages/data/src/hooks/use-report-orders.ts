@@ -9,18 +9,14 @@ type UseReportOrdersOptions = {
 	enabled?: boolean;
 };
 
-export function useReportOrders(
-	params: ReportParams,
-	options?: UseReportOrdersOptions
-) {
-	return useReport( ( p ) => reportOrdersQuery( p ), params, {
+/**
+ *
+ * @param params
+ * @param options
+ */
+export function useReportOrders( params: ReportParams, options?: UseReportOrdersOptions ) {
+	return useReport( p => reportOrdersQuery( p ), params, {
 		enabled: options?.enabled,
-		disabledComparisonKey: [
-			'reports',
-			'orders',
-			'by-date',
-			'__comparison__',
-			'disabled',
-		],
+		disabledComparisonKey: [ 'reports', 'orders', 'by-date', '__comparison__', 'disabled' ],
 	} );
 }

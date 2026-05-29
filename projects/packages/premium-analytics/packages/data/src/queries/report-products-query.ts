@@ -1,21 +1,17 @@
 /**
  * External dependencies
  */
-import type { UseQueryOptions } from '@tanstack/react-query';
 
 /**
  * Internal dependencies
  */
 import { fetchReportProducts } from '../api/report-products-fetch';
 import { sanitizeReportProductsResponse } from '../processing/products';
+import type { UseQueryOptions } from '@tanstack/react-query';
 
-type RequestReportProductsParams = Parameters<
-	typeof fetchReportProducts
->[ 0 ];
+type RequestReportProductsParams = Parameters< typeof fetchReportProducts >[ 0 ];
 
-type SanitizedProductsResponse = ReturnType<
-	typeof sanitizeReportProductsResponse
->;
+type SanitizedProductsResponse = ReturnType< typeof sanitizeReportProductsResponse >;
 
 const getReportProductsQueryKey = ( p: RequestReportProductsParams ) =>
 	[
@@ -30,6 +26,10 @@ const getReportProductsQueryKey = ( p: RequestReportProductsParams ) =>
 		p.filters,
 	] as const;
 
+/**
+ *
+ * @param params
+ */
 export function reportProductsQuery(
 	params: RequestReportProductsParams
 ): UseQueryOptions< SanitizedProductsResponse > {
@@ -47,7 +47,8 @@ export function reportProductsQuery(
 
 		/**
 		 * Keep previous data while fetching new data to prevent blank states
+		 * @param previousData
 		 */
-		placeholderData: ( previousData ) => previousData,
+		placeholderData: previousData => previousData,
 	};
 }

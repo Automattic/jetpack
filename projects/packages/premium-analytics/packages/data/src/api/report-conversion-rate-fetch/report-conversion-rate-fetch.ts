@@ -3,13 +3,12 @@
  */
 import apiFetch from '@wordpress/api-fetch';
 import { addQueryArgs } from '@wordpress/url';
-
 /**
  * Internal dependencies
  */
-import type { BaseReportParams } from '../../utils/types';
-import type { FilterCondition } from '../../types/filter-condition';
 import { reportsPath } from '../constants';
+import type { FilterCondition } from '../../types/filter-condition';
+import type { BaseReportParams } from '../../utils/types';
 
 type ReportsConversionRateByDateSummary = {
 	active_sessions: string;
@@ -40,6 +39,14 @@ export type RequestReportConversionRateParams = BaseReportParams & {
 	filters?: FilterCondition[];
 };
 
+/**
+ *
+ * @param root0
+ * @param root0.from
+ * @param root0.to
+ * @param root0.interval
+ * @param root0.filters
+ */
 export async function fetchReportConversionRate( {
 	from,
 	to,

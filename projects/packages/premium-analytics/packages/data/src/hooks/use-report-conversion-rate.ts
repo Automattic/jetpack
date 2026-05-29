@@ -9,17 +9,17 @@ type UseReportConversionRateOptions = {
 	enabled?: boolean;
 };
 
+/**
+ *
+ * @param params
+ * @param options
+ */
 export function useReportConversionRate(
 	params: ReportParams,
 	options?: UseReportConversionRateOptions
 ) {
-	return useReport( ( p ) => reportConversionRateQuery( p ), params, {
+	return useReport( p => reportConversionRateQuery( p ), params, {
 		enabled: options?.enabled,
-		disabledComparisonKey: [
-			'reports',
-			'conversion-rate',
-			'__comparison__',
-			'disabled',
-		],
+		disabledComparisonKey: [ 'reports', 'conversion-rate', '__comparison__', 'disabled' ],
 	} );
 }

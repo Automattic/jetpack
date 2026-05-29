@@ -3,7 +3,6 @@
  */
 import { useQuery, type UseQueryOptions } from '@tanstack/react-query';
 import { useCallback } from 'react';
-
 /**
  * Internal dependencies
  */
@@ -81,11 +80,7 @@ export function useReport< TData >(
 				'comparison'
 		  )
 		: {
-				queryKey: options?.disabledComparisonKey ?? [
-					'reports',
-					'__comparison__',
-					'disabled',
-				],
+				queryKey: options?.disabledComparisonKey ?? [ 'reports', '__comparison__', 'disabled' ],
 		  };
 
 	const primary = useQuery( {
@@ -95,10 +90,7 @@ export function useReport< TData >(
 
 	const comparison = useQuery( {
 		...comparisonQueryOptions,
-		enabled:
-			queryEnabled &&
-			comparisonEnabled &&
-			( comparisonQueryOptions.enabled ?? true ),
+		enabled: queryEnabled && comparisonEnabled && ( comparisonQueryOptions.enabled ?? true ),
 	} );
 
 	// Compute common derived states

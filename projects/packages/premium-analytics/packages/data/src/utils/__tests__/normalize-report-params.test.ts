@@ -12,14 +12,13 @@ jest.mock( '../preset-date-range', () => ( {
 jest.mock( '../interval', () => ( {
 	getDefaultIntervalForPeriod: jest.fn(),
 } ) );
-
 /**
  * Internal dependencies
  */
-import { normalizeReportParams } from '../search';
 import { getDefaultQueryParams } from '../../defaults';
-import { computeDateRangeFromPreset } from '../preset-date-range';
 import { getDefaultIntervalForPeriod } from '../interval';
+import { computeDateRangeFromPreset } from '../preset-date-range';
+import { normalizeReportParams } from '../search';
 import type { ReportParams } from '../search';
 
 const mockGetDefaults = getDefaultQueryParams as jest.MockedFunction<
@@ -86,9 +85,7 @@ describe( 'normalizeReportParams', () => {
 		// Default comparison should be applied (search is undefined
 		// → !search?.from → true → default branch).
 		expect( result.comp ).toBe( '1' );
-		expect( result.compare_from ).toBe(
-			DEFAULTS_WITH_COMPARISON.compare_from
-		);
+		expect( result.compare_from ).toBe( DEFAULTS_WITH_COMPARISON.compare_from );
 		expect( result.compare_to ).toBe( DEFAULTS_WITH_COMPARISON.compare_to );
 	} );
 

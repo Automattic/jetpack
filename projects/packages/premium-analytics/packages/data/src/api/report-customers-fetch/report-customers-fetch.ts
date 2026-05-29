@@ -3,13 +3,12 @@
  */
 import apiFetch from '@wordpress/api-fetch';
 import { addQueryArgs } from '@wordpress/url';
-
 /**
  * Internal dependencies
  */
-import type { BaseReportParams } from '../../utils/types';
-import type { FilterCondition } from '../../types/filter-condition';
 import { reportsPath } from '../constants';
+import type { FilterCondition } from '../../types/filter-condition';
+import type { BaseReportParams } from '../../utils/types';
 
 type CustomersNewReturningSummary = {
 	total_net_sales: string;
@@ -31,13 +30,18 @@ type ReportsCustomersNewReturningResponse = {
 	data: CustomersNewReturningItem[];
 };
 
-export type RequestReportCustomersParams = Omit<
-	BaseReportParams,
-	'interval'
-> & {
+export type RequestReportCustomersParams = Omit< BaseReportParams, 'interval' > & {
 	filters?: FilterCondition[];
 };
 
+/**
+ *
+ * @param root0
+ * @param root0.from
+ * @param root0.to
+ * @param root0.filters
+ * @param root0.date_type
+ */
 export async function fetchReportCustomers( {
 	from,
 	to,

@@ -12,12 +12,17 @@ type UseReportVisitorsByLocationOptions = {
 	limit?: number;
 };
 
+/**
+ *
+ * @param params
+ * @param options
+ */
 export function useReportVisitorsByLocation(
 	params: ReportParams,
 	options?: UseReportVisitorsByLocationOptions
 ) {
 	return useReport(
-		( p ) =>
+		p =>
 			reportVisitorsByLocationQuery( {
 				...p,
 				group_by: options?.groupBy ?? 'country',
@@ -27,13 +32,7 @@ export function useReportVisitorsByLocation(
 		params,
 		{
 			enabled: options?.enabled,
-			disabledComparisonKey: [
-				'reports',
-				'visitors',
-				'by-location',
-				'__comparison__',
-				'disabled',
-			],
+			disabledComparisonKey: [ 'reports', 'visitors', 'by-location', '__comparison__', 'disabled' ],
 		}
 	);
 }

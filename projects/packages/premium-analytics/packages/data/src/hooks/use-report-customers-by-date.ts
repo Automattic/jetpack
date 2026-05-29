@@ -9,18 +9,17 @@ type UseReportCustomersByDateOptions = {
 	enabled?: boolean;
 };
 
+/**
+ *
+ * @param params
+ * @param options
+ */
 export function useReportCustomersByDate(
 	params: ReportParams,
 	options?: UseReportCustomersByDateOptions
 ) {
-	return useReport( ( p ) => reportCustomersByDateQuery( p ), params, {
+	return useReport( p => reportCustomersByDateQuery( p ), params, {
 		enabled: options?.enabled,
-		disabledComparisonKey: [
-			'reports',
-			'customers',
-			'by-date',
-			'__comparison__',
-			'disabled',
-		],
+		disabledComparisonKey: [ 'reports', 'customers', 'by-date', '__comparison__', 'disabled' ],
 	} );
 }

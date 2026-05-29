@@ -4,9 +4,7 @@
 import { fetchReportProducts } from '../../api/report-products-fetch';
 import type { Override } from '../../utils/types';
 
-type ReportProductsResponse = Awaited<
-	ReturnType< typeof fetchReportProducts >
->;
+type ReportProductsResponse = Awaited< ReturnType< typeof fetchReportProducts > >;
 
 type RawProductsReportDataItem = ReportProductsResponse[ 'data' ][ number ];
 type RawProductsReportSummary = ReportProductsResponse[ 'summary' ];
@@ -33,10 +31,9 @@ type SanitizedProductsSummary = Override<
 
 /**
  * Sanitize/process a single product item by converting strings to numbers
+ * @param item
  */
-function sanitizeProductItem(
-	item: RawProductsReportDataItem
-): SanitizedProductsItem {
+function sanitizeProductItem( item: RawProductsReportDataItem ): SanitizedProductsItem {
 	return {
 		...item,
 		product_id: parseInt( item.product_id, 10 ),
@@ -46,9 +43,11 @@ function sanitizeProductItem(
 	};
 }
 
-function sanitizeProductSummary(
-	summary: RawProductsReportSummary
-): SanitizedProductsSummary {
+/**
+ *
+ * @param summary
+ */
+function sanitizeProductSummary( summary: RawProductsReportSummary ): SanitizedProductsSummary {
 	return {
 		...summary,
 		total_orders: parseInt( summary.total_orders, 10 ),
@@ -72,6 +71,7 @@ type SanitizedProductsResponse = {
  *
  * The `summary` single item has basically the same structure
  * as the `data` array items, so we can use the same mapper function for both.
+ * @param response
  */
 export const sanitizeReportProductsResponse = (
 	response: ReportProductsResponse

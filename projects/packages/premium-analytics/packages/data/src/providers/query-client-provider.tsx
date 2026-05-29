@@ -1,13 +1,8 @@
 /**
  * External dependencies
  */
-import {
-	QueryClient,
-	QueryClientProvider,
-	QueryCache,
-} from '@tanstack/react-query';
+import { QueryClient, QueryClientProvider, QueryCache } from '@tanstack/react-query';
 import { ReactNode, lazy, Suspense } from 'react';
-
 /**
  * Internal dependencies
  */
@@ -39,8 +34,7 @@ function areQueryDevtoolsEnabled(): boolean {
 }
 
 const ReactQueryDevtoolsProduction = lazy( () =>
-	// eslint-disable-next-line import/no-extraneous-dependencies -- DevTools is intentionally in devDependencies, only loaded when enabled
-	import( '@tanstack/react-query-devtools/production' ).then( ( d ) => ( {
+	import( '@tanstack/react-query-devtools/production' ).then( d => ( {
 		default: d.ReactQueryDevtools,
 	} ) )
 );
@@ -48,6 +42,7 @@ const ReactQueryDevtoolsProduction = lazy( () =>
 /**
  * Extract HTTP status code from various error formats.
  * WordPress REST API errors may have different shapes.
+ * @param error
  */
 function getErrorStatus( error: unknown ): number | null {
 	if ( ! error || typeof error !== 'object' ) {
@@ -97,7 +92,7 @@ function getErrorStatus( error: unknown ): number | null {
  * Network errors are handled separately in GlobalErrorProvider via onlineManager.
  */
 const queryCache = new QueryCache( {
-	onError: ( error ) => {
+	onError: error => {
 		const currentError = globalErrorManager.getError();
 
 		// Don't override network error (highest priority)
@@ -153,11 +148,7 @@ export const queryClient = new QueryClient( {
 	},
 } );
 
-export const AnalyticsQueryClientProvider = ( {
-	children,
-}: {
-	children: ReactNode;
-} ) => {
+export const AnalyticsQueryClientProvider = ( { children }: { children: ReactNode } ) => {
 	return (
 		<QueryClientProvider client={ queryClient }>
 			<>{ children }</>

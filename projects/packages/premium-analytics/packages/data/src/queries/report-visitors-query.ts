@@ -1,7 +1,6 @@
 /**
  * External dependencies
  */
-import type { UseQueryOptions } from '@tanstack/react-query';
 
 /**
  * Internal dependencies
@@ -9,22 +8,17 @@ import type { UseQueryOptions } from '@tanstack/react-query';
 import { fetchReportVisitors } from '../api';
 import { sanitizeReportVisitorsResponse } from '../processing/visitors';
 import type { ReportDataMap } from '../types';
+import type { UseQueryOptions } from '@tanstack/react-query';
 
-type RequestReportVisitorsParams = Parameters<
-	typeof fetchReportVisitors
->[ 0 ];
+type RequestReportVisitorsParams = Parameters< typeof fetchReportVisitors >[ 0 ];
 
 const getReportVisitorsQueryKey = ( p: RequestReportVisitorsParams ) =>
-	[
-		'reports',
-		'visitors',
-		'by-date',
-		p.from,
-		p.to,
-		p.interval,
-		p.date_type,
-	] as const;
+	[ 'reports', 'visitors', 'by-date', p.from, p.to, p.interval, p.date_type ] as const;
 
+/**
+ *
+ * @param params
+ */
 export function reportVisitorsQuery(
 	params: RequestReportVisitorsParams
 ): UseQueryOptions< ReportDataMap[ 'visitors' ] > {
@@ -42,7 +36,8 @@ export function reportVisitorsQuery(
 
 		/**
 		 * Keep previous data while fetching new data to prevent blank states
+		 * @param previousData
 		 */
-		placeholderData: ( previousData ) => previousData,
+		placeholderData: previousData => previousData,
 	};
 }

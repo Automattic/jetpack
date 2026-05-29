@@ -6,15 +6,12 @@ import { fetchReportSessionsByDevice } from '../../api/report-sessions-by-device
 /**
  * Inferred types from fetch response
  */
-type ReportsSessionsByDeviceResponse = Awaited<
-	ReturnType< typeof fetchReportSessionsByDevice >
->;
+type ReportsSessionsByDeviceResponse = Awaited< ReturnType< typeof fetchReportSessionsByDevice > >;
 
 /**
  * Raw item type from API response
  */
-type SessionsByDeviceItem =
-	ReportsSessionsByDeviceResponse[ 'data' ][ number ];
+type SessionsByDeviceItem = ReportsSessionsByDeviceResponse[ 'data' ][ number ];
 
 /**
  * Sanitized item with numeric values
@@ -44,9 +41,7 @@ type SanitizedSessionsByDeviceResponse = {
  *
  * @param item - Raw item from API response
  */
-function sanitizeSessionsByDeviceItem(
-	item: SessionsByDeviceItem
-): SanitizedSessionsByDeviceItem {
+function sanitizeSessionsByDeviceItem( item: SessionsByDeviceItem ): SanitizedSessionsByDeviceItem {
 	return {
 		device_type: item.device_type || '',
 		active_sessions: parseInt( item.active_sessions, 10 ) || 0,
@@ -66,13 +61,10 @@ export const sanitizeReportSessionsByDeviceResponse = (
 ): SanitizedSessionsByDeviceResponse => {
 	const items = response?.data ?? [];
 	const data = items
-		.filter( ( item ) => item.device_type ) // Filter out empty device types
+		.filter( item => item.device_type ) // Filter out empty device types
 		.map( sanitizeSessionsByDeviceItem );
 
-	const totalSessions = data.reduce(
-		( acc, item ) => acc + item.active_sessions,
-		0
-	);
+	const totalSessions = data.reduce( ( acc, item ) => acc + item.active_sessions, 0 );
 
 	return {
 		summary: {

@@ -3,18 +3,14 @@
  */
 import apiFetch from '@wordpress/api-fetch';
 import { addQueryArgs } from '@wordpress/url';
-
 /**
  * Internal dependencies
  */
-import { reportsPath } from '../constants';
 import { BaseReportParams } from '../../utils/types';
+import { reportsPath } from '../constants';
 import type { FilterCondition } from '../../types/filter-condition';
 
-export type RequestReportProductsParams = Omit<
-	BaseReportParams,
-	'interval'
-> & {
+export type RequestReportProductsParams = Omit< BaseReportParams, 'interval' > & {
 	limit?: number;
 	orderby?: string;
 	order?: 'asc' | 'desc';
@@ -43,6 +39,7 @@ type ReportProductsResponse = {
 
 /**
  * Fetches products report data from the WooCommerce Analytics API
+ * @param params
  */
 export async function fetchReportProducts(
 	params: RequestReportProductsParams

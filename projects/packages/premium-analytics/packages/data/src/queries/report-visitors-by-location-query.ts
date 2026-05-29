@@ -1,7 +1,6 @@
 /**
  * External dependencies
  */
-import type { UseQueryOptions } from '@tanstack/react-query';
 
 /**
  * Internal dependencies
@@ -9,14 +8,13 @@ import type { UseQueryOptions } from '@tanstack/react-query';
 import { fetchReportVisitorsByLocation } from '../api';
 import { sanitizeReportVisitorsByLocationResponse } from '../processing/visitors-by-location';
 import type { ReportDataMap } from '../types';
+import type { UseQueryOptions } from '@tanstack/react-query';
 
 type RequestReportVisitorsByLocationParams = Parameters<
 	typeof fetchReportVisitorsByLocation
 >[ 0 ];
 
-const getReportVisitorsByLocationQueryKey = (
-	p: RequestReportVisitorsByLocationParams
-) =>
+const getReportVisitorsByLocationQueryKey = ( p: RequestReportVisitorsByLocationParams ) =>
 	[
 		'reports',
 		'visitors',
@@ -29,6 +27,10 @@ const getReportVisitorsByLocationQueryKey = (
 		p.limit ?? null,
 	] as const;
 
+/**
+ *
+ * @param params
+ */
 export function reportVisitorsByLocationQuery(
 	params: RequestReportVisitorsByLocationParams
 ): UseQueryOptions< ReportDataMap[ 'visitorsByLocation' ] > {
@@ -41,6 +43,6 @@ export function reportVisitorsByLocationQuery(
 
 		enabled: !! ( params.from && params.to && params.interval ),
 
-		placeholderData: ( previousData ) => previousData,
+		placeholderData: previousData => previousData,
 	};
 }

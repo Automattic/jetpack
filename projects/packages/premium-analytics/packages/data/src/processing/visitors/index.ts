@@ -7,11 +7,8 @@ import type { Override } from '../../utils/types';
 /**
  * Inferred types
  */
-type ReportsVisitorsByDateResponse = Awaited<
-	ReturnType< typeof fetchReportVisitors >
->;
-type RawVisitorsReportDataItem =
-	ReportsVisitorsByDateResponse[ 'data' ][ number ];
+type ReportsVisitorsByDateResponse = Awaited< ReturnType< typeof fetchReportVisitors > >;
+type RawVisitorsReportDataItem = ReportsVisitorsByDateResponse[ 'data' ][ number ];
 type RawVisitorsReportDataSummary = ReportsVisitorsByDateResponse[ 'summary' ];
 
 type SanitizedVisitorsByDateItem = Override<
@@ -40,10 +37,9 @@ type SanitizeVisitorsItemArg = Override<
 
 /**
  * Sanitize/process a single visitors item by converting strings to numbers
+ * @param item
  */
-function sanitizeVisitorsItem(
-	item: SanitizeVisitorsItemArg
-): SanitizedVisitorsByDateItem {
+function sanitizeVisitorsItem( item: SanitizeVisitorsItemArg ): SanitizedVisitorsByDateItem {
 	return {
 		...item,
 		active_sessions: parseInt( item.active_sessions, 10 ),
@@ -65,6 +61,7 @@ type SanitizedVisitorsByDateResponse = {
  *
  * The `summary` single item has basically the same structure
  * as the `data` array items, so we can use the same mapper function for both.
+ * @param response
  */
 export const sanitizeReportVisitorsResponse = (
 	response: ReportsVisitorsByDateResponse
