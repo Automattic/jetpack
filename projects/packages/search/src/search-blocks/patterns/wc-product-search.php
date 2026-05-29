@@ -11,6 +11,11 @@
 
 namespace Automattic\Jetpack\Search;
 
+$content = Search_Blocks::pattern_content_from_template( 'jetpack-search-product-results.html' );
+if ( '' === $content ) {
+	return;
+}
+
 register_block_pattern(
 	'jetpack-search/wc-product-search-page',
 	array(
@@ -23,6 +28,6 @@ register_block_pattern(
 			__( 'woocommerce', 'jetpack-search-pkg' ),
 			__( 'jetpack search', 'jetpack-search-pkg' ),
 		),
-		'content'     => Search_Blocks::pattern_content_from_template( 'jetpack-search-product-results.html' ),
+		'content'     => $content,
 	)
 );

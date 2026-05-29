@@ -1,4 +1,4 @@
 Significance: patch
 Type: changed
 
-Search Blocks: derive the Blog Search Page pattern from its page template and add a WooCommerce Product Search Page pattern, so the inserter patterns stay in sync with the templates they mirror.
+Search Blocks: derive the Blog Search Page pattern from its page template so the inserter pattern stays in sync with the template it mirrors.

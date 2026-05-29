@@ -1020,11 +1020,29 @@ class Search_Blocks_Test extends TestCase {
 		$this->assertStringEndsWith( '<!-- /wp:group -->', $content, 'Content must end at the inner group close.' );
 		$this->assertStringNotContainsString( 'wp:template-part', $content, 'Header/footer template-parts must be stripped.' );
 		$this->assertStringNotContainsString( '<main', $content, 'The main wrapper must be stripped.' );
-		$this->assertStringNotContainsString( 'tagName', $content, 'The main group comment must be stripped.' );
+		$this->assertStringNotContainsString( '"tagName":"main"', $content, 'The main group comment must be stripped.' );
 		$this->assertStringNotContainsString( '{{', $content, 'Placeholders must be substituted.' );
 		$this->assertStringContainsString( 'wp:jetpack-search/search-input', $content, 'Search input block must remain.' );
 		$this->assertStringContainsString( 'wp:jetpack-search/filters', $content, 'Sidebar filters composition must remain.' );
 		$this->assertStringContainsString( 'Filter options', $content, 'Sidebar heading placeholder must be substituted.' );
+	}
+
+	/**
+	 * The chrome-stripping works identically for the WooCommerce product template,
+	 * keeping the product-only blocks (filters-product, results-list layout=product,
+	 * filter-wc-price) intact. Guards against a future product-template restructure
+	 * that breaks the `<main>` extraction.
+	 */
+	public function test_pattern_content_from_template_strips_chrome_for_product_template() {
+		$content = Search_Blocks::pattern_content_from_template( 'jetpack-search-product-results.html' );
+
+		$this->assertNotEmpty( $content, 'Content must be non-empty when the bundled product template exists.' );
+		$this->assertStringStartsWith( '<!-- wp:group {"align":"wide"', $content, 'Content must start at the inner alignwide group.' );
+		$this->assertStringNotContainsString( 'wp:template-part', $content, 'Header/footer template-parts must be stripped.' );
+		$this->assertStringNotContainsString( '<main', $content, 'The main wrapper must be stripped.' );
+		$this->assertStringContainsString( 'wp:jetpack-search/filters-product', $content, 'Product filters composition must remain.' );
+		$this->assertStringContainsString( '"layout":"product"', $content, 'Results-list must keep the product layout.' );
+		$this->assertStringContainsString( 'wp:jetpack-search/filter-wc-price', $content, 'WC-only price filter must remain.' );
 	}
 
 	/**

@@ -993,7 +993,7 @@ class Search_Blocks {
 	 * @return string Block markup ready for `register_block_pattern()`, or '' when unreadable.
 	 */
 	public static function pattern_content_from_template( string $template_file ): string {
-		$template_path = __DIR__ . '/templates/' . $template_file;
+		$template_path = __DIR__ . '/templates/' . basename( $template_file );
 		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- local, bundled template file.
 		$raw = is_readable( $template_path ) ? (string) file_get_contents( $template_path ) : '';
 		if ( '' === $raw ) {

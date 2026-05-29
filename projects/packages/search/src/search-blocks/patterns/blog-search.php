@@ -7,6 +7,11 @@
 
 namespace Automattic\Jetpack\Search;
 
+$content = Search_Blocks::pattern_content_from_template( 'jetpack-search.html' );
+if ( '' === $content ) {
+	return;
+}
+
 register_block_pattern(
 	'jetpack-search/blog-search-page',
 	array(
@@ -19,6 +24,6 @@ register_block_pattern(
 			__( 'results', 'jetpack-search-pkg' ),
 			__( 'jetpack search', 'jetpack-search-pkg' ),
 		),
-		'content'     => Search_Blocks::pattern_content_from_template( 'jetpack-search.html' ),
+		'content'     => $content,
 	)
 );
