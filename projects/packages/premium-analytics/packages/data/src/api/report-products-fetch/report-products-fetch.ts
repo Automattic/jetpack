@@ -3,13 +3,13 @@
  */
 import apiFetch from '@wordpress/api-fetch';
 import { addQueryArgs } from '@wordpress/url';
-import type { FilterCondition } from '@next-woo-analytics/data';
 
 /**
  * Internal dependencies
  */
 import { reportsPath } from '../constants';
 import { BaseReportParams } from '../../utils/types';
+import type { FilterCondition } from '../../types/filter-condition';
 
 export type RequestReportProductsParams = Omit<
 	BaseReportParams,

@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { getComparisonRangeFromPreset } from '@next-woo-analytics/datetime';
+import { getComparisonRangeFromPreset } from '@jetpack-premium-analytics/datetime';
 import { differenceInCalendarDays, startOfDay } from 'date-fns';
 
 /**

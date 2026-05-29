@@ -1,8 +1,8 @@
 /**
  * External dependencies
  */
-import { computePrimaryRange } from '@next-woo-analytics/datetime';
-import type { SelectablePresetId } from '@next-woo-analytics/datetime';
+import { computePrimaryRange } from '@jetpack-premium-analytics/datetime';
+import type { SelectablePresetId } from '@jetpack-premium-analytics/datetime';
 
 /**
  * Internal dependencies

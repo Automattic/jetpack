@@ -1,11 +1,14 @@
-# @next-woo-analytics/data
+# @automattic/jetpack-premium-analytics-data
 
-Data management package for WooCommerce Analytics with React Query
-integration.
+Data management for Jetpack Premium Analytics with React Query integration.
 
 ## Installation
 
-This package is an internal dependency of the WooCommerce Analytics NextAdmin integration. It's automatically available when working within the NextAdmin framework.
+This is an internal package of Jetpack Premium Analytics — it is never
+published to npm and is resolved entirely in-tree. It's automatically
+available to routes and other internal packages within
+`@automattic/jetpack-premium-analytics`, imported via the
+`@jetpack-premium-analytics/data` path alias.
 
 ```tsx
 import { 
@@ -13,7 +16,7 @@ import {
   useReport,
   prefetchReport,
   // ... other exports
-} from '@next-woo-analytics/data';
+} from '@jetpack-premium-analytics/data';
 ```
 
 ## Features
@@ -34,7 +37,7 @@ import {
 ### Setup
 
 ```tsx
-import { AnalyticsQueryClientProvider } from '@next-woo-analytics/data';
+import { AnalyticsQueryClientProvider } from '@jetpack-premium-analytics/data';
 
 function App() {
 	return (
@@ -53,7 +56,7 @@ import {
 	useReportOrdersByProductType,
 	useReportOrderAttribution, 
 	useReportCoupons 
-} from '@next-woo-analytics/data';
+} from '@jetpack-premium-analytics/data';
 
 function OrdersReport() {
 	// Orders endpoint separates primary and comparison periods
@@ -103,7 +106,7 @@ function CouponsReport() {
 ### Prefetching
 
 ```tsx
-import { prefetchReport, ensureCoreSettingsReady } from '@next-woo-analytics/data';
+import { prefetchReport, ensureCoreSettingsReady } from '@jetpack-premium-analytics/data';
 
 export const route = {
 	beforeLoad: async () => {
@@ -239,7 +242,7 @@ Returns the optimal default interval for a given time period.
 
 **Example:**
 ```tsx
-import { getDefaultIntervalForPeriod } from '@next-woo-analytics/data';
+import { getDefaultIntervalForPeriod } from '@jetpack-premium-analytics/data';
 
 const interval = getDefaultIntervalForPeriod( 'last-7-days', from, to ); // Returns 'day'
 ```
@@ -252,7 +255,7 @@ Constant array of available order attribution views.
 
 **Example:**
 ```tsx
-import { ORDER_ATTRIBUTION_VIEWS } from '@next-woo-analytics/data';
+import { ORDER_ATTRIBUTION_VIEWS } from '@jetpack-premium-analytics/data';
 
 // Use in components for view selection
 const views = ORDER_ATTRIBUTION_VIEWS; // ['channel', 'source', ...]
@@ -331,7 +334,7 @@ Creates a timezone-aware date using the site's configured timezone by
 default.
 
 ```typescript
-import { localTZDate } from '@next-woo-analytics/data';
+import { localTZDate } from '@jetpack-premium-analytics/data';
 
 const now = localTZDate(); // Current time in site timezone
 const custom = localTZDate( '2024-01-15', 'America/New_York' );
