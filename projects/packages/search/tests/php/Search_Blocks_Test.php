@@ -1061,8 +1061,11 @@ class Search_Blocks_Test extends TestCase {
 		require $patterns . '/wc-product-search.php';
 
 		foreach ( array( 'jetpack-search/blog-search-page', 'jetpack-search/wc-product-search-page' ) as $name ) {
-			$this->assertTrue( $registry->is_registered( $name ), "Pattern $name must be registered." );
-			$this->assertNotEmpty( $registry->get_registered( $name )['content'], "Pattern $name must have content." );
+			$pattern = $registry->get_registered( $name );
+			$this->assertIsArray( $pattern, "Pattern $name must be registered." );
+			if ( is_array( $pattern ) ) {
+				$this->assertNotEmpty( $pattern['content'], "Pattern $name must have content." );
+			}
 		}
 	}
 
