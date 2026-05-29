@@ -1,4 +1,4 @@
-significance: patch
-type: fixed
+Significance: patch
+Type: fixed
 
 Fixed white background showing behind form labels in Outline style on dark themes.
