@@ -14,10 +14,11 @@ const PCG_FORCE_BYPASS_TTL = 600;
  * via an explicit `pcg_force=1` flag on the current action's nonce or
  * a short-lived per-user bypass transient.
  *
+ * @param string $cap Capability the caller requires (e.g. `activate_plugins`, `update_plugins`).
  * @return bool
  */
-function pcg_force_override_active() {
-	if ( ! is_user_logged_in() || ! current_user_can( 'activate_plugins' ) ) {
+function pcg_force_override_active( $cap = 'activate_plugins' ) {
+	if ( ! is_user_logged_in() || ! current_user_can( $cap ) ) {
 		return false;
 	}
 
@@ -51,7 +52,7 @@ function pcg_force_bypass_key() {
  * @return never
  */
 function pcg_force_handle_set_bypass(): never {
-	if ( ! current_user_can( 'activate_plugins' ) ) {
+	if ( ! current_user_can( 'activate_plugins' ) && ! current_user_can( 'update_plugins' ) ) {
 		wp_die( esc_html__( 'You do not have permission to do that.', 'jetpack-mu-wpcom' ), 403 );
 	}
 	check_admin_referer( 'pcg_force_set_bypass' );

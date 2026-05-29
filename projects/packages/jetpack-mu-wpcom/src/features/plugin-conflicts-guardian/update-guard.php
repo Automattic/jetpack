@@ -41,7 +41,7 @@ function pcg_update_guard_check( $source, $remote_source, $upgrader, $hook_extra
 	if ( 'plugin' !== $type || ! in_array( $action, array( 'install', 'update' ), true ) ) {
 		return $source;
 	}
-	if ( pcg_force_override_active() ) {
+	if ( pcg_force_override_active( 'update_plugins' ) ) {
 		return $source;
 	}
 

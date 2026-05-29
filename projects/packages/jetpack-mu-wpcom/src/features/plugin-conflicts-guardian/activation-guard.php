@@ -21,9 +21,6 @@ function pcg_guard_maybe_block_activation() {
 	if ( ! current_user_can( 'activate_plugins' ) ) {
 		return;
 	}
-	if ( pcg_force_override_active() ) {
-		return;
-	}
 
 	// Bulk-action submissions from the bottom dropdown send `action=-1`
 	// and the real action in `action2`.
@@ -32,6 +29,9 @@ function pcg_guard_maybe_block_activation() {
 		$action = sanitize_text_field( wp_unslash( $_REQUEST['action2'] ?? '' ) );
 	}
 	if ( ! in_array( $action, array( 'activate', 'activate-plugin', 'activate-selected' ), true ) ) {
+		return;
+	}
+	if ( pcg_force_override_active() ) {
 		return;
 	}
 
