@@ -17,7 +17,7 @@ const PCG_FORCE_BYPASS_TTL = 600;
  * @param string $cap Capability the caller requires (e.g. `activate_plugins`, `update_plugins`).
  * @return bool
  */
-function pcg_force_override_active( $cap = 'activate_plugins' ) {
+function pcg_force_override_active( $cap ) {
 	if ( ! is_user_logged_in() || ! current_user_can( $cap ) ) {
 		return false;
 	}

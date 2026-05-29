@@ -31,7 +31,7 @@ function pcg_guard_maybe_block_activation() {
 	if ( ! in_array( $action, array( 'activate', 'activate-plugin', 'activate-selected' ), true ) ) {
 		return;
 	}
-	if ( pcg_force_override_active() ) {
+	if ( pcg_force_override_active( 'activate_plugins' ) ) {
 		return;
 	}
 
