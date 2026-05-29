@@ -3,10 +3,22 @@ import { getScriptData } from '@automattic/jetpack-script-data';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useCallback } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
+import { Icon, check } from '@wordpress/icons';
 import { Button, Card } from '@wordpress/ui';
 import useProductInfo from '../../hooks/use-product-info';
 import { store as socialStore } from '../../social-store';
 import { getRefreshPlanQuery, getSocialScriptData } from '../../utils';
+
+const PAID_FEATURES = [
+	__( 'Schedule posts in advance', 'jetpack-publicize-pkg' ),
+	__( 'Customize each post per network', 'jetpack-publicize-pkg' ),
+	__( 'Automatically generate social images', 'jetpack-publicize-pkg' ),
+	__(
+		'Share to Facebook, Instagram, LinkedIn, Mastodon, Tumblr, Threads, Bluesky, and Nextdoor',
+		'jetpack-publicize-pkg'
+	),
+	__( 'Priority support', 'jetpack-publicize-pkg' ),
+];
 
 /**
  * Free-plan upsell gate for the modernization chassis. A compact native
@@ -22,6 +34,20 @@ export default function PricingGate( { onDismiss }: { onDismiss: VoidFunction } 
 	const [ productInfo ] = useProductInfo();
 	const blogID = getScriptData().site.wpcom.blog_id;
 	const siteSuffix = getScriptData().site.suffix;
+
+	const currency = productInfo?.currencyCode ?? 'USD';
+	const monthlyPrice = productInfo?.v1?.price ?? null;
+	const introPrice = productInfo?.v1?.introOffer ?? null;
+
+	const formatPrice = useCallback(
+		( amount: number ) =>
+			new Intl.NumberFormat( undefined, {
+				style: 'currency',
+				currency,
+				maximumFractionDigits: 0,
+			} ).format( amount ),
+		[ currency ]
+	);
 
 	const { setShowPricingPage, updateSocialModuleSettings } = useDispatch( socialStore );
 	const isEnabling = useSelect(
@@ -52,8 +78,6 @@ export default function PricingGate( { onDismiss }: { onDismiss: VoidFunction } 
 		onDismiss();
 	}, [ isSocialEnabled, updateSocialModuleSettings, setShowPricingPage, onDismiss ] );
 
-	const price = productInfo?.v1?.introOffer ?? productInfo?.v1?.price;
-
 	return (
 		<div className="jetpack-social-gate">
 			<Card.Root className="jetpack-social-gate__card">
@@ -62,13 +86,36 @@ export default function PricingGate( { onDismiss }: { onDismiss: VoidFunction } 
 						{ __( 'Write once, post everywhere', 'jetpack-publicize-pkg' ) }
 					</h2>
 					<p className="jetpack-social-gate__subtitle">
-						{ price != null
+						{ monthlyPrice != null
 							? __(
 									'Unlock scheduling, custom images, and more with a paid plan.',
 									'jetpack-publicize-pkg'
 							  )
 							: __( 'Unlock the full power of Jetpack Social.', 'jetpack-publicize-pkg' ) }
 					</p>
+					{ monthlyPrice != null && (
+						<div className="jetpack-social-gate__price">
+							<span className="jetpack-social-gate__price-amount">
+								{ formatPrice( introPrice ?? monthlyPrice ) }
+							</span>
+							{ introPrice != null && (
+								<span className="jetpack-social-gate__price-was">
+									{ formatPrice( monthlyPrice ) }
+								</span>
+							) }
+							<span className="jetpack-social-gate__price-legend">
+								{ __( 'per month, billed yearly', 'jetpack-publicize-pkg' ) }
+							</span>
+						</div>
+					) }
+					<ul className="jetpack-social-gate__features">
+						{ PAID_FEATURES.map( feature => (
+							<li key={ feature } className="jetpack-social-gate__feature">
+								<Icon icon={ check } />
+								<span>{ feature }</span>
+							</li>
+						) ) }
+					</ul>
 					<Button variant="solid" onClick={ onGetSocial }>
 						{ __( 'Get Social', 'jetpack-publicize-pkg' ) }
 					</Button>

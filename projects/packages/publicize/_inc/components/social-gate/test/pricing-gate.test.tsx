@@ -42,4 +42,10 @@ describe( 'PricingGate', () => {
 		render( <PricingGate onDismiss={ jest.fn() } /> );
 		expect( screen.getByRole( 'button', { name: /get social/i } ) ).toBeInTheDocument();
 	} );
+
+	it( 'renders the formatted price', () => {
+		render( <PricingGate onDismiss={ jest.fn() } /> );
+		// $10/mo formatting — assert the amount is present in the document.
+		expect( screen.getByText( /\$10/ ) ).toBeInTheDocument();
+	} );
 } );
