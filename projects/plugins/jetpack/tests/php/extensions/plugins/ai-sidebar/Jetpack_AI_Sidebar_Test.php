@@ -534,6 +534,7 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 			'jetpack_ai_sidebar_preview_features',
 			static function ( $features ) {
 				$features['blockTransformations'] = true;
+				$features['blockToolbarButton']   = true;
 				return $features;
 			}
 		);
@@ -546,6 +547,26 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Test that the block transformations feature stays unavailable until the toolbar button is released.
+	 */
+	public function test_register_block_transformations_extension_skips_when_toolbar_button_disabled() {
+		$this->set_block_editor_screen();
+		$this->make_legacy_block_toolbar_extensions_available();
+		add_filter(
+			'jetpack_ai_sidebar_preview_features',
+			static function ( $features ) {
+				$features['blockTransformations'] = true;
+				$features['blockToolbarButton']   = false;
+				return $features;
+			}
+		);
+
+		Jetpack_AI_Sidebar::register_block_transformations_extension();
+
+		$this->assertFalse( \Jetpack_Gutenberg::is_available( AiAssistantPlugin\AI_SIDEBAR_BLOCK_TRANSFORMATIONS_EXTENSION ) );
+	}
+
+	/**
 	 * Test that the block transformations feature stays unavailable when transformations are off.
 	 */
 	public function test_register_block_transformations_extension_skips_when_transformations_disabled() {
@@ -555,6 +576,7 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 			'jetpack_ai_sidebar_preview_features',
 			static function ( $features ) {
 				$features['blockTransformations'] = false;
+				$features['blockToolbarButton']   = true;
 				return $features;
 			}
 		);
@@ -653,6 +675,7 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 		$this->assertSame( true, $data['jetpackAiSidebar']['enabled'] );
 		$this->assertSame( true, $data['jetpackAiSidebar']['features']['aiEditorialReview'] );
 		$this->assertSame( true, $data['jetpackAiSidebar']['features']['blockTransformations'] );
+		$this->assertSame( false, $data['jetpackAiSidebar']['features']['blockToolbarButton'] );
 		// generateFeedback and optimizeTitleSuggestion are in development: off outside testing environments.
 		$this->assertSame( false, $data['jetpackAiSidebar']['features']['generateFeedback'] );
 		$this->assertSame( false, $data['jetpackAiSidebar']['features']['optimizeTitleSuggestion'] );
@@ -752,6 +775,7 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 		$this->assertSame( true, $data['jetpackAiSidebar']['enabled'] );
 		$this->assertSame( false, $data['jetpackAiSidebar']['features']['aiEditorialReview'] );
 		$this->assertSame( true, $data['jetpackAiSidebar']['features']['blockTransformations'] );
+		$this->assertSame( false, $data['jetpackAiSidebar']['features']['blockToolbarButton'] );
 	}
 
 	/**

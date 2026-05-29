@@ -365,6 +365,7 @@ class Jetpack_AI_Sidebar {
 			'aiEditorialReview'       => self::is_ai_editorial_review_enabled(),
 			'generateFeedback'        => self::is_generate_feedback_enabled(),
 			'blockTransformations'    => true,
+			'blockToolbarButton'      => false,
 			'optimizeTitleSuggestion' => self::is_optimize_title_suggestion_enabled(),
 			'chatHistory'             => false,
 			'supportGuides'           => false,
@@ -409,7 +410,12 @@ class Jetpack_AI_Sidebar {
 	 * @return void
 	 */
 	public static function register_block_transformations_extension(): void {
-		if ( ! self::has_block_transformations_enabled() ) {
+		$preview_config = self::get_jetpack_ai_sidebar_preview_config();
+
+		if (
+			! self::has_block_transformations_enabled()
+			|| true !== ( $preview_config['features']['blockToolbarButton'] ?? false )
+		) {
 			return;
 		}
 
