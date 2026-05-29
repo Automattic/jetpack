@@ -15,7 +15,7 @@
  * names.
  */
 import { InspectorControls, useBlockProps } from '@wordpress/block-editor';
-import { Button, PanelBody, RadioControl, TextControl, ToggleControl } from '@wordpress/components';
+import { Button, PanelBody, RadioControl, TextControl } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { __, _n, sprintf } from '@wordpress/i18n';
 
@@ -217,21 +217,6 @@ export default function ResultsListEdit( { attributes, setAttributes, clientId }
 						options={ LAYOUT_OPTIONS() }
 						onChange={ value => setAttributes( { layout: value } ) }
 					/>
-					{ isWooCommerceBlocksEnabled() && (
-						<ToggleControl
-							__nextHasNoMarginBottom
-							label={ __(
-								'Auto-switch to Product view for product searches',
-								'jetpack-search-pkg'
-							) }
-							checked={ attributes?.autoProductView ?? true }
-							onChange={ value => setAttributes( { autoProductView: value } ) }
-							help={ __(
-								'When a search page opens scoped to only products — set by the parent Search Results block, or opened from a ?post_types[]=product link — show results as a product grid instead of the format above. Applies on page load, not when visitors change the post-type filter. Turn off to always use the format above.',
-								'jetpack-search-pkg'
-							) }
-						/>
-					) }
 					<TextControl
 						__next40pxDefaultSize
 						__nextHasNoMarginBottom

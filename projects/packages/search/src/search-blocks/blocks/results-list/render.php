@@ -75,25 +75,6 @@ $layout = $attrs['layout'] ?? 'expanded';
 if ( 'card' === $layout ) {
 	$layout = 'expanded';
 }
-// Auto-switch to the product layout when the search is scoped to exactly the
-// `product` post type, so a product search renders as a shop grid without the
-// author hand-picking the layout. Two scope sources count: the visitor's
-// request (`?post_types[]=product` / the scalar `?post_type=product` alias)
-// and the author-set static scope on the parent search-results block
-// (`postTypeMode:"include"` / `postTypes:["product"]`, reaching here as block
-// context) — the latter is the post-SEARCH-273 way to scope a region to
-// products, and a URL-only check would miss it. Opt-out per block via the
-// `autoProductView` attribute (default on). The non-Woo collapse below is
-// still the final gate, so this can never force `product` on a non-Woo site.
-$auto_product_view = $attrs['autoProductView'] ?? true;
-// `$block` is provided by `WP_Block::render()`; the isset + instanceof check
-// narrows its type for static analysis and tolerates a non-block render path.
-$block_context      = isset( $block ) && $block instanceof \WP_Block ? $block->context : array();
-$is_product_request = Search_Blocks::request_is_product_only()
-	|| Search_Blocks::scope_is_product_only( $block_context );
-if ( $auto_product_view && Search_Blocks::woocommerce_blocks_enabled() && $is_product_request ) {
-	$layout = 'product';
-}
 // The product layout reads WC-shaped fields (price, sale price, rating)
 // off each result. On a non-Woo site those fields don't exist, so
 // rendering would emit empty price/rating regions. Collapse to the

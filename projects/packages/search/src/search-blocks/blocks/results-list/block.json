@@ -12,12 +12,10 @@
 			"enum": [ "compact", "expanded", "product" ],
 			"default": "expanded"
 		},
-		"autoProductView": { "type": "boolean", "default": true },
 		"noResultsMessage": { "type": "string", "default": "" },
 		"noResultsWithFiltersMessage": { "type": "string", "default": "" },
 		"errorMessage": { "type": "string", "default": "" }
 	},
-	"usesContext": [ "jetpack-search/postTypeMode", "jetpack-search/postTypes" ],
 	"supports": {
 		"html": false,
 		"interactivity": true
