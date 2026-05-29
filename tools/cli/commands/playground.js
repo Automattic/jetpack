@@ -106,11 +106,11 @@ export async function handler( argv ) {
 		}
 
 		if ( argv.verbose ) {
-			console.log( chalk.gray( `Running: npx ${ args.join( ' ' ) }` ) );
+			console.log( chalk.gray( `Running: pnpm dlx ${ args.join( ' ' ) }` ) );
 		}
 
 		await new Promise( ( resolve, reject ) => {
-			const proc = child_process.spawn( 'npx', args, {
+			const proc = child_process.spawn( 'pnpm', [ 'dlx', ...args ], {
 				stdio: [ 'inherit', 'pipe', 'inherit' ],
 			} );
 
