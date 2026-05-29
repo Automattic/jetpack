@@ -1,5 +1,5 @@
 import useConnection from '@automattic/jetpack-connection/use-connection';
-import { isJetpackSelfHostedSite } from '@automattic/jetpack-script-data';
+import { isJetpackSelfHostedSite, isSimpleSite } from '@automattic/jetpack-script-data';
 import { renderHook, act } from '@testing-library/react';
 import { useSelect } from '@wordpress/data';
 import { hasSocialPaidFeatures } from '../../../utils';
@@ -7,7 +7,10 @@ import useSocialGate from '../use-social-gate';
 
 jest.mock( '@automattic/jetpack-connection/use-connection', () => jest.fn() );
 jest.mock( '@wordpress/data', () => ( { useSelect: jest.fn(), useDispatch: () => ( {} ) } ) );
-jest.mock( '@automattic/jetpack-script-data', () => ( { isJetpackSelfHostedSite: jest.fn() } ) );
+jest.mock( '@automattic/jetpack-script-data', () => ( {
+	isJetpackSelfHostedSite: jest.fn(),
+	isSimpleSite: jest.fn(),
+} ) );
 jest.mock( '../../../utils', () => ( { hasSocialPaidFeatures: jest.fn() } ) );
 jest.mock( '../../../social-store', () => ( { store: {} } ) );
 
@@ -17,11 +20,13 @@ const mockState = ( {
 	showPricingPage = false,
 	paid = true,
 	jetpackSite = true,
+	simple = false,
 } ) => {
 	( useConnection as jest.Mock ).mockReturnValue( { isRegistered, isUserConnected } );
 	( useSelect as jest.Mock ).mockReturnValue( showPricingPage );
 	( hasSocialPaidFeatures as jest.Mock ).mockReturnValue( paid );
 	( isJetpackSelfHostedSite as jest.Mock ).mockReturnValue( jetpackSite );
+	( isSimpleSite as jest.Mock ).mockReturnValue( simple );
 };
 
 describe( 'useSocialGate', () => {
@@ -42,6 +47,11 @@ describe( 'useSocialGate', () => {
 
 	it( 'returns null on a WPcom (non-Jetpack) site even when pricing would show', () => {
 		mockState( { paid: false, showPricingPage: true, jetpackSite: false } );
+		expect( renderHook( () => useSocialGate() ).result.current.gate ).toBeNull();
+	} );
+
+	it( 'never gates on a WPCOM Simple site, even when disconnected', () => {
+		mockState( { isRegistered: false, isUserConnected: false, simple: true } );
 		expect( renderHook( () => useSocialGate() ).result.current.gate ).toBeNull();
 	} );
 

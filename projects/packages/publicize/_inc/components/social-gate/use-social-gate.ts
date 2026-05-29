@@ -1,5 +1,5 @@
 import useConnection from '@automattic/jetpack-connection/use-connection';
-import { isJetpackSelfHostedSite } from '@automattic/jetpack-script-data';
+import { isJetpackSelfHostedSite, isSimpleSite } from '@automattic/jetpack-script-data';
 import { useSelect } from '@wordpress/data';
 import { useCallback, useState } from '@wordpress/element';
 import { store as socialStore } from '../../social-store';
@@ -31,7 +31,9 @@ export default function useSocialGate(): {
 
 	let gate: SocialGateType = null;
 
-	if ( ! isRegistered || ! isUserConnected ) {
+	// WPCOM Simple sites have no Jetpack connection to establish, so the connection
+	// gate never applies there (mirrors the legacy admin page's `! isSimple` guard).
+	if ( ! isSimpleSite() && ( ! isRegistered || ! isUserConnected ) ) {
 		gate = 'connection';
 	} else if (
 		isJetpackSelfHostedSite() &&
