@@ -215,23 +215,58 @@ export default function DashboardPage( { isLoading = false } ) {
 	const productOverlayTemplate = useSelect( select =>
 		select( STORE_ID ).getProductOverlayTemplateConfig()
 	);
-	// The Overlay edits its product template via the singleton CPT (post.php, any
-	// theme); Embedded/Inline edit the product-results page template — Site Editor
-	// on block themes, the Product_Search_Template CPT on classic themes. CPT URLs
-	// are null for non-admins, so the control's `editTemplateUrl && …` guard hides
-	// the link.
+	// The edit affordance follows the active experience. Overlay (blocks) edits its
+	// product template via the singleton CPT (post.php, any theme) and gets a
+	// "Restore default". Embedded/Inline edit the product-results page template —
+	// the Site Editor on block themes (which owns its own revert, so no restore
+	// link there), the Product_Search_Template singleton CPT on classic themes.
+	// Singleton editor URLs are null for non-admins, so `SingletonTemplateActions`
+	// disables the link in that state.
 	const isProductOverlayExperience = activeExperience === EXPERIENCE.OVERLAY_BLOCKS;
-	let wooProductSearchEditUrl;
+	let wooProductTemplate;
 	if ( isProductOverlayExperience ) {
-		wooProductSearchEditUrl = productOverlayTemplate.editorUrl;
+		wooProductTemplate = {
+			templateConfig: productOverlayTemplate,
+			editTemplateUrl: null,
+			editLabel: __( 'Edit the product Search overlay', 'jetpack-search-pkg' ),
+			restoreConfirmMessage: __(
+				'Restore the bundled product Search overlay template? Your customizations will be deleted.',
+				'jetpack-search-pkg'
+			),
+			successMessage: __(
+				'The product Search overlay template has been restored to the bundled default.',
+				'jetpack-search-pkg'
+			),
+			errorMessage: __(
+				'Could not restore the product Search overlay template.',
+				'jetpack-search-pkg'
+			),
+		};
 	} else if ( isBlockTheme ) {
-		wooProductSearchEditUrl = activeThemeStylesheet
-			? `${ siteAdminUrl }site-editor.php?p=%2Fwp_template%2F${ encodeURIComponent(
-					activeThemeStylesheet
-			  ) }%2F%2Fjetpack-search-product-results&canvas=edit`
-			: `${ siteAdminUrl }site-editor.php?p=%2Ftemplate`;
+		wooProductTemplate = {
+			templateConfig: null,
+			editTemplateUrl: activeThemeStylesheet
+				? `${ siteAdminUrl }site-editor.php?p=%2Fwp_template%2F${ encodeURIComponent(
+						activeThemeStylesheet
+				  ) }%2F%2Fjetpack-search-product-results&canvas=edit`
+				: `${ siteAdminUrl }site-editor.php?p=%2Ftemplate`,
+			editLabel: __( 'Edit the product search template', 'jetpack-search-pkg' ),
+		};
 	} else {
-		wooProductSearchEditUrl = productSearchTemplate.editorUrl;
+		wooProductTemplate = {
+			templateConfig: productSearchTemplate,
+			editTemplateUrl: null,
+			editLabel: __( 'Edit the product search template', 'jetpack-search-pkg' ),
+			restoreConfirmMessage: __(
+				'Restore the bundled product search template? Your customizations will be deleted.',
+				'jetpack-search-pkg'
+			),
+			successMessage: __(
+				'The product search template has been restored to the bundled default.',
+				'jetpack-search-pkg'
+			),
+			errorMessage: __( 'Could not restore the product search template.', 'jetpack-search-pkg' ),
+		};
 	}
 	const showAIAgentAccessGuidelinesLink =
 		! isReaderChatAvailable ||
@@ -397,7 +432,12 @@ export default function DashboardPage( { isLoading = false } ) {
 																isEnabled={ isWooCommerceSearchTemplateOverrideEnabled }
 																isSaving={ isSavingEitherOption }
 																updateOptions={ updateOptions }
-																editTemplateUrl={ wooProductSearchEditUrl }
+																templateConfig={ wooProductTemplate.templateConfig }
+																editTemplateUrl={ wooProductTemplate.editTemplateUrl }
+																editLabel={ wooProductTemplate.editLabel }
+																restoreConfirmMessage={ wooProductTemplate.restoreConfirmMessage }
+																successMessage={ wooProductTemplate.successMessage }
+																errorMessage={ wooProductTemplate.errorMessage }
 															/>
 														</div>
 													) }
