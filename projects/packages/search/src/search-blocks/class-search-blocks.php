@@ -1202,6 +1202,14 @@ class Search_Blocks {
 	max-width: 1080px;
 	--jp-search-overlay-surface: var(--jp-search-page-surface, var(--wp--preset--color--base, var(--wp--preset--color--background, #fff)));
 	--jp-search-overlay-ink: var(--jp-search-page-ink, var(--wp--preset--color--contrast, var(--wp--preset--color--foreground, #1d2327)));
+	/* Single source for the content group's inset. The corner-join in
+	 * search_layout_inline_css() zeroes the block-start/block-end of this
+	 * padding on the group and re-adds the same tokens on the columns, so the
+	 * sidebar hairline reaches both card edges — keep them as var()s so the
+	 * two sites can't drift. */
+	--jp-search-overlay-content-pad-block-start: 0.5em;
+	--jp-search-overlay-content-pad-inline: 2em;
+	--jp-search-overlay-content-pad-block-end: 2em;
 	background: var(--jp-search-overlay-surface);
 	color: var(--jp-search-overlay-ink);
 	border: 1px solid rgba(128, 128, 128, 0.25);
@@ -1353,7 +1361,7 @@ class Search_Blocks {
 }
 /* Top padding clears the absolutely-positioned 60px header strip (SEARCH-243). */
 .jetpack-search-block-overlay__content > .wp-block-group:first-child {
-	padding: .5em 2em 2em;
+	padding: var(--jp-search-overlay-content-pad-block-start) var(--jp-search-overlay-content-pad-inline) var(--jp-search-overlay-content-pad-block-end);
 }
 @media (max-width: 781px) {
 	.jetpack-search-block-overlay {
@@ -1364,9 +1372,8 @@ class Search_Blocks {
 		border: 0;
 		border-radius: 0;
 		box-shadow: none;
-	}
-	.jetpack-search-block-overlay__content > .wp-block-group:first-child {
-		padding: .5em 1em 1em;
+		--jp-search-overlay-content-pad-inline: 1em;
+		--jp-search-overlay-content-pad-block-end: 1em;
 	}
 }
 /* Mirror legacy `$break-lg: 992px → $modal-max-width-lg: 95%` from `instant-search/components/search-results.scss`. */
@@ -1514,41 +1521,35 @@ CSS;
 		border-left-color: color-mix(in sRGB, currentColor 15%, transparent);
 	}
 }
-/* Sidebar-showing rules (>= 992px). The corner-join is structural, not
- * decorative: the columns row is pulled flush against the search-input
- * hairline, and visual breathing room is re-added as internal column
- * padding. Three sources of vertical gap have to be neutralised for the
- * column's `border-left` to start *at* the hairline:
+/* Sidebar-showing rules (>= 992px). The corner-join is structural: the
+ * columns row is pulled flush to the search-input hairline and breathing
+ * room re-added as internal column padding, so the filters column's
+ * `border-left` runs the row's full height — hairline (top) to end-of-div
+ * (bottom). Three vertical gaps are neutralised:
  *
- *   a) The outer `wp:group`'s declared `spacing.blockGap` (1.5rem in the
- *      templates) or the theme's default block-gap (e.g. TT5 falls back
- *      to 1.2rem when the block-layout system doesn't emit the
- *      per-container override for templates rendered into a `<template>`
- *      element). Both manifest as `margin-block-start` on the columns row.
+ *   a) `margin-block-start` on the row (outer group's `spacing.blockGap` or
+ *      the theme's default block-gap) — zeroed.
  *
- *   b) `.is-layout-flex { align-items: center }` (theme default, also in
- *      WordPress core), which vertically centres the shorter filters
- *      column inside the taller results column, dropping the sidebar's
- *      top edge below the row's top.
+ *   b) `.is-layout-flex { align-items: center }` (theme/core default), which
+ *      centres the shorter filters column and drops its top edge. Overridden
+ *      to `stretch` (not `flex-start`) so the column also grows to full row
+ *      height; it's flow layout, so its content stays top-aligned regardless.
  *
- *   c) Overlay-only: the `__content > .wp-block-group:first-child` rule
- *      (SEARCH-243) gives the alignwide group a `padding: .5em 2em 2em`
- *      to "clear the 60px header strip." But the search-input is
- *      `position: absolute` in the overlay — it doesn't take flow space —
- *      so the 0.5em top-pad just pushes the columns row 8px below the
- *      card's `::before` hairline at `top: 60px`.
+ *   c) Overlay-only: SEARCH-243's content-group inset sits outside the
+ *      columns, so the stretched column stops short of the card edges (below
+ *      the `::before` hairline at the top, and short of the bottom). Zeroed
+ *      on the group's block axis and re-added on the columns, both sides
+ *      reading the same `--jp-search-overlay-content-pad-*` tokens the group
+ *      itself uses — so the divider reaches both edges while content keeps
+ *      its breathing room, and the two sites can't drift.
  *
- * The `.is-layout-flex` class match bumps the columns selector to
- * specificity (0,3,0), enough to outrank any per-container `blockGap`
- * CSS WP might emit (typically (0,1,0)). The `:has(> filters-column)`
- * scope keeps these overrides off any unrelated `wp:columns` block.
- *
- * The layout fine-tuning rules below (`align-items`, `margin-block-start`,
- * overlay `padding-top`, column `padding-top`) target the columns row itself
- * and its parent group — `@container` can't reach those from inside the
- * named container, so they stay viewport-driven. Effect is harmless when the
- * sidebar is collapsed via `@container` (align-items has no effect with one
- * visible column; the margin/padding tightening is universally fine). */
+ * `.is-layout-flex` bumps the columns selector to (0,3,0) to outrank
+ * per-container `blockGap` CSS; `:has(> filters-column)` scopes it to our
+ * rows. These target the row/group, which `@container` can't reach from
+ * inside the named container, so they stay viewport-driven — harmless when
+ * the sidebar collapses below 992px. (b) is also a no-op wherever WP core's
+ * `.wp-block-columns { align-items: normal !important }` is present; see
+ * AGENTS.md. */
 @media (min-width: 992px) {
 	/* Sidebar shown, popover-in-results-header hidden. The `@container
 	 * (max-width: 991.98px)` block below re-shows the popover when the
@@ -1557,14 +1558,18 @@ CSS;
 		display: none;
 	}
 	.wp-block-columns.is-layout-flex:has(> .jetpack-search-layout__filters-column) {
-		align-items: flex-start;
+		align-items: stretch;
 		margin-block-start: 0;
 	}
 	.jetpack-search-block-overlay__content > .wp-block-group:first-child:has(.jetpack-search-layout__filters-column) {
 		padding-top: 0;
+		padding-bottom: 0;
 	}
 	.wp-block-columns:has(> .jetpack-search-layout__filters-column) > .wp-block-column {
-		padding-top: 0.5em;
+		padding-top: var(--jp-search-overlay-content-pad-block-start, 0.5em);
+	}
+	.jetpack-search-block-overlay__content .wp-block-columns:has(> .jetpack-search-layout__filters-column) > .wp-block-column {
+		padding-bottom: var(--jp-search-overlay-content-pad-block-end, 2em);
 	}
 }
 /* @container override: applies when the named container exists. Placed AFTER
