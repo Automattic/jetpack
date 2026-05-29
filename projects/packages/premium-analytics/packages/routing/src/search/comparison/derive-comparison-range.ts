@@ -13,9 +13,7 @@ import {
 	endOfDayTZ,
 } from '@jetpack-premium-analytics/datetime';
 
-type ReportParams = NonNullable<
-	Parameters< typeof normalizeReportParams >[ 0 ]
->;
+type ReportParams = NonNullable< Parameters< typeof normalizeReportParams >[ 0 ] >;
 
 /**
  * Normalize URL/UI comparison preset IDs to canonical ComparisonPresetId.
@@ -24,9 +22,7 @@ type ReportParams = NonNullable<
  * @param value - Raw preset ID from URL or UI (e.g., 'previous_period' or 'previous-period')
  * @return Canonical ComparisonPresetId or undefined if invalid
  */
-const toComparisonPresetId = (
-	value?: string
-): ComparisonPresetId | undefined => {
+const toComparisonPresetId = ( value?: string ): ComparisonPresetId | undefined => {
 	switch ( value ) {
 		case 'previous-period':
 		case 'previous_period':
@@ -53,6 +49,7 @@ const toComparisonPresetId = (
  * - Only derive when comparison is enabled (comp === "1") AND a preset is present.
  * - Normalize main range to site-local day bounds before computing presets.
  * - Return ISO strings WITH site offset (same format you write to the URL).
+ * @param opts
  */
 export function deriveComparisonRange( opts: ReportParams ):
 	| {
