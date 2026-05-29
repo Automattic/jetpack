@@ -2,6 +2,7 @@
  * External dependencies
  */
 import { createRoot } from '@wordpress/element';
+import '@wordpress/theme/design-tokens.css';
 import { useEffect } from 'react';
 import { HashRouter, Navigate, Routes, Route, useLocation } from 'react-router';
 /**
