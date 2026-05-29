@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Removed the React Query Devtools (TanStack debugger).
