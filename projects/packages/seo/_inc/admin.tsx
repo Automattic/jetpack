@@ -5,7 +5,6 @@ import Providers from './providers';
 import OverviewScreen from './screens/overview';
 import Shell from './shell';
 import './admin-page-layout.scss';
-import './style.module.scss';
 
 // Data router (`createHashRouter` + `RouterProvider`) rather than declarative
 // `<HashRouter>`, so future screens can use `useBlocker` for unsaved-changes

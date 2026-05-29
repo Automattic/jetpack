@@ -1,5 +1,6 @@
-import { Notice, Spinner } from '@wordpress/components';
+import { Spinner } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
+import { Notice } from '@wordpress/ui';
 import useOverview from '../../data/use-overview';
 import SiteVisibilityCard from './site-visibility-card';
 import styles from './style.module.scss';
@@ -19,21 +20,25 @@ const OverviewScreen: FC = () => {
 
 	if ( isError || ! data ) {
 		return (
-			<Notice status="error" isDismissible={ false }>
-				{ error?.message ?? __( 'Unable to load overview.', 'jetpack-seo' ) }
-			</Notice>
+			<Notice.Root intent="error">
+				<Notice.Description>
+					{ error?.message ?? __( 'Unable to load overview.', 'jetpack-seo' ) }
+				</Notice.Description>
+			</Notice.Root>
 		);
 	}
 
 	return (
 		<>
 			{ ! data.plan.seo_enabled_for_site && (
-				<Notice status="warning" isDismissible={ false }>
-					{ __(
-						'SEO tools are not enabled on this site. Some cards reflect the underlying WordPress options only.',
-						'jetpack-seo'
-					) }
-				</Notice>
+				<Notice.Root intent="warning">
+					<Notice.Description>
+						{ __(
+							'SEO tools are not enabled on this site. Some cards reflect the underlying WordPress options only.',
+							'jetpack-seo'
+						) }
+					</Notice.Description>
+				</Notice.Root>
 			) }
 			<div className={ styles.grid }>
 				<SiteVisibilityCard data={ data.site_visibility } />
