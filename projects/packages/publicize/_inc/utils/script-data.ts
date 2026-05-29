@@ -44,3 +44,17 @@ export function getRefreshPlanQuery() {
 
 	return `${ baseQuery }&_wpnonce=${ encodeURIComponent( nonce ) }`;
 }
+
+/**
+ * Resolve a runtime URL for a file in the package's `assets/` build directory.
+ *
+ * Assets in `_inc/assets/` are copied verbatim to `build/assets/` by both the
+ * webpack (legacy) and wp-build (chassis) pipelines. Resolving the URL at runtime
+ * — instead of `import x from './foo.webp'` — keeps esbuild happy (no binary loader).
+ *
+ * @param filename - The file name within the assets directory.
+ * @return The absolute URL to the asset.
+ */
+export function assetUrl( filename: string ): string {
+	return `${ getSocialScriptData()?.assets_url ?? '' }assets/${ filename }`;
+}

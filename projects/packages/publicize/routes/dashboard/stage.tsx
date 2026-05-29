@@ -42,13 +42,11 @@ const AddAccountAction = () => {
  * active-tab indicator slides between Overview and Settings instead of
  * remounting on each route hop.
  *
- * `ConnectionScreen` (site not connected) and `PricingPage` (free
- * Jetpack, not dismissed) pre-empt the chassis at the PHP layer: when
- * either condition holds, `Social_Admin_Page` routes the menu callback
- * to the legacy `SocialAdminPage` shell so those flows render exactly
- * as they do today. The chassis therefore renders only on the happy
- * path — connected + paid/dismissed — and stays free of the
- * jetpack-connection bundle's asset imports.
+ * When the site is disconnected, or on the free plan with the pricing
+ * nudge not yet dismissed, the client-side `SocialGate` (rendered inside
+ * `SocialPage`) shows the connection or pricing gate in place of these
+ * tabs — so the modernized dashboard handles those states itself instead
+ * of falling back to the legacy admin page.
  *
  * @return Stage content.
  */
