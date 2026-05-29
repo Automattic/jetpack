@@ -1,9 +1,10 @@
 import analytics from '@automattic/jetpack-analytics';
 import { ExternalLink, ToggleControl } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { Badge, Stack } from '@wordpress/ui';
+import { Badge } from '@wordpress/ui';
 import { useCallback } from 'react';
 import SingletonTemplateActions from '../experience-selector/singleton-template-actions';
+import './style.scss';
 
 const WOOCOMMERCE_PRODUCT_SEARCH_DESCRIPTION = __(
 	"Render product searches through Jetpack Search's filtered results page instead of WooCommerce's default product search template.",
@@ -56,17 +57,19 @@ export default function WooCommerceProductSearchControl( {
 	return (
 		<div className="jp-form-search-settings-group__toggle is-woocommerce-product-search jp-search-dashboard-wrap">
 			<div className="jp-search-dashboard-row">
-				<Stack direction="row" gap="sm" align="center">
-					<ToggleControl
-						checked={ !! isEnabled }
-						disabled={ isSaving }
-						onChange={ toggle }
-						className="jp-search-dashboard-toggle lg-col-span-12 md-col-span-8 sm-col-span-4"
-						label={ __( 'Use Jetpack Search for product search results', 'jetpack-search-pkg' ) }
-						__nextHasNoMarginBottom={ true }
-					/>
-					<Badge intent="informational">{ __( 'Beta', 'jetpack-search-pkg' ) }</Badge>
-				</Stack>
+				<ToggleControl
+					checked={ !! isEnabled }
+					disabled={ isSaving }
+					onChange={ toggle }
+					className="jp-search-dashboard-toggle lg-col-span-12 md-col-span-8 sm-col-span-4"
+					label={
+						<span className="jp-form-search-settings-group__toggle-label-with-badge">
+							{ __( 'Use Jetpack Search for product search results', 'jetpack-search-pkg' ) }
+							<Badge intent="informational">{ __( 'Beta', 'jetpack-search-pkg' ) }</Badge>
+						</span>
+					}
+					__nextHasNoMarginBottom={ true }
+				/>
 			</div>
 			<div className="jp-search-dashboard-row">
 				<div className="jp-form-search-settings-group__toggle-description lg-col-span-12 md-col-span-8 sm-col-span-4">

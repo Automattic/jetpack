@@ -308,7 +308,7 @@ describe( 'DashboardPage', () => {
 		);
 	} );
 
-	test( 'routes editTemplateUrl through the singleton CPT on classic themes', () => {
+	test( 'routes templateConfig through the singleton CPT on classic themes', () => {
 		// Regression guard for SEARCH-259's classic-theme fix: a classic
 		// theme has no Site Editor, so the Site Editor URL is a dead link.
 		// `dashboard-page.jsx` branches on `isBlockTheme` and routes to
@@ -333,7 +333,11 @@ describe( 'DashboardPage', () => {
 		fireEvent.click( screen.getByRole( 'tab', { name: /settings/i } ) );
 
 		expect( mockWooCommerceProductSearchControl ).toHaveBeenCalledWith(
-			expect.objectContaining( { editTemplateUrl: cptEditorUrl } )
+			expect.objectContaining( {
+				templateConfig: expect.objectContaining( { editorUrl: cptEditorUrl } ),
+				editTemplateUrl: null,
+				editLabel: 'Edit the product search template',
+			} )
 		);
 	} );
 
@@ -349,7 +353,7 @@ describe( 'DashboardPage', () => {
 		expect( mockWooCommerceProductSearchControl ).not.toHaveBeenCalled();
 	} );
 
-	test( 'renders WooCommerceProductSearchControl for the blocks Overlay experience and routes editTemplateUrl to the product overlay CPT', () => {
+	test( 'renders WooCommerceProductSearchControl for the blocks Overlay experience and routes templateConfig to the product overlay CPT', () => {
 		// SEARCH-287: the blocks Overlay now reads the same
 		// `override_woocommerce_search_template` option, so the toggle surfaces
 		// here too — with the edit link pointed at the product overlay CPT
@@ -379,7 +383,11 @@ describe( 'DashboardPage', () => {
 
 		expect( screen.getByTestId( 'woocommerce-product-search-control' ) ).toBeInTheDocument();
 		expect( mockWooCommerceProductSearchControl ).toHaveBeenCalledWith(
-			expect.objectContaining( { editTemplateUrl: overlayCptEditorUrl } )
+			expect.objectContaining( {
+				templateConfig: expect.objectContaining( { editorUrl: overlayCptEditorUrl } ),
+				editTemplateUrl: null,
+				editLabel: 'Edit the product Search overlay',
+			} )
 		);
 	} );
 
