@@ -1,6 +1,6 @@
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useCallback, useState } from '@wordpress/element';
-import { __, _x } from '@wordpress/i18n';
+import { __ } from '@wordpress/i18n';
 import { Button } from '@wordpress/ui';
 import clsx from 'clsx';
 import { useIsModernized } from '../../hooks/use-is-modernized';
@@ -126,7 +126,7 @@ export function ConnectForm( {
 						}
 
 						return hasConnections
-							? _x( 'Connect more', '', 'jetpack-publicize-pkg' )
+							? __( 'Connect more', 'jetpack-publicize-pkg' )
 							: __( 'Connect', 'jetpack-publicize-pkg' );
 					} )( buttonLabel ) }
 				</Button>

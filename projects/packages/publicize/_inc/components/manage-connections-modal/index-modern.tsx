@@ -2,7 +2,7 @@ import { getRedirectUrl } from '@automattic/jetpack-components';
 import { useViewportMatch } from '@wordpress/compose';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useCallback } from '@wordpress/element';
-import { __, _x } from '@wordpress/i18n';
+import { __ } from '@wordpress/i18n';
 import { Dialog, Link, Text, Tooltip } from '@wordpress/ui';
 import { useUserCanShareConnection } from '../../hooks/use-user-can-share-connection';
 import { store } from '../../social-store';
@@ -14,7 +14,7 @@ import styles from './style-modern.module.scss';
 // ternary: interpolating translatable strings inside JSX expressions can break
 // the way our build extracts/bundles them for translation.
 const CONFIRMATION_TITLE = () => __( 'Connection confirmation', 'jetpack-publicize-pkg' );
-const MANAGE_TITLE = () => _x( 'Manage Jetpack Social connections', '', 'jetpack-publicize-pkg' );
+const MANAGE_TITLE = () => __( 'Manage Jetpack Social connections', 'jetpack-publicize-pkg' );
 
 export const ModernManageConnectionsModal = () => {
 	const { keyringResult } = useSelect( select => {
