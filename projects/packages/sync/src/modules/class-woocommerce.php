@@ -576,8 +576,9 @@ class WooCommerce extends Module {
 		'woocommerce_square_cash_app_pay_settings',
 		'woocommerce_square_credit_card_settings',
 		'woocommerce_stripe_settings',
-		'woocommerce_bacs_settings', // This relates to offline payments.
-		'woocommerce_cheque_settings', // This relates to offline payments.
+		'woocommerce_bacs_accounts', // This and the below options relate to offline payments.
+		'woocommerce_bacs_settings',
+		'woocommerce_cheque_settings',
 	);
 
 	/**
