@@ -10,9 +10,8 @@ import useProductCheckoutWorkflow from '@automattic/jetpack-connection/hooks/use
 import useConnection from '@automattic/jetpack-connection/use-connection';
 import { __, sprintf } from '@wordpress/i18n';
 import { useState } from 'react';
+import { VIDEOPRESS_ADMIN_PAGE } from '../../utils/constants';
 import './style.scss';
-
-const VIDEOPRESS_ADMIN_PAGE = 'admin.php?page=jetpack-videopress';
 
 /**
  * Pre-connection upsell shown when the site isn't registered yet. A port of the
@@ -31,9 +30,8 @@ export default function PricingUpsell() {
 	const state =
 		typeof JPVIDEOPRESS_INITIAL_STATE !== 'undefined' ? JPVIDEOPRESS_INITIAL_STATE : undefined;
 	const pricing = state?.pricing;
-	const adminUrl = state?.siteData?.adminUrl ?? '';
 	const siteSuffix = state?.jetpackStatus?.calypsoSlug ?? '';
-	const redirectUrl = adminUrl ? `${ adminUrl }${ VIDEOPRESS_ADMIN_PAGE }` : '';
+	const redirectUrl = VIDEOPRESS_ADMIN_PAGE;
 
 	// These hooks must run unconditionally (Rules of Hooks) and therefore precede
 	// the `! pricing` guard below, which the gate already makes unreachable in

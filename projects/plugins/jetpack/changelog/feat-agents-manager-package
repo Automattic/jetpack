@@ -1,0 +1,4 @@
+Significance: minor
+Type: other
+
+Agents Manager: Extract into its own package from jetpack-mu-wpcom

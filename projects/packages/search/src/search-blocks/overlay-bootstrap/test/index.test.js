@@ -254,6 +254,15 @@ describe( 'overlay-bootstrap close URL behavior', () => {
 		expect( console ).toHaveErrored();
 	} );
 
+	it( 'strips the scalar post_type alias on a product search close', async () => {
+		await closeFrom( '/?s=shirt&post_type=product' );
+
+		const params = new URLSearchParams( window.location.search );
+		expect( params.has( 's' ) ).toBe( false );
+		expect( params.has( 'post_type' ) ).toBe( false );
+		expect( console ).toHaveErrored();
+	} );
+
 	it( 'preserves non-search params and the hash', async () => {
 		await closeFrom( '/page/?s=hello&utm_source=twitter#anchor' );
 

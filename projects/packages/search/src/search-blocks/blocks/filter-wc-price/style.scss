@@ -30,7 +30,11 @@
 	width: 14px;
 	height: 14px;
 	border-radius: 50%;
-	background: var(--wp--preset--color--background, #fff);
+	// 3-tier `--base → --background → #fff` fallback chain matches
+	// `filters-popover` / `results-sort` / search-input suggestions, so the
+	// thumb stays an opaque puck across block themes, classic themes with
+	// partial theme.json, and pre-theme.json classic themes.
+	background: var(--wp--preset--color--base, var(--wp--preset--color--background, #fff));
 	border: 2px solid currentColor;
 	margin: 0;
 	padding: 0;
@@ -225,12 +229,12 @@
 
 			&::-webkit-slider-thumb {
 				background: var(--range-color);
-				border-color: var(--wp--preset--color--background, #fff);
+				border-color: var(--wp--preset--color--base, var(--wp--preset--color--background, #fff));
 			}
 
 			&::-moz-range-thumb {
 				background: var(--range-color);
-				border-color: var(--wp--preset--color--background, #fff);
+				border-color: var(--wp--preset--color--base, var(--wp--preset--color--background, #fff));
 			}
 		}
 	}

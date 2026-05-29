@@ -653,6 +653,11 @@ class Jetpack {
 		// Set up the REST authentication hooks.
 		Connection_Rest_Authentication::init();
 
+		// Register Jetpack-specific connection tests (sync health, etc.) with the connection
+		// package's health test suite. This runs on all requests (not just admin), because
+		// the connection/test REST endpoint can be called outside admin context.
+		add_action( 'jetpack_connection_tests_loaded', array( $this, 'register_jetpack_connection_tests' ) );
+
 		add_action( 'admin_init', array( $this, 'admin_init' ) );
 		add_action( 'admin_init', array( $this, 'dismiss_jetpack_notice' ) );
 
@@ -5236,6 +5241,17 @@ endif;
 			trigger_error( sprintf( 'Jetpack: Unable to find view file: %s', esc_html( $views_dir . $template ) ), E_USER_WARNING ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_trigger_error
 		}
 		return false;
+	}
+
+	/**
+	 * Register Jetpack-specific tests on the connection package's health test suite.
+	 *
+	 * @param \Automattic\Jetpack\Connection\Connection_Health_Tests $connection_tests The test suite instance.
+	 */
+	public function register_jetpack_connection_tests( $connection_tests ) {
+		require_once JETPACK__PLUGIN_DIR . '_inc/lib/debugger/class-jetpack-cxn-tests.php';
+		$jetpack_tests = new Jetpack_Cxn_Tests();
+		$jetpack_tests->register_tests_on( $connection_tests );
 	}
 
 	/**

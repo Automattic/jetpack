@@ -124,8 +124,8 @@ export function buildActivePills( state ) {
 		const groupLabel = config?.label ?? filterKey;
 		for ( const value of values ) {
 			const productLabel = resolveProductValueLabel( state, config, value );
-			// Explicit `valueLabels` override (e.g. filter-post-type) wins over
-			// product resolution and bucket-derived labels.
+			// Explicit `valueLabels` override (set on a filter's filterConfig)
+			// wins over product resolution and bucket-derived labels.
 			const explicitLabel = config?.valueLabels?.[ value ];
 			let valueLabel;
 			if ( explicitLabel !== undefined ) {
