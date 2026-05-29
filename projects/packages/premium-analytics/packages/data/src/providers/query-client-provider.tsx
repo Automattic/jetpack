@@ -6,7 +6,6 @@ import {
 	QueryClientProvider,
 	QueryCache,
 } from '@tanstack/react-query';
-import { useExperiments } from '@automattic/admin-toolkit';
 import { ReactNode, lazy, Suspense } from 'react';
 
 /**
@@ -16,6 +15,28 @@ import { globalErrorManager } from './global-error-manager';
 
 const DEFAULT_STALE_TIME = 5 * 60 * 1000;
 const DEFAULT_GC_TIME = 10 * 60 * 1000;
+
+/**
+ * Whether to render the React Query Devtools.
+ *
+ * Devtools are opt-in and OFF by default. Enable them by setting a global
+ * debug flag on `window` (e.g. in the browser console:
+ * `window.jetpackPremiumAnalyticsQueryDevtools = true`) and reloading. They
+ * are also enabled automatically outside of production builds.
+ *
+ * @return Whether the devtools should be rendered.
+ */
+function areQueryDevtoolsEnabled(): boolean {
+	if (
+		typeof window !== 'undefined' &&
+		( window as { jetpackPremiumAnalyticsQueryDevtools?: boolean } )
+			.jetpackPremiumAnalyticsQueryDevtools === true
+	) {
+		return true;
+	}
+
+	return process.env.NODE_ENV !== 'production';
+}
 
 const ReactQueryDevtoolsProduction = lazy( () =>
 	// eslint-disable-next-line import/no-extraneous-dependencies -- DevTools is intentionally in devDependencies, only loaded when enabled
@@ -137,11 +158,10 @@ export const AnalyticsQueryClientProvider = ( {
 }: {
 	children: ReactNode;
 } ) => {
-	const { enabledExperiments } = useExperiments();
 	return (
 		<QueryClientProvider client={ queryClient }>
 			<>{ children }</>
-			{ enabledExperiments[ 'tanstack/query-dev-tool' ] && (
+			{ areQueryDevtoolsEnabled() && (
 				<Suspense fallback={ null }>
 					<ReactQueryDevtoolsProduction initialIsOpen={ true } />
 				</Suspense>
