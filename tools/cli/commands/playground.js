@@ -38,7 +38,7 @@ export function builder( yargs ) {
 			description: 'Enable WP_DEBUG and SCRIPT_DEBUG (errors logged to /wp-content/debug.log)',
 		} )
 		.example( 'jetpack playground jetpack', 'Start Playground with the Jetpack plugin' )
-		.example( 'jetpack playground crm', 'Start Playground with the CRM plugin' );
+		.example( 'jetpack playground jetpack', 'Start Playground with the Jetpack plugin' );
 }
 
 /**
