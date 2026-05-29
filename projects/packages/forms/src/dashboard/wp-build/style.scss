@@ -3,6 +3,7 @@
  */
 
 @use "@automattic/jetpack-base-styles/admin-page-layout" as *;
+@use "@wordpress/base-styles/breakpoints";
 
 body.jetpack_page_jetpack-forms-responses-wp-admin,
 body.jetpack-forms-responses {
@@ -70,6 +71,24 @@ body.jetpack-forms-responses {
 			.dataviews-footer {
 				flex: 0 0 auto;
 				min-block-size: 0;
+			}
+
+			// The layout mixin above blanket-sets `flex-direction: column` on
+			// the scrollable middle's direct children (its `> *` rule). That
+			// column is only wanted on narrow screens; the toolbar is a Stack
+			// that owns its own axis with tabs on the left and the
+			// search/settings controls on the right. Above the small breakpoint
+			// drop the mixin's forced column (back to the default row) so the
+			// two groups sit on a single line; below it the mixin's column
+			// keeps them stacked across multiple lines.
+			.jp-forms-dataviews__view-actions {
+				align-items: flex-start;
+				gap: 8px;
+
+				@media (min-width: #{ (breakpoints.$break-small + 1) }) {
+					flex-direction: unset;
+					align-items: center;
+				}
 			}
 
 			.dataviews-layout__container,
