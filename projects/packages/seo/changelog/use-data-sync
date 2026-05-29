@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Use the shared data-sync layer (useDataSync / wp-js-data-sync) for the Overview instead of a custom REST controller and bespoke React Query wrappers.

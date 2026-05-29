@@ -4534,18 +4534,15 @@ importers:
       '@automattic/jetpack-connection':
         specifier: workspace:*
         version: link:../../js-packages/connection
+      '@automattic/jetpack-react-data-sync-client':
+        specifier: workspace:*
+        version: link:../../js-packages/react-data-sync-client
       '@automattic/jetpack-script-data':
         specifier: workspace:*
         version: link:../../js-packages/script-data
       '@automattic/social-previews':
         specifier: workspace:*
         version: link:../../js-packages/social-previews
-      '@tanstack/react-query':
-        specifier: 5.90.8
-        version: 5.90.8(react@18.3.1)
-      '@wordpress/api-fetch':
-        specifier: 7.44.0
-        version: 7.44.0
       '@wordpress/components':
         specifier: 32.6.0
         version: 32.6.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -4579,6 +4576,9 @@ importers:
       react-router:
         specifier: 7.12.0
         version: 7.12.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      zod:
+        specifier: 3.25.76
+        version: 3.25.76
     devDependencies:
       '@automattic/jetpack-webpack-config':
         specifier: workspace:*
@@ -10850,10 +10850,6 @@ packages:
     engines: {node: '>=18.12.0', npm: '>=8.19.2'}
     peerDependencies:
       react: ^18.0.0
-
-  '@wordpress/api-fetch@7.44.0':
-    resolution: {integrity: sha512-KZP5Y0AzUVPRbwCsp2MUNEjIyYPJdaa7ojzYyc/IVlaAlbXVdd0Ofk8UDf4l8PjtXkyyPs9pX9sFy5iNcrF2cQ==}
-    engines: {node: '>=18.12.0', npm: '>=8.19.2'}
 
   '@wordpress/api-fetch@7.46.0':
     resolution: {integrity: sha512-QOxuHSUXMzLat3Y90+0HNUDPSlBUK53r4mQ4m7f4/OKaWRRZU5jzvDBJyj52dEST7yJ1eZtuqUkEwK2T1MEBfQ==}
@@ -24007,11 +24003,6 @@ snapshots:
       '@wordpress/rich-text': 7.46.0(react@18.3.1)
       react: 18.3.1
       uuid: 14.0.0
-
-  '@wordpress/api-fetch@7.44.0':
-    dependencies:
-      '@wordpress/i18n': 6.19.0
-      '@wordpress/url': 4.46.0
 
   '@wordpress/api-fetch@7.46.0':
     dependencies:
