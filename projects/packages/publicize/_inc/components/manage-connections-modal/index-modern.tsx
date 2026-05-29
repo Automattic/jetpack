@@ -10,12 +10,6 @@ import { ModernServicesList } from '../services/services-list-modern';
 import { ConfirmationForm } from './confirmation-form';
 import styles from './style-modern.module.scss';
 
-// Split the two titles into constants rather than picking them inline with a
-// ternary: interpolating translatable strings inside JSX expressions can break
-// the way our build extracts/bundles them for translation.
-const CONFIRMATION_TITLE = () => __( 'Connection confirmation', 'jetpack-publicize-pkg' );
-const MANAGE_TITLE = () => __( 'Manage Jetpack Social connections', 'jetpack-publicize-pkg' );
-
 export const ModernManageConnectionsModal = () => {
 	const { keyringResult } = useSelect( select => {
 		const { getKeyringResult } = select( store );
@@ -48,7 +42,13 @@ export const ModernManageConnectionsModal = () => {
 
 	const hasKeyringResult = Boolean( keyringResult?.ID );
 
-	const title = hasKeyringResult ? CONFIRMATION_TITLE() : MANAGE_TITLE();
+	// Hold each title in its own variable and select with the ternary afterwards.
+	// Picking inline (`cond ? __( 'A' ) : __( 'B' )`) lets the minifier fold both
+	// branches into a single `__( cond ? 'A' : 'B' )` call, which the i18n string
+	// extraction can no longer read.
+	const confirmationTitle = __( 'Connection confirmation', 'jetpack-publicize-pkg' );
+	const manageTitle = __( 'Manage Jetpack Social connections', 'jetpack-publicize-pkg' );
+	const title = hasKeyringResult ? confirmationTitle : manageTitle;
 
 	const canMarkAsShared = useUserCanShareConnection();
 

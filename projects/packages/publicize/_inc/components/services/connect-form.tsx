@@ -125,9 +125,14 @@ export function ConnectForm( {
 							return __( 'Connecting…', 'jetpack-publicize-pkg' );
 						}
 
-						return hasConnections
-							? __( 'Connect more', 'jetpack-publicize-pkg' )
-							: __( 'Connect', 'jetpack-publicize-pkg' );
+						// Hold each label in its own variable and select with the
+						// ternary afterwards. Picking inline (`cond ? __( 'A' ) :
+						// __( 'B' )`) lets the minifier fold both branches into one
+						// `__( cond ? 'A' : 'B' )` call, which the i18n string
+						// extraction can no longer read.
+						const connectMoreLabel = __( 'Connect more', 'jetpack-publicize-pkg' );
+						const connectLabel = __( 'Connect', 'jetpack-publicize-pkg' );
+						return hasConnections ? connectMoreLabel : connectLabel;
 					} )( buttonLabel ) }
 				</Button>
 			</div>
