@@ -590,6 +590,18 @@ const { state, actions } = store( NAMESPACE, {
 		// `computeResultsCountText()` for the lockstep logic.
 
 		/**
+		 * Skeleton visibility. SSR can't evaluate a getter, so the skeleton
+		 * markup carries a literal `hidden` off the initial paint; this getter
+		 * takes over after hydration so the in-flight initial search shows the
+		 * skeleton (a reload that already has results keeps them — no flash).
+		 *
+		 * @return {boolean} True when the skeleton should be hidden.
+		 */
+		get skeletonHidden() {
+			return ! ( state.isLoading && state.results.length === 0 );
+		},
+
+		/**
 		 * No-results visibility. `data-wp-bind` only evaluates simple
 		 * property paths, so derived flags must be single getters.
 		 *
@@ -1008,10 +1020,6 @@ const { state, actions } = store( NAMESPACE, {
 				if ( myToken === searchToken ) {
 					state.isLoading = false;
 					state.resultsCountText = computeResultsCountText( state );
-					// One-shot: ends the pre-hydration skeleton window.
-					if ( ! state.skeletonHidden ) {
-						state.skeletonHidden = true;
-					}
 				}
 			}
 		},
@@ -1600,9 +1608,9 @@ const { state, actions } = store( NAMESPACE, {
 			if ( state.searchQuery || state.hasActiveFilters || state.hasSearchParam ) {
 				actions.dispatchInitialSearchIfNeeded();
 			} else if ( droppedAny ) {
-				// No fetch will fire — clear the spinner + skeleton.
+				// No fetch will fire — clear the spinner; `skeletonHidden`
+				// derives to true once `isLoading` is false.
 				state.isLoading = false;
-				state.skeletonHidden = true;
 			}
 		},
 

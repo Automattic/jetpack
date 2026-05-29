@@ -449,6 +449,24 @@ class Results_List_Render_Test extends TestCase {
 	}
 
 	/**
+	 * Without an initial-loading signal the skeleton items still render — the
+	 * IA runtime re-shows them on a client-side search from a bare page — but
+	 * each carries a static `hidden` attribute so they stay out of the
+	 * pre-hydration paint.
+	 */
+	public function test_skeleton_items_present_but_hidden_when_not_initial_loading() {
+		$markup = $this->render();
+
+		$total_skeletons = preg_match_all( '/jetpack-search-results__item--skeleton/', $markup );
+		$this->assertGreaterThan( 0, $total_skeletons );
+		// *Every* skeleton `<li>` carries a static `hidden` attribute, not just
+		// one. Match `hidden` only as a standalone attribute so
+		// `data-wp-bind--hidden` and `aria-hidden` don't false-positive.
+		$hidden_skeletons = preg_match_all( '/<li[^>]*--skeleton[^>]*\s+hidden(?=\s|\/|>|=)/', $markup );
+		$this->assertSame( $total_skeletons, $hidden_skeletons );
+	}
+
+	/**
 	 * Render the block with the given post-type request params seeded into
 	 * `$_GET`. Resets the `is_initial_loading()` memo around the render and
 	 * clears the params after so the auto-product-view cases stay isolated

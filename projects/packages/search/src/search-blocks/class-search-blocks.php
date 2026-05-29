@@ -2139,9 +2139,6 @@ HTML;
 			'isLoadingMore'              => false,
 			'hasError'                   => false,
 
-			// One-shot pre-hydration skeleton gate; never re-flashed on re-search.
-			'skeletonHidden'             => false,
-
 			// Seeded so SSR resolves `data-wp-text` on first paint.
 			'resultsCountText'           => $is_initial_loading ? $searching_text : '',
 
