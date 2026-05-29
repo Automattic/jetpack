@@ -28,10 +28,6 @@ class Results_List_Render_Test extends TestCase {
 						'type'    => 'string',
 						'default' => 'expanded',
 					),
-					'autoProductView'  => array(
-						'type'    => 'boolean',
-						'default' => true,
-					),
 					'noResultsMessage' => array(
 						'type'    => 'string',
 						'default' => '',
@@ -41,35 +37,11 @@ class Results_List_Render_Test extends TestCase {
 						'default' => '',
 					),
 				),
-				'uses_context'    => array( 'jetpack-search/postTypeMode', 'jetpack-search/postTypes' ),
 				// phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-				'render_callback' => static function ( $attributes, $content, $block ) {
+				'render_callback' => static function ( $attributes ) {
 					ob_start();
 					include __DIR__ . '/../../src/search-blocks/blocks/results-list/render.php';
 					return (string) ob_get_clean();
-				},
-				// phpcs:enable VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-			)
-		);
-		// Minimal stand-in for the parent search-results block — provides the
-		// author-set post-type scope to results-list as block context (the real
-		// block's render.php does the same via `provides_context`). Lets the
-		// static-scope auto-switch cases render results-list nested under a
-		// context provider without pulling in the full search-results renderer.
-		\register_block_type(
-			'jetpack-search/search-results',
-			array(
-				'attributes'       => array(
-					'postTypeMode' => array( 'type' => 'string' ),
-					'postTypes'    => array( 'type' => 'array' ),
-				),
-				'provides_context' => array(
-					'jetpack-search/postTypeMode' => 'postTypeMode',
-					'jetpack-search/postTypes'    => 'postTypes',
-				),
-				// phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-				'render_callback'  => static function ( $attributes, $content ) {
-					return (string) $content;
 				},
 				// phpcs:enable VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 			)
@@ -81,7 +53,6 @@ class Results_List_Render_Test extends TestCase {
 	 */
 	public static function tearDownAfterClass(): void {
 		\unregister_block_type( 'jetpack-search/results-list' );
-		\unregister_block_type( 'jetpack-search/search-results' );
 		parent::tearDownAfterClass();
 	}
 
