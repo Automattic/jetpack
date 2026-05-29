@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+My Jetpack: use @wordpress/ui Link and Text components in the Help tab footer for consistent typography.
