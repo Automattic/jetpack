@@ -75,6 +75,10 @@ class Monitor_Abilities extends Registrar {
 						'idempotent'  => true,
 					),
 					'show_in_rest' => true,
+					'mcp'          => array(
+						'public' => true,
+						'type'   => 'tool',
+					),
 				),
 			),
 
@@ -108,6 +112,10 @@ class Monitor_Abilities extends Registrar {
 						'idempotent'  => true,
 					),
 					'show_in_rest' => true,
+					'mcp'          => array(
+						'public' => true,
+						'type'   => 'tool',
+					),
 				),
 			),
 		);
@@ -201,7 +209,10 @@ class Monitor_Abilities extends Registrar {
 
 	/**
 	 * Execute: declarative state-setter. Idempotent — compares desired vs current
-	 * and returns changed=false when they match.
+	 * and returns changed=false when they match. Either way the local
+	 * `monitor_receive_notifications` option is synced to the remote value (after
+	 * the write on a change, and on the no-op path) so the legacy REST reader,
+	 * which trusts that option first, never reports a stale state.
 	 *
 	 * @param array|null $input Input matching the ability's input_schema.
 	 * @return array|\WP_Error
@@ -243,6 +254,15 @@ class Monitor_Abilities extends Registrar {
 		}
 
 		if ( $desired === $current ) {
+			// Sync the local `monitor_receive_notifications` option to the
+			// known-good remote value even on a no-op. The legacy
+			// `Jetpack_Core_Json_Api_Endpoints::get_remote_value` reader trusts
+			// this option before falling back to a remote read, so a stale local
+			// value would let it report the wrong state. The changed=true path
+			// below mirrors the option after a write; mirroring here keeps the
+			// unchanged path self-healing too.
+			update_option( 'monitor_receive_notifications', $current );
+
 			return array(
 				'enabled' => $current,
 				'changed' => false,

@@ -154,6 +154,33 @@ class Monitor_Abilities_Test extends WP_UnitTestCase {
 		$this->assertTrue( $spec['meta']['annotations']['idempotent'] );
 	}
 
+	/**
+	 * Both abilities are agent-facing, so each must expose the `meta.mcp`
+	 * descriptor (public tool) alongside `show_in_rest`, matching the sibling
+	 * `jetpack/get-modules` and `jetpack/set-module-status` definitions.
+	 *
+	 * @dataProvider provider_ability_slugs
+	 *
+	 * @param string $slug Ability slug to inspect.
+	 */
+	public function test_abilities_expose_public_mcp_tool_metadata( string $slug ) {
+		$meta = Monitor_Abilities::get_abilities()[ $slug ]['meta'];
+		$this->assertTrue( $meta['show_in_rest'], "{$slug} should be exposed in REST." );
+		$this->assertArrayHasKey( 'mcp', $meta, "{$slug} should carry mcp metadata so MCP/agent tooling can discover it." );
+		$this->assertTrue( $meta['mcp']['public'], "{$slug} mcp metadata should be public." );
+		$this->assertSame( 'tool', $meta['mcp']['type'], "{$slug} mcp metadata should be a tool." );
+	}
+
+	/**
+	 * @return array<string, array{0: string}>
+	 */
+	public function provider_ability_slugs(): array {
+		return array(
+			'get-monitor-status' => array( 'jetpack-monitor/get-monitor-status' ),
+			'set-notifications'  => array( 'jetpack-monitor/set-notifications' ),
+		);
+	}
+
 	// -------------------- Registrar wiring --------------------
 
 	/**
@@ -437,14 +464,20 @@ class Monitor_Abilities_Test extends WP_UnitTestCase {
 
 		Monitor_Abilities_Test_Stub::reset( true );
 
+		// Seed a stale local option (false) that disagrees with the remote state
+		// (true) to exercise the self-healing sync on the no-op path.
+		update_option( 'monitor_receive_notifications', false );
+
 		$result = Monitor_Abilities_Test_Stub::set_notifications( array( 'enabled' => true ) );
 
 		$this->assertIsArray( $result );
 		$this->assertTrue( $result['enabled'] );
 		$this->assertFalse( $result['changed'] );
 		$this->assertSame( 0, Monitor_Abilities_Test_Stub::$apply_calls, 'Idempotent no-op: apply_notifications_update should not run when desired matches current.' );
-		$sentinel = '__monitor_abilities_option_unset__';
-		$this->assertSame( $sentinel, get_option( 'monitor_receive_notifications', $sentinel ), 'No-op: the mirrored option should not be written.' );
+		// Even on a no-op the local option is synced to the known-good remote
+		// value (true here) so the legacy REST reader, which trusts this option
+		// before going remote, can't surface a stale state.
+		$this->assertTrue( (bool) get_option( 'monitor_receive_notifications' ), 'No-op should still sync the mirrored option to the remote value.' );
 	}
 
 	/**
