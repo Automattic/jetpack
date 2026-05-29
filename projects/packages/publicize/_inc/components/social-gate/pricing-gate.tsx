@@ -106,7 +106,12 @@ export default function PricingGate( { onDismiss }: { onDismiss: VoidFunction } 
 								) }
 							</Stack>
 							<span className="jetpack-social-gate__price-legend">
-								{ __( 'per month, billed yearly', 'jetpack-publicize-pkg' ) }
+								{ introPrice != null
+									? __(
+											'per month for the first year, then billed yearly',
+											'jetpack-publicize-pkg'
+									  )
+									: __( 'per month, billed yearly', 'jetpack-publicize-pkg' ) }
 							</span>
 						</div>
 					) }
@@ -116,9 +121,9 @@ export default function PricingGate( { onDismiss }: { onDismiss: VoidFunction } 
 						gap="sm"
 						render={ <ul /> }
 					>
-						{ PAID_FEATURES.map( ( feature, index ) => (
+						{ PAID_FEATURES.map( feature => (
 							<Stack
-								key={ index }
+								key={ feature }
 								className="jetpack-social-gate__feature"
 								direction="row"
 								align="center"
