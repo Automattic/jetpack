@@ -47,5 +47,14 @@ export interface AreaChartProps extends BaseChartProps< SeriesData[] > {
 	 * @default false when stacked, true when overlapping
 	 */
 	withStroke?: boolean;
+	/**
+	 * When using an interactive legend, controls whether the Y axis rescales
+	 * to fit only the visible series. Defaults to `true`, matching the
+	 * intuitive default for LineChart and BarChart. Set to `false` to pin
+	 * the Y axis to the full data extent so toggling legend items off does
+	 * not move the chart's baseline.
+	 * @default true
+	 */
+	rescaleYOnLegendToggle?: boolean;
 	children?: ReactNode;
 }
