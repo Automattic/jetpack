@@ -241,12 +241,12 @@ class Comments extends Module {
 		if ( isset( $args[1] ) ) {
 			// comment object is available.
 			$comment = $args[1];
-		} elseif ( is_numeric( $args[0] ) ) {
+		} elseif ( isset( $args[0] ) && is_numeric( $args[0] ) ) {
 			// comment_id is available.
 			$comment = get_comment( $args[0] );
 		}
 
-		if ( ! isset( $comment->comment_type ) || ! is_string( $comment->comment_type ) ) {
+		if ( ! $comment instanceof \WP_Comment ) {
 			return false;
 		}
 

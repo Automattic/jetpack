@@ -303,7 +303,7 @@ class Terms extends Module {
 	public function filter_blacklisted_taxonomies( $args ) {
 		$term = $args[0] ?? null;
 
-		if ( ! isset( $term->taxonomy ) || ! is_string( $term->taxonomy ) ) {
+		if ( ! $term instanceof \WP_Term ) {
 			return false;
 		}
 
