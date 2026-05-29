@@ -28,9 +28,10 @@ class Social_Admin_Page {
 	/**
 	 * Filter name that gates the wp-build–based dashboard.
 	 *
-	 * When this filter returns true, "Jetpack > Social" renders the new
-	 * wp-build dashboard (Overview + Settings tabs) instead of the legacy
-	 * single-page React app.
+	 * "Jetpack > Social" renders the new wp-build dashboard (Overview +
+	 * Settings tabs) by default. Returning false from this filter falls
+	 * back to the legacy single-page React app — kept as an emergency
+	 * kill switch in case a regression is found in production.
 	 */
 	const MODERNIZATION_FILTER = 'rsm_jetpack_ui_modernization_social';
 
@@ -258,12 +259,16 @@ class Social_Admin_Page {
 	}
 
 	/**
-	 * Returns true when the wp-build modernization filter is enabled.
+	 * Returns true when the wp-build modernized dashboard should render.
+	 *
+	 * Defaults on; the `MODERNIZATION_FILTER` filter is an emergency
+	 * kill switch — returning false from it falls back to the legacy
+	 * single-page admin shell.
 	 *
 	 * @return bool
 	 */
 	private static function is_modernized() {
-		return (bool) apply_filters( self::MODERNIZATION_FILTER, false );
+		return (bool) apply_filters( self::MODERNIZATION_FILTER, true );
 	}
 
 	/**
