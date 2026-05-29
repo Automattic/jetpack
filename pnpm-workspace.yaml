@@ -36,6 +36,8 @@ minimumReleaseAgeExclude:
   - js-cookie@3.0.7
   # Renovate security update: tmp@0.2.6
   - tmp@0.2.6
+  # Renovate security update: axios@1.16.0
+  - axios@1.16.0
 trustPolicy: no-downgrade
 trustPolicyExclude:
   # https://github.com/paulmillr/chokidar/issues/1440
