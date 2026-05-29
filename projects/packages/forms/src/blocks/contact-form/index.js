@@ -9,7 +9,7 @@ import defaultAttributes from './attributes.ts';
 import blockMetadata from './block.json';
 import deprecated from './deprecated.js';
 import edit from './edit.tsx';
-import { blockIcon } from './icon.jsx';
+import { icon } from './icon.jsx';
 import transforms from './transforms.js';
 import { DEFAULT_FORM_LABEL, extractTitleText, formatFormLabel } from './util/form-label.js';
 import variations from './variations.js';
@@ -60,7 +60,7 @@ export const settings = {
 		'Create forms to collect data from site visitors and manage their responses.',
 		'jetpack-forms'
 	),
-	icon: { src: blockIcon },
+	icon: { src: icon },
 	keywords: [
 		_x( 'email', 'block search term', 'jetpack-forms' ),
 		_x( 'feedback', 'block search term', 'jetpack-forms' ),
