@@ -18,7 +18,7 @@ can `page.goto( '/wp-admin/...' )` and assert. Specifically:
 | Admin login (cookies + localStorage) | `global-setup.ts` writes `auth.json`; `playwright.config.ts` (`use.storageState`) loads it | Every test starts already logged in as `admin`. No per-test login. |
 | premium-analytics plugin activated | `../mu-loader.php` (auto-mounted by `docker-compose.wp-verify.yml`) | The dashboard route is reachable without any plugin-activation step. |
 | Single worker, no parallelism, `retries: 0` | `playwright.config.ts` (`workers: 1`, `fullyParallel: false`) | WP cookies/nonces stay coherent; flaky failures show through instead of being silently retried. |
-| Artifacts on failure | `playwright.config.ts` (`screenshot/video/trace: 'retain-on-failure'`) | Failed runs leave screenshots, video, and trace under `${PA_VERIFY_ARTIFACT_DIR:-/tmp/pa-verify}/playwright-output/`. |
+| Artifacts on failure | `playwright.config.ts` (`screenshot: 'only-on-failure'`, `video: 'retain-on-failure'`, `trace: 'retain-on-failure'`) | Failed runs leave a screenshot of the failing assertion plus full video + trace under `${PA_VERIFY_ARTIFACT_DIR:-/tmp/pa-verify}/playwright-output/`. |
 
 ## Patterns by scenario
 

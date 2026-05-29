@@ -32,7 +32,13 @@ npm install -g playwright@1.48.2 @playwright/test@1.48.2
 ```
 
 ```bash
-# Bring up the WP + MySQL + WPCLI stack (waits for WordPress + Gutenberg ready)
+# Bring up the WP + MySQL + WPCLI stack. The script returns once
+# `docker compose up -d` finishes — at that point MySQL and WordPress
+# have passed their healthchecks, but wpcli is still running its
+# `wp core install` + `wp plugin activate gutenberg` setup. Tail its
+# logs and wait for `sleep infinity` (the post-setup keep-alive) before
+# running Playwright:
+#   docker logs -f jetpack-ai-wpcli   # ready when you see: sleep infinity
 tools/ai-sandbox/wp-verify.sh up
 
 # Run Playwright tests from the repo root. NODE_PATH points node at the global

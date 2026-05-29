@@ -26,7 +26,14 @@ add_action(
 		if ( class_exists( 'Automattic\\Jetpack\\PremiumAnalytics\\Analytics' ) ) {
 			// @phan-suppress-next-line PhanUndeclaredClassMethod -- class existence verified by class_exists() above.
 			\Automattic\Jetpack\PremiumAnalytics\Analytics::init();
+			return;
 		}
+		// Class missing/renamed — fail loud rather than silently boot WP without
+		// premium-analytics; otherwise Playwright tests fail later with a
+		// confusing "dashboard root not found" instead of the real cause.
+		// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- test environment only.
+		error_log( 'premium-analytics mu-loader: Automattic\\Jetpack\\PremiumAnalytics\\Analytics class not declared after loading entry file. The plugin\'s public API may have changed.' );
+		wp_die( 'premium-analytics plugin entry loaded but the expected Analytics class is missing. Check the server error log.' );
 	},
 	1
 );
