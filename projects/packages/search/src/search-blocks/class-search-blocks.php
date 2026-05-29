@@ -137,11 +137,6 @@ class Search_Blocks {
 		// Both hooks needed; see AGENTS.md § Hydration & SSR seeding.
 		add_action( 'template_redirect', array( static::class, 'seed_interactivity_state' ) );
 		add_action( 'wp_enqueue_scripts', array( static::class, 'seed_interactivity_state' ) );
-		// Force the Search Layout block's dimension controls on regardless of the
-		// active theme's appearanceTools opt-in (see AGENTS.md § Search Layout
-		// forced controls). Always-on: the block is editable in the Site Editor
-		// on block themes and in the singleton-CPT editors on classic themes.
-		add_filter( 'wp_theme_json_data_theme', array( static::class, 'force_search_layout_block_supports' ) );
 
 		$experience = ( new Module_Control() )->get_experience();
 
@@ -216,47 +211,6 @@ class Search_Blocks {
 			add_action( 'wp_enqueue_scripts', array( static::class, 'enqueue_block_template_overlay_assets' ) );
 			add_action( 'wp_footer', array( static::class, 'print_block_template_overlay' ) );
 		}
-	}
-
-	/**
-	 * Force the Search Layout block's dimension controls on regardless of theme.
-	 *
-	 * The `jetpack-search/layout` block frames the embedded Search experience and
-	 * needs reliable width / spacing / border / min-height controls. Block-level
-	 * supports only surface when the active theme opts into the matching
-	 * `appearanceTools` / `settings.*` flags, so themes that don't would hide
-	 * them. Enabling the settings per-block leaves every other block — including
-	 * `core/group` — untouched.
-	 *
-	 * @param \WP_Theme_JSON_Data $theme_json_data Theme JSON data object.
-	 * @return \WP_Theme_JSON_Data Updated theme JSON data.
-	 */
-	public static function force_search_layout_block_supports( $theme_json_data ) {
-		$data     = $theme_json_data->get_data();
-		$existing = $data['settings']['blocks']['jetpack-search/layout'] ?? array();
-		// Merge rather than overwrite so a theme that pre-configures other
-		// settings for this block (e.g. typography) keeps them.
-		$data['settings']['blocks']['jetpack-search/layout'] = array_replace_recursive(
-			$existing,
-			array(
-				'spacing'    => array(
-					'padding'  => true,
-					'margin'   => true,
-					'blockGap' => true,
-				),
-				'border'     => array(
-					'color'  => true,
-					'radius' => true,
-					'style'  => true,
-					'width'  => true,
-				),
-				'dimensions' => array(
-					'minHeight' => true,
-				),
-			)
-		);
-		$theme_json_class                                    = get_class( $theme_json_data );
-		return new $theme_json_class( $data, 'theme' );
 	}
 
 	/**

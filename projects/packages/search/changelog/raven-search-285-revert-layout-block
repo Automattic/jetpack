@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Search Blocks: drop the dedicated Search Layout wrapper block; the embedded Search templates use a stock core/group again, whose constrained-layout Width control covers the region-width need.
