@@ -983,11 +983,10 @@ class Search_Blocks {
 	}
 
 	/**
-	 * Derive a block-pattern's content from a page template, so patterns stay in
-	 * sync with the template they mirror instead of carrying a hand-copied second
-	 * copy of the layout. Strips the page chrome (header/footer template-parts and
-	 * the `main` group wrapper) by keeping only the markup between the `<main>`
-	 * tags — the inner content group, alignment and all.
+	 * Derive a block-pattern's content from a chrome-free layout template (the
+	 * overlay templates, which already ship without header/footer/main page
+	 * chrome), so patterns stay in sync with the template they mirror instead of
+	 * carrying a hand-copied second copy of the layout.
 	 *
 	 * @param string $template_file Template basename under `templates/`.
 	 * @return string Block markup ready for `register_block_pattern()`, or '' when unreadable.
@@ -999,14 +998,7 @@ class Search_Blocks {
 		if ( '' === $raw ) {
 			return '';
 		}
-		$raw   = static::substitute_template_placeholders( $raw );
-		$open  = strpos( $raw, '<main' );
-		$start = false === $open ? false : strpos( $raw, '>', $open );
-		$end   = strrpos( $raw, '</main>' );
-		if ( false === $start || false === $end || $end <= $start ) {
-			return trim( $raw );
-		}
-		return trim( substr( $raw, $start + 1, $end - $start - 1 ) );
+		return trim( static::substitute_template_placeholders( $raw ) );
 	}
 
 	/**

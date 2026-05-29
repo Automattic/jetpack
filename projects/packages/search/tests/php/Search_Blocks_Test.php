@@ -1007,39 +1007,34 @@ class Search_Blocks_Test extends TestCase {
 	}
 
 	/**
-	 * `pattern_content_from_template()` derives a pattern's content from a page
-	 * template: it strips the page chrome (header/footer template-parts and the
-	 * `main` group wrapper) and keeps the inner alignwide content group, with the
-	 * `{{FILTER_HEADING}}` placeholder substituted.
+	 * `pattern_content_from_template()` returns the chrome-free overlay layout
+	 * ready to register as a pattern: an alignwide content group, no page chrome,
+	 * and the search blocks intact.
 	 */
-	public function test_pattern_content_from_template_strips_chrome_keeps_content() {
-		$content = Search_Blocks::pattern_content_from_template( 'jetpack-search.html' );
+	public function test_pattern_content_from_template_returns_chrome_free_layout() {
+		$content = Search_Blocks::pattern_content_from_template( 'jetpack-search-overlay.html' );
 
 		$this->assertNotEmpty( $content, 'Content must be non-empty when the bundled template exists.' );
-		$this->assertStringStartsWith( '<!-- wp:group {"align":"wide"', $content, 'Content must start at the inner alignwide group.' );
-		$this->assertStringEndsWith( '<!-- /wp:group -->', $content, 'Content must end at the inner group close.' );
-		$this->assertStringNotContainsString( 'wp:template-part', $content, 'Header/footer template-parts must be stripped.' );
-		$this->assertStringNotContainsString( '<main', $content, 'The main wrapper must be stripped.' );
-		$this->assertStringNotContainsString( '"tagName":"main"', $content, 'The main group comment must be stripped.' );
-		$this->assertStringNotContainsString( '{{', $content, 'Placeholders must be substituted.' );
+		$this->assertStringStartsWith( '<!-- wp:group {"align":"wide"', $content, 'Content must start at the alignwide group.' );
+		$this->assertStringEndsWith( '<!-- /wp:group -->', $content, 'Content must end at the group close.' );
+		$this->assertStringNotContainsString( 'wp:template-part', $content, 'Overlay templates carry no template-parts.' );
+		$this->assertStringNotContainsString( '<main', $content, 'Overlay templates carry no main wrapper.' );
 		$this->assertStringContainsString( 'wp:jetpack-search/search-input', $content, 'Search input block must remain.' );
 		$this->assertStringContainsString( 'wp:jetpack-search/filters', $content, 'Sidebar filters composition must remain.' );
-		$this->assertStringContainsString( 'Filter options', $content, 'Sidebar heading placeholder must be substituted.' );
 	}
 
 	/**
-	 * The chrome-stripping works identically for the WooCommerce product template,
-	 * keeping the product-only blocks (filters-product, results-list layout=product,
-	 * filter-wc-price) intact. Guards against a future product-template restructure
-	 * that breaks the `<main>` extraction.
+	 * Same contract for the WooCommerce product overlay template, keeping the
+	 * product-only blocks (filters-product, results-list layout=product,
+	 * filter-wc-price) intact.
 	 */
-	public function test_pattern_content_from_template_strips_chrome_for_product_template() {
-		$content = Search_Blocks::pattern_content_from_template( 'jetpack-search-product-results.html' );
+	public function test_pattern_content_from_template_returns_product_layout() {
+		$content = Search_Blocks::pattern_content_from_template( 'jetpack-search-overlay-product.html' );
 
 		$this->assertNotEmpty( $content, 'Content must be non-empty when the bundled product template exists.' );
-		$this->assertStringStartsWith( '<!-- wp:group {"align":"wide"', $content, 'Content must start at the inner alignwide group.' );
-		$this->assertStringNotContainsString( 'wp:template-part', $content, 'Header/footer template-parts must be stripped.' );
-		$this->assertStringNotContainsString( '<main', $content, 'The main wrapper must be stripped.' );
+		$this->assertStringStartsWith( '<!-- wp:group {"align":"wide"', $content, 'Content must start at the alignwide group.' );
+		$this->assertStringNotContainsString( 'wp:template-part', $content, 'Overlay templates carry no template-parts.' );
+		$this->assertStringNotContainsString( '<main', $content, 'Overlay templates carry no main wrapper.' );
 		$this->assertStringContainsString( 'wp:jetpack-search/filters-product', $content, 'Product filters composition must remain.' );
 		$this->assertStringContainsString( '"layout":"product"', $content, 'Results-list must keep the product layout.' );
 		$this->assertStringContainsString( 'wp:jetpack-search/filter-wc-price', $content, 'WC-only price filter must remain.' );

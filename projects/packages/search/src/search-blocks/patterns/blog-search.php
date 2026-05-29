@@ -7,7 +7,7 @@
 
 namespace Automattic\Jetpack\Search;
 
-$content = Search_Blocks::pattern_content_from_template( 'jetpack-search.html' );
+$content = Search_Blocks::pattern_content_from_template( 'jetpack-search-overlay.html' );
 if ( '' === $content ) {
 	return;
 }

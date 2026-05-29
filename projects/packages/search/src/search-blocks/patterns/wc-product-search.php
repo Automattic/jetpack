@@ -4,14 +4,14 @@
  *
  * WooCommerce-only: composes `filters-product` / `filter-wc-*` blocks, so the
  * `wc-` filename prefix keeps `register_patterns()` from loading it on non-Woo
- * sites. Content mirrors `templates/jetpack-search-product-results.html`.
+ * sites. Content mirrors `templates/jetpack-search-overlay-product.html`.
  *
  * @package automattic/jetpack-search
  */
 
 namespace Automattic\Jetpack\Search;
 
-$content = Search_Blocks::pattern_content_from_template( 'jetpack-search-product-results.html' );
+$content = Search_Blocks::pattern_content_from_template( 'jetpack-search-overlay-product.html' );
 if ( '' === $content ) {
 	return;
 }
