@@ -31,6 +31,10 @@ const PAID_FEATURES = [
  * @param props.onDismiss - Called after the nudge is dismissed.
  * @return The pricing gate.
  */
+// TODO: Replace this bespoke card with the shared `PricingCard`
+// (`@automattic/jetpack-components`) once it and the related pricing components
+// are refactored onto `@wordpress/ui`. Recreated here because reworking those
+// shared components affects every consumer and is out of scope for this work.
 export default function PricingGate( { onDismiss }: { onDismiss: VoidFunction } ): JSX.Element {
 	const [ productInfo ] = useProductInfo();
 	const blogID = getScriptData().site.wpcom.blog_id;
