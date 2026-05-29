@@ -11,5 +11,5 @@ export { safeParseInt, safeParseFloat } from './parsing';
 export { computeDateRangeFromPreset } from './preset-date-range';
 export { hasProductFilters } from './product-filters';
 export type { PresetType, ReportParams } from './search';
-export { isSelectablePreset } from '@next-woo-analytics/datetime';
+export { isSelectablePreset } from '@jetpack-premium-analytics/datetime';
 export type { Override, BaseReportParams } from './types';

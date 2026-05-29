@@ -7,7 +7,7 @@ import {
 	toLocalTZ,
 	formatToTimezoneNaiveString as _formatNaive,
 	dateToISOStringWithTZ as _toISOWithTZ,
-} from '@next-woo-analytics/datetime';
+} from '@jetpack-premium-analytics/datetime';
 import { type TZDate } from '@date-fns/tz';
 
 type FullSettings = Settings & {

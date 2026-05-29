@@ -1,23 +1,23 @@
 {
-	"name": "@next-woo-analytics/data",
-	"version": "1.0.0",
+	"name": "@automattic/jetpack-premium-analytics-data",
+	"version": "0.1.0",
+	"private": true,
 	"type": "module",
-	"wpModule": true,
 	"main": "src/index.ts",
-	"exports": {
-		".": "./build/src/index.js"
-	},
+	"types": "src/index.ts",
+	"sideEffects": false,
 	"dependencies": {
-		"date-fns": "*",
-		"@date-fns/tz": "*",
-		"@tanstack/react-query": "*",
-		"@tanstack/react-router": "*",
-		"@wordpress/api-fetch": "*",
-		"@wordpress/url": "*",
-		"@next-woo-analytics/datetime": "workspace:*",
-		"@automattic/admin-toolkit": "*"
+		"@date-fns/tz": "1.4.1",
+		"@jetpack-premium-analytics/datetime": "workspace:*",
+		"@tanstack/react-query": "5.90.8",
+		"@wordpress/api-fetch": "7.46.0",
+		"@wordpress/core-data": "7.46.0",
+		"@wordpress/data": "10.46.0",
+		"@wordpress/i18n": "^6.9.0",
+		"@wordpress/url": "4.46.0",
+		"date-fns": "4.1.0"
 	},
 	"devDependencies": {
-		"@tanstack/react-query-devtools": "*"
+		"@tanstack/react-query-devtools": "5.90.2"
 	}
 }

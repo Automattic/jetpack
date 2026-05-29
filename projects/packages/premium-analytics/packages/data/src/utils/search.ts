@@ -6,7 +6,7 @@ import {
 	type SelectablePresetId,
 	type ComparisonPresetId,
 	type PrimaryPresetId,
-} from '@next-woo-analytics/datetime';
+} from '@jetpack-premium-analytics/datetime';
 
 /**
  * Internal dependencies
@@ -22,7 +22,7 @@ export type { FilterCondition };
 
 /**
  * Re-export SelectablePresetId as PresetType for backward compatibility.
- * The canonical type now lives in @next-woo-analytics/datetime.
+ * The canonical type now lives in @jetpack-premium-analytics/datetime.
  */
 export type PresetType = SelectablePresetId;
 
