@@ -1041,12 +1041,29 @@ class Search_Blocks_Test extends TestCase {
 	}
 
 	/**
-	 * Missing template file yields an empty string — `register_block_pattern()`
-	 * tolerates empty content, so a bad path degrades to a no-op pattern rather
-	 * than a fatal.
+	 * Missing template file yields an empty string — the pattern files skip
+	 * registration on empty content, so a bad path registers no pattern rather
+	 * than a blank one or a fatal.
 	 */
 	public function test_pattern_content_from_template_returns_empty_on_missing_file() {
 		$this->assertSame( '', Search_Blocks::pattern_content_from_template( 'does-not-exist.html' ) );
+	}
+
+	/**
+	 * The bundled pattern files register their patterns with the derived,
+	 * non-empty content from their layout templates.
+	 */
+	public function test_pattern_files_register_their_patterns() {
+		$registry = \WP_Block_Patterns_Registry::get_instance();
+		$patterns = __DIR__ . '/../../src/search-blocks/patterns';
+
+		require $patterns . '/blog-search.php';
+		require $patterns . '/wc-product-search.php';
+
+		foreach ( array( 'jetpack-search/blog-search-page', 'jetpack-search/wc-product-search-page' ) as $name ) {
+			$this->assertTrue( $registry->is_registered( $name ), "Pattern $name must be registered." );
+			$this->assertNotEmpty( $registry->get_registered( $name )['content'], "Pattern $name must have content." );
+		}
 	}
 
 	/**
