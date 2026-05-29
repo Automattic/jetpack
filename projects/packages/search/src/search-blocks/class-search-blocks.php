@@ -65,6 +65,16 @@ class Search_Blocks {
 	private static $is_initial_loading_cache = null;
 
 	/**
+	 * Per-request memo for `get_overlay_template_content()`, keyed `default` /
+	 * `product`. Lifted out of a method-local `static` so tests can clear it via
+	 * `reset_overlay_template_content_cache()` — otherwise a CPT-customized
+	 * overlay saved mid-test would be pinned by an earlier bundled-file read.
+	 *
+	 * @var array<string,string>
+	 */
+	private static $overlay_template_content_cache = array();
+
+	/**
 	 * Per-request memo for `is_free_plan()`. Avoids the cold-cache hazard where
 	 * `Plan::get_plan_info()` falls back to a synchronous WPCOM HTTP call —
 	 * render callbacks hit the plan gate on every inner render.
@@ -175,6 +185,21 @@ class Search_Blocks {
 				Search_Template::init();
 				Product_Search_Template::init();
 			}
+		}
+
+		// Inline on a classic theme: the theme renders regular searches, but a
+		// WooCommerce product search can still be routed to the Jetpack product
+		// shim. `route_classic_theme_search_template()` is product-only for
+		// Inline (it bails on regular searches unless Embedded); the block-theme
+		// Inline path is covered by the `search_template_hierarchy` route below.
+		// Init the product CPT regardless of the override so admins can
+		// pre-customize it (expose-before-activation, as in the Embedded branch).
+		if (
+			Module_Control::EXPERIENCE_INLINE === $experience
+			&& ! static::block_templates_active()
+		) {
+			add_filter( 'template_include', array( static::class, 'route_classic_theme_search_template' ), 20 );
+			Product_Search_Template::init();
 		}
 
 		// Blocks render results client-side, so the server-side search is wasted work.
@@ -1076,23 +1101,35 @@ class Search_Blocks {
 	 * @return string Block markup for the overlay body.
 	 */
 	protected static function get_overlay_template_content(): string {
-		static $content = array();
-		$is_product     = static::should_use_product_overlay();
-		$key            = $is_product ? 'product' : 'default';
-		if ( isset( $content[ $key ] ) ) {
-			return $content[ $key ];
+		$is_product = static::should_use_product_overlay();
+		$key        = $is_product ? 'product' : 'default';
+		if ( isset( self::$overlay_template_content_cache[ $key ] ) ) {
+			return self::$overlay_template_content_cache[ $key ];
 		}
 		$cpt_class  = $is_product ? Product_Overlay_Template::class : Overlay_Template::class;
 		$customized = $cpt_class::get_customized_content();
 		if ( null !== $customized ) {
-			$content[ $key ] = $customized;
-			return $content[ $key ];
+			self::$overlay_template_content_cache[ $key ] = $customized;
+			return self::$overlay_template_content_cache[ $key ];
 		}
 		$file          = $is_product ? 'jetpack-search-overlay-product.html' : 'jetpack-search-overlay.html';
 		$template_path = __DIR__ . '/templates/' . $file;
 		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- local, bundled template file; wp_remote_get() is for remote URLs.
-		$content[ $key ] = is_readable( $template_path ) ? (string) file_get_contents( $template_path ) : '';
-		return $content[ $key ];
+		self::$overlay_template_content_cache[ $key ] = is_readable( $template_path ) ? (string) file_get_contents( $template_path ) : '';
+		return self::$overlay_template_content_cache[ $key ];
+	}
+
+	/**
+	 * Reset the `get_overlay_template_content()` memo. Tests only — PHPUnit
+	 * reuses a single process, so a CPT-customized overlay saved in one test
+	 * would otherwise be pinned (or a bundled read would mask it) in the next.
+	 * Guarded against accidental production use.
+	 */
+	public static function reset_overlay_template_content_cache(): void {
+		if ( defined( 'ABSPATH' ) && ! defined( 'PHPUNIT_COMPOSER_INSTALL' ) ) {
+			return;
+		}
+		self::$overlay_template_content_cache = array();
 	}
 
 	/**
@@ -1805,8 +1842,14 @@ CSS;
 			}
 			return __DIR__ . '/templates/classic-theme-product-search.php';
 		}
-		// Non-product search: same empty-body bail-out for the generic shim.
-		// A saved empty customization ('' vs null) is honored as intentional.
+		// Regular (non-product) search: only Embedded takes over the whole search
+		// page. Inline registers this router too (for the product shim above) but
+		// leaves regular searches to the theme, so bail here unless Embedded.
+		if ( Module_Control::EXPERIENCE_EMBEDDED !== ( new Module_Control() )->get_experience() ) {
+			return $template;
+		}
+		// Same empty-body bail-out for the generic shim. A saved empty
+		// customization ('' vs null) is honored as intentional.
 		if ( null === Search_Template::get_customized_content() && '' === static::get_classic_theme_search_body() ) {
 			return $template;
 		}
