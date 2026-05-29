@@ -109,8 +109,8 @@ export default function PricingGate( { onDismiss }: { onDismiss: VoidFunction } 
 						</div>
 					) }
 					<ul className="jetpack-social-gate__features">
-						{ PAID_FEATURES.map( feature => (
-							<li key={ feature } className="jetpack-social-gate__feature">
+						{ PAID_FEATURES.map( ( feature, index ) => (
+							<li key={ index } className="jetpack-social-gate__feature">
 								<Icon icon={ check } />
 								<span>{ feature }</span>
 							</li>

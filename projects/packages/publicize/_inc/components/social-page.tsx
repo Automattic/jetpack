@@ -6,6 +6,7 @@ import { useNavigate } from '@wordpress/route';
 import { Tabs, Tooltip } from '@wordpress/ui';
 import { ModernizationProvider } from '../hooks/use-is-modernized';
 import SocialGate from './social-gate';
+import useSocialGate from './social-gate/use-social-gate';
 // Define the `--color-facebook`, `--color-twitter`, ... custom properties
 // that `SocialServiceIcon` (and friends) consume to paint per-service
 // brand colours. The legacy `social-admin-page` webpack bundle inlines
@@ -52,6 +53,9 @@ const SUBTITLES: Record< SocialTab, () => string > = {
 export default function SocialPage( { activeTab, actions, children }: Props ): JSX.Element {
 	const navigate = useNavigate();
 
+	const { gate, dismissPricing } = useSocialGate();
+	const headerActions = gate === null ? actions : null;
+
 	// Keep the route at `/` and toggle tabs via a `?tab=` search param so the
 	// `Tabs.Root` mounts once and the active-tab indicator can animate.
 	const onTabChange = useCallback(
@@ -76,9 +80,9 @@ export default function SocialPage( { activeTab, actions, children }: Props ): J
 					apiNonce={ getSiteData()?.rest_nonce }
 					title={ PRODUCT_NAME }
 					subTitle={ SUBTITLES[ activeTab ]() }
-					actions={ actions }
+					actions={ headerActions }
 				>
-					<SocialGate>
+					<SocialGate gate={ gate } onDismissPricing={ dismissPricing }>
 						<Tabs.Root
 							className="jetpack-social-tabs"
 							value={ activeTab }

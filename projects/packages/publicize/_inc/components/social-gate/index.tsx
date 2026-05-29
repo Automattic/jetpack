@@ -1,46 +1,34 @@
-import useConnection from '@automattic/jetpack-connection/use-connection';
-import { isJetpackSelfHostedSite } from '@automattic/jetpack-script-data';
-import { useSelect } from '@wordpress/data';
-import { useCallback, useState } from '@wordpress/element';
-import { store as socialStore } from '../../social-store';
-import { hasSocialPaidFeatures } from '../../utils';
 import ConnectionGate from './connection-gate';
 import PricingGate from './pricing-gate';
+import type { SocialGateType } from './use-social-gate';
 import type { ReactNode } from 'react';
 
 /**
- * Client-side gate for the modernization chassis. Renders the connection gate
- * (disconnected) or the pricing gate (free Jetpack, nudge not dismissed) in place of
- * the Overview/Settings tabs; otherwise renders the tabs unchanged. Replaces the former
- * PHP `should_preempt_to_legacy()` fallback so the flag never loads legacy code.
+ * Presentational gate switch for the modernization chassis. The decision lives in
+ * `useSocialGate()` (owned by `SocialPage`); this component just renders the matching
+ * gate, or the children (the Overview/Settings tabs) on the happy path.
  *
- * @param props          - Component props.
- * @param props.children - The tab block to render on the happy path.
+ * @param props                  - Component props.
+ * @param props.gate             - Which gate to show, or null for the tabs.
+ * @param props.onDismissPricing - Dismiss handler passed to the pricing gate.
+ * @param props.children         - The tab block rendered on the happy path.
  * @return The gate or the children.
  */
-export default function SocialGate( { children }: { children: ReactNode } ): JSX.Element {
-	const { isRegistered, isUserConnected } = useConnection();
-
-	const showPricingPage = useSelect(
-		select => select( socialStore ).getSocialSettings().showPricingPage,
-		[]
-	);
-
-	const [ pricingDismissed, setPricingDismissed ] = useState( false );
-
-	const dismissPricing = useCallback( () => setPricingDismissed( true ), [] );
-
-	if ( ! isRegistered || ! isUserConnected ) {
+export default function SocialGate( {
+	gate,
+	onDismissPricing,
+	children,
+}: {
+	gate: SocialGateType;
+	onDismissPricing: () => void;
+	children: ReactNode;
+} ): JSX.Element {
+	if ( gate === 'connection' ) {
 		return <ConnectionGate />;
 	}
 
-	if (
-		isJetpackSelfHostedSite() &&
-		! hasSocialPaidFeatures() &&
-		showPricingPage &&
-		! pricingDismissed
-	) {
-		return <PricingGate onDismiss={ dismissPricing } />;
+	if ( gate === 'pricing' ) {
+		return <PricingGate onDismiss={ onDismissPricing } />;
 	}
 
 	return <>{ children }</>;
