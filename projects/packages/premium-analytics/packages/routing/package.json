@@ -1,0 +1,17 @@
+{
+	"name": "@next-woo-analytics/routing",
+	"description": "WooCommerce Analytics Routing",
+	"version": "1.0.0",
+	"type": "module",
+	"wpModule": true,
+	"main": "src/index.ts",
+	"exports": {
+		".": "./build/src/index.js"
+	},
+	"dependencies": {
+		"date-fns": "*",
+		"@tanstack/react-router": "*",
+		"@next-woo-analytics/data": "workspace:*",
+		"@next-woo-analytics/datetime": "workspace:*"
+	}
+}
