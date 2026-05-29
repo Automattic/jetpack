@@ -20,7 +20,7 @@ import * as React from 'react';
  * Internal dependencies
  */
 import IntegrationsModal from '../../src/blocks/contact-form/components/jetpack-integrations-modal';
-import { icon as formBlockIcon } from '../../src/blocks/contact-form/index.js';
+import { icon as formBlockIcon } from '../../src/blocks/contact-form/icon.jsx';
 import CreateFormButton from '../../src/dashboard/components/create-form-button/index.tsx';
 import { NoResults } from '../../src/dashboard/components/empty-responses/index.tsx';
 import { FormNameModal } from '../../src/dashboard/components/form-name-modal';

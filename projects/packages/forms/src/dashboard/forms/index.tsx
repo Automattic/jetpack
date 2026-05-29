@@ -19,7 +19,7 @@ import { useNavigate } from 'react-router';
 /**
  * Internal dependencies
  */
-import { icon as formBlockIcon } from '../../blocks/contact-form/index.js';
+import { icon as formBlockIcon } from '../../blocks/contact-form/icon.jsx';
 import { getEmbedCode, getShortcode } from '../../blocks/shared/util/embed-codes';
 import useConfigValue from '../../hooks/use-config-value.ts';
 import CreateFormButton from '../components/create-form-button/index.tsx';
