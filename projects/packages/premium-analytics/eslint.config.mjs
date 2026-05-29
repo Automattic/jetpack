@@ -10,7 +10,7 @@ import { makeBaseConfig, defineConfig } from 'jetpack-js-tools/eslintrc/base.mjs
 export default defineConfig(
 	makeBaseConfig( import.meta.url ),
 	{
-		files: [ 'packages/datetime/**', 'packages/data/**' ],
+		files: [ 'packages/datetime/**', 'packages/data/**', 'packages/routing/**' ],
 		rules: {
 			'jsdoc/require-description': 'off',
 			'jsdoc/require-param-description': 'off',
@@ -36,6 +36,15 @@ export default defineConfig(
 		files: [ 'packages/data/**' ],
 		rules: {
 			'@typescript-eslint/no-explicit-any': 'off',
+			'import/no-extraneous-dependencies': 'off',
+		},
+	},
+	{
+		// The routing port imports `react` directly (the staged-search hook),
+		// flagged as extraneous because the internal package's deps are declared
+		// on the parent manifest.
+		files: [ 'packages/routing/**' ],
+		rules: {
 			'import/no-extraneous-dependencies': 'off',
 		},
 	}
