@@ -455,6 +455,126 @@ class Search_Blocks_Test extends TestCase {
 	}
 
 	/**
+	 * The blocks overlay paints the product variant only when the override
+	 * option is on AND the request is a WooCommerce product search — the same
+	 * interception the embedded/inline experiences use.
+	 */
+	public function test_should_use_product_overlay_true_on_product_search_with_override_on() {
+		update_option( 'jetpack_search_override_woocommerce_search_template', true );
+		$anon = new class() extends Search_Blocks {
+			public static function is_woocommerce_product_search(): bool {
+				return true;
+			}
+			public static function expose_should_use_product_overlay(): bool {
+				return self::should_use_product_overlay();
+			}
+		};
+		try {
+			$this->assertTrue( $anon::expose_should_use_product_overlay() );
+		} finally {
+			delete_option( 'jetpack_search_override_woocommerce_search_template' );
+		}
+	}
+
+	/**
+	 * Override OFF: even on a product search the overlay stays on the general
+	 * template — the no-regression default for stores that haven't opted in.
+	 */
+	public function test_should_use_product_overlay_false_when_override_off() {
+		delete_option( 'jetpack_search_override_woocommerce_search_template' );
+		$anon = new class() extends Search_Blocks {
+			public static function is_woocommerce_product_search(): bool {
+				return true;
+			}
+			public static function expose_should_use_product_overlay(): bool {
+				return self::should_use_product_overlay();
+			}
+		};
+		$this->assertFalse( $anon::expose_should_use_product_overlay() );
+	}
+
+	/**
+	 * Override ON but not a product search: general template.
+	 */
+	public function test_should_use_product_overlay_false_off_product_search() {
+		update_option( 'jetpack_search_override_woocommerce_search_template', true );
+		$anon = new class() extends Search_Blocks {
+			public static function is_woocommerce_product_search(): bool {
+				return false;
+			}
+			public static function expose_should_use_product_overlay(): bool {
+				return self::should_use_product_overlay();
+			}
+		};
+		try {
+			$this->assertFalse( $anon::expose_should_use_product_overlay() );
+		} finally {
+			delete_option( 'jetpack_search_override_woocommerce_search_template' );
+		}
+	}
+
+	/**
+	 * WC-off arm: with WooCommerce inactive the real `is_woocommerce_product_search()`
+	 * is false, so the product overlay never applies regardless of the override.
+	 */
+	public function test_should_use_product_overlay_false_when_woocommerce_inactive() {
+		update_option( 'jetpack_search_override_woocommerce_search_template', true );
+		Search_Blocks::set_woocommerce_blocks_enabled_for_testing( false );
+		$anon = new class() extends Search_Blocks {
+			public static function expose_should_use_product_overlay(): bool {
+				return self::should_use_product_overlay();
+			}
+		};
+		try {
+			$this->assertFalse( $anon::expose_should_use_product_overlay() );
+		} finally {
+			Search_Blocks::set_woocommerce_blocks_enabled_for_testing( null );
+			delete_option( 'jetpack_search_override_woocommerce_search_template' );
+		}
+	}
+
+	/**
+	 * Product-search + override on resolves the overlay body to the product
+	 * template — product filters and product-card results.
+	 */
+	public function test_get_overlay_template_content_returns_product_variant() {
+		update_option( 'jetpack_search_override_woocommerce_search_template', true );
+		$anon = new class() extends Search_Blocks {
+			public static function is_woocommerce_product_search(): bool {
+				return true;
+			}
+			public static function expose_overlay_template_content(): string {
+				return self::get_overlay_template_content();
+			}
+		};
+		try {
+			$content = $anon::expose_overlay_template_content();
+			$this->assertStringContainsString( 'jetpack-search/filters-product', $content );
+			$this->assertStringContainsString( '"layout":"product"', $content );
+		} finally {
+			delete_option( 'jetpack_search_override_woocommerce_search_template' );
+		}
+	}
+
+	/**
+	 * Default (non-product) request resolves to the general overlay template.
+	 */
+	public function test_get_overlay_template_content_returns_general_variant_by_default() {
+		delete_option( 'jetpack_search_override_woocommerce_search_template' );
+		$anon    = new class() extends Search_Blocks {
+			public static function is_woocommerce_product_search(): bool {
+				return false;
+			}
+			public static function expose_overlay_template_content(): string {
+				return self::get_overlay_template_content();
+			}
+		};
+		$content = $anon::expose_overlay_template_content();
+		$this->assertStringNotContainsString( 'jetpack-search/filters-product', $content );
+		$this->assertStringContainsString( 'jetpack-search/search-input', $content );
+	}
+
+	/**
 	 * With the override option OFF, a WooCommerce product search must leave
 	 * The hierarchy untouched so WooCommerce's own priority-10 prepend of
 	 * `product-search-results` wins — that's the no-regression default for

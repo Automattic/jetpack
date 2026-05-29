@@ -108,6 +108,13 @@ class Initial_State {
 				 */
 				'blockTemplateOverlay'       => $this->get_block_template_overlay_config(),
 				/**
+				 * Same as `blockTemplateOverlay` but for the WooCommerce product
+				 * variant of the overlay — the Overlay card surfaces a second
+				 * "Edit the product Search overlay" entry on Woo stores so the
+				 * product-search overlay template is customizable too.
+				 */
+				'productOverlayTemplate'     => $this->get_product_overlay_template_config(),
+				/**
 				 * Editor affordances for the classic-theme search-template
 				 * singleton CPT. The Embedded card surfaces these on
 				 * classic themes (which can't reach the Site Editor) so
@@ -240,6 +247,31 @@ class Initial_State {
 			Search_Blocks::is_block_template_overlay_enabled(),
 			Search_Blocks::is_block_template_overlay_filter_on() && current_user_can( 'manage_options' ),
 			Overlay_Template::class
+		);
+	}
+
+	/**
+	 * Build the product-overlay editor config exposed to the dashboard.
+	 * Counterpart of `get_block_template_overlay_config()` for the WooCommerce
+	 * product variant. `enabled` adds the override-on + WC check on top of the
+	 * overlay-arm gate — it signals the product overlay's front-end render path
+	 * is actually wired. `$can_edit` mirrors the init gate: the editable CPT
+	 * only registers on Woo stores with the overlay filter on (see
+	 * `Search_Blocks::init()`), so exposing the editor URL off Woo would produce
+	 * a link that silently does nothing.
+	 *
+	 * @return array{enabled: bool, editorUrl: string|null, postType: string|null, isCustomized: bool}
+	 */
+	protected function get_product_overlay_template_config(): array {
+		$wc_enabled = Search_Blocks::woocommerce_blocks_enabled();
+		return $this->build_singleton_template_config(
+			Search_Blocks::is_block_template_overlay_enabled()
+				&& $wc_enabled
+				&& Search_Blocks::woocommerce_search_template_override_enabled(),
+			Search_Blocks::is_block_template_overlay_filter_on()
+				&& $wc_enabled
+				&& current_user_can( 'manage_options' ),
+			Product_Overlay_Template::class
 		);
 	}
 

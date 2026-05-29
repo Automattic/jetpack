@@ -211,6 +211,14 @@ class Search_Blocks {
 		// has actually committed to it.
 		if ( static::is_block_template_overlay_filter_on() ) {
 			Overlay_Template::init();
+			// The product overlay only renders on a Woo store, so its editable
+			// CPT is pointless off Woo. Init regardless of the override option
+			// (parity with `Product_Search_Template`) so admins can pre-customize
+			// before flipping it on; the front-end render path stays gated by
+			// the override option in `should_use_product_overlay()`.
+			if ( static::woocommerce_blocks_enabled() ) {
+				Product_Overlay_Template::init();
+			}
 		}
 		if ( static::is_block_template_overlay_enabled() ) {
 			add_action( 'wp_enqueue_scripts', array( static::class, 'enqueue_block_template_overlay_assets' ) );
@@ -1038,32 +1046,53 @@ class Search_Blocks {
 	}
 
 	/**
-	 * Read the dedicated overlay-template markup (`jetpack-search-overlay.html`).
+	 * Whether the overlay should paint the WooCommerce product variant for the
+	 * current request. True only when the override option is on and the request
+	 * is a product search — mirrors the embedded/inline interception
+	 * (`is_woocommerce_product_search()` already folds in the WC probe). The
+	 * overlay opens client-side from any search box, so this only flips on the
+	 * server-rendered product-search request (deep link or product-archive
+	 * search), not on a live form intercept from a non-product page.
+	 *
+	 * @return bool
+	 */
+	protected static function should_use_product_overlay(): bool {
+		return static::woocommerce_search_template_override_enabled()
+			&& static::is_woocommerce_product_search();
+	}
+
+	/**
+	 * Read the dedicated overlay-template markup.
 	 *
 	 * Distinct from `get_search_template_content()`: a modal isn't a page, so
 	 * the overlay markup ships without `header`/`main`/`footer` template-parts
 	 * rather than runtime-stripping them.
 	 *
-	 * Source of truth, in order:
-	 *   1. Customized singleton CPT (`Overlay_Template`) if an admin saved one.
-	 *   2. The bundled `templates/jetpack-search-overlay.html`.
+	 * Picks the product variant on a WooCommerce product search (see
+	 * `should_use_product_overlay()`). Source of truth, in order:
+	 *   1. Customized singleton CPT (`Overlay_Template` / `Product_Overlay_Template`).
+	 *   2. The bundled `jetpack-search-overlay{-product}.html`.
 	 *
 	 * @return string Block markup for the overlay body.
 	 */
 	protected static function get_overlay_template_content(): string {
-		static $content = null;
-		if ( null !== $content ) {
-			return $content;
+		static $content = array();
+		$is_product     = static::should_use_product_overlay();
+		$key            = $is_product ? 'product' : 'default';
+		if ( isset( $content[ $key ] ) ) {
+			return $content[ $key ];
 		}
-		$customized = Overlay_Template::get_customized_content();
+		$cpt_class  = $is_product ? Product_Overlay_Template::class : Overlay_Template::class;
+		$customized = $cpt_class::get_customized_content();
 		if ( null !== $customized ) {
-			$content = $customized;
-			return $content;
+			$content[ $key ] = $customized;
+			return $content[ $key ];
 		}
-		$template_path = __DIR__ . '/templates/jetpack-search-overlay.html';
+		$file          = $is_product ? 'jetpack-search-overlay-product.html' : 'jetpack-search-overlay.html';
+		$template_path = __DIR__ . '/templates/' . $file;
 		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- local, bundled template file; wp_remote_get() is for remote URLs.
-		$content = is_readable( $template_path ) ? (string) file_get_contents( $template_path ) : '';
-		return $content;
+		$content[ $key ] = is_readable( $template_path ) ? (string) file_get_contents( $template_path ) : '';
+		return $content[ $key ];
 	}
 
 	/**

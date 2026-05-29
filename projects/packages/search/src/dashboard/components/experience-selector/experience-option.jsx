@@ -120,6 +120,7 @@ export default function ExperienceOption( { experience, disabled = false } ) {
 		activeThemeStylesheet,
 		isBlockTheme,
 		blockTemplateOverlay,
+		productOverlayTemplate,
 		searchTemplate,
 	} = useSelect(
 		select => ( {
@@ -128,6 +129,7 @@ export default function ExperienceOption( { experience, disabled = false } ) {
 			activeThemeStylesheet: select( STORE_ID ).getActiveThemeStylesheet(),
 			isBlockTheme: select( STORE_ID ).isBlockTheme(),
 			blockTemplateOverlay: select( STORE_ID ).getBlockTemplateOverlayConfig(),
+			productOverlayTemplate: select( STORE_ID ).getProductOverlayTemplateConfig(),
 			searchTemplate: select( STORE_ID ).getSearchTemplateConfig(),
 		} ),
 		[]
@@ -254,6 +256,31 @@ export default function ExperienceOption( { experience, disabled = false } ) {
 					) }
 					errorMessage={ __(
 						'Could not restore the Search overlay template.',
+						'jetpack-search-pkg'
+					) }
+					linksDisabled={ linksDisabled }
+				/>
+			) }
+			{ /*
+			   The product overlay is a Woo-only variant rendered on a product
+			   search; its editor only surfaces on Woo stores (the PHP gate
+			   nulls `editorUrl` off Woo), so render the second action group
+			   conditionally rather than as a perpetually-muted link.
+			*/ }
+			{ experience === EXPERIENCE.OVERLAY_BLOCKS && productOverlayTemplate.editorUrl && (
+				<SingletonTemplateActions
+					config={ productOverlayTemplate }
+					editLabel={ __( 'Edit the product Search overlay', 'jetpack-search-pkg' ) }
+					restoreConfirmMessage={ __(
+						'Restore the bundled product Search overlay template? Your customizations will be deleted.',
+						'jetpack-search-pkg'
+					) }
+					successMessage={ __(
+						'The product Search overlay template has been restored to the bundled default.',
+						'jetpack-search-pkg'
+					) }
+					errorMessage={ __(
+						'Could not restore the product Search overlay template.',
 						'jetpack-search-pkg'
 					) }
 					linksDisabled={ linksDisabled }
