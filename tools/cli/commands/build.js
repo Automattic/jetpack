@@ -121,7 +121,10 @@ export async function handler( argv ) {
 		argv.useUncommittedComposerLock = ! process.env.CI && ! argv.forMirrors;
 	}
 
-	let dependencies = await getDependencies( process.cwd(), 'build' );
+	// Keep the full, unfiltered graph around: the build cache fingerprints the whole graph so a
+	// project's fingerprint is stable whether it's built alone or via `--deps`.
+	const fullDependencies = await getDependencies( process.cwd(), 'build' );
+	let dependencies = fullDependencies;
 	const listr = new Listr( [], {
 		renderer: argv.v ? SilentRenderer : UpdateRenderer,
 		concurrent: argv.concurrency > 1,
@@ -184,7 +187,7 @@ export async function handler( argv ) {
 	// (they do extra work a skip would break) and in CI (no persistent cache between runs).
 	const cacheEnabled = !! argv.cache && ! argv.forMirrors && ! process.env.CI;
 	const cacheFingerprints = cacheEnabled
-		? await computeFingerprints( buildOrder, dependencies, argv, execa )
+		? await computeFingerprints( fullDependencies, argv, execa )
 		: null;
 
 	// Avoid a node warning about too many event listeners.

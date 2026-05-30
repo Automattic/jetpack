@@ -83,6 +83,17 @@ describe( 'build-cache fingerprintProjects', () => {
 		}
 	} );
 
+	test( 'omitting a dependency from the order changes the dependent fingerprint (why the full graph must be fingerprinted)', () => {
+		// B depends on A. With A present (full graph), B folds A's fingerprint in.
+		const withDep = fingerprintProjects( baseInputs() );
+		// Simulate the old bug: build a subset that omits the dependency A.
+		const inputsNoDep = baseInputs();
+		inputsNoDep.buildOrder = [ 'packages/b', 'packages/c' ];
+		const withoutDep = fingerprintProjects( inputsNoDep );
+		// B's fingerprint differs — so fingerprints are only stable if the FULL graph is always used.
+		expect( withoutDep.get( 'packages/b' ) ).not.toBe( withDep.get( 'packages/b' ) );
+	} );
+
 	test( 'file ordering within a project does not affect the fingerprint', () => {
 		const ordered = baseInputs();
 		ordered.committed.set( 'packages/a', [

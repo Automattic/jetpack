@@ -1,6 +1,7 @@
 import crypto from 'crypto';
 import fs from 'fs/promises';
 import { infrastructureBuildFiles } from '../commands/dependencies.js';
+import { getBuildOrder } from './dependencyAnalysis.js';
 import { projectDir } from './install.js';
 
 // Bump to invalidate every cached build when the fingerprint algorithm or manifest format changes.
@@ -193,15 +194,25 @@ export function fingerprintProjects( {
 }
 
 /**
- * Compute fingerprints for every project in `buildOrder`.
+ * Compute fingerprints for every project in the dependency graph.
  *
- * @param {string[]}        buildOrder   - Project slugs in build order.
- * @param {Map<string,Set>} dependencies - Dependency map.
+ * Always fingerprints the FULL graph (not just the projects being built) so a given project's
+ * fingerprint folds in its complete transitive dependencies and is therefore identical whether it
+ * is built alone or with `--deps`. This keeps cache hits consistent across different invocations.
+ *
+ * @param {Map<string,Set>} dependencies - Full (unfiltered) dependency map.
  * @param {object}          argv         - Argv (uses .production).
  * @param {Function}        execa        - execa function.
  * @return {Promise<Map<string,string>>} slug -> fingerprint.
  */
-export async function computeFingerprints( buildOrder, dependencies, argv, execa ) {
+export async function computeFingerprints( dependencies, argv, execa ) {
+	// getBuildOrder mutates its input, so hand it a clone.
+	const clone = new Map();
+	for ( const [ slug, deps ] of dependencies ) {
+		clone.set( slug, new Set( deps ) );
+	}
+	const buildOrder = getBuildOrder( clone ).flat();
+
 	const [ toolVersion, { committed, dirty } ] = await Promise.all( [
 		buildToolVersion( execa ),
 		collectGitState( execa ),
