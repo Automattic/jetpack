@@ -75,11 +75,17 @@ function jetpack_archiveorg_shortcode( $atts ) {
 	// In some environments a the_content filter encodes "&" to "&amp;" before do_shortcode runs, so the
 	// parser receives "myitem&amp;playlist=1" — normalize that back before splitting. The sibling function
 	// jetpack_archiveorg_embed_to_shortcode() splits on "&amp;" for the same reason.
-	$id          = str_replace( '&amp;', '&', $id );
-	$extra_query = '';
+	$id            = str_replace( '&amp;', '&', $id );
+	$id_extra_args = array();
 	if ( preg_match( '/^([^?&]*)[?&](.*)$/', $id, $id_match ) ) {
-		$id          = $id_match[1];
-		$extra_query = $id_match[2];
+		$id = $id_match[1];
+		wp_parse_str( $id_match[2], $id_extra_args );
+	}
+
+	// Re-check after the split — an identifier that's only a query string (e.g. "?playlist=1") leaves $id empty
+	// and would otherwise produce an item-less embed URL.
+	if ( '' === $id ) {
+		return '<!-- error: missing archive.org ID -->';
 	}
 
 	if ( ! $atts['width'] ) {
@@ -94,8 +100,6 @@ function jetpack_archiveorg_shortcode( $atts ) {
 		$height = (int) $atts['height'];
 	}
 
-	$url = 'https://archive.org/embed/' . $id;
-
 	$query_args = array();
 	if ( $atts['autoplay'] ) {
 		$query_args['autoplay'] = 1;
@@ -106,11 +110,13 @@ function jetpack_archiveorg_shortcode( $atts ) {
 	if ( $atts['playlist'] ) {
 		$query_args['playlist'] = 1;
 	}
+
+	// Explicit shortcode attributes take precedence over query parameters baked into the identifier.
+	$query_args = array_merge( $id_extra_args, $query_args );
+
+	$url = 'https://archive.org/embed/' . $id;
 	if ( ! empty( $query_args ) ) {
 		$url = add_query_arg( $query_args, $url );
-	}
-	if ( '' !== $extra_query ) {
-		$url .= ( str_contains( $url, '?' ) ? '&' : '?' ) . $extra_query;
 	}
 
 	return sprintf(
