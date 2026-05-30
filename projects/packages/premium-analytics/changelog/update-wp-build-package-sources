@@ -1,4 +1,4 @@
 Significance: patch
 Type: changed
 
-Add packageSources support and number-formatters integration.
+Patch `@wordpress/build` to read script-module IDs from `package.json#name` and discover script-module packages outside `./packages/` via convention. Pulls in `@automattic/number-formatters` as the first cross-directory shared script module.
