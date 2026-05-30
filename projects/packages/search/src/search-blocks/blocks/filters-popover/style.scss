@@ -70,9 +70,9 @@
 	// attribute — overriding `[hidden]` via CSS leaves the attribute set,
 	// which screen readers still respect even though sighted users see the
 	// content.
-	// The descendant selector (rather than BEM `&__panel`) raises specificity
-	// to (0,2,0) so theme rules cannot override `position:absolute` and push
-	// the panel into normal flow.
+	// Descendant selector raises specificity to (0,2,0), beating
+	// `@wordpress/components` `[role="region"]{position:relative}` at
+	// (0,1,0) which otherwise wins on logged-in pages.
 	& &__panel {
 		position: absolute;
 		inset-inline-end: 0;

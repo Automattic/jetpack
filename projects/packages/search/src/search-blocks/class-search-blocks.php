@@ -1539,10 +1539,10 @@ CSS;
 	word-break: normal;
 	overflow-wrap: normal;
 }
-/* Belt-and-suspenders: keep the filters-popover panel out of normal document
- * flow even if a theme rule at (0,2,0) overrides the stylesheet's
- * `.jetpack-search-filters-popover .jetpack-search-filters-popover__panel`
- * rule. Inline CSS at the same specificity wins by source order. */
+/* `@wordpress/components` ships `[role="region"] { position: relative }` at
+ * specificity (0,1,0) — same as the old BEM `&__panel` selector — and loads
+ * after our stylesheet on logged-in pages, overriding it. This rule at (0,2,0)
+ * beats the components rule outright (no source-order tie-break needed). */
 .jetpack-search-filters-popover .jetpack-search-filters-popover__panel {
 	position: absolute;
 }
