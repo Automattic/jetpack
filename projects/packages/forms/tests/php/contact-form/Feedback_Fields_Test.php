@@ -669,6 +669,41 @@ class Feedback_Fields_Test extends BaseTestCase {
 		$this->assertEquals( $default_expected, $default );
 	}
 
+	public function test_phone_country_code_meta_is_stored_for_country_selector() {
+		$test_phone = '+1 555 123 4567';
+		$form_id    = Utility::get_form_id();
+		$_post_data = Utility::get_post_request(
+			array(
+				'phone'              => $test_phone,
+				'phone-country-code' => 'ca',
+			),
+			'g' . $form_id
+		);
+
+		$form = new Contact_Form(
+			array(
+				'title' => 'Test Form',
+			),
+			"[contact-field label='Phone' type='telephone' showcountryselector='1' /]"
+		);
+
+		$response = Feedback::from_submission( $_post_data, $form );
+		$fields   = $response->get_fields();
+		$field    = reset( $fields );
+
+		$this->assertInstanceOf( Feedback_Field::class, $field );
+		$this->assertSame( $test_phone, $field->get_value() );
+		$this->assertSame( array( 'countryCode' => 'CA' ), $field->get_meta() );
+
+		$feedback_post_id = $response->save();
+		$saved_response   = Feedback::get( $feedback_post_id );
+		$saved_fields     = $saved_response->get_fields();
+		$saved_field      = reset( $saved_fields );
+
+		$this->assertInstanceOf( Feedback_Field::class, $saved_field );
+		$this->assertSame( array( 'countryCode' => 'CA' ), $saved_field->get_meta() );
+	}
+
 	public function test_get_field_by_id_and_value_by_id_new_submission() {
 		$form_id    = Utility::get_form_id();
 		$_post_data = Utility::get_post_request(
