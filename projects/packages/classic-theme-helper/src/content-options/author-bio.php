@@ -103,6 +103,9 @@ if ( ! function_exists( 'jetpack_has_gravatar' ) ) {
 		}
 
 		$headers = get_headers( $url );
+		if ( ! is_array( $headers ) ) {
+			return false;
+		}
 
 		// If 200 is found, the user has a Gravatar; otherwise, they don't.
 		return preg_match( '|200|', $headers[0] ) ? true : false;
