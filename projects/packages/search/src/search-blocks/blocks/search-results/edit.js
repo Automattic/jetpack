@@ -22,7 +22,7 @@ import PostTypeScopeControl, { MODE_INCLUDE, MODE_EXCLUDE } from '../../editor/p
 const TEMPLATE = [
 	[
 		'core/group',
-		{ layout: { type: 'flex', flexWrap: 'wrap', justifyContent: 'space-between' } },
+		{ layout: { type: 'flex', flexWrap: 'nowrap', justifyContent: 'space-between' } },
 		[ [ 'jetpack-search/results-count' ], [ 'jetpack-search/results-sort' ] ],
 	],
 	[ 'jetpack-search/results-list' ],
