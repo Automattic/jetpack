@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Story block: Prevent PHP warning when handling an invalid media type.
