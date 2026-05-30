@@ -71,8 +71,8 @@
 	// which screen readers still respect even though sighted users see the
 	// content.
 	// The descendant selector (rather than BEM `&__panel`) raises specificity
-	// to (0,2,0) so theme rules like `.site-content .jetpack-search-filters-popover__panel`
-	// cannot force the panel into normal flow.
+	// to (0,2,0) so theme rules cannot override `position:absolute` and push
+	// the panel into normal flow.
 	& &__panel {
 		position: absolute;
 		inset-inline-end: 0;
