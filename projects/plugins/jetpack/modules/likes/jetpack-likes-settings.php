@@ -442,6 +442,15 @@ class Jetpack_Likes_Settings {
 	public function is_single_post_enabled( $post_type = 'post' ) {
 		$options = $this->get_options();
 
+		$is_in_show = in_array( $post_type, $options['show'], true );
+
+		if ( ! $is_in_show ) {
+			$post_type_obj = get_post_type_object( $post_type );
+			if ( $post_type_obj && ! $post_type_obj->_builtin ) {
+				$is_in_show = in_array( 'post', $options['show'], true );
+			}
+		}
+
 		/**
 		 * Filters whether Likes should be enabled on single posts.
 		 *
@@ -455,7 +464,7 @@ class Jetpack_Likes_Settings {
 		 */
 		$post_likes_enabled = apply_filters(
 			"wpl_is_single_{$post_type}_disabled",
-			in_array( $post_type, $options['show'], true )
+			$is_in_show
 		);
 
 		return (bool) $post_likes_enabled;
