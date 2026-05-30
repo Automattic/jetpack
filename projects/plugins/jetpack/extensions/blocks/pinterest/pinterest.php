@@ -231,7 +231,7 @@ function load_assets( $attr, $content ) {
 	if ( Blocks::is_amp_request() ) {
 		return render_amp_pin( $attr );
 	} else {
-		$url  = $attr['url'];
+		$url  = $attr['url'] ?? '';
 		$type = pin_type( $url );
 
 		if ( ! $type ) {
