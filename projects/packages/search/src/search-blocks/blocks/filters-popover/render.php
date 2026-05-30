@@ -19,7 +19,7 @@ $panel_id = wp_unique_id( 'jetpack-search-filter-panel-' );
 	<?php echo wp_kses_data( get_block_wrapper_attributes( array( 'class' => 'jetpack-search-filters-popover' ) ) ); ?>
 	data-wp-interactive="jetpack-search"
 	data-jetpack-search-popover-root
-	data-wp-class--jetpack-search-filters-popover-open="state.isFilterPopoverOpen"
+	data-wp-class--is-popover-open="state.isFilterPopoverOpen"
 	data-wp-on-window--click="actions.onWindowClickClosePopovers"
 	data-wp-on-window--keydown="actions.onEscapeClosePopovers"
 >

@@ -65,14 +65,15 @@
 	}
 
 	// Panel base — popover form. Collapsed by default; visibility is driven
-	// by `.jetpack-search-filters-popover-open` on the root (toggled by the
-	// Interactivity store via `data-wp-class--jetpack-search-filters-popover-open`)
-	// rather than the `hidden` attribute — overriding `[hidden]` via CSS leaves
-	// the attribute set, which screen readers still respect even though sighted
-	// users see the content. Using an explicit descendant selector (instead of
-	// the `&__panel` BEM shorthand) gives the panel rule specificity (0,2,0) so
-	// it reliably overrides theme rules like `.site-content div { position: static }`.
-	.jetpack-search-filters-popover__panel {
+	// by `.is-popover-open` on the root (toggled by the Interactivity store
+	// via `data-wp-class--is-popover-open`) rather than the `hidden`
+	// attribute — overriding `[hidden]` via CSS leaves the attribute set,
+	// which screen readers still respect even though sighted users see the
+	// content.
+	// The descendant selector (rather than BEM `&__panel`) raises specificity
+	// to (0,2,0) so theme rules like `.site-content .jetpack-search-filters-popover__panel`
+	// cannot force the panel into normal flow.
+	& &__panel {
 		position: absolute;
 		inset-inline-end: 0;
 		inset-block-start: calc(100% + 4px);
@@ -98,15 +99,15 @@
 		box-shadow: 0 4px 16px color-mix(in sRGB, currentColor 12%, transparent);
 	}
 
-	&.jetpack-search-filters-popover-open .jetpack-search-filters-popover__panel {
+	&.is-popover-open &__panel {
 		display: flex;
 	}
 
 	// Editor preview renders the panel inline (no floating popover) so authors
 	// can edit it — shown only when the trigger has been toggled open (mirrors
-	// the front-end `.jetpack-search-filters-popover-open` hook, but driven by
-	// editor-local React state).
-	&.is-editor-preview.jetpack-search-filters-popover-open .jetpack-search-filters-popover__panel {
+	// the front-end `.is-popover-open` hook, but driven by editor-local React
+	// state).
+	&.is-editor-preview.is-popover-open &__panel {
 		position: static;
 		display: flex;
 		min-width: 0;

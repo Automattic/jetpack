@@ -44,7 +44,7 @@ export default function FiltersPopoverEdit() {
 		className: [
 			'jetpack-search-filters-popover',
 			'is-editor-preview',
-			isPopoverOpen && 'jetpack-search-filters-popover-open',
+			isPopoverOpen && 'is-popover-open',
 		]
 			.filter( Boolean )
 			.join( ' ' ),

@@ -1509,25 +1509,58 @@ CSS;
 		return <<<'CSS'
 /* The block group already carries `layout.type:flex` which makes the WordPress
  * block-layout system emit `display:flex` / `flex-wrap:nowrap` /
- * `justify-content:space-between`. Restating them is defensive (decouples us
- * from block-layout CSS being present); the operative net-new rule is
- * `align-items: center`, which centers `results-count` against the controls
- * cluster. */
+ * `justify-content:space-between`. We restate it here but deliberately switch
+ * to `flex-wrap: wrap`: the template's `nowrap` keeps the results-count and the
+ * sort/filter controls glued to one row, which on narrow viewports (or with
+ * large iOS Dynamic Type) leaves the count too little room. Combined with a
+ * theme that sets `word-break: break-word` on body text, the count's
+ * min-content width collapses to a single glyph and "Found N results" stacks
+ * one character per line, shoving the layout apart. Allowing the row to wrap
+ * lets the controls cluster drop onto its own line instead — on wide viewports
+ * there is always room, so this never wraps there and the desktop/sidebar
+ * layout is unchanged. `align-items: center` centers `results-count` against
+ * the controls cluster; `row-gap` only takes effect once wrapped. */
 .jetpack-search-layout__results-header {
 	display: flex;
-	flex-wrap: nowrap;
+	flex-wrap: wrap;
 	justify-content: space-between;
 	align-items: center;
+	gap: 0.5rem 1rem;
 }
-/* Right-side controls cluster: sort + filters-popover trigger. Without this
- * the three `__results-header` children get spread evenly by the parent's
- * `space-between`; nesting sort + popover here pins them as one block on the
- * trailing edge. */
-.jetpack-search-layout__results-header-controls {
+/* Belt-and-suspenders for the crush above: even on its own wrapped line the
+ * count must never break mid-word down to a single character, regardless of a
+ * theme's global `word-break`/`overflow-wrap`. Reset to normal so it wraps only
+ * at spaces ("Found 6" / "results") in the worst case rather than vertically. */
+.jetpack-search-layout__results-header .wp-block-jetpack-search-results-count {
+	word-break: normal;
+	overflow-wrap: normal;
+}
+/* Same word-break guard for the sort label — the theme's `word-break:
+ * break-word` collapses the label's min-content to one character once the
+ * SELECT element's min-content has claimed most of the sort block's width. */
+.jetpack-search-layout__results-header .wp-block-jetpack-search-results-sort label {
+	word-break: normal;
+	overflow-wrap: normal;
+}
+/* Belt-and-suspenders: keep the filters-popover panel out of normal document
+ * flow even if a theme rule at (0,2,0) overrides the stylesheet's
+ * `.jetpack-search-filters-popover .jetpack-search-filters-popover__panel`
+ * rule. Inline CSS at the same specificity wins by source order. */
+.jetpack-search-filters-popover .jetpack-search-filters-popover__panel {
+	position: absolute;
+}
+/* Right-side controls cluster: sort + filters-popover trigger. `margin-inline-start: auto`
+ * pins this cluster to the trailing edge both when it shares the header row with the
+ * results-count (the common case) and when it wraps to its own line on very narrow
+ * viewports — without it, a lone wrapped line left-aligns under space-between and the
+ * popover panel ends up anchored too far left, overflowing the viewport.
+ * Descendant selector (0,2,0) beats the WordPress block-layout `> *` margin reset at (0,1,1). */
+.jetpack-search-layout__results-header > .jetpack-search-layout__results-header-controls {
 	display: flex;
 	flex-wrap: nowrap;
 	align-items: center;
 	gap: 0.75rem;
+	margin-inline-start: auto;
 }
 /* Name the columns row as the layout container so the sidebar/popover flip
  * tracks its inline-size. The `@media` rules below are the universal base —
