@@ -480,7 +480,15 @@ class Jetpack_Likes_Settings {
 
 		// Default visibility settings
 		if ( ! isset( $sharing['global']['show'] ) ) {
-			$sharing['global']['show'] = array( 'post', 'page' );
+			$public_cpts               = array_values(
+				get_post_types(
+					array(
+						'public'   => true,
+						'_builtin' => false,
+					)
+				)
+			);
+			$sharing['global']['show'] = array_merge( array( 'post', 'page' ), $public_cpts );
 
 			// Scalar check
 		} elseif ( is_scalar( $sharing['global']['show'] ) ) {
