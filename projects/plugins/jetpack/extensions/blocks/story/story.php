@@ -170,7 +170,7 @@ function enrich_video_meta( $media_file ) {
 		array(
 			'width'   => absint( ! empty( $video_meta['width'] ) ? $video_meta['width'] : ( $media_file['width'] ?? 0 ) ),
 			'height'  => absint( ! empty( $video_meta['height'] ) ? $video_meta['height'] : ( $media_file['height'] ?? 0 ) ),
-			'alt'     => ! empty( $video_meta['videopress']['description'] ) ? $video_meta['videopress']['description'] : $media_file['alt'],
+			'alt'     => ! empty( $video_meta['videopress']['description'] ) ? $video_meta['videopress']['description'] : ( $media_file['alt'] ?? '' ),
 			'url'     => $video_url,
 			'title'   => get_the_title( $attachment_id ),
 			'caption' => wp_get_attachment_caption( $attachment_id ),
