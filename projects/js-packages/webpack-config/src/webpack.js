@@ -91,22 +91,25 @@ const watchOptions = {
 	ignored: [ '**/node_modules', '**/dist', '**/vendor' ],
 };
 
-// Filesystem cache rooted at the consumer's project directory. Opt-in: consumers
-// pass `cache: jetpackWebpackConfig.cache` in their webpack config. Mode-namespacing
-// keeps production and development caches separate. The `babel` cache is unaffected;
-// it still lives at .cache/babel via the TranspileRule defaults.
-//
-// To invalidate the cache after upgrading webpack-config or changing your own
-// webpack config, delete `.cache/webpack/` in the project. (We deliberately don't
-// list config files in `buildDependencies.config` from here — the consumer's config
-// path isn't known to this module. Consumers can extend this object with their own
-// `buildDependencies.config: [ require.resolve('./webpack.config.js') ]` if they
-// want config-change invalidation.)
-const cache = {
-	type: 'filesystem',
-	cacheDirectory: path.resolve( process.cwd(), '.cache/webpack' ),
-	name: `jetpack-${ mode }`,
-	store: 'pack',
+// Opt-in filesystem cache; see the readme. Takes the consumer's config path so the cache
+// invalidates when that config changes and is namespaced per config file (so a project's
+// multiple, possibly concurrent, configs don't share one pack). Disabled under CI.
+const cache = configFile => {
+	if ( process.env.CI ) {
+		return undefined;
+	}
+	return {
+		type: 'filesystem',
+		cacheDirectory: path.resolve(
+			process.cwd(),
+			'.cache/webpack',
+			path.basename( configFile, path.extname( configFile ) )
+		),
+		store: 'pack',
+		buildDependencies: {
+			config: [ configFile ],
+		},
+	};
 };
 
 /****** Plugins ******/

@@ -1,4 +1,4 @@
 Significance: minor
 Type: added
 
-Export a `cache` config that consumers can opt in to via `cache: jetpackWebpackConfig.cache` for filesystem-backed webpack caching at `.cache/webpack/`.
+Export a `cache( configFile )` helper that consumers can opt in to via `cache: jetpackWebpackConfig.cache( __filename )` for filesystem-backed webpack caching at `.cache/webpack/`.

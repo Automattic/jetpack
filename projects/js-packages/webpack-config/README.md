@@ -144,16 +144,22 @@ This is an object suitable for spreading some defaults into Webpack's `resolve` 
 
 * `ignored`: `[ '**/node_modules', '**/dist', '**/vendor' ]`.
 
-#### `cache`
+#### `cache( configFile )`
 
-`cache` is an object suitable for use as Webpack's `cache` setting. Opt in by setting `cache: jetpackWebpackConfig.cache` in your config. It enables Webpack's filesystem cache, scoped per consumer project:
+`cache` is a function returning an object suitable for use as Webpack's `cache` setting, enabling Webpack's filesystem cache scoped per consumer project. Opt in by spreading it into your config and passing the config's own path:
+
+```js
+cache: jetpackWebpackConfig.cache( __filename ), // or `import.meta.filename` in ESM
+```
+
+It returns:
 
 * `type`: `'filesystem'`.
-* `cacheDirectory`: `path.resolve( process.cwd(), '.cache/webpack' )`.
-* `name`: `` `jetpack-${ mode }` `` — keeps production and development caches separate.
+* `cacheDirectory`: `path.resolve( process.cwd(), '.cache/webpack', <configFile basename> )` — namespaced by the config file so a project's multiple configs (some built concurrently) don't share, and clobber, a single cache pack.
 * `store`: `'pack'`.
+* `buildDependencies.config`: `[ configFile ]` — so the cache invalidates when your config file changes. (`name` is left unset; Webpack's default already namespaces by `mode`, keeping production and development caches separate.)
 
-The cache invalidates on Webpack version change. If you need invalidation on your own config-file changes, extend the object with `buildDependencies: { config: [ require.resolve( './webpack.config.js' ) ] }`. To force-invalidate manually, delete the project's `.cache/webpack/` directory.
+The cache also invalidates on Webpack version change. It is disabled (returns `undefined`) when `process.env.CI` is set, since CI runs don't preserve the cache between builds. To force-invalidate manually, delete the project's `.cache/webpack/` directory.
 
 #### `DevServer( options )`
 
