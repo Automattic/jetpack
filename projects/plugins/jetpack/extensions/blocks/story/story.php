@@ -356,6 +356,7 @@ function render_static_slide( $media_files ) {
 
 	// if no "static" media was found for the thumbnail try to render a video tag without poster.
 	if ( empty( $media_template ) ) {
+		// enrich_media_files() may return an array with no zero-index, so use reset()
 		$media_template = render_video( reset( $media_files ) );
 	}
 
