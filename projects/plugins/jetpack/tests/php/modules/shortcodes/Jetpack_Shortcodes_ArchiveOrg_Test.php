@@ -105,7 +105,7 @@ class Jetpack_Shortcodes_ArchiveOrg_Test extends WP_UnitTestCase {
 	public function test_shortcode_dedupes_duplicate_query_params_from_id_and_atts() {
 		$shortcode_content = do_shortcode( '[archiveorg myitem&playlist=1 playlist=1]' );
 		$this->assertStringContainsString( 'src="https://archive.org/embed/myitem?playlist=1"', $shortcode_content );
-		$this->assertEquals( 1, substr_count( $shortcode_content, 'playlist=1' ) );
+		$this->assertSame( 1, substr_count( $shortcode_content, 'playlist=1' ) );
 	}
 
 	/**
