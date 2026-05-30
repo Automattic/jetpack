@@ -1507,19 +1507,16 @@ CSS;
 	 */
 	protected static function search_layout_inline_css(): string {
 		return <<<'CSS'
-/* The block group already carries `layout.type:flex` which makes the WordPress
- * block-layout system emit `display:flex` / `flex-wrap:nowrap` /
- * `justify-content:space-between`. We restate it here but deliberately switch
- * to `flex-wrap: wrap`: the template's `nowrap` keeps the results-count and the
- * sort/filter controls glued to one row, which on narrow viewports (or with
- * large iOS Dynamic Type) leaves the count too little room. Combined with a
- * theme that sets `word-break: break-word` on body text, the count's
- * min-content width collapses to a single glyph and "Found N results" stacks
- * one character per line, shoving the layout apart. Allowing the row to wrap
- * lets the controls cluster drop onto its own line instead — on wide viewports
- * there is always room, so this never wraps there and the desktop/sidebar
- * layout is unchanged. `align-items: center` centers `results-count` against
- * the controls cluster; `row-gap` only takes effect once wrapped. */
+/* The block group carries `layout.type:flex` so the WordPress block-layout
+ * system emits `display:flex` / `flex-wrap:nowrap` / `justify-content:space-between`.
+ * We override to `flex-wrap: wrap`: on narrow viewports (or with large iOS
+ * Dynamic Type) a non-wrapping row leaves the results-count too little room.
+ * Combined with a theme that sets `word-break: break-word`, the count's
+ * min-content collapses to a single glyph and "Found N results" stacks one
+ * character per line. Wrapping lets the controls cluster drop to its own line
+ * instead — wide viewports always have room so the desktop layout is unchanged.
+ * `align-items: center` aligns count and controls; `row-gap` fires only when
+ * the row wraps. */
 .jetpack-search-layout__results-header {
 	display: flex;
 	flex-wrap: wrap;

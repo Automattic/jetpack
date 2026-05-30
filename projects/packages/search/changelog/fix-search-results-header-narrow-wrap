@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Search Blocks: fix results-header layout crush on narrow viewports / large iOS Dynamic Type. The "Found N results" count and "Sort by" label were collapsing to single-character-per-line columns because the header's flex row was non-wrapping, the sort SELECT element's min-content left no room for the label, and the theme's word-break setting let both text elements stack vertically. The header now wraps so the controls cluster drops to its own right-aligned row when space is tight; the count and sort label no longer break mid-word; and the filters-popover panel's position:absolute is reinforced with higher specificity so theme rules cannot push it into normal flow.
+Search Blocks: fix results-header layout crush on narrow viewports and large iOS Dynamic Type text sizes.
