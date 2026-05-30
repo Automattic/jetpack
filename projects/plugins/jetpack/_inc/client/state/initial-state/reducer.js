@@ -380,6 +380,16 @@ export function isSiteVisibleToSearchEngines( state ) {
 }
 
 /**
+ * Returns true if the site is hosted on WordPress.com Atomic.
+ *
+ * @param {object} state - Global state tree
+ * @return {boolean} Whether the site is a WordPress.com Atomic site.
+ */
+export function isWpcomAtomic( state ) {
+	return state.jetpack.initialState.siteData?.isWpcomAtomic ?? false;
+}
+
+/**
  * Returns the site's boost speed scores from the last time it was checked
  *
  * @param {object} state - Global state tree

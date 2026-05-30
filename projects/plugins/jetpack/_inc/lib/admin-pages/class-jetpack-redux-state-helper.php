@@ -176,6 +176,7 @@ class Jetpack_Redux_State_Helper {
 					: '',
 				'representativeImage'        => self::get_site_image(),
 				'siteVisibleToSearchEngines' => '1' == get_option( 'blog_public' ), // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
+				'isWpcomAtomic'              => ( new Host() )->is_woa_site(),
 				/**
 				 * Whether promotions are visible or not.
 				 *

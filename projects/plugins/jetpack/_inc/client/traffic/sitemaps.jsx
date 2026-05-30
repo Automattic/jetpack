@@ -11,7 +11,12 @@ import { ModuleToggle } from 'components/module-toggle';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
 import analytics from 'lib/analytics';
-import { getSiteAdminUrl, isSiteVisibleToSearchEngines } from 'state/initial-state';
+import {
+	getSiteAdminUrl,
+	getSiteRawUrl,
+	isSiteVisibleToSearchEngines,
+	isWpcomAtomic,
+} from 'state/initial-state';
 
 export class Sitemaps extends Component {
 	renderSitemapRow = ( sitemap, sitemapTrack ) => {
@@ -45,6 +50,19 @@ export class Sitemaps extends Component {
 			'is-warning':
 				! this.props.isSiteVisibleToSearchEngines && this.props.getOptionValue( 'sitemaps' ),
 		} );
+		let searchEngineVisibilitySettingsUrl = this.props.siteAdminUrl + 'options-reading.php';
+		let searchEngineVisibilitySettingsText = __(
+			'Search engines can’t access your site at the moment. If you’d like to make your site accessible, check your <a>Reading settings</a> and switch "Search Engine Visibility" on.',
+			'jetpack'
+		);
+
+		if ( this.props.isWpcomAtomic ) {
+			searchEngineVisibilitySettingsUrl = `https://wordpress.com/sites/${ this.props.siteRawUrl }/settings/site-visibility`;
+			searchEngineVisibilitySettingsText = __(
+				'Search engines can’t access your site at the moment. If you’d like to make your site accessible, check your <a>Site Visibility settings</a> and make your site public.',
+				'jetpack'
+			);
+		}
 
 		return (
 			<SettingsCard { ...this.props } module="sitemaps" hideButton>
@@ -85,15 +103,9 @@ export class Sitemaps extends Component {
 						)
 					) : (
 						<p className={ searchEngineVisibilityClasses }>
-							{ createInterpolateElement(
-								__(
-									'Search engines can’t access your site at the moment. If you’d like to make your site accessible, check your <a>Reading settings</a> and switch "Search Engine Visibility" on.',
-									'jetpack'
-								),
-								{
-									a: <a href={ this.props.siteAdminUrl + 'options-reading.php' } />,
-								}
-							) }
+							{ createInterpolateElement( searchEngineVisibilitySettingsText, {
+								a: <a href={ searchEngineVisibilitySettingsUrl } />,
+							} ) }
 						</p>
 					) }
 				</SettingsGroup>
@@ -105,6 +117,8 @@ export class Sitemaps extends Component {
 export default connect( state => {
 	return {
 		isSiteVisibleToSearchEngines: isSiteVisibleToSearchEngines( state ),
+		isWpcomAtomic: isWpcomAtomic( state ),
 		siteAdminUrl: getSiteAdminUrl( state ),
+		siteRawUrl: getSiteRawUrl( state ),
 	};
 } )( withModuleSettingsFormHelpers( Sitemaps ) );
