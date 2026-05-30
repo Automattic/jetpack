@@ -176,6 +176,9 @@ class Contact_Form_Endpoint_Test extends TestCase {
 		$this->assertArrayHasKey( 'subject', $schema_properties );
 		$this->assertArrayHasKey( 'fields', $schema_properties );
 		$this->assertArrayHasKey( 'is_unread', $schema_properties );
+		$this->assertArrayHasKey( 'is_test', $schema_properties );
+		$this->assertEquals( 'boolean', $schema_properties['is_test']['type'] );
+		$this->assertArrayHasKey( 'preview_url', $schema_properties );
 
 		// Verify logged_in_user schema structure
 		$logged_in_user_schema = $schema_properties['logged_in_user'];
@@ -194,6 +197,118 @@ class Contact_Form_Endpoint_Test extends TestCase {
 		$this->assertArrayNotHasKey( 'title', $schema_properties );
 		$this->assertArrayNotHasKey( 'content', $schema_properties );
 		$this->assertArrayNotHasKey( 'excerpt', $schema_properties );
+	}
+
+	/**
+	 * Helper: insert a v3-format feedback post, optionally flagged as a test submission.
+	 *
+	 * @param bool $is_test Whether to mark the feedback as a test submission.
+	 * @return int The new feedback post ID.
+	 */
+	private function insert_v3_feedback_post( $is_test = false ) {
+		$content = array(
+			'subject'     => 'Subject',
+			'ip'          => '127.0.0.1',
+			'entry_title' => 'Source Post',
+			'entry_page'  => 1,
+			'source_id'   => 0,
+			'source_type' => 'single',
+			'request_url' => '',
+			'fields'      => array(
+				array(
+					'id'    => '1_Name',
+					'label' => 'Name',
+					'type'  => 'text',
+					'value' => $is_test ? 'Preview Tester' : 'Real User',
+				),
+			),
+		);
+
+		if ( $is_test ) {
+			$content['is_test'] = true;
+		}
+
+		Feedback::clear_cache();
+
+		return wp_insert_post(
+			array(
+				'post_type'      => 'feedback',
+				'post_status'    => 'publish',
+				'post_title'     => 'Response ' . ( $is_test ? 'test' : 'real' ) . ' ' . microtime(),
+				'post_content'   => wp_json_encode( $content, JSON_UNESCAPED_SLASHES ),
+				'post_mime_type' => 'v3',
+			)
+		);
+	}
+
+	/**
+	 * A real feedback row exposes is_test = false and preview_url = null.
+	 */
+	public function test_get_item_exposes_is_test_false_for_real_feedback() {
+		$post_id = $this->insert_v3_feedback_post( false );
+
+		$request  = new WP_REST_Request( 'GET', '/wp/v2/feedback/' . $post_id );
+		$response = $this->server->dispatch( $request );
+		$this->assertEquals( 200, $response->get_status() );
+
+		$data = $response->get_data();
+		$this->assertArrayHasKey( 'is_test', $data );
+		$this->assertFalse( $data['is_test'] );
+		$this->assertArrayHasKey( 'preview_url', $data );
+		$this->assertNull( $data['preview_url'] );
+
+		wp_delete_post( $post_id, true );
+	}
+
+	/**
+	 * A feedback row flagged as test exposes is_test = true and a preview_url
+	 * when a parent form is available and the current user can preview it.
+	 */
+	public function test_get_item_exposes_is_test_true_for_preview_feedback() {
+		// Register the jetpack_form CPT so the Feedback loader picks up the
+		// post_parent as the form_id and preview URL generation can run.
+		if ( ! post_type_exists( Contact_Form::POST_TYPE ) ) {
+			register_post_type(
+				Contact_Form::POST_TYPE,
+				array(
+					'public'       => false,
+					'show_ui'      => true,
+					'map_meta_cap' => true,
+				)
+			);
+		}
+		$form_id = wp_insert_post(
+			array(
+				'post_type'    => Contact_Form::POST_TYPE,
+				'post_status'  => 'publish',
+				'post_title'   => 'Preview Test Form',
+				'post_content' => '<!-- wp:jetpack/contact-form /-->',
+				'post_author'  => self::$user_id,
+			)
+		);
+
+		$post_id = $this->insert_v3_feedback_post( true );
+		wp_update_post(
+			array(
+				'ID'          => $post_id,
+				'post_parent' => $form_id,
+			)
+		);
+		Feedback::clear_cache();
+
+		$request  = new WP_REST_Request( 'GET', '/wp/v2/feedback/' . $post_id );
+		$response = $this->server->dispatch( $request );
+		$this->assertEquals( 200, $response->get_status() );
+
+		$data = $response->get_data();
+		$this->assertArrayHasKey( 'is_test', $data );
+		$this->assertTrue( $data['is_test'] );
+		$this->assertArrayHasKey( 'preview_url', $data );
+		$this->assertIsString( $data['preview_url'] );
+		$this->assertStringContainsString( 'jetpack_form_preview=' . $form_id, $data['preview_url'] );
+
+		wp_delete_post( $post_id, true );
+		wp_delete_post( $form_id, true );
 	}
 
 	/**

@@ -26,7 +26,14 @@
 
 .jp-form-search-settings-group__toggle {
 
-	&.is-instant-search {
+	&.is-instant-search,
+	&.is-reader-chat,
+	&.is-ai-agent-access {
+		margin-top: 4em;
+	}
+
+	&.is-reader-chat + &.is-search-suggestions,
+	&.is-ai-agent-access + &.is-search-suggestions {
 		margin-top: 4em;
 	}
 
@@ -39,7 +46,7 @@
 	}
 }
 
-.form-toggle__label-content {
+.jp-search-dashboard-toggle .components-toggle-control__label {
 	font-size: 1.5em;
 	line-height: 1.167;
 	font-weight: 600;
@@ -47,6 +54,17 @@
 	span {
 		font-weight: 400;
 	}
+}
+
+.jp-search-dashboard-toggle .components-h-stack {
+	align-items: baseline;
+}
+
+.is-reader-chat .jp-search-dashboard-toggle .components-toggle-control__label {
+	display: inline-flex;
+	align-items: center;
+	flex-wrap: wrap;
+	gap: var(--wpds-dimension-gap-sm, 8px);
 }
 
 .jp-form-search-settings-group__toggle-description {

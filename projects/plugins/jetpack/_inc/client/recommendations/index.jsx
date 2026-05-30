@@ -1,4 +1,5 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
+import { Spinner } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
@@ -12,7 +13,6 @@ import QueryRewindStatus from 'components/data/query-rewind-status';
 import QuerySite from 'components/data/query-site';
 import QuerySiteDiscount from 'components/data/query-site-discount';
 import QuerySitePlugins from 'components/data/query-site-plugins';
-import { JetpackLoadingIcon } from 'components/jetpack-loading-icon';
 import { getNewRecommendations } from 'state/initial-state';
 import {
 	getStep,
@@ -208,7 +208,7 @@ const RecommendationsComponent = props => {
 			<QueryIntroOffers />
 			{ isLoading ? (
 				<div className="jp-recommendations__loading">
-					<JetpackLoadingIcon altText={ __( 'Loading recommendations', 'jetpack' ) } />
+					<Spinner />
 				</div>
 			) : (
 				<Routes>

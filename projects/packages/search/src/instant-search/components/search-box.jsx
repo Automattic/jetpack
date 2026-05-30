@@ -43,6 +43,8 @@ const SearchBox = forwardRef( ( props, ref ) => {
 						// IE11 will immediately fire an onChange event when the placeholder contains a unicode character.
 						// Ensure that the search application is visible before invoking the onChange callback to guard against this.
 						onChange={ props.isVisible ? props.onChange : null }
+						onKeyDown={ props.onKeyDown }
+						onBlur={ props.onBlur }
 						ref={ inputRef }
 						placeholder={ __( 'Search…', 'jetpack-search-pkg' ) }
 						type="search"

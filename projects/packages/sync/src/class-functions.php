@@ -471,7 +471,7 @@ class Functions {
 			if ( $plugin_file_singular === null ) {
 				return $plugins_action_links;
 			}
-			return ( isset( $plugins_action_links[ $plugin_file_singular ] ) ? $plugins_action_links[ $plugin_file_singular ] : null );
+			return ( $plugins_action_links[ $plugin_file_singular ] ?? null );
 		}
 		return array();
 	}

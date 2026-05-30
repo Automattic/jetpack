@@ -1,0 +1,87 @@
+@mixin checkbox-filter-chips {
+
+	.jetpack-search-filter__list {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.5rem;
+	}
+
+	.jetpack-search-filter__item {
+		padding: 0;
+
+		label {
+			position: relative;
+			display: inline-flex;
+			align-items: center;
+			gap: 0.35rem;
+			border: 1px solid currentColor;
+			border-radius: 9999px;
+			padding: 0.35rem 0.7rem;
+			// The chip selector has higher specificity than the base
+			// `.jetpack-search-filter__item label` rule in style.scss, so the
+			// base `cursor: pointer` is shadowed unless re-declared here.
+			cursor: pointer;
+			transition:
+				background-color 0.2s ease,
+				border-color 0.2s ease,
+				box-shadow 0.2s ease;
+
+			@supports (border-color: color-mix(in sRGB, black 50%, white)) {
+				border-color: color-mix(in sRGB, currentColor 24%, transparent);
+			}
+
+			&:hover {
+				background: transparent;
+				border-color: currentColor;
+
+				@supports (background: color-mix(in sRGB, black 50%, white)) {
+					background: color-mix(in sRGB, currentColor 8%, transparent);
+					border-color: color-mix(in sRGB, currentColor 32%, transparent);
+				}
+			}
+
+			// Solid-color focus ring so keyboard users on browsers without
+			// color-mix (Safari < 16.2) still get a visible affordance.
+			// color-mix support gets the translucent ring instead.
+			&:focus-within {
+				box-shadow: 0 0 0 2px currentColor;
+
+				@supports (box-shadow: 0 0 0 2px color-mix(in sRGB, black 50%, white)) {
+					box-shadow: 0 0 0 2px color-mix(in sRGB, currentColor 28%, transparent);
+				}
+			}
+
+			&:has(input:checked) {
+				background: transparent;
+				border-color: currentColor;
+
+				@supports (background: color-mix(in sRGB, black 50%, white)) {
+					background: color-mix(in sRGB, currentColor 14%, transparent);
+					border-color: color-mix(in sRGB, currentColor 38%, transparent);
+				}
+			}
+		}
+
+		input[type="checkbox"] {
+			position: absolute;
+			border: 0;
+			clip-path: inset(50%);
+			inline-size: 1px;
+			block-size: 1px;
+			margin: -1px;
+			overflow: hidden;
+			padding: 0;
+			white-space: nowrap;
+		}
+	}
+
+	.jetpack-search-filter__label {
+		flex: 0 1 auto;
+	}
+
+	.jetpack-search-filter__count {
+		font-size: 0.72rem;
+		line-height: 1.2;
+		padding: 0.1rem 0.4rem;
+	}
+}

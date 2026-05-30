@@ -17,13 +17,17 @@ const createLocalizedDescriptionWithLearnMore = (
 	postId: number
 ) => {
 	const localizedUrl = localizeUrl( url );
-	return createInterpolateElement( '<InlineSupportLink />', {
+	const element = createInterpolateElement( '<InlineSupportLink />', {
 		InlineSupportLink: (
 			<DescriptionSupportLink title={ String( title ) } url={ localizedUrl } postId={ postId }>
 				{ description }
 			</DescriptionSupportLink>
 		),
 	} );
+
+	// When the description is used as a string (e.g. inserter search), fall back to the original text.
+	// React elements are frozen in dev mode, so we spread into a new object.
+	return { ...element, toString: () => String( description ) };
 };
 
 /**

@@ -1,9 +1,10 @@
-import { Button, useBreakpointMatch } from '@automattic/jetpack-components';
+import { useBreakpointMatch } from '@automattic/jetpack-components';
 import { Panel, PanelBody } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { useEffect, useReducer, useRef } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
 import { Icon, chevronDown, chevronUp } from '@wordpress/icons';
+import { Button } from '@wordpress/ui';
 import { store as socialStore } from '../../social-store';
 import { ConnectForm } from './connect-form';
 import { ServiceItemDetails, ServicesItemDetailsProps } from './service-item-details';
@@ -75,13 +76,6 @@ export function ServiceItem( {
 				<div className={ styles[ 'service-basics' ] }>
 					<div className={ styles.heading }>
 						<span className={ styles.title }>{ service.label }</span>
-						{ service.badges?.length ? (
-							<div className={ styles.badges }>
-								{ service.badges.map( ( badge, index ) => (
-									<span key={ index }>{ badge }</span>
-								) ) }
-							</div>
-						) : null }
 					</div>
 					{ ! isSmall && ! serviceConnections.length ? (
 						<span className={ styles.description }>{ service.description }</span>
@@ -107,7 +101,7 @@ export function ServiceItem( {
 					<Button
 						size={ 'small' }
 						className={ styles[ 'learn-more' ] }
-						variant="tertiary"
+						variant="minimal"
 						onClick={ togglePanel }
 						aria-label={ __( 'Learn more', 'jetpack-publicize-pkg' ) }
 					>

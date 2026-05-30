@@ -48,6 +48,9 @@ const getCountQueryParams = ( currentQuery: QueryParams ): QueryParams => {
 	if ( currentQuery?.is_unread !== undefined ) {
 		queryParams.is_unread = currentQuery.is_unread;
 	}
+	if ( currentQuery?.is_test !== undefined ) {
+		queryParams.is_test = currentQuery.is_test;
+	}
 
 	return queryParams;
 };

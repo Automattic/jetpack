@@ -13,13 +13,14 @@ import {
 	AiAssistantModal,
 } from '@automattic/jetpack-ai-client';
 import { useAnalytics, useAutosaveAndRedirect } from '@automattic/jetpack-shared-extension-utils';
-import { Button, Spinner, ExternalLink, Notice } from '@wordpress/components';
+import { Button, Spinner, Notice } from '@wordpress/components';
 import { useDispatch } from '@wordpress/data';
 import { useState, useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
+import { Link } from '@wordpress/ui';
 import { getFeatureAvailability } from '../../../../blocks/ai-assistant/lib/utils/get-feature-availability';
 import TitleOptimizationKeywords from './title-optimization-keywords';
 import TitleOptimizationOptions from './title-optimization-options';
@@ -301,9 +302,9 @@ export default function TitleOptimization( {
 						</>
 					) }
 					<div className="jetpack-ai-title-optimization__footer">
-						<ExternalLink href="https://jetpack.com/redirect/?source=jetpack-ai-feedback">
+						<Link openInNewTab href="https://jetpack.com/redirect/?source=jetpack-ai-feedback">
 							{ __( 'Provide feedback', 'jetpack' ) }
-						</ExternalLink>
+						</Link>
 					</div>
 				</AiAssistantModal>
 			) }

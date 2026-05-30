@@ -10,11 +10,6 @@ type ToggleSectionProps = {
 	title: string;
 
 	/**
-	 * Whether the toggle is in beta.
-	 */
-	beta?: boolean;
-
-	/**
 	 * Callback to be called when the toggle is clicked.
 	 */
 	onChange: () => void;
@@ -51,7 +46,6 @@ type ToggleSectionProps = {
  */
 const ToggleSection: FC< ToggleSectionProps > = ( {
 	title,
-	beta,
 	onChange,
 	checked,
 	disabled,
@@ -72,7 +66,6 @@ const ToggleSection: FC< ToggleSectionProps > = ( {
 			) }
 			<Text className={ styles.title } variant="title-medium">
 				{ title }
-				{ beta && <div className={ styles.beta }>Beta</div> }
 			</Text>
 
 			{ children }

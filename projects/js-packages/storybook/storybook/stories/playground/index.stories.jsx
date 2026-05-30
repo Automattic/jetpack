@@ -52,6 +52,7 @@ function App() {
 	);
 }
 
+// eslint-disable-next-line storybook/csf-component -- This is an integration story, not a component story.
 export default {
 	title: 'Playground/Block Editor',
 };

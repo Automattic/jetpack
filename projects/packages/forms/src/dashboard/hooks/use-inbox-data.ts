@@ -260,6 +260,9 @@ export default function useInboxData( options: UseInboxDataOptions = {} ): UseIn
 		if ( currentQuery?.is_unread !== undefined ) {
 			params.is_unread = currentQuery.is_unread;
 		}
+		if ( currentQuery?.is_test !== undefined ) {
+			params.is_test = currentQuery.is_test;
+		}
 
 		return params;
 	}, [ currentQuery ] );

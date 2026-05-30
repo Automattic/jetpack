@@ -138,9 +138,14 @@ while IFS=$'\t' read -r SRC MIRROR SLUG; do
 
 	cd "$GITHUB_WORKSPACE/build/$MIRROR"
 
+	if [[ -e .git ]]; then
+		failed "$SLUG: Artifact contains a \`.git\` dir. This is not allowed, aborting check."
+		continue
+	fi
+
 	echo "::group::Initializing $SLUG"
 	git init -b "tmp" .
-	git config --local gc.auto 0
+	git config --local maintenance.auto false
 	git remote add origin "${GITHUB_SERVER_URL}/${MIRROR}"
 	if ! UPSTREAM_SHA=$( get_upstream_sha ); then
 		echo "::endgroup::"

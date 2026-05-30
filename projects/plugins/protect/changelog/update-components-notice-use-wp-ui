@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Internal: migrate Notice usages to @wordpress/ui.

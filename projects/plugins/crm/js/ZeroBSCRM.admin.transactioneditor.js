@@ -181,7 +181,7 @@ function zbscrmjs_build_custInv_dropdown( custID, preSelectedInvID ) {
 							}
 						}
 
-						retHTML += '<option value="' + invID + '"';
+						retHTML += '<option value="' + jpcrm.esc_attr( invID ) + '"';
 
 						// if prefilled... select
 						// eslint-disable-next-line eqeqeq

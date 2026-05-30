@@ -1,4 +1,5 @@
 import { preparePreviewText } from '../helpers';
+import { ExpandableText } from '../shared/expandable-text';
 import { Card } from './card';
 import { Footer } from './footer';
 import { Header } from './header';
@@ -33,10 +34,14 @@ export const ThreadsPostPreview: React.FC< ThreadsPreviewProps > = ( {
 					<div className="threads-preview__content">
 						{ caption ? (
 							<div className="threads-preview__text">
-								{ preparePreviewText( caption, {
-									platform: 'threads',
-									maxChars: CAPTION_MAX_CHARS,
-								} ) }
+								<ExpandableText text={ caption }>
+									{ visibleText =>
+										preparePreviewText( visibleText, {
+											platform: 'threads',
+											maxChars: CAPTION_MAX_CHARS,
+										} )
+									}
+								</ExpandableText>
 							</div>
 						) : null }
 						{ hasMedia ? <Media media={ media } /> : null }

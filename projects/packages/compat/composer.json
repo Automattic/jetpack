@@ -6,9 +6,6 @@
 	"require": {
 		"php": ">=7.2"
 	},
-	"require-dev": {
-		"automattic/jetpack-changelogger": "@dev"
-	},
 	"suggest": {
 		"automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
 	},

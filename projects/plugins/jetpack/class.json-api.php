@@ -1026,7 +1026,7 @@ class WPCOM_JSON_API {
 		 * @param array $array Array of Blog IDs.
 		 */
 		$restricted_blog_ids = apply_filters( 'wpcom_json_api_restricted_blog_ids', array() );
-		return true === in_array( $blog_id, $restricted_blog_ids ); // phpcs:ignore WordPress.PHP.StrictInArray.MissingTrueStrict -- I don't trust filters to return the right types.
+		return in_array( $blog_id, $restricted_blog_ids ); // phpcs:ignore WordPress.PHP.StrictInArray.MissingTrueStrict -- I don't trust filters to return the right types.
 	}
 
 	/**

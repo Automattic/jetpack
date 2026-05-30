@@ -16,9 +16,9 @@ import { recordBoostEvent } from '$lib/utils/analytics';
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { Link } from '@wordpress/ui';
 import styles from './index.module.scss';
 import LcpModule from '$features/lcp/lcp';
-import { ExternalLink } from '@wordpress/components';
 
 const Index = () => {
 	const criticalCssLink = getRedirectUrl( 'jetpack-boost-critical-css' );
@@ -55,7 +55,9 @@ const Index = () => {
 									'jetpack-boost'
 								),
 								{
-									link: <ExternalLink href={ criticalCssLink } onClick={ handleCriticalCssLink } />,
+									link: (
+										<Link openInNewTab href={ criticalCssLink } onClick={ handleCriticalCssLink } />
+									),
 								}
 							) }
 						</p>
@@ -105,7 +107,9 @@ const Index = () => {
 									'jetpack-boost'
 								),
 								{
-									link: <ExternalLink href={ criticalCssLink } onClick={ handleCriticalCssLink } />,
+									link: (
+										<Link openInNewTab href={ criticalCssLink } onClick={ handleCriticalCssLink } />
+									),
 								}
 							) }
 						</p>
@@ -139,7 +143,8 @@ const Index = () => {
 							),
 							{
 								link: (
-									<ExternalLink
+									<Link
+										openInNewTab
 										onClick={ () => recordBoostEvent( 'defer_js_link_clicked', {} ) }
 										href={ deferJsLink }
 									/>
@@ -181,7 +186,6 @@ const Index = () => {
 				<ImageCdnLiar isPremium={ imageCdnLiarState?.available ?? false } />
 				<QualitySettings isPremium={ imageCdnQualityState?.available ?? false } />
 			</Module>
-
 			<div className={ styles.settings }>
 				<ImageGuide />
 			</div>

@@ -168,7 +168,7 @@ function render_amp( $attr ) {
 	++$wp_block_jetpack_slideshow_id;
 
 	$ids      = $attr['ids'];
-	$autoplay = empty( $attr['autoplay'] ) ? false : true;
+	$autoplay = ! empty( $attr['autoplay'] );
 	$extras   = array(
 		'wp-amp-block',
 		$autoplay ? 'wp-block-jetpack-slideshow__autoplay' : null,

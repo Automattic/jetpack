@@ -129,4 +129,3 @@ require_once JETPACK_CRM_TESTS_ROOT . '/class-jpcrm-base-integration-testcase.ph
  * Load all feature flags, so they will be testable.
  */
 add_filter( 'jetpack_crm_feature_flag_api_v4', '__return_true' );
-add_filter( 'jetpack_crm_feature_flag_automations', '__return_true' );

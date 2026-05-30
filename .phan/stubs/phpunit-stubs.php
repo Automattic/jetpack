@@ -1,6 +1,6 @@
 <?php
 /**
- * Stubs automatically generated from PHPUnit 12.5.21
+ * Stubs automatically generated from PHPUnit 12.5.28
  * using the definition file `tools/stubs/phpunit-stub-defs.php` in the Jetpack monorepo.
  *
  * Do not edit this directly! Run tools/stubs/update-stubs.sh to regenerate it.
@@ -389,6 +389,9 @@ final class DispatchingEmitter implements \PHPUnit\Event\Emitter
      * @throws UnknownEventTypeException
      */
     public function testRegisteredComparator(string $className): void
+    {
+    }
+    public function testUsedCustomMethodInvocation(\PHPUnit\Event\Code\TestMethod $test, \PHPUnit\Event\Code\ClassMethod $customTestMethodInvocation): void
     {
     }
     /**
@@ -871,6 +874,7 @@ interface Emitter
      * @param class-string<\SebastianBergmann\Comparator\Comparator> $className
      */
     public function testRegisteredComparator(string $className): void;
+    public function testUsedCustomMethodInvocation(\PHPUnit\Event\Code\TestMethod $test, \PHPUnit\Event\Code\ClassMethod $customTestMethodInvocation): void;
     /**
      * @param class-string $className
      */
@@ -1073,6 +1077,9 @@ final class EventCollection implements \Countable, \IteratorAggregate
  */
 final class EventCollectionIterator implements \Iterator
 {
+    /**
+     * @internal This method is not covered by the backward compatibility promise for PHPUnit
+     */
     public function __construct(\PHPUnit\Event\EventCollection $events)
     {
     }
@@ -1281,6 +1288,9 @@ namespace PHPUnit\Event\Application;
  */
 final readonly class Finished implements \PHPUnit\Event\Event
 {
+    /**
+     * @internal This method is not covered by the backward compatibility promise for PHPUnit
+     */
     public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo, int $shellExitCode)
     {
     }
@@ -1311,6 +1321,9 @@ interface FinishedSubscriber extends \PHPUnit\Event\Subscriber
  */
 final readonly class Started implements \PHPUnit\Event\Event
 {
+    /**
+     * @internal This method is not covered by the backward compatibility promise for PHPUnit
+     */
     public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo, \PHPUnit\Event\Runtime\Runtime $runtime)
     {
     }
@@ -1357,6 +1370,8 @@ final readonly class ClassMethod
     /**
      * @param class-string     $className
      * @param non-empty-string $methodName
+     *
+     * @internal This method is not covered by the backward compatibility promise for PHPUnit
      */
     public function __construct(string $className, string $methodName)
     {
@@ -1381,6 +1396,9 @@ final readonly class ClassMethod
  */
 final readonly class ComparisonFailure
 {
+    /**
+     * @internal This method is not covered by the backward compatibility promise for PHPUnit
+     */
     public function __construct(string $expected, string $actual, string $diff)
     {
     }
@@ -1437,6 +1455,8 @@ abstract readonly class Test
 {
     /**
      * @param non-empty-string $file
+     *
+     * @internal This method is not covered by the backward compatibility promise for PHPUnit
      */
     public function __construct(string $file)
     {
@@ -1503,6 +1523,9 @@ final readonly class TestCollection implements \Countable, \IteratorAggregate
  */
 final class TestCollectionIterator implements \Iterator
 {
+    /**
+     * @internal This method is not covered by the backward compatibility promise for PHPUnit
+     */
     public function __construct(\PHPUnit\Event\Code\TestCollection $tests)
     {
     }
@@ -1532,6 +1555,9 @@ final class TestCollectionIterator implements \Iterator
  */
 final readonly class TestDox
 {
+    /**
+     * @internal This method is not covered by the backward compatibility promise for PHPUnit
+     */
     public function __construct(string $prettifiedClassName, string $prettifiedMethodName, string $prettifiedAndColorizedMethodName)
     {
     }
@@ -1572,6 +1598,8 @@ final readonly class TestMethod extends \PHPUnit\Event\Code\Test
      * @param non-empty-string $methodName
      * @param non-empty-string $file
      * @param non-negative-int $line
+     *
+     * @internal This method is not covered by the backward compatibility promise for PHPUnit
      */
     public function __construct(string $className, string $methodName, string $file, int $line, \PHPUnit\Event\Code\TestDox $testDox, \PHPUnit\Metadata\MetadataCollection $metadata, \PHPUnit\Event\TestData\TestDataCollection $testData)
     {
@@ -1651,6 +1679,8 @@ final readonly class Throwable
 {
     /**
      * @param class-string $className
+     *
+     * @internal This method is not covered by the backward compatibility promise for PHPUnit
      */
     public function __construct(string $className, string $message, string $description, string $stackTrace, ?self $previous)
     {
@@ -1764,6 +1794,9 @@ namespace PHPUnit\Event\Runtime;
  */
 final readonly class OperatingSystem
 {
+    /**
+     * @internal This method is not covered by the backward compatibility promise for PHPUnit
+     */
     public function __construct()
     {
     }
@@ -1781,6 +1814,9 @@ final readonly class OperatingSystem
  */
 final readonly class PHP
 {
+    /**
+     * @internal This method is not covered by the backward compatibility promise for PHPUnit
+     */
     public function __construct()
     {
     }
@@ -1819,6 +1855,9 @@ final readonly class PHP
  */
 final readonly class PHPUnit
 {
+    /**
+     * @internal This method is not covered by the backward compatibility promise for PHPUnit
+     */
     public function __construct()
     {
     }
@@ -1836,6 +1875,9 @@ final readonly class PHPUnit
  */
 final readonly class Runtime
 {
+    /**
+     * @internal This method is not covered by the backward compatibility promise for PHPUnit
+     */
     public function __construct()
     {
     }
@@ -1896,6 +1938,9 @@ final readonly class Duration
  */
 final readonly class GarbageCollectorStatus
 {
+    /**
+     * @internal This method is not covered by the backward compatibility promise for PHPUnit
+     */
     public function __construct(int $runs, int $collected, int $threshold, int $roots, float $applicationTime, float $collectorTime, float $destructorTime, float $freeTime, bool $running, bool $protected, bool $full, int $bufferSize)
     {
     }
@@ -1975,6 +2020,9 @@ final readonly class HRTime
  */
 final readonly class Info
 {
+    /**
+     * @internal This method is not covered by the backward compatibility promise for PHPUnit
+     */
     public function __construct(\PHPUnit\Event\Telemetry\Snapshot $current, \PHPUnit\Event\Telemetry\Duration $durationSinceStart, \PHPUnit\Event\Telemetry\MemoryUsage $memorySinceStart, \PHPUnit\Event\Telemetry\Duration $durationSincePrevious, \PHPUnit\Event\Telemetry\MemoryUsage $memorySincePrevious)
     {
     }
@@ -2040,6 +2088,9 @@ final readonly class MemoryUsage
  */
 final readonly class Snapshot
 {
+    /**
+     * @internal This method is not covered by the backward compatibility promise for PHPUnit
+     */
     public function __construct(\PHPUnit\Event\Telemetry\HRTime $time, \PHPUnit\Event\Telemetry\MemoryUsage $memoryUsage, \PHPUnit\Event\Telemetry\MemoryUsage $peakMemoryUsage, \PHPUnit\Event\Telemetry\GarbageCollectorStatus $garbageCollectorStatus)
     {
     }
@@ -2072,6 +2123,9 @@ interface StopWatch
  */
 final readonly class System
 {
+    /**
+     * @internal This method is not covered by the backward compatibility promise for PHPUnit
+     */
     public function __construct(\PHPUnit\Event\Telemetry\StopWatch $stopWatch, \PHPUnit\Event\Telemetry\MemoryMeter $memoryMeter, \PHPUnit\Event\Telemetry\GarbageCollectorStatusProvider $garbageCollectorStatusProvider)
     {
     }
@@ -2127,6 +2181,9 @@ final readonly class SystemStopWatch implements \PHPUnit\Event\Telemetry\StopWat
  */
 final class SystemStopWatchWithOffset implements \PHPUnit\Event\Telemetry\StopWatch
 {
+    /**
+     * @internal This method is not covered by the backward compatibility promise for PHPUnit
+     */
     public function __construct(\PHPUnit\Event\Telemetry\HRTime $offset)
     {
     }
@@ -2148,6 +2205,8 @@ final readonly class AdditionalInformationProvided implements \PHPUnit\Event\Eve
 {
     /**
      * @param non-empty-string $additionalInformation
+     *
+     * @internal This method is not covered by the backward compatibility promise for PHPUnit
      */
     public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo, \PHPUnit\Event\Code\TestMethod $test, string $additionalInformation)
     {
@@ -2187,6 +2246,8 @@ final readonly class ComparatorRegistered implements \PHPUnit\Event\Event
 {
     /**
      * @param class-string<\SebastianBergmann\Comparator\Comparator> $className
+     *
+     * @internal This method is not covered by the backward compatibility promise for PHPUnit
      */
     public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo, string $className)
     {
@@ -2219,10 +2280,48 @@ interface ComparatorRegisteredSubscriber extends \PHPUnit\Event\Subscriber
  *
  * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
  */
+final readonly class CustomTestMethodInvocationUsed implements \PHPUnit\Event\Event
+{
+    /**
+     * @internal This method is not covered by the backward compatibility promise for PHPUnit
+     */
+    public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo, \PHPUnit\Event\Code\TestMethod $test, \PHPUnit\Event\Code\ClassMethod $customTestMethodInvocation)
+    {
+    }
+    public function telemetryInfo(): \PHPUnit\Event\Telemetry\Info
+    {
+    }
+    public function test(): \PHPUnit\Event\Code\TestMethod
+    {
+    }
+    public function customTestMethodInvocation(): \PHPUnit\Event\Code\ClassMethod
+    {
+    }
+    /**
+     * @return non-empty-string
+     */
+    public function asString(): string
+    {
+    }
+}
+/**
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ */
+interface CustomTestMethodInvocationUsedSubscriber extends \PHPUnit\Event\Subscriber
+{
+    public function notify(\PHPUnit\Event\Test\CustomTestMethodInvocationUsed $event): void;
+}
+/**
+ * @immutable
+ *
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ */
 final readonly class AfterLastTestMethodCalled implements \PHPUnit\Event\Event
 {
     /**
      * @param class-string<\PHPUnit\Framework\TestCase> $testClassName
+     *
+     * @internal This method is not covered by the backward compatibility promise for PHPUnit
      */
     public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo, string $testClassName, \PHPUnit\Event\Code\ClassMethod $calledMethod)
     {
@@ -2262,6 +2361,8 @@ final readonly class AfterLastTestMethodErrored implements \PHPUnit\Event\Event
 {
     /**
      * @param class-string<\PHPUnit\Framework\TestCase> $testClassName
+     *
+     * @internal This method is not covered by the backward compatibility promise for PHPUnit
      */
     public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo, string $testClassName, \PHPUnit\Event\Code\ClassMethod $calledMethod, \PHPUnit\Event\Code\Throwable $throwable)
     {
@@ -2304,6 +2405,8 @@ final readonly class AfterLastTestMethodFailed implements \PHPUnit\Event\Event
 {
     /**
      * @param class-string<\PHPUnit\Framework\TestCase> $testClassName
+     *
+     * @internal This method is not covered by the backward compatibility promise for PHPUnit
      */
     public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo, string $testClassName, \PHPUnit\Event\Code\ClassMethod $calledMethod, \PHPUnit\Event\Code\Throwable $throwable)
     {
@@ -2346,6 +2449,8 @@ final readonly class AfterLastTestMethodFinished implements \PHPUnit\Event\Event
 {
     /**
      * @param class-string<\PHPUnit\Framework\TestCase> $testClassName
+     *
+     * @internal This method is not covered by the backward compatibility promise for PHPUnit
      */
     public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo, string $testClassName, \PHPUnit\Event\Code\ClassMethod ...$calledMethods)
     {
@@ -2386,6 +2491,9 @@ interface AfterLastTestMethodFinishedSubscriber extends \PHPUnit\Event\Subscribe
  */
 final readonly class AfterTestMethodCalled implements \PHPUnit\Event\Event
 {
+    /**
+     * @internal This method is not covered by the backward compatibility promise for PHPUnit
+     */
     public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo, \PHPUnit\Event\Code\TestMethod $test, \PHPUnit\Event\Code\ClassMethod $calledMethod)
     {
     }
@@ -2427,6 +2535,9 @@ interface AfterTestMethodCalledSubscriber extends \PHPUnit\Event\Subscriber
  */
 final readonly class AfterTestMethodErrored implements \PHPUnit\Event\Event
 {
+    /**
+     * @internal This method is not covered by the backward compatibility promise for PHPUnit
+     */
     public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo, \PHPUnit\Event\Code\TestMethod $test, \PHPUnit\Event\Code\ClassMethod $calledMethod, \PHPUnit\Event\Code\Throwable $throwable)
     {
     }
@@ -2471,6 +2582,9 @@ interface AfterTestMethodErroredSubscriber extends \PHPUnit\Event\Subscriber
  */
 final readonly class AfterTestMethodFailed implements \PHPUnit\Event\Event
 {
+    /**
+     * @internal This method is not covered by the backward compatibility promise for PHPUnit
+     */
     public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo, \PHPUnit\Event\Code\TestMethod $test, \PHPUnit\Event\Code\ClassMethod $calledMethod, \PHPUnit\Event\Code\Throwable $throwable)
     {
     }
@@ -2507,6 +2621,9 @@ interface AfterTestMethodFailedSubscriber extends \PHPUnit\Event\Subscriber
  */
 final readonly class AfterTestMethodFinished implements \PHPUnit\Event\Event
 {
+    /**
+     * @internal This method is not covered by the backward compatibility promise for PHPUnit
+     */
     public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo, \PHPUnit\Event\Code\TestMethod $test, \PHPUnit\Event\Code\ClassMethod ...$calledMethods)
     {
     }
@@ -2553,6 +2670,8 @@ final readonly class BeforeFirstTestMethodCalled implements \PHPUnit\Event\Event
 {
     /**
      * @param class-string<\PHPUnit\Framework\TestCase> $testClassName
+     *
+     * @internal This method is not covered by the backward compatibility promise for PHPUnit
      */
     public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo, string $testClassName, \PHPUnit\Event\Code\ClassMethod $calledMethod)
     {
@@ -2592,6 +2711,8 @@ final readonly class BeforeFirstTestMethodErrored implements \PHPUnit\Event\Even
 {
     /**
      * @param class-string<\PHPUnit\Framework\TestCase> $testClassName
+     *
+     * @internal This method is not covered by the backward compatibility promise for PHPUnit
      */
     public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo, string $testClassName, \PHPUnit\Event\Code\ClassMethod $calledMethod, \PHPUnit\Event\Code\Throwable $throwable)
     {
@@ -2634,6 +2755,8 @@ final readonly class BeforeFirstTestMethodFailed implements \PHPUnit\Event\Event
 {
     /**
      * @param class-string<\PHPUnit\Framework\TestCase> $testClassName
+     *
+     * @internal This method is not covered by the backward compatibility promise for PHPUnit
      */
     public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo, string $testClassName, \PHPUnit\Event\Code\ClassMethod $calledMethod, \PHPUnit\Event\Code\Throwable $throwable)
     {
@@ -2676,6 +2799,8 @@ final readonly class BeforeFirstTestMethodFinished implements \PHPUnit\Event\Eve
 {
     /**
      * @param class-string<\PHPUnit\Framework\TestCase> $testClassName
+     *
+     * @internal This method is not covered by the backward compatibility promise for PHPUnit
      */
     public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo, string $testClassName, \PHPUnit\Event\Code\ClassMethod ...$calledMethods)
     {
@@ -2716,6 +2841,9 @@ interface BeforeFirstTestMethodFinishedSubscriber extends \PHPUnit\Event\Subscri
  */
 final readonly class BeforeTestMethodCalled implements \PHPUnit\Event\Event
 {
+    /**
+     * @internal This method is not covered by the backward compatibility promise for PHPUnit
+     */
     public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo, \PHPUnit\Event\Code\TestMethod $test, \PHPUnit\Event\Code\ClassMethod $calledMethod)
     {
     }
@@ -2757,6 +2885,9 @@ interface BeforeTestMethodCalledSubscriber extends \PHPUnit\Event\Subscriber
  */
 final readonly class BeforeTestMethodErrored implements \PHPUnit\Event\Event
 {
+    /**
+     * @internal This method is not covered by the backward compatibility promise for PHPUnit
+     */
     public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo, \PHPUnit\Event\Code\TestMethod $test, \PHPUnit\Event\Code\ClassMethod $calledMethod, \PHPUnit\Event\Code\Throwable $throwable)
     {
     }
@@ -2801,6 +2932,9 @@ interface BeforeTestMethodErroredSubscriber extends \PHPUnit\Event\Subscriber
  */
 final readonly class BeforeTestMethodFailed implements \PHPUnit\Event\Event
 {
+    /**
+     * @internal This method is not covered by the backward compatibility promise for PHPUnit
+     */
     public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo, \PHPUnit\Event\Code\TestMethod $test, \PHPUnit\Event\Code\ClassMethod $calledMethod, \PHPUnit\Event\Code\Throwable $throwable)
     {
     }
@@ -2837,6 +2971,9 @@ interface BeforeTestMethodFailedSubscriber extends \PHPUnit\Event\Subscriber
  */
 final readonly class BeforeTestMethodFinished implements \PHPUnit\Event\Event
 {
+    /**
+     * @internal This method is not covered by the backward compatibility promise for PHPUnit
+     */
     public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo, \PHPUnit\Event\Code\TestMethod $test, \PHPUnit\Event\Code\ClassMethod ...$calledMethods)
     {
     }
@@ -2881,6 +3018,9 @@ interface BeforeTestMethodFinishedSubscriber extends \PHPUnit\Event\Subscriber
  */
 final readonly class PostConditionCalled implements \PHPUnit\Event\Event
 {
+    /**
+     * @internal This method is not covered by the backward compatibility promise for PHPUnit
+     */
     public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo, \PHPUnit\Event\Code\TestMethod $test, \PHPUnit\Event\Code\ClassMethod $calledMethod)
     {
     }
@@ -2922,6 +3062,9 @@ interface PostConditionCalledSubscriber extends \PHPUnit\Event\Subscriber
  */
 final readonly class PostConditionErrored implements \PHPUnit\Event\Event
 {
+    /**
+     * @internal This method is not covered by the backward compatibility promise for PHPUnit
+     */
     public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo, \PHPUnit\Event\Code\TestMethod $test, \PHPUnit\Event\Code\ClassMethod $calledMethod, \PHPUnit\Event\Code\Throwable $throwable)
     {
     }
@@ -2966,6 +3109,9 @@ interface PostConditionErroredSubscriber extends \PHPUnit\Event\Subscriber
  */
 final readonly class PostConditionFailed implements \PHPUnit\Event\Event
 {
+    /**
+     * @internal This method is not covered by the backward compatibility promise for PHPUnit
+     */
     public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo, \PHPUnit\Event\Code\TestMethod $test, \PHPUnit\Event\Code\ClassMethod $calledMethod, \PHPUnit\Event\Code\Throwable $throwable)
     {
     }
@@ -3002,6 +3148,9 @@ interface PostConditionFailedSubscriber extends \PHPUnit\Event\Subscriber
  */
 final readonly class PostConditionFinished implements \PHPUnit\Event\Event
 {
+    /**
+     * @internal This method is not covered by the backward compatibility promise for PHPUnit
+     */
     public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo, \PHPUnit\Event\Code\TestMethod $test, \PHPUnit\Event\Code\ClassMethod ...$calledMethods)
     {
     }
@@ -3046,6 +3195,9 @@ interface PostConditionFinishedSubscriber extends \PHPUnit\Event\Subscriber
  */
 final readonly class PreConditionCalled implements \PHPUnit\Event\Event
 {
+    /**
+     * @internal This method is not covered by the backward compatibility promise for PHPUnit
+     */
     public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo, \PHPUnit\Event\Code\TestMethod $test, \PHPUnit\Event\Code\ClassMethod $calledMethod)
     {
     }
@@ -3087,6 +3239,9 @@ interface PreConditionCalledSubscriber extends \PHPUnit\Event\Subscriber
  */
 final readonly class PreConditionErrored implements \PHPUnit\Event\Event
 {
+    /**
+     * @internal This method is not covered by the backward compatibility promise for PHPUnit
+     */
     public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo, \PHPUnit\Event\Code\TestMethod $test, \PHPUnit\Event\Code\ClassMethod $calledMethod, \PHPUnit\Event\Code\Throwable $throwable)
     {
     }
@@ -3131,6 +3286,9 @@ interface PreConditionErroredSubscriber extends \PHPUnit\Event\Subscriber
  */
 final readonly class PreConditionFailed implements \PHPUnit\Event\Event
 {
+    /**
+     * @internal This method is not covered by the backward compatibility promise for PHPUnit
+     */
     public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo, \PHPUnit\Event\Code\TestMethod $test, \PHPUnit\Event\Code\ClassMethod $calledMethod, \PHPUnit\Event\Code\Throwable $throwable)
     {
     }
@@ -3167,6 +3325,9 @@ interface PreConditionFailedSubscriber extends \PHPUnit\Event\Subscriber
  */
 final readonly class PreConditionFinished implements \PHPUnit\Event\Event
 {
+    /**
+     * @internal This method is not covered by the backward compatibility promise for PHPUnit
+     */
     public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo, \PHPUnit\Event\Code\TestMethod $test, \PHPUnit\Event\Code\ClassMethod ...$calledMethods)
     {
     }
@@ -3213,6 +3374,8 @@ final readonly class ConsideredRisky implements \PHPUnit\Event\Event
 {
     /**
      * @param non-empty-string $message
+     *
+     * @internal This method is not covered by the backward compatibility promise for PHPUnit
      */
     public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo, \PHPUnit\Event\Code\Test $test, string $message)
     {
@@ -3255,6 +3418,8 @@ final readonly class DeprecationTriggered implements \PHPUnit\Event\Event
      * @param non-empty-string $file
      * @param positive-int     $line
      * @param non-empty-string $stackTrace
+     *
+     * @internal This method is not covered by the backward compatibility promise for PHPUnit
      */
     public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo, \PHPUnit\Event\Code\Test $test, string $message, string $file, int $line, bool $suppressed, bool $ignoredByBaseline, bool $ignoredByTest, \PHPUnit\Event\Code\IssueTrigger\IssueTrigger $trigger, string $stackTrace)
     {
@@ -3326,6 +3491,8 @@ final readonly class ErrorTriggered implements \PHPUnit\Event\Event
      * @param non-empty-string $message
      * @param non-empty-string $file
      * @param positive-int     $line
+     *
+     * @internal This method is not covered by the backward compatibility promise for PHPUnit
      */
     public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo, \PHPUnit\Event\Code\Test $test, string $message, string $file, int $line, bool $suppressed)
     {
@@ -3382,6 +3549,8 @@ final readonly class NoticeTriggered implements \PHPUnit\Event\Event
      * @param non-empty-string $message
      * @param non-empty-string $file
      * @param positive-int     $line
+     *
+     * @internal This method is not covered by the backward compatibility promise for PHPUnit
      */
     public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo, \PHPUnit\Event\Code\Test $test, string $message, string $file, int $line, bool $suppressed, bool $ignoredByBaseline)
     {
@@ -3441,6 +3610,8 @@ final readonly class PhpDeprecationTriggered implements \PHPUnit\Event\Event
      * @param non-empty-string $message
      * @param non-empty-string $file
      * @param positive-int     $line
+     *
+     * @internal This method is not covered by the backward compatibility promise for PHPUnit
      */
     public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo, \PHPUnit\Event\Code\Test $test, string $message, string $file, int $line, bool $suppressed, bool $ignoredByBaseline, bool $ignoredByTest, \PHPUnit\Event\Code\IssueTrigger\IssueTrigger $trigger)
     {
@@ -3506,6 +3677,8 @@ final readonly class PhpNoticeTriggered implements \PHPUnit\Event\Event
      * @param non-empty-string $message
      * @param non-empty-string $file
      * @param positive-int     $line
+     *
+     * @internal This method is not covered by the backward compatibility promise for PHPUnit
      */
     public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo, \PHPUnit\Event\Code\Test $test, string $message, string $file, int $line, bool $suppressed, bool $ignoredByBaseline)
     {
@@ -3565,6 +3738,8 @@ final readonly class PhpWarningTriggered implements \PHPUnit\Event\Event
      * @param non-empty-string $message
      * @param non-empty-string $file
      * @param positive-int     $line
+     *
+     * @internal This method is not covered by the backward compatibility promise for PHPUnit
      */
     public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo, \PHPUnit\Event\Code\Test $test, string $message, string $file, int $line, bool $suppressed, bool $ignoredByBaseline)
     {
@@ -3622,6 +3797,8 @@ final readonly class PhpunitDeprecationTriggered implements \PHPUnit\Event\Event
 {
     /**
      * @param non-empty-string $message
+     *
+     * @internal This method is not covered by the backward compatibility promise for PHPUnit
      */
     public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo, \PHPUnit\Event\Code\Test $test, string $message)
     {
@@ -3661,6 +3838,8 @@ final readonly class PhpunitErrorTriggered implements \PHPUnit\Event\Event
 {
     /**
      * @param non-empty-string $message
+     *
+     * @internal This method is not covered by the backward compatibility promise for PHPUnit
      */
     public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo, \PHPUnit\Event\Code\Test $test, string $message)
     {
@@ -3700,6 +3879,8 @@ final readonly class PhpunitNoticeTriggered implements \PHPUnit\Event\Event
 {
     /**
      * @param non-empty-string $message
+     *
+     * @internal This method is not covered by the backward compatibility promise for PHPUnit
      */
     public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo, \PHPUnit\Event\Code\Test $test, string $message)
     {
@@ -3739,6 +3920,8 @@ final readonly class PhpunitWarningTriggered implements \PHPUnit\Event\Event
 {
     /**
      * @param non-empty-string $message
+     *
+     * @internal This method is not covered by the backward compatibility promise for PHPUnit
      */
     public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo, \PHPUnit\Event\Code\Test $test, string $message, bool $ignoredByTest)
     {
@@ -3783,6 +3966,8 @@ final readonly class WarningTriggered implements \PHPUnit\Event\Event
      * @param non-empty-string $message
      * @param non-empty-string $file
      * @param positive-int     $line
+     *
+     * @internal This method is not covered by the backward compatibility promise for PHPUnit
      */
     public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo, \PHPUnit\Event\Code\Test $test, string $message, string $file, int $line, bool $suppressed, bool $ignoredByBaseline)
     {
@@ -3838,6 +4023,9 @@ interface WarningTriggeredSubscriber extends \PHPUnit\Event\Subscriber
  */
 final readonly class DataProviderMethodCalled implements \PHPUnit\Event\Event
 {
+    /**
+     * @internal This method is not covered by the backward compatibility promise for PHPUnit
+     */
     public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo, \PHPUnit\Event\Code\ClassMethod $testMethod, \PHPUnit\Event\Code\ClassMethod $dataProviderMethod)
     {
     }
@@ -3871,6 +4059,9 @@ interface DataProviderMethodCalledSubscriber extends \PHPUnit\Event\Subscriber
  */
 final readonly class DataProviderMethodFinished implements \PHPUnit\Event\Event
 {
+    /**
+     * @internal This method is not covered by the backward compatibility promise for PHPUnit
+     */
     public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo, \PHPUnit\Event\Code\ClassMethod $testMethod, \PHPUnit\Event\Code\ClassMethod ...$calledMethods)
     {
     }
@@ -3909,6 +4100,8 @@ final readonly class Finished implements \PHPUnit\Event\Event
 {
     /**
      * @param non-negative-int $numberOfAssertionsPerformed
+     *
+     * @internal This method is not covered by the backward compatibility promise for PHPUnit
      */
     public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo, \PHPUnit\Event\Code\Test $test, int $numberOfAssertionsPerformed)
     {
@@ -3946,6 +4139,9 @@ interface FinishedSubscriber extends \PHPUnit\Event\Subscriber
  */
 final readonly class PreparationErrored implements \PHPUnit\Event\Event
 {
+    /**
+     * @internal This method is not covered by the backward compatibility promise for PHPUnit
+     */
     public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo, \PHPUnit\Event\Code\Test $test, \PHPUnit\Event\Code\Throwable $throwable)
     {
     }
@@ -3979,6 +4175,9 @@ interface PreparationErroredSubscriber extends \PHPUnit\Event\Subscriber
  */
 final readonly class PreparationFailed implements \PHPUnit\Event\Event
 {
+    /**
+     * @internal This method is not covered by the backward compatibility promise for PHPUnit
+     */
     public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo, \PHPUnit\Event\Code\Test $test, \PHPUnit\Event\Code\Throwable $throwable)
     {
     }
@@ -4012,6 +4211,9 @@ interface PreparationFailedSubscriber extends \PHPUnit\Event\Subscriber
  */
 final readonly class PreparationStarted implements \PHPUnit\Event\Event
 {
+    /**
+     * @internal This method is not covered by the backward compatibility promise for PHPUnit
+     */
     public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo, \PHPUnit\Event\Code\Test $test)
     {
     }
@@ -4042,6 +4244,9 @@ interface PreparationStartedSubscriber extends \PHPUnit\Event\Subscriber
  */
 final readonly class Prepared implements \PHPUnit\Event\Event
 {
+    /**
+     * @internal This method is not covered by the backward compatibility promise for PHPUnit
+     */
     public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo, \PHPUnit\Event\Code\Test $test)
     {
     }
@@ -4072,6 +4277,9 @@ interface PreparedSubscriber extends \PHPUnit\Event\Subscriber
  */
 final readonly class Errored implements \PHPUnit\Event\Event
 {
+    /**
+     * @internal This method is not covered by the backward compatibility promise for PHPUnit
+     */
     public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo, \PHPUnit\Event\Code\Test $test, \PHPUnit\Event\Code\Throwable $throwable)
     {
     }
@@ -4105,6 +4313,9 @@ interface ErroredSubscriber extends \PHPUnit\Event\Subscriber
  */
 final readonly class Failed implements \PHPUnit\Event\Event
 {
+    /**
+     * @internal This method is not covered by the backward compatibility promise for PHPUnit
+     */
     public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo, \PHPUnit\Event\Code\Test $test, \PHPUnit\Event\Code\Throwable $throwable, ?\PHPUnit\Event\Code\ComparisonFailure $comparisonFailure)
     {
     }
@@ -4150,6 +4361,9 @@ interface FailedSubscriber extends \PHPUnit\Event\Subscriber
  */
 final readonly class MarkedIncomplete implements \PHPUnit\Event\Event
 {
+    /**
+     * @internal This method is not covered by the backward compatibility promise for PHPUnit
+     */
     public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo, \PHPUnit\Event\Code\Test $test, \PHPUnit\Event\Code\Throwable $throwable)
     {
     }
@@ -4183,6 +4397,9 @@ interface MarkedIncompleteSubscriber extends \PHPUnit\Event\Subscriber
  */
 final readonly class Passed implements \PHPUnit\Event\Event
 {
+    /**
+     * @internal This method is not covered by the backward compatibility promise for PHPUnit
+     */
     public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo, \PHPUnit\Event\Code\Test $test)
     {
     }
@@ -4213,6 +4430,9 @@ interface PassedSubscriber extends \PHPUnit\Event\Subscriber
  */
 final readonly class Skipped implements \PHPUnit\Event\Event
 {
+    /**
+     * @internal This method is not covered by the backward compatibility promise for PHPUnit
+     */
     public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo, \PHPUnit\Event\Code\Test $test, string $message)
     {
     }
@@ -4248,6 +4468,8 @@ final readonly class PrintedUnexpectedOutput implements \PHPUnit\Event\Event
 {
     /**
      * @param non-empty-string $output
+     *
+     * @internal This method is not covered by the backward compatibility promise for PHPUnit
      */
     public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo, string $output)
     {
@@ -4284,6 +4506,8 @@ final readonly class MockObjectCreated implements \PHPUnit\Event\Event
 {
     /**
      * @param class-string $className
+     *
+     * @internal This method is not covered by the backward compatibility promise for PHPUnit
      */
     public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo, string $className)
     {
@@ -4320,6 +4544,8 @@ final readonly class MockObjectForIntersectionOfInterfacesCreated implements \PH
 {
     /**
      * @param list<class-string> $interfaces
+     *
+     * @internal This method is not covered by the backward compatibility promise for PHPUnit
      */
     public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo, array $interfaces)
     {
@@ -4356,6 +4582,8 @@ final readonly class PartialMockObjectCreated implements \PHPUnit\Event\Event
 {
     /**
      * @param class-string $className
+     *
+     * @internal This method is not covered by the backward compatibility promise for PHPUnit
      */
     public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo, string $className, string ...$methodNames)
     {
@@ -4398,6 +4626,8 @@ final readonly class TestStubCreated implements \PHPUnit\Event\Event
 {
     /**
      * @param class-string $className
+     *
+     * @internal This method is not covered by the backward compatibility promise for PHPUnit
      */
     public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo, string $className)
     {
@@ -4434,6 +4664,8 @@ final readonly class TestStubForIntersectionOfInterfacesCreated implements \PHPU
 {
     /**
      * @param list<class-string> $interfaces
+     *
+     * @internal This method is not covered by the backward compatibility promise for PHPUnit
      */
     public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo, array $interfaces)
     {
@@ -4583,6 +4815,9 @@ final readonly class TestDataCollection implements \Countable, \IteratorAggregat
  */
 final class TestDataCollectionIterator implements \Iterator
 {
+    /**
+     * @internal This method is not covered by the backward compatibility promise for PHPUnit
+     */
     public function __construct(\PHPUnit\Event\TestData\TestDataCollection $data)
     {
     }
@@ -4616,6 +4851,8 @@ final readonly class BootstrapFinished implements \PHPUnit\Event\Event
 {
     /**
      * @param non-empty-string $filename
+     *
+     * @internal This method is not covered by the backward compatibility promise for PHPUnit
      */
     public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo, string $filename)
     {
@@ -4650,6 +4887,9 @@ interface BootstrapFinishedSubscriber extends \PHPUnit\Event\Subscriber
  */
 final readonly class ChildProcessErrored implements \PHPUnit\Event\Event
 {
+    /**
+     * @internal This method is not covered by the backward compatibility promise for PHPUnit
+     */
     public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo)
     {
     }
@@ -4677,6 +4917,9 @@ interface ChildProcessErroredSubscriber extends \PHPUnit\Event\Subscriber
  */
 final readonly class ChildProcessFinished implements \PHPUnit\Event\Event
 {
+    /**
+     * @internal This method is not covered by the backward compatibility promise for PHPUnit
+     */
     public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo, string $stdout, string $stderr)
     {
     }
@@ -4710,6 +4953,9 @@ interface ChildProcessFinishedSubscriber extends \PHPUnit\Event\Subscriber
  */
 final readonly class ChildProcessStarted implements \PHPUnit\Event\Event
 {
+    /**
+     * @internal This method is not covered by the backward compatibility promise for PHPUnit
+     */
     public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo)
     {
     }
@@ -4735,6 +4981,9 @@ interface ChildProcessStartedSubscriber extends \PHPUnit\Event\Subscriber
  */
 final readonly class Configured implements \PHPUnit\Event\Event
 {
+    /**
+     * @internal This method is not covered by the backward compatibility promise for PHPUnit
+     */
     public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo, \PHPUnit\TextUI\Configuration\Configuration $configuration)
     {
     }
@@ -4767,6 +5016,8 @@ final readonly class DeprecationTriggered implements \PHPUnit\Event\Event
 {
     /**
      * @param non-empty-string $message
+     *
+     * @internal This method is not covered by the backward compatibility promise for PHPUnit
      */
     public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo, string $message)
     {
@@ -4801,6 +5052,9 @@ interface DeprecationTriggeredSubscriber extends \PHPUnit\Event\Subscriber
  */
 final readonly class EventFacadeSealed implements \PHPUnit\Event\Event
 {
+    /**
+     * @internal This method is not covered by the backward compatibility promise for PHPUnit
+     */
     public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo)
     {
     }
@@ -4828,6 +5082,9 @@ interface EventFacadeSealedSubscriber extends \PHPUnit\Event\Subscriber
  */
 final readonly class ExecutionAborted implements \PHPUnit\Event\Event
 {
+    /**
+     * @internal This method is not covered by the backward compatibility promise for PHPUnit
+     */
     public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo)
     {
     }
@@ -4855,6 +5112,9 @@ interface ExecutionAbortedSubscriber extends \PHPUnit\Event\Subscriber
  */
 final readonly class ExecutionFinished implements \PHPUnit\Event\Event
 {
+    /**
+     * @internal This method is not covered by the backward compatibility promise for PHPUnit
+     */
     public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo)
     {
     }
@@ -4882,6 +5142,9 @@ interface ExecutionFinishedSubscriber extends \PHPUnit\Event\Subscriber
  */
 final readonly class ExecutionStarted implements \PHPUnit\Event\Event
 {
+    /**
+     * @internal This method is not covered by the backward compatibility promise for PHPUnit
+     */
     public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo, \PHPUnit\Event\TestSuite\TestSuite $testSuite)
     {
     }
@@ -4915,6 +5178,8 @@ final readonly class ExtensionBootstrapped implements \PHPUnit\Event\Event
     /**
      * @param class-string          $className
      * @param array<string, string> $parameters
+     *
+     * @internal This method is not covered by the backward compatibility promise for PHPUnit
      */
     public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo, string $className, array $parameters)
     {
@@ -4959,6 +5224,8 @@ final readonly class ExtensionLoadedFromPhar implements \PHPUnit\Event\Event
      * @param non-empty-string $filename
      * @param non-empty-string $name
      * @param non-empty-string $version
+     *
+     * @internal This method is not covered by the backward compatibility promise for PHPUnit
      */
     public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo, string $filename, string $name, string $version)
     {
@@ -5005,6 +5272,9 @@ interface ExtensionLoadedFromPharSubscriber extends \PHPUnit\Event\Subscriber
  */
 final readonly class Finished implements \PHPUnit\Event\Event
 {
+    /**
+     * @internal This method is not covered by the backward compatibility promise for PHPUnit
+     */
     public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo)
     {
     }
@@ -5032,6 +5302,9 @@ interface FinishedSubscriber extends \PHPUnit\Event\Subscriber
  */
 final readonly class GarbageCollectionDisabled implements \PHPUnit\Event\Event
 {
+    /**
+     * @internal This method is not covered by the backward compatibility promise for PHPUnit
+     */
     public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo)
     {
     }
@@ -5059,6 +5332,9 @@ interface GarbageCollectionDisabledSubscriber extends \PHPUnit\Event\Subscriber
  */
 final readonly class GarbageCollectionEnabled implements \PHPUnit\Event\Event
 {
+    /**
+     * @internal This method is not covered by the backward compatibility promise for PHPUnit
+     */
     public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo)
     {
     }
@@ -5086,6 +5362,9 @@ interface GarbageCollectionEnabledSubscriber extends \PHPUnit\Event\Subscriber
  */
 final readonly class GarbageCollectionTriggered implements \PHPUnit\Event\Event
 {
+    /**
+     * @internal This method is not covered by the backward compatibility promise for PHPUnit
+     */
     public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo)
     {
     }
@@ -5113,6 +5392,9 @@ interface GarbageCollectionTriggeredSubscriber extends \PHPUnit\Event\Subscriber
  */
 final readonly class NoticeTriggered implements \PHPUnit\Event\Event
 {
+    /**
+     * @internal This method is not covered by the backward compatibility promise for PHPUnit
+     */
     public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo, string $message)
     {
     }
@@ -5143,6 +5425,9 @@ interface NoticeTriggeredSubscriber extends \PHPUnit\Event\Subscriber
  */
 final readonly class Started implements \PHPUnit\Event\Event
 {
+    /**
+     * @internal This method is not covered by the backward compatibility promise for PHPUnit
+     */
     public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo)
     {
     }
@@ -5173,6 +5458,8 @@ final readonly class StaticAnalysisForCodeCoverageFinished implements \PHPUnit\E
     /**
      * @param non-negative-int $cacheHits
      * @param non-negative-int $cacheMisses
+     *
+     * @internal This method is not covered by the backward compatibility promise for PHPUnit
      */
     public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo, int $cacheHits, int $cacheMisses)
     {
@@ -5213,6 +5500,9 @@ interface StaticAnalysisForCodeCoverageFinishedSubscriber extends \PHPUnit\Event
  */
 final readonly class StaticAnalysisForCodeCoverageStarted implements \PHPUnit\Event\Event
 {
+    /**
+     * @internal This method is not covered by the backward compatibility promise for PHPUnit
+     */
     public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo)
     {
     }
@@ -5242,6 +5532,8 @@ final readonly class WarningTriggered implements \PHPUnit\Event\Event
 {
     /**
      * @param non-empty-string $message
+     *
+     * @internal This method is not covered by the backward compatibility promise for PHPUnit
      */
     public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo, string $message)
     {
@@ -5278,6 +5570,9 @@ namespace PHPUnit\Event\TestSuite;
  */
 final readonly class Filtered implements \PHPUnit\Event\Event
 {
+    /**
+     * @internal This method is not covered by the backward compatibility promise for PHPUnit
+     */
     public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo, \PHPUnit\Event\TestSuite\TestSuite $testSuite)
     {
     }
@@ -5308,6 +5603,9 @@ interface FilteredSubscriber extends \PHPUnit\Event\Subscriber
  */
 final readonly class Finished implements \PHPUnit\Event\Event
 {
+    /**
+     * @internal This method is not covered by the backward compatibility promise for PHPUnit
+     */
     public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo, \PHPUnit\Event\TestSuite\TestSuite $testSuite)
     {
     }
@@ -5338,6 +5636,9 @@ interface FinishedSubscriber extends \PHPUnit\Event\Subscriber
  */
 final readonly class Loaded implements \PHPUnit\Event\Event
 {
+    /**
+     * @internal This method is not covered by the backward compatibility promise for PHPUnit
+     */
     public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo, \PHPUnit\Event\TestSuite\TestSuite $testSuite)
     {
     }
@@ -5368,6 +5669,9 @@ interface LoadedSubscriber extends \PHPUnit\Event\Subscriber
  */
 final readonly class Skipped implements \PHPUnit\Event\Event
 {
+    /**
+     * @internal This method is not covered by the backward compatibility promise for PHPUnit
+     */
     public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo, \PHPUnit\Event\TestSuite\TestSuite $testSuite, string $message)
     {
     }
@@ -5401,6 +5705,9 @@ interface SkippedSubscriber extends \PHPUnit\Event\Subscriber
  */
 final readonly class Sorted implements \PHPUnit\Event\Event
 {
+    /**
+     * @internal This method is not covered by the backward compatibility promise for PHPUnit
+     */
     public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo, int $executionOrder, int $executionOrderDefects, bool $resolveDependencies)
     {
     }
@@ -5437,6 +5744,9 @@ interface SortedSubscriber extends \PHPUnit\Event\Subscriber
  */
 final readonly class Started implements \PHPUnit\Event\Event
 {
+    /**
+     * @internal This method is not covered by the backward compatibility promise for PHPUnit
+     */
     public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo, \PHPUnit\Event\TestSuite\TestSuite $testSuite)
     {
     }
@@ -5469,6 +5779,8 @@ abstract readonly class TestSuite
 {
     /**
      * @param non-empty-string $name
+     *
+     * @internal This method is not covered by the backward compatibility promise for PHPUnit
      */
     public function __construct(string $name, int $size, \PHPUnit\Event\Code\TestCollection $tests)
     {
@@ -5527,6 +5839,8 @@ final readonly class TestSuiteForTestClass extends \PHPUnit\Event\TestSuite\Test
 {
     /**
      * @param class-string $name
+     *
+     * @internal This method is not covered by the backward compatibility promise for PHPUnit
      */
     public function __construct(string $name, int $size, \PHPUnit\Event\Code\TestCollection $tests, string $file, int $line)
     {
@@ -5558,6 +5872,8 @@ final readonly class TestSuiteForTestMethodWithDataProvider extends \PHPUnit\Eve
      * @param non-empty-string $name
      * @param class-string     $className
      * @param non-empty-string $methodName
+     *
+     * @internal This method is not covered by the backward compatibility promise for PHPUnit
      */
     public function __construct(string $name, int $size, \PHPUnit\Event\Code\TestCollection $tests, string $className, string $methodName, string $file, int $line)
     {
@@ -7059,7 +7375,7 @@ abstract class Assert
     {
     }
     /**
-     * Asserts that two XML files are equal.
+     * Asserts that two XML files are equal, ignoring comments.
      *
      * @throws Exception
      * @throws ExpectationFailedException
@@ -7069,7 +7385,7 @@ abstract class Assert
     {
     }
     /**
-     * Asserts that two XML files are not equal.
+     * Asserts that two XML files are not equal, ignoring comments.
      *
      * @throws \PHPUnit\Util\Exception
      * @throws ExpectationFailedException
@@ -7078,7 +7394,7 @@ abstract class Assert
     {
     }
     /**
-     * Asserts that two XML documents are equal.
+     * Asserts that two XML documents are equal, ignoring comments.
      *
      * @throws ExpectationFailedException
      * @throws \PHPUnit\Util\Xml\XmlException
@@ -7087,7 +7403,7 @@ abstract class Assert
     {
     }
     /**
-     * Asserts that two XML documents are not equal.
+     * Asserts that two XML documents are not equal, ignoring comments.
      *
      * @throws ExpectationFailedException
      * @throws \PHPUnit\Util\Xml\XmlException
@@ -7096,7 +7412,7 @@ abstract class Assert
     {
     }
     /**
-     * Asserts that two XML documents are equal.
+     * Asserts that two XML documents are equal, ignoring comments.
      *
      * @throws ExpectationFailedException
      * @throws \PHPUnit\Util\Xml\XmlException
@@ -7105,7 +7421,7 @@ abstract class Assert
     {
     }
     /**
-     * Asserts that two XML documents are not equal.
+     * Asserts that two XML documents are not equal, ignoring comments.
      *
      * @throws ExpectationFailedException
      * @throws \PHPUnit\Util\Xml\XmlException
@@ -9484,7 +9800,7 @@ function assertStringEndsNotWith(string $suffix, string $string, string $message
 {
 }
 /**
- * Asserts that two XML files are equal.
+ * Asserts that two XML files are equal, ignoring comments.
  *
  * @throws Exception
  * @throws ExpectationFailedException
@@ -9498,7 +9814,7 @@ function assertXmlFileEqualsXmlFile(string $expectedFile, string $actualFile, st
 {
 }
 /**
- * Asserts that two XML files are not equal.
+ * Asserts that two XML files are not equal, ignoring comments.
  *
  * @throws \PHPUnit\Util\Exception
  * @throws ExpectationFailedException
@@ -9511,7 +9827,7 @@ function assertXmlFileNotEqualsXmlFile(string $expectedFile, string $actualFile,
 {
 }
 /**
- * Asserts that two XML documents are equal.
+ * Asserts that two XML documents are equal, ignoring comments.
  *
  * @throws ExpectationFailedException
  * @throws \PHPUnit\Util\Xml\XmlException
@@ -9524,7 +9840,7 @@ function assertXmlStringEqualsXmlFile(string $expectedFile, string $actualXml, s
 {
 }
 /**
- * Asserts that two XML documents are not equal.
+ * Asserts that two XML documents are not equal, ignoring comments.
  *
  * @throws ExpectationFailedException
  * @throws \PHPUnit\Util\Xml\XmlException
@@ -9537,7 +9853,7 @@ function assertXmlStringNotEqualsXmlFile(string $expectedFile, string $actualXml
 {
 }
 /**
- * Asserts that two XML documents are equal.
+ * Asserts that two XML documents are equal, ignoring comments.
  *
  * @throws ExpectationFailedException
  * @throws \PHPUnit\Util\Xml\XmlException
@@ -9550,7 +9866,7 @@ function assertXmlStringEqualsXmlString(string $expectedXml, string $actualXml, 
 {
 }
 /**
- * Asserts that two XML documents are not equal.
+ * Asserts that two XML documents are not equal, ignoring comments.
  *
  * @throws ExpectationFailedException
  * @throws \PHPUnit\Util\Xml\XmlException
@@ -10976,6 +11292,12 @@ abstract class TestCase extends \PHPUnit\Framework\Assert implements \PHPUnit\Fr
     {
     }
     /**
+     * @param array<mixed> $testArguments
+     */
+    protected function invokeTestMethod(string $methodName, array $testArguments): mixed
+    {
+    }
+    /**
      * Returns a builder object to create test stubs using a fluent interface.
      *
      * @template RealInstanceType of object
@@ -11037,7 +11359,10 @@ final readonly class ChildProcessResultProcessor
     public function __construct(\PHPUnit\Event\Facade $eventFacade, \PHPUnit\Event\Emitter $emitter, \PHPUnit\TestRunner\TestResult\PassedTests $passedTests, \PHPUnit\Runner\CodeCoverage $codeCoverage)
     {
     }
-    public function process(\PHPUnit\Framework\Test $test, string $serializedProcessResult, string $stderr): void
+    /**
+     * @param ?non-empty-string $processResultNonce
+     */
+    public function process(\PHPUnit\Framework\Test $test, string $serializedProcessResult, string $stderr, ?string $processResultNonce = null): void
     {
     }
 }
@@ -14022,10 +14347,12 @@ final class MockBuilder extends \PHPUnit\Framework\MockObject\TestDoubleBuilder
     /**
      * Creates a mock object using a fluent interface.
      *
+     * @throws Generator\ClassIsAnonymousException
      * @throws Generator\ClassIsEnumerationException
      * @throws Generator\ClassIsFinalException
      * @throws Generator\DuplicateMethodException
      * @throws \PHPUnit\Framework\InvalidArgumentException
+     * @throws Generator\InvalidClassNameException
      * @throws Generator\InvalidMethodNameException
      * @throws Generator\NameAlreadyInUseException
      * @throws Generator\ReflectionException
@@ -14695,9 +15022,11 @@ final class TestStubBuilder extends \PHPUnit\Framework\MockObject\TestDoubleBuil
     /**
      * Creates a test stub using a fluent interface.
      *
+     * @throws Generator\ClassIsAnonymousException
      * @throws Generator\ClassIsEnumerationException
      * @throws Generator\ClassIsFinalException
      * @throws Generator\DuplicateMethodException
+     * @throws Generator\InvalidClassNameException
      * @throws Generator\InvalidMethodNameException
      * @throws Generator\NameAlreadyInUseException
      * @throws Generator\ReflectionException
@@ -14827,6 +15156,17 @@ final class DoubledMethodSet
  *
  * @internal This class is not covered by the backward compatibility promise for PHPUnit
  */
+final class ClassIsAnonymousException extends \PHPUnit\Framework\Exception implements \PHPUnit\Framework\MockObject\Generator\Exception
+{
+    public function __construct(string $className)
+    {
+    }
+}
+/**
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ *
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ */
 final class ClassIsEnumerationException extends \PHPUnit\Framework\Exception implements \PHPUnit\Framework\MockObject\Generator\Exception
 {
     public function __construct(string $className)
@@ -14865,6 +15205,17 @@ final class DuplicateMethodException extends \PHPUnit\Framework\Exception implem
  */
 interface Exception extends \PHPUnit\Framework\MockObject\Exception
 {
+}
+/**
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ *
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ */
+final class InvalidClassNameException extends \PHPUnit\Framework\Exception implements \PHPUnit\Framework\MockObject\Generator\Exception
+{
+    public function __construct(string $className)
+    {
+    }
 }
 /**
  * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
@@ -14953,9 +15304,11 @@ final class Generator
      * @param ?list<non-empty-string> $methods
      * @param array<mixed>            $arguments
      *
+     * @throws ClassIsAnonymousException
      * @throws ClassIsEnumerationException
      * @throws ClassIsFinalException
      * @throws DuplicateMethodException
+     * @throws InvalidClassNameException
      * @throws InvalidMethodNameException
      * @throws NameAlreadyInUseException
      * @throws ReflectionException
@@ -14978,6 +15331,7 @@ final class Generator
      * @param class-string            $type
      * @param ?list<non-empty-string> $methods
      *
+     * @throws ClassIsAnonymousException
      * @throws ClassIsEnumerationException
      * @throws ClassIsFinalException
      * @throws ReflectionException
@@ -16694,6 +17048,48 @@ final readonly class TestMarkedIncompleteSubscriber extends \PHPUnit\Logging\Tea
  *
  * @internal This class is not covered by the backward compatibility promise for PHPUnit
  */
+final readonly class TestPreparationErroredSubscriber extends \PHPUnit\Logging\TeamCity\Subscriber implements \PHPUnit\Event\Test\PreparationErroredSubscriber
+{
+    /**
+     * @throws \PHPUnit\Event\InvalidArgumentException
+     */
+    public function notify(\PHPUnit\Event\Test\PreparationErrored $event): void
+    {
+    }
+}
+/**
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ *
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ */
+final readonly class TestPreparationFailedSubscriber extends \PHPUnit\Logging\TeamCity\Subscriber implements \PHPUnit\Event\Test\PreparationFailedSubscriber
+{
+    /**
+     * @throws \PHPUnit\Event\InvalidArgumentException
+     */
+    public function notify(\PHPUnit\Event\Test\PreparationFailed $event): void
+    {
+    }
+}
+/**
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ *
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ */
+final readonly class TestPreparationStartedSubscriber extends \PHPUnit\Logging\TeamCity\Subscriber implements \PHPUnit\Event\Test\PreparationStartedSubscriber
+{
+    /**
+     * @throws \PHPUnit\Event\InvalidArgumentException
+     */
+    public function notify(\PHPUnit\Event\Test\PreparationStarted $event): void
+    {
+    }
+}
+/**
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ *
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ */
 final readonly class TestPreparedSubscriber extends \PHPUnit\Logging\TeamCity\Subscriber implements \PHPUnit\Event\Test\PreparedSubscriber
 {
     public function notify(\PHPUnit\Event\Test\Prepared $event): void
@@ -16736,6 +17132,20 @@ final readonly class TestSuiteBeforeFirstTestMethodErroredSubscriber extends \PH
      * @throws \PHPUnit\Event\InvalidArgumentException
      */
     public function notify(\PHPUnit\Event\Test\BeforeFirstTestMethodErrored $event): void
+    {
+    }
+}
+/**
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ *
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ */
+final readonly class TestSuiteBeforeFirstTestMethodFailedSubscriber extends \PHPUnit\Logging\TeamCity\Subscriber implements \PHPUnit\Event\Test\BeforeFirstTestMethodFailedSubscriber
+{
+    /**
+     * @throws \PHPUnit\Event\InvalidArgumentException
+     */
+    public function notify(\PHPUnit\Event\Test\BeforeFirstTestMethodFailed $event): void
     {
     }
 }
@@ -16791,7 +17201,16 @@ final class TeamCityLogger
     public function testSuiteFinished(\PHPUnit\Event\TestSuite\Finished $event): void
     {
     }
-    public function testPrepared(\PHPUnit\Event\Test\Prepared $event): void
+    public function testPreparationStarted(\PHPUnit\Event\Test\PreparationStarted $event): void
+    {
+    }
+    public function testPreparationErrored(): void
+    {
+    }
+    public function testPreparationFailed(): void
+    {
+    }
+    public function testPrepared(): void
     {
     }
     /**
@@ -16816,6 +17235,12 @@ final class TeamCityLogger
      * @throws \PHPUnit\Event\InvalidArgumentException
      */
     public function beforeFirstTestMethodErrored(\PHPUnit\Event\Test\BeforeFirstTestMethodErrored $event): void
+    {
+    }
+    /**
+     * @throws \PHPUnit\Event\InvalidArgumentException
+     */
+    public function beforeFirstTestMethodFailed(\PHPUnit\Event\Test\BeforeFirstTestMethodFailed $event): void
     {
     }
     /**
@@ -16856,7 +17281,7 @@ namespace PHPUnit\Logging\TestDox;
 final readonly class HtmlRenderer
 {
     /**
-     * @param array<string, TestResultCollection> $tests
+     * @param array<class-string, TestResultCollection> $tests
      */
     public function render(array $tests): string
     {
@@ -16894,7 +17319,7 @@ final class NamePrettifier
 final readonly class PlainTextRenderer
 {
     /**
-     * @param array<string, TestResultCollection> $tests
+     * @param array<class-string, TestResultCollection> $tests
      */
     public function render(array $tests): string
     {
@@ -17201,7 +17626,7 @@ final class TestResultCollector
     {
     }
     /**
-     * @return array<string, TestResultCollection>
+     * @return array<class-string, TestResultCollection>
      */
     public function testMethodsGroupedByClass(): array
     {
@@ -21662,7 +22087,7 @@ final readonly class TestResult
     {
     }
     /**
-     * @return list<\PHPUnit\Event\Test\Failed>
+     * @return list<\PHPUnit\Event\Test\AfterLastTestMethodFailed|\PHPUnit\Event\Test\BeforeFirstTestMethodFailed|\PHPUnit\Event\Test\Failed>
      */
     public function testFailedEvents(): array
     {
@@ -26381,7 +26806,7 @@ final readonly class ResultPrinter
     {
     }
     /**
-     * @param array<string, \PHPUnit\Logging\TestDox\TestResultCollection> $tests
+     * @param array<class-string, \PHPUnit\Logging\TestDox\TestResultCollection> $tests
      */
     public function print(\PHPUnit\TestRunner\TestResult\TestResult $result, array $tests): void
     {
@@ -28139,6 +28564,25 @@ final readonly class Reflection
  *
  * @internal This class is not covered by the backward compatibility promise for PHPUnit
  */
+final readonly class Sanitizer
+{
+    /**
+     * Replaces Unicode bidirectional formatting characters with their visible \u{NNNN} escape sequence.
+     *
+     * Matches the UTF-8 byte sequences for U+202A-U+202E and U+2066-U+2069 directly so that
+     * the function is safe to call on strings that are not valid UTF-8.
+     *
+     * @see https://github.com/sebastianbergmann/phpunit/issues/6605
+     */
+    public static function sanitizeBidirectionalControlCharacters(string $value): string
+    {
+    }
+}
+/**
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ *
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ */
 final readonly class Test
 {
     /**
@@ -28244,20 +28688,6 @@ final class PhpProcessException extends \RuntimeException implements \PHPUnit\Ut
 {
 }
 /**
- * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
- *
- * @internal This class is not covered by the backward compatibility promise for PHPUnit
- */
-final readonly class DefaultJobRunner extends \PHPUnit\Util\PHP\JobRunner
-{
-    /**
-     * @throws PhpProcessException
-     */
-    public function run(\PHPUnit\Util\PHP\Job $job): \PHPUnit\Util\PHP\Result
-    {
-    }
-}
-/**
  * @immutable
  *
  * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
@@ -28338,18 +28768,24 @@ final readonly class Job
  *
  * @internal This class is not covered by the backward compatibility promise for PHPUnit
  */
-abstract readonly class JobRunner
+final readonly class JobRunner
 {
     public function __construct(\PHPUnit\Framework\ChildProcessResultProcessor $processor)
     {
     }
     /**
-     * @param non-empty-string $processResultFile
+     * @param non-empty-string  $processResultFile
+     * @param ?non-empty-string $processResultNonce
      */
-    final public function runTestJob(\PHPUnit\Util\PHP\Job $job, string $processResultFile, \PHPUnit\Framework\Test $test): void
+    public function runTestJob(\PHPUnit\Util\PHP\Job $job, string $processResultFile, \PHPUnit\Framework\Test $test, ?string $processResultNonce = null): void
     {
     }
-    abstract public function run(\PHPUnit\Util\PHP\Job $job): \PHPUnit\Util\PHP\Result;
+    /**
+     * @throws PhpProcessException
+     */
+    public function run(\PHPUnit\Util\PHP\Job $job): \PHPUnit\Util\PHP\Result
+    {
+    }
 }
 /**
  * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
@@ -28362,9 +28798,10 @@ final class JobRunnerRegistry
     {
     }
     /**
-     * @param non-empty-string $processResultFile
+     * @param non-empty-string  $processResultFile
+     * @param ?non-empty-string $processResultNonce
      */
-    public static function runTestJob(\PHPUnit\Util\PHP\Job $job, string $processResultFile, \PHPUnit\Framework\Test $test): void
+    public static function runTestJob(\PHPUnit\Util\PHP\Job $job, string $processResultFile, \PHPUnit\Framework\Test $test, ?string $processResultNonce = null): void
     {
     }
     public static function set(\PHPUnit\Util\PHP\JobRunner $runner): void
@@ -28410,13 +28847,13 @@ final readonly class Loader
     /**
      * @throws XmlException
      */
-    public function loadFile(string $filename): \DOMDocument
+    public function loadFile(string $filename, bool $ignoreComments = false): \DOMDocument
     {
     }
     /**
      * @throws XmlException
      */
-    public function load(string $actual): \DOMDocument
+    public function load(string $actual, bool $ignoreComments = false): \DOMDocument
     {
     }
 }
@@ -28440,7 +28877,7 @@ final readonly class Version
 }
 namespace SebastianBergmann\CliParser;
 
-final class Parser
+final readonly class Parser
 {
     /**
      * @param list<string> $argv
@@ -31587,6 +32024,18 @@ final class ComparisonFailure extends \RuntimeException
     public function __construct(mixed $expected, mixed $actual, string $expectedAsString, string $actualAsString, string $message = '')
     {
     }
+    /**
+     * @return array{expected: mixed, actual: mixed, expectedAsString: string, actualAsString: string, message: string}
+     */
+    public function __serialize(): array
+    {
+    }
+    /**
+     * @param array{expected: mixed, actual: mixed, expectedAsString: string, actualAsString: string, message: string} $data
+     */
+    public function __unserialize(array $data): void
+    {
+    }
     public function getActual(): mixed
     {
     }
@@ -32393,13 +32842,23 @@ final class Runtime
     }
     /**
      * Parses the loaded php.ini file (if any) as well as all
-     * additional php.ini files from the additional ini dir for
-     * a list of all configuration settings loaded from files
-     * at startup. Then checks for each php.ini setting passed
-     * via the `$values` parameter whether this setting has
-     * been changed at runtime. Returns an array of strings
-     * where each string has the format `key=value` denoting
-     * the name of a changed php.ini setting with its new value.
+     * additional php.ini files from the additional ini dir into a
+     * single merged map of settings, and also obtains the compiled-in
+     * defaults by spawning a `php -n` child once per process.
+     * Then checks for each setting passed via the `$values` parameter
+     * whether the runtime value (`ini_get()`) differs from what the
+     * ini files specified or, when a setting is not configured in any
+     * ini file, from the compiled-in default. Returns an array of
+     * `key=value` strings for the changed settings.
+     *
+     * A setting whose runtime value is the empty string but that is
+     * absent from both the ini files and the compiled-in defaults is
+     * left alone: there is no evidence that it was overridden, so it
+     * is not forwarded. This avoids spurious empty overrides for
+     * settings of extensions that are not visible to the compiled-in
+     * defaults probe (e.g. extensions loaded only via php.ini), which
+     * would otherwise break child processes (see
+     * https://github.com/sebastianbergmann/environment/issues/99).
      *
      * @param list<string> $values
      *

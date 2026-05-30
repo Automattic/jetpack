@@ -103,7 +103,7 @@ class zeroBS__Metabox_FormLanguage extends zeroBS__Metabox {
 
 		?>
 
-				<script type="text/javascript">var zbscrmjs_secToken = '<?php echo esc_js( wp_create_nonce( 'zbscrmjs-ajax-nonce' ) ); ?>';</script>
+				<script type="text/javascript">var zbscrmjs_secToken = <?php echo wp_json_encode( wp_create_nonce( 'zbscrmjs-ajax-nonce' ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>;</script>
 				
 				<table class="form-table wh-metatab wptbp">
 				<?php

@@ -583,10 +583,11 @@ class Jetpack_Carousel {
 		$require_name_email = (int) get_option( 'require_name_email' );
 		/* translators: %s is replaced with a field name in the form, e.g. "Email" */
 		$required = ( $require_name_email ) ? __( '%s (Required)', 'jetpack' ) : '%s';
+		require_once JETPACK__PLUGIN_DIR . '_inc/lib/class-jetpack-spinner.php';
 		?>
 		<div id="jp-carousel-loading-overlay">
 			<div id="jp-carousel-loading-wrapper">
-				<span id="jp-carousel-library-loading">&nbsp;</span>
+				<span id="jp-carousel-library-loading"><?php echo Jetpack_Spinner::render( 40 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG markup. ?></span>
 			</div>
 		</div>
 		<div class="jp-carousel-overlay<?php echo( $is_light ? ' jp-carousel-light' : '' ); ?>" style="display: none;">
@@ -683,7 +684,7 @@ class Jetpack_Carousel {
 								</div>
 								<div class="jp-carousel-comments"></div>
 								<div id="jp-carousel-comment-form-container">
-									<span id="jp-carousel-comment-form-spinner">&nbsp;</span>
+									<span id="jp-carousel-comment-form-spinner"><?php echo Jetpack_Spinner::render( 20 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG markup. ?></span>
 									<div id="jp-carousel-comment-post-results"></div>
 									<?php if ( $use_local_comments ) : ?>
 										<?php if ( ! $localize_strings['is_logged_in'] && $localize_strings['comment_registration'] ) : ?>
@@ -942,7 +943,7 @@ class Jetpack_Carousel {
 
 		$attachment_id   = (int) $attachment->ID;
 		$orig_file       = wp_get_attachment_image_src( $attachment_id, 'full' );
-		$orig_file       = isset( $orig_file[0] ) ? $orig_file[0] : wp_get_attachment_url( $attachment_id );
+		$orig_file       = $orig_file[0] ?? wp_get_attachment_url( $attachment_id );
 		$meta            = wp_get_attachment_metadata( $attachment_id );
 		$size            = isset( $meta['width'] ) ? (int) $meta['width'] . ',' . (int) $meta['height'] : '';
 		$img_meta        = ( ! empty( $meta['image_meta'] ) ) ? (array) $meta['image_meta'] : array();
@@ -964,7 +965,7 @@ class Jetpack_Carousel {
 		 */
 
 		$large_file_info = wp_get_attachment_image_src( $attachment_id, 'large' );
-		$large_file      = isset( $large_file_info[0] ) ? $large_file_info[0] : '';
+		$large_file      = $large_file_info[0] ?? '';
 
 		$attachment_title   = wptexturize( $attachment->post_title );
 		$attachment_desc    = wpautop( wptexturize( $attachment->post_content ) );

@@ -568,6 +568,7 @@ class Jetpack_Plugin_Search {
 				id="plugin-select-settings"
 				class="jetpack-plugin-search__primary jetpack-plugin-search__get-started button"
 				href="' . esc_url( Redirect::get_url( 'plugin-hint-learn-' . $plugin['module'] ) ) . '"
+				target="_blank"
 				data-module="' . esc_attr( $plugin['module'] ) . '"
 				data-track="get_started"
 				>' . esc_html__( 'Get started', 'jetpack' ) . '</a>';
@@ -605,6 +606,7 @@ class Jetpack_Plugin_Search {
 				id="plugin-select-settings"
 				class="jetpack-plugin-search__primary jetpack-plugin-search__get-started button"
 				href="' . esc_url( Redirect::get_url( 'plugin-hint-learn-' . $plugin['module'] ) ) . '"
+				target="_blank"
 				data-module="' . esc_attr( $plugin['module'] ) . '"
 				data-track="get_started"
 				>' . esc_html__( 'Get started', 'jetpack' ) . '</a>';

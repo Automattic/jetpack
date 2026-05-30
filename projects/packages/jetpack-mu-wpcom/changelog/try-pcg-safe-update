@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Plugin Conflicts Guardian: post-update health check with automatic rollback to the previous WP.org version on fatal. Gated on pcg_guard_updates filter (default false).

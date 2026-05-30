@@ -1,4 +1,4 @@
-import { Gridicon } from '@automattic/jetpack-components';
+import { Icon, search as searchIcon } from '@wordpress/icons';
 import TextRowPlaceHolder from './placeholder';
 import './mocked-legacy-search.scss';
 
@@ -12,7 +12,7 @@ export default function MockedLegacySearch() {
 		<div className="jp-mocked-legacy-search" aria-hidden="true">
 			<div className="jp-mocked-legacy-search__search-controls">
 				<div className="jp-mocked-legacy-search__search-icon">
-					<Gridicon icon="search" size={ 24 } />
+					<Icon icon={ searchIcon } size={ 24 } />
 				</div>
 				<div className="jp-mocked-legacy-search__search-input">
 					<TextRowPlaceHolder style={ { height: '50px', width: '80%', maxWidth: '212px' } } />

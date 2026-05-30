@@ -125,7 +125,7 @@ function zeroBSCRM_migrations_run( $settingsArr = false, $run_at = 'init' ) {
 	global $zeroBSCRM_migrations, $zeroBSCRM_migrations_requirements;
 
 		// catch migration block removal (can be run from system status):
-	if ( current_user_can( 'admin_zerobs_manage_options' ) && isset( $_GET['resetmigrationblock'] ) && wp_verify_nonce( $_GET['_wpnonce'], 'resetmigrationblock' ) ) {
+	if ( jpcrm_perms_manage_options() && isset( $_GET['resetmigrationblock'] ) && wp_verify_nonce( sanitize_text_field( wp_unslash( $_GET['_wpnonce'] ?? '' ) ), 'resetmigrationblock' ) ) {
 
 		// unblock migration blocks
 		delete_option( 'zbsmigrationpreloadcatch' );
@@ -1040,7 +1040,7 @@ function zeroBSCRM_migration_560_move_file_array( $meta_row ) { // phpcs:ignore 
 	$update_result = $wpdb->update( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
 		$ZBSCRM_t['meta'], // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 		array(
-			'zbsm_val'         => wp_json_encode( $new_file_array ),
+			'zbsm_val'         => wp_json_encode( $new_file_array, JSON_UNESCAPED_SLASHES ),
 			'zbsm_lastupdated' => time(),
 		),
 		array( 'ID' => $meta_row->ID ),

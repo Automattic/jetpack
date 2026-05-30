@@ -12,6 +12,7 @@ export type QueryParams = {
 	before?: string;
 	after?: string;
 	is_unread?: boolean;
+	is_test?: boolean;
 	per_page?: number;
 	page?: number;
 	status?: string;

@@ -150,6 +150,10 @@ export interface FormResponse {
 	has_file: boolean;
 	/** Whether the response is unread. */
 	is_unread: boolean;
+	/** Whether the response is a test submission from form preview. */
+	is_test?: boolean;
+	/** URL to the form preview that produced this response, when the response is a test submission. */
+	preview_url?: string | null;
 	/** The fields of the response (can be new collection format or legacy format). */
 	fields: ResponseFields;
 	/** The URL to edit the form that the response was submitted to. */

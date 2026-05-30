@@ -348,21 +348,23 @@ class Render_Blocking_JS implements Feature, Changes_Output_On_Activation, Optim
 	 * @return bool
 	 */
 	public function is_opened_script( $buffer ) {
-		$opening_tags_count = preg_match_all( '~<\s*script(?![^>]*%s="%s")([^>]*)>~', $buffer );
-		$closing_tags_count = preg_match_all( '~<\s*/script[^>]*>~', $buffer );
+		// Strip fully-paired ignored <script>...</script> blocks so the counts below are symmetric.
+		$ignored_pair_regex = sprintf(
+			'~<script[^>]*%s=(?<q>["\']*)%s\k<q>[^>]*>[\s\S]*?</script>~si',
+			preg_quote( $this->ignore_attribute, '~' ),
+			preg_quote( $this->ignore_value, '~' )
+		);
+		$stripped           = preg_replace( $ignored_pair_regex, '', $buffer );
+		if ( null === $stripped ) {
+			$stripped = $buffer;
+		}
 
-		/**
-		 * This works, because the logic in `handle_output_stream` will never
-		 * allow an unpaired closing </script> tag to appear in the buffer.
-		 *
-		 * Open script tags are always kept in the buffer until their closing
-		 * tags eventually arrive as well. That means it's only possible to
-		 * encounter an unpaired opening <script> in a buffer, which is why
-		 * a simple comparison works.
-		 *
-		 * @todo What if there is a <!-- </script> --> comment?
-		 * @todo What happens when script tags are unclosed?
-		 */
+		// Strip HTML comments so a commented-out </script> doesn't skew the count.
+		$stripped = preg_replace( '~<!--[\s\S]*?-->~', '', $stripped ) ?? $stripped;
+
+		$opening_tags_count = preg_match_all( '~<\s*script(\s[^>]*)?>~i', $stripped );
+		$closing_tags_count = preg_match_all( '~<\s*/\s*script\s*>~i', $stripped );
+
 		return $opening_tags_count > $closing_tags_count;
 	}
 

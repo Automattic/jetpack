@@ -1,5 +1,4 @@
-import { Spinner } from '@automattic/jetpack-components';
-import { Button, Dashicon } from '@wordpress/components';
+import { Button, Dashicon, Spinner } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import PropTypes from 'prop-types';

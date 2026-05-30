@@ -24,6 +24,7 @@ export default defineConfig( {
 				],
 				test: {
 					name: 'storybook',
+					isolate: false, // https://github.com/storybookjs/storybook/pull/34004
 					browser: {
 						enabled: true,
 						headless: true,

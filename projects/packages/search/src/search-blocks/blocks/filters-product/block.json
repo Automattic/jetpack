@@ -1,0 +1,31 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "jetpack-search/filters-product",
+	"version": "0.1.0",
+	"title": "Product Filters",
+	"category": "jetpack-search",
+	"description": "A composable container for WooCommerce-style product filters (status, rating, price, attributes). Powered by Jetpack Search.",
+	"keywords": [ "woocommerce", "product", "filter", "sidebar" ],
+	"supports": {
+		"html": false,
+		"align": [ "wide", "full" ],
+		"layout": {
+			"default": {
+				"type": "flex",
+				"orientation": "vertical",
+				"flexWrap": "nowrap"
+			},
+			"allowEditing": false
+		},
+		"spacing": {
+			"blockGap": true,
+			"margin": [ "top", "bottom" ],
+			"padding": true
+		}
+	},
+	"textdomain": "jetpack-search-pkg",
+	"render": "file:./render.php",
+	"viewScriptModule": "file:../../../../build/search-blocks/filters-product.js",
+	"style": "file:../../../../build/search-blocks/filters-product.css"
+}

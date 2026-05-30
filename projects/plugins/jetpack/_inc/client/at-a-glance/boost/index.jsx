@@ -5,9 +5,9 @@ import {
 	calculateDaysSince,
 } from '@automattic/jetpack-boost-score-api';
 import { BoostScoreBar, getRedirectUrl } from '@automattic/jetpack-components';
-import { ExternalLink } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
-import { __, _x, sprintf } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
+import { Link } from '@wordpress/ui';
 import clsx from 'clsx';
 import PropTypes from 'prop-types';
 import { useCallback, useEffect, useState } from 'react';
@@ -69,11 +69,8 @@ const DashBoost = ( {
 	// Don't show score bars until we know if they already have boost installed and activated, the site is online, and we have the scores.
 	const shouldShowScoreBars =
 		! hasBoost && ! isSiteOffline && ! fetchingPluginsData && ! isSpeedScoreError;
-	const pluginName = _x(
-		'Boost',
-		'The Jetpack Boost product name, without the Jetpack prefix',
-		'jetpack'
-	);
+	// "Boost" is a product name, do not translate.
+	const pluginName = 'Boost';
 
 	const setScoresFromCache = () => {
 		setMobileSpeedScore( latestSpeedScores.scores.mobile );
@@ -485,14 +482,15 @@ const ConversionLossPopover = () => {
 			>
 				<p className="boost-conversion-loss-info__source">
 					{ __( 'Source:', 'jetpack' ) }{ ' ' }
-					<ExternalLink
+					<Link
+						openInNewTab
 						href="https://web.dev/why-speed-matters/"
 						target="_blank"
 						rel="noopener noreferrer"
 						onClick={ trackSourceClick }
 					>
 						web.dev
-					</ExternalLink>
+					</Link>
 				</p>
 			</InfoPopover>
 		</div>
@@ -528,12 +526,13 @@ const CriticalCssInfoPopover = () => {
 				<p>
 					{ createInterpolateElement(
 						__(
-							'You should regenerate <ExternalLink>Critical CSS</ExternalLink> to optimize speed whenever your site’s HTML or CSS structure changes after:',
+							'You should regenerate <Link>Critical CSS</Link> to optimize speed whenever your site’s HTML or CSS structure changes after:',
 							'jetpack'
 						),
 						{
-							ExternalLink: (
-								<ExternalLink
+							Link: (
+								<Link
+									openInNewTab
 									onClick={ trackCriticalCSSLinkClick }
 									href={ criticalCssUrl }
 									target="_blank"

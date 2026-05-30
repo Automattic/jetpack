@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Omnibar: add wpcom/v2/admin-bar endpoint to fetch site's admin bar nodes

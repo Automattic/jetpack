@@ -1,5 +1,5 @@
-import { getRedirectUrl, Spinner } from '@automattic/jetpack-components';
-import { Button, Dashicon } from '@wordpress/components';
+import { getRedirectUrl } from '@automattic/jetpack-components';
+import { Button, Dashicon, Spinner } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';

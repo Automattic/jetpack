@@ -254,7 +254,7 @@ function jpcrm_woosync_render_hub_page() {
 							<i style="display:none" id="jpcrm_failed_ajax" class="grey exclamation circle icon"></i>
 							<script>
 								var jpcrm_woo_connect_initiate_ajax_sync = false;
-								var jpcrm_woosync_nonce = '<?php echo esc_js( wp_create_nonce( 'jpcrm_woosync_hubsync' ) ); ?>';
+								var jpcrm_woosync_nonce = <?php echo wp_json_encode( wp_create_nonce( 'jpcrm_woosync_hubsync' ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>;
 							</script>
 
 						</div>
@@ -294,7 +294,7 @@ function jpcrm_woosync_render_hub_page() {
 							<i style="display:none" id="jpcrm_failed_ajax" class="grey exclamation circle icon"></i>
 							<script>
 								var jpcrm_woo_connect_initiate_ajax_sync = true;
-								var jpcrm_woosync_nonce = '<?php echo esc_js( wp_create_nonce( 'jpcrm_woosync_hubsync' ) ); ?>';
+								var jpcrm_woosync_nonce = <?php echo wp_json_encode( wp_create_nonce( 'jpcrm_woosync_hubsync' ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>;
 							</script>
 							<div class="ui inline loader" id="jpcrm_firing_ajax" title="<?php esc_attr_e( 'Keeping this page open will improve the background sync speed when synchronising.', 'zero-bs-crm' ); ?>"></div>
 
@@ -440,7 +440,7 @@ function jpcrm_woosync_output_language_labels( $additional_labels = array() ) {
 	);
 
 	?>
-	<script>var jpcrm_woosync_language_labels = <?php echo json_encode( $language_labels ); ?></script>
+	<script>var jpcrm_woosync_language_labels = <?php echo wp_json_encode( $language_labels, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?></script>
 	<?php
 }
 

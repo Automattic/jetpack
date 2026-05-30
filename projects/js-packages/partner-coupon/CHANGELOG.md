@@ -5,6 +5,31 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 1.0.52 - 2026-05-25
+### Changed
+- Migrate `ActionButton` to `@wordpress/ui` `Button`. [#49098]
+- Update package dependencies. [#48405] [#49012]
+
+## 1.0.51 - 2026-05-19
+### Changed
+- Update dependencies. [#48834]
+
+## 1.0.50 - 2026-05-11
+### Changed
+- Update dependencies. [#47272]
+
+## 1.0.49 - 2026-05-04
+### Changed
+- Internal: No longer require automattic/jetpack-changelogger as a per-project dev dependency. [#48225]
+
+## 1.0.48 - 2026-04-27
+### Changed
+- Update dependencies. [#47272]
+
+## 1.0.47 - 2026-04-20
+### Changed
+- Update package dependencies. [#48106]
+
 ## 1.0.46 - 2026-04-15
 ### Changed
 - Update dependencies. [#47272]

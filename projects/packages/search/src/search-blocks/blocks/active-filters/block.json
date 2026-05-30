@@ -1,0 +1,15 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "jetpack-search/active-filters",
+	"version": "0.1.0",
+	"title": "Active Filters",
+	"category": "jetpack-search",
+	"description": "Pills showing the currently selected filters. Powered by Jetpack Search.",
+	"supports": { "html": false, "interactivity": true },
+	"usesContext": [ "jetpack-search/inInteractiveScope" ],
+	"textdomain": "jetpack-search-pkg",
+	"render": "file:./render.php",
+	"viewScriptModule": "file:../../../../build/search-blocks/active-filters.js",
+	"style": "file:../../../../build/search-blocks/active-filters.css"
+}

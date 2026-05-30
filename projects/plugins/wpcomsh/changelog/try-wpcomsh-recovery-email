@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+wpcom-fatal-error: rewrite the admin recovery-mode email — WordPress.com-branded HTML matching the fatal-error screen, with the site name, suspected plugin/theme card, action links into wp-admin, and separate Error details + Environment sections.

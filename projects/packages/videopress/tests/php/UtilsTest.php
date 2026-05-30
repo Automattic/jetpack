@@ -174,4 +174,43 @@ class UtilsTest extends BaseTestCase {
 			$this->assertFalse( Utils::is_videopress_url( $url ) );
 		}
 	}
+
+	/**
+	 * Test that extract_videopress_guid_from_url returns the guid for each supported URL form.
+	 */
+	public function test_extract_videopress_guid_from_url_returns_guid_for_supported_forms() {
+		$cases = array(
+			'https://videopress.com/v/xyrdcYF4'          => 'xyrdcYF4',
+			'http://videopress.com/v/xyrdcYF4'           => 'xyrdcYF4',
+			'https://videopress.com/embed/xyrdcYF4'      => 'xyrdcYF4',
+			'https://video.wordpress.com/v/xyrdcYF4'     => 'xyrdcYF4',
+			'https://video.wordpress.com/embed/xyrdcYF4' => 'xyrdcYF4',
+			'https://v.wordpress.com/xyrdcYF4'           => 'xyrdcYF4',
+			'https://videopress.com/v/xyrdcYF4?foo=bar'  => 'xyrdcYF4',
+			'https://videopress.com/v/xyrdcYF4/'         => 'xyrdcYF4',
+			'https://videos.videopress.com/xyrdcYF4/original.mp4' => 'xyrdcYF4',
+			'https://videos.files.wordpress.com/xyrdcYF4/file.mp4' => 'xyrdcYF4',
+		);
+		foreach ( $cases as $url => $expected_guid ) {
+			$this->assertSame( $expected_guid, Utils::extract_videopress_guid_from_url( $url ), "Failed extracting guid from $url" );
+		}
+	}
+
+	/**
+	 * Test that extract_videopress_guid_from_url returns null for unrecognised URLs.
+	 */
+	public function test_extract_videopress_guid_from_url_returns_null_for_unsupported_urls() {
+		$invalid_urls = array(
+			'https://example.com/v/xyrdcYF4',
+			'https://videopress.com/v/short',
+			'https://videopress.com/something/xyrdcYF4',
+			'not a url at all',
+			'',
+			null,
+			array( 'https://videopress.com/v/xyrdcYF4' ),
+		);
+		foreach ( $invalid_urls as $url ) {
+			$this->assertNull( Utils::extract_videopress_guid_from_url( $url ), 'Should have returned null for: ' . var_export( $url, true ) );
+		}
+	}
 }

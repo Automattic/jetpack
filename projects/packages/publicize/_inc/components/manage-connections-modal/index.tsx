@@ -4,15 +4,18 @@ import {
 	ThemeProvider,
 	useBreakpointMatch,
 } from '@automattic/jetpack-components';
-import { ExternalLink, Modal } from '@wordpress/components';
+import { Modal } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useCallback } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
+import { Link } from '@wordpress/ui';
 import clsx from 'clsx';
+import { useIsModernized } from '../../hooks/use-is-modernized';
 import { useUserCanShareConnection } from '../../hooks/use-user-can-share-connection';
 import { store } from '../../social-store';
 import { ServicesList } from '../services/services-list';
 import { ConfirmationForm } from './confirmation-form';
+import { ModernManageConnectionsModal } from './index-modern';
 import styles from './style.module.scss';
 
 export const ManageConnectionsModal = () => {
@@ -74,9 +77,12 @@ export const ManageConnectionsModal = () => {
 											'jetpack-publicize-pkg'
 										) }
 										&nbsp;
-										<ExternalLink href={ getRedirectUrl( 'jetpack-social-manual-sharing-help' ) }>
+										<Link
+											openInNewTab
+											href={ getRedirectUrl( 'jetpack-social-manual-sharing-help' ) }
+										>
 											{ __( 'Learn more', 'jetpack-publicize-pkg' ) }
-										</ExternalLink>
+										</Link>
 									</Text>
 								</em>
 							</div>
@@ -96,13 +102,16 @@ export const ManageConnectionsModal = () => {
  * @return {import('react').ReactNode} - React element
  */
 export function ThemedConnectionsModal() {
+	const isModernized = useIsModernized();
 	const shouldModalBeOpen = useSelect( select => {
 		return select( store ).isConnectionsModalOpen();
 	}, [] );
 
+	const Connections = isModernized ? ModernManageConnectionsModal : ManageConnectionsModal;
+
 	return (
 		<ThemeProvider targetDom={ document.body }>
-			{ shouldModalBeOpen ? <ManageConnectionsModal /> : null }
+			{ shouldModalBeOpen ? <Connections /> : null }
 		</ThemeProvider>
 	);
 }

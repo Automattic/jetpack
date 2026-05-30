@@ -1,10 +1,11 @@
 /**
  * External dependencies
  */
-import { Button, ExternalLink, Icon, Tooltip } from '@wordpress/components';
+import { Button, Icon, Tooltip } from '@wordpress/components';
 import { decodeEntities } from '@wordpress/html-entities';
 import { __, sprintf } from '@wordpress/i18n';
 import { download } from '@wordpress/icons';
+import { Link } from '@wordpress/ui';
 import clsx from 'clsx';
 /**
  * Internal dependencies
@@ -70,9 +71,9 @@ const FieldFile = ( { file, onClick } ) => {
 						</Button>
 					) }
 					{ ! file.is_previewable && (
-						<ExternalLink href={ file.url + '&preview=true' }>
+						<Link openInNewTab href={ file.url + '&preview=true' }>
 							{ decodeEntities( file.name ) }
-						</ExternalLink>
+						</Link>
 					) }
 					<div className="jp-forms__inbox-response-file__meta-info">
 						{ sprintf(

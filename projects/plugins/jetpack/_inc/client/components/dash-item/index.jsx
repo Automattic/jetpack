@@ -87,7 +87,7 @@ export class DashItem extends Component {
 					<ModuleToggle
 						slug={ this.props.module }
 						activated={ this.props.getOptionValue( this.props.module ) }
-						toggling={ this.props.isUpdating( this.props.module ) }
+						disabled={ this.props.isUpdating( this.props.module ) }
 						toggleModule={ this.toggleModule }
 						compact={ true }
 					/>

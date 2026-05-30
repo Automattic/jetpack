@@ -427,7 +427,8 @@ abstract class Abstract_Token_Subscription_Service implements Subscription_Servi
 
 		foreach ( $user_abbreviated_subscriptions as $subscription_plan_id => $details ) {
 			$details = (array) $details;
-			$end     = is_int( $details['end_date'] ) ? $details['end_date'] : strtotime( $details['end_date'] );
+
+			$end = is_int( $details['end_date'] ) ? $details['end_date'] : strtotime( $details['end_date'] );
 			if ( $end < time() ) {
 				// subscription not active anymore
 				continue;
@@ -445,6 +446,12 @@ abstract class Abstract_Token_Subscription_Service implements Subscription_Servi
 				// No post linked to this plan
 				continue;
 			}
+
+			// Comp grants linked to a plan on this site bypass the tier price comparison.
+			if ( ! empty( $details['is_comp'] ) ) {
+				return false;
+			}
+
 			$subscription_post_id = $subscription_post->ID;
 
 			if ( $subscription_post_id === $tier_id || $subscription_post_id === $annual_tier_id ) {
@@ -669,6 +676,9 @@ abstract class Abstract_Token_Subscription_Service implements Subscription_Servi
 			) {
 				$subscriptions[ $subscription['product_id'] ]           = new \stdClass();
 				$subscriptions[ $subscription['product_id'] ]->end_date = empty( $subscription['end_date'] ) ? ( time() + 365 * 24 * 3600 ) : $subscription['end_date'];
+				if ( ! empty( $subscription['is_comp'] ) ) {
+					$subscriptions[ $subscription['product_id'] ]->is_comp = true;
+				}
 			}
 		}
 		return $subscriptions;

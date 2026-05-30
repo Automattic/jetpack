@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import Gravatar from '@automattic/jetpack-components/gravatar';
 import { formatNumber } from '@automattic/number-formatters';
 /**
  * WordPress dependencies
@@ -8,7 +9,6 @@ import { formatNumber } from '@automattic/number-formatters';
 import { Page } from '@wordpress/admin-ui';
 import {
 	__experimentalText as Text, // eslint-disable-line @wordpress/no-unsafe-wp-apis
-	ExternalLink,
 } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { DataViews } from '@wordpress/dataviews';
@@ -17,14 +17,13 @@ import { useMemo, useState, useCallback, useEffect } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
 import { __, sprintf } from '@wordpress/i18n';
 import { useParams, useSearch, useNavigate } from '@wordpress/route';
-import { Badge, Stack } from '@wordpress/ui';
+import { Badge, Link, Stack } from '@wordpress/ui';
 import * as React from 'react';
 /**
  * Internal dependencies
  */
 import IntegrationsModal from '../../src/blocks/contact-form/components/jetpack-integrations-modal';
 import EmptyResponses from '../../src/dashboard/components/empty-responses';
-import Gravatar from '../../src/dashboard/components/gravatar';
 import TextWithFlag from '../../src/dashboard/components/text-with-flag/index.tsx';
 import useInboxData from '../../src/dashboard/hooks/use-inbox-data.ts';
 import WpRouteDashboardSearchParamsProvider from '../../src/dashboard/router/wp-route-dashboard-search-params-provider.tsx';
@@ -53,6 +52,10 @@ type FeedbackFilters = {
 
 const EMPTY_ARRAY = [];
 
+// Sentinel value used in the Source filter to represent form-preview (test) responses.
+// Source IDs are numeric post IDs, so this non-numeric value is safe from collision.
+const FORM_PREVIEW_SOURCE_VALUE = 'form_preview';
+
 const defaultLayouts = {
 	table: {},
 	list: {},
@@ -65,6 +68,7 @@ type QueryParams = {
 	orderby?: string;
 	order?: string;
 	is_unread?: boolean;
+	is_test?: boolean;
 	parent?: string;
 	source?: string;
 	before?: string;
@@ -303,7 +307,11 @@ function StageInner() {
 				queryArgs.is_unread = filter.value === 'unread';
 			}
 			if ( ! isSingleFormView && filter.field === 'source' ) {
-				queryArgs.source = filter.value;
+				if ( filter.value === FORM_PREVIEW_SOURCE_VALUE ) {
+					queryArgs.is_test = true;
+				} else {
+					queryArgs.source = filter.value;
+				}
 			}
 			if ( filter.field === 'date' ) {
 				const filterValue: unknown = filter.value;
@@ -485,9 +493,16 @@ function StageInner() {
 							/>
 							{ styleUnreadValue(
 								<Stack direction="column" gap="2xs">
-									<Text ellipsizeMode="tail" limit={ 50 } truncate>
-										{ displayName }
-									</Text>
+									<Stack direction="row" align="center" gap="xs">
+										<Text ellipsizeMode="tail" limit={ 50 } truncate>
+											{ displayName }
+										</Text>
+										{ item.is_test && (
+											<Badge intent="none" aria-label={ __( 'Test response', 'jetpack-forms' ) }>
+												{ __( 'Test', 'jetpack-forms' ) }
+											</Badge>
+										) }
+									</Stack>
 									{ showEmail && (
 										<Text variant="muted" size={ 12 } ellipsizeMode="tail" limit={ 50 } truncate>
 											{ item.author_email }
@@ -526,27 +541,47 @@ function StageInner() {
 				id: 'source',
 				label: __( 'Source', 'jetpack-forms' ),
 				render: ( { item } ) => {
+					// Test responses point at the regenerated preview URL instead of
+					// the hosting page, and always surface as "Form preview".
+					if ( item.is_test ) {
+						const previewLabel = __( 'Form preview', 'jetpack-forms' );
+						if ( item.preview_url ) {
+							return styleUnreadValue(
+								<Link openInNewTab href={ item.preview_url }>
+									{ previewLabel }
+								</Link>,
+								item.is_unread
+							);
+						}
+						return styleUnreadValue( previewLabel, item.is_unread );
+					}
 					const source =
 						item.entry_title ||
 						getUrlPath( item.entry_permalink ) ||
 						__( '(no title)', 'jetpack-forms' );
 					if ( item.entry_permalink ) {
 						return styleUnreadValue(
-							<ExternalLink href={ item.entry_permalink }>{ source }</ExternalLink>,
+							<Link openInNewTab href={ item.entry_permalink }>
+								{ source }
+							</Link>,
 							item.is_unread
 						);
 					}
 					return styleUnreadValue( source, item.is_unread );
 				},
-				elements: ( ( filterOptions as unknown as FeedbackFilters )?.source || [] ).map(
-					source => ( {
+				elements: [
+					{
+						value: FORM_PREVIEW_SOURCE_VALUE,
+						label: __( 'Form preview', 'jetpack-forms' ),
+					},
+					...( ( filterOptions as unknown as FeedbackFilters )?.source || [] ).map( source => ( {
 						value: source.id.toString(),
 						label:
 							decodeEntities( source.title ) ||
 							getUrlPath( source.url ) ||
 							__( '(no title)', 'jetpack-forms' ),
-					} )
-				),
+					} ) ),
+				],
 				filterBy: isSingleFormView ? false : { operators: [ 'is' ] as Operator[] },
 				enableSorting: false,
 			},
@@ -625,6 +660,7 @@ function StageInner() {
 		badges,
 		subtitle,
 		title,
+		visual,
 		actions: headerActions,
 	} = usePageHeaderDetails( {
 		screen: 'responses',
@@ -647,6 +683,7 @@ function StageInner() {
 
 	return (
 		<Page
+			visual={ visual }
 			breadcrumbs={ breadcrumbs }
 			badges={ badges }
 			title={ title }

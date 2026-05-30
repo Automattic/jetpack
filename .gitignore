@@ -63,5 +63,8 @@ phpcs.xml
 # Claude setting files
 .claude/settings.local.json
 
+# Cursor / Playwright MCP local logs and snapshots
+.playwright-mcp/
+
 .pnpm-debug.log
 .pnpm-error.log

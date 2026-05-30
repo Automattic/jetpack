@@ -1,7 +1,8 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
-import { Button, ExternalLink } from '@wordpress/components';
+import { Button } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
+import { Link } from '@wordpress/ui';
 
 import './placeholder.scss';
 
@@ -26,11 +27,10 @@ export const LikesPlaceholder = ( { changeStatus, isLoading, isModuleActive } ) 
 					? __( 'Activating Likes', 'jetpack' )
 					: __( 'Activate Likes', 'jetpack', /* dummy arg to avoid bad minification */ 0 ) }
 			</Button>
-
 			<div className="components-likes-placeholder__learn-more">
-				<ExternalLink href={ getRedirectUrl( 'jetpack-support-likes' ) }>
+				<Link openInNewTab href={ getRedirectUrl( 'jetpack-support-likes' ) }>
 					{ __( 'Learn more about Jetpack Likes.', 'jetpack' ) }
-				</ExternalLink>
+				</Link>
 			</div>
 		</>
 	);

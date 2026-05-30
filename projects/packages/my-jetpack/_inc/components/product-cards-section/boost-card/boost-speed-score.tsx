@@ -3,8 +3,8 @@ import {
 	requestSpeedScores,
 	calculateDaysSince,
 } from '@automattic/jetpack-boost-score-api';
-import { Spinner, BoostScoreBar } from '@automattic/jetpack-components';
-import { Popover } from '@wordpress/components';
+import { BoostScoreBar } from '@automattic/jetpack-components';
+import { Popover, Spinner } from '@wordpress/components';
 import { useViewportMatch } from '@wordpress/compose';
 import { __, sprintf } from '@wordpress/i18n';
 import { arrowUp, Icon } from '@wordpress/icons';
@@ -225,7 +225,7 @@ const BoostSpeedScore: BoostSpeedScoreType = () => {
 				onBlur={ handleOut }
 			>
 				{ isLoading ? (
-					<Spinner color="#23282d" size={ 16 } />
+					<Spinner />
 				) : (
 					<>
 						<div className="screen-reader-text">

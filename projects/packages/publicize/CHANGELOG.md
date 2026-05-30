@@ -5,6 +5,80 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.81.1] - 2026-05-25
+### Changed
+- Replace internal `ContextualUpgradeTrigger` upgrade prompts with `@wordpress/ui` `Notice` composition. [#48909]
+- Update package dependencies. [#48405] [#49012]
+
+### Fixed
+- Phan: Address `PhanPluginDuplicateConditionalNullCoalescing` violations. [#48887]
+- SIG: Prevent PHP warning when setting key doesn't exist. [#48873]
+
+## [0.81.0] - 2026-05-19
+### Added
+- Social: Expose the canonical message-template placeholder catalog via a REST endpoint. [#48769]
+
+### Changed
+- Social: Simplify preview render API by using the connection id as the source of truth. [#48827]
+- Update package dependencies. [#48695] [#48696] [#48910]
+
+### Fixed
+- Social Previews: Update template placeholders when editing the post title or content. [#48635]
+- Social: Avoid disabling connection rows while saving per-connection message templates. [#48641]
+- Social: Enable per-network customization by default when a custom connection template exists. [#48785]
+
+## [0.80.0] - 2026-05-11
+### Added
+- Social: Add a global message template editor to the Social admin page. [#48560]
+- Social: Add a per-connection message template editor in the connections list and the connection-confirmation modal. [#48564]
+- Social: Add support for global and per-connection message templates via REST API. [#48522]
+
+### Changed
+- Components: Use Link from `@wordpress/ui` instead of ExternalLink. [#48529]
+- Internal: Extract PlaceholdersHelp to a shared location and add a MessageTemplateEditor scaffold consumed by the upcoming template editor surfaces. [#48560]
+- Per-Network Customization: Replace forced attachment toggle with a Default media option that lets the post-level link preview decide. [#48573]
+- Social: Show a preview skeleton while message templates render. [#48576]
+- Social: Show per-connection template fallback help and prefill per-network editor messages from connection templates. [#48568]
+
+### Fixed
+- Social: Default the share-message post meta and per-connection message to the saved template on the server side. [#48634]
+- Social: Fall back to the site-wide social message template when no per-post share message is set, so the editor preview and customization field reflect the template configured on the Social admin page. [#48606]
+- Social: Honor per-connection message templates in the per-network preview pipeline and stop overwriting them when toggling per-network mode. [#48603]
+
+## [0.79.0] - 2026-05-04
+### Added
+- Custom message field: Surface available placeholders for Message Templates feature. [#48480]
+- Social preview: Render template-based messages in the block-editor preview when the `social-message-templates` feature is enabled. [#48294]
+
+### Changed
+- Components: migrate Tier 1 `jetpack-components` to `@wordpress/components` and `@wordpress/icons` (no user-facing change). [#48378]
+- Internal: No longer require automattic/jetpack-changelogger as a per-project dev dependency. [#48225]
+- Remove Beta and New badges from the Social admin page. [#48174]
+- Social: Batch-render all enabled connection previews in a single request via the new /publicize/render-messages endpoint. [#48441]
+- Social preview: Drop the now-unused PREVIEW_BODY_CHAR_LIMITS map and per-network charLimit forwarded from the connection-preview hook. [#48413]
+- Social preview: Pass per-network char_limit to the render-message endpoint. [#48294]
+
+### Fixed
+- Social admin page: Prevent stacked content sections from collapsing when the page content overflows the scrollable area. [#48484]
+
+## [0.78.2] - 2026-04-27
+### Changed
+- Social: Only allow one X connection per post to comply with X Developer Policy. [#48203]
+- Update package dependencies. [#48302]
+
+## [0.78.1] - 2026-04-20
+### Changed
+- Adopt the shared Jetpack admin-page-layout mixin on the Social admin page: pinned header, scrolling middle, pinned footer, no window-level scroll. [#48109]
+- Make the sidebar X-connection toggle date-aware and block scheduling when the target month's quota is exceeded. [#48108]
+- Remove Jetpack color overrides on core toggle components. [#47317]
+- Update package dependencies. [#48106] [#48126] [#48141]
+
+### Removed
+- Admin page: Remove support section. [#48187]
+
+### Fixed
+- Social admin page: Render the JetpackFooter unconditionally for parity with every other Jetpack admin page (Newsletter, Search, Backup, Protect, VideoPress, Boost, Network Admin). [#48183]
+
 ## [0.78.0] - 2026-04-15
 ### Changed
 - Social: Move media section buttons below preview to be more apparent. [#47995]
@@ -1386,6 +1460,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies.
 - Update package.json metadata.
 
+[0.81.1]: https://github.com/Automattic/jetpack-publicize/compare/v0.81.0...v0.81.1
+[0.81.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.80.0...v0.81.0
+[0.80.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.79.0...v0.80.0
+[0.79.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.78.2...v0.79.0
+[0.78.2]: https://github.com/Automattic/jetpack-publicize/compare/v0.78.1...v0.78.2
+[0.78.1]: https://github.com/Automattic/jetpack-publicize/compare/v0.78.0...v0.78.1
 [0.78.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.77.0...v0.78.0
 [0.77.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.76.1...v0.77.0
 [0.76.1]: https://github.com/Automattic/jetpack-publicize/compare/v0.76.0...v0.76.1
