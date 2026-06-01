@@ -34,6 +34,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 define( 'JPBETA__PLUGIN_FOLDER', dirname( plugin_basename( __FILE__ ) ) );
+define( 'JPBETA__PLUGIN_FILE', __FILE__ );
 define( 'JPBETA_VERSION', '4.2.0' );
 
 define( 'JETPACK_BETA_PLUGINS_URL', 'https://betadownload.jetpack.me/plugins.json' );
