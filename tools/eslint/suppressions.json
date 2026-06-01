@@ -1,30 +1,10 @@
 {
-	"projects/js-packages/ai-client/src/components/message/index.tsx": {
-		"@wordpress/use-recommended-components": {
-			"count": 1
-		}
-	},
-	"projects/js-packages/components/components/admin-page/index.tsx": {
-		"@wordpress/use-recommended-components": {
-			"count": 1
-		}
-	},
 	"projects/js-packages/components/components/button/index.tsx": {
 		"@wordpress/use-recommended-components": {
 			"count": 1
 		}
 	},
-	"projects/js-packages/components/components/notice/stories/index.stories.jsx": {
-		"@wordpress/use-recommended-components": {
-			"count": 1
-		}
-	},
 	"projects/js-packages/components/components/pricing-card/index.tsx": {
-		"@wordpress/use-recommended-components": {
-			"count": 1
-		}
-	},
-	"projects/js-packages/components/components/terms-of-service/index.tsx": {
 		"@wordpress/use-recommended-components": {
 			"count": 1
 		}
@@ -49,27 +29,7 @@
 			"count": 1
 		}
 	},
-	"projects/js-packages/connection/components/disconnect-dialog/steps/step-disconnect.jsx": {
-		"@wordpress/use-recommended-components": {
-			"count": 1
-		}
-	},
 	"projects/js-packages/connection/components/manage-connection-dialog/index.jsx": {
-		"@wordpress/use-recommended-components": {
-			"count": 1
-		}
-	},
-	"projects/js-packages/connection/components/owner-disconnect-dialog/index.jsx": {
-		"@wordpress/use-recommended-components": {
-			"count": 1
-		}
-	},
-	"projects/js-packages/licensing/components/activation-screen-error/use-get-error-content.tsx": {
-		"@wordpress/use-recommended-components": {
-			"count": 1
-		}
-	},
-	"projects/js-packages/licensing/components/activation-screen-success-info/product-link/index.jsx": {
 		"@wordpress/use-recommended-components": {
 			"count": 1
 		}
@@ -89,11 +49,6 @@
 			"count": 1
 		}
 	},
-	"projects/js-packages/shared-extension-utils/src/components/wpcom-support-link.jsx": {
-		"@wordpress/use-recommended-components": {
-			"count": 1
-		}
-	},
 	"projects/packages/activity-log/src/js/components/ActivityLog/ActivityActor.tsx": {
 		"@wordpress/use-recommended-components": {
 			"count": 1
@@ -105,11 +60,6 @@
 		}
 	},
 	"projects/packages/activity-log/src/js/components/ActivityLog/UpsellCallout.tsx": {
-		"@wordpress/use-recommended-components": {
-			"count": 1
-		}
-	},
-	"projects/packages/activity-log/src/js/components/ActivityLog/formatted-block/index.tsx": {
 		"@wordpress/use-recommended-components": {
 			"count": 1
 		}
@@ -154,32 +104,7 @@
 			"count": 1
 		}
 	},
-	"projects/packages/backup/src/js/components/Admin/index.js": {
-		"@wordpress/use-recommended-components": {
-			"count": 1
-		}
-	},
-	"projects/packages/backup/src/js/components/Backups.js": {
-		"@wordpress/use-recommended-components": {
-			"count": 1
-		}
-	},
 	"projects/packages/backup/src/js/components/backup-storage-space/storage-help-popover/index.jsx": {
-		"@wordpress/use-recommended-components": {
-			"count": 1
-		}
-	},
-	"projects/packages/backup/src/js/components/backup-storage-space/storage-usage-details/index.jsx": {
-		"@wordpress/use-recommended-components": {
-			"count": 1
-		}
-	},
-	"projects/packages/backup/src/js/components/next-scheduled-backup.tsx": {
-		"@wordpress/use-recommended-components": {
-			"count": 1
-		}
-	},
-	"projects/packages/backup/src/js/components/review-request/index.tsx": {
 		"@wordpress/use-recommended-components": {
 			"count": 1
 		}
@@ -214,17 +139,7 @@
 			"count": 1
 		}
 	},
-	"projects/packages/forms/src/blocks/contact-form/components/jetpack-integrations-modal/helpers/jetpack-crm.tsx": {
-		"@wordpress/use-recommended-components": {
-			"count": 1
-		}
-	},
 	"projects/packages/forms/src/blocks/contact-form/components/jetpack-integrations-modal/helpers/mailpoet.tsx": {
-		"@wordpress/use-recommended-components": {
-			"count": 1
-		}
-	},
-	"projects/packages/forms/src/blocks/contact-form/components/jetpack-integrations-modal/helpers/salesforce.tsx": {
 		"@wordpress/use-recommended-components": {
 			"count": 1
 		}
@@ -249,16 +164,6 @@
 			"count": 2
 		}
 	},
-	"projects/packages/forms/src/blocks/contact-form/components/notifications-settings.js": {
-		"@wordpress/use-recommended-components": {
-			"count": 1
-		}
-	},
-	"projects/packages/forms/src/blocks/contact-form/edit.tsx": {
-		"@wordpress/use-recommended-components": {
-			"count": 1
-		}
-	},
 	"projects/packages/forms/src/blocks/field-hidden/edit.js": {
 		"@wordpress/use-recommended-components": {
 			"count": 1
@@ -281,7 +186,7 @@
 	},
 	"projects/packages/forms/src/dashboard/components/empty-responses/index.tsx": {
 		"@wordpress/use-recommended-components": {
-			"count": 2
+			"count": 1
 		}
 	},
 	"projects/packages/forms/src/dashboard/components/export-responses/modal.tsx": {
@@ -305,11 +210,6 @@
 		}
 	},
 	"projects/packages/forms/src/dashboard/components/inspector/response-fields/field-email/index.tsx": {
-		"@wordpress/use-recommended-components": {
-			"count": 1
-		}
-	},
-	"projects/packages/forms/src/dashboard/components/inspector/response-fields/field-file/file.tsx": {
 		"@wordpress/use-recommended-components": {
 			"count": 1
 		}
@@ -354,11 +254,6 @@
 			"count": 1
 		}
 	},
-	"projects/packages/forms/src/dashboard/inbox/stage/index.js": {
-		"@wordpress/use-recommended-components": {
-			"count": 1
-		}
-	},
 	"projects/packages/forms/src/dashboard/wp-build/components/dataviews-header-row/index.tsx": {
 		"@wordpress/use-recommended-components": {
 			"count": 1
@@ -389,22 +284,7 @@
 			"count": 4
 		}
 	},
-	"projects/packages/jetpack-mu-wpcom/src/features/replace-site-visibility/site-visibility/index.tsx": {
-		"@wordpress/use-recommended-components": {
-			"count": 1
-		}
-	},
 	"projects/packages/my-jetpack/_inc/components/connection-screen/body.tsx": {
-		"@wordpress/use-recommended-components": {
-			"count": 1
-		}
-	},
-	"projects/packages/my-jetpack/_inc/components/help-card/index.tsx": {
-		"@wordpress/use-recommended-components": {
-			"count": 1
-		}
-	},
-	"projects/packages/my-jetpack/_inc/components/my-jetpack-tab-panel/help/footer.tsx": {
 		"@wordpress/use-recommended-components": {
 			"count": 1
 		}
@@ -424,27 +304,7 @@
 			"count": 4
 		}
 	},
-	"projects/packages/my-jetpack/_inc/components/onboarding-tour/index.tsx": {
-		"@wordpress/use-recommended-components": {
-			"count": 1
-		}
-	},
-	"projects/packages/my-jetpack/_inc/components/plans-section/index.tsx": {
-		"@wordpress/use-recommended-components": {
-			"count": 1
-		}
-	},
 	"projects/packages/my-jetpack/_inc/components/product-card/recommendation-actions.tsx": {
-		"@wordpress/use-recommended-components": {
-			"count": 1
-		}
-	},
-	"projects/packages/my-jetpack/_inc/components/product-cards-section/backup-card/index.jsx": {
-		"@wordpress/use-recommended-components": {
-			"count": 1
-		}
-	},
-	"projects/packages/my-jetpack/_inc/components/product-detail-card/index.jsx": {
 		"@wordpress/use-recommended-components": {
 			"count": 1
 		}
@@ -474,27 +334,12 @@
 			"count": 1
 		}
 	},
-	"projects/packages/my-jetpack/_inc/components/product-interstitial/products/jetpack-ai.tsx": {
-		"@wordpress/use-recommended-components": {
-			"count": 1
-		}
-	},
 	"projects/packages/my-jetpack/_inc/components/product-interstitial/protect/product-page.tsx": {
 		"@wordpress/use-recommended-components": {
 			"count": 1
 		}
 	},
 	"projects/packages/my-jetpack/_inc/components/stats-section/count-comparison-card.jsx": {
-		"@wordpress/use-recommended-components": {
-			"count": 1
-		}
-	},
-	"projects/packages/my-jetpack/_inc/hooks/use-notification-watcher/get-paid-plan-needs-plugins-content.tsx": {
-		"@wordpress/use-recommended-components": {
-			"count": 1
-		}
-	},
-	"projects/packages/my-jetpack/_inc/hooks/use-notification-watcher/use-paid-plan-needs-plugin-install-activation-notice.tsx": {
 		"@wordpress/use-recommended-components": {
 			"count": 1
 		}
@@ -549,29 +394,14 @@
 			"count": 1
 		}
 	},
-	"projects/packages/newsletter/src/settings/components/toggle-with-link.tsx": {
-		"@wordpress/use-recommended-components": {
-			"count": 1
-		}
-	},
 	"projects/packages/newsletter/src/settings/newsletter-settings.tsx": {
 		"@wordpress/use-recommended-components": {
 			"count": 1
 		}
 	},
-	"projects/packages/newsletter/src/settings/sections/email-byline-section.tsx": {
-		"@wordpress/use-recommended-components": {
-			"count": 5
-		}
-	},
 	"projects/packages/newsletter/src/settings/sections/email-content-section.tsx": {
 		"@wordpress/use-recommended-components": {
 			"count": 2
-		}
-	},
-	"projects/packages/newsletter/src/settings/sections/email-reply-to-settings-section.tsx": {
-		"@wordpress/use-recommended-components": {
-			"count": 4
 		}
 	},
 	"projects/packages/newsletter/src/settings/sections/email-sender-settings-section.tsx": {
@@ -584,16 +414,6 @@
 			"count": 3
 		}
 	},
-	"projects/packages/newsletter/src/settings/sections/newsletter-section.tsx": {
-		"@wordpress/use-recommended-components": {
-			"count": 6
-		}
-	},
-	"projects/packages/newsletter/src/settings/sections/paid-newsletter-section.tsx": {
-		"@wordpress/use-recommended-components": {
-			"count": 5
-		}
-	},
 	"projects/packages/newsletter/src/settings/sections/subscriptions-section.tsx": {
 		"@wordpress/use-recommended-components": {
 			"count": 2
@@ -602,26 +422,6 @@
 	"projects/packages/newsletter/src/settings/sections/welcome-email-section.tsx": {
 		"@wordpress/use-recommended-components": {
 			"count": 2
-		}
-	},
-	"projects/packages/paypal-payments/src/block/deprecated/v2/edit.js": {
-		"@wordpress/use-recommended-components": {
-			"count": 1
-		}
-	},
-	"projects/packages/paypal-payments/src/block/deprecated/v2/index.js": {
-		"@wordpress/use-recommended-components": {
-			"count": 1
-		}
-	},
-	"projects/packages/paypal-payments/src/block/edit.js": {
-		"@wordpress/use-recommended-components": {
-			"count": 1
-		}
-	},
-	"projects/packages/paypal-payments/src/paypal-payment-buttons/edit.js": {
-		"@wordpress/use-recommended-components": {
-			"count": 1
 		}
 	},
 	"projects/packages/podcast/src/blocks/podcast-episode/edit.tsx": {
@@ -709,27 +509,12 @@
 			"count": 1
 		}
 	},
-	"projects/packages/publicize/_inc/components/block-editor/placeholder.tsx": {
-		"@wordpress/use-recommended-components": {
-			"count": 1
-		}
-	},
 	"projects/packages/publicize/_inc/components/connection-management/connection-info-modern.tsx": {
 		"@wordpress/use-recommended-components": {
 			"count": 2
 		}
 	},
 	"projects/packages/publicize/_inc/components/connection-management/connection-info.tsx": {
-		"@wordpress/use-recommended-components": {
-			"count": 1
-		}
-	},
-	"projects/packages/publicize/_inc/components/connection-management/connection-name.tsx": {
-		"@wordpress/use-recommended-components": {
-			"count": 1
-		}
-	},
-	"projects/packages/publicize/_inc/components/connection-management/connection-status.tsx": {
 		"@wordpress/use-recommended-components": {
 			"count": 1
 		}
@@ -749,22 +534,12 @@
 			"count": 1
 		}
 	},
-	"projects/packages/publicize/_inc/components/customize-and-preview/customization-section/per-connection-notice.tsx": {
-		"@wordpress/use-recommended-components": {
-			"count": 1
-		}
-	},
 	"projects/packages/publicize/_inc/components/customize-and-preview/preview-section/index.tsx": {
 		"@wordpress/use-recommended-components": {
 			"count": 1
 		}
 	},
 	"projects/packages/publicize/_inc/components/form/empty-state.tsx": {
-		"@wordpress/use-recommended-components": {
-			"count": 1
-		}
-	},
-	"projects/packages/publicize/_inc/components/form/media-requirements-notice.tsx": {
 		"@wordpress/use-recommended-components": {
 			"count": 1
 		}
@@ -779,29 +554,9 @@
 			"count": 2
 		}
 	},
-	"projects/packages/publicize/_inc/components/manage-connections-modal/index.tsx": {
-		"@wordpress/use-recommended-components": {
-			"count": 1
-		}
-	},
-	"projects/packages/publicize/_inc/components/manual-sharing/info.tsx": {
-		"@wordpress/use-recommended-components": {
-			"count": 1
-		}
-	},
-	"projects/packages/publicize/_inc/components/media-picker/index.js": {
-		"@wordpress/use-recommended-components": {
-			"count": 2
-		}
-	},
 	"projects/packages/publicize/_inc/components/media-picker/index.tsx": {
 		"@wordpress/use-recommended-components": {
 			"count": 2
-		}
-	},
-	"projects/packages/publicize/_inc/components/media-section-v2/index.tsx": {
-		"@wordpress/use-recommended-components": {
-			"count": 1
 		}
 	},
 	"projects/packages/publicize/_inc/components/overview-tab/index.tsx": {
@@ -829,11 +584,6 @@
 			"count": 1
 		}
 	},
-	"projects/packages/publicize/_inc/components/services/custom-inputs.tsx": {
-		"@wordpress/use-recommended-components": {
-			"count": 1
-		}
-	},
 	"projects/packages/publicize/_inc/components/services/service-connection-info-modern.tsx": {
 		"@wordpress/use-recommended-components": {
 			"count": 1
@@ -845,11 +595,6 @@
 		}
 	},
 	"projects/packages/publicize/_inc/components/services/service-item.tsx": {
-		"@wordpress/use-recommended-components": {
-			"count": 1
-		}
-	},
-	"projects/packages/publicize/_inc/components/services/utils.tsx": {
 		"@wordpress/use-recommended-components": {
 			"count": 1
 		}
@@ -879,11 +624,6 @@
 			"count": 1
 		}
 	},
-	"projects/packages/publicize/_inc/components/share-status/share-status-action.tsx": {
-		"@wordpress/use-recommended-components": {
-			"count": 1
-		}
-	},
 	"projects/packages/publicize/_inc/components/social-gate/connection-gate.tsx": {
 		"@wordpress/use-recommended-components": {
 			"count": 1
@@ -897,16 +637,6 @@
 	"projects/packages/publicize/_inc/components/social-page.tsx": {
 		"@wordpress/use-recommended-components": {
 			"count": 2
-		}
-	},
-	"projects/packages/publicize/_inc/components/unified-modal/sharing-activity/activity-action.tsx": {
-		"@wordpress/use-recommended-components": {
-			"count": 1
-		}
-	},
-	"projects/packages/publicize/_inc/components/x-usage/x-usage-content.tsx": {
-		"@wordpress/use-recommended-components": {
-			"count": 1
 		}
 	},
 	"projects/packages/publicize/routes/dashboard/stage.tsx": {
@@ -989,11 +719,6 @@
 			"count": 1
 		}
 	},
-	"projects/packages/search/src/dashboard/components/pages/sections/plan-usage-section.jsx": {
-		"@wordpress/use-recommended-components": {
-			"count": 1
-		}
-	},
 	"projects/packages/search/src/dashboard/components/reader-chat-control/index.jsx": {
 		"@wordpress/use-recommended-components": {
 			"count": 1
@@ -1020,36 +745,6 @@
 		}
 	},
 	"projects/packages/videopress/src/client/admin/components/edit-video-details/index.tsx": {
-		"@wordpress/use-recommended-components": {
-			"count": 1
-		}
-	},
-	"projects/packages/videopress/src/client/block-editor/blocks/video/components/details-panel/index.tsx": {
-		"@wordpress/use-recommended-components": {
-			"count": 1
-		}
-	},
-	"projects/packages/videopress/src/client/block-editor/blocks/video/components/playback-panel/index.tsx": {
-		"@wordpress/use-recommended-components": {
-			"count": 1
-		}
-	},
-	"projects/packages/videopress/src/client/block-editor/blocks/video/components/videopress-uploader/index.js": {
-		"@wordpress/use-recommended-components": {
-			"count": 1
-		}
-	},
-	"projects/packages/videopress/src/client/block-editor/blocks/video/components/videopress-uploader/uploader-error.js": {
-		"@wordpress/use-recommended-components": {
-			"count": 1
-		}
-	},
-	"projects/packages/videopress/src/client/block-editor/extend/core-embed/edit.js": {
-		"@wordpress/use-recommended-components": {
-			"count": 1
-		}
-	},
-	"projects/packages/videopress/src/client/block-editor/extend/core-video/index.js": {
 		"@wordpress/use-recommended-components": {
 			"count": 1
 		}
@@ -1109,27 +804,12 @@
 			"count": 1
 		}
 	},
-	"projects/packages/yoast-promo/src/js/index.jsx": {
-		"@wordpress/use-recommended-components": {
-			"count": 1
-		}
-	},
-	"projects/plugins/automattic-for-agencies-client/src/js/components/connection-card/index.jsx": {
-		"@wordpress/use-recommended-components": {
-			"count": 1
-		}
-	},
 	"projects/plugins/boost/app/assets/src/js/features/boost-pricing-table/boost-pricing-table.tsx": {
 		"@wordpress/use-recommended-components": {
 			"count": 1
 		}
 	},
 	"projects/plugins/boost/app/assets/src/js/features/cornerstone-pages/meta/meta.tsx": {
-		"@wordpress/use-recommended-components": {
-			"count": 1
-		}
-	},
-	"projects/plugins/boost/app/assets/src/js/features/cornerstone-pages/prerender/prerender.tsx": {
 		"@wordpress/use-recommended-components": {
 			"count": 1
 		}
@@ -1179,32 +859,7 @@
 			"count": 1
 		}
 	},
-	"projects/plugins/boost/app/assets/src/js/layout/settings-page/tips/tips.tsx": {
-		"@wordpress/use-recommended-components": {
-			"count": 1
-		}
-	},
-	"projects/plugins/boost/app/assets/src/js/lib/utils/external-link-interpolate-var.tsx": {
-		"@wordpress/use-recommended-components": {
-			"count": 1
-		}
-	},
-	"projects/plugins/boost/app/assets/src/js/lib/utils/get-critical-css-error-set-interpolate-vars.tsx": {
-		"@wordpress/use-recommended-components": {
-			"count": 1
-		}
-	},
 	"projects/plugins/boost/app/assets/src/js/pages/cache-debug-log/cache-debug-log.tsx": {
-		"@wordpress/use-recommended-components": {
-			"count": 1
-		}
-	},
-	"projects/plugins/boost/app/assets/src/js/pages/index/index.tsx": {
-		"@wordpress/use-recommended-components": {
-			"count": 1
-		}
-	},
-	"projects/plugins/boost/app/assets/src/js/pages/purchase-success/purchase-success.tsx": {
 		"@wordpress/use-recommended-components": {
 			"count": 1
 		}
@@ -1234,82 +889,7 @@
 			"count": 5
 		}
 	},
-	"projects/plugins/jetpack/_inc/client/at-a-glance/backups.jsx": {
-		"@wordpress/use-recommended-components": {
-			"count": 1
-		}
-	},
-	"projects/plugins/jetpack/_inc/client/at-a-glance/boost/index.jsx": {
-		"@wordpress/use-recommended-components": {
-			"count": 1
-		}
-	},
-	"projects/plugins/jetpack/_inc/client/at-a-glance/crm/index.jsx": {
-		"@wordpress/use-recommended-components": {
-			"count": 1
-		}
-	},
-	"projects/plugins/jetpack/_inc/client/at-a-glance/jetpack-ai.jsx": {
-		"@wordpress/use-recommended-components": {
-			"count": 1
-		}
-	},
-	"projects/plugins/jetpack/_inc/client/at-a-glance/stats/dash-stats-bottom.jsx": {
-		"@wordpress/use-recommended-components": {
-			"count": 1
-		}
-	},
-	"projects/plugins/jetpack/_inc/client/at-a-glance/stats/index.jsx": {
-		"@wordpress/use-recommended-components": {
-			"count": 1
-		}
-	},
-	"projects/plugins/jetpack/_inc/client/components/block-theme-notice/index.jsx": {
-		"@wordpress/use-recommended-components": {
-			"count": 1
-		}
-	},
-	"projects/plugins/jetpack/_inc/client/components/connect-button/index.jsx": {
-		"@wordpress/use-recommended-components": {
-			"count": 1
-		}
-	},
 	"projects/plugins/jetpack/_inc/client/components/connection-banner/index.jsx": {
-		"@wordpress/use-recommended-components": {
-			"count": 1
-		}
-	},
-	"projects/plugins/jetpack/_inc/client/components/jetpack-benefits/index.jsx": {
-		"@wordpress/use-recommended-components": {
-			"count": 1
-		}
-	},
-	"projects/plugins/jetpack/_inc/client/components/jetpack-notices/deprecation-notice.jsx": {
-		"@wordpress/use-recommended-components": {
-			"count": 1
-		}
-	},
-	"projects/plugins/jetpack/_inc/client/components/jetpack-notices/state-notices.jsx": {
-		"@wordpress/use-recommended-components": {
-			"count": 1
-		}
-	},
-	"projects/plugins/jetpack/_inc/client/components/jetpack-product-card/index.jsx": {
-		"@wordpress/use-recommended-components": {
-			"count": 1
-		}
-	},
-	"projects/plugins/jetpack/_inc/client/components/owner-disconnect-dialog/index.jsx": {
-		"@wordpress/use-recommended-components": {
-			"count": 1
-		}
-	},
-	"projects/plugins/jetpack/_inc/client/components/product-expiration/index.jsx": {
-		"@wordpress/use-recommended-components": {
-			"count": 1
-		}
-	},
-	"projects/plugins/jetpack/_inc/client/components/section-nav/item.jsx": {
 		"@wordpress/use-recommended-components": {
 			"count": 1
 		}
@@ -1324,137 +904,7 @@
 			"count": 1
 		}
 	},
-	"projects/plugins/jetpack/_inc/client/components/support-info/index.jsx": {
-		"@wordpress/use-recommended-components": {
-			"count": 1
-		}
-	},
-	"projects/plugins/jetpack/_inc/client/earn/ads.jsx": {
-		"@wordpress/use-recommended-components": {
-			"count": 1
-		}
-	},
-	"projects/plugins/jetpack/_inc/client/my-plan/my-plan-body.jsx": {
-		"@wordpress/use-recommended-components": {
-			"count": 1
-		}
-	},
-	"projects/plugins/jetpack/_inc/client/my-plan/my-plan-header/index.js": {
-		"@wordpress/use-recommended-components": {
-			"count": 1
-		}
-	},
-	"projects/plugins/jetpack/_inc/client/privacy/index.jsx": {
-		"@wordpress/use-recommended-components": {
-			"count": 1
-		}
-	},
-	"projects/plugins/jetpack/_inc/client/recommendations/feature-summary/index.jsx": {
-		"@wordpress/use-recommended-components": {
-			"count": 1
-		}
-	},
-	"projects/plugins/jetpack/_inc/client/recommendations/feature-summary/resource.jsx": {
-		"@wordpress/use-recommended-components": {
-			"count": 1
-		}
-	},
-	"projects/plugins/jetpack/_inc/client/recommendations/prompts/feature-prompt/index.jsx": {
-		"@wordpress/use-recommended-components": {
-			"count": 1
-		}
-	},
-	"projects/plugins/jetpack/_inc/client/recommendations/prompts/resource-prompt/index.jsx": {
-		"@wordpress/use-recommended-components": {
-			"count": 1
-		}
-	},
-	"projects/plugins/jetpack/_inc/client/recommendations/sidebar/mobile-app/index.tsx": {
-		"@wordpress/use-recommended-components": {
-			"count": 1
-		}
-	},
-	"projects/plugins/jetpack/_inc/client/recommendations/sidebar/product-spotlight/index.jsx": {
-		"@wordpress/use-recommended-components": {
-			"count": 1
-		}
-	},
-	"projects/plugins/jetpack/_inc/client/security/monitor.jsx": {
-		"@wordpress/use-recommended-components": {
-			"count": 1
-		}
-	},
-	"projects/plugins/jetpack/_inc/client/security/sso.jsx": {
-		"@wordpress/use-recommended-components": {
-			"count": 1
-		}
-	},
-	"projects/plugins/jetpack/_inc/client/security/waf.jsx": {
-		"@wordpress/use-recommended-components": {
-			"count": 1
-		}
-	},
-	"projects/plugins/jetpack/_inc/client/traffic/google-analytics.jsx": {
-		"@wordpress/use-recommended-components": {
-			"count": 1
-		}
-	},
-	"projects/plugins/jetpack/_inc/client/traffic/sitemaps.jsx": {
-		"@wordpress/use-recommended-components": {
-			"count": 1
-		}
-	},
-	"projects/plugins/jetpack/_inc/client/traffic/verification-services.jsx": {
-		"@wordpress/use-recommended-components": {
-			"count": 1
-		}
-	},
-	"projects/plugins/jetpack/_inc/client/traffic/verification-services/google.jsx": {
-		"@wordpress/use-recommended-components": {
-			"count": 1
-		}
-	},
-	"projects/plugins/jetpack/extensions/blocks/ai-assistant/components/feedback-control/index.tsx": {
-		"@wordpress/use-recommended-components": {
-			"count": 1
-		}
-	},
-	"projects/plugins/jetpack/extensions/blocks/ai-assistant/components/message/block-message.tsx": {
-		"@wordpress/use-recommended-components": {
-			"count": 1
-		}
-	},
-	"projects/plugins/jetpack/extensions/blocks/ai-assistant/edit.js": {
-		"@wordpress/use-recommended-components": {
-			"count": 1
-		}
-	},
-	"projects/plugins/jetpack/extensions/blocks/ai-chat/question-answer.js": {
-		"@wordpress/use-recommended-components": {
-			"count": 1
-		}
-	},
-	"projects/plugins/jetpack/extensions/blocks/blog-stats/inactive-placeholder.js": {
-		"@wordpress/use-recommended-components": {
-			"count": 1
-		}
-	},
-	"projects/plugins/jetpack/extensions/blocks/calendly/controls.js": {
-		"@wordpress/use-recommended-components": {
-			"count": 1
-		}
-	},
-	"projects/plugins/jetpack/extensions/blocks/calendly/edit.js": {
-		"@wordpress/use-recommended-components": {
-			"count": 1
-		}
-	},
 	"projects/plugins/jetpack/extensions/blocks/donations/controls.js": {
-		"@wordpress/use-recommended-components": {
-			"count": 1
-		}
-	},
-	"projects/plugins/jetpack/extensions/blocks/donations/first-time-modal.js": {
 		"@wordpress/use-recommended-components": {
 			"count": 1
 		}
@@ -1462,61 +912,6 @@
 	"projects/plugins/jetpack/extensions/blocks/donations/style-controls.js": {
 		"@wordpress/use-recommended-components": {
 			"count": 2
-		}
-	},
-	"projects/plugins/jetpack/extensions/blocks/eventbrite/form.js": {
-		"@wordpress/use-recommended-components": {
-			"count": 1
-		}
-	},
-	"projects/plugins/jetpack/extensions/blocks/google-calendar/edit.js": {
-		"@wordpress/use-recommended-components": {
-			"count": 1
-		}
-	},
-	"projects/plugins/jetpack/extensions/blocks/google-docs-embed/preview.js": {
-		"@wordpress/use-recommended-components": {
-			"count": 1
-		}
-	},
-	"projects/plugins/jetpack/extensions/blocks/instagram-gallery/controls.js": {
-		"@wordpress/use-recommended-components": {
-			"count": 1
-		}
-	},
-	"projects/plugins/jetpack/extensions/blocks/like/edit.js": {
-		"@wordpress/use-recommended-components": {
-			"count": 1
-		}
-	},
-	"projects/plugins/jetpack/extensions/blocks/mailchimp/controls.js": {
-		"@wordpress/use-recommended-components": {
-			"count": 1
-		}
-	},
-	"projects/plugins/jetpack/extensions/blocks/map/controls.js": {
-		"@wordpress/use-recommended-components": {
-			"count": 1
-		}
-	},
-	"projects/plugins/jetpack/extensions/blocks/map/edit.js": {
-		"@wordpress/use-recommended-components": {
-			"count": 1
-		}
-	},
-	"projects/plugins/jetpack/extensions/blocks/opentable/edit.js": {
-		"@wordpress/use-recommended-components": {
-			"count": 1
-		}
-	},
-	"projects/plugins/jetpack/extensions/blocks/podcast-player/edit.js": {
-		"@wordpress/use-recommended-components": {
-			"count": 1
-		}
-	},
-	"projects/plugins/jetpack/extensions/blocks/related-posts/inactive-placeholder.js": {
-		"@wordpress/use-recommended-components": {
-			"count": 1
 		}
 	},
 	"projects/plugins/jetpack/extensions/blocks/subscriptions/email-preview.js": {
@@ -1529,97 +924,12 @@
 			"count": 1
 		}
 	},
-	"projects/plugins/jetpack/extensions/blocks/top-posts/inactive-placeholder.js": {
-		"@wordpress/use-recommended-components": {
-			"count": 1
-		}
-	},
-	"projects/plugins/jetpack/extensions/blocks/videopress/edit.js": {
-		"@wordpress/use-recommended-components": {
-			"count": 1
-		}
-	},
-	"projects/plugins/jetpack/extensions/blocks/videopress/resumable-upload/index.js": {
-		"@wordpress/use-recommended-components": {
-			"count": 1
-		}
-	},
-	"projects/plugins/jetpack/extensions/blocks/wordads/components/jetpack-wordads-placeholder.js": {
-		"@wordpress/use-recommended-components": {
-			"count": 1
-		}
-	},
-	"projects/plugins/jetpack/extensions/plugins/ai-assistant-plugin/components/ai-assistant-plugin-sidebar/index.tsx": {
-		"@wordpress/use-recommended-components": {
-			"count": 1
-		}
-	},
 	"projects/plugins/jetpack/extensions/plugins/ai-assistant-plugin/components/breve/controls.tsx": {
 		"@wordpress/use-recommended-components": {
 			"count": 3
 		}
 	},
-	"projects/plugins/jetpack/extensions/plugins/ai-assistant-plugin/components/title-optimization/index.tsx": {
-		"@wordpress/use-recommended-components": {
-			"count": 1
-		}
-	},
-	"projects/plugins/jetpack/extensions/plugins/ai-content-lens/extend/ai-post-excerpt/index.tsx": {
-		"@wordpress/use-recommended-components": {
-			"count": 1
-		}
-	},
-	"projects/plugins/jetpack/extensions/plugins/likes/components/placeholder.js": {
-		"@wordpress/use-recommended-components": {
-			"count": 1
-		}
-	},
-	"projects/plugins/jetpack/extensions/plugins/payments/index.js": {
-		"@wordpress/use-recommended-components": {
-			"count": 1
-		}
-	},
-	"projects/plugins/jetpack/extensions/plugins/seo/components/placeholder.js": {
-		"@wordpress/use-recommended-components": {
-			"count": 1
-		}
-	},
-	"projects/plugins/jetpack/extensions/plugins/sharing/components/placeholder.js": {
-		"@wordpress/use-recommended-components": {
-			"count": 1
-		}
-	},
-	"projects/plugins/jetpack/extensions/shared/components/block-nudge/index.jsx": {
-		"@wordpress/use-recommended-components": {
-			"count": 1
-		}
-	},
-	"projects/plugins/jetpack/extensions/shared/components/product-management-controls/inspector-control.js": {
-		"@wordpress/use-recommended-components": {
-			"count": 1
-		}
-	},
-	"projects/plugins/jetpack/extensions/shared/components/product-management-controls/toolbar-control.js": {
-		"@wordpress/use-recommended-components": {
-			"count": 1
-		}
-	},
 	"projects/plugins/jetpack/extensions/shared/memberships/settings.js": {
-		"@wordpress/use-recommended-components": {
-			"count": 1
-		}
-	},
-	"projects/plugins/jetpack/modules/subscriptions/newsletter-widget/src/components/dashboard-link.tsx": {
-		"@wordpress/use-recommended-components": {
-			"count": 1
-		}
-	},
-	"projects/plugins/jetpack/modules/subscriptions/newsletter-widget/test/dashboard-link.test.tsx": {
-		"@wordpress/use-recommended-components": {
-			"count": 1
-		}
-	},
-	"projects/plugins/protect/src/js/components/paid-accordion/index.jsx": {
 		"@wordpress/use-recommended-components": {
 			"count": 1
 		}
@@ -1630,11 +940,6 @@
 		}
 	},
 	"projects/plugins/protect/src/js/components/upgrade-notice/index.tsx": {
-		"@wordpress/use-recommended-components": {
-			"count": 1
-		}
-	},
-	"projects/plugins/protect/src/js/hooks/use-notices.tsx": {
 		"@wordpress/use-recommended-components": {
 			"count": 1
 		}
