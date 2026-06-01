@@ -1,0 +1,138 @@
+@use "@automattic/jetpack-base-styles/admin-page-layout" as *;
+
+body.toplevel_page_jetpack.jetpack-offline-mode-page {
+	--jp-offline-mode-canvas-background: #fcfcfc;
+
+	@include jetpack-admin-page-layout;
+
+	&,
+	.jp-admin-page,
+	.jp-admin-page__page {
+		background-color: var(--jp-offline-mode-canvas-background);
+	}
+
+	#wpbody-content {
+		background-color: transparent;
+
+		.jp-offline-mode-admin-shell,
+		.boot-layout-container {
+			display: flex;
+			flex: 1 1 auto;
+			flex-direction: column;
+			min-block-size: 0;
+			min-inline-size: 0;
+		}
+
+		.boot-layout {
+			background: #141d22;
+			display: flex;
+			flex: 1 1 auto;
+			inline-size: 100%;
+			inset-block: 0;
+			inset-inline: 0;
+			isolation: isolate;
+			min-block-size: calc(100vh - 32px);
+			min-inline-size: 0;
+			position: absolute;
+		}
+
+		.boot-layout__surfaces {
+			display: flex;
+			flex: 1 1 auto;
+			gap: 8px;
+			margin-block: 0 8px;
+			margin-inline: 0 8px;
+			min-block-size: 0;
+			min-inline-size: 0;
+		}
+
+		.boot-layout__stage {
+			background: #fff;
+			border-radius: 8px;
+			flex: 1 1 auto;
+			min-block-size: 0;
+			min-inline-size: 0;
+			overflow: auto;
+		}
+	}
+
+	@media ( max-width: 782px ) {
+
+		#wpbody-content {
+
+			.boot-layout {
+				min-block-size: calc(100vh - 46px);
+			}
+
+			.boot-layout__surfaces {
+				margin: 0;
+			}
+
+			.boot-layout__stage {
+				border-radius: 0;
+			}
+		}
+	}
+}
+
+.jp-offline-mode__container {
+	box-sizing: border-box;
+	flex: 1 1 auto;
+	min-block-size: 0;
+	min-inline-size: 0;
+	overflow-y: auto;
+}
+
+.jp-offline-mode {
+	inline-size: 100%;
+}
+
+.jp-offline-mode--loading {
+	min-block-size: 160px;
+}
+
+.jp-offline-mode__content {
+	inline-size: 100%;
+	margin-inline: auto;
+	max-inline-size: 760px;
+	padding-block: 32px;
+}
+
+.jp-offline-mode__feature-row {
+	align-items: flex-start;
+	display: grid;
+	gap: 16px;
+	grid-template-columns: minmax(160px, 220px) minmax(0, 1fr) auto;
+}
+
+.jp-offline-mode__feature-copy {
+	min-inline-size: 0;
+}
+
+.jp-offline-mode__feature-documentation-link {
+	display: inline-flex;
+	font-size: inherit;
+	line-height: inherit;
+	margin-inline-start: 4px;
+	vertical-align: text-bottom;
+
+	.components-external-link__icon {
+		margin-inline-start: 0;
+	}
+}
+
+.jp-offline-mode__limitation {
+	margin-block: 12px 0;
+	margin-inline: 0;
+}
+
+@media ( max-width: 782px ) {
+
+	.jp-offline-mode__content {
+		padding-block: 24px;
+	}
+
+	.jp-offline-mode__feature-row {
+		grid-template-columns: 1fr;
+	}
+}
