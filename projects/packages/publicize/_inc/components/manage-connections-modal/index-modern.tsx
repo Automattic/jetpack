@@ -74,11 +74,19 @@ export const ModernManageConnectionsModal = () => {
 						<Dialog.CloseIcon />
 					</Dialog.Header>
 					{ hasKeyringResult ? (
-						<ConfirmationForm
-							keyringResult={ keyringResult }
-							onComplete={ closeModal }
-							canMarkAsShared={ canMarkAsShared }
-						/>
+						/*
+						 * Wrap the confirmation form in `Dialog.Content` too, so it
+						 * picks up the same body inset the services list gets
+						 * (`0 24px 24px`). Rendered bare, the form ran edge-to-edge
+						 * and the footer buttons sat flush against the popup bottom.
+						 */
+						<Dialog.Content>
+							<ConfirmationForm
+								keyringResult={ keyringResult }
+								onComplete={ closeModal }
+								canMarkAsShared={ canMarkAsShared }
+							/>
+						</Dialog.Content>
 					) : (
 						/*
 						 * `Dialog.Content` is the library's scroll region (flex:1;
