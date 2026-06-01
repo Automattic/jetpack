@@ -48,7 +48,7 @@ const BranchCard = ( { card, pluginSlug, onActivated }: Props ) => {
 			.finally( () => {
 				setBusy( false );
 			} );
-		// eslint-disable-next-line react-hooks/exhaustive-deps -- busy guards re-entrancy; stale closure is safe because busy is set before any await
+		// eslint-disable-next-line react-hooks/exhaustive-deps -- re-entry is prevented by `disabled={ busy }` on the Button; the in-handler `if (busy) return` is a secondary guard only
 	}, [ card.id, card.source, onActivated, pluginSlug ] );
 
 	return (
