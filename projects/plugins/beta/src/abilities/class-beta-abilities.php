@@ -500,7 +500,6 @@ class Beta_Abilities extends Registrar {
 		// these wp-admin includes. They are safe to require in a REST context —
 		// the WP core REST plugin-install endpoint does the same thing.
 		require_once ABSPATH . 'wp-admin/includes/file.php';
-		require_once ABSPATH . 'wp-admin/includes/misc.php';
 		require_once ABSPATH . 'wp-admin/includes/class-wp-upgrader.php';
 		require_once ABSPATH . 'wp-admin/includes/plugin.php';
 
@@ -511,7 +510,7 @@ class Beta_Abilities extends Registrar {
 
 		return array(
 			'success' => true,
-			'plugin'  => self::build_plugin_view( $plugin ),
+			'plugin'  => self::build_plugin_view( Plugin::get_plugin( $slug, true ) ),
 		);
 	}
 
