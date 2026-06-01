@@ -48,6 +48,15 @@ body.jetpack-beta-page {
 	user-select: none;
 }
 
+// wordpress.org plugin icon shown on each list row.
+.jetpack-beta-plugin-icon {
+	width: 40px;
+	height: 40px;
+	flex-shrink: 0;
+	border-radius: 4px;
+	object-fit: contain;
+}
+
 // Whole plugin card acts as a button linking to its manage screen.
 .jetpack-beta-plugin-card {
 	cursor: pointer;

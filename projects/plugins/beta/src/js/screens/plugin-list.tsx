@@ -14,7 +14,7 @@ import { listPlugins } from '../api/abilities';
 import GlobalToggles from '../components/global-toggles';
 import { CardRowSkeleton } from '../components/skeleton';
 import type { PluginListItem } from '../api/types';
-import type { KeyboardEvent } from 'react';
+import type { KeyboardEvent, SyntheticEvent } from 'react';
 
 /**
  * Derive the display version string and badge label for a plugin row.
@@ -41,6 +41,16 @@ const pluginStatus = (
 		versionText: __( 'Plugin is not active', 'jetpack-beta' ),
 		badgeLabel: null,
 	};
+};
+
+/**
+ * Hide a plugin icon that fails to load (e.g. an unpublished plugin with no
+ * wordpress.org assets) so a broken-image glyph never shows.
+ *
+ * @param event - The image error event.
+ */
+const hideBrokenIcon = ( event: SyntheticEvent< HTMLImageElement > ) => {
+	event.currentTarget.style.display = 'none';
 };
 
 /**
@@ -83,15 +93,24 @@ const PluginCard = ( { plugin }: { plugin: PluginListItem } ) => {
 		>
 			<Card.Content>
 				<Stack direction="row" align="center" justify="space-between">
-					<Stack direction="column" gap="xs">
-						<Text variant="body-md">{ plugin.name }</Text>
-						<Stack direction="row" gap="xs" align="center">
-							<Text variant="body-sm">{ versionText }</Text>
-							{ badgeLabel && (
-								<Badge intent={ plugin.active_which === 'dev' ? 'informational' : 'stable' }>
-									{ badgeLabel }
-								</Badge>
-							) }
+					<Stack direction="row" gap="md" align="center">
+						<img
+							className="jetpack-beta-plugin-icon"
+							src={ `https://ps.w.org/${ plugin.slug }/assets/icon.svg` }
+							alt=""
+							aria-hidden="true"
+							onError={ hideBrokenIcon }
+						/>
+						<Stack direction="column" gap="xs">
+							<Text variant="body-md">{ plugin.name }</Text>
+							<Stack direction="row" gap="xs" align="center">
+								<Text variant="body-sm">{ versionText }</Text>
+								{ badgeLabel && (
+									<Badge intent={ plugin.active_which === 'dev' ? 'informational' : 'stable' }>
+										{ badgeLabel }
+									</Badge>
+								) }
+							</Stack>
 						</Stack>
 					</Stack>
 					<Icon icon={ chevronRight } size={ 24 } />
@@ -185,22 +204,26 @@ const PluginList = () => {
 	}, [] );
 
 	return (
-		<Container horizontalSpacing={ 5 } horizontalGap={ 3 }>
-			<Col>
-				<Stack direction="column" gap="md">
-					<GlobalToggles />
-					{ loading &&
-						Array.from( { length: 6 } ).map( ( _, index ) => <CardRowSkeleton key={ index } /> ) }
-					{ error && (
-						<Notice.Root intent="error">
-							<Notice.Description>{ error }</Notice.Description>
-						</Notice.Root>
-					) }
-					{ plugins &&
-						plugins.map( plugin => <PluginCard key={ plugin.slug } plugin={ plugin } /> ) }
-				</Stack>
-			</Col>
-		</Container>
+		// Full-width scroll container so the scrollbar sits at the page edge; the
+		// inner Container keeps the content at a centered, fixed width.
+		<div className="jetpack-beta-scroll">
+			<Container horizontalSpacing={ 5 } horizontalGap={ 3 }>
+				<Col>
+					<Stack direction="column" gap="md">
+						<GlobalToggles />
+						{ loading &&
+							Array.from( { length: 6 } ).map( ( _, index ) => <CardRowSkeleton key={ index } /> ) }
+						{ error && (
+							<Notice.Root intent="error">
+								<Notice.Description>{ error }</Notice.Description>
+							</Notice.Root>
+						) }
+						{ plugins &&
+							plugins.map( plugin => <PluginCard key={ plugin.slug } plugin={ plugin } /> ) }
+					</Stack>
+				</Col>
+			</Container>
+		</div>
 	);
 };
 
