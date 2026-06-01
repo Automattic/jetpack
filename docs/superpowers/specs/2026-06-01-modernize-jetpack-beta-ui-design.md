@@ -67,9 +67,34 @@ Notes:
 
 New `src/js/` tree, plus `package.json` and `webpack.config.js` using
 `@automattic/jetpack-webpack-config` (same harness as the Protect plugin), building into
-`build/`. Dependencies: `@wordpress/ui`, `@wordpress/element`, `@wordpress/api-fetch`,
-`@wordpress/i18n`, `@automattic/jetpack-base-styles`, and `@wordpress/components` only if a
-toggle/switch primitive is needed (see Risks).
+`build/`. Dependencies: `@automattic/jetpack-components` (page chrome — see Header & footer),
+`@wordpress/ui`, `@wordpress/element`, `@wordpress/api-fetch`, `@wordpress/i18n`,
+`@automattic/jetpack-base-styles`, and `@wordpress/components` only if a toggle/switch
+primitive is needed (see Risks).
+
+### Header & footer (page chrome)
+
+Both screens are wrapped in **`AdminPage` from `@automattic/jetpack-components`**, the shared
+Jetpack page chrome used by the Activity Log UI (`projects/packages/activity-log`), Protect,
+and others. This is the canonical way to get a consistent header and footer and replaces the
+plugin's bespoke `header.template.php` (a hand-inlined SVG masthead) — the plugin currently
+has no footer at all.
+
+`AdminPage` provides:
+
+- **Header** — via `Page` from `@wordpress/admin-ui` + `JetpackLogo`: the Jetpack masthead
+  logo, a `title` ("Beta Tester"), a `subTitle`, header `actions`, and `breadcrumbs`.
+- **Footer** — the standard `JetpackFooter` ("An Automattic Airline", Jetpack logo, module
+  label, a8c link).
+
+Mapping to the current UI:
+
+- Page `title` = "Beta Tester"; `subTitle` = short tagline.
+- The plugin-manage screen's hand-rolled breadcrumb div ("Jetpack Beta Tester Home > Jetpack")
+  becomes the `AdminPage` `breadcrumbs` prop.
+- `showFooter` defaults to `true` (Beta is a standalone wp-admin page, unlike the embedded
+  Activity Log which passes `showFooter={false}`).
+- `AdminPage` wants `apiRoot` / `apiNonce`; these come from the same localized bootstrap.
 
 - **Entry / bootstrap:** `Admin::render()` prints a root `<div>`, enqueues the webpack build,
   and localizes a small bootstrap object: REST root + nonce, the current `plugin` query-arg
