@@ -253,6 +253,13 @@
 		margin-bottom: 16px;
 	}
 
+	.block-editor-block-variation-picker__variation {
+
+		svg path:not([fill="none"]) {
+			fill: currentColor;
+		}
+	}
+
 	.form-placeholder__shell {
 		text-align: center;
 
