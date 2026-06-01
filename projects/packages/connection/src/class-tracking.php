@@ -253,7 +253,7 @@ class Tracking {
 		$properties['user_lang'] = $user->get( 'WPLANG' );
 
 		$blog_details = array(
-			'blog_lang' => isset( $properties['blog_lang'] ) ? $properties['blog_lang'] : get_bloginfo( 'language' ),
+			'blog_lang' => $properties['blog_lang'] ?? get_bloginfo( 'language' ),
 			'blog_id'   => \Jetpack_Options::get_option( 'id' ),
 		);
 

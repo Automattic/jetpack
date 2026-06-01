@@ -192,7 +192,7 @@ class Jetpack_Ai extends Product {
 			return 0;
 		}
 
-		$current_tier = isset( $info['current-tier']['value'] ) ? $info['current-tier']['value'] : null;
+		$current_tier = $info['current-tier']['value'] ?? null;
 
 		return $current_tier;
 	}
@@ -217,7 +217,7 @@ class Jetpack_Ai extends Product {
 		}
 
 		// Trust the next tier provided by the feature data.
-		$next_tier = isset( $info['next-tier']['value'] ) ? $info['next-tier']['value'] : null;
+		$next_tier = $info['next-tier']['value'] ?? null;
 
 		return $next_tier;
 	}
@@ -368,7 +368,7 @@ class Jetpack_Ai extends Product {
 			);
 		}
 
-		return isset( $prices[ $tier ] ) ? $prices[ $tier ] : array();
+		return $prices[ $tier ] ?? array();
 	}
 
 	/**

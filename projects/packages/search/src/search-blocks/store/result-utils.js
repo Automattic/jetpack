@@ -1,33 +1,18 @@
 /**
- * Pure helpers for shaping v1.3 Jetpack Search results into the flat form the
- * Interactivity API templates consume. Extracted from store/index.js so they
- * can be unit-tested without bootstrapping the IAPI runtime.
- *
- * Note: this module is loaded inside the Interactivity API view bundle, where
- * `@wordpress/i18n` is not available — the IAPI runtime rejects WP-script
- * imports. Strings here are deliberately untranslated; the editor preview
- * (edit.js) composes its own localized versions via wp.i18n. Localizing the
- * frontend strings is tracked separately so it lands once the IAPI build
- * pipeline gains wp.i18n support.
+ * Pure helpers for shaping v1.3 search results into the flat shape IA
+ * templates consume. Extracted from store/index.js for Jest. Strings are
+ * deliberately untranslated — IA view bundles can't import `@wordpress/i18n`.
  */
 
 import { formatWpDate } from './wp-date-format';
 
-// Module-scoped: the site's WP `date_format` setting is seeded once at store
-// hydration via `setSeededDateFormat()` and read implicitly by `formatDate()`.
-// Threading it through every `normalizeResult` call would be noise — it never
-// changes for the lifetime of the page, and the Interactivity API store is a
-// singleton, so module scope matches the data's actual lifetime.
+// Module-scoped — seeded once at hydration. See AGENTS.md § Interactivity API gotchas.
 let seededDateFormat = '';
 
 /**
- * Capture the site's WP `date_format` Settings option for use by subsequent
- * `formatDate()` calls. Called once during store init from the
- * `state.dateFormat` seed (see `Search_Blocks::seed_interactivity_state()`).
+ * Capture the site's `date_format` for subsequent `formatDate()` calls.
  *
- * @param {string} format - WP `date_format` token string, or an empty string
- *                        when the seed is missing (falls back to the legacy
- *                        `toLocaleDateString` shape).
+ * @param {string} format - WP token string; empty falls back to Intl short form.
  */
 export function setSeededDateFormat( format ) {
 	seededDateFormat = typeof format === 'string' ? format : '';
@@ -39,12 +24,9 @@ const STRIP_TAGS_PATTERN = /<[^>]*>/g;
 const NUMERIC_ENTITY_PATTERN = /&#(\d+);/g;
 const HEX_ENTITY_PATTERN = /&#x([0-9a-f]+);/gi;
 const NAMED_ENTITY_PATTERN = /&([a-z][a-z0-9]*);/gi;
-// Minimum entity coverage needed to render API-supplied prices/titles as plain
-// text — WPCOM hands back HTML-formatted prices like `<span>&#036;</span>11.05`
-// where `$` arrives as a numeric entity and `&nbsp;` is common between currency
-// and amount. Anything outside this map (e.g. `&copy;`) is left intact so it
-// stays visible as a question for whoever sees it, rather than silently
-// disappearing.
+// Minimum entity coverage for API-supplied prices/titles. WPCOM returns
+// `<span>&#036;</span>11.05` with `$` as a numeric entity + `&nbsp;`.
+// Anything outside this map is left visible (`&copy;` → as-is).
 const NAMED_ENTITY_MAP = {
 	amp: '&',
 	lt: '<',
@@ -55,13 +37,10 @@ const NAMED_ENTITY_MAP = {
 };
 
 /**
- * Ensure a URL is a browser-safe http(s)/protocol-relative reference. The
- * v1.3 API returns hostless URLs (e.g. `example.com/foo/`) which we promote
- * to a protocol-relative form (`//example.com/foo/`) so links inherit the
- * page's scheme — matches the page protocol on http sites and avoids
- * mixed-content downgrades on https sites. URLs with any other scheme
- * (javascript:, data:, ftp:, …) are rejected so a compromised API response
- * can't smuggle a non-http URL into an href.
+ * Promote API URLs to a safe http(s)/protocol-relative form. Hostless URLs
+ * (`example.com/foo/`) → `//example.com/foo/`. **Security**: any other scheme
+ * (`javascript:`, `data:`, `ftp:`) is rejected so a compromised API response
+ * can't smuggle a script/data URL into an `href`.
  *
  * @param {string} raw - Raw URL from the API.
  * @return {string} Safe URL or ''.
@@ -80,25 +59,13 @@ export function toSafeUrl( raw ) {
 }
 
 /**
- * Format an ISO date string for display on a search result card.
+ * Format an ISO date for a result card. Uses the site's `date_format` via
+ * `formatWpDate` when seeded, else falls back to a short Intl shape. The
+ * `dateFormat` override is for tests.
  *
- * When the module-scoped `seededDateFormat` is non-empty (the site's WP
- * `date_format` option, captured once at store init via
- * `setSeededDateFormat()`), the date is rendered through the PHP `date()`-style
- * token parser in `wp-date-format.js` so result cards match the rest of the
- * site (`F j, Y`, `Y-m-d`, `d/m/Y`, etc.) instead of `toLocaleDateString`'s
- * fixed `{ year, month, day }` shape. The legacy short-form output is kept as
- * the fallback so call sites that run before the seed (older tests, edge
- * paths) keep working unchanged.
- *
- * The `dateFormat` override exists for test ergonomics — call sites pass
- * nothing in production. Tests reach for the explicit override or for
- * `setSeededDateFormat()` plus a reset; both are documented in
- * `result-utils.test.js`.
- *
- * @param {string} iso          - ISO-ish date string.
- * @param {string} [locale]     - BCP47 locale (e.g. `en-US`).
- * @param {string} [dateFormat] - Override; defaults to the module-scoped seeded value.
+ * @param {string} iso          - ISO date string.
+ * @param {string} [locale]     - BCP47 locale.
+ * @param {string} [dateFormat] - Tests only; defaults to module-scoped seed.
  * @return {string} Formatted date or ''.
  */
 export function formatDate( iso, locale = 'en-US', dateFormat = seededDateFormat ) {
@@ -122,7 +89,7 @@ export function formatDate( iso, locale = 'en-US', dateFormat = seededDateFormat
 }
 
 /**
- * Derive a breadcrumb-style path from a permalink ("2023 › 01 › 13 › slug").
+ * Breadcrumb path from a permalink ("2023 › 01 › 13 › slug").
  *
  * @param {string} permalink - Full URL.
  * @return {string} Breadcrumb string or ''.
@@ -132,10 +99,7 @@ export function formatPath( permalink ) {
 		return '';
 	}
 	try {
-		// `toSafeUrl` promotes hostless API URLs to protocol-relative form
-		// (`//example.com/…`), but `new URL()` requires an explicit scheme and
-		// would throw otherwise. Pin a scheme for parsing only — it never
-		// reaches the DOM.
+		// `new URL()` requires an explicit scheme; pin one for parsing only.
 		const resolved = permalink.startsWith( '//' ) ? `https:${ permalink }` : permalink;
 		const url = new URL( resolved );
 		const parts = url.pathname.split( '/' ).filter( Boolean ).map( decodeURIComponent );
@@ -146,19 +110,12 @@ export function formatPath( permalink ) {
 }
 
 /**
- * Format the v1.3 `author` field for display on a result card. The API hands
- * back a single author as a string and co-authored posts as an array; in the
- * array case, mirror instant-search's behavior — comma-join up to three
- * entries, and for >3 keep the first three and append an ellipsis so the
- * meta row doesn't run away on heavily co-authored posts.
+ * Format `fields.author` for display. API returns string or array; up to
+ * three names joined, more truncated with "...". Decoded because the API
+ * HTML-encodes names (`O&#8217;Brien`) and `data-wp-text` is textContent.
  *
- * Each name is run through `decodeEntities` because the API HTML-encodes
- * punctuation in display names (`O&#8217;Brien`, `Jane &amp; John`). The meta
- * row binds via `data-wp-text` (textContent, not innerHTML), so without
- * decoding the raw entity would render literally on the card.
- *
- * @param {*} value - `fields.author` from the v1.3 API response.
- * @return {string} Display string, or '' when no author is present.
+ * @param {*} value - `fields.author` from the response.
+ * @return {string} Display string, or ''.
  */
 export function formatAuthor( value ) {
 	if ( Array.isArray( value ) ) {
@@ -178,13 +135,11 @@ export function formatAuthor( value ) {
 }
 
 /**
- * Decode the small set of HTML entities the v1.3 API can place in
- * text-rendered fields. WPCOM hands back WC-formatted prices and post titles
- * with numeric entities (e.g. `&#036;` for `$`) and a handful of named ones
- * (`&amp;`, `&nbsp;`); everything else is left untouched.
+ * Decode the entity subset the v1.3 API uses in text-rendered fields
+ * (numeric entities + the named ones in `NAMED_ENTITY_MAP`). Rest untouched.
  *
  * @param {string} s - Input string.
- * @return {string} Input with the supported entities replaced.
+ * @return {string} Decoded string.
  */
 export function decodeEntities( s ) {
 	if ( typeof s !== 'string' || s === '' ) {
@@ -200,12 +155,11 @@ export function decodeEntities( s ) {
 }
 
 /**
- * `String.fromCodePoint` throws on out-of-range integers; swallow the throw so
- * a malformed numeric entity drops the bad bytes instead of crashing the whole
- * sanitization pass.
+ * `String.fromCodePoint` throws on out-of-range integers — swallow so a
+ * malformed entity drops the bad bytes instead of crashing the whole pass.
  *
  * @param {number} n - Code point.
- * @return {string} The character, or '' if the code point is invalid.
+ * @return {string} The character, or '' if invalid.
  */
 function safeFromCodePoint( n ) {
 	try {
@@ -216,15 +170,11 @@ function safeFromCodePoint( n ) {
 }
 
 /**
- * Strip HTML tags from a string and decode any HTML entities the API may have
- * encoded around them. Runs the strip+decode pair in a loop until the output
- * is stable so nested tag constructions (e.g. `<<script>script>`, which a
- * single strip pass would leave as `<script>`) and entity-encoded tags
- * (`&lt;script&gt;`, which would survive a single strip pass) can't smuggle
- * a tag through.
+ * Strip tags + decode entities, looping until stable so nested
+ * (`<<script>script>`) and entity-encoded (`&lt;script&gt;`) tags can't smuggle through.
  *
  * @param {string} s - Input string.
- * @return {string} Input with all tags removed and supported entities decoded.
+ * @return {string} Tags stripped, entities decoded.
  */
 export function stripTags( s ) {
 	if ( typeof s !== 'string' || s === '' ) {
@@ -234,30 +184,16 @@ export function stripTags( s ) {
 	let out = s;
 	do {
 		prev = out;
-		// The strip regex on its own is "incomplete multi-character
-		// sanitization" — `<<script>script>` collapses to `<script>` after a
-		// single pass, which CodeQL flags. The loop runs the strip+decode
-		// pair until the output stabilizes, so the security guarantee holds
-		// across nested or entity-encoded tags. The `keeps stripping until
-		// the output is free of tag-like markup` test in result-utils.test.js
-		// pins this behavior.
 		out = decodeEntities( out ).replace( STRIP_TAGS_PATTERN, '' );
 	} while ( out !== prev );
 	return out;
 }
 
 /**
- * Tokenize a v1.3 `highlight` field into an array of pieces suitable for
- * rendering with Interactivity `data-wp-each` / `data-wp-text`. Each piece
- * is `{ text, isHighlight }`; the template wraps highlighted pieces in a
- * styled element so the match still stands out visually. Splitting into
- * text pieces (vs. binding innerHTML) keeps the XSS surface at zero — we
- * never render API-supplied HTML, only textContent.
+ * Tokenize a `highlight` field into `{ text, isHighlight }` pieces for
+ * `data-wp-each`. Text-only (never innerHTML) keeps XSS at zero.
  *
- * Returns an empty array when the highlight field is missing/invalid so
- * the template falls back to the plain `title` field.
- *
- * @param {*} highlight - Highlight value (array of snippet strings or a single string).
+ * @param {*} highlight - Highlight value.
  * @return {Array<{index: number, text: string, isHighlight: boolean}>} Pieces to render.
  */
 export function tokenizeHighlight( highlight ) {
@@ -265,8 +201,7 @@ export function tokenizeHighlight( highlight ) {
 	if ( typeof raw !== 'string' || raw === '' ) {
 		return [];
 	}
-	// Kept local so `exec()`'s stateful `lastIndex` cursor can't leak between
-	// calls — the regex is cheap to construct.
+	// Local so `exec()`'s `lastIndex` can't leak between calls.
 	const markPattern = /<mark[^>]*>([\s\S]*?)<\/mark>/gi;
 	const pieces = [];
 	let lastIndex = 0;
@@ -291,15 +226,12 @@ export function tokenizeHighlight( highlight ) {
 			isHighlight: false,
 		} );
 	}
-	// data-wp-each needs a stable key per piece — index works because the
-	// pieces array is recomputed whenever the parent result changes.
+	// `data-wp-each` needs a stable key; index is fine — recomputed per result.
 	return pieces.filter( p => p.text !== '' ).map( ( p, index ) => ( { ...p, index } ) );
 }
 
 /**
- * First non-empty scalar from a possibly-array field. The v1.3 API hands
- * back single values as bare strings and multi-valued meta fields as arrays;
- * call sites only ever need the first entry.
+ * First scalar from a maybe-array field.
  *
  * @param {*} value - Scalar or array.
  * @return {*} Scalar or undefined.
@@ -309,9 +241,7 @@ function firstScalar( value ) {
 }
 
 /**
- * Coerce a possibly-array numeric field into a finite number. Returns 0 when
- * the value is missing or unparseable so downstream `hasRating` / `>= 0`
- * checks stay simple.
+ * Coerce a maybe-array numeric to a finite number; 0 on missing/garbage.
  *
  * @param {*} value - Scalar or array.
  * @return {number} Finite number, or 0.
@@ -322,20 +252,15 @@ function toNumber( value ) {
 }
 
 /**
- * Build product-layout fields from a raw result. Returns empty/zero values
- * when the result isn't a WooCommerce product so the template's
+ * Product-layout fields from a raw result. Empty/zero for non-products so
  * `data-wp-bind--hidden` checks still hide the price/rating row.
  *
- * @param {object} fields - `raw.fields` from the v1.3 API response.
+ * @param {object} fields - `raw.fields` from the response.
  * @return {object} Product fields.
  */
 function normalizeProductFields( fields ) {
-	// WPCOM returns WC prices as HTML fragments (e.g.
-	// `<span class="woocommerce-Price-amount"><span class="…-currencySymbol">&#036;</span>11.05</span>`)
-	// because the legacy instant-search overlay renders them via
-	// `dangerouslySetInnerHTML`. Search Blocks bind these via `data-wp-text`,
-	// so the markup has to be flattened to plain text up front or the result
-	// card prints the raw `<span>` tags and `&#036;` entity to the page.
+	// WPCOM returns WC prices as HTML fragments (overlay renders via
+	// `dangerouslySetInnerHTML`). Blocks bind via `data-wp-text`, so flatten.
 	const formattedPrice = stripTags( String( firstScalar( fields[ 'wc.formatted_price' ] ) ?? '' ) );
 	const formattedRegularPrice = stripTags(
 		String( firstScalar( fields[ 'wc.formatted_regular_price' ] ) ?? '' )
@@ -363,30 +288,22 @@ function normalizeProductFields( fields ) {
 		hasSalePrice,
 		hasPrice: formattedPrice !== '' || formattedSalePrice !== '',
 		rating,
-		// Drives a CSS-only star bar via `data-wp-style--width`. Rounded to a
-		// half-star to match WC's display convention.
+		// Rounded to half-star to match WC.
 		ratingPercent,
 		reviewCount,
 		reviewCountLabel: reviewCount > 0 ? `(${ reviewCount })` : '',
-		// Combined SR string for the rating row. The visible star bar and
-		// `(N)` count are aria-hidden, so this is the only signal screen
-		// readers get — needs both the rating and the review count to match
-		// instant-search's "Average rating … from N reviews" announcement.
+		// Star bar + `(N)` count are aria-hidden, so this is the SR-only signal.
 		ratingAriaLabel: buildRatingAriaLabel( rating, reviewCount ),
 		hasRating: rating > 0,
 	};
 }
 
 /**
- * Compose the screen-reader announcement for the rating row.
- *
- * Strings are intentionally untranslated — see the file-level comment.
- * Localization is tracked as a follow-up that needs IAPI build support
- * for `@wordpress/i18n`.
+ * SR announcement for the rating row. Untranslated (see file header).
  *
  * @param {number} rating      - 0–5 average rating.
- * @param {number} reviewCount - Number of reviews backing the rating.
- * @return {string} Aria-label, or '' when the row should be hidden.
+ * @param {number} reviewCount - Number of reviews.
+ * @return {string} Aria-label, or '' to hide.
  */
 function buildRatingAriaLabel( rating, reviewCount ) {
 	if ( rating <= 0 ) {
@@ -402,21 +319,15 @@ function buildRatingAriaLabel( rating, reviewCount ) {
 }
 
 /**
- * Derive the match hint from the highlight object.
+ * Match-hint badge value. '' when title has a highlight, 'comments' when a
+ * comment matched, 'content' otherwise. Mirrors the overlay's
+ * `SearchResultProduct` badge logic.
  *
- * Returns '' when the title itself carries a highlighted fragment (no badge
- * needed), 'comments' when a comment field matched but the title didn't, or
- * 'content' when another non-title field matched but the title didn't.
- *
- * Mirrors the badge logic in the instant-search `SearchResultProduct`
- * component. The v1.3 API uses 'comment' (singular) as the comment-field key.
- *
- * @param {object} highlight   - `raw.highlight` from the API response.
- * @param {Array}  titlePieces - Pre-computed title pieces from tokenizeHighlight.
+ * @param {object} highlight   - `raw.highlight` from the response.
+ * @param {Array}  titlePieces - Pre-computed title pieces.
  * @return {'content'|'comments'|''} Match hint value.
  */
 export function deriveMatchHint( highlight, titlePieces ) {
-	// If the title itself has a highlighted fragment, no badge is needed.
 	if ( titlePieces.some( p => p.isHighlight ) ) {
 		return '';
 	}
@@ -424,9 +335,9 @@ export function deriveMatchHint( highlight, titlePieces ) {
 		return '';
 	}
 	const entries = Object.entries( highlight );
+	// v1.3 uses 'comment' (singular).
 	if (
 		entries.some(
-			// The v1.3 API uses 'comment' (singular), not 'comments'.
 			( [ key, value ] ) => key === 'comment' && Array.isArray( value ) && value[ 0 ]?.length > 0
 		)
 	) {
@@ -444,22 +355,12 @@ export function deriveMatchHint( highlight, titlePieces ) {
 }
 
 /**
- * Normalize a v1.3 Jetpack Search result into the flat shape expected by the
- * Interactivity API templates.
- *
- * `formatDate()` reads the site's WP `date_format` from module scope (set
- * once at store init via `setSeededDateFormat()`), so this signature stays
- * focused on per-result inputs rather than threading site-wide formatting
- * context through every call.
+ * Normalize a v1.3 result into the flat shape IA templates consume.
  *
  * @param {object} raw           - Raw result from the API.
  * @param {string} [locale]      - BCP47 locale for date formatting.
- * @param {string} [searchQuery] - The query string the user actually typed. When
- *                               empty (filter-only browse), the match-hint
- *                               badge is suppressed — "Matches content" only
- *                               makes sense in response to a typed query, and
- *                               reads as misleading when every visible result
- *                               was returned by a category/tag/price filter.
+ * @param {string} [searchQuery] - Empty → suppress match-hint badge ("Matches
+ *                               content" reads wrong on filter-only browse).
  * @return {object} Flat result.
  */
 export function normalizeResult( raw, locale = 'en-US', searchQuery = '' ) {
@@ -469,10 +370,8 @@ export function normalizeResult( raw, locale = 'en-US', searchQuery = '' ) {
 	const rawImage = fields[ 'image.url.raw' ];
 	const imageSrc = Array.isArray( rawImage ) ? rawImage[ 0 ] : rawImage;
 	const imageUrl = toSafeUrl( imageSrc );
-	// The fallback title is rendered via `data-wp-text`, so any HTML or HTML
-	// entities the API returns (post titles can contain `&amp;`, `&#8217;`,
-	// etc.) need to be flattened the same way the highlight pieces are —
-	// otherwise the raw entity markup leaks onto the result card.
+	// Flatten entities (post titles can contain `&amp;`, `&#8217;`) since
+	// `data-wp-text` is textContent.
 	const plainTitle = stripTags( String( fields[ 'title.default' ] ?? fields.title ?? '' ) );
 	const titlePieces = tokenizeHighlight( highlight.title );
 	const contentPieces = tokenizeHighlight( highlight.content );
@@ -480,13 +379,13 @@ export function normalizeResult( raw, locale = 'en-US', searchQuery = '' ) {
 	const matchHint = hasQuery ? deriveMatchHint( highlight, titlePieces ) : '';
 	return {
 		id: String( raw?.result_id ?? fields.post_id ?? permalink ),
+		// Server-assigned TrainTracks payload (fetch_algo, railcar, session_id…).
+		// The search API attaches it per-result; carried through so the relevance
+		// events in store/index.js can read it off `context.result`.
+		railcar: raw?.railcar ?? null,
 		title: plainTitle,
-		// Rendered when the API returns a highlighted title; template
-		// falls back to `title` when this is empty.
 		titlePieces,
 		hasTitlePieces: titlePieces.length > 0,
-		// Rendered when the API returns a highlighted content snippet;
-		// hidden when empty so the layout does not gain an empty gap.
 		contentPieces,
 		hasContentPieces: contentPieces.length > 0,
 		permalink,
@@ -494,13 +393,8 @@ export function normalizeResult( raw, locale = 'en-US', searchQuery = '' ) {
 		dateLabel: formatDate( fields.date, locale ),
 		authorLabel: formatAuthor( fields.author ),
 		imageUrl,
-		// Pre-built `url(...)` value so the product layout's CSS background
-		// image binds via `data-wp-style--background-image` without the
-		// template having to wrap a string at render time.
+		// Pre-built `url(...)` for `data-wp-style--background-image`.
 		imageBackgroundImage: imageUrl ? `url(${ imageUrl })` : '',
-		// 'content' | 'comments' | '' — drives the "Matches content / Matches
-		// comments" hint badge shown on product cards when the title has no
-		// highlight but another field does.
 		matchHint,
 		matchHintIsComments: matchHint === 'comments',
 		...normalizeProductFields( fields ),

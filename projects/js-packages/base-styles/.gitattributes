@@ -1,7 +1,3 @@
-# Files not needed to be distributed in the package.
-.gitattributes    export-ignore
-node_modules      export-ignore
-
 # Files to exclude from the mirror repo
-/changelog/**     production-exclude
+# (see also entries in the monorepo root .gitattributes)
 **/stories/**     production-exclude

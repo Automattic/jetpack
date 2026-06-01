@@ -3,13 +3,13 @@
  */
 import jetpackAnalytics from '@automattic/jetpack-analytics';
 import restApi from '@automattic/jetpack-api';
-import { Button, getRedirectUrl, Text } from '@automattic/jetpack-components';
+import { getRedirectUrl } from '@automattic/jetpack-components';
 import { isWoASite } from '@automattic/jetpack-script-data';
 import { Modal } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Icon, chevronRight, external } from '@wordpress/icons';
-import { Link } from '@wordpress/ui';
+import { Button, Link, Text } from '@wordpress/ui';
 import clsx from 'clsx';
 import PropTypes from 'prop-types';
 import { useCallback, useEffect, useState, useMemo } from 'react';
@@ -316,8 +316,7 @@ const HelpFooter = ( { onClose, disabled } ) => {
 			</div>
 			<div className="jp-connection__manage-dialog__button-wrap lg-col-span-3 md-col-span-1 sm-col-span-1">
 				<Button
-					weight="regular"
-					variant="secondary"
+					variant="outline"
 					onClick={ onClose }
 					className="jp-connection__manage-dialog__btn-dismiss"
 					disabled={ disabled }

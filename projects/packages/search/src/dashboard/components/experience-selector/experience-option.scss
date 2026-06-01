@@ -22,9 +22,14 @@
 		border-color: var(--wpds-color-stroke-interactive-neutral);
 	}
 
-	&.is-selected {
+	// Active = the currently-saved experience. Tinted brand surface + brand
+	// border so the eye lands on it without needing to find the small "Active"
+	// badge. `bg-interactive-brand-weak` is intentionally transparent in WPDS
+	// (it's a hover wash, not a fill) — `bg-surface-brand` is the named token
+	// for a soft brand-tinted surface, which is what we actually want here.
+	&.is-active {
+		background: var(--wpds-color-bg-surface-brand);
 		border-color: var(--wpds-color-stroke-interactive-brand);
-		box-shadow: inset 0 0 0 var(--wpds-border-width-xs) var(--wpds-color-stroke-interactive-brand);
 	}
 
 	&.is-disabled {
@@ -34,42 +39,6 @@
 			border-color: var(--wpds-color-stroke-surface-neutral);
 		}
 	}
-
-	// Mirror the radio's keyboard focus onto the whole card so users
-	// see *which* card is focused — the radio itself is visually hidden.
-	&:has(.jp-search-experience-option__radio:focus-visible) {
-		outline: var(--wpds-border-width-md) solid var(--wpds-color-stroke-interactive-brand);
-		outline-offset: 2px;
-	}
-}
-
-.jp-search-experience-option__radio {
-	position: absolute;
-	width: 1px;
-	height: 1px;
-	padding: 0;
-	margin: -1px;
-	overflow: hidden;
-	clip-path: inset(50%);
-	white-space: nowrap;
-	border: 0;
-}
-
-// Explicit z-index keeps the click-catcher above any positioned descendants
-// of the card — the inline preview is `position: relative` for its timing
-// badge, and the overlay preview's popup is `position: absolute`; without
-// this z-index those would paint over the overlay (DOM order rule for
-// same-z positioned elements) and swallow the click.
-.jp-search-experience-option__overlay {
-	position: absolute;
-	inset: 0;
-	z-index: 1;
-	cursor: pointer;
-	border-radius: inherit;
-}
-
-.jp-search-experience-option.is-disabled .jp-search-experience-option__overlay {
-	cursor: not-allowed;
 }
 
 .jp-search-experience-option__active-badge {
@@ -80,10 +49,14 @@
 	pointer-events: none;
 }
 
+// Card title — `<h3>` (subordinate to the page-level `<h2>`). Uses the
+// `lg` WPDS font-size token (15px) so it sits clearly below the page
+// heading's `xl` (20px) instead of competing with it.
 .jp-search-experience-option__title {
 	margin: 0;
-	font-size: var(--wpds-typography-font-size-xl);
-	line-height: var(--wpds-typography-line-height-xl);
+	font-size: var(--wpds-typography-font-size-lg);
+	font-weight: 600;
+	line-height: var(--wpds-typography-line-height-sm);
 	color: var(--wpds-color-fg-content-neutral);
 }
 
@@ -127,22 +100,9 @@
 	flex: 0 0 auto;
 }
 
-// Lift above the transparent card overlay so the action links remain
-// clickable and tabbable.
-.jp-search-experience-option__actions {
-	position: relative;
-	z-index: 2;
-}
-
 .jp-search-experience-option__action {
-	flex: 1 1 0;
+	flex: 0 1 auto;
 	min-width: 0;
-}
-
-.jp-search-experience-option__action-title {
-	font-weight: 600;
-	font-size: var(--wpds-typography-font-size-sm);
-	color: var(--wpds-color-fg-content-neutral);
 }
 
 .jp-search-experience-option__action-link {
@@ -157,7 +117,7 @@
 		text-decoration: underline;
 	}
 
-	&[aria-disabled="true"] {
+	&.is-disabled {
 		color: var(--wpds-color-fg-content-neutral-weak);
 		cursor: not-allowed;
 
@@ -167,13 +127,49 @@
 	}
 }
 
+// Click-anywhere overlay for inactive cards. The whole card behaves as a
+// button — this transparent <button> is stretched over the card to capture
+// clicks regardless of where the pointer lands. Underlying text (h3,
+// description, loss list, muted action labels) is non-interactive on
+// inactive cards, so the overlay doesn't compete with anything. Active
+// cards skip this overlay; their action links remain reachable.
+// `z-index: 1` sits above content but below the `Active` badge (z-index 3).
+.jp-search-experience-option__commit-overlay {
+	position: absolute;
+	inset: 0;
+	width: 100%;
+	height: 100%;
+	margin: 0;
+	padding: 0;
+	background: transparent;
+	border: 0;
+	border-radius: inherit;
+	cursor: pointer;
+	appearance: none;
+	z-index: 1;
+
+	&:focus-visible {
+		outline: var(--wpds-border-width-md) solid var(--wpds-color-stroke-interactive-brand);
+		outline-offset: calc(var(--wpds-border-width-md) * -1);
+	}
+
+	&[aria-disabled="true"] {
+		cursor: not-allowed;
+	}
+}
+
+// Respect the user's motion preference — the card's border-color
+// transition is decorative.
+@media (prefers-reduced-motion: reduce) {
+
+	.jp-search-experience-option {
+		transition: none;
+	}
+}
+
 @include variables.for-phone-down {
 
 	.jp-search-experience-option__actions {
 		flex-wrap: wrap;
-	}
-
-	.jp-search-experience-option__action {
-		flex-basis: 100%;
 	}
 }

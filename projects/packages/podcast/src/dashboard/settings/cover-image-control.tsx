@@ -1,9 +1,12 @@
-// Apple Podcasts requires a square cover between 1400×1400 and 3000×3000.
-// Surfaced as a soft warning, not a hard block — stock services often deliver
-// close-but-not-exactly-square assets.
+// Cover-image picker. We accept any image the user picks: the feed renderer
+// routes the URL through Photon with `resize=3000,3000`, which center-crops to
+// a square server-side, and the preview here is CSS-cropped to match. The
+// only hard-failure we surface is a source below the 1400 px minimum (Photon
+// center-crops to the source's *smaller* dimension, so a 3000×1000 source
+// still produces a 1000×1000 cover — too small for podcast directories).
 
 import { Button } from '@wordpress/components';
-import { useCallback, useState } from '@wordpress/element';
+import { useCallback, useId, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { MediaUpload } from '@wordpress/media-utils';
 
@@ -22,27 +25,7 @@ interface MediaUploadAttachment {
 	height?: number;
 }
 
-const COVER_MIN = 1400;
-const COVER_MAX = 3000;
-
-const validate = ( att: MediaUploadAttachment ): string | null => {
-	if ( ! att.width || ! att.height ) {
-		return null;
-	}
-	if ( att.width !== att.height ) {
-		return __(
-			'Apple Podcasts requires a square image. Crop your image to a 1:1 ratio for the best results.',
-			'jetpack-podcast'
-		);
-	}
-	if ( att.width < COVER_MIN || att.width > COVER_MAX ) {
-		return __(
-			'For best results, use an image between 1400×1400 and 3000×3000 pixels.',
-			'jetpack-podcast'
-		);
-	}
-	return null;
-};
+const COVER_MIN_PX = 1400;
 
 const CoverImageControl = ( {
 	imageUrl,
@@ -52,6 +35,7 @@ const CoverImageControl = ( {
 	disabled,
 }: CoverImageControlProps ) => {
 	const [ warning, setWarning ] = useState< string | null >( null );
+	const labelId = useId();
 
 	const hasImage = !! imageUrl || imageId > 0;
 
@@ -64,7 +48,17 @@ const CoverImageControl = ( {
 
 	const handleSelect = useCallback(
 		( att: MediaUploadAttachment ) => {
-			setWarning( validate( att ) );
+			const { width, height } = att;
+			if ( width && height && Math.min( width, height ) < COVER_MIN_PX ) {
+				setWarning(
+					__(
+						'Podcast directories require cover images at least 1400×1400 pixels and will reject smaller covers. Upload a larger image.',
+						'jetpack-podcast'
+					)
+				);
+			} else {
+				setWarning( null );
+			}
 			onSelect( att.id, att.url );
 		},
 		[ onSelect ]
@@ -80,7 +74,10 @@ const CoverImageControl = ( {
 	);
 
 	return (
-		<div className="podcast__cover-control">
+		<div className="podcast__cover-control" role="group" aria-labelledby={ labelId }>
+			<span id={ labelId } className="podcast__cover-label">
+				{ __( 'Cover image', 'jetpack-podcast' ) }
+			</span>
 			<div className="podcast__cover-preview">
 				{ imageUrl ? (
 					<img src={ imageUrl } alt={ __( 'Podcast cover', 'jetpack-podcast' ) } />
@@ -102,7 +99,11 @@ const CoverImageControl = ( {
 					</Button>
 				) }
 			</div>
-			{ warning && <p className="podcast__cover-warning">{ warning }</p> }
+			{ warning && (
+				<p className="podcast__cover-warning" role="alert">
+					{ warning }
+				</p>
+			) }
 		</div>
 	);
 };

@@ -214,9 +214,9 @@ const IntegrationCardComponent = ( {
 			<VStack spacing="3">
 				<p style={ { color: '#50575e', margin: 0 } }>{ message }</p>
 				<HStack spacing="2" justify="start">
-					<Button variant="link" href={ settingsUrl } target="_blank" rel="noopener noreferrer">
+					<Link openInNewTab href={ settingsUrl }>
 						{ __( 'View settings', 'jetpack-forms' ) }
-					</Button>
+					</Link>
 					{ id === 'akismet' && (
 						<>
 							<span>|</span>

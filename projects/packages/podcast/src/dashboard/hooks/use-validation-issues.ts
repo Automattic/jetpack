@@ -35,18 +35,18 @@ export const getValidationIssues = ( settings: PodcastSettings | undefined ): st
 		);
 	}
 	if ( ! settings.podcasting_talent_name ) {
-		issues.push( __( 'Set the host or talent name.', 'jetpack-podcast' ) );
+		issues.push( __( 'Set the host, artist, or producer name.', 'jetpack-podcast' ) );
 	}
 	if ( ! settings.podcasting_email ) {
 		issues.push(
-			__( 'Add an owner email so podcast directories can reach you.', 'jetpack-podcast' )
+			__( 'Add an owner email address so podcast directories can reach you.', 'jetpack-podcast' )
 		);
 	}
 	if ( ! settings.podcasting_category_1 ) {
 		issues.push( __( 'Pick at least one Apple Podcasts category.', 'jetpack-podcast' ) );
 	}
 	if ( ! settings.podcasting_image ) {
-		issues.push( __( 'Upload a cover image (1400×1400 to 3000×3000 pixels).', 'jetpack-podcast' ) );
+		issues.push( __( 'Upload a cover image at least 1400×1400 pixels.', 'jetpack-podcast' ) );
 	}
 	return issues;
 };
@@ -78,12 +78,12 @@ const getDistributionIssues = (
 		if ( mime && mime !== 'image/png' && mime !== 'image/jpeg' ) {
 			issues.push( __( 'Cover image must be a PNG or JPG.', 'jetpack-podcast' ) );
 		}
-		if ( width && height && width !== height ) {
-			issues.push( __( 'Cover image must be square.', 'jetpack-podcast' ) );
-		}
-		if ( width && ( width < 1400 || width > 3000 ) ) {
+		if ( width && height && Math.min( width, height ) < 1400 ) {
 			issues.push(
-				__( 'Cover image must be between 1400×1400 and 3000×3000 pixels.', 'jetpack-podcast' )
+				__(
+					'Cover image must be at least 1400×1400 pixels on its smaller side.',
+					'jetpack-podcast'
+				)
 			);
 		}
 	}

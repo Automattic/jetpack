@@ -13,6 +13,7 @@ use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\My_Jetpack\Hybrid_Product;
 use Automattic\Jetpack\My_Jetpack\Wpcom_Products;
 use Automattic\Jetpack\Search\Module_Control as Search_Module_Control;
+use Automattic\Jetpack\Search\Plan as Search_Plan;
 use WP_Error;
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -23,6 +24,14 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Class responsible for handling the Search product
  */
 class Search extends Hybrid_Product {
+	/**
+	 * Fallback starting price (USD, billed yearly) for the entry record tier, used when
+	 * the WPCOM pricing fetch fails so the dashboard still shows a price, not "$0".
+	 *
+	 * @var float
+	 */
+	const FALLBACK_STARTING_PRICE_USD = 100;
+
 	/**
 	 * The product slug
 	 *
@@ -168,6 +177,18 @@ class Search extends Hybrid_Product {
 		$search_pricing = static::get_pricing_from_wpcom( $record_count );
 
 		if ( is_wp_error( $search_pricing ) ) {
+			// Default to the current pricing experience when the WPCOM fetch fails so the
+			// dashboard degrades to the production default, not the legacy single-card view.
+			$pricing['pricing_version'] = Search_Plan::JETPACK_SEARCH_NEW_PRICING_VERSION;
+
+			// If the generic product pricing was also unavailable, fall back to a USD
+			// starting price so the pricing grid renders a price instead of "$0".
+			if ( empty( $pricing['full_price'] ) ) {
+				$pricing['currency_code']  = 'USD';
+				$pricing['full_price']     = self::FALLBACK_STARTING_PRICE_USD;
+				$pricing['discount_price'] = self::FALLBACK_STARTING_PRICE_USD;
+			}
+
 			return $pricing;
 		}
 
@@ -215,10 +236,11 @@ class Search extends Hybrid_Product {
 		$record_count   = intval( Search_Stats::estimate_count() );
 		$search_pricing = static::get_pricing_from_wpcom( $record_count );
 		if ( is_wp_error( $search_pricing ) ) {
-			return false;
+			// Default to the current pricing experience when the WPCOM fetch fails.
+			return true;
 		}
 
-		return '202208' === $search_pricing['pricing_version'];
+		return Search_Plan::JETPACK_SEARCH_NEW_PRICING_VERSION === $search_pricing['pricing_version'];
 	}
 
 	/**
@@ -274,7 +296,10 @@ class Search extends Hybrid_Product {
 		}
 
 		if ( is_wp_error( $response ) || 200 !== wp_remote_retrieve_response_code( $response ) ) {
-			return new WP_Error( 'search_pricing_fetch_failed' );
+			// Cache the failure too: get_pricing_for_ui() reaches this twice per request
+			// (once via has_trial_support(), once directly), and each miss is a 5s timeout.
+			$pricings[ $record_count ] = new WP_Error( 'search_pricing_fetch_failed' );
+			return $pricings[ $record_count ];
 		}
 
 		$body                      = wp_remote_retrieve_body( $response );

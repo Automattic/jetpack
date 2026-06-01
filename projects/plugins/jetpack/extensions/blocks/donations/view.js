@@ -323,8 +323,79 @@ class JetpackDonations {
 	}
 }
 
+class JetpackDonationsModal {
+	constructor( block ) {
+		this.block = block;
+		this.trigger = block.querySelector( '.donations__trigger-button' );
+		this.overlay = block.querySelector( '.donations__modal-overlay' );
+		this.closeBtn = block.querySelector( '.donations__modal-close' );
+
+		if ( ! this.trigger || ! this.overlay ) {
+			return;
+		}
+
+		this.trigger.addEventListener( 'click', () => this.open() );
+		this.closeBtn?.addEventListener( 'click', () => this.close() );
+		this.overlay.addEventListener( 'click', event => {
+			if ( event.target === this.overlay ) {
+				this.close();
+			}
+		} );
+		document.addEventListener( 'keydown', event => {
+			if ( event.key === 'Escape' && ! this.overlay.hidden ) {
+				this.close();
+			}
+		} );
+	}
+
+	open() {
+		this.overlay.hidden = false;
+		this.overlay.ownerDocument.body.classList.add( 'donations-modal-open' );
+		this._previousFocus = this.overlay.ownerDocument.activeElement;
+		const firstFocusable = this.overlay.querySelector(
+			'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+		);
+		firstFocusable?.focus();
+		this.overlay.addEventListener( 'keydown', this._trapFocus );
+	}
+
+	close() {
+		this.overlay.hidden = true;
+		this.overlay.ownerDocument.body.classList.remove( 'donations-modal-open' );
+		this.overlay.removeEventListener( 'keydown', this._trapFocus );
+		this._previousFocus?.focus();
+	}
+
+	_trapFocus = event => {
+		if ( event.key !== 'Tab' ) {
+			return;
+		}
+		const focusable = Array.from(
+			this.overlay.querySelectorAll(
+				'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+			)
+		).filter( el => ! el.closest( '[hidden]' ) );
+		if ( ! focusable.length ) {
+			return;
+		}
+		const first = focusable[ 0 ];
+		const last = focusable[ focusable.length - 1 ];
+		if ( event.shiftKey && this.overlay.ownerDocument.activeElement === first ) {
+			event.preventDefault();
+			last.focus();
+		} else if ( ! event.shiftKey && this.overlay.ownerDocument.activeElement === last ) {
+			event.preventDefault();
+			first.focus();
+		}
+	};
+}
+
 domReady( () => {
 	const blocks = document.querySelectorAll( '.wp-block-jetpack-donations' );
-	blocks.forEach( block => new JetpackDonations( block ) );
+	blocks.forEach( block =>
+		block.querySelector( '.donations__modal-overlay' )
+			? [ new JetpackDonationsModal( block ), new JetpackDonations( block ) ]
+			: new JetpackDonations( block )
+	);
 	initializeMembershipButtons( '.donations__donate-button' );
 } );

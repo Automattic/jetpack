@@ -8,34 +8,23 @@
 namespace Automattic\Jetpack\Search;
 
 /**
- * Helper methods for the jetpack-search/results-sort block.
- *
- * Centralizes the list of valid sort keys, their translated labels, and the
- * attribute-normalization logic so render.php and the block's own unit tests
- * share one source of truth. Base sort keys (`relevance`, `newest`, `oldest`)
- * are always exposed; the product-format keys (`rating_desc`, `price_asc`,
- * `price_desc`) join the set only when WooCommerce is active so deep links
- * to a sort the API can't honour can't slip into the rendered control on
- * non-Woo sites.
+ * Helpers for `jetpack-search/results-sort` — sort keys, translated labels,
+ * and attribute normalization shared between render.php and tests. Product
+ * keys (`rating_desc`, `price_asc`, `price_desc`) are gated on WooCommerce
+ * so non-Woo deep links can't reach the rendered control.
  */
 class Results_Sort {
 
 	const BASE_SORT_KEYS = array( 'relevance', 'newest', 'oldest' );
 
 	/**
-	 * Product-format keys gated on WooCommerce. Order is meaningful — `rating`
-	 * leads because authors most often want it as the visible default sort
-	 * for product pages, with the two price directions grouped after it.
+	 * Product keys, gated on Woo. Order is meaningful — `rating` leads
+	 * because it's the most common default for product pages.
 	 */
 	const PRODUCT_SORT_KEYS = array( 'rating_desc', 'price_asc', 'price_desc' );
 
 	/**
-	 * All keys the block may render. Order is meaningful — `<option>` / radio
-	 * rows come out in this sequence. Product-format keys append to the base
-	 * set when WooCommerce is active so non-Woo sites never expose a sort
-	 * the API would silently fall back to relevance on. Reads through to
-	 * `Search_Blocks::woocommerce_blocks_enabled()` so block-registration gates
-	 * for `filter-wc-*` and the sort-key gate share one memoized probe.
+	 * All keys the block may render. Order is meaningful (option/radio sequence).
 	 *
 	 * @return string[]
 	 */
@@ -47,14 +36,10 @@ class Results_Sort {
 	}
 
 	/**
-	 * Translated labels for each sort key. A separate accessor (rather than a
-	 * class constant) so the strings go through `__()` at call time — class
-	 * constants can't hold translation-function output. Returns labels for
-	 * every key the block could render in any environment (base + product);
-	 * `resolve_available_options()` is the gate that decides which keys
-	 * actually surface, so the unused entries never reach the DOM.
+	 * Translated label per sort key. Accessor (not a constant) so strings go
+	 * through `__()` at call time.
 	 *
-	 * @return array<string, string>  Map of sort key → label.
+	 * @return array<string, string>
 	 */
 	public static function get_option_labels(): array {
 		return array(
@@ -68,10 +53,8 @@ class Results_Sort {
 	}
 
 	/**
-	 * Normalize the `defaultSort` attribute. Any unknown value — including a
-	 * missing attribute on legacy posts — collapses to `relevance` so the
-	 * fallback matches the `parse_url_sort()` default on the Search_Blocks
-	 * class and the store's `DEFAULT_SORT_ORDER` in url-state.js.
+	 * Normalize `defaultSort`. Unknown values collapse to `relevance` so the
+	 * fallback matches `parse_url_sort()` and `DEFAULT_SORT_ORDER` in JS.
 	 *
 	 * @param array $attributes Block attributes.
 	 * @return string
@@ -82,15 +65,9 @@ class Results_Sort {
 	}
 
 	/**
-	 * Resolve the final ordered list of sort keys this block will render.
-	 * Preserves the canonical order from `get_all_option_keys()` rather than
-	 * the order the attribute array arrived in — keeps the UI stable across
-	 * saves and prevents a garbage attribute value (unknown key) from leaking
-	 * into the rendered DOM.
-	 *
-	 * Whenever the filtered list would be empty (attribute is empty, or every
-	 * entry is unknown) we fall back to the full set so an author's
-	 * misconfiguration never renders a dropdown with zero options.
+	 * Resolve the ordered sort keys to render. Canonical order from
+	 * `get_all_option_keys()` wins (stable UI across saves). Empty / all-unknown
+	 * falls back to the full set so a misconfigured block never renders zero options.
 	 *
 	 * @param array $attributes Block attributes.
 	 * @return string[]
@@ -116,12 +93,10 @@ class Results_Sort {
 	}
 
 	/**
-	 * Normalize the `displayAs` attribute. Unknown values collapse to
-	 * `select` so a garbage attribute can't produce markup the view script
-	 * doesn't know how to bind against.
+	 * Normalize `displayAs`. Unknown collapses to `select`.
 	 *
 	 * @param array $attributes Block attributes.
-	 * @return string  'select', 'radio', or 'popover'.
+	 * @return string 'select', 'radio', or 'popover'.
 	 */
 	public static function normalize_display_as( array $attributes ): string {
 		$candidate = (string) ( $attributes['displayAs'] ?? 'select' );
@@ -133,10 +108,8 @@ class Results_Sort {
 	}
 
 	/**
-	 * Resolve the user-visible label. Falls back to the translated default
-	 * "Sort by" when the author hasn't supplied one — mirrors the pre-
-	 * SEARCH-138 copy so posts saved before the attribute existed keep the
-	 * same labelling.
+	 * User-visible label, defaulting to "Sort by" (pre-SEARCH-138 fallback for
+	 * posts saved before the attribute existed).
 	 *
 	 * @param array $attributes Block attributes.
 	 * @return string
@@ -150,24 +123,16 @@ class Results_Sort {
 	}
 
 	/**
-	 * Read `?orderby=…` off the current request. Returns the key when it
-	 * matches one of the exposed options, or `null` when the URL has no
-	 * sort parameter (or the value is unrecognized) — letting the caller
-	 * fall back to the block's `defaultSort` attribute.
+	 * Read `?orderby=…` off the request. Extends `Search_Blocks::parse_url_sort()`
+	 * by accepting every option this block may render — a radio UI can expose
+	 * a product-format key the state-seeder doesn't recognize, and a deep link
+	 * to that key should still select it.
 	 *
-	 * Mirrors `Search_Blocks::parse_url_sort()` but extends the accepted
-	 * set to every option this block may render: a radio UI can expose a
-	 * product-format sort key the Search_Blocks state-seeder doesn't
-	 * recognise, and a deep link to that key should still select it.
-	 *
-	 * @param string[]|null $allowed_keys Restrict accepted values to this
-	 *   list. Defaults to every option the block knows about.
-	 * @return string|null Sort key or null when no URL sort is present.
+	 * @param string[]|null $allowed_keys Restrict to this list (defaults to all).
+	 * @return string|null Sort key, or null when no URL sort is present/recognized.
 	 */
 	public static function parse_url_sort( ?array $allowed_keys = null ): ?string {
-		// `?orderby[]=x` lands as an array — passing that to sanitize_key()
-		// would emit a PHP warning (and PHPUnit fails on those). Bail early
-		// so a malformed URL can't poison the rendered control.
+		// `?orderby[]=x` arrives as an array; sanitize_key() warns on that. Bail.
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only URL state.
 		if ( ! isset( $_GET['orderby'] ) || ! is_scalar( $_GET['orderby'] ) ) {
 			return null;

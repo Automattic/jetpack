@@ -3,14 +3,17 @@ import { parseAsLocalDate } from '@automattic/charts';
 export { formatPercentage as formatPct } from '@automattic/charts';
 
 const APP_LABELS: Record< string, string > = {
-	apple: 'Apple',
+	amazon: 'Amazon Music',
+	apple: 'Apple Podcasts',
 	castbox: 'Castbox',
 	castro: 'Castro',
 	overcast: 'Overcast',
 	pocketcasts: 'Pocket Casts',
 	'podcast-addict': 'Podcast Addict',
+	podcastindex: 'Podcast Index',
 	spotify: 'Spotify',
 	web: 'Web',
+	youtube: 'YouTube Music',
 	other: 'Other',
 };
 

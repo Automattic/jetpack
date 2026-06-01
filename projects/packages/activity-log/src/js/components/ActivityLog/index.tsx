@@ -9,10 +9,15 @@
 import { AdminPage } from '@automattic/jetpack-components';
 import { useQuery } from '@tanstack/react-query';
 import { DataViews } from '@wordpress/dataviews';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
+import { Notice } from '@wordpress/ui';
 import fastDeepEqual from 'fast-deep-equal/es6';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { activityLogQuery, activityLogGroupCountsQuery } from '../../hooks/use-activity-log';
+import {
+	activityLogQuery,
+	activityLogGroupCountsQuery,
+	activityLogActorsQuery,
+} from '../../hooks/use-activity-log';
 import { useAnalytics } from '../../hooks/use-analytics';
 import { usePersistentView } from '../../hooks/use-persistent-view';
 import { DateRangePicker } from '../DateRangePicker';
@@ -21,7 +26,7 @@ import { UpsellCallout } from './UpsellCallout';
 import { useActivityActions } from './actions';
 import { transformActivityLogEntry } from './activity-transformer';
 import { useActivityFields } from './fields';
-import { extractActivityLogTypeValues } from './filters';
+import { extractActivityLogTypeValues, extractActorIdValues } from './filters';
 import { DEFAULT_LAYOUTS, DEFAULT_VIEW } from './views';
 import type { Activity, ActivityLogParams } from './types';
 import type { Field, Filter, View } from '@wordpress/dataviews';
@@ -78,6 +83,76 @@ const readHasActivityLogsAccess = (): boolean => {
 		return true;
 	}
 	return JPACTIVITYLOG_INITIAL_STATE?.siteData?.hasActivityLogsAccess !== false;
+};
+
+type ErrorNoticeState = {
+	status: 'error' | 'warning';
+	message: string;
+};
+
+/**
+ * Pull a string message off whatever react-query handed us in `error`.
+ * Anything else falls back to an empty string so the caller can swap in
+ * the generic copy.
+ *
+ * @param error - Whatever value react-query stored in its `error` slot.
+ * @return The extracted message, or `''` when none is present.
+ */
+const extractErrorMessage = ( error: unknown ): string => {
+	if ( error && typeof error === 'object' && 'message' in error ) {
+		return typeof error.message === 'string' ? error.message : '';
+	}
+	return '';
+};
+
+/**
+ * Compute the error/warning notice to show above the DataViews table.
+ *
+ * @param isListError     - Whether the list query failed.
+ * @param listError       - The raw error value from the list query.
+ * @param hasAuxError     - Whether either the filters or actors query failed.
+ * @param hasExistingRows - Whether the table is currently displaying previously-loaded rows.
+ * @return The notice descriptor, or `null` when all queries succeeded.
+ */
+const buildErrorNotice = (
+	isListError: boolean,
+	listError: unknown,
+	hasAuxError: boolean,
+	hasExistingRows: boolean
+): ErrorNoticeState | null => {
+	if ( isListError ) {
+		// A failed refetch keeps the previous rows on screen, so a red error notice would contradict them.
+		if ( hasExistingRows ) {
+			return {
+				status: 'warning',
+				message: __(
+					'Couldn’t refresh the activity log. The events shown may be out of date.',
+					'jetpack-activity-log'
+				),
+			};
+		}
+		const rawMessage = extractErrorMessage( listError );
+		return {
+			status: 'error',
+			message: rawMessage
+				? sprintf(
+						/* translators: %s is the underlying error message returned by the server. */
+						__( 'Couldn’t load the activity log: %s', 'jetpack-activity-log' ),
+						rawMessage
+				  )
+				: __( 'Couldn’t load the activity log. Try refreshing the page.', 'jetpack-activity-log' ),
+		};
+	}
+	if ( hasAuxError ) {
+		return {
+			status: 'warning',
+			message: __(
+				'Filter options are temporarily unavailable, but all events are loaded correctly.',
+				'jetpack-activity-log'
+			),
+		};
+	}
+	return null;
 };
 
 /**
@@ -153,6 +228,11 @@ export default function ActivityLog() {
 		return extractActivityLogTypeValues( filters );
 	}, [ view.filters ] );
 
+	const actorIdValues = useMemo( () => {
+		const filters = ( view.filters as Filter[] | undefined ) ?? [];
+		return extractActorIdValues( filters );
+	}, [ view.filters ] );
+
 	const searchTerm = view.search?.trim() ?? '';
 
 	// The picker hands us start-of-day / end-of-day Dates at local-midnight
@@ -184,6 +264,9 @@ export default function ActivityLog() {
 		if ( activityLogTypeValues.length ) {
 			params.group = activityLogTypeValues;
 		}
+		if ( actorIdValues.length ) {
+			params.actor = actorIdValues;
+		}
 		return params;
 	}, [
 		view.sort?.direction,
@@ -191,6 +274,7 @@ export default function ActivityLog() {
 		view.page,
 		searchTerm,
 		activityLogTypeValues,
+		actorIdValues,
 		afterIso,
 		beforeIso,
 	] );
@@ -199,6 +283,8 @@ export default function ActivityLog() {
 		data: activityLogData,
 		isFetching: isFetchingData,
 		isLoading: isLoadingList,
+		isError: isListError,
+		error: listError,
 	} = useQuery( {
 		...activityLogQuery( listParams ),
 		select: data => ( {
@@ -211,7 +297,11 @@ export default function ActivityLog() {
 	// filter counts match what's displayed), but excludes `text_search`
 	// so the filter dropdown stays stable as users type (matches
 	// Calypso's behavior at logs-activity/dataviews/index.tsx:100-102).
-	const { data: groupCountsData, isFetching: isFetchingFilters } = useQuery(
+	const {
+		data: groupCountsData,
+		isFetching: isFetchingFilters,
+		isError: isFiltersError,
+	} = useQuery(
 		activityLogGroupCountsQuery( {
 			number: 1000,
 			after: afterIso,
@@ -219,7 +309,43 @@ export default function ActivityLog() {
 		} )
 	);
 
-	const isFetching = isFetchingData || isFetchingFilters;
+	// Actors query feeds the "Performed by" dropdown. Same date window as
+	// the list / counts queries so the available options match what's on
+	// screen, and intentionally independent of the current filter state so
+	// selections don't shrink the dropdown to themselves.
+	//
+	// `number: 1000` matches the upstream REST schema's max for events
+	// scanned. On very large windows where >1000 events exist, actors who
+	// only appear beyond the scan horizon won't surface in the dropdown
+	// — bumping that ceiling would need a coordinated change to the
+	// Jetpack proxy and the WPCOM endpoint.
+	const {
+		data: actorsData,
+		isFetching: isFetchingActors,
+		isError: isActorsError,
+	} = useQuery(
+		activityLogActorsQuery( {
+			number: 1000,
+			after: afterIso,
+			before: beforeIso,
+		} )
+	);
+
+	const isFetching = isFetchingData || isFetchingFilters || isFetchingActors;
+
+	const logData = ( activityLogData?.activityLogs ?? [] ) as Activity[];
+
+	// Surface request failures so a broken WPCOM round-trip doesn't read as "no events".
+	const errorNotice = useMemo< ErrorNoticeState | null >(
+		() =>
+			buildErrorNotice(
+				isListError,
+				listError,
+				isFiltersError || isActorsError,
+				logData.length > 0
+			),
+		[ isListError, listError, isFiltersError, isActorsError, logData.length ]
+	);
 
 	const paginationInfo = {
 		totalItems: activityLogData?.totalItems ?? 0,
@@ -234,6 +360,7 @@ export default function ActivityLog() {
 		gmtOffset,
 		timezoneString,
 		activityLogTypes: groupCountsData?.groups,
+		actors: actorsData?.actors,
 	} );
 
 	const actions = useActivityActions( { isLoading: isFetching, tracks } );
@@ -268,11 +395,13 @@ export default function ActivityLog() {
 				} );
 			}
 			if ( filtersChanged ) {
-				const activityTypes = extractActivityLogTypeValues(
-					( next.filters as Filter[] | undefined ) ?? []
-				);
+				const nextFilters = ( next.filters as Filter[] | undefined ) ?? [];
+				const activityTypes = extractActivityLogTypeValues( nextFilters );
+				const actorIds = extractActorIdValues( nextFilters );
 				const eventProps: Record< string, boolean | number > = {
 					num_groups_selected: activityTypes.length,
+					num_actors_selected: actorIds.length,
+					actor_filter_includes_mcp: actorIds.some( id => id.startsWith( 'mcp:' ) ),
 				};
 				let totalActivitiesSelected = 0;
 				Object.entries( groupCountsData?.groups ?? {} ).forEach( ( [ groupKey, { count } ] ) => {
@@ -327,8 +456,6 @@ export default function ActivityLog() {
 
 	const getItemId = useCallback( ( item: Activity ) => item.activityId.toString(), [] );
 
-	const logData = ( activityLogData?.activityLogs ?? [] ) as Activity[];
-
 	// Mounting the picker as an admin-ui `actions` slot places it in the
 	// AdminPage header alongside the title/subtitle — matches MSD's
 	// layout for the logs pages. On free tier the picker renders as a
@@ -376,6 +503,11 @@ export default function ActivityLog() {
 				 * overrides needed.
 				 */ }
 				<div className="jp-activity-log__inner">
+					{ errorNotice && (
+						<Notice.Root intent={ errorNotice.status }>
+							<Notice.Description>{ errorNotice.message }</Notice.Description>
+						</Notice.Root>
+					) }
 					<DataViews< Activity >
 						data={ logData }
 						isLoading={ isFetching || isLoadingList }

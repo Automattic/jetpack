@@ -166,7 +166,7 @@ export default function AnswersPanel( {
 			) }
 			{ onShowMore === null && loadingHint && (
 				<p className="jp-search-answers-panel__loading-hint">
-					{ loadingHint.endsWith( '…' ) ? loadingHint.slice( 0, -1 ) : loadingHint }
+					{ loadingHint }
 					<AnimatedEllipsis />
 				</p>
 			) }

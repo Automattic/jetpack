@@ -11,7 +11,10 @@ import type { MembershipsProduct } from './api';
  */
 export function useMembershipsProducts( enabled: boolean ) {
 	return useQuery< MembershipsProduct[], Error >( {
-		queryKey: [ 'subscribers', 'memberships-products' ],
+		// Deliberately not prefixed with `subscribers` — products don't change when a
+		// subscriber is added/comped/removed, so they must survive the broad
+		// `invalidateQueries( [ 'subscribers' ] )` those mutations fire.
+		queryKey: [ 'memberships-products' ],
 		queryFn: fetchMembershipsProducts,
 		enabled,
 		staleTime: 5 * 60 * 1000,

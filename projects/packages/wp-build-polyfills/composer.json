@@ -40,6 +40,10 @@
 		],
 		"test-php": [
 			"@composer phpunit"
+		],
+		"test-js": [
+			"pnpm run build",
+			"pnpm run test"
 		]
 	},
 	"config": {

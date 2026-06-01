@@ -4,7 +4,7 @@
  * `bin/teamcity-builds/jetpack-stubs/stub-defs.php` and regenerate the stubs
  * by triggering the Jetpack Staging → Update WPCOM Stubs job in TeamCity.
  *
- * Stubs automatically generated from WordPress.com commit 4429b1ae870d500dfbfbf977b231b866376e217e.
+ * Stubs automatically generated from WordPress.com commit 5e8a20c1721863641314794c301fd5b56b14f4d8.
  */
 
 namespace {
@@ -157,7 +157,7 @@ namespace {
         {
         }
         /**
-         * @deprecated 
+         * @deprecated
          * @param int $user_id
          * @param int $blog_id
          * @param false $ids_only
@@ -519,6 +519,21 @@ namespace {
         {
         }
     }
+    /**
+     * @return array{quota: int, used: int, remaining: int, resetsAt: string|null}
+     */
+    function posts_to_podcast_get_usage(int $blog_id, ?int $now = \null): array
+    {
+    }
+    /**
+     * @return array{id:int, queued_at:int}|null
+     */
+    function posts_to_podcast_get_active_job_record(int $blog_id): ?array
+    {
+    }
+    function posts_to_podcast_get_job_result(int $job_id): ?int
+    {
+    }
     class Publicize_Actions
     {
         /**
@@ -693,6 +708,14 @@ namespace {
     {
     }
     function wpcom_actionbar_enqueue_scripts()
+    {
+    }
+    /**
+     * @param int|array $job_id
+     * @param string $prefix
+     * @return string|array|false
+     */
+    function get_job_status($job_id, $prefix = 'wpj_')
     {
     }
     /**
@@ -1089,7 +1112,7 @@ namespace {
     /**
      * @param  string $url
      * @return string
-     * @internal 
+     * @internal
      */
     function staticize_subdomain($url)
     {
@@ -1159,7 +1182,7 @@ namespace {
     {
     }
     /**
-     * @deprecated 
+     * @deprecated
      * @return bool
     */
     function wpcom_is_jetpack_search_supported($blog_id)
@@ -1718,7 +1741,7 @@ namespace Publicize {
     {
     }
     /**
-     * @deprecated 
+     * @deprecated
      * @param \WP_Post $post
      * @param array $items
      * @param array $post_intent

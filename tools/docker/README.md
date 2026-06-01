@@ -179,6 +179,7 @@ This gives you `jetpack_feature-*` containers running in parallel with `jetpack_
 | `--port-sftp <n>` | all | `1022` | Host port for the SFTP container. |
 | `--clone-from <name>` | `dev` + `up` | — | Clone the DB from an existing running instance (e.g. `--clone-from feature`). The target site ends up with an installed WordPress populated from the source. |
 | `--no-clone` | `dev` + `up` | (auto-clone on) | Opt out of auto-cloning and get the default fresh-install flow instead. |
+| `--update-env` | `dev` + `up` | `false` | When a flag value conflicts with `tools/docker/.env`, rewrite the conflicting key in `.env` to match the flag. Without this, the flag wins for the current run only and a warning is printed; `.env` is left untouched. |
 
 #### Auto-clone behavior
 
@@ -190,6 +191,7 @@ The auto-clone is only triggered when all of the following are true:
 * `jetpack_dev` has at least one running container.
 * `--no-clone` was not passed.
 * The target doesn't already have an installed WordPress (re-running `up` on an existing instance is a safe no-op).
+* The target instance is actually running by the time the clone step fires, which in practice means `-d` / `--detached` was passed. If you run `up` in the foreground (no `-d`), compose blocks until you exit it, the parallel target stops, and the auto-clone is silently skipped (there's nowhere to write into). For any persistent parallel instance — including the `/work-on` flow — always pass `-d`.
 
 The clone runs `wp db export | wp db import` between the source and target containers, then `wp search-replace` on the target to rewrite the siteurl to `http://localhost:<target-port>`. `guid` columns are skipped as WP-CLI recommends.
 
@@ -203,6 +205,49 @@ jetpack docker up -d --name staging --port 8082 --clone-from feature
 jetpack docker up -d --name clean --port 8090 --no-clone
 jetpack docker install --name clean --port 8090
 ```
+
+#### How `.env` is used
+
+The CLI treats the worktree's `tools/docker/.env` as a per-instance config file, in addition to (not instead of) the CLI flags. This means a worktree configured once can be brought back up with bare `jetpack docker up` afterwards — the flag set above is only needed on the first invocation.
+
+**Read precedence on `up`** (last wins):
+
+`tools/docker/default.env` → worktree's `tools/docker/.env` → CLI flags → `process.env`
+
+**What the CLI writes:**
+
+* On `up --name <slug>`, after the instance is up, the CLI **appends** any of the following keys to `tools/docker/.env` that aren't already present: `COMPOSE_PROJECT_NAME`, `PORT_WORDPRESS`, `PORT_PHPMY`, `PORT_INBOX`, `PORT_SMTP`, `PORT_SFTP`. Existing lines are never modified or reordered.
+* The primary `jetpack_dev` flow (no `--name`) **never** writes to `.env`. Your main checkout's `.env` stays as you've set it.
+
+**Conflicts between flags and `.env`:**
+
+If you pass a flag (e.g. `--port 8090`) whose value differs from the corresponding `.env` entry (e.g. `PORT_WORDPRESS=8080`), the CLI:
+
+* uses the flag for the current run, and
+* prints a one-line warning naming the key, both values, and how to make it stick.
+
+`.env` is left untouched. To make the new value persistent, pass `--update-env` and the conflicting keys are rewritten in place — every other line preserved verbatim.
+
+```sh
+# First time — flags only, .env empty
+jetpack docker up -d --name feature --port 8080 --port-phpmy 8281 \
+  --port-inbox 1180 --port-smtp 2525 --port-sftp 1122
+# → CLI appends the 6 keys to tools/docker/.env
+
+# Subsequent runs — bare command works
+jetpack docker up -d
+# → reads .env, brings up jetpack_feature on port 8080
+
+# Override for one run; .env stays at 8080
+jetpack docker up -d --port 8090
+# → ⚠ warning, runs on 8090
+
+# Persist the override
+jetpack docker up -d --port 8090 --update-env
+# → tools/docker/.env's PORT_WORDPRESS is rewritten to 8090
+```
+
+`.env` is `git`-ignored, so per-worktree state stays local. Removing the worktree removes the file.
 
 #### Cleaning up a parallel instance
 

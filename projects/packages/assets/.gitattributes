@@ -1,14 +1,5 @@
-# Files not needed to be distributed in the package.
-.gitattributes    export-ignore
-.github/          export-ignore
-webpack.config.js export-ignore
-
 # Files not needed in the production build.
-.gitignore        production-exclude
-.phpcs.dir.xml    production-exclude
-.phpcsignore      production-exclude
-/changelog/**     production-exclude
-/tests/**         production-exclude
+# (see also entries in the monorepo root .gitattributes)
 
 # Files to include in the production build.
 /build/**         production-include

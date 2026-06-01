@@ -75,9 +75,12 @@ class Users_Connection_Admin {
 		}
 
 		if ( ( new Manager() )->is_user_connected( $user_id ) ) {
+			$logo_url = Jetpack_Connector::get_inline_connector_logo_url();
+
 			return sprintf(
-				'<span title="%1$s" class="jetpack-connection-status">%2$s</span>',
+				'<span title="%1$s" class="jetpack-connection-status"><img src="%2$s" alt="" class="jetpack-connection-status__logo" height="18" decoding="async" loading="lazy" />%3$s</span>',
 				esc_attr__( 'This user has connected their WordPress.com account.', 'jetpack-connection' ),
+				esc_url( $logo_url ),
 				esc_html__( 'Connected', 'jetpack-connection' )
 			);
 		}
@@ -113,7 +116,7 @@ class Users_Connection_Admin {
 			'jetpack-users-connection',
 			'jetpackConnectionTooltips',
 			array(
-				'columnTooltip' => esc_html__( 'Connecting a WordPress.com account unlocks Jetpack’s full suite of features including secure logins.', 'jetpack-connection' ),
+				'columnTooltip' => esc_html( self::get_column_tooltip_text() ),
 			)
 		);
 	}
@@ -153,7 +156,24 @@ class Users_Connection_Admin {
 				left: -170px;
 			}
 			.column-user_jetpack {
-				width: 140px;
+				width: 190px;
+			}
+			@media screen and (max-width: 1100px) {
+				.column-user_jetpack {
+					width: auto;
+				}
+			}
+			td.column-user_jetpack {
+				vertical-align: middle;
+			}
+			.jetpack-connection-status {
+				display: inline-flex;
+				align-items: center;
+				column-gap: 6px;
+			}
+			.jetpack-connection-status__logo {
+				display: block;
+				flex-shrink: 0;
 			}
 			/* Show tooltip on hover and focus */
 			.jetpack-connection-tooltip-icon:hover .jetpack-connection-tooltip,
@@ -162,6 +182,29 @@ class Users_Connection_Admin {
 			}
 		</style>
 		<?php
+	}
+
+	/**
+	 * Build the column header tooltip text based on which plugin families use the connection.
+	 *
+	 * @return string Tooltip text.
+	 */
+	private static function get_column_tooltip_text() {
+		$families = Jetpack_Connector::get_connected_plugin_families();
+
+		if ( $families['has_woo'] && $families['has_a4a'] ) {
+			return __( 'Connecting a WordPress.com account unlocks features for Jetpack, WooCommerce, and Automattic for Agencies including secure logins.', 'jetpack-connection' );
+		}
+
+		if ( $families['has_woo'] ) {
+			return __( 'Connecting a WordPress.com account unlocks features for Jetpack and WooCommerce including secure logins.', 'jetpack-connection' );
+		}
+
+		if ( $families['has_a4a'] ) {
+			return __( 'Connecting a WordPress.com account unlocks features for Jetpack and Automattic for Agencies including secure logins.', 'jetpack-connection' );
+		}
+
+		return __( 'Connecting a WordPress.com account unlocks Jetpack features including secure logins.', 'jetpack-connection' );
 	}
 
 	/**

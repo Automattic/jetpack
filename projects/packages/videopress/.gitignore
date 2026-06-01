@@ -5,3 +5,5 @@ vendor/
 node_modules/
 build/
 wordpress/
+
+routes/**/.content-entry.js

@@ -49,6 +49,11 @@ export class Panel {
 		await userEvent.click( screen.getByRole( 'button', { name: 'Yes' } ) );
 	}
 
+	async cancelDisconnect() {
+		await this.disconnect();
+		await userEvent.click( screen.getByRole( 'button', { name: 'Cancel' } ) );
+	}
+
 	async toggleMarkAsShared() {
 		await userEvent.click( this.markAsSharedToggle );
 	}

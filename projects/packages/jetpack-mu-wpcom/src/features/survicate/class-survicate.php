@@ -55,12 +55,44 @@ class Survicate {
 			return false;
 		}
 
+		// Network and user admin pages are internal tools surfaces; surveys must never reach them.
+		if ( is_network_admin() || is_user_admin() ) {
+			return false;
+		}
+
 		// Only load for English locale users.
 		if ( strpos( strtolower( get_user_locale() ), 'en' ) !== 0 ) {
 			return false;
 		}
 
+		// Atomic powers Automattic's internal P2s; surveys must never reach them.
+		if ( ( new \Automattic\Jetpack\Status\Host() )->is_p2_site() ) {
+			return false;
+		}
+
 		return true;
+	}
+
+	/**
+	 * Detect whether the current site is a Big Sky site.
+	 *
+	 * Used as a visitor trait so Survicate's targeting UI can include or exclude
+	 * Big Sky users without a code change.
+	 *
+	 * @return bool
+	 */
+	private function is_big_sky_site() {
+		if ( ! function_exists( 'wpcom_has_blog_sticker' ) ) {
+			return false;
+		}
+
+		$blog_id = get_wpcom_blog_id();
+		if ( ! $blog_id ) {
+			return false;
+		}
+
+		return wpcom_has_blog_sticker( 'big-sky-enabled', $blog_id )
+			|| wpcom_has_blog_sticker( 'big-sky-free-trial', $blog_id );
 	}
 
 	/**
@@ -97,10 +129,12 @@ class Survicate {
 		$site_type = ( defined( 'IS_ATOMIC' ) && IS_ATOMIC ) ? 'atomic' : 'simple';
 
 		return array(
-			'email'          => $email,
-			'site_id'        => $site_id ? (string) $site_id : '',
-			'site_type'      => $site_type,
-			'editor_context' => $this->get_editor_context(),
+			'email'           => $email,
+			'site_id'         => $site_id ? (string) $site_id : '',
+			'site_type'       => $site_type,
+			'editor_context'  => $this->get_editor_context(),
+			// Stringified for Survicate's trait targeting UI, which matches on string equality.
+			'is_big_sky_site' => $this->is_big_sky_site() ? 'true' : 'false',
 		);
 	}
 

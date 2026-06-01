@@ -1,77 +1,83 @@
-import { SelectControl } from '@wordpress/components';
-import { useCallback, useMemo } from '@wordpress/element';
+import { DateRangePicker, formatLabel } from '@automattic/date-range-picker';
+import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import type { PodcastStatsPeriod } from '../types';
-
-const PERIOD_OPTIONS: PodcastStatsPeriod[] = [ '7d', '30d', '90d', 'all' ];
-
-// Episode endpoint has no all-time variant — show "Last year" in that scope.
-export type PeriodScope = 'show' | 'episode';
-
-/**
- * Type guard for `PodcastStatsPeriod`.
- *
- * @param value - Candidate string.
- * @return      Whether the value is a recognized period.
- */
-export function isPeriod( value: string ): value is PodcastStatsPeriod {
-	return ( PERIOD_OPTIONS as readonly string[] ).includes( value );
-}
+import { localDateFromYmd, selectionFromDates } from '../range';
+import type { PodcastStatsSelection } from '../types';
+import type { PresetId } from '@automattic/date-range-picker';
+// DateRangeCalendar styles ship with @automattic/ui; load once for the picker.
+import '@automattic/ui/style.css';
 
 /**
- * Translated heading for a period.
+ * Translated heading for a selection. Preset periods use a fixed label;
+ * custom ranges render as "Apr 12 to May 12, 2026".
  *
- * @param value - Period.
- * @param scope - Show or episode scope.
- * @return      Heading.
+ * @param selection - Selection.
+ * @return          Heading.
  */
-export function getPeriodHeading( value: PodcastStatsPeriod, scope: PeriodScope = 'show' ): string {
-	if ( value === '7d' ) {
+export function getPeriodHeading( selection: PodcastStatsSelection ): string {
+	const { period, range } = selection;
+	if ( period === '7d' ) {
 		return __( 'Last 7 days', 'jetpack-podcast' );
 	}
-	if ( value === '30d' ) {
+	if ( period === '30d' ) {
 		return __( 'Last 30 days', 'jetpack-podcast' );
 	}
-	if ( value === '90d' ) {
+	if ( period === '90d' ) {
 		return __( 'Last 90 days', 'jetpack-podcast' );
 	}
-	if ( scope === 'episode' ) {
-		return __( 'Last year', 'jetpack-podcast' );
+	// 'all' is a 365-day window from the API's cap. Label matches the preset
+	// button the user clicks.
+	if ( period === 'all' ) {
+		return __( 'Last 12 months', 'jetpack-podcast' );
 	}
-	return __( 'All time', 'jetpack-podcast' );
+	return formatLabel( localDateFromYmd( range.from ), localDateFromYmd( range.to ), getLocale() );
 }
 
-type PeriodControlProps = {
-	value: PodcastStatsPeriod;
-	onChange: ( next: PodcastStatsPeriod ) => void;
-	scope?: PeriodScope;
+const getLocale = () => {
+	if ( typeof document !== 'undefined' ) {
+		const htmlLang = document.documentElement.lang;
+		if ( htmlLang ) {
+			return htmlLang;
+		}
+	}
+	if ( typeof navigator !== 'undefined' && navigator.language ) {
+		return navigator.language;
+	}
+	return 'en-US';
 };
 
-const PeriodControl = ( { value, onChange, scope = 'show' }: PeriodControlProps ) => {
-	const options = useMemo(
-		() =>
-			PERIOD_OPTIONS.map( option => ( {
-				value: option,
-				label: getPeriodHeading( option, scope ),
-			} ) ),
-		[ scope ]
-	);
+// API caps ranges at 365 days, so hide longer presets. Also hide "Custom" —
+// the calendar already produces a custom range on direct selection.
+const HIDDEN_PRESETS: PresetId[] = [ 'last-3-years', 'custom' ];
+
+const MAX_RANGE_DAYS = 365;
+
+type PeriodControlProps = {
+	value: PodcastStatsSelection;
+	onChange: ( next: PodcastStatsSelection ) => void;
+};
+
+const PeriodControl = ( { value, onChange }: PeriodControlProps ) => {
+	const start = localDateFromYmd( value.range.from );
+	const end = localDateFromYmd( value.range.to );
 	const handleChange = useCallback(
-		( next: string ) => {
-			if ( isPeriod( next ) ) {
-				onChange( next );
-			}
-		},
+		( next: { start: Date; end: Date } ) => onChange( selectionFromDates( next.start, next.end ) ),
 		[ onChange ]
 	);
+	const disabledBefore = new Date();
+	disabledBefore.setHours( 0, 0, 0, 0 );
+	disabledBefore.setDate( disabledBefore.getDate() - ( MAX_RANGE_DAYS - 1 ) );
+	// Match the previous default; the package defaults to 'last-7-days'.
+	const defaultFallbackPreset: PresetId = 'last-30-days';
 	return (
-		<SelectControl
-			__nextHasNoMarginBottom
-			__next40pxDefaultSize
-			label={ __( 'Period', 'jetpack-podcast' ) }
-			value={ value }
-			options={ options }
+		<DateRangePicker
+			start={ start }
+			end={ end }
 			onChange={ handleChange }
+			locale={ getLocale() }
+			hiddenPresets={ HIDDEN_PRESETS }
+			disabledBefore={ disabledBefore }
+			defaultFallbackPreset={ defaultFallbackPreset }
 		/>
 	);
 };

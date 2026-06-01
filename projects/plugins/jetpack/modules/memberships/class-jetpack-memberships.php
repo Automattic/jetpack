@@ -582,9 +582,7 @@ class Jetpack_Memberships {
 	 * @return string
 	 */
 	public function deprecated_render_button_v1( $attrs, $plan_id ) {
-		$button_label = isset( $attrs['submitButtonText'] )
-			? $attrs['submitButtonText']
-			: __( 'Your contribution', 'jetpack' );
+		$button_label = $attrs['submitButtonText'] ?? __( 'Your contribution', 'jetpack' );
 
 		$button_styles = array();
 		if ( ! empty( $attrs['customBackgroundButtonColor'] ) ) {

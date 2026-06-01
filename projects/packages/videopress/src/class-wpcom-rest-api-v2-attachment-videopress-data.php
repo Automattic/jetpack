@@ -110,6 +110,19 @@ class WPCOM_REST_API_V2_Attachment_VideoPress_Data {
 			);
 		}
 
+		/*
+		 * Hide local attachments that have already been uploaded to VideoPress.
+		 * Such "zombie" locals carry a `_videopress_uploaded_id` meta pointing
+		 * at their VideoPress sibling attachment; the sibling is the row the
+		 * dashboard should surface.
+		 */
+		if ( isset( $request['videopress_hide_already_uploaded'] ) ) {
+			$args['meta_query'][] = array(
+				'key'     => Uploader::UPLOADED_KEY,
+				'compare' => 'NOT EXISTS',
+			);
+		}
+
 		/* Filter using privacy setting meta key */
 		if ( isset( $request['videopress_privacy_setting'] ) ) {
 			$videopress_privacy_setting = sanitize_text_field( $request['videopress_privacy_setting'] );

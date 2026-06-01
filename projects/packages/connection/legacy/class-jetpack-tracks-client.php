@@ -114,7 +114,7 @@ class Jetpack_Tracks_Client {
 			return $response;
 		}
 
-		$code = isset( $response['response']['code'] ) ? $response['response']['code'] : 0;
+		$code = $response['response']['code'] ?? 0;
 
 		if ( 200 !== $code ) {
 			return new WP_Error( 'request_failed', 'Tracks pixel request failed', $code );

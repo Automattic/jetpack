@@ -7,7 +7,10 @@
 
 namespace Automattic\Jetpack\VideoPress;
 
+use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\My_Jetpack\Product;
+use Automattic\Jetpack\My_Jetpack\Products as My_Jetpack_Products;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
 use Jetpack_Options;
@@ -36,6 +39,16 @@ use function wp_script_is;
 class Initial_State {
 
 	const SCRIPT_HANDLE = 'jetpack-videopress-dashboard-wp-admin-prerequisites';
+
+	/**
+	 * WPCOM product slug purchased by the dashboard's upgrade CTA.
+	 *
+	 * Mirrors the product `Plan::get_product()` resolves to
+	 * (`$products->jetpack_videopress`). Kept as a constant rather than read
+	 * from `Plan::get_product()` because that helper issues a synchronous
+	 * WPCOM request, which we don't want to incur on every page render.
+	 */
+	const VIDEOPRESS_PRODUCT_SLUG = 'jetpack_videopress';
 
 	/**
 	 * Register the inline-state enqueue hook.
@@ -67,6 +80,13 @@ class Initial_State {
 		}
 
 		wp_add_inline_script( self::SCRIPT_HANDLE, ( new self() )->render(), 'before' );
+
+		// Hydrate the JP connection store (`window.JP_CONNECTION_INITIAL_STATE`)
+		// so shared connection-aware hooks — notably
+		// `useProductCheckoutWorkflow`, which powers the upgrade CTA — work on
+		// the modernized dashboard exactly as they do on the legacy one. This
+		// also sets `window.jpTracksContext.blog_id` for `@automattic/jetpack-analytics`.
+		Connection_Initial_State::render_script( self::SCRIPT_HANDLE );
 	}
 
 	/**
@@ -83,35 +103,73 @@ class Initial_State {
 			'API'           => array(
 				'WP_API_root'  => esc_url_raw( rest_url() ),
 				'WP_API_nonce' => wp_create_nonce( 'wp_rest' ),
+				'contentNonce' => wp_create_nonce( 'videopress-content-nonce' ),
 			),
 			'jetpackStatus' => array(
 				'calypsoSlug' => ( new Status() )->get_site_suffix(),
 			),
+			'product'       => array(
+				// Fed to `useProductCheckoutWorkflow` as the product to purchase.
+				'slug' => self::VIDEOPRESS_PRODUCT_SLUG,
+			),
 			'siteData'      => array(
-				'id'                  => Jetpack_Options::get_option( 'id' ),
-				'title'               => get_bloginfo( 'name' ) ? get_bloginfo( 'name' ) : get_site_url(),
-				'adminUrl'            => esc_url_raw( admin_url() ),
-				'slug'                => is_string( $home_host ) ? $home_host : '',
-				'gmtOffset'           => is_numeric( $gmt_offset ) ? (float) $gmt_offset : 0.0,
-				'timezoneString'      => is_string( $timezone_string ) ? $timezone_string : '',
-				'locale'              => str_replace( '_', '-', (string) get_locale() ),
-				// Paid-tier capability check. Drives the free-tier UX
-				// (callout / DataViews configuration) once designer input
-				// lands. Backed by `Product::get_site_features_from_wpcom()`,
-				// which caches the WPCOM `/sites/%d/features` response in a
-				// 15-second site transient. On a cache miss this issues a
-				// synchronous WPCOM request that blocks page rendering until
-				// it returns.
-				'hasVideoPressAccess' => self::has_videopress_access(),
+				'id'                    => Jetpack_Options::get_option( 'id' ),
+				'title'                 => get_bloginfo( 'name' ) ? get_bloginfo( 'name' ) : get_site_url(),
+				'adminUrl'              => esc_url_raw( admin_url() ),
+				'slug'                  => is_string( $home_host ) ? $home_host : '',
+				'gmtOffset'             => is_numeric( $gmt_offset ) ? (float) $gmt_offset : 0.0,
+				'timezoneString'        => is_string( $timezone_string ) ? $timezone_string : '',
+				'locale'                => str_replace( '_', '-', (string) get_locale() ),
+				// Paid-tier capability check. Drives the free-tier UX (callout /
+				// DataViews configuration) once designer input lands. Backed by
+				// `Product::get_site_features_from_wpcom()`, which caches the WPCOM
+				// `/sites/%d/features` response in a 15-second site transient. On a
+				// cache miss this issues a synchronous WPCOM request that blocks
+				// page rendering until it returns.
+				'hasVideoPressAccess'   => self::has_videopress_access(),
+				'isVideoPress1TB'       => self::has_videopress_feature( 'videopress-1tb-storage' ),
+				'isVideoPressUnlimited' => self::has_videopress_feature( 'videopress-unlimited-storage' ),
 			),
 			'assets'        => array(
 				'buildUrl' => plugins_url( '../build/', __FILE__ ),
 			),
+			// Product/pricing payload for the pre-connection upsell. Only
+			// populated when the site isn't connected — the only time the
+			// connection gate renders the upsell — so connected dashboards never
+			// incur the synchronous WPCOM pricing request `get_pricing_data()`
+			// makes.
+			'pricing'       => ( new Connection_Manager() )->is_connected() ? null : $this->get_pricing_data(),
 		);
 	}
 
 	/**
-	 * Whether the site has a paid VideoPress plan.
+	 * Product description, feature list, and yearly price for the
+	 * pre-connection upsell (a port of the legacy dashboard's pricing table).
+	 *
+	 * Backed by `Plan::get_product_price()`, which issues a synchronous WPCOM
+	 * request, so this only runs for disconnected sites. Returns null when the
+	 * product or price data isn't available (e.g. the WPCOM request fails), in
+	 * which case the gate falls back to the plain connect screen.
+	 *
+	 * @return array|null The upsell payload, or null when it can't be built.
+	 */
+	private function get_pricing_data() {
+		$site_product  = My_Jetpack_Products::get_product( 'videopress' );
+		$product_price = Plan::get_product_price();
+
+		if ( ! is_array( $site_product ) || ! isset( $product_price['yearly'] ) ) {
+			return null;
+		}
+
+		return array(
+			'title'    => isset( $site_product['description'] ) ? (string) $site_product['description'] : '',
+			'features' => isset( $site_product['features'] ) ? array_values( (array) $site_product['features'] ) : array(),
+			'yearly'   => $product_price['yearly'],
+		);
+	}
+
+	/**
+	 * Whether the site has any paid VideoPress feature flag active.
 	 *
 	 * Matches the active-features check used by the existing
 	 * `videopress/v1/features` REST endpoint: any of the storage tiers
@@ -121,6 +179,18 @@ class Initial_State {
 	 * @return bool
 	 */
 	public static function has_videopress_access() {
+		return self::has_videopress_feature( 'videopress-1tb-storage' )
+			|| self::has_videopress_feature( 'videopress-unlimited-storage' )
+			|| ( ( new Host() )->is_wpcom_platform() && self::has_videopress_feature( 'videopress' ) );
+	}
+
+	/**
+	 * Whether the named feature appears in the WPCOM active-features list.
+	 *
+	 * @param string $feature_slug Feature slug as returned by WPCOM (e.g. `videopress-1tb-storage`).
+	 * @return bool
+	 */
+	private static function has_videopress_feature( $feature_slug ) {
 		$features = Product::get_site_features_from_wpcom();
 
 		if ( is_wp_error( $features ) ) {
@@ -129,9 +199,7 @@ class Initial_State {
 
 		$active = $features['active'] ?? array();
 
-		return in_array( 'videopress-1tb-storage', $active, true )
-			|| in_array( 'videopress-unlimited-storage', $active, true )
-			|| ( ( new Host() )->is_wpcom_platform() && in_array( 'videopress', $active, true ) );
+		return in_array( $feature_slug, $active, true );
 	}
 
 	/**

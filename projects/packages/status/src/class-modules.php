@@ -75,8 +75,8 @@ class Modules {
 			$mod['recommendation_order']     = empty( $mod['recommendation_order'] ) ? 20 : (int) $mod['recommendation_order'];
 			$mod['deactivate']               = empty( $mod['deactivate'] );
 			$mod['free']                     = empty( $mod['free'] );
-			$mod['requires_connection']      = ( ! empty( $mod['requires_connection'] ) && 'No' === $mod['requires_connection'] ) ? false : true;
-			$mod['requires_user_connection'] = ( empty( $mod['requires_user_connection'] ) || 'No' === $mod['requires_user_connection'] ) ? false : true;
+			$mod['requires_connection']      = empty( $mod['requires_connection'] ) || 'No' !== $mod['requires_connection'];
+			$mod['requires_user_connection'] = ! ( empty( $mod['requires_user_connection'] ) || 'No' === $mod['requires_user_connection'] );
 
 			if ( empty( $mod['auto_activate'] ) || ! in_array( strtolower( $mod['auto_activate'] ), array( 'yes', 'no', 'public' ), true ) ) {
 				$mod['auto_activate'] = 'No';

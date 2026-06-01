@@ -8,45 +8,32 @@
 namespace Automattic\Jetpack\Search;
 
 /**
- * Helper methods for the jetpack-search/filter-wc-rating block.
- *
- * Filter key + filterConfig shape live here so render.php and the
- * post-content walker (Search_Blocks::walk_blocks_for_filter_configs)
- * agree on what this block contributes to the shared store. The
- * `wc_rating` filterType drives the histogram aggregation + per-star range
- * filter clauses in store/api.js — see `WC_RATING_RANGES`.
+ * Helpers for `jetpack-search/filter-wc-rating`. `filterType: 'wc_rating'`
+ * drives the histogram agg + per-star range filter clauses in `store/api.js`
+ * (see `WC_RATING_RANGES`).
  */
 class Filter_Wc_Rating {
 
 	/**
-	 * URL key + interactivity-state filter key for rating selections.
-	 *
-	 * Mirrors WooCommerce's native URL contract
-	 * (`?rating_filter[]=4&rating_filter[]=5`) so deep links interoperate
-	 * with WC's own rating filter — and so a future bridge would not need
-	 * to translate keys between the two systems.
+	 * URL + IA-state key. Mirrors WC's native `?rating_filter[]=N` so deep
+	 * links interoperate with WC's own rating filter.
 	 */
 	const FILTER_KEY = 'rating_filter';
 
 	/**
-	 * Stable star option list for rendering. Highest first matches the
-	 * conventional e-commerce "4 stars & up, 3 stars & up, …" ordering.
-	 * Each row applies a `≥ N - 0.5` threshold filter; the 5★ row is
-	 * the only one without an "& up" affordance since it has no higher
-	 * tier to roll up into.
+	 * Star option list, highest-first (conventional "& up" order). Each row
+	 * applies a `≥ N − 0.5` threshold; 5★ has no "& up" suffix (no higher tier).
 	 *
-	 * @return int[] Star values 5..1.
+	 * @return int[]
 	 */
 	public static function get_star_values(): array {
 		return array( 5, 4, 3, 2, 1 );
 	}
 
 	/**
-	 * Resolve the author-configured subset of star rows to render. Empty
-	 * / malformed `enabledStars` falls back to all five rows so a stale
-	 * attribute can't render the block as an empty `<ul>`. Sanitized to
-	 * the 1..5 range, deduplicated, and re-sorted high-to-low to match
-	 * the canonical render order.
+	 * Author-configured subset of star rows. Empty/malformed falls back to
+	 * all five so a stale attribute can't render an empty `<ul>`. Sanitized
+	 * to 1..5, deduplicated, sorted high-to-low.
 	 *
 	 * @param array $attributes Block attributes.
 	 * @return int[]
@@ -71,11 +58,9 @@ class Filter_Wc_Rating {
 	}
 
 	/**
-	 * Filter key derivation. Constant for this block — the rating field is
-	 * always `meta._wc_average_rating.double`, so there's no per-instance
-	 * variation. Method form mirrors Filter_Checkbox::derive_filter_key.
+	 * Filter key — constant. Method form mirrors `Filter_Checkbox::derive_filter_key()`.
 	 *
-	 * @param array $attributes Block attributes (unused; present for interface parity).
+	 * @param array $attributes Unused; interface parity.
 	 * @return string
 	 */
 	public static function derive_filter_key( array $attributes = array() ): string { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
@@ -83,8 +68,7 @@ class Filter_Wc_Rating {
 	}
 
 	/**
-	 * Default group label when the block author leaves the label attribute
-	 * empty.
+	 * Default group label.
 	 *
 	 * @return string
 	 */
@@ -93,13 +77,10 @@ class Filter_Wc_Rating {
 	}
 
 	/**
-	 * Build the filterConfig entry this block contributes to the shared
-	 * Interactivity state. JS reads `filterType: 'wc_rating'` to switch
-	 * `buildAggregations` to a histogram and `buildFilterClause` to the
-	 * per-star range path.
+	 * Build the filterConfig entry.
 	 *
 	 * @param array  $attributes Block attributes.
-	 * @param string $key        Filter key (ignored; always FILTER_KEY).
+	 * @param string $key        Ignored; always `FILTER_KEY`.
 	 * @return array<string, mixed>
 	 */
 	public static function build_config( array $attributes, string $key = '' ): array { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable

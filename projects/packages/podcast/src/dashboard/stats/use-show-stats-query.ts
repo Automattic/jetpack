@@ -1,12 +1,12 @@
-import { getSiteData } from '@automattic/jetpack-script-data';
 import apiFetch from '@wordpress/api-fetch';
 import { useEffect, useState } from '@wordpress/element';
 import { addQueryArgs } from '@wordpress/url';
-import { getStatsDateRange } from './range';
+import { resolveSelectionRange } from './range';
 import type {
 	PodcastShowStats,
 	PodcastStatsOverviewResponse,
 	PodcastStatsPeriod,
+	PodcastStatsSelection,
 	PodcastStatsSummaryResponse,
 } from './types';
 
@@ -17,12 +17,12 @@ const DEFAULT_TOP_LIMIT = 10;
  *
  * @param overview - Overview response.
  * @param period   - Selected period.
- * @return         Total plays.
+ * @return         Total plays, or null when no preset matches.
  */
 function getOverviewTotal(
 	overview: PodcastStatsOverviewResponse,
 	period: PodcastStatsPeriod
-): number {
+): number | null {
 	switch ( period ) {
 		case '7d':
 			return overview.totals.last_7_days.plays;
@@ -32,22 +32,20 @@ function getOverviewTotal(
 			return overview.totals.last_90_days.plays;
 		case 'all':
 			return overview.totals.all_time.plays;
-		default: {
-			const exhaustive: never = period;
-			return exhaustive;
-		}
+		default:
+			return null;
 	}
 }
 
 /**
- * Show-level stats. Overview is period-independent (fetched once); summary refetches per period.
+ * Show-level stats. Overview is period-independent (fetched once); summary refetches per selection.
  *
- * @param period - Stats period.
- * @param limit  - Max breakdown rows.
- * @return       Query result.
+ * @param selection - Stats selection.
+ * @param limit     - Max breakdown rows.
+ * @return          Query result.
  */
 export function useShowStatsQuery(
-	period: PodcastStatsPeriod = '30d',
+	selection: PodcastStatsSelection,
 	limit: number = DEFAULT_TOP_LIMIT
 ): { data?: PodcastShowStats; isLoading: boolean; isError: boolean } {
 	const [ overview, setOverview ] = useState< PodcastStatsOverviewResponse | undefined >();
@@ -55,15 +53,15 @@ export function useShowStatsQuery(
 	const [ overviewError, setOverviewError ] = useState( false );
 	const [ summaryError, setSummaryError ] = useState( false );
 
+	const { period } = selection;
+	const range = resolveSelectionRange( selection );
+	const { from, to } = range;
+
 	useEffect( () => {
-		const blogId = Number( getSiteData()?.wpcom?.blog_id ?? 0 );
-		if ( ! blogId ) {
-			return;
-		}
 		let cancelled = false;
 		setOverviewError( false );
 		apiFetch< PodcastStatsOverviewResponse >( {
-			path: addQueryArgs( `/wpcom/v2/sites/${ blogId }/podcast-stats/overview`, { limit } ),
+			path: addQueryArgs( '/wpcom/v2/podcast-stats/overview', { limit } ),
 			method: 'GET',
 		} )
 			.then( response => {
@@ -82,19 +80,10 @@ export function useShowStatsQuery(
 	}, [ limit ] );
 
 	useEffect( () => {
-		const blogId = Number( getSiteData()?.wpcom?.blog_id ?? 0 );
-		if ( ! blogId ) {
-			return;
-		}
-		const range = getStatsDateRange( period );
 		let cancelled = false;
 		setSummaryError( false );
 		apiFetch< PodcastStatsSummaryResponse >( {
-			path: addQueryArgs( `/wpcom/v2/sites/${ blogId }/podcast-stats`, {
-				from: range.from,
-				to: range.to,
-				limit,
-			} ),
+			path: addQueryArgs( '/wpcom/v2/podcast-stats', { from, to, limit } ),
 			method: 'GET',
 		} )
 			.then( response => {
@@ -110,17 +99,18 @@ export function useShowStatsQuery(
 		return () => {
 			cancelled = true;
 		};
-	}, [ period, limit ] );
+	}, [ from, to, limit ] );
 
 	const isError = overviewError || summaryError;
 
 	// Wait for both queries — keeps prior data on screen across period changes.
 	let data: PodcastShowStats | undefined;
 	if ( summary && overview ) {
+		const presetTotal = getOverviewTotal( overview, period );
 		data = {
 			...summary,
 			period,
-			total_plays: getOverviewTotal( overview, period ),
+			total_plays: presetTotal ?? summary.total_plays,
 			top_day: overview.top_day,
 			all_time_plays: overview.totals.all_time.plays,
 		};

@@ -257,6 +257,62 @@ describe( 'filter-checkbox view store — filterItems', () => {
 		] );
 	} );
 
+	it( 'caps the rendered list at maxItems when retained options push it past the limit', () => {
+		// Repro of SEARCH-208: the ES request is bounded at `size: maxItems`,
+		// but retained options accumulated from earlier searches are appended
+		// on the client. Once the merged set exceeds the cap the list must
+		// still slice to `maxItems`. Sort by count, so the live (non-zero)
+		// buckets win their slots and the retained-but-now-empty entries
+		// drop off the bottom first.
+		contextRef.current = { filterKey: 'category' };
+		captured.state.aggregations = {
+			category: {
+				buckets: [
+					{ key: 'news/News', doc_count: 9 },
+					{ key: 'reviews/Reviews', doc_count: 4 },
+				],
+			},
+		};
+		captured.state.retainedFilterOptions = {
+			category: [
+				{ value: 'news', label: 'News' },
+				{ value: 'reviews', label: 'Reviews' },
+				{ value: 'archive', label: 'Archive' },
+				{ value: 'opinion', label: 'Opinion' },
+				{ value: 'sports', label: 'Sports' },
+			],
+		};
+		captured.state.filterConfigs = {
+			category: { showCount: true, bucketSortOrder: 'count', valueLabels: {}, maxItems: 3 },
+		};
+		const items = captured.state.filterItems;
+		expect( items.map( i => i.value ) ).toEqual( [ 'news', 'reviews', 'archive' ] );
+	} );
+
+	it( 'falls back to a maxItems default of 10 when the config omits it', () => {
+		contextRef.current = { filterKey: 'category' };
+		const buckets = Array.from( { length: 12 }, ( _, i ) => ( {
+			key: `cat-${ i }/Cat ${ i }`,
+			doc_count: 12 - i,
+		} ) );
+		captured.state.aggregations = { category: { buckets } };
+		captured.state.filterConfigs = {
+			category: { showCount: true, bucketSortOrder: 'count', valueLabels: {} },
+		};
+		expect( captured.state.filterItems ).toHaveLength( 10 );
+	} );
+
+	it( 'coerces a maxItems below 1 up to 1 so the slice never empties the list', () => {
+		contextRef.current = { filterKey: 'category' };
+		captured.state.aggregations = {
+			category: { buckets: [ { key: 'news/News', doc_count: 9 } ] },
+		};
+		captured.state.filterConfigs = {
+			category: { showCount: true, bucketSortOrder: 'count', valueLabels: {}, maxItems: 0 },
+		};
+		expect( captured.state.filterItems.map( i => i.value ) ).toEqual( [ 'news' ] );
+	} );
+
 	it( 'renders selected values that are not in any aggregation yet (URL-seeded deep link)', () => {
 		contextRef.current = { filterKey: 'post_types' };
 		captured.state.activeFilters = { post_types: [ 'post' ] };
@@ -372,14 +428,17 @@ describe( 'syncFilterWrapperVisibility callback', () => {
 		captured.state.aggregations = {};
 		captured.state.retainedFilterOptions = {};
 		captured.state.filterConfigs = {};
-		captured.state.skeletonHidden = true;
+		// `skeletonHidden` is derived — drive it via the fetch lifecycle.
+		captured.state.isLoading = false;
+		captured.state.results = [];
 		contextRef.current = { filterKey: 'category', wrapperHidden: true };
 	} );
 
 	const run = () => captured.callbacks.syncFilterWrapperVisibility();
 
 	it( 'keeps the wrapper visible while the skeleton is still showing', () => {
-		captured.state.skeletonHidden = false;
+		captured.state.isLoading = true;
+		captured.state.results = [];
 		captured.state.aggregations = {};
 		run();
 		expect( contextRef.current.wrapperHidden ).toBe( false );
