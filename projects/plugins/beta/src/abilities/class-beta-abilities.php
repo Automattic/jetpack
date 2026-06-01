@@ -107,6 +107,11 @@ class Beta_Abilities extends Registrar {
 				'type'                 => 'object',
 				'properties'           => new \stdClass(),
 				'additionalProperties' => false,
+				// Zero-argument ability. The REST run endpoint calls read-only
+				// abilities over GET, which cannot encode an empty object in the
+				// query string, so input arrives as null. Default to an empty
+				// object so input validation (type: object) passes.
+				'default'              => array(),
 			),
 			'output_schema'       => array(
 				'type'       => 'object',
@@ -197,6 +202,11 @@ class Beta_Abilities extends Registrar {
 				'type'                 => 'object',
 				'properties'           => new \stdClass(),
 				'additionalProperties' => false,
+				// Zero-argument ability. The REST run endpoint calls read-only
+				// abilities over GET, which cannot encode an empty object in the
+				// query string, so input arrives as null. Default to an empty
+				// object so input validation (type: object) passes.
+				'default'              => array(),
 			),
 			'output_schema'       => array(
 				'type'       => 'object',
@@ -564,6 +574,12 @@ class Beta_Abilities extends Registrar {
 	 * @return array|\WP_Error The plugin view-model, or WP_Error on data failure.
 	 */
 	private static function build_plugin_view( Plugin $plugin ) {
+		// The Abilities REST run endpoint executes outside wp-admin, so the
+		// admin include files are not loaded. to_test_content()/dev_info()
+		// rely on WP_Filesystem() and get_plugin_data(); load them explicitly.
+		require_once ABSPATH . 'wp-admin/includes/file.php';
+		require_once ABSPATH . 'wp-admin/includes/plugin.php';
+
 		try {
 			$manifest   = $plugin->get_manifest( true );
 			$wporg_data = $plugin->get_wporg_data( true );
