@@ -7,10 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [7.22.0] - 2026-06-01
 ### Changed
-- Update empty state to use component from wp-ui. [#47908]
-- Update package dependencies. [#48404]
-- Update package dependencies. [#49152]
-- Update package dependencies. [#49154]
+- Update empty state to use component from @wordpress/ui. [#47908]
+- Update package dependencies. [#48404] [#49152] [#49154]
 
 ### Fixed
 - Dashboard: Align the header logo with the page title, pin the footer to the bottom of the viewport, and keep the tabs and search controls on a single row on desktop. [#49246]

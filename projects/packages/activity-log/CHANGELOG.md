@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.1.4] - 2026-06-01
 ### Added
-- Notices: Add notice if the connection state prevents logs from showing to clarify the reason. [#48858]
+- Notices: Add notice when the connection state prevents logs from showing. [#48858]
 
 ### Changed
 - Update package dependencies. [#48404]

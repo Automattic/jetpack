@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.28.6] - 2026-06-01
 ### Fixed
-- BFP: Prevent PHP warning when username is invalid. [#49292]
+- Brute Force Protection: Prevent PHP warning when username is invalid. [#49292]
 
 ## [0.28.5] - 2026-05-25
 ### Fixed

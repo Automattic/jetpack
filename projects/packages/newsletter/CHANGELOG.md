@@ -7,8 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.8.10] - 2026-06-01
 ### Changed
-- Update package dependencies. [#48404]
-- Update package dependencies. [#49152]
+- Update package dependencies. [#48404] [#49152]
 
 ### Fixed
 - Newsletter dashboard now records a `jetpack_newsletter_tab_view` Tracks event on initial page load (matching its tab-switch behavior). [#49243]

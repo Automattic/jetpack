@@ -7,16 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [8.5.1] - 2026-06-01
 ### Changed
-- Connectors: Disable connecting and disconnecting from the Connectors card while the site is in offline mode. [#49305]
+- Connectors: Disable the ability to connect/disconnect from the Connectors card while the site is in offline mode. [#49305]
 
 ## [8.5.0] - 2026-06-01
 ### Added
-- Connection: Add connection/test and connection/test-wpcom REST endpoints (migrated from Jetpack plugin). [#49198]
+- Connection: Migrate `connection/test` and `connection/test-wpcom` REST endpoints from Jetpack plugin. [#49198]
 
 ### Changed
 - Exclude additional unneeded files from the Composer package. [#49014]
-- Jetpack Connection Health tests: Migrate from Jetpack plugin to Connection package. [#47837]
-- Users list: use dynamic connector logo and tooltip based on connected plugin families. [#49093]
+- Jetpack Connection Health: Migrate tests from Jetpack plugin to Connection package. [#47837]
+- Users List: use dynamic connector logo and tooltip based on connected plugin families. [#49093]
 
 ## [8.4.0] - 2026-05-25
 ### Added

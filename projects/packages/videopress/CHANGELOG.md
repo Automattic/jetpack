@@ -9,11 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Exclude additional unneeded files from the Composer package. [#49014]
 - Internal: Prepare types for React 19. [#49204]
-- Update package dependencies. [#48404]
-- Update package dependencies. [#49152]
+- Update package dependencies. [#48404] [#49152]
 
 ### Fixed
-- Fix the post-connection redirect so the modernized dashboard returns users to the VideoPress page instead of a 404 [#49168]
+- Fix the post-connection redirect so the modernized dashboard returns users to the VideoPress page instead of a 404. [#49168]
 
 ## [0.36.11] - 2026-05-25
 ### Changed
