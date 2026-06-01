@@ -1,4 +1,4 @@
 Significance: patch
-Type: fixed
+Type: bugfix
 
-Escape the SoundCloud player iframe src URL with esc_url().
+Shortcode embeds: ensure the SoundCloud player iFrame is always correctly escaped.
