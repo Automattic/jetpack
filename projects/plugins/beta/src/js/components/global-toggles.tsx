@@ -7,7 +7,7 @@
  * @package
  */
 
-import { ToggleControl } from '@wordpress/components';
+import { Spinner, ToggleControl } from '@wordpress/components';
 import { useCallback, useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Card, Notice } from '@wordpress/ui';
@@ -54,6 +54,9 @@ const GlobalToggles = () => {
 
 	const handleAutoupdates = useCallback(
 		( checked: boolean ) => {
+			if ( inFlight !== null ) {
+				return;
+			}
 			if ( ! settings ) {
 				return;
 			}
@@ -77,11 +80,15 @@ const GlobalToggles = () => {
 					setInFlight( null );
 				} );
 		},
+		// eslint-disable-next-line react-hooks/exhaustive-deps -- inFlight read only guards re-entrancy; stale closure is safe because inFlight is set before any await
 		[ settings ]
 	);
 
 	const handleEmailNotifications = useCallback(
 		( checked: boolean ) => {
+			if ( inFlight !== null ) {
+				return;
+			}
 			if ( ! settings ) {
 				return;
 			}
@@ -105,11 +112,12 @@ const GlobalToggles = () => {
 					setInFlight( null );
 				} );
 		},
+		// eslint-disable-next-line react-hooks/exhaustive-deps -- inFlight read only guards re-entrancy; stale closure is safe because inFlight is set before any await
 		[ settings ]
 	);
 
 	if ( loading ) {
-		return null;
+		return <Spinner />;
 	}
 
 	if ( fetchError ) {
