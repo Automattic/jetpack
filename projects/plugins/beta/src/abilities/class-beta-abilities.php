@@ -156,7 +156,7 @@ class Beta_Abilities extends Registrar {
 		return array(
 			'label'               => __( 'Get Jetpack Beta plugin details', 'jetpack-beta' ),
 			'description'         => __(
-				'Return the full view-model for a single plugin managed by Jetpack Beta Tester. Input: { slug }. Output: { name, is_mu_plugin, bug_report_url, currently_running, sections, to_test_html, what_changed_html, needed_updates }. `currently_running` is null when the plugin is not active. `sections` is an ordered array of branch cards (existing → stable → rc → trunk → PRs → releases). `to_test_html` and `what_changed_html` are sanitized HTML strings or null. `needed_updates` is an array of plugin files that have pending updates. Read-only — results are cached but may trigger background network refreshes.',
+				'Return the full view-model for a single plugin managed by Jetpack Beta Tester. Input: { slug }. Output: { name, is_mu_plugin, bug_report_url, currently_running, sections, to_test_html, what_changed_html }. `currently_running` is null when the plugin is not active. `sections` is an ordered array of branch cards (existing → stable → rc → trunk → PRs → releases). `to_test_html` and `what_changed_html` are sanitized HTML strings or null. Read-only — results are cached but may trigger background network refreshes.',
 				'jetpack-beta'
 			),
 			'input_schema'        => array(
@@ -730,11 +730,6 @@ class Beta_Abilities extends Registrar {
 		// ------------------------------------------------------------------
 		list( $to_test_html, $what_changed_html ) = Admin::to_test_content( $plugin );
 
-		// ------------------------------------------------------------------
-		// Needed updates — port of show-needed-updates.template.php logic.
-		// ------------------------------------------------------------------
-		$needed_updates = self::get_needed_updates_for_plugin( $plugin );
-
 		return array(
 			'name'              => $plugin->get_name(),
 			'is_mu_plugin'      => $plugin->is_mu_plugin(),
@@ -743,7 +738,6 @@ class Beta_Abilities extends Registrar {
 			'sections'          => $sections,
 			'to_test_html'      => $to_test_html,
 			'what_changed_html' => $what_changed_html,
-			'needed_updates'    => $needed_updates,
 		);
 	}
 
@@ -806,10 +800,6 @@ class Beta_Abilities extends Registrar {
 				),
 				'to_test_html'      => array( 'type' => array( 'string', 'null' ) ),
 				'what_changed_html' => array( 'type' => array( 'string', 'null' ) ),
-				'needed_updates'    => array(
-					'type'  => 'array',
-					'items' => array( 'type' => 'string' ),
-				),
 			),
 		);
 	}
@@ -838,33 +828,5 @@ class Beta_Abilities extends Registrar {
 			'pretty_version' => $branch->pretty_version ?? null,
 			'is_active'      => $is_active,
 		);
-	}
-
-	/**
-	 * Return an array of plugin files that have pending updates, scoped to the
-	 * given plugin (plus the Beta Tester itself).
-	 *
-	 * Mirrors the logic in show-needed-updates.template.php: calls
-	 * `Utils::plugins_needing_update( true )` to include stable versions, then
-	 * filters the result to only the files relevant to this plugin and the
-	 * Jetpack Beta Tester itself.
-	 *
-	 * @param Plugin $plugin Plugin to check.
-	 * @return string[] Plugin file paths that have available updates.
-	 */
-	private static function get_needed_updates_for_plugin( Plugin $plugin ): array {
-		try {
-			$updates = Utils::plugins_needing_update( true );
-		} catch ( \Exception $e ) {
-			return array();
-		}
-
-		$relevant = array(
-			$plugin->plugin_file()                      => 1,
-			$plugin->dev_plugin_file()                  => 1,
-			JPBETA__PLUGIN_FOLDER . '/jetpack-beta.php' => 1,
-		);
-
-		return array_keys( array_intersect_key( $updates, $relevant ) );
 	}
 }

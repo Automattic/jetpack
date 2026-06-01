@@ -50,14 +50,13 @@ const BranchSection = ( {
 	if ( ! searchable ) {
 		filteredCards = cards;
 	} else if ( hasQuery ) {
-		filteredCards = cards.filter( card => {
-			const q = trimmedQuery.toLowerCase();
-			return (
+		const q = trimmedQuery.toLowerCase();
+		filteredCards = cards.filter(
+			card =>
 				( card.pretty_version?.toLowerCase().includes( q ) ?? false ) ||
 				( card.branch?.toLowerCase().includes( q ) ?? false ) ||
 				( card.version?.toLowerCase().includes( q ) ?? false )
-			);
-		} );
+		);
 	} else {
 		filteredCards = cards.filter( c => c.is_active );
 	}

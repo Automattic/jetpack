@@ -11,7 +11,7 @@ import { ToggleControl } from '@wordpress/components';
 import { useCallback, useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Card, Notice, Stack, Text } from '@wordpress/ui';
-import { getSettings, updateSettings } from '../api/abilities';
+import { errorMessage, getSettings, updateSettings } from '../api/abilities';
 import { Skeleton } from './skeleton';
 import type { Settings } from '../api/types';
 
@@ -40,11 +40,7 @@ const GlobalToggles = () => {
 			} )
 			.catch( ( err: unknown ) => {
 				if ( ! cancelled ) {
-					const msg =
-						err && typeof err === 'object' && 'message' in err && typeof err.message === 'string'
-							? err.message
-							: __( 'Could not load settings.', 'jetpack-beta' );
-					setFetchError( msg );
+					setFetchError( errorMessage( err, __( 'Could not load settings.', 'jetpack-beta' ) ) );
 					setLoading( false );
 				}
 			} );
@@ -53,29 +49,22 @@ const GlobalToggles = () => {
 		};
 	}, [] );
 
-	const handleAutoupdates = useCallback(
-		( checked: boolean ) => {
-			if ( inFlight !== null ) {
-				return;
-			}
-			if ( ! settings ) {
+	// Both toggles share one optimistic-update flow, differing only by which
+	// setting key they write and the error message on failure.
+	const applySetting = useCallback(
+		( key: 'autoupdates' | 'email_notifications', checked: boolean, failMessage: string ) => {
+			if ( inFlight !== null || ! settings ) {
 				return;
 			}
 			const previous = settings;
-			setSettings( { ...settings, autoupdates: checked } );
+			setSettings( { ...settings, [ key ]: checked } );
 			setUpdateError( null );
-			setInFlight( 'autoupdates' );
-			updateSettings( { autoupdates: checked } )
-				.then( updated => {
-					setSettings( updated );
-				} )
+			setInFlight( key );
+			updateSettings( { [ key ]: checked } )
+				.then( setSettings )
 				.catch( ( err: unknown ) => {
 					setSettings( previous );
-					const msg =
-						err && typeof err === 'object' && 'message' in err && typeof err.message === 'string'
-							? err.message
-							: __( 'Could not save autoupdates setting.', 'jetpack-beta' );
-					setUpdateError( msg );
+					setUpdateError( errorMessage( err, failMessage ) );
 				} )
 				.finally( () => {
 					setInFlight( null );
@@ -85,36 +74,24 @@ const GlobalToggles = () => {
 		[ settings ]
 	);
 
+	const handleAutoupdates = useCallback(
+		( checked: boolean ) =>
+			applySetting(
+				'autoupdates',
+				checked,
+				__( 'Could not save autoupdates setting.', 'jetpack-beta' )
+			),
+		[ applySetting ]
+	);
+
 	const handleEmailNotifications = useCallback(
-		( checked: boolean ) => {
-			if ( inFlight !== null ) {
-				return;
-			}
-			if ( ! settings ) {
-				return;
-			}
-			const previous = settings;
-			setSettings( { ...settings, email_notifications: checked } );
-			setUpdateError( null );
-			setInFlight( 'email_notifications' );
-			updateSettings( { email_notifications: checked } )
-				.then( updated => {
-					setSettings( updated );
-				} )
-				.catch( ( err: unknown ) => {
-					setSettings( previous );
-					const msg =
-						err && typeof err === 'object' && 'message' in err && typeof err.message === 'string'
-							? err.message
-							: __( 'Could not save email notifications setting.', 'jetpack-beta' );
-					setUpdateError( msg );
-				} )
-				.finally( () => {
-					setInFlight( null );
-				} );
-		},
-		// eslint-disable-next-line react-hooks/exhaustive-deps -- inFlight read only guards re-entrancy; stale closure is safe because inFlight is set before any await
-		[ settings ]
+		( checked: boolean ) =>
+			applySetting(
+				'email_notifications',
+				checked,
+				__( 'Could not save email notifications setting.', 'jetpack-beta' )
+			),
+		[ applySetting ]
 	);
 
 	if ( loading ) {

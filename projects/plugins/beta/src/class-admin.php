@@ -220,7 +220,6 @@ class Admin {
 					'pluginName' => $plugin_display_name,
 					'plugins'    => $plugin_list,
 					'adminUrl'   => Utils::admin_url(),
-					'canManage'  => current_user_can( 'update_plugins' ),
 				),
 				JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP
 			) . ';',
