@@ -111,7 +111,11 @@
 }
 
 .connection-panel-inner {
-	padding: 0 var(--wpds-dimension-padding-2xl, 24px) var(--wpds-dimension-padding-xl, 20px);
+	// Panel keeps `overflow: hidden` for the collapse animation, so the top
+	// padding doubles as clearance for the focus ring of the first focusable
+	// child (e.g. the mark-as-shared info button) — without it the ring's top
+	// edge is clipped by the panel.
+	padding: var(--wpds-dimension-padding-xs, 4px) var(--wpds-dimension-padding-2xl, 24px) var(--wpds-dimension-padding-xl, 20px);
 }
 
 // Stack supplies the row layout (align + gap); only the trailing spacing

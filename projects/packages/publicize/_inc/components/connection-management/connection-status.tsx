@@ -81,7 +81,7 @@ export function ConnectionStatus( { connection, service }: ConnectionStatusProps
 								'jetpack-publicize-pkg'
 						  );
 				} )( isUnsupported, connection.status ) }
-			</span>
+			</span>{ ' ' }
 			{ ! isUnsupported && service ? (
 				<Reconnect connection={ connection } service={ service } />
 			) : (
