@@ -402,6 +402,12 @@ class Jetpack_AI_Sidebar {
 	 * @return array Updated providers.
 	 */
 	public static function register_provider( array $providers ): array {
+		// Big Sky's calypso-agent-provider composes Jetpack's provider in-process
+		// via dynamic import; adding the URL here would cause AM to load it twice.
+		if ( self::is_big_sky_active() ) {
+			return $providers;
+		}
+
 		// CIAB (next-admin) has AM natively — skip to avoid duplicate agents.
 		if ( did_action( 'next_admin_init' ) ) {
 			return $providers;

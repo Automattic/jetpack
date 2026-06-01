@@ -67,6 +67,12 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 		// Ensure Big Sky is disabled by default so tests aren't affected by the
 		// Big_Sky class persisting across tests once it is declared.
 		update_option( 'big_sky_enable', '0' );
+		// Suppress the Big Sky integration by default — the `Big_Sky` stub class
+		// declared by `simulate_big_sky_class()` persists across tests in the
+		// same process, so `is_big_sky_active()` would otherwise leak true into
+		// every subsequent test. Tests that need the integration active call
+		// `simulate_big_sky_class()`, which removes this filter.
+		add_filter( 'jetpack_ai_sidebar_big_sky_integration', '__return_false' );
 	}
 
 	/**
@@ -103,6 +109,7 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 		remove_all_filters( 'jetpack_ai_sidebar_preview_enabled' );
 		remove_all_filters( 'jetpack_ai_sidebar_preview_features' );
 		remove_all_filters( 'jetpack_ai_sidebar_agents_manager_data' );
+		remove_all_filters( 'jetpack_ai_sidebar_big_sky_integration' );
 		remove_action( 'admin_enqueue_scripts', array( Jetpack_AI_Sidebar::class, 'maybe_enqueue_am' ), 200 );
 		remove_action( 'admin_enqueue_scripts', array( Jetpack_AI_Sidebar::class, 'maybe_enqueue_abilities_script' ), 201 );
 		remove_action( 'admin_enqueue_scripts', array( Jetpack_AI_Sidebar::class, 'maybe_patch_jetpack_ai_sidebar_preview_data' ), 250 );
@@ -167,6 +174,9 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 			// phpcs:ignore Generic.Files.OneObjectStructurePerFile.MultipleFound, Generic.Classes.DuplicateClassName.Found
 			eval( 'class Big_Sky {}' ); // @codingStandardsIgnoreLine — minimal stub for unit test isolation.
 		}
+		// Undo the default kill-switch installed by set_up() so this test sees
+		// is_big_sky_active() === true.
+		remove_filter( 'jetpack_ai_sidebar_big_sky_integration', '__return_false' );
 	}
 
 	/**
@@ -987,6 +997,31 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 		$providers = Jetpack_AI_Sidebar::register_provider( $existing );
 
 		$this->assertSame( $existing, $providers );
+	}
+
+	/**
+	 * The register_provider method does not add Jetpack's URL when Big Sky is active.
+	 */
+	public function test_register_provider_skips_when_big_sky_active() {
+		$this->simulate_big_sky_class();
+		$this->set_block_editor_screen();
+		$this->cache_sidebar_asset_data();
+
+		$providers = array();
+		$providers = Jetpack_AI_Sidebar::register_provider( $providers );
+
+		$jetpack_url_present = false;
+		foreach ( $providers as $entry ) {
+			$url = is_array( $entry ) ? ( $entry['url'] ?? '' ) : (string) $entry;
+			if ( str_contains( $url, 'jetpack-ai-sidebar.provider' ) ) {
+				$jetpack_url_present = true;
+				break;
+			}
+		}
+		$this->assertFalse(
+			$jetpack_url_present,
+			'Jetpack provider URL should not be registered when Big Sky is active.'
+		);
 	}
 
 	// ──────────────────────────────────────────────────
