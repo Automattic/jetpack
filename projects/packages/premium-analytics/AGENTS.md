@@ -176,13 +176,25 @@ know up front, so individual task issues don't re-explain the rationale.
 
 ### ESLint patterns
 
-`@automattic/charts/style.css` is a subpath export that resolves to
-`dist/index.css`. Earlier rounds of this research assumed
-`import/no-unresolved` fires on the import (because `dist/index.css` is
-gitignored and not built during ESLint CI), and therefore that a
-disable directive was needed. The host dogfood for
-[RSM-3726](https://linear.app/a8c/issue/RSM-3726) falsified that
-premise: the rule never fires on this import.
+`@automattic/charts/style.css` is a subpath export with two resolution
+paths (`projects/js-packages/charts/package.json`):
+
+```json
+"./style.css": {
+  "jetpack:src": "./src/style.css",   // monorepo consumers
+  "default":     "./dist/index.css"    // published package
+}
+```
+
+Earlier rounds of this research only considered the `default` path and
+assumed `import/no-unresolved` fires on the import (because `dist/index.css`
+is gitignored and not built during ESLint CI), and therefore that a
+disable directive was needed. That premise was wrong on two counts: even
+within the monorepo, the `jetpack:src` condition would have resolved to
+the *committed* `src/style.css` regardless of whether `dist/` was built.
+More fundamentally, the host dogfood for
+[RSM-3726](https://linear.app/a8c/issue/RSM-3726) falsified the whole
+chain: the rule never fires on this import at all.
 
 Why: the repo's import-resolver config
 (`tools/js-tools/eslintrc/base.mjs:251-266`) wires

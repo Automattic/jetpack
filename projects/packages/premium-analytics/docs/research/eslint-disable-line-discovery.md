@@ -30,12 +30,19 @@ A pie chart on the analytics dashboard, requiring a CSS subpath import:
 import '@automattic/charts/style.css';
 ```
 
-The subpath resolves to `dist/index.css`, which is gitignored and not
-built during the ESLint CI step. At the time, every contributor —
-including the task md author — assumed `import/no-unresolved` would
-therefore fire on the import in CI lint. Round 6 ultimately showed
-that assumption was wrong (the repo's TS import resolver doesn't
-evaluate CSS subpath imports at all), but Rounds 1–5 took that
+The subpath has two resolution paths in
+`projects/js-packages/charts/package.json` — `jetpack:src` →
+`./src/style.css` (the committed source, used by monorepo consumers
+via the repo's `jetpack:src` exports condition) and `default` →
+`./dist/index.css` (the published-package fallback; gitignored and not
+built during ESLint CI). At the time, every contributor — including
+the task md author — only considered the `default` path, never noticed
+the `jetpack:src` alias, and assumed `import/no-unresolved` would fire
+on the import in CI lint because `dist/index.css` wasn't built. Round 6
+ultimately showed *both* halves of that reasoning were wrong: the
+`jetpack:src` resolution would have hit the committed `src/style.css`
+anyway, and more fundamentally the repo's TS import resolver doesn't
+evaluate CSS subpath imports at all. Rounds 1–5 took the wrong
 assumption as given.
 
 The task md (now removed; see [`../../AGENTS.md`](../../AGENTS.md) for
@@ -260,6 +267,17 @@ prior round had been operating on an unverified premise — the
 was never actually substantiated. None of Rounds 1–5 ran the lint
 without the directive to check whether the rule fires; everyone
 assumed it did because the task md said so.
+
+The experiment above toggles only the `dist/index.css` state, which is
+the path the `default` export condition picks. In the monorepo, the
+`jetpack:src` condition is active (`conditionNames` in the resolver
+config above), so the actual export target is the committed
+`./src/style.css` — toggling `dist/` is somewhat off-target. The
+broader point still holds: even if the resolver *did* evaluate CSS
+imports, the monorepo path would hit a committed file, and the
+published-package path would hit `dist/index.css` (built at publish
+time). Neither path would ever surface the unresolved-error symptom
+Rounds 1–5 designed around.
 
 The Round 5 search of full history for `eslint-disable-line
 import/no-unresolved` returning only `e60c87ea93` is *almost*
