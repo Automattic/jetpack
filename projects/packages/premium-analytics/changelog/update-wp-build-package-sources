@@ -1,4 +1,4 @@
 Significance: patch
 Type: changed
 
-Patch `@wordpress/build` to read script-module IDs from `package.json#name` and discover script-module packages outside `./packages/` via convention. Pulls in `@automattic/number-formatters` as the first cross-directory shared script module.
+Patch `@wordpress/build` to read script-module IDs from `package.json#name`, discover script-module packages outside `./packages/` via convention, and scope the generated `wp_deregister_script_module()` calls to `@wordpress/*` so shared modules fall through to Core's first-wins. Pulls in `@automattic/number-formatters` as the first cross-directory shared script module, and renames the local `init` package to `@automattic/jetpack-premium-analytics-init` so its npm name, import specifier, and script-module ID all match.
