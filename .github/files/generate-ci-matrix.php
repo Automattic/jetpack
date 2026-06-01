@@ -54,7 +54,7 @@ $default_matrix_vars = array(
 	// {bool} Whether to install WooCommerce.
 	'with-woocommerce'    => false,
 
-	// {string} For 'test-coverage' jobs, which group to run: 'php' or 'js'.
+	// {string} For coverage jobs, which group is being run: 'php' or 'js'.
 	'coverage-group'      => '',
 );
 
@@ -123,8 +123,9 @@ $matrix[] = array(
 foreach ( array( 'php', 'js' ) as $cov_group ) {
 	$matrix[] = array(
 		'name'           => "Code coverage ($cov_group)",
-		'script'         => 'test-coverage',
-		'wp'             => 'latest',
+		'script'         => "test-$cov_group-coverage",
+		// JS coverage doesn't need a WordPress environment, like the regular JS tests job.
+		'wp'             => 'php' === $cov_group ? 'latest' : 'none',
 		'timeout'        => 30, // 2025-11-06: Successful runs took ~15 minutes combined; we'll want to update this when we have new numbers.
 		'coverage-group' => $cov_group,
 	);
