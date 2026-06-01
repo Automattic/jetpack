@@ -874,8 +874,8 @@ importers:
   projects/js-packages/eslint-config-target-es:
     dependencies:
       '@mdn/browser-compat-data':
-        specifier: 7.3.9
-        version: 7.3.9
+        specifier: 7.3.17
+        version: 7.3.17
       browserslist:
         specifier: ^4.17.6
         version: 4.28.2
@@ -8495,8 +8495,8 @@ packages:
   '@marijn/find-cluster-break@1.0.2':
     resolution: {integrity: sha512-l0h88YhZFyKdXIFNfSWpyjStDjGHwZ/U7iobcK1cQQD8sejsONdQtTVU+1wVN1PBw40PiiHB1vA5S7VTfQiP9g==}
 
-  '@mdn/browser-compat-data@7.3.9':
-    resolution: {integrity: sha512-ARxwDFfq4uhRSd9Wr1FMaxeKKIFDPyMnSoLe/8WX+nNXbKDILf1H8KDJW9nzu2QTR0hQ37jDCzAgyaNYdLzACQ==}
+  '@mdn/browser-compat-data@7.3.17':
+    resolution: {integrity: sha512-ZtcyRH/psFX4njAEvY898TH/VYknOaeEe2KJdldak4eDsj4MufSY2sXtBJ2IKjZ3jAvLUBRVf8+bv8q2xDHVDg==}
 
   '@mdx-js/react@3.1.1':
     resolution: {integrity: sha512-f++rKLQgUVYDAtECQ6fn/is15GkEH9+nZPM3MS0RcxVqoTfawHvDlSCH7JbMhAM6uJ32v3eXLvLmLvjGu7PTQw==}
@@ -20752,7 +20752,7 @@ snapshots:
 
   '@marijn/find-cluster-break@1.0.2': {}
 
-  '@mdn/browser-compat-data@7.3.9': {}
+  '@mdn/browser-compat-data@7.3.17': {}
 
   '@mdx-js/react@3.1.1(@types/react@18.3.28)(react@18.3.1)':
     dependencies:
