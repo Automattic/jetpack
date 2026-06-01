@@ -580,6 +580,13 @@ class Jetpack_AI_Sidebar {
 	 * @return array Filtered provider URLs.
 	 */
 	private static function filter_agent_providers_for_jetpack_ai_sidebar( array $providers ): array {
+		// With Big Sky as the AM host, Big Sky's calypso-agent-provider owns the
+		// provider list and composes Jetpack's provider in-process. Stripping the
+		// Big Sky URL here would break that composition.
+		if ( self::is_big_sky_active() ) {
+			return $providers;
+		}
+
 		return array_values(
 			array_filter(
 				$providers,
@@ -623,6 +630,12 @@ class Jetpack_AI_Sidebar {
 	 */
 	public static function maybe_patch_jetpack_ai_sidebar_preview_data(): void {
 		if ( ( new Host() )->is_wpcom_simple() ) {
+			return;
+		}
+		// When Big Sky is the AM host, its calypso-agent-provider owns the
+		// provider list — Jetpack must not stamp a strip-then-replace script
+		// over the upstream agentsManagerData payload.
+		if ( self::is_big_sky_active() ) {
 			return;
 		}
 		if ( ! self::is_jetpack_ai_sidebar_preview_enabled() || ! self::is_post_editor() || ! self::has_ai_features() ) {

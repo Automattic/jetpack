@@ -1000,6 +1000,60 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * The agent-providers strip filter preserves Big Sky's URL when Big Sky is active.
+	 *
+	 * Exercised through the public `add_agents_manager_data` entry point because the
+	 * underlying `filter_agent_providers_for_jetpack_ai_sidebar` method is private.
+	 */
+	public function test_strip_filter_preserves_big_sky_when_active() {
+		$this->simulate_big_sky_class();
+		$this->set_block_editor_screen();
+
+		$big_sky_url = 'https://example.com/wp-content/plugins/big-sky-plugin/build/calypso-agent-provider/index.js?ver=123';
+		$data        = Jetpack_AI_Sidebar::add_agents_manager_data(
+			array(
+				'sectionName'    => 'gutenberg',
+				'agentProviders' => array( $big_sky_url ),
+			)
+		);
+
+		$this->assertContains(
+			$big_sky_url,
+			$data['agentProviders'],
+			'Big Sky URL should not be stripped when the Big Sky integration is active.'
+		);
+	}
+
+	/**
+	 * The preview-data patch script is suppressed when Big Sky is active.
+	 *
+	 * With Big Sky as the AM host, Big Sky's calypso-agent-provider owns the
+	 * provider list — Jetpack must not stamp its strip-then-replace script over it.
+	 */
+	public function test_patch_jetpack_ai_sidebar_preview_data_skips_when_big_sky_active() {
+		$this->simulate_big_sky_class();
+		$this->set_block_editor_screen();
+		$_SERVER['A8C_PROXIED_REQUEST'] = '1';
+		wp_enqueue_script( 'agents-manager', 'https://example.com/am.js', array(), '1.0', true );
+		wp_add_inline_script( 'agents-manager', 'const agentsManagerData = { sectionName: "gutenberg" };', 'before' );
+
+		Jetpack_AI_Sidebar::maybe_patch_jetpack_ai_sidebar_preview_data();
+
+		$this->assertStringNotContainsString(
+			'agentsManagerData.agentId',
+			$this->get_agents_manager_inline_script()
+		);
+		$this->assertStringNotContainsString(
+			'agentsManagerData.aiEditorialReviewEnabled',
+			$this->get_agents_manager_inline_script()
+		);
+		$this->assertStringNotContainsString(
+			'agentsManagerData.jetpackAiSidebarPreview',
+			$this->get_agents_manager_inline_script()
+		);
+	}
+
+	/**
 	 * The register_provider method does not add Jetpack's URL when Big Sky is active.
 	 */
 	public function test_register_provider_skips_when_big_sky_active() {
