@@ -123,7 +123,7 @@ const GlobalToggles = () => {
 				<Card.Content>
 					<Stack direction="column" gap="md">
 						<Skeleton width="80px" height="14px" />
-						<Stack direction="row" gap="xl" align="center">
+						<Stack direction="row" gap="xl" align="center" wrap="wrap">
 							<Skeleton width="140px" height="20px" />
 							<Skeleton width="180px" height="20px" />
 						</Stack>
@@ -157,7 +157,7 @@ const GlobalToggles = () => {
 							<Notice.Description>{ updateError }</Notice.Description>
 						</Notice.Root>
 					) }
-					<Stack direction="row" gap="xl" align="center">
+					<Stack direction="row" gap="xl" align="center" wrap="wrap">
 						<ToggleControl
 							__nextHasNoMarginBottom
 							label={ __( 'Autoupdates', 'jetpack-beta' ) }

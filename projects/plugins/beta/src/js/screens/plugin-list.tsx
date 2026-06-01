@@ -5,7 +5,6 @@
  * @package
  */
 
-import { Col, Container } from '@automattic/jetpack-components';
 import { useCallback, useEffect, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { Icon, chevronRight, plugins as pluginsIcon } from '@wordpress/icons';
@@ -211,24 +210,22 @@ const PluginList = () => {
 
 	return (
 		// Full-width scroll container so the scrollbar sits at the page edge; the
-		// inner Container keeps the content at a centered, fixed width.
+		// inner content div keeps everything at a centered, responsive fixed width.
 		<div className="jetpack-beta-scroll">
-			<Container horizontalSpacing={ 5 } horizontalGap={ 3 }>
-				<Col>
-					<Stack direction="column" gap="md">
-						<GlobalToggles />
-						{ loading &&
-							Array.from( { length: 6 } ).map( ( _, index ) => <CardRowSkeleton key={ index } /> ) }
-						{ error && (
-							<Notice.Root intent="error">
-								<Notice.Description>{ error }</Notice.Description>
-							</Notice.Root>
-						) }
-						{ plugins &&
-							plugins.map( plugin => <PluginCard key={ plugin.slug } plugin={ plugin } /> ) }
-					</Stack>
-				</Col>
-			</Container>
+			<div className="jetpack-beta-content">
+				<Stack direction="column" gap="md">
+					<GlobalToggles />
+					{ loading &&
+						Array.from( { length: 6 } ).map( ( _, index ) => <CardRowSkeleton key={ index } /> ) }
+					{ error && (
+						<Notice.Root intent="error">
+							<Notice.Description>{ error }</Notice.Description>
+						</Notice.Root>
+					) }
+					{ plugins &&
+						plugins.map( plugin => <PluginCard key={ plugin.slug } plugin={ plugin } /> ) }
+				</Stack>
+			</div>
 		</div>
 	);
 };
