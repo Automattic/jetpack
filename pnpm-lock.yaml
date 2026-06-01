@@ -1987,6 +1987,9 @@ importers:
       '@babel/runtime':
         specifier: 7.29.2
         version: 7.29.2
+      '@jest/globals':
+        specifier: 30.4.1
+        version: 30.4.1
       '@types/jest':
         specifier: 30.0.0
         version: 30.0.0
@@ -1999,6 +2002,9 @@ importers:
       browserslist:
         specifier: ^4.24.0
         version: 4.28.2
+      concurrently:
+        specifier: 9.2.1
+        version: 9.2.1
       jest:
         specifier: 30.4.2
         version: 30.4.2

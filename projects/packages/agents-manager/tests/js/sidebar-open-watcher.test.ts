@@ -1,3 +1,5 @@
+import { jest } from '@jest/globals';
+
 const WATCHER_DATA = {
 	cookieKey: 'agents_manager_chat_sidebar_open',
 	// jsdom only returns cookies whose path matches the document URL ("/"),
