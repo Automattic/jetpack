@@ -371,8 +371,6 @@ abstract class Publicize_Base {
 				return 'Google Drive';
 			case 'instagram-business':
 				return 'Instagram';
-			case 'x':
-				return 'X';
 			case 'twitter':
 			case 'facebook':
 			case 'tumblr':
@@ -533,10 +531,6 @@ abstract class Publicize_Base {
 			return 'https://twitter.com/' . substr( $cmeta['external_display'], 1 ); // Has a leading '@'.
 		}
 
-		if ( 'x' === $service_name && isset( $cmeta['external_name'] ) ) {
-			return 'https://x.com/' . $cmeta['external_name'];
-		}
-
 		if ( 'bluesky' === $service_name ) {
 			return 'https://bsky.app/profile/' . $cmeta['external_id'];
 		}
@@ -606,7 +600,6 @@ abstract class Publicize_Base {
 			case 'mastodon':
 				return $cmeta['external_display'] ?? null;
 
-			case 'x':
 			case 'bluesky':
 			case 'threads':
 				return $cmeta['external_name'] ?? null;
