@@ -153,7 +153,9 @@ const PluginManage = ( { slug }: Props ) => {
 		setView( updated );
 	}, [] );
 
-	const pluginName = view?.name ?? null;
+	// Prefer the name from the bootstrap so the header renders immediately, then
+	// keep using it once the full view has loaded.
+	const pluginName = view?.name ?? boot.pluginName ?? null;
 	const sectionMap = view ? groupSections( view.sections ) : new Map< string, BranchCardType[] >();
 
 	return (
@@ -163,6 +165,7 @@ const PluginManage = ( { slug }: Props ) => {
 			apiNonce={ boot.apiNonce }
 			breadcrumbs={ renderBreadcrumbs( pluginName ) }
 			showFooter={ false }
+			unwrapped
 		>
 			<Container horizontalSpacing={ 5 } horizontalGap={ 3 }>
 				<Col>
@@ -264,9 +267,9 @@ const PluginManage = ( { slug }: Props ) => {
 							) }
 						</Stack>
 					) }
-					<Footer />
 				</Col>
 			</Container>
+			<Footer />
 		</AdminPage>
 	);
 };

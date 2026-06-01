@@ -37,6 +37,7 @@ const App = () => {
 			apiRoot={ boot.apiRoot }
 			apiNonce={ boot.apiNonce }
 			showFooter={ false }
+			unwrapped
 		>
 			<PluginList />
 			<Footer />

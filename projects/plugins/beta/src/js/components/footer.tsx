@@ -20,7 +20,9 @@ import { Stack, Text } from '@wordpress/ui';
 const Footer = () => (
 	<Stack
 		render={ <footer /> }
-		className="jetpack-beta-footer"
+		// `jetpack-footer` hooks the jetpack-admin-page-layout mixin that pins
+		// the footer to the bottom; `jetpack-beta-footer` carries our styling.
+		className="jetpack-footer jetpack-beta-footer"
 		aria-label={ __( 'Jetpack', 'jetpack-beta' ) }
 		role="contentinfo"
 		direction="row"
