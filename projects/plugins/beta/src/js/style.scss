@@ -9,3 +9,15 @@
 	flex-direction: column;
 	min-height: 100%;
 }
+
+// Whole plugin card acts as a button linking to its manage screen.
+.jetpack-beta-plugin-card {
+	cursor: pointer;
+	transition: box-shadow 0.1s ease-in-out, border-color 0.1s ease-in-out;
+
+	&:hover,
+	&:focus-visible {
+		border-color: var(--wp-admin-theme-color, #3858e9);
+		box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+	}
+}
