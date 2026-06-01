@@ -17,7 +17,6 @@ import { Button, Card, Link, Notice, Stack, Text } from '@wordpress/ui';
 import { getPlugin } from '../api/abilities';
 import BranchSection from '../components/branch-section';
 import Footer from '../components/footer';
-import GlobalToggles from '../components/global-toggles';
 import MarkdownPanel from '../components/markdown-panel';
 import { CardRowSkeleton } from '../components/skeleton';
 import type { BranchCard as BranchCardType, PluginView } from '../api/types';
@@ -184,8 +183,6 @@ const PluginManage = ( { slug }: Props ) => {
 						) }
 						{ view && (
 							<Stack direction="column" gap="lg">
-								{ ! view.is_mu_plugin && <GlobalToggles /> }
-
 								{ view.is_mu_plugin && (
 									<Notice.Root intent="info">
 										<Notice.Description>
