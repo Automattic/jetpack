@@ -156,6 +156,11 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 
 	/**
 	 * Simulate the Big_Sky class existing.
+	 *
+	 * NOTE: the first invocation `eval`s a stub `Big_Sky` class which persists in
+	 * the class table for the remainder of the PHP process. Any later test that
+	 * needs `class_exists( 'Big_Sky' )` to be false must run in a separate
+	 * process (see `@runInSeparateProcess` on `test_is_big_sky_active_returns_false_when_class_missing`).
 	 */
 	private function simulate_big_sky_class() {
 		if ( ! class_exists( 'Big_Sky' ) ) {
@@ -1062,5 +1067,42 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 		$providers = apply_filters( 'agents_manager_agent_providers', array() );
 
 		$this->assertCount( 0, $providers );
+	}
+
+	// ──────────────────────────────────────────────────
+	// is_big_sky_active() tests
+	// ──────────────────────────────────────────────────
+
+	/**
+	 * The is_big_sky_active() helper returns false when Big_Sky class is not defined.
+	 *
+	 * Runs in a separate process so the `Big_Sky` stub declared by
+	 * `simulate_big_sky_class()` in earlier tests is not present.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[\PHPUnit\Framework\Attributes\RunInSeparateProcess]
+	#[\PHPUnit\Framework\Attributes\PreserveGlobalState( false )]
+	public function test_is_big_sky_active_returns_false_when_class_missing() {
+		$this->assertFalse( Jetpack_AI_Sidebar::is_big_sky_active() );
+	}
+
+	/**
+	 * The is_big_sky_active() helper returns true when Big_Sky class exists and filter is enabled.
+	 */
+	public function test_is_big_sky_active_returns_true_when_class_exists() {
+		$this->simulate_big_sky_class();
+		$this->assertTrue( Jetpack_AI_Sidebar::is_big_sky_active() );
+	}
+
+	/**
+	 * Filter `jetpack_ai_sidebar_big_sky_integration` can disable the integration.
+	 */
+	public function test_is_big_sky_active_respects_filter() {
+		$this->simulate_big_sky_class();
+		add_filter( 'jetpack_ai_sidebar_big_sky_integration', '__return_false' );
+		$this->assertFalse( Jetpack_AI_Sidebar::is_big_sky_active() );
+		remove_filter( 'jetpack_ai_sidebar_big_sky_integration', '__return_false' );
 	}
 }

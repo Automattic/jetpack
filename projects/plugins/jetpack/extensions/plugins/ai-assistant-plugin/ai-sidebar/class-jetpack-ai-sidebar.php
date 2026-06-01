@@ -689,6 +689,29 @@ class Jetpack_AI_Sidebar {
 	}
 
 	/**
+	 * Whether the Big Sky integration is active on this site.
+	 *
+	 * Returns true when the Big_Sky plugin class is loaded AND the
+	 * `jetpack_ai_sidebar_big_sky_integration` filter is truthy (defaults true).
+	 *
+	 * Deliberately does not read `big_sky_enable`: that option is a Big-Sky-internal
+	 * setting whose contract is owned by another plugin (registered with `intval`
+	 * sanitisation in `big-sky.php`), may be `null` on fresh installs, and signals
+	 * "user disabled Big Sky's AI features" — not "Jetpack should skip coordination".
+	 * Centralising on `class_exists()` plus a Jetpack-side filter gives one explicit
+	 * kill switch with clear ownership.
+	 *
+	 * Rollback model: code-side only (no DB option). A hotfix
+	 * `add_filter('jetpack_ai_sidebar_big_sky_integration', '__return_false')` disables.
+	 *
+	 * @return bool True when integration coordination should activate.
+	 */
+	public static function is_big_sky_active(): bool {
+		return class_exists( 'Big_Sky' )
+			&& (bool) apply_filters( 'jetpack_ai_sidebar_big_sky_integration', true );
+	}
+
+	/**
 	 * Check whether AI features are available.
 	 *
 	 * - wpcom simple: always available.
