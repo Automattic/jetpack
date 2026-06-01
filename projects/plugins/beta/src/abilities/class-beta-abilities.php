@@ -65,8 +65,8 @@ class Beta_Abilities extends Registrar {
 	/**
 	 * {@inheritDoc}
 	 *
-	 * Returns the three read abilities. Task 3 will add write abilities
-	 * (activate-branch, update-settings) to this same array.
+	 * Returns the three read abilities. Write abilities (activate-branch,
+	 * update-settings) are added in a follow-up commit.
 	 */
 	public static function get_abilities(): array {
 		return array(
@@ -149,7 +149,7 @@ class Beta_Abilities extends Registrar {
 		return array(
 			'label'               => __( 'Get Jetpack Beta plugin details', 'jetpack-beta' ),
 			'description'         => __(
-				'Return the full view-model for a single plugin managed by Jetpack Beta Tester. Input: { slug }. Output: { name, is_mu_plugin, bug_report_url, currently_running, sections, to_test_html, what_changed_html, needed_updates }. `currently_running` is null when the plugin is not active. `sections` is an ordered array of branch cards (stable → rc → trunk → PRs → releases). `to_test_html` and `what_changed_html` are sanitized HTML strings or null. `needed_updates` is an array of plugin files that have pending updates. Read-only and idempotent — safe to poll.',
+				'Return the full view-model for a single plugin managed by Jetpack Beta Tester. Input: { slug }. Output: { name, is_mu_plugin, bug_report_url, currently_running, sections, to_test_html, what_changed_html, needed_updates }. `currently_running` is null when the plugin is not active. `sections` is an ordered array of branch cards (existing → stable → rc → trunk → PRs → releases). `to_test_html` and `what_changed_html` are sanitized HTML strings or null. `needed_updates` is an array of plugin files that have pending updates. Read-only — results are cached but may trigger background network refreshes.',
 				'jetpack-beta'
 			),
 			'input_schema'        => array(
@@ -180,7 +180,18 @@ class Beta_Abilities extends Registrar {
 					),
 					'sections'          => array(
 						'type'  => 'array',
-						'items' => array( 'type' => 'object' ),
+						'items' => array(
+							'type'       => 'object',
+							'properties' => array(
+								'section'        => array( 'type' => 'string' ),
+								'source'         => array( 'type' => array( 'string', 'null' ) ),
+								'id'             => array( 'type' => array( 'string', 'null' ) ),
+								'branch'         => array( 'type' => array( 'string', 'null' ) ),
+								'version'        => array( 'type' => array( 'string', 'null' ) ),
+								'pretty_version' => array( 'type' => array( 'string', 'null' ) ),
+								'is_active'      => array( 'type' => 'boolean' ),
+							),
+						),
 					),
 					'to_test_html'      => array( 'type' => array( 'string', 'null' ) ),
 					'what_changed_html' => array( 'type' => array( 'string', 'null' ) ),
@@ -196,7 +207,7 @@ class Beta_Abilities extends Registrar {
 				'annotations'  => array(
 					'readonly'    => true,
 					'destructive' => false,
-					'idempotent'  => true,
+					'idempotent'  => false,
 				),
 				'show_in_rest' => true,
 				'mcp'          => array(
@@ -313,10 +324,10 @@ class Beta_Abilities extends Registrar {
 		foreach ( $all_plugins as $slug => $plugin ) {
 			if ( $plugin->is_active( 'stable' ) ) {
 				$active_which   = 'stable';
-				$active_version = $plugin->stable_pretty_version() ?? '';
+				$active_version = $plugin->stable_pretty_version() ?? null;
 			} elseif ( $plugin->is_active( 'dev' ) ) {
 				$active_which   = 'dev';
-				$active_version = $plugin->dev_pretty_version() ?? '';
+				$active_version = $plugin->dev_pretty_version() ?? null;
 			} else {
 				$active_which   = null;
 				$active_version = null;
@@ -395,10 +406,12 @@ class Beta_Abilities extends Registrar {
 			'id'     => null,
 		);
 		if ( $plugin->is_active( 'stable' ) ) {
-			$active_branch = $existing_branch;
+			if ( $existing_branch ) {
+				$active_branch = $existing_branch;
+			}
 		} elseif ( $plugin->is_active( 'dev' ) ) {
 			$active_branch = $plugin->dev_info();
-			if ( $active_branch ) {
+			if ( $active_branch && ! is_wp_error( $active_branch ) ) {
 				$active_branch->which          = 'dev';
 				$active_branch->pretty_version = $plugin->dev_pretty_version();
 			} else {
