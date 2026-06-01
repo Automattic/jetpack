@@ -75,6 +75,8 @@ class Beta_Abilities extends Registrar {
 			'jetpack-beta/get-settings'    => self::spec_get_settings(),
 			'jetpack-beta/activate-branch' => self::spec_activate_branch(),
 			'jetpack-beta/update-settings' => self::spec_update_settings(),
+			'jetpack-beta/list-updates'    => self::spec_list_updates(),
+			'jetpack-beta/update-plugin'   => self::spec_update_plugin(),
 		);
 	}
 
@@ -828,5 +830,225 @@ class Beta_Abilities extends Registrar {
 			'pretty_version' => $branch->pretty_version ?? null,
 			'is_active'      => $is_active,
 		);
+	}
+
+	/**
+	 * Spec: jetpack-beta/list-updates.
+	 *
+	 * @return array The ability spec.
+	 */
+	private static function spec_list_updates(): array {
+		return array(
+			'label'               => __( 'List available Jetpack Beta plugin updates', 'jetpack-beta' ),
+			'description'         => __(
+				'Return the managed plugins that have a newer build available. Optional input { slug } scopes the result to a single plugin (plus the Beta Tester itself); omit it for every managed plugin. Output: { updates: [ { plugin_file, name, new_version } ] }. Read-only, but refreshes WordPress.org/Beta update data so it is not a pure cache read.',
+				'jetpack-beta'
+			),
+			'input_schema'        => array(
+				'type'                 => 'object',
+				'properties'           => array(
+					'slug' => array( 'type' => 'string' ),
+				),
+				'additionalProperties' => false,
+				'default'              => array(),
+			),
+			'output_schema'       => array(
+				'type'       => 'object',
+				'properties' => array(
+					'updates' => array(
+						'type'  => 'array',
+						'items' => array(
+							'type'       => 'object',
+							'properties' => array(
+								'plugin_file' => array( 'type' => 'string' ),
+								'name'        => array( 'type' => 'string' ),
+								'new_version' => array( 'type' => 'string' ),
+							),
+						),
+					),
+				),
+			),
+			'execute_callback'    => array( __CLASS__, 'list_updates' ),
+			'permission_callback' => array( __CLASS__, 'can_manage' ),
+			'meta'                => array(
+				'annotations'  => array(
+					'readonly'    => true,
+					'destructive' => false,
+					'idempotent'  => false,
+				),
+				'show_in_rest' => true,
+				'mcp'          => array( 'public' => false ),
+			),
+		);
+	}
+
+	/**
+	 * Spec: jetpack-beta/update-plugin.
+	 *
+	 * @return array The ability spec.
+	 */
+	private static function spec_update_plugin(): array {
+		return array(
+			'label'               => __( 'Update a Jetpack Beta plugin to its newest build', 'jetpack-beta' ),
+			'description'         => __(
+				'Run the plugin updater for a single plugin file (as reported by list-updates) to install its newest available build. Input: { plugin_file }. Output: { success, updates } where `updates` is the refreshed list-updates payload.',
+				'jetpack-beta'
+			),
+			'input_schema'        => array(
+				'type'                 => 'object',
+				'properties'           => array(
+					'plugin_file' => array( 'type' => 'string' ),
+				),
+				'required'             => array( 'plugin_file' ),
+				'additionalProperties' => false,
+			),
+			'output_schema'       => array(
+				'type'       => 'object',
+				'properties' => array(
+					'success' => array( 'type' => 'boolean' ),
+					'updates' => array(
+						'type'  => 'array',
+						'items' => array( 'type' => 'object' ),
+					),
+				),
+			),
+			'execute_callback'    => array( __CLASS__, 'update_plugin' ),
+			'permission_callback' => array( __CLASS__, 'can_manage' ),
+			'meta'                => array(
+				'annotations'  => array(
+					'readonly'    => false,
+					'destructive' => false,
+					'idempotent'  => false,
+				),
+				'show_in_rest' => true,
+				'mcp'          => array( 'public' => false ),
+			),
+		);
+	}
+
+	/**
+	 * Execute: list-updates.
+	 *
+	 * @param array|null $input Optional `{ slug }` to scope the result.
+	 * @return array|\WP_Error The updates payload, or WP_Error on data failure.
+	 */
+	public static function list_updates( $input = null ) {
+		$slug = isset( $input['slug'] ) && '' !== $input['slug'] ? sanitize_key( $input['slug'] ) : null;
+
+		try {
+			return self::build_updates_list( $slug );
+		} catch ( PluginDataException $e ) {
+			return new \WP_Error( 'plugin_data_error', $e->getMessage() );
+		}
+	}
+
+	/**
+	 * Execute: update-plugin.
+	 *
+	 * @param array|null $input `{ plugin_file }` of the plugin to update.
+	 * @return array|\WP_Error `{ success, updates }`, or WP_Error on failure.
+	 */
+	public static function update_plugin( $input = null ) {
+		$plugin_file = isset( $input['plugin_file'] ) ? sanitize_text_field( wp_unslash( $input['plugin_file'] ) ) : '';
+		if ( '' === $plugin_file ) {
+			return new \WP_Error( 'missing_plugin_file', __( 'A plugin file is required.', 'jetpack-beta' ) );
+		}
+
+		// The Abilities REST run endpoint executes outside wp-admin, so load the
+		// upgrader/update includes the same way core's plugin-update endpoint does.
+		require_once ABSPATH . 'wp-admin/includes/file.php';
+		require_once ABSPATH . 'wp-admin/includes/plugin.php';
+		require_once ABSPATH . 'wp-admin/includes/update.php';
+		require_once ABSPATH . 'wp-admin/includes/class-wp-upgrader.php';
+
+		// Make sure the available-update data (including Beta's injected builds) is current.
+		wp_clean_plugins_cache();
+		wp_update_plugins();
+
+		$skin     = new \WP_Ajax_Upgrader_Skin();
+		$upgrader = new \Plugin_Upgrader( $skin );
+		$result   = $upgrader->upgrade( $plugin_file );
+
+		if ( is_wp_error( $result ) ) {
+			return $result;
+		}
+		if ( is_wp_error( $skin->result ) ) {
+			return $skin->result;
+		}
+		if ( ! $result ) {
+			$errors = $skin->get_errors();
+			if ( is_wp_error( $errors ) && $errors->has_errors() ) {
+				return $errors;
+			}
+			return new \WP_Error( 'update_failed', __( 'The plugin update did not complete.', 'jetpack-beta' ) );
+		}
+
+		try {
+			$updates = self::build_updates_list();
+		} catch ( PluginDataException $e ) {
+			$updates = array( 'updates' => array() );
+		}
+
+		return array(
+			'success' => true,
+			'updates' => $updates['updates'],
+		);
+	}
+
+	/**
+	 * Build the list-updates payload: managed plugins with a newer build available.
+	 *
+	 * Ports show-needed-updates.template.php — `Utils::plugins_needing_update( true )`
+	 * filtered (when `$slug` is given) to that plugin's files plus the Beta Tester.
+	 *
+	 * @param string|null $slug Optional plugin slug to scope the result.
+	 * @return array{updates: array<int, array<string, string>>} The updates payload.
+	 * @throws PluginDataException If the plugin list cannot be fetched.
+	 */
+	private static function build_updates_list( ?string $slug = null ): array {
+		$updates = Utils::plugins_needing_update( true );
+
+		if ( null !== $slug ) {
+			$plugin = Plugin::get_plugin( $slug );
+			if ( $plugin ) {
+				$updates = array_intersect_key(
+					$updates,
+					array(
+						$plugin->plugin_file()     => 1,
+						$plugin->dev_plugin_file() => 1,
+						JPBETA__PLUGIN_FOLDER . '/jetpack-beta.php' => 1,
+					)
+				);
+			}
+		}
+
+		$list = array();
+		foreach ( $updates as $file => $update ) {
+			$dir = dirname( $file );
+
+			if ( JPBETA__PLUGIN_FOLDER === $dir ) {
+				// phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase -- WP plugin-data header.
+				$name = $update->Name;
+			} else {
+				$is_dev      = str_ends_with( $dir, '-dev' );
+				$plugin_slug = $is_dev ? substr( $dir, 0, -4 ) : $dir;
+				$plugin      = Plugin::get_plugin( $plugin_slug );
+				if ( $plugin ) {
+					$version = $is_dev ? $plugin->dev_pretty_version() : $plugin->stable_pretty_version();
+					$name    = $plugin->get_name() . ' | ' . $version;
+				} else {
+					// phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase -- WP plugin-data header.
+					$name = $update->Name;
+				}
+			}
+
+			$list[] = array(
+				'plugin_file' => $file,
+				'name'        => $name,
+				'new_version' => $update->update->new_version ?? '',
+			);
+		}
+
+		return array( 'updates' => $list );
 	}
 }

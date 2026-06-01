@@ -46,6 +46,12 @@ export type Settings = {
 	skip_email: boolean;
 };
 
+export type PluginUpdate = {
+	plugin_file: string;
+	name: string;
+	new_version: string;
+};
+
 export type BetaBootstrap = {
 	apiRoot: string;
 	apiNonce: string;
