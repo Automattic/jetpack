@@ -5302,6 +5302,9 @@ importers:
       '@wordpress/i18n':
         specifier: 6.19.0
         version: 6.19.0
+      '@wordpress/icons':
+        specifier: 13.1.0
+        version: 13.1.0(react@18.3.1)
       '@wordpress/ui':
         specifier: 0.13.0
         version: 0.13.0(@types/react@18.3.28)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
