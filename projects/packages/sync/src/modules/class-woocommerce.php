@@ -570,7 +570,6 @@ class WooCommerce extends Module {
 		'woocommerce_woocommerce_payments_google_pay_settings',
 		'woocommerce_woocommerce_payments_settings',
 		'wc_stripe_agentic_commerce_webhook_secret',  // This and the below options relate to additional payment types.
-		'woocommerce_amazon_payments_advanced_express_settings',
 		'woocommerce_amazon_payments_advanced_settings',
 		'woocommerce_gift_cards_pay_settings',
 		'woocommerce_square_cash_app_pay_settings',
