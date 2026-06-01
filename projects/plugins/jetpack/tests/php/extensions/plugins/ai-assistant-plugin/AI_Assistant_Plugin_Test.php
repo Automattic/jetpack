@@ -22,8 +22,27 @@ class AI_Assistant_Plugin_Test extends WP_UnitTestCase {
 	public function tear_down() {
 		unregister_setting( 'general', 'jetpack_ai_agents_enabled' );
 		Constants::clear_single_constant( 'IS_WPCOM' );
+		remove_all_filters( 'jetpack_gutenberg' );
+		remove_all_filters( 'jetpack_offline_mode' );
+		remove_all_filters( 'jetpack_ai_enabled' );
+		delete_option( 'jetpack_offline_mode' );
+		\Automattic\Jetpack\Status\Cache::clear();
+		\Jetpack_Options::delete_option( 'master_user' );
+		\Jetpack_Options::delete_option( 'user_tokens' );
+		( new \Automattic\Jetpack\Connection\Manager( 'jetpack' ) )->reset_connection_status();
 
 		parent::tear_down();
+	}
+
+	/**
+	 * Simulate a connected Jetpack owner so register_plugin's gate passes.
+	 */
+	private function simulate_connected_owner(): void {
+		$user_id = self::factory()->user->create( array( 'role' => 'administrator' ) );
+		wp_set_current_user( $user_id );
+		\Jetpack_Options::update_option( 'master_user', $user_id );
+		\Jetpack_Options::update_option( 'user_tokens', array( $user_id => 'token.secret.' . $user_id ) );
+		( new \Automattic\Jetpack\Connection\Manager( 'jetpack' ) )->reset_connection_status();
 	}
 
 	/**
@@ -88,6 +107,61 @@ class AI_Assistant_Plugin_Test extends WP_UnitTestCase {
 			AiAssistantPlugin\add_ai_agents_sync_options_whitelist(
 				array( 'jetpack_ai_agents_enabled', 'existing_option' )
 			)
+		);
+	}
+
+	/**
+	 * The ai-assistant-plugin extension is NOT registered as available when Big Sky is active.
+	 *
+	 * Big Sky owns the AI sidebar surface; the legacy AiAssistantPluginSidebar
+	 * PluginSidebar must not also be exposed in the editor.
+	 */
+	public function test_extension_unavailable_when_big_sky_active() {
+		if ( ! class_exists( 'Big_Sky' ) ) {
+			// phpcs:ignore Squiz.PHP.Eval.Discouraged,MediaWiki.Usage.ForbiddenFunctions.eval -- minimal stub for unit test isolation.
+			eval( 'class Big_Sky {}' );
+		}
+
+		// Simulate a posture where register_plugin would otherwise mark the
+		// extension available — connected owner, blocks enabled.
+		$this->simulate_connected_owner();
+		add_filter( 'jetpack_gutenberg', '__return_true' );
+		\Automattic\Jetpack\Status\Cache::clear();
+
+		\Jetpack_Gutenberg::reset();
+		AiAssistantPlugin\register_plugin();
+
+		$this->assertFalse(
+			\Jetpack_Gutenberg::is_available( AiAssistantPlugin\FEATURE_NAME ),
+			'Legacy AI Assistant Plugin must not be available when Big Sky is active.'
+		);
+	}
+
+	/**
+	 * The ai-assistant-plugin extension is registered as available when Big Sky is NOT active.
+	 *
+	 * Guards against accidentally suppressing the legacy plugin when Big Sky is absent.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[\PHPUnit\Framework\Attributes\RunInSeparateProcess]
+	#[\PHPUnit\Framework\Attributes\PreserveGlobalState( false )]
+	public function test_extension_available_when_big_sky_inactive() {
+		// Required because @runInSeparateProcess spawns a fresh PHP without the
+		// bootstrap that includes this file in the parent process.
+		require_once JETPACK__PLUGIN_DIR . '/extensions/plugins/ai-assistant-plugin/ai-assistant-plugin.php';
+
+		$this->simulate_connected_owner();
+		add_filter( 'jetpack_gutenberg', '__return_true' );
+		\Automattic\Jetpack\Status\Cache::clear();
+
+		\Jetpack_Gutenberg::reset();
+		AiAssistantPlugin\register_plugin();
+
+		$this->assertTrue(
+			\Jetpack_Gutenberg::is_available( AiAssistantPlugin\FEATURE_NAME ),
+			'Legacy AI Assistant Plugin must remain available when Big Sky is absent.'
 		);
 	}
 }

@@ -22,6 +22,16 @@ const FEATURE_NAME = 'ai-assistant-plugin';
  * @return void
  */
 function register_plugin() {
+	require_once __DIR__ . '/ai-sidebar/class-jetpack-ai-sidebar.php';
+
+	// When Big Sky is active it owns the AI sidebar surface; the legacy
+	// AiAssistantPluginSidebar PluginSidebar must not also be exposed in the
+	// editor. (The new AM-based sidebar is gated separately by
+	// Jetpack_AI_Sidebar's own class_exists check.)
+	if ( \Automattic\Jetpack\Extensions\AiAssistantPlugin\Jetpack_AI_Sidebar::is_big_sky_active() ) {
+		return;
+	}
+
 	// Check Jetpack AI feature availability.
 	if (
 		(
