@@ -188,11 +188,6 @@ export function makeBaseConfig( configurl, opts = {} ) {
 				wordpressEslintPlugin.configs.custom,
 				wordpressEslintPlugin.configs.esnext,
 				wordpressEslintPlugin.configs.i18n,
-				{
-					rules: {
-						'@wordpress/use-recommended-components': 'error',
-					},
-				},
 
 				{
 					plugins: {
@@ -271,6 +266,8 @@ export function makeBaseConfig( configurl, opts = {} ) {
 				},
 			},
 			rules: {
+				'@wordpress/use-recommended-components': 'error',
+
 				// Set domain from opts, with a bogus default in case it's omitted.
 				'@wordpress/i18n-text-domain': [
 					'error',
