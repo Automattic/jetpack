@@ -393,10 +393,25 @@ class Beta_Abilities extends Registrar {
 		unset( $input );
 
 		try {
-			$all_plugins = Plugin::get_all_plugins( true );
+			// Bypass the cache on the explicit REST call so the on-demand list is fresh.
+			return self::build_plugin_list( true );
 		} catch ( PluginDataException $e ) {
 			return new \WP_Error( 'plugin_data_error', $e->getMessage() );
 		}
+	}
+
+	/**
+	 * Build the list-plugins payload.
+	 *
+	 * Shared by the `list-plugins` ability (fresh) and the admin page bootstrap,
+	 * which preloads the list using cached data for an instant first paint.
+	 *
+	 * @param bool $bypass_cache Whether to bypass the plugins-list transient cache.
+	 * @return array{plugins: array<int, array<string, mixed>>} The list payload.
+	 * @throws PluginDataException If the plugin list cannot be fetched.
+	 */
+	public static function build_plugin_list( bool $bypass_cache = false ): array {
+		$all_plugins = Plugin::get_all_plugins( $bypass_cache );
 
 		$plugins = array();
 		foreach ( $all_plugins as $slug => $plugin ) {
