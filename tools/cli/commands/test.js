@@ -29,7 +29,7 @@ export async function builder( yargs ) {
 	return yargs
 		.positional( 'test', {
 			describe:
-				'Test to run. Typically "js", "php", "typecheck", or "coverage", but available tests depend on the project. Coverage requires a group: `jetpack test coverage php|js`.',
+				'Test to run. Typically "js", "php", or "typecheck", but available tests depend on the project.',
 			type: 'string',
 		} )
 		.positional( 'project', {
@@ -72,16 +72,13 @@ export async function builder( yargs ) {
 				argv.concurrency = false;
 			}
 			if ( argv.test === 'coverage' ) {
-				const group = argv.project[ 0 ];
-				if ( group !== 'php' && group !== 'js' ) {
-					throw new Error(
-						'Coverage requires a group. Use `jetpack test coverage php` or `jetpack test coverage js`.'
-					);
-				}
-				argv.coverageGroup = group;
+				throw new Error(
+					'The `coverage` test was split. Use `jetpack test php-coverage` or `jetpack test js-coverage`.'
+				);
+			}
+			if ( argv.test?.endsWith( '-coverage' ) ) {
 				argv.isCoverage = true;
-				argv.test = `${ group }-coverage`;
-				argv.project = argv.project.slice( 1 );
+				argv.coverageGroup = argv.test.slice( 0, -'-coverage'.length );
 			}
 			return true;
 		} );
@@ -556,8 +553,8 @@ export async function promptForTest( argv ) {
 	const tests = Object.keys( composerJson.scripts ?? {} )
 		.filter( test => test.startsWith( 'test-' ) )
 		.map( test => test.substring( 5 ) )
-		// Hide coverage tests, as they should be run with the `jetpack test coverage` command.
-		.filter( test => ! test.endsWith( 'coverage' ) );
+		// Hide the legacy `coverage` script; use `js-coverage`/`php-coverage` instead.
+		.filter( test => test !== 'coverage' );
 	if ( packageJson?.scripts?.typecheck ) {
 		tests.push( 'typecheck' );
 	}
