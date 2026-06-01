@@ -6,7 +6,7 @@
 ### Enhancements
 - Admin Menu: Add sidebar redesign fields, group metadata, and saved layout data to the `/wpcom/v2/admin-menu` endpoint when the public `wp-admin-sidebar` plugin is loaded. [#48715]
 - Donations Block: Add a "Tips" variation with coffee-themed defaults for creatives. [#48584]
-- Donations block: Add modal display mode with trigger button, configurable icon, and animated overlay. [#48539]
+- Donations Block: Add modal display mode with trigger button, configurable icon, and animated overlay. [#48539]
 - Donations Block: Record Tracks events for admin-side block adoption. [#48847]
 - Jetpack AI Sidebar: Allow AI Editorial Review through the sidebar preview. [#48961]
 - Newsletter: Enable the subscriptions module by default for all sites. [#49034]
@@ -16,7 +16,7 @@
 - ActivityPub: Allow Jetpack-signed admin requests to reach the inbox, proxy, and outbox client-to-server endpoints used by the connected site's WordPress.com Reader, without an OAuth bearer. [#48812]
 
 ### Bug fixes
-- Forms: Fix a JavaScript error in the editor. [#48979]
+- Forms: Address `Uncaught TypeError` message in the editor. [#48979]
 - Jetpack AI Sidebar: Fix block editing when another agent provider is present. [#48961]
 - Newsletter Categories: Stop returning a 400 response when saving the same category selection that's already stored. [#48865]
 - Reader Chat: Prevent the frontend widget from loading on Coming Soon or unlaunched sites. [#48890]

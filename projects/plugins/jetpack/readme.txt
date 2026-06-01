@@ -330,7 +330,7 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 #### Enhancements
 - Admin Menu: Add sidebar redesign fields, group metadata, and saved layout data to the `/wpcom/v2/admin-menu` endpoint when the public `wp-admin-sidebar` plugin is loaded.
 - Donations Block: Add a "Tips" variation with coffee-themed defaults for creatives.
-- Donations block: Add modal display mode with trigger button, configurable icon, and animated overlay.
+- Donations Block: Add modal display mode with trigger button, configurable icon, and animated overlay.
 - Donations Block: Record Tracks events for admin-side block adoption.
 - Jetpack AI Sidebar: Allow AI Editorial Review through the sidebar preview.
 - Newsletter: Enable the subscriptions module by default for all sites.
@@ -340,7 +340,7 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 - ActivityPub: Allow Jetpack-signed admin requests to reach the inbox, proxy, and outbox client-to-server endpoints used by the connected site's WordPress.com Reader, without an OAuth bearer.
 
 #### Bug fixes
-- Forms: Fix a JavaScript error in the editor.
+- Forms: Address `Uncaught TypeError` message in the editor.
 - Jetpack AI Sidebar: Fix block editing when another agent provider is present.
 - Newsletter Categories: Stop returning a 400 response when saving the same category selection that's already stored.
 - Reader Chat: Prevent the frontend widget from loading on Coming Soon or unlaunched sites.
