@@ -323,7 +323,7 @@ class ImagesTest extends BaseTestCase {
 	/**
 	 * Test if WooCommerce product gallery images are extracted from product meta.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.1.4
 	 */
 	public function test_from_gallery_includes_woocommerce_product_gallery_images() {
 		$img_dimensions = array(
@@ -371,7 +371,7 @@ class ImagesTest extends BaseTestCase {
 	/**
 	 * Test if WooCommerce product gallery meta is ignored for non-product posts.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.1.4
 	 */
 	public function test_from_gallery_ignores_woocommerce_product_gallery_meta_for_non_products() {
 		$post_id       = $this->create_post();

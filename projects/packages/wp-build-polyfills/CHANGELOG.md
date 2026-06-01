@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.11] - 2026-06-01
+### Changed
+- Update package dependencies. [#48404] [#49152]
+
 ## [0.1.10] - 2026-05-25
 ### Changed
 - Update package dependencies. [#48405]
@@ -59,6 +63,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Add @wordpress/ui to devDependencies so the boot module bundles it instead of externalizing it as an unregistered wp-ui script handle, which caused a blank page at runtime. [#47727]
 
+[0.1.11]: https://github.com/Automattic/jetpack-wp-build-polyfills/compare/v0.1.10...v0.1.11
 [0.1.10]: https://github.com/Automattic/jetpack-wp-build-polyfills/compare/v0.1.9...v0.1.10
 [0.1.9]: https://github.com/Automattic/jetpack-wp-build-polyfills/compare/v0.1.8...v0.1.9
 [0.1.8]: https://github.com/Automattic/jetpack-wp-build-polyfills/compare/v0.1.7...v0.1.8

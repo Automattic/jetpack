@@ -104,12 +104,32 @@ The easiest way is to use the Custom Message option in the publishing options bo
 6. Managing Social media accounts in the post editor
 
 == Changelog ==
-### 8.0.1 - 2026-02-19
+### 9.0.0 - 2026-06-01
 #### Added
-- Add visual dot to active connection in preview modal.
+- Google Search Preview: Fix site icon not being shown on some sites.
 
 #### Changed
-- Disable AI image option in the media UI when Jetpack plugin is not active.
+- Dependencies: Update lock file to keep root requirements in sync.
+- General: Update minimum WordPress version to 6.9.
+- Internal: No longer require automattic/jetpack-changelogger as a per-project dev dependency.
+- Publicize: updated e2e connection spec to assert the 'Write a post' CTA as a button (role=button) rather than a link, to match the @wordpress/ui Button migration.
+- Remove header border-bottom from the admin page for a cleaner unified header appearance.
+- Remove unneeded development and documentation files from the published plugin.
+- Switch to Native TypeScript compiler based on Go.
+- Tested up to WordPress 7.0.
+- Update design of the sidebar upsell.
+- Update package dependencies.
+
+#### Removed
+- Remove post publish review prompt.
+
+#### Fixed
+- Admin Page: Restore border on header component.
+- Fall back to the site-wide social message template when no per-post share message is set.
+- Fix flaky E2E tests.
+- Fix Threads social preview for posts with gallery.
+- Fix TS errors detected by tsgo.
+- Fix useSelect warning for notesConfig on Social admin page.
 
 == Upgrade Notice ==
 

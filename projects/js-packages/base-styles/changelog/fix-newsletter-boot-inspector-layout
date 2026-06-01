@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Stop the admin-page-layout flex chain at the boot stage so a @wordpress/boot dashboard's inspector renders beside the page instead of below it
