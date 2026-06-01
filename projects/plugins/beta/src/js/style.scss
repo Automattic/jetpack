@@ -55,6 +55,14 @@ body.jetpack-beta-page {
 	max-width: 760px;
 	margin: 0 auto;
 	padding: var(--wpds-dimension-padding-2xl, 24px);
+
+	// The shared admin-page-layout mixin makes the scroll child fill and clip to
+	// the viewport (so internal-scroll content like DataViews can manage its own
+	// overflow). Our content is a simple stacked list, so opt out: size to the
+	// content height and let .jetpack-beta-scroll do the scrolling. This keeps
+	// the bottom padding as real breathing room above the pinned footer instead
+	// of clipping it mid-scroll.
+	flex: 0 0 auto !important;
 }
 
 // wordpress.org plugin icon shown on each list row.
