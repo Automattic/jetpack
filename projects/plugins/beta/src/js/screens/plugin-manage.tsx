@@ -1,24 +1,234 @@
 /**
- * PluginManage screen stub — replaced in Task 7.
+ * PluginManage screen — per-plugin branch picker.
+ *
+ * Fetches the plugin view on mount and renders:
+ * - Global settings toggles (unless it's a mu-plugin)
+ * - Currently-running card with bug report link
+ * - Branch sections (existing, stable, rc, trunk, pr, release)
+ * - "To Test" and "What changed" collapsible panels
  *
  * @package
  */
 
+import { AdminPage } from '@automattic/jetpack-components';
+import { Spinner } from '@wordpress/components';
+import { useCallback, useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { Button, Card, Notice, Stack, Text } from '@wordpress/ui';
+import { getPlugin } from '../api/abilities';
+import BranchSection from '../components/branch-section';
+import GlobalToggles from '../components/global-toggles';
+import MarkdownPanel from '../components/markdown-panel';
+import type { BranchCard as BranchCardType, PluginView } from '../api/types';
 
 type Props = {
 	slug: string;
 };
 
+const boot = window.JetpackBeta;
+
 /**
- * Stub component for the plugin manage screen.
- *
- * @param {Props} _props - Component props (unused in stub).
- * @return The stub element.
+ * Section definitions in display order.
+ * Searchable sections have a search placeholder matching the original PHP template.
  */
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const PluginManage = ( _props: Props ) => {
-	return <p>{ __( 'Loading…', 'jetpack-beta' ) }</p>;
+const SECTION_CONFIG: Array< {
+	key: string;
+	title: string;
+	searchable?: boolean;
+	searchPlaceholder?: string;
+} > = [
+	{ key: 'existing', title: __( 'Existing', 'jetpack-beta' ) },
+	{ key: 'stable', title: __( 'Latest Stable', 'jetpack-beta' ) },
+	{ key: 'rc', title: __( 'Release Candidate', 'jetpack-beta' ) },
+	{ key: 'trunk', title: __( 'Bleeding Edge', 'jetpack-beta' ) },
+	{
+		key: 'pr',
+		title: __( 'Feature Branches', 'jetpack-beta' ),
+		searchable: true,
+		searchPlaceholder: __( 'Search for a Feature Branch', 'jetpack-beta' ),
+	},
+	{
+		key: 'release',
+		title: __( 'Released Versions', 'jetpack-beta' ),
+		searchable: true,
+		searchPlaceholder: __( 'Search for a release', 'jetpack-beta' ),
+	},
+];
+
+/**
+ * Group the flat sections array from the API into a map keyed by section name.
+ *
+ * @param sections - The flat list of branch cards from the API.
+ * @return A map from section key to its branch cards.
+ */
+const groupSections = ( sections: BranchCardType[] ): Map< string, BranchCardType[] > => {
+	const map = new Map< string, BranchCardType[] >();
+	for ( const card of sections ) {
+		const existing = map.get( card.section );
+		if ( existing ) {
+			existing.push( card );
+		} else {
+			map.set( card.section, [ card ] );
+		}
+	}
+	return map;
+};
+
+/**
+ * Render a simple breadcrumb ReactNode: "Jetpack Beta Tester › Plugin Name".
+ *
+ * @param pluginName - The current plugin name, or null while loading.
+ * @return The breadcrumb element.
+ */
+const renderBreadcrumbs = ( pluginName: string | null ) => (
+	<span>
+		<a href={ boot.adminUrl }>{ __( 'Jetpack Beta Tester', 'jetpack-beta' ) }</a>
+		{ pluginName && (
+			<>
+				<span aria-hidden="true">{ ' › ' }</span>
+				<span>{ pluginName }</span>
+			</>
+		) }
+	</span>
+);
+
+/**
+ * PluginManage screen component.
+ *
+ * Fetches the plugin view on mount and renders branch cards for each section,
+ * with search filtering for PR and release branches.
+ *
+ * @param {Props} props - Component props.
+ * @return The manage screen element.
+ */
+const PluginManage = ( { slug }: Props ) => {
+	const [ view, setView ] = useState< PluginView | null >( null );
+	const [ loading, setLoading ] = useState( true );
+	const [ error, setError ] = useState< string | null >( null );
+
+	useEffect( () => {
+		let cancelled = false;
+		setLoading( true );
+		setError( null );
+		getPlugin( slug )
+			.then( data => {
+				if ( ! cancelled ) {
+					setView( data );
+					setLoading( false );
+				}
+			} )
+			.catch( ( err: unknown ) => {
+				if ( ! cancelled ) {
+					const msg =
+						err && typeof err === 'object' && 'message' in err && typeof err.message === 'string'
+							? err.message
+							: __( 'Could not load plugin.', 'jetpack-beta' );
+					setError( msg );
+					setLoading( false );
+				}
+			} );
+		return () => {
+			cancelled = true;
+		};
+	}, [ slug ] );
+
+	const handleActivated = useCallback( ( updated: PluginView ) => {
+		setView( updated );
+	}, [] );
+
+	const pluginName = view?.name ?? null;
+	const sectionMap = view ? groupSections( view.sections ) : new Map< string, BranchCardType[] >();
+
+	return (
+		<AdminPage
+			title="Beta Tester"
+			subTitle={ __( 'Test beta features and pull requests for Jetpack plugins.', 'jetpack-beta' ) }
+			apiRoot={ boot.apiRoot }
+			apiNonce={ boot.apiNonce }
+			breadcrumbs={ renderBreadcrumbs( pluginName ) }
+		>
+			{ loading && <Spinner /> }
+			{ error && (
+				<Notice.Root intent="error">
+					<Notice.Description>{ error }</Notice.Description>
+				</Notice.Root>
+			) }
+			{ view && (
+				<Stack direction="column" gap="lg">
+					{ ! view.is_mu_plugin && <GlobalToggles /> }
+
+					{ view.is_mu_plugin && (
+						<Notice.Root intent="info">
+							<Notice.Description>
+								{ __(
+									'This plugin will be installed as a mu-plugin. See the documentation for details on what this entails.',
+									'jetpack-beta'
+								) }
+							</Notice.Description>
+						</Notice.Root>
+					) }
+
+					{ view.currently_running && (
+						<Card.Root>
+							<Card.Content>
+								<Stack direction="row" align="center" justify="space-between">
+									<Stack direction="column" gap="xs">
+										<Card.Title>
+											<Text variant="body-md">
+												{ view.name } { __( '— Currently Running', 'jetpack-beta' ) }
+											</Text>
+										</Card.Title>
+										<Text variant="body-sm">
+											{ view.currently_running.pretty_version ??
+												view.currently_running.version ??
+												'' }
+										</Text>
+									</Stack>
+									<Button
+										variant="outline"
+										tone="neutral"
+										size="compact"
+										render={
+											<a
+												href={ view.bug_report_url }
+												target="_blank"
+												rel="external noopener noreferrer"
+											/>
+										}
+									>
+										{ __( 'Found a bug? Report it!', 'jetpack-beta' ) }
+									</Button>
+								</Stack>
+							</Card.Content>
+						</Card.Root>
+					) }
+
+					{ SECTION_CONFIG.map( ( { key, title, searchable, searchPlaceholder } ) => (
+						<BranchSection
+							key={ key }
+							title={ title }
+							cards={ sectionMap.get( key ) ?? [] }
+							searchable={ searchable }
+							searchPlaceholder={ searchPlaceholder }
+							pluginSlug={ slug }
+							onActivated={ handleActivated }
+						/>
+					) ) }
+
+					{ view.to_test_html && (
+						<MarkdownPanel title={ __( 'To Test', 'jetpack-beta' ) } html={ view.to_test_html } />
+					) }
+
+					{ view.what_changed_html && (
+						<MarkdownPanel
+							title={ __( 'What changed', 'jetpack-beta' ) }
+							html={ view.what_changed_html }
+						/>
+					) }
+				</Stack>
+			) }
+		</AdminPage>
+	);
 };
 
 export default PluginManage;
