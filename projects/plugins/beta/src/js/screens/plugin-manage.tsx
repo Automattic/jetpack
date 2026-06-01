@@ -141,8 +141,7 @@ const PluginManage = ( { slug }: Props ) => {
 
 	return (
 		<AdminPage
-			title="Beta Tester"
-			subTitle={ __( 'Test beta features and pull requests for Jetpack plugins.', 'jetpack-beta' ) }
+			title={ undefined }
 			apiRoot={ boot.apiRoot }
 			apiNonce={ boot.apiNonce }
 			breadcrumbs={ renderBreadcrumbs( pluginName ) }
@@ -160,8 +159,16 @@ const PluginManage = ( { slug }: Props ) => {
 					{ view.is_mu_plugin && (
 						<Notice.Root intent="info">
 							<Notice.Description>
+								{ __( 'This plugin will be installed as a mu-plugin. See', 'jetpack-beta' ) }{ ' ' }
+								<a
+									href="https://github.com/Automattic/jetpack-beta/blob/HEAD/docs/mu-plugin-info.md"
+									target="_blank"
+									rel="noreferrer"
+								>
+									{ __( 'the documentation', 'jetpack-beta' ) }
+								</a>{ ' ' }
 								{ __(
-									'This plugin will be installed as a mu-plugin. See the documentation for details on what this entails.',
+									"for details on what this entails, particularly if you're newly installing a stable version.",
 									'jetpack-beta'
 								) }
 							</Notice.Description>

@@ -43,17 +43,24 @@ const BranchSection = ( {
 		return null;
 	}
 
-	const filteredCards =
-		searchable && query.trim() !== ''
-			? cards.filter( card => {
-					const q = query.toLowerCase();
-					return (
-						( card.pretty_version?.toLowerCase().includes( q ) ?? false ) ||
-						( card.branch?.toLowerCase().includes( q ) ?? false ) ||
-						( card.version?.toLowerCase().includes( q ) ?? false )
-					);
-			  } )
-			: cards;
+	const trimmedQuery = query.trim();
+	const hasQuery = trimmedQuery !== '';
+
+	let filteredCards: BranchCardType[];
+	if ( ! searchable ) {
+		filteredCards = cards;
+	} else if ( hasQuery ) {
+		filteredCards = cards.filter( card => {
+			const q = trimmedQuery.toLowerCase();
+			return (
+				( card.pretty_version?.toLowerCase().includes( q ) ?? false ) ||
+				( card.branch?.toLowerCase().includes( q ) ?? false ) ||
+				( card.version?.toLowerCase().includes( q ) ?? false )
+			);
+		} );
+	} else {
+		filteredCards = cards.filter( c => c.is_active );
+	}
 
 	return (
 		<Stack direction="column" gap="sm">
@@ -67,14 +74,17 @@ const BranchSection = ( {
 					onChange={ setQuery }
 				/>
 			) }
-			{ filteredCards.map( ( card, index ) => (
+			{ filteredCards.map( card => (
 				<BranchCard
-					key={ `${ card.source ?? '' }-${ card.id ?? '' }-${ index }` }
+					key={ `${ card.section }-${ card.source ?? '' }-${ card.id ?? '' }` }
 					card={ card }
 					pluginSlug={ pluginSlug }
 					onActivated={ onActivated }
 				/>
 			) ) }
+			{ searchable && hasQuery && filteredCards.length === 0 && (
+				<Text>{ __( 'No branches match your search.', 'jetpack-beta' ) }</Text>
+			) }
 		</Stack>
 	);
 };
