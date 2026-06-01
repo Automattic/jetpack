@@ -448,12 +448,12 @@ jobs:
           username: matticbot
           working-directory: ${{ github.workspace }}/build
 
-  update_nonwpcom_mirrors:
+  update_all_mirrors:
     name: Push to mirror repos
     runs-on: ubuntu-latest
     needs: [ prepare, merge_artifacts ]
     concurrency:
-      group: build-push_nonwpcom
+      group: build-push_all
       queue: max
     timeout-minutes: 10  # 2026-05-21: Successful runs seem to take a few minutes
 
@@ -477,7 +477,7 @@ jobs:
       - name: Filter mirrors.txt
         if: ${{ fromJson( needs.prepare.outputs.build_matrix ).wpcom }}
         run: |
-          # Skip the plugins pushed by update_wpcom_mirrors
+          # Skip the plugins pushed by update_wpcom_mirrors, if it was supposed to have run.
           grep -vFx -e 'Automattic/jetpack-production' -e 'Automattic/jetpack-mu-wpcom-plugin' build/mirrors.txt > build/mirrors.txt.tmp || true
           mv build/mirrors.txt.tmp build/mirrors.txt
 
