@@ -9,6 +9,7 @@ declare( strict_types = 1 );
 
 namespace Automattic\Jetpack\Podcast;
 
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Podcast\Feed\Customize_Feed;
 use Throwable;
 use WP_Post;
@@ -330,7 +331,6 @@ class Tracks {
 		// pattern as `Masterbar\Dashboard_Switcher_Tracking::get_plan()`.
 		$plan = class_exists( '\WPCOM_Store_API' )
 			? \WPCOM_Store_API::get_current_plan( (int) get_current_blog_id() )
-			// @phan-suppress-next-line PhanUndeclaredClassMethod -- Provided by the connection package on Atomic; not a hard dep.
 			: ( class_exists( '\Automattic\Jetpack\Current_Plan' ) ? \Automattic\Jetpack\Current_Plan::get() : array() );
 
 		self::record_event(
@@ -412,7 +412,7 @@ class Tracks {
 	private static function record_event( string $event_name, array $properties, ?WP_User $user = null ) {
 		try {
 			$user                  = $user ?? wp_get_current_user();
-			$properties['blog_id'] = (int) get_current_blog_id();
+			$properties['blog_id'] = (int) Connection_Manager::get_site_id( true );
 
 			if ( ! function_exists( 'tracks_record_event' ) && function_exists( 'require_lib' ) ) {
 				require_lib( 'tracks/client' );

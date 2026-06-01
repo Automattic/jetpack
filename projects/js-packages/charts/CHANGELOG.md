@@ -5,6 +5,27 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.0] - 2026-06-01
+### Added
+- Charts: Optional zoomable X-axis on LineChart and AreaChart. Pass `zoomable` to enable drag-to-zoom; a reset button appears in the top-right while zoomed. [#49167]
+
+### Changed
+- Charts: AreaChart Y-axis now rescales to the visible series when interactive legends toggle items off. Pass `rescaleYOnLegendToggle={ false }` to restore the previous pinned-extent behavior. [#49241]
+- Update package dependencies. [#48404]
+
+## [1.4.3] - 2026-05-25
+### Changed
+- Update dependencies. [#43811]
+
+## [1.4.2] - 2026-05-21
+### Changed
+- Update package dependencies. [#48405]
+- Update package dependencies. [#49012]
+
+## [1.4.1] - 2026-05-19
+### Changed
+- Keep stacked area chart paths mounted on legend toggle so only the hidden series animates down and the y-axis stays fixed. [#48804]
+
 ## [1.4.0] - 2026-05-14
 ### Changed
 - Charts: Expose a source-side `./style.css` alias so monorepo consumers can resolve the import without a prior build. [#48682]
@@ -829,6 +850,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed lints following ESLint rule changes for TS [#40584]
 - Fixing a bug in Chart storybook data. [#40640]
 
+[1.5.0]: https://github.com/Automattic/charts/compare/v1.4.3...v1.5.0
+[1.4.3]: https://github.com/Automattic/charts/compare/v1.4.2...v1.4.3
+[1.4.2]: https://github.com/Automattic/charts/compare/v1.4.1...v1.4.2
+[1.4.1]: https://github.com/Automattic/charts/compare/v1.4.0...v1.4.1
 [1.4.0]: https://github.com/Automattic/charts/compare/v1.3.1...v1.4.0
 [1.3.1]: https://github.com/Automattic/charts/compare/v1.3.0...v1.3.1
 [1.3.0]: https://github.com/Automattic/charts/compare/v1.2.1...v1.3.0

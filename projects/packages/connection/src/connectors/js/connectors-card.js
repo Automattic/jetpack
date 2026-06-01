@@ -25,7 +25,7 @@ const ConnectorItem = connectors.__experimentalConnectorItem || connectors.Conne
 
 const { createElement, createInterpolateElement, useState, useEffect, useRef } = window.wp.element;
 const { __ } = window.wp.i18n;
-const { Button, Modal } = window.wp.components;
+const { Button, Modal, Notice } = window.wp.components;
 const HStack = window.wp.components.__experimentalHStack || window.wp.components.HStack;
 const VStack = window.wp.components.__experimentalVStack || window.wp.components.VStack;
 const Text = window.wp.components.__experimentalText || window.wp.components.Text;
@@ -51,6 +51,7 @@ const CONNECTOR_LOGO = data.connectorLogoUrl
 	: null;
 const ssoStatus = data.ssoStatus ?? null;
 const isFirstConnection = Boolean( data.isFirstConnection );
+const isOfflineMode = Boolean( data.isOfflineMode );
 
 /**
  * Start the Jetpack connection flow: register the site (if needed),
@@ -179,21 +180,14 @@ function focusWhenReady( element ) {
  */
 function ErrorNotice( { message, onDismiss = null } ) {
 	return createElement(
-		HStack,
-		{ spacing: 2, className: 'jetpack-connector__error', role: 'alert' },
-		createElement( Text, { size: 13 }, message ),
-		onDismiss
-			? createElement(
-					Button,
-					{
-						variant: 'link',
-						size: 'small',
-						onClick: onDismiss,
-						'aria-label': __( 'Dismiss error', 'jetpack-connection' ),
-					},
-					__( 'Dismiss', 'jetpack-connection' )
-			  )
-			: null
+		Notice,
+		{
+			status: 'error',
+			isDismissible: Boolean( onDismiss ),
+			onRemove: onDismiss || undefined,
+			className: 'jetpack-connector__notice',
+		},
+		message
 	);
 }
 
@@ -225,6 +219,38 @@ function TosNotice() {
 	return createElement(
 		Text,
 		{ variant: 'muted', size: 12, className: 'jetpack-connector__tos-notice' },
+		message
+	);
+}
+
+/**
+ * Notice explaining that connection management is disabled while the
+ * site is in Jetpack's offline mode.
+ *
+ * @return {object} React element.
+ */
+function OfflineNotice() {
+	const message = createInterpolateElement(
+		__(
+			'Your site is in <link>offline mode</link>, so connecting and disconnecting are disabled.',
+			'jetpack-connection'
+		),
+		{
+			link: createElement( 'a', {
+				href: 'https://jetpack.com/support/offline-mode/',
+				target: '_blank',
+				rel: 'noopener noreferrer',
+			} ),
+		}
+	);
+
+	return createElement(
+		Notice,
+		{
+			status: 'warning',
+			isDismissible: false,
+			className: 'jetpack-connector__notice',
+		},
 		message
 	);
 }
@@ -368,20 +394,26 @@ function ConnectedPluginsSection() {
  * @return {object} React element.
  */
 function ConnectPrompt( { onConnect, isConnecting, isDisconnecting } ) {
+	// When a connection owner is already linked, the viewing admin is
+	// connecting as a secondary user — the site-registration framing no
+	// longer applies, so use shorter copy focused on the user benefit.
+	const promptText = connectionOwner
+		? __(
+				'Connect your user account to unlock more features and sign in via WordPress.com (SSO).',
+				'jetpack-connection'
+		  )
+		: __(
+				'Your site is registered with WordPress.com. Connect your user account to unlock full functionality.',
+				'jetpack-connection'
+		  );
+
 	return createElement(
 		HStack,
 		{ spacing: 3, className: 'jetpack-connector__section' },
 		createElement(
 			'div',
 			{ className: 'jetpack-connector__connect-prompt-text' },
-			createElement(
-				Text,
-				{ size: 13 },
-				__(
-					'Your site is registered with WordPress.com. Connect your user account to unlock full functionality.',
-					'jetpack-connection'
-				)
-			)
+			createElement( Text, { size: 13 }, promptText )
 		),
 		createElement(
 			Button,
@@ -390,7 +422,7 @@ function ConnectPrompt( { onConnect, isConnecting, isDisconnecting } ) {
 				size: 'small',
 				onClick: onConnect,
 				isBusy: isConnecting,
-				disabled: isConnecting || isDisconnecting,
+				disabled: isConnecting || isDisconnecting || isOfflineMode,
 				className: 'jetpack-connector__inline-action',
 			},
 			isConnecting
@@ -519,6 +551,9 @@ function ExpandedDetails( { isConnecting = false, onConnect = null } ) {
 	const disconnectAccountRef = useRef( null );
 
 	const executeDisconnect = async () => {
+		if ( isOfflineMode ) {
+			return;
+		}
 		setPendingConfirm( null );
 		setIsDisconnecting( true );
 		setActionError( null );
@@ -565,6 +600,9 @@ function ExpandedDetails( { isConnecting = false, onConnect = null } ) {
 	};
 
 	const executeUnlinkUser = async () => {
+		if ( isOfflineMode ) {
+			return;
+		}
 		setPendingConfirm( null );
 		setIsUnlinking( true );
 		setActionError( null );
@@ -627,6 +665,9 @@ function ExpandedDetails( { isConnecting = false, onConnect = null } ) {
 		VStack,
 		{ spacing: 5 },
 
+		// Offline mode notice (connecting/disconnecting disabled).
+		isOfflineMode ? createElement( OfflineNotice ) : null,
+
 		// Current user info + unlink action (only when the viewing admin is linked).
 		currentUser
 			? createElement( UserSection, {
@@ -643,7 +684,7 @@ function ExpandedDetails( { isConnecting = false, onConnect = null } ) {
 										ref: disconnectAccountRef,
 										variant: 'link',
 										isDestructive: true,
-										disabled: isUnlinking || isDisconnecting,
+										disabled: isUnlinking || isDisconnecting || isOfflineMode,
 										onClick: handleUnlinkUser,
 										className: 'jetpack-connector__inline-action',
 									},
@@ -711,7 +752,7 @@ function ExpandedDetails( { isConnecting = false, onConnect = null } ) {
 							isDestructive: true,
 							size: 'compact',
 							isBusy: isDisconnecting,
-							disabled: isDisconnecting || isUnlinking,
+							disabled: isDisconnecting || isUnlinking || isOfflineMode,
 							onClick: handleDisconnect,
 							className: 'jetpack-connector__disconnect-site',
 						},
@@ -780,6 +821,9 @@ function JetpackConnectorCard( { name, label, description, logo, icon } ) {
 	}, [] );
 
 	const handleConnect = async () => {
+		if ( isOfflineMode ) {
+			return;
+		}
 		setIsConnecting( true );
 		setConnectError( null );
 
@@ -841,7 +885,7 @@ function JetpackConnectorCard( { name, label, description, logo, icon } ) {
 				size: 'compact',
 				onClick: handleConnect,
 				isBusy: isConnecting,
-				disabled: isConnecting,
+				disabled: isConnecting || isOfflineMode,
 			},
 			isConnecting
 				? __( 'Connecting…', 'jetpack-connection' )
@@ -872,7 +916,10 @@ function JetpackConnectorCard( { name, label, description, logo, icon } ) {
 					onDismiss: () => setConnectError( null ),
 			  } )
 			: null,
-		isFirstConnection && ! isConnected && ! isSiteRegistered ? createElement( TosNotice ) : null
+		isOfflineMode && ! isConnected && ! isSiteRegistered ? createElement( OfflineNotice ) : null,
+		isFirstConnection && ! isOfflineMode && ! isConnected && ! isSiteRegistered
+			? createElement( TosNotice )
+			: null
 	);
 }
 

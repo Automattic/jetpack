@@ -7,8 +7,6 @@
  * @phan-file-suppress PhanPluginDuplicateAdjacentStatement -- Intentional for idempotency test
  */
 
-// @phan-file-suppress PhanUndeclaredFunction, PhanUndeclaredClassMethod @phan-suppress-current-line UnusedSuppression -- Ability API added in WP 6.9, but then we need a suppression for the WP 6.8 compat run. @todo Remove this line when we drop WP <6.9.
-
 namespace Automattic\Jetpack\Forms\Abilities;
 
 use Automattic\Jetpack\Forms\ContactForm\Contact_Form;
@@ -638,5 +636,13 @@ class Forms_Abilities_Test extends BaseTestCase {
 		);
 
 		$this->assertSame( array( $id ), $result['succeeded'], 'Duplicate IDs in input should collapse to one succeeded entry.' );
+	}
+
+	public function test_every_ability_opts_into_mcp_as_public_tool(): void {
+		foreach ( Forms_Abilities::get_abilities() as $slug => $spec ) {
+			$this->assertArrayHasKey( 'mcp', $spec['meta'], "{$slug} must publish meta.mcp." );
+			$this->assertTrue( $spec['meta']['mcp']['public'], "{$slug} must opt into MCP." );
+			$this->assertSame( 'tool', $spec['meta']['mcp']['type'], "{$slug} must be exposed as an MCP tool." );
+		}
 	}
 }

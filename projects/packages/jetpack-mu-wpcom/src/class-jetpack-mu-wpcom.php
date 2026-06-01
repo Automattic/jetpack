@@ -96,6 +96,11 @@ class Jetpack_Mu_Wpcom {
 			add_filter( 'wp_classic_block_supports_inserter', '__return_true' );
 		}
 
+		// Enable the `gutenberg-classic-block-deprecation` Gutenberg experiment for all sites, with an opt-out via the `disable-classic-block-deprecation` blog sticker.
+		// Both filters are needed: `default_option_` fires when the option doesn't exist in the DB, `option_` fires when it does.
+		add_filter( 'option_gutenberg-experiments', array( __CLASS__, 'enable_gutenberg_classic_block_deprecation_experiment' ) );
+		add_filter( 'default_option_gutenberg-experiments', array( __CLASS__, 'enable_gutenberg_classic_block_deprecation_experiment' ) );
+
 		/**
 		 * Runs right after the Jetpack_Mu_Wpcom package is initialized.
 		 *
@@ -290,10 +295,10 @@ class Jetpack_Mu_Wpcom {
 		require_once __DIR__ . '/features/google-analytics/google-analytics.php';
 		require_once __DIR__ . '/features/holiday-snow/class-holiday-snow.php';
 		require_once __DIR__ . '/features/launch-button/index.php';
+		require_once __DIR__ . '/features/layout-grid-usage-tracking/layout-grid-usage-tracking.php';
 		require_once __DIR__ . '/features/logo-tool/logo-tool.php';
 		require_once __DIR__ . '/features/marketplace-products-updater/class-marketplace-products-updater.php';
 		require_once __DIR__ . '/features/media/heif-support.php';
-		require_once __DIR__ . '/features/plugin-conflicts-guardian/plugin-conflicts-guardian.php';
 		require_once __DIR__ . '/features/post-categories/quick-actions.php';
 		require_once __DIR__ . '/features/post-like-from-email/post-like-from-email.php';
 		require_once __DIR__ . '/features/site-editor-dashboard-link/site-editor-dashboard-link.php';
@@ -357,9 +362,6 @@ class Jetpack_Mu_Wpcom {
 			require_once __DIR__ . '/features/replace-site-visibility/hide-site-visibility.php';
 			return;
 		}
-		if ( ! class_exists( 'A8C\FSE\Agents_Manager' ) ) {
-			require_once __DIR__ . '/features/agents-manager/class-agents-manager.php';
-		}
 		if ( ! class_exists( 'A8C\FSE\Survicate' ) ) {
 			require_once __DIR__ . '/features/survicate/class-survicate.php';
 		}
@@ -401,16 +403,14 @@ class Jetpack_Mu_Wpcom {
 			\Automattic\Jetpack\Newsletter\Settings::init();
 		}
 
-		// Initialize the Podcast package on Simple sites (where late_initialization
-		// in class.jetpack.php doesn't run). Gated by `jetpack_podcast_untangle`
-		// inside Podcast::init() so the legacy podcasting code keeps running
-		// until the flag flips.
-		\Automattic\Jetpack\Podcast\Podcast::init();
-
 		// Only load the Masterbar features on WoA sites.
 		if ( class_exists( '\Automattic\Jetpack\Status\Host' ) && ( new \Automattic\Jetpack\Status\Host() )->is_woa_site() ) {
 			// This is temporary. After we cleanup Masterbar on WPCOM we should load Masterbar for Simple sites too.
 			\Automattic\Jetpack\Masterbar\Main::init();
+		}
+
+		if ( class_exists( 'Automattic\Jetpack\Agents_Manager\Agents_Manager' ) ) {
+			\Automattic\Jetpack\Agents_Manager\Agents_Manager::init();
 		}
 	}
 
@@ -424,6 +424,14 @@ class Jetpack_Mu_Wpcom {
 
 		require_once __DIR__ . '/features/gutenberg-rtc/gutenberg-rtc.php';
 		require_once __DIR__ . '/features/wpcom-contact-form-flags/wpcom-contact-form-flags.php';
+
+		// Initialize the Podcast package here (rather than in
+		// load_wpcom_user_features) so feed-customization hooks register
+		// for anonymous requests too — Apple Podcasts / Spotify crawlers
+		// aren't logged in. Podcast::init() gates itself on host
+		// (Simple/WoA) and `jetpack_podcast_untangle`, so the legacy
+		// podcasting code keeps running until the flag flips.
+		\Automattic\Jetpack\Podcast\Podcast::init();
 	}
 
 	/**
@@ -783,6 +791,26 @@ class Jetpack_Mu_Wpcom {
 	}
 
 	/**
+	 * Add `gutenberg-classic-block-deprecation` to the list of enabled Gutenberg experiments.
+	 * Skip sites that have the `disable-classic-block-deprecation` sticker enabled.
+	 *
+	 * @param mixed $experiments The current value of the gutenberg-experiments option.
+	 * @return mixed Original option value or the filtered experiments.
+	 */
+	public static function enable_gutenberg_classic_block_deprecation_experiment( $experiments ) {
+		if ( wpcom_has_blog_sticker( 'disable-classic-block-deprecation', get_wpcom_blog_id() ) ) {
+			return $experiments;
+		}
+
+		if ( ! is_array( $experiments ) ) {
+			$experiments = array();
+		}
+
+		$experiments['gutenberg-classic-block-deprecation'] = true;
+		return $experiments;
+	}
+
+	/**
 	 * Add Jetpack script data with host information on P2
 	 *
 	 * @param array $data - The Jetpack script data.
@@ -839,7 +867,7 @@ class Jetpack_Mu_Wpcom {
 
 		try {
 			$payload = array(
-				'blog_id' => \get_wpcom_blog_id(),
+				'blog_id' => self::resolve_logstash_blog_id(),
 				'feature' => (string) $feature,
 				'message' => (string) $message,
 				'extra'   => wp_json_encode( $extra, JSON_UNESCAPED_SLASHES ),
@@ -861,6 +889,32 @@ class Jetpack_Mu_Wpcom {
 		} catch ( \Throwable $e ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch -- best-effort: a logging failure must never escalate into a fatal for the caller.
 			unset( $e );
 		}
+	}
+
+	/**
+	 * Resolve the WP.com blog ID for a logstash record.
+	 *
+	 * `get_wpcom_blog_id()` falls back to `get_current_blog_id()` on Atomic
+	 * when `jetpack_options['id']` isn't readable — that returns `1` on a
+	 * single-site install, which is a valid-looking but wrong WP.com blog ID
+	 * and makes log records impossible to attribute. Emit `0` instead when
+	 * the real WP.com blog ID is unknown, so the gap is obvious in Kibana.
+	 *
+	 * @return int WP.com blog ID, or 0 when it can't be determined.
+	 */
+	private static function resolve_logstash_blog_id() {
+		// WP.com Simple: the current blog ID *is* the WP.com blog ID.
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			return (int) get_current_blog_id();
+		}
+		// Atomic / connected Jetpack: the WP.com blog ID lives in the
+		// `jetpack_options` option. Read it directly (no `Jetpack_Options`
+		// dependency) and return 0 — never the local blog ID — when absent.
+		$jetpack_options = get_option( 'jetpack_options' );
+		if ( is_array( $jetpack_options ) && ! empty( $jetpack_options['id'] ) ) {
+			return (int) $jetpack_options['id'];
+		}
+		return 0;
 	}
 
 	/**

@@ -49,10 +49,31 @@ function remember_block_editor( $editor_settings, $post ) {
 }
 
 /**
+ * When the Write editor saves a post via the REST API, record it as the
+ * last editor used. The JS client sends wpcom_write_editor_used: true as
+ * an extra body param — no REST field registration needed since this is
+ * an internal signal, not a public post attribute.
+ *
+ * @param \WP_Post         $post    The post that was inserted or updated.
+ * @param \WP_REST_Request $request The REST request that triggered the save.
+ */
+function remember_write_editor( $post, $request ) {
+	if ( true !== $request['wpcom_write_editor_used'] ) {
+		return;
+	}
+	if ( ! \current_user_can( 'edit_post', $post->ID ) ) {
+		return;
+	}
+	remember_editor( $post->ID, 'write-editor' );
+}
+
+\add_action( 'rest_after_insert_post', __NAMESPACE__ . '\remember_write_editor', 10, 2 );
+
+/**
  * Sets the metadata for the specified post and editor.
  *
  * @param int    $post_id The ID of the post to set the metadata for.
- * @param string $editor  String name of the editor, 'classic-editor' or 'block-editor'.
+ * @param string $editor  String name of the editor: 'classic-editor', 'block-editor', or 'write-editor'.
  */
 function remember_editor( $post_id, $editor ) {
 	if ( get_post_meta( $post_id, '_last_editor_used_jetpack', true ) !== $editor ) {

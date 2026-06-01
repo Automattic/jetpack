@@ -159,4 +159,12 @@ class Settings_Test extends BaseTestCase {
 		$this->assertArrayNotHasKey( 'spotify', $result );
 		$this->assertArrayNotHasKey( 'apple', $result );
 	}
+
+	public function test_sanitize_show_states_refuses_active_to_pending_downgrade() {
+		update_option( 'podcasting_show_states', array( 'apple' => 'active' ) );
+
+		$result = Settings::sanitize_show_states( array( 'apple' => 'pending' ) );
+
+		$this->assertSame( 'active', $result['apple'] );
+	}
 }

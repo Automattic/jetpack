@@ -79,7 +79,7 @@ class Jetpack_JSON_API_User_Create_Endpoint extends Jetpack_JSON_API_Endpoint {
 			// We modify the input here to mimick the same call structure of the update user endpoint.
 			$this->user_data               = (object) $this->user_data;
 			$this->user_data->role         = $role;
-			$this->user_data->url          = isset( $this->user_data->URL ) ? $this->user_data->URL : '';
+			$this->user_data->url          = $this->user_data->URL ?? '';
 			$this->user_data->display_name = $this->user_data->name;
 			$this->user_data->description  = '';
 			$user                          = Utils::generate_user( $this->user_data );

@@ -1,8 +1,25 @@
 import { SocialServiceIcon } from '@automattic/jetpack-components';
 import { useCallback, useState } from '@wordpress/element';
 import clsx from 'clsx';
-import defaultAvatar from './default-avatar.svg';
 import styles from './styles.module.scss';
+
+// Default avatar fallback — inlined so the chassis esbuild pipeline
+// (which doesn't configure a file loader for .svg) can bundle this
+// component alongside its legacy webpack consumers.
+const DefaultAvatar = ( { alt }: { alt: string } ) => (
+	<svg
+		className={ styles.avatar }
+		xmlns="http://www.w3.org/2000/svg"
+		viewBox="0 0 340 340"
+		width="24"
+		height="24"
+		fill="#DDD"
+		role="img"
+		aria-label={ alt }
+	>
+		<path d="m169,.5a169,169 0 1,0 2,0zm0,86a76,76 0 1 1-2,0zM57,287q27-35 67-35h92q40,0 67,35a164,164 0 0,1-226,0" />
+	</svg>
+);
 
 export type ConnectionIconProps = {
 	serviceName?: string;
@@ -10,6 +27,11 @@ export type ConnectionIconProps = {
 	profilePicture: string;
 	disabled?: boolean;
 	className?: string;
+	// Visual size of the avatar + overlapping service icon. `small` (default)
+	// is 28×28 avatar + 14×14 service icon for compact rows / dataviews;
+	// `medium` is 32×32 avatar + 16×16 service icon for roomier rows such as
+	// the chassis Overview "Connected accounts" list.
+	size?: 'small' | 'medium';
 };
 
 /**
@@ -23,6 +45,7 @@ export function ConnectionIcon( {
 	profilePicture,
 	disabled,
 	className,
+	size = 'small',
 }: ConnectionIconProps ) {
 	const [ imageErrorFor, setImageErrorFor ] = useState( null );
 
@@ -38,17 +61,18 @@ export function ConnectionIcon( {
 		<div
 			className={ clsx(
 				styles.wrapper,
+				styles[ size ],
 				{
 					[ styles.disabled ]: disabled,
 				},
 				className
 			) }
 		>
-			<img
-				src={ useDefaultAvatar ? defaultAvatar : profilePicture }
-				alt={ label }
-				onError={ onError }
-			/>
+			{ useDefaultAvatar ? (
+				<DefaultAvatar alt={ label } />
+			) : (
+				<img src={ profilePicture } alt={ label } onError={ onError } />
+			) }
 			{ service_name ? (
 				<SocialServiceIcon serviceName={ service_name } className={ styles[ 'social-icon' ] } />
 			) : null }

@@ -123,7 +123,7 @@ class Full_Sync extends Module {
 		// Set default configuration, calculate totals, and save configuration if totals > 0.
 		foreach ( Modules::get_modules() as $module ) {
 			$module_name   = $module->name();
-			$module_config = isset( $module_configs[ $module_name ] ) ? $module_configs[ $module_name ] : false;
+			$module_config = $module_configs[ $module_name ] ?? false;
 
 			if ( ! $module_config ) {
 				continue;

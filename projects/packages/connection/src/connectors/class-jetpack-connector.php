@@ -12,6 +12,7 @@
 namespace Automattic\Jetpack\Connection;
 
 use Automattic\Jetpack\Modules;
+use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
 
 /**
@@ -146,6 +147,7 @@ class Jetpack_Connector {
 
 		$data['isConnected']          = $is_connected;
 		$data['isRegistered']         = $is_registered;
+		$data['isOfflineMode']        = ( new Status() )->is_offline_mode();
 		$data['isFirstConnection']    = ! $is_registered && ! (bool) \Jetpack_Options::get_option( 'id' );
 		$data['apiRoot']              = esc_url_raw( rest_url() );
 		$data['apiNonce']             = wp_create_nonce( 'wp_rest' );
@@ -411,19 +413,13 @@ class Jetpack_Connector {
 	}
 
 	/**
-	 * Determine the connector card logo based on which plugin families are connected.
+	 * Detect which plugin families are using the connection.
 	 *
-	 * Priority:
-	 * 1. Both Woo-family and A4A plugins → jetpack-connect-all.svg
-	 * 2. Woo-family only                 → jetpack-connect-woo.svg
-	 * 3. A4A only                        → jetpack-connect-a8c.svg
-	 * 4. Default (Jetpack only or other) → jetpack-connect.svg
+	 * @since 8.5.0
 	 *
-	 * @since 8.3.2
-	 *
-	 * @return string Logo URL.
+	 * @return array{has_woo: bool, has_a4a: bool}
 	 */
-	private static function get_connector_logo_url() {
+	public static function get_connected_plugin_families() {
 		$plugins = Plugin_Storage::get_all();
 
 		$has_woo = false;
@@ -440,16 +436,66 @@ class Jetpack_Connector {
 			}
 		}
 
-		if ( $has_woo && $has_a4a ) {
+		return array(
+			'has_woo' => $has_woo,
+			'has_a4a' => $has_a4a,
+		);
+	}
+
+	/**
+	 * Determine the connector card logo based on which plugin families are connected.
+	 *
+	 * Priority:
+	 * 1. Both Woo-family and A4A plugins → jetpack-connect-all.svg
+	 * 2. Woo-family only                 → jetpack-connect-woo.svg
+	 * 3. A4A only                        → jetpack-connect-a8c.svg
+	 * 4. Default (Jetpack only or other) → jetpack-connect.svg
+	 *
+	 * @since 8.3.2
+	 *
+	 * @return string Logo URL.
+	 */
+	public static function get_connector_logo_url() {
+		$families = self::get_connected_plugin_families();
+
+		if ( $families['has_woo'] && $families['has_a4a'] ) {
 			return plugins_url( 'images/jetpack-connect-all.svg', __FILE__ );
 		}
 
-		if ( $has_woo ) {
+		if ( $families['has_woo'] ) {
 			return plugins_url( 'images/jetpack-connect-woo.svg', __FILE__ );
 		}
 
-		if ( $has_a4a ) {
+		if ( $families['has_a4a'] ) {
 			return plugins_url( 'images/jetpack-connect-a8c.svg', __FILE__ );
+		}
+
+		return plugins_url( 'images/jetpack-connect.svg', __FILE__ );
+	}
+
+	/**
+	 * Get the inline (single-row) connector logo for use in compact contexts like table cells.
+	 *
+	 * All circles are arranged horizontally in a single row, unlike the card
+	 * logos which stack circles vertically for 3+ plugins.
+	 *
+	 * @since 8.5.0
+	 *
+	 * @return string Logo URL.
+	 */
+	public static function get_inline_connector_logo_url() {
+		$families = self::get_connected_plugin_families();
+
+		if ( $families['has_woo'] && $families['has_a4a'] ) {
+			return plugins_url( 'images/jetpack-connect-all-inline.svg', __FILE__ );
+		}
+
+		if ( $families['has_woo'] ) {
+			return plugins_url( 'images/jetpack-connect-woo-inline.svg', __FILE__ );
+		}
+
+		if ( $families['has_a4a'] ) {
+			return plugins_url( 'images/jetpack-connect-a8c-inline.svg', __FILE__ );
 		}
 
 		return plugins_url( 'images/jetpack-connect.svg', __FILE__ );

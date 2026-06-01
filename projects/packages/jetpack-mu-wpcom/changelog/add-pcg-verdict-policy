@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Plugin Conflicts Guardian: reclassify HTTP 500 + marker-without-JSON from fatal to ok-inconclusive — block only on a captured PHP fatal, log anomalous allows via Probe anomaly allowed event.

@@ -2,6 +2,17 @@
 
 .my-jetpack-screen {
 
+	// `@wordpress/admin-ui`'s <Page> paints its own light-gray (#fcfcfc)
+	// surface on `.jp-admin-page__page`, which spans the whole page — including
+	// below the white footer band, leaving a gray sliver between the band and
+	// the pinned JetpackFooter. We want the gray to come only from the tab
+	// content (which already backs the cards with #fcfcfc), so clear the page
+	// surface here: below the footer band the page then reads white, flush with
+	// the band.
+	:global(.jp-admin-page__page) {
+		background-color: var(--jp-white);
+	}
+
 	:global(.jp-admin-page-header) {
 		padding-inline: 0.5rem;
 

@@ -52,8 +52,8 @@ function load_assets( $attr ) {
 	 */
 	Jetpack_Gutenberg::load_assets_as_required( __DIR__ );
 
-	$ask_button_label = isset( $attr['askButtonLabel'] ) ? $attr['askButtonLabel'] : __( 'Ask', 'jetpack' );
-	$placeholder      = isset( $attr['placeholder'] ) ? $attr['placeholder'] : __( 'Ask a question about this site.', 'jetpack' );
+	$ask_button_label = $attr['askButtonLabel'] ?? __( 'Ask', 'jetpack' );
+	$placeholder      = $attr['placeholder'] ?? __( 'Ask a question about this site.', 'jetpack' );
 
 	if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 		$blog_id = get_current_blog_id();

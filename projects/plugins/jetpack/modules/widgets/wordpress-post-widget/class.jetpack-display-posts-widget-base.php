@@ -216,12 +216,12 @@ abstract class Jetpack_Display_Posts_Widget__Base extends WP_Widget {
 		/**
 		 * Initialize widget configuration variables.
 		 */
-		$title              = ( isset( $instance['title'] ) ) ? $instance['title'] : __( 'Recent Posts', 'jetpack' );
-		$url                = ( isset( $instance['url'] ) ) ? $instance['url'] : '';
-		$number_of_posts    = ( isset( $instance['number_of_posts'] ) ) ? $instance['number_of_posts'] : 5;
-		$open_in_new_window = ( isset( $instance['open_in_new_window'] ) ) ? $instance['open_in_new_window'] : false;
-		$featured_image     = ( isset( $instance['featured_image'] ) ) ? $instance['featured_image'] : false;
-		$show_excerpts      = ( isset( $instance['show_excerpts'] ) ) ? $instance['show_excerpts'] : false;
+		$title              = $instance['title'] ?? __( 'Recent Posts', 'jetpack' );
+		$url                = $instance['url'] ?? '';
+		$number_of_posts    = $instance['number_of_posts'] ?? 5;
+		$open_in_new_window = $instance['open_in_new_window'] ?? false;
+		$featured_image     = $instance['featured_image'] ?? false;
+		$show_excerpts      = $instance['show_excerpts'] ?? false;
 
 		/**
 		 * Check if the widget instance has errors available.
@@ -675,7 +675,7 @@ abstract class Jetpack_Display_Posts_Widget__Base extends WP_Widget {
 		/**
 		 * If no optional data is supplied, initialize a new structure
 		 */
-		if ( ! empty( $original_data ) ) {
+		if ( ! empty( $original_data ) && is_array( $original_data ) ) {
 			$widget_data = $original_data;
 		} else {
 			$widget_data = array(

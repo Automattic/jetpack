@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Write: Show "Please write something" instead of the server-side excerpt error when publishing or saving an empty post.

@@ -5,7 +5,6 @@ import {
 	AdminPage,
 	Col,
 	Container,
-	JetpackLogo,
 	AiIcon,
 	getRedirectUrl,
 	Notice,
@@ -212,19 +211,6 @@ export default function () {
 			}
 		>
 			<Container fluid horizontalSpacing={ 3 } horizontalGap={ 2 }>
-				<Col className={ clsx( styles[ 'product-interstitial__section' ] ) }>
-					<div
-						className={ clsx(
-							styles[ 'product-interstitial__section-wrapper-wide' ],
-							styles[ 'product-interstitial__product-header' ]
-						) }
-					>
-						<JetpackLogo />
-						<div className={ styles[ 'product-interstitial__product-header-name' ] }>
-							{ __( 'AI Assistant', 'jetpack-my-jetpack' ) }
-						</div>
-					</div>
-				</Col>
 				<Col className={ clsx( styles[ 'product-interstitial__section' ] ) }>
 					<div className={ styles[ 'product-interstitial__hero-section' ] }>
 						<div className={ styles[ 'product-interstitial__hero-content' ] }>

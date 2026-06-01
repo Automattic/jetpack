@@ -73,7 +73,7 @@ class Jetpack_REST_API_endpoints_Test extends WP_UnitTestCase {
 	 */
 	protected function get_jetpack_connection_status() {
 		$status = REST_Connector::connection_status();
-		return isset( $status->data ) ? $status->data : array();
+		return $status->data ?? array();
 	}
 
 	/**
@@ -725,6 +725,74 @@ class Jetpack_REST_API_endpoints_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Regression for NL-618: re-posting newsletter categories with the same selection the option
+	 * already holds must return 200, not a `some_updated` 400. The previous code left `$updated`
+	 * false on the "values equal" short-circuit, so any save without an actual change blew up.
+	 *
+	 * @return void
+	 */
+	public function test_wpcom_newsletter_categories_same_value_returns_success() {
+		$user = $this->create_and_get_user( 'administrator' );
+		$user->add_cap( 'jetpack_activate_modules' );
+		wp_set_current_user( $user->ID );
+
+		$category_id = self::factory()->category->create();
+		// Pre-seed the option in canonical form, matching what the helper saves.
+		update_option( 'wpcom_newsletter_categories', array( array( 'term_id' => $category_id ) ) );
+
+		$response = $this->create_and_get_request(
+			'settings',
+			array( 'wpcom_newsletter_categories' => array( $category_id ) ),
+			'POST'
+		);
+		$this->assertResponseStatus( 200, $response );
+	}
+
+	/**
+	 * Regression for NL-618: posting an empty array must be a no-op success, not a 400.
+	 * The frontend strips the key for empty selections, but defensive code should still treat
+	 * "nothing to save" as success rather than a failed update.
+	 *
+	 * @return void
+	 */
+	public function test_wpcom_newsletter_categories_empty_value_returns_success() {
+		$user = $this->create_and_get_user( 'administrator' );
+		$user->add_cap( 'jetpack_activate_modules' );
+		wp_set_current_user( $user->ID );
+
+		$response = $this->create_and_get_request(
+			'settings',
+			array( 'wpcom_newsletter_categories' => array() ),
+			'POST'
+		);
+		$this->assertResponseStatus( 200, $response );
+	}
+
+	/**
+	 * A real change to newsletter categories still persists through the same code path.
+	 *
+	 * @return void
+	 */
+	public function test_wpcom_newsletter_categories_new_value_is_saved() {
+		$user = $this->create_and_get_user( 'administrator' );
+		$user->add_cap( 'jetpack_activate_modules' );
+		wp_set_current_user( $user->ID );
+
+		$category_id = self::factory()->category->create();
+
+		$response = $this->create_and_get_request(
+			'settings',
+			array( 'wpcom_newsletter_categories' => array( $category_id ) ),
+			'POST'
+		);
+		$this->assertResponseStatus( 200, $response );
+		$this->assertSame(
+			array( $category_id ),
+			Jetpack_Newsletter_Category_Helper::get_category_ids()
+		);
+	}
+
+	/**
 	 * Test that a setting is retrieved correctly.
 	 * Here we test three types of settings:
 	 * - module settings
@@ -1221,5 +1289,39 @@ class Jetpack_REST_API_endpoints_Test extends WP_UnitTestCase {
 
 		$this->assertResponseStatus( 401, $response );
 		$this->assertResponseData( array( 'code' => 'invalid_permission_fetch_features' ), $response );
+	}
+	// ---- Connection test endpoints (migrated to Connection package) ----
+
+	/**
+	 * Test the 'connection/test' and 'connection/test-wpcom' routes are registered.
+	 * Auth behavior is tested in the Connection package; here we verify the wiring.
+	 */
+	public function test_connection_test_routes_are_registered() {
+		$routes = $this->server->get_routes();
+		$this->assertArrayHasKey( '/jetpack/v4/connection/test', $routes );
+		$this->assertArrayHasKey( '/jetpack/v4/connection/test-wpcom', $routes );
+	}
+
+	/**
+	 * Test that Jetpack hooks into jetpack_connection_tests_loaded to register its tests.
+	 */
+	public function test_jetpack_registers_connection_tests_hook() {
+		$jetpack = Jetpack::init();
+		$this->assertIsInt(
+			has_action( 'jetpack_connection_tests_loaded', array( $jetpack, 'register_jetpack_connection_tests' ) ),
+			'Jetpack should hook register_jetpack_connection_tests onto jetpack_connection_tests_loaded.'
+		);
+	}
+
+	/**
+	 * Test that Jetpack-specific connection tests (sync health) are registered
+	 * on the Connection_Health_Tests suite via the jetpack_connection_tests_loaded action.
+	 */
+	public function test_jetpack_connection_tests_registered() {
+		$cxntests = new Automattic\Jetpack\Connection\Connection_Health_Tests();
+		$tests    = $cxntests->list_tests();
+
+		$test_names = array_keys( $tests );
+		$this->assertContains( 'test__sync_health', $test_names, 'Jetpack sync health test should be registered on the connection test suite.' );
 	}
 } // class end

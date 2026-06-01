@@ -257,4 +257,38 @@ class Copy_Post_Test extends WP_UnitTestCase {
 		$this->assertIsArray( $target_footnotes );
 		$this->assertEquals( $footnote_content, $target_footnotes[0]['content'] );
 	}
+
+	/**
+	 * Test that update_content preserves backslashes in post fields.
+	 */
+	public function test_update_content_preserves_backslashes() {
+		$copy_post = new Jetpack_Copy_Post();
+
+		$source_content = "Code: \\t is a tab, \\n is a newline, \\\\ is a backslash";
+		$source_excerpt = "Excerpt with \\t tab";
+		$source_title   = "Title with \\t tab";
+
+		$source_post_id = self::factory()->post->create(
+			wp_slash(
+				array(
+					'post_content' => $source_content,
+					'post_excerpt' => $source_excerpt,
+					'post_title'   => $source_title,
+				)
+			)
+		);
+		$source_post    = get_post( $source_post_id );
+		$target_post_id = self::factory()->post->create();
+
+		$method = new ReflectionMethod( Jetpack_Copy_Post::class, 'update_content' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true );
+		}
+		$method->invoke( $copy_post, $source_post, $target_post_id );
+
+		$target_post = get_post( $target_post_id );
+		$this->assertSame( $source_content, $target_post->post_content, 'Backslashes in post_content should be preserved' );
+		$this->assertSame( $source_excerpt, $target_post->post_excerpt, 'Backslashes in post_excerpt should be preserved' );
+		$this->assertSame( $source_title, $target_post->post_title, 'Backslashes in post_title should be preserved' );
+	}
 }

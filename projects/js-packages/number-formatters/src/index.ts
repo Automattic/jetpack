@@ -5,6 +5,7 @@ const defaultFormatter = createNumberFormatters();
 export const {
 	setLocale,
 	setGeoLocation,
+	setCurrencyOverrides,
 	formatNumber,
 	formatNumberCompact,
 	formatCurrency,

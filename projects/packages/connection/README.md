@@ -16,6 +16,7 @@ Package is published in [Packagist](https://packagist.org/packages/automattic/je
 
 ## Guides
 * [Connection package guide](docs/register-site.md)
+* [Connection health tests](docs/connection-health-tests.md)
 
 ## Tools
 

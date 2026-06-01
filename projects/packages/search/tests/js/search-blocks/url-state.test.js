@@ -148,6 +148,60 @@ describe( 'stateToUrlParams', () => {
 		expect( params.has( 's' ) ).toBe( false );
 	} );
 
+	it( 'serializes staticFilterSelections as scalar params (no `[]` suffix) gated on kind === "static"', () => {
+		// Static filters use scalar `?filter_id=value` URL params, matching
+		// the legacy instant-search overlay contract. The kind === "static"
+		// gate prevents a stray scalar entry under a dynamic key from being
+		// serialized.
+		const params = stateToUrlParams( {
+			searchQuery: 'shoes',
+			sortOrder: 'relevance',
+			staticFilterSelections: { section: 'guides', topic: 'wordpress' },
+			filterConfigs: {
+				section: { filterKey: 'section', kind: 'static' },
+				topic: { filterKey: 'topic', kind: 'static' },
+			},
+		} );
+		expect( params.get( 'section' ) ).toBe( 'guides' );
+		expect( params.get( 'topic' ) ).toBe( 'wordpress' );
+		// Crucially: no `[]` suffix anywhere.
+		expect( params.has( 'section[]' ) ).toBe( false );
+		expect( params.has( 'topic[]' ) ).toBe( false );
+	} );
+
+	it( 'skips static-filter keys whose filterConfigs entry is missing or not kind=static', () => {
+		// A stale staticFilterSelections entry for a since-removed
+		// registration shouldn't leak back into the URL. Gate on
+		// filterConfigs presence + the explicit `kind === "static"` marker.
+		const params = stateToUrlParams( {
+			searchQuery: '',
+			sortOrder: 'relevance',
+			staticFilterSelections: { section: 'guides', dropped: 'x', dynamic: 'y' },
+			filterConfigs: {
+				// `section` is registered as static — passes.
+				section: { filterKey: 'section', kind: 'static' },
+				// `dynamic` exists but isn't a static filter — skipped.
+				dynamic: { filterKey: 'dynamic', filterType: 'taxonomy' },
+				// `dropped` isn't in filterConfigs at all — skipped.
+			},
+		} );
+		expect( params.get( 'section' ) ).toBe( 'guides' );
+		expect( params.has( 'dynamic' ) ).toBe( false );
+		expect( params.has( 'dropped' ) ).toBe( false );
+	} );
+
+	it( 'omits static-filter entries whose value is empty', () => {
+		// Empty string means "no selection" — equivalent to no entry. Drop
+		// it so the URL doesn't carry `?section=`.
+		const params = stateToUrlParams( {
+			searchQuery: '',
+			sortOrder: 'relevance',
+			staticFilterSelections: { section: '' },
+			filterConfigs: { section: { filterKey: 'section', kind: 'static' } },
+		} );
+		expect( params.has( 'section' ) ).toBe( false );
+	} );
+
 	it( 'preserves empty search param so a refresh keeps the inline-search URL shape', () => {
 		// Same rationale as the empty-`s` case: dropping the param entirely
 		// when the user clears the input would drop the visible URL marker
@@ -418,6 +472,52 @@ describe( 'filterLogic round-trip (RSM-2815)', () => {
 	} );
 } );
 
+describe( '?post_type=<slug> singular alias for ?post_types[]=<slug>', () => {
+	// WP/WC's product-search URL uses `?post_type=product` (scalar). The store
+	// reads that as if it were `?post_types[]=product` so deep links from those
+	// flows populate the `filter-checkbox{filterType:"post_type"}` facet when
+	// it's registered. Multi-value selections still use the array form.
+	const postTypeConfig = { filterType: 'post_type' };
+
+	it( 'reads ?post_type=foo into activeFilters.post_types when the facet is registered', () => {
+		const state = urlParamsToState( new URLSearchParams( 'post_type=product' ), {
+			post_types: postTypeConfig,
+		} );
+		expect( state.activeFilters ).toEqual( { post_types: [ 'product' ] } );
+	} );
+
+	it( 'drops ?post_type=foo when filter-checkbox{post_type} is not registered (filterConfigs gate)', () => {
+		// Without the facet on the page the scalar is ignored — same gate the
+		// array form already obeys. Keeps stray WC URLs from leaking into ES.
+		const state = urlParamsToState( new URLSearchParams( 'post_type=product' ), {
+			category: { filterType: 'taxonomy', taxonomy: 'category' },
+		} );
+		expect( state.activeFilters ).toEqual( {} );
+	} );
+
+	it( 'merges ?post_type=foo with existing ?post_types[]=bar, deduping', () => {
+		const params = new URLSearchParams();
+		params.append( 'post_types[]', 'post' );
+		params.append( 'post_type', 'product' );
+		params.append( 'post_type', 'post' ); // dup — should not double up.
+		const state = urlParamsToState( params, { post_types: postTypeConfig } );
+		expect( state.activeFilters ).toEqual( { post_types: [ 'post', 'product' ] } );
+	} );
+
+	it( 'drops empty / whitespace-only ?post_type values', () => {
+		const state = urlParamsToState( new URLSearchParams( 'post_type=&post_type=%20%20' ), {
+			post_types: postTypeConfig,
+		} );
+		expect( state.activeFilters ).toEqual( {} );
+	} );
+
+	it( 'admits ?post_type when no filterConfigs gate is supplied', () => {
+		// Mirrors the "accepts all keys when no gate" behaviour of the array form.
+		const state = urlParamsToState( new URLSearchParams( 'post_type=product' ) );
+		expect( state.activeFilters ).toEqual( { post_types: [ 'product' ] } );
+	} );
+} );
+
 describe( 'urlParamsToState: priceRange', () => {
 	// All priceRange-parsing tests opt into `isWooCommerceBlocksEnabled=true` to
 	// exercise the parsing logic; the WC-off behaviour (price params are
@@ -496,5 +596,68 @@ describe( 'urlParamsToState: priceRange WooCommerce gate (RSM-2805)', () => {
 			true
 		);
 		expect( state.priceRange ).toEqual( { min: 10, max: 50 } );
+	} );
+
+	it( 'pulls scalar params into staticFilterSelections when the key is kind=static', () => {
+		// Scalar `?section=guides` is the static-filter URL contract. Only
+		// keys whose filterConfigs entry is kind === "static" are pulled;
+		// everything else falls through to the existing branches (or is
+		// ignored).
+		const state = urlParamsToState(
+			new URLSearchParams( '?s=shoes&section=guides&topic=wordpress' ),
+			{
+				section: { filterKey: 'section', kind: 'static' },
+				topic: { filterKey: 'topic', kind: 'static' },
+			}
+		);
+		expect( state.staticFilterSelections ).toEqual( {
+			section: 'guides',
+			topic: 'wordpress',
+		} );
+		// Static-keyed params don't end up in activeFilters even when they
+		// share a name with a hypothetical dynamic filter.
+		expect( state.activeFilters ).toEqual( {} );
+	} );
+
+	it( 'ignores scalar params for keys that are not registered as static filters', () => {
+		// Arbitrary plugin-emitted scalar params (`?utm_source=...`,
+		// `?page_id=42`) must not seep into staticFilterSelections.
+		const state = urlParamsToState(
+			new URLSearchParams( '?s=shoes&utm_source=newsletter&page_id=42&section=guides' ),
+			{ section: { filterKey: 'section', kind: 'static' } }
+		);
+		expect( state.staticFilterSelections ).toEqual( { section: 'guides' } );
+	} );
+
+	it( 'leaves staticFilterSelections empty when filterConfigs has no kind=static entries', () => {
+		// The whole branch is filterConfig-driven — without a kind=static
+		// entry there is no way for a scalar URL param to mark itself as a
+		// static filter. Important: this is the behaviour the JS store
+		// relies on so plugin-emitted scalar params can't hijack the slice.
+		const state = urlParamsToState( new URLSearchParams( '?section=guides' ), {
+			section: { filterKey: 'section', filterType: 'taxonomy' },
+		} );
+		expect( state.staticFilterSelections ).toEqual( {} );
+	} );
+
+	it( 'drops scalar params whose value is empty', () => {
+		// `?section=` is the "cleared" state — equivalent to no selection.
+		// Drop it so a refresh doesn't keep an empty entry around that
+		// re-emits on the next URL push.
+		const state = urlParamsToState( new URLSearchParams( '?section=' ), {
+			section: { filterKey: 'section', kind: 'static' },
+		} );
+		expect( state.staticFilterSelections ).toEqual( {} );
+	} );
+
+	it( 'last-write wins for duplicate scalar static-filter params', () => {
+		// `?section=a&section=b` is malformed for a single-select filter.
+		// Mirror the radio-input change handler (latest click wins) rather
+		// than the first-wins ordering URLSearchParams.get() would default
+		// to.
+		const state = urlParamsToState( new URLSearchParams( '?section=a&section=b' ), {
+			section: { filterKey: 'section', kind: 'static' },
+		} );
+		expect( state.staticFilterSelections ).toEqual( { section: 'b' } );
 	} );
 } );

@@ -1,5 +1,5 @@
 import { store, getContext } from '@wordpress/interactivity';
-import '../../store';
+import 'jetpack-search/store';
 import { bucketsToStarCountMap } from './bucket-projection';
 import './style.scss';
 

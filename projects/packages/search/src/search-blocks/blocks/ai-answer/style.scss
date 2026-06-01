@@ -1,0 +1,218 @@
+// The AI Answer block intentionally ships no card chrome (background,
+// border, shadow) and no hardcoded brand colours. It inherits typography,
+// foreground colour, link colour, and link-hover treatment from the theme
+// so the panel reads as a first-class section of the page rather than a
+// floating widget. Subtle separation comes from `color-mix(currentColor)`
+// — the same idiom the filter blocks use for their pill backgrounds —
+// which adapts to a dark theme by sampling whatever the theme already
+// chose for body text.
+// All spacing uses theme preset tokens (`--wp--preset--spacing--*`) when
+// available, with `em` fallbacks tied to local font-size so a classic
+// theme without preset spacing still renders sensibly.
+
+.wp-block-jetpack-search-ai-answer {
+	margin-block: 0 var(--wp--preset--spacing--40, 1.5rem);
+	padding-block: var(--wp--preset--spacing--30, 0.75rem);
+	// A subtle inline-start accent rule reads as "callout" without
+	// imposing a background. Border colour is sampled from the theme via
+	// `currentColor` at 30% so it always has contrast against the page
+	// surface without picking a specific palette colour.
+	border-inline-start: 3px solid color-mix(in sRGB, currentColor 30%, transparent);
+	padding-inline-start: var(--wp--preset--spacing--30, 1rem);
+
+	&[hidden] {
+		display: none;
+	}
+}
+
+.jp-search-answers-panel__heading {
+	font-size: 0.75em;
+	font-weight: 600;
+	letter-spacing: 0.06em;
+	margin: 0 0 0.5em;
+	opacity: 0.7;
+	text-transform: uppercase;
+}
+
+.jp-search-answers-panel__loading,
+.jp-search-answers-panel__loading-hint {
+	align-items: center;
+	color: inherit;
+	display: flex;
+	font-size: 0.75em;
+	gap: 0.5em;
+	margin: 0.5em 0 0;
+	opacity: 0.7;
+
+	// Author `display: flex` wins over UA `[hidden] { display: none }`, so
+	// every `data-wp-bind--hidden`-gated row needs its own override —
+	// without it the row stays on screen with `hidden` attached but no
+	// visual effect. Same idiom the other Search blocks use (e.g.
+	// `results-list/style.scss`'s skeleton-item `[hidden]` rule).
+	&[hidden] {
+		display: none;
+	}
+}
+
+.jp-search-answers-panel__loading-hint {
+	font-style: italic;
+}
+
+.jp-search-answers-panel__error {
+	margin: 0;
+}
+
+.jp-search-answers-panel__error-message {
+	margin: 0 0 0.25em;
+}
+
+.jp-search-answers-panel__error-detail {
+	font-size: 0.875em;
+	margin: 0;
+	opacity: 0.7;
+}
+
+.jp-search-answers-panel__content {
+	margin: 0;
+}
+
+.jp-search-answers-panel__text {
+	font-size: 0.875em;
+	line-height: 1.6;
+
+	// Headings stay in-flow rather than mimicking the theme's body
+	// heading scale — the answer is one block of prose, so internal
+	// headings need to be visually subordinate to the panel's own
+	// heading ("AI ANSWER") and to any surrounding page headings.
+	h2,
+	h3,
+	h4 {
+		font-size: 1em;
+		font-weight: 700;
+		margin: 0.8em 0 0.3em;
+	}
+
+	p {
+		margin: 0 0 0.6em;
+	}
+
+	ul {
+		list-style: disc;
+		margin: 0 0 0.6em 1.2em;
+		padding: 0;
+	}
+
+	li {
+		margin-bottom: 0.2em;
+	}
+
+	strong {
+		font-weight: 700;
+	}
+
+	em {
+		font-style: italic;
+	}
+
+	// Links inherit the theme's link colour cascade entirely — no
+	// `color:` override here. The same applies to `:hover` / `:focus-visible`.
+}
+
+.jp-search-answers-panel__toggle {
+	align-items: center;
+	background: none;
+	border: 0;
+	color: inherit;
+	cursor: pointer;
+	display: inline-flex;
+	font: inherit;
+	font-size: 0.75em;
+	gap: 0.4em;
+	margin-top: 0.5em;
+	padding: 0;
+	text-decoration: underline;
+
+	&[hidden] {
+		display: none;
+	}
+
+	&:hover {
+		opacity: 0.7;
+	}
+}
+
+.jp-search-answers-panel__toggle-icon {
+	border-bottom: 1.5px solid currentColor;
+	border-right: 1.5px solid currentColor;
+	display: inline-block;
+	height: 0.4em;
+	transform: rotate(45deg);
+	width: 0.4em;
+}
+
+.jp-search-answers-panel__citations {
+	display: flex;
+	flex-wrap: wrap;
+	font-size: 0.75em;
+	gap: 0.5em 1em;
+	list-style: none;
+	margin: 0.75em 0 0;
+	padding: 0;
+
+	&[hidden] {
+		display: none;
+	}
+
+	li {
+		margin: 0;
+	}
+
+	// Anchor colour inherits from the theme's link cascade. The `inline-flex`
+	// is purely to align the external-link icon vertically with the title.
+	a {
+		align-items: center;
+		display: inline-flex;
+		gap: 0.25em;
+	}
+}
+
+.jp-search-answers-panel__citation-icon {
+	flex-shrink: 0;
+}
+
+// Inline three-dot loading ellipsis. Reuses `currentColor` so it tints to
+// the inherited foreground rather than picking its own brand colour.
+@keyframes jp-search-animated-ellipsis-bounce {
+
+	0%,
+	80%,
+	100% {
+		opacity: 0.2;
+	}
+
+	40% {
+		opacity: 1;
+	}
+}
+
+.jp-search-animated-ellipsis {
+	display: inline-flex;
+	gap: 2px;
+
+	span {
+		animation: jp-search-animated-ellipsis-bounce 1.4s infinite both;
+		background: currentColor;
+		border-radius: 50%;
+		display: inline-block;
+		height: 3px;
+		width: 3px;
+
+		&:nth-child(2) {
+			animation-delay: 0.16s;
+		}
+
+		&:nth-child(3) {
+			animation-delay: 0.32s;
+		}
+	}
+}

@@ -68,15 +68,16 @@ Ask the user up front which mode to run, unless they've specified:
 
 1. **Read `AGENTS.md`** for the current build, test, docker, changelog, and PR commands. Do not guess from memory — these change.
 2. **Read any project-level `.codex/README.md`** for the project you're about to touch. It will save expensive re-exploration.
-3. **Git state**:
+3. **Read `design.md` at the repo root if it exists.** This is the product's design lens (the devkit pattern). Execute its procedure as a checklist before Phase 2 planning: state before-building assumptions tagged `confident`/`assuming`/`unclear`, walk the pattern-matching tiers, surface designer-review triggers by name, name relevant principles. The lens content overrides this skill's defaults where they conflict on UI choices. Skip silently if `design.md` does not exist.
+4. **Git state**:
    - `git fetch origin trunk --quiet`
    - `git status` — the working tree must be clean before spawning a worktree.
    - `git branch --show-current` — determine whether we're on `trunk` or a feature branch.
-4. **Continuation detection**:
+5. **Continuation detection**:
    - Current branch ≠ trunk AND has commits ahead of `origin/trunk` → ask: "This looks like a continuation of `<branch>`. Options: (a) add to that branch (force-push may be needed later to keep rebased), (b) branch off fresh from trunk. Which?" Act on the answer.
    - A worktree already exists at the proposed path → ask whether to reuse or pick a different slug.
    - A docker compose project matching `jetpack_<slug>` is already running → ask whether to reuse, stop, or pick a different slug.
-5. **Fill in missing details** by asking the user, not by guessing: Linear/P2/Figma links, plugin scope, whether the change is visual. A self-explanatory PR needs these.
+6. **Fill in missing details** by asking the user, not by guessing: Linear/P2/Figma links, plugin scope, whether the change is visual. A self-explanatory PR needs these.
 
 ## Phase 0 — Parse the prompt
 
@@ -178,7 +179,7 @@ All commands are in `AGENTS.md`. Run the subset that applies:
 |---|---|
 | PHP in a project | `jp build <project>`, `jp test php <project>`, `jp phan <project>` |
 | JS/TS in a project | `jp build <project>`, `jp test js <project>` (no-op if the project doesn't define it) |
-| WP-integration plugin (jetpack / crm / wpcomsh) | `jp docker phpunit <target> -- --name <slug>` — the `--name` routes to the *worktree's* instance, not `jetpack_dev` |
+| WP-integration plugin (jetpack / wpcomsh) | `jp docker phpunit <target> -- --name <slug>` — the `--name` routes to the *worktree's* instance, not `jetpack_dev` |
 | Root / `tools/*` change | `pnpm test` inside the affected tool package |
 | Every change | lint the touched files: `npx eslint <files>` and project-local `composer lint` / PHPCS when present |
 

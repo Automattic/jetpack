@@ -12,7 +12,6 @@ return [
     // PhanUndeclaredProperty : 25+ occurrences
     // PhanTypeMismatchArgument : 8 occurrences
     // PhanParamSignatureMismatch : 6 occurrences
-    // PhanPluginDuplicateConditionalNullCoalescing : 6 occurrences
     // PhanTypeMismatchReturnProbablyReal : 6 occurrences
     // PhanUndeclaredClassMethod : 6 occurrences
     // PhanUndeclaredMethod : 6 occurrences
@@ -28,10 +27,10 @@ return [
     // Currently, file_suppressions and directory_suppressions are the only supported suppressions
     'file_suppressions' => [
         'data/example-external.php' => ['PhanUndeclaredClassMethod', 'PhanUndeclaredClassStaticProperty', 'PhanUndeclaredFunction'],
-        'scripts/core-calls.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchDeclaredParam', 'PhanUndeclaredClassMethod', 'PhanUndeclaredTypeParameter'],
-        'scripts/core-definitions.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchDeclaredParam', 'PhanUndeclaredClassMethod', 'PhanUndeclaredTypeParameter'],
+        'scripts/core-calls.php' => ['PhanTypeMismatchDeclaredParam', 'PhanUndeclaredClassMethod', 'PhanUndeclaredTypeParameter'],
+        'scripts/core-definitions.php' => ['PhanTypeMismatchDeclaredParam', 'PhanUndeclaredClassMethod', 'PhanUndeclaredTypeParameter'],
         'scripts/example.php' => ['PhanTypeMismatchArgumentProbablyReal'],
-        'scripts/jetpack-svn.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeArraySuspiciousNullable'],
+        'scripts/jetpack-svn.php' => ['PhanTypeArraySuspiciousNullable'],
         'src/Differences/class-class-const-missing.php' => ['PhanParamSignatureMismatch', 'PhanTypeMismatchArgument', 'PhanTypeMismatchReturnProbablyReal'],
         'src/Differences/class-class-const-moved.php' => ['PhanTypeMismatchArgument'],
         'src/Differences/class-class-method-deprecated.php' => ['PhanParamSignatureMismatch', 'PhanTypeMismatchReturnProbablyReal'],

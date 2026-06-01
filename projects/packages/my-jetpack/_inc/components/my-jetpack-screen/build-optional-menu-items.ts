@@ -6,7 +6,6 @@ type FooterMenuItem = {
 	onClick?: () => void;
 	onKeyDown?: ( event: KeyboardEvent ) => void;
 	title?: string;
-	role?: string;
 };
 
 type BuildOptionalMenuItemsArgs = {
@@ -51,7 +50,6 @@ const buildOptionalMenuItems = ( {
 	if ( isDevVersion && userIsAdmin ) {
 		items.push( {
 			label: 'Reset options (devs)',
-			role: 'button',
 			onClick: onResetClick,
 			onKeyDown: onResetKeyDown,
 		} );

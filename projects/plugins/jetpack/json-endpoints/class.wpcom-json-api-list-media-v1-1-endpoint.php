@@ -124,12 +124,12 @@ class WPCOM_JSON_API_List_Media_v1_1_Endpoint extends WPCOM_JSON_API_Endpoint { 
 		$query = array(
 			'post_type'      => 'attachment',
 			'post_status'    => 'inherit',
-			'post_parent'    => isset( $args['post_ID'] ) ? $args['post_ID'] : null,
+			'post_parent'    => $args['post_ID'] ?? null,
 			'posts_per_page' => $args['number'],
-			'post_mime_type' => isset( $args['mime_type'] ) ? $args['mime_type'] : null,
-			'order'          => isset( $args['order'] ) ? $args['order'] : 'DESC',
-			'orderby'        => isset( $args['order_by'] ) ? $args['order_by'] : 'date',
-			's'              => isset( $args['search'] ) ? $args['search'] : null,
+			'post_mime_type' => $args['mime_type'] ?? null,
+			'order'          => $args['order'] ?? 'DESC',
+			'orderby'        => $args['order_by'] ?? 'date',
+			's'              => $args['search'] ?? null,
 			'meta_query'     => array(
 				array(
 					'key'     => 'videopress_poster_image',

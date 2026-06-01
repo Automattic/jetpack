@@ -1,4 +1,0 @@
-Significance: patch
-Type: added
-
-Activity Log: add a "Performed by" filter for narrowing the log by actor, including MCP agents. Filtering is applied server-side so totals and pagination stay correct.

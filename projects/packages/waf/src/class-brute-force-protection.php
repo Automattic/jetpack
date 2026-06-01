@@ -586,7 +586,8 @@ class Brute_Force_Protection {
 			$user = get_user_by( 'login', $user_login );
 		}
 
-		$this->protect_call( 'successful_login', array( 'roles' => $user->roles ) );
+		$roles = $user instanceof \WP_User ? $user->roles : array();
+		$this->protect_call( 'successful_login', array( 'roles' => $roles ) );
 	}
 
 	/**

@@ -59,6 +59,14 @@ function register_patterns_on_api_request( $register_patterns_func ) {
 		// to handle the API format of both WordPress.com and WordPress core.
 		$request_allowed = preg_match( '/^\/wp\/v2\/(sites\/[0-9]+\/)?block\-patterns\/(patterns|categories)$/', $route );
 
+		// The Site Editor patterns sidebar gets its category list from view-config,
+		// so register API-backed pattern categories for that request too.
+		$request_allowed = $request_allowed || (
+				preg_match( '/^\/wp\/v2\/(sites\/[0-9]+\/)?view\-config$/', $route ) &&
+				'postType' === $request->get_param( 'kind' ) &&
+				'wp_block' === $request->get_param( 'name' )
+			);
+
 		if ( ! $request_allowed || ! apply_filters( 'a8c_enable_block_patterns_api', false ) ) {
 			return $response;
 		}

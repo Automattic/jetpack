@@ -23,6 +23,7 @@ import { __, sprintf } from '@wordpress/i18n';
 import { check, external, link } from '@wordpress/icons';
 import { prependHTTPS } from '@wordpress/url';
 import { usePodcastSettings, useUpdatePodcastSettings } from '../hooks/use-podcast-settings';
+import type { PodcastSettingsUpdate } from '../types';
 import type { PodcastAppModalProps } from './podcast-apps';
 import type { FormEvent } from 'react';
 
@@ -93,6 +94,8 @@ const SubmitModal = ( { app, feedUrl, onClose, onFirstSave }: PodcastAppModalPro
 		input?.select();
 	}, [ isEditing ] );
 
+	const storedState = settings?.podcasting_show_states?.[ app.id ] ?? '';
+
 	const copyRef = useCopyToClipboard< HTMLButtonElement >( feedUrl, () => setHasCopied( true ) );
 
 	useEffect( () => {
@@ -149,36 +152,21 @@ const SubmitModal = ( { app, feedUrl, onClose, onFirstSave }: PodcastAppModalPro
 			const isReplace = !! storedUrl;
 			const isFirstSave = ! storedUrl;
 			const isFirstEverSave = hadAnyStoredUrl === null ? false : ! hadAnyStoredUrl;
-			saveSettings(
-				{ podcasting_show_urls: { [ app.id ]: normalizedDraft } },
-				{
-					onSuccess: result => {
-						// The wpcom endpoint returns 200 even when `wp_http_validate_url`
-						// rejects the value (stored field stays unchanged). Round-trip the
-						// value to catch silent drops.
-						const persisted = result.podcasting_show_urls?.[ app.id ] ?? '';
-						if ( persisted !== normalizedDraft ) {
-							setSaveError(
-								sprintf(
-									/* translators: %s: podcast directory name. */
-									__( 'We couldn’t save your %s URL. Please try again.', 'jetpack-podcast' ),
-									app.name
-								)
-							);
-							return;
-						}
-						jetpackAnalytics.tracks.recordEvent( 'jetpack_podcast_show_url_saved', {
-							directory: app.id,
-							is_first_save: isFirstSave,
-							is_replace: isReplace,
-						} );
-						if ( isFirstEverSave ) {
-							onFirstSave?.();
-						}
-						setIsEditing( false );
-						onClose();
-					},
-					onError: () => {
+			// Mark pending unless Feed_Detection has already promoted the directory
+			// to 'active' from a real UA hit — don't downgrade verified state.
+			const patch: PodcastSettingsUpdate = {
+				podcasting_show_urls: { [ app.id ]: normalizedDraft },
+			};
+			if ( storedState !== 'active' ) {
+				patch.podcasting_show_states = { [ app.id ]: 'pending' };
+			}
+			saveSettings( patch, {
+				onSuccess: result => {
+					// The wpcom endpoint returns 200 even when `wp_http_validate_url`
+					// rejects the value (stored field stays unchanged). Round-trip the
+					// value to catch silent drops.
+					const persisted = result.podcasting_show_urls?.[ app.id ] ?? '';
+					if ( persisted !== normalizedDraft ) {
 						setSaveError(
 							sprintf(
 								/* translators: %s: podcast directory name. */
@@ -186,9 +174,29 @@ const SubmitModal = ( { app, feedUrl, onClose, onFirstSave }: PodcastAppModalPro
 								app.name
 							)
 						);
-					},
-				}
-			);
+						return;
+					}
+					jetpackAnalytics.tracks.recordEvent( 'jetpack_podcast_show_url_saved', {
+						directory: app.id,
+						is_first_save: isFirstSave,
+						is_replace: isReplace,
+					} );
+					if ( isFirstEverSave ) {
+						onFirstSave?.();
+					}
+					setIsEditing( false );
+					onClose();
+				},
+				onError: () => {
+					setSaveError(
+						sprintf(
+							/* translators: %s: podcast directory name. */
+							__( 'We couldn’t save your %s URL. Please try again.', 'jetpack-podcast' ),
+							app.name
+						)
+					);
+				},
+			} );
 		},
 		[
 			normalizedDraft,
@@ -197,6 +205,7 @@ const SubmitModal = ( { app, feedUrl, onClose, onFirstSave }: PodcastAppModalPro
 			app.name,
 			saveSettings,
 			storedUrl,
+			storedState,
 			hadAnyStoredUrl,
 			onFirstSave,
 			onClose,

@@ -5,6 +5,35 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.36.12] - 2026-06-01
+### Changed
+- Exclude additional unneeded files from the Composer package. [#49014]
+- Internal: Prepare types for React 19. [#49204]
+- Update package dependencies. [#48404] [#49152]
+
+### Fixed
+- Fix the post-connection redirect so the modernized dashboard returns users to the VideoPress page instead of a 404. [#49168]
+
+## [0.36.11] - 2026-05-25
+### Changed
+- Migrate dashboard tabs from default to minimal variant and align via the shared `jp-admin-page-tabs--minimal` wrapper modifier. [#48964]
+- Update package dependencies. [#48405] [#49012]
+- Replace internal `ContextualUpgradeTrigger` upgrade prompts with `@wordpress/ui` `Notice` composition. [#48909]
+
+### Fixed
+- Fix duplicate Jetpack logo rendering in the Edit Video page header. [#48962]
+- Phan: Address `PhanPluginDuplicateConditionalNullCoalescing` violations. [#48887]
+
+## [0.36.10] - 2026-05-19
+### Added
+- Add free-tier notice, disabled upload controls, and a storage meter to the modernized dashboard. [#48843]
+
+### Changed
+- Exclude development files from production builds. [#47365]
+
+### Fixed
+- Use the stored processing-completion timestamp for `finish_date_gmt` instead of the current time. [#48886]
+
 ## [0.36.9] - 2026-05-14
 ### Added
 - Comment: Add a user-signed REST proxy for VideoPress stats and seeds the modernized dashboard's React initial state behind the existing modernization filter. [#48817]
@@ -1968,6 +1997,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created empty package [#24952]
 
+[0.36.12]: https://github.com/Automattic/jetpack-videopress/compare/v0.36.11...v0.36.12
+[0.36.11]: https://github.com/Automattic/jetpack-videopress/compare/v0.36.10...v0.36.11
+[0.36.10]: https://github.com/Automattic/jetpack-videopress/compare/v0.36.9...v0.36.10
 [0.36.9]: https://github.com/Automattic/jetpack-videopress/compare/v0.36.8...v0.36.9
 [0.36.8]: https://github.com/Automattic/jetpack-videopress/compare/v0.36.7...v0.36.8
 [0.36.7]: https://github.com/Automattic/jetpack-videopress/compare/v0.36.6...v0.36.7

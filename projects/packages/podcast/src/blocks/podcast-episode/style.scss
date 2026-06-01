@@ -28,9 +28,12 @@ $jetpack-podcast-episode-gap: 16px;
 		inline-size: 160px;
 		max-inline-size: 40%;
 
+		// Square the poster so the editor preview and the front-end match
+		// what the feed serves (Photon center-crops covers to 1:1).
 		img {
 			inline-size: 100%;
-			block-size: auto;
+			aspect-ratio: 1;
+			object-fit: cover;
 			border-radius: calc(#{$jetpack-podcast-episode-radius} - 2px);
 			display: block;
 		}
@@ -160,26 +163,46 @@ $jetpack-podcast-episode-gap: 16px;
 		font-size: 0.85em;
 	}
 
-	.jetpack-podcast-episode__chapters {
-		list-style: none;
-		margin: 0;
-		padding: 0;
-		display: flex;
-		flex-direction: column;
-		gap: 4px;
-		font-size: 0.9em;
-	}
-
-	.jetpack-podcast-episode__chapter {
+	// Layout sits on the <li> so theme overrides that target these classes
+	// (rather than the inner button) keep working.
+	.jetpack-podcast-episode__soundbite {
 		display: flex;
 		gap: 12px;
 		align-items: baseline;
 	}
 
-	.jetpack-podcast-episode__chapter-time {
+	.jetpack-podcast-episode__soundbite-time {
 		flex: 0 0 auto;
 		font-variant-numeric: tabular-nums;
 		color: gb.$gray-700;
+	}
+
+	// Click-to-seek button wraps the row content. Reset the browser's default
+	// <button> chrome so it reads as a regular list row, then add a hover /
+	// focus affordance to signal interactivity. Inherits flex layout from the
+	// parent <li> to lay out the time and title inline.
+	.jetpack-podcast-episode__soundbite-button {
+		display: flex;
+		gap: 12px;
+		align-items: baseline;
+		width: 100%;
+		padding: 0;
+		border: 0;
+		background: transparent;
+		color: inherit;
+		font: inherit;
+		text-align: inherit;
+		cursor: pointer;
+		border-radius: 2px;
+
+		&:hover .jetpack-podcast-episode__soundbite-title {
+			text-decoration: underline;
+		}
+
+		&:focus-visible {
+			outline: 2px solid currentColor;
+			outline-offset: 2px;
+		}
 	}
 
 	.jetpack-podcast-episode__links {

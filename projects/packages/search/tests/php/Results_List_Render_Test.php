@@ -49,7 +49,7 @@ class Results_List_Render_Test extends TestCase {
 	}
 
 	/**
-	 * Unregister the block so other test classes start from a clean slate.
+	 * Unregister the blocks so other test classes start from a clean slate.
 	 */
 	public static function tearDownAfterClass(): void {
 		\unregister_block_type( 'jetpack-search/results-list' );
@@ -442,5 +442,23 @@ class Results_List_Render_Test extends TestCase {
 			$this->assertStringNotContainsString( 'jetpack-search-skeleton--rating', $markup, "Layout '{$layout}': rating skeleton must be absent." );
 			$this->assertStringNotContainsString( 'jetpack-search-skeleton--title-secondary', $markup, "Layout '{$layout}': title-secondary skeleton must be absent." );
 		}
+	}
+
+	/**
+	 * Without an initial-loading signal the skeleton items still render — the
+	 * IA runtime re-shows them on a client-side search from a bare page — but
+	 * each carries a static `hidden` attribute so they stay out of the
+	 * pre-hydration paint.
+	 */
+	public function test_skeleton_items_present_but_hidden_when_not_initial_loading() {
+		$markup = $this->render();
+
+		$total_skeletons = preg_match_all( '/jetpack-search-results__item--skeleton/', $markup );
+		$this->assertGreaterThan( 0, $total_skeletons );
+		// *Every* skeleton `<li>` carries a static `hidden` attribute, not just
+		// one. Match `hidden` only as a standalone attribute so
+		// `data-wp-bind--hidden` and `aria-hidden` don't false-positive.
+		$hidden_skeletons = preg_match_all( '/<li[^>]*--skeleton[^>]*\s+hidden(?=\s|\/|>|=)/', $markup );
+		$this->assertSame( $total_skeletons, $hidden_skeletons );
 	}
 }
