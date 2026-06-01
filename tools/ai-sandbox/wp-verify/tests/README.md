@@ -115,7 +115,9 @@ instead — the cost is paid once at the start of the run.
   picked up as tests.
 - **Helpers** (shared selectors, page-object wrappers, fixture builders):
   put them in `_helpers/` so the underscore-prefixed directory reads as
-  "not a spec". Import as `from '../_helpers/<name>'`.
+  "not a spec". Specs sit alongside `_helpers/` in this directory, so
+  import as `from './_helpers/<name>'` (`../_helpers/...` would point
+  outside `tests/` and fail to resolve).
 - **Test-only fixtures** (HTML snippets, JSON payloads): `_fixtures/` under
   this directory.
 
