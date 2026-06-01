@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Enable client-side media processing because no errors are found after latest Gutenberg release
