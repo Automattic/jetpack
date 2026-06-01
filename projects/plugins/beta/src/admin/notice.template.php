@@ -2,7 +2,7 @@
 /**
  * Jetpack Beta wp-admin page notice.
  *
- * @html-template \Automattic\JetpackBeta\Admin::render_banner -- Also from render() via plugin-select.template.php or plugin-manage.template.php
+ * @html-template \Automattic\JetpackBeta\Admin::render_banner
  * @package automattic/jetpack-beta
  */
 
