@@ -2851,7 +2851,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/publicize",
-                "reference": "595cacc920f01e2e042a6be07a6884092249cba9"
+                "reference": "b6524051b619117b26caa72a339ca487ae0f6e66"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
