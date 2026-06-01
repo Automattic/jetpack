@@ -112,6 +112,7 @@ const PluginList = () => {
 										variant="outline"
 										tone="neutral"
 										size="compact"
+										nativeButton={ false }
 										render={ <a href={ plugin.manage_url } /> }
 									>
 										{ __( 'Manage', 'jetpack-beta' ) }

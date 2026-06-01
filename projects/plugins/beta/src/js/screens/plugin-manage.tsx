@@ -195,6 +195,7 @@ const PluginManage = ( { slug }: Props ) => {
 										variant="outline"
 										tone="neutral"
 										size="compact"
+										nativeButton={ false }
 										render={
 											<a
 												href={ view.bug_report_url }
