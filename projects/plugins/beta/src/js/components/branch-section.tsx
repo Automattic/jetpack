@@ -64,20 +64,23 @@ const BranchSection = ( {
 
 	return (
 		<Stack direction="column" gap="sm">
-			<Text variant="heading-sm">{ title }</Text>
 			{ searchable && (
-				<SearchControl
-					__nextHasNoMarginBottom
-					label={ title }
-					placeholder={ searchPlaceholder ?? __( 'Search', 'jetpack-beta' ) }
-					value={ query }
-					onChange={ setQuery }
-				/>
+				<>
+					<Text variant="heading-sm">{ title }</Text>
+					<SearchControl
+						__nextHasNoMarginBottom
+						label={ title }
+						placeholder={ searchPlaceholder ?? __( 'Search', 'jetpack-beta' ) }
+						value={ query }
+						onChange={ setQuery }
+					/>
+				</>
 			) }
 			{ filteredCards.map( card => (
 				<BranchCard
 					key={ `${ card.section }-${ card.source ?? '' }-${ card.id ?? '' }` }
 					card={ card }
+					title={ searchable ? undefined : title }
 					pluginSlug={ pluginSlug }
 					onActivated={ onActivated }
 				/>

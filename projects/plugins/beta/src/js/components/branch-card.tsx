@@ -14,6 +14,12 @@ type Props = {
 	card: BranchCardType;
 	pluginSlug: string;
 	onActivated: ( view: PluginView ) => void;
+	/**
+	 * Optional primary label. When set (used for the fixed single-branch
+	 * sections), it replaces the standalone section heading and the branch's
+	 * own version is shown as a secondary line only when it adds information.
+	 */
+	title?: string;
 };
 
 /**
@@ -22,11 +28,15 @@ type Props = {
  * @param {Props} props - Component props.
  * @return The branch card element.
  */
-const BranchCard = ( { card, pluginSlug, onActivated }: Props ) => {
+const BranchCard = ( { card, pluginSlug, onActivated, title }: Props ) => {
 	const [ busy, setBusy ] = useState( false );
 	const [ error, setError ] = useState< string | null >( null );
 
-	const label = card.pretty_version ?? card.branch ?? card.version ?? '';
+	const version = card.pretty_version ?? card.branch ?? card.version ?? '';
+	const label = title ?? version;
+	// Only show the version as a secondary line when a title is given and the
+	// version actually differs from it (avoids "Release Candidate / Release Candidate").
+	const detail = title && version && version !== title ? version : null;
 
 	const handleActivate = useCallback( () => {
 		if ( busy ) {
@@ -60,11 +70,14 @@ const BranchCard = ( { card, pluginSlug, onActivated }: Props ) => {
 					</Notice.Root>
 				) }
 				<Stack direction="row" align="center" justify="space-between">
-					<Stack direction="row" gap="xs" align="center">
-						<Text variant="body-md">{ label }</Text>
-						{ card.is_active && (
-							<Badge intent="informational">{ __( 'Active', 'jetpack-beta' ) }</Badge>
-						) }
+					<Stack direction="column" gap="xs">
+						<Stack direction="row" gap="xs" align="center">
+							<Text variant="body-md">{ label }</Text>
+							{ card.is_active && (
+								<Badge intent="informational">{ __( 'Active', 'jetpack-beta' ) }</Badge>
+							) }
+						</Stack>
+						{ detail && <Text variant="body-sm">{ detail }</Text> }
 					</Stack>
 					{ ! card.is_active && (
 						<Button
