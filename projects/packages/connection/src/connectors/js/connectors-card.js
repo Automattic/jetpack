@@ -185,7 +185,7 @@ function ErrorNotice( { message, onDismiss = null } ) {
 			status: 'error',
 			isDismissible: Boolean( onDismiss ),
 			onRemove: onDismiss || undefined,
-			className: 'jetpack-connector__error',
+			className: 'jetpack-connector__notice',
 		},
 		message
 	);
@@ -249,7 +249,7 @@ function OfflineNotice() {
 		{
 			status: 'warning',
 			isDismissible: false,
-			className: 'jetpack-connector__offline-notice',
+			className: 'jetpack-connector__notice',
 		},
 		message
 	);

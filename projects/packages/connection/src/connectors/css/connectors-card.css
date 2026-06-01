@@ -154,7 +154,7 @@
 	}
 }
 
-.jetpack-connector__error.components-notice {
+.jetpack-connector__notice.components-notice {
 	margin-block: 8px 0;
 	margin-inline: 0;
 }
@@ -165,9 +165,4 @@
 
 .jetpack-connector__tos-notice a {
 	color: inherit;
-}
-
-.jetpack-connector__offline-notice.components-notice {
-	margin-block: 8px 0;
-	margin-inline: 0;
 }
