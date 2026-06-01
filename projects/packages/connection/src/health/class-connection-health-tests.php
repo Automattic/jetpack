@@ -16,7 +16,7 @@ use Jetpack_Options;
 /**
  * Class Connection_Health_Tests contains all connection-specific health tests.
  *
- * @since $$next-version$$
+ * @since 8.5.0
  */
 class Connection_Health_Tests extends Connection_Health_Test_Base {
 
@@ -42,7 +42,7 @@ class Connection_Health_Tests extends Connection_Health_Test_Base {
 		 *
 		 * @since 7.1.0
 		 * @since 8.3.0 Passes the test suite instance.
-		 * @since $$next-version$$ Moved from Jetpack_Cxn_Tests to Connection_Health_Tests.
+		 * @since 8.5.0 Moved from Jetpack_Cxn_Tests to Connection_Health_Tests.
 		 *
 		 * @param Connection_Health_Tests $this The Connection_Health_Tests instance.
 		 */

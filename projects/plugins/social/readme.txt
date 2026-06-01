@@ -4,7 +4,7 @@ Tags: social media automation, social media scheduling, auto share, social shari
 Requires at least: 6.9
 Requires PHP: 7.2
 Tested up to: 7.0
-Stable tag: 8.0.1
+Stable tag: 9.0.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -104,12 +104,26 @@ The easiest way is to use the Custom Message option in the publishing options bo
 6. Managing Social media accounts in the post editor
 
 == Changelog ==
-### 8.0.1 - 2026-02-19
+### 9.0.0 - 2026-06-01
 #### Added
-- Add visual dot to active connection in preview modal.
+- Google Search Preview: Fix site icon not being shown on some sites.
 
 #### Changed
-- Disable AI image option in the media UI when Jetpack plugin is not active.
+- General: Update minimum WordPress version to 6.9.
+- Remove header border-bottom from the admin page for a cleaner unified header appearance.
+- Remove unneeded development and documentation files from the published plugin.
+- Tested up to WordPress 7.0.
+- Update design of the sidebar upsell.
+- Update package dependencies.
+
+#### Removed
+- Remove post publish review prompt.
+
+#### Fixed
+- Admin Page: Restore border on header component.
+- Fall back to the site-wide social message template when no per-post share message is set.
+- Fix Threads social preview for posts with gallery.
+- Fix useSelect warning for notesConfig on Social admin page.
 
 == Upgrade Notice ==
 

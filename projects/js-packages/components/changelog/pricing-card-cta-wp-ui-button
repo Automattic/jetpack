@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-PricingCard: render the CTA with the @wordpress/ui Button (solid variant) so it shows correct button styling instead of unstyled text.

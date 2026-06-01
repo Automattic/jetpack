@@ -1,4 +1,0 @@
-Significance: patch
-Type: added
-
-Track Overview/Settings tab switches on the Social dashboard via a `jetpack_social_tab_view` Tracks event.

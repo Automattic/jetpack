@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Sync: Fix PHP warnings from undefined array keys, null property access, and deprecated null arguments across multiple sync modules.
