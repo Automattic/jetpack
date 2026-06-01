@@ -25,7 +25,7 @@ const ConnectorItem = connectors.__experimentalConnectorItem || connectors.Conne
 
 const { createElement, createInterpolateElement, useState, useEffect, useRef } = window.wp.element;
 const { __ } = window.wp.i18n;
-const { Button, Modal } = window.wp.components;
+const { Button, Modal, Notice } = window.wp.components;
 const HStack = window.wp.components.__experimentalHStack || window.wp.components.HStack;
 const VStack = window.wp.components.__experimentalVStack || window.wp.components.VStack;
 const Text = window.wp.components.__experimentalText || window.wp.components.Text;
@@ -180,21 +180,14 @@ function focusWhenReady( element ) {
  */
 function ErrorNotice( { message, onDismiss = null } ) {
 	return createElement(
-		HStack,
-		{ spacing: 2, className: 'jetpack-connector__error', role: 'alert' },
-		createElement( Text, { size: 13 }, message ),
-		onDismiss
-			? createElement(
-					Button,
-					{
-						variant: 'link',
-						size: 'small',
-						onClick: onDismiss,
-						'aria-label': __( 'Dismiss error', 'jetpack-connection' ),
-					},
-					__( 'Dismiss', 'jetpack-connection' )
-			  )
-			: null
+		Notice,
+		{
+			status: 'error',
+			isDismissible: Boolean( onDismiss ),
+			onRemove: onDismiss || undefined,
+			className: 'jetpack-connector__error',
+		},
+		message
 	);
 }
 
@@ -252,8 +245,12 @@ function OfflineNotice() {
 	);
 
 	return createElement(
-		Text,
-		{ variant: 'muted', size: 12, className: 'jetpack-connector__offline-notice', role: 'note' },
+		Notice,
+		{
+			status: 'warning',
+			isDismissible: false,
+			className: 'jetpack-connector__offline-notice',
+		},
 		message
 	);
 }
