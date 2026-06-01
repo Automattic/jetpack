@@ -28,7 +28,7 @@ export default function CriticalCssMeta() {
 			<div className="jb-critical-css-progress">
 				<div className={ styles[ 'progress-label' ] }>
 					{ __(
-						'Generating Critical CSS. Please don't leave this page until completed.',
+						'Generating Critical CSS. Please don’t leave this page until completed.',
 						'jetpack-boost'
 					) }
 				</div>
