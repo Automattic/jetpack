@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Internal: Fix ESLint issues in legacy Jetpack admin client files.

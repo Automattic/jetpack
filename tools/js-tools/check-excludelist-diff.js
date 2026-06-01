@@ -3,15 +3,11 @@
 const spawnSync = require( 'child_process' ).spawnSync;
 const parseDiff = require( 'parse-diff' );
 
-const res = spawnSync(
-	'git',
-	[ 'diff', 'tools/eslint-excludelist.json', 'tools/phpcs-excludelist.json' ],
-	{
-		stdio: [ 'ignore', 'pipe', 'inherit' ],
-		maxBuffer: Infinity,
-		encoding: 'utf8',
-	}
-);
+const res = spawnSync( 'git', [ 'diff', 'tools/phpcs-excludelist.json' ], {
+	stdio: [ 'ignore', 'pipe', 'inherit' ],
+	maxBuffer: Infinity,
+	encoding: 'utf8',
+} );
 if ( res.status ) {
 	process.exit( res.status );
 }

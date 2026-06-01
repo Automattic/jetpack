@@ -11,7 +11,6 @@ import loadIgnorePatterns from '../load-eslint-ignore.js';
 import isJetpackDraftMode from './jetpack-draft.mjs';
 
 let phpcsExcludelist = null;
-let eslintExcludelist = null;
 let eslintIgnore = null;
 let exitCode = 0;
 
@@ -29,20 +28,6 @@ function loadPhpcsExcludeList() {
 		);
 	}
 	return phpcsExcludelist;
-}
-
-/**
- * Load the eslint exclude list.
- *
- * @return {Array} Files to exclude.
- */
-function loadEslintExcludeList() {
-	if ( null === eslintExcludelist ) {
-		eslintExcludelist = JSON.parse(
-			fs.readFileSync( __dirname + '/../../eslint-excludelist.json', 'utf8' )
-		);
-	}
-	return eslintExcludelist;
 }
 
 /**
@@ -104,16 +89,6 @@ function filterJsFiles( file ) {
 		javascriptFiles.some( extension => file.endsWith( extension.replace( '**/*', '' ) ) ) ||
 		jsonFiles.some( extension => file.endsWith( extension.replace( '**/*', '' ) ) )
 	);
-}
-
-/**
- * Filter callback for JS files
- *
- * @param {string} file - dirty file
- * @return {boolean} whether file needs to be linted
- */
-function filterEslintFiles( file ) {
-	return -1 === loadEslintExcludeList().findIndex( filePath => file === filePath );
 }
 
 /**
@@ -292,26 +267,6 @@ function runEslintFix( toFixFiles ) {
 		// If we get here, required files have failed eslint. Let's return early and avoid the duplicate information.
 		checkFailed();
 		exit( exitCode );
-	}
-}
-
-/**
- * Run eslint-changed
- *
- * @param {Array} toLintFiles - List of files to lint
- */
-function runEslintChanged( toLintFiles ) {
-	toLintFiles = applyEslintIgnore( toLintFiles );
-	if ( ! toLintFiles.length ) {
-		return;
-	}
-
-	const eslintResult = spawnSync( 'pnpm', [ 'run', 'lint-changed', ...toLintFiles ], {
-		stdio: 'inherit',
-	} );
-
-	if ( eslintResult && eslintResult.status && ! isJetpackDraftMode() ) {
-		checkFailed();
 	}
 }
 
@@ -501,12 +456,8 @@ dirtyFiles.forEach( file =>
 
 // Start JS work—linting, prettify, etc.
 
-const eslintFiles = jsFiles.filter( filterEslintFiles );
-const eslintFixFiles = eslintFiles.filter( file => checkFileAgainstDirtyList( file, dirtyFiles ) );
-const eslintNoFixFiles = eslintFiles.filter(
-	file => ! checkFileAgainstDirtyList( file, dirtyFiles )
-);
-const eslintChangedFiles = jsFiles.filter( file => ! filterEslintFiles( file ) );
+const eslintFixFiles = jsFiles.filter( file => checkFileAgainstDirtyList( file, dirtyFiles ) );
+const eslintNoFixFiles = jsFiles.filter( file => ! checkFileAgainstDirtyList( file, dirtyFiles ) );
 
 const toPrettify = jsFiles.filter( file => checkFileAgainstDirtyList( file, dirtyFiles ) );
 toPrettify.forEach( file => console.log( `Prettier formatting staged file: ${ file }` ) );
@@ -517,12 +468,9 @@ if ( toPrettify.length ) {
 }
 
 // linting should happen after formatting
-if ( eslintFiles.length > 0 ) {
+if ( jsFiles.length > 0 ) {
 	runEslintFix( eslintFixFiles );
 	runEslint( eslintNoFixFiles );
-}
-if ( eslintChangedFiles.length > 0 ) {
-	runEslintChanged( eslintChangedFiles );
 }
 
 // Start PHP work.

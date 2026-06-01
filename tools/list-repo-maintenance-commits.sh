@@ -18,7 +18,6 @@ PATHS=(
 	':!.phan/stubs/*'
 	:!pnpm-lock.yaml
 	:!tools/phpcs-excludelist.json
-	:!tools/eslint-excludelist.json
 	':!tools/stubs/*-defs.php'
 	':!*/composer.lock'
 	':!*/changelog/*'
