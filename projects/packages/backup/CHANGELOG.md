@@ -7,17 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [4.3.0] - 2026-05-25
 ### Added
-- Abilities API: Register Jetpack Backup abilities (overview, list, restores, run-backup) for WP 6.9+. [#48329]
+- Abilities: Register Jetpack Backup abilities (overview, list, restores, run-backup) for WP 6.9+. [#48329]
 
 ### Changed
 - Abilities: Rename slugs to `list-*` / `request-*` and register via the package's `actions.php`. [#48329]
 - Update package dependencies. [#48405] [#49012]
 
 ### Fixed
-- Abilities: Terminate `jetpack-backup/list-backups` pagination on an empty page, not on a page shorter than `per_page`. [#48329]
-- Abilities: Drop dead branch in `map_event_status()` that returned the same value as the default case. [#48329]
-- Abilities: Report failure of `jetpack-backup/request-backup` when WordPress.com answers 200 with `{ success: false }` instead of claiming the backup was enqueued. [#48329]
 - Abilities: Accept fractional numeric strings in `parse_timestamp()`. [#48329]
+- Abilities: Drop dead branch in `map_event_status()` that returned the same value as the default case. [#48329]
+- Abilities: Terminate `jetpack-backup/list-backups` pagination on an empty page, not on a page shorter than `per_page`. [#48329]
+- Abilities: Report failure of `jetpack-backup/request-backup` when WordPress.com answers 200 with `{ success: false }` instead of claiming the backup was enqueued. [#48329]
 - Abilities: Replace PHP 7.4+ arrow function with a closure and initialize `$score` to support PHP 7.2. [#48329]
 
 ## [4.2.56] - 2026-05-19
