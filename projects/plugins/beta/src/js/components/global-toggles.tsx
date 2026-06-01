@@ -7,11 +7,12 @@
  * @package
  */
 
-import { Spinner, ToggleControl } from '@wordpress/components';
+import { ToggleControl } from '@wordpress/components';
 import { useCallback, useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Card, Notice, Stack, Text } from '@wordpress/ui';
 import { getSettings, updateSettings } from '../api/abilities';
+import { Skeleton } from './skeleton';
 import type { Settings } from '../api/types';
 
 type InFlight = 'autoupdates' | 'email_notifications' | null;
@@ -117,7 +118,19 @@ const GlobalToggles = () => {
 	);
 
 	if ( loading ) {
-		return <Spinner />;
+		return (
+			<Card.Root>
+				<Card.Content>
+					<Stack direction="column" gap="md">
+						<Skeleton width="80px" height="14px" />
+						<Stack direction="row" gap="xl" align="center">
+							<Skeleton width="140px" height="20px" />
+							<Skeleton width="180px" height="20px" />
+						</Stack>
+					</Stack>
+				</Card.Content>
+			</Card.Root>
+		);
 	}
 
 	if ( fetchError ) {

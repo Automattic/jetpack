@@ -6,13 +6,13 @@
  */
 
 import { Col, Container } from '@automattic/jetpack-components';
-import { Spinner } from '@wordpress/components';
 import { useCallback, useEffect, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { Icon, chevronRight } from '@wordpress/icons';
 import { Badge, Card, Notice, Stack, Text } from '@wordpress/ui';
 import { listPlugins } from '../api/abilities';
 import GlobalToggles from '../components/global-toggles';
+import { CardRowSkeleton } from '../components/skeleton';
 import type { PluginListItem } from '../api/types';
 import type { KeyboardEvent } from 'react';
 
@@ -143,7 +143,8 @@ const PluginList = () => {
 			<Col>
 				<Stack direction="column" gap="md">
 					<GlobalToggles />
-					{ loading && <Spinner /> }
+					{ loading &&
+						Array.from( { length: 6 } ).map( ( _, index ) => <CardRowSkeleton key={ index } /> ) }
 					{ error && (
 						<Notice.Root intent="error">
 							<Notice.Description>{ error }</Notice.Description>

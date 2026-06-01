@@ -11,7 +11,6 @@
  */
 
 import { AdminPage, Col, Container } from '@automattic/jetpack-components';
-import { Spinner } from '@wordpress/components';
 import { useCallback, useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Button, Card, Link, Notice, Stack, Text } from '@wordpress/ui';
@@ -20,6 +19,7 @@ import BranchSection from '../components/branch-section';
 import Footer from '../components/footer';
 import GlobalToggles from '../components/global-toggles';
 import MarkdownPanel from '../components/markdown-panel';
+import { CardRowSkeleton } from '../components/skeleton';
 import type { BranchCard as BranchCardType, PluginView } from '../api/types';
 
 type Props = {
@@ -166,7 +166,13 @@ const PluginManage = ( { slug }: Props ) => {
 		>
 			<Container horizontalSpacing={ 5 } horizontalGap={ 3 }>
 				<Col>
-					{ loading && <Spinner /> }
+					{ loading && (
+						<Stack direction="column" gap="md">
+							{ Array.from( { length: 4 } ).map( ( _, index ) => (
+								<CardRowSkeleton key={ index } />
+							) ) }
+						</Stack>
+					) }
 					{ error && (
 						<Notice.Root intent="error">
 							<Notice.Description>{ error }</Notice.Description>
