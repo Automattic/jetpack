@@ -11,6 +11,7 @@ namespace Automattic\JetpackBeta\Abilities;
 
 use Automattic\Jetpack\WP_Abilities\Registrar;
 use Automattic\JetpackBeta\Admin;
+use Automattic\JetpackBeta\Hooks;
 use Automattic\JetpackBeta\Plugin;
 use Automattic\JetpackBeta\PluginDataException;
 use Automattic\JetpackBeta\Utils;
@@ -65,14 +66,15 @@ class Beta_Abilities extends Registrar {
 	/**
 	 * {@inheritDoc}
 	 *
-	 * Returns the three read abilities. Write abilities (activate-branch,
-	 * update-settings) are added in a follow-up commit.
+	 * Returns all five abilities: three read-only and two write.
 	 */
 	public static function get_abilities(): array {
 		return array(
-			'jetpack-beta/list-plugins' => self::spec_list_plugins(),
-			'jetpack-beta/get-plugin'   => self::spec_get_plugin(),
-			'jetpack-beta/get-settings' => self::spec_get_settings(),
+			'jetpack-beta/list-plugins'    => self::spec_list_plugins(),
+			'jetpack-beta/get-plugin'      => self::spec_get_plugin(),
+			'jetpack-beta/get-settings'    => self::spec_get_settings(),
+			'jetpack-beta/activate-branch' => self::spec_activate_branch(),
+			'jetpack-beta/update-settings' => self::spec_update_settings(),
 		);
 	}
 
@@ -162,45 +164,7 @@ class Beta_Abilities extends Registrar {
 				),
 				'required'   => array( 'slug' ),
 			),
-			'output_schema'       => array(
-				'type'       => 'object',
-				'properties' => array(
-					'name'              => array( 'type' => 'string' ),
-					'is_mu_plugin'      => array( 'type' => 'boolean' ),
-					'bug_report_url'    => array( 'type' => 'string' ),
-					'currently_running' => array(
-						'type'       => array( 'object', 'null' ),
-						'properties' => array(
-							'which'          => array( 'type' => array( 'string', 'null' ) ),
-							'source'         => array( 'type' => array( 'string', 'null' ) ),
-							'id'             => array( 'type' => array( 'string', 'null' ) ),
-							'version'        => array( 'type' => array( 'string', 'null' ) ),
-							'pretty_version' => array( 'type' => array( 'string', 'null' ) ),
-						),
-					),
-					'sections'          => array(
-						'type'  => 'array',
-						'items' => array(
-							'type'       => 'object',
-							'properties' => array(
-								'section'        => array( 'type' => 'string' ),
-								'source'         => array( 'type' => array( 'string', 'null' ) ),
-								'id'             => array( 'type' => array( 'string', 'null' ) ),
-								'branch'         => array( 'type' => array( 'string', 'null' ) ),
-								'version'        => array( 'type' => array( 'string', 'null' ) ),
-								'pretty_version' => array( 'type' => array( 'string', 'null' ) ),
-								'is_active'      => array( 'type' => 'boolean' ),
-							),
-						),
-					),
-					'to_test_html'      => array( 'type' => array( 'string', 'null' ) ),
-					'what_changed_html' => array( 'type' => array( 'string', 'null' ) ),
-					'needed_updates'    => array(
-						'type'  => 'array',
-						'items' => array( 'type' => 'string' ),
-					),
-				),
-			),
+			'output_schema'       => self::plugin_view_schema(),
 			'execute_callback'    => array( __CLASS__, 'get_plugin' ),
 			'permission_callback' => array( __CLASS__, 'can_view_plugin' ),
 			'meta'                => array(
@@ -249,6 +213,110 @@ class Beta_Abilities extends Registrar {
 					'readonly'    => true,
 					'destructive' => false,
 					'idempotent'  => true,
+				),
+				'show_in_rest' => true,
+				'mcp'          => array(
+					'public' => false,
+				),
+			),
+		);
+	}
+
+	/**
+	 * Spec: jetpack-beta/activate-branch.
+	 *
+	 * @return array
+	 */
+	private static function spec_activate_branch(): array {
+		return array(
+			'label'               => __( 'Activate a Jetpack Beta branch', 'jetpack-beta' ),
+			'description'         => __(
+				'Download (if necessary) and activate a specific branch of a plugin managed by Jetpack Beta Tester. Input: { slug, source, id }. `source` is one of "stable", "trunk", "rc", "pr", "release", or "unknown". `id` is the branch name (for PRs) or version string (for releases); use an empty string for stable/rc/trunk. Returns { success, plugin } where `plugin` is the full plugin view-model (same shape as get-plugin). Not idempotent — will trigger a plugin deactivation/activation cycle even when the same branch is already active.',
+				'jetpack-beta'
+			),
+			'input_schema'        => array(
+				'type'                 => 'object',
+				'properties'           => array(
+					'slug'   => array(
+						'type'        => 'string',
+						'description' => __( 'The WordPress plugin slug (e.g. "jetpack").', 'jetpack-beta' ),
+					),
+					'source' => array(
+						'type'        => 'string',
+						'description' => __( 'Branch source: "stable", "trunk", "rc", "pr", "release", or "unknown".', 'jetpack-beta' ),
+					),
+					'id'     => array(
+						'type'        => 'string',
+						'description' => __( 'Branch identifier: PR branch name, release version, or empty string for stable/rc/trunk.', 'jetpack-beta' ),
+					),
+				),
+				'required'             => array( 'slug', 'source', 'id' ),
+				'additionalProperties' => false,
+			),
+			'output_schema'       => array(
+				'type'       => 'object',
+				'properties' => array(
+					'success' => array( 'type' => 'boolean' ),
+					'plugin'  => self::plugin_view_schema(),
+				),
+			),
+			'execute_callback'    => array( __CLASS__, 'activate_branch' ),
+			'permission_callback' => array( __CLASS__, 'can_view_plugin' ),
+			'meta'                => array(
+				'annotations'  => array(
+					'readonly'    => false,
+					'destructive' => false,
+					'idempotent'  => false,
+				),
+				'show_in_rest' => true,
+				'mcp'          => array(
+					'public' => false,
+				),
+			),
+		);
+	}
+
+	/**
+	 * Spec: jetpack-beta/update-settings.
+	 *
+	 * @return array
+	 */
+	private static function spec_update_settings(): array {
+		return array(
+			'label'               => __( 'Update Jetpack Beta settings', 'jetpack-beta' ),
+			'description'         => __(
+				'Update one or more global settings for the Jetpack Beta Tester. Input: { autoupdates?, email_notifications? }. Omit a key to leave that setting unchanged. Returns the full settings object (same shape as get-settings) reflecting the new values.',
+				'jetpack-beta'
+			),
+			'input_schema'        => array(
+				'type'                 => 'object',
+				'properties'           => array(
+					'autoupdates'         => array(
+						'type'        => 'boolean',
+						'description' => __( 'Set to true to enable automatic background updates, false to disable.', 'jetpack-beta' ),
+					),
+					'email_notifications' => array(
+						'type'        => 'boolean',
+						'description' => __( 'Set to true to enable update email notifications, false to disable. Has no effect when JETPACK_BETA_SKIP_EMAIL is defined.', 'jetpack-beta' ),
+					),
+				),
+				'additionalProperties' => false,
+			),
+			'output_schema'       => array(
+				'type'       => 'object',
+				'properties' => array(
+					'autoupdates'         => array( 'type' => 'boolean' ),
+					'email_notifications' => array( 'type' => 'boolean' ),
+					'skip_email'          => array( 'type' => 'boolean' ),
+				),
+			),
+			'execute_callback'    => array( __CLASS__, 'update_settings' ),
+			'permission_callback' => array( __CLASS__, 'can_manage' ),
+			'meta'                => array(
+				'annotations'  => array(
+					'readonly'    => false,
+					'destructive' => false,
+					'idempotent'  => false,
 				),
 				'show_in_rest' => true,
 				'mcp'          => array(
@@ -348,9 +416,8 @@ class Beta_Abilities extends Registrar {
 	/**
 	 * Execute: get-plugin.
 	 *
-	 * Reproduces the view-model built by plugin-manage.template.php as a JSON-
-	 * serialisable array. The section ordering mirrors the template:
-	 * existing (unknown) → stable → rc → trunk → PRs → releases.
+	 * Resolves the slug, validates the plugin exists, then delegates to
+	 * {@see self::build_plugin_view()} for the actual payload construction.
 	 *
 	 * @param array|null $input Must contain 'slug'.
 	 * @return array|\WP_Error
@@ -375,6 +442,129 @@ class Beta_Abilities extends Registrar {
 			);
 		}
 
+		return self::build_plugin_view( $plugin );
+	}
+
+	/**
+	 * Execute: get-settings.
+	 *
+	 * @param array|null $input Ignored — zero-arg ability.
+	 * @return array
+	 */
+	public static function get_settings( $input = null ) {
+		unset( $input );
+		return self::build_settings();
+	}
+
+	/**
+	 * Execute: activate-branch.
+	 *
+	 * Resolves the plugin by slug, delegates the install + activation to
+	 * {@see Plugin::install_and_activate()}, and returns the updated plugin
+	 * view-model on success.
+	 *
+	 * The underlying install path uses {@see Plugin_Upgrader} which requires
+	 * several wp-admin includes. These are loaded inline here — the same
+	 * pattern used by the WP REST plugin-install endpoint.
+	 *
+	 * @param array|null $input Must contain 'slug', 'source', and 'id'.
+	 * @return array|\WP_Error
+	 */
+	public static function activate_branch( $input = null ) {
+		$slug   = isset( $input['slug'] ) ? sanitize_key( $input['slug'] ) : '';
+		$source = isset( $input['source'] ) ? sanitize_text_field( $input['source'] ) : '';
+		$id     = isset( $input['id'] ) ? sanitize_text_field( $input['id'] ) : '';
+
+		if ( '' === $slug ) {
+			return new \WP_Error( 'missing_slug', __( 'A plugin slug is required.', 'jetpack-beta' ) );
+		}
+		if ( '' === $source ) {
+			return new \WP_Error( 'missing_source', __( 'A branch source is required.', 'jetpack-beta' ) );
+		}
+
+		try {
+			$plugin = Plugin::get_plugin( $slug );
+		} catch ( PluginDataException $e ) {
+			return new \WP_Error( 'plugin_data_error', $e->getMessage() );
+		}
+
+		if ( ! $plugin ) {
+			return new \WP_Error(
+				'unknown_plugin',
+				// translators: %s: Plugin slug.
+				sprintf( __( 'Plugin %s is not known.', 'jetpack-beta' ), $slug )
+			);
+		}
+
+		// The Plugin_Upgrader path (invoked by install_and_activate) requires
+		// these wp-admin includes. They are safe to require in a REST context —
+		// the WP core REST plugin-install endpoint does the same thing.
+		require_once ABSPATH . 'wp-admin/includes/file.php';
+		require_once ABSPATH . 'wp-admin/includes/misc.php';
+		require_once ABSPATH . 'wp-admin/includes/class-wp-upgrader.php';
+		require_once ABSPATH . 'wp-admin/includes/plugin.php';
+
+		$result = $plugin->install_and_activate( $source, $id );
+		if ( is_wp_error( $result ) ) {
+			return $result;
+		}
+
+		return array(
+			'success' => true,
+			'plugin'  => self::build_plugin_view( $plugin ),
+		);
+	}
+
+	/**
+	 * Execute: update-settings.
+	 *
+	 * Applies a partial update to the Beta Tester global settings. Only keys
+	 * present in `$input` are changed; absent keys are left untouched.
+	 *
+	 * @param array|null $input May contain 'autoupdates' (bool) and/or 'email_notifications' (bool).
+	 * @return array Updated settings (same shape as get-settings).
+	 */
+	public static function update_settings( $input = null ) {
+		if ( ! is_array( $input ) ) {
+			$input = array();
+		}
+
+		if ( array_key_exists( 'autoupdates', $input ) ) {
+			$value = (bool) $input['autoupdates'];
+			update_option( 'jp_beta_autoupdate', (int) $value );
+			if ( $value ) {
+				Hooks::maybe_schedule_autoupdate();
+			}
+		}
+
+		if ( array_key_exists( 'email_notifications', $input ) ) {
+			if ( ! defined( 'JETPACK_BETA_SKIP_EMAIL' ) ) {
+				update_option( 'jp_beta_email_notifications', (int) $input['email_notifications'] );
+			}
+		}
+
+		return self::build_settings();
+	}
+
+	// -------------------------------------------------------------------------
+	// Helpers
+	// -------------------------------------------------------------------------
+
+	/**
+	 * Build the plugin view-model payload for a resolved Plugin object.
+	 *
+	 * Extracted from the original get_plugin() body so that both get_plugin()
+	 * and activate_branch() can return an identical, DRY payload without
+	 * duplicating the large template-mirroring logic.
+	 *
+	 * Reproduces the view-model built by plugin-manage.template.php as a JSON-
+	 * serialisable array. The section ordering mirrors the template:
+	 * existing (unknown) → stable → rc → trunk → PRs → releases.
+	 *
+	 * @param Plugin $plugin A fully resolved Plugin instance.
+	 * @return array|\WP_Error The plugin view-model, or WP_Error on data failure.
+	 */
+	private static function build_plugin_view( Plugin $plugin ) {
 		try {
 			$manifest   = $plugin->get_manifest( true );
 			$wporg_data = $plugin->get_wporg_data( true );
@@ -528,14 +718,14 @@ class Beta_Abilities extends Registrar {
 	}
 
 	/**
-	 * Execute: get-settings.
+	 * Build the current settings payload.
 	 *
-	 * @param array|null $input Ignored — zero-arg ability.
-	 * @return array
+	 * Extracted so both get_settings() and update_settings() return an
+	 * identical shape without duplicating the option reads.
+	 *
+	 * @return array { autoupdates: bool, email_notifications: bool, skip_email: bool }
 	 */
-	public static function get_settings( $input = null ) {
-		unset( $input );
-
+	private static function build_settings(): array {
 		return array(
 			'autoupdates'         => (bool) Utils::is_set_to_autoupdate(),
 			'email_notifications' => (bool) Utils::is_set_to_email_notifications(),
@@ -543,9 +733,56 @@ class Beta_Abilities extends Registrar {
 		);
 	}
 
-	// -------------------------------------------------------------------------
-	// Helpers
-	// -------------------------------------------------------------------------
+	/**
+	 * JSON Schema object definition for a single plugin view-model.
+	 *
+	 * Shared between spec_get_plugin() (output_schema) and
+	 * spec_activate_branch() (output_schema.properties.plugin) so the
+	 * schema literal is defined in exactly one place.
+	 *
+	 * @return array JSON Schema object.
+	 */
+	private static function plugin_view_schema(): array {
+		return array(
+			'type'       => 'object',
+			'properties' => array(
+				'name'              => array( 'type' => 'string' ),
+				'is_mu_plugin'      => array( 'type' => 'boolean' ),
+				'bug_report_url'    => array( 'type' => 'string' ),
+				'currently_running' => array(
+					'type'       => array( 'object', 'null' ),
+					'properties' => array(
+						'which'          => array( 'type' => array( 'string', 'null' ) ),
+						'source'         => array( 'type' => array( 'string', 'null' ) ),
+						'id'             => array( 'type' => array( 'string', 'null' ) ),
+						'version'        => array( 'type' => array( 'string', 'null' ) ),
+						'pretty_version' => array( 'type' => array( 'string', 'null' ) ),
+					),
+				),
+				'sections'          => array(
+					'type'  => 'array',
+					'items' => array(
+						'type'       => 'object',
+						'properties' => array(
+							'section'        => array( 'type' => 'string' ),
+							'source'         => array( 'type' => array( 'string', 'null' ) ),
+							'id'             => array( 'type' => array( 'string', 'null' ) ),
+							'branch'         => array( 'type' => array( 'string', 'null' ) ),
+							'version'        => array( 'type' => array( 'string', 'null' ) ),
+							'pretty_version' => array( 'type' => array( 'string', 'null' ) ),
+							'is_active'      => array( 'type' => 'boolean' ),
+						),
+					),
+				),
+				'to_test_html'      => array( 'type' => array( 'string', 'null' ) ),
+				'what_changed_html' => array( 'type' => array( 'string', 'null' ) ),
+				'needed_updates'    => array(
+					'type'  => 'array',
+					'items' => array( 'type' => 'string' ),
+				),
+			),
+		);
+	}
 
 	/**
 	 * Convert a source_info object + section label into a section array item.
