@@ -173,7 +173,11 @@ const App = () => {
 
 	// Same destination + label for every plan; `New_Episode_Prefill` keys off `?podcast_episode=1`.
 	const headerActions = isSetUp ? (
-		<Button size="compact" variant="primary" href={ getAdminUrl( 'post-new.php?podcast_episode=1' ) }>
+		<Button
+			size="compact"
+			variant="primary"
+			href={ getAdminUrl( 'post-new.php?podcast_episode=1' ) }
+		>
 			{ __( 'Create episode', 'jetpack-podcast' ) }
 		</Button>
 	) : undefined;

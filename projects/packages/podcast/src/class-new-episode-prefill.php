@@ -16,6 +16,8 @@ class New_Episode_Prefill {
 	const QUERY_VAR = 'podcast_episode';
 
 	/**
+	 * ID of the auto-draft we've already handled this request.
+	 *
 	 * @var int
 	 */
 	private static $handled_post_id = 0;
@@ -118,6 +120,8 @@ class New_Episode_Prefill {
 	}
 
 	/**
+	 * Whether the post is a core `post` we prefill for.
+	 *
 	 * @param mixed $post Candidate post object.
 	 * @return bool
 	 */
