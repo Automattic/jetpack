@@ -484,6 +484,7 @@ class WPCOM_Features {
 	public const SIMPLE_PAYMENTS                   = 'simple-payments';
 	public const SITE_PREVIEW_LINKS                = 'site-preview-links';
 	public const SOCIAL_IMAGE_GENERATOR            = 'social-image-generator';
+	public const SOCIAL_MESSAGE_TEMPLATES          = 'social-message-templates';
 	public const SOCIAL_SHARES_1000                = 'social-shares-1000';
 	public const SOCIAL_ENHANCED_PUBLISHING        = 'social-enhanced-publishing';
 	public const SOCIAL_IMAGE_AUTO_CONVERT         = 'social-image-auto-convert';
@@ -1375,6 +1376,16 @@ class WPCOM_Features {
 				'before' => '2004-12-12',
 				self::WPCOM_ALL_SITES,
 			),
+		),
+		self::SOCIAL_MESSAGE_TEMPLATES          => array(
+			// Gated on the paid social plans, matching SOCIAL_ENHANCED_PUBLISHING.
+			self::JETPACK_SOCIAL_ADVANCED_PLANS,
+			self::JETPACK_COMPLETE_PLANS,
+			self::BUNDLE_ENTERPRISE,
+			self::JETPACK_SOCIAL_V1_PLANS,
+			self::JETPACK_SOCIAL_PLANS,
+			self::JETPACK_GROWTH_PLANS,
+			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
 		),
 		self::SOCIAL_IMAGE_AUTO_CONVERT         => array(
 			self::WPCOM_ALL_SITES,
