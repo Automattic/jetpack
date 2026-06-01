@@ -80,7 +80,7 @@ const ActionButton: FC< ActionButtonProps > = ( {
 	const buttonState = useMemo< Partial< SecondaryButtonProps > >( () => {
 		return {
 			variant: 'primary',
-			size: 'small',
+			size: 'compact',
 			isLoading: isBusy,
 			loadingAnnouncement: __( 'Loading…', 'jetpack-my-jetpack' ),
 			className,

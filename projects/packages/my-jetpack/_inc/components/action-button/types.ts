@@ -1,5 +1,5 @@
 type ProductButtonProps = {
-	size?: 'normal' | 'small';
+	size?: 'normal' | 'compact';
 	variant?: 'primary' | 'secondary' | 'tertiary' | 'link';
 	disabled?: boolean;
 	className?: string;

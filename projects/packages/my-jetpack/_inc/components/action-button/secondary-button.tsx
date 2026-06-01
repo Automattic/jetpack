@@ -4,7 +4,7 @@ import type { FC, MouseEvent } from 'react';
 
 export type SecondaryButtonProps = {
 	href?: string;
-	size?: 'normal' | 'small';
+	size?: 'normal' | 'compact';
 	variant?: 'primary' | 'secondary' | 'link' | 'tertiary';
 	label?: string;
 	shouldShowButton?: () => boolean;
@@ -26,13 +26,13 @@ const variantMap = {
 
 const sizeMap = {
 	normal: 'default',
-	small: 'small',
+	compact: 'compact',
 } as const;
 
 const SecondaryButton: FC< SecondaryButtonProps > = props => {
 	const {
 		shouldShowButton = () => true,
-		size = 'small',
+		size = 'compact',
 		variant = 'secondary',
 		label = __( 'Learn more', 'jetpack-my-jetpack' ),
 		href,
