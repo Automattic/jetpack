@@ -12,6 +12,7 @@ import { Badge, Card, Notice, Stack, Text } from '@wordpress/ui';
 import { errorMessage, listPlugins } from '../api/abilities';
 import GlobalToggles from '../components/global-toggles';
 import { CardRowSkeleton } from '../components/skeleton';
+import UpdatesPanel from '../components/updates-panel';
 import type { PluginListItem } from '../api/types';
 import type { KeyboardEvent } from 'react';
 
@@ -211,6 +212,7 @@ const PluginList = () => {
 			<div className="jetpack-beta-content">
 				<Stack direction="column" gap="md">
 					<GlobalToggles />
+					<UpdatesPanel />
 					{ loading &&
 						Array.from( { length: 6 } ).map( ( _, index ) => <CardRowSkeleton key={ index } /> ) }
 					{ error && (

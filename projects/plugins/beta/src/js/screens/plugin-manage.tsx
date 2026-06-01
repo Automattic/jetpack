@@ -19,6 +19,7 @@ import BranchSection from '../components/branch-section';
 import Footer from '../components/footer';
 import MarkdownPanel from '../components/markdown-panel';
 import { CardRowSkeleton } from '../components/skeleton';
+import UpdatesPanel from '../components/updates-panel';
 import type { BranchCard as BranchCardType, PluginView } from '../api/types';
 
 type Props = {
@@ -148,6 +149,15 @@ const PluginManage = ( { slug }: Props ) => {
 		setView( updated );
 	}, [] );
 
+	// Refresh the view after an in-place update so the running version updates.
+	const handleUpdated = useCallback( () => {
+		getPlugin( slug )
+			.then( setView )
+			.catch( () => {
+				// Leave the current view in place; the update itself succeeded.
+			} );
+	}, [ slug ] );
+
 	// Prefer the name from the bootstrap so the header renders immediately, then
 	// keep using it once the full view has loaded.
 	const pluginName = view?.name ?? boot.pluginName ?? null;
@@ -167,102 +177,105 @@ const PluginManage = ( { slug }: Props ) => {
 		>
 			<div className="jetpack-beta-scroll">
 				<div className="jetpack-beta-content">
-					{ loading && (
-						<Stack direction="column" gap="md">
-							{ Array.from( { length: 4 } ).map( ( _, index ) => (
-								<CardRowSkeleton key={ index } />
-							) ) }
-						</Stack>
-					) }
-					{ error && (
-						<Notice.Root intent="error">
-							<Notice.Description>{ error }</Notice.Description>
-						</Notice.Root>
-					) }
-					{ view && (
-						<Stack direction="column" gap="lg">
-							{ view.is_mu_plugin && (
-								<Notice.Root intent="info">
-									<Notice.Description>
-										{ __( 'This plugin will be installed as a mu-plugin. See', 'jetpack-beta' ) }{ ' ' }
-										<a
-											href="https://github.com/Automattic/jetpack-beta/blob/HEAD/docs/mu-plugin-info.md"
-											target="_blank"
-											rel="noreferrer"
-										>
-											{ __( 'the documentation', 'jetpack-beta' ) }
-										</a>{ ' ' }
-										{ __(
-											"for details on what this entails, particularly if you're newly installing a stable version.",
-											'jetpack-beta'
-										) }
-									</Notice.Description>
-								</Notice.Root>
-							) }
-
-							{ view.currently_running && (
-								<Card.Root>
-									<Card.Content>
-										<Stack direction="row" align="center" justify="space-between">
-											<Stack direction="column" gap="xs">
-												<Card.Title>
-													<Text variant="body-md">
-														{ view.name } { __( '— Currently Running', 'jetpack-beta' ) }
-													</Text>
-												</Card.Title>
-												<Text variant="body-sm">
-													{ view.currently_running.pretty_version ??
-														view.currently_running.version ??
-														'' }
-												</Text>
-											</Stack>
-											<Button
-												variant="outline"
-												tone="neutral"
-												size="compact"
-												nativeButton={ false }
-												render={
-													<a
-														href={ view.bug_report_url }
-														target="_blank"
-														rel="external noopener noreferrer"
-													/>
-												}
+					<Stack direction="column" gap="lg">
+						<UpdatesPanel slug={ slug } onUpdated={ handleUpdated } />
+						{ loading && (
+							<Stack direction="column" gap="md">
+								{ Array.from( { length: 4 } ).map( ( _, index ) => (
+									<CardRowSkeleton key={ index } />
+								) ) }
+							</Stack>
+						) }
+						{ error && (
+							<Notice.Root intent="error">
+								<Notice.Description>{ error }</Notice.Description>
+							</Notice.Root>
+						) }
+						{ view && (
+							<Stack direction="column" gap="lg">
+								{ view.is_mu_plugin && (
+									<Notice.Root intent="info">
+										<Notice.Description>
+											{ __( 'This plugin will be installed as a mu-plugin. See', 'jetpack-beta' ) }{ ' ' }
+											<a
+												href="https://github.com/Automattic/jetpack-beta/blob/HEAD/docs/mu-plugin-info.md"
+												target="_blank"
+												rel="noreferrer"
 											>
-												{ __( 'Found a bug? Report it!', 'jetpack-beta' ) }
-											</Button>
-										</Stack>
-									</Card.Content>
-								</Card.Root>
-							) }
+												{ __( 'the documentation', 'jetpack-beta' ) }
+											</a>{ ' ' }
+											{ __(
+												"for details on what this entails, particularly if you're newly installing a stable version.",
+												'jetpack-beta'
+											) }
+										</Notice.Description>
+									</Notice.Root>
+								) }
 
-							{ SECTION_CONFIG.map( ( { key, title, searchable, searchPlaceholder } ) => (
-								<BranchSection
-									key={ key }
-									title={ title }
-									cards={ sectionMap.get( key ) ?? [] }
-									searchable={ searchable }
-									searchPlaceholder={ searchPlaceholder }
-									pluginSlug={ slug }
-									onActivated={ handleActivated }
-								/>
-							) ) }
+								{ view.currently_running && (
+									<Card.Root>
+										<Card.Content>
+											<Stack direction="row" align="center" justify="space-between">
+												<Stack direction="column" gap="xs">
+													<Card.Title>
+														<Text variant="body-md">
+															{ view.name } { __( '— Currently Running', 'jetpack-beta' ) }
+														</Text>
+													</Card.Title>
+													<Text variant="body-sm">
+														{ view.currently_running.pretty_version ??
+															view.currently_running.version ??
+															'' }
+													</Text>
+												</Stack>
+												<Button
+													variant="outline"
+													tone="neutral"
+													size="compact"
+													nativeButton={ false }
+													render={
+														<a
+															href={ view.bug_report_url }
+															target="_blank"
+															rel="external noopener noreferrer"
+														/>
+													}
+												>
+													{ __( 'Found a bug? Report it!', 'jetpack-beta' ) }
+												</Button>
+											</Stack>
+										</Card.Content>
+									</Card.Root>
+								) }
 
-							{ view.to_test_html && (
-								<MarkdownPanel
-									title={ __( 'To Test', 'jetpack-beta' ) }
-									html={ view.to_test_html }
-								/>
-							) }
+								{ SECTION_CONFIG.map( ( { key, title, searchable, searchPlaceholder } ) => (
+									<BranchSection
+										key={ key }
+										title={ title }
+										cards={ sectionMap.get( key ) ?? [] }
+										searchable={ searchable }
+										searchPlaceholder={ searchPlaceholder }
+										pluginSlug={ slug }
+										onActivated={ handleActivated }
+									/>
+								) ) }
 
-							{ view.what_changed_html && (
-								<MarkdownPanel
-									title={ __( 'What changed', 'jetpack-beta' ) }
-									html={ view.what_changed_html }
-								/>
-							) }
-						</Stack>
-					) }
+								{ view.to_test_html && (
+									<MarkdownPanel
+										title={ __( 'To Test', 'jetpack-beta' ) }
+										html={ view.to_test_html }
+									/>
+								) }
+
+								{ view.what_changed_html && (
+									<MarkdownPanel
+										title={ __( 'What changed', 'jetpack-beta' ) }
+										html={ view.what_changed_html }
+									/>
+								) }
+							</Stack>
+						) }
+					</Stack>
 				</div>
 			</div>
 			<Footer />

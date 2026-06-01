@@ -12,7 +12,7 @@
 
 import apiFetch from '@wordpress/api-fetch';
 import { addQueryArgs } from '@wordpress/url';
-import type { PluginListItem, PluginView, Settings } from './types';
+import type { PluginListItem, PluginUpdate, PluginView, Settings } from './types';
 
 const path = ( ability: string ) => `/wp-abilities/v1/abilities/${ ability }/run`;
 
@@ -66,3 +66,9 @@ export const activateBranch = ( slug: string, source: string, id: string ) =>
 	} );
 export const updateSettings = ( patch: Partial< Settings > ) =>
 	write< Settings >( 'jetpack-beta/update-settings', patch as Record< string, unknown > );
+export const listUpdates = ( slug?: string ) =>
+	read< { updates: PluginUpdate[] } >( 'jetpack-beta/list-updates', slug ? { slug } : undefined );
+export const updatePlugin = ( pluginFile: string ) =>
+	write< { success: boolean; updates: PluginUpdate[] } >( 'jetpack-beta/update-plugin', {
+		plugin_file: pluginFile,
+	} );
