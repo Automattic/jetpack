@@ -101,25 +101,70 @@ const PluginCard = ( { plugin }: { plugin: PluginListItem } ) => {
 	);
 };
 
+const boot = window.JetpackBeta;
+const CACHE_KEY = 'jetpack-beta-plugins';
+
+/**
+ * Read the remembered plugin list from localStorage.
+ *
+ * @return The cached plugin list, or null when absent/unreadable.
+ */
+const readCachedPlugins = (): PluginListItem[] | null => {
+	try {
+		const raw = window.localStorage.getItem( CACHE_KEY );
+		return raw ? ( JSON.parse( raw ) as PluginListItem[] ) : null;
+	} catch {
+		return null;
+	}
+};
+
+/**
+ * Remember the plugin list in localStorage for instant subsequent loads.
+ *
+ * @param plugins - The plugin list to cache.
+ */
+const writeCachedPlugins = ( plugins: PluginListItem[] ) => {
+	try {
+		window.localStorage.setItem( CACHE_KEY, JSON.stringify( plugins ) );
+	} catch {
+		// Ignore storage failures (private mode, quota) — the list still renders.
+	}
+};
+
 /**
  * PluginList screen component.
  *
- * Fetches all managed plugins on mount and renders a card per plugin alongside
- * the GlobalToggles settings panel.
+ * Renders a card per managed plugin alongside the GlobalToggles settings panel.
+ * The list is preloaded from the page bootstrap (or a localStorage cache) so it
+ * paints instantly; it only falls back to the list-plugins ability when neither
+ * is available. The list rarely changes, so a preloaded/cached list is not
+ * re-fetched.
  *
  * @return The plugin list screen element.
  */
 const PluginList = () => {
-	const [ plugins, setPlugins ] = useState< PluginListItem[] | null >( null );
-	const [ loading, setLoading ] = useState( true );
+	const preloaded = boot.plugins ?? readCachedPlugins();
+	const [ plugins, setPlugins ] = useState< PluginListItem[] | null >( preloaded );
+	const [ loading, setLoading ] = useState( preloaded === null );
 	const [ error, setError ] = useState< string | null >( null );
 
 	useEffect( () => {
+		// Remember the freshest list (the bootstrap preload) for next time.
+		if ( boot.plugins ) {
+			writeCachedPlugins( boot.plugins );
+		}
+
+		// Already have a list (preloaded or remembered) — skip the fetch.
+		if ( preloaded !== null ) {
+			return;
+		}
+
 		let cancelled = false;
 		listPlugins()
 			.then( data => {
 				if ( ! cancelled ) {
 					setPlugins( data.plugins );
+					writeCachedPlugins( data.plugins );
 					setLoading( false );
 				}
 			} )
@@ -136,6 +181,7 @@ const PluginList = () => {
 		return () => {
 			cancelled = true;
 		};
+		// eslint-disable-next-line react-hooks/exhaustive-deps -- one-time mount effect; `preloaded`/`boot` are stable for the life of the page
 	}, [] );
 
 	return (

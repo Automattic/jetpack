@@ -198,6 +198,18 @@ class Admin {
 			}
 		}
 
+		// Preload the plugins list on the overview screen (cached data) so it
+		// renders instantly without waiting for the list-plugins ability.
+		$plugin_list = null;
+		if ( null === $plugin_slug ) {
+			try {
+				$payload     = Abilities\Beta_Abilities::build_plugin_list();
+				$plugin_list = $payload['plugins'];
+			} catch ( PluginDataException $e ) {
+				$plugin_list = null;
+			}
+		}
+
 		wp_add_inline_script(
 			'jetpack-beta-app',
 			'window.JetpackBeta = ' . wp_json_encode(
@@ -206,6 +218,7 @@ class Admin {
 					'apiNonce'   => wp_create_nonce( 'wp_rest' ),
 					'plugin'     => $plugin_slug,
 					'pluginName' => $plugin_display_name,
+					'plugins'    => $plugin_list,
 					'adminUrl'   => Utils::admin_url(),
 					'canManage'  => current_user_can( 'update_plugins' ),
 				),
