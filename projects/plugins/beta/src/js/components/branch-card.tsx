@@ -7,7 +7,7 @@
 import { useCallback, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Badge, Button, Card, Notice, Stack, Text } from '@wordpress/ui';
-import { activateBranch } from '../api/abilities';
+import { activateBranch, errorMessage } from '../api/abilities';
 import type { BranchCard as BranchCardType, PluginView } from '../api/types';
 
 type Props = {
@@ -49,11 +49,7 @@ const BranchCard = ( { card, pluginSlug, onActivated, title }: Props ) => {
 				onActivated( result.plugin );
 			} )
 			.catch( ( err: unknown ) => {
-				const msg =
-					err && typeof err === 'object' && 'message' in err && typeof err.message === 'string'
-						? err.message
-						: __( 'Could not activate branch.', 'jetpack-beta' );
-				setError( msg );
+				setError( errorMessage( err, __( 'Could not activate branch.', 'jetpack-beta' ) ) );
 			} )
 			.finally( () => {
 				setBusy( false );

@@ -9,7 +9,7 @@ import { useCallback, useEffect, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { Icon, chevronRight, plugins as pluginsIcon } from '@wordpress/icons';
 import { Badge, Card, Notice, Stack, Text } from '@wordpress/ui';
-import { listPlugins } from '../api/abilities';
+import { errorMessage, listPlugins } from '../api/abilities';
 import GlobalToggles from '../components/global-toggles';
 import { CardRowSkeleton } from '../components/skeleton';
 import type { PluginListItem } from '../api/types';
@@ -194,11 +194,7 @@ const PluginList = () => {
 			} )
 			.catch( ( err: unknown ) => {
 				if ( ! cancelled ) {
-					const msg =
-						err && typeof err === 'object' && 'message' in err && typeof err.message === 'string'
-							? err.message
-							: __( 'Could not load plugins.', 'jetpack-beta' );
-					setError( msg );
+					setError( errorMessage( err, __( 'Could not load plugins.', 'jetpack-beta' ) ) );
 					setLoading( false );
 				}
 			} );

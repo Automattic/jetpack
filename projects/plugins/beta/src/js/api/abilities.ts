@@ -17,6 +17,19 @@ import type { PluginListItem, PluginView, Settings } from './types';
 const path = ( ability: string ) => `/wp-abilities/v1/abilities/${ ability }/run`;
 
 /**
+ * Extract a human-readable message from an unknown thrown value, falling back to
+ * a provided default. Used to surface ability/apiFetch failures in the UI.
+ *
+ * @param error    - The caught value.
+ * @param fallback - Message to use when none can be derived.
+ * @return The error message, or the fallback.
+ */
+export const errorMessage = ( error: unknown, fallback: string ): string =>
+	error && typeof error === 'object' && 'message' in error && typeof error.message === 'string'
+		? error.message
+		: fallback;
+
+/**
  * Call a read-only ability via GET. Any input is passed in the `input` query
  * envelope; zero-argument abilities are called with a bare GET.
  *

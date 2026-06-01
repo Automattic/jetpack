@@ -38,7 +38,6 @@ export type PluginView = {
 	sections: BranchCard[];
 	to_test_html: string | null;
 	what_changed_html: string | null;
-	needed_updates: string[];
 };
 
 export type Settings = {
@@ -54,7 +53,6 @@ export type BetaBootstrap = {
 	pluginName: string | null;
 	plugins: PluginListItem[] | null;
 	adminUrl: string;
-	canManage: boolean;
 };
 
 declare global {

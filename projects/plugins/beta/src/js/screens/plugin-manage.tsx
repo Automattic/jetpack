@@ -11,10 +11,10 @@
  */
 
 import { AdminPage } from '@automattic/jetpack-components';
-import { useCallback, useEffect, useState } from '@wordpress/element';
+import { useCallback, useEffect, useMemo, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Button, Card, Link, Notice, Stack, Text } from '@wordpress/ui';
-import { getPlugin } from '../api/abilities';
+import { errorMessage, getPlugin } from '../api/abilities';
 import BranchSection from '../components/branch-section';
 import Footer from '../components/footer';
 import MarkdownPanel from '../components/markdown-panel';
@@ -135,11 +135,7 @@ const PluginManage = ( { slug }: Props ) => {
 			} )
 			.catch( ( err: unknown ) => {
 				if ( ! cancelled ) {
-					const msg =
-						err && typeof err === 'object' && 'message' in err && typeof err.message === 'string'
-							? err.message
-							: __( 'Could not load plugin.', 'jetpack-beta' );
-					setError( msg );
+					setError( errorMessage( err, __( 'Could not load plugin.', 'jetpack-beta' ) ) );
 					setLoading( false );
 				}
 			} );
@@ -155,7 +151,10 @@ const PluginManage = ( { slug }: Props ) => {
 	// Prefer the name from the bootstrap so the header renders immediately, then
 	// keep using it once the full view has loaded.
 	const pluginName = view?.name ?? boot.pluginName ?? null;
-	const sectionMap = view ? groupSections( view.sections ) : new Map< string, BranchCardType[] >();
+	const sectionMap = useMemo(
+		() => ( view ? groupSections( view.sections ) : new Map< string, BranchCardType[] >() ),
+		[ view ]
+	);
 
 	return (
 		<AdminPage
