@@ -31,17 +31,25 @@ class Search_Input_Render_Test extends TestCase {
 			'jetpack-search/search-input',
 			array(
 				'attributes'      => array(
-					'placeholder' => array(
+					'placeholder'  => array(
 						'type'    => 'string',
 						'default' => '',
 					),
-					'showIcon'    => array(
+					'showIcon'     => array(
 						'type'    => 'boolean',
 						'default' => true,
 					),
-					'submitOnly'  => array(
+					'submitOnly'   => array(
 						'type'    => 'boolean',
 						'default' => false,
+					),
+					'postTypeMode' => array(
+						'type'    => 'string',
+						'default' => 'exclude',
+					),
+					'postTypes'    => array(
+						'type'    => 'array',
+						'default' => array(),
 					),
 				),
 				// $attributes is consumed by the included render.php via the
@@ -148,5 +156,33 @@ class Search_Input_Render_Test extends TestCase {
 	public function test_submit_only_default_omits_data_attribute() {
 		$markup = $this->render();
 		$this->assertStringNotContainsString( 'data-submit-only', $markup );
+	}
+
+	/**
+	 * Without the suggestions dropdown the block emits no `data-wp-context`
+	 * at all — there's nothing per-instance to seed. (Post-type scope used
+	 * to live in this slot, but it moved to the `search-results` block;
+	 * this guards against accidentally re-introducing the per-instance pipe.)
+	 */
+	public function test_no_data_wp_context_when_suggestions_disabled() {
+		$markup = $this->render();
+		$this->assertStringNotContainsString( 'data-wp-context', $markup );
+	}
+
+	/**
+	 * Saved markup that still carries `postTypeMode` / `postTypes` from the
+	 * pre-migration block schema must not leak into the rendered DOM —
+	 * the attributes aren't declared on this block anymore, and the renderer
+	 * must not seed them anywhere.
+	 */
+	public function test_legacy_post_type_attributes_are_ignored() {
+		$markup = $this->render(
+			array(
+				'postTypeMode' => 'include',
+				'postTypes'    => array( 'post', 'page' ),
+			)
+		);
+		$this->assertStringNotContainsString( 'staticPostTypes', $markup );
+		$this->assertStringNotContainsString( 'data-wp-context', $markup );
 	}
 }

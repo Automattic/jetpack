@@ -9,7 +9,8 @@
 import { AdminPage } from '@automattic/jetpack-components';
 import { useQuery } from '@tanstack/react-query';
 import { DataViews } from '@wordpress/dataviews';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
+import { Notice } from '@wordpress/ui';
 import fastDeepEqual from 'fast-deep-equal/es6';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
@@ -82,6 +83,76 @@ const readHasActivityLogsAccess = (): boolean => {
 		return true;
 	}
 	return JPACTIVITYLOG_INITIAL_STATE?.siteData?.hasActivityLogsAccess !== false;
+};
+
+type ErrorNoticeState = {
+	status: 'error' | 'warning';
+	message: string;
+};
+
+/**
+ * Pull a string message off whatever react-query handed us in `error`.
+ * Anything else falls back to an empty string so the caller can swap in
+ * the generic copy.
+ *
+ * @param error - Whatever value react-query stored in its `error` slot.
+ * @return The extracted message, or `''` when none is present.
+ */
+const extractErrorMessage = ( error: unknown ): string => {
+	if ( error && typeof error === 'object' && 'message' in error ) {
+		return typeof error.message === 'string' ? error.message : '';
+	}
+	return '';
+};
+
+/**
+ * Compute the error/warning notice to show above the DataViews table.
+ *
+ * @param isListError     - Whether the list query failed.
+ * @param listError       - The raw error value from the list query.
+ * @param hasAuxError     - Whether either the filters or actors query failed.
+ * @param hasExistingRows - Whether the table is currently displaying previously-loaded rows.
+ * @return The notice descriptor, or `null` when all queries succeeded.
+ */
+const buildErrorNotice = (
+	isListError: boolean,
+	listError: unknown,
+	hasAuxError: boolean,
+	hasExistingRows: boolean
+): ErrorNoticeState | null => {
+	if ( isListError ) {
+		// A failed refetch keeps the previous rows on screen, so a red error notice would contradict them.
+		if ( hasExistingRows ) {
+			return {
+				status: 'warning',
+				message: __(
+					'Couldn’t refresh the activity log. The events shown may be out of date.',
+					'jetpack-activity-log'
+				),
+			};
+		}
+		const rawMessage = extractErrorMessage( listError );
+		return {
+			status: 'error',
+			message: rawMessage
+				? sprintf(
+						/* translators: %s is the underlying error message returned by the server. */
+						__( 'Couldn’t load the activity log: %s', 'jetpack-activity-log' ),
+						rawMessage
+				  )
+				: __( 'Couldn’t load the activity log. Try refreshing the page.', 'jetpack-activity-log' ),
+		};
+	}
+	if ( hasAuxError ) {
+		return {
+			status: 'warning',
+			message: __(
+				'Filter options are temporarily unavailable, but all events are loaded correctly.',
+				'jetpack-activity-log'
+			),
+		};
+	}
+	return null;
 };
 
 /**
@@ -212,6 +283,8 @@ export default function ActivityLog() {
 		data: activityLogData,
 		isFetching: isFetchingData,
 		isLoading: isLoadingList,
+		isError: isListError,
+		error: listError,
 	} = useQuery( {
 		...activityLogQuery( listParams ),
 		select: data => ( {
@@ -224,7 +297,11 @@ export default function ActivityLog() {
 	// filter counts match what's displayed), but excludes `text_search`
 	// so the filter dropdown stays stable as users type (matches
 	// Calypso's behavior at logs-activity/dataviews/index.tsx:100-102).
-	const { data: groupCountsData, isFetching: isFetchingFilters } = useQuery(
+	const {
+		data: groupCountsData,
+		isFetching: isFetchingFilters,
+		isError: isFiltersError,
+	} = useQuery(
 		activityLogGroupCountsQuery( {
 			number: 1000,
 			after: afterIso,
@@ -242,7 +319,11 @@ export default function ActivityLog() {
 	// only appear beyond the scan horizon won't surface in the dropdown
 	// — bumping that ceiling would need a coordinated change to the
 	// Jetpack proxy and the WPCOM endpoint.
-	const { data: actorsData, isFetching: isFetchingActors } = useQuery(
+	const {
+		data: actorsData,
+		isFetching: isFetchingActors,
+		isError: isActorsError,
+	} = useQuery(
 		activityLogActorsQuery( {
 			number: 1000,
 			after: afterIso,
@@ -251,6 +332,20 @@ export default function ActivityLog() {
 	);
 
 	const isFetching = isFetchingData || isFetchingFilters || isFetchingActors;
+
+	const logData = ( activityLogData?.activityLogs ?? [] ) as Activity[];
+
+	// Surface request failures so a broken WPCOM round-trip doesn't read as "no events".
+	const errorNotice = useMemo< ErrorNoticeState | null >(
+		() =>
+			buildErrorNotice(
+				isListError,
+				listError,
+				isFiltersError || isActorsError,
+				logData.length > 0
+			),
+		[ isListError, listError, isFiltersError, isActorsError, logData.length ]
+	);
 
 	const paginationInfo = {
 		totalItems: activityLogData?.totalItems ?? 0,
@@ -361,8 +456,6 @@ export default function ActivityLog() {
 
 	const getItemId = useCallback( ( item: Activity ) => item.activityId.toString(), [] );
 
-	const logData = ( activityLogData?.activityLogs ?? [] ) as Activity[];
-
 	// Mounting the picker as an admin-ui `actions` slot places it in the
 	// AdminPage header alongside the title/subtitle — matches MSD's
 	// layout for the logs pages. On free tier the picker renders as a
@@ -410,6 +503,11 @@ export default function ActivityLog() {
 				 * overrides needed.
 				 */ }
 				<div className="jp-activity-log__inner">
+					{ errorNotice && (
+						<Notice.Root intent={ errorNotice.status }>
+							<Notice.Description>{ errorNotice.message }</Notice.Description>
+						</Notice.Root>
+					) }
 					<DataViews< Activity >
 						data={ logData }
 						isLoading={ isFetching || isLoadingList }

@@ -12,4 +12,24 @@ describe( 'search-input block.json', () => {
 		expect( attrs.showIcon ).toEqual( { type: 'boolean', default: true } );
 		expect( attrs.submitOnly ).toEqual( { type: 'boolean', default: false } );
 	} );
+
+	it( 'does NOT declare post-type scope attributes — scope lives on search-results, not the input', () => {
+		// search-input is an entry point, not a boundary. Post-type scope is
+		// an author-set property of the search-results block (the block that
+		// frames what's being searched), mirroring how core's Query Loop block
+		// owns its `postType` attribute. Removing the per-instance setting
+		// here is part of consolidating to one mechanism.
+		const attrs = blockJson.attributes;
+		expect( attrs.postTypeMode ).toBeUndefined();
+		expect( attrs.postTypes ).toBeUndefined();
+	} );
+
+	it( 'declares opt-in width + widthUnit attributes (no defaults — matches core/search)', () => {
+		const attrs = blockJson.attributes;
+		// No defaults: the (value, unit) pair only takes effect when the
+		// author has set both halves, matching `render_block_core_search`'s
+		// `! empty( $width ) && ! empty( $widthUnit )` gate.
+		expect( attrs.width ).toEqual( { type: 'number' } );
+		expect( attrs.widthUnit ).toEqual( { type: 'string' } );
+	} );
 } );

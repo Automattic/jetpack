@@ -8,6 +8,7 @@ import { markdownToHtml } from '../../instant-search/lib/markdown';
 import { streamAiAnswer } from './ai-stream';
 import { buildSearchUrl, formatDateBucketLabel } from './api';
 import { bucketLabel, bucketValue } from './bucket-key';
+import { filterHasContent, filtersHaveNothingToShow, hasAnyActiveFilter } from './filters-empty';
 import { isEventInsidePopoverRoot } from './popover-events';
 import { countActiveFilters, normalizeResult, setSeededDateFormat } from './result-utils';
 import {
@@ -15,41 +16,34 @@ import {
 	getSortMenuOptionKeysFromItem,
 	getSortMenuOptionKeysFromTrigger,
 } from './results-sort-menu-dom';
+import { identifySite, recordTrainTracksInteract, recordTrainTracksRender } from './tracks';
 import { pushStateToUrl, readStateFromUrl } from './url-state';
 
 const NAMESPACE = 'jetpack-search';
 let initialized = false;
+// Idempotency latch for the deep-link first fetch. Either entry path — the
+// `data-wp-init` callback on the results-list block, or the overlay-bootstrap's
+// explicit invocation after hydrating the cloned overlay subtree — can flip it
+// safely; only the first one actually dispatches. The bootstrap path exists
+// because the IA private-API render of the cloned overlay regions races with
+// the runtime's auto-walk and the directive intermittently misses, leaving the
+// PHP-seeded "Searching…" spinner latched on.
+let initialSearchDispatched = false;
 
-// Abort handles for in-flight AI Answer requests. Module-scope so a
-// re-trigger from `actions.search()` can cancel the previous stream — the
-// fetch action would otherwise have no way to reach across action calls to
-// abort.
+// Module-scope abort handles so `actions.search()` can cancel the previous
+// stream — across action calls, fetch has no other way to reach them.
 let aiBriefController = null;
 let aiExtendedController = null;
-// Last query whose AI answer we kicked off, so re-runs of `actions.search()`
-// triggered by filter/sort changes don't re-spam the agent endpoint for the
-// same text. Mirrors the overlay's `prevProps.searchQuery` comparison.
+// Last query that fired an AI answer, so filter/sort re-runs of
+// `actions.search()` don't re-spam the agent for the same text.
 let aiLastQuery = null;
-// True when an `ai-answer` block has mounted on the page. Pages without one
-// shouldn't pay for an SSE round-trip on every search — the fetch is a no-op
-// for them. Flipped from the block's `data-wp-init` callback.
-//
-// Intentionally never flipped back to `false`. The flag is per-page-load,
-// not per-mount: once an AI Answer block has been on screen during this
-// page, treat AI fetches as in-scope until the next full document load.
-// WordPress's Interactivity runtime isn't a SPA, so a virtual unmount that
-// keeps the document alive isn't a scenario today; if that changes, a
-// matching `cleanup` callback would need to clear this flag.
+// Latched per page load (never reset). Pages without an `ai-answer` block
+// skip the SSE round-trip entirely. See AGENTS.md § Interactivity API gotchas.
 let aiBlockPresent = false;
 
-// Playful rotating loading hints shown under the panel while the extended
-// answer is in flight. Mirrors the overlay copy verbatim so the two surfaces
-// read the same to a user who toggles between them.
-// Source strings deliberately omit a trailing `…` — the block's render.php
-// emits an animated three-dot ellipsis right after the label so a static
-// one would read as a doubled "Searching harder… …". Mirrors the PHP-side
-// `Search_Blocks::build_ai_extended_loading_hints()` exactly so the two
-// surfaces share translation keys.
+// Rotating loading hints for the extended-answer stream. Mirrors
+// `Search_Blocks::build_ai_extended_loading_hints()` so PHP/JS share keys.
+// No trailing `…` — render.php appends an animated ellipsis.
 const AI_EXTENDED_LOADING_HINTS = [
 	'Searching harder',
 	'Looking deeper into this',
@@ -69,9 +63,9 @@ const AI_EXTENDED_LOADING_HINTS = [
 ];
 
 /**
- * Pick a random extended-answer loading hint. Reads
- * `state.aiExtendedLoadingHints` so a site that ships translated copy via
- * the PHP seed wins over the English defaults baked into the bundle.
+ * Pick a random extended-answer loading hint. Prefers
+ * `state.aiExtendedLoadingHints` (translated via the PHP seed) over the
+ * English defaults baked into the bundle.
  *
  * @param {object} liveState - The IA store state.
  * @return {string} Loading hint.
@@ -87,9 +81,8 @@ function pickExtendedLoadingHint( liveState ) {
 }
 
 /**
- * Reset the brief/extended answer state slice. Pulled out so every entry
- * point that clears the panel (new query, disabled flag flips, etc.) writes
- * the same shape.
+ * Reset the brief/extended answer state slice. One writer so every clear path
+ * lands on the same shape.
  */
 function resetAiAnswerState() {
 	state.aiBriefStatus = 'idle';
@@ -105,11 +98,7 @@ function resetAiAnswerState() {
 	state.aiSessionId = null;
 }
 
-// `withSyncEvent` opts an action into reading synchronous event APIs
-// (`event.currentTarget`, `event.preventDefault()`) without the
-// "synchronous event access" deprecation warning the Interactivity API
-// will turn into a hard error in WordPress 7.0. Falls back to a noop
-// wrapper on older runtimes (pre-WP 6.7) so the package still loads.
+// See AGENTS.md § Interactivity API gotchas — synchronous event access.
 const withSyncEvent =
 	originalWithSyncEvent ||
 	( cb =>
@@ -117,17 +106,15 @@ const withSyncEvent =
 			cb( ...args ) );
 
 /**
- * Drop activeFilters keys not present in filterConfigs.
+ * Drop `activeFilters` keys not present in `filterConfigs`.
  *
- * Uses `Object.hasOwn` rather than `allowedKeys[key]` so prototype-chain
- * keys (`__proto__`, `constructor`, `toString`, …) can't survive the gate
- * via inherited properties. Output uses a null prototype for the same
- * reason — assigning `gated.__proto__` on a plain object would trigger
- * the prototype setter instead of writing a regular property.
+ * Uses `Object.hasOwn` + null-prototype output to defang prototype-chain
+ * smuggling (`__proto__`, `constructor`, `toString`). See AGENTS.md §
+ * Interactivity API gotchas.
  *
- * @param {object} activeFilters - { [filterKey]: string[] } URL-seeded selections.
- * @param {object} filterConfigs - { [filterKey]: FilterConfig } registered filters.
- * @return {{ gated: object, droppedAny: boolean }} Filtered selections plus a drop flag.
+ * @param {object} activeFilters - { [filterKey]: string[] } URL-seeded.
+ * @param {object} filterConfigs - { [filterKey]: FilterConfig } registered.
+ * @return {{ gated: object, droppedAny: boolean }} Gated selections + drop flag.
  */
 export function gateActiveFilters( activeFilters, filterConfigs ) {
 	const allowedKeys = filterConfigs ?? {};
@@ -170,19 +157,14 @@ export function gateStaticFilterSelections( selections, filterConfigs ) {
 }
 
 /**
- * Drop filterLogic entries whose filter key is missing from `activeFilters`,
- * has an empty selection set, or targets a non-taxonomy filter. Mirrors the
- * cleanup `setFilter()` performs locally; called from popstate and at
- * hydration where the URL parse is the source of truth and the
- * taxonomy-only gate (server-side `Filter_Checkbox::normalize_query_type`)
- * may not have run yet — because PHP `parse_url_filter_logic` runs before
- * any block has registered its config, so it can't know which keys are
- * taxonomy filters.
+ * Drop `filterLogic` entries with no matching active selection, or that
+ * target a non-taxonomy filter when `filterConfigs` is supplied. Called from
+ * popstate + hydration where the PHP `parse_url_filter_logic` ran before any
+ * block could register its config, so the taxonomy gate happens here.
  *
  * @param {object} filterLogic     - { [filterKey]: 'or' | 'and' }.
  * @param {object} activeFilters   - { [filterKey]: string[] }.
- * @param {object} [filterConfigs] - { [filterKey]: FilterConfig } when available; passing
- *                                 this enables the taxonomy gate.
+ * @param {object} [filterConfigs] - Enables the taxonomy gate when passed.
  * @return {object} Gated logic map.
  */
 export function pickLogicForActive( filterLogic, activeFilters, filterConfigs = null ) {
@@ -200,12 +182,10 @@ export function pickLogicForActive( filterLogic, activeFilters, filterConfigs = 
 }
 
 /**
- * Overlay per-filter AND/OR overrides onto each filterConfig's `queryType`.
- * The override map (`filterLogic`) is its own state slice — kept separate so
- * a deep-link `?query_type_category=and` survives even if the user toggles
- * the block attribute in a future edit. Returns the original map untouched
- * when no overrides apply, to avoid spurious referential changes that would
- * defeat downstream identity checks.
+ * Overlay per-filter AND/OR overrides onto each `filterConfig.queryType`.
+ * Kept as a separate state slice so a `?query_type_category=and` deep link
+ * survives later block-attribute edits. Returns the original map by
+ * reference when no overrides apply (preserves identity for subscribers).
  *
  * @param {object} filterConfigs - { [filterKey]: FilterConfig }.
  * @param {object} filterLogic   - { [filterKey]: 'or' | 'and' } overrides.
@@ -231,15 +211,11 @@ export function overlayFilterLogic( filterConfigs, filterLogic ) {
 
 /**
  * Reverse the slot-keyed aggregation response back onto user-facing filter
- * keys. The API request keys mapped custom taxonomies under the slot slug
- * (e.g. `jetpack-search-tag1`) because the WPCOM search proxy validates
- * aggregation names against indexable taxonomies — see
- * `aggregationKeyFor` in `store/api.js`. Downstream readers all key off
- * `filterKey` (`genre`), so we flip back here, once, before the response
- * hits store state.
- *
- * Built-in and unmapped taxonomies pass through untouched: their
- * `effectiveSlug` equals their `filterKey`, so there's nothing to swap.
+ * keys. The API request keys mapped taxonomies under their slot slug (the
+ * WPCOM proxy validates agg names against indexable taxonomies — see
+ * `aggregationKeyFor` in `store/api.js`); downstream readers key off the
+ * user-facing `filterKey`, so we flip back once before state lands.
+ * Unmapped passes through.
  *
  * @param {object} aggregations  - Raw `data.aggregations` from the API.
  * @param {object} filterConfigs - Registered filter configs.
@@ -268,36 +244,6 @@ export function remapAggregationsToFilterKeys( aggregations, filterConfigs ) {
 }
 
 /**
- * True when a filter key has anything to render: live aggregation buckets,
- * session-retained options, or an active selection. Drives wrapper
- * visibility — without the retained / selection check a narrower query
- * could hide the section that holds the user's own selection.
- *
- * Date filters bail out before the retention / selection clauses: they
- * don't accumulate retained options (mergeRetainedFilterOptions skips
- * them) and dateFilterItems doesn't render selected values that aren't
- * in the current aggregation, so an empty bucket list means an empty
- * <ul> and the wrapper should hide. Selections still surface via the
- * active-filters pills.
- *
- * @param {object} sharedState - Live store state.
- * @param {string} filterKey   - Filter key.
- * @return {boolean} True when the wrapper has something to show.
- */
-function filterHasContent( sharedState, filterKey ) {
-	if ( ( sharedState.aggregations?.[ filterKey ]?.buckets?.length ?? 0 ) > 0 ) {
-		return true;
-	}
-	if ( sharedState.filterConfigs?.[ filterKey ]?.filterType === 'date' ) {
-		return false;
-	}
-	return (
-		( sharedState.retainedFilterOptions?.[ filterKey ]?.length ?? 0 ) > 0 ||
-		( sharedState.activeFilters?.[ filterKey ]?.length ?? 0 ) > 0
-	);
-}
-
-/**
  * Slug for a date_histogram bucket. Falls back to the numeric key when
  * `key_as_string` is missing.
  *
@@ -313,28 +259,8 @@ function dateBucketSlug( bucket ) {
 }
 
 /**
- * filterItems for non-date filters. Handles both `slug/Name` keys (taxonomy,
- * author) and bare-slug keys (post_type) via `bucketLabel`/`bucketValue`.
- *
- * Three sources are merged:
- * 1. The current aggregation's buckets — authoritative for label and count.
- * 2. `retainedFilterOptions[filterKey]` — values seen in earlier responses
- * whose buckets dropped out of the latest result set; rendered with count
- * `0` so the list stays stable across searches.
- * 3. Selected values not yet seen in any aggregation (URL-seeded deep links
- * that arrive before the first fetch resolves) — rendered as checked, count
- * `0`, label falling back to the value itself when no `valueLabels` mapping
- * exists.
- *
- * Sort order: unchecked, zero-count items sink to the bottom; the rest follow
- * the configured `bucketSortOrder` (count desc or alpha by visible label).
- * A checked option keeps its normal sort position even if its current count
- * is `0`, so users always see what they've selected. The `count` sort uses
- * the visible label as a tiebreaker so two buckets with the same count don't
- * swap positions across re-renders — ES bucket order is unstable on ties.
- *
- * Sliced to `maxItems` after sorting so retained options and URL-seeded
- * selections can't push the list past the configured cap.
+ * filterItems for non-date filters. See AGENTS.md § Filter bucket lifecycle
+ * for the merge/sort/cap rules.
  *
  * @param {object} sharedState - Live store state.
  * @param {string} filterKey   - Filter key.
@@ -376,22 +302,21 @@ function checkboxFilterItems( sharedState, filterKey, config ) {
 		add( value, bucketLabel( value, valueLabels ), 0 );
 	}
 
-	// Slice after sort so retained options and URL-seeded selections can't
-	// push the list past `maxItems`; the sort already sinks unchecked count=0
-	// items to the bottom so retained-but-now-empty entries drop first.
+	// Slice after sort: zero-count retained entries already sink to the
+	// bottom, so they drop first when `maxItems` is exceeded.
 	const limit = Math.max( 1, config.maxItems ?? 10 );
 	return sortFilterItems( items, config, sharedState.locale ).slice( 0, limit );
 }
 
 /**
- * Apply the configured bucket sort order with one global rule layered on top:
- * unchecked options whose count is `0` sink to the bottom. Checked items keep
- * their normal sort position even at count `0`.
+ * Sort by `bucketSortOrder` with unchecked zero-count items sunk to the
+ * bottom. Checked items keep their normal position even at count `0`. See
+ * AGENTS.md § Filter bucket lifecycle.
  *
- * @param {Array<object>} items  - Items as built by `checkboxFilterItems`.
+ * @param {Array<object>} items  - Items from `checkboxFilterItems`.
  * @param {object}        config - filterConfigs entry (`bucketSortOrder`).
  * @param {string}        locale - Locale tag for `localeCompare`.
- * @return {Array<object>} The same array, sorted in place.
+ * @return {Array<object>} Sorted in place.
  */
 function sortFilterItems( items, config, locale ) {
 	const lc = locale || 'en-US';
@@ -405,26 +330,16 @@ function sortFilterItems( items, config, locale ) {
 }
 
 /**
- * Merge fresh aggregation buckets into `retainedFilterOptions` so the
- * filter-checkbox list keeps options that have appeared at any point in
- * the session, even after a narrower query drops them from ES results.
- * Returns the original object when nothing is added so reactive subscribers
- * don't re-run on no-op merges.
- *
- * Date filters are skipped — their bucket set is dense by interval and the
- * `dateFilterItems` reader hides empty buckets for its own reasons.
- *
- * Tradeoffs intentionally left in: labels are set on first sight and never
- * refreshed (a taxonomy term renamed mid-session keeps the original label
- * until reload), and the map grows monotonically across the session — it's
- * bounded only by tab lifetime, with no `sessionStorage` persistence today.
- * `loadMore()` does not call this helper because it doesn't refresh
- * aggregations either, so retention only advances when a fresh search runs.
+ * Merge fresh aggregation buckets into `retainedFilterOptions` so checkbox
+ * filter lists stay stable across queries. See AGENTS.md § Filter bucket
+ * lifecycle. Labels are set on first sight (a taxonomy renamed mid-session
+ * keeps the original label until reload). Returns the original object when
+ * nothing changed so subscribers don't re-run.
  *
  * @param {object} prev          - Existing `retainedFilterOptions` map.
  * @param {object} aggregations  - Latest API aggregations response.
- * @param {object} filterConfigs - Registered filter configs (for valueLabels + filterType gate).
- * @return {object} Possibly-new map; reference equality preserved when unchanged.
+ * @param {object} filterConfigs - Registered filter configs.
+ * @return {object} Possibly-new map; reference preserved when unchanged.
  */
 export function mergeRetainedFilterOptions( prev, aggregations, filterConfigs ) {
 	let next = prev;
@@ -447,13 +362,12 @@ export function mergeRetainedFilterOptions( prev, aggregations, filterConfigs ) 
 }
 
 /**
- * Append any not-yet-seen bucket values to `existing`. Returns the same
- * array reference when nothing new lands so the caller can use reference
- * equality to skip a parent-object clone.
+ * Append unseen bucket values to `existing`. Returns the same reference when
+ * nothing new lands so callers can skip a parent-object clone.
  *
  * @param {Array<object>} existing    - Prior `[{value, label}]` list.
- * @param {Array<object>} buckets     - Aggregation buckets for this filter.
- * @param {object|null}   valueLabels - Optional slug→label map (post_type).
+ * @param {Array<object>} buckets     - Aggregation buckets.
+ * @param {object|null}   valueLabels - Optional slug→label map.
  * @return {Array<object>} Original or appended-to list.
  */
 function mergeNewBucketsIntoOptions( existing, buckets, valueLabels ) {
@@ -515,24 +429,17 @@ function dateFilterItems( sharedState, filterKey, config ) {
 	}
 	return items;
 }
-// Monotonic token used to drop stale async result responses. Incremented on
-// every new search; in-flight responses compare their token against the
-// latest before touching store state, so a slow request for an older query
-// can't overwrite fresh results when the user changes query or sort mid-fetch.
+// Monotonic token to drop stale async responses. Bumped on every new search;
+// in-flight responses check it before writing state, so a slow request for an
+// older query can't overwrite fresh results.
 let searchToken = 0;
 
 /**
- * Build the human-readable results-count string from the live store state.
- * Returns "Searching…" while a search is in flight, "Found 42 results" once
- * a query resolves with hits, or an empty string in every other case
- * (pre-search, error, or zero hits — the empty-state region inside
- * `jetpack-search/results-list` owns that copy). Called by every action that mutates `isLoading` or
- * `totalResults` so the seeded `state.resultsCountText` stays in lockstep
- * with the counters; SSR resolves `data-wp-text` against that seeded value
- * directly, so the string can't live on a JS getter.
- *
- * Exported so tests can verify the formatting in isolation without driving
- * the full `actions.search()` lifecycle.
+ * Build the results-count string from live state — "Searching…", "Found N
+ * results", or empty (empty-state region owns the no-hits copy). Called by
+ * every action that mutates `isLoading`/`totalResults` so the seeded
+ * `resultsCountText` stays in lockstep — SSR resolves `data-wp-text` against
+ * the seed value, so this can't be a JS getter.
  *
  * @param {object} liveState - The IA store state.
  * @return {string} Localized results-count or status string.
@@ -572,15 +479,14 @@ function* fetchResults( pageHandle ) {
 		apiRoot: state.apiRoot,
 		homeUrl: state.homeUrl,
 		activeFilters: state.activeFilters,
-		// Overlay per-filter `filterLogic` overrides onto each filterConfig's
-		// `queryType` before handing to the URL builder. The override lives
-		// separately in store state so it survives across navigations even
-		// when blocks re-register their configs; merging here keeps the
-		// downstream consumer (`buildFilterClause`) free of the override path.
+		// Overlay `filterLogic` onto `queryType` before handing to the URL
+		// builder; keeps `buildFilterClause` free of the override path.
 		filterConfigs: overlayFilterLogic( state.filterConfigs, state.filterLogic ),
 		priceRange: state.priceRange,
 		staticFilterSelections: state.staticFilterSelections,
-		staticPostTypes: state.staticPostTypes,
+		// Page-level scope from the `search-results` block (seeded at render).
+		// Singular per page; no per-instance overrides.
+		staticPostTypes: state.staticPostTypes ?? null,
 	} );
 	const response = yield fetch( url, {
 		headers: state.isPrivateSite ? { 'X-WP-Nonce': state.nonce } : {},
@@ -589,28 +495,84 @@ function* fetchResults( pageHandle ) {
 	return yield response.json();
 }
 
+const UI_ALGO_VARIANT = { compact: 'minimal', expanded: 'expanded', product: 'product' };
+
+/**
+ * UI-algo identifier for TrainTracks. Kept identical to instant search so blocks
+ * impressions land in the same relevance bucket; the blocks `compact` layout maps
+ * to instant search's `minimal`.
+ *
+ * @return {string} `jetpack-instant-search-ui/v1-{minimal|expanded|product}`.
+ */
+function trainTracksUiAlgo() {
+	const variant = UI_ALGO_VARIANT[ state.resultsLayout ] ?? 'expanded';
+	return `jetpack-instant-search-ui/v1-${ variant }`;
+}
+
+/**
+ * Build the TrainTracks payload from a result's server-assigned railcar. Shape
+ * matches instant search's `getCommonTrainTracksProps()` exactly.
+ *
+ * @param {object} railcar    - Per-result railcar from the search API.
+ * @param {number} uiPosition - Absolute position of the result in the list.
+ * @return {object} TrainTracks event properties.
+ */
+function trainTracksProps( railcar, uiPosition ) {
+	return {
+		fetch_algo: railcar.fetch_algo,
+		fetch_position: railcar.fetch_position,
+		fetch_query: railcar.fetch_query,
+		railcar: railcar.railcar,
+		rec_blog_id: railcar.rec_blog_id,
+		rec_post_id: railcar.rec_post_id,
+		session_id: railcar.session_id,
+		ui_algo: trainTracksUiAlgo(),
+		ui_position: uiPosition,
+	};
+}
+
+/**
+ * Fire one TrainTracks render (impression) event per result that carries a
+ * railcar. `ui_position` reads the absolute index stamped on each result so it
+ * matches the interact event fired on click.
+ *
+ * @param {Array<object>} results - Normalized results just added to the list.
+ */
+function recordResultRenders( results ) {
+	if ( state.disableTracking ) {
+		return;
+	}
+	for ( const result of results ) {
+		if ( result.railcar ) {
+			recordTrainTracksRender( trainTracksProps( result.railcar, result.index ) );
+		}
+	}
+}
+
 const { state, actions } = store( NAMESPACE, {
 	state: {
-		// UI: popover open flags. Kept as separate booleans so only one
-		// popover can be open at a time — the toggle actions close the
-		// other when opening this one.
+		// Mutually exclusive popovers — only one open at a time.
 		isFilterPopoverOpen: false,
 		isSortPopoverOpen: false,
 
-		// Roving-tabindex state for the sort popover's ARIA menu. Tracks
-		// which menu item is the active descendant for keyboard
-		// navigation; `null` (or a key not present in the rendered menu)
-		// means the menu hasn't been keyboard-engaged yet, in which case
-		// the currently checked option becomes the implicit default.
+		// Resolved results-list layout, seeded per-page by results-list/render.php.
+		// Drives the TrainTracks `ui_algo`; default keeps a valid value on pages
+		// where the seed hasn't landed.
+		resultsLayout: 'expanded',
+
+		// Suppresses TrainTracks `_tkq` pushes. PHP-seeded from
+		// `?disable_tracking=1` + the `jetpack_instant_search_disable_tracking`
+		// filter, mirroring instant search. Default off so a missing seed tracks.
+		disableTracking: false,
+
+		// Roving-tabindex active descendant for the sort menu. `null` /
+		// unknown-key = menu hasn't been keyboard-engaged; the currently
+		// checked option becomes the implicit default.
 		sortMenuFocusedKey: null,
 
-		// AI Answers state. The `jetpack-search/ai-answer` block renders a
-		// panel that streams a brief answer first and (optionally) a longer
-		// "Show more" follow-up. State is split into brief/extended slices so
-		// the show-more flow can run a second SSE request alongside the first
-		// without overwriting its body, then `aiShowExtended` flips reads to
-		// the longer slice. Mirrors the React class state in the overlay's
-		// `search-app.jsx` so a future single-source refactor can merge them.
+		// AI Answer brief/extended slices. Split so "Show more" can stream
+		// a second SSE without clobbering the first; `aiShowExtended` flips
+		// reads to the longer one. Mirrors the overlay's React state.
 		aiBriefStatus: 'idle',
 		aiBriefText: '',
 		aiBriefCitations: [],
@@ -623,27 +585,30 @@ const { state, actions } = store( NAMESPACE, {
 		aiShowExtended: false,
 		aiSessionId: null,
 
-		// `resultsCountText` lives on the seeded state (PHP-side), not as a
-		// getter, so the IA SSR pass can resolve `data-wp-text="state.resultsCountText"`
-		// to the right initial string on a deep-link load. See
-		// `computeResultsCountText()` below for the full string-selection logic;
-		// every action that mutates `isLoading` / `totalResults` calls it to
-		// keep this value in lockstep with the underlying counters.
+		// `resultsCountText` lives on seeded state (not a getter) so SSR can
+		// resolve `data-wp-text` to a real string on first paint. See
+		// `computeResultsCountText()` for the lockstep logic.
 
 		/**
-		 * `data-wp-bind` only evaluates simple property paths (with an
-		 * optional leading `!`) — expressions like `a.length > 0 || b`
-		 * parse as literal path segments and silently return `undefined`.
-		 * Templates therefore must bind to a single getter, so derived
-		 * visibility flags live here.
+		 * Skeleton visibility. SSR can't evaluate a getter, so the skeleton
+		 * markup carries a literal `hidden` off the initial paint; this getter
+		 * takes over after hydration so the in-flight initial search shows the
+		 * skeleton (a reload that already has results keeps them — no flash).
 		 *
-		 * Gated on `searchQuery || hasSearchParam` (so the message doesn't
-		 * flash on a bare `/search/` page where the user hasn't typed, but
-		 * does surface when an explicit-but-empty `?s=` URL fired the
-		 * initial search and got nothing back — e.g. a site with no indexed
-		 * posts), and on `!hasError` (so "No results found" doesn't display
-		 * when the fetch actually failed — the error region inside
-		 * `jetpack-search/results-list` owns that message instead).
+		 * @return {boolean} True when the skeleton should be hidden.
+		 */
+		get skeletonHidden() {
+			return ! ( state.isLoading && state.results.length === 0 );
+		},
+
+		/**
+		 * No-results visibility. `data-wp-bind` only evaluates simple
+		 * property paths, so derived flags must be single getters.
+		 *
+		 * Gated on `searchQuery || hasSearchParam` so the message doesn't
+		 * flash on a bare `/search/` page but still shows on a `?s=` deep
+		 * link with nothing indexed. `!hasError` so the error region owns
+		 * the failure case.
 		 *
 		 * @return {boolean} True when the no-results message should show.
 		 */
@@ -657,14 +622,18 @@ const { state, actions } = store( NAMESPACE, {
 		},
 
 		/**
-		 * Visibility flag for the error region inside `jetpack-search/results-list`.
-		 * Gated on both `!isLoading` and `!isLoadingMore` so the message hides
-		 * the moment the user retries — covering the `loadMore()` failure path
-		 * (where `isLoading` stays false but `isLoadingMore` toggles)
-		 * symmetrically with the `search()` path. `hasError` itself is also
-		 * cleared at the start of each action, but binding through a single
-		 * getter keeps the template `data-wp-bind` simple (the Interactivity
-		 * API only evaluates simple property paths).
+		 * Visibility for the filters empty state.
+		 *
+		 * @return {boolean} True when the empty state should show.
+		 */
+		get showFiltersEmpty() {
+			return filtersHaveNothingToShow( state );
+		},
+
+		/**
+		 * Visibility for the results-list error region. Gates on both
+		 * `!isLoading` and `!isLoadingMore` so the message hides on retry
+		 * — covers `search()` and `loadMore()` symmetrically.
 		 *
 		 * @return {boolean} True when the error message should show.
 		 */
@@ -673,12 +642,10 @@ const { state, actions } = store( NAMESPACE, {
 		},
 
 		/**
-		 * Derived load-more wrapper visibility. Hidden while the first-page
-		 * fetch is in flight so a stale `pageHandle` from the previous query
-		 * doesn't flash a "Load more" button against results that no longer
-		 * match. `isLoadingMore` (paginating the current query) stays
-		 * orthogonal — the wrapper stays visible and its children swap the
-		 * button for a spinner via their own bindings.
+		 * Load-more visibility. Hidden during the first-page fetch so a stale
+		 * `pageHandle` doesn't flash "Load more" against results that no
+		 * longer match. `isLoadingMore` keeps the wrapper visible — children
+		 * swap to a spinner via their own bindings.
 		 *
 		 * @return {boolean} True when the load-more wrapper should show.
 		 */
@@ -687,38 +654,22 @@ const { state, actions } = store( NAMESPACE, {
 		},
 
 		/**
-		 * True when any facet is active — selected filter values, a
-		 * price range, or a static-filter selection. Drives the active-filters
-		 * pill wrapper, the standalone clear-filters block, and the
-		 * filter-popover trigger. priceRange counts as a filter here so a
-		 * price-only selection (including a half-open range like
-		 * `?min_price=10`) doesn't leave the pill wrapper hidden when the user
-		 * has a chip to clear.
+		 * Any facet is active — filter value, price range, or static
+		 * selection. Drives active-filters / clear-filters / popover
+		 * trigger. `priceRange` counts so a half-open `?min_price=10` deep
+		 * link still surfaces a chip to clear.
 		 *
 		 * @return {boolean} Whether any filter is active.
 		 */
 		get hasActiveFilters() {
-			const hasSelections = Object.values( state.activeFilters ?? {} ).some(
-				v => Array.isArray( v ) && v.length > 0
-			);
-			if ( hasSelections ) {
-				return true;
-			}
-			const hasStaticSelections = Object.values( state.staticFilterSelections ?? {} ).some(
-				v => !! v
-			);
-			if ( hasStaticSelections ) {
-				return true;
-			}
-			const range = state.priceRange;
-			return !! range && ( range.min != null || range.max != null );
+			return hasAnyActiveFilter( state );
 		},
 
 		/**
-		 * Total selected filter values across all filter keys. Used by the
-		 * filters-popover trigger to render a count badge.
+		 * Total active filter values across all keys. Drives the popover
+		 * trigger's count badge.
 		 *
-		 * @return {number} Count of selected filter values.
+		 * @return {number} Count of selected values.
 		 */
 		get activeFilterCount() {
 			const dynamic = countActiveFilters( state.activeFilters );
@@ -729,16 +680,11 @@ const { state, actions } = store( NAMESPACE, {
 		},
 
 		/**
-		 * True when the filters-popover trigger should be disabled: there are
-		 * no aggregation buckets to filter on AND no active filters to clear.
-		 * Opening the popover in that state would show an empty panel, so we
-		 * gate the affordance itself. Remains enabled whenever
-		 * `hasActiveFilters` is true (which now includes a `priceRange`
-		 * selection) so users can still open the popover to layer additional
-		 * facets on top of a price-only deep link, even when the current
-		 * query returns no results.
+		 * Filters-popover trigger disabled when there are no buckets to
+		 * filter on AND no active filters to clear. Stays enabled on a
+		 * price-only deep link so users can layer more facets on top.
 		 *
-		 * @return {boolean} Whether the filter trigger is disabled.
+		 * @return {boolean} Whether the trigger is disabled.
 		 */
 		get isFilterTriggerDisabled() {
 			if ( state.hasActiveFilters ) {
@@ -755,24 +701,17 @@ const { state, actions } = store( NAMESPACE, {
 		},
 
 		/**
-		 * True when the current sort order is "relevance". Used by the sort
-		 * popover menu to set `aria-checked` on the Relevance menu item.
-		 * Interactivity API `data-wp-bind` only evaluates simple property
-		 * paths, so inline `===` comparisons are not supported — derived
-		 * booleans must live here.
+		 * sortOrder === 'relevance' — drives `aria-checked` on the Relevance
+		 * menu item. (Inline `===` isn't supported in `data-wp-bind`.)
 		 *
-		 * @return {boolean} Whether sortOrder is "relevance".
+		 * @return {boolean} Whether sortOrder is 'relevance'.
 		 */
 		get isSortByRelevance() {
 			return state.sortOrder === 'relevance';
 		},
 
 		/**
-		 * True when the sort-popover trigger should be disabled: there are
-		 * no results to sort AND the sort order is still the default. Mirrors
-		 * `isFilterTriggerDisabled` — opening the popover pre-search shows a
-		 * menu that would do nothing. Remains enabled when the user has
-		 * already picked a non-default sort so they can switch back.
+		 * Sort-popover trigger disabled pre-search when sort is still default.
 		 *
 		 * @return {boolean} Whether the sort trigger is disabled.
 		 */
@@ -781,27 +720,27 @@ const { state, actions } = store( NAMESPACE, {
 		},
 
 		/**
-		 * True when the current sort order is "newest".
+		 * sortOrder === 'newest'.
 		 *
-		 * @return {boolean} Whether sortOrder is "newest".
+		 * @return {boolean} Whether sortOrder is 'newest'.
 		 */
 		get isSortByNewest() {
 			return state.sortOrder === 'newest';
 		},
 
 		/**
-		 * True when the current sort order is "oldest".
+		 * sortOrder === 'oldest'.
 		 *
-		 * @return {boolean} Whether sortOrder is "oldest".
+		 * @return {boolean} Whether sortOrder is 'oldest'.
 		 */
 		get isSortByOldest() {
 			return state.sortOrder === 'oldest';
 		},
 
 		/**
-		 * Bound to the wrapper's `hidden` attribute. Date filters require at
-		 * least one populated bucket (defence against response-shape changes
-		 * since `min_doc_count: 1` should already exclude empty buckets).
+		 * Whether the date-filter wrapper has at least one populated bucket.
+		 * Defensive against response-shape changes — `min_doc_count: 1`
+		 * already excludes empty buckets server-side.
 		 *
 		 * @return {boolean} True when buckets are available.
 		 */
@@ -819,9 +758,8 @@ const { state, actions } = store( NAMESPACE, {
 		},
 
 		/**
-		 * True when every aggregation bucket for the current filter block is
-		 * already selected. Used by the `filter-wc-attribute` block to hide
-		 * the list and show an "All filters applied" message.
+		 * Every bucket for the current filter is selected. Drives
+		 * `filter-wc-attribute`'s "All filters applied" empty state.
 		 *
 		 * @return {boolean} True when all buckets are selected.
 		 */
@@ -839,12 +777,9 @@ const { state, actions } = store( NAMESPACE, {
 		},
 
 		/**
-		 * Item descriptors for the current filter block. Dispatches on
-		 * `filterType`. Lives on the shared namespace so per-block view
-		 * bundles don't clobber siblings. Each item carries `value`,
-		 * `label`, `count`, `countLabel`, `showCount`, and `checked`;
-		 * `checkboxFilterItems` also folds retained options and URL-seeded
-		 * selections into the list (see its JSDoc).
+		 * Item descriptors for the current filter block. Each item: `value`,
+		 * `label`, `count`, `countLabel`, `showCount`, `checked`. See
+		 * `checkboxFilterItems` for the merge/sort/cap behavior.
 		 *
 		 * @return {Array<object>} Item descriptors.
 		 */
@@ -900,32 +835,23 @@ const { state, actions } = store( NAMESPACE, {
 			return list.map( ( { title, url }, index ) => ( {
 				title,
 				url,
-				// Pre-resolve href on the seeded list so a `data-wp-bind--href`
-				// directive can read a plain string instead of running the
-				// regex check inline (`data-wp-bind` evaluates simple property
-				// paths only, not expressions).
+				// Pre-resolve href so `data-wp-bind--href` reads a plain string.
 				href: /^https?:\/\//i.test( url ) ? url : '#',
-				// `index`-prefixed key so a duplicate URL in the agent's
-				// citation list doesn't collide on the IA `data-wp-each --key`
-				// dedupe pass — the runtime would silently drop a duplicate
-				// without it.
+				// `index`-prefixed key so duplicate URLs don't collide on the IA
+				// `data-wp-each --key` dedupe pass.
 				key: `${ index }-${ url }`,
 			} ) );
 		},
 		get aiVisibleError() {
-			// Only surface the extended error once it actually failed, so a
-			// brief-stage error doesn't get masked by an extended slice
-			// that hasn't started yet.
+			// Don't mask a brief-stage error with the not-yet-started extended slice.
 			if ( state.aiShowExtended && state.aiExtendedError ) {
 				return state.aiExtendedError;
 			}
 			return state.aiBriefError;
 		},
 
-		// Panel-level visibility. `aiPanelHidden` collapses the whole block
-		// to `hidden` until something interesting happens — idle status,
-		// or no query yet — so an empty / search-less page doesn't reserve
-		// a wrapper of padding/border.
+		// Panel-level visibility — collapses the block to `hidden` so an
+		// empty page doesn't reserve a wrapper of padding/border.
 		get aiPanelHidden() {
 			return state.aiVisibleStatus === 'idle';
 		},
@@ -935,10 +861,8 @@ const { state, actions } = store( NAMESPACE, {
 		get aiIsError() {
 			return state.aiVisibleStatus === 'error';
 		},
-		// True when the panel has a streaming or final answer to render —
-		// the content region (text + citations) is gated on this so an early
-		// `streaming` event doesn't blink the placeholder loading row off
-		// before the first token paints.
+		// Gates the content region so an early `streaming` event doesn't
+		// blink the loading row off before the first token paints.
 		get aiHasContent() {
 			return state.aiVisibleStatus === 'streaming' || state.aiVisibleStatus === 'done';
 		},
@@ -956,11 +880,8 @@ const { state, actions } = store( NAMESPACE, {
 			);
 		},
 
-		// Error sub-fields. The panel surfaces a primary localized message
-		// plus the API/network detail and (when present) the HTTP/JSON-RPC
-		// error code. Splitting them here lets `data-wp-text` bind to plain
-		// strings instead of computing them in the template, and matches the
-		// React overlay's `error.message` + `error.code` shape.
+		// Error sub-fields split for plain-string `data-wp-text`. Matches
+		// the React overlay's `error.message` + `error.code` shape.
 		get aiErrorPrimary() {
 			return (
 				state.strings?.aiErrorMessage ?? 'Sorry, an error occurred while generating an answer.'
@@ -1010,45 +931,65 @@ const { state, actions } = store( NAMESPACE, {
 		},
 
 		/**
+		 * Idempotent first-fetch dispatcher for deep-linked search URLs
+		 * (`?s=…`, `?q=…`, or a URL carrying filter params). Safe to call
+		 * from multiple entry paths — only the first invocation actually
+		 * fires `actions.search()`. The flag is per-page-load and
+		 * deliberately never cleared; subsequent visitor-initiated searches
+		 * go through the regular `actions.search()` path.
+		 *
+		 * Two callers today, by design. `callbacks.initialize` fires from
+		 * the results-list block's `data-wp-init` directive on the regular
+		 * hydration path (Embedded experience, or the Overlay when the IA
+		 * runtime's auto-walk wins the race). `overlay-bootstrap.ensureHydrated`
+		 * fires after the bootstrap clones the overlay template into the
+		 * shell and runs `apis.render()` on each region — the safety net for
+		 * the Overlay case where the directive doesn't fire reliably for the
+		 * freshly-mounted subtree.
+		 */
+		dispatchInitialSearchIfNeeded() {
+			if ( initialSearchDispatched ) {
+				return;
+			}
+			if ( ! state.searchQuery && ! state.hasActiveFilters && ! state.hasSearchParam ) {
+				return;
+			}
+			initialSearchDispatched = true;
+			// syncUrl=false: URL already carries this query; avoid a duplicate history entry.
+			actions.search( { syncUrl: false } );
+		},
+
+		/**
 		 * Run a search and replace the result list.
 		 *
 		 * @param {object}  [options]         - Options.
-		 * @param {boolean} [options.syncUrl] - Push new state to the URL after a
-		 *                                    successful fetch. Default `true`;
-		 *                                    pass `false` when the search was
-		 *                                    itself triggered by a URL change
-		 *                                    (e.g. `popstate`) so we don't
-		 *                                    bounce a new history entry back
-		 *                                    on top of the one the browser
-		 *                                    just navigated to.
+		 * @param {boolean} [options.syncUrl] - Push to URL on success (default true);
+		 *                                    pass `false` for popstate-triggered searches.
 		 * @yield {Promise} fetch + response.json() promises.
 		 */
-		*search( { syncUrl = true } = {} ) {
+		*search( options = {} ) {
+			const { syncUrl = true } = options;
 			const myToken = ++searchToken;
 			state.isLoading = true;
 			state.isLoadingMore = false;
 			state.hasError = false;
 			state.resultsCountText = computeResultsCountText( state );
-			// Kick the AI answer off alongside the results fetch, but only
-			// when an `ai-answer` block has mounted on the page — pages with
-			// just search-input + results-list shouldn't pay for an SSE
-			// round-trip whose output nothing on the page renders. The
-			// action also gates on query length (≥ 3 chars) and a same-query
-			// memo, so filter/sort-only re-calls don't re-spam the agent.
+			// Skip the SSE round-trip on pages without an `ai-answer` block.
+			// `fetchAiAnswer` also gates on query length (≥ 3) and same-query memo.
 			if ( aiBlockPresent ) {
 				actions.fetchAiAnswer();
 			}
 			try {
 				const data = yield* fetchResults( null );
-				// A newer `search()` started while this one was in-flight — its
-				// response will own the state write. Dropping here keeps us
-				// from clobbering fresh results with a slow, stale response.
+				// Stale response — a newer `search()` owns the write.
 				if ( myToken !== searchToken ) {
 					return;
 				}
-				state.results = ( data.results ?? [] ).map( r =>
-					normalizeResult( r, state.locale, state.searchQuery )
-				);
+				state.results = ( data.results ?? [] ).map( ( r, i ) => ( {
+					...normalizeResult( r, state.locale, state.searchQuery ),
+					index: i,
+				} ) );
+				recordResultRenders( state.results );
 				state.totalResults = data.total ?? 0;
 				state.pageHandle = data.page_handle ?? null;
 				state.aggregations = remapAggregationsToFilterKeys(
@@ -1065,16 +1006,10 @@ const { state, actions } = store( NAMESPACE, {
 				}
 			} catch {
 				if ( myToken === searchToken ) {
-					// Clear the result-shape fields alongside `hasError` so a
-					// failed query doesn't leave the previous query's results,
-					// total count, or aggregation buckets visible underneath
-					// the error message — the page would otherwise show a
-					// "Found N results" count and stale filter buckets next to
-					// a `role="alert"` "Something went wrong" message, which
-					// reads as both successful and broken at the same time.
-					// `loadMore()` deliberately does NOT do this — its catch
-					// block leaves the existing pages alone since they're
-					// still valid; only the next page failed to fetch.
+					// Clear result fields alongside `hasError` so the page doesn't
+					// show a "Found N results" count and stale buckets next to a
+					// `role="alert"` error. `loadMore()` deliberately doesn't do
+					// this — its existing pages are still valid.
 					state.hasError = true;
 					state.results = [];
 					state.totalResults = 0;
@@ -1085,12 +1020,6 @@ const { state, actions } = store( NAMESPACE, {
 				if ( myToken === searchToken ) {
 					state.isLoading = false;
 					state.resultsCountText = computeResultsCountText( state );
-					// First fetch (success or error) ends the pre-hydration window —
-					// guard the write so subsequent re-searches don't trigger an IA
-					// re-render of every skeleton-bound element.
-					if ( ! state.skeletonHidden ) {
-						state.skeletonHidden = true;
-					}
 				}
 			}
 		},
@@ -1109,18 +1038,17 @@ const { state, actions } = store( NAMESPACE, {
 			state.hasError = false;
 			try {
 				const data = yield* fetchResults( state.pageHandle );
-				// A first-page search started while this pagination request was
-				// in-flight. Its response owns the list, so don't append stale
-				// items from the old query/filter/sort state.
+				// Stale — a first-page search took over; its response owns the list.
 				if ( myToken !== searchToken ) {
 					return;
 				}
-				state.results = [
-					...state.results,
-					...( data.results ?? [] ).map( r =>
-						normalizeResult( r, state.locale, state.searchQuery )
-					),
-				];
+				const offset = state.results.length;
+				const appended = ( data.results ?? [] ).map( ( r, i ) => ( {
+					...normalizeResult( r, state.locale, state.searchQuery ),
+					index: offset + i,
+				} ) );
+				state.results = [ ...state.results, ...appended ];
+				recordResultRenders( appended );
 				state.pageHandle = data.page_handle ?? null;
 			} catch {
 				if ( myToken === searchToken ) {
@@ -1134,23 +1062,37 @@ const { state, actions } = store( NAMESPACE, {
 		},
 
 		/**
-		 * Replace the value of a single-select static filter, then re-run the
-		 * search. Static filters store a scalar value per key (not an array
-		 * like `setFilter`) because each `jetpack-search/filter-static` block
-		 * renders mutually-exclusive radio inputs. Picking the currently
-		 * selected value clears it — same UX as legacy `setStaticFilter` in
-		 * the instant-search overlay.
+		 * Fires a TrainTracks interact event when a visitor clicks a result.
+		 * Mirrors instant search's `action: 'click'` payload; `ui_position`
+		 * reuses the result's stamped index so it matches its render event.
+		 */
+		recordResultInteract() {
+			if ( state.disableTracking ) {
+				return;
+			}
+			const { result } = getContext();
+			if ( result?.railcar ) {
+				recordTrainTracksInteract( {
+					...trainTracksProps( result.railcar, result.index ),
+					action: 'click',
+				} );
+			}
+		},
+
+		/**
+		 * Replace a single-select static filter and re-run the search. Static
+		 * filters store a scalar per key (vs. `setFilter`'s array) because
+		 * each `filter-static` block renders radio inputs. Picking the current
+		 * value clears the entry (mirrors the instant-search overlay).
 		 *
 		 * @param {string} filterKey   - The static filter's `filter_id`.
-		 * @param {string} filterValue - The newly-selected value, or '' to clear.
+		 * @param {string} filterValue - Newly selected value, or '' to clear.
 		 * @yield {Promise} search action.
 		 */
 		*setStaticFilter( filterKey, filterValue ) {
 			const current = state.staticFilterSelections?.[ filterKey ] ?? '';
 			const next = { ...( state.staticFilterSelections ?? {} ) };
 			if ( current === filterValue ) {
-				// Re-picking the current radio clears the entry — mirrors the
-				// legacy overlay's radio "deselect" affordance.
 				delete next[ filterKey ];
 			} else {
 				next[ filterKey ] = filterValue;
@@ -1160,13 +1102,9 @@ const { state, actions } = store( NAMESPACE, {
 		},
 
 		/**
-		 * Toggle a filter value on or off, then re-run the search.
-		 *
-		 * Multiple selected values under the same filter key are kept in an
-		 * array on `activeFilters`; different filter keys stay separate. How
-		 * the ES clause combines them (OR within a key, AND across keys) is
-		 * the responsibility of `buildFilterClause` — this action is just
-		 * bookkeeping on the selection set.
+		 * Toggle a filter value and re-run the search. Multi-select within a
+		 * key, separate sets per key. ES clause combination (OR within / AND
+		 * across) lives in `buildFilterClause` — this is just bookkeeping.
 		 *
 		 * @param {string} filterKey   - e.g. `category`, `post_types`.
 		 * @param {string} filterValue - e.g. `news`, `post`.
@@ -1185,10 +1123,8 @@ const { state, actions } = store( NAMESPACE, {
 				if ( next.length === 0 ) {
 					const { [ filterKey ]: _removed, ...rest } = state.activeFilters;
 					state.activeFilters = rest;
-					// Drop any logic override for the now-empty filter so the
-					// URL serializer doesn't leave `?query_type_<key>=and`
-					// orphaned in the address bar after the last selection
-					// is cleared.
+					// Drop the now-orphan logic override so the URL serializer
+					// doesn't leave `?query_type_<key>=and` in the address bar.
 					if ( state.filterLogic && filterKey in state.filterLogic ) {
 						const { [ filterKey ]: _droppedLogic, ...restLogic } = state.filterLogic;
 						state.filterLogic = restLogic;
@@ -1201,9 +1137,7 @@ const { state, actions } = store( NAMESPACE, {
 		},
 
 		/**
-		 * Clear every facet and re-run the search. Resets `activeFilters`
-		 * AND `priceRange` so a single clear-all affordance wipes both
-		 * checkbox-shaped selections and the half-open price range.
+		 * Clear every facet and re-run the search.
 		 *
 		 * @yield {Promise} search action.
 		 */
@@ -1220,9 +1154,7 @@ const { state, actions } = store( NAMESPACE, {
 
 		/**
 		 * Update the price range and re-run the search if it changed. Either
-		 * bound may be null for a half-open range; passing both as null clears
-		 * the range. No-ops when the new range matches the current one so a
-		 * blur from an unchanged input doesn't trigger an identical re-fetch.
+		 * bound may be null for a half-open range. No-op when unchanged.
 		 *
 		 * @param {number|null} min - Lower bound, inclusive.
 		 * @param {number|null} max - Upper bound, inclusive.
@@ -1232,16 +1164,13 @@ const { state, actions } = store( NAMESPACE, {
 			const normalize = v => ( v === null || v === undefined || v === '' ? null : Number( v ) );
 			const nextMin = normalize( min );
 			const nextMax = normalize( max );
-			// Reject NaN bounds so a typo'd input doesn't poison the ES range
-			// clause. Mirrors the parsePriceBound() guard in url-state.js so
-			// the action and the URL reader agree on what "no bound" means.
+			// Reject NaN/negative (mirrors `parsePriceBound()` in url-state.js).
 			const validMin = nextMin === null || ( Number.isFinite( nextMin ) && nextMin >= 0 );
 			const validMax = nextMax === null || ( Number.isFinite( nextMax ) && nextMax >= 0 );
 			if ( ! validMin || ! validMax ) {
 				return;
 			}
-			// Inverted bounds (min > max) build a guaranteed-empty ES clause.
-			// Drop the call rather than pushing a bad URL or zeroing results.
+			// Inverted bounds → guaranteed-empty ES clause. Drop the call.
 			if ( nextMin !== null && nextMax !== null && nextMin > nextMax ) {
 				return;
 			}
@@ -1294,28 +1223,22 @@ const { state, actions } = store( NAMESPACE, {
 				state.isWooCommerceBlocksEnabled
 			);
 			state.searchQuery = searchQuery;
-			// Keep `hasSearchParam` in lockstep with the live URL so any future
-			// reader (e.g. `showNoResults`) sees the current state rather than
-			// the PHP-seeded value from first paint. `actions.search()` below
-			// fires unconditionally, so the popstate path doesn't depend on
-			// the flag — this write is for state-consistency only.
+			// Keep `hasSearchParam` in sync with the live URL.
 			state.hasSearchParam = hasSearchParam;
 			state.sortOrder = sortOrder;
-			// urlParamsToState bypasses its own gate when filterConfigs is empty;
-			// re-gate here so popstate matches initialize() and stray URL keys
-			// can't round-trip back into pushStateToUrl on a page with no
-			// registered filters.
+			// Re-gate against `filterConfigs`: `urlParamsToState` skips gating when
+			// configs are empty, so stray URL keys could otherwise round-trip back.
 			const { gated } = gateActiveFilters( activeFilters, state.filterConfigs );
 			state.activeFilters = gated;
-			// Gate filterLogic the same way: drop entries whose filter key
-			// either isn't registered, has no surviving selections, or
-			// targets a non-taxonomy filter.
 			state.filterLogic = pickLogicForActive( filterLogic, gated, state.filterConfigs );
 			state.priceRange = priceRange;
 			state.staticFilterSelections = gateStaticFilterSelections(
 				staticFilterSelections,
 				state.filterConfigs
 			).gated;
+			// Static post-type scope is a page-level property of the
+			// `search-results` block, PHP-seeded once at template render;
+			// it is never URL-serialized and needs no popstate handling.
 			yield actions.search( { syncUrl: false } );
 		},
 
@@ -1373,14 +1296,9 @@ const { state, actions } = store( NAMESPACE, {
 		},
 
 		/**
-		 * Open the sort popover from the trigger via ArrowDown/ArrowUp/Enter
-		 * /Space and move focus into the menu. Anchors focus on the active
-		 * sort (the checked menuitemradio) — matches the radio-menu pattern
-		 * where reopening returns to the selected option rather than
-		 * snapping back to the top. Falls back to the first/last item only
-		 * when the active sort isn't in the rendered list. Tab is left to
-		 * the browser so users can step past the trigger without entering
-		 * the menu, matching the WAI-ARIA APG menu-button example.
+		 * Open sort popover via Arrow/Enter/Space and move focus into the menu.
+		 * Anchors focus on the active sort (matches the WAI-ARIA radio-menu
+		 * pattern). Tab is left to the browser so users can step past the trigger.
 		 *
 		 * @param {KeyboardEvent} event - Keydown event on the trigger.
 		 */
@@ -1406,13 +1324,10 @@ const { state, actions } = store( NAMESPACE, {
 		} ),
 
 		/**
-		 * Implements the ARIA menu keyboard pattern for the sort popover:
-		 * roving tabindex with ArrowUp/ArrowDown wrapping, Home/End to
-		 * jump to ends, Enter/Space to activate, Escape to close and
-		 * return focus to the trigger, and Tab to leave the menu (handled
-		 * by letting the browser's default focus order continue while we
-		 * close the popover so the focus ring lands on the next focusable
-		 * sibling rather than skipping back into a hidden menu item).
+		 * ARIA menu keyboard pattern for the sort popover: roving tabindex with
+		 * Arrow wrapping, Home/End, Enter/Space activate, Escape closes + restores
+		 * trigger focus, Tab leaves (browser keeps default focus order while we
+		 * close the popover).
 		 *
 		 * @param {KeyboardEvent} event - Keydown event on a menu item.
 		 * @yield {Promise} Optional search action when Enter/Space activates.
@@ -1477,10 +1392,8 @@ const { state, actions } = store( NAMESPACE, {
 		} ),
 
 		/**
-		 * Close any open popover when clicking outside it. Bound to
-		 * `data-wp-on-window--click` so the handler fires on every click;
-		 * early-exit when the click began inside any element marked with
-		 * `data-jetpack-search-popover-root`.
+		 * Close popovers on outside click. Early-exits when the click began
+		 * inside any `data-jetpack-search-popover-root` element.
 		 *
 		 * @param {Event} event - Window click event.
 		 */
@@ -1513,25 +1426,16 @@ const { state, actions } = store( NAMESPACE, {
 		},
 
 		/**
-		 * Start a brief AI answer for the current `state.searchQuery`. Called
-		 * from inside `actions.search()`, so the answer always tracks the
-		 * results fetch.
-		 *
-		 * Bails when the query is shorter than 3 chars (matching the
-		 * overlay heuristic) or when the query is the same one we already
-		 * kicked off (filter/sort re-triggers `search()` without changing
-		 * the text, and the agent response would be identical).
-		 *
-		 * Aborts any in-flight brief / extended stream from the previous
-		 * query before starting the new one so a slow earlier response can't
-		 * land on top of fresh state.
+		 * Start a brief AI answer for the current query. Bails when query is
+		 * shorter than 3 chars or unchanged from the last fetch (filter/sort
+		 * re-triggers wouldn't change the agent response). Aborts any in-flight
+		 * brief/extended stream from the previous query.
 		 */
 		fetchAiAnswer() {
 			const query = state.searchQuery;
 			if ( ! query || query.length < 3 ) {
-				// Tear down whatever's on screen — a query that dropped below
-				// the threshold (cleared input, deletion) should hide the
-				// panel, not freeze the last answer in place.
+				// Tear down: a query that dropped below the threshold should
+				// hide the panel, not freeze the last answer.
 				if ( aiBriefController ) {
 					aiBriefController.abort();
 					aiBriefController = null;
@@ -1641,16 +1545,11 @@ const { state, actions } = store( NAMESPACE, {
 
 	callbacks: {
 		/**
-		 * Reactive `checked` binding for a static-filter radio. Reads the
-		 * per-`<li>` context to know which `filterKey` + `optionValue` pair
-		 * this radio represents, then compares against the store's
-		 * `staticFilterSelections[filterKey]`. Used by
-		 * `jetpack-search/filter-static`'s `render.php` so radios stay in
-		 * lockstep with the store across `clearFilters()`, `handlePopState()`,
-		 * and any other path that mutates `state.staticFilterSelections`
-		 * outside the radio's own `change` event.
+		 * Reactive `checked` binding for a static-filter radio so it stays
+		 * in sync with `state.staticFilterSelections` across `clearFilters()`,
+		 * `handlePopState()`, and other store mutations.
 		 *
-		 * @return {boolean} Whether this radio should appear checked.
+		 * @return {boolean} Whether the radio should appear checked.
 		 */
 		isStaticFilterSelected() {
 			const { filterKey, optionValue } = getContext();
@@ -1658,30 +1557,24 @@ const { state, actions } = store( NAMESPACE, {
 		},
 
 		/**
-		 * Fires when the search-results block mounts. Runs the initial
-		 * search if the URL seeded a query and registers the popstate
-		 * listener. Guarded so multiple blocks on the same page share a
-		 * single listener and a single initial fetch.
+		 * Fires when search-results mounts. Runs the initial search if the URL
+		 * seeded one and registers popstate. Idempotent across multiple blocks.
 		 */
 		initialize() {
 			if ( initialized ) {
 				return;
 			}
 			initialized = true;
-			// The PHP seed (`state.dateFormat`) carries the site's
-			// `date_format` Settings option. It's set once here so
-			// `formatDate()` in result-utils.js can read it from module scope
-			// instead of having every `normalizeResult` call thread it
-			// through — the value never changes for the lifetime of the page.
+			if ( ! state.disableTracking ) {
+				identifySite( state.siteId );
+			}
+			// PHP seed; `formatDate()` reads from module scope rather than threading per-call.
 			setSeededDateFormat( state.dateFormat );
 			window.addEventListener( 'popstate', actions.handlePopState );
 			const { gated, droppedAny } = gateActiveFilters( state.activeFilters, state.filterConfigs );
 			if ( droppedAny ) {
 				state.activeFilters = gated;
 			}
-			// Symmetric gate for static-filter selections — drop any key whose
-			// filter-static block isn't on the page anymore (e.g. a stale deep
-			// link from a since-removed registration).
 			if (
 				state.staticFilterSelections &&
 				Object.keys( state.staticFilterSelections ).length > 0
@@ -1694,13 +1587,8 @@ const { state, actions } = store( NAMESPACE, {
 					state.staticFilterSelections = gatedStatic;
 				}
 			}
-			// Re-gate filterLogic against the (possibly trimmed) activeFilters
-			// AND against the just-registered filterConfigs so a
-			// `?query_type_<key>=and` whose `<key>` was dropped or targets a
-			// non-taxonomy filter doesn't linger in state and re-emit on the
-			// next URL push. PHP `parse_url_filter_logic` can't apply the
-			// taxonomy gate itself because it runs before any block render.php
-			// has populated filterConfigs — this is where it lands.
+			// PHP can't apply the taxonomy-only gate (it runs before any block
+			// render.php has populated filterConfigs); the gate lands here.
 			if ( state.filterLogic && Object.keys( state.filterLogic ).length > 0 ) {
 				const gatedLogic = pickLogicForActive(
 					state.filterLogic,
@@ -1711,29 +1599,27 @@ const { state, actions } = store( NAMESPACE, {
 					state.filterLogic = gatedLogic;
 				}
 			}
+			// `hasSearchParam` catches `?s=` (empty value) — the param is
+			// present so the visitor expects a search to run, but
+			// `searchQuery` alone is `''` and indistinguishable from a
+			// URL that omits `s`. Seeded from PHP via build_initial_state().
+			// The dispatcher is idempotent so the overlay-bootstrap's
+			// belt-and-suspenders call after hydration doesn't double-fire.
 			if ( state.searchQuery || state.hasActiveFilters || state.hasSearchParam ) {
-				// `hasSearchParam` catches `?s=` (empty value) — the param is
-				// present so the visitor expects a search to run, but
-				// `searchQuery` alone is `''` and indistinguishable from a
-				// URL that omits `s`. Seeded from PHP via build_initial_state().
-				// syncUrl=false: URL already carries this query; avoid a duplicate history entry.
-				actions.search( { syncUrl: false } );
+				actions.dispatchInitialSearchIfNeeded();
 			} else if ( droppedAny ) {
-				// Gate emptied activeFilters and no fetch will fire — clear the PHP-seeded
-				// spinner and also drop the skeleton, since no fetch is coming.
+				// No fetch will fire — clear the spinner; `skeletonHidden`
+				// derives to true once `isLoading` is false.
 				state.isLoading = false;
-				state.skeletonHidden = true;
 			}
 		},
 
 		/**
-		 * Wires the results-load-more block's IntersectionObserver when its
-		 * `loadOnScroll` attribute is on. Returns a teardown that disconnects
-		 * the observer — the Interactivity runtime calls it on unmount and on
-		 * HMR re-init so listeners never leak.
+		 * Wires the results-load-more `IntersectionObserver` when its
+		 * `loadOnScroll` attribute is on. Returns a teardown the IA runtime
+		 * calls on unmount/HMR so listeners never leak.
 		 *
-		 * @return {Function|undefined} cleanup callback or undefined when the
-		 * block opted out at render time.
+		 * @return {Function|undefined} cleanup or undefined when opted out.
 		 */
 		initLoadMoreObserver() {
 			const wrapper = getElement?.()?.ref;
@@ -1749,14 +1635,10 @@ const { state, actions } = store( NAMESPACE, {
 			}
 			const offset = Number( wrapper.dataset.loadOnScrollOffset );
 			const rootMargin = `0px 0px ${ Number.isFinite( offset ) ? offset : 200 }px 0px`;
-			// IntersectionObserver only fires on intersection *state changes*.
-			// When a page of results is too short to push the sentinel back
-			// outside the rootMargin after a fetch, no further events arrive
-			// and auto-load silently stalls. After each load settles we
-			// `unobserve` + `observe` again so the observer re-delivers its
-			// initial-state event against the current layout; if the sentinel
-			// is still intersecting we get a fresh `isIntersecting: true` and
-			// the next page fires without the user having to nudge the scroll.
+			// IntersectionObserver fires only on state *changes*. If a fetched
+			// page is too short to push the sentinel back outside the rootMargin,
+			// auto-load stalls; `unobserve`+`observe` re-delivers the initial-state
+			// event so a still-intersecting sentinel kicks the next page.
 			let pending = false;
 			const observer = new IntersectionObserver(
 				entries => {
@@ -1788,11 +1670,8 @@ const { state, actions } = store( NAMESPACE, {
 		},
 
 		/**
-		 * Fires when the `ai-answer` block mounts. Flips the module-scope
-		 * `aiBlockPresent` flag so `actions.search()` knows to dispatch the
-		 * AI fetch alongside the results fetch, and kicks off a first fetch
-		 * for the URL-seeded query so a deep-link load gets an answer
-		 * without the user re-submitting the search input.
+		 * Latches `aiBlockPresent` and kicks off a fetch for any URL-seeded
+		 * query so deep-link loads get an answer without re-submitting.
 		 */
 		initializeAiAnswer() {
 			aiBlockPresent = true;
@@ -1802,17 +1681,10 @@ const { state, actions } = store( NAMESPACE, {
 		},
 
 		/**
-		 * Render the AI answer markdown into the panel's content element via
-		 * `innerHTML`. The Interactivity API has no `data-wp-html` directive
-		 * (reactively setting innerHTML is intentionally not built in), so
-		 * the AI Answer block binds `data-wp-watch` to this callback and
-		 * lets the markdown→HTML render run imperatively. The reactive read
-		 * of `state.aiVisibleText` inside `markdownToHtml()` is what wires
-		 * the dependency tracking, so subsequent token writes re-fire it.
-		 *
-		 * Safe because `markdownToHtml()` escapes every text segment before
-		 * stitching in its own tag set — see the inline-format pass in
-		 * `instant-search/lib/markdown.js`.
+		 * Imperative markdown→HTML render — IA has no `data-wp-html`. The
+		 * reactive read of `state.aiVisibleText` wires dependency tracking so
+		 * subsequent token writes re-fire. Safe because `markdownToHtml()`
+		 * escapes every text segment.
 		 */
 		renderAiAnswerHtml() {
 			const element = getElement?.();
@@ -1827,10 +1699,9 @@ const { state, actions } = store( NAMESPACE, {
 		},
 
 		/**
-		 * Reactively syncs `context.wrapperHidden` for each filter-checkbox
-		 * block. The wrapper stays visible while the pre-hydration skeleton
-		 * is up; afterwards it hides only when the filter has nothing to
-		 * show (no buckets, no retained options, no active selection).
+		 * Reactively sync `context.wrapperHidden`. Visible during the
+		 * pre-hydration skeleton; afterwards hides only when the filter has
+		 * nothing to show (no buckets, no retained, no selection).
 		 */
 		syncFilterWrapperVisibility() {
 			const ctx = getContext();

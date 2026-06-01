@@ -1,0 +1,36 @@
+@use "@automattic/jetpack-base-styles/admin-page-layout" as *;
+
+// Layout — the modernized Social dashboard mounts `AdminPage` from
+// `@automattic/jetpack-components`, so the shared
+// `jetpack-admin-page-layout-wp-build` mixin owns the viewport-pinned chrome:
+// fixed-position content column, scrolling middle, pinned `JetpackFooter`, and
+// the sticky `.jp-admin-page-tabs` strip. This file adds only the page-specific
+// pieces: the off-white canvas and the tab content padding.
+
+$jetpack-social-inset: var(--wpds-dimension-padding-2xl, 24px);
+
+// Both body classes: `jetpack_page_*` when Social is a submenu under the
+// Jetpack menu (Jetpack plugin), `toplevel_page_*` when it's a top-level menu
+// (standalone Social plugin).
+body.jetpack_page_jetpack-social,
+body.toplevel_page_jetpack-social {
+
+	// `-wp-build` variant: the modernized dashboard mounts `@wordpress/admin-ui`
+	// 2.x components, so layer that variant's defensive resets (breadcrumb
+	// `ul`/`a` overrides) on top of the shared layout.
+	@include jetpack-admin-page-layout-wp-build;
+
+	// Off-white page surface so white content cards stand out against the
+	// background. `AdminPage` paints `.jp-admin-page` (its outer wrapper) and
+	// `.jp-admin-page__page` (the admin-ui `Page` shell) white by default via
+	// `showBackground`, so both need overriding for every tab to share the canvas.
+	&,
+	.jp-admin-page,
+	.jp-admin-page__page {
+		background-color: #fcfcfc;
+	}
+
+	.jetpack-social-page__content--padded {
+		padding: $jetpack-social-inset;
+	}
+}

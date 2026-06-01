@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Search Blocks: route the Restore Default action through jetpack/v4 so it works on WordPress.com Simple sites.

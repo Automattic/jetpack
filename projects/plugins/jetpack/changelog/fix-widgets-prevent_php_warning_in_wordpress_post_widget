@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Widgets: Prevent a PHP error when Display Posts data is malformed.

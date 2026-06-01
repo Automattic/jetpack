@@ -18,7 +18,7 @@ await jest.unstable_mockModule( '@wordpress/interactivity', () => ( {
 // Mock libphonenumber-js
 const mockParsePhoneNumber = jest.fn();
 const mockAsYouType = jest.fn();
-await jest.unstable_mockModule( 'libphonenumber-js', () => ( {
+await jest.unstable_mockModule( 'libphonenumber-js/min/es6', () => ( {
 	__esModule: true,
 	default: mockParsePhoneNumber,
 	AsYouType: mockAsYouType,

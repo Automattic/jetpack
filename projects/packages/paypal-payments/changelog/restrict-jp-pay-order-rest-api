@@ -1,4 +1,0 @@
-Significance: minor
-Type: security
-
-Restrict REST API write access to jp_pay_order by using a read-only REST controller

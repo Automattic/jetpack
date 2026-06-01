@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Search Blocks: hide the Load More button while the "Loading…" indicator is showing, so visitors don't see both stacked together during a load-more fetch.

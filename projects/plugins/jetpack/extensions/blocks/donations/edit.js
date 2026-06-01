@@ -1,5 +1,6 @@
+import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { useBlockProps } from '@wordpress/block-editor';
-import { Spinner } from '@wordpress/components';
+import { Icon, Spinner } from '@wordpress/components';
 import { useInstanceId } from '@wordpress/compose';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useCallback, useState, useEffect } from '@wordpress/element';
@@ -12,17 +13,31 @@ import useIsUserConnected from '../../shared/use-is-user-connected';
 import { store as membershipProductsStore } from '../../store/membership-products';
 import { STORE_NAME as MEMBERSHIPS_PRODUCTS_STORE } from '../../store/membership-products/constants';
 import buildCustomStyles from './build-custom-styles';
+import Controls from './controls';
 import fetchDefaultProducts from './fetch-default-products';
 import fetchStatus from './fetch-status';
 import FirstTimeModal from './first-time-modal';
+import { TRIGGER_ICONS } from './icons';
 import './first-time-modal.scss';
 import LoadingError from './loading-error';
 import StyleControls from './style-controls';
 import Tabs from './tabs';
 
+// Dedupe block_loaded event firings across React re-mounts within the same editor session.
+const blockLoadedFiredClientIds = new Set();
+
 const Edit = props => {
-	const { attributes, setAttributes } = props;
-	const { currency, tabsAppearance, className } = attributes;
+	const { attributes, setAttributes, clientId } = props;
+	const {
+		currency,
+		tabsAppearance,
+		className,
+		displayMode,
+		triggerButtonText,
+		triggerIcon,
+		triggerSticky,
+	} = attributes;
+	const { tracks } = useAnalytics();
 
 	// Migrate legacy blocks that used the block-style variation
 	// (`is-style-buttons` saved into `className`) over to the new
@@ -45,8 +60,14 @@ const Edit = props => {
 	const instanceId = useInstanceId( Edit, 'jp-donations' );
 	const customStyles = buildCustomStyles( attributes, `.${ instanceId }` );
 
-	const wrapperClassName =
-		tabsAppearance === 'buttons' ? `${ instanceId } is-style-buttons` : instanceId;
+	const wrapperClassName = [
+		instanceId,
+		tabsAppearance === 'buttons' && 'is-style-buttons',
+		displayMode === 'modal' && 'is-display-modal',
+		displayMode === 'modal' && triggerSticky && 'is-sticky',
+	]
+		.filter( Boolean )
+		.join( ' ' );
 	const blockProps = useBlockProps( { className: wrapperClassName } );
 	const [ loadingError, setLoadingError ] = useState( '' );
 	const [ products, setProducts ] = useState( [] );
@@ -74,6 +95,27 @@ const Edit = props => {
 	const stripeDefaultCurrency = useSelect( select =>
 		select( MEMBERSHIPS_PRODUCTS_STORE ).getConnectedAccountDefaultCurrency()
 	);
+
+	// Fire jetpack_donations_block_loaded once per clientId per session.
+	// Wait until either Stripe state has resolved (stripeConnectUrl OR
+	// stripeDefaultCurrency populated) or the user is not Jetpack-connected,
+	// so the stripe_connected snapshot is accurate.
+	useEffect( () => {
+		if ( ! clientId || blockLoadedFiredClientIds.has( clientId ) ) {
+			return;
+		}
+		const stripeStateResolved = !! stripeConnectUrl || !! stripeDefaultCurrency;
+		if ( isUserConnected && ! stripeStateResolved ) {
+			return;
+		}
+		blockLoadedFiredClientIds.add( clientId );
+		tracks.recordEvent( 'jetpack_donations_block_loaded', {
+			feature: 'donations',
+			surface: 'block_editor',
+			is_user_connected: !! isUserConnected,
+			stripe_connected: isUserConnected ? ! stripeConnectUrl : null,
+		} );
+	}, [ clientId, isUserConnected, stripeConnectUrl, stripeDefaultCurrency, tracks ] );
 
 	useEffect( () => {
 		if ( ! currency && stripeDefaultCurrency && ! isPostSavingLocked ) {
@@ -206,6 +248,24 @@ const Edit = props => {
 	} else if ( ! currency ) {
 		// Memberships settings are still loading
 		content = <Spinner />;
+	} else if ( displayMode === 'modal' ) {
+		const triggerIconEntry = TRIGGER_ICONS.find( ( { key } ) => key === triggerIcon );
+		const triggerLabel = triggerButtonText || __( 'Donate', 'jetpack' );
+		content = (
+			<>
+				<Controls { ...props } />
+				<button
+					className="donations__trigger-button wp-block-button__link"
+					tabIndex={ -1 }
+					aria-hidden="true"
+				>
+					{ triggerIconEntry && triggerIcon !== 'none' && (
+						<Icon className="donations__trigger-icon" icon={ triggerIconEntry.icon } size={ 20 } />
+					) }
+					{ triggerLabel }
+				</button>
+			</>
+		);
 	} else {
 		content = <Tabs { ...props } products={ products } />;
 	}

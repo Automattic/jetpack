@@ -147,6 +147,7 @@ describe( 'store actions', () => {
 			filterConfigs: {},
 			priceRange: null,
 			staticFilterSelections: {},
+			staticPostTypes: null,
 			results: [ { title: 'Existing result' } ],
 			locale: 'en-US',
 			isLoading: false,
@@ -178,12 +179,11 @@ describe( 'store actions', () => {
 		jest.restoreAllMocks();
 	} );
 
-	it( 'flips skeletonHidden once the first search resolves (success or error)', async () => {
-		// `skeletonHidden` gates the pre-hydration placeholders. Once the
-		// first fetch completes, JS owns the DOM and the skeleton must
-		// disappear for the rest of the session — both the success path
-		// and the error path of `search()` need to flip the flag.
-		state.skeletonHidden = false;
+	it( 'hides the skeleton once a search resolves (success or error)', async () => {
+		// `skeletonHidden` derives from an in-flight fetch with no results yet.
+		// Once `search()` settles — success or error — `isLoading` is false so
+		// the skeleton is hidden again. The error path clears `results`, so the
+		// derived flag must still resolve to hidden and not strand placeholders.
 		global.fetch.mockResolvedValueOnce(
 			createResponse( {
 				results: [ createResult( 'Fresh hit' ) ],
@@ -196,15 +196,57 @@ describe( 'store actions', () => {
 		expect( state.skeletonHidden ).toBe( true );
 		expect( state.isLoading ).toBe( false );
 
-		// Reset and confirm the error path also closes the skeleton —
-		// otherwise a connection failure would leave placeholders on screen
-		// indefinitely with no visible loading indicator.
-		state.skeletonHidden = false;
 		global.fetch.mockRejectedValueOnce( new Error( 'network down' ) );
 		await runGenerator( actions.search( { syncUrl: false } ) );
 		expect( state.skeletonHidden ).toBe( true );
 		expect( state.hasError ).toBe( true );
 		expect( state.isLoading ).toBe( false );
+	} );
+
+	it( 'applies the page-level post-type scope from state on every fetch', async () => {
+		// `search-results/render.php` seeds `state.staticPostTypes` once at
+		// template render; the store reads it on every fetch — initial search,
+		// typed search, filter/sort, load-more — without any per-instance
+		// override or fall-through ladder.
+		const ok = () =>
+			createResponse( { results: [], total: 0, page_handle: null, aggregations: {} } );
+
+		state.staticPostTypes = { include: [ 'product' ], exclude: [] };
+
+		global.fetch.mockResolvedValueOnce( ok() );
+		await runGenerator( actions.search( { syncUrl: false } ) );
+		expect( decodeURIComponent( global.fetch.mock.calls[ 0 ][ 0 ] ) ).toContain(
+			'filter[bool][must][0][term][post_type]=product'
+		);
+
+		// A filter/sort re-run uses the same seeded scope — no separate session
+		// state, the slot is the single source of truth.
+		global.fetch.mockResolvedValueOnce( ok() );
+		await runGenerator( actions.search( { syncUrl: false } ) );
+		expect( decodeURIComponent( global.fetch.mock.calls[ 1 ][ 0 ] ) ).toContain(
+			'filter[bool][must][0][term][post_type]=product'
+		);
+
+		// Clearing `state.staticPostTypes` (no `search-results` scope set)
+		// produces an unconstrained query.
+		state.staticPostTypes = null;
+		global.fetch.mockResolvedValueOnce( ok() );
+		await runGenerator( actions.search( { syncUrl: false } ) );
+		expect( decodeURIComponent( global.fetch.mock.calls[ 2 ][ 0 ] ) ).not.toContain(
+			'[term][post_type]'
+		);
+	} );
+
+	it( 'popstate re-runs search with only the syncUrl option (scope stays seeded)', async () => {
+		// Page-level scope is set by render.php and doesn't move; popstate
+		// only restores URL-driven state slices (query, filters, sort, etc).
+		state.searchParamName = 's';
+		state.isWooCommerceBlocksEnabled = false;
+		const searchSpy = jest.spyOn( actions, 'search' ).mockImplementation( function* () {} );
+		await runGenerator( actions.handlePopState() );
+		expect( searchSpy ).toHaveBeenCalledTimes( 1 );
+		expect( searchSpy.mock.calls[ 0 ][ 0 ] ).toEqual( { syncUrl: false } );
+		searchSpy.mockRestore();
 	} );
 
 	it( 'sets hasError on a failed loadMore and clears it on the next loadMore', async () => {
@@ -691,6 +733,23 @@ describe( 'store getters', () => {
 		expect( state.activeFilterCount ).toBe( 2 );
 	} );
 
+	it( 'shows the skeleton only while a fetch is in flight with no results yet', () => {
+		// The initial client-side search must surface the skeleton; a reload
+		// that already has results keeps them visible (no flash).
+		state.isLoading = false;
+		state.results = [];
+		expect( state.skeletonHidden ).toBe( true );
+
+		state.isLoading = true;
+		expect( state.skeletonHidden ).toBe( false );
+
+		state.results = [ { title: 'Fresh hit' } ];
+		expect( state.skeletonHidden ).toBe( true );
+
+		state.isLoading = false;
+		expect( state.skeletonHidden ).toBe( true );
+	} );
+
 	it( 'surfaces showNoResults for an explicit-but-empty `?s=` deep link (SEARCH-183)', () => {
 		// Empty `?s=` URL — `searchQuery` is `''` but `hasSearchParam` is true,
 		// so the initial search fires (covered by other tests). If that search
@@ -1083,14 +1142,13 @@ describe( 'store callbacks', () => {
 			fresh.state.filterConfigs = { category: { filterKey: 'category' } };
 			fresh.state.activeFilters = { foo: [ 'bar' ] };
 			fresh.state.isLoading = true;
-			fresh.state.skeletonHidden = false;
 
 			captured.callbacks.initialize();
 
 			expect( fresh.state.activeFilters ).toEqual( {} );
 			expect( search ).not.toHaveBeenCalled();
 			expect( fresh.state.isLoading ).toBe( false );
-			// Skeleton flips closed even though no fetch fires — otherwise the
+			// Skeleton derives closed once `isLoading` clears — otherwise the
 			// pre-hydration placeholders would linger forever on a deep link
 			// whose only filter keys are stale and get gated out.
 			expect( fresh.state.skeletonHidden ).toBe( true );
@@ -1121,6 +1179,56 @@ describe( 'store callbacks', () => {
 			// Drop the flag so it doesn't leak into the `handlePopState` describe
 			// below — captured.state is a singleton across the mocked module.
 			fresh.state.hasSearchParam = false;
+		} );
+	} );
+
+	describe( 'dispatchInitialSearchIfNeeded (SEARCH-258)', () => {
+		// The action is the shared seam between the IA-directive entry path
+		// (results-list's `data-wp-init`) and the overlay-bootstrap entry
+		// path (post-hydration explicit call). The flag is module-scoped, so
+		// each case loads a fresh module via `jest.isolateModules` rather
+		// than mutating the shared module instance — otherwise the latch from
+		// the first case would silently make every later case a no-op.
+
+		it( 'fires actions.search once on the first call and is a no-op on subsequent calls', () => {
+			jest.isolateModules( () => {
+				const fresh = require( '../../../src/search-blocks/store' );
+				const search = jest.spyOn( fresh.actions, 'search' ).mockImplementation();
+				fresh.state.searchQuery = '';
+				fresh.state.priceRange = null;
+				fresh.state.filterConfigs = {};
+				fresh.state.activeFilters = {};
+				fresh.state.hasSearchParam = true;
+
+				captured.actions.dispatchInitialSearchIfNeeded();
+				captured.actions.dispatchInitialSearchIfNeeded();
+				captured.actions.dispatchInitialSearchIfNeeded();
+
+				// The latch is what lets the IA directive AND the overlay
+				// bootstrap both call this safely after hydration — only the
+				// first invocation wins.
+				expect( search ).toHaveBeenCalledTimes( 1 );
+				expect( search ).toHaveBeenCalledWith( { syncUrl: false } );
+
+				fresh.state.hasSearchParam = false;
+			} );
+		} );
+
+		it( 'bails without dispatching when no search criteria are present', () => {
+			jest.isolateModules( () => {
+				const fresh = require( '../../../src/search-blocks/store' );
+				const search = jest.spyOn( fresh.actions, 'search' ).mockImplementation();
+				// Plain homepage: no `?s=` / `?q=`, no filters, no price range.
+				fresh.state.searchQuery = '';
+				fresh.state.priceRange = null;
+				fresh.state.filterConfigs = {};
+				fresh.state.activeFilters = {};
+				fresh.state.hasSearchParam = false;
+
+				captured.actions.dispatchInitialSearchIfNeeded();
+
+				expect( search ).not.toHaveBeenCalled();
+			} );
 		} );
 	} );
 
@@ -1334,5 +1442,217 @@ describe( 'handlePopState gating', () => {
 		await runGenerator( actions.handlePopState() );
 
 		expect( state.hasSearchParam ).toBe( true );
+	} );
+} );
+
+describe( 'TrainTracks relevance events', () => {
+	/**
+	 * Raw API result carrying a railcar, as the search API returns it.
+	 *
+	 * @param {string} title - Result title.
+	 * @param {number} pos   - Server fetch_position.
+	 * @return {object} Raw search result with railcar.
+	 */
+	function railcarResult( title, pos ) {
+		return {
+			...createResult( title ),
+			railcar: {
+				railcar: `rc-${ pos }`,
+				fetch_algo: 'jetpack:search/1-score_default',
+				fetch_position: pos,
+				fetch_query: 'boots',
+				rec_blog_id: 1,
+				rec_post_id: 100 + pos,
+				session_id: 'sess-1',
+			},
+		};
+	}
+
+	beforeEach( () => {
+		Object.assign( actions, originalActions );
+		Object.assign( state, {
+			siteId: 123,
+			searchQuery: 'boots',
+			sortOrder: 'relevance',
+			pageHandle: null,
+			isPrivateSite: false,
+			isWpcom: false,
+			apiRoot: 'https://example.com/wp-json/',
+			homeUrl: 'https://example.com',
+			nonce: '',
+			activeFilters: {},
+			filterConfigs: {},
+			priceRange: null,
+			staticFilterSelections: {},
+			staticPostTypes: null,
+			retainedFilterOptions: {},
+			results: [],
+			resultsLayout: 'expanded',
+			disableTracking: false,
+			locale: 'en-US',
+			isLoading: false,
+			isLoadingMore: false,
+			hasError: false,
+			totalResults: 0,
+			aggregations: {},
+			strings: {},
+		} );
+		Object.defineProperty( global, 'fetch', {
+			configurable: true,
+			writable: true,
+			value: jest.fn(),
+		} );
+		window._tkq = [];
+		captured.context = {};
+	} );
+
+	afterEach( () => {
+		if ( originalFetch ) {
+			Object.defineProperty( global, 'fetch', {
+				configurable: true,
+				writable: true,
+				value: originalFetch,
+			} );
+		} else {
+			delete global.fetch;
+		}
+		jest.restoreAllMocks();
+	} );
+
+	it( 'fires one render event per result with absolute ui_position and the instant-search ui_algo', async () => {
+		global.fetch.mockResolvedValueOnce(
+			createResponse( {
+				results: [ railcarResult( 'First', 0 ), railcarResult( 'Second', 1 ) ],
+				total: 2,
+				page_handle: null,
+				aggregations: {},
+			} )
+		);
+		await runGenerator( actions.search( { syncUrl: false } ) );
+
+		const renders = window._tkq.filter(
+			e => e[ 1 ] === 'jetpack_instant_search_traintracks_render'
+		);
+		expect( renders ).toHaveLength( 2 );
+		expect( renders[ 0 ][ 2 ] ).toMatchObject( {
+			fetch_algo: 'jetpack:search/1-score_default',
+			fetch_position: 0,
+			fetch_query: 'boots',
+			railcar: 'rc-0',
+			rec_blog_id: 1,
+			rec_post_id: 100,
+			session_id: 'sess-1',
+			ui_algo: 'jetpack-instant-search-ui/v1-expanded',
+			ui_position: 0,
+		} );
+		expect( renders[ 1 ][ 2 ] ).toMatchObject( { railcar: 'rc-1', ui_position: 1 } );
+	} );
+
+	it( 'maps the compact layout to the minimal ui_algo', async () => {
+		state.resultsLayout = 'compact';
+		global.fetch.mockResolvedValueOnce(
+			createResponse( { results: [ railcarResult( 'Only', 0 ) ], total: 1, page_handle: null } )
+		);
+		await runGenerator( actions.search( { syncUrl: false } ) );
+
+		const render = window._tkq.find( e => e[ 1 ] === 'jetpack_instant_search_traintracks_render' );
+		expect( render[ 2 ].ui_algo ).toBe( 'jetpack-instant-search-ui/v1-minimal' );
+	} );
+
+	it( 'maps the product layout to the product ui_algo', async () => {
+		state.resultsLayout = 'product';
+		global.fetch.mockResolvedValueOnce(
+			createResponse( { results: [ railcarResult( 'Only', 0 ) ], total: 1, page_handle: null } )
+		);
+		await runGenerator( actions.search( { syncUrl: false } ) );
+
+		const render = window._tkq.find( e => e[ 1 ] === 'jetpack_instant_search_traintracks_render' );
+		expect( render[ 2 ].ui_algo ).toBe( 'jetpack-instant-search-ui/v1-product' );
+	} );
+
+	it( 'fires no render events when tracking is disabled', async () => {
+		state.disableTracking = true;
+		global.fetch.mockResolvedValueOnce(
+			createResponse( {
+				results: [ railcarResult( 'First', 0 ), railcarResult( 'Second', 1 ) ],
+				total: 2,
+				page_handle: null,
+			} )
+		);
+		await runGenerator( actions.search( { syncUrl: false } ) );
+
+		expect(
+			window._tkq.filter( e => e[ 1 ] === 'jetpack_instant_search_traintracks_render' )
+		).toHaveLength( 0 );
+	} );
+
+	it( 'fires no interact event when tracking is disabled', () => {
+		state.disableTracking = true;
+		captured.context = { result: { index: 0, railcar: { railcar: 'rc-x' } } };
+		actions.recordResultInteract();
+		expect(
+			window._tkq.filter( e => e[ 1 ] === 'jetpack_instant_search_traintracks_interact' )
+		).toHaveLength( 0 );
+	} );
+
+	it( 'fires no event for results lacking a railcar', async () => {
+		global.fetch.mockResolvedValueOnce(
+			createResponse( { results: [ createResult( 'No railcar' ) ], total: 1, page_handle: null } )
+		);
+		await runGenerator( actions.search( { syncUrl: false } ) );
+
+		expect(
+			window._tkq.filter( e => e[ 1 ] === 'jetpack_instant_search_traintracks_render' )
+		).toHaveLength( 0 );
+	} );
+
+	it( 'offsets ui_position by the existing list length on loadMore', async () => {
+		// One result already on the page (ui_position 0); the next page's
+		// result must report ui_position 1, not 0.
+		state.results = [ { id: 'a', title: 'Already here', index: 0, railcar: null } ];
+		state.pageHandle = 'page-2';
+		global.fetch.mockResolvedValueOnce(
+			createResponse( { results: [ railcarResult( 'Page two', 1 ) ], page_handle: null } )
+		);
+		await runGenerator( actions.loadMore() );
+
+		const render = window._tkq.find( e => e[ 1 ] === 'jetpack_instant_search_traintracks_render' );
+		expect( render[ 2 ].ui_position ).toBe( 1 );
+	} );
+
+	it( 'fires an interact event with action:click reading the clicked result context', () => {
+		captured.context = {
+			result: {
+				index: 3,
+				railcar: {
+					railcar: 'rc-click',
+					fetch_algo: 'jetpack:search/1-score_default',
+					fetch_position: 3,
+					fetch_query: 'boots',
+					rec_blog_id: 1,
+					rec_post_id: 103,
+					session_id: 'sess-1',
+				},
+			},
+		};
+		actions.recordResultInteract();
+
+		const interact = window._tkq.find(
+			e => e[ 1 ] === 'jetpack_instant_search_traintracks_interact'
+		);
+		expect( interact[ 2 ] ).toMatchObject( {
+			railcar: 'rc-click',
+			ui_position: 3,
+			ui_algo: 'jetpack-instant-search-ui/v1-expanded',
+			action: 'click',
+		} );
+	} );
+
+	it( 'fires no interact event when the clicked result has no railcar', () => {
+		captured.context = { result: { index: 0, railcar: null } };
+		actions.recordResultInteract();
+		expect(
+			window._tkq.filter( e => e[ 1 ] === 'jetpack_instant_search_traintracks_interact' )
+		).toHaveLength( 0 );
 	} );
 } );

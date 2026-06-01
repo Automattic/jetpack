@@ -88,8 +88,10 @@ export default function SearchModuleControl( {
 	);
 	const showAIAgentAccessGuidelinesLink =
 		! isReaderChatAvailable ||
+		! supportsSearch ||
 		! isReaderChatEnabled ||
 		readerChatGuidelinesUrl !== aiAgentAccessGuidelinesUrl;
+	const isReaderChatControlAvailable = isReaderChatAvailable && supportsSearch;
 
 	const toggleSearchModule = useCallback( () => {
 		if ( isDisabledFromOverLimit ) {
@@ -164,9 +166,9 @@ export default function SearchModuleControl( {
 					/>
 
 					<ReaderChatControl
-						isAvailable={ isReaderChatAvailable }
+						isAvailable={ isReaderChatControlAvailable }
 						isEnabled={ isReaderChatEnabled }
-						isSaving={ isSavingEitherOption }
+						isSaving={ isSavingEitherOption || isDisabledFromOverLimit }
 						guidelinesUrl={ readerChatGuidelinesUrl }
 						updateOptions={ updateOptions }
 					/>

@@ -60,7 +60,7 @@ jest.mock( '../sections/first-run-section', () => () => <div data-testid="first-
 jest.mock( '../sections/overview-section', () => () => <div data-testid="overview-section" /> );
 
 /* eslint-disable testing-library/prefer-user-event */
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import DashboardPage from '../dashboard-page';
 
@@ -108,6 +108,19 @@ const createSelectMethods = () => ( {
 	isSearchSuggestionsEnabled: jest.fn( () => false ),
 	isWooCommerceActive: jest.fn( () => false ),
 	isWooCommerceSearchTemplateOverrideEnabled: jest.fn( () => false ),
+	isBlockTheme: jest.fn( () => true ),
+	getProductSearchTemplateConfig: jest.fn( () => ( {
+		enabled: false,
+		editorUrl: null,
+		postType: null,
+		isCustomized: false,
+	} ) ),
+	getProductOverlayTemplateConfig: jest.fn( () => ( {
+		enabled: false,
+		editorUrl: null,
+		postType: null,
+		isCustomized: false,
+	} ) ),
 	getActiveExperience: jest.fn( () => 'embedded' ),
 	isTogglingInstantSearch: jest.fn( () => false ),
 	isTogglingModule: jest.fn( () => false ),
@@ -276,7 +289,59 @@ describe( 'DashboardPage', () => {
 		expect( mockWooCommerceProductSearchControl ).not.toHaveBeenCalled();
 	} );
 
-	test( 'hides WooCommerceProductSearchControl under the Overlay experience (moot — instant search intercepts)', () => {
+	test( 'routes editTemplateUrl through the Site Editor on block themes', () => {
+		jest.spyOn( mockSelectMethods, 'isSearchBlocksEnabled' ).mockImplementation( () => true );
+		jest.spyOn( mockSelectMethods, 'isWooCommerceActive' ).mockImplementation( () => true );
+		jest.spyOn( mockSelectMethods, 'getActiveExperience' ).mockImplementation( () => 'embedded' );
+		jest
+			.spyOn( mockSelectMethods, 'isWooCommerceSearchTemplateOverrideEnabled' )
+			.mockImplementation( () => true );
+		jest.spyOn( mockSelectMethods, 'isBlockTheme' ).mockImplementation( () => true );
+
+		render( <DashboardPage /> );
+		fireEvent.click( screen.getByRole( 'tab', { name: /settings/i } ) );
+
+		expect( mockWooCommerceProductSearchControl ).toHaveBeenCalledWith(
+			expect.objectContaining( {
+				editTemplateUrl: expect.stringContaining( 'site-editor.php' ),
+			} )
+		);
+	} );
+
+	test( 'routes templateConfig through the singleton CPT on classic themes', () => {
+		// Regression guard for SEARCH-259's classic-theme fix: a classic
+		// theme has no Site Editor, so the Site Editor URL is a dead link.
+		// `dashboard-page.jsx` branches on `isBlockTheme` and routes to
+		// `Product_Search_Template`'s CPT editor URL instead.
+		const cptEditorUrl =
+			'https://example.com/wp-admin/admin.php?page=jetpack-search&jetpack_search_open_product_template_editor=1&_wpnonce=ABC';
+		jest.spyOn( mockSelectMethods, 'isSearchBlocksEnabled' ).mockImplementation( () => true );
+		jest.spyOn( mockSelectMethods, 'isWooCommerceActive' ).mockImplementation( () => true );
+		jest.spyOn( mockSelectMethods, 'getActiveExperience' ).mockImplementation( () => 'embedded' );
+		jest
+			.spyOn( mockSelectMethods, 'isWooCommerceSearchTemplateOverrideEnabled' )
+			.mockImplementation( () => true );
+		jest.spyOn( mockSelectMethods, 'isBlockTheme' ).mockImplementation( () => false );
+		jest.spyOn( mockSelectMethods, 'getProductSearchTemplateConfig' ).mockImplementation( () => ( {
+			enabled: true,
+			editorUrl: cptEditorUrl,
+			postType: 'jp_product_search',
+			isCustomized: false,
+		} ) );
+
+		render( <DashboardPage /> );
+		fireEvent.click( screen.getByRole( 'tab', { name: /settings/i } ) );
+
+		expect( mockWooCommerceProductSearchControl ).toHaveBeenCalledWith(
+			expect.objectContaining( {
+				templateConfig: expect.objectContaining( { editorUrl: cptEditorUrl } ),
+				editTemplateUrl: null,
+				editLabel: 'Edit the product search template',
+			} )
+		);
+	} );
+
+	test( 'hides WooCommerceProductSearchControl under the legacy Overlay experience (moot — instant search intercepts)', () => {
 		jest.spyOn( mockSelectMethods, 'isSearchBlocksEnabled' ).mockImplementation( () => true );
 		jest.spyOn( mockSelectMethods, 'isWooCommerceActive' ).mockImplementation( () => true );
 		jest.spyOn( mockSelectMethods, 'getActiveExperience' ).mockImplementation( () => 'overlay' );
@@ -286,6 +351,44 @@ describe( 'DashboardPage', () => {
 
 		expect( screen.queryByTestId( 'woocommerce-product-search-control' ) ).not.toBeInTheDocument();
 		expect( mockWooCommerceProductSearchControl ).not.toHaveBeenCalled();
+	} );
+
+	test( 'renders WooCommerceProductSearchControl for the blocks Overlay experience and routes templateConfig to the product overlay CPT', () => {
+		// SEARCH-287: the blocks Overlay now reads the same
+		// `override_woocommerce_search_template` option, so the toggle surfaces
+		// here too — with the edit link pointed at the product overlay CPT
+		// (post.php on every theme), not the Embedded page template.
+		const overlayCptEditorUrl =
+			'https://example.com/wp-admin/admin.php?page=jetpack-search&jetpack_search_open_product_overlay_editor=1&_wpnonce=XYZ';
+		jest.spyOn( mockSelectMethods, 'isSearchBlocksEnabled' ).mockImplementation( () => true );
+		jest.spyOn( mockSelectMethods, 'isWooCommerceActive' ).mockImplementation( () => true );
+		jest
+			.spyOn( mockSelectMethods, 'getActiveExperience' )
+			.mockImplementation( () => 'overlay_blocks' );
+		jest
+			.spyOn( mockSelectMethods, 'isWooCommerceSearchTemplateOverrideEnabled' )
+			.mockImplementation( () => true );
+		// Block theme on purpose: the overlay must NOT fall through to the Site
+		// Editor product-results URL — it's a CPT template regardless of theme.
+		jest.spyOn( mockSelectMethods, 'isBlockTheme' ).mockImplementation( () => true );
+		jest.spyOn( mockSelectMethods, 'getProductOverlayTemplateConfig' ).mockImplementation( () => ( {
+			enabled: true,
+			editorUrl: overlayCptEditorUrl,
+			postType: 'jp_search_prod_ovl',
+			isCustomized: false,
+		} ) );
+
+		render( <DashboardPage /> );
+		fireEvent.click( screen.getByRole( 'tab', { name: /settings/i } ) );
+
+		expect( screen.getByTestId( 'woocommerce-product-search-control' ) ).toBeInTheDocument();
+		expect( mockWooCommerceProductSearchControl ).toHaveBeenCalledWith(
+			expect.objectContaining( {
+				templateConfig: expect.objectContaining( { editorUrl: overlayCptEditorUrl } ),
+				editTemplateUrl: null,
+				editLabel: 'Edit the product Search overlay',
+			} )
+		);
 	} );
 
 	test( 'does not render Reader Chat card in the experience selector path when unavailable', () => {
@@ -300,8 +403,20 @@ describe( 'DashboardPage', () => {
 		expect( mockReaderChatControl ).not.toHaveBeenCalled();
 	} );
 
-	test( 'hydrates active tab from the URL query string', () => {
-		window.history.replaceState( {}, '', `${ DEFAULT_TEST_URL }&tab=ai-answers` );
+	test( 'does not render Reader Chat card in the experience selector path when Search is not supported', () => {
+		jest.spyOn( mockSelectMethods, 'isSearchBlocksEnabled' ).mockImplementation( () => true );
+		jest.spyOn( mockSelectMethods, 'supportsSearch' ).mockImplementation( () => false );
+
+		render( <DashboardPage /> );
+		fireEvent.click( screen.getByRole( 'tab', { name: /settings/i } ) );
+
+		expect( screen.getByTestId( 'experience-selector' ) ).toBeInTheDocument();
+		expect( screen.queryByTestId( 'reader-chat-control' ) ).not.toBeInTheDocument();
+		expect( mockReaderChatControl ).not.toHaveBeenCalled();
+	} );
+
+	test( 'hydrates active tab from the URL hash', () => {
+		window.history.replaceState( {}, '', `${ DEFAULT_TEST_URL }#/ai-answers` );
 
 		render( <DashboardPage /> );
 
@@ -316,9 +431,8 @@ describe( 'DashboardPage', () => {
 		expect( screen.getByTestId( 'ai-answers-tab' ) ).toBeInTheDocument();
 	} );
 
-	test( 'falls back to the default tab when URL tab is unknown', () => {
-		window.history.replaceState( {}, '', `${ DEFAULT_TEST_URL }&tab=unknown` );
-		const replaceStateSpy = jest.spyOn( window.history, 'replaceState' );
+	test( 'falls back to the default tab when the URL hash is unknown', () => {
+		window.history.replaceState( {}, '', `${ DEFAULT_TEST_URL }#/unknown` );
 
 		render( <DashboardPage /> );
 
@@ -326,12 +440,37 @@ describe( 'DashboardPage', () => {
 			'aria-selected',
 			'true'
 		);
-		expect( replaceStateSpy ).not.toHaveBeenCalled();
-		expect( window.location.search ).toContain( 'tab=unknown' );
-		replaceStateSpy.mockRestore();
+		// Mount-time normalization rewrites the unknown hash to the canonical default.
+		expect( window.location.hash ).toBe( '#/overview' );
 	} );
 
-	test( 'resolves the legacy plan-usage slug to the Overview tab (backwards compat)', () => {
+	test( 'resolves the legacy plan-usage slug in the hash to the Overview tab', () => {
+		window.history.replaceState( {}, '', `${ DEFAULT_TEST_URL }#/plan-usage` );
+
+		render( <DashboardPage /> );
+
+		expect( screen.getByRole( 'tab', { name: /overview/i } ) ).toHaveAttribute(
+			'aria-selected',
+			'true'
+		);
+		// Normalized to the canonical Overview hash.
+		expect( window.location.hash ).toBe( '#/overview' );
+	} );
+
+	test( 'normalizes legacy ?tab= query strings to the equivalent hash on mount', () => {
+		window.history.replaceState( {}, '', `${ DEFAULT_TEST_URL }&tab=ai-answers` );
+
+		render( <DashboardPage /> );
+
+		expect( screen.getByRole( 'tab', { name: /ai answers/i } ) ).toHaveAttribute(
+			'aria-selected',
+			'true'
+		);
+		expect( window.location.hash ).toBe( '#/ai-answers' );
+		expect( window.location.search ).not.toContain( 'tab=' );
+	} );
+
+	test( 'normalizes legacy ?tab=plan-usage to the new Overview hash on mount', () => {
 		window.history.replaceState( {}, '', `${ DEFAULT_TEST_URL }&tab=plan-usage` );
 
 		render( <DashboardPage /> );
@@ -340,22 +479,74 @@ describe( 'DashboardPage', () => {
 			'aria-selected',
 			'true'
 		);
+		expect( window.location.hash ).toBe( '#/overview' );
+		expect( window.location.search ).not.toContain( 'tab=' );
 	} );
 
-	test( 'updates the URL tab query string when tabs are changed', async () => {
+	test( 'updates the URL hash when tabs are changed', async () => {
 		const user = userEvent.setup();
-		const replaceStateSpy = jest.spyOn( window.history, 'replaceState' );
 
 		render( <DashboardPage /> );
 		await user.click( screen.getByRole( 'tab', { name: /ai answers/i } ) );
 
-		await waitFor( () =>
-			expect( replaceStateSpy ).toHaveBeenCalledWith(
-				{},
-				'',
-				`${ DEFAULT_TEST_URL }&tab=ai-answers`
-			)
+		await waitFor( () => expect( window.location.hash ).toBe( '#/ai-answers' ) );
+	} );
+
+	test( 'syncs active tab when the hash changes externally (back/forward)', () => {
+		render( <DashboardPage /> );
+
+		expect( screen.getByRole( 'tab', { name: /overview/i } ) ).toHaveAttribute(
+			'aria-selected',
+			'true'
 		);
-		replaceStateSpy.mockRestore();
+
+		act( () => {
+			window.location.hash = '/settings';
+			window.dispatchEvent( new HashChangeEvent( 'hashchange' ) );
+		} );
+
+		expect( screen.getByRole( 'tab', { name: /settings/i } ) ).toHaveAttribute(
+			'aria-selected',
+			'true'
+		);
+	} );
+
+	test( 'normalizes a plain URL to the canonical #/overview hash on mount', () => {
+		// No hash, no `?tab=` — the canonical default for first-time visitors.
+		render( <DashboardPage /> );
+
+		expect( screen.getByRole( 'tab', { name: /overview/i } ) ).toHaveAttribute(
+			'aria-selected',
+			'true'
+		);
+		expect( window.location.hash ).toBe( '#/overview' );
+	} );
+
+	test( 'normalizes the current-slug legacy query (?tab=overview) to #/overview on mount', () => {
+		window.history.replaceState( {}, '', `${ DEFAULT_TEST_URL }&tab=overview` );
+
+		render( <DashboardPage /> );
+
+		expect( screen.getByRole( 'tab', { name: /overview/i } ) ).toHaveAttribute(
+			'aria-selected',
+			'true'
+		);
+		expect( window.location.hash ).toBe( '#/overview' );
+		expect( window.location.search ).not.toContain( 'tab=' );
+	} );
+
+	test( 'canonicalizes the URL when an external hashchange lands on a legacy slug', () => {
+		render( <DashboardPage /> );
+
+		act( () => {
+			window.location.hash = '/plan-usage';
+			window.dispatchEvent( new HashChangeEvent( 'hashchange' ) );
+		} );
+
+		expect( screen.getByRole( 'tab', { name: /overview/i } ) ).toHaveAttribute(
+			'aria-selected',
+			'true'
+		);
+		expect( window.location.hash ).toBe( '#/overview' );
 	} );
 } );

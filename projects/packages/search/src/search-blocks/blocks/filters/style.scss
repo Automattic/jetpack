@@ -6,3 +6,18 @@
 	// spacing.blockGap support.
 	gap: var(--wp--style--block-gap, 1rem);
 }
+
+.jetpack-search-filters__empty {
+	margin: 0;
+	// Size + line-height match `results-list` no-results/error so every
+	// muted-message region in the overlay shares one visual scale. `rem`
+	// (not `em`) anchors to the root font-size — see `results-list/style.scss`
+	// for the rationale. `opacity: 0.6` keeps parity with `__path` / `__meta`.
+	font-size: 0.875rem;
+	line-height: 1.5;
+	opacity: 0.6;
+
+	&[hidden] {
+		display: none;
+	}
+}

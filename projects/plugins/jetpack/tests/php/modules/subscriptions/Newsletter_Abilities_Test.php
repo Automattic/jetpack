@@ -5,8 +5,6 @@
  * @package automattic/jetpack
  */
 
-// @phan-file-suppress PhanUndeclaredFunction, PhanUndeclaredClassMethod @phan-suppress-current-line UnusedSuppression -- Abilities API added in WP 6.9.
-
 require_once __DIR__ . '/../../../../modules/subscriptions/abilities/class-newsletter-abilities.php';
 
 use Automattic\Jetpack\Plugin\Abilities\Newsletter_Abilities;
@@ -393,5 +391,13 @@ class Newsletter_Abilities_Test extends WP_UnitTestCase {
 
 		$this->assertInstanceOf( \WP_Error::class, $result );
 		$this->assertSame( 'jetpack_newsletter_not_connected', $result->get_error_code() );
+	}
+
+	public function test_every_ability_opts_into_mcp_as_public_tool() {
+		foreach ( Newsletter_Abilities::get_abilities() as $slug => $spec ) {
+			$this->assertArrayHasKey( 'mcp', $spec['meta'], "{$slug} must publish meta.mcp." );
+			$this->assertTrue( $spec['meta']['mcp']['public'], "{$slug} must opt into MCP." );
+			$this->assertSame( 'tool', $spec['meta']['mcp']['type'], "{$slug} must be exposed as an MCP tool." );
+		}
 	}
 }

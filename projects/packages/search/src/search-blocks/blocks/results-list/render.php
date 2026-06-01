@@ -75,20 +75,6 @@ $layout = $attrs['layout'] ?? 'expanded';
 if ( 'card' === $layout ) {
 	$layout = 'expanded';
 }
-// Auto-switch to the product layout when the request is scoped to exactly
-// the `product` post type via the Jetpack Search `?post_types[]=product`
-// URL parameter, so a product search renders as a shop grid without the
-// author hand-picking the layout. (`request_is_product_only()` also
-// accepts the scalar `?post_type=product`, but that is a WP core query
-// var that reroutes to the WC shop archive before this block renders —
-// see its docblock.) Opt-out per block via the `autoProductView`
-// attribute (default on). The non-Woo collapse below is still the final
-// gate, so this can never force `product` on a non-Woo site even if the
-// URL asks for it.
-$auto_product_view = $attrs['autoProductView'] ?? true;
-if ( $auto_product_view && Search_Blocks::woocommerce_blocks_enabled() && Search_Blocks::request_is_product_only() ) {
-	$layout = 'product';
-}
 // The product layout reads WC-shaped fields (price, sale price, rating)
 // off each result. On a non-Woo site those fields don't exist, so
 // rendering would emit empty price/rating regions. Collapse to the
@@ -102,11 +88,17 @@ $features      = $resolve_layout( $layout );
 $wrapper_class = 'jetpack-search-results--' . $features['modifier'];
 $wrapper_attrs = get_block_wrapper_attributes( array( 'class' => $wrapper_class ) );
 
-// Pre-hydration loading state. Skeleton items below render server-side only
-// when the URL carries a query/filter that will trigger an initial fetch on
-// hydration; otherwise emitting them would freeze placeholder rows on a bare
-// /search/ page where no fetch ever fires. Once JS hydrates,
-// `data-wp-bind--hidden="state.skeletonHidden"` takes over visibility.
+// Hand the resolved layout to the store so the TrainTracks `ui_algo` matches
+// what visitors actually see. Deep-merges onto the global seed.
+if ( function_exists( 'wp_interactivity_state' ) ) {
+	wp_interactivity_state( 'jetpack-search', array( 'resultsLayout' => $layout ) );
+}
+
+// Skeleton items always render so the IA runtime can re-show them on a
+// client-side search from a bare /search/ page. The literal `hidden` keeps
+// them out of the pre-hydration paint unless the URL already carries a
+// query/filter that fires an initial fetch on hydration; afterwards
+// `data-wp-bind--hidden="state.skeletonHidden"` drives visibility reactively.
 $is_initial_loading = Search_Blocks::is_initial_loading();
 $skeleton_count     = 'compact' === $layout ? 6 : 4;
 
@@ -115,6 +107,14 @@ $skeleton_count     = 'compact' === $layout ? 6 : 4;
 $no_results_message = trim( (string) ( $attrs['noResultsMessage'] ?? '' ) );
 if ( '' === $no_results_message ) {
 	$no_results_message = __( 'No results found. Try a different search.', 'jetpack-search-pkg' );
+}
+
+// Filter-aware variant — shown when `state.hasActiveFilters` is true. Both
+// variants live in the markup so the store's existing reactive getter picks
+// which `<p>` is visible without a store-side message-resolution branch.
+$no_results_with_filters_message = trim( (string) ( $attrs['noResultsWithFiltersMessage'] ?? '' ) );
+if ( '' === $no_results_with_filters_message ) {
+	$no_results_with_filters_message = __( 'No results match these filters. Try clearing some, or searching for something else.', 'jetpack-search-pkg' );
 }
 
 $error_message = trim( (string) ( $attrs['errorMessage'] ?? '' ) );
@@ -132,39 +132,41 @@ if ( '' === $error_message ) {
 		class="jetpack-search-results__list"
 		aria-live="polite"
 	>
-		<?php if ( $is_initial_loading ) : ?>
-			<?php for ( $i = 0; $i < $skeleton_count; $i++ ) : ?>
-				<li
-					class="jetpack-search-results__item jetpack-search-results__item--skeleton"
-					data-wp-bind--hidden="state.skeletonHidden"
-					aria-hidden="true"
-				>
-					<?php if ( 'product' === $layout ) : ?>
-						<div class="jetpack-search-skeleton jetpack-search-skeleton--product-image"></div>
-						<div class="jetpack-search-results__copy">
-							<div class="jetpack-search-skeleton jetpack-search-skeleton--title"></div>
-							<div class="jetpack-search-skeleton jetpack-search-skeleton--title-secondary"></div>
-						</div>
-					<?php elseif ( 'compact' === $layout ) : ?>
-						<div class="jetpack-search-results__copy">
-							<div class="jetpack-search-skeleton jetpack-search-skeleton--title"></div>
-						</div>
-					<?php else : ?>
-						<div class="jetpack-search-results__copy">
-							<div class="jetpack-search-skeleton jetpack-search-skeleton--title"></div>
-							<div class="jetpack-search-skeleton jetpack-search-skeleton--path"></div>
-							<div class="jetpack-search-skeleton jetpack-search-skeleton--meta"></div>
-						</div>
-						<div class="jetpack-search-skeleton jetpack-search-skeleton--image"></div>
-					<?php endif; ?>
-				</li>
-			<?php endfor; ?>
-		<?php endif; ?>
+		<?php for ( $i = 0; $i < $skeleton_count; $i++ ) : ?>
+			<li
+				class="jetpack-search-results__item jetpack-search-results__item--skeleton"
+				data-wp-bind--hidden="state.skeletonHidden"
+				aria-hidden="true"
+				<?php echo $is_initial_loading ? '' : 'hidden'; ?>
+			>
+				<?php if ( 'product' === $layout ) : ?>
+					<div class="jetpack-search-skeleton jetpack-search-skeleton--product-image"></div>
+					<div class="jetpack-search-results__copy">
+						<div class="jetpack-search-skeleton jetpack-search-skeleton--title"></div>
+						<div class="jetpack-search-skeleton jetpack-search-skeleton--title-secondary"></div>
+					</div>
+				<?php elseif ( 'compact' === $layout ) : ?>
+					<div class="jetpack-search-results__copy">
+						<div class="jetpack-search-skeleton jetpack-search-skeleton--title"></div>
+					</div>
+				<?php else : ?>
+					<div class="jetpack-search-results__copy">
+						<div class="jetpack-search-skeleton jetpack-search-skeleton--title"></div>
+						<div class="jetpack-search-skeleton jetpack-search-skeleton--path"></div>
+						<div class="jetpack-search-skeleton jetpack-search-skeleton--meta"></div>
+					</div>
+					<div class="jetpack-search-skeleton jetpack-search-skeleton--image"></div>
+				<?php endif; ?>
+			</li>
+		<?php endfor; ?>
 		<template
 			data-wp-each--result="state.results"
 			data-wp-key="context.result.id"
 		>
-			<li class="jetpack-search-results__item">
+			<li
+				class="jetpack-search-results__item"
+				data-wp-on--click="actions.recordResultInteract"
+			>
 				<?php if ( $features['show_image'] && 'product' === $layout ) : ?>
 					<a
 						class="jetpack-search-results__product-image-link"
@@ -314,20 +316,15 @@ if ( '' === $error_message ) {
 					<a
 						class="jetpack-search-results__image-link"
 						data-wp-bind--href="context.result.permalink"
+						data-wp-bind--hidden="!context.result.imageUrl"
 						tabindex="-1"
 						aria-hidden="true"
 					>
 						<img
 							class="jetpack-search-results__image"
 							data-wp-bind--src="context.result.imageUrl"
-							data-wp-bind--hidden="!context.result.imageUrl"
 							alt=""
 						/>
-						<span
-							class="jetpack-search-results__image-placeholder"
-							data-wp-bind--hidden="context.result.imageUrl"
-							aria-hidden="true"
-						></span>
 					</a>
 				<?php endif; ?>
 			</li>
@@ -336,9 +333,19 @@ if ( '' === $error_message ) {
 	<div
 		class="jetpack-search-results__no-results"
 		data-wp-bind--hidden="!state.showNoResults"
+		role="status"
 		hidden
 	>
-		<p><?php echo esc_html( $no_results_message ); ?></p>
+		<?php
+		// Both `<p>` variants render without an initial `hidden` attribute —
+		// the outer wrapper's `hidden` covers them on the SSR path, and the IA
+		// runtime resolves the inner `data-wp-bind--hidden` atomically when it
+		// reveals the region. Don't remove the outer `hidden` without also
+		// adding initial `hidden` to one of the variants, or both messages
+		// will flash briefly on hydration.
+		?>
+		<p data-wp-bind--hidden="state.hasActiveFilters"><?php echo esc_html( $no_results_message ); ?></p>
+		<p data-wp-bind--hidden="!state.hasActiveFilters"><?php echo esc_html( $no_results_with_filters_message ); ?></p>
 	</div>
 	<div
 		class="jetpack-search-results__error"

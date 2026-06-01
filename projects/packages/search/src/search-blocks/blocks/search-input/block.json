@@ -19,7 +19,9 @@
 			"type": "array",
 			"default": [ "query", "taxonomy", "post" ],
 			"items": { "type": "string", "enum": [ "query", "taxonomy", "post" ] }
-		}
+		},
+		"width": { "type": "number" },
+		"widthUnit": { "type": "string" }
 	},
 	"textdomain": "jetpack-search-pkg",
 	"render": "file:./render.php",

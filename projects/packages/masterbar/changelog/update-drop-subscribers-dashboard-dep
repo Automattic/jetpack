@@ -1,3 +1,0 @@
-Significance: patch
-Type: removed
-Comment: Drop the unused `automattic/jetpack-subscribers-dashboard` composer dep.

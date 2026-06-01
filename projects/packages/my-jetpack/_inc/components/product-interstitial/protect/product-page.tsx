@@ -1,13 +1,7 @@
 /**
  * External dependencies
  */
-import {
-	AdminPage,
-	Col,
-	Container,
-	JetpackLogo,
-	getRedirectUrl,
-} from '@automattic/jetpack-components';
+import { AdminPage, Col, Container, getRedirectUrl } from '@automattic/jetpack-components';
 import { formatNumberCompact } from '@automattic/number-formatters';
 import { Button, Card } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
@@ -99,21 +93,6 @@ export default function ProtectProductPage() {
 			}
 		>
 			<Container fluid horizontalSpacing={ 3 } horizontalGap={ 2 }>
-				{ /* Header Section */ }
-				<Col className={ clsx( styles[ 'product-interstitial__section' ] ) }>
-					<div
-						className={ clsx(
-							styles[ 'product-interstitial__section-wrapper-wide' ],
-							styles[ 'product-interstitial__product-header' ]
-						) }
-					>
-						<JetpackLogo />
-						<div className={ styles[ 'product-interstitial__product-header-name' ] }>
-							{ __( 'Protect', 'jetpack-my-jetpack' ) }
-						</div>
-					</div>
-				</Col>
-
 				{ /* Hero Section */ }
 				<Col className={ clsx( styles[ 'product-interstitial__section' ] ) }>
 					<div className={ styles[ 'product-interstitial__hero-section' ] }>

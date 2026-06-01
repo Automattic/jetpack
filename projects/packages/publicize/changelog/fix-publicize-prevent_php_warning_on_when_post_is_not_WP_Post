@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Publicize: Avoid flagging a non-post for publicize

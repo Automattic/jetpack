@@ -1,6 +1,5 @@
-import analytics from '@automattic/jetpack-analytics';
 import AdminPage from '@automattic/jetpack-components/admin-page';
-import { getSiteData, getSiteType } from '@automattic/jetpack-script-data';
+import { getSiteData } from '@automattic/jetpack-script-data';
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { useNavigate } from '@wordpress/route';
@@ -88,12 +87,6 @@ export default function NewsletterPage( {
 			if ( next !== 'subscribers' && next !== 'settings' ) {
 				return;
 			}
-			if ( next !== activeTab ) {
-				analytics.tracks.recordEvent( 'jetpack_newsletter_tab_view', {
-					site_type: getSiteType(),
-					tab: next,
-				} );
-			}
 			navigate( {
 				search: {
 					tab: next === 'settings' ? 'settings' : undefined,
@@ -102,7 +95,7 @@ export default function NewsletterPage( {
 				},
 			} as unknown as Parameters< typeof navigate >[ 0 ] );
 		},
-		[ activeTab, navigate ]
+		[ navigate ]
 	);
 
 	const contentClass = contentHasPadding

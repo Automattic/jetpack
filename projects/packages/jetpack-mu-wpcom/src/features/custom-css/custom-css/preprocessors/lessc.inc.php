@@ -2527,6 +2527,11 @@ class lessc_parser {
 				$block = null; // Rector.
 			}
 
+			if ($this->env === null) {
+				$this->seek($s);
+				$this->throwError("unexpected '}'");
+			}
+
 			$hidden = false;
 			if (is_null($block->type)) {
 				$hidden = true;

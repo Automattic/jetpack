@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Internal refactor to use core WordPress UI primitives. No user-facing change.
+
+
