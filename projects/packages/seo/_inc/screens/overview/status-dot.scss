@@ -6,15 +6,19 @@
 	margin-right: var(--wpds-dimension-gap-sm, 8px);
 	vertical-align: middle;
 
+	// The `-weak` tokens are the vivid indicator colors; the plain
+	// `fg-content-*` tokens are the darkest text shades (near-black) and read
+	// as black on a status dot. Hex fallbacks cover surfaces that don't load
+	// `@wordpress/theme` design tokens.
 	&.is-ok {
-		background: var(--wpds-color-fg-content-success, #4ab866);
+		background: var(--wpds-color-fg-content-success-weak, #007f30);
 	}
 
 	&.is-warn {
-		background: var(--wpds-color-fg-content-caution, #dba617);
+		background: var(--wpds-color-fg-content-warning-weak, #dba617);
 	}
 
 	&.is-err {
-		background: var(--wpds-color-fg-content-error, #cc1818);
+		background: var(--wpds-color-fg-content-error-weak, #cc1818);
 	}
 }

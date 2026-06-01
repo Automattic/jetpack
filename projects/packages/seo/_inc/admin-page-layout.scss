@@ -1,9 +1,12 @@
 @use "@automattic/jetpack-base-styles/admin-page-layout" as *;
 
-// `-wp-build` variant: the SEO admin page mounts `@wordpress/admin-ui` 2.x
-// components through `<AdminPage>`, so we layer that variant's defensive
-// resets (breadcrumb list/anchor normalization) on top of the shared layout.
-body.jetpack_page_jetpack-seo {
+// Apply the shared Jetpack admin-page layout so `<AdminPage>` owns the full
+// content area: fixed header, scrollable middle, pinned footer, and the
+// header-aligned content padding. Mirrors Scan/Podcast. Both menu placements
+// are targeted because Admin_Menu may register the page as a top-level menu or
+// as a Jetpack submenu depending on the environment.
+body.jetpack_page_jetpack-seo,
+body.toplevel_page_jetpack-seo {
 
-	@include jetpack-admin-page-layout-wp-build;
+	@include jetpack-admin-page-layout;
 }
