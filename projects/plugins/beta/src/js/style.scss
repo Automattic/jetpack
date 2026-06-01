@@ -57,6 +57,15 @@ body.jetpack-beta-page {
 	object-fit: contain;
 }
 
+// Generic fallback for plugins without wordpress.org assets.
+.jetpack-beta-plugin-icon--fallback {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	background: var(--wpds-color-bg-surface-neutral-weak, #f0f0f0);
+	color: var(--wpds-color-fg-interactive-neutral-weak, #50575e);
+}
+
 // Whole plugin card acts as a button linking to its manage screen.
 .jetpack-beta-plugin-card {
 	cursor: pointer;
