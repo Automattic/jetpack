@@ -46,6 +46,8 @@ class Agents_Manager {
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_scripts' ), 101 );
 		add_action( 'next_admin_init', array( $this, 'enqueue_scripts' ), 1001 );
 		add_filter( 'agents_manager_use_unified_experience', array( $this, 'should_use_unified_experience' ) );
+
+		Sidebar_Open_Preservation::init();
 	}
 
 	/**

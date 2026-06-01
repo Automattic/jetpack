@@ -15,10 +15,29 @@
 	"license": "GPL-2.0-or-later",
 	"author": "Automattic",
 	"scripts": {
-		"build": "echo 'Not implemented.'",
-		"build-js": "echo 'Not implemented.'",
-		"build-production": "echo 'Not implemented.'",
-		"build-production-js": "echo 'Not implemented.'",
-		"clean": "true"
+		"build": "pnpm run clean && pnpm run build-client",
+		"build-client": "webpack",
+		"build-production": "NODE_ENV=production BABEL_ENV=production pnpm run build && pnpm run validate",
+		"clean": "rm -rf build/",
+		"test": "NODE_OPTIONS=--experimental-vm-modules jest --config=tests/jest.config.js",
+		"typecheck": "tsgo --noEmit",
+		"validate": "pnpm exec validate-es --no-error-on-unmatched-pattern build/",
+		"watch": "webpack --watch"
+	},
+	"browserslist": [
+		"extends @wordpress/browserslist-config"
+	],
+	"devDependencies": {
+		"@automattic/jetpack-webpack-config": "workspace:*",
+		"@babel/core": "7.29.0",
+		"@babel/preset-env": "7.29.2",
+		"@babel/runtime": "7.29.2",
+		"@types/jest": "30.0.0",
+		"@typescript/native-preview": "7.0.0-dev.20260225.1",
+		"@wordpress/browserslist-config": "6.46.0",
+		"browserslist": "^4.24.0",
+		"jest": "30.4.2",
+		"webpack": "5.105.2",
+		"webpack-cli": "6.0.1"
 	}
 }
