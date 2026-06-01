@@ -180,6 +180,7 @@
 }
 
 .jetpack-connector__offline-notice {
+	display: block;
 	margin-block-start: 8px;
 	padding-block: 8px;
 	padding-inline: 12px;
