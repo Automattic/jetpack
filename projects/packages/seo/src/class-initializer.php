@@ -14,6 +14,7 @@ namespace Automattic\Jetpack\SEO;
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills;
+use Jetpack_SEO_Titles;
 use Jetpack_SEO_Utils;
 
 /**
@@ -214,6 +215,7 @@ class Initializer {
 		}
 
 		$data[ self::SCRIPT_DATA_KEY ]['overview'] = self::get_overview_data();
+		$data[ self::SCRIPT_DATA_KEY ]['settings'] = self::get_settings_data();
 
 		return $data;
 	}
@@ -280,6 +282,48 @@ class Initializer {
 			),
 			'plan'            => array(
 				'seo_enabled_for_site' => $seo_enabled,
+			),
+		);
+	}
+
+	/**
+	 * Build the editable Settings state the Settings tab hydrates from.
+	 *
+	 * Read-only bootstrap only. Writes go through the existing
+	 * `/jetpack/v4/settings` REST endpoint, which already validates and
+	 * sanitizes each of these fields — this package registers no settings
+	 * endpoint of its own. The reads here mirror the options/helpers that
+	 * endpoint round-trips so the form hydrates without a request.
+	 *
+	 * @return array
+	 */
+	public static function get_settings_data() {
+		$modules = new Modules();
+
+		// @phan-suppress-next-line PhanUndeclaredClassMethod -- Jetpack_SEO_Titles lives in plugins/jetpack and is guarded by class_exists.
+		$title_formats = class_exists( 'Jetpack_SEO_Titles' ) ? Jetpack_SEO_Titles::get_custom_title_formats() : array();
+		// @phan-suppress-next-line PhanUndeclaredClassMethod -- Jetpack_SEO_Utils lives in plugins/jetpack and is guarded by class_exists.
+		$front_page_desc = class_exists( 'Jetpack_SEO_Utils' ) ? Jetpack_SEO_Utils::get_front_page_meta_description() : '';
+
+		$codes = get_option( 'verification_services_codes', array() );
+		if ( ! is_array( $codes ) ) {
+			$codes = array();
+		}
+
+		return array(
+			'search_engines_visible' => (int) get_option( 'blog_public', 1 ) === 1,
+			// The real `sitemaps` module is the source of truth (not a bespoke
+			// option). The Settings toggle drives it via `/jetpack/v4/settings`.
+			'sitemap_active'         => $modules->is_active( 'sitemaps' ),
+			// Cast to object so an empty format set serializes as `{}`, not `[]`.
+			'title_formats'          => (object) $title_formats,
+			'front_page_description' => (string) $front_page_desc,
+			'verification'           => array(
+				'google'    => isset( $codes['google'] ) ? (string) $codes['google'] : '',
+				'bing'      => isset( $codes['bing'] ) ? (string) $codes['bing'] : '',
+				'pinterest' => isset( $codes['pinterest'] ) ? (string) $codes['pinterest'] : '',
+				'yandex'    => isset( $codes['yandex'] ) ? (string) $codes['yandex'] : '',
+				'facebook'  => isset( $codes['facebook'] ) ? (string) $codes['facebook'] : '',
 			),
 		);
 	}

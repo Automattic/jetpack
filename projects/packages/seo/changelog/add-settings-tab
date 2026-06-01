@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add a Settings tab to the SEO admin page: site visibility (search-engine indexing + XML sitemap), post title structure, front-page description, and site verification. Saves through the existing /jetpack/v4/settings endpoint.
