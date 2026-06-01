@@ -10,6 +10,12 @@
 	min-height: 100%;
 }
 
+// Muted "/" separator in the manage-screen breadcrumb.
+.jetpack-beta-breadcrumb-separator {
+	color: var(--wpds-color-stroke-surface-neutral, #dbdbdb);
+	user-select: none;
+}
+
 // Whole plugin card acts as a button linking to its manage screen.
 .jetpack-beta-plugin-card {
 	cursor: pointer;

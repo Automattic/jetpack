@@ -14,7 +14,7 @@ import { AdminPage, Col, Container } from '@automattic/jetpack-components';
 import { Spinner } from '@wordpress/components';
 import { useCallback, useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { Button, Card, Notice, Stack, Text } from '@wordpress/ui';
+import { Button, Card, Link, Notice, Stack, Text } from '@wordpress/ui';
 import { getPlugin } from '../api/abilities';
 import BranchSection from '../components/branch-section';
 import GlobalToggles from '../components/global-toggles';
@@ -75,21 +75,37 @@ const groupSections = ( sections: BranchCardType[] ): Map< string, BranchCardTyp
 };
 
 /**
- * Render a simple breadcrumb ReactNode: "Jetpack Beta Tester › Plugin Name".
+ * Render the breadcrumb trail: "Beta Tester / Plugin Name".
+ *
+ * Mirrors the markup of `@wordpress/admin-ui`'s `Breadcrumbs` (the component the
+ * My Jetpack screens use) — same `@wordpress/ui` primitives, `/` separator, and
+ * an `h1` current item — but links with a real anchor instead of the TanStack
+ * router `Link` that component depends on, since this admin page has no router.
  *
  * @param pluginName - The current plugin name, or null while loading.
  * @return The breadcrumb element.
  */
 const renderBreadcrumbs = ( pluginName: string | null ) => (
-	<span>
-		<a href={ boot.adminUrl }>{ __( 'Jetpack Beta Tester', 'jetpack-beta' ) }</a>
+	<Stack
+		direction="row"
+		align="center"
+		gap="sm"
+		render={ <nav aria-label={ __( 'Breadcrumbs', 'jetpack-beta' ) } /> }
+	>
+		<Text variant="body-lg" render={ <Link tone="neutral" href={ boot.adminUrl } /> }>
+			{ __( 'Beta Tester', 'jetpack-beta' ) }
+		</Text>
 		{ pluginName && (
 			<>
-				<span aria-hidden="true">{ ' › ' }</span>
-				<span>{ pluginName }</span>
+				<Text variant="body-lg" aria-hidden="true" className="jetpack-beta-breadcrumb-separator">
+					/
+				</Text>
+				<Text variant="heading-lg" render={ <h1 /> }>
+					{ pluginName }
+				</Text>
 			</>
 		) }
-	</span>
+	</Stack>
 );
 
 /**
