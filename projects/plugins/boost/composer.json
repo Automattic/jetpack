@@ -48,7 +48,10 @@
 		"test-js": "pnpm run test",
 		"test-js-coverage": "pnpm run test-coverage",
 		"test-php": "@composer phpunit",
-		"test-php-coverage": "php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --bootstrap tests/bootstrap.php --testsuite unit --coverage-php \"$COVERAGE_DIR/php-unit.cov\" && php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --bootstrap tests/bootstrap-wordbless.php --testsuite with-wordpress --coverage-php \"$COVERAGE_DIR/php-critical.cov\"",
+		"test-php-coverage": [
+			"php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --bootstrap tests/bootstrap.php --testsuite unit --coverage-php \"$COVERAGE_DIR/php-unit.cov\"",
+			"php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --bootstrap tests/bootstrap-wordbless.php --testsuite with-wordpress --coverage-php \"$COVERAGE_DIR/php-critical.cov\""
+		],
 		"build-development": [
 			"pnpm run build"
 		],
