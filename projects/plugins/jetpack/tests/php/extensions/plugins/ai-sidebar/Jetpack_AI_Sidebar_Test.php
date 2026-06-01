@@ -155,6 +155,15 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Set the current screen to the site editor.
+	 */
+	private function set_site_editor_screen() {
+		set_current_screen( 'site-editor' );
+		$screen                  = get_current_screen();
+		$screen->is_block_editor = true;
+	}
+
+	/**
 	 * Enable the AI sidebar feature via filter.
 	 */
 	private function enable_sidebar() {
@@ -911,6 +920,40 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 		Jetpack_AI_Sidebar::maybe_enqueue_abilities_script();
 
 		$this->assertFalse( wp_script_is( 'jetpack-ai-provider', 'enqueued' ) );
+	}
+
+	/**
+	 * The abilities IIFE is enqueued in the site editor when Big Sky is active.
+	 *
+	 * The IIFE populates window.__JetpackAIProvider, which Big Sky's composer
+	 * probes after dynamic-importing the ESM wrapper.
+	 */
+	public function test_abilities_script_enqueued_in_site_editor_when_big_sky_active() {
+		$this->simulate_big_sky_class();
+		$this->set_site_editor_screen();
+		$this->cache_sidebar_asset_data();
+
+		Jetpack_AI_Sidebar::maybe_enqueue_abilities_script();
+
+		$this->assertTrue(
+			wp_script_is( 'jetpack-ai-provider', 'enqueued' ),
+			'Abilities IIFE script must be enqueued in site editor when Big Sky is active.'
+		);
+	}
+
+	/**
+	 * The abilities IIFE is still skipped in the site editor when Big Sky is not active.
+	 */
+	public function test_abilities_script_skips_site_editor_without_big_sky() {
+		$this->set_site_editor_screen();
+		$this->cache_sidebar_asset_data();
+
+		Jetpack_AI_Sidebar::maybe_enqueue_abilities_script();
+
+		$this->assertFalse(
+			wp_script_is( 'jetpack-ai-provider', 'enqueued' ),
+			'Site editor enqueue must remain off without the Big Sky integration.'
+		);
 	}
 
 	// ──────────────────────────────────────────────────

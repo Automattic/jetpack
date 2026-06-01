@@ -128,7 +128,14 @@ class Jetpack_AI_Sidebar {
 	 * @return void
 	 */
 	public static function maybe_enqueue_abilities_script(): void {
-		if ( ! self::is_jetpack_ai_sidebar_preview_enabled() || ! self::is_post_editor() || ! self::has_ai_features() ) {
+		if ( ! self::is_jetpack_ai_sidebar_preview_enabled() || ! self::has_ai_features() ) {
+			return;
+		}
+
+		// Post editor is the default surface. When Big Sky is the AM host it also
+		// needs the IIFE in the site editor so window.__JetpackAIProvider exists
+		// when Big Sky's composer probes it after dynamic-importing the wrapper.
+		if ( ! self::is_post_editor() && ! ( self::is_big_sky_active() && self::is_block_editor() ) ) {
 			return;
 		}
 
