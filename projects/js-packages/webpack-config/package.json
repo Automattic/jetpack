@@ -61,7 +61,8 @@
 		"@babel/core": "^7.0.0",
 		"@babel/runtime": "7.29.2",
 		"typescript": ">=4.9.5",
-		"webpack": "^5.104.1"
+		"webpack": "^5.104.1",
+		"webpack-dev-server": "^5.2.4"
 	},
 	"peerDependenciesMeta": {
 		"@babel/core": {
