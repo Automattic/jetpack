@@ -1,5 +1,5 @@
 import { __ } from '@wordpress/i18n';
-import { Card, Link, Stack } from '@wordpress/ui';
+import { Card, Stack } from '@wordpress/ui';
 import StatusDot from './status-dot';
 import type { OverviewResponse } from '../../data/overview-types';
 import type { FC } from 'react';
@@ -29,17 +29,10 @@ const SiteVisibilityCard: FC< Props > = ( { data } ) => (
 					status={ data.search_engines_visible ? 'ok' : 'err' }
 					label={ data.search_engines_visible ? searchAllowedLabel : searchBlockedLabel }
 				/>
-				<Stack direction="row" justify="space-between" align="center">
-					<StatusDot
-						status={ data.sitemap_active ? 'ok' : 'warn' }
-						label={ data.sitemap_active ? sitemapActiveLabel : sitemapDisabledLabel }
-					/>
-					{ data.sitemap_active && (
-						<Link href={ data.sitemap_url } openInNewTab>
-							{ __( 'View', 'jetpack-seo' ) }
-						</Link>
-					) }
-				</Stack>
+				<StatusDot
+					status={ data.sitemap_active ? 'ok' : 'warn' }
+					label={ data.sitemap_active ? sitemapActiveLabel : sitemapDisabledLabel }
+				/>
 				<StatusDot
 					status={ data.seo_tools_active ? 'ok' : 'warn' }
 					label={ data.seo_tools_active ? seoToolsActiveLabel : seoToolsInactiveLabel }
