@@ -8,13 +8,13 @@
 import { Col, Container } from '@automattic/jetpack-components';
 import { useCallback, useEffect, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import { Icon, chevronRight } from '@wordpress/icons';
+import { Icon, chevronRight, plugins as pluginsIcon } from '@wordpress/icons';
 import { Badge, Card, Notice, Stack, Text } from '@wordpress/ui';
 import { listPlugins } from '../api/abilities';
 import GlobalToggles from '../components/global-toggles';
 import { CardRowSkeleton } from '../components/skeleton';
 import type { PluginListItem } from '../api/types';
-import type { KeyboardEvent, SyntheticEvent } from 'react';
+import type { KeyboardEvent } from 'react';
 
 /**
  * Derive the display version string and badge label for a plugin row.
@@ -44,16 +44,6 @@ const pluginStatus = (
 };
 
 /**
- * Hide a plugin icon that fails to load (e.g. an unpublished plugin with no
- * wordpress.org assets) so a broken-image glyph never shows.
- *
- * @param event - The image error event.
- */
-const hideBrokenIcon = ( event: SyntheticEvent< HTMLImageElement > ) => {
-	event.currentTarget.style.display = 'none';
-};
-
-/**
  * A single clickable plugin card. The whole card navigates to the plugin's
  * manage screen; the chevron is a visual affordance only.
  *
@@ -63,6 +53,13 @@ const hideBrokenIcon = ( event: SyntheticEvent< HTMLImageElement > ) => {
  */
 const PluginCard = ( { plugin }: { plugin: PluginListItem } ) => {
 	const { versionText, badgeLabel } = pluginStatus( plugin );
+	// Plugins without wordpress.org assets (unpublished betas) fall back to a
+	// generic plugin icon so every row stays visually aligned.
+	const [ iconFailed, setIconFailed ] = useState( false );
+
+	const onIconError = useCallback( () => {
+		setIconFailed( true );
+	}, [] );
 
 	const goToManage = useCallback( () => {
 		window.location.href = plugin.manage_url;
@@ -94,13 +91,22 @@ const PluginCard = ( { plugin }: { plugin: PluginListItem } ) => {
 			<Card.Content>
 				<Stack direction="row" align="center" justify="space-between">
 					<Stack direction="row" gap="md" align="center">
-						<img
-							className="jetpack-beta-plugin-icon"
-							src={ `https://ps.w.org/${ plugin.slug }/assets/icon.svg` }
-							alt=""
-							aria-hidden="true"
-							onError={ hideBrokenIcon }
-						/>
+						{ iconFailed ? (
+							<span
+								className="jetpack-beta-plugin-icon jetpack-beta-plugin-icon--fallback"
+								aria-hidden="true"
+							>
+								<Icon icon={ pluginsIcon } size={ 24 } />
+							</span>
+						) : (
+							<img
+								className="jetpack-beta-plugin-icon"
+								src={ `https://ps.w.org/${ plugin.slug }/assets/icon.svg` }
+								alt=""
+								aria-hidden="true"
+								onError={ onIconError }
+							/>
+						) }
 						<Stack direction="column" gap="xs">
 							<Text variant="body-md">{ plugin.name }</Text>
 							<Stack direction="row" gap="xs" align="center">
