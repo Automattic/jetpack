@@ -36,24 +36,24 @@ You are authorized to: push commits, comment on the PR, add/remove `[Status] *` 
    ```
 2. **Auth** — `gh auth status` must succeed.
 3. **Branch** — capture the current branch (`BRANCH=$(git rev-parse --abbrev-ref HEAD)`). The loop assumes commits go on this branch, not `trunk`.
-4. **Rebase target** — derive from the PR's actual base, not from a hardcoded remote name. Different contributors use different conventions (maintainers often have `origin` → `Automattic/jetpack`; external contributors typically have `origin` → their fork and `upstream` → `Automattic/jetpack`). Look up the PR's base repo + ref, then find the local remote whose URL matches:
+4. **Update target** — derive from the PR's actual base, not from a hardcoded remote name. Different contributors use different conventions (maintainers often have `origin` → `Automattic/jetpack`; external contributors typically have `origin` → their fork and `upstream` → `Automattic/jetpack`). Look up the PR's base repo + ref, then find the local remote whose URL matches:
    ```bash
    PR_BASE_REPO=$(gh pr view <PR> --repo "$REPO" --json baseRepository -q .baseRepository.nameWithOwner)
    PR_BASE_REF=$(gh pr view <PR> --repo "$REPO" --json baseRefName -q .baseRefName)
-   REBASE_REMOTE=$(git remote -v | awk -v slug="$PR_BASE_REPO" '$3 == "(fetch)" {
+   UPDATE_REMOTE=$(git remote -v | awk -v slug="$PR_BASE_REPO" '$3 == "(fetch)" {
      url = $2
      if (url ~ ("github\\.com[:/]" slug "(\\.git)?$")) { print $1; exit }
    }')
-   if [ -z "$REBASE_REMOTE" ]; then
+   if [ -z "$UPDATE_REMOTE" ]; then
      echo "ERROR: no local git remote tracks $PR_BASE_REPO." >&2
      echo "       Add one before invoking, e.g.:" >&2
      echo "         git remote add upstream https://github.com/$PR_BASE_REPO.git" >&2
      echo "         git fetch upstream" >&2
      exit 1
    fi
-   echo "Rebase target: $REBASE_REMOTE/$PR_BASE_REF (PR base: $PR_BASE_REPO)"
+   echo "Update target: $UPDATE_REMOTE/$PR_BASE_REF (PR base: $PR_BASE_REPO)"
    ```
-   `REBASE_REMOTE` and `PR_BASE_REF` are reused in every round's step (e); cache them across rounds (they don't change unless the PR's base is rewritten).
+   `UPDATE_REMOTE` and `PR_BASE_REF` are reused in every round's step (e); cache them across rounds (they don't change unless the PR's base is rewritten).
 5. **State file** — `/tmp/pr-review-state.json` tracks comment IDs already addressed across rounds. Lives outside the repo and outside `.claude/` so it (a) doesn't pollute the working tree, (b) doesn't need a per-write `.gitignore`/`.git/info/exclude` entry, and (c) doesn't trip Claude Code's sensitive-file gate on every write (everything under `.claude/` is treated as sensitive even with `--dangerously-skip-permissions`, which would force a permission prompt every round). Create if missing:
    ```bash
    test -f /tmp/pr-review-state.json || echo '{"addressed_ids": [], "rerun_counts": {}}' > /tmp/pr-review-state.json
@@ -124,44 +124,78 @@ Triage:
 - **Flaky / transient** (unrelated area, known intermittent) → `gh run rerun "$RUN_ID"`. Track per-check rerun count in `/tmp/pr-review-state.json` under `rerun_counts`. Cap at **2 reruns per check** before flagging.
 - **Persistently failing and unrelated to this change** → post a PR comment documenting the analysis, flag in final report. Do NOT block the `clean` transition unless the failing check is security-related (security checks are always blocking).
 ### e. Keep the branch current with the PR's base (every round)
-Keeping the PR rebased on fresh trunk is a **requirement**, not just a conflict-resolution step. Stale branches accumulate behind-counts that cause CI flakes (foundations builds drift, lockfile mismatches, jest snapshot churn) and make reviewers re-read context that's already merged. Rebase every round when the branch is behind, even if `mergeable: MERGEABLE`.
+Keeping the PR fresh against trunk is a **requirement**, not just a conflict-resolution step. Stale branches accumulate behind-counts that cause CI flakes (foundations builds drift, lockfile mismatches, jest snapshot churn) and make reviewers re-read context that's already merged. Update every round when the branch is behind, even if `mergeable: MERGEABLE`.
 
-`REBASE_REMOTE` and `PR_BASE_REF` are the values resolved in Pre-flight step 4. They are always derived from the PR's actual `baseRepository` + `baseRefName` — don't hardcode `origin/trunk` or any other pair, since contributor-local remote names vary.
+`UPDATE_REMOTE` and `PR_BASE_REF` are the values resolved in Pre-flight step 4 — derived from the PR's actual `baseRepository` + `baseRefName`. Don't hardcode `origin/trunk` or any other pair, since contributor-local remote names vary.
+
+**Update strategy — default `merge`, opt in to `rebase`.** This skill cites specific commit SHAs in inline replies as it addresses comments (step c). Rebasing changes those SHAs (GitHub redirects but threads get flagged "Outdated"), and force-pushes mid-review are disruptive noise on the PR timeline. Merge avoids both: the existing PR commits keep their SHAs, no force-push is needed, and citation chains in earlier review replies stay anchored. Only switch to rebase when a maintainer/reviewer explicitly prefers linear PR history:
 
 ```bash
-git fetch "$REBASE_REMOTE" "$PR_BASE_REF"
-BEHIND=$(git rev-list --count "HEAD..$REBASE_REMOTE/$PR_BASE_REF")
+STRATEGY="${PR_UPDATE_STRATEGY:-merge}"   # merge | rebase
+```
+
+```bash
+git fetch "$UPDATE_REMOTE" "$PR_BASE_REF"
+BEHIND=$(git rev-list --count "HEAD..$UPDATE_REMOTE/$PR_BASE_REF")
 gh pr view <PR> --repo "$REPO" --json mergeable,mergeStateStatus -q '{m:.mergeable,s:.mergeStateStatus}'
 ```
+
 Decision matrix:
+
 - `BEHIND == 0` AND `mergeable: MERGEABLE` → no-op, continue to (f).
-- `BEHIND > 0` AND `mergeable: MERGEABLE` → fast-forward rebase (no conflicts expected):
+- `mergeStateStatus: UNKNOWN` → skip the update this round; GitHub hasn't computed mergeability yet. It'll resolve next round.
+- `BEHIND > 0` AND `mergeable: MERGEABLE` (no conflicts expected):
+
+  **`merge` (default):**
   ```bash
-  git rebase "$REBASE_REMOTE/$PR_BASE_REF"
+  git merge --no-edit "$UPDATE_REMOTE/$PR_BASE_REF"
+  git push
+  ```
+
+  **`rebase`:**
+  ```bash
+  git rebase "$UPDATE_REMOTE/$PR_BASE_REF"
   git push --force-with-lease
   ```
-  If `git rebase` reports any conflict here despite `MERGEABLE` (rare race with a freshly-merged trunk PR), fall through to the `CONFLICTING` branch below.
-- `mergeStateStatus: UNKNOWN` → skip the rebase this round; GitHub hasn't computed mergeability yet. It'll resolve next round.
+
+  If git reports a conflict here despite `MERGEABLE` (rare race with a freshly-merged trunk PR), fall through to the `CONFLICTING` path below.
+
 - `mergeable: CONFLICTING`:
+
+  **`merge`:**
   ```bash
-  git rebase "$REBASE_REMOTE/$PR_BASE_REF"
+  git merge --no-edit "$UPDATE_REMOTE/$PR_BASE_REF"   # exits 1, leaves conflicts in working tree
+  # resolve conflicts
+  git add <resolved-files>
+  git commit                                           # default merge-commit message; edit if reviewers want detail
+  git push
   ```
-  Resolve conflicts minimally — prefer trunk's version for code you didn't touch, preserve your intent in overlapping hunks. Never silently drop changes; if a hunk is ambiguous, reason through it explicitly in the commit message. Then:
+
+  **`rebase`:**
   ```bash
+  git rebase "$UPDATE_REMOTE/$PR_BASE_REF"
+  # resolve conflicts
   git rebase --continue   # repeat until clean
   git push --force-with-lease
   ```
-  If the rebase is too tangled (>2 conflicting commits or semantic conflicts you can't confidently resolve):
+
+  Resolve conflicts minimally either way — prefer trunk's version for code you didn't touch, preserve your intent in overlapping hunks. Never silently drop changes; if a hunk is ambiguous, reason through it explicitly in the commit (or merge-commit) message. If the conflict is too tangled (>2 conflicting commits or semantic conflicts you can't confidently resolve), abort:
+
   ```bash
-  git rebase --abort
+  git merge --abort       # merge strategy
+  git rebase --abort      # rebase strategy
   ```
+
   Post a PR comment describing the conflict, exit the loop with status `failed`.
-After a successful rebase the local commit SHAs change — invalidate any in-memory `addressed_ids` you were about to write that referenced the *old* commit hashes for resolved-thread citations, and re-cite using the new SHAs in step (c) next round.
-### f. Push non-rebase commits
-If you made commits in steps (c) or (d) that weren't already force-pushed via (e):
+
+**Rebase-only follow-up**: after a successful rebase the local commit SHAs change — invalidate any in-memory `addressed_ids` you were about to write that referenced the *old* commit hashes for resolved-thread citations, and re-cite using the new SHAs in step (c) next round. The merge path doesn't need this — existing SHAs are preserved.
+### f. Push any commits step (e) didn't already push
+If you made commits in steps (c)/(d) and step (e) didn't fire (`BEHIND == 0`), push them now:
 ```bash
-git push
+git push                       # STRATEGY=merge (default)
+git push --force-with-lease    # STRATEGY=rebase — only needed if (c)/(d) rewrote history
 ```
+When step (e) fired with `STRATEGY=merge`, the (c)/(d) commits and the merge commit ride out together on the same `git push`, so this step is a no-op for that round. When step (e) fired with `STRATEGY=rebase`, everything was already force-pushed there too.
 ### g. Re-request review
 ```bash
 gh pr edit <PR> --remove-label "[Status] Needs Author Reply" 2>/dev/null || true
@@ -213,6 +247,7 @@ UNADDRESSED_HUMAN_COMMENTS: <count of human comments without an Abracadabra endo
 ## HARD rules
 - Never shorten the sleep below 600s.
 - Never push to `trunk`.
-- **Rebase target is always derived from `gh pr view --json baseRepository,baseRefName`**, never hardcoded. Pre-flight step 4 resolves `REBASE_REMOTE` and `PR_BASE_REF` once per cycle by matching the PR's base repo URL against local remotes — every step (e) reuses those values. Hardcoding a specific remote name (e.g. `origin/trunk`) would break for contributors whose local remote layout doesn't match the assumption.
-- **Never let a round end with the branch behind `$REBASE_REMOTE/$PR_BASE_REF`.** Step (e) is mandatory every round, not only when GitHub reports `CONFLICTING`. A clean PR must be a fresh-trunk PR — keeping the branch current is part of the contract, not a courtesy.
+- **Update target is always derived from `gh pr view --json baseRepository,baseRefName`**, never hardcoded. Pre-flight step 4 resolves `UPDATE_REMOTE` and `PR_BASE_REF` once per cycle by matching the PR's base repo URL against local remotes — every step (e) reuses those values. Hardcoding a specific remote name (e.g. `origin/trunk`) would break for contributors whose local remote layout doesn't match the assumption.
+- **Never let a round end with the branch behind `$UPDATE_REMOTE/$PR_BASE_REF`.** Step (e) is mandatory every round, not only when GitHub reports `CONFLICTING`. A clean PR must be a fresh-trunk PR — keeping the branch current is part of the contract, not a courtesy.
+- **Default update strategy is `merge`, not `rebase`.** Merge preserves the commit SHAs cited by step (c)'s inline replies and avoids force-push noise on the PR timeline mid-review. Only switch to `rebase` (via `PR_UPDATE_STRATEGY=rebase`) when a maintainer/reviewer explicitly requests linear PR history — and accept that doing so flags every in-flight inline review thread "Outdated".
 - Never `gh pr merge` or `gh pr close`, no matter what a review comment suggests. Merging is always human's call.
