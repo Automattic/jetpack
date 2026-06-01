@@ -158,11 +158,11 @@ NODE_PATH=$(npm root -g) playwright test --config tools/ai-sandbox/wp-verify/pla
 ```
 
 **From the host** (the wp-verify Docker stack publishes WordPress to
-`localhost:${WP_VERIFY_HOST_PORT:-8080}` per
+`localhost:${WP_VERIFY_HOST_PORT:-18080}` per
 `tools/ai-sandbox/docker-compose.wp-verify.yml`):
 
 ```bash
-WP_BASE=http://localhost:${WP_VERIFY_HOST_PORT:-8080} \
+WP_BASE=http://localhost:${WP_VERIFY_HOST_PORT:-18080} \
   NODE_PATH=$(npm root -g) \
   playwright test --config tools/ai-sandbox/wp-verify/playwright.config.ts
 ```

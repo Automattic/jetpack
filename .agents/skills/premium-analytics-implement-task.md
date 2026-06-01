@@ -97,7 +97,7 @@ do the same for their own environments.
    the sandbox-internal `http://wordpress`:
 
    ```bash
-   export WP_BASE="http://localhost:${WP_VERIFY_HOST_PORT:-8080}"
+   export WP_BASE="http://localhost:${WP_VERIFY_HOST_PORT:-18080}"
    ```
 
    Why this is needed: Step 4's default verify skill +
