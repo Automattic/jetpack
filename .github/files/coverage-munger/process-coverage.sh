@@ -10,23 +10,6 @@ if [[ ! -d coverage ]]; then
 	exit 0
 fi
 
-# For now, projects with both PHP and JS tests produce both kinds of files.
-# Let'sdiscard the half that doesn't belong to this job.
-if [[ "$COVERAGE_GROUP" == "php" ]]; then
-	echo "Coverage job is PHP-only; discarding JS coverage files."
-	find coverage -name '*.json' -delete
-	find coverage -type d -empty -delete
-elif [[ "$COVERAGE_GROUP" == "js" ]]; then
-	echo "Coverage job is JS-only; discarding PHP coverage files."
-	find coverage -name '*.cov' -delete
-	find coverage -type d -empty -delete
-fi
-
-if [[ ! -d coverage ]]; then
-	echo 'No coverage remained after filtering.'
-	exit 0
-fi
-
 echo '::group::Copy coverage into artifacts'
 tar --owner=0 --group=0 --xz -cvvf "artifacts/coverage-$COVERAGE_GROUP.tar.xz" coverage
 echo '::endgroup::'
