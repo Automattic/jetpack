@@ -178,3 +178,16 @@
 .jetpack-connector__tos-notice a {
 	color: inherit;
 }
+
+.jetpack-connector__offline-notice {
+	margin-block-start: 8px;
+	padding-block: 8px;
+	padding-inline: 12px;
+	border-inline-start: 4px solid #dba617;
+	background-color: #fcf9e8;
+	border-radius: 2px;
+}
+
+.jetpack-connector__offline-notice a {
+	color: inherit;
+}
