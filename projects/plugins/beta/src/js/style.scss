@@ -1,0 +1,11 @@
+/**
+ * Jetpack Beta Tester — app styles.
+ *
+ * @package automattic/jetpack-beta
+ */
+
+#jetpack-beta-root {
+	display: flex;
+	flex-direction: column;
+	min-height: 100%;
+}

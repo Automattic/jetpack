@@ -8,6 +8,7 @@
 namespace Automattic\JetpackBeta;
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
+use Automattic\Jetpack\Assets;
 
 /**
  * Handles the Jetpack Beta plugin Admin functions.
@@ -86,20 +87,17 @@ class Admin {
 			// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			$plugin_name = isset( $_GET['plugin'] ) ? filter_var( wp_unslash( $_GET['plugin'] ) ) : null;
 
-			if ( null === $plugin_name ) {
-				require_once __DIR__ . '/admin/plugin-select.template.php';
-				return;
+			if ( null !== $plugin_name ) {
+				$plugin = Plugin::get_plugin( $plugin_name, true );
+				if ( ! $plugin ) {
+					throw new PluginDataException(
+						// translators: %s: Requested plugin slug.
+						sprintf( __( 'Plugin %s is not known.', 'jetpack-beta' ), $plugin_name )
+					);
+				}
 			}
 
-			$plugin = Plugin::get_plugin( $plugin_name, true );
-			if ( ! $plugin ) {
-				throw new PluginDataException(
-					// translators: %s: Requested plugin slug.
-					sprintf( __( 'Plugin %s is not known.', 'jetpack-beta' ), $plugin_name )
-				);
-			}
-
-			require_once __DIR__ . '/admin/plugin-manage.template.php';
+			echo '<div id="jetpack-beta-root"></div>';
 		} catch ( PluginDataException $exception ) {
 			ob_clean();
 			require_once __DIR__ . '/admin/exception.template.php';
@@ -213,20 +211,30 @@ class Admin {
 			return;
 		}
 
-		wp_enqueue_style( 'jetpack-beta-admin', plugins_url( 'admin/admin.css', __FILE__ ), array(), JPBETA_VERSION );
-		wp_enqueue_script( 'jetpack-admin-js', plugins_url( 'admin/admin.js', __FILE__ ), array(), JPBETA_VERSION, true );
-		wp_localize_script(
-			'jetpack-admin-js',
-			'JetpackBeta',
+		Assets::register_script(
+			'jetpack-beta-app',
+			'build/index.js',
+			JPBETA__PLUGIN_FILE,
 			array(
-				'activate'   => __( 'Activate', 'jetpack-beta' ),
-				'activating' => __( 'Activating...', 'jetpack-beta' ),
-				'update'     => __( 'Update', 'jetpack-beta' ),
-				'updating'   => __( 'Updating...', 'jetpack-beta' ),
-				'failed'     => __( 'Failed', 'jetpack-beta' ),
-				// translators: %s: Error message.
-				'failedmsg'  => __( 'Update failed: %s', 'jetpack-beta' ),
+				'in_footer'  => true,
+				'textdomain' => 'jetpack-beta',
 			)
+		);
+		Assets::enqueue_script( 'jetpack-beta-app' );
+		wp_add_inline_script(
+			'jetpack-beta-app',
+			'window.JetpackBeta = ' . wp_json_encode(
+				array(
+					'apiRoot'   => esc_url_raw( rest_url() ),
+					'apiNonce'  => wp_create_nonce( 'wp_rest' ),
+					// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+					'plugin'    => isset( $_GET['plugin'] ) ? sanitize_text_field( wp_unslash( $_GET['plugin'] ) ) : null,
+					'adminUrl'  => Utils::admin_url(),
+					'canManage' => current_user_can( 'update_plugins' ),
+				),
+				JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP
+			) . ';',
+			'before'
 		);
 	}
 
