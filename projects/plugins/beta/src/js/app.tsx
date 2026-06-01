@@ -1,9 +1,9 @@
 /**
- * Root App component — AdminPage shell with screen routing.
+ * Root App component — screen routing.
  *
  * Reads `window.JetpackBeta.plugin` to decide which screen to render:
- * - null  → PluginList (all plugins overview)
- * - string → PluginManage (single-plugin manage view)
+ * - null  → PluginList wrapped in AdminPage (all plugins overview)
+ * - string → PluginManage (single-plugin manage view, owns its own AdminPage so it can supply a breadcrumb once the plugin name is known)
  *
  * @package
  */
@@ -18,10 +18,16 @@ const boot = window.JetpackBeta;
 /**
  * App component.
  *
- * @return The AdminPage shell with the active screen.
+ * @return The active screen, wrapped in AdminPage where appropriate.
  */
 const App = () => {
 	const plugin = boot.plugin;
+
+	// The manage screen owns its own AdminPage so it can inject a breadcrumb
+	// once it knows the plugin name (fetched asynchronously).
+	if ( plugin !== null ) {
+		return <PluginManage slug={ plugin } />;
+	}
 
 	return (
 		<AdminPage
@@ -30,7 +36,7 @@ const App = () => {
 			apiRoot={ boot.apiRoot }
 			apiNonce={ boot.apiNonce }
 		>
-			{ plugin === null ? <PluginList /> : <PluginManage slug={ plugin } /> }
+			<PluginList />
 		</AdminPage>
 	);
 };
