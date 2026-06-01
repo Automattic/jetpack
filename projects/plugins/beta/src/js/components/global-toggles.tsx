@@ -10,7 +10,7 @@
 import { Spinner, ToggleControl } from '@wordpress/components';
 import { useCallback, useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { Card, Notice } from '@wordpress/ui';
+import { Card, Notice, Stack } from '@wordpress/ui';
 import { getSettings, updateSettings } from '../api/abilities';
 import type { Settings } from '../api/types';
 
@@ -142,22 +142,24 @@ const GlobalToggles = () => {
 						<Notice.Description>{ updateError }</Notice.Description>
 					</Notice.Root>
 				) }
-				<ToggleControl
-					__nextHasNoMarginBottom
-					label={ __( 'Autoupdates', 'jetpack-beta' ) }
-					checked={ settings.autoupdates }
-					onChange={ handleAutoupdates }
-					disabled={ inFlight === 'autoupdates' }
-				/>
-				{ showEmailToggle && (
+				<Stack direction="row" gap="xl" align="center">
 					<ToggleControl
 						__nextHasNoMarginBottom
-						label={ __( 'Email Notifications', 'jetpack-beta' ) }
-						checked={ settings.email_notifications }
-						onChange={ handleEmailNotifications }
-						disabled={ inFlight === 'email_notifications' }
+						label={ __( 'Autoupdates', 'jetpack-beta' ) }
+						checked={ settings.autoupdates }
+						onChange={ handleAutoupdates }
+						disabled={ inFlight === 'autoupdates' }
 					/>
-				) }
+					{ showEmailToggle && (
+						<ToggleControl
+							__nextHasNoMarginBottom
+							label={ __( 'Email Notifications', 'jetpack-beta' ) }
+							checked={ settings.email_notifications }
+							onChange={ handleEmailNotifications }
+							disabled={ inFlight === 'email_notifications' }
+						/>
+					) }
+				</Stack>
 			</Card.Content>
 		</Card.Root>
 	);
