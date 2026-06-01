@@ -157,44 +157,60 @@ function pcg_update_guard_render_retry_notice() {
 	}
 	delete_transient( $key );
 
-	$slug   = (string) $ctx['slug'];
-	$action = 'install' === ( $ctx['action'] ?? '' ) ? 'install-plugin' : 'upgrade-plugin';
-	$nonce  = 'install-plugin' === $action ? 'install-plugin_' . $slug : 'upgrade-plugin_' . $slug;
-	$retry  = wp_nonce_url(
-		add_query_arg(
-			array(
-				'action'    => $action,
-				'plugin'    => $slug,
-				'pcg_force' => '1',
+	$slug      = (string) $ctx['slug'];
+	$is_update = 'install' !== ( $ctx['action'] ?? '' );
+	// One-shot retry only makes sense for updates: the original update
+	// request is replay-safe (the .org zip URL is reproducible). Installs
+	// from an uploaded zip aren't — there's no zip to replay — and even
+	// .org installs would need the user back on the Add Plugin page, so
+	// we only surface the bypass-then-retry path for installs.
+	if ( $is_update ) {
+		$retry = wp_nonce_url(
+			add_query_arg(
+				array(
+					'action'    => 'upgrade-plugin',
+					'plugin'    => $slug,
+					'pcg_force' => '1',
+				),
+				self_admin_url( 'update.php' )
 			),
-			self_admin_url( 'update.php' )
-		),
-		$nonce
-	);
+			'upgrade-plugin_' . $slug
+		);
+	}
 	?>
 	<div class="notice notice-warning">
 		<p>
-			<strong><?php esc_html_e( 'WordPress.com blocked the last plugin update because the package failed PCG checks:', 'jetpack-mu-wpcom' ); ?></strong>
+			<strong>
+				<?php
+				if ( $is_update ) {
+					esc_html_e( 'WordPress.com blocked the last plugin update because the package failed PCG checks:', 'jetpack-mu-wpcom' );
+				} else {
+					esc_html_e( 'WordPress.com blocked the last plugin install because the package failed PCG checks:', 'jetpack-mu-wpcom' );
+				}
+				?>
+			</strong>
 			<code><?php echo esc_html( $slug ); ?></code>.
 			<?php esc_html_e( 'Try one of these overrides:', 'jetpack-mu-wpcom' ); ?>
 		</p>
 		<ul style="list-style:disc;padding-inline-start:24px;margin-block-end:0;">
-			<?php $plugin_name = function_exists( 'pcg_guard_plugin_display_name' ) ? pcg_guard_plugin_display_name( $slug ) : ''; ?>
-			<li>
-				<a href="<?php echo esc_url( $retry ); ?>" class="button-link">
-					<?php
-					if ( '' !== $plugin_name ) {
-						printf(
-							/* translators: %s: plugin display name. */
-							esc_html__( 'Retry %s without check', 'jetpack-mu-wpcom' ),
-							esc_html( $plugin_name )
-						);
-					} else {
-						esc_html_e( 'Retry without check', 'jetpack-mu-wpcom' );
-					}
-					?>
-				</a>
-			</li>
+			<?php if ( $is_update ) : ?>
+				<?php $plugin_name = function_exists( 'pcg_guard_plugin_display_name' ) ? pcg_guard_plugin_display_name( $slug ) : ''; ?>
+				<li>
+					<a href="<?php echo esc_url( $retry ); ?>" class="button-link">
+						<?php
+						if ( '' !== $plugin_name ) {
+							printf(
+								/* translators: %s: plugin display name. */
+								esc_html__( 'Update %s anyway', 'jetpack-mu-wpcom' ),
+								esc_html( $plugin_name )
+							);
+						} else {
+							esc_html_e( 'Update anyway', 'jetpack-mu-wpcom' );
+						}
+						?>
+					</a>
+				</li>
+			<?php endif; ?>
 			<li><?php pcg_force_render_bypass_form(); ?></li>
 		</ul>
 	</div>
