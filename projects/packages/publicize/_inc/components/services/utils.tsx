@@ -5,7 +5,6 @@ import { Link } from '@wordpress/ui';
 import { ConnectionService } from '../../types';
 import { assetUrl } from '../../utils';
 import { ServiceUiDetails } from './types';
-import { XNotice } from './x-notice';
 
 const connectionsFacebook = assetUrl( 'connections-facebook.webp' );
 const connectionsInstagramBusiness = assetUrl( 'connections-instagram-business.webp' );
@@ -239,15 +238,14 @@ export function getServiceUiDetails( id: ConnectionService[ 'id' ] ): ServiceUiD
 		case 'x':
 			return {
 				icon: props => <SocialServiceIcon serviceName="x" { ...props } />,
-				description: __( 'Share with your X network.', 'jetpack-publicize-pkg' ),
+				description: __( 'Share posts to X.', 'jetpack-publicize-pkg' ),
 				examples: [
 					() => (
 						<>
 							{ __(
-								'You asked, we listened. You can share to X directly from your Jetpack site again.',
+								'Reach your audience by automatically sharing your posts to X when you publish.',
 								'jetpack-publicize-pkg'
 							) }
-							<XNotice />
 						</>
 					),
 				],
