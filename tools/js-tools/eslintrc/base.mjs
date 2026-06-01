@@ -397,17 +397,14 @@ export function makeBaseConfig( configurl, opts = {} ) {
 			},
 		},
 
-		// .cjs files are always Node.js scripts — add Node.js globals too.
+		// Node tooling configs and scripts should allow 'node' globals (jest/babel/webpack, pnpm, lint helpers).
 		{
-			files: [ '**/*.cjs' ],
-			languageOptions: {
-				globals: globals.node,
-			},
-		},
-
-		// Various config files should allow 'node' globals.
-		{
-			files: [ '**/*.config.?([cm])js', '**/webpack.config.*.?([cm])js' ],
+			files: [
+				'**/*.config.?([cm])js',
+				'**/webpack.config.*.?([cm])js',
+				'tools/eslint/*.cjs',
+				'.pnpmfile.cjs',
+			],
 			languageOptions: {
 				globals: globals.node,
 			},
