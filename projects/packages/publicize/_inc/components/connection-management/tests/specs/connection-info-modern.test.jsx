@@ -82,7 +82,7 @@ describe( 'ModernConnectionInfo', () => {
 		expect( screen.getByRole( 'button', { expanded: false } ) ).toBeInTheDocument();
 	} );
 
-	test( 'clicking the row toggles the disclosure open', async () => {
+	test( 'clicking the chevron toggle opens the disclosure', async () => {
 		const user = userEvent.setup();
 		renderInfo();
 
