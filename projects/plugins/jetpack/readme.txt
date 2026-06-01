@@ -1,7 +1,7 @@
 === Jetpack - WP Security, Backup, Speed, & Growth ===
 Contributors: automattic, adamkheckler, adrianmoldovanwp, aduth, akirk, allendav, alternatekev, andy, annamcphee, annezazu, apeatling, arcangelini, arsihasi, azaozz, barry, batmoo, beaulebens, bindlegirl, biskobe, bjorsch, blobaugh, brbrr, brileyhooper, cainm, cena, cfinke, cgastrell, chaselivingston, chellycat, clickysteve, csonnek, danielbachhuber, daniloercoli, davoraltman, delawski, designsimply, dkmyta, dllh, dlocc, drawmyface, dsmart, dun2mis, dzver, ebinnion, egregor, eliorivero, enej, eoigal, erania-pinnera, ethitter, fgiannar, gcorne, georgestephanis, gibrown, goldsounds, hew, hugobaeta, hypertextranch, iammattthomas, iandunn, joen, jblz, jeffgolenski, jeherve, jennywp, jenia, jessefriedman, jgs, jkudish, jmdodd, joanrho, johnjamesjacoby, jshreve, kbrownkd, keoshi, koke, kraftbj, lancewillett, leogermani, lhkowalski, lschuyler, macmanx, martinremy, matt, mattwiebe, matveb, maverick3x6, mcsf, mdawaffe, mdbitz, MichaelArestad, migueluy, miguelxavierpenha, mikeyarce, mkaz, nancythanki, nickmomrik, njweller, nunyvega, obenland, oskosk, pento, professor44, rachelsquirrel, rdcoll, renatoagds, retrofox, richardmtl, richardmuscat, robertbpugh, roccotripaldi, ryanc413, samhotchkiss, samiff, scarstocea, scottsweb, sdixon194, sdquirk, sermitr, simison, stephdau, thehenridev, tmoorewp, tyxla, Viper007Bond, westi, williamvianas, wpkaren, yoavf, zinigor
 Tags: Security, backup, malware, scan, performance
-Stable tag: 15.9-a.5
+Stable tag: 15.9-a.7
 Requires at least: 6.9
 Requires PHP: 7.2
 Tested up to: 7.0
@@ -326,24 +326,15 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 15.9-a.5 - 2026-05-25
-#### Enhancements
-- Admin Menu: Add sidebar redesign fields, group metadata, and saved layout data to the `/wpcom/v2/admin-menu` endpoint when the public `wp-admin-sidebar` plugin is loaded.
-- Donations Block: Add a "Tips" variation with coffee-themed defaults for creatives.
-- Donations Block: Add modal display mode with trigger button, configurable icon, and animated overlay.
-- Donations Block: Record Tracks events for admin-side block adoption.
-- Jetpack AI Sidebar: Allow AI Editorial Review through the sidebar preview.
-- Newsletter: Enable the subscriptions module by default for all sites.
-- Reader Chat: Use Jetpack Search plan eligibility for the public opt-in loader.
+### 15.9-a.7 - 2026-06-01
+#### Major Enhancements
+- General: Update minimum WordPress version to 6.9.
 
-#### Improved compatibility
-- ActivityPub: Allow Jetpack-signed admin requests to reach the inbox, proxy, and outbox client-to-server endpoints used by the connected site's WordPress.com Reader, without an OAuth bearer.
+#### Enhancements
+- Search: Register the AI Agents Access opt-in setting for regular site owners.
 
 #### Bug fixes
-- Forms: Address `Uncaught TypeError` message in the editor.
-- Jetpack AI Sidebar: Fix block editing when another agent provider is present.
-- Newsletter Categories: Stop returning a 400 response when saving the same category selection that's already stored.
-- Reader Chat: Prevent the frontend widget from loading on Coming Soon or unlaunched sites.
+- VideoPress: Fix the post-connection redirect so the modernized dashboard returns users to the VideoPress page instead of a 404.
 
 --------
 

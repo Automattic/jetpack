@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Search Blocks Overlay: restore header hairline + button-hover affordances on themes without --wp--preset--color--base / --contrast tokens (fieldguide and other legacy themes).

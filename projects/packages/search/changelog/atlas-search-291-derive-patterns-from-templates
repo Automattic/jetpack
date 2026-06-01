@@ -1,4 +1,0 @@
-Significance: patch
-Type: changed
-
-Search Blocks: derive the Blog Search Page pattern from the shared search layout template so the inserter pattern stays in sync with the template it mirrors.

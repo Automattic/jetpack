@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Search Blocks: fix results-header text collapsing into vertical columns when the filters popover is open.

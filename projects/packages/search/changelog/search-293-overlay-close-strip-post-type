@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Search Blocks: strip the scalar `post_type` alias when closing the blocks Overlay so a product-scoped search resets the URL cleanly instead of leaving `?post_type=…` behind.

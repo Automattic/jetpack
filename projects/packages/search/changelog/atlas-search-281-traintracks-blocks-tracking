@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Search Blocks: fire the TrainTracks render/interact analytics events from the blocks search path (embedded and overlay), matching Instant Search, so result impressions and clicks feed the search-relevance pipeline.

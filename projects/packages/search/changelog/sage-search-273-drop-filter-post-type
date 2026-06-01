@@ -1,4 +1,0 @@
-Significance: patch
-Type: removed
-
-Search Blocks: removed the standalone "Post Type Scope" (filter-post-type) block. Use the Search Input block's per-instance Post-types inspector setting, or scope via the URL with `?post_type=&lt;slug&gt;` (matches WP/WC's URL convention).
