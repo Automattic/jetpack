@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Social: render connection and pricing gating inside the modernized dashboard (behind the rsm_jetpack_ui_modernization_social flag), so it no longer falls back to the legacy UI.

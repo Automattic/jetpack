@@ -647,4 +647,12 @@ class Sitemaps_Abilities_Test extends WP_UnitTestCase {
 			'Sitemaps abilities must not be registered while the Sitemaps module is inactive (modules/sitemaps.php not loaded).'
 		);
 	}
+
+	public function test_every_ability_opts_into_mcp_as_public_tool() {
+		foreach ( Sitemaps_Abilities::get_abilities() as $slug => $spec ) {
+			$this->assertArrayHasKey( 'mcp', $spec['meta'], "{$slug} must publish meta.mcp." );
+			$this->assertTrue( $spec['meta']['mcp']['public'], "{$slug} must opt into MCP." );
+			$this->assertSame( 'tool', $spec['meta']['mcp']['type'], "{$slug} must be exposed as an MCP tool." );
+		}
+	}
 }

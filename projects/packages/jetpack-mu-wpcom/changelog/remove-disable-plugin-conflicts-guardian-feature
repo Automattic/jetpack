@@ -1,0 +1,4 @@
+Significance: patch
+Type: removed
+
+Remove load of plugin-conflicts-guardian feature. Seems to be causing issues.

@@ -23,7 +23,6 @@ const baseConfig = {
 			{
 				ignoreFontFamilies: [
 					'dashicons', // https://github.com/WordPress/dashicons
-					'FontAwesome', // https://fontawesome.com/icons, used by CRM
 					'Genericons', // https://github.com/Automattic/genericons
 					'Noticons', // WordPress.com internal font
 					'social-logos', // see js-packages/social-logos

@@ -459,7 +459,7 @@ export default function usePageHeaderDetails(
 		trackAction,
 	] );
 
-	const visual = <JetpackLogo showText={ false } width={ 20 } />;
+	const visual = <JetpackLogo showText={ false } height={ 20 } />;
 
 	const ariaLabel = useMemo( () => {
 		if ( isSingleFormScreen ) {

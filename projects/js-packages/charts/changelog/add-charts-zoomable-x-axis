@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Charts: optional zoomable X-axis on LineChart and AreaChart. Pass `zoomable` to enable drag-to-zoom; a reset button appears in the top-right while zoomed.

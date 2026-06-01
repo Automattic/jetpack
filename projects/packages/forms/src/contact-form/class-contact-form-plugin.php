@@ -1590,7 +1590,7 @@ class Contact_Form_Plugin {
 	 * Uses the `menu-counter` markup expected by admin color schemes so bubble
 	 * colors render correctly in the sidebar.
 	 *
-	 * @since $$next-version$$
+	 * @since 7.21.3
 	 *
 	 * @param int      $count         Badge count to display.
 	 * @param int|null $unread_diff   Optional diff for combined Jetpack menu badges.

@@ -1,4 +1,0 @@
-Significance: patch
-Type: changed
-
-Comment: Modernized VideoPress dashboard (gated behind rsm_jetpack_ui_modernization_videopress): gate the dashboard behind a WordPress.com connection so the uploader is no longer exposed pre-connection. Unregistered sites see the pricing upsell (ported from the legacy dashboard); registered sites without a connected owner/user see a connect screen.

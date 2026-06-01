@@ -1,19 +1,8 @@
 /**
- * Autocomplete-suggestions surface for the Search Input block.
- *
- * Everything that's specific to the suggestions dropdown — the per-input
- * debounce / abort WeakMaps, the focus / blur / click handlers, the
- * `data-wp-each` row-active getter, the WPCOM fetch generator action, and
- * the `acceptSuggestion` dispatcher — lives here. The block's own
- * `view.js` only knows about typing and clearing; it delegates the
- * suggestion-specific work to the three helpers exported below.
- *
- * The actions registered by the side-effect `store()` call at the bottom of
- * the file are merged into the shared `jetpack-search` Interactivity store
- * alongside the actions registered from `view.js`. Interactivity composes
- * `store()` calls on the same namespace by key, so as long as the two files
- * register disjoint keys (this file owns the suggestions-only ones; view.js
- * owns the input-only ones) there's no cross-file mutable state.
+ * Autocomplete-suggestions surface for search-input. Owns the per-input
+ * debounce/abort WeakMaps, focus/blur/click handlers, the row-active getter,
+ * the fetch action, and `acceptSuggestion`. view.js stays focused on typing
+ * + clearing. Composes into the shared store via disjoint action keys.
  */
 
 import { getContext, store } from '@wordpress/interactivity';
@@ -24,38 +13,31 @@ const NAMESPACE = 'jetpack-search';
 const SUGGESTIONS_DEBOUNCE_MS = 120;
 const SUGGESTIONS_BLUR_CLOSE_MS = 150;
 
-// Per-input timer / abort state. WeakMaps keyed by the input element itself
-// so two `search-input` blocks on the same page (header + sidebar) don't
-// reset each other's timers or abort each other's suggestions request, and
-// so GC can reclaim the entries automatically when an input leaves the DOM.
+// Per-input state keyed on the element so two inputs (header + sidebar)
+// don't reset each other; WeakMaps let GC reclaim on DOM removal.
 const suggestionTimers = new WeakMap();
 const suggestionAborts = new WeakMap();
 const blurTimers = new WeakMap();
 
 /**
- * Whether a particular search input opted into suggestions. The block
- * author's `enableSuggestions` attribute renders the `data-suggestions-enabled`
- * attribute server-side; this is the single source of truth the suggestions
- * layer consults at every entry point so non-opted-in inputs cost nothing.
+ * Did this input opt into suggestions. Cheap gate so non-opted-in inputs
+ * cost nothing — every entry point checks it.
  *
- * @param {HTMLInputElement} input - The input to check.
- * @return {boolean} True when this input is suggestions-enabled.
+ * @param {HTMLInputElement} input - The input.
+ * @return {boolean} True when suggestions-enabled.
  */
 function isSuggestionsInput( input ) {
 	return input?.dataset?.suggestionsEnabled === 'true';
 }
 
 /**
- * Schedule (or restart) the debounced suggestions fetch for a single
- * input. Faster than the search debounce so the dropdown feels responsive —
- * 120 ms is short enough to keep up with quick typing but long enough to
- * coalesce held keys into one request. The caller passes the per-instance
- * Interactivity context proxy so the deferred action can mutate it
- * directly — `getContext()` from inside a `setTimeout` would return null
- * because context tracking is only live inside the originating handler.
+ * Schedule/restart the debounced suggestions fetch (120 ms — faster than
+ * the search debounce so the dropdown stays snappy). Caller passes `ctx`
+ * because `getContext()` from inside `setTimeout` returns null (context
+ * tracking is only live inside the originating handler).
  *
- * @param {HTMLInputElement} input - The input whose timer should be reset.
- * @param {object}           ctx   - The per-instance context to mutate when the fetch lands.
+ * @param {HTMLInputElement} input - The input.
+ * @param {object}           ctx   - Per-instance context proxy to mutate when the fetch lands.
  */
 function scheduleSuggestions( input, ctx ) {
 	clearTimeout( suggestionTimers.get( input ) );
@@ -67,9 +49,9 @@ function scheduleSuggestions( input, ctx ) {
 }
 
 /**
- * Cancel a pending suggestions debounce and abort any in-flight request.
+ * Cancel any pending debounce + abort any in-flight request.
  *
- * @param {HTMLInputElement} input - The input being reset.
+ * @param {HTMLInputElement} input - The input.
  */
 function cancelPendingSuggestions( input ) {
 	clearTimeout( suggestionTimers.get( input ) );
@@ -82,11 +64,10 @@ function cancelPendingSuggestions( input ) {
 }
 
 /**
- * Schedule a suggestions fetch on a fresh keystroke. No-op when the input
- * isn't suggestions-enabled, so `view.js`'s `onSearchInput` can call it
- * unconditionally without branching on the attribute.
+ * Schedule a suggestions fetch on a keystroke. No-op when the input
+ * isn't suggestions-enabled so view.js can call unconditionally.
  *
- * @param {HTMLInputElement} input - The input that received the keystroke.
+ * @param {HTMLInputElement} input - The input.
  */
 export function handleInputForSuggestions( input ) {
 	if ( ! isSuggestionsInput( input ) ) {
@@ -96,16 +77,12 @@ export function handleInputForSuggestions( input ) {
 }
 
 /**
- * Route ArrowUp / ArrowDown / Escape / Enter for suggestions-enabled
- * inputs. Returns `true` when the keystroke was consumed by the
- * suggestions layer (caller should NOT run the default search action),
- * `false` otherwise (caller proceeds with its usual Enter-fires-search
- * behavior). Non-suggestions inputs always get `false` so the keyboard
- * path in `view.js`'s `onSearchKeydown` is uniform.
+ * Route Arrow/Escape/Enter for suggestions-enabled inputs. Returns true
+ * when consumed (caller skips default Enter→search), false otherwise.
  *
- * @param {KeyboardEvent}    event - The keydown event from `view.js`.
- * @param {HTMLInputElement} input - `event.target`, threaded through so callers don't repeat the lookup.
- * @return {boolean} True if the suggestions layer claimed the keystroke.
+ * @param {KeyboardEvent}    event - Keydown event.
+ * @param {HTMLInputElement} input - Event target.
+ * @return {boolean} True when consumed.
  */
 export function handleKeydownForSuggestions( event, input ) {
 	if ( ! isSuggestionsInput( input ) ) {
@@ -148,8 +125,7 @@ export function handleKeydownForSuggestions( event, input ) {
 					return true;
 				}
 			}
-			// No row was highlighted — close the dropdown but let `view.js`
-			// fire the actual search via its own Enter path.
+			// No row highlighted — close the dropdown; view.js fires the search.
 			ctx.showSuggestions = false;
 			ctx.activeIndex = -1;
 			ctx.activeOptionId = '';
@@ -185,13 +161,11 @@ export function clearSuggestionsContext() {
 store( NAMESPACE, {
 	state: {
 		/**
-		 * Whether the row currently being rendered by `data-wp-each` is the
-		 * keyboard-highlighted option. The Interactivity API only evaluates
-		 * simple property paths on `data-wp-bind`, so this getter encapsulates
-		 * the `row.optionIndex === context.activeIndex` comparison both the
-		 * `aria-selected` binding and the `is-active` class binding need.
+		 * Whether the current `data-wp-each` row is the keyboard-highlighted
+		 * option. Encapsulates the `optionIndex === activeIndex` comparison
+		 * (data-wp-bind only takes simple paths).
 		 *
-		 * @return {boolean} True when the current row should look active.
+		 * @return {boolean} True when active.
 		 */
 		get isRowActive() {
 			const ctx = getContext();
@@ -205,8 +179,7 @@ store( NAMESPACE, {
 
 	actions: {
 		onSearchFocus( event ) {
-			// Re-opening the dropdown on focus only matters when there are
-			// suggestions to show — otherwise we'd flash an empty `<ul>`.
+			// Only reopen if there are rows — otherwise we'd flash an empty `<ul>`.
 			const ctx = getContext();
 			const input = event.target;
 			clearTimeout( blurTimers.get( input ) );
@@ -217,9 +190,7 @@ store( NAMESPACE, {
 		},
 
 		onSearchBlur( event ) {
-			// 150 ms grace period before closing — matches the instant-search
-			// overlay's behavior and lets a click on a suggestion `<li>`
-			// fire its `click` handler before the dropdown disappears.
+			// 150 ms grace so a click on a row fires before the dropdown closes.
 			const ctx = getContext();
 			const input = event.target;
 			clearTimeout( blurTimers.get( input ) );
@@ -233,8 +204,7 @@ store( NAMESPACE, {
 		},
 
 		onSuggestionMousedown( event ) {
-			// Stop the input from blurring before the click fires, otherwise
-			// the blur handler would close the dropdown and cancel the click.
+			// Prevent the blur that would close the dropdown before the click fires.
 			event.preventDefault();
 		},
 
@@ -248,32 +218,18 @@ store( NAMESPACE, {
 		},
 
 		/**
-		 * Apply a selected suggestion. Dispatches one of three behaviors:
-		 * `query` fills the input, closes the dropdown, and fires a search;
-		 * `taxonomy` applies as a filter on the current page when a matching
-		 * taxonomy filter is registered (so the result list refreshes inline),
-		 * otherwise navigates to the archive URL; `post` navigates to the
-		 * post URL.
+		 * Apply a selected row: `query` fills + searches; `taxonomy` applies
+		 * as an inline filter when one's registered, else navigates;
+		 * `post` navigates.
 		 *
-		 * The `row` argument is whatever `buildSuggestionRows` produced
-		 * (not the raw API item), so `taxonomy` and `slug` are already
-		 * URL-recovered when the API omitted them.
-		 *
-		 * @param {object} row - Selected suggestion row.
+		 * @param {object} row - Selected row.
 		 */
 		acceptSuggestion( row ) {
 			const { state, actions } = store( NAMESPACE );
 
-			// Close the dropdown on the originating input. The action is
-			// dispatched from either the input's keydown handler (wrapper
-			// scope) or the suggestion `<li>`'s click handler (row scope
-			// nested under the same wrapper). The Interactivity API merges
-			// the `data-wp-each` row entries onto the wrapper's context, and
-			// writes to keys that exist on the wrapper proxy (`showSuggestions`,
-			// `activeIndex`, `activeOptionId`, `rows`) propagate up through
-			// the same reactive signal — verified empirically by clicking a
-			// suggestion row and watching the dropdown close. Only writes to
-			// `ctx.row` itself would be absorbed by the each scope.
+			// Close the dropdown. Writes to wrapper-context keys propagate up
+			// through the merged reactive signal; only `ctx.row` would be
+			// absorbed by the `data-wp-each` scope.
 			const ctx = getContext();
 			if ( ctx ) {
 				ctx.showSuggestions = false;
@@ -302,17 +258,12 @@ store( NAMESPACE, {
 		},
 
 		/**
-		 * Fetch suggestions for a specific input. Generator action so the
-		 * Interactivity API can `await` the fetch; aborts any prior request
-		 * for the same input before starting a new one.
+		 * Fetch suggestions for a specific input; aborts prior in-flight. `ctx`
+		 * passed in because `getContext()` isn't live inside the `setTimeout` caller.
 		 *
-		 * The context proxy is passed in (rather than read via `getContext()`)
-		 * because this action is dispatched from a `setTimeout` callback,
-		 * where Interactivity's context tracking is no longer live.
-		 *
-		 * @param {HTMLInputElement} input - The input whose query to fetch for.
-		 * @param {object}           ctx   - The per-instance context proxy to mutate.
-		 * @yield {Promise<Array>} Suggestions fetch promise.
+		 * @param {HTMLInputElement} input - The input.
+		 * @param {object}           ctx   - Per-instance context proxy.
+		 * @yield {Promise<Array>} Suggestions fetch.
 		 */
 		*fetchSuggestionsFor( input, ctx ) {
 			if ( ! ctx ) {
@@ -321,9 +272,7 @@ store( NAMESPACE, {
 			const { state } = store( NAMESPACE );
 			const query = state.searchQuery;
 			const siteId = state.siteId;
-			// The block can be rendered on a site that doesn't have a
-			// configured Jetpack Search site id — gracefully degrade to
-			// "no suggestions" rather than firing a doomed request.
+			// Degrade silently on sites without a Jetpack Search site id.
 			if ( ! query || ! siteId ) {
 				ctx.rows = [];
 				ctx.showSuggestions = false;
@@ -351,18 +300,14 @@ store( NAMESPACE, {
 					signal: controller.signal,
 				} );
 			} catch ( err ) {
-				// AbortError is the expected outcome when typing fast — every
-				// keystroke aborts the prior fetch — so we don't surface it
-				// as an error. Any other failure also degrades silently:
-				// suggestions are an enhancement, not a critical path.
+				// AbortError is expected — fast typing. Other failures degrade silently.
 				if ( err?.name !== 'AbortError' ) {
 					suggestions = [];
 				} else {
 					return;
 				}
 			} finally {
-				// Only clear the abort slot if it's still pointing at this
-				// controller — a newer keystroke may have replaced it.
+				// Only clear our own slot — a newer keystroke may have replaced it.
 				if ( suggestionAborts.get( input ) === controller ) {
 					suggestionAborts.delete( input );
 				}
@@ -376,17 +321,13 @@ store( NAMESPACE, {
 					taxonomy: state.strings?.suggestionLabelTaxonomy ?? '',
 					post: state.strings?.suggestionLabelPost ?? '',
 				},
-				// Per-instance type selection seeded by render.php. Falls
-				// through to "all enabled" when missing — the helper handles
-				// the non-array shape — so older saved blocks keep working.
+				// Non-array falls through to "all enabled" for older saved blocks.
 				ctx.suggestionTypes
 			);
 			ctx.rows = rows;
 			ctx.activeIndex = -1;
 			ctx.activeOptionId = '';
-			// Only auto-open if the input is still focused; otherwise let
-			// the next focus event reveal the dropdown to avoid flashing it
-			// after the user has already tabbed away.
+			// Auto-open only if still focused — don't flash after user tabbed away.
 			ctx.showSuggestions = rows.length > 0 && input.ownerDocument.activeElement === input;
 		},
 	},

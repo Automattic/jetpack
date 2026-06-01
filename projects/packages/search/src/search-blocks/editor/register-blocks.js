@@ -24,7 +24,6 @@ import AiAnswerEdit from '../blocks/ai-answer/edit';
 import ClearFiltersEdit from '../blocks/clear-filters/edit';
 import FilterCheckboxEdit from '../blocks/filter-checkbox/edit';
 import FilterDateEdit from '../blocks/filter-date/edit';
-import FilterPostTypeEdit from '../blocks/filter-post-type/edit';
 import FilterWcAttributeEdit from '../blocks/filter-wc-attribute/edit';
 import FilterWcPriceEdit from '../blocks/filter-wc-price/edit';
 import FilterWcRatingEdit from '../blocks/filter-wc-rating/edit';
@@ -56,7 +55,6 @@ const BLOCKS = [
 	[ 'jetpack-search/filter-date', FilterDateEdit ],
 	[ 'jetpack-search/active-filters', ActiveFiltersEdit ],
 	[ 'jetpack-search/clear-filters', ClearFiltersEdit ],
-	[ 'jetpack-search/filter-post-type', FilterPostTypeEdit ],
 	[ 'jetpack-search/filter-wc-rating', FilterWcRatingEdit ],
 	[ 'jetpack-search/filters', FiltersEdit, filtersSave ],
 	[ 'jetpack-search/filters-popover', FiltersPopoverEdit, filtersPopoverSave ],

@@ -38,7 +38,7 @@ const FieldPhone = ( { phone }: FieldPhoneProps ) => {
 
 		const formatPhone = async () => {
 			try {
-				const { parsePhoneNumber } = await import( 'libphonenumber-js' );
+				const { parsePhoneNumber } = await import( 'libphonenumber-js/min/es6' );
 				if ( cancelled ) {
 					return;
 				}

@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Abilities API: register Jetpack Backup abilities (overview, list, restores, run-backup) for WP 6.9+.

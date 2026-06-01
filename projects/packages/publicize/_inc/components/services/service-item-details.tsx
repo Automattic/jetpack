@@ -2,10 +2,12 @@ import { useBreakpointMatch } from '@automattic/jetpack-components';
 import { Disabled } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import clsx from 'clsx';
+import { useIsModernized } from '../../hooks/use-is-modernized';
 import { useUserCanShareConnection } from '../../hooks/use-user-can-share-connection';
 import { store as socialStore } from '../../social-store';
 import { Connection } from '../../social-store/types';
 import { ServiceConnectionInfo } from './service-connection-info';
+import { ModernServiceConnectionInfo } from './service-connection-info-modern';
 import styles from './style.module.scss';
 import { SupportedService } from './types';
 
@@ -22,6 +24,10 @@ export type ServicesItemDetailsProps = {
  * @return {import('react').ReactNode} Service item details component
  */
 export function ServiceItemDetails( { service, serviceConnections }: ServicesItemDetailsProps ) {
+	const isModernized = useIsModernized();
+	const ServiceConnectionInfoVariant = isModernized
+		? ModernServiceConnectionInfo
+		: ServiceConnectionInfo;
 	const [ isSmall ] = useBreakpointMatch( 'sm' );
 
 	const { deletingConnections, updatingConnections } = useSelect( select => {
@@ -46,7 +52,7 @@ export function ServiceItemDetails( { service, serviceConnections }: ServicesIte
 					return (
 						<li key={ connection.connection_id }>
 							<Disabled isDisabled={ isUpdatingOrDeleting }>
-								<ServiceConnectionInfo
+								<ServiceConnectionInfoVariant
 									connection={ connection }
 									service={ service }
 									canMarkAsShared={ canMarkAsShared }

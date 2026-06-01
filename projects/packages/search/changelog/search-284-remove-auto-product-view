@@ -1,0 +1,4 @@
+Significance: minor
+Type: removed
+
+Search Blocks: remove the automatic switch to the Product layout for product-scoped searches, along with the per-block "Auto-switch to Product view" toggle. The Results List now always renders the author-selected format; the Product layout stays available as a manual choice.

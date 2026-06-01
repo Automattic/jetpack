@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Social: surface an error notice when saving dashboard settings fails, and show the "first year" caveat on the upgrade screen's intro-offer price.

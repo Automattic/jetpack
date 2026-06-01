@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-connection",
-	"version": "1.4.52",
+	"version": "1.4.53",
 	"description": "Jetpack Connection Component",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/connection/#readme",
 	"bugs": {
@@ -21,7 +21,8 @@
 	"exports": {
 		".": "./index.jsx",
 		"./hooks/use-product-checkout-workflow": "./hooks/use-product-checkout-workflow/index.tsx",
-		"./use-connection": "./components/use-connection/index.ts"
+		"./use-connection": "./components/use-connection/index.ts",
+		"./use-connection-error-notice": "./hooks/use-connection-error-notice/index.tsx"
 	},
 	"scripts": {
 		"test": "NODE_OPTIONS=--experimental-vm-modules jest",
@@ -40,8 +41,8 @@
 		"@wordpress/data": "10.46.0",
 		"@wordpress/element": "6.46.0",
 		"@wordpress/i18n": "6.19.0",
-		"@wordpress/icons": "12.2.0",
-		"@wordpress/ui": "0.11.0",
+		"@wordpress/icons": "13.1.0",
+		"@wordpress/ui": "0.13.0",
 		"@wordpress/url": "4.46.0",
 		"clsx": "2.1.1",
 		"debug": "4.4.3",

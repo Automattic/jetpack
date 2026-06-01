@@ -86,10 +86,15 @@ class Podcast {
 
 		// Posts to Podcast lives behind its own filter so the Create AI
 		// Podcast page can ship independently of the broader untangle.
+		//
+		// Note: no `is_admin()` guard here. The submenu must also register when
+		// Calypso builds its nav via the `wpcom/v2/admin-menu` REST endpoint,
+		// which fires `admin_menu` by loading `wp-admin/menu.php` but runs as a
+		// REST request where `is_admin()` is false. The hooks `init()` wires
+		// (`admin_menu`, `enqueue_block_editor_assets`) self-gate, so this is a
+		// no-op on non-admin/non-editor requests.
 		if ( self::is_posts_to_podcast_enabled() ) {
-			if ( is_admin() ) {
-				Create_AI_Podcast_Page::init();
-			}
+			Create_AI_Podcast_Page::init();
 		}
 	}
 
@@ -98,8 +103,7 @@ class Podcast {
 	 * proxy) is enabled for the current request.
 	 *
 	 * Mirrors the `jetpack_podcast_untangle` pattern: defaults to true for
-	 * A8C-proxied requests from connected WordPress.com users so
-	 * Automatticians dogfood it, and can be flipped globally via the
+	 * connected WordPress.com users, and can be flipped globally via the
 	 * `jetpack_posts_to_podcast` filter.
 	 */
 	public static function is_posts_to_podcast_enabled() {
@@ -110,7 +114,7 @@ class Podcast {
 		 *
 		 * @param bool $enabled Whether to enable Posts to Podcast.
 		 */
-		$enabled = self::is_proxied_request() && self::is_user_connected( get_current_user_id() );
+		$enabled = self::is_user_connected( get_current_user_id() );
 
 		return (bool) apply_filters( 'jetpack_posts_to_podcast', $enabled );
 	}
@@ -145,22 +149,5 @@ class Podcast {
 		 * @param bool $enabled Whether to enable the new Podcast package.
 		 */
 		return (bool) apply_filters( 'jetpack_podcast_untangle', true );
-	}
-
-	/**
-	 * Whether the current request is coming from the A8C proxy.
-	 */
-	private static function is_proxied_request() {
-		// Simple sites: use the wpcom helper when available.
-		if ( function_exists( 'wpcom_is_proxied_request' ) ) {
-			return wpcom_is_proxied_request();
-		}
-
-		// Atomic/WoA: fall back to the server variable or constant.
-		if ( isset( $_SERVER['A8C_PROXIED_REQUEST'] ) ) {
-			return (bool) sanitize_text_field( wp_unslash( $_SERVER['A8C_PROXIED_REQUEST'] ) );
-		}
-
-		return defined( 'A8C_PROXIED_REQUEST' ) && A8C_PROXIED_REQUEST;
 	}
 }

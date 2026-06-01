@@ -7,12 +7,29 @@
 
 namespace Automattic\Jetpack\Search;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 /**
  * Tests for the Search_Blocks registration class.
  */
 class Search_Blocks_Test extends TestCase {
+
+	/**
+	 * The main query as it was before a test replaced it, so the swap the
+	 * `posts_pre_query` callback tests perform doesn't leak across tests.
+	 *
+	 * @var \WP_Query|null
+	 */
+	private $original_wp_the_query;
+
+	/**
+	 * Snapshot the main query before each test so tearDown can restore it.
+	 */
+	protected function setUp(): void {
+		parent::setUp();
+		$this->original_wp_the_query = $GLOBALS['wp_the_query'] ?? null;
+	}
 
 	/**
 	 * Clear `Search_Blocks::is_initial_loading()`'s per-request memo between
@@ -25,8 +42,10 @@ class Search_Blocks_Test extends TestCase {
 		Search_Blocks::reset_initial_loading_cache();
 		Search_Blocks::reset_woocommerce_blocks_enabled_cache();
 		Search_Blocks::reset_custom_taxonomy_map_cache();
+		Search_Blocks::reset_overlay_template_content_cache();
 		// Guards against a failed assertion leaking the option across tests.
 		delete_option( 'jetpack_search_override_woocommerce_search_template' );
+		$GLOBALS['wp_the_query'] = $this->original_wp_the_query;
 		parent::tearDown();
 	}
 
@@ -257,6 +276,39 @@ class Search_Blocks_Test extends TestCase {
 	}
 
 	/**
+	 * The WC gate also requires a WooCommerce new enough to register the
+	 * `product-search-results` template. `woocommerce_version_supported()`
+	 * is the comparison; pin it against explicit versions so the floor is
+	 * Exercised without a live WooCommerce in the test process.
+	 *
+	 * @dataProvider provider_woocommerce_version_supported
+	 *
+	 * @param string|null $version  Version to test, or null for the default path.
+	 * @param bool        $expected Expected support result.
+	 */
+	#[DataProvider( 'provider_woocommerce_version_supported' )]
+	public function test_woocommerce_version_supported( $version, bool $expected ) {
+		$this->assertSame( $expected, Search_Blocks::woocommerce_version_supported( $version ) );
+	}
+
+	/**
+	 * Cases for `test_woocommerce_version_supported`.
+	 *
+	 * @return array<string, array{0: string|null, 1: bool}>
+	 */
+	public static function provider_woocommerce_version_supported(): array {
+		return array(
+			'below floor'       => array( '6.4.0', false ),
+			'at floor'          => array( '6.5.0', true ),
+			'above floor'       => array( '8.0.0', true ),
+			'patch below floor' => array( '6.4.99', false ),
+			'empty/unknown'     => array( '', false ),
+			// No WC_VERSION constant in the test process, so the default path reads unsupported.
+			'default no WC'     => array( null, false ),
+		);
+	}
+
+	/**
 	 * Seeded `activeFilters` is the raw URL params — gating moved to
 	 * Store/index.js's `initialize()` callback, which can apply it once
 	 * Every filter block's render.php has contributed its filterConfig (and
@@ -404,6 +456,126 @@ class Search_Blocks_Test extends TestCase {
 	}
 
 	/**
+	 * The blocks overlay paints the product variant only when the override
+	 * option is on AND the request is a WooCommerce product search — the same
+	 * interception the embedded/inline experiences use.
+	 */
+	public function test_should_use_product_overlay_true_on_product_search_with_override_on() {
+		update_option( 'jetpack_search_override_woocommerce_search_template', true );
+		$anon = new class() extends Search_Blocks {
+			public static function is_woocommerce_product_search(): bool {
+				return true;
+			}
+			public static function expose_should_use_product_overlay(): bool {
+				return self::should_use_product_overlay();
+			}
+		};
+		try {
+			$this->assertTrue( $anon::expose_should_use_product_overlay() );
+		} finally {
+			delete_option( 'jetpack_search_override_woocommerce_search_template' );
+		}
+	}
+
+	/**
+	 * Override OFF: even on a product search the overlay stays on the general
+	 * template — the no-regression default for stores that haven't opted in.
+	 */
+	public function test_should_use_product_overlay_false_when_override_off() {
+		delete_option( 'jetpack_search_override_woocommerce_search_template' );
+		$anon = new class() extends Search_Blocks {
+			public static function is_woocommerce_product_search(): bool {
+				return true;
+			}
+			public static function expose_should_use_product_overlay(): bool {
+				return self::should_use_product_overlay();
+			}
+		};
+		$this->assertFalse( $anon::expose_should_use_product_overlay() );
+	}
+
+	/**
+	 * Override ON but not a product search: general template.
+	 */
+	public function test_should_use_product_overlay_false_off_product_search() {
+		update_option( 'jetpack_search_override_woocommerce_search_template', true );
+		$anon = new class() extends Search_Blocks {
+			public static function is_woocommerce_product_search(): bool {
+				return false;
+			}
+			public static function expose_should_use_product_overlay(): bool {
+				return self::should_use_product_overlay();
+			}
+		};
+		try {
+			$this->assertFalse( $anon::expose_should_use_product_overlay() );
+		} finally {
+			delete_option( 'jetpack_search_override_woocommerce_search_template' );
+		}
+	}
+
+	/**
+	 * WC-off arm: with WooCommerce inactive the real `is_woocommerce_product_search()`
+	 * is false, so the product overlay never applies regardless of the override.
+	 */
+	public function test_should_use_product_overlay_false_when_woocommerce_inactive() {
+		update_option( 'jetpack_search_override_woocommerce_search_template', true );
+		Search_Blocks::set_woocommerce_blocks_enabled_for_testing( false );
+		$anon = new class() extends Search_Blocks {
+			public static function expose_should_use_product_overlay(): bool {
+				return self::should_use_product_overlay();
+			}
+		};
+		try {
+			$this->assertFalse( $anon::expose_should_use_product_overlay() );
+		} finally {
+			Search_Blocks::set_woocommerce_blocks_enabled_for_testing( null );
+			delete_option( 'jetpack_search_override_woocommerce_search_template' );
+		}
+	}
+
+	/**
+	 * Product-search + override on resolves the overlay body to the product
+	 * template — product filters and product-card results.
+	 */
+	public function test_get_overlay_template_content_returns_product_variant() {
+		update_option( 'jetpack_search_override_woocommerce_search_template', true );
+		$anon = new class() extends Search_Blocks {
+			public static function is_woocommerce_product_search(): bool {
+				return true;
+			}
+			public static function expose_overlay_template_content(): string {
+				return self::get_overlay_template_content();
+			}
+		};
+		try {
+			$content = $anon::expose_overlay_template_content();
+			$this->assertStringContainsString( 'jetpack-search/filters-product', $content );
+			$this->assertStringContainsString( '"layout":"product"', $content );
+		} finally {
+			delete_option( 'jetpack_search_override_woocommerce_search_template' );
+		}
+	}
+
+	/**
+	 * Default (non-product) request resolves to the general overlay template.
+	 */
+	public function test_get_overlay_template_content_returns_general_variant_by_default() {
+		delete_option( 'jetpack_search_override_woocommerce_search_template' );
+		$anon    = new class() extends Search_Blocks {
+			public static function is_woocommerce_product_search(): bool {
+				return false;
+			}
+			public static function expose_overlay_template_content(): string {
+				return self::get_overlay_template_content();
+			}
+		};
+		$content = $anon::expose_overlay_template_content();
+		$this->assertStringNotContainsString( 'jetpack-search/filters-product', $content );
+		$this->assertStringContainsString( 'jetpack-search/search-input', $content );
+	}
+
+	/**
 	 * With the override option OFF, a WooCommerce product search must leave
 	 * The hierarchy untouched so WooCommerce's own priority-10 prepend of
 	 * `product-search-results` wins — that's the no-regression default for
@@ -418,7 +590,7 @@ class Search_Blocks_Test extends TestCase {
 				protected static function block_templates_active(): bool {
 					return true;
 				}
-				protected static function is_woocommerce_product_search(): bool {
+				public static function is_woocommerce_product_search(): bool {
 					return true;
 				}
 			}
@@ -448,7 +620,7 @@ class Search_Blocks_Test extends TestCase {
 				protected static function block_templates_active(): bool {
 					return true;
 				}
-				protected static function is_woocommerce_product_search(): bool {
+				public static function is_woocommerce_product_search(): bool {
 					return true;
 				}
 			}
@@ -472,7 +644,10 @@ class Search_Blocks_Test extends TestCase {
 	 */
 	public function test_route_woocommerce_product_search_template_fronts_product_slug() {
 		$anon = new class() extends Search_Blocks {
-			protected static function is_woocommerce_product_search(): bool {
+			public static function is_woocommerce_product_search(): bool {
+				return true;
+			}
+			protected static function block_templates_active(): bool {
 				return true;
 			}
 		};
@@ -490,7 +665,7 @@ class Search_Blocks_Test extends TestCase {
 	 */
 	public function test_route_woocommerce_product_search_template_noop_off_product_search() {
 		$anon = new class() extends Search_Blocks {
-			protected static function is_woocommerce_product_search(): bool {
+			public static function is_woocommerce_product_search(): bool {
 				return false;
 			}
 		};
@@ -499,6 +674,399 @@ class Search_Blocks_Test extends TestCase {
 		$result = $anon::route_woocommerce_product_search_template( $input );
 
 		$this->assertSame( $input, $result );
+	}
+
+	/**
+	 * The FSE hierarchy router is a strict no-op on classic themes: classic
+	 * themes resolve template slugs as `{slug}.php` and we don't ship a
+	 * `jetpack-search-product-results.php` — the classic-theme equivalent
+	 * runs through `route_classic_theme_search_template()` instead.
+	 */
+	public function test_route_woocommerce_product_search_template_noop_on_classic_theme() {
+		$anon = new class() extends Search_Blocks {
+			public static function is_woocommerce_product_search(): bool {
+				return true;
+			}
+			protected static function block_templates_active(): bool {
+				return false;
+			}
+		};
+
+		$input  = array( 'product-search-results', 'search', 'index' );
+		$result = $anon::route_woocommerce_product_search_template( $input );
+
+		$this->assertSame( $input, $result, 'Hierarchy must stay untouched on classic themes.' );
+	}
+
+	/**
+	 * On a classic-theme search request the router swaps the resolved
+	 * Theme PHP template for the bundled `classic-theme-search.php` shim.
+	 */
+	public function test_route_classic_theme_search_template_returns_bundled_path_on_search() {
+		$original_query = $GLOBALS['wp_query'] ?? null;
+		// Regular-search routing is Embedded-only — Inline registers the router
+		// for the product shim but leaves regular searches to the theme. The
+		// experience check needs the module active.
+		$this->set_module_active( true );
+		update_option( Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY, Module_Control::EXPERIENCE_EMBEDDED );
+		try {
+			$GLOBALS['wp_query'] = new \WP_Query( array( 's' => 'boots' ) );
+
+			$result = Search_Blocks::route_classic_theme_search_template( '/var/www/html/wp-content/themes/twentytwentyone/search.php' );
+
+			$this->assertStringEndsWith(
+				'/src/search-blocks/templates/classic-theme-search.php',
+				$result,
+				'Search requests must resolve to the bundled classic-theme shim.'
+			);
+			$this->assertFileExists( $result, 'Bundled classic-theme shim must exist at the routed path.' );
+		} finally {
+			$GLOBALS['wp_query'] = $original_query;
+			delete_option( Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY );
+			delete_option( 'jetpack_active_modules' );
+		}
+	}
+
+	/**
+	 * Under the Inline experience the classic router leaves a regular search
+	 * to the theme — Inline only routes the WooCommerce product shim.
+	 */
+	public function test_route_classic_theme_search_template_leaves_regular_search_to_theme_on_inline() {
+		$original_query = $GLOBALS['wp_query'] ?? null;
+		$this->set_module_active( true );
+		update_option( Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY, Module_Control::EXPERIENCE_INLINE );
+		$theme_template = '/var/www/html/wp-content/themes/twentytwentyone/search.php';
+		try {
+			$GLOBALS['wp_query'] = new \WP_Query( array( 's' => 'boots' ) );
+
+			$result = Search_Blocks::route_classic_theme_search_template( $theme_template );
+
+			$this->assertSame(
+				$theme_template,
+				$result,
+				'Inline must leave a regular classic-theme search to the theme.'
+			);
+		} finally {
+			$GLOBALS['wp_query'] = $original_query;
+			delete_option( Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY );
+			delete_option( 'jetpack_active_modules' );
+		}
+	}
+
+	/**
+	 * Under Inline + override on, a WooCommerce product search still routes to
+	 * the product shim — the product override is experience-independent.
+	 */
+	public function test_route_classic_theme_search_template_routes_product_shim_on_inline() {
+		$original_query = $GLOBALS['wp_query'] ?? null;
+		$this->set_module_active( true );
+		update_option( Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY, Module_Control::EXPERIENCE_INLINE );
+		update_option( 'jetpack_search_override_woocommerce_search_template', true );
+		$anon = get_class(
+			new class() extends Search_Blocks {
+				public static function is_woocommerce_product_search(): bool {
+					return true;
+				}
+			}
+		);
+		try {
+			$GLOBALS['wp_query'] = new \WP_Query( array( 's' => 'boots' ) );
+
+			$result = $anon::route_classic_theme_search_template( '/var/www/html/wp-content/themes/twentytwentyone/search.php' );
+
+			$this->assertStringEndsWith(
+				'/src/search-blocks/templates/classic-theme-product-search.php',
+				$result,
+				'Inline product search must route to the product shim when the override is on.'
+			);
+		} finally {
+			$GLOBALS['wp_query'] = $original_query;
+			delete_option( 'jetpack_search_override_woocommerce_search_template' );
+			delete_option( Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY );
+			delete_option( 'jetpack_active_modules' );
+		}
+	}
+
+	/**
+	 * Off the search page the router is a strict no-op so non-search
+	 * Requests keep the theme's own template (single, archive, page, …).
+	 */
+	public function test_route_classic_theme_search_template_noop_off_search() {
+		$original_query = $GLOBALS['wp_query'] ?? null;
+		try {
+			$GLOBALS['wp_query'] = new \WP_Query();
+			$this->assertFalse( is_search() );
+
+			$input  = '/var/www/html/wp-content/themes/twentytwentyone/index.php';
+			$result = Search_Blocks::route_classic_theme_search_template( $input );
+
+			$this->assertSame( $input, $result );
+		} finally {
+			$GLOBALS['wp_query'] = $original_query;
+		}
+	}
+
+	/**
+	 * WC-on, override-off: a WooCommerce product search on a classic theme
+	 * Falls through the classic router so WooCommerce's own archive routing
+	 * Keeps owning product search results (we don't ship a product-search
+	 * Classic-theme shim).
+	 */
+	public function test_route_classic_theme_search_template_defers_to_woocommerce_when_override_off() {
+		delete_option( 'jetpack_search_override_woocommerce_search_template' );
+		$anon           = get_class(
+			new class() extends Search_Blocks {
+				public static function is_woocommerce_product_search(): bool {
+					return true;
+				}
+			}
+		);
+		$original_query = $GLOBALS['wp_query'] ?? null;
+		try {
+			$GLOBALS['wp_query'] = new \WP_Query( array( 's' => 'boots' ) );
+
+			$input  = '/var/www/html/wp-content/themes/twentytwentyone/search.php';
+			$result = $anon::route_classic_theme_search_template( $input );
+
+			$this->assertSame( $input, $result, 'Classic router must defer to WooCommerce when override is off on a product search.' );
+		} finally {
+			$GLOBALS['wp_query'] = $original_query;
+		}
+	}
+
+	/**
+	 * WC-on, override-on: on a classic theme the router fronts the dedicated
+	 * `classic-theme-product-search.php` shim — the product-results
+	 * counterpart of the generic shim. Pins that the override actually
+	 * delivers the product layout (filters-product, results-list layout=product,
+	 * WC-only filters) on classic themes instead of falling back to the web
+	 * search body.
+	 */
+	public function test_route_classic_theme_search_template_routes_to_product_shim_when_override_on() {
+		update_option( 'jetpack_search_override_woocommerce_search_template', true );
+		$anon           = get_class(
+			new class() extends Search_Blocks {
+				public static function is_woocommerce_product_search(): bool {
+					return true;
+				}
+			}
+		);
+		$original_query = $GLOBALS['wp_query'] ?? null;
+		try {
+			$GLOBALS['wp_query'] = new \WP_Query( array( 's' => 'boots' ) );
+
+			$result = $anon::route_classic_theme_search_template( '/var/www/html/wp-content/themes/twentytwentyone/search.php' );
+
+			$this->assertStringEndsWith(
+				'/src/search-blocks/templates/classic-theme-product-search.php',
+				$result,
+				'Classic router must front the product shim on WC product searches when the override is on.'
+			);
+			$this->assertFileExists( $result, 'Bundled product shim must exist at the routed path.' );
+		} finally {
+			$GLOBALS['wp_query'] = $original_query;
+			delete_option( 'jetpack_search_override_woocommerce_search_template' );
+		}
+	}
+
+	/**
+	 * Defensive bail-out for the product shim: if neither a customization
+	 * nor the bundled `jetpack-search-product-results.html` produces a body,
+	 * the router must return the input template unchanged so the theme's own
+	 * template renders instead of the shim wrapping a blank body.
+	 */
+	public function test_route_classic_theme_search_template_bails_when_product_body_is_empty() {
+		update_option( 'jetpack_search_override_woocommerce_search_template', true );
+		$anon           = get_class(
+			new class() extends Search_Blocks {
+				public static function is_woocommerce_product_search(): bool {
+					return true;
+				}
+				public static function get_classic_theme_product_search_body(): string {
+					return '';
+				}
+			}
+		);
+		$original_query = $GLOBALS['wp_query'] ?? null;
+		try {
+			$GLOBALS['wp_query'] = new \WP_Query( array( 's' => 'boots' ) );
+
+			$input  = '/var/www/html/wp-content/themes/twentytwentyone/search.php';
+			$result = $anon::route_classic_theme_search_template( $input );
+
+			$this->assertSame( $input, $result, 'Empty product body must bail back to the theme template.' );
+		} finally {
+			$GLOBALS['wp_query'] = $original_query;
+			delete_option( 'jetpack_search_override_woocommerce_search_template' );
+		}
+	}
+
+	/**
+	 * Defensive bail-out: if the bundled `jetpack-search.html` ever fails to
+	 * Load (returns empty markup), the router must return the input template
+	 * Unchanged so the theme's own `search.php` renders instead of the shim
+	 * Wrapping a blank body. Mirrors the block-theme path's empty-content
+	 * Bail-out in `register_search_template()`.
+	 */
+	public function test_route_classic_theme_search_template_bails_when_body_is_empty() {
+		$original_query = $GLOBALS['wp_query'] ?? null;
+		$anon           = get_class(
+			new class() extends Search_Blocks {
+				public static function get_classic_theme_search_body(): string {
+					return '';
+				}
+			}
+		);
+		try {
+			$GLOBALS['wp_query'] = new \WP_Query( array( 's' => 'boots' ) );
+
+			$input  = '/var/www/html/wp-content/themes/twentytwentyone/search.php';
+			$result = $anon::route_classic_theme_search_template( $input );
+
+			$this->assertSame( $input, $result, 'Empty body must bail back to the theme template.' );
+		} finally {
+			$GLOBALS['wp_query'] = $original_query;
+		}
+	}
+
+	/**
+	 * Regression guard: the template-part stripper must keep working when
+	 * The attribute payload nests an object (e.g. a future revision that
+	 * Sets `wp:template-part {"theme":{"name":"foo"}} /-->`). The earlier
+	 * `[^}]*` shape would have left a stray `}}/-->` tail in the output —
+	 * Anchor the test on a `}}` inside the attribute so a tightening back
+	 * Up to a character-class fails visibly.
+	 */
+	public function test_get_classic_theme_search_body_strips_nested_attribute_template_parts() {
+		$anon = get_class(
+			new class() extends Search_Blocks {
+				protected static function get_search_template_content(): string {
+					return "<!-- wp:template-part {\"slug\":\"header\",\"theme\":{\"name\":\"twentytwentyfive\"}} /-->\n"
+						. "<!-- wp:jetpack-search/search-input /-->\n"
+						. '<!-- wp:template-part {"slug":"footer"} /-->';
+				}
+			}
+		);
+
+		$body = $anon::get_classic_theme_search_body();
+
+		$this->assertStringNotContainsString( 'wp:template-part', $body, 'Both wrappers must be stripped, even with nested JSON.' );
+		$this->assertStringNotContainsString( '}}', $body, 'No stray closing braces should leak from a partial strip.' );
+		$this->assertStringNotContainsString( '"name":"twentytwentyfive"', $body, 'Nested attribute tail must not leak after a partial strip.' );
+		$this->assertStringContainsString( 'wp:jetpack-search/search-input', $body, 'Inner blocks must be preserved.' );
+	}
+
+	/**
+	 * `get_classic_theme_search_body()` returns the same block markup that
+	 * `register_search_template()` registers on block themes, with the two
+	 * Top-level `core/template-part` self-closing comments stripped so the
+	 * Theme's `get_header()` / `get_footer()` drive the chrome instead.
+	 */
+	public function test_get_classic_theme_search_body_strips_template_parts() {
+		$body = Search_Blocks::get_classic_theme_search_body();
+
+		$this->assertNotEmpty( $body, 'Body must be non-empty when the bundled template file exists.' );
+		$this->assertStringNotContainsString(
+			'wp:template-part',
+			$body,
+			'Body must not reference template-parts — those resolve only on block themes.'
+		);
+		$this->assertStringContainsString(
+			'wp:jetpack-search/search-input',
+			$body,
+			'Body must keep the core Search blocks so the page is usable.'
+		);
+		$this->assertStringContainsString(
+			'wp:jetpack-search/results-list',
+			$body,
+			'Body must keep the results-list block.'
+		);
+	}
+
+	/**
+	 * `get_classic_theme_product_search_body()` returns the bundled
+	 * product-results markup with top-level `core/template-part` self-closing
+	 * comments stripped — same contract as `get_classic_theme_search_body()`,
+	 * product-flavored. Keeps the product-only blocks intact so the shim
+	 * renders the WC layout (filters-product, results-list layout=product,
+	 * filter-wc-price / filter-wc-rating / filter-wc-stock-status).
+	 */
+	public function test_get_classic_theme_product_search_body_strips_template_parts() {
+		$body = Search_Blocks::get_classic_theme_product_search_body();
+
+		$this->assertNotEmpty( $body, 'Body must be non-empty when the bundled product template file exists.' );
+		$this->assertStringNotContainsString(
+			'wp:template-part',
+			$body,
+			'Body must not reference template-parts — those resolve only on block themes.'
+		);
+		$this->assertStringContainsString( 'wp:jetpack-search/search-input', $body, 'Search input must remain.' );
+		$this->assertStringContainsString( 'wp:jetpack-search/filters-product', $body, 'Product filters wrapper must remain.' );
+		$this->assertStringContainsString( '"layout":"product"', $body, 'Results-list must keep the product layout.' );
+		$this->assertStringContainsString( 'wp:jetpack-search/filter-wc-price', $body, 'WC-only price filter must remain.' );
+	}
+
+	/**
+	 * `pattern_content_from_template()` returns the chrome-free overlay layout
+	 * ready to register as a pattern: an alignwide content group, no page chrome,
+	 * and the search blocks intact.
+	 */
+	public function test_pattern_content_from_template_returns_chrome_free_layout() {
+		$content = Search_Blocks::pattern_content_from_template( 'jetpack-search-overlay.html' );
+
+		$this->assertNotEmpty( $content, 'Content must be non-empty when the bundled template exists.' );
+		$this->assertStringStartsWith( '<!-- wp:group {"align":"wide"', $content, 'Content must start at the alignwide group.' );
+		$this->assertStringEndsWith( '<!-- /wp:group -->', $content, 'Content must end at the group close.' );
+		$this->assertStringNotContainsString( 'wp:template-part', $content, 'Overlay templates carry no template-parts.' );
+		$this->assertStringNotContainsString( '<main', $content, 'Overlay templates carry no main wrapper.' );
+		$this->assertStringContainsString( 'wp:jetpack-search/search-input', $content, 'Search input block must remain.' );
+		$this->assertStringContainsString( 'wp:jetpack-search/filters', $content, 'Sidebar filters composition must remain.' );
+	}
+
+	/**
+	 * Same contract for the WooCommerce product overlay template, keeping the
+	 * product-only blocks (filters-product, results-list layout=product,
+	 * filter-wc-price) intact.
+	 */
+	public function test_pattern_content_from_template_returns_product_layout() {
+		$content = Search_Blocks::pattern_content_from_template( 'jetpack-search-overlay-product.html' );
+
+		$this->assertNotEmpty( $content, 'Content must be non-empty when the bundled product template exists.' );
+		$this->assertStringStartsWith( '<!-- wp:group {"align":"wide"', $content, 'Content must start at the alignwide group.' );
+		$this->assertStringNotContainsString( 'wp:template-part', $content, 'Overlay templates carry no template-parts.' );
+		$this->assertStringNotContainsString( '<main', $content, 'Overlay templates carry no main wrapper.' );
+		$this->assertStringContainsString( 'wp:jetpack-search/filters-product', $content, 'Product filters composition must remain.' );
+		$this->assertStringContainsString( '"layout":"product"', $content, 'Results-list must keep the product layout.' );
+		$this->assertStringContainsString( 'wp:jetpack-search/filter-wc-price', $content, 'WC-only price filter must remain.' );
+	}
+
+	/**
+	 * Missing template file yields an empty string — the pattern files skip
+	 * registration on empty content, so a bad path registers no pattern rather
+	 * than a blank one or a fatal.
+	 */
+	public function test_pattern_content_from_template_returns_empty_on_missing_file() {
+		$this->assertSame( '', Search_Blocks::pattern_content_from_template( 'does-not-exist.html' ) );
+	}
+
+	/**
+	 * The bundled pattern files register their patterns with the derived,
+	 * non-empty content from their layout templates.
+	 */
+	public function test_pattern_files_register_their_patterns() {
+		$registry = \WP_Block_Patterns_Registry::get_instance();
+		$patterns = __DIR__ . '/../../src/search-blocks/patterns';
+
+		require $patterns . '/blog-search.php';
+		require $patterns . '/wc-product-search.php';
+
+		foreach ( array( 'jetpack-search/blog-search-page', 'jetpack-search/wc-product-search-page' ) as $name ) {
+			$pattern = $registry->get_registered( $name );
+			$this->assertIsArray( $pattern, "Pattern $name must be registered." );
+			if ( is_array( $pattern ) ) {
+				$this->assertNotEmpty( $pattern['content'], "Pattern $name must have content." );
+			}
+		}
 	}
 
 	/**
@@ -625,6 +1193,94 @@ class Search_Blocks_Test extends TestCase {
 		} finally {
 			delete_option( 'jetpack_search_override_woocommerce_search_template' );
 			delete_option( Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY );
+		}
+	}
+
+	/**
+	 * The classic-theme product-search singleton CPT lifecycle wires up on
+	 * classic Embedded **and** classic Inline (both route the product shim),
+	 * regardless of the WooCommerce override option — mirroring
+	 * `Search_Template`'s "expose URLs before activation" rule so admins can
+	 * pre-customize the product template before flipping the override on. The
+	 * override still gates the front-end render path in
+	 * `route_classic_theme_search_template()`; it just doesn't gate the editor
+	 * surface. Block themes don't wire the CPT — they get the Site Editor.
+	 *
+	 * Asserts via the `before_delete_post` hook the parent
+	 * `Singleton_Template_Cpt::init()` registers — `register_post_type` is
+	 * idempotent and `admin_init` may not be reachable without `is_admin()`,
+	 * so before-delete is the cleanest lifecycle signal to probe.
+	 */
+	public function test_init_registers_product_search_template_cpt_on_embedded_classic() {
+		try {
+			$cb = array( Product_Search_Template::class, 'maybe_cleanup_on_singleton_delete' );
+
+			// Embedded + classic + override on → CPT lifecycle wired.
+			$this->reset_search_blocks_hooks();
+			$this->set_module_active( true );
+			Search_Blocks::set_block_templates_active_for_testing( false );
+			update_option( Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY, Module_Control::EXPERIENCE_EMBEDDED );
+			update_option( 'jetpack_search_override_woocommerce_search_template', true );
+			Search_Blocks::init();
+			$this->assertNotFalse(
+				has_action( 'before_delete_post', $cb ),
+				'Product_Search_Template::init() must wire before_delete_post on Embedded + classic + override on'
+			);
+
+			// Embedded + classic + override OFF → still wired (pre-customization affordance).
+			$this->reset_search_blocks_hooks();
+			$this->set_module_active( true );
+			Search_Blocks::set_block_templates_active_for_testing( false );
+			update_option( Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY, Module_Control::EXPERIENCE_EMBEDDED );
+			delete_option( 'jetpack_search_override_woocommerce_search_template' );
+			Search_Blocks::init();
+			$this->assertNotFalse(
+				has_action( 'before_delete_post', $cb ),
+				'Product_Search_Template::init() must wire on Embedded + classic even with the override off (pre-customization)'
+			);
+
+			// Embedded + BLOCK theme + override on → no CPT lifecycle (block themes use the Site Editor).
+			$this->reset_search_blocks_hooks();
+			$this->set_module_active( true );
+			Search_Blocks::set_block_templates_active_for_testing( true );
+			update_option( Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY, Module_Control::EXPERIENCE_EMBEDDED );
+			update_option( 'jetpack_search_override_woocommerce_search_template', true );
+			Search_Blocks::init();
+			$this->assertFalse(
+				has_action( 'before_delete_post', $cb ),
+				'Product_Search_Template::init() must not wire on block themes — Site Editor owns that surface'
+			);
+
+			// Inline + classic → CPT lifecycle wired too: Inline routes the
+			// product shim on classic themes (regular searches stay with the
+			// theme), so the product template is editable there as well.
+			$this->reset_search_blocks_hooks();
+			$this->set_module_active( true );
+			Search_Blocks::set_block_templates_active_for_testing( false );
+			update_option( Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY, Module_Control::EXPERIENCE_INLINE );
+			update_option( 'jetpack_search_override_woocommerce_search_template', true );
+			Search_Blocks::init();
+			$this->assertNotFalse(
+				has_action( 'before_delete_post', $cb ),
+				'Product_Search_Template::init() must wire on Inline + classic (the product shim routes there too)'
+			);
+
+			// Inline + BLOCK theme → no CPT lifecycle (block-theme Inline uses the
+			// search_template_hierarchy route, not the classic shim).
+			$this->reset_search_blocks_hooks();
+			$this->set_module_active( true );
+			Search_Blocks::set_block_templates_active_for_testing( true );
+			update_option( Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY, Module_Control::EXPERIENCE_INLINE );
+			update_option( 'jetpack_search_override_woocommerce_search_template', true );
+			Search_Blocks::init();
+			$this->assertFalse(
+				has_action( 'before_delete_post', $cb ),
+				'Product_Search_Template::init() must not wire on block-theme Inline — the hierarchy route owns that'
+			);
+		} finally {
+			delete_option( 'jetpack_search_override_woocommerce_search_template' );
+			delete_option( Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY );
+			Search_Blocks::set_block_templates_active_for_testing( null );
 		}
 	}
 
@@ -826,54 +1482,66 @@ class Search_Blocks_Test extends TestCase {
 	}
 
 	/**
-	 * On the Embedded experience, the template-override hooks must be
-	 * Registered so `/?s=…` resolves to the Jetpack Search template instead
-	 * Of the theme's `search.html`.
+	 * On the Embedded experience under a block theme, the FSE template-override
+	 * Hooks must be registered so `/?s=…` resolves to the Jetpack Search
+	 * Template instead of the theme's `search.html`. The classic-theme
+	 * `template_include` route must NOT register on this path.
 	 */
-	public function test_init_registers_template_hooks_when_embedded() {
+	public function test_init_registers_block_theme_template_hooks_when_embedded_on_block_theme() {
 		$this->reset_search_blocks_hooks();
 		$this->set_module_active( true );
-		add_filter( 'jetpack_search_theme_supports_embedded_experience', '__return_true' );
+		Search_Blocks::set_block_templates_active_for_testing( true );
 		update_option( Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY, Module_Control::EXPERIENCE_EMBEDDED );
 
 		Search_Blocks::init();
 
 		$this->assertNotFalse(
 			has_action( 'init', array( Search_Blocks::class, 'register_search_template' ) ),
-			'register_search_template must hook into init on embedded'
+			'register_search_template must hook into init on embedded + block theme'
 		);
 		$this->assertNotFalse(
 			has_filter( 'search_template_hierarchy', array( Search_Blocks::class, 'prepend_search_template' ) ),
-			'prepend_search_template must hook into search_template_hierarchy on embedded'
+			'prepend_search_template must hook into search_template_hierarchy on embedded + block theme'
+		);
+		$this->assertFalse(
+			has_filter( 'template_include', array( Search_Blocks::class, 'route_classic_theme_search_template' ) ),
+			'classic-theme template_include route must not hook on a block theme'
 		);
 
-		remove_filter( 'jetpack_search_theme_supports_embedded_experience', '__return_true' );
 		delete_option( Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY );
 	}
 
 	/**
-	 * Saved Embedded but on a non-block theme: the experience resolves to Theme
-	 * Search (inline), so the FSE template-takeover hooks must NOT register —
-	 * Otherwise `/?s=…` would resolve to a template the theme can't render.
+	 * On the Embedded experience under a classic theme, prepending a slug to
+	 * `search_template_hierarchy` is a no-op (no `jetpack-search.php` in the
+	 * Theme), so the classic-theme `template_include` route is what takes over
+	 * The search page. The block-theme hooks must NOT register on this path.
 	 */
-	public function test_init_does_not_register_template_hooks_when_embedded_on_non_block_theme() {
+	public function test_init_registers_classic_theme_template_include_when_embedded_on_classic_theme() {
 		$this->reset_search_blocks_hooks();
 		$this->set_module_active( true );
-		add_filter( 'jetpack_search_theme_supports_embedded_experience', '__return_false' );
+		Search_Blocks::set_block_templates_active_for_testing( false );
 		update_option( Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY, Module_Control::EXPERIENCE_EMBEDDED );
 
 		Search_Blocks::init();
 
+		// Priority 20: WC's `WC_Template_Loader::template_loader` hooks at 10
+		// And rewrites product searches to `archive-product.php`; running after
+		// WC is what makes the override actually stick on product searches.
+		$this->assertSame(
+			20,
+			has_filter( 'template_include', array( Search_Blocks::class, 'route_classic_theme_search_template' ) ),
+			'classic-theme template_include route must hook at priority 20 (after WC) on embedded + classic theme'
+		);
 		$this->assertFalse(
 			has_action( 'init', array( Search_Blocks::class, 'register_search_template' ) ),
-			'register_search_template must not hook into init when the theme cannot render Embedded'
+			'register_search_template must not hook on a classic theme — the registry is FSE-only'
 		);
 		$this->assertFalse(
 			has_filter( 'search_template_hierarchy', array( Search_Blocks::class, 'prepend_search_template' ) ),
-			'prepend_search_template must not hook into search_template_hierarchy on a non-block theme'
+			'prepend_search_template must not hook on a classic theme — the hierarchy filter is FSE-only'
 		);
 
-		remove_filter( 'jetpack_search_theme_supports_embedded_experience', '__return_false' );
 		delete_option( Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY );
 	}
 
@@ -909,6 +1577,156 @@ class Search_Blocks_Test extends TestCase {
 	}
 
 	/**
+	 * On the Embedded experience the main search query is rendered client-side,
+	 * So `init()` must register the `posts_pre_query` short-circuit.
+	 */
+	public function test_init_registers_posts_pre_query_when_embedded() {
+		$this->reset_search_blocks_hooks();
+		$this->set_module_active( true );
+		update_option( Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY, Module_Control::EXPERIENCE_EMBEDDED );
+
+		Search_Blocks::init();
+
+		$this->assertSame(
+			10,
+			has_filter( 'posts_pre_query', array( Search_Blocks::class, 'filter__posts_pre_query' ) ),
+			'posts_pre_query short-circuit must hook at priority 10 on embedded'
+		);
+
+		delete_option( Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY );
+	}
+
+	/**
+	 * The experimental blocks Overlay also renders results client-side, so the
+	 * Short-circuit registers when the overlay is enabled (operator filter on +
+	 * Saved `overlay_blocks` experience).
+	 */
+	public function test_init_registers_posts_pre_query_when_overlay_blocks_enabled() {
+		$this->reset_search_blocks_hooks();
+		$this->set_module_active( true );
+		add_filter( 'jetpack_search_overlay_block_template_enabled', '__return_true' );
+		update_option( Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY, Module_Control::EXPERIENCE_OVERLAY_BLOCKS );
+
+		Search_Blocks::init();
+
+		$this->assertSame(
+			10,
+			has_filter( 'posts_pre_query', array( Search_Blocks::class, 'filter__posts_pre_query' ) ),
+			'posts_pre_query short-circuit must hook at priority 10 when the blocks Overlay is enabled'
+		);
+
+		remove_filter( 'jetpack_search_overlay_block_template_enabled', '__return_true' );
+		delete_option( Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY );
+	}
+
+	/**
+	 * A stale `overlay_blocks` option with the operator filter OFF must not
+	 * Bypass the query — otherwise the page would render no server results and
+	 * No overlay would cover them.
+	 */
+	public function test_init_does_not_register_posts_pre_query_when_overlay_blocks_filter_off() {
+		$this->reset_search_blocks_hooks();
+		$this->set_module_active( true );
+		update_option( Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY, Module_Control::EXPERIENCE_OVERLAY_BLOCKS );
+		// Defaults true since the Beta release; pin it back to false so this
+		// test exercises the operator-opt-out path that it is named after.
+		add_filter( 'jetpack_search_overlay_block_template_enabled', '__return_false' );
+
+		Search_Blocks::init();
+
+		$this->assertFalse(
+			has_filter( 'posts_pre_query', array( Search_Blocks::class, 'filter__posts_pre_query' ) ),
+			'posts_pre_query short-circuit must not hook when the overlay operator filter is off'
+		);
+
+		remove_filter( 'jetpack_search_overlay_block_template_enabled', '__return_false' );
+		delete_option( Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY );
+	}
+
+	/**
+	 * Theme search (inline), legacy Overlay, and Off all leave the server-side
+	 * Search query intact, so the short-circuit must not register.
+	 */
+	public function test_init_does_not_register_posts_pre_query_for_server_rendered_experiences() {
+		// Inline: module active, no opt-in saved.
+		$this->reset_search_blocks_hooks();
+		$this->set_module_active( true );
+		delete_option( Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY );
+		Search_Blocks::init();
+		$this->assertFalse(
+			has_filter( 'posts_pre_query', array( Search_Blocks::class, 'filter__posts_pre_query' ) ),
+			'posts_pre_query short-circuit must not hook on Theme search (inline)'
+		);
+
+		// Legacy Overlay: Instant Search owns the short-circuit via its own hook.
+		$this->reset_search_blocks_hooks();
+		$this->set_module_active( true );
+		update_option( Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY, Module_Control::EXPERIENCE_OVERLAY );
+		Search_Blocks::init();
+		$this->assertFalse(
+			has_filter( 'posts_pre_query', array( Search_Blocks::class, 'filter__posts_pre_query' ) ),
+			'posts_pre_query short-circuit must not hook on the legacy Overlay'
+		);
+
+		// Off: module inactive.
+		$this->reset_search_blocks_hooks();
+		$this->set_module_active( false );
+		update_option( Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY, Module_Control::EXPERIENCE_EMBEDDED );
+		Search_Blocks::init();
+		$this->assertFalse(
+			has_filter( 'posts_pre_query', array( Search_Blocks::class, 'filter__posts_pre_query' ) ),
+			'posts_pre_query short-circuit must not hook when the module is off'
+		);
+
+		delete_option( Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY );
+	}
+
+	/**
+	 * The callback bypasses the database on the main front-end search query:
+	 * Returns an empty array and sets the dummy pagination totals WP core skips
+	 * In the `posts_pre_query` path.
+	 */
+	public function test_filter_posts_pre_query_short_circuits_main_search_query() {
+		$query                   = new \WP_Query();
+		$query->is_search        = true;
+		$GLOBALS['wp_the_query'] = $query;
+
+		$result = Search_Blocks::filter__posts_pre_query( null, $query );
+
+		$this->assertSame( array(), $result, 'Main search query must be short-circuited to an empty array' );
+		$this->assertSame( 1, $query->found_posts );
+		$this->assertSame( 1, $query->max_num_pages );
+	}
+
+	/**
+	 * Secondary / non-search queries fall through untouched so widgets, related
+	 * Posts, etc. keep working on a search page.
+	 */
+	public function test_filter_posts_pre_query_passes_through_non_search_query() {
+		$main                    = new \WP_Query();
+		$main->is_search         = true;
+		$GLOBALS['wp_the_query'] = $main;
+
+		// A secondary query (not the main query) must be left alone.
+		$secondary            = new \WP_Query();
+		$secondary->is_search = true;
+		$sentinel             = array( 'untouched' );
+		$this->assertSame(
+			$sentinel,
+			Search_Blocks::filter__posts_pre_query( $sentinel, $secondary ),
+			'A secondary query must not be short-circuited'
+		);
+
+		// The main query on a non-search route must be left alone too.
+		$main->is_search = false;
+		$this->assertSame(
+			$sentinel,
+			Search_Blocks::filter__posts_pre_query( $sentinel, $main ),
+			'A non-search main query must not be short-circuited'
+		);
+	}
+
+	/**
 	 * Remove every hook this class registers, so each `init()` test starts
 	 * From a known-empty state.
 	 */
@@ -919,9 +1737,16 @@ class Search_Blocks_Test extends TestCase {
 		remove_filter( 'block_categories_all', array( Search_Blocks::class, 'register_block_category' ) );
 		remove_filter( 'search_template_hierarchy', array( Search_Blocks::class, 'prepend_search_template' ) );
 		remove_filter( 'search_template_hierarchy', array( Search_Blocks::class, 'route_woocommerce_product_search_template' ), 20 );
+		remove_filter( 'template_include', array( Search_Blocks::class, 'route_classic_theme_search_template' ), 20 );
+		remove_action( 'before_delete_post', array( Product_Search_Template::class, 'maybe_cleanup_on_singleton_delete' ) );
+		remove_action( 'admin_init', array( Product_Search_Template::class, 'maybe_handle_editor_request' ) );
+		remove_action( 'init', array( Product_Search_Template::class, 'register_post_type' ), 9 );
 		remove_action( 'template_redirect', array( Search_Blocks::class, 'seed_interactivity_state' ) );
 		remove_action( 'wp_enqueue_scripts', array( Search_Blocks::class, 'seed_interactivity_state' ) );
 		remove_action( 'enqueue_block_editor_assets', array( Search_Blocks::class, 'enqueue_editor_assets' ) );
+		remove_filter( 'posts_pre_query', array( Search_Blocks::class, 'filter__posts_pre_query' ), 10 );
+		remove_filter( 'script_module_loader_src', array( Search_Blocks::class, 'same_origin_script_module_src' ), 10 );
+		Search_Blocks::set_block_templates_active_for_testing( null );
 	}
 
 	/**
@@ -1382,6 +2207,113 @@ class Search_Blocks_Test extends TestCase {
 		try {
 			$state = Search_Blocks::build_initial_state();
 			$this->assertSame( array( 'category' => array( 'news' ) ), $state['activeFilters'] );
+		} finally {
+			$_GET                = $original_get;
+			$GLOBALS['wp_query'] = $original_query;
+		}
+	}
+
+	/**
+	 * Scalar `?post_type=<slug>` is read as a shortcut for `?post_types[]=<slug>`
+	 * (WP/WC URL convention). Without this, deep links from WC's product-search
+	 * route would never populate the `filter-checkbox{filterType:"post_type"}`
+	 * facet on the page.
+	 */
+	public function test_build_initial_state_reads_post_type_scalar_as_post_types_alias() {
+		$original_get        = $_GET;
+		$original_query      = $GLOBALS['wp_query'] ?? null;
+		$_GET                = array( 'post_type' => 'product' );
+		$GLOBALS['wp_query'] = new \WP_Query();
+		try {
+			$state = Search_Blocks::build_initial_state();
+			$this->assertSame( array( 'post_types' => array( 'product' ) ), $state['activeFilters'] );
+		} finally {
+			$_GET                = $original_get;
+			$GLOBALS['wp_query'] = $original_query;
+		}
+	}
+
+	/**
+	 * Array-shaped `?post_type[]=foo` is intentionally dropped — only the scalar
+	 * form is the WP/WC convention, and the canonical multi-value contract is
+	 * the existing `?post_types[]=…` (plural) array key. Allowing both would
+	 * mean two URL shapes feed the same slot, which adds parser ambiguity.
+	 */
+	public function test_build_initial_state_drops_array_post_type_param() {
+		$original_get        = $_GET;
+		$original_query      = $GLOBALS['wp_query'] ?? null;
+		$_GET                = array( 'post_type' => array( 'product' ) );
+		$GLOBALS['wp_query'] = new \WP_Query();
+		try {
+			$state = Search_Blocks::build_initial_state();
+			$this->assertSame( array(), $state['activeFilters'] );
+		} finally {
+			$_GET                = $original_get;
+			$GLOBALS['wp_query'] = $original_query;
+		}
+	}
+
+	/**
+	 * Scalar `?post_type=Product` (uppercase) is normalised through
+	 * `sanitize_key` so it agrees with WP's lowercase-slug convention. Without
+	 * the lowercase pass the URL value reaches ES verbatim and silently returns
+	 * zero results.
+	 */
+	public function test_build_initial_state_lowercases_post_type_alias_via_sanitize_key() {
+		$original_get        = $_GET;
+		$original_query      = $GLOBALS['wp_query'] ?? null;
+		$_GET                = array( 'post_type' => 'Product' );
+		$GLOBALS['wp_query'] = new \WP_Query();
+		try {
+			$state = Search_Blocks::build_initial_state();
+			$this->assertSame( array( 'post_types' => array( 'product' ) ), $state['activeFilters'] );
+		} finally {
+			$_GET                = $original_get;
+			$GLOBALS['wp_query'] = $original_query;
+		}
+	}
+
+	/**
+	 * Scalar `?post_type=foo` merges with any pre-existing `?post_types[]=…`
+	 * array selection and dedupes — so `?post_type=product&post_types[]=post`
+	 * reads as `['post', 'product']`, not duplicate entries or one-or-the-other.
+	 */
+	public function test_build_initial_state_merges_post_type_alias_with_post_types_array() {
+		$original_get   = $_GET;
+		$original_query = $GLOBALS['wp_query'] ?? null;
+		// The production code produces the same deduplicated set regardless of
+		// `$_GET` key order; this ordering is what `assertSame` (strict on
+		// element order) below expects. `array_unique` keeps the first occurrence,
+		// so iterating `post_types` first means the result reads `[post, product]`.
+		$_GET                = array(
+			'post_types' => array( 'post', 'product' ),
+			'post_type'  => 'product',
+		);
+		$GLOBALS['wp_query'] = new \WP_Query();
+		try {
+			$state = Search_Blocks::build_initial_state();
+			$this->assertSame(
+				array( 'post_types' => array( 'post', 'product' ) ),
+				$state['activeFilters']
+			);
+		} finally {
+			$_GET                = $original_get;
+			$GLOBALS['wp_query'] = $original_query;
+		}
+	}
+
+	/**
+	 * Empty-string `?post_type=` is dropped outright — otherwise an empty value
+	 * would create a `term` filter against an empty slug, returning zero results.
+	 */
+	public function test_build_initial_state_drops_empty_post_type_alias() {
+		$original_get        = $_GET;
+		$original_query      = $GLOBALS['wp_query'] ?? null;
+		$_GET                = array( 'post_type' => '' );
+		$GLOBALS['wp_query'] = new \WP_Query();
+		try {
+			$state = Search_Blocks::build_initial_state();
+			$this->assertSame( array(), $state['activeFilters'] );
 		} finally {
 			$_GET                = $original_get;
 			$GLOBALS['wp_query'] = $original_query;
@@ -2174,5 +3106,244 @@ class Search_Blocks_Test extends TestCase {
 			$ref->setAccessible( true );
 		}
 		return $ref->invoke( null, ...$args );
+	}
+
+	/**
+	 * Override `home_url()` / `site_url()` for the scope of a test.
+	 *
+	 * Returns a cleanup callback so a failed assertion can't leak the
+	 * override past `tearDown`.
+	 *
+	 * @param string $home Value `home_url()` should return.
+	 * @param string $site Value `site_url()` should return.
+	 * @return callable Cleanup callback — call from a `finally`.
+	 */
+	private function override_site_hosts( string $home, string $site ): callable {
+		$home_cb = static function () use ( $home ) {
+			return $home;
+		};
+		$site_cb = static function () use ( $site ) {
+			return $site;
+		};
+		add_filter( 'pre_option_home', $home_cb );
+		add_filter( 'pre_option_siteurl', $site_cb );
+		return static function () use ( $home_cb, $site_cb ) {
+			remove_filter( 'pre_option_home', $home_cb );
+			remove_filter( 'pre_option_siteurl', $site_cb );
+		};
+	}
+
+	/**
+	 * Golden path: a canonical-host src on a Jetpack Search module ID
+	 * comes back relativized so the browser resolves against the page
+	 * origin rather than triggering CORS on `wp-content/*`.
+	 */
+	public function test_same_origin_script_module_src_relativizes_canonical_host_src(): void {
+		$cleanup = $this->override_site_hosts( 'https://example.com', 'https://example.com' );
+		try {
+			$this->assertSame(
+				'/wp-content/plugins/jetpack-search/build/search-blocks/results-list/view.js',
+				Search_Blocks::same_origin_script_module_src(
+					'https://example.com/wp-content/plugins/jetpack-search/build/search-blocks/results-list/view.js',
+					'jetpack-search/results-list'
+				)
+			);
+		} finally {
+			$cleanup();
+		}
+	}
+
+	/**
+	 * The `?ver=…` cache-buster must survive relativization — it's what
+	 * keeps a stale bundle from sticking after a build.
+	 */
+	public function test_same_origin_script_module_src_preserves_query_string(): void {
+		$cleanup = $this->override_site_hosts( 'https://example.com', 'https://example.com' );
+		try {
+			$this->assertSame(
+				'/wp-content/plugins/jetpack-search/build/search-blocks/results-list/view.js?ver=abc123',
+				Search_Blocks::same_origin_script_module_src(
+					'https://example.com/wp-content/plugins/jetpack-search/build/search-blocks/results-list/view.js?ver=abc123',
+					'jetpack-search/results-list'
+				)
+			);
+		} finally {
+			$cleanup();
+		}
+	}
+
+	/**
+	 * HTTP-scheme canonicals (local docker, http-only sites) relativize
+	 * the same way HTTPS does — the browser binds the relative URL to the
+	 * page scheme either way.
+	 */
+	public function test_same_origin_script_module_src_relativizes_http_canonical(): void {
+		$cleanup = $this->override_site_hosts( 'http://example.com', 'http://example.com' );
+		try {
+			$this->assertSame(
+				'/wp-content/plugins/jetpack-search/build/search-blocks/results-list/view.js',
+				Search_Blocks::same_origin_script_module_src(
+					'http://example.com/wp-content/plugins/jetpack-search/build/search-blocks/results-list/view.js',
+					'jetpack-search/results-list'
+				)
+			);
+		} finally {
+			$cleanup();
+		}
+	}
+
+	/**
+	 * Host comparison is case-insensitive so a mixed-case `home_url`
+	 * (or an upper-case host in a hand-built src) doesn't dodge the gate.
+	 */
+	public function test_same_origin_script_module_src_canonical_match_is_case_insensitive(): void {
+		$cleanup = $this->override_site_hosts( 'https://example.com', 'https://example.com' );
+		try {
+			$this->assertSame(
+				'/wp-content/plugins/jetpack-search/build/search-blocks/results-list/view.js',
+				Search_Blocks::same_origin_script_module_src(
+					'https://EXAMPLE.COM/wp-content/plugins/jetpack-search/build/search-blocks/results-list/view.js',
+					'jetpack-search/results-list'
+				)
+			);
+		} finally {
+			$cleanup();
+		}
+	}
+
+	/**
+	 * `home_url()` and `site_url()` are checked independently — Multisite
+	 * sub-directory installs split the two, and a src built against either
+	 * canonical must relativize.
+	 */
+	public function test_same_origin_script_module_src_relativizes_site_url_host_when_home_url_differs(): void {
+		$cleanup = $this->override_site_hosts( 'https://example.com', 'https://wp.example.com' );
+		try {
+			$this->assertSame(
+				'/wp-content/plugins/jetpack-search/build/search-blocks/results-list/view.js',
+				Search_Blocks::same_origin_script_module_src(
+					'https://wp.example.com/wp-content/plugins/jetpack-search/build/search-blocks/results-list/view.js',
+					'jetpack-search/results-list'
+				)
+			);
+		} finally {
+			$cleanup();
+		}
+	}
+
+	/**
+	 * Genuine third-party CDN hosts pass through unchanged so operators
+	 * who deliberately route assets through a configured CDN (with their
+	 * own CORS headers) aren't broken.
+	 */
+	public function test_same_origin_script_module_src_leaves_third_party_cdn_alone(): void {
+		$cleanup = $this->override_site_hosts( 'https://example.com', 'https://example.com' );
+		try {
+			$cdn_url = 'https://cdn.example.net/wp-content/plugins/jetpack-search/build/search-blocks/results-list/view.js';
+			$this->assertSame(
+				$cdn_url,
+				Search_Blocks::same_origin_script_module_src( $cdn_url, 'jetpack-search/results-list' )
+			);
+		} finally {
+			$cleanup();
+		}
+	}
+
+	/**
+	 * Identifier-prefix gate keeps the filter off other plugins' modules
+	 * (`@wordpress/interactivity`, etc.) even when their src host happens
+	 * to match a canonical site host.
+	 */
+	public function test_same_origin_script_module_src_skips_non_jetpack_search_identifier(): void {
+		$cleanup = $this->override_site_hosts( 'https://example.com', 'https://example.com' );
+		try {
+			$src = 'https://example.com/wp-includes/js/dist/interactivity.min.js';
+			$this->assertSame(
+				$src,
+				Search_Blocks::same_origin_script_module_src( $src, '@wordpress/interactivity' )
+			);
+		} finally {
+			$cleanup();
+		}
+	}
+
+	/**
+	 * WP's `generate_block_asset_handle()` emits hyphen-joined IDs for
+	 * `viewScriptModule` (e.g. `jetpack-search-results-list-view-script-module`)
+	 * — that's the bulk of the block bundles and the prefix gate must
+	 * cover it, not only the slash-namespaced shape.
+	 */
+	public function test_same_origin_script_module_src_relativizes_block_generated_handle(): void {
+		$cleanup = $this->override_site_hosts( 'https://example.com', 'https://example.com' );
+		try {
+			$this->assertSame(
+				'/wp-content/plugins/jetpack-search/build/search-blocks/results-list.js',
+				Search_Blocks::same_origin_script_module_src(
+					'https://example.com/wp-content/plugins/jetpack-search/build/search-blocks/results-list.js',
+					'jetpack-search-results-list-view-script-module'
+				)
+			);
+		} finally {
+			$cleanup();
+		}
+	}
+
+	/**
+	 * An already-relative src has no parseable host — short-circuit on the
+	 * `wp_parse_url() === null` branch rather than treating an empty parsed
+	 * host as a canonical match.
+	 */
+	public function test_same_origin_script_module_src_leaves_relative_src_alone(): void {
+		$cleanup = $this->override_site_hosts( 'https://example.com', 'https://example.com' );
+		try {
+			$relative = '/wp-content/plugins/jetpack-search/build/search-blocks/results-list/view.js';
+			$this->assertSame(
+				$relative,
+				Search_Blocks::same_origin_script_module_src( $relative, 'jetpack-search/results-list' )
+			);
+		} finally {
+			$cleanup();
+		}
+	}
+
+	/**
+	 * Empty src or a non-string from a misbehaving upstream filter must
+	 * not throw — pass through unchanged.
+	 */
+	public function test_same_origin_script_module_src_defensive_guards(): void {
+		$this->assertSame( '', Search_Blocks::same_origin_script_module_src( '', 'jetpack-search/results-list' ) );
+		// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- Deliberately exercising the non-string $src guard.
+		$this->assertNull( Search_Blocks::same_origin_script_module_src( null, 'jetpack-search/results-list' ) );
+		// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- Deliberately exercising the non-string $identifier guard.
+		$this->assertSame( 'https://example.com/x.js', Search_Blocks::same_origin_script_module_src( 'https://example.com/x.js', null ) );
+	}
+
+	/**
+	 * The filter is registered from `init()` unconditionally (no experience
+	 * gate) because blocks can be placed on any page that supports blocks.
+	 */
+	public function test_init_registers_script_module_loader_src_filter(): void {
+		$this->reset_search_blocks_hooks();
+		$this->set_module_active( true );
+		delete_option( Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY );
+
+		try {
+			Search_Blocks::init();
+
+			$this->assertSame(
+				10,
+				has_filter(
+					'script_module_loader_src',
+					array( Search_Blocks::class, 'same_origin_script_module_src' )
+				),
+				'same_origin_script_module_src must hook script_module_loader_src at priority 10.'
+			);
+		} finally {
+			remove_filter(
+				'script_module_loader_src',
+				array( Search_Blocks::class, 'same_origin_script_module_src' ),
+				10
+			);
+		}
 	}
 }

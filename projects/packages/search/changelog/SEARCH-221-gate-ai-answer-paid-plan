@@ -1,4 +1,0 @@
-Significance: patch
-Type: changed
-
-Search Blocks: gate the AI Answer block behind a paid Search plan — free / no-plan sites render nothing on the front end and see an upgrade prompt in the editor.

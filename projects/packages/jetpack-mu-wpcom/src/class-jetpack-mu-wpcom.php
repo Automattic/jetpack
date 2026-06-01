@@ -295,10 +295,10 @@ class Jetpack_Mu_Wpcom {
 		require_once __DIR__ . '/features/google-analytics/google-analytics.php';
 		require_once __DIR__ . '/features/holiday-snow/class-holiday-snow.php';
 		require_once __DIR__ . '/features/launch-button/index.php';
+		require_once __DIR__ . '/features/layout-grid-usage-tracking/layout-grid-usage-tracking.php';
 		require_once __DIR__ . '/features/logo-tool/logo-tool.php';
 		require_once __DIR__ . '/features/marketplace-products-updater/class-marketplace-products-updater.php';
 		require_once __DIR__ . '/features/media/heif-support.php';
-		require_once __DIR__ . '/features/plugin-conflicts-guardian/plugin-conflicts-guardian.php';
 		require_once __DIR__ . '/features/post-categories/quick-actions.php';
 		require_once __DIR__ . '/features/post-like-from-email/post-like-from-email.php';
 		require_once __DIR__ . '/features/site-editor-dashboard-link/site-editor-dashboard-link.php';
@@ -362,9 +362,6 @@ class Jetpack_Mu_Wpcom {
 			require_once __DIR__ . '/features/replace-site-visibility/hide-site-visibility.php';
 			return;
 		}
-		if ( ! class_exists( 'A8C\FSE\Agents_Manager' ) ) {
-			require_once __DIR__ . '/features/agents-manager/class-agents-manager.php';
-		}
 		if ( ! class_exists( 'A8C\FSE\Survicate' ) ) {
 			require_once __DIR__ . '/features/survicate/class-survicate.php';
 		}
@@ -410,6 +407,10 @@ class Jetpack_Mu_Wpcom {
 		if ( class_exists( '\Automattic\Jetpack\Status\Host' ) && ( new \Automattic\Jetpack\Status\Host() )->is_woa_site() ) {
 			// This is temporary. After we cleanup Masterbar on WPCOM we should load Masterbar for Simple sites too.
 			\Automattic\Jetpack\Masterbar\Main::init();
+		}
+
+		if ( class_exists( 'Automattic\Jetpack\Agents_Manager\Agents_Manager' ) ) {
+			\Automattic\Jetpack\Agents_Manager\Agents_Manager::init();
 		}
 	}
 
