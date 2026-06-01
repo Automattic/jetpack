@@ -1,16 +1,17 @@
 /**
- * UpdatesPanel — lists managed plugins that have a newer build available and
+ * UpdatesPanel — surfaces managed plugins that have a newer build available and
  * lets the user update each one in place.
  *
- * Renders nothing when there are no updates. Optionally scoped to a single
- * plugin via `slug` (used on the manage screen).
+ * Each pending update is shown as a non-dismissable warning (orange) Notice so
+ * it clearly stands out. Renders nothing when there are no updates. Optionally
+ * scoped to a single plugin via `slug` (used on the manage screen).
  *
  * @package
  */
 
 import { useCallback, useEffect, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import { Badge, Button, Card, Notice, Stack, Text } from '@wordpress/ui';
+import { Notice, Stack } from '@wordpress/ui';
 import { errorMessage, listUpdates, updatePlugin } from '../api/abilities';
 import type { PluginUpdate } from '../api/types';
 
@@ -22,10 +23,10 @@ type RowProps = {
 };
 
 /**
- * A single "update available" row with its Update button.
+ * A single pending-update notice with its Update action.
  *
  * @param {RowProps} props - Component props.
- * @return The row element.
+ * @return The notice element.
  */
 const UpdateRow = ( { update, busy, disabled, onUpdate }: RowProps ) => {
 	const handle = useCallback(
@@ -34,28 +35,26 @@ const UpdateRow = ( { update, busy, disabled, onUpdate }: RowProps ) => {
 	);
 
 	return (
-		<Stack direction="row" align="center" justify="space-between">
-			<Stack direction="column" gap="xs">
-				<Text variant="body-md">{ update.name }</Text>
-				<Text variant="body-sm">
-					{ sprintf(
-						/* translators: %s: version number. */
-						__( 'Version %s is available', 'jetpack-beta' ),
-						update.new_version
-					) }
-				</Text>
-			</Stack>
-			<Button
-				variant="primary"
-				size="compact"
-				disabled={ disabled }
-				loading={ busy }
-				loadingAnnouncement={ __( 'Updating…', 'jetpack-beta' ) }
-				onClick={ handle }
-			>
-				{ busy ? __( 'Updating…', 'jetpack-beta' ) : __( 'Update', 'jetpack-beta' ) }
-			</Button>
-		</Stack>
+		<Notice.Root intent="warning">
+			<Notice.Title>{ update.name }</Notice.Title>
+			<Notice.Description>
+				{ sprintf(
+					/* translators: %s: version number. */
+					__( 'Version %s is available', 'jetpack-beta' ),
+					update.new_version
+				) }
+			</Notice.Description>
+			<Notice.Actions>
+				<Notice.ActionButton
+					disabled={ disabled }
+					loading={ busy }
+					loadingAnnouncement={ __( 'Updating…', 'jetpack-beta' ) }
+					onClick={ handle }
+				>
+					{ busy ? __( 'Updating…', 'jetpack-beta' ) : __( 'Update', 'jetpack-beta' ) }
+				</Notice.ActionButton>
+			</Notice.Actions>
+		</Notice.Root>
 	);
 };
 
@@ -121,32 +120,22 @@ const UpdatesPanel = ( { slug, onUpdated }: Props ) => {
 	}
 
 	return (
-		<Card.Root>
-			<Card.Content>
-				<Stack direction="column" gap="md">
-					<Stack direction="row" gap="xs" align="center">
-						<Text variant="heading-sm">{ __( 'Updates available', 'jetpack-beta' ) }</Text>
-						{ updates && updates.length > 0 && (
-							<Badge intent="informational">{ String( updates.length ) }</Badge>
-						) }
-					</Stack>
-					{ error && (
-						<Notice.Root intent="error">
-							<Notice.Description>{ error }</Notice.Description>
-						</Notice.Root>
-					) }
-					{ updates?.map( update => (
-						<UpdateRow
-							key={ update.plugin_file }
-							update={ update }
-							busy={ busyFile === update.plugin_file }
-							disabled={ busyFile !== null }
-							onUpdate={ handleUpdate }
-						/>
-					) ) }
-				</Stack>
-			</Card.Content>
-		</Card.Root>
+		<Stack direction="column" gap="md">
+			{ error && (
+				<Notice.Root intent="error">
+					<Notice.Description>{ error }</Notice.Description>
+				</Notice.Root>
+			) }
+			{ updates?.map( update => (
+				<UpdateRow
+					key={ update.plugin_file }
+					update={ update }
+					busy={ busyFile === update.plugin_file }
+					disabled={ busyFile !== null }
+					onUpdate={ handleUpdate }
+				/>
+			) ) }
+		</Stack>
 	);
 };
 
