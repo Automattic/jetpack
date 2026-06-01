@@ -1,8 +1,0 @@
-{
-	"extends": "jetpack-js-tools/tsconfig.tsc.json",
-	"compilerOptions": {
-		"outDir": "./build/react",
-		"rootDir": "./src/react"
-	},
-	"include": [ "./src/react" ]
-}

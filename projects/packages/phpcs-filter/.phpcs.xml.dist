@@ -1,5 +1,0 @@
-<?xml version="1.0"?>
-<ruleset>
-	<!-- Dummy file to prevent it from picking up the monorepo root .phpcs.xml.dist and breaking. -->
-	<rule ref="PEAR" />
-</ruleset>

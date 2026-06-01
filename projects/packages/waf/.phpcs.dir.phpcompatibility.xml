@@ -1,6 +1,0 @@
-<?xml version="1.0"?>
-<ruleset>
-	<!-- Some code here runs outside of WordPress code. -->
-	<!-- TODO: Split that by directory or something so we can do this only for the non-WordPress code. -->
-	<rule ref="Jetpack-Compat-NoWP" />
-</ruleset>

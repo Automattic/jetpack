@@ -1,6 +1,0 @@
-{
-	"private": true,
-	"devDependencies": {
-		"nyc": "^18.0.0"
-	}
-}

@@ -1,3 +1,0 @@
-# Files to include in the mirror repo, but excluded via gitignore
-# Remember to end all directories with `/**` to properly tag every file.
-/build/**          production-include

@@ -1,5 +1,0 @@
----
-description: How changelog entries must be structured for each change
-globs:
----
-For changelog entry format, quality requirements, and the `jp changelog add` command, see the "Changelog Entries" section in the root AGENTS.md file.

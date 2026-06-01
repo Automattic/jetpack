@@ -1,6 +1,0 @@
-.cache/
-.vscode/
-
-vendor/
-node_modules/
-build/

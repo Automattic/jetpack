@@ -1,5 +1,0 @@
----
-description: General guidelines on code style and structure
-globs:
----
-For naming conventions and code style guidelines, see the "Coding Conventions" section in the root AGENTS.md file. Detailed guidelines are also in `docs/coding-guidelines.md`.

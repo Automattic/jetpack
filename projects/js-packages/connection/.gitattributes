@@ -1,5 +1,0 @@
-# Files to exclude from the mirror repo
-# (see also entries in the monorepo root .gitattributes)
-/jest.setup.js    production-exclude
-**/stories/**     production-exclude
-**/test/**        production-exclude

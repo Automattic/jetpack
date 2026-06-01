@@ -1,5 +1,0 @@
-# Files not needed in the production build.
-# (see also entries in the monorepo root .gitattributes)
-
-# Files to include in the production build.
-/build/**         production-include

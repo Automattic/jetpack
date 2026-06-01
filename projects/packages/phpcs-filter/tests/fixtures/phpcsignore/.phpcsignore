@@ -1,4 +1,0 @@
-ignoredfile.php
-ignoredir/
-
-!gitignored-but-overridden-file.php

@@ -1,5 +1,0 @@
----
-description: JavaScript/React Standards
-globs: *.js, *.jsx, *.ts, *.tsx
----
-For JavaScript and React coding standards, see the "JavaScript & React Standards" section in the root AGENTS.md file.

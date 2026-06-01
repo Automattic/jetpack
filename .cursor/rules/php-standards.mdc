@@ -1,5 +1,0 @@
----
-description: PHP coding standards
-globs: *.php
----
-For PHP coding standards and version annotations, see the "PHP Standards" section in the root AGENTS.md file.

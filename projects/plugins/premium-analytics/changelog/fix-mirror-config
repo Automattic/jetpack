@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Remove unused mirror-repo and release-branch-prefix config from composer.json

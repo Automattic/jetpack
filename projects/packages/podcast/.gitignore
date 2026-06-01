@@ -1,9 +1,0 @@
-vendor/
-node_modules/
-.cache/
-build/
-dist/
-composer.lock
-
-# wp-build generated entry files
-/routes/**/.content-entry.js

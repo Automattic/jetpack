@@ -1,3 +1,0 @@
-#!/usr/bin/env bash
-
-php tools/build-module-headings-translations.php

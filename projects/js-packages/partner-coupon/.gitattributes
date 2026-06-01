@@ -1,3 +1,0 @@
-# Files to exclude from the mirror repo
-# (see also entries in the monorepo root .gitattributes)
-/jest.setup.cjs   production-exclude

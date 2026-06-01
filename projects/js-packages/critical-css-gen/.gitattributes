@@ -1,8 +1,0 @@
-# Files to include in the mirror repo
-/build/**              production-include
-
-# Files to exclude from the mirror repo
-# (see also entries in the monorepo root .gitattributes)
-/src/**                production-exclude
-/rollup.config.js      production-exclude
-/tsconfig.browser.json production-exclude

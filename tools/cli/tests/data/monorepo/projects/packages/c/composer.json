@@ -1,9 +1,0 @@
-{
-	"name": "automattic/jp-c",
-	"require": {
-		"automattic/jp-a": "*"
-	},
-	"require-dev": {
-		"automattic/jp-b": "*"
-	}
-}

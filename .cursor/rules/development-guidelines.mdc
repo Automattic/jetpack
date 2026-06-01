@@ -1,5 +1,0 @@
----
-description: General development guidelines
-globs:
----
-For development conventions including package reuse, coding standards, and common pitfalls, see the root AGENTS.md file.

@@ -1,3 +1,0 @@
-{
-	"extends": "_jetpack-e2e-commons/tsconfig.json"
-}
