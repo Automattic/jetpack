@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Build the SEO admin page with @wordpress/build (wp-build) instead of a custom webpack config, and bootstrap its initial state via the shared script-data layer (window.JetpackScriptData) — replacing the React Router SPA entry and the data-sync Overview wiring.

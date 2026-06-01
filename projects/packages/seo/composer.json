@@ -9,9 +9,8 @@
 		"automattic/jetpack-assets": "@dev",
 		"automattic/jetpack-connection": "@dev",
 		"automattic/jetpack-constants": "@dev",
-		"automattic/jetpack-schema": "@dev",
 		"automattic/jetpack-status": "@dev",
-		"automattic/jetpack-wp-js-data-sync": "@dev"
+		"automattic/jetpack-wp-build-polyfills": "@dev"
 	},
 	"require-dev": {
 		"yoast/phpunit-polyfills": "^4.0.0",

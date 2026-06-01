@@ -1,20 +1,18 @@
-import { z } from 'zod';
+// Shape of the aggregated Overview state the server bootstraps onto
+// `window.JetpackScriptData.seo.overview` (see `Initializer::get_overview_data()`).
+// Plain TypeScript — the server owns the payload, so no runtime schema is needed.
 
-// Zod schema for the `overview` data-sync entry. `useDataSync` validates the
-// server payload against this and `OverviewResponse` is inferred from it, so
-// the schema is the single source of truth for the shape. Mirrors the
-// server-side `Initializer::overview_schema()` registration.
-export const OverviewSchema = z.object( {
-	site_visibility: z.object( {
-		search_engines_visible: z.boolean(),
-		sitemap_active: z.boolean(),
-		sitemap_url: z.string(),
-		seo_tools_active: z.boolean(),
-		front_page_description: z.string(),
-	} ),
-	plan: z.object( {
-		seo_enabled_for_site: z.boolean(),
-	} ),
-} );
+export interface SiteVisibility {
+	search_engines_visible: boolean;
+	sitemap_active: boolean;
+	sitemap_url: string;
+	seo_tools_active: boolean;
+	front_page_description: string;
+}
 
-export type OverviewResponse = z.infer< typeof OverviewSchema >;
+export interface OverviewResponse {
+	site_visibility: SiteVisibility;
+	plan: {
+		seo_enabled_for_site: boolean;
+	};
+}

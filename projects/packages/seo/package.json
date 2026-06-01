@@ -19,37 +19,37 @@
 		"*.scss"
 	],
 	"scripts": {
-		"build": "pnpm run clean && pnpm run build-client",
-		"build-client": "pnpm webpack --config webpack.config.js",
+		"build": "pnpm run clean && pnpm run build:wp-build && pnpm run build:boot-asset",
+		"build:boot-asset": "provide-boot-asset-file",
+		"build:strip-unminified-prod": "strip-unminified-prod",
+		"build:wp-build": "wp-build",
+		"build-production": "NODE_ENV=production BABEL_ENV=production pnpm run build && pnpm run build:strip-unminified-prod && pnpm run validate",
 		"clean": "rm -rf build/",
-		"test": "jest --config=tests/jest.config.js --passWithNoTests",
+		"test": "NODE_OPTIONS=--experimental-vm-modules jest --config=tests/jest.config.js --passWithNoTests",
 		"test-coverage": "pnpm run test --coverage",
 		"typecheck": "tsgo --noEmit",
-		"watch": "pnpm run build && pnpm webpack watch"
+		"validate": "pnpm exec validate-es --no-error-on-unmatched-pattern build/",
+		"watch": "wp-build --watch"
 	},
+	"browserslist": [
+		"extends @wordpress/browserslist-config"
+	],
 	"dependencies": {
 		"@automattic/babel-plugin-replace-textdomain": "workspace:*",
 		"@automattic/jetpack-base-styles": "workspace:*",
 		"@automattic/jetpack-components": "workspace:*",
-		"@automattic/jetpack-connection": "workspace:*",
-		"@automattic/jetpack-react-data-sync-client": "workspace:*",
 		"@automattic/jetpack-script-data": "workspace:*",
-		"@automattic/social-previews": "workspace:*",
-		"@wordpress/components": "32.6.0",
-		"@wordpress/compose": "7.44.0",
-		"@wordpress/data": "10.44.0",
-		"@wordpress/dataviews": "14.0.0",
-		"@wordpress/element": "6.44.0",
-		"@wordpress/i18n": "6.17.0",
-		"@wordpress/icons": "12.1.0",
-		"@wordpress/ui": "0.10.0",
-		"@wordpress/url": "4.44.0",
-		"clsx": "2.1.1",
-		"react-router": "7.12.0",
-		"zod": "3.25.76"
+		"@automattic/jetpack-wp-build-polyfills": "workspace:*",
+		"@wordpress/components": "33.1.0",
+		"@wordpress/element": "6.46.0",
+		"@wordpress/i18n": "6.19.0",
+		"@wordpress/icons": "13.1.0",
+		"@wordpress/route": "0.12.0",
+		"@wordpress/ui": "0.13.0",
+		"@wordpress/url": "4.46.0",
+		"clsx": "2.1.1"
 	},
 	"devDependencies": {
-		"@automattic/jetpack-webpack-config": "workspace:*",
 		"@babel/core": "7.29.0",
 		"@babel/preset-env": "7.29.2",
 		"@testing-library/dom": "10.4.1",
@@ -58,14 +58,27 @@
 		"@types/jest": "30.0.0",
 		"@types/node": "^24.12.0",
 		"@types/react": "18.3.28",
+		"@types/react-dom": "18.3.7",
 		"@typescript/native-preview": "7.0.0-dev.20260225.1",
-		"jest": "30.3.0",
+		"@wordpress/base-styles": "8.0.0",
+		"@wordpress/browserslist-config": "6.46.0",
+		"@wordpress/build": "0.13.0",
+		"@wordpress/theme": "0.13.0",
+		"browserslist": "^4.24.0",
+		"jest": "30.4.2",
 		"react": "18.3.1",
 		"react-dom": "18.3.1",
 		"sass-embedded": "1.97.3",
 		"sass-loader": "16.0.5",
-		"typescript": "5.9.3",
-		"webpack": "5.105.2",
-		"webpack-cli": "6.0.1"
+		"typescript": "5.9.3"
+	},
+	"wpPlugin": {
+		"name": "jetpack_seo",
+		"scriptGlobal": "jetpackSeo",
+		"packageNamespace": "jetpack-seo",
+		"handlePrefix": "jetpack-seo",
+		"pages": [
+			"jetpack-seo-dashboard"
+		]
 	}
 }

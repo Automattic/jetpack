@@ -1,29 +1,17 @@
-import { Spinner } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { Notice } from '@wordpress/ui';
-import useOverview from '../../data/use-overview';
+import getOverview from '../../data/get-overview';
 import SiteVisibilityCard from './site-visibility-card';
-import styles from './style.module.scss';
+import './style.scss';
 import type { FC } from 'react';
 
 const OverviewScreen: FC = () => {
-	const { data, isLoading, isError, error } = useOverview();
+	const data = getOverview();
 
-	if ( isLoading ) {
-		return (
-			<div className={ styles.loading }>
-				<Spinner />
-				<span>{ __( 'Loading site visibility…', 'jetpack-seo' ) }</span>
-			</div>
-		);
-	}
-
-	if ( isError || ! data ) {
+	if ( ! data ) {
 		return (
 			<Notice.Root intent="error">
-				<Notice.Description>
-					{ error?.message ?? __( 'Unable to load overview.', 'jetpack-seo' ) }
-				</Notice.Description>
+				<Notice.Description>{ __( 'Unable to load overview.', 'jetpack-seo' ) }</Notice.Description>
 			</Notice.Root>
 		);
 	}
@@ -40,7 +28,7 @@ const OverviewScreen: FC = () => {
 					</Notice.Description>
 				</Notice.Root>
 			) }
-			<div className={ styles.grid }>
+			<div className="jetpack-seo-overview__grid">
 				<SiteVisibilityCard data={ data.site_visibility } />
 			</div>
 		</>

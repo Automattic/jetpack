@@ -1,4 +1,4 @@
-.grid {
+.jetpack-seo-overview__grid {
 	display: grid;
 	grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
 	gap: var(--wpds-dimension-gap-lg, 16px);
@@ -8,19 +8,14 @@
 // Make each Overview card a flex column so its body stretches and equal-height
 // cards line up across the row. Targets Card.Root's last child (Card.Content),
 // since @wordpress/ui uses hashed (non-stable) class names.
-.grid > * {
+.jetpack-seo-overview__grid > * {
 	display: flex;
 	flex-direction: column;
 	height: 100%;
 }
 
-.grid > * > *:last-child {
+.jetpack-seo-overview__grid > * > *:last-child {
 	display: flex;
 	flex-direction: column;
 	flex: 1 1 auto;
-}
-
-.loading {
-	padding: var(--wpds-dimension-gap-lg, 16px) 0;
-	color: var(--wpds-color-fg-content-neutral-weak, #757575);
 }
