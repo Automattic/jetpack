@@ -17,6 +17,7 @@ import { __ } from '@wordpress/i18n';
 import { Button, Card, Link, Notice, Stack, Text } from '@wordpress/ui';
 import { getPlugin } from '../api/abilities';
 import BranchSection from '../components/branch-section';
+import Footer from '../components/footer';
 import GlobalToggles from '../components/global-toggles';
 import MarkdownPanel from '../components/markdown-panel';
 import type { BranchCard as BranchCardType, PluginView } from '../api/types';
@@ -161,6 +162,7 @@ const PluginManage = ( { slug }: Props ) => {
 			apiRoot={ boot.apiRoot }
 			apiNonce={ boot.apiNonce }
 			breadcrumbs={ renderBreadcrumbs( pluginName ) }
+			showFooter={ false }
 		>
 			<Container horizontalSpacing={ 5 } horizontalGap={ 3 }>
 				<Col>
@@ -256,6 +258,7 @@ const PluginManage = ( { slug }: Props ) => {
 							) }
 						</Stack>
 					) }
+					<Footer />
 				</Col>
 			</Container>
 		</AdminPage>
