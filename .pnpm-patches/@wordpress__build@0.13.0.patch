@@ -1,9 +1,16 @@
-Bridge to upstream Gutenberg PR https://github.com/WordPress/gutenberg/pull/78822.
+Bridge to upstream Gutenberg PRs https://github.com/WordPress/gutenberg/pull/78822
+and https://github.com/WordPress/gutenberg/pull/77465.
 
 Decouples script-module identity from `wpPlugin.packageNamespace` (the script-module
 ID is read from `package.json#name`) and discovers script-module packages outside
 `./packages/` via convention (any entry in `dependencies` that declares
 `wpScriptModuleExports`).
+
+Scopes the generated PHP `wp_deregister_script_module()` calls to `@wordpress/*` IDs
+only (PR #77465). Shared non-core packages registered by more than one wp-build
+plugin then get Core's idempotent first-wins semantics instead of last-plugin-wins
+collisions. Without this, the shared identity from convention discovery above would
+re-introduce the cross-plugin version-skew concern.
 
 Also extends `getPackageInfo` with a node_modules walk-up fallback so packages whose
 `exports` field does not list `./package.json` (e.g. `@automattic/number-formatters`)
@@ -39,14 +46,15 @@ diff --git a/CHANGELOG.md b/CHANGELOG.md
 index eabf9e8..81302b5 100644
 --- a/CHANGELOG.md
 +++ b/CHANGELOG.md
-@@ -4,6 +4,11 @@
- 
+@@ -4,6 +4,12 @@
+
  ## 0.13.0 (2026-04-29)
- 
+
 +### Enhancements
 +
 +-   Use each package's own `name` field as its script-module ID and externalize internal-package imports by exact name. Decouples script-module identity from `wpPlugin.packageNamespace`, so the npm name survives end-to-end (npm name === import specifier === script-module ID). No-op for Core; enables consumers whose owned npm scope differs from `packageNamespace` to keep a single identifier across npm, IDE, and the WordPress runtime.
 +-   Discover script-module packages outside `./packages/` via convention. Any entry in the plugin's `dependencies` whose `package.json` declares `wpScriptModuleExports` is registered as a script module, bundled, and externalized under its own npm name. No new config; local packages still take precedence on name collision.
++-   Scope the generated `wp_deregister_script_module()` calls to `@wordpress/*` IDs (PR #77465), so shared non-core packages registered by multiple wp-build plugins fall through to Core's idempotent first-wins semantics instead of last-plugin-wins collisions.
 +
  ### Bug Fixes
  
@@ -700,3 +708,57 @@ index 2b7e01a..a07a310 100644
  				// Handle package namespace externals (wordpress and custom)
  				for ( const externalConfig of packageExternals ) {
  					build.onResolve(
+diff --git a/templates/module-registration.php.template b/templates/module-registration.php.template
+index d2c8712273..e86be5f324 100644
+--- a/templates/module-registration.php.template
++++ b/templates/module-registration.php.template
+@@ -42,8 +42,13 @@ function {{PREFIX}}_register_script_modules() {
+ 		$asset = file_exists( $asset_path ) ? require $asset_path : array();
+ 
+ 		// Deregister first to override any previously registered version
+-		// (e.g., Core's default modules when running as a plugin).
+-		wp_deregister_script_module( $module['id'] );
++		// (e.g., Core's default modules when running as a plugin). Scoped to
++		// `@wordpress/*`, the only namespace Core registers by default, so shared
++		// non-core modules fall through to Core's idempotent first-wins semantics
++		// instead of silent last-plugin-wins collisions across wp-build plugins.
++		if ( str_starts_with( $module['id'], '@wordpress/' ) ) {
++			wp_deregister_script_module( $module['id'] );
++		}
+ 
+ 		wp_register_script_module(
+ 			$module['id'],
+diff --git a/templates/routes-registration.php.template b/templates/routes-registration.php.template
+index 7ab43f1eb1..8aeaf29d0f 100644
+--- a/templates/routes-registration.php.template
++++ b/templates/routes-registration.php.template
+@@ -54,8 +54,12 @@ function {{PREFIX}}_register_page_routes( $page_routes, $register_function_name
+ 				$content_handle = '{{HANDLE_PREFIX}}/routes/' . $route['name'] . '/content';
+ 				$extension = defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ? '.js' : '.min.js';
+ 				// Deregister first to override any previously registered version
+-				// (e.g., Core's default modules when running as a plugin).
+-				wp_deregister_script_module( $content_handle );
++				// (e.g., Core's default modules). Scoped to `@wordpress/*` so
++				// plugin-local route modules fall through to Core's idempotent
++				// first-wins semantics instead of last-plugin-wins collisions.
++				if ( str_starts_with( $content_handle, '@wordpress/' ) ) {
++					wp_deregister_script_module( $content_handle );
++				}
+ 				wp_register_script_module(
+ 					$content_handle,
+ 					$build_constants['build_url'] . 'routes/' . $route['name'] . '/content' . $extension,
+@@ -73,8 +77,12 @@ function {{PREFIX}}_register_page_routes( $page_routes, $register_function_name
+ 				$route_handle = '{{HANDLE_PREFIX}}/routes/' . $route['name'] . '/route';
+ 				$extension = defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ? '.js' : '.min.js';
+ 				// Deregister first to override any previously registered version
+-				// (e.g., Core's default modules when running as a plugin).
+-				wp_deregister_script_module( $route_handle );
++				// (e.g., Core's default modules). Scoped to `@wordpress/*` so
++				// plugin-local route modules fall through to Core's idempotent
++				// first-wins semantics instead of last-plugin-wins collisions.
++				if ( str_starts_with( $route_handle, '@wordpress/' ) ) {
++					wp_deregister_script_module( $route_handle );
++				}
+ 				wp_register_script_module(
+ 					$route_handle,
+ 					$build_constants['build_url'] . 'routes/' . $route['name'] . '/route' . $extension,
