@@ -321,9 +321,9 @@ For PHP tests, you'll probably run PHPUnit as `php -dpcov.directory=. ./vendor/b
 
 For JS tests, you'll probably have a `test` script in package.json that runs `jest` with any needed options, and then a `test-js-coverage` script that does `pnpm run test --coverage`. If you have multiple runs (e.g. unit and integration), be sure each run writes to a different subdirectory of `$COVERAGE_DIR`.
 
-There's no need to be concerned about collisions with other projects' coverage files, a separate directory is used per project. The coverage files are also automatically copied to `ARTIFACTS_DIR`.
+There's no need to be concerned about collisions with other projects' coverage files, as a separate directory is used per project. The coverage files are also automatically copied to `ARTIFACTS_DIR`.
 
-If you want to generate coverage locally, e.g. with `jetpack coverage`, note that generating PHP coverage requires the [pcov](https://pecl.php.net/package/pcov) or [xdebug](https://pecl.php.net/package/xdebug) extensions. We use `pcov` for the CI runs; results from `xdebug` may be slightly different.
+If you want to generate coverage locally, this can be done with `jetpack test php-coverage` or `jetpack test js-coverage`. Note that generating PHP coverage requires the [pcov](https://pecl.php.net/package/pcov) or [xdebug](https://pecl.php.net/package/xdebug) extensions. We use `pcov` for the CI runs; results from `xdebug` may be slightly different.
 
 <details><summary>Installing the PHP pcov extension on Linux</summary>
 
