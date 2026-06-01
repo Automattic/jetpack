@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Escape the SoundCloud player iframe src URL with esc_url().
