@@ -169,16 +169,45 @@ class Admin {
 			)
 		);
 		Assets::enqueue_script( 'jetpack-beta-app' );
+
+		// Stable body class so the React layout styles (jetpack-admin-page-layout)
+		// can pin the header/footer and scroll the middle, independent of the
+		// hook-derived `{parent}_page_jetpack-beta` class.
+		add_filter(
+			'admin_body_class',
+			static function ( $classes ) {
+				return trim( $classes . ' jetpack-beta-page' );
+			}
+		);
+
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$plugin_slug = isset( $_GET['plugin'] ) ? sanitize_text_field( wp_unslash( $_GET['plugin'] ) ) : null;
+
+		// Resolve the human-readable plugin name up front (from cached data) so the
+		// React header/breadcrumb can render immediately, without waiting for the
+		// get-plugin ability to resolve.
+		$plugin_display_name = null;
+		if ( null !== $plugin_slug ) {
+			try {
+				$beta_plugin = Plugin::get_plugin( $plugin_slug );
+				if ( $beta_plugin ) {
+					$plugin_display_name = $beta_plugin->get_name();
+				}
+			} catch ( PluginDataException $e ) {
+				$plugin_display_name = null;
+			}
+		}
+
 		wp_add_inline_script(
 			'jetpack-beta-app',
 			'window.JetpackBeta = ' . wp_json_encode(
 				array(
-					'apiRoot'   => esc_url_raw( rest_url() ),
-					'apiNonce'  => wp_create_nonce( 'wp_rest' ),
-					// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-					'plugin'    => isset( $_GET['plugin'] ) ? sanitize_text_field( wp_unslash( $_GET['plugin'] ) ) : null,
-					'adminUrl'  => Utils::admin_url(),
-					'canManage' => current_user_can( 'update_plugins' ),
+					'apiRoot'    => esc_url_raw( rest_url() ),
+					'apiNonce'   => wp_create_nonce( 'wp_rest' ),
+					'plugin'     => $plugin_slug,
+					'pluginName' => $plugin_display_name,
+					'adminUrl'   => Utils::admin_url(),
+					'canManage'  => current_user_can( 'update_plugins' ),
 				),
 				JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP
 			) . ';',

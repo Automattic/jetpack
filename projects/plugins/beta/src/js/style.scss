@@ -4,10 +4,14 @@
  * @package automattic/jetpack-beta
  */
 
-#jetpack-beta-root {
-	display: flex;
-	flex-direction: column;
-	min-height: 100%;
+@use "@automattic/jetpack-base-styles/admin-page-layout" as *;
+
+// Pin the AdminPage header at the top and the footer at the bottom, with the
+// middle scrolling internally — the canonical Jetpack admin layout. The
+// wp-build variant also strips the wp-admin underline from breadcrumb links.
+body.jetpack-beta-page {
+
+	@include jetpack-admin-page-layout-wp-build;
 }
 
 // Skeleton loading placeholder with a left-to-right shimmer.
@@ -23,11 +27,12 @@
 }
 
 .jetpack-beta-skeleton {
+	$base: var(--wpds-color-stroke-surface-neutral-weak, #e0e0e0);
+
 	display: block;
 	border-radius: 4px;
-	background-color: var(--wpds-color-stroke-surface-neutral-weak, #e0e0e0);
-	background-image:
- linear-gradient(90deg, var(--wpds-color-stroke-surface-neutral-weak, #e0e0e0) 0, #f4f4f4 40px, var(--wpds-color-stroke-surface-neutral-weak, #e0e0e0) 80px);
+	background-color: $base;
+	background-image: linear-gradient(90deg, $base 0, #f4f4f4 40px, $base 80px);
 	background-size: 200px 100%;
 	background-repeat: no-repeat;
 	animation: jetpack-beta-skeleton-shimmer 1.4s ease infinite;

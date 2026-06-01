@@ -51,6 +51,7 @@ export type BetaBootstrap = {
 	apiRoot: string;
 	apiNonce: string;
 	plugin: string | null;
+	pluginName: string | null;
 	adminUrl: string;
 	canManage: boolean;
 };
