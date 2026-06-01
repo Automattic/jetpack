@@ -116,6 +116,8 @@ add_action( 'init', array( Automattic\JetpackBeta\AutoupdateSelf::class, 'instan
 
 Automattic\JetpackBeta\Hooks::setup();
 
+add_action( 'plugins_loaded', array( Automattic\JetpackBeta\Abilities\Beta_Abilities::class, 'init' ), 20 );
+
 register_activation_hook( __FILE__, array( Automattic\JetpackBeta\Hooks::class, 'activate' ) );
 register_deactivation_hook( __FILE__, array( Automattic\JetpackBeta\Hooks::class, 'deactivate' ) );
 
