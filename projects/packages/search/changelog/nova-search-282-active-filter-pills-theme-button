@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Search Blocks: render active-filter pills as theme-tracking outline chips (matching the filter chips) instead of solid buttons, and give the Load More button the overlay's ghost styling inside the blocks Overlay, so both read correctly on classic themes and against the light overlay card.

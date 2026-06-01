@@ -1,3 +1,0 @@
-Significance: patch
-Type: other
-Comment: Sync: Add regression test for malformed queue lock values.

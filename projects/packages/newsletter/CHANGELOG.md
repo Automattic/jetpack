@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.8.10] - 2026-06-01
+### Changed
+- Update package dependencies. [#48404]
+- Update package dependencies. [#49152]
+
+### Fixed
+- Newsletter dashboard now records a `jetpack_newsletter_tab_view` Tracks event on initial page load (matching its tab-switch behavior). [#49243]
+
 ## [0.8.9] - 2026-05-25
 ### Changed
 - Normalize page tabs onto the shared minimal variant and `jp-admin-page-tabs--minimal` wrapper modifier. [#48964]
@@ -196,6 +204,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Update package dependencies. [#46143]
 
+[0.8.10]: https://github.com/Automattic/jetpack-newsletter/compare/v0.8.9...v0.8.10
 [0.8.9]: https://github.com/Automattic/jetpack-newsletter/compare/v0.8.8...v0.8.9
 [0.8.8]: https://github.com/Automattic/jetpack-newsletter/compare/v0.8.7...v0.8.8
 [0.8.7]: https://github.com/Automattic/jetpack-newsletter/compare/v0.8.6...v0.8.7

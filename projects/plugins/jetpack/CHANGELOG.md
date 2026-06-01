@@ -2,6 +2,35 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 15.9-a.7 - 2026-06-01
+### Major Enhancements
+- General: Update minimum WordPress version to 6.9. [#49021]
+
+### Enhancements
+- Abilities API: register jetpack-monitor/get-monitor-status and jetpack-monitor/set-notifications for WP 6.9+. [#48284]
+- AI Agent Access: Register the opt-in setting for regular site owners. [#49103]
+- Monitor abilities: register under the WordPress core site ability category instead of a plugin-scoped jetpack-monitor category [#48284]
+- Monitor abilities: return WP_Error with steering message when not connected or service unreachable [#48284]
+
+### Bug fixes
+- VideoPress: fix the post-connection redirect so the modernized dashboard returns users to the VideoPress page instead of a 404 [#49168]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Agents Manager: Extract into its own package from jetpack-mu-wpcom [#49202]
+- Connection: Migrate connection test REST endpoints to the Connection package. [#49198]
+- Email preview: remove the Akismet-based spam check; spam classification is now handled outside Jetpack via the jetpack_before_send_email_preview action. [#49222]
+- Instagram Gallery Block: Prevent PHP warnings when cached object is malformed. [#49236]
+- Jetpack Connection Health tests: Migrate from Jetpack plugin to Connection package [#47837]
+- JSON API: add a REST-vs-XML-RPC body parity test helper plus an auto-discovering coverage test for REST-enabled GET endpoints, and a context=edit (jetpack#42377) lock for /posts. [#49163]
+- JSON API: add unit tests for the REST-live /sites/%s/users endpoint, covering callback() shape, filtering/pagination, authorization, and REST-vs-XML-RPC param parity. [#49191]
+- Pinterest block: Prevent PHP warning when block attributes are malformed. [#49290]
+- Reader Chat: skip asset-cache unit tests when SCRIPT_DEBUG is enabled [#49165]
+- Remove unneeded development and documentation files from the published plugin. [#49014]
+- Story block: Prevent PHP warning when handling an invalid media type. [#49294]
+- Update package dependencies. [#48404]
+- Update package dependencies. [#49218]
+- Widgets: Prevent a PHP error when Display Posts data is malformed. [#49295]
+
 ## 15.9-a.5 - 2026-05-25
 ### Enhancements
 - Admin Menu: Add sidebar redesign fields, group metadata, and saved layout data to the `/wpcom/v2/admin-menu` endpoint when the public `wp-admin-sidebar` plugin is loaded. [#48715]

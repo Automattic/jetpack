@@ -2,7 +2,7 @@
 /**
  * WP Site Health debugging functions.
  *
- * @deprecated $$next-version$$ Site Health integration is now handled by the connection package.
+ * @deprecated 15.9 Site Health integration is now handled by the connection package.
  * @package automattic/jetpack
  */
 
@@ -10,10 +10,10 @@
  * Test runner for Core's Site Health module.
  *
  * @since 7.3.0
- * @deprecated $$next-version$$ Use Automattic\Jetpack\Connection\Site_Health instead.
+ * @deprecated 15.9 Use Automattic\Jetpack\Connection\Site_Health instead.
  */
 function jetpack_debugger_ajax_local_testing_suite() {
-	_deprecated_function( __FUNCTION__, 'jetpack-$$next-version$$' );
+	_deprecated_function( __FUNCTION__, 'jetpack-15.9' );
 	check_ajax_referer( 'health-check-site-status' );
 	if ( ! current_user_can( 'jetpack_manage_modules' ) ) {
 		// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- It takes null, but its phpdoc only says int.
@@ -27,14 +27,14 @@ function jetpack_debugger_ajax_local_testing_suite() {
  * Adds the Jetpack Local Testing Suite to the Core Site Health system.
  *
  * @since 7.3.0
- * @deprecated $$next-version$$ Use Automattic\Jetpack\Connection\Site_Health instead.
+ * @deprecated 15.9 Use Automattic\Jetpack\Connection\Site_Health instead.
  *
  * @param array $core_tests Array of tests from Core's Site Health.
  *
  * @return array $core_tests Array of tests for Core's Site Health.
  */
 function jetpack_debugger_site_status_tests( $core_tests ) {
-	_deprecated_function( __FUNCTION__, 'jetpack-$$next-version$$' );
+	_deprecated_function( __FUNCTION__, 'jetpack-15.9' );
 	$cxn_tests = new Automattic\Jetpack\Connection\Connection_Health_Tests();
 	$tests     = $cxn_tests->list_tests( 'direct' );
 	foreach ( $tests as $test ) {

@@ -1,4 +1,0 @@
-Significance: patch
-Type: changed
-
-Search Blocks: collapse the filter sidebar at narrow widths on the `jetpack-search` and `jetpack-search-product-results` page templates, docking a `filters-popover` trigger next to Sort By. Matches the overlay's responsive behavior from SEARCH-262.

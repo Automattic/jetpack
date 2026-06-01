@@ -1,4 +1,0 @@
-Significance: minor
-Type: enhancement
-
-Abilities API: register jetpack-monitor/get-monitor-status and jetpack-monitor/set-notifications for WP 6.9+.

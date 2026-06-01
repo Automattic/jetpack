@@ -1,4 +1,0 @@
-Significance: patch
-Type: changed
-
-Search Blocks: style the Sort By block's select control with the theme's surface and text colors instead of a stock system widget, so it matches the other search toolbar surfaces on dark and custom-palette themes.
