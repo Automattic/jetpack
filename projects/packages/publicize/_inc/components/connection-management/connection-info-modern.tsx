@@ -5,6 +5,7 @@ import { chevronDown, info } from '@wordpress/icons';
 import { Collapsible, Icon, IconButton, Stack, Text } from '@wordpress/ui';
 import { store as socialStore } from '../../social-store';
 import ConnectionIcon from '../connection-icon';
+import { useServiceLabel } from '../services/use-service-label';
 import { XNotice } from '../services/x-notice';
 import { ConnectionName } from './connection-name';
 import { ConnectionStatus, ConnectionStatusProps } from './connection-status';
@@ -31,6 +32,8 @@ export function ModernConnectionInfo( {
 }: ConnectionInfoProps ) {
 	const [ isPanelOpen, setIsPanelOpen ] = useState( false );
 
+	const getServiceLabel = useServiceLabel();
+
 	const { canManageConnection, isUnsupported } = useSelect(
 		select => {
 			const { canUserManageConnection, getServicesBy } = select( socialStore );
@@ -54,9 +57,10 @@ export function ModernConnectionInfo( {
 	);
 
 	const toggleLabel = sprintf(
-		/* translators: %s: name of the connected social media account. */
-		__( 'Toggle details for %s', 'jetpack-publicize-pkg' ),
-		connection.display_name
+		/* translators: %1$s: name of the connected social media account. %2$s: name of the social network, e.g. Facebook. */
+		__( 'Toggle details for %1$s on %2$s', 'jetpack-publicize-pkg' ),
+		connection.display_name,
+		getServiceLabel( connection.service_name )
 	);
 
 	return (
