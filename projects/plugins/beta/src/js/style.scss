@@ -48,6 +48,15 @@ body.jetpack-beta-page {
 	user-select: none;
 }
 
+// Centered, responsive content column inside the full-width scroll area.
+.jetpack-beta-content {
+	box-sizing: border-box;
+	width: 100%;
+	max-width: 760px;
+	margin: 0 auto;
+	padding: var(--wpds-dimension-padding-2xl, 24px);
+}
+
 // wordpress.org plugin icon shown on each list row.
 .jetpack-beta-plugin-icon {
 	width: 40px;
