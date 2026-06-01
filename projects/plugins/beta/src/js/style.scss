@@ -10,6 +10,33 @@
 	min-height: 100%;
 }
 
+// Skeleton loading placeholder with a left-to-right shimmer.
+@keyframes jetpack-beta-skeleton-shimmer {
+
+	0% {
+		background-position: -200px 0;
+	}
+
+	100% {
+		background-position: calc(200px + 100%) 0;
+	}
+}
+
+.jetpack-beta-skeleton {
+	display: block;
+	border-radius: 4px;
+	background-color: var(--wpds-color-stroke-surface-neutral-weak, #e0e0e0);
+	background-image:
+ linear-gradient(90deg, var(--wpds-color-stroke-surface-neutral-weak, #e0e0e0) 0, #f4f4f4 40px, var(--wpds-color-stroke-surface-neutral-weak, #e0e0e0) 80px);
+	background-size: 200px 100%;
+	background-repeat: no-repeat;
+	animation: jetpack-beta-skeleton-shimmer 1.4s ease infinite;
+
+	@media (prefers-reduced-motion: reduce) {
+		animation: none;
+	}
+}
+
 // Muted "/" separator in the manage-screen breadcrumb.
 .jetpack-beta-breadcrumb-separator {
 	color: var(--wpds-color-stroke-surface-neutral, #dbdbdb);
