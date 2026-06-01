@@ -44,6 +44,10 @@ function render() {
 							path="/reconnect"
 							element={ <Main routeName={ getRouteName( '/reconnect' ) } /> }
 						/>
+						<Route
+							path="/offline-mode"
+							element={ <Main routeName={ getRouteName( '/offline-mode' ) } /> }
+						/>
 						<Route path="/setup" element={ <Main routeName={ getRouteName( '/setup' ) } /> } />
 						<Route path="/my-plan" element={ <Main routeName={ getRouteName( '/my-plan' ) } /> } />
 						<Route path="/plans" element={ <Main routeName={ getRouteName( '/plans' ) } /> } />
@@ -106,6 +110,8 @@ export function getRouteName( path ) {
 	switch ( path ) {
 		case '/dashboard':
 			return _x( 'At A Glance', 'Navigation item.', 'jetpack' );
+		case '/offline-mode':
+			return _x( 'Offline Mode', 'Navigation item.', 'jetpack' );
 		case '/setup':
 			return _x( 'Set up', 'Navigation item.', 'jetpack' );
 		case '/my-plan':

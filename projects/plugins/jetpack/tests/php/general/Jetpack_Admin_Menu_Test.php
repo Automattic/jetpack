@@ -5,6 +5,7 @@
 
 use Automattic\Jetpack\Backup\V0005\Jetpack_Backup;
 use Automattic\Jetpack\Stats_Admin\Dashboard;
+use Automattic\Jetpack\Status\Cache as StatusCache;
 use Automattic\Jetpack\VideoPress\Admin_UI;
 /**
  * Class Jetpack_Admin_Menu_Test
@@ -41,6 +42,8 @@ class Jetpack_Admin_Menu_Test extends WP_UnitTestCase {
 		Jetpack_Options::delete_option( 'id' );
 		Jetpack_Options::delete_option( 'blog_token' );
 		Jetpack_Options::delete_option( 'user_tokens' );
+		remove_filter( 'jetpack_offline_mode', '__return_true' );
+		StatusCache::clear();
 	}
 
 	/**
@@ -87,6 +90,58 @@ class Jetpack_Admin_Menu_Test extends WP_UnitTestCase {
 		if ( in_array( 'Activity Log', $submenu_names, true ) ) {
 			$activity_log_submenu_position = array_search( 'Activity Log', $submenu_names, true );
 			$this->assertLessThan( $activity_log_submenu_position, $settings_submenu_position, 'Settings should be above Activity Log in the submenu order (external links should be last).' );
+		}
+	}
+
+	/**
+	 * Test Jetpack submenus are removed while Offline Mode is active.
+	 */
+	public function test_jetpack_submenu_is_removed_in_offline_mode() {
+		global $submenu;
+
+		require_once JETPACK__PLUGIN_DIR . '_inc/lib/admin-pages/class.jetpack-react-page.php';
+
+		$jetpack_react      = new Jetpack_React_Page();
+		$submenu['jetpack'] = array(
+			array( 'Boost', 'jetpack_admin_page', 'jetpack-boost', 'Boost' ),
+			array( 'Offline Mode', 'jetpack_admin_page', Jetpack::admin_url( array( 'page' => 'jetpack#/offline-mode' ) ), 'Offline Mode' ),
+			array( 'Settings', 'jetpack_admin_page', Jetpack::admin_url( array( 'page' => 'jetpack#/settings' ) ), 'Settings' ),
+		);
+
+		StatusCache::clear();
+		add_filter( 'jetpack_offline_mode', '__return_true' );
+
+		try {
+			$jetpack_react->remove_jetpack_menu();
+
+			$this->assertArrayNotHasKey( 'jetpack', $submenu );
+		} finally {
+			unset( $submenu['jetpack'] );
+			remove_filter( 'jetpack_offline_mode', '__return_true' );
+			StatusCache::clear();
+		}
+	}
+
+	/**
+	 * Test the Jetpack AI page is not available when Offline Mode is active.
+	 */
+	public function test_ai_menu_item_is_not_added_in_offline_mode() {
+		require_once JETPACK__PLUGIN_DIR . '_inc/lib/admin-pages/class-jetpack-ai-page.php';
+
+		\Automattic\Jetpack\Admin_UI\Admin_Menu::remove_menu( 'jetpack-ai' );
+
+		StatusCache::clear();
+		add_filter( 'jetpack_offline_mode', '__return_true' );
+
+		try {
+			$jetpack_ai = new Jetpack_AI_Page();
+			$jetpack_ai->add_actions();
+
+			$this->assertFalse( \Automattic\Jetpack\Admin_UI\Admin_Menu::remove_menu( 'jetpack-ai' ) );
+		} finally {
+			\Automattic\Jetpack\Admin_UI\Admin_Menu::remove_menu( 'jetpack-ai' );
+			remove_filter( 'jetpack_offline_mode', '__return_true' );
+			StatusCache::clear();
 		}
 	}
 }
