@@ -5282,6 +5282,70 @@ importers:
         specifier: ^0.0.26
         version: 0.0.26
 
+  projects/plugins/beta:
+    dependencies:
+      '@automattic/jetpack-base-styles':
+        specifier: workspace:*
+        version: link:../../js-packages/base-styles
+      '@automattic/jetpack-components':
+        specifier: workspace:*
+        version: link:../../js-packages/components
+      '@wordpress/api-fetch':
+        specifier: 7.46.0
+        version: 7.46.0
+      '@wordpress/components':
+        specifier: 33.1.0
+        version: 33.1.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@wordpress/element':
+        specifier: 6.46.0
+        version: 6.46.0
+      '@wordpress/i18n':
+        specifier: 6.19.0
+        version: 6.19.0
+      '@wordpress/ui':
+        specifier: 0.13.0
+        version: 0.13.0(@types/react@18.3.28)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      react:
+        specifier: 18.3.1
+        version: 18.3.1
+      react-dom:
+        specifier: 18.3.1
+        version: 18.3.1(react@18.3.1)
+    devDependencies:
+      '@automattic/jetpack-webpack-config':
+        specifier: workspace:*
+        version: link:../../js-packages/webpack-config
+      '@babel/core':
+        specifier: 7.29.0
+        version: 7.29.0
+      '@babel/preset-env':
+        specifier: 7.29.2
+        version: 7.29.2(@babel/core@7.29.0)
+      '@babel/runtime':
+        specifier: 7.29.2
+        version: 7.29.2
+      '@types/react':
+        specifier: 18.3.28
+        version: 18.3.28
+      '@typescript/native-preview':
+        specifier: 7.0.0-dev.20260225.1
+        version: 7.0.0-dev.20260225.1
+      '@wordpress/browserslist-config':
+        specifier: 6.46.0
+        version: 6.46.0
+      sass-embedded:
+        specifier: 1.97.3
+        version: 1.97.3
+      sass-loader:
+        specifier: 16.0.5
+        version: 16.0.5(sass-embedded@1.97.3)(webpack@5.105.2)
+      webpack:
+        specifier: 5.105.2
+        version: 5.105.2(webpack-cli@6.0.1)
+      webpack-cli:
+        specifier: 6.0.1
+        version: 6.0.1(webpack@5.105.2)
+
   projects/plugins/boost:
     dependencies:
       '@automattic/jetpack-base-styles':
