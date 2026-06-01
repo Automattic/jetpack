@@ -10,6 +10,7 @@
 
 import { AdminPage } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
+import Footer from './components/footer';
 import PluginList from './screens/plugin-list';
 import PluginManage from './screens/plugin-manage';
 
@@ -35,8 +36,10 @@ const App = () => {
 			subTitle={ __( 'Test beta features and pull requests for Jetpack plugins.', 'jetpack-beta' ) }
 			apiRoot={ boot.apiRoot }
 			apiNonce={ boot.apiNonce }
+			showFooter={ false }
 		>
 			<PluginList />
+			<Footer />
 		</AdminPage>
 	);
 };
