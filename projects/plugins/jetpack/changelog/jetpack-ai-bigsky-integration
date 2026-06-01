@@ -1,0 +1,4 @@
+Significance: minor
+Type: compat
+
+AI Assistant: coordinate the AI sidebar UI suppression and provider registration when the Big Sky plugin is active, so Big Sky's chat composes Jetpack's AI abilities in a single sidebar surface.
