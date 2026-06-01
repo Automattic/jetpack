@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Pinterest block: Prevent PHP warning when block attributes are malformed.

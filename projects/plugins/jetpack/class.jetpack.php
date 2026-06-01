@@ -653,6 +653,11 @@ class Jetpack {
 		// Set up the REST authentication hooks.
 		Connection_Rest_Authentication::init();
 
+		// Register Jetpack-specific connection tests (sync health, etc.) with the connection
+		// package's health test suite. This runs on all requests (not just admin), because
+		// the connection/test REST endpoint can be called outside admin context.
+		add_action( 'jetpack_connection_tests_loaded', array( $this, 'register_jetpack_connection_tests' ) );
+
 		add_action( 'admin_init', array( $this, 'admin_init' ) );
 		add_action( 'admin_init', array( $this, 'dismiss_jetpack_notice' ) );
 
@@ -2720,6 +2725,44 @@ p {
 
 			// If an admin page is visited after the update, the 'current_screen' action will fire.
 			add_action( 'current_screen', 'Jetpack::set_update_modal_display' );
+		}
+	}
+
+	/**
+	 * Enables the Newsletter (subscriptions) module for existing sites now that it is a default-on module.
+	 *
+	 * Fresh installs receive the module via its "Auto Activate: Yes" header, so this only handles sites
+	 * upgrading from a version where the module defaulted off. It runs once per site (guarded by the
+	 * subscriptions_default_on_migrated option). Fresh installs are marked as migrated immediately so the
+	 * migration never runs for them. After it has run, the user's choice to deactivate the module again
+	 * (for example from the My Jetpack Products page) is respected and never reverted.
+	 *
+	 * The module requires a connection, so on a disconnected site the migration is deferred without setting
+	 * the guard, allowing a later version bump to retry once the site is connected.
+	 *
+	 * @param string       $version     New Jetpack version:timestamp.
+	 * @param string|false $old_version Previous Jetpack version:timestamp, or false on a fresh install.
+	 */
+	public static function activate_subscriptions_module_for_existing_sites( $version, $old_version ) {
+		if ( get_option( 'jetpack_subscriptions_default_on_migrated' ) ) {
+			return;
+		}
+
+		// Fresh installs get the module via its "Auto Activate: Yes" header. Mark them as migrated so a
+		// later opt-out is never reverted by the existing-site path on a subsequent version bump.
+		if ( ! $old_version ) {
+			update_option( 'jetpack_subscriptions_default_on_migrated', true );
+			return;
+		}
+
+		if ( ! self::is_connection_ready() ) {
+			return;
+		}
+
+		// Mark as migrated only once the module is active, so a transient activation failure is retried on
+		// a later version bump rather than being silently skipped.
+		if ( self::is_module_active( 'subscriptions' ) || self::activate_module( 'subscriptions', false, false ) ) {
+			update_option( 'jetpack_subscriptions_default_on_migrated', true );
 		}
 	}
 
@@ -5198,6 +5241,17 @@ endif;
 			trigger_error( sprintf( 'Jetpack: Unable to find view file: %s', esc_html( $views_dir . $template ) ), E_USER_WARNING ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_trigger_error
 		}
 		return false;
+	}
+
+	/**
+	 * Register Jetpack-specific tests on the connection package's health test suite.
+	 *
+	 * @param \Automattic\Jetpack\Connection\Connection_Health_Tests $connection_tests The test suite instance.
+	 */
+	public function register_jetpack_connection_tests( $connection_tests ) {
+		require_once JETPACK__PLUGIN_DIR . '_inc/lib/debugger/class-jetpack-cxn-tests.php';
+		$jetpack_tests = new Jetpack_Cxn_Tests();
+		$jetpack_tests->register_tests_on( $connection_tests );
 	}
 
 	/**

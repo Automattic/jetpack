@@ -257,7 +257,7 @@ class Module_Control {
 
 		$saved = get_option( self::SEARCH_MODULE_EXPERIENCE_OPTION_KEY, false );
 		if ( self::EXPERIENCE_EMBEDDED === $saved ) {
-			return $this->theme_supports_embedded_experience() ? self::EXPERIENCE_EMBEDDED : self::EXPERIENCE_INLINE;
+			return self::EXPERIENCE_EMBEDDED;
 		}
 		if ( self::EXPERIENCE_OVERLAY === $saved ) {
 			return self::EXPERIENCE_OVERLAY;
@@ -273,34 +273,6 @@ class Module_Control {
 		}
 
 		return self::EXPERIENCE_INLINE;
-	}
-
-	/**
-	 * Whether the active theme can render the Embedded search experience.
-	 *
-	 * Embedded takes over the theme's search results through an FSE block
-	 * template, which only exists on block themes. On a classic theme
-	 * `get_experience()` falls back to Theme search (inline) so the search
-	 * page keeps working instead of resolving to a missing template; the
-	 * saved `embedded` option is left untouched so the experience resumes
-	 * automatically once the site switches back to a block theme.
-	 *
-	 * @return bool
-	 */
-	protected function theme_supports_embedded_experience(): bool {
-		$is_block_theme = function_exists( 'wp_is_block_theme' ) && wp_is_block_theme();
-
-		/**
-		 * Filter whether the active theme can render the Embedded search experience.
-		 *
-		 * Defaults to `wp_is_block_theme()`. Sites whose classic theme provides
-		 * block-template support through other means can force this true.
-		 *
-		 * @since 0.60.0
-		 *
-		 * @param bool $supported Whether the active theme can render Embedded search (defaults to whether it is a block theme).
-		 */
-		return (bool) apply_filters( 'jetpack_search_theme_supports_embedded_experience', $is_block_theme );
 	}
 
 	/**
@@ -343,11 +315,12 @@ class Module_Control {
 		// dashboard already hides the option when the
 		// `jetpack_search_overlay_block_template_enabled` filter is off, but
 		// a scripted REST POST could otherwise pre-stage `overlay_blocks` on
-		// a site where operators haven't opted in. Reject the value at the
-		// boundary so the runtime gate isn't the only safety net.
+		// a site where the operator has pinned the filter to false. Reject
+		// the value at the boundary so the runtime gate isn't the only
+		// safety net.
 		if (
 			self::EXPERIENCE_OVERLAY_BLOCKS === $experience
-			&& ! (bool) apply_filters( 'jetpack_search_overlay_block_template_enabled', false )
+			&& ! (bool) apply_filters( 'jetpack_search_overlay_block_template_enabled', true )
 		) {
 			return new WP_Error(
 				'experience_not_available',

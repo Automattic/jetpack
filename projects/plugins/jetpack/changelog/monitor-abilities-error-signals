@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+Monitor abilities: return WP_Error with steering message when not connected or service unreachable

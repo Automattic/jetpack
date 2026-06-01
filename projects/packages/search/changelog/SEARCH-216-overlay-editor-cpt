@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Search Blocks overlay: Add a "Edit the Search overlay" entry point in the Jetpack Search dashboard that opens the experimental overlay template in the standard block editor (a hidden singleton CPT). Works on both block themes and classic themes. A "Restore default" link reverts to the bundled template.

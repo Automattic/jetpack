@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Notices: Add notice if the connection state prevents logs from showing to clarify the reason.

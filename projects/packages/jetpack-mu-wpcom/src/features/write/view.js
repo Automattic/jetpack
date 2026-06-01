@@ -63,6 +63,49 @@ function updateSavedSnapshot() {
 	lastSavedSnapshot = getContentSnapshot();
 }
 
+/**
+ * Format a date string as a relative time ("2 hours ago", "Yesterday", etc.).
+ *
+ * @param {string} dateStr - A date string parseable by Date (e.g. MySQL datetime).
+ * @return {string} Human-readable relative time.
+ */
+function formatRelativeDate( dateStr ) {
+	const then = new Date( dateStr ).getTime();
+	if ( isNaN( then ) || then <= 0 ) return '';
+	const now = Date.now();
+	const diffSec = Math.max( 0, Math.round( ( now - then ) / 1000 ) );
+
+	const rtf = new Intl.RelativeTimeFormat( undefined, { numeric: 'auto' } );
+
+	if ( diffSec < 60 ) return rtf.format( -diffSec, 'second' );
+	const diffMin = Math.round( diffSec / 60 );
+	if ( diffMin < 60 ) return rtf.format( -diffMin, 'minute' );
+	const diffHr = Math.round( diffMin / 60 );
+	if ( diffHr < 24 ) return rtf.format( -diffHr, 'hour' );
+	const diffDay = Math.round( diffHr / 24 );
+	if ( diffDay < 7 ) return rtf.format( -diffDay, 'day' );
+	const diffWk = Math.round( diffDay / 7 );
+	if ( diffWk <= 4 ) return rtf.format( -diffWk, 'week' );
+
+	return new Intl.DateTimeFormat( undefined, {
+		month: 'short',
+		day: 'numeric',
+		year: 'numeric',
+	} ).format( new Date( dateStr ) );
+}
+
+/**
+ * Check whether raw user input is a bare numeric post ID.
+ *
+ * @param {string} input - Raw user input from the post picker URL field.
+ * @return {number|null} Post ID or null if not a bare numeric string.
+ */
+function parsePostId( input ) {
+	const trimmed = input.trim();
+	if ( /^\d+$/.test( trimmed ) ) return parseInt( trimmed, 10 );
+	return null;
+}
+
 // Save/restore the selection so we can insert images after the modal closes.
 let savedRange = null;
 
@@ -639,20 +682,32 @@ function escapeAttr( str ) {
 }
 
 /**
+ * Convert an rgb() color string to hex (#rrggbb). Returns the input
+ * unchanged if it is not in rgb() format.
+ *
+ * @param {string} rgb - A CSS color value, e.g. "rgb(214, 54, 56)".
+ * @return {string} Hex color string, e.g. "#d63638".
+ */
+function rgbToHex( rgb ) {
+	const m = rgb.match( /^rgb\(\s*(\d+),\s*(\d+),\s*(\d+)\s*\)$/ );
+	if ( ! m ) return rgb;
+	const hex = i => ( '0' + parseInt( m[ i ], 10 ).toString( 16 ) ).slice( -2 );
+	return '#' + hex( 1 ) + hex( 2 ) + hex( 3 );
+}
+
+/**
  * Normalize color markup from contentEditable before block serialization.
  *
- * The foreColor command creates <font color="..."> (legacy) or
- * <span style="color:..."> (modern). Convert both to clean <span> elements
- * with inline styles, and strip the default text color (#1a1a1a).
+ * Write edits colors as spans (via foreColor), saves colors as Gutenberg marks.
+ * Three passes: font→span, mark→span, span→mark.
  *
  * @param {HTMLElement} container - The container to normalize in place.
  */
 function normalizeColorMarkup( container ) {
-	// Convert <font color="..."> to <span style="color:...">.
+	// Pass 1: <font color> → <span style="color:"> for uniform handling.
 	container.querySelectorAll( 'font[color]' ).forEach( font => {
 		const color = font.getAttribute( 'color' );
 		const span = document.createElement( 'span' );
-		// Skip default color — unwrap the element entirely.
 		if ( color && color.toLowerCase() !== '#1a1a1a' ) {
 			span.style.color = color;
 		}
@@ -660,14 +715,40 @@ function normalizeColorMarkup( container ) {
 		font.replaceWith( span );
 	} );
 
-	// Strip default-colored spans (unwrap them, keeping their content).
+	// Pass 2: existing <mark class="has-inline-color"> → <span> so the
+	// span pass handles all colored elements uniformly.
+	container.querySelectorAll( 'mark.has-inline-color' ).forEach( mark => {
+		const span = document.createElement( 'span' );
+		if ( mark.style.color ) {
+			span.style.color = mark.style.color;
+		}
+		span.innerHTML = mark.innerHTML;
+		mark.replaceWith( span );
+	} );
+
+	// Pass 3: colored spans → Gutenberg <mark> format. Default color stripped.
 	container.querySelectorAll( 'span' ).forEach( span => {
 		const color = span.style.color;
 		if ( ! color ) return;
-		// Detect default color in various formats.
 		const isDefault = color === '#1a1a1a' || color === 'rgb(26, 26, 26)';
 		if ( isDefault ) {
 			span.replaceWith( ...span.childNodes );
+			return;
+		}
+		const hexColor = rgbToHex( color );
+		const mark = document.createElement( 'mark' );
+		mark.className = 'has-inline-color';
+		// Raw string avoids CSS OM normalizing hex back to rgb().
+		// rgba(0, 0, 0, 0) is Gutenberg's exact transparent sentinel.
+		mark.setAttribute( 'style', 'background-color:rgba(0, 0, 0, 0);color:' + hexColor );
+		mark.innerHTML = span.innerHTML;
+		// Preserve other styles (e.g. text-decoration) by nesting the mark.
+		span.style.color = '';
+		if ( span.getAttribute( 'style' )?.trim() ) {
+			span.innerHTML = '';
+			span.appendChild( mark );
+		} else {
+			span.replaceWith( mark );
 		}
 	} );
 }
@@ -704,6 +785,179 @@ function normalizeFormattingTags( container ) {
 		span.innerHTML = u.innerHTML;
 		u.replaceWith( span );
 	} );
+}
+
+// Tags whose subtree is preserved on paste. Anything not listed here and not
+// in PASTE_DROP_TAGS is unwrapped — its children stay, but the element itself
+// is removed along with every attribute it carried.
+const PASTE_ALLOWED_TAGS = new Set( [
+	'P',
+	'BR',
+	'H1',
+	'H2',
+	'H3',
+	'H4',
+	'H5',
+	'H6',
+	'UL',
+	'OL',
+	'LI',
+	'BLOCKQUOTE',
+	'A',
+	'STRONG',
+	'B',
+	'EM',
+	'I',
+	'U',
+	'S',
+	'STRIKE',
+	'CODE',
+] );
+
+// Tags whose subtree is discarded entirely on paste — they carry no useful
+// content for the editor and unwrapping would dump CSS or script source as text.
+const PASTE_DROP_TAGS = new Set( [
+	'SCRIPT',
+	'STYLE',
+	'META',
+	'LINK',
+	'HEAD',
+	'TITLE',
+	'NOSCRIPT',
+] );
+
+/**
+ * Sanitize pasted HTML in place inside `container`.
+ *
+ * Source-document typography (font-size, font-family, color, background,
+ * line-height, font-weight) leaks into the editor via `style` attributes
+ * and wrapper tags, producing visible mismatches with the editor's own
+ * styling. This walks the tree depth-first, drops non-content subtrees
+ * (script/style/meta/etc.), unwraps tags that aren't in the allowlist
+ * (keeping their text and children), and strips every attribute except
+ * `href` on links.
+ *
+ * Google Docs wraps copied content in an outer `<b id="docs-internal-guid-…">`
+ * with a counteracting `style="font-weight:normal"`. Once we strip that style
+ * the bare `<b>` would bold the entire paste, so we unwrap any element with
+ * a `docs-internal-guid` id before deciding what to do with its tag.
+ *
+ * @param {Element} container - The container to sanitize in place.
+ */
+function sanitizePasteFragment( container ) {
+	for ( const child of Array.from( container.childNodes ) ) {
+		if ( child.nodeType === Node.ELEMENT_NODE ) {
+			sanitizePasteNode( child );
+		}
+	}
+}
+
+/**
+ * Promote inline-style formatting on pasted elements to semantic tags.
+ *
+ * Google Docs and Word commonly express bold/italic/underline/strikethrough
+ * as inline `font-weight`, `font-style`, and `text-decoration` styles on
+ * <span>s rather than as semantic tags. The main sanitize pass strips style
+ * attributes and unwraps <span>, which would lose the formatting. This walks
+ * every styled element once before sanitization and wraps its children in
+ * <strong>/<em>/<u>/<s> so the formatting survives the unwrap.
+ *
+ * @param {Element} container - The container to walk.
+ */
+function promotePasteFormatting( container ) {
+	for ( const el of container.querySelectorAll( '[style]' ) ) {
+		const fontWeight = el.style.fontWeight;
+		if ( fontWeight === 'bold' || fontWeight === 'bolder' || parseInt( fontWeight, 10 ) >= 600 ) {
+			wrapPasteChildren( el, 'strong' );
+		}
+		if ( el.style.fontStyle === 'italic' || el.style.fontStyle === 'oblique' ) {
+			wrapPasteChildren( el, 'em' );
+		}
+		// `text-decoration` is the legacy/shorthand property; `text-decoration-line`
+		// is what the CSSOM exposes when the parser splits the shorthand. Check
+		// both — sources vary.
+		const decoration = el.style.textDecorationLine || el.style.textDecoration || '';
+		if ( decoration.includes( 'underline' ) ) {
+			wrapPasteChildren( el, 'u' );
+		}
+		if ( decoration.includes( 'line-through' ) ) {
+			wrapPasteChildren( el, 's' );
+		}
+	}
+}
+
+/**
+ * Move every child of `el` into a freshly created `<tagName>` wrapper, then
+ * re-attach the wrapper as `el`'s sole child. No-op when `el` has no children.
+ *
+ * @param {Element} el      - Element whose children should be wrapped.
+ * @param {string}  tagName - Wrapper element tag name.
+ */
+function wrapPasteChildren( el, tagName ) {
+	if ( ! el.firstChild ) return;
+	const wrapper = document.createElement( tagName );
+	while ( el.firstChild ) {
+		wrapper.appendChild( el.firstChild );
+	}
+	el.appendChild( wrapper );
+}
+
+/**
+ * Sanitize a single element from a pasted fragment in place. Called by
+ * sanitizePasteFragment for each element child; see that function for the
+ * tag/attribute policy.
+ *
+ * @param {Element} el - Element to sanitize.
+ */
+function sanitizePasteNode( el ) {
+	// Normalize to uppercase: HTML-namespaced elements already report uppercase
+	// tagNames, but SVG/MathML-namespaced ones preserve the source casing — so
+	// a pasted <svg><script> would slip past the DROP_TAGS check otherwise.
+	const tag = el.tagName.toUpperCase();
+
+	if ( PASTE_DROP_TAGS.has( tag ) ) {
+		el.remove();
+		return;
+	}
+
+	// Recurse first so children are already cleaned before we unwrap.
+	sanitizePasteFragment( el );
+
+	const id = el.getAttribute( 'id' );
+	if ( id && id.startsWith( 'docs-internal-guid' ) ) {
+		el.replaceWith( ...el.childNodes );
+		return;
+	}
+
+	if ( ! PASTE_ALLOWED_TAGS.has( tag ) ) {
+		el.replaceWith( ...el.childNodes );
+		return;
+	}
+
+	for ( const attr of Array.from( el.attributes ) ) {
+		if ( tag === 'A' && attr.name === 'href' && isSafePasteHref( attr.value ) ) continue;
+		el.removeAttribute( attr.name );
+	}
+}
+
+/**
+ * Whether `href` is safe to preserve on a pasted link. Allows http(s),
+ * mailto, tel, and same-document/relative URLs; everything else (notably
+ * `javascript:`, `vbscript:`, and `data:`) is rejected so a pasted link
+ * can't smuggle script execution past the sanitizer.
+ *
+ * @param {string} href - The href value to check.
+ * @return {boolean} True when the href is safe to keep.
+ */
+function isSafePasteHref( href ) {
+	if ( ! href ) return false;
+	const trimmed = href.trim();
+	if ( ! trimmed ) return false;
+	// Relative / same-document / query / fragment URLs have no scheme.
+	if ( /^[#/?]/.test( trimmed ) || trimmed.startsWith( './' ) || trimmed.startsWith( '../' ) ) {
+		return true;
+	}
+	return /^(https?:|mailto:|tel:)/i.test( trimmed );
 }
 
 /**
@@ -1619,16 +1873,64 @@ if ( typeof MutationObserver !== 'undefined' ) {
 		addDeleteButtons();
 		new MutationObserver( addDeleteButtons ).observe( content, { childList: true, subtree: true } );
 
-		// Highlight text + paste URL → create a link.
 		content.addEventListener( 'paste', event => {
 			const sel = window.getSelection();
-			if ( ! sel.rangeCount || sel.isCollapsed ) return;
+			if ( ! sel.rangeCount ) return;
 
-			const pasted = event.clipboardData.getData( 'text/plain' );
-			if ( pasted && /^https?:\/\/\S+$/i.test( pasted.trim() ) ) {
-				event.preventDefault();
-				document.execCommand( 'createLink', false, pasted.trim() );
+			// Highlight text + paste URL → create a link. Only fires when
+			// something is selected; with a collapsed cursor a pasted URL
+			// should land as plain link text via the sanitizer path below.
+			if ( ! sel.isCollapsed ) {
+				const pastedText = event.clipboardData.getData( 'text/plain' );
+				if ( pastedText && /^https?:\/\/\S+$/i.test( pastedText.trim() ) ) {
+					event.preventDefault();
+					document.execCommand( 'createLink', false, pastedText.trim() );
+					return;
+				}
 			}
+
+			// Strip source typography (font-size, font-family, color, etc.)
+			// from rich-text pastes so they inherit the editor's styling.
+			// Plain-text pastes have no text/html payload — fall through to
+			// the browser default, which inserts a clean text node.
+			const html = event.clipboardData.getData( 'text/html' );
+			if ( ! html ) return;
+
+			const tmp = document.createElement( 'div' );
+			// Element.setHTML is the native HTML Sanitizer API and the only
+			// HTML parsing path for pasted markup. The browser's safety
+			// baseline drops <script>, dangerous attributes (onerror,
+			// onclick, etc.), and javascript: URLs before any of it reaches
+			// the live DOM. We allow style/id/href through so the custom
+			// pass below can read inline styles (to promote bold/italic to
+			// semantic tags), unwrap Google Docs' docs-internal-guid
+			// wrapper, and validate href schemes against a tighter
+			// allowlist than the Sanitizer baseline.
+			//
+			// Browsers without setHTML (older Chromium/Brave, pre-137 Firefox,
+			// pre-18.4 Safari) fall back to inserting the clipboard's
+			// text/plain representation. That loses formatting but guarantees
+			// no source typography or markup leaks in — and execCommand
+			// 'insertText' isn't an HTML sink, so we don't reintroduce the
+			// CodeQL js/xss flow we eliminated above.
+			if ( typeof tmp.setHTML !== 'function' ) {
+				const text = event.clipboardData.getData( 'text/plain' );
+				if ( ! text ) return;
+				event.preventDefault();
+				document.execCommand( 'insertText', false, text );
+				return;
+			}
+
+			event.preventDefault();
+			tmp.setHTML( html, { sanitizer: { attributes: [ 'style', 'id', 'href' ] } } );
+			promotePasteFormatting( tmp );
+			sanitizePasteFragment( tmp );
+
+			// execCommand('insertHTML') handles caret-aware block-level
+			// splitting (e.g. pasting a <p> inside an existing <p> correctly
+			// splits the paragraph) — manual Range.insertNode produces
+			// invalid nested-block markup.
+			document.execCommand( 'insertHTML', false, tmp.innerHTML );
 		} );
 	}, 200 );
 }
@@ -1670,6 +1972,23 @@ function resetUploadZone() {
 }
 
 /**
+ * POST a file to the media REST endpoint. Returns the media response.
+ * No side effects on state or DOM — callers handle the result.
+ *
+ * @param {File} file - The file to upload.
+ * @return {Promise<Object>} The media library response.
+ */
+async function uploadMedia( file ) {
+	const formData = new FormData();
+	formData.append( 'file', file );
+	return await window.wp.apiFetch( {
+		path: state.mediaPath,
+		method: 'POST',
+		body: formData,
+	} );
+}
+
+/**
  * Upload a file to the media library and update state with the result.
  *
  * @param {File} file - The file to upload.
@@ -1686,15 +2005,8 @@ async function uploadFileToMedia( file ) {
 		if ( saving ) saving.style.display = '';
 	}
 
-	const formData = new FormData();
-	formData.append( 'file', file );
-
 	try {
-		const media = await window.wp.apiFetch( {
-			path: state.mediaPath,
-			method: 'POST',
-			body: formData,
-		} );
+		const media = await uploadMedia( file );
 		state.isUploading = false;
 		if ( zone ) zone.classList.remove( 'bw-uploading' );
 
@@ -1831,6 +2143,43 @@ function insertNewList( listTag ) {
 	state.showSlashMenu = false;
 	state.formatUList = listTag === 'ul';
 	state.formatOList = listTag === 'ol';
+	state.insideList = true;
+}
+
+/**
+ * Detect a markdown list shortcut in a paragraph's text.
+ *
+ * Returns 'ul' for `-`, `*`, or `+`, 'ol' for `1.`, otherwise null. Captured
+ * before the trigger space is inserted, so the marker should be the only
+ * content — trailing whitespace is allowed to tolerate a stray <br>-only text
+ * node that contentEditable can leave in an otherwise-empty block.
+ *
+ * @param {string} text - The paragraph's text content.
+ * @return {'ul'|'ol'|null} The list tag to create, or null.
+ */
+function parseMarkdownListShortcut( text ) {
+	if ( /^[-*+]\s*$/.test( text ) ) return 'ul';
+	if ( /^1\.\s*$/.test( text ) ) return 'ol';
+	return null;
+}
+
+/**
+ * Replace a paragraph with a fresh list containing one empty item, and move the cursor into it.
+ *
+ * @param {HTMLElement} paragraph - The paragraph to convert.
+ * @param {'ul'|'ol'}   listTag   - The list tag to create.
+ */
+function applyMarkdownListShortcut( paragraph, listTag ) {
+	const list = document.createElement( listTag );
+	const li = document.createElement( 'li' );
+	li.innerHTML = '<br>';
+	list.appendChild( li );
+	paragraph.after( list );
+	paragraph.remove();
+	placeCursorAt( li );
+	state.formatUList = listTag === 'ul';
+	state.formatOList = listTag === 'ol';
+	state.insideList = true;
 }
 
 /**
@@ -2412,6 +2761,202 @@ function insertMediaBlock( mediaEl ) {
 	return p;
 }
 
+/**
+ * Place the caret at the (x, y) viewport coordinates inside the editor.
+ * Uses the standard `caretPositionFromPoint`, falling back to the
+ * WebKit/Chromium-prefixed `caretRangeFromPoint`. Returns true if the
+ * caret was placed inside the editor; false otherwise.
+ *
+ * @param {number} x - Viewport X coordinate.
+ * @param {number} y - Viewport Y coordinate.
+ * @return {boolean} Whether the caret was placed inside the editor.
+ */
+function placeCaretAtPoint( x, y ) {
+	const content = getContent();
+	if ( ! content ) return false;
+
+	let range = null;
+	if ( document.caretPositionFromPoint ) {
+		const pos = document.caretPositionFromPoint( x, y );
+		if ( pos && pos.offsetNode ) {
+			range = document.createRange();
+			range.setStart( pos.offsetNode, pos.offset );
+			range.collapse( true );
+		}
+	} else if ( document.caretRangeFromPoint ) {
+		range = document.caretRangeFromPoint( x, y );
+		range?.collapse( true );
+	}
+
+	if ( ! range || ! content.contains( range.startContainer ) ) {
+		return false;
+	}
+
+	const sel = window.getSelection();
+	sel.removeAllRanges();
+	sel.addRange( range );
+	return true;
+}
+
+// Currently highlighted drop-target block, so dragover can move the
+// indicator between blocks without re-querying every frame.
+let currentDropTarget = null;
+
+/**
+ * Show a visual indicator on the block where a dragged image will land.
+ * The indicator is a class on the block element itself (a top-level
+ * child of .bw-content-inner) so the CSS can position a horizontal line
+ * at the insertion point — under the target block, or above the first
+ * block if the drag is near the top edge.
+ *
+ * @param {number} x - Viewport X coordinate.
+ * @param {number} y - Viewport Y coordinate.
+ */
+function updateDropIndicator( x, y ) {
+	const content = getContent();
+	if ( ! content ) return;
+
+	let target = null;
+	let position = 'after';
+
+	if ( document.caretPositionFromPoint || document.caretRangeFromPoint ) {
+		let node = null;
+		if ( document.caretPositionFromPoint ) {
+			const pos = document.caretPositionFromPoint( x, y );
+			node = pos?.offsetNode || null;
+		} else {
+			const range = document.caretRangeFromPoint( x, y );
+			node = range?.startContainer || null;
+		}
+		// Walk up to the direct child of .bw-content-inner.
+		while ( node && node !== content && node.parentNode !== content ) {
+			node = node.parentNode;
+		}
+		if ( node && node.parentNode === content ) {
+			target = node;
+		}
+	}
+
+	// Fallback: pick the block closest to the y-coordinate, or the
+	// last block if the drag is below all content. Lets the indicator
+	// stay visible when hovering over the empty area below the post.
+	if ( ! target ) {
+		const blocks = Array.from( content.children );
+		for ( const block of blocks ) {
+			const rect = block.getBoundingClientRect();
+			if ( y < rect.top ) {
+				target = block;
+				position = 'before';
+				break;
+			}
+			target = block;
+		}
+	}
+
+	if ( ! target ) return;
+	if ( currentDropTarget === target ) {
+		// Position may have flipped on the same block — keep both states
+		// consistent by clearing the other one.
+		target.classList.toggle( 'bw-drop-target--before', position === 'before' );
+		target.classList.toggle( 'bw-drop-target--after', position === 'after' );
+		return;
+	}
+
+	clearDropIndicator();
+	target.classList.add(
+		position === 'before' ? 'bw-drop-target--before' : 'bw-drop-target--after'
+	);
+	currentDropTarget = target;
+}
+
+/**
+ * Remove the drop-target indicator from whichever block currently has it.
+ */
+function clearDropIndicator() {
+	if ( currentDropTarget ) {
+		currentDropTarget.classList.remove( 'bw-drop-target--before', 'bw-drop-target--after' );
+		currentDropTarget = null;
+	}
+}
+
+/**
+ * Upload an image file and insert it at the current caret position.
+ * Inserts a placeholder figure immediately (using a local object URL)
+ * so the user gets feedback while the upload is in flight, then
+ * replaces the placeholder with the media-library URL and ID once
+ * uploaded.
+ *
+ * The whole upload+swap is registered via trackMediaSizeSwap so
+ * savePost waits for it before serializing the editor.
+ *
+ * @param {File} file - The image file to upload.
+ */
+function uploadAndInsertImage( file ) {
+	const content = getContent();
+	if ( ! content ) return;
+
+	const figure = document.createElement( 'figure' );
+	// Apply size-large up-front so the placeholder renders at the same
+	// 75% width the figure will land at after upload. Without it the
+	// locally-previewed image renders at its natural pixel size and
+	// snaps narrower the moment the swap runs.
+	figure.className = 'bw-image-figure bw-image-uploading size-large';
+	const img = document.createElement( 'img' );
+	const localUrl = URL.createObjectURL( file );
+	img.src = localUrl;
+	img.alt = '';
+	figure.appendChild( img );
+
+	const p = insertMediaBlock( figure );
+	if ( p ) {
+		placeCursorAt( p );
+	}
+	// Deliberately do NOT push undo history here: the placeholder figure's
+	// img.src is a blob: URL that gets revoked when the upload completes.
+	// Capturing the placeholder in an undo snapshot would let Cmd+Z restore
+	// a dead blob URL, which would then serialize into the saved post. The
+	// undo snapshot is pushed inside the swap below, after the real URL
+	// and wp-image-{id} class are in place.
+
+	const swap = ( async () => {
+		try {
+			const media = await uploadMedia( file );
+			// If the figure was removed during the upload (e.g. by undo or
+			// manual delete), skip the DOM swap. The upload still lives in
+			// the media library, which is harmless.
+			if ( ! content.contains( figure ) ) {
+				return;
+			}
+			// Tag the figure with the media-library id+size so the
+			// save-time serializer produces a real <!-- wp:image --> block.
+			img.src = media.source_url;
+			img.alt = media.alt_text || '';
+			img.className = 'wp-image-' + media.id;
+			figure.className = 'bw-image-figure size-large';
+			mediaSizesCache.set( media.id, media.media_details?.sizes || null );
+			// The figure was decorated by addDeleteButtons() before upload,
+			// so it's missing the Size button (that branch is gated on
+			// getMediaIdFromImg). Strip and re-decorate now that the
+			// wp-image-{id} class is in place.
+			stripRuntimeFigureControls( figure );
+			addDeleteButtons();
+			await applyMediaSizeToFigure( figure, 'large' );
+			pushToUndoHistory();
+		} catch ( err ) {
+			if ( content.contains( figure ) ) {
+				figure.remove();
+			}
+			state.message = ( i18n.uploadFailed || 'Upload failed: %s' ).replace( '%s', err.message );
+			setTimeout( () => {
+				state.message = '';
+			}, 3000 );
+		} finally {
+			URL.revokeObjectURL( localUrl );
+		}
+	} )();
+	trackMediaSizeSwap( swap );
+}
+
 // --- Inline category meta helpers ---
 
 /**
@@ -2505,7 +3050,7 @@ const { state } = store( 'wpcom-write', {
 
 		handleTitleKeyDown( event ) {
 			// Block keystrokes while a modal overlay is open.
-			if ( state.showImageModal || state.showVideoModal ) {
+			if ( state.showImageModal || state.showVideoModal || state.showPostPicker ) {
 				if ( event.key === 'Escape' ) {
 					const { actions: a } = store( 'wpcom-write' );
 					if ( state.showImageModal ) {
@@ -2558,6 +3103,7 @@ const { state } = store( 'wpcom-write', {
 		},
 
 		cancelLeave() {
+			state.pendingOpenPost = false;
 			state.showLeaveConfirm = false;
 			// Return focus to the back button.
 			const backBtn = document.querySelector( '.bw-back' );
@@ -2567,9 +3113,8 @@ const { state } = store( 'wpcom-write', {
 		handleLeaveModalKeyDown( event ) {
 			if ( event.key === 'Escape' ) {
 				event.preventDefault();
-				state.showLeaveConfirm = false;
-				const backBtn = document.querySelector( '.bw-back' );
-				if ( backBtn ) backBtn.focus();
+				const { actions: a } = store( 'wpcom-write' );
+				a.cancelLeave();
 				return;
 			}
 
@@ -2593,6 +3138,12 @@ const { state } = store( 'wpcom-write', {
 		},
 
 		confirmLeave() {
+			if ( state.pendingOpenPost ) {
+				state.pendingOpenPost = false;
+				state.showLeaveConfirm = false;
+				showPostPickerModal();
+				return;
+			}
 			allowLeave = true;
 			window.location.href = state.adminUrl;
 		},
@@ -2601,6 +3152,24 @@ const { state } = store( 'wpcom-write', {
 			state.showLeaveConfirm = false;
 			const status = state.postStatus === 'publish' ? 'publish' : 'draft';
 			await savePost( status, true );
+
+			// If the save failed, stay on the editor — don't navigate away
+			// or open the post picker, as that would discard unsaved edits.
+			// A successful save updates lastSavedSnapshot, so isDirty() returns false.
+			if ( isDirty() ) {
+				state.pendingOpenPost = false;
+				state.message = ( i18n.error || 'Error: %s' ).replace( '%s', 'Could not save' );
+				setTimeout( () => {
+					state.message = '';
+				}, 4000 );
+				return;
+			}
+
+			if ( state.pendingOpenPost ) {
+				state.pendingOpenPost = false;
+				showPostPickerModal();
+				return;
+			}
 			allowLeave = true;
 			window.location.href = state.adminUrl;
 		},
@@ -2698,12 +3267,12 @@ const { state } = store( 'wpcom-write', {
 
 		handleKeyDown( event ) {
 			// Keep savedRange current before any key changes the selection.
-			if ( ! state.showImageModal && ! state.showVideoModal ) {
+			if ( ! state.showImageModal && ! state.showVideoModal && ! state.showPostPicker ) {
 				saveSelection();
 			}
 
 			// Block all keystrokes while a modal overlay is open.
-			if ( state.showImageModal || state.showVideoModal ) {
+			if ( state.showImageModal || state.showVideoModal || state.showPostPicker ) {
 				if ( event.key === 'Escape' ) {
 					const { actions: a } = store( 'wpcom-write' );
 					if ( state.showImageModal ) {
@@ -2882,6 +3451,32 @@ const { state } = store( 'wpcom-write', {
 				// No adjacent figure — fall through to native Backspace/Delete.
 			}
 
+			// Backspace in an empty list item: exit the list.
+			// Must run before the first-block Backspace guard below, otherwise the
+			// guard swallows Backspace when the list is the editor's first block
+			// (e.g. just after triggering the markdown shortcut on a fresh post).
+			if ( event.key === 'Backspace' ) {
+				const sel = window.getSelection();
+				let li = null;
+				if ( sel.rangeCount ) {
+					let n = sel.anchorNode;
+					while ( n && ! n.classList?.contains( 'bw-content' ) ) {
+						if ( n.nodeType === Node.ELEMENT_NODE && n.tagName === 'LI' ) {
+							li = n;
+							break;
+						}
+						n = n.parentNode;
+					}
+				}
+				if ( li && li.textContent.trim() === '' ) {
+					event.preventDefault();
+					exitListAndApplyBlock( 'p' );
+					state.formatUList = false;
+					state.formatOList = false;
+					return;
+				}
+			}
+
 			// Block Backspace at the very start of the first block. With nothing
 			// to merge into, some browsers respond by unwrapping the structure
 			// — including the .bw-content-inner wrapper that protects user
@@ -2936,29 +3531,6 @@ const { state } = store( 'wpcom-write', {
 				}
 			}
 
-			// Backspace in an empty list item: exit the list.
-			if ( event.key === 'Backspace' ) {
-				const sel = window.getSelection();
-				let li = null;
-				if ( sel.rangeCount ) {
-					let n = sel.anchorNode;
-					while ( n && ! n.classList?.contains( 'bw-content' ) ) {
-						if ( n.nodeType === Node.ELEMENT_NODE && n.tagName === 'LI' ) {
-							li = n;
-							break;
-						}
-						n = n.parentNode;
-					}
-				}
-				if ( li && li.textContent.trim() === '' ) {
-					event.preventDefault();
-					exitListAndApplyBlock( 'p' );
-					state.formatUList = false;
-					state.formatOList = false;
-					return;
-				}
-			}
-
 			// Backspace in an empty <cite>: remove it and move cursor to quote body.
 			if ( event.key === 'Backspace' ) {
 				const cite = getActiveCite();
@@ -2973,6 +3545,32 @@ const { state } = store( 'wpcom-write', {
 						}
 					}
 					return;
+				}
+			}
+
+			// Markdown list shortcut: typing space after `-`, `*`, `+`, or `1.` at the
+			// start of an otherwise-empty paragraph converts it to a list. The space
+			// itself is swallowed so the user lands at column 0 of the new <li>.
+			if ( event.key === ' ' && ! state.showSlashMenu ) {
+				const sel = window.getSelection();
+				if ( sel.rangeCount && sel.isCollapsed ) {
+					const content = getContent();
+					let block = sel.anchorNode;
+					while ( block && block !== content && block.parentNode !== content ) {
+						block = block.parentNode;
+					}
+					// Only fire on top-level paragraphs — keep this out of headings,
+					// blockquotes, lists, figures, and other structured blocks.
+					if ( block && block.parentNode === content && block.tagName === 'P' ) {
+						const listTag = parseMarkdownListShortcut( block.textContent );
+						if ( listTag ) {
+							event.preventDefault();
+							flushUndoDebounce();
+							applyMarkdownListShortcut( block, listTag );
+							pushToUndoHistory();
+							return;
+						}
+					}
 				}
 			}
 
@@ -3783,6 +4381,50 @@ const { state } = store( 'wpcom-write', {
 			await uploadFileToMedia( file );
 		},
 
+		handleEditorDragOver( event ) {
+			// Only react to file drags, not text/selection drags inside
+			// the editor (which we want to leave to the browser default).
+			if ( ! event.dataTransfer?.types?.includes( 'Files' ) ) return;
+			event.preventDefault();
+			event.dataTransfer.dropEffect = 'copy';
+			updateDropIndicator( event.clientX, event.clientY );
+		},
+
+		handleEditorDragLeave( event ) {
+			// dragleave fires when the pointer crosses any child element
+			// boundary; only clear the visual state when the drag truly
+			// leaves the editor wrapper.
+			if ( event.relatedTarget && event.currentTarget.contains( event.relatedTarget ) ) {
+				return;
+			}
+			clearDropIndicator();
+		},
+
+		handleEditorDrop( event ) {
+			if ( ! event.dataTransfer?.types?.includes( 'Files' ) ) return;
+			event.preventDefault();
+			clearDropIndicator();
+
+			const images = Array.from( event.dataTransfer.files || [] ).filter( f =>
+				f.type.startsWith( 'image/' )
+			);
+			if ( ! images.length ) return;
+
+			// Place the caret at the drop point once before inserting.
+			// Each insertMediaBlock leaves the caret in the trailing
+			// paragraph, so subsequent figures naturally stack below.
+			// If the drop lands outside the editable area, fall back to
+			// the end of the content.
+			const content = getContent();
+			if ( content && ! placeCaretAtPoint( event.clientX, event.clientY ) ) {
+				placeCursorAtEnd( content );
+			}
+
+			for ( const file of images ) {
+				uploadAndInsertImage( file );
+			}
+		},
+
 		// --- Slash commands ---
 
 		insertHeading() {
@@ -4120,6 +4762,186 @@ const { state } = store( 'wpcom-write', {
 			window.open( url, '_blank', 'noopener,noreferrer' );
 		},
 
+		// --- Post picker ---
+
+		openPostPicker() {
+			state.showMoreMenu = false;
+
+			if ( isDirty() ) {
+				state.pendingOpenPost = true;
+				state.showLeaveConfirm = true;
+				requestAnimationFrame( () => {
+					const modal = document.querySelector( '.bw-leave-modal' );
+					if ( modal ) {
+						const first = modal.querySelector( 'button' );
+						if ( first ) first.focus();
+					}
+				} );
+				return;
+			}
+
+			showPostPickerModal();
+		},
+
+		closePostPicker() {
+			state.showPostPicker = false;
+			state.postPickerUrl = '';
+			state.openPostError = '';
+			document.documentElement.style.overflow = '';
+			const toggle = document.querySelector( '.bw-more-toggle' );
+			if ( toggle ) toggle.focus();
+		},
+
+		openPickedPost( event ) {
+			const postId = event.target.closest( '[data-post-id]' )?.dataset?.postId;
+			if ( postId ) {
+				if ( window.wpcomTracksRecordEvent ) {
+					window.wpcomTracksRecordEvent( 'wpcom_write_post_picker_select', {
+						post_id: parseInt( postId, 10 ),
+						source: 'draft_list',
+					} );
+				}
+				allowLeave = true;
+				window.location.href = state.writeUrl + '&post=' + postId;
+			}
+		},
+
+		updatePostPickerUrl( event ) {
+			state.postPickerUrl = event.target.value;
+		},
+
+		async submitPostPickerUrl() {
+			const input = state.postPickerUrl.trim();
+			if ( ! input ) return;
+
+			const numericId = parsePostId( input );
+			if ( window.wpcomTracksRecordEvent ) {
+				window.wpcomTracksRecordEvent( 'wpcom_write_post_picker_go', {
+					input_type: numericId ? 'numeric_id' : 'url',
+					source: 'url_input',
+				} );
+			}
+
+			if ( numericId ) {
+				// Validate the post exists and is editable before navigating.
+				try {
+					await window.wp.apiFetch( {
+						path: state.postsPath + '/' + numericId + '?context=edit&_fields=id',
+						method: 'GET',
+					} );
+				} catch ( err ) {
+					const status = err?.data?.status;
+					if ( status === 403 ) {
+						state.openPostError =
+							i18n.postNoPermission || "You don't have permission to edit this post.";
+					} else {
+						state.openPostError =
+							i18n.postNotFound || 'Post not found. Check the URL or ID and try again.';
+					}
+					return;
+				}
+				allowLeave = true;
+				window.location.href = state.writeUrl + '&post=' + numericId;
+			} else {
+				// Reject input that isn't URL-shaped before hitting the server.
+				const normalized = /^https?:\/\//i.test( input ) ? input : 'https://' + input;
+				let parsed;
+				try {
+					parsed = new URL( normalized );
+				} catch {
+					state.openPostError =
+						i18n.postNotFound || 'Post not found. Check the URL or ID and try again.';
+					return;
+				}
+				if ( ! parsed.hostname.includes( '.' ) ) {
+					state.openPostError =
+						i18n.postNotFound || 'Post not found. Check the URL or ID and try again.';
+					return;
+				}
+
+				// If the pasted URL is same-site and contains a numeric ?p= or
+				// ?post= param, navigate directly with &post=<id> instead of
+				// passing the full URL through &url=. This avoids carrying
+				// unrelated params (preview nonces, tracking params, etc.) into
+				// the address bar and server logs.
+				const homeHost = new URL( state.homeUrl ).hostname;
+				if ( parsed.hostname === homeHost ) {
+					const qp = parsed.searchParams.get( 'p' ) || parsed.searchParams.get( 'post' );
+					const extractedId = qp ? parseInt( qp, 10 ) : 0;
+					if ( extractedId > 0 ) {
+						allowLeave = true;
+						window.location.href = state.writeUrl + '&post=' + extractedId;
+						return;
+					}
+				}
+
+				// Pretty permalinks and other URL shapes: delegate resolution
+				// to PHP's url_to_postid(). Server-side checks the host against
+				// home_url() and enforces edit_post capability.
+				allowLeave = true;
+				window.location.href = state.writeUrl + '&url=' + encodeURIComponent( normalized );
+			}
+		},
+
+		handlePostPickerInputKeyDown( event ) {
+			if ( event.key === 'Enter' ) {
+				event.preventDefault();
+				const { actions: a } = store( 'wpcom-write' );
+				a.submitPostPickerUrl();
+			}
+		},
+
+		handlePostPickerOverlayClick( event ) {
+			if ( event.button !== 0 || event.target !== event.currentTarget ) return;
+			const { actions: a } = store( 'wpcom-write' );
+			a.closePostPicker();
+		},
+
+		handlePostPickerKeyDown( event ) {
+			if ( event.key === 'Escape' ) {
+				event.preventDefault();
+				const { actions: a } = store( 'wpcom-write' );
+				a.closePostPicker();
+				return;
+			}
+
+			const active = event.target.ownerDocument.activeElement;
+			const items = [ ...document.querySelectorAll( '.bw-postpicker-item' ) ];
+			if ( items.length ) {
+				const idx = items.indexOf( active );
+				let next = -1;
+				if ( event.key === 'ArrowDown' ) {
+					next = idx < items.length - 1 ? idx + 1 : 0;
+				} else if ( event.key === 'ArrowUp' ) {
+					next = idx > 0 ? idx - 1 : items.length - 1;
+				}
+				if ( next >= 0 ) {
+					event.preventDefault();
+					items.forEach( el => el.setAttribute( 'tabindex', '-1' ) );
+					items[ next ].setAttribute( 'tabindex', '0' );
+					items[ next ].focus();
+				}
+			}
+
+			if ( event.key === 'Tab' ) {
+				const modal = document.querySelector( '.bw-postpicker-modal' );
+				if ( ! modal ) return;
+				const focusable = [
+					...modal.querySelectorAll( 'button, input, [tabindex]:not([tabindex="-1"])' ),
+				];
+				if ( ! focusable.length ) return;
+				const first = focusable[ 0 ];
+				const last = focusable[ focusable.length - 1 ];
+				if ( event.shiftKey && active === first ) {
+					event.preventDefault();
+					last.focus();
+				} else if ( ! event.shiftKey && active === last ) {
+					event.preventDefault();
+					first.focus();
+				}
+			}
+		},
+
 		// --- Inline category meta ---
 
 		toggleCatDropdown( event ) {
@@ -4191,6 +5013,11 @@ const { state } = store( 'wpcom-write', {
 		},
 
 		async saveDraft() {
+			await savePost( 'draft' );
+		},
+
+		async saveDraftFromMenu() {
+			state.showMoreMenu = false;
 			await savePost( 'draft' );
 		},
 
@@ -4289,6 +5116,26 @@ const { state } = store( 'wpcom-write', {
 		},
 	},
 } );
+
+/**
+ * Open the post picker modal, fire a Tracks event, and focus the first item.
+ */
+function showPostPickerModal() {
+	document.documentElement.style.overflow = 'hidden';
+	state.showPostPicker = true;
+	state.openPostError = '';
+	if ( window.wpcomTracksRecordEvent ) {
+		window.wpcomTracksRecordEvent( 'wpcom_write_post_picker_open', {
+			has_drafts: state.recentDrafts.length > 0,
+			draft_count: state.recentDrafts.length,
+		} );
+	}
+	requestAnimationFrame( () => {
+		const firstItem = document.querySelector( '.bw-postpicker-item' );
+		const urlInput = document.getElementById( 'bw-postpicker-url-input' );
+		( firstItem || urlInput )?.focus();
+	} );
+}
 
 /**
  * Save or publish the current post via the REST API.
@@ -4566,6 +5413,33 @@ const autosaveReady = setInterval( () => {
 			localStorage.removeItem( AUTOSAVE_STORAGE_KEY );
 		}
 	}
+
+	// Populate relative dates in the post picker draft list.
+	document.querySelectorAll( '.bw-postpicker-item-date[data-modified]' ).forEach( el => {
+		el.textContent = formatRelativeDate( el.dataset.modified );
+	} );
+
+	// If the page was loaded via ?url= and resolved to a post, replace the
+	// address-bar URL with the canonical ?post=<id> form so the raw URL
+	// the user pasted doesn't linger.
+	if ( state.editPostId ) {
+		const params = new URLSearchParams( window.location.search );
+		if ( params.has( 'url' ) ) {
+			params.delete( 'url' );
+			params.set( 'post', state.editPostId );
+			history.replaceState( null, '', window.location.pathname + '?' + params.toString() );
+		}
+	}
+
+	// Auto-open the post picker if there's an error from the server.
+	if ( state.openPostError ) {
+		document.documentElement.style.overflow = 'hidden';
+		state.showPostPicker = true;
+		requestAnimationFrame( () => {
+			const urlInput = document.getElementById( 'bw-postpicker-url-input' );
+			if ( urlInput ) urlInput.focus();
+		} );
+	}
 }, 200 );
 
 // Warn before leaving if there are unsaved changes.
@@ -4589,5 +5463,50 @@ window.addEventListener( 'pageshow', event => {
 window.addEventListener( 'pagehide', () => {
 	if ( autosaveTimer ) {
 		clearInterval( autosaveTimer );
+	}
+} );
+
+// File-drop safety net: .bw-content has min-height:60vh but doesn't
+// fill the rest of the viewport, and a long post can extend below the
+// viewport entirely. A file dropped outside .bw-content would otherwise
+// be opened by the browser. Catch file drags at the window level so
+// dropping anywhere on the Write page inserts at the end of the post
+// instead of navigating away from the editor.
+window.addEventListener( 'dragover', event => {
+	if ( ! event.dataTransfer?.types?.includes( 'Files' ) ) return;
+	event.preventDefault();
+	event.dataTransfer.dropEffect = 'copy';
+} );
+
+window.addEventListener( 'drop', event => {
+	if ( ! event.dataTransfer?.types?.includes( 'Files' ) ) return;
+	// The editor (.bw-content) and the image-modal overlay each have
+	// their own data-wp-on--drop handlers; those fire on the inner
+	// target first and bubble up to here. Check via composedPath rather
+	// than target.closest because the editor handler removes the empty
+	// <p> that was the drop target (insertMediaBlock collapses an empty
+	// trailing paragraph into the figure), leaving event.target detached
+	// and breaking ancestor lookups. composedPath is snapshotted at
+	// dispatch time and stays valid through the mutation.
+	const path = event.composedPath();
+	if (
+		path.some(
+			el => el instanceof Element && el.matches?.( '.bw-content, .bw-image-overlay:not([hidden])' )
+		)
+	) {
+		return;
+	}
+	event.preventDefault();
+
+	const images = Array.from( event.dataTransfer.files || [] ).filter( f =>
+		f.type.startsWith( 'image/' )
+	);
+	if ( ! images.length ) return;
+
+	const content = getContent();
+	if ( ! content ) return;
+	placeCursorAtEnd( content );
+	for ( const file of images ) {
+		uploadAndInsertImage( file );
 	}
 } );

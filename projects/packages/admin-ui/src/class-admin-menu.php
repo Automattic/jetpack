@@ -200,7 +200,48 @@ class Admin_Menu {
 		 * We know all pages will be under Jetpack top level menu page, so we can hardcode the first part of the string.
 		 * Using get_plugin_page_hookname here won't work because the top level page is not registered yet.
 		 */
-		return 'jetpack_page_' . $menu_slug;
+		$hook = 'jetpack_page_' . $menu_slug;
+
+		// Hide WordPress core admin notices on this Jetpack page. The load-<hook>
+		// action only fires when the matching screen is being rendered, so this
+		// stays scoped to Jetpack pages and reaches every page registered here.
+		add_action( 'load-' . $hook, array( __CLASS__, 'hide_core_admin_notices' ) );
+		add_action( 'load-' . $hook . '-network', array( __CLASS__, 'hide_core_admin_notices' ) );
+
+		return $hook;
+	}
+
+	/**
+	 * Queues an inline style that hides WordPress core admin notices on the current Jetpack page.
+	 *
+	 * Hooked from the page's load-<hook> action so it only runs on Jetpack screens.
+	 *
+	 * @return void
+	 */
+	public static function hide_core_admin_notices() {
+		add_action( 'admin_print_styles', array( __CLASS__, 'print_hide_core_admin_notices_style' ) );
+	}
+
+	/**
+	 * Prints the inline style that hides WordPress core admin notices.
+	 *
+	 * We only target direct children of #wpbody-content (where core renders notices via the
+	 * admin_notices / all_admin_notices hooks). This intentionally leaves JITMs untouched —
+	 * they output `.jetpack-jitm-message`, not `.notice` — and leaves in-app/React notices
+	 * untouched, since those render deeper inside `.wrap`. An inline style is used (rather than
+	 * an enqueued build asset) so it also works on older Jetpack pages that ship no stylesheet.
+	 *
+	 * @return void
+	 */
+	public static function print_hide_core_admin_notices_style() {
+		?>
+		<style id="jetpack-admin-ui-hide-core-notices">
+			#wpbody-content > .notice,
+			#wpbody-content > .update-nag,
+			#wpbody-content > .updated,
+			#wpbody-content > .error { display: none !important; }
+		</style>
+		<?php
 	}
 
 	/**

@@ -6,7 +6,6 @@ import { formatNumber } from '@automattic/number-formatters';
 /**
  * WordPress dependencies
  */
-import { Page } from '@wordpress/admin-ui';
 import {
 	__experimentalText as Text, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 } from '@wordpress/components';
@@ -28,6 +27,7 @@ import TextWithFlag from '../../src/dashboard/components/text-with-flag/index.ts
 import useInboxData from '../../src/dashboard/hooks/use-inbox-data.ts';
 import WpRouteDashboardSearchParamsProvider from '../../src/dashboard/router/wp-route-dashboard-search-params-provider.tsx';
 import DataViewsHeaderRow from '../../src/dashboard/wp-build/components/dataviews-header-row';
+import FormsPage from '../../src/dashboard/wp-build/components/page';
 import usePageHeaderDetails from '../../src/dashboard/wp-build/hooks/use-page-header-details';
 import useConfigValue from '../../src/hooks/use-config-value';
 import { INTEGRATIONS_STORE, IntegrationsSelectors } from '../../src/store/integrations';
@@ -682,7 +682,7 @@ function StageInner() {
 	);
 
 	return (
-		<Page
+		<FormsPage
 			visual={ visual }
 			breadcrumbs={ breadcrumbs }
 			badges={ badges }
@@ -737,7 +737,7 @@ function StageInner() {
 				refreshIntegrations={ refreshIntegrations }
 				context="dashboard"
 			/>
-		</Page>
+		</FormsPage>
 	);
 }
 

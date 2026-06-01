@@ -247,7 +247,7 @@ const OverviewSection = ( { isFreePlan, planInfo, sendPaidPlanToCart, isPlanJust
 	return (
 		<div className="jp-search-dashboard-wrap jp-search-dashboard-meter-wrap">
 			<div className="jp-search-dashboard-row">
-				<div className="jp-search-dashboard-meter-wrap__content lg-col-span-12 md-col-span-6 sm-col-span-4">
+				<div className="jp-search-dashboard-meter-wrap__content lg-col-span-12 md-col-span-8 sm-col-span-4">
 					<PlanSummary isFreePlan={ isFreePlan } planInfo={ planInfo } />
 					<UsageMeters usageInfo={ usageInfo } isPlanJustUpgraded={ isPlanJustUpgraded } />
 					<UpgradeTrigger upgradeMessage={ upgradeMessage } ctaCallback={ sendPaidPlanToCart } />

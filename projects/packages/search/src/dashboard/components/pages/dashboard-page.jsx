@@ -3,7 +3,7 @@ import { useConnectionErrorNotice, ConnectionError } from '@automattic/jetpack-c
 import { useSelect, useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { Stack, Tabs } from '@wordpress/ui';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import AIAgentAccessControl from 'components/ai-agent-access-control';
 import AiAnswersTab from 'components/ai-answers-tab';
 import ExperienceSelector from 'components/experience-selector';
@@ -24,19 +24,55 @@ import './dashboard-page.scss';
 const DEFAULT_TAB = 'overview';
 // Keep this allowlist in sync with the <Tabs.Tab value="..."> definitions below.
 const VALID_TABS = [ DEFAULT_TAB, 'settings', 'ai-answers' ];
-const TAB_QUERY_PARAM = 'tab';
+// Tabs are now routed via the URL hash (#/<slug>) to match the my-jetpack
+// admin's HashRouter convention. The pre-hash `?tab=<slug>` query param is
+// still honored on mount so existing bookmarks resolve correctly; mount-time
+// normalization rewrites the URL to the canonical hash form.
+const LEGACY_TAB_QUERY_PARAM = 'tab';
 // Maps removed slugs to their current equivalents so existing bookmarks/links keep working.
 const LEGACY_TAB_ALIASES = { 'plan-usage': 'overview' };
+// Experiences whose product search reads `override_woocommerce_search_template`:
+// Embedded/Inline swap WooCommerce's product-search page for the Jetpack
+// product-results template; overlay_blocks paints the product overlay. The
+// legacy preact Overlay has no blocks template, so it's absent.
+const PRODUCT_SEARCH_OVERRIDE_EXPERIENCES = [
+	EXPERIENCE.EMBEDDED,
+	EXPERIENCE.INLINE,
+	EXPERIENCE.OVERLAY_BLOCKS,
+];
 
-const getInitialTab = () => {
+const resolveTabFromLocation = () => {
 	if ( typeof window === 'undefined' ) {
 		return DEFAULT_TAB;
 	}
 
-	const requestedTab = new URLSearchParams( window.location.search ).get( TAB_QUERY_PARAM );
+	// Hash wins (canonical); fall back to legacy `?tab=` query param.
+	const fromHash = window.location.hash.replace( /^#\/?/, '' );
+	const fromQuery = new URLSearchParams( window.location.search ).get( LEGACY_TAB_QUERY_PARAM );
+	const requestedTab = fromHash || fromQuery;
 	const resolvedTab = LEGACY_TAB_ALIASES[ requestedTab ] ?? requestedTab;
 
 	return VALID_TABS.includes( resolvedTab ) ? resolvedTab : DEFAULT_TAB;
+};
+
+// Rewrites the URL to the canonical `#/<tab>` form and strips any legacy
+// `?tab=` query param. Uses `replaceState` so it doesn't add a back-button
+// entry and doesn't fire a `hashchange` event (safe to call from a
+// `hashchange` handler).
+const normalizeUrlToHash = tab => {
+	if ( typeof window === 'undefined' ) {
+		return;
+	}
+	const url = new URL( window.location.href );
+	const desiredHash = `#/${ tab }`;
+	if ( url.hash === desiredHash && ! url.searchParams.has( LEGACY_TAB_QUERY_PARAM ) ) {
+		return;
+	}
+	url.searchParams.delete( LEGACY_TAB_QUERY_PARAM );
+	url.hash = desiredHash;
+	// Preserve any existing history.state — assigning {} would clobber state
+	// stashed by other scripts running on the same admin page.
+	window.history.replaceState( window.history.state ?? {}, '', url.toString() );
 };
 
 /**
@@ -48,7 +84,34 @@ const getInitialTab = () => {
  * @return {import('react').Component} Search dashboard component.
  */
 export default function DashboardPage( { isLoading = false } ) {
-	const [ activeTab, setActiveTab ] = useState( getInitialTab );
+	const [ activeTab, setActiveTab ] = useState( resolveTabFromLocation );
+
+	// On mount, canonicalize the URL to `#/<tab>` and drop any legacy `?tab=`
+	// query string so reloads stop carrying it.
+	useEffect( () => {
+		normalizeUrlToHash( activeTab );
+		// Intentional: canonicalize once with the initial `activeTab`. Later
+		// hash changes are handled by the `hashchange` listener below.
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [] );
+
+	// Keep the active tab in sync with external hash changes (back/forward button, manual edit).
+	useEffect( () => {
+		if ( typeof window === 'undefined' ) {
+			return;
+		}
+		const onHashChange = () => {
+			const resolved = resolveTabFromLocation();
+			// Skip the state update when the resolved tab already matches —
+			// otherwise user-initiated clicks would `setActiveTab` twice (once
+			// in `handleTabChange`, once via the `hashchange` event echo).
+			setActiveTab( prev => ( prev === resolved ? prev : resolved ) );
+			// External nav might have landed on a legacy slug; canonicalize too.
+			normalizeUrlToHash( resolved );
+		};
+		window.addEventListener( 'hashchange', onHashChange );
+		return () => window.removeEventListener( 'hashchange', onHashChange );
+	}, [] );
 
 	const handleTabChange = tab => {
 		setActiveTab( tab );
@@ -56,10 +119,9 @@ export default function DashboardPage( { isLoading = false } ) {
 		if ( typeof window === 'undefined' ) {
 			return;
 		}
-
-		const url = new URL( window.location.href );
-		url.searchParams.set( TAB_QUERY_PARAM, tab );
-		window.history.replaceState( {}, '', url.toString() );
+		// Assigning to .hash (not replaceState) creates a back-button entry,
+		// matching my-jetpack's HashRouter navigation behavior.
+		window.location.hash = `/${ tab }`;
 	};
 
 	useSelect( select => select( STORE_ID ).getSearchPlanInfo(), [] );
@@ -144,24 +206,76 @@ export default function DashboardPage( { isLoading = false } ) {
 	const activeThemeStylesheet = useSelect( select =>
 		select( STORE_ID ).getActiveThemeStylesheet()
 	);
-	// Only meaningful for server-rendered templates; Overlay intercepts
-	// client-side so the override would be a no-op there.
 	const showWooCommerceProductSearchControl =
-		isWooCommerceActive &&
-		( activeExperience === EXPERIENCE.EMBEDDED || activeExperience === EXPERIENCE.INLINE );
-	// Site Editor identifies plugin templates as `<stylesheet>//<slug>`;
-	// fall back to the Templates list when the stylesheet is unavailable.
-	const wooProductSearchEditUrl = activeThemeStylesheet
-		? `${ siteAdminUrl }site-editor.php?p=%2Fwp_template%2F${ encodeURIComponent(
-				activeThemeStylesheet
-		  ) }%2F%2Fjetpack-search-product-results&canvas=edit`
-		: `${ siteAdminUrl }site-editor.php?p=%2Ftemplate`;
+		isWooCommerceActive && PRODUCT_SEARCH_OVERRIDE_EXPERIENCES.includes( activeExperience );
+	const isBlockTheme = useSelect( select => select( STORE_ID ).isBlockTheme() );
+	const productSearchTemplate = useSelect( select =>
+		select( STORE_ID ).getProductSearchTemplateConfig()
+	);
+	const productOverlayTemplate = useSelect( select =>
+		select( STORE_ID ).getProductOverlayTemplateConfig()
+	);
+	// The edit affordance follows the active experience. Overlay (blocks) edits its
+	// product template via the singleton CPT (post.php, any theme) and gets a
+	// "Restore default". Embedded/Inline edit the product-results page template —
+	// the Site Editor on block themes (which owns its own revert, so no restore
+	// link there), the Product_Search_Template singleton CPT on classic themes.
+	// Singleton editor URLs are null for non-admins, so `SingletonTemplateActions`
+	// disables the link in that state.
+	const isProductOverlayExperience = activeExperience === EXPERIENCE.OVERLAY_BLOCKS;
+	let wooProductTemplate;
+	if ( isProductOverlayExperience ) {
+		wooProductTemplate = {
+			templateConfig: productOverlayTemplate,
+			editTemplateUrl: null,
+			editLabel: __( 'Edit the product Search overlay', 'jetpack-search-pkg' ),
+			restoreConfirmMessage: __(
+				'Restore the bundled product Search overlay template? Your customizations will be deleted.',
+				'jetpack-search-pkg'
+			),
+			successMessage: __(
+				'The product Search overlay template has been restored to the bundled default.',
+				'jetpack-search-pkg'
+			),
+			errorMessage: __(
+				'Could not restore the product Search overlay template.',
+				'jetpack-search-pkg'
+			),
+		};
+	} else if ( isBlockTheme ) {
+		wooProductTemplate = {
+			templateConfig: null,
+			editTemplateUrl: activeThemeStylesheet
+				? `${ siteAdminUrl }site-editor.php?p=%2Fwp_template%2F${ encodeURIComponent(
+						activeThemeStylesheet
+				  ) }%2F%2Fjetpack-search-product-results&canvas=edit`
+				: `${ siteAdminUrl }site-editor.php?p=%2Ftemplate`,
+			editLabel: __( 'Edit the product search template', 'jetpack-search-pkg' ),
+		};
+	} else {
+		wooProductTemplate = {
+			templateConfig: productSearchTemplate,
+			editTemplateUrl: null,
+			editLabel: __( 'Edit the product search template', 'jetpack-search-pkg' ),
+			restoreConfirmMessage: __(
+				'Restore the bundled product search template? Your customizations will be deleted.',
+				'jetpack-search-pkg'
+			),
+			successMessage: __(
+				'The product search template has been restored to the bundled default.',
+				'jetpack-search-pkg'
+			),
+			errorMessage: __( 'Could not restore the product search template.', 'jetpack-search-pkg' ),
+		};
+	}
 	const showAIAgentAccessGuidelinesLink =
 		! isReaderChatAvailable ||
+		! supportsSearch ||
 		! isReaderChatEnabled ||
 		readerChatGuidelinesUrl !== aiAgentAccessGuidelinesUrl;
+	const isReaderChatControlAvailable = isReaderChatAvailable && supportsSearch;
 	const hasAdditionalSettings =
-		isReaderChatAvailable ||
+		isReaderChatControlAvailable ||
 		isAIAgentAccessAvailable ||
 		( supportsInstantSearch && isInstantSearchEnabled ) ||
 		showWooCommerceProductSearchControl;
@@ -283,12 +397,12 @@ export default function DashboardPage( { isLoading = false } ) {
 															{ __( 'Additional settings', 'jetpack-search-pkg' ) }
 														</h2>
 													) }
-													{ isReaderChatAvailable && (
+													{ isReaderChatControlAvailable && (
 														<div className="jp-search-settings-card">
 															<ReaderChatControl
-																isAvailable={ isReaderChatAvailable }
+																isAvailable={ isReaderChatControlAvailable }
 																isEnabled={ isReaderChatEnabled }
-																isSaving={ isSavingEitherOption }
+																isSaving={ isSavingEitherOption || isOverLimit }
 																guidelinesUrl={ readerChatGuidelinesUrl }
 																updateOptions={ updateOptions }
 															/>
@@ -318,7 +432,12 @@ export default function DashboardPage( { isLoading = false } ) {
 																isEnabled={ isWooCommerceSearchTemplateOverrideEnabled }
 																isSaving={ isSavingEitherOption }
 																updateOptions={ updateOptions }
-																editTemplateUrl={ wooProductSearchEditUrl }
+																templateConfig={ wooProductTemplate.templateConfig }
+																editTemplateUrl={ wooProductTemplate.editTemplateUrl }
+																editLabel={ wooProductTemplate.editLabel }
+																restoreConfirmMessage={ wooProductTemplate.restoreConfirmMessage }
+																successMessage={ wooProductTemplate.successMessage }
+																errorMessage={ wooProductTemplate.errorMessage }
 															/>
 														</div>
 													) }
@@ -418,7 +537,7 @@ const MockedSearchContent = ( { supportsInstantSearch, supportsOnlyClassicSearch
 				<div className=" lg-col-span-6 md-col-span-1 sm-col-span-0"></div>
 			</div>
 			<div className="jp-search-dashboard-row" aria-hidden="true">
-				<div className="jp-search-dashboard-top__mocked-search-interface lg-col-span-12 md-col-span-6 sm-col-span-4">
+				<div className="jp-search-dashboard-top__mocked-search-interface lg-col-span-12 md-col-span-8 sm-col-span-4">
 					<MockedSearch
 						supportsInstantSearch={ supportsInstantSearch }
 						supportsOnlyClassicSearch={ supportsOnlyClassicSearch }

@@ -1,7 +1,7 @@
 === PayPal Payment Buttons ===
 Contributors: paypal,automattic,woocommerce
 Tags: paypal, payments, ecommerce, blocks, checkout
-Requires at least: 6.8
+Requires at least: 6.9
 Requires PHP: 7.2
 Tested up to: 7.0
 Stable tag: 0.4.0

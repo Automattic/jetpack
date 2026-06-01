@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Revert Choose plan tier recognition added in #48806; the experiment is being rolled back.

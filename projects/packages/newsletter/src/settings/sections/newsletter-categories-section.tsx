@@ -9,7 +9,7 @@ import {
 	isWpcomPlatformSite,
 } from '@automattic/jetpack-script-data';
 import { WpcomSupportLink } from '@automattic/jetpack-shared-extension-utils/components/wpcom-support-link';
-import { DataForm, type Field, useFormValidity } from '@wordpress/dataviews/wp';
+import { DataForm, type Field, useFormValidity } from '@wordpress/dataviews';
 import { createInterpolateElement, useCallback, useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Button, Card, Fieldset, Link, Notice, Text } from '@wordpress/ui';

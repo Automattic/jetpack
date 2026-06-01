@@ -256,13 +256,18 @@ class REST_Controller {
 	/**
 	 * Whether the site's current plan unlocks the full activity log.
 	 *
-	 * Reads the WPCOM `/sites/{id}/rewind` state endpoint (same signal
-	 * `Jetpack_Backup::has_backup_plan()` uses) and caches the boolean for
+	 * Checks the WPCOM `/sites/{id}/features` endpoint for the
+	 * `full-activity-log` feature flag and caches the boolean for
 	 * {@see self::CAPABILITY_CACHE_TTL} seconds in a site transient so the
 	 * list endpoint doesn't pay the round-trip on every pagination page.
 	 * The cache is per-blog (fine for multisite) and keyed on `blog_id`.
 	 *
-	 * @return bool True when the site has a paid Backup-enabled plan.
+	 * Checking the feature flag (rather than a specific plan slug or the
+	 * rewind state) means Jetpack Complete, Security, Personal, and all
+	 * standalone Backup plans are covered correctly, regardless of whether
+	 * backup credentials have been configured.
+	 *
+	 * @return bool True when the site has the full-activity-log feature.
 	 */
 	public static function has_activity_logs_access() {
 		$blog_id = (int) Jetpack_Options::get_option( 'id' );
@@ -277,11 +282,9 @@ class REST_Controller {
 		}
 
 		$response = Client::wpcom_json_api_request_as_blog(
-			sprintf( '/sites/%d/rewind?force=wpcom', $blog_id ),
-			'2',
-			array( 'timeout' => 2 ),
-			null,
-			'wpcom'
+			sprintf( '/sites/%d/features', $blog_id ),
+			'1.1',
+			array( 'timeout' => 2 )
 		);
 
 		if ( is_wp_error( $response ) || 200 !== (int) wp_remote_retrieve_response_code( $response ) ) {
@@ -292,8 +295,8 @@ class REST_Controller {
 		}
 
 		$body   = json_decode( wp_remote_retrieve_body( $response ) );
-		$state  = is_object( $body ) && isset( $body->state ) ? (string) $body->state : '';
-		$has_it = $state !== '' && $state !== 'unavailable';
+		$active = is_object( $body ) && isset( $body->active ) && is_array( $body->active ) ? $body->active : array();
+		$has_it = in_array( 'full-activity-log', $active, true );
 		set_site_transient( $cache_key, $has_it ? 'yes' : 'no', self::CAPABILITY_CACHE_TTL );
 		return $has_it;
 	}

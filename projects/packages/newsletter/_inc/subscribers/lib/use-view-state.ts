@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from '@wordpress/element';
 import type { SubscribersFilter, SubscribersSortField } from '../data/types';
-import type { View } from '@wordpress/dataviews/wp';
+import type { View } from '@wordpress/dataviews';
 
 const URL_KEYS = {
 	page: 'paged',

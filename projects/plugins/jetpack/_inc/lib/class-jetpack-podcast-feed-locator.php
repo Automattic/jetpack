@@ -14,16 +14,14 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 class Jetpack_Podcast_Feed_Locator extends SimplePie\Locator {
 
-	// @todo WordPress 6.9 changed `$file` from class `SimplePie\File` to interface `SimplePie\HTTP\Response` (which is implemented by `SimplePie\File`). Update declaration once we drop support for WordPress <6.9.
 	/**
 	 * Overrides the locator is_feed function to check for
 	 * appropriate podcast elements.
 	 *
-	 * @param SimplePie\File|SimplePie\HTTP\Response $file The file being checked.
-	 * @param boolean                                $check_html Adds text/html to the mimetypes checked.
+	 * @param SimplePie\HTTP\Response $file The file being checked.
+	 * @param boolean                 $check_html Adds text/html to the mimetypes checked.
 	 */
 	public function is_feed( $file, $check_html = false ) {
-		// @phan-suppress-previous-line PhanUndeclaredTypeParameter @phan-suppress-current-line UnusedSuppression -- Suppression for the WP 6.8 run. @todo Remove this line when we drop WP <6.9.
 		return parent::is_feed( $file, $check_html ) &&
 			$file instanceof SimplePie\File &&
 			$this->is_podcast_feed( $file );
@@ -42,9 +40,8 @@ class Jetpack_Podcast_Feed_Locator extends SimplePie\Locator {
 			return true;
 		}
 
-		// @todo Drop is_callable check once we drop support for WordPress <6.9
+		// @todo Drop is_callable check once Simple gets the SimplePie update that came with WordPress 6.9.
 		if ( is_callable( array( $file, 'get_body_content' ) ) ) {
-			// @phan-suppress-next-line PhanUndeclaredMethod @phan-suppress-current-line UnusedSuppression -- Tested above. @todo Remove this suppression when we drop WP <6.9.
 			$feed_dom = $this->safely_load_xml( $file->get_body_content() );
 		} else {
 			// @phan-suppress-next-line PhanDeprecatedProperty -- For compatibility only.

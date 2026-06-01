@@ -1071,4 +1071,14 @@ class Helper {
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.ValidatedSanitizedInput.MissingUnslash
 		return isset( $_GET['disable_tracking'] ) && $_GET['disable_tracking'];
 	}
+
+	/**
+	 * Enqueue the WordPress.com Tracks library that drains `window._tkq` and
+	 * sends the queued events. Shared by Instant Search and the Search blocks so
+	 * the handle, src, and cache-busting version live in one place. Callers own
+	 * the decision of whether to load it (e.g. the `is_tracking_disabled()` gate).
+	 */
+	public static function enqueue_tracks_script() {
+		wp_enqueue_script( 'jp-tracks', '//stats.wp.com/w.js', array(), gmdate( 'YW' ), true );
+	}
 }

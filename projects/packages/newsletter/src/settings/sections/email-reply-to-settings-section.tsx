@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { DataForm, type Field } from '@wordpress/dataviews/wp';
+import { DataForm, type Field } from '@wordpress/dataviews';
 import { __ } from '@wordpress/i18n';
 import { Card } from '@wordpress/ui';
 /**
