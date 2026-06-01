@@ -89,12 +89,17 @@ Bucketing is `crc32(blog_id) % 100`, so ramping from 10% → 50% strictly adds b
 
 ## Force override
 
-The activation block notice and the post-update notice both expose two opt-out controls for site admins who want to push through a verdict they disagree with:
+The activation, update, and install block notices each expose opt-out controls so an admin who disagrees with a verdict can still push through:
 
-- **Activate anyway / Retry without check** — re-runs the original activate / upgrade action with `pcg_force=1`. The current request's own admin nonce is still required; PCG just steps out of the way.
-- **Disable check for 10 minutes** — sets a user-scoped transient (`pcg_force_bypass_<user_id>`) that lets the same user retry without re-confirming. Both guards consult `pcg_force_override_active()` and return early.
+- **One-shot retry** — re-runs the original action with `pcg_force=1` on the URL. The action's own admin nonce still has to validate; PCG just steps out of the way for that one request.
+  - Activation notice: `Activate <Name> anyway` (one per blocked plugin) — replays `plugins.php?action=activate&plugin=<basename>`.
+  - Update notice: `Update <Name> anyway` — replays `update.php?action=upgrade-plugin&plugin=<basename>`.
+  - Install notice: **no one-shot retry.** `Plugin_Upgrader::install()` doesn't populate `hook_extra['plugin']`; even with a slug recovered from the source basename, the .org `install-plugin` URL can't replay an uploaded zip and can't reliably resolve .org-search installs whose canonical slug differs from the extracted folder name. Operators flip the bypass and re-trigger from Add Plugin themselves.
+- **Time-boxed bypass** — `Disable checks for 10 minutes` sets a user-scoped transient (`pcg_force_bypass_<user_id>`) consumed by `pcg_force_override_active( $cap )`. The activation guard, the syntax-only install/update gate, and the post-update health check + rollback all short-circuit while the transient is live, so a user who turns this on isn't quietly rolled back behind their back.
 
-Every override is logged to logstash via `pcg_log_event( 'Force override used' )` / `'Force bypass enabled'` so we can see who is bypassing and why.
+Capabilities are checked per surface: `activate_plugins` for the activation guard, `update_plugins` for the install/update gate and the healthcheck. The shared bypass-set handler accepts either cap.
+
+Every override is logged via `pcg_log_event( 'Force override used' )` (`source: pcg_force_flag` for one-shot, `bypass_transient` for the 10-min window) and `'Force bypass enabled'` when the transient is set.
 
 ## Limitations
 

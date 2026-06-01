@@ -164,8 +164,8 @@ function pcg_update_guard_render_retry_notice() {
 	// from an uploaded zip aren't — there's no zip to replay — and even
 	// .org installs would need the user back on the Add Plugin page, so
 	// we only surface the bypass-then-retry path for installs.
-	if ( $is_update ) {
-		$retry = wp_nonce_url(
+	$retry = $is_update
+		? wp_nonce_url(
 			add_query_arg(
 				array(
 					'action'    => 'upgrade-plugin',
@@ -175,8 +175,8 @@ function pcg_update_guard_render_retry_notice() {
 				self_admin_url( 'update.php' )
 			),
 			'upgrade-plugin_' . $slug
-		);
-	}
+		)
+		: '';
 	?>
 	<div class="notice notice-warning">
 		<p>
