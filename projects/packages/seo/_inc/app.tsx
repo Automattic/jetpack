@@ -25,7 +25,9 @@ const App: FC = () => (
 			) }
 			showFooter
 		>
-			<OverviewScreen />
+			<div className="jetpack-seo-page-content">
+				<OverviewScreen />
+			</div>
 		</AdminPage>
 	</ThemeProvider>
 );

@@ -1,12 +1,19 @@
 @use "@automattic/jetpack-base-styles/admin-page-layout" as *;
 
-// Apply the shared Jetpack admin-page layout so `<AdminPage>` owns the full
-// content area: fixed header, scrollable middle, pinned footer, and the
-// header-aligned content padding. Mirrors Scan/Podcast. Both menu placements
-// are targeted because Admin_Menu may register the page as a top-level menu or
-// as a Jetpack submenu depending on the environment.
+// Apply the shared Jetpack admin-page layout so `<AdminPage>` owns the page
+// chrome: fixed header, scrollable middle, pinned footer. Mirrors Scan/Podcast.
+// Both menu placements are targeted because Admin_Menu may register the page as
+// a top-level menu or as a Jetpack submenu depending on the environment.
 body.jetpack_page_jetpack-seo,
 body.toplevel_page_jetpack-seo {
 
 	@include jetpack-admin-page-layout;
+}
+
+// `<AdminPage>` renders content with `horizontalSpacing={0}` and no
+// `hasPadding`, so the content area gets no padding from admin-ui or the layout
+// mixin — only the header does (at `padding-inline: 2xl`). Pad our content to
+// align with the header and clear it (the consumer-side job Scan/Podcast own).
+.jetpack-seo-page-content {
+	padding: var(--wpds-dimension-padding-2xl, 24px);
 }
