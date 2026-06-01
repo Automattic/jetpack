@@ -234,21 +234,5 @@ export function getServiceUiDetails( id: ConnectionService[ 'id' ] ): ServiceUiD
 					),
 				],
 			};
-
-		case 'x':
-			return {
-				icon: props => <SocialServiceIcon serviceName="x" { ...props } />,
-				description: __( 'Share posts to X.', 'jetpack-publicize-pkg' ),
-				examples: [
-					() => (
-						<>
-							{ __(
-								'Reach your audience by automatically sharing your posts to X when you publish.',
-								'jetpack-publicize-pkg'
-							) }
-						</>
-					),
-				],
-			};
 	}
 }
