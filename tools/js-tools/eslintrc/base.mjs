@@ -397,14 +397,9 @@ export function makeBaseConfig( configurl, opts = {} ) {
 			},
 		},
 
-		// Node tooling configs and scripts should allow 'node' globals (jest/babel/webpack, pnpm, lint helpers).
+		// Various config files should allow 'node' globals.
 		{
-			files: [
-				'**/*.config.?([cm])js',
-				'**/webpack.config.*.?([cm])js',
-				'tools/eslint/*.cjs',
-				'.pnpmfile.cjs',
-			],
+			files: [ '**/*.config.?([cm])js', '**/webpack.config.*.?([cm])js' ],
 			languageOptions: {
 				globals: globals.node,
 			},
