@@ -10,7 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Search Blocks: Add a Width control (px / %) to the Search Input Block inspector. [#49210]
 - Search Blocks: Add a WooCommerce Product Search Page pattern. [#49270]
 - Search Blocks: Fire the TrainTracks render/interact analytics events from the blocks search path (embedded and overlay). [#49253]
-- Search Blocks: Render product results filters from a dedicated product overlay template on WooCommerce product searches. [#49262]
+- Search Blocks: Render product results and filters from a dedicated product overlay template on WooCommerce product searches. [#49262]
 
 ### Changed
 - AI Agent Access: Show the opt-in toggle on public sites. [#49103]
@@ -30,7 +30,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Search Blocks: Unify rating-star color contract and align suggestions / price-slider surfaces with the 3-tier theme-token fallback chain. [#49208]
 - Search Blocks: Use the price slider variation of filter-wc-price in the product-results template. [#49217]
 - Search Blocks: Focus the search input and place the caret at the end on search page render with existing query. [#49215]
-- Search Blocks: Apply various visual and layout improvements to Overlay. [#49177] [#49265] [#49207]
+- Search Blocks: Collapse the Overlay filter sidebar below 992px and dock a filters-popover trigger next to Sort By. [#49177]
+- Search Blocks: Derive the Overlay card elevation shadow from the theme ink so it lifts off the scrim on dark themes. [#49265]
+- Search Blocks: Separate the Overlay modal card from the dim scrim on dark themes. [#49207]
 - Update package dependencies. [#48404]
 
 ### Removed
@@ -42,7 +44,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Search Blocks: Honor the legacy --background / --foreground theme color tokens in blocks-powered Overlay shell. [#49138]
 - Search Blocks: Do not dismiss the blocks-powered Overlay on clicking a search suggestion. [#49137]
 - Search Blocks: Strip the search/filter params from the URL and reload when closing the blocks-powered Overlay. [#49145]
-- Search Blocks: Run the initial searxh when deep-linking to `/?s=` (empty value) on the blocks-powered Overlay instead of latching the "Searching…" skeleton on forever. [#49151]
+- Search Blocks: Run the initial search when deep-linking to `/?s=` (empty value) on the blocks-powered Overlay instead of latching the "Searching…" skeleton on forever. [#49151]
 - Search Blocks: Drop nested same-namespace `data-wp-interactive` on active-filters and filter-checkbox when rendered inside the collapsible filters popover. [#49185]
 - Search Blocks: Render a solid background in filters-popover panel and results-sort menu on themes that don't define `--wp--preset--color--base`. [#49180]
 - Search Blocks: Fix results-header text collapsing into vertical columns when the filters popover is open. [#49287]

@@ -326,24 +326,15 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 15.9-a.5 - 2026-05-25
-#### Enhancements
-- Admin Menu: Add sidebar redesign fields, group metadata, and saved layout data to the `/wpcom/v2/admin-menu` endpoint when the public `wp-admin-sidebar` plugin is loaded.
-- Donations Block: Add a "Tips" variation with coffee-themed defaults for creatives.
-- Donations Block: Add modal display mode with trigger button, configurable icon, and animated overlay.
-- Donations Block: Record Tracks events for admin-side block adoption.
-- Jetpack AI Sidebar: Allow AI Editorial Review through the sidebar preview.
-- Newsletter: Enable the subscriptions module by default for all sites.
-- Reader Chat: Use Jetpack Search plan eligibility for the public opt-in loader.
+### 15.9-a.7 - 2026-06-01
+#### Major Enhancements
+- General: Update minimum WordPress version to 6.9.
 
-#### Improved compatibility
-- ActivityPub: Allow Jetpack-signed admin requests to reach the inbox, proxy, and outbox client-to-server endpoints used by the connected site's WordPress.com Reader, without an OAuth bearer.
+#### Enhancements
+- Search: Register the AI Agents Access opt-in setting for regular site owners.
 
 #### Bug fixes
-- Forms: Address `Uncaught TypeError` message in the editor.
-- Jetpack AI Sidebar: Fix block editing when another agent provider is present.
-- Newsletter Categories: Stop returning a 400 response when saving the same category selection that's already stored.
-- Reader Chat: Prevent the frontend widget from loading on Coming Soon or unlaunched sites.
+- VideoPress: Fix the post-connection redirect so the modernized dashboard returns users to the VideoPress page instead of a 404.
 
 --------
 

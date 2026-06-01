@@ -16,7 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Exclude additional unneeded files from the Composer package. [#49014]
 - Jetpack Connection Health: Migrate tests from Jetpack plugin to Connection package. [#47837]
-- Users List: use dynamic connector logo and tooltip based on connected plugin families. [#49093]
+- Users List: Use dynamic connector logo and tooltip based on connected plugin families. [#49093]
 
 ## [8.4.0] - 2026-05-25
 ### Added
