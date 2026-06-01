@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Modernized the Beta Tester admin interface with a React UI built on the WordPress design system, backed by the WordPress Abilities API.
