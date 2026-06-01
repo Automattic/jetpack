@@ -175,8 +175,13 @@ const App = () => {
 	const headerActions = isSetUp ? (
 		<Button
 			size="compact"
-			variant="primary"
-			href={ getAdminUrl( 'post-new.php?podcast_episode=1' ) }
+			variant="solid"
+			render={
+				<a
+					className="podcast__header-cta"
+					href={ getAdminUrl( 'post-new.php?podcast_episode=1' ) }
+				/>
+			}
 		>
 			{ __( 'Create episode', 'jetpack-podcast' ) }
 		</Button>
