@@ -1,24 +1,23 @@
 Bridge to upstream Gutenberg PRs https://github.com/WordPress/gutenberg/pull/78822
-and https://github.com/WordPress/gutenberg/pull/77465.
+and https://github.com/WordPress/gutenberg/pull/77465. This patch is exactly those two
+PRs applied to `@wordpress/build@0.13.0`; the only addition is a one-line
+`createNodeRequire` import that 0.13.0 predates (the PR branch sits on newer trunk where
+it already exists).
 
-Decouples script-module identity from `wpPlugin.packageNamespace` (the script-module
-ID is read from `package.json#name`) and discovers script-module packages outside
-`./packages/` via convention (any entry in `dependencies` that declares
-`wpScriptModuleExports`).
+#78822 reads each script module's ID from `package.json#name`, externalizes
+internal-package imports by exact name, and discovers script-module packages outside
+`./packages/` via convention (any `dependencies` entry whose own `package.json` declares
+`wpScriptModuleExports`). #77465 scopes the generated PHP `wp_deregister_script_module()`
+calls to `@wordpress/*` IDs, so shared non-core packages registered by more than one
+wp-build plugin get Core's idempotent first-wins semantics instead of last-plugin-wins.
 
-Scopes the generated PHP `wp_deregister_script_module()` calls to `@wordpress/*` IDs
-only (PR #77465). Shared non-core packages registered by more than one wp-build
-plugin then get Core's idempotent first-wins semantics instead of last-plugin-wins
-collisions. Without this, the shared identity from convention discovery above would
-re-introduce the cross-plugin version-skew concern.
+Convention discovery reads each shared package's `package.json` through its `exports`
+field, so a discovered package must expose `./package.json` (e.g.
+`@automattic/number-formatters` adds `"./package.json": "./package.json"`). Packages
+that do not are skipped and bundled inline.
 
-Also extends `getPackageInfo` with a node_modules walk-up fallback so packages whose
-`exports` field does not list `./package.json` (e.g. `@automattic/number-formatters`)
-are still resolvable. Discovery would silently fall back to inline bundling without
-this. This enhancement is part of the same PR proposal; not yet upstream.
-
-When the upstream PR merges and Jetpack bumps `@wordpress/build` to a version that
-includes it, delete this file and remove its entry from `pnpm-workspace.yaml`.
+When the upstream PRs merge and Jetpack bumps `@wordpress/build` to a version that
+includes them, delete this file and remove its entry from `pnpm-workspace.yaml`.
 
 To rebase this patch to a new `@wordpress/build` version, without a Gutenberg checkout:
 
@@ -26,11 +25,16 @@ To rebase this patch to a new `@wordpress/build` version, without a Gutenberg ch
   WORK=$(mktemp -d) && cd "$WORK"
   curl -sL "https://registry.npmjs.org/@wordpress/build/-/build-$VERSION.tgz" | tar xz
   mv package pristine && cp -R pristine patched
-  curl -sL "https://patch-diff.githubusercontent.com/raw/WordPress/gutenberg/pull/78822.diff" \
-    | awk '/^diff --git/{f=($4 ~ /^b\/packages\/wp-build\//)} f' \
-    | sed 's|/packages/wp-build/|/|g' \
-    | (cd patched && patch -p1 || true)
+  for PR in 78822 77465; do
+    curl -sL "https://patch-diff.githubusercontent.com/raw/WordPress/gutenberg/pull/$PR.diff" \
+      | awk '/^diff --git/{f=($4 ~ /^b\/packages\/wp-build\//)} f' \
+      | sed 's|/packages/wp-build/|/|g' \
+      | (cd patched && patch -p1 || true)
+  done
   find patched \( -name '*.orig' -o -name '*.rej' \) -delete
+  # 0.13.0 predates this import; newer versions may already include it.
+  grep -q "createRequire as createNodeRequire" patched/lib/build.mjs || \
+    perl -0pi -e "s/(import \{ createHash \} from 'node:crypto';\n)/\$1import { createRequire as createNodeRequire } from 'node:module';\n/" patched/lib/build.mjs
   git diff --no-index --no-color pristine patched \
     | sed -E -e 's|^diff --git a/pristine/|diff --git a/|' \
              -e 's| b/patched/| b/|' \
@@ -38,101 +42,29 @@ To rebase this patch to a new `@wordpress/build` version, without a Gutenberg ch
              -e 's|^\+\+\+ b/patched/|+++ b/|' \
     > "$OLDPWD/.pnpm-patches/@wordpress__build@$VERSION.patch"
 
-Then prepend this header, update pnpm-workspace.yaml, delete the old patch file,
-and run `pnpm install` + `pnpm --filter @automattic/jetpack-premium-analytics build`
-to validate.
+Then prepend this header, update pnpm-workspace.yaml, delete the old patch file, and run
+`pnpm install` + `pnpm --filter @automattic/jetpack-premium-analytics build` to validate.
+`@automattic/number-formatters` must keep `./package.json` in its `exports` for
+convention discovery to pick it up.
 
 diff --git a/CHANGELOG.md b/CHANGELOG.md
-index eabf9e8..81302b5 100644
+index eabf9e8b11..5cb96ddbdb 100644
 --- a/CHANGELOG.md
 +++ b/CHANGELOG.md
-@@ -4,6 +4,12 @@
-
+@@ -4,6 +4,11 @@
+ 
  ## 0.13.0 (2026-04-29)
-
+ 
 +### Enhancements
 +
 +-   Use each package's own `name` field as its script-module ID and externalize internal-package imports by exact name. Decouples script-module identity from `wpPlugin.packageNamespace`, so the npm name survives end-to-end (npm name === import specifier === script-module ID). No-op for Core; enables consumers whose owned npm scope differs from `packageNamespace` to keep a single identifier across npm, IDE, and the WordPress runtime.
 +-   Discover script-module packages outside `./packages/` via convention. Any entry in the plugin's `dependencies` whose `package.json` declares `wpScriptModuleExports` is registered as a script module, bundled, and externalized under its own npm name. No new config; local packages still take precedence on name collision.
-+-   Scope the generated `wp_deregister_script_module()` calls to `@wordpress/*` IDs (PR #77465), so shared non-core packages registered by multiple wp-build plugins fall through to Core's idempotent first-wins semantics instead of last-plugin-wins collisions.
 +
  ### Bug Fixes
  
  -   Update the optional `@wordpress/boot`, `@wordpress/route`, and `@wordpress/theme` peer dependency ranges to avoid blocking newer compatible package versions ([#77568](https://github.com/WordPress/gutenberg/pull/77568)).
-@@ -20,12 +25,12 @@
- 
- ### Breaking Changes
- 
--- `@wordpress/boot`, `@wordpress/route`, `@wordpress/theme`, and `@wordpress/private-apis` are no longer bundled. They are now expected to be provided by WordPress Core (7.0+) or the Gutenberg plugin.
-+-   `@wordpress/boot`, `@wordpress/route`, `@wordpress/theme`, and `@wordpress/private-apis` are no longer bundled. They are now expected to be provided by WordPress Core (7.0+) or the Gutenberg plugin.
- 
- ### Enhancements
- 
--- Avoid unexpected results when typecasting `IS_GUTENBERG_PLUGIN` and `IS_WORDPRESS_CORE` values to Booleans ([#75844](https://github.com/WordPress/gutenberg/pull/75844)).
--- Skip PHP transforms during builds when building for WordPress Core ([#75844](https://github.com/WordPress/gutenberg/pull/75844)).
-+-   Avoid unexpected results when typecasting `IS_GUTENBERG_PLUGIN` and `IS_WORDPRESS_CORE` values to Booleans ([#75844](https://github.com/WordPress/gutenberg/pull/75844)).
-+-   Skip PHP transforms during builds when building for WordPress Core ([#75844](https://github.com/WordPress/gutenberg/pull/75844)).
- 
- ## 0.9.0 (2026-03-04)
- 
-@@ -33,25 +38,25 @@
- 
- ## 0.7.0 (2026-01-29)
- 
--- Update documentation to describe `wpPlugin.name`
--- Add `wpWorkers` field support for automatic worker bundling ([#74785](https://github.com/WordPress/gutenberg/pull/74785)).
--- Add WASM inlining plugin for bundling WebAssembly modules.
-+-   Update documentation to describe `wpPlugin.name`
-+-   Add `wpWorkers` field support for automatic worker bundling ([#74785](https://github.com/WordPress/gutenberg/pull/74785)).
-+-   Add WASM inlining plugin for bundling WebAssembly modules.
- 
- ## 0.6.0 (2026-01-16)
- 
- ### Breaking Changes
- 
--- Renamed generated PHP files to avoid `index.php` naming conflicts:
--  - `build/index.php` → `build/build.php`
--  - `build/modules/index.php` → `build/modules/registry.php`
--  - `build/scripts/index.php` → `build/scripts/registry.php`
--  - `build/styles/index.php` → `build/styles/registry.php`
--  - `build/routes/index.php` → `build/routes/registry.php`
--- All generated page functions now include the `{{PREFIX}}` (from `wpPlugin.name`) at the beginning:
--  - `register_my_page_route()` → `my_plugin_register_my_page_route()`
--  - `my_page_render_page()` → `my_plugin_my_page_render_page()`
--  - And similarly for all other page functions
--- Route registration now uses named functions instead of anonymous closures, allowing third-party developers to unhook them
-+-   Renamed generated PHP files to avoid `index.php` naming conflicts:
-+    -   `build/index.php` → `build/build.php`
-+    -   `build/modules/index.php` → `build/modules/registry.php`
-+    -   `build/scripts/index.php` → `build/scripts/registry.php`
-+    -   `build/styles/index.php` → `build/styles/registry.php`
-+    -   `build/routes/index.php` → `build/routes/registry.php`
-+-   All generated page functions now include the `{{PREFIX}}` (from `wpPlugin.name`) at the beginning:
-+    -   `register_my_page_route()` → `my_plugin_register_my_page_route()`
-+    -   `my_page_render_page()` → `my_plugin_my_page_render_page()`
-+    -   And similarly for all other page functions
-+-   Route registration now uses named functions instead of anonymous closures, allowing third-party developers to unhook them
- 
- ## 0.4.0 (2025-11-26)
- 
-@@ -61,9 +66,9 @@
- 
- ### New Features
- 
--- Initial release of `@wordpress/build` package
--- Transpilation support for TypeScript/JSX to CommonJS and ESM formats
--- SCSS and CSS modules compilation with LTR and RTL support
--- WordPress script and module bundling
--- Automatic PHP registration file generation
--- Watch mode for development
-+-   Initial release of `@wordpress/build` package
-+-   Transpilation support for TypeScript/JSX to CommonJS and ESM formats
-+-   SCSS and CSS modules compilation with LTR and RTL support
-+-   WordPress script and module bundling
-+-   Automatic PHP registration file generation
-+-   Watch mode for development
 diff --git a/lib/build.mjs b/lib/build.mjs
-index dbf3cac..d11f6db 100755
+index dbf3cac6c3..d11f6db61c 100755
 --- a/lib/build.mjs
 +++ b/lib/build.mjs
 @@ -4,8 +4,10 @@
@@ -541,62 +473,8 @@ index dbf3cac..d11f6db 100755
  
  	const watcher = chokidar.watch( watchPaths, {
  		ignored: [
-diff --git a/lib/package-utils.mjs b/lib/package-utils.mjs
-index 15b7dd0..be4daa7 100644
---- a/lib/package-utils.mjs
-+++ b/lib/package-utils.mjs
-@@ -87,7 +87,48 @@ export function getPackageInfo( fullPackageName, resolveDir = null ) {
- 	// Resolve from the package root context to get correct versions
- 	const contextPath = path.join( packageRoot, 'package.json' );
- 	const require = createRequire( contextPath );
--	const resolved = require.resolve( `${ fullPackageName }/package.json` );
-+
-+	let resolved;
-+	try {
-+		// Preferred path: the package exposes ./package.json via `exports`.
-+		resolved = require.resolve( `${ fullPackageName }/package.json` );
-+	} catch ( error ) {
-+		const code = /** @type {NodeJS.ErrnoException} */ ( error ).code;
-+		if (
-+			code !== 'MODULE_NOT_FOUND' &&
-+			code !== 'ERR_PACKAGE_PATH_NOT_EXPORTED'
-+		) {
-+			throw error;
-+		}
-+
-+		// Fallback: walk up node_modules and look for the package directly.
-+		// Covers two real cases:
-+		//  - Packages whose `exports` field does not list `./package.json`.
-+		//  - Imports resolved by other means (tsconfig paths, esbuild aliases)
-+		//    where the package is genuinely not in node_modules; the walk-up
-+		//    finds nothing and we return `null` so callers fall through.
-+		let searchDir = packageRoot;
-+		const fsRoot = path.parse( searchDir ).root;
-+		while ( searchDir !== fsRoot ) {
-+			const directPath = path.join(
-+				searchDir,
-+				'node_modules',
-+				fullPackageName,
-+				'package.json'
-+			);
-+			if ( existsSync( directPath ) ) {
-+				resolved = directPath;
-+				break;
-+			}
-+			searchDir = path.dirname( searchDir );
-+		}
-+
-+		if ( ! resolved ) {
-+			packageJsonCache.set( cacheKey, null );
-+			return null;
-+		}
-+	}
-+
- 	const result = getPackageInfoFromFile( resolved );
- 	packageJsonCache.set( cacheKey, result );
- 
 diff --git a/lib/wordpress-externals-plugin.mjs b/lib/wordpress-externals-plugin.mjs
-index 2b7e01a..a07a310 100644
+index 2b7e01a66f..a07a310067 100644
 --- a/lib/wordpress-externals-plugin.mjs
 +++ b/lib/wordpress-externals-plugin.mjs
 @@ -46,17 +46,19 @@ async function generateContentHash(
@@ -709,19 +587,18 @@ index 2b7e01a..a07a310 100644
  				for ( const externalConfig of packageExternals ) {
  					build.onResolve(
 diff --git a/templates/module-registration.php.template b/templates/module-registration.php.template
-index d2c8712273..e86be5f324 100644
+index d2c8712273..a419c24a24 100644
 --- a/templates/module-registration.php.template
 +++ b/templates/module-registration.php.template
-@@ -42,8 +42,13 @@ function {{PREFIX}}_register_script_modules() {
+@@ -42,8 +42,12 @@ function {{PREFIX}}_register_script_modules() {
  		$asset = file_exists( $asset_path ) ? require $asset_path : array();
  
  		// Deregister first to override any previously registered version
 -		// (e.g., Core's default modules when running as a plugin).
 -		wp_deregister_script_module( $module['id'] );
-+		// (e.g., Core's default modules when running as a plugin). Scoped to
-+		// `@wordpress/*`, the only namespace Core registers by default, so shared
-+		// non-core modules fall through to Core's idempotent first-wins semantics
-+		// instead of silent last-plugin-wins collisions across wp-build plugins.
++		// of Core's default script modules. Scoped to `@wordpress/*` — the
++		// only namespace Core registers by default — so plugin-local and
++		// shared packages preserve Core's idempotent "first-wins" semantics.
 +		if ( str_starts_with( $module['id'], '@wordpress/' ) ) {
 +			wp_deregister_script_module( $module['id'] );
 +		}
@@ -729,33 +606,31 @@ index d2c8712273..e86be5f324 100644
  		wp_register_script_module(
  			$module['id'],
 diff --git a/templates/routes-registration.php.template b/templates/routes-registration.php.template
-index 7ab43f1eb1..8aeaf29d0f 100644
+index 7ab43f1eb1..3aa6918c11 100644
 --- a/templates/routes-registration.php.template
 +++ b/templates/routes-registration.php.template
-@@ -54,8 +54,12 @@ function {{PREFIX}}_register_page_routes( $page_routes, $register_function_name
+@@ -54,8 +54,11 @@ function {{PREFIX}}_register_page_routes( $page_routes, $register_function_name
  				$content_handle = '{{HANDLE_PREFIX}}/routes/' . $route['name'] . '/content';
  				$extension = defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ? '.js' : '.min.js';
  				// Deregister first to override any previously registered version
 -				// (e.g., Core's default modules when running as a plugin).
 -				wp_deregister_script_module( $content_handle );
-+				// (e.g., Core's default modules). Scoped to `@wordpress/*` so
-+				// plugin-local route modules fall through to Core's idempotent
-+				// first-wins semantics instead of last-plugin-wins collisions.
++				// of Core's default script modules. Scoped to `@wordpress/*` — the
++				// only namespace Core registers by default.
 +				if ( str_starts_with( $content_handle, '@wordpress/' ) ) {
 +					wp_deregister_script_module( $content_handle );
 +				}
  				wp_register_script_module(
  					$content_handle,
  					$build_constants['build_url'] . 'routes/' . $route['name'] . '/content' . $extension,
-@@ -73,8 +77,12 @@ function {{PREFIX}}_register_page_routes( $page_routes, $register_function_name
+@@ -73,8 +76,11 @@ function {{PREFIX}}_register_page_routes( $page_routes, $register_function_name
  				$route_handle = '{{HANDLE_PREFIX}}/routes/' . $route['name'] . '/route';
  				$extension = defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ? '.js' : '.min.js';
  				// Deregister first to override any previously registered version
 -				// (e.g., Core's default modules when running as a plugin).
 -				wp_deregister_script_module( $route_handle );
-+				// (e.g., Core's default modules). Scoped to `@wordpress/*` so
-+				// plugin-local route modules fall through to Core's idempotent
-+				// first-wins semantics instead of last-plugin-wins collisions.
++				// of Core's default script modules. Scoped to `@wordpress/*` — the
++				// only namespace Core registers by default.
 +				if ( str_starts_with( $route_handle, '@wordpress/' ) ) {
 +					wp_deregister_script_module( $route_handle );
 +				}
