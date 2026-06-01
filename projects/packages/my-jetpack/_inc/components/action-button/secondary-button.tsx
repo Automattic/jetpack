@@ -77,6 +77,10 @@ const SecondaryButton: FC< SecondaryButtonProps > = props => {
 		'aria-labelledby': ariaLabelledBy,
 	};
 
+	// @wordpress/ui's Button can't natively render as an anchor, so when we need
+	// a link we keep the Button chrome and swap the element via render={<a/>}.
+	// Revisit this once a first-class LinkButton exists upstream:
+	// https://github.com/WordPress/gutenberg/issues/77098
 	if ( href ) {
 		return (
 			<Button
