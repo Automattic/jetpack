@@ -66,11 +66,11 @@
 }
 
 .videopress-caption-manager__workspace {
-	display: grid;
-	grid-template-columns: 300px minmax(0, 1fr);
+	display: flex;
 	min-block-size: 0;
 	flex: 1;
 	background: #fff;
+	overflow: hidden;
 }
 
 .videopress-caption-manager__tracks {
@@ -78,8 +78,8 @@
 	flex-direction: column;
 	gap: 16px;
 	min-width: 0;
+	flex: 1;
 	padding: 18px;
-	border-right: 1px solid #dcdcde;
 	background: #f6f7f7;
 	overflow: hidden;
 }
@@ -149,6 +149,7 @@
 	flex-direction: column;
 	min-width: 0;
 	min-height: 0;
+	flex: 1;
 	overflow: hidden;
 }
 
@@ -234,7 +235,7 @@
 	min-height: 0;
 	padding: 18px;
 	overflow-x: hidden;
-	overflow-y: auto;
+	overflow-y: hidden;
 }
 
 .videopress-caption-manager__cue-toolbar {
@@ -242,19 +243,25 @@
 	flex-shrink: 0;
 }
 
-.videopress-caption-manager__manual-main .block-editor-block-list__layout {
+.videopress-caption-manager__cue-editor {
+	flex: 1;
+	min-block-size: 0;
+	overflow-y: auto;
+}
+
+.videopress-caption-manager__cue-editor .block-editor-block-list__layout {
 	display: flex;
 	flex-direction: column;
 	gap: 10px;
 	padding-bottom: 32px;
 }
 
-.videopress-caption-manager__manual-main .block-editor-block-list__block {
+.videopress-caption-manager__cue-editor .block-editor-block-list__block {
 	margin: 0;
 }
 
-.videopress-caption-manager__manual-main .block-editor-block-list__insertion-point,
-.videopress-caption-manager__manual-main .block-list-appender {
+.videopress-caption-manager__cue-editor .block-editor-block-list__insertion-point,
+.videopress-caption-manager__cue-editor .block-list-appender {
 	display: none;
 }
 
@@ -336,7 +343,6 @@
 	}
 
 	.videopress-caption-manager__header,
-	.videopress-caption-manager__workspace,
 	.videopress-caption-manager__manual-panel,
 	.videopress-caption-manager__manual-meta,
 	.videopress-caption-cue {
@@ -352,13 +358,12 @@
 	}
 
 	.videopress-caption-manager__tracks {
-		border-right: 0;
-		border-bottom: 1px solid #dcdcde;
 		overflow: visible;
 	}
 
 	.videopress-caption-manager__upload-panel,
 	.videopress-caption-manager__manual-main,
+	.videopress-caption-manager__cue-editor,
 	.videopress-caption-manager__preview {
 		overflow: visible;
 	}

@@ -321,10 +321,12 @@ describe( 'CaptionManagerModal', () => {
 		const user = userEvent.setup();
 		render( <CaptionManagerModal { ...defaultProps } /> );
 
-		await user.click( screen.getByText( 'Upload file' ) );
-		expect( screen.getByText( 'Upload caption track' ) ).toBeInTheDocument();
+		expect( screen.getByText( 'Caption tracks' ) ).toBeInTheDocument();
+		expect( screen.queryByText( 'Upload file' ) ).not.toBeInTheDocument();
 
 		await user.click( screen.getByText( 'Add track' ) );
+		expect( screen.getByText( 'Back to tracks' ) ).toBeInTheDocument();
+		expect( screen.getByText( 'Upload file' ) ).toBeInTheDocument();
 		expect( screen.getByTestId( 'caption-block-editor' ) ).toBeInTheDocument();
 		expect( screen.getByLabelText( 'Cue text' ) ).toBeInTheDocument();
 	} );
@@ -335,6 +337,7 @@ describe( 'CaptionManagerModal', () => {
 
 		try {
 			render( <CaptionManagerModal { ...defaultProps } /> );
+			await user.click( screen.getByText( 'Add track' ) );
 			const cueText = screen.getByLabelText( 'Cue text' );
 			const video = screen.getByLabelText( 'Video preview' ) as HTMLVideoElement;
 			const setPaused = ( paused: boolean ) => {
@@ -381,6 +384,7 @@ describe( 'CaptionManagerModal', () => {
 			<CaptionManagerModal { ...defaultProps } onTracksChange={ onTracksChange } tracks={ [] } />
 		);
 
+		await user.click( screen.getByText( 'Add track' ) );
 		await user.click( screen.getByText( 'Upload file' ) );
 		await user.type( screen.getByLabelText( 'Label' ), 'Portuguese' );
 		await user.type( screen.getByLabelText( 'Language' ), 'pt-br' );
@@ -413,6 +417,7 @@ describe( 'CaptionManagerModal', () => {
 		const user = userEvent.setup();
 		render( <CaptionManagerModal { ...defaultProps } tracks={ [] } /> );
 
+		await user.click( screen.getByText( 'Add track' ) );
 		await user.click( screen.getByText( 'Upload file' ) );
 		await user.type( screen.getByLabelText( 'Language' ), 'auto_en' );
 		await user.upload(
@@ -466,6 +471,7 @@ describe( 'CaptionManagerModal', () => {
 		const user = userEvent.setup();
 		render( <CaptionManagerModal { ...defaultProps } tracks={ [] } /> );
 
+		await user.click( screen.getByText( 'Add track' ) );
 		await user.type( screen.getByLabelText( 'Label' ), 'English' );
 		await user.type( screen.getByLabelText( 'Language' ), 'en' );
 		await user.type( screen.getByLabelText( 'Cue text' ), 'Trail closed.' );
@@ -492,6 +498,7 @@ describe( 'CaptionManagerModal', () => {
 			<CaptionManagerModal { ...defaultProps } onTracksChange={ onTracksChange } tracks={ [] } />
 		);
 
+		await user.click( screen.getByText( 'Add track' ) );
 		await user.type( screen.getByLabelText( 'Label' ), 'English' );
 		await user.type( screen.getByLabelText( 'Language' ), 'en' );
 		await user.type( screen.getByLabelText( 'Cue text' ), 'Trail closed.' );
