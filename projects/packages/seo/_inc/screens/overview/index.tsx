@@ -9,9 +9,16 @@ import ContentCoverageCard from './content-coverage-card';
 import SiteVerificationCard from './site-verification-card';
 import SiteVisibilityCard from './site-visibility-card';
 import './style.scss';
+import type { ContentCoverage } from '../../data/overview-types';
 import type { FC } from 'react';
 
-const OverviewScreen: FC = () => {
+interface Props {
+	// Live coverage counts, lifted to the app root so Content-tab edits reflect
+	// here on tab switch without a page reload. Falls back to the bootstrap.
+	coverage: ContentCoverage | null;
+}
+
+const OverviewScreen: FC< Props > = ( { coverage } ) => {
 	const data = getOverview();
 	const navigate = useNavigate();
 
@@ -67,7 +74,9 @@ const OverviewScreen: FC = () => {
 					data={ data.site_verification }
 					onManage={ () => goToSection( 'verification' ) }
 				/>
-				<ContentCoverageCard data={ data.content_coverage } onManage={ goToContent } />
+			</div>
+			<div className="jetpack-seo-overview__content-card">
+				<ContentCoverageCard data={ coverage ?? data.content_coverage } onManage={ goToContent } />
 			</div>
 		</div>
 	);

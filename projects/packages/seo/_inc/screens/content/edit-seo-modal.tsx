@@ -18,6 +18,7 @@ import SerpPreview from './serp-preview';
 import type {
 	ContentPostType,
 	ContentRow,
+	CoverageDelta,
 	SchemaType,
 	SeoPostMeta,
 } from '../../data/content-types';
@@ -42,6 +43,9 @@ interface Props {
 	// The core endpoint to save through: 'post' or 'page'.
 	postType: ContentPostType;
 	onClose: () => void;
+	// Called after a successful save with the coverage delta to apply to the
+	// Overview card (so it updates without a page reload).
+	onSaved: ( delta: CoverageDelta ) => void;
 }
 
 // The editable subset of SEO meta the modal owns.
@@ -63,9 +67,10 @@ type EditableMeta = Pick<
  * @param props.row      - The row that opened the modal (initial field values).
  * @param props.postType - The core endpoint to save through ('post' | 'page').
  * @param props.onClose  - Called to dismiss the modal.
+ * @param props.onSaved  - Called after a successful save with the coverage delta.
  * @return The edit-SEO modal.
  */
-const EditSeoModal: FC< Props > = ( { row, postType, onClose } ) => {
+const EditSeoModal: FC< Props > = ( { row, postType, onClose, onSaved } ) => {
 	const { record, isResolving } = useEntityRecord( 'postType', postType, row.id );
 	const { editEntityRecord, saveEditedEntityRecord } = useDispatch( coreStore );
 	const { createInfoNotice, createSuccessNotice, createErrorNotice } = useDispatch( noticesStore );
@@ -118,6 +123,12 @@ const EditSeoModal: FC< Props > = ( { row, postType, onClose } ) => {
 				id: SAVE_NOTICE_ID,
 				type: 'snackbar',
 			} );
+			// Nudge the Overview coverage card to reflect this edit without a reload:
+			// +1/-1/0 per metric, comparing the row's prior state to what we saved.
+			onSaved( {
+				description: Number( local.advanced_seo_description !== '' ) - Number( row.hasDescription ),
+				schema: Number( local.jetpack_seo_schema_type !== '' ) - Number( row.schemaType !== '' ),
+			} );
 			onClose();
 		} catch ( error ) {
 			createErrorNotice(
@@ -135,8 +146,11 @@ const EditSeoModal: FC< Props > = ( { row, postType, onClose } ) => {
 		editEntityRecord,
 		local,
 		onClose,
+		onSaved,
 		postType,
+		row.hasDescription,
 		row.id,
+		row.schemaType,
 		saveEditedEntityRecord,
 	] );
 

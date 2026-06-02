@@ -79,7 +79,6 @@ class Initializer {
 	 */
 	const META_DESCRIPTION = 'advanced_seo_description';
 	const META_SCHEMA_TYPE = 'jetpack_seo_schema_type';
-	const META_NOINDEX     = 'jetpack_seo_noindex';
 
 	/**
 	 * Whether the package has been initialized.
@@ -324,7 +323,7 @@ class Initializer {
 	 * posts/pages have each SEO field set. State, not a score — the card shows
 	 * proportions + raw counts and lets the admin decide what matters.
 	 *
-	 * @return array{total:int,with_description:int,with_schema:int,noindexed:int}
+	 * @return array{total:int,with_description:int,with_schema:int}
 	 */
 	private static function get_content_coverage() {
 		$post_types = array( 'post', 'page' );
@@ -339,7 +338,6 @@ class Initializer {
 			'total'            => $total,
 			'with_description' => self::count_published_with_meta( $post_types, self::META_DESCRIPTION ),
 			'with_schema'      => self::count_published_with_meta( $post_types, self::META_SCHEMA_TYPE ),
-			'noindexed'        => self::count_published_with_meta( $post_types, self::META_NOINDEX, '1' ),
 		);
 	}
 

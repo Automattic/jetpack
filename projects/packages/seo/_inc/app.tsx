@@ -1,13 +1,16 @@
 import { AdminPage, ThemeProvider } from '@automattic/jetpack-components';
-import { useCallback } from '@wordpress/element';
+import { useCallback, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { useNavigate, useSearch } from '@wordpress/route';
 import { Tabs } from '@wordpress/ui';
+import getOverview from './data/get-overview';
 import { useSettingsForm } from './data/use-settings';
 import ContentScreen from './screens/content';
 import OverviewScreen from './screens/overview';
 import SettingsScreen from './screens/settings';
 import './admin-page-layout.scss';
+import type { CoverageDelta } from './data/content-types';
+import type { ContentCoverage } from './data/overview-types';
 import type { FC } from 'react';
 
 type StageSearch = Record< string, unknown > & { tab?: string };
@@ -27,6 +30,27 @@ const App: FC = () => {
 		search.tab === 'settings' || search.tab === 'content' ? search.tab : 'overview';
 	const navigate = useNavigate();
 	const settingsForm = useSettingsForm();
+
+	// Coverage counts live here (above the tabs) so a Content-tab edit reflects
+	// on the Overview card immediately on tab switch, without a reload. Seeded
+	// from the server bootstrap; nudged optimistically when a post's SEO saves.
+	const [ coverage, setCoverage ] = useState< ContentCoverage | null >(
+		() => getOverview()?.content_coverage ?? null
+	);
+
+	const onContentSaved = useCallback(
+		( delta: CoverageDelta ) =>
+			setCoverage( current =>
+				current
+					? {
+							...current,
+							with_description: current.with_description + delta.description,
+							with_schema: current.with_schema + delta.schema,
+					  }
+					: current
+			),
+		[]
+	);
 
 	const onTabChange = useCallback(
 		( next: string | null ) => {
@@ -64,7 +88,7 @@ const App: FC = () => {
 					</div>
 					<Tabs.Panel value="overview" focusable={ false }>
 						<div className="jetpack-seo-page-content">
-							<OverviewScreen />
+							<OverviewScreen coverage={ coverage } />
 						</div>
 					</Tabs.Panel>
 					<Tabs.Panel value="settings" focusable={ false }>
@@ -74,7 +98,7 @@ const App: FC = () => {
 					</Tabs.Panel>
 					<Tabs.Panel value="content" focusable={ false }>
 						<div className="jetpack-seo-page-content">
-							<ContentScreen />
+							<ContentScreen onSaved={ onContentSaved } />
 						</div>
 					</Tabs.Panel>
 				</Tabs.Root>

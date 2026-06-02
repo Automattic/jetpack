@@ -21,7 +21,6 @@ export interface ContentCoverage {
 	total: number;
 	with_description: number;
 	with_schema: number;
-	noindexed: number;
 }
 
 export interface OverviewResponse {

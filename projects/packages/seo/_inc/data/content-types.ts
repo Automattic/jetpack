@@ -42,3 +42,11 @@ export interface PostTypeOption {
 	value: ContentPostType;
 	label: string;
 }
+
+// Optimistic adjustment applied to the Overview coverage counts when a post's
+// SEO is saved on the Content tab: +1 / -1 / 0 per metric depending on whether
+// the field became set or unset.
+export interface CoverageDelta {
+	description: number;
+	schema: number;
+}

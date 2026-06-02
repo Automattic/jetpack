@@ -1,6 +1,6 @@
 import { DonutMeter } from '@automattic/jetpack-components';
 import { Button } from '@wordpress/components';
-import { __, _n, sprintf } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import { Card } from '@wordpress/ui';
 import type { ContentCoverage } from '../../data/overview-types';
 import type { FC } from 'react';
@@ -55,7 +55,7 @@ const CoverageRing: FC< RingProps > = ( { label, segment, total } ) => (
 );
 
 const ContentCoverageCard: FC< Props > = ( { data, onManage } ) => {
-	const { total, with_description, with_schema, noindexed } = data;
+	const { total, with_description, with_schema } = data;
 
 	return (
 		<Card.Root>
@@ -66,34 +66,18 @@ const ContentCoverageCard: FC< Props > = ( { data, onManage } ) => {
 				{ total === 0 ? (
 					<p>{ __( 'No published posts or pages yet.', 'jetpack-seo' ) }</p>
 				) : (
-					<>
-						<div className="jetpack-seo-overview__coverage-rings">
-							<CoverageRing
-								label={ __( 'Meta description', 'jetpack-seo' ) }
-								segment={ with_description }
-								total={ total }
-							/>
-							<CoverageRing
-								label={ __( 'Schema type', 'jetpack-seo' ) }
-								segment={ with_schema }
-								total={ total }
-							/>
-						</div>
-						{ noindexed > 0 && (
-							<p className="jetpack-seo-overview__coverage-note">
-								{ sprintf(
-									/* translators: %d: number of published posts/pages hidden from search engines. */
-									_n(
-										'%d post hidden from search engines',
-										'%d posts hidden from search engines',
-										noindexed,
-										'jetpack-seo'
-									),
-									noindexed
-								) }
-							</p>
-						) }
-					</>
+					<div className="jetpack-seo-overview__coverage-rings">
+						<CoverageRing
+							label={ __( 'Meta description', 'jetpack-seo' ) }
+							segment={ with_description }
+							total={ total }
+						/>
+						<CoverageRing
+							label={ __( 'Schema type', 'jetpack-seo' ) }
+							segment={ with_schema }
+							total={ total }
+						/>
+					</div>
 				) }
 				<div className="jetpack-seo-overview__card-footer">
 					<Button variant="secondary" onClick={ onManage }>

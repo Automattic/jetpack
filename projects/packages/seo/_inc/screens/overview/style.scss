@@ -70,8 +70,8 @@
 	font-size: 12px;
 }
 
-.jetpack-seo-overview__coverage-note {
-	margin: var(--wpds-dimension-gap-md, 12px) 0 0;
-	color: var(--wpds-color-fg-content-neutral-weak, #787c82);
-	font-size: 12px;
+// The Content SEO card sits below the two status cards, spanning the full
+// width of its own row. Margin matches the grid gap above it.
+.jetpack-seo-overview__content-card {
+	margin-top: var(--wpds-dimension-gap-lg, 16px);
 }

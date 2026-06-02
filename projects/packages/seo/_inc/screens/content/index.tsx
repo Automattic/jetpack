@@ -1,11 +1,12 @@
 import { DataViews } from '@wordpress/dataviews';
 import { useCallback, useMemo, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { pencil } from '@wordpress/icons';
 import { Badge, Link } from '@wordpress/ui';
 import useSeoPosts from '../../data/use-seo-posts';
 import EditSeoModal from './edit-seo-modal';
 import './style.scss';
-import type { ContentPostType, ContentRow } from '../../data/content-types';
+import type { ContentPostType, ContentRow, CoverageDelta } from '../../data/content-types';
 import type { Action, Field, Operator, View } from '@wordpress/dataviews';
 import type { FC } from 'react';
 
@@ -15,6 +16,9 @@ import type { FC } from 'react';
 const POST_TYPE_FIELD = 'postType';
 const SCHEMA_FIELD = 'schemaType';
 const DESCRIPTION_FIELD = 'description';
+// Filter-only field id for search visibility; the displayed column is
+// 'searchVisibility'. Filtered client-side on the loaded page like the others.
+const SEARCH_FIELD = 'searchFilter';
 
 // Pre-resolved labels so the production minifier can't fold an adjacent
 // `cond ? __(A) : __(B)` into `__(cond ? A : B)`, which breaks i18n
@@ -65,7 +69,13 @@ function schemaLabel( schemaType: ContentRow[ 'schemaType' ] ): string {
  *
  * @return The Content tab content.
  */
-const ContentScreen: FC = () => {
+interface Props {
+	// Called after a successful per-post SEO save, with the coverage delta to
+	// apply to the Overview card (so it reflects the edit without a reload).
+	onSaved: ( delta: CoverageDelta ) => void;
+}
+
+const ContentScreen: FC< Props > = ( { onSaved } ) => {
 	const [ view, setView ] = useState< View >( DEFAULT_VIEW );
 	const [ editing, setEditing ] = useState< ContentRow | null >( null );
 
@@ -91,6 +101,7 @@ const ContentScreen: FC = () => {
 		const schemaValue = view.filters?.find( filter => filter.field === SCHEMA_FIELD )?.value;
 		const descriptionValue = view.filters?.find( filter => filter.field === DESCRIPTION_FIELD )
 			?.value;
+		const searchValue = view.filters?.find( filter => filter.field === SEARCH_FIELD )?.value;
 
 		return items.filter( item => {
 			if ( schemaValue !== undefined && schemaValue !== '' && item.schemaType !== schemaValue ) {
@@ -103,6 +114,12 @@ const ContentScreen: FC = () => {
 				return false;
 			}
 			if ( descriptionValue === 'not_set' && item.hasDescription ) {
+				return false;
+			}
+			if ( searchValue === 'visible' && item.noindex ) {
+				return false;
+			}
+			if ( searchValue === 'hidden' && ! item.noindex ) {
 				return false;
 			}
 			return true;
@@ -187,6 +204,19 @@ const ContentScreen: FC = () => {
 					</Badge>
 				),
 			},
+			{
+				id: SEARCH_FIELD,
+				label: __( 'Search visibility', 'jetpack-seo' ),
+				elements: [
+					{ value: 'visible', label: visibleLabel },
+					{ value: 'hidden', label: hiddenLabel },
+				],
+				filterBy: { operators: [ 'is' ] as Operator[] },
+				enableSorting: false,
+				enableHiding: false,
+				render: () => null,
+				getValue: () => null,
+			},
 		],
 		[]
 	);
@@ -196,6 +226,7 @@ const ContentScreen: FC = () => {
 			{
 				id: 'edit-seo',
 				label: __( 'Edit SEO', 'jetpack-seo' ),
+				icon: pencil,
 				isPrimary: true,
 				supportsBulk: false,
 				callback: ( rows: ContentRow[] ) => {
@@ -231,7 +262,14 @@ const ContentScreen: FC = () => {
 				defaultLayouts={ defaultLayouts }
 				actions={ actions as Action< unknown >[] }
 			/>
-			{ editing && <EditSeoModal row={ editing } postType={ postType } onClose={ closeModal } /> }
+			{ editing && (
+				<EditSeoModal
+					row={ editing }
+					postType={ postType }
+					onClose={ closeModal }
+					onSaved={ onSaved }
+				/>
+			) }
 		</div>
 	);
 };
