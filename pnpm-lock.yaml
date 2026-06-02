@@ -4520,6 +4520,112 @@ importers:
         specifier: 6.0.1
         version: 6.0.1(webpack@5.105.2)
 
+  projects/packages/seo:
+    dependencies:
+      '@automattic/babel-plugin-replace-textdomain':
+        specifier: workspace:*
+        version: link:../../js-packages/babel-plugin-replace-textdomain
+      '@automattic/jetpack-base-styles':
+        specifier: workspace:*
+        version: link:../../js-packages/base-styles
+      '@automattic/jetpack-components':
+        specifier: workspace:*
+        version: link:../../js-packages/components
+      '@automattic/jetpack-script-data':
+        specifier: workspace:*
+        version: link:../../js-packages/script-data
+      '@automattic/jetpack-wp-build-polyfills':
+        specifier: workspace:*
+        version: link:../wp-build-polyfills
+      '@wordpress/components':
+        specifier: 33.1.0
+        version: 33.1.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@wordpress/element':
+        specifier: 6.46.0
+        version: 6.46.0
+      '@wordpress/i18n':
+        specifier: 6.19.0
+        version: 6.19.0
+      '@wordpress/icons':
+        specifier: 13.1.0
+        version: 13.1.0(react@18.3.1)
+      '@wordpress/route':
+        specifier: 0.12.0
+        version: 0.12.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@wordpress/ui':
+        specifier: 0.13.0
+        version: 0.13.0(@types/react@18.3.28)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@wordpress/url':
+        specifier: 4.46.0
+        version: 4.46.0
+      clsx:
+        specifier: 2.1.1
+        version: 2.1.1
+    devDependencies:
+      '@babel/core':
+        specifier: 7.29.0
+        version: 7.29.0
+      '@babel/preset-env':
+        specifier: 7.29.2
+        version: 7.29.2(@babel/core@7.29.0)
+      '@testing-library/dom':
+        specifier: 10.4.1
+        version: 10.4.1
+      '@testing-library/jest-dom':
+        specifier: 6.9.1
+        version: 6.9.1
+      '@testing-library/react':
+        specifier: 16.3.2
+        version: 16.3.2(@testing-library/dom@10.4.1)(@types/react-dom@18.3.7(@types/react@18.3.28))(@types/react@18.3.28)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@types/jest':
+        specifier: 30.0.0
+        version: 30.0.0
+      '@types/node':
+        specifier: ^24.12.0
+        version: 24.12.3
+      '@types/react':
+        specifier: 18.3.28
+        version: 18.3.28
+      '@types/react-dom':
+        specifier: 18.3.7
+        version: 18.3.7(@types/react@18.3.28)
+      '@typescript/native-preview':
+        specifier: 7.0.0-dev.20260225.1
+        version: 7.0.0-dev.20260225.1
+      '@wordpress/base-styles':
+        specifier: 8.0.0
+        version: 8.0.0
+      '@wordpress/browserslist-config':
+        specifier: 6.46.0
+        version: 6.46.0
+      '@wordpress/build':
+        specifier: 0.14.0
+        version: 0.14.0(@babel/core@7.29.0)(@wordpress/route@0.12.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@wordpress/theme@0.13.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(browserslist@4.28.2)
+      '@wordpress/theme':
+        specifier: 0.13.0
+        version: 0.13.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      browserslist:
+        specifier: ^4.24.0
+        version: 4.28.2
+      jest:
+        specifier: 30.4.2
+        version: 30.4.2(@types/node@24.12.3)
+      react:
+        specifier: 18.3.1
+        version: 18.3.1
+      react-dom:
+        specifier: 18.3.1
+        version: 18.3.1(react@18.3.1)
+      sass-embedded:
+        specifier: 1.97.3
+        version: 1.97.3
+      sass-loader:
+        specifier: 16.0.5
+        version: 16.0.5(sass-embedded@1.97.3)
+      typescript:
+        specifier: 5.9.3
+        version: 5.9.3
+
   projects/packages/stats-admin: {}
 
   projects/packages/transport-helper: {}
@@ -32230,6 +32336,12 @@ snapshots:
       sass-embedded-linux-x64: 1.97.3
       sass-embedded-win32-arm64: 1.97.3
       sass-embedded-win32-x64: 1.97.3
+
+  sass-loader@16.0.5(sass-embedded@1.97.3):
+    dependencies:
+      neo-async: 2.6.2
+    optionalDependencies:
+      sass-embedded: 1.97.3
 
   sass-loader@16.0.5(sass-embedded@1.97.3)(webpack@5.105.2):
     dependencies:
