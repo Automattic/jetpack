@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+JetpackFooter: add a `showDefaultLinks` prop (default `true`) to opt out of the built-in Products/Help links.

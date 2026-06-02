@@ -10,7 +10,7 @@
  * @package
  */
 
-import { AdminPage } from '@automattic/jetpack-components';
+import { AdminPage, JetpackFooter } from '@automattic/jetpack-components';
 import {
 	createInterpolateElement,
 	useCallback,
@@ -23,7 +23,6 @@ import { __, sprintf } from '@wordpress/i18n';
 import { Button, Card, Link, Notice, Stack, Text } from '@wordpress/ui';
 import { errorMessage, getPlugin } from '../api/abilities';
 import BranchSection from '../components/branch-section';
-import Footer from '../components/footer';
 import MarkdownPanel from '../components/markdown-panel';
 import { CardRowSkeleton } from '../components/skeleton';
 import UpdatesPanel from '../components/updates-panel';
@@ -89,6 +88,7 @@ const groupSections = ( sections: BranchCardType[] ): Map< string, BranchCardTyp
  * My Jetpack screens use) — same `@wordpress/ui` primitives, `/` separator, and
  * an `h1` current item — but links with a real anchor instead of the TanStack
  * router `Link` that component depends on, since this admin page has no router.
+ * Tracked upstream: https://github.com/WordPress/gutenberg/issues/77039
  *
  * @param pluginName - The current plugin name, or null while loading.
  * @return The breadcrumb element.
@@ -243,14 +243,12 @@ const PluginManage = ( { slug }: Props ) => {
 										<Card.Content>
 											<Stack direction="row" align="center" justify="space-between">
 												<Stack direction="column" gap="xs">
-													<Card.Title>
-														<Text variant="body-md" render={ <h2 /> }>
-															{ sprintf(
-																/* translators: %s: plugin name. */
-																__( '%s — Currently Running', 'jetpack-beta' ),
-																view.name
-															) }
-														</Text>
+													<Card.Title render={ <h2 /> }>
+														{ sprintf(
+															/* translators: %s: plugin name. */
+															__( '%s — Currently Running', 'jetpack-beta' ),
+															view.name
+														) }
 													</Card.Title>
 													<Text variant="body-sm">
 														{ view.currently_running.pretty_version ??
@@ -258,6 +256,10 @@ const PluginManage = ( { slug }: Props ) => {
 															'' }
 													</Text>
 												</Stack>
+												{ /* A link styled as a button (it navigates to the bug-report URL).
+												     Until a first-class link-button lands upstream
+												     (https://github.com/WordPress/gutenberg/issues/77098) we render
+												     Button as an anchor so it stays a real, focusable link. */ }
 												<Button
 													variant="outline"
 													tone="neutral"
@@ -312,7 +314,7 @@ const PluginManage = ( { slug }: Props ) => {
 					</Stack>
 				</div>
 			</div>
-			<Footer />
+			<JetpackFooter showDefaultLinks={ false } />
 		</AdminPage>
 	);
 };

@@ -8,9 +8,8 @@
  * @package
  */
 
-import { AdminPage } from '@automattic/jetpack-components';
+import { AdminPage, JetpackFooter } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
-import Footer from './components/footer';
 import PluginList from './screens/plugin-list';
 import PluginManage from './screens/plugin-manage';
 
@@ -40,7 +39,7 @@ const App = () => {
 			unwrapped
 		>
 			<PluginList />
-			<Footer />
+			<JetpackFooter showDefaultLinks={ false } />
 		</AdminPage>
 	);
 };
