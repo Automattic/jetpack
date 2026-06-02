@@ -102,7 +102,7 @@ class Beta_Abilities extends Registrar {
 		return array(
 			'label'               => __( 'List Jetpack Beta plugins', 'jetpack-beta' ),
 			'description'         => __(
-				'Return an array of all plugins known to the Jetpack Beta Tester, together with the currently-active branch and version for each. Shape: { plugins: [ { slug, name, active_which, active_version, manage_url } ] }. `active_which` is "stable", "dev", or null when the plugin is not active. `active_version` is the human-readable pretty version, or null when not active. `manage_url` is the wp-admin URL for the plugin\'s manage screen. Read-only and idempotent — safe to poll.',
+				'Return an array of all plugins known to the Jetpack Beta Tester, together with the currently-active branch and version for each. Shape: { plugins: [ { slug, name, active_which, active_version, active_version_detail, manage_url } ] }. `active_which` is "stable", "dev", or null when the plugin is not active. `active_version` is the human-readable pretty version (a channel label like "Bleeding Edge" for dev branches), or null when not active. `active_version_detail` is the concrete underlying version for dev branches, or null. `manage_url` is the wp-admin URL for the plugin\'s manage screen. Read-only and idempotent — safe to poll.',
 				'jetpack-beta'
 			),
 			'input_schema'        => array(
@@ -123,11 +123,12 @@ class Beta_Abilities extends Registrar {
 						'items' => array(
 							'type'       => 'object',
 							'properties' => array(
-								'slug'           => array( 'type' => 'string' ),
-								'name'           => array( 'type' => 'string' ),
-								'active_which'   => array( 'type' => array( 'string', 'null' ) ),
-								'active_version' => array( 'type' => array( 'string', 'null' ) ),
-								'manage_url'     => array( 'type' => 'string' ),
+								'slug'                  => array( 'type' => 'string' ),
+								'name'                  => array( 'type' => 'string' ),
+								'active_which'          => array( 'type' => array( 'string', 'null' ) ),
+								'active_version'        => array( 'type' => array( 'string', 'null' ) ),
+								'active_version_detail' => array( 'type' => array( 'string', 'null' ) ),
+								'manage_url'            => array( 'type' => 'string' ),
 							),
 						),
 					),
@@ -419,23 +420,32 @@ class Beta_Abilities extends Registrar {
 
 		$plugins = array();
 		foreach ( $all_plugins as $slug => $plugin ) {
+			$active_version_detail = null;
 			if ( $plugin->is_active( 'stable' ) ) {
 				$active_which   = 'stable';
 				$active_version = $plugin->stable_pretty_version();
 			} elseif ( $plugin->is_active( 'dev' ) ) {
 				$active_which   = 'dev';
 				$active_version = $plugin->dev_pretty_version();
+				// dev_pretty_version() is just a channel label ("Bleeding Edge",
+				// "Release Candidate", "Feature Branch: …"), so surface the concrete
+				// running version separately the way the manage screen does.
+				$dev_info = $plugin->dev_info();
+				if ( $dev_info && ! is_wp_error( $dev_info ) && isset( $dev_info->version ) ) {
+					$active_version_detail = $dev_info->version;
+				}
 			} else {
 				$active_which   = null;
 				$active_version = null;
 			}
 
 			$plugins[] = array(
-				'slug'           => $slug,
-				'name'           => $plugin->get_name(),
-				'active_which'   => $active_which,
-				'active_version' => $active_version,
-				'manage_url'     => Utils::admin_url( array( 'plugin' => $slug ) ),
+				'slug'                  => $slug,
+				'name'                  => $plugin->get_name(),
+				'active_which'          => $active_which,
+				'active_version'        => $active_version,
+				'active_version_detail' => $active_version_detail,
+				'manage_url'            => Utils::admin_url( array( 'plugin' => $slug ) ),
 			);
 		}
 

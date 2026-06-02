@@ -24,21 +24,26 @@ import type { PluginListItem } from '../api/types';
  */
 const pluginStatus = (
 	plugin: PluginListItem
-): { versionText: string; badgeLabel: string | null } => {
+): { versionText: string; versionDetail: string | null; badgeLabel: string | null } => {
 	if ( plugin.active_which === 'dev' ) {
 		return {
 			versionText: plugin.active_version ?? '',
+			// The pretty version is just a channel label ("Bleeding Edge" etc.), so
+			// show the concrete running version too — matching the manage screen.
+			versionDetail: plugin.active_version_detail ?? null,
 			badgeLabel: __( 'Dev', 'jetpack-beta' ),
 		};
 	}
 	if ( plugin.active_which === 'stable' ) {
 		return {
 			versionText: plugin.active_version ?? '',
+			versionDetail: null,
 			badgeLabel: __( 'Stable', 'jetpack-beta' ),
 		};
 	}
 	return {
 		versionText: __( 'Plugin is not active', 'jetpack-beta' ),
+		versionDetail: null,
 		badgeLabel: null,
 	};
 };
@@ -53,7 +58,7 @@ const pluginStatus = (
  * @return The plugin row element.
  */
 const PluginCard = ( { plugin }: { plugin: PluginListItem } ) => {
-	const { versionText, badgeLabel } = pluginStatus( plugin );
+	const { versionText, versionDetail, badgeLabel } = pluginStatus( plugin );
 	// Plugins without wordpress.org assets (unpublished betas) fall back to a
 	// generic plugin icon so every row stays visually aligned.
 	const [ iconFailed, setIconFailed ] = useState( false );
@@ -105,6 +110,7 @@ const PluginCard = ( { plugin }: { plugin: PluginListItem } ) => {
 								</Badge>
 							) }
 						</Stack>
+						{ versionDetail && <Text variant="body-sm">{ versionDetail }</Text> }
 					</Stack>
 				</Stack>
 				<Icon icon={ chevronRight } size={ 24 } />
