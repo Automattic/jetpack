@@ -16,6 +16,7 @@ on:
       - Tests
       - Update Jetpack Staging Test Sites
       - Update Phan stubs
+      - WP Cloud Unit Testing for WPCOMSH
     branches: [ 'trunk', 'prerelease', '*/branch-*' ]
 
 permissions:
