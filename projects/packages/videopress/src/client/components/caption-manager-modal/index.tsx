@@ -126,6 +126,8 @@ const DRAFT_NOTICE_LABELS: Record< 'draft' | 'publish', string > = {
 	publish: __( 'Caption draft saved for publishing.', 'jetpack-videopress-pkg' ),
 };
 
+const PREVIEW_RESUME_DELAY_MS = 1200;
+
 const emptyUploadForm = (): UploadFormTrack => ( {
 	kind: DEFAULT_KIND,
 	srcLang: '',
@@ -224,6 +226,8 @@ export default function CaptionManagerModal( {
 	onTracksChange,
 }: CaptionManagerModalProps ): ReactElement | null {
 	const videoRef = useRef< HTMLVideoElement >( null );
+	const previewResumeTimerRef = useRef< ReturnType< typeof setTimeout > | null >( null );
+	const shouldResumePreviewAfterTypingRef = useRef( false );
 	const [ workspaceMode, setWorkspaceMode ] = useState< WorkspaceMode >( 'manual' );
 	const [ uploadForm, setUploadForm ] = useState< UploadFormTrack >( emptyUploadForm );
 	const [ uploadFormMode, setUploadFormMode ] = useState< UploadFormMode >( 'add' );
@@ -243,6 +247,27 @@ export default function CaptionManagerModal( {
 	const [ currentTime, setCurrentTime ] = useState( 0 );
 	const [ pauseWhileTyping, setPauseWhileTyping ] = useState( true );
 	const [ shortcutsOpen, setShortcutsOpen ] = useState( false );
+
+	const clearPreviewResumeTimer = useCallback( () => {
+		if ( previewResumeTimerRef.current ) {
+			clearTimeout( previewResumeTimerRef.current );
+			previewResumeTimerRef.current = null;
+		}
+	}, [] );
+
+	useEffect( () => clearPreviewResumeTimer, [ clearPreviewResumeTimer ] );
+
+	useEffect( () => {
+		if ( pauseWhileTyping ) {
+			return;
+		}
+
+		clearPreviewResumeTimer();
+		if ( shouldResumePreviewAfterTypingRef.current && videoRef.current?.paused ) {
+			videoRef.current.play().catch( error => debug( 'resume preview after typing error', error ) );
+		}
+		shouldResumePreviewAfterTypingRef.current = false;
+	}, [ clearPreviewResumeTimer, pauseWhileTyping ] );
 
 	useEffect( () => {
 		setManagedTracks( tracks );
@@ -869,11 +894,38 @@ export default function CaptionManagerModal( {
 		] );
 	}, [ currentTime ] );
 
+	const schedulePreviewResume = useCallback( () => {
+		clearPreviewResumeTimer();
+
+		previewResumeTimerRef.current = setTimeout( () => {
+			previewResumeTimerRef.current = null;
+
+			if ( ! shouldResumePreviewAfterTypingRef.current ) {
+				return;
+			}
+
+			shouldResumePreviewAfterTypingRef.current = false;
+			const video = videoRef.current;
+			if ( video?.paused ) {
+				video.play().catch( error => debug( 'resume preview after typing error', error ) );
+			}
+		}, PREVIEW_RESUME_DELAY_MS );
+	}, [ clearPreviewResumeTimer ] );
+
 	const pausePreviewWhileTyping = useCallback( () => {
-		if ( pauseWhileTyping && videoRef.current && ! videoRef.current.paused ) {
+		if ( ! pauseWhileTyping || ! videoRef.current ) {
+			return;
+		}
+
+		if ( ! videoRef.current.paused ) {
+			shouldResumePreviewAfterTypingRef.current = true;
 			videoRef.current.pause();
 		}
-	}, [ pauseWhileTyping ] );
+
+		if ( shouldResumePreviewAfterTypingRef.current ) {
+			schedulePreviewResume();
+		}
+	}, [ pauseWhileTyping, schedulePreviewResume ] );
 
 	const uploadFormTitle = UPLOAD_FORM_TITLE_LABELS[ uploadFormMode ];
 	const fileName = uploadForm.tmpFile?.name;
@@ -1106,7 +1158,7 @@ export default function CaptionManagerModal( {
 							<div className="videopress-caption-manager__manual-panel">
 								<div
 									className="videopress-caption-manager__manual-main"
-									onFocus={ pausePreviewWhileTyping }
+									onInput={ pausePreviewWhileTyping }
 								>
 									<div className="videopress-caption-manager__manual-meta">
 										<TextControl
@@ -1169,6 +1221,7 @@ export default function CaptionManagerModal( {
 										{ videoSrc ? (
 											<video
 												ref={ videoRef }
+												aria-label={ __( 'Video preview', 'jetpack-videopress-pkg' ) }
 												src={ videoSrc }
 												poster={ poster }
 												controls

@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from '@testing-library/react';
+import { act, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import CaptionManagerModal from '..';
 import {
@@ -327,6 +327,51 @@ describe( 'CaptionManagerModal', () => {
 		await user.click( screen.getByText( 'Add track' ) );
 		expect( screen.getByTestId( 'caption-block-editor' ) ).toBeInTheDocument();
 		expect( screen.getByLabelText( 'Cue text' ) ).toBeInTheDocument();
+	} );
+
+	it( 'pauses the preview only while the user is actively typing', async () => {
+		jest.useFakeTimers();
+		const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
+
+		try {
+			render( <CaptionManagerModal { ...defaultProps } /> );
+			const cueText = screen.getByLabelText( 'Cue text' );
+			const video = screen.getByLabelText( 'Video preview' ) as HTMLVideoElement;
+			const setPaused = ( paused: boolean ) => {
+				Object.defineProperty( video, 'paused', {
+					configurable: true,
+					value: paused,
+				} );
+			};
+			const pause = jest.fn( () => setPaused( true ) );
+			const play = jest.fn( () => {
+				setPaused( false );
+				return Promise.resolve();
+			} );
+
+			setPaused( false );
+			Object.defineProperty( video, 'pause', { configurable: true, value: pause } );
+			Object.defineProperty( video, 'play', { configurable: true, value: play } );
+
+			await user.click( cueText );
+			await user.keyboard( '{ArrowRight}' );
+
+			expect( pause ).not.toHaveBeenCalled();
+
+			await user.type( cueText, 'T' );
+
+			expect( pause ).toHaveBeenCalledTimes( 1 );
+			expect( play ).not.toHaveBeenCalled();
+
+			await act( async () => {
+				jest.advanceTimersByTime( 1200 );
+				await Promise.resolve();
+			} );
+
+			expect( play ).toHaveBeenCalledTimes( 1 );
+		} finally {
+			jest.useRealTimers();
+		}
 	} );
 
 	it( 'uploads a new track with a canonicalized BCP-47 language tag', async () => {
