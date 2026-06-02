@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Tour Kit: migrate positioning from the archived react-popper / @popperjs/core libraries to @floating-ui/react-dom. The Config `popperModifiers` option is renamed to `floatingMiddleware` and now takes Floating UI middleware.

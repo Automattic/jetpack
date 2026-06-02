@@ -1,6 +1,6 @@
-import * as PopperJS from '@popperjs/core';
 import { SpotlightInteractivityConfiguration } from './components/tour-kit-spotlight-interactivity';
-import { LiveResizeConfiguration } from './utils/live-resize-modifier';
+import { LiveResizeConfiguration } from './utils/live-resize';
+import type { Middleware, Placement } from '@floating-ui/react-dom';
 import type {
 	CSSProperties,
 	Dispatch,
@@ -8,7 +8,6 @@ import type {
 	ReactElement,
 	SetStateAction,
 } from 'react';
-import type { Modifier } from 'react-popper';
 
 export interface Step {
 	slug?: string;
@@ -59,7 +58,7 @@ export type TourStepRenderer = FunctionComponent< TourStepRendererProps >;
 export type MinimizedTourRenderer = FunctionComponent< MinimizedTourRendererProps >;
 export type Callback = ( currentStepIndex: number ) => void;
 export type CloseHandler = ( steps: Step[], currentStepIndex: number, source: string ) => void;
-export type PopperModifier = Partial< Modifier< unknown, Record< string, unknown > > >;
+export type FloatingMiddleware = Middleware;
 
 export interface Callbacks {
 	onMinimize?: Callback;
@@ -101,7 +100,7 @@ export interface Options {
 		/** Configures the behaviour for automatically resizing the tour kit elements (TourKitFrame and Spotlight). Defaults to disabled. */
 		liveResize?: LiveResizeConfiguration;
 	};
-	popperModifiers?: PopperModifier[];
+	floatingMiddleware?: FloatingMiddleware[];
 	portalParentElement?: HTMLElement | null;
 }
 
@@ -114,7 +113,7 @@ export interface Config {
 	closeHandler: CloseHandler;
 	isMinimized?: boolean;
 	options?: Options;
-	placement?: PopperJS.Placement;
+	placement?: Placement;
 }
 
 export type Tour = FunctionComponent< { config: Config } >;

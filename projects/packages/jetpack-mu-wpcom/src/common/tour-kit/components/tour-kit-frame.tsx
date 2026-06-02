@@ -1,10 +1,10 @@
+import { arrow, flip, offset, shift, useFloating } from '@floating-ui/react-dom';
 import { useViewportMatch } from '@wordpress/compose';
-import { useEffect, useState, useCallback, useMemo, useRef } from '@wordpress/element';
+import { useEffect, useState, useCallback, useRef } from '@wordpress/element';
 import clsx from 'clsx';
-import { usePopper } from 'react-popper';
 import useStepTracking from '../hooks/use-step-tracking';
 import { classParser } from '../utils';
-import { liveResizeModifier } from '../utils/live-resize-modifier';
+import { createLiveResizeAutoUpdate } from '../utils/live-resize';
 import KeyboardNavigation from './keyboard-navigation';
 import TourKitMinimized from './tour-kit-minimized';
 import Overlay from './tour-kit-overlay';
@@ -28,8 +28,7 @@ const TourKitFrame: FunctionComponent< Props > = ( { config } ) => {
 	);
 	const [ isMinimized, setIsMinimized ] = useState( config.isMinimized ?? false );
 
-	const [ popperElement, setPopperElement ] = useState< HTMLElement | null >( null );
-	const [ tourReady, setTourReady ] = useState( false );
+	const arrowRef = useRef< HTMLDivElement >( null );
 	const tourContainerRef = useRef( null );
 	const isMobile = useViewportMatch( 'mobile', '<' );
 	const lastStepIndex = config.steps.length - 1;
@@ -46,13 +45,11 @@ const TourKitFrame: FunctionComponent< Props > = ( { config } ) => {
 		}
 	}, [ config.isMinimized ] );
 
-	const showArrowIndicator = useCallback( () => {
-		if ( config.options?.effects?.arrowIndicator === false ) {
-			return false;
-		}
-
-		return !! ( referenceElement && ! isMinimized && tourReady );
-	}, [ config.options?.effects?.arrowIndicator, isMinimized, referenceElement, tourReady ] );
+	// Whether the arrow indicator is enabled for this step. Used both to reserve room for the arrow
+	// in the floating element's offset and to render the arrow element. The whole frame stays hidden
+	// until positioned (see `tourReady` and the `is-visible` class), so this doesn't gate on it.
+	const arrowIndicatorEnabled =
+		config.options?.effects?.arrowIndicator !== false && !! referenceElement && ! isMinimized;
 
 	const showSpotlight = useCallback( () => {
 		if ( ! config.options?.effects?.spotlight ) {
@@ -115,60 +112,48 @@ const TourKitFrame: FunctionComponent< Props > = ( { config } ) => {
 		handleCallback( currentStepIndex, config.options?.callbacks?.onMaximize );
 	}, [ config.options?.callbacks?.onMaximize, currentStepIndex ] );
 
-	const {
-		styles: popperStyles,
-		attributes: popperAttributes,
-		update: popperUpdate,
-	} = usePopper( referenceElement, popperElement, {
+	const arrowGap = arrowIndicatorEnabled ? 12 : 10;
+
+	const { refs, floatingStyles, placement, middlewareData, isPositioned } = useFloating( {
 		strategy: 'fixed',
 		placement: config?.placement ?? 'bottom',
-		modifiers: [
-			{
-				name: 'preventOverflow',
-				options: {
-					rootBoundary: 'document',
-					padding: 16, // same as the left/margin of the tour frame
-				},
-			},
-			{
-				name: 'arrow',
-				options: {
-					padding: 12,
-				},
-			},
-			{
-				name: 'offset',
-				options: {
-					offset: [ 0, showArrowIndicator() ? 12 : 10 ],
-				},
-			},
-			{
-				name: 'flip',
-				options: {
-					fallbackPlacements: [ 'top', 'left', 'right' ],
-				},
-			},
-			useMemo(
-				() => liveResizeModifier( config.options?.effects?.liveResize ),
-				[ config.options?.effects?.liveResize ]
-			),
-			...( config.options?.popperModifiers || [] ),
+		elements: { reference: referenceElement },
+		whileElementsMounted: createLiveResizeAutoUpdate( config.options?.effects?.liveResize ),
+		middleware: [
+			offset( arrowGap, [ arrowGap ] ),
+			flip( { fallbackPlacements: [ 'top', 'left', 'right' ] } ),
+			// `padding` matches the left/margin of the tour frame.
+			shift( { padding: 16, rootBoundary: 'document' } ),
+			arrow( { element: arrowRef, padding: 12 } ),
+			...( config.options?.floatingMiddleware ?? [] ),
 		],
 	} );
 
+	// Ready immediately when there's no reference element to position against, otherwise once
+	// Floating UI has positioned the frame. Drives the `is-visible` class on the outer frame, which
+	// keeps the whole tour `visibility: hidden` until it is correctly positioned.
+	const tourReady = ! referenceElement || isPositioned;
+
+	const { x: arrowX, y: arrowY } = middlewareData.arrow ?? {};
+
+	// The outer `.tour-kit-frame` is hidden until `tourReady`, so positioning props are applied as
+	// soon as there's a reference element. This also ensures the arrow element is mounted before
+	// Floating UI computes its position, so the `arrow` middleware can measure it.
 	const stepRepositionProps =
-		! isMinimized && referenceElement && tourReady
+		! isMinimized && referenceElement
 			? {
-					style: popperStyles?.popper,
-					...popperAttributes?.popper,
+					style: floatingStyles,
+					'data-placement': placement,
 			  }
 			: null;
 
 	const arrowPositionProps =
-		! isMinimized && referenceElement && tourReady
+		! isMinimized && referenceElement
 			? {
-					style: popperStyles?.arrow,
-					...popperAttributes?.arrow,
+					style: {
+						left: arrowX != null ? `${ arrowX }px` : '',
+						top: arrowY != null ? `${ arrowY }px` : '',
+					},
 			  }
 			: null;
 
@@ -178,26 +163,6 @@ const TourKitFrame: FunctionComponent< Props > = ( { config } ) => {
 	useEffect( () => {
 		setTimeout( () => initialFocusedElement?.focus() );
 	}, [ initialFocusedElement ] );
-
-	/*
-	 * Fixes issue with Popper misplacing the instance on mount
-	 * See: https://stackoverflow.com/questions/65585859/react-popper-incorrect-position-on-mount
-	 */
-	useEffect( () => {
-		// If no reference element to position step near
-		if ( ! referenceElement ) {
-			setTourReady( true );
-			return;
-		}
-
-		setTourReady( false );
-
-		if ( popperUpdate ) {
-			popperUpdate()
-				.then( () => setTourReady( true ) )
-				.catch( () => setTourReady( true ) );
-		}
-	}, [ popperUpdate, referenceElement ] );
 
 	useEffect( () => {
 		if ( referenceElement && config.options?.effects?.autoScroll ) {
@@ -241,14 +206,14 @@ const TourKitFrame: FunctionComponent< Props > = ( { config } ) => {
 				) }
 				<div
 					className="tour-kit-frame__container"
-					ref={ setPopperElement }
+					ref={ refs.setFloating }
 					tabIndex={ -1 }
 					{ ...( stepRepositionProps as HTMLAttributes< HTMLDivElement > ) }
 				>
-					{ showArrowIndicator() && (
+					{ arrowIndicatorEnabled && (
 						<div
 							className="tour-kit-frame__arrow"
-							data-popper-arrow
+							ref={ arrowRef }
 							{ ...( arrowPositionProps as HTMLAttributes< HTMLDivElement > ) }
 						/>
 					) }

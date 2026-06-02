@@ -1,13 +1,12 @@
-import { useMemo, useState, useEffect } from '@wordpress/element';
+import { offset, useFloating } from '@floating-ui/react-dom';
+import { useEffect } from '@wordpress/element';
 import clsx from 'clsx';
-import { usePopper } from 'react-popper';
-import { LiveResizeConfiguration, liveResizeModifier } from '../utils/live-resize-modifier';
+import { LiveResizeConfiguration, createLiveResizeAutoUpdate } from '../utils/live-resize';
 import Overlay from './tour-kit-overlay';
 import {
 	SpotlightInteractivity,
 	SpotlightInteractivityConfiguration,
 } from './tour-kit-spotlight-interactivity';
-import type { Rect, Placement } from '@popperjs/core';
 import type { CSSProperties, FunctionComponent, HTMLAttributes } from 'react';
 
 export const SPOTLIT_ELEMENT_CLASS = 'wp-tour-kit-spotlit';
@@ -24,57 +23,28 @@ const TourKitSpotlight: FunctionComponent< Props > = ( {
 	interactivity,
 	liveResize,
 } ) => {
-	const [ popperElement, sePopperElement ] = useState< HTMLElement | null >( null );
 	const referenceRect = referenceElement?.getBoundingClientRect();
 
-	const modifiers = [
-		{
-			name: 'flip',
-			enabled: false,
-		},
-		{
-			name: 'preventOverflow',
-			options: {
-				mainAxis: false, // true by default
-			},
-		},
-		useMemo(
-			() => ( {
-				name: 'offset',
-				options: {
-					offset: ( {
-						placement,
-						reference,
-						popper,
-					}: {
-						placement: Placement;
-						reference: Rect;
-						popper: Rect;
-					} ): [ number, number ] => {
-						if ( placement === 'bottom' ) {
-							return [ 0, -( reference.height + ( popper.height - reference.height ) / 2 ) ];
-						}
-						return [ 0, 0 ];
-					},
-				},
+	const { refs, floatingStyles, isPositioned } = useFloating( {
+		strategy: 'fixed',
+		placement: 'bottom',
+		elements: { reference: referenceElement },
+		whileElementsMounted: createLiveResizeAutoUpdate( liveResize ),
+		// `flip` and overflow prevention are intentionally omitted so the spotlight always stays
+		// clipped over its reference element. The offset pulls the floating element back over the
+		// reference so the clip box overlaps it exactly.
+		middleware: [
+			offset( ( { rects, placement } ) => {
+				if ( placement === 'bottom' ) {
+					return -(
+						rects.reference.height +
+						( rects.floating.height - rects.reference.height ) / 2
+					);
+				}
+				return 0;
 			} ),
-			[]
-		),
-		// useMemo because https://popper.js.org/react-popper/v2/faq/#why-i-get-render-loop-whenever-i-put-a-function-inside-the-popper-configuration
-		useMemo( () => {
-			return liveResizeModifier( liveResize );
-		}, [ liveResize ] ),
-	];
-
-	const { styles: popperStyles, attributes: popperAttributes } = usePopper(
-		referenceElement,
-		popperElement,
-		{
-			strategy: 'fixed',
-			placement: 'bottom',
-			modifiers,
-		}
-	);
+		],
+	} );
 
 	const clipDimensions = referenceRect
 		? {
@@ -83,16 +53,16 @@ const TourKitSpotlight: FunctionComponent< Props > = ( {
 		  }
 		: null;
 
-	const clipRepositionProps = referenceElement
-		? {
-				style: {
-					...( clipDimensions && clipDimensions ),
-					...popperStyles?.popper,
-					...( styles && styles ),
-				},
-				...popperAttributes?.popper,
-		  }
-		: null;
+	const clipRepositionProps =
+		referenceElement && isPositioned
+			? {
+					style: {
+						...( clipDimensions && clipDimensions ),
+						...floatingStyles,
+						...( styles && styles ),
+					},
+			  }
+			: null;
 
 	/**
 	 * Add a .wp-spotlit class to the referenced element so that we can
@@ -113,7 +83,7 @@ const TourKitSpotlight: FunctionComponent< Props > = ( {
 				className={ clsx( 'tour-kit-spotlight', {
 					'is-visible': !! clipRepositionProps,
 				} ) }
-				ref={ sePopperElement }
+				ref={ refs.setFloating }
 				{ ...( clipRepositionProps as HTMLAttributes< HTMLDivElement > ) }
 			/>
 		</>
