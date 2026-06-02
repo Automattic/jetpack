@@ -35,11 +35,20 @@ const BranchRow = ( { card, pluginSlug, onActivated, title }: Props ) => {
 	const [ busy, setBusy ] = useState( false );
 	const [ error, setError ] = useState< string | null >( null );
 
-	const version = card.pretty_version ?? card.branch ?? card.version ?? '';
-	const label = title ?? version;
-	// Only show the version as a secondary line when a title is given and the
-	// version actually differs from it (avoids "Release Candidate / Release Candidate").
-	const detail = title && version && version !== title ? version : null;
+	const prettyVersion = card.pretty_version ?? card.branch ?? card.version ?? '';
+	const label = title ?? prettyVersion;
+	// Secondary line shows the concrete version. Prefer the pretty version when it
+	// already names the version (i.e. differs from the section title); otherwise
+	// fall back to the raw version — e.g. "Bleeding Edge" / "Release Candidate",
+	// whose pretty version is just the label, still show which build they point at.
+	let detail: string | null = null;
+	if ( title ) {
+		if ( prettyVersion && prettyVersion !== title ) {
+			detail = prettyVersion;
+		} else if ( card.version ) {
+			detail = card.version;
+		}
+	}
 
 	const handleActivate = useCallback( () => {
 		if ( busy ) {
