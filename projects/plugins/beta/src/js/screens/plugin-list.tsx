@@ -13,6 +13,7 @@ import { errorMessage, listPlugins } from '../api/abilities';
 import GlobalToggles from '../components/global-toggles';
 import { ListSkeleton } from '../components/skeleton';
 import UpdatesPanel from '../components/updates-panel';
+import Welcome from '../components/welcome';
 import type { PluginListItem } from '../api/types';
 
 /**
@@ -198,6 +199,7 @@ const PluginList = () => {
 		<div className="jetpack-beta-scroll">
 			<div className="jetpack-beta-content">
 				<Stack direction="column" gap="md">
+					<Welcome />
 					<GlobalToggles />
 					<UpdatesPanel />
 					{ loading && <ListSkeleton rows={ 6 } /> }
