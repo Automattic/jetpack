@@ -25,7 +25,7 @@ import { errorMessage, getPlugin } from '../api/abilities';
 import BranchRow from '../components/branch-card';
 import BranchSection from '../components/branch-section';
 import MarkdownPanel from '../components/markdown-panel';
-import { CardRowSkeleton } from '../components/skeleton';
+import { ListSkeleton } from '../components/skeleton';
 import UpdatesPanel from '../components/updates-panel';
 import type { BranchCard as BranchCardType, PluginView } from '../api/types';
 
@@ -210,13 +210,7 @@ const PluginManage = ( { slug }: Props ) => {
 				<div className="jetpack-beta-content">
 					<Stack direction="column" gap="lg">
 						<UpdatesPanel slug={ slug } onUpdated={ handleUpdated } />
-						{ loading && (
-							<Stack direction="column" gap="md">
-								{ Array.from( { length: 4 } ).map( ( _, index ) => (
-									<CardRowSkeleton key={ index } />
-								) ) }
-							</Stack>
-						) }
+						{ loading && <ListSkeleton rows={ 4 } /> }
 						{ error && (
 							<Notice.Root intent="error">
 								<Notice.Description>{ error }</Notice.Description>

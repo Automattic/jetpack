@@ -27,21 +27,41 @@ export const Skeleton = ( { width = '100%', height = '1em' }: SkeletonProps ) =>
 );
 
 /**
- * A card-shaped skeleton mirroring a plugin / branch row: a couple of text lines
- * on the left and a small action placeholder on the right.
+ * A single skeleton row mirroring a plugin / branch row: a couple of text lines
+ * on the left and a small action placeholder on the right. Rendered inside a
+ * `ListSkeleton` so it matches the compact list layout.
  *
- * @return The card row skeleton element.
+ * @return The skeleton row element.
  */
-export const CardRowSkeleton = () => (
-	<Card.Root>
-		<Card.Content>
-			<Stack direction="row" align="center" justify="space-between">
-				<Stack direction="column" gap="xs">
-					<Skeleton width="180px" height="16px" />
-					<Skeleton width="110px" height="12px" />
-				</Stack>
-				<Skeleton width="24px" height="24px" />
+const RowSkeleton = () => (
+	<div className="jetpack-beta-list-row">
+		<Stack
+			className="jetpack-beta-skeleton-row__inner"
+			direction="row"
+			align="center"
+			justify="space-between"
+		>
+			<Stack direction="column" gap="xs">
+				<Skeleton width="180px" height="16px" />
+				<Skeleton width="110px" height="12px" />
 			</Stack>
-		</Card.Content>
+			<Skeleton width="24px" height="24px" />
+		</Stack>
+	</div>
+);
+
+/**
+ * A compact list skeleton: one bordered card of divider-separated skeleton rows,
+ * mirroring the loaded plugin/branch list so the loading state matches its shape.
+ *
+ * @param {object} props      - Component props.
+ * @param {number} props.rows - Number of skeleton rows to render (default 5).
+ * @return The list skeleton element.
+ */
+export const ListSkeleton = ( { rows = 5 }: { rows?: number } ) => (
+	<Card.Root className="jetpack-beta-list" aria-hidden="true">
+		{ Array.from( { length: rows } ).map( ( _, index ) => (
+			<RowSkeleton key={ index } />
+		) ) }
 	</Card.Root>
 );
