@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+XML-RPC: guard JSON API request parsing to avoid PHP warnings on non-scalar post bodies and failed signature verification.
