@@ -66,7 +66,9 @@ class Beta_Abilities extends Registrar {
 	/**
 	 * {@inheritDoc}
 	 *
-	 * Returns all five abilities: three read-only and two write.
+	 * Returns all seven abilities: four read-only (list-plugins, get-plugin,
+	 * get-settings, list-updates) and three write (activate-branch,
+	 * update-settings, update-plugin).
 	 */
 	public static function get_abilities(): array {
 		return array(
@@ -535,9 +537,31 @@ class Beta_Abilities extends Registrar {
 			return $result;
 		}
 
+		// Re-resolve the plugin (bypassing the cache) to build the post-activation
+		// view. Guard against a failed refresh so we return a WP_Error instead of
+		// fataling on a null/exception inside build_plugin_view().
+		try {
+			$refreshed = Plugin::get_plugin( $slug, true );
+		} catch ( PluginDataException $e ) {
+			return new \WP_Error( 'plugin_data_error', $e->getMessage() );
+		}
+
+		if ( ! $refreshed ) {
+			return new \WP_Error(
+				'unknown_plugin',
+				// translators: %s: Plugin slug.
+				sprintf( __( 'Plugin %s is not known.', 'jetpack-beta' ), $slug )
+			);
+		}
+
+		$view = self::build_plugin_view( $refreshed );
+		if ( is_wp_error( $view ) ) {
+			return $view;
+		}
+
 		return array(
 			'success' => true,
-			'plugin'  => self::build_plugin_view( Plugin::get_plugin( $slug, true ) ),
+			'plugin'  => $view,
 		);
 	}
 
@@ -565,7 +589,7 @@ class Beta_Abilities extends Registrar {
 
 		if ( array_key_exists( 'email_notifications', $input ) ) {
 			if ( ! defined( 'JETPACK_BETA_SKIP_EMAIL' ) ) {
-				update_option( 'jp_beta_email_notifications', (int) $input['email_notifications'] );
+				update_option( 'jp_beta_email_notifications', (int) (bool) $input['email_notifications'] );
 			}
 		}
 
@@ -731,6 +755,11 @@ class Beta_Abilities extends Registrar {
 		// To-test / what-changed content.
 		// ------------------------------------------------------------------
 		list( $to_test_html, $what_changed_html ) = Admin::to_test_content( $plugin );
+
+		// These fragments are injected via dangerouslySetInnerHTML in the React UI,
+		// so sanitize them to post-safe HTML before returning to reduce XSS risk.
+		$to_test_html      = is_string( $to_test_html ) ? wp_kses_post( $to_test_html ) : null;
+		$what_changed_html = is_string( $what_changed_html ) ? wp_kses_post( $what_changed_html ) : null;
 
 		return array(
 			'name'              => $plugin->get_name(),
