@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Address review feedback: rewrite the README to match the wp-build + script-data architecture, drop unused composer requires (connection/constants/assets), guard `Initializer::init()` with a static flag, and document the pre-wired Overview fields.

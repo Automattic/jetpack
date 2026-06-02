@@ -57,6 +57,13 @@ class Initializer {
 	const SCRIPT_DATA_KEY = 'seo';
 
 	/**
+	 * Whether the package has been initialized.
+	 *
+	 * @var bool
+	 */
+	private static $initialized = false;
+
+	/**
 	 * Initialize the package.
 	 *
 	 * Called from the Jetpack plugin's `late_initialization()` hook.
@@ -64,9 +71,10 @@ class Initializer {
 	 * @return void
 	 */
 	public static function init() {
-		if ( did_action( 'jetpack_seo_init' ) ) {
+		if ( self::$initialized ) {
 			return;
 		}
+		self::$initialized = true;
 
 		// Gate the entire SEO surface on the `seo-tools` module being active,
 		// the same way other Jetpack modules do. When the module is off we
@@ -246,8 +254,11 @@ class Initializer {
 			'site_visibility' => array(
 				'search_engines_visible' => (int) get_option( 'blog_public', 1 ) === 1,
 				'sitemap_active'         => (bool) get_option( 'jetpack_seo_sitemap_enabled', false ),
+				// Pre-wired for the sitemap "View" link, restored once real
+				// sitemaps-module detection lands (JETPACK-1694); no consumer yet.
 				'sitemap_url'            => home_url( '/sitemap.xml' ),
 				'seo_tools_active'       => $modules->is_active( 'seo-tools' ),
+				// Pre-wired for the Settings/Content follow-up tabs; no consumer yet.
 				'front_page_description' => (string) $front_page_desc,
 			),
 			'plan'            => array(
