@@ -5,6 +5,8 @@ export type CaptionManagerModalProps = {
 	isOpen: boolean;
 	guid: VideoGUID;
 	title?: string;
+	videoSrc?: string;
+	poster?: string | null;
 	tracks: VideoTextTrack[];
 	onClose: () => void;
 	onTracksChange: ( tracks: VideoTextTrack[] ) => void;
