@@ -112,10 +112,23 @@ body.jetpack-beta-page {
 		background: var(--wpds-color-bg-surface-neutral-weak, #f6f7f7);
 	}
 
-	// Inset focus ring so it stays inside the card's rounded corners.
+	// Match the card's rounded corners on the first/last rows so the focus ring
+	// follows them instead of cutting square across the top/bottom of the card.
+	&:first-child {
+		border-start-start-radius: var(--wpds-border-radius-lg, 8px);
+		border-start-end-radius: var(--wpds-border-radius-lg, 8px);
+	}
+
+	&:last-child {
+		border-end-start-radius: var(--wpds-border-radius-lg, 8px);
+		border-end-end-radius: var(--wpds-border-radius-lg, 8px);
+	}
+
+	// Use an inset box-shadow (it follows border-radius, unlike outline) so the
+	// focus ring has rounded corners on the first/last rows.
 	&:focus-visible {
-		outline: 2px solid var(--wp-admin-theme-color, #3858e9);
-		outline-offset: -2px;
+		outline: none;
+		box-shadow: inset 0 0 0 2px var(--wp-admin-theme-color, #3858e9);
 	}
 
 	.jetpack-beta-plugin-row__inner {
