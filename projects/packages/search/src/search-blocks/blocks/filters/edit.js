@@ -10,13 +10,11 @@ import { InnerBlocks, useBlockProps } from '@wordpress/block-editor';
 
 const TEMPLATE = [
 	[ 'jetpack-search/active-filters' ],
-	[ 'jetpack-search/clear-filters', { className: 'is-style-compact' } ],
 	[ 'jetpack-search/filter-checkbox', { filterType: 'taxonomy', taxonomy: 'category' } ],
 	[ 'jetpack-search/filter-checkbox', { filterType: 'taxonomy', taxonomy: 'post_tag' } ],
 	[ 'jetpack-search/filter-checkbox', { filterType: 'author' } ],
 	[ 'jetpack-search/filter-checkbox', { filterType: 'post_type' } ],
 	[ 'jetpack-search/filter-date', { interval: 'year' } ],
-	[ 'jetpack-search/filter-post-type' ],
 ];
 
 const ALLOWED = [
@@ -24,7 +22,6 @@ const ALLOWED = [
 	'jetpack-search/clear-filters',
 	'jetpack-search/filter-checkbox',
 	'jetpack-search/filter-date',
-	'jetpack-search/filter-post-type',
 ];
 
 /**

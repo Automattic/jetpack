@@ -37,6 +37,7 @@ import { SingleChartContext, type SingleChartRef } from '../private/single-chart
 import { SvgEmptyState } from '../private/svg-empty-state';
 import { getCurveType, getFormatter, guessOptimalNumTicks } from '../private/time-axis';
 import { withResponsive } from '../private/with-responsive';
+import { useXZoom, ZoomResetButton, ZoomSelectionRect } from '../private/x-zoom';
 import styles from './line-chart.module.scss';
 import { LineChartAnnotation, LineChartAnnotationsOverlay, LineChartGlyph } from './private';
 import type { RenderLineGlyphProps, LineChartProps, TooltipDatum } from './types';
@@ -177,6 +178,7 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 			onPointerUp = undefined,
 			onPointerMove = undefined,
 			onPointerOut = undefined,
+			zoomable = false,
 			children,
 			gridVisibility,
 			gap = 'md',
@@ -194,6 +196,12 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 		const [ selectedIndex, setSelectedIndex ] = useState< number | undefined >( undefined );
 		const [ isNavigating, setIsNavigating ] = useState( false );
 		const internalChartRef = useRef< SingleChartRef >( null );
+
+		const zoom = useXZoom< Date >( {
+			enabled: zoomable,
+			chartRef: internalChartRef,
+			userHandlers: { onPointerDown, onPointerMove, onPointerUp },
+		} );
 
 		// Process children for composition API (Legend, etc.)
 		const { legendChildren, nonLegendChildren } = useChartChildren( children, 'LineChart' );
@@ -273,6 +281,7 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 				xScale: {
 					type: 'time' as const,
 					...options?.xScale,
+					...( zoom.domain ? { domain: zoom.domain } : {} ),
 				},
 				yScale: {
 					type: 'linear' as const,
@@ -281,7 +290,7 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 					...options?.yScale,
 				},
 			};
-		}, [ options, dataSorted, width ] );
+		}, [ options, dataSorted, width, zoom.domain ] );
 
 		const tooltipRenderGlyph = useMemo( () => {
 			return ( props: GlyphProps< DataPointDate > ) => {
@@ -412,7 +421,8 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 								onBlur={ onChartBlur }
 							>
 								{ chartHeight > 0 && (
-									<div ref={ chartRef }>
+									<div ref={ chartRef } style={ { position: 'relative' } }>
+										{ zoomable && zoom.domain && <ZoomResetButton onClick={ zoom.reset } /> }
 										<XYChart
 											theme={ theme }
 											width={ width }
@@ -424,9 +434,9 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 											// xScale and yScale could be set in Axis as well, but they are `scale` props there.
 											xScale={ chartOptions.xScale }
 											yScale={ chartOptions.yScale }
-											onPointerDown={ onPointerDown }
-											onPointerUp={ onPointerUp }
-											onPointerMove={ onPointerMove }
+											onPointerDown={ zoom.handlers.onPointerDown }
+											onPointerUp={ zoom.handlers.onPointerUp }
+											onPointerMove={ zoom.handlers.onPointerMove }
 											onPointerOut={ onPointerOut }
 											pointerEventsDataKey="nearest"
 										>
@@ -556,6 +566,7 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 												height={ height }
 												margin={ margin }
 											/>
+											{ zoomable && <ZoomSelectionRect drag={ zoom.drag } /> }
 										</XYChart>
 									</div>
 								) }

@@ -362,7 +362,7 @@ export type ScaleOptions = {
 	 * an explicit `domain` to keep the tick values you set exactly.
 	 */
 	nice?: boolean;
-	domain?: [ number, number ];
+	domain?: [ number, number ] | [ Date, Date ];
 	range?: [ number, number ];
 	/**
 	 * For band scale, shortcut for setting `paddingInner` and `paddingOuter` to the same value.

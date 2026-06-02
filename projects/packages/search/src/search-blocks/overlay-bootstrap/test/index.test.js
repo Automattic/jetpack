@@ -9,6 +9,12 @@
 // `ensureHydrated()` dynamically imports this; stub it so the hydration branch
 // no-ops instead of reaching for the real Interactivity runtime in jsdom.
 jest.mock( '@wordpress/interactivity', () => ( {} ), { virtual: true } );
+// The bootstrap statically depends on the shared store as a side-effect
+// import (so the runtime store registers before the bootstrap dispatches
+// `dispatchInitialSearchIfNeeded` after hydration). The store module itself
+// is exercised in `tests/js/search-blocks/store.test.js`; here it would just
+// pull in the real Interactivity API and unrelated build paths, so stub it.
+jest.mock( 'jetpack-search/store', () => ( {} ), { virtual: true } );
 
 const OVERLAY_ID = 'jetpack-search-block-overlay';
 
@@ -245,6 +251,15 @@ describe( 'overlay-bootstrap close URL behavior', () => {
 		expect( params.has( 's' ) ).toBe( false );
 		expect( params.has( 'category[]' ) ).toBe( false );
 		expect( params.has( 'query_type_category' ) ).toBe( false );
+		expect( console ).toHaveErrored();
+	} );
+
+	it( 'strips the scalar post_type alias on a product search close', async () => {
+		await closeFrom( '/?s=shirt&post_type=product' );
+
+		const params = new URLSearchParams( window.location.search );
+		expect( params.has( 's' ) ).toBe( false );
+		expect( params.has( 'post_type' ) ).toBe( false );
 		expect( console ).toHaveErrored();
 	} );
 

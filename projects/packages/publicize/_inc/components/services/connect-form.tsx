@@ -1,6 +1,6 @@
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useCallback, useState } from '@wordpress/element';
-import { __, _x } from '@wordpress/i18n';
+import { __ } from '@wordpress/i18n';
 import { Button } from '@wordpress/ui';
 import clsx from 'clsx';
 import { useIsModernized } from '../../hooks/use-is-modernized';
@@ -125,9 +125,14 @@ export function ConnectForm( {
 							return __( 'Connecting…', 'jetpack-publicize-pkg' );
 						}
 
-						return hasConnections
-							? _x( 'Connect more', '', 'jetpack-publicize-pkg' )
-							: __( 'Connect', 'jetpack-publicize-pkg' );
+						// Hold each label in its own variable and select with the
+						// ternary afterwards. Picking inline (`cond ? __( 'A' ) :
+						// __( 'B' )`) lets the minifier fold both branches into one
+						// `__( cond ? 'A' : 'B' )` call, which the i18n string
+						// extraction can no longer read.
+						const connectMoreLabel = __( 'Connect more', 'jetpack-publicize-pkg' );
+						const connectLabel = __( 'Connect', 'jetpack-publicize-pkg' );
+						return hasConnections ? connectMoreLabel : connectLabel;
 					} )( buttonLabel ) }
 				</Button>
 			</div>

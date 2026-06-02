@@ -460,6 +460,134 @@ describe( 'FilterCheckboxEdit custom taxonomy picker', () => {
 	} );
 } );
 
+describe( 'FilterCheckboxEdit custom taxonomy label seeding', () => {
+	const useSelectMock = jest.requireMock( '@wordpress/data' ).useSelect;
+
+	const taxonomyEntities = [
+		{ slug: 'genre', name: 'Genre', visibility: { public: true } },
+		{ slug: 'mood', name: 'Mood', visibility: { public: true } },
+	];
+
+	beforeEach( () => {
+		globalThis.JetpackSearchBlocksConfig = {
+			supportedCustomTaxonomies: [ 'genre', 'mood' ],
+			customTaxonomyMap: {},
+		};
+		useSelectMock.mockImplementation( () => taxonomyEntities );
+	} );
+
+	afterEach( () => {
+		delete globalThis.JetpackSearchBlocksConfig;
+		useSelectMock.mockReset();
+		useSelectMock.mockImplementation( () => null );
+	} );
+
+	it( 'seeds label from the taxonomy display name when a custom taxonomy is picked with an empty label', () => {
+		const setAttributes = jest.fn();
+		render(
+			<FilterCheckboxEdit
+				attributes={ { filterType: 'taxonomy', taxonomy: 'genre', label: '' } }
+				setAttributes={ setAttributes }
+			/>
+		);
+		expect( setAttributes ).toHaveBeenCalledWith( { label: 'Genre' } );
+	} );
+
+	it( 'does not overwrite an author-provided label when the taxonomy is set', () => {
+		const setAttributes = jest.fn();
+		render(
+			<FilterCheckboxEdit
+				attributes={ {
+					filterType: 'taxonomy',
+					taxonomy: 'genre',
+					label: 'Pick a genre',
+				} }
+				setAttributes={ setAttributes }
+			/>
+		);
+		expect( setAttributes ).not.toHaveBeenCalled();
+	} );
+
+	it( 'skips seeding when no taxonomy has been picked yet', () => {
+		const setAttributes = jest.fn();
+		render(
+			<FilterCheckboxEdit
+				attributes={ { filterType: 'taxonomy', taxonomy: '', label: '' } }
+				setAttributes={ setAttributes }
+			/>
+		);
+		expect( setAttributes ).not.toHaveBeenCalled();
+	} );
+
+	it( 'leaves built-in variations alone (they keep their hardcoded defaults)', () => {
+		const setAttributes = jest.fn();
+		render(
+			<FilterCheckboxEdit
+				attributes={ { filterType: 'taxonomy', taxonomy: 'category', label: '' } }
+				setAttributes={ setAttributes }
+			/>
+		);
+		expect( setAttributes ).not.toHaveBeenCalled();
+	} );
+
+	it( 'does not seed before the taxonomies list has loaded', () => {
+		// Simulate the in-flight state: core-data returns null until the
+		// /wp/v2/taxonomies request resolves.
+		useSelectMock.mockImplementation( () => null );
+		const setAttributes = jest.fn();
+		render(
+			<FilterCheckboxEdit
+				attributes={ { filterType: 'taxonomy', taxonomy: 'genre', label: '' } }
+				setAttributes={ setAttributes }
+			/>
+		);
+		expect( setAttributes ).not.toHaveBeenCalled();
+	} );
+
+	it( 'does not overwrite an existing label when switching to a different custom taxonomy slug', () => {
+		// Simulates: author had `genre` with label "Pick a genre", then picks
+		// `mood`. The label must stay "Pick a genre" — the slug change alone
+		// is not enough to overwrite an author-typed value.
+		const setAttributes = jest.fn();
+		const { rerender } = render(
+			<FilterCheckboxEdit
+				attributes={ { filterType: 'taxonomy', taxonomy: 'genre', label: 'Pick a genre' } }
+				setAttributes={ setAttributes }
+			/>
+		);
+		rerender(
+			<FilterCheckboxEdit
+				attributes={ { filterType: 'taxonomy', taxonomy: 'mood', label: 'Pick a genre' } }
+				setAttributes={ setAttributes }
+			/>
+		);
+		expect( setAttributes ).not.toHaveBeenCalled();
+	} );
+
+	it( 'seeds again when returning to Custom Taxonomy with the same cleared slug', () => {
+		const setAttributes = jest.fn();
+		const { rerender } = render(
+			<FilterCheckboxEdit
+				attributes={ { filterType: 'taxonomy', taxonomy: 'genre', label: 'Genre' } }
+				setAttributes={ setAttributes }
+			/>
+		);
+		rerender(
+			<FilterCheckboxEdit
+				attributes={ { filterType: 'author', taxonomy: 'genre', label: '' } }
+				setAttributes={ setAttributes }
+			/>
+		);
+		rerender(
+			<FilterCheckboxEdit
+				attributes={ { filterType: 'taxonomy', taxonomy: 'genre', label: '' } }
+				setAttributes={ setAttributes }
+			/>
+		);
+		expect( setAttributes ).toHaveBeenCalledWith( { label: 'Genre' } );
+	} );
+} );
+
 describe( 'normalizeQueryType', () => {
 	it( 'defaults to `or` for missing or unknown values', () => {
 		expect( normalizeQueryType() ).toBe( 'or' );

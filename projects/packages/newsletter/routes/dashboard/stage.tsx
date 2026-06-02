@@ -1,8 +1,8 @@
 import analytics from '@automattic/jetpack-analytics';
 import useConnection from '@automattic/jetpack-connection/use-connection';
-import { getSiteData } from '@automattic/jetpack-script-data';
+import { getSiteData, getSiteType } from '@automattic/jetpack-script-data';
 import { QueryClientProvider } from '@tanstack/react-query';
-import { useCallback, useEffect } from '@wordpress/element';
+import { useCallback, useEffect, useRef } from '@wordpress/element';
 import { useSearch } from '@wordpress/route';
 import { Tabs } from '@wordpress/ui';
 import NewsletterPage, { type NewsletterTab } from '../../_inc/components/newsletter-page';
@@ -88,6 +88,25 @@ const Stage = () => {
 			analytics.initialize( tracksUserData.userid, tracksUserData.username );
 		}
 	}, [] );
+
+	// Record a tab-view event on initial mount and whenever the active tab
+	// changes. The `lastTrackedTab` ref dedupes React 18 StrictMode's
+	// dev-only mount/cleanup/remount cycle — refs persist across the
+	// simulated remount, so the second setup invocation finds the current
+	// tab already recorded and bails out. Lives here (not in
+	// `NewsletterPage.onTabChange`) so it also fires on first page render,
+	// not just on user-initiated tab clicks.
+	const lastTrackedTab = useRef< NewsletterTab | null >( null );
+	useEffect( () => {
+		if ( lastTrackedTab.current === activeTab ) {
+			return;
+		}
+		lastTrackedTab.current = activeTab;
+		analytics.tracks.recordEvent( 'jetpack_newsletter_tab_view', {
+			site_type: getSiteType(),
+			tab: activeTab,
+		} );
+	}, [ activeTab ] );
 
 	return (
 		<QueryClientProvider client={ queryClient }>

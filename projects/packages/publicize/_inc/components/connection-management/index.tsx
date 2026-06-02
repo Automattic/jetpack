@@ -29,7 +29,11 @@ const ConnectionManagement = ( {
 	const listStyles = isModernized ? modernStyles : styles;
 	const { refresh } = useSocialMediaConnections();
 
-	const { connections, deletingConnections, updatingConnections } = useSelect( select => {
+	const {
+		connections: rawConnections,
+		deletingConnections,
+		updatingConnections,
+	} = useSelect( select => {
 		const { getConnections, getDeletingConnections, getUpdatingConnections } = select( store );
 
 		return {
@@ -39,7 +43,9 @@ const ConnectionManagement = ( {
 		};
 	}, [] );
 
-	connections.sort( ( a, b ) => {
+	// Copy before sorting — `getConnections()` returns the store's array and
+	// `Array.prototype.sort` mutates in place.
+	const connections = [ ...rawConnections ].sort( ( a, b ) => {
 		if ( a.service_name === b.service_name ) {
 			return a.connection_id.localeCompare( b.connection_id );
 		}

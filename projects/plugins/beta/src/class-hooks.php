@@ -58,6 +58,8 @@ class Hooks {
 
 		add_filter( 'all_plugins', array( $this, 'update_all_plugins' ) );
 
+		add_action( 'deleted_plugin', array( $this, 'maybe_delete_dev_plugin_too' ), 10, 2 );
+
 		add_filter( 'plugins_api', array( $this, 'get_plugin_info' ), 10, 3 );
 
 		add_action( 'jetpack_beta_autoupdate_hourly_cron', array( self::class, 'run_autoupdate' ) );
@@ -207,7 +209,7 @@ class Hooks {
 	 */
 	public function update_all_plugins( $plugins ) {
 		foreach ( Plugin::get_plugin_file_map() as $nondev => $dev ) {
-			// WP.com requests away show regular plugin.
+			// WP.com requests always show regular plugin.
 			if ( defined( 'REST_API_REQUEST' ) && REST_API_REQUEST ) {
 				// Ensure that it reports the version it's using on account of the Jetpack Beta plugin to Calypso.
 				if ( is_plugin_active( $dev ) ) {
@@ -216,11 +218,43 @@ class Hooks {
 				unset( $plugins[ $dev ] );
 			} elseif ( is_plugin_active( $dev ) ) {
 				unset( $plugins[ $nondev ] );
-			} else {
+			} elseif ( isset( $plugins[ $dev ] ) && isset( $plugins[ $nondev ] ) ) {
 				unset( $plugins[ $dev ] );
 			}
 		}
 		return $plugins;
+	}
+
+	/**
+	 * Action: Delete dev plugin when non-dev version is deleted.
+	 *
+	 * Handler for 'deleted_plugin' action.
+	 *
+	 * @param string $plugin_file Deleted plugin.
+	 * @param bool   $deleted Whether the deletion was successful.
+	 */
+	public function maybe_delete_dev_plugin_too( $plugin_file, $deleted ) {
+		if ( ! $deleted ) {
+			return;
+		}
+		$plugin = Plugin::get_plugin( dirname( $plugin_file ) );
+		if ( ! $plugin ) {
+			return;
+		}
+		// If somehow the non-dev got deleted while the dev is active, don't delete the dev.
+		if ( $plugin->is_active( 'dev' ) ) {
+			return;
+		}
+
+		// $wp_filesystem should already be functional thanks to Core just deleting the non-dev plugin. But check it just in case.
+		global $wp_filesystem;
+		if ( ! $wp_filesystem ) {
+			return;
+		}
+		$working_dir = dirname( $plugin->dev_plugin_path() );
+		if ( $wp_filesystem->is_dir( $working_dir ) ) {
+			$wp_filesystem->delete( $working_dir, true );
+		}
 	}
 
 	/**

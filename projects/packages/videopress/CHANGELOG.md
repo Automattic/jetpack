@@ -5,16 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.36.12] - 2026-06-01
+### Changed
+- Exclude additional unneeded files from the Composer package. [#49014]
+- Internal: Prepare types for React 19. [#49204]
+- Update package dependencies. [#48404] [#49152]
+
+### Fixed
+- Fix the post-connection redirect so the modernized dashboard returns users to the VideoPress page instead of a 404. [#49168]
+
 ## [0.36.11] - 2026-05-25
 ### Changed
-- Modernized dashboard (gated behind `rsm_jetpack_ui_modernization_videopress`): Gate the dashboard behind a WordPress.com connection so the uploader is no longer exposed pre-connection. [#49063]
-- Modernized dashboard (gated behind `rsm_jetpack_ui_modernization_videopress`) now wires Overview, Library, Video Details, and Settings to real REST endpoints. Also corrects the stats proxy's watch-time unit conversion. [#48919]
-- Modernized dashboard: Add a thumbnail editor to the Video details screen. [#49013]
-- Modernized dashboard: Pre-release polish across empty states, date-range button, breadcrumbs, ribbons, chart curve, Library grid, and row actions. Also fixes a free-tier counting bug where local video attachments were gating a free user's first VideoPress upload. [#48988]
-- Modernized dashboard: Update the dashboard tests and storage meter. [#49022]
-- Replace internal `ContextualUpgradeTrigger` upgrade prompts with `@wordpress/ui` `Notice` composition. [#48909]
+- Migrate dashboard tabs from default to minimal variant and align via the shared `jp-admin-page-tabs--minimal` wrapper modifier. [#48964]
 - Update package dependencies. [#48405] [#49012]
-- Migrate dashboard tabs from default to minimal variant; align via the shared `jp-admin-page-tabs--minimal` wrapper modifier. [#48964]
+- Replace internal `ContextualUpgradeTrigger` upgrade prompts with `@wordpress/ui` `Notice` composition. [#48909]
 
 ### Fixed
 - Fix duplicate Jetpack logo rendering in the Edit Video page header. [#48962]
@@ -1993,6 +1997,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created empty package [#24952]
 
+[0.36.12]: https://github.com/Automattic/jetpack-videopress/compare/v0.36.11...v0.36.12
 [0.36.11]: https://github.com/Automattic/jetpack-videopress/compare/v0.36.10...v0.36.11
 [0.36.10]: https://github.com/Automattic/jetpack-videopress/compare/v0.36.9...v0.36.10
 [0.36.9]: https://github.com/Automattic/jetpack-videopress/compare/v0.36.8...v0.36.9
