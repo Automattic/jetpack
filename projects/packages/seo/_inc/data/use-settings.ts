@@ -33,24 +33,22 @@ const VERIFICATION_KEYS: readonly VerificationKey[] = [
 ];
 
 /**
- * Translate the form state into the partial payload the existing
- * `/jetpack/v4/settings` endpoint expects, including ONLY changed fields so we
- * never re-toggle the sitemaps module (or re-write options) on an unchanged
- * save. The endpoint owns validation/sanitization for every key here.
+ * Build the changed-fields payload for the Jetpack settings endpoint
+ * (`/jetpack/v4/settings`) — everything except search-engine visibility, which
+ * is a WordPress core option handled separately. Only changed fields are
+ * included so an unchanged save never re-toggles the sitemaps module. The
+ * endpoint owns validation/sanitization for every key here.
  *
  * @param baseline - The last-saved server state.
  * @param local    - The current form state.
- * @return The changed-fields payload keyed for `/jetpack/v4/settings`.
+ * @return The changed-fields payload for `/jetpack/v4/settings`.
  */
-function buildPayload(
+function buildJetpackPayload(
 	baseline: SettingsResponse,
 	local: SettingsResponse
 ): Record< string, unknown > {
 	const payload: Record< string, unknown > = {};
 
-	if ( local.search_engines_visible !== baseline.search_engines_visible ) {
-		payload.blog_public = local.search_engines_visible ? 1 : 0;
-	}
 	if ( local.sitemap_active !== baseline.sitemap_active ) {
 		payload.sitemaps = local.sitemap_active;
 	}
@@ -65,6 +63,29 @@ function buildPayload(
 			payload[ key ] = local.verification[ key ];
 		}
 	} );
+
+	return payload;
+}
+
+/**
+ * Build the changed-fields payload for WordPress core settings
+ * (`/wp/v2/settings`). Search-engine visibility maps to the core `blog_public`
+ * option (1 = allow indexing, 0 = discourage); the Jetpack settings endpoint
+ * rejects it, so it round-trips through core REST instead.
+ *
+ * @param baseline - The last-saved server state.
+ * @param local    - The current form state.
+ * @return The changed-fields payload for `/wp/v2/settings`, or `{}` if unchanged.
+ */
+function buildCorePayload(
+	baseline: SettingsResponse,
+	local: SettingsResponse
+): Record< string, unknown > {
+	const payload: Record< string, unknown > = {};
+
+	if ( local.search_engines_visible !== baseline.search_engines_visible ) {
+		payload.blog_public = local.search_engines_visible ? 1 : 0;
+	}
 
 	return payload;
 }
@@ -118,12 +139,24 @@ export function useSettingsForm(): SettingsForm {
 		if ( ! local || ! baseline ) {
 			return;
 		}
-		const payload = buildPayload( baseline, local );
-		if ( Object.keys( payload ).length === 0 ) {
+		const jetpackPayload = buildJetpackPayload( baseline, local );
+		const corePayload = buildCorePayload( baseline, local );
+
+		const requests: Array< Promise< unknown > > = [];
+		if ( Object.keys( jetpackPayload ).length > 0 ) {
+			requests.push(
+				apiFetch( { path: '/jetpack/v4/settings', method: 'POST', data: jetpackPayload } )
+			);
+		}
+		if ( Object.keys( corePayload ).length > 0 ) {
+			requests.push( apiFetch( { path: '/wp/v2/settings', method: 'POST', data: corePayload } ) );
+		}
+		if ( requests.length === 0 ) {
 			return;
 		}
+
 		setIsSaving( true );
-		apiFetch( { path: '/jetpack/v4/settings', method: 'POST', data: payload } )
+		Promise.all( requests )
 			.then( () => {
 				setBaseline( local );
 				createSuccessNotice( __( 'Settings saved.', 'jetpack-seo' ), { type: 'snackbar' } );

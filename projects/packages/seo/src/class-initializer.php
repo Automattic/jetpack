@@ -107,6 +107,12 @@ class Initializer {
 		add_action( 'admin_menu', array( __CLASS__, 'maybe_load_wp_build' ), 1 );
 		add_action( 'admin_menu', array( __CLASS__, 'add_menu_item' ), 10 );
 
+		// Expose the core `blog_public` option to the REST settings endpoint so
+		// the Settings tab can save search-engine visibility via `/wp/v2/settings`.
+		// (The Jetpack settings endpoint only accepts Jetpack options.) Writes
+		// are still capability-gated by the core settings controller.
+		add_action( 'rest_api_init', array( __CLASS__, 'register_rest_settings' ) );
+
 		/**
 		 * Fires after the Jetpack SEO package is initialized.
 		 *
@@ -283,6 +289,28 @@ class Initializer {
 			'plan'            => array(
 				'seo_enabled_for_site' => $seo_enabled,
 			),
+		);
+	}
+
+	/**
+	 * Expose the core `blog_public` option to the REST settings endpoint.
+	 *
+	 * Search-engine visibility is a WordPress core option, not a Jetpack one,
+	 * so the Settings tab saves it through `/wp/v2/settings` — which only
+	 * round-trips settings registered with `show_in_rest`. The core settings
+	 * controller enforces the `manage_options` capability on writes.
+	 *
+	 * @return void
+	 */
+	public static function register_rest_settings() {
+		register_setting(
+			'reading',
+			'blog_public',
+			array(
+				'show_in_rest' => true,
+				'type'         => 'integer',
+				'default'      => 1,
+			)
 		);
 	}
 
