@@ -52,7 +52,12 @@ function pcg_force_bypass_key() {
  * @return never
  */
 function pcg_force_handle_set_bypass(): never {
-	if ( ! current_user_can( 'activate_plugins' ) && ! current_user_can( 'update_plugins' ) ) {
+	if (
+		! current_user_can( 'activate_plugins' )
+		&& ! current_user_can( 'update_plugins' )
+		&& ! current_user_can( 'install_plugins' )
+		&& ! current_user_can( 'upload_plugins' )
+	) {
 		wp_die( esc_html__( 'You do not have permission to do that.', 'jetpack-mu-wpcom' ), 403 );
 	}
 	check_admin_referer( 'pcg_force_set_bypass' );
