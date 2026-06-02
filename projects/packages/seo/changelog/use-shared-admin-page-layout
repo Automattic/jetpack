@@ -1,4 +1,0 @@
-Significance: patch
-Type: changed
-
-Layout: opt into the shared `jetpack-admin-page-layout-wp-build` mixin so the SEO admin page uses the stable `.jp-admin-page__page` hook instead of admin-ui's internal `.admin-ui-page*` classes.

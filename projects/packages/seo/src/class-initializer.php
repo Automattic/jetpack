@@ -30,6 +30,18 @@ class Initializer {
 	const PACKAGE_VERSION = '0.1.0-alpha';
 
 	/**
+	 * Filter name that gates the entire Jetpack SEO surface.
+	 *
+	 * When this filter returns true, the package registers its admin menu and
+	 * loads the wp-build dashboard. Default false before release - when the
+	 * filter is off the package registers no admin menu and no assets, and
+	 * changes nothing about the existing Jetpack UI.
+	 *
+	 * @var string
+	 */
+	const FEATURE_FILTER = 'rsm_jetpack_seo';
+
+	/**
 	 * URL-facing menu slug (`admin.php?page=jetpack-seo`).
 	 */
 	const MENU_SLUG = 'jetpack-seo';
@@ -75,6 +87,11 @@ class Initializer {
 			return;
 		}
 		self::$initialized = true;
+
+		// Gate the entire SEO surface behind the feature flag.
+		if ( ! (bool) apply_filters( self::FEATURE_FILTER, false ) ) {
+			return;
+		}
 
 		// Gate the entire SEO surface on the `seo-tools` module being active,
 		// the same way other Jetpack modules do. When the module is off we

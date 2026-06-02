@@ -1,4 +1,0 @@
-Significance: patch
-Type: changed
-
-Packaging: add `.gitattributes` so the webpack-built `build/` directory is included when the package is vendored into the Jetpack plugin distributable. Source `.tsx`/`.ts`/`.scss` files are excluded since webpack already compiles them into `build/`.

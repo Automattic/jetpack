@@ -1,4 +1,0 @@
-Significance: patch
-Type: changed
-
-Tests: ship PHPUnit configs for versions 8/9/12 in addition to 11, add the `test`/`test-coverage` jest scripts, and add `tests/jest.config.js` so CI can run the package's test job across the PHP test matrix.

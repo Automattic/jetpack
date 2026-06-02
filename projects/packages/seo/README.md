@@ -6,7 +6,7 @@ This package is being built up across a stacked series of PRs (see #48154 for th
 
 ## What this foundation provides
 
-- A standalone wp-admin page registered at `admin.php?page=jetpack-seo`, gated on the `seo-tools` module being active.
+- A standalone wp-admin page registered at `admin.php?page=jetpack-seo`, gated behind the `rsm_jetpack_seo` feature flag (off by default during roll-out) and, when on, the `seo-tools` module being active.
 - The **Overview** screen with a single **Site visibility** card (search engines allowed, sitemap active, SEO tools active).
 
 ## Architecture

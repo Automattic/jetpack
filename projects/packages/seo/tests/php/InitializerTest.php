@@ -29,4 +29,11 @@ class InitializerTest extends TestCase {
 	public function test_package_version_constant_is_defined() {
 		$this->assertNotEmpty( Initializer::PACKAGE_VERSION );
 	}
+
+	/**
+	 * The feature-flag filter name is the expected slug.
+	 */
+	public function test_feature_filter_constant_is_defined() {
+		$this->assertSame( 'rsm_jetpack_seo', Initializer::FEATURE_FILTER );
+	}
 }
