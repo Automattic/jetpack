@@ -95,8 +95,8 @@ class Application extends SingleCommandApplication {
 
 		$stmts = $this->generateStubs( $definition, $errout );
 
-		if ( ! empty( $definition['strip-docs'] ) ) {
-			$stmts = $this->stripDocs( $stmts, $errout );
+		if ( ! empty( $definition['strip-docs'] ) || ! empty( $definition['strip-docs-keep-tags'] ) ) {
+			$stmts = $this->stripDocs( $stmts, ! empty( $definition['strip-docs-keep-tags'] ), $errout );
 		}
 
 		$code = "<?php\n";
@@ -256,12 +256,13 @@ class Application extends SingleCommandApplication {
 	 * Strip descriptions and unrecognized tags from doc comments.
 	 *
 	 * @param \PhpParser\Node[] $stmts Stubs.
+	 * @param bool              $keepTags Whether to keep unrecognized tags.
 	 * @param OutputInterface   $output OutputInterface.
 	 * @return \PhpParser\Node[] $stmts, with attributes modified.
 	 */
-	protected function stripDocs( array $stmts, OutputInterface $output ): array {
+	protected function stripDocs( array $stmts, bool $keepTags, OutputInterface $output ): array {
 		$traverser = new NodeTraverser();
-		$traverser->addVisitor( new StripDocsNodeVisitor( $output ) );
+		$traverser->addVisitor( new StripDocsNodeVisitor( $output, $keepTags ) );
 		return $traverser->traverse( $stmts );
 	}
 }

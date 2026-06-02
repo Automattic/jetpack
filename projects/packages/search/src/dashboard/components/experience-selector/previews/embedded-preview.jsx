@@ -6,7 +6,7 @@ import './embedded-preview.scss';
 /**
  * Decorative Embedded mockup — `aria-hidden`. Text content is rendered with
  * the dashboard's existing `TextRowPlaceHolder` so the layout reads as a
- * skeleton, matching the Plan & Usage mocked-search interface.
+ * skeleton, matching the Overview mocked-search interface.
  *
  * @return {import('react').Element} - The preview.
  */

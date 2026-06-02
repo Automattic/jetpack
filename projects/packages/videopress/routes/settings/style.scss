@@ -11,6 +11,19 @@
 	padding-block: 32px;
 }
 
+// `width: 100%` is required because the wrapper is a flex child of the
+// dashboard tabpanel (column-flex); without an explicit cross-axis size
+// a `display: block` flex item is sized to its content, leaving
+// `max-width: 660px` unable to extend it. Gate it to non-mobile so the
+// mobile breakpoint keeps its natural content-sized treatment (cards
+// don't stretch edge-to-edge of the viewport).
+@media (min-width: 600px) {
+
+	.jp-videopress-settings {
+		width: 100%;
+	}
+}
+
 .jp-videopress-settings > * {
 	width: 100%;
 }

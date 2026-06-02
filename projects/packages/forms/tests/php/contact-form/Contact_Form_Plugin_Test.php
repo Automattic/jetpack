@@ -1241,6 +1241,7 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 
 		global $menu;
 
+		$this->assertStringContainsString( 'menu-counter', $menu[ $indices['menu_index'] ][0], 'Should use menu-counter badge markup.' );
 		$this->assertStringContainsString( 'jp-feedback-unread-counter', $menu[ $indices['menu_index'] ][0], 'Should contain Forms badge class.' );
 		$this->assertStringContainsString( 'count-3', $menu[ $indices['menu_index'] ][0], 'Should show count of 3.' );
 		$this->assertStringContainsString( "data-unread-diff='0'", $menu[ $indices['menu_index'] ][0], 'Diff should be 0 when no other badges exist.' );
@@ -1278,6 +1279,7 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 
 		global $submenu;
 
+		$this->assertStringContainsString( 'menu-counter', $submenu['jetpack'][ $indices['submenu_index'] ][0], 'Submenu should use menu-counter badge markup.' );
 		$this->assertStringContainsString( 'jp-feedback-unread-counter', $submenu['jetpack'][ $indices['submenu_index'] ][0], 'Submenu should contain Forms badge.' );
 		$this->assertStringContainsString( 'count-5', $submenu['jetpack'][ $indices['submenu_index'] ][0], 'Submenu badge should show count of 5.' );
 	}

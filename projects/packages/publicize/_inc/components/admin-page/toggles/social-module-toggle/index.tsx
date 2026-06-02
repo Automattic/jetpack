@@ -1,5 +1,5 @@
 import {
-	ContextualUpgradeTrigger,
+	IconTooltip,
 	Text,
 	getRedirectUrl,
 	useBreakpointMatch,
@@ -7,7 +7,7 @@ import {
 import { getScriptData, isWpcomPlatformSite } from '@automattic/jetpack-script-data';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { __, _x } from '@wordpress/i18n';
-import { Link } from '@wordpress/ui';
+import { Link, Notice } from '@wordpress/ui';
 import clsx from 'clsx';
 import { useCallback } from 'react';
 import { store as socialStore } from '../../../../social-store';
@@ -93,19 +93,29 @@ const SocialModuleToggle: FC = () => {
 				</Link>
 			</Text>
 			{ ! isWpcomPlatformSite() && ! hasSocialPaidFeatures() ? (
-				<ContextualUpgradeTrigger
-					className={ clsx( styles.cut, { [ styles.small ]: isSmall } ) }
-					description={ __( 'Unlock advanced sharing options', 'jetpack-publicize-pkg' ) }
-					cta={ __( 'Power up Jetpack Social', 'jetpack-publicize-pkg' ) }
-					href={ getRedirectUrl( 'jetpack-social-admin-page-upsell', {
-						site: `${ wpcom.blog_id ?? siteSuffix }`,
-						query: getRefreshPlanQuery(),
-					} ) }
-					tooltipText={ __(
-						'Share custom images and videos that capture attention, use our powerful Social Image Generator to create stunning visuals, and access priority support for expert help whenever you need it.',
-						'jetpack-publicize-pkg'
-					) }
-				/>
+				<Notice.Root intent="info" className={ clsx( styles.cut, { [ styles.small ]: isSmall } ) }>
+					<Notice.Description>
+						{ __( 'Unlock advanced sharing options', 'jetpack-publicize-pkg' ) }{ ' ' }
+						<IconTooltip className={ styles[ 'upgrade-tooltip' ] } iconSize={ 16 } offset={ 4 }>
+							<Text variant="body-small">
+								{ __(
+									'Share custom images and videos that capture attention, use our powerful Social Image Generator to create stunning visuals, and access priority support for expert help whenever you need it.',
+									'jetpack-publicize-pkg'
+								) }
+							</Text>
+						</IconTooltip>
+					</Notice.Description>
+					<Notice.Actions>
+						<Notice.ActionLink
+							href={ getRedirectUrl( 'jetpack-social-admin-page-upsell', {
+								site: `${ wpcom.blog_id ?? siteSuffix }`,
+								query: getRefreshPlanQuery(),
+							} ) }
+						>
+							{ __( 'Power up Jetpack Social', 'jetpack-publicize-pkg' ) }
+						</Notice.ActionLink>
+					</Notice.Actions>
+				</Notice.Root>
 			) : null }
 			{ isModuleEnabled && <MessageTemplateSection disabled={ isUpdating } /> }
 			{ renderConnectionManagement() }

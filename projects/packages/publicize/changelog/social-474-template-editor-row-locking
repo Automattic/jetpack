@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Social: avoid disabling connection rows while saving per-connection message templates.

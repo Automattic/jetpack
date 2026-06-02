@@ -83,11 +83,7 @@ $enabled_stars = Filter_Wc_Rating::get_enabled_stars( (array) $attributes );
 	<?php if ( '' !== $label ) : ?>
 		<h3 class="jetpack-search-filter__title"><?php echo esc_html( $label ); ?></h3>
 	<?php endif; ?>
-	<?php
-	if ( $view['is_initial_loading'] ) {
-		require __DIR__ . '/../filter-skeleton-partial.php';
-	}
-	?>
+	<?php require __DIR__ . '/../filter-skeleton-partial.php'; ?>
 	<ul class="jetpack-search-filter__list">
 		<?php foreach ( $enabled_stars as $star ) : ?>
 			<?php

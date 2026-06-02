@@ -1,9 +1,12 @@
 import analytics from '@automattic/jetpack-analytics';
+import useConnection from '@automattic/jetpack-connection/use-connection';
+import { getSiteData, getSiteType } from '@automattic/jetpack-script-data';
 import { QueryClientProvider } from '@tanstack/react-query';
-import { useEffect } from '@wordpress/element';
+import { useCallback, useEffect, useRef } from '@wordpress/element';
 import { useSearch } from '@wordpress/route';
 import { Tabs } from '@wordpress/ui';
 import NewsletterPage, { type NewsletterTab } from '../../_inc/components/newsletter-page';
+import ConnectionGate from '../../_inc/subscribers/components/connection-gate';
 import SubscribersBody from '../../_inc/subscribers/components/subscribers-body';
 import { queryClient } from '../../_inc/subscribers/lib/query-client';
 import { NewsletterSettingsBody } from '../../src/settings/newsletter-settings';
@@ -14,6 +17,18 @@ import './route.scss';
 type StageSearch = Record< string, unknown > & {
 	tab?: string;
 };
+
+const NEWSLETTER_ADMIN_PAGE = 'admin.php?page=jetpack-newsletter';
+
+/**
+ * After connecting, return the visitor to the Newsletter dashboard.
+ *
+ * @return The absolute Newsletter admin URL, or undefined when the admin URL isn't in script data (e.g. tests).
+ */
+function getRedirectUri(): string | undefined {
+	const adminUrl = getSiteData()?.admin_url;
+	return adminUrl ? `${ adminUrl }${ NEWSLETTER_ADMIN_PAGE }` : undefined;
+}
 
 /**
  * Single stage that owns the unified Newsletter page chrome — Page header,
@@ -42,6 +57,28 @@ const Stage = () => {
 		activeTab = 'settings';
 	}
 
+	const {
+		isRegistered,
+		hasConnectedOwner,
+		isUserConnected,
+		siteIsRegistering,
+		userIsConnecting,
+		handleRegisterSite,
+	} = useConnection( {
+		from: 'jetpack-newsletter',
+		redirectUri: getRedirectUri(),
+	} );
+
+	// Subscriber management proxies to WP.com signed as the current user, so a
+	// fully connected site AND user are required. Mirrors the VideoPress gate.
+	const canManageSubscribers = isRegistered && hasConnectedOwner && isUserConnected;
+
+	// `handleRegisterSite` registers the site if needed and then connects the
+	// user; on an already-registered site it connects the user directly.
+	const handleConnect = useCallback( () => {
+		handleRegisterSite();
+	}, [ handleRegisterSite ] );
+
 	// Initialize analytics once for the entire page so future tab/section
 	// events fire regardless of which tab a visitor lands on. Mirrors the
 	// initialization that lived in the legacy `NewsletterSettingsApp`.
@@ -52,30 +89,62 @@ const Stage = () => {
 		}
 	}, [] );
 
+	// Record a tab-view event on initial mount and whenever the active tab
+	// changes. The `lastTrackedTab` ref dedupes React 18 StrictMode's
+	// dev-only mount/cleanup/remount cycle — refs persist across the
+	// simulated remount, so the second setup invocation finds the current
+	// tab already recorded and bails out. Lives here (not in
+	// `NewsletterPage.onTabChange`) so it also fires on first page render,
+	// not just on user-initiated tab clicks.
+	const lastTrackedTab = useRef< NewsletterTab | null >( null );
+	useEffect( () => {
+		if ( lastTrackedTab.current === activeTab ) {
+			return;
+		}
+		lastTrackedTab.current = activeTab;
+		analytics.tracks.recordEvent( 'jetpack_newsletter_tab_view', {
+			site_type: getSiteType(),
+			tab: activeTab,
+		} );
+	}, [ activeTab ] );
+
 	return (
 		<QueryClientProvider client={ queryClient }>
 			<SubscribersBody>
-				{ ( { body, actions } ) => (
-					<NewsletterPage
-						activeTab={ activeTab }
-						actions={ activeTab === 'subscribers' ? actions : undefined }
-						contentHasPadding={ activeTab === 'settings' }
-						hideFooter={ activeTab === 'subscribers' }
-					>
-						{ subscribersEnabled ? (
-							<>
-								<Tabs.Panel value="subscribers" focusable={ false }>
-									{ activeTab === 'subscribers' ? body : null }
-								</Tabs.Panel>
-								<Tabs.Panel value="settings" focusable={ false }>
-									{ activeTab === 'settings' ? <NewsletterSettingsBody isModernized /> : null }
-								</Tabs.Panel>
-							</>
-						) : (
-							<NewsletterSettingsBody isModernized />
-						) }
-					</NewsletterPage>
-				) }
+				{ ( { body, actions } ) => {
+					// Gate the Subscribers tab: connected visitors get the data view,
+					// everyone else gets the connect prompt.
+					const subscribersPanel = canManageSubscribers ? (
+						body
+					) : (
+						<ConnectionGate
+							onConnect={ handleConnect }
+							isConnecting={ siteIsRegistering || userIsConnecting }
+						/>
+					);
+
+					return (
+						<NewsletterPage
+							activeTab={ activeTab }
+							actions={ activeTab === 'subscribers' && canManageSubscribers ? actions : undefined }
+							contentHasPadding={ activeTab === 'settings' }
+							hideFooter={ activeTab === 'subscribers' }
+						>
+							{ subscribersEnabled ? (
+								<>
+									<Tabs.Panel value="subscribers" focusable={ false }>
+										{ activeTab === 'subscribers' ? subscribersPanel : null }
+									</Tabs.Panel>
+									<Tabs.Panel value="settings" focusable={ false }>
+										{ activeTab === 'settings' ? <NewsletterSettingsBody isModernized /> : null }
+									</Tabs.Panel>
+								</>
+							) : (
+								<NewsletterSettingsBody isModernized />
+							) }
+						</NewsletterPage>
+					);
+				} }
 			</SubscribersBody>
 		</QueryClientProvider>
 	);

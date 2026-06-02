@@ -1,24 +1,38 @@
 import formatCurrency, { CURRENCIES } from '@automattic/format-currency';
-import { getSiteFragment } from '@automattic/jetpack-shared-extension-utils';
-import { AlignmentControl, BlockControls, InspectorControls } from '@wordpress/block-editor';
+import { getSiteFragment, useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import {
+	AlignmentControl,
+	BlockControls,
+	InspectorControls,
+	__experimentalBorderRadiusControl as BorderRadiusControl, // eslint-disable-line @wordpress/no-unsafe-wp-apis
+} from '@wordpress/block-editor';
+import {
+	BorderBoxControl,
+	Button,
 	Dashicon,
 	Dropdown,
 	ExternalLink,
 	Flex,
 	FlexBlock,
 	FlexItem,
+	Icon,
 	MenuGroup,
 	MenuItem,
 	PanelBody,
 	SelectControl,
 	TextControl,
 	ToggleControl,
+	__experimentalToggleGroupControl as ToggleGroupControl, // eslint-disable-line @wordpress/no-unsafe-wp-apis
+	__experimentalToggleGroupControlOption as ToggleGroupControlOption, // eslint-disable-line @wordpress/no-unsafe-wp-apis
+	__experimentalToolsPanel as ToolsPanel, // eslint-disable-line @wordpress/no-unsafe-wp-apis
+	__experimentalToolsPanelItem as ToolsPanelItem, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 	ToolbarGroup,
 	ToolbarItem,
 	ToolbarButton,
+	Tooltip,
 } from '@wordpress/components';
-import { useCallback } from '@wordpress/element';
+import { useSelect } from '@wordpress/data';
+import { useCallback, useRef } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { DOWN } from '@wordpress/keycodes';
 import {
@@ -26,7 +40,11 @@ import {
 	minimumTransactionAmountForCurrency,
 	SUPPORTED_CURRENCIES,
 } from '../../shared/currencies';
+import { store as membershipProductsStore } from '../../store/membership-products';
+import { TRIGGER_ICONS } from './icons';
 import { firstShownInterval } from './utils';
+
+const SETTING_DEBOUNCE_MS = 800;
 
 const INTERVAL_TO_ATTRIBUTE = {
 	'one-time': 'oneTimeDonation',
@@ -35,7 +53,42 @@ const INTERVAL_TO_ATTRIBUTE = {
 };
 
 const Controls = props => {
-	const { attributes, setAttributes } = props;
+	const { attributes, setAttributes, clientId } = props;
+	const { tracks } = useAnalytics();
+	const debounceTimers = useRef( {} );
+
+	const stripeConnectUrl = useSelect(
+		select => select( membershipProductsStore ).getConnectUrl() || '',
+		[]
+	);
+	const stripeConnected = ! stripeConnectUrl;
+
+	const recordSettingChange = useCallback(
+		( settingName, settingValue ) => {
+			tracks.recordEvent( 'jetpack_donations_setting_changed', {
+				feature: 'donations',
+				surface: 'block_editor',
+				setting_name: settingName,
+				setting_value: settingValue,
+				stripe_connected: stripeConnected,
+			} );
+		},
+		[ tracks, stripeConnected ]
+	);
+
+	const recordSettingChangeDebounced = useCallback(
+		( settingName, settingValue ) => {
+			if ( debounceTimers.current[ settingName ] ) {
+				clearTimeout( debounceTimers.current[ settingName ] );
+			}
+			debounceTimers.current[ settingName ] = setTimeout( () => {
+				recordSettingChange( settingName, settingValue );
+				delete debounceTimers.current[ settingName ];
+			}, SETTING_DEBOUNCE_MS );
+		},
+		[ recordSettingChange ]
+	);
+
 	const {
 		currency,
 		oneTimeDonation,
@@ -47,6 +100,12 @@ const Controls = props => {
 		customAmountPlaceholder,
 		minimumAmount,
 		maximumAmount,
+		displayMode,
+		triggerButtonText,
+		triggerIcon,
+		triggerSticky,
+		blockBorder,
+		blockBorderRadius,
 	} = attributes;
 
 	const stripeMin = minimumTransactionAmountForCurrency( currency );
@@ -66,6 +125,12 @@ const Controls = props => {
 		( defaultInterval === '1 month' && monthlyOn ) ||
 		( defaultInterval === '1 year' && annualOn );
 	const effectiveDefaultInterval = isDefaultIntervalShown ? defaultInterval : fallbackInterval;
+
+	const FREQUENCY_SETTING_NAME = {
+		'one-time': 'show_one_time',
+		'1 month': 'show_monthly',
+		'1 year': 'show_yearly',
+	};
 
 	const toggleDonation = ( interval, show ) => {
 		const donationAttribute = INTERVAL_TO_ATTRIBUTE[ interval ];
@@ -93,6 +158,7 @@ const Controls = props => {
 		}
 
 		setAttributes( updates );
+		recordSettingChange( FREQUENCY_SETTING_NAME[ interval ], show );
 	};
 
 	const setDonationValue = ( interval, key, value ) => {
@@ -121,12 +187,17 @@ const Controls = props => {
 	];
 	const amountValue = donation =>
 		donation.defaultAmountIndex !== undefined ? String( donation.defaultAmountIndex ) : '';
-	const onAmountChange = interval => value =>
-		setDonationValue(
-			interval,
-			'defaultAmountIndex',
-			value === '' ? undefined : parseInt( value, 10 )
-		);
+	const DEFAULT_AMOUNT_SETTING_NAME = {
+		'one-time': 'default_amount_one_time',
+		'1 month': 'default_amount_monthly',
+		'1 year': 'default_amount_yearly',
+	};
+
+	const onAmountChange = interval => value => {
+		const parsed = value === '' ? undefined : parseInt( value, 10 );
+		setDonationValue( interval, 'defaultAmountIndex', parsed );
+		recordSettingChange( DEFAULT_AMOUNT_SETTING_NAME[ interval ], parsed ?? null );
+	};
 
 	const setContentAlignment = useCallback(
 		value => setAttributes( { contentAlignment: value || '' } ),
@@ -158,6 +229,7 @@ const Controls = props => {
 			annualDonation: { ...annualDonation, amounts: defaultAmounts },
 			customAmountPlaceholder: undefined,
 		} );
+		recordSettingChange( 'currency', ccy );
 	};
 
 	return (
@@ -216,6 +288,60 @@ const Controls = props => {
 				</ToolbarGroup>
 			</BlockControls>
 			<InspectorControls>
+				<PanelBody title={ __( 'Display', 'jetpack' ) }>
+					<ToggleGroupControl
+						label={ __( 'Display mode', 'jetpack' ) }
+						value={ displayMode }
+						onChange={ value => setAttributes( { displayMode: value } ) }
+						isBlock
+						__nextHasNoMarginBottom={ true }
+					>
+						<ToggleGroupControlOption value="inline" label={ __( 'In-page', 'jetpack' ) } />
+						<ToggleGroupControlOption value="modal" label={ __( 'Pop-up', 'jetpack' ) } />
+					</ToggleGroupControl>
+					{ displayMode === 'modal' && (
+						<>
+							<ToggleControl
+								label={ __( 'Sticky', 'jetpack' ) }
+								help={ __( 'Fix the button to the bottom right corner of the page.', 'jetpack' ) }
+								checked={ !! triggerSticky }
+								onChange={ value => setAttributes( { triggerSticky: value } ) }
+								style={ { marginTop: 16 } }
+								__nextHasNoMarginBottom={ true }
+							/>
+							<TextControl
+								label={ __( 'Button text', 'jetpack' ) }
+								value={ triggerButtonText ?? '' }
+								placeholder={ __( 'Donate', 'jetpack' ) }
+								onChange={ value => setAttributes( { triggerButtonText: value || undefined } ) }
+								__nextHasNoMarginBottom={ true }
+							/>
+							<ToggleControl
+								label={ __( 'Show icon', 'jetpack' ) }
+								checked={ triggerIcon !== 'none' }
+								onChange={ value => setAttributes( { triggerIcon: value ? 'heart' : 'none' } ) }
+								style={ { marginTop: 16 } }
+								__nextHasNoMarginBottom={ true }
+							/>
+							{ triggerIcon !== 'none' && (
+								<div className="jetpack-donations__icon-picker">
+									{ TRIGGER_ICONS.map( ( { key, label, icon } ) => (
+										<Tooltip key={ key } text={ label }>
+											<Button
+												className="jetpack-donations__icon-option"
+												onClick={ () => setAttributes( { triggerIcon: key } ) }
+												aria-label={ label }
+												isPressed={ triggerIcon === key }
+											>
+												<Icon icon={ icon } size={ 20 } />
+											</Button>
+										</Tooltip>
+									) ) }
+								</div>
+							) }
+						</>
+					) }
+				</PanelBody>
 				<PanelBody title={ __( 'Settings', 'jetpack' ) }>
 					<ToggleControl
 						checked={ oneTimeOn }
@@ -243,7 +369,10 @@ const Controls = props => {
 					/>
 					<ToggleControl
 						checked={ showCustomAmount }
-						onChange={ value => setAttributes( { showCustomAmount: value } ) }
+						onChange={ value => {
+							setAttributes( { showCustomAmount: value } );
+							recordSettingChange( 'show_custom_amount', value );
+						} }
 						label={ __( 'Show custom amount option', 'jetpack' ) }
 						__nextHasNoMarginBottom={ true }
 					/>
@@ -262,7 +391,10 @@ const Controls = props => {
 						label={ __( 'Frequency', 'jetpack' ) }
 						value={ effectiveDefaultInterval }
 						options={ frequencyOptions }
-						onChange={ value => setAttributes( { defaultInterval: value } ) }
+						onChange={ value => {
+							setAttributes( { defaultInterval: value } );
+							recordSettingChange( 'default_frequency', value );
+						} }
 						__nextHasNoMarginBottom={ true }
 					/>
 					<h4
@@ -330,12 +462,12 @@ const Controls = props => {
 									hideLabelFromVision
 									label={ __( 'Suggested custom amount', 'jetpack' ) }
 									value={ effectiveCustomAmountPlaceholder }
-									onChange={ value =>
-										setAttributes( {
-											customAmountPlaceholder:
-												value === '' || value === undefined ? undefined : Number( value ),
-										} )
-									}
+									onChange={ value => {
+										const parsed =
+											value === '' || value === undefined ? undefined : Number( value );
+										setAttributes( { customAmountPlaceholder: parsed } );
+										recordSettingChangeDebounced( 'custom_amount_placeholder', parsed ?? null );
+									} }
 									min={ minimumTransactionAmountForCurrency( currency ) }
 									step={ 0.01 }
 									__nextHasNoMarginBottom={ true }
@@ -360,11 +492,11 @@ const Controls = props => {
 						type="number"
 						label={ __( 'Minimum amount', 'jetpack' ) }
 						value={ minimumAmount ?? '' }
-						onChange={ value =>
-							setAttributes( {
-								minimumAmount: value === '' ? undefined : Number( value ),
-							} )
-						}
+						onChange={ value => {
+							const parsed = value === '' ? undefined : Number( value );
+							setAttributes( { minimumAmount: parsed } );
+							recordSettingChangeDebounced( 'minimum_amount', parsed ?? null );
+						} }
 						min={ stripeMin }
 						step={ 0.01 }
 						__nextHasNoMarginBottom={ true }
@@ -373,11 +505,11 @@ const Controls = props => {
 						type="number"
 						label={ __( 'Maximum amount', 'jetpack' ) }
 						value={ maximumAmount ?? '' }
-						onChange={ value =>
-							setAttributes( {
-								maximumAmount: value === '' ? undefined : Number( value ),
-							} )
-						}
+						onChange={ value => {
+							const parsed = value === '' ? undefined : Number( value );
+							setAttributes( { maximumAmount: parsed } );
+							recordSettingChangeDebounced( 'maximum_amount', parsed ?? null );
+						} }
 						min={ minimumAmount ?? stripeMin }
 						step={ 0.01 }
 						help={ maximumHelp }
@@ -385,6 +517,46 @@ const Controls = props => {
 					/>
 				</PanelBody>
 			</InspectorControls>
+			{ displayMode !== 'modal' && (
+				<InspectorControls group="border">
+					<ToolsPanel
+						label={ __( 'Border', 'jetpack' ) }
+						resetAll={ () =>
+							setAttributes( { blockBorder: undefined, blockBorderRadius: undefined } )
+						}
+						panelId={ clientId }
+					>
+						<ToolsPanelItem
+							label={ __( 'Border', 'jetpack' ) }
+							hasValue={ () => !! blockBorder }
+							onDeselect={ () => setAttributes( { blockBorder: undefined } ) }
+							isShownByDefault
+							panelId={ clientId }
+						>
+							<BorderBoxControl
+								label={ __( 'Border', 'jetpack' ) }
+								value={ blockBorder }
+								onChange={ value => setAttributes( { blockBorder: value } ) }
+								enableAlpha
+								enableStyle
+								__next40pxDefaultSize
+							/>
+						</ToolsPanelItem>
+						<ToolsPanelItem
+							label={ __( 'Radius', 'jetpack' ) }
+							hasValue={ () => !! blockBorderRadius }
+							onDeselect={ () => setAttributes( { blockBorderRadius: undefined } ) }
+							isShownByDefault
+							panelId={ clientId }
+						>
+							<BorderRadiusControl
+								values={ blockBorderRadius }
+								onChange={ value => setAttributes( { blockBorderRadius: value } ) }
+							/>
+						</ToolsPanelItem>
+					</ToolsPanel>
+				</InspectorControls>
+			) }
 		</>
 	);
 };

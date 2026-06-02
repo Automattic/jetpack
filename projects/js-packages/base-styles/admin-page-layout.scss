@@ -162,7 +162,18 @@ $jp-breakpoint-mobile: 782px;
 	// a `display: block` div); `:has()` targets the whole chain regardless
 	// of depth. `min-width: 0` + `min-height: 0` let flex items shrink on
 	// both axes (defaults to content size which can cause overflow).
-	#wpbody-content :has(.jp-admin-page) {
+	// `:not(:has(.boot-layout__stage))` stops the chain at the boot stage. A
+	// `@wordpress/boot` dashboard mounts <AdminPage> inside `.boot-layout__stage`,
+	// and the containers above it — `.boot-layout`, `.boot-layout__surfaces`
+	// (boot's stage|inspector flex ROW), and boot's `display: contents`
+	// theme-provider wrapper — own that side-by-side layout. Flex-columning them
+	// would stack the inspector below the page and collapse boot's surfaces gap.
+	// Those ancestors all *contain* `.boot-layout__stage`, so the guard drops
+	// them while still flexing the stage (and anything below it) that the
+	// footer-pin chain needs. On non-boot pages nothing matches
+	// `.boot-layout__stage`, so the guard is always true and behavior is
+	// unchanged.
+	#wpbody-content :has(.jp-admin-page):not(:has(.boot-layout__stage)) {
 		flex: 1 1 auto;
 		min-height: 0;
 		min-width: 0;
@@ -206,8 +217,14 @@ $jp-breakpoint-mobile: 782px;
 	// admin-ui 2.0.0 moved internals to CSS Modules (no `.admin-ui-page*`
 	// class hooks anymore). We pass `className="jp-admin-page__page"` from
 	// <AdminPage>; admin-ui forwards it onto the page's outer node. The
-	// header is a stable `<header>` element directly inside that node, so
-	// we anchor to `> header` instead of a class.
+	// page's <Header> is always rendered as the first child of that node, so
+	// we anchor structurally to `> :first-child` instead of a class. We used
+	// to target `> header`, but @wordpress/admin-ui 2.1.0 (Gutenberg PR
+	// WordPress/gutenberg#78001, "Fix nested landmark in header") removed
+	// `render={ <header /> }` from the page header's Stack so the rendered
+	// element changed from `<header>` to `<div>`. `:first-child` matches
+	// regardless of element type, keeping us forward-compatible with 2.1+
+	// AND backward-compatible with 2.0's `<header>`.
 	.jp-admin-page__page {
 		flex: 1 1 auto;
 		min-height: 0;
@@ -216,7 +233,7 @@ $jp-breakpoint-mobile: 782px;
 		flex-direction: column;
 	}
 
-	.jp-admin-page__page > header {
+	.jp-admin-page__page > :first-child {
 		flex-shrink: 0;              // pinned at top of the flex column.
 	}
 
@@ -225,7 +242,7 @@ $jp-breakpoint-mobile: 782px;
 	// strip's own hairline becomes the only divider between header and tab
 	// content. Same `:has()` pattern used elsewhere in this mixin to react
 	// to the page's content shape.
-	.jp-admin-page__page:has(.jp-admin-page-tabs) > header {
+	.jp-admin-page__page:has(.jp-admin-page-tabs) > :first-child {
 		border-bottom: none;
 		padding-bottom: 0;
 	}
@@ -253,7 +270,7 @@ $jp-breakpoint-mobile: 782px;
 	// fill their bounded slot. Form-style pages keep working: their
 	// children stay content-sized (default `flex: 0 1 auto`) and any
 	// overflow still falls back to Container's `overflow: auto`.
-	.jp-admin-page__page > :not(header):not(.jetpack-footer) {
+	.jp-admin-page__page > :not(:first-child):not(.jetpack-footer) {
 		flex: 1 1 auto;
 		min-height: 0;
 		min-width: 0;
@@ -308,6 +325,23 @@ $jp-breakpoint-mobile: 782px;
 		// `lg + sm = 2xl` at the button's content edge — without touching
 		// the tab button's own padding.
 		padding-inline: var(--wpds-dimension-padding-sm, 8px);
+	}
+
+	// Opt-in modifier for hosts that render `<Tabs.List variant="minimal">`.
+	// Minimal tabs ship with `padding-inline: 0`, so the wrapper has to
+	// provide the full 2xl itself to keep the first tab flush with the
+	// header start.
+	.jp-admin-page-tabs--minimal {
+		padding-inline: var(--wpds-dimension-padding-2xl, 24px);
+	}
+
+	// Re-apply `--wpds-typography-font-size-md` from an unlayered selector.
+	// `@wordpress/ui` declares the token inside `@layer wp-ui-components`,
+	// but wp-admin core ships an unlayered `button { font-size: inherit }`
+	// reset that always wins layered rules. Remove once upstream wires
+	// `Tabs.Tab` into `@wordpress/ui`'s `global-css-defense` module.
+	.jp-admin-page-tabs [role="tab"] {
+		font-size: var(--wpds-typography-font-size-md, 13px);
 	}
 
 	// ── Mobile: admin bar grows to 46px; sidebar goes off-canvas ─────

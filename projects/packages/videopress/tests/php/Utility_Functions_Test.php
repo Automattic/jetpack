@@ -128,4 +128,44 @@ class Utility_Functions_Test extends BaseTestCase {
 		$this->assertSame( 1, $video_info->display_embed );
 		$this->assertSame( 1, $video_info->privacy_setting ); // 1 = Private
 	}
+
+	/**
+	 * Test videopress_is_finished_processing returns false when no VideoPress meta is present.
+	 */
+	public function test_videopress_is_finished_processing_without_meta() {
+		$post_id = wp_insert_post(
+			array(
+				'post_type'      => 'attachment',
+				'post_mime_type' => 'video/videopress',
+				'post_title'     => 'Test video',
+			)
+		);
+
+		$this->assertFalse( videopress_is_finished_processing( $post_id ) );
+	}
+
+	/**
+	 * Test videopress_is_finished_processing returns the stored finish timestamp when present.
+	 */
+	public function test_videopress_is_finished_processing_returns_timestamp() {
+		$post_id = wp_insert_post(
+			array(
+				'post_type'      => 'attachment',
+				'post_mime_type' => 'video/videopress',
+				'post_title'     => 'Test video',
+			)
+		);
+
+		$finish_time = time();
+		wp_update_attachment_metadata(
+			$post_id,
+			array(
+				'videopress' => array(
+					'finished' => $finish_time,
+				),
+			)
+		);
+
+		$this->assertSame( $finish_time, videopress_is_finished_processing( $post_id ) );
+	}
 }

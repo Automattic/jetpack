@@ -202,7 +202,7 @@ function get_attributes_with_defaults( $attr ) {
 	);
 
 	foreach ( $defaults as $id => $default ) {
-		$values[ $id ] = isset( $attr[ $id ] ) ? $attr[ $id ] : $default;
+		$values[ $id ] = $attr[ $id ] ?? $default;
 	}
 
 	return $values;

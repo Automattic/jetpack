@@ -533,7 +533,7 @@ class REST_Controller {
 
 		return new WP_Error(
 			isset( $body['error'] ) ? 'remote-error-' . $body['error'] : 'remote-error',
-			isset( $body['message'] ) ? $body['message'] : 'unknown remote error',
+			$body['message'] ?? 'unknown remote error',
 			array( 'status' => $status_code )
 		);
 	}

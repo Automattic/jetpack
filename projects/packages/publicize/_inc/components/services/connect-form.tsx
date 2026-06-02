@@ -1,11 +1,13 @@
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useCallback, useState } from '@wordpress/element';
-import { __, _x } from '@wordpress/i18n';
+import { __ } from '@wordpress/i18n';
 import { Button } from '@wordpress/ui';
 import clsx from 'clsx';
+import { useIsModernized } from '../../hooks/use-is-modernized';
 import { store } from '../../social-store';
 import { KeyringResult } from '../../social-store/types';
 import { CustomInputs } from './custom-inputs';
+import { ModernCustomInputs } from './custom-inputs-modern';
 import styles from './style.module.scss';
 import { SupportedService } from './types';
 import { useRequestAccess } from './use-request-access';
@@ -18,6 +20,8 @@ type ConnectFormProps = {
 	displayInputs?: boolean;
 	hasConnections?: boolean;
 	buttonLabel?: string;
+	/** When true, the modernized chassis sizes the submit button to sit flush in a disclosure row. */
+	compact?: boolean;
 };
 
 /**
@@ -34,8 +38,18 @@ export function ConnectForm( {
 	displayInputs,
 	hasConnections,
 	buttonLabel,
+	compact,
 }: ConnectFormProps ) {
+	const isModernized = useIsModernized();
 	const { setKeyringResult } = useDispatch( store );
+
+	// In the modernized chassis the submit button sits flush in a compact
+	// disclosure row unless it accompanies the custom-input fields. Legacy
+	// passes no `size` (undefined) to keep the trunk button sizing.
+	let buttonSize: 'default' | 'compact' | undefined;
+	if ( compact ) {
+		buttonSize = displayInputs ? 'default' : 'compact';
+	}
 
 	const { isConnectionsModalOpen } = useSelect( select => select( store ), [] );
 
@@ -87,13 +101,18 @@ export function ConnectForm( {
 		>
 			{ displayInputs ? (
 				<div className={ clsx( styles[ 'fields-wrapper' ], styles.input ) }>
-					<CustomInputs service={ service } />
+					{ isModernized ? (
+						<ModernCustomInputs service={ service } />
+					) : (
+						<CustomInputs service={ service } />
+					) }
 				</div>
 			) : null }
 
 			<div className={ styles[ 'fields-wrapper' ] }>
 				<Button
 					variant={ hasConnections ? 'outline' : 'solid' }
+					size={ buttonSize }
 					type="submit"
 					disabled={ isFetchingServicesList }
 				>
@@ -106,9 +125,14 @@ export function ConnectForm( {
 							return __( 'Connecting…', 'jetpack-publicize-pkg' );
 						}
 
-						return hasConnections
-							? _x( 'Connect more', '', 'jetpack-publicize-pkg' )
-							: __( 'Connect', 'jetpack-publicize-pkg' );
+						// Hold each label in its own variable and select with the
+						// ternary afterwards. Picking inline (`cond ? __( 'A' ) :
+						// __( 'B' )`) lets the minifier fold both branches into one
+						// `__( cond ? 'A' : 'B' )` call, which the i18n string
+						// extraction can no longer read.
+						const connectMoreLabel = __( 'Connect more', 'jetpack-publicize-pkg' );
+						const connectLabel = __( 'Connect', 'jetpack-publicize-pkg' );
+						return hasConnections ? connectMoreLabel : connectLabel;
 					} )( buttonLabel ) }
 				</Button>
 			</div>

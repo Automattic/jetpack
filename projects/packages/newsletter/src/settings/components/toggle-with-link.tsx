@@ -4,7 +4,7 @@
 import analytics from '@automattic/jetpack-analytics';
 import { getAdminUrl, type SiteType } from '@automattic/jetpack-script-data';
 import { ToggleControl } from '@wordpress/components';
-import { type Field } from '@wordpress/dataviews/wp';
+import { type Field } from '@wordpress/dataviews';
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Link } from '@wordpress/ui';

@@ -75,7 +75,6 @@ class REST_Controller_Test extends Search_TestCase {
 			array(
 				'type'              => 'boolean',
 				'sanitize_callback' => 'rest_sanitize_boolean',
-				'show_in_rest'      => true,
 				'default'           => false,
 			)
 		);
@@ -140,7 +139,14 @@ class REST_Controller_Test extends Search_TestCase {
 			'swap_classic_to_inline_search' => false,
 			'ai_answers_enabled'            => false,
 		);
-		$expected     = array_merge( $new_settings, array( 'experience' => 'overlay' ) );
+		$expected     = array_merge(
+			$new_settings,
+			array(
+				'experience'                           => 'overlay',
+				'search_suggestions_enabled'           => false,
+				'override_woocommerce_search_template' => false,
+			)
+		);
 
 		$request = new WP_REST_Request( 'POST', '/jetpack/v4/search/settings' );
 		$request->set_header( 'content-type', 'application/json' );
@@ -193,7 +199,14 @@ class REST_Controller_Test extends Search_TestCase {
 			'swap_classic_to_inline_search' => false,
 			'ai_answers_enabled'            => false,
 		);
-		$expected     = array_merge( $new_settings, array( 'experience' => 'off' ) );
+		$expected     = array_merge(
+			$new_settings,
+			array(
+				'experience'                           => 'off',
+				'search_suggestions_enabled'           => false,
+				'override_woocommerce_search_template' => false,
+			)
+		);
 
 		$request = new WP_REST_Request( 'POST', '/jetpack/v4/search/settings' );
 		$request->set_header( 'content-type', 'application/json' );
@@ -212,11 +225,13 @@ class REST_Controller_Test extends Search_TestCase {
 			'module_active' => false,
 		);
 		$expected     = array(
-			'module_active'                 => false,
-			'instant_search_enabled'        => false,
-			'swap_classic_to_inline_search' => false,
-			'experience'                    => 'off',
-			'ai_answers_enabled'            => false,
+			'module_active'                        => false,
+			'instant_search_enabled'               => false,
+			'swap_classic_to_inline_search'        => false,
+			'experience'                           => 'off',
+			'ai_answers_enabled'                   => false,
+			'search_suggestions_enabled'           => false,
+			'override_woocommerce_search_template' => false,
 		);
 
 		$request = new WP_REST_Request( 'POST', '/jetpack/v4/search/settings' );
@@ -236,11 +251,13 @@ class REST_Controller_Test extends Search_TestCase {
 			'instant_search_enabled' => true,
 		);
 		$expected     = array(
-			'module_active'                 => true,
-			'instant_search_enabled'        => true,
-			'swap_classic_to_inline_search' => false,
-			'experience'                    => 'overlay',
-			'ai_answers_enabled'            => false,
+			'module_active'                        => true,
+			'instant_search_enabled'               => true,
+			'swap_classic_to_inline_search'        => false,
+			'experience'                           => 'overlay',
+			'ai_answers_enabled'                   => false,
+			'search_suggestions_enabled'           => false,
+			'override_woocommerce_search_template' => false,
 		);
 
 		$request = new WP_REST_Request( 'POST', '/jetpack/v4/search/settings' );
@@ -260,11 +277,13 @@ class REST_Controller_Test extends Search_TestCase {
 			'swap_classic_to_inline_search' => true,
 		);
 		$expected     = array(
-			'module_active'                 => false,
-			'instant_search_enabled'        => false,
-			'swap_classic_to_inline_search' => true,
-			'experience'                    => 'off',
-			'ai_answers_enabled'            => false,
+			'module_active'                        => false,
+			'instant_search_enabled'               => false,
+			'swap_classic_to_inline_search'        => true,
+			'experience'                           => 'off',
+			'ai_answers_enabled'                   => false,
+			'search_suggestions_enabled'           => false,
+			'override_woocommerce_search_template' => false,
 		);
 
 		$request = new WP_REST_Request( 'POST', '/jetpack/v4/search/settings' );
@@ -284,11 +303,13 @@ class REST_Controller_Test extends Search_TestCase {
 			'swap_classic_to_inline_search' => false,
 		);
 		$expected     = array(
-			'module_active'                 => false,
-			'instant_search_enabled'        => false,
-			'swap_classic_to_inline_search' => false,
-			'experience'                    => 'off',
-			'ai_answers_enabled'            => false,
+			'module_active'                        => false,
+			'instant_search_enabled'               => false,
+			'swap_classic_to_inline_search'        => false,
+			'experience'                           => 'off',
+			'ai_answers_enabled'                   => false,
+			'search_suggestions_enabled'           => false,
+			'override_woocommerce_search_template' => false,
 		);
 
 		$request = new WP_REST_Request( 'POST', '/jetpack/v4/search/settings' );
@@ -548,6 +569,18 @@ class REST_Controller_Test extends Search_TestCase {
 					'experience'                    => 'inline',
 					'swap_classic_to_inline_search' => true,
 				),
+				array(
+					'experience'                           => 'embedded',
+					'override_woocommerce_search_template' => true,
+				),
+				array(
+					'experience'                 => 'embedded',
+					'search_suggestions_enabled' => true,
+				),
+				array(
+					'experience'         => 'embedded',
+					'ai_answers_enabled' => true,
+				),
 			) as $body
 		) {
 			$request = new WP_REST_Request( 'POST', '/jetpack/v4/search/settings' );
@@ -610,6 +643,34 @@ class REST_Controller_Test extends Search_TestCase {
 		$this->assertEquals( 200, $response->get_status() );
 		$data = $response->get_data();
 		$this->assertFalse( $data['ai_answers_enabled'] );
+	}
+
+	/**
+	 * The override option round-trips through the settings endpoint on
+	 * its own and persists to its backing option.
+	 */
+	public function test_update_settings_override_woocommerce_search_template_toggles() {
+		wp_set_current_user( $this->admin_id );
+
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/search/settings' );
+		$request->set_header( 'content-type', 'application/json' );
+		$request->set_body(
+			wp_json_encode( array( 'override_woocommerce_search_template' => true ), JSON_UNESCAPED_SLASHES )
+		);
+		$response = $this->server->dispatch( $request );
+		$this->assertEquals( 200, $response->get_status() );
+		$this->assertTrue( $response->get_data()['override_woocommerce_search_template'] );
+		$this->assertTrue( (bool) get_option( 'jetpack_search_override_woocommerce_search_template' ) );
+
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/search/settings' );
+		$request->set_header( 'content-type', 'application/json' );
+		$request->set_body(
+			wp_json_encode( array( 'override_woocommerce_search_template' => false ), JSON_UNESCAPED_SLASHES )
+		);
+		$response = $this->server->dispatch( $request );
+		$this->assertEquals( 200, $response->get_status() );
+		$this->assertFalse( $response->get_data()['override_woocommerce_search_template'] );
+		$this->assertFalse( (bool) get_option( 'jetpack_search_override_woocommerce_search_template' ) );
 	}
 
 	/**
@@ -774,6 +835,169 @@ class REST_Controller_Test extends Search_TestCase {
 
 		$response = $this->server->dispatch( $request );
 		$this->assertEquals( 401, $response->get_status() );
+	}
+
+	/**
+	 * DELETE /jetpack/v4/search/templates/<post_type> requires manage_options —
+	 * an editor user gets 403 from `require_admin_privilege_callback`.
+	 */
+	public function test_reset_singleton_template_unauthorized_for_editor() {
+		wp_set_current_user( $this->editor_id );
+
+		$request  = new WP_REST_Request( 'DELETE', '/jetpack/v4/search/templates/' . Search_Template::POST_TYPE );
+		$response = $this->server->dispatch( $request );
+
+		$this->assertEquals( 403, $response->get_status() );
+	}
+
+	/**
+	 * Anonymous callers get 401 from `require_admin_privilege_callback` — the
+	 * same auth matrix the rest of the controller's destructive endpoints
+	 * (`activate_plan`, `deactivate_plan`) cover.
+	 */
+	public function test_reset_singleton_template_unauthorized_for_anonymous() {
+		wp_set_current_user( 0 );
+
+		$request  = new WP_REST_Request( 'DELETE', '/jetpack/v4/search/templates/' . Search_Template::POST_TYPE );
+		$response = $this->server->dispatch( $request );
+
+		$this->assertEquals( 401, $response->get_status() );
+	}
+
+	/**
+	 * An unknown post_type slug is rejected by the handler's
+	 * `resolve_singleton_template_class()` lookup with a stable 404 + error
+	 * code, so the dashboard surfaces a sensible message instead of leaking
+	 * an upstream 500 if a future slug change drifts client/server.
+	 */
+	public function test_reset_singleton_template_rejects_unknown_post_type() {
+		wp_set_current_user( $this->admin_id );
+
+		$request  = new WP_REST_Request( 'DELETE', '/jetpack/v4/search/templates/not_a_real_cpt' );
+		$response = $this->server->dispatch( $request );
+
+		$this->assertEquals( 404, $response->get_status() );
+		$this->assertSame( 'jetpack_search_template_unknown', $response->get_data()['code'] );
+	}
+
+	/**
+	 * `Overlay_Template::POST_TYPE` is the other half of the resolver
+	 * allowlist in `resolve_singleton_template_class()`; the rest of the
+	 * suite drives only the `Search_Template` slug, so a typo in the
+	 * Overlay entry of the map would slip through. Hitting the route
+	 * with the Overlay slug and getting back the stable
+	 * `jetpack_search_template_not_customized` code proves the slug
+	 * resolved to its class (otherwise it would be the
+	 * `jetpack_search_template_unknown` path).
+	 */
+	public function test_reset_singleton_template_recognizes_overlay_post_type() {
+		wp_set_current_user( $this->admin_id );
+		Overlay_Template::register_post_type();
+		delete_option( Overlay_Template::OPTION_POST_ID );
+		Overlay_Template::reset_customized_content_cache();
+
+		$request  = new WP_REST_Request( 'DELETE', '/jetpack/v4/search/templates/' . Overlay_Template::POST_TYPE );
+		$response = $this->server->dispatch( $request );
+
+		$this->assertEquals( 404, $response->get_status() );
+		$this->assertSame( 'jetpack_search_template_not_customized', $response->get_data()['code'] );
+	}
+
+	/**
+	 * No customization on file ⇒ the handler returns 404 with a stable error
+	 * code so the dashboard can surface a meaningful message instead of a 500.
+	 */
+	public function test_reset_singleton_template_returns_404_when_not_customized() {
+		wp_set_current_user( $this->admin_id );
+		Search_Template::register_post_type();
+		delete_option( Search_Template::OPTION_POST_ID );
+		Search_Template::reset_customized_content_cache();
+
+		$request  = new WP_REST_Request( 'DELETE', '/jetpack/v4/search/templates/' . Search_Template::POST_TYPE );
+		$response = $this->server->dispatch( $request );
+
+		$this->assertEquals( 404, $response->get_status() );
+		$this->assertSame( 'jetpack_search_template_not_customized', $response->get_data()['code'] );
+	}
+
+	/**
+	 * If `wp_delete_post()` itself fails (here simulated by short-circuiting
+	 * via the `pre_delete_post` filter), the handler returns a 500 with a
+	 * stable error code rather than silently claiming success. Covers the
+	 * defensive branch that exists for the wp_delete_post → false path
+	 * (post vanished mid-request, plugin veto, etc.).
+	 */
+	public function test_reset_singleton_template_returns_500_when_delete_fails() {
+		wp_set_current_user( $this->admin_id );
+		Search_Template::register_post_type();
+		$post_id = wp_insert_post(
+			array(
+				'post_type'    => Search_Template::POST_TYPE,
+				'post_status'  => 'publish',
+				'post_content' => 'will-fail-to-delete',
+			)
+		);
+		update_option( Search_Template::OPTION_POST_ID, $post_id );
+		Search_Template::reset_customized_content_cache();
+		$veto = static function () {
+			return false;
+		};
+		add_filter( 'pre_delete_post', $veto );
+		try {
+			$request  = new WP_REST_Request( 'DELETE', '/jetpack/v4/search/templates/' . Search_Template::POST_TYPE );
+			$response = $this->server->dispatch( $request );
+
+			$this->assertEquals( 500, $response->get_status() );
+			$this->assertSame( 'jetpack_search_template_reset_failed', $response->get_data()['code'] );
+			// The post is still on disk because the filter vetoed deletion.
+			$this->assertNotNull( get_post( $post_id ) );
+		} finally {
+			remove_filter( 'pre_delete_post', $veto );
+			wp_delete_post( $post_id, true );
+			delete_option( Search_Template::OPTION_POST_ID );
+			Search_Template::reset_customized_content_cache();
+		}
+	}
+
+	/**
+	 * Happy path: an existing customization is force-deleted, the option
+	 * pointer is cleared (via `before_delete_post`), and the route returns
+	 * `{deleted: true}`. This is the wpcom-origin-reachable replacement for
+	 * the legacy `/wp/v2/<rest_base>/<id>?force=true` DELETE.
+	 */
+	public function test_reset_singleton_template_deletes_customization_and_clears_option() {
+		wp_set_current_user( $this->admin_id );
+		Search_Template::register_post_type();
+		// The cleanup hook (option pointer + per-class cache) is normally
+		// wired by `Singleton_Template_Cpt::init()`. The test bootstrap only
+		// registers the CPT, so wire the hook locally for this test and
+		// remove it in the cleanup branch to keep the global state pristine.
+		$cleanup_cb = array( Search_Template::class, 'maybe_cleanup_on_singleton_delete' );
+		add_action( 'before_delete_post', $cleanup_cb );
+		try {
+			$post_id = wp_insert_post(
+				array(
+					'post_type'    => Search_Template::POST_TYPE,
+					'post_status'  => 'publish',
+					'post_content' => 'will-be-restored',
+				)
+			);
+			update_option( Search_Template::OPTION_POST_ID, $post_id );
+			Search_Template::reset_customized_content_cache();
+			$this->assertTrue( Search_Template::is_customized() );
+
+			$request  = new WP_REST_Request( 'DELETE', '/jetpack/v4/search/templates/' . Search_Template::POST_TYPE );
+			$response = $this->server->dispatch( $request );
+
+			$this->assertEquals( 200, $response->get_status() );
+			$this->assertSame( array( 'deleted' => true ), $response->get_data() );
+			$this->assertSame( 0, (int) get_option( Search_Template::OPTION_POST_ID, 0 ) );
+			$this->assertNull( get_post( $post_id ) );
+		} finally {
+			remove_action( 'before_delete_post', $cleanup_cb );
+			delete_option( Search_Template::OPTION_POST_ID );
+			Search_Template::reset_customized_content_cache();
+		}
 	}
 
 	/**

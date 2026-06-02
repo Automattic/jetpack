@@ -8,8 +8,6 @@
  * @package automattic/jetpack
  */
 
-// @phan-file-suppress PhanUndeclaredFunction, PhanUndeclaredClassMethod @phan-suppress-current-line UnusedSuppression -- Abilities API added in WP 6.9.
-
 namespace Automattic\Jetpack\Plugin\Abilities;
 
 use Automattic\Jetpack\Connection\Client;
@@ -127,6 +125,10 @@ class Newsletter_Abilities extends Registrar {
 						'idempotent'  => true,
 					),
 					'show_in_rest' => true,
+					'mcp'          => array(
+						'public' => true,
+						'type'   => 'tool', // default is already "tool", but can be explicit.
+					),
 				),
 			),
 
@@ -157,6 +159,10 @@ class Newsletter_Abilities extends Registrar {
 						'idempotent'  => true,
 					),
 					'show_in_rest' => true,
+					'mcp'          => array(
+						'public' => true,
+						'type'   => 'tool', // default is already "tool", but can be explicit.
+					),
 				),
 			),
 
@@ -189,6 +195,10 @@ class Newsletter_Abilities extends Registrar {
 						'idempotent'  => true,
 					),
 					'show_in_rest' => true,
+					'mcp'          => array(
+						'public' => true,
+						'type'   => 'tool', // default is already "tool", but can be explicit.
+					),
 				),
 			),
 		);

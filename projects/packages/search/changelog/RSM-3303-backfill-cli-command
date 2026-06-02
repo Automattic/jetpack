@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Search: Add `wp jetpack-search backfill_taxonomy_slot_mapping [--mode=mirror|rebuild]` so operators can backfill the custom-taxonomy → reserved-slot projection without reaching for `wp eval`.

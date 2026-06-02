@@ -21,7 +21,7 @@ type SchedulePostOptions = {
 export function useSchedulePost() {
 	const { scheduleShares, openUnifiedModal } = useDispatch( socialStore );
 	const { message } = useSocialMediaMessage();
-	const { connectionsReadyToShare } = useSocialMediaConnections();
+	const { enabledConnections } = useSocialMediaConnections();
 	const navigator = useNavigator();
 
 	const openSharingActivity = useCallback( () => {
@@ -37,7 +37,7 @@ export function useSchedulePost() {
 
 	return useCallback(
 		async ( { timestamp }: SchedulePostOptions ) => {
-			const connectionIds = connectionsReadyToShare.map( connection =>
+			const connectionIds = enabledConnections.map( connection =>
 				Number( connection.connection_id )
 			);
 
@@ -59,6 +59,6 @@ export function useSchedulePost() {
 
 			return await scheduleShares( { connectionIds, message, timestamp }, { savePost, actions } );
 		},
-		[ connectionsReadyToShare, message, openSharingActivity, scheduleShares ]
+		[ enabledConnections, message, openSharingActivity, scheduleShares ]
 	);
 }

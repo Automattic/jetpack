@@ -58,25 +58,36 @@
 		}
 	}
 
+	// Badge text reads the page surface so it inverts polarity on top of the
+	// foreground-mixed badge background.
 	&__badge-count {
-		color: var(--wp--preset--color--background, #fff);
+		color: var(--jp-search-page-surface, var(--wp--preset--color--background, #fff));
 	}
 
-	&__panel {
+	// Panel base — popover form. Collapsed by default; visibility is driven
+	// by `.is-popover-open` on the root (toggled by the Interactivity store
+	// via `data-wp-class--is-popover-open`) rather than the `hidden`
+	// attribute — overriding `[hidden]` via CSS leaves the attribute set,
+	// which screen readers still respect even though sighted users see the
+	// content.
+	// Descendant selector raises specificity to (0,2,0), beating
+	// `@wordpress/components` `[role="region"]{position:relative}` at
+	// (0,1,0) which otherwise wins on logged-in pages.
+	& &__panel {
 		position: absolute;
 		inset-inline-end: 0;
 		inset-block-start: calc(100% + 4px);
 		min-width: 260px;
 		max-width: min(360px, 90vw);
 		z-index: 20;
-		display: flex;
+		display: none;
 		flex-direction: column;
 		gap: 1rem;
 		padding: 12px;
-		background: var(--wp--preset--color--base);
-		// The panel owns its surface, so don't inherit a low-contrast body
-		// accent color from the surrounding page.
-		color: var(--wp--preset--color--contrast);
+		// `background-color` longhand (not shorthand) — `background:` collapses
+		// to `transparent` when the var resolves to nothing.
+		background-color: var(--jp-search-page-surface, var(--wp--preset--color--base, var(--wp--preset--color--background, #fff)));
+		color: var(--jp-search-page-ink, var(--wp--preset--color--contrast, var(--wp--preset--color--foreground, inherit)));
 		// Reset the inherited theme base size so popover body text tracks the
 		// search-results title (also 1rem) instead of the host theme's
 		// oversized default. Rem-based children (filter title, count pill)
@@ -86,14 +97,27 @@
 		border-color: color-mix(in sRGB, currentColor 15%, transparent);
 		border-radius: 4px;
 		box-shadow: 0 4px 16px color-mix(in sRGB, currentColor 12%, transparent);
+	}
 
-		&[hidden] {
-			display: none;
-		}
+	&.is-popover-open &__panel {
+		display: flex;
+	}
 
-		&--editor {
-			position: static;
-			box-shadow: none;
-		}
+	// Editor preview renders the panel inline (no floating popover) so authors
+	// can edit it — shown only when the trigger has been toggled open (mirrors
+	// the front-end `.is-popover-open` hook, but driven by editor-local React
+	// state).
+	&.is-editor-preview.is-popover-open &__panel {
+		position: static;
+		display: flex;
+		min-width: 0;
+		max-width: none;
+		padding: 0;
+		background: transparent;
+		color: inherit;
+		border: none;
+		border-radius: 0;
+		box-shadow: none;
+		z-index: auto;
 	}
 }

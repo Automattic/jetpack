@@ -1,3 +1,0 @@
-Significance: patch
-Type: changed
-Comment: Search dashboard: render the tab strip with the canonical `jp-admin-page-tabs` wrapper and `Tabs.List` `variant="minimal"`, matching the other modernized Jetpack admin pages (Podcast, Protect, Scan).

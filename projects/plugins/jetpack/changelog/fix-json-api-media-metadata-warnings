@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+JSON API: guard media metadata access to avoid PHP warnings when attachment metadata is missing or incomplete.

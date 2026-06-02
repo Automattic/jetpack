@@ -5,6 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.5] - 2026-06-01
+### Fixed
+- Stop the admin-page-layout flex chain at the boot stage so a @wordpress/boot dashboard's inspector renders beside the page instead of below it. [#49199]
+
+## [1.2.4] - 2026-05-21
+### Changed
+- Update package dependencies. [#48405]
+
+### Fixed
+- Base styles: Update admin-page-layout mixin's header selector from `> header` to `> :first-child` so it keeps matching after @wordpress/admin-ui 2.1 changed the page header element from `<header>` to `<div>`. [#49006]
+
+## [1.2.3] - 2026-05-19
+### Changed
+- Admin page tabs: Add a minimal-tabs modifier and restore the intended tab font size in WP Admin. [#48908]
+
 ## [1.2.2] - 2026-05-14
 ### Added
 - admin-page-layout: add `jetpack-admin-page-layout-wp-build` mixin that layers defensive resets for wp-admin's `ul li { margin-bottom }` and `a { text-decoration: underline }` defaults onto the shared chrome, so wp-build dashboards rendering admin-ui `<Breadcrumbs>` don't inherit those globals. Non-wp-build dashboards continue using `jetpack-admin-page-layout` and stay untouched. [#48682]
@@ -523,6 +538,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies.
 - Use Node 16.7.0 in tooling. This shouldn't change the behavior of the code itself.
 
+[1.2.5]: https://github.com/Automattic/jetpack-base-styles/compare/1.2.4...1.2.5
+[1.2.4]: https://github.com/Automattic/jetpack-base-styles/compare/1.2.3...1.2.4
+[1.2.3]: https://github.com/Automattic/jetpack-base-styles/compare/1.2.2...1.2.3
 [1.2.2]: https://github.com/Automattic/jetpack-base-styles/compare/1.2.1...1.2.2
 [1.2.1]: https://github.com/Automattic/jetpack-base-styles/compare/1.2.0...1.2.1
 [1.2.0]: https://github.com/Automattic/jetpack-base-styles/compare/1.1.0...1.2.0

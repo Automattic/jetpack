@@ -2,15 +2,16 @@ import { SocialServiceIcon } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Link } from '@wordpress/ui';
-import connectionsFacebook from '../../assets/connections-facebook.webp';
-import connectionsInstagramBusiness from '../../assets/connections-instagram-business.webp';
-import connectionsLinkedin from '../../assets/connections-linkedin.webp';
-import connectionsNextdoor from '../../assets/connections-nextdoor.webp';
-import connectionsThreads from '../../assets/connections-threads.webp';
-import connectionsTumblr from '../../assets/connections-tumblr.webp';
 import { ConnectionService } from '../../types';
+import { assetUrl } from '../../utils';
 import { ServiceUiDetails } from './types';
-import { XNotice } from './x-notice';
+
+const connectionsFacebook = assetUrl( 'connections-facebook.webp' );
+const connectionsInstagramBusiness = assetUrl( 'connections-instagram-business.webp' );
+const connectionsLinkedin = assetUrl( 'connections-linkedin.webp' );
+const connectionsNextdoor = assetUrl( 'connections-nextdoor.webp' );
+const connectionsThreads = assetUrl( 'connections-threads.webp' );
+const connectionsTumblr = assetUrl( 'connections-tumblr.webp' );
 
 /**
  * Get the UI details for a given service.
@@ -230,23 +231,6 @@ export function getServiceUiDetails( id: ConnectionService[ 'id' ] ): ServiceUiD
 							src={ connectionsTumblr }
 							alt={ __( 'Add Tumblr connection', 'jetpack-publicize-pkg' ) }
 						/>
-					),
-				],
-			};
-
-		case 'x':
-			return {
-				icon: props => <SocialServiceIcon serviceName="x" { ...props } />,
-				description: __( 'Share with your X network.', 'jetpack-publicize-pkg' ),
-				examples: [
-					() => (
-						<>
-							{ __(
-								'You asked, we listened. You can share to X directly from your Jetpack site again.',
-								'jetpack-publicize-pkg'
-							) }
-							<XNotice />
-						</>
 					),
 				],
 			};

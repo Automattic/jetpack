@@ -130,7 +130,7 @@ class Jetpack_Twitter_Timeline_Widget extends WP_Widget {
 
 		$output .= $args['before_widget'];
 
-		$title = isset( $instance['title'] ) ? $instance['title'] : '';
+		$title = $instance['title'] ?? '';
 
 		/** This filter is documented in core/src/wp-includes/default-widgets.php */
 		$title = apply_filters( 'widget_title', $title );
@@ -192,8 +192,8 @@ class Jetpack_Twitter_Timeline_Widget extends WP_Widget {
 		 */
 		$timeline_placeholder = apply_filters( 'jetpack_twitter_timeline_placeholder', $timeline_placeholder );
 
-		$type      = ( isset( $instance['type'] ) ? $instance['type'] : '' );
-		$widget_id = ( isset( $instance['widget-id'] ) ? $instance['widget-id'] : '' );
+		$type      = ( $instance['type'] ?? '' );
+		$widget_id = ( $instance['widget-id'] ?? '' );
 
 		if ( class_exists( 'Jetpack_AMP_Support' ) && Jetpack_AMP_Support::is_amp_request() ) {
 			$width   = ! empty( $instance['width'] ) ? $instance['width'] : 600;

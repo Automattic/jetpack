@@ -293,7 +293,7 @@ class Connections_Post_Field {
 			return empty( $request_connections ) ? $post : $permission_check;
 		}
 		// memoize.
-		$this->get_meta_to_update( $request_connections, isset( $post->ID ) ? $post->ID : 0 );
+		$this->get_meta_to_update( $request_connections, $post->ID ?? 0 );
 
 		if ( isset( $post->ID ) ) {
 			// Set the meta before we mark the post as published so that publicize works as expected.
@@ -409,10 +409,6 @@ class Connections_Post_Field {
 			}
 
 			$available_connections_by_connection_id[ $id ]['enabled'] = $enabled;
-		}
-
-		foreach ( Publicize_Base::get_x_connection_ids_to_skip( $available_connections_by_connection_id ) as $skip_id ) {
-			$available_connections_by_connection_id[ $skip_id ]['enabled'] = false;
 		}
 
 		$meta_to_update = array();

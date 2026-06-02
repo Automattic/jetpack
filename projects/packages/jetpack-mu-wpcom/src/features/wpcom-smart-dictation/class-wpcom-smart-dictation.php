@@ -5,7 +5,7 @@
  * @package automattic/jetpack-mu-wpcom
  */
 
-namespace A8C\FSE;
+namespace A8C\WPCOM_DICTATION;
 
 use Automattic\Jetpack\Status\Host;
 
@@ -18,6 +18,20 @@ class WPCOM_Smart_Dictation {
 	 */
 	public static function init() {
 		add_action( 'admin_enqueue_scripts', array( self::class, 'enqueue_scripts' ), 100 );
+		add_action( 'rest_api_init', array( self::class, 'register_rest_api' ) );
+	}
+
+	/**
+	 * Register the Smart Dictation endpoints.
+	 */
+	public static function register_rest_api() {
+		if ( ( new Host() )->is_wpcom_simple() ) {
+			return;
+		}
+
+		require_once __DIR__ . '/class-wp-rest-wpcom-smart-dictation-client-secret.php';
+		$controller = new WP_REST_WPCOM_Smart_Dictation_Client_Secret();
+		$controller->register_rest_route();
 	}
 
 	/**
@@ -68,17 +82,10 @@ class WPCOM_Smart_Dictation {
 	 * Enqueue the Smart Dictation assets.
 	 */
 	public static function enqueue_scripts() {
-		$is_simple_site = ( new Host() )->is_wpcom_simple();
-		if ( ! $is_simple_site ) {
-			return;
-		}
-
-		$asset_file = self::get_assets_json( 'widgets.wp.com/wpcom-smart-dictation/wpcom-smart-dictation.asset.json' );
-		$is_proxied = self::is_proxied();
-		$is_a11n    = function_exists( '\is_automattician' ) && \is_automattician();
-
-		if ( self::is_block_editor() && $is_proxied && $is_a11n ) {
-			$version = ( is_array( $asset_file ) && isset( $asset_file['version'] ) )
+		if ( self::is_block_editor() && 'en' === self::determine_iso_639_locale() ) {
+			$asset_file = self::get_assets_json( 'widgets.wp.com/wpcom-smart-dictation/wpcom-smart-dictation.asset.json' );
+			$is_a11n    = function_exists( '\is_automattician' ) && \is_automattician();
+			$version    = ( is_array( $asset_file ) && isset( $asset_file['version'] ) )
 				? $asset_file['version']
 				: false;
 			wp_enqueue_script(
