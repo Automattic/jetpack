@@ -5,7 +5,7 @@
  * @package automattic/jetpack-beta
  */
 
-// @phan-file-suppress PhanUndeclaredFunction, PhanUndeclaredClassMethod -- Abilities API added in WP 6.9.
+// @phan-file-suppress PhanUndeclaredFunction, PhanUndeclaredClassMethod @phan-suppress-current-line UnusedSuppression -- Abilities API added in WP 6.9; suppressions needed for older-WP compatibility runs.
 
 namespace Automattic\JetpackBeta\Abilities;
 
@@ -419,10 +419,10 @@ class Beta_Abilities extends Registrar {
 		foreach ( $all_plugins as $slug => $plugin ) {
 			if ( $plugin->is_active( 'stable' ) ) {
 				$active_which   = 'stable';
-				$active_version = $plugin->stable_pretty_version() ?? null;
+				$active_version = $plugin->stable_pretty_version();
 			} elseif ( $plugin->is_active( 'dev' ) ) {
 				$active_which   = 'dev';
-				$active_version = $plugin->dev_pretty_version() ?? null;
+				$active_version = $plugin->dev_pretty_version();
 			} else {
 				$active_which   = null;
 				$active_version = null;

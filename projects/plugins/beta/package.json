@@ -4,7 +4,7 @@
 	"description": "Serves beta and PR branches of Jetpack to a WordPress install near you!",
 	"homepage": "https://jetpack.com",
 	"bugs": {
-		"url": "https://github.com/Automattic/jetpack/labels/[Plugin] Jetpack Beta"
+		"url": "https://github.com/Automattic/jetpack/labels/[Plugin] Beta"
 	},
 	"repository": {
 		"type": "git",
