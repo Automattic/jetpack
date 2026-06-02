@@ -137,6 +137,7 @@ class Initializer {
 	private static function active_initialization() {
 		Attachment_Handler::init();
 		Jwt_Token_Bridge::init();
+		Caption_Drafts::init();
 		Initial_State::init();
 		XMLRPC::init();
 		Block_Editor_Content::init();

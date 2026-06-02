@@ -1,12 +1,17 @@
 .videopress-caption-manager.components-modal__frame {
-	width: min(1120px, calc(100vw - 48px));
+	width: min(1320px, calc(100vw - 40px));
+	height: min(860px, calc(100vh - 40px));
 	max-width: none;
 }
 
 .videopress-caption-manager {
 
 	.components-modal__content {
+		display: flex;
+		flex-direction: column;
 		padding: 0;
+		block-size: 100%;
+		overflow: hidden;
 	}
 
 	.components-modal__header {
@@ -14,41 +19,19 @@
 	}
 
 	.components-notice {
+		flex-shrink: 0;
 		margin: 0;
 	}
 }
 
-.videopress-caption-manager__workspace {
-	display: grid;
-	grid-template-columns: minmax(320px, 0.95fr) minmax(360px, 1.05fr);
-	min-height: min(680px, calc(100vh - 180px));
-}
-
-.videopress-caption-manager__tracks,
-.videopress-caption-manager__form {
-	padding: 24px;
-	min-width: 0;
-}
-
-.videopress-caption-manager__tracks {
-	display: flex;
-	flex-direction: column;
-	gap: 20px;
-	border-right: 1px solid #dcdcde;
-	background: #f6f7f7;
-}
-
-.videopress-caption-manager__tracks-header,
-.videopress-caption-manager__track,
-.videopress-caption-manager__track-actions,
-.videopress-caption-manager__form-actions {
+.videopress-caption-manager__header {
 	display: flex;
 	align-items: center;
-}
-
-.videopress-caption-manager__tracks-header {
 	justify-content: space-between;
-	gap: 16px;
+	gap: 20px;
+	padding: 16px 24px;
+	border-bottom: 1px solid #dcdcde;
+	background: #fff;
 
 	h2,
 	p {
@@ -56,13 +39,58 @@
 	}
 
 	h2 {
-		font-size: 18px;
-		line-height: 1.3;
+		font-size: 17px;
+		line-height: 1.35;
 	}
 
 	p {
-		margin-top: 4px;
+		margin-top: 3px;
 		color: #646970;
+	}
+}
+
+.videopress-caption-manager__header-actions,
+.videopress-caption-manager__tracks-header,
+.videopress-caption-manager__track-actions,
+.videopress-caption-manager__form-actions,
+.videopress-caption-manager__mode-tabs,
+.videopress-caption-manager__cue-toolbar {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+}
+
+.videopress-caption-manager__header-actions {
+	flex-wrap: wrap;
+	justify-content: flex-end;
+}
+
+.videopress-caption-manager__workspace {
+	display: grid;
+	grid-template-columns: 300px minmax(0, 1fr);
+	min-block-size: 0;
+	flex: 1;
+	background: #fff;
+}
+
+.videopress-caption-manager__tracks {
+	display: flex;
+	flex-direction: column;
+	gap: 16px;
+	min-width: 0;
+	padding: 18px;
+	border-right: 1px solid #dcdcde;
+	background: #f6f7f7;
+	overflow: hidden;
+}
+
+.videopress-caption-manager__tracks-header {
+	justify-content: space-between;
+
+	h3 {
+		margin: 0;
+		font-size: 14px;
+		line-height: 1.4;
 	}
 }
 
@@ -70,8 +98,8 @@
 	display: flex;
 	flex-direction: column;
 	gap: 8px;
+	min-block-size: 0;
 	overflow-y: auto;
-	min-height: 0;
 }
 
 .videopress-caption-manager__track,
@@ -82,15 +110,16 @@
 }
 
 .videopress-caption-manager__track {
-	justify-content: space-between;
-	gap: 16px;
-	padding: 14px 16px;
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+	padding: 12px;
 }
 
 .videopress-caption-manager__track-meta {
 	display: flex;
 	flex-direction: column;
-	gap: 4px;
+	gap: 3px;
 	min-width: 0;
 
 	strong,
@@ -100,36 +129,54 @@
 
 	span {
 		color: #646970;
+		font-size: 12px;
 	}
 }
 
 .videopress-caption-manager__track-actions {
-	flex-shrink: 0;
-	gap: 8px;
+	align-items: flex-start;
+	flex-wrap: wrap;
 }
 
 .videopress-caption-manager__empty {
-	padding: 32px 20px;
+	padding: 28px 16px;
 	color: #646970;
 	text-align: center;
 }
 
-.videopress-caption-manager__form {
+.videopress-caption-manager__editor {
 	display: flex;
 	flex-direction: column;
-	gap: 20px;
+	min-width: 0;
+	min-height: 0;
+	overflow: hidden;
+}
+
+.videopress-caption-manager__mode-tabs {
+	flex-shrink: 0;
+	padding: 12px 18px;
+	border-bottom: 1px solid #dcdcde;
+	background: #fff;
+}
+
+.videopress-caption-manager__upload-panel {
+	display: flex;
+	flex-direction: column;
+	gap: 18px;
+	max-inline-size: 720px;
+	padding: 24px;
 }
 
 .videopress-caption-manager__form-header {
 
-	h2,
+	h3,
 	p {
 		margin: 0;
 	}
 
-	h2 {
-		font-size: 18px;
-		line-height: 1.3;
+	h3 {
+		font-size: 17px;
+		line-height: 1.35;
 	}
 
 	p {
@@ -153,40 +200,159 @@
 	}
 }
 
-.videopress-caption-manager__form-grid {
+.videopress-caption-manager__form-grid,
+.videopress-caption-manager__manual-meta {
 	display: grid;
+	grid-template-columns: minmax(0, 1fr) minmax(160px, 0.6fr) minmax(150px, 0.45fr);
+	gap: 12px;
+}
+
+.videopress-caption-manager__form-grid {
 	grid-template-columns: minmax(0, 1fr) minmax(180px, 0.7fr);
-	gap: 16px;
 }
 
 .videopress-caption-manager__form-actions {
 	justify-content: flex-end;
-	gap: 12px;
 	margin-top: auto;
 }
 
-@media (max-width: 782px) {
+.videopress-caption-manager__manual-panel {
+	display: grid;
+	grid-template-columns: minmax(420px, 1fr) minmax(360px, 0.72fr);
+	min-height: 0;
+	flex: 1;
+}
+
+.videopress-caption-manager__manual-main {
+	display: flex;
+	flex-direction: column;
+	gap: 14px;
+	min-width: 0;
+	min-height: 0;
+	padding: 18px;
+	overflow: hidden;
+}
+
+.videopress-caption-manager__cue-toolbar {
+	justify-content: space-between;
+	flex-shrink: 0;
+}
+
+.videopress-caption-manager__manual-main .block-editor-block-list__layout {
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+	padding-bottom: 32px;
+}
+
+.videopress-caption-manager__manual-main .block-editor-block-list__block {
+	margin: 0;
+}
+
+.videopress-caption-manager__manual-main .block-editor-block-list__insertion-point,
+.videopress-caption-manager__manual-main .block-list-appender {
+	display: none;
+}
+
+.videopress-caption-cue {
+	display: grid;
+	grid-template-columns: minmax(0, 1fr) 210px;
+	gap: 12px;
+	padding: 12px;
+	border: 1px solid #dcdcde;
+	border-radius: 4px;
+	background: #fff;
+}
+
+.videopress-caption-cue__times {
+	display: grid;
+	grid-template-columns: 1fr 1fr 32px;
+	gap: 8px;
+	align-items: end;
+}
+
+.videopress-caption-manager__preview {
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+	min-width: 0;
+	padding: 18px;
+	border-left: 1px solid #dcdcde;
+	background: #f6f7f7;
+}
+
+.videopress-caption-manager__video {
+	position: relative;
+	inline-size: 100%;
+	aspect-ratio: 16 / 9;
+	background: #1d2327;
+	border-radius: 4px;
+	overflow: hidden;
+
+	video {
+		display: block;
+		inline-size: 100%;
+		block-size: 100%;
+		object-fit: contain;
+	}
+}
+
+.videopress-caption-manager__video-placeholder {
+	display: grid;
+	place-items: center;
+	inline-size: 100%;
+	block-size: 100%;
+	color: #f6f7f7;
+}
+
+.videopress-caption-manager__caption-overlay {
+	position: absolute;
+	inset-inline: 12%;
+	inset-block-end: 48px;
+	padding: 4px 8px;
+	color: #fff;
+	background: rgba(0, 0, 0, 0.78);
+	border-radius: 2px;
+	text-align: center;
+	font-size: 14px;
+	line-height: 1.35;
+}
+
+.videopress-caption-manager__shortcuts.components-modal__frame {
+	width: min(520px, calc(100vw - 32px));
+}
+
+@media (max-width: 960px) {
 
 	.videopress-caption-manager.components-modal__frame {
 		width: calc(100vw - 24px);
+		height: calc(100vh - 24px);
 	}
 
+	.videopress-caption-manager__header,
 	.videopress-caption-manager__workspace,
-	.videopress-caption-manager__form-grid {
+	.videopress-caption-manager__manual-panel,
+	.videopress-caption-manager__manual-meta,
+	.videopress-caption-cue {
 		grid-template-columns: 1fr;
 	}
 
+	.videopress-caption-manager__header {
+		display: grid;
+	}
+
 	.videopress-caption-manager__workspace {
-		min-height: 0;
+		overflow-y: auto;
 	}
 
 	.videopress-caption-manager__tracks {
 		border-right: 0;
 		border-bottom: 1px solid #dcdcde;
+		overflow: visible;
 	}
 
-	.videopress-caption-manager__track {
-		align-items: flex-start;
-		flex-direction: column;
+	.videopress-caption-manager__preview {
+		border-left: 0;
+		border-top: 1px solid #dcdcde;
 	}
 }

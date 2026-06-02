@@ -2,12 +2,120 @@ import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import CaptionManagerModal from '..';
 import { deleteTrackForGuid, uploadTrackForGuid } from '../../../lib/video-tracks';
+import { fetchCaptionDrafts, saveCaptionDraft } from '../../../lib/video-tracks/caption-drafts';
+
+let mockBlockEditorState: {
+	blocks: Array< { name: string; attributes: Record< string, string >; clientId: string } >;
+	onChange?: ( blocks: unknown[] ) => void;
+} = { blocks: [] };
+
+jest.mock( '@wordpress/block-editor', () => ( {
+	store: {},
+	BlockEditorProvider: ( { children, onChange, value } ) => {
+		mockBlockEditorState = { blocks: value, onChange };
+		return <div data-testid="caption-block-editor">{ children }</div>;
+	},
+	BlockList: () => (
+		<div>
+			{ mockBlockEditorState.blocks.map( ( block, index ) => (
+				<div key={ block.clientId || index }>
+					<label htmlFor={ `cue-text-${ index }` }>Cue text</label>
+					<textarea
+						id={ `cue-text-${ index }` }
+						value={ block.attributes.text ?? '' }
+						onChange={ event => {
+							const next = [ ...mockBlockEditorState.blocks ];
+							next[ index ] = {
+								...block,
+								attributes: { ...block.attributes, text: event.target.value },
+							};
+							mockBlockEditorState.onChange?.( next );
+						} }
+					/>
+					<label htmlFor={ `cue-start-${ index }` }>Cue start</label>
+					<input
+						id={ `cue-start-${ index }` }
+						value={ block.attributes.startTime ?? '' }
+						onChange={ event => {
+							const next = [ ...mockBlockEditorState.blocks ];
+							next[ index ] = {
+								...block,
+								attributes: { ...block.attributes, startTime: event.target.value },
+							};
+							mockBlockEditorState.onChange?.( next );
+						} }
+					/>
+					<label htmlFor={ `cue-end-${ index }` }>Cue end</label>
+					<input
+						id={ `cue-end-${ index }` }
+						value={ block.attributes.endTime ?? '' }
+						onChange={ event => {
+							const next = [ ...mockBlockEditorState.blocks ];
+							next[ index ] = {
+								...block,
+								attributes: { ...block.attributes, endTime: event.target.value },
+							};
+							mockBlockEditorState.onChange?.( next );
+						} }
+					/>
+				</div>
+			) ) }
+		</div>
+	),
+	BlockTools: ( { children } ) => <div>{ children }</div>,
+	ObserveTyping: ( { children } ) => <div>{ children }</div>,
+	WritingFlow: ( { children } ) => <div>{ children }</div>,
+} ) );
+
+jest.mock( '@wordpress/blocks', () => {
+	const registry = new Map< string, unknown >();
+	let blockId = 0;
+	return {
+		__registry: registry,
+		__resetBlockMocks: () => {
+			blockId = 0;
+		},
+		createBlock: ( name: string, attributes: Record< string, string > ) => ( {
+			name,
+			attributes,
+			clientId: `block-${ ++blockId }`,
+		} ),
+		getBlockType: ( name: string ) => registry.get( name ),
+		parse: ( content: string ) =>
+			Array.from( content.matchAll( /<!-- wp:videopress\/caption-cue (\{.*?\}) \/-->/g ) ).map(
+				( match, index ) => ( {
+					name: 'videopress/caption-cue',
+					attributes: JSON.parse( match[ 1 ] ),
+					clientId: `parsed-${ index }`,
+				} )
+			),
+		registerBlockType: ( name: string, settings: unknown ) => {
+			registry.set( name, settings );
+			return settings;
+		},
+		serialize: ( blocks: Array< { name: string; attributes: Record< string, string > } > ) =>
+			blocks
+				.map( block => `<!-- wp:${ block.name } ${ JSON.stringify( block.attributes ) } /-->` )
+				.join( '\n' ),
+	};
+} );
 
 jest.mock( '@wordpress/components', () => ( {
 	Button: ( { children, onClick, disabled } ) => (
 		<button onClick={ onClick } disabled={ disabled }>
 			{ children }
 		</button>
+	),
+	CheckboxControl: ( { checked, label, onChange } ) => (
+		<label htmlFor="pause-while-typing">
+			<input
+				id="pause-while-typing"
+				type="checkbox"
+				checked={ checked }
+				onChange={ event => onChange( event.target.checked ) }
+			/>
+			{ label }
+		</label>
 	),
 	FormFileUpload: ( { accept, onChange, render: renderProp } ) => (
 		<>
@@ -38,6 +146,12 @@ jest.mock( '@wordpress/components', () => ( {
 			</select>
 		</div>
 	),
+	TextareaControl: ( { label, onChange, value } ) => (
+		<label htmlFor={ label }>
+			{ label }
+			<textarea id={ label } value={ value } onChange={ event => onChange( event.target.value ) } />
+		</label>
+	),
 	TextControl: ( { disabled, help, label, onChange, value } ) => (
 		<div>
 			<label htmlFor={ label }>{ label }</label>
@@ -52,6 +166,10 @@ jest.mock( '@wordpress/components', () => ( {
 	),
 } ) );
 
+jest.mock( '@wordpress/data', () => ( {
+	useDispatch: () => ( { removeBlock: jest.fn() } ),
+} ) );
+
 jest.mock( '@wordpress/i18n', () => ( {
 	__: ( text: string ) => text,
 	sprintf: ( text: string, ...args: string[] ) => {
@@ -64,6 +182,8 @@ jest.mock( '@wordpress/i18n', () => ( {
 } ) );
 
 jest.mock( '@wordpress/icons', () => ( {
+	help: 'help',
+	plus: 'plus',
 	trash: 'trash',
 	upload: 'upload',
 } ) );
@@ -74,6 +194,28 @@ jest.mock( '../../../lib/video-tracks', () => ( {
 	TRACK_KIND_OPTIONS: [ 'subtitles', 'captions', 'descriptions', 'chapters', 'metadata' ],
 	deleteTrackForGuid: jest.fn(),
 	uploadTrackForGuid: jest.fn(),
+} ) );
+
+jest.mock( '../../../lib/video-tracks/caption-drafts', () => ( {
+	CAPTION_DRAFT_META: {
+		guid: '_videopress_guid',
+		kind: '_videopress_caption_kind',
+		srcLang: '_videopress_caption_src_lang',
+		label: '_videopress_caption_label',
+		sourceTrackKind: '_videopress_source_track_kind',
+		sourceTrackSrcLang: '_videopress_source_track_src_lang',
+		sourceTrackSrc: '_videopress_source_track_src',
+	},
+	fetchCaptionDrafts: jest.fn().mockResolvedValue( [] ),
+	getSourceTrackMeta: track =>
+		track
+			? {
+					_videopress_source_track_kind: track.kind,
+					_videopress_source_track_src_lang: track.srcLang,
+					_videopress_source_track_src: track.src,
+			  }
+			: {},
+	saveCaptionDraft: jest.fn(),
 } ) );
 
 const tracks = [
@@ -95,6 +237,8 @@ const defaultProps = {
 	isOpen: true,
 	guid: 'abc123',
 	title: 'Test video',
+	videoSrc: 'video.mp4',
+	poster: 'poster.jpg',
 	tracks,
 	onClose: jest.fn(),
 	onTracksChange: jest.fn(),
@@ -103,17 +247,64 @@ const defaultProps = {
 describe( 'CaptionManagerModal', () => {
 	beforeEach( () => {
 		jest.clearAllMocks();
+		jest.requireMock( '@wordpress/blocks' ).__resetBlockMocks();
+		mockBlockEditorState = { blocks: [] };
 		( uploadTrackForGuid as jest.Mock ).mockResolvedValue( 'uploaded.vtt' );
 		( deleteTrackForGuid as jest.Mock ).mockResolvedValue( {} );
+		( saveCaptionDraft as jest.Mock ).mockResolvedValue( {
+			id: 77,
+			title: 'English captions',
+			content: '',
+			status: 'draft',
+			meta: {},
+		} );
+		global.fetch = jest.fn().mockResolvedValue( {
+			ok: true,
+			text: () => Promise.resolve( 'WEBVTT\n\n00:00:01.000 --> 00:00:02.000\nGenerated text' ),
+		} ) as jest.Mock;
 	} );
 
-	it( 'lists existing tracks and preserves generated language keys for display', () => {
+	const readFile = ( file: File ) =>
+		new Promise< string >( resolve => {
+			const reader = new FileReader();
+			reader.addEventListener( 'load', () => resolve( String( reader.result ) ) );
+			reader.readAsText( file );
+		} );
+
+	it( 'registers the caption cue block used by the editor', () => {
+		expect(
+			jest.requireMock( '@wordpress/blocks' ).__registry.get( 'videopress/caption-cue' )
+		).toEqual(
+			expect.objectContaining( {
+				attributes: expect.objectContaining( {
+					startTime: expect.any( Object ),
+					endTime: expect.any( Object ),
+					text: expect.any( Object ),
+				} ),
+			} )
+		);
+	} );
+
+	it( 'lists existing tracks and preserves generated language keys for display', async () => {
 		render( <CaptionManagerModal { ...defaultProps } /> );
 
 		expect( screen.getByRole( 'dialog', { name: 'Manage captions' } ) ).toBeInTheDocument();
 		expect( screen.getByText( 'English' ) ).toBeInTheDocument();
 		expect( screen.getByText( 'English auto-generated' ) ).toBeInTheDocument();
 		expect( screen.getByText( /auto_en/ ) ).toBeInTheDocument();
+		await waitFor( () => expect( fetchCaptionDrafts ).toHaveBeenCalledWith( 'abc123' ) );
+	} );
+
+	it( 'makes Add track start the manual editor', async () => {
+		const user = userEvent.setup();
+		render( <CaptionManagerModal { ...defaultProps } /> );
+
+		await user.click( screen.getByText( 'Upload file' ) );
+		expect( screen.getByText( 'Upload caption track' ) ).toBeInTheDocument();
+
+		await user.click( screen.getByText( 'Add track' ) );
+		expect( screen.getByTestId( 'caption-block-editor' ) ).toBeInTheDocument();
+		expect( screen.getByLabelText( 'Cue text' ) ).toBeInTheDocument();
 	} );
 
 	it( 'uploads a new track with a canonicalized BCP-47 language tag', async () => {
@@ -123,6 +314,7 @@ describe( 'CaptionManagerModal', () => {
 			<CaptionManagerModal { ...defaultProps } onTracksChange={ onTracksChange } tracks={ [] } />
 		);
 
+		await user.click( screen.getByText( 'Upload file' ) );
 		await user.type( screen.getByLabelText( 'Label' ), 'Portuguese' );
 		await user.type( screen.getByLabelText( 'Language' ), 'pt-br' );
 		await user.upload(
@@ -150,10 +342,11 @@ describe( 'CaptionManagerModal', () => {
 		] );
 	} );
 
-	it( 'rejects generated language keys for manual input', async () => {
+	it( 'rejects generated language keys for manual upload input', async () => {
 		const user = userEvent.setup();
 		render( <CaptionManagerModal { ...defaultProps } tracks={ [] } /> );
 
+		await user.click( screen.getByText( 'Upload file' ) );
 		await user.type( screen.getByLabelText( 'Language' ), 'auto_en' );
 		await user.upload(
 			screen.getByTestId( 'caption-file' ),
@@ -165,13 +358,13 @@ describe( 'CaptionManagerModal', () => {
 		expect( uploadTrackForGuid ).not.toHaveBeenCalled();
 	} );
 
-	it( 'replaces an existing track', async () => {
+	it( 'replaces an existing track through upload mode', async () => {
 		const user = userEvent.setup();
 		const onTracksChange = jest.fn();
 		( uploadTrackForGuid as jest.Mock ).mockResolvedValue( 'replacement.vtt' );
 		render( <CaptionManagerModal { ...defaultProps } onTracksChange={ onTracksChange } /> );
 
-		await user.click( screen.getAllByText( 'Replace' )[ 0 ] );
+		await user.click( screen.getAllByText( 'Replace file' )[ 0 ] );
 		await user.upload(
 			screen.getByTestId( 'caption-file' ),
 			new File( [ 'WEBVTT' ], 'replacement.vtt', { type: 'text/vtt' } )
@@ -189,37 +382,6 @@ describe( 'CaptionManagerModal', () => {
 		] );
 	} );
 
-	it( 'preserves generated language keys when replacing existing tracks', async () => {
-		const user = userEvent.setup();
-		const onTracksChange = jest.fn();
-		( uploadTrackForGuid as jest.Mock ).mockResolvedValue( 'auto-replacement.vtt' );
-		render( <CaptionManagerModal { ...defaultProps } onTracksChange={ onTracksChange } /> );
-
-		await user.click( screen.getAllByText( 'Replace' )[ 1 ] );
-		await user.upload(
-			screen.getByTestId( 'caption-file' ),
-			new File( [ 'WEBVTT' ], 'auto-replacement.vtt', { type: 'text/vtt' } )
-		);
-		await user.click( screen.getByText( 'Replace track' ) );
-
-		await waitFor( () => expect( uploadTrackForGuid ).toHaveBeenCalled() );
-		expect( uploadTrackForGuid ).toHaveBeenCalledWith(
-			expect.objectContaining( {
-				kind: 'captions',
-				srcLang: 'auto_en',
-			} ),
-			'abc123'
-		);
-		expect( onTracksChange ).toHaveBeenCalledWith( [
-			tracks[ 0 ],
-			expect.objectContaining( {
-				kind: 'captions',
-				srcLang: 'auto_en',
-				src: 'auto-replacement.vtt',
-			} ),
-		] );
-	} );
-
 	it( 'deletes an existing track', async () => {
 		const user = userEvent.setup();
 		const onTracksChange = jest.fn();
@@ -231,5 +393,88 @@ describe( 'CaptionManagerModal', () => {
 			expect( deleteTrackForGuid ).toHaveBeenCalledWith( tracks[ 0 ], 'abc123' )
 		);
 		expect( onTracksChange ).toHaveBeenCalledWith( [ tracks[ 1 ] ] );
+	} );
+
+	it( 'saves a manual caption draft with cue blocks', async () => {
+		const user = userEvent.setup();
+		render( <CaptionManagerModal { ...defaultProps } tracks={ [] } /> );
+
+		await user.type( screen.getByLabelText( 'Label' ), 'English' );
+		await user.type( screen.getByLabelText( 'Language' ), 'en' );
+		await user.type( screen.getByLabelText( 'Cue text' ), 'Trail closed.' );
+		await user.click( screen.getByText( 'Save Draft' ) );
+
+		await waitFor( () => expect( saveCaptionDraft ).toHaveBeenCalled() );
+		expect( saveCaptionDraft ).toHaveBeenCalledWith(
+			expect.objectContaining( {
+				content: expect.stringContaining( 'wp:videopress/caption-cue' ),
+				meta: expect.objectContaining( {
+					_videopress_guid: 'abc123',
+					_videopress_caption_kind: 'captions',
+					_videopress_caption_src_lang: 'en',
+					_videopress_caption_label: 'English',
+				} ),
+			} )
+		);
+	} );
+
+	it( 'publishes manual captions by serializing cues to WebVTT and uploading the track', async () => {
+		const user = userEvent.setup();
+		const onTracksChange = jest.fn();
+		render(
+			<CaptionManagerModal { ...defaultProps } onTracksChange={ onTracksChange } tracks={ [] } />
+		);
+
+		await user.type( screen.getByLabelText( 'Label' ), 'English' );
+		await user.type( screen.getByLabelText( 'Language' ), 'en' );
+		await user.type( screen.getByLabelText( 'Cue text' ), 'Trail closed.' );
+		await user.click( screen.getByText( 'Publish' ) );
+
+		await waitFor( () => expect( uploadTrackForGuid ).toHaveBeenCalled() );
+		const uploadedTrack = ( uploadTrackForGuid as jest.Mock ).mock.calls[ 0 ][ 0 ];
+		expect( uploadedTrack ).toEqual(
+			expect.objectContaining( {
+				kind: 'captions',
+				label: 'English',
+				srcLang: 'en',
+			} )
+		);
+		await expect( readFile( uploadedTrack.tmpFile ) ).resolves.toContain( 'WEBVTT' );
+		await expect( readFile( uploadedTrack.tmpFile ) ).resolves.toContain( 'Trail closed.' );
+		expect( onTracksChange ).toHaveBeenCalledWith( [
+			expect.objectContaining( {
+				kind: 'captions',
+				srcLang: 'en',
+				src: 'uploaded.vtt',
+			} ),
+		] );
+	} );
+
+	it( 'duplicates generated captions into a manual draft instead of overwriting auto tracks', async () => {
+		const user = userEvent.setup();
+		const onTracksChange = jest.fn();
+		render( <CaptionManagerModal { ...defaultProps } onTracksChange={ onTracksChange } /> );
+
+		await user.click( screen.getAllByText( 'Edit manually' )[ 1 ] );
+		await waitFor( () => expect( global.fetch ).toHaveBeenCalledWith( 'auto.vtt' ) );
+		expect( screen.getByLabelText( 'Language' ) ).toHaveValue( 'en' );
+		await user.click( screen.getByText( 'Publish' ) );
+
+		await waitFor( () => expect( uploadTrackForGuid ).toHaveBeenCalled() );
+		expect( saveCaptionDraft ).toHaveBeenCalledWith(
+			expect.objectContaining( {
+				meta: expect.objectContaining( {
+					_videopress_caption_src_lang: 'en',
+					_videopress_source_track_src_lang: 'auto_en',
+				} ),
+			} )
+		);
+		expect( onTracksChange ).toHaveBeenCalledWith( [
+			expect.objectContaining( {
+				kind: 'captions',
+				srcLang: 'en',
+			} ),
+			tracks[ 1 ],
+		] );
 	} );
 } );

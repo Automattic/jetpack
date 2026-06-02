@@ -43,3 +43,20 @@ export function formatLanguageTagForDisplay( value: string ): string {
 	const canonical = canonicalizeLanguageTag( value );
 	return canonical ?? value;
 }
+
+/**
+ * Convert an existing VideoPress language key into a manually editable BCP-47
+ * language tag. Generated keys such as `auto_en` are source identifiers, but
+ * their suffix often still contains the real language code.
+ *
+ * @param value - Existing track language key.
+ * @return Canonical manual language tag, or empty string when it cannot be inferred.
+ */
+export function getManualLanguageTagFromTrackKey( value: string ): string {
+	if ( ! isGeneratedLanguageKey( value ) ) {
+		return canonicalizeLanguageTag( value ) ?? '';
+	}
+
+	const language = value.trim().replace( GENERATED_LANGUAGE_KEY_PATTERN, '' ).replace( /_/g, '-' );
+	return canonicalizeLanguageTag( language ) ?? '';
+}

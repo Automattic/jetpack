@@ -480,6 +480,8 @@ const StageInner = () => {
 					isOpen={ !! captionVideo }
 					guid={ captionVideo.guid }
 					title={ captionVideo.title }
+					videoSrc={ captionVideo.sourceUrl }
+					poster={ captionVideo.thumbnailUrl }
 					tracks={ captionVideo.tracks }
 					onClose={ () => setCaptionVideo( null ) }
 					onTracksChange={ onCaptionTracksChange }

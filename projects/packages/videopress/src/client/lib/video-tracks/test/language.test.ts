@@ -1,6 +1,7 @@
 import {
 	canonicalizeLanguageTag,
 	formatLanguageTagForDisplay,
+	getManualLanguageTagFromTrackKey,
 	isGeneratedLanguageKey,
 } from '../language';
 
@@ -44,6 +45,17 @@ describe( 'video track language utilities', () => {
 
 		it( 'canonicalizes valid existing tags for display', () => {
 			expect( formatLanguageTagForDisplay( 'EN-us' ) ).toBe( 'en-US' );
+		} );
+	} );
+
+	describe( 'getManualLanguageTagFromTrackKey', () => {
+		it( 'extracts manual language tags from generated keys', () => {
+			expect( getManualLanguageTagFromTrackKey( 'auto_en' ) ).toBe( 'en' );
+			expect( getManualLanguageTagFromTrackKey( 'auto_pt_br' ) ).toBe( 'pt-BR' );
+		} );
+
+		it( 'canonicalizes regular language tags', () => {
+			expect( getManualLanguageTagFromTrackKey( 'EN-us' ) ).toBe( 'en-US' );
 		} );
 	} );
 } );
