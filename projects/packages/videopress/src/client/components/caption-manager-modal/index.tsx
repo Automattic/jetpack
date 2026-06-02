@@ -101,6 +101,7 @@ type ManualTrack = {
 	label: string;
 };
 
+type ModalView = 'tracks' | 'editor';
 type WorkspaceMode = 'upload' | 'manual';
 type UploadFormMode = 'add' | 'replace';
 type NoticeState = { status: 'success' | 'error'; message: string } | null;
@@ -226,8 +227,11 @@ export default function CaptionManagerModal( {
 	onTracksChange,
 }: CaptionManagerModalProps ): ReactElement | null {
 	const videoRef = useRef< HTMLVideoElement >( null );
+	const cueEditorRef = useRef< HTMLDivElement >( null );
+	const shouldScrollCueEditorToEndRef = useRef( false );
 	const previewResumeTimerRef = useRef< ReturnType< typeof setTimeout > | null >( null );
 	const shouldResumePreviewAfterTypingRef = useRef( false );
+	const [ modalView, setModalView ] = useState< ModalView >( 'tracks' );
 	const [ workspaceMode, setWorkspaceMode ] = useState< WorkspaceMode >( 'manual' );
 	const [ uploadForm, setUploadForm ] = useState< UploadFormTrack >( emptyUploadForm );
 	const [ uploadFormMode, setUploadFormMode ] = useState< UploadFormMode >( 'add' );
@@ -274,11 +278,28 @@ export default function CaptionManagerModal( {
 	}, [ tracks ] );
 
 	useEffect( () => {
+		if ( ! shouldScrollCueEditorToEndRef.current ) {
+			return;
+		}
+
+		shouldScrollCueEditorToEndRef.current = false;
+		if ( cueEditorRef.current?.scrollTo ) {
+			cueEditorRef.current.scrollTo( {
+				top: cueEditorRef.current.scrollHeight,
+				behavior: 'smooth',
+			} );
+		} else if ( cueEditorRef.current ) {
+			cueEditorRef.current.scrollTop = cueEditorRef.current.scrollHeight;
+		}
+	}, [ cueBlocks ] );
+
+	useEffect( () => {
 		if ( ! isOpen ) {
 			return;
 		}
 
 		setWorkspaceMode( 'manual' );
+		setModalView( 'tracks' );
 		setUploadForm( emptyUploadForm() );
 		setUploadFormMode( 'add' );
 		setReplacingTrack( null );
@@ -387,6 +408,21 @@ export default function CaptionManagerModal( {
 		setNotice( null );
 	}, [] );
 
+	const returnToTrackList = useCallback( () => {
+		clearPreviewResumeTimer();
+		shouldResumePreviewAfterTypingRef.current = false;
+		setModalView( 'tracks' );
+		setWorkspaceMode( 'manual' );
+		setUploadForm( emptyUploadForm() );
+		setUploadFormMode( 'add' );
+		setReplacingTrack( null );
+		setManualTrack( emptyManualTrack() );
+		setManualSourceTrack( null );
+		setCueBlocks( createEmptyCueBlocks() );
+		setDraftId( undefined );
+		setNotice( null );
+	}, [ clearPreviewResumeTimer ] );
+
 	const findDraftForManualTrack = useCallback(
 		( track: ManualTrack, sourceTrack: VideoTextTrack | null ) => {
 			if ( sourceTrack ) {
@@ -431,6 +467,7 @@ export default function CaptionManagerModal( {
 				: emptyManualTrack();
 			const matchingDraft = findDraftForManualTrack( nextManualTrack, sourceTrack );
 
+			setModalView( 'editor' );
 			setWorkspaceMode( 'manual' );
 			setManualTrack( nextManualTrack );
 			setManualSourceTrack( sourceTrack );
@@ -448,6 +485,7 @@ export default function CaptionManagerModal( {
 	);
 
 	const startUploadTrack = useCallback( ( sourceTrack: VideoTextTrack | null = null ) => {
+		setModalView( 'editor' );
 		setWorkspaceMode( 'upload' );
 		setUploadFormMode( sourceTrack ? 'replace' : 'add' );
 		setReplacingTrack( sourceTrack );
@@ -634,7 +672,7 @@ export default function CaptionManagerModal( {
 			}
 
 			applyTracksChange( updatedTracks );
-			resetUploadForm();
+			returnToTrackList();
 			setNotice( {
 				status: 'success',
 				message: __( 'Caption track uploaded.', 'jetpack-videopress-pkg' ),
@@ -660,7 +698,7 @@ export default function CaptionManagerModal( {
 		applyTracksChange,
 		managedTracks,
 		replacingTrack,
-		resetUploadForm,
+		returnToTrackList,
 		uploadForm,
 		uploadFormMode,
 	] );
@@ -861,6 +899,7 @@ export default function CaptionManagerModal( {
 			}
 
 			applyTracksChange( updatedTracks );
+			returnToTrackList();
 			setNotice( {
 				status: 'success',
 				message: __( 'Captions published.', 'jetpack-videopress-pkg' ),
@@ -881,10 +920,12 @@ export default function CaptionManagerModal( {
 		managedTracks,
 		manualSourceTrack,
 		manualTrack,
+		returnToTrackList,
 		saveManualDraft,
 	] );
 
 	const addCue = useCallback( () => {
+		shouldScrollCueEditorToEndRef.current = true;
 		setCueBlocks( current => [
 			...current,
 			createCueBlock( {
@@ -933,6 +974,7 @@ export default function CaptionManagerModal( {
 		'No caption tracks have been added to this video yet.',
 		'jetpack-videopress-pkg'
 	);
+	const isEditorView = modalView === 'editor';
 	const manualLanguage = canonicalizeLanguageTag( manualTrack.srcLang ) ?? manualTrack.srcLang;
 	const modalHeaderTitle = manualLanguage
 		? sprintf(
@@ -957,25 +999,34 @@ export default function CaptionManagerModal( {
 						) }
 					</div>
 					<div className="videopress-caption-manager__header-actions">
+						{ isEditorView && (
+							<Button variant="secondary" onClick={ returnToTrackList }>
+								{ __( 'Back to tracks', 'jetpack-videopress-pkg' ) }
+							</Button>
+						) }
 						<Button variant="secondary" icon={ help } onClick={ () => setShortcutsOpen( true ) }>
 							{ __( 'Keyboard shortcuts', 'jetpack-videopress-pkg' ) }
 						</Button>
-						<Button
-							variant="secondary"
-							onClick={ () => void saveManualDraft( 'draft' ) }
-							isBusy={ isSavingDraft }
-							disabled={ isSavingDraft || isPublishing || workspaceMode !== 'manual' }
-						>
-							{ __( 'Save Draft', 'jetpack-videopress-pkg' ) }
-						</Button>
-						<Button
-							variant="primary"
-							onClick={ publishManualTrack }
-							isBusy={ isPublishing }
-							disabled={ isSavingDraft || isPublishing || workspaceMode !== 'manual' }
-						>
-							{ __( 'Publish', 'jetpack-videopress-pkg' ) }
-						</Button>
+						{ isEditorView && workspaceMode === 'manual' && (
+							<>
+								<Button
+									variant="secondary"
+									onClick={ () => void saveManualDraft( 'draft' ) }
+									isBusy={ isSavingDraft }
+									disabled={ isSavingDraft || isPublishing }
+								>
+									{ __( 'Save Draft', 'jetpack-videopress-pkg' ) }
+								</Button>
+								<Button
+									variant="primary"
+									onClick={ publishManualTrack }
+									isBusy={ isPublishing }
+									disabled={ isSavingDraft || isPublishing }
+								>
+									{ __( 'Publish', 'jetpack-videopress-pkg' ) }
+								</Button>
+							</>
+						) }
 					</div>
 				</div>
 
@@ -985,269 +1036,281 @@ export default function CaptionManagerModal( {
 					</Notice>
 				) }
 
-				<div className="videopress-caption-manager__workspace">
-					<section className="videopress-caption-manager__tracks">
-						<div className="videopress-caption-manager__tracks-header">
-							<h3>{ __( 'Caption tracks', 'jetpack-videopress-pkg' ) }</h3>
-							<Button variant="secondary" icon={ plus } onClick={ () => void startManualTrack() }>
-								{ __( 'Add track', 'jetpack-videopress-pkg' ) }
-							</Button>
-						</div>
-
-						{ managedTracks.length ? (
-							<div className="videopress-caption-manager__track-list">
-								{ managedTracks.map( track => {
-									const key = getTrackKey( track );
-									const language = formatLanguageTagForDisplay( track.srcLang );
-									const isDeleting = deletingTrackKey === key;
-
-									return (
-										<div className="videopress-caption-manager__track" key={ key }>
-											<div className="videopress-caption-manager__track-meta">
-												<strong>{ track.label || language }</strong>
-												<span>
-													{ KIND_LABELS[ track.kind ] } · { language }
-												</span>
-											</div>
-											<div className="videopress-caption-manager__track-actions">
-												<Button
-													variant="secondary"
-													onClick={ () => void startManualTrack( track ) }
-													disabled={ isSavingUpload || isPublishing || !! deletingTrackKey }
-												>
-													{ __( 'Edit manually', 'jetpack-videopress-pkg' ) }
-												</Button>
-												<Button
-													variant="secondary"
-													onClick={ () => startUploadTrack( track ) }
-													disabled={ isSavingUpload || isPublishing || !! deletingTrackKey }
-												>
-													{ __( 'Replace file', 'jetpack-videopress-pkg' ) }
-												</Button>
-												<Button
-													variant="link"
-													icon={ trash }
-													isDestructive
-													isBusy={ isDeleting }
-													disabled={ isSavingUpload || isDeleting || isPublishing }
-													onClick={ () => deleteTrack( track ) }
-												>
-													{ __( 'Delete', 'jetpack-videopress-pkg' ) }
-												</Button>
-											</div>
-										</div>
-									);
-								} ) }
+				<div
+					className={ `videopress-caption-manager__workspace videopress-caption-manager__workspace--${
+						isEditorView ? 'editor' : 'tracks'
+					}` }
+				>
+					{ ! isEditorView && (
+						<section className="videopress-caption-manager__tracks">
+							<div className="videopress-caption-manager__tracks-header">
+								<h3>{ __( 'Caption tracks', 'jetpack-videopress-pkg' ) }</h3>
+								<Button variant="secondary" icon={ plus } onClick={ () => void startManualTrack() }>
+									{ __( 'Add track', 'jetpack-videopress-pkg' ) }
+								</Button>
 							</div>
-						) : (
-							<div className="videopress-caption-manager__empty">{ emptyMessage }</div>
-						) }
-					</section>
 
-					<section className="videopress-caption-manager__editor">
-						<div className="videopress-caption-manager__mode-tabs" role="tablist">
-							<Button
-								variant={ workspaceMode === 'manual' ? 'primary' : 'secondary' }
-								onClick={ () => void startManualTrack( manualSourceTrack ) }
-							>
-								{ __( 'Create manually', 'jetpack-videopress-pkg' ) }
-							</Button>
-							<Button
-								variant={ workspaceMode === 'upload' ? 'primary' : 'secondary' }
-								onClick={ () => startUploadTrack( replacingTrack ) }
-							>
-								{ __( 'Upload file', 'jetpack-videopress-pkg' ) }
-							</Button>
-						</div>
+							{ managedTracks.length ? (
+								<div className="videopress-caption-manager__track-list">
+									{ managedTracks.map( track => {
+										const key = getTrackKey( track );
+										const language = formatLanguageTagForDisplay( track.srcLang );
+										const isDeleting = deletingTrackKey === key;
 
-						{ workspaceMode === 'upload' ? (
-							<div
-								className="videopress-caption-manager__upload-panel"
-								aria-label={ uploadFormTitle }
-							>
-								<div className="videopress-caption-manager__form-header">
-									<h3>{ uploadFormTitle }</h3>
-									{ uploadFormMode === 'replace' && replacingTrack && (
-										<p>
-											{ sprintf(
-												/* translators: %s: caption track language tag. */
-												__( 'Replacing %s', 'jetpack-videopress-pkg' ),
-												formatLanguageTagForDisplay( replacingTrack.srcLang )
-											) }
-										</p>
-									) }
+										return (
+											<div className="videopress-caption-manager__track" key={ key }>
+												<div className="videopress-caption-manager__track-meta">
+													<strong>{ track.label || language }</strong>
+													<span>
+														{ KIND_LABELS[ track.kind ] } · { language }
+													</span>
+												</div>
+												<div className="videopress-caption-manager__track-actions">
+													<Button
+														variant="secondary"
+														onClick={ () => void startManualTrack( track ) }
+														disabled={ isSavingUpload || isPublishing || !! deletingTrackKey }
+													>
+														{ __( 'Edit manually', 'jetpack-videopress-pkg' ) }
+													</Button>
+													<Button
+														variant="secondary"
+														onClick={ () => startUploadTrack( track ) }
+														disabled={ isSavingUpload || isPublishing || !! deletingTrackKey }
+													>
+														{ __( 'Replace file', 'jetpack-videopress-pkg' ) }
+													</Button>
+													<Button
+														variant="link"
+														icon={ trash }
+														isDestructive
+														isBusy={ isDeleting }
+														disabled={ isSavingUpload || isDeleting || isPublishing }
+														onClick={ () => deleteTrack( track ) }
+													>
+														{ __( 'Delete', 'jetpack-videopress-pkg' ) }
+													</Button>
+												</div>
+											</div>
+										);
+									} ) }
 								</div>
+							) : (
+								<div className="videopress-caption-manager__empty">{ emptyMessage }</div>
+							) }
+						</section>
+					) }
 
-								<FormFileUpload
-									accept={ acceptedFileTypes }
-									onChange={ ( event: ChangeEvent< HTMLInputElement > ) => {
-										const file = event.target.files?.[ 0 ] ?? null;
-										updateUploadForm( 'tmpFile', file );
-									} }
-									render={ ( { openFileDialog } ) => (
-										<div className="videopress-caption-manager__file-picker">
-											<Button variant="secondary" icon={ upload } onClick={ openFileDialog }>
-												{ fileName || __( 'Select .vtt or .srt file', 'jetpack-videopress-pkg' ) }
-											</Button>
+					{ isEditorView && (
+						<section className="videopress-caption-manager__editor">
+							<div className="videopress-caption-manager__mode-tabs" role="tablist">
+								<Button
+									variant={ workspaceMode === 'manual' ? 'primary' : 'secondary' }
+									onClick={ () => void startManualTrack( manualSourceTrack ) }
+								>
+									{ __( 'Create manually', 'jetpack-videopress-pkg' ) }
+								</Button>
+								<Button
+									variant={ workspaceMode === 'upload' ? 'primary' : 'secondary' }
+									onClick={ () => startUploadTrack( replacingTrack ) }
+								>
+									{ __( 'Upload file', 'jetpack-videopress-pkg' ) }
+								</Button>
+							</div>
+
+							{ workspaceMode === 'upload' ? (
+								<div
+									className="videopress-caption-manager__upload-panel"
+									aria-label={ uploadFormTitle }
+								>
+									<div className="videopress-caption-manager__form-header">
+										<h3>{ uploadFormTitle }</h3>
+										{ uploadFormMode === 'replace' && replacingTrack && (
 											<p>
 												{ sprintf(
-													/* translators: %s: allowed caption file extensions. */
-													__( 'Allowed formats: %s', 'jetpack-videopress-pkg' ),
-													Object.keys( ACCEPTED_FILE_TYPES ).join( ', ' )
+													/* translators: %s: caption track language tag. */
+													__( 'Replacing %s', 'jetpack-videopress-pkg' ),
+													formatLanguageTagForDisplay( replacingTrack.srcLang )
 												) }
 											</p>
-										</div>
-									) }
-									__next40pxDefaultSize={ true }
-								/>
-
-								<div className="videopress-caption-manager__form-grid">
-									<TextControl
-										label={ __( 'Label', 'jetpack-videopress-pkg' ) }
-										value={ uploadForm.label }
-										onChange={ value => updateUploadForm( 'label', value ) }
-										disabled={ isSavingUpload }
-										__nextHasNoMarginBottom={ true }
-										__next40pxDefaultSize={ true }
-									/>
-									<TextControl
-										label={ __( 'Language', 'jetpack-videopress-pkg' ) }
-										value={ uploadForm.srcLang }
-										onChange={ value => updateUploadForm( 'srcLang', value ) }
-										help={ __(
-											'Use a BCP-47 language tag, like en, en-US, or pt-BR.',
-											'jetpack-videopress-pkg'
 										) }
-										disabled={ isSavingUpload || uploadFormMode === 'replace' }
-										__nextHasNoMarginBottom={ true }
+									</div>
+
+									<FormFileUpload
+										accept={ acceptedFileTypes }
+										onChange={ ( event: ChangeEvent< HTMLInputElement > ) => {
+											const file = event.target.files?.[ 0 ] ?? null;
+											updateUploadForm( 'tmpFile', file );
+										} }
+										render={ ( { openFileDialog } ) => (
+											<div className="videopress-caption-manager__file-picker">
+												<Button variant="secondary" icon={ upload } onClick={ openFileDialog }>
+													{ fileName || __( 'Select .vtt or .srt file', 'jetpack-videopress-pkg' ) }
+												</Button>
+												<p>
+													{ sprintf(
+														/* translators: %s: allowed caption file extensions. */
+														__( 'Allowed formats: %s', 'jetpack-videopress-pkg' ),
+														Object.keys( ACCEPTED_FILE_TYPES ).join( ', ' )
+													) }
+												</p>
+											</div>
+										) }
 										__next40pxDefaultSize={ true }
 									/>
-								</div>
 
-								<SelectControl
-									label={ __( 'Kind', 'jetpack-videopress-pkg' ) }
-									options={ kindOptions }
-									value={ uploadForm.kind }
-									onChange={ value => updateUploadForm( 'kind', value ) }
-									disabled={ isSavingUpload || uploadFormMode === 'replace' }
-									__nextHasNoMarginBottom={ true }
-									__next40pxDefaultSize={ true }
-								/>
-
-								<div className="videopress-caption-manager__form-actions">
-									{ uploadFormMode === 'replace' && (
-										<Button
-											variant="secondary"
-											onClick={ resetUploadForm }
-											disabled={ isSavingUpload }
-										>
-											{ __( 'Cancel replace', 'jetpack-videopress-pkg' ) }
-										</Button>
-									) }
-									<Button
-										variant="primary"
-										onClick={ saveUploadedTrack }
-										isBusy={ isSavingUpload }
-										disabled={ isSavingUpload || ! uploadForm.tmpFile }
-									>
-										{ UPLOAD_FORM_ACTION_LABELS[ uploadFormMode ] }
-									</Button>
-								</div>
-							</div>
-						) : (
-							<div className="videopress-caption-manager__manual-panel">
-								<div
-									className="videopress-caption-manager__manual-main"
-									onInput={ pausePreviewWhileTyping }
-								>
-									<div className="videopress-caption-manager__manual-meta">
+									<div className="videopress-caption-manager__form-grid">
 										<TextControl
 											label={ __( 'Label', 'jetpack-videopress-pkg' ) }
-											value={ manualTrack.label }
-											onChange={ value => updateManualTrack( 'label', value ) }
+											value={ uploadForm.label }
+											onChange={ value => updateUploadForm( 'label', value ) }
+											disabled={ isSavingUpload }
 											__nextHasNoMarginBottom={ true }
 											__next40pxDefaultSize={ true }
 										/>
 										<TextControl
 											label={ __( 'Language', 'jetpack-videopress-pkg' ) }
-											value={ manualTrack.srcLang }
-											onChange={ value => updateManualTrack( 'srcLang', value ) }
+											value={ uploadForm.srcLang }
+											onChange={ value => updateUploadForm( 'srcLang', value ) }
 											help={ __(
 												'Use a BCP-47 language tag, like en, en-US, or pt-BR.',
 												'jetpack-videopress-pkg'
 											) }
-											__nextHasNoMarginBottom={ true }
-											__next40pxDefaultSize={ true }
-										/>
-										<SelectControl
-											label={ __( 'Kind', 'jetpack-videopress-pkg' ) }
-											options={ kindOptions }
-											value={ manualTrack.kind }
-											onChange={ value => updateManualTrack( 'kind', value ) }
+											disabled={ isSavingUpload || uploadFormMode === 'replace' }
 											__nextHasNoMarginBottom={ true }
 											__next40pxDefaultSize={ true }
 										/>
 									</div>
 
-									<div className="videopress-caption-manager__cue-toolbar">
-										<Button variant="secondary" icon={ plus } onClick={ addCue }>
-											{ __( 'Caption', 'jetpack-videopress-pkg' ) }
+									<SelectControl
+										label={ __( 'Kind', 'jetpack-videopress-pkg' ) }
+										options={ kindOptions }
+										value={ uploadForm.kind }
+										onChange={ value => updateUploadForm( 'kind', value ) }
+										disabled={ isSavingUpload || uploadFormMode === 'replace' }
+										__nextHasNoMarginBottom={ true }
+										__next40pxDefaultSize={ true }
+									/>
+
+									<div className="videopress-caption-manager__form-actions">
+										{ uploadFormMode === 'replace' && (
+											<Button
+												variant="secondary"
+												onClick={ resetUploadForm }
+												disabled={ isSavingUpload }
+											>
+												{ __( 'Cancel replace', 'jetpack-videopress-pkg' ) }
+											</Button>
+										) }
+										<Button
+											variant="primary"
+											onClick={ saveUploadedTrack }
+											isBusy={ isSavingUpload }
+											disabled={ isSavingUpload || ! uploadForm.tmpFile }
+										>
+											{ UPLOAD_FORM_ACTION_LABELS[ uploadFormMode ] }
 										</Button>
 									</div>
-
-									<BlockEditorProvider
-										value={ cueBlocks }
-										onInput={ blocks => setCueBlocks( blocks as CaptionCueBlock[] ) }
-										onChange={ blocks => setCueBlocks( blocks as CaptionCueBlock[] ) }
-										settings={ {
-											allowedBlockTypes: [ CAPTION_CUE_BLOCK_NAME ],
-											hasFixedToolbar: false,
-											canLockBlocks: false,
-											bodyPlaceholder: __( 'Add a caption cue.', 'jetpack-videopress-pkg' ),
-										} }
-									>
-										<BlockTools>
-											<WritingFlow>
-												<ObserveTyping>
-													<BlockList />
-												</ObserveTyping>
-											</WritingFlow>
-										</BlockTools>
-									</BlockEditorProvider>
 								</div>
-
-								<aside className="videopress-caption-manager__preview">
-									<div className="videopress-caption-manager__video">
-										{ videoSrc ? (
-											<video
-												ref={ videoRef }
-												aria-label={ __( 'Video preview', 'jetpack-videopress-pkg' ) }
-												src={ videoSrc }
-												poster={ poster }
-												controls
-												onTimeUpdate={ event => setCurrentTime( event.currentTarget.currentTime ) }
+							) : (
+								<div className="videopress-caption-manager__manual-panel">
+									<div
+										className="videopress-caption-manager__manual-main"
+										onInput={ pausePreviewWhileTyping }
+									>
+										<div className="videopress-caption-manager__manual-meta">
+											<TextControl
+												label={ __( 'Label', 'jetpack-videopress-pkg' ) }
+												value={ manualTrack.label }
+												onChange={ value => updateManualTrack( 'label', value ) }
+												__nextHasNoMarginBottom={ true }
+												__next40pxDefaultSize={ true }
 											/>
-										) : (
-											<div className="videopress-caption-manager__video-placeholder">
-												{ __( 'Video preview unavailable.', 'jetpack-videopress-pkg' ) }
-											</div>
-										) }
-										{ activeCue && (
-											<div className="videopress-caption-manager__caption-overlay">
-												{ activeCue.text }
-											</div>
-										) }
+											<TextControl
+												label={ __( 'Language', 'jetpack-videopress-pkg' ) }
+												value={ manualTrack.srcLang }
+												onChange={ value => updateManualTrack( 'srcLang', value ) }
+												help={ __(
+													'Use a BCP-47 language tag, like en, en-US, or pt-BR.',
+													'jetpack-videopress-pkg'
+												) }
+												__nextHasNoMarginBottom={ true }
+												__next40pxDefaultSize={ true }
+											/>
+											<SelectControl
+												label={ __( 'Kind', 'jetpack-videopress-pkg' ) }
+												options={ kindOptions }
+												value={ manualTrack.kind }
+												onChange={ value => updateManualTrack( 'kind', value ) }
+												__nextHasNoMarginBottom={ true }
+												__next40pxDefaultSize={ true }
+											/>
+										</div>
+
+										<div className="videopress-caption-manager__cue-toolbar">
+											<Button variant="secondary" icon={ plus } onClick={ addCue }>
+												{ __( 'Caption', 'jetpack-videopress-pkg' ) }
+											</Button>
+										</div>
+
+										<div className="videopress-caption-manager__cue-editor" ref={ cueEditorRef }>
+											<BlockEditorProvider
+												value={ cueBlocks }
+												onInput={ blocks => setCueBlocks( blocks as CaptionCueBlock[] ) }
+												onChange={ blocks => setCueBlocks( blocks as CaptionCueBlock[] ) }
+												settings={ {
+													allowedBlockTypes: [ CAPTION_CUE_BLOCK_NAME ],
+													hasFixedToolbar: false,
+													canLockBlocks: false,
+													bodyPlaceholder: __( 'Add a caption cue.', 'jetpack-videopress-pkg' ),
+												} }
+											>
+												<BlockTools>
+													<WritingFlow>
+														<ObserveTyping>
+															<BlockList />
+														</ObserveTyping>
+													</WritingFlow>
+												</BlockTools>
+											</BlockEditorProvider>
+										</div>
 									</div>
-									<CheckboxControl
-										label={ __( 'Pause while typing', 'jetpack-videopress-pkg' ) }
-										checked={ pauseWhileTyping }
-										onChange={ value => setPauseWhileTyping( Boolean( value ) ) }
-										__nextHasNoMarginBottom={ true }
-									/>
-								</aside>
-							</div>
-						) }
-					</section>
+
+									<aside className="videopress-caption-manager__preview">
+										<div className="videopress-caption-manager__video">
+											{ videoSrc ? (
+												<video
+													ref={ videoRef }
+													aria-label={ __( 'Video preview', 'jetpack-videopress-pkg' ) }
+													src={ videoSrc }
+													poster={ poster }
+													controls
+													onTimeUpdate={ event =>
+														setCurrentTime( event.currentTarget.currentTime )
+													}
+												/>
+											) : (
+												<div className="videopress-caption-manager__video-placeholder">
+													{ __( 'Video preview unavailable.', 'jetpack-videopress-pkg' ) }
+												</div>
+											) }
+											{ activeCue && (
+												<div className="videopress-caption-manager__caption-overlay">
+													{ activeCue.text }
+												</div>
+											) }
+										</div>
+										<CheckboxControl
+											label={ __( 'Pause while typing', 'jetpack-videopress-pkg' ) }
+											checked={ pauseWhileTyping }
+											onChange={ value => setPauseWhileTyping( Boolean( value ) ) }
+											__nextHasNoMarginBottom={ true }
+										/>
+									</aside>
+								</div>
+							) }
+						</section>
+					) }
 				</div>
 			</Modal>
 
