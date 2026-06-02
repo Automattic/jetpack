@@ -447,7 +447,6 @@ class WPCOM_Features {
 	public const NO_ADVERTS_NO_ADVERTS_PHP         = 'no-adverts/no-adverts.php';
 	public const NO_WPCOM_BRANDING                 = 'no-wpcom-branding';
 	public const OPENTABLE                         = 'opentable';
-	public const OPTIONS_PERMALINK                 = 'options-permalink';
 	public const PAYMENTS                          = 'payments';
 	public const PAYMENT_BUTTONS                   = 'payment-buttons';
 	public const PAYPAL_PAYMENT_BUTTONS            = 'paypal-payment-buttons';
@@ -1048,12 +1047,6 @@ class WPCOM_Features {
 			self::WPCOM_PREMIUM_AND_HIGHER_PLANS,
 			self::JETPACK_BUSINESS_PLANS,
 			self::JETPACK_PREMIUM_PLANS,
-		),
-		// OPTIONS_PERMALINK - Atomic only feature. Enables Settings -> Permalinks menu item & options-permalink page.
-		self::OPTIONS_PERMALINK                 => array(
-			self::WPCOM_PRO_PLANS,
-			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
-			self::WPCOM_FLEX_CACHE_SITE_FREE_PLANS,
 		),
 		self::PAYMENTS                          => array(
 			array(
