@@ -116,7 +116,7 @@ class Jetpack_XMLRPC_Methods {
 
 		$method       = (string) $json_api_args[0];
 		$url          = (string) $json_api_args[1];
-		$post_body    = $json_api_args[2] === null ? null : (string) $json_api_args[2];
+		$post_body    = is_scalar( $json_api_args[2] ) ? (string) $json_api_args[2] : null;
 		$user_details = (array) $json_api_args[4];
 		$locale       = (string) $json_api_args[5];
 
