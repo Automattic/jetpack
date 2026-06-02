@@ -1735,7 +1735,9 @@ abstract class WPCOM_JSON_API_Endpoint {
 				$sizes = apply_filters( 'rest_api_thumbnail_sizes', $metadata['sizes'], $media_item->ID );
 				if ( is_array( $sizes ) ) {
 					foreach ( $sizes as $size => $size_details ) {
-						$response['thumbnails'][ $size ] = dirname( $response['URL'] ) . '/' . $size_details['file'];
+						if ( isset( $size_details['file'] ) ) {
+							$response['thumbnails'][ $size ] = dirname( $response['URL'] ) . '/' . $size_details['file'];
+						}
 					}
 					/**
 					 * Filter the thumbnail URLs for attachment files.
