@@ -144,7 +144,7 @@ class Jetpack_XMLRPC_Methods {
 			$token_key = false;
 		} else {
 			$verified  = ( new Connection_Manager() )->verify_xml_rpc_signature();
-			$token_key = $verified['token_key'];
+			$token_key = $verified['token_key'] ?? false;
 		}
 
 		$token = ( new Tokens() )->get_access_token( $user_id, $token_key );
