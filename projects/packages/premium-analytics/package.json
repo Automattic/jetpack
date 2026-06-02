@@ -40,8 +40,7 @@
 	},
 	"devDependencies": {
 		"@babel/core": "7.29.0",
-		"@types/react": "18.3.28",
-		"@wordpress/build": "0.13.0",
+		"@wordpress/build": "0.14.0",
 		"browserslist": "4.28.2"
 	}
 }

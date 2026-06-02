@@ -168,9 +168,9 @@ function enrich_video_meta( $media_file ) {
 	return array_merge(
 		$media_file,
 		array(
-			'width'   => absint( ! empty( $video_meta['width'] ) ? $video_meta['width'] : $media_file['width'] ),
-			'height'  => absint( ! empty( $video_meta['height'] ) ? $video_meta['height'] : $media_file['height'] ),
-			'alt'     => ! empty( $video_meta['videopress']['description'] ) ? $video_meta['videopress']['description'] : $media_file['alt'],
+			'width'   => absint( ! empty( $video_meta['width'] ) ? $video_meta['width'] : ( $media_file['width'] ?? 0 ) ),
+			'height'  => absint( ! empty( $video_meta['height'] ) ? $video_meta['height'] : ( $media_file['height'] ?? 0 ) ),
+			'alt'     => ! empty( $video_meta['videopress']['description'] ) ? $video_meta['videopress']['description'] : ( $media_file['alt'] ?? '' ),
 			'url'     => $video_url,
 			'title'   => get_the_title( $attachment_id ),
 			'caption' => wp_get_attachment_caption( $attachment_id ),
@@ -356,7 +356,8 @@ function render_static_slide( $media_files ) {
 
 	// if no "static" media was found for the thumbnail try to render a video tag without poster.
 	if ( empty( $media_template ) ) {
-		$media_template = render_video( $media_files[0] );
+		// enrich_media_files() may return an array with no zero-index, so use reset()
+		$media_template = render_video( reset( $media_files ) );
 	}
 
 	return sprintf(

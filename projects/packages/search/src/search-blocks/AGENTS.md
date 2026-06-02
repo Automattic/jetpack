@@ -11,6 +11,8 @@ Notes for contributors (and AI agents) working in `src/search-blocks/`.
 - **Embedded (`embedded`)** — the `jetpack-search.html` block template takes over the search page; the blocks fetch results client-side via the Interactivity API.
 - **Blocks Overlay (`overlay_blocks`, experimental)** — same client-side fetch, but painted as a full-screen modal over the theme's search page; gated behind `is_block_template_overlay_enabled()`.
 
+On a WooCommerce store with the `jetpack_search_override_woocommerce_search_template` option on, the overlay paints the **product** variant (`jetpack-search-overlay-product.html` → product filters + product-card results) instead of the general one. The switch (`Search_Blocks::should_use_product_overlay()`) is **server-side and request-driven** — true only when `is_woocommerce_product_search()` (`is_search()` + product archive), so the product variant appears on a server-rendered product-search request (a deep link, or landing on a product-archive search). It does **not** flip on a live client-side form intercept from a non-product page, because the overlay HTML is rendered once at `wp_enqueue_scripts` from the page's own request context — the bootstrap `preventDefault()`s the submit and never re-fetches a different template. A future change to the overlay bootstrap that wants per-form product detection would need to render both variants (or fetch on open), which this deliberately does not do.
+
 For the two blocks-driven experiences, `Search_Blocks::owns_search_results()` is the single predicate that says "the blocks render the results, so the server must do no search." It drives two suppressions that together remove all server-side search work: `Initializer::init_search_blocks()` stops Classic/Instant Search from initializing (no ES query, no hydration `WP_Query`), and `Search_Blocks::filter__posts_pre_query()` short-circuits the remaining core database query. Both are front-end only (`! is_admin()`). Note these are independent of how results are *fetched* — there is no opt-out filter to "fall back" to a server query, because the blocks never read `WP_Query` results anyway.
 
 ## Hydration & SSR seeding
@@ -62,6 +64,10 @@ the store trips CI.
 WordPress derives `.wp-block-jetpack-search-{bare-slug}` from the full block name. For blocks whose bare slug already starts with `search-` the segment repeats (`.wp-block-jetpack-search-search-input`); that's harmless and only used internally.
 
 Manual wrapper classes (set via `useBlockProps({ className })` and the matching `get_block_wrapper_attributes()` call in `render.php`) don't have to track the slug exactly — they're just CSS hooks.
+
+## Sidebar layout: `.wp-block-columns` align-items reset
+
+The filters sidebar's `border-left` hairline (`.jetpack-search-layout__filters-column`) runs the full height of the columns row only when that row stretches its children. `search_layout_inline_css()` sets `align-items: stretch` on the row to force this, but be aware: **WP core's `wp-includes/blocks/columns/style.css` ships `.wp-block-columns { align-items: normal !important }`.** Where present (recent core, no theme override), that `!important` rule wins regardless of our selector's specificity — `align-items` on the row resolves to `normal` (which itself stretches), so our `stretch` is a redundant no-op there. It only does real work on sites where that core reset is absent or overridden, where the row would otherwise fall back to `.is-layout-flex { align-items: center }`. The upshot for testing: a stock dev env (core reset present) won't show a *difference* from this rule — to see it bite, neutralise the core reset (delete the `.wp-block-columns` align-items rule from the CSSOM) first. The overlay's bottom-edge fix is a pure `padding` move and is independent of all this.
 
 ## Theme tokens & `var()` chains
 

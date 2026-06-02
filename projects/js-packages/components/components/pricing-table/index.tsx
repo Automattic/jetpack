@@ -103,6 +103,8 @@ export const PricingTableItem: FC< PricingTableItemProps > = ( {
 					iconSize={ 14 }
 					offset={ 4 }
 					wide={ Boolean( tooltipTitle && tooltipInfo ) }
+					inline={ false }
+					shift
 				>
 					<Text variant="body-small" component="div">
 						{ tooltipInfo || defaultTooltipInfo }
@@ -204,6 +206,8 @@ const PricingTable: FC< PricingTableProps > = ( {
 											iconSize={ 14 }
 											offset={ 4 }
 											wide={ Boolean( item.tooltipTitle && item.tooltipInfo ) }
+											inline={ false }
+											shift
 										>
 											<Text variant="body-small">{ item.tooltipInfo }</Text>
 										</IconTooltip>

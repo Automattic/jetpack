@@ -551,7 +551,6 @@ class Publicize extends Publicize_Base {
 			'instagram-business' => array(),
 			'nextdoor'           => array(),
 			'threads'            => array(),
-			'x'                  => array(),
 			'bluesky'            => array(),
 		);
 
@@ -590,7 +589,7 @@ class Publicize extends Publicize_Base {
 	 * @param WP_Post $post Post object.
 	 */
 	public function flag_post_for_publicize( $new_status, $old_status, $post ) {
-		if ( ! $this->post_type_is_publicizeable( $post->post_type ) ) {
+		if ( ! $post instanceof \WP_Post || ! $this->post_type_is_publicizeable( $post->post_type ) ) {
 			return;
 		}
 

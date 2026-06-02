@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-JSON API: add a REST-vs-XML-RPC body parity test helper plus an auto-discovering coverage test for REST-enabled GET endpoints, and a context=edit (jetpack#42377) lock for /posts.

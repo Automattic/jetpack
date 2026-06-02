@@ -15,7 +15,7 @@
  * names.
  */
 import { InspectorControls, useBlockProps } from '@wordpress/block-editor';
-import { Button, PanelBody, RadioControl, TextControl, ToggleControl } from '@wordpress/components';
+import { Button, PanelBody, RadioControl, TextControl } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { __, _n, sprintf } from '@wordpress/i18n';
 
@@ -43,6 +43,7 @@ const SAMPLE_RESULTS = [
 		path: 'example.com/articles/first',
 		author: __( 'Sample Author', 'jetpack-search-pkg' ),
 		date: 'Apr 1, 2026',
+		hasImage: true,
 	},
 	{
 		title: __( 'Another relevant post', 'jetpack-search-pkg' ),
@@ -53,7 +54,11 @@ const SAMPLE_RESULTS = [
 		path: 'example.com/guides/another',
 		author: __( 'A. Writer, B. Editor', 'jetpack-search-pkg' ),
 		date: 'Mar 22, 2026',
+		hasImage: true,
 	},
+	// Third row demonstrates the image-less collapse — image column drops out,
+	// text fills the row. Mirrors the runtime behavior when a result's
+	// `imageUrl` is empty.
 	{
 		title: __( 'Older archived entry', 'jetpack-search-pkg' ),
 		contentSnippet: __(
@@ -212,21 +217,6 @@ export default function ResultsListEdit( { attributes, setAttributes, clientId }
 						options={ LAYOUT_OPTIONS() }
 						onChange={ value => setAttributes( { layout: value } ) }
 					/>
-					{ isWooCommerceBlocksEnabled() && (
-						<ToggleControl
-							__nextHasNoMarginBottom
-							label={ __(
-								'Auto-switch to Product view for product searches',
-								'jetpack-search-pkg'
-							) }
-							checked={ attributes?.autoProductView ?? true }
-							onChange={ value => setAttributes( { autoProductView: value } ) }
-							help={ __(
-								'When the search is scoped to products (a ?post_types[]=product link), show results as a product grid regardless of the format above. Turn off to always use the format above.',
-								'jetpack-search-pkg'
-							) }
-						/>
-					) }
 					<TextControl
 						__next40pxDefaultSize
 						__nextHasNoMarginBottom
@@ -363,9 +353,9 @@ function renderExpandedPreview( results ) {
 							) }
 						</div>
 					</div>
-					<a className="jetpack-search-results__image-link" tabIndex={ -1 } aria-hidden="true">
-						<span className="jetpack-search-results__image-placeholder" aria-hidden="true" />
-					</a>
+					{ result.hasImage && (
+						<a className="jetpack-search-results__image-link" tabIndex={ -1 } aria-hidden="true" />
+					) }
 				</li>
 			) ) }
 		</ul>

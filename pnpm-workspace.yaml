@@ -30,12 +30,6 @@ minimumReleaseAgeExclude:
   - '@automattic/*'
   - '@woocommerce/*'
   - '@wordpress/*'
-  # Renovate security update: webpack-dev-server@5.2.4
-  - webpack-dev-server@5.2.4
-  # Renovate security update: js-cookie@3.0.7
-  - js-cookie@3.0.7
-  # Renovate security update: tmp@0.2.6
-  - tmp@0.2.6
 trustPolicy: no-downgrade
 trustPolicyExclude:
   # https://github.com/paulmillr/chokidar/issues/1440
@@ -79,10 +73,11 @@ ignoredOptionalDependencies:
 # Dependencies needing patching.
 patchedDependencies:
 
-  # Decouple script-module identity from `wpPlugin.packageNamespace` and
-  # discover script-module packages outside `./packages/` via convention.
-  # Upstream PR: https://github.com/WordPress/gutenberg/pull/78822
-  '@wordpress/build@0.13.0': .pnpm-patches/@wordpress__build@0.13.0.patch
+  # Decouple script-module identity from `wpPlugin.packageNamespace`, discover
+  # script-module packages outside `./packages/` via convention, and scope the
+  # deregister-before-register to `@wordpress/*`.
+  # Upstream PRs: https://github.com/WordPress/gutenberg/pull/78822 + /pull/77465
+  '@wordpress/build@0.14.0': .pnpm-patches/@wordpress__build@0.14.0.patch
 
   # Vite/esbuild doesn't like the `__esModule` + `exports["default"]` pattern, it winds up double-wrapping the default.
   # See also https://github.com/WordPress/gutenberg/issues/39619

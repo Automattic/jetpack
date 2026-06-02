@@ -1108,6 +1108,10 @@ class Jetpack_Reader_Chat_Test extends WP_UnitTestCase {
 	 * page loads do not retry the remote manifest on every request.
 	 */
 	public function test_enqueue_scripts_caches_asset_fetch_failure() {
+		if ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) {
+			$this->markTestSkipped( 'Asset manifest transients are bypassed when SCRIPT_DEBUG is enabled.' );
+		}
+
 		$this->override_ai_features( true );
 		delete_transient( AiAssistantPlugin\READER_CHAT_ASSET_TRANSIENT );
 
@@ -1136,6 +1140,10 @@ class Jetpack_Reader_Chat_Test extends WP_UnitTestCase {
 	 * version string matches what was cached.
 	 */
 	public function test_enqueue_scripts_uses_cached_asset_version() {
+		if ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) {
+			$this->markTestSkipped( 'Asset manifest transients are bypassed when SCRIPT_DEBUG is enabled.' );
+		}
+
 		$this->override_ai_features( true );
 		$this->cache_asset_data( array( 'version' => 'cached-1.2.3' ) );
 

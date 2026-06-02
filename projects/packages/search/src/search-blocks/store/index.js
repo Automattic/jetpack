@@ -16,6 +16,7 @@ import {
 	getSortMenuOptionKeysFromItem,
 	getSortMenuOptionKeysFromTrigger,
 } from './results-sort-menu-dom';
+import { identifySite, recordTrainTracksInteract, recordTrainTracksRender } from './tracks';
 import { pushStateToUrl, readStateFromUrl } from './url-state';
 
 const NAMESPACE = 'jetpack-search';
@@ -494,11 +495,75 @@ function* fetchResults( pageHandle ) {
 	return yield response.json();
 }
 
+const UI_ALGO_VARIANT = { compact: 'minimal', expanded: 'expanded', product: 'product' };
+
+/**
+ * UI-algo identifier for TrainTracks. Kept identical to instant search so blocks
+ * impressions land in the same relevance bucket; the blocks `compact` layout maps
+ * to instant search's `minimal`.
+ *
+ * @return {string} `jetpack-instant-search-ui/v1-{minimal|expanded|product}`.
+ */
+function trainTracksUiAlgo() {
+	const variant = UI_ALGO_VARIANT[ state.resultsLayout ] ?? 'expanded';
+	return `jetpack-instant-search-ui/v1-${ variant }`;
+}
+
+/**
+ * Build the TrainTracks payload from a result's server-assigned railcar. Shape
+ * matches instant search's `getCommonTrainTracksProps()` exactly.
+ *
+ * @param {object} railcar    - Per-result railcar from the search API.
+ * @param {number} uiPosition - Absolute position of the result in the list.
+ * @return {object} TrainTracks event properties.
+ */
+function trainTracksProps( railcar, uiPosition ) {
+	return {
+		fetch_algo: railcar.fetch_algo,
+		fetch_position: railcar.fetch_position,
+		fetch_query: railcar.fetch_query,
+		railcar: railcar.railcar,
+		rec_blog_id: railcar.rec_blog_id,
+		rec_post_id: railcar.rec_post_id,
+		session_id: railcar.session_id,
+		ui_algo: trainTracksUiAlgo(),
+		ui_position: uiPosition,
+	};
+}
+
+/**
+ * Fire one TrainTracks render (impression) event per result that carries a
+ * railcar. `ui_position` reads the absolute index stamped on each result so it
+ * matches the interact event fired on click.
+ *
+ * @param {Array<object>} results - Normalized results just added to the list.
+ */
+function recordResultRenders( results ) {
+	if ( state.disableTracking ) {
+		return;
+	}
+	for ( const result of results ) {
+		if ( result.railcar ) {
+			recordTrainTracksRender( trainTracksProps( result.railcar, result.index ) );
+		}
+	}
+}
+
 const { state, actions } = store( NAMESPACE, {
 	state: {
 		// Mutually exclusive popovers — only one open at a time.
 		isFilterPopoverOpen: false,
 		isSortPopoverOpen: false,
+
+		// Resolved results-list layout, seeded per-page by results-list/render.php.
+		// Drives the TrainTracks `ui_algo`; default keeps a valid value on pages
+		// where the seed hasn't landed.
+		resultsLayout: 'expanded',
+
+		// Suppresses TrainTracks `_tkq` pushes. PHP-seeded from
+		// `?disable_tracking=1` + the `jetpack_instant_search_disable_tracking`
+		// filter, mirroring instant search. Default off so a missing seed tracks.
+		disableTracking: false,
 
 		// Roving-tabindex active descendant for the sort menu. `null` /
 		// unknown-key = menu hasn't been keyboard-engaged; the currently
@@ -523,6 +588,18 @@ const { state, actions } = store( NAMESPACE, {
 		// `resultsCountText` lives on seeded state (not a getter) so SSR can
 		// resolve `data-wp-text` to a real string on first paint. See
 		// `computeResultsCountText()` for the lockstep logic.
+
+		/**
+		 * Skeleton visibility. SSR can't evaluate a getter, so the skeleton
+		 * markup carries a literal `hidden` off the initial paint; this getter
+		 * takes over after hydration so the in-flight initial search shows the
+		 * skeleton (a reload that already has results keeps them — no flash).
+		 *
+		 * @return {boolean} True when the skeleton should be hidden.
+		 */
+		get skeletonHidden() {
+			return ! ( state.isLoading && state.results.length === 0 );
+		},
 
 		/**
 		 * No-results visibility. `data-wp-bind` only evaluates simple
@@ -908,9 +985,11 @@ const { state, actions } = store( NAMESPACE, {
 				if ( myToken !== searchToken ) {
 					return;
 				}
-				state.results = ( data.results ?? [] ).map( r =>
-					normalizeResult( r, state.locale, state.searchQuery )
-				);
+				state.results = ( data.results ?? [] ).map( ( r, i ) => ( {
+					...normalizeResult( r, state.locale, state.searchQuery ),
+					index: i,
+				} ) );
+				recordResultRenders( state.results );
 				state.totalResults = data.total ?? 0;
 				state.pageHandle = data.page_handle ?? null;
 				state.aggregations = remapAggregationsToFilterKeys(
@@ -941,10 +1020,6 @@ const { state, actions } = store( NAMESPACE, {
 				if ( myToken === searchToken ) {
 					state.isLoading = false;
 					state.resultsCountText = computeResultsCountText( state );
-					// One-shot: ends the pre-hydration skeleton window.
-					if ( ! state.skeletonHidden ) {
-						state.skeletonHidden = true;
-					}
 				}
 			}
 		},
@@ -967,12 +1042,13 @@ const { state, actions } = store( NAMESPACE, {
 				if ( myToken !== searchToken ) {
 					return;
 				}
-				state.results = [
-					...state.results,
-					...( data.results ?? [] ).map( r =>
-						normalizeResult( r, state.locale, state.searchQuery )
-					),
-				];
+				const offset = state.results.length;
+				const appended = ( data.results ?? [] ).map( ( r, i ) => ( {
+					...normalizeResult( r, state.locale, state.searchQuery ),
+					index: offset + i,
+				} ) );
+				state.results = [ ...state.results, ...appended ];
+				recordResultRenders( appended );
 				state.pageHandle = data.page_handle ?? null;
 			} catch {
 				if ( myToken === searchToken ) {
@@ -982,6 +1058,24 @@ const { state, actions } = store( NAMESPACE, {
 				if ( myToken === searchToken ) {
 					state.isLoadingMore = false;
 				}
+			}
+		},
+
+		/**
+		 * Fires a TrainTracks interact event when a visitor clicks a result.
+		 * Mirrors instant search's `action: 'click'` payload; `ui_position`
+		 * reuses the result's stamped index so it matches its render event.
+		 */
+		recordResultInteract() {
+			if ( state.disableTracking ) {
+				return;
+			}
+			const { result } = getContext();
+			if ( result?.railcar ) {
+				recordTrainTracksInteract( {
+					...trainTracksProps( result.railcar, result.index ),
+					action: 'click',
+				} );
 			}
 		},
 
@@ -1471,6 +1565,9 @@ const { state, actions } = store( NAMESPACE, {
 				return;
 			}
 			initialized = true;
+			if ( ! state.disableTracking ) {
+				identifySite( state.siteId );
+			}
 			// PHP seed; `formatDate()` reads from module scope rather than threading per-call.
 			setSeededDateFormat( state.dateFormat );
 			window.addEventListener( 'popstate', actions.handlePopState );
@@ -1511,9 +1608,9 @@ const { state, actions } = store( NAMESPACE, {
 			if ( state.searchQuery || state.hasActiveFilters || state.hasSearchParam ) {
 				actions.dispatchInitialSearchIfNeeded();
 			} else if ( droppedAny ) {
-				// No fetch will fire — clear the spinner + skeleton.
+				// No fetch will fire — clear the spinner; `skeletonHidden`
+				// derives to true once `isLoading` is false.
 				state.isLoading = false;
-				state.skeletonHidden = true;
 			}
 		},
 

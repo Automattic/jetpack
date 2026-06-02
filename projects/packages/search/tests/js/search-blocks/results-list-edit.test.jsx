@@ -113,10 +113,25 @@ describe( 'ResultsListEdit', () => {
 
 		expect( screen.getByText( 'First sample result' ) ).toBeInTheDocument();
 		expect( screen.getByText( 'Apr 1, 2026' ) ).toBeInTheDocument();
-		expect( screen.queryByText( 'Ada Lovelace' ) ).not.toBeInTheDocument();
-		expect( screen.queryByText( 'Grace Hopper' ) ).not.toBeInTheDocument();
-		expect( screen.queryByText( 'Katherine Johnson' ) ).not.toBeInTheDocument();
+		expect( screen.queryByText( 'Sample Author' ) ).not.toBeInTheDocument();
+		expect( screen.queryByText( 'A. Writer, B. Editor' ) ).not.toBeInTheDocument();
 	} );
+
+	// SAMPLE_RESULTS has three rows: the first two carry hasImage:true, the
+	// third demonstrates the runtime collapse when imageUrl is empty. We count
+	// `__image-link` elements directly because the element is aria-hidden by
+	// design (it's a decorative click-target for sighted users); there's no
+	// role or accessible name to query against via Testing Library.
+	/* eslint-disable testing-library/no-container, testing-library/no-node-access -- see comment above. */
+	it( 'renders the image-link column only for sample rows that have an image in the expanded preview', () => {
+		const { container } = render(
+			<ResultsListEdit attributes={ { layout: 'expanded' } } setAttributes={ jest.fn() } />
+		);
+
+		expect( container.querySelectorAll( '.jetpack-search-results__image-link' ) ).toHaveLength( 2 );
+		expect( screen.getByText( 'Older archived entry' ) ).toBeInTheDocument();
+	} );
+	/* eslint-enable testing-library/no-container, testing-library/no-node-access */
 
 	it( 'renders the layout picker in the inspector', () => {
 		render( <ResultsListEdit attributes={ { layout: 'expanded' } } setAttributes={ jest.fn() } /> );
@@ -147,41 +162,6 @@ describe( 'ResultsListEdit', () => {
 		expect( screen.getByText( '$24.00' ) ).toBeInTheDocument();
 		expect( screen.getByText( '$30.00' ) ).toBeInTheDocument();
 		expect( screen.getByText( '$19.99' ) ).toBeInTheDocument();
-	} );
-
-	it( 'shows the auto-product-view toggle, defaulting on when the attribute is unset', () => {
-		render( <ResultsListEdit attributes={ {} } setAttributes={ jest.fn() } /> );
-
-		expect(
-			screen.getByRole( 'checkbox', {
-				name: 'Auto-switch to Product view for product searches',
-			} )
-		).toBeChecked();
-	} );
-
-	it( 'reflects autoProductView=false as an unchecked toggle', () => {
-		render(
-			<ResultsListEdit attributes={ { autoProductView: false } } setAttributes={ jest.fn() } />
-		);
-
-		expect(
-			screen.getByRole( 'checkbox', {
-				name: 'Auto-switch to Product view for product searches',
-			} )
-		).not.toBeChecked();
-	} );
-
-	it( 'updates the autoProductView attribute when the toggle changes', () => {
-		const setAttributes = jest.fn();
-		render( <ResultsListEdit attributes={ {} } setAttributes={ setAttributes } /> );
-
-		// eslint-disable-next-line testing-library/prefer-user-event -- @testing-library/user-event isn't a dep of the search package; results-sort-edit.test.jsx uses fireEvent for the same reason.
-		fireEvent.click(
-			screen.getByRole( 'checkbox', {
-				name: 'Auto-switch to Product view for product searches',
-			} )
-		);
-		expect( setAttributes ).toHaveBeenCalledWith( { autoProductView: false } );
 	} );
 
 	it( 'exposes message controls for the empty, filtered-empty, and error states in the inspector', () => {
@@ -327,16 +307,6 @@ describe( 'ResultsListEdit on non-WooCommerce sites (RSM-2805)', () => {
 		expect( screen.getByRole( 'radio', { name: 'Expanded' } ) ).toBeInTheDocument();
 		expect(
 			screen.queryByRole( 'radio', { name: 'Product (for WooCommerce stores)' } )
-		).not.toBeInTheDocument();
-	} );
-
-	it( 'omits the auto-product-view toggle (the product layout it controls is WC-only)', () => {
-		render( <ResultsListEdit attributes={ {} } setAttributes={ jest.fn() } /> );
-
-		expect(
-			screen.queryByRole( 'checkbox', {
-				name: 'Auto-switch to Product view for product searches',
-			} )
 		).not.toBeInTheDocument();
 	} );
 
