@@ -65,7 +65,9 @@ const BranchSection = ( {
 		<Stack direction="column" gap="sm">
 			{ searchable && (
 				<>
-					<Text variant="heading-sm">{ title }</Text>
+					<Text variant="heading-sm" render={ <h2 /> }>
+						{ title }
+					</Text>
 					<SearchControl
 						__nextHasNoMarginBottom
 						label={ title }

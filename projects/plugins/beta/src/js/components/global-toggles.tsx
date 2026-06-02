@@ -127,7 +127,9 @@ const GlobalToggles = () => {
 		<Card.Root>
 			<Card.Content>
 				<Stack direction="column" gap="md">
-					<Text variant="heading-sm">{ __( 'Settings', 'jetpack-beta' ) }</Text>
+					<Text variant="heading-sm" render={ <h2 /> }>
+						{ __( 'Settings', 'jetpack-beta' ) }
+					</Text>
 					{ updateError && (
 						<Notice.Root intent="error">
 							<Notice.Description>{ updateError }</Notice.Description>

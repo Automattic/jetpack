@@ -294,4 +294,31 @@ class Admin {
 		}
 		return array( Utils::render_markdown( $plugin, $wp_filesystem->get_contents( $file ) ), null );
 	}
+
+	/**
+	 * Display autoupdate toggle.
+	 *
+	 * @deprecated 4.3.0 The settings UI is now a React app backed by the Abilities API.
+	 */
+	public static function show_toggle_autoupdates() {
+		_deprecated_function( __METHOD__, '4.3.0' );
+	}
+
+	/**
+	 * Display email notification toggle.
+	 *
+	 * @deprecated 4.3.0 The settings UI is now a React app backed by the Abilities API.
+	 */
+	public static function show_toggle_emails() {
+		_deprecated_function( __METHOD__, '4.3.0' );
+	}
+
+	/**
+	 * Display autoupdate and email notification toggles.
+	 *
+	 * @deprecated 4.3.0 The settings UI is now a React app backed by the Abilities API.
+	 */
+	public static function show_toggle() {
+		_deprecated_function( __METHOD__, '4.3.0' );
+	}
 }

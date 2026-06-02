@@ -11,8 +11,15 @@
  */
 
 import { AdminPage } from '@automattic/jetpack-components';
-import { useCallback, useEffect, useMemo, useState } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import {
+	createInterpolateElement,
+	useCallback,
+	useEffect,
+	useMemo,
+	useRef,
+	useState,
+} from '@wordpress/element';
+import { __, sprintf } from '@wordpress/i18n';
 import { Button, Card, Link, Notice, Stack, Text } from '@wordpress/ui';
 import { errorMessage, getPlugin } from '../api/abilities';
 import BranchSection from '../components/branch-section';
@@ -122,6 +129,14 @@ const PluginManage = ( { slug }: Props ) => {
 	const [ view, setView ] = useState< PluginView | null >( null );
 	const [ loading, setLoading ] = useState( true );
 	const [ error, setError ] = useState< string | null >( null );
+	const mounted = useRef( true );
+
+	useEffect(
+		() => () => {
+			mounted.current = false;
+		},
+		[]
+	);
 
 	useEffect( () => {
 		let cancelled = false;
@@ -152,7 +167,11 @@ const PluginManage = ( { slug }: Props ) => {
 	// Refresh the view after an in-place update so the running version updates.
 	const handleUpdated = useCallback( () => {
 		getPlugin( slug )
-			.then( setView )
+			.then( data => {
+				if ( mounted.current ) {
+					setView( data );
+				}
+			} )
 			.catch( () => {
 				// Leave the current view in place; the update itself succeeded.
 			} );
@@ -196,17 +215,24 @@ const PluginManage = ( { slug }: Props ) => {
 								{ view.is_mu_plugin && (
 									<Notice.Root intent="info">
 										<Notice.Description>
-											{ __( 'This plugin will be installed as a mu-plugin. See', 'jetpack-beta' ) }{ ' ' }
-											<a
-												href="https://github.com/Automattic/jetpack-beta/blob/HEAD/docs/mu-plugin-info.md"
-												target="_blank"
-												rel="noreferrer"
-											>
-												{ __( 'the documentation', 'jetpack-beta' ) }
-											</a>{ ' ' }
-											{ __(
-												"for details on what this entails, particularly if you're newly installing a stable version.",
-												'jetpack-beta'
+											{ createInterpolateElement(
+												__(
+													"This plugin will be installed as a mu-plugin. See <link>the documentation</link> for details on what this entails, particularly if you're newly installing a stable version.",
+													'jetpack-beta'
+												),
+												{
+													link: (
+														<a
+															href="https://github.com/Automattic/jetpack-beta/blob/HEAD/docs/mu-plugin-info.md"
+															target="_blank"
+															rel="noreferrer"
+															aria-label={ __(
+																'the documentation (opens in a new tab)',
+																'jetpack-beta'
+															) }
+														/>
+													),
+												}
 											) }
 										</Notice.Description>
 									</Notice.Root>
@@ -218,8 +244,12 @@ const PluginManage = ( { slug }: Props ) => {
 											<Stack direction="row" align="center" justify="space-between">
 												<Stack direction="column" gap="xs">
 													<Card.Title>
-														<Text variant="body-md">
-															{ view.name } { __( '— Currently Running', 'jetpack-beta' ) }
+														<Text variant="body-md" render={ <h2 /> }>
+															{ sprintf(
+																/* translators: %s: plugin name. */
+																__( '%s — Currently Running', 'jetpack-beta' ),
+																view.name
+															) }
 														</Text>
 													</Card.Title>
 													<Text variant="body-sm">
@@ -238,6 +268,10 @@ const PluginManage = ( { slug }: Props ) => {
 															href={ view.bug_report_url }
 															target="_blank"
 															rel="external noopener noreferrer"
+															aria-label={ __(
+																'Found a bug? Report it! (opens in a new tab)',
+																'jetpack-beta'
+															) }
 														/>
 													}
 												>

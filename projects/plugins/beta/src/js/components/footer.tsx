@@ -40,6 +40,7 @@ const Footer = () => (
 			href={ getRedirectUrl( 'a8c-about' ) }
 			rel="noopener noreferrer"
 			target="_blank"
+			aria-label={ __( 'An Automattic Airline (opens in a new tab)', 'jetpack-beta' ) }
 		>
 			<AutomatticBylineLogo height={ 8 } />
 		</a>
