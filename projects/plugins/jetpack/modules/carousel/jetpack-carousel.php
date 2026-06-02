@@ -357,9 +357,14 @@ class Jetpack_Carousel {
 			! empty( $parsed_block['blockName'] ) &&
 			'core/image' === $parsed_block['blockName'] &&
 			! empty( $parent_block->name ) &&
-			'core/gallery' === $parent_block->name &&
-			! $this->is_core_gallery_lightbox_enabled( $parent_block )
+			'core/gallery' === $parent_block->name
 		) {
+			if ( $this->is_core_gallery_lightbox_enabled( $parent_block ) ) {
+				$parsed_block['attrs']['lightbox']        = array( 'enabled' => true );
+				$parsed_block['attrs']['linkDestination'] = 'none';
+				return $parsed_block;
+			}
+
 			unset( $parsed_block['attrs']['lightbox'] );
 		}
 		return $parsed_block;
