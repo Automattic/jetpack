@@ -91,9 +91,13 @@ const watchOptions = {
 	ignored: [ '**/node_modules', '**/dist', '**/vendor' ],
 };
 
-// Opt-in filesystem cache; see the readme. Takes the consumer's config path so the cache
-// invalidates when that config changes and is namespaced per config file (so a project's
-// multiple, possibly concurrent, configs don't share one pack). Disabled under CI.
+/**
+ * Generate filesystem cache configuration.
+ *
+ * @param {string} configFile - Config file being processed, for proper invalidation.
+ *                            Generally, you'll pass `__filename` or `import.meta.filename`.
+ * @return {object|undefined} Cache configuration. Returns undefined in CI.
+ */
 const cache = configFile => {
 	if ( process.env.CI ) {
 		return undefined;
@@ -103,6 +107,7 @@ const cache = configFile => {
 		cacheDirectory: path.resolve(
 			process.cwd(),
 			'.cache/webpack',
+			// Split cache on config filename to avoid collisions with parallel builds (e.g. plugins/jetpack).
 			path.basename( configFile, path.extname( configFile ) )
 		),
 		store: 'pack',
