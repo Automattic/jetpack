@@ -52,7 +52,7 @@ const SECTION_CONFIG: Array< {
 		key: 'pr',
 		title: __( 'Feature Branches', 'jetpack-beta' ),
 		searchable: true,
-		searchPlaceholder: __( 'Search for a Feature Branch', 'jetpack-beta' ),
+		searchPlaceholder: __( 'Search by name, PR number, or GitHub URL', 'jetpack-beta' ),
 	},
 	{
 		key: 'release',

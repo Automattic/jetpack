@@ -19,6 +19,8 @@ export type BranchCard = {
 	branch: string | null;
 	version: string | null;
 	pretty_version: string | null;
+	/** GitHub PR number for feature-branch (`pr`) cards; null otherwise. */
+	pr: number | null;
 	is_active: boolean;
 };
 

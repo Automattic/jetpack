@@ -833,6 +833,7 @@ class Beta_Abilities extends Registrar {
 							'branch'         => array( 'type' => array( 'string', 'null' ) ),
 							'version'        => array( 'type' => array( 'string', 'null' ) ),
 							'pretty_version' => array( 'type' => array( 'string', 'null' ) ),
+							'pr'             => array( 'type' => array( 'integer', 'null' ) ),
 							'is_active'      => array( 'type' => 'boolean' ),
 						),
 					),
@@ -865,6 +866,9 @@ class Beta_Abilities extends Registrar {
 			'branch'         => $branch->branch ?? null,
 			'version'        => $branch->version ?? null,
 			'pretty_version' => $branch->pretty_version ?? null,
+			// PR branches carry the GitHub PR number; surfaced so the UI search
+			// can match a pasted PR number or pull-request URL.
+			'pr'             => isset( $branch->pr ) ? (int) $branch->pr : null,
 			'is_active'      => $is_active,
 		);
 	}
