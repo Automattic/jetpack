@@ -83,15 +83,34 @@ body.jetpack-beta-page {
 	color: var(--wpds-color-fg-interactive-neutral-weak, #50575e);
 }
 
-// Whole plugin card acts as a button linking to its manage screen.
+// The whole plugin card is a link to its manage screen, but it should read as a
+// card — not a text link. Inherit the normal admin text color and drop the
+// underline (on the anchor and its descendants).
 .jetpack-beta-plugin-card {
+	color: inherit;
 	cursor: pointer;
+	text-decoration: none;
 	transition: box-shadow 0.1s ease-in-out, border-color 0.1s ease-in-out;
+
+	&:hover,
+	&:focus,
+	&:active,
+	&:visited {
+		color: inherit;
+		text-decoration: none;
+	}
 
 	&:hover,
 	&:focus-visible {
 		border-color: var(--wp-admin-theme-color, #3858e9);
 		box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+	}
+
+	// Provide our own focus indicator (blue border + shadow above) and suppress
+	// the UA/admin outline, which is rectangular and would square off the card's
+	// rounded corners on focus.
+	&:focus-visible {
+		outline: none;
 	}
 }
 
