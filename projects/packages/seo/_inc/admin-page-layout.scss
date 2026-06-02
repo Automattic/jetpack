@@ -18,5 +18,5 @@ body.toplevel_page_jetpack-seo {
 // mixin — only the header does (at `padding-inline: 2xl`). Pad our content to
 // align with the header and clear it (the consumer-side job Scan/Podcast own).
 .jetpack-seo-page-content {
-	padding: var(--wpds-dimension-padding-2xl, 24px);
+	padding: var(--wpds-dimension-padding-2xl);
 }
