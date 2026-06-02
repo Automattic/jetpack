@@ -102,6 +102,10 @@ class Initializer {
 			return;
 		}
 
+		// Front-end JSON-LD schema (Article / FAQ). Self-hooks `wp_head`, so it
+		// only emits on front-end requests.
+		Schema_Builder::init();
+
 		// Priority 1: load the wp-build bundle (and define its render function)
 		// before `add_menu_item()` runs at the default priority and needs it.
 		add_action( 'admin_menu', array( __CLASS__, 'maybe_load_wp_build' ), 1 );
