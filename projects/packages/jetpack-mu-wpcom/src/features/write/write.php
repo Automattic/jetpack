@@ -1130,9 +1130,11 @@ function wpcom_write_template( $edit_title = '', $edit_content = '', $edit_post_
 				data-wp-on--input="actions.repairStructure"
 				data-wp-on--keydown="actions.handleKeyDown"
 				data-wp-on--beforeinput="actions.handleBeforeInput"
+				data-wp-on--dragstart="actions.handleEditorDragStart"
 				data-wp-on--dragover="actions.handleEditorDragOver"
 				data-wp-on--dragleave="actions.handleEditorDragLeave"
 				data-wp-on--drop="actions.handleEditorDrop"
+				data-wp-on--dragend="actions.handleEditorDragEnd"
 				data-placeholder="<?php echo esc_attr__( 'Tell your story...', 'jetpack-mu-wpcom' ); ?>"
 			><div
 				class="bw-content-inner"
