@@ -1580,8 +1580,14 @@ class SSO {
 	 *
 	 * Uses the `user_token_valid` field from the SSO validate response when the
 	 * signed token was sent for the same user that was resolved during login.
-	 * Falls back to the token-health API when the validate response can't be
-	 * trusted for this user (different user resolved, or no signed token was sent).
+	 *
+	 * When the validate response can't be trusted for this user (a different user
+	 * was resolved, or no signed token was sent), login proceeds without an extra
+	 * verification call. In that case `set_wpcom_user_id_meta()` records the
+	 * mapping during this login, so the fast path validates the token on the next
+	 * SSO login. This avoids an extra HTTP request on every first-SSO login and
+	 * keeps the Error_Handler from being triggered for users whose token state can
+	 * only be resolved by a direct token-health check.
 	 *
 	 * If the token is found to be invalid, it is removed locally so the user will be
 	 * prompted to re-authorize and obtain a fresh token.
@@ -1604,14 +1610,10 @@ class SSO {
 			return true;
 		}
 
-		// The signed token was for a different user (or wasn't sent at all).
-		// Fall back to the token-health API to verify this user's token directly.
-		$validation = $tokens->validate( $user_id );
-		if ( is_array( $validation ) && isset( $validation['user_token_is_healthy'] ) && false === $validation['user_token_is_healthy'] ) {
-			$tokens->disconnect_user( $user_id );
-			return false;
-		}
-
+		// The signed token was for a different user (or wasn't sent at all), so the
+		// validateResult response can't be trusted for this user. Let login proceed;
+		// the wpcom_user_id meta set during this login means the next SSO login will
+		// validate the token via the fast path.
 		return true;
 	}
 

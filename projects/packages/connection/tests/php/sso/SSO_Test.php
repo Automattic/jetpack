@@ -675,21 +675,18 @@ class SSO_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Test verify_user_token ignores user_token_valid when the token was for a different user.
+	 * Test verify_user_token proceeds without verifying when the token was validated for a different user.
+	 *
+	 * The validateResult response can't be trusted for this user, so login proceeds
+	 * (no extra token-health call) and the wpcom_user_id meta set during this login
+	 * means the next SSO login validates the token via the fast path.
 	 */
-	public function test_verify_user_token_user_mismatch_forces_fallback() {
+	public function test_verify_user_token_user_mismatch_proceeds_without_verification() {
 		$tokens = $this->createMock( Tokens::class );
 		$tokens->expects( $this->never() )
 			->method( 'disconnect_user' );
-		$tokens->expects( $this->once() )
-			->method( 'validate' )
-			->with( 42 )
-			->willReturn(
-				array(
-					'user_token_is_healthy' => true,
-					'blog_token_is_healthy' => true,
-				)
-			);
+		$tokens->expects( $this->never() )
+			->method( 'validate' );
 
 		// user_token_valid is false, but it was validated for user 99, not user 42.
 		$user_data = (object) array( 'user_token_valid' => false );
@@ -704,96 +701,18 @@ class SSO_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Test verify_user_token falls back to Tokens::validate when no user_token_valid in response.
+	 * Test verify_user_token proceeds without verifying when no signed token was sent.
+	 *
+	 * When no signed token was sent (no wpcom_user_id meta), the validateResult
+	 * response has no user_token_valid field to trust, so login proceeds without an
+	 * extra token-health call.
 	 */
-	public function test_verify_user_token_fallback_healthy() {
+	public function test_verify_user_token_no_signed_token_proceeds_without_verification() {
 		$tokens = $this->createMock( Tokens::class );
 		$tokens->expects( $this->never() )
 			->method( 'disconnect_user' );
-		$tokens->expects( $this->once() )
-			->method( 'validate' )
-			->with( 42 )
-			->willReturn(
-				array(
-					'user_token_is_healthy' => true,
-					'blog_token_is_healthy' => true,
-				)
-			);
-
-		$user_data = (object) array( 'ID' => 123 );
-
-		$result = $this->invoke_private_method(
-			$this->sso,
-			'verify_user_token',
-			array( 42, $user_data, $tokens, 0 )
-		);
-
-		$this->assertTrue( $result );
-	}
-
-	/**
-	 * Test verify_user_token fallback disconnects when token is unhealthy.
-	 */
-	public function test_verify_user_token_fallback_unhealthy() {
-		$tokens = $this->createMock( Tokens::class );
-		$tokens->expects( $this->once() )
-			->method( 'disconnect_user' )
-			->with( 42 );
-		$tokens->expects( $this->once() )
-			->method( 'validate' )
-			->with( 42 )
-			->willReturn(
-				array(
-					'user_token_is_healthy' => false,
-					'blog_token_is_healthy' => true,
-				)
-			);
-
-		$user_data = (object) array( 'ID' => 123 );
-
-		$result = $this->invoke_private_method(
-			$this->sso,
-			'verify_user_token',
-			array( 42, $user_data, $tokens, 0 )
-		);
-
-		$this->assertFalse( $result );
-	}
-
-	/**
-	 * Test verify_user_token fails open when Tokens::validate returns false (network error).
-	 */
-	public function test_verify_user_token_fail_open_on_error() {
-		$tokens = $this->createMock( Tokens::class );
 		$tokens->expects( $this->never() )
-			->method( 'disconnect_user' );
-		$tokens->expects( $this->once() )
-			->method( 'validate' )
-			->with( 42 )
-			->willReturn( false );
-
-		$user_data = (object) array( 'ID' => 123 );
-
-		$result = $this->invoke_private_method(
-			$this->sso,
-			'verify_user_token',
-			array( 42, $user_data, $tokens, 0 )
-		);
-
-		$this->assertTrue( $result );
-	}
-
-	/**
-	 * Test verify_user_token fails open when Tokens::validate returns WP_Error.
-	 */
-	public function test_verify_user_token_fail_open_on_wp_error() {
-		$tokens = $this->createMock( Tokens::class );
-		$tokens->expects( $this->never() )
-			->method( 'disconnect_user' );
-		$tokens->expects( $this->once() )
-			->method( 'validate' )
-			->with( 42 )
-			->willReturn( new WP_Error( 'site_not_registered', 'Site not registered.' ) );
+			->method( 'validate' );
 
 		$user_data = (object) array( 'ID' => 123 );
 
