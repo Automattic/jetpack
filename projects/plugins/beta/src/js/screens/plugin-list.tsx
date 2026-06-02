@@ -120,74 +120,39 @@ const PluginCard = ( { plugin }: { plugin: PluginListItem } ) => {
 };
 
 const boot = window.JetpackBeta;
-const CACHE_KEY = 'jetpack-beta-plugins';
-
-/**
- * Read the remembered plugin list from localStorage.
- *
- * @return The cached plugin list, or null when absent/unreadable.
- */
-const readCachedPlugins = (): PluginListItem[] | null => {
-	try {
-		const raw = window.localStorage.getItem( CACHE_KEY );
-		return raw ? ( JSON.parse( raw ) as PluginListItem[] ) : null;
-	} catch {
-		return null;
-	}
-};
-
-/**
- * Remember the plugin list in localStorage for instant subsequent loads.
- *
- * @param plugins - The plugin list to cache.
- */
-const writeCachedPlugins = ( plugins: PluginListItem[] ) => {
-	try {
-		window.localStorage.setItem( CACHE_KEY, JSON.stringify( plugins ) );
-	} catch {
-		// Ignore storage failures (private mode, quota) — the list still renders.
-	}
-};
 
 /**
  * PluginList screen component.
  *
  * Renders a card per managed plugin alongside the GlobalToggles settings panel.
- * The list is preloaded from the page bootstrap (or a localStorage cache) so it
- * paints instantly. It then revalidates against the list-plugins ability in the
- * background (stale-while-revalidate) and reconciles, so a remembered list that
- * has since changed doesn't stay stale.
+ * The list is preloaded from the page bootstrap (`window.JetpackBeta.plugins`,
+ * cached data the server localizes on each load) so it paints instantly, then
+ * revalidates against the (cache-bypassing) list-plugins ability and reconciles
+ * — stale-while-revalidate, with the server bootstrap as the cache.
  *
  * @return The plugin list screen element.
  */
 const PluginList = () => {
-	const preloaded = boot.plugins ?? readCachedPlugins();
-	const [ plugins, setPlugins ] = useState< PluginListItem[] | null >( preloaded );
-	const [ loading, setLoading ] = useState( preloaded === null );
+	const [ plugins, setPlugins ] = useState< PluginListItem[] | null >( boot.plugins );
+	const [ loading, setLoading ] = useState( boot.plugins === null );
 	const [ error, setError ] = useState< string | null >( null );
 
 	useEffect( () => {
-		// Remember the freshest list (the bootstrap preload) for next time.
-		if ( boot.plugins ) {
-			writeCachedPlugins( boot.plugins );
-		}
-
-		// Always revalidate against the server. The preloaded/cached list keeps
-		// painting instantly; this refreshes it in the background and reconciles.
+		// Revalidate against fresh server data; the bootstrap preload keeps painting
+		// instantly in the meantime.
 		let cancelled = false;
 		listPlugins()
 			.then( data => {
 				if ( ! cancelled ) {
 					setPlugins( data.plugins );
-					writeCachedPlugins( data.plugins );
 					setLoading( false );
 				}
 			} )
 			.catch( ( err: unknown ) => {
 				if ( ! cancelled ) {
 					// Only surface an error when there's nothing to show; otherwise
-					// keep the cached/preloaded list rather than replacing it.
-					if ( preloaded === null ) {
+					// keep the bootstrap preload rather than replacing it.
+					if ( boot.plugins === null ) {
 						setError( errorMessage( err, __( 'Could not load plugins.', 'jetpack-beta' ) ) );
 					}
 					setLoading( false );
@@ -196,7 +161,6 @@ const PluginList = () => {
 		return () => {
 			cancelled = true;
 		};
-		// eslint-disable-next-line react-hooks/exhaustive-deps -- one-time mount effect; `preloaded`/`boot` are stable for the life of the page
 	}, [] );
 
 	return (
