@@ -49,4 +49,7 @@ foreach ( $jetpack_seo_conflicting_plugins as $seo_plugin ) {
 if ( ! apply_filters( 'jetpack_disable_seo_tools', false ) ) {
 	require_once __DIR__ . '/seo-tools/class-jetpack-seo.php';
 	new Jetpack_SEO();
+
+	require_once __DIR__ . '/seo-tools/class-jetpack-seo-admin-columns.php';
+	Jetpack_SEO_Admin_Columns::init();
 }
