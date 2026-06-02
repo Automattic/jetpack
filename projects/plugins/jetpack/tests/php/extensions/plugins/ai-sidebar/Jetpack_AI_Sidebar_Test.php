@@ -491,6 +491,27 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * AM is enqueued when Big Sky is active.
+	 *
+	 * `maybe_enqueue_am` used to early-return when Big Sky was present,
+	 * because jetpack-mu-wpcom enqueued AM in that case. Agents Manager
+	 * is no longer an mu-wpcom plugin, so nothing took over and Big Sky's
+	 * unified chat ended up with no AM at all. `wp_script_is()` further
+	 * down already handles dedup if another loader has enqueued AM, so
+	 * the Big-Sky branch was removed.
+	 */
+	public function test_maybe_enqueue_am_enqueues_when_big_sky_is_active() {
+		$this->simulate_big_sky_class();
+		update_option( 'big_sky_enable', '1' );
+		$this->set_block_editor_screen();
+		$this->cache_am_asset_data();
+
+		Jetpack_AI_Sidebar::maybe_enqueue_am();
+
+		$this->assertTrue( wp_script_is( 'agents-manager', 'enqueued' ) );
+	}
+
+	/**
 	 * The AI Editorial Review-specific filter controls the feature flag.
 	 */
 	public function test_maybe_enqueue_am_respects_ai_editorial_review_filter() {

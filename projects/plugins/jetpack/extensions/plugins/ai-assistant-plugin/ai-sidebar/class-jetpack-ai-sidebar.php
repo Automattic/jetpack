@@ -96,15 +96,6 @@ class Jetpack_AI_Sidebar {
 			return;
 		}
 
-		// Big Sky has its own chat UI — don't load AM separately.
-		// When Big Sky enables AM via unified-big-sky flag, AM is loaded
-		// by jetpack-mu-wpcom and caught by the wp_script_is check below.
-		// Check both class existence AND the enable option — the class is
-		// declared unconditionally when the plugin is present.
-		if ( class_exists( 'Big_Sky' ) && get_option( 'big_sky_enable', '1' ) ) {
-			return;
-		}
-
 		// CIAB (next-admin) has AM natively via jetpack-mu-wpcom — skip CDN load.
 		if ( did_action( 'next_admin_init' ) ) {
 			return;
