@@ -272,8 +272,6 @@ class Initializer {
 		$modules = new Modules();
 		// @phan-suppress-next-line PhanUndeclaredClassMethod -- Jetpack_SEO_Utils lives in plugins/jetpack and is guarded by class_exists.
 		$seo_enabled = class_exists( 'Jetpack_SEO_Utils' ) && Jetpack_SEO_Utils::is_enabled_jetpack_seo();
-		// @phan-suppress-next-line PhanUndeclaredClassMethod -- Same as above; only invoked when class_exists.
-		$front_page_desc = $seo_enabled ? Jetpack_SEO_Utils::get_front_page_meta_description() : '';
 
 		$codes = get_option( 'verification_services_codes', array() );
 		if ( ! is_array( $codes ) ) {
@@ -288,8 +286,6 @@ class Initializer {
 				'sitemap_active'         => $modules->is_active( 'sitemaps' ),
 				'sitemap_url'            => home_url( '/sitemap.xml' ),
 				'seo_tools_active'       => $modules->is_active( 'seo-tools' ),
-				// Pre-wired for the Settings/Content follow-up tabs; no consumer yet.
-				'front_page_description' => (string) $front_page_desc,
 			),
 			// Per-service booleans (a code is set or not) for the Overview's
 			// Site verification card.

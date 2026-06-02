@@ -7,7 +7,6 @@ export interface SiteVisibility {
 	sitemap_active: boolean;
 	sitemap_url: string;
 	seo_tools_active: boolean;
-	front_page_description: string;
 }
 
 export interface SiteVerification {
