@@ -70,8 +70,7 @@ const GlobalToggles = () => {
 					setInFlight( null );
 				} );
 		},
-		// eslint-disable-next-line react-hooks/exhaustive-deps -- inFlight read only guards re-entrancy; stale closure is safe because inFlight is set before any await
-		[ settings ]
+		[ inFlight, settings ]
 	);
 
 	const handleAutoupdates = useCallback(
