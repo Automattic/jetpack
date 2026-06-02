@@ -14,7 +14,6 @@ import useMediaRestrictions from '../../hooks/use-media-restrictions';
 import { usePerNetworkCustomization } from '../../hooks/use-per-network-customization';
 import usePublicizeConfig from '../../hooks/use-publicize-config';
 import useSocialMediaConnections from '../../hooks/use-social-media-connections';
-import { XUsage } from '../x-usage';
 import { ConnectionsList } from './connections-list';
 import { EmptyState } from './empty-state';
 import { PreviewPostsTrigger } from './preview-posts-trigger';
@@ -63,7 +62,6 @@ export default function PublicizeForm() {
 			<PanelRow>
 				<ConnectionsList />
 			</PanelRow>
-			<XUsage />
 			{ needsUserConnection ? <UserConnectionNotice /> : null }
 			<PreviewPostsTrigger />
 			{ showSharePostForm && <SharePostForm analyticsData={ { location: 'editor' } } /> }
