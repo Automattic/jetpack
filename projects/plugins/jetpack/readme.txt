@@ -334,7 +334,11 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 - Search: Register the AI Agents Access opt-in setting for regular site owners.
 
 #### Bug fixes
+- Instagram Gallery Block: Prevent PHP warnings when cached object is malformed.
+- Pinterest Block: Prevent PHP warning when block attributes are malformed.
+- Story Block: Prevent PHP warning when handling an invalid media type.
 - VideoPress: Fix the post-connection redirect so the modernized dashboard returns users to the VideoPress page instead of a 404.
+- Widgets: Prevent a PHP error when Display Posts data is malformed.
 
 --------
 

@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [5.37.6] - 2026-06-01
 ### Changed
-- My Jetpack: migrate the product card main CTA to @wordpress/ui Button and surface a spinner while an action is in progress. [#49239]
+- My Jetpack: Migrate the product card main CTA to @wordpress/ui Button and surface a spinner while an action is in progress. [#49239]
 
 ## [5.37.5] - 2026-06-01
 ### Changed
