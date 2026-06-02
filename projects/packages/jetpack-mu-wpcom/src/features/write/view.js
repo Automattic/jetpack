@@ -5474,7 +5474,15 @@ document.addEventListener( 'keydown', event => {
 	if ( event.key?.toLowerCase() !== 's' ) return;
 	if ( ! ( event.ctrlKey || event.metaKey ) ) return;
 	if ( event.shiftKey || event.altKey ) return;
-	if ( state.isSaving || state.unsupportedWarning || state.showPostPicker ) return;
+	if (
+		state.isSaving ||
+		state.unsupportedWarning ||
+		state.showImageModal ||
+		state.showVideoModal ||
+		state.showPostPicker
+	) {
+		return;
+	}
 
 	event.preventDefault();
 	const { actions } = store( 'wpcom-write' );
