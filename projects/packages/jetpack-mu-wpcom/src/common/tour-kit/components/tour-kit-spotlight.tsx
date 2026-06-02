@@ -25,7 +25,7 @@ const TourKitSpotlight: FunctionComponent< Props > = ( {
 } ) => {
 	const referenceRect = referenceElement?.getBoundingClientRect();
 
-	const { refs, floatingStyles, isPositioned } = useFloating( {
+	const { refs, floatingStyles } = useFloating( {
 		strategy: 'fixed',
 		placement: 'bottom',
 		elements: { reference: referenceElement },
@@ -53,16 +53,20 @@ const TourKitSpotlight: FunctionComponent< Props > = ( {
 		  }
 		: null;
 
-	const clipRepositionProps =
-		referenceElement && isPositioned
-			? {
-					style: {
-						...( clipDimensions && clipDimensions ),
-						...floatingStyles,
-						...( styles && styles ),
-					},
-			  }
-			: null;
+	// Apply the clip dimensions (and floating styles) as soon as there's a reference element, before
+	// the first positioning pass. Floating UI positions in a layout effect, so the spotlight is
+	// placed before paint; more importantly, the offset above reads `rects.floating.height`, which
+	// must already equal the reference height when it's first measured. Gating this on positioning
+	// would leave the empty div at height 0 on first measure, parking the spotlight mid-target.
+	const clipRepositionProps = referenceElement
+		? {
+				style: {
+					...( clipDimensions && clipDimensions ),
+					...floatingStyles,
+					...( styles && styles ),
+				},
+		  }
+		: null;
 
 	/**
 	 * Add a .wp-spotlit class to the referenced element so that we can
