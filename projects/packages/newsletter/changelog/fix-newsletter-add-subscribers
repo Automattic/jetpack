@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Add subscribers and Comp modals: restore body padding by wrapping content in Dialog.Content

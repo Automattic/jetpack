@@ -4,7 +4,7 @@ settings:
   autoInstallPeers: false
   excludeLinksFromLockfile: false
 
-pnpmfileChecksum: sha256-KrBHPLv8FlPoa5OUGbvotku6TLmuhZiq22jdIe7yBHc=
+pnpmfileChecksum: sha256-HvcDj4j87Sh7PgclZifi5F8ayW+vvKBzmoCc14WMPmw=
 
 patchedDependencies:
   react-autosize-textarea:
@@ -6365,8 +6365,8 @@ importers:
         specifier: 9.39.4
         version: 9.39.4
       '@eslint/json':
-        specifier: 1.2.0
-        version: 1.2.0
+        specifier: 2.0.0
+        version: 2.0.0
       '@jest/environment-jsdom-abstract':
         specifier: 30.4.1
         version: 30.4.1(jsdom@27.4.0)
@@ -6377,8 +6377,8 @@ importers:
         specifier: 22.0.1
         version: 22.0.1
       '@tanstack/eslint-plugin-query':
-        specifier: 5.91.2
-        version: 5.91.2(eslint@9.39.4)(typescript@5.9.3)
+        specifier: 5.100.14
+        version: 5.100.14(eslint@9.39.4)(typescript@5.9.3)
       '@testing-library/dom':
         specifier: ^10.4.1
         version: 10.4.1
@@ -6390,7 +6390,7 @@ importers:
         version: 7.0.0-dev.20260225.1
       '@wordpress/eslint-plugin':
         specifier: 25.2.0
-        version: 25.2.0(@babel/core@7.29.0)(eslint-config-prettier@10.1.8(eslint@9.39.4))(eslint-plugin-import@2.32.0)(eslint-plugin-jest@29.15.2(eslint@9.39.4)(jest@30.4.2)(typescript@5.9.3))(eslint-plugin-jsdoc@62.9.0(eslint@9.39.4))(eslint-plugin-jsx-a11y@6.10.2(eslint@9.39.4))(eslint-plugin-playwright@2.10.4(eslint@9.39.4))(eslint-plugin-prettier@5.5.6(eslint-config-prettier@10.1.8(eslint@9.39.4))(eslint@9.39.4)(wp-prettier@3.0.3))(eslint-plugin-react-hooks@7.1.1(eslint@9.39.4))(eslint-plugin-react@7.37.5(eslint@9.39.4))(eslint@9.39.4)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(stylelint@17.7.0(typescript@5.9.3))(typescript@5.9.3)(wp-prettier@3.0.3)
+        version: 25.2.0(@babel/core@7.29.0)(eslint-config-prettier@10.1.8(eslint@9.39.4))(eslint-plugin-import@2.32.0)(eslint-plugin-jest@29.15.2(eslint@9.39.4)(jest@30.4.2)(typescript@5.9.3))(eslint-plugin-jsdoc@63.0.0(eslint@9.39.4))(eslint-plugin-jsx-a11y@6.10.2(eslint@9.39.4))(eslint-plugin-playwright@2.10.4(eslint@9.39.4))(eslint-plugin-prettier@5.5.6(eslint-config-prettier@10.1.8(eslint@9.39.4))(eslint@9.39.4)(wp-prettier@3.0.3))(eslint-plugin-react-hooks@7.1.1(eslint@9.39.4))(eslint-plugin-react@7.37.5(eslint@9.39.4))(eslint@9.39.4)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(stylelint@17.7.0(typescript@5.9.3))(typescript@5.9.3)(wp-prettier@3.0.3)
       '@wordpress/jest-console':
         specifier: 8.46.0
         version: 8.46.0(jest@30.4.2)
@@ -6420,7 +6420,7 @@ importers:
         version: 4.4.4(eslint-plugin-import@2.32.0)(eslint@9.39.4)
       eslint-json-compat-utils:
         specifier: 0.2.3
-        version: 0.2.3(@eslint/json@1.2.0)(eslint@9.39.4)(jsonc-eslint-parser@3.1.0)
+        version: 0.2.3(@eslint/json@2.0.0)(eslint@9.39.4)(jsonc-eslint-parser@3.1.0)
       eslint-plugin-es-x:
         specifier: 9.6.0
         version: 9.6.0(eslint@9.39.4)
@@ -6434,8 +6434,8 @@ importers:
         specifier: 5.5.0
         version: 5.5.0(@testing-library/dom@10.4.1)(eslint@9.39.4)
       eslint-plugin-jsdoc:
-        specifier: 62.9.0
-        version: 62.9.0(eslint@9.39.4)
+        specifier: 63.0.0
+        version: 63.0.0(eslint@9.39.4)
       eslint-plugin-jsx-a11y:
         specifier: 6.10.2
         version: 6.10.2(eslint@9.39.4)
@@ -6443,11 +6443,11 @@ importers:
         specifier: 8.0.0
         version: 8.0.0(eslint@9.39.4)
       eslint-plugin-n:
-        specifier: 17.24.0
-        version: 17.24.0(eslint@9.39.4)(typescript@5.9.3)
+        specifier: 18.0.1
+        version: 18.0.1(eslint@9.39.4)(typescript@5.9.3)
       eslint-plugin-package-json:
-        specifier: 0.91.2
-        version: 0.91.2(eslint@9.39.4)(jsonc-eslint-parser@3.1.0)
+        specifier: 1.2.0
+        version: 1.2.0(@eslint/json@2.0.0)(eslint@9.39.4)
       eslint-plugin-playwright:
         specifier: 2.10.4
         version: 2.10.4(eslint@9.39.4)
@@ -7907,8 +7907,8 @@ packages:
     resolution: {integrity: sha512-nE7DEIchvtiFTwBw4Lfbu59PG+kCofhjsKaCWzxTpt4lfRjRMqG6uMBzKXuEcyXhOHoUp9riAm7/aWYGhXZ9cw==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
 
-  '@eslint/json@1.2.0':
-    resolution: {integrity: sha512-CEFEyNgvzu8zn5QwVYDg3FaG+ZKUeUsNYitFpMYJAqoAlnw68EQgNbUfheSmexZr4n0wZPrAkPLuvsLaXO6wRw==}
+  '@eslint/json@2.0.0':
+    resolution: {integrity: sha512-P32ZJMIopNWQd1SFhd0tgjfA/hgzUuVSqHmMi2273QaLWHWimXq6V+qL4DNKnjGzO/aNECtYW+rEJ/pWB6uP+w==}
     engines: {node: ^20.19.0 || ^22.13.0 || >=24}
 
   '@eslint/object-schema@2.1.7':
@@ -7919,8 +7919,8 @@ packages:
     resolution: {integrity: sha512-43/qtrDUokr7LJqoF2c3+RInu/t4zfrpYdoSDfYyhg52rwLV6TnOvdG4fXm7IkSB3wErkcmJS9iEhjVtOSEjjA==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
 
-  '@eslint/plugin-kit@0.6.1':
-    resolution: {integrity: sha512-iH1B076HoAshH1mLpHMgwdGeTs0CYwL0SPMkGuSebZrwBp16v415e9NZXg2jtrqPVQjf6IANe2Vtlr5KswtcZQ==}
+  '@eslint/plugin-kit@0.7.2':
+    resolution: {integrity: sha512-+CNAzxglkrpNf/kKywqQfk74QjtceuOE7Qm+AF8miRvPF/wmmK5+OJOgVh3AVTT3RP2mH3+FOaxlE5v72owk0A==}
     engines: {node: ^20.19.0 || ^22.13.0 || >=24}
 
   '@exodus/bytes@1.15.0':
@@ -9791,10 +9791,14 @@ packages:
   '@tannin/sprintf@1.3.3':
     resolution: {integrity: sha512-RwARl+hFwhzy0tg9atWcchLFvoQiOh4rrP7uG2N5E4W80BPCUX0ElcUR9St43fxB9EfjsW2df9Qp+UsTbvQDjA==}
 
-  '@tanstack/eslint-plugin-query@5.91.2':
-    resolution: {integrity: sha512-UPeWKl/Acu1IuuHJlsN+eITUHqAaa9/04geHHPedY8siVarSaWprY0SVMKrkpKfk5ehRT7+/MZ5QwWuEtkWrFw==}
+  '@tanstack/eslint-plugin-query@5.100.14':
+    resolution: {integrity: sha512-NbpiBCmeHTRuVHeV5+U+1bzmxyTW5Dzp2sCeE6Hx+ZJTJWFK9dsm8VZmRc7LQP9/ZORsF620PvgUk67AwiBo4A==}
     peerDependencies:
-      eslint: ^8.57.0 || ^9.0.0
+      eslint: ^8.57.0 || ^9.0.0 || ^10.0.0
+      typescript: ^5.4.0 || ^6.0.0
+    peerDependenciesMeta:
+      typescript:
+        optional: true
 
   '@tanstack/history@1.161.5':
     resolution: {integrity: sha512-g9rWt2rNC0Ztga4LAFWfBDT0VREij5mxBo+oH5+cQ5Q46HVIhtJNty/UU5wPzbTKMHJHGNJOWgrlEfcQ4GgjEA==}
@@ -12866,9 +12870,9 @@ packages:
       typescript:
         optional: true
 
-  eslint-plugin-jsdoc@62.9.0:
-    resolution: {integrity: sha512-PY7/X4jrVgoIDncUmITlUqK546Ltmx/Pd4Hdsu4CvSjryQZJI2mEV4vrdMufyTetMiZ5taNSqvK//BTgVUlNkA==}
-    engines: {node: ^20.19.0 || ^22.13.0 || >=24}
+  eslint-plugin-jsdoc@63.0.0:
+    resolution: {integrity: sha512-eDHuVGyZydr4BKgjXouU7bsn5qaqUlObXBSWRJk3vXcQgXVFnrwWIqpP7uBhRX9NQpk6NIIFyRc6F6omZNi/8g==}
+    engines: {node: ^22.13.0 || >=24}
     peerDependencies:
       eslint: ^7.0.0 || ^8.0.0 || ^9.0.0 || ^10.0.0
 
@@ -12884,18 +12888,27 @@ packages:
     peerDependencies:
       eslint: '>=9.0.0'
 
-  eslint-plugin-n@17.24.0:
-    resolution: {integrity: sha512-/gC7/KAYmfNnPNOb3eu8vw+TdVnV0zhdQwexsw6FLXbhzroVj20vRn2qL8lDWDGnAQ2J8DhdfvXxX9EoxvERvw==}
-    engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
+  eslint-plugin-n@18.0.1:
+    resolution: {integrity: sha512-q3ARhk+eZRc7myR0KHx+R3/GJeOHF+Ir6PK95Pu2tEX8Sl/4BIpmmVLva2kPrjC2gCmn6WHlHm+3yeo6Rxhycw==}
+    engines: {node: ^20.19.0 || ^22.13.0 || >=24}
     peerDependencies:
-      eslint: '>=8.23.0'
+      eslint: '>=8.57.1'
+      ts-declaration-location: ^1.0.6
+      typescript: '>=5.0.0'
+    peerDependenciesMeta:
+      ts-declaration-location:
+        optional: true
+      typescript:
+        optional: true
 
-  eslint-plugin-package-json@0.91.2:
-    resolution: {integrity: sha512-tuPjHVYOjqEJtErmzuYiQY6o877l9Kb7+lfLhR/mAzHuy9CBqhRreIGPsQmVM/dMJ8yQVg92Bz1vBAgugELIXw==}
-    engines: {node: ^20.19.0 || >=22.12.0}
+  eslint-plugin-package-json@1.2.0:
+    resolution: {integrity: sha512-3BszsD7XVddaUNbMfK+1lF1Qg8ck0nO3bNT/7IjXP8wrGzPThHZpkhm5UnbY1Nb/s3o6DUNgHI4aEqQV/t83fw==}
     peerDependencies:
-      eslint: '>=8.0.0'
-      jsonc-eslint-parser: '>=2.0.0'
+      '@eslint/json': '>=1.0.0'
+      eslint: '>=9.0.0'
+    peerDependenciesMeta:
+      '@eslint/json':
+        optional: true
 
   eslint-plugin-playwright@2.10.4:
     resolution: {integrity: sha512-l0V/VxyqfFbtqCTxj5AdRn3Q6S/hIW4nKBnKZVleVbZ24N2My6Usj//ytX3dKKqAoSbvKck9YtSytfdZ5qjLuA==}
@@ -17419,11 +17432,6 @@ packages:
     peerDependencies:
       typescript: '>=4.8.4'
 
-  ts-declaration-location@1.0.7:
-    resolution: {integrity: sha512-EDyGAwH1gO0Ausm9gV6T2nUvBgXT5kGoCMJPllOaooZ+4VvJiKBdZE7wK18N1deEowhcUptS+5GXZK8U/fvpwA==}
-    peerDependencies:
-      typescript: '>=4.0.0'
-
   ts-dedent@2.2.0:
     resolution: {integrity: sha512-q5W7tVM71e2xjHZTlgfTDoPF/SmqKG5hddq9SzR49CH2hayqRKJtQ4mtRlSxKaJlR/+9rEM+mnBHf7I2/BQcpQ==}
     engines: {node: '>=6.10'}
@@ -20072,10 +20080,10 @@ snapshots:
 
   '@eslint/js@9.39.4': {}
 
-  '@eslint/json@1.2.0':
+  '@eslint/json@2.0.0':
     dependencies:
       '@eslint/core': 1.2.1
-      '@eslint/plugin-kit': 0.6.1
+      '@eslint/plugin-kit': 0.7.2
       '@humanwhocodes/momoa': 3.3.10
       natural-compare: 1.4.0
 
@@ -20086,7 +20094,7 @@ snapshots:
       '@eslint/core': 0.17.0
       levn: 0.4.1
 
-  '@eslint/plugin-kit@0.6.1':
+  '@eslint/plugin-kit@0.7.2':
     dependencies:
       '@eslint/core': 1.2.1
       levn: 0.4.1
@@ -22285,13 +22293,14 @@ snapshots:
 
   '@tannin/sprintf@1.3.3': {}
 
-  '@tanstack/eslint-plugin-query@5.91.2(eslint@9.39.4)(typescript@5.9.3)':
+  '@tanstack/eslint-plugin-query@5.100.14(eslint@9.39.4)(typescript@5.9.3)':
     dependencies:
       '@typescript-eslint/utils': 8.60.0(eslint@9.39.4)(typescript@5.9.3)
       eslint: 9.39.4
+    optionalDependencies:
+      typescript: 5.9.3
     transitivePeerDependencies:
       - supports-color
-      - typescript
 
   '@tanstack/history@1.161.5': {}
 
@@ -24767,7 +24776,7 @@ snapshots:
 
   '@wordpress/escape-html@3.46.0': {}
 
-  '@wordpress/eslint-plugin@25.2.0(@babel/core@7.29.0)(eslint-config-prettier@10.1.8(eslint@9.39.4))(eslint-plugin-import@2.32.0)(eslint-plugin-jest@29.15.2(eslint@9.39.4)(jest@30.4.2)(typescript@5.9.3))(eslint-plugin-jsdoc@62.9.0(eslint@9.39.4))(eslint-plugin-jsx-a11y@6.10.2(eslint@9.39.4))(eslint-plugin-playwright@2.10.4(eslint@9.39.4))(eslint-plugin-prettier@5.5.6(eslint-config-prettier@10.1.8(eslint@9.39.4))(eslint@9.39.4)(wp-prettier@3.0.3))(eslint-plugin-react-hooks@7.1.1(eslint@9.39.4))(eslint-plugin-react@7.37.5(eslint@9.39.4))(eslint@9.39.4)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(stylelint@17.7.0(typescript@5.9.3))(typescript@5.9.3)(wp-prettier@3.0.3)':
+  '@wordpress/eslint-plugin@25.2.0(@babel/core@7.29.0)(eslint-config-prettier@10.1.8(eslint@9.39.4))(eslint-plugin-import@2.32.0)(eslint-plugin-jest@29.15.2(eslint@9.39.4)(jest@30.4.2)(typescript@5.9.3))(eslint-plugin-jsdoc@63.0.0(eslint@9.39.4))(eslint-plugin-jsx-a11y@6.10.2(eslint@9.39.4))(eslint-plugin-playwright@2.10.4(eslint@9.39.4))(eslint-plugin-prettier@5.5.6(eslint-config-prettier@10.1.8(eslint@9.39.4))(eslint@9.39.4)(wp-prettier@3.0.3))(eslint-plugin-react-hooks@7.1.1(eslint@9.39.4))(eslint-plugin-react@7.37.5(eslint@9.39.4))(eslint@9.39.4)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(stylelint@17.7.0(typescript@5.9.3))(typescript@5.9.3)(wp-prettier@3.0.3)':
     dependencies:
       '@babel/core': 7.29.0
       '@babel/eslint-parser': 7.28.6(@babel/core@7.29.0)(eslint@9.39.4)
@@ -24782,7 +24791,7 @@ snapshots:
       eslint-import-resolver-typescript: 4.4.4(eslint-plugin-import@2.32.0)(eslint@9.39.4)
       eslint-plugin-import: 2.32.0(eslint-import-resolver-typescript@4.4.4)(eslint@9.39.4)
       eslint-plugin-jest: 29.15.2(eslint@9.39.4)(jest@30.4.2)(typescript@5.9.3)
-      eslint-plugin-jsdoc: 62.9.0(eslint@9.39.4)
+      eslint-plugin-jsdoc: 63.0.0(eslint@9.39.4)
       eslint-plugin-jsx-a11y: 6.10.2(eslint@9.39.4)
       eslint-plugin-playwright: 2.10.4(eslint@9.39.4)
       eslint-plugin-prettier: 5.5.6(eslint-config-prettier@10.1.8(eslint@9.39.4))(eslint@9.39.4)(wp-prettier@3.0.3)
@@ -27782,13 +27791,13 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  eslint-json-compat-utils@0.2.3(@eslint/json@1.2.0)(eslint@9.39.4)(jsonc-eslint-parser@3.1.0):
+  eslint-json-compat-utils@0.2.3(@eslint/json@2.0.0)(eslint@9.39.4)(jsonc-eslint-parser@3.1.0):
     dependencies:
       eslint: 9.39.4
       esquery: 1.7.0
       jsonc-eslint-parser: 3.1.0
     optionalDependencies:
-      '@eslint/json': 1.2.0
+      '@eslint/json': 2.0.0
 
   eslint-module-utils@2.12.1(eslint-import-resolver-node@0.3.10)(eslint-import-resolver-typescript@4.4.4)(eslint@9.39.4):
     dependencies:
@@ -27859,7 +27868,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  eslint-plugin-jsdoc@62.9.0(eslint@9.39.4):
+  eslint-plugin-jsdoc@63.0.0(eslint@9.39.4):
     dependencies:
       '@es-joy/jsdoccomment': 0.86.0
       '@es-joy/resolve.exports': 1.2.0
@@ -27903,7 +27912,7 @@ snapshots:
       eslint: 9.39.4
       lodash: 4.18.1
 
-  eslint-plugin-n@17.24.0(eslint@9.39.4)(typescript@5.9.3):
+  eslint-plugin-n@18.0.1(eslint@9.39.4)(typescript@5.9.3):
     dependencies:
       '@eslint-community/eslint-utils': 4.9.1(eslint@9.39.4)
       enhanced-resolve: 5.21.2
@@ -27914,11 +27923,10 @@ snapshots:
       globrex: 0.1.2
       ignore: 5.3.2
       semver: 7.7.3
-      ts-declaration-location: 1.0.7(typescript@5.9.3)
-    transitivePeerDependencies:
-      - typescript
+    optionalDependencies:
+      typescript: 5.9.3
 
-  eslint-plugin-package-json@0.91.2(eslint@9.39.4)(jsonc-eslint-parser@3.1.0):
+  eslint-plugin-package-json@1.2.0(@eslint/json@2.0.0)(eslint@9.39.4):
     dependencies:
       '@altano/repository-tools': 2.0.3
       change-case: 5.4.4
@@ -27926,12 +27934,14 @@ snapshots:
       detect-newline: 4.0.1
       eslint: 9.39.4
       eslint-fix-utils: 0.4.2(eslint@9.39.4)
+      eslint-json-compat-utils: 0.2.3(@eslint/json@2.0.0)(eslint@9.39.4)(jsonc-eslint-parser@3.1.0)
       jsonc-eslint-parser: 3.1.0
       package-json-validator: 1.5.1
       semver: 7.7.3
       sort-object-keys: 2.1.0
       sort-package-json: 3.6.1
-      validate-npm-package-name: 7.0.2
+    optionalDependencies:
+      '@eslint/json': 2.0.0
     transitivePeerDependencies:
       - '@types/estree'
 
@@ -33250,11 +33260,6 @@ snapshots:
 
   ts-api-utils@2.5.0(typescript@5.9.3):
     dependencies:
-      typescript: 5.9.3
-
-  ts-declaration-location@1.0.7(typescript@5.9.3):
-    dependencies:
-      picomatch: 4.0.4
       typescript: 5.9.3
 
   ts-dedent@2.2.0: {}
