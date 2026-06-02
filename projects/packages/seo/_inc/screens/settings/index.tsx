@@ -1,10 +1,10 @@
 /* eslint-disable react/jsx-no-bind */
 
-import { Notice, TextareaControl, ToggleControl } from '@wordpress/components';
+import { TextareaControl, ToggleControl } from '@wordpress/components';
 import { useEffect, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { useSearch } from '@wordpress/route';
-import { Badge, Card, CollapsibleCard, Stack } from '@wordpress/ui';
+import { Badge, Card, CollapsibleCard, Notice, Stack } from '@wordpress/ui';
 import TitleStructureField from './title-structure-field';
 import VerificationCard from './verification-card';
 import './style.scss';
@@ -33,7 +33,7 @@ type SettingsSearch = Record< string, unknown > & { focus?: string };
  * @return The Settings tab content.
  */
 const SettingsScreen: FC< Props > = ( { form } ) => {
-	const { local, setField, setVerification, commit } = form;
+	const { local, isSaving, setField, setVerification, commit } = form;
 
 	// Overview deep links (`?focus=visibility|verification`) scroll the matching
 	// section to its top. `scroll-margin-top` on the section (style.scss) clears
@@ -61,9 +61,9 @@ const SettingsScreen: FC< Props > = ( { form } ) => {
 
 	if ( ! local ) {
 		return (
-			<Notice status="error" isDismissible={ false }>
-				{ __( 'Unable to load settings.', 'jetpack-seo' ) }
-			</Notice>
+			<Notice.Root intent="error">
+				<Notice.Description>{ __( 'Unable to load settings.', 'jetpack-seo' ) }</Notice.Description>
+			</Notice.Root>
 		);
 	}
 
@@ -98,6 +98,7 @@ const SettingsScreen: FC< Props > = ( { form } ) => {
 								) }
 								checked={ local.search_engines_visible }
 								onChange={ next => commit( { search_engines_visible: next } ) }
+								disabled={ isSaving }
 								__nextHasNoMarginBottom
 							/>
 							<ToggleControl
@@ -108,6 +109,7 @@ const SettingsScreen: FC< Props > = ( { form } ) => {
 								) }
 								checked={ local.sitemap_active }
 								onChange={ next => commit( { sitemap_active: next } ) }
+								disabled={ isSaving }
 								__nextHasNoMarginBottom
 							/>
 						</Stack>
@@ -118,6 +120,7 @@ const SettingsScreen: FC< Props > = ( { form } ) => {
 			<TitleStructureField
 				tokens={ postsTokens }
 				onChange={ next => commit( { title_formats: { ...local.title_formats, posts: next } } ) }
+				disabled={ isSaving }
 			/>
 
 			<CollapsibleCard.Root defaultOpen={ false }>
@@ -136,6 +139,7 @@ const SettingsScreen: FC< Props > = ( { form } ) => {
 						onChange={ next => setField( { front_page_description: next } ) }
 						onBlur={ () => commit() }
 						rows={ 3 }
+						disabled={ isSaving }
 						__nextHasNoMarginBottom
 					/>
 				</CollapsibleCard.Content>
@@ -146,6 +150,7 @@ const SettingsScreen: FC< Props > = ( { form } ) => {
 					value={ local.verification }
 					onChange={ setVerification }
 					onCommit={ () => commit() }
+					disabled={ isSaving }
 					open={ verificationOpen }
 					onOpenChange={ setVerificationOpen }
 				/>

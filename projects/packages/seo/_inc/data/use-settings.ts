@@ -4,6 +4,7 @@ import { useDispatch } from '@wordpress/data';
 import { useCallback, useEffect, useMemo, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { store as noticesStore } from '@wordpress/notices';
+import { buildCorePayload, buildJetpackPayload } from './build-payload';
 import type { SettingsResponse, VerificationKey } from './settings-types';
 
 // Single snackbar id reused across a save so "Updating settings…" is replaced
@@ -27,72 +28,6 @@ type SeoScriptData = {
 export function getSettings(): SettingsResponse | null {
 	const scriptData = getScriptData() as SeoScriptData | undefined;
 	return scriptData?.seo?.settings ?? null;
-}
-
-const VERIFICATION_KEYS: readonly VerificationKey[] = [
-	'google',
-	'bing',
-	'pinterest',
-	'yandex',
-	'facebook',
-];
-
-/**
- * Build the changed-fields payload for the Jetpack settings endpoint
- * (`/jetpack/v4/settings`) — everything except search-engine visibility, which
- * is a WordPress core option handled separately. Only changed fields are
- * included so an unchanged save never re-toggles the sitemaps module. The
- * endpoint owns validation/sanitization for every key here.
- *
- * @param baseline - The last-saved server state.
- * @param local    - The current form state.
- * @return The changed-fields payload for `/jetpack/v4/settings`.
- */
-function buildJetpackPayload(
-	baseline: SettingsResponse,
-	local: SettingsResponse
-): Record< string, unknown > {
-	const payload: Record< string, unknown > = {};
-
-	if ( local.sitemap_active !== baseline.sitemap_active ) {
-		payload.sitemaps = local.sitemap_active;
-	}
-	if ( JSON.stringify( local.title_formats ) !== JSON.stringify( baseline.title_formats ) ) {
-		payload.advanced_seo_title_formats = local.title_formats;
-	}
-	if ( local.front_page_description !== baseline.front_page_description ) {
-		payload.advanced_seo_front_page_description = local.front_page_description;
-	}
-	VERIFICATION_KEYS.forEach( key => {
-		if ( local.verification[ key ] !== baseline.verification[ key ] ) {
-			payload[ key ] = local.verification[ key ];
-		}
-	} );
-
-	return payload;
-}
-
-/**
- * Build the changed-fields payload for WordPress core settings
- * (`/wp/v2/settings`). Search-engine visibility maps to the core `blog_public`
- * option (1 = allow indexing, 0 = discourage); the Jetpack settings endpoint
- * rejects it, so it round-trips through core REST instead.
- *
- * @param baseline - The last-saved server state.
- * @param local    - The current form state.
- * @return The changed-fields payload for `/wp/v2/settings`, or `{}` if unchanged.
- */
-function buildCorePayload(
-	baseline: SettingsResponse,
-	local: SettingsResponse
-): Record< string, unknown > {
-	const payload: Record< string, unknown > = {};
-
-	if ( local.search_engines_visible !== baseline.search_engines_visible ) {
-		payload.blog_public = local.search_engines_visible ? 1 : 0;
-	}
-
-	return payload;
 }
 
 export interface SettingsForm {

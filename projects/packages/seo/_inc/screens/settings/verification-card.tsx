@@ -3,6 +3,7 @@
 import { TextControl } from '@wordpress/components';
 import { __, sprintf, _n } from '@wordpress/i18n';
 import { Badge, Card, CollapsibleCard, Stack } from '@wordpress/ui';
+import { VERIFICATION_SERVICES } from '../../data/verification-services';
 import './style.scss';
 import type { SettingsResponse, VerificationKey } from '../../data/settings-types';
 import type { FC } from 'react';
@@ -18,24 +19,18 @@ interface Props {
 	onOpenChange?: ( open: boolean ) => void;
 }
 
-const services: Array< { key: VerificationKey; label: string; hint: string } > = [
-	{
-		key: 'google',
-		label: 'Google',
-		hint: __(
-			'Paste the `content` attribute from the Google Search Console meta tag.',
-			'jetpack-seo'
-		),
-	},
-	{ key: 'bing', label: 'Bing', hint: __( 'Bing Webmaster Tools meta tag.', 'jetpack-seo' ) },
-	{ key: 'pinterest', label: 'Pinterest', hint: __( 'Pinterest meta tag.', 'jetpack-seo' ) },
-	{ key: 'yandex', label: 'Yandex', hint: __( 'Yandex Webmaster meta tag.', 'jetpack-seo' ) },
-	{
-		key: 'facebook',
-		label: 'Facebook',
-		hint: __( 'Facebook domain verification meta tag.', 'jetpack-seo' ),
-	},
-];
+// Per-service input hints, keyed by the shared service id. The service list and
+// brand labels live in `data/verification-services` (single source of truth).
+const HINTS: Record< VerificationKey, string > = {
+	google: __(
+		'Paste the "content" attribute from the Google Search Console meta tag.',
+		'jetpack-seo'
+	),
+	bing: __( 'Bing Webmaster Tools meta tag.', 'jetpack-seo' ),
+	pinterest: __( 'Pinterest meta tag.', 'jetpack-seo' ),
+	yandex: __( 'Yandex Webmaster meta tag.', 'jetpack-seo' ),
+	facebook: __( 'Facebook domain verification meta tag.', 'jetpack-seo' ),
+};
 
 const notSetLabel = __( 'Not set', 'jetpack-seo' );
 
@@ -47,7 +42,7 @@ const VerificationCard: FC< Props > = ( {
 	open,
 	onOpenChange,
 } ) => {
-	const verifiedCount = services.filter( ( { key } ) => !! value[ key ] ).length;
+	const verifiedCount = VERIFICATION_SERVICES.filter( ( { key } ) => !! value[ key ] ).length;
 
 	// CollapsibleCard.Root takes either controlled (`open`/`onOpenChange`) or
 	// uncontrolled (`defaultOpen`) props — one at a time.
@@ -71,14 +66,14 @@ const VerificationCard: FC< Props > = ( {
 			</CollapsibleCard.Header>
 			<CollapsibleCard.Content>
 				<div className="jetpack-seo-settings__verification-grid">
-					{ services.map( ( { key, label, hint } ) => (
+					{ VERIFICATION_SERVICES.map( ( { key, label } ) => (
 						<TextControl
 							key={ key }
 							label={ label }
 							value={ value[ key ] }
 							onChange={ next => onChange( key, next ) }
 							onBlur={ onCommit }
-							help={ hint }
+							help={ HINTS[ key ] }
 							disabled={ disabled }
 							__next40pxDefaultSize
 							__nextHasNoMarginBottom

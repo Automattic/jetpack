@@ -6,43 +6,10 @@ import { FormTokenField } from '@wordpress/components';
 import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Badge, Card, CollapsibleCard, Stack } from '@wordpress/ui';
+import { TOKEN_IDS, TOKEN_LABELS, fromDisplay, toDisplay } from '../../data/title-format-tokens';
 import './style.scss';
 import type { TitleFormatToken } from '../../data/settings-types';
 import type { FC } from 'react';
-
-/**
- * Canonical tokens supported for the `posts` page type. Mirrors the back-end
- * list in Jetpack_SEO_Titles. Internal id stays snake_case for the REST
- * payload; the UI shows a friendly bracketed label so users can distinguish
- * token chips from literal string fragments (separators like " | ").
- */
-const TOKEN_LABELS: Record< string, string > = {
-	site_name: __( 'Site name', 'jetpack-seo' ),
-	tagline: __( 'Tagline', 'jetpack-seo' ),
-	post_title: __( 'Post title', 'jetpack-seo' ),
-};
-
-const TOKEN_IDS = Object.keys( TOKEN_LABELS );
-
-// Reverse map — "Site name" → "site_name" — to parse `[Site name]` back into
-// the canonical id when the user picks a suggestion or pastes a label.
-const LABEL_TO_TOKEN_ID: Record< string, string > = Object.fromEntries(
-	TOKEN_IDS.map( id => [ TOKEN_LABELS[ id ], id ] )
-);
-
-const toDisplay = ( token: TitleFormatToken ): string =>
-	token.type === 'token' && TOKEN_LABELS[ token.value ]
-		? `[${ TOKEN_LABELS[ token.value ] }]`
-		: token.value;
-
-const fromDisplay = ( display: string ): TitleFormatToken => {
-	const match = display.match( /^\[(.+)\]$/ );
-	const inner = match?.[ 1 ];
-	if ( inner && LABEL_TO_TOKEN_ID[ inner ] ) {
-		return { type: 'token', value: LABEL_TO_TOKEN_ID[ inner ] };
-	}
-	return { type: 'string', value: display };
-};
 
 // Pre-resolved so the production minifier can't fold an adjacent
 // `cond ? __(A) : __(B)` into `__(cond ? A : B)`, which breaks i18n
