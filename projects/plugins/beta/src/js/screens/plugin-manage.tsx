@@ -22,6 +22,7 @@ import {
 import { __, sprintf } from '@wordpress/i18n';
 import { Button, Card, Link, Notice, Stack, Text } from '@wordpress/ui';
 import { errorMessage, getPlugin } from '../api/abilities';
+import BranchRow from '../components/branch-card';
 import BranchSection from '../components/branch-section';
 import MarkdownPanel from '../components/markdown-panel';
 import { CardRowSkeleton } from '../components/skeleton';
@@ -185,6 +186,17 @@ const PluginManage = ( { slug }: Props ) => {
 		[ view ]
 	);
 
+	// The simple (non-searchable) sections collapse into a single compact list
+	// card, each row labeled by its section title. The searchable sections keep
+	// their own search box and compact list below.
+	const simpleRows = useMemo(
+		() =>
+			SECTION_CONFIG.filter( s => ! s.searchable ).flatMap( s =>
+				( sectionMap.get( s.key ) ?? [] ).map( card => ( { card, title: s.title } ) )
+			),
+		[ sectionMap ]
+	);
+
 	return (
 		<AdminPage
 			title={ undefined }
@@ -284,17 +296,33 @@ const PluginManage = ( { slug }: Props ) => {
 									</Card.Root>
 								) }
 
-								{ SECTION_CONFIG.map( ( { key, title, searchable, searchPlaceholder } ) => (
-									<BranchSection
-										key={ key }
-										title={ title }
-										cards={ sectionMap.get( key ) ?? [] }
-										searchable={ searchable }
-										searchPlaceholder={ searchPlaceholder }
-										pluginSlug={ slug }
-										onActivated={ handleActivated }
-									/>
-								) ) }
+								{ simpleRows.length > 0 && (
+									<Card.Root className="jetpack-beta-list">
+										{ simpleRows.map( ( { card, title } ) => (
+											<BranchRow
+												key={ `${ card.section }-${ card.source ?? '' }-${ card.id ?? '' }` }
+												card={ card }
+												title={ title }
+												pluginSlug={ slug }
+												onActivated={ handleActivated }
+											/>
+										) ) }
+									</Card.Root>
+								) }
+
+								{ SECTION_CONFIG.filter( s => s.searchable ).map(
+									( { key, title, searchPlaceholder } ) => (
+										<BranchSection
+											key={ key }
+											title={ title }
+											cards={ sectionMap.get( key ) ?? [] }
+											searchable
+											searchPlaceholder={ searchPlaceholder }
+											pluginSlug={ slug }
+											onActivated={ handleActivated }
+										/>
+									)
+								) }
 
 								{ view.to_test_html && (
 									<MarkdownPanel
