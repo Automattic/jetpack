@@ -48,6 +48,18 @@ describe( 'caption cue utilities', () => {
 		).toBe( 'WEBVTT\n\n00:00:00.000 --> 00:00:02.500\nTrail closed. Trail open.\n' );
 	} );
 
+	it( 'sanitizes cue text that looks like an HTML comment end', () => {
+		expect(
+			serializeCuesToWebVtt( [
+				{
+					startTime: '0',
+					endTime: '2.5',
+					text: 'Do not emit --> or --!> inside cue text.',
+				},
+			] )
+		).toBe( 'WEBVTT\n\n00:00:00.000 --> 00:00:02.500\nDo not emit -> or -> inside cue text.\n' );
+	} );
+
 	it( 'parses WebVTT and SRT cues', () => {
 		expect(
 			parseCaptionTextTrack(
