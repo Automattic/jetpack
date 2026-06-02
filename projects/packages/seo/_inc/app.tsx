@@ -4,13 +4,14 @@ import { __ } from '@wordpress/i18n';
 import { useNavigate, useSearch } from '@wordpress/route';
 import { Tabs } from '@wordpress/ui';
 import { useSettingsForm } from './data/use-settings';
+import ContentScreen from './screens/content';
 import OverviewScreen from './screens/overview';
 import SettingsScreen from './screens/settings';
 import './admin-page-layout.scss';
 import type { FC } from 'react';
 
 type StageSearch = Record< string, unknown > & { tab?: string };
-type SeoTab = 'overview' | 'settings';
+type SeoTab = 'overview' | 'settings' | 'content';
 
 /**
  * Root of the Jetpack SEO admin app, mounted by `@wordpress/build` as the
@@ -22,13 +23,14 @@ type SeoTab = 'overview' | 'settings';
  */
 const App: FC = () => {
 	const search = useSearch( { from: '/' as unknown as never, strict: false } ) as StageSearch;
-	const activeTab: SeoTab = search.tab === 'settings' ? 'settings' : 'overview';
+	const activeTab: SeoTab =
+		search.tab === 'settings' || search.tab === 'content' ? search.tab : 'overview';
 	const navigate = useNavigate();
 	const settingsForm = useSettingsForm();
 
 	const onTabChange = useCallback(
 		( next: string | null ) => {
-			if ( next !== 'overview' && next !== 'settings' ) {
+			if ( next !== 'overview' && next !== 'settings' && next !== 'content' ) {
 				return;
 			}
 			navigate( {
@@ -57,6 +59,7 @@ const App: FC = () => {
 						<Tabs.List variant="minimal">
 							<Tabs.Tab value="overview">{ __( 'Overview', 'jetpack-seo' ) }</Tabs.Tab>
 							<Tabs.Tab value="settings">{ __( 'Settings', 'jetpack-seo' ) }</Tabs.Tab>
+							<Tabs.Tab value="content">{ __( 'Content', 'jetpack-seo' ) }</Tabs.Tab>
 						</Tabs.List>
 					</div>
 					<Tabs.Panel value="overview" focusable={ false }>
@@ -67,6 +70,11 @@ const App: FC = () => {
 					<Tabs.Panel value="settings" focusable={ false }>
 						<div className="jetpack-seo-page-content">
 							<SettingsScreen form={ settingsForm } />
+						</div>
+					</Tabs.Panel>
+					<Tabs.Panel value="content" focusable={ false }>
+						<div className="jetpack-seo-page-content">
+							<ContentScreen />
 						</div>
 					</Tabs.Panel>
 				</Tabs.Root>

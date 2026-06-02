@@ -300,10 +300,72 @@ class Initializer {
 				'yandex'    => ! empty( $codes['yandex'] ),
 				'facebook'  => ! empty( $codes['facebook'] ),
 			),
+			'content_coverage'  => self::get_content_coverage(),
 			'plan'              => array(
 				'seo_enabled_for_site' => $seo_enabled,
 			),
 		);
+	}
+
+	/**
+	 * Factual content-coverage counts for the Overview card: how many published
+	 * posts/pages have each SEO field set. State, not a score — the card shows
+	 * proportions + raw counts and lets the admin decide what matters.
+	 *
+	 * @return array{total:int,with_description:int,with_schema:int,noindexed:int}
+	 */
+	private static function get_content_coverage() {
+		$post_types = array( 'post', 'page' );
+
+		$total = 0;
+		foreach ( $post_types as $post_type ) {
+			$counts = wp_count_posts( $post_type );
+			$total += isset( $counts->publish ) ? (int) $counts->publish : 0;
+		}
+
+		return array(
+			'total'            => $total,
+			'with_description' => self::count_published_with_meta( $post_types, Jetpack_SEO_Posts::DESCRIPTION_META_KEY ),
+			'with_schema'      => self::count_published_with_meta( $post_types, Jetpack_SEO_Posts::SCHEMA_TYPE_META_KEY ),
+			'noindexed'        => self::count_published_with_meta( $post_types, Jetpack_SEO_Posts::NOINDEX_META_KEY, '1' ),
+		);
+	}
+
+	/**
+	 * Count published posts/pages whose meta is set. With no `$value`, counts a
+	 * non-empty string meta; with a `$value`, counts an exact match.
+	 *
+	 * @param string[]    $post_types Post types to count across.
+	 * @param string      $meta_key   Meta key to test.
+	 * @param string|null $value      Exact value to match, or null for "non-empty".
+	 * @return int
+	 */
+	private static function count_published_with_meta( $post_types, $meta_key, $value = null ) {
+		$clause = null === $value
+			? array(
+				'key'     => $meta_key,
+				'value'   => '',
+				'compare' => '!=',
+			)
+			: array(
+				'key'   => $meta_key,
+				'value' => $value,
+			);
+
+		$query = new WP_Query(
+			array(
+				'post_type'              => $post_types,
+				'post_status'            => 'publish',
+				'posts_per_page'         => 1,
+				'fields'                 => 'ids',
+				'update_post_meta_cache' => false,
+				'update_post_term_cache' => false,
+				// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- Overview snapshot; one count query per metric on the SEO page only.
+				'meta_query'             => array( $clause ),
+			)
+		);
+
+		return (int) $query->found_posts;
 	}
 
 	/**

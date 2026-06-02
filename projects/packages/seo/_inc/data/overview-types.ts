@@ -17,9 +17,17 @@ export interface SiteVerification {
 	facebook: boolean;
 }
 
+export interface ContentCoverage {
+	total: number;
+	with_description: number;
+	with_schema: number;
+	noindexed: number;
+}
+
 export interface OverviewResponse {
 	site_visibility: SiteVisibility;
 	site_verification: SiteVerification;
+	content_coverage: ContentCoverage;
 	plan: {
 		seo_enabled_for_site: boolean;
 	};

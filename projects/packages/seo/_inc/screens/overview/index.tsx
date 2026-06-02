@@ -5,6 +5,7 @@ import { __ } from '@wordpress/i18n';
 import { useNavigate } from '@wordpress/route';
 import { Notice } from '@wordpress/ui';
 import getOverview from '../../data/get-overview';
+import ContentCoverageCard from './content-coverage-card';
 import SiteVerificationCard from './site-verification-card';
 import SiteVisibilityCard from './site-visibility-card';
 import './style.scss';
@@ -24,6 +25,15 @@ const OverviewScreen: FC = () => {
 					tab: 'settings',
 					focus: section,
 				} ),
+			} as unknown as Parameters< typeof navigate >[ 0 ] ),
+		[ navigate ]
+	);
+
+	// Deep-link to the Content tab.
+	const goToContent = useCallback(
+		() =>
+			navigate( {
+				search: ( prev: Record< string, unknown > ) => ( { ...prev, tab: 'content' } ),
 			} as unknown as Parameters< typeof navigate >[ 0 ] ),
 		[ navigate ]
 	);
@@ -57,6 +67,7 @@ const OverviewScreen: FC = () => {
 					data={ data.site_verification }
 					onManage={ () => goToSection( 'verification' ) }
 				/>
+				<ContentCoverageCard data={ data.content_coverage } onManage={ goToContent } />
 			</div>
 		</div>
 	);
