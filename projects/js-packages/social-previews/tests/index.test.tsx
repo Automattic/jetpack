@@ -734,7 +734,9 @@ describe( 'Mastodon previews', () => {
 		expect( body.querySelectorAll( `a[href="${ DEFAULT_POST_URL }"]` ) ).toHaveLength( 1 );
 	} );
 
-	it( 'should append the URL link when the custom message does not contain it', () => {
+	it( 'should not render a URL link when the message does not contain it', () => {
+		// The body is the source of truth: the post URL is no longer appended
+		// separately, so a message without the URL shows no URL link.
 		const { container } = render(
 			<Mastodon
 				url={ DEFAULT_POST_URL }
@@ -746,30 +748,16 @@ describe( 'Mastodon previews', () => {
 
 		const body = container.querySelector( '.mastodon-preview__body' );
 		expect( body ).toBeVisible();
-		expect( body.querySelectorAll( `a[href="${ DEFAULT_POST_URL }"]` ) ).toHaveLength( 1 );
+		expect( body.querySelectorAll( `a[href="${ DEFAULT_POST_URL }"]` ) ).toHaveLength( 0 );
 	} );
 
-	it( 'should not reserve space for a separate URL link when the URL is part of the message', () => {
-		// A message just over the URL-reserved body limit, with the URL near the
-		// end. When the URL lives in the body, no separate URL link is rendered,
-		// so the body should not reserve ~30 characters for one — otherwise the
-		// trailing URL gets truncated.
+	it( 'should not reserve body space for a separately-appended URL', () => {
+		// The full Mastodon character budget is available to the body, since the
+		// URL is no longer rendered as a separate link below it. A trailing URL
+		// within the limit therefore survives instead of being truncated early.
 		const text = `${ 'a'.repeat( 460 ) } ${ DEFAULT_POST_URL }`;
 
-		// Default behaviour reserves URL space, truncating the trailing URL.
-		const { container: reservedContainer } = render(
-			<>{ mastodonBody( text, { offset: 0, instance: '' } ) }</>
-		);
-		expect(
-			reservedContainer.querySelector( `a[href="${ DEFAULT_POST_URL }"]` )
-		).not.toBeInTheDocument();
-
-		// With reservation disabled, the full URL survives.
-		const { container: unreservedContainer } = render(
-			<>{ mastodonBody( text, { offset: 0, instance: '', reserveUrlSpace: false } ) }</>
-		);
-		expect(
-			unreservedContainer.querySelector( `a[href="${ DEFAULT_POST_URL }"]` )
-		).toBeInTheDocument();
+		const { container } = render( <>{ mastodonBody( text, { offset: 0, instance: '' } ) }</> );
+		expect( container.querySelector( `a[href="${ DEFAULT_POST_URL }"]` ) ).toBeInTheDocument();
 	} );
 } );
