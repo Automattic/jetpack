@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Agents Manager: Allow overriding variant and sectionName through filters

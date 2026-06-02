@@ -172,7 +172,7 @@ class Agents_Manager {
 		}
 
 		// Determine which variant to load (null = don't load).
-		$variant = $this->get_variant();
+		$variant = apply_filters( 'agents_manager_variant', $this->get_variant() );
 		if ( null === $variant ) {
 			return;
 		}
@@ -273,7 +273,7 @@ class Agents_Manager {
 			'agentProviders'       => $agent_providers,
 			'useUnifiedExperience' => $use_unified_experience,
 			'isDevMode'            => self::is_dev_mode(),
-			'sectionName'          => $variant,
+			'sectionName'          => apply_filters( 'agents_manager_section_name', $variant ),
 			'currentUser'          => $this->get_current_user_data(),
 			'site'                 => $this->get_current_site(),
 			'helpCenterUrl'        => self::HELP_CENTER_URL,
