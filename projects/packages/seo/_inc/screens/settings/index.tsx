@@ -1,8 +1,10 @@
 /* eslint-disable react/jsx-no-bind */
 
-import { Button, Notice, TextareaControl, ToggleControl } from '@wordpress/components';
+import { Notice, TextareaControl, ToggleControl } from '@wordpress/components';
+import { useEffect } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import { Badge, Card, CollapsibleCard, Stack } from '@wordpress/ui';
+import { useSearch } from '@wordpress/route';
+import { Badge, Card, CollapsibleCard, Link, Stack } from '@wordpress/ui';
 import TitleStructureField from './title-structure-field';
 import VerificationCard from './verification-card';
 import './style.scss';
@@ -18,17 +20,35 @@ interface Props {
 	form: SettingsForm;
 }
 
+type SettingsSearch = Record< string, unknown > & { focus?: string };
+
 /**
- * Consolidated Settings screen. State + persistence live in the `form`
- * controller (passed from the page root so edits survive tab switches);
- * this component is the presentation + Save affordance.
+ * Consolidated Settings screen. State + auto-save live in the `form` controller
+ * (passed from the page root so it survives tab switches); this component is
+ * the presentation. There's no Save button — toggles save on change, text and
+ * token fields save on blur.
  *
  * @param props      - Component props.
  * @param props.form - The settings form controller from `useSettingsForm`.
  * @return The Settings tab content.
  */
 const SettingsScreen: FC< Props > = ( { form } ) => {
-	const { local, isDirty, isSaving, save, update, setVerification } = form;
+	const { local, setField, setVerification, commit } = form;
+
+	// Overview deep links (`?focus=visibility|verification`) scroll the matching
+	// section to its top. `scroll-margin-top` on the section (style.scss) clears
+	// the fixed header + sticky tabs so the section title stays visible.
+	const search = useSearch( { from: '/' as unknown as never, strict: false } ) as SettingsSearch;
+	const focus = search.focus;
+	useEffect( () => {
+		if ( focus !== 'visibility' && focus !== 'verification' ) {
+			return;
+		}
+		const frame = requestAnimationFrame( () => {
+			document.getElementById( focus )?.scrollIntoView( { block: 'start' } );
+		} );
+		return () => cancelAnimationFrame( frame );
+	}, [ focus ] );
 
 	if ( ! local ) {
 		return (
@@ -44,64 +64,63 @@ const SettingsScreen: FC< Props > = ( { form } ) => {
 
 	return (
 		<div className="jetpack-seo-settings">
-			<div className="jetpack-seo-settings__actions">
-				<Button
-					variant="primary"
-					onClick={ save }
-					disabled={ ! isDirty || isSaving }
-					isBusy={ isSaving }
-					__next40pxDefaultSize
-				>
-					{ __( 'Save', 'jetpack-seo' ) }
-				</Button>
+			<div id="visibility" className="jetpack-seo-settings__section">
+				<CollapsibleCard.Root defaultOpen>
+					<CollapsibleCard.Header>
+						<Stack direction="row" justify="space-between" align="center" gap="sm">
+							<Card.Title>{ __( 'Site visibility', 'jetpack-seo' ) }</Card.Title>
+							<Badge intent={ visibilityEnabledCount === 2 ? 'stable' : 'draft' }>
+								{ sprintf(
+									/* translators: %1$d: number of enabled visibility settings, %2$d: total. */
+									__( '%1$d of %2$d enabled', 'jetpack-seo' ),
+									visibilityEnabledCount,
+									2
+								) }
+							</Badge>
+						</Stack>
+					</CollapsibleCard.Header>
+					<CollapsibleCard.Content>
+						<Stack direction="column" gap="lg">
+							<ToggleControl
+								label={ __( 'Allow search engines to index this site', 'jetpack-seo' ) }
+								help={ __(
+									'Mirrors Settings → Reading → "Discourage search engines from indexing this site". Turning this off asks search engines to stop indexing your site; honored by Google and Bing, ignored by others. Use only for staging or pre-launch sites.',
+									'jetpack-seo'
+								) }
+								checked={ local.search_engines_visible }
+								onChange={ next => commit( { search_engines_visible: next } ) }
+								__nextHasNoMarginBottom
+							/>
+							<div>
+								<ToggleControl
+									label={ __( 'Generate an XML sitemap', 'jetpack-seo' ) }
+									help={ __(
+										"Publishes an XML sitemap that search engines crawl to discover your content, generated automatically from your site's published posts, pages, and custom post types.",
+										'jetpack-seo'
+									) }
+									checked={ local.sitemap_active }
+									onChange={ next => commit( { sitemap_active: next } ) }
+									__nextHasNoMarginBottom
+								/>
+								{ local.sitemap_active && (
+									<div className="jetpack-seo-settings__sitemap-urls">
+										<Link href={ local.sitemap_url } openInNewTab>
+											{ local.sitemap_url }
+										</Link>
+										<Link href={ local.news_sitemap_url } openInNewTab>
+											{ local.news_sitemap_url }
+										</Link>
+									</div>
+								) }
+							</div>
+						</Stack>
+					</CollapsibleCard.Content>
+				</CollapsibleCard.Root>
 			</div>
-
-			<CollapsibleCard.Root defaultOpen>
-				<CollapsibleCard.Header>
-					<Stack direction="row" justify="space-between" align="center" gap="sm">
-						<Card.Title>{ __( 'Site visibility', 'jetpack-seo' ) }</Card.Title>
-						<Badge intent={ visibilityEnabledCount === 2 ? 'stable' : 'draft' }>
-							{ sprintf(
-								/* translators: %1$d: number of enabled visibility settings, %2$d: total. */
-								__( '%1$d of %2$d enabled', 'jetpack-seo' ),
-								visibilityEnabledCount,
-								2
-							) }
-						</Badge>
-					</Stack>
-				</CollapsibleCard.Header>
-				<CollapsibleCard.Content>
-					<Stack direction="column" gap="lg">
-						<ToggleControl
-							label={ __( 'Allow search engines to index this site', 'jetpack-seo' ) }
-							help={ __(
-								'Mirrors Settings → Reading → "Discourage search engines from indexing this site". Turning this off asks search engines to stop indexing your site; honored by Google and Bing, ignored by others. Use only for staging or pre-launch sites.',
-								'jetpack-seo'
-							) }
-							checked={ local.search_engines_visible }
-							onChange={ next => update( { search_engines_visible: next } ) }
-							disabled={ isSaving }
-							__nextHasNoMarginBottom
-						/>
-						<ToggleControl
-							label={ __( 'Generate an XML sitemap', 'jetpack-seo' ) }
-							help={ __(
-								"Publishes an XML sitemap that search engines crawl to discover your content, generated automatically from your site's published posts, pages, and custom post types.",
-								'jetpack-seo'
-							) }
-							checked={ local.sitemap_active }
-							onChange={ next => update( { sitemap_active: next } ) }
-							disabled={ isSaving }
-							__nextHasNoMarginBottom
-						/>
-					</Stack>
-				</CollapsibleCard.Content>
-			</CollapsibleCard.Root>
 
 			<TitleStructureField
 				tokens={ postsTokens }
-				onChange={ next => update( { title_formats: { ...local.title_formats, posts: next } } ) }
-				disabled={ isSaving }
+				onChange={ next => commit( { title_formats: { ...local.title_formats, posts: next } } ) }
 			/>
 
 			<CollapsibleCard.Root defaultOpen={ false }>
@@ -117,19 +136,21 @@ const SettingsScreen: FC< Props > = ( { form } ) => {
 					<TextareaControl
 						label={ __( 'Meta description shown on the home page', 'jetpack-seo' ) }
 						value={ local.front_page_description }
-						onChange={ next => update( { front_page_description: next } ) }
+						onChange={ next => setField( { front_page_description: next } ) }
+						onBlur={ () => commit() }
 						rows={ 3 }
-						disabled={ isSaving }
 						__nextHasNoMarginBottom
 					/>
 				</CollapsibleCard.Content>
 			</CollapsibleCard.Root>
 
-			<VerificationCard
-				value={ local.verification }
-				onChange={ setVerification }
-				disabled={ isSaving }
-			/>
+			<div id="verification" className="jetpack-seo-settings__section">
+				<VerificationCard
+					value={ local.verification }
+					onChange={ setVerification }
+					onCommit={ () => commit() }
+				/>
+			</div>
 		</div>
 	);
 };

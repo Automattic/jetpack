@@ -10,6 +10,8 @@ import type { FC } from 'react';
 interface Props {
 	value: SettingsResponse[ 'verification' ];
 	onChange: ( key: VerificationKey, value: string ) => void;
+	/** Save the current value — called on blur (auto-save, no Save button). */
+	onCommit?: () => void;
 	disabled?: boolean;
 }
 
@@ -34,7 +36,7 @@ const services: Array< { key: VerificationKey; label: string; hint: string } > =
 
 const notSetLabel = __( 'Not set', 'jetpack-seo' );
 
-const VerificationCard: FC< Props > = ( { value, onChange, disabled } ) => {
+const VerificationCard: FC< Props > = ( { value, onChange, onCommit, disabled } ) => {
 	const verifiedCount = services.filter( ( { key } ) => !! value[ key ] ).length;
 
 	return (
@@ -61,6 +63,7 @@ const VerificationCard: FC< Props > = ( { value, onChange, disabled } ) => {
 							label={ label }
 							value={ value[ key ] }
 							onChange={ next => onChange( key, next ) }
+							onBlur={ onCommit }
 							help={ hint }
 							disabled={ disabled }
 							__next40pxDefaultSize

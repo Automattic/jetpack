@@ -1,14 +1,27 @@
+// Centered fixed-width column. 660px is the established Jetpack settings-page
+// width (see Newsletter's settings/style.scss: "MSD and future JP settings
+// pages are 660px wide"); there is no design token for it.
 .jetpack-seo-settings {
 	display: flex;
 	flex-direction: column;
 	gap: var(--wpds-dimension-gap-lg, 16px);
-	max-width: 660px;
+	max-inline-size: 660px;
+	margin-inline: auto;
 }
 
-// Save action row, pinned to the top-right of the form.
-.jetpack-seo-settings__actions {
+// Deep-link target wrapper. `scroll-margin-top` clears the fixed header +
+// sticky tabs strip so the scrolled-to section's title stays visible.
+.jetpack-seo-settings__section {
+	scroll-margin-top: 64px;
+}
+
+// Sitemap URLs shown under the sitemap toggle when it's on.
+.jetpack-seo-settings__sitemap-urls {
 	display: flex;
-	justify-content: flex-end;
+	flex-direction: column;
+	gap: var(--wpds-dimension-gap-xs, 4px);
+	margin-top: var(--wpds-dimension-gap-sm, 8px);
+	font-size: 13px;
 }
 
 // Live preview under the title-structure token editor.

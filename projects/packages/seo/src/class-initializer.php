@@ -275,18 +275,32 @@ class Initializer {
 		// @phan-suppress-next-line PhanUndeclaredClassMethod -- Same as above; only invoked when class_exists.
 		$front_page_desc = $seo_enabled ? Jetpack_SEO_Utils::get_front_page_meta_description() : '';
 
+		$codes = get_option( 'verification_services_codes', array() );
+		if ( ! is_array( $codes ) ) {
+			$codes = array();
+		}
+
 		return array(
-			'site_visibility' => array(
+			'site_visibility'   => array(
 				'search_engines_visible' => (int) get_option( 'blog_public', 1 ) === 1,
-				'sitemap_active'         => (bool) get_option( 'jetpack_seo_sitemap_enabled', false ),
-				// Pre-wired for the sitemap "View" link, restored once real
-				// sitemaps-module detection lands (JETPACK-1694); no consumer yet.
+				// The real `sitemaps` module is the source of truth (the Settings
+				// toggle drives it via `/jetpack/v4/settings`).
+				'sitemap_active'         => $modules->is_active( 'sitemaps' ),
 				'sitemap_url'            => home_url( '/sitemap.xml' ),
 				'seo_tools_active'       => $modules->is_active( 'seo-tools' ),
 				// Pre-wired for the Settings/Content follow-up tabs; no consumer yet.
 				'front_page_description' => (string) $front_page_desc,
 			),
-			'plan'            => array(
+			// Per-service booleans (a code is set or not) for the Overview's
+			// Site verification card.
+			'site_verification' => array(
+				'google'    => ! empty( $codes['google'] ),
+				'bing'      => ! empty( $codes['bing'] ),
+				'pinterest' => ! empty( $codes['pinterest'] ),
+				'yandex'    => ! empty( $codes['yandex'] ),
+				'facebook'  => ! empty( $codes['facebook'] ),
+			),
+			'plan'              => array(
 				'seo_enabled_for_site' => $seo_enabled,
 			),
 		);
@@ -343,6 +357,8 @@ class Initializer {
 			// The real `sitemaps` module is the source of truth (not a bespoke
 			// option). The Settings toggle drives it via `/jetpack/v4/settings`.
 			'sitemap_active'         => $modules->is_active( 'sitemaps' ),
+			'sitemap_url'            => home_url( '/sitemap.xml' ),
+			'news_sitemap_url'       => home_url( '/news-sitemap.xml' ),
 			// Cast to object so an empty format set serializes as `{}`, not `[]`.
 			'title_formats'          => (object) $title_formats,
 			'front_page_description' => (string) $front_page_desc,
