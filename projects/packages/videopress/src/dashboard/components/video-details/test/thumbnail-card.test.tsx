@@ -68,6 +68,7 @@ const baseVideo: LibraryItem = {
 	shortcode: '[videopress abc123]',
 	sourceUrl: 'https://example.test/movie.mp4',
 	isProcessing: false,
+	tracks: [],
 };
 
 /**

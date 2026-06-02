@@ -16,6 +16,10 @@ import { useCallback, useEffect, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import debugFactory from 'debug';
 /**
+ * Internal dependencies
+ */
+import { canonicalizeLanguageTag } from '../../../../../lib/video-tracks/language';
+/**
  * Types
  */
 import type { TrackFormProps } from './types';
@@ -98,19 +102,24 @@ export default function TrackForm( {
 
 	// eslint-disable-next-line @wordpress/no-unused-vars-before-return -- @todo Start extending jetpack-js-tools/eslintrc/react in eslintrc, then we can remove this disable comment.
 	const onSaveHandler = useCallback( () => {
+		const canonicalSrcLang = canonicalizeLanguageTag( track.srcLang );
+
+		if ( ! canonicalSrcLang ) {
+			setError( __( 'Enter a valid BCP-47 language tag.', 'jetpack-videopress-pkg' ) );
+			return;
+		}
+
 		setIsSavingTrack( true );
 		setError( '' );
-		onSave( track );
+		onSave( { ...track, srcLang: canonicalSrcLang } );
 	}, [ track ] );
 
 	// eslint-disable-next-line @wordpress/no-unused-vars-before-return -- @todo Start extending jetpack-js-tools/eslintrc/react in eslintrc, then we can remove this disable comment.
 	const setSourceLanguage = useCallback(
 		( newSrcLang: string ) => {
 			updateTrack( 'srcLang', newSrcLang );
-			if ( newSrcLang?.length > 5 ) {
-				return setError(
-					__( 'Language must be five characters or less.', 'jetpack-videopress-pkg' )
-				);
+			if ( newSrcLang && ! canonicalizeLanguageTag( newSrcLang ) ) {
+				return setError( __( 'Enter a valid BCP-47 language tag.', 'jetpack-videopress-pkg' ) );
 			}
 
 			// let the error message from the control take over

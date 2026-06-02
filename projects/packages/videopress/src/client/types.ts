@@ -10,20 +10,15 @@ export type PrivacySettingProp = 0 | 1 | 2;
 
 export type RatingProp = 'G' | 'PG-13' | 'R-17';
 
-export type VideoTracksResponseBodyProps = {
-	captions?: {
-		en: {
-			src: string;
-			label: string;
-		};
-	};
-	chapters?: {
-		en: {
-			src: string;
-			label: string;
-		};
-	};
+export type VideoTrackResponseBodyProps = {
+	src: string;
+	label: string;
 };
+
+export type VideoTracksResponseBodyProps = Record<
+	string,
+	Record< string, VideoTrackResponseBodyProps >
+>;
 
 type STDVideoFileProps = {
 	mp4: string;

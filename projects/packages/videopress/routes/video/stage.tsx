@@ -6,6 +6,7 @@ import { __ } from '@wordpress/i18n';
 import { Link, useNavigate, useParams } from '@wordpress/route';
 import { Stack, Text } from '@wordpress/ui';
 import { addQueryArgs } from '@wordpress/url';
+import CaptionManagerModal from '../../src/client/components/caption-manager-modal';
 import QueryClientWrapper from '../../src/dashboard/components/query-client-wrapper';
 import ChaptersHelpModal from '../../src/dashboard/components/video-details/chapters-help-modal';
 import HeaderActions from '../../src/dashboard/components/video-details/header-actions';
@@ -16,7 +17,7 @@ import { useVideoDetailsForm } from '../../src/dashboard/components/video-detail
 import VideoDetailsCard from '../../src/dashboard/components/video-details/video-details-card';
 import { useDeleteVideo } from '../../src/dashboard/hooks/use-delete-video';
 import { useUpdateVideoMeta } from '../../src/dashboard/hooks/use-update-video-meta';
-import { useVideo } from '../../src/dashboard/hooks/use-video';
+import { useInvalidateVideo, useVideo } from '../../src/dashboard/hooks/use-video';
 import './style.scss';
 import type { LibraryItem, VideoRating } from '../../src/dashboard/types/library';
 
@@ -87,6 +88,7 @@ type EditorProps = {
 	isSaving: boolean;
 	onDelete: () => void;
 	onDownload: () => void;
+	onManageCaptions: () => void;
 	onAddToNewPost: () => void;
 	chaptersOpen: boolean;
 	setChaptersOpen: ( open: boolean ) => void;
@@ -98,6 +100,7 @@ const Editor = ( {
 	isSaving,
 	onDelete,
 	onDownload,
+	onManageCaptions,
 	onAddToNewPost,
 	chaptersOpen,
 	setChaptersOpen,
@@ -137,6 +140,7 @@ const Editor = ( {
 				<HeaderActions
 					canSave={ isDirty && ! isSaving }
 					onSave={ handleSave }
+					onManageCaptions={ onManageCaptions }
 					onDownload={ onDownload }
 					onDelete={ onDelete }
 				/>
@@ -174,14 +178,17 @@ const deletingNoticeId = ( videoId: string ) => `vp-video-deleting-${ videoId }`
 
 const StageReady = ( { video }: StageReadyProps ) => {
 	const navigate = useNavigate();
+	const invalidateVideo = useInvalidateVideo();
 	const { mutate: updateMeta, isPending: isSaving } = useUpdateVideoMeta();
 	const { mutateAsync: deleteVideo, isPending: isDeleting } = useDeleteVideo();
 	const { createSuccessNotice, createErrorNotice, createInfoNotice } = useGlobalNotices();
 	const [ chaptersOpen, setChaptersOpen ] = useState( false );
+	const [ captionsOpen, setCaptionsOpen ] = useState( false );
 	// Deletes keep running after an unmount (the user can navigate away via
 	// the breadcrumb mid-flight). The notice cleanup below must still happen
 	// then, but we shouldn't yank them to the Library if they've moved on.
 	const isMountedRef = useRef( true );
+
 	useEffect( () => {
 		isMountedRef.current = true;
 		return () => {
@@ -190,78 +197,94 @@ const StageReady = ( { video }: StageReadyProps ) => {
 	}, [] );
 
 	return (
-		<Editor
-			video={ video }
-			// Treat an in-flight delete like an in-flight save: Save stays
-			// disabled so a slow delete can't be raced by a meta update
-			// against the attachment being removed.
-			isSaving={ isSaving || isDeleting }
-			onSave={ ( values, reset ) => {
-				updateMeta(
-					{ id: video.id, patch: values },
-					{
-						onSuccess: () => {
-							createSuccessNotice( __( 'Video details saved.', 'jetpack-videopress-pkg' ) );
-							reset( values );
-						},
-						onError: () => {
-							createErrorNotice( __( 'Failed to save video details.', 'jetpack-videopress-pkg' ) );
-						},
-					}
-				);
-			} }
-			onDelete={ () => {
-				if ( isDeleting ) {
-					return;
-				}
-				// Deleting can take several seconds (the backend also removes the
-				// remote VideoPress copy); surface progress immediately so the
-				// action doesn't feel frozen. `explicitDismiss` keeps the snackbar
-				// from auto-expiring before the request settles.
-				createInfoNotice( __( 'Deleting video…', 'jetpack-videopress-pkg' ), {
-					id: deletingNoticeId( video.id ),
-					explicitDismiss: true,
-				} );
-				// Promise chain rather than mutate-level callbacks: those are
-				// dropped when the component unmounts mid-flight, which would
-				// orphan the explicitDismiss notice above forever.
-				deleteVideo( Number( video.id ) )
-					.then( () => {
-						createSuccessNotice( __( 'Video deleted.', 'jetpack-videopress-pkg' ), {
-							id: deletingNoticeId( video.id ),
-						} );
-						if ( isMountedRef.current ) {
-							navigate( { href: '/library' } );
+		<>
+			<Editor
+				video={ video }
+				// Treat an in-flight delete like an in-flight save: Save stays
+				// disabled so a slow delete can't be raced by a meta update
+				// against the attachment being removed.
+				isSaving={ isSaving || isDeleting }
+				onSave={ ( values, reset ) => {
+					updateMeta(
+						{ id: video.id, patch: values },
+						{
+							onSuccess: () => {
+								createSuccessNotice( __( 'Video details saved.', 'jetpack-videopress-pkg' ) );
+								reset( values );
+							},
+							onError: () => {
+								createErrorNotice(
+									__( 'Failed to save video details.', 'jetpack-videopress-pkg' )
+								);
+							},
 						}
-					} )
-					.catch( () => {
-						createErrorNotice( __( 'Failed to delete video.', 'jetpack-videopress-pkg' ), {
-							id: deletingNoticeId( video.id ),
-						} );
+					);
+				} }
+				onDelete={ () => {
+					if ( isDeleting ) {
+						return;
+					}
+					// Deleting can take several seconds (the backend also removes the
+					// remote VideoPress copy); surface progress immediately so the
+					// action doesn't feel frozen. `explicitDismiss` keeps the snackbar
+					// from auto-expiring before the request settles.
+					createInfoNotice( __( 'Deleting video…', 'jetpack-videopress-pkg' ), {
+						id: deletingNoticeId( video.id ),
+						explicitDismiss: true,
 					} );
-			} }
-			onDownload={ () => {
-				if ( video.sourceUrl ) {
-					window.open( video.sourceUrl, '_blank' );
-				}
-			} }
-			onAddToNewPost={ () => {
-				const nonce =
-					typeof JPVIDEOPRESS_INITIAL_STATE !== 'undefined'
-						? JPVIDEOPRESS_INITIAL_STATE?.API?.contentNonce
-						: undefined;
-				if ( ! video.guid || ! nonce ) {
-					return;
-				}
-				const url = addQueryArgs( 'post-new.php', {
-					videopress_guid: video.guid,
-					_wpnonce: nonce,
-				} );
-				window.open( url, '_blank' );
-			} }
-			chaptersOpen={ chaptersOpen }
-			setChaptersOpen={ setChaptersOpen }
-		/>
+					// Promise chain rather than mutate-level callbacks: those are
+					// dropped when the component unmounts mid-flight, which would
+					// orphan the explicitDismiss notice above forever.
+					deleteVideo( Number( video.id ) )
+						.then( () => {
+							createSuccessNotice( __( 'Video deleted.', 'jetpack-videopress-pkg' ), {
+								id: deletingNoticeId( video.id ),
+							} );
+							if ( isMountedRef.current ) {
+								navigate( { href: '/library' } );
+							}
+						} )
+						.catch( () => {
+							createErrorNotice( __( 'Failed to delete video.', 'jetpack-videopress-pkg' ), {
+								id: deletingNoticeId( video.id ),
+							} );
+						} );
+				} }
+				onDownload={ () => {
+					if ( video.sourceUrl ) {
+						window.open( video.sourceUrl, '_blank' );
+					}
+				} }
+				onManageCaptions={ () => setCaptionsOpen( true ) }
+				onAddToNewPost={ () => {
+					const nonce =
+						typeof JPVIDEOPRESS_INITIAL_STATE !== 'undefined'
+							? JPVIDEOPRESS_INITIAL_STATE?.API?.contentNonce
+							: undefined;
+					if ( ! video.guid || ! nonce ) {
+						return;
+					}
+					const url = addQueryArgs( 'post-new.php', {
+						videopress_guid: video.guid,
+						_wpnonce: nonce,
+					} );
+					window.open( url, '_blank' );
+				} }
+				chaptersOpen={ chaptersOpen }
+				setChaptersOpen={ setChaptersOpen }
+			/>
+			{ captionsOpen && (
+				<CaptionManagerModal
+					isOpen={ captionsOpen }
+					guid={ video.guid }
+					title={ video.title }
+					poster={ video.thumbnailUrl }
+					tracks={ video.tracks }
+					onClose={ () => setCaptionsOpen( false ) }
+					onTracksChange={ () => void invalidateVideo( video.id ) }
+				/>
+			) }
+		</>
 	);
 };
 

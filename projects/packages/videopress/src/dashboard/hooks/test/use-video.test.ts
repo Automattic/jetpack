@@ -18,6 +18,14 @@ describe( 'useVideo', () => {
 						display_embed: 1,
 						allow_download: 0,
 						privacy_setting: 1,
+						tracks: {
+							captions: {
+								en: {
+									src: 'english.vtt',
+									label: 'English',
+								},
+							},
+						},
 					},
 				};
 			}
@@ -30,5 +38,8 @@ describe( 'useVideo', () => {
 		expect( result.current.video?.title ).toBe( 'V' );
 		expect( result.current.video?.privacy ).toBe( 'private' );
 		expect( result.current.video?.displayEmbed ).toBe( true );
+		expect( result.current.video?.tracks ).toEqual( [
+			{ kind: 'captions', srcLang: 'en', src: 'english.vtt', label: 'English' },
+		] );
 	} );
 } );

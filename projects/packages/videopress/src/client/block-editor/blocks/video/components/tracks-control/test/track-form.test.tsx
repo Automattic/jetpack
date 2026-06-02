@@ -152,4 +152,30 @@ describe( 'TrackForm', () => {
 		render( <TrackForm { ...defaultProps } errorMessage="Upload failed" /> );
 		expect( screen.getByText( 'Upload failed' ) ).toBeInTheDocument();
 	} );
+
+	it( 'canonicalizes valid language tags longer than five characters on save', async () => {
+		const user = userEvent.setup();
+		render( <TrackForm { ...defaultProps } /> );
+
+		await user.type( screen.getByLabelText( 'Source language' ), 'pt-br' );
+		await user.upload(
+			screen.getByTestId( 'file-input' ),
+			new File( [ 'WEBVTT' ], 'portuguese.vtt', { type: 'text/vtt' } )
+		);
+		await user.click( screen.getByText( 'Save' ) );
+
+		expect( defaultProps.onSave ).toHaveBeenCalledWith(
+			expect.objectContaining( { srcLang: 'pt-BR' } )
+		);
+	} );
+
+	it( 'rejects generated language keys for manual input', async () => {
+		const user = userEvent.setup();
+		render( <TrackForm { ...defaultProps } /> );
+
+		await user.type( screen.getByLabelText( 'Source language' ), 'auto_en' );
+
+		expect( screen.getByRole( 'alert' ) ).toHaveTextContent( 'Enter a valid BCP-47 language tag.' );
+		expect( screen.getByText( 'Save' ) ).toBeDisabled();
+	} );
 } );
