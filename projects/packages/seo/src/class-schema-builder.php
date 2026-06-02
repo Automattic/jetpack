@@ -47,7 +47,10 @@ class Schema_Builder {
 	 * @return void
 	 */
 	public static function emit() {
-		if ( ! class_exists( 'Jetpack_SEO_Utils' ) || ! Jetpack_SEO_Utils::is_enabled_jetpack_seo() ) {
+		// Both plugin classes must be loaded — they're not guaranteed in every
+		// context, and build_for_post() calls Jetpack_SEO_Posts directly.
+		// @phan-suppress-next-line PhanUndeclaredClassMethod -- Jetpack_SEO_Utils lives in plugins/jetpack; guarded by the class_exists check on the same line.
+		if ( ! class_exists( 'Jetpack_SEO_Utils' ) || ! class_exists( 'Jetpack_SEO_Posts' ) || ! Jetpack_SEO_Utils::is_enabled_jetpack_seo() ) {
 			return;
 		}
 
@@ -81,6 +84,7 @@ class Schema_Builder {
 			return null;
 		}
 
+		// @phan-suppress-next-line PhanUndeclaredClassMethod -- Jetpack_SEO_Posts lives in plugins/jetpack; emit() guards on class_exists.
 		$override = Jetpack_SEO_Posts::get_post_schema_type( $post );
 		$type     = '' !== $override ? $override : self::default_schema_for_post( $post );
 
@@ -132,6 +136,7 @@ class Schema_Builder {
 			$node['image'] = $image;
 		}
 
+		// @phan-suppress-next-line PhanUndeclaredClassMethod -- Jetpack_SEO_Posts lives in plugins/jetpack; emit() guards on class_exists.
 		$description = Jetpack_SEO_Posts::get_post_description( $post );
 		if ( $description ) {
 			// Cap it: get_post_description() falls back to full post_content, which

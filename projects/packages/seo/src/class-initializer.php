@@ -70,6 +70,18 @@ class Initializer {
 	const SCRIPT_DATA_KEY = 'seo';
 
 	/**
+	 * Post-meta keys mirrored from `Jetpack_SEO_Posts` (in plugins/jetpack).
+	 * Duplicated here as literals on purpose: that plugin class is NOT reliably
+	 * loaded in this package's admin context (the `Jetpack_SEO_Utils`
+	 * `class_exists` guard in `get_overview_data()` is there for the same
+	 * reason), so referencing its constants would fatal. Content-coverage
+	 * counting only needs the key strings, which are stable.
+	 */
+	const META_DESCRIPTION = 'advanced_seo_description';
+	const META_SCHEMA_TYPE = 'jetpack_seo_schema_type';
+	const META_NOINDEX     = 'jetpack_seo_noindex';
+
+	/**
 	 * Whether the package has been initialized.
 	 *
 	 * @var bool
@@ -325,9 +337,9 @@ class Initializer {
 
 		return array(
 			'total'            => $total,
-			'with_description' => self::count_published_with_meta( $post_types, Jetpack_SEO_Posts::DESCRIPTION_META_KEY ),
-			'with_schema'      => self::count_published_with_meta( $post_types, Jetpack_SEO_Posts::SCHEMA_TYPE_META_KEY ),
-			'noindexed'        => self::count_published_with_meta( $post_types, Jetpack_SEO_Posts::NOINDEX_META_KEY, '1' ),
+			'with_description' => self::count_published_with_meta( $post_types, self::META_DESCRIPTION ),
+			'with_schema'      => self::count_published_with_meta( $post_types, self::META_SCHEMA_TYPE ),
+			'noindexed'        => self::count_published_with_meta( $post_types, self::META_NOINDEX, '1' ),
 		);
 	}
 
