@@ -211,6 +211,19 @@ const Admin = () => {
 
 export default Admin;
 
+// VIDP-245: keep these `__()` calls at module scope as separate statements.
+// If they live as the two arms of an inline ternary, terser folds them into a
+// single `__( cond ? 'a' : 'b', domain )`, which breaks string-literal POT
+// extraction (the i18n-check-webpack-plugin fails the production build).
+const UPGRADE_TRIGGER_USED_VIDEO_TEXT = __(
+	'You have used your free video upload',
+	'jetpack-videopress-pkg'
+);
+const UPGRADE_TRIGGER_FREE_PLAN_TEXT = __(
+	'The free plan includes one video upload.',
+	'jetpack-videopress-pkg'
+);
+
 const UpgradeTrigger = ( { hasUsedVideo = false }: { hasUsedVideo: boolean } ) => {
 	const { adminUri, siteSuffix } = window.jetpackVideoPressInitialState;
 
@@ -243,10 +256,11 @@ const UpgradeTrigger = ( { hasUsedVideo = false }: { hasUsedVideo: boolean } ) =
 	// fork-ref and crashes on the next upload/delete. Always render the
 	// Description — mirroring the modern dashboard's `free-tier-notice.tsx` —
 	// varying only its text, with a non-empty fallback nudge before the first
-	// upload so we never render an empty styled row.
+	// upload so we never render an empty styled row. The two strings are hoisted
+	// to module scope (above) to avoid the terser i18n ternary-fold.
 	const description = hasUsedVideo
-		? __( 'You have used your free video upload', 'jetpack-videopress-pkg' )
-		: __( 'The free plan includes one video upload.', 'jetpack-videopress-pkg' );
+		? UPGRADE_TRIGGER_USED_VIDEO_TEXT
+		: UPGRADE_TRIGGER_FREE_PLAN_TEXT;
 
 	const cta = __(
 		'Upgrade now to unlock unlimited videos, 1TB of storage, and more!',
