@@ -236,9 +236,17 @@ const UpgradeTrigger = ( { hasUsedVideo = false }: { hasUsedVideo: boolean } ) =
 		run
 	);
 
+	// VIDP-245: keep the `Notice.Root` children shape invariant across the
+	// `hasUsedVideo` flip. base-ui@1.4.1's `useRenderElement` swaps between two
+	// different ref-merge hooks depending on subtree shape, so conditionally
+	// mounting `<Notice.Description>` (as this did before) misaligns its stored
+	// fork-ref and crashes on the next upload/delete. Always render the
+	// Description — mirroring the modern dashboard's `free-tier-notice.tsx` —
+	// varying only its text, with a non-empty fallback nudge before the first
+	// upload so we never render an empty styled row.
 	const description = hasUsedVideo
 		? __( 'You have used your free video upload', 'jetpack-videopress-pkg' )
-		: '';
+		: __( 'The free plan includes one video upload.', 'jetpack-videopress-pkg' );
 
 	const cta = __(
 		'Upgrade now to unlock unlimited videos, 1TB of storage, and more!',
@@ -247,7 +255,7 @@ const UpgradeTrigger = ( { hasUsedVideo = false }: { hasUsedVideo: boolean } ) =
 
 	return (
 		<Notice.Root intent="info" className={ styles[ 'upgrade-trigger' ] }>
-			{ description && <Notice.Description>{ description }</Notice.Description> }
+			<Notice.Description>{ description }</Notice.Description>
 			<Notice.Actions>
 				<Notice.ActionButton onClick={ onButtonClickHandler }>{ cta }</Notice.ActionButton>
 			</Notice.Actions>
