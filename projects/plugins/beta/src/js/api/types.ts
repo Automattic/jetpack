@@ -9,6 +9,8 @@ export type PluginListItem = {
 	name: string;
 	active_which: 'stable' | 'dev' | null;
 	active_version: string | null;
+	/** Concrete underlying version for dev branches (the pretty version is just a channel label); null otherwise. */
+	active_version_detail: string | null;
 	manage_url: string;
 };
 
