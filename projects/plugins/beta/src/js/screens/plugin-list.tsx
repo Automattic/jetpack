@@ -14,7 +14,6 @@ import GlobalToggles from '../components/global-toggles';
 import { CardRowSkeleton } from '../components/skeleton';
 import UpdatesPanel from '../components/updates-panel';
 import type { PluginListItem } from '../api/types';
-import type { KeyboardEvent } from 'react';
 
 /**
  * Derive the display version string and badge label for a plugin row.
@@ -44,8 +43,9 @@ const pluginStatus = (
 };
 
 /**
- * A single clickable plugin card. The whole card navigates to the plugin's
- * manage screen; the chevron is a visual affordance only.
+ * A single plugin card. The whole card is a link to the plugin's manage screen
+ * (so it behaves like a real link — middle/cmd-click, copy URL, etc.); the
+ * chevron is a visual affordance only.
  *
  * @param props        - Component props.
  * @param props.plugin - The plugin to render.
@@ -61,32 +61,15 @@ const PluginCard = ( { plugin }: { plugin: PluginListItem } ) => {
 		setIconFailed( true );
 	}, [] );
 
-	const goToManage = useCallback( () => {
-		window.location.href = plugin.manage_url;
-	}, [ plugin.manage_url ] );
-
-	const onKeyDown = useCallback(
-		( event: KeyboardEvent ) => {
-			if ( event.key === 'Enter' || event.key === ' ' ) {
-				event.preventDefault();
-				goToManage();
-			}
-		},
-		[ goToManage ]
-	);
-
 	return (
 		<Card.Root
 			className="jetpack-beta-plugin-card"
-			role="button"
-			tabIndex={ 0 }
 			aria-label={ sprintf(
 				/* translators: %s: plugin name. */
 				__( 'Manage %s', 'jetpack-beta' ),
 				plugin.name
 			) }
-			onClick={ goToManage }
-			onKeyDown={ onKeyDown }
+			render={ <a href={ plugin.manage_url } /> }
 		>
 			<Card.Content>
 				<Stack direction="row" align="center" justify="space-between">
@@ -161,9 +144,9 @@ const writeCachedPlugins = ( plugins: PluginListItem[] ) => {
  *
  * Renders a card per managed plugin alongside the GlobalToggles settings panel.
  * The list is preloaded from the page bootstrap (or a localStorage cache) so it
- * paints instantly; it only falls back to the list-plugins ability when neither
- * is available. The list rarely changes, so a preloaded/cached list is not
- * re-fetched.
+ * paints instantly. It then revalidates against the list-plugins ability in the
+ * background (stale-while-revalidate) and reconciles, so a remembered list that
+ * has since changed doesn't stay stale.
  *
  * @return The plugin list screen element.
  */
@@ -179,11 +162,8 @@ const PluginList = () => {
 			writeCachedPlugins( boot.plugins );
 		}
 
-		// Already have a list (preloaded or remembered) — skip the fetch.
-		if ( preloaded !== null ) {
-			return;
-		}
-
+		// Always revalidate against the server. The preloaded/cached list keeps
+		// painting instantly; this refreshes it in the background and reconciles.
 		let cancelled = false;
 		listPlugins()
 			.then( data => {
@@ -195,7 +175,11 @@ const PluginList = () => {
 			} )
 			.catch( ( err: unknown ) => {
 				if ( ! cancelled ) {
-					setError( errorMessage( err, __( 'Could not load plugins.', 'jetpack-beta' ) ) );
+					// Only surface an error when there's nothing to show; otherwise
+					// keep the cached/preloaded list rather than replacing it.
+					if ( preloaded === null ) {
+						setError( errorMessage( err, __( 'Could not load plugins.', 'jetpack-beta' ) ) );
+					}
 					setLoading( false );
 				}
 			} );

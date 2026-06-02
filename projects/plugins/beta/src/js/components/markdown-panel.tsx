@@ -25,7 +25,9 @@ const MarkdownPanel = ( { title, html }: Props ) => {
 		<Card.Root>
 			<Card.Content>
 				<Stack direction="column" gap="md">
-					<Text variant="heading-sm">{ title }</Text>
+					<Text variant="heading-sm" render={ <h2 /> }>
+						{ title }
+					</Text>
 					{ /* HTML is sanitized server-side via Parsedown + wp_kses before API delivery */ }
 					{ /* eslint-disable-next-line react/no-danger */ }
 					<div dangerouslySetInnerHTML={ { __html: html } } />

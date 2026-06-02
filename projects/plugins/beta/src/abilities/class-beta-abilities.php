@@ -257,6 +257,7 @@ class Beta_Abilities extends Registrar {
 					),
 					'source' => array(
 						'type'        => 'string',
+						'enum'        => array( 'stable', 'trunk', 'rc', 'pr', 'release', 'unknown' ),
 						'description' => __( 'Branch source: "stable", "trunk", "rc", "pr", "release", or "unknown".', 'jetpack-beta' ),
 					),
 					'id'     => array(
@@ -532,7 +533,14 @@ class Beta_Abilities extends Registrar {
 		require_once ABSPATH . 'wp-admin/includes/class-wp-upgrader.php';
 		require_once ABSPATH . 'wp-admin/includes/plugin.php';
 
-		$result = $plugin->install_and_activate( $source, $id );
+		// install_and_activate() throws InvalidArgumentException for an unrecognized
+		// source. The schema enum rejects bad values first, but guard here too so a
+		// crafted request returns a clean WP_Error instead of an uncaught 500.
+		try {
+			$result = $plugin->install_and_activate( $source, $id );
+		} catch ( \InvalidArgumentException $e ) {
+			return new \WP_Error( 'invalid_source', $e->getMessage() );
+		}
 		if ( is_wp_error( $result ) ) {
 			return $result;
 		}
@@ -993,6 +1001,20 @@ class Beta_Abilities extends Registrar {
 		// Make sure the available-update data (including Beta's injected builds) is current.
 		wp_clean_plugins_cache();
 		wp_update_plugins();
+
+		// Restrict updates to plugins Beta actually manages and that have a pending
+		// update, so this ability can't be used to drive arbitrary plugin updates.
+		try {
+			$needing = Utils::plugins_needing_update( true );
+		} catch ( PluginDataException $e ) {
+			return new \WP_Error( 'plugin_data_error', $e->getMessage() );
+		}
+		if ( ! isset( $needing[ $plugin_file ] ) ) {
+			return new \WP_Error(
+				'unmanaged_plugin',
+				__( 'That plugin is not a Jetpack Beta managed update.', 'jetpack-beta' )
+			);
+		}
 
 		$skin     = new \WP_Ajax_Upgrader_Skin();
 		$upgrader = new \Plugin_Upgrader( $skin );
