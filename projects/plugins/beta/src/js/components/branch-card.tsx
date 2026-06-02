@@ -1,12 +1,14 @@
 /**
- * BranchCard — displays a single branch with its version label and an Activate button.
+ * BranchRow — a single branch as a compact list row with its version label and
+ * an Activate button (or an Active badge). Rendered inside a `.jetpack-beta-list`
+ * card so branches stack tightly, matching the plugin list.
  *
  * @package
  */
 
 import { useCallback, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { Badge, Button, Card, Notice, Stack, Text } from '@wordpress/ui';
+import { Badge, Button, Notice, Stack, Text } from '@wordpress/ui';
 import { activateBranch, errorMessage } from '../api/abilities';
 import type { BranchCard as BranchCardType, PluginView } from '../api/types';
 
@@ -23,12 +25,13 @@ type Props = {
 };
 
 /**
- * Renders a branch card with version label, active badge, and activate button.
+ * Renders a branch as a compact list row with version label, active badge, and
+ * activate button.
  *
  * @param {Props} props - Component props.
- * @return The branch card element.
+ * @return The branch row element.
  */
-const BranchCard = ( { card, pluginSlug, onActivated, title }: Props ) => {
+const BranchRow = ( { card, pluginSlug, onActivated, title }: Props ) => {
 	const [ busy, setBusy ] = useState( false );
 	const [ error, setError ] = useState< string | null >( null );
 
@@ -58,8 +61,8 @@ const BranchCard = ( { card, pluginSlug, onActivated, title }: Props ) => {
 	}, [ card.id, card.source, onActivated, pluginSlug ] );
 
 	return (
-		<Card.Root>
-			<Card.Content>
+		<div className="jetpack-beta-list-row jetpack-beta-branch-row">
+			<Stack className="jetpack-beta-branch-row__inner" direction="column" gap="sm">
 				{ error && (
 					<Notice.Root intent="error">
 						<Notice.Description>{ error }</Notice.Description>
@@ -89,9 +92,9 @@ const BranchCard = ( { card, pluginSlug, onActivated, title }: Props ) => {
 						</Button>
 					) }
 				</Stack>
-			</Card.Content>
-		</Card.Root>
+			</Stack>
+		</div>
 	);
 };
 
-export default BranchCard;
+export default BranchRow;

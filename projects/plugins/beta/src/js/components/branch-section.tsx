@@ -7,8 +7,8 @@
 import { SearchControl } from '@wordpress/components';
 import { useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { Stack, Text } from '@wordpress/ui';
-import BranchCard from './branch-card';
+import { Card, Stack, Text } from '@wordpress/ui';
+import BranchRow from './branch-card';
 import type { BranchCard as BranchCardType, PluginView } from '../api/types';
 
 /**
@@ -102,15 +102,19 @@ const BranchSection = ( {
 					/>
 				</>
 			) }
-			{ filteredCards.map( card => (
-				<BranchCard
-					key={ `${ card.section }-${ card.source ?? '' }-${ card.id ?? '' }` }
-					card={ card }
-					title={ searchable ? undefined : title }
-					pluginSlug={ pluginSlug }
-					onActivated={ onActivated }
-				/>
-			) ) }
+			{ filteredCards.length > 0 && (
+				<Card.Root className="jetpack-beta-list">
+					{ filteredCards.map( card => (
+						<BranchRow
+							key={ `${ card.section }-${ card.source ?? '' }-${ card.id ?? '' }` }
+							card={ card }
+							title={ searchable ? undefined : title }
+							pluginSlug={ pluginSlug }
+							onActivated={ onActivated }
+						/>
+					) ) }
+				</Card.Root>
+			) }
 			{ searchable && hasQuery && filteredCards.length === 0 && (
 				<Text>{ __( 'No branches match your search.', 'jetpack-beta' ) }</Text>
 			) }

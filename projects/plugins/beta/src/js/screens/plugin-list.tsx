@@ -63,7 +63,7 @@ const PluginCard = ( { plugin }: { plugin: PluginListItem } ) => {
 
 	return (
 		<a
-			className="jetpack-beta-plugin-row"
+			className="jetpack-beta-list-row jetpack-beta-plugin-row"
 			href={ plugin.manage_url }
 			aria-label={ sprintf(
 				/* translators: %s: plugin name. */
@@ -208,7 +208,7 @@ const PluginList = () => {
 						</Notice.Root>
 					) }
 					{ plugins && plugins.length > 0 && (
-						<Card.Root className="jetpack-beta-plugin-list">
+						<Card.Root className="jetpack-beta-list">
 							{ plugins.map( plugin => (
 								<PluginCard key={ plugin.slug } plugin={ plugin } />
 							) ) }
