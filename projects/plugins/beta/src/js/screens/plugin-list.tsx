@@ -43,13 +43,13 @@ const pluginStatus = (
 };
 
 /**
- * A single plugin card. The whole card is a link to the plugin's manage screen
- * (so it behaves like a real link — middle/cmd-click, copy URL, etc.); the
- * chevron is a visual affordance only.
+ * A single plugin row inside the ItemGroup list. The whole row is a link to the
+ * plugin's manage screen (so it behaves like a real link — middle/cmd-click,
+ * copy URL, etc.); the chevron is a visual affordance only.
  *
  * @param props        - Component props.
  * @param props.plugin - The plugin to render.
- * @return The plugin card element.
+ * @return The plugin row element.
  */
 const PluginCard = ( { plugin }: { plugin: PluginListItem } ) => {
 	const { versionText, badgeLabel } = pluginStatus( plugin );
@@ -62,50 +62,53 @@ const PluginCard = ( { plugin }: { plugin: PluginListItem } ) => {
 	}, [] );
 
 	return (
-		<Card.Root
-			className="jetpack-beta-plugin-card"
+		<a
+			className="jetpack-beta-plugin-row"
+			href={ plugin.manage_url }
 			aria-label={ sprintf(
 				/* translators: %s: plugin name. */
 				__( 'Manage %s', 'jetpack-beta' ),
 				plugin.name
 			) }
-			render={ <a href={ plugin.manage_url } /> }
 		>
-			<Card.Content>
-				<Stack direction="row" align="center" justify="space-between">
-					<Stack direction="row" gap="md" align="center">
-						{ iconFailed ? (
-							<span
-								className="jetpack-beta-plugin-icon jetpack-beta-plugin-icon--fallback"
-								aria-hidden="true"
-							>
-								<Icon icon={ pluginsIcon } size={ 24 } />
-							</span>
-						) : (
-							<img
-								className="jetpack-beta-plugin-icon"
-								src={ `https://ps.w.org/${ plugin.slug }/assets/icon.svg` }
-								alt=""
-								aria-hidden="true"
-								onError={ onIconError }
-							/>
-						) }
-						<Stack direction="column" gap="xs">
-							<Text variant="body-md">{ plugin.name }</Text>
-							<Stack direction="row" gap="xs" align="center">
-								<Text variant="body-sm">{ versionText }</Text>
-								{ badgeLabel && (
-									<Badge intent={ plugin.active_which === 'dev' ? 'informational' : 'stable' }>
-										{ badgeLabel }
-									</Badge>
-								) }
-							</Stack>
+			<Stack
+				className="jetpack-beta-plugin-row__inner"
+				direction="row"
+				align="center"
+				justify="space-between"
+			>
+				<Stack direction="row" gap="md" align="center">
+					{ iconFailed ? (
+						<span
+							className="jetpack-beta-plugin-icon jetpack-beta-plugin-icon--fallback"
+							aria-hidden="true"
+						>
+							<Icon icon={ pluginsIcon } size={ 24 } />
+						</span>
+					) : (
+						<img
+							className="jetpack-beta-plugin-icon"
+							src={ `https://ps.w.org/${ plugin.slug }/assets/icon.svg` }
+							alt=""
+							aria-hidden="true"
+							onError={ onIconError }
+						/>
+					) }
+					<Stack direction="column" gap="xs">
+						<Text variant="body-md">{ plugin.name }</Text>
+						<Stack direction="row" gap="xs" align="center">
+							<Text variant="body-sm">{ versionText }</Text>
+							{ badgeLabel && (
+								<Badge intent={ plugin.active_which === 'dev' ? 'informational' : 'stable' }>
+									{ badgeLabel }
+								</Badge>
+							) }
 						</Stack>
 					</Stack>
-					<Icon icon={ chevronRight } size={ 24 } />
 				</Stack>
-			</Card.Content>
-		</Card.Root>
+				<Icon icon={ chevronRight } size={ 24 } />
+			</Stack>
+		</a>
 	);
 };
 
@@ -204,8 +207,13 @@ const PluginList = () => {
 							<Notice.Description>{ error }</Notice.Description>
 						</Notice.Root>
 					) }
-					{ plugins &&
-						plugins.map( plugin => <PluginCard key={ plugin.slug } plugin={ plugin } /> ) }
+					{ plugins && plugins.length > 0 && (
+						<Card.Root className="jetpack-beta-plugin-list">
+							{ plugins.map( plugin => (
+								<PluginCard key={ plugin.slug } plugin={ plugin } />
+							) ) }
+						</Card.Root>
+					) }
 				</Stack>
 			</div>
 		</div>
