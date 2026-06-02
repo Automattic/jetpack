@@ -2,9 +2,9 @@
  * UpdatesPanel — surfaces managed plugins that have a newer build available and
  * lets the user update each one in place.
  *
- * Each pending update is shown as a non-dismissable warning (orange) Notice so
- * it clearly stands out. Renders nothing when there are no updates. Optionally
- * scoped to a single plugin via `slug` (used on the manage screen).
+ * Each pending update is shown as a non-dismissable info Notice. Renders nothing
+ * when there are no updates. Optionally scoped to a single plugin via `slug`
+ * (used on the manage screen).
  *
  * @package
  */
@@ -35,7 +35,7 @@ const UpdateRow = ( { update, busy, disabled, onUpdate }: RowProps ) => {
 	);
 
 	return (
-		<Notice.Root intent="warning">
+		<Notice.Root intent="info">
 			<Notice.Title>{ update.name }</Notice.Title>
 			<Notice.Description>
 				{ sprintf(
