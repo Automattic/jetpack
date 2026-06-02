@@ -59,16 +59,22 @@ export const getPlugin = ( slug: string ) =>
 	read< PluginView >( 'jetpack-beta/get-plugin', { slug } );
 export const getSettings = () => read< Settings >( 'jetpack-beta/get-settings' );
 export const activateBranch = ( slug: string, source: string, id: string ) =>
-	write< { success: boolean; plugin: PluginView } >( 'jetpack-beta/activate-branch', {
-		slug,
-		source,
-		id,
-	} );
+	write< { success: boolean; plugin: PluginView; reload: boolean } >(
+		'jetpack-beta/activate-branch',
+		{
+			slug,
+			source,
+			id,
+		}
+	);
 export const updateSettings = ( patch: Partial< Settings > ) =>
 	write< Settings >( 'jetpack-beta/update-settings', patch as Record< string, unknown > );
 export const listUpdates = ( slug?: string ) =>
 	read< { updates: PluginUpdate[] } >( 'jetpack-beta/list-updates', slug ? { slug } : undefined );
 export const updatePlugin = ( pluginFile: string ) =>
-	write< { success: boolean; updates: PluginUpdate[] } >( 'jetpack-beta/update-plugin', {
-		plugin_file: pluginFile,
-	} );
+	write< { success: boolean; updates: PluginUpdate[]; reload: boolean } >(
+		'jetpack-beta/update-plugin',
+		{
+			plugin_file: pluginFile,
+		}
+	);

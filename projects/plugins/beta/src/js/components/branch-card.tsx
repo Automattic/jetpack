@@ -49,6 +49,12 @@ const BranchRow = ( { card, pluginSlug, onActivated, title }: Props ) => {
 		setError( null );
 		activateBranch( pluginSlug, card.source ?? '', card.id ?? '' )
 			.then( result => {
+				// Activating Jetpack Beta Tester itself swaps this app's own code;
+				// reload so the freshly-activated version takes over.
+				if ( result.reload ) {
+					window.location.reload();
+					return;
+				}
 				onActivated( result.plugin );
 			} )
 			.catch( ( err: unknown ) => {
