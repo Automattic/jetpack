@@ -1,7 +1,8 @@
-// Centered fixed-width column to match the Settings tab and other Jetpack
-// settings pages (660px is the established JP settings-page width).
+// Centered content column. Wider than the Settings tab (which is a single 660px
+// form column) because the Overview lays cards out side-by-side — matches the
+// My Jetpack page's content width.
 .jetpack-seo-overview {
-	max-inline-size: 660px;
+	max-inline-size: 1128px;
 	margin-inline: auto;
 }
 
@@ -36,8 +37,10 @@
 	padding: var(--wpds-dimension-gap-xs, 4px) 0;
 }
 
-// Card action row (Manage button), pinned to the bottom of the card.
+// Card action row (Manage button), pinned to the bottom-right of the card.
 .jetpack-seo-overview__card-footer {
+	display: flex;
+	justify-content: flex-end;
 	margin-top: auto;
 	padding-top: var(--wpds-dimension-gap-md, 12px);
 }

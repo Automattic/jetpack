@@ -13,6 +13,9 @@ interface Props {
 	/** Save the current value — called on blur (auto-save, no Save button). */
 	onCommit?: () => void;
 	disabled?: boolean;
+	/** Controlled open state — lets a deep link expand the card. Uncontrolled (collapsed) when omitted. */
+	open?: boolean;
+	onOpenChange?: ( open: boolean ) => void;
 }
 
 const services: Array< { key: VerificationKey; label: string; hint: string } > = [
@@ -36,11 +39,22 @@ const services: Array< { key: VerificationKey; label: string; hint: string } > =
 
 const notSetLabel = __( 'Not set', 'jetpack-seo' );
 
-const VerificationCard: FC< Props > = ( { value, onChange, onCommit, disabled } ) => {
+const VerificationCard: FC< Props > = ( {
+	value,
+	onChange,
+	onCommit,
+	disabled,
+	open,
+	onOpenChange,
+} ) => {
 	const verifiedCount = services.filter( ( { key } ) => !! value[ key ] ).length;
 
+	// CollapsibleCard.Root takes either controlled (`open`/`onOpenChange`) or
+	// uncontrolled (`defaultOpen`) props — one at a time.
+	const collapsibleProps = open === undefined ? { defaultOpen: false } : { open, onOpenChange };
+
 	return (
-		<CollapsibleCard.Root defaultOpen={ false }>
+		<CollapsibleCard.Root { ...collapsibleProps }>
 			<CollapsibleCard.Header>
 				<Stack direction="row" justify="space-between" align="center" gap="sm">
 					<Card.Title>{ __( 'Site verification', 'jetpack-seo' ) }</Card.Title>

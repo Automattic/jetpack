@@ -357,8 +357,6 @@ class Initializer {
 			// The real `sitemaps` module is the source of truth (not a bespoke
 			// option). The Settings toggle drives it via `/jetpack/v4/settings`.
 			'sitemap_active'         => $modules->is_active( 'sitemaps' ),
-			'sitemap_url'            => home_url( '/sitemap.xml' ),
-			'news_sitemap_url'       => home_url( '/news-sitemap.xml' ),
 			// Cast to object so an empty format set serializes as `{}`, not `[]`.
 			'title_formats'          => (object) $title_formats,
 			'front_page_description' => (string) $front_page_desc,

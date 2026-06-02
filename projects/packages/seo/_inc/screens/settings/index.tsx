@@ -1,10 +1,10 @@
 /* eslint-disable react/jsx-no-bind */
 
 import { Notice, TextareaControl, ToggleControl } from '@wordpress/components';
-import { useEffect } from '@wordpress/element';
+import { useEffect, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { useSearch } from '@wordpress/route';
-import { Badge, Card, CollapsibleCard, Link, Stack } from '@wordpress/ui';
+import { Badge, Card, CollapsibleCard, Stack } from '@wordpress/ui';
 import TitleStructureField from './title-structure-field';
 import VerificationCard from './verification-card';
 import './style.scss';
@@ -50,6 +50,15 @@ const SettingsScreen: FC< Props > = ( { form } ) => {
 		return () => cancelAnimationFrame( frame );
 	}, [ focus ] );
 
+	// Expand the verification card when deep-linked to it, so the user lands on
+	// the open section rather than a collapsed header.
+	const [ verificationOpen, setVerificationOpen ] = useState( focus === 'verification' );
+	useEffect( () => {
+		if ( focus === 'verification' ) {
+			setVerificationOpen( true );
+		}
+	}, [ focus ] );
+
 	if ( ! local ) {
 		return (
 			<Notice status="error" isDismissible={ false }>
@@ -91,28 +100,16 @@ const SettingsScreen: FC< Props > = ( { form } ) => {
 								onChange={ next => commit( { search_engines_visible: next } ) }
 								__nextHasNoMarginBottom
 							/>
-							<div>
-								<ToggleControl
-									label={ __( 'Generate an XML sitemap', 'jetpack-seo' ) }
-									help={ __(
-										"Publishes an XML sitemap that search engines crawl to discover your content, generated automatically from your site's published posts, pages, and custom post types.",
-										'jetpack-seo'
-									) }
-									checked={ local.sitemap_active }
-									onChange={ next => commit( { sitemap_active: next } ) }
-									__nextHasNoMarginBottom
-								/>
-								{ local.sitemap_active && (
-									<div className="jetpack-seo-settings__sitemap-urls">
-										<Link href={ local.sitemap_url } openInNewTab>
-											{ local.sitemap_url }
-										</Link>
-										<Link href={ local.news_sitemap_url } openInNewTab>
-											{ local.news_sitemap_url }
-										</Link>
-									</div>
+							<ToggleControl
+								label={ __( 'Generate an XML sitemap', 'jetpack-seo' ) }
+								help={ __(
+									"Publishes an XML sitemap that search engines crawl to discover your content, generated automatically from your site's published posts, pages, and custom post types.",
+									'jetpack-seo'
 								) }
-							</div>
+								checked={ local.sitemap_active }
+								onChange={ next => commit( { sitemap_active: next } ) }
+								__nextHasNoMarginBottom
+							/>
 						</Stack>
 					</CollapsibleCard.Content>
 				</CollapsibleCard.Root>
@@ -149,6 +146,8 @@ const SettingsScreen: FC< Props > = ( { form } ) => {
 					value={ local.verification }
 					onChange={ setVerification }
 					onCommit={ () => commit() }
+					open={ verificationOpen }
+					onOpenChange={ setVerificationOpen }
 				/>
 			</div>
 		</div>
