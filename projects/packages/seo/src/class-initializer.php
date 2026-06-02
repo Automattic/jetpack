@@ -364,7 +364,7 @@ class Initializer {
 				'value' => $value,
 			);
 
-		$query = new WP_Query(
+		$query = new \WP_Query(
 			array(
 				'post_type'              => $post_types,
 				'post_status'            => 'publish',
