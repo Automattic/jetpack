@@ -1475,8 +1475,6 @@ abstract class WPCOM_JSON_API_Endpoint {
 					$first_name = $user->first_name ?? '';
 					$last_name  = $user->last_name ?? '';
 					$nice       = $user->user_nicename ?? '';
-				} else {
-					trigger_error( 'Unknown user', E_USER_WARNING ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_trigger_error
 				}
 			}
 
@@ -1523,8 +1521,6 @@ abstract class WPCOM_JSON_API_Endpoint {
 		if ( ! isset( $id ) ) {
 			$user = get_user_by( 'id', $author );
 			if ( ! $user || is_wp_error( $user ) ) {
-				trigger_error( 'Unknown user', E_USER_WARNING ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_trigger_error
-
 				return null;
 			}
 			$id         = $user->ID;
