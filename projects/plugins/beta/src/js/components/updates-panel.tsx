@@ -101,6 +101,12 @@ const UpdatesPanel = ( { slug, onUpdated }: Props ) => {
 			setError( null );
 			updatePlugin( pluginFile )
 				.then( data => {
+					// Updating Jetpack Beta Tester itself replaces this app's own
+					// code; reload so the new version takes over.
+					if ( data.reload ) {
+						window.location.reload();
+						return;
+					}
 					setUpdates( data.updates );
 					onUpdated?.();
 				} )

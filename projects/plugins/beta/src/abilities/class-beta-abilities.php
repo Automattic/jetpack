@@ -5,8 +5,6 @@
  * @package automattic/jetpack-beta
  */
 
-// @phan-file-suppress PhanUndeclaredFunction, PhanUndeclaredClassMethod @phan-suppress-current-line UnusedSuppression -- Abilities API added in WP 6.9; suppressions needed for older-WP compatibility runs.
-
 namespace Automattic\JetpackBeta\Abilities;
 
 use Automattic\Jetpack\WP_Abilities\Registrar;
@@ -273,6 +271,7 @@ class Beta_Abilities extends Registrar {
 				'properties' => array(
 					'success' => array( 'type' => 'boolean' ),
 					'plugin'  => self::plugin_view_schema(),
+					'reload'  => array( 'type' => 'boolean' ),
 				),
 			),
 			'execute_callback'    => array( __CLASS__, 'activate_branch' ),
@@ -570,7 +569,21 @@ class Beta_Abilities extends Registrar {
 		return array(
 			'success' => true,
 			'plugin'  => $view,
+			// Activating a branch of Jetpack Beta Tester itself swaps this plugin's
+			// own PHP/JS out from under the running React app, so the client must do
+			// a full page reload rather than a soft view refresh.
+			'reload'  => self::is_self( $refreshed ),
 		);
+	}
+
+	/**
+	 * Whether the given plugin is the Jetpack Beta Tester plugin itself.
+	 *
+	 * @param Plugin $plugin A resolved Plugin instance.
+	 * @return bool
+	 */
+	private static function is_self( Plugin $plugin ): bool {
+		return plugin_basename( JPBETA__PLUGIN_FILE ) === $plugin->plugin_file();
 	}
 
 	/**
@@ -951,6 +964,7 @@ class Beta_Abilities extends Registrar {
 						'type'  => 'array',
 						'items' => array( 'type' => 'object' ),
 					),
+					'reload'  => array( 'type' => 'boolean' ),
 				),
 			),
 			'execute_callback'    => array( __CLASS__, 'update_plugin' ),
@@ -1047,6 +1061,9 @@ class Beta_Abilities extends Registrar {
 		return array(
 			'success' => true,
 			'updates' => $updates['updates'],
+			// Updating Jetpack Beta Tester itself replaces this plugin's own code,
+			// so the client must fully reload rather than soft-refresh the list.
+			'reload'  => plugin_basename( JPBETA__PLUGIN_FILE ) === $plugin_file,
 		);
 	}
 
