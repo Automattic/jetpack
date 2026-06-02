@@ -357,11 +357,44 @@ class Jetpack_Carousel {
 			! empty( $parsed_block['blockName'] ) &&
 			'core/image' === $parsed_block['blockName'] &&
 			! empty( $parent_block->name ) &&
-			'core/gallery' === $parent_block->name
+			'core/gallery' === $parent_block->name &&
+			! $this->is_core_gallery_lightbox_enabled( $parent_block )
 		) {
 			unset( $parsed_block['attrs']['lightbox'] );
 		}
 		return $parsed_block;
+	}
+
+	/**
+	 * Determine whether a core Gallery block has the core lightbox enabled.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param array|object $block The parsed block data, or a WP_Block-like object.
+	 * @return bool Whether the core lightbox is enabled on the gallery block.
+	 */
+	private function is_core_gallery_lightbox_enabled( $block ) {
+		$block_name = '';
+		$attrs      = array();
+
+		if ( is_array( $block ) ) {
+			$block_name = $block['blockName'] ?? '';
+			$attrs      = isset( $block['attrs'] ) && is_array( $block['attrs'] ) ? $block['attrs'] : array();
+		} elseif ( is_object( $block ) ) {
+			if ( ! empty( $block->name ) ) {
+				$block_name = $block->name;
+			} elseif ( isset( $block->parsed_block ) && is_array( $block->parsed_block ) ) {
+				$block_name = $block->parsed_block['blockName'] ?? '';
+			}
+
+			if ( isset( $block->attributes ) && is_array( $block->attributes ) ) {
+				$attrs = $block->attributes;
+			} elseif ( isset( $block->parsed_block['attrs'] ) && is_array( $block->parsed_block['attrs'] ) ) {
+				$attrs = $block->parsed_block['attrs'];
+			}
+		}
+
+		return 'core/gallery' === $block_name && ! empty( $attrs['lightbox']['enabled'] );
 	}
 
 	/**
@@ -381,6 +414,10 @@ class Jetpack_Carousel {
 		global $post;
 
 		if ( empty( $block['blockName'] ) || ! in_array( $block['blockName'], array( 'core/gallery', 'jetpack/tiled-gallery' ), true ) ) {
+			return $block_content;
+		}
+
+		if ( $this->is_core_gallery_lightbox_enabled( $block ) ) {
 			return $block_content;
 		}
 

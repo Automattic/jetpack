@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Carousel: Prevent Jetpack from overriding Gallery blocks that use the core lightbox.

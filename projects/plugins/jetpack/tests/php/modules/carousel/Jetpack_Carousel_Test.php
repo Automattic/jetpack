@@ -37,6 +37,18 @@ class Jetpack_Carousel_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Cleans up after each test.
+	 *
+	 * @inheritDoc
+	 */
+	public function tear_down() {
+		remove_filter( 'jetpack_is_amp_request', '__return_true' );
+		wp_dequeue_script( 'jetpack-carousel' );
+		wp_deregister_script( 'jetpack-carousel' );
+		parent::tear_down();
+	}
+
+	/**
 	 * Gets the test data for test_add_data_img_tags_and_enqueue_assets().
 	 *
 	 * @return array The test data.
@@ -121,5 +133,102 @@ class Jetpack_Carousel_Test extends WP_UnitTestCase {
 		if ( $is_amp ) {
 			$this->assertFalse( wp_script_is( 'jetpack-carousel' ) );
 		}
+	}
+
+	/**
+	 * Test that Jetpack Carousel is not enabled for Gallery blocks using the core lightbox.
+	 */
+	public function test_filter_gallery_block_render_skips_core_gallery_with_lightbox_enabled() {
+		global $post;
+
+		$post          = self::factory()->post->create_and_get();
+		$block_content = '<figure class="wp-block-gallery has-nested-images"></figure>';
+		$block         = array(
+			'blockName' => 'core/gallery',
+			'attrs'     => array(
+				'lightbox' => array(
+					'enabled' => true,
+				),
+			),
+		);
+
+		$this->assertSame( $block_content, $this->instance->filter_gallery_block_render( $block_content, $block ) );
+		$this->assertFalse( wp_script_is( 'jetpack-carousel' ) );
+	}
+
+	/**
+	 * Test that Jetpack Carousel is still enabled for Gallery blocks without the core lightbox.
+	 */
+	public function test_filter_gallery_block_render_adds_data_when_core_gallery_lightbox_is_disabled() {
+		global $post;
+
+		$post          = self::factory()->post->create_and_get();
+		$block_content = '<figure class="wp-block-gallery has-nested-images"></figure>';
+		$block         = array(
+			'blockName' => 'core/gallery',
+			'attrs'     => array(
+				'lightbox' => array(
+					'enabled' => false,
+				),
+			),
+		);
+
+		$result = $this->instance->filter_gallery_block_render( $block_content, $block );
+
+		$this->assertStringContainsString( 'data-carousel-extra=', $result );
+		$this->assertTrue( wp_script_is( 'jetpack-carousel' ) );
+	}
+
+	/**
+	 * Test that core image lightbox settings are kept when the parent Gallery block uses the core lightbox.
+	 */
+	public function test_remove_core_lightbox_in_gallery_keeps_image_lightbox_when_parent_gallery_lightbox_is_enabled() {
+		$parsed_block = array(
+			'blockName' => 'core/image',
+			'attrs'     => array(
+				'lightbox' => array(
+					'enabled' => true,
+				),
+			),
+		);
+		$parent_block = (object) array(
+			'name'       => 'core/gallery',
+			'attributes' => array(
+				'lightbox' => array(
+					'enabled' => true,
+				),
+			),
+		);
+
+		$this->assertSame(
+			$parsed_block,
+			$this->instance->remove_core_lightbox_in_gallery( $parsed_block, $parsed_block, $parent_block )
+		);
+	}
+
+	/**
+	 * Test that core image lightbox settings are removed when Jetpack Carousel handles the parent Gallery block.
+	 */
+	public function test_remove_core_lightbox_in_gallery_removes_image_lightbox_when_parent_gallery_lightbox_is_disabled() {
+		$parsed_block = array(
+			'blockName' => 'core/image',
+			'attrs'     => array(
+				'lightbox' => array(
+					'enabled' => true,
+				),
+			),
+		);
+		$parent_block = (object) array(
+			'name'       => 'core/gallery',
+			'attributes' => array(
+				'lightbox' => array(
+					'enabled' => false,
+				),
+			),
+		);
+
+		$result = $this->instance->remove_core_lightbox_in_gallery( $parsed_block, $parsed_block, $parent_block );
+
+		$this->assertArrayNotHasKey( 'lightbox', $result['attrs'] );
 	}
 }
