@@ -1760,12 +1760,10 @@ abstract class WPCOM_JSON_API_Endpoint {
 		if ( in_array( $ext, array( 'mp3', 'm4a', 'wav', 'ogg' ), true ) && isset( $media_item->ID ) ) {
 			$metadata = wp_get_attachment_metadata( $media_item->ID );
 
-			if ( is_array( $metadata ) ) {
-				if ( isset( $metadata['length'] ) ) {
-					$response['length'] = $metadata['length'];
-				}
-				$response['exif'] = $metadata;
+			if ( isset( $metadata['length'] ) ) {
+				$response['length'] = $metadata['length'];
 			}
+			$response['exif'] = is_array( $metadata ) ? $metadata : false;
 		}
 
 		$is_video = false;
