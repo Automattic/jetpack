@@ -25,7 +25,16 @@ import debugFactory from 'debug';
 /**
  * Internal dependencies
  */
-import { deleteTrackForGuid, TRACK_KIND_OPTIONS, uploadTrackForGuid } from '../../lib/video-tracks';
+import {
+	deleteTrackForGuid,
+	fetchTrackContentForGuid,
+	fetchTracksForGuid,
+	normalizeVideoTextTrackResponse,
+	TRACK_KIND_OPTIONS,
+	updateTrackContentForGuid,
+	updateTrackForGuid,
+	uploadTrackForGuid,
+} from '../../lib/video-tracks';
 import {
 	CAPTION_DRAFT_META,
 	fetchCaptionDrafts,
@@ -221,6 +230,7 @@ export default function CaptionManagerModal( {
 	const [ replacingTrack, setReplacingTrack ] = useState< VideoTextTrack | null >( null );
 	const [ manualTrack, setManualTrack ] = useState< ManualTrack >( emptyManualTrack );
 	const [ manualSourceTrack, setManualSourceTrack ] = useState< VideoTextTrack | null >( null );
+	const [ managedTracks, setManagedTracks ] = useState< VideoTextTrack[] >( tracks );
 	const [ cueBlocks, setCueBlocks ] = useState< CaptionCueBlock[] >( createEmptyCueBlocks );
 	const [ drafts, setDrafts ] = useState< SavedCaptionDraft[] >( [] );
 	const [ draftId, setDraftId ] = useState< number | undefined >();
@@ -233,6 +243,10 @@ export default function CaptionManagerModal( {
 	const [ currentTime, setCurrentTime ] = useState( 0 );
 	const [ pauseWhileTyping, setPauseWhileTyping ] = useState( true );
 	const [ shortcutsOpen, setShortcutsOpen ] = useState( false );
+
+	useEffect( () => {
+		setManagedTracks( tracks );
+	}, [ tracks ] );
 
 	useEffect( () => {
 		if ( ! isOpen ) {
@@ -249,6 +263,27 @@ export default function CaptionManagerModal( {
 		setDraftId( undefined );
 		setNotice( null );
 	}, [ isOpen ] );
+
+	useEffect( () => {
+		if ( ! isOpen || ! guid ) {
+			return;
+		}
+
+		let isMounted = true;
+		fetchTracksForGuid( guid )
+			.then( loadedTracks => {
+				if ( isMounted ) {
+					setManagedTracks( loadedTracks );
+				}
+			} )
+			.catch( error => {
+				debug( 'fetch caption tracks error', error );
+			} );
+
+		return () => {
+			isMounted = false;
+		};
+	}, [ guid, isOpen ] );
 
 	useEffect( () => {
 		if ( ! isOpen || ! guid ) {
@@ -312,6 +347,14 @@ export default function CaptionManagerModal( {
 		setNotice( null );
 	}, [] );
 
+	const applyTracksChange = useCallback(
+		( updatedTracks: VideoTextTrack[] ) => {
+			setManagedTracks( updatedTracks );
+			onTracksChange( updatedTracks );
+		},
+		[ onTracksChange ]
+	);
+
 	const resetUploadForm = useCallback( () => {
 		setUploadForm( emptyUploadForm() );
 		setUploadFormMode( 'add' );
@@ -340,22 +383,17 @@ export default function CaptionManagerModal( {
 		[ drafts ]
 	);
 
-	const loadTrackText = useCallback( async ( track: VideoTextTrack ) => {
-		if ( ! track.src ) {
-			return createEmptyCueBlocks();
-		}
-
-		try {
-			const response = await fetch( track.src );
-			if ( ! response.ok ) {
+	const loadTrackText = useCallback(
+		async ( track: VideoTextTrack ) => {
+			try {
+				return createCueBlocksFromTrackText( await fetchTrackContentForGuid( track, guid ) );
+			} catch ( error ) {
+				debug( 'fetch caption track text error', error );
 				return createEmptyCueBlocks();
 			}
-			return createCueBlocksFromTrackText( await response.text() );
-		} catch ( error ) {
-			debug( 'fetch caption track text error', error );
-			return createEmptyCueBlocks();
-		}
-	}, [] );
+		},
+		[ guid ]
+	);
 
 	const startManualTrack = useCallback(
 		async ( sourceTrack: VideoTextTrack | null = null ) => {
@@ -424,7 +462,7 @@ export default function CaptionManagerModal( {
 					return;
 				}
 
-				onTracksChange( tracks.filter( current => getTrackKey( current ) !== key ) );
+				applyTracksChange( managedTracks.filter( current => getTrackKey( current ) !== key ) );
 			} catch ( deleteError ) {
 				debug( 'delete track error', deleteError );
 				setNotice( {
@@ -442,7 +480,7 @@ export default function CaptionManagerModal( {
 				setDeletingTrackKey( null );
 			}
 		},
-		[ guid, onTracksChange, tracks ]
+		[ applyTracksChange, guid, managedTracks ]
 	);
 
 	const saveUploadedTrack = useCallback( async () => {
@@ -476,7 +514,7 @@ export default function CaptionManagerModal( {
 			return;
 		}
 
-		const existingTrackIndex = tracks.findIndex(
+		const existingTrackIndex = managedTracks.findIndex(
 			track => track.kind === uploadForm.kind && track.srcLang === srcLang
 		);
 
@@ -502,7 +540,37 @@ export default function CaptionManagerModal( {
 		setNotice( null );
 
 		try {
-			const src = await uploadTrackForGuid( trackToUpload, guid );
+			const shouldUpdateExistingTrack =
+				uploadFormMode === 'replace' &&
+				replacingTrack?.id !== undefined &&
+				replacingTrack.id !== null &&
+				String( replacingTrack.id ) !== '';
+			let src;
+
+			if ( shouldUpdateExistingTrack ) {
+				await updateTrackForGuid(
+					{
+						...replacingTrack,
+						kind: trackToUpload.kind,
+						srcLang: trackToUpload.srcLang,
+						label: trackToUpload.label,
+					},
+					guid
+				);
+				src = await updateTrackContentForGuid(
+					{
+						...replacingTrack,
+						kind: trackToUpload.kind,
+						srcLang: trackToUpload.srcLang,
+						label: trackToUpload.label,
+					},
+					guid,
+					trackToUpload.tmpFile
+				);
+			} else {
+				src = await uploadTrackForGuid( trackToUpload, guid );
+			}
+
 			if ( hasTrackApiError( src ) ) {
 				setNotice( {
 					status: 'error',
@@ -518,17 +586,17 @@ export default function CaptionManagerModal( {
 				return;
 			}
 
-			const uploadedTrack: VideoTextTrack = {
+			const uploadedTrack = normalizeVideoTextTrackResponse( src, {
+				...replacingTrack,
 				kind: trackToUpload.kind,
 				srcLang: trackToUpload.srcLang,
 				label: trackToUpload.label,
-				src: String( src ),
-			};
+			} );
 
-			const updatedTracks = [ ...tracks ];
+			const updatedTracks = [ ...managedTracks ];
 			const updatedTrackIndex =
 				uploadFormMode === 'replace'
-					? tracks.findIndex(
+					? managedTracks.findIndex(
 							track =>
 								track.kind === replacingTrack?.kind && track.srcLang === replacingTrack?.srcLang
 					  )
@@ -540,7 +608,7 @@ export default function CaptionManagerModal( {
 				updatedTracks.push( uploadedTrack );
 			}
 
-			onTracksChange( updatedTracks );
+			applyTracksChange( updatedTracks );
 			resetUploadForm();
 			setNotice( {
 				status: 'success',
@@ -564,10 +632,10 @@ export default function CaptionManagerModal( {
 		}
 	}, [
 		guid,
-		onTracksChange,
+		applyTracksChange,
+		managedTracks,
 		replacingTrack,
 		resetUploadForm,
-		tracks,
 		uploadForm,
 		uploadFormMode,
 	] );
@@ -691,7 +759,52 @@ export default function CaptionManagerModal( {
 				label: manualTrack.label.trim(),
 				tmpFile: file,
 			};
-			const src = await uploadTrackForGuid( trackToUpload, guid );
+			const manualTrackIndex = managedTracks.findIndex(
+				track => track.kind === trackToUpload.kind && track.srcLang === trackToUpload.srcLang
+			);
+			const sourceTrackIndex =
+				manualSourceTrack && ! isGeneratedLanguageKey( manualSourceTrack.srcLang )
+					? managedTracks.findIndex(
+							track => getTrackKey( track ) === getTrackKey( manualSourceTrack )
+					  )
+					: -1;
+			const trackToUpdate =
+				( sourceTrackIndex > -1 ? managedTracks[ sourceTrackIndex ] : null ) ||
+				( manualTrackIndex > -1 ? managedTracks[ manualTrackIndex ] : null );
+			const shouldUpdateExistingTrack =
+				trackToUpdate?.id !== undefined &&
+				trackToUpdate.id !== null &&
+				String( trackToUpdate.id ) !== '';
+			let src;
+
+			if ( shouldUpdateExistingTrack ) {
+				const metadataResponse = await updateTrackForGuid(
+					{
+						...trackToUpdate,
+						kind: trackToUpload.kind,
+						srcLang: trackToUpload.srcLang,
+						label: trackToUpload.label,
+					},
+					guid
+				);
+
+				if ( hasTrackApiError( metadataResponse ) ) {
+					src = metadataResponse;
+				} else {
+					src = await updateTrackContentForGuid(
+						{
+							...trackToUpdate,
+							kind: trackToUpload.kind,
+							srcLang: trackToUpload.srcLang,
+							label: trackToUpload.label,
+						},
+						guid,
+						vtt
+					);
+				}
+			} else {
+				src = await uploadTrackForGuid( trackToUpload, guid );
+			}
 
 			if ( hasTrackApiError( src ) ) {
 				setNotice( {
@@ -708,28 +821,21 @@ export default function CaptionManagerModal( {
 				return;
 			}
 
-			const uploadedTrack: VideoTextTrack = {
+			const uploadedTrack = normalizeVideoTextTrackResponse( src, {
+				...trackToUpdate,
 				kind: trackToUpload.kind,
 				srcLang: trackToUpload.srcLang,
 				label: trackToUpload.label,
-				src: String( src ),
-			};
-			const manualTrackIndex = tracks.findIndex(
-				track => track.kind === uploadedTrack.kind && track.srcLang === uploadedTrack.srcLang
-			);
-			const sourceTrackIndex =
-				manualSourceTrack && ! isGeneratedLanguageKey( manualSourceTrack.srcLang )
-					? tracks.findIndex( track => getTrackKey( track ) === getTrackKey( manualSourceTrack ) )
-					: -1;
+			} );
 			const updatedIndex = sourceTrackIndex > -1 ? sourceTrackIndex : manualTrackIndex;
-			const updatedTracks = [ ...tracks ];
+			const updatedTracks = [ ...managedTracks ];
 			if ( updatedIndex > -1 ) {
 				updatedTracks[ updatedIndex ] = uploadedTrack;
 			} else {
 				updatedTracks.push( uploadedTrack );
 			}
 
-			onTracksChange( updatedTracks );
+			applyTracksChange( updatedTracks );
 			setNotice( {
 				status: 'success',
 				message: __( 'Captions published.', 'jetpack-videopress-pkg' ),
@@ -743,7 +849,15 @@ export default function CaptionManagerModal( {
 		} finally {
 			setIsPublishing( false );
 		}
-	}, [ cueBlocks, guid, manualSourceTrack, manualTrack, onTracksChange, saveManualDraft, tracks ] );
+	}, [
+		applyTracksChange,
+		cueBlocks,
+		guid,
+		managedTracks,
+		manualSourceTrack,
+		manualTrack,
+		saveManualDraft,
+	] );
 
 	const addCue = useCallback( () => {
 		setCueBlocks( current => [
@@ -828,9 +942,9 @@ export default function CaptionManagerModal( {
 							</Button>
 						</div>
 
-						{ tracks.length ? (
+						{ managedTracks.length ? (
 							<div className="videopress-caption-manager__track-list">
-								{ tracks.map( track => {
+								{ managedTracks.map( track => {
 									const key = getTrackKey( track );
 									const language = formatLanguageTagForDisplay( track.srcLang );
 									const isDeleting = deletingTrackKey === key;

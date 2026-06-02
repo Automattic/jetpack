@@ -1,7 +1,14 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import CaptionManagerModal from '..';
-import { deleteTrackForGuid, uploadTrackForGuid } from '../../../lib/video-tracks';
+import {
+	deleteTrackForGuid,
+	fetchTrackContentForGuid,
+	fetchTracksForGuid,
+	updateTrackContentForGuid,
+	updateTrackForGuid,
+	uploadTrackForGuid,
+} from '../../../lib/video-tracks';
 import { fetchCaptionDrafts, saveCaptionDraft } from '../../../lib/video-tracks/caption-drafts';
 
 let mockBlockEditorState: {
@@ -193,6 +200,15 @@ jest.mock( 'debug', () => () => jest.fn() );
 jest.mock( '../../../lib/video-tracks', () => ( {
 	TRACK_KIND_OPTIONS: [ 'subtitles', 'captions', 'descriptions', 'chapters', 'metadata' ],
 	deleteTrackForGuid: jest.fn(),
+	fetchTrackContentForGuid: jest.fn(),
+	fetchTracksForGuid: jest.fn(),
+	normalizeVideoTextTrackResponse: jest.fn( ( response, fallback ) => ( {
+		...fallback,
+		...( typeof response === 'object' && response !== null ? response : {} ),
+		src: typeof response === 'string' ? response : response?.src || fallback.src || '',
+	} ) ),
+	updateTrackContentForGuid: jest.fn(),
+	updateTrackForGuid: jest.fn(),
 	uploadTrackForGuid: jest.fn(),
 } ) );
 
@@ -251,6 +267,12 @@ describe( 'CaptionManagerModal', () => {
 		mockBlockEditorState = { blocks: [] };
 		( uploadTrackForGuid as jest.Mock ).mockResolvedValue( 'uploaded.vtt' );
 		( deleteTrackForGuid as jest.Mock ).mockResolvedValue( {} );
+		( fetchTrackContentForGuid as jest.Mock ).mockResolvedValue(
+			'WEBVTT\n\n00:00:01.000 --> 00:00:02.000\nGenerated text'
+		);
+		( fetchTracksForGuid as jest.Mock ).mockRejectedValue( new Error( 'Use prop tracks.' ) );
+		( updateTrackContentForGuid as jest.Mock ).mockResolvedValue( {} );
+		( updateTrackForGuid as jest.Mock ).mockResolvedValue( {} );
 		( saveCaptionDraft as jest.Mock ).mockResolvedValue( {
 			id: 77,
 			title: 'English captions',
@@ -456,7 +478,9 @@ describe( 'CaptionManagerModal', () => {
 		render( <CaptionManagerModal { ...defaultProps } onTracksChange={ onTracksChange } /> );
 
 		await user.click( screen.getAllByText( 'Edit manually' )[ 1 ] );
-		await waitFor( () => expect( global.fetch ).toHaveBeenCalledWith( 'auto.vtt' ) );
+		await waitFor( () =>
+			expect( fetchTrackContentForGuid ).toHaveBeenCalledWith( tracks[ 1 ], 'abc123' )
+		);
 		expect( screen.getByLabelText( 'Language' ) ).toHaveValue( 'en' );
 		await user.click( screen.getByText( 'Publish' ) );
 
@@ -475,6 +499,108 @@ describe( 'CaptionManagerModal', () => {
 				srcLang: 'en',
 			} ),
 			tracks[ 1 ],
+		] );
+	} );
+
+	it( 'uses the refreshed wpcom/v2 track list when deleting tracks', async () => {
+		const user = userEvent.setup();
+		const remoteTracks = [ { ...tracks[ 0 ], id: 'track-1', src: 'api-english.vtt' } ];
+		( fetchTracksForGuid as jest.Mock ).mockResolvedValue( remoteTracks );
+
+		render( <CaptionManagerModal { ...defaultProps } /> );
+
+		await waitFor( () =>
+			expect( screen.queryByText( 'English auto-generated' ) ).not.toBeInTheDocument()
+		);
+		await user.click( screen.getByText( 'Delete' ) );
+
+		await waitFor( () =>
+			expect( deleteTrackForGuid ).toHaveBeenCalledWith( remoteTracks[ 0 ], 'abc123' )
+		);
+	} );
+
+	it( 'replaces existing wpcom/v2 track content without creating another track', async () => {
+		const user = userEvent.setup();
+		const onTracksChange = jest.fn();
+		const tracksWithId = [ { ...tracks[ 0 ], id: 'track-1' } ];
+		render(
+			<CaptionManagerModal
+				{ ...defaultProps }
+				onTracksChange={ onTracksChange }
+				tracks={ tracksWithId }
+			/>
+		);
+
+		await user.click( screen.getByText( 'Replace file' ) );
+		await user.upload(
+			screen.getByTestId( 'caption-file' ),
+			new File( [ 'WEBVTT' ], 'replacement.vtt', { type: 'text/vtt' } )
+		);
+		await user.click( screen.getByText( 'Replace track' ) );
+
+		await waitFor( () => expect( updateTrackContentForGuid ).toHaveBeenCalled() );
+		expect( updateTrackForGuid ).toHaveBeenCalledWith(
+			expect.objectContaining( {
+				id: 'track-1',
+				kind: 'captions',
+				srcLang: 'en',
+			} ),
+			'abc123'
+		);
+		expect( updateTrackContentForGuid ).toHaveBeenCalledWith(
+			expect.objectContaining( { id: 'track-1' } ),
+			'abc123',
+			expect.any( File )
+		);
+		expect( uploadTrackForGuid ).not.toHaveBeenCalled();
+		expect( onTracksChange ).toHaveBeenCalledWith( [
+			expect.objectContaining( {
+				id: 'track-1',
+				src: 'english.vtt',
+			} ),
+		] );
+	} );
+
+	it( 'publishes manual edits to existing wpcom/v2 track content', async () => {
+		const user = userEvent.setup();
+		const onTracksChange = jest.fn();
+		const tracksWithId = [ { ...tracks[ 0 ], id: 'track-1' } ];
+		render(
+			<CaptionManagerModal
+				{ ...defaultProps }
+				onTracksChange={ onTracksChange }
+				tracks={ tracksWithId }
+			/>
+		);
+
+		await user.click( screen.getByText( 'Edit manually' ) );
+		await waitFor( () =>
+			expect( fetchTrackContentForGuid ).toHaveBeenCalledWith( tracksWithId[ 0 ], 'abc123' )
+		);
+		await user.clear( screen.getByLabelText( 'Cue text' ) );
+		await user.type( screen.getByLabelText( 'Cue text' ), 'Updated cue.' );
+		await user.click( screen.getByText( 'Publish' ) );
+
+		await waitFor( () => expect( updateTrackContentForGuid ).toHaveBeenCalled() );
+		expect( updateTrackForGuid ).toHaveBeenCalledWith(
+			expect.objectContaining( {
+				id: 'track-1',
+				kind: 'captions',
+				srcLang: 'en',
+			} ),
+			'abc123'
+		);
+		expect( updateTrackContentForGuid ).toHaveBeenCalledWith(
+			expect.objectContaining( { id: 'track-1' } ),
+			'abc123',
+			expect.stringContaining( 'Updated cue.' )
+		);
+		expect( uploadTrackForGuid ).not.toHaveBeenCalled();
+		expect( onTracksChange ).toHaveBeenCalledWith( [
+			expect.objectContaining( {
+				id: 'track-1',
+				src: 'english.vtt',
+			} ),
 		] );
 	} );
 } );

@@ -11,14 +11,34 @@ export type PrivacySettingProp = 0 | 1 | 2;
 export type RatingProp = 'G' | 'PG-13' | 'R-17';
 
 export type VideoTrackResponseBodyProps = {
-	src: string;
-	label: string;
+	id?: string | number;
+	track_id?: string | number;
+	src?: string;
+	url?: string;
+	label?: string;
+	kind?: string;
+	srclang?: string;
+	src_lang?: string;
+	srcLang?: string;
+	language?: string;
 };
 
-export type VideoTracksResponseBodyProps = Record<
+export type VideoTracksLegacyResponseBodyProps = Record<
 	string,
 	Record< string, VideoTrackResponseBodyProps >
 >;
+
+export type VideoTracksListResponseBodyProps =
+	| VideoTrackResponseBodyProps[]
+	| {
+			tracks?: VideoTracksListResponseBodyProps | VideoTracksLegacyResponseBodyProps;
+			data?: VideoTracksListResponseBodyProps | VideoTracksLegacyResponseBodyProps;
+			track?: VideoTrackResponseBodyProps;
+	  };
+
+export type VideoTracksResponseBodyProps =
+	| VideoTracksLegacyResponseBodyProps
+	| VideoTracksListResponseBodyProps;
 
 type STDVideoFileProps = {
 	mp4: string;
