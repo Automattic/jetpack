@@ -4,6 +4,7 @@ type TrackKindOptionsProps = typeof TRACK_KIND_OPTIONS;
 export type trackKindOptionProps = TrackKindOptionsProps[ number ];
 
 export type VideoTextTrack = {
+	id?: string | number;
 	label: string;
 	srcLang: string;
 	kind: trackKindOptionProps;
@@ -18,6 +19,15 @@ export type UploadTrackDataProps = {
 };
 
 export type DeleteTrackDataProps = {
+	id?: string | number;
 	kind: trackKindOptionProps;
 	srcLang: string;
+};
+
+export type UpdateTrackDataProps = {
+	id?: string | number;
+	label: string;
+	srcLang: string;
+	kind: trackKindOptionProps;
+	src?: string;
 };
