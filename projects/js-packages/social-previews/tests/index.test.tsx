@@ -9,6 +9,7 @@ import {
 	TwitterPostPreview as Twitter,
 	TwitterPreviews,
 	GoogleSearchPreview as Search,
+	MastodonPostPreview as Mastodon,
 } from '../src';
 import { formatTweetDate } from '../src/helpers';
 
@@ -706,5 +707,44 @@ describe( 'Google Search previews', () => {
 			expect( fallback ).toBeVisible();
 			expect( fallback.querySelector( 'svg' ) ).toBeVisible();
 		} );
+	} );
+} );
+
+describe( 'Mastodon previews', () => {
+	const mastodonUser = {
+		displayName: 'Test User',
+		avatarUrl: 'https://example.com/avatar.png',
+		address: '@test@mastodon.social',
+	};
+
+	it( 'should not duplicate the URL when the custom message already contains it', () => {
+		const { container } = render(
+			<Mastodon
+				url={ DEFAULT_POST_URL }
+				title={ DEFAULT_POST_TITLE }
+				customText={ `Hello World\n\nAn excerpt\n\n${ DEFAULT_POST_URL }` }
+				user={ mastodonUser }
+			/>
+		);
+
+		const body = container.querySelector( '.mastodon-preview__body' );
+		expect( body ).toBeVisible();
+		// The URL is auto-linked once within the body; it must not be appended a second time.
+		expect( body.querySelectorAll( `a[href="${ DEFAULT_POST_URL }"]` ) ).toHaveLength( 1 );
+	} );
+
+	it( 'should append the URL link when the custom message does not contain it', () => {
+		const { container } = render(
+			<Mastodon
+				url={ DEFAULT_POST_URL }
+				title={ DEFAULT_POST_TITLE }
+				customText="Hello World, an excerpt"
+				user={ mastodonUser }
+			/>
+		);
+
+		const body = container.querySelector( '.mastodon-preview__body' );
+		expect( body ).toBeVisible();
+		expect( body.querySelectorAll( `a[href="${ DEFAULT_POST_URL }"]` ) ).toHaveLength( 1 );
 	} );
 } );

@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix Mastodon share preview showing the post URL twice when the custom message already includes it

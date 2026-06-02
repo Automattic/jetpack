@@ -54,12 +54,19 @@ const MastonPostBody: React.FC< Props > = props => {
 		bodyTxt = <p>{ mastodonBody( title, options ) }</p>;
 	}
 
+	// When the custom message already contains the URL (e.g. via the {url}
+	// placeholder), it gets auto-linked within the body, so appending it again
+	// here would show the URL twice.
+	const urlInBody = Boolean( customText && url && customText.includes( url ) );
+
 	return (
 		<div className="mastodon-preview__body">
 			{ bodyTxt }
-			<a href={ url } target="_blank" rel="noreferrer noopener">
-				{ mastodonUrl( url.replace( /^https?:\/\//, '' ) ) }
-			</a>
+			{ ! urlInBody && (
+				<a href={ url } target="_blank" rel="noreferrer noopener">
+					{ mastodonUrl( url.replace( /^https?:\/\//, '' ) ) }
+				</a>
+			) }
 			{ children }
 		</div>
 	);
