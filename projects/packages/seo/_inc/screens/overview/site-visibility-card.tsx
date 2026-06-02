@@ -1,3 +1,4 @@
+import { Button } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { Card, Stack } from '@wordpress/ui';
 import StatusDot from './status-dot';
@@ -6,6 +7,7 @@ import type { FC } from 'react';
 
 interface Props {
 	data: OverviewResponse[ 'site_visibility' ];
+	onManage: () => void;
 }
 
 // Labels resolved at module scope so the production minifier can't fold an
@@ -18,7 +20,7 @@ const sitemapDisabledLabel = __( 'Sitemap disabled', 'jetpack-seo' );
 const seoToolsActiveLabel = __( 'SEO tools active', 'jetpack-seo' );
 const seoToolsInactiveLabel = __( 'SEO tools inactive', 'jetpack-seo' );
 
-const SiteVisibilityCard: FC< Props > = ( { data } ) => (
+const SiteVisibilityCard: FC< Props > = ( { data, onManage } ) => (
 	<Card.Root>
 		<Card.Header>
 			<Card.Title>{ __( 'Site visibility', 'jetpack-seo' ) }</Card.Title>
@@ -38,6 +40,11 @@ const SiteVisibilityCard: FC< Props > = ( { data } ) => (
 					label={ data.seo_tools_active ? seoToolsActiveLabel : seoToolsInactiveLabel }
 				/>
 			</Stack>
+			<div className="jetpack-seo-overview__card-footer">
+				<Button variant="secondary" onClick={ onManage }>
+					{ __( 'Manage visibility', 'jetpack-seo' ) }
+				</Button>
+			</div>
 		</Card.Content>
 	</Card.Root>
 );

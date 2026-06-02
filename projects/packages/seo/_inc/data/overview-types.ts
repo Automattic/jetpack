@@ -7,11 +7,19 @@ export interface SiteVisibility {
 	sitemap_active: boolean;
 	sitemap_url: string;
 	seo_tools_active: boolean;
-	front_page_description: string;
+}
+
+export interface SiteVerification {
+	google: boolean;
+	bing: boolean;
+	pinterest: boolean;
+	yandex: boolean;
+	facebook: boolean;
 }
 
 export interface OverviewResponse {
 	site_visibility: SiteVisibility;
+	site_verification: SiteVerification;
 	plan: {
 		seo_enabled_for_site: boolean;
 	};

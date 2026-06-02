@@ -14,6 +14,7 @@ namespace Automattic\Jetpack\SEO;
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills;
+use Jetpack_SEO_Titles;
 use Jetpack_SEO_Utils;
 
 /**
@@ -105,6 +106,12 @@ class Initializer {
 		// before `add_menu_item()` runs at the default priority and needs it.
 		add_action( 'admin_menu', array( __CLASS__, 'maybe_load_wp_build' ), 1 );
 		add_action( 'admin_menu', array( __CLASS__, 'add_menu_item' ), 10 );
+
+		// Expose the core `blog_public` option to the REST settings endpoint so
+		// the Settings tab can save search-engine visibility via `/wp/v2/settings`.
+		// (The Jetpack settings endpoint only accepts Jetpack options.) Writes
+		// are still capability-gated by the core settings controller.
+		add_action( 'rest_api_init', array( __CLASS__, 'register_rest_settings' ) );
 
 		/**
 		 * Fires after the Jetpack SEO package is initialized.
@@ -214,6 +221,7 @@ class Initializer {
 		}
 
 		$data[ self::SCRIPT_DATA_KEY ]['overview'] = self::get_overview_data();
+		$data[ self::SCRIPT_DATA_KEY ]['settings'] = self::get_settings_data();
 
 		return $data;
 	}
@@ -264,22 +272,96 @@ class Initializer {
 		$modules = new Modules();
 		// @phan-suppress-next-line PhanUndeclaredClassMethod -- Jetpack_SEO_Utils lives in plugins/jetpack and is guarded by class_exists.
 		$seo_enabled = class_exists( 'Jetpack_SEO_Utils' ) && Jetpack_SEO_Utils::is_enabled_jetpack_seo();
-		// @phan-suppress-next-line PhanUndeclaredClassMethod -- Same as above; only invoked when class_exists.
-		$front_page_desc = $seo_enabled ? Jetpack_SEO_Utils::get_front_page_meta_description() : '';
+
+		$codes = get_option( 'verification_services_codes', array() );
+		if ( ! is_array( $codes ) ) {
+			$codes = array();
+		}
 
 		return array(
-			'site_visibility' => array(
+			'site_visibility'   => array(
 				'search_engines_visible' => (int) get_option( 'blog_public', 1 ) === 1,
-				'sitemap_active'         => (bool) get_option( 'jetpack_seo_sitemap_enabled', false ),
-				// Pre-wired for the sitemap "View" link, restored once real
-				// sitemaps-module detection lands (JETPACK-1694); no consumer yet.
+				// The real `sitemaps` module is the source of truth (the Settings
+				// toggle drives it via `/jetpack/v4/settings`).
+				'sitemap_active'         => $modules->is_active( 'sitemaps' ),
 				'sitemap_url'            => home_url( '/sitemap.xml' ),
 				'seo_tools_active'       => $modules->is_active( 'seo-tools' ),
-				// Pre-wired for the Settings/Content follow-up tabs; no consumer yet.
-				'front_page_description' => (string) $front_page_desc,
 			),
-			'plan'            => array(
+			// Per-service booleans (a code is set or not) for the Overview's
+			// Site verification card.
+			'site_verification' => array(
+				'google'    => ! empty( $codes['google'] ),
+				'bing'      => ! empty( $codes['bing'] ),
+				'pinterest' => ! empty( $codes['pinterest'] ),
+				'yandex'    => ! empty( $codes['yandex'] ),
+				'facebook'  => ! empty( $codes['facebook'] ),
+			),
+			'plan'              => array(
 				'seo_enabled_for_site' => $seo_enabled,
+			),
+		);
+	}
+
+	/**
+	 * Expose the core `blog_public` option to the REST settings endpoint.
+	 *
+	 * Search-engine visibility is a WordPress core option, not a Jetpack one,
+	 * so the Settings tab saves it through `/wp/v2/settings` — which only
+	 * round-trips settings registered with `show_in_rest`. The core settings
+	 * controller enforces the `manage_options` capability on writes.
+	 *
+	 * @return void
+	 */
+	public static function register_rest_settings() {
+		register_setting(
+			'reading',
+			'blog_public',
+			array(
+				'show_in_rest' => true,
+				'type'         => 'integer',
+				'default'      => 1,
+			)
+		);
+	}
+
+	/**
+	 * Build the editable Settings state the Settings tab hydrates from.
+	 *
+	 * Read-only bootstrap only. Writes go through the existing
+	 * `/jetpack/v4/settings` REST endpoint, which already validates and
+	 * sanitizes each of these fields — this package registers no settings
+	 * endpoint of its own. The reads here mirror the options/helpers that
+	 * endpoint round-trips so the form hydrates without a request.
+	 *
+	 * @return array
+	 */
+	public static function get_settings_data() {
+		$modules = new Modules();
+
+		// @phan-suppress-next-line PhanUndeclaredClassMethod -- Jetpack_SEO_Titles lives in plugins/jetpack and is guarded by class_exists.
+		$title_formats = class_exists( 'Jetpack_SEO_Titles' ) ? Jetpack_SEO_Titles::get_custom_title_formats() : array();
+		// @phan-suppress-next-line PhanUndeclaredClassMethod -- Jetpack_SEO_Utils lives in plugins/jetpack and is guarded by class_exists.
+		$front_page_desc = class_exists( 'Jetpack_SEO_Utils' ) ? Jetpack_SEO_Utils::get_front_page_meta_description() : '';
+
+		$codes = get_option( 'verification_services_codes', array() );
+		if ( ! is_array( $codes ) ) {
+			$codes = array();
+		}
+
+		return array(
+			'search_engines_visible' => (int) get_option( 'blog_public', 1 ) === 1,
+			// The real `sitemaps` module is the source of truth (not a bespoke
+			// option). The Settings toggle drives it via `/jetpack/v4/settings`.
+			'sitemap_active'         => $modules->is_active( 'sitemaps' ),
+			// Cast to object so an empty format set serializes as `{}`, not `[]`.
+			'title_formats'          => (object) $title_formats,
+			'front_page_description' => (string) $front_page_desc,
+			'verification'           => array(
+				'google'    => isset( $codes['google'] ) ? (string) $codes['google'] : '',
+				'bing'      => isset( $codes['bing'] ) ? (string) $codes['bing'] : '',
+				'pinterest' => isset( $codes['pinterest'] ) ? (string) $codes['pinterest'] : '',
+				'yandex'    => isset( $codes['yandex'] ) ? (string) $codes['yandex'] : '',
+				'facebook'  => isset( $codes['facebook'] ) ? (string) $codes['facebook'] : '',
 			),
 		);
 	}
