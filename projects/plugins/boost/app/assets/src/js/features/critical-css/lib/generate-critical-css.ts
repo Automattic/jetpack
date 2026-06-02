@@ -43,7 +43,7 @@ interface ProviderCallbacks {
 
 interface GeneratorCallbacks extends ProviderCallbacks {
 	onError: ( error: Error ) => void; // Called when the generator fails with a critical error.
-	onFinished: () => void; // Called when the generator is finished, regardless of success or failure.
+	onFinished: ( succeeded: boolean ) => void; // Called when the generator is finished, regardless of success or failure.
 }
 
 class ProviderCssSaveError extends Error {
@@ -77,12 +77,14 @@ export function runLocalGenerator(
 ) {
 	const abort = new AbortController();
 
+	let succeeded = true;
 	generateCriticalCss( providers, viewports, proxyNonce, callbacks, abort.signal )
 		.catch( err => {
+			succeeded = false;
 			callbacks.onError( standardizeError( err ) );
 		} )
 		.finally( () => {
-			callbacks.onFinished();
+			callbacks.onFinished( succeeded );
 		} );
 
 	return abort;
@@ -217,6 +219,10 @@ async function generateForKeys(
 	let stepsFailed = 0;
 	let maxSize = 0;
 
+	// Track provider index for monotonic progress calculation.
+	const totalProviders = providers.length;
+	let providerIndex = 0;
+
 	// Run through each set of URLs.
 	for ( const { urls, success_ratio, key } of providers ) {
 		if ( signal.aborted ) {
@@ -229,7 +235,8 @@ async function generateForKeys(
 				urls,
 				viewports,
 				progressCallback: ( step: number, total: number ) => {
-					callbacks.setProviderProgress( step / total );
+					// Use absolute progress across all providers to prevent backward jumps.
+					callbacks.setProviderProgress( ( providerIndex + step / total ) / totalProviders );
 				},
 				filters: {
 					atRules: keepAtRule,
@@ -250,9 +257,6 @@ async function generateForKeys(
 			} catch ( err ) {
 				providerFailed = err;
 			}
-
-			// Reset local progress whenever a provider is finished to prevent progress bar jank.
-			callbacks.setProviderProgress( 0 );
 
 			if ( providerFailed instanceof Error ) {
 				throw new ProviderCssSaveError( providerFailed.message );
@@ -324,6 +328,11 @@ async function generateForKeys(
 
 				throw err;
 			}
+		} finally {
+			// Always increment provider index and update boundary progress,
+			// even when the provider encountered errors.
+			providerIndex++;
+			callbacks.setProviderProgress( providerIndex / totalProviders );
 		}
 	}
 

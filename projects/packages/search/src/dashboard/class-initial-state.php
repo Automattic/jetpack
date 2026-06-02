@@ -8,7 +8,6 @@
 namespace Automattic\Jetpack\Search;
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
-use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Status;
 use Jetpack_Options;
 
@@ -109,6 +108,13 @@ class Initial_State {
 				 */
 				'blockTemplateOverlay'       => $this->get_block_template_overlay_config(),
 				/**
+				 * Same as `blockTemplateOverlay` but for the WooCommerce product
+				 * variant of the overlay — the Overlay card surfaces a second
+				 * "Edit the product Search overlay" entry on Woo stores so the
+				 * product-search overlay template is customizable too.
+				 */
+				'productOverlayTemplate'     => $this->get_product_overlay_template_config(),
+				/**
 				 * Editor affordances for the classic-theme search-template
 				 * singleton CPT. The Embedded card surfaces these on
 				 * classic themes (which can't reach the Site Editor) so
@@ -116,6 +122,14 @@ class Initial_State {
 				 * shape and same React link as `blockTemplateOverlay`.
 				 */
 				'searchTemplate'             => $this->get_search_template_config(),
+				/**
+				 * Same as `searchTemplate` but for the WooCommerce product
+				 * search shim — the `WooCommerceProductSearchControl`
+				 * surfaces this on classic themes so the "Edit the product
+				 * search template" link routes to `post.php` on the hidden
+				 * CPT instead of a useless Site Editor URL.
+				 */
+				'productSearchTemplate'      => $this->get_product_search_template_config(),
 				// Gates the WooCommerce Product Search control to stores.
 				'isWooCommerceActive'        => Search_Blocks::woocommerce_blocks_enabled(),
 				/**
@@ -206,15 +220,13 @@ class Initial_State {
 	/**
 	 * Check whether the AI Agent Access toggle should be available.
 	 *
-	 * The feature is rollout-gated to proxied Automattic contexts so regular
-	 * site owners, and non-proxied staff, do not see unfinished controls.
-	 *
-	 * IMPORTANT: Only use for feature gating, not for authorization.
+	 * Private sites are not eligible because external AI agents cannot read
+	 * their public content.
 	 *
 	 * @return bool
 	 */
 	protected function is_ai_agent_access_available() {
-		return $this->is_automattic_proxied_request() && ! $this->is_private_site();
+		return ! $this->is_private_site();
 	}
 
 	/**
@@ -228,7 +240,7 @@ class Initial_State {
 	 * before any switch, would carry a null `editorUrl` and the link would
 	 * become a no-op once the card flipped to Active without a refresh).
 	 *
-	 * @return array{enabled: bool, editorUrl: string|null, resetRestPath: string|null, isCustomized: bool}
+	 * @return array{enabled: bool, editorUrl: string|null, postType: string|null, isCustomized: bool}
 	 */
 	protected function get_block_template_overlay_config(): array {
 		return $this->build_singleton_template_config(
@@ -239,14 +251,39 @@ class Initial_State {
 	}
 
 	/**
+	 * Build the product-overlay editor config exposed to the dashboard.
+	 * Counterpart of `get_block_template_overlay_config()` for the WooCommerce
+	 * product variant. `enabled` adds the override-on + WC check on top of the
+	 * overlay-arm gate — it signals the product overlay's front-end render path
+	 * is actually wired. `$can_edit` mirrors the init gate: the editable CPT
+	 * only registers on Woo stores with the overlay filter on (see
+	 * `Search_Blocks::init()`), so exposing the editor URL off Woo would produce
+	 * a link that silently does nothing.
+	 *
+	 * @return array{enabled: bool, editorUrl: string|null, postType: string|null, isCustomized: bool}
+	 */
+	protected function get_product_overlay_template_config(): array {
+		$wc_enabled = Search_Blocks::woocommerce_blocks_enabled();
+		return $this->build_singleton_template_config(
+			Search_Blocks::is_block_template_overlay_enabled()
+				&& $wc_enabled
+				&& Search_Blocks::woocommerce_search_template_override_enabled(),
+			Search_Blocks::is_block_template_overlay_filter_on()
+				&& $wc_enabled
+				&& current_user_can( 'manage_options' ),
+			Product_Overlay_Template::class
+		);
+	}
+
+	/**
 	 * Build the classic-theme search-template editor config exposed to the
 	 * dashboard. Counterpart of `get_block_template_overlay_config()` —
-	 * same `{enabled, editorUrl, resetRestPath, isCustomized}` shape and
-	 * the same "expose URLs before activation" rule: admins can edit the
+	 * same `{enabled, editorUrl, postType, isCustomized}` shape and the
+	 * same "expose URLs before activation" rule: admins can edit the
 	 * template from the Embedded card on any classic theme, even before
 	 * actually switching to Embedded.
 	 *
-	 * @return array{enabled: bool, editorUrl: string|null, resetRestPath: string|null, isCustomized: bool}
+	 * @return array{enabled: bool, editorUrl: string|null, postType: string|null, isCustomized: bool}
 	 */
 	protected function get_search_template_config(): array {
 		$is_classic = ! wp_is_block_theme();
@@ -258,30 +295,69 @@ class Initial_State {
 	}
 
 	/**
+	 * Build the classic-theme product-search-template editor config exposed
+	 * to the dashboard. Counterpart of `get_search_template_config()` for the
+	 * WooCommerce product shim — same `{enabled, editorUrl, postType, isCustomized}`
+	 * shape. `enabled` adds the override-on check on top of the classic +
+	 * server-rendered-experience gate — it signals "the front-end render path
+	 * is actually wired", distinct from "the override toggle is on" in
+	 * `jetpackSettings.override_woocommerce_search_template`. `$can_edit`
+	 * mirrors the init gate: `Product_Search_Template::init()` (in
+	 * `Search_Blocks::init()`) registers `maybe_handle_editor_request` on
+	 * classic Embedded **and** classic Inline (both route the product shim),
+	 * so the editor URL surfaces for both — but not on a block theme, where
+	 * the Site Editor link is used instead.
+	 *
+	 * @return array{enabled: bool, editorUrl: string|null, postType: string|null, isCustomized: bool}
+	 */
+	protected function get_product_search_template_config(): array {
+		$experience = $this->module_control->get_experience();
+		$is_classic = ! wp_is_block_theme();
+		// Embedded and Inline both route the classic product shim, so both
+		// expose the CPT editor.
+		$is_classic_product_override = $is_classic
+			&& in_array(
+				$experience,
+				array( Module_Control::EXPERIENCE_EMBEDDED, Module_Control::EXPERIENCE_INLINE ),
+				true
+			);
+		return $this->build_singleton_template_config(
+			$is_classic_product_override && Search_Blocks::woocommerce_search_template_override_enabled(),
+			$is_classic_product_override && current_user_can( 'manage_options' ),
+			Product_Search_Template::class
+		);
+	}
+
+	/**
 	 * Shared assembly for a {@see Singleton_Template_Cpt}-backed editor
 	 * config block. Both `blockTemplateOverlay` and `searchTemplate` ship
-	 * the same `{enabled, editorUrl, resetRestPath, isCustomized}` shape
-	 * to the React dashboard. The `$enabled` and `$can_edit` flags are
+	 * the same `{enabled, editorUrl, postType, isCustomized}` shape to
+	 * the React dashboard. The `$enabled` and `$can_edit` flags are
 	 * intentionally separate: the card lights up as "active" on
-	 * `$enabled`, but the URLs surface as soon as `$can_edit` is true so
-	 * admins can pre-customize the template before activating the
-	 * experience — without forcing a page reload after the switch.
+	 * `$enabled`, but the URLs / `postType` surface as soon as `$can_edit`
+	 * is true so admins can pre-customize the template before activating
+	 * the experience — without forcing a page reload after the switch.
 	 *
-	 * The action handlers re-check `manage_options` server-side, so
-	 * omitting the URLs here is just to keep the wire payload tight for
-	 * non-admins.
+	 * `postType` (rather than a pre-built REST path) is what the dashboard
+	 * needs: the React "Restore default" handler builds the
+	 * `${wpcomOriginApiUrl}jetpack/v4/search/templates/<post_type>` URL
+	 * itself, which is how the request reaches the right route on wpcom
+	 * Simple sites (the local /wp-json/ surface there doesn't expose
+	 * Jetpack routes). The handler re-checks `manage_options` server-side,
+	 * so omitting the URLs / postType here just keeps the wire payload
+	 * tight for non-admins.
 	 *
 	 * @param bool   $enabled   Whether the CPT-backed route is currently live on the site.
-	 * @param bool   $can_edit  Whether to expose the nonce'd URLs (operator-level gate + capability).
+	 * @param bool   $can_edit  Whether to expose the editor URL + postType (operator-level gate + capability).
 	 * @param string $cpt_class Concrete `Singleton_Template_Cpt` subclass to query.
-	 * @return array{enabled: bool, editorUrl: string|null, resetRestPath: string|null, isCustomized: bool}
+	 * @return array{enabled: bool, editorUrl: string|null, postType: string|null, isCustomized: bool}
 	 */
 	protected function build_singleton_template_config( bool $enabled, bool $can_edit, string $cpt_class ): array {
 		return array(
-			'enabled'       => $enabled,
-			'editorUrl'     => $can_edit ? $cpt_class::get_editor_url() : null,
-			'resetRestPath' => $can_edit ? $cpt_class::get_reset_rest_path() : null,
-			'isCustomized'  => $can_edit && $cpt_class::is_customized(),
+			'enabled'      => $enabled,
+			'editorUrl'    => $can_edit ? $cpt_class::get_editor_url() : null,
+			'postType'     => $can_edit ? $cpt_class::POST_TYPE : null,
+			'isCustomized' => $can_edit && $cpt_class::is_customized(),
 		);
 	}
 
@@ -296,41 +372,6 @@ class Initial_State {
 		}
 
 		return -1 === (int) get_option( 'blog_public', 1 );
-	}
-
-	/**
-	 * Check whether the current request is coming from a proxied Automattic context.
-	 *
-	 * Keep this check local to the rollout gate so WPCOM environments with older
-	 * vendored Jetpack packages do not fatal during bootstrap.
-	 *
-	 * @return bool
-	 */
-	protected function is_automattic_proxied_request() {
-		if ( function_exists( 'wpcom_is_proxied_request' ) && \wpcom_is_proxied_request() ) {
-			return true;
-		}
-
-		if (
-			// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- boolean check only.
-			( isset( $_SERVER['A8C_PROXIED_REQUEST'] ) && (bool) sanitize_text_field( wp_unslash( $_SERVER['A8C_PROXIED_REQUEST'] ) ) ) ||
-			Constants::is_true( 'A8C_PROXIED_REQUEST' )
-		) {
-			return true;
-		}
-
-		if ( Constants::is_true( 'AT_PROXIED_REQUEST' ) && Constants::is_defined( 'ATOMIC_CLIENT_ID' ) ) {
-			switch ( (int) Constants::get_constant( 'ATOMIC_CLIENT_ID' ) ) {
-				case 1:
-				case 2:
-				case 3: // Pressable.
-				case 32:
-				case 118: // Commerce garden client (ciab).
-					return true;
-			}
-		}
-
-		return false;
 	}
 
 	/**

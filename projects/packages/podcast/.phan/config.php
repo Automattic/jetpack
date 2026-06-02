@@ -13,6 +13,9 @@ require __DIR__ . '/../../../../.phan/config.base.php';
 return make_phan_config(
 	dirname( __DIR__ ),
 	array(
-		'+stubs' => array( 'wpcom' ),
+		'+stubs'             => array( 'wpcom' ),
+		'exclude_file_regex' => array(
+			'build/',
+		),
 	)
 );

@@ -1,0 +1,94 @@
+// Layout for the "Traffic from social media" card on the Overview tab.
+// `Card.Root` from `@wordpress/ui` already paints the surface; these
+// rules only own header layout (title stack + range select on the
+// right), the chart canvas sizing, loading / empty states, and the
+// free-tier "locked dummy + upgrade Notice" overlay treatment.
+
+.jetpack-social-overview__chart-header {
+	align-items: center;
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--wpds-dimension-gap-md, 12px);
+	justify-content: space-between;
+}
+
+// Hold the SelectControl at its native compact width so the picker
+// doesn't stretch across the header on narrow viewports — the WP
+// `SelectControl` defaults to `width: 100%` when laid out in a flex row.
+.jetpack-social-overview__chart-range {
+	flex: 0 0 auto;
+
+	.components-select-control,
+	.components-base-control__field,
+	.components-input-control,
+	.components-input-control__container,
+	select {
+		margin: 0;
+		min-inline-size: 160px;
+	}
+}
+
+.jetpack-social-overview__chart-content {
+	padding-block-start: var(--wpds-dimension-padding-md, 12px);
+}
+
+.jetpack-social-overview__chart-loading,
+.jetpack-social-overview__chart-empty,
+.jetpack-social-overview__chart-error {
+	align-items: center;
+	display: flex;
+	justify-content: center;
+	min-block-size: 240px;
+	padding-block: var(--wpds-dimension-padding-xl, 20px);
+	text-align: center;
+}
+
+// Wrapper for the chart + (optional) upgrade overlay. `position: relative`
+// gives the overlay something to anchor to; the canvas stays in normal
+// flow so it still drives the height of the card.
+.jetpack-social-overview__chart-wrapper {
+	position: relative;
+}
+
+.jetpack-social-overview__chart-canvas {
+	inline-size: 100%;
+
+	// Free-tier preview: the canvas keeps drawing the dummy curve but is
+	// blurred and non-interactive so the upgrade Notice on top reads as
+	// the primary affordance. Matching treatment to Boost's locked
+	// historical-performance chart so users see a consistent paywall
+	// pattern across products.
+	&--locked {
+		filter: blur(3px) saturate(0.6);
+		opacity: 0.7;
+		pointer-events: none;
+		user-select: none;
+	}
+}
+
+// The overlay just paints a transparent positioning context; the Notice
+// itself owns the width clamp so the flex parent doesn't shrink it down
+// to the longest word ("insights"). `pointer-events: none` on the
+// overlay lets the blurred chart still receive nothing, while the
+// nested Notice re-enables interaction so the Upgrade button works.
+.jetpack-social-overview__chart-overlay {
+	align-items: center;
+	display: flex;
+	inset: 0;
+	justify-content: center;
+	padding: var(--wpds-dimension-padding-md, 12px);
+	pointer-events: none;
+	position: absolute;
+}
+
+.jetpack-social-overview__upgrade-notice {
+	flex: 0 0 auto;
+	inline-size: min(420px, 100%);
+	pointer-events: auto;
+}
+
+// Clamp the error Notice so it doesn't stretch to the full card width on
+// wide viewports, matching the upgrade-notice treatment.
+.jetpack-social-overview__chart-error-notice {
+	inline-size: min(420px, 100%);
+}

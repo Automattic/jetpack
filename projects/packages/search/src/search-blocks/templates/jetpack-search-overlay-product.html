@@ -1,0 +1,55 @@
+<!-- wp:group {"align":"wide","style":{"spacing":{"blockGap":"1.5rem"}}} -->
+<div class="wp-block-group alignwide">
+<!-- wp:jetpack-search/search-input /-->
+
+<!-- wp:columns {"style":{"spacing":{"blockGap":"2rem"}}} -->
+<div class="wp-block-columns">
+
+<!-- wp:column {"className":"jetpack-search-layout__results-column"} -->
+<div class="wp-block-column jetpack-search-layout__results-column">
+<!-- wp:jetpack-search/search-results {"postTypeMode":"include","postTypes":["product"]} -->
+<!-- wp:group {"className":"jetpack-search-layout__results-header","layout":{"type":"flex","flexWrap":"nowrap","justifyContent":"space-between"}} -->
+<div class="wp-block-group jetpack-search-layout__results-header">
+<!-- wp:jetpack-search/results-count /-->
+
+<!-- wp:group {"className":"jetpack-search-layout__results-header-controls","layout":{"type":"flex","flexWrap":"nowrap"}} -->
+<div class="wp-block-group jetpack-search-layout__results-header-controls">
+<!-- wp:jetpack-search/results-sort /-->
+
+<!-- wp:jetpack-search/filters-popover -->
+<!-- wp:jetpack-search/active-filters /-->
+<!-- wp:jetpack-search/filter-checkbox {"filterType":"taxonomy","taxonomy":"product_cat","displayStyle":"chips"} /-->
+<!-- wp:jetpack-search/filter-checkbox {"filterType":"taxonomy","taxonomy":"product_brand","displayStyle":"chips"} /-->
+<!-- wp:jetpack-search/filter-wc-rating {"enabledStars":[4]} /-->
+<!-- wp:jetpack-search/filter-wc-price {"showSlider":true,"autoBounds":true} /-->
+<!-- wp:jetpack-search/filter-wc-stock-status /-->
+<!-- /wp:jetpack-search/filters-popover -->
+</div>
+<!-- /wp:group -->
+</div>
+<!-- /wp:group -->
+
+<!-- wp:jetpack-search/results-list {"layout":"product"} /-->
+<!-- wp:jetpack-search/results-load-more /-->
+<!-- wp:jetpack-search/powered-by /-->
+<!-- /wp:jetpack-search/search-results -->
+</div>
+<!-- /wp:column -->
+
+<!-- wp:column {"width":"260px","fontSize":"small","className":"jetpack-search-layout__filters-column","style":{"border":{"left":{"width":"1px"}},"spacing":{"padding":{"left":"2rem"}}}} -->
+<div class="wp-block-column has-small-font-size jetpack-search-layout__filters-column" style="border-left-width:1px;padding-left:2rem;flex-basis:260px">
+<!-- wp:jetpack-search/filters-product -->
+<!-- wp:jetpack-search/active-filters /-->
+<!-- wp:jetpack-search/filter-checkbox {"filterType":"taxonomy","taxonomy":"product_cat","displayStyle":"chips"} /-->
+<!-- wp:jetpack-search/filter-checkbox {"filterType":"taxonomy","taxonomy":"product_brand","displayStyle":"chips"} /-->
+<!-- wp:jetpack-search/filter-wc-rating {"enabledStars":[4]} /-->
+<!-- wp:jetpack-search/filter-wc-price {"showSlider":true,"autoBounds":true} /-->
+<!-- wp:jetpack-search/filter-wc-stock-status /-->
+<!-- /wp:jetpack-search/filters-product -->
+</div>
+<!-- /wp:column -->
+
+</div>
+<!-- /wp:columns -->
+</div>
+<!-- /wp:group -->

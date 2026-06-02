@@ -363,7 +363,7 @@ class IntegrationTest extends TestCase {
 				array(
 					'stderr',
 					'regex',
-					'#^Failed to write /dev/full: file_put_contents\(\): (Only -1 of 347 bytes written, possibly out of free disk space|Write of \d+ bytes failed with errno=\d+)#',
+					'#^Failed to write /dev/full: file_put_contents\(\): (Only -1 of \d+ bytes written, possibly out of free disk space|Write of \d+ bytes failed with errno=\d+)#',
 				),
 			)
 		);

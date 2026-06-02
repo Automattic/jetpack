@@ -9,8 +9,6 @@
  * @package automattic/jetpack-boost
  */
 
-// @phan-file-suppress PhanUndeclaredFunction, PhanUndeclaredClassMethod @phan-suppress-current-line UnusedSuppression -- Abilities API added in WP 6.9.
-
 namespace Automattic\Jetpack_Boost\Tests\Abilities;
 
 use Automattic\Jetpack\WP_Abilities\Registrar;
@@ -175,12 +173,6 @@ class Boost_Abilities_Test extends BaseTestCase {
 	}
 
 	public function test_init_registers_directly_when_lifecycle_actions_already_fired(): void {
-		// Spy assertions key off should_register(), which Registrar guards behind
-		// function_exists() checks for the WP 6.9+ Abilities API surface.
-		if ( ! function_exists( 'wp_register_ability_category' ) || ! function_exists( 'wp_register_ability' ) ) {
-			$this->markTestSkipped( 'Abilities API not available (WP < 6.9).' );
-		}
-
 		// Simulate a late-loading deployment: the lifecycle actions ran before our init().
 		do_action( Registrar::CATEGORIES_INIT_ACTION );
 		do_action( Registrar::ABILITIES_INIT_ACTION );
@@ -213,10 +205,6 @@ class Boost_Abilities_Test extends BaseTestCase {
 	}
 
 	public function test_register_abilities_registers_every_slug(): void {
-		if ( ! function_exists( 'wp_get_abilities' ) || ! function_exists( 'wp_register_ability' ) ) {
-			$this->markTestSkipped( 'Abilities API not available (WP < 6.9).' );
-		}
-
 		// `wp_register_ability_category` and `wp_register_ability` only run inside their
 		// respective lifecycle actions; firing them directly mirrors what core does.
 		Boost_Abilities::init();
@@ -232,10 +220,6 @@ class Boost_Abilities_Test extends BaseTestCase {
 	}
 
 	public function test_register_abilities_injects_category_on_specs_that_omit_it(): void {
-		if ( ! function_exists( 'wp_get_abilities' ) || ! function_exists( 'wp_register_ability' ) ) {
-			$this->markTestSkipped( 'Abilities API not available (WP < 6.9).' );
-		}
-
 		Boost_Abilities::init();
 		do_action( Registrar::CATEGORIES_INIT_ACTION );
 		do_action( Registrar::ABILITIES_INIT_ACTION );
@@ -248,10 +232,6 @@ class Boost_Abilities_Test extends BaseTestCase {
 	}
 
 	public function test_per_ability_allow_list_filter_is_respected(): void {
-		if ( ! function_exists( 'wp_get_abilities' ) || ! function_exists( 'wp_register_ability' ) ) {
-			$this->markTestSkipped( 'Abilities API not available (WP < 6.9).' );
-		}
-
 		add_filter(
 			'jetpack_wp_abilities_should_register',
 			static function ( $enabled, $type, $_slug ) {

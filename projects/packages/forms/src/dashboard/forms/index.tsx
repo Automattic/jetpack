@@ -14,15 +14,16 @@ import { dateI18n, getSettings as getDateSettings } from '@wordpress/date';
 import { useCallback, useEffect, useMemo, useState } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { store as noticesStore } from '@wordpress/notices';
+import { EmptyState } from '@wordpress/ui';
 import { useNavigate } from 'react-router';
 /**
  * Internal dependencies
  */
+import { icon as formBlockIcon } from '../../blocks/contact-form/icon.jsx';
 import { getEmbedCode, getShortcode } from '../../blocks/shared/util/embed-codes';
 import useConfigValue from '../../hooks/use-config-value.ts';
 import CreateFormButton from '../components/create-form-button/index.tsx';
 import DataViewsHeaderRow from '../components/dataviews-header-row/index.tsx';
-import { EmptyWrapper } from '../components/empty-responses/index.tsx';
 import Page from '../components/page/index.tsx';
 import { NON_TRASH_FORM_STATUSES } from '../constants.ts';
 import useDeleteForm from '../hooks/use-delete-form.ts';
@@ -442,13 +443,15 @@ export default function FormsDashboardForms(): JSX.Element | null {
 					data={ records || [] }
 					isLoading={ isLoading }
 					empty={
-						<EmptyWrapper
-							heading={ __( "You're set up. No forms yet.", 'jetpack-forms' ) }
-							body={ __(
-								'Create a form to manage and reuse it across your site.',
-								'jetpack-forms'
-							) }
-							actions={
+						<EmptyState.Root>
+							<EmptyState.Icon icon={ formBlockIcon } />
+							<EmptyState.Title>
+								{ __( "You're set up. No forms yet.", 'jetpack-forms' ) }
+							</EmptyState.Title>
+							<EmptyState.Description>
+								{ __( 'Create a form to manage and reuse it across your site.', 'jetpack-forms' ) }
+							</EmptyState.Description>
+							<EmptyState.Actions>
 								<HStack justify="center" spacing="2">
 									<CreateFormButton
 										label={ __( 'Create a new form', 'jetpack-forms' ) }
@@ -461,8 +464,8 @@ export default function FormsDashboardForms(): JSX.Element | null {
 										</Button>
 									) }
 								</HStack>
-							}
-						/>
+							</EmptyState.Actions>
+						</EmptyState.Root>
 					}
 					view={ view }
 					onChangeView={ onChangeView }

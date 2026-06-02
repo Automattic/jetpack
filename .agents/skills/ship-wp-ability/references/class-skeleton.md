@@ -59,8 +59,6 @@ Path: `projects/plugins/jetpack/src/abilities/class-<name>-abilities.php`
  * @package automattic/jetpack
  */
 
-// @phan-file-suppress PhanUndeclaredFunction, PhanUndeclaredClassMethod @phan-suppress-current-line UnusedSuppression -- Abilities API added in WP 6.9; suppressions needed for older-WP compatibility runs.
-
 namespace Automattic\Jetpack\Plugin\Abilities;
 
 use Automattic\Jetpack\WP_Abilities\Registrar;
@@ -320,8 +318,6 @@ Only two things change from the plugin template:
  *
  * @package automattic/jetpack-<pkg>
  */
-
-// @phan-file-suppress PhanUndeclaredFunction, PhanUndeclaredClassMethod @phan-suppress-current-line UnusedSuppression -- Ability API added in WP 6.9.
 
 namespace Automattic\Jetpack\<Pkg>\Abilities;
 
