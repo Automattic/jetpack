@@ -3202,13 +3202,10 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/seo",
-                "reference": "450da72d953bb854d211f8484feea5a4b9d79d28"
+                "reference": "e4e85d930daca71eed75c11b4a7d2c5ce5cf537b"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
-                "automattic/jetpack-assets": "@dev",
-                "automattic/jetpack-connection": "@dev",
-                "automattic/jetpack-constants": "@dev",
                 "automattic/jetpack-status": "@dev",
                 "automattic/jetpack-wp-build-polyfills": "@dev",
                 "php": ">=7.2"
