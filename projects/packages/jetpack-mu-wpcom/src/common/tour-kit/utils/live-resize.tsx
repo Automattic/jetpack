@@ -42,20 +42,27 @@ export const createLiveResizeAutoUpdate =
 		];
 
 		if ( mutation ) {
-			const rootElementNode = document.querySelector( rootElementSelector || '#wpwrap' );
-			if ( rootElementNode instanceof Element ) {
-				const mutationObserver = new MutationObserver( () => update() );
-				mutationObserver.observe( rootElementNode, {
-					attributes: true,
-					characterData: true,
-					childList: true,
-					subtree: true,
-				} );
-				cleanups.push( () => mutationObserver.disconnect() );
-			} else {
-				debug(
-					`Error: ${ rootElementSelector } selector did not find a valid DOM element, Tour Kit will not update automatically if the DOM layout changes.`
-				);
+			// Guard the observer setup so an invalid `rootElementSelector` (which makes
+			// `querySelector` throw) degrades gracefully instead of breaking the tour. The
+			// `autoUpdate` subscription above is already queued for cleanup, so it won't leak.
+			try {
+				const rootElementNode = document.querySelector( rootElementSelector || '#wpwrap' );
+				if ( rootElementNode instanceof Element ) {
+					const mutationObserver = new MutationObserver( () => update() );
+					mutationObserver.observe( rootElementNode, {
+						attributes: true,
+						characterData: true,
+						childList: true,
+						subtree: true,
+					} );
+					cleanups.push( () => mutationObserver.disconnect() );
+				} else {
+					debug(
+						`Error: ${ rootElementSelector } selector did not find a valid DOM element, Tour Kit will not update automatically if the DOM layout changes.`
+					);
+				}
+			} catch ( error ) {
+				debug( 'Error: Tour Kit live resize setup failed unexpectedly:', error );
 			}
 		}
 
