@@ -28,12 +28,20 @@ export const mastodonTitle: Formatter = text =>
 		hardTruncation( TITLE_LENGTH )
 	)( stripHtmlTags( text ) ) || '';
 
-export const mastodonBody = ( text: string, options: { offset: number; instance: string } ) => {
-	const { instance, offset } = options;
+export const mastodonBody = (
+	text: string,
+	options: { offset: number; instance: string; reserveUrlSpace?: boolean }
+) => {
+	const { instance, offset, reserveUrlSpace = true } = options;
+
+	// Reserve room for the URL only when it is rendered as a separate link below
+	// the body. When the URL is already part of the body text, it counts towards
+	// the body itself and no extra space should be set aside for it.
+	const urlReservation = reserveUrlSpace ? URL_LENGTH : 0;
 
 	return preparePreviewText( text, {
 		platform: 'mastodon',
-		maxChars: BODY_LENGTH - URL_LENGTH - offset,
+		maxChars: BODY_LENGTH - urlReservation - offset,
 		hashtagDomain: instance,
 	} );
 };

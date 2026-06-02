@@ -10,9 +10,17 @@ type Props = MastodonPreviewProps & { children?: React.ReactNode };
 const MastonPostBody: React.FC< Props > = props => {
 	const { title, description, customText, url, user, children } = props;
 	const instance = user?.address ? getMastodonAddressDetails( user.address ).instance : '';
+
+	// When the custom message already contains the URL (e.g. via the {url}
+	// placeholder), it gets auto-linked within the body, so appending it again
+	// below would show the URL twice — and the body should not reserve extra
+	// room for a separate URL link that isn't rendered.
+	const urlInBody = Boolean( customText && url && customText.includes( url ) );
+
 	const options = {
 		instance,
 		offset: 0,
+		reserveUrlSpace: ! urlInBody,
 	};
 
 	let bodyTxt;
@@ -53,11 +61,6 @@ const MastonPostBody: React.FC< Props > = props => {
 	} else {
 		bodyTxt = <p>{ mastodonBody( title, options ) }</p>;
 	}
-
-	// When the custom message already contains the URL (e.g. via the {url}
-	// placeholder), it gets auto-linked within the body, so appending it again
-	// here would show the URL twice.
-	const urlInBody = Boolean( customText && url && customText.includes( url ) );
 
 	return (
 		<div className="mastodon-preview__body">

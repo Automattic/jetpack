@@ -12,6 +12,7 @@ import {
 	MastodonPostPreview as Mastodon,
 } from '../src';
 import { formatTweetDate } from '../src/helpers';
+import { mastodonBody } from '../src/mastodon-preview/helpers';
 
 // Mock @wordpress/components SandBox to avoid iframe initialization issues in tests
 // The mock prefix is required for jest to allow variable access in the factory
@@ -746,5 +747,29 @@ describe( 'Mastodon previews', () => {
 		const body = container.querySelector( '.mastodon-preview__body' );
 		expect( body ).toBeVisible();
 		expect( body.querySelectorAll( `a[href="${ DEFAULT_POST_URL }"]` ) ).toHaveLength( 1 );
+	} );
+
+	it( 'should not reserve space for a separate URL link when the URL is part of the message', () => {
+		// A message just over the URL-reserved body limit, with the URL near the
+		// end. When the URL lives in the body, no separate URL link is rendered,
+		// so the body should not reserve ~30 characters for one — otherwise the
+		// trailing URL gets truncated.
+		const text = `${ 'a'.repeat( 460 ) } ${ DEFAULT_POST_URL }`;
+
+		// Default behaviour reserves URL space, truncating the trailing URL.
+		const { container: reservedContainer } = render(
+			<>{ mastodonBody( text, { offset: 0, instance: '' } ) }</>
+		);
+		expect(
+			reservedContainer.querySelector( `a[href="${ DEFAULT_POST_URL }"]` )
+		).not.toBeInTheDocument();
+
+		// With reservation disabled, the full URL survives.
+		const { container: unreservedContainer } = render(
+			<>{ mastodonBody( text, { offset: 0, instance: '', reserveUrlSpace: false } ) }</>
+		);
+		expect(
+			unreservedContainer.querySelector( `a[href="${ DEFAULT_POST_URL }"]` )
+		).toBeInTheDocument();
 	} );
 } );
