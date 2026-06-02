@@ -178,9 +178,9 @@ class Jetpack_Carousel_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test that core image lightbox settings are added when the parent Gallery block uses the core lightbox.
+	 * Test that core image attributes are kept when the parent Gallery block uses the core lightbox.
 	 */
-	public function test_remove_core_lightbox_in_gallery_adds_image_lightbox_when_parent_gallery_lightbox_is_enabled() {
+	public function test_remove_core_lightbox_in_gallery_keeps_image_attributes_when_parent_gallery_lightbox_is_enabled() {
 		$parsed_block = array(
 			'blockName' => 'core/image',
 			'attrs'     => array(
@@ -196,9 +196,7 @@ class Jetpack_Carousel_Test extends WP_UnitTestCase {
 
 		$result = $this->instance->remove_core_lightbox_in_gallery( $parsed_block, $parsed_block, $parent_block );
 
-		$this->assertSame( array( 'enabled' => true ), $result['attrs']['lightbox'] );
-		$this->assertSame( 'none', $result['attrs']['linkDestination'] );
-		$this->assertSame( 123, $result['attrs']['id'] );
+		$this->assertSame( $parsed_block, $result );
 	}
 
 	/**
