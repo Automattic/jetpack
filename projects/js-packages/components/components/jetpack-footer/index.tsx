@@ -24,10 +24,15 @@ declare global {
  * @param {JetpackFooterProps} props - Component properties.
  * @return {ReactNode} JetpackFooter component.
  */
-const JetpackFooter: FC< JetpackFooterProps > = ( { className, menu, ...otherProps } ) => {
+const JetpackFooter: FC< JetpackFooterProps > = ( {
+	className,
+	menu,
+	showDefaultLinks = true,
+	...otherProps
+} ) => {
 	let items: JetpackFooterMenuItem[] = [];
 
-	if ( ! isWpcomPlatformSite() && ! window?.JetpackNetworkAdminData ) {
+	if ( showDefaultLinks && ! isWpcomPlatformSite() && ! window?.JetpackNetworkAdminData ) {
 		items = [
 			{
 				label: __( 'Products', 'jetpack-components' ),

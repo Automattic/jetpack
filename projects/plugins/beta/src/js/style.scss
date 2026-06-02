@@ -114,21 +114,6 @@ body.jetpack-beta-page {
 	}
 }
 
-// Page footer (Jetpack mark + Automattic byline), no product/help links.
-.jetpack-beta-footer {
-	border-top: 1px solid var(--wpds-color-stroke-surface-neutral-weak, #e0e0e0);
-	box-sizing: border-box;
-	padding: var(--wpds-dimension-padding-xl, 24px) var(--wpds-dimension-padding-2xl, 24px);
-	width: 100%;
-
-	.jetpack-beta-footer__a8c {
-
-		svg {
-			fill: var(--wpds-color-fg-interactive-neutral-weak, #50575e);
-		}
-
-		@media (min-width: 480px) {
-			margin-inline-start: auto;
-		}
-	}
-}
+// The footer is the shared `@automattic/jetpack-components` JetpackFooter
+// (rendered with `showDefaultLinks={ false }`); it brings its own styles, so no
+// Beta-specific footer CSS is needed here.
