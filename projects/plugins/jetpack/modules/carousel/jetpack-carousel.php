@@ -394,7 +394,10 @@ class Jetpack_Carousel {
 			}
 		}
 
-		return 'core/gallery' === $block_name && ! empty( $attrs['lightbox']['enabled'] );
+		return 'core/gallery' === $block_name && (
+			! empty( $attrs['lightbox']['enabled'] )
+			|| ( isset( $attrs['linkTo'] ) && 'lightbox' === $attrs['linkTo'] )
+		);
 	}
 
 	/**

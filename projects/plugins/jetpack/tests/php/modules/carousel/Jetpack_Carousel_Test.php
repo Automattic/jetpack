@@ -146,9 +146,7 @@ class Jetpack_Carousel_Test extends WP_UnitTestCase {
 		$block         = array(
 			'blockName' => 'core/gallery',
 			'attrs'     => array(
-				'lightbox' => array(
-					'enabled' => true,
-				),
+				'linkTo' => 'lightbox',
 			),
 		);
 
@@ -194,9 +192,7 @@ class Jetpack_Carousel_Test extends WP_UnitTestCase {
 		$parent_block = (object) array(
 			'name'       => 'core/gallery',
 			'attributes' => array(
-				'lightbox' => array(
-					'enabled' => true,
-				),
+				'linkTo' => 'lightbox',
 			),
 		);
 
