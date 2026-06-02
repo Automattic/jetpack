@@ -4,7 +4,7 @@ settings:
   autoInstallPeers: false
   excludeLinksFromLockfile: false
 
-pnpmfileChecksum: sha256-KrBHPLv8FlPoa5OUGbvotku6TLmuhZiq22jdIe7yBHc=
+pnpmfileChecksum: sha256-HvcDj4j87Sh7PgclZifi5F8ayW+vvKBzmoCc14WMPmw=
 
 patchedDependencies:
   react-autosize-textarea:
@@ -12903,7 +12903,6 @@ packages:
 
   eslint-plugin-package-json@1.2.0:
     resolution: {integrity: sha512-3BszsD7XVddaUNbMfK+1lF1Qg8ck0nO3bNT/7IjXP8wrGzPThHZpkhm5UnbY1Nb/s3o6DUNgHI4aEqQV/t83fw==}
-    engines: {node: ^22.22.2 || >=24.15.0}
     peerDependencies:
       '@eslint/json': '>=1.0.0'
       eslint: '>=9.0.0'
