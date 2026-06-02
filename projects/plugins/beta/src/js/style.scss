@@ -83,15 +83,19 @@ body.jetpack-beta-page {
 	color: var(--wpds-color-fg-interactive-neutral-weak, #50575e);
 }
 
-// The whole plugin card is a link to its manage screen, but it should read as a
-// card — not a text link. Inherit the normal admin text color and drop the
-// underline (on the anchor and its descendants).
-.jetpack-beta-plugin-card {
-	color: inherit;
-	cursor: pointer;
-	text-decoration: none;
-	transition: box-shadow 0.1s ease-in-out, border-color 0.1s ease-in-out;
+// The plugin list is one bordered @wordpress/ui Card (no per-row gaps); each
+// row is a link separated by a hairline divider. `overflow: hidden` clips the
+// row hover backgrounds to the card's rounded corners.
+.jetpack-beta-plugin-list {
+	overflow: hidden;
+}
 
+.jetpack-beta-plugin-row {
+	box-sizing: border-box;
+	display: block;
+	padding: var(--wpds-dimension-padding-lg, 16px) var(--wpds-dimension-padding-2xl, 24px);
+
+	&,
 	&:hover,
 	&:focus,
 	&:active,
@@ -100,17 +104,22 @@ body.jetpack-beta-page {
 		text-decoration: none;
 	}
 
-	&:hover,
-	&:focus-visible {
-		border-color: var(--wp-admin-theme-color, #3858e9);
-		box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+	&:not(:last-child) {
+		border-block-end: 1px solid var(--wpds-color-stroke-surface-neutral-weak, #e0e0e0);
 	}
 
-	// Provide our own focus indicator (blue border + shadow above) and suppress
-	// the UA/admin outline, which is rectangular and would square off the card's
-	// rounded corners on focus.
+	&:hover {
+		background: var(--wpds-color-bg-surface-neutral-weak, #f6f7f7);
+	}
+
+	// Inset focus ring so it stays inside the card's rounded corners.
 	&:focus-visible {
-		outline: none;
+		outline: 2px solid var(--wp-admin-theme-color, #3858e9);
+		outline-offset: -2px;
+	}
+
+	.jetpack-beta-plugin-row__inner {
+		width: 100%;
 	}
 }
 
