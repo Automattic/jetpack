@@ -1,7 +1,9 @@
 import { useQuery } from '@tanstack/react-query';
 import apiFetch from '@wordpress/api-fetch';
+import { flattenVideoTracks } from '../../client/lib/video-tracks';
 import { buildShortcode } from '../utils/format';
 import { LIBRARY_ITEM_QUERY_SEGMENT, LIBRARY_QUERY_KEY, privacyIntToString } from './use-library';
+import type { VideoTracksResponseBodyProps } from '../../client/types';
 import type { LibraryItem } from '../types/library';
 
 type ApiMediaItem = {
@@ -24,6 +26,7 @@ type ApiMediaItem = {
 		privacy_setting?: 0 | 1 | 2;
 		is_private?: boolean;
 		description?: string;
+		tracks?: VideoTracksResponseBodyProps;
 	};
 };
 
@@ -62,6 +65,7 @@ function toLibraryItem( raw: ApiMediaItem ): LibraryItem {
 		shortcode: buildShortcode( vp?.guid, raw.media_details?.width, raw.media_details?.height ),
 		sourceUrl: raw.source_url,
 		isProcessing,
+		tracks: flattenVideoTracks( vp?.tracks ),
 	};
 }
 
@@ -89,5 +93,6 @@ export function useVideo( id: number | string ) {
 		isLoading: query.isLoading,
 		isError: query.isError,
 		error: query.error,
+		refetch: query.refetch,
 	};
 }

@@ -11,7 +11,9 @@ import { DeleteTrackDataProps, UploadTrackDataProps } from './types';
 /**
  * Types
  */
+import type { trackKindOptionProps, VideoTextTrack } from './types';
 import type { VideoGUID } from '../../block-editor/blocks/video/types';
+import type { VideoTracksResponseBodyProps } from '../../types';
 import type { MediaTokenProps } from '../get-media-token/types';
 
 export const TRACK_KIND_OPTIONS = [
@@ -21,6 +23,42 @@ export const TRACK_KIND_OPTIONS = [
 	'chapters',
 	'metadata',
 ] as const;
+
+const isTrackKindOption = ( kind: string ): kind is trackKindOptionProps =>
+	TRACK_KIND_OPTIONS.includes( kind as trackKindOptionProps );
+
+/**
+ * Convert the VideoPress API's nested track response into the flat track list
+ * used by the block and caption manager UI.
+ *
+ * @param tracks - VideoPress API track response.
+ * @return Flat text track list.
+ */
+export function flattenVideoTracks( tracks?: VideoTracksResponseBodyProps ): VideoTextTrack[] {
+	if ( ! tracks ) {
+		return [];
+	}
+
+	const flattenedTracks: VideoTextTrack[] = [];
+
+	Object.keys( tracks ).forEach( kind => {
+		if ( ! isTrackKindOption( kind ) ) {
+			return;
+		}
+
+		Object.keys( tracks[ kind ] ).forEach( srcLang => {
+			const track = tracks[ kind ][ srcLang ];
+			flattenedTracks.push( {
+				src: track.src,
+				kind,
+				srcLang,
+				label: track.label,
+			} );
+		} );
+	} );
+
+	return flattenedTracks;
+}
 
 const { siteType = '' } = window?.videoPressEditorState || {};
 const shouldUseJetpackVideoFetch = siteType !== 'simple';
