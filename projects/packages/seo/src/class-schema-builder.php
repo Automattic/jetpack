@@ -127,7 +127,7 @@ class Schema_Builder {
 			),
 			'author'           => array(
 				'@type' => 'Person',
-				'name'  => get_the_author_meta( 'display_name', $post->post_author ),
+				'name'  => get_the_author_meta( 'display_name', (int) $post->post_author ),
 			),
 		);
 

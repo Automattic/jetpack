@@ -1,4 +1,5 @@
-import { DataViews } from '@wordpress/dataviews';
+import { Icon } from '@wordpress/components';
+import { DataViews, filterSortAndPaginate } from '@wordpress/dataviews';
 import { useCallback, useMemo, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { pencil } from '@wordpress/icons';
@@ -10,15 +11,22 @@ import type { ContentPostType, ContentRow, CoverageDelta } from '../../data/cont
 import type { Action, Field, Operator, View } from '@wordpress/dataviews';
 import type { FC } from 'react';
 
-// Filter field ids that don't map to a server query param. Post type switches
-// the core endpoint; schema/description are post-meta the core list can't query
-// server-side, so they filter the already-loaded page client-side.
+// Filter field ids. Every filter runs client-side over the merged posts+pages
+// set via `filterSortAndPaginate`, matching each row through the field's
+// `getValue`. Post type filters on the record's `type`; schema / description /
+// search-visibility filter on the derived SEO-meta flags.
 const POST_TYPE_FIELD = 'postType';
 const SCHEMA_FIELD = 'schemaType';
 const DESCRIPTION_FIELD = 'description';
 // Filter-only field id for search visibility; the displayed column is
-// 'searchVisibility'. Filtered client-side on the loaded page like the others.
+// 'searchVisibility'.
 const SEARCH_FIELD = 'searchFilter';
+
+// Schema filter sentinel for the no-override rows. The schema column's raw
+// value for those rows is '' (empty meta); the filter element uses this value
+// instead so `filterSortAndPaginate` can match it (it skips empty-string
+// filter values), and SCHEMA_FIELD's getValue maps '' → this.
+const SCHEMA_DEFAULT = 'default';
 
 // Pre-resolved labels so the production minifier can't fold an adjacent
 // `cond ? __(A) : __(B)` into `__(cond ? A : B)`, which breaks i18n
@@ -30,6 +38,7 @@ const notSetLabel = __( 'Not set', 'jetpack-seo' );
 const visibleLabel = __( 'Visible', 'jetpack-seo' );
 const hiddenLabel = __( 'Hidden', 'jetpack-seo' );
 const noTitleLabel = __( '(no title)', 'jetpack-seo' );
+const editSeoLabel = __( 'Edit SEO', 'jetpack-seo' );
 
 const DEFAULT_VIEW: View = {
 	type: 'table',
@@ -39,6 +48,7 @@ const DEFAULT_VIEW: View = {
 	sort: { field: 'title', direction: 'asc' },
 	titleField: 'title',
 	fields: [ 'schema', 'metaDescription', 'searchVisibility' ],
+	// No post-type filter by default, so both posts and pages show.
 	filters: [],
 };
 
@@ -61,11 +71,11 @@ function schemaLabel( schemaType: ContentRow[ 'schemaType' ] ): string {
 }
 
 /**
- * Content tab: a DataViews list of posts/pages backed by WordPress core REST,
- * reporting the factual *state* of each post's SEO fields (never a score).
- * Pagination, search, and title sorting are server-side via core-data; the
- * post-type filter switches the core endpoint; schema and meta-description
- * filters narrow the loaded page client-side (core can't query post meta).
+ * Content tab: a DataViews list of posts *and* pages backed by WordPress core
+ * REST, reporting the factual *state* of each post's SEO fields (never a
+ * score). The hook fetches both types and merges them; filtering (including the
+ * post-type filter), sorting and pagination all run client-side over the merged
+ * set via `filterSortAndPaginate`.
  *
  * @return The Content tab content.
  */
@@ -79,52 +89,7 @@ const ContentScreen: FC< Props > = ( { onSaved } ) => {
 	const [ view, setView ] = useState< View >( DEFAULT_VIEW );
 	const [ editing, setEditing ] = useState< ContentRow | null >( null );
 
-	// The post-type filter lives in view.filters so it shares the DataViews
-	// filter UI; default to posts.
-	const postType: ContentPostType = useMemo( () => {
-		const value = view.filters?.find( filter => filter.field === POST_TYPE_FIELD )?.value;
-		return value === 'page' ? 'page' : 'post';
-	}, [ view.filters ] );
-
-	const { items, totalItems, totalPages, isLoading } = useSeoPosts( {
-		postType,
-		page: view.page || 1,
-		perPage: view.perPage || 20,
-		search: view.search,
-		// Title is the only sortable column; only its direction varies.
-		orderby: 'title',
-		order: view.sort?.direction === 'desc' ? 'desc' : 'asc',
-	} );
-
-	// Client-side narrowing for the two post-meta filters core REST can't query.
-	const data = useMemo( () => {
-		const schemaValue = view.filters?.find( filter => filter.field === SCHEMA_FIELD )?.value;
-		const descriptionValue = view.filters?.find( filter => filter.field === DESCRIPTION_FIELD )
-			?.value;
-		const searchValue = view.filters?.find( filter => filter.field === SEARCH_FIELD )?.value;
-
-		return items.filter( item => {
-			if ( schemaValue !== undefined && schemaValue !== '' && item.schemaType !== schemaValue ) {
-				// Schema filter value 'default' targets the no-override rows.
-				if ( ! ( schemaValue === 'default' && item.schemaType === '' ) ) {
-					return false;
-				}
-			}
-			if ( descriptionValue === 'set' && ! item.hasDescription ) {
-				return false;
-			}
-			if ( descriptionValue === 'not_set' && item.hasDescription ) {
-				return false;
-			}
-			if ( searchValue === 'visible' && item.noindex ) {
-				return false;
-			}
-			if ( searchValue === 'hidden' && ! item.noindex ) {
-				return false;
-			}
-			return true;
-		} );
-	}, [ items, view.filters ] );
+	const { items, isLoading } = useSeoPosts();
 
 	const fields: Field< ContentRow >[] = useMemo(
 		() => [
@@ -145,8 +110,11 @@ const ContentScreen: FC< Props > = ( { onSaved } ) => {
 				filterBy: { operators: [ 'is' ] as Operator[], isPrimary: true },
 				enableSorting: false,
 				enableHiding: false,
+				// Filter-only field; not shown as a column. Core REST records
+				// expose `type` as 'post' | 'page', matching the elements, so
+				// `filterSortAndPaginate` narrows the merged set.
 				render: () => null,
-				getValue: () => null,
+				getValue: ( { item } ) => item.type,
 			},
 			{
 				id: 'schema',
@@ -159,7 +127,7 @@ const ContentScreen: FC< Props > = ( { onSaved } ) => {
 				id: SCHEMA_FIELD,
 				label: __( 'Schema type', 'jetpack-seo' ),
 				elements: [
-					{ value: 'default', label: __( 'Default', 'jetpack-seo' ) },
+					{ value: SCHEMA_DEFAULT, label: __( 'Default', 'jetpack-seo' ) },
 					{ value: 'article', label: articleLabel },
 					{ value: 'faq', label: faqLabel },
 				],
@@ -167,7 +135,9 @@ const ContentScreen: FC< Props > = ( { onSaved } ) => {
 				enableSorting: false,
 				enableHiding: false,
 				render: () => null,
-				getValue: () => null,
+				// Map the no-override value ('') to the filter's sentinel so it
+				// matches the "Default" element.
+				getValue: ( { item } ) => ( item.schemaType === '' ? SCHEMA_DEFAULT : item.schemaType ),
 			},
 			{
 				id: 'metaDescription',
@@ -191,7 +161,7 @@ const ContentScreen: FC< Props > = ( { onSaved } ) => {
 				enableSorting: false,
 				enableHiding: false,
 				render: () => null,
-				getValue: () => null,
+				getValue: ( { item } ) => ( item.hasDescription ? 'set' : 'not_set' ),
 			},
 			{
 				id: 'searchVisibility',
@@ -215,7 +185,7 @@ const ContentScreen: FC< Props > = ( { onSaved } ) => {
 				enableSorting: false,
 				enableHiding: false,
 				render: () => null,
-				getValue: () => null,
+				getValue: ( { item } ) => ( item.noindex ? 'hidden' : 'visible' ),
 			},
 		],
 		[]
@@ -225,8 +195,21 @@ const ContentScreen: FC< Props > = ( { onSaved } ) => {
 		() => [
 			{
 				id: 'edit-seo',
-				label: __( 'Edit SEO', 'jetpack-seo' ),
-				icon: pencil,
+				// DataViews 14.3.0's inline primary-action button (ButtonTrigger)
+				// renders only the action's `label` and ignores the `icon` prop,
+				// so a raw `icon: pencil` never paints. Wrap the icon in <Icon>
+				// per the established Jetpack convention (forms / activity-log),
+				// and surface it through the label — which ButtonTrigger renders
+				// as the button's children — so the pencil actually shows. The
+				// trailing text keeps the action accessible. `label` is typed as
+				// string-returning, so the node is cast at the array boundary.
+				label: ( () => (
+					<>
+						<Icon icon={ pencil } size={ 20 } />
+						{ editSeoLabel }
+					</>
+				) ) as unknown as () => string,
+				icon: <Icon icon={ pencil } />,
 				isPrimary: true,
 				supportsBulk: false,
 				callback: ( rows: ContentRow[] ) => {
@@ -240,9 +223,11 @@ const ContentScreen: FC< Props > = ( { onSaved } ) => {
 		[]
 	);
 
-	const paginationInfo = useMemo(
-		() => ( { totalItems, totalPages } ),
-		[ totalItems, totalPages ]
+	// Client-side filter, sort and paginate the merged posts+pages set. Returns
+	// the page slice plus the pagination totals DataViews needs.
+	const { data, paginationInfo } = useMemo(
+		() => filterSortAndPaginate( items, view, fields ),
+		[ items, view, fields ]
 	);
 
 	const onChangeView = useCallback( ( next: View ) => setView( next ), [] );
@@ -265,7 +250,9 @@ const ContentScreen: FC< Props > = ( { onSaved } ) => {
 			{ editing && (
 				<EditSeoModal
 					row={ editing }
-					postType={ postType }
+					// Save through the row's own core endpoint; the merged list
+					// mixes posts and pages, so derive the type per row.
+					postType={ editing.type as ContentPostType }
 					onClose={ closeModal }
 					onSaved={ onSaved }
 				/>

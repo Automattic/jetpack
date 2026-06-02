@@ -1,11 +1,21 @@
 import { useEntityRecords } from '@wordpress/core-data';
 import { useMemo } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
-import type { ContentPostType, ContentRow, SchemaType, SeoPostMeta } from './content-types';
+import type { ContentRow, SchemaType, SeoPostMeta } from './content-types';
 
 // Only request the columns the Content tab renders, plus the SEO meta. Core
 // REST returns `meta` as an object keyed by the registered meta names.
 const POST_FIELDS = [ 'id', 'title', 'link', 'type', 'status', 'meta' ].join( ',' );
+
+// Authoring/audit view: include drafts and other non-published statuses the
+// current user can see, not just published content.
+const STATUSES = [ 'publish', 'future', 'draft', 'pending', 'private' ];
+
+// Core REST caps `per_page` at 100. We request the max for each type and merge
+// posts + pages client-side. NOTE: a site with more than 100 posts (or 100
+// pages) won't show the overflow on the Content tab yet — acceptable for now;
+// a future iteration can page/virtualize the merged set.
+const PER_PAGE = 100;
 
 // The shape of a core REST post/page record, narrowed to what we read.
 interface SeoPostRecord {
@@ -17,19 +27,8 @@ interface SeoPostRecord {
 	meta?: Partial< SeoPostMeta >;
 }
 
-export interface UseSeoPostsArgs {
-	postType: ContentPostType;
-	page: number;
-	perPage: number;
-	search?: string;
-	orderby?: string;
-	order?: 'asc' | 'desc';
-}
-
 export interface UseSeoPostsReturn {
 	items: ContentRow[];
-	totalItems: number;
-	totalPages: number;
 	isLoading: boolean;
 }
 
@@ -75,50 +74,46 @@ function toContentRow( record: SeoPostRecord ): ContentRow {
 	};
 }
 
+// A single fixed query shared by both post types, so DataViews can filter,
+// sort and paginate the merged set entirely client-side.
+const QUERY = {
+	context: 'edit',
+	_fields: POST_FIELDS,
+	per_page: PER_PAGE,
+	status: STATUSES,
+};
+
 /**
- * Fetch the Content tab's post/page list from WordPress core REST, with
- * server-side pagination, search, and title sorting driven by DataViews view
- * state. Wraps `useEntityRecords( 'postType', postType, query )`; the SEO meta
- * comes back inside each record's `meta` object via the registered
- * `show_in_rest` post meta (no custom endpoint).
+ * Fetch the Content tab's posts *and* pages from WordPress core REST and merge
+ * them into a single list. Each type is fetched once (up to {@link PER_PAGE}
+ * records) and mapped to a {@link ContentRow}; filtering, sorting and
+ * pagination happen client-side in the Content screen via
+ * `filterSortAndPaginate`. The SEO meta comes back inside each record's `meta`
+ * object via the registered `show_in_rest` post meta (no custom endpoint).
  *
- * @param args - The selected post type plus DataViews paging/search/sort state.
- * @return The mapped rows plus core-data's pagination + loading state.
+ * @return The merged, mapped rows plus a combined loading state.
  */
-export default function useSeoPosts( args: UseSeoPostsArgs ): UseSeoPostsReturn {
-	const { postType, page, perPage, search, orderby, order } = args;
+export default function useSeoPosts(): UseSeoPostsReturn {
+	const { records: postRecords, hasResolved: postsResolved } = useEntityRecords< SeoPostRecord >(
+		'postType',
+		'post',
+		QUERY
+	);
+	const { records: pageRecords, hasResolved: pagesResolved } = useEntityRecords< SeoPostRecord >(
+		'postType',
+		'page',
+		QUERY
+	);
 
-	const query = useMemo( () => {
-		const queryArgs: Record< string, unknown > = {
-			context: 'edit',
-			_fields: POST_FIELDS,
-			page,
-			per_page: perPage,
-			orderby: orderby || 'title',
-			order: order || 'asc',
-			// Authoring/audit view: include drafts and other non-published
-			// statuses the current user can see, not just published content.
-			status: [ 'publish', 'future', 'draft', 'pending', 'private' ],
-		};
-		if ( search ) {
-			queryArgs.search = search;
-		}
-		return queryArgs;
-	}, [ page, perPage, search, orderby, order ] );
-
-	const {
-		records: rawRecords,
-		hasResolved,
-		totalItems,
-		totalPages,
-	} = useEntityRecords< SeoPostRecord >( 'postType', postType, query );
-
-	const items = useMemo( () => ( rawRecords || [] ).map( toContentRow ), [ rawRecords ] );
+	const items = useMemo(
+		() => [ ...( postRecords || [] ), ...( pageRecords || [] ) ].map( toContentRow ),
+		[ postRecords, pageRecords ]
+	);
 
 	return {
 		items,
-		totalItems: totalItems ?? 0,
-		totalPages: totalPages ?? 0,
-		isLoading: ! hasResolved,
+		// Show the loading state until *both* queries have resolved, so the
+		// table doesn't flash a posts-only list before pages arrive.
+		isLoading: ! postsResolved || ! pagesResolved,
 	};
 }
