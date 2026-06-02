@@ -11,7 +11,7 @@ import { Icon, chevronRight, plugins as pluginsIcon } from '@wordpress/icons';
 import { Badge, Card, Notice, Stack, Text } from '@wordpress/ui';
 import { errorMessage, listPlugins } from '../api/abilities';
 import GlobalToggles from '../components/global-toggles';
-import { CardRowSkeleton } from '../components/skeleton';
+import { ListSkeleton } from '../components/skeleton';
 import UpdatesPanel from '../components/updates-panel';
 import type { PluginListItem } from '../api/types';
 
@@ -200,8 +200,7 @@ const PluginList = () => {
 				<Stack direction="column" gap="md">
 					<GlobalToggles />
 					<UpdatesPanel />
-					{ loading &&
-						Array.from( { length: 6 } ).map( ( _, index ) => <CardRowSkeleton key={ index } /> ) }
+					{ loading && <ListSkeleton rows={ 6 } /> }
 					{ error && (
 						<Notice.Root intent="error">
 							<Notice.Description>{ error }</Notice.Description>
