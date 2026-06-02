@@ -14,6 +14,9 @@ type CaptionCueBlock = {
 const TIME_LINE_PATTERN =
 	/^\s*(?:(?:\d+\s*)?\n)?(?<start>\d{1,2}:\d{2}(?::\d{2})?[.,]\d{3}|\d{1,2}:\d{2}:\d{2})\s+-->\s+(?<end>\d{1,2}:\d{2}(?::\d{2})?[.,]\d{3}|\d{1,2}:\d{2}:\d{2})/m;
 
+const sanitizeCueText = ( text: string ): string =>
+	text.trim().replace( /\r\n?/g, '\n' ).split( '--!>' ).join( '->' ).split( '-->' ).join( '->' );
+
 /**
  * Convert a timestamp into seconds.
  *
@@ -107,7 +110,7 @@ export function serializeCuesToWebVtt( cues: CaptionCue[] ): string {
 		.map( cue => {
 			const startTime = normalizeCueTimestamp( cue.startTime );
 			const endTime = normalizeCueTimestamp( cue.endTime );
-			const text = cue.text.trim().replace( /\r\n?/g, '\n' ).replace( /-->/g, '->' );
+			const text = sanitizeCueText( cue.text );
 			return `${ startTime } --> ${ endTime }\n${ text }`;
 		} )
 		.join( '\n\n' );
@@ -131,7 +134,7 @@ export function parseCaptionTextTrack( content: string ): CaptionCue[] {
 				return null;
 			}
 
-			const timeLineIndex = block.split( /\n/ ).findIndex( line => /-->/.test( line ) );
+			const timeLineIndex = block.split( /\n/ ).findIndex( line => line.includes( '-->' ) );
 			const text = block
 				.split( /\n/ )
 				.slice( timeLineIndex + 1 )
