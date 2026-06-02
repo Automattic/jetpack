@@ -122,7 +122,7 @@ $matrix[] = array(
 // Add Coverage tests. Split into PHP and JS groups so they run in parallel.
 foreach ( array( 'php', 'js' ) as $cov_group ) {
 	$matrix[] = array(
-		'name'           => "Code coverage ($cov_group)",
+		'name'           => 'Code coverage (' . strtoupper( $cov_group ) . ')',
 		'script'         => "test-$cov_group-coverage",
 		// JS coverage doesn't need a WordPress environment, like the regular JS tests job.
 		'wp'             => 'php' === $cov_group ? 'latest' : 'none',
