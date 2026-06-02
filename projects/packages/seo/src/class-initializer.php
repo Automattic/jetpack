@@ -131,8 +131,8 @@ class Initializer {
 			: array( __CLASS__, 'render_fallback' );
 
 		Admin_Menu::add_menu(
-			__( 'SEO', 'jetpack-seo' ),
-			__( 'SEO', 'jetpack-seo' ),
+			'SEO',
+			'SEO',
 			'manage_options',
 			self::MENU_SLUG,
 			$callback,
@@ -225,7 +225,7 @@ class Initializer {
 	 * @return void
 	 */
 	public static function render_fallback() {
-		echo '<div class="wrap"><h1>' . esc_html__( 'SEO', 'jetpack-seo' ) . '</h1></div>';
+		echo '<div class="wrap"><h1>SEO</h1></div>';
 	}
 
 	/**

@@ -18,7 +18,7 @@ import type { FC } from 'react';
 const App: FC = () => (
 	<ThemeProvider>
 		<AdminPage
-			title={ __( 'SEO', 'jetpack-seo' ) }
+			title={ 'SEO' }
 			subTitle={ __(
 				'Visibility tools for your site — sitemaps, canonical URLs, and search-engine settings, in one place.',
 				'jetpack-seo'
