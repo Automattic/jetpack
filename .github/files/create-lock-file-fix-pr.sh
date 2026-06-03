@@ -38,7 +38,8 @@ git add -- "${FILES[@]}"
 for DIR in $(printf '%s\n' "${FILES[@]}" | sed -nE 's!^(projects/[^/]+/[^/]+)/.*!\1!p' | sort -u); do
 	cd "$DIR"
 	changelogger_add 'Update lock file.' '' --filename=update-lock-files
-	git add changelog
+	CHANGES_DIR="$(jq -r '.extra.changelogger["changes-dir"] // "changelog"' composer.json)"
+	git add "$CHANGES_DIR"
 	cd "$BASE"
 done
 
