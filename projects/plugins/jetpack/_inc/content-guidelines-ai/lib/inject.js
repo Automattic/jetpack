@@ -100,13 +100,21 @@ function getBlockNameFromModal( modal ) {
 }
 
 function runAll() {
-	// Header button.
+	// Header button — placed at the top of the guidelines content, above the
+	// list. The wp-admin Page header only renders an actions slot when the
+	// gutenberg page passes `actions` to <Page> (it does not), so there is no
+	// header-actions container to target.
 	inject(
 		'header',
 		() => {
-			const actionsSlot = document.querySelector( '.admin-ui-page__header-actions' );
-			return actionsSlot
-				? { parent: actionsSlot, className: 'jetpack-content-guidelines-ai__header-container' }
+			const content = document.querySelector( '.guidelines__content' );
+			const list = content?.querySelector( '.guidelines__list' );
+			return content
+				? {
+						parent: content,
+						before: list,
+						className: 'jetpack-content-guidelines-ai__header-container',
+				  }
 				: null;
 		},
 		SuggestAllButton
@@ -116,7 +124,7 @@ function runAll() {
 	inject(
 		'upgrade-notice',
 		() => {
-			const list = document.querySelector( '.content-guidelines__list' );
+			const list = document.querySelector( '.guidelines__list' );
 			return list
 				? {
 						parent: list.parentElement,
@@ -132,7 +140,7 @@ function runAll() {
 	inject(
 		'banner',
 		() => {
-			const list = document.querySelector( '.content-guidelines__list' );
+			const list = document.querySelector( '.guidelines__list' );
 			return list
 				? {
 						parent: list.parentElement,
@@ -144,29 +152,30 @@ function runAll() {
 		EmptyStateBanner
 	);
 
-	// Per-section injections.
+	// Per-section injections. Sections are matched by the stable `data-slug`
+	// attribute on each `.guidelines__list-item`. The per-section form is
+	// always present in the DOM (the CollapsibleCard keeps its content mounted
+	// while collapsed).
 	for ( const slug of VALID_SECTIONS ) {
-		const form = document.getElementById( `content-guidelines-${ slug }` );
+		const item = document.querySelector( `.guidelines__list-item[data-slug="${ slug }"]` );
+		const form = item?.querySelector( 'form' );
 		if ( ! form ) {
 			continue;
 		}
 
-		// Badge in accordion header.
+		// Badge in the accordion header (the section's heading element).
 		inject(
 			`badge-${ slug }`,
 			() => {
-				const accordion = form.closest( '.content-guidelines__accordion' );
-				const trigger = accordion?.querySelector( '.content-guidelines__accordion-trigger' );
-				const hStack = trigger?.firstElementChild;
-				if ( ! hStack ) {
-					return null;
-				}
-				return {
-					parent: hStack,
-					before: hStack.lastElementChild,
-					className: 'jetpack-content-guidelines-ai__badge-container',
-					tag: 'span',
-				};
+				const heading = item.querySelector( 'h1, h2, h3, h4, h5, h6' );
+				const titleStack = heading?.firstElementChild ?? heading;
+				return titleStack
+					? {
+							parent: titleStack,
+							className: 'jetpack-content-guidelines-ai__badge-container',
+							tag: 'span',
+					  }
+					: null;
 			},
 			SuggestionBadge,
 			{ slug }
@@ -189,11 +198,12 @@ function runAll() {
 			{ slug }
 		);
 
-		// Per-section generate button next to save.
+		// Per-section generate button next to the Save button (the form's
+		// primary submit button lives in an HStack with the Clear button).
 		inject(
 			`button-${ slug }`,
 			() => {
-				const saveButton = form.querySelector( '.save-button' );
+				const saveButton = form.querySelector( 'button[type="submit"]' );
 				const hStack = saveButton?.parentElement;
 				return hStack
 					? {
