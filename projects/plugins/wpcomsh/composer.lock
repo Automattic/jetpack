@@ -282,7 +282,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/agents-manager",
-                "reference": "323c7575603d89130951be79a982c71c6d7b9aa8"
+                "reference": "7a3344385cb6a784403c71886548868a41038c02"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
@@ -304,7 +304,7 @@
                 "autorelease": true,
                 "autotagger": true,
                 "branch-alias": {
-                    "dev-trunk": "0.1.x-dev"
+                    "dev-trunk": "0.2.x-dev"
                 },
                 "changelogger": {
                     "link-template": "https://github.com/Automattic/jetpack-agents-manager/compare/v${old}...v${new}"
