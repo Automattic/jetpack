@@ -1,5 +1,5 @@
-@use "@wordpress/base-styles/variables" as vars;
-@use "@wordpress/base-styles/colors" as colors;
+@use '@wordpress/base-styles/variables' as vars;
+@use '@wordpress/base-styles/colors' as colors;
 
 .date-range-popover-content {
 	--wca-popover-padding: var( --wpds-dimension-padding-lg );
@@ -44,7 +44,7 @@
 .date-range-presets-wrapper {
 	grid-row: 1;
 	display: grid;
-	grid-template-columns: minmax(0, max-content) 1fr;
+	grid-template-columns: minmax( 0, max-content ) 1fr;
 	background-color: #fff;
 	padding-bottom: var( --wpds-dimension-gap-sm );
 	width: calc( 60 * var( --wpds-dimension-base ) );
@@ -60,8 +60,13 @@
 	--wca-calendar-button-height: 32px;
 	--wca-calendar-button-gap: 1rem; // consistent with automattic/ui style
 	--wca-calendar-padding: var( --wca-popover-padding );
-	--wca-calendar-width: calc( var( --wca-calendar-button-width ) * 7 + var( --wca-calendar-padding ) * 2 );
-	--wca-calendar-width-wide: calc( var( --wca-calendar-button-width ) * 14 + var( --wca-calendar-padding ) * 2 + var( --wca-calendar-button-gap ) );
+	--wca-calendar-width: calc(
+		var( --wca-calendar-button-width ) * 7 + var( --wca-calendar-padding ) * 2
+	);
+	--wca-calendar-width-wide: calc(
+		var( --wca-calendar-button-width ) * 14 + var( --wca-calendar-padding ) * 2 +
+			var( --wca-calendar-button-gap )
+	);
 
 	grid-row: 1;
 	padding: var( --wca-calendar-padding );
@@ -86,20 +91,20 @@
 
 /* disable animation for the date range popover */
 /* stylelint-disable property-no-unknown, selector-pseudo-element-no-unknown */
-@media not (prefers-reduced-motion: reduce) {
+@media not ( prefers-reduced-motion: reduce ) {
 	.date-filters-panel__popover {
 		view-transition-name: next-admin--date-range-popover;
 	}
 }
 
 /* ensure it's above the canvas/stage during the transition */
-::view-transition-group(next-admin--date-range-popover) {
+::view-transition-group( next-admin--date-range-popover ) {
 	z-index: 3000;
 }
 
 /* no animation for the snapshot (avoid "flashing") */
-::view-transition-new(next-admin--date-range-popover),
-::view-transition-old(next-admin--date-range-popover) {
+::view-transition-new( next-admin--date-range-popover ),
+::view-transition-old( next-admin--date-range-popover ) {
 	animation: none;
 }
 /* stylelint-enable property-no-unknown, selector-pseudo-element-no-unknown */

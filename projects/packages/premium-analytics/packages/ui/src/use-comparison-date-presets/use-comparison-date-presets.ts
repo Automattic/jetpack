@@ -30,9 +30,7 @@ export type ComparisonDateRangePreset = {
  * @param referenceRange - The primary date range to compare against
  * @return Array of comparison presets with strongly-typed IDs
  */
-export function useComparisonDatePresets(
-	referenceRange: DateRange
-): ComparisonDateRangePreset[] {
+export function useComparisonDatePresets( referenceRange: DateRange ): ComparisonDateRangePreset[] {
 	return useMemo( () => {
 		if ( ! referenceRange.from || ! referenceRange.to ) {
 			return [];
@@ -40,15 +38,9 @@ export function useComparisonDatePresets(
 
 		return getComparisonPresetConfigs()
 			.map( ( { id, label } ) => {
-				const range = getComparisonRangeFromPreset(
-					referenceRange,
-					id
-				);
+				const range = getComparisonRangeFromPreset( referenceRange, id );
 				return range ? { id, label, range } : null;
 			} )
-			.filter(
-				( preset ): preset is ComparisonDateRangePreset =>
-					preset !== null
-			);
+			.filter( ( preset ): preset is ComparisonDateRangePreset => preset !== null );
 	}, [ referenceRange ] );
 }

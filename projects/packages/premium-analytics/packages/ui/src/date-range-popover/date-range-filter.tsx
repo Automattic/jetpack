@@ -44,9 +44,7 @@ const MOBILE_CONTAINER_WIDTH_THRESHOLD = 480;
  * Date range type from @automattic/ui.
  * Represents a range with `from` and `to` Date objects.
  */
-export type DateRange = NonNullable<
-	Parameters< typeof DateRangeCalendar >[ 0 ][ 'selected' ]
->;
+export type DateRange = NonNullable< Parameters< typeof DateRangeCalendar >[ 0 ][ 'selected' ] >;
 
 /**
  * Props for DateRangePopoverContent component.
@@ -132,12 +130,7 @@ function DateRangePopoverActions( {
 			<Button variant="minimal" size="compact" onClick={ onCancel }>
 				{ __( 'Cancel', 'jetpack-premium-analytics' ) }
 			</Button>
-			<Button
-				variant="solid"
-				size="compact"
-				disabled={ ! canApply }
-				onClick={ onApply }
-			>
+			<Button variant="solid" size="compact" disabled={ ! canApply } onClick={ onApply }>
 				{ __( 'Apply', 'jetpack-premium-analytics' ) }
 			</Button>
 		</Stack>
@@ -176,7 +169,7 @@ function DateRangePresetsDropdown( {
 
 	const handleChange = useCallback(
 		( selectedValue: string ) => {
-			const preset = presets.find( ( p ) => p.id === selectedValue );
+			const preset = presets.find( p => p.id === selectedValue );
 			if ( preset ) {
 				onRangeChange( preset.range, preset.id );
 			}
@@ -209,14 +202,9 @@ export function DateRangePopoverContent( {
 	isMobile = false,
 	timeZone,
 }: DateRangePopoverContentProps ) {
-	const [ displayedMonth, setDisplayedMonth ] = useState(
-		getDisplayedMonth( range )
-	);
+	const [ displayedMonth, setDisplayedMonth ] = useState( getDisplayedMonth( range ) );
 
-	const handleChange = (
-		nextRange?: DateRange,
-		nextPrimaryPresetId?: PrimaryPresetId
-	) => {
+	const handleChange = ( nextRange?: DateRange, nextPrimaryPresetId?: PrimaryPresetId ) => {
 		if ( nextRange ) {
 			setDisplayedMonth( getDisplayedMonth( nextRange ) );
 		}
@@ -238,27 +226,19 @@ export function DateRangePopoverContent( {
 					timeZone={ timeZone }
 				/>
 
-				<DateRangeInput
-					range={ range }
-					onChange={ handleChange }
-					timeZone={ timeZone }
-				/>
+				<DateRangeInput range={ range } onChange={ handleChange } timeZone={ timeZone } />
 
 				<DateRangeCalendar
 					className="date-range-calendar"
 					selected={ range }
-					onSelect={ ( nextRange ) => handleChange( nextRange ) }
+					onSelect={ nextRange => handleChange( nextRange ) }
 					numberOfMonths={ 1 }
 					month={ displayedMonth }
 					onMonthChange={ setDisplayedMonth }
 					timeZone={ timeZone }
 				/>
 
-				<DateRangePopoverActions
-					onCancel={ onCancel }
-					onApply={ onApply }
-					canApply={ canApply }
-				/>
+				<DateRangePopoverActions onCancel={ onCancel } onApply={ onApply } canApply={ canApply } />
 			</div>
 		);
 	}
@@ -283,16 +263,12 @@ export function DateRangePopoverContent( {
 				gap="lg"
 				direction="column"
 			>
-				<DateRangeInput
-					range={ range }
-					onChange={ handleChange }
-					timeZone={ timeZone }
-				/>
+				<DateRangeInput range={ range } onChange={ handleChange } timeZone={ timeZone } />
 
 				<DateRangeCalendar
 					className="date-range-calendar"
 					selected={ range }
-					onSelect={ ( nextRange ) => handleChange( nextRange ) }
+					onSelect={ nextRange => handleChange( nextRange ) }
 					numberOfMonths={ isWideScreen ? 2 : 1 }
 					month={ displayedMonth }
 					onMonthChange={ setDisplayedMonth }
@@ -300,19 +276,12 @@ export function DateRangePopoverContent( {
 				/>
 			</Stack>
 
-			<DateRangePopoverActions
-				onCancel={ onCancel }
-				onApply={ onApply }
-				canApply={ canApply }
-			/>
+			<DateRangePopoverActions onCancel={ onCancel } onApply={ onApply } canApply={ canApply } />
 		</div>
 	);
 }
 
-type DateRangePopoverProps = Omit<
-	DateRangePopoverContentProps,
-	'isWideScreen' | 'isMobile'
-> & {
+type DateRangePopoverProps = Omit< DateRangePopoverContentProps, 'isWideScreen' | 'isMobile' > & {
 	/**
 	 * Optional external container element for responsive calculations.
 	 * When provided, the component will measure this container's width
@@ -337,9 +306,7 @@ export function DateRangePopover( {
 	timeZone,
 	containerElement,
 }: DateRangePopoverProps ) {
-	const [ containerWidth, setContainerWidth ] = useState< number | null >(
-		null
-	);
+	const [ containerWidth, setContainerWidth ] = useState< number | null >( null );
 
 	// Callback to update container width
 	const handleResize = useCallback( ( entries: ResizeObserverEntry[] ) => {
@@ -359,12 +326,9 @@ export function DateRangePopover( {
 	}, [ containerElement, setObserverRef ] );
 
 	// Determine layout based on container width
-	const isMobile =
-		containerWidth !== null &&
-		containerWidth < MOBILE_CONTAINER_WIDTH_THRESHOLD;
+	const isMobile = containerWidth !== null && containerWidth < MOBILE_CONTAINER_WIDTH_THRESHOLD;
 
-	const isWideScreen =
-		containerWidth !== null && containerWidth >= WIDE_CONTAINER_THRESHOLD;
+	const isWideScreen = containerWidth !== null && containerWidth >= WIDE_CONTAINER_THRESHOLD;
 
 	const presetLabel = getPresetLabel( presetId );
 

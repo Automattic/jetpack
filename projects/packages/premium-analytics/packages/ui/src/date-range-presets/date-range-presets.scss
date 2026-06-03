@@ -1,7 +1,7 @@
-@use "@wordpress/base-styles/variables" as vars;
-@use "@wordpress/base-styles/colors" as colors;
+@use '@wordpress/base-styles/variables' as vars;
+@use '@wordpress/base-styles/colors' as colors;
 
-.date-range-presets{
+.date-range-presets {
 	max-width: 240px;
 }
 
@@ -16,11 +16,11 @@
 	// Custom button acts as a label, not an interactive element.
 	// Override disabled styles to show selection state visually.
 	.date-range-presets__custom {
-		&[aria-disabled="true"] {
+		&[aria-disabled='true'] {
 			color: var( --wpds-color-fg-content-neutral-weak );
 		}
 
-		&[aria-checked="true"] {
+		&[aria-checked='true'] {
 			color: var( --wpds-color-fg-content-neutral );
 		}
 	}

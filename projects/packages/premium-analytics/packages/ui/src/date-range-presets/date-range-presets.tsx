@@ -88,10 +88,7 @@ export function DateRangePresets( {
 		return getDefaultDateRangePresets( timeZone );
 	}, [ presetsProp, timeZone ] );
 
-	const presets = useMemo(
-		() => presetsProp || defaultPresets,
-		[ presetsProp, defaultPresets ]
-	);
+	const presets = useMemo( () => presetsProp || defaultPresets, [ presetsProp, defaultPresets ] );
 
 	return (
 		<>
@@ -122,9 +119,7 @@ export function DateRangePresets( {
 					checked={ value === PRESET_CUSTOM }
 					disabled
 				>
-					<Menu.ItemLabel>
-						{ __( 'Custom', 'jetpack-premium-analytics' ) }
-					</Menu.ItemLabel>
+					<Menu.ItemLabel>{ __( 'Custom', 'jetpack-premium-analytics' ) }</Menu.ItemLabel>
 				</Menu.CheckboxItem>
 
 				{ onClear && (
@@ -137,9 +132,7 @@ export function DateRangePresets( {
 						onChange={ onClear }
 						hideOnClick
 					>
-						<Menu.ItemLabel>
-							{ __( 'No comparison', 'jetpack-premium-analytics' ) }
-						</Menu.ItemLabel>
+						<Menu.ItemLabel>{ __( 'No comparison', 'jetpack-premium-analytics' ) }</Menu.ItemLabel>
 					</Menu.CheckboxItem>
 				) }
 			</Menu.Group>
