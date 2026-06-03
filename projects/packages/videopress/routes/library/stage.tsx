@@ -1,4 +1,5 @@
 import { useGlobalNotices } from '@automattic/jetpack-components/global-notices';
+import { Tooltip } from '@wordpress/components';
 import { DataViews } from '@wordpress/dataviews';
 import { useCallback, useMemo, useRef, useState } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
@@ -8,6 +9,7 @@ import DashboardLayout from '../../src/dashboard/components/DashboardLayout';
 import { buildLibraryActions } from '../../src/dashboard/components/Library/actions';
 import { libraryFields } from '../../src/dashboard/components/Library/fields';
 import { UploadActionsProvider } from '../../src/dashboard/components/Library/upload-actions-context';
+import { useFreeTier } from '../../src/dashboard/hooks/use-free-tier';
 import { useMockLibrary } from '../../src/dashboard/hooks/use-mock-library';
 import './style.scss';
 import type { LibraryItemPrivacy, MockLibraryItem } from '../../src/dashboard/types/library';
@@ -44,6 +46,7 @@ const defaultLayouts = {
 const Stage = () => {
 	const { items, isLoading, startUpload, promoteLocal, retryUpload, deleteItems, setPrivacy } =
 		useMockLibrary();
+	const { isAtLimit } = useFreeTier();
 
 	const [ view, setView ] = useState< View >( DEFAULT_VIEW );
 	const [ selection, setSelection ] = useState< string[] >( [] );
@@ -62,8 +65,11 @@ const Stage = () => {
 
 	const filePickerRef = useRef< HTMLInputElement >( null );
 	const onClickHeaderUpload = useCallback( () => {
+		if ( isAtLimit ) {
+			return;
+		}
 		filePickerRef.current?.click();
-	}, [] );
+	}, [ isAtLimit ] );
 	const onFilePicked = useCallback(
 		( event: ChangeEvent< HTMLInputElement > ) => {
 			const file = event.target.files?.[ 0 ];
@@ -196,9 +202,25 @@ const Stage = () => {
 						style={ { display: 'none' } }
 						onChange={ onFilePicked }
 					/>
-					<Button size="compact" onClick={ onClickHeaderUpload }>
-						{ __( 'Upload video', 'jetpack-videopress-pkg' ) }
-					</Button>
+					<Tooltip
+						text={
+							isAtLimit
+								? __(
+										'You’ve reached the free plan’s 1-video limit. Upgrade to upload more.',
+										'jetpack-videopress-pkg'
+								  )
+								: __( 'Upload a new video', 'jetpack-videopress-pkg' )
+						}
+					>
+						<Button
+							className="vp-library__upload-button"
+							size="compact"
+							onClick={ onClickHeaderUpload }
+							aria-disabled={ isAtLimit }
+						>
+							{ __( 'Upload video', 'jetpack-videopress-pkg' ) }
+						</Button>
+					</Tooltip>
 				</>
 			}
 		>

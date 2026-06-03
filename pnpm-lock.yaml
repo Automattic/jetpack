@@ -1053,16 +1053,16 @@ importers:
         version: 4.0.2(postcss@8.5.14)
       rollup-plugin-svelte:
         specifier: 7.2.2
-        version: 7.2.2(rollup@3.30.0)(svelte@5.53.12)
+        version: 7.2.2(rollup@3.30.0)(svelte@5.55.7)
       sass:
         specifier: npm:sass-embedded@^1.97.2
         version: sass-embedded@1.97.3
       svelte:
-        specifier: 5.53.12
-        version: 5.53.12
+        specifier: 5.55.7
+        version: 5.55.7
       svelte-preprocess:
         specifier: 6.0.2
-        version: 6.0.2(@babel/core@7.29.0)(postcss@8.5.14)(sass-embedded@1.97.3)(svelte@5.53.12)(typescript@5.9.3)
+        version: 6.0.2(@babel/core@7.29.0)(postcss@8.5.14)(sass-embedded@1.97.3)(svelte@5.55.7)(typescript@5.9.3)
       tslib:
         specifier: 2.8.1
         version: 2.8.1
@@ -1778,7 +1778,7 @@ importers:
         version: 2.3.0(webpack@5.105.2)
       '@pmmmwh/react-refresh-webpack-plugin':
         specifier: 0.6.2
-        version: 0.6.2(react-refresh@0.17.0)(webpack-dev-server@5.2.3)(webpack@5.105.2)
+        version: 0.6.2(react-refresh@0.17.0)(webpack-dev-server@5.2.4)(webpack@5.105.2)
       '@wordpress/browserslist-config':
         specifier: 6.44.0
         version: 6.44.0
@@ -1836,10 +1836,10 @@ importers:
         version: 5.105.2(webpack-cli@6.0.1)
       webpack-cli:
         specifier: 6.0.1
-        version: 6.0.1(webpack-dev-server@5.2.3)(webpack@5.105.2)
+        version: 6.0.1(webpack-dev-server@5.2.4)(webpack@5.105.2)
       webpack-dev-server:
-        specifier: 5.2.3
-        version: 5.2.3(webpack-cli@6.0.1)(webpack@5.105.2)
+        specifier: 5.2.4
+        version: 5.2.4(webpack-cli@6.0.1)(webpack@5.105.2)
 
   projects/packages/account-protection: {}
 
@@ -2036,12 +2036,18 @@ importers:
       '@wordpress/api-fetch':
         specifier: 7.44.0
         version: 7.44.0
+      '@wordpress/base-styles':
+        specifier: 6.20.0
+        version: 6.20.0
       '@wordpress/components':
         specifier: 32.6.0
         version: 32.6.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/data':
         specifier: 10.44.0
         version: 10.44.0(react@18.3.1)
+      '@wordpress/dataviews':
+        specifier: 14.1.0
+        version: 14.1.0(@types/react@18.3.28)(react@18.3.1)
       '@wordpress/date':
         specifier: 5.44.0
         version: 5.44.0
@@ -2054,6 +2060,12 @@ importers:
       '@wordpress/icons':
         specifier: 12.2.0
         version: 12.2.0(react@18.3.1)
+      '@wordpress/route':
+        specifier: 0.10.0
+        version: 0.10.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@wordpress/theme':
+        specifier: 0.11.0
+        version: 0.11.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/ui':
         specifier: 0.11.0
         version: 0.11.0(@types/react@18.3.28)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -2108,7 +2120,7 @@ importers:
         version: 6.44.0
       '@wordpress/build':
         specifier: 0.13.0
-        version: 0.13.0(@babel/core@7.29.0)(browserslist@4.28.2)
+        version: 0.13.0(@babel/core@7.29.0)(@wordpress/route@0.10.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@wordpress/theme@0.11.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(browserslist@4.28.2)
       browserslist:
         specifier: ^4.24.0
         version: 4.28.2
@@ -3304,10 +3316,10 @@ importers:
         version: 5.105.2(webpack-cli@6.0.1)
       webpack-cli:
         specifier: 6.0.1
-        version: 6.0.1(webpack-dev-server@5.2.3)(webpack@5.105.2)
+        version: 6.0.1(webpack-dev-server@5.2.4)(webpack@5.105.2)
       webpack-dev-server:
-        specifier: 5.2.3
-        version: 5.2.3(debug@4.4.3)(webpack-cli@6.0.1)(webpack@5.105.2)
+        specifier: 5.2.4
+        version: 5.2.4(debug@4.4.3)(webpack-cli@6.0.1)(webpack@5.105.2)
 
   projects/packages/newsletter:
     dependencies:
@@ -3685,6 +3697,9 @@ importers:
       '@wordpress/dependency-extraction-webpack-plugin':
         specifier: 6.44.0
         version: 6.44.0(webpack@5.105.2)
+      '@wordpress/editor':
+        specifier: 14.44.0
+        version: 14.44.0(@types/react@18.3.28)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/element':
         specifier: 6.44.0
         version: 6.44.0
@@ -3706,6 +3721,9 @@ importers:
       '@wordpress/notices':
         specifier: 5.44.0
         version: 5.44.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@wordpress/plugins':
+        specifier: 7.44.0
+        version: 7.44.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/primitives':
         specifier: 4.44.0
         version: 4.44.0(react@18.3.1)
@@ -4060,10 +4078,10 @@ importers:
         version: 5.105.2(webpack-cli@6.0.1)
       webpack-cli:
         specifier: 6.0.1
-        version: 6.0.1(webpack-dev-server@5.2.3)(webpack@5.105.2)
+        version: 6.0.1(webpack-dev-server@5.2.4)(webpack@5.105.2)
       webpack-dev-server:
-        specifier: 5.2.3
-        version: 5.2.3(webpack-cli@6.0.1)(webpack@5.105.2)
+        specifier: 5.2.4
+        version: 5.2.4(webpack-cli@6.0.1)(webpack@5.105.2)
 
   projects/packages/rtc:
     dependencies:
@@ -5412,16 +5430,16 @@ importers:
         version: 4.0.2(postcss@8.5.14)
       rollup-plugin-svelte:
         specifier: 7.2.2
-        version: 7.2.2(rollup@3.30.0)(svelte@5.53.12)
+        version: 7.2.2(rollup@3.30.0)(svelte@5.55.7)
       sass:
         specifier: npm:sass-embedded@^1.97.2
         version: sass-embedded@1.97.3
       svelte:
-        specifier: 5.53.12
-        version: 5.53.12
+        specifier: 5.55.7
+        version: 5.55.7
       svelte-preprocess:
         specifier: 6.0.2
-        version: 6.0.2(@babel/core@7.29.0)(postcss@8.5.14)(sass-embedded@1.97.3)(svelte@5.53.12)(typescript@5.9.3)
+        version: 6.0.2(@babel/core@7.29.0)(postcss@8.5.14)(sass-embedded@1.97.3)(svelte@5.55.7)(typescript@5.9.3)
       tslib:
         specifier: 2.8.1
         version: 2.8.1
@@ -6560,7 +6578,7 @@ importers:
         version: 10.3.6(eslint@9.39.4)(storybook@10.3.6(@testing-library/dom@10.4.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(wp-prettier@3.0.3))(typescript@5.9.3)
       eslint-plugin-svelte:
         specifier: 3.15.2
-        version: 3.15.2(eslint@9.39.4)(svelte@5.53.12)
+        version: 3.15.2(eslint@9.39.4)(svelte@5.55.7)
       eslint-plugin-testing-library:
         specifier: 7.16.0
         version: 7.16.0(eslint@9.39.4)(typescript@5.9.3)
@@ -6602,7 +6620,7 @@ importers:
         version: wp-prettier@3.0.3
       prettier-plugin-svelte:
         specifier: 3.3.2
-        version: 3.3.2(svelte@5.53.12)(wp-prettier@3.0.3)
+        version: 3.3.2(svelte@5.55.7)(wp-prettier@3.0.3)
       react:
         specifier: 18.3.1
         version: 18.3.1
@@ -6622,11 +6640,11 @@ importers:
         specifier: 7.0.0
         version: 7.0.0(stylelint@17.7.0(typescript@5.9.3))
       svelte:
-        specifier: 5.53.12
-        version: 5.53.12
+        specifier: 5.55.7
+        version: 5.55.7
       svelte-eslint-parser:
         specifier: 1.4.1
-        version: 1.4.1(svelte@5.53.12)
+        version: 1.4.1(svelte@5.55.7)
       typescript:
         specifier: 5.9.3
         version: 5.9.3
@@ -12841,8 +12859,8 @@ packages:
   detect-node@2.1.0:
     resolution: {integrity: sha512-T0NIuQpnTvFDATNuHN5roPwSBG83rFsuO+MXXH9/3N1eFbn4wcPjttvjMLEPWJ0RGUYgQE7cGgS3tNxbqCGM7g==}
 
-  devalue@5.8.0:
-    resolution: {integrity: sha512-2zA9pFEsnp7vWBZbXF5JAgAq0fsUIt/1XPbRiAmRV3lp/2C3upzH+sADiyy66aFCihoLEsrQHxNM5w1gIDfsBg==}
+  devalue@5.8.1:
+    resolution: {integrity: sha512-4CXDYRBGqN+57wVJkuXBYmpAVUSg3L6JAQa/DFqm238G73E1wuyc/JhGQJzN7vUf/CMphYau2zXbfWzDR5aTEw==}
 
   devlop@1.1.0:
     resolution: {integrity: sha512-RWmIqhcFf1lRYBvNmr7qTNuyCt/7/ns2jbpp1+PalgE/rDQcBT0fioSMUpJ93irlUhC5hrg4cYqe6U+0ImW0rA==}
@@ -17590,8 +17608,8 @@ packages:
       typescript:
         optional: true
 
-  svelte@5.53.12:
-    resolution: {integrity: sha512-4x/uk4rQe/d7RhfvS8wemTfNjQ0bJbKvamIzRBfTe2eHHjzBZ7PZicUQrC2ryj83xxEacfA1zHKd1ephD1tAxA==}
+  svelte@5.55.7:
+    resolution: {integrity: sha512-ymI5ykLPwIHW839E053FQbI1G+jnRFJEw3Kv5Y4njixVWywQBx+NUFpkkKyk5LIb36Fg9DVXSYpqiGekLD0hyw==}
     engines: {node: '>=18'}
 
   svg-pathdata@7.2.0:
@@ -18325,8 +18343,8 @@ packages:
       webpack:
         optional: true
 
-  webpack-dev-server@5.2.3:
-    resolution: {integrity: sha512-9Gyu2F7+bg4Vv+pjbovuYDhHX+mqdqITykfzdM9UyKqKHlsE5aAjRhR+oOEfXW5vBeu8tarzlJFIZva4ZjAdrQ==}
+  webpack-dev-server@5.2.4:
+    resolution: {integrity: sha512-GqDPGZN9bRqKBTkp4aWkobDDHMsrXKoGSdOH56smIri8qR0JG8gfL8/v/f/OZR3/OKXjG8uwJbFVhKm/FNU/UA==}
     engines: {node: '>= 18.12.0'}
     hasBin: true
     peerDependencies:
@@ -21726,7 +21744,7 @@ snapshots:
     dependencies:
       playwright: 1.58.2
 
-  '@pmmmwh/react-refresh-webpack-plugin@0.6.2(react-refresh@0.17.0)(webpack-dev-server@5.2.3)(webpack@5.105.2)':
+  '@pmmmwh/react-refresh-webpack-plugin@0.6.2(react-refresh@0.17.0)(webpack-dev-server@5.2.4)(webpack@5.105.2)':
     dependencies:
       anser: 2.3.5
       core-js-pure: 3.49.0
@@ -21737,7 +21755,7 @@ snapshots:
       source-map: 0.7.4
       webpack: 5.105.2(webpack-cli@6.0.1)
     optionalDependencies:
-      webpack-dev-server: 5.2.3(webpack-cli@6.0.1)(webpack@5.105.2)
+      webpack-dev-server: 5.2.4(webpack-cli@6.0.1)(webpack@5.105.2)
 
   '@polka/url@1.0.0-next.29': {}
 
@@ -23859,12 +23877,12 @@ snapshots:
       webpack: 5.105.2(webpack-cli@6.0.1)
       webpack-cli: 6.0.1(webpack@5.105.2)
 
-  '@webpack-cli/serve@3.0.1(webpack-cli@6.0.1)(webpack-dev-server@5.2.3)(webpack@5.105.2)':
+  '@webpack-cli/serve@3.0.1(webpack-cli@6.0.1)(webpack-dev-server@5.2.4)(webpack@5.105.2)':
     dependencies:
       webpack: 5.105.2(webpack-cli@6.0.1)
-      webpack-cli: 6.0.1(webpack-dev-server@5.2.3)(webpack@5.105.2)
+      webpack-cli: 6.0.1(webpack-dev-server@5.2.4)(webpack@5.105.2)
     optionalDependencies:
-      webpack-dev-server: 5.2.3(webpack-cli@6.0.1)(webpack@5.105.2)
+      webpack-dev-server: 5.2.4(webpack-cli@6.0.1)(webpack@5.105.2)
 
   '@webpack-cli/serve@3.0.1(webpack-cli@6.0.1)(webpack@5.105.2)':
     dependencies:
@@ -24782,28 +24800,6 @@ snapshots:
     optionalDependencies:
       '@wordpress/route': 0.10.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/theme': 0.11.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-    transitivePeerDependencies:
-      - '@babel/core'
-      - browserslist
-      - supports-color
-
-  '@wordpress/build@0.13.0(@babel/core@7.29.0)(browserslist@4.28.2)':
-    dependencies:
-      '@emotion/babel-plugin': 11.13.5
-      autoprefixer: 10.5.0(postcss@8.5.14)
-      browserslist-to-esbuild: 2.1.1(browserslist@4.28.2)
-      change-case: 4.1.2
-      chokidar: 4.0.3
-      cssnano: 7.1.9(postcss@8.5.14)
-      esbuild: 0.27.4
-      esbuild-plugin-babel: 0.2.3(@babel/core@7.29.0)
-      esbuild-sass-plugin: 3.3.1(esbuild@0.27.4)(sass-embedded@1.97.3)
-      fast-glob: 3.3.3
-      moment-timezone: 0.5.48
-      postcss: 8.5.14
-      postcss-modules: 6.0.1(postcss@8.5.14)
-      rtlcss: 4.3.0
-      sass-embedded: 1.97.3
     transitivePeerDependencies:
       - '@babel/core'
       - browserslist
@@ -28693,7 +28689,7 @@ snapshots:
 
   detect-node@2.1.0: {}
 
-  devalue@5.8.0: {}
+  devalue@5.8.1: {}
 
   devlop@1.1.0:
     dependencies:
@@ -29286,7 +29282,7 @@ snapshots:
       - supports-color
       - typescript
 
-  eslint-plugin-svelte@3.15.2(eslint@9.39.4)(svelte@5.53.12):
+  eslint-plugin-svelte@3.15.2(eslint@9.39.4)(svelte@5.55.7):
     dependencies:
       '@eslint-community/eslint-utils': 4.9.1(eslint@9.39.4)
       '@jridgewell/sourcemap-codec': 1.5.5
@@ -29298,9 +29294,9 @@ snapshots:
       postcss-load-config: 3.1.4(postcss@8.5.14)
       postcss-safe-parser: 7.0.1(postcss@8.5.14)
       semver: 7.7.3
-      svelte-eslint-parser: 1.4.1(svelte@5.53.12)
+      svelte-eslint-parser: 1.4.1(svelte@5.55.7)
     optionalDependencies:
-      svelte: 5.53.12
+      svelte: 5.55.7
     transitivePeerDependencies:
       - ts-node
 
@@ -32766,10 +32762,10 @@ snapshots:
     dependencies:
       fast-diff: 1.3.0
 
-  prettier-plugin-svelte@3.3.2(svelte@5.53.12)(wp-prettier@3.0.3):
+  prettier-plugin-svelte@3.3.2(svelte@5.55.7)(wp-prettier@3.0.3):
     dependencies:
       prettier: wp-prettier@3.0.3
-      svelte: 5.53.12
+      svelte: 5.55.7
 
   prettier@3.8.3: {}
 
@@ -33416,12 +33412,12 @@ snapshots:
     transitivePeerDependencies:
       - ts-node
 
-  rollup-plugin-svelte@7.2.2(rollup@3.30.0)(svelte@5.53.12):
+  rollup-plugin-svelte@7.2.2(rollup@3.30.0)(svelte@5.55.7):
     dependencies:
       '@rollup/pluginutils': 4.2.1
       resolve.exports: 2.0.3
       rollup: 3.30.0
-      svelte: 5.53.12
+      svelte: 5.55.7
 
   rollup-pluginutils@2.8.2:
     dependencies:
@@ -34335,7 +34331,7 @@ snapshots:
 
   supports-preserve-symlinks-flag@1.0.0: {}
 
-  svelte-eslint-parser@1.4.1(svelte@5.53.12):
+  svelte-eslint-parser@1.4.1(svelte@5.55.7):
     dependencies:
       eslint-scope: 8.4.0
       eslint-visitor-keys: 4.2.1
@@ -34344,18 +34340,18 @@ snapshots:
       postcss-scss: 4.0.9(postcss@8.5.14)
       postcss-selector-parser: 7.1.1
     optionalDependencies:
-      svelte: 5.53.12
+      svelte: 5.55.7
 
-  svelte-preprocess@6.0.2(@babel/core@7.29.0)(postcss@8.5.14)(sass-embedded@1.97.3)(svelte@5.53.12)(typescript@5.9.3):
+  svelte-preprocess@6.0.2(@babel/core@7.29.0)(postcss@8.5.14)(sass-embedded@1.97.3)(svelte@5.55.7)(typescript@5.9.3):
     dependencies:
-      svelte: 5.53.12
+      svelte: 5.55.7
     optionalDependencies:
       '@babel/core': 7.29.0
       postcss: 8.5.14
       sass: sass-embedded@1.97.3
       typescript: 5.9.3
 
-  svelte@5.53.12:
+  svelte@5.55.7:
     dependencies:
       '@jridgewell/remapping': 2.3.5
       '@jridgewell/sourcemap-codec': 1.5.5
@@ -34366,7 +34362,7 @@ snapshots:
       aria-query: 5.3.1
       axobject-query: 4.1.0
       clsx: 2.1.1
-      devalue: 5.8.0
+      devalue: 5.8.1
       esm-env: 1.2.2
       esrap: 2.2.6
       is-reference: 3.0.3
@@ -35105,12 +35101,12 @@ snapshots:
 
   webidl-conversions@8.0.1: {}
 
-  webpack-cli@6.0.1(webpack-dev-server@5.2.3)(webpack@5.105.2):
+  webpack-cli@6.0.1(webpack-dev-server@5.2.4)(webpack@5.105.2):
     dependencies:
       '@discoveryjs/json-ext': 0.6.3
       '@webpack-cli/configtest': 3.0.1(webpack-cli@6.0.1)(webpack@5.105.2)
       '@webpack-cli/info': 3.0.1(webpack-cli@6.0.1)(webpack@5.105.2)
-      '@webpack-cli/serve': 3.0.1(webpack-cli@6.0.1)(webpack-dev-server@5.2.3)(webpack@5.105.2)
+      '@webpack-cli/serve': 3.0.1(webpack-cli@6.0.1)(webpack-dev-server@5.2.4)(webpack@5.105.2)
       colorette: 2.0.20
       commander: 12.1.0
       cross-spawn: 7.0.6
@@ -35122,7 +35118,7 @@ snapshots:
       webpack: 5.105.2(webpack-cli@6.0.1)
       webpack-merge: 6.0.1
     optionalDependencies:
-      webpack-dev-server: 5.2.3(webpack-cli@6.0.1)(webpack@5.105.2)
+      webpack-dev-server: 5.2.4(webpack-cli@6.0.1)(webpack@5.105.2)
 
   webpack-cli@6.0.1(webpack@5.105.2):
     dependencies:
@@ -35152,7 +35148,7 @@ snapshots:
     optionalDependencies:
       webpack: 5.105.2(webpack-cli@6.0.1)
 
-  webpack-dev-server@5.2.3(debug@4.4.3)(webpack-cli@6.0.1)(webpack@5.105.2):
+  webpack-dev-server@5.2.4(debug@4.4.3)(webpack-cli@6.0.1)(webpack@5.105.2):
     dependencies:
       '@types/bonjour': 3.5.13
       '@types/connect-history-api-fallback': 1.5.4
@@ -35184,14 +35180,14 @@ snapshots:
       ws: 8.20.0
     optionalDependencies:
       webpack: 5.105.2(webpack-cli@6.0.1)
-      webpack-cli: 6.0.1(webpack-dev-server@5.2.3)(webpack@5.105.2)
+      webpack-cli: 6.0.1(webpack-dev-server@5.2.4)(webpack@5.105.2)
     transitivePeerDependencies:
       - bufferutil
       - debug
       - supports-color
       - utf-8-validate
 
-  webpack-dev-server@5.2.3(webpack-cli@6.0.1)(webpack@5.105.2):
+  webpack-dev-server@5.2.4(webpack-cli@6.0.1)(webpack@5.105.2):
     dependencies:
       '@types/bonjour': 3.5.13
       '@types/connect-history-api-fallback': 1.5.4
@@ -35223,7 +35219,7 @@ snapshots:
       ws: 8.20.0
     optionalDependencies:
       webpack: 5.105.2(webpack-cli@6.0.1)
-      webpack-cli: 6.0.1(webpack-dev-server@5.2.3)(webpack@5.105.2)
+      webpack-cli: 6.0.1(webpack-dev-server@5.2.4)(webpack@5.105.2)
     transitivePeerDependencies:
       - bufferutil
       - debug

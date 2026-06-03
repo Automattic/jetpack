@@ -268,5 +268,9 @@ export function generateMockStats( dateRange: DateRange, granularity: Granularit
 		topVideosByWatchTime: [ ...scaledVideos ].sort(
 			( a, b ) => b.watchTimeSeconds - a.watchTimeSeconds
 		),
+		// ~42% of 1 TB — enough that the meter is visually meaningful and
+		// not so high that it implies the user is at capacity. Storage is
+		// a snapshot, so it does not vary with `dateRange` / `granularity`.
+		storageUsedBytes: 420_000_000_000,
 	};
 }

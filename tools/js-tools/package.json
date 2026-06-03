@@ -72,7 +72,7 @@
 		"storybook": "10.3.6",
 		"stylelint": "17.7.0",
 		"stylelint-scss": "7.0.0",
-		"svelte": "5.53.12",
+		"svelte": "5.55.7",
 		"svelte-eslint-parser": "1.4.1",
 		"typescript": "5.9.3",
 		"typescript-eslint": "8.57.1",

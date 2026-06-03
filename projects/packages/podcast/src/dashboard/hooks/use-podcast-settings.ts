@@ -7,6 +7,8 @@ import { store as noticesStore } from '@wordpress/notices';
 import type {
 	PodcastSettings,
 	PodcastSettingsUpdate,
+	PodcastShowState,
+	PodcastShowStates,
 	PodcastShowUrls,
 	PodcatcherId,
 } from '../types';
@@ -25,6 +27,7 @@ const PODCAST_KEYS: Array< keyof PodcastSettings > = [
 	'podcasting_category_3',
 	'podcasting_email',
 	'podcasting_show_urls',
+	'podcasting_show_states',
 ];
 
 // Keep in sync with `SHOW_URL_HOSTS` in src/class-settings.php.
@@ -43,6 +46,21 @@ const normalizeShowUrls = ( raw: unknown ): PodcastShowUrls => {
 	for ( const id of PODCATCHER_IDS ) {
 		const value = source[ id ];
 		out[ id ] = typeof value === 'string' ? value : '';
+	}
+	return out;
+};
+
+const SHOW_STATES: readonly PodcastShowState[] = [ '', 'pending', 'active' ] as const;
+
+const normalizeShowStates = ( raw: unknown ): PodcastShowStates => {
+	const source = ( raw && typeof raw === 'object' ? raw : {} ) as Record< string, unknown >;
+	const out = {} as PodcastShowStates;
+	for ( const id of PODCATCHER_IDS ) {
+		const value = source[ id ];
+		out[ id ] =
+			typeof value === 'string' && ( SHOW_STATES as readonly string[] ).includes( value )
+				? ( value as PodcastShowState )
+				: '';
 	}
 	return out;
 };
@@ -70,6 +88,8 @@ const pickPodcastFields = ( raw: Record< string, unknown > ): PodcastSettings =>
 			out[ key ] = Boolean( value );
 		} else if ( key === 'podcasting_show_urls' ) {
 			out[ key ] = normalizeShowUrls( value );
+		} else if ( key === 'podcasting_show_states' ) {
+			out[ key ] = normalizeShowStates( value );
 		} else if (
 			key === 'podcasting_category_1' ||
 			key === 'podcasting_category_2' ||

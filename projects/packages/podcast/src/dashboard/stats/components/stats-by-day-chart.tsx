@@ -88,8 +88,9 @@ const StatsByDayChart = ( {
 		[ byDay ]
 	);
 
+	// @automattic/charts uses options.stroke as the per-series bar color override.
 	const seriesData = useMemo(
-		() => [ { label: downloadsLabel, data: chartData } ],
+		() => [ { label: downloadsLabel, data: chartData, options: { stroke: '#3858e9' } } ],
 		[ downloadsLabel, chartData ]
 	);
 

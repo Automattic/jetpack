@@ -1,7 +1,7 @@
 import AdminPage from '@automattic/jetpack-components/admin-page';
-import { getSiteData } from '@automattic/jetpack-script-data';
+import { getScriptData, getSiteData } from '@automattic/jetpack-script-data';
 import { Spinner } from '@wordpress/components';
-import { lazy, Suspense, useCallback, useState } from '@wordpress/element';
+import { lazy, Suspense, useCallback, useEffect, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { useNavigate, useSearch } from '@wordpress/route';
 import { Tabs } from '@wordpress/ui';
@@ -16,6 +16,11 @@ const SettingsTab = lazy( () => import( './settings' ) );
 const EpisodesTab = lazy( () => import( './episodes' ) );
 const DistributionTab = lazy( () => import( './distribution' ) );
 const StatsTab = lazy( () => import( './stats' ) );
+const LockedPreview = lazy( () => import( './locked-preview' ) );
+
+// Fail-open: a missing flag means access-granted, so a deploy race never locks
+// grandfathered users out of the Episodes tab.
+const hasProductAccess = (): boolean => getScriptData()?.podcast?.has_product_access !== false;
 
 const TabFallback = () => (
 	<div className="podcast__loading">
@@ -39,6 +44,7 @@ type StageSearch = Record< string, unknown > & { tab?: string };
 const App = () => {
 	const { data: settings, isLoading } = usePodcastSettings();
 	const isSetUp = !! settings && settings.podcasting_category_id > 0;
+	const hasAccess = hasProductAccess();
 
 	// `?tab=` owns the active tab; absent `?tab=` falls back to `defaultTab`.
 	const search = useSearch( { from: '/' as unknown as never, strict: false } ) as StageSearch;
@@ -52,24 +58,35 @@ const App = () => {
 	// pre-set-up default has to be Settings. Returning, set-up users land on Stats.
 	const defaultTab: TabName = isSetUp ? 'stats' : 'settings';
 
-	const activeTab: TabName = isValidTab( search.tab ) ? search.tab : defaultTab;
+	// Pre-setup, only Settings is usable; ignore deep links to disabled tabs so a
+	// keyboard user can't land on a panel whose own tab is rendered disabled.
+	const requestedTab: TabName | null = isValidTab( search.tab ) ? search.tab : null;
+	const activeTab: TabName =
+		requestedTab && ( isSetUp || requestedTab === 'settings' ) ? requestedTab : defaultTab;
 
 	const navigate = useNavigate();
+
+	// `@wordpress/route`'s types don't model the search-updater form; isolate the
+	// cast here so callers stay clean.
+	const updateSearch = useCallback(
+		( updater: ( prev: Record< string, unknown > ) => Record< string, unknown > ) => {
+			navigate( { search: updater } as unknown as Parameters< typeof navigate >[ 0 ] );
+		},
+		[ navigate ]
+	);
 
 	const handleTabChange = useCallback(
 		( next: string | null ) => {
 			if ( ! isValidTab( next ) ) {
 				return;
 			}
-			navigate( {
-				search: ( prev: Record< string, unknown > ) => ( {
-					...prev,
-					// Default tab keeps a clean URL.
-					tab: next === defaultTab ? undefined : next,
-				} ),
-			} as unknown as Parameters< typeof navigate >[ 0 ] );
+			updateSearch( prev => ( {
+				...prev,
+				// Default tab keeps a clean URL.
+				tab: next === defaultTab ? undefined : next,
+			} ) );
 		},
-		[ navigate, defaultTab ]
+		[ updateSearch, defaultTab ]
 	);
 
 	const handleEnable = useCallback( () => {
@@ -81,20 +98,43 @@ const App = () => {
 	}, [] );
 
 	// Modal committed title + category atomically; flip out of Welcome and
-	// land the user on Settings to finish the show details.
+	// land the user on Settings to finish the show details. Pin `?tab=settings`
+	// explicitly rather than calling handleTabChange; once the settings query
+	// refetches and `isSetUp` flips true, the default tab flips to `stats` and
+	// a `tab: undefined` URL would bounce the user there before they finish.
+	const focusActiveTabOnNextRender = useRef( false );
+
+	const tablistRef = useRef< HTMLDivElement >( null );
+
 	const handleSetupSuccess = useCallback( () => {
 		setSetupModalOpen( false );
 		setHasEnabled( true );
-		handleTabChange( 'settings' );
-	}, [ handleTabChange ] );
+		focusActiveTabOnNextRender.current = true;
+		updateSearch( prev => ( { ...prev, tab: 'settings' } ) );
+	}, [ updateSearch ] );
+
+	// Modal close + Welcome unmount drops keyboard focus to document.body.
+	// Move it onto the newly-mounted Settings tab once the tablist renders.
+	useEffect( () => {
+		if ( ! focusActiveTabOnNextRender.current || showWelcome ) {
+			return;
+		}
+		focusActiveTabOnNextRender.current = false;
+		tablistRef.current
+			?.querySelector< HTMLElement >( '[role="tab"][aria-selected="true"]' )
+			?.focus();
+	}, [ showWelcome ] );
 
 	const goToSettings = useCallback( () => {
 		handleTabChange( 'settings' );
 	}, [ handleTabChange ] );
 
+	// On disable, drop the stale `?tab=` so a reload doesn't bypass Welcome
+	// via the deep-link gate.
 	const handleAfterDisable = useCallback( () => {
 		setHasEnabled( false );
-	}, [] );
+		updateSearch( prev => ( { ...prev, tab: undefined } ) );
+	}, [ updateSearch ] );
 
 	if ( isLoading ) {
 		return (
@@ -134,7 +174,7 @@ const App = () => {
 	return (
 		<AdminPage title={ PAGE_TITLE } subTitle={ PAGE_SUBTITLE }>
 			<Tabs.Root value={ activeTab } onValueChange={ handleTabChange }>
-				<div className="jp-admin-page-tabs">
+				<div className="jp-admin-page-tabs jp-admin-page-tabs--minimal" ref={ tablistRef }>
 					<Tabs.List variant="minimal">
 						<Tabs.Tab value="stats" disabled={ ! isSetUp }>
 							{ __( 'Stats', 'jetpack-podcast' ) }
@@ -152,7 +192,7 @@ const App = () => {
 					<div className="podcast__tab-content podcast__tab-content--xwide">
 						<ErrorBoundary>
 							<Suspense fallback={ <TabFallback /> }>
-								<StatsTab />
+								{ hasAccess ? <StatsTab /> : <LockedPreview variant="stats" /> }
 							</Suspense>
 						</ErrorBoundary>
 					</div>
@@ -161,7 +201,7 @@ const App = () => {
 					<div className="podcast__tab-content">
 						<ErrorBoundary>
 							<Suspense fallback={ <TabFallback /> }>
-								<EpisodesTab />
+								{ hasAccess ? <EpisodesTab /> : <LockedPreview variant="episodes" /> }
 							</Suspense>
 						</ErrorBoundary>
 					</div>

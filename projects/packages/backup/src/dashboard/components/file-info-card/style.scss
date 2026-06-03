@@ -1,0 +1,63 @@
+.jpb-file-info-card {
+	padding: 16px;
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+
+	&__header {
+		padding-bottom: 8px;
+		border-bottom: 1px solid var(--wp-components-color-gray-200, #e0e0e0);
+	}
+
+	&__meta {
+		display: flex;
+		flex-direction: column;
+		gap: 6px;
+		margin: 0;
+		font-size: 13px;
+
+		div {
+			display: flex;
+			gap: 6px;
+		}
+
+		dt {
+			margin: 0;
+			font-weight: 600;
+			flex: 0 0 auto;
+		}
+
+		dd {
+			margin: 0;
+			color: var(--wp-components-color-foreground, #1e1e1e);
+		}
+	}
+
+	&__hash {
+		font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+		font-size: 12px;
+		word-break: break-all;
+	}
+
+	&__preview {
+		max-height: 320px;
+		overflow: auto;
+		background-color: var(--wp-components-color-background-secondary, #f7f7f7);
+		border-radius: 4px;
+		padding: 12px;
+
+		pre {
+			margin: 0;
+			font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+			font-size: 12px;
+			line-height: 1.5;
+			white-space: pre;
+			color: var(--wp-components-color-foreground, #1e1e1e);
+		}
+	}
+
+	&__actions {
+		padding-top: 8px;
+		border-top: 1px solid var(--wp-components-color-gray-200, #e0e0e0);
+	}
+}

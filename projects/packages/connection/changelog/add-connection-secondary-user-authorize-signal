@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Connection: Signal to Calypso that the site already has a connection owner so the authorize page can show appropriate content for secondary user connections.

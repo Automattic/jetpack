@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Connectors: Show shorter, role-appropriate connect prompt for secondary user connections when the site already has a connection owner.

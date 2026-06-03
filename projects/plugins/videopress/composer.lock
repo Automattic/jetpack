@@ -1773,7 +1773,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/wp-build-polyfills",
-                "reference": "50a49082c2623dd4e295860c6a3d9b6be5b66f4c"
+                "reference": "b3add2c04a4cd1844f5686cbc8515404cbe6d83d"
             },
             "require": {
                 "php": ">=7.2"
@@ -1815,6 +1815,10 @@
                 ],
                 "test-php": [
                     "@composer phpunit"
+                ],
+                "test-js": [
+                    "pnpm run build",
+                    "pnpm run test"
                 ]
             },
             "license": [

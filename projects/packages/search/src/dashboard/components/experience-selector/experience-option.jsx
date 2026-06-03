@@ -1,5 +1,5 @@
 // eslint-disable-next-line @wordpress/no-unsafe-wp-apis -- ConfirmDialog is the canonical WP confirm pattern; still under the experimental flag in @wordpress/components 33.
-import { __experimentalConfirmDialog as ConfirmDialog } from '@wordpress/components';
+import { Button, Modal, __experimentalConfirmDialog as ConfirmDialog } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { createInterpolateElement, useState } from '@wordpress/element';
 import { __, _x, sprintf } from '@wordpress/i18n';
@@ -16,6 +16,7 @@ import './experience-option.scss';
 
 const SEARCH_CUSTOMIZE_URL = 'admin.php?page=jetpack-search-configure';
 const WIDGETS_EDITOR_URL = 'widgets.php';
+const THEMES_URL = 'themes.php';
 // The Site Editor identifies templates by `<theme-stylesheet>//<template-slug>`
 // even for plugin-registered ones, so the active theme is part of the URL. Built
 // at render time so the link follows theme switches without a re-deploy. Falls
@@ -104,11 +105,12 @@ const getHoverHint = experience => {
  * @return {import('react').Element} - The card.
  */
 export default function ExperienceOption( { experience, disabled = false } ) {
-	const { active, isUpdating, activeThemeStylesheet } = useSelect(
+	const { active, isUpdating, activeThemeStylesheet, isBlockTheme } = useSelect(
 		select => ( {
 			active: select( STORE_ID ).getActiveExperience(),
 			isUpdating: select( STORE_ID ).isUpdatingJetpackSettings(),
 			activeThemeStylesheet: select( STORE_ID ).getActiveThemeStylesheet(),
+			isBlockTheme: select( STORE_ID ).isBlockTheme(),
 		} ),
 		[]
 	);
@@ -118,6 +120,13 @@ export default function ExperienceOption( { experience, disabled = false } ) {
 	const isActive = active === experience;
 	const isRecommended = experience === EXPERIENCE.EMBEDDED;
 	const linksDisabled = isUpdating || ! isActive;
+
+	// Embedded search is built and customized in the Site Editor, which
+	// classic themes don't have. The card stays clickable so the click opens
+	// an explanatory modal instead of silently doing nothing — but the switch
+	// itself is never committed.
+	const isEmbeddedBlockedByTheme = experience === EXPERIENCE.EMBEDDED && ! isBlockTheme;
+	const blockedThemeHint = __( 'Embedded search requires a block theme', 'jetpack-search-pkg' );
 
 	const Preview = PREVIEWS[ experience ];
 
@@ -221,7 +230,14 @@ export default function ExperienceOption( { experience, disabled = false } ) {
 					type="button"
 					className="jp-search-experience-option__commit-overlay"
 					aria-disabled={ commitButtonDisabled }
-					title={ commitButtonDisabled ? undefined : getHoverHint( experience ) }
+					title={
+						// eslint-disable-next-line no-nested-ternary -- three mutually exclusive hint states; flattening would duplicate the attribute.
+						commitButtonDisabled
+							? undefined
+							: isEmbeddedBlockedByTheme
+							? blockedThemeHint
+							: getHoverHint( experience )
+					}
 					onClick={ () => {
 						if ( commitButtonDisabled ) {
 							return;
@@ -229,27 +245,63 @@ export default function ExperienceOption( { experience, disabled = false } ) {
 						setConfirmOpen( true );
 					} }
 					aria-label={
+						// eslint-disable-next-line no-nested-ternary -- three mutually exclusive label states; flattening would duplicate the attribute.
 						disabled
 							? `${ getCommitLabel( experience ) }. ${ upsellHint }`
+							: isEmbeddedBlockedByTheme
+							? `${ getExperienceLabel( experience ) }. ${ blockedThemeHint }`
 							: getCommitLabel( experience )
 					}
 				/>
 			) }
-			<ConfirmDialog
-				isOpen={ isConfirmOpen }
-				onConfirm={ () => {
-					saveExperience( experience );
-					setConfirmOpen( false );
-				} }
-				onCancel={ () => setConfirmOpen( false ) }
-				confirmButtonText={ getCommitLabel( experience ) }
-			>
-				{ sprintf(
-					/* translators: %s — the human-readable experience name (e.g. "Embedded search"). */
-					__( 'Switch the visitor-facing search experience to %s?', 'jetpack-search-pkg' ),
-					getExperienceLabel( experience )
-				) }
-			</ConfirmDialog>
+			{ isEmbeddedBlockedByTheme ? (
+				isConfirmOpen && (
+					// Informational only: classic themes can't run Embedded
+					// search, so this modal explains why and points to theme
+					// management — no confirm path that would commit the
+					// switch. (ConfirmDialog always renders both a confirm and
+					// a cancel button, so Modal is the right primitive here.)
+					// `size="medium"` constrains the width so the explanation
+					// wraps to a readable measure instead of one long line.
+					<Modal
+						title={ __( 'Embedded search needs a block theme', 'jetpack-search-pkg' ) }
+						onRequestClose={ () => setConfirmOpen( false ) }
+						className="jp-search-experience-option__blocked-modal"
+						size="medium"
+					>
+						<p>
+							{ createInterpolateElement(
+								__(
+									'Embedded search is a search page built and customized in the Site Editor. Your active theme is a classic theme, which has no Site Editor. <a>Switch to a block theme</a> to use this experience.',
+									'jetpack-search-pkg'
+								),
+								{ a: <a href={ THEMES_URL } /> }
+							) }
+						</p>
+						<div className="jp-search-experience-option__blocked-modal-actions">
+							<Button variant="primary" onClick={ () => setConfirmOpen( false ) }>
+								{ __( 'Got it', 'jetpack-search-pkg' ) }
+							</Button>
+						</div>
+					</Modal>
+				)
+			) : (
+				<ConfirmDialog
+					isOpen={ isConfirmOpen }
+					onConfirm={ () => {
+						saveExperience( experience );
+						setConfirmOpen( false );
+					} }
+					onCancel={ () => setConfirmOpen( false ) }
+					confirmButtonText={ getCommitLabel( experience ) }
+				>
+					{ sprintf(
+						/* translators: %s — the human-readable experience name (e.g. "Embedded search"). */
+						__( 'Switch the visitor-facing search experience to %s?', 'jetpack-search-pkg' ),
+						getExperienceLabel( experience )
+					) }
+				</ConfirmDialog>
+			) }
 		</Stack>
 	);
 }

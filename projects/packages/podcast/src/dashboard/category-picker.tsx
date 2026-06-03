@@ -149,7 +149,7 @@ const CategoryPicker = ( {
 			<SelectControl
 				__next40pxDefaultSize
 				__nextHasNoMarginBottom
-				label={ __( 'Podcast category', 'jetpack-podcast' ) }
+				label={ __( 'Post category', 'jetpack-podcast' ) }
 				hideLabelFromVision
 				value={ isCreating ? CREATE_NEW : String( selectedId || '' ) }
 				onChange={ handleSelectChange }

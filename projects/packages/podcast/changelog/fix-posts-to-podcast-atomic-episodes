@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Create AI Podcast: serve the generated-episodes list directly from the site database so it works on Atomic installs.

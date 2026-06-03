@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Composer: drop the automattic/jetpack-podcast dependency. The package is only consumed via jetpack-mu-wpcom and was never initialized from the Jetpack plugin.

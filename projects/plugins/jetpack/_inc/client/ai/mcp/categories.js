@@ -92,6 +92,7 @@ const API_CATEGORY_TO_DISPLAY = {
 	notifications: DISPLAY_CATEGORIES.ACCOUNT,
 	billing: DISPLAY_CATEGORIES.ACCOUNT,
 	domains: DISPLAY_CATEGORIES.DOMAINS,
+	'wpcom-mcp': DISPLAY_CATEGORIES.DEVELOPER_TESTING,
 	'developer-testing': DISPLAY_CATEGORIES.DEVELOPER_TESTING,
 };
 
@@ -129,6 +130,13 @@ const TOOL_ID_PREFIX_TO_DESIGN_SUB_CATEGORY = {
 	'wpcom-mcp/menu-items-': SUB_CATEGORIES.NAVIGATION,
 	'wpcom-mcp/blocks-': SUB_CATEGORIES.BLOCKS,
 };
+
+const DEVELOPER_TESTING_TOOL_IDS = new Set( [
+	'jetpack/search-voice',
+	'jetpack-search-voice',
+	'wpcom-mcp/jetpack-search-voice',
+	'wpcom-mcp-jetpack-search-voice',
+] );
 
 /**
  * Get the display sub-category name for a tool.
@@ -185,6 +193,13 @@ export function isWriteTool( toolId, ability ) {
  * @return {string} Display category name, falling back to Uncategorized.
  */
 export function getDisplayCategory( toolId, ability ) {
+	if (
+		DEVELOPER_TESTING_TOOL_IDS.has( toolId ) ||
+		DEVELOPER_TESTING_TOOL_IDS.has( ability?.name )
+	) {
+		return DISPLAY_CATEGORIES.DEVELOPER_TESTING;
+	}
+
 	const apiCategory = ability?.category;
 
 	if ( apiCategory === 'design' || apiCategory === 'sites' ) {

@@ -96,6 +96,28 @@ class Admin_Page {
 
 		self::load_wp_build();
 		add_action( 'current_screen', array( __CLASS__, 'alias_screen_id_for_wp_build' ) );
+		add_filter( 'jetpack_admin_js_script_data', array( __CLASS__, 'inject_podcast_script_data' ) );
+	}
+
+	/**
+	 * Add the podcast gate boolean to `window.JetpackScriptData`.
+	 *
+	 * Hooked from `maybe_load_wp_build()` so it only runs when the request is
+	 * for the podcast admin page.
+	 *
+	 * @param array $data Script data being injected.
+	 * @return array
+	 */
+	public static function inject_podcast_script_data( $data ) {
+		if ( ! is_array( $data ) ) {
+			$data = array();
+		}
+
+		$data['podcast'] = array(
+			'has_product_access' => Podcast_Gate::has_product_access(),
+		);
+
+		return $data;
 	}
 
 	/**

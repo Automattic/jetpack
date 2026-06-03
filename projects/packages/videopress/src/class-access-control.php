@@ -55,7 +55,7 @@ class Access_Control {
 	 * @return string|int|false
 	 */
 	public function get_subscription_plan_id( $guid ) {
-		return isset( $this->guids_to_subscriptions[ $guid ] ) ? $this->guids_to_subscriptions[ $guid ] : false;
+		return $this->guids_to_subscriptions[ $guid ] ?? false;
 	}
 
 	/**
