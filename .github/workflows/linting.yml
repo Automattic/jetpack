@@ -591,7 +591,7 @@ jobs:
         run: .github/files/check-lock-files.sh
 
       - name: Create lock file fix PR
-        if: github.event_name == 'push' && failure() && steps.check_lock_files.conclusion == 'failure'
+        if: github.event_name == 'push' && failure() && steps.check_lock_files.outputs.finished == 'true'
         env:
           # Use the matticbot token so CI runs on the created PR.
           GH_TOKEN: ${{ secrets.STUB_UPDATE_TOKEN_GITHUB }}
