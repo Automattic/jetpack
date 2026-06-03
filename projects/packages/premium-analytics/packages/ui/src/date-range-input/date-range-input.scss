@@ -1,9 +1,10 @@
 .input-date-control {
 	flex: 1;
-	font-size: var( --wpds-font-size-sm );
+	font-size: var(--wpds-typography-font-size-sm);
 
 	@supports selector( &::-webkit-calendar-picker-indicator ) {
-		input[type='date'] {
+
+		input[type="date"] {
 			// Removes extra spaces for the calendar icon.
 			width: fit-content;
 			padding-right: 0;
@@ -12,7 +13,7 @@
 			-webkit-appearance: none;
 			background: none;
 
-			font-size: var( --wpds-font-size-md );
+			font-size: var(--wpds-typography-font-size-md);
 
 			// Removes the calendar icon.
 			&::-webkit-calendar-picker-indicator {
@@ -22,14 +23,15 @@
 	}
 
 	@supports not selector( &::-webkit-calendar-picker-indicator ) {
-		input[type='date'] {
+
+		input[type="date"] {
 			padding: 0; // We'll control input's inner spacing manually
 
 			min-width: fit-content; // Prevent extra space on smaller screens
 
 			// Use flex to center the input's content horizontally
 			display: flex;
-			width: calc( 100% - 20px ); // Take almost all the space
+			width: calc(100% - 20px); // Take almost all the space
 			margin-inline: auto; // Keep things centered
 		}
 	}

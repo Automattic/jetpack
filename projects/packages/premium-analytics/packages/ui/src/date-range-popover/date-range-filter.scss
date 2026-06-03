@@ -1,8 +1,8 @@
-@use '@wordpress/base-styles/variables' as vars;
-@use '@wordpress/base-styles/colors' as colors;
+@use "@wordpress/base-styles/variables" as vars;
+@use "@wordpress/base-styles/colors" as colors;
 
 .date-range-popover-content {
-	--wca-popover-padding: var( --wpds-dimension-padding-lg );
+	--wca-popover-padding: var(--wpds-dimension-padding-lg);
 	--wca-popover-border-color: #{colors.$gray-300};
 	--wca-popover-border-width: #{vars.$border-width};
 
@@ -11,9 +11,9 @@
 	grid-template-rows: 1fr auto;
 
 	// Grid lines: background = line color, gap = line width
-	background-color: var( --wca-popover-border-color );
-	column-gap: var( --wca-popover-border-width );
-	row-gap: var( --wca-popover-border-width );
+	background-color: var(--wca-popover-border-color);
+	column-gap: var(--wca-popover-border-width);
+	row-gap: var(--wca-popover-border-width);
 
 	.date-range-calendar {
 		display: flex;
@@ -25,8 +25,8 @@
 	&--mobile {
 		display: flex;
 		flex-direction: column;
-		gap: var( --wpds-dimension-gap-lg );
-		padding: var( --wca-popover-padding );
+		gap: var(--wpds-dimension-gap-lg);
+		padding: var(--wca-popover-padding);
 		background-color: #fff;
 
 		.date-range-calendar {
@@ -36,7 +36,7 @@
 
 		.date-range-popover-actions {
 			padding: 0;
-			padding-block-start: var( --wpds-dimension-gap-sm );
+			padding-block-start: var(--wpds-dimension-gap-sm);
 		}
 	}
 }
@@ -44,11 +44,11 @@
 .date-range-presets-wrapper {
 	grid-row: 1;
 	display: grid;
-	grid-template-columns: minmax( 0, max-content ) 1fr;
+	grid-template-columns: minmax(0, max-content) 1fr;
 	background-color: #fff;
-	padding-bottom: var( --wpds-dimension-gap-sm );
-	width: calc( 60 * var( --wpds-dimension-base ) );
-	padding-right: var( --wpds-dimension-padding-sm );
+	padding-bottom: var(--wpds-dimension-gap-sm);
+	width: calc(60 * var(--wpds-dimension-base));
+	padding-right: var(--wpds-dimension-padding-sm);
 }
 
 .date-filters-panel-button {
@@ -59,52 +59,48 @@
 	--wca-calendar-button-width: 32px;
 	--wca-calendar-button-height: 32px;
 	--wca-calendar-button-gap: 1rem; // consistent with automattic/ui style
-	--wca-calendar-padding: var( --wca-popover-padding );
-	--wca-calendar-width: calc(
-		var( --wca-calendar-button-width ) * 7 + var( --wca-calendar-padding ) * 2
-	);
-	--wca-calendar-width-wide: calc(
-		var( --wca-calendar-button-width ) * 14 + var( --wca-calendar-padding ) * 2 +
-			var( --wca-calendar-button-gap )
-	);
+	--wca-calendar-padding: var(--wca-popover-padding);
+	--wca-calendar-width: calc(var(--wca-calendar-button-width) * 7 + var(--wca-calendar-padding) * 2);
+	--wca-calendar-width-wide: calc(var(--wca-calendar-button-width) * 14 + var(--wca-calendar-padding) * 2 + var(--wca-calendar-button-gap));
 
 	grid-row: 1;
-	padding: var( --wca-calendar-padding );
-	width: var( --wca-calendar-width );
+	padding: var(--wca-calendar-padding);
+	width: var(--wca-calendar-width);
 	background-color: #fff;
 
 	.date-range-calendar {
-		--a8c-calendar-button-width: var( --wca-calendar-button-width );
-		--a8c-calendar-button-height: var( --wca-calendar-button-height );
+		--a8c-calendar-button-width: var(--wca-calendar-button-width);
+		--a8c-calendar-button-height: var(--wca-calendar-button-height);
 	}
 
 	&__wide {
-		width: var( --wca-calendar-width-wide );
+		width: var(--wca-calendar-width-wide);
 	}
 }
 
 .date-range-popover-actions {
 	grid-column: 1 / -1;
-	padding: calc( var( --wca-popover-padding ) / 2 ) var( --wca-popover-padding );
+	padding: calc(var(--wca-popover-padding) / 2) var(--wca-popover-padding);
 	background-color: #fff;
 }
 
 /* disable animation for the date range popover */
 /* stylelint-disable property-no-unknown, selector-pseudo-element-no-unknown */
 @media not ( prefers-reduced-motion: reduce ) {
+
 	.date-filters-panel__popover {
 		view-transition-name: next-admin--date-range-popover;
 	}
 }
 
 /* ensure it's above the canvas/stage during the transition */
-::view-transition-group( next-admin--date-range-popover ) {
+::view-transition-group(next-admin--date-range-popover) {
 	z-index: 3000;
 }
 
 /* no animation for the snapshot (avoid "flashing") */
-::view-transition-new( next-admin--date-range-popover ),
-::view-transition-old( next-admin--date-range-popover ) {
+::view-transition-new(next-admin--date-range-popover),
+::view-transition-old(next-admin--date-range-popover) {
 	animation: none;
 }
 /* stylelint-enable property-no-unknown, selector-pseudo-element-no-unknown */
