@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Sharing: fix the Pinterest sharing button leading to a blank Pinterest page by using Pinterest's direct link sharing endpoint.
