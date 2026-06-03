@@ -512,6 +512,32 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * AgentId honours the `agents_manager_agent_id` filter when a host overrides it.
+	 *
+	 * Hosts like Big Sky select a non-default agent (e.g. Dolly) via this
+	 * shared filter. Jetpack must defer to the filtered value before falling
+	 * back to its own default; otherwise hosts get silently overridden.
+	 */
+	public function test_get_agents_manager_data_respects_agent_id_filter() {
+		$this->set_block_editor_screen();
+		$this->cache_am_asset_data();
+		add_filter(
+			'agents_manager_agent_id',
+			function () {
+				return 'dolly';
+			}
+		);
+
+		Jetpack_AI_Sidebar::maybe_enqueue_am();
+
+		$this->assertStringContainsString(
+			'"agentId":"dolly"',
+			$this->get_agents_manager_inline_script(),
+			'Filter-set agentId should win over the Jetpack default.'
+		);
+	}
+
+	/**
 	 * The AI Editorial Review-specific filter controls the feature flag.
 	 */
 	public function test_maybe_enqueue_am_respects_ai_editorial_review_filter() {

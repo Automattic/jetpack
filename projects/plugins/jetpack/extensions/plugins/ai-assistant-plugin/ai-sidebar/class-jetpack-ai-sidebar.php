@@ -272,7 +272,8 @@ class Jetpack_AI_Sidebar {
 
 		// Direct CDN-loader fallback. Jetpack owns these defaults; hosts can
 		// override via the AI Editorial Review and preview filters.
-		$am_data['agentId']                  = AI_SIDEBAR_AGENT_ID;
+		$filtered_agent_id                   = apply_filters( 'agents_manager_agent_id', null );
+		$am_data['agentId']                  = $filtered_agent_id ? $filtered_agent_id : AI_SIDEBAR_AGENT_ID;
 		$am_data['aiEditorialReviewEnabled'] = self::is_ai_editorial_review_enabled();
 		$am_data['jetpackAiSidebarPreview']  = self::get_jetpack_ai_sidebar_preview_config();
 		return $am_data;
