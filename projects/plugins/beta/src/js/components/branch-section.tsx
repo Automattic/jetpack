@@ -22,7 +22,9 @@ import type { BranchCard as BranchCardType, PluginView } from '../api/types';
  * @return The PR number, or null if the query isn't a PR reference.
  */
 const extractPrNumber = ( query: string ): number | null => {
-	const urlMatch = query.match( /github\.com\/[^/]+\/[^/]+\/pull\/(\d+)/i );
+	// Require a host boundary before "github.com" so lookalike hosts
+	// (e.g. evilgithub.com) don't match.
+	const urlMatch = query.match( /(?:^|\/\/|\.)github\.com\/[^/]+\/[^/]+\/pull\/(\d+)/i );
 	if ( urlMatch ) {
 		return Number( urlMatch[ 1 ] );
 	}
