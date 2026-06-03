@@ -581,7 +581,7 @@ jobs:
       - uses: actions/checkout@v6
         with:
           # Keep github.token fallback so this runs on forked PRs.
-          token: ${{ github.event_name == 'push' && secrets.STUB_UPDATE_TOKEN_GITHUB || github.token }}
+          token: ${{ case( github.event_name == 'push', secrets.STUB_UPDATE_TOKEN_GITHUB, github.token ) }}
 
       - name: Setup tools
         uses: ./.github/actions/tool-setup
