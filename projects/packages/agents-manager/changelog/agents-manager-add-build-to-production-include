@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Agents Manager: Include build folder when pushing changes to mirror repo.
