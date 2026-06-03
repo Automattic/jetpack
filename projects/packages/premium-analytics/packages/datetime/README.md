@@ -1,4 +1,4 @@
-# @jetpack-premium-analytics/datetime
+# @automattic/jetpack-premium-analytics-datetime
 
 Date and timezone utilities for Jetpack Premium Analytics.
 
