@@ -951,6 +951,17 @@ if ( class_exists( 'WP_CLI_Command' ) ) {
 				WP_CLI::error( 'mega_main_menu plugin is not installed.' );
 			}
 
+			// Don't patch if an update is pending: the new version may already fix this,
+			// and an update would overwrite the patched file anyway. Refresh the
+			// transient first so the decision is based on current data.
+			wp_update_plugins();
+			$update_plugins = get_site_transient( 'update_plugins' );
+
+			if ( isset( $update_plugins->response[ $folder ] ) ) {
+				$new_version = $update_plugins->response[ $folder ]->new_version ?? 'unknown';
+				WP_CLI::error( "An update to mega_main_menu $new_version is available; update the plugin instead of patching." );
+			}
+
 			$file = WP_PLUGIN_DIR . '/mega_main_menu/framework/options_generator.php';
 
 			if ( ! file_exists( $file ) ) {
