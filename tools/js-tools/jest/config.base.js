@@ -6,12 +6,7 @@ module.exports = {
 	testEnvironment: path.join( __dirname, 'fix-environment-jsdom.mjs' ),
 	testEnvironmentOptions: {
 		// Note we need to repeat the environment's default conditions here too, sigh.
-		customExportConditions: [
-			'browser',
-			...( process.env.npm_config_jetpack_webpack_config_resolve_conditions
-				? process.env.npm_config_jetpack_webpack_config_resolve_conditions.split( ',' )
-				: [] ),
-		],
+		customExportConditions: [ 'browser', 'jetpack:src' ],
 	},
 	transform: {
 		'\\.(gif|jpg|jpeg|png|webp|svg|scss|sass|css|ttf|woff|woff2)$': path.join(
@@ -28,12 +23,13 @@ module.exports = {
 			},
 		],
 	},
-	// Unignore certain node_modules CSS so the asset-stub transform can handle them.
+	// Unignore certain node_modules
 	// - uplot: for packages/components
 	// - @wordpress/admin-ui: for the unified admin page header styles
 	// - @gravatar-com: for the lifted Gravatar component's hovercard styles
+	// - uuid: v14 went esm-only, so it needs transforming
 	transformIgnorePatterns: [
-		'/node_modules/(?!.*uplot.*\\.css|.*@wordpress/admin-ui/.*\\.css|.*@gravatar-com/.*\\.css)',
+		'/node_modules/(?!\\.pnpm|uuid/|uplot/.*\\.css|@wordpress/admin-ui/.*\\.css|@gravatar-com/.*\\.css)',
 	],
 	moduleNameMapper: {
 		jetpackConfig: path.join( __dirname, 'jest-jetpack-config.js' ),

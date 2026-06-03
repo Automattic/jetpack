@@ -145,7 +145,7 @@ while IFS=$'\t' read -r SRC MIRROR SLUG; do
 
 	echo "::group::Initializing $SLUG"
 	git init -b "tmp" .
-	git config --local gc.auto 0
+	git config --local maintenance.auto false
 	git remote add origin "${GITHUB_SERVER_URL}/${MIRROR}"
 	if ! UPSTREAM_SHA=$( get_upstream_sha ); then
 		echo "::endgroup::"

@@ -1,17 +1,14 @@
-// Mirror `Results_Sort::BASE_SORT_KEYS` / `PRODUCT_SORT_KEYS`. Product
-// keys are gated on WooCommerce — only accepted when the caller threads
-// `isWooCommerceBlocksEnabled=true` through, so a `?orderby=price_asc` deep link
-// on a non-Woo site collapses to relevance instead of being forwarded to
-// an API surface that can't honour it.
+// Mirror `Results_Sort::BASE_SORT_KEYS` / `PRODUCT_SORT_KEYS`. Product keys
+// are gated on `isWooCommerceBlocksEnabled` so a `?orderby=price_asc` deep
+// link on a non-Woo site collapses to relevance.
 const BASE_SORT_ORDERS = [ 'relevance', 'newest', 'oldest' ];
 const PRODUCT_SORT_ORDERS = [ 'rating_desc', 'price_asc', 'price_desc' ];
 const DEFAULT_SORT_ORDER = 'relevance';
 
 /**
- * Sort keys this environment will accept. Mirrors
- * `Results_Sort::get_all_option_keys()` on the PHP side.
+ * Sort keys this environment accepts. Mirrors `Results_Sort::get_all_option_keys()`.
  *
- * @param {boolean} isWooCommerceBlocksEnabled - True when WooCommerce is loaded.
+ * @param {boolean} isWooCommerceBlocksEnabled - True when WC is loaded.
  * @return {string[]} Ordered sort keys.
  */
 function validSortOrders( isWooCommerceBlocksEnabled ) {
@@ -20,27 +17,26 @@ function validSortOrders( isWooCommerceBlocksEnabled ) {
 		: BASE_SORT_ORDERS;
 }
 
-// Default search-query URL key. Used when no per-request name is threaded
-// through (tests, callers that don't care about the singular-page case).
-// Mirrors `Search_Blocks::get_search_param_name()` on the PHP side: `s` on
-// the WP search route, `q` on non-search pages.
+// Default search-query URL key. Mirrors `Search_Blocks::get_search_param_name()`
+// — `s` on the WP search route, `q` on non-search pages.
 const DEFAULT_SEARCH_PARAM = 's';
 
-// Reserved query params — not treated as filter keys on parse. Mirrors the
-// allow-list on the PHP side in Search_Blocks::parse_url_filters(). Includes
-// both possible search-query keys so neither leaks into `activeFilters`.
+// Reserved params; not treated as filter keys. Mirrors PHP `RESERVED_QUERY_PARAMS`.
+// Note: `post_type` is NOT reserved — it's read as a scalar alias for
+// `?post_types[]=` (matches WP/WC convention) in `urlParamsToState` below.
 const RESERVED_PARAMS = new Set( [ 's', 'q', 'orderby', 'min_price', 'max_price' ] );
 
-// Per-filter URL prefix that controls AND/OR combination for a given filter
-// key (e.g. `?query_type_category=and`). Mirrors WooCommerce's
-// product-filter-attribute convention so Search 3.0 blocks on a Woo
-// storefront stay URL-interoperable with native WC filters.
+// Per-filter AND/OR override prefix (`?query_type_category=and`). Mirrors
+// WooCommerce's `product-filter-attribute` convention.
 const QUERY_TYPE_PREFIX = 'query_type_';
 
+// Scalar params Search *reads* but never *writes* (`urlParamsToState` consumes
+// them; `stateToUrlParams` emits the array form instead). Listed so the close
+// stripper can clear them — the writer-shape detection alone would miss them.
+const READ_ALIAS_PARAMS = new Set( [ 'post_type' ] );
+
 /**
- * Parse a `min_price` / `max_price` URL value into a finite number.
- * Returns null on missing, non-numeric, or negative input so a garbage
- * URL can't drive the API into producing zero results.
+ * Parse `min_price`/`max_price` into a finite non-negative number or null.
  *
  * @param {string|null} raw - Raw URL param value.
  * @return {number|null} Parsed number or null.
@@ -57,43 +53,25 @@ function parsePriceBound( raw ) {
 }
 
 /**
- * Serialize store state to URLSearchParams.
+ * Serialize store state to URLSearchParams. See AGENTS.md § URL format.
  *
- * Filter keys are written as flat top-level array params
- * (`?category[]=news`), matching the shape instant-search already writes
- * so deep links are interchangeable between the two surfaces and the
- * PHP-side `parse_url_filters()` reads the same contract.
- *
- * Per-filter AND/OR logic rides alongside as a scalar
- * `?query_type_<filterKey>=and` param — mirrors WC's
- * `woocommerce/product-filter-attribute` URL surface. Only emitted when
- * the filter has selections AND the effective logic is `'and'`; `'or'` is
- * the default and never serialized so URLs stay short. Effective logic is
- * the union of `filterLogic[key]` (URL-derived) and `filterConfigs[key].queryType`
- * (the block author's choice) — without the second source, a block configured
- * with Logic = All would silently never get `query_type_*` into the address
- * bar on visitor interaction, so cross-page shared links would lose the AND
- * semantics.
+ * Per-filter AND/OR rides as `?query_type_<key>=and`. Emitted only when the
+ * filter has selections AND the effective logic is `'and'` — effective = URL
+ * override OR block-author config (`filterConfigs[key].queryType`), so a
+ * block configured Logic = All still serializes the AND semantics into
+ * shared deep links on first visitor interaction.
  *
  * @param {object}      state                              - Store state slice.
  * @param {string}      state.searchQuery                  - Current search query.
  * @param {string}      state.sortOrder                    - Current sort order.
- * @param {object}      [state.activeFilters]              - { [filterKey]: string[] } selected filters.
- * @param {object}      [state.filterLogic]                - { [filterKey]: 'or' | 'and' } per-filter
- *                                                         AND/OR override. Entries without active
- *                                                         selections are dropped on write.
- * @param {object}      [state.filterConfigs]              - { [filterKey]: FilterConfig } used to
- *                                                         read the block-author-configured `queryType`
- *                                                         so the URL also reflects block config when
- *                                                         `filterLogic` has no override for that key.
- * @param {object|null} [state.priceRange]                 - { min, max } price range; either bound may be null.
- * @param {string}      [state.searchParamName]            - URL key the search query is written under
- *                                                         (`s` on the WP search route, `q`
- *                                                         on non-search pages). Defaults to `s`.
- * @param {boolean}     [state.isWooCommerceBlocksEnabled] - Gate for WC-only URL surface
- *                                                         (product-format sort keys + `min_price` /
- *                                                         `max_price` range params). Falsy on non-Woo
- *                                                         sites drops both from the emitted URL.
+ * @param {object}      [state.activeFilters]              - { [filterKey]: string[] }.
+ * @param {object}      [state.filterLogic]                - { [filterKey]: 'or'|'and' } URL overrides.
+ * @param {object}      [state.filterConfigs]              - { [filterKey]: FilterConfig }; supplies
+ *                                                         block-author `queryType` + the static-filter gate.
+ * @param {object|null} [state.priceRange]                 - `{ min, max }`; either may be null.
+ * @param {object}      [state.staticFilterSelections]     - Scalar `?filter_id=value` (legacy contract).
+ * @param {string}      [state.searchParamName]            - `s` or `q`. Defaults to `s`.
+ * @param {boolean}     [state.isWooCommerceBlocksEnabled] - Gate for WC-only URL surface.
  * @return {URLSearchParams} URL-ready params.
  */
 export function stateToUrlParams( {
@@ -103,16 +81,15 @@ export function stateToUrlParams( {
 	filterLogic = {},
 	filterConfigs = {},
 	priceRange = null,
+	staticFilterSelections = {},
 	searchParamName = DEFAULT_SEARCH_PARAM,
 	isWooCommerceBlocksEnabled = false,
 } ) {
 	const params = new URLSearchParams();
 
-	// Always emit the search key (even empty) so a refresh keeps WP routed
-	// to the search template (or the singular host page on non-search pages).
-	// Dropping the param entirely when the user clears the input would push
-	// the page back to the front-page route on `/?s=` and silently change
-	// URL shape on `/about/?q=`.
+	// Always emit the search key (even empty) so refresh stays on the same
+	// route. Dropping it would punt `/?s=` to the front page and silently
+	// change URL shape on `/about/?q=`.
 	params.set( searchParamName, searchQuery ?? '' );
 
 	const allowedSorts = validSortOrders( isWooCommerceBlocksEnabled );
@@ -125,23 +102,14 @@ export function stateToUrlParams( {
 			continue;
 		}
 		values.forEach( value => params.append( `${ key }[]`, value ) );
-		// Only emit query_type when this filter has selections AND the
-		// effective logic is 'and'. Effective = URL override (filterLogic)
-		// OR block-author config (filterConfigs[key].queryType). Without the
-		// second source a block saved with Logic = All would never get
-		// query_type_<key>=and into the URL on visitor interaction, so a
-		// shared deep link wouldn't carry the AND semantics.
 		const effective = filterLogic?.[ key ] || filterConfigs?.[ key ]?.queryType;
 		if ( effective === 'and' ) {
 			params.set( `${ QUERY_TYPE_PREFIX }${ key }`, 'and' );
 		}
 	}
 
-	// `min_price` / `max_price` are WC-only; the price filter block
-	// (`filter-wc-price`) isn't registered on non-Woo sites. Skip the
-	// write so a stray `priceRange` in store state can't leak into the
-	// URL and round-trip back into the next API request as a `range`
-	// clause for a field the index doesn't have.
+	// `min_price` / `max_price` are WC-only; skip the write so a stray
+	// `priceRange` can't round-trip into a `range` clause for a non-existent ES field.
 	if ( isWooCommerceBlocksEnabled ) {
 		if ( priceRange?.min != null ) {
 			params.set( 'min_price', String( priceRange.min ) );
@@ -151,30 +119,29 @@ export function stateToUrlParams( {
 		}
 	}
 
+	// Static filters write scalar `?filter_id=value` (legacy overlay contract).
+	// Gated on `kind === 'static'` so a stale selection for a since-unregistered
+	// filter can't leak back. RESERVED_PARAMS check mirrors the reader.
+	for ( const [ key, value ] of Object.entries( staticFilterSelections ) ) {
+		if ( ! value || RESERVED_PARAMS.has( key ) || filterConfigs?.[ key ]?.kind !== 'static' ) {
+			continue;
+		}
+		params.set( key, String( value ) );
+	}
+
 	return params;
 }
 
 /**
  * Parse URLSearchParams back into partial store state. Unknown `orderby`
- * values collapse to the default so a garbage URL can't leak into the
- * `<select>` binding or the API request.
- *
- * Filter keys must appear in `filterConfigs` — an unfamiliar `?foo[]=bar` is
- * ignored rather than stored. Without this gate, arbitrary array-shaped query
- * params (e.g. from other plugins) would end up in `activeFilters` and be
- * forwarded to ES with no matching config, so they'd silently drop but still
- * round-trip through the browser URL on every keystroke.
+ * collapses to default; filter keys must appear in `filterConfigs` (without
+ * the gate, arbitrary `?foo[]=bar` from other plugins would round-trip).
  *
  * @param {URLSearchParams} params                       - URL search params.
- * @param {object}          [filterConfigs]              - { [filterKey]: FilterConfig } map used to validate filter keys.
- * @param {string}          [searchParamName]            - URL key to read the search query from
- *                                                       (`s` or `q`). Defaults to `s`.
- * @param {boolean}         [isWooCommerceBlocksEnabled] - Gate for WC-only URL surface
- *                                                       (product-format sort keys + `min_price` /
- *                                                       `max_price` range params). Falsy on non-Woo
- *                                                       sites ignores both rather than hydrating
- *                                                       them into store state.
- * @return {{ searchQuery: string, hasSearchParam: boolean, sortOrder: string, activeFilters: object, filterLogic: object, priceRange: object|null }} Partial state.
+ * @param {object}          [filterConfigs]              - Validate filter keys against this.
+ * @param {string}          [searchParamName]            - `s` or `q`.
+ * @param {boolean}         [isWooCommerceBlocksEnabled] - WC URL-surface gate.
+ * @return {{ searchQuery: string, hasSearchParam: boolean, sortOrder: string, activeFilters: object, filterLogic: object, priceRange: object|null, staticFilterSelections: object }} Partial state.
  */
 export function urlParamsToState(
 	params,
@@ -186,12 +153,11 @@ export function urlParamsToState(
 	const allowedSorts = validSortOrders( isWooCommerceBlocksEnabled );
 	const activeFilters = {};
 	const filterLogic = {};
+	const staticFilterSelections = {};
 	const hasFilterConfigGate = filterConfigs && Object.keys( filterConfigs ).length > 0;
 
 	for ( const [ rawKey, value ] of params.entries() ) {
-		// query_type_<filterKey>=or|and rides alongside the array-shaped
-		// filter params. Parse it before the `[]` gate below so the prefix
-		// branch can't be missed.
+		// `query_type_<key>` runs before the `[]` gate so the prefix can't be missed.
 		if ( rawKey.startsWith( QUERY_TYPE_PREFIX ) ) {
 			const filterKey = rawKey.slice( QUERY_TYPE_PREFIX.length );
 			if ( ! filterKey || RESERVED_PARAMS.has( filterKey ) ) {
@@ -200,27 +166,52 @@ export function urlParamsToState(
 			if ( hasFilterConfigGate && ! ( filterKey in filterConfigs ) ) {
 				continue;
 			}
-			// AND/OR combination is only meaningful for taxonomy filters —
-			// post_type / author each have one value per document, so
-			// `query_type_post_types=and` is semantically a no-op. Skipping
-			// it here keeps the param from sticking in filterLogic and
-			// re-emitting on every URL push thereafter. Mirrors the
-			// `filterType === 'taxonomy'` gate in `Filter_Checkbox::normalize_query_type()`.
+			// AND/OR is meaningful only for taxonomy filters — post_type/author
+			// each carry one value per doc. Mirrors `Filter_Checkbox::normalize_query_type()`.
 			if ( hasFilterConfigGate && filterConfigs[ filterKey ]?.filterType !== 'taxonomy' ) {
 				continue;
 			}
-			// 'or' is the default — silently drop it so the gate matches the
-			// serializer (which never emits 'or'). Anything that isn't the
-			// literal 'and' is treated as garbage and skipped, mirroring
-			// `Filter_Checkbox::normalize_query_type()`.
+			// Drop `'or'` (default, never serialized) and anything that isn't literal `'and'`.
 			if ( value === 'and' ) {
 				filterLogic[ filterKey ] = 'and';
 			}
 			continue;
 		}
+		// Scalar param: a static-filter selection, the `?post_type=<slug>`
+		// alias for `?post_types[]=<slug>` (WP/WC convention), or ignored noise.
 		if ( ! rawKey.endsWith( '[]' ) ) {
+			if ( rawKey === 'post_type' ) {
+				const slug = String( value ?? '' ).trim();
+				if ( ! slug ) {
+					continue;
+				}
+				if ( hasFilterConfigGate && ! ( 'post_types' in filterConfigs ) ) {
+					continue;
+				}
+				if ( ! activeFilters.post_types ) {
+					activeFilters.post_types = [];
+				}
+				if ( ! activeFilters.post_types.includes( slug ) ) {
+					activeFilters.post_types.push( slug );
+				}
+				continue;
+			}
+			if (
+				hasFilterConfigGate &&
+				! RESERVED_PARAMS.has( rawKey ) &&
+				filterConfigs[ rawKey ]?.kind === 'static'
+			) {
+				// Last-write wins on `?section=a&section=b` (already malformed
+				// for single-select; mirror the radio change handler).
+				const normalized = String( value ?? '' ).trim();
+				if ( normalized ) {
+					staticFilterSelections[ rawKey ] = normalized;
+				}
+			}
 			continue;
 		}
+
+		// Array-shaped dynamic facet.
 		const filterKey = rawKey.slice( 0, -2 );
 		if ( RESERVED_PARAMS.has( filterKey ) ) {
 			continue;
@@ -230,41 +221,30 @@ export function urlParamsToState(
 		}
 		const normalized = String( value ?? '' ).trim();
 		if ( ! normalized ) {
-			// A bare `?category[]=` round-trips as an empty string and would
-			// otherwise produce a term filter with an empty value, effectively
-			// zeroing the result set. Drop it before it reaches the store.
+			// `?category[]=` would otherwise build a term filter with empty value.
 			continue;
 		}
 		if ( ! activeFilters[ filterKey ] ) {
 			activeFilters[ filterKey ] = [];
 		}
 		if ( activeFilters[ filterKey ].includes( normalized ) ) {
-			// De-dup within a filter key so `?category[]=news&category[]=news`
-			// doesn't double-OR into the ES clause.
 			continue;
 		}
 		activeFilters[ filterKey ].push( normalized );
 	}
 
-	// Drop filterLogic entries whose filter has no active selections.
-	// A stray `?query_type_category=and` without `?category[]=...` would
-	// otherwise leak back through the next serializer call.
+	// Drop logic entries whose filter has no surviving selections.
 	for ( const key of Object.keys( filterLogic ) ) {
 		if ( ! activeFilters[ key ] || activeFilters[ key ].length === 0 ) {
 			delete filterLogic[ key ];
 		}
 	}
 
-	// Mirror `Search_Blocks::parse_url_price_range()`: drop `min_price` /
-	// `max_price` entirely on non-Woo sites so a stray deep link can't
-	// hydrate `priceRange` into the store and re-emit the params on the
-	// next URL push.
+	// `min_price`/`max_price` are WC-only; drop entirely on non-Woo sites so
+	// a stray deep link can't re-emit the params on the next URL push.
 	const minPrice = isWooCommerceBlocksEnabled ? parsePriceBound( params.get( 'min_price' ) ) : null;
 	const maxPrice = isWooCommerceBlocksEnabled ? parsePriceBound( params.get( 'max_price' ) ) : null;
-	// Inverted bounds (min > max) build an ES range clause that always
-	// matches zero documents, so a URL like `?min_price=100&max_price=10`
-	// would render an empty page. Treat that as garbage and drop the range
-	// entirely; mirrors parse_url_price_range() on the PHP side.
+	// Inverted bounds build a zero-result ES range — treat as garbage.
 	const hasInvertedBounds = minPrice !== null && maxPrice !== null && minPrice > maxPrice;
 	const priceRange =
 		! hasInvertedBounds && ( minPrice !== null || maxPrice !== null )
@@ -274,24 +254,50 @@ export function urlParamsToState(
 	return {
 		searchQuery: params.get( searchParamName ) ?? '',
 		// `params.has()` distinguishes `?s=` (present, empty) from a URL with
-		// no `s` at all — `params.get() ?? ''` collapses both to `''`. The
-		// store's initialize() guard reads this so an explicit-but-empty
-		// search param still fires the initial fetch, matching what a user
-		// who submits a blank search form expects.
+		// no `s` — the store gates the initial fetch on this.
 		hasSearchParam: params.has( searchParamName ),
 		sortOrder: allowedSorts.includes( rawOrderby ) ? rawOrderby : DEFAULT_SORT_ORDER,
 		activeFilters,
 		filterLogic,
 		priceRange,
+		staticFilterSelections,
 	};
 }
 
 /**
- * Sync current store state into the browser URL without triggering a page
- * reload. Uses `replaceState` so a debounced search doesn't leave a history
- * entry for every keystroke-group — pressing back goes to the page before
- * search, which matches how most live-search UIs behave. Bookmarking or
- * sharing the URL still captures the current query.
+ * Identify URL params owned by Search Blocks state. Used when leaving the
+ * search experience (overlay close) to clear the URL the same way legacy
+ * Instant Search's `restorePreviousHref()` does — strip everything Search
+ * reads, not only what it writes. We identify those params by the reserved
+ * set, the URL shapes the writer (`stateToUrlParams`) emits — array-suffixed
+ * and `query_type_`-prefixed — and the read-only scalar aliases the reader
+ * consumes (`post_type`), which together cover every key the store round-trips.
+ *
+ * Static filter scalars are not stripped here: they share `?key=value` shape
+ * with arbitrary non-search params and the bootstrap has no filter registry to
+ * disambiguate.
+ *
+ * @param {URLSearchParams} params - URL params to scan.
+ * @return {string[]} Unique keys present in `params` that Search owns.
+ */
+export function getSearchOwnedParamKeys( params ) {
+	const owned = new Set();
+	for ( const rawKey of params.keys() ) {
+		if (
+			RESERVED_PARAMS.has( rawKey ) ||
+			READ_ALIAS_PARAMS.has( rawKey ) ||
+			rawKey.startsWith( QUERY_TYPE_PREFIX ) ||
+			rawKey.endsWith( '[]' )
+		) {
+			owned.add( rawKey );
+		}
+	}
+	return Array.from( owned );
+}
+
+/**
+ * Sync state into the browser URL via `replaceState` so debounced typing
+ * doesn't pile up history entries. Back navigates to the page before search.
  *
  * @param {object} state - Relevant state slice.
  */
@@ -304,13 +310,10 @@ export function pushStateToUrl( state ) {
 /**
  * Read initial state from the current URL.
  *
- * @param {object}  [filterConfigs]              - { [filterKey]: FilterConfig } map used to validate filter keys.
- * @param {string}  [searchParamName]            - URL key the search query lives under (`s` or
- *                                               `q`). Defaults to `s`.
- * @param {boolean} [isWooCommerceBlocksEnabled] - Gate for WC-only URL surface (product-format
- *                                               sort keys + `min_price` / `max_price` range params);
- *                                               forwarded to `urlParamsToState`.
- * @return {{ searchQuery: string, hasSearchParam: boolean, sortOrder: string, activeFilters: object, filterLogic: object, priceRange: object|null }} Partial state.
+ * @param {object}  [filterConfigs]              - Validate filter keys against this.
+ * @param {string}  [searchParamName]            - `s` or `q`.
+ * @param {boolean} [isWooCommerceBlocksEnabled] - WC URL-surface gate.
+ * @return {{ searchQuery: string, hasSearchParam: boolean, sortOrder: string, activeFilters: object, filterLogic: object, priceRange: object|null, staticFilterSelections: object }} Partial state.
  */
 export function readStateFromUrl(
 	filterConfigs = {},

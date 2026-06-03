@@ -344,6 +344,21 @@ export const applyUpdateEnv = ( filePath, conflicts ) => {
 };
 
 /**
+ * Whether the hybrid tools/docker/.env parallel-instance machinery (reading keys as a base
+ * layer, conflict warnings, append-on-`up --name` persistence) applies to this invocation.
+ *
+ * Scoped to `up` on `type === 'dev'`. The e2e flow runs `docker --type e2e --name t1 up`,
+ * which sets argv.name but manages its own fixed ports and project name — it must neither
+ * read parallel keys from nor write them to the shared .env. Keeping the gate here (rather
+ * than only inline at the call sites) mirrors resolveDevCloneSource being "correct on its
+ * own terms" and makes the e2e exclusion unit-testable.
+ *
+ * @param {object} argv - Yargs argv.
+ * @return {boolean} true when parallel-env reads/writes should run.
+ */
+export const shouldManageParallelEnv = argv => argv.type === 'dev' && argv._[ 1 ] === 'up';
+
+/**
  * Decides which source instance to clone the DB from when bringing up a dev container, if any.
  *
  * Purely argv-driven; whether the chosen source is actually running is checked by the caller.
@@ -810,7 +825,10 @@ const defaultDockerCmdHandler = async argv => {
 	// surface conflicts as warnings (or rewrite when --update-env is set), and persist
 	// parallel-instance keys after a successful `up --name`. See tools/docker/README.md
 	// § "Parallel development environments" for the full precedence + semantics.
-	if ( argv._[ 1 ] === 'up' ) {
+	// Scoped via shouldManageParallelEnv (`up` + `type === 'dev'`): the e2e flow runs with a
+	// fixed `--name t1` and manages its own ports, so it must neither read parallel keys from
+	// nor write them to the shared tools/docker/.env.
+	if ( shouldManageParallelEnv( argv ) ) {
 		const flagSnapshot = snapshotFlagArgv( argv );
 		const fileEnv = readEnvFile();
 		augmentArgvFromEnvFile( argv, fileEnv );
@@ -901,7 +919,9 @@ const defaultDockerCmdHandler = async argv => {
 	// Persist parallel-instance config to .env on `up --name`. Idempotent: only appends
 	// keys that aren't already in the file (Strategy B). Skipped for the primary
 	// `jetpack_dev` flow (no --name) so the main checkout's .env is never written to.
-	if ( argv._[ 1 ] === 'up' && argv.name ) {
+	// Also skipped for non-dev types: the e2e flow always passes `--name t1`, but it
+	// must not write COMPOSE_PROJECT_NAME/PORT_* into the shared tools/docker/.env.
+	if ( shouldManageParallelEnv( argv ) && argv.name ) {
 		const written = persistParallelEnv( envOpts );
 		if ( written.length ) {
 			console.log(
@@ -954,11 +974,6 @@ const buildExecCmd = argv => {
 				unitTestArgs.plugin = 'jetpack';
 				unitTestArgs.envVars = [ 'JETPACK_TEST_WPCOMSH=1' ];
 				break;
-			case 'crm':
-				unitTestArgs.plugin = 'zero-bs-crm';
-				// @todo: Remove this when we drop support for PHP <8.0 and we can bump `thecodingmachine/safe` to v2.
-				unitTestArgs.prependFile = 'tests/suppress_php84_deprecations.php';
-				break;
 			case 'wpcomsh':
 				unitTestArgs.plugin = 'wpcomsh';
 				unitTestArgs.envVars = [
@@ -972,7 +987,6 @@ const buildExecCmd = argv => {
 	} else if (
 		cmd === 'phpunit-jp-multisite' ||
 		cmd === 'phpunit-jp-wpcomsh' ||
-		cmd === 'phpunit-crm' ||
 		cmd === 'phpunit-wpcomsh'
 	) {
 		console.error(
@@ -1278,7 +1292,7 @@ export function dockerDefine( yargs ) {
 							} )
 							.positional( 'target', {
 								describe:
-									'Which PHPUnit tests to run:\n- jetpack: Jetpack plugin tests\n- jp-multisite: Jetpack plugin multisite tests.\n- jp-wpcomsh: Jetpack plugin tests with wpcomsh installed.\n- crm: Jetpack CRM plugin tests.\n- wpcomsh: Wpcomsh plugin tests.',
+									'Which PHPUnit tests to run:\n- jetpack: Jetpack plugin tests\n- jp-multisite: Jetpack plugin multisite tests.\n- jp-wpcomsh: Jetpack plugin tests with wpcomsh installed.\n- wpcomsh: Wpcomsh plugin tests.',
 								type: 'string',
 							} ),
 					handler: argv => execDockerCmdHandler( argv ),
@@ -1308,11 +1322,6 @@ export function dockerDefine( yargs ) {
 				} )
 				.command( {
 					command: 'phpunit-jp-wpcomsh',
-					deprecated: true,
-					handler: argv => execDockerCmdHandler( argv ),
-				} )
-				.command( {
-					command: 'phpunit-crm',
 					deprecated: true,
 					handler: argv => execDockerCmdHandler( argv ),
 				} )

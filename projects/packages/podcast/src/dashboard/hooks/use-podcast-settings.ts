@@ -139,10 +139,14 @@ export function usePodcastSettings(): { data: PodcastSettings | undefined; isLoa
  * record, which core-data uses to refresh the cache. Snackbars are dispatched
  * here so callers don't have to wire them up.
  *
- * @return `{ mutate, isPending }` matching the prior TanStack-shaped contract.
+ * @return `{ mutate, mutateAsync, isPending }` matching the prior TanStack-shaped contract.
  */
 export function useUpdatePodcastSettings(): {
 	mutate: ( updates: PodcastSettingsUpdate, callbacks?: MutateCallbacks ) => void;
+	mutateAsync: (
+		updates: PodcastSettingsUpdate,
+		options?: { silent?: boolean }
+	) => Promise< PodcastSettings >;
 	isPending: boolean;
 } {
 	const { saveEntityRecord } = useDispatch( coreStore );
@@ -152,42 +156,49 @@ export function useUpdatePodcastSettings(): {
 		[]
 	);
 
+	const mutateAsync = useCallback(
+		async (
+			updates: PodcastSettingsUpdate,
+			{ silent = false }: { silent?: boolean } = {}
+		): Promise< PodcastSettings > => {
+			try {
+				const record = await saveEntityRecord(
+					'root',
+					'site',
+					updates as Record< string, unknown >
+				);
+				if ( ! record ) {
+					throw new Error( 'save returned no record' );
+				}
+				if ( ! silent ) {
+					createSuccessNotice( __( 'Settings saved.', 'jetpack-podcast' ), {
+						type: 'snackbar',
+					} );
+				}
+				return pickPodcastFields( record as Record< string, unknown > );
+			} catch ( error ) {
+				if ( ! silent ) {
+					createErrorNotice(
+						__( 'Could not save your podcast settings. Please try again.', 'jetpack-podcast' ),
+						{ type: 'snackbar' }
+					);
+				}
+				throw error;
+			}
+		},
+		[ saveEntityRecord, createSuccessNotice, createErrorNotice ]
+	);
+
 	const mutate = useCallback(
 		(
 			updates: PodcastSettingsUpdate,
 			{ onSuccess, onError, silent = false }: MutateCallbacks = {}
 		) => {
-			saveEntityRecord( 'root', 'site', updates as Record< string, unknown > )
-				.then( record => {
-					if ( ! record ) {
-						onError?.( new Error( 'save returned no record' ) );
-						if ( ! silent ) {
-							createErrorNotice(
-								__( 'Could not save your podcast settings. Please try again.', 'jetpack-podcast' ),
-								{ type: 'snackbar' }
-							);
-						}
-						return;
-					}
-					onSuccess?.( pickPodcastFields( record as Record< string, unknown > ) );
-					if ( ! silent ) {
-						createSuccessNotice( __( 'Settings saved.', 'jetpack-podcast' ), {
-							type: 'snackbar',
-						} );
-					}
-				} )
-				.catch( error => {
-					onError?.( error );
-					if ( ! silent ) {
-						createErrorNotice(
-							__( 'Could not save your podcast settings. Please try again.', 'jetpack-podcast' ),
-							{ type: 'snackbar' }
-						);
-					}
-				} );
+			// Default no-op keeps the rejection from going uncaught when no `onError` is passed.
+			mutateAsync( updates, { silent } ).then( onSuccess, onError ?? ( () => {} ) );
 		},
-		[ saveEntityRecord, createSuccessNotice, createErrorNotice ]
+		[ mutateAsync ]
 	);
 
-	return { mutate, isPending };
+	return { mutate, mutateAsync, isPending };
 }

@@ -9,6 +9,7 @@
 	"require": {
 		"php": ">=8.1",
 		"automattic/block-delimiter": "@dev",
+		"automattic/jetpack-agents-manager": "@dev",
 		"automattic/jetpack-assets": "@dev",
 		"automattic/jetpack-blocks": "@dev",
 		"automattic/jetpack-classic-theme-helper": "@dev",
@@ -21,7 +22,6 @@
 		"automattic/jetpack-rtc": "@dev",
 		"automattic/jetpack-stats-admin": "@dev",
 		"automattic/jetpack-status": "@dev",
-		"automattic/jetpack-subscribers-dashboard": "@dev",
 		"automattic/scheduled-updates": "@dev",
 		"scssphp/scssphp": "2.1.0",
 		"symfony/filesystem": "^6.0.0",
@@ -45,12 +45,9 @@
 		"phpunit": [
 			"phpunit-select-config phpunit.#.xml.dist --colors=always"
 		],
-		"test-coverage": [
-			"php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\""
-		],
-		"test-php": [
-			"@composer phpunit"
-		],
+		"test-coverage": "@composer test-php-coverage",
+		"test-php": "@composer phpunit",
+		"test-php-coverage": "php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\"",
 		"build-production": "pnpm run build-production-js",
 		"build-development": "pnpm run build-js",
 		"watch": [

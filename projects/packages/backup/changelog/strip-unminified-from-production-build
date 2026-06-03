@@ -1,3 +1,0 @@
-Significance: patch
-Type: changed
-Comment: Production builds no longer ship the unminified `.js`/`.css` wp-build outputs. SCRIPT_DEBUG-driven loads now always resolve to the minified bundle.

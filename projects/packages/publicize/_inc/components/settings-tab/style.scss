@@ -1,0 +1,33 @@
+// Layout (flex direction + gap) is handled by the WPDS `Stack` component;
+// these rules only cover what `Stack` doesn't own — the column width cap
+// and the toggle-aligned indents.
+.jetpack-social-settings {
+	margin-inline: auto;
+	max-inline-size: 660px;
+	inline-size: 100%;
+}
+
+// Center the inactive empty-state body inside its card so the icon,
+// title, description, and CTA stack on the card's centerline instead of
+// left-aligning against the card padding. Mirrors the Overview tab's
+// `__empty` treatment — we can't reliably target `EmptyState.Root`'s
+// hashed class, so the host wrapper carries the layout rules and the
+// WPDS internals just live inside it.
+.jetpack-social-settings__empty {
+	align-items: center;
+	display: flex;
+	flex-direction: column;
+	padding-block: var(--wpds-dimension-padding-2xl, 24px);
+	text-align: center;
+}
+
+// Indent nested controls (and inline action rows) under their parent
+// toggle's label column. FormToggle width + the HStack gap in the
+// `__nextHasNoMarginBottom` layout adds up to the `gap-3xl` token (40px in
+// the default theme, 32px in the compact one) — using the token tracks the
+// toggle's size scale so the alignment holds if the chassis ever swaps
+// theme density.
+.jetpack-social-settings__card-nested,
+.jetpack-social-settings__card-actions {
+	padding-inline-start: var(--wpds-dimension-gap-3xl, 40px);
+}

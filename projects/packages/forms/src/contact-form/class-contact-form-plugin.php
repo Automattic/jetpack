@@ -1539,7 +1539,7 @@ class Contact_Form_Plugin {
 			$unread = self::get_unread_count();
 
 			if ( isset( $submenu['jetpack'] ) && is_array( $submenu['jetpack'] ) && ! empty( $submenu['jetpack'] ) ) {
-				$forms_unread_count_tag = " <span class='jp-feedback-unread-counter count-{$unread} awaiting-mod'><span class='feedback-unread-counter'>" . number_format_i18n( $unread ) . '</span></span>';
+				$forms_unread_count_tag = $this->get_unread_count_badge_markup( $unread );
 				$jetpack_badge_count    = $unread;
 
 				// Main menu entries
@@ -1557,7 +1557,10 @@ class Contact_Form_Plugin {
 						}
 
 						if ( $unread > 0 ) {
-							$jetpack_unread_tag = " <span data-unread-diff='" . ( $jetpack_badge_count - $unread ) . "' class='jp-feedback-unread-counter count-{$jetpack_badge_count} awaiting-mod'><span class='feedback-unread-counter'>" . number_format_i18n( $jetpack_badge_count ) . '</span></span>';
+							$jetpack_unread_tag = $this->get_unread_count_badge_markup(
+								$jetpack_badge_count,
+								$jetpack_badge_count - $unread
+							);
 
 							// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 							$menu[ $index ][0] = $jetpack_menu_item['title'] . ' ' . $jetpack_unread_tag;
@@ -1579,6 +1582,28 @@ class Contact_Form_Plugin {
 			}
 			return;
 		}
+	}
+
+	/**
+	 * Build the admin menu unread count badge markup.
+	 *
+	 * Uses the `menu-counter` markup expected by admin color schemes so bubble
+	 * colors render correctly in the sidebar.
+	 *
+	 * @since 7.21.3
+	 *
+	 * @param int      $count         Badge count to display.
+	 * @param int|null $unread_diff   Optional diff for combined Jetpack menu badges.
+	 * @return string Badge HTML.
+	 */
+	private function get_unread_count_badge_markup( $count, $unread_diff = null ) {
+		$attributes = "class='menu-counter jp-feedback-unread-counter count-" . (int) $count . "'";
+
+		if ( null !== $unread_diff ) {
+			$attributes = "data-unread-diff='" . (int) $unread_diff . "' " . $attributes;
+		}
+
+		return " <span {$attributes}><span class='count'>" . number_format_i18n( $count ) . '</span></span>';
 	}
 
 	/**

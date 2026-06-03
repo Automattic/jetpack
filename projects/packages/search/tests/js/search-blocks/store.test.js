@@ -6,6 +6,7 @@ const captured = {
 	actions: {},
 	callbacks: {},
 	context: {},
+	element: { ref: null },
 };
 const originalFetch = global.fetch;
 
@@ -24,6 +25,7 @@ jest.mock(
 			return { state: captured.state, actions: captured.actions };
 		},
 		getContext: () => captured.context,
+		getElement: () => captured.element,
 	} ),
 	{ virtual: true }
 );
@@ -32,6 +34,7 @@ import {
 	actions,
 	computeResultsCountText,
 	gateActiveFilters,
+	gateStaticFilterSelections,
 	remapAggregationsToFilterKeys,
 	state,
 } from '../../../src/search-blocks/store';
@@ -143,6 +146,8 @@ describe( 'store actions', () => {
 			activeFilters: {},
 			filterConfigs: {},
 			priceRange: null,
+			staticFilterSelections: {},
+			staticPostTypes: null,
 			results: [ { title: 'Existing result' } ],
 			locale: 'en-US',
 			isLoading: false,
@@ -174,12 +179,11 @@ describe( 'store actions', () => {
 		jest.restoreAllMocks();
 	} );
 
-	it( 'flips skeletonHidden once the first search resolves (success or error)', async () => {
-		// `skeletonHidden` gates the pre-hydration placeholders. Once the
-		// first fetch completes, JS owns the DOM and the skeleton must
-		// disappear for the rest of the session — both the success path
-		// and the error path of `search()` need to flip the flag.
-		state.skeletonHidden = false;
+	it( 'hides the skeleton once a search resolves (success or error)', async () => {
+		// `skeletonHidden` derives from an in-flight fetch with no results yet.
+		// Once `search()` settles — success or error — `isLoading` is false so
+		// the skeleton is hidden again. The error path clears `results`, so the
+		// derived flag must still resolve to hidden and not strand placeholders.
 		global.fetch.mockResolvedValueOnce(
 			createResponse( {
 				results: [ createResult( 'Fresh hit' ) ],
@@ -192,15 +196,57 @@ describe( 'store actions', () => {
 		expect( state.skeletonHidden ).toBe( true );
 		expect( state.isLoading ).toBe( false );
 
-		// Reset and confirm the error path also closes the skeleton —
-		// otherwise a connection failure would leave placeholders on screen
-		// indefinitely with no visible loading indicator.
-		state.skeletonHidden = false;
 		global.fetch.mockRejectedValueOnce( new Error( 'network down' ) );
 		await runGenerator( actions.search( { syncUrl: false } ) );
 		expect( state.skeletonHidden ).toBe( true );
 		expect( state.hasError ).toBe( true );
 		expect( state.isLoading ).toBe( false );
+	} );
+
+	it( 'applies the page-level post-type scope from state on every fetch', async () => {
+		// `search-results/render.php` seeds `state.staticPostTypes` once at
+		// template render; the store reads it on every fetch — initial search,
+		// typed search, filter/sort, load-more — without any per-instance
+		// override or fall-through ladder.
+		const ok = () =>
+			createResponse( { results: [], total: 0, page_handle: null, aggregations: {} } );
+
+		state.staticPostTypes = { include: [ 'product' ], exclude: [] };
+
+		global.fetch.mockResolvedValueOnce( ok() );
+		await runGenerator( actions.search( { syncUrl: false } ) );
+		expect( decodeURIComponent( global.fetch.mock.calls[ 0 ][ 0 ] ) ).toContain(
+			'filter[bool][must][0][term][post_type]=product'
+		);
+
+		// A filter/sort re-run uses the same seeded scope — no separate session
+		// state, the slot is the single source of truth.
+		global.fetch.mockResolvedValueOnce( ok() );
+		await runGenerator( actions.search( { syncUrl: false } ) );
+		expect( decodeURIComponent( global.fetch.mock.calls[ 1 ][ 0 ] ) ).toContain(
+			'filter[bool][must][0][term][post_type]=product'
+		);
+
+		// Clearing `state.staticPostTypes` (no `search-results` scope set)
+		// produces an unconstrained query.
+		state.staticPostTypes = null;
+		global.fetch.mockResolvedValueOnce( ok() );
+		await runGenerator( actions.search( { syncUrl: false } ) );
+		expect( decodeURIComponent( global.fetch.mock.calls[ 2 ][ 0 ] ) ).not.toContain(
+			'[term][post_type]'
+		);
+	} );
+
+	it( 'popstate re-runs search with only the syncUrl option (scope stays seeded)', async () => {
+		// Page-level scope is set by render.php and doesn't move; popstate
+		// only restores URL-driven state slices (query, filters, sort, etc).
+		state.searchParamName = 's';
+		state.isWooCommerceBlocksEnabled = false;
+		const searchSpy = jest.spyOn( actions, 'search' ).mockImplementation( function* () {} );
+		await runGenerator( actions.handlePopState() );
+		expect( searchSpy ).toHaveBeenCalledTimes( 1 );
+		expect( searchSpy.mock.calls[ 0 ][ 0 ] ).toEqual( { syncUrl: false } );
+		searchSpy.mockRestore();
 	} );
 
 	it( 'sets hasError on a failed loadMore and clears it on the next loadMore', async () => {
@@ -366,6 +412,49 @@ describe( 'store actions', () => {
 		await runGenerator( actions.setFilter( 'category', 'updates' ) );
 		expect( state.activeFilters ).toEqual( {} );
 		expect( search ).toHaveBeenCalledTimes( 4 );
+	} );
+
+	it( 'setStaticFilter replaces the per-key value (single-select) and clears when re-picked', async () => {
+		// Static filters are mutually-exclusive radios — unlike setFilter,
+		// each call REPLACES rather than toggles within an array. Re-picking
+		// the currently selected value clears the entry (same UX as the
+		// legacy overlay's setStaticFilter).
+		const search = jest.spyOn( actions, 'search' ).mockResolvedValue();
+		state.staticFilterSelections = {};
+
+		await runGenerator( actions.setStaticFilter( 'section', 'news' ) );
+		expect( state.staticFilterSelections ).toEqual( { section: 'news' } );
+
+		// Picking a different value REPLACES (does not append).
+		await runGenerator( actions.setStaticFilter( 'section', 'guides' ) );
+		expect( state.staticFilterSelections ).toEqual( { section: 'guides' } );
+
+		// Re-picking the current value clears the entry — radio "deselect"
+		// affordance preserves the legacy overlay behavior.
+		await runGenerator( actions.setStaticFilter( 'section', 'guides' ) );
+		expect( state.staticFilterSelections ).toEqual( {} );
+
+		// Different keys stay independent — picking `audience` after a
+		// cleared `section` doesn't resurrect the old `section` entry.
+		await runGenerator( actions.setStaticFilter( 'audience', 'dev' ) );
+		expect( state.staticFilterSelections ).toEqual( { audience: 'dev' } );
+
+		expect( search ).toHaveBeenCalledTimes( 4 );
+	} );
+
+	it( 'clearFilters wipes staticFilterSelections alongside activeFilters + priceRange', async () => {
+		// `clearFilters` is the standalone clear-all button — it must wipe
+		// every facet shape so a user doesn't have to click each filter
+		// type's clear affordance individually.
+		const search = jest.spyOn( actions, 'search' ).mockResolvedValue();
+		state.activeFilters = {};
+		state.priceRange = null;
+		state.staticFilterSelections = { section: 'guides' };
+
+		await runGenerator( actions.clearFilters() );
+
+		expect( state.staticFilterSelections ).toEqual( {} );
+		expect( search ).toHaveBeenCalledTimes( 1 );
 	} );
 
 	it( 'clears every facet only when something is active', async () => {
@@ -536,6 +625,23 @@ describe( 'store actions', () => {
 		expect( writtenUrl ).not.toContain( 'max_price' );
 	} );
 
+	it( 'syncToUrl writes static-filter selections as scalar params alongside other state', () => {
+		// Regression guard: the staticFilterSelections slice must thread
+		// through pushStateToUrl so a shareable URL captures the radio
+		// selection. Scalar `?filter_id=value` format (no `[]`) is the
+		// legacy overlay's contract.
+		const replaceState = jest.spyOn( window.history, 'replaceState' ).mockImplementation();
+		state.searchQuery = 'docs';
+		state.staticFilterSelections = { section: 'guides' };
+		state.filterConfigs = { section: { filterKey: 'section', kind: 'static' } };
+
+		actions.syncToUrl();
+
+		const writtenUrl = replaceState.mock.calls[ 0 ][ 2 ];
+		expect( writtenUrl ).toContain( 'section=guides' );
+		expect( writtenUrl ).not.toContain( 'section[]' );
+	} );
+
 	it( 'closes open popovers on Escape only', () => {
 		state.isFilterPopoverOpen = true;
 		state.isSortPopoverOpen = true;
@@ -627,6 +733,23 @@ describe( 'store getters', () => {
 		expect( state.activeFilterCount ).toBe( 2 );
 	} );
 
+	it( 'shows the skeleton only while a fetch is in flight with no results yet', () => {
+		// The initial client-side search must surface the skeleton; a reload
+		// that already has results keeps them visible (no flash).
+		state.isLoading = false;
+		state.results = [];
+		expect( state.skeletonHidden ).toBe( true );
+
+		state.isLoading = true;
+		expect( state.skeletonHidden ).toBe( false );
+
+		state.results = [ { title: 'Fresh hit' } ];
+		expect( state.skeletonHidden ).toBe( true );
+
+		state.isLoading = false;
+		expect( state.skeletonHidden ).toBe( true );
+	} );
+
 	it( 'surfaces showNoResults for an explicit-but-empty `?s=` deep link (SEARCH-183)', () => {
 		// Empty `?s=` URL — `searchQuery` is `''` but `hasSearchParam` is true,
 		// so the initial search fires (covered by other tests). If that search
@@ -666,6 +789,31 @@ describe( 'store getters', () => {
 
 		state.priceRange = { min: null, max: null };
 		expect( state.hasActiveFilters ).toBe( false );
+	} );
+
+	it( 'hasActiveFilters and activeFilterCount include staticFilterSelections', () => {
+		// Without this contribution, a deep link to `?section=guides` would
+		// leave the active-filters / clear-filters affordances hidden even
+		// though the static filter is constraining results.
+		state.activeFilters = {};
+		state.priceRange = null;
+		state.staticFilterSelections = {};
+		expect( state.hasActiveFilters ).toBe( false );
+		expect( state.activeFilterCount ).toBe( 0 );
+
+		state.staticFilterSelections = { section: 'guides' };
+		expect( state.hasActiveFilters ).toBe( true );
+		expect( state.activeFilterCount ).toBe( 1 );
+
+		// Combined with dynamic filters — totals add.
+		state.activeFilters = { category: [ 'news', 'wp' ] };
+		expect( state.activeFilterCount ).toBe( 3 );
+
+		// Empty-string entries don't count (they round-trip as 'cleared').
+		state.activeFilters = {};
+		state.staticFilterSelections = { section: '' };
+		expect( state.hasActiveFilters ).toBe( false );
+		expect( state.activeFilterCount ).toBe( 0 );
 	} );
 
 	it( 'enables the filter trigger for active filters or available aggregation buckets', () => {
@@ -825,9 +973,120 @@ describe( 'gateActiveFilters', () => {
 	} );
 } );
 
+describe( 'gateStaticFilterSelections', () => {
+	it( 'drops keys whose filterConfigs entry is missing', () => {
+		// Stale selections for a since-removed static-filter registration
+		// must not survive a popstate or `initialize()` re-gate.
+		const { gated, droppedAny } = gateStaticFilterSelections(
+			{ section: 'guides', dropped: 'x' },
+			{ section: { filterKey: 'section', kind: 'static' } }
+		);
+		expect( gated ).toEqual( { section: 'guides' } );
+		expect( droppedAny ).toBe( true );
+	} );
+
+	it( 'reports droppedAny=false when nothing is dropped', () => {
+		// `initialize()` and `handlePopState` use `droppedAny` to skip the
+		// state write when the gate was a no-op — same idiom as
+		// `gateActiveFilters`.
+		const { gated, droppedAny } = gateStaticFilterSelections(
+			{ section: 'guides' },
+			{ section: { filterKey: 'section', kind: 'static' } }
+		);
+		expect( gated ).toEqual( { section: 'guides' } );
+		expect( droppedAny ).toBe( false );
+	} );
+
+	it( 'drops keys whose filterConfigs entry exists but is not kind=static', () => {
+		// A scalar URL param under a dynamic filter key (e.g. someone fat-fingered
+		// `?category=news` instead of `?category[]=news`) must not pollute the
+		// static-filter slice. The kind=static gate keeps the boundary explicit.
+		const { gated, droppedAny } = gateStaticFilterSelections(
+			{ category: 'news', section: 'guides' },
+			{
+				category: { filterKey: 'category', filterType: 'taxonomy' },
+				section: { filterKey: 'section', kind: 'static' },
+			}
+		);
+		expect( gated ).toEqual( { section: 'guides' } );
+		expect( droppedAny ).toBe( true );
+	} );
+
+	it( 'drops empty values', () => {
+		// `''` is the "cleared" state — keeping the key would round-trip
+		// through pushStateToUrl and re-emit `?section=` indefinitely.
+		const { gated, droppedAny } = gateStaticFilterSelections(
+			{ section: '' },
+			{ section: { filterKey: 'section', kind: 'static' } }
+		);
+		expect( gated ).toEqual( {} );
+		expect( droppedAny ).toBe( true );
+	} );
+
+	it( 'returns a null-prototype object so __proto__ pollution cannot survive', () => {
+		// Same defence as gateActiveFilters — JSON.parse lets `__proto__`
+		// land as an own property; we must drop it because it isn't in
+		// filterConfigs, and the output object must not inherit anything that
+		// could be misread as a registered key downstream.
+		const selections = JSON.parse( '{"__proto__":"pwn","section":"guides"}' );
+		const { gated } = gateStaticFilterSelections( selections, {
+			section: { filterKey: 'section', kind: 'static' },
+		} );
+		expect( gated ).toEqual( { section: 'guides' } );
+		expect( Object.getPrototypeOf( gated ) ).toBeNull();
+	} );
+
+	it( 'tolerates undefined / null inputs', () => {
+		expect( gateStaticFilterSelections( undefined, {} ).gated ).toEqual( {} );
+		expect( gateStaticFilterSelections( null, {} ).gated ).toEqual( {} );
+		expect( gateStaticFilterSelections( { section: 'guides' }, null ).gated ).toEqual( {} );
+	} );
+} );
+
 describe( 'store callbacks', () => {
 	afterEach( () => {
 		jest.restoreAllMocks();
+		captured.context = {};
+		// Reset the static-filter slice so it doesn't leak into later cases
+		// in this describe block.
+		state.staticFilterSelections = {};
+	} );
+
+	it( 'isStaticFilterSelected reads filterKey + optionValue from context and compares against the store', () => {
+		// Pin the reactive-binding contract. render.php emits a per-<li>
+		// `data-wp-context` with `{ filterKey, optionValue }`, and each
+		// radio's `data-wp-bind--checked="callbacks.isStaticFilterSelected"`
+		// evaluates to this boolean. Without the binding, radios drift from
+		// the store after `clearFilters()` or `handlePopState()` since the
+		// `change` event only fires on user-initiated transitions.
+		state.staticFilterSelections = { section: 'guides' };
+
+		captured.context = { filterKey: 'section', optionValue: 'guides' };
+		expect( captured.callbacks.isStaticFilterSelected() ).toBe( true );
+
+		captured.context = { filterKey: 'section', optionValue: 'news' };
+		expect( captured.callbacks.isStaticFilterSelected() ).toBe( false );
+
+		// Unregistered key — defensive against a stale context that survives
+		// a filter being deregistered.
+		captured.context = { filterKey: 'missing', optionValue: 'whatever' };
+		expect( captured.callbacks.isStaticFilterSelected() ).toBe( false );
+
+		// Empty slice — clearFilters case. Every radio should report false.
+		state.staticFilterSelections = {};
+		captured.context = { filterKey: 'section', optionValue: 'guides' };
+		expect( captured.callbacks.isStaticFilterSelected() ).toBe( false );
+	} );
+
+	it( 'isStaticFilterSelected tolerates an undefined staticFilterSelections slice', () => {
+		// The optional-chaining guard (`state.staticFilterSelections?.[…]`)
+		// handles the case where the PHP seed hasn't yet populated the slot
+		// — e.g. on a page with no filter-static block. The comparison
+		// falls through to `undefined === 'guides'`, which is `false`.
+		// Reading the slice directly would crash; this guards the contract.
+		state.staticFilterSelections = undefined;
+		captured.context = { filterKey: 'section', optionValue: 'guides' };
+		expect( captured.callbacks.isStaticFilterSelected() ).toBe( false );
 	} );
 
 	it( 'initializes popstate handling and runs one URL-seeded search', () => {
@@ -883,14 +1142,13 @@ describe( 'store callbacks', () => {
 			fresh.state.filterConfigs = { category: { filterKey: 'category' } };
 			fresh.state.activeFilters = { foo: [ 'bar' ] };
 			fresh.state.isLoading = true;
-			fresh.state.skeletonHidden = false;
 
 			captured.callbacks.initialize();
 
 			expect( fresh.state.activeFilters ).toEqual( {} );
 			expect( search ).not.toHaveBeenCalled();
 			expect( fresh.state.isLoading ).toBe( false );
-			// Skeleton flips closed even though no fetch fires — otherwise the
+			// Skeleton derives closed once `isLoading` clears — otherwise the
 			// pre-hydration placeholders would linger forever on a deep link
 			// whose only filter keys are stale and get gated out.
 			expect( fresh.state.skeletonHidden ).toBe( true );
@@ -921,6 +1179,216 @@ describe( 'store callbacks', () => {
 			// Drop the flag so it doesn't leak into the `handlePopState` describe
 			// below — captured.state is a singleton across the mocked module.
 			fresh.state.hasSearchParam = false;
+		} );
+	} );
+
+	describe( 'dispatchInitialSearchIfNeeded (SEARCH-258)', () => {
+		// The action is the shared seam between the IA-directive entry path
+		// (results-list's `data-wp-init`) and the overlay-bootstrap entry
+		// path (post-hydration explicit call). The flag is module-scoped, so
+		// each case loads a fresh module via `jest.isolateModules` rather
+		// than mutating the shared module instance — otherwise the latch from
+		// the first case would silently make every later case a no-op.
+
+		it( 'fires actions.search once on the first call and is a no-op on subsequent calls', () => {
+			jest.isolateModules( () => {
+				const fresh = require( '../../../src/search-blocks/store' );
+				const search = jest.spyOn( fresh.actions, 'search' ).mockImplementation();
+				fresh.state.searchQuery = '';
+				fresh.state.priceRange = null;
+				fresh.state.filterConfigs = {};
+				fresh.state.activeFilters = {};
+				fresh.state.hasSearchParam = true;
+
+				captured.actions.dispatchInitialSearchIfNeeded();
+				captured.actions.dispatchInitialSearchIfNeeded();
+				captured.actions.dispatchInitialSearchIfNeeded();
+
+				// The latch is what lets the IA directive AND the overlay
+				// bootstrap both call this safely after hydration — only the
+				// first invocation wins.
+				expect( search ).toHaveBeenCalledTimes( 1 );
+				expect( search ).toHaveBeenCalledWith( { syncUrl: false } );
+
+				fresh.state.hasSearchParam = false;
+			} );
+		} );
+
+		it( 'bails without dispatching when no search criteria are present', () => {
+			jest.isolateModules( () => {
+				const fresh = require( '../../../src/search-blocks/store' );
+				const search = jest.spyOn( fresh.actions, 'search' ).mockImplementation();
+				// Plain homepage: no `?s=` / `?q=`, no filters, no price range.
+				fresh.state.searchQuery = '';
+				fresh.state.priceRange = null;
+				fresh.state.filterConfigs = {};
+				fresh.state.activeFilters = {};
+				fresh.state.hasSearchParam = false;
+
+				captured.actions.dispatchInitialSearchIfNeeded();
+
+				expect( search ).not.toHaveBeenCalled();
+			} );
+		} );
+	} );
+
+	describe( 'initLoadMoreObserver', () => {
+		let originalIO;
+		let observerInstances;
+
+		beforeEach( () => {
+			originalIO = global.IntersectionObserver;
+			observerInstances = [];
+			// jsdom doesn't ship IntersectionObserver, and the instance methods
+			// (`observe`, `unobserve`, `disconnect`) don't exist on a fresh
+			// `this` either — so `jest.spyOn` has nothing to attach to. Direct
+			// assignment is the right tool here.
+			/* eslint-disable jest/prefer-spy-on -- nothing to spy on. */
+			global.IntersectionObserver = jest.fn( function ( cb, opts ) {
+				this.cb = cb;
+				this.opts = opts;
+				this.observe = jest.fn();
+				this.unobserve = jest.fn();
+				this.disconnect = jest.fn();
+				observerInstances.push( this );
+			} );
+			/* eslint-enable jest/prefer-spy-on */
+		} );
+
+		afterEach( () => {
+			if ( originalIO === undefined ) {
+				delete global.IntersectionObserver;
+			} else {
+				global.IntersectionObserver = originalIO;
+			}
+			captured.element.ref = null;
+		} );
+
+		/**
+		 * Build a fake wrapper DOM with the dataset + sentinel render.php emits.
+		 *
+		 * @param {object} dataset - dataset attributes to attach.
+		 * @return {object} fake wrapper element.
+		 */
+		function makeWrapper( dataset ) {
+			const sentinel = { tagName: 'SPAN' };
+			return {
+				dataset,
+				querySelector: jest.fn( () => sentinel ),
+				_sentinel: sentinel,
+			};
+		}
+
+		it( 'no-ops when loadOnScroll is not enabled on the wrapper', () => {
+			captured.element.ref = makeWrapper( {} );
+			const cleanup = captured.callbacks.initLoadMoreObserver();
+			expect( cleanup ).toBeUndefined();
+			expect( global.IntersectionObserver ).not.toHaveBeenCalled();
+		} );
+
+		it( 'observes the sentinel with the configured rootMargin and returns a teardown', () => {
+			const wrapper = makeWrapper( { loadOnScroll: '1', loadOnScrollOffset: '150' } );
+			captured.element.ref = wrapper;
+
+			const cleanup = captured.callbacks.initLoadMoreObserver();
+
+			expect( global.IntersectionObserver ).toHaveBeenCalledTimes( 1 );
+			expect( observerInstances[ 0 ].opts.rootMargin ).toBe( '0px 0px 150px 0px' );
+			expect( observerInstances[ 0 ].observe ).toHaveBeenCalledWith( wrapper._sentinel );
+			expect( typeof cleanup ).toBe( 'function' );
+
+			cleanup();
+			expect( observerInstances[ 0 ].disconnect ).toHaveBeenCalledTimes( 1 );
+		} );
+
+		it( 'falls back to a 200px rootMargin when the offset is missing or unparseable', () => {
+			captured.element.ref = makeWrapper( { loadOnScroll: '1' } );
+			captured.callbacks.initLoadMoreObserver();
+			expect( observerInstances[ 0 ].opts.rootMargin ).toBe( '0px 0px 200px 0px' );
+		} );
+
+		it( 'fires loadMore() only when showLoadMore is true and a fetch is not already in flight', () => {
+			captured.element.ref = makeWrapper( { loadOnScroll: '1', loadOnScrollOffset: '200' } );
+			Object.assign( actions, originalActions );
+			const loadMore = jest.spyOn( actions, 'loadMore' ).mockImplementation();
+
+			// Seed a state where the next page exists and nothing's loading.
+			state.pageHandle = { offset: 10 };
+			state.isLoading = false;
+			state.isLoadingMore = false;
+
+			captured.callbacks.initLoadMoreObserver();
+			const observer = observerInstances[ 0 ];
+
+			// Not intersecting → no fetch.
+			observer.cb( [ { isIntersecting: false } ] );
+			expect( loadMore ).not.toHaveBeenCalled();
+
+			// Intersecting and showLoadMore (derived from pageHandle && !isLoading) → fetch.
+			// Flip isLoadingMore true to mirror what `*loadMore()` would do; this
+			// proves the in-flight guard prevents a second call.
+			loadMore.mockImplementation( () => {
+				state.isLoadingMore = true;
+			} );
+			observer.cb( [ { isIntersecting: true } ] );
+			expect( loadMore ).toHaveBeenCalledTimes( 1 );
+
+			// Already loading more → skipped (the store's own guard would no-op
+			// too, but mirroring the check here avoids a noop generator step).
+			observer.cb( [ { isIntersecting: true } ] );
+			expect( loadMore ).toHaveBeenCalledTimes( 1 );
+
+			// No more pages → skipped.
+			state.isLoadingMore = false;
+			state.pageHandle = null;
+			observer.cb( [ { isIntersecting: true } ] );
+			expect( loadMore ).toHaveBeenCalledTimes( 1 );
+		} );
+
+		it( 'no-ops when IntersectionObserver is unavailable in the environment', () => {
+			const saved = global.IntersectionObserver;
+			// Match the `typeof … === 'undefined'` runtime check by removing the
+			// global outright — assigning `undefined` would still leave the
+			// binding declared, which doesn't trip a `typeof` guard.
+			delete global.IntersectionObserver;
+			captured.element.ref = makeWrapper( { loadOnScroll: '1' } );
+			const cleanup = captured.callbacks.initLoadMoreObserver();
+			expect( cleanup ).toBeUndefined();
+			global.IntersectionObserver = saved;
+		} );
+
+		it( 're-observes the sentinel after a load settles so a short result page does not stall auto-load', () => {
+			jest.useFakeTimers();
+			captured.element.ref = makeWrapper( { loadOnScroll: '1', loadOnScrollOffset: '200' } );
+			Object.assign( actions, originalActions );
+			const loadMore = jest.spyOn( actions, 'loadMore' ).mockImplementation( () => {
+				state.isLoadingMore = true;
+			} );
+
+			state.pageHandle = { offset: 10 };
+			state.isLoading = false;
+			state.isLoadingMore = false;
+
+			captured.callbacks.initLoadMoreObserver();
+			const observer = observerInstances[ 0 ];
+
+			// First intersection fires loadMore and schedules a settle probe.
+			observer.cb( [ { isIntersecting: true } ] );
+			expect( loadMore ).toHaveBeenCalledTimes( 1 );
+			expect( observer.unobserve ).not.toHaveBeenCalled();
+
+			// Probe finds isLoadingMore still true → reschedules itself.
+			jest.advanceTimersByTime( 100 );
+			expect( observer.unobserve ).not.toHaveBeenCalled();
+
+			// Fetch settles. Probe re-arms the observer so a sentinel that
+			// never left the rootMargin gets a fresh initial-state event.
+			state.isLoadingMore = false;
+			jest.advanceTimersByTime( 100 );
+			expect( observer.unobserve ).toHaveBeenCalledTimes( 1 );
+			expect( observer.observe ).toHaveBeenCalledTimes( 2 );
+
+			jest.useRealTimers();
 		} );
 	} );
 } );
@@ -974,5 +1442,217 @@ describe( 'handlePopState gating', () => {
 		await runGenerator( actions.handlePopState() );
 
 		expect( state.hasSearchParam ).toBe( true );
+	} );
+} );
+
+describe( 'TrainTracks relevance events', () => {
+	/**
+	 * Raw API result carrying a railcar, as the search API returns it.
+	 *
+	 * @param {string} title - Result title.
+	 * @param {number} pos   - Server fetch_position.
+	 * @return {object} Raw search result with railcar.
+	 */
+	function railcarResult( title, pos ) {
+		return {
+			...createResult( title ),
+			railcar: {
+				railcar: `rc-${ pos }`,
+				fetch_algo: 'jetpack:search/1-score_default',
+				fetch_position: pos,
+				fetch_query: 'boots',
+				rec_blog_id: 1,
+				rec_post_id: 100 + pos,
+				session_id: 'sess-1',
+			},
+		};
+	}
+
+	beforeEach( () => {
+		Object.assign( actions, originalActions );
+		Object.assign( state, {
+			siteId: 123,
+			searchQuery: 'boots',
+			sortOrder: 'relevance',
+			pageHandle: null,
+			isPrivateSite: false,
+			isWpcom: false,
+			apiRoot: 'https://example.com/wp-json/',
+			homeUrl: 'https://example.com',
+			nonce: '',
+			activeFilters: {},
+			filterConfigs: {},
+			priceRange: null,
+			staticFilterSelections: {},
+			staticPostTypes: null,
+			retainedFilterOptions: {},
+			results: [],
+			resultsLayout: 'expanded',
+			disableTracking: false,
+			locale: 'en-US',
+			isLoading: false,
+			isLoadingMore: false,
+			hasError: false,
+			totalResults: 0,
+			aggregations: {},
+			strings: {},
+		} );
+		Object.defineProperty( global, 'fetch', {
+			configurable: true,
+			writable: true,
+			value: jest.fn(),
+		} );
+		window._tkq = [];
+		captured.context = {};
+	} );
+
+	afterEach( () => {
+		if ( originalFetch ) {
+			Object.defineProperty( global, 'fetch', {
+				configurable: true,
+				writable: true,
+				value: originalFetch,
+			} );
+		} else {
+			delete global.fetch;
+		}
+		jest.restoreAllMocks();
+	} );
+
+	it( 'fires one render event per result with absolute ui_position and the instant-search ui_algo', async () => {
+		global.fetch.mockResolvedValueOnce(
+			createResponse( {
+				results: [ railcarResult( 'First', 0 ), railcarResult( 'Second', 1 ) ],
+				total: 2,
+				page_handle: null,
+				aggregations: {},
+			} )
+		);
+		await runGenerator( actions.search( { syncUrl: false } ) );
+
+		const renders = window._tkq.filter(
+			e => e[ 1 ] === 'jetpack_instant_search_traintracks_render'
+		);
+		expect( renders ).toHaveLength( 2 );
+		expect( renders[ 0 ][ 2 ] ).toMatchObject( {
+			fetch_algo: 'jetpack:search/1-score_default',
+			fetch_position: 0,
+			fetch_query: 'boots',
+			railcar: 'rc-0',
+			rec_blog_id: 1,
+			rec_post_id: 100,
+			session_id: 'sess-1',
+			ui_algo: 'jetpack-instant-search-ui/v1-expanded',
+			ui_position: 0,
+		} );
+		expect( renders[ 1 ][ 2 ] ).toMatchObject( { railcar: 'rc-1', ui_position: 1 } );
+	} );
+
+	it( 'maps the compact layout to the minimal ui_algo', async () => {
+		state.resultsLayout = 'compact';
+		global.fetch.mockResolvedValueOnce(
+			createResponse( { results: [ railcarResult( 'Only', 0 ) ], total: 1, page_handle: null } )
+		);
+		await runGenerator( actions.search( { syncUrl: false } ) );
+
+		const render = window._tkq.find( e => e[ 1 ] === 'jetpack_instant_search_traintracks_render' );
+		expect( render[ 2 ].ui_algo ).toBe( 'jetpack-instant-search-ui/v1-minimal' );
+	} );
+
+	it( 'maps the product layout to the product ui_algo', async () => {
+		state.resultsLayout = 'product';
+		global.fetch.mockResolvedValueOnce(
+			createResponse( { results: [ railcarResult( 'Only', 0 ) ], total: 1, page_handle: null } )
+		);
+		await runGenerator( actions.search( { syncUrl: false } ) );
+
+		const render = window._tkq.find( e => e[ 1 ] === 'jetpack_instant_search_traintracks_render' );
+		expect( render[ 2 ].ui_algo ).toBe( 'jetpack-instant-search-ui/v1-product' );
+	} );
+
+	it( 'fires no render events when tracking is disabled', async () => {
+		state.disableTracking = true;
+		global.fetch.mockResolvedValueOnce(
+			createResponse( {
+				results: [ railcarResult( 'First', 0 ), railcarResult( 'Second', 1 ) ],
+				total: 2,
+				page_handle: null,
+			} )
+		);
+		await runGenerator( actions.search( { syncUrl: false } ) );
+
+		expect(
+			window._tkq.filter( e => e[ 1 ] === 'jetpack_instant_search_traintracks_render' )
+		).toHaveLength( 0 );
+	} );
+
+	it( 'fires no interact event when tracking is disabled', () => {
+		state.disableTracking = true;
+		captured.context = { result: { index: 0, railcar: { railcar: 'rc-x' } } };
+		actions.recordResultInteract();
+		expect(
+			window._tkq.filter( e => e[ 1 ] === 'jetpack_instant_search_traintracks_interact' )
+		).toHaveLength( 0 );
+	} );
+
+	it( 'fires no event for results lacking a railcar', async () => {
+		global.fetch.mockResolvedValueOnce(
+			createResponse( { results: [ createResult( 'No railcar' ) ], total: 1, page_handle: null } )
+		);
+		await runGenerator( actions.search( { syncUrl: false } ) );
+
+		expect(
+			window._tkq.filter( e => e[ 1 ] === 'jetpack_instant_search_traintracks_render' )
+		).toHaveLength( 0 );
+	} );
+
+	it( 'offsets ui_position by the existing list length on loadMore', async () => {
+		// One result already on the page (ui_position 0); the next page's
+		// result must report ui_position 1, not 0.
+		state.results = [ { id: 'a', title: 'Already here', index: 0, railcar: null } ];
+		state.pageHandle = 'page-2';
+		global.fetch.mockResolvedValueOnce(
+			createResponse( { results: [ railcarResult( 'Page two', 1 ) ], page_handle: null } )
+		);
+		await runGenerator( actions.loadMore() );
+
+		const render = window._tkq.find( e => e[ 1 ] === 'jetpack_instant_search_traintracks_render' );
+		expect( render[ 2 ].ui_position ).toBe( 1 );
+	} );
+
+	it( 'fires an interact event with action:click reading the clicked result context', () => {
+		captured.context = {
+			result: {
+				index: 3,
+				railcar: {
+					railcar: 'rc-click',
+					fetch_algo: 'jetpack:search/1-score_default',
+					fetch_position: 3,
+					fetch_query: 'boots',
+					rec_blog_id: 1,
+					rec_post_id: 103,
+					session_id: 'sess-1',
+				},
+			},
+		};
+		actions.recordResultInteract();
+
+		const interact = window._tkq.find(
+			e => e[ 1 ] === 'jetpack_instant_search_traintracks_interact'
+		);
+		expect( interact[ 2 ] ).toMatchObject( {
+			railcar: 'rc-click',
+			ui_position: 3,
+			ui_algo: 'jetpack-instant-search-ui/v1-expanded',
+			action: 'click',
+		} );
+	} );
+
+	it( 'fires no interact event when the clicked result has no railcar', () => {
+		captured.context = { result: { index: 0, railcar: null } };
+		actions.recordResultInteract();
+		expect(
+			window._tkq.filter( e => e[ 1 ] === 'jetpack_instant_search_traintracks_interact' )
+		).toHaveLength( 0 );
 	} );
 } );

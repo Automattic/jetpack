@@ -4,7 +4,6 @@ import {
 	Container,
 	Text,
 	ToggleControl,
-	ContextualUpgradeTrigger,
 	useBreakpointMatch,
 } from '@automattic/jetpack-components';
 import { Popover } from '@wordpress/components';
@@ -15,6 +14,7 @@ import { Notice } from '@wordpress/ui';
 import moment from 'moment';
 import { useCallback, useEffect, useState, useMemo } from 'react';
 import Textarea from '../../components/textarea';
+import UpgradeNotice from '../../components/upgrade-notice';
 import { FREE_PLUGIN_SUPPORT_URL, PAID_PLUGIN_SUPPORT_URL } from '../../constants';
 import useWafUpgradeSeenMutation from '../../data/waf/use-waf-upgrade-seen-mutation';
 import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
@@ -350,7 +350,7 @@ const FirewallPage = () => {
 			</div>
 			{ ! hasPlan && (
 				<div className={ styles[ 'upgrade-trigger-section' ] }>
-					<ContextualUpgradeTrigger
+					<UpgradeNotice
 						className={ styles[ 'upgrade-trigger' ] }
 						description={
 							! canToggleAutomaticRules

@@ -9,8 +9,6 @@
  * @package automattic/jetpack-boost
  */
 
-// @phan-file-suppress PhanUndeclaredFunction, PhanUndeclaredClassMethod @phan-suppress-current-line UnusedSuppression -- Abilities API added in WP 6.9. We guard with function_exists() checks so the class is safe on older WP. @todo Remove this line when the minimum supported WordPress version is 6.9.
-
 namespace Automattic\Jetpack_Boost\Abilities;
 
 use Automattic\Jetpack\Boost_Speed_Score\Speed_Score_History;

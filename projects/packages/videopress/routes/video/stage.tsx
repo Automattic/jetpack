@@ -5,26 +5,47 @@ import { useCallback, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Link, useNavigate, useParams } from '@wordpress/route';
 import { Stack, Text } from '@wordpress/ui';
-import ChaptersHelpModal from '../../src/dashboard/components/VideoDetails/chapters-help-modal';
-import HeaderActions from '../../src/dashboard/components/VideoDetails/header-actions';
-import PrivacySharingCard from '../../src/dashboard/components/VideoDetails/privacy-sharing-card';
-import RatingCard from '../../src/dashboard/components/VideoDetails/rating-card';
-import ThumbnailCard from '../../src/dashboard/components/VideoDetails/thumbnail-card';
-import { useVideoDetailsForm } from '../../src/dashboard/components/VideoDetails/use-video-details-form';
-import VideoDetailsCard from '../../src/dashboard/components/VideoDetails/video-details-card';
-import { useMockLibrary } from '../../src/dashboard/hooks/use-mock-library';
+import { addQueryArgs } from '@wordpress/url';
+import QueryClientWrapper from '../../src/dashboard/components/query-client-wrapper';
+import ChaptersHelpModal from '../../src/dashboard/components/video-details/chapters-help-modal';
+import HeaderActions from '../../src/dashboard/components/video-details/header-actions';
+import PrivacySharingCard from '../../src/dashboard/components/video-details/privacy-sharing-card';
+import RatingCard from '../../src/dashboard/components/video-details/rating-card';
+import ThumbnailCard from '../../src/dashboard/components/video-details/thumbnail-card';
+import { useVideoDetailsForm } from '../../src/dashboard/components/video-details/use-video-details-form';
+import VideoDetailsCard from '../../src/dashboard/components/video-details/video-details-card';
+import { useDeleteVideo } from '../../src/dashboard/hooks/use-delete-video';
+import { useUpdateVideoMeta } from '../../src/dashboard/hooks/use-update-video-meta';
+import { useVideo } from '../../src/dashboard/hooks/use-video';
 import './style.scss';
-import type { MockLibraryItem, VideoRating } from '../../src/dashboard/types/library';
+import type { LibraryItem, VideoRating } from '../../src/dashboard/types/library';
 
-const isEditable = ( item: MockLibraryItem ): boolean =>
+const isEditable = ( item: LibraryItem ): boolean =>
 	item.type === 'videopress' && item.upload.status !== 'failed';
+
+/**
+ * Parent breadcrumb item — labelled "VideoPress" in every case, but the
+ * link target depends on where the user arrived from. Overview's ranking
+ * links tag their navigation with `state: { from: 'overview' }`; we read
+ * that here so the breadcrumb routes back to the Overview tab instead of
+ * defaulting to Library. TanStack stores user state on `window.history.state`,
+ * so reading it directly avoids needing `useLocation` (which `@wordpress/route`
+ * doesn't re-export from TanStack). Stable for the lifetime of the mount,
+ * so no reactivity hook is needed.
+ *
+ * @return The parent breadcrumb item.
+ */
+const getParentBreadcrumbItem = (): { label: string; to: string } => {
+	const from = ( window.history.state as { from?: string } | null )?.from;
+	return { label: 'VideoPress', to: from === 'overview' ? '/' : '/library' };
+};
 
 const NotFound = () => (
 	<AdminPage
 		breadcrumbs={
 			<Breadcrumbs
 				items={ [
-					{ label: 'VideoPress', to: '/library' },
+					getParentBreadcrumbItem(),
 					{ label: __( 'Not found', 'jetpack-videopress-pkg' ) },
 				] }
 			/>
@@ -39,22 +60,45 @@ const NotFound = () => (
 	</AdminPage>
 );
 
+// Placeholder shown while /wp/v2/media/{id} is in flight. Mirrors NotFound's
+// AdminPage + breadcrumbs shell so the page chrome stays present rather than
+// blanking out the viewport for the duration of the fetch.
+const Loading = () => (
+	<AdminPage
+		breadcrumbs={
+			<Breadcrumbs
+				items={ [
+					getParentBreadcrumbItem(),
+					{ label: __( 'Loading…', 'jetpack-videopress-pkg' ) },
+				] }
+			/>
+		}
+	>
+		<div className="vp-video-details vp-video-details__loading" aria-busy="true" />
+	</AdminPage>
+);
+
 type EditorProps = {
-	video: MockLibraryItem;
-	updateVideoDetails: ReturnType< typeof useMockLibrary >[ 'updateVideoDetails' ];
-	deleteItems: ReturnType< typeof useMockLibrary >[ 'deleteItems' ];
-	createSuccessNotice: ReturnType< typeof useGlobalNotices >[ 'createSuccessNotice' ];
-	navigate: ReturnType< typeof useNavigate >;
+	video: LibraryItem;
+	onSave: (
+		values: ReturnType< typeof useVideoDetailsForm >[ 'values' ],
+		reset: ReturnType< typeof useVideoDetailsForm >[ 'reset' ]
+	) => void;
+	isSaving: boolean;
+	onDelete: () => void;
+	onDownload: () => void;
+	onAddToNewPost: () => void;
 	chaptersOpen: boolean;
 	setChaptersOpen: ( open: boolean ) => void;
 };
 
 const Editor = ( {
 	video,
-	updateVideoDetails,
-	deleteItems,
-	createSuccessNotice,
-	navigate,
+	onSave,
+	isSaving,
+	onDelete,
+	onDownload,
+	onAddToNewPost,
 	chaptersOpen,
 	setChaptersOpen,
 }: EditorProps ) => {
@@ -75,37 +119,19 @@ const Editor = ( {
 		[ update ]
 	);
 
-	const onSave = useCallback( () => {
-		updateVideoDetails( video.id, values );
-		createSuccessNotice( __( 'Video details saved.', 'jetpack-videopress-pkg' ) );
-		reset( values );
-	}, [ updateVideoDetails, video.id, values, createSuccessNotice, reset ] );
-
-	const onDelete = useCallback( () => {
-		deleteItems( [ video.id ] );
-		createSuccessNotice( __( 'Video deleted.', 'jetpack-videopress-pkg' ) );
-		navigate( { href: '/library' } );
-	}, [ deleteItems, video.id, createSuccessNotice, navigate ] );
-
-	const onDownload = useCallback( () => {
-		// Phase 6 wires this to the real file URL.
-	}, [] );
-
-	const onAddToNewPost = useCallback( () => {
-		// Phase 6 wires this to the real newPostURL.
-	}, [] );
+	const handleSave = useCallback( () => {
+		onSave( values, reset );
+	}, [ onSave, values, reset ] );
 
 	return (
 		<AdminPage
 			breadcrumbs={
-				<Breadcrumbs
-					items={ [ { label: 'VideoPress', to: '/library' }, { label: video.title } ] }
-				/>
+				<Breadcrumbs items={ [ getParentBreadcrumbItem(), { label: video.title } ] } />
 			}
 			actions={
 				<HeaderActions
-					canSave={ isDirty }
-					onSave={ onSave }
+					canSave={ isDirty && ! isSaving }
+					onSave={ handleSave }
 					onDownload={ onDownload }
 					onDelete={ onDelete }
 				/>
@@ -121,7 +147,7 @@ const Editor = ( {
 				/>
 				<PrivacySharingCard
 					privacy={ values.privacy }
-					allowSharing={ values.allowSharing }
+					displayEmbed={ values.displayEmbed }
 					allowDownloads={ values.allowDownloads }
 					onChange={ update }
 				/>
@@ -132,30 +158,88 @@ const Editor = ( {
 	);
 };
 
-const Stage = () => {
-	const { id } = useParams( { from: '/video/$id' } );
+type StageReadyProps = { video: LibraryItem };
+
+const StageReady = ( { video }: StageReadyProps ) => {
 	const navigate = useNavigate();
-	const { items, updateVideoDetails, deleteItems } = useMockLibrary();
-	const { createSuccessNotice } = useGlobalNotices();
+	const { mutate: updateMeta, isPending: isSaving } = useUpdateVideoMeta();
+	const { mutate: deleteVideo } = useDeleteVideo();
+	const { createSuccessNotice, createErrorNotice } = useGlobalNotices();
 	const [ chaptersOpen, setChaptersOpen ] = useState( false );
-
-	const video = items.find( item => item.id === id );
-
-	if ( ! video || ! isEditable( video ) ) {
-		return <NotFound />;
-	}
 
 	return (
 		<Editor
 			video={ video }
-			updateVideoDetails={ updateVideoDetails }
-			deleteItems={ deleteItems }
-			createSuccessNotice={ createSuccessNotice }
-			navigate={ navigate }
+			isSaving={ isSaving }
+			onSave={ ( values, reset ) => {
+				updateMeta(
+					{ id: video.id, patch: values },
+					{
+						onSuccess: () => {
+							createSuccessNotice( __( 'Video details saved.', 'jetpack-videopress-pkg' ) );
+							reset( values );
+						},
+						onError: () => {
+							createErrorNotice( __( 'Failed to save video details.', 'jetpack-videopress-pkg' ) );
+						},
+					}
+				);
+			} }
+			onDelete={ () => {
+				deleteVideo( Number( video.id ), {
+					onSuccess: () => {
+						createSuccessNotice( __( 'Video deleted.', 'jetpack-videopress-pkg' ) );
+						navigate( { href: '/library' } );
+					},
+					onError: () => {
+						createErrorNotice( __( 'Failed to delete video.', 'jetpack-videopress-pkg' ) );
+					},
+				} );
+			} }
+			onDownload={ () => {
+				if ( video.sourceUrl ) {
+					window.open( video.sourceUrl, '_blank' );
+				}
+			} }
+			onAddToNewPost={ () => {
+				const nonce =
+					typeof JPVIDEOPRESS_INITIAL_STATE !== 'undefined'
+						? JPVIDEOPRESS_INITIAL_STATE?.API?.contentNonce
+						: undefined;
+				if ( ! video.guid || ! nonce ) {
+					return;
+				}
+				const url = addQueryArgs( 'post-new.php', {
+					videopress_guid: video.guid,
+					_wpnonce: nonce,
+				} );
+				window.open( url, '_blank' );
+			} }
 			chaptersOpen={ chaptersOpen }
 			setChaptersOpen={ setChaptersOpen }
 		/>
 	);
 };
+
+const StageInner = () => {
+	const { id } = useParams( { from: '/video/$id' } );
+	const { video, isLoading } = useVideo( id );
+
+	if ( isLoading ) {
+		return <Loading />;
+	}
+
+	if ( ! video || ! isEditable( video ) ) {
+		return <NotFound />;
+	}
+
+	return <StageReady video={ video } />;
+};
+
+const Stage = () => (
+	<QueryClientWrapper>
+		<StageInner />
+	</QueryClientWrapper>
+);
 
 export { Stage as stage };

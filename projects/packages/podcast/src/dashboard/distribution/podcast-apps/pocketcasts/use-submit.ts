@@ -1,4 +1,3 @@
-import { getSiteData } from '@automattic/jetpack-script-data';
 import apiFetch from '@wordpress/api-fetch';
 import { store as coreStore } from '@wordpress/core-data';
 import { useDispatch } from '@wordpress/data';
@@ -75,17 +74,10 @@ export function usePocketCastsSubmit(): SubmitState & { submit: () => void } {
 	const { invalidateResolution } = useDispatch( coreStore );
 
 	const submit = useCallback( () => {
-		const blogId = Number( getSiteData()?.wpcom?.blog_id ?? 0 );
-		if ( ! blogId ) {
-			setErrorMessage(
-				__( 'We couldn’t reach Pocket Casts right now. Please try again.', 'jetpack-podcast' )
-			);
-			return;
-		}
 		setIsSubmitting( true );
 		setErrorMessage( null );
 		apiFetch< PocketCastsSubmitResponse >( {
-			path: `/wpcom/v2/sites/${ blogId }/podcast-distribution/pocket-casts/submit`,
+			path: '/wpcom/v2/podcast-distribution/pocket-casts/submit',
 			method: 'POST',
 		} )
 			.then( response => {

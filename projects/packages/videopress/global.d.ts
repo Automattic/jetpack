@@ -14,9 +14,13 @@ export declare global {
 				API: {
 					WP_API_root: string;
 					WP_API_nonce: string;
+					contentNonce: string;
 				};
 				jetpackStatus: {
 					calypsoSlug: string;
+				};
+				product: {
+					slug: string;
 				};
 				siteData: {
 					id: number | string;
@@ -27,9 +31,25 @@ export declare global {
 					timezoneString: string;
 					locale: string;
 					hasVideoPressAccess: boolean;
+					isVideoPress1TB?: boolean;
+					isVideoPressUnlimited?: boolean;
 				};
 				assets: {
 					buildUrl: string;
+				};
+				pricing: null | {
+					title: string;
+					features: string[];
+					yearly: {
+						slug: string;
+						name: string;
+						price: number;
+						priceByMonth: number;
+						currency: string;
+						discount?: number;
+						salePrice?: number;
+						salePriceByMonth?: number;
+					};
 				};
 		  };
 }

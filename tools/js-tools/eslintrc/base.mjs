@@ -127,8 +127,7 @@ export function makeBaseConfig( configurl, opts = {} ) {
 		}
 	}
 
-	const envConditionNames =
-		process.env.npm_config_jetpack_webpack_config_resolve_conditions?.split( ',' ) ?? [];
+	const envConditionNames = [ 'jetpack:src' ];
 
 	const jsPackageJsons = glob
 		.sync( path.join( rootdir, 'projects/js-packages/*/package.json' ) )
@@ -527,6 +526,7 @@ export function makeBaseConfig( configurl, opts = {} ) {
 			ignores: jsPackageJsons,
 			rules: {
 				'package-json/require-name': 'off',
+				'package-json/valid-name': 'off',
 			},
 		},
 		{

@@ -37,12 +37,6 @@ export type ConnectionData = {
 	keyringResult?: KeyringResult;
 	abortControllers?: Record< string, Array< AbortController > >;
 	isConnectionsModalOpen?: boolean;
-	/**
-	 * Transient flag set when the user toggles a second X connection on,
-	 * which causes another X connection to auto-disable. Surfaces the
-	 * single-X-per-post info notice in the sidebar.
-	 */
-	shouldShowSingleXNotice?: boolean;
 };
 
 export type JetpackSettings = {
@@ -133,6 +127,44 @@ export type RenderedMessages = {
 	[ Key: string ]: RenderedMessageEntry;
 };
 
+/**
+ * One row in the per-day referrer payload. Shape mirrors what the
+ * `stats-app/sites/{id}/stats/referrers` endpoint returns: a `name`
+ * (display label), an optional `url` (when the row is a direct
+ * referrer rather than a group container), and `total` (the count).
+ * Field name is `total` (not `views`) — confirmed by the regression
+ * guard in `Stats_Abilities_Test::test_get_top_content_referrers_normalizes_groups_shape`.
+ */
+export type TrafficReferrerRow = {
+	name?: string;
+	url?: string;
+	total?: number;
+	results?: TrafficReferrerRow[];
+};
+
+/**
+ * Per-day referrer payload. `groups` carries the referrer rows we
+ * bucket into per-service series; the timestamp is the local date
+ * string the endpoint emits (e.g. `2026-05-15`).
+ */
+export type TrafficReferrerDay = {
+	groups?: TrafficReferrerRow[];
+	other_views?: number;
+	total_views?: number;
+};
+
+export type TrafficInterval = 7 | 30 | 90;
+
+export type TrafficStatsState = {
+	interval: TrafficInterval;
+	byInterval?: Partial<
+		Record<
+			TrafficInterval,
+			{ loading?: boolean; error?: boolean; days?: Record< string, TrafficReferrerDay > }
+		>
+	>;
+};
+
 export type SocialStoreState = {
 	connectionData: ConnectionData;
 	shareStatus?: ShareStatus;
@@ -141,6 +173,7 @@ export type SocialStoreState = {
 	unifiedModal?: UnifiedModalState;
 	renderCount?: RenderCount;
 	renderedMessages?: RenderedMessages;
+	trafficStats?: TrafficStatsState;
 };
 
 export interface KeyringAdditionalUser {

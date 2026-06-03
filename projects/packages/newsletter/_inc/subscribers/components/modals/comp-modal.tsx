@@ -153,57 +153,59 @@ export default function CompModal( { subscriber, onClose }: Props ): JSX.Element
 					</Dialog.Title>
 					<Dialog.CloseIcon />
 				</Dialog.Header>
-				<Stack direction="column" gap="md">
-					<Text variant="body-md">
-						{ __(
-							'Pick a paid plan and we’ll add a complimentary subscription for this reader.',
-							'jetpack-newsletter'
-						) }
-					</Text>
-					{ productsQuery.isError ? (
-						<Notice.Root intent="error">
-							<Notice.Description>
-								{ productsQuery.error?.message ||
-									__( 'Could not load your paid plans.', 'jetpack-newsletter' ) }
-							</Notice.Description>
-						</Notice.Root>
-					) : null }
-					{ ! productsQuery.isLoading && products.length === 0 && ! productsQuery.isError ? (
-						<Notice.Root intent="info">
-							<Notice.Description>
-								{ __(
-									'You don’t have any paid newsletter plans configured on this site yet.',
-									'jetpack-newsletter'
-								) }
-							</Notice.Description>
-						</Notice.Root>
-					) : null }
-					{ allComped ? (
-						<Notice.Root intent="info">
-							<Notice.Description>
-								{ __(
-									'This subscriber already has a comp on every available plan.',
-									'jetpack-newsletter'
-								) }
-							</Notice.Description>
-						</Notice.Root>
-					) : null }
-					<SelectControl
-						__nextHasNoMarginBottom
-						label={ __( 'Plan', 'jetpack-newsletter' ) }
-						value={ planId }
-						onChange={ setPlanId }
-						options={ options }
-						disabled={ productsQuery.isLoading || mutation.isPending || allComped }
-					/>
-					<CheckboxControl
-						__nextHasNoMarginBottom
-						label={ __( 'Doesn’t expire', 'jetpack-newsletter' ) }
-						checked={ noExpiration }
-						onChange={ setNoExpiration }
-						disabled={ mutation.isPending }
-					/>
-				</Stack>
+				<Dialog.Content>
+					<Stack direction="column" gap="md">
+						<Text variant="body-md">
+							{ __(
+								'Pick a paid plan and we’ll add a complimentary subscription for this reader.',
+								'jetpack-newsletter'
+							) }
+						</Text>
+						{ productsQuery.isError ? (
+							<Notice.Root intent="error">
+								<Notice.Description>
+									{ productsQuery.error?.message ||
+										__( 'Could not load your paid plans.', 'jetpack-newsletter' ) }
+								</Notice.Description>
+							</Notice.Root>
+						) : null }
+						{ ! productsQuery.isLoading && products.length === 0 && ! productsQuery.isError ? (
+							<Notice.Root intent="info">
+								<Notice.Description>
+									{ __(
+										'You don’t have any paid newsletter plans configured on this site yet.',
+										'jetpack-newsletter'
+									) }
+								</Notice.Description>
+							</Notice.Root>
+						) : null }
+						{ allComped ? (
+							<Notice.Root intent="info">
+								<Notice.Description>
+									{ __(
+										'This subscriber already has a comp on every available plan.',
+										'jetpack-newsletter'
+									) }
+								</Notice.Description>
+							</Notice.Root>
+						) : null }
+						<SelectControl
+							__nextHasNoMarginBottom
+							label={ __( 'Plan', 'jetpack-newsletter' ) }
+							value={ planId }
+							onChange={ setPlanId }
+							options={ options }
+							disabled={ productsQuery.isLoading || mutation.isPending || allComped }
+						/>
+						<CheckboxControl
+							__nextHasNoMarginBottom
+							label={ __( 'Doesn’t expire', 'jetpack-newsletter' ) }
+							checked={ noExpiration }
+							onChange={ setNoExpiration }
+							disabled={ mutation.isPending }
+						/>
+					</Stack>
+				</Dialog.Content>
 				<Dialog.Footer>
 					<Dialog.Action
 						render={ <Button variant="outline" tone="neutral" /> }

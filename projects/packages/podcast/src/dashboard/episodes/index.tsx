@@ -208,7 +208,9 @@ const EpisodesTab = () => {
 				getValue: ( { item }: { item: EpisodeRow } ) => item.featuredMediaUrl,
 				render: ( { item }: { item: EpisodeRow } ) =>
 					item.featuredMediaUrl ? (
-						<img src={ item.featuredMediaUrl } alt="" className="podcast__episode-thumb" />
+						<div className="podcast__episode-thumb">
+							<img src={ item.featuredMediaUrl } alt="" className="podcast__episode-thumb__image" />
+						</div>
 					) : (
 						<div
 							className="podcast__episode-thumb podcast__episode-thumb--placeholder"

@@ -1,9 +1,10 @@
-import { Text, Button, ContextualUpgradeTrigger } from '@automattic/jetpack-components';
+import { Text, Button } from '@automattic/jetpack-components';
 import { __, sprintf } from '@wordpress/i18n';
 import { useCallback } from 'react';
 import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
 import usePlan from '../../hooks/use-plan';
 import FreeAccordion, { FreeAccordionItem } from '../free-accordion';
+import UpgradeNotice from '../upgrade-notice';
 import Pagination from './pagination';
 import styles from './styles.module.scss';
 
@@ -65,7 +66,7 @@ const ThreatAccordionItem = ( {
 							sprintf( __( 'Update to %1$s %2$s', 'jetpack-protect' ), name, fixedIn )
 						}
 					</Text>
-					<ContextualUpgradeTrigger
+					<UpgradeNotice
 						description={ __(
 							'Looking for advanced scan results and one-click fixes?',
 							'jetpack-protect'

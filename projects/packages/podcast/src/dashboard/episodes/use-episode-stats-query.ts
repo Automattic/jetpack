@@ -1,4 +1,3 @@
-import { getSiteData } from '@automattic/jetpack-script-data';
 import apiFetch from '@wordpress/api-fetch';
 import { useEffect, useMemo, useState } from '@wordpress/element';
 import { addQueryArgs } from '@wordpress/url';
@@ -32,10 +31,6 @@ export function useEpisodeStatsQuery( postIds: number[] ): {
 			setPremiumRequired( false );
 			return;
 		}
-		const blogId = Number( getSiteData()?.wpcom?.blog_id ?? 0 );
-		if ( ! blogId ) {
-			return;
-		}
 		const ids = key.split( ',' ).map( Number );
 		let cancelled = false;
 		( async () => {
@@ -48,7 +43,7 @@ export function useEpisodeStatsQuery( postIds: number[] ): {
 				const chunk = ids.slice( i, i + 50 );
 				try {
 					const result = ( await apiFetch( {
-						path: addQueryArgs( `/wpcom/v2/sites/${ blogId }/podcast-stats/episode-totals`, {
+						path: addQueryArgs( '/wpcom/v2/podcast-stats/episode-totals', {
 							post_ids: chunk.join( ',' ),
 						} ),
 						method: 'GET',

@@ -7,8 +7,7 @@
  * to keep root-level selectors collision-safe.
  */
 
-.jetpack-podcast-episode__person-editor,
-.jetpack-podcast-episode__chapter-row {
+.jetpack-podcast-episode__person-editor {
 	display: flex;
 	flex-direction: column;
 	gap: 8px;
@@ -20,9 +19,8 @@
 	border-radius: 4px;
 }
 
-// Alternate the row background so a stack of chapter / person editors
-// reads as distinct cards instead of merging visually.
-.jetpack-podcast-episode__chapter-row--alt,
+// Alternate the row background so a stack of person editors reads as
+// distinct cards instead of merging visually.
 .jetpack-podcast-episode__person-editor--alt {
 	background: #f6f7f7;
 }
@@ -58,11 +56,14 @@
 		border-color: var(--wp-admin-theme-color, #007cba);
 	}
 
+	// Mirror what the feed serves: Photon center-crops the cover to a square,
+	// so the picker preview does too (via aspect-ratio + object-fit) to avoid
+	// the editor showing one composition and the feed showing another.
 	img {
 		display: block;
 		width: 100%;
-		height: auto;
-		max-width: 100%;
+		aspect-ratio: 1;
+		object-fit: cover;
 	}
 }
 

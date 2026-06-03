@@ -180,6 +180,19 @@ class Images {
 		}
 		// phpcs:enable WordPress.WP.GlobalVariablesOverride.Prohibited
 
+		// WooCommerce stores product gallery image IDs in the `_product_image_gallery`
+		// postmeta rather than in post_content, so get_post_galleries() does not see them.
+		// Append them as a synthetic gallery in the same `ids` shape the loop below expects.
+		if ( 'product' === $post->post_type ) {
+			$wc_gallery_ids = get_post_meta( $post->ID, '_product_image_gallery', true );
+			if ( ! empty( $wc_gallery_ids ) ) {
+				$galleries[] = array(
+					'ids'  => $wc_gallery_ids,
+					'size' => 'full',
+				);
+			}
+		}
+
 		foreach ( $galleries as $gallery ) {
 			if ( ! empty( $gallery['ids'] ) ) {
 				$image_ids  = explode( ',', $gallery['ids'] );

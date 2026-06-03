@@ -7,8 +7,6 @@
  * @package automattic/jetpack
  */
 
-// @phan-file-suppress PhanUndeclaredFunction, PhanUndeclaredClassMethod @phan-suppress-current-line UnusedSuppression -- Abilities API added in WP 6.9; suppressions needed for older-WP compatibility runs.
-
 namespace Automattic\Jetpack\Plugin\Abilities;
 
 use Automattic\Jetpack\WP_Abilities\Registrar;
@@ -32,12 +30,20 @@ class Modules_Abilities extends Registrar {
 
 	/**
 	 * {@inheritDoc}
+	 *
+	 * The `jetpack` ability-category is shared across multiple subpackages
+	 * (Connection, Plugin, etc.). `wp_register_ability_category()` only honours
+	 * the first registration, so the English source string here is kept
+	 * byte-identical to the one in
+	 * {@see \Automattic\Jetpack\Connection\Abilities\Connection_Abilities::get_category_definition()}
+	 * to keep the visible category text consistent regardless of which
+	 * registrar runs first.
 	 */
 	public static function get_category_definition(): array {
 		return array(
 			// "Jetpack" is a product name and should not be translated.
 			'label'       => 'Jetpack',
-			'description' => __( 'Abilities exposed by the Jetpack plugin.', 'jetpack' ),
+			'description' => __( 'Abilities provided by Jetpack.', 'jetpack' ),
 		);
 	}
 

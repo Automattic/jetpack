@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Write: fix slash menu keyboard Enter not working on non-English sites

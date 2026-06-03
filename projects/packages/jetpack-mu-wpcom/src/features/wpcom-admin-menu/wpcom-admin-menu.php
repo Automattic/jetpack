@@ -12,7 +12,6 @@ use Automattic\Jetpack\Newsletter\Settings as Newsletter_Settings;
 use Automattic\Jetpack\Podcast\Admin_Page as Podcast_Admin_Page;
 use Automattic\Jetpack\Podcast\Podcast;
 use Automattic\Jetpack\Redirect;
-use Automattic\Jetpack\Subscribers_Dashboard\Dashboard as Subscribers_Dashboard;
 
 require_once __DIR__ . '/../../common/wpcom-callout.php';
 
@@ -389,9 +388,18 @@ function wpcom_add_jetpack_submenu() {
 		null // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
 	);
 
-	// Jetpack > Subscribers.
-	if ( ! apply_filters( 'jetpack_wp_admin_subscriber_management_enabled', false ) ) {
-		wpcom_hide_submenu_page( 'jetpack', esc_url( Redirect::get_url( 'jetpack-menu-jetpack-manage-subscribers', array( 'site' => $blog_id ) ) ) );
+	// Jetpack > Subscribers. Always hide the auto-added Calypso redirect link.
+	wpcom_hide_submenu_page( 'jetpack', esc_url( Redirect::get_url( 'jetpack-menu-jetpack-manage-subscribers', array( 'site' => $blog_id ) ) ) );
+
+	// Once the Newsletter modernization filter is on, the unified Newsletter
+	// page owns the Subscribers tab and this standalone submenu is retired.
+	// While the filter is off (the default) we keep the legacy Calypso
+	// "Subscribers" submenu. (The wp-admin subscriber-management variant was
+	// removed with the subscribers-dashboard package and isn't restored.)
+	// Referenced as a string literal (mirrors Newsletter\Settings::MODERNIZATION_FILTER):
+	// the newsletter package isn't a dependency of jetpack-mu-wpcom, and this runs
+	// unconditionally — ahead of the class_exists-guarded Settings use below.
+	if ( ! apply_filters( 'rsm_jetpack_ui_modernization_newsletter', false ) ) {
 		add_submenu_page(
 			'jetpack',
 			__( 'Subscribers', 'jetpack-mu-wpcom' ),
@@ -400,9 +408,6 @@ function wpcom_add_jetpack_submenu() {
 			'https://wordpress.com/subscribers/' . $domain,
 			null // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
 		);
-	} else {
-		$subscribers_dashboard = new Subscribers_Dashboard();
-		$subscribers_dashboard->add_wp_admin_submenu();
 	}
 
 	if ( Podcast::is_enabled() ) {

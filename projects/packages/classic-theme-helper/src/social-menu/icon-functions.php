@@ -117,6 +117,10 @@ if ( ! function_exists( 'jetpack_social_menu_nav_menu_social_icons' ) ) {
 	 * @return string  $item_output The menu item output with social icon.
 	 */
 	function jetpack_social_menu_nav_menu_social_icons( $item_output, $item, $depth, $args ) {
+		if ( ! is_object( $args ) ) {
+			return $item_output;
+		}
+
 		// Get supported social icons.
 		$social_icons = jetpack_social_menu_social_links_icons();
 

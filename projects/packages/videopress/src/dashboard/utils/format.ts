@@ -1,4 +1,28 @@
 /**
+ * Build the `[videopress …]` shortcode string. Returns empty if the GUID
+ * is missing (non-VideoPress items). Matches the legacy admin format:
+ * `[videopress GUID w=W h=H]` with `w=`/`h=` only included when present
+ * and values rendered bare (no quotes).
+ *
+ * @param guid   - VideoPress GUID, or undefined for non-VideoPress items.
+ * @param width  - Video width in pixels, if known.
+ * @param height - Video height in pixels, if known.
+ * @return The shortcode string, or '' when no GUID is available.
+ */
+export function buildShortcode(
+	guid: string | undefined,
+	width: number | undefined,
+	height: number | undefined
+): string {
+	if ( ! guid ) {
+		return '';
+	}
+	const w = width ? ` w=${ width }` : '';
+	const h = height ? ` h=${ height }` : '';
+	return `[videopress ${ guid }${ w }${ h }]`;
+}
+
+/**
  * Format a duration in seconds as `mm:ss` or `hh:mm:ss`.
  *
  * @param seconds - Total seconds.

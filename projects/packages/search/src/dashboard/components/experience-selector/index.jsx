@@ -15,25 +15,41 @@ import './style.scss';
  * @return {import('react').Element} - The selector.
  */
 export default function ExperienceSelector() {
-	const { isUpdating, supportsOnlyClassicSearch, isWpcom } = useSelect(
+	const { isUpdating, supportsOnlyClassicSearch, isWpcom, blockOverlayEnabled } = useSelect(
 		select => ( {
 			isUpdating: select( STORE_ID ).isUpdatingJetpackSettings(),
 			supportsOnlyClassicSearch: select( STORE_ID ).supportsOnlyClassicSearch(),
 			isWpcom: select( STORE_ID ).isWpcom(),
+			blockOverlayEnabled: select( STORE_ID ).isBlockOverlayEnabled(),
 		} ),
 		[]
 	);
 
-	// On WordPress.com Simple sites, Off is managed from the .com side, so
-	// hide the row here.
-	const visibleExperiences = isWpcom
-		? EXPERIENCE_ORDER.filter( experience => experience !== EXPERIENCE.OFF )
-		: EXPERIENCE_ORDER;
+	// Two filters compose on top of the canonical EXPERIENCE_ORDER:
+	//   * On WordPress.com Simple sites, Off is managed from the .com side,
+	//     so hide that row here.
+	//   * The blocks-powered Overlay (BETA) is available by default, gated
+	//     by `jetpack_search_overlay_block_template_enabled` (defaults
+	//     true). Operators that pin the filter to false fall back to the
+	//     four-card layout with the preact Overlay as the only Overlay
+	//     choice — the two overlays coexist as peers, not as predecessor
+	//     and successor.
+	const visibleExperiences = EXPERIENCE_ORDER.filter( experience => {
+		if ( experience === EXPERIENCE.OFF && isWpcom ) {
+			return false;
+		}
+		if ( experience === EXPERIENCE.OVERLAY_BLOCKS && ! blockOverlayEnabled ) {
+			return false;
+		}
+		return true;
+	} );
 
 	const isExperienceDisabled = experience =>
 		isUpdating ||
 		( supportsOnlyClassicSearch &&
-			( experience === EXPERIENCE.EMBEDDED || experience === EXPERIENCE.OVERLAY ) );
+			( experience === EXPERIENCE.EMBEDDED ||
+				experience === EXPERIENCE.OVERLAY ||
+				experience === EXPERIENCE.OVERLAY_BLOCKS ) );
 
 	return (
 		<>

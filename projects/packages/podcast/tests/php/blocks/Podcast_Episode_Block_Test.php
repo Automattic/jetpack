@@ -241,41 +241,6 @@ class Podcast_Episode_Block_Test extends BaseTestCase {
 		$this->assertStringContainsString( 'https://creativecommons.org/licenses/by/4.0/', $result );
 	}
 
-	public function test_renders_chapters_sorted_by_start_time() {
-		$result = $this->render(
-			array(
-				'chapters' => array(
-					array(
-						'startTime' => 3661,
-						'title'     => 'Closing thoughts',
-					),
-					array(
-						'startTime' => 0,
-						'title'     => 'Intro',
-					),
-					array(
-						'startTime' => 125,
-						'title'     => 'Main interview',
-					),
-					array( 'title' => 'No timestamp, skipped' ),
-				),
-			)
-		);
-
-		$this->assertStringContainsString( '<ol class="jetpack-podcast-episode__chapters">', $result );
-		$this->assertStringContainsString( '<time class="jetpack-podcast-episode__chapter-time">0:00</time>', $result );
-		$this->assertStringContainsString( 'Intro', $result );
-		$this->assertStringContainsString( '<time class="jetpack-podcast-episode__chapter-time">2:05</time>', $result );
-		$this->assertStringContainsString( 'Main interview', $result );
-		$this->assertStringContainsString( '<time class="jetpack-podcast-episode__chapter-time">1:01:01</time>', $result );
-		$this->assertStringContainsString( 'Closing thoughts', $result );
-		$this->assertStringNotContainsString( 'No timestamp, skipped', $result );
-
-		// Ascending order — Intro before Main interview before Closing thoughts.
-		$this->assertLessThan( strpos( $result, 'Main interview' ), strpos( $result, 'Intro' ) );
-		$this->assertLessThan( strpos( $result, 'Closing thoughts' ), strpos( $result, 'Main interview' ) );
-	}
-
 	public function test_renders_soundbites_with_timestamp_and_title() {
 		$result = $this->render(
 			array(

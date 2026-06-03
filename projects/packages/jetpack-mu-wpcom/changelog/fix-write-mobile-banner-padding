@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Write: add horizontal padding to the resume-editing and beta banners on mobile so they no longer sit flush against the viewport edges.

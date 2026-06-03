@@ -33,6 +33,11 @@ class Create_AI_Podcast_Page {
 	const STYLE_HANDLE      = 'jetpack-create-ai-podcast';
 	const EPISODES_PER_PAGE = 5;
 
+	/**
+	 * Maximum number of posts that can be selected when generating from specific posts.
+	 */
+	const MAX_SELECTED_POSTS = 25;
+
 	const POST_PUBLISH_PROMO_SCRIPT_HANDLE    = 'jetpack-post-publish-podcast-promo';
 	const POST_PUBLISH_PROMO_DISMISSED_OPTION = 'jetpack_posts_to_podcast_post_publish_promo_dismissed';
 	const POST_PUBLISH_PROMO_MIN_POSTS        = 5;
@@ -195,7 +200,7 @@ class Create_AI_Podcast_Page {
 		/**
 		 * Filters the minimum posts published in the last month needed for the Posts to Podcast post-publish promo.
 		 *
-		 * @since $$next-version$$
+		 * @since 1.0.0
 		 *
 		 * @param int $minimum Minimum number of published posts.
 		 */
@@ -240,7 +245,7 @@ class Create_AI_Podcast_Page {
 		/**
 		 * Filters the minimum visitors in the last week needed for the Posts to Podcast post-publish promo.
 		 *
-		 * @since $$next-version$$
+		 * @since 1.0.0
 		 *
 		 * @param int $minimum Minimum number of visitors.
 		 */
@@ -342,7 +347,10 @@ class Create_AI_Podcast_Page {
 	 * @return array<string, mixed>
 	 */
 	private static function build_localized_data(): array {
+		$max_posts = self::MAX_SELECTED_POSTS;
+
 		return array(
+			'maxPosts'  => $max_posts,
 			'endpoints' => array(
 				'enqueue'  => '/wpcom/v2/posts-to-podcast',
 				'job'      => '/wpcom/v2/posts-to-podcast/jobs/',
@@ -366,6 +374,7 @@ class Create_AI_Podcast_Page {
 			'i18n'      => array(
 				'submitting'          => __( 'Submitting…', 'jetpack-podcast' ),
 				'polling'             => __( 'Generating your episode…', 'jetpack-podcast' ),
+				'pollingSubtext'      => __( "This usually takes about 3 minutes. You can leave this page and come back — we'll keep working in the background.", 'jetpack-podcast' ),
 				'succeeded'           => __( 'Episode draft ready.', 'jetpack-podcast' ),
 				'editDraft'           => __( 'Edit draft', 'jetpack-podcast' ),
 				'failed'              => __( 'Generation failed.', 'jetpack-podcast' ),
@@ -390,6 +399,8 @@ class Create_AI_Podcast_Page {
 				'relativeDays'        => __( 'in %d days', 'jetpack-podcast' ),
 				// translators: %s: formatted date, e.g. "May 20, 2026".
 				'relativeOn'          => __( 'on %s', 'jetpack-podcast' ),
+				'trialBannerTitle'    => __( 'Try before you buy', 'jetpack-podcast' ),
+				'trialBannerMessage'  => __( 'Generate a podcast from your posts and see how it sounds on your site. Free trial is limited to one podcast episode.', 'jetpack-podcast' ),
 				'runningLowTitle'     => __( 'Running low', 'jetpack-podcast' ),
 				'runningLowMessage'   => __( 'Upgrade your plan to keep generating without waiting for the monthly refresh.', 'jetpack-podcast' ),
 				'outOfCreditsTitle'   => __( 'Out of credits', 'jetpack-podcast' ),
@@ -397,9 +408,12 @@ class Create_AI_Podcast_Page {
 				'outOfCreditsWait'    => __( 'Your credits will refresh %s.', 'jetpack-podcast' ),
 				// translators: %s: relative time, e.g. "in 12 days" or "tomorrow".
 				'outOfCreditsUpgrade' => __( 'Upgrade your plan for more credits, or wait until they refresh %s.', 'jetpack-podcast' ),
+				'outOfTrialCredits'   => __( 'You have used your one-time trial credit. Upgrade your plan for more credits.', 'jetpack-podcast' ),
 				'noPostsFound'        => __( 'No posts match.', 'jetpack-podcast' ),
 				'loadingPosts'        => __( 'Loading posts…', 'jetpack-podcast' ),
 				'pickPosts'           => __( 'Select at least one post to continue.', 'jetpack-podcast' ),
+				// translators: %d: maximum number of posts that can be selected.
+				'maxPostsReached'     => sprintf( __( 'You can select up to %d posts.', 'jetpack-podcast' ), $max_posts ),
 				'upgradeCta'          => __( 'Upgrade plan', 'jetpack-podcast' ),
 				'episodesTitle'       => __( 'Generated podcasts', 'jetpack-podcast' ),
 				'episodesEmpty'       => __( 'No generated podcasts yet.', 'jetpack-podcast' ),
@@ -414,6 +428,8 @@ class Create_AI_Podcast_Page {
 				// translators: %d: page number. Example: "Go to page 3"
 				'paginationGoTo'      => __( 'Go to page %d', 'jetpack-podcast' ),
 				'paginationLabel'     => __( 'Episodes pagination', 'jetpack-podcast' ),
+				'unexpectedError'     => __( 'An unexpected error occurred.', 'jetpack-podcast' ),
+				'outOfCreditsError'   => __( 'Out of credits.', 'jetpack-podcast' ),
 			),
 		);
 	}
@@ -624,9 +640,8 @@ class Create_AI_Podcast_Page {
 	 * Simple (wpcom) path: rest_do_request can't reach the posts-to-podcast
 	 * endpoint here — the wpcom REST plugin loader gates the endpoint files
 	 * behind REST_API_PLUGINS, which isn't set in admin context. Call the
-	 * underlying wpcom helpers directly. Permissions are still enforced
-	 * (admin caps required to render this page, automattician gate replicated
-	 * below).
+	 * underlying wpcom helpers directly. Permissions are still enforced via
+	 * the admin caps required to render this page.
 	 *
 	 * @return array
 	 */
@@ -635,11 +650,6 @@ class Create_AI_Podcast_Page {
 			'quota'    => null,
 			'episodes' => self::empty_episodes_envelope(),
 		);
-
-		if ( function_exists( 'is_automattician' ) && ! is_automattician() ) {
-			$bootstrap['quota'] = array( 'notAvailable' => true );
-			return $bootstrap;
-		}
 
 		if ( ! function_exists( 'require_lib' ) ) {
 			return $bootstrap;
@@ -732,10 +742,15 @@ class Create_AI_Podcast_Page {
 			<div id="jetpack-create-ai-podcast-app">
 				<section class="jetpack-create-ai-podcast__intro" role="region" aria-labelledby="jetpack-create-ai-podcast-intro-title">
 					<div class="jetpack-create-ai-podcast__intro-body">
-						<p class="jetpack-create-ai-podcast__intro-eyebrow">
-							<span class="jetpack-create-ai-podcast__intro-wpmark" aria-hidden="true"></span>
-							<span><?php echo esc_html__( 'WordPress.com exclusive', 'jetpack-podcast' ); ?></span>
-						</p>
+						<div class="jetpack-create-ai-podcast__intro-badges">
+							<p class="jetpack-create-ai-podcast__intro-eyebrow">
+								<span class="jetpack-create-ai-podcast__intro-wpmark" aria-hidden="true"></span>
+								<span><?php echo esc_html__( 'WordPress.com exclusive', 'jetpack-podcast' ); ?></span>
+							</p>
+							<p class="jetpack-create-ai-podcast__intro-eyebrow jetpack-create-ai-podcast__intro-eyebrow--experimental">
+								<span><?php echo esc_html__( 'Experimental', 'jetpack-podcast' ); ?></span>
+							</p>
+						</div>
 						<h2 id="jetpack-create-ai-podcast-intro-title" class="jetpack-create-ai-podcast__intro-title">
 							<?php echo esc_html__( 'Turn your posts into a podcast episode', 'jetpack-podcast' ); ?>
 						</h2>
@@ -799,6 +814,17 @@ class Create_AI_Podcast_Page {
 								id="jetpack-create-ai-podcast-posts-search"
 								placeholder="<?php echo esc_attr__( 'Type to filter…', 'jetpack-podcast' ); ?>"
 							>
+							<p class="jetpack-create-ai-podcast__field-hint">
+								<?php
+								echo esc_html(
+									sprintf(
+										/* translators: %d: maximum number of posts that can be selected. */
+										__( 'You can choose up to %d posts.', 'jetpack-podcast' ),
+										self::MAX_SELECTED_POSTS
+									)
+								);
+								?>
+							</p>
 							<div class="jetpack-create-ai-podcast__posts" data-region="posts"></div>
 						</div>
 

@@ -1,4 +1,3 @@
-import { getSiteData } from '@automattic/jetpack-script-data';
 import apiFetch from '@wordpress/api-fetch';
 import { useEffect, useState } from '@wordpress/element';
 import { addQueryArgs } from '@wordpress/url';
@@ -59,14 +58,10 @@ export function useShowStatsQuery(
 	const { from, to } = range;
 
 	useEffect( () => {
-		const blogId = Number( getSiteData()?.wpcom?.blog_id ?? 0 );
-		if ( ! blogId ) {
-			return;
-		}
 		let cancelled = false;
 		setOverviewError( false );
 		apiFetch< PodcastStatsOverviewResponse >( {
-			path: addQueryArgs( `/wpcom/v2/sites/${ blogId }/podcast-stats/overview`, { limit } ),
+			path: addQueryArgs( '/wpcom/v2/podcast-stats/overview', { limit } ),
 			method: 'GET',
 		} )
 			.then( response => {
@@ -85,18 +80,10 @@ export function useShowStatsQuery(
 	}, [ limit ] );
 
 	useEffect( () => {
-		const blogId = Number( getSiteData()?.wpcom?.blog_id ?? 0 );
-		if ( ! blogId ) {
-			return;
-		}
 		let cancelled = false;
 		setSummaryError( false );
 		apiFetch< PodcastStatsSummaryResponse >( {
-			path: addQueryArgs( `/wpcom/v2/sites/${ blogId }/podcast-stats`, {
-				from,
-				to,
-				limit,
-			} ),
+			path: addQueryArgs( '/wpcom/v2/podcast-stats', { from, to, limit } ),
 			method: 'GET',
 		} )
 			.then( response => {
