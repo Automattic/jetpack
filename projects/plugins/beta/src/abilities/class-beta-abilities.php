@@ -593,7 +593,23 @@ class Beta_Abilities extends Registrar {
 	 * @return bool
 	 */
 	private static function is_self( Plugin $plugin ): bool {
-		return plugin_basename( JPBETA__PLUGIN_FILE ) === $plugin->plugin_file();
+		return self::is_self_file( $plugin->plugin_file() );
+	}
+
+	/**
+	 * Whether a `folder/file.php` path belongs to the Jetpack Beta Tester plugin
+	 * itself — either the stable (`jetpack-beta/…`) or dev (`jetpack-beta-dev/…`)
+	 * build. Beta can manage/update itself and may be running from either folder,
+	 * so both forms count: activating or updating it swaps this app's own code and
+	 * the client must do a full page reload.
+	 *
+	 * @param string $plugin_file A `folder/file.php` plugin path.
+	 * @return bool
+	 */
+	private static function is_self_file( string $plugin_file ): bool {
+		$main   = basename( JPBETA__PLUGIN_FILE );
+		$stable = preg_replace( '/-dev$/', '', JPBETA__PLUGIN_FOLDER );
+		return "{$stable}/{$main}" === $plugin_file || "{$stable}-dev/{$main}" === $plugin_file;
 	}
 
 	/**
@@ -1073,7 +1089,7 @@ class Beta_Abilities extends Registrar {
 			'updates' => $updates['updates'],
 			// Updating Jetpack Beta Tester itself replaces this plugin's own code,
 			// so the client must fully reload rather than soft-refresh the list.
-			'reload'  => plugin_basename( JPBETA__PLUGIN_FILE ) === $plugin_file,
+			'reload'  => self::is_self_file( $plugin_file ),
 		);
 	}
 

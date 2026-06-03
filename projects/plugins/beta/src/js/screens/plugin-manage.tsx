@@ -162,7 +162,9 @@ const PluginManage = ( { slug }: Props ) => {
 	}, [ slug ] );
 
 	const handleActivated = useCallback( ( updated: PluginView ) => {
-		setView( updated );
+		if ( mounted.current ) {
+			setView( updated );
+		}
 	}, [] );
 
 	// Refresh the view after an in-place update so the running version updates.
