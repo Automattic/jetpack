@@ -6,7 +6,7 @@ import {
 	getComparisonRangeFromPreset,
 	getComparisonPresetConfigs,
 	type ComparisonPresetId,
-} from '@next-woo-analytics/datetime';
+} from '@jetpack-premium-analytics/datetime';
 
 /**
  * Internal dependencies

@@ -10,7 +10,7 @@ import {
 	getDefaultDateRangePresets,
 	type PrimaryPresetId,
 	type DateRangePreset,
-} from '@next-woo-analytics/datetime';
+} from '@jetpack-premium-analytics/datetime';
 
 /**
  * Internal dependencies
@@ -123,7 +123,7 @@ export function DateRangePresets( {
 					disabled
 				>
 					<Menu.ItemLabel>
-						{ __( 'Custom', 'woocommerce-analytics' ) }
+						{ __( 'Custom', 'jetpack-premium-analytics' ) }
 					</Menu.ItemLabel>
 				</Menu.CheckboxItem>
 
@@ -138,7 +138,7 @@ export function DateRangePresets( {
 						hideOnClick
 					>
 						<Menu.ItemLabel>
-							{ __( 'No comparison', 'woocommerce-analytics' ) }
+							{ __( 'No comparison', 'jetpack-premium-analytics' ) }
 						</Menu.ItemLabel>
 					</Menu.CheckboxItem>
 				) }

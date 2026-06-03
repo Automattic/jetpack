@@ -9,7 +9,7 @@ import {
 	isPrimaryPreset,
 	type ComparisonPresetId,
 	type PrimaryPresetId,
-} from '@next-woo-analytics/datetime';
+} from '@jetpack-premium-analytics/datetime';
 
 /**
  * Internal dependencies

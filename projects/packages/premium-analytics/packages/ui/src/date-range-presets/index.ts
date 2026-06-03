@@ -20,10 +20,10 @@ export {
 	PRESET_LAST_12_MONTHS,
 	PRESET_LAST_YEAR,
 	PRESET_CUSTOM,
-} from '@next-woo-analytics/datetime';
+} from '@jetpack-premium-analytics/datetime';
 
 export type {
 	PrimaryPresetId,
 	SelectablePresetId,
 	DateRangePreset,
-} from '@next-woo-analytics/datetime';
+} from '@jetpack-premium-analytics/datetime';
