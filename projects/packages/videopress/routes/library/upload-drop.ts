@@ -1,3 +1,5 @@
+import type { FreeTierState } from '../../src/dashboard/hooks/use-free-tier';
+
 // Fallback video extensions, used only when a dropped file carries no MIME
 // type (some OS/browser combinations leave `File.type` empty). The primary
 // check is the `video/*` MIME prefix — the same contract the header file
@@ -21,16 +23,14 @@ const FALLBACK_VIDEO_EXTENSIONS = [
 	'wmv',
 ];
 
-// Free-tier facts the drop decision needs. Mirrors the subset of
-// `FreeTierState` (use-free-tier.ts) consumed when deciding what a drop is
-// allowed to upload.
-export type DropPlanFreeTier = {
-	isAtLimit: boolean;
-	isFree: boolean;
-	isUnlimited: boolean;
-	limit: number;
-	videoCount: number;
-};
+// Free-tier facts the drop decision needs — the subset of `FreeTierState`
+// consumed when deciding what a drop is allowed to upload. Derived via `Pick`
+// (a type-only import, so this stays a pure, hook-free module) so it tracks
+// `FreeTierState` automatically instead of drifting from it.
+export type DropPlanFreeTier = Pick<
+	FreeTierState,
+	'isAtLimit' | 'isFree' | 'isUnlimited' | 'limit' | 'videoCount'
+>;
 
 // Outcome of inspecting a drop. The component maps each `kind` to a
 // (translated) notice and/or kicks off uploads; keeping i18n out of here
