@@ -433,7 +433,13 @@ class Agents_Manager {
 			'https://widgets.wp.com/agents-manager/agents-manager-' . $variant . '.min.js',
 			$script_dependencies,
 			$version,
-			true
+			/**
+			 * Filter the strategy to use when enqueuing the script.
+			 *
+			 * @param array|bool $args The arguments to pass to wp_enqueue_script. Default is true.
+			 * @param string $handle The handle of the script.
+			 */
+			apply_filters( 'agents_manager_enqueue_script_strategy', true, 'agents-manager' )
 		);
 
 		if ( 'gutenberg-disconnected' !== $variant && 'ciab-disconnected' !== $variant ) {
