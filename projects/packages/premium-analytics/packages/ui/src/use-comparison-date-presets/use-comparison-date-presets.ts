@@ -1,13 +1,12 @@
 /**
  * External dependencies
  */
-import { useMemo } from 'react';
 import {
 	getComparisonRangeFromPreset,
 	getComparisonPresetConfigs,
 	type ComparisonPresetId,
 } from '@jetpack-premium-analytics/datetime';
-
+import { useMemo } from 'react';
 /**
  * Internal dependencies
  */

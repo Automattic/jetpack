@@ -3,35 +3,33 @@
  */
 import { DateRangeCalendar } from '@automattic/ui';
 import {
-	Dropdown,
-	SelectControl,
-	privateApis as componentsPrivateApis,
-} from '@wordpress/components';
-import { unlock } from '../lock/unlock';
-import { calendar } from '@wordpress/icons';
-import { Badge, Button, Stack } from '@wordpress/ui';
-import { useState, useCallback, useMemo, useEffect } from 'react';
-import { useResizeObserver } from '@wordpress/compose';
-import { formatDateRange } from '@jetpack-premium-analytics/formatters';
-import { __ } from '@wordpress/i18n';
-import clsx from 'clsx';
-import '@automattic/ui/style.css';
-import {
 	getPresetLabel,
 	getDefaultDateRangePresets,
 	PRESET_CUSTOM,
 	type PrimaryPresetId,
 	type DateRangePreset,
 } from '@jetpack-premium-analytics/datetime';
-
+import { formatDateRange } from '@jetpack-premium-analytics/formatters';
+import {
+	Dropdown,
+	SelectControl,
+	privateApis as componentsPrivateApis,
+} from '@wordpress/components';
+import { useResizeObserver } from '@wordpress/compose';
+import { __ } from '@wordpress/i18n';
+import { calendar } from '@wordpress/icons';
+import { Badge, Button, Stack } from '@wordpress/ui';
+import clsx from 'clsx';
+import { useState, useCallback, useMemo, useEffect } from 'react';
+import '@automattic/ui/style.css';
 /**
  * Internal dependencies
  */
-import { DateRangePresets } from '../date-range-presets';
 import { DateRangeInput } from '../date-range-input';
+import { DateRangePresets } from '../date-range-presets';
+import { unlock } from '../lock/unlock';
 import './date-range-filter.scss';
 
-// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
 const { Menu } = unlock( componentsPrivateApis );
 
 /**

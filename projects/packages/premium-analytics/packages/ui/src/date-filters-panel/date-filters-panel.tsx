@@ -1,21 +1,20 @@
 /**
  * External dependencies
  */
-import { Stack } from '@wordpress/ui';
-import { BaseControl } from '@wordpress/components';
-import { useMemo, useCallback } from 'react';
 import {
 	isComparisonPresetId,
 	isPrimaryPreset,
 	type ComparisonPresetId,
 	type PrimaryPresetId,
 } from '@jetpack-premium-analytics/datetime';
-
+import { BaseControl } from '@wordpress/components';
+import { Stack } from '@wordpress/ui';
+import { useMemo, useCallback } from 'react';
 /**
  * Internal dependencies
  */
-import { DateRangePopover } from '../date-range-popover';
 import { DateComparisonDropdown } from '../date-comparison-dropdown';
+import { DateRangePopover } from '../date-range-popover';
 import { useComparisonDatePresets } from '../use-comparison-date-presets';
 
 type DateRangePopoverProps = Parameters< typeof DateRangePopover >[ 0 ];

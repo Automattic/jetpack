@@ -1,24 +1,22 @@
 /**
  * External dependencies
  */
-import { __ } from '@wordpress/i18n';
-import { privateApis as componentsPrivateApis } from '@wordpress/components';
-import { unlock } from '../lock/unlock';
-import { useMemo } from 'react';
 import {
 	PRESET_CUSTOM,
 	getDefaultDateRangePresets,
 	type PrimaryPresetId,
 	type DateRangePreset,
 } from '@jetpack-premium-analytics/datetime';
-
+import { privateApis as componentsPrivateApis } from '@wordpress/components';
+import { __ } from '@wordpress/i18n';
+import { useMemo } from 'react';
 /**
  * Internal dependencies
  */
 import { DateRangePopover } from '../date-range-popover/date-range-filter';
+import { unlock } from '../lock/unlock';
 import './date-range-presets.scss';
 
-// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
 const { Menu } = unlock( componentsPrivateApis );
 
 type DateRange = Parameters< typeof DateRangePopover >[ 0 ][ 'range' ];
