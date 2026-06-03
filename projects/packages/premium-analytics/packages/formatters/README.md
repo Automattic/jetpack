@@ -1,4 +1,4 @@
-# @jetpack-premium-analytics/formatters
+# @automattic/jetpack-premium-analytics-formatters
 
 Locale-aware formatting utilities for Jetpack Premium Analytics.
 
@@ -13,7 +13,7 @@ import {
 	formatMetricValue,
 	formatDate,
 	formatDateRange,
-} from '@jetpack-premium-analytics/formatters';
+} from '@automattic/jetpack-premium-analytics-formatters';
 ```
 
 ## `formatMetricValue( value, type?, options? )`
