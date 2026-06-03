@@ -13,7 +13,7 @@ import {
 	formatMetricValue,
 	formatDate,
 	formatDateRange,
-} from '@automattic/jetpack-premium-analytics-formatters';
+} from '@jetpack-premium-analytics/formatters';
 ```
 
 ## `formatMetricValue( value, type?, options? )`
