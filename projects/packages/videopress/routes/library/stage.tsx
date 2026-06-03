@@ -16,6 +16,7 @@ import { useLibrary } from '../../src/dashboard/hooks/use-library';
 import { useUpdateVideoMeta } from '../../src/dashboard/hooks/use-update-video-meta';
 import { useUpload } from '../../src/dashboard/hooks/use-upload';
 import { useUploadFromLibrary } from '../../src/dashboard/hooks/use-upload-from-library';
+import { useVideoPressUpgrade } from '../../src/dashboard/hooks/use-videopress-upgrade';
 import { planVideoDrop } from './upload-drop';
 import './style.scss';
 import type { LibraryItem, LibraryItemPrivacy } from '../../src/dashboard/types/library';
@@ -71,6 +72,7 @@ const StageInner = () => {
 	const { mutate: updateMeta } = useUpdateVideoMeta();
 	const { mutate: uploadFromLibrary } = useUploadFromLibrary();
 	const { isAtLimit, isFree, isUnlimited, videoCount, limit } = useFreeTier();
+	const runUpgrade = useVideoPressUpgrade();
 
 	const onChangeView = useCallback( ( next: View ) => {
 		setView( current => {
@@ -136,7 +138,10 @@ const StageInner = () => {
 					__(
 						'You’ve reached the free plan’s 1-video limit. Upgrade to upload more.',
 						'jetpack-videopress-pkg'
-					)
+					),
+					{
+						actions: [ { label: __( 'Upgrade', 'jetpack-videopress-pkg' ), onClick: runUpgrade } ],
+					}
 				);
 				return;
 			}
@@ -158,7 +163,16 @@ const StageInner = () => {
 				);
 			}
 		},
-		[ isAtLimit, isFree, isUnlimited, limit, videoCount, startUpload, createErrorNotice ]
+		[
+			isAtLimit,
+			isFree,
+			isUnlimited,
+			limit,
+			videoCount,
+			startUpload,
+			createErrorNotice,
+			runUpgrade,
+		]
 	);
 
 	const promoteLocal = useCallback(
