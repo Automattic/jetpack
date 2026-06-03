@@ -53,9 +53,8 @@ async function measureLCP( url, username, password, iterations = 5 ) {
 		const page = await context.newPage();
 
 		// Create CDP session for CPU throttling
-		let cdpSession = null;
 		if ( calibration?.cpuRate ) {
-			cdpSession = await context.newCDPSession( page );
+			const cdpSession = await context.newCDPSession( page );
 			await cdpSession.send( 'Emulation.setCPUThrottlingRate', {
 				rate: calibration.cpuRate,
 			} );

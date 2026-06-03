@@ -46,6 +46,8 @@ class Agents_Manager {
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_scripts' ), 101 );
 		add_action( 'next_admin_init', array( $this, 'enqueue_scripts' ), 1001 );
 		add_filter( 'agents_manager_use_unified_experience', array( $this, 'should_use_unified_experience' ) );
+
+		Sidebar_Open_Preservation::init();
 	}
 
 	/**
@@ -431,7 +433,13 @@ class Agents_Manager {
 			'https://widgets.wp.com/agents-manager/agents-manager-' . $variant . '.min.js',
 			$script_dependencies,
 			$version,
-			true
+			/**
+			 * Filter the strategy to use when enqueuing the script.
+			 *
+			 * @param array|bool $args The arguments to pass to wp_enqueue_script. Default is true.
+			 * @param string $handle The handle of the script.
+			 */
+			apply_filters( 'agents_manager_enqueue_script_strategy', true, 'agents-manager' )
 		);
 
 		if ( 'gutenberg-disconnected' !== $variant && 'ciab-disconnected' !== $variant ) {

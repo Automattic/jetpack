@@ -855,6 +855,7 @@ async function updateBoard(
 	// Try to assign the issue to a specific team, if we have a mapping of teams <> labels and a matching label on the issue.
 	// When assigning, we can also do more to warn the team about the issue, if we have additional info (Slack, project board).
 	if ( projectItemId ) {
+		// eslint-disable-next-line no-useless-assignment -- Parallelism, in case more clauses are added in the future, is more important than skipping the useless assignment here.
 		projectItemId = await assignTeam(
 			projectOctokit,
 			payload,
