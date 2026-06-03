@@ -118,16 +118,6 @@ class MailChimp_Subscriber_Popup {
 					continue;
 				}
 
-				if ( $matches[2][ $index ] ) {
-					$config_attrs = json_decode( '{' . $matches[2][ $index ] . '}' );
-					// Only use if properly decoded.
-					if ( $config_attrs ) {
-						foreach ( $config_attrs as $key => $value ) {
-							$attrs->$key = ( 1 === $value ) ? 'true' : 'false';
-						}
-					}
-				}
-
 				$shortcode = self::build_shortcode_from_reversal_attrs( $attrs );
 
 				$content = preg_replace( $replace_regex, "\n\n$shortcode\n\n", $content );
