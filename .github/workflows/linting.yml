@@ -581,7 +581,7 @@ jobs:
       - uses: actions/checkout@v6
         with:
           # Keep github.token fallback so this runs on forked PRs.
-          token: ${{ case( github.event_name == 'push', secrets.STUB_UPDATE_TOKEN_GITHUB, github.token ) }}
+          token: ${{ case( github.event_name == 'push', secrets.API_TOKEN_GITHUB, github.token ) }}
 
       - name: Setup tools
         uses: ./.github/actions/tool-setup
@@ -594,7 +594,7 @@ jobs:
         if: github.event_name == 'push' && failure() && steps.check_lock_files.outputs.finished == 'true'
         env:
           # Use the matticbot token so CI runs on the created PR.
-          GH_TOKEN: ${{ secrets.STUB_UPDATE_TOKEN_GITHUB }}
+          GH_TOKEN: ${{ secrets.API_TOKEN_GITHUB }}
           GIT_AUTHOR_NAME: matticbot
           GIT_AUTHOR_EMAIL: matticbot@users.noreply.github.com
           GIT_COMMITTER_NAME: matticbot
