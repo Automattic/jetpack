@@ -100,19 +100,33 @@ function getBlockNameFromModal( modal ) {
 }
 
 function runAll() {
-	// Header button — placed at the top of the guidelines content, above the
-	// list. The wp-admin Page header only renders an actions slot when the
-	// gutenberg page passes `actions` to <Page> (it does not), so there is no
-	// header-actions container to target.
+	// Header button — right-aligned in the wp-admin Page header, where the
+	// native header actions would render. The gutenberg page passes no
+	// `actions` to <Page>, so that slot is never created; instead we target the
+	// header-content row (flex, justify: space-between) that holds the title and
+	// append the button as its second child so space-between pushes it to the
+	// right. All header classes are hashed CSS-module names, so we locate the
+	// row structurally: the space-between flex row containing the page <h1>.
 	inject(
 		'header',
 		() => {
-			const content = document.querySelector( '.guidelines__content' );
-			const list = content?.querySelector( '.guidelines__list' );
-			return content
+			const region = document.querySelector( '.admin-ui-navigable-region' );
+			const heading = region?.querySelector( 'h1' );
+			let row = heading?.parentElement;
+			while ( row && row !== region ) {
+				const style = window.getComputedStyle( row );
+				if (
+					style.display === 'flex' &&
+					style.flexDirection === 'row' &&
+					style.justifyContent.includes( 'between' )
+				) {
+					break;
+				}
+				row = row.parentElement;
+			}
+			return row && row !== region
 				? {
-						parent: content,
-						before: list,
+						parent: row,
 						className: 'jetpack-content-guidelines-ai__header-container',
 				  }
 				: null;
