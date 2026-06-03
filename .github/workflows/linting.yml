@@ -569,7 +569,7 @@ jobs:
   ### Checks that lock files are up to date.
   # Local equivalent: .github/files/check-lock-files.sh
   # Note that may modify lock files in your working tree!
-  # On trunk: always runs
+  # On trunk: always runs, and creates a PR to fix lock files on failure
   # On PRs: runs only if lock files or relevant config changed
   lock_files:
     name: "Lock files are up to date"
@@ -579,11 +579,27 @@ jobs:
     timeout-minutes: 7  # 2025-11-06: Successful runs seem to take about 2 minutes.
     steps:
       - uses: actions/checkout@v6
+        with:
+          # Keep github.token fallback so this runs on forked PRs.
+          token: ${{ github.event_name == 'push' && secrets.STUB_UPDATE_TOKEN_GITHUB || github.token }}
 
       - name: Setup tools
         uses: ./.github/actions/tool-setup
 
-      - run: .github/files/check-lock-files.sh
+      - name: Check lock files
+        id: check_lock_files
+        run: .github/files/check-lock-files.sh
+
+      - name: Create lock file fix PR
+        if: github.event_name == 'push' && failure() && steps.check_lock_files.conclusion == 'failure'
+        env:
+          # Use the matticbot token so CI runs on the created PR.
+          GH_TOKEN: ${{ secrets.STUB_UPDATE_TOKEN_GITHUB }}
+          GIT_AUTHOR_NAME: matticbot
+          GIT_AUTHOR_EMAIL: matticbot@users.noreply.github.com
+          GIT_COMMITTER_NAME: matticbot
+          GIT_COMMITTER_EMAIL: matticbot@users.noreply.github.com
+        run: .github/files/create-lock-file-fix-pr.sh
 
   ### Check that monorepo packages are correctly referenced.
   # Local equivalent: tools/check-intra-monorepo-deps.sh -v && .github/files/check-monorepo-package-repos.sh
