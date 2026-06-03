@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Social: fix PHP warnings on the front end of posts shared with the no link sharing option.
