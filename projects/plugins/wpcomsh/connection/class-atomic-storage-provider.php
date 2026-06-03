@@ -113,7 +113,7 @@ if ( interface_exists( 'Automattic\Jetpack\Connection\Storage_Provider_Interface
 		 * @return string Environment identifier.
 		 */
 		public function get_environment_id() {
-			return 'woa';
+			return 'wow';
 		}
 
 		/**
