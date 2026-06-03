@@ -1,4 +1,4 @@
-# @jetpack-premium-analytics/layout
+# @automattic/jetpack-premium-analytics-layout
 
 Layout primitives for Jetpack Premium Analytics.
 
@@ -16,7 +16,7 @@ Renders a vertical [`Stack`](https://github.com/WordPress/gutenberg/tree/trunk/p
 with `gap="lg"`. The `header` slot sits above the children.
 
 ```tsx
-import { BaseLayout } from '@jetpack-premium-analytics/layout';
+import { BaseLayout } from '@automattic/jetpack-premium-analytics-layout';
 
 <BaseLayout header={ <PageHeader /> }>
 	<WidgetGrid />
