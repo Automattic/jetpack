@@ -18,7 +18,7 @@ Creates a timezone-aware date in the specified timezone using the provided date 
 
 ```ts
 // October 09, 2025 00:00 AM in America/New_York time
-const date = toLocalTZ( [ 2025, 9, 9 ], 'America/New_York' );
+const date = createTZDateFromParts( [ 2025, 9, 9 ], 'America/New_York' );
 ```
 
 **Parameters:**
