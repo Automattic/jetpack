@@ -1,4 +1,4 @@
-import { Icon } from '@wordpress/components';
+import { Button } from '@wordpress/components';
 import { DataViews, filterSortAndPaginate } from '@wordpress/dataviews';
 import { useCallback, useMemo, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -8,7 +8,7 @@ import useSeoPosts from '../../data/use-seo-posts';
 import EditSeoModal from './edit-seo-modal';
 import './style.scss';
 import type { ContentPostType, ContentRow, CoverageDelta } from '../../data/content-types';
-import type { Action, Field, Operator, View } from '@wordpress/dataviews';
+import type { Field, Operator, View } from '@wordpress/dataviews';
 import type { FC } from 'react';
 
 // Filter field ids. Every filter runs client-side over the merged posts+pages
@@ -47,12 +47,22 @@ const DEFAULT_VIEW: View = {
 	search: '',
 	sort: { field: 'title', direction: 'asc' },
 	titleField: 'title',
-	fields: [ 'schema', 'metaDescription', 'searchVisibility' ],
+	fields: [ 'schema', 'metaDescription', 'searchVisibility', 'editAction' ],
 	// No post-type filter by default, so both posts and pages show.
 	filters: [],
 };
 
 const defaultLayouts = { table: {} };
+
+interface EditButtonProps {
+	item: ContentRow;
+	onEdit: ( item: ContentRow ) => void;
+}
+
+const EditButton: FC< EditButtonProps > = ( { item, onEdit } ) => {
+	const handleClick = useCallback( () => onEdit( item ), [ item, onEdit ] );
+	return <Button icon={ pencil } label={ editSeoLabel } size="small" onClick={ handleClick } />;
+};
 
 /**
  * Map a schema-type value to its display label. `—` when no override is set.
@@ -187,37 +197,13 @@ const ContentScreen: FC< Props > = ( { onSaved } ) => {
 				render: () => null,
 				getValue: ( { item } ) => ( item.noindex ? 'hidden' : 'visible' ),
 			},
-		],
-		[]
-	);
-
-	const actions: Action< ContentRow >[] = useMemo(
-		() => [
 			{
-				id: 'edit-seo',
-				// DataViews 14.3.0's inline primary-action button (ButtonTrigger)
-				// renders only the action's `label` and ignores the `icon` prop,
-				// so a raw `icon: pencil` never paints. Wrap the icon in <Icon>
-				// per the established Jetpack convention (forms / activity-log),
-				// and surface it through the label — which ButtonTrigger renders
-				// as the button's children — so the pencil actually shows. The
-				// trailing text keeps the action accessible. `label` is typed as
-				// string-returning, so the node is cast at the array boundary.
-				label: ( () => (
-					<>
-						<Icon icon={ pencil } size={ 20 } />
-						{ editSeoLabel }
-					</>
-				) ) as unknown as () => string,
-				icon: <Icon icon={ pencil } />,
-				isPrimary: true,
-				supportsBulk: false,
-				callback: ( rows: ContentRow[] ) => {
-					const [ row ] = rows;
-					if ( row ) {
-						setEditing( row );
-					}
-				},
+				id: 'editAction',
+				label: __( 'Actions', 'jetpack-seo' ),
+				enableSorting: false,
+				enableHiding: false,
+				getValue: () => '',
+				render: ( { item } ) => <EditButton item={ item } onEdit={ setEditing } />,
 			},
 		],
 		[]
@@ -245,7 +231,6 @@ const ContentScreen: FC< Props > = ( { onSaved } ) => {
 				isLoading={ isLoading }
 				getItemId={ getItemId as ( item: unknown ) => string }
 				defaultLayouts={ defaultLayouts }
-				actions={ actions as Action< unknown >[] }
 			/>
 			{ editing && (
 				<EditSeoModal

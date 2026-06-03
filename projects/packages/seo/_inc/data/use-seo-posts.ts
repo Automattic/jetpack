@@ -7,9 +7,9 @@ import type { ContentRow, SchemaType, SeoPostMeta } from './content-types';
 // REST returns `meta` as an object keyed by the registered meta names.
 const POST_FIELDS = [ 'id', 'title', 'link', 'type', 'status', 'meta' ].join( ',' );
 
-// Authoring/audit view: include drafts and other non-published statuses the
-// current user can see, not just published content.
-const STATUSES = [ 'publish', 'future', 'draft', 'pending', 'private' ];
+// Only published content is indexed by search engines, so only published posts
+// are relevant to SEO. Drafts and scheduled posts are excluded.
+const STATUSES = [ 'publish' ];
 
 // Core REST caps `per_page` at 100. We request the max for each type and merge
 // posts + pages client-side. NOTE: a site with more than 100 posts (or 100
