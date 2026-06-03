@@ -10,6 +10,14 @@
  */
 
 import { getSearchOwnedParamKeys } from '../store/url-state.js';
+// Side-effect import: the bootstrap calls
+// `store('jetpack-search').actions.dispatchInitialSearchIfNeeded()` after
+// hydrating the cloned subtree. Without this import the bootstrap can run
+// before the per-block view modules pull in `jetpack-search/store`, and the
+// action would still be undefined at call time. Bare specifier resolves to the
+// shared `jetpack-search/store` Script Module via `DependencyExtractionPlugin`
+// (see tools/webpack.blocks.config.js); does NOT inline the store.
+import 'jetpack-search/store';
 
 const PRIVATE_API_CONSENT =
 	'I acknowledge that using private APIs means my theme or plugin will inevitably break in the next version of WordPress.';
@@ -94,6 +102,32 @@ function ensureHydrated() {
 			for ( const region of regions ) {
 				apis.render( apis.toVdom( region ), apis.getRegionRootFragment( region ) );
 			}
+			// Belt-and-suspenders trigger for the deep-link first fetch. The
+			// `data-wp-init` directive on results-list races with the IA
+			// runtime's DOMContentLoaded auto-walk for cloned regions and
+			// intermittently doesn't fire — most reliably reproducible on a
+			// bare `?s=` deep link, where the result was a "Searching…"
+			// skeleton that never cleared. The store action is idempotent
+			// (module-scope latch in `store/index.js`), so when the directive
+			// does fire, this becomes a no-op.
+			if ( typeof ia.store === 'function' ) {
+				const { actions } = ia.store( 'jetpack-search' );
+				actions?.dispatchInitialSearchIfNeeded?.();
+				// Reset popover state when crossing into the wide breakpoint:
+				// the overlay's CSS hides `.jetpack-search-filters-popover` at
+				// ≥992px (the sidebar handles filters at that width), but the
+				// store still carries `isFilterPopoverOpen: true` from a prior
+				// narrow-mode open. Without this, resizing wide → narrow makes
+				// the panel pop in without any user interaction.
+				if ( typeof window.matchMedia === 'function' ) {
+					const wideMedia = window.matchMedia( '(min-width: 992px)' );
+					wideMedia.addEventListener( 'change', e => {
+						if ( e.matches ) {
+							actions?.closeAllPopovers?.();
+						}
+					} );
+				}
+			}
 		} catch ( e ) {
 			// eslint-disable-next-line no-console
 			console.warn( '[jetpack-search] overlay hydration failed', e );
@@ -125,6 +159,17 @@ async function openOverlay( triggerEl ) {
 	const input = overlay.querySelector( 'input[type="search"]' );
 	if ( input ) {
 		input.focus();
+		// Drop the caret at the end of any pre-existing query so the
+		// visitor can keep typing to refine without hitting `End`. Mirrors
+		// `focusInputWithCursorAtEnd()` in the search-input view bundle;
+		// inlined here to avoid a cross-bundle import for ~3 lines. When
+		// changing this block, change the sibling helper too.
+		const len = input.value.length;
+		try {
+			input.setSelectionRange( len, len );
+		} catch {
+			/* noop */
+		}
 	}
 }
 

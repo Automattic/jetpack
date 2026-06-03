@@ -315,7 +315,7 @@ class WP_Build_Polyfills_Test extends BaseTestCase {
 	 * Test that wp-notices is force-replaced on WP < 7.0.
 	 */
 	public function test_register_scripts_force_replaces_wp_notices_on_old_wp() {
-		$GLOBALS['wp_version'] = '6.8';
+		$GLOBALS['wp_version'] = '6.9';
 		$this->create_asset_file( 'scripts/notices/index.asset.php', array(), '9.9.9' );
 
 		$scripts = $this->create_clean_scripts();
@@ -332,7 +332,7 @@ class WP_Build_Polyfills_Test extends BaseTestCase {
 	 * Test that wp-private-apis is force-replaced on WP < 7.0.
 	 */
 	public function test_register_scripts_force_replaces_wp_private_apis_on_old_wp() {
-		$GLOBALS['wp_version'] = '6.8';
+		$GLOBALS['wp_version'] = '6.9';
 		$this->create_asset_file( 'scripts/private-apis/index.asset.php', array(), '9.9.9' );
 
 		$scripts = $this->create_clean_scripts();
@@ -370,7 +370,7 @@ class WP_Build_Polyfills_Test extends BaseTestCase {
 	 * Test that force scripts register fine even when not pre-existing.
 	 */
 	public function test_register_scripts_force_registers_fresh_on_old_wp() {
-		$GLOBALS['wp_version'] = '6.8';
+		$GLOBALS['wp_version'] = '6.9';
 		$this->create_asset_file( 'scripts/notices/index.asset.php', array(), '9.9.9' );
 		$this->create_asset_file( 'scripts/private-apis/index.asset.php', array(), '8.8.8' );
 

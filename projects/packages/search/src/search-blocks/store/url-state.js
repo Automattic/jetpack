@@ -22,11 +22,18 @@ function validSortOrders( isWooCommerceBlocksEnabled ) {
 const DEFAULT_SEARCH_PARAM = 's';
 
 // Reserved params; not treated as filter keys. Mirrors PHP `RESERVED_QUERY_PARAMS`.
+// Note: `post_type` is NOT reserved — it's read as a scalar alias for
+// `?post_types[]=` (matches WP/WC convention) in `urlParamsToState` below.
 const RESERVED_PARAMS = new Set( [ 's', 'q', 'orderby', 'min_price', 'max_price' ] );
 
 // Per-filter AND/OR override prefix (`?query_type_category=and`). Mirrors
 // WooCommerce's `product-filter-attribute` convention.
 const QUERY_TYPE_PREFIX = 'query_type_';
+
+// Scalar params Search *reads* but never *writes* (`urlParamsToState` consumes
+// them; `stateToUrlParams` emits the array form instead). Listed so the close
+// stripper can clear them — the writer-shape detection alone would miss them.
+const READ_ALIAS_PARAMS = new Set( [ 'post_type' ] );
 
 /**
  * Parse `min_price`/`max_price` into a finite non-negative number or null.
@@ -170,8 +177,25 @@ export function urlParamsToState(
 			}
 			continue;
 		}
-		// Scalar param: either a static-filter selection or ignored noise.
+		// Scalar param: a static-filter selection, the `?post_type=<slug>`
+		// alias for `?post_types[]=<slug>` (WP/WC convention), or ignored noise.
 		if ( ! rawKey.endsWith( '[]' ) ) {
+			if ( rawKey === 'post_type' ) {
+				const slug = String( value ?? '' ).trim();
+				if ( ! slug ) {
+					continue;
+				}
+				if ( hasFilterConfigGate && ! ( 'post_types' in filterConfigs ) ) {
+					continue;
+				}
+				if ( ! activeFilters.post_types ) {
+					activeFilters.post_types = [];
+				}
+				if ( ! activeFilters.post_types.includes( slug ) ) {
+					activeFilters.post_types.push( slug );
+				}
+				continue;
+			}
 			if (
 				hasFilterConfigGate &&
 				! RESERVED_PARAMS.has( rawKey ) &&
@@ -243,15 +267,15 @@ export function urlParamsToState(
 /**
  * Identify URL params owned by Search Blocks state. Used when leaving the
  * search experience (overlay close) to clear the URL the same way legacy
- * Instant Search's `restorePreviousHref()` does. The bootstrap layer can't
- * reach into `filterConfigs`, so we identify filter params by the URL shapes
- * the writer (`stateToUrlParams`) emits — array-suffixed and `query_type_`-
- * prefixed — which covers every key the store can have round-tripped.
+ * Instant Search's `restorePreviousHref()` does — strip everything Search
+ * reads, not only what it writes. We identify those params by the reserved
+ * set, the URL shapes the writer (`stateToUrlParams`) emits — array-suffixed
+ * and `query_type_`-prefixed — and the read-only scalar aliases the reader
+ * consumes (`post_type`), which together cover every key the store round-trips.
  *
  * Static filter scalars are not stripped here: they share `?key=value` shape
  * with arbitrary non-search params and the bootstrap has no filter registry to
- * disambiguate. The reserved set + array shape + query_type prefix is what
- * legacy strips for the default close path.
+ * disambiguate.
  *
  * @param {URLSearchParams} params - URL params to scan.
  * @return {string[]} Unique keys present in `params` that Search owns.
@@ -261,6 +285,7 @@ export function getSearchOwnedParamKeys( params ) {
 	for ( const rawKey of params.keys() ) {
 		if (
 			RESERVED_PARAMS.has( rawKey ) ||
+			READ_ALIAS_PARAMS.has( rawKey ) ||
 			rawKey.startsWith( QUERY_TYPE_PREFIX ) ||
 			rawKey.endsWith( '[]' )
 		) {

@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\Publicize;
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Assets;
+use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Current_Plan;
 use Automattic\Jetpack\Publicize\Publicize_Utils as Utils;
@@ -81,15 +82,6 @@ class Social_Admin_Page {
 			return;
 		}
 
-		// The chassis pre-empts to the legacy `SocialAdminPage` when the
-		// site isn't connected or the free-plan pricing nudge should
-		// show, so those flows render exactly as they do today and the
-		// wp-build bundle stays free of the jetpack-connection asset
-		// imports that the chassis would otherwise have to handle.
-		if ( self::should_preempt_to_legacy() ) {
-			return;
-		}
-
 		self::load_wp_build();
 		add_action( 'current_screen', array( __CLASS__, 'alias_screen_id_for_wp_build' ) );
 	}
@@ -119,7 +111,7 @@ class Social_Admin_Page {
 			return;
 		}
 
-		$callback = self::is_modernized() && function_exists( 'jetpack_social_jetpack_social_dashboard_wp_admin_render_page' )
+		$callback = self::is_wp_build_dashboard_active()
 			? 'jetpack_social_jetpack_social_dashboard_wp_admin_render_page'
 			: array( $this, 'render' );
 
@@ -173,10 +165,23 @@ class Social_Admin_Page {
 	public function enqueue_admin_scripts() {
 		// This callback is registered via `load-{$page_suffix}` in `add_menu()`,
 		// so it only fires on the Social admin page — no need to re-check the page here.
-		if ( self::is_modernized() ) {
+		//
+		// Gate on `is_wp_build_dashboard_active()` (not `is_modernized()` alone) so
+		// this mirrors the exact decision `add_menu()` made when choosing the menu
+		// callback: when modernization is on AND the wp-build render function is defined
+		// (i.e. the chassis was actually loaded), skip the legacy bundle entirely.
+		if ( self::is_wp_build_dashboard_active() ) {
 			// wp-build manages its own enqueue pipeline. The legacy script,
 			// localized config, and media-library bootstrap are intentionally
-			// skipped for the wp-build dashboard.
+			// skipped here.
+			//
+			// The chassis reads site-connection state via `useConnection()`, whose
+			// store has no REST resolver — it must be hydrated inline. The wp-build
+			// boot registers a classic `…-prerequisites` script that loads before the
+			// chassis module, so attach the connection initial state there.
+			if ( wp_script_is( 'jetpack-social-dashboard-wp-admin-prerequisites', 'registered' ) ) {
+				Connection_Initial_State::render_script( 'jetpack-social-dashboard-wp-admin-prerequisites' );
+			}
 			return;
 		}
 
@@ -258,37 +263,20 @@ class Social_Admin_Page {
 	}
 
 	/**
-	 * Returns true when the chassis should defer to the legacy admin page.
+	 * Returns true when the wp-build dashboard is the page that will actually render.
 	 *
-	 * The legacy `SocialAdminPage` short-circuits its body with
-	 * `ConnectionScreen` (site not connected) or `PricingPage` (free
-	 * plan, pricing nudge not dismissed). Those components pull in
-	 * `@automattic/jetpack-connection`'s disconnect-dialog assets
-	 * (.jpg / .webp / .svg) and `@use "@wordpress/theme/design-tokens.css"`
-	 * in transitive SCSS — none of which the wp-build esbuild pipeline
-	 * loads out of the box. Detecting those same states server-side here
-	 * lets the chassis stay slim while preserving today's "pre-empt the
-	 * tabs" behaviour: when either holds we fall through to the legacy
-	 * menu callback and the user sees the existing flow.
+	 * This is the single source of truth shared by `add_menu()` (which picks the
+	 * menu callback) and `enqueue_admin_scripts()` (which decides whether to skip
+	 * the legacy bundle). `maybe_load_wp_build()` only loads the wp-build entry —
+	 * and therefore only defines its render function — when modernization is on AND
+	 * we are on the Social admin page. Checking `function_exists()` here captures
+	 * both conditions in one place, so the callback and the enqueue gate can never
+	 * diverge and leave an empty `#jetpack-social-root`.
 	 *
 	 * @return bool
 	 */
-	private static function should_preempt_to_legacy() {
-		if ( ! ( new Host() )->is_wpcom_platform() && ! ( new Connection_Manager() )->is_connected() ) {
-			return true;
-		}
-
-		if (
-			class_exists( '\\Automattic\\Jetpack\\Publicize\\Jetpack_Social_Settings\\Settings' )
-			&& \Automattic\Jetpack\Publicize\Jetpack_Social_Settings\Settings::should_show_pricing_page()
-		) {
-			$publicize = Publicize_Script_Data::publicize();
-			if ( $publicize && ! $publicize->has_paid_features() ) {
-				return true;
-			}
-		}
-
-		return false;
+	private static function is_wp_build_dashboard_active() {
+		return self::is_modernized() && function_exists( 'jetpack_social_jetpack_social_dashboard_wp_admin_render_page' );
 	}
 
 	/**

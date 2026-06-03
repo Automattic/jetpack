@@ -2,6 +2,7 @@
 /**
  * WP Site Health debugging functions.
  *
+ * @deprecated 15.9 Site Health integration is now handled by the connection package.
  * @package automattic/jetpack
  */
 
@@ -9,14 +10,16 @@
  * Test runner for Core's Site Health module.
  *
  * @since 7.3.0
+ * @deprecated 15.9 Use Automattic\Jetpack\Connection\Site_Health instead.
  */
 function jetpack_debugger_ajax_local_testing_suite() {
+	_deprecated_function( __FUNCTION__, 'jetpack-15.9' );
 	check_ajax_referer( 'health-check-site-status' );
 	if ( ! current_user_can( 'jetpack_manage_modules' ) ) {
 		// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- It takes null, but its phpdoc only says int.
 		wp_send_json_error( null, null, JSON_UNESCAPED_SLASHES );
 	}
-	$tests = new Jetpack_Cxn_Tests();
+	$tests = new Automattic\Jetpack\Connection\Connection_Health_Tests();
 	// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- It takes null, but its phpdoc only says int.
 	wp_send_json_success( $tests->output_results_for_core_async_site_health(), null, JSON_UNESCAPED_SLASHES );
 }
@@ -24,13 +27,15 @@ function jetpack_debugger_ajax_local_testing_suite() {
  * Adds the Jetpack Local Testing Suite to the Core Site Health system.
  *
  * @since 7.3.0
+ * @deprecated 15.9 Use Automattic\Jetpack\Connection\Site_Health instead.
  *
  * @param array $core_tests Array of tests from Core's Site Health.
  *
  * @return array $core_tests Array of tests for Core's Site Health.
  */
 function jetpack_debugger_site_status_tests( $core_tests ) {
-	$cxn_tests = new Jetpack_Cxn_Tests();
+	_deprecated_function( __FUNCTION__, 'jetpack-15.9' );
+	$cxn_tests = new Automattic\Jetpack\Connection\Connection_Health_Tests();
 	$tests     = $cxn_tests->list_tests( 'direct' );
 	foreach ( $tests as $test ) {
 
@@ -40,7 +45,7 @@ function jetpack_debugger_site_status_tests( $core_tests ) {
 			 * Callable for Core's Site Health system to execute.
 			 *
 			 * @var array $test A Jetpack Testing Suite test array.
-			 * @var Jetpack_Cxn_Tests $cxn_tests An instance of the Jetpack Test Suite.
+			 * @var Automattic\Jetpack\Connection\Connection_Health_Tests $cxn_tests An instance of the connection test suite.
 			 *
 			 * @return array {
 			 *      A results array to match the format expected by WordPress Core.

@@ -124,8 +124,8 @@ const ConnectionStatusCard: ConnectionStatusCardType = ( {
 	const shouldPreventDialog = isWoASite() && isConnectionOwner;
 	const allowDisconnect =
 		( currentUserCan( 'manage_options' ) || isUserConnected ) &&
-		isUserConnected &&
-		! shouldPreventDialog;
+		! shouldPreventDialog &&
+		! ( isWoASite() && ! isUserConnected );
 
 	return (
 		<section className={ styles[ 'connection-status-card' ] }>
