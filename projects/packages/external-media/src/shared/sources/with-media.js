@@ -338,7 +338,7 @@ export default function withMedia( mediaSource = MediaSource.Unknown, mediaOptio
 				if ( this.modalElement ) {
 					this.modalElement.focus();
 				}
-				let result = [];
+				let result;
 
 				// insert media
 				if ( items.length !== 0 ) {
