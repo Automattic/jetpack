@@ -7,7 +7,7 @@ import {
 	SelectControl,
 	privateApis as componentsPrivateApis,
 } from '@wordpress/components';
-import { unlock } from '@automattic/admin-toolkit';
+import { unlock } from '../lock/unlock';
 import { calendar } from '@wordpress/icons';
 import { Badge, Button, Stack } from '@wordpress/ui';
 import { useState, useCallback, useMemo, useEffect } from 'react';

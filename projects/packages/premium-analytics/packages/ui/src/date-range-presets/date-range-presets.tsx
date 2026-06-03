@@ -3,7 +3,7 @@
  */
 import { __ } from '@wordpress/i18n';
 import { privateApis as componentsPrivateApis } from '@wordpress/components';
-import { unlock } from '@automattic/admin-toolkit';
+import { unlock } from '../lock/unlock';
 import { useMemo } from 'react';
 import {
 	PRESET_CUSTOM,
