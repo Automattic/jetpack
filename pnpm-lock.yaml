@@ -1973,7 +1973,47 @@ importers:
         specifier: 6.0.1
         version: 6.0.1(webpack@5.105.2)
 
-  projects/packages/agents-manager: {}
+  projects/packages/agents-manager:
+    devDependencies:
+      '@automattic/jetpack-webpack-config':
+        specifier: workspace:*
+        version: link:../../js-packages/webpack-config
+      '@babel/core':
+        specifier: 7.29.0
+        version: 7.29.0
+      '@babel/preset-env':
+        specifier: 7.29.2
+        version: 7.29.2(@babel/core@7.29.0)
+      '@babel/runtime':
+        specifier: 7.29.2
+        version: 7.29.2
+      '@jest/globals':
+        specifier: 30.4.1
+        version: 30.4.1
+      '@types/jest':
+        specifier: 30.0.0
+        version: 30.0.0
+      '@typescript/native-preview':
+        specifier: 7.0.0-dev.20260225.1
+        version: 7.0.0-dev.20260225.1
+      '@wordpress/browserslist-config':
+        specifier: 6.46.0
+        version: 6.46.0
+      browserslist:
+        specifier: ^4.24.0
+        version: 4.28.2
+      concurrently:
+        specifier: 9.2.1
+        version: 9.2.1
+      jest:
+        specifier: 30.4.2
+        version: 30.4.2
+      webpack:
+        specifier: 5.105.2
+        version: 5.105.2(webpack-cli@6.0.1)
+      webpack-cli:
+        specifier: 6.0.1
+        version: 6.0.1(webpack@5.105.2)
 
   projects/packages/assets:
     dependencies:
