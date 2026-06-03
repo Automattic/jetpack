@@ -207,8 +207,7 @@ function StageInner() {
 				if ( folderValue !== statusView ) {
 					// Clear selection when changing folder to avoid mismatched inspector state.
 					navigate( {
-						to: '/responses/$view',
-						params: { view: folderValue },
+						to: `/responses/${ folderValue }`,
 						search: {
 							...searchParams,
 							responseIds: undefined,
@@ -248,8 +247,7 @@ function StageInner() {
 	const onStatusChange = useCallback(
 		( nextStatus: 'inbox' | 'spam' | 'trash' ) => {
 			navigate( {
-				to: '/responses/$view',
-				params: { view: nextStatus },
+				to: `/responses/${ nextStatus }`,
 				search: {
 					...searchParams,
 					responseIds: undefined,

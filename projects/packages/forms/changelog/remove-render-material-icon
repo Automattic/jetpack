@@ -1,0 +1,3 @@
+Significance: patch
+Type: changed
+Comment: Internal refactor: use @wordpress/primitives for block editor icons.
