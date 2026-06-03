@@ -179,7 +179,7 @@ All commands are in `AGENTS.md`. Run the subset that applies:
 |---|---|
 | PHP in a project | `jp build <project>`, `jp test php <project>`, `jp phan <project>` |
 | JS/TS in a project | `jp build <project>`, `jp test js <project>` (no-op if the project doesn't define it) |
-| WP-integration plugin (jetpack / crm / wpcomsh) | `jp docker phpunit <target> -- --name <slug>` — the `--name` routes to the *worktree's* instance, not `jetpack_dev` |
+| WP-integration plugin (jetpack / wpcomsh) | `jp docker phpunit <target> -- --name <slug>` — the `--name` routes to the *worktree's* instance, not `jetpack_dev` |
 | Root / `tools/*` change | `pnpm test` inside the affected tool package |
 | Every change | lint the touched files: `npx eslint <files>` and project-local `composer lint` / PHPCS when present |
 

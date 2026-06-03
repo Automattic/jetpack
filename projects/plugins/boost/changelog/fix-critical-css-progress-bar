@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix Critical CSS progress bar backward jumps and incomplete fill to 100%.

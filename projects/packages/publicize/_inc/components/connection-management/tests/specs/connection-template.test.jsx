@@ -18,13 +18,6 @@ const setupFeatures = ( ...active ) => {
 	} );
 };
 
-const setupGated = ( overrides = {} ) => {
-	mockScriptData( {
-		site: { plan: { features: { active: [] } }, ...overrides.site },
-		social: overrides.social,
-	} );
-};
-
 // Renders inside the chassis modernization context, where the gated upsell
 // variant is shown.
 const renderModernized = ui => render( <ModernizationProvider>{ ui }</ModernizationProvider> );
@@ -96,17 +89,15 @@ describe( 'ConnectionTemplateEditor', () => {
 	} );
 
 	describe( 'modernized chassis (gated upsell)', () => {
-		test( 'renders the locked upsell variant when the message-templates feature is off', () => {
+		test( 'renders nothing when the message-templates engine is off, even with the paid plan', () => {
+			// The engine is a rollout sticker, not a plan feature, so an "upgrade
+			// your plan" upsell would be misleading — hide the whole area instead.
 			setupFeatures( 'social-enhanced-publishing' );
 			setup();
 
-			renderModernized( <ConnectionTemplateEditor connection={ FB } /> );
+			const { container } = renderModernized( <ConnectionTemplateEditor connection={ FB } /> );
 
-			const textarea = screen.getByRole( 'textbox', {
-				name: /Custom message for this connection/i,
-			} );
-			expect( textarea ).toBeDisabled();
-			expect( screen.getByRole( 'link', { name: /upgrade your plan/i } ) ).toBeInTheDocument();
+			expect( container ).toBeEmptyDOMElement();
 		} );
 
 		test( 'renders the locked upsell variant when the enhanced-publishing plan is off', () => {
@@ -123,7 +114,9 @@ describe( 'ConnectionTemplateEditor', () => {
 		} );
 
 		test( 'surfaces the global default message inside the locked textarea', () => {
-			setupGated( {
+			// Engine on, paid plan off: the plan upsell shows the global default.
+			mockScriptData( {
+				site: { plan: { features: { active: [ 'social-message-templates' ] } } },
 				social: { settings: { messageTemplate: 'Read my latest: {url}' } },
 			} );
 			setup();
@@ -135,8 +128,11 @@ describe( 'ConnectionTemplateEditor', () => {
 			).toHaveValue( 'Read my latest: {url}' );
 		} );
 
-		test( 'renders nothing on Simple sites when the editor is gated', () => {
-			setupGated( { site: { host: 'wpcom' } } );
+		test( 'renders nothing on Simple sites when the plan upsell would otherwise show', () => {
+			// Engine on, paid plan off, Simple site: keeps the trunk no-editor behavior.
+			mockScriptData( {
+				site: { host: 'wpcom', plan: { features: { active: [ 'social-message-templates' ] } } },
+			} );
 			setup();
 
 			const { container } = renderModernized( <ConnectionTemplateEditor connection={ FB } /> );

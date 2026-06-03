@@ -70,19 +70,22 @@
 
 	// Stars are inline-rendered text glyphs (★) styled with color so the
 	// markup stays SVG-free and survives WP's content-export pipeline.
-	// Matches WC's color cues — gold for filled, muted gray for empty —
-	// without pulling in WC's icon asset.
+	// Filled stars share the `--jetpack-search-rating-color` author override
+	// with the per-result product-rating widget (`results-list/style.scss`),
+	// so retinting one retints both. Empty stars mute against the theme's
+	// foreground via `color-mix` instead of pinning to a fixed grey — that
+	// keeps the track readable on dark themes.
 	.jetpack-search-filter-rating__star {
 		display: inline-block;
 		font-size: 1.05em;
 		line-height: 1;
 
 		&.is-filled {
-			color: #f0b800;
+			color: var(--jetpack-search-rating-color, #f7b500);
 		}
 
 		&.is-empty {
-			color: #c8c8c8;
+			color: color-mix(in sRGB, currentColor 25%, transparent);
 		}
 	}
 }

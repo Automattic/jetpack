@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Remove use of `process.env.npm_config_jetpack_webpack_config_resolve_conditions`, just hard-code the relevant value.
+
+

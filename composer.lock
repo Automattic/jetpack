@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "c69824f8f499d03d89e63879494daf77",
+    "content-hash": "4ade5e5ce385b334cac92844d0cf7cf3",
     "packages": [],
     "packages-dev": [
         {
@@ -1077,16 +1077,16 @@
         },
         {
             "name": "php-stubs/woocommerce-stubs",
-            "version": "v10.7.0",
+            "version": "v10.8.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/php-stubs/woocommerce-stubs.git",
-                "reference": "7251902ebc048626aff04855c333afa9f3bae2d5"
+                "reference": "9d59e65dcabc18153c243cb9acd85fc88ef40589"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/php-stubs/woocommerce-stubs/zipball/7251902ebc048626aff04855c333afa9f3bae2d5",
-                "reference": "7251902ebc048626aff04855c333afa9f3bae2d5",
+                "url": "https://api.github.com/repos/php-stubs/woocommerce-stubs/zipball/9d59e65dcabc18153c243cb9acd85fc88ef40589",
+                "reference": "9d59e65dcabc18153c243cb9acd85fc88ef40589",
                 "shasum": ""
             },
             "require": {
@@ -1115,9 +1115,9 @@
             ],
             "support": {
                 "issues": "https://github.com/php-stubs/woocommerce-stubs/issues",
-                "source": "https://github.com/php-stubs/woocommerce-stubs/tree/v10.7.0"
+                "source": "https://github.com/php-stubs/woocommerce-stubs/tree/v10.8.0"
             },
-            "time": "2026-04-14T15:19:28+00:00"
+            "time": "2026-05-27T11:46:50+00:00"
         },
         {
             "name": "php-stubs/wordpress-stubs",
@@ -1173,16 +1173,16 @@
         },
         {
             "name": "php-stubs/wordpress-tests-stubs",
-            "version": "v6.9.0",
+            "version": "v7.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/php-stubs/wordpress-tests-stubs.git",
-                "reference": "1f60fb7b70b7e9e3fe02bf0a3b7d69c10e5e2953"
+                "reference": "5745979d58aebec7e7e659e9ffaf0a1b94785442"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/php-stubs/wordpress-tests-stubs/zipball/1f60fb7b70b7e9e3fe02bf0a3b7d69c10e5e2953",
-                "reference": "1f60fb7b70b7e9e3fe02bf0a3b7d69c10e5e2953",
+                "url": "https://api.github.com/repos/php-stubs/wordpress-tests-stubs/zipball/5745979d58aebec7e7e659e9ffaf0a1b94785442",
+                "reference": "5745979d58aebec7e7e659e9ffaf0a1b94785442",
                 "shasum": ""
             },
             "require-dev": {
@@ -1207,9 +1207,9 @@
             ],
             "support": {
                 "issues": "https://github.com/php-stubs/wordpress-tests-stubs/issues",
-                "source": "https://github.com/php-stubs/wordpress-tests-stubs/tree/v6.9.0"
+                "source": "https://github.com/php-stubs/wordpress-tests-stubs/tree/v7.0.0"
             },
-            "time": "2025-12-07T09:14:02+00:00"
+            "time": "2026-05-25T08:19:01+00:00"
         },
         {
             "name": "php-stubs/wp-cli-stubs",

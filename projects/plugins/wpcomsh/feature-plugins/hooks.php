@@ -5,9 +5,6 @@
  * @package wpcomsh
  */
 
-// Load Permalinks upsell screen for Atomic sites without the feature.
-require_once __DIR__ . '/permalinks/upsell-permalinks.php';
-
 /**
  * Disables theme and plugin related capabilities if the site doesn't have the required features.
  *
@@ -211,49 +208,6 @@ function wpcomsh_get_rest_methods_as_array( $method ) {
 		explode( ',', $method )
 	);
 }
-
-/**
- * If this site does NOT have the 'options-permalink' feature, remove the Settings > Permalinks submenu item.
- */
-function wpcomsh_maybe_remove_permalinks_menu_item() {
-	if ( wpcom_site_has_feature( WPCOM_Features::OPTIONS_PERMALINK ) ) {
-		return;
-	}
-	remove_submenu_page( 'options-general.php', 'options-permalink.php' );
-	// Add replacement upsell submenu on Atomic sites without the feature.
-	if ( function_exists( 'wpcomsh_permalinks_upsell_page_on_atomic_sites' ) ) {
-		wpcomsh_permalinks_upsell_page_on_atomic_sites();
-	}
-}
-add_action( 'admin_menu', 'wpcomsh_maybe_remove_permalinks_menu_item' );
-
-/**
- * If this site does NOT have the 'options-permalink' feature, disable the /wp-admin/options-permalink.php page.
- * But always allow proxied users to access the permalink options page.
- */
-function wpcomsh_maybe_disable_permalink_page() {
-	if ( wpcom_site_has_feature( WPCOM_Features::OPTIONS_PERMALINK ) ) {
-		return;
-	}
-	if ( ! ( defined( 'AT_PROXIED_REQUEST' ) && AT_PROXIED_REQUEST ) ) {
-		wp_die(
-			esc_html__( 'You do not have permission to access this page.', 'wpcomsh' ),
-			'',
-			array(
-				'back_link' => true,
-				'response'  => 403,
-			)
-		);
-	} else {
-		add_action(
-			'admin_notices',
-			function () {
-				echo '<div class="notice notice-warning"><p>' . esc_html__( 'Proxied only: You can see this because you are proxied. Do not use this if you don\'t know why you are here.', 'wpcomsh' ) . '</p></div>';
-			}
-		);
-	}
-}
-add_action( 'load-options-permalink.php', 'wpcomsh_maybe_disable_permalink_page' );
 
 /**
  * Restrict selectable files in the Media uploader by setting Plupload filters only.
