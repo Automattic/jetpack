@@ -22,7 +22,7 @@ Format a numeric value based on its metric type.
 Returns `''` for null, undefined, or NaN.
 
 ```typescript
-formatMetricValue( 9876 ); // '9,877'
+formatMetricValue( 9876.543 ); // '9,877'
 formatMetricValue( 1500, 'number', {
 	useMultipliers: true,
 	decimals: 1,
