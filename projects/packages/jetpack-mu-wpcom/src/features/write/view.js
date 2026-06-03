@@ -2802,6 +2802,19 @@ function placeCaretAtPoint( x, y ) {
 // indicator between blocks without re-querying every frame.
 let currentDropTarget = null;
 
+// Position the indicator was rendered at on currentDropTarget. Lets the
+// drop handler pick before/after without re-running getBoundingClientRect
+// (the dragover that placed the indicator already settled it).
+let currentDropPosition = 'after';
+
+// The figure currently being dragged within the editor (set in
+// dragstart, cleared in dragend). Used to switch the dragover/drop
+// handlers from their default "insert a file from disk" branch into a
+// "move this existing figure" branch — the bug RSM-3981 was the absence
+// of this branch, which left the browser to fall back to its native
+// contentEditable=false copy-on-drop.
+let draggingFigure = null;
+
 /**
  * Show a visual indicator on the block where a dragged image will land.
  * The indicator is a class on the block element itself (a top-level
@@ -2859,6 +2872,7 @@ function updateDropIndicator( x, y ) {
 		// consistent by clearing the other one.
 		target.classList.toggle( 'bw-drop-target--before', position === 'before' );
 		target.classList.toggle( 'bw-drop-target--after', position === 'after' );
+		currentDropPosition = position;
 		return;
 	}
 
@@ -2867,6 +2881,7 @@ function updateDropIndicator( x, y ) {
 		position === 'before' ? 'bw-drop-target--before' : 'bw-drop-target--after'
 	);
 	currentDropTarget = target;
+	currentDropPosition = position;
 }
 
 /**
@@ -2877,6 +2892,29 @@ function clearDropIndicator() {
 		currentDropTarget.classList.remove( 'bw-drop-target--before', 'bw-drop-target--after' );
 		currentDropTarget = null;
 	}
+	currentDropPosition = 'after';
+}
+
+/**
+ * Move a figure to a new position relative to a target block. No-ops
+ * when the move would not change the DOM (figure dropped onto itself,
+ * or onto its current neighbour on the same side).
+ *
+ * @param {Element}          figure   - The figure being dragged.
+ * @param {Element}          target   - The block to land next to.
+ * @param {'before'|'after'} position - Where to drop relative to target.
+ * @return {boolean} Whether the DOM actually changed.
+ */
+function moveFigureToBlock( figure, target, position ) {
+	if ( ! figure || ! target || figure === target ) return false;
+	if ( position === 'before' ) {
+		if ( target.previousSibling === figure ) return false;
+		target.before( figure );
+	} else {
+		if ( target.nextSibling === figure ) return false;
+		target.after( figure );
+	}
+	return true;
 }
 
 /**
@@ -4381,13 +4419,54 @@ const { state } = store( 'wpcom-write', {
 			await uploadFileToMedia( file );
 		},
 
+		handleEditorDragStart( event ) {
+			// Image figures are contentEditable=false atoms inside an
+			// editable parent. Without an explicit handler the browser
+			// drags them as opaque HTML and the editor's drop branch
+			// (which only handles File drags) lets the native
+			// copy-on-drop behaviour insert a duplicate. Tag the drag as
+			// a move and remember the source so the dragover/drop
+			// branches below relocate it instead of falling through.
+			const figure = event.target?.closest?.( 'figure, .bw-image-figure, .bw-video-figure' );
+			const content = getContent();
+			if ( ! figure || ! content?.contains( figure ) ) return;
+
+			draggingFigure = figure;
+			if ( event.dataTransfer ) {
+				event.dataTransfer.effectAllowed = 'move';
+				// Overwrite the default HTML/text payload the browser
+				// stages when dragging an <img>. If we ever fail to
+				// preventDefault on drop, an empty payload means no
+				// stray content is inserted.
+				try {
+					event.dataTransfer.setData( 'text/plain', '' );
+				} catch {
+					// Some browsers throw if setData is called outside a
+					// real dragstart. Safe to ignore — preventDefault on
+					// drop is the primary guard.
+				}
+			}
+		},
+
 		handleEditorDragOver( event ) {
-			// Only react to file drags, not text/selection drags inside
-			// the editor (which we want to leave to the browser default).
-			if ( ! event.dataTransfer?.types?.includes( 'Files' ) ) return;
-			event.preventDefault();
-			event.dataTransfer.dropEffect = 'copy';
-			updateDropIndicator( event.clientX, event.clientY );
+			// File drags from disk: keep the original "insert at drop
+			// point" behaviour.
+			if ( event.dataTransfer?.types?.includes( 'Files' ) ) {
+				event.preventDefault();
+				event.dataTransfer.dropEffect = 'copy';
+				updateDropIndicator( event.clientX, event.clientY );
+				return;
+			}
+			// Internal figure drag: opt in to drop and show the move
+			// cursor. Without preventDefault here the drop event never
+			// fires inside the editor.
+			if ( draggingFigure ) {
+				event.preventDefault();
+				if ( event.dataTransfer ) event.dataTransfer.dropEffect = 'move';
+				updateDropIndicator( event.clientX, event.clientY );
+			}
+			// Text/selection drags inside the editor: leave to the
+			// browser's contentEditable default.
 		},
 
 		handleEditorDragLeave( event ) {
@@ -4401,6 +4480,22 @@ const { state } = store( 'wpcom-write', {
 		},
 
 		handleEditorDrop( event ) {
+			// Internal figure move.
+			if ( draggingFigure ) {
+				event.preventDefault();
+				const figure = draggingFigure;
+				const target = currentDropTarget;
+				const position = currentDropPosition;
+				clearDropIndicator();
+				draggingFigure = null;
+
+				if ( target && moveFigureToBlock( figure, target, position ) ) {
+					ensureBlockStructure();
+					pushToUndoHistory();
+				}
+				return;
+			}
+
 			if ( ! event.dataTransfer?.types?.includes( 'Files' ) ) return;
 			event.preventDefault();
 			clearDropIndicator();
@@ -4423,6 +4518,14 @@ const { state } = store( 'wpcom-write', {
 			for ( const file of images ) {
 				uploadAndInsertImage( file );
 			}
+		},
+
+		handleEditorDragEnd() {
+			// Safety net: dragend always fires (even on cancelled or
+			// out-of-editor drops), so this is the canonical place to
+			// drop the drag state and any stale drop indicator.
+			draggingFigure = null;
+			clearDropIndicator();
 		},
 
 		// --- Slash commands ---
