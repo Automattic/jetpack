@@ -345,9 +345,11 @@ class AtomicStorageProviderTest extends WP_UnitTestCase {
 
 		// Force the guarded DB read (Jetpack_Options::get_option('user_tokens'))
 		// to throw, simulating a failure mid-read.
-		$thrower = static function () {
-			throw new \RuntimeException( 'boom' );
-		};
+		$thrower =
+			/** @return never */
+			static function () {
+				throw new \RuntimeException( 'boom' );
+			};
 		add_filter( 'pre_option_jetpack_private_options', $thrower );
 
 		$caught = false;
