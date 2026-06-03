@@ -1,3 +1,4 @@
+import { select } from '@wordpress/data';
 import { createRoot, createElement } from '@wordpress/element';
 import BlockSuggestionActions from '../components/block-suggestion-actions';
 import BlockSuggestionButtons from '../components/block-suggestion-buttons';
@@ -81,7 +82,6 @@ function inject( key, findParent, Component, props ) {
  * In creating mode, reads the ComboboxControl's selected value.
  */
 function getBlockNameFromModal( modal ) {
-	const { select } = wp.data;
 	const blockTypes = select( 'core/blocks' ).getBlockTypes();
 
 	// Editing mode: disabled input shows block title.
@@ -171,6 +171,18 @@ function runAll() {
 	// always present in the DOM (the CollapsibleCard keeps its content mounted
 	// while collapsed).
 	for ( const slug of VALID_SECTIONS ) {
+		// Steady-state fast path: once this section's three slots are injected
+		// and still connected, there is nothing to do — skip the DOM queries so
+		// the observer's per-frame work stays cheap. If the <Navigator> removes
+		// the screen, the containers disconnect and we fall through to re-inject.
+		if (
+			slots[ `badge-${ slug }` ].container?.isConnected &&
+			slots[ `actions-${ slug }` ].container?.isConnected &&
+			slots[ `button-${ slug }` ].container?.isConnected
+		) {
+			continue;
+		}
+
 		const item = document.querySelector( `.guidelines__list-item[data-slug="${ slug }"]` );
 		const form = item?.querySelector( 'form' );
 		if ( ! form ) {
@@ -233,7 +245,16 @@ function runAll() {
 
 	// Block guideline modal injections.
 	const blockModal = document.querySelector( '.block-guideline-modal' );
-	const blockName = blockModal ? getBlockNameFromModal( blockModal ) : null;
+
+	// Resolving the block name reads the block registry and scans all block
+	// types, so only do it when we actually need to inject — i.e. the modal is
+	// open and its slots are not already mounted. Once injected, inject() below
+	// short-circuits on isConnected and never reads blockName.
+	const blockSlotsConnected =
+		slots[ 'block-actions' ].container?.isConnected &&
+		slots[ 'block-suggestion-buttons' ].container?.isConnected;
+	const blockName =
+		blockModal && ! blockSlotsConnected ? getBlockNameFromModal( blockModal ) : null;
 
 	// Always invoke inject so previously mounted roots get unmounted when
 	// the modal closes — findParent() returns null for "no place to inject"
