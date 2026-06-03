@@ -3,18 +3,9 @@ import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Link } from '@wordpress/ui';
 import { ConnectionService } from '../../types';
-import { getSocialScriptData } from '../../utils';
+import { assetUrl } from '../../utils';
 import { ServiceUiDetails } from './types';
 import { XNotice } from './x-notice';
-
-// Service-walkthrough illustrations live in `_inc/assets/` and are
-// copied verbatim into `build/assets/` by `webpack.config.js` (via
-// `CopyWebpackPlugin`). Resolving the URL at runtime — instead of via
-// `import x from './foo.webp'` — keeps both the webpack-built legacy
-// admin entry and the wp-build esbuild chassis happy without either
-// pipeline needing a binary-asset loader.
-const assetUrl = ( filename: string ) =>
-	`${ getSocialScriptData()?.assets_url ?? '' }assets/${ filename }`;
 
 const connectionsFacebook = assetUrl( 'connections-facebook.webp' );
 const connectionsInstagramBusiness = assetUrl( 'connections-instagram-business.webp' );

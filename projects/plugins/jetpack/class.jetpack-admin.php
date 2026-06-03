@@ -555,7 +555,13 @@ class Jetpack_Admin {
 		if ( ! current_user_can( 'manage_options' ) ) {
 			die( '-1' );
 		}
-		Jetpack_Admin_Page::wrap_ui( array( $this, 'debugger_page' ), array( 'is-wide' => true ) );
+		Jetpack_Admin_Page::wrap_ui(
+			array( $this, 'debugger_page' ),
+			array(
+				'is-wide'  => true,
+				'show-nav' => false,
+			)
+		);
 	}
 
 	/**

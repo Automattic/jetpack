@@ -2,15 +2,11 @@
  * External dependencies
  */
 import { isSimpleSite } from '@automattic/jetpack-script-data';
-import {
-	Button,
-	__experimentalText as Text, // eslint-disable-line @wordpress/no-unsafe-wp-apis
-	__experimentalVStack as VStack, // eslint-disable-line @wordpress/no-unsafe-wp-apis
-} from '@wordpress/components';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { createInterpolateElement, useCallback, useMemo } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
-import { Link } from '@wordpress/ui';
+import { page, search, shield, trash } from '@wordpress/icons';
+import { Button, EmptyState, Link } from '@wordpress/ui';
 /**
  * Internal dependencies
  */
@@ -42,12 +38,6 @@ type EmptyResponsesProps = {
 	isSingleFormView?: boolean;
 	readStatusFilter?: 'unread' | 'read';
 	status: string;
-};
-
-type EmptyWrapperProps = {
-	heading?: string;
-	body?: string | ReactNode;
-	actions?: ReactNode;
 };
 
 /**
@@ -152,26 +142,17 @@ const useInstallAkismet = (): UseInstallAkismetReturn => {
 	};
 };
 
-export const EmptyWrapper = ( { heading = '', body = '', actions = null }: EmptyWrapperProps ) => (
-	<VStack alignment="center" spacing="2">
-		{ heading && (
-			<Text as="h3" weight="500" size="15">
-				{ heading }
-			</Text>
-		) }
-		{ body && <Text variant="muted">{ body }</Text> }
-		{ actions && <span style={ { marginBlockStart: '16px' } }>{ actions }</span> }
-	</VStack>
-);
-
 export const NoResults = () => (
-	<EmptyWrapper
-		heading={ __( 'No results found', 'jetpack-forms' ) }
-		body={ __(
-			"Try adjusting your search or filters to find what you're looking for.",
-			'jetpack-forms'
-		) }
-	/>
+	<EmptyState.Root>
+		<EmptyState.Icon icon={ search } />
+		<EmptyState.Title>{ __( 'No results found', 'jetpack-forms' ) }</EmptyState.Title>
+		<EmptyState.Description>
+			{ __(
+				"Try adjusting your search or filters to find what you're looking for.",
+				'jetpack-forms'
+			) }
+		</EmptyState.Description>
+	</EmptyState.Root>
 );
 
 const EmptyResponses = ( {
@@ -209,7 +190,13 @@ const EmptyResponses = ( {
 	);
 	if ( status === 'trash' ) {
 		return (
-			<EmptyWrapper heading={ noTrashHeading } body={ emptyTrashDays > 0 && noTrashMessage } />
+			<EmptyState.Root>
+				<EmptyState.Icon icon={ trash } />
+				<EmptyState.Title>{ noTrashHeading }</EmptyState.Title>
+				{ emptyTrashDays > 0 && (
+					<EmptyState.Description>{ noTrashMessage }</EmptyState.Description>
+				) }
+			</EmptyState.Root>
 		);
 	}
 
@@ -222,44 +209,55 @@ const EmptyResponses = ( {
 	if ( status === 'spam' ) {
 		if ( shouldShowAkismetCta ) {
 			return (
-				<EmptyWrapper
-					heading={ noSpamHeading }
-					body={ wrapperBody }
-					actions={
+				<EmptyState.Root>
+					<EmptyState.Icon icon={ shield } />
+					<EmptyState.Title>{ noSpamHeading }</EmptyState.Title>
+					<EmptyState.Description>{ wrapperBody }</EmptyState.Description>
+					<EmptyState.Actions>
 						<Button
-							variant="primary"
-							isBusy={ isInstallingAkismet }
+							variant="solid"
+							loading={ isInstallingAkismet }
 							disabled={ isInstallingAkismet || ! canPerformAkismetAction }
 							onClick={ handleAkismetSetup }
-							__next40pxDefaultSize
 						>
 							{ wrapperButtonText }
 						</Button>
-					}
-				/>
+					</EmptyState.Actions>
+				</EmptyState.Root>
 			);
 		}
 
-		return <EmptyWrapper heading={ noSpamHeading } body={ noSpamMessage } />;
+		return (
+			<EmptyState.Root>
+				<EmptyState.Icon icon={ shield } />
+				<EmptyState.Title>{ noSpamHeading }</EmptyState.Title>
+				<EmptyState.Description>{ noSpamMessage }</EmptyState.Description>
+			</EmptyState.Root>
+		);
 	}
 
 	return (
-		<EmptyWrapper
-			heading={ __( "You're set up. No responses yet.", 'jetpack-forms' ) }
-			body={ __(
-				'Share your form to start collecting responses. New items will appear here.',
-				'jetpack-forms'
-			) }
-			actions={
-				! isSingleFormView && (
+		<EmptyState.Root>
+			<EmptyState.Icon icon={ page } />
+			<EmptyState.Title>
+				{ __( "You're set up. No responses yet.", 'jetpack-forms' ) }
+			</EmptyState.Title>
+			<EmptyState.Description>
+				{ __(
+					'Share your form to start collecting responses. New items will appear here.',
+					'jetpack-forms'
+				) }
+			</EmptyState.Description>
+			{ ! isSingleFormView && (
+				<EmptyState.Actions>
 					<CreateFormButton
 						label={ __( 'Create a new form', 'jetpack-forms' ) }
 						variant="primary"
 						showNameModal
 					/>
-				)
-			}
-		/>
+				</EmptyState.Actions>
+			) }
+		</EmptyState.Root>
 	);
 };
 

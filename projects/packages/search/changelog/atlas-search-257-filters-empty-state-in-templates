@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Search Blocks: surface the "No filters available" empty state in the embedded and overlay templates by wrapping their sidebar filters in the jetpack-search/filters block.

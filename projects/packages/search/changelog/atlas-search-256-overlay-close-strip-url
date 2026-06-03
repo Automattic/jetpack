@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Search Blocks: closing the blocks-powered Overlay now strips the search/filter params from the URL and reloads, matching the legacy Instant Search overlay.

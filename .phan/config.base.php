@@ -118,6 +118,9 @@ function make_phan_config( $dir, $options = array() ) {
 					$extra_stubs[] = "$root/projects/plugins/wpcomsh/wpcom-themes/includes/class-wpcom-themes-service.php";
 				}
 				break;
+			case 'zero-bs-crm':
+				$stubs[] = "$root/.phan/stubs/zero-bs-crm-stubs.php";
+				break;
 			default:
 				throw new InvalidArgumentException( "Unknown stub '$stub'" );
 		}

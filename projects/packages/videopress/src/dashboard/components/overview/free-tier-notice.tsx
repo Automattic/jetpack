@@ -7,6 +7,7 @@ import useProductCheckoutWorkflow from '@automattic/jetpack-connection/hooks/use
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Notice } from '@wordpress/ui';
+import { VIDEOPRESS_ADMIN_PAGE } from '../../utils/constants';
 import type { ReactElement } from 'react';
 
 // Tracks event recorded when the upgrade CTA is clicked. Carried over verbatim
@@ -50,11 +51,10 @@ function getInitialState() {
  */
 export default function FreeTierNotice(): ReactElement {
 	const state = getInitialState();
-	const adminUrl = state?.siteData?.adminUrl ?? '';
 
 	const { run } = useProductCheckoutWorkflow( {
 		productSlug: state?.product?.slug ?? '',
-		redirectUrl: adminUrl ? `${ adminUrl }admin.php?page=jetpack-videopress` : '',
+		redirectUrl: VIDEOPRESS_ADMIN_PAGE,
 		useBlogIdSuffix: true,
 		from: 'jetpack-videopress',
 	} );

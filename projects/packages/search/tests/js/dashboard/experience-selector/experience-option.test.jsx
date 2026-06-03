@@ -41,9 +41,9 @@ describe( '<ExperienceOption>', () => {
 		).toBeInTheDocument();
 	} );
 
-	test( 'shows RECOMMENDED badge only on Embedded', () => {
+	test( 'shows BETA badge on Embedded, not on the legacy Overlay', () => {
 		const { rerender } = renderWith( baseSettings, { experience: 'embedded' } );
-		expect( screen.getByText( 'Recommended' ) ).toBeInTheDocument();
+		expect( screen.getByText( 'Beta' ) ).toBeInTheDocument();
 
 		const registry2 = createRegistry();
 		const store2 = createReduxStore( STORE_ID, {
@@ -56,7 +56,7 @@ describe( '<ExperienceOption>', () => {
 				<ExperienceOption experience="overlay" />
 			</RegistryProvider>
 		);
-		expect( screen.queryByText( 'Recommended' ) ).not.toBeInTheDocument();
+		expect( screen.queryByText( 'Beta' ) ).not.toBeInTheDocument();
 	} );
 
 	test( 'shows ACTIVE badge on the active card and no commit button', () => {

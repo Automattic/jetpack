@@ -16,10 +16,19 @@ import {
 	getSortMenuOptionKeysFromItem,
 	getSortMenuOptionKeysFromTrigger,
 } from './results-sort-menu-dom';
+import { identifySite, recordTrainTracksInteract, recordTrainTracksRender } from './tracks';
 import { pushStateToUrl, readStateFromUrl } from './url-state';
 
 const NAMESPACE = 'jetpack-search';
 let initialized = false;
+// Idempotency latch for the deep-link first fetch. Either entry path — the
+// `data-wp-init` callback on the results-list block, or the overlay-bootstrap's
+// explicit invocation after hydrating the cloned overlay subtree — can flip it
+// safely; only the first one actually dispatches. The bootstrap path exists
+// because the IA private-API render of the cloned overlay regions races with
+// the runtime's auto-walk and the directive intermittently misses, leaving the
+// PHP-seeded "Searching…" spinner latched on.
+let initialSearchDispatched = false;
 
 // Module-scope abort handles so `actions.search()` can cancel the previous
 // stream — across action calls, fetch has no other way to reach them.
@@ -425,19 +434,6 @@ function dateFilterItems( sharedState, filterKey, config ) {
 // older query can't overwrite fresh results.
 let searchToken = 0;
 
-// Per-instance post-type scope of the Search Input that started the session.
-// `actions.search()` sets it; filter/sort/load-more leave it. `undefined`/`null`
-// fall through to the page-global `state.staticPostTypes` so an unscoped
-// input never clobbers a `filter-post-type` block contribution.
-let activePostTypeScope;
-
-/**
- * Reset the module-level active post-type scope. Tests only.
- */
-export function resetActivePostTypeScopeForTesting() {
-	activePostTypeScope = undefined;
-}
-
 /**
  * Build the results-count string from live state — "Searching…", "Found N
  * results", or empty (empty-state region owns the no-hits copy). Called by
@@ -488,8 +484,9 @@ function* fetchResults( pageHandle ) {
 		filterConfigs: overlayFilterLogic( state.filterConfigs, state.filterLogic ),
 		priceRange: state.priceRange,
 		staticFilterSelections: state.staticFilterSelections,
-		// Per-instance scope wins over the page-global seed.
-		staticPostTypes: activePostTypeScope ?? state.staticPostTypes,
+		// Page-level scope from the `search-results` block (seeded at render).
+		// Singular per page; no per-instance overrides.
+		staticPostTypes: state.staticPostTypes ?? null,
 	} );
 	const response = yield fetch( url, {
 		headers: state.isPrivateSite ? { 'X-WP-Nonce': state.nonce } : {},
@@ -498,11 +495,75 @@ function* fetchResults( pageHandle ) {
 	return yield response.json();
 }
 
+const UI_ALGO_VARIANT = { compact: 'minimal', expanded: 'expanded', product: 'product' };
+
+/**
+ * UI-algo identifier for TrainTracks. Kept identical to instant search so blocks
+ * impressions land in the same relevance bucket; the blocks `compact` layout maps
+ * to instant search's `minimal`.
+ *
+ * @return {string} `jetpack-instant-search-ui/v1-{minimal|expanded|product}`.
+ */
+function trainTracksUiAlgo() {
+	const variant = UI_ALGO_VARIANT[ state.resultsLayout ] ?? 'expanded';
+	return `jetpack-instant-search-ui/v1-${ variant }`;
+}
+
+/**
+ * Build the TrainTracks payload from a result's server-assigned railcar. Shape
+ * matches instant search's `getCommonTrainTracksProps()` exactly.
+ *
+ * @param {object} railcar    - Per-result railcar from the search API.
+ * @param {number} uiPosition - Absolute position of the result in the list.
+ * @return {object} TrainTracks event properties.
+ */
+function trainTracksProps( railcar, uiPosition ) {
+	return {
+		fetch_algo: railcar.fetch_algo,
+		fetch_position: railcar.fetch_position,
+		fetch_query: railcar.fetch_query,
+		railcar: railcar.railcar,
+		rec_blog_id: railcar.rec_blog_id,
+		rec_post_id: railcar.rec_post_id,
+		session_id: railcar.session_id,
+		ui_algo: trainTracksUiAlgo(),
+		ui_position: uiPosition,
+	};
+}
+
+/**
+ * Fire one TrainTracks render (impression) event per result that carries a
+ * railcar. `ui_position` reads the absolute index stamped on each result so it
+ * matches the interact event fired on click.
+ *
+ * @param {Array<object>} results - Normalized results just added to the list.
+ */
+function recordResultRenders( results ) {
+	if ( state.disableTracking ) {
+		return;
+	}
+	for ( const result of results ) {
+		if ( result.railcar ) {
+			recordTrainTracksRender( trainTracksProps( result.railcar, result.index ) );
+		}
+	}
+}
+
 const { state, actions } = store( NAMESPACE, {
 	state: {
 		// Mutually exclusive popovers — only one open at a time.
 		isFilterPopoverOpen: false,
 		isSortPopoverOpen: false,
+
+		// Resolved results-list layout, seeded per-page by results-list/render.php.
+		// Drives the TrainTracks `ui_algo`; default keeps a valid value on pages
+		// where the seed hasn't landed.
+		resultsLayout: 'expanded',
+
+		// Suppresses TrainTracks `_tkq` pushes. PHP-seeded from
+		// `?disable_tracking=1` + the `jetpack_instant_search_disable_tracking`
+		// filter, mirroring instant search. Default off so a missing seed tracks.
+		disableTracking: false,
 
 		// Roving-tabindex active descendant for the sort menu. `null` /
 		// unknown-key = menu hasn't been keyboard-engaged; the currently
@@ -527,6 +588,18 @@ const { state, actions } = store( NAMESPACE, {
 		// `resultsCountText` lives on seeded state (not a getter) so SSR can
 		// resolve `data-wp-text` to a real string on first paint. See
 		// `computeResultsCountText()` for the lockstep logic.
+
+		/**
+		 * Skeleton visibility. SSR can't evaluate a getter, so the skeleton
+		 * markup carries a literal `hidden` off the initial paint; this getter
+		 * takes over after hydration so the in-flight initial search shows the
+		 * skeleton (a reload that already has results keeps them — no flash).
+		 *
+		 * @return {boolean} True when the skeleton should be hidden.
+		 */
+		get skeletonHidden() {
+			return ! ( state.isLoading && state.results.length === 0 );
+		},
 
 		/**
 		 * No-results visibility. `data-wp-bind` only evaluates simple
@@ -858,22 +931,44 @@ const { state, actions } = store( NAMESPACE, {
 		},
 
 		/**
+		 * Idempotent first-fetch dispatcher for deep-linked search URLs
+		 * (`?s=…`, `?q=…`, or a URL carrying filter params). Safe to call
+		 * from multiple entry paths — only the first invocation actually
+		 * fires `actions.search()`. The flag is per-page-load and
+		 * deliberately never cleared; subsequent visitor-initiated searches
+		 * go through the regular `actions.search()` path.
+		 *
+		 * Two callers today, by design. `callbacks.initialize` fires from
+		 * the results-list block's `data-wp-init` directive on the regular
+		 * hydration path (Embedded experience, or the Overlay when the IA
+		 * runtime's auto-walk wins the race). `overlay-bootstrap.ensureHydrated`
+		 * fires after the bootstrap clones the overlay template into the
+		 * shell and runs `apis.render()` on each region — the safety net for
+		 * the Overlay case where the directive doesn't fire reliably for the
+		 * freshly-mounted subtree.
+		 */
+		dispatchInitialSearchIfNeeded() {
+			if ( initialSearchDispatched ) {
+				return;
+			}
+			if ( ! state.searchQuery && ! state.hasActiveFilters && ! state.hasSearchParam ) {
+				return;
+			}
+			initialSearchDispatched = true;
+			// syncUrl=false: URL already carries this query; avoid a duplicate history entry.
+			actions.search( { syncUrl: false } );
+		},
+
+		/**
 		 * Run a search and replace the result list.
 		 *
-		 * @param {object}      [options]                 - Options.
-		 * @param {boolean}     [options.syncUrl]         - Push to URL on success (default true);
-		 *                                                pass `false` for popstate-triggered searches.
-		 * @param {object|null} [options.staticPostTypes] - Initiating input's scope (`{include,exclude}`)
-		 *                                                or `null`. Set only on input-initiated searches;
-		 *                                                persists as the session's active scope.
+		 * @param {object}  [options]         - Options.
+		 * @param {boolean} [options.syncUrl] - Push to URL on success (default true);
+		 *                                    pass `false` for popstate-triggered searches.
 		 * @yield {Promise} fetch + response.json() promises.
 		 */
 		*search( options = {} ) {
 			const { syncUrl = true } = options;
-			// Persist scope from input-initiated searches; omitting leaves the active scope.
-			if ( 'staticPostTypes' in options ) {
-				activePostTypeScope = options.staticPostTypes ?? null;
-			}
 			const myToken = ++searchToken;
 			state.isLoading = true;
 			state.isLoadingMore = false;
@@ -890,9 +985,11 @@ const { state, actions } = store( NAMESPACE, {
 				if ( myToken !== searchToken ) {
 					return;
 				}
-				state.results = ( data.results ?? [] ).map( r =>
-					normalizeResult( r, state.locale, state.searchQuery )
-				);
+				state.results = ( data.results ?? [] ).map( ( r, i ) => ( {
+					...normalizeResult( r, state.locale, state.searchQuery ),
+					index: i,
+				} ) );
+				recordResultRenders( state.results );
 				state.totalResults = data.total ?? 0;
 				state.pageHandle = data.page_handle ?? null;
 				state.aggregations = remapAggregationsToFilterKeys(
@@ -923,10 +1020,6 @@ const { state, actions } = store( NAMESPACE, {
 				if ( myToken === searchToken ) {
 					state.isLoading = false;
 					state.resultsCountText = computeResultsCountText( state );
-					// One-shot: ends the pre-hydration skeleton window.
-					if ( ! state.skeletonHidden ) {
-						state.skeletonHidden = true;
-					}
 				}
 			}
 		},
@@ -949,12 +1042,13 @@ const { state, actions } = store( NAMESPACE, {
 				if ( myToken !== searchToken ) {
 					return;
 				}
-				state.results = [
-					...state.results,
-					...( data.results ?? [] ).map( r =>
-						normalizeResult( r, state.locale, state.searchQuery )
-					),
-				];
+				const offset = state.results.length;
+				const appended = ( data.results ?? [] ).map( ( r, i ) => ( {
+					...normalizeResult( r, state.locale, state.searchQuery ),
+					index: offset + i,
+				} ) );
+				state.results = [ ...state.results, ...appended ];
+				recordResultRenders( appended );
 				state.pageHandle = data.page_handle ?? null;
 			} catch {
 				if ( myToken === searchToken ) {
@@ -964,6 +1058,24 @@ const { state, actions } = store( NAMESPACE, {
 				if ( myToken === searchToken ) {
 					state.isLoadingMore = false;
 				}
+			}
+		},
+
+		/**
+		 * Fires a TrainTracks interact event when a visitor clicks a result.
+		 * Mirrors instant search's `action: 'click'` payload; `ui_position`
+		 * reuses the result's stamped index so it matches its render event.
+		 */
+		recordResultInteract() {
+			if ( state.disableTracking ) {
+				return;
+			}
+			const { result } = getContext();
+			if ( result?.railcar ) {
+				recordTrainTracksInteract( {
+					...trainTracksProps( result.railcar, result.index ),
+					action: 'click',
+				} );
 			}
 		},
 
@@ -1124,8 +1236,9 @@ const { state, actions } = store( NAMESPACE, {
 				staticFilterSelections,
 				state.filterConfigs
 			).gated;
-			// No `staticPostTypes` key: per-instance scope is session-local and
-			// never serialized; popstate keeps whatever the last input set.
+			// Static post-type scope is a page-level property of the
+			// `search-results` block, PHP-seeded once at template render;
+			// it is never URL-serialized and needs no popstate handling.
 			yield actions.search( { syncUrl: false } );
 		},
 
@@ -1452,6 +1565,9 @@ const { state, actions } = store( NAMESPACE, {
 				return;
 			}
 			initialized = true;
+			if ( ! state.disableTracking ) {
+				identifySite( state.siteId );
+			}
 			// PHP seed; `formatDate()` reads from module scope rather than threading per-call.
 			setSeededDateFormat( state.dateFormat );
 			window.addEventListener( 'popstate', actions.handlePopState );
@@ -1483,15 +1599,18 @@ const { state, actions } = store( NAMESPACE, {
 					state.filterLogic = gatedLogic;
 				}
 			}
+			// `hasSearchParam` catches `?s=` (empty value) — the param is
+			// present so the visitor expects a search to run, but
+			// `searchQuery` alone is `''` and indistinguishable from a
+			// URL that omits `s`. Seeded from PHP via build_initial_state().
+			// The dispatcher is idempotent so the overlay-bootstrap's
+			// belt-and-suspenders call after hydration doesn't double-fire.
 			if ( state.searchQuery || state.hasActiveFilters || state.hasSearchParam ) {
-				// `hasSearchParam` catches `?s=` (empty value) which `searchQuery`
-				// alone can't distinguish from a URL without `s`.
-				// syncUrl=false: URL already has this state; avoid a dup history entry.
-				actions.search( { syncUrl: false } );
+				actions.dispatchInitialSearchIfNeeded();
 			} else if ( droppedAny ) {
-				// No fetch will fire — clear the spinner + skeleton.
+				// No fetch will fire — clear the spinner; `skeletonHidden`
+				// derives to true once `isLoading` is false.
 				state.isLoading = false;
-				state.skeletonHidden = true;
 			}
 		},
 

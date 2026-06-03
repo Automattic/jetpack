@@ -130,22 +130,24 @@ class Filter_Wc_Attribute_Render_Test extends TestCase {
 	}
 
 	/**
-	 * Without a URL filter param, the block has no seeded buckets and no
-	 * initial-loading signal, so it must render with the `hidden` attribute
-	 * on the wrapper and must NOT include skeleton markup.
+	 * Without a URL filter param the block has no seeded buckets and no
+	 * initial-loading signal. The skeleton still renders — the IA runtime
+	 * re-shows it on a client-side search from a bare page — but carries a
+	 * static `hidden` attribute, and the wrapper is hidden too.
 	 */
-	public function test_no_skeleton_when_not_initial_loading(): void {
+	public function test_skeleton_hidden_when_not_initial_loading(): void {
 		$this->require_interactivity_api();
 
 		$markup = $this->render( array( 'attributeTaxonomy' => 'pa_color' ) );
 
-		$this->assertStringNotContainsString( 'jetpack-search-filter__list--skeleton', $markup );
-		$this->assertStringNotContainsString( 'jetpack-search-filter__item--skeleton', $markup );
-		// Wrapper must carry the static `hidden` attribute when there are no
-		// buckets and no initial load. Match `hidden` only as a standalone
-		// attribute on the opening div (preceded by whitespace, followed by
-		// whitespace / `>` / `=`) so the assertion can't be satisfied by
-		// `data-wp-bind--hidden`, `aria-hidden`, or `wrapperHidden` substrings.
+		$this->assertStringContainsString( 'jetpack-search-filter__list--skeleton', $markup );
+		$this->assertStringContainsString( 'jetpack-search-filter__item--skeleton', $markup );
+		// The skeleton list carries a static `hidden` attribute off the initial
+		// paint. Match `hidden` only as a standalone attribute (preceded by
+		// whitespace, followed by whitespace / `>` / `=`) so the assertion can't
+		// be satisfied by `data-wp-bind--hidden` or `aria-hidden`.
+		$this->assertSame( 1, preg_match( '/<ul[^>]*\s+hidden(?=\s|\/|>|=)/', $markup ) );
+		// The wrapper is hidden too — no buckets and no initial load.
 		$this->assertSame( 1, preg_match( '/<div[^>]*\s+hidden(?=\s|\/|>|=)/', $markup ) );
 	}
 
@@ -161,11 +163,13 @@ class Filter_Wc_Attribute_Render_Test extends TestCase {
 
 		$this->assertStringContainsString( 'jetpack-search-filter__list--skeleton', $markup );
 		$this->assertStringContainsString( 'jetpack-search-filter__item--skeleton', $markup );
-		// Wrapper must be visible while the skeleton is up — no static `hidden`
-		// attribute on the opening div. Matches `hidden` only as a standalone
-		// attribute so the indirect bindings (`data-wp-bind--hidden`,
-		// `aria-hidden`, `wrapperHidden`) don't false-positive.
+		// Wrapper and skeleton list must be visible while the skeleton is up —
+		// no static `hidden` attribute on the opening div or any `<ul>`. Matches
+		// `hidden` only as a standalone attribute so the indirect bindings
+		// (`data-wp-bind--hidden`, `aria-hidden`, `wrapperHidden`) don't
+		// false-positive.
 		$this->assertSame( 0, preg_match( '/<div[^>]*\s+hidden(?=\s|\/|>|=)/', $markup ) );
+		$this->assertSame( 0, preg_match( '/<ul[^>]*\s+hidden(?=\s|\/|>|=)/', $markup ) );
 	}
 
 	/**
