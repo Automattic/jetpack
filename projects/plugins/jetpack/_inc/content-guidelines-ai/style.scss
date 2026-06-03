@@ -110,11 +110,10 @@ $cg-diff-removed: #f8d7da;
 }
 
 // Badge in accordion headers.
-// Hide badge when accordion is expanded — the Accept/Dismiss
-// buttons inside already communicate the suggestion state.
-// stylelint-disable-next-line selector-max-compound-selectors
-.content-guidelines__accordion-trigger[aria-expanded="true"]
-.jetpack-content-guidelines-ai__badge-container {
+// Hide badge when the accordion is expanded — the Accept/Dismiss
+// buttons inside already communicate the suggestion state. The badge is
+// injected inside the CollapsibleCard trigger, which carries aria-expanded.
+[aria-expanded="true"] .jetpack-content-guidelines-ai__badge-container {
 	display: none;
 }
 

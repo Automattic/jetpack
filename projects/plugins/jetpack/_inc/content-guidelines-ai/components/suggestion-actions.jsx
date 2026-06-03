@@ -23,7 +23,8 @@ export default function SuggestionActions( { slug } ) {
 	// a separate React root injected into Gutenberg's page — we can't control classes
 	// on Gutenberg-owned elements through React props.
 	useEffect( () => {
-		const form = document.getElementById( `content-guidelines-${ slug }` );
+		const item = document.querySelector( `.guidelines__list-item[data-slug="${ slug }"]` );
+		const form = item?.querySelector( 'form' );
 		if ( ! form ) {
 			return;
 		}
