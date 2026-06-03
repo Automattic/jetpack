@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Add a TypeScript config so dashboard route files type-check correctly.
