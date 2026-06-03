@@ -11,7 +11,8 @@
 #
 # Optional:
 # - COVINFO: Response from jetpackcodecoverage.atomicsites.blog
-# - STATUS: Status of the coverage run.
+# - PHP_COVERAGE_STATUS: Status of the PHP coverage run.
+# - JS_COVERAGE_STATUS: Status of the JS coverage run.
 
 set -eo pipefail
 
@@ -47,9 +48,12 @@ else
 	echo '::endgroup::'
 fi
 
-# Find coverage run status, if necessary
-if [[ -z "$STATUS" ]]; then
-	echo "::group::Looking for latest coverage run"
+# Use per-group statuses passed from the workflow, or query them if not passed.
+if [[ -n "$PHP_COVERAGE_STATUS" && -n "$JS_COVERAGE_STATUS" ]]; then
+	# We only need the conclusion value for finished jobs, as it'll always be non-null.
+	RUNS=$( jq -nc --arg php "$PHP_COVERAGE_STATUS" --arg js "$JS_COVERAGE_STATUS" '[ { conclusion: $php }, { conclusion: $js } ]' )
+else
+	echo "::group::Looking for latest coverage runs"
 	COVERAGE_GROUPS=( php js )
 	RUNS='[]'
 	for GROUP in "${COVERAGE_GROUPS[@]}"; do
@@ -61,17 +65,18 @@ if [[ -z "$STATUS" ]]; then
 		)
 		RUNS=$( jq --argjson prev "$RUNS" '$prev + .check_runs' <<<"$J" )
 	done
-	# Pick worst status across split coverage jobs: failure beats in-progress beats success.
-	R=$( jq '
-		  first( .[] | select( .conclusion | IN( "failure", "timed_out", "cancelled" ) ) )
-		// first( .[] | select( .status | IN( "in_progress", "queued", "pending" ) ) )
-		// .[0]
-	' <<<"$RUNS" )
-	jq . <<<"$R"
 	echo "::endgroup::"
-	STATUS=$( jq -r '.conclusion // .status // null' <<<"$R" )
 fi
-echo "Last run status is $STATUS"
+# Pick worst status across split coverage jobs: failure beats in-progress beats anything-else beats success.
+R=$( jq '
+	  first( .[] | select( .conclusion | IN( "failure", "timed_out", "cancelled" ) ) )
+	// first( .[] | select( .status | IN( "in_progress", "queued", "pending" ) ) )
+	// first( .[] | select( .conclusion != "success" ) )
+	// .[0]
+' <<<"$RUNS" )
+jq . <<<"$R"
+STATUS=$( jq -r '.conclusion // .status // null' <<<"$R" )
+echo "Worst run status is $STATUS"
 
 echo '::group::Checking labels for PR'
 LABELS=$( curl -v -L --fail \

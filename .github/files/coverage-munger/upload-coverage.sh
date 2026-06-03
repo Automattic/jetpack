@@ -6,6 +6,8 @@
 # - GITHUB_SHA: Commit SHA.
 # - PR_ID: PR number or "trunk".
 # - SECRET: Shared secret.
+# - PHP_COVERAGE_STATUS: Status of the PHP coverage run.
+# - JS_COVERAGE_STATUS: Status of the JS coverage run.
 # - For non-trunk runs, anything needed by post-message.sh
 
 set -eo pipefail
@@ -104,5 +106,5 @@ TOKEN=
 echo '::endgroup::'
 
 if [[ "$PR_ID" != "trunk" ]]; then
-	STATUS=$STATUS COVINFO=$JSON .github/files/coverage-munger/post-message.sh
+	PHP_COVERAGE_STATUS=$PHP_COVERAGE_STATUS JS_COVERAGE_STATUS=$JS_COVERAGE_STATUS COVINFO=$JSON .github/files/coverage-munger/post-message.sh
 fi

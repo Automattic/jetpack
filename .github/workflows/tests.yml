@@ -63,7 +63,8 @@ jobs:
     # Note matrix-job outputs are kind of weird. Last-to-run job that sets a non-empty value wins.
     outputs:
       did-coverage: ${{ case( steps.run-tests.conclusion != 'cancelled' && steps.process-coverage.conclusion == 'success' && steps.upload-artifacts.conclusion == 'success', 'true', '' ) }}
-      coverage-status: ${{ case( matrix.coverage-group != '', steps.run-tests.conclusion, '' ) }}
+      php-coverage-status: ${{ case( matrix.coverage-group == 'php', steps.run-tests.conclusion, '' ) }}
+      js-coverage-status: ${{ case( matrix.coverage-group == 'js', steps.run-tests.conclusion, '' ) }}
 
     steps:
       - uses: actions/checkout@v6
@@ -355,7 +356,8 @@ jobs:
         env:
           PR_ID: ${{ case( github.event_name != 'pull_request', 'trunk', github.event.pull_request.number ) }}
           SECRET: ${{ secrets.CODECOV_SECRET }}
-          STATUS: ${{ needs.run-tests.outputs.coverage-status }}
+          PHP_COVERAGE_STATUS: ${{ needs.run-tests.outputs.php-coverage-status }}
+          JS_COVERAGE_STATUS: ${{ needs.run-tests.outputs.js-coverage-status }}
           PR_HEAD: ${{ github.event.pull_request.head.sha }}
           POST_MESSAGE_TOKEN: ${{ steps.get_token.outputs.token }}
         run: .github/files/coverage-munger/upload-coverage.sh
