@@ -11,7 +11,6 @@ import type { DropPlanFreeTier } from '../upload-drop';
 const file = ( name: string, type = '' ): File => new File( [ 'x' ], name, { type } );
 
 const PAID: DropPlanFreeTier = {
-	isAtLimit: false,
 	isFree: false,
 	isUnlimited: false,
 	limit: 1,
@@ -19,7 +18,6 @@ const PAID: DropPlanFreeTier = {
 };
 
 const FREE_EMPTY: DropPlanFreeTier = {
-	isAtLimit: false,
 	isFree: true,
 	isUnlimited: false,
 	limit: 1,
@@ -57,6 +55,12 @@ describe( 'filterVideoFiles', () => {
 		expect( filterVideoFiles( [ file( 'photo.jpg', 'image/jpeg' ) ] ) ).toEqual( [] );
 	} );
 
+	it( 'does not accept a non-video MIME type just because the name ends in a video extension', () => {
+		// A reported MIME type is authoritative: a PDF renamed to `.mp4` must
+		// not slip through the extension fallback.
+		expect( filterVideoFiles( [ file( 'evil.mp4', 'application/pdf' ) ] ) ).toEqual( [] );
+	} );
+
 	it( 'does not match an extension that is merely a substring', () => {
 		// "notmp4" ends with "mp4" but not ".mp4" — the dot guards against it.
 		expect( filterVideoFiles( [ file( 'video.notmp4' ) ] ) ).toEqual( [] );
@@ -71,8 +75,20 @@ describe( 'planVideoDrop', () => {
 	} );
 
 	it( 'returns at-limit when the free plan is already at its cap', () => {
-		const atLimit = { ...FREE_EMPTY, isAtLimit: true, videoCount: 1 };
+		const atLimit = { ...FREE_EMPTY, videoCount: 1 };
 		expect( planVideoDrop( [ file( 'a.mp4' ) ], atLimit ) ).toEqual( { kind: 'at-limit' } );
+	} );
+
+	it( 'never caps an unlimited plan, even when it is over the nominal limit', () => {
+		// The library hook can report `isUnlimited: true` alongside a videoCount
+		// at/over the limit; an unlimited plan must still upload everything.
+		const unlimitedOverLimit = { ...FREE_EMPTY, isUnlimited: true, videoCount: 5 };
+		const decision = planVideoDrop( [ file( 'a.mp4' ), file( 'b.mov' ) ], unlimitedOverLimit );
+		expect( decision ).toMatchObject( { kind: 'ok', skipped: 0 } );
+		expect( decision.kind === 'ok' && decision.toUpload.map( f => f.name ) ).toEqual( [
+			'a.mp4',
+			'b.mov',
+		] );
 	} );
 
 	it( 'uploads everything on a paid plan', () => {

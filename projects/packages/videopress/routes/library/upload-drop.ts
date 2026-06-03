@@ -26,10 +26,12 @@ const FALLBACK_VIDEO_EXTENSIONS = [
 // Free-tier facts the drop decision needs — the subset of `FreeTierState`
 // consumed when deciding what a drop is allowed to upload. Derived via `Pick`
 // (a type-only import, so this stays a pure, hook-free module) so it tracks
-// `FreeTierState` automatically instead of drifting from it.
+// `FreeTierState` automatically instead of drifting from it. Note the absence
+// of `isAtLimit`: the decision derives the cap from these primitives rather
+// than trusting that flag, so an unlimited plan can never be treated as capped.
 export type DropPlanFreeTier = Pick<
 	FreeTierState,
-	'isAtLimit' | 'isFree' | 'isUnlimited' | 'limit' | 'videoCount'
+	'isFree' | 'isUnlimited' | 'limit' | 'videoCount'
 >;
 
 // Outcome of inspecting a drop. The component maps each `kind` to a
@@ -41,18 +43,22 @@ export type DropDecision =
 	| { kind: 'ok'; toUpload: File[]; skipped: number };
 
 /**
- * Filter a dropped file set down to videos. A file qualifies when its MIME
- * type is `video/*` (covers `.mov` → video/quicktime, `.mp4`, `.webm`, …) or,
- * when the browser reports no MIME type, when its name ends in a known video
- * extension. Keeps the drop handler from trying to upload images, PDFs, etc.
+ * Filter a dropped file set down to videos. When the browser reports a MIME
+ * type, it is authoritative: the file qualifies only if it is `video/*` (the
+ * same contract the header file picker enforces via `accept="video/*"`, so
+ * `.mov` → video/quicktime is accepted, while a renamed PDF is not). Only when
+ * the browser reports *no* MIME type does it fall back to the file extension.
+ * Keeps the drop handler from trying to upload images, PDFs, etc.
  *
  * @param files - The files dropped onto the DropZone.
  * @return Only the files that look like videos.
  */
 export function filterVideoFiles( files: File[] ): File[] {
 	return files.filter( file => {
-		if ( file.type.startsWith( 'video/' ) ) {
-			return true;
+		// A reported MIME type is authoritative — don't let a video extension
+		// override a non-video type (e.g. a `.mp4`-renamed `application/pdf`).
+		if ( file.type ) {
+			return file.type.startsWith( 'video/' );
 		}
 		const name = file.name.toLocaleLowerCase();
 		return FALLBACK_VIDEO_EXTENSIONS.some( extension => name.endsWith( `.${ extension }` ) );
@@ -74,17 +80,20 @@ export function planVideoDrop( files: File[], freeTier: DropPlanFreeTier ): Drop
 		return { kind: 'no-videos' };
 	}
 
-	if ( freeTier.isAtLimit ) {
+	// Only the free, non-unlimited tier caps how many videos can be hosted;
+	// paid and grandfathered-unlimited plans take everything. Deriving the cap
+	// from these primitives (rather than trusting a precomputed `isAtLimit`)
+	// guarantees an unlimited plan is never treated as capped.
+	const isCapped = freeTier.isFree && ! freeTier.isUnlimited;
+	if ( ! isCapped ) {
+		return { kind: 'ok', toUpload: videoFiles, skipped: 0 };
+	}
+
+	const remaining = Math.max( 0, freeTier.limit - freeTier.videoCount );
+	if ( remaining === 0 ) {
 		return { kind: 'at-limit' };
 	}
 
-	// Free (non-unlimited) plans cap how many videos can be hosted, so only
-	// accept as many as there's room for. Paid/unlimited plans take everything.
-	const remaining =
-		freeTier.isFree && ! freeTier.isUnlimited
-			? Math.max( 0, freeTier.limit - freeTier.videoCount )
-			: Infinity;
 	const toUpload = videoFiles.slice( 0, remaining );
-
 	return { kind: 'ok', toUpload, skipped: videoFiles.length - toUpload.length };
 }

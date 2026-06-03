@@ -121,7 +121,6 @@ const StageInner = () => {
 	const handleFilesDrop = useCallback(
 		( files: File[] ) => {
 			const decision = planVideoDrop( files, {
-				isAtLimit,
 				isFree,
 				isUnlimited,
 				limit,
@@ -163,16 +162,7 @@ const StageInner = () => {
 				);
 			}
 		},
-		[
-			isAtLimit,
-			isFree,
-			isUnlimited,
-			limit,
-			videoCount,
-			startUpload,
-			createErrorNotice,
-			runUpgrade,
-		]
+		[ isFree, isUnlimited, limit, videoCount, startUpload, createErrorNotice, runUpgrade ]
 	);
 
 	const promoteLocal = useCallback(
