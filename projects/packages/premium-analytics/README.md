@@ -42,19 +42,17 @@ jetpack build packages/premium-analytics   # via Jetpack CLI
 ### Adding a route
 
 1. Create `routes/<name>/package.json`:
-
    ```json
    {
-   	"name": "<name>-route",
-   	"route": {
-   		"path": "/<name>",
-   		"page": "jetpack-premium-analytics"
-   	}
+     "name": "<name>-route",
+     "route": {
+       "path": "/<name>",
+       "page": "jetpack-premium-analytics"
+     }
    }
    ```
 
 2. Create `routes/<name>/stage.tsx` exporting `stage()`:
-
    ```tsx
    export const stage = () => <div>My new page</div>;
    ```
@@ -76,38 +74,10 @@ fixes the template or the minimum WordPress version is 7.0+.
 ### Init module (`packages/init/`)
 
 Serves two purposes:
-
 1. Sets the dashboard menu icon via `@wordpress/boot` store
 2. Forces `@wordpress/build` to track `@wordpress/boot` as a module
    dependency — without an init module that imports boot, the build
    skips it
-
-## Internal packages (`packages/*`)
-
-App-internal modules used only by this package — never published to npm, never
-shared across the monorepo. Resolution is entirely in-tree (the local symlink);
-the `@jetpack-premium-analytics/*` scope is never looked up against any registry.
-
-**The dual naming is structural.** `@wordpress/build` derives the import
-specifier as `@<wpPlugin.packageNamespace>/<dir>`, so the specifier here is
-always `@jetpack-premium-analytics/<dir>`. The package's own `name` field has
-to be different (`@automattic/jetpack-premium-analytics-<dir>`) because pnpm
-rejects the `_@…` escape and the repo name lint (`lint-project-structure.sh`)
-rejects the bare `@jetpack-premium-analytics/*` scope. They don't need to
-match: pnpm symlinks under the **dep key**, so the import resolves regardless
-of the linked package's `name`.
-
-Types/IDE: the `tsconfig.json` `paths` alias maps the specifier to
-`./packages/<dir>/src` (covered by `pnpm typecheck`).
-
-Build: to import one from a route or another package, add a `link:` dep on
-**this package's `package.json`** (`projects/packages/premium-analytics/package.json` —
-routes aren't workspace members, so the dep belongs here, not in the route's
-`package.json`):
-
-```jsonc
-"dependencies": { "@jetpack-premium-analytics/<dir>": "link:packages/<dir>" }
-```
 
 ## File structure
 
