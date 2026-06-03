@@ -1,8 +1,9 @@
 import { isWpcomPlatformSite, isSimpleSite } from '@automattic/jetpack-script-data';
 import { useBlockProps, InspectorControls } from '@wordpress/block-editor';
-import { ExternalLink, ToggleControl, PanelBody } from '@wordpress/components';
+import { ToggleControl, PanelBody } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
+import { Link } from '@wordpress/ui';
 import { getValidatedAttributes } from '../../shared/get-validated-attributes';
 import avatar1 from '../blogging-prompt/example-avatars/avatar1.jpg';
 import avatar2 from '../blogging-prompt/example-avatars/avatar2.jpg';
@@ -23,9 +24,9 @@ function LikeEdit( { attributes, setAttributes } ) {
 			<InspectorControls key="like-inspector">
 				{ isJetpackSite && (
 					<div className="wp-block-jetpack-like__learn-more">
-						<ExternalLink href={ 'https://jetpack.com/support/likes/' }>
+						<Link openInNewTab href={ 'https://jetpack.com/support/likes/' }>
 							{ __( 'Learn more', 'jetpack' ) }
-						</ExternalLink>
+						</Link>
 					</div>
 				) }
 				<PanelBody title={ __( 'Settings', 'jetpack' ) }>

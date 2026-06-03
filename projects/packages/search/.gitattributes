@@ -1,29 +1,28 @@
 # Files not needed to be distributed.
-.gitattributes                                           export-ignore
-.github/                                                 export-ignore
-package.json                                             export-ignore
 
 # Files to include in production build.
 /build/**                                                production-include
 
 # Files not needed in the production build.
-/changelog/**                                            production-exclude
-/.gitignore                                              production-exclude
+# (see also entries in the monorepo root .gitattributes)
 /.size-limit.js                                          production-exclude
-/babel.config*                                           production-exclude
-/jest.config.js                                          production-exclude
 /jest.url-tests.config.js                                production-exclude
 /postcss.config.js                                       production-exclude
+/docs/**                                                 production-exclude
 /tools/**                                                production-exclude
-/tests/**                                                production-exclude
 /src/**/test/**                                          production-exclude
-.phpcs.dir.xml                                           production-exclude
-/src/customberg/**/*.js                                  production-exclude
-/src/customberg/**/*.jsx                                 production-exclude
-/src/customberg/**/*.scss                                production-exclude
-/src/dashboard/**/*.js                                   production-exclude
-/src/dashboard/**/*.jsx                                  production-exclude
-/src/dashboard/**/*.scss                                 production-exclude
-/src/instant-search/**/*.js                              production-exclude
-/src/instant-search/**/*.jsx                             production-exclude
-/src/instant-search/**/*.scss                            production-exclude
+/src/**/*.ts                                             production-exclude
+/src/**/*.tsx                                            production-exclude
+/src/**/*.jsx                                            production-exclude
+/src/**/*.scss                                           production-exclude
+
+# Agent / contributor docs. The monorepo-root rules drop these by basename,
+# but those don't travel with the package when it's mirrored standalone.
+/src/**/AGENTS.md                                        production-exclude
+/src/**/CLAUDE.md                                        production-exclude
+
+# `src/widgets/js/` has no build step — `class-search-widget.php` enqueues
+# those files straight from source, so they must ship. Every other src
+# subdirectory is bundled into `/build/**` and its source is dev-only.
+/src/**/*.js                                             production-exclude
+/src/widgets/**/*.js                                     !production-exclude

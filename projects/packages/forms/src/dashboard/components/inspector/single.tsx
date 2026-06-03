@@ -129,7 +129,7 @@ const SingleResponseView = ( {
 	);
 
 	return (
-		<Page showSidebarToggle={ false } hasPadding={ false }>
+		<Page hasPadding={ false }>
 			<div className="jp-forms-response-content">
 				<HStack
 					spacing="0"

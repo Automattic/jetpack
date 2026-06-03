@@ -64,7 +64,7 @@ export const calculateImageUrl = (
 	customImageId: number | null,
 	featuredImageId: number | null,
 	defaultImageId: number | null,
-	getMedia: ( id: number | null ) => Attachment
+	getMedia: ( id: number | null ) => Attachment | null | undefined
 ) => {
 	if ( hasNoValidImage( imageType, customImageId, featuredImageId, defaultImageId ) ) {
 		return null;
@@ -73,8 +73,13 @@ export const calculateImageUrl = (
 	const usedImageId = getImageId( imageType, customImageId, featuredImageId, defaultImageId );
 
 	const media = getMedia( usedImageId );
-	if ( ! media ) {
+	// undefined means the entity record hasn't been fetched yet (still loading).
+	// null means the resolution finished but the attachment doesn't exist (deleted).
+	if ( media === undefined ) {
 		return FEATURED_IMAGE_STILL_LOADING;
+	}
+	if ( ! media ) {
+		return null;
 	}
 	return getMediaSourceUrl( media );
 };

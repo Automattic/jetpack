@@ -1,4 +1,4 @@
-## Jetpack 15.7
+## Jetpack 15.9
 
 ### Before you start:
 
@@ -9,64 +9,97 @@
   - Edit your `wp-config.php` file to include: `define( 'JETPACK_BLOCKS_VARIATION', 'beta' );`
   - Or add the following to something like a code snippet plugin: `add_filter( 'jetpack_blocks_variation', function () { return 'beta'; } );`
 
+### Donations Block
+
+- Add a Donations Form block and confirm the existing in-page display mode still works.
+- Configure donation frequencies, default frequency, per-frequency default amounts, suggested custom amount, and min/max donation amounts.
+- Confirm the block prevents disabling every frequency.
+- Test border, color, typography, spacing, active tab color, and selected amount color settings in the editor and frontend.
+- Use the content alignment control and confirm left, center, and right alignment work in the editor and frontend.
+- Confirm the Donate button and form inherit theme styles where expected.
+- Switch the block to Pop-up mode and confirm the editor shows a trigger button instead of the full form.
+- Change the button text, toggle icons, and try the available icon choices.
+- View the page on the frontend, open the pop-up, and confirm the form opens in a modal.
+- Close the modal with Escape, the backdrop, and the close button.
+- Confirm keyboard focus stays inside the modal while open and returns to the trigger when closed.
+- Enable Sticky mode and confirm the trigger remains visible while scrolling.
+- Insert the new Tips variation and confirm it uses coffee-themed defaults, sticky pop-up mode, one-time/monthly amounts, and no annual/custom amount defaults.
+
+### Image Studio and Feature Clips
+
+- On a site where Image Studio is enabled and the plan supports video uploads, confirm the video clip generation entry point appears in the editor.
+- On sites where Image Studio is disabled or video uploads are unsupported, confirm the clip entry point is hidden.
+- Generate a short clip and confirm it is saved as a video attachment in the Media Library.
+- Save and reload the post, then confirm the generated clip remains connected to the post.
+- Watch for unclear rate-limit, safety-filter, failed-generation, or unsupported-plan states.
+
+### Reader Chat
+
+- On an eligible connected site, enable Reader Chat from the Jetpack Search settings surface.
+- View the public frontend and confirm the chat widget appears.
+- Ask a question based on public site content and confirm the answer is grounded in that content.
+- Confirm the widget does not appear on Coming Soon or unlaunched sites.
+- Watch for broken eligibility states, raw errors, or confusing rate-limit messages.
+
+### Jetpack Search
+
+- Open `wp-admin/admin.php?page=jetpack-search` and confirm the URL normalizes to `#/overview`.
+- Open `wp-admin/admin.php?page=jetpack-search#/settings` and confirm Settings opens directly.
+- Click between tabs and confirm browser Back returns to the previous tab.
+- From Jetpack's Performance page, use the "Manage Search settings" link and confirm it opens Search settings.
+- Toggle AI Agent Access in the Search dashboard, save, reload, and confirm the setting persists.
+- Use the public search UI and confirm autocomplete suggestions appear as you type.
+
+### Jetpack AI Sidebar: AI Editorial Review
+
+- On a connected site with Jetpack AI access, open a saved draft post in the block editor.
+- Confirm the Jetpack AI sidebar appears for posts.
+- Run AI Editorial Review and confirm the result renders in the sidebar.
+- Select a paragraph or heading and try the visible block-level suggestions.
+- Confirm AI Editorial Review does not appear in the page editor.
+
+### Newsletter
+
+- On a fresh connected Jetpack site, confirm the Newsletter / Subscriptions module is active by default.
+- On an existing connected site, confirm the module becomes active after upgrade when it has not been explicitly disabled.
+- If you manually disable the module, confirm Jetpack respects that choice and does not re-enable it.
+- In Jetpack > Settings > Newsletter, enable Newsletter categories, select categories, save, then save again without changes. Confirm the second save succeeds.
+
+### Forms
+
+- Open the block editor and insert or edit a Form block.
+- Confirm the Form block works normally.
+- Check the browser console and confirm there is no `Uncaught TypeError: n[e] is not a function` error.
+
+### Podcast and Create AI Podcast
+
+- On an eligible WordPress.com Simple or Atomic site, open Jetpack > Podcast and confirm the Podcast dashboard loads without console errors.
+- If the setup screen appears, choose a post category and confirm the main Podcast tabs load.
+- If available, open Media > Create AI Podcast and start a generation from recent posts or selected posts.
+- Confirm generation shows clear progress, credit, success, or failure states, and that a successful draft can be opened and edited.
+- On a site where Podcast is not available, confirm Podcast entry points are hidden or show a clear eligibility message.
+
+### Abilities API and agent-facing features
+
+- If the WP Abilities API is available, confirm Jetpack abilities appear only when their module/product gates are satisfied.
+- Confirm Shortlinks abilities require edit-posts access.
+- Confirm Sitemaps status reads and rebuild dispatch work when Sitemaps is active.
+- Confirm Related Posts ability requests can fetch related posts and respect configured result limits.
+
+### Regression checks
+
+- Duplicate a post with backslashes in the title, content, and excerpt. Confirm the backslashes are preserved.
+- Render a Google Maps shortcode with encoded characters in the place name and confirm the intended place text is preserved.
+- Configure a site-wide Social message template and publish/share a post without a per-post custom message. Confirm Social uses the site-wide template.
+- In VideoPress, upload a first video from the admin dashboard and confirm the "Add new video" button remains visible afterward.
+- In Site Verification, save a raw verification code and confirm the rendered `<meta>` tag has no trailing slash.
+
+### General smoke testing
+
+- Open Jetpack dashboard, My Jetpack, Settings, Search, Newsletter, AI, and the block editor.
+- Check browser console errors on each major screen.
+- Test common publish, settings-save, and product/upgrade flows.
+
 You can see a [full list of changes in this release here](https://github.com/Automattic/jetpack-production/blob/trunk/CHANGELOG.md). Please feel free to test any and all functionality mentioned!
 
-### Image Compare block caption link fix
-
-[Image Compare Block: Fix disappearing link bar when highlighting part of a caption](https://github.com/Automattic/jetpack/pull/47197)
-
-Changes were made to fix an issue related to captions – previously if text was added as a caption, it wasn't possible to highlight that text and add a link. Now you should be able to highlight the text and see the toolbar allowing you to add a link.
-
-To test:
-
-1. Create a post with an Image Compare block.
-2. Once the images are added, add a caption.
-3. Highlight the caption and you should see the toolbar, allowing you to add a link.
-4. Add a link and make sure that on save the link remains, as well as allowing you to highlight the text again and change the link.
-5. Make sure general Image Compare block behaviour continues to work as expected.
-
-### AI Assistant jitter fix
-
-[Fix AI Assistant modal shaking when content streams in](https://github.com/Automattic/jetpack/pull/47616)
-
-Prior to this PR, the AI Assistant would violently shake while outputting content. To test the fix:
-
-1. Open a post in the block editor.
-2. Open the AI Assistant from the Jetpack sidebar.
-3. Use "Optimize title" or request feedback on the post.
-4. Observe the modal as text streams in — it should no longer shake or jitter.
-5. If the modal content is long enough to scroll, verify the header stays pinned at the top.
-
-### Admin menu and header tweaks
-
-[Admin Menu: Improve navigation and header consistency](https://github.com/Automattic/jetpack/pull/47417)
-
-**Menu Ordering**
-
-1. Install and activate Jetpack with Backup, Scan, Subscribers, Activity Log, and Jetpack Manage features enabled.
-2. Go to WP Admin → Jetpack.
-3. Verify menu order:
-   - Internal links appear first (My Jetpack, VideoPress, Social, Backup, Forms, etc.)
-   - "Settings" appears as the last internal link
-   - External links appear after Settings (Activity Log ↗, Subscribers ↗, Jetpack Manage ↗, Scan ↗, VaultPress Backup ↗)
-
-**Menu Titles**
-
-Verify in the Jetpack menu:
-- Akismet menu shows as "Anti-spam" (not "Akismet Anti-spam")
-- Backup menu shows as "Backups" (not "VaultPress Backup")
-
-**Button Component**
-
-1. Go to Jetpack → Backups.
-2. Verify the "Back up now" button displays correctly and functions properly.
-3. Click the button and verify it shows loading state during backup queue.
-
-**Header Consistency**
-
-1. Visit various Jetpack admin pages (Backup, Forms, Search, etc.).
-2. Verify header subtitle spacing is consistent across pages.
-
-### WordPress 7.0 compatibility
-
-The next stable release of WordPress is around the corner, so poke around at some of the new features that need testing. A partial list of features can be found [here](https://make.wordpress.org/core/). Report any compatibility issues you might find!
+**Thank you for all your help!**

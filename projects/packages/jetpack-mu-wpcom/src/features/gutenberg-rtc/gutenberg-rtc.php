@@ -43,12 +43,7 @@ function wpcom_is_rtc_http_polling_rollout() {
  * @return bool
  */
 function wpcom_is_rtc_websocket_rollout() {
-	$blog_id = get_wpcom_blog_id();
-
-	if (
-		defined( 'IS_WPCOM' ) && IS_WPCOM &&
-		( $blog_id % 100 < 5 )
-	) {
+	if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 		return true;
 	}
 	return false;
@@ -88,6 +83,7 @@ function wpcom_enable_rtc() {
 	}
 
 	$has_needed_gutenberg_version = defined( 'GUTENBERG_VERSION' ) && is_string( GUTENBERG_VERSION ) && version_compare( (string) GUTENBERG_VERSION, '22.7.0', '>=' );
+
 	if ( ! $has_needed_gutenberg_version ) {
 		return false;
 	}
@@ -119,6 +115,6 @@ function wpcom_rtc_providers( $providers ) {
 }
 add_filter( 'jetpack_rtc_providers', 'wpcom_rtc_providers' );
 
-add_filter( 'wpcom_rtc_enable_limit_notices', '__return_false', 99 );
+add_filter( 'jetpack_rtc_enable_limit_notices', '__return_false', 99 );
 
 \Automattic\Jetpack\RTC::init();

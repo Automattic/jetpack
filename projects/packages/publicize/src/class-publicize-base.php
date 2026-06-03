@@ -319,7 +319,7 @@ abstract class Publicize_Base {
 		}
 
 		$connections = $this->get_connections( $service_name, $_blog_id, $_user_id );
-		return ( is_array( $connections ) && count( $connections ) > 0 ? true : false );
+		return is_array( $connections ) && count( $connections ) > 0;
 	}
 
 	/**
@@ -371,8 +371,6 @@ abstract class Publicize_Base {
 				return 'Google Drive';
 			case 'instagram-business':
 				return 'Instagram';
-			case 'x':
-				return 'X';
 			case 'twitter':
 			case 'facebook':
 			case 'tumblr':
@@ -533,10 +531,6 @@ abstract class Publicize_Base {
 			return 'https://twitter.com/' . substr( $cmeta['external_display'], 1 ); // Has a leading '@'.
 		}
 
-		if ( 'x' === $service_name && isset( $cmeta['external_name'] ) ) {
-			return 'https://x.com/' . $cmeta['external_name'];
-		}
-
 		if ( 'bluesky' === $service_name ) {
 			return 'https://bsky.app/profile/' . $cmeta['external_id'];
 		}
@@ -606,7 +600,6 @@ abstract class Publicize_Base {
 			case 'mastodon':
 				return $cmeta['external_display'] ?? null;
 
-			case 'x':
 			case 'bluesky':
 			case 'threads':
 				return $cmeta['external_name'] ?? null;
@@ -1127,11 +1120,18 @@ abstract class Publicize_Base {
 	 * Registers for each post type that with `publicize` feature support.
 	 */
 	public function register_post_meta() {
+		/*
+		 * Default the share-message meta to the saved global template
+		 */
+		$message_default = Current_Plan::supports( 'social-message-templates' )
+			? ( new Jetpack_Social_Settings\Settings() )->get_message_template()
+			: '';
+
 		$message_args = array(
 			'type'          => 'string',
 			'description'   => __( 'The message to use instead of the title when sharing to Jetpack Social services', 'jetpack-publicize-pkg' ),
 			'single'        => true,
-			'default'       => '',
+			'default'       => $message_default,
 			'show_in_rest'  => array(
 				'name' => 'jetpack_publicize_message',
 			),
@@ -1245,11 +1245,16 @@ abstract class Publicize_Base {
 			'auth_callback' => array( $this, 'message_meta_auth_callback' ),
 		);
 
+		$customize_per_network_default = (
+			Current_Plan::supports( 'social-message-templates' )
+			&& $this->any_connection_has_custom_template()
+		);
+
 		$customize_per_network_args = array(
 			'type'          => 'boolean',
 			'description'   => __( 'Whether to enable per-network customization.', 'jetpack-publicize-pkg' ),
 			'single'        => true,
-			'default'       => false,
+			'default'       => $customize_per_network_default,
 			'show_in_rest'  => $this->has_paid_features(),
 			'auth_callback' => array( $this, 'message_meta_auth_callback' ),
 		);
@@ -1273,6 +1278,21 @@ abstract class Publicize_Base {
 			register_meta( 'post', self::POST_CONNECTION_OVERRIDES, $connection_overrides_args );
 			register_meta( 'post', self::POST_CUSTOMIZE_PER_NETWORK, $customize_per_network_args );
 		}
+	}
+
+	/**
+	 * Whether any connection available to the current user has a custom message template.
+	 *
+	 * @return bool
+	 */
+	protected function any_connection_has_custom_template() {
+		foreach ( Connections::get_all_for_user() as $connection ) {
+			if ( '' !== trim( (string) ( $connection['template'] ?? '' ) ) ) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	/**
@@ -1352,7 +1372,7 @@ abstract class Publicize_Base {
 		$submit_post = $this->should_submit_post_pre_checks( $post );
 
 		// phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.MissingUnslash, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- We're only checking if a value is set
-		$admin_page = isset( $_POST[ $this->ADMIN_PAGE ] ) ? $_POST[ $this->ADMIN_PAGE ] : null;
+		$admin_page = $_POST[ $this->ADMIN_PAGE ] ?? null;
 
 		// Did this request happen via wp-admin?
 		$from_web = isset( $_SERVER['REQUEST_METHOD'] )

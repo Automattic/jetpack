@@ -60,7 +60,7 @@ export const ProgressBar = ( { playerId, slides, disabled, onSlideSeek, maxBulle
 			) }
 			{ Array.from( Array( bulletCount ), ( _, i ) => i + 1 ).map( ( slide, bulletIndex ) => {
 				const slideIndex = bulletIndex + firstReachableSlideIndex;
-				let progress = null;
+				let progress;
 				if ( slideIndex < currentSlideIndex ) {
 					progress = 100;
 				} else if ( slideIndex > currentSlideIndex ) {

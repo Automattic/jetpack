@@ -26,7 +26,13 @@ const defaultTheme: CompleteChartTheme = {
 	},
 	seriesLineStyles: [],
 	glyphs: [],
-	svgLabelSmall: { fill: 'var(--jp-gray-80, #2c3338)' },
+	// `fontFamily: 'inherit'` overrides visx's hardcoded default font stack
+	// (`-apple-system,BlinkMacSystemFont,Roboto,Helvetica Neue,sans-serif`)
+	// that `buildChartTheme` injects as an inline style on SVG `<text>`
+	// elements for axis labels and ticks. Setting `inherit` lets SVG text
+	// pick up the host application's font-family via normal CSS inheritance.
+	svgLabelSmall: { fill: 'var(--jp-gray-80, #2c3338)', fontFamily: 'inherit' },
+	svgLabelBig: { fontFamily: 'inherit' },
 	annotationStyles: {
 		label: {
 			anchorLineStroke: 'var(--jp-gray-80, #2c3338)',

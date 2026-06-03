@@ -5,11 +5,25 @@ namespace Automattic\Jetpack;
 use Automattic\Jetpack\JITMS\JITM;
 use Automattic\Jetpack\JITMS\Rest_Api_Endpoints;
 use Brain\Monkey;
+use Brain\Monkey\Functions;
 use Mockery\Adapter\Phpunit\MockeryPHPUnitIntegration;
+use PHPUnit\Framework\Attributes\PreserveGlobalState;
+use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 use PHPUnit\Framework\TestCase;
 
+/**
+ * @runTestsInSeparateProcesses
+ * @preserveGlobalState disabled
+ */
+#[RunTestsInSeparateProcesses]
+#[PreserveGlobalState( false )]
 class Rest_Api_Endpoints_Test extends TestCase {
 	use MockeryPHPUnitIntegration;
+
+	/**
+	 * @var \Mockery\MockInterface
+	 */
+	private $mock_jitm;
 
 	/**
 	 * Set up.
@@ -17,6 +31,9 @@ class Rest_Api_Endpoints_Test extends TestCase {
 	public function setUp(): void {
 		parent::setUp();
 		Monkey\setUp();
+		Functions\when( 'urldecode_deep' )->returnArg( 1 );
+		$this->mock_jitm = \Mockery::mock( 'overload:' . JITM::class );
+		$this->mock_jitm->shouldReceive( 'get_instance' )->andReturnSelf();
 	}
 
 	/**
@@ -31,10 +48,8 @@ class Rest_Api_Endpoints_Test extends TestCase {
 	 * Test that get_jitm_message returns empty array when JITMs are disabled.
 	 */
 	public function test_get_jitm_message_returns_empty_when_disabled() {
-		$mock_jitm = \Mockery::mock( 'overload:' . JITM::class );
-		$mock_jitm->shouldReceive( 'get_instance' )->andReturnSelf();
-		$mock_jitm->shouldReceive( 'jitms_enabled' )->once()->andReturn( false );
-		$mock_jitm->shouldNotReceive( 'get_messages' );
+		$this->mock_jitm->shouldReceive( 'jitms_enabled' )->once()->andReturn( false );
+		$this->mock_jitm->shouldNotReceive( 'get_messages' );
 
 		$request = $this->create_mock_request( 'test_path', '' );
 
@@ -47,10 +62,8 @@ class Rest_Api_Endpoints_Test extends TestCase {
 	 * Test that get_jitm_message passes empty array when query is empty.
 	 */
 	public function test_get_jitm_message_with_empty_query() {
-		$mock_jitm = \Mockery::mock( 'overload:' . JITM::class );
-		$mock_jitm->shouldReceive( 'get_instance' )->andReturnSelf();
-		$mock_jitm->shouldReceive( 'jitms_enabled' )->once()->andReturn( true );
-		$mock_jitm->shouldReceive( 'get_messages' )
+		$this->mock_jitm->shouldReceive( 'jitms_enabled' )->once()->andReturn( true );
+		$this->mock_jitm->shouldReceive( 'get_messages' )
 			->once()
 			->with( 'test_path', array(), false )
 			->andReturn( array( 'test_message' ) );
@@ -66,10 +79,8 @@ class Rest_Api_Endpoints_Test extends TestCase {
 	 * Test that get_jitm_message correctly parses query string into array.
 	 */
 	public function test_get_jitm_message_parses_query_string() {
-		$mock_jitm = \Mockery::mock( 'overload:' . JITM::class );
-		$mock_jitm->shouldReceive( 'get_instance' )->andReturnSelf();
-		$mock_jitm->shouldReceive( 'jitms_enabled' )->once()->andReturn( true );
-		$mock_jitm->shouldReceive( 'get_messages' )
+		$this->mock_jitm->shouldReceive( 'jitms_enabled' )->once()->andReturn( true );
+		$this->mock_jitm->shouldReceive( 'get_messages' )
 			->once()
 			->with(
 				'woomobile:my_store:admin_notices',
@@ -96,10 +107,8 @@ class Rest_Api_Endpoints_Test extends TestCase {
 	 * Test that get_jitm_message handles URL-encoded query strings.
 	 */
 	public function test_get_jitm_message_handles_url_encoded_query() {
-		$mock_jitm = \Mockery::mock( 'overload:' . JITM::class );
-		$mock_jitm->shouldReceive( 'get_instance' )->andReturnSelf();
-		$mock_jitm->shouldReceive( 'jitms_enabled' )->once()->andReturn( true );
-		$mock_jitm->shouldReceive( 'get_messages' )
+		$this->mock_jitm->shouldReceive( 'jitms_enabled' )->once()->andReturn( true );
+		$this->mock_jitm->shouldReceive( 'get_messages' )
 			->once()
 			->with(
 				'test_path',
@@ -121,10 +130,8 @@ class Rest_Api_Endpoints_Test extends TestCase {
 	 * Test that full_jp_logo_exists parameter is correctly passed.
 	 */
 	public function test_get_jitm_message_passes_logo_exists_param() {
-		$mock_jitm = \Mockery::mock( 'overload:' . JITM::class );
-		$mock_jitm->shouldReceive( 'get_instance' )->andReturnSelf();
-		$mock_jitm->shouldReceive( 'jitms_enabled' )->once()->andReturn( true );
-		$mock_jitm->shouldReceive( 'get_messages' )
+		$this->mock_jitm->shouldReceive( 'jitms_enabled' )->once()->andReturn( true );
+		$this->mock_jitm->shouldReceive( 'get_messages' )
 			->once()
 			->with( 'test_path', array(), true )
 			->andReturn( array() );
@@ -143,7 +150,7 @@ class Rest_Api_Endpoints_Test extends TestCase {
 	 * @return \WP_REST_Request Mock request object.
 	 */
 	private function create_mock_request( $message_path, $query, $full_jp_logo_exists = 'false' ) {
-		$request = \Mockery::mock( 'WP_REST_Request' );
+		$request = \Mockery::mock( 'WP_REST_Request, ArrayAccess' );
 		$request->shouldReceive( 'offsetGet' )->with( 'message_path' )->andReturn( $message_path );
 		$request->shouldReceive( 'offsetGet' )->with( 'query' )->andReturn( $query );
 		$request->shouldReceive( 'offsetGet' )->with( 'full_jp_logo_exists' )->andReturn( $full_jp_logo_exists );

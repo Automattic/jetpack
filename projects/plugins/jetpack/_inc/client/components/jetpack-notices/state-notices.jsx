@@ -1,8 +1,8 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { isJetpackSelfHostedSite } from '@automattic/jetpack-script-data';
-import { ExternalLink } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
+import { Link } from '@wordpress/ui';
 import { Component } from 'react';
 import { connect } from 'react-redux';
 import SimpleNotice from 'components/notice';
@@ -29,7 +29,7 @@ class JetpackStateNotices extends Component {
 
 	getErrorFromKey = key => {
 		const errorDesc = this.props.jetpackStateNoticesErrorDescription || false;
-		let message = '';
+		let message;
 
 		switch ( key ) {
 			case 'cheatin':
@@ -86,7 +86,7 @@ class JetpackStateNotices extends Component {
 						'jetpack'
 					),
 					{
-						a: <ExternalLink href={ getRedirectUrl( 'wpcom-tos' ) } />,
+						a: <Link openInNewTab href={ getRedirectUrl( 'wpcom-tos' ) } />,
 					}
 				);
 				break;

@@ -2,7 +2,7 @@ import clsx from 'clsx';
 import { baseDomain, firstValid, hardTruncation, shortEnough, stripHtmlTags } from '../helpers';
 import { TwitterCardProps } from './types';
 
-const DESCRIPTION_LENGTH = 200;
+const DESCRIPTION_LENGTH = 280;
 
 const twitterDescription = firstValid(
 	shortEnough( DESCRIPTION_LENGTH ),

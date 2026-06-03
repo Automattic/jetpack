@@ -1,6 +1,6 @@
 import '../../common/public-path';
 import { createRoot } from 'react-dom/client';
-import CelebrateLaunchModal from './celebrate-launch/celebrate-launch-modal';
+import CelebrateLaunchModal from '../../common/celebrate-launch/celebrate-launch-modal';
 import WpcomDailyWritingPrompt from './wpcom-daily-writing-prompt';
 import WpcomGeneralTasksWidget from './wpcom-general-tasks-widget';
 import WpcomLaunchpadWidget from './wpcom-launchpad-widget';

@@ -138,6 +138,17 @@ class Contact_Form extends Contact_Form_Shortcode {
 	public $has_verified_jwt = false;
 
 	/**
+	 * Whether the current submission originated from an authenticated form preview.
+	 *
+	 * When true, the resulting feedback is marked as a test submission — Akismet
+	 * is skipped, the notification email is annotated, and the response is
+	 * excluded from the default CSV export.
+	 *
+	 * @var bool
+	 */
+	private $is_preview_submission = false;
+
+	/**
 	 * The source of the feedback entry.
 	 *
 	 * @var Feedback_Source
@@ -528,7 +539,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 			}
 
 			// Determine which cipher was used (stored in JWT or default to GCM)
-			$cipher = isset( $data['cipher'] ) ? $data['cipher'] : 'aes-256-gcm';
+			$cipher = $data['cipher'] ?? 'aes-256-gcm';
 
 			// Check if the cipher is available on this server
 			$available_cipher_methods = array_map( 'strtolower', openssl_get_cipher_methods() );
@@ -617,6 +628,25 @@ class Contact_Form extends Contact_Form_Shortcode {
 	 */
 	public function set_source( $source ) {
 		$this->source = $source;
+	}
+
+	/**
+	 * Flag whether the current submission originated from an authenticated form preview.
+	 *
+	 * @param bool $is_preview_submission Whether the submission came from form preview.
+	 * @return void
+	 */
+	public function set_is_preview_submission( $is_preview_submission ) {
+		$this->is_preview_submission = (bool) $is_preview_submission;
+	}
+
+	/**
+	 * Whether the current submission is a test submission coming from form preview.
+	 *
+	 * @return bool
+	 */
+	public function is_preview_submission() {
+		return $this->is_preview_submission;
 	}
 
 	/**
@@ -1249,7 +1279,6 @@ class Contact_Form extends Contact_Form_Shortcode {
 				'invalid_form_empty' => __( 'The form you are trying to submit is empty.', 'jetpack-forms' ),
 				'invalid_form'       => __( 'Please fill out the form correctly.', 'jetpack-forms' ),
 				'network_error'      => __( 'Connection issue while submitting the form. Check that you are connected to the Internet and try again.', 'jetpack-forms' ),
-				'preview_mode'       => __( 'Form submissions are disabled in preview mode.', 'jetpack-forms' ),
 			),
 			'admin_ajax_url' => admin_url( 'admin-ajax.php' ),
 		);
@@ -1666,7 +1695,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 			$images = self::get_images( $field_data['value'] );
 			$files  = self::get_files( $field_data['value'] );
 			$rating = self::get_rating( $field_data['value'] );
-			$type   = isset( $field_data['type'] ) ? $field_data['type'] : 'text';
+			$type   = $field_data['type'] ?? 'text';
 
 			$formatted_submission_data[] = array(
 				'label'          => Util::maybe_add_colon_to_label( $field_data['label'] ),
@@ -1717,7 +1746,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 		if ( is_array( $value ) && isset( $value['type'] ) && $value['type'] === 'rating' ) {
 			$rating     = isset( $value['rating'] ) ? (int) $value['rating'] : 0;
 			$max_rating = isset( $value['maxRating'] ) ? (int) $value['maxRating'] : 5;
-			$icon_style = isset( $value['iconStyle'] ) ? $value['iconStyle'] : 'stars';
+			$icon_style = $value['iconStyle'] ?? 'stars';
 
 			// Generate translated screen reader text.
 			$icon_label = 'hearts' === $icon_style
@@ -1743,6 +1772,13 @@ class Contact_Form extends Contact_Form_Shortcode {
 	 * @return string The SVG icon HTML.
 	 */
 	private static function get_field_type_icon( $field_type ) {
+		// Reject field types that don't fit the expected 'field-{type}' naming
+		// convention. Valid types are non-empty strings of lowercase letters,
+		// digits, and hyphens starting with a letter.
+		if ( ! is_string( $field_type ) || ! preg_match( '/^[a-z][a-z0-9-]*$/', $field_type ) ) {
+			return '';
+		}
+
 		// Map field types that don't follow the 'field-{type}' naming convention.
 		static $type_exceptions = array(
 			'phone'             => 'field-telephone',
@@ -1907,7 +1943,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 					$has_files      = ! empty( $submission['files'] );
 					$has_rating     = ! empty( $submission['rating'] );
 					$show_plain_val = ! $has_url && ! $has_images && ! $has_files && ! $has_rating;
-					$field_type     = isset( $submission['type'] ) ? $submission['type'] : 'text';
+					$field_type     = $submission['type'] ?? 'text';
 
 					$html .= '<div data-wp-each-child class="jetpack_forms_contact-form-success-summary">';
 
@@ -2176,7 +2212,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 			$file_links = array();
 			foreach ( $files as $file ) {
 				if ( ! empty( $file['file_id'] ) ) {
-					$file_name = isset( $file['name'] ) ? $file['name'] : __( 'Attached file', 'jetpack-forms' );
+					$file_name = $file['name'] ?? __( 'Attached file', 'jetpack-forms' );
 					$file_size = isset( $file['size'] ) ? size_format( $file['size'] ) : '';
 
 					$html = esc_html( $file_name );
@@ -2310,7 +2346,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 
 		// Don't try to parse contact form fields if not inside a contact form (????)
 		if ( ! Contact_Form_Plugin::$using_contact_form_field ) {
-			$type = isset( $attributes['type'] ) ? $attributes['type'] : null;
+			$type = $attributes['type'] ?? null;
 
 			if ( $type === 'checkbox-multiple' || $type === 'radio' ) {
 				preg_match_all( '/' . get_shortcode_regex() . '/s', $content, $matches );
@@ -2595,6 +2631,16 @@ class Contact_Form extends Contact_Form_Shortcode {
 
 		$response = Feedback::from_submission( $_POST, $this ); // phpcs:Ignore WordPress.Security.NonceVerification.Missing
 		$response->set_source( $this->get_source() );
+
+		// If the submission came from an authenticated form preview, flag the
+		// feedback as a test submission. The rest of the pipeline reads the
+		// flag from the feedback (which also travels into the serialized
+		// post_content via Feedback_Source).
+		if ( $this->is_preview_submission ) {
+			$response->mark_as_test();
+		}
+		$is_test_submission = $response->is_test();
+
 		$plugin = Contact_Form_Plugin::init();
 
 		$id                  = $this->get_attribute( 'id' );
@@ -2685,9 +2731,15 @@ class Contact_Form extends Contact_Form_Shortcode {
 		$spam           = '';
 		$akismet_values = $plugin->prepare_for_akismet( $akismet_vars );
 
-		// Is it spam?
-		/** This filter is already documented in \Automattic\Jetpack\Forms\ContactForm\Admin */
-		$is_spam = apply_filters( 'jetpack_contact_form_is_spam', false, $akismet_values );
+		// Is it spam? Test submissions (from form preview) skip Akismet entirely —
+		// the form owner is explicitly running a test and we don't want Akismet
+		// to learn from synthetic data or bounce the submission.
+		if ( $is_test_submission ) {
+			$is_spam = false;
+		} else {
+			/** This filter is already documented in \Automattic\Jetpack\Forms\ContactForm\Admin */
+			$is_spam = apply_filters( 'jetpack_contact_form_is_spam', false, $akismet_values );
+		}
 		if ( is_wp_error( $is_spam ) ) { // WP_Error to abort
 			return $is_spam; // abort
 		} elseif ( $is_spam === true ) {  // TRUE to flag a spam
@@ -2782,6 +2834,22 @@ class Contact_Form extends Contact_Form_Shortcode {
 		$all_values['email_marketing_consent'] = $email_marketing_consent;
 
 		$entry_values = $response->get_entry_values();
+
+		// Prefix the subject with [TEST] for test submissions so the form owner
+		// can immediately tell this email came from a preview-mode submission.
+		if ( $is_test_submission ) {
+			/**
+			 * Filter the subject prefix applied to test (preview) feedback emails.
+			 *
+			 * @module contact-form
+			 *
+			 * @since 7.19.0
+			 *
+			 * @param string $prefix Default subject prefix for test submissions.
+			 */
+			$test_prefix          = apply_filters( 'jetpack_forms_test_subject_prefix', '[TEST] ' );
+			$contact_form_subject = $test_prefix . $contact_form_subject;
+		}
 
 		/** This filter is already documented in \Automattic\Jetpack\Forms\ContactForm\Admin */
 		$subject = apply_filters( 'contact_form_subject', $contact_form_subject, $all_values );
@@ -2894,6 +2962,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 			'comment_author_email' => $comment_author_email,
 			'comment_author_ip'    => $comment_author_ip,
 			'is_spam'              => $is_spam,
+			'is_test'              => $is_test_submission,
 			'feedback_status'      => $feedback_status,
 		);
 		$email        = Feedback_Email_Renderer::build_email_content( $post_id, $this, $response, $context_data );
@@ -2928,6 +2997,25 @@ class Contact_Form extends Contact_Form_Shortcode {
 		} else {
 			// Filter is null (default), use emailNotifications attribute
 			$send_email = ( $this->get_attribute( 'emailNotifications' ) !== 'no' );
+		}
+
+		// Test submissions always send the notification email (so the form
+		// owner can verify their email flow end-to-end) regardless of the
+		// emailNotifications attribute. Site admins who want to opt out can
+		// return false from the filter below.
+		if ( $is_test_submission ) {
+			/**
+			 * Filter whether test (preview) submissions should trigger the notification email.
+			 *
+			 * @module contact-form
+			 *
+			 * @since 7.19.0
+			 *
+			 * @param bool     $send     Whether to send the test submission email. Default true.
+			 * @param int      $post_id  The feedback post ID.
+			 * @param Feedback $response The feedback response object.
+			 */
+			$send_email = apply_filters( 'jetpack_forms_send_test_feedback_email', true, $post_id, $response );
 		}
 
 		/**
@@ -3335,12 +3423,12 @@ class Contact_Form extends Contact_Form_Shortcode {
 		// For URL fields, extract the display text value (original user input without auto-added protocol).
 		if ( is_array( $value ) && isset( $value['type'] ) && $value['type'] === 'url' ) {
 			// Prefer displayValue (raw input) over url (which may have https:// prepended).
-			return isset( $value['displayValue'] ) ? $value['displayValue'] : ( isset( $value['url'] ) ? $value['url'] : '' );
+			return $value['displayValue'] ?? ( $value['url'] ?? '' );
 		}
 
 		// For rating fields, return the displayValue (e.g., "3/5") for text fallback.
 		if ( is_array( $value ) && isset( $value['type'] ) && $value['type'] === 'rating' ) {
-			return isset( $value['displayValue'] ) ? $value['displayValue'] : '';
+			return $value['displayValue'] ?? '';
 		}
 
 		// For file upload fields, we want to show the file name and size

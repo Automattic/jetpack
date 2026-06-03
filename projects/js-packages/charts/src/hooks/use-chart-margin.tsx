@@ -1,6 +1,6 @@
 import { createScale, getTicks } from '@visx/scale';
 import { useMemo } from 'react';
-import { getLongestTickWidth } from '../utils';
+import { getLongestTickWidth, resolveFontSize } from '../utils';
 import type { BaseChartProps, DataPointDate, SeriesData } from '../types';
 import type { XYChartTheme } from '@visx/xychart';
 
@@ -50,19 +50,6 @@ const DEFAULT_TICK_LENGTH = 8;
  */
 const DEFAULT_Y_TICK_WIDTH = 40;
 
-const resolveFontSize = ( val?: number | string ): number | undefined => {
-	if ( typeof val === 'number' && ! isNaN( val ) ) {
-		return val;
-	}
-
-	if ( typeof val === 'string' ) {
-		const parsed = parseFloat( val );
-		return isNaN( parsed ) ? undefined : parsed;
-	}
-
-	return undefined;
-};
-
 const getXAxisLabelMetrics = ( theme: XYChartTheme, orientation: 'top' | 'bottom' ) => {
 	const xAxisStyles =
 		orientation === 'top' ? theme.axisStyles?.x?.top : theme.axisStyles?.x?.bottom;
@@ -92,6 +79,10 @@ export const useChartMargin = (
 			return allDataPoints.map(
 				d => d.label || options.axis?.y?.tickFormat( d.date.getTime(), 0, [] )
 			);
+		}
+
+		if ( options.axis?.y?.tickValues?.length ) {
+			return options.axis.y.tickValues;
 		}
 
 		const minY = Math.min( ...allDataPoints.map( d => d.value ) );

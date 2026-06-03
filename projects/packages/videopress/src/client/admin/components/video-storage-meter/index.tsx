@@ -1,7 +1,8 @@
 /**
  * External dependencies
  */
-import { ProgressBar, Text } from '@automattic/jetpack-components';
+import { Text } from '@automattic/jetpack-components';
+import { ProgressBar } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { filesize } from 'filesize';
@@ -25,12 +26,7 @@ import type { FC, ReactNode } from 'react';
  * @param {VideoStorageMeterProps} props - Component props.
  * @return {ReactNode} - VideoStorageMeter react component.
  */
-const VideoStorageMeter: FC< VideoStorageMeterProps > = ( {
-	className,
-	progressBarClassName,
-	total,
-	used,
-} ) => {
+const VideoStorageMeter: FC< VideoStorageMeterProps > = ( { className, total, used } ) => {
 	if ( ! total || used == null ) {
 		return null;
 	}
@@ -40,8 +36,8 @@ const VideoStorageMeter: FC< VideoStorageMeterProps > = ( {
 	const totalLabel = filesize( total, { base: 10 } );
 
 	return (
-		<div className={ clsx( className ) }>
-			<Text className={ clsx( styles[ 'percentage-description' ] ) }>
+		<div className={ clsx( styles.meter, className ) }>
+			<Text className={ styles[ 'percentage-description' ] }>
 				{ sprintf(
 					/* translators: %1$s is the storage percentage, from 0% to 100%, %2$s is the total storage. */
 					__( '%1$s of %2$s of cloud video storage', 'jetpack-videopress-pkg' ),
@@ -49,10 +45,7 @@ const VideoStorageMeter: FC< VideoStorageMeterProps > = ( {
 					totalLabel
 				) }
 			</Text>
-			<ProgressBar
-				className={ clsx( styles[ 'progress-bar' ], progressBarClassName ) }
-				progress={ progress }
-			></ProgressBar>
+			<ProgressBar value={ Math.min( progress * 100, 100 ) } />
 		</div>
 	);
 };

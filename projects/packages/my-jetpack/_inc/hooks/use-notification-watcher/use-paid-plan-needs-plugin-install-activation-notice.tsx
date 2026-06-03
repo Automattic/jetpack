@@ -1,6 +1,6 @@
 import { Col, Text } from '@automattic/jetpack-components';
-import { ExternalLink } from '@wordpress/components';
 import { __, _n, sprintf } from '@wordpress/i18n';
+import { Link } from '@wordpress/ui';
 import { useContext, useEffect, useMemo, useCallback } from 'react';
 import { NOTICE_PRIORITY_MEDIUM } from '../../context/constants';
 import { NoticeContext } from '../../context/notices/noticeContext';
@@ -123,7 +123,7 @@ const usePaidPlanNeedsPluginInstallActivationNotice: NoticeHookType = (
 	const { noticeTitle, noticeMessage, buttonLabel } = useGetPaidPlanNeedsPluginsContent( {
 		alert,
 		planName,
-		planPurchaseId: planPurchase?.ID,
+		planPurchaseId: String( planPurchase?.ID ),
 	} );
 
 	const prepareProductsArray = useCallback(
@@ -249,9 +249,9 @@ const usePaidPlanNeedsPluginInstallActivationNotice: NoticeHookType = (
 										{ pluginInfo.action === 'activate' ? (
 											<a href="/wp-admin/plugins.php">{ pluginInfo.pluginName }</a>
 										) : (
-											<ExternalLink href={ pluginInfo.pluginUri }>
+											<Link openInNewTab href={ pluginInfo.pluginUri }>
 												{ pluginInfo.pluginName }
-											</ExternalLink>
+											</Link>
 										) }
 										<span>({ actionNounMap[ pluginInfo.action ] })</span>
 									</li>

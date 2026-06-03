@@ -1,7 +1,9 @@
+import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { useBlockProps } from '@wordpress/block-editor';
-import { Spinner } from '@wordpress/components';
+import { Icon, Spinner } from '@wordpress/components';
+import { useInstanceId } from '@wordpress/compose';
 import { useDispatch, useSelect } from '@wordpress/data';
-import { useState, useEffect } from '@wordpress/element';
+import { useCallback, useState, useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import ConnectBanner from '../../shared/components/connect-banner';
 import { StripeNudge } from '../../shared/components/stripe-nudge';
@@ -10,18 +12,63 @@ import getConnectUrl from '../../shared/get-connect-url';
 import useIsUserConnected from '../../shared/use-is-user-connected';
 import { store as membershipProductsStore } from '../../store/membership-products';
 import { STORE_NAME as MEMBERSHIPS_PRODUCTS_STORE } from '../../store/membership-products/constants';
+import buildCustomStyles from './build-custom-styles';
+import Controls from './controls';
 import fetchDefaultProducts from './fetch-default-products';
 import fetchStatus from './fetch-status';
 import FirstTimeModal from './first-time-modal';
+import { TRIGGER_ICONS } from './icons';
 import './first-time-modal.scss';
 import LoadingError from './loading-error';
+import StyleControls from './style-controls';
 import Tabs from './tabs';
 
-const Edit = props => {
-	const { attributes, setAttributes } = props;
-	const { currency } = attributes;
+// Dedupe block_loaded event firings across React re-mounts within the same editor session.
+const blockLoadedFiredClientIds = new Set();
 
-	const blockProps = useBlockProps();
+const Edit = props => {
+	const { attributes, setAttributes, clientId } = props;
+	const {
+		currency,
+		tabsAppearance,
+		className,
+		displayMode,
+		triggerButtonText,
+		triggerIcon,
+		triggerSticky,
+	} = attributes;
+	const { tracks } = useAnalytics();
+
+	// Migrate legacy blocks that used the block-style variation
+	// (`is-style-buttons` saved into `className`) over to the new
+	// `tabsAppearance` attribute. Strips the class so the toggle in the
+	// Appearance control reflects reality and can switch back to "Tabs".
+	useEffect( () => {
+		if ( typeof className === 'string' && className.split( ' ' ).includes( 'is-style-buttons' ) ) {
+			const cleaned = className
+				.split( ' ' )
+				.filter( c => c !== 'is-style-buttons' )
+				.join( ' ' )
+				.trim();
+			setAttributes( {
+				tabsAppearance: 'buttons',
+				className: cleaned || undefined,
+			} );
+		}
+	}, [ className, setAttributes ] );
+
+	const instanceId = useInstanceId( Edit, 'jp-donations' );
+	const customStyles = buildCustomStyles( attributes, `.${ instanceId }` );
+
+	const wrapperClassName = [
+		instanceId,
+		tabsAppearance === 'buttons' && 'is-style-buttons',
+		displayMode === 'modal' && 'is-display-modal',
+		displayMode === 'modal' && triggerSticky && 'is-sticky',
+	]
+		.filter( Boolean )
+		.join( ' ' );
+	const blockProps = useBlockProps( { className: wrapperClassName } );
 	const [ loadingError, setLoadingError ] = useState( '' );
 	const [ products, setProducts ] = useState( [] );
 	const [ showFirstTimeModal, setShowFirstTimeModal ] = useState( false );
@@ -48,6 +95,27 @@ const Edit = props => {
 	const stripeDefaultCurrency = useSelect( select =>
 		select( MEMBERSHIPS_PRODUCTS_STORE ).getConnectedAccountDefaultCurrency()
 	);
+
+	// Fire jetpack_donations_block_loaded once per clientId per session.
+	// Wait until either Stripe state has resolved (stripeConnectUrl OR
+	// stripeDefaultCurrency populated) or the user is not Jetpack-connected,
+	// so the stripe_connected snapshot is accurate.
+	useEffect( () => {
+		if ( ! clientId || blockLoadedFiredClientIds.has( clientId ) ) {
+			return;
+		}
+		const stripeStateResolved = !! stripeConnectUrl || !! stripeDefaultCurrency;
+		if ( isUserConnected && ! stripeStateResolved ) {
+			return;
+		}
+		blockLoadedFiredClientIds.add( clientId );
+		tracks.recordEvent( 'jetpack_donations_block_loaded', {
+			feature: 'donations',
+			surface: 'block_editor',
+			is_user_connected: !! isUserConnected,
+			stripe_connected: isUserConnected ? ! stripeConnectUrl : null,
+		} );
+	}, [ clientId, isUserConnected, stripeConnectUrl, stripeDefaultCurrency, tracks ] );
 
 	useEffect( () => {
 		if ( ! currency && stripeDefaultCurrency && ! isPostSavingLocked ) {
@@ -180,12 +248,30 @@ const Edit = props => {
 	} else if ( ! currency ) {
 		// Memberships settings are still loading
 		content = <Spinner />;
+	} else if ( displayMode === 'modal' ) {
+		const triggerIconEntry = TRIGGER_ICONS.find( ( { key } ) => key === triggerIcon );
+		const triggerLabel = triggerButtonText || __( 'Donate', 'jetpack' );
+		content = (
+			<>
+				<Controls { ...props } />
+				<button
+					className="donations__trigger-button wp-block-button__link"
+					tabIndex={ -1 }
+					aria-hidden="true"
+				>
+					{ triggerIconEntry && triggerIcon !== 'none' && (
+						<Icon className="donations__trigger-icon" icon={ triggerIconEntry.icon } size={ 20 } />
+					) }
+					{ triggerLabel }
+				</button>
+			</>
+		);
 	} else {
 		content = <Tabs { ...props } products={ products } />;
 	}
 
 	// When the first time modal is closed, update the user meta to mark the donation warning as dismissed
-	const handleModalClose = async () => {
+	const handleModalClose = useCallback( async () => {
 		setShowFirstTimeModal( false );
 
 		if ( ! currentUser?.id ) {
@@ -205,10 +291,12 @@ const Edit = props => {
 			// eslint-disable-next-line no-console
 			console.error( 'Failed to update user meta:', error );
 		}
-	};
+	}, [ currentUser, editEntityRecord, saveEditedEntityRecord ] );
 
 	return (
 		<div { ...blockProps }>
+			<StyleControls attributes={ attributes } setAttributes={ setAttributes } />
+			{ customStyles && <style>{ customStyles }</style> }
 			{ content }
 			{ showFirstTimeModal && <FirstTimeModal onClose={ handleModalClose } /> }
 		</div>

@@ -176,6 +176,9 @@ class Contact_Form_Endpoint_Test extends TestCase {
 		$this->assertArrayHasKey( 'subject', $schema_properties );
 		$this->assertArrayHasKey( 'fields', $schema_properties );
 		$this->assertArrayHasKey( 'is_unread', $schema_properties );
+		$this->assertArrayHasKey( 'is_test', $schema_properties );
+		$this->assertEquals( 'boolean', $schema_properties['is_test']['type'] );
+		$this->assertArrayHasKey( 'preview_url', $schema_properties );
 
 		// Verify logged_in_user schema structure
 		$logged_in_user_schema = $schema_properties['logged_in_user'];
@@ -194,6 +197,118 @@ class Contact_Form_Endpoint_Test extends TestCase {
 		$this->assertArrayNotHasKey( 'title', $schema_properties );
 		$this->assertArrayNotHasKey( 'content', $schema_properties );
 		$this->assertArrayNotHasKey( 'excerpt', $schema_properties );
+	}
+
+	/**
+	 * Helper: insert a v3-format feedback post, optionally flagged as a test submission.
+	 *
+	 * @param bool $is_test Whether to mark the feedback as a test submission.
+	 * @return int The new feedback post ID.
+	 */
+	private function insert_v3_feedback_post( $is_test = false ) {
+		$content = array(
+			'subject'     => 'Subject',
+			'ip'          => '127.0.0.1',
+			'entry_title' => 'Source Post',
+			'entry_page'  => 1,
+			'source_id'   => 0,
+			'source_type' => 'single',
+			'request_url' => '',
+			'fields'      => array(
+				array(
+					'id'    => '1_Name',
+					'label' => 'Name',
+					'type'  => 'text',
+					'value' => $is_test ? 'Preview Tester' : 'Real User',
+				),
+			),
+		);
+
+		if ( $is_test ) {
+			$content['is_test'] = true;
+		}
+
+		Feedback::clear_cache();
+
+		return wp_insert_post(
+			array(
+				'post_type'      => 'feedback',
+				'post_status'    => 'publish',
+				'post_title'     => 'Response ' . ( $is_test ? 'test' : 'real' ) . ' ' . microtime(),
+				'post_content'   => wp_json_encode( $content, JSON_UNESCAPED_SLASHES ),
+				'post_mime_type' => 'v3',
+			)
+		);
+	}
+
+	/**
+	 * A real feedback row exposes is_test = false and preview_url = null.
+	 */
+	public function test_get_item_exposes_is_test_false_for_real_feedback() {
+		$post_id = $this->insert_v3_feedback_post( false );
+
+		$request  = new WP_REST_Request( 'GET', '/wp/v2/feedback/' . $post_id );
+		$response = $this->server->dispatch( $request );
+		$this->assertEquals( 200, $response->get_status() );
+
+		$data = $response->get_data();
+		$this->assertArrayHasKey( 'is_test', $data );
+		$this->assertFalse( $data['is_test'] );
+		$this->assertArrayHasKey( 'preview_url', $data );
+		$this->assertNull( $data['preview_url'] );
+
+		wp_delete_post( $post_id, true );
+	}
+
+	/**
+	 * A feedback row flagged as test exposes is_test = true and a preview_url
+	 * when a parent form is available and the current user can preview it.
+	 */
+	public function test_get_item_exposes_is_test_true_for_preview_feedback() {
+		// Register the jetpack_form CPT so the Feedback loader picks up the
+		// post_parent as the form_id and preview URL generation can run.
+		if ( ! post_type_exists( Contact_Form::POST_TYPE ) ) {
+			register_post_type(
+				Contact_Form::POST_TYPE,
+				array(
+					'public'       => false,
+					'show_ui'      => true,
+					'map_meta_cap' => true,
+				)
+			);
+		}
+		$form_id = wp_insert_post(
+			array(
+				'post_type'    => Contact_Form::POST_TYPE,
+				'post_status'  => 'publish',
+				'post_title'   => 'Preview Test Form',
+				'post_content' => '<!-- wp:jetpack/contact-form /-->',
+				'post_author'  => self::$user_id,
+			)
+		);
+
+		$post_id = $this->insert_v3_feedback_post( true );
+		wp_update_post(
+			array(
+				'ID'          => $post_id,
+				'post_parent' => $form_id,
+			)
+		);
+		Feedback::clear_cache();
+
+		$request  = new WP_REST_Request( 'GET', '/wp/v2/feedback/' . $post_id );
+		$response = $this->server->dispatch( $request );
+		$this->assertEquals( 200, $response->get_status() );
+
+		$data = $response->get_data();
+		$this->assertArrayHasKey( 'is_test', $data );
+		$this->assertTrue( $data['is_test'] );
+		$this->assertArrayHasKey( 'preview_url', $data );
+		$this->assertIsString( $data['preview_url'] );
+		$this->assertStringContainsString( 'jetpack_form_preview=' . $form_id, $data['preview_url'] );
+
+		wp_delete_post( $post_id, true );
+		wp_delete_post( $form_id, true );
 	}
 
 	/**
@@ -1289,5 +1404,163 @@ JSON_DATA{"1_name":"Test Author","2_email":"author@example.com","3_file":{"field
 
 		$this->assertArrayHasKey( 'logged_in_user', $data );
 		$this->assertNull( $data['logged_in_user'] );
+	}
+
+	/**
+	 * Test that the source parameter is registered in the feedback collection schema.
+	 */
+	public function test_source_parameter_is_registered() {
+		$request  = new WP_REST_Request( 'OPTIONS', '/wp/v2/feedback' );
+		$response = $this->server->dispatch( $request );
+		$data     = $response->get_data();
+
+		$this->assertArrayHasKey( 'source', $data['endpoints'][0]['args'] );
+		$this->assertEquals( 'integer', $data['endpoints'][0]['args']['source']['type'] );
+	}
+
+	/**
+	 * Test that the source parameter is registered in the counts endpoint.
+	 */
+	public function test_source_parameter_is_registered_in_counts() {
+		$request  = new WP_REST_Request( 'OPTIONS', '/wp/v2/feedback/counts' );
+		$response = $this->server->dispatch( $request );
+		$data     = $response->get_data();
+
+		$this->assertArrayHasKey( 'source', $data['endpoints'][0]['args'] );
+		$this->assertEquals( 'integer', $data['endpoints'][0]['args']['source']['type'] );
+	}
+
+	/**
+	 * Test that the counts endpoint applies source filter SQL when source param is set.
+	 */
+	public function test_counts_with_source_includes_source_filter_sql() {
+		$captured_query = null;
+		add_filter(
+			'wordbless_wpdb_query_results',
+			function ( $results, $query ) use ( &$captured_query ) {
+				if ( strpos( $query, 'SUM(CASE' ) !== false && strpos( $query, 'source_meta' ) !== false ) {
+					$captured_query = $query;
+				}
+				return $results;
+			},
+			10,
+			2
+		);
+
+		$request = new WP_REST_Request( 'GET', '/wp/v2/feedback/counts' );
+		$request->set_param( 'source', 123 );
+		$response = $this->server->dispatch( $request );
+
+		$this->assertEquals( 200, $response->get_status() );
+		$this->assertNotNull( $captured_query, 'Counts query should include source filter SQL' );
+		$this->assertStringContainsString( '_feedback_source_post_id', $captured_query, 'Counts query should reference the source meta key' );
+		$this->assertStringContainsString( 'source_meta.meta_value', $captured_query, 'Counts query should filter by source meta value' );
+		$this->assertStringContainsString( 'post_parent', $captured_query, 'Counts query should include post_parent fallback' );
+
+		remove_all_filters( 'wordbless_wpdb_query_results' );
+	}
+
+	/**
+	 * Test that the shared Feedback::get_source_filter_sql helper returns
+	 * the correct SQL JOIN and WHERE fragments.
+	 */
+	public function test_source_filter_sql_helper_returns_expected_fragments() {
+		$sql = Feedback::get_source_filter_sql( 42 );
+
+		$this->assertArrayHasKey( 'join', $sql );
+		$this->assertArrayHasKey( 'where', $sql );
+
+		$this->assertStringContainsString( 'source_meta', $sql['join'], 'JOIN should include the source_meta alias' );
+		$this->assertStringContainsString( '_feedback_source_post_id', $sql['join'], 'JOIN should reference the source meta key' );
+
+		$this->assertStringContainsString( 'source_meta.meta_value', $sql['where'], 'WHERE should filter by source meta value' );
+		$this->assertStringContainsString( 'post_parent', $sql['where'], 'WHERE should include post_parent fallback' );
+		$this->assertStringContainsString( 'source_meta.meta_id IS NULL', $sql['where'], 'WHERE should check for missing meta in fallback' );
+		$this->assertStringContainsString( "'42'", $sql['where'], 'WHERE should include the source ID value' );
+	}
+
+	/**
+	 * Test that source filter hooks are cleaned up after get_items
+	 * by verifying a second request without source does not include source SQL.
+	 */
+	public function test_source_filter_hooks_are_cleaned_up() {
+		// First request with source filter.
+		$request = new WP_REST_Request( 'GET', '/wp/v2/feedback' );
+		$request->set_param( 'source', 42 );
+		$this->server->dispatch( $request );
+
+		// Second request without source — capture SQL to verify no leftover filter.
+		$found_source_sql = false;
+		add_filter(
+			'wordbless_wpdb_query_results',
+			function ( $results, $query ) use ( &$found_source_sql ) {
+				if ( strpos( $query, 'source_meta' ) !== false ) {
+					$found_source_sql = true;
+				}
+				return $results;
+			},
+			10,
+			2
+		);
+
+		$request2 = new WP_REST_Request( 'GET', '/wp/v2/feedback' );
+		$this->server->dispatch( $request2 );
+
+		$this->assertFalse( $found_source_sql, 'Source filter should not leak into subsequent requests' );
+
+		remove_all_filters( 'wordbless_wpdb_query_results' );
+	}
+
+	/**
+	 * Test that without source param, no source filter hooks are added.
+	 */
+	public function test_no_source_filter_without_param() {
+		$found_source_sql = false;
+
+		add_filter(
+			'wordbless_wpdb_query_results',
+			function ( $results, $query ) use ( &$found_source_sql ) {
+				if ( strpos( $query, 'source_meta' ) !== false ) {
+					$found_source_sql = true;
+				}
+				return $results;
+			},
+			10,
+			2
+		);
+
+		$request = new WP_REST_Request( 'GET', '/wp/v2/feedback' );
+		$this->server->dispatch( $request );
+
+		$this->assertFalse( $found_source_sql, 'SQL should not include source_meta when no source param' );
+
+		remove_all_filters( 'wordbless_wpdb_query_results' );
+	}
+
+	/**
+	 * Test that source=0 does not inject source filter SQL.
+	 */
+	public function test_source_filter_with_zero_value_is_ignored() {
+		$found_source_sql = false;
+
+		add_filter(
+			'wordbless_wpdb_query_results',
+			function ( $results, $query ) use ( &$found_source_sql ) {
+				if ( strpos( $query, 'source_meta' ) !== false ) {
+					$found_source_sql = true;
+				}
+				return $results;
+			},
+			10,
+			2
+		);
+
+		$request = new WP_REST_Request( 'GET', '/wp/v2/feedback' );
+		$request->set_param( 'source', 0 );
+		$this->server->dispatch( $request );
+
+		$this->assertFalse( $found_source_sql, 'source=0 should not inject source filter SQL' );
+
+		remove_all_filters( 'wordbless_wpdb_query_results' );
 	}
 }

@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Write: Keep selected text visually highlighted while the link popover is open.

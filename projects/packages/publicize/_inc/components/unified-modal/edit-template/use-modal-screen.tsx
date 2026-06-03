@@ -26,7 +26,8 @@ export function useModalScreen() {
 
 	const [ localState, setLocalState ] = useState< LocalState >( () => ( {
 		imageId: imageId ?? null,
-		imageType: ( imageType ?? 'featured' ) as LocalState[ 'imageType' ],
+		imageType: ( imageType ??
+			( defaultImageId ? 'default' : 'featured' ) ) as LocalState[ 'imageType' ],
 		customText: customText ?? '',
 		template: template ?? null,
 		font: font ?? '',

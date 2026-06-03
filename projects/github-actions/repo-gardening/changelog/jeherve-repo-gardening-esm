@@ -1,4 +1,0 @@
-Significance: minor
-Type: changed
-
-Convert codebase from CommonJS to ES Modules (ESM).

@@ -330,8 +330,8 @@ class Wpcom_Products {
 		$site_id = Jetpack_Options::get_option( 'id' );
 
 		$response = Client::wpcom_json_api_request_as_blog(
-			sprintf( '/sites/%d/purchases', $site_id ),
-			'1.1',
+			sprintf( '/upgrades?site=%d', $site_id ),
+			'1.2',
 			array(
 				'method' => 'GET',
 			)

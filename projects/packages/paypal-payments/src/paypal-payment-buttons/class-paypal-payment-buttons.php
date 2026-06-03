@@ -69,7 +69,8 @@ class PayPal_Payment_Buttons {
 			$sanitized_url .= $parsed_url['path'];
 		}
 		if ( isset( $parsed_url['query'] ) ) {
-			$sanitized_url .= '?' . $parsed_url['query'];
+			// If we have escaped ampersands in the query string, we need to unescape them.
+			$sanitized_url .= '?' . str_replace( '&amp;', '&', $parsed_url['query'] );
 		}
 
 		return $sanitized_url;
@@ -124,9 +125,8 @@ class PayPal_Payment_Buttons {
 				return;
 			}
 
-			$script_url = esc_url( $sanitized_url );
 			// We can't include the version number here. If we do, it is appended to the URL and causes a 400 response.
-			wp_enqueue_script( 'paypal-payment-buttons-block-head', $script_url, array(), null, false ); // phpcs:ignore WordPress.WP.EnqueuedResourceParameters.MissingVersion
+			wp_enqueue_script( 'paypal-payment-buttons-block-head', $sanitized_url, array(), null, false ); // phpcs:ignore WordPress.WP.EnqueuedResourceParameters.MissingVersion
 			add_filter(
 				'script_loader_tag',
 				function ( $tag, $handle, $src ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable

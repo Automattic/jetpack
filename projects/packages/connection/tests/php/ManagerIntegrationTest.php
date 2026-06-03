@@ -737,4 +737,67 @@ class ManagerIntegrationTest extends \WorDBless\BaseTestCase {
 			),
 		);
 	}
+
+	/**
+	 * Test that registering an external storage provider after is_connected() resets the cached status.
+	 */
+	public function test_registering_provider_invalidates_stale_is_connected() {
+		// Ensure clean state: no blog id, no token in DB.
+		\Jetpack_Options::delete_option( 'id' );
+		\Jetpack_Options::delete_option( 'blog_token' );
+		$this->reset_connection_status();
+
+		// First call: no provider, no DB data → false.
+		$this->assertFalse( $this->manager->is_connected() );
+
+		// Register a provider that supplies blog id and token.
+		$provider = new class() implements \Automattic\Jetpack\Connection\Storage_Provider_Interface {
+			public function is_available() {
+				return true;
+			}
+			public function should_handle( $option_name ) {
+				return in_array( $option_name, array( 'blog_token', 'id' ), true );
+			}
+			public function get( $option_name ) {
+				if ( 'id' === $option_name ) {
+					return 12345;
+				}
+				if ( 'blog_token' === $option_name ) {
+					return 'test.token';
+				}
+				return null;
+			}
+			public function get_environment_id() {
+				return 'test-invalidation';
+			}
+		};
+
+		try {
+			// This should fire jetpack_external_storage_provider_registered,
+			// which resets the memoized is_connected value.
+			External_Storage::register_provider( $provider );
+
+			// Next call should re-evaluate with the provider and return true.
+			$this->assertTrue( $this->manager->is_connected() );
+		} finally {
+			// Clean up: remove provider and reset init_fired.
+			$reflection = new \ReflectionClass( External_Storage::class );
+
+			$prop = $reflection->getProperty( 'provider' );
+			// @todo Remove this call once we no longer need to support PHP <8.1.
+			if ( PHP_VERSION_ID < 80100 ) {
+				$prop->setAccessible( true );
+			}
+			$prop->setValue( null, null );
+
+			$init_fired = $reflection->getProperty( 'init_fired' );
+			// @todo Remove this call once we no longer need to support PHP <8.1.
+			if ( PHP_VERSION_ID < 80100 ) {
+				$init_fired->setAccessible( true );
+			}
+			$init_fired->setValue( null, false );
+
+			$this->reset_connection_status();
+		}
+	}
 }

@@ -102,6 +102,27 @@ class Contact_Form_Block {
 		$features['multistep-form'] = Current_Plan::supports( 'multistep-form' );
 		$features['form-webhooks']  = Current_Plan::supports( 'form-webhooks' );
 
+		return self::register_central_form_management_default( $features );
+	}
+
+	/**
+	 * Lightweight bootstrap default for the `central-form-management` feature flag.
+	 *
+	 * Registered from Util::init() so that early callers of
+	 * Contact_Form_Plugin::has_editor_feature_flag() — such as the Forms dashboard
+	 * default-tab redirect, which runs before the WP `init` hook fires — see the
+	 * correct flag value. Kept separate from register_feature() so the early-boot
+	 * code path avoids the Current_Plan::supports() calls used by the paid-plan flags.
+	 *
+	 * @param array $features - the features array.
+	 *
+	 * @return array
+	 */
+	public static function register_central_form_management_default( $features ) {
+		if ( ! isset( $features['central-form-management'] ) ) {
+			$features['central-form-management'] = true;
+		}
+
 		return $features;
 	}
 
@@ -847,6 +868,11 @@ class Contact_Form_Block {
 
 		$handle = 'jp-forms-blocks';
 
+		// Ensure the jetpack-blocks-editor dependency exists. When the Blocks module
+		// is inactive, nothing registers it, but the Forms editor JS needs the
+		// Jetpack_Editor_Initial_State global (with availability data) it provides.
+		self::maybe_register_blocks_editor_script();
+
 		Assets::register_script(
 			$handle,
 			'../../../dist/blocks/editor.js',
@@ -959,6 +985,48 @@ class Contact_Form_Block {
 				'strategy'   => 'defer',
 				'textdomain' => 'jetpack-forms',
 				'enqueue'    => true,
+			)
+		);
+	}
+
+	/**
+	 * Register a minimal jetpack-blocks-editor script when the Blocks module is inactive.
+	 *
+	 * The Forms editor JS depends on jetpack-blocks-editor for the
+	 * Jetpack_Editor_Initial_State global, which includes block availability data.
+	 * Normally the Blocks module registers this, but Forms needs to work independently.
+	 */
+	private static function maybe_register_blocks_editor_script() {
+		if ( wp_script_is( 'jetpack-blocks-editor', 'registered' ) ) {
+			return;
+		}
+
+		// When the Blocks module is active it will register the real script, so bail.
+		if ( class_exists( 'Jetpack' ) && ( new Modules() )->is_active( 'blocks' ) ) {
+			return;
+		}
+
+		// Register a minimal script to satisfy the dependency.
+		wp_register_script( 'jetpack-blocks-editor', '', array(), JETPACK__VERSION, true );
+		wp_register_style( 'jetpack-blocks-editor', false, array(), JETPACK__VERSION );
+
+		// Provide the initial state the Forms editor JS expects:
+		// - available_blocks: the JS block registration checks this before calling registerBlockType.
+		// - modules: the useModuleStatus hook reads this to decide whether to show the block
+		// or an "Activate Forms" placeholder.
+		// - feature_flags: hasFeatureFlag() reads this for central-form-management,
+		// form-webhooks, and multistep-form.
+		wp_localize_script(
+			'jetpack-blocks-editor',
+			'Jetpack_Editor_Initial_State',
+			array(
+				'available_blocks' => array(
+					'contact-form' => array( 'available' => true ),
+				),
+				'modules'          => array(
+					'contact-form' => array( 'activated' => true ),
+				),
+				'feature_flags'    => apply_filters( 'jetpack_block_editor_feature_flags', array() ),
 			)
 		);
 	}

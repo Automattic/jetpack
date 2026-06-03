@@ -53,6 +53,7 @@ const glyphChartDecorator: Decorator = ( Story, { args } ) => {
 const meta: Meta< StoryArgs > = {
 	...lineChartMetaArgs,
 	title: 'JS Packages/Charts Library/Charts/Line Chart/Glyphs',
+	component: lineChartMetaArgs.component, // Make eslint happy.
 	decorators: [ glyphChartDecorator ],
 	argTypes: {
 		...lineChartMetaArgs.argTypes,

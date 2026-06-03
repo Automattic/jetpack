@@ -157,4 +157,93 @@ class Search_Product_Test extends TestCase {
 		activate_plugins( Search::get_installed_plugin_filename() );
 		$this->assertSame( '', Search::get_post_activation_url() );
 	}
+
+	/**
+	 * Forces every outbound HTTP request to fail so the WPCOM pricing fetch errors.
+	 *
+	 * @return \WP_Error
+	 */
+	public function force_http_error() {
+		return new \WP_Error( 'http_request_failed', 'Simulated WPCOM failure.' );
+	}
+
+	/**
+	 * Counts outbound HTTP attempts while forcing them to fail.
+	 *
+	 * @var int
+	 */
+	private $http_error_calls = 0;
+
+	/**
+	 * Forces outbound HTTP requests to fail and tallies how many were attempted.
+	 *
+	 * @return \WP_Error
+	 */
+	public function count_http_error() {
+		++$this->http_error_calls;
+		return new \WP_Error( 'http_request_failed', 'Simulated WPCOM failure.' );
+	}
+
+	/**
+	 * A failed pricing fetch is cached for the request, so the two callers in
+	 * get_pricing_for_ui() share a single failed attempt instead of two 5s timeouts.
+	 */
+	public function test_failed_pricing_fetch_is_cached() {
+		$this->http_error_calls = 0;
+		add_filter( 'pre_http_request', array( $this, 'count_http_error' ) );
+
+		$record_count = 987654;
+		$first        = Search::get_pricing_from_wpcom( $record_count );
+		$second       = Search::get_pricing_from_wpcom( $record_count );
+
+		remove_filter( 'pre_http_request', array( $this, 'count_http_error' ) );
+
+		$this->assertInstanceOf( \WP_Error::class, $first );
+		$this->assertInstanceOf( \WP_Error::class, $second );
+		$this->assertSame( 1, $this->http_error_calls );
+	}
+
+	/**
+	 * When the WPCOM pricing fetch errors, the UI pricing payload should still default to
+	 * the new pricing version so the dashboard renders the current grid, not the legacy view.
+	 */
+	public function test_get_pricing_for_ui_defaults_to_new_pricing_on_fetch_error() {
+		add_filter( 'pre_http_request', array( $this, 'force_http_error' ) );
+
+		$pricing = Search::get_pricing_for_ui();
+
+		remove_filter( 'pre_http_request', array( $this, 'force_http_error' ) );
+
+		$this->assertArrayHasKey( 'pricing_version', $pricing );
+		$this->assertSame( '202208', $pricing['pricing_version'] );
+	}
+
+	/**
+	 * When the WPCOM pricing fetch errors and no generic product pricing is available,
+	 * the payload should fall back to a USD starting price so the grid renders a price.
+	 */
+	public function test_get_pricing_for_ui_falls_back_to_usd_starting_price_on_fetch_error() {
+		add_filter( 'pre_http_request', array( $this, 'force_http_error' ) );
+
+		$pricing = Search::get_pricing_for_ui();
+
+		remove_filter( 'pre_http_request', array( $this, 'force_http_error' ) );
+
+		$this->assertSame( 'USD', $pricing['currency_code'] );
+		$this->assertSame( Search::FALLBACK_STARTING_PRICE_USD, $pricing['full_price'] );
+		$this->assertSame( Search::FALLBACK_STARTING_PRICE_USD, $pricing['discount_price'] );
+	}
+
+	/**
+	 * When the WPCOM pricing fetch errors, is_new_pricing_202208() should default to true.
+	 */
+	public function test_is_new_pricing_202208_true_on_fetch_error() {
+		add_filter( 'pre_http_request', array( $this, 'force_http_error' ) );
+
+		$is_new_pricing = Search::is_new_pricing_202208();
+
+		remove_filter( 'pre_http_request', array( $this, 'force_http_error' ) );
+
+		$this->assertTrue( $is_new_pricing );
+	}
 }

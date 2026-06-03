@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Gather support references: Add a new slack_notify_on_customer_report input to allow disabling Slack notifications when the Customer Report label is added to an issue.

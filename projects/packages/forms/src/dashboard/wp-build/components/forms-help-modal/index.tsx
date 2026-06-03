@@ -38,6 +38,11 @@ export default function FormsHelpModal( { isOpen, onClose }: Props ) {
 	const { receiveConfigValue } = useDispatch( CONFIG_STORE );
 
 	const handleClose = useCallback( () => {
+		setDontShowAgain( false );
+		onClose();
+	}, [ onClose ] );
+
+	const handleSubmit = useCallback( () => {
 		if ( dontShowAgain ) {
 			receiveConfigValue( 'hasClassicForms', false );
 			apiFetch( {
@@ -45,8 +50,8 @@ export default function FormsHelpModal( { isOpen, onClose }: Props ) {
 				method: 'POST',
 			} );
 		}
-		onClose();
-	}, [ dontShowAgain, onClose, receiveConfigValue ] );
+		handleClose();
+	}, [ dontShowAgain, handleClose, receiveConfigValue ] );
 
 	if ( ! isOpen ) {
 		return null;
@@ -83,7 +88,7 @@ export default function FormsHelpModal( { isOpen, onClose }: Props ) {
 						checked={ dontShowAgain }
 						onChange={ setDontShowAgain }
 					/>
-					<Button variant="primary" onClick={ handleClose }>
+					<Button variant="primary" onClick={ handleSubmit }>
 						{ __( 'Got it', 'jetpack-forms' ) }
 					</Button>
 				</HStack>

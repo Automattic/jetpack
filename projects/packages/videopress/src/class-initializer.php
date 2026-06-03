@@ -122,6 +122,8 @@ class Initializer {
 		Attachment_Handler::init();
 		Jwt_Token_Bridge::init();
 		Uploader_Rest_Endpoints::init();
+		Rest_Controller::init();
+		Initial_State::init();
 		VideoPress_Rest_Api_V1_Stats::init();
 		VideoPress_Rest_Api_V1_Site::init();
 		VideoPress_Rest_Api_V1_Settings::init();
@@ -199,14 +201,14 @@ class Initializer {
 		global $wp_embed;
 
 		// CSS classes.
-		$align        = isset( $block_attributes['align'] ) ? $block_attributes['align'] : null;
+		$align        = $block_attributes['align'] ?? null;
 		$align_class  = $align ? ' align' . $align : '';
 		$custom_class = isset( $block_attributes['className'] ) ? ' ' . $block_attributes['className'] : '';
 		$classes      = 'wp-block-jetpack-videopress jetpack-videopress-player' . $custom_class . $align_class;
 
 		// Inline style.
 		$style     = '';
-		$max_width = isset( $block_attributes['maxWidth'] ) ? $block_attributes['maxWidth'] : null;
+		$max_width = $block_attributes['maxWidth'] ?? null;
 
 		if ( $max_width && $max_width !== '100%' ) {
 			$style    = sprintf( 'max-width: %s;', $max_width );
@@ -222,7 +224,7 @@ class Initializer {
 		$figcaption = '';
 
 		// Caption from block attributes.
-		$caption = isset( $block_attributes['caption'] ) ? $block_attributes['caption'] : null;
+		$caption = $block_attributes['caption'] ?? null;
 
 		/*
 		 * If the caption is not stored into the block attributes,
@@ -230,7 +232,7 @@ class Initializer {
 		 */
 		if ( $caption === null ) {
 			preg_match( '/<figcaption>(.*?)<\/figcaption>/', $content, $matches );
-			$caption = isset( $matches[1] ) ? $matches[1] : null;
+			$caption = $matches[1] ?? null;
 		}
 
 		// If we have a caption, create the <figcaption /> element.
@@ -254,9 +256,9 @@ class Initializer {
 			isset( $block_attributes['posterData']['previewOnHover'] ) &&
 			$block_attributes['posterData']['previewOnHover'];
 
-		$autoplay = isset( $block_attributes['autoplay'] ) ? $block_attributes['autoplay'] : false;
-		$controls = isset( $block_attributes['controls'] ) ? $block_attributes['controls'] : false;
-		$poster   = isset( $block_attributes['posterData']['url'] ) ? $block_attributes['posterData']['url'] : null;
+		$autoplay = $block_attributes['autoplay'] ?? false;
+		$controls = $block_attributes['controls'] ?? false;
+		$poster   = $block_attributes['posterData']['url'] ?? null;
 
 		$preview_on_hover = '';
 
@@ -298,7 +300,7 @@ class Initializer {
 		';
 
 		// VideoPress URL.
-		$guid           = isset( $block_attributes['guid'] ) ? $block_attributes['guid'] : null;
+		$guid           = $block_attributes['guid'] ?? null;
 		$videopress_url = Utils::get_video_press_url( $guid, $block_attributes );
 
 		$video_wrapper         = '';

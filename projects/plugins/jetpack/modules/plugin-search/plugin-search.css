@@ -2,19 +2,6 @@
 	white-space: nowrap;
 }
 
-.plugin-card-jetpack-plugin-search .plugin-action-buttons .jetpack-plugin-search__primary {
-	background: #069e08;
-	border-color: #00a523;
-	color: #fff;
-	box-shadow: 0 1px 0 #c5e2c3;
-}
-
-.plugin-card-jetpack-plugin-search .plugin-action-buttons .jetpack-plugin-search__primary:hover {
-	background: #00a523;
-	border-color: #008b1d;
-	color: #fff;
-}
-
 .plugin-card-jetpack-plugin-search .plugin-card-bottom {
 	display: none;
 }

@@ -17,7 +17,7 @@ import Response from './response';
 function Inspector() {
 	return (
 		<WpRouteDashboardSearchParamsProvider from="/responses/$view">
-			<Page showSidebarToggle={ false } hasPadding={ false }>
+			<Page hasPadding={ false }>
 				<Response />
 			</Page>
 		</WpRouteDashboardSearchParamsProvider>

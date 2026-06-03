@@ -73,7 +73,7 @@ Example: `jetpack generate plugin --name my_cool_plugin` will generate plugin fi
 
 ### What's Included
 
-The Jetpack Generate Wizard includes the following for each project: 
+The Jetpack Generate Wizard includes the following for each project:
 #### All Projects:
 
 - composer.json
@@ -118,8 +118,11 @@ We use `composer.json` to hold metadata about projects. Much of our generic tool
 * `.scripts.build-production`: If your project requires a production-specific build step, this must run the necessary commands. See [Building](#building) for details.
 * `.scripts.watch`: If your project supports watch mode for development, this should run the necessary commands to watch for file changes and rebuild automatically.
 * `.scripts.watch-hot`: If your project supports HMR (Hot Module Replacement), this should run the necessary commands to enable hot reloading during development. Used by `jetpack watch --hot`.
-* `.scripts.test-coverage`: If the package contains any tests, this must run the necessary commands to generate a coverage report. See [Code coverage](#code-coverage) for details.
-  * `.scripts.skip-test-coverage`: Run before `.scripts.test-coverage` in CI. If it exits with code 3, the test run will be skipped.
+* `.scripts.test-php-coverage`: If the package contains any PHPUnit tests, this must run the necessary commands to generate a PHP coverage report. See [Code coverage](#code-coverage) for details.
+  * `.scripts.skip-test-php-coverage`: Run before `.scripts.test-php-coverage` in CI. If it exits with code 3, the test run will be skipped.
+* `.scripts.test-js-coverage`: If the package contains any JavaScript tests, this must run the necessary commands to generate a JS coverage report. See [Code coverage](#code-coverage) for details.
+  * `.scripts.skip-test-js-coverage`: Run before `.scripts.test-js-coverage` in CI. If it exits with code 3, the test run will be skipped.
+* `.scripts.test-coverage` (legacy): Convenience script that delegates to `test-php-coverage` and/or `test-js-coverage` (typically via `pnpm concurrently`). This will be removed soon.
 * `.scripts.test-e2e`: If the package contains any E2E tests, this must run the necessary commands. See [E2E tests](#e2e-tests) for details.
 * `.scripts.test-js`: If the package contains any JavaScript tests, this must run the necessary commands. See [JavaScript tests](#javascript-tests) for details.
   * `.scripts.skip-test-js`: Run before `.scripts.test-js` in CI. If it exits with code 3, the test run will be skipped.
@@ -310,17 +313,17 @@ If a project contains end-to-end tests, it must define `.scripts.test-e2e` in `c
 
 ### Code coverage
 
-If a project contains PHP or JavaScript tests, it should also define `.scripts.test-coverage` in `composer.json` to run the tests in a mode that will generate code coverage output. The CI environment will run `pnpm install` and `composer install` beforehand, but if a build step is required before running tests the necessary commands for that should also be included in `.scripts.test-coverage`.
+If a project contains PHP or JavaScript tests, it should define `.scripts.test-php-coverage` and/or `.scripts.test-js-coverage` in `composer.json` to run the tests in a mode that generates code coverage output. The CI environment runs `pnpm install` and `composer install` beforehand, but if a build step is required before running tests the necessary commands for that should also be included in the relevant script.
 
 Output should be written to the path specified via the `COVERAGE_DIR` environment variable. Subdirectories of that path may be used as desired.
 
 For PHP tests, you'll probably run PHPUnit as `php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php "$COVERAGE_DIR/php.cov"`. If you have multiple runs (e.g. unit and integration), be sure to write the `php.cov` files to separate subdirectories of `$COVERAGE_DIR`.
 
-For JS tests, you'll probably have a `test` script in package.json that runs `jest` with any needed options, and then a `test-coverage` script that does `pnpm run test --coverage`. If you have multiple runs (e.g. unit and integration), be sure each run writes to a different subdirectory of `$COVERAGE_DIR`.
+For JS tests, you'll probably have a `test` script in package.json that runs `jest` with any needed options, and then a `test-js-coverage` script that does `pnpm run test --coverage`. If you have multiple runs (e.g. unit and integration), be sure each run writes to a different subdirectory of `$COVERAGE_DIR`.
 
-There's no need to be concerned about collisions with other projects' coverage files, a separate directory is used per project. The coverage files are also automatically copied to `ARTIFACTS_DIR`.
+There's no need to be concerned about collisions with other projects' coverage files, as a separate directory is used per project. The coverage files are also automatically copied to `ARTIFACTS_DIR`.
 
-If you want to generate coverage locally, e.g. with `jetpack test coverage`, note that generating PHP coverage requires the [pcov](https://pecl.php.net/package/pcov) or [xdebug](https://pecl.php.net/package/xdebug) extensions. We use `pcov` for the CI runs; results from `xdebug` may be slightly different.
+If you want to generate coverage locally, this can be done with `jetpack test php-coverage` or `jetpack test js-coverage`. Note that generating PHP coverage requires the [pcov](https://pecl.php.net/package/pcov) or [xdebug](https://pecl.php.net/package/xdebug) extensions. We use `pcov` for the CI runs; results from `xdebug` may be slightly different.
 
 <details><summary>Installing the PHP pcov extension on Linux</summary>
 
@@ -372,18 +375,25 @@ This assumes you have PHP installed via Homebrew, e.g. you've done `brew install
 Most projects in the monorepo should have a mirror repository holding a built version of the project, ready for deployment. Follow these steps to create the mirror repo and configure the monorepo tooling to push to it.
 
 1. Create the mirror repo on GitHub. It will most likely be named like "<span>https://</span>github.com/Automattic/jetpack-_something_".
-   1. The repo's description should begin with `[READ ONLY]` and end with `This repository is a mirror; for issue tracking and development head here: https://github.com/automattic/jetpack`.
-   2. The default branch should be `trunk`, matching the monorepo.
-      * Note that you can't set the default branch until at least one branch is created in the repo.
-   3. In the repo's settings, turn off wikis, PRs, issues, projects, discussions, and so on.
-   4. Make sure that [matticbot](https://github.com/matticbot) can push to the repo. Usually no special configuration is needed for repos under the Automattic organization.
-   5. Make sure that Actions are enabled. The build process copies workflows from `.github/files/mirror-.github` into the mirror to do useful things like automatically close PRs with a reference back to the monorepo.
-      * Set "Approval for running fork pull request workflows from contributors" to "Require approval for all external contributors".
-      * Set "Workflow permissions" to "Read repository contents and packages permissions".
-   6. Set up any secrets and configuration needed (e.g. for [Autotagger](#autotagger) or [Autopublisher](#wordpressorg-svn-auto-publisher)). See PCYsg-xsv-p2#mirror-repo-secrets for details.
-2. For a PHP package (or a plugin listed in Packagist) you also need to go to packagist.org and create the package there. This requires pushing a first commit with a valid `composer.json` to the repository. That can be done by copying the new package's `composer.json` from the PR that introduced it.
-   1. Be sure that `automattic` is added as a maintainer.
-   2. If creating the package with your own account, make sure to link your GitHub account to Packagist so that you can sync the new package.
+	1. Set the repo description:
+		* Begin with `[READ ONLY]`.
+		* Include a description of the project.
+		* End with `This repository is a mirror; for issue tracking and development head here: https://github.com/automattic/jetpack`.
+	2. In the repo settings, turn off wikis, PRs, issues, projects, discussions, and so on.
+	3. If the mirror repo is not under the Automattic organization, make sure that [matticbot](https://github.com/matticbot) can push to the repo.
+	4. Configure Actions settings:
+		* Set "Allow all actions and reusable workflows", click "Save" button. The build process may copy workflows from `.github/files/mirror-.github` and `.github/files/gh-*` into the mirror.
+		* Set "Approval for running fork pull request workflows from contributors" to "Require approval for all external contributors", click "Save" button.
+		* Set "Workflow permissions" to "Read repository contents and packages permissions".
+		* Disable "Allow GitHub Actions to create and approve pull requests", as PRs are created in the monorepo, click "Save" button.
+		* Double check all the setting above. If you only clicked save once, the options might not have been saved correctly.
+	5. Set up any secrets and configuration for [Autotagger](#autotagger) and [Autopublisher](#wordpressorg-svn-auto-publisher)) (if needed). See PCYsg-xsv-p2#mirror-repo-secrets the secret details.
+	6. The default branch should be `trunk`, matching the monorepo. Note that you can't set the default branch until at least one branch is created in the repo.
+2. If this is a PHP package that will be published on Packagist, do the following:
+	* Copy the new package's `composer.json` from the PR that introduced it into the new repo and commit/push it to `trunk`.
+	* Create the package in Packagist.
+	* Be sure that `automattic` is added as a maintainer.
+	* Configure a GitHub webhook to allow for auto-updates (see [Packagist docs](https://packagist.org/about#how-to-update-packages)).
 3. If your project requires building, configure `.scripts.build-production` in your project's `composer.json` to run the necessary commands.
 4. If there are any files included in the monorepo that should not be included in the mirror, use `.gitattributes` to tag them with "production-exclude".
 5. If there are any built files in `.gitignore` that should be included in the mirror, use `.gitattributes` to tag them with "production-include".

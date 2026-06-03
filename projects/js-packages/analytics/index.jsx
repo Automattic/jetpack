@@ -5,6 +5,7 @@ let _superProps, _user;
 
 // Load tracking scripts
 window._tkq = window._tkq || [];
+
 window.ga =
 	window.ga ||
 	function () {
@@ -146,6 +147,13 @@ const analytics = {
 				return;
 			}
 
+			if (
+				! eventProperties.blog_id &&
+				typeof window.jpTracksContext === 'object' &&
+				window.jpTracksContext.blog_id
+			) {
+				eventProperties.blog_id = window.jpTracksContext.blog_id;
+			}
 			if ( _superProps ) {
 				debug( '- Super Props: %o', _superProps );
 				eventProperties = Object.assign( eventProperties, _superProps );

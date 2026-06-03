@@ -1,14 +1,5 @@
 @use "scss/variables";
 
-$color-button-background: variables.$black;
-$color-button-text: variables.$white;
-$color-button-background-disabled: #dcdcde;
-$color-button-text-disabled: #a7aaad;
-$toggle-dot-radius: 0.9375em;
-$toggle-dot-padding: 0.1875em;
-$toggle-height: 1.5em;
-$toggle-width: 3em;
-
 .jp-form-search-settings-group {
 	width: 100%;
 	position: relative;
@@ -17,10 +8,6 @@ $toggle-width: 3em;
 		box-shadow: none;
 		padding: 0;
 		padding-top: 4em;
-	}
-
-	.form-toggle__label {
-		margin: 0;
 	}
 
 	&.jp-form-search-settings-group--disabled {
@@ -39,7 +26,14 @@ $toggle-width: 3em;
 
 .jp-form-search-settings-group__toggle {
 
-	&.is-instant-search {
+	&.is-instant-search,
+	&.is-reader-chat,
+	&.is-ai-agent-access {
+		margin-top: 4em;
+	}
+
+	&.is-reader-chat + &.is-search-suggestions,
+	&.is-ai-agent-access + &.is-search-suggestions {
 		margin-top: 4em;
 	}
 
@@ -52,7 +46,7 @@ $toggle-width: 3em;
 	}
 }
 
-.form-toggle__label-content {
+.jp-search-dashboard-toggle .components-toggle-control__label {
 	font-size: 1.5em;
 	line-height: 1.167;
 	font-weight: 600;
@@ -60,6 +54,17 @@ $toggle-width: 3em;
 	span {
 		font-weight: 400;
 	}
+}
+
+.jp-search-dashboard-toggle .components-h-stack {
+	align-items: baseline;
+}
+
+.is-reader-chat .jp-search-dashboard-toggle .components-toggle-control__label {
+	display: inline-flex;
+	align-items: center;
+	flex-wrap: wrap;
+	gap: var(--wpds-dimension-gap-sm, 8px);
 }
 
 .jp-form-search-settings-group__toggle-description {
@@ -85,78 +90,7 @@ p.jp-form-search-settings-group__toggle-explanation {
 	min-height: 2.5em;
 	padding: 0.5em 1.5em;
 	text-align: center;
-
-	border-color: $color-button-background;
 	font-size: 1em;
-
-	&.is-customize-search {
-		color: $color-button-text;
-		background-color: $color-button-background;
-	}
-
-	&:disabled,
-	&[disabled] {
-		background-color: $color-button-background-disabled;
-		border-color: $color-button-background-disabled;
-		color: $color-button-text-disabled;
-		cursor: not-allowed;
-	}
-
-	&.is-widgets-editor {
-		color: $color-button-background;
-		background: transparent;
-
-		&:disabled,
-		&[disabled] {
-			color: $color-button-text-disabled;
-			background: transparent;
-		}
-	}
-}
-
-.form-toggle.is-search-admin.is-compact {
-
-	+ .form-toggle__switch {
-		border-radius: calc(#{$toggle-height}/ 2);
-		width: $toggle-width;
-		height: $toggle-height;
-
-		&::before,
-		&::after {
-			width: $toggle-dot-radius;
-			height: $toggle-dot-radius;
-			background-color: variables.$black;
-		}
-		background: variables.$white;
-		border: 2px solid variables.$black;
-
-		&:focus {
-			box-shadow: 0 0 0 2px variables.$blue-medium;
-		}
-	}
-
-	&:checked {
-
-		+ .form-toggle__switch {
-			background: variables.$color-plan;
-			border-color: variables.$color-plan;
-
-			&::after {
-				left: $toggle-height;
-				background-color: variables.$white;
-			}
-		}
-	}
-
-	&.is-toggling + .form-toggle__switch::before,
-	&.is-toggling + .form-toggle__switch::after {
-		left: $toggle-height;
-	}
-
-	&.is-toggling:checked + .form-toggle__switch::before,
-	&.is-toggling:checked + .form-toggle__switch::after {
-		left: 0;
-	}
 }
 
 .jp-search-dashboard-cut {

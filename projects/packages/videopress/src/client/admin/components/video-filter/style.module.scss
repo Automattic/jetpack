@@ -11,21 +11,8 @@
 
 .filters-section {
 	background-color: var(--jp-gray-0);
-
-	.checkbox-container:last-child {
-		margin-bottom: 0;
-	}
 }
 
-.title-adornment {
-	fill: var(--jp-gray-10);
-	margin-left: var(--spacing-base);
-	display: inline-flex;
-
-	:global(.components-tooltip.components-popover .components-popover__content) {
-		min-width: auto;
-		max-width: 256px;
-		width: 256px;
-		white-space: break-spaces;
-	}
+.filter-checkbox {
+	padding-top: var(--spacing-base);
 }

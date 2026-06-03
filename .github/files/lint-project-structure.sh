@@ -88,12 +88,6 @@ for PROJECT in projects/*/*; do
 
 	debug "Checking project $SLUG"
 
-	# - .github/ must be export-ignored for packages.
-	if [[ "$TYPE" == "packages" && "$(git check-attr export-ignore -- $PROJECT/.github/)" != *": export-ignore: set" ]]; then
-		EXIT=1
-		echo "::error file=$PROJECT/.gitattributes::$PROJECT/.github/ should have git attribute export-ignore."
-	fi
-
 	# - package.json for js modules should look like a library to renovate.
 	if [[ "$PROJECT" == projects/js-packages/* && -e "$PROJECT/package.json" ]]; then
 		! IFS= read -r INDEX < <( ls -- "$PROJECT"/index.{js,jsx,cjs,mjs,ts,tsx,d.ts} 2>/dev/null )
@@ -267,22 +261,16 @@ for PROJECT in projects/*/*; do
 		echo "::error file=$PROJECT/composer.json::$PROJECT/composer.json should have a \`repositories\` entry pointing to \`../../packages/*\`."
 	fi
 
-	# - composer.json must require-dev (or just require) changelogger.
 	# - Changelogger's changes-dir must have a .gitkeep.
 	# - Changelogger's changes-dir must be production-excluded.
-	if [[ "$SLUG" != "packages/changelogger" ]] && ! jq -e '.require["automattic/changelogger"] // .["require-dev"]["automattic/jetpack-changelogger"]' "$PROJECT/composer.json" >/dev/null; then
+	CHANGES_DIR="$(jq -r '.extra.changelogger["changes-dir"] // "changelog"' "$PROJECT/composer.json")"
+	if [[ ! -e "$PROJECT/$CHANGES_DIR/.gitkeep" ]]; then
 		EXIT=1
-		echo "::error file=$PROJECT/composer.json::Project $SLUG should include automattic/jetpack-changelogger in \`require-dev\`."
-	else
-		CHANGES_DIR="$(jq -r '.extra.changelogger["changes-dir"] // "changelog"' "$PROJECT/composer.json")"
-		if [[ ! -e "$PROJECT/$CHANGES_DIR/.gitkeep" ]]; then
-			EXIT=1
-			echo "::error file=$PROJECT/$CHANGES_DIR/.gitkeep::Project $SLUG should have a file at $CHANGES_DIR/.gitkeep so that $CHANGES_DIR does not get removed when releasing."
-		fi
-		if [[ "$(git check-attr production-exclude -- $PROJECT/$CHANGES_DIR/file)" != *": production-exclude: set" ]]; then
-			EXIT=1
-			echo "::error file=$PROJECT/.gitattributes::Files in $PROJECT/$CHANGES_DIR/ must have git attribute production-exclude."
-		fi
+		echo "::error file=$PROJECT/$CHANGES_DIR/.gitkeep::Project $SLUG should have a file at $CHANGES_DIR/.gitkeep so that $CHANGES_DIR does not get removed when releasing."
+	fi
+	if [[ "$(git check-attr production-exclude -- $PROJECT/$CHANGES_DIR/file)" != *": production-exclude: set" ]]; then
+		EXIT=1
+		echo "::error file=$PROJECT/.gitattributes::Files in $PROJECT/$CHANGES_DIR/ must have git attribute production-exclude."
 	fi
 
 	# - Packages must have a dev-trunk branch-alias.
@@ -775,5 +763,11 @@ if [[ -d node_modules/.pnpm/node_modules ]]; then
 	EXIT=1
 	echo '::error::Packages are unexpectedly hoisted into node_modules/.pnpm/node_modules. This is likely to lead to phantom dependencies! Whatever you did that resulted in this is probably wrong. Ask for help in Slack #jetpack-monorepo.'
 fi
+
+# - Obsolete pnpm trustPolicyExclude.
+debug "Checking for obsolete pnpm trustPolicyExclude"
+"$BASE/tools/js-tools/check-obsolete-pnpm-trust-policy-exclude.mjs" || EXIT=1
+
+debug "Finished"
 
 exit $EXIT

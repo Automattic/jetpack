@@ -90,6 +90,10 @@ export default function useExportResponses(): ExportHookReturn {
 			data.append( 'search', currentQuery.search || '' );
 			data.append( 'status', currentQuery.status );
 
+			if ( currentQuery.source ) {
+				data.append( 'source', currentQuery.source );
+			}
+
 			if ( currentQuery.before && currentQuery.after ) {
 				data.append( 'before', currentQuery.before );
 				data.append( 'after', currentQuery.after );

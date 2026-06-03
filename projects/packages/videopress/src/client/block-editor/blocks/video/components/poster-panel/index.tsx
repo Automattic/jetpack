@@ -39,7 +39,7 @@ import './style.scss';
  */
 import type { AdminAjaxQueryAttachmentsResponseItemProps } from '../../../../../types';
 import type { PosterDataProps, PosterPanelProps, VideoControlProps, VideoGUID } from '../../types';
-import type { MutableRefObject, ReactElement } from 'react';
+import type { ReactElement, RefObject } from 'react';
 
 const MIN_LOOP_DURATION = 3 * 1000;
 const MAX_LOOP_DURATION = 10 * 1000;
@@ -206,12 +206,10 @@ export function PosterDropdown( {
  * Return the (content) Window object of the iframe,
  * given the iframe's ref.
  *
- * @param {MutableRefObject< HTMLDivElement >} iFrameRef - iframe ref
+ * @param {RefObject< HTMLDivElement >} iFrameRef - iframe ref
  * @return {Window | null} Window object of the iframe
  */
-export const getIframeWindowFromRef = (
-	iFrameRef: MutableRefObject< HTMLDivElement >
-): Window | null => {
+export const getIframeWindowFromRef = ( iFrameRef: RefObject< HTMLDivElement > ): Window | null => {
 	const iFrame: HTMLIFrameElement = iFrameRef?.current?.querySelector(
 		'iframe.components-sandbox'
 	);
@@ -232,7 +230,7 @@ type PosterFramePickerProps = {
  * @param {PosterFramePickerProps} props - Component properties
  * @return { ReactElement}          React component
  */
-function VideoFramePicker( {
+export function VideoFramePicker( {
 	guid,
 	isGeneratingPoster,
 	atTime = 0.1,
@@ -266,10 +264,13 @@ function VideoFramePicker( {
 	const onTimestampDebounceChange = useCallback(
 		iframeTimePosition => {
 			const sandboxIFrameWindow = getIframeWindowFromRef( playerWrapperRef );
-			sandboxIFrameWindow?.postMessage( {
-				event: 'videopress_action_set_currenttime',
-				currentTime: iframeTimePosition / 1000,
-			} );
+			sandboxIFrameWindow?.postMessage(
+				{
+					event: 'videopress_action_set_currenttime',
+					currentTime: iframeTimePosition / 1000,
+				},
+				'*'
+			);
 			onVideoFrameSelect( iframeTimePosition );
 		},
 		[ getIframeWindowFromRef, onVideoFrameSelect ]
@@ -285,7 +286,7 @@ function VideoFramePicker( {
 				} ) }
 			>
 				{ ( ! playerIsReady || isGeneratingPoster ) && <Spinner /> }
-				<SandBox html={ html } scripts={ sandboxScripts } />
+				<SandBox html={ html } scripts={ sandboxScripts } allowSameOrigin />
 			</div>
 
 			{ isGeneratingPoster && (

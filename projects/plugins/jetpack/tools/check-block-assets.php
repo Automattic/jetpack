@@ -84,7 +84,7 @@ $allowed = array(
 chdir( dirname( __DIR__ ) );
 $base   = 'projects/plugins/jetpack/';
 $script = 'projects/plugins/jetpack/tools/check-block-assets.php';
-$issues = array( $script => array() );
+$issues = array();
 
 $tmp = $bad_deps;
 sort( $bad_deps );
@@ -141,9 +141,16 @@ if ( ! empty( $allowed ) ) {
 	}
 }
 
-if ( empty( $issues[ $script ] ) ) {
-	unset( $issues[ $script ] );
+// Additionally, check the editor-no-post-editor bundle to make sure it really lacks a dependency on wp-edit-post.
+if ( file_exists( '_inc/blocks/editor-no-post-editor.asset.php' ) ) {
+	$data = require __DIR__ . '/../_inc/blocks/editor-no-post-editor.asset.php';
+	if ( in_array( 'wp-edit-post', $data['dependencies'], true ) ) {
+		$issues[ $base . '_inc/blocks/editor-no-post-editor.asset.php' ][] = 'The editor-no-post-editor.js bundle depends on wp-edit-post. It must not.';
+	}
+} else {
+	$issues[ $script ][] = 'Cannot check _inc/blocks/editor-no-post-editor.asset.php, asset file not found.';
 }
+
 if ( ! empty( $issues ) ) {
 	echo "\n\n\e[1mBlock view script dependency check detected issues!\e[0m\n";
 	foreach ( $issues as $file => $msgs ) {

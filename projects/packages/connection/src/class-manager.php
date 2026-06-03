@@ -191,7 +191,10 @@ class Manager {
 		Partner::init();
 
 		// WP 7.0+ Connectors screen card.
-		Wpcom_Connector::init();
+		Jetpack_Connector::init();
+
+		// Site Health integration.
+		Site_Health::init();
 	}
 
 	/**
@@ -213,6 +216,7 @@ class Manager {
 		add_action( 'pre_update_jetpack_option_master_user', array( $this, 'reset_connection_status' ) );
 		// phpcs:ignore WPCUT.SwitchBlog.SwitchBlog -- wpcom flags **every** use of switch_blog, apparently expecting valid instances to ignore or suppress the sniff.
 		add_action( 'switch_blog', array( $this, 'reset_connection_status' ) );
+		add_action( 'jetpack_external_storage_provider_registered', array( $this, 'reset_connection_status' ), 10, 0 );
 
 		self::$connection_invalidators_added = true;
 	}
@@ -468,7 +472,7 @@ class Manager {
 			'nonce'     => isset( $_GET['nonce'] ) ? wp_unslash( $_GET['nonce'] ) : '',
 			'body_hash' => isset( $_GET['body-hash'] ) ? wp_unslash( $_GET['body-hash'] ) : '',
 			'method'    => isset( $_SERVER['REQUEST_METHOD'] ) ? wp_unslash( $_SERVER['REQUEST_METHOD'] ) : null,
-			'url'       => wp_unslash( ( isset( $_SERVER['HTTP_HOST'] ) ? $_SERVER['HTTP_HOST'] : null ) . ( isset( $_SERVER['REQUEST_URI'] ) ? $_SERVER['REQUEST_URI'] : null ) ), // Temp - will get real signature URL later.
+			'url'       => wp_unslash( ( $_SERVER['HTTP_HOST'] ?? null ) . ( $_SERVER['REQUEST_URI'] ?? null ) ), // Temp - will get real signature URL later.
 			'signature' => isset( $_GET['signature'] ) ? wp_unslash( $_GET['signature'] ) : '',
 		);
 
@@ -1050,7 +1054,7 @@ class Manager {
 		if ( $is_disconnected_from_wpcom || $force_disconnect_locally ) {
 			// Get the WordPress.com email before disconnecting the user
 			$wpcom_user_data = $this->get_connected_user_data( $user_id );
-			$wpcom_email     = isset( $wpcom_user_data['email'] ) ? $wpcom_user_data['email'] : null;
+			$wpcom_email     = $wpcom_user_data['email'] ?? null;
 
 			// Disconnect the user locally.
 			$is_disconnected_locally = $this->get_tokens()->disconnect_user( $user_id );
@@ -1281,9 +1285,7 @@ class Manager {
 		}
 
 		$stats_options = get_option( 'stats_options' );
-		$stats_id      = isset( $stats_options['blog_id'] )
-			? $stats_options['blog_id']
-			: null;
+		$stats_id      = $stats_options['blog_id'] ?? null;
 
 		/* This action is documented in src/class-package-version-tracker.php */
 		$package_versions = apply_filters( 'jetpack_package_versions', array() );
@@ -1389,7 +1391,7 @@ class Manager {
 			);
 		}
 
-		$alternate_authorization_url = isset( $registration_details->alternate_authorization_url ) ? $registration_details->alternate_authorization_url : '';
+		$alternate_authorization_url = $registration_details->alternate_authorization_url ?? '';
 
 		add_filter(
 			'jetpack_register_site_rest_response',
@@ -2091,6 +2093,51 @@ class Manager {
 		 */
 		$auth_type = apply_filters( 'jetpack_auth_type', 'calypso' );
 
+		$body_args = array(
+			'response_type'         => 'code',
+			'client_id'             => \Jetpack_Options::get_option( 'id' ),
+			'redirect_uri'          => add_query_arg(
+				array(
+					'handler'  => 'jetpack-connection-webhooks',
+					'action'   => 'authorize',
+					'_wpnonce' => wp_create_nonce( "jetpack-authorize_{$role}_{$redirect}" ),
+					'redirect' => $redirect ? rawurlencode( $redirect ) : false,
+				),
+				esc_url( $processing_url )
+			),
+			'state'                 => $user->ID,
+			'scope'                 => $signed_role,
+			'user_email'            => $user->user_email,
+			'user_login'            => $user->user_login,
+			'is_active'             => $this->has_connected_owner(), // TODO Deprecate this.
+			'jp_version'            => (string) Constants::get_constant( 'JETPACK__VERSION' ),
+			'auth_type'             => $auth_type,
+			'secret'                => $secrets['secret_1'],
+			'blogname'              => get_option( 'blogname' ),
+			'site_url'              => Urls::site_url(),
+			'home_url'              => Urls::home_url(),
+			'site_icon'             => get_site_icon_url(),
+			'site_lang'             => get_locale(),
+			'site_created'          => $this->get_assumed_site_creation_date(),
+			'allow_site_connection' => ! $this->has_connected_owner(),
+			'calypso_env'           => ( new Host() )->get_calypso_env(),
+			'source'                => ( new Host() )->get_source_query(),
+		);
+
+		// Include the slugs of every plugin currently using the Jetpack connection so wpcom
+		// knows which integrations the site is authorizing on behalf of. `Plugin_Storage::get_all()`
+		// returns a `WP_Error` when called before `plugins_loaded`; in that case we silently skip.
+		$active_plugins = Plugin_Storage::get_all();
+		if ( is_array( $active_plugins ) && ! empty( $active_plugins ) ) {
+			$body_args['plugins'] = implode( ',', array_keys( $active_plugins ) );
+		}
+
+		// Signal to Calypso that the site already has a connection owner so the
+		// authorize page can show secondary-connection content where appropriate.
+		if ( $this->has_connected_owner() ) {
+			$body_args['has_connected_owner'] = true;
+		}
+
 		/**
 		 * Filters the user connection request data for additional property addition.
 		 *
@@ -2099,39 +2146,7 @@ class Manager {
 		 *
 		 * @param array $request_data request data.
 		 */
-		$body = apply_filters(
-			'jetpack_connect_request_body',
-			array(
-				'response_type'         => 'code',
-				'client_id'             => \Jetpack_Options::get_option( 'id' ),
-				'redirect_uri'          => add_query_arg(
-					array(
-						'handler'  => 'jetpack-connection-webhooks',
-						'action'   => 'authorize',
-						'_wpnonce' => wp_create_nonce( "jetpack-authorize_{$role}_{$redirect}" ),
-						'redirect' => $redirect ? rawurlencode( $redirect ) : false,
-					),
-					esc_url( $processing_url )
-				),
-				'state'                 => $user->ID,
-				'scope'                 => $signed_role,
-				'user_email'            => $user->user_email,
-				'user_login'            => $user->user_login,
-				'is_active'             => $this->has_connected_owner(), // TODO Deprecate this.
-				'jp_version'            => (string) Constants::get_constant( 'JETPACK__VERSION' ),
-				'auth_type'             => $auth_type,
-				'secret'                => $secrets['secret_1'],
-				'blogname'              => get_option( 'blogname' ),
-				'site_url'              => Urls::site_url(),
-				'home_url'              => Urls::home_url(),
-				'site_icon'             => get_site_icon_url(),
-				'site_lang'             => get_locale(),
-				'site_created'          => $this->get_assumed_site_creation_date(),
-				'allow_site_connection' => ! $this->has_connected_owner(),
-				'calypso_env'           => ( new Host() )->get_calypso_env(),
-				'source'                => ( new Host() )->get_source_query(),
-			)
-		);
+		$body = apply_filters( 'jetpack_connect_request_body', $body_args );
 
 		$body = static::apply_activation_source_to_args( urlencode_deep( $body ) );
 
@@ -2481,7 +2496,7 @@ class Manager {
 	 * @return array the same array, since this method doesn't add or remove anything.
 	 */
 	public function xmlrpc_methods( $methods ) {
-		$this->raw_post_data = isset( $GLOBALS['HTTP_RAW_POST_DATA'] ) ? $GLOBALS['HTTP_RAW_POST_DATA'] : null;
+		$this->raw_post_data = $GLOBALS['HTTP_RAW_POST_DATA'] ?? null;
 		return $methods;
 	}
 

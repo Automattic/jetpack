@@ -3,27 +3,32 @@
 import { jest } from '@jest/globals';
 import { render, screen } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
+import { forwardRef } from 'react';
 
 const mockGoBack = jest.fn();
-
 // ESM-compatible mock - must be before dynamic import
 jest.unstable_mockModule( '@wordpress/components', () => ( {
-	Modal: ( {
-		children,
-		onRequestClose,
-	}: {
-		children: React.ReactNode;
-		onRequestClose?: ( event?: React.SyntheticEvent ) => void;
-	} ) => (
-		<div data-testid="mock-modal">
-			<button data-testid="close-with-event" onClick={ e => onRequestClose?.( e ) }>
-				Close with event
-			</button>
-			<button data-testid="close-without-event" onClick={ () => onRequestClose?.() }>
-				Close without event
-			</button>
-			{ children }
-		</div>
+	Modal: forwardRef(
+		(
+			{
+				children,
+				onRequestClose,
+			}: {
+				children: React.ReactNode;
+				onRequestClose?: ( event?: React.SyntheticEvent ) => void;
+			},
+			ref: React.Ref< HTMLDivElement >
+		) => (
+			<div data-testid="mock-modal" ref={ ref }>
+				<button data-testid="close-with-event" onClick={ e => onRequestClose?.( e ) }>
+					Close with event
+				</button>
+				<button data-testid="close-without-event" onClick={ () => onRequestClose?.() }>
+					Close without event
+				</button>
+				{ children }
+			</div>
+		)
 	),
 	Navigator: Object.assign(
 		( { children }: { children: React.ReactNode } ) => (
@@ -87,7 +92,7 @@ describe( 'NavigatorModal', () => {
 			expect( mockOnClose ).toHaveBeenCalledTimes( 1 );
 		} );
 
-		it( 'does not call onClose when WordPress Modal dismisser calls onRequestClose without an event', async () => {
+		it( 'calls onClose on overlay click (onRequestClose without event but after pointer interaction)', async () => {
 			const user = userEvent.setup();
 			const mockOnClose = jest.fn();
 
@@ -97,9 +102,12 @@ describe( 'NavigatorModal', () => {
 				</NavigatorModal>
 			);
 
+			// Clicking the button triggers pointerdown on the overlay (bubbles up
+			// to mock-modal ref), then the button calls onRequestClose() without event.
+			// This mirrors the real overlay click flow.
 			await user.click( screen.getByTestId( 'close-without-event' ) );
 
-			expect( mockOnClose ).not.toHaveBeenCalled();
+			expect( mockOnClose ).toHaveBeenCalledTimes( 1 );
 		} );
 
 		it( 'does not crash when onClose is not provided', async () => {

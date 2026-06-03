@@ -10,9 +10,11 @@ BASE=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
 # Print help and exit.
 function usage {
 	cat <<-EOH
-		usage: $0 [-q]
+		usage: $0 [-q] [repo]
 
 		Check that all mirror repos are configured correctly.
+
+		If passed an argument, checks only that repo.
 	EOH
 	exit 1
 }
@@ -35,7 +37,7 @@ function err {
 	fi
 	echo "  ❌ $*$S"
 	if [[ -n "$CI" ]]; then
-		echo "::error::$* in $repo"
+		echo "::error${CIERRORLINE}::$* in $repo"
 	fi
 }
 
@@ -79,15 +81,29 @@ if ! gh auth status --hostname github.com &> /dev/null; then
 fi
 
 DESC_RE1='^\[READ ONLY\] '
-DESC_RE2=' This repository is a mirror([,;] f|\. F)or issue tracking and development,? (go|head) (to:?|here:) https://github\.com/[Aa]utomattic/[Jj]etpack/?\.?$'
+DESC_RE2=' This repository is a mirror([,;] f|\. F)or issue tracking and development,? (go|head) (to:?|here:) https://github\.com/[Aa]utomattic/[Jj]etpack/?\.?\s*$'
+
+if [[ -n "$1" ]]; then
+	REPOS="$1"
+else
+	REPOS=$( jq -r '.extra["mirror-repo"] // empty' projects/*/*/composer.json | sort -u )
+fi
 
 cd "$BASE"
-for repo in $( jq -r '.extra["mirror-repo"] // empty' projects/*/*/composer.json | sort -u ); do
-	[[ "$repo" == "Automattic/wp-super-cache" ]] && continue # pbFulr-1bL-p2#comment-543
+for repo in $REPOS; do
 
 	info ""
 	info "$repo:"
-	JSON=$( gh api "/repos/$repo" || die "Failed to fetch data for $repo" )
+	if ! JSON=$( gh api "/repos/$repo" ); then
+		if jq -e '.status == 404 or .status == "404"' <<<"$JSON" &>/dev/null; then
+			err "Repo is not found"
+		elif jq -e '.message' <<<"$JSON" &>/dev/null; then
+			err "Failed to fetch data: $( jq -e '.message' <<<"$JSON" )"
+		else
+			err "Failed to fetch data"
+		fi
+		continue
+	fi
 
 	D=$( jq -r '.description' <<<"$JSON" )
 	if [[ "$D" =~ $DESC_RE1 ]]; then
@@ -102,23 +118,37 @@ for repo in $( jq -r '.extra["mirror-repo"] // empty' projects/*/*/composer.json
 	elif [[ "$D" =~ $DESC_RE2 ]]; then
 		ok "Description has reference to the monorepo"
 	else
-		err "Description does not have the standard reference to the monorepo"
+		err "Description does not have the standard reference to the monorepo: \"This repository is a mirror; for issue tracking and development head here: https://github.com/automattic/jetpack\""
 		info "    $D"
 	fi
 
-	check '.visibility' '"public"' "Visibility is $( jq -r '.visibility' <<<"$JSON" )"
-	check '.default_branch' '"trunk"' "Default branch is $( jq -r '.default_branch' <<<"$JSON" )"
+	check '.archived' false 'Not archived' 'Repo is archived'
+	check '.disabled' false 'Not disabled' 'Repo is disabled'
+	check '.visibility' '"public"' 'Visibility is public' "Visibility is $( jq -r '.visibility' <<<"$JSON" ), should be public"
+	check '.default_branch' '"trunk"' 'Default branch is trunk' "Default branch is $( jq -r '.default_branch' <<<"$JSON" ), should be trunk"
 	check '.has_issues' false 'Issues disabled' 'Issues not disabled'
 	check '.has_pull_requests' false 'PRs disabled' 'PRs not disabled'
 	check '.has_discussions' false 'Discussions disabled' 'Discussions not disabled'
 	check '.has_projects' false 'Projects disabled' 'Projects not disabled'
 	check '.has_wiki' false 'Wiki disabled' 'Wiki not disabled'
 
-	JSON=$( gh api "/repos/$repo/actions/permissions/fork-pr-contributor-approval" || die "Failed to fetch fork-pr-contributor-approval setting for $repo" )
-	check '.approval_policy' '"all_external_contributors"' 'Actions approval policy set to "All external contributors"' "Actions approval policy set to $( jq -r '.approval_policy' <<<"$JSON" )"
+	JSON=
+	if JSON=$( gh api "/repos/$repo/actions/permissions/fork-pr-contributor-approval" ); then
+		check '.approval_policy' '"all_external_contributors"' 'Actions approval policy set to "All external contributors"' "Actions approval policy set to $( jq -r '.approval_policy' <<<"$JSON" ), should be \"All external contributors\""
+	elif jq -e '.message' <<<"$JSON" &>/dev/null; then
+		err "Failed to fetch fork-pr-contributor-approval setting: $( jq -e '.message' <<<"$JSON" )"
+	else
+		err "Failed to fetch fork-pr-contributor-approval setting"
+	fi
 
-	JSON=$( gh api "/repos/$repo/actions/permissions/workflow" || die "Failed to fetch workflow permissions setting for $repo" )
-	check '.default_workflow_permissions' '"read"' "Actions workflow permissions set to \"$( jq -r '.default_workflow_permissions' <<<"$JSON" )\""
+	JSON=
+	if JSON=$( gh api "/repos/$repo/actions/permissions/workflow" ); then
+		check '.default_workflow_permissions' '"read"' 'Actions workflow permissions set to "read"' "Actions workflow permissions set to \"$( jq -r '.default_workflow_permissions' <<<"$JSON" )\", should be \"read\""
+	elif jq -e '.message' <<<"$JSON" &>/dev/null; then
+		err "Failed to fetch workflow permissions setting: $( jq -e '.message' <<<"$JSON" )"
+	else
+		err "Failed to fetch workflow permissions setting"
+	fi
 done
 
 if [[ -z "$QUIET" ]]; then

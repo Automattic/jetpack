@@ -5,6 +5,33 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [9.1.0] - 2026-04-13
+### Security
+- Prevent fork PRs from creating new labels in the repository; only add labels that already exist. [#47349]
+- Prevent symlink-based file content exfiltration when reading composer.json files from PR checkouts. [#47351]
+
+### Added
+- Add AI-based check for user-facing PR changes. [#46701]
+- Check if docs needed: Add optional Linear issue creation when a PR is flagged as containing user-facing changes. [#47186]
+- Gather support references: Add a new slack_notify_on_customer_report input to allow disabling Slack notifications when the Customer Report label is added to an issue. [#47739]
+
+### Changed
+- Added Jest test infrastructure and unit tests for utility functions. [#46948]
+- Convert codebase from CommonJS to ES Modules (ESM). [#46948]
+- Improve the check-if-docs-needed AI prompt to reduce false positives by tightening criteria for inclusion and exclusion and adding a conservative approach. [#47224]
+- Label management: Support a hardcoded list of type labels on top of the existing [Type] labels. [#46573]
+- Mention the AI changelog checkbox as an alternative in the bot comment for missing changelog entries. [#47366]
+- PR checks: Stop requiring the use of a "Type" label in PRs. [#46571]
+- Repo Gardening: convert codebase from JavaScript to TypeScript with strict mode. [#46948]
+- Switch to Native TypeScript compiler based on Go. [#47375]
+- Update legacy Node calls. [#47770]
+- Update package dependencies. [#46620] [#46936] [#47099] [#47285] [#47799] [#47818]
+- Update prompt. [#46972]
+
+### Fixed
+- Improve prompt to have more explicit exclusion criteria for when doc updates are needed. [#47298]
+- Improve flagging of PRs that need doc updates. [#47466]
+
 ## [9.0.0] - 2026-01-12
 ### Changed
 - Update package dependencies. [#45753] [#45961]
@@ -323,6 +350,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Initial release
 
+[9.1.0]: https://github.com/Automattic/action-repo-gardening/compare/v9.0.0...v9.1.0
 [9.0.0]: https://github.com/Automattic/action-repo-gardening/compare/v8.0.2...v9.0.0
 [8.0.2]: https://github.com/Automattic/action-repo-gardening/compare/v8.0.1...v8.0.2
 [8.0.1]: https://github.com/Automattic/action-repo-gardening/compare/v8.0.0...v8.0.1

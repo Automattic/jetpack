@@ -119,28 +119,6 @@ class Jetpack_Core_Json_Api_Endpoints {
 			)
 		);
 
-		// Test current connection status of Jetpack.
-		register_rest_route(
-			'jetpack/v4',
-			'/connection/test',
-			array(
-				'methods'             => WP_REST_Server::READABLE,
-				'callback'            => __CLASS__ . '::jetpack_connection_test',
-				'permission_callback' => __CLASS__ . '::manage_modules_permission_check',
-			)
-		);
-
-		// Endpoint specific for privileged servers to request detailed debug information.
-		register_rest_route(
-			'jetpack/v4',
-			'/connection/test-wpcom/',
-			array(
-				'methods'             => WP_REST_Server::READABLE,
-				'callback'            => __CLASS__ . '::jetpack_connection_test_for_external',
-				'permission_callback' => __CLASS__ . '::view_jetpack_connection_test_check',
-			)
-		);
-
 		register_rest_route(
 			'jetpack/v4',
 			'/rewind',
@@ -1490,135 +1468,6 @@ class Jetpack_Core_Json_Api_Endpoints {
 	}
 
 	/**
-	 * Test connection status for this Jetpack site.
-	 *
-	 * @since 6.8.0
-	 *
-	 * @return array|WP_Error WP_Error returned if connection test does not succeed.
-	 */
-	public static function jetpack_connection_test() {
-		require_once JETPACK__PLUGIN_DIR . '_inc/lib/debugger.php';
-		$cxntests = new Jetpack_Cxn_Tests();
-
-		if ( $cxntests->pass() ) {
-			return rest_ensure_response(
-				array(
-					'code'    => 'success',
-					'message' => __( 'All connection tests passed.', 'jetpack' ),
-				)
-			);
-		} else {
-			return $cxntests->output_fails_as_wp_error();
-		}
-	}
-
-	/**
-	 * Test connection permission check method.
-	 *
-	 * @since 7.1.0
-	 *
-	 * @return bool
-	 */
-	public static function view_jetpack_connection_test_check() {
-		// phpcs:disable WordPress.Security.NonceVerification.Recommended -- This is verifying the trusted caller via a shared private key and timestamp.
-		if ( ! isset( $_GET['signature'] ) || ! isset( $_GET['timestamp'] ) || ! isset( $_GET['url'] ) ) {
-			return false;
-		}
-		$signature = base64_decode( wp_unslash( $_GET['signature'] ) ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_decode, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
-
-		$signature_data = wp_json_encode(
-			array(
-				'rest_route' => isset( $_GET['rest_route'] ) ? filter_var( wp_unslash( $_GET['rest_route'] ) ) : null,
-				'timestamp'  => (int) $_GET['timestamp'],
-				'url'        => esc_url_raw( wp_unslash( $_GET['url'] ) ),
-			),
-			0 // phpcs:ignore Jetpack.Functions.JsonEncodeFlags.ZeroFound -- No `json_encode()` flags because this needs to match whatever is calculating the hash on the other end.
-		);
-
-		if (
-			! function_exists( 'openssl_verify' )
-			|| 1 !== openssl_verify(
-				$signature_data,
-				$signature,
-				JETPACK__DEBUGGER_PUBLIC_KEY
-			)
-		) {
-			return false;
-		}
-
-		// signature timestamp must be within 5min of current time.
-		if ( abs( time() - (int) $_GET['timestamp'] ) > 300 ) {
-			return false;
-		}
-
-		// phpcs:enable WordPress.Security.NonceVerification.Recommended
-
-		return true;
-	}
-
-	/**
-	 * Test connection status for this Jetpack site, encrypt the results for decryption by a third-party.
-	 *
-	 * @since 7.1.0
-	 *
-	 * @return array|mixed|object|WP_Error
-	 */
-	public static function jetpack_connection_test_for_external() {
-		// Since we are running this test for inclusion in the WP.com testing suite, let's not try to run them as part of these results.
-		add_filter( 'jetpack_debugger_run_self_test', '__return_false' );
-		require_once JETPACK__PLUGIN_DIR . '_inc/lib/debugger.php';
-		$cxntests = new Jetpack_Cxn_Tests();
-
-		if ( $cxntests->pass() ) {
-			$result = array(
-				'code'    => 'success',
-				'message' => __( 'All connection tests passed.', 'jetpack' ),
-			);
-		} else {
-			$error  = $cxntests->output_fails_as_wp_error(); // Using this so the output is similar both ways.
-			$errors = array();
-
-			// Borrowed from WP_REST_Server::error_to_response().
-			foreach ( (array) $error->errors as $code => $messages ) {
-				foreach ( (array) $messages as $message ) {
-					$errors[] = array(
-						'code'    => $code,
-						'message' => $message,
-						'data'    => $error->get_error_data( $code ),
-					);
-				}
-			}
-
-			$result = ( ! empty( $errors ) ) ? $errors[0] : null;
-			if ( count( $errors ) > 1 ) {
-				// Remove the primary error.
-				array_shift( $errors );
-				$result['additional_errors'] = $errors;
-			}
-		}
-
-		$result = wp_json_encode( $result, JSON_UNESCAPED_SLASHES );
-
-		$encrypted = $cxntests->encrypt_string_for_wpcom( $result );
-
-		if ( ! $encrypted || ! is_array( $encrypted ) ) {
-			return rest_ensure_response(
-				array(
-					'code'    => 'action_required',
-					'message' => 'Please request results from the in-plugin debugger',
-				)
-			);
-		}
-
-		return rest_ensure_response(
-			array(
-				'code'  => 'response',
-				'debug' => $encrypted,
-			)
-		);
-	}
-
-	/**
 	 * Fetch information about the Rewind status of the site.
 	 */
 	public static function rewind_data() {
@@ -1805,8 +1654,8 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 * @return string|WP_Error A raw URL if the connection URL could be built; error message otherwise.
 	 */
 	public static function build_connect_url( $request = array() ) {
-		$from     = isset( $request['from'] ) ? $request['from'] : false;
-		$redirect = isset( $request['redirect'] ) ? $request['redirect'] : false;
+		$from     = $request['from'] ?? false;
+		$redirect = $request['redirect'] ?? false;
 
 		$url = Jetpack::init()->build_connect_url( true, $redirect, $from );
 		if ( $url ) {
@@ -3920,7 +3769,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 				$options['sharing_services']['current_value'] = $sharer->get_blog_services();
 				$other_sharedaddy_options                     = array( 'jetpack-twitter-cards-site-tag', 'sharedaddy_disable_resources', 'sharing_delete_service' );
 				foreach ( $other_sharedaddy_options as $key ) {
-					$default_value                    = isset( $options[ $key ]['default'] ) ? $options[ $key ]['default'] : '';
+					$default_value                    = $options[ $key ]['default'] ?? '';
 					$current_value                    = get_option( $key, $default_value );
 					$options[ $key ]['current_value'] = self::cast_value( $current_value, $options[ $key ] );
 				}
@@ -3933,7 +3782,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 			default:
 				// These option are just stored as plain WordPress options.
 				foreach ( $options as $key => $value ) {
-					$default_value                    = isset( $options[ $key ]['default'] ) ? $options[ $key ]['default'] : '';
+					$default_value                    = $options[ $key ]['default'] ?? '';
 					$current_value                    = get_option( $key, $default_value );
 					$options[ $key ]['current_value'] = self::cast_value( $current_value, $options[ $key ] );
 				}
@@ -3945,7 +3794,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 			if ( isset( $options[ $key ]['validate_callback'] ) ) {
 				unset( $options[ $key ]['validate_callback'] );
 			}
-			$default_value = isset( $options[ $key ]['default'] ) ? $options[ $key ]['default'] : '';
+			$default_value = $options[ $key ]['default'] ?? '';
 			if ( ! array_key_exists( 'current_value', $options[ $key ] ) ) {
 				$options[ $key ]['current_value'] = self::cast_value( $default_value, $options[ $key ] );
 			}

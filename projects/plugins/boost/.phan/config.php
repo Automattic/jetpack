@@ -25,8 +25,7 @@ return make_phan_config(
 			// DO NOT add references to files in packages like this! Packages should be listed in composer.json 'require',
 			// or 'require-dev' if they're only needed in tests or build scripts.
 			__DIR__ . '/../../../plugins/jetpack/class.jetpack.php',       // class Jetpack
-			__DIR__ . '/../../../plugins/super-cache/wp-cache-phase2.php', // function wp_cache_clear_cache
-			__DIR__ . '/../../../plugins/super-cache/wp-cache.php',        // function wp_cache_is_enabled
+			__DIR__ . '/stubs/wp-super-cache-stubs.php',                   // functions wp_cache_clear_cache, wp_cache_is_enabled
 		),
 	)
 );

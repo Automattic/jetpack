@@ -25,6 +25,7 @@ type StoryArgs = ChartStoryArgs< React.ComponentProps< typeof LineChart > > & {
 const meta: Meta< StoryArgs > = {
 	...lineChartMetaArgs,
 	title: 'JS Packages/Charts Library/Charts/Line Chart',
+	component: lineChartMetaArgs.component, // Make eslint happy.
 	argTypes: {
 		...lineChartMetaArgs.argTypes,
 		seriesCount: {
@@ -106,6 +107,7 @@ const Template: StoryFn< typeof LineChart > = args => {
 export const Default: StoryObj< typeof LineChart > = Template.bind( {} );
 Default.args = {
 	...lineChartStoryArgs,
+	zoomable: true,
 };
 
 export const FixedDimensions: StoryObj< typeof LineChart > = Template.bind( {} );

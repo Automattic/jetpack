@@ -5,6 +5,46 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.27.20] - 2026-06-01
+### Changed
+- Update package dependencies. [#48404]
+
+## [0.27.19] - 2026-05-25
+### Changed
+- Update package dependencies. [#48405]
+
+## [0.27.18] - 2026-05-19
+### Changed
+- Update dependencies. [#48778]
+
+## [0.27.17] - 2026-05-11
+### Changed
+- Update dependencies. [#47038]
+
+## [0.27.16] - 2026-05-04
+### Changed
+- Internal: No longer require automattic/jetpack-changelogger as a per-project dev dependency. [#48225]
+
+## [0.27.15] - 2026-04-27
+### Changed
+- Update dependencies. [#47038]
+
+## [0.27.14] - 2026-04-20
+### Changed
+- Update package dependencies. [#48106] [#48141]
+
+## [0.27.13] - 2026-04-15
+### Changed
+- Update package dependencies. [#47907]
+
+## [0.27.12] - 2026-04-09
+### Changed
+- Update package dependencies. [#47890] [#47998]
+
+## [0.27.11] - 2026-04-06
+### Changed
+- Update dependencies. [#47038]
+
 ## [0.27.10] - 2026-03-30
 ### Changed
 - Update dependencies. [#47038]
@@ -803,6 +843,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Updated package dependencies. [#27906]
 
+[0.27.20]: https://github.com/automattic/jetpack-blaze/compare/v0.27.19...v0.27.20
+[0.27.19]: https://github.com/automattic/jetpack-blaze/compare/v0.27.18...v0.27.19
+[0.27.18]: https://github.com/automattic/jetpack-blaze/compare/v0.27.17...v0.27.18
+[0.27.17]: https://github.com/automattic/jetpack-blaze/compare/v0.27.16...v0.27.17
+[0.27.16]: https://github.com/automattic/jetpack-blaze/compare/v0.27.15...v0.27.16
+[0.27.15]: https://github.com/automattic/jetpack-blaze/compare/v0.27.14...v0.27.15
+[0.27.14]: https://github.com/automattic/jetpack-blaze/compare/v0.27.13...v0.27.14
+[0.27.13]: https://github.com/automattic/jetpack-blaze/compare/v0.27.12...v0.27.13
+[0.27.12]: https://github.com/automattic/jetpack-blaze/compare/v0.27.11...v0.27.12
+[0.27.11]: https://github.com/automattic/jetpack-blaze/compare/v0.27.10...v0.27.11
 [0.27.10]: https://github.com/automattic/jetpack-blaze/compare/v0.27.9...v0.27.10
 [0.27.9]: https://github.com/automattic/jetpack-blaze/compare/v0.27.8...v0.27.9
 [0.27.8]: https://github.com/automattic/jetpack-blaze/compare/v0.27.7...v0.27.8

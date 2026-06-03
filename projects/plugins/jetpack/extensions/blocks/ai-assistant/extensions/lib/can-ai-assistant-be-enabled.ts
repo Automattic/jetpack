@@ -4,7 +4,6 @@
 import { isUserConnected } from '@automattic/jetpack-shared-extension-utils';
 import { getBlockType } from '@wordpress/blocks';
 import { select } from '@wordpress/data';
-import { store as editPostStore } from '@wordpress/edit-post';
 /*
  * Internal dependencies
  */
@@ -39,11 +38,14 @@ export function canAIAssistantBeEnabled(): boolean {
 	}
 
 	/*
-	 * Do not enable if the AI Assistant block is hidden
-	 * ToDo: the `editPostStore` is undefined for P2 sites.
-	 * Let's find a way to check if the block is hidden.
+	 * Do not enable if the AI Assistant block is hidden.
+	 * Note: `select( 'core/edit-post' )` returns null on P2 sites (no post editor),
+	 * so we fall back to an empty array, which allows the AI Assistant to be enabled.
 	 */
-	const hiddenBlocks = select( editPostStore ).getHiddenBlockTypes?.() ?? [];
+	const hiddenBlocks =
+		(
+			select( 'core/edit-post' ) as null | { getHiddenBlockTypes?: () => string[] }
+		 )?.getHiddenBlockTypes?.() ?? [];
 
 	if ( hiddenBlocks.includes( 'jetpack/ai-assistant' ) ) {
 		return false;

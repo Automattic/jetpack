@@ -3,8 +3,9 @@
  */
 import jetpackAnalytics from '@automattic/jetpack-analytics';
 import { JetpackLogo } from '@automattic/jetpack-components';
+import Gravatar from '@automattic/jetpack-components/gravatar';
 import { isSimpleSite } from '@automattic/jetpack-script-data';
-import { ExternalLink, Modal } from '@wordpress/components';
+import { Modal } from '@wordpress/components';
 import { useViewportMatch } from '@wordpress/compose';
 import { useSelect } from '@wordpress/data';
 import { DataViews } from '@wordpress/dataviews/wp';
@@ -12,7 +13,7 @@ import { dateI18n, getSettings as getDateSettings } from '@wordpress/date';
 import { useCallback, useMemo, useState } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
 import { __ } from '@wordpress/i18n';
-import { Badge } from '@wordpress/ui';
+import { Badge, Link } from '@wordpress/ui';
 import clsx from 'clsx';
 import { useEffect } from 'react';
 /**
@@ -28,7 +29,6 @@ import EmptyResponses from '../../components/empty-responses/index.tsx';
 import EmptySpamButton from '../../components/empty-spam-button/index.tsx';
 import EmptyTrashButton from '../../components/empty-trash-button/index.tsx';
 import ExportResponsesButton from '../../components/export-responses/button.tsx';
-import Gravatar from '../../components/gravatar/index.tsx';
 import { ResponseMobileView, SingleResponseView } from '../../components/inspector/index.tsx';
 import IntegrationsButton from '../../components/integrations-button/index.tsx';
 import Page from '../../components/page/index.tsx';
@@ -50,6 +50,10 @@ import {
 import { useView, defaultLayouts } from './views.js';
 
 const EMPTY_ARRAY = [];
+
+// Sentinel value used in the Source filter to represent form-preview (test) responses.
+// Source IDs are numeric post IDs, so this non-numeric value is safe from collision.
+const FORM_PREVIEW_SOURCE_VALUE = 'form_preview';
 
 const updateSidebarWidth = () => {
 	const wrapper = document.querySelector( '.dataviews-wrapper' );
@@ -173,7 +177,11 @@ export default function InboxView( { parentId, pageTitle, pageSubtitle } = {} ) 
 				return accumulator;
 			}
 			if ( field === 'source' ) {
-				accumulator.parent = value;
+				if ( value === FORM_PREVIEW_SOURCE_VALUE ) {
+					accumulator.is_test = true;
+				} else {
+					accumulator.source = value;
+				}
 			}
 			if ( field === 'date' ) {
 				const [ year, month ] = value.split( '/' ).map( Number );
@@ -350,22 +358,40 @@ export default function InboxView( { parentId, pageTitle, pageSubtitle } = {} ) 
 							id: 'source',
 							label: __( 'Source', 'jetpack-forms' ),
 							render: ( { item } ) => {
+								if ( item.is_test ) {
+									const previewLabel = __( 'Form preview', 'jetpack-forms' );
+									if ( item.preview_url ) {
+										return (
+											<Link openInNewTab href={ item.preview_url }>
+												{ wrapperUnread( item.is_unread, previewLabel ) }
+											</Link>
+										);
+									}
+									return wrapperUnread( item.is_unread, previewLabel );
+								}
 								if ( ! item.entry_permalink ) {
 									return wrapperUnread( item.is_unread, decodeEntities( item.entry_title ) );
 								}
 								return (
-									<ExternalLink href={ item.entry_permalink }>
+									<Link openInNewTab href={ item.entry_permalink }>
 										{ wrapperUnread(
 											item.is_unread,
 											decodeEntities( item.entry_title ) || getPath( item )
 										) }
-									</ExternalLink>
+									</Link>
 								);
 							},
-							elements: ( filterOptions?.source || [] ).map( source => ( {
-								value: source.id,
-								label: decodeEntities( source.title ) || getPath( { entry_permalink: source.url } ),
-							} ) ),
+							elements: [
+								{
+									value: FORM_PREVIEW_SOURCE_VALUE,
+									label: __( 'Form preview', 'jetpack-forms' ),
+								},
+								...( filterOptions?.source || [] ).map( source => ( {
+									value: source.id,
+									label:
+										decodeEntities( source.title ) || getPath( { entry_permalink: source.url } ),
+								} ) ),
+							],
 							filterBy: { operators: [ 'is' ] },
 							enableSorting: false,
 						},
@@ -441,7 +467,10 @@ export default function InboxView( { parentId, pageTitle, pageSubtitle } = {} ) 
 				id: 'date',
 				label: __( 'Date', 'jetpack-forms' ),
 				render: ( { item } ) => {
-					return wrapperUnread( item.is_unread, dateI18n( dateSettings.formats.date, item.date ) );
+					return wrapperUnread(
+						item.is_unread,
+						dateI18n( dateSettings.formats.datetime, item.date )
+					);
 				},
 				elements: ( filterOptions?.date || [] ).map( _filter => {
 					const date = new Date();
@@ -495,7 +524,7 @@ export default function InboxView( { parentId, pageTitle, pageSubtitle } = {} ) 
 			filterOptions?.source,
 			isMobileViewport,
 			openResponseModal,
-			dateSettings.formats.date,
+			dateSettings.formats.datetime,
 			isInboxStatusToggleView,
 			isSingleFormView,
 		]

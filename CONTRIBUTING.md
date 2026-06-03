@@ -79,3 +79,15 @@ jetpack docker down      # stop the container
 ```
 
 See the [Docker guide](tools/docker/README.md) for details.
+
+## Repository structure
+
+```
+projects/                  # All monorepo projects
+  plugins/                 #   WordPress plugins (jetpack, boost, backup, etc.)
+  packages/                #   Shared PHP packages
+  js-packages/             #   Shared JavaScript/TypeScript packages
+  github-actions/          #   Reusable GitHub Actions
+tools/                     # Monorepo utilities, scripts, and Docker setup
+docs/                      # Developer documentation
+```

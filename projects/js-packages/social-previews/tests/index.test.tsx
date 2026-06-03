@@ -2,15 +2,17 @@
 /* eslint-disable testing-library/no-node-access */
 /* eslint-disable testing-library/no-container */
 import '@testing-library/jest-dom';
-import { render } from '@testing-library/react';
+import { fireEvent, render } from '@testing-library/react';
 import * as React from 'react';
 import {
 	FacebookLinkPreview as Facebook,
 	TwitterPostPreview as Twitter,
 	TwitterPreviews,
 	GoogleSearchPreview as Search,
+	MastodonPostPreview as Mastodon,
 } from '../src';
 import { formatTweetDate } from '../src/helpers';
+import { mastodonBody } from '../src/mastodon-preview/helpers';
 
 // Mock @wordpress/components SandBox to avoid iframe initialization issues in tests
 // The mock prefix is required for jest to allow variable access in the factory
@@ -178,9 +180,9 @@ describe( 'Twitter previews', () => {
 
 		expect( descEl ).toBeVisible();
 		expect( descEl ).toHaveTextContent(
-			"I know the kings of England, and I quote the fights historical, From Marathon to Waterloo, in order categorical; I'm very well acquainted, too, with matters mathematical, I understand equations, both …"
+			"I know the kings of England, and I quote the fights historical, From Marathon to Waterloo, in order categorical; I'm very well acquainted, too, with matters mathematical, I understand equations, both the simple and quadratical; About binomial theorem I'm teeming with a lot o' new…"
 		);
-		expect( descEl.textContent.replace( '…', '' ) ).toHaveLength( 200 );
+		expect( descEl.textContent.replace( '…', '' ) ).toHaveLength( 280 );
 	} );
 
 	it( 'should strip html tags from the description', () => {
@@ -196,7 +198,7 @@ describe( 'Twitter previews', () => {
 
 		expect( descEl ).toBeVisible();
 		expect( descEl ).toHaveTextContent(
-			"I know the kings of England, and I quote the fights historical, From Marathon to Waterloo, in order categorical; I'm very well acquainted, too, with matters mathematical, I understand equations, both …"
+			"I know the kings of England, and I quote the fights historical, From Marathon to Waterloo, in order categorical; I'm very well acquainted, too, with matters mathematical, I understand equations, both the simple and quadratical; About binomial theorem I'm teeming with a lot o' new…"
 		);
 	} );
 
@@ -653,5 +655,109 @@ describe( 'Google Search previews', () => {
 			'https://wordpress.com › alongpathnameheretoensuretruncationoccursbut…'
 		);
 		expect( urlEl.textContent.replace( '…', '' ).trimEnd() ).toHaveLength( 68 );
+	} );
+
+	describe( 'Site icon', () => {
+		it( 'should render the provided site icon URL', () => {
+			const { container } = render(
+				<Search
+					url="https://example.com"
+					siteIcon="https://example.com/wp-content/uploads/site-icon.png"
+				/>
+			);
+
+			const iconImg = container.querySelector( 'img.search-preview__icon' );
+
+			expect( iconImg ).toBeVisible();
+			expect( iconImg ).toHaveAttribute(
+				'src',
+				'https://example.com/wp-content/uploads/site-icon.png'
+			);
+		} );
+
+		it( 'should render the default globe fallback when no site icon is provided', () => {
+			const { container } = render( <Search url="https://example.com" /> );
+
+			expect( container.querySelector( 'img.search-preview__icon' ) ).toBeNull();
+			const fallback = container.querySelector( 'span.search-preview__icon' );
+			expect( fallback ).toBeVisible();
+			expect( fallback.querySelector( 'svg' ) ).toBeVisible();
+		} );
+
+		it( 'should not reference the Google favicon service', () => {
+			const { container } = render( <Search url="https://example.com" /> );
+
+			expect( container.innerHTML ).not.toContain( 'google.com/s2/favicons' );
+		} );
+
+		it( 'should fall back to the default globe if the site icon fails to load', () => {
+			const { container } = render(
+				<Search
+					url="https://example.com"
+					siteIcon="https://example.com/wp-content/uploads/site-icon.png"
+				/>
+			);
+
+			const iconImg = container.querySelector( 'img.search-preview__icon' );
+			expect( iconImg ).toBeVisible();
+
+			fireEvent.error( iconImg );
+
+			expect( container.querySelector( 'img.search-preview__icon' ) ).toBeNull();
+			const fallback = container.querySelector( 'span.search-preview__icon' );
+			expect( fallback ).toBeVisible();
+			expect( fallback.querySelector( 'svg' ) ).toBeVisible();
+		} );
+	} );
+} );
+
+describe( 'Mastodon previews', () => {
+	const mastodonUser = {
+		displayName: 'Test User',
+		avatarUrl: 'https://example.com/avatar.png',
+		address: '@test@mastodon.social',
+	};
+
+	it( 'should not duplicate the URL when the custom message already contains it', () => {
+		const { container } = render(
+			<Mastodon
+				url={ DEFAULT_POST_URL }
+				title={ DEFAULT_POST_TITLE }
+				customText={ `Hello World\n\nAn excerpt\n\n${ DEFAULT_POST_URL }` }
+				user={ mastodonUser }
+			/>
+		);
+
+		const body = container.querySelector( '.mastodon-preview__body' );
+		expect( body ).toBeVisible();
+		// The URL is auto-linked once within the body; it must not be appended a second time.
+		expect( body.querySelectorAll( `a[href="${ DEFAULT_POST_URL }"]` ) ).toHaveLength( 1 );
+	} );
+
+	it( 'should not render a URL link when the message does not contain it', () => {
+		// The body is the source of truth: the post URL is no longer appended
+		// separately, so a message without the URL shows no URL link.
+		const { container } = render(
+			<Mastodon
+				url={ DEFAULT_POST_URL }
+				title={ DEFAULT_POST_TITLE }
+				customText="Hello World, an excerpt"
+				user={ mastodonUser }
+			/>
+		);
+
+		const body = container.querySelector( '.mastodon-preview__body' );
+		expect( body ).toBeVisible();
+		expect( body.querySelectorAll( `a[href="${ DEFAULT_POST_URL }"]` ) ).toHaveLength( 0 );
+	} );
+
+	it( 'should not reserve body space for a separately-appended URL', () => {
+		// The full Mastodon character budget is available to the body, since the
+		// URL is no longer rendered as a separate link below it. A trailing URL
+		// within the limit therefore survives instead of being truncated early.
+		const text = `${ 'a'.repeat( 460 ) } ${ DEFAULT_POST_URL }`;
+
+		const { container } = render( <>{ mastodonBody( text, { offset: 0, instance: '' } ) }</> );
+		expect( container.querySelector( `a[href="${ DEFAULT_POST_URL }"]` ) ).toBeInTheDocument();
 	} );
 } );

@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { getBlockContent } from '@wordpress/blocks';
+import { getBlockContent, type Block as WPBlock } from '@wordpress/blocks';
 import { dispatch, select } from '@wordpress/data';
 import { registerFormatType, removeFormat, RichTextValue } from '@wordpress/rich-text';
 import md5 from 'crypto-js/md5';
@@ -99,7 +99,7 @@ export function registerBreveHighlight( feature: BreveFeature ) {
 
 					// Only use block content for complex blocks like tables
 					if ( richTextIdentifier !== 'content' && !! block ) {
-						blockContent = getBlockContent( block );
+						blockContent = getBlockContent( block as WPBlock );
 					}
 
 					const textMd5 = md5( blockContent ).toString();

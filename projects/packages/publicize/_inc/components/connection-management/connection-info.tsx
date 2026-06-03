@@ -1,14 +1,15 @@
-import { Button, IconTooltip, Text } from '@automattic/jetpack-components';
+import { IconTooltip, Text } from '@automattic/jetpack-components';
 import { Panel, PanelBody } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { __, _x } from '@wordpress/i18n';
 import { Icon, chevronDown, chevronUp } from '@wordpress/icons';
+import { Button } from '@wordpress/ui';
 import { useReducer } from 'react';
 import { store as socialStore } from '../../social-store';
 import ConnectionIcon from '../connection-icon';
-import { XNotice } from '../services/x-notice';
 import { ConnectionName } from './connection-name';
 import { ConnectionStatus, ConnectionStatusProps } from './connection-status';
+import { ConnectionTemplateEditor } from './connection-template';
 import { Disconnect } from './disconnect';
 import { MarkAsShared } from './mark-as-shared';
 import styles from './style.module.scss';
@@ -49,7 +50,7 @@ export function ConnectionInfo( { connection, service, canMarkAsShared }: Connec
 				<Button
 					size={ 'small' }
 					className={ styles[ 'learn-more' ] }
-					variant="tertiary"
+					variant="minimal"
 					onClick={ togglePanel }
 					aria-label={
 						isPanelOpen
@@ -73,6 +74,9 @@ export function ConnectionInfo( { connection, service, canMarkAsShared }: Connec
 							</IconTooltip>
 						</div>
 					) }
+					<div className={ styles[ 'connection-template-wrap' ] }>
+						<ConnectionTemplateEditor connection={ connection } />
+					</div>
 					{ canManageConnection ? (
 						<Disconnect connection={ connection } />
 					) : (
@@ -80,7 +84,6 @@ export function ConnectionInfo( { connection, service, canMarkAsShared }: Connec
 							{ __( 'This connection is added by a site administrator.', 'jetpack-publicize-pkg' ) }
 						</Text>
 					) }
-					{ service?.id === 'x' && <XNotice /> }
 				</PanelBody>
 			</Panel>
 		</>

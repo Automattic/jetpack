@@ -78,6 +78,15 @@ module.exports = [
 				MiniCssExtractPlugin: {
 					filename: 'jetpack-boost.css',
 				},
+				DependencyExtractionPlugin: {
+					requestMap: {
+						// Bundle @wordpress/theme and @wordpress/private-apis inline —
+						// they're transitive deps of @wordpress/ui but aren't registered
+						// as script handles in WP core, so externalizing them breaks enqueue.
+						'@wordpress/theme': { external: false },
+						'@wordpress/private-apis': { external: false },
+					},
+				},
 			} ),
 			new webpack.ProvidePlugin( {
 				process: require.resolve( 'process/browser' ),

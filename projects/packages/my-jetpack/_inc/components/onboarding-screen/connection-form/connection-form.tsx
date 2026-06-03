@@ -46,6 +46,7 @@ const ConnectionForm = () => {
 			</Text>
 
 			<Button
+				variant="primary"
 				className={ styles[ 'submit-button' ] }
 				disabled={ isConnecting }
 				aria-busy={ isConnecting }

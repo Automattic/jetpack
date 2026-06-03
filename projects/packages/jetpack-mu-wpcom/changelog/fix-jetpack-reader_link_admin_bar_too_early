@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Defer Reader_Link::init() to wp_loaded to avoid fatal errors when hooking show_admin_bar before $wp_query is initialized.

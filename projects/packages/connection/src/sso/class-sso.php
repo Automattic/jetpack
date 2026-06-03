@@ -297,7 +297,20 @@ class SSO {
 			 * The SSO module uses the method to display the default login form if we cannot find a user to log in via SSO.
 			 * But, the method could be filtered by a site admin to always show the default login form if that is preferred.
 			 */
-			if ( empty( $_GET['jetpack-sso-show-default-form'] ) && Helpers::show_sso_login() ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			$default_form_preference = isset( $_GET['jetpack-sso-show-default-form'] ) ? sanitize_text_field( wp_unslash( $_GET['jetpack-sso-show-default-form'] ) ) : null; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			$show_sso_form           = empty( $default_form_preference ) && Helpers::show_sso_login();
+
+			if ( 'entered_recovery_mode' === $action ) {
+				if ( '0' === $default_form_preference ) {
+					// Explicit user opt-in via the no-JS toggle; honor it regardless of show_sso_login() so the toggle always works.
+					$show_sso_form = true;
+				} elseif ( null === $default_form_preference && ! Helpers::should_hide_login_form() ) {
+					// Recovery is the break-glass fallback, so default to the wp-admin password form. Skip when that form is hidden, otherwise no login path would work.
+					$show_sso_form = false;
+				}
+			}
+
+			if ( $show_sso_form ) {
 				$classes[] = 'jetpack-sso-form-display';
 			}
 		}
@@ -457,6 +470,11 @@ class SSO {
 
 		// And now the exceptions.
 		$action = isset( $_GET['loggedout'] ) ? 'loggedout' : $action; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+
+		// Recovery mode must complete on the local site (token validation, cookie, recovery notice). Skip the bypass-redirect so SSO doesn't carry the user off-site mid-recovery.
+		if ( 'entered_recovery_mode' === $action ) {
+			return false;
+		}
 
 		if ( Helpers::display_sso_form_for_action( $action ) ) {
 			$wants_to_login = true;

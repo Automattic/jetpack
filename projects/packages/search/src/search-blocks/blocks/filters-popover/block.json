@@ -1,0 +1,26 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "jetpack-search/filters-popover",
+	"version": "0.1.0",
+	"title": "Collapsible Filters",
+	"category": "jetpack-search",
+	"description": "Tucks the filters behind a compact button that opens them in a popover. Powered by Jetpack Search.",
+	"attributes": {
+		"interactiveScope": {
+			"type": "boolean",
+			"default": true
+		}
+	},
+	"providesContext": {
+		"jetpack-search/inInteractiveScope": "interactiveScope"
+	},
+	"supports": {
+		"html": false,
+		"interactivity": true
+	},
+	"textdomain": "jetpack-search-pkg",
+	"render": "file:./render.php",
+	"viewScriptModule": "file:../../../../build/search-blocks/filters-popover.js",
+	"style": "file:../../../../build/search-blocks/filters-popover.css"
+}

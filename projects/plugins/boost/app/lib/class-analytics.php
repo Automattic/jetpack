@@ -53,6 +53,15 @@ class Analytics {
 		$tracks::register_tracks_functions_scripts();
 
 		wp_enqueue_script( 'jp-tracks' );
+
+		wp_add_inline_script(
+			'jp-tracks',
+			sprintf(
+				'window.jpTracksContext = window.jpTracksContext || {}; window.jpTracksContext.blog_id = %s;',
+				absint( \Jetpack_Options::get_option( 'id', 0 ) )
+			),
+			'before'
+		);
 	}
 
 	public static function get_tracking_data() {

@@ -27,7 +27,7 @@ const PosterImage = ( { videoPosterImageUrl } ) => {
 	);
 };
 
-const Poster = ( { file, videoPosterImageData, onVideoFrameSelected } ) => {
+const Poster = ( { file, videoPosterImageData, onVideoFrameSelected, videoRef } ) => {
 	const hasPosterImage = Boolean( videoPosterImageData?.url );
 
 	// - Avoid recreate the object on every render
@@ -40,6 +40,7 @@ const Poster = ( { file, videoPosterImageData, onVideoFrameSelected } ) => {
 				src={ src?.current }
 				onVideoFrameSelected={ onVideoFrameSelected }
 				className={ clsx( { 'uploading-editor__hide': hasPosterImage } ) }
+				videoRef={ videoRef }
 			/>
 			{ hasPosterImage && (
 				<>
@@ -83,8 +84,14 @@ const PosterActions = ( { hasPoster, onSelectPoster, onRemovePoster } ) => {
 };
 
 const UploadingEditor = props => {
-	const { file, onSelectPoster, onRemovePoster, videoPosterImageData, onVideoFrameSelected } =
-		props;
+	const {
+		file,
+		onSelectPoster,
+		onRemovePoster,
+		videoPosterImageData,
+		onVideoFrameSelected,
+		videoRef,
+	} = props;
 
 	return (
 		<div className="uploading-editor">
@@ -96,6 +103,7 @@ const UploadingEditor = props => {
 					file={ file }
 					videoPosterImageData={ videoPosterImageData }
 					onVideoFrameSelected={ onVideoFrameSelected }
+					videoRef={ videoRef }
 				/>
 				<PosterActions
 					hasPoster={ Boolean( videoPosterImageData ) }

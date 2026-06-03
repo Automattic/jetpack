@@ -1,0 +1,177 @@
+.wpcomsh-fatal {
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+	text-align: left;
+	text-wrap-style: pretty;
+}
+
+.wpcomsh-fatal h2 {
+	margin: 0 0 12px;
+	font-size: 20px;
+	line-height: 1.3;
+}
+
+.wpcomsh-fatal p {
+	margin: 0 0 16px;
+	line-height: 1.5;
+	color: #3c434a;
+}
+
+.wpcomsh-fatal-subhead {
+	margin: 24px 0 8px;
+	font-size: 14px;
+	font-weight: 600;
+	color: #1d2327;
+}
+
+.wpcomsh-fatal-subhead-alert {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+}
+
+.wpcomsh-fatal-subhead-icon {
+	display: inline-flex;
+	align-items: center;
+	color: #d63638;
+	line-height: 0;
+}
+
+.wpcomsh-fatal-notice {
+	margin: 0 0 20px;
+	padding: 16px;
+	border-radius: 6px;
+	background: #fcf0f1;
+	border: 1px solid #f1b1b3;
+}
+
+.wpcomsh-fatal-notice > :last-child {
+	margin-bottom: 0;
+}
+
+.wpcomsh-fatal-notice-title {
+	margin-bottom: 4px;
+	font-size: 14px;
+	line-height: 1.4;
+	color: #1d2327;
+}
+
+.wpcomsh-fatal-notice-title strong {
+	font-weight: 600;
+}
+
+.wpcomsh-fatal-notice-ver {
+	margin-inline-start: 4px;
+	font-size: 12px;
+	color: #646970;
+}
+
+.wpcomsh-fatal-notice-desc {
+	margin-bottom: 12px;
+	font-size: 13px;
+	line-height: 1.5;
+	color: #3c434a;
+}
+
+.wpcomsh-fatal-notice .wpcomsh-fatal-btn {
+	margin-top: 4px;
+}
+
+.wpcomsh-fatal-steps {
+	margin: 0;
+	padding: 0;
+	padding-inline-start: 20px;
+	font-size: 14px;
+	line-height: 1.55;
+	color: #3c434a;
+}
+
+.wpcomsh-fatal-steps li {
+	margin-bottom: 6px;
+}
+
+.wpcomsh-fatal-steps a {
+	color: #3858e9;
+}
+
+.wpcomsh-fatal-btn {
+	box-sizing: border-box;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	min-height: 40px;
+	padding: 8px 16px;
+	border: 1px solid #c3c4c7;
+	border-radius: 4px;
+	background: #fff;
+	color: #2c3338;
+	font: 400 14px/1.4 inherit;
+	text-decoration: none;
+	white-space: nowrap;
+	vertical-align: middle;
+	cursor: pointer;
+}
+
+.wpcomsh-fatal-btn-primary,
+.wpcomsh-fatal-btn.wpcomsh-fatal-btn-primary {
+	background: #3858e9;
+	border-color: #3858e9;
+	color: #fff;
+}
+
+.wpcomsh-fatal-btn-destructive,
+.wpcomsh-fatal-btn.wpcomsh-fatal-btn-destructive {
+	height: 36px;
+	min-height: 36px;
+	padding: 4px 12px;
+	border-radius: 2px;
+	background: #d63638;
+	border-color: #d63638;
+	color: #fff;
+}
+
+.wpcomsh-fatal-btn-destructive:hover,
+.wpcomsh-fatal-btn.wpcomsh-fatal-btn-destructive:hover {
+	background: #b32d2e;
+	border-color: #b32d2e;
+}
+
+.wpcomsh-fatal-btn-destructive:focus,
+.wpcomsh-fatal-btn-destructive:focus-visible,
+.wpcomsh-fatal-btn.wpcomsh-fatal-btn-destructive:focus,
+.wpcomsh-fatal-btn.wpcomsh-fatal-btn-destructive:focus-visible {
+	border-color: #b32d2e;
+	outline: 2px solid #b32d2e;
+	outline-offset: 2px;
+	box-shadow: none;
+}
+
+.wpcomsh-fatal-details {
+	margin-top: 24px;
+	padding-top: 16px;
+	border-top: 1px solid #dcdcde;
+}
+
+.wpcomsh-fatal-details + .wpcomsh-fatal-details {
+	margin-top: 16px;
+	padding-top: 0;
+	border-top: 0;
+}
+
+.wpcomsh-fatal-details-heading {
+	margin: 0 0 8px;
+	font-size: 14px;
+	font-weight: 600;
+	color: #1d2327;
+}
+
+.wpcomsh-fatal-details pre {
+	margin: 0;
+	padding: 12px;
+	background: #f6f7f7;
+	border: 1px solid #dcdcde;
+	border-radius: 4px;
+	font: 12px/1.5 ui-monospace, Menlo, Consolas, monospace;
+	white-space: pre-wrap;
+	overflow-wrap: anywhere;
+	color: #2c3338;
+}

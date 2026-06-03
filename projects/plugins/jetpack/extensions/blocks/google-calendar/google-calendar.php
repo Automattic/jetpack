@@ -38,7 +38,7 @@ add_action( 'init', __NAMESPACE__ . '\register_block' );
  * @return string
  */
 function load_assets( $attr ) {
-	$height  = isset( $attr['height'] ) ? $attr['height'] : '600';
+	$height  = $attr['height'] ?? '600';
 	$url     = isset( $attr['url'] )
 		? Jetpack_Gutenberg::validate_block_embed_url( $attr['url'], array( 'calendar.google.com' ) ) :
 		'';

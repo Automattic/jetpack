@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Newsletter: Fix Reading page notice URL and link to new settings page when the jetpack_wp_admin_newsletter_settings_enabled filter is enabled.

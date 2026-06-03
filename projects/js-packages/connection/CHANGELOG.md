@@ -2,6 +2,63 @@
 
 ### This is a list detailing changes for the Jetpack RNA Connection Component releases.
 
+## [1.4.55] - 2026-06-02
+### Changed
+- Update dependencies.
+
+## [1.4.54] - 2026-06-01
+### Changed
+- Connection: Migrate ActionButton, Button, and Text consumers off @automattic/jetpack-components to @wordpress/ui equivalents; brings the package to zero migration-relevant jetpack-components imports. [#49099]
+- Update package dependencies. [#48404]
+
+## [1.4.53] - 2026-05-25
+### Added
+- Add direct `useProductCheckoutWorkflow` hook export. [#49032]
+- Expose the `useConnectionErrorNotice` hook and `ConnectionError` component via a dedicated sub-path so consumers can opt out of the full package barrel. [#48829]
+
+## [1.4.52] - 2026-05-21
+### Changed
+- Update package dependencies. [#48405]
+- Update package dependencies. [#49012]
+
+## [1.4.51] - 2026-05-19
+### Changed
+- Internal updates.
+
+## [1.4.50] - 2026-05-14
+### Changed
+- Update package dependencies. [#48696]
+
+## [1.4.49] - 2026-05-11
+### Changed
+- Components: Use Link from `@wordpress/ui` instead of ExternalLink. [#48529]
+
+## [1.4.48] - 2026-05-04
+### Changed
+- ConnectScreen: Rewrite the private-network error message to reference WordPress.com (the connection target) instead of Jetpack, so the copy reads consistently for any plugin that uses the connection package. [#48263]
+- Internal: No longer require automattic/jetpack-changelogger as a per-project dev dependency. [#48225]
+- Replace deprecated jetpack-components Spinner with WordPress Core Spinner. [#47451]
+
+## [1.4.47] - 2026-04-27
+### Changed
+- Update dependencies.
+
+## [1.4.46] - 2026-04-20
+### Changed
+- Update package dependencies. [#48106] [#48126] [#48141]
+
+## [1.4.45] - 2026-04-15
+### Changed
+- Update package dependencies. [#47907]
+
+## [1.4.44] - 2026-04-09
+### Changed
+- Update package dependencies. [#47890]
+
+## [1.4.43] - 2026-04-06
+### Changed
+- Update package dependencies. [#47870]
+
 ## [1.4.42] - 2026-03-30
 ### Changed
 - Update package dependencies. [#47799]
@@ -1304,6 +1361,19 @@
 - `Main` and `ConnectUser` components added.
 - `JetpackRestApiClient` API client added.
 
+[1.4.55]: https://github.com/Automattic/jetpack-connection-js/compare/v1.4.54...v1.4.55
+[1.4.54]: https://github.com/Automattic/jetpack-connection-js/compare/v1.4.53...v1.4.54
+[1.4.53]: https://github.com/Automattic/jetpack-connection-js/compare/v1.4.52...v1.4.53
+[1.4.52]: https://github.com/Automattic/jetpack-connection-js/compare/v1.4.51...v1.4.52
+[1.4.51]: https://github.com/Automattic/jetpack-connection-js/compare/v1.4.50...v1.4.51
+[1.4.50]: https://github.com/Automattic/jetpack-connection-js/compare/v1.4.49...v1.4.50
+[1.4.49]: https://github.com/Automattic/jetpack-connection-js/compare/v1.4.48...v1.4.49
+[1.4.48]: https://github.com/Automattic/jetpack-connection-js/compare/v1.4.47...v1.4.48
+[1.4.47]: https://github.com/Automattic/jetpack-connection-js/compare/v1.4.46...v1.4.47
+[1.4.46]: https://github.com/Automattic/jetpack-connection-js/compare/v1.4.45...v1.4.46
+[1.4.45]: https://github.com/Automattic/jetpack-connection-js/compare/v1.4.44...v1.4.45
+[1.4.44]: https://github.com/Automattic/jetpack-connection-js/compare/v1.4.43...v1.4.44
+[1.4.43]: https://github.com/Automattic/jetpack-connection-js/compare/v1.4.42...v1.4.43
 [1.4.42]: https://github.com/Automattic/jetpack-connection-js/compare/v1.4.41...v1.4.42
 [1.4.41]: https://github.com/Automattic/jetpack-connection-js/compare/v1.4.40...v1.4.41
 [1.4.40]: https://github.com/Automattic/jetpack-connection-js/compare/v1.4.39...v1.4.40

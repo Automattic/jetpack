@@ -440,7 +440,7 @@ class Launchpad_Task_Lists {
 		$built_task['disabled']     = $this->is_task_disabled( $task );
 		$built_task['subtitle']     = $this->load_subtitle( $task );
 		$built_task['badge_text']   = $this->load_value_from_callback( $task, 'badge_text_callback' );
-		$built_task['isLaunchTask'] = isset( $task['isLaunchTask'] ) ? $task['isLaunchTask'] : false;
+		$built_task['isLaunchTask'] = $task['isLaunchTask'] ?? false;
 		$extra_data                 = $this->load_extra_data( $task );
 
 		if ( is_array( $extra_data ) && array() !== $extra_data ) {
@@ -623,7 +623,7 @@ class Launchpad_Task_Lists {
 		// as it continues to calculate the callback which falls back to the option: ∞.
 		$statuses    = get_option( 'launchpad_checklist_tasks_statuses', array() );
 		$key         = $this->get_task_key( $task );
-		$is_complete = isset( $statuses[ $key ] ) ? $statuses[ $key ] : false;
+		$is_complete = $statuses[ $key ] ?? false;
 
 		return (bool) $this->load_value_from_callback( $task, 'is_complete_callback', $is_complete );
 	}
@@ -636,7 +636,7 @@ class Launchpad_Task_Lists {
 	 * @return string The task key to use.
 	 */
 	public function get_task_key( $task ) {
-		return isset( $task['id_map'] ) ? $task['id_map'] : $task['id'];
+		return $task['id_map'] ?? $task['id'];
 	}
 
 	/**

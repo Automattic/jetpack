@@ -5,6 +5,115 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [8.5.2] - 2026-06-02
+### Changed
+- Update dependencies. [#48834]
+
+## [8.5.1] - 2026-06-01
+### Changed
+- Connectors: Disable the ability to connect/disconnect from the Connectors card while the site is in offline mode. [#49305]
+
+## [8.5.0] - 2026-06-01
+### Added
+- Connection: Migrate `connection/test` and `connection/test-wpcom` REST endpoints from Jetpack plugin. [#49198]
+
+### Changed
+- Exclude additional unneeded files from the Composer package. [#49014]
+- Jetpack Connection Health: Migrate tests from Jetpack plugin to Connection package. [#47837]
+- Users List: Use dynamic connector logo and tooltip based on connected plugin families. [#49093]
+
+## [8.4.0] - 2026-05-25
+### Added
+- Abilities: Opt `jetpack/get-connection-status` into the MCP tool surface (meta.mcp public tool). [#49113]
+- Abilities API: Add `jetpack/get-connection-status` read ability. [#48735]
+
+### Changed
+- Abilities: Align the shared `jetpack` ability-category description with the Jetpack plugin's registrar so the visible text is consistent regardless of which subpackage registers first. [#48735]
+- Abilities: Point `jetpack/get-connection-status` `registration_url` at the WP 7.0+ Connectors screen when available. [#48735]
+- Abilities: Rename `jetpack/get-connection-status` `site_connected` output field to `site_registered` to match site-registration terminology. [#48735]
+- Abilities: Tighten `jetpack/get-connection-status` permission to `current_user_can( 'jetpack_admin_page' )`. [#48735]
+
+## [8.3.7] - 2026-05-21
+### Added
+- Connection: Signal to Calypso that the site already has a connection owner so the authorize page can show appropriate content for secondary user connections. [#48904]
+
+### Changed
+- Connection: Show the Jetpack icon beside the Connected label in the WordPress.com account column on the Users screen. [#48951]
+- Connectors: Show shorter, role-appropriate connect prompt for secondary user connections when the site already has a connection owner. [#48904]
+- Update package dependencies. [#48405]
+
+### Fixed
+- Phan: Address PhanPluginDuplicateConditionalNullCoalescing violations. [#48887]
+
+## [8.3.6] - 2026-05-19
+### Changed
+- Internal updates.
+
+## [8.3.5] - 2026-05-14
+### Changed
+- Connection: Include the comma-separated list of connection-using plugin slugs on every authorize URL, not only those built by the connectors card flow. [#48713]
+- Update dependencies. [#48778]
+
+## [8.3.4] - 2026-05-11
+### Changed
+- Update dependencies. [#46383]
+
+## [8.3.3] - 2026-05-04
+### Added
+- Connector: Forward `from` and `plugins` parameters to the register and authorize_url REST endpoints, and expose connectedPlugins to the connectors card before registration. [#48318]
+
+### Changed
+- Internal: No longer require automattic/jetpack-changelogger as a per-project dev dependency. [#48225]
+
+### Fixed
+- Connector card: Fix description padding not reserving space in Chrome, reset connecting state on back-button navigation, use text label instead of busy stripes on link-style disconnect button. [#48482]
+- Connector card: Honor redirect parameter after already-authorized webhook. [#48482]
+- SSO: Render the single sign-on login button on the recovery mode landing page. [#48340]
+
+## [8.3.2] - 2026-04-27
+### Added
+- Connectors: Add `jetpack_connection_plugin_logos` filter to allow third-party plugins to register a custom SVG logo on the Connectors card. [#48146]
+
+### Changed
+- Document `jpTracksContext` as intentional minimal Tracks-specific global. [#48096]
+- Rebrand connector to Jetpack connection. [#48146]
+
+### Fixed
+- Populate `blog_id` in `JetpackScriptData` and `jpTracksContext` so Tracks events include `blog_id`. [#48096]
+
+## [8.3.1] - 2026-04-20
+### Changed
+- Update package dependencies. [#48106]
+
+## [8.3.0] - 2026-04-15
+### Added
+- Add hooks for external storage provider registration: `jetpack_external_storage_init` fires before the first storage read, and `jetpack_external_storage_provider_registered` fires after a provider is registered (invalidating cached connection status). [#48022]
+
+### Fixed
+- Ensure connector card modals and links are accessible. [#47969]
+
+## [8.2.2] - 2026-04-10
+### Changed
+- Update dependencies. [#46383]
+
+## [8.2.1] - 2026-04-09
+### Changed
+- Update package dependencies. [#47890] [#47998]
+
+## [8.2.0] - 2026-04-06
+### Added
+- Add SSO details to the Connection details card. [#47861]
+- Add WordPress.com connector card for the WP 7.0+ Settings > Connectors screen with connection details and disconnect support. [#47792]
+- Connection: Display inline error notices for site registration, authorization, and disconnect failures in the WordPress.com Connectors card. [#47865]
+
+### Changed
+- Connector card: Prevent site disconnection and owner account unlinking on Wordpress.com and VIP sites. [#47862]
+
+### Fixed
+- Connection Details: Fix layout of the connection details modal to properly handle varying URL lengths and screen sizes. [#47879]
+- Fix connection flow in connector card when using Gutenberg and ensure modals always show on disconnection. [#47902]
+- Update Woo logo on connector card. [#47884]
+
 ## [8.1.0] - 2026-03-30
 ### Changed
 - Replace transient-based SSO broker URL storage with a constant-based approach gated by a WordPress.com authorization signal, and fall back to WordPress.com SSO when the referrer is a WordPress.com domain. [#47630]
@@ -1760,6 +1869,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Separate the connection library into its own package.
 
+[8.5.2]: https://github.com/Automattic/jetpack-connection/compare/v8.5.1...v8.5.2
+[8.5.1]: https://github.com/Automattic/jetpack-connection/compare/v8.5.0...v8.5.1
+[8.5.0]: https://github.com/Automattic/jetpack-connection/compare/v8.4.0...v8.5.0
+[8.4.0]: https://github.com/Automattic/jetpack-connection/compare/v8.3.7...v8.4.0
+[8.3.7]: https://github.com/Automattic/jetpack-connection/compare/v8.3.6...v8.3.7
+[8.3.6]: https://github.com/Automattic/jetpack-connection/compare/v8.3.5...v8.3.6
+[8.3.5]: https://github.com/Automattic/jetpack-connection/compare/v8.3.4...v8.3.5
+[8.3.4]: https://github.com/Automattic/jetpack-connection/compare/v8.3.3...v8.3.4
+[8.3.3]: https://github.com/Automattic/jetpack-connection/compare/v8.3.2...v8.3.3
+[8.3.2]: https://github.com/Automattic/jetpack-connection/compare/v8.3.1...v8.3.2
+[8.3.1]: https://github.com/Automattic/jetpack-connection/compare/v8.3.0...v8.3.1
+[8.3.0]: https://github.com/Automattic/jetpack-connection/compare/v8.2.2...v8.3.0
+[8.2.2]: https://github.com/Automattic/jetpack-connection/compare/v8.2.1...v8.2.2
+[8.2.1]: https://github.com/Automattic/jetpack-connection/compare/v8.2.0...v8.2.1
+[8.2.0]: https://github.com/Automattic/jetpack-connection/compare/v8.1.0...v8.2.0
 [8.1.0]: https://github.com/Automattic/jetpack-connection/compare/v8.0.5...v8.1.0
 [8.0.5]: https://github.com/Automattic/jetpack-connection/compare/v8.0.4...v8.0.5
 [8.0.4]: https://github.com/Automattic/jetpack-connection/compare/v8.0.3...v8.0.4

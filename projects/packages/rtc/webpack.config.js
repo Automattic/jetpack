@@ -3,7 +3,8 @@ const jetpackWebpackConfig = require( '@automattic/jetpack-webpack-config/webpac
 
 module.exports = {
 	entry: {
-		rtc: './src/js/rtc.ts',
+		'rtc-providers': './src/js/providers/index.ts',
+		'rtc-notices': './src/js/notices/index.tsx',
 	},
 	mode: jetpackWebpackConfig.mode,
 	devtool: jetpackWebpackConfig.devtool,
@@ -33,7 +34,10 @@ module.exports = {
 			} ),
 
 			// Handle CSS.
-			jetpackWebpackConfig.CssRule(),
+			jetpackWebpackConfig.CssRule( {
+				extensions: [ 'css', 'scss' ],
+				extraLoaders: [ { loader: 'sass-loader', options: { api: 'modern-compiler' } } ],
+			} ),
 
 			// Handle images.
 			jetpackWebpackConfig.FileRule(),

@@ -134,6 +134,25 @@ class WPCOM_REST_API_V2_Endpoint_Send_Email_Preview extends WP_REST_Controller {
 		require_once ABSPATH . 'wp-content/mu-plugins/email-subscriptions/subscription-mailer.php';
 		$mailer       = new Subscription_Mailer( $subscriber );
 		$subscription = $subscriber->get_subscription( get_current_blog_id() );
+
+		/**
+		 * Fires immediately before an email preview is dispatched to the current user.
+		 *
+		 * Useful for inspecting the post content with an external classifier (e.g. an
+		 * LLM-based content moderator) or for logging outbound previews. Fires after
+		 * the subscriber has been resolved, so handlers receive a post that is about
+		 * to be sent.
+		 *
+		 * @module subscriptions
+		 *
+		 * @since 15.8
+		 *
+		 * @param WP_Post                 $post         The post being previewed.
+		 * @param Blog_Subscriber         $subscriber   The subscriber receiving the preview.
+		 * @param Blog_Subscription|false $subscription The subscriber's subscription for the current blog, or false if none exists.
+		 */
+		do_action( 'jetpack_before_send_email_preview', $post, $subscriber, $subscription );
+
 		$mailer->send_post( $post, $subscription );
 
 		// Return a response

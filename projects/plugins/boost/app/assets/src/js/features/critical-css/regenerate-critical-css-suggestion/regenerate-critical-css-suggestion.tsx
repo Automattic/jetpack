@@ -1,5 +1,5 @@
-import { Notice } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
+import { Notice } from '@wordpress/ui';
 import { RegenerationReason } from '$features/critical-css';
 
 const suggestionMap: { [ key: string ]: string } = {
@@ -47,18 +47,17 @@ export const RegenerateCriticalCssSuggestion = ( { regenerateReason }: Props ) =
 	}
 
 	return (
-		<Notice
-			level="info"
-			title={ __( 'Regenerate Critical CSS', 'jetpack-boost' ) }
-			hideCloseButton={ true }
-		>
-			<p>{ getSuggestionMessage( regenerateReason ) }</p>
-			<p>
-				{ __(
-					'Please regenerate your Critical CSS to maintain optimal site performance.',
-					'jetpack-boost'
-				) }
-			</p>
-		</Notice>
+		<Notice.Root intent="info">
+			<Notice.Title>{ __( 'Regenerate Critical CSS', 'jetpack-boost' ) }</Notice.Title>
+			<Notice.Description>
+				<p>{ getSuggestionMessage( regenerateReason ) }</p>
+				<p>
+					{ __(
+						'Please regenerate your Critical CSS to maintain optimal site performance.',
+						'jetpack-boost'
+					) }
+				</p>
+			</Notice.Description>
+		</Notice.Root>
 	);
 };

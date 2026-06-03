@@ -82,6 +82,7 @@ describe( 'useSyncFeaturedImageToConnections', () => {
 					length: 0,
 				},
 			},
+			false,
 		] );
 
 		mockHasSocialPaidFeatures.mockReturnValue( true );
@@ -152,6 +153,7 @@ describe( 'useSyncFeaturedImageToConnections', () => {
 					length: 0,
 				},
 			},
+			false,
 		] );
 
 		mockUseSelect.mockReturnValue( [
@@ -234,6 +236,7 @@ describe( 'useSyncFeaturedImageToConnections', () => {
 				},
 				metaData: {} as { mime: string; fileSize: number; length: number },
 			},
+			false,
 		] );
 
 		mockUseSelect.mockReturnValue( [
@@ -315,6 +318,7 @@ describe( 'useSyncFeaturedImageToConnections', () => {
 					length: 0,
 				},
 			},
+			false,
 		] );
 
 		mockUseSelect.mockReturnValue( [

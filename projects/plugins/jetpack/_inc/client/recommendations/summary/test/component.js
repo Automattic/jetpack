@@ -31,20 +31,28 @@ describe( 'Recommendations – Summary', () => {
 	} );
 
 	describe( 'Loading cards when fetching data', () => {
-		it( "shows loading card when site's plan is being fetched", () => {
+		it( "shows loading state when site's plan is being fetched", () => {
 			render( <SummaryFeature />, {
 				initialState: buildInitialState( { productSlug: undefined } ),
 			} );
 
-			expect( screen.getAllByAltText( 'Loading recommendations' ).length ).toBeGreaterThan( 0 );
+			// When loading, content sections should not be rendered
+			expect( screen.queryByText( 'Recommended premium product' ) ).not.toBeInTheDocument();
+			expect(
+				screen.queryByRole( 'region', { name: /recommendations enabled/i } )
+			).not.toBeInTheDocument();
 		} );
 
-		it( "shows loading card when site's Rewind state is being fetched", () => {
+		it( "shows loading state when site's Rewind state is being fetched", () => {
 			render( <SummaryFeature />, {
 				initialState: buildInitialState( { productSlug: 'jetpack_free', rewindStatus: {} } ),
 			} );
 
-			expect( screen.getAllByAltText( 'Loading recommendations' ).length ).toBeGreaterThan( 0 );
+			// When loading, content sections should not be rendered
+			expect( screen.queryByText( 'Recommended premium product' ) ).not.toBeInTheDocument();
+			expect(
+				screen.queryByRole( 'region', { name: /recommendations enabled/i } )
+			).not.toBeInTheDocument();
 		} );
 	} );
 

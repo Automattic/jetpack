@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Wrap deprecated no-op function in PHP version checks.

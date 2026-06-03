@@ -1,10 +1,10 @@
 === Jetpack Starter Plugin ===
 Contributors: automattic,
 Tags: jetpack, stuff
-Requires at least: 6.8
+Requires at least: 6.9
 Requires PHP: 7.2
-Tested up to: 6.9
-Stable tag: 0.9.0
+Tested up to: 7.0
+Stable tag: 0.10.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -33,20 +33,26 @@ directory take precedence. For example, `/assets/screenshot-1.png` would win ove
 2. This is the second screen shot
 
 == Changelog ==
-### 0.9.0 - 2026-01-09
+### 0.10.0 - 2026-04-10
 #### Added
-- IDC: Add revalidation for IDCs.
-- Tested up to WordPress 6.9
+- Add Jetpack Protect details page for users without the dedicated Jetpack Protect plugin.
 
 #### Changed
+- Dependencies: Update lock file to keep root requirements in sync.
+- My Jetpack: Check red bubble notification async when cache is not available.
+- Remove header border-bottom from the admin page for a cleaner unified header appearance.
+- Switch to Native TypeScript compiler based on Go.
+- Update admin page footer design.
+- Update composer.lock.
 - Update dependencies.
+- Update design of the sidebar upsell.
 - Update package dependencies.
 
+#### Removed
+- General: Update minimum WordPress version to 6.8.
+
 #### Fixed
-- Ensure proper flags are used with `json_encode()`.
-- Jetpack: remove getIconColor functions for block icons.
-- My Jetpack: Fix expiring renewal prompt to show all products.
-- My Jetpack page: fix visual compatibility issue with Hello Dolly plugin.
+- Admin Page: Restore border on header component.
 
 == Arbitrary section ==
 

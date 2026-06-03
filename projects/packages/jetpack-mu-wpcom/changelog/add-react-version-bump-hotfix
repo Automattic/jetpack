@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Add cache breaking mechanism to fix React cache error.

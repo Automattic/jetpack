@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Avoid endless PingHub reconnection loop on persistent WebSocket or JWT fetch errors

@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Plugin Conflicts Guardian: pcg_guard_updates now defaults to true, enabling the post-update health check and rollback flow by default.

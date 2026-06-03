@@ -16,6 +16,7 @@ type ValueOf< T > = T[ keyof T ];
 export type Optional< T, K extends keyof T > = Pick< Partial< T >, K > & Omit< T, K >;
 
 export type ChartType =
+	| 'area'
 	| 'bar'
 	| 'conversion-funnel'
 	| 'leaderboard'
@@ -243,6 +244,8 @@ export type ChartTheme = {
 	};
 	/** Styles for small SVG text (eg. axis tick labels), passed through to the XYChart theme. */
 	svgLabelSmall?: TextProps;
+	/** Styles for large SVG text (eg. axis titles), passed through to the XYChart theme. */
+	svgLabelBig?: TextProps;
 	annotationStyles?: AnnotationStyles;
 	/** GeoChart specific settings */
 	geoChart?: {
@@ -319,6 +322,11 @@ export type CompleteChartTheme = Required< ChartTheme > & {
 export type AxisOptions = {
 	orientation?: OrientationType;
 	numTicks?: number;
+	/**
+	 * Explicit tick values for the axis. When set, takes precedence over `numTicks`
+	 * so callers can force a specific axis (e.g. integer-only steps on a sparse chart).
+	 */
+	tickValues?: ScaleInput< AxisScale >[];
 	axisClassName?: string;
 	axisLineClassName?: string;
 	labelClassName?: string;
@@ -349,7 +357,12 @@ export type AxisOptions = {
 export type ScaleOptions = {
 	type?: ScaleType;
 	zero?: boolean;
-	domain?: [ number, number ];
+	/**
+	 * Extends the scale's domain to nice round values. Pass `false` together with
+	 * an explicit `domain` to keep the tick values you set exactly.
+	 */
+	nice?: boolean;
+	domain?: [ number, number ] | [ Date, Date ];
 	range?: [ number, number ];
 	/**
 	 * For band scale, shortcut for setting `paddingInner` and `paddingOuter` to the same value.

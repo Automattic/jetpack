@@ -1,6 +1,6 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
-import { ExternalLink } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
+import { Link } from '@wordpress/ui';
 import PropTypes from 'prop-types';
 import { getProductGroup } from '../../activation-screen/utils';
 
@@ -39,12 +39,13 @@ const ProductLink = props => {
 	return (
 		<>
 			{ productLink && (
-				<ExternalLink
+				<Link
+					openInNewTab
 					className="jp-license-activation-screen-success-info--external-link"
 					href={ getRedirectUrl( productLink.redirectSource, { site: siteRawUrl } ) }
 				>
 					{ productLink.text }
-				</ExternalLink>
+				</Link>
 			) }
 		</>
 	);

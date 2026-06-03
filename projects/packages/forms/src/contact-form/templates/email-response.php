@@ -14,6 +14,7 @@
  * %9$s is powered by email logo.
  * %10$s is the respondent info section (avatar, name, email).
  * %11$s is the metadata section (Date, Source, Device, IP).
+ * %12$s is an optional banner rendered at the very top of the email (e.g. test-submission notice).
  *
  * @package automattic/jetpack
  */
@@ -60,6 +61,10 @@ $template = '
 			<td class="container">
 				<div class="content">
 					<span class="preheader">%1$s</span>
+
+					<!-- Top-of-email banner (e.g. test-submission notice) -->
+					%12$s
+
 					<table role="presentation" border="0" cellpadding="0" cellspacing="0" class="main">
 						<tr>
 							<td class="wrapper">
@@ -326,6 +331,11 @@ $style = '<style media="all" type="text/css">
 			border-left-width: 0 !important;
 			border-radius: 0 !important;
 			border-right-width: 0 !important;
+		}
+
+		.test-submission-banner {
+			width: calc(100% - 16px) !important;
+			margin: 0 8px 24px 8px !important;
 		}
 
 		.collapse {

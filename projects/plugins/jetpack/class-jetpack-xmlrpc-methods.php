@@ -116,7 +116,7 @@ class Jetpack_XMLRPC_Methods {
 
 		$method       = (string) $json_api_args[0];
 		$url          = (string) $json_api_args[1];
-		$post_body    = $json_api_args[2] === null ? null : (string) $json_api_args[2];
+		$post_body    = is_scalar( $json_api_args[2] ) ? (string) $json_api_args[2] : null;
 		$user_details = (array) $json_api_args[4];
 		$locale       = (string) $json_api_args[5];
 
@@ -144,7 +144,7 @@ class Jetpack_XMLRPC_Methods {
 			$token_key = false;
 		} else {
 			$verified  = ( new Connection_Manager() )->verify_xml_rpc_signature();
-			$token_key = $verified['token_key'];
+			$token_key = $verified['token_key'] ?? false;
 		}
 
 		$token = ( new Tokens() )->get_access_token( $user_id, $token_key );
@@ -172,7 +172,7 @@ class Jetpack_XMLRPC_Methods {
 		$nonce = wp_generate_password( 10, false );
 		$hmac  = hash_hmac( 'md5', $nonce . $output, $token->secret );
 
-		wp_set_current_user( isset( $old_user->ID ) ? $old_user->ID : 0 );
+		wp_set_current_user( $old_user->ID ?? 0 );
 
 		return array(
 			(string) $output,

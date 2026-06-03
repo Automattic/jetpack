@@ -7,7 +7,7 @@
  * First Introduced: 1.2
  * Requires Connection: Yes
  * Requires User Connection: Yes
- * Auto Activate: No
+ * Auto Activate: Yes
  * Module Tags: Social
  * Feature: Engagement
  * Additional Search Queries: subscriptions, subscription, email, follow, followers, subscribers, signup, newsletter, creator
@@ -22,7 +22,6 @@ use Automattic\Jetpack\Newsletter\Settings as Newsletter_Settings;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
-use Automattic\Jetpack\Subscribers_Dashboard\Dashboard as Subscribers_Dashboard;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit( 0 );
@@ -157,8 +156,6 @@ class Jetpack_Subscriptions {
 
 		// Track categories created through the category editor page
 		add_action( 'wp_ajax_add-tag', array( $this, 'track_newsletter_category_creation' ), 1 );
-		$subscribers_dashboard = new Subscribers_Dashboard();
-		$subscribers_dashboard::init();
 
 		$newsletter_settings = new Newsletter_Settings();
 		$newsletter_settings::init();
@@ -968,6 +965,11 @@ class Jetpack_Subscriptions {
 	 * @param object $post obj The post object.
 	 */
 	public function maybe_set_first_published_status( $new_status, $old_status, $post ) {
+		// Subscriptions are only available for posts so far.
+		if ( ! $post instanceof \WP_Post || 'post' !== $post->post_type ) {
+			return;
+		}
+
 		$was_post_ever_published = get_post_meta( $post->ID, '_jetpack_post_was_ever_published', true );
 		if ( ! $was_post_ever_published && 'publish' === $old_status && 'draft' === $new_status ) {
 			update_post_meta( $post->ID, '_jetpack_post_was_ever_published', true );
@@ -1001,14 +1003,15 @@ class Jetpack_Subscriptions {
 	 */
 	public function register_post_meta() {
 		$jetpack_post_was_ever_published = array(
-			'type'          => 'boolean',
-			'description'   => __( 'Whether the post was ever published.', 'jetpack' ),
-			'single'        => true,
-			'default'       => false,
-			'show_in_rest'  => array(
+			'type'           => 'boolean',
+			'description'    => __( 'Whether the post was ever published.', 'jetpack' ),
+			'single'         => true,
+			'default'        => false,
+			'show_in_rest'   => array(
 				'name' => 'jetpack_post_was_ever_published',
 			),
-			'auth_callback' => array( $this, 'first_published_status_meta_auth_callback' ),
+			'auth_callback'  => array( $this, 'first_published_status_meta_auth_callback' ),
+			'object_subtype' => 'post', // Subscriptions are only for the post post type so far, so we can limit this meta to posts only.
 		);
 
 		register_meta( 'post', '_jetpack_post_was_ever_published', $jetpack_post_was_ever_published );
@@ -1019,10 +1022,25 @@ class Jetpack_Subscriptions {
 	 *
 	 * - It is not displayed on WordPress.com sites.
 	 * - It directs you to Calypso to the existing Subscribers page.
+	 * - It is retired once the Newsletter modernization filter is on, since the
+	 *   unified Newsletter page then owns the Subscribers tab.
 	 *
 	 * @return void
 	 */
 	public function add_subscribers_menu() {
+		/*
+		 * Once the Newsletter modernization filter is on, the unified Newsletter
+		 * page owns the Subscribers tab and this standalone Calypso shortcut is
+		 * retired. While the filter is off (the default) we keep showing it.
+		 *
+		 * Referenced as a string literal (mirrors Newsletter\Settings::MODERNIZATION_FILTER)
+		 * to keep this bootstrap path safe if the packaged Newsletter Settings class does
+		 * not expose the constant yet.
+		 */
+		if ( apply_filters( 'rsm_jetpack_ui_modernization_newsletter', false ) ) {
+			return;
+		}
+
 		/**
 		 * Enables the new in development subscribers in wp-admin dashboard.
 		 *
@@ -1110,3 +1128,6 @@ require __DIR__ . '/subscriptions/subscribe-modal/class-jetpack-subscribe-modal.
 require __DIR__ . '/subscriptions/subscribe-overlay/class-jetpack-subscribe-overlay.php';
 require __DIR__ . '/subscriptions/subscribe-floating-button/class-jetpack-subscribe-floating-button.php';
 require __DIR__ . '/subscriptions/newsletter-widget/class-jetpack-newsletter-dashboard-widget.php';
+
+require_once __DIR__ . '/subscriptions/abilities/class-newsletter-abilities.php';
+\Automattic\Jetpack\Plugin\Abilities\Newsletter_Abilities::init();

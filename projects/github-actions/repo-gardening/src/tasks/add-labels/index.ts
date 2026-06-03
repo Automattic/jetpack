@@ -128,12 +128,6 @@ async function getFileDerivedLabels(
 			keywords.add( '[Feature] Theme Tools' );
 		}
 
-		// The WooCommerce Analytics feature now lives in both a package and a Jetpack module.
-		const wooCommerceAnalytics = file.match( /^projects\/packages\/woocommerce-analytics\// );
-		if ( wooCommerceAnalytics !== null ) {
-			keywords.add( '[Feature] WooCommerce Analytics' );
-		}
-
 		// The Masterbar feature now lives in both a package and a Jetpack module.
 		const masterbar = file.match( /^projects\/packages\/masterbar\// );
 		if ( masterbar !== null ) {
@@ -188,7 +182,7 @@ async function getFileDerivedLabels(
 
 		// React Dashboard and Boost Admin.
 		const reactAdmin = file.match(
-			/^(projects\/plugins\/(crm|boost\/app)\/admin|projects\/plugins\/jetpack\/_inc\/client)\//
+			/^(projects\/plugins\/(boost\/app)\/admin|projects\/plugins\/jetpack\/_inc\/client)\//
 		);
 		if ( reactAdmin !== null ) {
 			keywords.add( 'Admin Page' );
@@ -206,18 +200,6 @@ async function getFileDerivedLabels(
 		const wpcomApi = file.match( /^projects\/plugins\/jetpack\/json-endpoints\// );
 		if ( wpcomApi !== null ) {
 			keywords.add( '[Feature] WPCOM API' );
-		}
-
-		// CRM elements.
-		const crmModules = file.match( /^projects\/plugins\/crm\/modules\/(?<crmModule>[^/]*)\// );
-		const crmModuleName = crmModules?.groups?.crmModule;
-		if ( crmModuleName ) {
-			keywords.add( `[CRM] ${ cleanName( crmModuleName ) } Module` );
-		}
-
-		const crmApi = file.match( /^projects\/plugins\/crm\/api\// );
-		if ( crmApi !== null ) {
-			keywords.add( '[CRM] API' );
 		}
 
 		// mu wpcom features.

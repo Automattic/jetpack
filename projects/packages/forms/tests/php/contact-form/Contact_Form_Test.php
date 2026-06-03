@@ -132,6 +132,61 @@ class Contact_Form_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Preview (test) submissions mark the feedback as a test response, skip
+	 * Akismet, and still keep the post_status as 'publish' so the owner can
+	 * find it in the normal inbox alongside real responses.
+	 */
+	public function test_process_submission_marks_preview_submission_as_test_feedback() {
+		$this->add_field_values(
+			array(
+				'name'    => 'Preview Tester',
+				'email'   => 'preview@example.com',
+				'message' => 'This should be stored as test feedback',
+			)
+		);
+
+		// Track whether Akismet filter was invoked — it must not be.
+		$akismet_called = 0;
+		add_filter(
+			'jetpack_contact_form_is_spam',
+			function ( $is_spam ) use ( &$akismet_called ) {
+				++$akismet_called;
+				return $is_spam;
+			},
+			10,
+			1
+		);
+
+		$form = new Contact_Form(
+			array(),
+			"[contact-field label='Name' type='name' required='1'/][contact-field label='Email' type='email' required='1'/][contact-field label='Message' type='textarea' required='1'/]"
+		);
+		$form->set_is_preview_submission( true );
+
+		$initial_count = count( Posts::init()->posts );
+		$result        = $form->process_submission();
+
+		$this->assertTrue( is_string( $result ), 'Form submission should be successful for preview submissions.' );
+
+		$final_posts = Posts::init()->posts;
+		$this->assertCount( $initial_count + 1, $final_posts, 'A feedback post should be created for preview submissions.' );
+
+		$new_post = end( $final_posts );
+		$this->assertEquals( 'feedback', $new_post->post_type, 'The new post should be of type feedback.' );
+		$this->assertEquals( 'publish', $new_post->post_status, 'Test feedback should be stored with publish status, not spam.' );
+
+		$this->assertSame( 0, $akismet_called, 'Akismet filter must not be invoked for preview (test) submissions.' );
+
+		// Round-trip through the Feedback reader to confirm the is_test flag is
+		// serialized into post_content.
+		$feedback = Feedback::get( $new_post->ID );
+		$this->assertInstanceOf( Feedback::class, $feedback );
+		$this->assertTrue( $feedback->is_test(), 'Feedback loaded from post_content should report is_test() === true.' );
+
+		remove_all_filters( 'jetpack_contact_form_is_spam' );
+	}
+
+	/**
 	 * Test that form submissions are stored in database when saveResponses is not specified (defaults to 'yes')
 	 */
 	public function test_process_submission_stores_feedback_when_save_responses_default() {
@@ -2645,6 +2700,97 @@ class Contact_Form_Test extends BaseTestCase {
 		Constants::clear_single_constant( 'JETPACK_BLOG_TOKEN' );
 	}
 
+	/**
+	 * A JWT issued while Form_Preview::is_preview_mode() is active carries
+	 * is_test=true inside its serialized source. After decode, the form's
+	 * source should report is_test() === true, which is how
+	 * process_form_submission() recognizes preview submissions.
+	 */
+	public function test_jwt_source_is_flagged_as_test_when_rendered_in_preview_mode() {
+		Constants::set_constant( 'JETPACK_BLOG_TOKEN', 'test.token' );
+
+		// Flip the Form_Preview static flag for the duration of this test so
+		// Feedback_Source::get_current() — invoked by get_jwt() — records the
+		// preview context in the serialized source.
+		$reflection   = new \ReflectionClass( Form_Preview::class );
+		$preview_flag = $reflection->getProperty( 'is_preview_mode' );
+		// PHP 8.1+ makes this a no-op and 8.5+ emits a deprecation notice.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$preview_flag->setAccessible( true );
+		}
+		$previous_value = $preview_flag->getValue();
+		$preview_flag->setValue( null, true );
+
+		try {
+			$form = new Contact_Form(
+				array(
+					'to'      => 'preview@example.com',
+					'subject' => 'preview subject',
+				),
+				"[contact-field label='Name' type='name' required='1'/]"
+			);
+
+			$jwt = $form->get_jwt();
+
+			$decoded = Contact_Form::get_instance_from_jwt( $jwt );
+
+			$this->assertNotNull( $decoded, 'JWT should decode successfully.' );
+			$this->assertTrue(
+				$decoded->get_source()->is_test(),
+				'A JWT issued while preview mode was active should carry is_test=true in its source.'
+			);
+		} finally {
+			$preview_flag->setValue( null, $previous_value );
+			Constants::clear_single_constant( 'JETPACK_BLOG_TOKEN' );
+		}
+	}
+
+	/**
+	 * Backward compatibility: a JWT issued before this feature shipped (or
+	 * issued outside preview mode) has no is_test key in its source. After
+	 * decode, the form's source should report is_test() === false, so the
+	 * submission flows through the normal response pipeline. This matters
+	 * because JWTs can live in cached HTML fragments across page loads.
+	 */
+	public function test_jwt_without_is_test_in_source_is_not_a_preview_submission() {
+		Constants::set_constant( 'JETPACK_BLOG_TOKEN', 'test.token' );
+
+		$form = new Contact_Form(
+			array(
+				'to'      => 'normal@example.com',
+				'subject' => 'normal subject',
+			),
+			"[contact-field label='Name' type='name' required='1'/]"
+		);
+
+		$jwt = $form->get_jwt();
+
+		// Sanity-check the serialized JWT does not carry is_test. We read the
+		// unencrypted outer claims directly — implementation detail, but it
+		// documents the backward-compat contract.
+		$raw_parts       = explode( '.', $jwt );
+		$raw_payload     = $raw_parts[1] ?? '';
+		$decoded_json    = base64_decode( strtr( $raw_payload, '-_', '+/' ), true );
+		$decoded_payload = $decoded_json === false ? null : json_decode( $decoded_json, true );
+		$this->assertIsArray( $decoded_payload );
+		$this->assertArrayHasKey( 'source', $decoded_payload );
+		$this->assertArrayNotHasKey(
+			'is_test',
+			$decoded_payload['source'],
+			'Outside preview mode the source must not include an is_test key so old cached JWTs stay compatible.'
+		);
+
+		$decoded = Contact_Form::get_instance_from_jwt( $jwt );
+
+		$this->assertNotNull( $decoded );
+		$this->assertFalse(
+			$decoded->get_source()->is_test(),
+			'A JWT without is_test in its source must decode to a regular (non-test) submission.'
+		);
+
+		Constants::clear_single_constant( 'JETPACK_BLOG_TOKEN' );
+	}
+
 	public function test_get_instance_from_jwt_uses_default_secret_when_no_token_secret() {
 		// Ensure JETPACK_BLOG_TOKEN is not defined, so default secret is used
 		Constants::clear_single_constant( 'JETPACK_BLOG_TOKEN' );
@@ -4095,5 +4241,136 @@ class Contact_Form_Test extends BaseTestCase {
 		$classes_array = explode( ' ', $classes );
 		$this->assertContains( 'jetpack-contact-form-container', $classes_array );
 		$this->assertContains( 'alignwide', $classes_array );
+	}
+
+	/**
+	 * Test that get_field_type_icon rejects field types that don't match the
+	 * required format (lowercase letter prefix, then lowercase letters, digits,
+	 * or hyphens).
+	 *
+	 * @dataProvider data_provider_get_field_type_icon_invalid
+	 *
+	 * @param mixed  $field_type  The field type to test.
+	 * @param string $description Human-readable description of the case.
+	 */
+	#[DataProvider( 'data_provider_get_field_type_icon_invalid' )]
+	public function test_get_field_type_icon_rejects_invalid_field_type_format( $field_type, $description ) {
+		$reflection = new \ReflectionClass( Contact_Form::class );
+		$method     = $reflection->getMethod( 'get_field_type_icon' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true );
+		}
+
+		$result = $method->invoke( null, $field_type );
+
+		$this->assertSame( '', $result, $description );
+	}
+
+	/**
+	 * Data provider for invalid field type format cases.
+	 *
+	 * @return array[]
+	 */
+	public static function data_provider_get_field_type_icon_invalid() {
+		return array(
+			'contains parent directory segment' => array(
+				'../../../../etc/passwd',
+				'Field type containing ../ should be rejected',
+			),
+			'contains url-encoded path segment' => array(
+				'..%2F..%2Fetc%2Fpasswd',
+				'Field type with url-encoded path segment should be rejected',
+			),
+			'contains backslash path segment'   => array(
+				'..\\..\\windows\\system32',
+				'Field type with backslash path segment should be rejected',
+			),
+			'leading slash'                     => array(
+				'/etc/passwd',
+				'Field type beginning with a forward slash should be rejected',
+			),
+			'contains null byte'                => array(
+				"text\0.svg",
+				'Field type with embedded null byte should be rejected',
+			),
+			'uppercase letters'                 => array(
+				'TEXT',
+				'Uppercase field type should be rejected (strict format)',
+			),
+			'starts with digit'                 => array(
+				'1text',
+				'Field type starting with digit should be rejected',
+			),
+			'starts with hyphen'                => array(
+				'-text',
+				'Field type starting with hyphen should be rejected',
+			),
+			'contains space'                    => array(
+				'text field',
+				'Field type with space should be rejected',
+			),
+			'non-string array'                  => array(
+				array( 'text' ),
+				'Array field type should be rejected',
+			),
+			'non-string integer'                => array(
+				123,
+				'Integer field type should be rejected',
+			),
+			'non-string null'                   => array(
+				null,
+				'Null field type should be rejected',
+			),
+			'empty string'                      => array(
+				'',
+				'Empty field type should be rejected',
+			),
+		);
+	}
+
+	/**
+	 * Test that get_field_type_icon returns valid SVG markup for known field types.
+	 *
+	 * Companion to test_get_field_type_icon_rejects_invalid_field_type_format —
+	 * ensures the format check does not break legitimate field types.
+	 *
+	 * @dataProvider data_provider_get_field_type_icon_valid
+	 *
+	 * @param string $field_type The valid field type to test.
+	 */
+	#[DataProvider( 'data_provider_get_field_type_icon_valid' )]
+	public function test_get_field_type_icon_accepts_valid_types( $field_type ) {
+		$reflection = new \ReflectionClass( Contact_Form::class );
+		$method     = $reflection->getMethod( 'get_field_type_icon' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true );
+		}
+
+		$result = $method->invoke( null, $field_type );
+
+		// Valid field types either return SVG markup (when the icon file exists)
+		// or an empty string (when the block directory exists but has no icon.svg yet).
+		$this->assertIsString( $result, "Field type '$field_type' should return a string" );
+		if ( $result !== '' ) {
+			$this->assertStringContainsString( '<svg', $result, "Field type '$field_type' should return SVG markup" );
+		}
+	}
+
+	/**
+	 * Data provider for valid field type acceptance test cases.
+	 *
+	 * @return array[]
+	 */
+	public static function data_provider_get_field_type_icon_valid() {
+		return array(
+			'text'                           => array( 'text' ),
+			'email'                          => array( 'email' ),
+			'textarea'                       => array( 'textarea' ),
+			'phone (via exception map)'      => array( 'phone' ),
+			'telephone (via exception map)'  => array( 'telephone' ),
+			'radio (via exception map)'      => array( 'radio' ),
+			'checkbox-multiple (hyphenated)' => array( 'checkbox-multiple' ),
+			'image-select (hyphenated)'      => array( 'image-select' ),
+		);
 	}
 }

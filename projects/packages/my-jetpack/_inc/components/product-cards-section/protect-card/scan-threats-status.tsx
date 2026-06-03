@@ -1,7 +1,7 @@
-import { Gridicon } from '@automattic/jetpack-components';
 import { Popover } from '@wordpress/components';
 import { useViewportMatch } from '@wordpress/compose';
 import { __ } from '@wordpress/i18n';
+import { Icon, info } from '@wordpress/icons';
 import clsx from 'clsx';
 import { useMemo, useState, useCallback, useRef } from 'react';
 import useProduct from '../../../data/products/use-product';
@@ -43,7 +43,7 @@ export const ScanAndThreatStatus: FC< ScanAndThreatStatusProps > = ( { data } ) 
 			...( files ?? [] ),
 		];
 		return allThreats.reduce(
-			( accum, threat ) => ( threat.severity >= 5 ? ( accum += 1 ) : accum ),
+			( accum, threat ) => ( threat.severity >= 5 ? accum + 1 : accum ),
 			0
 		);
 	}, [ plugins, themes, data?.scanData ] );
@@ -124,7 +124,7 @@ const ThreatStatus: FC< ThreatStatusProps > = ( { data, numThreats, criticalThre
 							onClick={ toggleTooltip }
 							ref={ useTooltipRef }
 						>
-							<Gridicon className="scan_threats__icon-critical" icon="info" size={ 14 } />
+							<Icon className="scan_threats__icon-critical" icon={ info } size={ 14 } />
 							<span className="scan-threats__critical-threat-count">{ criticalThreatCount }</span>
 						</button>
 						{ isPopoverVisible && (

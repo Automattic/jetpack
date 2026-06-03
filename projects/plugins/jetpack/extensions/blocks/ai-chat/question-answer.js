@@ -1,18 +1,9 @@
 /**
  * WordPress dependencies
  */
-import {
-	Button,
-	TextControl,
-	Spinner,
-	KeyboardShortcuts,
-	ExternalLink,
-} from '@wordpress/components';
+import { Button, TextControl, Spinner, KeyboardShortcuts } from '@wordpress/components';
 import { RawHTML, useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-/**
- * Internal dependencies
- */
 import CopyButton from './components/copy-button';
 import DisplayError from './components/display-error';
 import Feedback from './components/feedback';
@@ -171,7 +162,9 @@ export default function QuestionAnswer( {
 						<ul>
 							{ references.map( ( reference, index ) => (
 								<li key={ index }>
-									<ExternalLink href={ reference.url }>{ reference.title }</ExternalLink>
+									<a href={ reference.url } target="_blank" rel="noopener noreferrer">
+										{ reference.title }
+									</a>
 								</li>
 							) ) }
 						</ul>

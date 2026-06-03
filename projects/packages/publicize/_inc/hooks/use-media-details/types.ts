@@ -1,10 +1,15 @@
 export type MediaDetails = {
-	metaData: {
+	metaData?: {
 		mime: string;
-		fileSize: number;
-		length: number;
+		fileSize?: number;
+		length?: number;
 	};
-	mediaData: {
+	mediaData?: {
+		width: number;
+		height: number;
+		sourceUrl: string;
+	};
+	previewData?: {
 		width: number;
 		height: number;
 		sourceUrl: string;

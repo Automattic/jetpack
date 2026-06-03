@@ -3,7 +3,7 @@
  * Changes are staged (not saved to DB) so they can be picked up by the form editor.
  */
 
-import { serialize } from '@wordpress/blocks';
+import { serialize, type Block } from '@wordpress/blocks';
 import { useCallback, useEffect, useRef } from '@wordpress/element';
 import { FORM_POST_TYPE } from '../../shared/util/constants.js';
 import { createSyncedFormBlock, serializeSyncedForm } from '../util/form-sync.ts';
@@ -12,7 +12,7 @@ interface UseSyncedFormAutoSaveParams {
 	ref?: number;
 	syncedForm: { content?: { raw?: string } } | null;
 	attributes: Record< string, unknown >;
-	currentInnerBlocks: unknown[];
+	currentInnerBlocks: Block[];
 	isSyncingRef: React.MutableRefObject< boolean >;
 	editEntityRecord: (
 		kind: string,
@@ -48,7 +48,7 @@ export function captureBaseline(
 	syncedForm: { content?: { raw?: string } } | null,
 	isSyncing: boolean,
 	attributes: Record< string, unknown >,
-	currentInnerBlocks: unknown[],
+	currentInnerBlocks: Block[],
 	baselineRef: React.MutableRefObject< { ref: number; serialized: string } | null >
 ): string | null {
 	// Not ready yet - need ref and syncedForm, and sync must be complete
@@ -79,7 +79,7 @@ export function captureBaseline(
 export function stageFormEdits(
 	ref: number,
 	attributes: Record< string, unknown >,
-	currentInnerBlocks: unknown[],
+	currentInnerBlocks: Block[],
 	editEntityRecord: UseSyncedFormAutoSaveParams[ 'editEntityRecord' ]
 ): void {
 	// Create block once and reuse for both serialization and staging

@@ -18,6 +18,8 @@ function maybe_do_not_concat( $do_concat, $handle ) {
 		'wc-bookings-booking-form',
 		// WooCommerce Analytics
 		'woocommerce-analytics-client',
+		// Boost Image Guide — ES6 webpack bundle corrupted by _jb_static re-minification (HOG-522)
+		'jetpack-boost-guide',
 	);
 
 	if ( in_array( $handle, $excluded_handles, true ) ) {

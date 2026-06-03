@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Refactored URL linkification to use WP_HTML_Tag_Processor for more robust HTML parsing.

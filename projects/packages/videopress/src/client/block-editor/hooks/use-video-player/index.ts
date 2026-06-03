@@ -5,10 +5,14 @@ import { usePrevious } from '@wordpress/compose';
 import debugFactory from 'debug';
 import { useEffect, useRef, useState, useCallback } from 'react';
 /**
+ * Internal dependencies
+ */
+import { isAllowedOrigin } from '../../../lib/videopress-allowed-origins';
+/**
  * Types
  */
 import type { PlayerStateProp, UseVideoPlayerOptions, UseVideoPlayer } from './types';
-import type { MutableRefObject } from 'react';
+import type { RefObject } from 'react';
 
 const debug = debugFactory( 'videopress:use-video-player' );
 
@@ -16,12 +20,10 @@ const debug = debugFactory( 'videopress:use-video-player' );
  * Return the (content) Window object of the iframe,
  * given the iframe's ref.
  *
- * @param {MutableRefObject< HTMLDivElement >} iFrameRef - iframe ref
+ * @param {RefObject< HTMLDivElement >} iFrameRef - iframe ref
  * @return {Window | null} Window object of the iframe
  */
-export const getIframeWindowFromRef = (
-	iFrameRef: MutableRefObject< HTMLDivElement >
-): Window | null => {
+export const getIframeWindowFromRef = ( iFrameRef: RefObject< HTMLDivElement > ): Window | null => {
 	const iFrame: HTMLIFrameElement = iFrameRef?.current?.querySelector(
 		'iframe.components-sandbox'
 	);
@@ -31,13 +33,13 @@ export const getIframeWindowFromRef = (
 /**
  * Custom hook to set the player ready to use:
  *
- * @param {MutableRefObject< HTMLDivElement >} iFrameRef           - useRef of the sandbox wrapper.
- * @param {boolean}                            isRequestingPreview - Whether the preview is being requested.
- * @param {UseVideoPlayerOptions}              options             - Options object.
+ * @param {RefObject< HTMLDivElement >} iFrameRef           - useRef of the sandbox wrapper.
+ * @param {boolean}                     isRequestingPreview - Whether the preview is being requested.
+ * @param {UseVideoPlayerOptions}       options             - Options object.
  * @return {UseVideoPlayer}                                     playerIsReady and playerState
  */
 const useVideoPlayer = (
-	iFrameRef: MutableRefObject< HTMLDivElement >,
+	iFrameRef: RefObject< HTMLDivElement >,
 	isRequestingPreview: boolean,
 	{ initialTimePosition, wrapperElement, previewOnHover }: UseVideoPlayerOptions
 ): UseVideoPlayer => {
@@ -57,7 +59,16 @@ const useVideoPlayer = (
 	 * @param {MessageEvent} event - Message event
 	 */
 	function listenEventsHandler( event: MessageEvent ) {
+		if ( ! isAllowedOrigin( event.origin ) ) {
+			debug( 'ignoring message from untrusted origin: %s', event.origin );
+			return;
+		}
+
 		const { data: eventData = {}, source } = event;
+		if ( ! source || ! ( 'postMessage' in source ) ) {
+			return;
+		}
+
 		const { event: eventName } = event?.data || {};
 
 		// Detect when the video has been loaded.

@@ -92,6 +92,19 @@ class WP_Build_Polyfills {
 		$build_dir    = $package_root . '/build';
 		$base_file    = $package_root . '/composer.json';
 
+		// `wp_default_scripts` fires once when the WP_Scripts singleton is
+		// instantiated. If something has already initialized `wp_scripts()` —
+		// common on admin requests where WP or other plugins register scripts
+		// before `admin_menu` priority 1 runs — adding this hook here is too
+		// late and the polyfills never register. Detect that case and run the
+		// registration synchronously so consumers can rely on the script
+		// handles and module IDs being available regardless of init order.
+		if ( did_action( 'wp_default_scripts' ) ) {
+			self::register_scripts( wp_scripts(), $build_dir, $base_file, self::$wp_version_threshold );
+			self::register_modules( $build_dir, $base_file );
+			return;
+		}
+
 		add_action(
 			'wp_default_scripts',
 			function ( $scripts ) use ( $build_dir, $base_file ) {
@@ -120,21 +133,28 @@ class WP_Build_Polyfills {
 	 * @param string      $wp_version_threshold  WP version below which force-replacements apply.
 	 */
 	private static function register_scripts( $scripts, $build_dir, $base_file, $wp_version_threshold ) {
-		$force_replace = version_compare( $GLOBALS['wp_version'] ?? '0', $wp_version_threshold, '<' );
+		// Force-replace only when Core's bundled scripts are incomplete (WP < 7.0)
+		// AND Gutenberg is not active. When Gutenberg is present, its script
+		// registrations (priority 10) are always self-consistent — replacing them
+		// with our polyfills can break packages that Gutenberg adds in the future while
+		// our polyfill's allowlist doesn't cover them yet.
+		$gutenberg_active = defined( 'GUTENBERG_VERSION' );
+		$force_replace    = ! $gutenberg_active
+			&& version_compare( $GLOBALS['wp_version'] ?? '0', $wp_version_threshold, '<' );
 
 		$polyfills = array(
 			'wp-notices'      => array(
 				'path'  => 'notices',
-				// Only force-replace on older WP: older Core versions ship
-				// notices without SnackbarNotices and InlineNotices component
-				// exports that @wordpress/boot depends on.
+				// Only force-replace on older WP without Gutenberg: older Core
+				// versions ship notices without SnackbarNotices and InlineNotices
+				// component exports that @wordpress/boot depends on.
 				'force' => $force_replace,
 			),
 			'wp-private-apis' => array(
 				'path'  => 'private-apis',
-				// Only force-replace on older WP: older Core versions ship
-				// private-apis with an incomplete allowlist that rejects
-				// @wordpress/theme and @wordpress/route.
+				// Only force-replace on older WP without Gutenberg: older Core
+				// versions ship private-apis with an incomplete allowlist that
+				// rejects @wordpress/theme and @wordpress/route.
 				// Our version is a strict superset (same API, larger allowlist).
 				'force' => $force_replace,
 			),

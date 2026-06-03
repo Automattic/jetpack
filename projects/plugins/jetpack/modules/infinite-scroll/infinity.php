@@ -258,7 +258,7 @@ class The_Neverending_Home_Page {
 			// Ensure that IS is enabled and no footer widgets exist if the IS type isn't already "click".
 			if ( 'click' !== $settings['type'] ) {
 				// Check the setting status
-				$disabled = '' === get_option( self::$option_name_enabled ) ? true : false;
+				$disabled = '' === get_option( self::$option_name_enabled );
 
 				// Footer content or Reading option check
 				if ( $settings['footer_widgets'] || $disabled ) {
@@ -553,7 +553,7 @@ class The_Neverending_Home_Page {
 		$settings = self::get_settings();
 		$classes  = '';
 		// Do not add infinity-scroll class if disabled through the Reading page
-		$disabled = '' === get_option( self::$option_name_enabled ) ? true : false;
+		$disabled = '' === get_option( self::$option_name_enabled );
 		if ( ! $disabled || 'click' === $settings->type ) {
 			$classes = 'infinite-scroll';
 
@@ -582,6 +582,7 @@ class The_Neverending_Home_Page {
 				continue;
 			}
 
+			// @phan-suppress-next-line PhanPluginDuplicateConditionalNullCoalescing -- probably would be safe to collapse, but not changing just in case.
 			$orderby   = isset( self::wp_query()->query_vars['orderby'] ) ? self::wp_query()->query_vars['orderby'] : '';
 			$post_date = ( ! empty( $post->post_date ) ? $post->post_date : false );
 			if ( 'modified' === $orderby || false === $post_date ) {
@@ -610,7 +611,7 @@ class The_Neverending_Home_Page {
 		// applies to search page only
 		if ( true === self::wp_query()->is_search() ) {
 			// set post__not_in array in query_vars in case it does not exists
-			if ( false === isset( $query_vars['post__not_in'] ) ) {
+			if ( ! isset( $query_vars['post__not_in'] ) ) {
 				$query_vars['post__not_in'] = array();
 			}
 			// get excluded posts
@@ -637,6 +638,9 @@ class The_Neverending_Home_Page {
 
 		// grab the last posts in the stack as if the last one is title-matching the rest is title-matching as well
 		$post = end( self::wp_query()->posts );
+		if ( ! $post instanceof WP_Post ) {
+			return false;
+		}
 
 		// code inspired by WP_Query class
 		if ( preg_match_all( '/".*?("|$)|((?<=[\t ",+])|^)[^\t ",+]+/', self::wp_query()->get( 's' ), $matches ) ) {
@@ -683,9 +687,9 @@ class The_Neverending_Home_Page {
 			return false;
 		}
 
-		$post      = end( self::wp_query()->posts );
-		$orderby   = isset( self::wp_query()->query_vars['orderby'] ) ?
-			self::wp_query()->query_vars['orderby'] : '';
+		$post = end( self::wp_query()->posts );
+		// @phan-suppress-next-line PhanPluginDuplicateConditionalNullCoalescing -- probably would be safe to collapse, but not changing just in case.
+		$orderby   = isset( self::wp_query()->query_vars['orderby'] ) ? self::wp_query()->query_vars['orderby'] : '';
 		$post_date = ( ! empty( $post->post_date ) ? $post->post_date : false );
 		switch ( $orderby ) {
 			case 'modified':
@@ -711,7 +715,7 @@ class The_Neverending_Home_Page {
 			$query = self::wp_query();
 		}
 
-		$orderby = isset( $query->query_vars['orderby'] ) ? $query->query_vars['orderby'] : '';
+		$orderby = $query->query_vars['orderby'] ?? '';
 
 		switch ( $orderby ) {
 			case 'modified':
@@ -900,7 +904,8 @@ class The_Neverending_Home_Page {
 				&& ! empty( $taxonomy->object_type )
 				&& count( $taxonomy->object_type ) < 2
 			) {
-				$post_type = $taxonomy->object_type[0];
+				// It seems [0] doesn't work, as sometimes plugins can deregister a taxonomy but not reindex.
+				$post_type = reset( $taxonomy->object_type );
 			}
 		}
 

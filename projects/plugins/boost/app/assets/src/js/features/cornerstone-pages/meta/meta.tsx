@@ -9,10 +9,11 @@ import { usePremiumFeatures } from '$lib/stores/premium-features';
 import { recordBoostEvent } from '$lib/utils/analytics';
 import getSupportLink from '$lib/utils/get-support-link';
 import { isSameSiteUrl } from '$lib/utils/is-same-site-url';
-import { Button, getRedirectUrl, Notice } from '@automattic/jetpack-components';
-import { ExternalLink, Tooltip } from '@wordpress/components';
+import { Button, getRedirectUrl } from '@automattic/jetpack-components';
+import { Tooltip } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
+import { Notice, Link } from '@wordpress/ui';
 import type { FC, ReactNode } from 'react';
 import { useEffect, useMemo, useState } from 'react';
 import {
@@ -22,30 +23,30 @@ import {
 import styles from './meta.module.scss';
 
 export const MetaError = () => (
-	<Notice
-		level="warning"
-		title={ __( 'Failed to load', 'jetpack-boost' ) }
-		hideCloseButton={ true }
-	>
-		<p>
-			{ createInterpolateElement(
-				__(
-					'Refresh the page and try again. If the issue persists, please <link>contact support</link>.',
-					'jetpack-boost'
-				),
-				{
-					link: (
-						<ExternalLink
-							href={ getSupportLink() }
-							onClick={ () => {
-								recordBoostEvent( 'cornerstone_pages_properties_failed', {} );
-							} }
-						/>
+	<Notice.Root intent="warning">
+		<Notice.Title>{ __( 'Failed to load', 'jetpack-boost' ) }</Notice.Title>
+		<Notice.Description>
+			<p>
+				{ createInterpolateElement(
+					__(
+						'Refresh the page and try again. If the issue persists, please <link>contact support</link>.',
+						'jetpack-boost'
 					),
-				}
-			) }
-		</p>
-	</Notice>
+					{
+						link: (
+							<Link
+								openInNewTab
+								href={ getSupportLink() }
+								onClick={ () => {
+									recordBoostEvent( 'cornerstone_pages_properties_failed', {} );
+								} }
+							/>
+						),
+					}
+				) }
+			</p>
+		</Notice.Description>
+	</Notice.Root>
 );
 
 const CornerstonePagesContent = () => {
@@ -139,7 +140,8 @@ const Meta = () => {
 					),
 					{
 						link: (
-							<ExternalLink
+							<Link
+								openInNewTab
 								href={ cornerstonePagesSupportLink }
 								onClick={ () => {
 									recordBoostEvent( 'clicked_cornerstone_pages_learn_more', {} );

@@ -1,7 +1,3 @@
-# Files not needed to be distributed in the package.
-.gitattributes    export-ignore
-.github/          export-ignore
-
 # Files to include in the mirror repo, but excluded via gitignore
 # Remember to end all directories with `/**` to properly tag every file.
 # /src/js/example.min.js  production-include
@@ -13,12 +9,6 @@ vendor/composer/**                              production-include
 vendor/jetpack-autoloader/**                    production-include
 
 # Files to exclude from the mirror repo, but included in the monorepo.
+# (see also entries in the monorepo root .gitattributes)
 # Remember to end all directories with `/**` to properly tag every file.
-.gitattributes                                  production-exclude
-changelog/**                                    production-exclude
-composer.lock                                   production-exclude
-.phpcs.dir.xml                                  production-exclude
-README.md                                       production-exclude
-/vendor/automattic/jetpack-autoloader/**        production-exclude
-/vendor/automattic/jetpack-changelogger/**      production-exclude
-/vendor/automattic/jetpack-composer-plugin/**   production-exclude
+/README.md                                      production-exclude

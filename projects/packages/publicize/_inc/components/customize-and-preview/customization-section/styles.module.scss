@@ -8,6 +8,10 @@
 	// Allow fieldset to shrink below its content size in grid/flex layouts.
 	min-inline-size: 0;
 
+	@include gb.break-medium() {
+		overflow-y: auto;
+	}
+
 	legend {
 		color: gb.$gray-700;
 		// Float fixes the default fieldset/legend border and padding issues.

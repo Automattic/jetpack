@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+wpcom-admin-menu: dedupe submenu reorder so a slug that's a substring of another doesn't register the same item twice (fixes Podcasting appearing twice under Jetpack).

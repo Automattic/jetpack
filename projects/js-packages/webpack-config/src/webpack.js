@@ -85,12 +85,7 @@ const optimization = {
 };
 const resolve = {
 	extensions: [ '.js', '.jsx', '.ts', '.tsx', '...' ],
-	conditionNames: [
-		...( process.env.npm_config_jetpack_webpack_config_resolve_conditions
-			? process.env.npm_config_jetpack_webpack_config_resolve_conditions.split( ',' )
-			: [] ),
-		'...',
-	],
+	conditionNames: [ 'jetpack:src', '...' ],
 };
 const watchOptions = {
 	ignored: [ '**/node_modules', '**/dist', '**/vendor' ],
@@ -114,12 +109,6 @@ const defaultRequestMap = {
 	'@automattic/jetpack-connection': {
 		external: 'JetpackConnection',
 		handle: 'jetpack-connection',
-	},
-	// Bundle admin-ui CSS with our assets. The JS side is already handled by the
-	// DependencyExtractionPlugin's BUNDLED_PACKAGES list, but the CSS subpath import
-	// doesn't match that exact-match check and would be incorrectly externalized.
-	'@wordpress/admin-ui/build-style/style.css': {
-		external: false,
 	},
 };
 

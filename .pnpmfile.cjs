@@ -76,7 +76,6 @@ async function fixDeps( pkg ) {
 
 	// Missing dep or peer dep on react.
 	// https://github.com/WordPress/gutenberg/issues/73257 (fixed in @wordpress/icons v11, but see above)
-	// https://github.com/WordPress/gutenberg/issues/74394
 	if (
 		pkg.name === '@wordpress/icons' &&
 		! pkg.dependencies?.react &&
@@ -165,6 +164,7 @@ async function fixDeps( pkg ) {
 	}
 
 	// @wordpress/stylelint-config is still CJS, which caps how high we can upgrade.
+	// https://github.com/WordPress/gutenberg/issues/75047
 	if ( pkg.name === '@wordpress/stylelint-config' ) {
 		if ( pkg.dependencies?.[ '@stylistic/stylelint-plugin' ]?.startsWith( '^3.' ) ) {
 			pkg.dependencies[ '@stylistic/stylelint-plugin' ] = '^5';
@@ -202,20 +202,13 @@ async function fixDeps( pkg ) {
 		}
 	}
 
-	// Unnecessary strict deps.
-	if ( pkg.name === 'estimo' ) {
-		for ( const [ dep, ver ] of Object.entries( pkg.dependencies ) ) {
-			if ( ver.match( /^\d+(\.\d+)+$/ ) ) {
-				pkg.dependencies[ dep ] = '^' + ver;
-			}
-		}
-	}
-
 	// Outdated dependency.
-	// https://github.com/istanbuljs/babel-plugin-istanbul/issues/300
 	// https://github.com/jestjs/jest/issues/15236
-	if ( pkg.name === 'babel-plugin-istanbul' && pkg.dependencies[ 'test-exclude' ] === '^6.0.0' ) {
-		pkg.dependencies[ 'test-exclude' ] = '^7.0.0';
+	if (
+		( pkg.name === 'babel-jest' || pkg.name === '@jest/transform' ) &&
+		pkg.dependencies[ 'babel-plugin-istanbul' ] === '^7.0.1'
+	) {
+		pkg.dependencies[ 'babel-plugin-istanbul' ] = '^8.0.0';
 	}
 
 	// Outdated dependency.
@@ -278,21 +271,20 @@ async function fixDeps( pkg ) {
 		pkg.dependencies.glob = '^13';
 	}
 
-	// CVE-2026-22036
-	// https://github.com/actions/toolkit/issues/2242
+	// `@base-ui/react` added a peer dependency on `date-fns`, but `@wordpress/ui` doesn't satisfy it.
+	// https://github.com/WordPress/gutenberg/issues/77395
 	if (
-		( pkg.name === '@actions/http-client' || pkg.name === '@actions/github' ) &&
-		pkg.dependencies?.undici?.startsWith( '^5.' )
+		( pkg.name === '@wordpress/ui' || pkg.name === '@wordpress/dataviews' ) &&
+		( ! pkg.dependencies?.[ 'date-fns' ] || ! pkg.dependencies?.[ '@date-fns/tz' ] )
 	) {
-		pkg.dependencies.undici = '^6.23.0';
+		pkg.dependencies[ 'date-fns' ] ??= '^4.0.0';
+		pkg.dependencies[ '@date-fns/tz' ] ??= '^1.2.0';
 	}
 
-	// Outdated dependency
-	if (
-		pkg.name === '@storybook/react-vite' &&
-		pkg.dependencies?.[ '@joshwooding/vite-plugin-react-docgen-typescript' ] === '^0.6.4'
-	) {
-		pkg.dependencies[ '@joshwooding/vite-plugin-react-docgen-typescript' ] = '^0.7.0';
+	// Temporary override. Seems to work fine with 24.14, and bumping the min version is more disruptive.
+	// We'll plan to remove this hack and bump the version along with pnpm 11 and/or composer 2.10 soon.
+	if ( pkg.name === 'eslint-plugin-package-json' ) {
+		delete pkg.engines;
 	}
 
 	return pkg;
@@ -333,13 +325,36 @@ function fixPeerDeps( pkg ) {
 		}
 	}
 
+	// Outdated eslint deps.
+	const eslintOldPkgs = new Set( [
+		'eslint-plugin-import', // https://github.com/import-js/eslint-plugin-import/issues/3227
+		'eslint-plugin-jsx-a11y', // https://github.com/jsx-eslint/eslint-plugin-jsx-a11y/issues/1075
+		'eslint-plugin-react', // https://github.com/jsx-eslint/eslint-plugin-react/issues/3977
+		'@babel/eslint-parser', // https://github.com/babel/babel/issues/17951
+		'eslint-plugin-jest-dom', // https://github.com/testing-library/eslint-plugin-jest-dom/issues/418
+	] );
+	if ( eslintOldPkgs.has( pkg.name ) ) {
+		for ( const p of [ 'eslint' ] ) {
+			if ( ! pkg.peerDependencies?.[ p ] ) {
+				continue;
+			}
+
+			if (
+				pkg.peerDependencies[ p ].match( /(?:^|\|\|\s*)(?:\^9|9\.x)/ ) &&
+				! pkg.peerDependencies[ p ].match( /(?:^|\|\|\s*)(?:\^10|10\.x)/ )
+			) {
+				pkg.peerDependencies[ p ] += ' || ^10';
+			}
+		}
+	}
+
 	// It assumes hoisting to find its plugins. Sigh. Add peer deps for the plugins we use.
 	// https://github.com/ai/size-limit/issues/366
 	if ( pkg.name === 'size-limit' ) {
 		pkg.peerDependencies ??= {};
-		pkg.peerDependencies[ '@size-limit/preset-app' ] = '*';
+		pkg.peerDependencies[ '@size-limit/file' ] = '*';
 		pkg.peerDependenciesMeta ??= {};
-		pkg.peerDependenciesMeta[ '@size-limit/preset-app' ] = { optional: true };
+		pkg.peerDependenciesMeta[ '@size-limit/file' ] = { optional: true };
 	}
 
 	// Override @automattic/launchpad peer dependency to use @wordpress/i18n v6 if it's on v5.
@@ -375,6 +390,7 @@ function fixPeerDeps( pkg ) {
 
 	// These packages went ESM-only in their latest versions, which breaks `@wordpress/stylelint-config`.
 	// So we need to keep older CJS versions for now, while bumping their stylelint peer deps.
+	// https://github.com/WordPress/gutenberg/issues/75047
 	if (
 		( pkg.name === 'stylelint-config-recommended' ||
 			pkg.name === 'stylelint-config-recommended-scss' ||

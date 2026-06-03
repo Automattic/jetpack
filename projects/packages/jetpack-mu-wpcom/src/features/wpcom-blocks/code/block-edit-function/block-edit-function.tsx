@@ -258,7 +258,7 @@ function EditCodeMirror( props: EditBlockProps ) {
 						// We're in the process of inserting the third trailing newline.
 						if ( isTrailingNewlineInsertion && trailingNewlineCounterRef.current >= 2 ) {
 							// Move into a new default block.
-							insertBlocksAfter( createBlock( getDefaultBlockName() ) );
+							insertBlocksAfter( createBlock( getDefaultBlockName()! ) );
 
 							// Update the document to remove the previous two newlines.
 							const startState = transaction.startState;

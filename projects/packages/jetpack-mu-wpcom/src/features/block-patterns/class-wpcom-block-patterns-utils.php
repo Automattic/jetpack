@@ -5,6 +5,7 @@
  * @package automattic/jetpack-mu-wpcom
  */
 
+use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom\Common;
 
 /**
@@ -29,6 +30,41 @@ class Wpcom_Block_Patterns_Utils {
 		if ( 200 !== wp_remote_retrieve_response_code( $response ) ) {
 			return array();
 		}
+		return json_decode( wp_remote_retrieve_body( $response ), true );
+	}
+
+	/**
+	 * Make a GET request to the WordPress.com REST API as the current user.
+	 *
+	 * On WPCOM Simple sites the request is dispatched in-process via WPCOM_API_Direct so the
+	 * current logged-in WP.com user is the authenticated user. Everywhere else we route through
+	 * Jetpack's Client::wpcom_json_api_request_as_user, which signs the request with the user's
+	 * Jetpack token.
+	 *
+	 * @param string $path          API path (e.g. `/ptk/patterns/en?site=...`). The full URL is built by the Jetpack Client.
+	 * @param string $version       API version. Default `2`.
+	 * @param string $base_api_path API root segment, `wpcom` or `rest`. Default `wpcom`.
+	 * @return array                Decoded response body, or an empty array on failure.
+	 */
+	public function remote_get_as_user( $path, $version = '2', $base_api_path = 'wpcom' ) {
+		$args = array(
+			'method'  => 'GET',
+			'timeout' => 20,
+		);
+
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			require_lib( 'wpcom-api-direct' );
+			$validated_args            = Client::validate_args_for_wpcom_json_api_request( $path, $version, $args, $base_api_path );
+			$validated_args['user_id'] = get_current_user_id();
+			$response                  = \WPCOM_API_Direct::do_request( $validated_args );
+		} else {
+			$response = Client::wpcom_json_api_request_as_user( $path, $version, $args, null, $base_api_path );
+		}
+
+		if ( is_wp_error( $response ) || 200 !== wp_remote_retrieve_response_code( $response ) ) {
+			return array();
+		}
+
 		return json_decode( wp_remote_retrieve_body( $response ), true );
 	}
 

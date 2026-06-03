@@ -24,11 +24,8 @@ $ pnpm jetpack rsync wpcomsh USER@HOST:/path/to/wordpress/wp-content/mu-plugins
 $ cd wp-content/mu-plugins
 $ ln -s wpcomsh/wpcomsh-loader.php ./ # or copy the loader to mu-plugins
 
-# define 'IS_ATOMIC', 'ATOMIC_SITE_ID' and 'ATOMIC_CLIENT_ID' as true so the loader will require wpcomsh
-
-define( 'IS_ATOMIC', true );
-define( 'ATOMIC_SITE_ID', true );
-define( 'ATOMIC_CLIENT_ID', true );
+# Force-load wpcomsh regardless of WP Cloud client ID.
+define( 'WPCOMSH_FORCE_LOAD', true );
 ```
 
 To work on wpcomsh, you need a WP.org site and ideally the Jetpack plugin installed and connected to WP.com.

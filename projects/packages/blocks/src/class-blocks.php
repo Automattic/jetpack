@@ -155,7 +155,7 @@ class Blocks {
 			}
 		}
 
-		return isset( $metadata ) ? $metadata : array();
+		return $metadata ?? array();
 	}
 
 	/**

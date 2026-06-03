@@ -1,6 +1,6 @@
 import { getAdminUrl } from '@automattic/jetpack-script-data';
-import { ExternalLink } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
+import { Link, Text } from '@wordpress/ui';
 import { useCallback } from 'react';
 import styles from './styles.module.scss';
 import { useHelpTracking } from './use-help-tracking';
@@ -31,19 +31,20 @@ export function HelpFooter() {
 			<div className={ styles[ 'footer-inner' ] }>
 				<section>
 					<h3>{ __( 'Real humans. Real support.', 'jetpack-my-jetpack' ) }</h3>
-					<p className={ styles.description }>
+					<Text variant="body-md" render={ <p /> } className={ styles.description }>
 						{ __(
 							'We are the people behind WordPress.com, WooCommerce, Jetpack, Simplenote, and more. We believe in making the web a better place.',
 							'jetpack-my-jetpack'
 						) }
-					</p>
-					<ExternalLink
+					</Text>
+					<Link
+						openInNewTab
 						className={ styles[ 'footer-learn-more' ] }
 						href="https://automattic.com/about/"
 						onClick={ handleLearnMoreClick }
 					>
 						{ __( 'Learn more about us', 'jetpack-my-jetpack' ) }
-					</ExternalLink>
+					</Link>
 
 					<nav
 						className={ styles[ 'footer-nav' ] }
@@ -52,20 +53,20 @@ export function HelpFooter() {
 						<h4>{ __( 'Useful links', 'jetpack-my-jetpack' ) }</h4>
 						<ul>
 							<li>
-								<a
+								<Link
 									href={ getAdminUrl( 'admin.php?page=jetpack_modules' ) }
 									onClick={ handleAllModulesClick }
 								>
 									{ __( 'All Jetpack modules', 'jetpack-my-jetpack' ) }
-								</a>
+								</Link>
 							</li>
 							<li>
-								<a
+								<Link
 									href={ getAdminUrl( 'admin.php?page=jetpack-debugger' ) }
 									onClick={ handleDebugInfoClick }
 								>
 									{ __( 'Debug information', 'jetpack-my-jetpack' ) }
-								</a>
+								</Link>
 							</li>
 						</ul>
 					</nav>

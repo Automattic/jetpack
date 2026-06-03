@@ -26,7 +26,7 @@
 
 	&:focus {
 		border-color: color.adjust(calypso-colors.$gray, $lightness: 20%);
-		box-shadow: 0 0 0 2px #fff, 0 0 0 4px #069e08;
+		box-shadow: 0 0 0 2px #fff, 0 0 0 4px var(--wp-admin-theme-color);
 
 		&::-ms-clear {
 			display: none;

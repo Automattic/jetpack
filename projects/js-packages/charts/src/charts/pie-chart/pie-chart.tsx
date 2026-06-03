@@ -20,7 +20,7 @@ import {
 	useGlobalChartsTheme,
 	GlobalChartsContext,
 } from '../../providers';
-import { attachSubComponents } from '../../utils';
+import { attachSubComponents, resolveFontSize } from '../../utils';
 import { getStringWidth } from '../../visx/text';
 import { ChartSVG, ChartHTML, useChartChildren } from '../private/chart-composition';
 import { ChartLayout } from '../private/chart-layout';
@@ -441,10 +441,12 @@ const PieChartInternal = ( {
 														groupProps.onMouseLeave = onMouseLeave;
 													}
 
-													// Estimate text width more accurately for background sizing
-													const fontSize = 12;
+													const svgLabelSmall = providerTheme.svgLabelSmall;
+													const fontSize = resolveFontSize( svgLabelSmall?.fontSize ) ?? 12;
 													const estimatedTextWidth = getStringWidth( arc.data.label, {
 														fontSize,
+														fontFamily: svgLabelSmall?.fontFamily,
+														fontWeight: svgLabelSmall?.fontWeight,
 													} );
 													const labelPadding = 6;
 													const backgroundWidth = estimatedTextWidth + labelPadding * 2;
