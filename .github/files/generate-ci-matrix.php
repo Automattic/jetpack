@@ -254,6 +254,27 @@ foreach ( $matrix as &$m ) {
 		);
 		error( "Key `wp` must be %s\n%s", $valid_wp, $orig );
 	}
+
+	// Coverage runs must set a proper `coverage-group` to match the script; other runs must leave it empty.
+	if ( preg_match( '/^test-(\w+)-coverage$/', $m['script'], $match ) ) {
+		if ( $m['coverage-group'] !== $match[1] ) {
+			error( "Key `coverage-group` must be '%s' for script `%s`!\n%s", $match[1], $m['script'], $orig );
+		}
+		$valid_groups = array( 'php', 'js' );
+		if ( ! in_array( $m['coverage-group'], $valid_groups, true ) ) {
+			$valid_groups = join_or(
+				array_map(
+					function ( $v ) {
+						return "'$v'";
+					},
+					$valid_groups
+				)
+			);
+			error( "For coverage runs, key `coverage_group` must be %s!\n%s", $valid_groups, $orig );
+		}
+	} elseif ( $m['coverage-group'] !== '' ) {
+		error( "Key `coverage-group` must be empty for a non-coverage run!\n%s", $orig );
+	}
 }
 unset( $m );
 
