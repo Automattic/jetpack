@@ -13,6 +13,8 @@
 const mockRecordEvent = jest.fn();
 const mockInitialize = jest.fn();
 const mockSearch = jest.fn< { tab?: string }, [] >();
+const mockIsSimpleSite = jest.fn< boolean, [] >();
+const mockConnection = jest.fn< Record< string, unknown >, [] >();
 
 jest.mock( '@automattic/jetpack-analytics', () => ( {
 	__esModule: true,
@@ -25,18 +27,12 @@ jest.mock( '@automattic/jetpack-analytics', () => ( {
 jest.mock( '@automattic/jetpack-script-data', () => ( {
 	getSiteData: () => ( { admin_url: 'https://example.com/wp-admin/' } ),
 	getSiteType: () => 'jetpack',
+	isSimpleSite: () => mockIsSimpleSite(),
 } ) );
 
 jest.mock( '@automattic/jetpack-connection/use-connection', () => ( {
 	__esModule: true,
-	default: () => ( {
-		isRegistered: false,
-		hasConnectedOwner: false,
-		isUserConnected: false,
-		siteIsRegistering: false,
-		userIsConnecting: false,
-		handleRegisterSite: jest.fn(),
-	} ),
+	default: () => mockConnection(),
 } ) );
 
 jest.mock( '@wordpress/route', () => ( {
@@ -64,12 +60,12 @@ jest.mock( '../_inc/subscribers/components/subscribers-body', () => ( {
 		children,
 	}: {
 		children: ( ctx: { body: React.ReactNode; actions: React.ReactNode } ) => React.ReactNode;
-	} ) => <>{ children( { body: null, actions: null } ) }</>,
+	} ) => <>{ children( { body: <div data-testid="subscribers-body" />, actions: null } ) }</>,
 } ) );
 
 jest.mock( '../_inc/subscribers/components/connection-gate', () => ( {
 	__esModule: true,
-	default: () => null,
+	default: () => <div data-testid="connection-gate" />,
 } ) );
 
 jest.mock( '../_inc/subscribers/lib/query-client', () => ( {
@@ -100,7 +96,7 @@ jest.mock( '../src/settings/style.scss', () => ( {} ), { virtual: true } );
 jest.mock( '../routes/dashboard/route.scss', () => ( {} ), { virtual: true } );
 
 // Imports must come after the jest.mock factories above.
-import { render } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import { StrictMode } from 'react';
 import { stage as Stage } from '../routes/dashboard/stage';
 
@@ -109,6 +105,17 @@ beforeEach( () => {
 	mockInitialize.mockReset();
 	mockSearch.mockReset();
 	mockSearch.mockReturnValue( {} );
+	mockIsSimpleSite.mockReset();
+	mockIsSimpleSite.mockReturnValue( false );
+	mockConnection.mockReset();
+	mockConnection.mockReturnValue( {
+		isRegistered: false,
+		hasConnectedOwner: false,
+		isUserConnected: false,
+		siteIsRegistering: false,
+		userIsConnecting: false,
+		handleRegisterSite: jest.fn(),
+	} );
 } );
 
 describe( 'Newsletter dashboard Stage analytics', () => {
@@ -177,5 +184,41 @@ describe( 'Newsletter dashboard Stage analytics', () => {
 
 		expect( mockInitialize ).toHaveBeenCalledTimes( 1 );
 		expect( mockInitialize ).toHaveBeenCalledWith( 1, 'tester' );
+	} );
+} );
+
+describe( 'Newsletter dashboard Stage connection gate', () => {
+	it( 'shows the connection gate on a disconnected non-Simple site', () => {
+		render( <Stage /> );
+
+		expect( screen.getByTestId( 'connection-gate' ) ).toBeInTheDocument();
+		expect( screen.queryByTestId( 'subscribers-body' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'bypasses the gate on a Simple site even without a Jetpack connection', () => {
+		// Simple sites are hosted on WP.com and never carry a Jetpack
+		// connection; the subscriber endpoints resolve directly to WP.com.
+		mockIsSimpleSite.mockReturnValue( true );
+
+		render( <Stage /> );
+
+		expect( screen.getByTestId( 'subscribers-body' ) ).toBeInTheDocument();
+		expect( screen.queryByTestId( 'connection-gate' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'shows the subscribers body on a fully connected non-Simple site', () => {
+		mockConnection.mockReturnValue( {
+			isRegistered: true,
+			hasConnectedOwner: true,
+			isUserConnected: true,
+			siteIsRegistering: false,
+			userIsConnecting: false,
+			handleRegisterSite: jest.fn(),
+		} );
+
+		render( <Stage /> );
+
+		expect( screen.getByTestId( 'subscribers-body' ) ).toBeInTheDocument();
+		expect( screen.queryByTestId( 'connection-gate' ) ).not.toBeInTheDocument();
 	} );
 } );

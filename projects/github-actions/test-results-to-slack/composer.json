@@ -8,8 +8,9 @@
 		"build-development": [
 			"pnpm run build"
 		],
-		"test-coverage": "pnpm run test-coverage",
-		"test-js": "pnpm run test"
+		"test-coverage": "@composer test-js-coverage",
+		"test-js": "pnpm run test",
+		"test-js-coverage": "pnpm run test-coverage"
 	},
 	"repositories": [
 		{
