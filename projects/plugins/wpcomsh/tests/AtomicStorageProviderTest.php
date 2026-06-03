@@ -318,7 +318,22 @@ class AtomicStorageProviderTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test that re-entrancy flag is reset even if get_option throws.
+	 * Test that a failed (negative) lookup is not cached, so a later successful
+	 * lookup for the same email still resolves.
+	 */
+	public function test_email_resolution_negative_result_not_cached() {
+		// First lookup fails: no user with this email exists yet.
+		$this->assertFalse( $this->provider->get_master_user_id( 'late@example.com' ) );
+
+		// User appears after the failed lookup (e.g. replicated to the local DB).
+		$user_id = static::factory()->user->create( array( 'user_email' => 'late@example.com' ) );
+
+		// Same email must now resolve instead of returning the cached failure.
+		$this->assertSame( $user_id, $this->provider->get_master_user_id( 'late@example.com' ) );
+	}
+
+	/**
+	 * Test that re-entrancy flag is reset even if the guarded DB read throws.
 	 */
 	public function test_reentrant_flag_reset_on_exception() {
 		$reflection = new \ReflectionProperty( Atomic_Storage_Provider::class, 'is_reading_tokens_from_db' );
@@ -326,18 +341,29 @@ class AtomicStorageProviderTest extends WP_UnitTestCase {
 			$reflection->setAccessible( true );
 		}
 
-		// Simulate a call that would normally set/unset the flag
-		// Even after an error, the flag should be false
-		$this->assertFalse( $reflection->getValue( $this->provider ) );
-
-		// Call get_user_tokens with a non-existent user (early return, no re-entrancy)
-		$this->provider->get_user_tokens( 'nonexistent@example.com', 'token.secret' );
-		$this->assertFalse( $reflection->getValue( $this->provider ) );
-
-		// Call with valid user to exercise the try/finally path
 		static::factory()->user->create( array( 'user_email' => 'guard@example.com' ) );
-		$this->provider->get_user_tokens( 'guard@example.com', 'token.secret' );
-		$this->assertFalse( $reflection->getValue( $this->provider ) );
+
+		// Force the guarded DB read (Jetpack_Options::get_option('user_tokens'))
+		// to throw, simulating a failure mid-read.
+		$thrower = static function () {
+			throw new \RuntimeException( 'boom' );
+		};
+		add_filter( 'pre_option_jetpack_private_options', $thrower );
+
+		$caught = false;
+		try {
+			$this->provider->get_user_tokens( 'guard@example.com', 'token.secret' );
+		} catch ( \RuntimeException $e ) {
+			$caught = true;
+		} finally {
+			remove_filter( 'pre_option_jetpack_private_options', $thrower );
+		}
+
+		$this->assertTrue( $caught, 'Expected the forced exception to propagate.' );
+		$this->assertFalse(
+			$reflection->getValue( $this->provider ),
+			'Re-entrancy flag must be reset even when the read throws.'
+		);
 	}
 
 	/**

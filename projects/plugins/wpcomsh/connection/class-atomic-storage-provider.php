@@ -172,7 +172,11 @@ if ( interface_exists( 'Automattic\Jetpack\Connection\Storage_Provider_Interface
 		 * @return \WP_User|null The user object, or null if not found/invalid.
 		 */
 		private function resolve_user_by_email( $email ) {
-			if ( $email === $this->resolved_email ) {
+			// Only serve from cache when we have a positive resolution. Negative
+			// results are not cached so transient failures (pluggable functions
+			// not loaded yet, user not yet present in the local DB on a replicated
+			// site) are retried on the next call instead of being memoized.
+			if ( null !== $this->resolved_user && $email === $this->resolved_email ) {
 				return $this->resolved_user;
 			}
 
