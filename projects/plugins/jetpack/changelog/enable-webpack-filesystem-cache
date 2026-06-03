@@ -1,4 +1,4 @@
 Significance: patch
-Type: changed
+Type: other
 
 Build: enable webpack's filesystem cache for the main, extensions, and widget-visibility bundles. Reduces local incremental rebuild time substantially after the first build; no effect on production output.
