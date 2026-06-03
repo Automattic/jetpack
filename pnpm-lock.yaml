@@ -3826,6 +3826,9 @@ importers:
 
   projects/packages/premium-analytics:
     dependencies:
+      '@date-fns/tz':
+        specifier: 1.4.1
+        version: 1.4.1
       '@wordpress/boot':
         specifier: 0.13.0
         version: 0.13.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -3841,6 +3844,9 @@ importers:
       '@wordpress/route':
         specifier: 0.12.0
         version: 0.12.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      date-fns:
+        specifier: 4.1.0
+        version: 4.1.0
       react:
         specifier: 18.3.1
         version: 18.3.1
