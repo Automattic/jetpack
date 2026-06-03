@@ -1,4 +1,4 @@
-# @jetpack-premium-analytics/icons
+# @automattic/jetpack-premium-analytics-icons
 
 Illustrated WPDS icons used by Premium Analytics widgets and navigation.
 
@@ -18,7 +18,7 @@ names we'd otherwise have to track across `@wordpress/icons` bumps.
 
 ```ts
 import { Icon } from '@wordpress/icons';
-import { calendar, search } from '@jetpack-premium-analytics/icons';
+import { calendar, search } from '@automattic/jetpack-premium-analytics-icons';
 
 <Icon icon={ calendar } size={ 48 } />;
 ```
@@ -46,5 +46,5 @@ import { calendar, search } from '@jetpack-premium-analytics/icons';
 - `@wordpress/primitives` — `SVG`, `Path`, `Circle`
 
 See the parent README's "Internal packages" section for the dual-naming
-convention behind the `@jetpack-premium-analytics/icons` import specifier
-vs. the package's `name` field.
+convention behind the `@automattic/jetpack-premium-analytics-icons` package
+name vs. its temporary import specifier.
