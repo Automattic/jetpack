@@ -1,0 +1,25 @@
+{
+	"name": "@next-woo-analytics/components",
+	"description": "WooCommerce Analytics components",
+	"version": "1.0.0",
+	"type": "module",
+	"wpModule": true,
+	"main": "src/index.ts",
+	"exports": {
+		".": "./build/src/index.js"
+	},
+	"dependencies": {
+		"@automattic/ui": "*",
+		"date-fns": "*",
+		"@next-woo-analytics/data": "workspace:*",
+		"@next-woo-analytics/datetime": "workspace:*",
+		"@wc-analytics/formatters": "workspace:*",
+		"@wordpress/components": "*",
+		"@automattic/admin-toolkit": "*",
+		"@automattic/design-system": "*",
+		"@wordpress/icons": "*",
+		"@wordpress/compose": "*",
+		"@wordpress/ui": "*",
+		"clsx": "*"
+	}
+}
