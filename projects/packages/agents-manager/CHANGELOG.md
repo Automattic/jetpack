@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.2.0] - 2026-06-03
 ### Added
-- Agents Manager: Add Sidebar Preservation On Load Mechanism [#49325]
+- Agents Manager: Ensure sidebar preserves open state on load. [#49325]
 
 ## 0.1.0 - 2026-06-02
 ### Added
