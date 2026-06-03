@@ -1,0 +1,3 @@
+Significance: patch
+Type: changed
+Comment: Simplify the Atomic custom CSS check now that Global Styles on Personal has fully rolled out. No user-facing change.
