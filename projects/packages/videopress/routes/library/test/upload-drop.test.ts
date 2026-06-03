@@ -6,9 +6,21 @@
 import { filterVideoFiles, planVideoDrop } from '../upload-drop';
 import type { DropPlanFreeTier } from '../upload-drop';
 
-// Default to a typeless file so tests exercise the extension fallback; pass a
-// MIME type explicitly to exercise the primary `video/*` check.
+// Default to a typeless file so tests exercise the extension allow-list; pass a
+// MIME type explicitly to exercise the `video/*` guard against renamed files.
 const file = ( name: string, type = '' ): File => new File( [ 'x' ], name, { type } );
+
+const setAllowedVideoExtensions = ( map: Record< string, string > | undefined ) => {
+	( window as unknown as { JPVIDEOPRESS_INITIAL_STATE?: unknown } ).JPVIDEOPRESS_INITIAL_STATE = map
+		? { allowedVideoExtensions: map }
+		: undefined;
+};
+
+// Clear the initial state between tests so cases that don't set it fall back to
+// the static (server-mirroring) extension list deterministically.
+afterEach( () => {
+	setAllowedVideoExtensions( undefined );
+} );
 
 const PAID: DropPlanFreeTier = {
 	isFree: false,
@@ -45,10 +57,22 @@ describe( 'filterVideoFiles', () => {
 		] );
 	} );
 
-	it( 'accepts any video/* MIME type even with an unusual name', () => {
-		expect(
-			filterVideoFiles( [ file( 'recording-no-extension', 'video/webm' ) ] ).map( f => f.name )
-		).toEqual( [ 'recording-no-extension' ] );
+	it( 'rejects extensions the backend does not accept (e.g. .webm/.mkv)', () => {
+		// `.webm`/`.mkv` are valid video MIME types but absent from the server
+		// allow-list, so the drop filter rejects them rather than starting an
+		// upload the backend would fail.
+		expect( filterVideoFiles( [ file( 'clip.webm', 'video/webm' ) ] ) ).toEqual( [] );
+		expect( filterVideoFiles( [ file( 'clip.mkv', 'video/x-matroska' ) ] ) ).toEqual( [] );
+	} );
+
+	it( 'sources the accepted extensions from the server allow-list', () => {
+		// A site whose backend advertises `.flv` accepts it; one that omits
+		// `.mp4` rejects it — proving the list comes from the initial state.
+		setAllowedVideoExtensions( { flv: 'video/x-flv' } );
+		expect( filterVideoFiles( [ file( 'a.flv', 'video/x-flv' ) ] ).map( f => f.name ) ).toEqual( [
+			'a.flv',
+		] );
+		expect( filterVideoFiles( [ file( 'a.mp4', 'video/mp4' ) ] ) ).toEqual( [] );
 	} );
 
 	it( 'rejects non-video MIME types', () => {
@@ -92,12 +116,12 @@ describe( 'planVideoDrop', () => {
 	} );
 
 	it( 'uploads everything on a paid plan', () => {
-		const decision = planVideoDrop( [ file( 'a.mp4' ), file( 'b.mov' ), file( 'c.webm' ) ], PAID );
+		const decision = planVideoDrop( [ file( 'a.mp4' ), file( 'b.mov' ), file( 'c.m4v' ) ], PAID );
 		expect( decision ).toMatchObject( { kind: 'ok', skipped: 0 } );
 		expect( decision.kind === 'ok' && decision.toUpload.map( f => f.name ) ).toEqual( [
 			'a.mp4',
 			'b.mov',
-			'c.webm',
+			'c.m4v',
 		] );
 	} );
 
@@ -109,7 +133,7 @@ describe( 'planVideoDrop', () => {
 
 	it( 'caps a free-plan multi-drop to the remaining slots and reports the rest skipped', () => {
 		const decision = planVideoDrop(
-			[ file( 'a.mp4' ), file( 'b.mov' ), file( 'photo.jpg' ), file( 'c.webm' ) ],
+			[ file( 'a.mp4' ), file( 'b.mov' ), file( 'photo.jpg' ), file( 'c.m4v' ) ],
 			FREE_EMPTY
 		);
 		// 3 videos pass the filter, 1 free slot → 1 uploaded, 2 skipped.

@@ -1,27 +1,44 @@
 import type { FreeTierState } from '../../src/dashboard/hooks/use-free-tier';
 
-// Fallback video extensions, used only when a dropped file carries no MIME
-// type (some OS/browser combinations leave `File.type` empty). The primary
-// check is the `video/*` MIME prefix — the same contract the header file
-// picker enforces via `accept="video/*"` — so e.g. `.mov` (video/quicktime)
-// is accepted. We deliberately don't read the server's
-// `allowedVideoExtensions` here: it's exposed on the legacy
-// `window.jetpackVideoPressInitialState` global, which the modernized
-// dashboard doesn't define, so relying on it rejected every drop.
+// Fallback accepted-upload extensions, used only when the server-provided
+// allow-list is absent (unit tests, or a render before the initial state is
+// inlined). Mirrors the server's `Admin_UI::get_allowed_video_extensions()`
+// keys so behaviour matches the backend even on the fallback path. The live
+// list is read from `JPVIDEOPRESS_INITIAL_STATE.allowedVideoExtensions`.
 const FALLBACK_VIDEO_EXTENSIONS = [
 	'3g2',
 	'3gp',
+	'3gp2',
+	'3gpp',
 	'avi',
 	'm4v',
-	'mkv',
 	'mov',
 	'mp4',
+	'mpe',
 	'mpeg',
 	'mpg',
 	'ogv',
-	'webm',
 	'wmv',
 ];
+
+/**
+ * The set of accepted upload extensions, sourced from the server's
+ * authoritative allow-list (`Admin_UI::get_allowed_video_extensions()`, inlined
+ * as `JPVIDEOPRESS_INITIAL_STATE.allowedVideoExtensions`). Falls back to the
+ * static list when the initial state isn't present (tests / pre-hydration).
+ * Read lazily so it always reflects the current initial state.
+ *
+ * @return Lower-cased accepted extensions (without the leading dot).
+ */
+function getAllowedExtensions(): Set< string > {
+	const map =
+		typeof JPVIDEOPRESS_INITIAL_STATE !== 'undefined'
+			? JPVIDEOPRESS_INITIAL_STATE?.allowedVideoExtensions
+			: undefined;
+	const extensions =
+		map && Object.keys( map ).length ? Object.keys( map ) : FALLBACK_VIDEO_EXTENSIONS;
+	return new Set( extensions.map( extension => extension.toLowerCase() ) );
+}
 
 // Free-tier facts the drop decision needs — the subset of `FreeTierState`
 // consumed when deciding what a drop is allowed to upload. Derived via `Pick`
@@ -43,25 +60,29 @@ export type DropDecision =
 	| { kind: 'ok'; toUpload: File[]; skipped: number };
 
 /**
- * Filter a dropped file set down to videos. When the browser reports a MIME
- * type, it is authoritative: the file qualifies only if it is `video/*` (the
- * same contract the header file picker enforces via `accept="video/*"`, so
- * `.mov` → video/quicktime is accepted, while a renamed PDF is not). Only when
- * the browser reports *no* MIME type does it fall back to the file extension.
- * Keeps the drop handler from trying to upload images, PDFs, etc.
+ * Filter a dropped file set down to the video types the VideoPress backend
+ * accepts. A file qualifies when its extension is in the server's allow-list
+ * (so we accept exactly what the backend supports — e.g. `.mov`, but not
+ * `.webm`, rather than guessing client-side). A reported MIME type is also
+ * required to be `video/*`, so a non-video file renamed to a video extension
+ * (e.g. a `.mp4`-renamed PDF) is rejected. Keeps the drop handler from trying
+ * to upload images, PDFs, or unsupported video containers.
  *
  * @param files - The files dropped onto the DropZone.
- * @return Only the files that look like videos.
+ * @return Only the files the backend accepts.
  */
 export function filterVideoFiles( files: File[] ): File[] {
+	const allowed = getAllowedExtensions();
 	return files.filter( file => {
-		// A reported MIME type is authoritative — don't let a video extension
-		// override a non-video type (e.g. a `.mp4`-renamed `application/pdf`).
-		if ( file.type ) {
-			return file.type.startsWith( 'video/' );
+		// A reported MIME type must be a video type — blocks a non-video file
+		// (e.g. application/pdf) renamed to a video extension.
+		if ( file.type && ! file.type.startsWith( 'video/' ) ) {
+			return false;
 		}
-		const name = file.name.toLocaleLowerCase();
-		return FALLBACK_VIDEO_EXTENSIONS.some( extension => name.endsWith( `.${ extension }` ) );
+		const name = file.name.toLowerCase();
+		const dot = name.lastIndexOf( '.' );
+		const extension = dot === -1 ? '' : name.slice( dot + 1 );
+		return allowed.has( extension );
 	} );
 }
 
