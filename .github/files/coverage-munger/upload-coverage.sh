@@ -17,6 +17,12 @@ if [[ ! -f coverage/summary.tsv ]]; then
 	exit 0
 fi
 
+# Don't update the trunk baseline with partial data if either coverage run failed.
+if [[ "$PR_ID" == "trunk" && ( "$PHP_COVERAGE_STATUS" != "success" || "$JS_COVERAGE_STATUS" != "success" ) ]]; then
+	echo "Not uploading trunk coverage data: PHP status is '$PHP_COVERAGE_STATUS', JS status is '$JS_COVERAGE_STATUS'."
+	exit 0
+fi
+
 mkdir coverage-data
 cp coverage/summary.tsv coverage-data/summary.tsv
 gzip -9 coverage-data/summary.tsv
