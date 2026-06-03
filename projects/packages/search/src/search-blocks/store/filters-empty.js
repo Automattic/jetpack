@@ -55,10 +55,8 @@ export function hasAnyActiveFilter( sharedState ) {
 }
 
 /**
- * Filters empty-state visibility. Gated like `showNoResults` (search has run,
- * not loading, no error) plus `skeletonHidden` — sidebar flashes are more
- * disorienting than results flashes, so this waits for hydration to settle.
- * Any active filter short-circuits.
+ * Filters empty-state visibility. Gated like `showNoResults` — search has run,
+ * not loading, no error. Any active filter short-circuits.
  *
  * @param {object} sharedState - Live store state.
  * @return {boolean} True when the empty state should show.
@@ -67,7 +65,7 @@ export function filtersHaveNothingToShow( sharedState ) {
 	if ( ! ( sharedState.searchQuery || sharedState.hasSearchParam ) ) {
 		return false;
 	}
-	if ( ! sharedState.skeletonHidden || sharedState.isLoading || sharedState.hasError ) {
+	if ( sharedState.isLoading || sharedState.hasError ) {
 		return false;
 	}
 	if ( hasAnyActiveFilter( sharedState ) ) {

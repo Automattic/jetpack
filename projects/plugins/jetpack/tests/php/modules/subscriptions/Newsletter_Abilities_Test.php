@@ -5,8 +5,6 @@
  * @package automattic/jetpack
  */
 
-// @phan-file-suppress PhanUndeclaredFunction, PhanUndeclaredClassMethod @phan-suppress-current-line UnusedSuppression -- Abilities API added in WP 6.9.
-
 require_once __DIR__ . '/../../../../modules/subscriptions/abilities/class-newsletter-abilities.php';
 
 use Automattic\Jetpack\Plugin\Abilities\Newsletter_Abilities;

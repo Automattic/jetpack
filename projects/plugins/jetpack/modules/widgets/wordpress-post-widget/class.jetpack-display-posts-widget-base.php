@@ -675,7 +675,7 @@ abstract class Jetpack_Display_Posts_Widget__Base extends WP_Widget {
 		/**
 		 * If no optional data is supplied, initialize a new structure
 		 */
-		if ( ! empty( $original_data ) ) {
+		if ( ! empty( $original_data ) && is_array( $original_data ) ) {
 			$widget_data = $original_data;
 		} else {
 			$widget_data = array(

@@ -1,4 +1,4 @@
-import { store, getContext } from '@wordpress/interactivity';
+import { store, getElement } from '@wordpress/interactivity';
 import 'jetpack-search/store';
 import {
 	clearSuggestionsContext,
@@ -15,30 +15,42 @@ const SEARCH_DEBOUNCE_MS = 300;
 const debounceTimers = new WeakMap();
 
 /**
- * Start/restart the debounced search. `staticPostTypes` is captured
- * synchronously by the caller — `getContext()` isn't available once the
- * debounce fires outside the element context.
+ * Focus an input and place the cursor at the end of its current value, so
+ * a visitor opening Search with a query already in flight can keep typing
+ * to refine it without manually re-positioning the caret. The overlay
+ * bundle (`overlay-bootstrap/index.js`'s `openOverlay()`) carries an
+ * inlined duplicate of these three lines — when changing one, change both.
  *
- * @param {HTMLInputElement}                            input           - The input.
- * @param {{include: string[], exclude: string[]}|null} staticPostTypes - Input scope, or null.
+ * @param {HTMLInputElement|null} input - The input to focus.
  */
-function scheduleSearch( input, staticPostTypes ) {
-	clearTimeout( debounceTimers.get( input ) );
-	const timer = setTimeout( () => {
-		debounceTimers.delete( input );
-		store( NAMESPACE ).actions.search( { staticPostTypes } );
-	}, SEARCH_DEBOUNCE_MS );
-	debounceTimers.set( input, timer );
+function focusInputWithCursorAtEnd( input ) {
+	if ( ! input ) {
+		return;
+	}
+	input.focus();
+	const len = input.value.length;
+	// `setSelectionRange` throws on input types that don't support text
+	// selection. `type="search"` does, but the guard keeps things safe
+	// if the input shape ever changes.
+	try {
+		input.setSelectionRange( len, len );
+	} catch {
+		/* noop */
+	}
 }
 
 /**
- * Per-input scope from `data-wp-context`. Null clears any prior scope and
- * falls back to the page-global seed.
+ * Start/restart the debounced search.
  *
- * @return {{include: string[], exclude: string[]}|null} Scope or null.
+ * @param {HTMLInputElement} input - The input.
  */
-function readPostTypeScope() {
-	return getContext()?.staticPostTypes ?? null;
+function scheduleSearch( input ) {
+	clearTimeout( debounceTimers.get( input ) );
+	const timer = setTimeout( () => {
+		debounceTimers.delete( input );
+		store( NAMESPACE ).actions.search();
+	}, SEARCH_DEBOUNCE_MS );
+	debounceTimers.set( input, timer );
 }
 
 /**
@@ -56,13 +68,11 @@ store( NAMESPACE, {
 		onSearchInput( event ) {
 			const { state } = store( NAMESPACE );
 			state.searchQuery = event.target.value;
-			// Capture scope synchronously (debounce fires outside element context).
-			const staticPostTypes = readPostTypeScope();
 			// `submitOnly` keeps state in sync but defers the API call until Enter.
 			if ( event.target.dataset.submitOnly === 'true' ) {
 				cancelPendingSearch( event.target );
 			} else {
-				scheduleSearch( event.target, staticPostTypes );
+				scheduleSearch( event.target );
 			}
 			// Short-circuits on non-suggestions inputs.
 			handleInputForSuggestions( event.target );
@@ -75,7 +85,7 @@ store( NAMESPACE, {
 			}
 			if ( event.key === 'Enter' ) {
 				cancelPendingSearch( event.target );
-				store( NAMESPACE ).actions.search( { staticPostTypes: readPostTypeScope() } );
+				store( NAMESPACE ).actions.search();
 			}
 		},
 
@@ -88,9 +98,36 @@ store( NAMESPACE, {
 			const { state, actions } = store( NAMESPACE );
 			state.searchQuery = '';
 			clearSuggestionsContext();
-			// Read scope before yield — `getContext()` needs the element context.
-			const staticPostTypes = readPostTypeScope();
-			yield actions.search( { staticPostTypes } );
+			yield actions.search();
+		},
+	},
+	callbacks: {
+		/**
+		 * `data-wp-init` lifecycle hook on the search input. On mount,
+		 * place focus into the input with the cursor at the end of any
+		 * pre-existing query so a visitor landing on a search page (or
+		 * reopening the overlay) can keep typing without re-positioning
+		 * the caret.
+		 *
+		 * Skips when the input sits inside a `[hidden]` subtree — the
+		 * overlay-template's clone fires this during hydration while the
+		 * overlay shell still has the `hidden` attribute; `openOverlay()`
+		 * stays authoritative for the overlay's focus moment.
+		 *
+		 * Skips when no query has been entered — auto-focusing an empty
+		 * search page would steal focus from screen-reader / keyboard
+		 * users who'd prefer to land on the page heading first.
+		 */
+		initFocusInputIfHasQuery() {
+			const input = getElement()?.ref;
+			if ( ! input || input.closest( '[hidden]' ) !== null ) {
+				return;
+			}
+			const { state } = store( NAMESPACE );
+			if ( ! state.searchQuery ) {
+				return;
+			}
+			focusInputWithCursorAtEnd( input );
 		},
 	},
 } );

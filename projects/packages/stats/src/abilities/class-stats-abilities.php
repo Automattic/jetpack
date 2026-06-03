@@ -7,8 +7,6 @@
  * @package automattic/jetpack-stats
  */
 
-// @phan-file-suppress PhanUndeclaredFunction, PhanUndeclaredClassMethod @phan-suppress-current-line UnusedSuppression -- Abilities API added in WP 6.9; suppressions needed for older-WP compatibility runs.
-
 namespace Automattic\Jetpack\Stats\Abilities;
 
 use Automattic\Jetpack\Stats\Options;

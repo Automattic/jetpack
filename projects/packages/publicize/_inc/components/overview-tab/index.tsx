@@ -8,6 +8,7 @@ import { Button, Card, EmptyState } from '@wordpress/ui';
 import { store as socialStore } from '../../social-store';
 import ConnectionManagement from '../connection-management';
 import { ThemedConnectionsModal } from '../manage-connections-modal';
+import TrafficChartCard from './traffic-chart-card';
 import './style.scss';
 
 /**
@@ -35,7 +36,7 @@ const NoConnectionsEmptyState = () => {
 					) }
 				</EmptyState.Description>
 				<EmptyState.Actions>
-					<Button variant="primary" onClick={ openConnectionsModal }>
+					<Button variant="solid" onClick={ openConnectionsModal }>
 						{ __( 'Add account', 'jetpack-publicize-pkg' ) }
 					</Button>
 				</EmptyState.Actions>
@@ -80,6 +81,14 @@ export default function OverviewTab(): JSX.Element {
 			 * already brings its own `ManageConnectionsModal`.
 			 */ }
 			{ ! hasConnections && <ThemedConnectionsModal /> }
+			{ /*
+			 * Traffic chart only renders when at least one connection
+			 * exists, so the no-connections state focuses the user on
+			 * the onboarding CTA in the accounts card. Once a single
+			 * account is connected, the chart appears above with the
+			 * paid/free/empty branches taking over from there.
+			 */ }
+			{ hasConnections && <TrafficChartCard /> }
 			<Card.Root>
 				{ hasConnections && (
 					<Card.Header className="jetpack-social-overview__accounts-card-header">
