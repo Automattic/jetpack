@@ -1,4 +1,4 @@
-# @jetpack-premium-analytics/data
+# @automattic/jetpack-premium-analytics-data
 
 Data management for Jetpack Premium Analytics with React Query integration.
 
@@ -15,7 +15,7 @@ import {
   useReport,
   prefetchReport,
   // ... other exports
-} from '@jetpack-premium-analytics/data';
+} from '@automattic/jetpack-premium-analytics-data';
 ```
 
 ## Features
@@ -36,7 +36,7 @@ import {
 ### Setup
 
 ```tsx
-import { AnalyticsQueryClientProvider } from '@jetpack-premium-analytics/data';
+import { AnalyticsQueryClientProvider } from '@automattic/jetpack-premium-analytics-data';
 
 function App() {
 	return (
@@ -55,7 +55,7 @@ import {
 	useReportOrdersByProductType,
 	useReportOrderAttribution, 
 	useReportCoupons 
-} from '@jetpack-premium-analytics/data';
+} from '@automattic/jetpack-premium-analytics-data';
 
 function OrdersReport() {
 	// Orders endpoint separates primary and comparison periods
@@ -105,7 +105,7 @@ function CouponsReport() {
 ### Prefetching
 
 ```tsx
-import { prefetchReport, ensureCoreSettingsReady } from '@jetpack-premium-analytics/data';
+import { prefetchReport, ensureCoreSettingsReady } from '@automattic/jetpack-premium-analytics-data';
 
 export const route = {
 	beforeLoad: async () => {
@@ -241,7 +241,7 @@ Returns the optimal default interval for a given time period.
 
 **Example:**
 ```tsx
-import { getDefaultIntervalForPeriod } from '@jetpack-premium-analytics/data';
+import { getDefaultIntervalForPeriod } from '@automattic/jetpack-premium-analytics-data';
 
 const interval = getDefaultIntervalForPeriod( 'last-7-days', from, to ); // Returns 'day'
 ```
@@ -254,7 +254,7 @@ Constant array of available order attribution views.
 
 **Example:**
 ```tsx
-import { ORDER_ATTRIBUTION_VIEWS } from '@jetpack-premium-analytics/data';
+import { ORDER_ATTRIBUTION_VIEWS } from '@automattic/jetpack-premium-analytics-data';
 
 // Use in components for view selection
 const views = ORDER_ATTRIBUTION_VIEWS; // ['channel', 'source', ...]
@@ -333,7 +333,7 @@ Creates a timezone-aware date using the site's configured timezone by
 default.
 
 ```typescript
-import { localTZDate } from '@jetpack-premium-analytics/data';
+import { localTZDate } from '@automattic/jetpack-premium-analytics-data';
 
 const now = localTZDate(); // Current time in site timezone
 const custom = localTZDate( '2024-01-15', 'America/New_York' );
