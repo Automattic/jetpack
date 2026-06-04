@@ -98,9 +98,12 @@ var three = "three";';
 	}
 
 	public function test_css_minifies() {
-		$min = Minify::css( '.example { color: red; }' );
+		$source = '.example { color: red; }';
+		$min    = Minify::css( $source );
 		$this->assertStringContainsString( 'color:red', $min );
-		$this->assertLessThan( strlen( '.example { color: red; }' ), strlen( $min ) );
+		// assertLessThan( $expected, $actual ) -> asserts $actual < $expected,
+		// i.e. the minified CSS is shorter than the source.
+		$this->assertLessThan( strlen( $source ), strlen( $min ), 'Minified CSS should be shorter than the source.' );
 	}
 
 	/**
