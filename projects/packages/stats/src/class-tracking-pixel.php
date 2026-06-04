@@ -202,6 +202,9 @@ _stq.push([ "clickTrackerInit", "%2$s", "%3$s" ]);',
 	 * @return array Modified attributes.
 	 */
 	public static function add_low_fetchpriority( $attributes ) {
+		// WordPress derives the tag id from the enqueue handle as "{handle}-js", so the
+		// 'jetpack-stats' script (registered in enqueue_stats_script()) prints as
+		// 'jetpack-stats-js'. Keep this in sync if the handle is ever renamed.
 		if ( isset( $attributes['id'] ) && 'jetpack-stats-js' === $attributes['id'] ) {
 			$attributes['fetchpriority'] = 'low';
 		}
@@ -223,15 +226,38 @@ _stq.push([ "clickTrackerInit", "%2$s", "%3$s" ]);',
 	 * @return array Filtered URLs.
 	 */
 	public static function remove_stats_dns_prefetch( $urls, $relation_type ) {
-		if ( 'dns-prefetch' === $relation_type ) {
-			$urls = array_filter(
-				$urls,
-				static function ( $url ) {
-					return is_string( $url ) && ! str_contains( $url, 'stats.wp.com' );
-				}
-			);
+		if ( 'dns-prefetch' !== $relation_type ) {
+			return $urls;
 		}
-		return $urls;
+
+		return array_filter(
+			$urls,
+			static function ( $url ) {
+				// Resource hints can be arrays that carry the URL under an 'href' key.
+				if ( is_array( $url ) ) {
+					$candidate = ( isset( $url['href'] ) && is_string( $url['href'] ) ) ? $url['href'] : '';
+				} elseif ( is_string( $url ) ) {
+					$candidate = $url;
+				} else {
+					return true; // Unknown entry shape; leave it untouched.
+				}
+
+				// dns-prefetch entries arrive in several shapes: WordPress core emits bare
+				// hosts ('stats.wp.com') via wp_dependencies_unique_hosts(), while other
+				// filters may add scheme-relative ('//stats.wp.com') or full URLs. Normalize
+				// each to a host so we drop stats.wp.com exactly without removing look-alike
+				// hosts such as 'mystats.wp.com' or 'stats.wp.com.evil.tld'.
+				if ( str_starts_with( $candidate, '//' ) ) {
+					$host = wp_parse_url( 'https:' . $candidate, PHP_URL_HOST );
+				} elseif ( str_contains( $candidate, '://' ) ) {
+					$host = wp_parse_url( $candidate, PHP_URL_HOST );
+				} else {
+					$host = $candidate; // Bare host form, e.g. 'stats.wp.com'.
+				}
+
+				return ! is_string( $host ) || 'stats.wp.com' !== strtolower( $host );
+			}
+		);
 	}
 
 	/**
