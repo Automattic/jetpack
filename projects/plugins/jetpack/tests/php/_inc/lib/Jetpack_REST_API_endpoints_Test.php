@@ -725,6 +725,37 @@ class Jetpack_REST_API_endpoints_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Test that Open Graph settings only accept an array.
+	 *
+	 * @return void
+	 */
+	public function test_validate_open_graph_settings_requires_array() {
+		$result = Jetpack_Core_Json_Api_Endpoints::validate_open_graph_settings(
+			'invalid-settings',
+			new WP_REST_Request(),
+			'jetpack_social_open_graph_settings'
+		);
+
+		$this->assertWPError( $result );
+	}
+
+	/**
+	 * Test that Open Graph settings reject invalid default image IDs.
+	 *
+	 * @return void
+	 */
+	public function test_validate_open_graph_settings_rejects_invalid_default_image_id() {
+		$result = Jetpack_Core_Json_Api_Endpoints::validate_open_graph_settings(
+			array( 'default_image_id' => -1 ),
+			new WP_REST_Request(),
+			'jetpack_social_open_graph_settings'
+		);
+
+		$this->assertWPError( $result );
+		$this->assertSame( 'invalid_param', $result->get_error_code() );
+	}
+
+	/**
 	 * Regression for NL-618: re-posting newsletter categories with the same selection the option
 	 * already holds must return 200, not a `some_updated` 400. The previous code left `$updated`
 	 * false on the "values equal" short-circuit, so any save without an actual change blew up.

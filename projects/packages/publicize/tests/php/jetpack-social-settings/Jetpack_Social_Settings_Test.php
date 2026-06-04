@@ -57,6 +57,24 @@ class Jetpack_Social_Settings_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Reset Open Graph filter registration state.
+	 *
+	 * @return void
+	 */
+	private function reset_open_graph_filters() {
+		remove_filter( 'jetpack_og_default_site_image', array( SocialSettings::class, 'filter_default_site_image' ), 10 );
+		remove_filter( 'jetpack_open_graph_image_default', array( SocialSettings::class, 'filter_default_image_url' ) );
+		remove_filter( 'jetpack_open_graph_tags', array( SocialSettings::class, 'add_default_image_to_open_graph_tags' ), 13 );
+
+		$reflection = new \ReflectionClass( SocialSettings::class );
+		$property   = $reflection->getProperty( 'open_graph_filters_hooked_in' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$property->setAccessible( true );
+		}
+		$property->setValue( null, false );
+	}
+
+	/**
 	 * Create an upload object.
 	 *
 	 * @param string $file File path.
@@ -121,6 +139,63 @@ class Jetpack_Social_Settings_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Tests that Open Graph filters are registered for the default image setting.
+	 */
+	public function test_register_open_graph_filters_hooks_callbacks() {
+		$this->reset_open_graph_filters();
+
+		SocialSettings::register_open_graph_filters();
+
+		$this->assertSame(
+			10,
+			has_filter( 'jetpack_og_default_site_image', array( SocialSettings::class, 'filter_default_site_image' ) )
+		);
+		$this->assertSame(
+			10,
+			has_filter( 'jetpack_open_graph_image_default', array( SocialSettings::class, 'filter_default_image_url' ) )
+		);
+		$this->assertSame(
+			13,
+			has_filter( 'jetpack_open_graph_tags', array( SocialSettings::class, 'add_default_image_to_open_graph_tags' ) )
+		);
+	}
+
+	/**
+	 * Tests that invalid stored Open Graph settings fall back to defaults.
+	 */
+	public function test_open_graph_settings_default_when_stored_value_is_invalid() {
+		update_option( 'jetpack_social_open_graph_settings', 'invalid-settings' );
+
+		$this->assertSame(
+			array( 'default_image_id' => 0 ),
+			$this->settings->get_open_graph_settings()
+		);
+	}
+
+	/**
+	 * Tests that non-array Open Graph setting updates are ignored.
+	 */
+	public function test_open_graph_settings_ignore_non_array_updates() {
+		$this->settings->update_open_graph_settings( 'invalid-settings' );
+
+		$this->assertSame( 0, $this->settings->og_get_default_image_id() );
+	}
+
+	/**
+	 * Tests that update_settings routes Open Graph settings to their updater.
+	 */
+	public function test_update_settings_routes_open_graph_settings() {
+		$updated = $this->settings->update_settings(
+			false,
+			'jetpack_social_open_graph_settings',
+			array( 'default_image_id' => '123' )
+		);
+
+		$this->assertTrue( $updated );
+		$this->assertSame( 123, $this->settings->og_get_default_image_id() );
+	}
+
+	/**
 	 * Tests that the default Open Graph image ID can be updated and cleared.
 	 */
 	public function test_open_graph_default_image_id_can_be_set_and_cleared() {
@@ -147,6 +222,26 @@ class Jetpack_Social_Settings_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Tests that no Open Graph image is returned without a configured image.
+	 */
+	public function test_get_open_graph_default_image_returns_empty_without_attachment() {
+		$this->assertSame( array(), $this->settings->og_get_default_image() );
+	}
+
+	/**
+	 * Tests that the configured Open Graph image includes alt text.
+	 */
+	public function test_get_open_graph_default_image_returns_alt_text() {
+		$attachment_id = $this->create_upload_object( __DIR__ . '/../images/jetpack-logo.png' );
+		update_post_meta( $attachment_id, '_wp_attachment_image_alt', 'Jetpack logo' );
+		$this->settings->update_open_graph_settings( array( 'default_image_id' => $attachment_id ) );
+
+		$image = $this->settings->og_get_default_image();
+
+		$this->assertSame( 'Jetpack logo', $image['alt_text'] );
+	}
+
+	/**
 	 * Tests that the default Open Graph filters use the configured image.
 	 */
 	public function test_open_graph_filters_use_configured_default_image() {
@@ -165,6 +260,27 @@ class Jetpack_Social_Settings_Test extends BaseTestCase {
 		$this->assertSame( $image_url, $site_image['src'] );
 		$this->assertSame( 100, $site_image['width'] );
 		$this->assertSame( 38, $site_image['height'] );
+	}
+
+	/**
+	 * Tests that Open Graph filters keep existing fallbacks without a configured image.
+	 */
+	public function test_open_graph_filters_keep_existing_values_without_configured_image() {
+		$custom_site_image = array( 'src' => 'https://example.com/custom.jpg' );
+		$tags              = array( 'og:title' => 'Test post' );
+
+		$this->assertSame(
+			$custom_site_image,
+			$this->settings->filter_default_site_image( $custom_site_image, array() )
+		);
+		$this->assertSame(
+			'https://example.com/default.jpg',
+			$this->settings->filter_default_image_url( 'https://example.com/default.jpg' )
+		);
+		$this->assertSame(
+			$tags,
+			$this->settings->add_default_image_to_open_graph_tags( $tags )
+		);
 	}
 
 	/**
@@ -194,6 +310,24 @@ class Jetpack_Social_Settings_Test extends BaseTestCase {
 		);
 
 		$this->assertSame( 'https://example.com/post-image.jpg', $tags_with_image['og:image'] );
+	}
+
+	/**
+	 * Tests that the default Open Graph tag filter includes alt text.
+	 */
+	public function test_open_graph_tags_filter_adds_alt_text() {
+		$attachment_id = $this->create_upload_object( __DIR__ . '/../images/jetpack-logo.png' );
+		update_post_meta( $attachment_id, '_wp_attachment_image_alt', 'Jetpack logo' );
+		$this->settings->update_open_graph_settings( array( 'default_image_id' => $attachment_id ) );
+
+		$tags = apply_filters(
+			'jetpack_open_graph_tags',
+			array(
+				'og:title' => 'Test post',
+			)
+		);
+
+		$this->assertSame( 'Jetpack logo', $tags['og:image:alt'] );
 	}
 
 	/**
