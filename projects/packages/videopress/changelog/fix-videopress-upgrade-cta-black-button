@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Fix the upgrade notice CTA rendering as an out-of-place dark button; restore the lightweight text-link styling.
+Restructure the free-plan upgrade notice into a balanced Notice.Title heads-up line, a Notice.Description upsell pitch, and a concise "Upgrade" Notice.ActionButton, replacing the out-of-place dark button.
