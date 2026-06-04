@@ -17,6 +17,24 @@ function jetpack_boost_minify_cache_buster() {
 }
 
 /**
+ * Whether a file should be treated as already minified (so the serving path must
+ * not re-minify it).
+ *
+ * This is the load-bearing skip for assets shipped as `.min.js` / `.min.css`
+ * (e.g. Boost's own image-guide bundle, which webpack/Terser has already
+ * minified): re-running the ES5-era PHP minifier over modern, already-minified
+ * JS can silently corrupt it. The mime type already routes JS and CSS down
+ * separate branches, so matching both extensions here is safe for either.
+ *
+ * @param string $fullpath Absolute path to the file being served.
+ *
+ * @return bool True if the filename indicates already-minified content.
+ */
+function jetpack_boost_page_optimize_is_already_minified( $fullpath ) {
+	return (bool) preg_match( '/\.min\.(css|js)$/', (string) $fullpath );
+}
+
+/**
  * Get the number of maximum files that can be concatenated in a group.
  */
 function jetpack_boost_minify_concat_max_files() {
