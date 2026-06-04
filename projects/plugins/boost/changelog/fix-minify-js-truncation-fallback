@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Concatenate JS: validate minified output and fall back to the un-re-minified bundle when the legacy minifier would silently truncate modern JavaScript, preventing third-party scripts from breaking the page with "Unexpected end of input".
