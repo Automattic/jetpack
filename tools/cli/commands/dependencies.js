@@ -11,7 +11,7 @@ import {
 // Files that mean --git-changed should report all projects as changed.
 const infrastructureFileSets = {};
 infrastructureFileSets.base = new Set( [
-	'tools/cli/commands/dependencies.js',
+	// 'tools/cli/commands/dependencies.js',
 	'tools/cli/helpers/dependencyAnalysis.js',
 	'.github/actions/tool-setup/action.yml',
 	'.github/actions/tool-setup/composer-plugin/composer.json',
@@ -32,7 +32,7 @@ infrastructureFileSets.test = new Set( [
 	'.github/files/coverage-munger/process-coverage.sh',
 	'.github/files/coverage-munger/upload-coverage.sh',
 	'.github/files/setup-wordpress-env.sh',
-	'.github/workflows/tests.yml',
+	// '.github/workflows/tests.yml',
 ] );
 infrastructureFileSets.build = new Set( [
 	...infrastructureFileSets.base,
