@@ -81,6 +81,20 @@ class Initializer {
 	const META_SCHEMA_TYPE = 'jetpack_seo_schema_type';
 
 	/**
+	 * Option recording whether sitemap generation is enabled.
+	 *
+	 * Read in place of the standalone `sitemaps` module's active state. Module-active
+	 * state is filtered against the modules present on disk, so once that module is
+	 * removed it would read as inactive even for sites that had it on. A one-time
+	 * migration in the Jetpack plugin seeds this option from the site's existing module
+	 * state and keeps it in sync while the legacy module still exists. See
+	 * `Jetpack::migrate_sitemaps_module_to_seo_option()`.
+	 *
+	 * @var string
+	 */
+	const SITEMAP_ENABLED_OPTION = 'jetpack_seo_sitemap_enabled';
+
+	/**
 	 * Whether the package has been initialized.
 	 *
 	 * @var bool
@@ -282,6 +296,21 @@ class Initializer {
 	}
 
 	/**
+	 * Whether sitemap generation is enabled.
+	 *
+	 * Reads the durable {@see self::SITEMAP_ENABLED_OPTION} flag. The default is only
+	 * used when the option is absent (for example before the Jetpack plugin's migration
+	 * has run on a freshly upgraded site), in which case it falls back to the live
+	 * `sitemaps` module state so behavior is unchanged in that gap.
+	 *
+	 * @param Modules $modules Modules instance to read live module state from.
+	 * @return bool
+	 */
+	private static function is_sitemap_enabled( Modules $modules ) {
+		return (bool) get_option( self::SITEMAP_ENABLED_OPTION, $modules->is_active( 'sitemaps' ) );
+	}
+
+	/**
 	 * Build the aggregated Overview state the dashboard renders.
 	 *
 	 * @return array
@@ -299,9 +328,9 @@ class Initializer {
 		return array(
 			'site_visibility'   => array(
 				'search_engines_visible' => (int) get_option( 'blog_public', 1 ) === 1,
-				// The real `sitemaps` module is the source of truth (the Settings
-				// toggle drives it via `/jetpack/v4/settings`).
-				'sitemap_active'         => $modules->is_active( 'sitemaps' ),
+				// Read the durable SEO option (seeded/synced from the `sitemaps` module
+				// by the Jetpack plugin) so the state survives the module's removal.
+				'sitemap_active'         => self::is_sitemap_enabled( $modules ),
 				'sitemap_url'            => home_url( '/sitemap.xml' ),
 				'seo_tools_active'       => $modules->is_active( 'seo-tools' ),
 			),
@@ -451,9 +480,9 @@ class Initializer {
 
 		return array(
 			'search_engines_visible' => (int) get_option( 'blog_public', 1 ) === 1,
-			// The real `sitemaps` module is the source of truth (not a bespoke
-			// option). The Settings toggle drives it via `/jetpack/v4/settings`.
-			'sitemap_active'         => $modules->is_active( 'sitemaps' ),
+			// Read the durable SEO option (seeded/synced from the `sitemaps` module
+			// by the Jetpack plugin) so the state survives the module's removal.
+			'sitemap_active'         => self::is_sitemap_enabled( $modules ),
 			// Canonical URLs is its own module, toggled the same way as sitemaps.
 			'canonical_active'       => $modules->is_active( 'canonical-urls' ),
 			// Cast to object so an empty format set serializes as `{}`, not `[]`.

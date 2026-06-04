@@ -86,6 +86,11 @@ if ( is_admin() ) {
 
 add_action( 'updating_jetpack_version', array( 'Jetpack', 'do_version_bump' ), 10, 2 );
 add_action( 'updating_jetpack_version', array( 'Jetpack', 'activate_subscriptions_module_for_existing_sites' ), 10, 2 );
+add_action( 'updating_jetpack_version', array( 'Jetpack', 'migrate_sitemaps_module_to_seo_option' ) );
+// Keep the Jetpack SEO sitemap option in sync with the legacy `sitemaps` module while
+// both still exist. Removed when the standalone module is removed.
+add_action( 'jetpack_activate_module_sitemaps', array( 'Jetpack', 'sync_seo_sitemap_option' ) );
+add_action( 'jetpack_deactivate_module_sitemaps', array( 'Jetpack', 'sync_seo_sitemap_option' ) );
 add_filter( 'is_jetpack_site', '__return_true' );
 
 require_once JETPACK__PLUGIN_DIR . '3rd-party/3rd-party.php';
