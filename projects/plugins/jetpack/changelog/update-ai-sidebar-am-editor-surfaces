@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+Jetpack AI Sidebar: register as an Agents Manager provider on eligible editor surfaces so it can merge with other providers.
