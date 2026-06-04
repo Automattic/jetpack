@@ -116,38 +116,50 @@ var three = "three";';
 	}
 
 	/**
-	 * \Error subclasses (e.g. \TypeError, \OutOfMemoryError) are not swallowed
-	 * silently: js() reports the 'error' reason via the hook, logs it, and still
-	 * falls back to the original input rather than letting the page white-screen.
+	 * \Error subclasses (specifically \TypeError here, standing in for the
+	 * \OutOfMemoryError / \ParseError class the catch arm exists to surface) are
+	 * not swallowed indistinguishably: js() reports the dedicated 'error' reason
+	 * via the hook and still falls back to the original rather than white-screening.
 	 */
 	public function test_js_reports_error_subclasses_and_falls_back() {
 		// A non-stringable object makes the minifier constructor raise an \Error
-		// ("Object of class stdClass could not be converted to string") -- a
-		// deterministic stand-in for the \OutOfMemoryError / \TypeError / \ParseError
-		// class this arm exists to surface.
+		// ("Object of class stdClass could not be converted to string"). The point
+		// is the catch(\Error) arm and its distinct hook reason, not this specific
+		// trigger.
 		$source = new \stdClass();
 
 		Actions\expectDone( 'jetpack_boost_js_minify_fallback' )
 			->once()
 			->with( 'error', 0, Mockery::type( \Error::class ) );
 
-		// The 'error' arm always logs; redirect error_log to a temp file so the
-		// test asserts on it instead of polluting the test output.
-		$log     = tempnam( sys_get_temp_dir(), 'jb-minify-log-' );
-		$old_log = ini_get( 'error_log' );
-		ini_set( 'error_log', $log );
-		try {
-			$result = Minify::js( $source );
-		} finally {
-			ini_set( 'error_log', $old_log );
+		// fallback_js() only logs under WP_DEBUG, so no error_log redirection is
+		// needed; the hook (asserted above) is the observability contract.
+		$this->assertSame( $source, Minify::js( $source ) );
+	}
+
+	/**
+	 * The structural-validator ('looks_broken') fallback -- the most common
+	 * production path -- fires the observability hook with the matching reason.
+	 * Resilient to a future upstream minifier fix: if the bundled minifier stops
+	 * corrupting this input, no fallback (and so no hook) is expected at all.
+	 */
+	public function test_js_looks_broken_fallback_fires_hook() {
+		$source  = "function f(e,t,n){const r=new Error(`each_key_duplicate\n";
+		$source .= '${n?`Keyed each block has duplicate key \`${n}\` at indexes ${e} and ${t}`:';
+		$source .= '`Keyed each block has duplicate key at indexes ${e} and ${t}`}' . "\n";
+		$source .= 'https://svelte.dev/e/each_key_duplicate`);return r;}(1,2,3);';
+
+		$raw_minified = ( new JSMinifier( $source ) )->minify();
+		if ( Js_Structure_Scanner::looks_broken( $raw_minified ) ) {
+			Actions\expectDone( 'jetpack_boost_js_minify_fallback' )
+				->once()
+				->with( 'looks_broken', strlen( $source ), null );
+		} else {
+			Actions\expectDone( 'jetpack_boost_js_minify_fallback' )->never();
 		}
 
-		$this->assertSame( $source, $result );
-		$this->assertStringContainsString( 'reason=error', (string) file_get_contents( $log ) );
-		if ( file_exists( $log ) ) {
-			// phpcs:ignore WordPress.WP.AlternativeFunctions.unlink_unlink
-			unlink( $log );
-		}
+		// Whichever path the bundled minifier takes, js() must never return broken JS.
+		$this->assertFalse( Js_Structure_Scanner::looks_broken( Minify::js( $source ) ) );
 	}
 
 	public function test_css_minifies() {

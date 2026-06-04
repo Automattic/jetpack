@@ -196,12 +196,13 @@ class Js_Structure_Scanner {
 		// cheap size-delta check against the original: a minified output far smaller
 		// than its input is the truncation signature even without a full scan. With
 		// no original to compare against, assume intact.
-		if ( strlen( $js ) > self::MAX_SCAN_BYTES ) {
+		$len = strlen( $js );
+		if ( $len > self::MAX_SCAN_BYTES ) {
 			if ( null === $original_js ) {
 				return false;
 			}
 			$original_len = strlen( (string) $original_js );
-			return $original_len > 0 && strlen( $js ) < ( $original_len * self::TRUNCATION_RATIO );
+			return $original_len > 0 && $len < ( $original_len * self::TRUNCATION_RATIO );
 		}
 
 		return ( new self( $js ) )->run();

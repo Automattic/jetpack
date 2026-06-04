@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Add a `jetpack_boost_js_minify_fallback` action that fires when JS minification is skipped in favor of the original bundle, so logging plugins can observe how often (and why) the safety net engages.
