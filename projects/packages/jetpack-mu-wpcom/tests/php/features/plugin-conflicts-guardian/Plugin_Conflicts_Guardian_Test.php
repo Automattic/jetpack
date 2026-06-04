@@ -11,6 +11,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/plugin-conflicts-guardian/pcg-log.php';
 require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/plugin-conflicts-guardian/class-pcg-load-tester.php';
 require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/plugin-conflicts-guardian/class-pcg-rollout.php';
+require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/plugin-conflicts-guardian/force-override.php';
 // probe-endpoint.php registers a shutdown handler and reads $_GET on
 // require; the entry function `pcg_maybe_handle_probe()` is the one
 // that does that work, and it bails immediately when `$_GET['pcg_probe']`
@@ -729,7 +730,7 @@ class Plugin_Conflicts_Guardian_Test extends \WorDBless\BaseTestCase {
 	 * The filter returns the source unchanged when the guard is disabled.
 	 */
 	public function test_update_guard_check_passthrough_when_disabled() {
-		add_filter( 'pcg_guard_activation', '__return_false' );
+		add_filter( 'pcg_guard_updates', '__return_false' );
 
 		$dir = $this->make_tmp_dir();
 		file_put_contents( $dir . '/bad.php', "<?php function ( {\n" );
@@ -751,7 +752,7 @@ class Plugin_Conflicts_Guardian_Test extends \WorDBless\BaseTestCase {
 	 * Non-plugin extensions (themes, core) are not inspected.
 	 */
 	public function test_update_guard_check_ignores_non_plugin_types() {
-		add_filter( 'pcg_guard_activation', '__return_true' );
+		add_filter( 'pcg_guard_updates', '__return_true' );
 		add_filter( 'pcg_rollout_percentage', static fn() => 100 );
 
 		$dir = $this->make_tmp_dir();
@@ -774,7 +775,7 @@ class Plugin_Conflicts_Guardian_Test extends \WorDBless\BaseTestCase {
 	 * Actions other than install/update are not inspected.
 	 */
 	public function test_update_guard_check_ignores_unrelated_actions() {
-		add_filter( 'pcg_guard_activation', '__return_true' );
+		add_filter( 'pcg_guard_updates', '__return_true' );
 		add_filter( 'pcg_rollout_percentage', static fn() => 100 );
 
 		$dir = $this->make_tmp_dir();
@@ -797,7 +798,7 @@ class Plugin_Conflicts_Guardian_Test extends \WorDBless\BaseTestCase {
 	 * Clean plugin packages pass through untouched.
 	 */
 	public function test_update_guard_check_allows_clean_plugin_package() {
-		add_filter( 'pcg_guard_activation', '__return_true' );
+		add_filter( 'pcg_guard_updates', '__return_true' );
 		add_filter( 'pcg_rollout_percentage', static fn() => 100 );
 
 		$dir = $this->make_tmp_dir();
@@ -820,7 +821,7 @@ class Plugin_Conflicts_Guardian_Test extends \WorDBless\BaseTestCase {
 	 * Packages with parse errors are rejected with a descriptive WP_Error.
 	 */
 	public function test_update_guard_check_blocks_plugin_with_parse_error() {
-		add_filter( 'pcg_guard_activation', '__return_true' );
+		add_filter( 'pcg_guard_updates', '__return_true' );
 		add_filter( 'pcg_rollout_percentage', static fn() => 100 );
 
 		$dir = $this->make_tmp_dir();

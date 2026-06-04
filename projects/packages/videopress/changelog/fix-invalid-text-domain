@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix a TypeScript error in the library route's DataViews default layouts.
