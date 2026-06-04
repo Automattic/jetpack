@@ -348,9 +348,13 @@ jobs:
       - name: Merge coverage artifacts
         run: |
           mkdir coverage
-          sort coverage_dl/*/summary.tsv > coverage/summary.tsv
-          rm coverage_dl/*/summary.tsv
-          mv coverage_dl/*/* coverage/
+          if [[ -f coverage_dl/summary.tsv ]]; then
+            mv coverage_dl/* coverage/
+          else
+            sort coverage_dl/*/summary.tsv > coverage/summary.tsv
+            rm coverage_dl/*/summary.tsv
+            mv coverage_dl/*/* coverage/
+          fi
 
       - name: Upload coverage results
         env:
