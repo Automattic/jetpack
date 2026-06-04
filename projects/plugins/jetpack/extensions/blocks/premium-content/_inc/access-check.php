@@ -88,7 +88,15 @@ function maybe_renew_session_cookie( $paywall, $user_id, $raw_subscriptions, $ab
 		return null;
 	}
 	if ( Abstract_Token_Subscription_Service::has_token_from_cookie() ) {
-		return null;
+		$session_cookie_name = Abstract_Token_Subscription_Service::JWT_AUTH_TOKEN_COOKIE_NAME;
+		$existing_payload    = null;
+		if ( isset( $_COOKIE[ $session_cookie_name ] ) ) {
+			// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.ValidatedSanitizedInput.MissingUnslash
+			$existing_payload = $paywall->decode_token( $_COOKIE[ $session_cookie_name ] );
+		}
+		if ( ! empty( $existing_payload ) ) {
+			return null;
+		}
 	}
 
 	$key = $paywall->get_key();
@@ -97,17 +105,16 @@ function maybe_renew_session_cookie( $paywall, $user_id, $raw_subscriptions, $ab
 	}
 
 	$payload_subscriptions = array();
-	foreach ( $raw_subscriptions as $sub ) {
-		$sub = (array) $sub;
-		if ( empty( $sub['product_id'] ) ) {
-			continue;
-		}
-		$pid                           = (int) $sub['product_id'];
+	foreach ( $abbreviated_subscriptions as $pid => $sub ) {
+		$sub                           = (array) $sub;
 		$payload_subscriptions[ $pid ] = array(
-			'status'     => $sub['status'] ?? 'active',
+			'status'     => 'active',
 			'end_date'   => $sub['end_date'] ?? gmdate( 'Y-m-d H:i:s', time() + MONTH_IN_SECONDS ),
-			'product_id' => $pid,
+			'product_id' => (int) $pid,
 		);
+		if ( ! empty( $sub['is_comp'] ) ) {
+			$payload_subscriptions[ $pid ]['is_comp'] = true;
+		}
 	}
 
 	$token = JWT::encode(
@@ -119,7 +126,7 @@ function maybe_renew_session_cookie( $paywall, $user_id, $raw_subscriptions, $ab
 		$key
 	);
 
-	if ( ! headers_sent() ) {
+	if ( ! ( defined( 'TESTING_IN_JETPACK' ) && TESTING_IN_JETPACK ) && ! headers_sent() ) {
 		// phpcs:ignore Jetpack.Functions.SetCookie.FoundNonHTTPOnlyFalse
 		setcookie( Abstract_Token_Subscription_Service::JWT_AUTH_TOKEN_COOKIE_NAME, $token, strtotime( '+1 month' ), '/', '', is_ssl(), false );
 	}

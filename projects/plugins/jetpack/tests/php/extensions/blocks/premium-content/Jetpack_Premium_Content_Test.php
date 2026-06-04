@@ -351,6 +351,73 @@ class Jetpack_Premium_Content_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * `maybe_renew_session_cookie` should replace an invalid existing cookie instead of
+	 * treating mere cookie presence as a valid cached session.
+	 *
+	 * @return void
+	 */
+	public function test_maybe_renew_session_cookie_mints_jwt_when_existing_cookie_is_invalid() {
+		$paywall                                  = subscription_service();
+		$_COOKIE['wp-jp-premium-content-session'] = 'not-a-valid-jwt';
+
+		$raw         = array(
+			array(
+				'product_id' => $this->product_id,
+				'status'     => 'active',
+				'end_date'   => gmdate( 'Y-m-d H:i:s', time() + DAY_IN_SECONDS ),
+			),
+		);
+		$abbreviated = \Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\WPCOM_Online_Subscription_Service::abbreviate_subscriptions( $raw );
+
+		$token = maybe_renew_session_cookie( $paywall, 999999, $raw, $abbreviated );
+
+		$this->assertIsString( $token );
+		$payload = $paywall->decode_token( $token );
+		$this->assertIsArray( $payload );
+		$this->assertSame( 999999, (int) $payload['user_id'] );
+
+		unset( $_COOKIE['wp-jp-premium-content-session'] );
+	}
+
+	/**
+	 * `maybe_renew_session_cookie` should mint its token from normalized subscriptions so
+	 * inactive subscriptions are omitted and comp grants keep their tier-gating flag.
+	 *
+	 * @return void
+	 */
+	public function test_maybe_renew_session_cookie_uses_normalized_subscriptions_for_payload() {
+		unset( $_COOKIE['wp-jp-premium-content-session'] );
+
+		$paywall             = subscription_service();
+		$comp_product_id     = $this->product_id;
+		$inactive_product_id = $this->product_id + 1;
+		$raw                 = array(
+			array(
+				'product_id' => $comp_product_id,
+				'status'     => 'active',
+				'end_date'   => gmdate( 'Y-m-d H:i:s', time() + DAY_IN_SECONDS ),
+				'is_comp'    => true,
+			),
+			array(
+				'product_id' => $inactive_product_id,
+				'status'     => 'inactive',
+				'end_date'   => gmdate( 'Y-m-d H:i:s', time() + DAY_IN_SECONDS ),
+			),
+		);
+		$abbreviated         = \Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\WPCOM_Online_Subscription_Service::abbreviate_subscriptions( $raw );
+
+		$token = maybe_renew_session_cookie( $paywall, 999999, $raw, $abbreviated );
+
+		$this->assertIsString( $token );
+		$payload       = $paywall->decode_token( $token );
+		$subscriptions = (array) $payload['subscriptions'];
+		$this->assertArrayHasKey( $comp_product_id, $subscriptions );
+		$this->assertObjectHasProperty( 'is_comp', $subscriptions[ $comp_product_id ] );
+		$this->assertTrue( $subscriptions[ $comp_product_id ]->is_comp );
+		$this->assertArrayNotHasKey( $inactive_product_id, $subscriptions );
+	}
+
+	/**
 	 * Test that plan id can be passed 2 ways
 	 *
 	 * @return void
