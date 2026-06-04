@@ -27,9 +27,13 @@ namespace Automattic\Jetpack_Boost\Lib;
  * Known (harmless) false positives: a `/` after `}` is read as a regex, not
  * division, because telling a block `}` apart from an object-literal `}` needs a
  * full parser; so valid object-literal division such as `({}/2)` is reported
- * "broken". Because the verdict is fail-safe (it only skips re-minification),
- * these cost a little compression, never correctness, so the heuristic stays
- * simple rather than guess at block-vs-expression context.
+ * "broken". This generalizes to any object-literal `}` followed by `/` anywhere
+ * in the bundle (`f({}/2)`, `[{}/2]`, `var o={a:1}/2`), and because one
+ * occurrence skips re-minification for the entire concatenated bundle, the cost
+ * is more than a single statement's worth of compression. It is still fail-safe
+ * (it only skips re-minification, never corrupts output), so the heuristic stays
+ * simple rather than guess at block-vs-expression context; the new fallback
+ * observability hook lets the real-world frequency be measured.
  */
 class Js_Structure_Scanner {
 
@@ -44,15 +48,30 @@ class Js_Structure_Scanner {
 	private const ST_BLOCK_COMMENT = 5; // Inside a /* */ comment.
 
 	/**
-	 * Upper bound (in bytes) on output we will scan per call.
+	 * Upper bound (in bytes) on output we will fully scan per call.
 	 *
 	 * The scan only runs on a cache miss, but on hosts where the concatenation
 	 * cache is not writable the _jb_static path re-minifies (and would re-scan)
-	 * on every request, so the per-call cost must stay bounded. Truncation makes
-	 * the output smaller, so a very large output is unlikely to be the truncated
-	 * case; above this size we trust the minifier rather than pay the scan.
+	 * on every request, so the per-call cost must stay bounded. This is set high
+	 * enough to cover realistic modern bundles (Tailwind/SPA/plugin-heavy output
+	 * routinely runs a few MB) so the truncation signature is actually caught,
+	 * rather than silently bypassed for anything above an aggressive cap.
+	 *
+	 * For the rare bundle larger than this, the full lexer scan is skipped, but a
+	 * cheap gross-truncation backstop still runs when the original input is known
+	 * (see looks_broken()).
 	 */
-	private const MAX_SCAN_BYTES = 2097152; // 2 MB.
+	private const MAX_SCAN_BYTES = 8388608; // 8 MB.
+
+	/**
+	 * Above MAX_SCAN_BYTES we cannot afford the full scan, but a minified output
+	 * that is dramatically smaller than its input is the truncation signature by
+	 * itself. Real-world minification shrinks JS by ~20-40%; an output below this
+	 * fraction of the original is treated as truncated. The threshold is
+	 * deliberately conservative so it only trips on gross truncation, never on
+	 * ordinary (even aggressive) minification.
+	 */
+	private const TRUNCATION_RATIO = 0.5;
 
 	/**
 	 * JS being scanned and its length.
@@ -158,17 +177,31 @@ class Js_Structure_Scanner {
 	/**
 	 * Whether the given minified JS looks structurally broken/truncated.
 	 *
-	 * @param string $js Minified JS to inspect.
+	 * @param string      $js          Minified JS to inspect.
+	 * @param string|null $original_js The pre-minification input, when available. Used
+	 *                                 only for the gross-truncation backstop on inputs
+	 *                                 too large to scan in full (see MAX_SCAN_BYTES).
 	 *
 	 * @return bool True if it looks broken; false if it looks intact.
 	 */
-	public static function looks_broken( $js ) {
+	public static function looks_broken( $js, $original_js = null ) {
 		$js = (string) $js;
 
-		// Empty output is handled by the caller; oversized output is assumed
-		// intact (see MAX_SCAN_BYTES).
-		if ( '' === $js || strlen( $js ) > self::MAX_SCAN_BYTES ) {
+		// Empty output is handled by the caller.
+		if ( '' === $js ) {
 			return false;
+		}
+
+		// Output larger than the scan budget is not lexed in full. Fall back to a
+		// cheap size-delta check against the original: a minified output far smaller
+		// than its input is the truncation signature even without a full scan. With
+		// no original to compare against, assume intact.
+		if ( strlen( $js ) > self::MAX_SCAN_BYTES ) {
+			if ( null === $original_js ) {
+				return false;
+			}
+			$original_len = strlen( (string) $original_js );
+			return $original_len > 0 && strlen( $js ) < ( $original_len * self::TRUNCATION_RATIO );
 		}
 
 		return ( new self( $js ) )->run();

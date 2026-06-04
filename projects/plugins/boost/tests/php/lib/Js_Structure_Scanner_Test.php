@@ -92,9 +92,16 @@ class Js_Structure_Scanner_Test extends Base_TestCase {
 	 * heuristic ever learns this case, update these expectations.
 	 */
 	public function test_object_literal_division_is_accepted_false_positive() {
+		// The false positive generalizes to any object-literal `}` followed by a
+		// division `/` anywhere in the bundle -- not just the parenthesized form.
+		// Because a single occurrence skips re-minification for the whole bundle,
+		// these are locked in so the full scope is visible to future authors.
 		$accepted = array(
-			'object-literal division' => '({}/2)',
-			'object division in stmt' => 'var x={}/2;',
+			'object-literal division'   => '({}/2)',
+			'object division in stmt'   => 'var x={}/2;',
+			'object division in call'   => 'f({}/2)',
+			'object division in array'  => '[{}/2]',
+			'populated object division' => 'var o={a:1}/2;',
 		);
 
 		foreach ( $accepted as $label => $js ) {
@@ -106,11 +113,44 @@ class Js_Structure_Scanner_Test extends Base_TestCase {
 	}
 
 	/**
-	 * Output larger than the scan budget is assumed intact (not scanned).
+	 * Realistic modern bundles (a few MB) are now scanned in full, so the
+	 * truncation signature is caught rather than silently bypassed by an
+	 * aggressive size cap.
 	 */
-	public function test_skips_oversized_input() {
-		$big = str_repeat( 'a();', 600000 ); // ~2.4 MB, above the scan cap.
+	public function test_scans_multi_megabyte_bundles() {
+		// ~3 MB, comfortably under the 8 MB cap, and genuinely truncated.
+		$truncated = str_repeat( 'a();', 200000 ) . '`unterminated template';
+		$this->assertTrue( Js_Structure_Scanner::looks_broken( $truncated ) );
+	}
+
+	/**
+	 * Output larger than the scan budget is not lexed in full. With no original to
+	 * compare against, it is assumed intact (the fail-safe default).
+	 */
+	public function test_oversized_input_without_original_is_assumed_intact() {
+		$big = str_repeat( 'a', 9 * 1024 * 1024 ) . '`'; // >8 MB, unterminated template.
 		$this->assertFalse( Js_Structure_Scanner::looks_broken( $big ) );
+	}
+
+	/**
+	 * Above the scan cap, an output far smaller than its original input is treated
+	 * as truncated via the cheap size-delta backstop.
+	 */
+	public function test_oversized_gross_truncation_detected_via_size_delta() {
+		$original  = str_repeat( 'x', 20 * 1024 * 1024 ); // 20 MB input.
+		$truncated = str_repeat( 'x', 9 * 1024 * 1024 );  // 9 MB output (<50% of input), above cap.
+		$this->assertTrue( Js_Structure_Scanner::looks_broken( $truncated, $original ) );
+	}
+
+	/**
+	 * Above the scan cap, an output within a normal minification ratio of its
+	 * original input is trusted -- the size-delta backstop must not fire on
+	 * ordinary (even aggressive) minification.
+	 */
+	public function test_oversized_normal_ratio_is_trusted() {
+		$original = str_repeat( 'x', 10 * 1024 * 1024 ); // 10 MB input.
+		$output   = str_repeat( 'x', 9 * 1024 * 1024 );  // 9 MB output (>50% of input), above cap.
+		$this->assertFalse( Js_Structure_Scanner::looks_broken( $output, $original ) );
 	}
 
 	public function test_handles_empty_input() {
