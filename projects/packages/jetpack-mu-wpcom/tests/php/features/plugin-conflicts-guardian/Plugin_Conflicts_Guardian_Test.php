@@ -10,6 +10,14 @@ use PHPUnit\Framework\Attributes\DataProvider;
 
 require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/plugin-conflicts-guardian/pcg-log.php';
 require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/plugin-conflicts-guardian/class-pcg-load-tester.php';
+require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/plugin-conflicts-guardian/class-pcg-rollout.php';
+require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/plugin-conflicts-guardian/force-override.php';
+// probe-endpoint.php registers a shutdown handler and reads $_GET on
+// require; the entry function `pcg_maybe_handle_probe()` is the one
+// that does that work, and it bails immediately when `$_GET['pcg_probe']`
+// isn't set. Loading the file in tests is safe and gives us access to
+// helpers like `pcg_probe_already_emitted()` for unit testing.
+require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/plugin-conflicts-guardian/probe-endpoint.php';
 require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/plugin-conflicts-guardian/activation-guard.php';
 require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/plugin-conflicts-guardian/update-guard.php';
 require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/plugin-conflicts-guardian/class-pcg-snapshot.php';
@@ -47,6 +55,18 @@ class Plugin_Conflicts_Guardian_Test extends \WorDBless\BaseTestCase {
 		remove_all_filters( 'pcg_guard_activation' );
 		remove_all_filters( 'pcg_guard_updates' );
 		remove_all_filters( 'pcg_backup_root' );
+		remove_all_filters( 'pcg_rollout_percentage' );
+		// PCG_Rollout::init() registers itself on require_once. We tear
+		// the gate callbacks down by name (not via remove_all_filters,
+		// which would also drop any test-local pcg_guard_* filters set
+		// up above) and then re-add via init() so every test starts
+		// with exactly one copy of the gate at priority 100. Without
+		// this, calling init() unconditionally in tear_down would stack
+		// the same callback N times across the suite — harmless
+		// functionally but wasteful and noisy in some test envs.
+		remove_filter( 'pcg_guard_activation', array( 'PCG_Rollout', 'gate' ), 100 );
+		remove_filter( 'pcg_guard_updates', array( 'PCG_Rollout', 'gate' ), 100 );
+		PCG_Rollout::init();
 		parent::tear_down();
 	}
 
@@ -240,6 +260,204 @@ class Plugin_Conflicts_Guardian_Test extends \WorDBless\BaseTestCase {
 	public function test_build_probe_payload_rejects_unknown_mode() {
 		$payload = PCG_Load_Tester::build_probe_payload( array( '/abs/foo/foo.php' ), 'bogus' );
 		$this->assertSame( 'activation', $payload['mode'] );
+	}
+
+	/**
+	 * Build a fake `Requests::Response`-shaped object so `parse_response`
+	 * can be exercised without a live HTTP loopback. Honours the marker
+	 * header lookup via a case-insensitive array stub.
+	 *
+	 * @param int    $status_code      HTTP status code.
+	 * @param string $body             Response body.
+	 * @param bool   $endpoint_reached Whether to include the X-PCG-Probe marker header.
+	 * @param int    $redirects        Number of redirects followed.
+	 * @return object
+	 */
+	private function make_fake_response( int $status_code, string $body, bool $endpoint_reached = false, int $redirects = 0 ): object {
+		$headers = $endpoint_reached ? array( 'x-pcg-probe' => '1' ) : array();
+		return (object) array(
+			'status_code' => $status_code,
+			'body'        => $body,
+			'redirects'   => $redirects,
+			'headers'     => $headers,
+		);
+	}
+
+	/**
+	 * Call the protected `parse_response` via Reflection so the verdict
+	 * policy can be unit-tested without firing real HTTP.
+	 *
+	 * @param object $response Fake response object.
+	 * @return array
+	 */
+	private function invoke_parse_response( $response ): array {
+		$tester = new PCG_Load_Tester();
+		$ref    = new \ReflectionMethod( PCG_Load_Tester::class, 'parse_response' );
+		return (array) $ref->invoke( $tester, $response );
+	}
+
+	/**
+	 * HTTP 500 without a JSON body must NOT block. PCG's policy is to
+	 * block only on a captured fatal (status=fatal from classify_shutdown
+	 * or status=throwable from the require-time catch); a 500 with no
+	 * verdict could be an upstream LB, edge proxy, intercepting plugin,
+	 * or engine death we can't attribute, and historically dominated the
+	 * false-positive bucket.
+	 */
+	public function test_parse_response_http_500_no_body_is_ok_inconclusive() {
+		$result = $this->invoke_parse_response( $this->make_fake_response( 500, '' ) );
+		$this->assertSame( 'ok-inconclusive', $result['status'] );
+		$this->assertStringContainsString( 'HTTP 500', $result['reason'] );
+	}
+
+	/**
+	 * HTTP 200 + X-PCG-Probe marker + non-JSON body: the endpoint ran but
+	 * no verdict was written. Under the captured-fatal-only policy this
+	 * is non-blocking — most often engine death or a mid-stream
+	 * connection drop, not a fatal we can attribute.
+	 */
+	public function test_parse_response_marker_present_no_json_is_ok_inconclusive() {
+		$result = $this->invoke_parse_response(
+			$this->make_fake_response( 200, '<html>not json</html>', true )
+		);
+		$this->assertSame( 'ok-inconclusive', $result['status'] );
+		$this->assertStringContainsString( 'no JSON verdict', $result['reason'] );
+	}
+
+	/**
+	 * HTTP 200 without the marker means the loopback never reached the
+	 * PCG endpoint — a cache or intercepting plugin answered. Stays as a
+	 * non-blocking `error` (logged) so we can size how often the loopback
+	 * is short-circuited in production.
+	 */
+	public function test_parse_response_no_marker_no_redirect_is_error() {
+		$result = $this->invoke_parse_response(
+			$this->make_fake_response( 200, '<html>cached page</html>', false, 0 )
+		);
+		$this->assertSame( 'error', $result['status'] );
+	}
+
+	/**
+	 * A JSON verdict from the endpoint passes straight through —
+	 * captured fatals must keep blocking.
+	 */
+	public function test_parse_response_passes_through_captured_fatal() {
+		$body   = wp_json_encode(
+			array(
+				'status'  => 'fatal',
+				'message' => 'Class "Foo\\Bar" not found',
+				'file'    => '/abs/foo/foo.php',
+				'plugin'  => '/abs/foo/foo.php',
+			),
+			JSON_UNESCAPED_SLASHES
+		);
+		$result = $this->invoke_parse_response( $this->make_fake_response( 200, (string) $body, true ) );
+		$this->assertSame( 'fatal', $result['status'] );
+		$this->assertSame( 'Class "Foo\\Bar" not found', $result['message'] );
+	}
+
+	/**
+	 * `classify_shutdown` maps an engine-fatal `error_get_last()` array to
+	 * status=fatal with the captured errno/message/file/line preserved so
+	 * the activation guard can attribute the failure to the right plugin.
+	 */
+	public function test_classify_shutdown_emits_fatal_for_engine_error() {
+		$verdict = PCG_Load_Tester::classify_shutdown(
+			array(
+				'type'    => E_ERROR,
+				'message' => 'Uncaught Error: Class "Foo\\Bar" not found',
+				'file'    => '/abs/foo/foo.php',
+				'line'    => 42,
+			)
+		);
+		$this->assertSame( 'fatal', $verdict['status'] );
+		$this->assertSame( E_ERROR, $verdict['errno'] );
+		$this->assertSame( '/abs/foo/foo.php', $verdict['file'] );
+		$this->assertSame( 42, $verdict['line'] );
+	}
+
+	/**
+	 * `classify_shutdown` returns status=ok-shutdown when there is no
+	 * captured fatal — covers the clean-`exit`-during-init case that
+	 * previously surfaced as "marker present, no JSON body" and got
+	 * misclassified as a fatal.
+	 */
+	public function test_classify_shutdown_emits_ok_shutdown_when_no_fatal() {
+		$verdict = PCG_Load_Tester::classify_shutdown( null );
+		$this->assertSame( 'ok-shutdown', $verdict['status'] );
+		$this->assertNotEmpty( $verdict['reason'] );
+	}
+
+	/**
+	 * Notice/warning/deprecation errors are NOT fatals — they're routine
+	 * non-blocking signals. Misclassifying them would re-introduce the
+	 * old false-positive class the always-emit fix is meant to remove.
+	 */
+	/**
+	 * `E_RECOVERABLE_ERROR` is in the fatal mask. It IS catchable by a
+	 * custom `set_error_handler`, but the probe doesn't install one and
+	 * the only way this errno reaches `error_get_last()` at shutdown is
+	 * the uncaught path. Treating it as fatal is correct in probe
+	 * context and matches PHP's own "unhandled = fatal" behaviour.
+	 */
+	public function test_classify_shutdown_treats_recoverable_error_as_fatal() {
+		$verdict = PCG_Load_Tester::classify_shutdown(
+			array(
+				'type'    => E_RECOVERABLE_ERROR,
+				'message' => 'Argument 1 passed to foo() must be array, null given',
+				'file'    => '/abs/foo/foo.php',
+				'line'    => 17,
+			)
+		);
+		$this->assertSame( 'fatal', $verdict['status'] );
+		$this->assertSame( E_RECOVERABLE_ERROR, $verdict['errno'] );
+	}
+
+	public function test_classify_shutdown_treats_non_fatal_errno_as_ok_shutdown() {
+		foreach ( array( E_WARNING, E_NOTICE, E_USER_WARNING, E_DEPRECATED, E_USER_DEPRECATED ) as $type ) {
+			$verdict = PCG_Load_Tester::classify_shutdown(
+				array(
+					'type'    => $type,
+					'message' => 'noise',
+					'file'    => '',
+					'line'    => 0,
+				)
+			);
+			$this->assertSame( 'ok-shutdown', $verdict['status'], "errno $type should NOT be classified as fatal" );
+		}
+	}
+
+	/**
+	 * `pcg_probe_already_emitted` is the re-entry guard shared by
+	 * `pcg_probe_shutdown` and `pcg_probe_respond`. Verifies the
+	 * contract that **only respond marks the flag**; the shutdown
+	 * handler must check without marking. A prior implementation marked
+	 * the flag in shutdown, which made the very next respond call bail
+	 * silently and lose the verdict — this test guards against that
+	 * regression.
+	 *
+	 * Runs in a separate process so the function's `static $emitted`
+	 * starts at its fresh state for this test and can't be poisoned by
+	 * any earlier test that exercises `pcg_probe_respond` (or by a
+	 * future test that does). Without this, adding another consumer of
+	 * the helper anywhere in the suite would silently flip the
+	 * post-mark assertions to passing-for-the-wrong-reason.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[\PHPUnit\Framework\Attributes\RunInSeparateProcess]
+	#[\PHPUnit\Framework\Attributes\PreserveGlobalState( false )]
+	public function test_pcg_probe_already_emitted_only_marks_when_asked() {
+		$this->assertFalse( pcg_probe_already_emitted(), 'fresh check should be false' );
+		$this->assertFalse( pcg_probe_already_emitted(), 'check-only must not mark — second check still false' );
+
+		// Mark: returns false on the marking call (flag was just set).
+		$this->assertFalse( pcg_probe_already_emitted( true ), 'marking call returns false because flag was previously unset' );
+
+		// Subsequent reads (with or without mark arg) see the flag.
+		$this->assertTrue( pcg_probe_already_emitted(), 'post-mark check returns true' );
+		$this->assertTrue( pcg_probe_already_emitted( true ), 'post-mark marking call returns true' );
 	}
 
 	/**
@@ -512,7 +730,7 @@ class Plugin_Conflicts_Guardian_Test extends \WorDBless\BaseTestCase {
 	 * The filter returns the source unchanged when the guard is disabled.
 	 */
 	public function test_update_guard_check_passthrough_when_disabled() {
-		add_filter( 'pcg_guard_activation', '__return_false' );
+		add_filter( 'pcg_guard_updates', '__return_false' );
 
 		$dir = $this->make_tmp_dir();
 		file_put_contents( $dir . '/bad.php', "<?php function ( {\n" );
@@ -534,7 +752,8 @@ class Plugin_Conflicts_Guardian_Test extends \WorDBless\BaseTestCase {
 	 * Non-plugin extensions (themes, core) are not inspected.
 	 */
 	public function test_update_guard_check_ignores_non_plugin_types() {
-		add_filter( 'pcg_guard_activation', '__return_true' );
+		add_filter( 'pcg_guard_updates', '__return_true' );
+		add_filter( 'pcg_rollout_percentage', static fn() => 100 );
 
 		$dir = $this->make_tmp_dir();
 		file_put_contents( $dir . '/bad.php', "<?php function ( {\n" );
@@ -556,7 +775,8 @@ class Plugin_Conflicts_Guardian_Test extends \WorDBless\BaseTestCase {
 	 * Actions other than install/update are not inspected.
 	 */
 	public function test_update_guard_check_ignores_unrelated_actions() {
-		add_filter( 'pcg_guard_activation', '__return_true' );
+		add_filter( 'pcg_guard_updates', '__return_true' );
+		add_filter( 'pcg_rollout_percentage', static fn() => 100 );
 
 		$dir = $this->make_tmp_dir();
 		file_put_contents( $dir . '/bad.php', "<?php function ( {\n" );
@@ -578,7 +798,8 @@ class Plugin_Conflicts_Guardian_Test extends \WorDBless\BaseTestCase {
 	 * Clean plugin packages pass through untouched.
 	 */
 	public function test_update_guard_check_allows_clean_plugin_package() {
-		add_filter( 'pcg_guard_activation', '__return_true' );
+		add_filter( 'pcg_guard_updates', '__return_true' );
+		add_filter( 'pcg_rollout_percentage', static fn() => 100 );
 
 		$dir = $this->make_tmp_dir();
 		file_put_contents( $dir . '/plugin.php', "<?php\n// Plugin Name: PCG Ok\n" );
@@ -600,7 +821,8 @@ class Plugin_Conflicts_Guardian_Test extends \WorDBless\BaseTestCase {
 	 * Packages with parse errors are rejected with a descriptive WP_Error.
 	 */
 	public function test_update_guard_check_blocks_plugin_with_parse_error() {
-		add_filter( 'pcg_guard_activation', '__return_true' );
+		add_filter( 'pcg_guard_updates', '__return_true' );
+		add_filter( 'pcg_rollout_percentage', static fn() => 100 );
 
 		$dir = $this->make_tmp_dir();
 		file_put_contents( $dir . '/plugin.php', "<?php function ( {\n" );
@@ -713,5 +935,86 @@ class Plugin_Conflicts_Guardian_Test extends \WorDBless\BaseTestCase {
 			}
 		}
 		rmdir( $dir );
+	}
+
+	/**
+	 * Rollout default is 0% — no blog is in the cohort.
+	 */
+	public function test_rollout_default_is_zero_percent() {
+		$this->assertFalse( PCG_Rollout::is_enabled_for_blog( 1 ) );
+		$this->assertFalse( PCG_Rollout::is_enabled_for_blog( 99999 ) );
+	}
+
+	/**
+	 * 100% includes every positive blog ID.
+	 */
+	public function test_rollout_full_includes_every_blog() {
+		add_filter( 'pcg_rollout_percentage', static fn() => 100 );
+		$this->assertTrue( PCG_Rollout::is_enabled_for_blog( 1 ) );
+		$this->assertTrue( PCG_Rollout::is_enabled_for_blog( 240190614 ) );
+	}
+
+	/**
+	 * Invalid or non-positive blog IDs are never enabled, even at 100%.
+	 */
+	public function test_rollout_rejects_non_positive_blog_ids() {
+		add_filter( 'pcg_rollout_percentage', static fn() => 100 );
+		$this->assertFalse( PCG_Rollout::is_enabled_for_blog( 0 ) );
+		$this->assertFalse( PCG_Rollout::is_enabled_for_blog( -1 ) );
+	}
+
+	/**
+	 * Bucketing must be deterministic — the same blog ID stays in the
+	 * same bucket across calls. (Ramping from 10% to 50% should
+	 * strictly add blogs, never reshuffle them.)
+	 */
+	public function test_rollout_blog_bucket_is_deterministic() {
+		$this->assertSame(
+			PCG_Rollout::blog_bucket( 7777 ),
+			PCG_Rollout::blog_bucket( 7777 )
+		);
+		$this->assertNotSame(
+			PCG_Rollout::blog_bucket( 1 ),
+			PCG_Rollout::blog_bucket( 2 )
+		);
+	}
+
+	/**
+	 * Bucket is always in [0, 100). On 32-bit PHP `crc32` returns a
+	 * signed int and `abs(PHP_INT_MIN)` overflows — taking the modulo
+	 * before `abs()` is the 32-bit-safe ordering.
+	 */
+	public function test_rollout_blog_bucket_is_non_negative() {
+		foreach ( array( 1, 2, 100, 999999, 2147483647 ) as $blog_id ) {
+			$bucket = PCG_Rollout::blog_bucket( $blog_id );
+			$this->assertGreaterThanOrEqual( 0, $bucket, "blog_id=$blog_id" );
+			$this->assertLessThan( 100, $bucket, "blog_id=$blog_id" );
+		}
+	}
+
+	/**
+	 * The gate wired through `pcg_guard_activation` / `pcg_guard_updates`
+	 * returns false when the rollout would exclude the current blog,
+	 * regardless of any earlier filter that said true.
+	 */
+	public function test_rollout_gate_narrows_pcg_guard_filters() {
+		// Default percentage is 0; gate must veto.
+		$this->assertFalse( apply_filters( 'pcg_guard_activation', true ) );
+		$this->assertFalse( apply_filters( 'pcg_guard_updates', true ) );
+
+		// At 100% the gate passes through.
+		add_filter( 'pcg_rollout_percentage', static fn() => 100 );
+		$this->assertTrue( apply_filters( 'pcg_guard_activation', true ) );
+		$this->assertTrue( apply_filters( 'pcg_guard_updates', true ) );
+	}
+
+	/**
+	 * The gate only narrows — if an earlier filter returned false, the
+	 * gate must not flip it back to true.
+	 */
+	public function test_rollout_gate_only_narrows() {
+		add_filter( 'pcg_rollout_percentage', static fn() => 100 );
+		add_filter( 'pcg_guard_activation', static fn() => false, 1 );
+		$this->assertFalse( apply_filters( 'pcg_guard_activation', true ) );
 	}
 }

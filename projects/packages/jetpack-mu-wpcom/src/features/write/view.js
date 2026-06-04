@@ -1972,6 +1972,23 @@ function resetUploadZone() {
 }
 
 /**
+ * POST a file to the media REST endpoint. Returns the media response.
+ * No side effects on state or DOM — callers handle the result.
+ *
+ * @param {File} file - The file to upload.
+ * @return {Promise<Object>} The media library response.
+ */
+async function uploadMedia( file ) {
+	const formData = new FormData();
+	formData.append( 'file', file );
+	return await window.wp.apiFetch( {
+		path: state.mediaPath,
+		method: 'POST',
+		body: formData,
+	} );
+}
+
+/**
  * Upload a file to the media library and update state with the result.
  *
  * @param {File} file - The file to upload.
@@ -1988,15 +2005,8 @@ async function uploadFileToMedia( file ) {
 		if ( saving ) saving.style.display = '';
 	}
 
-	const formData = new FormData();
-	formData.append( 'file', file );
-
 	try {
-		const media = await window.wp.apiFetch( {
-			path: state.mediaPath,
-			method: 'POST',
-			body: formData,
-		} );
+		const media = await uploadMedia( file );
 		state.isUploading = false;
 		if ( zone ) zone.classList.remove( 'bw-uploading' );
 
@@ -2133,6 +2143,43 @@ function insertNewList( listTag ) {
 	state.showSlashMenu = false;
 	state.formatUList = listTag === 'ul';
 	state.formatOList = listTag === 'ol';
+	state.insideList = true;
+}
+
+/**
+ * Detect a markdown list shortcut in a paragraph's text.
+ *
+ * Returns 'ul' for `-`, `*`, or `+`, 'ol' for `1.`, otherwise null. Captured
+ * before the trigger space is inserted, so the marker should be the only
+ * content — trailing whitespace is allowed to tolerate a stray <br>-only text
+ * node that contentEditable can leave in an otherwise-empty block.
+ *
+ * @param {string} text - The paragraph's text content.
+ * @return {'ul'|'ol'|null} The list tag to create, or null.
+ */
+function parseMarkdownListShortcut( text ) {
+	if ( /^[-*+]\s*$/.test( text ) ) return 'ul';
+	if ( /^1\.\s*$/.test( text ) ) return 'ol';
+	return null;
+}
+
+/**
+ * Replace a paragraph with a fresh list containing one empty item, and move the cursor into it.
+ *
+ * @param {HTMLElement} paragraph - The paragraph to convert.
+ * @param {'ul'|'ol'}   listTag   - The list tag to create.
+ */
+function applyMarkdownListShortcut( paragraph, listTag ) {
+	const list = document.createElement( listTag );
+	const li = document.createElement( 'li' );
+	li.innerHTML = '<br>';
+	list.appendChild( li );
+	paragraph.after( list );
+	paragraph.remove();
+	placeCursorAt( li );
+	state.formatUList = listTag === 'ul';
+	state.formatOList = listTag === 'ol';
+	state.insideList = true;
 }
 
 /**
@@ -2714,6 +2761,240 @@ function insertMediaBlock( mediaEl ) {
 	return p;
 }
 
+/**
+ * Place the caret at the (x, y) viewport coordinates inside the editor.
+ * Uses the standard `caretPositionFromPoint`, falling back to the
+ * WebKit/Chromium-prefixed `caretRangeFromPoint`. Returns true if the
+ * caret was placed inside the editor; false otherwise.
+ *
+ * @param {number} x - Viewport X coordinate.
+ * @param {number} y - Viewport Y coordinate.
+ * @return {boolean} Whether the caret was placed inside the editor.
+ */
+function placeCaretAtPoint( x, y ) {
+	const content = getContent();
+	if ( ! content ) return false;
+
+	let range = null;
+	if ( document.caretPositionFromPoint ) {
+		const pos = document.caretPositionFromPoint( x, y );
+		if ( pos && pos.offsetNode ) {
+			range = document.createRange();
+			range.setStart( pos.offsetNode, pos.offset );
+			range.collapse( true );
+		}
+	} else if ( document.caretRangeFromPoint ) {
+		range = document.caretRangeFromPoint( x, y );
+		range?.collapse( true );
+	}
+
+	if ( ! range || ! content.contains( range.startContainer ) ) {
+		return false;
+	}
+
+	const sel = window.getSelection();
+	sel.removeAllRanges();
+	sel.addRange( range );
+	return true;
+}
+
+// Currently highlighted drop-target block, so dragover can move the
+// indicator between blocks without re-querying every frame.
+let currentDropTarget = null;
+
+// Position the indicator was rendered at on currentDropTarget. Lets the
+// drop handler pick before/after without re-running getBoundingClientRect
+// (the dragover that placed the indicator already settled it).
+let currentDropPosition = 'after';
+
+// The figure currently being dragged within the editor (set in
+// dragstart, cleared in dragend). Used to switch the dragover/drop
+// handlers from their default "insert a file from disk" branch into a
+// "move this existing figure" branch — the bug RSM-3981 was the absence
+// of this branch, which left the browser to fall back to its native
+// contentEditable=false copy-on-drop.
+let draggingFigure = null;
+
+/**
+ * Show a visual indicator on the block where a dragged image will land.
+ * The indicator is a class on the block element itself (a top-level
+ * child of .bw-content-inner) so the CSS can position a horizontal line
+ * at the insertion point — under the target block, or above the first
+ * block if the drag is near the top edge.
+ *
+ * @param {number} x - Viewport X coordinate.
+ * @param {number} y - Viewport Y coordinate.
+ */
+function updateDropIndicator( x, y ) {
+	const content = getContent();
+	if ( ! content ) return;
+
+	let target = null;
+	let position = 'after';
+
+	if ( document.caretPositionFromPoint || document.caretRangeFromPoint ) {
+		let node;
+		if ( document.caretPositionFromPoint ) {
+			const pos = document.caretPositionFromPoint( x, y );
+			node = pos?.offsetNode || null;
+		} else {
+			const range = document.caretRangeFromPoint( x, y );
+			node = range?.startContainer || null;
+		}
+		// Walk up to the direct child of .bw-content-inner.
+		while ( node && node !== content && node.parentNode !== content ) {
+			node = node.parentNode;
+		}
+		if ( node && node.parentNode === content ) {
+			target = node;
+		}
+	}
+
+	// Fallback: pick the block closest to the y-coordinate, or the
+	// last block if the drag is below all content. Lets the indicator
+	// stay visible when hovering over the empty area below the post.
+	if ( ! target ) {
+		const blocks = Array.from( content.children );
+		for ( const block of blocks ) {
+			const rect = block.getBoundingClientRect();
+			if ( y < rect.top ) {
+				target = block;
+				position = 'before';
+				break;
+			}
+			target = block;
+		}
+	}
+
+	if ( ! target ) return;
+	if ( currentDropTarget === target ) {
+		// Position may have flipped on the same block — keep both states
+		// consistent by clearing the other one.
+		target.classList.toggle( 'bw-drop-target--before', position === 'before' );
+		target.classList.toggle( 'bw-drop-target--after', position === 'after' );
+		currentDropPosition = position;
+		return;
+	}
+
+	clearDropIndicator();
+	target.classList.add(
+		position === 'before' ? 'bw-drop-target--before' : 'bw-drop-target--after'
+	);
+	currentDropTarget = target;
+	currentDropPosition = position;
+}
+
+/**
+ * Remove the drop-target indicator from whichever block currently has it.
+ */
+function clearDropIndicator() {
+	if ( currentDropTarget ) {
+		currentDropTarget.classList.remove( 'bw-drop-target--before', 'bw-drop-target--after' );
+		currentDropTarget = null;
+	}
+	currentDropPosition = 'after';
+}
+
+/**
+ * Move a figure to a new position relative to a target block. No-ops
+ * when the move would not change the DOM (figure dropped onto itself,
+ * or onto its current neighbour on the same side).
+ *
+ * @param {Element}          figure   - The figure being dragged.
+ * @param {Element}          target   - The block to land next to.
+ * @param {'before'|'after'} position - Where to drop relative to target.
+ * @return {boolean} Whether the DOM actually changed.
+ */
+function moveFigureToBlock( figure, target, position ) {
+	if ( ! figure || ! target || figure === target ) return false;
+	if ( position === 'before' ) {
+		if ( target.previousSibling === figure ) return false;
+		target.before( figure );
+	} else {
+		if ( target.nextSibling === figure ) return false;
+		target.after( figure );
+	}
+	return true;
+}
+
+/**
+ * Upload an image file and insert it at the current caret position.
+ * Inserts a placeholder figure immediately (using a local object URL)
+ * so the user gets feedback while the upload is in flight, then
+ * replaces the placeholder with the media-library URL and ID once
+ * uploaded.
+ *
+ * The whole upload+swap is registered via trackMediaSizeSwap so
+ * savePost waits for it before serializing the editor.
+ *
+ * @param {File} file - The image file to upload.
+ */
+function uploadAndInsertImage( file ) {
+	const content = getContent();
+	if ( ! content ) return;
+
+	const figure = document.createElement( 'figure' );
+	// Apply size-large up-front so the placeholder renders at the same
+	// 75% width the figure will land at after upload. Without it the
+	// locally-previewed image renders at its natural pixel size and
+	// snaps narrower the moment the swap runs.
+	figure.className = 'bw-image-figure bw-image-uploading size-large';
+	const img = document.createElement( 'img' );
+	const localUrl = URL.createObjectURL( file );
+	img.src = localUrl;
+	img.alt = '';
+	figure.appendChild( img );
+
+	const p = insertMediaBlock( figure );
+	if ( p ) {
+		placeCursorAt( p );
+	}
+	// Deliberately do NOT push undo history here: the placeholder figure's
+	// img.src is a blob: URL that gets revoked when the upload completes.
+	// Capturing the placeholder in an undo snapshot would let Cmd+Z restore
+	// a dead blob URL, which would then serialize into the saved post. The
+	// undo snapshot is pushed inside the swap below, after the real URL
+	// and wp-image-{id} class are in place.
+
+	const swap = ( async () => {
+		try {
+			const media = await uploadMedia( file );
+			// If the figure was removed during the upload (e.g. by undo or
+			// manual delete), skip the DOM swap. The upload still lives in
+			// the media library, which is harmless.
+			if ( ! content.contains( figure ) ) {
+				return;
+			}
+			// Tag the figure with the media-library id+size so the
+			// save-time serializer produces a real <!-- wp:image --> block.
+			img.src = media.source_url;
+			img.alt = media.alt_text || '';
+			img.className = 'wp-image-' + media.id;
+			figure.className = 'bw-image-figure size-large';
+			mediaSizesCache.set( media.id, media.media_details?.sizes || null );
+			// The figure was decorated by addDeleteButtons() before upload,
+			// so it's missing the Size button (that branch is gated on
+			// getMediaIdFromImg). Strip and re-decorate now that the
+			// wp-image-{id} class is in place.
+			stripRuntimeFigureControls( figure );
+			addDeleteButtons();
+			await applyMediaSizeToFigure( figure, 'large' );
+			pushToUndoHistory();
+		} catch ( err ) {
+			if ( content.contains( figure ) ) {
+				figure.remove();
+			}
+			state.message = ( i18n.uploadFailed || 'Upload failed: %s' ).replace( '%s', err.message );
+			setTimeout( () => {
+				state.message = '';
+			}, 3000 );
+		} finally {
+			URL.revokeObjectURL( localUrl );
+		}
+	} )();
+	trackMediaSizeSwap( swap );
+}
+
 // --- Inline category meta helpers ---
 
 /**
@@ -3208,6 +3489,32 @@ const { state } = store( 'wpcom-write', {
 				// No adjacent figure — fall through to native Backspace/Delete.
 			}
 
+			// Backspace in an empty list item: exit the list.
+			// Must run before the first-block Backspace guard below, otherwise the
+			// guard swallows Backspace when the list is the editor's first block
+			// (e.g. just after triggering the markdown shortcut on a fresh post).
+			if ( event.key === 'Backspace' ) {
+				const sel = window.getSelection();
+				let li = null;
+				if ( sel.rangeCount ) {
+					let n = sel.anchorNode;
+					while ( n && ! n.classList?.contains( 'bw-content' ) ) {
+						if ( n.nodeType === Node.ELEMENT_NODE && n.tagName === 'LI' ) {
+							li = n;
+							break;
+						}
+						n = n.parentNode;
+					}
+				}
+				if ( li && li.textContent.trim() === '' ) {
+					event.preventDefault();
+					exitListAndApplyBlock( 'p' );
+					state.formatUList = false;
+					state.formatOList = false;
+					return;
+				}
+			}
+
 			// Block Backspace at the very start of the first block. With nothing
 			// to merge into, some browsers respond by unwrapping the structure
 			// — including the .bw-content-inner wrapper that protects user
@@ -3262,29 +3569,6 @@ const { state } = store( 'wpcom-write', {
 				}
 			}
 
-			// Backspace in an empty list item: exit the list.
-			if ( event.key === 'Backspace' ) {
-				const sel = window.getSelection();
-				let li = null;
-				if ( sel.rangeCount ) {
-					let n = sel.anchorNode;
-					while ( n && ! n.classList?.contains( 'bw-content' ) ) {
-						if ( n.nodeType === Node.ELEMENT_NODE && n.tagName === 'LI' ) {
-							li = n;
-							break;
-						}
-						n = n.parentNode;
-					}
-				}
-				if ( li && li.textContent.trim() === '' ) {
-					event.preventDefault();
-					exitListAndApplyBlock( 'p' );
-					state.formatUList = false;
-					state.formatOList = false;
-					return;
-				}
-			}
-
 			// Backspace in an empty <cite>: remove it and move cursor to quote body.
 			if ( event.key === 'Backspace' ) {
 				const cite = getActiveCite();
@@ -3299,6 +3583,32 @@ const { state } = store( 'wpcom-write', {
 						}
 					}
 					return;
+				}
+			}
+
+			// Markdown list shortcut: typing space after `-`, `*`, `+`, or `1.` at the
+			// start of an otherwise-empty paragraph converts it to a list. The space
+			// itself is swallowed so the user lands at column 0 of the new <li>.
+			if ( event.key === ' ' && ! state.showSlashMenu ) {
+				const sel = window.getSelection();
+				if ( sel.rangeCount && sel.isCollapsed ) {
+					const content = getContent();
+					let block = sel.anchorNode;
+					while ( block && block !== content && block.parentNode !== content ) {
+						block = block.parentNode;
+					}
+					// Only fire on top-level paragraphs — keep this out of headings,
+					// blockquotes, lists, figures, and other structured blocks.
+					if ( block && block.parentNode === content && block.tagName === 'P' ) {
+						const listTag = parseMarkdownListShortcut( block.textContent );
+						if ( listTag ) {
+							event.preventDefault();
+							flushUndoDebounce();
+							applyMarkdownListShortcut( block, listTag );
+							pushToUndoHistory();
+							return;
+						}
+					}
 				}
 			}
 
@@ -4107,6 +4417,115 @@ const { state } = store( 'wpcom-write', {
 				return;
 			}
 			await uploadFileToMedia( file );
+		},
+
+		handleEditorDragStart( event ) {
+			// Image figures are contentEditable=false atoms inside an
+			// editable parent. Without an explicit handler the browser
+			// drags them as opaque HTML and the editor's drop branch
+			// (which only handles File drags) lets the native
+			// copy-on-drop behaviour insert a duplicate. Tag the drag as
+			// a move and remember the source so the dragover/drop
+			// branches below relocate it instead of falling through.
+			const figure = event.target?.closest?.( 'figure, .bw-image-figure, .bw-video-figure' );
+			const content = getContent();
+			if ( ! figure || ! content?.contains( figure ) ) return;
+
+			draggingFigure = figure;
+			if ( event.dataTransfer ) {
+				event.dataTransfer.effectAllowed = 'move';
+				// Overwrite the default HTML/text payload the browser
+				// stages when dragging an <img>. If we ever fail to
+				// preventDefault on drop, an empty payload means no
+				// stray content is inserted.
+				try {
+					event.dataTransfer.setData( 'text/plain', '' );
+				} catch {
+					// Some browsers throw if setData is called outside a
+					// real dragstart. Safe to ignore — preventDefault on
+					// drop is the primary guard.
+				}
+			}
+		},
+
+		handleEditorDragOver( event ) {
+			// File drags from disk: keep the original "insert at drop
+			// point" behaviour.
+			if ( event.dataTransfer?.types?.includes( 'Files' ) ) {
+				event.preventDefault();
+				event.dataTransfer.dropEffect = 'copy';
+				updateDropIndicator( event.clientX, event.clientY );
+				return;
+			}
+			// Internal figure drag: opt in to drop and show the move
+			// cursor. Without preventDefault here the drop event never
+			// fires inside the editor.
+			if ( draggingFigure ) {
+				event.preventDefault();
+				if ( event.dataTransfer ) event.dataTransfer.dropEffect = 'move';
+				updateDropIndicator( event.clientX, event.clientY );
+			}
+			// Text/selection drags inside the editor: leave to the
+			// browser's contentEditable default.
+		},
+
+		handleEditorDragLeave( event ) {
+			// dragleave fires when the pointer crosses any child element
+			// boundary; only clear the visual state when the drag truly
+			// leaves the editor wrapper.
+			if ( event.relatedTarget && event.currentTarget.contains( event.relatedTarget ) ) {
+				return;
+			}
+			clearDropIndicator();
+		},
+
+		handleEditorDrop( event ) {
+			// Internal figure move.
+			if ( draggingFigure ) {
+				event.preventDefault();
+				const figure = draggingFigure;
+				const target = currentDropTarget;
+				const position = currentDropPosition;
+				clearDropIndicator();
+				draggingFigure = null;
+
+				if ( target && moveFigureToBlock( figure, target, position ) ) {
+					ensureBlockStructure();
+					pushToUndoHistory();
+				}
+				return;
+			}
+
+			if ( ! event.dataTransfer?.types?.includes( 'Files' ) ) return;
+			event.preventDefault();
+			clearDropIndicator();
+
+			const images = Array.from( event.dataTransfer.files || [] ).filter( f =>
+				f.type.startsWith( 'image/' )
+			);
+			if ( ! images.length ) return;
+
+			// Place the caret at the drop point once before inserting.
+			// Each insertMediaBlock leaves the caret in the trailing
+			// paragraph, so subsequent figures naturally stack below.
+			// If the drop lands outside the editable area, fall back to
+			// the end of the content.
+			const content = getContent();
+			if ( content && ! placeCaretAtPoint( event.clientX, event.clientY ) ) {
+				placeCursorAtEnd( content );
+			}
+
+			for ( const file of images ) {
+				uploadAndInsertImage( file );
+			}
+		},
+
+		handleEditorDragEnd() {
+			// Safety net: dragend always fires (even on cancelled or
+			// out-of-editor drops), so this is the canonical place to
+			// drop the drag state and any stale drop indicator.
+			draggingFigure = null;
+			clearDropIndicator();
 		},
 
 		// --- Slash commands ---
@@ -5147,5 +5566,77 @@ window.addEventListener( 'pageshow', event => {
 window.addEventListener( 'pagehide', () => {
 	if ( autosaveTimer ) {
 		clearInterval( autosaveTimer );
+	}
+} );
+
+// Cmd+S (Mac) / Ctrl+S (Windows/Linux) — trigger the primary save action,
+// matching whichever button is visible (Save draft on a draft, Update on a
+// published post). Attached at the document level so the shortcut works
+// regardless of which field has focus.
+document.addEventListener( 'keydown', event => {
+	if ( event.key?.toLowerCase() !== 's' ) return;
+	if ( ! ( event.ctrlKey || event.metaKey ) ) return;
+	if ( event.shiftKey || event.altKey ) return;
+	if (
+		state.isSaving ||
+		state.unsupportedWarning ||
+		state.showImageModal ||
+		state.showVideoModal ||
+		state.showPostPicker
+	) {
+		return;
+	}
+
+	event.preventDefault();
+	const { actions } = store( 'wpcom-write' );
+	if ( state.isPublishedPost ) {
+		actions.publish();
+	} else {
+		actions.saveDraft();
+	}
+} );
+
+// File-drop safety net: .bw-content has min-height:60vh but doesn't
+// fill the rest of the viewport, and a long post can extend below the
+// viewport entirely. A file dropped outside .bw-content would otherwise
+// be opened by the browser. Catch file drags at the window level so
+// dropping anywhere on the Write page inserts at the end of the post
+// instead of navigating away from the editor.
+window.addEventListener( 'dragover', event => {
+	if ( ! event.dataTransfer?.types?.includes( 'Files' ) ) return;
+	event.preventDefault();
+	event.dataTransfer.dropEffect = 'copy';
+} );
+
+window.addEventListener( 'drop', event => {
+	if ( ! event.dataTransfer?.types?.includes( 'Files' ) ) return;
+	// The editor (.bw-content) and the image-modal overlay each have
+	// their own data-wp-on--drop handlers; those fire on the inner
+	// target first and bubble up to here. Check via composedPath rather
+	// than target.closest because the editor handler removes the empty
+	// <p> that was the drop target (insertMediaBlock collapses an empty
+	// trailing paragraph into the figure), leaving event.target detached
+	// and breaking ancestor lookups. composedPath is snapshotted at
+	// dispatch time and stays valid through the mutation.
+	const path = event.composedPath();
+	if (
+		path.some(
+			el => el instanceof Element && el.matches?.( '.bw-content, .bw-image-overlay:not([hidden])' )
+		)
+	) {
+		return;
+	}
+	event.preventDefault();
+
+	const images = Array.from( event.dataTransfer.files || [] ).filter( f =>
+		f.type.startsWith( 'image/' )
+	);
+	if ( ! images.length ) return;
+
+	const content = getContent();
+	if ( ! content ) return;
+	placeCursorAtEnd( content );
+	for ( const file of images ) {
+		uploadAndInsertImage( file );
 	}
 } );

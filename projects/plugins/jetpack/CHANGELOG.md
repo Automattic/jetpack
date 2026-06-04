@@ -2,11 +2,38 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 15.9-a.7 - 2026-06-01
+### Major Enhancements
+- General: Update minimum WordPress version to 6.9. [#49021]
+
+### Enhancements
+- Search: Register the AI Agents Access opt-in setting for regular site owners. [#49103]
+
+### Bug fixes
+- VideoPress: Fix the post-connection redirect so the modernized dashboard returns users to the VideoPress page instead of a 404. [#49168]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Abilities: Register `jetpack-monitor/get-monitor-status` and `jetpack-monitor/set-notifications` for WP 6.9+. [#48284]
+- Abilities: Register abilities under the WordPress core site ability category instead of plugin-scoped. [#48284]
+- Agents Manager: Extract into its own package from jetpack-mu-wpcom. [#49202]
+- Connection: Migrate connection test REST endpoints to the Connection package. [#49198]
+- Email Preview: Move the Akismet-based spam check outside Jetpack via the `jetpack_before_send_email_preview` action. [#49222]
+- Instagram Gallery Block: Prevent PHP warnings when cached object is malformed. [#49236]
+- Jetpack Connection Health: Migrate tests from Jetpack plugin to Connection package. [#47837]
+- JSON API: Add a REST-vs-XML-RPC body parity test helper plus an auto-discovering coverage test for REST-enabled GET endpoints, and a `context=edit` lock for `/posts`. [#49163]
+- JSON API: Add unit tests for the REST-live `/sites/%s/users` endpoint, covering `callback()` shape, filtering/pagination, authorization, and REST-vs-XML-RPC param parity. [#49191]
+- Pinterest Block: Prevent PHP warning when block attributes are malformed. [#49290]
+- Reader Chat: Skip asset-cache unit tests when SCRIPT_DEBUG is enabled. [#49165]
+- Remove redundant development and documentation files from the published plugin. [#49014]
+- Story Block: Prevent PHP warning when handling an invalid media type. [#49294]
+- Update package dependencies. [#48404] [#49218]
+- Widgets: Prevent a PHP error when Display Posts data is malformed. [#49295]
+
 ## 15.9-a.5 - 2026-05-25
 ### Enhancements
 - Admin Menu: Add sidebar redesign fields, group metadata, and saved layout data to the `/wpcom/v2/admin-menu` endpoint when the public `wp-admin-sidebar` plugin is loaded. [#48715]
 - Donations Block: Add a "Tips" variation with coffee-themed defaults for creatives. [#48584]
-- Donations block: Add modal display mode with trigger button, configurable icon, and animated overlay. [#48539]
+- Donations Block: Add modal display mode with trigger button, configurable icon, and animated overlay. [#48539]
 - Donations Block: Record Tracks events for admin-side block adoption. [#48847]
 - Jetpack AI Sidebar: Allow AI Editorial Review through the sidebar preview. [#48961]
 - Newsletter: Enable the subscriptions module by default for all sites. [#49034]
@@ -16,7 +43,7 @@
 - ActivityPub: Allow Jetpack-signed admin requests to reach the inbox, proxy, and outbox client-to-server endpoints used by the connected site's WordPress.com Reader, without an OAuth bearer. [#48812]
 
 ### Bug fixes
-- Forms: Fix a JavaScript error in the editor. [#48979]
+- Forms: Address `Uncaught TypeError` message in the editor. [#48979]
 - Jetpack AI Sidebar: Fix block editing when another agent provider is present. [#48961]
 - Newsletter Categories: Stop returning a 400 response when saving the same category selection that's already stored. [#48865]
 - Reader Chat: Prevent the frontend widget from loading on Coming Soon or unlaunched sites. [#48890]

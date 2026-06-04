@@ -5,6 +5,33 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 9.0.0 - 2026-06-01
+### Added
+- Google Search Preview: Fix site icon not being shown on some sites. [#47551]
+
+### Changed
+- Dependencies: Update lock file to keep root requirements in sync. [#47418] [#48826] [#48860]
+- General: Update minimum WordPress version to 6.9. [#49021]
+- Internal: No longer require automattic/jetpack-changelogger as a per-project dev dependency. [#48225]
+- Publicize: updated e2e connection spec to assert the 'Write a post' CTA as a button (role=button) rather than a link, to match the @wordpress/ui Button migration. [#48150]
+- Remove header border-bottom from the admin page for a cleaner unified header appearance. [#47313]
+- Remove unneeded development and documentation files from the published plugin. [#49014]
+- Switch to Native TypeScript compiler based on Go. [#47375]
+- Tested up to WordPress 7.0. [#48114]
+- Update design of the sidebar upsell. [#47909]
+- Update package dependencies. [#47285] [#47371] [#47505] [#47825] [#48064] [#48683] [#48735] [#49218]
+
+### Removed
+- Remove post publish review prompt. [#47650]
+
+### Fixed
+- Admin Page: Restore border on header component. [#47425]
+- Fall back to the site-wide social message template when no per-post share message is set. [#48606]
+- Fix flaky E2E tests. [#47407]
+- Fix Threads social preview for posts with gallery. [#47322]
+- Fix TS errors detected by tsgo. [#47426]
+- Fix useSelect warning for notesConfig on Social admin page. [#47740]
+
 ## 8.0.1 - 2026-02-19
 ### Added
 - Add visual dot to active connection in preview modal. [#47218]

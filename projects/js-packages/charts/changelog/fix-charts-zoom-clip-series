@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Charts: clip zoomable LineChart/AreaChart series to the plot area so zoomed views don't paint outside the axes.

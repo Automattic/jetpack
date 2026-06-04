@@ -47,7 +47,7 @@
 			context.filter = 'blur(20px) ';
 			context.drawImage( imgEl, 0, 0 );
 			var url = canvas.toDataURL( 'image/png' );
-			canvas = null;
+			canvas = null; // eslint-disable-line no-useless-assignment -- Verify this isn't needed to free memory or something.
 
 			return url;
 		}
@@ -1029,9 +1029,9 @@
 		}
 
 		function updateTitleCaptionAndDesc( data ) {
-			var caption = '';
-			var title = '';
-			var desc = '';
+			var caption;
+			var title;
+			var desc;
 			var captionMainElement;
 			var captionInfoExtraElement;
 			var titleElement;

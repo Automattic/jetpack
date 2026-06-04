@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+JSON API: stop emitting "Unknown user" PHP warnings from get_author() for the expected case of an unresolvable author.
