@@ -148,6 +148,14 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Set the current screen to the Site Editor.
+	 */
+	private function set_site_editor_screen() {
+		set_current_screen( 'site-editor' );
+		get_current_screen()->is_block_editor = true;
+	}
+
+	/**
 	 * Enable the AI sidebar feature via filter.
 	 */
 	private function enable_sidebar() {
@@ -353,6 +361,39 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	 * Test that the Agents Manager block-editor gate does not open in the page editor.
 	 */
 	public function test_enable_agents_manager_in_post_editor_skips_page_editor() {
+		$this->set_page_block_editor_screen();
+
+		$this->assertFalse( Jetpack_AI_Sidebar::enable_agents_manager_in_post_editor( false ) );
+	}
+
+	/**
+	 * Test that the Agents Manager block-editor gate opens in the page editor when Big Sky is enabled.
+	 */
+	public function test_enable_agents_manager_in_post_editor_enables_page_editor_for_big_sky() {
+		$this->simulate_big_sky_class();
+		update_option( 'big_sky_enable', '1' );
+		$this->set_page_block_editor_screen();
+
+		$this->assertTrue( Jetpack_AI_Sidebar::enable_agents_manager_in_post_editor( false ) );
+	}
+
+	/**
+	 * Test that the Agents Manager block-editor gate opens in the Site Editor when Big Sky is enabled.
+	 */
+	public function test_enable_agents_manager_in_post_editor_enables_site_editor_for_big_sky() {
+		$this->simulate_big_sky_class();
+		update_option( 'big_sky_enable', '1' );
+		$this->set_site_editor_screen();
+
+		$this->assertTrue( Jetpack_AI_Sidebar::enable_agents_manager_in_post_editor( false ) );
+	}
+
+	/**
+	 * Test that Big Sky must be enabled before Jetpack opens the page editor gate.
+	 */
+	public function test_enable_agents_manager_in_post_editor_skips_page_editor_when_big_sky_is_disabled() {
+		$this->simulate_big_sky_class();
+		update_option( 'big_sky_enable', '0' );
 		$this->set_page_block_editor_screen();
 
 		$this->assertFalse( Jetpack_AI_Sidebar::enable_agents_manager_in_post_editor( false ) );
@@ -673,6 +714,36 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 
 		$this->assertArrayNotHasKey( 'agentId', $data );
 		$this->assertArrayNotHasKey( 'agentProviders', $data );
+		$this->assertArrayNotHasKey( 'aiEditorialReviewEnabled', $data );
+		$this->assertArrayNotHasKey( 'jetpackAiSidebarPreview', $data );
+	}
+
+	/**
+	 * Jetpack opens AM for Big Sky Page/Site Editor composition without injecting
+	 * the post-editor Jetpack AI provider payload into those surfaces.
+	 */
+	public function test_add_agents_manager_data_skips_page_editor_when_big_sky_is_enabled() {
+		$this->simulate_big_sky_class();
+		update_option( 'big_sky_enable', '1' );
+		$this->set_page_block_editor_screen();
+		$this->cache_sidebar_asset_data();
+
+		$data = Jetpack_AI_Sidebar::add_agents_manager_data(
+			array(
+				'sectionName'    => 'gutenberg',
+				'agentProviders' => array(
+					'https://example.com/wp-content/plugins/big-sky-plugin/build/calypso-agent-provider/index.js?ver=123',
+				),
+			)
+		);
+
+		$this->assertSame(
+			array(
+				'https://example.com/wp-content/plugins/big-sky-plugin/build/calypso-agent-provider/index.js?ver=123',
+			),
+			$data['agentProviders']
+		);
+		$this->assertArrayNotHasKey( 'agentId', $data );
 		$this->assertArrayNotHasKey( 'aiEditorialReviewEnabled', $data );
 		$this->assertArrayNotHasKey( 'jetpackAiSidebarPreview', $data );
 	}
