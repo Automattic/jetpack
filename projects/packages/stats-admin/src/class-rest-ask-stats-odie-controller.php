@@ -15,8 +15,7 @@ use WP_REST_Request;
 use WP_REST_Server;
 
 /**
- * Registers the REST routes for Ask Stats.
- * Forwards chat messages to the WordPress.com Odie API.
+ * Registers the REST route that forwards Ask Stats chat messages to Odie.
  */
 class REST_Ask_Stats_Odie_Controller {
 	const DEFAULT_BOT_SLUG = 'wpcom-agent-ask_stats';
@@ -29,14 +28,14 @@ class REST_Ask_Stats_Odie_Controller {
 	public static $namespace = 'jetpack/v4/stats-app';
 
 	/**
-	 * Jetpack connection manager.
+	 * Connection manager used for access checks.
 	 *
 	 * @var Connection_Manager
 	 */
 	protected $connection_manager;
 
 	/**
-	 * Constructor.
+	 * Initializes the connection manager.
 	 *
 	 * @param Connection_Manager|null $connection_manager Connection manager.
 	 */
@@ -47,10 +46,9 @@ class REST_Ask_Stats_Odie_Controller {
 	}
 
 	/**
-	 * Registers the REST routes for Ask Stats.
+	 * Registers the REST route for Ask Stats.
 	 */
 	public function register_rest_routes() {
-		// Ask Stats AI chat (Odie).
 		register_rest_route(
 			static::$namespace,
 			sprintf( '/sites/%d/ai/chat', Jetpack_Options::get_option( 'id' ) ),
@@ -77,9 +75,9 @@ class REST_Ask_Stats_Odie_Controller {
 	}
 
 	/**
-	 * Check whether the current user can access Ask Stats.
+	 * Checks the feature, capability, connection, and plan gates.
 	 *
-	 * @return bool|WP_Error True when access is allowed, otherwise an error.
+	 * @return bool|WP_Error True when access is allowed, WP_Error otherwise.
 	 */
 	public function can_user_ask_stats_callback() {
 		if ( ! $this->is_feature_enabled() ) {
@@ -105,9 +103,9 @@ class REST_Ask_Stats_Odie_Controller {
 	}
 
 	/**
-	 * Send a message to the configured Ask Stats Odie assistant.
+	 * Forwards a chat message to the configured Odie bot.
 	 *
-	 * @param WP_REST_Request $req The request sent to the API.
+	 * @param WP_REST_Request $req The request object.
 	 * @return array|WP_Error
 	 */
 	public function send_chat_message( WP_REST_Request $req ) {
@@ -146,7 +144,7 @@ class REST_Ask_Stats_Odie_Controller {
 	}
 
 	/**
-	 * Validate a user message.
+	 * Validates that the message is a non-empty string.
 	 *
 	 * @param mixed $value Message value.
 	 * @return bool
@@ -156,7 +154,7 @@ class REST_Ask_Stats_Odie_Controller {
 	}
 
 	/**
-	 * Whether the Ask Stats endpoint is enabled.
+	 * Checks the Ask Stats feature gate.
 	 *
 	 * @return bool
 	 */
@@ -166,13 +164,13 @@ class REST_Ask_Stats_Odie_Controller {
 		 *
 		 * @since $$next-version$$
 		 *
-		 * @param bool $enabled Whether Ask Stats is enabled. Default false.
+		 * @param bool $enabled Whether the endpoint is enabled.
 		 */
 		return (bool) apply_filters( 'jetpack_stats_ask_stats_enabled', false );
 	}
 
 	/**
-	 * Get the configured Ask Stats Odie bot slug.
+	 * Gets the configured bot slug.
 	 *
 	 * @return string
 	 */
@@ -193,10 +191,10 @@ class REST_Ask_Stats_Odie_Controller {
 	}
 
 	/**
-	 * Whether the current site's plan is eligible for Ask Stats.
+	 * Checks the current site plan class.
 	 *
-	 * Premium and Commerce plans are allowed. Commerce SKUs map to the `business`
-	 * plan class in Current_Plan (see jetpack-plans PLAN_DATA).
+	 * Premium and business-class plans are allowed. The `business` class includes
+	 * Business and Commerce SKUs in Current_Plan (see jetpack-plans PLAN_DATA).
 	 *
 	 * @return bool
 	 */
@@ -211,16 +209,14 @@ class REST_Ask_Stats_Odie_Controller {
 		 *
 		 * @since $$next-version$$
 		 *
-		 * @param bool  $is_eligible Whether the current plan is eligible.
-		 * @param array $plan        Current plan data.
+		 * @param bool  $is_eligible Whether the current site plan is eligible.
+		 * @param array $plan        Current site plan data.
 		 */
 		return (bool) apply_filters( 'jetpack_stats_ask_stats_is_plan_eligible', $is_eligible, $plan );
 	}
 
 	/**
-	 * Return a WP_Error object with a forbidden error.
-	 *
-	 * @return WP_Error
+	 * Creates the forbidden error response.
 	 */
 	protected function get_forbidden_error() {
 		$error_msg = esc_html__(
