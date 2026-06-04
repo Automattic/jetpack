@@ -36,4 +36,21 @@ class InitializerTest extends TestCase {
 	public function test_feature_filter_constant_is_defined() {
 		$this->assertSame( 'rsm_jetpack_seo', Initializer::FEATURE_FILTER );
 	}
+
+	/**
+	 * The Google-verification bootstrap exposes the connect URL + connection flag the
+	 * React app expects, with the right types. Without the host plugin's Keyring/Manager
+	 * classes present (the package test context) it degrades to an empty URL and not
+	 * connected, so the UI falls back to manual entry.
+	 */
+	public function test_get_google_verify_data_shape() {
+		$data = Initializer::get_google_verify_data();
+
+		$this->assertArrayHasKey( 'connect_url', $data );
+		$this->assertArrayHasKey( 'is_connected', $data );
+		$this->assertIsString( $data['connect_url'] );
+		$this->assertIsBool( $data['is_connected'] );
+		$this->assertSame( '', $data['connect_url'] );
+		$this->assertFalse( $data['is_connected'] );
+	}
 }
