@@ -687,13 +687,31 @@ class Podcast_Episode_Block {
 
 		$cells = '';
 		if ( '' !== $image_url ) {
-			$cells .= sprintf(
-				'<td width="96" valign="top" style="width: 96px; padding: 16px 0 16px 16px;"><a href="%s"><img src="%s" alt="" width="96" height="96" style="display: block; width: 96px; height: 96px; border-radius: 4px;" /></a></td>',
+			$image_link = sprintf(
+				'<a href="%s"><img src="%s" alt="" width="96" height="96" style="display: block; width: 96px; height: 96px; border-radius: 4px;" /></a>',
 				esc_url( $post_url ),
 				esc_url( $image_url )
 			);
+
+			// @phan-suppress-next-line PhanUndeclaredClassMethod -- Optional WooCommerce dependency, checked with class_exists() above.
+			$cells .= \Automattic\WooCommerce\EmailEditor\Integrations\Utils\Table_Wrapper_Helper::render_table_cell(
+				$image_link,
+				array(
+					'width'  => '96',
+					'valign' => 'top',
+					'style'  => 'width: 96px; padding: 16px 0 16px 16px;',
+				)
+			);
 		}
-		$cells .= sprintf( '<td valign="top" style="padding: 16px;">%s</td>', $body );
+
+		// @phan-suppress-next-line PhanUndeclaredClassMethod -- Optional WooCommerce dependency, checked with class_exists() above.
+		$cells .= \Automattic\WooCommerce\EmailEditor\Integrations\Utils\Table_Wrapper_Helper::render_table_cell(
+			$body,
+			array(
+				'valign' => 'top',
+				'style'  => 'padding: 16px;',
+			)
+		);
 
 		// Cap the card to the email layout width when the context exposes it.
 		$target_width = 600;
@@ -704,16 +722,28 @@ class Podcast_Episode_Block {
 			}
 		}
 
-		// Preserve margin from email_attrs (used for block spacing).
+		// Preserve the vertical gap from email_attrs — the engine's spacing
+		// preprocessor sets `margin-top`; horizontal root padding is applied
+		// to the callback output by the engine itself.
 		$email_attrs        = $parsed_block['email_attrs'] ?? array();
 		$table_margin_style = '';
 		if ( ! empty( $email_attrs ) && class_exists( '\WP_Style_Engine' ) ) {
-			$table_margin_style = \WP_Style_Engine::compile_css( array_intersect_key( $email_attrs, array_flip( array( 'margin' ) ) ), '' ) ?? '';
+			$table_margin_style = \WP_Style_Engine::compile_css( array_intersect_key( $email_attrs, array_flip( array( 'margin', 'margin-top' ) ) ), '' ) ?? '';
 		}
 
 		// border-collapse must stay `separate` for the rounded card border to render.
 		$table_style = sprintf( 'width: 100%%; max-width: %dpx; border-collapse: separate; border: 1px solid #ddd; border-radius: 6px;', $target_width );
 		$table_style = ( $table_margin_style ? $table_margin_style . '; ' : 'margin: 16px 0; ' ) . $table_style;
+
+		// Append user-set block supports (padding, border, colors) so editor
+		// styling overrides the card defaults.
+		if ( class_exists( '\Automattic\WooCommerce\EmailEditor\Integrations\Utils\Styles_Helper' ) && is_object( $rendering_context ) ) {
+			// @phan-suppress-next-line PhanUndeclaredClassMethod -- Optional WooCommerce dependency, checked with class_exists() above.
+			$user_styles = \Automattic\WooCommerce\EmailEditor\Integrations\Utils\Styles_Helper::get_block_styles( $attrs, $rendering_context, array( 'padding', 'border', 'background-color', 'color' ) );
+			if ( ! empty( $user_styles['css'] ) ) {
+				$table_style .= ' ' . $user_styles['css'];
+			}
+		}
 
 		// @phan-suppress-next-line PhanUndeclaredClassMethod -- Optional WooCommerce dependency, checked with class_exists() above.
 		return \Automattic\WooCommerce\EmailEditor\Integrations\Utils\Table_Wrapper_Helper::render_table_wrapper(
