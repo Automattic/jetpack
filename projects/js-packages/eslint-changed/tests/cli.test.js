@@ -541,7 +541,6 @@ describe( 'bin/eslint-changed.js', () => {
 							message: 'Strings must use singlequote.',
 							line: 1,
 							column: 14,
-							nodeType: 'Literal',
 							messageId: 'wrongQuotes',
 							endLine: 1,
 							endColumn: 29,
@@ -585,7 +584,6 @@ describe( 'bin/eslint-changed.js', () => {
 							message: 'Strings must use singlequote.',
 							line: 1,
 							column: 14,
-							nodeType: 'Literal',
 							messageId: 'wrongQuotes',
 							endLine: 1,
 							endColumn: 29,
@@ -629,7 +627,6 @@ describe( 'bin/eslint-changed.js', () => {
 							message: 'Missing semicolon.',
 							line: 1,
 							column: 31,
-							nodeType: 'ExpressionStatement',
 							messageId: 'missingSemi',
 							endLine: 2,
 							endColumn: 1,
@@ -673,7 +670,6 @@ describe( 'bin/eslint-changed.js', () => {
 							message: "'x' is defined but never used.",
 							line: 1,
 							column: 5,
-							nodeType: 'Identifier',
 							messageId: 'unusedVar',
 							endLine: 1,
 							endColumn: 6,
@@ -740,7 +736,6 @@ describe( 'bin/eslint-changed.js', () => {
 							message: "'x' is assigned a value but never used.",
 							line: 1,
 							column: 5,
-							nodeType: 'Identifier',
 							messageId: 'unusedVar',
 							endLine: 1,
 							endColumn: 6,
@@ -777,7 +772,6 @@ describe( 'bin/eslint-changed.js', () => {
 							message: 'Strings must use singlequote.',
 							line: 2,
 							column: 6,
-							nodeType: 'Literal',
 							messageId: 'wrongQuotes',
 							endLine: 2,
 							endColumn: 16,
@@ -848,7 +842,6 @@ describe( 'bin/eslint-changed.js', () => {
 							message: "'y' is assigned a value but never used.",
 							line: 1,
 							column: 5,
-							nodeType: 'Identifier',
 							messageId: 'unusedVar',
 							endLine: 1,
 							endColumn: 6,
@@ -872,7 +865,6 @@ describe( 'bin/eslint-changed.js', () => {
 							message: "'x' is not defined.",
 							line: 13,
 							column: 14,
-							nodeType: 'Identifier',
 							messageId: 'undef',
 							endLine: 13,
 							endColumn: 15,
@@ -927,7 +919,6 @@ describe( 'bin/eslint-changed.js', () => {
 							message: "'y' is assigned a value but never used.",
 							line: 1,
 							column: 5,
-							nodeType: 'Identifier',
 							messageId: 'unusedVar',
 							endLine: 1,
 							endColumn: 6,
@@ -964,7 +955,6 @@ describe( 'bin/eslint-changed.js', () => {
 							message: "'y' is assigned a value but never used.",
 							line: 1,
 							column: 5,
-							nodeType: 'Identifier',
 							messageId: 'unusedVar',
 							endLine: 1,
 							endColumn: 6,
@@ -1035,7 +1025,6 @@ describe( 'bin/eslint-changed.js', () => {
 							message: "'y' is assigned a value but never used.",
 							line: 1,
 							column: 5,
-							nodeType: 'Identifier',
 							messageId: 'unusedVar',
 							endLine: 1,
 							endColumn: 6,
@@ -1112,7 +1101,6 @@ describe( 'bin/eslint-changed.js', () => {
 							message: "'y' is assigned a value but never used.",
 							line: 1,
 							column: 5,
-							nodeType: 'Identifier',
 							messageId: 'unusedVar',
 							endLine: 1,
 							endColumn: 6,
@@ -1180,7 +1168,6 @@ describe( 'bin/eslint-changed.js', () => {
 							message: "'y' is assigned a value but never used.",
 							line: 1,
 							column: 5,
-							nodeType: 'Identifier',
 							messageId: 'unusedVar',
 							endLine: 1,
 							endColumn: 6,
@@ -1204,7 +1191,6 @@ describe( 'bin/eslint-changed.js', () => {
 							message: "'x' is not defined.",
 							line: 13,
 							column: 14,
-							nodeType: 'Identifier',
 							messageId: 'undef',
 							endLine: 13,
 							endColumn: 15,
@@ -1270,7 +1256,6 @@ describe( 'bin/eslint-changed.js', () => {
 							message: "'y' is assigned a value but never used.",
 							line: 1,
 							column: 5,
-							nodeType: 'Identifier',
 							messageId: 'unusedVar',
 							endLine: 1,
 							endColumn: 6,
@@ -1294,7 +1279,6 @@ describe( 'bin/eslint-changed.js', () => {
 							message: "'x' is not defined.",
 							line: 13,
 							column: 14,
-							nodeType: 'Identifier',
 							messageId: 'undef',
 							endLine: 13,
 							endColumn: 15,
@@ -1361,7 +1345,6 @@ describe( 'bin/eslint-changed.js', () => {
 							message: "'y' is assigned a value but never used.",
 							line: 1,
 							column: 5,
-							nodeType: 'Identifier',
 							messageId: 'unusedVar',
 							endLine: 1,
 							endColumn: 6,
@@ -1398,7 +1381,6 @@ describe( 'bin/eslint-changed.js', () => {
 							message: "'y' is assigned a value but never used.",
 							line: 1,
 							column: 5,
-							nodeType: 'Identifier',
 							messageId: 'unusedVar',
 							endLine: 1,
 							endColumn: 6,
@@ -1455,7 +1437,6 @@ describe( 'bin/eslint-changed.js', () => {
 							message: "'y' is assigned a value but never used.",
 							line: 1,
 							column: 5,
-							nodeType: 'Identifier',
 							messageId: 'unusedVar',
 							endLine: 1,
 							endColumn: 6,
@@ -1535,100 +1516,6 @@ describe( 'bin/eslint-changed.js', () => {
 				expectOutput[ 0 ].filePath = path.join( tmpdir, '2.js' );
 				expect( output ).toEqual( expectOutput );
 			} );
-		} );
-
-		// If this starts failing in eslint 10+, delete or skip it.
-		test( 'Works with .eslintrc', async () => {
-			await mktmpdirgit(
-				[
-					{
-						name: 'base',
-						files: {
-							'.eslintrc': JSON.stringify( {
-								env: { node: true },
-								rules: {
-									'no-unused-vars': 'error',
-									'no-undef': 'error',
-									quotes: [ 'error', 'single' ],
-									semi: [ 'error', 'always' ],
-								},
-							} ),
-							'1.js': "console.log( 'Hello, world!' );\n",
-							'2.js': "console.log( 'Hello, world!' );\n",
-							'3.js': "console.log( 'Hello, world!' );\n",
-						},
-					},
-					{
-						name: 'trunk',
-						files: {
-							'1.js': "var x;\nconsole.log( 'Hello, world!' );\n",
-						},
-					},
-				],
-				{
-					'2.js': 'console.log( "Hello, world?" );\n',
-				},
-				{
-					'3.js': "console.log( '¡Hola, mundo!' )\n",
-				}
-			);
-
-			const oldEnv = process.env.ESLINT_USE_FLAT_CONFIG;
-			let data;
-			try {
-				process.env.ESLINT_USE_FLAT_CONFIG = 'false';
-				data = await runEslintChanged( [ '--format=json', '--git' ], {
-					cwd: tmpdir,
-					env: { ESLINT_USE_FLAT_CONFIG: 'false' },
-				} );
-			} finally {
-				process.env.ESLINT_USE_FLAT_CONFIG = oldEnv;
-			}
-			expect( data.exitCode ).toBe( 1 );
-
-			expect( data.stdout ).toBeValidJSON();
-			const output = JSON.parse( data.stdout );
-			expect( output ).toBeInstanceOf( Array );
-			const expectOutput = [
-				{
-					filePath: path.join( tmpdir, '2.js' ),
-					messages: [
-						{
-							ruleId: 'quotes',
-							severity: 2,
-							message: 'Strings must use singlequote.',
-							line: 1,
-							column: 14,
-							nodeType: 'Literal',
-							messageId: 'wrongQuotes',
-							endLine: 1,
-							endColumn: 29,
-							fix: {
-								range: [ 13, 28 ],
-								text: "'Hello, world?'",
-							},
-						},
-					],
-					errorCount: 1,
-					fatalErrorCount: 0,
-					warningCount: 0,
-					fixableErrorCount: 1,
-					fixableWarningCount: 0,
-					source: 'console.log( "Hello, world?" );\n',
-					suppressedMessages: [],
-					usedDeprecatedRules: [
-						{
-							replacedBy: [],
-							ruleId: 'quotes',
-						},
-						{
-							replacedBy: [],
-							ruleId: 'semi',
-						},
-					],
-				},
-			];
-			expect( output ).toEqual( expectOutput );
 		} );
 	} );
 } );

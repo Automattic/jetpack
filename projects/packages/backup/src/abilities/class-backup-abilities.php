@@ -9,8 +9,6 @@
  * @package automattic/jetpack-backup
  */
 
-// @phan-file-suppress PhanUndeclaredFunction, PhanUndeclaredClassMethod @phan-suppress-current-line UnusedSuppression -- Abilities API added in WP 6.9; suppressions for older-WP compatibility runs.
-
 namespace Automattic\Jetpack\Backup\V0005\Abilities;
 
 use Automattic\Jetpack\Backup\V0005\Jetpack_Backup;

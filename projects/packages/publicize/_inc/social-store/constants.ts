@@ -8,10 +8,6 @@ export const MESSAGE_TEMPLATE_KEY = 'jetpack_social_message_template';
 
 export const CUSTOMIZE_PER_NETWORK_KEY = '_wpas_customize_per_network';
 
-// X usage quota limits
-export const FREE_PLAN_LIMIT = 5;
-export const PAID_PLAN_LIMIT = 100;
-
 /**
  * This is to avoid creating a new empty array each time.
  *

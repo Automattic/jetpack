@@ -12,6 +12,7 @@
 namespace Automattic\Jetpack\Connection;
 
 use Automattic\Jetpack\Modules;
+use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
 
 /**
@@ -146,6 +147,7 @@ class Jetpack_Connector {
 
 		$data['isConnected']          = $is_connected;
 		$data['isRegistered']         = $is_registered;
+		$data['isOfflineMode']        = ( new Status() )->is_offline_mode();
 		$data['isFirstConnection']    = ! $is_registered && ! (bool) \Jetpack_Options::get_option( 'id' );
 		$data['apiRoot']              = esc_url_raw( rest_url() );
 		$data['apiNonce']             = wp_create_nonce( 'wp_rest' );
@@ -413,7 +415,7 @@ class Jetpack_Connector {
 	/**
 	 * Detect which plugin families are using the connection.
 	 *
-	 * @since $$next-version$$
+	 * @since 8.5.0
 	 *
 	 * @return array{has_woo: bool, has_a4a: bool}
 	 */
@@ -477,7 +479,7 @@ class Jetpack_Connector {
 	 * All circles are arranged horizontally in a single row, unlike the card
 	 * logos which stack circles vertically for 3+ plugins.
 	 *
-	 * @since $$next-version$$
+	 * @since 8.5.0
 	 *
 	 * @return string Logo URL.
 	 */

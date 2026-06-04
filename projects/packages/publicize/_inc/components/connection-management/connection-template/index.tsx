@@ -42,14 +42,16 @@ const NOOP = () => {};
 /**
  * Per-connection message template editor.
  *
- * Renders the live editor when the site has the `social-message-templates`
- * feature AND the `social-enhanced-publishing` paid plan, AND the user can
- * manage the connection. On Jetpack sites that don't qualify, renders a
- * disabled-textarea variant with an Upgrade link instead, so free-plan users
- * still see what unlocks with an upgrade.
+ * The per-connection message area only exists once the `social-message-templates`
+ * engine is enabled (currently a rollout flag, not a purchasable plan feature),
+ * so the component renders nothing for every connection until then. With the
+ * engine on, it renders the live editor when the site also has the
+ * `social-enhanced-publishing` paid plan and the user can manage the connection,
+ * or — in the modernized chassis only — a disabled-textarea variant with an
+ * Upgrade link for plan tiers that lack per-connection customization.
  *
  * @param {ConnectionTemplateEditorProps} props - The component's props.
- * @return The rendered editor or its locked upsell variant.
+ * @return The rendered editor, its locked upsell variant, or null.
  */
 export function ConnectionTemplateEditor( props: ConnectionTemplateEditorProps ) {
 	const { connection } = props;
@@ -115,13 +117,24 @@ export function ConnectionTemplateEditor( props: ConnectionTemplateEditorProps )
 		return null;
 	}
 
-	const featureEnabled = siteHasFeature( features.MESSAGE_TEMPLATES );
+	// The message-templates engine is a rollout flag (a WPCOM blog sticker), not
+	// a purchasable plan feature, so no plan unlocks it. Hide the per-connection
+	// message area entirely until the engine is on — otherwise every site,
+	// including paid plans that already have `social-enhanced-publishing`, sees a
+	// misleading "upgrade your plan" upsell for something no plan can unlock.
+	// Once the engine ships the area appears and the plan-based upsell below
+	// becomes meaningful again.
+	if ( ! siteHasFeature( features.MESSAGE_TEMPLATES ) ) {
+		return null;
+	}
+
 	const planEnabled = siteHasFeature( features.ENHANCED_PUBLISHING );
 
-	if ( ! featureEnabled || ! planEnabled ) {
-		// The free-plan upsell ships only in the modernized chassis. The legacy
-		// admin page and block editor keep the trunk behavior (no editor when
-		// the plan/feature is missing).
+	if ( ! planEnabled ) {
+		// Engine is on but the site's plan tier lacks per-connection
+		// customization; surface the upgrade path. Ships only in the modernized
+		// chassis — the legacy admin page and block editor keep the trunk
+		// behavior (no editor when the plan is missing).
 		if ( ! isModernized || isSimpleSite() ) {
 			return null;
 		}

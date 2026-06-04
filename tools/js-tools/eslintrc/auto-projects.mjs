@@ -43,7 +43,7 @@ for ( const dir of ( await glob( 'projects/*/*/composer.json', { cwd } ) )
 	};
 	const composerJson = JSON.parse( await fs.readFile( path.join( cwd, dir, 'composer.json' ) ) );
 
-	let textdomain = null;
+	let textdomain;
 	if ( dir.startsWith( 'projects/plugins/' ) ) {
 		textdomain =
 			composerJson.extra?.[ 'wp-plugin-slug' ] ?? composerJson.extra?.[ 'beta-plugin-slug' ];

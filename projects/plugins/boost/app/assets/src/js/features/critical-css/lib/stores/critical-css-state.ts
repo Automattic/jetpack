@@ -188,17 +188,21 @@ export function useRegenerateCriticalCssAction( callback?: () => void ) {
  * provider, calculate the overall progress of the Critical CSS generation.
  *
  * @param {Provider[]} providers        - The set of CSS Providers
- * @param {number}     providerProgress - The progress through the current provider (optional).
+ * @param {number}     providerProgress - Absolute progress fraction (0-1) across all providers.
  */
 export function calculateCriticalCssProgress(
 	providers: Provider[],
 	providerProgress: number = 0
 ): number {
+	if ( providers.length === 0 ) {
+		return 0;
+	}
 	const count = providers.length;
 	const done = providers.filter( provider => provider.status !== 'pending' ).length;
-	const totalProgress = 100 * ( done / count + providerProgress / count );
-
-	return totalProgress;
+	const serverProgress = done / count;
+	// Use whichever is higher to prevent backward jumps when server and
+	// client state update in different render batches.
+	return Math.min( 100, 100 * Math.max( serverProgress, providerProgress ) );
 }
 
 export function useProxyNonce() {

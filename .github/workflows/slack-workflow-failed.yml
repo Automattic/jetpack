@@ -13,9 +13,11 @@ on:
       - Monorepo Auto-tagger
       - Post-Build
       - PR is up-to-date
+      - PR is up-to-date (trunk push)
       - Tests
       - Update Jetpack Staging Test Sites
       - Update Phan stubs
+      - WP Cloud Unit Testing for WPCOMSH
     branches: [ 'trunk', 'prerelease', '*/branch-*' ]
 
 permissions:

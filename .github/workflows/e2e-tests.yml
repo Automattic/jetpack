@@ -350,7 +350,8 @@ jobs:
       actions: read
       # actions/checkout, actions/download-artifact
       contents: read
-    if: ${{ always() && needs.e2e-tests.result != 'cancelled' && github.event.pull_request.head.repo.full_name == github.event.pull_request.base.repo.full_name }}
+    # Skip on pull_request: PR feedback is already in the GitHub Checks UI. Mirror-repo dispatches still notify.
+    if: ${{ always() && needs.e2e-tests.result != 'cancelled' && github.event_name != 'pull_request' }}
     needs: [e2e-tests]
 
     steps:
