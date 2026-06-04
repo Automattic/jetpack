@@ -63,6 +63,64 @@ var three = "three";';
 	}
 
 	/**
+	 * When the minifier reduces non-empty input to nothing (e.g. a comment-only
+	 * file), js() keeps the original rather than serving an empty bundle.
+	 */
+	public function test_js_falls_back_when_minification_is_empty() {
+		$source = '/* only a comment */';
+		$this->assertSame( $source, Minify::js( $source ) );
+	}
+
+	/**
+	 * If the underlying minifier throws (e.g. a PCRE backtrack limit), js()
+	 * returns the original input.
+	 */
+	public function test_js_returns_original_when_minifier_throws() {
+		$old_limit = ini_get( 'pcre.backtrack_limit' );
+		$old_jit   = ini_get( 'pcre.jit' );
+		ini_set( 'pcre.backtrack_limit', '1' );
+		ini_set( 'pcre.jit', '0' );
+		try {
+			$source = 'var x="' . str_repeat( 'a', 5000 ) . '";';
+			$this->assertSame( $source, Minify::js( $source ) );
+		} finally {
+			ini_set( 'pcre.backtrack_limit', $old_limit );
+			ini_set( 'pcre.jit', $old_jit );
+		}
+	}
+
+	/**
+	 * Output larger than the scan budget is assumed intact (not scanned).
+	 */
+	public function test_is_js_structurally_broken_skips_oversized_input() {
+		$big = str_repeat( 'a();', 600000 ); // ~2.4 MB, above the scan cap.
+		$this->assertFalse( Minify::is_js_structurally_broken( $big ) );
+	}
+
+	public function test_css_minifies() {
+		$min = Minify::css( '.example { color: red; }' );
+		$this->assertStringContainsString( 'color:red', $min );
+		$this->assertLessThan( strlen( '.example { color: red; }' ), strlen( $min ) );
+	}
+
+	/**
+	 * If the CSS minifier throws, css() returns the original input.
+	 */
+	public function test_css_returns_original_when_minifier_throws() {
+		$old_limit = ini_get( 'pcre.backtrack_limit' );
+		$old_jit   = ini_get( 'pcre.jit' );
+		ini_set( 'pcre.backtrack_limit', '1' );
+		ini_set( 'pcre.jit', '0' );
+		try {
+			$source = '.a{content:"' . str_repeat( 'a', 5000 ) . '"}';
+			$this->assertSame( $source, Minify::css( $source ) );
+		} finally {
+			ini_set( 'pcre.backtrack_limit', $old_limit );
+			ini_set( 'pcre.jit', $old_jit );
+		}
+	}
+
+	/**
 	 * Structurally broken / truncated output must be flagged.
 	 */
 	public function test_is_js_structurally_broken_detects_breakage() {
@@ -105,6 +163,10 @@ var three = "three";';
 			'template with call'      => 'var x=`${render({id:1})}`',
 			'nested template'         => 'var x=`${`${y}`}`',
 			'string with brace'       => 'var a="}";',
+			'single-quote escape'     => "var x='a\\'b';",
+			'double-quote escape'     => 'var y="a\\"b";',
+			'line comment newline'    => "var z=1;//c\nvar w=2",
+			'division after paren'    => 'var q=a()/b',
 			'string with comment'     => 'var d="//not a comment";',
 			'source map at eof'       => 'var a=1;//# sourceMappingURL=x.js.map',
 			'iife'                    => '(function(){})()',
