@@ -2833,7 +2833,7 @@ function updateDropIndicator( x, y ) {
 	let position = 'after';
 
 	if ( document.caretPositionFromPoint || document.caretRangeFromPoint ) {
-		let node = null;
+		let node;
 		if ( document.caretPositionFromPoint ) {
 			const pos = document.caretPositionFromPoint( x, y );
 			node = pos?.offsetNode || null;

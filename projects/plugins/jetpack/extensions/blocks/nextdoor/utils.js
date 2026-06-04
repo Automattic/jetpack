@@ -3,7 +3,7 @@ export const REGEX = /(^|\/\/|www\.)(nextdoor\.[^"']*)/i;
 const PATH_REGEX = /([^/]+$)/;
 
 const getEmbedUrlFromPostUrl = postUrl => {
-	let urlObject = '';
+	let urlObject;
 	if ( postUrl.indexOf( 'https' ) === 0 ) {
 		urlObject = new URL( postUrl );
 	} else {
