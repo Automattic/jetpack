@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Content Guidelines AI: persist the empty-state banner dismissal per-user (cross-device) instead of in browser localStorage.
