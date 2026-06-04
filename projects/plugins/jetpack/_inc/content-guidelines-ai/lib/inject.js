@@ -110,6 +110,14 @@ function runAll() {
 	inject(
 		'header',
 		() => {
+			// Wait until the guidelines have loaded before mounting the button.
+			// Gutenberg renders the list only after its async fetch resolves
+			// (a spinner shows until then); mounting earlier reads the empty
+			// default store and flickers the label "Generate" -> "Improve".
+			if ( ! document.querySelector( '.guidelines__list' ) ) {
+				return null;
+			}
+
 			const region = document.querySelector( '.admin-ui-navigable-region' );
 			const heading = region?.querySelector( 'h1' );
 			let row = heading?.parentElement;
