@@ -204,24 +204,22 @@ if ( interface_exists( 'Automattic\Jetpack\Connection\Storage_Provider_Interface
 		 * - Current user has a different token string than normalized token
 		 * - Any other user has a token sharing the same secret prefix
 		 *
+		 * This is an in-memory filter only; it does not persist anything. It is used
+		 * to keep the returned token set internally consistent on the read path.
+		 *
 		 * @since 9.0.0
 		 *
 		 * @param array  $tokens           Tokens array keyed by user ID.
 		 * @param string $normalized_token Normalized token (token_key.secret.user_id).
 		 * @param int    $user_id          Local user ID for whom the token applies.
-		 * @return array { Updated tokens and whether any conflicts were removed }
-		 * @phpstan-return array{ tokens: array, had_conflicts: bool }
+		 * @return array The tokens array with conflicting tokens removed.
 		 */
 		private function remove_conflicting_tokens( $tokens, $normalized_token, $user_id ) {
-			$had_conflicts = false;
-			$last_dot_pos  = strrpos( $normalized_token, '.' );
+			$last_dot_pos = strrpos( $normalized_token, '.' );
 
 			// Validate token format - must contain a dot to separate secret from user_id.
 			if ( false === $last_dot_pos ) {
-				return array(
-					'tokens'        => $tokens,
-					'had_conflicts' => false,
-				);
+				return $tokens;
 			}
 
 			$secret_prefix = substr( $normalized_token, 0, $last_dot_pos );
@@ -231,73 +229,16 @@ if ( interface_exists( 'Automattic\Jetpack\Connection\Storage_Provider_Interface
 			&& is_string( $tokens[ $user_id ] )
 			&& ! hash_equals( $normalized_token, $tokens[ $user_id ] ) ) {
 				unset( $tokens[ $user_id ] );
-				$had_conflicts = true;
 			}
 
 			// Remove orphaned tokens (same secret, different user).
 			foreach ( $tokens as $token_user_id => $token ) {
 				if ( is_string( $token ) && (int) $token_user_id !== $user_id && strpos( $token, $secret_prefix . '.' ) === 0 ) {
 					unset( $tokens[ $token_user_id ] );
-					$had_conflicts = true;
 				}
 			}
 
-			return array(
-				'tokens'        => $tokens,
-				'had_conflicts' => $had_conflicts,
-			);
-		}
-
-		/**
-		 * Validates user tokens and removes conflicting tokens.
-		 *
-		 * Removes any tokens that:
-		 * 1. Belong to the current user but don't match the external storage token
-		 * 2. Have the same secret as external storage but belong to a different user (orphaned tokens)
-		 *
-		 * Re-reads the latest state before persisting to minimize race condition window.
-		 *
-		 * @since 9.0.0
-		 *
-		 * @param string $normalized_token The normalized token from external storage (token_key.secret.user_id).
-		 * @param array  $existing_tokens The existing tokens from the database.
-		 * @param int    $user_id The user ID to validate tokens for.
-		 * @return array The tokens array with conflicting tokens removed.
-		 */
-		private function validate_user_tokens( $normalized_token, $existing_tokens, $user_id ) {
-			$result        = $this->remove_conflicting_tokens( $existing_tokens, $normalized_token, $user_id );
-			$has_conflicts = $result['had_conflicts'];
-
-			// Only persist changes if conflicts were found
-			if ( $has_conflicts ) {
-				// Re-read latest state right before writing to minimize race window
-				$latest_options = \Jetpack_Options::get_raw_option( 'jetpack_private_options', array() );
-				$latest_tokens  = isset( $latest_options['user_tokens'] ) && is_array( $latest_options['user_tokens'] )
-				? $latest_options['user_tokens']
-				: array();
-
-				// Re-apply cleanup to latest tokens (might find no conflicts now if state changed)
-				$latest_result = $this->remove_conflicting_tokens( $latest_tokens, $normalized_token, $user_id );
-
-				// Write the cleaned latest state
-				$latest_options['user_tokens'] = $latest_result['tokens'];
-				\Jetpack_Options::update_raw_option( 'jetpack_private_options', $latest_options, false );
-
-				// Also clear master_user from database since connection owner data has changed
-				// External storage will provide the correct value on next read
-				\Jetpack_Options::delete_option( 'master_user' );
-
-				// Clear object cache to ensure cached values are invalidated
-				wp_cache_delete( 'alloptions', 'options' );
-				wp_cache_delete( 'jetpack_options', 'options' );
-				wp_cache_delete( 'jetpack_private_options', 'options' );
-
-				// Return what we actually wrote to the database
-				return $latest_result['tokens'];
-			}
-
-			// No conflicts, return cleaned tokens
-			return $result['tokens'];
+			return $tokens;
 		}
 
 		/**
@@ -326,18 +267,26 @@ if ( interface_exists( 'Automattic\Jetpack\Connection\Storage_Provider_Interface
 			// We need to append LOCAL user_id to make it 3 parts for Jetpack validation
 			$normalized_token = $secret . '.' . $user_id;
 
-			// Get existing tokens from database (bypass external storage to avoid circular dependency)
+			// Get existing tokens from the database (bypass external storage to avoid circular dependency).
 			$private_options = \Jetpack_Options::get_raw_option( 'jetpack_private_options', array() );
 			$existing_tokens = isset( $private_options['user_tokens'] ) && is_array( $private_options['user_tokens'] )
 				? $private_options['user_tokens']
 				: array();
 
-			// Validate tokens and clean up if there's a mismatch
+			// Filter out conflicting tokens in memory so the value we return is internally
+			// consistent: drop any token for a different user that shares this owner's secret
+			// (left over from raw DB migrations where user IDs shift), which would otherwise
+			// surface as a second local user connected to the same WordPress.com account.
+			//
+			// We intentionally do NOT persist this cleanup on the read path. The owner token
+			// is always sourced from Persistent Data below, and stale rows left in the
+			// database are never served through this provider, so database hygiene is handled
+			// separately, off the read path.
 			if ( ! empty( $existing_tokens ) ) {
-				$existing_tokens = $this->validate_user_tokens( $normalized_token, $existing_tokens, $user_id );
+				$existing_tokens = $this->remove_conflicting_tokens( $existing_tokens, $normalized_token, $user_id );
 			}
 
-			// Store the token with local user ID as key and local user ID in token
+			// The owner's token always comes from Persistent Data (keyed by local user ID).
 			$existing_tokens[ $user_id ] = $normalized_token;
 
 			return $existing_tokens;

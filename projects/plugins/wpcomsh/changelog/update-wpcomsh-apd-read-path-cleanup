@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Connection: Stop persisting Atomic user-token conflict cleanup on the read path; the returned token set is filtered in memory instead.

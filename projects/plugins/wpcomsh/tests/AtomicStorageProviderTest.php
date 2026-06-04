@@ -134,7 +134,8 @@ class AtomicStorageProviderTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test get_user_tokens replaces conflicting token for current user.
+	 * Test get_user_tokens returns the Persistent Data token for the current user,
+	 * overriding a stale same-user token, without persisting anything.
 	 */
 	public function test_get_user_tokens_replaces_conflicting_token() {
 		$user_id = static::factory()->user->create( array( 'user_email' => 'owner@example.com' ) );
@@ -147,10 +148,9 @@ class AtomicStorageProviderTest extends WP_UnitTestCase {
 			)
 		);
 
-		// Set master_user option - should be cleared when conflict is resolved
 		\Jetpack_Options::update_option( 'master_user', $user_id );
 
-		// Call with new secret - should replace old token
+		// Call with new secret - returned set should carry the Persistent Data token.
 		$result = $this->provider->get_user_tokens( 'owner@example.com', 'new.secret' );
 
 		// Verify the returned array has the new token
@@ -158,12 +158,16 @@ class AtomicStorageProviderTest extends WP_UnitTestCase {
 		$this->assertCount( 1, $result );
 		$this->assertSame( 'new.secret.' . $user_id, $result[ $user_id ] );
 
-		// Verify master_user option was cleared
-		$this->assertFalse( \Jetpack_Options::get_option( 'master_user' ) );
+		// The read path must not persist anything: the database token and master_user
+		// option are left untouched.
+		$stored = \Jetpack_Options::get_raw_option( 'jetpack_private_options', array() );
+		$this->assertSame( 'old.secret.' . $user_id, $stored['user_tokens'][ $user_id ] );
+		$this->assertEquals( $user_id, \Jetpack_Options::get_option( 'master_user' ) );
 	}
 
 	/**
-	 * Test get_user_tokens removes orphaned tokens with same secret.
+	 * Test get_user_tokens filters orphaned tokens (same secret, different user) out of
+	 * the returned set without persisting the cleanup.
 	 */
 	public function test_get_user_tokens_removes_orphaned_tokens() {
 		$old_owner_id  = static::factory()->user->create( array( 'user_email' => 'old@example.com' ) );
@@ -181,19 +185,21 @@ class AtomicStorageProviderTest extends WP_UnitTestCase {
 			)
 		);
 
-		// Set master_user option - should be cleared when orphaned tokens are removed
 		\Jetpack_Options::update_option( 'master_user', $old_owner_id );
 
 		// New owner connecting with same secret prefix
 		$result = $this->provider->get_user_tokens( 'new@example.com', 'shared.secret' );
 
-		// Should have new owner and other user, but not old owner
+		// Returned set should have new owner and the unrelated user, but not the orphan.
 		$this->assertArrayHasKey( $new_owner_id, $result );
 		$this->assertArrayHasKey( $other_user_id, $result );
 		$this->assertArrayNotHasKey( $old_owner_id, $result );
 
-		// Verify master_user option was cleared
-		$this->assertFalse( \Jetpack_Options::get_option( 'master_user' ) );
+		// The read path must not persist: the orphaned token and master_user option
+		// remain in the database (database hygiene happens off the read path).
+		$stored = \Jetpack_Options::get_raw_option( 'jetpack_private_options', array() );
+		$this->assertArrayHasKey( $old_owner_id, $stored['user_tokens'] );
+		$this->assertEquals( $old_owner_id, \Jetpack_Options::get_option( 'master_user' ) );
 	}
 
 	/**
