@@ -37,7 +37,7 @@ var three = "three";';
 
 	/**
 	 * The bundled minifier silently truncates a `//` inside a nested template
-	 * literal (the real HOG-534 / HOG-535 corruption). When that happens, js()
+	 * literal (the real corruption this guards against). When that happens, js()
 	 * must fall back to the original, un-re-minified bytes rather than serve a
 	 * truncated bundle. (assertSame proves the fallback fired: a non-broken
 	 * result would be the shorter minified output, not the original.)

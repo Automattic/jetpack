@@ -15,8 +15,7 @@ namespace Automattic\Jetpack_Boost\Lib;
  * state so brackets inside those are ignored, counts bracket nesting in code, and
  * reports "broken" when, at EOF, a string/template/regex/block-comment is still
  * open or brackets are unbalanced. That is exactly the signature of the truncation
- * corruption the bundled MatthiasMullie minifier produces on modern JS (see
- * HOG-534 / HOG-535).
+ * corruption the bundled MatthiasMullie minifier produces on modern JS.
  *
  * It deliberately fails safe: a "broken" verdict only causes the caller to skip
  * re-minification for that bundle, so ambiguity is cheap to get wrong.

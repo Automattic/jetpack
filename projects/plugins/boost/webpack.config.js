@@ -11,7 +11,7 @@ const imageGuideCopyPatterns = [
 		),
 		// Emit as `.min.css` so the concatenation serving path treats it as already
 		// minified and skips re-minification (consistent with guide.min.js). The file is
-		// already minified at build time, so re-minifying it is redundant. See HOG-534.
+		// already minified at build time, so re-minifying it is redundant.
 		to: 'guide.min.css',
 	},
 ];
@@ -144,7 +144,7 @@ module.exports = [
 			// Ship as `.min.js` so Boost's own concatenation serving path treats it as
 			// already-minified and skips re-minification. The MatthiasMullie PHP minifier
 			// is ES5-era and silently corrupts the Svelte/ES6 template literals in this
-			// bundle; webpack/Terser has already minified it at build time. See HOG-534.
+			// bundle; webpack/Terser has already minified it at build time.
 			filename: 'guide.min.js',
 		},
 		optimization: {

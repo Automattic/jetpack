@@ -42,7 +42,6 @@ class Minify {
 		// As a safety net, structurally validate the output: if it looks broken,
 		// fall back to the original (still concatenated, just not re-minified)
 		// bytes. A slightly larger working bundle beats a smaller broken one.
-		// See HOG-534 / HOG-535.
 		if ( '' === (string) $minified_js && '' !== (string) $js ) {
 			return $js;
 		}
