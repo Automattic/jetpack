@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Write editor: dragging an image now moves it to the new position instead of duplicating it.

@@ -29,6 +29,18 @@ export async function resetSync(): Promise< string > {
 }
 
 /**
+ * Reset sync locks
+ * @return {string} wp-cli command output
+ */
+export async function resetSyncLocks(): Promise< string > {
+	logger.debug( 'Resetting sync locks' );
+	return executeWpCommand( [
+		'eval',
+		'\\Automattic\\Jetpack\\Sync\\Actions::reset_sync_locks();',
+	] );
+}
+
+/**
  * Get sync status
  * @return {string} wp-cli command output
  */
@@ -63,7 +75,7 @@ export async function isSyncQueueEmpty(): Promise< boolean > {
 	try {
 		const status = await getSyncStatus();
 		logger.debug( status );
-		return status.includes( 'queue_size' ) && status.includes( 'queue_size	0' );
+		return /(^|\n)queue_size\s+0(\n|$)/.test( status );
 	} catch ( e ) {
 		logger.error( `isSyncQueueEmpty: ${ e }` );
 		return false;

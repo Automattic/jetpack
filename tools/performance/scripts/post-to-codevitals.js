@@ -100,7 +100,9 @@ async function postToCodeVitals( resultsPath, config ) {
 		try {
 			data = await response.json();
 		} catch ( jsonError ) {
-			throw new Error( `CodeVitals returned invalid JSON: ${ jsonError.message }` );
+			throw new Error( `CodeVitals returned invalid JSON: ${ jsonError.message }`, {
+				cause: jsonError,
+			} );
 		}
 		console.log( '✓ Metrics posted successfully to CodeVitals' );
 		return data;
@@ -111,7 +113,7 @@ async function postToCodeVitals( resultsPath, config ) {
 				? `CodeVitals request timed out after ${ TIMEOUT_MS / 1000 }s`
 				: error.message;
 		console.error( '✗ Failed to post metrics to CodeVitals:', message );
-		throw new Error( message );
+		throw new Error( message, { cause: error } );
 	}
 }
 
