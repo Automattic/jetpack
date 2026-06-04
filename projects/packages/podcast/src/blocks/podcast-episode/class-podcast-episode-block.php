@@ -46,6 +46,7 @@ class Podcast_Episode_Block {
 	public static function register_hooks() {
 		add_action( 'init', array( __CLASS__, 'register_block' ), 9 );
 		add_action( 'enqueue_block_editor_assets', array( __CLASS__, 'load_editor_scripts' ), 9 );
+		add_filter( 'woocommerce_email_renderer_styles', array( __CLASS__, 'add_email_styles' ) );
 	}
 
 	/**
@@ -697,6 +698,7 @@ class Podcast_Episode_Block {
 			$cells .= \Automattic\WooCommerce\EmailEditor\Integrations\Utils\Table_Wrapper_Helper::render_table_cell(
 				$image_link,
 				array(
+					'class'  => 'jetpack-podcast-episode-email-card__media',
 					'width'  => '96',
 					'valign' => 'top',
 					'style'  => 'width: 96px; padding: 16px 0 16px 16px;',
@@ -748,10 +750,44 @@ class Podcast_Episode_Block {
 		// @phan-suppress-next-line PhanUndeclaredClassMethod -- Optional WooCommerce dependency, checked with class_exists() above.
 		return \Automattic\WooCommerce\EmailEditor\Integrations\Utils\Table_Wrapper_Helper::render_table_wrapper(
 			$cells,
-			array( 'style' => $table_style ),
+			array(
+				'class' => 'jetpack-podcast-episode-email-card',
+				'style' => $table_style,
+			),
 			array(),
 			array(),
 			false
 		);
+	}
+
+	/**
+	 * Append the episode card's mobile stacking rules to the email
+	 * template stylesheet. Media queries can't be CSS-inlined, so the
+	 * engine keeps them in a `<style>` tag; clients without media-query
+	 * support fall back to the side-by-side layout. Breakpoint matches
+	 * the engine's own in template-canvas.css.
+	 *
+	 * @param string $styles Email template CSS.
+	 * @return string
+	 */
+	public static function add_email_styles( $styles ) {
+		if ( ! self::is_enabled() ) {
+			return $styles;
+		}
+
+		return $styles . '
+@media screen and (max-width: 660px) {
+	.jetpack-podcast-episode-email-card,
+	.jetpack-podcast-episode-email-card tbody,
+	.jetpack-podcast-episode-email-card tr,
+	.jetpack-podcast-episode-email-card td {
+		display: block !important;
+		width: 100% !important;
+		box-sizing: border-box !important;
+	}
+	.jetpack-podcast-episode-email-card__media {
+		padding: 16px 16px 0 !important;
+	}
+}';
 	}
 }
