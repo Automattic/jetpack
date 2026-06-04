@@ -785,6 +785,8 @@ class SSO_Test extends BaseTestCase {
 			)
 		);
 		if ( empty( $probe->get_results() ) ) {
+			wp_delete_user( $user_a );
+			wp_delete_user( $user_b );
 			$this->markTestSkipped( 'WP_User_Query meta queries not supported in this environment.' );
 		}
 
@@ -838,6 +840,9 @@ class SSO_Test extends BaseTestCase {
 			)
 		);
 		if ( empty( $probe->get_results() ) ) {
+			wp_delete_user( $user_a );
+			wp_delete_user( $user_b );
+			wp_delete_user( $user_c );
 			$this->markTestSkipped( 'WP_User_Query meta queries not supported in this environment.' );
 		}
 
