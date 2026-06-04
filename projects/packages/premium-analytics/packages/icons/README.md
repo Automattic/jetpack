@@ -4,8 +4,8 @@ Illustrated WPDS icons used by Premium Analytics widgets and navigation.
 
 ## Overview
 
-13 branded multi-fill SVG illustrations (48×48 viewBox, fills driven by
-`var(--wpds-color-*)` tokens).
+13 branded multi-fill SVG illustrations (48×48 viewBox for most — see the
+exports table, fills driven by `var(--wpds-color-*)` tokens).
 
 The illustrated icons are intentionally distinct from upstream
 `@wordpress/icons`, which ships 24×24 monochrome glyphs intended for
@@ -18,33 +18,31 @@ names we'd otherwise have to track across `@wordpress/icons` bumps.
 
 ```ts
 import { Icon } from '@wordpress/icons';
-import { calendar, search } from '@automattic/jetpack-premium-analytics-icons';
+import { calendar, search } from '@jetpack-premium-analytics/icons';
 
 <Icon icon={ calendar } size={ 48 } />;
 ```
 
 ## Exports
 
-| Name            | Source              |
-| --------------- | ------------------- |
-| `calendar`      | local (illustrated) |
-| `channel`       | local (illustrated) |
-| `coupon`        | local (illustrated) |
-| `customer`      | local (illustrated) |
-| `device`        | local (illustrated) |
-| `goal`          | local (illustrated) |
-| `location`      | local (illustrated) |
-| `megaphone`     | local (illustrated) |
-| `payment`       | local (illustrated) |
-| `paymentReturn` | local (illustrated) |
-| `productBlouse` | local (illustrated) |
-| `reports`       | local (illustrated) |
-| `search`        | local (illustrated) |
+| Name            | viewBox     |
+| --------------- | ----------- |
+| `calendar`      | `0 0 36 40` |
+| `channel`       | `0 0 48 48` |
+| `coupon`        | `0 0 48 48` |
+| `customer`      | `0 0 48 48` |
+| `device`        | `0 0 48 48` |
+| `goal`          | `0 0 48 48` |
+| `location`      | `0 0 48 49` |
+| `megaphone`     | `0 0 48 48` |
+| `payment`       | `0 0 48 48` |
+| `paymentReturn` | `0 0 48 48` |
+| `productBlouse` | `0 0 48 48` |
+| `reports`       | `0 0 24 24` |
+| `search`        | `0 0 48 48` |
+
+The viewBox variance is inherited from the upstream source as-is.
 
 ## Dependencies
 
 - `@wordpress/primitives` — `SVG`, `Path`, `Circle`
-
-See the parent README's "Internal packages" section for the dual-naming
-convention behind the `@automattic/jetpack-premium-analytics-icons` package
-name vs. its temporary import specifier.
