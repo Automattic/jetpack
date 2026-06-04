@@ -52,6 +52,13 @@ class REST_Ask_Stats_Odie_Controller_Test extends Stats_TestCase {
 	protected $last_odie_url;
 
 	/**
+	 * JSON body of the last intercepted Odie request.
+	 *
+	 * @var array|null
+	 */
+	protected $last_odie_body;
+
+	/**
 	 * Setting up the test.
 	 */
 	public function setUp(): void {
@@ -66,6 +73,7 @@ class REST_Ask_Stats_Odie_Controller_Test extends Stats_TestCase {
 		$this->is_user_connected  = true;
 		$this->odie_response_code = 200;
 		$this->last_odie_url      = null;
+		$this->last_odie_body     = null;
 
 		add_filter( 'jetpack_stats_ask_stats_enabled', '__return_true' );
 		add_filter( 'pre_http_request', array( $this, 'odie_http_response_fixture' ), 9, 3 );
@@ -93,9 +101,48 @@ class REST_Ask_Stats_Odie_Controller_Test extends Stats_TestCase {
 	}
 
 	/**
-	 * Test a new Ask Stats chat request is forwarded to Odie.
+	 * Test a new Ask Stats chat request is forwarded to Odie with server-derived context.
 	 */
-	public function test_send_chat_message_succeed() {
+	public function test_send_chat_message_succeeds() {
+		wp_set_current_user( $this->admin_id );
+
+		$response = $this->dispatch_ask_stats_request(
+			array(
+				'message' => 'How is my site doing today?',
+				'context' => array(
+					'blog_id' => 1,
+					'evil'    => true,
+				),
+			)
+		);
+
+		$this->assertEquals( 200, $response->get_status() );
+		$this->assertEquals( 123, $response->get_data()['chat_id'] );
+		$this->assertStringContainsString(
+			'/wpcom/v2/odie/chat/wpcom-agent-ask_stats',
+			$this->last_odie_url
+		);
+		$this->assertStringNotContainsString(
+			'/wpcom/v2/odie/chat/wpcom-agent-ask_stats/',
+			$this->last_odie_url
+		);
+		$this->assertEquals(
+			array(
+				'message' => 'How is my site doing today?',
+				'context' => array(
+					'blog_id' => 999,
+				),
+			),
+			$this->last_odie_body
+		);
+	}
+
+	/**
+	 * Test Ask Stats is forbidden when the feature flag is off.
+	 */
+	public function test_send_chat_message_feature_disabled_forbidden() {
+		remove_filter( 'jetpack_stats_ask_stats_enabled', '__return_true' );
+
 		wp_set_current_user( $this->admin_id );
 
 		$response = $this->dispatch_ask_stats_request(
@@ -104,8 +151,8 @@ class REST_Ask_Stats_Odie_Controller_Test extends Stats_TestCase {
 			)
 		);
 
-		$this->assertEquals( 200, $response->get_status() );
-		$this->assertEquals( 123, $response->get_data()['chat_id'] );
+		$this->assertEquals( 403, $response->get_status() );
+		$this->assertNull( $this->last_odie_url );
 	}
 
 	/**
@@ -233,6 +280,10 @@ class REST_Ask_Stats_Odie_Controller_Test extends Stats_TestCase {
 		}
 
 		$this->last_odie_url = $url;
+
+		if ( isset( $parsed_args['body'] ) ) {
+			$this->last_odie_body = json_decode( $parsed_args['body'], true );
+		}
 
 		$body = array(
 			'chat_id' => 123,
