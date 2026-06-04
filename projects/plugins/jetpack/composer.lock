@@ -363,7 +363,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/agents-manager",
-                "reference": "7a3344385cb6a784403c71886548868a41038c02"
+                "reference": "b48bfd989bbc7146c513d6eaa19c2b5133d4842f"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
@@ -417,8 +417,14 @@
                 "test-js": [
                     "pnpm run test"
                 ],
+                "test-js-coverage": [
+                    "pnpm run test-coverage"
+                ],
                 "test-php": [
                     "@composer phpunit"
+                ],
+                "test-php-coverage": [
+                    "php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\""
                 ]
             },
             "license": [
