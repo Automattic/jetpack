@@ -216,32 +216,6 @@ class AtomicStorageProviderTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test that should_handle returns false for user_tokens during re-entrant DB read.
-	 */
-	public function test_should_handle_reentrant_guard() {
-		$reflection = new \ReflectionProperty( Atomic_Storage_Provider::class, 'is_reading_tokens_from_db' );
-		if ( PHP_VERSION_ID < 80100 ) {
-			$reflection->setAccessible( true );
-		}
-
-		// Normal state: should_handle returns true for user_tokens
-		$this->assertTrue( $this->provider->should_handle( 'user_tokens' ) );
-
-		// Set re-entrancy flag
-		$reflection->setValue( $this->provider, true );
-
-		// user_tokens should now be refused, but other options should still work
-		$this->assertFalse( $this->provider->should_handle( 'user_tokens' ) );
-		$this->assertTrue( $this->provider->should_handle( 'blog_token' ) );
-		$this->assertTrue( $this->provider->should_handle( 'id' ) );
-		$this->assertTrue( $this->provider->should_handle( 'master_user' ) );
-
-		// Reset flag
-		$reflection->setValue( $this->provider, false );
-		$this->assertTrue( $this->provider->should_handle( 'user_tokens' ) );
-	}
-
-	/**
 	 * Test that the Atomic_Persistent_Data instance is cached across calls.
 	 */
 	public function test_persistent_data_cached() {
@@ -330,42 +304,6 @@ class AtomicStorageProviderTest extends WP_UnitTestCase {
 
 		// Same email must now resolve instead of returning the cached failure.
 		$this->assertSame( $user_id, $this->provider->get_master_user_id( 'late@example.com' ) );
-	}
-
-	/**
-	 * Test that re-entrancy flag is reset even if the guarded DB read throws.
-	 */
-	public function test_reentrant_flag_reset_on_exception() {
-		$reflection = new \ReflectionProperty( Atomic_Storage_Provider::class, 'is_reading_tokens_from_db' );
-		if ( PHP_VERSION_ID < 80100 ) {
-			$reflection->setAccessible( true );
-		}
-
-		static::factory()->user->create( array( 'user_email' => 'guard@example.com' ) );
-
-		// Force the guarded DB read (Jetpack_Options::get_option('user_tokens'))
-		// to throw, simulating a failure mid-read.
-		$thrower =
-			/** @return never */
-			static function () {
-				throw new \RuntimeException( 'boom' );
-			};
-		add_filter( 'pre_option_jetpack_private_options', $thrower );
-
-		$caught = false;
-		try {
-			$this->provider->get_user_tokens( 'guard@example.com', 'token.secret' );
-		} catch ( \RuntimeException $e ) {
-			$caught = true;
-		} finally {
-			remove_filter( 'pre_option_jetpack_private_options', $thrower );
-		}
-
-		$this->assertTrue( $caught, 'Expected the forced exception to propagate.' );
-		$this->assertFalse(
-			$reflection->getValue( $this->provider ),
-			'Re-entrancy flag must be reset even when the read throws.'
-		);
 	}
 
 	/**

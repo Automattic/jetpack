@@ -40,13 +40,6 @@ if ( interface_exists( 'Automattic\Jetpack\Connection\Storage_Provider_Interface
 		private $resolved_email = null;
 
 		/**
-		 * Re-entrancy guard: true while reading tokens from the DB via the cached path.
-		 *
-		 * @var bool
-		 */
-		private $is_reading_tokens_from_db = false;
-
-		/**
 		 * Check if Atomic Persistent Data is available in current environment.
 		 *
 		 * @return bool True if available, false otherwise.
@@ -62,10 +55,6 @@ if ( interface_exists( 'Automattic\Jetpack\Connection\Storage_Provider_Interface
 		 * @return bool True if this provider should handle the option.
 		 */
 		public function should_handle( $option_name ) {
-			if ( 'user_tokens' === $option_name && $this->is_reading_tokens_from_db ) {
-				return false;
-			}
-
 			return in_array( $option_name, array( 'blog_token', 'id', 'master_user', 'user_tokens' ), true );
 		}
 
@@ -290,17 +279,20 @@ if ( interface_exists( 'Automattic\Jetpack\Connection\Storage_Provider_Interface
 				// Re-apply cleanup to latest tokens (might find no conflicts now if state changed)
 				$latest_result = $this->remove_conflicting_tokens( $latest_tokens, $normalized_token, $user_id );
 
-				if ( $latest_result['had_conflicts'] ) {
-					$latest_options['user_tokens'] = $latest_result['tokens'];
-					\Jetpack_Options::update_raw_option( 'jetpack_private_options', $latest_options, false );
+				// Write the cleaned latest state
+				$latest_options['user_tokens'] = $latest_result['tokens'];
+				\Jetpack_Options::update_raw_option( 'jetpack_private_options', $latest_options, false );
 
-					\Jetpack_Options::delete_option( 'master_user' );
+				// Also clear master_user from database since connection owner data has changed
+				// External storage will provide the correct value on next read
+				\Jetpack_Options::delete_option( 'master_user' );
 
-					wp_cache_delete( 'alloptions', 'options' );
-					wp_cache_delete( 'jetpack_options', 'options' );
-					wp_cache_delete( 'jetpack_private_options', 'options' );
-				}
+				// Clear object cache to ensure cached values are invalidated
+				wp_cache_delete( 'alloptions', 'options' );
+				wp_cache_delete( 'jetpack_options', 'options' );
+				wp_cache_delete( 'jetpack_private_options', 'options' );
 
+				// Return what we actually wrote to the database
 				return $latest_result['tokens'];
 			}
 
@@ -334,20 +326,11 @@ if ( interface_exists( 'Automattic\Jetpack\Connection\Storage_Provider_Interface
 			// We need to append LOCAL user_id to make it 3 parts for Jetpack validation
 			$normalized_token = $secret . '.' . $user_id;
 
-			// Read existing tokens via the autoloaded-options cache instead of a raw
-			// DB query.  The re-entrancy guard makes should_handle('user_tokens')
-			// return false so Jetpack_Options::get_option() falls through to the
-			// normal WP get_option() path which is already in memory.
-			$this->is_reading_tokens_from_db = true;
-			try {
-				$existing_tokens = \Jetpack_Options::get_option( 'user_tokens', array() );
-			} finally {
-				$this->is_reading_tokens_from_db = false;
-			}
-
-			if ( ! is_array( $existing_tokens ) ) {
-				$existing_tokens = array();
-			}
+			// Get existing tokens from database (bypass external storage to avoid circular dependency)
+			$private_options = \Jetpack_Options::get_raw_option( 'jetpack_private_options', array() );
+			$existing_tokens = isset( $private_options['user_tokens'] ) && is_array( $private_options['user_tokens'] )
+				? $private_options['user_tokens']
+				: array();
 
 			// Validate tokens and clean up if there's a mismatch
 			if ( ! empty( $existing_tokens ) ) {
