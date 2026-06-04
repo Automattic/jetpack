@@ -27,6 +27,8 @@ class Admin_UI {
 
 	const ADMIN_PAGE_SLUG = 'jetpack-videopress';
 
+	const ADMIN_MENU_POSITION = 3;
+
 	/**
 	 * Filter name that gates the wp-build–based dashboard.
 	 *
@@ -76,7 +78,7 @@ class Admin_UI {
 			'manage_options',
 			self::ADMIN_PAGE_SLUG,
 			$callback,
-			3
+			self::ADMIN_MENU_POSITION
 		);
 		add_action( 'load-' . $page_suffix, array( __CLASS__, 'admin_init' ) );
 	}

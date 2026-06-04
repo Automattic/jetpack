@@ -26,6 +26,7 @@ use Automattic\Jetpack\Status\Host as Status_Host;
 use Automattic\Jetpack\Sync\Functions as Sync_Functions;
 use Automattic\Jetpack\Terms_Of_Service;
 use Automattic\Jetpack\Tracking;
+use Automattic\Jetpack\VideoPress\Admin_UI as VideoPress_Admin_UI;
 use Jetpack;
 use WP_Error;
 
@@ -303,6 +304,7 @@ class Initializer {
 				'fileSystemWriteAccess'  => self::has_file_system_write_access(),
 				'loadAddLicenseScreen'   => self::is_licensing_ui_enabled(),
 				'adminUrl'               => esc_url( admin_url() ),
+				'jetpackAdminMenu'       => self::get_jetpack_admin_menu(),
 				'IDCContainerID'         => static::get_idc_container_id(),
 				'userIsAdmin'            => current_user_can( 'manage_options' ),
 				'lifecycleStats'         => array(
@@ -344,6 +346,40 @@ class Initializer {
 		if ( self::can_use_analytics() ) {
 			Tracking::register_tracks_functions_scripts( true );
 		}
+	}
+
+	/**
+	 * Gets Jetpack wp-admin submenu data needed for client-side menu updates.
+	 *
+	 * @return array
+	 */
+	private static function get_jetpack_admin_menu() {
+		$items = array();
+
+		foreach ( Admin_Menu::get_registered_menu_items() as $menu_item ) {
+			if ( ! current_user_can( $menu_item['capability'] ) ) {
+				continue;
+			}
+
+			$items[] = array(
+				'menuSlug'  => $menu_item['menu_slug'],
+				'menuTitle' => $menu_item['menu_title'],
+				'position'  => empty( $menu_item['position'] ) ? 0 : (int) $menu_item['position'],
+			);
+		}
+
+		$has_videopress_admin_ui = class_exists( VideoPress_Admin_UI::class );
+
+		return array(
+			'items'              => $items,
+			'videoPressMenuItem' => array(
+				'menuSlug'  => $has_videopress_admin_ui
+					? VideoPress_Admin_UI::ADMIN_PAGE_SLUG
+					: 'jetpack-videopress',
+				'menuTitle' => 'VideoPress',
+				'position'  => $has_videopress_admin_ui ? VideoPress_Admin_UI::ADMIN_MENU_POSITION : 3,
+			),
+		);
 	}
 
 	/**

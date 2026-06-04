@@ -1,6 +1,7 @@
 import { useGlobalNotices } from '@automattic/jetpack-components';
 import { __, sprintf } from '@wordpress/i18n';
 import useAnalytics from '../../hooks/use-analytics';
+import { syncVideoPressWpAdminMenuForProductResponse } from '../../utils/sync-wp-admin-menu';
 import { QUERY_ACTIVATE_PRODUCT_KEY, REST_API_SITE_PRODUCTS_ENDPOINT } from '../constants';
 import useSimpleMutation from '../use-simple-mutation';
 import { getMyJetpackWindowInitialState } from '../utils/get-my-jetpack-window-state';
@@ -49,7 +50,9 @@ export const useDeactivatePlugins = ( productSlugs: string | string[] ) => {
 			data: { products: productIds },
 		},
 		options: {
-			onSuccess: () => {
+			onSuccess: deactivatedProducts => {
+				syncVideoPressWpAdminMenuForProductResponse( deactivatedProducts, false );
+
 				products?.forEach( product => {
 					if ( isPluginActive( product ) ) {
 						recordEvent( 'jetpack_myjetpack_product_deactivated', {

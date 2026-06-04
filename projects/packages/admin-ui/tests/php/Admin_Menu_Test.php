@@ -209,6 +209,24 @@ class Admin_Menu_Test extends TestCase {
 	}
 
 	/**
+	 * Registered menu items are returned in the same order used by admin_menu_hook_callback().
+	 *
+	 * @return void
+	 */
+	public function test_get_registered_menu_items_returns_sorted_items() {
+		Admin_Menu::add_menu( 'Test', 'Zulu', 'edit_posts', 'menu_3', '__return_null', 3 );
+		Admin_Menu::add_menu( 'Test', 'Alpha', 'edit_posts', 'menu_2', '__return_null', 3 );
+		Admin_Menu::add_menu( 'Test', 'Test', 'edit_posts', 'menu_1', '__return_null', 1 );
+
+		$menu_items = Admin_Menu::get_registered_menu_items();
+
+		$this->assertSame(
+			array( 'menu_1', 'menu_2', 'menu_3' ),
+			array_column( $menu_items, 'menu_slug' )
+		);
+	}
+
+	/**
 	 * Calling hide_core_admin_notices queues the inline style printer.
 	 *
 	 * @return void

@@ -128,20 +128,7 @@ class Admin_Menu {
 		 * Let's order the items before registering them.
 		 * Since this all happens after the Jetpack plugin menu items were added, all items will be added after Jetpack plugin items - unless position is very low number (smaller than the number of menu items present in Jetpack plugin).
 		 */
-		usort(
-			self::$menu_items,
-			function ( $a, $b ) {
-				$position_a = empty( $a['position'] ) ? 0 : $a['position'];
-				$position_b = empty( $b['position'] ) ? 0 : $b['position'];
-				$result     = $position_a <=> $position_b;
-
-				if ( 0 === $result ) {
-					$result = strcmp( $a['menu_title'], $b['menu_title'] );
-				}
-
-				return $result;
-			}
-		);
+		self::$menu_items = self::sort_menu_items( self::$menu_items );
 
 		foreach ( self::$menu_items as $menu_item ) {
 			if ( ! current_user_can( $menu_item['capability'] ) ) {
@@ -209,6 +196,48 @@ class Admin_Menu {
 		add_action( 'load-' . $hook . '-network', array( __CLASS__, 'hide_core_admin_notices' ) );
 
 		return $hook;
+	}
+
+	/**
+	 * Gets the Jetpack submenu items queued through this wrapper in registration order.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return array[] List of queued menu item arrays.
+	 */
+	public static function get_registered_menu_items() {
+		return self::sort_menu_items( self::$menu_items );
+	}
+
+	/**
+	 * Sorts Jetpack submenu items the same way they are sorted before registration.
+	 *
+	 * @param array[] $menu_items The menu items to sort.
+	 * @return array[] Sorted menu items.
+	 */
+	private static function sort_menu_items( $menu_items ) {
+		usort( $menu_items, array( __CLASS__, 'compare_menu_items' ) );
+
+		return $menu_items;
+	}
+
+	/**
+	 * Compares two submenu items by position and title.
+	 *
+	 * @param array $a The first menu item.
+	 * @param array $b The second menu item.
+	 * @return int Comparison result.
+	 */
+	private static function compare_menu_items( $a, $b ) {
+		$position_a = empty( $a['position'] ) ? 0 : $a['position'];
+		$position_b = empty( $b['position'] ) ? 0 : $b['position'];
+		$result     = $position_a <=> $position_b;
+
+		if ( 0 === $result ) {
+			$result = strcmp( $a['menu_title'], $b['menu_title'] );
+		}
+
+		return $result;
 	}
 
 	/**
