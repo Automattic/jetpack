@@ -366,13 +366,23 @@ class Js_Structure_Scanner {
 	/**
 	 * Scan one step while inside a '...' or "..." string.
 	 *
-	 * @return bool
+	 * @return bool True to short-circuit as broken (unterminated string).
 	 */
 	private function scan_string() {
 		$c = $this->js[ $this->pos ];
 		if ( '\\' === $c ) {
+			// Escape sequence, including a line continuation (`\` then newline), so
+			// the raw-newline check below only sees genuinely unescaped newlines.
 			$this->pos += 2;
 			return false;
+		}
+		// A raw LF/CR inside a string literal is a syntax error (a real newline must
+		// be escaped or a line continuation), so it never appears in valid minified
+		// output -- only in truncated/corrupted output where the closing quote was
+		// lost and a later quote happened to re-open the state. Checking ASCII LF/CR
+		// is zero-false-positive and keeps the byte-oriented lexer simple.
+		if ( "\n" === $c || "\r" === $c ) {
+			return true; // Unterminated string literal.
 		}
 		if ( $c === $this->string_quote ) {
 			$this->return_to_code( $c );
@@ -426,9 +436,10 @@ class Js_Structure_Scanner {
 			$this->pos += 2;
 			return false;
 		}
-		// A raw newline is invalid anywhere in a regex literal, including inside
-		// a [...] character class, so this check sits above the re_class branch.
-		if ( "\n" === $c ) {
+		// A raw line terminator (LF or CR) is invalid anywhere in a regex literal,
+		// including inside a [...] character class, so this check sits above the
+		// re_class branch.
+		if ( "\n" === $c || "\r" === $c ) {
 			return true; // Unterminated regex literal.
 		}
 		if ( $this->re_class ) {
