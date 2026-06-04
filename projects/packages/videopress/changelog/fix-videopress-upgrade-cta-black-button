@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Fix the upgrade notice CTA rendering as an out-of-place dark button; restore the standard primary button styling.
+Fix the upgrade notice CTA rendering as an out-of-place dark button; restore the lightweight text-link styling.

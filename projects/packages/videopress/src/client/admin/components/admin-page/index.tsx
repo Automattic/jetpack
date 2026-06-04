@@ -271,14 +271,24 @@ const UpgradeTrigger = ( { hasUsedVideo = false }: { hasUsedVideo: boolean } ) =
 		<Notice.Root intent="info" className={ styles[ 'upgrade-trigger' ] }>
 			<Notice.Description>{ description }</Notice.Description>
 			<Notice.Actions>
-				{ /* Render a standard primary Button rather than `Notice.ActionButton`:
-				   base-ui styles the latter as a dark/high-contrast button, which looks
-				   out of place here (see PR #48909). This restores the primary CTA the
-				   legacy `ContextualUpgradeTrigger` rendered. The click handler still
-				   records the Tracks event and runs the checkout workflow. */ }
-				<Button variant="primary" onClick={ onButtonClickHandler }>
+				{ /* Render the CTA as `Notice.ActionLink` rather than a filled Button:
+				   base-ui's `Notice.ActionButton` styles as a dark/high-contrast button
+				   and a filled primary Button carries too much weight for an upgrade
+				   nudge (see PR #48909). The lightweight text link matches the legacy
+				   `ContextualUpgradeTrigger` look and the modern dashboard's
+				   `free-tier-notice.tsx`. `ActionLink` is an anchor, so the placeholder
+				   `href="#"` is cancelled in the click handler; the wrapped
+				   `onButtonClickHandler` still records the Tracks event and then runs the
+				   checkout workflow. */ }
+				<Notice.ActionLink
+					href="#"
+					onClick={ event => {
+						event.preventDefault();
+						onButtonClickHandler();
+					} }
+				>
 					{ cta }
-				</Button>
+				</Notice.ActionLink>
 			</Notice.Actions>
 		</Notice.Root>
 	);
