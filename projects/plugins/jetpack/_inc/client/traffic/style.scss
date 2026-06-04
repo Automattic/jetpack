@@ -178,23 +178,6 @@ $twitter-pofile-image-padding: 17px;
 		}
 	}
 
-	&-actions {
-		display: flex;
-		flex-wrap: wrap;
-		gap: 0.5rem;
-		margin-top: 0.75rem;
-	}
-
-	&-recommendation {
-		color: colors.$gray-text-min;
-		display: block;
-		font-size: typography.$font-body-small;
-		font-style: italic;
-		font-weight: 400;
-		margin: rem.convert(5px) rem.convert(14px) rem.convert(5px) 0;
-		overflow-wrap: break-word;
-	}
-
 	&-save-button {
 		display: flex;
 		justify-content: end;

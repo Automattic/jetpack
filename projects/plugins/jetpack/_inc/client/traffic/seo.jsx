@@ -6,6 +6,7 @@ import {
 } from '@automattic/social-previews';
 import { ToggleControl } from '@wordpress/components';
 import { __, _x, _n, sprintf } from '@wordpress/i18n';
+import { Stack, Text } from '@wordpress/ui';
 import clsx from 'clsx';
 import { Component } from 'react';
 import { connect } from 'react-redux';
@@ -479,7 +480,7 @@ export const SEO = withModuleSettingsFormHelpers(
 												/>
 											</div>
 										) }
-										<div className="jp-seo-default-social-image-actions">
+										<Stack direction="row" gap="sm" wrap="wrap">
 											<Button
 												id="jp-seo-default-social-image-button"
 												rna
@@ -497,10 +498,13 @@ export const SEO = withModuleSettingsFormHelpers(
 													{ __( 'Remove image', 'jetpack' ) }
 												</Button>
 											) }
-										</div>
-										<p className="jp-form-setting-explanation jp-seo-default-social-image-recommendation">
+										</Stack>
+										<Text
+											variant="body-sm"
+											render={ <p className="jp-form-setting-explanation" /> }
+										>
 											{ __( 'Recommended size is 1200x630px and < 600 KB.', 'jetpack' ) }
-										</p>
+										</Text>
 										<div className="jp-seo-default-social-image-save-button">
 											{ this.saveButton( this.props ) }
 										</div>
