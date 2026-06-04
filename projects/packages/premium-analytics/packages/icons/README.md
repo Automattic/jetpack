@@ -4,8 +4,8 @@ Illustrated WPDS icons used by Premium Analytics widgets and navigation.
 
 ## Overview
 
-13 branded multi-fill SVG illustrations (48×48 viewBox for most — see the
-exports table, fills driven by `var(--wpds-color-*)` tokens).
+13 branded multi-fill SVG illustrations (fills driven by
+`var(--wpds-color-*)` tokens).
 
 The illustrated icons are intentionally distinct from upstream
 `@wordpress/icons`, which ships 24×24 monochrome glyphs intended for
@@ -25,23 +25,9 @@ import { calendar, search } from '@jetpack-premium-analytics/icons';
 
 ## Exports
 
-| Name            | viewBox     |
-| --------------- | ----------- |
-| `calendar`      | `0 0 36 40` |
-| `channel`       | `0 0 48 48` |
-| `coupon`        | `0 0 48 48` |
-| `customer`      | `0 0 48 48` |
-| `device`        | `0 0 48 48` |
-| `goal`          | `0 0 48 48` |
-| `location`      | `0 0 48 49` |
-| `megaphone`     | `0 0 48 48` |
-| `payment`       | `0 0 48 48` |
-| `paymentReturn` | `0 0 48 48` |
-| `productBlouse` | `0 0 48 48` |
-| `reports`       | `0 0 24 24` |
-| `search`        | `0 0 48 48` |
-
-The viewBox variance is inherited from the upstream source as-is.
+`calendar`, `channel`, `coupon`, `customer`, `device`, `goal`, `location`,
+`megaphone`, `payment`, `paymentReturn`, `productBlouse`, `reports`,
+`search`
 
 ## Dependencies
 
