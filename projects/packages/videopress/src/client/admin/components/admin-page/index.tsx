@@ -271,7 +271,14 @@ const UpgradeTrigger = ( { hasUsedVideo = false }: { hasUsedVideo: boolean } ) =
 		<Notice.Root intent="info" className={ styles[ 'upgrade-trigger' ] }>
 			<Notice.Description>{ description }</Notice.Description>
 			<Notice.Actions>
-				<Notice.ActionButton onClick={ onButtonClickHandler }>{ cta }</Notice.ActionButton>
+				{ /* Render a standard primary Button rather than `Notice.ActionButton`:
+				   base-ui styles the latter as a dark/high-contrast button, which looks
+				   out of place here (see PR #48909). This restores the primary CTA the
+				   legacy `ContextualUpgradeTrigger` rendered. The click handler still
+				   records the Tracks event and runs the checkout workflow. */ }
+				<Button variant="primary" onClick={ onButtonClickHandler }>
+					{ cta }
+				</Button>
 			</Notice.Actions>
 		</Notice.Root>
 	);
