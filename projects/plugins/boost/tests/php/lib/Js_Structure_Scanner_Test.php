@@ -16,16 +16,18 @@ class Js_Structure_Scanner_Test extends Base_TestCase {
 	 */
 	public function test_detects_breakage() {
 		$broken = array(
-			'unbalanced brace'       => 'function f(){if(a){',
-			'unterminated template'  => 'var a=`abc',
-			'unterminated string'    => 'var a="abc',
-			'unterminated regex'     => "var a=/abc\nx",
-			'extra closing bracket'  => 'a)}',
-			'bool member !0.x'       => 'var z=!0.toString()',
-			'bool member !1.x'       => 'x=!1.valueOf()',
-			'bool member e (no exp)' => 'var z=!0.entries()',
-			'unterminated block cmt' => 'var a=1;/* still open',
-			'truncated mid call'     => 'foo(bar,baz',
+			'unbalanced brace'        => 'function f(){if(a){',
+			'unterminated template'   => 'var a=`abc',
+			'unterminated string'     => 'var a="abc',
+			'unterminated regex'      => "var a=/abc\nx",
+			'unterminated regex eof'  => 'var a=/abc',
+			'regex class raw newline' => "var a=/[ab\nc]/",
+			'extra closing bracket'   => 'a)}',
+			'bool member !0.x'        => 'var z=!0.toString()',
+			'bool member !1.x'        => 'x=!1.valueOf()',
+			'bool member e (no exp)'  => 'var z=!0.entries()',
+			'unterminated block cmt'  => 'var a=1;/* still open',
+			'truncated mid call'      => 'foo(bar,baz',
 		);
 
 		foreach ( $broken as $label => $js ) {

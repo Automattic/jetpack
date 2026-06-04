@@ -90,12 +90,24 @@ class Js_Structure_Scanner {
 	/**
 	 * Stack of currently open brackets ('{', '(', '[').
 	 *
+	 * Coordinates with $frames: an `interp` frame snapshots count($stack) at
+	 * push time, and closes_interpolation() uses that snapshot to tell a '}'
+	 * that ends `${ ... }` apart from one that closes an ordinary block.
+	 *
 	 * @var string[]
 	 */
 	private $stack = array();
 
 	/**
 	 * Template / interpolation frames.
+	 *
+	 * Each frame is one of:
+	 *   - array( 'type' => 'template' ): inside the body of a `...` literal.
+	 *   - array( 'type' => 'interp', 'depth' => int ): inside `${ ... }`; the
+	 *     'depth' field captures count($stack) at the moment the frame was
+	 *     pushed, so closes_interpolation() can pair this '}' with the matching
+	 *     '${' rather than a sibling code block. See scan_template() and
+	 *     closes_interpolation().
 	 *
 	 * @var array[]
 	 */
@@ -193,9 +205,11 @@ class Js_Structure_Scanner {
 				case self::ST_LINE_COMMENT:
 					$broken = $this->scan_line_comment();
 					break;
-				default: // Block comment.
+				case self::ST_BLOCK_COMMENT:
 					$broken = $this->scan_block_comment();
 					break;
+				default:
+					return true; // Unknown state: fail safe.
 			}
 			if ( $broken ) {
 				return true;
@@ -378,6 +392,11 @@ class Js_Structure_Scanner {
 			$this->pos += 2;
 			return false;
 		}
+		// A raw newline is invalid anywhere in a regex literal, including inside
+		// a [...] character class, so this check sits above the re_class branch.
+		if ( "\n" === $c ) {
+			return true; // Unterminated regex literal.
+		}
 		if ( $this->re_class ) {
 			if ( ']' === $c ) {
 				$this->re_class = false;
@@ -397,9 +416,6 @@ class Js_Structure_Scanner {
 				++$this->pos; // Skip regex flags.
 			}
 			return false;
-		}
-		if ( "\n" === $c ) {
-			return true; // Unterminated regex literal.
 		}
 		++$this->pos;
 		return false;
