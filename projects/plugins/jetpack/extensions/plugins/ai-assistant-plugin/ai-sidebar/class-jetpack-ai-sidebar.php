@@ -19,16 +19,15 @@ use function Automattic\Jetpack\Extensions\Shared\determine_iso_639_locale;
 
 require_once __DIR__ . '/../../../shared/cdn-locale.php';
 
-const AM_ASSET_BASE_PATH          = 'widgets.wp.com/agents-manager/';
-const AM_ASSET_TRANSIENT          = 'jetpack_am_gutenberg_asset';
-const AM_ASSET_DC_TRANSIENT       = 'jetpack_am_gutenberg_dc_asset';
-const AI_SIDEBAR_ASSET_TRANSIENT  = 'jetpack_ai_sidebar_asset';
-const AI_SIDEBAR_JS_URL           = 'https://' . AM_ASSET_BASE_PATH . 'jetpack-ai-sidebar.min.js';
-const AI_SIDEBAR_CSS_URL          = 'https://' . AM_ASSET_BASE_PATH . 'jetpack-ai-sidebar.css';
-const AI_SIDEBAR_RTL_CSS_URL      = 'https://' . AM_ASSET_BASE_PATH . 'jetpack-ai-sidebar.rtl.css';
-const AI_SIDEBAR_PROVIDER_URL     = 'https://' . AM_ASSET_BASE_PATH . 'jetpack-ai-sidebar.provider.mjs';
-const AI_SIDEBAR_AGENT_ID         = 'wp-orchestrator';
-const BIG_SKY_AGENT_PROVIDER_PATH = '/big-sky-plugin/build/calypso-agent-provider/';
+const AM_ASSET_BASE_PATH         = 'widgets.wp.com/agents-manager/';
+const AM_ASSET_TRANSIENT         = 'jetpack_am_gutenberg_asset';
+const AM_ASSET_DC_TRANSIENT      = 'jetpack_am_gutenberg_dc_asset';
+const AI_SIDEBAR_ASSET_TRANSIENT = 'jetpack_ai_sidebar_asset';
+const AI_SIDEBAR_JS_URL          = 'https://' . AM_ASSET_BASE_PATH . 'jetpack-ai-sidebar.min.js';
+const AI_SIDEBAR_CSS_URL         = 'https://' . AM_ASSET_BASE_PATH . 'jetpack-ai-sidebar.css';
+const AI_SIDEBAR_RTL_CSS_URL     = 'https://' . AM_ASSET_BASE_PATH . 'jetpack-ai-sidebar.rtl.css';
+const AI_SIDEBAR_PROVIDER_URL    = 'https://' . AM_ASSET_BASE_PATH . 'jetpack-ai-sidebar.provider.mjs';
+const AI_SIDEBAR_AGENT_ID        = 'wp-orchestrator';
 
 /**
  * Handles loading the Agents Manager from CDN and registering the
@@ -61,8 +60,8 @@ class Jetpack_AI_Sidebar {
 
 		add_filter( 'jetpack_ai_sidebar_agents_manager_data', array( __CLASS__, 'add_agents_manager_data' ), 10, 1 );
 
-		// Allow jetpack-mu-wpcom's bundled Agents Manager to mount in the
-		// post editor on WordPress.com and Atomic sites.
+		// Allow jetpack-mu-wpcom's bundled Agents Manager to mount in supported
+		// block editor surfaces on WordPress.com and Atomic sites.
 		add_filter( 'agents_manager_enabled_in_block_editor', array( __CLASS__, 'enable_agents_manager_in_post_editor' ) );
 
 		// Load AM from CDN if not already present.
@@ -70,7 +69,7 @@ class Jetpack_AI_Sidebar {
 		// so wp_script_is('agents-manager') correctly detects if AM is already loaded.
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'maybe_enqueue_am' ), 200 );
 
-		// Enqueue the IIFE bundle in the preview post editor — it registers
+		// Enqueue the IIFE bundle in supported preview editors — it registers
 		// Jetpack AI abilities via @wordpress/abilities, which Big Sky or AM
 		// can discover regardless of which provider system is active.
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'maybe_enqueue_abilities_script' ), 201 );
@@ -87,12 +86,12 @@ class Jetpack_AI_Sidebar {
 	// ──────────────────────────────────────────────────
 
 	/**
-	 * Load AM from CDN if not already present and we're in the preview post editor.
+	 * Load AM from CDN if not already present and we're in a supported preview editor.
 	 *
 	 * @return void
 	 */
 	public static function maybe_enqueue_am(): void {
-		if ( ! self::is_jetpack_ai_sidebar_preview_enabled() || ! self::is_post_editor() || ! self::has_ai_features() ) {
+		if ( ! self::is_jetpack_ai_sidebar_preview_enabled() || ! self::is_supported_block_editor() || ! self::has_ai_features() ) {
 			return;
 		}
 
@@ -128,7 +127,7 @@ class Jetpack_AI_Sidebar {
 	 * @return void
 	 */
 	public static function maybe_enqueue_abilities_script(): void {
-		if ( ! self::is_jetpack_ai_sidebar_preview_enabled() || ! self::is_post_editor() || ! self::has_ai_features() ) {
+		if ( ! self::is_jetpack_ai_sidebar_preview_enabled() || ! self::is_supported_block_editor() || ! self::has_ai_features() ) {
 			return;
 		}
 
@@ -272,9 +271,9 @@ class Jetpack_AI_Sidebar {
 		$filtered = apply_filters( 'jetpack_ai_sidebar_agents_manager_data', $am_data );
 		$am_data  = is_array( $filtered ) ? $filtered : $am_data;
 
-		// Direct CDN-loader fallback. Jetpack owns these defaults; hosts can
-		// override via the AI Editorial Review and preview filters.
-		$am_data['agentId']                  = AI_SIDEBAR_AGENT_ID;
+		// Direct CDN-loader fallback. Preserve a host-provided agentId so AM
+		// can compose Jetpack AI with host-owned agents such as Dolly.
+		$am_data                             = self::add_default_agent_id( $am_data );
 		$am_data['aiEditorialReviewEnabled'] = self::is_ai_editorial_review_enabled();
 		$am_data['jetpackAiSidebarPreview']  = self::get_jetpack_ai_sidebar_preview_config();
 		return $am_data;
@@ -407,10 +406,10 @@ class Jetpack_AI_Sidebar {
 			return $providers;
 		}
 
-		// The provider IIFE is only enqueued in the post editor. Avoid registering
-		// the ESM wrapper on other block-editor surfaces, where AM may import it
+		// The provider IIFE is only enqueued in supported block editors. Avoid registering
+		// the ESM wrapper on other editor surfaces, where AM may import it
 		// before window.__JetpackAIProvider exists.
-		if ( ! self::is_jetpack_ai_sidebar_preview_enabled() || ! self::is_post_editor() || ! self::has_ai_features() ) {
+		if ( ! self::is_jetpack_ai_sidebar_preview_enabled() || ! self::is_supported_block_editor() || ! self::has_ai_features() ) {
 			return $providers;
 		}
 
@@ -422,11 +421,27 @@ class Jetpack_AI_Sidebar {
 			return $providers;
 		}
 
+		return self::append_ai_sidebar_provider_url( $providers );
+	}
+
+	/**
+	 * Append the Jetpack AI Sidebar provider URL if it is not already registered.
+	 *
+	 * @param array $providers Existing provider URLs.
+	 * @return array Updated providers.
+	 */
+	private static function append_ai_sidebar_provider_url( array $providers ): array {
+		if ( ! self::get_ai_sidebar_asset_data() ) {
+			return $providers;
+		}
+
 		// Register as AM provider via CDN-hosted ESM wrapper.
 		// AM dynamically imports this module to merge tools, suggestions, and components.
 		// No ?ver= needed — the wrapper re-exports from window.__JetpackAIProvider
 		// at import time, so its behavior always matches the loaded IIFE bundle.
-		$providers[] = AI_SIDEBAR_PROVIDER_URL;
+		if ( ! in_array( AI_SIDEBAR_PROVIDER_URL, $providers, true ) ) {
+			$providers[] = AI_SIDEBAR_PROVIDER_URL;
+		}
 
 		return $providers;
 	}
@@ -552,40 +567,39 @@ class Jetpack_AI_Sidebar {
 			return $data;
 		}
 
-		if ( ! self::is_jetpack_ai_sidebar_preview_enabled() || ! self::is_post_editor() || ! self::has_ai_features() ) {
+		if ( ! self::is_jetpack_ai_sidebar_preview_enabled() || ! self::is_supported_block_editor() || ! self::has_ai_features() ) {
 			return $data;
 		}
 
-		// Set Jetpack's defaults for externally emitted payloads. Hosts that need
-		// intentional overrides should use the AI Editorial Review and preview filters.
-		if ( isset( $data['agentProviders'] ) && is_array( $data['agentProviders'] ) ) {
-			$data['agentProviders'] = self::filter_agent_providers_for_jetpack_ai_sidebar( $data['agentProviders'] );
-		}
-		$data['agentId']                  = AI_SIDEBAR_AGENT_ID;
+		// Set Jetpack's defaults for externally emitted payloads without
+		// replacing a host-provided agentId.
+		$data['agentProviders']           = self::append_ai_sidebar_provider_url(
+			isset( $data['agentProviders'] ) && is_array( $data['agentProviders'] )
+				? $data['agentProviders']
+				: array()
+		);
+		$data                             = self::add_default_agent_id( $data );
 		$data['aiEditorialReviewEnabled'] = self::is_ai_editorial_review_enabled();
 		$data['jetpackAiSidebarPreview']  = self::get_jetpack_ai_sidebar_preview_config();
 		return $data;
 	}
 
 	/**
-	 * Remove providers that should not participate in the Jetpack AI Sidebar surface.
+	 * Add Jetpack AI's default agent only when a host has not already selected one.
 	 *
-	 * @param array $providers Provider URLs.
-	 * @return array Filtered provider URLs.
+	 * @param array $data Data encoded into `agentsManagerData`.
+	 * @return array Data with a default agent ID.
 	 */
-	private static function filter_agent_providers_for_jetpack_ai_sidebar( array $providers ): array {
-		return array_values(
-			array_filter(
-				$providers,
-				static function ( $provider ): bool {
-					return ! is_string( $provider ) || ! str_contains( $provider, BIG_SKY_AGENT_PROVIDER_PATH );
-				}
-			)
-		);
+	private static function add_default_agent_id( array $data ): array {
+		if ( empty( $data['agentId'] ) || ! is_string( $data['agentId'] ) ) {
+			$data['agentId'] = AI_SIDEBAR_AGENT_ID;
+		}
+
+		return $data;
 	}
 
 	/**
-	 * Enable Agents Manager in the post editor when Jetpack AI Sidebar Preview is available.
+	 * Enable Agents Manager in supported block editors when Jetpack AI Sidebar Preview is available.
 	 *
 	 * @param mixed $enabled Existing Agents Manager block-editor gate value.
 	 * @return bool
@@ -595,7 +609,7 @@ class Jetpack_AI_Sidebar {
 			return true;
 		}
 
-		return self::is_jetpack_ai_sidebar_preview_enabled() && self::is_post_editor() && self::has_ai_features();
+		return self::is_jetpack_ai_sidebar_preview_enabled() && self::is_supported_block_editor() && self::has_ai_features();
 	}
 
 	/**
@@ -619,7 +633,7 @@ class Jetpack_AI_Sidebar {
 		if ( ( new Host() )->is_wpcom_simple() ) {
 			return;
 		}
-		if ( ! self::is_jetpack_ai_sidebar_preview_enabled() || ! self::is_post_editor() || ! self::has_ai_features() ) {
+		if ( ! self::is_jetpack_ai_sidebar_preview_enabled() || ! self::is_supported_block_editor() || ! self::has_ai_features() ) {
 			return;
 		}
 		// 'registered' rather than 'enqueued': wp_add_inline_script attaches to any
@@ -641,16 +655,20 @@ class Jetpack_AI_Sidebar {
 			AI_SIDEBAR_AGENT_ID,
 			JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP
 		);
-		$big_sky_provider_payload    = wp_json_encode(
-			BIG_SKY_AGENT_PROVIDER_PATH,
+		$provider_url_payload        = wp_json_encode(
+			AI_SIDEBAR_PROVIDER_URL,
 			JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP
 		);
+		$provider_patch_script       = self::get_ai_sidebar_asset_data()
+			? ' if ( ! Array.isArray( agentsManagerData.agentProviders ) ) { agentsManagerData.agentProviders = []; }'
+				. ' if ( agentsManagerData.agentProviders.indexOf( ' . $provider_url_payload . ' ) === -1 ) { agentsManagerData.agentProviders.push( ' . $provider_url_payload . ' ); }'
+			: '';
 
 		wp_add_inline_script(
 			'agents-manager',
 			'if ( typeof agentsManagerData === "object" && agentsManagerData !== null ) {'
-				. ' if ( Array.isArray( agentsManagerData.agentProviders ) ) { agentsManagerData.agentProviders = agentsManagerData.agentProviders.filter( function( provider ) { return typeof provider !== "string" || provider.indexOf( ' . $big_sky_provider_payload . ' ) === -1; } ); }'
-				. ' agentsManagerData.agentId = ' . $agent_id_payload . ';'
+				. $provider_patch_script
+				. ' if ( typeof agentsManagerData.agentId !== "string" || agentsManagerData.agentId === "" ) { agentsManagerData.agentId = ' . $agent_id_payload . '; }'
 				. ' agentsManagerData.aiEditorialReviewEnabled = ' . $ai_editorial_review_payload . ';'
 				. ' agentsManagerData.jetpackAiSidebarPreview = ' . $preview_payload . ';'
 				. ' }',
@@ -673,11 +691,11 @@ class Jetpack_AI_Sidebar {
 	}
 
 	/**
-	 * Check if the current screen is the post block editor.
+	 * Check if the current screen is a supported content block editor.
 	 *
 	 * @return bool
 	 */
-	private static function is_post_editor(): bool {
+	private static function is_supported_block_editor(): bool {
 		if ( ! self::is_block_editor() ) {
 			return false;
 		}
@@ -685,7 +703,7 @@ class Jetpack_AI_Sidebar {
 		$screen = get_current_screen();
 		return $screen instanceof \WP_Screen
 			&& 'post' === $screen->base
-			&& 'post' === $screen->post_type;
+			&& in_array( $screen->post_type, array( 'post', 'page' ), true );
 	}
 
 	/**

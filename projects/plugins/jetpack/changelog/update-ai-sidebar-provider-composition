@@ -1,0 +1,4 @@
+Significance: patch
+Type: compat
+
+AI Sidebar: Preserve peer Agents Manager providers when loading Jetpack AI.
