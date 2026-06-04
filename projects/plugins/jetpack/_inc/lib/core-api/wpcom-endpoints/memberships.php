@@ -118,6 +118,10 @@ class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 							'type'     => 'integer',
 							'required' => false,
 						),
+						'description'             => array(
+							'type'     => 'string',
+							'required' => false,
+						),
 					),
 				),
 			)
@@ -186,6 +190,10 @@ class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 						),
 						'tier'                    => array(
 							'type'     => 'integer',
+							'required' => false,
+						),
+						'description'             => array(
+							'type'     => 'string',
 							'required' => false,
 						),
 					),
@@ -536,6 +544,7 @@ class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 			'buyer_can_change_amount'      => $buyer_can_change_amount,
 			'interval'                     => $interval,
 			'type'                         => $type,
+			'description'                  => $request['description'],
 			'welcome_email_content'        => $request['welcome_email_content'],
 			'subscribe_as_site_subscriber' => $request['subscribe_as_site_subscriber'],
 			'multiple_per_user'            => $request['multiple_per_user'],
