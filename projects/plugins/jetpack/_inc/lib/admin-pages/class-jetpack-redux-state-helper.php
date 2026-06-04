@@ -440,9 +440,13 @@ class Jetpack_Redux_State_Helper {
 	 * @return string
 	 */
 	public static function get_site_image(): string {
+		if ( class_exists( 'Automattic\Jetpack\Publicize\Jetpack_Social_Settings\Settings' ) ) {
+			Automattic\Jetpack\Publicize\Jetpack_Social_Settings\Settings::register_open_graph_filters();
+		}
+
 		// Get the dynamic image generated for the Open Graph Meta tags.
 		require_once JETPACK__PLUGIN_DIR . 'functions.opengraph.php';
-		return jetpack_og_get_fallback_social_image( 200, 200 )['src'];
+		return jetpack_og_get_fallback_social_image( 1200, 628 )['src'];
 	}
 }
 

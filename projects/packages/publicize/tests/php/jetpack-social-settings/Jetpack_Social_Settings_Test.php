@@ -57,6 +57,32 @@ class Jetpack_Social_Settings_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Create an upload object.
+	 *
+	 * @param string $file File path.
+	 * @return int
+	 */
+	private function create_upload_object( $file ) {
+		$contents = file_get_contents( $file );
+		$upload   = wp_upload_bits( basename( $file ), null, $contents );
+		$mime     = wp_check_filetype( $upload['file'] );
+
+		$attachment = array(
+			'post_title'     => basename( $upload['file'] ),
+			'post_content'   => '',
+			'post_type'      => 'attachment',
+			'post_mime_type' => $mime['type'],
+			'guid'           => $upload['url'],
+		);
+
+		$id = wp_insert_attachment( $attachment, $upload['file'] );
+
+		wp_update_attachment_metadata( $id, wp_generate_attachment_metadata( $id, $upload['file'] ) );
+
+		return $id;
+	}
+
+	/**
 	 * Mock Publicize being active.
 	 *
 	 * @return array
@@ -84,11 +110,90 @@ class Jetpack_Social_Settings_Test extends BaseTestCase {
 		$settings = $this->settings->get_settings();
 
 		$this->assertArrayHasKey( 'socialImageGeneratorSettings', $settings );
+		$this->assertArrayHasKey( 'openGraphSettings', $settings );
 		$this->assertArrayHasKey( 'enabled', $settings['socialImageGeneratorSettings'] );
 		$this->assertArrayHasKey( 'template', $settings['socialImageGeneratorSettings'] );
+		$this->assertArrayHasKey( 'default_image_id', $settings['openGraphSettings'] );
 
 		$this->assertFalse( $settings['socialImageGeneratorSettings']['enabled'] );
 		$this->assertEquals( Templates::DEFAULT_TEMPLATE, $settings['socialImageGeneratorSettings']['template'] );
+		$this->assertSame( 0, $settings['openGraphSettings']['default_image_id'] );
+	}
+
+	/**
+	 * Tests that the default Open Graph image ID can be updated and cleared.
+	 */
+	public function test_open_graph_default_image_id_can_be_set_and_cleared() {
+		$this->settings->update_open_graph_settings( array( 'default_image_id' => '123' ) );
+		$this->assertSame( 123, $this->settings->og_get_default_image_id() );
+
+		$this->settings->update_open_graph_settings( array( 'default_image_id' => 0 ) );
+		$this->assertSame( 0, $this->settings->og_get_default_image_id() );
+	}
+
+	/**
+	 * Tests that the configured Open Graph image is returned with dimensions.
+	 */
+	public function test_get_open_graph_default_image_returns_attachment_details() {
+		$attachment_id = $this->create_upload_object( __DIR__ . '/../images/jetpack-logo.png' );
+		$this->settings->update_open_graph_settings( array( 'default_image_id' => $attachment_id ) );
+
+		$image = $this->settings->og_get_default_image();
+
+		$this->assertSame( wp_get_attachment_url( $attachment_id ), $image['src'] );
+		$this->assertSame( 100, $image['width'] );
+		$this->assertSame( 38, $image['height'] );
+		$this->assertSame( 'jetpack_social_default_og_image', $image['type'] );
+	}
+
+	/**
+	 * Tests that the default Open Graph filters use the configured image.
+	 */
+	public function test_open_graph_filters_use_configured_default_image() {
+		$attachment_id = $this->create_upload_object( __DIR__ . '/../images/jetpack-logo.png' );
+		$this->settings->update_open_graph_settings( array( 'default_image_id' => $attachment_id ) );
+
+		$image_url = wp_get_attachment_url( $attachment_id );
+
+		$this->assertSame(
+			$image_url,
+			apply_filters( 'jetpack_open_graph_image_default', 'https://s0.wp.com/i/blank.jpg' )
+		);
+
+		$site_image = apply_filters( 'jetpack_og_default_site_image', array(), array() );
+
+		$this->assertSame( $image_url, $site_image['src'] );
+		$this->assertSame( 100, $site_image['width'] );
+		$this->assertSame( 38, $site_image['height'] );
+	}
+
+	/**
+	 * Tests that the default Open Graph tag filter only adds an image when one is missing.
+	 */
+	public function test_open_graph_tags_filter_only_adds_missing_image() {
+		$attachment_id = $this->create_upload_object( __DIR__ . '/../images/jetpack-logo.png' );
+		$this->settings->update_open_graph_settings( array( 'default_image_id' => $attachment_id ) );
+
+		$tags = apply_filters(
+			'jetpack_open_graph_tags',
+			array(
+				'og:title' => 'Test post',
+			)
+		);
+
+		$this->assertSame( wp_get_attachment_url( $attachment_id ), $tags['og:image'] );
+		$this->assertSame( 100, $tags['og:image:width'] );
+		$this->assertSame( 38, $tags['og:image:height'] );
+
+		$tags_with_image = apply_filters(
+			'jetpack_open_graph_tags',
+			array(
+				'og:title' => 'Test post',
+				'og:image' => 'https://example.com/post-image.jpg',
+			)
+		);
+
+		$this->assertSame( 'https://example.com/post-image.jpg', $tags_with_image['og:image'] );
 	}
 
 	/**
@@ -109,6 +214,9 @@ class Jetpack_Social_Settings_Test extends BaseTestCase {
 				'enabled'  => true,
 				'template' => 'example_template',
 			),
+			'openGraphSettings'            => array(
+				'default_image_id' => 0,
+			),
 		);
 
 		$this->settings = new SocialSettings();
@@ -126,6 +234,9 @@ class Jetpack_Social_Settings_Test extends BaseTestCase {
 			'socialImageGeneratorSettings' => array(
 				'enabled'  => false,
 				'template' => Templates::DEFAULT_TEMPLATE,
+			),
+			'openGraphSettings'            => array(
+				'default_image_id' => 0,
 			),
 		);
 

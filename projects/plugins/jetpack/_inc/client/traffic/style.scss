@@ -158,6 +158,50 @@
 $previews-max-width: 550px;
 $twitter-pofile-image-padding: 17px;
 
+.jp-seo-default-social-image {
+	max-width: $previews-max-width;
+
+	&-preview {
+		border: 1px solid colors.$gray-light;
+		background: colors.$gray-light;
+		margin: 1rem 0;
+		max-width: $previews-max-width;
+		overflow: hidden;
+		width: 100%;
+
+		img {
+			aspect-ratio: 1.91 / 1;
+			display: block;
+			height: auto;
+			object-fit: cover;
+			width: 100%;
+		}
+	}
+
+	&-actions {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.5rem;
+		margin-top: 0.75rem;
+	}
+
+	&-recommendation {
+		color: colors.$gray-text-min;
+		display: block;
+		font-size: typography.$font-body-small;
+		font-style: italic;
+		font-weight: 400;
+		margin: rem.convert(5px) rem.convert(14px) rem.convert(5px) 0;
+		overflow-wrap: break-word;
+	}
+
+	&-save-button {
+		display: flex;
+		justify-content: end;
+		margin-top: 0.75rem;
+	}
+}
+
 .jp-seo-social-previews {
 	margin-bottom: 0;
 

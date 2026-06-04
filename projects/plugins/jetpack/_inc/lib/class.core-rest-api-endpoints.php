@@ -2947,6 +2947,16 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'sanitize_callback' => 'Jetpack_SEO_Titles::sanitize_title_formats',
 			),
 
+			'jetpack_social_open_graph_settings'        => array(
+				'description'       => esc_html__( 'Default Open Graph image settings.', 'jetpack' ),
+				'type'              => 'object',
+				'default'           => array(
+					'default_image_id' => 0,
+				),
+				'jp_group'          => 'seo-tools',
+				'validate_callback' => __CLASS__ . '::validate_open_graph_settings',
+			),
+
 			// VideoPress.
 			'videopress_private_enabled_for_site'       => array(
 				'description'       => esc_html__( 'Video Privacy: Restrict views to members of this site', 'jetpack' ),
@@ -3621,6 +3631,38 @@ class Jetpack_Core_Json_Api_Endpoints {
 				)
 			);
 		}
+		return true;
+	}
+
+	/**
+	 * Validate Open Graph image settings.
+	 *
+	 * @param array           $values  Values to validate.
+	 * @param WP_REST_Request $request The request sent to the WP REST API.
+	 * @param string          $param   Name of the parameter passed to endpoint holding $values.
+	 *
+	 * @return bool|WP_Error
+	 */
+	public static function validate_open_graph_settings( $values, $request, $param ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		$array_validation = self::validate_array( $values, $request, $param );
+		if ( is_wp_error( $array_validation ) ) {
+			return $array_validation;
+		}
+
+		if (
+			isset( $values['default_image_id'] )
+			&& ( ! is_numeric( $values['default_image_id'] ) || $values['default_image_id'] < 0 )
+		) {
+			return new WP_Error(
+				'invalid_param',
+				sprintf(
+					/* Translators: Placeholder is a parameter name. */
+					esc_html__( '%s.default_image_id must be a non-negative integer.', 'jetpack' ),
+					$param
+				)
+			);
+		}
+
 		return true;
 	}
 

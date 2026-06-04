@@ -29,6 +29,8 @@ import { siteHasFeature } from 'state/site';
 import { isFetchingPluginsData, isPluginActive } from 'state/site/plugins';
 import CustomSeoTitles from './seo/custom-seo-titles.jsx';
 
+const OPEN_GRAPH_SETTINGS_OPTION = 'jetpack_social_open_graph_settings';
+
 export const conflictingSeoPluginsList = [
 	{
 		name: 'Yoast SEO',
@@ -84,9 +86,14 @@ export const SEO = withModuleSettingsFormHelpers(
 			moduleOptionsArray: [
 				'advanced_seo_front_page_description',
 				'advanced_seo_title_formats',
+				OPEN_GRAPH_SETTINGS_OPTION,
 				'ai_seo_enhancer_enabled',
 			],
 			siteIconPreviewSize: 512,
+		};
+
+		state = {
+			defaultSocialImageUrl: undefined,
 		};
 
 		toggleSeoEnhancer = () => {
@@ -120,7 +127,7 @@ export const SEO = withModuleSettingsFormHelpers(
 				type="website"
 				imageMode="landscape"
 				description={ siteData.frontPageMetaDescription }
-				image={ this.props.siteRepresentativeImage }
+				image={ siteData.socialImage }
 			/>
 		);
 
@@ -129,9 +136,73 @@ export const SEO = withModuleSettingsFormHelpers(
 				title={ siteData.title }
 				url={ siteData.url }
 				description={ siteData.frontPageMetaDescription }
-				image={ this.props.siteRepresentativeImage }
+				image={ siteData.socialImage }
 			/>
 		);
+
+		getOpenGraphSettings = () => {
+			const settings = this.props.getOptionValue( OPEN_GRAPH_SETTINGS_OPTION );
+
+			return settings && 'object' === typeof settings ? settings : { default_image_id: 0 };
+		};
+
+		getDefaultSocialImageId = () => {
+			return Number( this.getOpenGraphSettings().default_image_id || 0 );
+		};
+
+		getDefaultSocialImagePreview = () => {
+			if ( undefined !== this.state.defaultSocialImageUrl ) {
+				return this.state.defaultSocialImageUrl;
+			}
+
+			return this.props.siteRepresentativeImage;
+		};
+
+		selectDefaultSocialImage = event => {
+			event.preventDefault();
+
+			if ( ! window.wp?.media ) {
+				return;
+			}
+
+			const frame = window.wp.media( {
+				title: __( 'Select default social image', 'jetpack' ),
+				button: {
+					text: __( 'Use this image', 'jetpack' ),
+				},
+				library: {
+					type: 'image',
+				},
+				multiple: false,
+			} );
+
+			frame.on( 'select', () => {
+				const attachment = frame.state().get( 'selection' ).first().toJSON();
+				const imageUrl =
+					attachment.sizes?.large?.url || attachment.sizes?.full?.url || attachment.url;
+				const settings = this.getOpenGraphSettings();
+
+				this.setState( { defaultSocialImageUrl: imageUrl } );
+				this.props.updateFormStateOptionValue( OPEN_GRAPH_SETTINGS_OPTION, {
+					...settings,
+					default_image_id: Number( attachment.id || 0 ),
+				} );
+			} );
+
+			frame.open();
+		};
+
+		removeDefaultSocialImage = event => {
+			event.preventDefault();
+
+			const settings = this.getOpenGraphSettings();
+
+			this.setState( { defaultSocialImageUrl: '' } );
+			this.props.updateFormStateOptionValue( OPEN_GRAPH_SETTINGS_OPTION, {
+				...settings,
+				default_image_id: 0,
+			} );
+		};
 
 		updateCustomSeoTitleInputState = newCustomSeoTitles => {
 			this.props.updateFormStateOptionValue( 'advanced_seo_title_formats', newCustomSeoTitles );
@@ -167,6 +238,7 @@ export const SEO = withModuleSettingsFormHelpers(
 				tagline: this.props.siteData.description || '',
 				url: this.props.siteData.URL || '',
 				siteIcon: this.props.siteIcon || '',
+				socialImage: this.getDefaultSocialImagePreview(),
 				frontPageMetaDescription: frontPageMetaDescription
 					? frontPageMetaDescription
 					: this.props.siteData.description || '',
@@ -188,6 +260,10 @@ export const SEO = withModuleSettingsFormHelpers(
 					frontPageMetaDescription.length > this.constants.frontPageMetaSuggestedLength &&
 					frontPageMetaDescription.length < this.constants.frontPageMetaMaxLength,
 			} );
+			const defaultSocialImageId = this.getDefaultSocialImageId();
+			const defaultSocialImagePreview = this.getDefaultSocialImagePreview();
+			const selectDefaultSocialImageLabel = __( 'Select image', 'jetpack' );
+			const replaceDefaultSocialImageLabel = __( 'Replace image', 'jetpack' );
 
 			// Destructure feature out to ensure our explicit prop takes precedence
 			const { feature: _ignoredFeature, ...restProps } = this.props;
@@ -382,13 +458,54 @@ export const SEO = withModuleSettingsFormHelpers(
 									</SettingsGroup>
 								</FoldableCard>
 								<FoldableCard
-									header={ __(
-										'Expand to preview how the SEO settings will look for your homepage on Google, Facebook, and Twitter.',
-										'jetpack'
-									) }
+									header={ __( 'Expand to choose a default social image and preview.', 'jetpack' ) }
 									clickableHeader={ true }
 									className="jp-seo-social-previews"
 								>
+									<div className="jp-seo-default-social-image">
+										<p className="jp-form-setting-explanation">
+											{ __(
+												"Choose an image for social previews when a post doesn't have its own image, and preview how your homepage will look on Google, Facebook, and X.",
+												'jetpack'
+											) }
+										</p>
+										{ !! defaultSocialImageId && !! defaultSocialImagePreview && (
+											<div className="jp-seo-default-social-image-preview">
+												<img
+													src={ defaultSocialImagePreview }
+													alt={ __( 'Default social image preview', 'jetpack' ) }
+													width={ 550 }
+													height={ 288 }
+												/>
+											</div>
+										) }
+										<div className="jp-seo-default-social-image-actions">
+											<Button
+												id="jp-seo-default-social-image-button"
+												rna
+												compact
+												type="button"
+												onClick={ this.selectDefaultSocialImage }
+												disabled={ ! window.wp?.media }
+											>
+												{ defaultSocialImageId
+													? replaceDefaultSocialImageLabel
+													: selectDefaultSocialImageLabel }
+											</Button>
+											{ !! defaultSocialImageId && (
+												<Button rna compact type="button" onClick={ this.removeDefaultSocialImage }>
+													{ __( 'Remove image', 'jetpack' ) }
+												</Button>
+											) }
+										</div>
+										<p className="jp-form-setting-explanation jp-seo-default-social-image-recommendation">
+											{ __( 'Recommended size is 1200x630px and < 600 KB.', 'jetpack' ) }
+										</p>
+										<div className="jp-seo-default-social-image-save-button">
+											{ this.saveButton( this.props ) }
+										</div>
+									</div>
+									<hr />
 									<div className="jp-seo-social-previews-container">
 										<SocialLogo icon="google" size={ 24 } />
 										<span className="jp-seo-social-previews-label">

@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Publicize\Jetpack_Social_Settings;
 
 use Automattic\Jetpack\Modules;
+use Automattic\Jetpack\Post_Media\Images;
 use Automattic\Jetpack\Publicize\Social_Image_Generator\Templates;
 
 /**
@@ -37,6 +38,12 @@ class Settings {
 
 	const DEFAULT_UTM_SETTINGS = array(
 		'enabled' => false,
+	);
+
+	const OPEN_GRAPH_SETTINGS = 'open_graph_settings';
+
+	const DEFAULT_OPEN_GRAPH_SETTINGS = array(
+		'default_image_id' => 0,
 	);
 
 	const NOTES_CONFIG = 'notes_config';
@@ -70,6 +77,13 @@ class Settings {
 	protected static $actions_hooked_in = false;
 
 	/**
+	 * Whether the Open Graph filters have been hooked into.
+	 *
+	 * @var bool
+	 */
+	protected static $open_graph_filters_hooked_in = false;
+
+	/**
 	 * Constructor.
 	 */
 	public function __construct() {
@@ -80,6 +94,25 @@ class Settings {
 
 			self::$actions_hooked_in = true;
 		}
+
+		self::register_open_graph_filters();
+	}
+
+	/**
+	 * Register Open Graph filters for the configured default social image.
+	 *
+	 * @return void
+	 */
+	public static function register_open_graph_filters() {
+		if ( self::$open_graph_filters_hooked_in ) {
+			return;
+		}
+
+		add_filter( 'jetpack_og_default_site_image', array( __CLASS__, 'filter_default_site_image' ), 10, 2 );
+		add_filter( 'jetpack_open_graph_image_default', array( __CLASS__, 'filter_default_image_url' ) );
+		add_filter( 'jetpack_open_graph_tags', array( __CLASS__, 'add_default_image_to_open_graph_tags' ), 13 );
+
+		self::$open_graph_filters_hooked_in = true;
 	}
 
 	/**
@@ -179,6 +212,26 @@ class Settings {
 						'properties' => array(
 							'enabled' => array(
 								'type' => 'boolean',
+							),
+						),
+					),
+				),
+			)
+		);
+
+		register_setting(
+			'jetpack_social',
+			self::OPTION_PREFIX . self::OPEN_GRAPH_SETTINGS,
+			array(
+				'type'         => 'object',
+				'default'      => self::DEFAULT_OPEN_GRAPH_SETTINGS,
+				'show_in_rest' => array(
+					'schema' => array(
+						'type'       => 'object',
+						'context'    => array( 'view', 'edit' ),
+						'properties' => array(
+							'default_image_id' => array(
+								'type' => 'number',
 							),
 						),
 					),
@@ -296,6 +349,30 @@ class Settings {
 	}
 
 	/**
+	 * Get the Open Graph settings.
+	 *
+	 * @return array
+	 */
+	public function get_open_graph_settings() {
+		return self::get_stored_open_graph_settings();
+	}
+
+	/**
+	 * Get the stored Open Graph settings.
+	 *
+	 * @return array
+	 */
+	private static function get_stored_open_graph_settings() {
+		$settings = get_option( self::OPTION_PREFIX . self::OPEN_GRAPH_SETTINGS, self::DEFAULT_OPEN_GRAPH_SETTINGS );
+
+		if ( empty( $settings ) || ! is_array( $settings ) ) {
+			return self::DEFAULT_OPEN_GRAPH_SETTINGS;
+		}
+
+		return array_replace_recursive( self::DEFAULT_OPEN_GRAPH_SETTINGS, $settings );
+	}
+
+	/**
 	 * Get the global message template.
 	 *
 	 * @return string
@@ -343,6 +420,7 @@ class Settings {
 
 		$settings = array(
 			'socialImageGeneratorSettings' => $this->get_image_generator_settings(),
+			'openGraphSettings'            => $this->get_open_graph_settings(),
 		);
 
 		// The feature cannot be enabled without Publicize.
@@ -394,6 +472,11 @@ class Settings {
 			return update_option( self::OPTION_PREFIX . self::UTM_SETTINGS, array_replace_recursive( $current_utm_settings, $value ) );
 		}
 
+		// Open Graph Settings.
+		if ( self::OPTION_PREFIX . self::OPEN_GRAPH_SETTINGS === $name ) {
+			return $this->update_open_graph_settings( $value );
+		}
+
 		// Social Notes.
 		if ( self::JETPACK_SOCIAL_NOTE_CPT_ENABLED === $name ) {
 			// Delete this option, so the rules get flushed in maybe_flush_rewrite_rules when the CPT is registered.
@@ -429,6 +512,145 @@ class Settings {
 		}
 
 		return update_option( self::OPTION_PREFIX . self::IMAGE_GENERATOR_SETTINGS, array_replace_recursive( $sig_settings, $new_setting ) );
+	}
+
+	/**
+	 * Update the Open Graph settings.
+	 *
+	 * @param array $new_setting The new settings.
+	 *
+	 * @return bool
+	 */
+	public function update_open_graph_settings( $new_setting ) {
+		$open_graph_settings = $this->get_open_graph_settings();
+
+		if ( ! is_array( $new_setting ) ) {
+			$new_setting = array();
+		}
+
+		if ( array_key_exists( 'default_image_id', $new_setting ) ) {
+			$new_setting['default_image_id'] = absint( $new_setting['default_image_id'] );
+		}
+
+		return update_option( self::OPTION_PREFIX . self::OPEN_GRAPH_SETTINGS, array_replace_recursive( $open_graph_settings, $new_setting ) );
+	}
+
+	/**
+	 * Get the default Open Graph image ID.
+	 *
+	 * @return int
+	 */
+	public static function og_get_default_image_id() {
+		$settings = self::get_stored_open_graph_settings();
+
+		return absint( $settings['default_image_id'] );
+	}
+
+	/**
+	 * Get the default Open Graph image.
+	 *
+	 * @return array The source ('src'), 'width', 'height', and source type of the image.
+	 */
+	public static function og_get_default_image() {
+		$image_id = self::og_get_default_image_id();
+
+		if ( ! $image_id ) {
+			return array();
+		}
+
+		$image = wp_get_attachment_image_src( $image_id, 'full' );
+
+		if ( empty( $image[0] ) ) {
+			return array();
+		}
+
+		$default_image = array(
+			'src'    => $image[0],
+			'width'  => isset( $image[1] ) ? absint( $image[1] ) : 0,
+			'height' => isset( $image[2] ) ? absint( $image[2] ) : 0,
+			'type'   => 'jetpack_social_default_og_image',
+		);
+
+		$alt_text = Images::get_alt_text( $image_id );
+		if ( ! empty( $alt_text ) ) {
+			$default_image['alt_text'] = $alt_text;
+		}
+
+		return $default_image;
+	}
+
+	/**
+	 * Filter the site's representative Open Graph image.
+	 *
+	 * @param array $custom_site_image The custom site image provided by filters.
+	 * @param array $site_image        The site image picked by Jetpack.
+	 *
+	 * @return array
+	 */
+	public static function filter_default_site_image( $custom_site_image, $site_image ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		if ( ! empty( $custom_site_image['src'] ) ) {
+			return $custom_site_image;
+		}
+
+		$default_image = self::og_get_default_image();
+
+		if ( empty( $default_image['src'] ) ) {
+			return $custom_site_image;
+		}
+
+		return $default_image;
+	}
+
+	/**
+	 * Filter the default Open Graph image URL.
+	 *
+	 * @param string $default_url The default image URL.
+	 *
+	 * @return string
+	 */
+	public static function filter_default_image_url( $default_url ) {
+		$default_image = self::og_get_default_image();
+
+		if ( empty( $default_image['src'] ) ) {
+			return $default_url;
+		}
+
+		return $default_image['src'];
+	}
+
+	/**
+	 * Add the default image to Open Graph tags when no image has been set yet.
+	 *
+	 * @param array $tags Current Open Graph tags.
+	 *
+	 * @return array
+	 */
+	public static function add_default_image_to_open_graph_tags( $tags ) {
+		if ( ! empty( $tags['og:image'] ) ) {
+			return $tags;
+		}
+
+		$default_image = self::og_get_default_image();
+
+		if ( empty( $default_image['src'] ) ) {
+			return $tags;
+		}
+
+		$tags['og:image'] = $default_image['src'];
+
+		if ( ! empty( $default_image['width'] ) ) {
+			$tags['og:image:width'] = $default_image['width'];
+		}
+
+		if ( ! empty( $default_image['height'] ) ) {
+			$tags['og:image:height'] = $default_image['height'];
+		}
+
+		if ( ! empty( $default_image['alt_text'] ) ) {
+			$tags['og:image:alt'] = $default_image['alt_text'];
+		}
+
+		return $tags;
 	}
 
 	/**

@@ -157,6 +157,7 @@ class Publicize_Script_Data {
 
 		return array(
 			'socialImageGenerator' => $settings->get_image_generator_settings(),
+			'openGraphSettings'    => $settings->get_open_graph_settings(),
 			'utmSettings'          => $settings->get_utm_settings(),
 			'socialNotes'          => array(
 				'enabled' => $settings->is_social_notes_enabled(),

@@ -36,6 +36,10 @@ export const getSocialSettings = createRegistrySelector( select => () => {
 			...settings.socialImageGenerator,
 			...data.jetpack_social_image_generator_settings,
 		},
+		openGraphSettings: {
+			...settings.openGraphSettings,
+			...data.jetpack_social_open_graph_settings,
+		},
 		utmSettings: {
 			...settings.utmSettings,
 			...data.jetpack_social_utm_settings,

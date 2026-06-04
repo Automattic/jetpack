@@ -72,6 +72,8 @@ class Publicize_Setup {
 			return;
 		}
 
+		Jetpack_Social_Settings\Settings::register_open_graph_filters();
+
 		$is_wpcom_simple = ( new Host() )->is_wpcom_simple();
 
 		/**
