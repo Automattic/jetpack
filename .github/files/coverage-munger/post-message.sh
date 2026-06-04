@@ -57,7 +57,7 @@ else
 	COVERAGE_GROUPS=( php js )
 	RUNS='[]'
 	for GROUP in "${COVERAGE_GROUPS[@]}"; do
-		ENC_TEST_NAME=$( jq -nr --arg N "Code coverage ($GROUP)" '$N | @uri' )
+		ENC_TEST_NAME=$( jq -nr --arg N "Code coverage (${GROUP@U})" '$N | @uri' )
 		# The check-runs endpoint can be filtered by name and defaults to grab just the latest run, which simplifies the API call.
 		J=$( curl -v -L fail \
 			--url "${GITHUB_API_URL}/repos/${GITHUB_REPOSITORY}/commits/${COMMIT}/check-runs?check_name=$ENC_TEST_NAME" \
