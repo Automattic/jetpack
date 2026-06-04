@@ -1,8 +1,10 @@
 <?php
 namespace Automattic\Jetpack_Boost\Tests\Lib;
 
+use Automattic\Jetpack_Boost\Lib\Js_Structure_Scanner;
 use Automattic\Jetpack_Boost\Lib\Minify;
 use Automattic\Jetpack_Boost\Tests\Base_TestCase;
+use MatthiasMullie\Minify\JS as JSMinifier;
 
 /**
  * Class Minify_Test
@@ -36,19 +38,33 @@ var three = "three";';
 	}
 
 	/**
-	 * The bundled minifier silently truncates a `//` inside a nested template
-	 * literal (the real corruption this guards against). When that happens, js()
-	 * must fall back to the original, un-re-minified bytes rather than serve a
-	 * truncated bundle. (assertSame proves the fallback fired: a non-broken
-	 * result would be the shorter minified output, not the original.)
+	 * A `//` inside a nested template literal is the input the bundled minifier
+	 * silently truncates (the real corruption this guards against).
+	 *
+	 * The guarantee we assert is the one we actually own: js() must never return
+	 * structurally broken JS for this input -- whether the minifier corrupts it
+	 * (and we fall back to the original) or some future minifier version handles
+	 * it cleanly. The guarded check additionally proves the fallback fires today,
+	 * without breaking if upstream ever fixes the bug.
 	 */
-	public function test_js_falls_back_when_minification_truncates() {
+	public function test_js_never_returns_broken_output_for_nested_template() {
 		$source  = "function f(e,t,n){const r=new Error(`each_key_duplicate\n";
 		$source .= '${n?`Keyed each block has duplicate key \`${n}\` at indexes ${e} and ${t}`:';
 		$source .= '`Keyed each block has duplicate key at indexes ${e} and ${t}`}' . "\n";
 		$source .= 'https://svelte.dev/e/each_key_duplicate`);return r;}(1,2,3);';
 
-		$this->assertSame( $source, Minify::js( $source ) );
+		$result = Minify::js( $source );
+		$this->assertFalse(
+			Js_Structure_Scanner::looks_broken( $result ),
+			'Minify::js() must never return structurally broken JS.'
+		);
+
+		// While the bundled minifier still corrupts this input, the guard must
+		// fall back to the original (un-re-minified) bytes.
+		$raw_minified = ( new JSMinifier( $source ) )->minify();
+		if ( Js_Structure_Scanner::looks_broken( $raw_minified ) ) {
+			$this->assertSame( $source, $result );
+		}
 	}
 
 	/**
