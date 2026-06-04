@@ -23,6 +23,13 @@ namespace Automattic\Jetpack_Boost\Lib;
  * Known blind spot: corruption that stays perfectly balanced (e.g. semantic-only
  * damage that still parses) returns "intact". Those do not crash the page and are
  * not what this guard targets.
+ *
+ * Known (harmless) false positives: a `/` after `}` is read as a regex, not
+ * division, because telling a block `}` apart from an object-literal `}` needs a
+ * full parser; so valid object-literal division such as `({}/2)` is reported
+ * "broken". Because the verdict is fail-safe (it only skips re-minification),
+ * these cost a little compression, never correctness, so the heuristic stays
+ * simple rather than guess at block-vs-expression context.
  */
 class Js_Structure_Scanner {
 
@@ -209,11 +216,13 @@ class Js_Structure_Scanner {
 		// `true`/`false` shortened to !0/!1 before a member access (e.g.
 		// true.toString() -> !0.toString()) is invalid: `0.` is a numeric literal,
 		// so the following identifier is a syntax error. This stays bracket-balanced,
-		// so check it explicitly.
+		// so check it explicitly. Excludes the exponent case: `0.e5` / `0.e+5` is a
+		// valid numeric literal, so `!0.e5` is valid and must not be flagged.
 		if ( '!' === $c
 			&& ( '0' === $this->peek( 1 ) || '1' === $this->peek( 1 ) )
 			&& '.' === $this->peek( 2 )
-			&& self::is_ident_start( $this->peek( 3 ) ) ) {
+			&& self::is_ident_start( $this->peek( 3 ) )
+			&& ! $this->is_exponent_at( 3 ) ) {
 			return true;
 		}
 
@@ -588,5 +597,26 @@ class Js_Structure_Scanner {
 	 */
 	private static function is_ident_start( $c ) {
 		return '' !== $c && ( ctype_alpha( $c ) || '_' === $c || '$' === $c );
+	}
+
+	/**
+	 * Whether the chars at $offset begin a valid exponent part (the `e5` of the
+	 * numeric literal `0.e5`). Lets the !0/!1 member-access check tell a real,
+	 * broken member access (`!0.toString()`) apart from a valid exponent
+	 * literal (`!0.e5`), which is not a member access at all.
+	 *
+	 * @param int $offset Offset from the current position.
+	 * @return bool
+	 */
+	private function is_exponent_at( $offset ) {
+		$c = $this->peek( $offset );
+		if ( 'e' !== $c && 'E' !== $c ) {
+			return false;
+		}
+		$next = $this->peek( $offset + 1 );
+		if ( '+' === $next || '-' === $next ) {
+			$next = $this->peek( $offset + 2 );
+		}
+		return '' !== $next && ctype_digit( $next );
 	}
 }

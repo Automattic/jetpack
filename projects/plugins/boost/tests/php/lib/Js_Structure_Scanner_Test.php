@@ -16,14 +16,16 @@ class Js_Structure_Scanner_Test extends Base_TestCase {
 	 */
 	public function test_detects_breakage() {
 		$broken = array(
-			'unbalanced brace'      => 'function f(){if(a){',
-			'unterminated template' => 'var a=`abc',
-			'unterminated string'   => 'var a="abc',
-			'unterminated regex'    => "var a=/abc\nx",
-			'extra closing bracket' => 'a)}',
-			'bool member !0.x'      => 'var z=!0.toString()',
-			'bool member !1.x'      => 'x=!1.valueOf()',
-			'truncated mid call'    => 'foo(bar,baz',
+			'unbalanced brace'       => 'function f(){if(a){',
+			'unterminated template'  => 'var a=`abc',
+			'unterminated string'    => 'var a="abc',
+			'unterminated regex'     => "var a=/abc\nx",
+			'extra closing bracket'  => 'a)}',
+			'bool member !0.x'       => 'var z=!0.toString()',
+			'bool member !1.x'       => 'x=!1.valueOf()',
+			'bool member e (no exp)' => 'var z=!0.entries()',
+			'unterminated block cmt' => 'var a=1;/* still open',
+			'truncated mid call'     => 'foo(bar,baz',
 		);
 
 		foreach ( $broken as $label => $js ) {
@@ -63,6 +65,9 @@ class Js_Structure_Scanner_Test extends Base_TestCase {
 			'iife'                    => '(function(){})()',
 			'double-dot member'       => 'var z=!0..toString()',
 			'negated number'          => 'var z=!0.5',
+			'negated exponent'        => 'var z=!0.e5',
+			'negated exponent signed' => 'var z=!1.e+5',
+			'negated exponent upper'  => 'var z=!0.E3',
 			'arrow returns object'    => 'const f=()=>({a:1})',
 			'block comment braces'    => 'var a=1;/* { ( [ */var b=2',
 		);
@@ -71,6 +76,29 @@ class Js_Structure_Scanner_Test extends Base_TestCase {
 			$this->assertFalse(
 				Js_Structure_Scanner::looks_broken( $js ),
 				"Expected intact: $label"
+			);
+		}
+	}
+
+	/**
+	 * Documented, accepted false positives: valid JavaScript the scanner reports
+	 * as "broken" because resolving it would need a full parser. A `/` after `}`
+	 * is read as a regex rather than division, since telling a block `}` apart
+	 * from an object-literal `}` needs statement-vs-expression context. The
+	 * verdict is fail-safe (it only skips re-minification, never corrupts output),
+	 * so we lock the behavior in here rather than risk a false negative. If the
+	 * heuristic ever learns this case, update these expectations.
+	 */
+	public function test_object_literal_division_is_accepted_false_positive() {
+		$accepted = array(
+			'object-literal division' => '({}/2)',
+			'object division in stmt' => 'var x={}/2;',
+		);
+
+		foreach ( $accepted as $label => $js ) {
+			$this->assertTrue(
+				Js_Structure_Scanner::looks_broken( $js ),
+				"Accepted false positive changed behavior: $label"
 			);
 		}
 	}
