@@ -61,7 +61,7 @@ class Jetpack_AI_Sidebar {
 		add_filter( 'jetpack_ai_sidebar_agents_manager_data', array( __CLASS__, 'add_agents_manager_data' ), 10, 1 );
 
 		// Allow jetpack-mu-wpcom's bundled Agents Manager to mount in the
-		// post editor on WordPress.com and Atomic sites.
+		// post editor and Big Sky editor composition surfaces.
 		add_filter( 'agents_manager_enabled_in_block_editor', array( __CLASS__, 'enable_agents_manager_in_post_editor' ) );
 
 		// Load AM from CDN if not already present.
@@ -599,7 +599,11 @@ class Jetpack_AI_Sidebar {
 	}
 
 	/**
-	 * Enable Agents Manager in the post editor when Jetpack AI Sidebar Preview is available.
+	 * Enable Agents Manager when Jetpack AI Sidebar Preview is available.
+	 *
+	 * Jetpack owns the post-editor entrypoint. Big Sky owns its Page/Site Editor
+	 * provider, but Jetpack can open AM there so peer providers compose through
+	 * Agents Manager instead of Big Sky's standalone dock.
 	 *
 	 * @param mixed $enabled Existing Agents Manager block-editor gate value.
 	 * @return bool
@@ -609,7 +613,11 @@ class Jetpack_AI_Sidebar {
 			return true;
 		}
 
-		return self::is_jetpack_ai_sidebar_preview_enabled() && self::is_post_editor() && self::has_ai_features();
+		if ( ! self::is_jetpack_ai_sidebar_preview_enabled() || ! self::has_ai_features() ) {
+			return false;
+		}
+
+		return self::is_post_editor() || self::is_big_sky_editor_composition_surface();
 	}
 
 	/**
@@ -704,6 +712,55 @@ class Jetpack_AI_Sidebar {
 		return $screen instanceof \WP_Screen
 			&& 'post' === $screen->base
 			&& 'post' === $screen->post_type;
+	}
+
+	/**
+	 * Check if the current screen is the page block editor.
+	 *
+	 * @return bool
+	 */
+	private static function is_page_editor(): bool {
+		if ( ! self::is_block_editor() ) {
+			return false;
+		}
+
+		$screen = get_current_screen();
+		return $screen instanceof \WP_Screen
+			&& 'post' === $screen->base
+			&& 'page' === $screen->post_type;
+	}
+
+	/**
+	 * Check if the current screen is the Site Editor.
+	 *
+	 * @return bool
+	 */
+	private static function is_site_editor(): bool {
+		if ( ! self::is_block_editor() ) {
+			return false;
+		}
+
+		$screen = get_current_screen();
+		return $screen instanceof \WP_Screen
+			&& ( 'site-editor' === $screen->base || 'site-editor' === $screen->id );
+	}
+
+	/**
+	 * Check whether Big Sky should compose through Agents Manager on this editor surface.
+	 *
+	 * @return bool
+	 */
+	private static function is_big_sky_editor_composition_surface(): bool {
+		return self::is_big_sky_enabled() && ( self::is_page_editor() || self::is_site_editor() );
+	}
+
+	/**
+	 * Check whether Big Sky is installed and enabled.
+	 *
+	 * @return bool
+	 */
+	private static function is_big_sky_enabled(): bool {
+		return class_exists( 'Big_Sky' ) && (bool) get_option( 'big_sky_enable', '1' );
 	}
 
 	/**
