@@ -336,6 +336,7 @@ class Jetpack_WPCOM_Block_Editor {
 			array(
 				'jquery',
 				'lodash',
+				'react',
 				'wp-annotations',
 				'wp-compose',
 				'wp-data',
