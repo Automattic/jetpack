@@ -5623,6 +5623,9 @@ importers:
       '@wordpress/rich-text':
         specifier: 7.46.0
         version: 7.46.0(react@18.3.1)
+      '@wordpress/theme':
+        specifier: 0.13.0
+        version: 0.13.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/ui':
         specifier: 0.13.0
         version: 0.13.0(@types/react@18.3.28)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
