@@ -759,6 +759,35 @@ class Jetpack_REST_API_endpoints_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Test that Open Graph settings can be saved through the Jetpack settings endpoint.
+	 *
+	 * @return void
+	 */
+	public function test_open_graph_settings_save() {
+		$user = $this->create_and_get_user( 'administrator' );
+		$user->add_cap( 'jetpack_activate_modules' );
+		wp_set_current_user( $user->ID );
+
+		delete_option( 'jetpack_social_open_graph_settings' );
+
+		$response = $this->create_and_get_request(
+			'settings',
+			array(
+				'jetpack_social_open_graph_settings' => array(
+					'default_image_id' => 123,
+				),
+			),
+			'POST'
+		);
+
+		$expected = array( 'default_image_id' => 123 );
+
+		$this->assertResponseStatus( 200, $response );
+		$this->assertSame( $expected, $response->get_data()['jetpack_social_open_graph_settings'] );
+		$this->assertSame( $expected, get_option( 'jetpack_social_open_graph_settings' ) );
+	}
+
+	/**
 	 * Regression for NL-618: re-posting newsletter categories with the same selection the option
 	 * already holds must return 200, not a `some_updated` 400. The previous code left `$updated`
 	 * false on the "values equal" short-circuit, so any save without an actual change blew up.
