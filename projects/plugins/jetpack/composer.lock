@@ -205,7 +205,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/activity-log",
-                "reference": "e90384cb6fab6777b72d9179a1b34fc88e4abd74"
+                "reference": "62cbc8f7ab7209547bfce1e9d6451526f1202006"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
@@ -264,6 +264,9 @@
                 ],
                 "test-php": [
                     "@composer phpunit"
+                ],
+                "test-php-coverage": [
+                    "php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\""
                 ]
             },
             "license": [
@@ -2365,7 +2368,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/newsletter",
-                "reference": "3bb98c0c48214065e07d41fa666f4063fcc64df0"
+                "reference": "4d0d432d0abc4def9977c6b3ff889d107f76fda7"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
@@ -2422,6 +2425,9 @@
                 ],
                 "test-coverage": [
                     "pnpm concurrently --names php,js 'composer test-php-coverage' 'composer test-js-coverage'"
+                ],
+                "test-js": [
+                    "pnpm run test"
                 ],
                 "test-js-coverage": [
                     "pnpm run test-coverage"
@@ -3201,7 +3207,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/scan",
-                "reference": "1c06f353d803e20ce0b3e665cbffb0bd0af6bf85"
+                "reference": "236b3d66cfef584acb43b2a87fc3d811fd50f638"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
@@ -3254,6 +3260,15 @@
                 ],
                 "test-php": [
                     "@composer phpunit"
+                ],
+                "test-php-coverage": [
+                    "php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\""
+                ],
+                "test-js": [
+                    "pnpm run test"
+                ],
+                "test-js-coverage": [
+                    "pnpm run test-coverage"
                 ],
                 "watch": [
                     "Composer\\Config::disableProcessTimeout",
@@ -3362,7 +3377,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/seo",
-                "reference": "e4e85d930daca71eed75c11b4a7d2c5ce5cf537b"
+                "reference": "0ed54c11e62b2bd90470902e72590a74764d41e7"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
@@ -3406,8 +3421,14 @@
                 "test-php": [
                     "@composer phpunit"
                 ],
+                "test-php-coverage": [
+                    "php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\""
+                ],
                 "test-js": [
                     "pnpm run test"
+                ],
+                "test-js-coverage": [
+                    "pnpm run test-coverage"
                 ],
                 "build-development": [
                     "pnpm run build"

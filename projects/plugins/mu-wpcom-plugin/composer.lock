@@ -214,7 +214,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/agents-manager",
-                "reference": "7a3344385cb6a784403c71886548868a41038c02"
+                "reference": "b48bfd989bbc7146c513d6eaa19c2b5133d4842f"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
@@ -268,8 +268,14 @@
                 "test-js": [
                     "pnpm run test"
                 ],
+                "test-js-coverage": [
+                    "pnpm run test-coverage"
+                ],
                 "test-php": [
                     "@composer phpunit"
+                ],
+                "test-php-coverage": [
+                    "php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\""
                 ]
             },
             "license": [
@@ -1359,7 +1365,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/jetpack-mu-wpcom",
-                "reference": "a8b4456637170545675656bbe36122812e4f6c6e"
+                "reference": "9e9b5943ed0c3ed9bb076ff61d4087e31025bec2"
             },
             "require": {
                 "automattic/block-delimiter": "@dev",
@@ -1417,6 +1423,9 @@
                 ],
                 "test-coverage": [
                     "@composer test-php-coverage"
+                ],
+                "test-js": [
+                    "pnpm run test"
                 ],
                 "test-php": [
                     "@composer phpunit"
@@ -1572,7 +1581,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/podcast",
-                "reference": "7689dce6984ad7d23f76f02c1138b01cc6d3629f"
+                "reference": "d4a89b99f139d8d4f746af1d512d064c48eb7560"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
@@ -1628,6 +1637,9 @@
                 ],
                 "test-php": [
                     "@composer phpunit"
+                ],
+                "test-php-coverage": [
+                    "php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\""
                 ]
             },
             "license": [
