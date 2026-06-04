@@ -162,6 +162,21 @@ var three = "three";';
 		$this->assertFalse( Js_Structure_Scanner::looks_broken( Minify::js( $source ) ) );
 	}
 
+	/**
+	 * A hook callback that throws must not break minification: js() swallows the
+	 * hook error and still returns the original bundle.
+	 */
+	public function test_js_fallback_survives_throwing_hook() {
+		$source = '/* only a comment */'; // Minifies to empty -> triggers a fallback.
+
+		Actions\expectDone( 'jetpack_boost_js_minify_fallback' )
+			->once()
+			->andThrow( new \RuntimeException( 'misbehaving listener' ) );
+
+		// Must not propagate the hook exception; returns the original input.
+		$this->assertSame( $source, Minify::js( $source ) );
+	}
+
 	public function test_css_minifies() {
 		$source = '.example { color: red; }';
 		$min    = Minify::css( $source );

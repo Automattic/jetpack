@@ -18,14 +18,14 @@ use MatthiasMullie\Minify\JS as JSMinifier;
 class Minify {
 
 	/**
-	 * Reasons passed to the jetpack_boost_js_minify_fallback action. Kept as
-	 * constants so the contract is machine-checkable rather than a prose-only enum;
-	 * the string values are the public wire format hook consumers compare against.
+	 * Reasons passed to the jetpack_boost_js_minify_fallback action. Public so hook
+	 * consumers can compare against Minify::FALLBACK_* instead of bare strings; the
+	 * string values are the stable wire format and must not change.
 	 */
-	private const FALLBACK_EXCEPTION    = 'exception';
-	private const FALLBACK_ERROR        = 'error';
-	private const FALLBACK_EMPTY_OUTPUT = 'empty_output';
-	private const FALLBACK_LOOKS_BROKEN = 'looks_broken';
+	public const FALLBACK_EXCEPTION    = 'exception';
+	public const FALLBACK_ERROR        = 'error';
+	public const FALLBACK_EMPTY_OUTPUT = 'empty_output';
+	public const FALLBACK_LOOKS_BROKEN = 'looks_broken';
 
 	/**
 	 * Strips whitespace from JavaScript scripts.
@@ -64,9 +64,18 @@ class Minify {
 		if ( '' === (string) $minified_js && '' !== (string) $js ) {
 			return self::fallback_js( $js, self::FALLBACK_EMPTY_OUTPUT );
 		}
+
+		// The structural scan runs outside the minifier try/catch above, so guard it
+		// too: an \Error from the scan itself (e.g. memory exhaustion lexing a large
+		// bundle) must degrade to the original rather than white-screen the page.
 		// Pass the original input so the scanner can apply its gross-truncation
 		// backstop to bundles too large to scan in full. See Js_Structure_Scanner.
-		if ( Js_Structure_Scanner::looks_broken( $minified_js, $js ) ) {
+		try {
+			$looks_broken = Js_Structure_Scanner::looks_broken( $minified_js, $js );
+		} catch ( \Throwable $e ) {
+			return self::fallback_js( $js, self::FALLBACK_ERROR, $e );
+		}
+		if ( $looks_broken ) {
 			return self::fallback_js( $js, self::FALLBACK_LOOKS_BROKEN );
 		}
 
@@ -77,12 +86,15 @@ class Minify {
 	 * Serve the original (un-re-minified) JS when minification is declined, and
 	 * surface the reason so the safety net is observable in production.
 	 *
-	 * Without this, on a host where the concatenation cache is not writable the
-	 * fallback can fire on every request for a given bundle indefinitely with
-	 * nothing in any log to explain why a bundle is larger or slower than expected.
+	 * Observability policy: the jetpack_boost_js_minify_fallback action is the
+	 * always-on surface and fires on every fallback (including the abnormal
+	 * 'error' arm), so monitoring should hook it. The error_log calls are a debug
+	 * aid only and are gated behind WP_DEBUG: a recurring fallback on a
+	 * no-writable-cache host can fire every request, and unconditional logging
+	 * would flood the log without telling an operator anything the hook cannot.
 	 *
 	 * @param string          $js     The original JS that will be served.
-	 * @param string          $reason One of 'exception', 'error', 'empty_output', 'looks_broken'.
+	 * @param string          $reason One of the FALLBACK_* constants.
 	 * @param \Throwable|null $error  The throwable, when the fallback was triggered by one.
 	 *
 	 * @return string The original JS, unchanged.
@@ -90,18 +102,22 @@ class Minify {
 	private static function fallback_js( $js, $reason, $error = null ) {
 		// js() has no type hint, so a caller can pass a non-string (the \Error-arm
 		// test does exactly that); measure length defensively rather than assume.
-		$bytes = is_string( $js ) ? strlen( $js ) : 0;
+		$bytes    = is_string( $js ) ? strlen( $js ) : 0;
+		$is_debug = defined( 'WP_DEBUG' ) && WP_DEBUG;
 
 		try {
 			/**
 			 * Fires when Minify::js() declines its minified output and serves the
-			 * original JS instead. Lets operators and logging plugins measure how
-			 * often the safety net fires and for which reason. This is the always-on
-			 * observability surface; the error_log below is only a debug aid.
+			 * original JS instead. This is the always-on observability surface for
+			 * the minify safety net: it fires on every fallback, including the
+			 * abnormal 'error' arm (\OutOfMemoryError / \TypeError / \ParseError),
+			 * so register a callback here to monitor how often -- and why -- it
+			 * engages. Callbacks must not throw; a throwing callback is swallowed so
+			 * it cannot break minification.
 			 *
 			 * @since $$next-version$$
 			 *
-			 * @param string          $reason Why the fallback fired: 'exception', 'error', 'empty_output', or 'looks_broken'.
+			 * @param string          $reason Why the fallback fired: one of the Minify::FALLBACK_* values ('exception', 'error', 'empty_output', 'looks_broken').
 			 * @param int             $bytes  Length of the original JS being served, in bytes.
 			 * @param \Throwable|null $error  The throwable when triggered by one, otherwise null.
 			 */
@@ -110,16 +126,13 @@ class Minify {
 			// A misbehaving hook callback must never turn a handled fallback into a
 			// fatal error -- degrading gracefully to the original bundle is the whole
 			// point of this method. Surface the hook failure only under WP_DEBUG.
-			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+			if ( $is_debug ) {
 				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 				error_log( 'Jetpack Boost: jetpack_boost_js_minify_fallback hook threw: ' . $hook_error->getMessage() );
 			}
 		}
 
-		// The hook above is the production observability surface. The error_log is a
-		// debug aid only: gating it behind WP_DEBUG keeps a recurring fallback (which
-		// on a no-writable-cache host can fire every request) from flooding the log.
-		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+		if ( $is_debug ) {
 			$detail = $error instanceof \Throwable
 				? sprintf( ' (%s: %s)', get_class( $error ), $error->getMessage() )
 				: '';
