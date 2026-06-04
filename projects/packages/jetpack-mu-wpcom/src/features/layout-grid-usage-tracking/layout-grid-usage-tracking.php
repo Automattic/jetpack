@@ -173,6 +173,7 @@ function wpcom_layout_grid_usage_context_transient_key( $is_importing, $is_cron 
  * @return string One of: migration, import, xmlrpc, cli, cron, editor, rest, ajax, programmatic.
  */
 function wpcom_layout_grid_usage_classify_origin() {
+	// @phan-suppress-next-line PhanUndeclaredFunction -- wpcomsh-provided; present on WoA, guarded by function_exists.
 	if ( function_exists( 'wpcomsh_is_migration_in_progress' ) && wpcomsh_is_migration_in_progress() ) {
 		return 'migration';
 	}
