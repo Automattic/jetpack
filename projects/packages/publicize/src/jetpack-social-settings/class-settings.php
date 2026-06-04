@@ -517,7 +517,7 @@ class Settings {
 	/**
 	 * Update the Open Graph settings.
 	 *
-	 * @param array $new_setting The new settings.
+	 * @param mixed $new_setting The new settings.
 	 *
 	 * @return bool
 	 */

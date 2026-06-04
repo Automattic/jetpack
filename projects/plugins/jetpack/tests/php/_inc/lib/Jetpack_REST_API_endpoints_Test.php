@@ -730,8 +730,11 @@ class Jetpack_REST_API_endpoints_Test extends WP_UnitTestCase {
 	 * @return void
 	 */
 	public function test_validate_open_graph_settings_requires_array() {
+		/** @var mixed $settings */
+		$settings = get_option( 'missing_open_graph_settings', 'invalid-settings' );
+
 		$result = Jetpack_Core_Json_Api_Endpoints::validate_open_graph_settings(
-			'invalid-settings',
+			$settings,
 			new WP_REST_Request(),
 			'jetpack_social_open_graph_settings'
 		);

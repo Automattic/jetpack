@@ -176,7 +176,10 @@ class Jetpack_Social_Settings_Test extends BaseTestCase {
 	 * Tests that non-array Open Graph setting updates are ignored.
 	 */
 	public function test_open_graph_settings_ignore_non_array_updates() {
-		$this->settings->update_open_graph_settings( 'invalid-settings' );
+		/** @var mixed $settings */
+		$settings = get_option( 'missing_open_graph_settings', 'invalid-settings' );
+
+		$this->settings->update_open_graph_settings( $settings );
 
 		$this->assertSame( 0, $this->settings->og_get_default_image_id() );
 	}

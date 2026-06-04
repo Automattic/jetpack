@@ -3637,7 +3637,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	/**
 	 * Validate Open Graph image settings.
 	 *
-	 * @param array           $values  Values to validate.
+	 * @param mixed           $values  Values to validate.
 	 * @param WP_REST_Request $request The request sent to the WP REST API.
 	 * @param string          $param   Name of the parameter passed to endpoint holding $values.
 	 *
