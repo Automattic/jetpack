@@ -4,7 +4,9 @@ namespace Automattic\Jetpack_Boost\Tests\Lib;
 use Automattic\Jetpack_Boost\Lib\Js_Structure_Scanner;
 use Automattic\Jetpack_Boost\Lib\Minify;
 use Automattic\Jetpack_Boost\Tests\Base_TestCase;
+use Brain\Monkey\Actions;
 use MatthiasMullie\Minify\JS as JSMinifier;
+use Mockery;
 
 /**
  * Class Minify_Test
@@ -96,6 +98,56 @@ var three = "three";';
 
 	public function test_js_handles_empty_input() {
 		$this->assertSame( '', Minify::js( '' ) );
+	}
+
+	/**
+	 * The fallback observability hook fires with the reason and the original byte
+	 * length whenever js() declines its minified output.
+	 */
+	public function test_js_fallback_fires_observability_hook() {
+		// A comment-only file minifies to empty, so js() falls back.
+		$source = '/* only a comment */';
+
+		Actions\expectDone( 'jetpack_boost_js_minify_fallback' )
+			->once()
+			->with( 'empty_output', strlen( $source ), null );
+
+		$this->assertSame( $source, Minify::js( $source ) );
+	}
+
+	/**
+	 * \Error subclasses (e.g. \TypeError, \OutOfMemoryError) are not swallowed
+	 * silently: js() reports the 'error' reason via the hook, logs it, and still
+	 * falls back to the original input rather than letting the page white-screen.
+	 */
+	public function test_js_reports_error_subclasses_and_falls_back() {
+		// A non-stringable object makes the minifier constructor raise an \Error
+		// ("Object of class stdClass could not be converted to string") -- a
+		// deterministic stand-in for the \OutOfMemoryError / \TypeError / \ParseError
+		// class this arm exists to surface.
+		$source = new \stdClass();
+
+		Actions\expectDone( 'jetpack_boost_js_minify_fallback' )
+			->once()
+			->with( 'error', 0, Mockery::type( \Error::class ) );
+
+		// The 'error' arm always logs; redirect error_log to a temp file so the
+		// test asserts on it instead of polluting the test output.
+		$log     = tempnam( sys_get_temp_dir(), 'jb-minify-log-' );
+		$old_log = ini_get( 'error_log' );
+		ini_set( 'error_log', $log );
+		try {
+			$result = Minify::js( $source );
+		} finally {
+			ini_set( 'error_log', $old_log );
+		}
+
+		$this->assertSame( $source, $result );
+		$this->assertStringContainsString( 'reason=error', (string) file_get_contents( $log ) );
+		if ( file_exists( $log ) ) {
+			// phpcs:ignore WordPress.WP.AlternativeFunctions.unlink_unlink
+			unlink( $log );
+		}
 	}
 
 	public function test_css_minifies() {

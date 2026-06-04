@@ -28,8 +28,17 @@ class Minify {
 		try {
 			$minifier    = new JSMinifier( $js );
 			$minified_js = $minifier->minify();
-		} catch ( \Throwable $e ) {
-			return $js;
+		} catch ( \Exception $e ) {
+			// Ordinary failure (e.g. a PCRE backtrack-limit hit on a huge bundle):
+			// serve the original input rather than nothing.
+			return self::fallback_js( $js, 'exception', $e );
+		} catch ( \Error $e ) {
+			// \Error subclasses (\OutOfMemoryError, \TypeError, \ParseError) signal
+			// server pressure or a genuine bug rather than unsupported syntax. We
+			// still fall back -- a performance optimization must never white-screen
+			// the page -- but always log so the condition is visible instead of
+			// recurring silently on every request.
+			return self::fallback_js( $js, 'error', $e );
 		}
 
 		// The bundled MatthiasMullie minifier is regex-based and ES5-era: it can
@@ -43,13 +52,61 @@ class Minify {
 		// fall back to the original (still concatenated, just not re-minified)
 		// bytes. A slightly larger working bundle beats a smaller broken one.
 		if ( '' === (string) $minified_js && '' !== (string) $js ) {
-			return $js;
+			return self::fallback_js( $js, 'empty_output' );
 		}
-		if ( Js_Structure_Scanner::looks_broken( $minified_js ) ) {
-			return $js;
+		// Pass the original input so the scanner can apply its gross-truncation
+		// backstop to bundles too large to scan in full. See Js_Structure_Scanner.
+		if ( Js_Structure_Scanner::looks_broken( $minified_js, $js ) ) {
+			return self::fallback_js( $js, 'looks_broken' );
 		}
 
 		return $minified_js;
+	}
+
+	/**
+	 * Serve the original (un-re-minified) JS when minification is declined, and
+	 * surface the reason so the safety net is observable in production.
+	 *
+	 * Without this, on a host where the concatenation cache is not writable the
+	 * fallback can fire on every request for a given bundle indefinitely with
+	 * nothing in any log to explain why a bundle is larger or slower than expected.
+	 *
+	 * @param string          $js     The original JS that will be served.
+	 * @param string          $reason One of 'exception', 'error', 'empty_output', 'looks_broken'.
+	 * @param \Throwable|null $error  The throwable, when the fallback was triggered by one.
+	 *
+	 * @return string The original JS, unchanged.
+	 */
+	private static function fallback_js( $js, $reason, $error = null ) {
+		// $js is normally a string from file_get_contents(), but the \Error arm can
+		// be reached before that is guaranteed, so measure length defensively.
+		$bytes = is_string( $js ) ? strlen( $js ) : 0;
+
+		/**
+		 * Fires when Minify::js() declines its minified output and serves the
+		 * original JS instead. Lets operators and logging plugins measure how often
+		 * the safety net fires and for which reason.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param string          $reason Why the fallback fired: 'exception', 'error', 'empty_output', or 'looks_broken'.
+		 * @param int             $bytes  Length of the original JS being served, in bytes.
+		 * @param \Throwable|null $error  The throwable when triggered by one, otherwise null.
+		 */
+		do_action( 'jetpack_boost_js_minify_fallback', $reason, $bytes, $error );
+
+		// \Error subclasses are abnormal, so always log them. The other arms can be
+		// frequent by design (every cache miss for an un-minifiable bundle), so they
+		// only log under WP_DEBUG to avoid flooding the error log in production.
+		if ( 'error' === $reason || ( defined( 'WP_DEBUG' ) && WP_DEBUG ) ) {
+			$detail = $error instanceof \Throwable
+				? sprintf( ' (%s: %s)', get_class( $error ), $error->getMessage() )
+				: '';
+			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+			error_log( sprintf( 'Jetpack Boost: Minify::js() fell back to original JS [reason=%s, bytes=%d]%s', $reason, $bytes, $detail ) );
+		}
+
+		return $js;
 	}
 
 	/**
