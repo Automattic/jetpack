@@ -1,10 +1,8 @@
 import apiFetch from '@wordpress/api-fetch';
-import { useEffect, useState } from '@wordpress/element';
+import { useCallback, useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Button, Link, Stack, Text } from '@wordpress/ui';
 import { addQueryArgs } from '@wordpress/url';
-
-import './style.scss';
 
 export default () => {
 	const [ prompts, setPrompts ] = useState( [] );
@@ -23,6 +21,12 @@ export default () => {
 		apiFetch( { path } ).then( setPrompts );
 	}, [] );
 
+	const goToPrevious = useCallback( () => setIndex( current => current - 1 ), [] );
+	const goToNext = useCallback( () => setIndex( current => current + 1 ), [] );
+	const postAnswer = useCallback( () => {
+		document.location = `post-new.php?answer_prompt=${ prompts[ index ].id }`;
+	}, [ prompts, index ] );
+
 	if ( prompts.length === 0 ) {
 		return null;
 	}
@@ -36,34 +40,23 @@ export default () => {
 					{ prompt.text }
 				</Text>
 				<Stack direction="row" justify="flex-end">
-					<Button
-						variant="minimal"
-						size="small"
-						onClick={ () => setIndex( index - 1 ) }
-						disabled={ index === 0 }
-					>
-						{ __( '← Previous', 'jetpack-mu-wpcom' ) }
+					<Button variant="minimal" size="small" onClick={ goToPrevious } disabled={ index === 0 }>
+						{ __( '← Previous', 'jetpack-newsletter' ) }
 					</Button>
 					<Button
 						variant="minimal"
 						size="small"
-						onClick={ () => setIndex( index + 1 ) }
+						onClick={ goToNext }
 						disabled={ index === prompts.length - 1 }
 					>
-						{ __( 'Next →', 'jetpack-mu-wpcom' ) }
+						{ __( 'Next →', 'jetpack-newsletter' ) }
 					</Button>
 				</Stack>
 			</Stack>
 			<Stack direction="row" justify="space-between" align="center" gap="sm" wrap="wrap">
 				{ /* Replace with LinkButton once available: https://github.com/WordPress/gutenberg/issues/77098 */ }
-				<Button
-					variant="outline"
-					size="compact"
-					onClick={ () => {
-						document.location = `post-new.php?answer_prompt=${ prompt.id }`;
-					} }
-				>
-					{ __( 'Post Answer', 'jetpack-mu-wpcom' ) }
+				<Button variant="outline" size="compact" onClick={ postAnswer }>
+					{ __( 'Post Answer', 'jetpack-newsletter' ) }
 				</Button>
 				{ prompt.answered_users_sample.length > 0 && (
 					<Stack
@@ -74,14 +67,14 @@ export default () => {
 					>
 						{ prompt.answered_users_count > 0 && (
 							<Link href={ new URL( prompt.answered_link ).toString() }>
-								{ __( 'View all responses', 'jetpack-mu-wpcom' ) }
+								{ __( 'View all responses', 'jetpack-newsletter' ) }
 							</Link>
 						) }
 						<span>
 							{ prompt.answered_users_sample.map( sample => {
 								return (
 									<img
-										alt={ __( 'User avatar', 'jetpack-mu-wpcom' ) }
+										alt={ __( 'User avatar', 'jetpack-newsletter' ) }
 										src={ addQueryArgs( sample.avatar, {
 											s: 22 * 2,
 										} ) }

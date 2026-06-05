@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Daily Writing Prompt: move the dashboard widget into the jetpack-newsletter package and consume it from there, removing the duplicated widget code.
