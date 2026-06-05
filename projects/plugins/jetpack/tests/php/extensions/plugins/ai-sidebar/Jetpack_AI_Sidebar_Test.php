@@ -548,7 +548,7 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 		$this->assertStringContainsString( '"jetpackAiSidebarPreview":{"enabled":true', $this->get_agents_manager_inline_script() );
 		$this->assertStringContainsString( '"aiEditorialReview":true', $this->get_agents_manager_inline_script() );
 		$this->assertStringContainsString( '"blockTransformations":true', $this->get_agents_manager_inline_script() );
-		$this->assertStringContainsString( '"optimizeTitleSuggestion":false', $this->get_agents_manager_inline_script() );
+		$this->assertStringContainsString( '"optimizeTitleSuggestion":true', $this->get_agents_manager_inline_script() );
 		$this->assertStringContainsString( '"chatHistory":false', $this->get_agents_manager_inline_script() );
 		$this->assertStringContainsString( '"supportGuides":false', $this->get_agents_manager_inline_script() );
 	}
@@ -619,7 +619,7 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 		$this->assertSame( true, $data['jetpackAiSidebarPreview']['enabled'] );
 		$this->assertSame( true, $data['jetpackAiSidebarPreview']['features']['aiEditorialReview'] );
 		$this->assertSame( true, $data['jetpackAiSidebarPreview']['features']['blockTransformations'] );
-		$this->assertSame( false, $data['jetpackAiSidebarPreview']['features']['optimizeTitleSuggestion'] );
+		$this->assertSame( true, $data['jetpackAiSidebarPreview']['features']['optimizeTitleSuggestion'] );
 		$this->assertSame( false, $data['jetpackAiSidebarPreview']['features']['chatHistory'] );
 		$this->assertSame( false, $data['jetpackAiSidebarPreview']['features']['supportGuides'] );
 	}
