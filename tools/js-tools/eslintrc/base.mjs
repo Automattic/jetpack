@@ -460,14 +460,7 @@ export function makeBaseConfig( configurl, opts = {} ) {
 
 		// Various config files should allow 'node' globals.
 		{
-			files: [
-				'.pnpmfile.cjs',
-				'tools/js-tools/eslintrc/get-ts-parser.cjs',
-				'tools/js-tools/eslint-plugin-jetpack/**/*.mjs',
-				'**/tests/e2e/config/default.cjs',
-				'**/*.config.?([cm])js',
-				'**/webpack.config.*.?([cm])js',
-			],
+			files: [ '**/*.config.?([cm])js', '**/webpack.config.*.?([cm])js' ],
 			languageOptions: {
 				globals: globals.node,
 			},
