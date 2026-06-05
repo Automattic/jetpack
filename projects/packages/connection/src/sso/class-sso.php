@@ -1212,14 +1212,13 @@ class SSO {
 
 			$is_json_api_auth  = ! empty( $json_api_auth_environment );
 			$manager           = new Manager();
-			$tokens            = $manager->get_tokens();
 			$is_user_connected = $manager->is_user_connected( $user->ID );
 
 			if ( $is_user_connected ) {
 				$is_user_connected = $this->verify_user_token(
 					$user->ID,
 					$user_data,
-					$tokens,
+					$manager->get_tokens(),
 					$token_validated_for_user
 				);
 			}
