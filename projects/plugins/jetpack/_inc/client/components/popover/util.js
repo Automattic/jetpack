@@ -229,7 +229,7 @@ function offset( pos, el, target ) {
 		throw new Error( 'could not determine page offset of `target`' );
 	}
 
-	let _pos = {};
+	let _pos;
 
 	switch ( pos ) {
 		case 'top':

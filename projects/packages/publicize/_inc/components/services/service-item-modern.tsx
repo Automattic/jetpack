@@ -7,7 +7,6 @@ import { Collapsible, Icon, Text } from '@wordpress/ui';
 import { store as socialStore } from '../../social-store';
 import { ConnectForm } from './connect-form';
 import { ServiceItemDetails, ServicesItemDetailsProps } from './service-item-details';
-import { ServiceItemNotice } from './service-item-notice';
 import { ServiceStatus } from './service-status';
 import styles from './style-modern.module.scss';
 import type { SyntheticEvent } from 'react';
@@ -124,7 +123,6 @@ export function ModernServiceItem( {
 			<Collapsible.Panel className={ styles[ 'service-panel' ] }>
 				<div className={ styles[ 'service-panel-inner' ] }>
 					<ServiceItemDetails service={ service } serviceConnections={ serviceConnections } />
-					<ServiceItemNotice service={ service } serviceConnections={ serviceConnections } />
 					{
 						// Connect form for services that need custom inputs
 						// should be shown only if there are no broken connections

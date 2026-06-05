@@ -10,18 +10,18 @@ import { store as socialStore } from '../../social-store';
 /**
  * Returns whether sharing is possible based on the current media and connections.
  *
- * Returns true if at least one ready-to-share connection is valid for sharing, false otherwise.
+ * Returns true if at least one of the enabled connections is valid for sharing, false otherwise.
  *
  * @return {boolean} Whether sharing is possible.
  */
 export function useIsSharingPossible() {
-	const { connectionsReadyToShare } = useSocialMediaConnections();
+	const { enabledConnections } = useSocialMediaConnections();
 	const { attachedMedia } = useAttachedMedia();
 	const featuredImageId = useFeaturedImage();
 
 	const mediaId = attachedMedia[ 0 ]?.id || featuredImageId;
 	const { validationErrors, isConvertible } = useMediaRestrictions(
-		connectionsReadyToShare,
+		enabledConnections,
 		useMediaDetails( mediaId )[ 0 ]
 	);
 
@@ -31,11 +31,8 @@ export function useIsSharingPossible() {
 			.map( c => c.connection_id );
 	}, [] );
 
-	// Sharing will be possible if any ready-to-share connections are valid for sharing.
-	return connectionsReadyToShare.some( function isValidForSharing( {
-		connection_id,
-		service_name,
-	} ) {
+	// Sharing will be possible if any of the enabled connections are valid for sharing.
+	return enabledConnections.some( function isValidForSharing( { connection_id, service_name } ) {
 		// Return early if the connection is broken
 		if ( brokenConnectionIds.includes( connection_id ) ) {
 			return false;
