@@ -89,29 +89,27 @@ export const CustomSelected: Story = {
 	render: () => <DateRangePresetsWithState initialPrimaryPresetId="custom" />,
 };
 
+function DateRangePresetsNoSelection() {
+	const [ presetId, setPrimaryPresetId ] = useState< PrimaryPresetId | null >( null );
+	const [ , setRange ] = useState< DateRange | null >( null );
+
+	const handleChange = ( nextRange: DateRange, nextPrimaryPresetId: PrimaryPresetId ) => {
+		setRange( nextRange );
+		setPrimaryPresetId( nextPrimaryPresetId );
+	};
+
+	return (
+		<DateRangePresets
+			value={ presetId }
+			onRangeChange={ handleChange }
+			timeZone={ STORY_TIMEZONE }
+		/>
+	);
+}
+
 /**
  * No preset selected.
  */
 export const NoSelection: Story = {
-	render: () => {
-		const [ presetId, setPrimaryPresetId ] =
-			useState< PrimaryPresetId | null >( null );
-		const [ , setRange ] = useState< DateRange | null >( null );
-
-		const handleChange = (
-			nextRange: DateRange,
-			nextPrimaryPresetId: PrimaryPresetId
-		) => {
-			setRange( nextRange );
-			setPrimaryPresetId( nextPrimaryPresetId );
-		};
-
-		return (
-			<DateRangePresets
-				value={ presetId }
-				onRangeChange={ handleChange }
-				timeZone={ STORY_TIMEZONE }
-			/>
-		);
-	},
+	render: () => <DateRangePresetsNoSelection />,
 };

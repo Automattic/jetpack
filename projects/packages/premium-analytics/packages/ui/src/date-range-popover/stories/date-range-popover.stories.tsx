@@ -91,53 +91,57 @@ export const Default: Story = {
 	render: () => <DateRangePopoverWithState />,
 };
 
+function DateRangePopoverCustomPreset() {
+	const [ range, setRange ] = useState< DateRange >( {
+		from: startOfDay( subDays( today, 14 ) ),
+		to: endOfDay( subDays( today, 3 ) ),
+	} );
+
+	return (
+		<DateRangePopover
+			presetId="custom"
+			range={ range }
+			onChange={ nextRange => nextRange && setRange( nextRange ) }
+			onApply={ () => {} }
+			onCancel={ () => {} }
+			canApply={ true }
+			timeZone={ STORYBOOK_TIMEZONE }
+		/>
+	);
+}
+
 /**
  * `Custom` preset selected.
  */
 export const CustomPreset: Story = {
-	render: () => {
-		const [ range, setRange ] = useState< DateRange >( {
-			from: startOfDay( subDays( today, 14 ) ),
-			to: endOfDay( subDays( today, 3 ) ),
-		} );
-
-		return (
-			<DateRangePopover
-				presetId="custom"
-				range={ range }
-				onChange={ ( nextRange ) => nextRange && setRange( nextRange ) }
-				onApply={ () => {} }
-				onCancel={ () => {} }
-				canApply={ true }
-				timeZone={ STORYBOOK_TIMEZONE }
-			/>
-		);
-	},
+	render: () => <DateRangePopoverCustomPreset />,
 };
+
+function DateRangePopoverTodayPreset() {
+	const todayRange: DateRange = {
+		from: startOfDay( today ),
+		to: endOfDay( today ),
+	};
+	const [ range, setRange ] = useState< DateRange >( todayRange );
+
+	return (
+		<DateRangePopover
+			presetId="today"
+			range={ range }
+			onChange={ nextRange => nextRange && setRange( nextRange ) }
+			onApply={ () => {} }
+			onCancel={ () => {} }
+			canApply={ false }
+			timeZone={ STORYBOOK_TIMEZONE }
+		/>
+	);
+}
 
 /**
  * `Today` preset selected.
  */
 export const TodayPreset: Story = {
-	render: () => {
-		const todayRange: DateRange = {
-			from: startOfDay( today ),
-			to: endOfDay( today ),
-		};
-		const [ range, setRange ] = useState< DateRange >( todayRange );
-
-		return (
-			<DateRangePopover
-				presetId="today"
-				range={ range }
-				onChange={ ( nextRange ) => nextRange && setRange( nextRange ) }
-				onApply={ () => {} }
-				onCancel={ () => {} }
-				canApply={ false }
-				timeZone={ STORYBOOK_TIMEZONE }
-			/>
-		);
-	},
+	render: () => <DateRangePopoverTodayPreset />,
 };
 
 /**

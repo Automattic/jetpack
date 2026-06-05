@@ -41,9 +41,11 @@ const defaultRange: DateRange = {
 function DateComparisonDropdownWithState( {
 	initialEnabled = true,
 	initialPresetId = 'previous-period',
+	removeCompareToPrefix = false,
 }: {
 	initialEnabled?: boolean;
 	initialPresetId?: ComparisonPresetId;
+	removeCompareToPrefix?: boolean;
 } ) {
 	const [ enabled, setEnabled ] = useState( initialEnabled );
 	const [ presetId, setPresetId ] = useState<
@@ -57,6 +59,7 @@ function DateComparisonDropdownWithState( {
 			presets={ presets }
 			enabled={ enabled }
 			presetId={ presetId }
+			removeCompareToPrefix={ removeCompareToPrefix }
 			onEnable={ () => {
 				setEnabled( true );
 				setPresetId( 'previous-period' );
@@ -98,30 +101,5 @@ export const PreviousMonthSelected: Story = {
  * Without the "Compare:" prefix - just shows the date range.
  */
 export const WithoutPrefix: Story = {
-	render: () => {
-		const [ enabled, setEnabled ] = useState( true );
-		const [ presetId, setPresetId ] = useState<
-			ComparisonPresetId | undefined
-		>( 'previous-period' );
-
-		const presets = useComparisonDatePresets( defaultRange );
-
-		return (
-			<DateComparisonDropdown
-				presets={ presets }
-				enabled={ enabled }
-				presetId={ presetId }
-				removeCompareToPrefix
-				onEnable={ () => {
-					setEnabled( true );
-					setPresetId( 'previous-period' );
-				} }
-				onPresetChange={ setPresetId }
-				onClear={ () => {
-					setEnabled( false );
-					setPresetId( undefined );
-				} }
-			/>
-		);
-	},
+	render: () => <DateComparisonDropdownWithState removeCompareToPrefix />,
 };
