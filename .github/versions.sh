@@ -1,3 +1,5 @@
+#!/usr/bin/env bash
+
 # Versions of tools to use in CI.
 PHP_VERSION=8.4
 COMPOSER_VERSION=2.9.8

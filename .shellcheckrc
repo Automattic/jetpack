@@ -28,5 +28,3 @@ disable=SC2120
 disable=SC2128
 # SC2140: Word is of the form "A"B"C"; the "B" indicated may be unquoted. https://www.shellcheck.net/wiki/SC2140
 disable=SC2140
-# SC2148: Add a shebang. https://www.shellcheck.net/wiki/SC2148
-disable=SC2148
