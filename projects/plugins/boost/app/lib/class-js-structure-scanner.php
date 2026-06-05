@@ -413,9 +413,17 @@ class Js_Structure_Scanner {
 	private function scan_string() {
 		$c = $this->js[ $this->pos ];
 		if ( '\\' === $c ) {
-			// Escape sequence, including a line continuation (`\` then newline), so
-			// the raw-newline check below only sees genuinely unescaped newlines.
-			$this->pos += 2;
+			// Escape sequence, including a line continuation (`\` then a line
+			// terminator). A CRLF continuation is three bytes (`\` + CR + LF), so
+			// consume the trailing LF too -- otherwise it is left at the new position
+			// and trips the raw-newline check below, falsely flagging a valid
+			// continuation as broken. A lone CR or LF after `\` is the normal 2-byte
+			// skip.
+			if ( "\r" === $this->peek() && "\n" === $this->peek( 2 ) ) {
+				$this->pos += 3;
+			} else {
+				$this->pos += 2;
+			}
 			return false;
 		}
 		// A raw LF/CR inside a string literal is a syntax error (a real newline must

@@ -67,6 +67,7 @@ class Js_Structure_Scanner_Test extends Base_TestCase {
 			'single-quote escape'      => "var x='a\\'b';",
 			'double-quote escape'      => 'var y="a\\"b";',
 			'string line continuation' => "var s=\"ab\\\ncd\";",
+			'string crlf continuation' => "var s=\"ab\\\r\ncd\";",
 			'line comment newline'     => "var z=1;//c\nvar w=2",
 			'division after paren'     => 'var q=a()/b',
 			'string with comment'      => 'var d="//not a comment";',
