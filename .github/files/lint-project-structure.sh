@@ -723,12 +723,12 @@ while IFS=$'\t' read -r FILE NAME; do
 	J=$( curl -sS "https://registry.npmjs.com/$( jq -rn --arg V "$NAME" '$V | @uri' )" )
 	if ! jq -e '.maintainers' <<<"$J" &>/dev/null; then
 		EXIT=1
-		echo "::error file=$FILE$LINE::Name $NAME is not published and not scoped. If it is not supposed to be published to npmjs, then if possible omit the \"name\" field entirely or otherwise rename it like \"@automattic/$NAME\" or \"_$NAME\" or manually publish a dummy version. If it will be published, rename it like \"@automattic/$NAME\" or manually publish a dummy version."
+		echo "::error file=$FILE$LINE::Name $NAME is not published and not scoped. If it is not supposed to be published to npmjs, then if possible omit the \"name\" field entirely or otherwise rename it like \"@automattic/$NAME\" or manually publish a dummy version. If it will be published, rename it like \"@automattic/$NAME\" or manually publish a dummy version."
 	elif ! jq -e '.maintainers[] | select( .name == "matticbot" or .name == "npm" )' <<<"$J" &>/dev/null; then
 		EXIT=1
-		echo "::error file=$FILE$LINE::Name $NAME is not owned by us (\`matticbot\`) or the NPM security account (\`npm\`). If this is not supposed to be published to npmjs, then if possible omit the \"name\" field entirely or otherwise rename it like \"@automattic/$NAME\" or \"_$NAME\". If it will be published, either add \`matticbot\` as a maintainer if we can or you'll have to rename (e.g. like \"@automattic/$NAME\")."
+		echo "::error file=$FILE$LINE::Name $NAME is not owned by us (\`matticbot\`) or the NPM security account (\`npm\`). If this is not supposed to be published to npmjs, then if possible omit the \"name\" field entirely or otherwise rename it like \"@automattic/$NAME\". If it will be published, either add \`matticbot\` as a maintainer if we can or you'll have to rename (e.g. like \"@automattic/$NAME\")."
 	fi
-done < <( jq -r '.name // empty | select( startswith( "@automattic/" ) or startswith( "_" ) | not ) | [ input_filename, . ] | @tsv' $( git ls-files package.json '*/package.json' ) )
+done < <( jq -r '.name // empty | select( startswith( "@automattic/" ) | not ) | [ input_filename, . ] | @tsv' $( git ls-files package.json '*/package.json' ) )
 
 # - Check for old GPL text.
 debug "Checking for references to the FSF's old addresses"
