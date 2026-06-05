@@ -118,6 +118,7 @@ spin
 debug "Fetching PHP package versions"
 
 init_changelogger
+# shellcheck disable=SC2120
 function get_packages {
 	local PKGS
 	if [[ -z "$1" ]]; then

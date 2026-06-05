@@ -22,5 +22,3 @@ disable=SC2090
 disable=SC2091
 # SC2104: In functions, use return instead of break/continue. https://www.shellcheck.net/wiki/SC2104
 disable=SC2104
-# SC2120: Function references arguments, but none are ever passed. https://www.shellcheck.net/wiki/SC2120
-disable=SC2120
