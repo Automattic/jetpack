@@ -12,9 +12,6 @@ engineStrict: true
 pmOnFail: ignore
 preferWorkspacePackages: true
 
-# Variable for js-packages/webpack-config
-jetpackWebpackConfigResolveConditions: jetpack:src
-
 # Be strict about peer deps
 autoInstallPeers: false
 dedupePeerDependents: false
