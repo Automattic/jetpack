@@ -1,6 +1,7 @@
 import apiFetch from '@wordpress/api-fetch';
 import { useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { Button, Link, Stack, Text } from '@wordpress/ui';
 import { addQueryArgs } from '@wordpress/url';
 
 import './style.scss';
@@ -29,38 +30,53 @@ export default () => {
 	const prompt = prompts[ index ];
 
 	return (
-		<>
-			<div className="wpcom-daily-writing-prompt--prompt">
-				<p>{ prompt.text }</p>
-				<div className="wpcom-daily-writing-prompt--previous-next">
-					<button
-						className="button button-link"
+		<Stack direction="column" gap="md">
+			<Stack className="wpcom-daily-writing-prompt--prompt" direction="column" gap="md">
+				<Text variant="body-md" render={ <p /> }>
+					{ prompt.text }
+				</Text>
+				<Stack direction="row" justify="flex-end">
+					<Button
+						variant="minimal"
+						size="small"
 						onClick={ () => setIndex( index - 1 ) }
 						disabled={ index === 0 }
 					>
 						{ __( '← Previous', 'jetpack-mu-wpcom' ) }
-					</button>
-					{ ' ' }
-					<button
-						className="button button-link"
+					</Button>
+					<Button
+						variant="minimal"
+						size="small"
 						onClick={ () => setIndex( index + 1 ) }
 						disabled={ index === prompts.length - 1 }
 					>
 						{ __( 'Next →', 'jetpack-mu-wpcom' ) }
-					</button>
-				</div>
-			</div>
-			<div className="wpcom-daily-writing-prompt--action-row">
-				<a className="button" href={ `post-new.php?answer_prompt=${ prompt.id }` }>
+					</Button>
+				</Stack>
+			</Stack>
+			<Stack direction="row" justify="space-between" align="center" gap="sm" wrap="wrap">
+				{ /* Replace with LinkButton once available: https://github.com/WordPress/gutenberg/issues/77098 */ }
+				<Button
+					variant="outline"
+					size="compact"
+					onClick={ () => {
+						document.location = `post-new.php?answer_prompt=${ prompt.id }`;
+					} }
+				>
 					{ __( 'Post Answer', 'jetpack-mu-wpcom' ) }
-				</a>
+				</Button>
 				{ prompt.answered_users_sample.length > 0 && (
-					<div className="wpcom-daily-writing-prompt--answered-users">
+					<Stack
+						className="wpcom-daily-writing-prompt--answered-users"
+						direction="row"
+						align="center"
+						gap="xs"
+					>
 						{ prompt.answered_users_count > 0 && (
-							<a href={ new URL( prompt.answered_link ) }>
+							<Link href={ new URL( prompt.answered_link ).toString() }>
 								{ __( 'View all responses', 'jetpack-mu-wpcom' ) }
-							</a>
-						) }{ ' ' }
+							</Link>
+						) }
 						<span>
 							{ prompt.answered_users_sample.map( sample => {
 								return (
@@ -76,9 +92,9 @@ export default () => {
 								);
 							} ) }
 						</span>
-					</div>
+					</Stack>
 				) }
-			</div>
-		</>
+			</Stack>
+		</Stack>
 	);
 };
