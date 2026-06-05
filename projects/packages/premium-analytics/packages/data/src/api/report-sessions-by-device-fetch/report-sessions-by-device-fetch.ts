@@ -3,12 +3,11 @@
  */
 import apiFetch from '@wordpress/api-fetch';
 import { addQueryArgs } from '@wordpress/url';
-
 /**
  * Internal dependencies
  */
-import type { BaseReportParams } from '../../utils/types';
 import { reportsPath } from '../constants';
+import type { BaseReportParams } from '../../utils/types';
 
 /**
  * Raw response item from the sessions/by-device endpoint.
@@ -36,10 +35,7 @@ type ReportsSessionsByDeviceResponse = {
 	data: SessionsByDeviceItem[];
 };
 
-export type RequestReportSessionsByDeviceParams = Omit<
-	BaseReportParams,
-	'interval'
->;
+export type RequestReportSessionsByDeviceParams = Omit< BaseReportParams, 'interval' >;
 
 /**
  * Fetch sessions by device type report data.

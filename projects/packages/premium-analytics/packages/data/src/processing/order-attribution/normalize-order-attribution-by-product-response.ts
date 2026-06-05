@@ -20,25 +20,21 @@ export function normalizeOrderAttributionByProductResponse(
 	previousResponse?: OrderAttributionByProductResponse
 ): OrderAttributionSummaryResponse {
 	// Create a map for quick lookup of previous period data by item
-	const previousDataMap = new Map<
-		string,
-		( typeof currentResponse.data )[ 0 ]
-	>();
+	const previousDataMap = new Map< string, ( typeof currentResponse.data )[ 0 ] >();
 	if ( previousResponse ) {
-		previousResponse.data.forEach( ( item ) => {
+		previousResponse.data.forEach( item => {
 			previousDataMap.set( item.item, item );
 		} );
 	}
 
 	// Transform the flat structure to nested structure
-	const normalizedData = currentResponse.data.map( ( currentItem ) => {
+	const normalizedData = currentResponse.data.map( currentItem => {
 		const previousItem = previousDataMap.get( currentItem.item );
 
 		// If no previous response provided (no comparison), use current data for both periods
 		// This matches the behavior of the existing API when compare_from/to equal from/to
 		const previousValue = previousItem?.value || currentItem.value;
-		const previousIntervals =
-			previousItem?.intervals || currentItem.intervals;
+		const previousIntervals = previousItem?.intervals || currentItem.intervals;
 
 		return {
 			item: currentItem.item,
@@ -56,22 +52,18 @@ export function normalizeOrderAttributionByProductResponse(
 	// Handle items that exist in previous period but not in current
 	// This ensures we don't lose data when an item had sales in the previous period but not current
 	if ( previousResponse ) {
-		previousResponse.data.forEach( ( previousItem ) => {
-			const existsInCurrent = currentResponse.data.some(
-				( item ) => item.item === previousItem.item
-			);
+		previousResponse.data.forEach( previousItem => {
+			const existsInCurrent = currentResponse.data.some( item => item.item === previousItem.item );
 
 			if ( ! existsInCurrent ) {
 				normalizedData.push( {
 					item: previousItem.item,
 					current_period: {
 						value: '0',
-						intervals: previousItem.intervals.map(
-							( interval ) => ( {
-								...interval,
-								net_sales: '0',
-							} )
-						),
+						intervals: previousItem.intervals.map( interval => ( {
+							...interval,
+							net_sales: '0',
+						} ) ),
 					},
 					previous_period: {
 						value: previousItem.value,

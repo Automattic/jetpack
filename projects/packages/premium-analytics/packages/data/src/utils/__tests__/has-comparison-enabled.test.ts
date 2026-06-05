@@ -1,5 +1,5 @@
 /**
- * Mocks – break the dependency chain to @wordpress/core-data.
+ * Mocks – break the dependency chain to `@wordpress/core-data`.
  */
 jest.mock( '../../defaults', () => ( {
 	getDefaultQueryParams: jest.fn(),
@@ -12,7 +12,6 @@ jest.mock( '../preset-date-range', () => ( {
 jest.mock( '../interval', () => ( {
 	getDefaultIntervalForPeriod: jest.fn(),
 } ) );
-
 /**
  * Internal dependencies
  */

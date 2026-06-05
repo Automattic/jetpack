@@ -4,13 +4,9 @@
 import { fetchReportCustomers } from '../../api/report-customers-fetch';
 import type { Override } from '../../utils/types';
 
-type ReportsCustomersNewReturningResponse = Awaited<
-	ReturnType< typeof fetchReportCustomers >
->;
-type RawCustomersNewReturningSummary =
-	ReportsCustomersNewReturningResponse[ 'summary' ];
-type RawCustomersNewReturningItem =
-	ReportsCustomersNewReturningResponse[ 'data' ][ number ];
+type ReportsCustomersNewReturningResponse = Awaited< ReturnType< typeof fetchReportCustomers > >;
+type RawCustomersNewReturningSummary = ReportsCustomersNewReturningResponse[ 'summary' ];
+type RawCustomersNewReturningItem = ReportsCustomersNewReturningResponse[ 'data' ][ number ];
 
 /**
  * Processed summary (numbers for calculations)
@@ -68,9 +64,7 @@ function sanitizeCustomerSummary(
 		total_net_sales: parseFloat( summary.total_net_sales ),
 		total_orders: parseInt( summary.total_orders, 10 ),
 		new_customer_sales: parseFloat( summary.new_customer_sales ),
-		returning_customer_sales: parseFloat(
-			summary.returning_customer_sales
-		),
+		returning_customer_sales: parseFloat( summary.returning_customer_sales ),
 	};
 }
 

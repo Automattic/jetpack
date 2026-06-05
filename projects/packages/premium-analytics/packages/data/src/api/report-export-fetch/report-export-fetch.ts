@@ -29,18 +29,14 @@ export interface ExportReportResponse {
 /**
  * Export one or more reports via email
  *
- * @param params Export parameters
+ * @param params - Export parameters
  * @return Promise that resolves to the export response
  */
-export async function exportReport(
-	params: ExportReportParams
-): Promise< ExportReportResponse > {
+export async function exportReport( params: ExportReportParams ): Promise< ExportReportResponse > {
 	const path = '/wc/v3/woocommerce-analytics/reports/csv-export';
 
 	const body = {
-		report_type: Array.isArray( params.reportType )
-			? params.reportType
-			: [ params.reportType ],
+		report_type: Array.isArray( params.reportType ) ? params.reportType : [ params.reportType ],
 		from: params.from,
 		to: params.to,
 		interval: params.interval || 'day',

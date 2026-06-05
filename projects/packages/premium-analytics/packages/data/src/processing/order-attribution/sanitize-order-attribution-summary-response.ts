@@ -1,8 +1,8 @@
 /**
  * Internal dependencies
  */
-import { sanitizeStringNumber } from '../utils';
 import { fetchReportOrderAttributionSummary } from '../../api/report-order-attribution-summary-fetch';
+import { sanitizeStringNumber } from '../utils';
 
 type OrderAttributionSummaryResponse = Awaited<
 	ReturnType< typeof fetchReportOrderAttributionSummary >

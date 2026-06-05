@@ -4,9 +4,7 @@
 import { fetchReportCouponsByDate } from '../../api/report-coupons-by-date-fetch';
 import type { Override } from '../../utils/types';
 
-type ReportsCouponsByDateResponse = Awaited<
-	ReturnType< typeof fetchReportCouponsByDate >
->;
+type ReportsCouponsByDateResponse = Awaited< ReturnType< typeof fetchReportCouponsByDate > >;
 type RawSummary = ReportsCouponsByDateResponse[ 'summary' ];
 type RawDataItem = ReportsCouponsByDateResponse[ 'data' ][ number ];
 
@@ -79,9 +77,7 @@ function sanitizeSummary( summary: RawSummary ): SanitizedCouponsByDateSummary {
 		sales_with_coupon: parseFloat( summary.sales_with_coupon ),
 		sales_without_coupon: parseFloat( summary.sales_without_coupon ),
 		total_discount_amount: parseFloat( summary.total_discount_amount ),
-		net_sales_after_discount: parseFloat(
-			summary.net_sales_after_discount
-		),
+		net_sales_after_discount: parseFloat( summary.net_sales_after_discount ),
 		coupon_usage_percentage: parseFloat( summary.coupon_usage_percentage ),
 	};
 }

@@ -32,12 +32,7 @@ export function useReportOrderAttribution(
 			// Order attribution requires the view parameter
 			if ( ! params.view ) {
 				return {
-					queryKey: [
-						'reports',
-						'order-attribution',
-						'__disabled__',
-						'no-view-param',
-					],
+					queryKey: [ 'reports', 'order-attribution', '__disabled__', 'no-view-param' ],
 					enabled: false,
 				};
 			}

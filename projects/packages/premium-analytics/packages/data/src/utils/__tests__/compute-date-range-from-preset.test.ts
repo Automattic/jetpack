@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { tz } from '@date-fns/tz';
 import {
 	startOfDay,
 	endOfDay,
@@ -12,8 +13,6 @@ import {
 	startOfYear,
 	endOfYear,
 } from 'date-fns';
-import { tz } from '@date-fns/tz';
-
 /**
  * Mocks – getSiteTimezone and dateToISOStringWithLocalTZ
  * depend on WordPress core store.
@@ -25,11 +24,8 @@ import { tz } from '@date-fns/tz';
  */
 jest.mock( '../date', () => ( {
 	getSiteTimezone: jest.fn( () => '+00:00' ),
-	dateToISOStringWithLocalTZ: jest.fn( ( date: Date ) =>
-		new Date( date.getTime() ).toISOString()
-	),
+	dateToISOStringWithLocalTZ: jest.fn( ( date: Date ) => new Date( date.getTime() ).toISOString() ),
 } ) );
-
 /**
  * Internal dependencies
  */
@@ -120,24 +116,16 @@ describe( 'computeDateRangeFromPreset', () => {
 		const range = computeDateRangeFromPreset( 'last-month' );
 
 		expect( range ).toBeDefined();
-		expect( range!.from ).toBe(
-			toZ( startOfMonth( LAST_MONTH, { in: UTC } ) )
-		);
-		expect( range!.to ).toBe(
-			toZ( endOfMonth( LAST_MONTH, { in: UTC } ) )
-		);
+		expect( range!.from ).toBe( toZ( startOfMonth( LAST_MONTH, { in: UTC } ) ) );
+		expect( range!.to ).toBe( toZ( endOfMonth( LAST_MONTH, { in: UTC } ) ) );
 	} );
 
 	it( 'returns last 12 calendar months for "last-12-months"', () => {
 		const range = computeDateRangeFromPreset( 'last-12-months' );
 
 		expect( range ).toBeDefined();
-		expect( range!.from ).toBe(
-			toZ( startOfMonth( subMonths( TODAY_START, 12 ), { in: UTC } ) )
-		);
-		expect( range!.to ).toBe(
-			toZ( endOfMonth( LAST_MONTH, { in: UTC } ) )
-		);
+		expect( range!.from ).toBe( toZ( startOfMonth( subMonths( TODAY_START, 12 ), { in: UTC } ) ) );
+		expect( range!.to ).toBe( toZ( endOfMonth( LAST_MONTH, { in: UTC } ) ) );
 	} );
 
 	it( 'returns last calendar year for "last-year"', () => {
@@ -145,9 +133,7 @@ describe( 'computeDateRangeFromPreset', () => {
 		const lastYear = subYears( TODAY_START, 1 );
 
 		expect( range ).toBeDefined();
-		expect( range!.from ).toBe(
-			toZ( startOfYear( lastYear, { in: UTC } ) )
-		);
+		expect( range!.from ).toBe( toZ( startOfYear( lastYear, { in: UTC } ) ) );
 		expect( range!.to ).toBe( toZ( endOfYear( lastYear, { in: UTC } ) ) );
 	} );
 

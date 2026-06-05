@@ -4,9 +4,7 @@
 import { fetchReportProducts } from '../../api/report-products-fetch';
 import type { Override } from '../../utils/types';
 
-type ReportProductsResponse = Awaited<
-	ReturnType< typeof fetchReportProducts >
->;
+type ReportProductsResponse = Awaited< ReturnType< typeof fetchReportProducts > >;
 
 type RawProductsReportDataItem = ReportProductsResponse[ 'data' ][ number ];
 type RawProductsReportSummary = ReportProductsResponse[ 'summary' ];
@@ -34,9 +32,7 @@ type SanitizedProductsSummary = Override<
 /**
  * Sanitize/process a single product item by converting strings to numbers
  */
-function sanitizeProductItem(
-	item: RawProductsReportDataItem
-): SanitizedProductsItem {
+function sanitizeProductItem( item: RawProductsReportDataItem ): SanitizedProductsItem {
 	return {
 		...item,
 		product_id: parseInt( item.product_id, 10 ),
@@ -46,9 +42,7 @@ function sanitizeProductItem(
 	};
 }
 
-function sanitizeProductSummary(
-	summary: RawProductsReportSummary
-): SanitizedProductsSummary {
+function sanitizeProductSummary( summary: RawProductsReportSummary ): SanitizedProductsSummary {
 	return {
 		...summary,
 		total_orders: parseInt( summary.total_orders, 10 ),

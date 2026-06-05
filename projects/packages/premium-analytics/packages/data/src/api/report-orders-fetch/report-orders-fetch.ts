@@ -3,14 +3,13 @@
  */
 import apiFetch from '@wordpress/api-fetch';
 import { addQueryArgs } from '@wordpress/url';
-
 /**
  * Internal dependencies
  */
-import type { BaseReportParams } from '../../utils/types';
+import { hasProductFilters } from '../../utils/product-filters';
 import { reportsPath } from '../constants';
 import type { FilterCondition } from '../../types/filter-condition';
-import { hasProductFilters } from '../../utils/product-filters';
+import type { BaseReportParams } from '../../utils/types';
 
 type ReportsOrdersByDateSummary = {
 	average_order_value: string;

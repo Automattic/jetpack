@@ -2,12 +2,11 @@
  * External dependencies
  */
 import { computePrimaryRange } from '@jetpack-premium-analytics/datetime';
+import { getSiteTimezone, dateToISOStringWithLocalTZ } from './date';
 import type { SelectablePresetId } from '@jetpack-premium-analytics/datetime';
-
 /**
  * Internal dependencies
  */
-import { getSiteTimezone, dateToISOStringWithLocalTZ } from './date';
 
 /**
  * Compute the absolute date range for a given preset ID

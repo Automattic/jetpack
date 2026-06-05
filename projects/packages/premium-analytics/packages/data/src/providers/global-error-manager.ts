@@ -21,7 +21,7 @@ class GlobalErrorManager {
 			return;
 		}
 		this.error = error;
-		this.listeners.forEach( ( listener ) => listener() );
+		this.listeners.forEach( listener => listener() );
 	};
 
 	clearError = (): void => this.setError( null );

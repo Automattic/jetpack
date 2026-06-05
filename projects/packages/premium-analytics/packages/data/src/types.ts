@@ -1,21 +1,18 @@
 /**
  * Internal dependencies
  */
-import {
-	sanitizeReportOrdersResponse,
-	sanitizeReportProductsResponse,
-} from './processing';
+import { sanitizeReportOrdersResponse, sanitizeReportProductsResponse } from './processing';
+import { sanitizeReportBookingsResponse } from './processing/bookings';
+import { sanitizeReportConversionRateResponse } from './processing/conversion-rate';
+import { sanitizeReportCouponsResponse } from './processing/coupons';
+import { sanitizeReportCouponsByDateResponse } from './processing/coupons-by-date';
 import { sanitizeReportCustomersResponse } from './processing/customers';
 import { sanitizeReportCustomersByDateResponse } from './processing/customers-by-date';
 import { sanitizeReportOrderAttributionSummaryResponse } from './processing/order-attribution';
-import { sanitizeReportCouponsResponse } from './processing/coupons';
-import { sanitizeReportCouponsByDateResponse } from './processing/coupons-by-date';
+import { sanitizeReportOrdersByProductTypeResponse } from './processing/orders-by-product-type';
+import { sanitizeReportSessionsByDeviceResponse } from './processing/sessions-by-device';
 import { sanitizeReportVisitorsResponse } from './processing/visitors';
 import { sanitizeReportVisitorsByLocationResponse } from './processing/visitors-by-location';
-import { sanitizeReportConversionRateResponse } from './processing/conversion-rate';
-import { sanitizeReportOrdersByProductTypeResponse } from './processing/orders-by-product-type';
-import { sanitizeReportBookingsResponse } from './processing/bookings';
-import { sanitizeReportSessionsByDeviceResponse } from './processing/sessions-by-device';
 import type { ReportParams } from './utils/search';
 
 export type ReportType =
@@ -38,9 +35,7 @@ export type QueryParams = ReportParams & {
 };
 
 // Inferred from processing/orders.ts
-type SanitizedOrdersByDateResponse = ReturnType<
-	typeof sanitizeReportOrdersResponse
->;
+type SanitizedOrdersByDateResponse = ReturnType< typeof sanitizeReportOrdersResponse >;
 
 // Inferred from processing/order-attribution.ts
 type SanitizedOrderAttributionSummaryResponse = ReturnType<
@@ -48,34 +43,22 @@ type SanitizedOrderAttributionSummaryResponse = ReturnType<
 >;
 
 // Inferred from processing/coupons.ts
-type SanitizedCouponsResponse = ReturnType<
-	typeof sanitizeReportCouponsResponse
->;
+type SanitizedCouponsResponse = ReturnType< typeof sanitizeReportCouponsResponse >;
 
 // Inferred from processing/coupons-by-date/index.ts
-type SanitizedCouponsByDateResponse = ReturnType<
-	typeof sanitizeReportCouponsByDateResponse
->;
+type SanitizedCouponsByDateResponse = ReturnType< typeof sanitizeReportCouponsByDateResponse >;
 
 // Inferred from processing/customers.ts
-type SanitizedCustomersResponse = ReturnType<
-	typeof sanitizeReportCustomersResponse
->;
+type SanitizedCustomersResponse = ReturnType< typeof sanitizeReportCustomersResponse >;
 
 // Inferred from processing/customers-by-date/index.ts
-type SanitizedCustomersByDateResponse = ReturnType<
-	typeof sanitizeReportCustomersByDateResponse
->;
+type SanitizedCustomersByDateResponse = ReturnType< typeof sanitizeReportCustomersByDateResponse >;
 
 // Inferred from processing/products.ts
-type SanitizedProductsResponse = ReturnType<
-	typeof sanitizeReportProductsResponse
->;
+type SanitizedProductsResponse = ReturnType< typeof sanitizeReportProductsResponse >;
 
 // Inferred from processing/visitors.ts
-type SanitizedVisitorsResponse = ReturnType<
-	typeof sanitizeReportVisitorsResponse
->;
+type SanitizedVisitorsResponse = ReturnType< typeof sanitizeReportVisitorsResponse >;
 
 // Inferred from processing/visitors-by-location.ts
 type SanitizedVisitorsByLocationResponse = ReturnType<
@@ -83,9 +66,7 @@ type SanitizedVisitorsByLocationResponse = ReturnType<
 >;
 
 // Inferred from processing/conversion-rate.ts
-type SanitizedConversionRateResponse = ReturnType<
-	typeof sanitizeReportConversionRateResponse
->;
+type SanitizedConversionRateResponse = ReturnType< typeof sanitizeReportConversionRateResponse >;
 
 // Inferred from processing/orders-by-product-type.ts
 type SanitizedOrdersByProductTypeResponse = ReturnType<
@@ -93,9 +74,7 @@ type SanitizedOrdersByProductTypeResponse = ReturnType<
 >;
 
 // Inferred from processing/bookings.ts
-type SanitizedBookingsResponse = ReturnType<
-	typeof sanitizeReportBookingsResponse
->;
+type SanitizedBookingsResponse = ReturnType< typeof sanitizeReportBookingsResponse >;
 
 // Inferred from processing/sessions-by-device.ts
 type SanitizedSessionsByDeviceResponse = ReturnType<

@@ -1,7 +1,6 @@
 /**
  * External dependencies
  */
-import type { UseQueryOptions } from '@tanstack/react-query';
 
 /**
  * Internal dependencies
@@ -9,23 +8,12 @@ import type { UseQueryOptions } from '@tanstack/react-query';
 import { fetchReportCustomersByDate } from '../api/report-customers-by-date-fetch';
 import { sanitizeReportCustomersByDateResponse } from '../processing/customers-by-date';
 import type { ReportDataMap } from '../types';
+import type { UseQueryOptions } from '@tanstack/react-query';
 
-type RequestReportCustomersByDateParams = Parameters<
-	typeof fetchReportCustomersByDate
->[ 0 ];
+type RequestReportCustomersByDateParams = Parameters< typeof fetchReportCustomersByDate >[ 0 ];
 
-const getReportCustomersByDateQueryKey = (
-	p: RequestReportCustomersByDateParams
-) =>
-	[
-		'reports',
-		'customers',
-		'by-date',
-		p.from,
-		p.to,
-		p.interval,
-		p.date_type,
-	] as const;
+const getReportCustomersByDateQueryKey = ( p: RequestReportCustomersByDateParams ) =>
+	[ 'reports', 'customers', 'by-date', p.from, p.to, p.interval, p.date_type ] as const;
 
 export function reportCustomersByDateQuery(
 	params: RequestReportCustomersByDateParams
@@ -45,6 +33,6 @@ export function reportCustomersByDateQuery(
 		/**
 		 * Keep previous data while fetching new data to prevent blank states
 		 */
-		placeholderData: ( previousData ) => previousData,
+		placeholderData: previousData => previousData,
 	};
 }

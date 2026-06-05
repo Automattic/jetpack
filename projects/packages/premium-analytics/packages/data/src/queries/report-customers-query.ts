@@ -1,7 +1,6 @@
 /**
  * External dependencies
  */
-import type { UseQueryOptions } from '@tanstack/react-query';
 
 /**
  * Internal dependencies
@@ -9,10 +8,9 @@ import type { UseQueryOptions } from '@tanstack/react-query';
 import { fetchReportCustomers } from '../api';
 import { sanitizeReportCustomersResponse } from '../processing/customers';
 import type { ReportDataMap } from '../types';
+import type { UseQueryOptions } from '@tanstack/react-query';
 
-type RequestReportCustomersParams = Parameters<
-	typeof fetchReportCustomers
->[ 0 ];
+type RequestReportCustomersParams = Parameters< typeof fetchReportCustomers >[ 0 ];
 
 const getReportCustomersQueryKey = ( p: RequestReportCustomersParams ) => [
 	'reports',
@@ -43,6 +41,6 @@ export function reportCustomersQuery(
 		/**
 		 * Keep previous data while fetching new data to prevent blank states
 		 */
-		placeholderData: ( previousData ) => previousData,
+		placeholderData: previousData => previousData,
 	};
 }

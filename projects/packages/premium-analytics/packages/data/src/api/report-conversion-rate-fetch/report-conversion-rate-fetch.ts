@@ -3,13 +3,12 @@
  */
 import apiFetch from '@wordpress/api-fetch';
 import { addQueryArgs } from '@wordpress/url';
-
 /**
  * Internal dependencies
  */
-import type { BaseReportParams } from '../../utils/types';
-import type { FilterCondition } from '../../types/filter-condition';
 import { reportsPath } from '../constants';
+import type { FilterCondition } from '../../types/filter-condition';
+import type { BaseReportParams } from '../../utils/types';
 
 type ReportsConversionRateByDateSummary = {
 	active_sessions: string;

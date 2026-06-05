@@ -4,7 +4,6 @@
 import { useQuery } from '@tanstack/react-query';
 import apiFetch from '@wordpress/api-fetch';
 import { addQueryArgs } from '@wordpress/url';
-
 /**
  * Internal dependencies
  */
@@ -53,7 +52,7 @@ async function fetchProductImages(
 			path: addQueryArgs( '/wc/v3/products', queryArgs ),
 		} );
 
-		return response.map( ( product ) => ( {
+		return response.map( product => ( {
 			productId: product.id,
 			imageUrl: product.images?.[ 0 ]?.src || '',
 			imageAlt: product.images?.[ 0 ]?.alt || product.name,
@@ -76,10 +75,7 @@ export function useProductImages( params: UseProductImagesParams ) {
 		queryFn: async () => {
 			const images = await fetchProductImages( params.productIds );
 			return images.reduce(
-				(
-					acc: Record< number, ProductImage >,
-					image: ProductImage & { productId: number }
-				) => {
+				( acc: Record< number, ProductImage >, image: ProductImage & { productId: number } ) => {
 					acc[ image.productId ] = {
 						imageUrl: image.imageUrl,
 						imageAlt: image.imageAlt,

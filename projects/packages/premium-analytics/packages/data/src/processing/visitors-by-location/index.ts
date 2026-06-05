@@ -10,11 +10,8 @@ import type { Override } from '../../utils/types';
 type ReportsVisitorsByLocationResponse = Awaited<
 	ReturnType< typeof fetchReportVisitorsByLocation >
 >;
-type RawVisitorsByLocationItem =
-	ReportsVisitorsByLocationResponse[ 'data' ][ number ];
-type RawVisitorsByLocationSummary = NonNullable<
-	ReportsVisitorsByLocationResponse[ 'summary' ]
->;
+type RawVisitorsByLocationItem = ReportsVisitorsByLocationResponse[ 'data' ][ number ];
+type RawVisitorsByLocationSummary = NonNullable< ReportsVisitorsByLocationResponse[ 'summary' ] >;
 
 type SanitizedVisitorsByLocationItem = Override<
 	RawVisitorsByLocationItem,
@@ -67,11 +64,7 @@ export const sanitizeReportVisitorsByLocationResponse = (
 	};
 
 	return {
-		summary: sanitizeVisitorsByLocationSummary(
-			response?.summary ?? defaultSummary
-		),
-		data: response?.data
-			? response.data.map( sanitizeVisitorsByLocationItem )
-			: [],
+		summary: sanitizeVisitorsByLocationSummary( response?.summary ?? defaultSummary ),
+		data: response?.data ? response.data.map( sanitizeVisitorsByLocationItem ) : [],
 	};
 };

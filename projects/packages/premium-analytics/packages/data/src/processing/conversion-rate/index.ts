@@ -2,19 +2,17 @@
  * External dependencies
  */
 import { __ } from '@wordpress/i18n';
-
 /**
  * Internal dependencies
  */
 import { fetchReportConversionRate } from '../../api/report-conversion-rate-fetch';
-import type { Override } from '../../utils/types';
 import { safeParseInt } from '../../utils/parsing';
+import type { Override } from '../../utils/types';
 
 type ReportsConversionRateByDateResponse = Awaited<
 	ReturnType< typeof fetchReportConversionRate >
 >;
-type RawConversionRateReportDataItem =
-	ReportsConversionRateByDateResponse[ 'data' ][ number ];
+type RawConversionRateReportDataItem = ReportsConversionRateByDateResponse[ 'data' ][ number ];
 type SanitizedConversionRateByDateItem = Override<
 	RawConversionRateReportDataItem,
 	{
@@ -42,8 +40,7 @@ function sanitizeConversionRateItem(
 
 	// Calculate conversion rate as decimal (e.g., 0.035 for 3.5%)
 	// This format works with formatMetricValue 'percentage' type
-	const conversionRate =
-		activeSessionsNum > 0 ? completedCheckoutNum / activeSessionsNum : 0;
+	const conversionRate = activeSessionsNum > 0 ? completedCheckoutNum / activeSessionsNum : 0;
 
 	return {
 		...item,
@@ -97,9 +94,7 @@ export const sanitizeReportConversionRateResponse = (
 		date_end: '',
 	};
 
-	const sanitizedSummary = sanitizeConversionRateItem(
-		response?.summary || defaultSummary
-	);
+	const sanitizedSummary = sanitizeConversionRateItem( response?.summary || defaultSummary );
 
 	// Create funnel steps from the summary data
 	const steps: FunnelStep[] = [
@@ -115,9 +110,7 @@ export const sanitizeReportConversionRateResponse = (
 			count: sanitizedSummary.with_cart_addition,
 			rate:
 				sanitizedSummary.active_sessions > 0
-					? ( sanitizedSummary.with_cart_addition /
-							sanitizedSummary.active_sessions ) *
-					  100
+					? ( sanitizedSummary.with_cart_addition / sanitizedSummary.active_sessions ) * 100
 					: 0,
 		},
 		{
@@ -126,9 +119,7 @@ export const sanitizeReportConversionRateResponse = (
 			count: sanitizedSummary.reached_checkout,
 			rate:
 				sanitizedSummary.active_sessions > 0
-					? ( sanitizedSummary.reached_checkout /
-							sanitizedSummary.active_sessions ) *
-					  100
+					? ( sanitizedSummary.reached_checkout / sanitizedSummary.active_sessions ) * 100
 					: 0,
 		},
 		{
@@ -137,18 +128,14 @@ export const sanitizeReportConversionRateResponse = (
 			count: sanitizedSummary.completed_checkout,
 			rate:
 				sanitizedSummary.active_sessions > 0
-					? ( sanitizedSummary.completed_checkout /
-							sanitizedSummary.active_sessions ) *
-					  100
+					? ( sanitizedSummary.completed_checkout / sanitizedSummary.active_sessions ) * 100
 					: 0,
 		},
 	];
 
 	return {
 		summary: sanitizedSummary,
-		data: response?.data
-			? response.data.map( sanitizeConversionRateItem )
-			: [],
+		data: response?.data ? response.data.map( sanitizeConversionRateItem ) : [],
 		steps,
 		overallRate: sanitizedSummary.conversion_rate,
 	};

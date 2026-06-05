@@ -6,12 +6,7 @@ import { type ReportParams } from '../utils/search';
 import { useReport } from './use-report';
 
 export function useReportProducts( params: ReportParams, limit = 5 ) {
-	return useReport( ( p ) => reportProductsQuery( { ...p, limit } ), params, {
-		disabledComparisonKey: [
-			'reports',
-			'products',
-			'__comparison__',
-			'disabled',
-		],
+	return useReport( p => reportProductsQuery( { ...p, limit } ), params, {
+		disabledComparisonKey: [ 'reports', 'products', '__comparison__', 'disabled' ],
 	} );
 }

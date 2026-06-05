@@ -1,32 +1,22 @@
 /**
  * External dependencies
  */
-import type { UseQueryOptions } from '@tanstack/react-query';
 
 /**
  * Internal dependencies
  */
 import { fetchReportCoupons } from '../api';
 import { sanitizeReportCouponsResponse } from '../processing/coupons';
-import type { ReportDataMap } from '../types';
 import { FilterCondition } from '../types/filter-condition';
+import type { ReportDataMap } from '../types';
+import type { UseQueryOptions } from '@tanstack/react-query';
 
-type RequestReportCouponsParams = Parameters<
-	typeof fetchReportCoupons
->[ 0 ] & {
+type RequestReportCouponsParams = Parameters< typeof fetchReportCoupons >[ 0 ] & {
 	filters?: FilterCondition[];
 };
 
 const getReportCouponsQueryKey = ( p: RequestReportCouponsParams ) =>
-	[
-		'reports',
-		'coupons',
-		p.from,
-		p.to,
-		p.interval,
-		p.date_type,
-		p.filters,
-	] as const;
+	[ 'reports', 'coupons', p.from, p.to, p.interval, p.date_type, p.filters ] as const;
 
 export function reportCouponsQuery(
 	params: RequestReportCouponsParams
@@ -46,6 +36,6 @@ export function reportCouponsQuery(
 		/**
 		 * Keep previous data while fetching new data to prevent blank states
 		 */
-		placeholderData: ( previousData ) => previousData,
+		placeholderData: previousData => previousData,
 	};
 }

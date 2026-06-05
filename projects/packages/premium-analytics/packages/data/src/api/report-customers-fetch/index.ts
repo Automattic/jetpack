@@ -1,4 +1,1 @@
-export {
-	fetchReportCustomers,
-	type RequestReportCustomersParams,
-} from './report-customers-fetch';
+export { fetchReportCustomers, type RequestReportCustomersParams } from './report-customers-fetch';

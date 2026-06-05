@@ -4,12 +4,9 @@
 import { fetchReportCustomersByDate } from '../../api/report-customers-by-date-fetch';
 import type { Override } from '../../utils/types';
 
-type ReportsCustomersByDateResponse = Awaited<
-	ReturnType< typeof fetchReportCustomersByDate >
->;
+type ReportsCustomersByDateResponse = Awaited< ReturnType< typeof fetchReportCustomersByDate > >;
 type RawCustomersByDateSummary = ReportsCustomersByDateResponse[ 'summary' ];
-type RawCustomersByDateItem =
-	ReportsCustomersByDateResponse[ 'data' ][ number ];
+type RawCustomersByDateItem = ReportsCustomersByDateResponse[ 'data' ][ number ];
 
 /**
  * Processed summary (numbers for calculations)
@@ -77,9 +74,7 @@ export type SanitizedCustomersByDateResponse = {
 /**
  * Sanitize/process a single customer item by converting strings to numbers
  */
-function sanitizeCustomerByDateItem(
-	item: RawCustomersByDateItem
-): SanitizedCustomersByDateItem {
+function sanitizeCustomerByDateItem( item: RawCustomersByDateItem ): SanitizedCustomersByDateItem {
 	const totalCustomers = parseInt( item.total_customers, 10 );
 	return {
 		...item,
@@ -88,15 +83,10 @@ function sanitizeCustomerByDateItem(
 		returning_customers: parseInt( item.returning_customers, 10 ),
 		orders_count: parseInt( item.orders_count, 10 ),
 		new_customer_orders: parseInt( item.new_customer_orders, 10 ),
-		returning_customer_orders: parseInt(
-			item.returning_customer_orders,
-			10
-		),
+		returning_customer_orders: parseInt( item.returning_customer_orders, 10 ),
 		net_sales: parseFloat( item.net_sales ),
 		new_customer_net_sales: parseFloat( item.new_customer_net_sales ),
-		returning_customer_net_sales: parseFloat(
-			item.returning_customer_net_sales
-		),
+		returning_customer_net_sales: parseFloat( item.returning_customer_net_sales ),
 		// Add alias for compatibility with chart builder
 		customers: totalCustomers,
 	};
@@ -116,47 +106,24 @@ function sanitizeCustomerByDateSummary(
 		total_discounts: parseFloat( summary.total_discounts ),
 		total_refunds: parseFloat( summary.total_refunds ),
 		total_orders: parseInt( summary.total_orders, 10 ),
-		total_average_order_value: parseFloat(
-			summary.total_average_order_value
-		),
-		total_avg_items_per_order: parseFloat(
-			summary.total_avg_items_per_order
-		),
+		total_average_order_value: parseFloat( summary.total_average_order_value ),
+		total_avg_items_per_order: parseFloat( summary.total_avg_items_per_order ),
 		total_customers: totalCustomers,
 		new_customers: parseInt( summary.new_customers, 10 ),
 		returning_customers: parseInt( summary.returning_customers, 10 ),
 		new_customer_sales: parseFloat( summary.new_customer_sales ),
-		new_customer_gross_sales: parseFloat(
-			summary.new_customer_gross_sales
-		),
+		new_customer_gross_sales: parseFloat( summary.new_customer_gross_sales ),
 		new_customer_discounts: parseFloat( summary.new_customer_discounts ),
 		new_customer_refunds: parseFloat( summary.new_customer_refunds ),
 		new_customer_orders: parseInt( summary.new_customer_orders, 10 ),
-		new_customer_avg_order_value: parseFloat(
-			summary.new_customer_avg_order_value
-		),
-		new_customer_avg_items_per_order: parseFloat(
-			summary.new_customer_avg_items_per_order
-		),
-		returning_customer_sales: parseFloat(
-			summary.returning_customer_sales
-		),
-		returning_customer_gross_sales: parseFloat(
-			summary.returning_customer_gross_sales
-		),
-		returning_customer_discounts: parseFloat(
-			summary.returning_customer_discounts
-		),
-		returning_customer_refunds: parseFloat(
-			summary.returning_customer_refunds
-		),
-		returning_customer_orders: parseInt(
-			summary.returning_customer_orders,
-			10
-		),
-		returning_customer_avg_order_value: parseFloat(
-			summary.returning_customer_avg_order_value
-		),
+		new_customer_avg_order_value: parseFloat( summary.new_customer_avg_order_value ),
+		new_customer_avg_items_per_order: parseFloat( summary.new_customer_avg_items_per_order ),
+		returning_customer_sales: parseFloat( summary.returning_customer_sales ),
+		returning_customer_gross_sales: parseFloat( summary.returning_customer_gross_sales ),
+		returning_customer_discounts: parseFloat( summary.returning_customer_discounts ),
+		returning_customer_refunds: parseFloat( summary.returning_customer_refunds ),
+		returning_customer_orders: parseInt( summary.returning_customer_orders, 10 ),
+		returning_customer_avg_order_value: parseFloat( summary.returning_customer_avg_order_value ),
 		returning_customer_avg_items_per_order: parseFloat(
 			summary.returning_customer_avg_items_per_order
 		),

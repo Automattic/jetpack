@@ -3,7 +3,6 @@
  */
 import { getComparisonRangeFromPreset } from '@jetpack-premium-analytics/datetime';
 import { differenceInCalendarDays, startOfDay } from 'date-fns';
-
 /**
  * Internal dependencies
  */
@@ -73,11 +72,7 @@ export const getDefaultQueryParams = (
 
 	const { from: fromString, to: toString } = range;
 
-	const interval = getDefaultIntervalForPeriod(
-		undefined,
-		fromString,
-		toString
-	);
+	const interval = getDefaultIntervalForPeriod( undefined, fromString, toString );
 
 	if ( ! withComparison ) {
 		return {

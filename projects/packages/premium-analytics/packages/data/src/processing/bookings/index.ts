@@ -2,14 +2,11 @@
  * Internal dependencies
  */
 import { fetchReportBookings } from '../../api/report-bookings-fetch';
-import type { Override } from '../../utils/types';
 import { safeParseInt } from '../../utils/parsing';
+import type { Override } from '../../utils/types';
 
-type ReportsBookingsByDateResponse = Awaited<
-	ReturnType< typeof fetchReportBookings >
->;
-type RawBookingsReportDataItem =
-	ReportsBookingsByDateResponse[ 'data' ][ number ];
+type ReportsBookingsByDateResponse = Awaited< ReturnType< typeof fetchReportBookings > >;
+type RawBookingsReportDataItem = ReportsBookingsByDateResponse[ 'data' ][ number ];
 type RawBookingsReportSummaryItem = ReportsBookingsByDateResponse[ 'summary' ];
 
 type SanitizedBookingsByDateItem = Override<
@@ -45,26 +42,18 @@ type SanitizedBookingsSummaryItem = Override<
 /**
  * Sanitize/process a single booking item by converting strings to numbers
  */
-function sanitizeBookingItem(
-	item: RawBookingsReportDataItem
-): SanitizedBookingsByDateItem {
+function sanitizeBookingItem( item: RawBookingsReportDataItem ): SanitizedBookingsByDateItem {
 	return {
 		...item,
 		status_unpaid: safeParseInt( item.status_unpaid ),
-		status_pending_confirmation: safeParseInt(
-			item.status_pending_confirmation
-		),
+		status_pending_confirmation: safeParseInt( item.status_pending_confirmation ),
 		status_confirmed: safeParseInt( item.status_confirmed ),
 		status_paid: safeParseInt( item.status_paid ),
 		status_cancelled: safeParseInt( item.status_cancelled ),
 		status_complete: safeParseInt( item.status_complete ),
 		attendance_status_booked: safeParseInt( item.attendance_status_booked ),
-		attendance_status_no_show: safeParseInt(
-			item.attendance_status_no_show
-		),
-		attendance_status_checked_in: safeParseInt(
-			item.attendance_status_checked_in
-		),
+		attendance_status_no_show: safeParseInt( item.attendance_status_no_show ),
+		attendance_status_checked_in: safeParseInt( item.attendance_status_checked_in ),
 	};
 }
 
@@ -77,20 +66,14 @@ function sanitizeBookingSummaryItem(
 	return {
 		...item,
 		status_unpaid: safeParseInt( item.status_unpaid ),
-		status_pending_confirmation: safeParseInt(
-			item.status_pending_confirmation
-		),
+		status_pending_confirmation: safeParseInt( item.status_pending_confirmation ),
 		status_confirmed: safeParseInt( item.status_confirmed ),
 		status_paid: safeParseInt( item.status_paid ),
 		status_cancelled: safeParseInt( item.status_cancelled ),
 		status_complete: safeParseInt( item.status_complete ),
 		attendance_status_booked: safeParseInt( item.attendance_status_booked ),
-		attendance_status_no_show: safeParseInt(
-			item.attendance_status_no_show
-		),
-		attendance_status_checked_in: safeParseInt(
-			item.attendance_status_checked_in
-		),
+		attendance_status_no_show: safeParseInt( item.attendance_status_no_show ),
+		attendance_status_checked_in: safeParseInt( item.attendance_status_checked_in ),
 	};
 }
 

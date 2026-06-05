@@ -3,12 +3,11 @@
  */
 import apiFetch from '@wordpress/api-fetch';
 import { addQueryArgs } from '@wordpress/url';
-
 /**
  * Internal dependencies
  */
-import type { BaseReportParams } from '../../utils/types';
 import { reportsPath } from '../constants';
+import type { BaseReportParams } from '../../utils/types';
 
 type ReportsCustomersByDateSummary = {
 	total_net_sales: string;

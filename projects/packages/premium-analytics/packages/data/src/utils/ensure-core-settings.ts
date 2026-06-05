@@ -1,8 +1,8 @@
 /**
  * External dependencies
  */
-import { resolveSelect } from '@wordpress/data';
 import { store as coreStore } from '@wordpress/core-data';
+import { resolveSelect } from '@wordpress/data';
 
 let readyPromise: Promise< void > | null = null;
 
@@ -14,11 +14,7 @@ export function ensureCoreSettingsReady(): Promise< void > {
 	if ( ! readyPromise ) {
 		readyPromise = Promise.all( [
 			resolveSelect( coreStore ).getEntityRecord( 'root', 'site' ),
-			resolveSelect( coreStore ).getEntityRecord(
-				'root',
-				'settings',
-				'general'
-			),
+			resolveSelect( coreStore ).getEntityRecord( 'root', 'settings', 'general' ),
 		] ).then( () => void 0 );
 	}
 	return readyPromise;

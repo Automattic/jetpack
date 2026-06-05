@@ -4,9 +4,7 @@
 import { fetchReportCoupons } from '../../api/report-coupons-fetch';
 import type { Override } from '../../utils/types';
 
-type ReportsCouponsResponse = Awaited<
-	ReturnType< typeof fetchReportCoupons >
->;
+type ReportsCouponsResponse = Awaited< ReturnType< typeof fetchReportCoupons > >;
 type RawCouponsDataItem = ReportsCouponsResponse[ 'data' ][ number ];
 type RawCouponsDataSummary = ReportsCouponsResponse[ 'summary' ];
 
@@ -45,9 +43,7 @@ type SanitizedCouponsResponse = {
 /**
  * Sanitize/process a single coupon item by converting strings to numbers
  */
-function sanitizeCouponItem(
-	item: RawCouponsDataItem
-): SanitizedCouponsDataItem {
+function sanitizeCouponItem( item: RawCouponsDataItem ): SanitizedCouponsDataItem {
 	return {
 		...item,
 		discount_amount: parseFloat( item.discount_amount ),
@@ -59,9 +55,7 @@ function sanitizeCouponItem(
 /**
  * Sanitize/process summary by converting strings to numbers
  */
-function sanitizeCouponSummary(
-	summary: RawCouponsDataSummary
-): SanitizedCouponsDataSummary {
+function sanitizeCouponSummary( summary: RawCouponsDataSummary ): SanitizedCouponsDataSummary {
 	return {
 		...summary,
 		total_sales: parseFloat( summary.total_sales ),

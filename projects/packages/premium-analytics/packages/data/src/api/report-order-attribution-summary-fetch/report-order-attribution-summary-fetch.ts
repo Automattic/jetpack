@@ -3,12 +3,11 @@
  */
 import apiFetch from '@wordpress/api-fetch';
 import { addQueryArgs } from '@wordpress/url';
-
 /**
  * Internal dependencies
  */
-import type { BaseReportParams } from '../../utils/types';
 import { reportsPath } from '../constants';
+import type { BaseReportParams } from '../../utils/types';
 
 export const ORDER_ATTRIBUTION_VIEWS = [
 	'channel',
@@ -64,8 +63,7 @@ export type RequestReportOrderAttributionSummaryParams = BaseReportParams & {
 export async function fetchReportOrderAttributionSummary(
 	params: RequestReportOrderAttributionSummaryParams
 ): Promise< OrderAttributionSummaryResponse > {
-	const { from, to, interval, view, compare_from, compare_to, date_type } =
-		params;
+	const { from, to, interval, view, compare_from, compare_to, date_type } = params;
 
 	/*
 	 * Order attribution endpoint requires compare_from and compare_to.
@@ -81,10 +79,7 @@ export async function fetchReportOrderAttributionSummary(
 		date_type,
 	};
 
-	const path = addQueryArgs(
-		`${ reportsPath }/order-attribution/${ view }/summary`,
-		queryParams
-	);
+	const path = addQueryArgs( `${ reportsPath }/order-attribution/${ view }/summary`, queryParams );
 
 	return apiFetch< OrderAttributionSummaryResponse >( { path } );
 }

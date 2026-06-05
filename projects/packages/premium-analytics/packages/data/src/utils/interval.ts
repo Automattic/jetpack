@@ -2,24 +2,18 @@
  * External dependencies
  */
 import { differenceInHours } from 'date-fns';
-
 /**
  * Internal dependencies
  */
-import type { IntervalType } from './search';
 import { localTZDate } from './date';
+import type { IntervalType } from './search';
 
-function getAllowedIntervalsByRange(
-	from: string,
-	to: string
-): IntervalType[] {
+function getAllowedIntervalsByRange( from: string, to: string ): IntervalType[] {
 	// Use hours instead of days to handle ranges that are 1 second short of a full day.
 	// E.g., '2024-11-01 00:00:00' to '2025-10-31 23:59:59' is 8759 hours (364.958 days),
 	// which rounds to 365 days, correctly categorizing it as a yearly interval.
 	const daysDiff = Math.round(
-		Math.abs(
-			differenceInHours( localTZDate( to ), localTZDate( from ) ) / 24
-		)
+		Math.abs( differenceInHours( localTZDate( to ), localTZDate( from ) ) / 24 )
 	);
 
 	if ( daysDiff >= 1095 ) {
