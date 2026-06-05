@@ -113,8 +113,11 @@ export default function CompModal( { subscriber, onClose }: Props ): JSX.Element
 	const compedPlanIds = useMemo( () => {
 		const ids = new Set< number >();
 		( detailsQuery.data?.plans ?? [] ).forEach( ( plan: SubscriptionPlan ) => {
-			if ( plan.is_comp && plan.subscription_id ) {
-				ids.add( plan.subscription_id );
+			// The wpcom payload is loosely typed (it sends `price` as a string), so coerce the id —
+			// a string would never match the numeric `product.id` in the Set's strict `has()`.
+			const subscriptionId = Number( plan.subscription_id );
+			if ( plan.is_comp && subscriptionId > 0 ) {
+				ids.add( subscriptionId );
 			}
 		} );
 		return ids;
@@ -134,7 +137,7 @@ export default function CompModal( { subscriber, onClose }: Props ): JSX.Element
 				label: __( 'Select a plan…', 'jetpack-newsletter' ),
 			},
 			...products.map( product => {
-				const isComped = compedPlanIds.has( product.id );
+				const isComped = compedPlanIds.has( Number( product.id ) );
 				return {
 					value: String( product.id ),
 					label: formatPlanLabel( product ),
