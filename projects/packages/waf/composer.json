@@ -32,7 +32,6 @@
 			"phpunit-select-config tests/php/integration/phpunit.#.xml.dist --colors=always",
 			"phpunit-select-config tests/php/unit/phpunit.#.xml.dist --colors=always"
 		],
-		"test-coverage": "@composer test-php-coverage",
 		"test-coverage-html": [
 			"php -dpcov.directory=. ./vendor/bin/phpunit-select-config tests/php/integration/phpunit.#.xml.dist --coverage-html ./coverage",
 			"php -dpcov.directory=. ./vendor/bin/phpunit-select-config tests/php/unit/phpunit.#.xml.dist --coverage-html ./coverage"
