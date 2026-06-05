@@ -231,6 +231,28 @@ class Settings {
 	}
 
 	/**
+	 * Raw show cover image URL for settings reads. `podcasting_image_id`
+	 * resolved to its attachment URL when it points at an actual image,
+	 * otherwise the raw `podcasting_image` option. Never Photon-routed —
+	 * feed rendering applies its own square resize separately.
+	 *
+	 * Mirrors `Automattic_Podcasting::podcasting_get_image_url` in the wpcom
+	 * mu-plugin (with `''` in place of its falsy returns).
+	 *
+	 * @return string Image URL, or '' when not configured.
+	 */
+	public static function raw_show_image_url(): string {
+		$image_id = (int) get_option( 'podcasting_image_id', 0 );
+		if ( $image_id > 0 && wp_attachment_is_image( $image_id ) ) {
+			$url = wp_get_attachment_url( $image_id );
+			if ( false !== $url ) {
+				return $url;
+			}
+		}
+		return (string) get_option( 'podcasting_image', '' );
+	}
+
+	/**
 	 * `'yes'` (any case) or boolean true → true; everything else → false. The
 	 * feed only emits true/false; the legacy `'clean'` value collapses to false
 	 * because the WPCOM feed builder already treats it that way.
