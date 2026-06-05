@@ -21,6 +21,8 @@ class Minify {
 	 * Reasons passed to the jetpack_boost_js_minify_fallback action. Public so hook
 	 * consumers can compare against Minify::FALLBACK_* instead of bare strings; the
 	 * string values are the stable wire format and must not change.
+	 *
+	 * @since $$next-version$$
 	 */
 	public const FALLBACK_EXCEPTION    = 'exception';
 	public const FALLBACK_ERROR        = 'error';
@@ -121,9 +123,9 @@ class Minify {
 			 *
 			 * @since $$next-version$$
 			 *
-			 * @param string          $reason Why the fallback fired: one of the Minify::FALLBACK_* values ('exception', 'error', 'empty_output', 'looks_broken').
+			 * @param string          $reason Why the fallback fired: one of the Minify::FALLBACK_* values ('exception', 'error', 'empty_output', 'looks_broken'). 'error' covers both a minifier \Error and a \Throwable from the structural scan -- inspect $error's class to tell them apart.
 			 * @param int             $bytes  Length of the original JS being served, in bytes.
-			 * @param \Throwable|null $error  The throwable when triggered by one, otherwise null.
+			 * @param \Throwable|null $error  The throwable when triggered by one, otherwise null. Its message may embed an internal filesystem path (e.g. an IOException), so consumers should not surface it unsanitized.
 			 */
 			do_action( 'jetpack_boost_js_minify_fallback', $reason, $bytes, $error );
 		} catch ( \Throwable $hook_error ) {
