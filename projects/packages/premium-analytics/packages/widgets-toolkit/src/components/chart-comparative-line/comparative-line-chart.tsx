@@ -36,7 +36,7 @@ function resolveSeriesStyles(
 	}
 
 	// Fallback: extract styles from series options
-	return series.map( ( s ) => {
+	return series.map( s => {
 		const lineStyle = s.options?.seriesLineStyle;
 
 		return {
@@ -92,9 +92,7 @@ function applyStylesToSeries(
  * Inferred types
  */
 type LineChartProps = ComponentProps< typeof LineChart >;
-type RenderTooltipParams = Parameters<
-	NonNullable< LineChartProps[ 'renderTooltip' ] >
->[ 0 ];
+type RenderTooltipParams = Parameters< NonNullable< LineChartProps[ 'renderTooltip' ] > >[ 0 ];
 
 /**
  * Props for the ComparativeLineChart component.
@@ -170,9 +168,7 @@ export function ComparativeLineChart( {
 	const getTooltipLabel = useCallback(
 		( datum: { date: Date; realDate?: Date }, index: number ): string => {
 			const isComparison = index > 0;
-			const displayDate = isComparison
-				? datum.realDate ?? datum.date
-				: datum.date;
+			const displayDate = isComparison ? datum.realDate ?? datum.date : datum.date;
 			return formatDate( displayDate );
 		},
 		[]
@@ -223,10 +219,7 @@ export function ComparativeLineChart( {
 	 * Align comparison series dates to primary series for X-axis display.
 	 * Original dates are preserved in realDate for tooltip display.
 	 */
-	const alignedSeries = useMemo(
-		() => alignSeriesDates( series ),
-		[ series ]
-	);
+	const alignedSeries = useMemo( () => alignSeriesDates( series ), [ series ] );
 
 	/**
 	 * Apply resolved styles to series data for the internal LineChart.
@@ -243,10 +236,7 @@ export function ComparativeLineChart( {
 	/**
 	 * Detect if chart data is empty and apply special props for empty state
 	 */
-	const isEmptyData = useMemo(
-		() => isEmptyChartData( styledSeries ),
-		[ styledSeries ]
-	);
+	const isEmptyData = useMemo( () => isEmptyChartData( styledSeries ), [ styledSeries ] );
 
 	/**
 	 * For percentage metrics, always use a fixed domain [0, 1.0] (0% to 100%)
@@ -332,9 +322,7 @@ export function ComparativeLineChart( {
 			className={ clsx( styles.chart, className ) }
 			data={ styledSeries }
 			options={ chartOptions }
-			margin={
-				percentageMargin ?? emptyChartProps.margin ?? DEFAULT_MARGIN
-			}
+			margin={ percentageMargin ?? emptyChartProps.margin ?? DEFAULT_MARGIN }
 			maxWidth={ maxWidth }
 			resizeDebounceTime={ RESIZE_DEBOUNCE_MS }
 			withLegendGlyph={ false }

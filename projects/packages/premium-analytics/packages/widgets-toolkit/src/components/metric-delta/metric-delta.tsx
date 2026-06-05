@@ -64,10 +64,7 @@ export type MetricDeltaProps = {
 	absoluteFormat?: 'number' | 'currency';
 };
 
-function calculatePercentageChange(
-	current: number,
-	previous: number
-): number | null {
+function calculatePercentageChange( current: number, previous: number ): number | null {
 	// Handle invalid inputs
 	if ( ! Number.isFinite( current ) || ! Number.isFinite( previous ) ) {
 		return null;
@@ -79,9 +76,7 @@ function calculatePercentageChange(
 	}
 
 	// Calculate percentage change, rounded to integer
-	return Math.round(
-		( ( current - previous ) / Math.abs( previous ) ) * 100
-	);
+	return Math.round( ( ( current - previous ) / Math.abs( previous ) ) * 100 );
 }
 
 export function MetricDelta( {
@@ -102,10 +97,7 @@ export function MetricDelta( {
 	// Handle edge cases
 	if ( percentageChange === null ) {
 		return (
-			<Stack
-				justify={ justify }
-				className={ clsx( styles.delta, styles.invalid, className ) }
-			>
+			<Stack justify={ justify } className={ clsx( styles.delta, styles.invalid, className ) }>
 				{ fallback }
 			</Stack>
 		);
@@ -123,19 +115,14 @@ export function MetricDelta( {
 			displayValue = `+${ displayValue }`;
 		}
 	} else {
-		displayValue = formatMetricValue(
-			percentageChange / 100,
-			'percentage'
-		);
+		displayValue = formatMetricValue( percentageChange / 100, 'percentage' );
 	}
 
 	// Determine color based on direction and inversion
 	const isPositive =
-		( percentageChange > 0 && ! invertColors ) ||
-		( percentageChange < 0 && invertColors );
+		( percentageChange > 0 && ! invertColors ) || ( percentageChange < 0 && invertColors );
 	const isNegative =
-		( percentageChange < 0 && ! invertColors ) ||
-		( percentageChange > 0 && invertColors );
+		( percentageChange < 0 && ! invertColors ) || ( percentageChange > 0 && invertColors );
 
 	return (
 		<Stack

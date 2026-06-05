@@ -19,13 +19,7 @@ import type { FilterCondition } from '@jetpack-premium-analytics/data';
 export const PAYMENT_STATUS_FILTERS: FilterCondition[] = [
 	{
 		key: 'status',
-		value: [
-			'wc-pending',
-			'wc-processing',
-			'wc-on-hold',
-			'wc-completed',
-			'wc-refunded',
-		],
+		value: [ 'wc-pending', 'wc-processing', 'wc-on-hold', 'wc-completed', 'wc-refunded' ],
 		compare: 'IN',
 	},
 ];

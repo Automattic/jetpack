@@ -42,7 +42,7 @@ function mapTimeSeriesToLineChartData< T extends TimeSeriesData >(
 		return [];
 	}
 
-	return data.map( ( item ) => ( {
+	return data.map( item => ( {
 		date: localTZDate( item.date_start ),
 		value: Number( item[ metricKey ] ),
 	} ) );

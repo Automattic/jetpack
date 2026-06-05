@@ -15,10 +15,7 @@ import { productBlouse } from '@jetpack-premium-analytics/icons';
  * Internal dependencies
  */
 import { useWidgetRootContext } from '../../components/widget-root';
-import {
-	LeaderboardChart,
-	LeaderboardLabel,
-} from '../../components/chart-leaderboard';
+import { LeaderboardChart, LeaderboardLabel } from '../../components/chart-leaderboard';
 import { formatLegendLabels, calculateDelta } from '../../helpers';
 import { useWidgetError } from '../../hooks';
 
@@ -113,16 +110,14 @@ export function TopPerformingProductLeaderboardWidget( {
 
 	// Extract product IDs for fetching images
 	const productIds = useMemo(
-		() => data?.data?.map( ( item ) => item.product_id ) || [],
+		() => data?.data?.map( item => item.product_id ) || [],
 		[ data?.data ]
 	);
 
 	// Fetch product images
-	const { data: productImages, isLoading: imagesLoading } = useProductImages(
-		{
-			productIds,
-		}
-	);
+	const { data: productImages, isLoading: imagesLoading } = useProductImages( {
+		productIds,
+	} );
 
 	const isInitialLoading = ( isLoading || imagesLoading ) && ! hasData;
 	const isRefetching = ( isFetching || imagesLoading ) && hasData;
@@ -131,19 +126,17 @@ export function TopPerformingProductLeaderboardWidget( {
 		const comparisonItems = comparisonData?.data || [];
 
 		// Create a map of product_id to comparison data for efficient lookup
-		const comparisonMap = new Map(
-			comparisonItems.map( ( item ) => [ item.product_id, item ] )
-		);
+		const comparisonMap = new Map( comparisonItems.map( item => [ item.product_id, item ] ) );
 
 		// Calculate maxValue once outside the map
 		const maxCurrentValue = Math.max(
-			...( data?.data?.map( ( p ) => p.product_net_revenue ?? 0 ) || [] ),
+			...( data?.data?.map( p => p.product_net_revenue ?? 0 ) || [] ),
 			1 // Prevent division by zero
 		);
 
 		// Calculate max previous value once outside the map
 		const maxPreviousValue = Math.max(
-			...comparisonItems.map( ( p ) => p.product_net_revenue ?? 0 ),
+			...comparisonItems.map( p => p.product_net_revenue ?? 0 ),
 			1 // Prevent division by zero
 		);
 
@@ -151,16 +144,11 @@ export function TopPerformingProductLeaderboardWidget( {
 			data?.data?.map( ( product, index: number ) => {
 				const currentValue = product.product_net_revenue ?? 0;
 
-				const productImage = productImages
-					? productImages[ product.product_id ]
-					: undefined;
+				const productImage = productImages ? productImages[ product.product_id ] : undefined;
 
 				// Match by product_id instead of index
-				const comparisonProduct = comparisonMap.get(
-					product.product_id
-				);
-				const previousValue =
-					comparisonProduct?.product_net_revenue ?? 0;
+				const comparisonProduct = comparisonMap.get( product.product_id );
+				const previousValue = comparisonProduct?.product_net_revenue ?? 0;
 
 				const previousShare =
 					comparisonItems.length > 0 && previousValue > 0
@@ -174,13 +162,7 @@ export function TopPerformingProductLeaderboardWidget( {
 
 				return {
 					id: String( product.product_id || index ),
-					label: (
-						<LeaderboardLabel
-							label={ label }
-							imageUrl={ imageUrl }
-							imageAlt={ imageAlt }
-						/>
-					),
+					label: <LeaderboardLabel label={ label } imageUrl={ imageUrl } imageAlt={ imageAlt } />,
 					currentValue,
 					currentShare: ( currentValue / maxCurrentValue ) * 100,
 					previousValue,
@@ -191,10 +173,7 @@ export function TopPerformingProductLeaderboardWidget( {
 		);
 	}, [ data?.data, comparisonData?.data, productImages ] );
 
-	const legendLabels = useMemo(
-		() => formatLegendLabels( reportParams ),
-		[ reportParams ]
-	);
+	const legendLabels = useMemo( () => formatLegendLabels( reportParams ), [ reportParams ] );
 
 	const hasError = useWidgetError( isError, error, refetch );
 	if ( hasError ) {

@@ -59,12 +59,7 @@ export function LeaderboardLabel( {
 	const finalImageUrl = imageUrl || DEFAULT_IMAGE_URL;
 
 	return (
-		<Stack
-			direction="row"
-			gap="sm"
-			align="center"
-			className={ styles.container }
-		>
+		<Stack direction="row" gap="sm" align="center" className={ styles.container }>
 			<img
 				src={ finalImageUrl }
 				onError={ ( e: React.SyntheticEvent< HTMLImageElement > ) => {

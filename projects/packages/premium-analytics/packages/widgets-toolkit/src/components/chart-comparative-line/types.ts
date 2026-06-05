@@ -1,11 +1,7 @@
 /**
  * External dependencies
  */
-import {
-	type SeriesData,
-	type DataPointDate,
-	type LineStyles,
-} from '@automattic/charts';
+import { type SeriesData, type DataPointDate, type LineStyles } from '@automattic/charts';
 
 /**
  * Types

@@ -38,9 +38,7 @@ export type BookingOrderMetricWidgetProps = {
  * </WidgetRoot>
  * ```
  */
-export function BookingOrderMetricWidget( {
-	metricKey,
-}: BookingOrderMetricWidgetProps ) {
+export function BookingOrderMetricWidget( { metricKey }: BookingOrderMetricWidgetProps ) {
 	const { reportParams } = useWidgetRootContext();
 
 	return (

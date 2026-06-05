@@ -17,7 +17,7 @@ A **shared** tooltip component for chart visualizations. Supports both line char
 ```tsx
 import { ChartTooltip } from '../chart-tooltip';
 
-const renderTooltip = ( params ) => (
+const renderTooltip = params => (
 	<ChartTooltip
 		tooltipData={ params.tooltipData }
 		dataFormat={ { type: 'currency' } }
@@ -36,7 +36,7 @@ const renderTooltip = ( params ) => (
 ```tsx
 import { ChartTooltip } from '../chart-tooltip';
 
-const renderTooltip = ( params ) => (
+const renderTooltip = params => (
 	<ChartTooltip
 		tooltipData={ params.tooltipData }
 		dataFormat={ { type: 'currency' } }
@@ -49,15 +49,14 @@ const renderTooltip = ( params ) => (
 
 ## Props
 
-| Prop            | Type                                      | Required | Description                                               |
-|-----------------|-------------------------------------------|----------|-----------------------------------------------------------|
-| `tooltipData`   | `{ datumByKey?: Record<string, unknown> }`| No       | Tooltip data from visx chart                              |
-| `dataFormat`    | `DataFormat`                              | Yes      | Format for values: currency, number, percentage           |
-| `seriesStyles`  | `TooltipStyle[]`                          | Yes      | Styles for each series (color, stroke properties)         |
-| `indicatorType` | `'line' \| 'rect'`                        | Yes      | Shape indicator: line for line charts, rect for bars      |
-| `getLabel`      | `(datum, index, key) => string`           | No       | Custom label extractor. `key` is the series key/label (default: `datum.label`) |
-| `getValue`      | `(datum) => number`                       | No       | Custom value extractor (default: `datum.value`)           |
-
+| Prop            | Type                                       | Required | Description                                                                    |
+| --------------- | ------------------------------------------ | -------- | ------------------------------------------------------------------------------ |
+| `tooltipData`   | `{ datumByKey?: Record<string, unknown> }` | No       | Tooltip data from visx chart                                                   |
+| `dataFormat`    | `DataFormat`                               | Yes      | Format for values: currency, number, percentage                                |
+| `seriesStyles`  | `TooltipStyle[]`                           | Yes      | Styles for each series (color, stroke properties)                              |
+| `indicatorType` | `'line' \| 'rect'`                         | Yes      | Shape indicator: line for line charts, rect for bars                           |
+| `getLabel`      | `(datum, index, key) => string`            | No       | Custom label extractor. `key` is the series key/label (default: `datum.label`) |
+| `getValue`      | `(datum) => number`                        | No       | Custom value extractor (default: `datum.value`)                                |
 
 ## TooltipStyle Type
 
@@ -153,19 +152,16 @@ Reuses the same SCSS module as `ChartTooltip` so styling (box-shadow, padding, v
 import { PieChartTooltip } from '../chart-tooltip';
 
 const renderTooltip = ( { tooltipData } ) => (
-	<PieChartTooltip
-		tooltipData={ tooltipData }
-		dataFormat={ { type: 'number' } }
-	/>
+	<PieChartTooltip tooltipData={ tooltipData } dataFormat={ { type: 'number' } } />
 );
 ```
 
 ## Props
 
-| Prop          | Type                  | Required | Description                                        |
-|---------------|-----------------------|----------|----------------------------------------------------|
+| Prop          | Type                  | Required | Description                                             |
+| ------------- | --------------------- | -------- | ------------------------------------------------------- |
 | `tooltipData` | `DataPointPercentage` | Yes      | Tooltip data from pie chart hover (label, value, color) |
-| `dataFormat`  | `DataFormat`          | Yes      | Format for values: currency, number, percentage    |
+| `dataFormat`  | `DataFormat`          | Yes      | Format for values: currency, number, percentage         |
 
 ## Used By
 
@@ -189,17 +185,17 @@ import { RectShape } from '@automattic/charts/visx/legend';
 	label="Revenue"
 	value={ 1234.56 }
 	dataFormat={ { type: 'currency' } }
-/>
+/>;
 ```
 
 ## Props
 
-| Prop        | Type              | Required | Description                                         |
-|-------------|-------------------|----------|-----------------------------------------------------|
-| `indicator` | `React.ReactNode` | Yes      | Pre-rendered indicator element (LineShape, RectShape, etc.) |
-| `label`     | `string`          | Yes      | Row label text                                      |
-| `value`     | `number`          | Yes      | Numeric value to format                             |
-| `dataFormat`| `DataFormat`      | Yes      | Format configuration (currency, number, percentage) |
+| Prop         | Type              | Required | Description                                                 |
+| ------------ | ----------------- | -------- | ----------------------------------------------------------- |
+| `indicator`  | `React.ReactNode` | Yes      | Pre-rendered indicator element (LineShape, RectShape, etc.) |
+| `label`      | `string`          | Yes      | Row label text                                              |
+| `value`      | `number`          | Yes      | Numeric value to format                                     |
+| `dataFormat` | `DataFormat`      | Yes      | Format configuration (currency, number, percentage)         |
 
 ## Used By
 

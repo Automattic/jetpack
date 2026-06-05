@@ -23,9 +23,7 @@ export type BarChartData = ComponentProps< typeof BarChartBase >[ 'data' ];
  * Inferred types from BarChart (BarChartBase)
  */
 type BarChartBaseProps = ComponentProps< typeof BarChartBase >;
-type RenderTooltipParams = Parameters<
-	NonNullable< BarChartBaseProps[ 'renderTooltip' ] >
->[ 0 ];
+type RenderTooltipParams = Parameters< NonNullable< BarChartBaseProps[ 'renderTooltip' ] > >[ 0 ];
 
 /**
  * Style configuration for bar chart.
@@ -98,7 +96,7 @@ function resolveSeriesStyles(
 
 	// Fallback: extract styles from chartData options
 	return (
-		chartData?.map( ( series ) => ( {
+		chartData?.map( series => ( {
 			stroke: series.options?.stroke ?? 'currentColor',
 		} ) ) ?? [ { stroke: 'currentColor' } ]
 	);
@@ -176,10 +174,7 @@ export function BarChart( {
 	 * Detect if chart data is empty (all values are 0).
 	 * Used to disable tooltips when there's no meaningful data to display.
 	 */
-	const isEmptyData = useMemo(
-		() => isEmptyChartData( styledChartData ),
-		[ styledChartData ]
-	);
+	const isEmptyData = useMemo( () => isEmptyChartData( styledChartData ), [ styledChartData ] );
 
 	/**
 	 * Chart options for empty data state.
@@ -233,9 +228,7 @@ export function BarChart( {
 	);
 
 	if ( isEmptyData ) {
-		return (
-			<ChartEmptyState icon={ emptyStateIcon } text={ emptyStateText } />
-		);
+		return <ChartEmptyState icon={ emptyStateIcon } text={ emptyStateText } />;
 	}
 
 	return (

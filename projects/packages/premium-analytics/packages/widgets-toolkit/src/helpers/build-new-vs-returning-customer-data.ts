@@ -45,12 +45,9 @@ export function buildNewVsReturningCustomerData(
 	const returningCustomers = customers.summary.returning_customers;
 
 	// Pick comparison totals
-	const comparisonTotalCustomers =
-		comparisonCustomers?.summary?.total_customers || 0;
-	const comparisonNewCustomers =
-		comparisonCustomers?.summary?.new_customers || 0;
-	const comparisonReturningCustomers =
-		comparisonCustomers?.summary?.returning_customers || 0;
+	const comparisonTotalCustomers = comparisonCustomers?.summary?.total_customers || 0;
+	const comparisonNewCustomers = comparisonCustomers?.summary?.new_customers || 0;
+	const comparisonReturningCustomers = comparisonCustomers?.summary?.returning_customers || 0;
 
 	// If there are no customers, return empty state
 	if ( totalCustomers === 0 ) {
@@ -92,9 +89,7 @@ export function buildNewVsReturningCustomerData(
 				useMultipliers: true,
 				decimals: 0,
 			} ),
-			comparison: hasComparison
-				? comparisonReturningCustomers
-				: undefined,
+			comparison: hasComparison ? comparisonReturningCustomers : undefined,
 		},
 		{
 			label: __( 'New', 'jetpack-premium-analytics' ),

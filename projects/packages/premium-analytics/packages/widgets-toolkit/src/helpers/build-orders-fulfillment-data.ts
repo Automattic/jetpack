@@ -39,12 +39,9 @@ export function buildOrdersFulfillmentData(
 	const unfulfilledCount = unfulfilledOrders?.summary?.orders_no ?? 0;
 	const totalOrders = fulfilledCount + unfulfilledCount;
 
-	const comparisonFulfilledCount =
-		comparisonFulfilledOrders?.summary?.orders_no ?? 0;
-	const comparisonUnfulfilledCount =
-		comparisonUnfulfilledOrders?.summary?.orders_no ?? 0;
-	const comparisonTotalOrders =
-		comparisonFulfilledCount + comparisonUnfulfilledCount;
+	const comparisonFulfilledCount = comparisonFulfilledOrders?.summary?.orders_no ?? 0;
+	const comparisonUnfulfilledCount = comparisonUnfulfilledOrders?.summary?.orders_no ?? 0;
+	const comparisonTotalOrders = comparisonFulfilledCount + comparisonUnfulfilledCount;
 
 	if ( totalOrders === 0 ) {
 		return {
@@ -79,17 +76,13 @@ export function buildOrdersFulfillmentData(
 			label: __( 'Fulfilled', 'jetpack-premium-analytics' ),
 			value: fulfilledCount,
 			displayValue: formatCount( fulfilledCount ),
-			comparison: comparisonFulfilledOrders
-				? comparisonFulfilledCount
-				: undefined,
+			comparison: comparisonFulfilledOrders ? comparisonFulfilledCount : undefined,
 		},
 		{
 			label: __( 'Unfulfilled', 'jetpack-premium-analytics' ),
 			value: unfulfilledCount,
 			displayValue: formatCount( unfulfilledCount ),
-			comparison: comparisonUnfulfilledOrders
-				? comparisonUnfulfilledCount
-				: undefined,
+			comparison: comparisonUnfulfilledOrders ? comparisonUnfulfilledCount : undefined,
 		},
 	];
 

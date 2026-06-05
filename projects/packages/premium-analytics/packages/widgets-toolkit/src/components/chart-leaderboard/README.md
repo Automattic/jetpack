@@ -4,14 +4,14 @@ A responsive leaderboard (horizontal bar) chart component for displaying ranking
 
 ## Features
 
--   **Context-aware styling**: Integrates with GlobalChartsProvider for consistent theming
--   **Comparison mode**: Shows current vs. previous period data with delta indicators
--   **Flexible formatting**: Supports currency, number, percentage, and custom formats
--   **Empty state handling**: Built-in empty state with customizable content
--   **Legend support**: Optional legend with customizable labels
--   **Overlay labels**: Alternative styling with labels on top of bars
--   **Loading states**: Skeleton loaders during data fetch
--   **Long label handling**: Automatic truncation and tooltips for long labels
+- **Context-aware styling**: Integrates with GlobalChartsProvider for consistent theming
+- **Comparison mode**: Shows current vs. previous period data with delta indicators
+- **Flexible formatting**: Supports currency, number, percentage, and custom formats
+- **Empty state handling**: Built-in empty state with customizable content
+- **Legend support**: Optional legend with customizable labels
+- **Overlay labels**: Alternative styling with labels on top of bars
+- **Loading states**: Skeleton loaders during data fetch
+- **Long label handling**: Automatic truncation and tooltips for long labels
 
 ## Requirements
 
@@ -166,11 +166,7 @@ type DataFormat = {
 ### With Overlay Labels
 
 ```tsx
-<LeaderboardChart
-	data={ data }
-	withOverlayLabel={ true }
-	withComparison={ true }
-/>
+<LeaderboardChart data={ data } withOverlayLabel={ true } withComparison={ true } />
 ```
 
 ### Custom Empty State
@@ -208,9 +204,7 @@ import { LeaderboardChart } from '@jetpack-premium-analytics/widgets-toolkit';
 
 function MyWidget() {
 	return (
-		<GlobalChartsProvider
-			theme={ { colors: [ '#3858E9', '#66BDFF', '#A77EFF' ] } }
-		>
+		<GlobalChartsProvider theme={ { colors: [ '#3858E9', '#66BDFF', '#A77EFF' ] } }>
 			<LeaderboardChart data={ data } withComparison={ true } />
 		</GlobalChartsProvider>
 	);
@@ -219,9 +213,9 @@ function MyWidget() {
 
 The component uses `getElementStyles()` from the context to:
 
--   Retrieve primary and secondary colors for bars
--   Apply consistent theming across all charts
--   Support both current period (index 0) and comparison period (index 1) colors
+- Retrieve primary and secondary colors for bars
+- Apply consistent theming across all charts
+- Support both current period (index 0) and comparison period (index 1) colors
 
 ## Empty State Behavior
 
@@ -239,25 +233,25 @@ When `loading={true}`, the component displays skeleton loaders that match the st
 
 The LeaderboardChart automatically adapts to its container width. For optimal display:
 
--   **Minimum width**: 280px recommended
--   **Ideal width**: 400px+ for comfortable reading
--   **Label truncation**: Long labels automatically truncate with ellipsis
--   **Bar scaling**: Bars scale proportionally to container width
+- **Minimum width**: 280px recommended
+- **Ideal width**: 400px+ for comfortable reading
+- **Label truncation**: Long labels automatically truncate with ellipsis
+- **Bar scaling**: Bars scale proportionally to container width
 
 ## Storybook
 
 Run `pnpm storybook` and navigate to **Widgets Toolkit / Components / LeaderboardChart** to see:
 
--   **Default** - Basic leaderboard without comparison
--   **WithComparison** - Current vs. previous period
--   **Loading** - Loading skeleton state
--   **EmptyState** - No data handling
--   **WithOverlayLabel** - Labels on top of bars
--   **WithoutLegend** - Chart without legend
--   **LongLabels** - Label truncation handling
--   **NumberFormat** - Number formatting (not currency)
--   **PercentageFormat** - Percentage values
--   **Container size variants** - Small (280px), Medium (400px), Large (600px)
+- **Default** - Basic leaderboard without comparison
+- **WithComparison** - Current vs. previous period
+- **Loading** - Loading skeleton state
+- **EmptyState** - No data handling
+- **WithOverlayLabel** - Labels on top of bars
+- **WithoutLegend** - Chart without legend
+- **LongLabels** - Label truncation handling
+- **NumberFormat** - Number formatting (not currency)
+- **PercentageFormat** - Percentage values
+- **Container size variants** - Small (280px), Medium (400px), Large (600px)
 
 ## Comparison with Other Chart Components
 

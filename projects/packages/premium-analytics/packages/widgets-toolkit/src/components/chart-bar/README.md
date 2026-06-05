@@ -9,11 +9,7 @@ This component is **pure and self-contained**—it receives all styling via prop
 ```tsx
 import { BarChart } from '@jetpack-premium-analytics/widgets-toolkit';
 
-<BarChart
-	chartData={ chartData }
-	styles={ barStyles }
-	dataFormat={ { type: 'currency' } }
-/>;
+<BarChart chartData={ chartData } styles={ barStyles } dataFormat={ { type: 'currency' } } />;
 ```
 
 **Why this matters:**
@@ -31,9 +27,7 @@ The cleanest approach is to pass styles as a separate prop. Styles are applied t
 ```tsx
 import { BarChart, type BarChartStyle } from '@jetpack-premium-analytics/widgets-toolkit';
 
-const styles: BarChartStyle[] = [
-	{ stroke: '#3858E9' },
-];
+const styles: BarChartStyle[] = [ { stroke: '#3858E9' } ];
 
 const chartData = [
 	{
@@ -46,11 +40,7 @@ const chartData = [
 	},
 ];
 
-<BarChart
-	chartData={ chartData }
-	styles={ styles }
-	dataFormat={ { type: 'currency' } }
-/>;
+<BarChart chartData={ chartData } styles={ styles } dataFormat={ { type: 'currency' } } />;
 ```
 
 ### With styles in chartData (fallback)
@@ -92,7 +82,7 @@ const revenueData = [
 <BarChart
 	chartData={ revenueData }
 	dataFormat={ { type: 'currency' } }
-	styles={ [{ stroke: '#3858E9' }] }
+	styles={ [ { stroke: '#3858E9' } ] }
 />;
 ```
 
@@ -123,11 +113,7 @@ const styles: BarChartStyle[] = [
 	{ stroke: '#66BDFF' }, // Comparison - Blue 30
 ];
 
-<BarChart
-	chartData={ comparisonData }
-	styles={ styles }
-	dataFormat={ { type: 'currency' } }
-/>;
+<BarChart chartData={ comparisonData } styles={ styles } dataFormat={ { type: 'currency' } } />;
 ```
 
 ## Using with Theme Providers
@@ -150,23 +136,19 @@ function MyWidget( { chartData } ) {
 	} );
 
 	return (
-		<BarChart
-			chartData={ chartData }
-			styles={ barStyles }
-			dataFormat={ { type: 'currency' } }
-		/>
+		<BarChart chartData={ chartData } styles={ barStyles } dataFormat={ { type: 'currency' } } />
 	);
 }
 ```
 
 ## Props
 
-| Prop         | Type              | Required | Description                                           |
-| ------------ | ----------------- | -------- | ----------------------------------------------------- |
-| `chartData`  | `BarChartData`    | Yes      | Array of series with categorical data points          |
+| Prop         | Type              | Required | Description                                                |
+| ------------ | ----------------- | -------- | ---------------------------------------------------------- |
+| `chartData`  | `BarChartData`    | Yes      | Array of series with categorical data points               |
 | `dataFormat` | `DataFormat`      | Yes      | Format for values (tooltips): currency, number, percentage |
-| `styles`     | `BarChartStyle[]` | No       | Styles for each series (by index)                     |
-| `className`  | `string`          | No       | CSS class for the chart container                     |
+| `styles`     | `BarChartStyle[]` | No       | Styles for each series (by index)                          |
+| `className`  | `string`          | No       | CSS class for the chart container                          |
 
 ## BarChartStyle Type
 
@@ -193,6 +175,7 @@ When all values are zero, the chart:
 2. **Shows a fixed Y-axis domain** — so 0 appears at the bottom with meaningful tick values
 
 Default domains by data format:
+
 - `currency`: 0 - 4K
 - `number`: 0 - 80
 - `percentage`: 0% - 100%
@@ -202,6 +185,7 @@ Default domains by data format:
 ### ChartTooltip
 
 The tooltip displays data points when hovering over bars. It uses:
+
 - Rectangle indicators (matching bar shape)
 - WPDS design tokens for consistent styling
 - `MetricValue` component for formatted values

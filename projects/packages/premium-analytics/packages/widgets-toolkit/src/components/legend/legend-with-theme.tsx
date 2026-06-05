@@ -1,10 +1,7 @@
 /**
  * External dependencies
  */
-import {
-	type BaseLegendItem,
-	useGlobalChartsContext,
-} from '@automattic/charts';
+import { type BaseLegendItem, useGlobalChartsContext } from '@automattic/charts';
 
 /**
  * Internal dependencies
@@ -33,9 +30,7 @@ function resolveItemColor(
 		return item.color;
 	}
 
-	const correspondingChartItem = chartItems?.find(
-		( chartItem ) => chartItem.label === item.label
-	);
+	const correspondingChartItem = chartItems?.find( chartItem => chartItem.label === item.label );
 
 	if ( correspondingChartItem?.color ) {
 		return correspondingChartItem.color;
@@ -66,7 +61,5 @@ export function LegendWithTheme( {
 		color: resolveItemColor( item, index, chartItems, getElementStyles ),
 	} ) );
 
-	return (
-		<Legend items={ itemsWithColors } withComparison={ withComparison } />
-	);
+	return <Legend items={ itemsWithColors } withComparison={ withComparison } />;
 }

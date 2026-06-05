@@ -14,13 +14,7 @@ export type Metric = {
 	label: string;
 	description?: string;
 	category?: 'Finances' | 'Orders' | 'Sales' | 'Inventory';
-	metricType:
-		| 'general'
-		| 'product'
-		| 'booking'
-		| 'visitors'
-		| 'conversion'
-		| 'customers';
+	metricType: 'general' | 'product' | 'booking' | 'visitors' | 'conversion' | 'customers';
 	metricKey: MetricKey;
 	filters?: FilterCondition[];
 	enabled: boolean;

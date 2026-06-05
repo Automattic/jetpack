@@ -73,12 +73,7 @@ export function SessionsByDeviceWidget() {
 
 	return (
 		<>
-			<Stack
-				className={ styles.container }
-				direction="column"
-				align="center"
-				justify="center"
-			>
+			<Stack className={ styles.container } direction="column" align="center" justify="center">
 				<SemiCircleChart
 					chartData={ chartData }
 					value={ total }

@@ -11,10 +11,7 @@ import {
 } from '@jetpack-premium-analytics/data';
 import { getStoreInfo } from '../../helpers/store-info';
 import { endOfDay } from 'date-fns';
-import {
-	deriveComparisonRange,
-	encodeDateToSearchParam,
-} from '@jetpack-premium-analytics/routing';
+import { deriveComparisonRange, encodeDateToSearchParam } from '@jetpack-premium-analytics/routing';
 import { useCallback, useMemo, useState, useEffect } from 'react';
 import type { DataFormControlProps } from '@wordpress/dataviews';
 import {
@@ -26,9 +23,7 @@ import {
 /**
  * Inferred types
  */
-type ReportParams = NonNullable<
-	Parameters< typeof normalizeReportParams >[ 0 ]
->;
+type ReportParams = NonNullable< Parameters< typeof normalizeReportParams >[ 0 ] >;
 
 export type ReportParamsFieldAttributes = {
 	reportParams: ReportParams;
@@ -38,16 +33,14 @@ export function ReportParamsField( {
 	data: attributes,
 	onChange,
 }: DataFormControlProps< ReportParamsFieldAttributes > ) {
-	const [ stagedReportParams, setStagedReportParams ] =
-		useState< ReportParams >( attributes?.reportParams );
+	const [ stagedReportParams, setStagedReportParams ] = useState< ReportParams >(
+		attributes?.reportParams
+	);
 
 	const { launchedDate } = getStoreInfo();
 	const defaultPreset = getDefaultPreset( launchedDate );
 
-	const reportParams = normalizeReportParams(
-		stagedReportParams,
-		defaultPreset
-	);
+	const reportParams = normalizeReportParams( stagedReportParams, defaultPreset );
 
 	const range = {
 		from: localTZDate( reportParams.from ),
@@ -59,12 +52,8 @@ export function ReportParamsField( {
 			const nextReportParams = { ...stagedReportParams };
 
 			if ( nextRange?.from && nextRange?.to ) {
-				nextReportParams.from = encodeDateToSearchParam(
-					nextRange.from
-				);
-				nextReportParams.to = encodeDateToSearchParam(
-					endOfDay( nextRange.to )
-				);
+				nextReportParams.from = encodeDateToSearchParam( nextRange.from );
+				nextReportParams.to = encodeDateToSearchParam( endOfDay( nextRange.to ) );
 			}
 
 			if ( nextPresetId && isPrimaryPreset( nextPresetId ) ) {
@@ -107,19 +96,12 @@ export function ReportParamsField( {
 	] );
 
 	const commitComparisonRange = useCallback(
-		(
-			nextComparisonRange?: DateRange,
-			nextComparisonPresetId?: ComparisonPresetId
-		) => {
+		( nextComparisonRange?: DateRange, nextComparisonPresetId?: ComparisonPresetId ) => {
 			onChange( {
 				reportParams: {
 					...reportParams,
-					compare_from: encodeDateToSearchParam(
-						nextComparisonRange?.from
-					),
-					compare_to: encodeDateToSearchParam(
-						nextComparisonRange?.to
-					),
+					compare_from: encodeDateToSearchParam( nextComparisonRange?.from ),
+					compare_to: encodeDateToSearchParam( nextComparisonRange?.to ),
 					compare_preset: nextComparisonPresetId,
 					comp: '1' as const,
 				},
@@ -141,13 +123,10 @@ export function ReportParamsField( {
 	 * This is a temporary workaround until @automattic/dashboard exposes
 	 * a Context provider. See WOOA7S-1008 for the upstream solution.
 	 */
-	const [ containerElement, setContainerElement ] =
-		useState< HTMLElement | null >( null );
+	const [ containerElement, setContainerElement ] = useState< HTMLElement | null >( null );
 
 	useEffect( () => {
-		const node = document.querySelector< HTMLElement >(
-			'.next-admin-layout__surface'
-		);
+		const node = document.querySelector< HTMLElement >( '.next-admin-layout__surface' );
 		setContainerElement( node );
 	}, [] );
 

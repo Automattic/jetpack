@@ -69,18 +69,13 @@ export function MetricValue( {
 	);
 
 	const style = {
-		'--wp-ui-metric-font-size':
-			`var( --wpds-font-size-${ fontSize } )`,
+		'--wp-ui-metric-font-size': `var( --wpds-font-size-${ fontSize } )`,
 	} as CSSProperties;
 
 	return (
 		<span
 			style={ style }
-			className={ clsx(
-				styles.metricValue,
-				styles[ `color--${ color }` ],
-				className
-			) }
+			className={ clsx( styles.metricValue, styles[ `color--${ color }` ], className ) }
 		>
 			{ displayValue }
 		</span>

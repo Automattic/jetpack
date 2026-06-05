@@ -32,7 +32,7 @@ export function MetricsField( {
 	const updateMetrics = useCallback(
 		( id: string ) =>
 			onChange( {
-				metrics: attributes.metrics.map( ( m ) => {
+				metrics: attributes.metrics.map( m => {
 					return m.id === id ? { ...m, enabled: ! m.enabled } : m;
 				} ),
 			} ),
@@ -52,12 +52,10 @@ export function MetricsField( {
 
 	return (
 		<Fieldset.Root>
-			<Fieldset.Legend>
-				{ __( 'Metrics', 'jetpack-premium-analytics' ) }
-			</Fieldset.Legend>
+			<Fieldset.Legend>{ __( 'Metrics', 'jetpack-premium-analytics' ) }</Fieldset.Legend>
 			<Fieldset.Description>{ help }</Fieldset.Description>
 			<Stack direction="column" gap="sm">
-				{ attributes?.metrics?.map( ( metric ) => (
+				{ attributes?.metrics?.map( metric => (
 					<CheckboxControl
 						key={ metric.id }
 						label={ metric.label }

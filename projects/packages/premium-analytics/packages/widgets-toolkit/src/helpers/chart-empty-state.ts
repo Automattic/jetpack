@@ -23,9 +23,7 @@ type SeriesWithData = {
  * @return True if all values across all series are 0 or null
  */
 export function isEmptyChartData( series: SeriesWithData[] ): boolean {
-	return series.every( ( s ) =>
-		s.data.every( ( point ) => point.value === 0 || point.value === null )
-	);
+	return series.every( s => s.data.every( point => point.value === 0 || point.value === null ) );
 }
 
 /**
@@ -35,13 +33,11 @@ export function isEmptyChartData( series: SeriesWithData[] ): boolean {
  * @param data - Array of DataPointPercentage to check
  * @return True if data is empty or all values are 0
  */
-export function isEmptyPieChartData(
-	data: DataPointPercentage[] | undefined | null
-): boolean {
+export function isEmptyPieChartData( data: DataPointPercentage[] | undefined | null ): boolean {
 	if ( ! data || data.length === 0 ) {
 		return true;
 	}
-	return data.every( ( item ) => item.value === 0 );
+	return data.every( item => item.value === 0 );
 }
 
 /**

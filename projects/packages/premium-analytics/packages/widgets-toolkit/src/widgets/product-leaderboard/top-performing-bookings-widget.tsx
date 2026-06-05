@@ -40,9 +40,7 @@ export type TopPerformingBookingsWidgetProps = {
  *   <TopPerformingBookingsWidget limit={ 5 } />
  * </WidgetRoot>
  */
-export function TopPerformingBookingsWidget( {
-	limit = 5,
-}: TopPerformingBookingsWidgetProps ) {
+export function TopPerformingBookingsWidget( { limit = 5 }: TopPerformingBookingsWidgetProps ) {
 	return (
 		<TopPerformingProductLeaderboardWidget
 			limit={ limit }

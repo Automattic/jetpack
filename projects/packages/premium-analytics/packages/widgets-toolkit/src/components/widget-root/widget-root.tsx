@@ -75,8 +75,7 @@ function useResolveReportParams(
 	 * Otherwise, use URL search params as reportParams.
 	 */
 	const hasReportParams =
-		!! attributes?.reportParams &&
-		Object.keys( attributes.reportParams ).length > 0;
+		!! attributes?.reportParams && Object.keys( attributes.reportParams ).length > 0;
 
 	return hasReportParams ? attributes.reportParams : search;
 }
@@ -105,12 +104,7 @@ function useResolveReportParams(
  * }
  * ```
  */
-export function WidgetRoot( {
-	attributes,
-	children,
-	setError,
-	options,
-}: WidgetRootProps ) {
+export function WidgetRoot( { attributes, children, setError, options }: WidgetRootProps ) {
 	const chartTheme = useChartTheme();
 	const rawReportParams = useResolveReportParams( attributes, options?.from );
 
@@ -122,10 +116,7 @@ export function WidgetRoot( {
 		[ rawReportParams, defaultPreset ]
 	);
 
-	const contextValue = useMemo(
-		() => ( { reportParams, setError } ),
-		[ reportParams, setError ]
-	);
+	const contextValue = useMemo( () => ( { reportParams, setError } ), [ reportParams, setError ] );
 
 	return (
 		<AnalyticsQueryClientProvider>

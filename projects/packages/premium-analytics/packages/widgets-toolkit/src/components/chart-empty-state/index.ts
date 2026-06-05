@@ -1,4 +1,1 @@
-export {
-	ChartEmptyState,
-	type ChartEmptyStateProps,
-} from './chart-empty-state';
+export { ChartEmptyState, type ChartEmptyStateProps } from './chart-empty-state';

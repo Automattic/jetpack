@@ -17,10 +17,7 @@
  * calculateDelta(0, 0)     // Returns 0 (no change)
  * calculateDelta(0, 100)   // Returns -100 (complete disappearance)
  */
-export function calculateDelta(
-	currentValue: number,
-	previousValue: number
-): number {
+export function calculateDelta( currentValue: number, previousValue: number ): number {
 	// Handle the case where previous value is zero
 	if ( previousValue === 0 ) {
 		// If previous was 0 and current is positive, show 100% increase

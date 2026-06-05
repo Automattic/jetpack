@@ -31,11 +31,8 @@ export function buildSalesByUtmData(
 
 	// Find the max value for share calculation
 	const maxValue = Math.max(
-		...data.map( ( item ) =>
-			Math.max(
-				item.current_period.value || 0,
-				item.previous_period?.value || 0
-			)
+		...data.map( item =>
+			Math.max( item.current_period.value || 0, item.previous_period?.value || 0 )
 		),
 		1 // Prevent division by zero
 	);

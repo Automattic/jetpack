@@ -34,8 +34,7 @@ export function buildRevenueByCustomerTypeData(
 		};
 	}
 
-	const { primary: primaryLabel, comparison: comparisonLabel } =
-		formatLegendLabels( reportParams );
+	const { primary: primaryLabel, comparison: comparisonLabel } = formatLegendLabels( reportParams );
 
 	const { summary } = customers;
 	const newCustomerSales = summary.new_customer_sales;
@@ -60,8 +59,7 @@ export function buildRevenueByCustomerTypeData(
 
 	// Add comparison period if available
 	if ( comparisonCustomers?.summary ) {
-		const comparisonNewCustomerSales =
-			comparisonCustomers.summary.new_customer_sales || 0;
+		const comparisonNewCustomerSales = comparisonCustomers.summary.new_customer_sales || 0;
 		const comparisonReturningCustomerSales =
 			comparisonCustomers.summary.returning_customer_sales || 0;
 

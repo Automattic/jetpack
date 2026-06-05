@@ -3,10 +3,7 @@
  */
 import { useMemo } from 'react';
 import { WidgetLoadingOverlay } from '../../components/widget-loading-overlay';
-import {
-	useReportCustomers,
-	type FilterCondition,
-} from '@jetpack-premium-analytics/data';
+import { useReportCustomers, type FilterCondition } from '@jetpack-premium-analytics/data';
 import { customer } from '@jetpack-premium-analytics/icons';
 
 /**
@@ -44,35 +41,20 @@ type CustomerTypeRevenueWidgetProps = {
  * </WidgetRoot>
  * ```
  */
-function CustomerTypeRevenueWidget( {
-	filter,
-}: CustomerTypeRevenueWidgetProps ) {
+function CustomerTypeRevenueWidget( { filter }: CustomerTypeRevenueWidgetProps ) {
 	const { reportParams } = useWidgetRootContext();
 
-	const {
-		primary,
-		comparison,
-		isLoading,
-		isFetching,
-		hasData,
-		isError,
-		error,
-		refetch,
-	} = useReportCustomers( {
-		...reportParams,
-		filters: filter ? [ filter ] : undefined,
-	} );
+	const { primary, comparison, isLoading, isFetching, hasData, isError, error, refetch } =
+		useReportCustomers( {
+			...reportParams,
+			filters: filter ? [ filter ] : undefined,
+		} );
 
 	const isInitialLoading = isLoading && ! hasData;
 	const isRefetching = isFetching && hasData;
 
 	const { chartData } = useMemo(
-		() =>
-			buildRevenueByCustomerTypeData(
-				primary.data,
-				comparison.data,
-				reportParams
-			),
+		() => buildRevenueByCustomerTypeData( primary.data, comparison.data, reportParams ),
 		[ primary.data, comparison.data, reportParams ]
 	);
 

@@ -1,6 +1,1 @@
-export {
-	BarChart,
-	type BarChartProps,
-	type BarChartData,
-	type BarChartStyle,
-} from './bar-chart';
+export { BarChart, type BarChartProps, type BarChartData, type BarChartStyle } from './bar-chart';

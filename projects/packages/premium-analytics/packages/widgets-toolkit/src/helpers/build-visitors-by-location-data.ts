@@ -53,51 +53,33 @@ export function buildVisitorsByLocationData( {
 	// Build geo chart data
 	const geoData: GeoData = [
 		[ headerLabel, 'Visitors' ],
-		...primaryData.map(
-			( item ) => [ item.label, item.value ] as [ string, number ]
-		),
+		...primaryData.map( item => [ item.label, item.value ] as [ string, number ] ),
 	];
 
 	// Find max values for bar width scaling (largest value = 100% width)
-	const maxPrimaryValue = Math.max(
-		...primaryData.map( ( d ) => d.value ),
-		0
-	);
+	const maxPrimaryValue = Math.max( ...primaryData.map( d => d.value ), 0 );
 	const maxComparisonValue = comparisonData
-		? Math.max( ...comparisonData.map( ( d ) => d.value ), 0 )
+		? Math.max( ...comparisonData.map( d => d.value ), 0 )
 		: 0;
 
 	// Build leaderboard data (top N items)
-	const leaderboardData: LeaderboardChartData = primaryData
-		.slice( 0, limit )
-		.map( ( item ) => {
-			const comparisonItem = comparisonData?.find(
-				( c ) => c.id === item.id
-			);
-			const previousValue = comparisonItem?.value ?? 0;
-			const currentShare =
-				maxPrimaryValue > 0
-					? ( item.value / maxPrimaryValue ) * 100
-					: 0;
-			const previousShare =
-				maxComparisonValue > 0
-					? ( previousValue / maxComparisonValue ) * 100
-					: 0;
-			const delta =
-				previousValue > 0
-					? ( ( item.value - previousValue ) / previousValue ) * 100
-					: 0;
+	const leaderboardData: LeaderboardChartData = primaryData.slice( 0, limit ).map( item => {
+		const comparisonItem = comparisonData?.find( c => c.id === item.id );
+		const previousValue = comparisonItem?.value ?? 0;
+		const currentShare = maxPrimaryValue > 0 ? ( item.value / maxPrimaryValue ) * 100 : 0;
+		const previousShare = maxComparisonValue > 0 ? ( previousValue / maxComparisonValue ) * 100 : 0;
+		const delta = previousValue > 0 ? ( ( item.value - previousValue ) / previousValue ) * 100 : 0;
 
-			return {
-				id: item.id,
-				label: item.label,
-				currentValue: item.value,
-				previousValue,
-				currentShare,
-				previousShare,
-				delta,
-			};
-		} );
+		return {
+			id: item.id,
+			label: item.label,
+			currentValue: item.value,
+			previousValue,
+			currentShare,
+			previousShare,
+			delta,
+		};
+	} );
 
 	return { geoData, leaderboardData };
 }

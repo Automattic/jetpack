@@ -30,18 +30,13 @@ describe( 'alignSeriesDates', () => {
 
 		it( 'returns single series unchanged', () => {
 			const series = [
-				createSeries( 'Primary', [
-					new Date( '2024-01-01' ),
-					new Date( '2024-01-02' ),
-				] ),
+				createSeries( 'Primary', [ new Date( '2024-01-01' ), new Date( '2024-01-02' ) ] ),
 			];
 
 			const result = alignSeriesDates( series );
 
 			expect( result ).toBe( series ); // Same reference
-			expect( result[ 0 ].data[ 0 ].date ).toEqual(
-				new Date( '2024-01-01' )
-			);
+			expect( result[ 0 ].data[ 0 ].date ).toEqual( new Date( '2024-01-01' ) );
 		} );
 
 		it( 'handles series with empty data arrays', () => {
@@ -89,20 +84,12 @@ describe( 'alignSeriesDates', () => {
 			const result = alignSeriesDates( [ primary, comparison ] );
 
 			// Primary should be unchanged
-			expect( result[ 0 ].data[ 0 ].date ).toEqual(
-				new Date( '2024-01-08' )
-			);
+			expect( result[ 0 ].data[ 0 ].date ).toEqual( new Date( '2024-01-08' ) );
 
 			// Comparison dates should match primary dates by index
-			expect( result[ 1 ].data[ 0 ].date ).toEqual(
-				new Date( '2024-01-08' )
-			);
-			expect( result[ 1 ].data[ 1 ].date ).toEqual(
-				new Date( '2024-01-09' )
-			);
-			expect( result[ 1 ].data[ 2 ].date ).toEqual(
-				new Date( '2024-01-10' )
-			);
+			expect( result[ 1 ].data[ 0 ].date ).toEqual( new Date( '2024-01-08' ) );
+			expect( result[ 1 ].data[ 1 ].date ).toEqual( new Date( '2024-01-09' ) );
+			expect( result[ 1 ].data[ 2 ].date ).toEqual( new Date( '2024-01-10' ) );
 		} );
 
 		it( 'handles weekly intervals with different start days', () => {
@@ -124,20 +111,12 @@ describe( 'alignSeriesDates', () => {
 			const result = alignSeriesDates( [ primary, comparison ] );
 
 			// Comparison should get primary's dates for perfect alignment
-			expect( result[ 1 ].data[ 0 ].date ).toEqual(
-				new Date( '2024-09-12' )
-			);
-			expect( result[ 1 ].data[ 1 ].date ).toEqual(
-				new Date( '2024-09-16' )
-			);
-			expect( result[ 1 ].data[ 2 ].date ).toEqual(
-				new Date( '2024-09-23' )
-			);
+			expect( result[ 1 ].data[ 0 ].date ).toEqual( new Date( '2024-09-12' ) );
+			expect( result[ 1 ].data[ 1 ].date ).toEqual( new Date( '2024-09-16' ) );
+			expect( result[ 1 ].data[ 2 ].date ).toEqual( new Date( '2024-09-23' ) );
 
 			// Original dates preserved for tooltip
-			expect( result[ 1 ].data[ 0 ].realDate ).toEqual(
-				new Date( '2024-06-14' )
-			);
+			expect( result[ 1 ].data[ 0 ].realDate ).toEqual( new Date( '2024-06-14' ) );
 		} );
 
 		it( 'preserves original dates in realDate property', () => {
@@ -154,21 +133,13 @@ describe( 'alignSeriesDates', () => {
 			const result = alignSeriesDates( [ primary, comparison ] );
 
 			// Original dates preserved in realDate
-			expect( result[ 1 ].data[ 0 ].realDate ).toEqual(
-				new Date( '2024-01-01' )
-			);
-			expect( result[ 1 ].data[ 1 ].realDate ).toEqual(
-				new Date( '2024-01-02' )
-			);
+			expect( result[ 1 ].data[ 0 ].realDate ).toEqual( new Date( '2024-01-01' ) );
+			expect( result[ 1 ].data[ 1 ].realDate ).toEqual( new Date( '2024-01-02' ) );
 		} );
 
 		it( 'does not add realDate to primary series', () => {
-			const primary = createSeries( 'This Week', [
-				new Date( '2024-01-08' ),
-			] );
-			const comparison = createSeries( 'Last Week', [
-				new Date( '2024-01-01' ),
-			] );
+			const primary = createSeries( 'This Week', [ new Date( '2024-01-08' ) ] );
+			const comparison = createSeries( 'Last Week', [ new Date( '2024-01-01' ) ] );
 
 			const result = alignSeriesDates( [ primary, comparison ] );
 
@@ -209,16 +180,10 @@ describe( 'alignSeriesDates', () => {
 			const result = alignSeriesDates( [ primary, comparison ] );
 
 			// First two points align by index
-			expect( result[ 1 ].data[ 0 ].date ).toEqual(
-				new Date( '2024-01-08' )
-			);
-			expect( result[ 1 ].data[ 1 ].date ).toEqual(
-				new Date( '2024-01-09' )
-			);
+			expect( result[ 1 ].data[ 0 ].date ).toEqual( new Date( '2024-01-08' ) );
+			expect( result[ 1 ].data[ 1 ].date ).toEqual( new Date( '2024-01-09' ) );
 			// Extra point gets last primary date
-			expect( result[ 1 ].data[ 2 ].date ).toEqual(
-				new Date( '2024-01-09' )
-			);
+			expect( result[ 1 ].data[ 2 ].date ).toEqual( new Date( '2024-01-09' ) );
 		} );
 
 		it( 'handles comparison with fewer points than primary', () => {
@@ -236,12 +201,8 @@ describe( 'alignSeriesDates', () => {
 			const result = alignSeriesDates( [ primary, comparison ] );
 
 			// Both comparison points align to their corresponding primary dates
-			expect( result[ 1 ].data[ 0 ].date ).toEqual(
-				new Date( '2024-01-08' )
-			);
-			expect( result[ 1 ].data[ 1 ].date ).toEqual(
-				new Date( '2024-01-09' )
-			);
+			expect( result[ 1 ].data[ 0 ].date ).toEqual( new Date( '2024-01-08' ) );
+			expect( result[ 1 ].data[ 1 ].date ).toEqual( new Date( '2024-01-09' ) );
 		} );
 	} );
 
@@ -265,23 +226,13 @@ describe( 'alignSeriesDates', () => {
 			const result = alignSeriesDates( [ primary, lastMonth, lastYear ] );
 
 			// All series should now use primary's dates
-			expect( result[ 0 ].data[ 0 ].date ).toEqual(
-				new Date( '2024-03-01' )
-			);
-			expect( result[ 1 ].data[ 0 ].date ).toEqual(
-				new Date( '2024-03-01' )
-			);
-			expect( result[ 2 ].data[ 0 ].date ).toEqual(
-				new Date( '2024-03-01' )
-			);
+			expect( result[ 0 ].data[ 0 ].date ).toEqual( new Date( '2024-03-01' ) );
+			expect( result[ 1 ].data[ 0 ].date ).toEqual( new Date( '2024-03-01' ) );
+			expect( result[ 2 ].data[ 0 ].date ).toEqual( new Date( '2024-03-01' ) );
 
 			// Original dates preserved
-			expect( result[ 1 ].data[ 0 ].realDate ).toEqual(
-				new Date( '2024-02-01' )
-			);
-			expect( result[ 2 ].data[ 0 ].realDate ).toEqual(
-				new Date( '2023-03-01' )
-			);
+			expect( result[ 1 ].data[ 0 ].realDate ).toEqual( new Date( '2024-02-01' ) );
+			expect( result[ 2 ].data[ 0 ].realDate ).toEqual( new Date( '2023-03-01' ) );
 		} );
 	} );
 

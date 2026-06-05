@@ -21,9 +21,7 @@ import type { WooChartTheme } from '../../hooks/use-chart-theme';
 import { ChartEmptyState } from '../chart-empty-state';
 import styles from './leaderboard-chart.module.scss';
 
-type LeaderboardChartData = ComponentProps<
-	typeof BaseLeaderboardChart
->[ 'data' ];
+type LeaderboardChartData = ComponentProps< typeof BaseLeaderboardChart >[ 'data' ];
 
 export type { LeaderboardChartData };
 
@@ -134,8 +132,7 @@ export function LeaderboardChart( {
 	 * Create value formatter from dataFormat configuration
 	 */
 	const valueFormatter = useMemo(
-		() => ( value: number ) =>
-			formatMetricValue( value, dataFormat.type, dataFormat.options ),
+		() => ( value: number ) => formatMetricValue( value, dataFormat.type, dataFormat.options ),
 		[ dataFormat ]
 	);
 
@@ -171,9 +168,7 @@ export function LeaderboardChart( {
 	const isEmptyData = ! data || data.length === 0;
 
 	if ( isEmptyData ) {
-		return (
-			<ChartEmptyState icon={ emptyStateIcon } text={ emptyStateText } />
-		);
+		return <ChartEmptyState icon={ emptyStateIcon } text={ emptyStateText } />;
 	}
 
 	return (
@@ -189,11 +184,7 @@ export function LeaderboardChart( {
 				withComparison={ withComparison }
 				valueFormatter={ valueFormatter }
 				legendLabels={ legendLabels }
-				primaryColor={
-					withOverlayLabel
-						? hexToRgba( chartColors.primaryColor, 0.08 )
-						: undefined
-				}
+				primaryColor={ withOverlayLabel ? hexToRgba( chartColors.primaryColor, 0.08 ) : undefined }
 				withOverlayLabel={ withOverlayLabel }
 				showLegend={ false }
 				style={ chartStyle }

@@ -94,21 +94,11 @@ export function MetricWithComparison( {
 	/**
 	 * Determine absolute format for delta based on data type
 	 */
-	const absoluteFormat =
-		dataFormat.type === 'currency' ? 'currency' : 'number';
+	const absoluteFormat = dataFormat.type === 'currency' ? 'currency' : 'number';
 
 	return (
-		<Stack
-			className={ className }
-			direction={ direction }
-			align={ align }
-			gap="xs"
-		>
-			<MetricValue
-				value={ value }
-				dataFormat={ dataFormat }
-				fontSize={ fontSize }
-			/>
+		<Stack className={ className } direction={ direction } align={ align } gap="xs">
+			<MetricValue value={ value } dataFormat={ dataFormat } fontSize={ fontSize } />
 
 			{ showDelta && (
 				<MetricDelta

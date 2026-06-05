@@ -32,7 +32,7 @@ export function resolveSegmentStyles(
 		return stylesProp;
 	}
 
-	return chartData.map( ( segment ) => ( {
+	return chartData.map( segment => ( {
 		color: segment.color ?? '',
 	} ) );
 }

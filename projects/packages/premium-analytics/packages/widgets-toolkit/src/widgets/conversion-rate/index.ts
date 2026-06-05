@@ -1,4 +1,1 @@
-export {
-	ConversionRateWidget,
-	BookingConversionRateWidget,
-} from './conversion-rate-widget';
+export { ConversionRateWidget, BookingConversionRateWidget } from './conversion-rate-widget';

@@ -27,9 +27,7 @@ import { RESIZE_DEBOUNCE_MS } from '../../constants';
 // Default chart configuration
 const DEFAULT_THICKNESS = 0.3;
 
-export type SemiCircleChartData = ComponentProps<
-	typeof PieSemiCircleChart
->[ 'data' ];
+export type SemiCircleChartData = ComponentProps< typeof PieSemiCircleChart >[ 'data' ];
 
 export type SemiCircleChartProps = {
 	/**
@@ -144,8 +142,7 @@ export function SemiCircleChart( {
 	tooltipOffsetY,
 	tooltipDataFormat,
 }: SemiCircleChartProps ) {
-	const hasComparison =
-		comparisonValue !== null && comparisonValue !== undefined;
+	const hasComparison = comparisonValue !== null && comparisonValue !== undefined;
 
 	/**
 	 * Resolve styles: prop takes priority, fallback to chartData colors.
@@ -179,18 +176,11 @@ export function SemiCircleChart( {
 
 	// Render empty state when no data is available
 	if ( isEmptyData ) {
-		return (
-			<ChartEmptyState icon={ emptyStateIcon } text={ emptyStateText } />
-		);
+		return <ChartEmptyState icon={ emptyStateIcon } text={ emptyStateText } />;
 	}
 
 	return (
-		<Stack
-			direction="column"
-			align="center"
-			justify="center"
-			className={ styles.container }
-		>
+		<Stack direction="column" align="center" justify="center" className={ styles.container }>
 			<Stack
 				direction="column"
 				className={ styles.wrapper }
@@ -228,10 +218,7 @@ export function SemiCircleChart( {
 				</PieSemiCircleChart>
 
 				{ showLegend && styledLegendData && (
-					<LegendPure
-						items={ styledLegendData }
-						withComparison={ hasComparison }
-					/>
+					<LegendPure items={ styledLegendData } withComparison={ hasComparison } />
 				) }
 			</Stack>
 		</Stack>

@@ -1,17 +1,15 @@
 .chart {
-
 	// Override visx-bar default styles that break the layout
 	// Todo: address upstream in Charts package.
 	/* stylelint-disable-next-line selector-pseudo-class-no-unknown */
-	:global(.visx-bar) {
+	:global( .visx-bar ) {
 		// All corners rounded to handle both positive and negative bar values consistently.
-		clip-path: inset(0 round 4px);
+		clip-path: inset( 0 round 4px );
 	}
 
-
 	.legend {
-		height: var(--wpds-font-line-height-lg);
-		min-height: var(--wpds-font-line-height-lg);
+		height: var( --wpds-font-line-height-lg );
+		min-height: var( --wpds-font-line-height-lg );
 		flex-wrap: nowrap;
 
 		// Vertically center the legend shape.
@@ -19,14 +17,14 @@
 		// from the label baseline in this layout. Reset the transform here so the circle is
 		// aligned with the accompanying text. TODO: address this default upstream in the Charts package.
 		circle {
-			transform: translate(0, 0) !important;
+			transform: translate( 0, 0 ) !important;
 		}
 	}
 
 	.legendItem {
 		min-width: 0;
-		gap: var(--wpds-dimension-gap-sm);
-		padding: var(--wpds-dimension-padding-xs) var(--wpds-dimension-padding-sm); // 4px 6px->8px
+		gap: var( --wpds-dimension-gap-sm );
+		padding: var( --wpds-dimension-padding-xs ) var( --wpds-dimension-padding-sm ); // 4px 6px->8px
 	}
 
 	.legendLabel {

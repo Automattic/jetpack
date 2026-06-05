@@ -21,12 +21,7 @@ export type TooltipRowProps = {
 	dataFormat: DataFormat;
 };
 
-export function TooltipRow( {
-	indicator,
-	label,
-	value,
-	dataFormat,
-}: TooltipRowProps ) {
+export function TooltipRow( { indicator, label, value, dataFormat }: TooltipRowProps ) {
 	return (
 		<Stack
 			direction="row"

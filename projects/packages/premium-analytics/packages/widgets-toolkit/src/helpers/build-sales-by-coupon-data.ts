@@ -36,8 +36,7 @@ export function buildSalesByCouponData(
 		};
 	}
 
-	const { primary: primaryLabel, comparison: comparisonLabel } =
-		formatLegendLabels( reportParams );
+	const { primary: primaryLabel, comparison: comparisonLabel } = formatLegendLabels( reportParams );
 
 	const { data: items } = coupons;
 
@@ -47,13 +46,13 @@ export function buildSalesByCouponData(
 	// Create a map of comparison data by coupon code
 	const comparisonMap = new Map< string, number >();
 	if ( comparisonCoupons ) {
-		comparisonCoupons.data.forEach( ( item ) => {
+		comparisonCoupons.data.forEach( item => {
 			comparisonMap.set( item.coupon_code, item.total_sales );
 		} );
 	}
 
 	// Build current period data points
-	const currentPeriodData = topCoupons.map( ( item ) => ( {
+	const currentPeriodData = topCoupons.map( item => ( {
 		label: item.coupon_code,
 		value: item.total_sales,
 	} ) );
@@ -80,7 +79,7 @@ export function buildSalesByCouponData(
 
 	// Add comparison period if available
 	if ( comparisonCoupons?.summary ) {
-		const comparisonPeriodData = topCoupons.map( ( item ) => ( {
+		const comparisonPeriodData = topCoupons.map( item => ( {
 			label: item.coupon_code,
 			value: comparisonMap.get( item.coupon_code ) || 0,
 		} ) );

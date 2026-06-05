@@ -1,4 +1,1 @@
-export {
-	ReportParamsField,
-	type ReportParamsFieldAttributes,
-} from './date-report-params-field';
+export { ReportParamsField, type ReportParamsFieldAttributes } from './date-report-params-field';

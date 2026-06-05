@@ -24,13 +24,20 @@
 // Container Query Breakpoints (Tailwind-aligned)
 // These are for element-based queries, not viewport
 $widget-breakpoints: (
-	xxs: 16rem,  // 256px - Extra extra small widgets
-	xs: 20rem,   // 320px - Extra small widgets
-	sm: 24rem,   // 384px - Small widgets
-	md: 28rem,   // 448px - Medium widgets (common tile size)
-	lg: 32rem,   // 512px - Large widgets
-	xl: 36rem,   // 576px - Extra large widgets
-	2xl: 42rem,  // 672px - Full-width widgets
+	xxs: 16rem,
+	// 256px - Extra extra small widgets
+	xs: 20rem,
+	// 320px - Extra small widgets
+	sm: 24rem,
+	// 384px - Small widgets
+	md: 28rem,
+	// 448px - Medium widgets (common tile size)
+	lg: 32rem,
+	// 512px - Large widgets
+	xl: 36rem,
+	// 576px - Extra large widgets
+	2xl: 42rem,
+	// 672px - Full-width widgets
 ) !default;
 
 /**

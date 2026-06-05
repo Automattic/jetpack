@@ -51,12 +51,7 @@ export function NewVsReturningCustomerWidget() {
 	const isRefetching = isFetching && hasData;
 
 	const { chartData, total, comparisonTotal, legendData } = useMemo(
-		() =>
-			buildNewVsReturningCustomerData(
-				primary.data,
-				comparison.data,
-				hasComparison
-			),
+		() => buildNewVsReturningCustomerData( primary.data, comparison.data, hasComparison ),
 		[ primary.data, comparison.data, hasComparison ]
 	);
 
@@ -73,12 +68,7 @@ export function NewVsReturningCustomerWidget() {
 
 	return (
 		<>
-			<Stack
-				className={ styles.container }
-				direction="column"
-				align="center"
-				justify="center"
-			>
+			<Stack className={ styles.container } direction="column" align="center" justify="center">
 				<DonutChart
 					chartData={ chartData }
 					value={ total }

@@ -56,9 +56,7 @@ export function useWidgetError(
 		if ( ! setError ) {
 			// Fallback: Log when setError is unavailable (widget outside dashboard context)
 			// eslint-disable-next-line no-console
-			console.warn(
-				'[useWidgetError] setError is undefined - error UI cannot be displayed'
-			);
+			console.warn( '[useWidgetError] setError is undefined - error UI cannot be displayed' );
 			return;
 		}
 

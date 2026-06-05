@@ -66,11 +66,7 @@ export type ReportMetricWidgetProps = {
  *
  * @internal
  */
-export function ReportMetricWidget( {
-	metricKey,
-	data,
-	dataFormat,
-}: ReportMetricWidgetProps ) {
+export function ReportMetricWidget( { metricKey, data, dataFormat }: ReportMetricWidgetProps ) {
 	const { getElementStyles } = useGlobalChartsContext();
 
 	const primaryData = data.primary.data;
@@ -127,9 +123,7 @@ export function ReportMetricWidget( {
 	// never to date fields (e.g., "date_start"). The summary type includes both for flexibility,
 	// but we know the actual value will be a number at runtime.
 	const primaryValue = ( primaryData?.summary[ metricKey ] as number ) ?? 0;
-	const comparisonValue = comparisonData?.summary[ metricKey ] as
-		| number
-		| undefined;
+	const comparisonValue = comparisonData?.summary[ metricKey ] as number | undefined;
 
 	return (
 		<>

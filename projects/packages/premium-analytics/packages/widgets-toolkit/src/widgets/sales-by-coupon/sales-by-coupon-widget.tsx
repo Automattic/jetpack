@@ -34,28 +34,14 @@ import { useBarStyles } from '../common';
 export function SalesByCouponWidget() {
 	const { reportParams } = useWidgetRootContext();
 
-	const {
-		primary,
-		comparison,
-		isLoading,
-		isFetching,
-		hasData,
-		isError,
-		error,
-		refetch,
-	} = useReportCoupons( reportParams );
+	const { primary, comparison, isLoading, isFetching, hasData, isError, error, refetch } =
+		useReportCoupons( reportParams );
 
 	const isInitialLoading = isLoading && ! hasData;
 	const isRefetching = isFetching && hasData;
 
 	const { chartData } = useMemo(
-		() =>
-			buildSalesByCouponData(
-				primary.data,
-				comparison.data,
-				reportParams,
-				3
-			),
+		() => buildSalesByCouponData( primary.data, comparison.data, reportParams, 3 ),
 		[ primary.data, comparison.data, reportParams ]
 	);
 

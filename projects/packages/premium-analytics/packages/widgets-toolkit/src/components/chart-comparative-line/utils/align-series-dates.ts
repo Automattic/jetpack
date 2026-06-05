@@ -31,7 +31,7 @@ export function alignSeriesDates(
 		return series;
 	}
 
-	const alignedRest = rest.map( ( comparisonSeries ) => {
+	const alignedRest = rest.map( comparisonSeries => {
 		if ( ! comparisonSeries.data.length ) {
 			return comparisonSeries;
 		}
@@ -41,14 +41,10 @@ export function alignSeriesDates(
 		const comparisonFirstDate = comparisonSeries.data[ 0 ]?.date;
 
 		const primaryFirstMs =
-			primaryFirstDate instanceof Date
-				? primaryFirstDate.getTime()
-				: primaryFirstDate;
+			primaryFirstDate instanceof Date ? primaryFirstDate.getTime() : primaryFirstDate;
 
 		const comparisonFirstMs =
-			comparisonFirstDate instanceof Date
-				? comparisonFirstDate.getTime()
-				: comparisonFirstDate;
+			comparisonFirstDate instanceof Date ? comparisonFirstDate.getTime() : comparisonFirstDate;
 
 		// If dates already align, return as-is
 		if ( primaryFirstMs === comparisonFirstMs ) {
@@ -61,8 +57,7 @@ export function alignSeriesDates(
 			data: comparisonSeries.data.map( ( point, index ) => {
 				// Use corresponding primary date, or last primary date if comparison has more points
 				const primaryDate =
-					primary.data[ index ]?.date ??
-					primary.data[ primary.data.length - 1 ]?.date;
+					primary.data[ index ]?.date ?? primary.data[ primary.data.length - 1 ]?.date;
 
 				return {
 					...point,

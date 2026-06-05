@@ -1,4 +1,1 @@
-export {
-	SalesByDeviceWidget,
-	BookingsByDeviceWidget,
-} from './sales-by-device-widget';
+export { SalesByDeviceWidget, BookingsByDeviceWidget } from './sales-by-device-widget';

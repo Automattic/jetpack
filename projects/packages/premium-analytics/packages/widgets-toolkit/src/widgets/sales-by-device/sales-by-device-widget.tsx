@@ -3,10 +3,7 @@
  */
 import { useMemo } from 'react';
 import { WidgetLoadingOverlay } from '../../components/widget-loading-overlay';
-import {
-	useReportOrderAttribution,
-	type FilterCondition,
-} from '@jetpack-premium-analytics/data';
+import { useReportOrderAttribution, type FilterCondition } from '@jetpack-premium-analytics/data';
 import { device } from '@jetpack-premium-analytics/icons';
 
 /**
@@ -67,23 +64,14 @@ export function SalesByDeviceWidget( { filter }: SalesByDeviceWidgetProps ) {
 		[ reportParams, filter ]
 	);
 
-	const {
-		primary,
-		hasComparison,
-		isLoading,
-		isFetching,
-		hasData,
-		isError,
-		error,
-		refetch,
-	} = useReportOrderAttribution( paramsWithView );
+	const { primary, hasComparison, isLoading, isFetching, hasData, isError, error, refetch } =
+		useReportOrderAttribution( paramsWithView );
 
 	const isInitialLoading = isLoading && ! hasData;
 	const isRefetching = isFetching && hasData;
 
 	const { chartData } = useMemo(
-		() =>
-			buildSalesByDeviceData( primary.data, hasComparison, reportParams ),
+		() => buildSalesByDeviceData( primary.data, hasComparison, reportParams ),
 		[ primary.data, hasComparison, reportParams ]
 	);
 

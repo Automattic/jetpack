@@ -70,12 +70,7 @@ export function BookingsByAttendanceWidget() {
 
 	return (
 		<>
-			<Stack
-				className={ styles.container }
-				direction="column"
-				align="center"
-				justify="center"
-			>
+			<Stack className={ styles.container } direction="column" align="center" justify="center">
 				<DonutChart
 					chartData={ chartData }
 					value={ total }

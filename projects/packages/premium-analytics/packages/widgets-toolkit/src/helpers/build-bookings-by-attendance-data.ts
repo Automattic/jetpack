@@ -71,11 +71,9 @@ export function buildBookingsByAttendanceData(
 	];
 
 	// Calculate values for each status
-	const statusValues = statusMap.map( ( status ) => {
+	const statusValues = statusMap.map( status => {
 		const value = summary[ status.key ] || 0;
-		const comparisonValue = comparisonSummary
-			? comparisonSummary[ status.key ] || 0
-			: 0;
+		const comparisonValue = comparisonSummary ? comparisonSummary[ status.key ] || 0 : 0;
 
 		return {
 			...status,
@@ -85,10 +83,7 @@ export function buildBookingsByAttendanceData(
 	} );
 
 	// Calculate total bookings across all statuses
-	const totalBookings = statusValues.reduce(
-		( sum, status ) => sum + status.value,
-		0
-	);
+	const totalBookings = statusValues.reduce( ( sum, status ) => sum + status.value, 0 );
 
 	const comparisonTotalBookings = statusValues.reduce(
 		( sum, status ) => sum + status.comparisonValue,
@@ -106,12 +101,10 @@ export function buildBookingsByAttendanceData(
 	}
 
 	// Filter out statuses with zero bookings
-	const statusesWithData = statusValues.filter(
-		( status ) => status.value > 0
-	);
+	const statusesWithData = statusValues.filter( status => status.value > 0 );
 
 	// Build chart data
-	const chartData: DonutChartData = statusesWithData.map( ( status ) => ( {
+	const chartData: DonutChartData = statusesWithData.map( status => ( {
 		label: status.label,
 		value: status.value,
 		valueDisplay: formatMetricValue( status.value, 'number', {
@@ -122,7 +115,7 @@ export function buildBookingsByAttendanceData(
 	} ) );
 
 	// Build legend data
-	const legendData: LegendItem[] = statusesWithData.map( ( status ) => ( {
+	const legendData: LegendItem[] = statusesWithData.map( status => ( {
 		label: status.label,
 		value: status.value,
 		displayValue: formatMetricValue( status.value, 'number', {

@@ -129,8 +129,7 @@ export function ChartTooltip< TDatum >( {
 					return null;
 				}
 
-				const { stroke, ...lineShapeStyle } =
-					seriesStyles[ index ] || seriesStyles[ 0 ];
+				const { stroke, ...lineShapeStyle } = seriesStyles[ index ] || seriesStyles[ 0 ];
 				const label = getLabel( entry.datum, index, entry.key );
 				const value = getValue( entry.datum );
 
@@ -146,11 +145,7 @@ export function ChartTooltip< TDatum >( {
 									style={ lineShapeStyle }
 								/>
 							) : (
-								<RectShape
-									fill={ stroke || 'currentColor' }
-									height={ 8 }
-									width={ 8 }
-								/>
+								<RectShape fill={ stroke || 'currentColor' } height={ 8 } width={ 8 } />
 							)
 						}
 						label={ label }

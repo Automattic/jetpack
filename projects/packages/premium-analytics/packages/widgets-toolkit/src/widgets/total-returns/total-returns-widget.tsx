@@ -33,27 +33,14 @@ import { useBarStyles } from '../common';
 export function TotalReturnsWidget() {
 	const { reportParams } = useWidgetRootContext();
 
-	const {
-		primary,
-		comparison,
-		isLoading,
-		isFetching,
-		hasData,
-		isError,
-		error,
-		refetch,
-	} = useReportOrders( reportParams );
+	const { primary, comparison, isLoading, isFetching, hasData, isError, error, refetch } =
+		useReportOrders( reportParams );
 
 	const isInitialLoading = isLoading && ! hasData;
 	const isRefetching = isFetching && hasData;
 
 	const { chartData } = useMemo(
-		() =>
-			buildTotalReturnsData(
-				primary.data,
-				comparison.data,
-				reportParams
-			),
+		() => buildTotalReturnsData( primary.data, comparison.data, reportParams ),
 		[ primary.data, comparison.data, reportParams ]
 	);
 

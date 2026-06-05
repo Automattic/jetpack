@@ -43,12 +43,9 @@ export function buildPaymentStatusData(
 	const totalSales = paidNetSales + unpaidNetSales;
 
 	// Calculate comparison totals
-	const comparisonPaidNetSales =
-		comparisonOrders?.summary?.paid_net_sales || 0;
-	const comparisonUnpaidNetSales =
-		comparisonOrders?.summary?.unpaid_net_sales || 0;
-	const comparisonTotalSales =
-		comparisonPaidNetSales + comparisonUnpaidNetSales;
+	const comparisonPaidNetSales = comparisonOrders?.summary?.paid_net_sales || 0;
+	const comparisonUnpaidNetSales = comparisonOrders?.summary?.unpaid_net_sales || 0;
+	const comparisonTotalSales = comparisonPaidNetSales + comparisonUnpaidNetSales;
 
 	// If there are no sales, return empty state
 	if ( totalSales === 0 ) {

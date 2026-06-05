@@ -47,8 +47,7 @@ export function buildTotalReturnsData(
 		};
 	}
 
-	const { primary: primaryLabel, comparison: comparisonLabel } =
-		formatLegendLabels( reportParams );
+	const { primary: primaryLabel, comparison: comparisonLabel } = formatLegendLabels( reportParams );
 	const totalSales = orders.summary.total_sales ?? 0;
 
 	// Net sales (total sales minus refunds)
@@ -72,10 +71,7 @@ export function buildTotalReturnsData(
 	if ( comparisonOrders?.summary ) {
 		const comparisonTotalRefunds = comparisonOrders.summary.refunds || 0;
 		const comparisonTotalSales = comparisonOrders.summary.total_sales || 0;
-		const comparisonSalesAmount = Math.max(
-			0,
-			comparisonTotalSales - comparisonTotalRefunds
-		);
+		const comparisonSalesAmount = Math.max( 0, comparisonTotalSales - comparisonTotalRefunds );
 
 		chartData.push( {
 			label: comparisonLabel,

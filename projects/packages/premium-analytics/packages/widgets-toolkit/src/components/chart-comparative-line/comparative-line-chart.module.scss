@@ -3,15 +3,15 @@
 
 	.legend {
 		flex: 0 0 auto;
-		height: var(--wpds-font-line-height-lg);
-		min-height: var(--wpds-font-line-height-lg);
+		height: var( --wpds-font-line-height-lg );
+		min-height: var( --wpds-font-line-height-lg );
 		flex-wrap: nowrap;
 	}
 
 	.legendItem {
 		min-width: 0;
-		gap: var(--wpds-dimension-gap-sm);
-		padding: var(--wpds-dimension-padding-xs) var(--wpds-dimension-padding-sm); // 4px 6px->8px
+		gap: var( --wpds-dimension-gap-sm );
+		padding: var( --wpds-dimension-padding-xs ) var( --wpds-dimension-padding-sm ); // 4px 6px->8px
 	}
 
 	.legendLabel {

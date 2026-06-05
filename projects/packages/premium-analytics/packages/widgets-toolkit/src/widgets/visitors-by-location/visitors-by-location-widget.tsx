@@ -19,10 +19,7 @@ import { location } from '@jetpack-premium-analytics/icons';
 import { useWidgetRootContext } from '../../components/widget-root';
 import { useWidgetError } from '../../hooks';
 import { useVisitorsByLocation, type Region } from './use-visitors-by-location';
-import {
-	LeaderboardChart,
-	LeaderboardLabel,
-} from '../../components/chart-leaderboard';
+import { LeaderboardChart, LeaderboardLabel } from '../../components/chart-leaderboard';
 import { flagUrl } from '../../helpers';
 import styles from './visitors-by-location-widget.module.scss';
 import { ChartEmptyState } from '../../components';
@@ -55,9 +52,7 @@ export function VisitorsByLocationWidget() {
 	const [ isMinimized, setIsMinimized ] = useState( false );
 	const rootRef = useRef< HTMLDivElement | null >( null );
 	const tileButtonRef = useRef< HTMLElement | null >( null );
-	const resizeDebounceTimeoutRef = useRef< ReturnType<
-		typeof setTimeout
-	> | null >( null );
+	const resizeDebounceTimeoutRef = useRef< ReturnType< typeof setTimeout > | null >( null );
 
 	const {
 		geoData,
@@ -76,10 +71,9 @@ export function VisitorsByLocationWidget() {
 
 	const leaderboardDataWithImages = useMemo(
 		() =>
-			leaderboardData.map( ( item ) => {
+			leaderboardData.map( item => {
 				const imageUrl = flagUrl( region === 'US' ? 'us' : item.id );
-				const labelText =
-					typeof item.label === 'string' ? item.label : '';
+				const labelText = typeof item.label === 'string' ? item.label : '';
 				const imageAlt =
 					region === 'US'
 						? __( 'United States flag', 'jetpack-premium-analytics' )
@@ -110,14 +104,10 @@ export function VisitorsByLocationWidget() {
 			return;
 		}
 
-		const nextIsMinimized = isSingleColumnTileFromGridColumnEnd(
-			tileButton.style.gridColumnEnd
-		);
+		const nextIsMinimized = isSingleColumnTileFromGridColumnEnd( tileButton.style.gridColumnEnd );
 
 		// Avoid scheduling React state updates when nothing changes.
-		setIsMinimized( ( prev ) =>
-			prev === nextIsMinimized ? prev : nextIsMinimized
-		);
+		setIsMinimized( prev => ( prev === nextIsMinimized ? prev : nextIsMinimized ) );
 	}, [] );
 
 	const debouncedResizeUpdate = useCallback( () => {
@@ -126,10 +116,7 @@ export function VisitorsByLocationWidget() {
 		if ( resizeDebounceTimeoutRef.current ) {
 			clearTimeout( resizeDebounceTimeoutRef.current );
 		}
-		resizeDebounceTimeoutRef.current = setTimeout(
-			updateIsMinimized,
-			RESIZE_DEBOUNCE_MS
-		);
+		resizeDebounceTimeoutRef.current = setTimeout( updateIsMinimized, RESIZE_DEBOUNCE_MS );
 	}, [ updateIsMinimized ] );
 
 	const resizeObserverRef = useResizeObserver( () => {
@@ -141,10 +128,7 @@ export function VisitorsByLocationWidget() {
 
 		// DataViews picker grid: always render the simplified (map-only) tile
 		// and avoid attaching any observers/listeners.
-		const dataViewsPickerGrid = closestHTMLElement(
-			root,
-			'.dataviews-view-picker-grid'
-		);
+		const dataViewsPickerGrid = closestHTMLElement( root, '.dataviews-view-picker-grid' );
 
 		if ( dataViewsPickerGrid ) {
 			tileButtonRef.current = null;
@@ -199,11 +183,7 @@ export function VisitorsByLocationWidget() {
 			: {};
 
 	const geoChart = (
-		<GeoChart
-			data={ geoData }
-			resizeDebounceTime={ RESIZE_DEBOUNCE_MS }
-			{ ...geoChartProps }
-		/>
+		<GeoChart data={ geoData } resizeDebounceTime={ RESIZE_DEBOUNCE_MS } { ...geoChartProps } />
 	);
 
 	const hasError = useWidgetError( isError, error, refetch );
@@ -243,11 +223,8 @@ export function VisitorsByLocationWidget() {
 								__next40pxDefaultSize
 								isBlock
 								hideLabelFromVision
-								label={ __(
-									'Location',
-									'jetpack-premium-analytics'
-								) }
-								onChange={ ( value ) => {
+								label={ __( 'Location', 'jetpack-premium-analytics' ) }
+								onChange={ value => {
 									if ( isRegion( value ) ) {
 										setRegion( value );
 									}
@@ -256,17 +233,11 @@ export function VisitorsByLocationWidget() {
 							>
 								<ToggleGroupControlOption
 									value="US"
-									label={ __(
-										'United States',
-										'jetpack-premium-analytics'
-									) }
+									label={ __( 'United States', 'jetpack-premium-analytics' ) }
 								/>
 								<ToggleGroupControlOption
 									value="world"
-									label={ __(
-										'Worldwide',
-										'jetpack-premium-analytics'
-									) }
+									label={ __( 'Worldwide', 'jetpack-premium-analytics' ) }
 								/>
 							</ToggleGroupControl>
 						</div>

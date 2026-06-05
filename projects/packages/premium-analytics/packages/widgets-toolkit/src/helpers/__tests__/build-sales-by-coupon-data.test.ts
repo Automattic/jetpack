@@ -27,7 +27,7 @@ function makeCouponsData(
 	summary: Record< string, unknown > = {}
 ) {
 	return {
-		data: items.map( ( item ) => ( {
+		data: items.map( item => ( {
 			...item,
 			coupon_id: 1,
 			orders_count: 1,
@@ -43,11 +43,7 @@ function makeCouponsData(
 
 describe( 'buildSalesByCouponData', () => {
 	it( 'returns empty chartData when coupons is undefined', () => {
-		const result = buildSalesByCouponData(
-			undefined,
-			undefined,
-			defaultReportParams
-		);
+		const result = buildSalesByCouponData( undefined, undefined, defaultReportParams );
 
 		expect( result.chartData ).toEqual( [] );
 	} );
@@ -79,11 +75,7 @@ describe( 'buildSalesByCouponData', () => {
 			{ total_sales: 300 }
 		);
 
-		const result = buildSalesByCouponData(
-			coupons as any,
-			undefined,
-			defaultReportParams
-		);
+		const result = buildSalesByCouponData( coupons as any, undefined, defaultReportParams );
 
 		expect( result.chartData ).toHaveLength( 1 );
 		expect( result.chartData[ 0 ].data ).toEqual( [
@@ -104,12 +96,7 @@ describe( 'buildSalesByCouponData', () => {
 			{ total_sales: 725 }
 		);
 
-		const result = buildSalesByCouponData(
-			coupons as any,
-			undefined,
-			defaultReportParams,
-			3
-		);
+		const result = buildSalesByCouponData( coupons as any, undefined, defaultReportParams, 3 );
 
 		const currentPeriod = result.chartData[ 0 ].data;
 		expect( currentPeriod ).toHaveLength( 4 ); // 3 top + Other
@@ -155,11 +142,7 @@ describe( 'buildSalesByCouponData', () => {
 			{ total_sales: 500 }
 		);
 
-		const result = buildSalesByCouponData(
-			coupons as any,
-			undefined,
-			defaultReportParams
-		);
+		const result = buildSalesByCouponData( coupons as any, undefined, defaultReportParams );
 
 		expect( result.chartData[ 0 ].data[ 0 ].value ).toBe( 500 );
 	} );
@@ -174,12 +157,7 @@ describe( 'buildSalesByCouponData', () => {
 			{ total_sales: 600 }
 		);
 
-		const result = buildSalesByCouponData(
-			coupons as any,
-			undefined,
-			defaultReportParams,
-			2
-		);
+		const result = buildSalesByCouponData( coupons as any, undefined, defaultReportParams, 2 );
 
 		const currentPeriod = result.chartData[ 0 ].data;
 		expect( currentPeriod ).toHaveLength( 3 ); // 2 top + Other

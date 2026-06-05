@@ -2,10 +2,7 @@
  * External dependencies
  */
 import { useMemo } from 'react';
-import {
-	type ReportParams,
-	useReportVisitorsByLocation,
-} from '@jetpack-premium-analytics/data';
+import { type ReportParams, useReportVisitorsByLocation } from '@jetpack-premium-analytics/data';
 
 /**
  * Internal dependencies
@@ -30,10 +27,7 @@ type LocationRawData = {
  * @param region       - The region to get data for ('US' or 'world')
  * @return Geo chart data and leaderboard data for the selected region
  */
-export function useVisitorsByLocation(
-	reportParams: ReportParams,
-	region: Region
-) {
+export function useVisitorsByLocation( reportParams: ReportParams, region: Region ) {
 	const usReport = useReportVisitorsByLocation( reportParams, {
 		enabled: region === 'US',
 		groupBy: 'region',
@@ -57,8 +51,8 @@ export function useVisitorsByLocation(
 		if ( region === 'US' ) {
 			const mapUsRegions = ( items: typeof primaryItems ) =>
 				items
-					.filter( ( item ) => Boolean( item.region ) )
-					.map( ( item ) => ( {
+					.filter( item => Boolean( item.region ) )
+					.map( item => ( {
 						id: item.region as string,
 						label: item.region as string,
 						value: item.visitors,
@@ -71,12 +65,12 @@ export function useVisitorsByLocation(
 		}
 
 		return {
-			primary: primaryItems.map( ( item ) => ( {
+			primary: primaryItems.map( item => ( {
 				id: item.country_code.toLowerCase(),
 				label: item.label,
 				value: item.visitors,
 			} ) ),
-			comparison: comparisonItems.map( ( item ) => ( {
+			comparison: comparisonItems.map( item => ( {
 				id: item.country_code.toLowerCase(),
 				label: item.label,
 				value: item.visitors,
@@ -94,8 +88,7 @@ export function useVisitorsByLocation(
 		[ rawData.primary, rawData.comparison, region, hasComparison ]
 	);
 
-	const { isLoading, isFetching, hasData, isError, error, refetch } =
-		activeReport;
+	const { isLoading, isFetching, hasData, isError, error, refetch } = activeReport;
 
 	return {
 		...chartDataResult,

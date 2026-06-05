@@ -49,10 +49,8 @@ export function buildCouponUseData(
 
 	// Pick comparison totals
 	const comparisonTotalSales = comparisonCoupons?.summary.total_sales || 0;
-	const comparisonSalesWithCoupon =
-		comparisonCoupons?.summary.sales_with_coupon || 0;
-	const comparisonSalesWithoutCoupon =
-		comparisonCoupons?.summary.sales_without_coupon || 0;
+	const comparisonSalesWithCoupon = comparisonCoupons?.summary.sales_with_coupon || 0;
+	const comparisonSalesWithoutCoupon = comparisonCoupons?.summary.sales_without_coupon || 0;
 
 	// If there are no sales, return empty state
 	if ( totalSales === 0 ) {
@@ -102,9 +100,7 @@ export function buildCouponUseData(
 				useMultipliers: true,
 				decimals: 0,
 			} ),
-			comparison: hasComparison
-				? comparisonSalesWithoutCoupon
-				: undefined,
+			comparison: hasComparison ? comparisonSalesWithoutCoupon : undefined,
 		},
 	];
 

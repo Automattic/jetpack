@@ -14,9 +14,7 @@ export type ChartDatumEntry< T = unknown > = {
  * @param entry The entry to check.
  * @return True if the entry has the expected structure.
  */
-export const isChartDatumEntry = < T >(
-	entry: unknown
-): entry is ChartDatumEntry< T > => {
+export const isChartDatumEntry = < T >( entry: unknown ): entry is ChartDatumEntry< T > => {
 	return (
 		typeof entry === 'object' &&
 		entry !== null &&

@@ -17,48 +17,44 @@ A responsive semi-circle (half-donut) chart component that fills its parent cont
 import { SemiCircleChart } from '@jetpack-premium-analytics/widgets-toolkit';
 
 const chartData = [
-  { label: 'Mobile', value: 4500 },
-  { label: 'Desktop', value: 2500 },
-  { label: 'Tablet', value: 1000 },
+	{ label: 'Mobile', value: 4500 },
+	{ label: 'Desktop', value: 2500 },
+	{ label: 'Tablet', value: 1000 },
 ];
 
-const styles = [
-  { color: '#3858E9' },
-  { color: '#66BDFF' },
-  { color: '#A77EFF' },
-];
+const styles = [ { color: '#3858E9' }, { color: '#66BDFF' }, { color: '#A77EFF' } ];
 
 <SemiCircleChart
-  chartData={ chartData }
-  styles={ styles }
-  value={ 8000 }
-  comparisonValue={ 7450 }
-  showLegend={ true }
-  legendData={ legendItems }
-  dataFormat={ { type: 'number', options: { useMultipliers: true } } }
-  withTooltips
-/>
+	chartData={ chartData }
+	styles={ styles }
+	value={ 8000 }
+	comparisonValue={ 7450 }
+	showLegend={ true }
+	legendData={ legendItems }
+	dataFormat={ { type: 'number', options: { useMultipliers: true } } }
+	withTooltips
+/>;
 ```
 
 ## Props
 
-| Prop | Type | Default | Description |
-|------|------|---------|-------------|
-| `chartData` | `SemiCircleChartData` | required | Array of segments with `label` and `value` (percentage is auto-calculated) |
-| `styles` | `SegmentStyle[]` | - | Explicit colors per segment (takes priority over chartData colors) |
-| `value` | `number` | required | Primary metric value displayed in center |
-| `comparisonValue` | `number \| null` | - | Previous period value for delta calculation |
-| `dataFormat` | `DataFormat` | `{ type: 'number' }` | Format configuration for the metric display |
-| `legendData` | `LegendItem[]` | - | Legend items with labels and comparison values |
-| `showLegend` | `boolean` | `true` | Whether to show the legend below the chart |
-| `thickness` | `number` | `0.3` | Arc thickness as ratio (0-1) |
-| `maxWidth` | `number` | `Infinity` | Maximum width constraint for the chart |
-| `withTooltips` | `boolean` | `false` | Enable tooltips on hover |
-| `tooltipOffsetX` | `number` | - | Horizontal offset for tooltip positioning |
-| `tooltipOffsetY` | `number` | - | Vertical offset for tooltip positioning |
-| `tooltipDataFormat` | `DataFormat` | - | Format for tooltip values (falls back to `dataFormat`) |
-| `emptyStateIcon` | `IconProps['icon']` | - | Icon for empty state |
-| `emptyStateText` | `string` | - | Text for empty state |
+| Prop                | Type                  | Default              | Description                                                                |
+| ------------------- | --------------------- | -------------------- | -------------------------------------------------------------------------- |
+| `chartData`         | `SemiCircleChartData` | required             | Array of segments with `label` and `value` (percentage is auto-calculated) |
+| `styles`            | `SegmentStyle[]`      | -                    | Explicit colors per segment (takes priority over chartData colors)         |
+| `value`             | `number`              | required             | Primary metric value displayed in center                                   |
+| `comparisonValue`   | `number \| null`      | -                    | Previous period value for delta calculation                                |
+| `dataFormat`        | `DataFormat`          | `{ type: 'number' }` | Format configuration for the metric display                                |
+| `legendData`        | `LegendItem[]`        | -                    | Legend items with labels and comparison values                             |
+| `showLegend`        | `boolean`             | `true`               | Whether to show the legend below the chart                                 |
+| `thickness`         | `number`              | `0.3`                | Arc thickness as ratio (0-1)                                               |
+| `maxWidth`          | `number`              | `Infinity`           | Maximum width constraint for the chart                                     |
+| `withTooltips`      | `boolean`             | `false`              | Enable tooltips on hover                                                   |
+| `tooltipOffsetX`    | `number`              | -                    | Horizontal offset for tooltip positioning                                  |
+| `tooltipOffsetY`    | `number`              | -                    | Vertical offset for tooltip positioning                                    |
+| `tooltipDataFormat` | `DataFormat`          | -                    | Format for tooltip values (falls back to `dataFormat`)                     |
+| `emptyStateIcon`    | `IconProps['icon']`   | -                    | Icon for empty state                                                       |
+| `emptyStateText`    | `string`              | -                    | Text for empty state                                                       |
 
 ## Responsive Layout
 
@@ -104,8 +100,8 @@ const styles = [
 
 ```tsx
 const chartData = [
-  { label: 'Mobile', value: 4500, color: '#3858E9' },
-  { label: 'Desktop', value: 2500, color: '#66BDFF' },
+	{ label: 'Mobile', value: 4500, color: '#3858E9' },
+	{ label: 'Desktop', value: 2500, color: '#66BDFF' },
 ];
 ```
 

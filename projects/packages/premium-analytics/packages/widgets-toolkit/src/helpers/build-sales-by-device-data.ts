@@ -34,8 +34,7 @@ export function buildSalesByDeviceData(
 		};
 	}
 
-	const { primary: primaryLabel, comparison: comparisonLabel } =
-		formatLegendLabels( reportParams );
+	const { primary: primaryLabel, comparison: comparisonLabel } = formatLegendLabels( reportParams );
 
 	const { data } = orderAttribution;
 
@@ -43,7 +42,7 @@ export function buildSalesByDeviceData(
 	const chartData: SeriesData[] = [
 		{
 			label: primaryLabel,
-			data: data.map( ( item ) => ( {
+			data: data.map( item => ( {
 				label: item.item || __( 'Unassigned', 'jetpack-premium-analytics' ),
 				value: item.current_period?.value ?? 0,
 			} ) ),
@@ -54,7 +53,7 @@ export function buildSalesByDeviceData(
 	if ( hasComparison ) {
 		chartData.push( {
 			label: comparisonLabel,
-			data: data.map( ( item ) => ( {
+			data: data.map( item => ( {
 				label: item.item || __( 'Unassigned', 'jetpack-premium-analytics' ),
 				value: item.previous_period?.value ?? 0,
 			} ) ),

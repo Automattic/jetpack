@@ -2,10 +2,7 @@ export { MetricComparisonWidget } from './metric-comparison';
 export { OrderMetricWidget, BookingOrderMetricWidget } from './order-metric';
 export { VisitorMetricWidget } from './visitor-metric';
 export { SalesByCouponWidget } from './sales-by-coupon';
-export {
-	ConversionRateWidget,
-	BookingConversionRateWidget,
-} from './conversion-rate';
+export { ConversionRateWidget, BookingConversionRateWidget } from './conversion-rate';
 export {
 	RevenueByCustomerTypeWidget,
 	BookingsRevenueByCustomerTypeWidget,

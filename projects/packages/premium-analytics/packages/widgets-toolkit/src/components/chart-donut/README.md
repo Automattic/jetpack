@@ -17,40 +17,36 @@ A responsive donut (pie) chart component that automatically adapts to its contai
 import { DonutChart } from '@jetpack-premium-analytics/widgets-toolkit';
 
 const chartData = [
-  { label: 'Completed', value: 45, percentage: 56.25 },
-  { label: 'Pending', value: 25, percentage: 31.25 },
-  { label: 'Cancelled', value: 10, percentage: 12.5 },
+	{ label: 'Completed', value: 45, percentage: 56.25 },
+	{ label: 'Pending', value: 25, percentage: 31.25 },
+	{ label: 'Cancelled', value: 10, percentage: 12.5 },
 ];
 
-const styles = [
-  { color: '#3858E9' },
-  { color: '#66BDFF' },
-  { color: '#A77EFF' },
-];
+const styles = [ { color: '#3858E9' }, { color: '#66BDFF' }, { color: '#A77EFF' } ];
 
 <DonutChart
-  chartData={ chartData }
-  styles={ styles }
-  value={ 80 }
-  comparisonValue={ 72 }
-  showLegend={ true }
-  legendData={ legendItems }
-  dataFormat={ { type: 'number' } }
-/>
+	chartData={ chartData }
+	styles={ styles }
+	value={ 80 }
+	comparisonValue={ 72 }
+	showLegend={ true }
+	legendData={ legendItems }
+	dataFormat={ { type: 'number' } }
+/>;
 ```
 
 ## Props
 
-| Prop | Type | Default | Description |
-|------|------|---------|-------------|
-| `chartData` | `DonutChartData` | required | Array of segments with `label`, `value`, and `percentage` |
-| `styles` | `SegmentStyle[]` | - | Explicit colors per segment (takes priority over chartData colors) |
-| `value` | `number` | required | Primary metric value displayed in center |
-| `comparisonValue` | `number \| null` | - | Previous period value for delta calculation |
-| `dataFormat` | `DataFormat` | `{ type: 'number' }` | Format configuration for the metric display |
-| `legendData` | `LegendItem[]` | - | Legend items with labels and comparison values |
-| `showLegend` | `boolean` | `true` | Whether to show the legend below the chart |
-| `thickness` | `number` | `0.3` | Arc thickness as ratio (0-1) |
+| Prop              | Type             | Default              | Description                                                        |
+| ----------------- | ---------------- | -------------------- | ------------------------------------------------------------------ |
+| `chartData`       | `DonutChartData` | required             | Array of segments with `label`, `value`, and `percentage`          |
+| `styles`          | `SegmentStyle[]` | -                    | Explicit colors per segment (takes priority over chartData colors) |
+| `value`           | `number`         | required             | Primary metric value displayed in center                           |
+| `comparisonValue` | `number \| null` | -                    | Previous period value for delta calculation                        |
+| `dataFormat`      | `DataFormat`     | `{ type: 'number' }` | Format configuration for the metric display                        |
+| `legendData`      | `LegendItem[]`   | -                    | Legend items with labels and comparison values                     |
+| `showLegend`      | `boolean`        | `true`               | Whether to show the legend below the chart                         |
+| `thickness`       | `number`         | `0.3`                | Arc thickness as ratio (0-1)                                       |
 
 ## Data Validation
 
@@ -90,6 +86,7 @@ The component uses a reference/wrapper pattern to achieve fluid sizing:
 ### Default dimensions
 
 Before the first resize observation, the chart uses sensible defaults:
+
 - Size: 164px (width and height)
 
 ## Storybook
@@ -128,8 +125,8 @@ const styles = [
 
 ```tsx
 const chartData = [
-  { label: 'Completed', value: 45, percentage: 56, color: '#3858E9' },
-  { label: 'Pending', value: 25, percentage: 31, color: '#66BDFF' },
+	{ label: 'Completed', value: 45, percentage: 56, color: '#3858E9' },
+	{ label: 'Pending', value: 25, percentage: 31, color: '#66BDFF' },
 ];
 ```
 
@@ -152,9 +149,9 @@ const segmentStyles = chartData.map( ( segment, index ) => {
 
 ## Comparison with SemiCircleChart
 
-| Feature | DonutChart | SemiCircleChart |
-|---------|------------|-----------------|
-| Shape | Full circle | Half circle |
-| Use case | Status distribution | Two-segment comparison |
-| Default size | 164px | 220x100px |
-| Metric position | Center | Bottom center |
+| Feature         | DonutChart          | SemiCircleChart        |
+| --------------- | ------------------- | ---------------------- |
+| Shape           | Full circle         | Half circle            |
+| Use case        | Status distribution | Two-segment comparison |
+| Default size    | 164px               | 220x100px              |
+| Metric position | Center              | Bottom center          |

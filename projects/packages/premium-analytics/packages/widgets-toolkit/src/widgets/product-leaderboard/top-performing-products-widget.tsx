@@ -35,13 +35,8 @@ export type TopPerformingProductsWidgetProps = {
  *   <TopPerformingProductsWidget limit={ 5 } />
  * </WidgetRoot>
  */
-export function TopPerformingProductsWidget( {
-	limit = 5,
-}: TopPerformingProductsWidgetProps ) {
+export function TopPerformingProductsWidget( { limit = 5 }: TopPerformingProductsWidgetProps ) {
 	return (
-		<TopPerformingProductLeaderboardWidget
-			limit={ limit }
-			filter={ PHYSICAL_PRODUCTS_FILTER }
-		/>
+		<TopPerformingProductLeaderboardWidget limit={ limit } filter={ PHYSICAL_PRODUCTS_FILTER } />
 	);
 }

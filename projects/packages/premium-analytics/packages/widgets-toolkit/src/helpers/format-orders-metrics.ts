@@ -8,9 +8,7 @@ import { formatMetricValue } from '@jetpack-premium-analytics/formatters';
  */
 import type { MetricKey } from '../types';
 
-type FormatMetricOptions = NonNullable<
-	Parameters< typeof formatMetricValue >[ 2 ]
->;
+type FormatMetricOptions = NonNullable< Parameters< typeof formatMetricValue >[ 2 ] >;
 
 type MetricType = NonNullable< Parameters< typeof formatMetricValue >[ 1 ] >;
 
@@ -93,16 +91,9 @@ const metricFormatMap: Record<
 	},
 };
 
-export function formatOrderMetric(
-	metricKey: MetricKey,
-	options?: FormatMetricOptions
-) {
+export function formatOrderMetric( metricKey: MetricKey, options?: FormatMetricOptions ) {
 	return ( value: number ) =>
-		formatMetricValue(
-			value,
-			metricFormatMap[ metricKey ].metricType,
-			options ?? {}
-		);
+		formatMetricValue( value, metricFormatMap[ metricKey ].metricType, options ?? {} );
 }
 
 export function getFormatByMetricKey( metricKey: MetricKey ) {

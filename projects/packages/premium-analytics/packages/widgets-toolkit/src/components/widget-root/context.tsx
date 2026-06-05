@@ -30,9 +30,7 @@ export type WidgetRootContextValue = {
 	setError?: ( error: WidgetErrorConfig | true | null ) => void;
 };
 
-const WidgetRootContext = createContext< WidgetRootContextValue | null >(
-	null
-);
+const WidgetRootContext = createContext< WidgetRootContextValue | null >( null );
 
 /**
  * Hook to access the WidgetRoot context.
@@ -54,9 +52,7 @@ export function useWidgetRootContext(): WidgetRootContextValue {
 	const context = useContext( WidgetRootContext );
 
 	if ( ! context ) {
-		throw new Error(
-			'useWidgetRootContext must be used within a WidgetRoot component'
-		);
+		throw new Error( 'useWidgetRootContext must be used within a WidgetRoot component' );
 	}
 
 	return context;

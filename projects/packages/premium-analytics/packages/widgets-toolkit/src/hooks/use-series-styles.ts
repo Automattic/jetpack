@@ -25,9 +25,7 @@ import type {
  * return <ComparativeLineChart series={ chartSeries } styles={ seriesStyles } ... />;
  * ```
  */
-export function useSeriesStyles(
-	series: ComparativeLineChartSeries[]
-): SeriesStyle[] {
+export function useSeriesStyles( series: ComparativeLineChartSeries[] ): SeriesStyle[] {
 	const { getElementStyles } = useGlobalChartsContext();
 
 	return useMemo(

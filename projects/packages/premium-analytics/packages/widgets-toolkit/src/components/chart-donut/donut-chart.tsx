@@ -139,8 +139,7 @@ export function DonutChart( {
 	tooltipOffsetY,
 	tooltipDataFormat,
 }: DonutChartProps ) {
-	const hasComparison =
-		comparisonValue !== null && comparisonValue !== undefined;
+	const hasComparison = comparisonValue !== null && comparisonValue !== undefined;
 
 	const [ widgetHeight, setWidgetHeight ] = useState< number >( 0 );
 
@@ -150,7 +149,7 @@ export function DonutChart( {
 	 */
 	const [ chartWidth, setChartWidth ] = useState< number >( 0 );
 
-	const ref = useResizeObserver( ( entries ) => {
+	const ref = useResizeObserver( entries => {
 		const entry = entries?.[ 0 ];
 		if ( ! entry?.contentRect ) {
 			return;
@@ -196,24 +195,13 @@ export function DonutChart( {
 
 	// Render empty state when no data is available
 	if ( isEmptyData ) {
-		return (
-			<ChartEmptyState icon={ emptyStateIcon } text={ emptyStateText } />
-		);
+		return <ChartEmptyState icon={ emptyStateIcon } text={ emptyStateText } />;
 	}
 
 	return (
-		<div
-			className={ styles.reference }
-			style={ { height: widgetHeight ?? DEFAULT_SIZE } }
-		>
+		<div className={ styles.reference } style={ { height: widgetHeight ?? DEFAULT_SIZE } }>
 			<div className={ styles.wrapper }>
-				<Stack
-					direction="column"
-					align="center"
-					justify="center"
-					gap="xl"
-					ref={ ref }
-				>
+				<Stack direction="column" align="center" justify="center" gap="xl" ref={ ref }>
 					<PieChart
 						data={ styledChartData }
 						className={ styles.chart }
@@ -242,9 +230,7 @@ export function DonutChart( {
 							className={ styles.metricContainer }
 							value={ value }
 							dataFormat={ dataFormat }
-							previousValue={
-								hasComparison ? comparisonValue : null
-							}
+							previousValue={ hasComparison ? comparisonValue : null }
 							direction="column"
 							align="center"
 						/>
@@ -252,10 +238,7 @@ export function DonutChart( {
 
 					{ showLegend && styledLegendData && (
 						<div className={ styles.legendContainer }>
-							<LegendPure
-								items={ styledLegendData }
-								withComparison={ hasComparison }
-							/>
+							<LegendPure items={ styledLegendData } withComparison={ hasComparison } />
 						</div>
 					) }
 				</Stack>

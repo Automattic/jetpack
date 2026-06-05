@@ -51,8 +51,7 @@ export function CouponUseWidget() {
 	const isRefetching = isFetching && hasData;
 
 	const { chartData, total, comparisonTotal, legendData } = useMemo(
-		() =>
-			buildCouponUseData( primary.data, comparison.data, hasComparison ),
+		() => buildCouponUseData( primary.data, comparison.data, hasComparison ),
 		[ primary.data, comparison.data, hasComparison ]
 	);
 
@@ -69,12 +68,7 @@ export function CouponUseWidget() {
 
 	return (
 		<>
-			<Stack
-				className={ styles.container }
-				direction="column"
-				align="center"
-				justify="center"
-			>
+			<Stack className={ styles.container } direction="column" align="center" justify="center">
 				<DonutChart
 					chartData={ chartData }
 					value={ total }

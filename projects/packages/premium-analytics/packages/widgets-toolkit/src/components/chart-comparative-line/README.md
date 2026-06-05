@@ -29,10 +29,7 @@ import { ComparativeLineChart } from '@jetpack-premium-analytics/widgets-toolkit
 The cleanest approach is to pass styles as a separate prop. Styles are applied to series by index:
 
 ```tsx
-import {
-	ComparativeLineChart,
-	type SeriesStyle,
-} from '@jetpack-premium-analytics/widgets-toolkit';
+import { ComparativeLineChart, type SeriesStyle } from '@jetpack-premium-analytics/widgets-toolkit';
 
 const styles: SeriesStyle[] = [
 	{ stroke: '#3858E9', strokeWidth: 2 },
@@ -60,11 +57,7 @@ const series = [
 	},
 ];
 
-<ComparativeLineChart
-	series={ series }
-	styles={ styles }
-	dataFormat={ { type: 'currency' } }
-/>;
+<ComparativeLineChart series={ series } styles={ styles } dataFormat={ { type: 'currency' } } />;
 ```
 
 ### With styles in series (fallback)
@@ -122,11 +115,7 @@ function MyWidget( { series } ) {
 	} );
 
 	return (
-		<ComparativeLineChart
-			series={ series }
-			styles={ seriesStyles }
-			dataFormat={ dataFormat }
-		/>
+		<ComparativeLineChart series={ series } styles={ seriesStyles } dataFormat={ dataFormat } />
 	);
 }
 ```

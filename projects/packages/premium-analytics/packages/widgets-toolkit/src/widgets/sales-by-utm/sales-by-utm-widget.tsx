@@ -59,29 +59,15 @@ export function SalesByUtmWidget( { view }: SalesByUtmWidgetProps ) {
 		[ reportParams, view ]
 	);
 
-	const {
-		primary,
-		hasComparison,
-		isLoading,
-		isFetching,
-		hasData,
-		isError,
-		error,
-		refetch,
-	} = useReportOrderAttribution( params );
+	const { primary, hasComparison, isLoading, isFetching, hasData, isError, error, refetch } =
+		useReportOrderAttribution( params );
 
 	const isInitialLoading = isLoading && ! hasData;
 	const isRefetching = isFetching && hasData;
 
-	const chartData = useMemo(
-		() => buildSalesByUtmData( primary.data ),
-		[ primary.data ]
-	);
+	const chartData = useMemo( () => buildSalesByUtmData( primary.data ), [ primary.data ] );
 
-	const legendLabels = useMemo(
-		() => formatLegendLabels( reportParams ),
-		[ reportParams ]
-	);
+	const legendLabels = useMemo( () => formatLegendLabels( reportParams ), [ reportParams ] );
 
 	const emptyStateIcon = useMemo( () => {
 		switch ( view ) {
@@ -114,8 +100,7 @@ export function SalesByUtmWidget( { view }: SalesByUtmWidgetProps ) {
 				emptyStateIcon={ emptyStateIcon }
 				style={
 					{
-						'--a8c--charts--leaderboard--bar--border-radius':
-							'0 1px 1px 0',
+						'--a8c--charts--leaderboard--bar--border-radius': '0 1px 1px 0',
 					} as React.CSSProperties
 				}
 			/>

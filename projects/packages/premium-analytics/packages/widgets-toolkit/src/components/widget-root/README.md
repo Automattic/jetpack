@@ -24,11 +24,11 @@ Dashboard widgets are ES Modules loaded asynchronously via lazy-load. This means
 import { WidgetRoot, MyWidget } from '@jetpack-premium-analytics/widgets-toolkit';
 
 export default function MyWidgetRender( { attributes } ) {
-    return (
-        <WidgetRoot attributes={ attributes }>
-            <MyWidget />
-        </WidgetRoot>
-    );
+	return (
+		<WidgetRoot attributes={ attributes }>
+			<MyWidget />
+		</WidgetRoot>
+	);
 }
 ```
 
@@ -39,12 +39,12 @@ export default function MyWidgetRender( { attributes } ) {
 import { useWidgetRootContext } from '../../components/widget-root';
 
 export function MyWidget() {
-    const { reportParams } = useWidgetRootContext();
+	const { reportParams } = useWidgetRootContext();
 
-    // Use reportParams for data fetching
-    const { data } = useReportOrders( reportParams );
+	// Use reportParams for data fetching
+	const { data } = useReportOrders( reportParams );
 
-    return <div>{ /* render widget */ }</div>;
+	return <div>{ /* render widget */ }</div>;
 }
 ```
 
@@ -52,11 +52,11 @@ export function MyWidget() {
 
 ### WidgetRoot Props
 
-| Prop | Type | Description |
-|------|------|-------------|
-| `attributes` | `Partial<ReportParamsFieldAttributes>` | Widget attributes, may include `reportParams` |
-| `children` | `ReactNode` | Child components (widgets) |
-| `options.from` | `string` | Router path for URL params (default: `/wc-analytics/dashboard`) |
+| Prop           | Type                                   | Description                                                     |
+| -------------- | -------------------------------------- | --------------------------------------------------------------- |
+| `attributes`   | `Partial<ReportParamsFieldAttributes>` | Widget attributes, may include `reportParams`                   |
+| `children`     | `ReactNode`                            | Child components (widgets)                                      |
+| `options.from` | `string`                               | Router path for URL params (default: `/wc-analytics/dashboard`) |
 
 ### useWidgetRootContext
 
@@ -64,7 +64,7 @@ Returns the resolved context value:
 
 ```typescript
 type WidgetRootContextValue = {
-    reportParams: ReportParams;
+	reportParams: ReportParams;
 };
 ```
 
@@ -78,6 +78,7 @@ type WidgetRootContextValue = {
 2. **From URL** - Falls back to URL search params via `@wordpress/route`
 
 This allows widgets to work both:
+
 - In the Analytics dashboard (params from URL)
 - Other contexts (params from attributes)
 
@@ -103,15 +104,15 @@ Dashboard widgets live in a resizable grid. Users can change tile sizes, so widg
 
 Aligned with [Tailwind container query defaults](https://tailwindcss.com/docs/responsive-design#container-size-reference) and [ARC-464](https://linear.app/a8c/issue/ARC-464).
 
-| Token | Size | Use Case |
-|-------|------|----------|
+| Token | Size          | Use Case                |
+| ----- | ------------- | ----------------------- |
 | `xxs` | 256px (16rem) | Extra extra small tiles |
-| `xs`  | 320px (20rem) | Extra small tiles |
-| `sm`  | 384px (24rem) | Small tiles |
-| `md`  | 448px (28rem) | Standard tile size |
-| `lg`  | 512px (32rem) | Large tiles |
-| `xl`  | 576px (36rem) | Extra large tiles |
-| `2xl` | 672px (42rem) | Full-width widgets |
+| `xs`  | 320px (20rem) | Extra small tiles       |
+| `sm`  | 384px (24rem) | Small tiles             |
+| `md`  | 448px (28rem) | Standard tile size      |
+| `lg`  | 512px (32rem) | Large tiles             |
+| `xl`  | 576px (36rem) | Extra large tiles       |
+| `2xl` | 672px (42rem) | Full-width widgets      |
 
 ### Usage in Widget SCSS
 
@@ -119,18 +120,18 @@ Aligned with [Tailwind container query defaults](https://tailwindcss.com/docs/re
 @use '../../styles/widget-container' as *;
 
 .myWidget {
-  // Mobile-first: vertical layout for small containers
-  flex-direction: column;
+	// Mobile-first: vertical layout for small containers
+	flex-direction: column;
 
-  // >= 448px: switch to horizontal layout
-  @include widget-query( md ) {
-    flex-direction: row;
-  }
+	// >= 448px: switch to horizontal layout
+	@include widget-query( md ) {
+		flex-direction: row;
+	}
 
-  // >= 576px: add more spacing
-  @include widget-query( xl ) {
-    gap: var( --wpds-dimension-base );
-  }
+	// >= 576px: add more spacing
+	@include widget-query( xl ) {
+		gap: var( --wpds-dimension-base );
+	}
 }
 ```
 

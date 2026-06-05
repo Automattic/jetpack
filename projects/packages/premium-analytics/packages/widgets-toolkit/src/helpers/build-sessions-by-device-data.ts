@@ -59,8 +59,7 @@ export function buildSessionsByDeviceData(
 
 	const { data, summary } = sessionsByDevice;
 	const total = summary.total_sessions;
-	const comparisonTotal =
-		comparisonSessionsByDevice?.summary?.total_sessions || 0;
+	const comparisonTotal = comparisonSessionsByDevice?.summary?.total_sessions || 0;
 
 	// If there are no sessions, return empty state
 	if ( total === 0 ) {
@@ -75,16 +74,13 @@ export function buildSessionsByDeviceData(
 	// Create a map of comparison data by device type
 	const comparisonMap = new Map< string, number >();
 	if ( comparisonSessionsByDevice?.data ) {
-		comparisonSessionsByDevice.data.forEach( ( item ) => {
-			comparisonMap.set(
-				item.device_type.toLowerCase(),
-				item.active_sessions
-			);
+		comparisonSessionsByDevice.data.forEach( item => {
+			comparisonMap.set( item.device_type.toLowerCase(), item.active_sessions );
 		} );
 	}
 
 	// Build chart data
-	const chartData: SemiCircleChartData = data.map( ( item ) => ( {
+	const chartData: SemiCircleChartData = data.map( item => ( {
 		label: getDeviceLabel( item.device_type ),
 		value: item.active_sessions,
 		valueDisplay: formatMetricValue( item.active_sessions, 'number', {
@@ -94,7 +90,7 @@ export function buildSessionsByDeviceData(
 	} ) );
 
 	// Build legend data
-	const legendData: LegendItem[] = data.map( ( item ) => {
+	const legendData: LegendItem[] = data.map( item => {
 		const normalizedType = item.device_type.toLowerCase();
 		const comparisonValue = comparisonSessionsByDevice
 			? comparisonMap.get( normalizedType ) || 0

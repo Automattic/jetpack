@@ -5,10 +5,7 @@ import { useMemo } from 'react';
 import { ConversionFunnelChart } from '@automattic/charts';
 import { Icon, Stack } from '@wordpress/ui';
 import { WidgetLoadingOverlay } from '../../components/widget-loading-overlay';
-import {
-	FilterCondition,
-	useReportConversionRate,
-} from '@jetpack-premium-analytics/data';
+import { FilterCondition, useReportConversionRate } from '@jetpack-premium-analytics/data';
 import { goal } from '@jetpack-premium-analytics/icons';
 
 /**
@@ -60,10 +57,7 @@ export function ConversionRateWidget( {
 	const { data: comparisonData } = comparison;
 
 	const { steps, overallRate, comparisonRate } = useMemo( () => {
-		if (
-			! conversionData ||
-			conversionData.summary.active_sessions === 0
-		) {
+		if ( ! conversionData || conversionData.summary.active_sessions === 0 ) {
 			return {
 				steps: [],
 				overallRate: 0,
@@ -77,9 +71,7 @@ export function ConversionRateWidget( {
 			overallRate: conversionData.overallRate || 0,
 			// Get comparison rate as decimal
 			comparisonRate:
-				hasComparison && comparisonData?.summary
-					? comparisonData.summary.conversion_rate
-					: null,
+				hasComparison && comparisonData?.summary ? comparisonData.summary.conversion_rate : null,
 		};
 	}, [ conversionData, comparisonData, hasComparison ] );
 
@@ -96,10 +88,7 @@ export function ConversionRateWidget( {
 	if ( steps.length === 0 ) {
 		return (
 			<>
-				<ChartEmptyState
-					icon={ emptyStateIcon }
-					text={ emptyStateText }
-				/>
+				<ChartEmptyState icon={ emptyStateIcon } text={ emptyStateText } />
 				{ isRefetching && <WidgetLoadingOverlay /> }
 			</>
 		);

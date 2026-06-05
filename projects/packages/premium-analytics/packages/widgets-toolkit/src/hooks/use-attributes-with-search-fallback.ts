@@ -58,10 +58,7 @@ export function useAttributesWithSearchFallback(
 	 * Otherwise, build attributes from URL search params.
 	 */
 	const hasReportParams =
-		!! attributes?.reportParams &&
-		Object.keys( attributes.reportParams ).length > 0;
+		!! attributes?.reportParams && Object.keys( attributes.reportParams ).length > 0;
 
-	return hasReportParams
-		? ( attributes as ReportParamsFieldAttributes )
-		: { reportParams: search };
+	return hasReportParams ? ( attributes as ReportParamsFieldAttributes ) : { reportParams: search };
 }

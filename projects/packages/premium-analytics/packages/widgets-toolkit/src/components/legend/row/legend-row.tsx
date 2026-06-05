@@ -37,32 +37,16 @@ export type LegendRowProps = {
 	title?: string;
 };
 
-export function LegendRow( {
-	children,
-	value,
-	comparison,
-	color,
-	title,
-}: LegendRowProps ) {
+export function LegendRow( { children, value, comparison, color, title }: LegendRowProps ) {
 	return (
 		<>
-			<Stack
-				direction="row"
-				align="center"
-				gap="sm"
-				className={ styles.labelContainer }
-			>
-				<div
-					className={ styles.bullet }
-					style={ { backgroundColor: color } }
-				/>
+			<Stack direction="row" align="center" gap="sm" className={ styles.labelContainer }>
+				<div className={ styles.bullet } style={ { backgroundColor: color } } />
 				<span className={ styles.label } title={ title }>
 					{ children }
 				</span>
 			</Stack>
-			{ value !== false && (
-				<span className={ styles.value }>{ value }</span>
-			) }
+			{ value !== false && <span className={ styles.value }>{ value }</span> }
 			{ comparison }
 		</>
 	);

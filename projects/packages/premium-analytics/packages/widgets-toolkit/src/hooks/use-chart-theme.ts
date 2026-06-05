@@ -84,8 +84,7 @@ export function useChartTheme(): WooChartTheme {
 			},
 			conversionFunnelChart: {
 				backgroundColor: 'var(--wpds-color-bg-surface-brand)',
-				positiveChangeColor:
-					'var(--wpds-color-fg-content-success-weak)',
+				positiveChangeColor: 'var(--wpds-color-fg-content-success-weak)',
 				negativeChangeColor: 'var(--wpds-color-fg-content-error-weak)',
 			},
 			lineChart: {

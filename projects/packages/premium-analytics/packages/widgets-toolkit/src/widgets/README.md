@@ -4,20 +4,20 @@ Dashboard widget components for WooCommerce Analytics.
 
 ## Available Widgets
 
-| Widget                           | Chart Component                                 | Description                                       |
-| -------------------------------- | ----------------------------------------------- | ------------------------------------------------- |
-| `ConversionRateWidget`           | `MetricWithComparison`                          | Funnel conversion rate metric                     |
-| `MetricComparisonWidget`         | `MetricWithComparison` + `ComparativeLineChart` | Generic metric with time series                   |
-| `RevenueByCustomerTypeWidget`    | `BarChart`                                      | Revenue breakdown by customer type                |
-| `NewVsReturningCustomerWidget`   | `DonutChart`                                    | Customer counts by new vs returning               |
-| `OrderMetricWidget`              | `ReportMetricWidget`                            | Order-based metrics (revenue, orders, AOV)        |
-| `SalesByCouponWidget`            | `SemiCircleChart`                               | Coupon sales for all product types                |
-| `SalesByDeviceWidget`            | `DonutChart`                                    | Sales breakdown by device type                    |
-| `SalesByUtmWidget`               | `LeaderboardChart`                              | Sales by UTM parameters (source/channel/campaign) |
-| `TotalReturnsWidget`             | `DonutChart`                                    | Returns/refunds for all product types             |
-| `VisitorMetricWidget`            | `ReportMetricWidget`                            | Visitor-based metrics                             |
-| `TopPerformingProductsWidget`    | `LeaderboardChart`                              | Top products by revenue                           |
-| `TopPerformingBookingsWidget`    | `LeaderboardChart`                              | Top bookings by revenue                           |
+| Widget                         | Chart Component                                 | Description                                       |
+| ------------------------------ | ----------------------------------------------- | ------------------------------------------------- |
+| `ConversionRateWidget`         | `MetricWithComparison`                          | Funnel conversion rate metric                     |
+| `MetricComparisonWidget`       | `MetricWithComparison` + `ComparativeLineChart` | Generic metric with time series                   |
+| `RevenueByCustomerTypeWidget`  | `BarChart`                                      | Revenue breakdown by customer type                |
+| `NewVsReturningCustomerWidget` | `DonutChart`                                    | Customer counts by new vs returning               |
+| `OrderMetricWidget`            | `ReportMetricWidget`                            | Order-based metrics (revenue, orders, AOV)        |
+| `SalesByCouponWidget`          | `SemiCircleChart`                               | Coupon sales for all product types                |
+| `SalesByDeviceWidget`          | `DonutChart`                                    | Sales breakdown by device type                    |
+| `SalesByUtmWidget`             | `LeaderboardChart`                              | Sales by UTM parameters (source/channel/campaign) |
+| `TotalReturnsWidget`           | `DonutChart`                                    | Returns/refunds for all product types             |
+| `VisitorMetricWidget`          | `ReportMetricWidget`                            | Visitor-based metrics                             |
+| `TopPerformingProductsWidget`  | `LeaderboardChart`                              | Top products by revenue                           |
+| `TopPerformingBookingsWidget`  | `LeaderboardChart`                              | Top bookings by revenue                           |
 
 ## Chart Components
 
@@ -36,8 +36,8 @@ Shared code is located in `common/`:
 
 ### Styles
 
--   `donut-widget.module.scss` - Container styles for DonutChart widgets
+- `donut-widget.module.scss` - Container styles for DonutChart widgets
 
 ### Hooks
 
--   `useSegmentStyles( chartData )` - Builds segment colors from theme provider
+- `useSegmentStyles( chartData )` - Builds segment colors from theme provider

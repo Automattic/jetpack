@@ -31,19 +31,12 @@ export type PieChartTooltipProps = {
  * Reuses the same SCSS module as ChartTooltip so styling (box-shadow, padding,
  * the `:global(.visx-tooltip):has(.tooltip)` override) is shared.
  */
-export function PieChartTooltip( {
-	tooltipData,
-	dataFormat,
-}: PieChartTooltipProps ) {
+export function PieChartTooltip( { tooltipData, dataFormat }: PieChartTooltipProps ) {
 	return (
 		<Stack direction="column" className={ styles.tooltip } gap="xs">
 			<TooltipRow
 				indicator={
-					<RectShape
-						fill={ tooltipData.color || 'currentColor' }
-						height={ 8 }
-						width={ 8 }
-					/>
+					<RectShape fill={ tooltipData.color || 'currentColor' } height={ 8 } width={ 8 } />
 				}
 				label={ tooltipData.label }
 				value={ tooltipData.value }
