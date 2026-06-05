@@ -1,6 +1,6 @@
 .input-date-control {
 	flex: 1;
-	font-size: var( --wpds-font-size-sm );
+	font-size: var( --wpds-typography-font-size-sm );
 
 	@supports selector(&::-webkit-calendar-picker-indicator) {
 		input[type="date"] {
@@ -12,7 +12,7 @@
 			-webkit-appearance: none;
 			background: none;
 
-			font-size: var( --wpds-font-size-md );
+			font-size: var( --wpds-typography-font-size-md );
 
 			// Removes the calendar icon.
 			&::-webkit-calendar-picker-indicator {
