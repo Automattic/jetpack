@@ -63,5 +63,21 @@ export default defineConfig(
 			'jsdoc/escape-inline-tags': 'off',
 			'react/jsx-no-bind': 'off',
 		},
+	},
+	{
+		// Same as the ui package: soften JSDoc rules for the widgets-toolkit
+		// port and allow the upstream inline-handler JSX style. Temporary —
+		// tighten these up in a follow-up alongside the other ports.
+		files: [ 'packages/widgets-toolkit/**' ],
+		rules: {
+			'jsdoc/require-jsdoc': 'off',
+			'jsdoc/require-description': 'off',
+			'jsdoc/require-param': 'off',
+			'jsdoc/require-param-description': 'off',
+			'jsdoc/require-returns': 'off',
+			'jsdoc/check-indentation': 'off',
+			'jsdoc/escape-inline-tags': 'off',
+			'react/jsx-no-bind': 'off',
+		},
 	}
 );
