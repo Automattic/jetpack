@@ -1405,6 +1405,59 @@ function exitBlockAndApplyList( listTag ) {
 }
 
 /**
+ * If the cursor is inside a list whose tag differs from `listTag`, replace
+ * the parent <ul>/<ol> with the requested tag while keeping every <li> in
+ * place. Avoids the browser's `execCommand('insert*List')` behavior, which
+ * pulls only the current <li> out into a new list and leaves siblings behind.
+ *
+ * @param {string} listTag - 'ul' or 'ol'.
+ * @return {boolean} Whether the parent list's tag was changed.
+ */
+function changeListTagAtCursor( listTag ) {
+	const sel = window.getSelection();
+	if ( ! sel.rangeCount ) return false;
+
+	const content = getContent();
+	let node = sel.anchorNode;
+	let li = null;
+	while ( node && node !== content && ! node.classList?.contains( 'bw-content' ) ) {
+		if ( node.nodeType === Node.ELEMENT_NODE && node.tagName === 'LI' ) {
+			li = node;
+			break;
+		}
+		node = node.parentNode;
+	}
+	if ( ! li ) return false;
+
+	const list = li.parentNode;
+	if ( ! list || ! /^(UL|OL)$/i.test( list.tagName ) ) return false;
+	if ( list.tagName.toLowerCase() === listTag.toLowerCase() ) return false;
+
+	const range = sel.getRangeAt( 0 );
+	const startContainer = range.startContainer;
+	const startOffset = range.startOffset;
+	const endContainer = range.endContainer;
+	const endOffset = range.endOffset;
+
+	const newList = document.createElement( listTag );
+	while ( list.firstChild ) {
+		newList.appendChild( list.firstChild );
+	}
+	list.replaceWith( newList );
+
+	try {
+		const newRange = document.createRange();
+		newRange.setStart( startContainer, startOffset );
+		newRange.setEnd( endContainer, endOffset );
+		sel.removeAllRanges();
+		sel.addRange( newRange );
+	} catch {
+		placeCursorAt( li );
+	}
+	return true;
+}
+
+/**
  * Indent or outdent a list item by nesting/unnesting it in a sub-list.
  *
  * Indent: moves the <li> into a new sub-list appended to the previous sibling <li>.
@@ -2164,18 +2217,43 @@ function parseMarkdownListShortcut( text ) {
 }
 
 /**
- * Replace a paragraph with a fresh list containing one empty item, and move the cursor into it.
+ * Replace a paragraph with a list item, merging into an adjacent same-tag
+ * list when one exists so contiguous markdown shortcuts produce a single
+ * list rather than a stack of disconnected one-item lists.
  *
  * @param {HTMLElement} paragraph - The paragraph to convert.
  * @param {'ul'|'ol'}   listTag   - The list tag to create.
  */
 function applyMarkdownListShortcut( paragraph, listTag ) {
-	const list = document.createElement( listTag );
 	const li = document.createElement( 'li' );
 	li.innerHTML = '<br>';
-	list.appendChild( li );
-	paragraph.after( list );
-	paragraph.remove();
+
+	const prev = paragraph.previousElementSibling;
+	const next = paragraph.nextElementSibling;
+	const prevIsSameTag = prev && prev.tagName.toLowerCase() === listTag;
+	const nextIsSameTag = next && next.tagName.toLowerCase() === listTag;
+
+	if ( prevIsSameTag ) {
+		prev.appendChild( li );
+		// If the paragraph sat between two same-tag lists, absorb the
+		// trailing list so the cursor lands in one continuous list.
+		if ( nextIsSameTag ) {
+			while ( next.firstChild ) {
+				prev.appendChild( next.firstChild );
+			}
+			next.remove();
+		}
+		paragraph.remove();
+	} else if ( nextIsSameTag ) {
+		next.insertBefore( li, next.firstChild );
+		paragraph.remove();
+	} else {
+		const list = document.createElement( listTag );
+		list.appendChild( li );
+		paragraph.after( list );
+		paragraph.remove();
+	}
+
 	placeCursorAt( li );
 	state.formatUList = listTag === 'ul';
 	state.formatOList = listTag === 'ol';
@@ -4077,7 +4155,10 @@ const { state } = store( 'wpcom-write', {
 		// --- Lists ---
 
 		formatUList() {
-			if ( exitBlockAndApplyList( 'ul' ) ) {
+			if ( changeListTagAtCursor( 'ul' ) ) {
+				state.formatUList = true;
+				state.formatOList = false;
+			} else if ( exitBlockAndApplyList( 'ul' ) ) {
 				state.formatUList = true;
 				state.formatOList = false;
 			} else {
@@ -4088,7 +4169,10 @@ const { state } = store( 'wpcom-write', {
 		},
 
 		formatOList() {
-			if ( exitBlockAndApplyList( 'ol' ) ) {
+			if ( changeListTagAtCursor( 'ol' ) ) {
+				state.formatOList = true;
+				state.formatUList = false;
+			} else if ( exitBlockAndApplyList( 'ol' ) ) {
 				state.formatOList = true;
 				state.formatUList = false;
 			} else {

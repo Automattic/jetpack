@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Write: Lists now stay a single block when you switch styles, and adjacent markdown lists merge instead of stacking.
