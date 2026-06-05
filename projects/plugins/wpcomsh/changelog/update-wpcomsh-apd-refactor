@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Connection: Cache the Atomic Persistent Data instance and connection-owner lookup per request to reduce duplicate DB queries.
