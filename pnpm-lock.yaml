@@ -3881,6 +3881,9 @@ importers:
       '@wordpress/icons':
         specifier: ^13.0.0
         version: 13.1.0(react@18.3.1)
+      '@wordpress/primitives':
+        specifier: 4.46.0
+        version: 4.46.0(react@18.3.1)
       '@wordpress/route':
         specifier: 0.12.0
         version: 0.12.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -3897,6 +3900,12 @@ importers:
       '@babel/core':
         specifier: 7.29.0
         version: 7.29.0
+      '@storybook/react':
+        specifier: 10.3.6
+        version: 10.3.6(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(storybook@10.3.6(@testing-library/dom@10.4.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(typescript@5.9.3)
+      '@testing-library/dom':
+        specifier: 10.4.1
+        version: 10.4.1
       '@types/jest':
         specifier: 30.0.0
         version: 30.0.0
@@ -3906,9 +3915,18 @@ importers:
       '@wordpress/build':
         specifier: 0.14.0
         version: 0.14.0(@babel/core@7.29.0)(@wordpress/boot@0.13.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@wordpress/route@0.12.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(browserslist@4.28.2)
+      '@wordpress/ui':
+        specifier: 0.13.0
+        version: 0.13.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       browserslist:
         specifier: 4.28.2
         version: 4.28.2
+      storybook:
+        specifier: 10.3.6
+        version: 10.3.6(@testing-library/dom@10.4.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      typescript:
+        specifier: 5.9.3
+        version: 5.9.3
 
   projects/packages/protect-models: {}
 
