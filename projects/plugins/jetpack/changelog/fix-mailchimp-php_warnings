@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Shortcodes: Prevent PHP warning when Mailchimp embed is malformed.

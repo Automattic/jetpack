@@ -37,7 +37,7 @@ import { SingleChartContext, type SingleChartRef } from '../private/single-chart
 import { SvgEmptyState } from '../private/svg-empty-state';
 import { getCurveType, getFormatter, guessOptimalNumTicks } from '../private/time-axis';
 import { withResponsive } from '../private/with-responsive';
-import { useXZoom, ZoomResetButton, ZoomSelectionRect } from '../private/x-zoom';
+import { useXZoom, ZoomResetButton, ZoomSelectionRect, ZoomClip } from '../private/x-zoom';
 import styles from './line-chart.module.scss';
 import { LineChartAnnotation, LineChartAnnotationsOverlay, LineChartGlyph } from './private';
 import type { RenderLineGlyphProps, LineChartProps, TooltipDatum } from './types';
@@ -458,86 +458,93 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 												</SvgEmptyState>
 											) : null }
 
-											{ seriesWithVisibility.map( ( { series: seriesData, index, isVisible } ) => {
-												// Skip rendering invisible series
-												if ( ! isVisible ) {
-													return null;
-												}
+											{ /* Line is not animated, so clip only while zoomed; its edge glyphs sit on the plot border and must not be clipped. */ }
+											<ZoomClip active={ zoomable && !! zoom.domain } chartId={ chartId }>
+												{ seriesWithVisibility.map(
+													( { series: seriesData, index, isVisible } ) => {
+														// Skip rendering invisible series
+														if ( ! isVisible ) {
+															return null;
+														}
 
-												const { color, lineStyles, glyph } = getElementStyles( {
-													data: seriesData,
-													index,
-												} );
+														const { color, lineStyles, glyph } = getElementStyles( {
+															data: seriesData,
+															index,
+														} );
 
-												const lineProps = {
-													stroke: color,
-													...lineStyles,
-												};
+														const lineProps = {
+															stroke: color,
+															...lineStyles,
+														};
 
-												return (
-													<g key={ seriesData?.label || index }>
-														{ withGradientFill && (
-															<LinearGradient
-																id={ `area-gradient-${ chartId }-${ index + 1 }` }
-																from={ color }
-																fromOpacity={ 0.4 }
-																toOpacity={ 0.1 }
-																to={ providerTheme.backgroundColor }
-																{ ...seriesData.options?.gradient }
-																data-testid="line-gradient"
-															>
-																{ seriesData.options?.gradient?.stops?.map( ( stop, stopIndex ) => (
-																	<stop
-																		key={ `${ stop.offset }-${ stop.color || color }` }
-																		offset={ stop.offset }
-																		stopColor={ stop.color || color }
-																		stopOpacity={ stop.opacity ?? 1 }
-																		data-testid={ `line-gradient-stop-${ chartId }-${ index }-${ stopIndex }` }
+														return (
+															<g key={ seriesData?.label || index }>
+																{ withGradientFill && (
+																	<LinearGradient
+																		id={ `area-gradient-${ chartId }-${ index + 1 }` }
+																		from={ color }
+																		fromOpacity={ 0.4 }
+																		toOpacity={ 0.1 }
+																		to={ providerTheme.backgroundColor }
+																		{ ...seriesData.options?.gradient }
+																		data-testid="line-gradient"
+																	>
+																		{ seriesData.options?.gradient?.stops?.map(
+																			( stop, stopIndex ) => (
+																				<stop
+																					key={ `${ stop.offset }-${ stop.color || color }` }
+																					offset={ stop.offset }
+																					stopColor={ stop.color || color }
+																					stopOpacity={ stop.opacity ?? 1 }
+																					data-testid={ `line-gradient-stop-${ chartId }-${ index }-${ stopIndex }` }
+																				/>
+																			)
+																		) }
+																	</LinearGradient>
+																) }
+																<AreaSeries
+																	key={ seriesData?.label }
+																	dataKey={ seriesData?.label }
+																	data={ seriesData.data as DataPointDate[] }
+																	{ ...accessors }
+																	fill={
+																		withGradientFill
+																			? `url(#area-gradient-${ chartId }-${ index + 1 })`
+																			: 'transparent'
+																	}
+																	renderLine={ true }
+																	curve={ getCurveType( curveType, smoothing ) }
+																	lineProps={ lineProps }
+																/>
+
+																{ withStartGlyphs && (
+																	<LineChartGlyph
+																		index={ index }
+																		data={ seriesData }
+																		color={ color }
+																		renderGlyph={ glyph ?? renderGlyph }
+																		accessors={ accessors }
+																		glyphStyle={ glyphStyle }
+																		position="start"
 																	/>
-																) ) }
-															</LinearGradient>
-														) }
-														<AreaSeries
-															key={ seriesData?.label }
-															dataKey={ seriesData?.label }
-															data={ seriesData.data as DataPointDate[] }
-															{ ...accessors }
-															fill={
-																withGradientFill
-																	? `url(#area-gradient-${ chartId }-${ index + 1 })`
-																	: 'transparent'
-															}
-															renderLine={ true }
-															curve={ getCurveType( curveType, smoothing ) }
-															lineProps={ lineProps }
-														/>
+																) }
 
-														{ withStartGlyphs && (
-															<LineChartGlyph
-																index={ index }
-																data={ seriesData }
-																color={ color }
-																renderGlyph={ glyph ?? renderGlyph }
-																accessors={ accessors }
-																glyphStyle={ glyphStyle }
-																position="start"
-															/>
-														) }
-
-														{ withEndGlyphs && (
-															<LineChartGlyph
-																index={ index }
-																data={ seriesData }
-																color={ color }
-																renderGlyph={ glyph ?? renderGlyph }
-																accessors={ accessors }
-																glyphStyle={ glyphStyle }
-																position="end"
-															/>
-														) }
-													</g>
-												);
-											} ) }
+																{ withEndGlyphs && (
+																	<LineChartGlyph
+																		index={ index }
+																		data={ seriesData }
+																		color={ color }
+																		renderGlyph={ glyph ?? renderGlyph }
+																		accessors={ accessors }
+																		glyphStyle={ glyphStyle }
+																		position="end"
+																	/>
+																) }
+															</g>
+														);
+													}
+												) }
+											</ZoomClip>
 
 											{ withTooltips && (
 												<AccessibleTooltip

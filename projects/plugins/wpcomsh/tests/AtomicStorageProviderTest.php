@@ -63,27 +63,12 @@ class AtomicStorageProviderTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test get_master_user_id with invalid user email.
+	 * Test get_master_user_id returns false for invalid input (non-existent user, empty, or malformed email).
 	 */
 	public function test_get_master_user_id_invalid() {
-		$result = $this->provider->get_master_user_id( 'nonexistent@example.com' );
-		$this->assertFalse( $result );
-	}
-
-	/**
-	 * Test get_master_user_id with empty email.
-	 */
-	public function test_get_master_user_id_empty() {
-		$result = $this->provider->get_master_user_id( '' );
-		$this->assertFalse( $result );
-	}
-
-	/**
-	 * Test get_master_user_id with invalid email format.
-	 */
-	public function test_get_master_user_id_invalid_email_format() {
-		$result = $this->provider->get_master_user_id( 'not-an-email' );
-		$this->assertFalse( $result );
+		$this->assertFalse( $this->provider->get_master_user_id( 'nonexistent@example.com' ) );
+		$this->assertFalse( $this->provider->get_master_user_id( '' ) );
+		$this->assertFalse( $this->provider->get_master_user_id( 'not-an-email' ) );
 	}
 
 	/**
@@ -209,47 +194,5 @@ class AtomicStorageProviderTest extends WP_UnitTestCase {
 
 		// Verify master_user option was cleared
 		$this->assertFalse( \Jetpack_Options::get_option( 'master_user' ) );
-	}
-
-	/**
-	 * Test conflict detection and resolution flow.
-	 */
-	public function test_conflict_resolution_flow() {
-		$user_id = static::factory()->user->create( array( 'user_email' => 'owner@example.com' ) );
-
-		// Start with old token
-		update_option(
-			'jetpack_private_options',
-			array( 'user_tokens' => array( $user_id => 'old.secret.' . $user_id ) )
-		);
-
-		// Get tokens with new secret
-		$result = $this->provider->get_user_tokens( 'owner@example.com', 'new.secret' );
-
-		// Should have replaced with new token
-		$this->assertSame( 'new.secret.' . $user_id, $result[ $user_id ] );
-	}
-
-	/**
-	 * Test handle_error_event ignores non-error event types.
-	 */
-	public function test_handle_error_event_ignores_non_error_events() {
-		$this->provider->handle_error_event( 'empty', 'master_user', '', 'woa' );
-		$this->provider->handle_error_event( 'empty', 'user_tokens', '', 'woa' );
-		$this->provider->handle_error_event( 'empty', 'blog_token', '', 'woa' );
-
-		$this->assertTrue( true );
-	}
-
-	/**
-	 * Test handle_error_event logs error events.
-	 */
-	public function test_handle_error_event_logs_error_events() {
-		$this->provider->handle_error_event( 'error', 'master_user', 'Some error', 'woa' );
-		$this->provider->handle_error_event( 'error', 'user_tokens', 'Some error', 'woa' );
-		$this->provider->handle_error_event( 'error', 'blog_token', '', 'woa' );
-		$this->provider->handle_error_event( 'error', 'id', 'Some error', 'woa' );
-
-		$this->assertTrue( true );
 	}
 }

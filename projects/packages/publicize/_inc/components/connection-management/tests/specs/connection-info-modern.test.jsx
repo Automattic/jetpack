@@ -9,9 +9,6 @@ jest.mock( '../../../connection-icon', () => ( {
 	__esModule: true,
 	default: () => <div>icon</div>,
 } ) );
-jest.mock( '../../../services/x-notice', () => ( {
-	XNotice: () => <div>x-notice</div>,
-} ) );
 jest.mock( '../../connection-name', () => ( {
 	ConnectionName: ( { connection } ) => <a href="#profile">{ connection.display_name }</a>,
 } ) );

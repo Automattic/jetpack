@@ -6,7 +6,6 @@ import Lightning from '$svg/lightning';
 import styles from './meta.module.scss';
 import { useEffect, useState } from 'react';
 import { usePageCache, useClearPageCacheAction } from '$lib/stores/page-cache';
-import { Link } from 'react-router';
 import clsx from 'clsx';
 import { useMutationNotice } from '$features/ui';
 import { useDataSyncSubset } from '@automattic/jetpack-react-data-sync-client';
@@ -129,13 +128,9 @@ const Meta = () => {
 					{ __( 'Activate logging to track all your cache events.', 'jetpack-boost' ) }
 				</label>
 				{ logging && (
-					<Link
-						onClick={ handleSeeLogsClick }
-						className={ styles[ 'see-logs-link' ] }
-						to="/cache-debug-log"
-					>
+					<WPLink href="#/cache-debug-log" onClick={ handleSeeLogsClick }>
 						{ __( 'See Logs', 'jetpack-boost' ) }
-					</Link>
+					</WPLink>
 				) }
 				<div className={ styles.clearfix } />
 			</div>

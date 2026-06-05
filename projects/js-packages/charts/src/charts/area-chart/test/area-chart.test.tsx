@@ -534,4 +534,14 @@ describe( 'AreaChart', () => {
 			expect( screen.queryByTestId( 'area-chart-hover-glyph-0' ) ).not.toBeInTheDocument();
 		} );
 	} );
+
+	// The area is animated, so it clips whenever zoomable (not just while zoomed).
+	test( 'clips the series to the plot when zoomable', () => {
+		renderUnresponsive( { zoomable: true, chartId: 'zoomtest' } );
+
+		expect( screen.getByTestId( 'chart-series-clip-group' ) ).toHaveAttribute(
+			'clip-path',
+			'url(#chart-zoom-clip-zoomtest)'
+		);
+	} );
 } );

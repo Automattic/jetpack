@@ -213,6 +213,26 @@ class Stats_Abilities_Test extends StatsBaseTestCase {
 		}
 	}
 
+	public function test_read_abilities_without_required_input_have_empty_object_default(): void {
+		$abilities = Stats_Abilities::get_abilities();
+
+		foreach (
+			array(
+				'jetpack-stats/get-site-overview',
+				'jetpack-stats/get-visits',
+				'jetpack-stats/get-followers',
+				'jetpack-stats/get-settings',
+			) as $slug
+		) {
+			$schema = $abilities[ $slug ]['input_schema'];
+
+			$this->assertSame( 'object', $schema['type'], "{$slug} input must remain an object schema." );
+			$this->assertArrayNotHasKey( 'required', $schema, "{$slug} should continue to allow empty input." );
+			$this->assertArrayHasKey( 'default', $schema, "{$slug} must default missing tunnel input to an empty object." );
+			$this->assertSame( array(), $schema['default'], "{$slug} must default missing tunnel input to an empty object." );
+		}
+	}
+
 	public function test_every_ability_opts_into_mcp_as_public_tool(): void {
 		foreach ( Stats_Abilities::get_abilities() as $slug => $spec ) {
 			$this->assertSame( true, $spec['meta']['mcp']['public'], "{$slug} must opt into MCP." );

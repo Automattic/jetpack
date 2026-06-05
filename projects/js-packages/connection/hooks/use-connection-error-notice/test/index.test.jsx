@@ -81,7 +81,7 @@ const TestConnectionError = ( {
 	const mockRestoreConnection = jest.fn();
 
 	// Build actions array based on error data (simplified version of actual logic)
-	let actions = [];
+	let actions;
 
 	if ( customActions ) {
 		actions = customActions( connectionError, { restoreConnection: mockRestoreConnection } );
