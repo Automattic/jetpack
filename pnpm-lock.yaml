@@ -3869,6 +3869,9 @@ importers:
       '@automattic/number-formatters':
         specifier: workspace:*
         version: link:../../js-packages/number-formatters
+      '@date-fns/tz':
+        specifier: 1.4.1
+        version: 1.4.1
       '@wordpress/boot':
         specifier: 0.13.0
         version: 0.13.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
