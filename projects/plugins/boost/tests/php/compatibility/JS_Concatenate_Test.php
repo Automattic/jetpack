@@ -29,4 +29,16 @@ class JS_Concatenate_Test extends Base_TestCase {
 		$this->assertTrue( $fn( true, 'some-other-handle' ) );
 		$this->assertFalse( $fn( false, 'some-other-handle' ) );
 	}
+
+	/**
+	 * The `jetpack-boost-guide` handle was previously force-excluded from
+	 * concatenation as a workaround for the JS truncation bug. Now that the bundle
+	 * ships as `.min.js` and the serving path skips re-minifying it, the exclusion
+	 * is removed: the handle must concatenate like any other. Locked in so re-adding
+	 * the exclusion line (e.g. a conflict revert) fails a test.
+	 */
+	public function test_guide_handle_is_no_longer_force_excluded() {
+		$fn = 'Automattic\Jetpack_Boost\Compatibility\JS_Concatenate\maybe_do_not_concat';
+		$this->assertTrue( $fn( true, 'jetpack-boost-guide' ) );
+	}
 }
