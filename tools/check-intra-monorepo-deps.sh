@@ -2,7 +2,7 @@
 
 set -eo pipefail
 
-cd $(dirname "${BASH_SOURCE[0]}")/..
+cd "$(dirname "${BASH_SOURCE[0]}")"/..
 BASE=$PWD
 . "$BASE/tools/includes/check-osx-bash-version.sh"
 . "$BASE/tools/includes/chalk-lite.sh"
@@ -301,7 +301,7 @@ while [[ ${#PIDS[@]} -gt 0 ]]; do
 	if ! wait -fn -p P "${!PIDS[@]}"; then
 		EXIT=1
 	fi
-	unset PIDS[$P]
+	unset "PIDS[$P]"
 done
 
 spinclear

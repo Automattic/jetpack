@@ -2,7 +2,7 @@
 
 set -eo pipefail
 
-BASE=$(cd $(dirname "${BASH_SOURCE[0]}")/../.. && pwd)
+BASE=$(cd "$(dirname "${BASH_SOURCE[0]}")"/../.. && pwd)
 source "$BASE/tools/includes/check-osx-bash-version.sh"
 source "$BASE/tools/includes/chalk-lite.sh"
 

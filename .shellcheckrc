@@ -14,8 +14,6 @@ disable=SC1090
 disable=SC2034
 # SC2043: This loop will only ever run once. https://www.shellcheck.net/wiki/SC2043
 disable=SC2043
-# SC2046: Quote this to prevent word splitting. https://www.shellcheck.net/wiki/SC2046
-disable=SC2046
 # SC2089: Quotes/backslashes will be treated literally. https://www.shellcheck.net/wiki/SC2089
 disable=SC2089
 # SC2090: Quotes/backslashes in this variable will not be respected. https://www.shellcheck.net/wiki/SC2090
@@ -38,5 +36,3 @@ disable=SC2155
 disable=SC2164
 # SC2166: Prefer [ p ] && [ q ] as [ p -a q ] is not well defined. https://www.shellcheck.net/wiki/SC2166
 disable=SC2166
-# SC2184: Quote arguments to unset so they're not glob expanded. https://www.shellcheck.net/wiki/SC2184
-disable=SC2184

@@ -18,9 +18,9 @@ WP_TESTS_DIR=${WP_TESTS_DIR-$TMPDIR/wordpress-tests-lib}
 WP_CORE_DIR=${WP_CORE_DIR-$TMPDIR/wordpress/}
 
 download() {
-    if [ `which curl` ]; then
+    if [ "$(which curl)" ]; then
         curl -s "$1" > "$2";
-    elif [ `which wget` ]; then
+    elif [ "$(which wget)" ]; then
         wget -nv -O "$2" "$1"
     fi
 }
@@ -137,7 +137,7 @@ install_db() {
 	local EXTRA=""
 
 	if ! [ -z $DB_HOSTNAME ] ; then
-		if [ $(echo $DB_SOCK_OR_PORT | grep -e '^[0-9]\{1,\}$') ]; then
+		if [ "$(echo $DB_SOCK_OR_PORT | grep -e '^[0-9]\{1,\}$')" ]; then
 			EXTRA=" --host=$DB_HOSTNAME --port=$DB_SOCK_OR_PORT --protocol=tcp"
 		elif ! [ -z $DB_SOCK_OR_PORT ] ; then
 			EXTRA=" --socket=$DB_SOCK_OR_PORT"

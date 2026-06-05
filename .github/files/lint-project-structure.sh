@@ -3,7 +3,7 @@
 set -eo pipefail
 shopt -s dotglob
 
-cd $(dirname "${BASH_SOURCE[0]}")/../..
+cd "$(dirname "${BASH_SOURCE[0]}")"/../..
 BASE=$PWD
 . "$BASE/tools/includes/check-osx-bash-version.sh"
 . "$BASE/tools/includes/chalk-lite.sh"
@@ -714,6 +714,7 @@ done < <( git -c core.quotepath=off grep -l '\(random\|unique-id\)\s*(' '*.sass'
 
 # - package.json name fields must be prefixed or already registered.
 debug "Checking for bad package.json names"
+mapfile -t pkg_json_files < <(git -c core.quotepath=off ls-files package.json '*/package.json')
 while IFS=$'\t' read -r FILE NAME; do
 	LINE=$(grep --line-number --max-count=1 '^	"name":' "$FILE" || true)
 	if [[ -n "$LINE" ]]; then
@@ -728,7 +729,7 @@ while IFS=$'\t' read -r FILE NAME; do
 		EXIT=1
 		echo "::error file=$FILE$LINE::Name $NAME is not owned by us (\`matticbot\`) or the NPM security account (\`npm\`). If this is not supposed to be published to npmjs, then if possible omit the \"name\" field entirely or otherwise rename it like \"@automattic/$NAME\" or \"_$NAME\". If it will be published, either add \`matticbot\` as a maintainer if we can or you'll have to rename (e.g. like \"@automattic/$NAME\")."
 	fi
-done < <( jq -r '.name // empty | select( startswith( "@automattic/" ) or startswith( "_" ) | not ) | [ input_filename, . ] | @tsv' $( git ls-files package.json '*/package.json' ) )
+done < <( jq -r '.name // empty | select( startswith( "@automattic/" ) or startswith( "_" ) | not ) | [ input_filename, . ] | @tsv' "${pkg_json_files[@]}" )
 
 # - Check for old GPL text.
 debug "Checking for references to the FSF's old addresses"

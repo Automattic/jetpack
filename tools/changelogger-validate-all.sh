@@ -117,7 +117,7 @@ for FILE in projects/*/*/composer.json; do
 		if ! wait -fn -p P "${!PIDS[@]}"; then
 			EXIT=1
 		fi
-		unset PIDS[$P]
+		unset "PIDS[$P]"
 	fi
 
 	checkpkg "$FILE" &
@@ -129,7 +129,7 @@ while [[ ${#PIDS[@]} -gt 0 ]]; do
 	if ! wait -fn -p P "${!PIDS[@]}"; then
 		EXIT=1
 	fi
-	unset PIDS[$P]
+	unset "PIDS[$P]"
 done
 
 spinclear
