@@ -4,8 +4,8 @@
 }
 
 .conversionFunnelChart {
-	--funnel-font-family: var( --wpds-font-family-body );
-	--step-font-family: var( --wpds-font-family-body );
+	--funnel-font-family: var( --wpds-typography-font-family-body );
+	--step-font-family: var( --wpds-typography-font-family-body );
 	flex: 1;
 	min-height: 0;
 }

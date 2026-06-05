@@ -33,7 +33,7 @@ export function useChartTheme(): WooChartTheme {
 
 		return {
 			backgroundColor: 'var(--wpds-color-bg-surface-neutral-strong)',
-			labelBackgroundColor: 'var(--wpds-color-bg-interactive-neutral)',
+			labelBackgroundColor: 'var(--wpds-color-bg-interactive-neutral-weak)',
 			labelTextColor: 'var(--wpds-color-fg-interactive-neutral-strong)',
 			colors,
 			gridStyles: {
@@ -53,7 +53,7 @@ export function useChartTheme(): WooChartTheme {
 			},
 			legend: {
 				labelStyles: {
-					fontSize: 'var(--wpds-font-size-sm)',
+					fontSize: 'var(--wpds-typography-font-size-sm)',
 					fontWeight: 400,
 					color: 'var(--wpds-color-fg-content-neutral)',
 				},

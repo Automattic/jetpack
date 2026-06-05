@@ -1,7 +1,7 @@
 .delta {
-	font-size: var( --wpds-font-size-md );
+	font-size: var( --wpds-typography-font-size-md );
 	font-weight: 400;
-	line-height: var( --wpds-font-size-lg );
+	line-height: var( --wpds-typography-font-size-lg );
 
 	&.invalid,
 	&.neutral {

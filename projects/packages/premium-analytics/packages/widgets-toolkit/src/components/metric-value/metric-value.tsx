@@ -35,7 +35,7 @@ export type MetricValueProps = {
 
 	/**
 	 * Font size token from the WordPress Design System.
-	 * Maps directly to `--wpds-font-size-{value}`.
+	 * Maps directly to `--wpds-typography-font-size-{value}`.
 	 * @default 'lg'
 	 */
 	fontSize?: FontSize;
@@ -68,7 +68,7 @@ export function MetricValue( {
 	);
 
 	const style = {
-		'--wp-ui-metric-font-size': `var( --wpds-font-size-${ fontSize } )`,
+		'--wp-ui-metric-font-size': `var( --wpds-typography-font-size-${ fontSize } )`,
 	} as CSSProperties;
 
 	return (
