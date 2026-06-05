@@ -1,3 +1,4 @@
+import JetpackLogo from '@automattic/jetpack-components/jetpack-logo';
 import apiFetch from '@wordpress/api-fetch';
 import { useCallback, useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -87,6 +88,9 @@ export default () => {
 						</span>
 					</Stack>
 				) }
+			</Stack>
+			<Stack className="wpcom-daily-writing-prompt--branding" direction="row" justify="flex-end">
+				<JetpackLogo height={ 16 } />
 			</Stack>
 		</Stack>
 	);
