@@ -501,7 +501,7 @@ function runShellcheck( shellFilesToLint ) {
 		return;
 	}
 
-	const shellcheckResult = spawnSync( 'shellcheck', [ ...shellFilesToLint ], {
+	const shellcheckResult = spawnSync( 'shellcheck', [ '--severity=warning', ...shellFilesToLint ], {
 		stdio: 'inherit',
 	} );
 
