@@ -18,16 +18,17 @@ $item = $context['item'];
 // avoid bloating the markup on sites that have turned EXIF off. Mirrors the
 // gating in Jetpack_Carousel::add_data_to_images().
 // See https://github.com/Automattic/jetpack/issues/32862.
-$display_exif = 1 === (int) Jetpack_Options::get_option_and_ensure_autoload( 'carousel_display_exif', 1 );
+$display_exif     = 1 === (int) Jetpack_Options::get_option_and_ensure_autoload( 'carousel_display_exif', 1 );
+$fuzzy_image_meta = '';
 
 if ( $display_exif ) {
-	$fuzzy_image_meta = $item->fuzzy_image_meta(); // See https://github.com/Automattic/jetpack/issues/2765 .
-	if ( isset( $fuzzy_image_meta['keywords'] ) ) {
-		unset( $fuzzy_image_meta['keywords'] );
+	$image_meta = $item->fuzzy_image_meta(); // See https://github.com/Automattic/jetpack/issues/2765 .
+	if ( isset( $image_meta['keywords'] ) ) {
+		unset( $image_meta['keywords'] );
 	}
 
 	// Using JSON_HEX_AMP avoids breakage due to `esc_attr()` refusing to double-encode.
-	$fuzzy_image_meta = wp_json_encode( map_deep( $fuzzy_image_meta, 'strval' ), JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT );
+	$fuzzy_image_meta = (string) wp_json_encode( map_deep( $image_meta, 'strval' ), JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT );
 }
 
 ?>
