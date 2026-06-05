@@ -30,6 +30,7 @@
 		}
 	},
 	"dependencies": {
+		"@automattic/number-formatters": "workspace:*",
 		"@date-fns/tz": "1.4.1",
 		"@wordpress/boot": "0.13.0",
 		"@wordpress/data": "10.46.0",
@@ -45,6 +46,7 @@
 		"@babel/core": "7.29.0",
 		"@storybook/react": "10.3.6",
 		"@testing-library/dom": "10.4.1",
+		"@types/jest": "30.0.0",
 		"@typescript/native-preview": "7.0.0-dev.20260225.1",
 		"@wordpress/build": "0.14.0",
 		"@wordpress/ui": "0.13.0",
