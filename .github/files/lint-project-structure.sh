@@ -689,7 +689,7 @@ if jq -e 'has( "packageManager" )' package.json &>/dev/null; then
 	LINE=$(jq --stream 'if length == 1 then .[0][:-1] else .[0] end | if . == ["packageManager"] then input_line_number - 1 else empty end' package.json)
 	echo "::error file=package.json,line=$LINE::package.json .packageManager is replaced by .devEngines.packageManager. Please do not re-add it."
 fi
-if ! jq -e --arg v "^$PNPM_VERSION" '.devEngines.packageManager.name == "pnpm" and .devEngines.packageManager.version' package.json &>/dev/null; then
+if ! jq -e '.devEngines.packageManager.name == "pnpm" and .devEngines.packageManager.version' package.json &>/dev/null; then
 	EXIT=1
 	LINE=$(jq --stream 'if length == 1 then .[0][:-1] else .[0] end | if . == ["devEngines","packageManager"] then input_line_number - 1 else empty end' package.json)
 	echo "::error file=package.json,line=$LINE::package.json .devEngines.packageManager should be set to a pnpm version compatible with \"$PNPM_VERSION\"."
