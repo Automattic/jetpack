@@ -6,6 +6,7 @@
 	"scripts": {
 		"build": "wp-build && mkdir -p build/modules/boot && cp shims/boot-asset.php build/modules/boot/index.min.asset.php",
 		"build-production": "NODE_ENV=production wp-build && mkdir -p build/modules/boot && cp shims/boot-asset.php build/modules/boot/index.min.asset.php",
+		"storybook": "cd ../../js-packages/storybook && pnpm run storybook:dev",
 		"typecheck": "tsgo --noEmit",
 		"watch": "wp-build --watch"
 	},
@@ -33,14 +34,20 @@
 		"@wordpress/data": "10.46.0",
 		"@wordpress/i18n": "^6.9.0",
 		"@wordpress/icons": "^13.0.0",
+		"@wordpress/primitives": "4.46.0",
 		"@wordpress/route": "0.12.0",
 		"react": "18.3.1",
 		"react-dom": "18.3.1"
 	},
 	"devDependencies": {
 		"@babel/core": "7.29.0",
+		"@storybook/react": "10.3.6",
+		"@testing-library/dom": "10.4.1",
 		"@typescript/native-preview": "7.0.0-dev.20260225.1",
 		"@wordpress/build": "0.14.0",
-		"browserslist": "4.28.2"
+		"@wordpress/ui": "0.13.0",
+		"browserslist": "4.28.2",
+		"storybook": "10.3.6",
+		"typescript": "5.9.3"
 	}
 }

@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Port icons package (illustrated WPDS icons + @wordpress/icons re-exports) as an internal package from next-woocommerce-analytics.
