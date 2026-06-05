@@ -1,4 +1,5 @@
 {
+	"name": "@sutomattic/_strip-unminified-prod-fixture-dashboard-route",
 	"version": "0.0.0",
 	"private": true,
 	"route": {
