@@ -1,0 +1,46 @@
+# ShellCheck configuration for the Jetpack monorepo.
+# Docs: https://github.com/koalaman/shellcheck/wiki/Directive#shellcheckrc-file
+
+# Read referenced files, which helps avoid SC1090 (can't follow non-constant source) and SC2154 (var referenced but not assigned).
+external-sources=true
+# Resolve from script dir, not cwd.
+source-path=SCRIPTDIR
+
+# SC1087: Use braces when expanding arrays. https://www.shellcheck.net/wiki/SC1087
+disable=SC1087
+# SC1090: ShellCheck can't follow non-constant source. https://www.shellcheck.net/wiki/SC1090
+disable=SC1090
+# SC2034: Variable appears unused. https://www.shellcheck.net/wiki/SC2034
+disable=SC2034
+# SC2043: This loop will only ever run once. https://www.shellcheck.net/wiki/SC2043
+disable=SC2043
+# SC2046: Quote this to prevent word splitting. https://www.shellcheck.net/wiki/SC2046
+disable=SC2046
+# SC2089: Quotes/backslashes will be treated literally. https://www.shellcheck.net/wiki/SC2089
+disable=SC2089
+# SC2090: Quotes/backslashes in this variable will not be respected. https://www.shellcheck.net/wiki/SC2090
+disable=SC2090
+# SC2091: Remove surrounding $() to avoid executing output. https://www.shellcheck.net/wiki/SC2091
+disable=SC2091
+# SC2104: In functions, use return instead of break/continue. https://www.shellcheck.net/wiki/SC2104
+disable=SC2104
+# SC2120: Function references arguments, but none are ever passed. https://www.shellcheck.net/wiki/SC2120
+disable=SC2120
+# SC2128: Expanding an array without an index only gives the first element. https://www.shellcheck.net/wiki/SC2128
+disable=SC2128
+# SC2140: Word is of the form "A"B"C"; the "B" indicated may be unquoted. https://www.shellcheck.net/wiki/SC2140
+disable=SC2140
+# SC2148: Add a shebang. https://www.shellcheck.net/wiki/SC2148
+disable=SC2148
+# SC2155: Declare and assign separately to avoid masking return values. https://www.shellcheck.net/wiki/SC2155
+disable=SC2155
+# SC2164: Use 'cd ... || exit' in case cd fails. https://www.shellcheck.net/wiki/SC2164
+disable=SC2164
+# SC2166: Prefer [ p ] && [ q ] as [ p -a q ] is not well defined. https://www.shellcheck.net/wiki/SC2166
+disable=SC2166
+# SC2184: Quote arguments to unset so they're not glob expanded. https://www.shellcheck.net/wiki/SC2184
+disable=SC2184
+# SC2206: Quote to prevent word splitting/globbing in array assignment. https://www.shellcheck.net/wiki/SC2206
+disable=SC2206
+# SC2209: Use var=$(command) to assign output (or quote to assign string). https://www.shellcheck.net/wiki/SC2209
+disable=SC2209
