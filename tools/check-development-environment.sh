@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-cd "$( dirname "${BASH_SOURCE[0]}" )/.."
+cd "$( dirname "${BASH_SOURCE[0]}" )/.." || exit
 . tools/includes/chalk-lite.sh
 . tools/includes/version-compare.sh
 . .github/versions.sh
