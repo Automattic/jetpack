@@ -34,5 +34,3 @@ disable=SC2148
 disable=SC2155
 # SC2164: Use 'cd ... || exit' in case cd fails. https://www.shellcheck.net/wiki/SC2164
 disable=SC2164
-# SC2166: Prefer [ p ] && [ q ] as [ p -a q ] is not well defined. https://www.shellcheck.net/wiki/SC2166
-disable=SC2166
