@@ -1,5 +1,5 @@
-import { test, expect } from '_jetpack-e2e-commons/fixtures/base-test';
-import logger from '_jetpack-e2e-commons/logger';
+import { test, expect } from '@automattic/_jetpack-e2e-commons/fixtures/base-test';
+import logger from '@automattic/_jetpack-e2e-commons/logger';
 import {
 	enableSync,
 	disableSync,

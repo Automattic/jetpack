@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Hello Dolly: retire the legacy per-page `#dolly` color rules so the normalized `.jetpack-admin-page #dolly` treatment (WPDS design token) governs consistently across admin pages.
