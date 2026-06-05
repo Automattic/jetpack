@@ -1,17 +1,14 @@
 {
-	"name": "@next-woo-analytics/routing",
-	"description": "WooCommerce Analytics Routing",
-	"version": "1.0.0",
+	"name": "@automattic/jetpack-premium-analytics-routing",
+	"version": "0.1.0",
+	"private": true,
 	"type": "module",
-	"wpModule": true,
 	"main": "src/index.ts",
-	"exports": {
-		".": "./build/src/index.js"
-	},
+	"types": "src/index.ts",
+	"sideEffects": false,
 	"dependencies": {
-		"date-fns": "*",
-		"@tanstack/react-router": "*",
-		"@next-woo-analytics/data": "workspace:*",
-		"@next-woo-analytics/datetime": "workspace:*"
+		"@jetpack-premium-analytics/data": "workspace:*",
+		"@jetpack-premium-analytics/datetime": "workspace:*",
+		"@wordpress/route": "0.12.0"
 	}
 }

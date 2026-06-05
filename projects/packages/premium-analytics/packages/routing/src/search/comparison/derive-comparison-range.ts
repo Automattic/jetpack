@@ -5,13 +5,13 @@ import {
 	normalizeReportParams,
 	dateToISOStringWithLocalTZ,
 	getSiteTimezone,
-} from '@next-woo-analytics/data';
+} from '@jetpack-premium-analytics/data';
 import {
 	getComparisonRangeFromPreset,
 	type ComparisonPresetId,
 	startOfDayTZ,
 	endOfDayTZ,
-} from '@next-woo-analytics/datetime';
+} from '@jetpack-premium-analytics/datetime';
 
 type ReportParams = NonNullable<
 	Parameters< typeof normalizeReportParams >[ 0 ]

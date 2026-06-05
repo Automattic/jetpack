@@ -55,9 +55,9 @@ import { useMemo, useCallback } from 'react';
 import {
 	useStagedSearch,
 	encodeDateToSearchParam,
-} from '@next-woo-analytics/routing';
-import { localTZDate } from '@next-woo-analytics/data';
-import type { DateRange } from '@next-woo-analytics/datetime';
+} from '@jetpack-premium-analytics/routing';
+import { localTZDate } from '@jetpack-premium-analytics/data';
+import type { DateRange } from '@jetpack-premium-analytics/datetime';
 
 type Search = {
 	from?: string;

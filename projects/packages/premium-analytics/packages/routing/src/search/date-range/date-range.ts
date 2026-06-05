@@ -1,11 +1,11 @@
 /**
  * External dependencies
  */
-import type { DateRange } from '@next-woo-analytics/datetime';
+import type { DateRange } from '@jetpack-premium-analytics/datetime';
 import {
 	localTZDate,
 	dateToISOStringWithLocalTZ,
-} from '@next-woo-analytics/data';
+} from '@jetpack-premium-analytics/data';
 
 /**
  * Serializes a Date into an ISO string with the site's timezone
