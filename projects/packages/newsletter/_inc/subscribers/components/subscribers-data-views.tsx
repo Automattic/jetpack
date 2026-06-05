@@ -4,7 +4,11 @@ import { __ } from '@wordpress/i18n';
 import { Notice } from '@wordpress/ui';
 import { useSubscriberRemoveMutation } from '../data/use-subscriber-remove-mutation';
 import { useSubscribers } from '../data/use-subscribers';
-import { getSubscribedAt, getSubscriberRowId } from '../lib/subscriber-helpers';
+import {
+	getSubscribedAt,
+	getSubscriberRowId,
+	hasNoSubscribersOtherThanOwner,
+} from '../lib/subscriber-helpers';
 import { getSubscriptionType } from '../lib/subscription-plans';
 import { getSubscriptionStatusLabel } from '../lib/subscription-status';
 import { recordTracksEvent } from '../lib/tracks';
@@ -20,6 +24,9 @@ import type { Subscriber, SubscribersFilter, SubscribersSortField } from '../dat
 import type { Action, Field, View } from '@wordpress/dataviews';
 
 const DEFAULT_PER_PAGE = 20;
+
+// Stable reference so passing "no rows" to DataViews doesn't churn on every render.
+const NO_SUBSCRIBERS: Subscriber[] = [];
 
 const defaultView: View = {
 	type: 'table',
@@ -290,14 +297,28 @@ export default function SubscribersDataViews( {
 	const subscribers = data?.subscribers ?? [];
 	const totalItems = data?.total ?? 0;
 	const totalPages = data?.pages ?? 0;
-
-	const paginationInfo = useMemo(
-		() => ( { totalItems, totalPages } ),
-		[ totalItems, totalPages ]
-	);
+	const isOwnerSubscribed = data?.is_owner_subscribed ?? false;
 
 	const hasActiveFiltersOrSearch = Boolean(
 		( view.filters && view.filters.length > 0 ) || ( view.search && view.search.length > 0 )
+	);
+
+	// The owner is always returned in the list, so when they're the only subscriber the table
+	// would render a single row and DataViews' `empty` slot would never fire. Mirror Calypso's
+	// launchpad condition and present the cold-start empty state ourselves. Gated on no active
+	// filter/search so a filtered-to-nothing result still shows the "no matching subscribers"
+	// message instead.
+	const showColdStartEmpty =
+		! hasActiveFiltersOrSearch && hasNoSubscribersOtherThanOwner( totalItems, isOwnerSubscribed );
+
+	const displayedSubscribers = showColdStartEmpty ? NO_SUBSCRIBERS : subscribers;
+
+	const paginationInfo = useMemo(
+		() => ( {
+			totalItems: showColdStartEmpty ? 0 : totalItems,
+			totalPages: showColdStartEmpty ? 0 : totalPages,
+		} ),
+		[ showColdStartEmpty, totalItems, totalPages ]
 	);
 
 	if ( error ) {
@@ -312,7 +333,7 @@ export default function SubscribersDataViews( {
 	return (
 		<>
 			<DataViews< Subscriber >
-				data={ subscribers }
+				data={ displayedSubscribers }
 				fields={ fields }
 				view={ view }
 				onChangeView={ handleChangeView }
