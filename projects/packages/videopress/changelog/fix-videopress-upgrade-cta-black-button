@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Restructure the free-plan upgrade notice into a balanced Notice.Title heads-up line, a Notice.Description upsell pitch, and a concise "Upgrade" Notice.ActionButton, replacing the out-of-place dark button.
