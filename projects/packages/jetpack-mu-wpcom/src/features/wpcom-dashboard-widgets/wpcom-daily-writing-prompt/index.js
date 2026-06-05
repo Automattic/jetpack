@@ -54,7 +54,7 @@ export default () => {
 					</Button>
 				</Stack>
 			</Stack>
-			<Stack direction="row" justify="space-between" align="center" gap="sm">
+			<Stack direction="row" justify="space-between" align="center" gap="sm" wrap="wrap">
 				{ /* Replace with LinkButton once available: https://github.com/WordPress/gutenberg/issues/77098 */ }
 				<Button
 					variant="outline"
