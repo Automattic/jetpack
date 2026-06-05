@@ -8,5 +8,3 @@ source-path=SCRIPTDIR
 
 # SC1087: Use braces when expanding arrays. https://www.shellcheck.net/wiki/SC1087
 disable=SC1087
-# SC1090: ShellCheck can't follow non-constant source. https://www.shellcheck.net/wiki/SC1090
-disable=SC1090

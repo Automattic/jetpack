@@ -274,6 +274,7 @@ fi
 
 checking '[optional] nvm is available'
 # NVM is weird.
+# shellcheck disable=SC1090
 BIN="$([[ -f ~/.nvm/nvm.sh ]] && source ~/.nvm/nvm.sh && command -v nvm)"
 if [[ -z "$BIN" ]]; then
 	warning "no" 'nodejs'
