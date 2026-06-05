@@ -206,12 +206,6 @@ export function makeBaseConfig( configurl, opts = {} ) {
 				wordpressEslintPlugin.configs.esnext,
 				wordpressEslintPlugin.configs.i18n,
 				{
-					rules: {
-						'@wordpress/use-recommended-components': 'error',
-					},
-				},
-
-				{
 					plugins: {
 						'you-dont-need-lodash-underscore': fixupPluginRules(
 							eslintPluginYouDontNeedLodashUnderscore
@@ -476,7 +470,7 @@ export function makeBaseConfig( configurl, opts = {} ) {
 			},
 		},
 
-		// Various Node-oriented files should allow 'node' globals.
+		// Various config files should allow 'node' globals.
 		{
 			files: [
 				'.pnpmfile.cjs',
