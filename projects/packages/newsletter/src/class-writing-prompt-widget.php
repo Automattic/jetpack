@@ -120,11 +120,7 @@ class Writing_Prompt_Widget {
 	 * @return void
 	 */
 	public static function render_widget() {
-		$warning = sprintf(
-			/* translators: The name of the widget. */
-			__( 'Your %s widget requires JavaScript to function properly.', 'jetpack-newsletter' ),
-			__( 'Daily Writing Prompt', 'jetpack-newsletter' )
-		);
+		$warning = __( 'Your Daily Writing Prompt widget requires JavaScript to function properly.', 'jetpack-newsletter' );
 
 		?>
 		<div>
