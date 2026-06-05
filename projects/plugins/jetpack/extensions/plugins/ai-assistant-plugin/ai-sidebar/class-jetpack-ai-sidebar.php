@@ -60,8 +60,8 @@ class Jetpack_AI_Sidebar {
 
 		add_filter( 'jetpack_ai_sidebar_agents_manager_data', array( __CLASS__, 'add_agents_manager_data' ), 10, 1 );
 
-		// Allow jetpack-mu-wpcom's bundled Agents Manager to mount in the
-		// post editor and Big Sky editor composition surfaces.
+		// Allow jetpack-mu-wpcom's bundled Agents Manager to mount on Jetpack
+		// AI Sidebar editor surfaces.
 		add_filter( 'agents_manager_enabled_in_block_editor', array( __CLASS__, 'enable_agents_manager_in_post_editor' ) );
 
 		// Load AM from CDN if not already present.
@@ -69,7 +69,7 @@ class Jetpack_AI_Sidebar {
 		// so wp_script_is('agents-manager') correctly detects if AM is already loaded.
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'maybe_enqueue_am' ), 200 );
 
-		// Enqueue the IIFE bundle in the preview post editor — it registers
+		// Enqueue the IIFE bundle on Jetpack AI Sidebar surfaces — it registers
 		// Jetpack AI abilities via @wordpress/abilities, which Big Sky or AM
 		// can discover regardless of which provider system is active.
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'maybe_enqueue_abilities_script' ), 201 );
@@ -86,12 +86,12 @@ class Jetpack_AI_Sidebar {
 	// ──────────────────────────────────────────────────
 
 	/**
-	 * Load AM from CDN if not already present and we're in the preview post editor.
+	 * Load AM from CDN if not already present and we're on a Jetpack AI Sidebar surface.
 	 *
 	 * @return void
 	 */
 	public static function maybe_enqueue_am(): void {
-		if ( ! self::is_jetpack_ai_sidebar_preview_enabled() || ! self::is_post_editor() || ! self::has_ai_features() ) {
+		if ( ! self::is_jetpack_ai_sidebar_preview_enabled() || ! self::is_ai_sidebar_surface() || ! self::has_ai_features() ) {
 			return;
 		}
 
@@ -127,7 +127,7 @@ class Jetpack_AI_Sidebar {
 	 * @return void
 	 */
 	public static function maybe_enqueue_abilities_script(): void {
-		if ( ! self::is_jetpack_ai_sidebar_preview_enabled() || ! self::is_post_editor() || ! self::has_ai_features() ) {
+		if ( ! self::is_jetpack_ai_sidebar_preview_enabled() || ! self::is_ai_sidebar_surface() || ! self::has_ai_features() ) {
 			return;
 		}
 
@@ -406,10 +406,10 @@ class Jetpack_AI_Sidebar {
 			return $providers;
 		}
 
-		// The provider IIFE is only enqueued in the post editor. Avoid registering
-		// the ESM wrapper on other editor surfaces, where AM may import it
+		// The provider IIFE is enqueued only on Jetpack AI Sidebar surfaces.
+		// Avoid registering the ESM wrapper elsewhere, where AM may import it
 		// before window.__JetpackAIProvider exists.
-		if ( ! self::is_jetpack_ai_sidebar_preview_enabled() || ! self::is_post_editor() || ! self::has_ai_features() ) {
+		if ( ! self::is_jetpack_ai_sidebar_preview_enabled() || ! self::is_ai_sidebar_surface() || ! self::has_ai_features() ) {
 			return $providers;
 		}
 
@@ -567,7 +567,7 @@ class Jetpack_AI_Sidebar {
 			return $data;
 		}
 
-		if ( ! self::is_jetpack_ai_sidebar_preview_enabled() || ! self::is_post_editor() || ! self::has_ai_features() ) {
+		if ( ! self::is_jetpack_ai_sidebar_preview_enabled() || ! self::is_ai_sidebar_surface() || ! self::has_ai_features() ) {
 			return $data;
 		}
 
@@ -601,9 +601,8 @@ class Jetpack_AI_Sidebar {
 	/**
 	 * Enable Agents Manager when Jetpack AI Sidebar Preview is available.
 	 *
-	 * Jetpack owns the post-editor entrypoint. Big Sky owns its Page/Site Editor
-	 * provider, but Jetpack can open AM there so peer providers compose through
-	 * Agents Manager instead of Big Sky's standalone dock.
+	 * Jetpack opens AM on post, page, and site editor surfaces so peer providers
+	 * can compose through Agents Manager even when Big Sky is absent.
 	 *
 	 * @param mixed $enabled Existing Agents Manager block-editor gate value.
 	 * @return bool
@@ -617,7 +616,7 @@ class Jetpack_AI_Sidebar {
 			return false;
 		}
 
-		return self::is_post_editor() || self::is_big_sky_editor_composition_surface();
+		return self::is_ai_sidebar_surface();
 	}
 
 	/**
@@ -641,7 +640,7 @@ class Jetpack_AI_Sidebar {
 		if ( ( new Host() )->is_wpcom_simple() ) {
 			return;
 		}
-		if ( ! self::is_jetpack_ai_sidebar_preview_enabled() || ! self::is_post_editor() || ! self::has_ai_features() ) {
+		if ( ! self::is_jetpack_ai_sidebar_preview_enabled() || ! self::is_ai_sidebar_surface() || ! self::has_ai_features() ) {
 			return;
 		}
 		// 'registered' rather than 'enqueued': wp_add_inline_script attaches to any
@@ -746,21 +745,12 @@ class Jetpack_AI_Sidebar {
 	}
 
 	/**
-	 * Check whether Big Sky should compose through Agents Manager on this editor surface.
+	 * Check whether the current screen supports the Jetpack AI Sidebar.
 	 *
 	 * @return bool
 	 */
-	private static function is_big_sky_editor_composition_surface(): bool {
-		return self::is_big_sky_enabled() && ( self::is_page_editor() || self::is_site_editor() );
-	}
-
-	/**
-	 * Check whether Big Sky is installed and enabled.
-	 *
-	 * @return bool
-	 */
-	private static function is_big_sky_enabled(): bool {
-		return class_exists( 'Big_Sky' ) && (bool) get_option( 'big_sky_enable', '1' );
+	private static function is_ai_sidebar_surface(): bool {
+		return self::is_post_editor() || self::is_page_editor() || self::is_site_editor();
 	}
 
 	/**
