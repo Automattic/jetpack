@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Webpack config: Add shared PostCSS pipeline that injects WPDS design-token fallbacks for webpack builds.
