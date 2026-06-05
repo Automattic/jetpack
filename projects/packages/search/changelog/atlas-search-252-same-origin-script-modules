@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Search Blocks: keep view-module URLs same-origin so blocks load on Multisite mapped domains, www-vs-non-www mismatches, and CDN setups without CORS headers.

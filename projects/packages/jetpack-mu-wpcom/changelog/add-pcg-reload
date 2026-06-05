@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Plugin Conflicts Guardian: load the feature again in jetpack-mu-wpcom. The PCG rollout default is 0%, so the guards stay off until a rollout filter opts a site in.

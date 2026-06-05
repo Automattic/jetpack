@@ -87,7 +87,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 
 		$master_user_email = Jetpack::get_master_user_email();
 
-		$cxntests = new Jetpack_Cxn_Tests();
+		$cxntests = new Automattic\Jetpack\Connection\Connection_Health_Tests();
 
 		if ( $cxntests->pass() ) {
 			$cxntests->output_results_for_cli();

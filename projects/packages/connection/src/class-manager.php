@@ -192,6 +192,9 @@ class Manager {
 
 		// WP 7.0+ Connectors screen card.
 		Jetpack_Connector::init();
+
+		// Site Health integration.
+		Site_Health::init();
 	}
 
 	/**

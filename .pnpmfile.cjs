@@ -281,6 +281,12 @@ async function fixDeps( pkg ) {
 		pkg.dependencies[ '@date-fns/tz' ] ??= '^1.2.0';
 	}
 
+	// Temporary override. Seems to work fine with 24.14, and bumping the min version is more disruptive.
+	// We'll plan to remove this hack and bump the version along with pnpm 11 and/or composer 2.10 soon.
+	if ( pkg.name === 'eslint-plugin-package-json' ) {
+		delete pkg.engines;
+	}
+
 	return pkg;
 }
 
@@ -315,6 +321,29 @@ function fixPeerDeps( pkg ) {
 				! pkg.peerDependencies[ p ].match( /(?:^|\|\|\s*)(?:\^18|18\.x)/ )
 			) {
 				pkg.peerDependencies[ p ] += ' || ^18';
+			}
+		}
+	}
+
+	// Outdated eslint deps.
+	const eslintOldPkgs = new Set( [
+		'eslint-plugin-import', // https://github.com/import-js/eslint-plugin-import/issues/3227
+		'eslint-plugin-jsx-a11y', // https://github.com/jsx-eslint/eslint-plugin-jsx-a11y/issues/1075
+		'eslint-plugin-react', // https://github.com/jsx-eslint/eslint-plugin-react/issues/3977
+		'@babel/eslint-parser', // https://github.com/babel/babel/issues/17951
+		'eslint-plugin-jest-dom', // https://github.com/testing-library/eslint-plugin-jest-dom/issues/418
+	] );
+	if ( eslintOldPkgs.has( pkg.name ) ) {
+		for ( const p of [ 'eslint' ] ) {
+			if ( ! pkg.peerDependencies?.[ p ] ) {
+				continue;
+			}
+
+			if (
+				pkg.peerDependencies[ p ].match( /(?:^|\|\|\s*)(?:\^9|9\.x)/ ) &&
+				! pkg.peerDependencies[ p ].match( /(?:^|\|\|\s*)(?:\^10|10\.x)/ )
+			) {
+				pkg.peerDependencies[ p ] += ' || ^10';
 			}
 		}
 	}

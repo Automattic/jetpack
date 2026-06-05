@@ -5,6 +5,31 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [8.5.4] - 2026-06-05
+### Changed
+- Internal updates.
+
+## [8.5.3] - 2026-06-03
+### Changed
+- Internal updates.
+
+## [8.5.2] - 2026-06-02
+### Changed
+- Update dependencies. [#48834]
+
+## [8.5.1] - 2026-06-01
+### Changed
+- Connectors: Disable the ability to connect/disconnect from the Connectors card while the site is in offline mode. [#49305]
+
+## [8.5.0] - 2026-06-01
+### Added
+- Connection: Migrate `connection/test` and `connection/test-wpcom` REST endpoints from Jetpack plugin. [#49198]
+
+### Changed
+- Exclude additional unneeded files from the Composer package. [#49014]
+- Jetpack Connection Health: Migrate tests from Jetpack plugin to Connection package. [#47837]
+- Users List: Use dynamic connector logo and tooltip based on connected plugin families. [#49093]
+
 ## [8.4.0] - 2026-05-25
 ### Added
 - Abilities: Opt `jetpack/get-connection-status` into the MCP tool surface (meta.mcp public tool). [#49113]
@@ -1852,6 +1877,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Separate the connection library into its own package.
 
+[8.5.4]: https://github.com/Automattic/jetpack-connection/compare/v8.5.3...v8.5.4
+[8.5.3]: https://github.com/Automattic/jetpack-connection/compare/v8.5.2...v8.5.3
+[8.5.2]: https://github.com/Automattic/jetpack-connection/compare/v8.5.1...v8.5.2
+[8.5.1]: https://github.com/Automattic/jetpack-connection/compare/v8.5.0...v8.5.1
+[8.5.0]: https://github.com/Automattic/jetpack-connection/compare/v8.4.0...v8.5.0
 [8.4.0]: https://github.com/Automattic/jetpack-connection/compare/v8.3.7...v8.4.0
 [8.3.7]: https://github.com/Automattic/jetpack-connection/compare/v8.3.6...v8.3.7
 [8.3.6]: https://github.com/Automattic/jetpack-connection/compare/v8.3.5...v8.3.6

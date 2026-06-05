@@ -162,7 +162,18 @@ $jp-breakpoint-mobile: 782px;
 	// a `display: block` div); `:has()` targets the whole chain regardless
 	// of depth. `min-width: 0` + `min-height: 0` let flex items shrink on
 	// both axes (defaults to content size which can cause overflow).
-	#wpbody-content :has(.jp-admin-page) {
+	// `:not(:has(.boot-layout__stage))` stops the chain at the boot stage. A
+	// `@wordpress/boot` dashboard mounts <AdminPage> inside `.boot-layout__stage`,
+	// and the containers above it — `.boot-layout`, `.boot-layout__surfaces`
+	// (boot's stage|inspector flex ROW), and boot's `display: contents`
+	// theme-provider wrapper — own that side-by-side layout. Flex-columning them
+	// would stack the inspector below the page and collapse boot's surfaces gap.
+	// Those ancestors all *contain* `.boot-layout__stage`, so the guard drops
+	// them while still flexing the stage (and anything below it) that the
+	// footer-pin chain needs. On non-boot pages nothing matches
+	// `.boot-layout__stage`, so the guard is always true and behavior is
+	// unchanged.
+	#wpbody-content :has(.jp-admin-page):not(:has(.boot-layout__stage)) {
 		flex: 1 1 auto;
 		min-height: 0;
 		min-width: 0;

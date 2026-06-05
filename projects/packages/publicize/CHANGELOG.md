@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.81.2] - 2026-06-01
+### Added
+- Settings tab on the modernized chassis with WPDS cards for the default share message, Social Notes, image generation, and link UTM parameters; gated behind the modernization flag. [#48860]
+- Track Overview/Settings tab switches on the Social dashboard via a `jetpack_social_tab_view` Tracks event. [#49240]
+
+### Changed
+- Social: Render connection and pricing gating inside the modernized dashboard (behind the rsm_jetpack_ui_modernization_social flag), so it no longer falls back to the legacy UI. [#49260]
+- Update package dependencies. [#48404] [#49152] [#49153]
+
+### Fixed
+- Publicize: Avoid flagging a non-post for publicize. [#49291]
+- Social: Surface an error notice when saving dashboard settings fails, and show the "first year" caveat on the upgrade screen's intro-offer price. [#49279]
+
 ## [0.81.1] - 2026-05-25
 ### Changed
 - Replace internal `ContextualUpgradeTrigger` upgrade prompts with `@wordpress/ui` `Notice` composition. [#48909]
@@ -1460,6 +1473,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies.
 - Update package.json metadata.
 
+[0.81.2]: https://github.com/Automattic/jetpack-publicize/compare/v0.81.1...v0.81.2
 [0.81.1]: https://github.com/Automattic/jetpack-publicize/compare/v0.81.0...v0.81.1
 [0.81.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.80.0...v0.81.0
 [0.80.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.79.0...v0.80.0
