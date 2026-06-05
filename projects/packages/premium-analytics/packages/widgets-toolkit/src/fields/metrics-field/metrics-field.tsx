@@ -5,7 +5,7 @@ import { Fieldset, Stack } from '@wordpress/ui';
 import { CheckboxControl } from '@wordpress/components';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { useCallback, useEffect } from 'react';
-import type { DataFormControlProps } from '@ciab/dataviews';
+import type { DataFormControlProps } from '@wordpress/dataviews';
 
 /**
  * Internal dependencies

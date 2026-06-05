@@ -4,7 +4,7 @@
 import { useMemo } from 'react';
 import { ConversionFunnelChart } from '@automattic/charts';
 import { Icon, Stack } from '@wordpress/ui';
-import { WidgetLoadingOverlay } from '@automattic/dashboard';
+import { WidgetLoadingOverlay } from '../../components/widget-loading-overlay';
 import {
 	FilterCondition,
 	useReportConversionRate,

@@ -55,11 +55,25 @@ export type MetricKey =
  */
 type MetricFormat = NonNullable< Parameters< typeof formatMetricValue >[ 1 ] >;
 
-type FormatMetricValueOptions = NonNullable<
-	Parameters< typeof formatMetricValue >[ 2 ]
->;
+type FormatMetricValueOptions = NonNullable< Parameters< typeof formatMetricValue >[ 2 ] >;
 
 export type DataFormat = {
 	type: MetricFormat;
 	options?: FormatMetricValueOptions;
+};
+
+/**
+ * Local stand-in for the `WidgetErrorConfig` type from `@automattic/dashboard`
+ * (CIAB Admin), which is not published to npm. Mirrors the documented shape of
+ * the dashboard's widget error contract: a message plus an optional action
+ * (e.g. a retry button).
+ *
+ * TODO: Replace with the `@automattic/dashboard` type once it is available.
+ */
+export type WidgetErrorConfig = {
+	message: string;
+	action?: {
+		label: string;
+		onClick: () => void;
+	};
 };

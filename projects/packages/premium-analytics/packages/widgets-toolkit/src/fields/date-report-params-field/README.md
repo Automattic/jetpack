@@ -7,10 +7,10 @@ Form control for editing a widget's date-range parameters
 
 This field depends on two external data providers:
 
-| Provider | Package | Purpose |
-|----------|---------|---------|
-| `getStoreInfo()` | `@woocommerce-next/data` | Reads `launchedDate` from the store profile |
-| `getDefaultPreset()` | `@jetpack-premium-analytics/data` | Resolves a smart date-range preset based on store age |
+| Provider             | Package                                                            | Purpose                                               |
+| -------------------- | ------------------------------------------------------------------ | ----------------------------------------------------- |
+| `getStoreInfo()`     | `helpers/store-info` (local stand-in for `@woocommerce-next/data`) | Reads `launchedDate` from the store profile           |
+| `getDefaultPreset()` | `@jetpack-premium-analytics/data`                                  | Resolves a smart date-range preset based on store age |
 
 ### Why the coupling exists
 
@@ -26,9 +26,9 @@ show dates that don't match the widget's actual data range.
 
 ### Alternatives considered
 
-| Approach | Why we didn't use it |
-|----------|---------------------|
-| WidgetRoot context | Modal renders outside the widget tree — context not accessible |
+| Approach                  | Why we didn't use it                                                 |
+| ------------------------- | -------------------------------------------------------------------- |
+| WidgetRoot context        | Modal renders outside the widget tree — context not accessible       |
 | Prop via attribute config | `@ciab/dataviews` `DataFormControlProps` doesn't support extra props |
-| Global/singleton | Adds indirection for a problem scoped to one component |
-| Attribute initialization | Side-effect on render, risk of re-render loops |
+| Global/singleton          | Adds indirection for a problem scoped to one component               |
+| Attribute initialization  | Side-effect on render, risk of re-render loops                       |

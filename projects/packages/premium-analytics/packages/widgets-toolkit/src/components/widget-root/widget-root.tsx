@@ -6,11 +6,11 @@ import {
 	getDefaultPreset,
 	normalizeReportParams,
 } from '@jetpack-premium-analytics/data';
-import { getStoreInfo } from '@woocommerce-next/data';
+import { getStoreInfo } from '../../helpers/store-info';
 import { GlobalChartsProvider } from '@automattic/charts';
 import { useSearch } from '@wordpress/route';
 import { useMemo, type ReactNode } from 'react';
-import type { WidgetErrorConfig } from '@automattic/dashboard';
+import type { WidgetErrorConfig } from '../../types';
 import '@automattic/charts/style.css';
 
 /**

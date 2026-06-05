@@ -3,7 +3,7 @@
  */
 import { useMemo, useCallback } from 'react';
 import { Stack } from '@wordpress/ui';
-import { WidgetLoadingOverlay } from '@automattic/dashboard';
+import { WidgetLoadingOverlay } from '../../components/widget-loading-overlay';
 import { useReportOrders } from '@jetpack-premium-analytics/data';
 import { reports } from '@jetpack-premium-analytics/icons';
 

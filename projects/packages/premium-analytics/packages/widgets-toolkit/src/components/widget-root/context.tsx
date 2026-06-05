@@ -3,7 +3,7 @@
  */
 import { createContext, useContext } from 'react';
 import type { ReportParams } from '@jetpack-premium-analytics/data';
-import type { WidgetErrorConfig } from '@automattic/dashboard';
+import type { WidgetErrorConfig } from '../../types';
 
 export type WidgetRootContextValue = {
 	/**

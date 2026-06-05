@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { useMemo } from 'react';
-import { useColorPreference } from '@automattic/admin-toolkit';
+import { useColorPreference } from './use-color-preference';
 import type { ChartTheme } from '@automattic/charts';
 
 /**

@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { useMemo } from 'react';
-import { WidgetLoadingOverlay } from '@automattic/dashboard';
+import { WidgetLoadingOverlay } from '../../components/widget-loading-overlay';
 import { useReportCoupons } from '@jetpack-premium-analytics/data';
 import { coupon } from '@jetpack-premium-analytics/icons';
 

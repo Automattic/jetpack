@@ -10,7 +10,7 @@ import { useResizeObserver } from '@wordpress/compose';
 import { __, sprintf } from '@wordpress/i18n';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { GeoChart } from '@automattic/charts';
-import { WidgetLoadingOverlay } from '@automattic/dashboard';
+import { WidgetLoadingOverlay } from '../../components/widget-loading-overlay';
 import { location } from '@jetpack-premium-analytics/icons';
 
 /**

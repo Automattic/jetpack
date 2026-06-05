@@ -9,14 +9,14 @@ import {
 	localTZDate,
 	getSiteTimezone,
 } from '@jetpack-premium-analytics/data';
-import { getStoreInfo } from '@woocommerce-next/data';
+import { getStoreInfo } from '../../helpers/store-info';
 import { endOfDay } from 'date-fns';
 import {
 	deriveComparisonRange,
 	encodeDateToSearchParam,
 } from '@jetpack-premium-analytics/routing';
 import { useCallback, useMemo, useState, useEffect } from 'react';
-import type { DataFormControlProps } from '@ciab/dataviews';
+import type { DataFormControlProps } from '@wordpress/dataviews';
 import {
 	type ComparisonPresetId,
 	isPrimaryPreset,

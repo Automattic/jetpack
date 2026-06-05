@@ -1,8 +1,7 @@
 /**
  * External dependencies
  */
-import { EmptyState } from '@automattic/design-system';
-import { Icon } from '@wordpress/ui';
+import { EmptyState, Icon } from '@wordpress/ui';
 import { __ } from '@wordpress/i18n';
 import { cautionFilled } from '@wordpress/icons';
 

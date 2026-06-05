@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { WidgetLoadingOverlay } from '@automattic/dashboard';
+import { WidgetLoadingOverlay } from '../widget-loading-overlay';
 import { useGlobalChartsContext } from '@automattic/charts';
 import { useMemo } from 'react';
 
