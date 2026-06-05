@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add the jetpack-ai-jwt REST endpoint, moved from the My Jetpack package.
