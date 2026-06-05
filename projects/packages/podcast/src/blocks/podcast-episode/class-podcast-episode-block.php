@@ -46,7 +46,7 @@ class Podcast_Episode_Block {
 	public static function register_hooks() {
 		add_action( 'init', array( __CLASS__, 'register_block' ), 9 );
 		add_action( 'enqueue_block_editor_assets', array( __CLASS__, 'load_editor_scripts' ), 9 );
-		add_filter( 'woocommerce_email_renderer_styles', array( __CLASS__, 'add_email_styles' ) );
+		add_filter( 'woocommerce_email_renderer_styles', array( __CLASS__, 'add_email_styles' ), 10, 2 );
 	}
 
 	/**
@@ -185,6 +185,31 @@ class Podcast_Episode_Block {
 	}
 
 	/**
+	 * Resolve the episode cover art URL: episode override → post featured
+	 * image → show-level `podcasting_image` option → empty string.
+	 *
+	 * @param array    $attributes Block attributes.
+	 * @param \WP_Post $post       Episode post.
+	 * @param string   $size       Featured-image size to request.
+	 * @return string
+	 */
+	private static function resolve_cover_art_url( array $attributes, $post, $size ) {
+		if ( isset( $attributes['coverArt'] ) && is_array( $attributes['coverArt'] ) && ! empty( $attributes['coverArt']['url'] ) ) {
+			return esc_url_raw( $attributes['coverArt']['url'] );
+		}
+
+		$featured_id = (int) get_post_thumbnail_id( $post );
+		if ( $featured_id ) {
+			$featured_url = (string) wp_get_attachment_image_url( $featured_id, $size );
+			if ( '' !== $featured_url ) {
+				return $featured_url;
+			}
+		}
+
+		return (string) get_option( 'podcasting_image', '' );
+	}
+
+	/**
 	 * Render callback.
 	 *
 	 * Pulls title, author, and date from the surrounding post — the post is
@@ -272,24 +297,10 @@ class Podcast_Episode_Block {
 		$show_image_url = (string) get_option( 'podcasting_image', '' );
 		$show_email     = (string) get_option( 'podcasting_email', '' );
 
-		// Cover art chain: episode override → post featured image → show-level cover → none.
-		// Resolved unconditionally so schema metadata always carries the image; the
-		// `$show_poster` toggle only gates the visible figure and the video poster.
-		$image_url = '';
-		if ( isset( $attributes['coverArt'] ) && is_array( $attributes['coverArt'] ) && ! empty( $attributes['coverArt']['url'] ) ) {
-			$image_url = esc_url_raw( $attributes['coverArt']['url'] );
-		} else {
-			$featured_id = (int) get_post_thumbnail_id( $post );
-			if ( $featured_id ) {
-				$featured_url = (string) wp_get_attachment_image_url( $featured_id, 'full' );
-				if ( '' !== $featured_url ) {
-					$image_url = $featured_url;
-				}
-			}
-			if ( '' === $image_url ) {
-				$image_url = $show_image_url;
-			}
-		}
+		// Cover art chain resolved unconditionally so schema metadata always carries
+		// the image; the `$show_poster` toggle only gates the visible figure and the
+		// video poster.
+		$image_url = self::resolve_cover_art_url( $attributes, $post, 'full' );
 
 		// AudioObject/VideoObject @type for the embedded media.
 		$media_object_type = 'video' === $media_type ? 'VideoObject' : 'AudioObject';
@@ -627,19 +638,7 @@ class Podcast_Episode_Block {
 		$season_number  = isset( $attrs['seasonNumber'] ) ? (int) $attrs['seasonNumber'] : 0;
 		$episode_number = isset( $attrs['episodeNumber'] ) ? (int) $attrs['episodeNumber'] : 0;
 
-		// Same cover art chain as render_block: episode override → post featured image → show cover.
-		$image_url = '';
-		if ( isset( $attrs['coverArt'] ) && is_array( $attrs['coverArt'] ) && ! empty( $attrs['coverArt']['url'] ) ) {
-			$image_url = esc_url_raw( $attrs['coverArt']['url'] );
-		} else {
-			$featured_id = (int) get_post_thumbnail_id( $post );
-			if ( $featured_id ) {
-				$image_url = (string) wp_get_attachment_image_url( $featured_id, 'thumbnail' );
-			}
-			if ( '' === $image_url ) {
-				$image_url = (string) get_option( 'podcasting_image', '' );
-			}
-		}
+		$image_url = self::resolve_cover_art_url( $attrs, $post, 'thumbnail' );
 		if ( '' !== $image_url && ! wp_http_validate_url( $image_url ) ) {
 			$image_url = '';
 		}
@@ -715,9 +714,10 @@ class Podcast_Episode_Block {
 			)
 		);
 
-		// Cap the card to the email layout width when the context exposes it.
+		// Cap the card to the email layout width when the context exposes it
+		// (method_exists guards against older email editor versions).
 		$target_width = 600;
-		if ( is_object( $rendering_context ) && method_exists( $rendering_context, 'get_layout_width_without_padding' ) ) {
+		if ( method_exists( $rendering_context, 'get_layout_width_without_padding' ) ) {
 			$layout_width = (int) $rendering_context->get_layout_width_without_padding();
 			if ( $layout_width > 0 ) {
 				$target_width = $layout_width;
@@ -728,18 +728,18 @@ class Podcast_Episode_Block {
 		// preprocessor sets `margin-top`; horizontal root padding is applied
 		// to the callback output by the engine itself.
 		$email_attrs        = $parsed_block['email_attrs'] ?? array();
-		$table_margin_style = '';
-		if ( ! empty( $email_attrs ) && class_exists( '\WP_Style_Engine' ) ) {
-			$table_margin_style = \WP_Style_Engine::compile_css( array_intersect_key( $email_attrs, array_flip( array( 'margin', 'margin-top' ) ) ), '' ) ?? '';
-		}
+		$table_margin_style = (string) \WP_Style_Engine::compile_css( array_intersect_key( $email_attrs, array_flip( array( 'margin', 'margin-top' ) ) ), '' );
 
 		// border-collapse must stay `separate` for the rounded card border to render.
-		$table_style = sprintf( 'width: 100%%; max-width: %dpx; border-collapse: separate; border: 1px solid #ddd; border-radius: 6px;', $target_width );
-		$table_style = ( $table_margin_style ? $table_margin_style . '; ' : 'margin: 16px 0; ' ) . $table_style;
+		$table_style = sprintf(
+			'%s width: 100%%; max-width: %dpx; border-collapse: separate; border: 1px solid #ddd; border-radius: 6px;',
+			$table_margin_style ? $table_margin_style : 'margin: 16px 0;',
+			$target_width
+		);
 
 		// Append user-set block supports (padding, border, colors) so editor
 		// styling overrides the card defaults.
-		if ( class_exists( '\Automattic\WooCommerce\EmailEditor\Integrations\Utils\Styles_Helper' ) && is_object( $rendering_context ) ) {
+		if ( class_exists( '\Automattic\WooCommerce\EmailEditor\Integrations\Utils\Styles_Helper' ) ) {
 			// @phan-suppress-next-line PhanUndeclaredClassMethod -- Optional WooCommerce dependency, checked with class_exists() above.
 			$user_styles = \Automattic\WooCommerce\EmailEditor\Integrations\Utils\Styles_Helper::get_block_styles( $attrs, $rendering_context, array( 'padding', 'border', 'background-color', 'color' ) );
 			if ( ! empty( $user_styles['css'] ) ) {
@@ -767,11 +767,12 @@ class Podcast_Episode_Block {
 	 * support fall back to the side-by-side layout. Breakpoint matches
 	 * the engine's own in template-canvas.css.
 	 *
-	 * @param string $styles Email template CSS.
+	 * @param string        $styles Email template CSS.
+	 * @param \WP_Post|null $post   The post being rendered as an email.
 	 * @return string
 	 */
-	public static function add_email_styles( $styles ) {
-		if ( ! self::is_enabled() ) {
+	public static function add_email_styles( $styles, $post = null ) {
+		if ( ! self::is_enabled() || ! $post instanceof \WP_Post || ! has_block( 'jetpack/podcast-episode', $post ) ) {
 			return $styles;
 		}
 
