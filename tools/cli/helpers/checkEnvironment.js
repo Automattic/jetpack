@@ -184,6 +184,23 @@ export async function compareComposerVersion() {
 }
 
 /**
+ * Checks whether shellcheck is available. It's optional, so this only warns.
+ *
+ * @return {boolean} Always true.
+ */
+export async function checkShellcheckAvailable() {
+	const res = await child_process.spawnSync( 'shellcheck', [ '--version' ] );
+	if ( res.error?.code === 'ENOENT' ) {
+		console.log(
+			chalk.yellow(
+				'ShellCheck is not installed, so shell scripts will not be linted by the pre-commit hook. See https://www.shellcheck.net/ for installation instructions.'
+			)
+		);
+	}
+	return true;
+}
+
+/**
  * Compares versions of various tools.
  *
  * @return {boolean} Whether all tools matched.
@@ -195,6 +212,7 @@ export async function compareToolVersions() {
 	ok = ( await comparePhpVersion() ) && ok;
 	ok = ( await compareComposerVersion() ) && ok;
 	ok = ( await comparePnpmVersion() ) && ok;
+	ok = ( await checkShellcheckAvailable() ) && ok;
 	return ok;
 }
 
