@@ -1,11 +1,14 @@
 #!/usr/bin/env bash
 
+# This file is also parsed by tools/cli (whose `envfile` dependency doesn't understand `export`).
+# shellcheck disable=SC2034
+
 # Versions of tools to use in CI.
-export PHP_VERSION=8.4
-export COMPOSER_VERSION=2.9.8
-export NODE_VERSION=24.14.0
-export PNPM_VERSION=10.28.2
+PHP_VERSION=8.4
+COMPOSER_VERSION=2.9.8
+NODE_VERSION=24.14.0
+PNPM_VERSION=10.28.2
 
 # Other useful version numbers.
-export MIN_PHP_VERSION=7.2
-export MAX_PHP_VERSION=8.5
+MIN_PHP_VERSION=7.2
+MAX_PHP_VERSION=8.5
