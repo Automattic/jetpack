@@ -30,17 +30,12 @@ export default () => {
 	const prompt = prompts[ index ];
 
 	return (
-		<Stack className="wpcom-daily-writing-prompt" direction="column" gap="md">
+		<Stack direction="column" gap="md">
 			<Stack className="wpcom-daily-writing-prompt--prompt" direction="column" gap="md">
 				<Text variant="body-md" render={ <p /> }>
 					{ prompt.text }
 				</Text>
-				<Stack
-					className="wpcom-daily-writing-prompt--previous-next"
-					direction="row"
-					justify="flex-end"
-					gap="sm"
-				>
+				<Stack direction="row" justify="flex-end" gap="xs">
 					<Button
 						variant="minimal"
 						size="small"
@@ -59,13 +54,7 @@ export default () => {
 					</Button>
 				</Stack>
 			</Stack>
-			<Stack
-				className="wpcom-daily-writing-prompt--action-row"
-				direction="row"
-				justify="space-between"
-				align="center"
-				gap="sm"
-			>
+			<Stack direction="row" justify="space-between" align="center" gap="sm">
 				{ /* Replace with LinkButton once available: https://github.com/WordPress/gutenberg/issues/77098 */ }
 				<Button
 					variant="outline"
