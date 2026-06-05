@@ -128,7 +128,7 @@ function get_upstream_sha {
 	return 1
 }
 
-while IFS=$'\t' read -r SRC MIRROR SLUG; do
+while IFS=$'\t' read -r _ MIRROR SLUG; do
 	if [[ "$SLUG" == jetpack ]]; then
 		PREFIX=wp-content/mu-plugins/jetpack-plugin/sun
 	elif [[ "$SLUG" == jetpack-mu-wpcom-plugin ]]; then

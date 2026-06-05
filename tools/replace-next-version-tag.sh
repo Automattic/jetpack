@@ -97,7 +97,7 @@ for FILE in $(git ls-files "projects/$SLUG/"); do
 
 	if grep -F -q '$$next-version$$' "$FILE"; then
 		EXIT=1
-		while IFS=':' read -r LINE DUMMY; do
+		while IFS=':' read -r LINE _; do
 			if [[ -n "$CI" ]]; then
 				echo "::error file=$FILE,line=$LINE::"'Unexpected `$$next-version$$` token.'
 			else

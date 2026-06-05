@@ -49,7 +49,7 @@ function is_major_bump {
 
 	local V1="${1%%+*}" V2="${2%%+*}"
 
-	local A=() B=() i
+	local A=() B=()
 
 	IFS='.' read -r -a A <<<"${V1%%-*}"
 	IFS='.' read -r -a B <<<"${V2%%-*}"

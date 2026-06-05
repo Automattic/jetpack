@@ -9,9 +9,6 @@ set -e
 
 source /etc/docker-args.sh
 
-user="${APACHE_RUN_USER:-www-data}"
-group="${APACHE_RUN_GROUP:-www-data}"
-
 # Download WordPress
 # Sometimes it fails, and a retry would be nice:
 #   https://github.com/wp-cli/core-command/pull/258

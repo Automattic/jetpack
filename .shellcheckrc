@@ -10,5 +10,3 @@ source-path=SCRIPTDIR
 disable=SC1087
 # SC1090: ShellCheck can't follow non-constant source. https://www.shellcheck.net/wiki/SC1090
 disable=SC1090
-# SC2034: Variable appears unused. https://www.shellcheck.net/wiki/SC2034
-disable=SC2034

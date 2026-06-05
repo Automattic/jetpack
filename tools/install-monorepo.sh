@@ -127,7 +127,6 @@ if ! command -v composer &>/dev/null; then
 	fi
 
 	php composer-setup.php --version=$COMPOSER_VERSION --quiet
-	RESULT=$?
 	rm composer-setup.php
 	sudo mkdir -p /usr/local/bin
 	sudo mv composer.phar /usr/local/bin/composer
