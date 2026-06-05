@@ -18,5 +18,3 @@ disable=SC2043
 disable=SC2089
 # SC2090: Quotes/backslashes in this variable will not be respected. https://www.shellcheck.net/wiki/SC2090
 disable=SC2090
-# SC2091: Remove surrounding $() to avoid executing output. https://www.shellcheck.net/wiki/SC2091
-disable=SC2091
