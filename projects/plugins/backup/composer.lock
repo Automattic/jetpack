@@ -68,7 +68,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/admin-ui",
-                "reference": "eae2c9e0df1ed986b421070c2fbe50cd49de9974"
+                "reference": "94ba7d4141a56f58125ae46334e86b5694128bd7"
             },
             "require": {
                 "automattic/jetpack-redirect": "@dev",
@@ -94,7 +94,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-admin-ui/compare/${old}...${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "0.8.x-dev"
+                    "dev-trunk": "0.9.x-dev"
                 },
                 "dependencies": {
                     "test-only": [
@@ -148,7 +148,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/agents-manager",
-                "reference": "4c4fe4f98ce5013c690f6a98342e7fbf160a1b17"
+                "reference": "90ba72499dab1488120a1b4bb2cf89840f5cc89c"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
@@ -170,7 +170,7 @@
                 "autorelease": true,
                 "autotagger": true,
                 "branch-alias": {
-                    "dev-trunk": "0.2.x-dev"
+                    "dev-trunk": "0.3.x-dev"
                 },
                 "changelogger": {
                     "link-template": "https://github.com/Automattic/jetpack-agents-manager/compare/v${old}...v${new}"
@@ -1319,7 +1319,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/my-jetpack",
-                "reference": "7e4acfedcf5f8fbe4413564eabf0a265de0022e6"
+                "reference": "8e5c4d2063020540708c0d137306e044a30644e6"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
@@ -1358,7 +1358,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-my-jetpack/compare/${old}...${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "5.37.x-dev"
+                    "dev-trunk": "5.38.x-dev"
                 },
                 "version-constants": {
                     "::PACKAGE_VERSION": "src/class-initializer.php"
