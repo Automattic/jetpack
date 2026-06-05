@@ -43,11 +43,13 @@ class Minify {
 			// serve the original input rather than nothing.
 			return self::fallback_js( $js, self::FALLBACK_EXCEPTION, $e );
 		} catch ( \Error $e ) {
-			// \Error subclasses (\OutOfMemoryError, \TypeError, \ParseError) signal
-			// server pressure or a genuine bug rather than unsupported syntax. We
-			// still fall back -- a performance optimization must never white-screen
-			// the page -- but report a distinct reason so the condition is
-			// distinguishable from ordinary unsupported syntax via the hook.
+			// \Error subclasses (e.g. \TypeError, \ParseError) signal a genuine bug
+			// rather than unsupported syntax. We still fall back -- a performance
+			// optimization must never white-screen the page -- but report a distinct
+			// reason so the condition is distinguishable from ordinary unsupported
+			// syntax via the hook. (A true memory-limit fatal is not a \Throwable and
+			// cannot be caught here at all; the scanner instead bounds its own nesting
+			// depth so it never provokes one -- see Js_Structure_Scanner.)
 			return self::fallback_js( $js, self::FALLBACK_ERROR, $e );
 		}
 
@@ -66,10 +68,12 @@ class Minify {
 		}
 
 		// The structural scan runs outside the minifier try/catch above, so guard it
-		// too: an \Error from the scan itself (e.g. memory exhaustion lexing a large
-		// bundle) must degrade to the original rather than white-screen the page.
-		// Pass the original input so the scanner can apply its gross-truncation
-		// backstop to bundles too large to scan in full. See Js_Structure_Scanner.
+		// too: any \Throwable from the scan itself must degrade to the original rather
+		// than white-screen the page. (Memory exhaustion is a fatal, not a \Throwable,
+		// so it cannot be caught -- the scanner instead bounds its own nesting depth to
+		// avoid provoking one.) Pass the original input so the scanner can apply its
+		// gross-truncation backstop to bundles too large to scan in full. See
+		// Js_Structure_Scanner.
 		try {
 			$looks_broken = Js_Structure_Scanner::looks_broken( $minified_js, $js );
 		} catch ( \Throwable $e ) {
@@ -110,7 +114,7 @@ class Minify {
 			 * Fires when Minify::js() declines its minified output and serves the
 			 * original JS instead. This is the always-on observability surface for
 			 * the minify safety net: it fires on every fallback, including the
-			 * abnormal 'error' arm (\OutOfMemoryError / \TypeError / \ParseError),
+			 * abnormal 'error' arm (e.g. \TypeError / \ParseError),
 			 * so register a callback here to monitor how often -- and why -- it
 			 * engages. Callbacks must not throw; a throwing callback is swallowed so
 			 * it cannot break minification.
