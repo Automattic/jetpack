@@ -8,10 +8,7 @@ const rule = require( '../use-recommended-jetpack-components.cjs' );
 
 const denylistPath = path.resolve(
 	__dirname,
-	'..',
-	'..',
-	'..',
-	'jetpack-components-denylist.json'
+	'../../../jetpack-components-denylist.json'
 );
 
 const ruleTester = new RuleTester( {
