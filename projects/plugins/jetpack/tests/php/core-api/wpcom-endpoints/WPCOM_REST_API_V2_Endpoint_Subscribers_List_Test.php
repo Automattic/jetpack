@@ -242,7 +242,11 @@ class WPCOM_REST_API_V2_Endpoint_Subscribers_List_Test extends Jetpack_REST_Test
 	public function test_get_wpcom_error_message( $expected, $body, $default ) {
 		$endpoint = new WPCOM_REST_API_V2_Endpoint_Subscribers_List();
 		$method   = new ReflectionMethod( WPCOM_REST_API_V2_Endpoint_Subscribers_List::class, 'get_wpcom_error_message' );
-		$method->setAccessible( true );
+		// setAccessible() is required on PHP < 8.1 to invoke a private method, but is a deprecated
+		// no-op from 8.5 — only call it where it's actually needed.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true );
+		}
 
 		$this->assertSame( $expected, $method->invoke( $endpoint, $body, $default ) );
 	}
