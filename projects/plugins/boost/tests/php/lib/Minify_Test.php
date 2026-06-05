@@ -80,7 +80,9 @@ var three = "three";';
 
 	/**
 	 * If the underlying minifier throws (e.g. a PCRE backtrack limit), js()
-	 * returns the original input.
+	 * returns the original input and reports the 'exception' reason via the hook.
+	 * This is the most-likely production fallback, so its hook contract is locked
+	 * in alongside the return value.
 	 */
 	public function test_js_returns_original_when_minifier_throws() {
 		$old_limit = ini_get( 'pcre.backtrack_limit' );
@@ -89,6 +91,11 @@ var three = "three";';
 		ini_set( 'pcre.jit', '0' );
 		try {
 			$source = 'var x="' . str_repeat( 'a', 5000 ) . '";';
+
+			Actions\expectDone( 'jetpack_boost_js_minify_fallback' )
+				->once()
+				->with( Minify::FALLBACK_EXCEPTION, strlen( $source ), Mockery::type( \Exception::class ) );
+
 			$this->assertSame( $source, Minify::js( $source ) );
 		} finally {
 			ini_set( 'pcre.backtrack_limit', $old_limit );
