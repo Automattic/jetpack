@@ -52,7 +52,7 @@ export type FormatMetricValueOptions = {
  * Returns `''` for null, undefined, or NaN input.
  *
  * @example
- * formatMetricValue( 9876 )                                                  // '9,877'
+ * formatMetricValue( 9876.543 )                                             // '9,877'
  * formatMetricValue( 1500, 'number', { useMultipliers: true, decimals: 1 } ) // '1.5K'
  * formatMetricValue( 192088.05, 'currency' )                                 // '$192,088.05'
  * formatMetricValue( 0.25, 'percentage' )                                    // '+25%'
