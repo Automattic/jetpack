@@ -30,8 +30,10 @@ function pcg_confirm_maybe_register_hook() {
 
 	// Only single-site active_plugins is hooked; pre_option_active_sitewide_plugins
 	// would need the same treatment if PCG ever guards network activations.
-	pcg_confirm_plugin_mains( $plugin_mains );
-	add_filter( 'pre_option_active_plugins', 'pcg_confirm_filter_active_plugins' );
+	add_filter(
+		'pre_option_active_plugins',
+		static fn( $value ) => pcg_confirm_inject_active_plugins( $value, $plugin_mains )
+	);
 }
 
 /**
@@ -73,35 +75,6 @@ function pcg_confirm_validate_request( array $request ) {
 			static fn( $p ) => '' !== $p
 		)
 	) : array();
-}
-
-/**
- * Stash for the plugin-mains list the active_plugins filter needs.
- * Using a named function + static container (instead of an anonymous
- * closure) keeps the filter callback removable via `remove_filter`.
- *
- * @internal
- * @param array|null $set Optional — replace the stashed list.
- * @return string[]
- */
-function pcg_confirm_plugin_mains( ?array $set = null ) {
-	static $mains = array();
-	if ( is_array( $set ) ) {
-		$mains = $set;
-	}
-	return $mains;
-}
-
-/**
- * Named filter callback for `pre_option_active_plugins`. Delegates to
- * `pcg_confirm_inject_active_plugins` with the stashed candidate list.
- *
- * @internal
- * @param mixed $value Existing filter value.
- * @return string[]
- */
-function pcg_confirm_filter_active_plugins( $value ) {
-	return pcg_confirm_inject_active_plugins( $value, pcg_confirm_plugin_mains() );
 }
 
 /**
