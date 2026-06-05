@@ -26,5 +26,3 @@ disable=SC2104
 disable=SC2120
 # SC2128: Expanding an array without an index only gives the first element. https://www.shellcheck.net/wiki/SC2128
 disable=SC2128
-# SC2140: Word is of the form "A"B"C"; the "B" indicated may be unquoted. https://www.shellcheck.net/wiki/SC2140
-disable=SC2140
