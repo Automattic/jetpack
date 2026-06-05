@@ -22,7 +22,7 @@ namespace Automattic\Jetpack\WP_Abilities;
  */
 abstract class Registrar {
 
-	const PACKAGE_VERSION = '0.1.2';
+	const PACKAGE_VERSION = '0.1.3';
 
 	/**
 	 * Action fired by the Abilities API when ability categories should register.

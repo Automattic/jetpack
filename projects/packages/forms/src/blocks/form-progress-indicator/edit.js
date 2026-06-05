@@ -6,8 +6,8 @@ import {
 	__experimentalUseMultipleOriginColorsAndGradients as useMultipleOriginColorsAndGradients,
 } from '@wordpress/block-editor';
 /* eslint-enable @wordpress/no-unsafe-wp-apis */
-import { SVG, Path } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
+import { Path, SVG } from '@wordpress/primitives';
 import clsx from 'clsx';
 import StepControls from '../shared/components/form-step-controls/index.js';
 import useParentFormClientId from '../shared/hooks/use-parent-form-client-id.js';

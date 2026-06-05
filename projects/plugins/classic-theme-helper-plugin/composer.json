@@ -17,10 +17,9 @@
 		]
 	},
 	"scripts": {
-		"test-coverage": "pnpm concurrently --names js 'pnpm:test-coverage'",
-		"test-js": [
-			"pnpm run test"
-		],
+		"test-coverage": "@composer test-js-coverage",
+		"test-js": "pnpm run test",
+		"test-js-coverage": "pnpm run test-coverage",
 		"build-development": [
 			"pnpm run build"
 		],

@@ -6,7 +6,6 @@ import { Collapsible, Icon, IconButton, Stack, Text } from '@wordpress/ui';
 import { store as socialStore } from '../../social-store';
 import ConnectionIcon from '../connection-icon';
 import { useServiceLabel } from '../services/use-service-label';
-import { XNotice } from '../services/x-notice';
 import { ConnectionName } from './connection-name';
 import { ConnectionStatus, ConnectionStatusProps } from './connection-status';
 import { ConnectionTemplateEditor } from './connection-template';
@@ -123,7 +122,6 @@ export function ModernConnectionInfo( {
 							{ __( 'This connection is added by a site administrator.', 'jetpack-publicize-pkg' ) }
 						</Text>
 					) }
-					{ service?.id === 'x' && <XNotice /> }
 				</div>
 			</Collapsible.Panel>
 		</Collapsible.Root>

@@ -12,6 +12,8 @@
 /.phpcs.config.xml @Automattic/jetpack-monorepo
 /.phpcs.xml.dist @Automattic/jetpack-monorepo
 /.phpcsignore @Automattic/jetpack-monorepo
+/.pnpmfile.cjs @Automattic/jetpack-monorepo
+/.pnpm-patches @Automattic/jetpack-monorepo
 /.prettierrc.js @Automattic/jetpack-monorepo
 /.stylelintignore @Automattic/jetpack-monorepo
 /composer.json @Automattic/jetpack-monorepo
