@@ -30,5 +30,3 @@ disable=SC2128
 disable=SC2140
 # SC2148: Add a shebang. https://www.shellcheck.net/wiki/SC2148
 disable=SC2148
-# SC2155: Declare and assign separately to avoid masking return values. https://www.shellcheck.net/wiki/SC2155
-disable=SC2155

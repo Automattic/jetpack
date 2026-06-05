@@ -9,7 +9,8 @@
 function alpha_tag {
 	local PRERELEASE=alpha
 	if jq -e '.extra["dev-releases"]' "$1" > /dev/null; then
-		local N="$(changelogger version current --default-first-version | sed -E -n -e 's/^.*-a\.([0-9]+)$/\1/p')"
+		local N
+		N="$(changelogger version current --default-first-version | sed -E -n -e 's/^.*-a\.([0-9]+)$/\1/p')"
 		if [[ -z "$N" ]]; then
 			N=0
 		else

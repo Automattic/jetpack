@@ -49,7 +49,8 @@ function docopy {
 	local SRC="$1"
 	local DEST="${2%/}"
 
-	local OLDDIR="$(pwd)";
+	local OLDDIR
+	OLDDIR="$(pwd)"
 	cd "$SRC"
 	mkdir "$DEST"
 	{
