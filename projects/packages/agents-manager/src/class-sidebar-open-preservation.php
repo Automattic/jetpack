@@ -64,7 +64,22 @@ class Sidebar_Open_Preservation {
 			? sanitize_text_field( wp_unslash( (string) $_COOKIE[ self::COOKIE_KEY ] ) )
 			: '';
 
-		if ( empty( $cookie_value ) ) {
+		if ( '' === $cookie_value ) {
+			return $classes;
+		}
+
+		$cookie_classes = array_filter(
+			array_map(
+				static function ( $class ) {
+					$class = sanitize_html_class( trim( (string) $class ) );
+
+					return '' !== $class ? $class : null;
+				},
+				explode( ',', $cookie_value )
+			)
+		);
+
+		if ( empty( $cookie_classes ) ) {
 			return $classes;
 		}
 
@@ -73,7 +88,7 @@ class Sidebar_Open_Preservation {
 			array_filter(
 				array_merge(
 					array( $classes ),
-					explode( ',', $cookie_value )
+					$cookie_classes
 				)
 			)
 		);
