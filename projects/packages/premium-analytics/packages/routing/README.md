@@ -31,16 +31,16 @@ import { writeDateRangeToSearch } from '@jetpack-premium-analytics/routing';
 import { useNavigate } from '@wordpress/route';
 
 function DateRangeSelector() {
-  const navigate = useNavigate();
-  
-  const handleRangeChange = ( nextRange ) => {
-    writeDateRangeToSearch( {
-      navigate,
-      to: '/wc-analytics/dashboard',
-      range: nextRange,
-      search: { interval: 'day' } // Preserve other params
-    } );
-  };
+	const navigate = useNavigate();
+
+	const handleRangeChange = nextRange => {
+		writeDateRangeToSearch( {
+			navigate,
+			to: '/wc-analytics/dashboard',
+			range: nextRange,
+			search: { interval: 'day' }, // Preserve other params
+		} );
+	};
 }
 ```
 
@@ -50,17 +50,17 @@ function DateRangeSelector() {
 import { writeComparisonToSearch } from '@jetpack-premium-analytics/routing';
 
 function ComparisonSelector() {
-  const navigate = useNavigate();
-  
-  const handleComparisonChange = ( range, presetId ) => {
-    writeComparisonToSearch( {
-      navigate,
-      to: '/wc-analytics/dashboard', 
-      range,
-      presetId,
-      enabled: !!range
-    } );
-  };
+	const navigate = useNavigate();
+
+	const handleComparisonChange = ( range, presetId ) => {
+		writeComparisonToSearch( {
+			navigate,
+			to: '/wc-analytics/dashboard',
+			range,
+			presetId,
+			enabled: !! range,
+		} );
+	};
 }
 ```
 
@@ -71,13 +71,15 @@ function ComparisonSelector() {
 Writes a `DateRange` to the URL using the provided `navigate` function.
 
 **Parameters:**
+
 - **`navigate`** – Navigation function from `useNavigate()` (`@wordpress/route`)
 - **`to`** – Destination path (e.g., `'/wc-analytics/dashboard'`)
 - **`range`** – `{ from: Date | undefined; to?: Date | undefined }`
-- **`timezone?`** *(optional)* – Override timezone for date conversion
-- **`search?`** *(optional)* – Additional search params to preserve/set
+- **`timezone?`** _(optional)_ – Override timezone for date conversion
+- **`search?`** _(optional)_ – Additional search params to preserve/set
 
 **URL Parameters Generated:**
+
 - `from` – ISO string with timezone offset
 - `to` – ISO string with timezone offset
 
@@ -86,6 +88,7 @@ Writes a `DateRange` to the URL using the provided `navigate` function.
 Writes comparison parameters to the URL for period-over-period analysis.
 
 **Parameters:**
+
 - **`navigate`** – Navigation function from `@wordpress/route`
 - **`to`** – Destination path
 - **`range?`** – Comparison date range
@@ -95,6 +98,7 @@ Writes comparison parameters to the URL for period-over-period analysis.
 - **`search?`** – Additional search params
 
 **URL Parameters Generated:**
+
 - `compare_from` – Comparison start date (ISO string)
 - `compare_to` – Comparison end date (ISO string)
 - `compare_preset` – Preset identifier
@@ -105,6 +109,7 @@ Writes comparison parameters to the URL for period-over-period analysis.
 Low-level function to convert a Date to an ISO string with timezone.
 
 **Parameters:**
+
 - **`date?`** – Date to encode (returns undefined if not provided)
 - **`timezone?`** – Timezone override
 

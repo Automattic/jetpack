@@ -84,10 +84,7 @@ function shallowEqual( a: AnyObject, b: AnyObject ) {
 	return true;
 }
 
-function mergeDefined< T extends AnyObject >(
-	base: T,
-	patch: Partial< T >
-): T {
+function mergeDefined< T extends AnyObject >( base: T, patch: Partial< T > ): T {
 	const out: AnyObject = { ...base };
 	for ( const key in patch ) {
 		const val = patch[ key as keyof T ];
@@ -98,10 +95,9 @@ function mergeDefined< T extends AnyObject >(
 	return out as T;
 }
 
-export function useStagedSearch<
-	TSearch extends AnyObject,
-	TFrom extends string,
->( opts: UseStagedSearchOptions< TFrom > ): UseStagedSearchReturn< TSearch > {
+export function useStagedSearch< TSearch extends AnyObject, TFrom extends string >(
+	opts: UseStagedSearchOptions< TFrom >
+): UseStagedSearchReturn< TSearch > {
 	const navigate = useNavigate( { from: opts.from } );
 	const committed = useSearch( { from: opts.from } ) as TSearch;
 
@@ -160,7 +156,7 @@ export function useStagedSearch<
 	 */
 	const stage = useCallback(
 		( patch: Partial< TSearch > ) => {
-			setStaged( ( prev ) => ( { ...prev, ...patch } ) );
+			setStaged( prev => ( { ...prev, ...patch } ) );
 			bufferRef.current = { ...bufferRef.current, ...patch };
 
 			if ( typeof opts.autoCommitDebounceMs === 'number' ) {
@@ -168,7 +164,7 @@ export function useStagedSearch<
 				timerRef.current = setTimeout( () => {
 					navigate( {
 						replace: true, // do not pollute history while interacting
-						search: ( prev ) => ( {
+						search: prev => ( {
 							...prev,
 							...( bufferRef.current as Partial< TSearch > ),
 						} ),
@@ -202,38 +198,22 @@ export function useStagedSearch<
 					...( staged as AnyObject ),
 				} as TSearch;
 
-				if (
-					! shallowEqual(
-						merged as AnyObject,
-						committed as AnyObject
-					)
-				) {
+				if ( ! shallowEqual( merged as AnyObject, committed as AnyObject ) ) {
 					diff = {};
 					for ( const key in merged ) {
 						// eslint-disable-next-line no-prototype-builtins
-						if (
-							( committed as AnyObject ).hasOwnProperty( key )
-						) {
-							if (
-								( committed as AnyObject )[ key ] !==
-								( staged as AnyObject )[ key ]
-							) {
-								( diff as AnyObject )[ key ] = (
-									staged as AnyObject
-								 )[ key ];
+						if ( ( committed as AnyObject ).hasOwnProperty( key ) ) {
+							if ( ( committed as AnyObject )[ key ] !== ( staged as AnyObject )[ key ] ) {
+								( diff as AnyObject )[ key ] = ( staged as AnyObject )[ key ];
 							}
 						} else {
-							( diff as AnyObject )[ key ] = (
-								staged as AnyObject
-							 )[ key ];
+							( diff as AnyObject )[ key ] = ( staged as AnyObject )[ key ];
 						}
 					}
 				}
 			}
 
-			const finalPatch = hasPatch
-				? ( patch as Partial< TSearch > )
-				: diff;
+			const finalPatch = hasPatch ? ( patch as Partial< TSearch > ) : diff;
 
 			if ( ! finalPatch || Object.keys( finalPatch ).length === 0 ) {
 				return;
@@ -243,7 +223,7 @@ export function useStagedSearch<
 
 			navigate( {
 				replace: commitOpts?.replace ?? false, // explicit commits push into history
-				search: ( prev ) => ( {
+				search: prev => ( {
 					...prev,
 					...( finalPatch as Partial< TSearch > ),
 				} ),

@@ -1,24 +1,16 @@
 /**
  * External dependencies
  */
+import { localTZDate, dateToISOStringWithLocalTZ } from '@jetpack-premium-analytics/data';
 import type { DateRange } from '@jetpack-premium-analytics/datetime';
-import {
-	localTZDate,
-	dateToISOStringWithLocalTZ,
-} from '@jetpack-premium-analytics/data';
 
 /**
  * Serializes a Date into an ISO string with the site's timezone
  * (or returns an empty string if no date is provided).
  * Useful for writing dates to the URL and for API requests.
  */
-export function encodeDateToSearchParam(
-	date?: Date,
-	timezone?: string
-): string | undefined {
-	return date
-		? dateToISOStringWithLocalTZ( localTZDate( date, timezone ) )
-		: undefined;
+export function encodeDateToSearchParam( date?: Date, timezone?: string ): string | undefined {
+	return date ? dateToISOStringWithLocalTZ( localTZDate( date, timezone ) ) : undefined;
 }
 
 type WriteDateRangeToSearchProps = {
@@ -26,9 +18,7 @@ type WriteDateRangeToSearchProps = {
 		to: string;
 		search:
 			| Record< string, string | undefined >
-			| ( (
-					prev: Record< string, string | undefined >
-			  ) => Record< string, string | undefined > );
+			| ( ( prev: Record< string, string | undefined > ) => Record< string, string | undefined > );
 	} ) => void;
 	to: string;
 	range: DateRange;
@@ -72,9 +62,7 @@ type WriteComparisonToSearchProps = {
 		to: string;
 		search:
 			| Record< string, string | undefined >
-			| ( (
-					prev: Record< string, string | undefined >
-			  ) => Record< string, string | undefined > );
+			| ( ( prev: Record< string, string | undefined > ) => Record< string, string | undefined > );
 	} ) => void;
 	to: string;
 	range?: DateRange;
