@@ -7,7 +7,11 @@ import { Button } from '@wordpress/ui';
 import { formatDateRange } from '@jetpack-premium-analytics/formatters';
 import { sprintf, __ } from '@wordpress/i18n';
 import { useMemo } from 'react';
-import type { ComparisonPresetId } from '@jetpack-premium-analytics/datetime';
+import type {
+	ComparisonPresetId,
+	DateRangePreset,
+	PrimaryPresetId,
+} from '@jetpack-premium-analytics/datetime';
 
 const { Menu } = unlock( componentsPrivateApis );
 
@@ -149,8 +153,14 @@ export function DateComparisonDropdown( {
 			<Menu.Popover className="date-comparison-dropdown__popover">
 				{ hasPresets && (
 					<DateRangePresets
-						value={ presetId ?? null }
-						presets={ presets }
+						/*
+						 * DateRangePresets is typed for primary presets, but it only
+						 * reads `id`/`label`/`range` to render each row, so it renders
+						 * comparison presets identically. Cast to the primary-preset
+						 * prop types; the runtime shape matches.
+						 */
+						value={ ( presetId ?? null ) as PrimaryPresetId | null }
+						presets={ presets as unknown as DateRangePreset[] }
 						hideOnClick
 						onRangeChange={ ( _range, id ) => {
 							/*
