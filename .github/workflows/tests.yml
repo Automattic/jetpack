@@ -348,6 +348,7 @@ jobs:
       - name: Merge coverage artifacts
         run: |
           mkdir coverage
+          # If there's only one matching artifact, actions/download-artifact puts it directly in the specified path. If multiple, it makes subdirectories that need merging.
           if [[ -f coverage_dl/summary.tsv ]]; then
             mv coverage_dl/* coverage/
           else
