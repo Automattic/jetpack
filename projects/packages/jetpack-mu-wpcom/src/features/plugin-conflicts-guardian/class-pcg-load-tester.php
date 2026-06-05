@@ -128,7 +128,11 @@ class PCG_Load_Tester {
 		// confirms — fatals must block so PCG_Rollback can fire.
 		if ( null !== $verdict ) {
 			if ( self::MODE_ACTIVATION === $mode ) {
-				$confirmation = $this->confirm_via_normal_load( $plugin_mains );
+				// Re-probe only the surface that captured. The other surface
+				// already returned a non-fatal response, so re-running it
+				// adds cost without changing the outcome.
+				$surface      = $this->is_block( $front_result ) ? 'front' : 'admin';
+				$confirmation = $this->confirm_via_normal_load( $plugin_mains, $surface );
 				if ( null === $confirmation ) {
 					return $this->downgrade_after_confirmation(
 						$verdict,
@@ -159,23 +163,22 @@ class PCG_Load_Tester {
 	}
 
 	/**
-	 * Fire a confirmation probe pair with `pcg_confirm=1`. Returns null
-	 * on transport failure — the caller keeps the original verdict on
-	 * uncertainty.
+	 * Fire a confirmation probe for a single surface with `pcg_confirm=1`.
+	 * Returns null on transport failure — the caller keeps the original
+	 * verdict on uncertainty.
 	 *
 	 * @param string[] $plugin_mains Absolute paths to plugin main PHP files.
-	 * @return array|null Verdict (most-blocking of front/admin), or null on transport failure.
+	 * @param string   $surface      Which surface to re-probe: `front` or `admin`.
+	 * @return array|null Parsed verdict, or null on transport failure.
 	 */
-	protected function confirm_via_normal_load( array $plugin_mains ) {
-		$front = $this->prepare_probe( $plugin_mains, home_url( '/' ), false, self::MODE_ACTIVATION, true );
-		$admin = $this->prepare_probe( $plugin_mains, admin_url( 'index.php' ), true, self::MODE_ACTIVATION, true );
+	protected function confirm_via_normal_load( array $plugin_mains, $surface = 'front' ) {
+		$is_admin = 'admin' === $surface;
+		$base_url = $is_admin ? admin_url( 'index.php' ) : home_url( '/' );
+		$probe    = $this->prepare_probe( $plugin_mains, $base_url, $is_admin, self::MODE_ACTIVATION, true );
 
 		try {
 			$responses = \WpOrg\Requests\Requests::request_multiple(
-				array(
-					'front' => $front['request'],
-					'admin' => $admin['request'],
-				),
+				array( $surface => $probe['request'] ),
 				array(
 					'timeout'   => self::PROBE_TIMEOUT,
 					'redirects' => 5,
@@ -184,19 +187,10 @@ class PCG_Load_Tester {
 		} catch ( \Throwable $t ) {
 			return null;
 		} finally {
-			delete_transient( self::transient_key( $front['token'] ) );
-			delete_transient( self::transient_key( $admin['token'] ) );
+			delete_transient( self::transient_key( $probe['token'] ) );
 		}
 
-		$front_result = $this->parse_response( $responses['front'] );
-		$admin_result = $this->parse_response( $responses['admin'] );
-		if ( $this->is_block( $front_result ) ) {
-			return $front_result;
-		}
-		if ( $this->is_block( $admin_result ) ) {
-			return $admin_result;
-		}
-		return $front_result;
+		return $this->parse_response( $responses[ $surface ] );
 	}
 
 	/**

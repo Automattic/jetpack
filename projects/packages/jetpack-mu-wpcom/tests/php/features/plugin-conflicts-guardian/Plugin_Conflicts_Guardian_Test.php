@@ -389,6 +389,142 @@ class Plugin_Conflicts_Guardian_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * Scenarios for `pcg_confirm_validate_request` bail paths.
+	 *
+	 * @return array<string,array{0:array<string,string>}>
+	 */
+	public static function provide_confirm_validate_bail_requests(): array {
+		$valid_token = str_repeat( 'a', 32 );
+		return array(
+			'empty request'         => array( array() ),
+			'pcg_probe missing'     => array(
+				array(
+					'pcg_confirm' => '1',
+					'token'       => $valid_token,
+				),
+			),
+			'pcg_confirm missing'   => array(
+				array(
+					'pcg_probe' => '1',
+					'token'     => $valid_token,
+				),
+			),
+			'pcg_probe wrong value' => array(
+				array(
+					'pcg_probe'   => '0',
+					'pcg_confirm' => '1',
+					'token'       => $valid_token,
+				),
+			),
+			'token wrong length'    => array(
+				array(
+					'pcg_probe'   => '1',
+					'pcg_confirm' => '1',
+					'token'       => 'short',
+				),
+			),
+			'token disallowed char' => array(
+				array(
+					'pcg_probe'   => '1',
+					'pcg_confirm' => '1',
+					'token'       => str_repeat( 'a', 31 ) . '!',
+				),
+			),
+			'token missing'         => array(
+				array(
+					'pcg_probe'   => '1',
+					'pcg_confirm' => '1',
+				),
+			),
+		);
+	}
+
+	/**
+	 * `pcg_confirm_validate_request` returns an empty array — and therefore
+	 * `pcg_confirm_maybe_register_hook` would not register the filter — for
+	 * malformed requests: missing flags, wrong values, or tokens that don't
+	 * match the `wp_generate_password( 32, false )` shape.
+	 *
+	 * @param array $request Faux $_GET payload.
+	 * @dataProvider provide_confirm_validate_bail_requests
+	 */
+	#[DataProvider( 'provide_confirm_validate_bail_requests' )]
+	public function test_confirm_validate_request_bails_on_malformed_input( array $request ) {
+		$this->assertSame( array(), pcg_confirm_validate_request( $request ) );
+	}
+
+	/**
+	 * Even with valid flags and a well-formed token, missing transient
+	 * (token never set, or expired) keeps the validator on the bail path.
+	 */
+	public function test_confirm_validate_request_bails_when_transient_missing() {
+		$this->assertSame(
+			array(),
+			pcg_confirm_validate_request(
+				array(
+					'pcg_probe'   => '1',
+					'pcg_confirm' => '1',
+					'token'       => str_repeat( 'a', 32 ),
+				)
+			)
+		);
+	}
+
+	/**
+	 * A transient written by a pre-confirmation-feature deploy (no
+	 * `confirm` key, or `confirm => false`) must bail — strict `true ===`
+	 * keeps mixed-version deploys on the safe side, so the probe endpoint
+	 * still manually requires the candidate as before.
+	 */
+	public function test_confirm_validate_request_bails_when_payload_confirm_flag_unset() {
+		$token = str_repeat( 'b', 32 );
+		set_transient(
+			PCG_Load_Tester::transient_key( $token ),
+			array(
+				'plugins' => array( '/abs/foo/foo.php' ),
+				'mode'    => 'activation',
+			),
+			60
+		);
+		$out = pcg_confirm_validate_request(
+			array(
+				'pcg_probe'   => '1',
+				'pcg_confirm' => '1',
+				'token'       => $token,
+			)
+		);
+		delete_transient( PCG_Load_Tester::transient_key( $token ) );
+		$this->assertSame( array(), $out );
+	}
+
+	/**
+	 * Happy path: flags + format + matching transient with `confirm =>
+	 * true` returns the candidate list ready for the
+	 * `pre_option_active_plugins` injection.
+	 */
+	public function test_confirm_validate_request_returns_plugins_on_valid_payload() {
+		$token = str_repeat( 'c', 32 );
+		set_transient(
+			PCG_Load_Tester::transient_key( $token ),
+			PCG_Load_Tester::build_probe_payload(
+				array( '/abs/foo/foo.php', '/abs/bar/bar.php' ),
+				PCG_Load_Tester::MODE_ACTIVATION,
+				true
+			),
+			60
+		);
+		$out = pcg_confirm_validate_request(
+			array(
+				'pcg_probe'   => '1',
+				'pcg_confirm' => '1',
+				'token'       => $token,
+			)
+		);
+		delete_transient( PCG_Load_Tester::transient_key( $token ) );
+		$this->assertSame( array( '/abs/foo/foo.php', '/abs/bar/bar.php' ), $out );
+	}
+
+	/**
 	 * Unknown mode strings fall back to activation rather than poisoning
 	 * the transient with a value the endpoint will reject.
 	 */

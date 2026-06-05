@@ -21,43 +21,87 @@ function pcg_confirm_maybe_register_hook() {
 		return;
 	}
 
-	// phpcs:disable WordPress.Security.NonceVerification.Recommended -- token (validated below) is the nonce.
-	$probe_flag   = sanitize_text_field( wp_unslash( $_GET['pcg_probe'] ?? '' ) );
-	$confirm_flag = sanitize_text_field( wp_unslash( $_GET['pcg_confirm'] ?? '' ) );
-	$raw_token    = sanitize_text_field( wp_unslash( $_GET['token'] ?? '' ) );
+	// phpcs:disable WordPress.Security.NonceVerification.Recommended -- token (validated by `pcg_confirm_validate_request`) is the nonce.
+	$plugin_mains = pcg_confirm_validate_request( $_GET );
 	// phpcs:enable WordPress.Security.NonceVerification.Recommended
-	if ( '1' !== $probe_flag || '1' !== $confirm_flag ) {
-		return;
-	}
-	// Length is locked to what wp_generate_password( 32, false ) emits;
-	// the transient lookup is still the real gate, but anchoring length
-	// here rules out truncation / accidental-collision noise.
-	$token = preg_match( '/^[A-Za-z0-9]{32}$/', $raw_token ) ? $raw_token : '';
-	if ( '' === $token ) {
-		return;
-	}
-
-	require_once __DIR__ . '/class-pcg-load-tester.php';
-	$payload = get_transient( PCG_Load_Tester::transient_key( $token ) );
-	if ( ! is_array( $payload ) || true !== ( $payload['confirm'] ?? false ) ) {
-		return;
-	}
-	$plugin_mains = is_array( $payload['plugins'] ?? null ) ? array_values(
-		array_filter(
-			array_map( static fn( $p ) => (string) $p, $payload['plugins'] ),
-			static fn( $p ) => '' !== $p
-		)
-	) : array();
 	if ( empty( $plugin_mains ) ) {
 		return;
 	}
 
 	// Only single-site active_plugins is hooked; pre_option_active_sitewide_plugins
 	// would need the same treatment if PCG ever guards network activations.
-	add_filter(
-		'pre_option_active_plugins',
-		static fn( $value ) => pcg_confirm_inject_active_plugins( $value, $plugin_mains )
-	);
+	pcg_confirm_plugin_mains( $plugin_mains );
+	add_filter( 'pre_option_active_plugins', 'pcg_confirm_filter_active_plugins' );
+}
+
+/**
+ * Pure validation: returns the plugin-main list iff $request is a valid
+ * confirmation probe (correct flags, well-formed token, matching
+ * transient with `confirm === true`, non-empty plugins). Empty array
+ * otherwise. Extracted from the entry hook for unit testability.
+ *
+ * @internal
+ * @param array $request Request array (typically `$_GET`).
+ * @return string[] Plugin main absolute paths, or empty on any failure.
+ */
+function pcg_confirm_validate_request( array $request ) {
+	$probe_flag   = sanitize_text_field( wp_unslash( $request['pcg_probe'] ?? '' ) );
+	$confirm_flag = sanitize_text_field( wp_unslash( $request['pcg_confirm'] ?? '' ) );
+	$raw_token    = sanitize_text_field( wp_unslash( $request['token'] ?? '' ) );
+	if ( '1' !== $probe_flag || '1' !== $confirm_flag ) {
+		return array();
+	}
+	// Length is locked to what wp_generate_password( 32, false ) emits;
+	// the transient lookup is still the real gate, but anchoring length
+	// here rules out truncation / accidental-collision noise.
+	$token = preg_match( '/^[A-Za-z0-9]{32}$/', $raw_token ) ? $raw_token : '';
+	if ( '' === $token ) {
+		return array();
+	}
+
+	require_once __DIR__ . '/class-pcg-load-tester.php';
+	$payload = get_transient( PCG_Load_Tester::transient_key( $token ) );
+	// During a mixed-version deploy a pre-deploy transient may lack the
+	// `confirm` key; strict `true ===` keeps that case on the safe side
+	// (no injection — the probe endpoint will manually require as before).
+	if ( ! is_array( $payload ) || true !== ( $payload['confirm'] ?? false ) ) {
+		return array();
+	}
+	return is_array( $payload['plugins'] ?? null ) ? array_values(
+		array_filter(
+			array_map( static fn( $p ) => (string) $p, $payload['plugins'] ),
+			static fn( $p ) => '' !== $p
+		)
+	) : array();
+}
+
+/**
+ * Stash for the plugin-mains list the active_plugins filter needs.
+ * Using a named function + static container (instead of an anonymous
+ * closure) keeps the filter callback removable via `remove_filter`.
+ *
+ * @internal
+ * @param array|null $set Optional — replace the stashed list.
+ * @return string[]
+ */
+function pcg_confirm_plugin_mains( ?array $set = null ) {
+	static $mains = array();
+	if ( is_array( $set ) ) {
+		$mains = $set;
+	}
+	return $mains;
+}
+
+/**
+ * Named filter callback for `pre_option_active_plugins`. Delegates to
+ * `pcg_confirm_inject_active_plugins` with the stashed candidate list.
+ *
+ * @internal
+ * @param mixed $value Existing filter value.
+ * @return string[]
+ */
+function pcg_confirm_filter_active_plugins( $value ) {
+	return pcg_confirm_inject_active_plugins( $value, pcg_confirm_plugin_mains() );
 }
 
 /**
