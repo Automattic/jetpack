@@ -127,6 +127,17 @@ function filterCssFiles( file ) {
 }
 
 /**
+ * Provides filter to determine which files are shell scripts to run through shellcheck.
+ *
+ * @param {string} file - Name of file that was modified.
+ * @return {boolean} Whether the file should be linted.
+ */
+function filterShellFiles( file ) {
+	// Keeping it simple.
+	return file.endsWith( '.sh' );
+}
+
+/**
  * Logging function that is used when check is failed
  *
  * @param {string} before - Text before "no-verify" block
@@ -156,6 +167,7 @@ const phpFiles = gitFiles.filter(
 const phpcsFiles = phpFiles.filter( phpcsFilesToFilter );
 const phpcsChangedFiles = phpFiles.filter( file => ! phpcsFilesToFilter( file ) );
 const cssFiles = gitFiles.filter( filterCssFiles );
+const shellFiles = gitFiles.filter( filterShellFiles );
 
 /**
  * Filters out unstaged changes so we do not add an entire file without intention.
@@ -480,6 +492,34 @@ function runCssLint( cssFilesToLint ) {
 }
 
 /**
+ * Run shellcheck on shell scripts.
+ *
+ * @param {Array} shellFilesToLint - List of shell scripts to lint.
+ */
+function runShellcheck( shellFilesToLint ) {
+	if ( ! shellFilesToLint.length ) {
+		return;
+	}
+
+	const shellcheckResult = spawnSync( 'shellcheck', [ ...shellFilesToLint ], {
+		stdio: 'inherit',
+	} );
+
+	// There's wrapper package in npm that installs it on first run, but for now let's just skip if not present.
+	if ( shellcheckResult.error?.code === 'ENOENT' ) {
+		console.log(
+			chalk.yellow( 'Skipping shellcheck: not installed. See https://www.shellcheck.net/' )
+		);
+		return;
+	}
+
+	// Down the road we could consider implementing auto-fix with `-f diff`, but for now just report.
+	if ( shellcheckResult && shellcheckResult.status && ! isJetpackDraftMode() ) {
+		checkFailed( 'ShellCheck reported some problems.\n' );
+	}
+}
+
+/**
  * Exit script
  *
  * @param {number} exitCodePassed - Shell exit code.
@@ -552,6 +592,11 @@ if ( phpcsChangedFiles.length > 0 ) {
 // Run CSS linting
 if ( cssFiles.length > 0 ) {
 	runCssLint( cssFiles );
+}
+
+// Run shellcheck
+if ( shellFiles.length > 0 ) {
+	runShellcheck( shellFiles );
 }
 
 exit( exitCode );
