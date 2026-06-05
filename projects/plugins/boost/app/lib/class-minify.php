@@ -26,6 +26,7 @@ class Minify {
 	 */
 	public const FALLBACK_EXCEPTION    = 'exception';
 	public const FALLBACK_ERROR        = 'error';
+	public const FALLBACK_SCAN_ERROR   = 'scan_error';
 	public const FALLBACK_EMPTY_OUTPUT = 'empty_output';
 	public const FALLBACK_LOOKS_BROKEN = 'looks_broken';
 
@@ -71,15 +72,17 @@ class Minify {
 
 		// The structural scan runs outside the minifier try/catch above, so guard it
 		// too: any \Throwable from the scan itself must degrade to the original rather
-		// than white-screen the page. (Memory exhaustion is a fatal, not a \Throwable,
-		// so it cannot be caught -- the scanner instead bounds its own nesting depth to
-		// avoid provoking one.) Pass the original input so the scanner can apply its
-		// gross-truncation backstop to bundles too large to scan in full. See
-		// Js_Structure_Scanner.
+		// than white-screen the page. It reports the distinct 'scan_error' reason so a
+		// scanner fault is never conflated with a minifier-level 'error' in the hook's
+		// (released, immutable) reason contract. (Memory exhaustion is a fatal, not a
+		// \Throwable, so it cannot be caught -- the scanner instead bounds its own
+		// nesting depth to avoid provoking one.) Pass the original input so the scanner
+		// can apply its gross-truncation backstop to bundles too large to scan in full.
+		// See Js_Structure_Scanner.
 		try {
 			$looks_broken = Js_Structure_Scanner::looks_broken( $minified_js, $js );
 		} catch ( \Throwable $e ) {
-			return self::fallback_js( $js, self::FALLBACK_ERROR, $e );
+			return self::fallback_js( $js, self::FALLBACK_SCAN_ERROR, $e );
 		}
 		if ( $looks_broken ) {
 			return self::fallback_js( $js, self::FALLBACK_LOOKS_BROKEN );
@@ -116,14 +119,14 @@ class Minify {
 			 * Fires when Minify::js() declines its minified output and serves the
 			 * original JS instead. This is the always-on observability surface for
 			 * the minify safety net: it fires on every fallback, including the
-			 * abnormal 'error' arm (e.g. \TypeError / \ParseError),
+			 * abnormal 'error' / 'scan_error' arms (e.g. \TypeError / \ParseError),
 			 * so register a callback here to monitor how often -- and why -- it
 			 * engages. Callbacks must not throw; a throwing callback is swallowed so
 			 * it cannot break minification.
 			 *
 			 * @since $$next-version$$
 			 *
-			 * @param string          $reason Why the fallback fired: one of the Minify::FALLBACK_* values ('exception', 'error', 'empty_output', 'looks_broken'). 'error' covers both a minifier \Error and a \Throwable from the structural scan -- inspect $error's class to tell them apart.
+			 * @param string          $reason Why the fallback fired: one of the Minify::FALLBACK_* values ('exception', 'error', 'scan_error', 'empty_output', 'looks_broken'). 'error' is a \Throwable raised by the minifier itself; 'scan_error' is a \Throwable raised by the structural scanner -- both carry it in $error.
 			 * @param int             $bytes  Length of the original JS being served, in bytes.
 			 * @param \Throwable|null $error  The throwable when triggered by one, otherwise null. Its message may embed an internal filesystem path (e.g. an IOException), so consumers should not surface it unsanitized.
 			 */
