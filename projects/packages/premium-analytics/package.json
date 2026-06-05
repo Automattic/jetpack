@@ -6,6 +6,7 @@
 	"scripts": {
 		"build": "wp-build && mkdir -p build/modules/boot && cp shims/boot-asset.php build/modules/boot/index.min.asset.php",
 		"build-production": "NODE_ENV=production wp-build && mkdir -p build/modules/boot && cp shims/boot-asset.php build/modules/boot/index.min.asset.php",
+		"typecheck": "tsgo --noEmit",
 		"watch": "wp-build --watch"
 	},
 	"wpPlugin": {
@@ -38,6 +39,7 @@
 	},
 	"devDependencies": {
 		"@babel/core": "7.29.0",
+		"@typescript/native-preview": "7.0.0-dev.20260225.1",
 		"@wordpress/build": "0.14.0",
 		"browserslist": "4.28.2"
 	}
