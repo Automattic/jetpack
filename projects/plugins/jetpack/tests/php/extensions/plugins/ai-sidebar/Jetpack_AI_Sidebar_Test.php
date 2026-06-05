@@ -100,6 +100,7 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 		remove_all_filters( 'agents_manager_agent_providers' );
 		remove_all_filters( 'agents_manager_enabled_in_block_editor' );
 		remove_all_filters( 'jetpack_ai_editorial_review_enabled' );
+		remove_all_filters( 'jetpack_ai_generate_feedback_enabled' );
 		remove_all_filters( 'jetpack_ai_sidebar_preview_enabled' );
 		remove_all_filters( 'jetpack_ai_sidebar_preview_features' );
 		remove_all_filters( 'jetpack_ai_sidebar_agents_manager_data' );
@@ -480,6 +481,7 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 		$this->assertStringContainsString( '"aiEditorialReviewEnabled":false', $this->get_agents_manager_inline_script() );
 		$this->assertStringContainsString( '"jetpackAiSidebarPreview":{"enabled":true', $this->get_agents_manager_inline_script() );
 		$this->assertStringContainsString( '"aiEditorialReview":false', $this->get_agents_manager_inline_script() );
+		$this->assertStringContainsString( '"generateFeedback":false', $this->get_agents_manager_inline_script() );
 	}
 
 	/**
@@ -495,6 +497,7 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 		$this->assertStringContainsString( '"aiEditorialReviewEnabled":true', $this->get_agents_manager_inline_script() );
 		$this->assertStringContainsString( '"jetpackAiSidebarPreview":{"enabled":true', $this->get_agents_manager_inline_script() );
 		$this->assertStringContainsString( '"aiEditorialReview":true', $this->get_agents_manager_inline_script() );
+		$this->assertStringContainsString( '"generateFeedback":false', $this->get_agents_manager_inline_script() );
 		$this->assertStringContainsString( '"blockTransformations":true', $this->get_agents_manager_inline_script() );
 		$this->assertStringContainsString( '"optimizeTitleSuggestion":false', $this->get_agents_manager_inline_script() );
 		$this->assertStringContainsString( '"chatHistory":false', $this->get_agents_manager_inline_script() );
@@ -518,6 +521,38 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 		Jetpack_AI_Sidebar::maybe_enqueue_am();
 
 		$this->assertStringContainsString( '"optimizeTitleSuggestion":false', $this->get_agents_manager_inline_script() );
+	}
+
+	/**
+	 * The Generate Feedback-specific filter can enable the flag outside dev mode.
+	 */
+	public function test_maybe_enqueue_am_allows_generate_feedback_filter_to_enable() {
+		$this->set_block_editor_screen();
+		$this->cache_am_asset_data();
+		add_filter( 'jetpack_ai_generate_feedback_enabled', '__return_true' );
+
+		Jetpack_AI_Sidebar::maybe_enqueue_am();
+
+		$this->assertStringContainsString( '"generateFeedback":true', $this->get_agents_manager_inline_script() );
+	}
+
+	/**
+	 * The generic preview features filter cannot bypass the Generate Feedback gate.
+	 */
+	public function test_maybe_enqueue_am_prevents_preview_features_filter_from_enabling_generate_feedback() {
+		$this->set_block_editor_screen();
+		$this->cache_am_asset_data();
+		add_filter(
+			'jetpack_ai_sidebar_preview_features',
+			function ( $features ) {
+				$features['generateFeedback'] = true;
+				return $features;
+			}
+		);
+
+		Jetpack_AI_Sidebar::maybe_enqueue_am();
+
+		$this->assertStringContainsString( '"generateFeedback":false', $this->get_agents_manager_inline_script() );
 	}
 
 	/**
@@ -552,6 +587,21 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 
 		$this->assertStringContainsString( '"aiEditorialReviewEnabled":true', $this->get_agents_manager_inline_script() );
 		$this->assertStringContainsString( '"optimizeTitleSuggestion":true', $this->get_agents_manager_inline_script() );
+		$this->assertStringContainsString( '"generateFeedback":true', $this->get_agents_manager_inline_script() );
+	}
+
+	/**
+	 * The Generate Feedback-specific filter can suppress the flag even in dev mode.
+	 */
+	public function test_maybe_enqueue_am_allows_generate_feedback_filter_to_disable_dev_mode() {
+		$this->set_block_editor_screen();
+		$this->cache_am_asset_data();
+		$_SERVER['A8C_PROXIED_REQUEST'] = '1';
+		add_filter( 'jetpack_ai_generate_feedback_enabled', '__return_false' );
+
+		Jetpack_AI_Sidebar::maybe_enqueue_am();
+
+		$this->assertStringContainsString( '"generateFeedback":false', $this->get_agents_manager_inline_script() );
 	}
 
 	/**
@@ -569,6 +619,7 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 		$this->assertStringContainsString( '"aiEditorialReviewEnabled":false', $this->get_agents_manager_inline_script() );
 		$this->assertStringContainsString( '"jetpackAiSidebarPreview":{"enabled":true', $this->get_agents_manager_inline_script() );
 		$this->assertStringContainsString( '"aiEditorialReview":false', $this->get_agents_manager_inline_script() );
+		$this->assertStringContainsString( '"generateFeedback":true', $this->get_agents_manager_inline_script() );
 	}
 
 	/**
@@ -584,6 +635,7 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 		$this->assertSame( true, $data['aiEditorialReviewEnabled'] );
 		$this->assertSame( true, $data['jetpackAiSidebarPreview']['enabled'] );
 		$this->assertSame( true, $data['jetpackAiSidebarPreview']['features']['aiEditorialReview'] );
+		$this->assertSame( false, $data['jetpackAiSidebarPreview']['features']['generateFeedback'] );
 		$this->assertSame( true, $data['jetpackAiSidebarPreview']['features']['blockTransformations'] );
 		$this->assertSame( false, $data['jetpackAiSidebarPreview']['features']['optimizeTitleSuggestion'] );
 		$this->assertSame( false, $data['jetpackAiSidebarPreview']['features']['chatHistory'] );
@@ -642,6 +694,7 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 		$this->assertSame( false, $data['aiEditorialReviewEnabled'] );
 		$this->assertSame( true, $data['jetpackAiSidebarPreview']['enabled'] );
 		$this->assertSame( false, $data['jetpackAiSidebarPreview']['features']['aiEditorialReview'] );
+		$this->assertSame( false, $data['jetpackAiSidebarPreview']['features']['generateFeedback'] );
 		$this->assertSame( true, $data['jetpackAiSidebarPreview']['features']['blockTransformations'] );
 		$this->assertSame( false, $data['jetpackAiSidebarPreview']['features']['optimizeTitleSuggestion'] );
 	}
@@ -711,6 +764,7 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 
 		$this->assertStringContainsString( '"aiEditorialReviewEnabled":true', $this->get_agents_manager_inline_script() );
 		$this->assertStringContainsString( '"aiEditorialReview":true', $this->get_agents_manager_inline_script() );
+		$this->assertStringContainsString( '"generateFeedback":false', $this->get_agents_manager_inline_script() );
 	}
 
 	/**
@@ -734,6 +788,7 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 
 		$this->assertStringContainsString( '"aiEditorialReviewEnabled":false', $this->get_agents_manager_inline_script() );
 		$this->assertStringContainsString( '"aiEditorialReview":false', $this->get_agents_manager_inline_script() );
+		$this->assertStringContainsString( '"generateFeedback":false', $this->get_agents_manager_inline_script() );
 	}
 
 	/**
@@ -822,6 +877,10 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 		);
 		$this->assertStringContainsString(
 			'"optimizeTitleSuggestion":true',
+			$this->get_agents_manager_inline_script()
+		);
+		$this->assertStringContainsString(
+			'"generateFeedback":true',
 			$this->get_agents_manager_inline_script()
 		);
 	}

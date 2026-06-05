@@ -511,6 +511,23 @@ class Jetpack_AI_Sidebar {
 	}
 
 	/**
+	 * UI feature flag for Generate Feedback.
+	 *
+	 * Server-side permission checks still gate execution. This site-side flag
+	 * controls whether the Jetpack AI Sidebar exposes the Generate Feedback
+	 * suggestion, matching the temporary dev-mode gate used during the AI
+	 * Editorial Review rollout.
+	 *
+	 * @return bool
+	 */
+	private static function is_generate_feedback_enabled(): bool {
+		return (bool) apply_filters(
+			'jetpack_ai_generate_feedback_enabled',
+			self::is_dev_mode()
+		);
+	}
+
+	/**
 	 * UI feature flag for the public Jetpack AI Sidebar Preview surface.
 	 *
 	 * AI Editorial Review remains a feature inside the preview. Hosts can open
@@ -522,7 +539,7 @@ class Jetpack_AI_Sidebar {
 	private static function is_jetpack_ai_sidebar_preview_enabled(): bool {
 		return (bool) apply_filters(
 			'jetpack_ai_sidebar_preview_enabled',
-			self::is_ai_editorial_review_enabled()
+			self::is_ai_editorial_review_enabled() || self::is_generate_feedback_enabled()
 		);
 	}
 
@@ -534,6 +551,7 @@ class Jetpack_AI_Sidebar {
 	private static function get_jetpack_ai_sidebar_preview_config(): array {
 		$features = array(
 			'aiEditorialReview'       => self::is_ai_editorial_review_enabled(),
+			'generateFeedback'        => self::is_generate_feedback_enabled(),
 			'blockTransformations'    => true,
 			'optimizeTitleSuggestion' => self::is_optimize_title_suggestion_enabled(),
 			'chatHistory'             => false,
@@ -547,6 +565,7 @@ class Jetpack_AI_Sidebar {
 		 */
 		$filtered_features                   = apply_filters( 'jetpack_ai_sidebar_preview_features', $features );
 		$features                            = is_array( $filtered_features ) ? array_merge( $features, $filtered_features ) : $features;
+		$features['generateFeedback']        = self::is_generate_feedback_enabled();
 		$features['optimizeTitleSuggestion'] = (bool) $features['optimizeTitleSuggestion'] && self::is_optimize_title_suggestion_enabled();
 
 		return array(
