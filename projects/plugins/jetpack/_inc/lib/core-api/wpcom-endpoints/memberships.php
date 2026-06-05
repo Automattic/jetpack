@@ -544,7 +544,6 @@ class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 			'buyer_can_change_amount'      => $buyer_can_change_amount,
 			'interval'                     => $interval,
 			'type'                         => $type,
-			'description'                  => $request['description'],
 			'welcome_email_content'        => $request['welcome_email_content'],
 			'subscribe_as_site_subscriber' => $request['subscribe_as_site_subscriber'],
 			'multiple_per_user'            => $request['multiple_per_user'],
@@ -557,6 +556,10 @@ class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 		// If we pass directly the value "null", it will break the argument validation.
 		if ( null !== $is_editable ) {
 			$payload['is_editable'] = $is_editable;
+		}
+
+		if ( isset( $request['description'] ) ) {
+			$payload['description'] = $request['description'];
 		}
 
 		return $payload;
