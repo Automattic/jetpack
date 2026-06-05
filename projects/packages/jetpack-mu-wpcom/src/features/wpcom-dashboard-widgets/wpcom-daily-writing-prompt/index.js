@@ -35,7 +35,7 @@ export default () => {
 				<Text variant="body-md" render={ <p /> }>
 					{ prompt.text }
 				</Text>
-				<Stack direction="row" justify="flex-end" gap="xs">
+				<Stack direction="row" justify="flex-end">
 					<Button
 						variant="minimal"
 						size="small"
