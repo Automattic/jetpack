@@ -10,7 +10,7 @@ This field depends on two external data providers:
 | Provider | Package | Purpose |
 |----------|---------|---------|
 | `getStoreInfo()` | `@woocommerce-next/data` | Reads `launchedDate` from the store profile |
-| `getDefaultPreset()` | `@next-woo-analytics/data` | Resolves a smart date-range preset based on store age |
+| `getDefaultPreset()` | `@jetpack-premium-analytics/data` | Resolves a smart date-range preset based on store age |
 
 ### Why the coupling exists
 

@@ -34,7 +34,7 @@ export type ChartEmptyStateProps = {
  *
  * @example
  * ```tsx
- * import { customer } from '@next-woo-analytics/icons';
+ * import { customer } from '@jetpack-premium-analytics/icons';
  *
  * // With custom icon
  * <ChartEmptyState icon={ customer } />
@@ -48,7 +48,7 @@ export type ChartEmptyStateProps = {
  */
 export function ChartEmptyState( {
 	icon = cautionFilled,
-	text = __( 'No data found for this date range.', 'woocommerce-analytics' ),
+	text = __( 'No data found for this date range.', 'jetpack-premium-analytics' ),
 }: ChartEmptyStateProps ) {
 	return (
 		<EmptyState.Root className={ styles.container }>

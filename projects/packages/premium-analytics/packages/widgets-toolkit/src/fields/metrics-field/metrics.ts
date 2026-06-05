@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { FilterCondition } from '@next-woo-analytics/data';
+import { FilterCondition } from '@jetpack-premium-analytics/data';
 
 /**
  * Internal dependencies
@@ -28,10 +28,10 @@ export type Metric = {
 
 const METRIC_NET_SALES: Metric = {
 	id: 'general-orders_value_net',
-	label: __( 'Net sales', 'woocommerce-analytics' ),
+	label: __( 'Net sales', 'jetpack-premium-analytics' ),
 	description: __(
 		'Monitor your total revenue — after any discounts, returns, or adjustments — over a set period of time.',
-		'woocommerce-analytics'
+		'jetpack-premium-analytics'
 	),
 	category: 'Finances',
 	metricType: 'general',
@@ -41,10 +41,10 @@ const METRIC_NET_SALES: Metric = {
 
 const METRIC_ORDERS: Metric = {
 	id: 'general-orders_no',
-	label: __( 'Orders', 'woocommerce-analytics' ),
+	label: __( 'Orders', 'jetpack-premium-analytics' ),
 	description: __(
 		'See a breakdown of when orders are placed to identify peak selling periods.',
-		'woocommerce-analytics'
+		'jetpack-premium-analytics'
 	),
 	category: 'Orders',
 	metricType: 'general',
@@ -54,10 +54,10 @@ const METRIC_ORDERS: Metric = {
 
 const METRIC_BOOKINGS: Metric = {
 	id: 'booking-orders_no',
-	label: __( 'Bookings', 'woocommerce-analytics' ),
+	label: __( 'Bookings', 'jetpack-premium-analytics' ),
 	description: __(
 		'See a breakdown of when bookings are placed to identify peak selling periods.',
-		'woocommerce-analytics'
+		'jetpack-premium-analytics'
 	),
 	category: 'Orders',
 	metricKey: 'orders_no',
@@ -74,10 +74,10 @@ const METRIC_BOOKINGS: Metric = {
 
 const METRIC_VISITORS: Metric = {
 	id: 'visitors-visitors',
-	label: __( 'Visitors', 'woocommerce-analytics' ),
+	label: __( 'Visitors', 'jetpack-premium-analytics' ),
 	description: __(
 		'Track website visitor trends and monitor traffic patterns over time.',
-		'woocommerce-analytics'
+		'jetpack-premium-analytics'
 	),
 	category: 'Orders',
 	metricType: 'visitors',
@@ -87,10 +87,10 @@ const METRIC_VISITORS: Metric = {
 
 const METRIC_CONVERSION_RATE: Metric = {
 	id: 'conversion-conversion_rate',
-	label: __( 'Store conversion rate', 'woocommerce-analytics' ),
+	label: __( 'Store conversion rate', 'jetpack-premium-analytics' ),
 	description: __(
 		"Track your store's conversion funnel from sessions to completed orders.",
-		'woocommerce-analytics'
+		'jetpack-premium-analytics'
 	),
 	category: 'Sales',
 	metricType: 'conversion',
@@ -100,10 +100,10 @@ const METRIC_CONVERSION_RATE: Metric = {
 
 const METRIC_CUSTOMERS: Metric = {
 	id: 'customers-customers',
-	label: __( 'Customers', 'woocommerce-analytics' ),
+	label: __( 'Customers', 'jetpack-premium-analytics' ),
 	description: __(
 		'Track the total number of customers (new and returning) who placed orders during the selected time period.',
-		'woocommerce-analytics'
+		'jetpack-premium-analytics'
 	),
 	category: 'Orders',
 	metricType: 'customers',

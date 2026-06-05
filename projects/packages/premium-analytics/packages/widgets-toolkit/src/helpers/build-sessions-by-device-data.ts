@@ -2,8 +2,8 @@
  * External dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { formatMetricValue } from '@wc-analytics/formatters';
-import type { ReportDataMap } from '@next-woo-analytics/data';
+import { formatMetricValue } from '@jetpack-premium-analytics/formatters';
+import type { ReportDataMap } from '@jetpack-premium-analytics/data';
 
 /**
  * Internal dependencies
@@ -23,9 +23,9 @@ export interface SessionsByDeviceData {
  * Maps API device_type values to user-friendly labels.
  */
 const DEVICE_LABELS: Record< string, string > = {
-	mobile: __( 'Mobile', 'woocommerce-analytics' ),
-	desktop: __( 'Desktop', 'woocommerce-analytics' ),
-	tablet: __( 'Tablet', 'woocommerce-analytics' ),
+	mobile: __( 'Mobile', 'jetpack-premium-analytics' ),
+	desktop: __( 'Desktop', 'jetpack-premium-analytics' ),
+	tablet: __( 'Tablet', 'jetpack-premium-analytics' ),
 };
 
 /**

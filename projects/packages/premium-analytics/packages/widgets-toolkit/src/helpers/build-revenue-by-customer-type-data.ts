@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { __ } from '@wordpress/i18n';
-import type { ReportDataMap, ReportParams } from '@next-woo-analytics/data';
+import type { ReportDataMap, ReportParams } from '@jetpack-premium-analytics/data';
 import type { SeriesData } from '@automattic/charts';
 
 /**
@@ -47,11 +47,11 @@ export function buildRevenueByCustomerTypeData(
 			label: primaryLabel,
 			data: [
 				{
-					label: __( 'Returning', 'woocommerce-analytics' ),
+					label: __( 'Returning', 'jetpack-premium-analytics' ),
 					value: returningCustomerSales,
 				},
 				{
-					label: __( 'New', 'woocommerce-analytics' ),
+					label: __( 'New', 'jetpack-premium-analytics' ),
 					value: newCustomerSales,
 				},
 			],

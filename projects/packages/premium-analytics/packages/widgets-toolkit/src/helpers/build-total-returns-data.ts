@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { __ } from '@wordpress/i18n';
-import type { ReportDataMap, ReportParams } from '@next-woo-analytics/data';
+import type { ReportDataMap, ReportParams } from '@jetpack-premium-analytics/data';
 import type { SeriesData } from '@automattic/charts';
 
 /**
@@ -61,7 +61,7 @@ export function buildTotalReturnsData(
 			data: [
 				{ label: 'Total sales', value: salesAmount },
 				{
-					label: __( 'Refunds', 'woocommerce-analytics' ),
+					label: __( 'Refunds', 'jetpack-premium-analytics' ),
 					value: refundsAmount,
 				},
 			],
@@ -81,11 +81,11 @@ export function buildTotalReturnsData(
 			label: comparisonLabel,
 			data: [
 				{
-					label: __( 'Total sales', 'woocommerce-analytics' ),
+					label: __( 'Total sales', 'jetpack-premium-analytics' ),
 					value: comparisonSalesAmount,
 				},
 				{
-					label: __( 'Refunds', 'woocommerce-analytics' ),
+					label: __( 'Refunds', 'jetpack-premium-analytics' ),
 					value: comparisonTotalRefunds,
 				},
 			],

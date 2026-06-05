@@ -6,8 +6,8 @@ import { WidgetLoadingOverlay } from '@automattic/dashboard';
 import {
 	useReportOrderAttribution,
 	ORDER_ATTRIBUTION_VIEWS,
-} from '@next-woo-analytics/data';
-import { megaphone, search, channel } from '@next-woo-analytics/icons';
+} from '@jetpack-premium-analytics/data';
+import { megaphone, search, channel } from '@jetpack-premium-analytics/icons';
 
 /**
  * Internal dependencies

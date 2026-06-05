@@ -7,7 +7,7 @@ A **pure** vertical bar chart component for displaying categorical data. Built o
 This component is **pure and self-contained**—it receives all styling via props and has no external dependencies on context providers or themes.
 
 ```tsx
-import { BarChart } from '@next-woo-analytics/widgets-toolkit';
+import { BarChart } from '@jetpack-premium-analytics/widgets-toolkit';
 
 <BarChart
 	chartData={ chartData }
@@ -29,7 +29,7 @@ import { BarChart } from '@next-woo-analytics/widgets-toolkit';
 The cleanest approach is to pass styles as a separate prop. Styles are applied to series by index:
 
 ```tsx
-import { BarChart, type BarChartStyle } from '@next-woo-analytics/widgets-toolkit';
+import { BarChart, type BarChartStyle } from '@jetpack-premium-analytics/widgets-toolkit';
 
 const styles: BarChartStyle[] = [
 	{ stroke: '#3858E9' },
@@ -135,7 +135,7 @@ const styles: BarChartStyle[] = [
 Widgets wrapped in `GlobalChartsProvider` can use `getElementStyles` from the context to resolve theme colors:
 
 ```tsx
-import { BarChart } from '@next-woo-analytics/widgets-toolkit';
+import { BarChart } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useGlobalChartsContext } from '@automattic/charts';
 
 function MyWidget( { chartData } ) {

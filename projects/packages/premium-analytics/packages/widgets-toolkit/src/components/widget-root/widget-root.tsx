@@ -5,7 +5,7 @@ import {
 	AnalyticsQueryClientProvider,
 	getDefaultPreset,
 	normalizeReportParams,
-} from '@next-woo-analytics/data';
+} from '@jetpack-premium-analytics/data';
 import { getStoreInfo } from '@woocommerce-next/data';
 import { GlobalChartsProvider } from '@automattic/charts';
 import { useSearch } from '@wordpress/route';

@@ -2,8 +2,8 @@
  * External dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { formatMetricValue } from '@wc-analytics/formatters';
-import type { ReportDataMap } from '@next-woo-analytics/data';
+import { formatMetricValue } from '@jetpack-premium-analytics/formatters';
+import type { ReportDataMap } from '@jetpack-premium-analytics/data';
 
 /**
  * Internal dependencies
@@ -54,19 +54,19 @@ export function buildBookingsByAttendanceData(
 	const statusMap: Array< { key: AttendanceStatusKey; label: string } > = [
 		{
 			key: 'attendance_status_booked',
-			label: __( 'Booked', 'woocommerce-analytics' ),
+			label: __( 'Booked', 'jetpack-premium-analytics' ),
 		},
 		{
 			key: 'attendance_status_checked_in',
-			label: __( 'Checked In', 'woocommerce-analytics' ),
+			label: __( 'Checked In', 'jetpack-premium-analytics' ),
 		},
 		{
 			key: 'attendance_status_no_show',
-			label: __( 'No Show', 'woocommerce-analytics' ),
+			label: __( 'No Show', 'jetpack-premium-analytics' ),
 		},
 		{
 			key: 'status_cancelled',
-			label: __( 'Cancelled', 'woocommerce-analytics' ),
+			label: __( 'Cancelled', 'jetpack-premium-analytics' ),
 		},
 	];
 

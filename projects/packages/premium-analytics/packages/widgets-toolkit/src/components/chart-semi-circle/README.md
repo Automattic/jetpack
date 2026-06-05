@@ -14,7 +14,7 @@ A responsive semi-circle (half-donut) chart component that fills its parent cont
 ## Usage
 
 ```tsx
-import { SemiCircleChart } from '@next-woo-analytics/widgets-toolkit';
+import { SemiCircleChart } from '@jetpack-premium-analytics/widgets-toolkit';
 
 const chartData = [
   { label: 'Mobile', value: 4500 },

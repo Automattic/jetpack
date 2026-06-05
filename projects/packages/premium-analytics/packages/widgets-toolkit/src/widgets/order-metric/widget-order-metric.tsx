@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { useReportOrders } from '@next-woo-analytics/data';
+import { useReportOrders } from '@jetpack-premium-analytics/data';
 
 /**
  * Internal dependencies

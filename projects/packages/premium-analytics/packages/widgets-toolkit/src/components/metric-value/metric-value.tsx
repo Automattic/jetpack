@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { type CSSProperties, useMemo } from 'react';
-import { formatMetricValue } from '@wc-analytics/formatters';
+import { formatMetricValue } from '@jetpack-premium-analytics/formatters';
 import type { FontSize } from '@wordpress/theme';
 import clsx from 'clsx';
 

@@ -1,8 +1,8 @@
 /**
  * External dependencies
  */
-import { formatDateRange } from '@wc-analytics/formatters';
-import { localTZDate } from '@next-woo-analytics/data';
+import { formatDateRange } from '@jetpack-premium-analytics/formatters';
+import { localTZDate } from '@jetpack-premium-analytics/data';
 import { __ } from '@wordpress/i18n';
 
 /**
@@ -68,7 +68,7 @@ export function buildTimeSeriesChartData< T extends TimeSeriesData >( {
 		if ( emptyDataFallback === 'no-data-series' ) {
 			return [
 				{
-					label: __( 'No data available', 'woocommerce-analytics' ),
+					label: __( 'No data available', 'jetpack-premium-analytics' ),
 					data: [],
 				},
 			];

@@ -7,7 +7,7 @@ A **pure** line chart component for comparing time series data across different 
 This component is **pure and self-contained**—it receives all styling via props and has no external dependencies on context providers or themes.
 
 ```tsx
-import { ComparativeLineChart } from '@next-woo-analytics/widgets-toolkit';
+import { ComparativeLineChart } from '@jetpack-premium-analytics/widgets-toolkit';
 
 <ComparativeLineChart
 	series={ series }
@@ -32,7 +32,7 @@ The cleanest approach is to pass styles as a separate prop. Styles are applied t
 import {
 	ComparativeLineChart,
 	type SeriesStyle,
-} from '@next-woo-analytics/widgets-toolkit';
+} from '@jetpack-premium-analytics/widgets-toolkit';
 
 const styles: SeriesStyle[] = [
 	{ stroke: '#3858E9', strokeWidth: 2 },
@@ -104,7 +104,7 @@ const series = [
 Widgets wrapped in `GlobalChartsProvider` can use `getElementStyles` from the context to resolve theme colors:
 
 ```tsx
-import { ComparativeLineChart } from '@next-woo-analytics/widgets-toolkit';
+import { ComparativeLineChart } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useGlobalChartsContext } from '@automattic/charts';
 
 function MyWidget( { series } ) {

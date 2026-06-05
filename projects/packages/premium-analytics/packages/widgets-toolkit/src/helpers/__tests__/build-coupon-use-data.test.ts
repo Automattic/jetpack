@@ -1,7 +1,7 @@
 /**
  * Mock formatMetricValue to avoid pulling in heavy transitive deps.
  */
-jest.mock( '@next-woo-analytics/formatters', () => ( {
+jest.mock( '@jetpack-premium-analytics/formatters', () => ( {
 	formatMetricValue: ( value: number ) => `$${ value }`,
 } ) );
 

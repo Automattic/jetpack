@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { formatMetricValue } from '@wc-analytics/formatters';
+import { formatMetricValue } from '@jetpack-premium-analytics/formatters';
 
 /**
  * Internal dependencies

@@ -14,7 +14,7 @@ A responsive donut (pie) chart component that automatically adapts to its contai
 ## Usage
 
 ```tsx
-import { DonutChart } from '@next-woo-analytics/widgets-toolkit';
+import { DonutChart } from '@jetpack-premium-analytics/widgets-toolkit';
 
 const chartData = [
   { label: 'Completed', value: 45, percentage: 56.25 },

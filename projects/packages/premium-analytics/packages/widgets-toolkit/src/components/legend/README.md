@@ -5,7 +5,7 @@ A pure component for rendering chart legends with optional comparison deltas.
 ## Usage
 
 ```tsx
-import { Legend } from '@next-woo-analytics/widgets-toolkit';
+import { Legend } from '@jetpack-premium-analytics/widgets-toolkit';
 
 const items = [
   { label: 'Mobile', value: 241950, displayValue: '$241.95K', color: '#3858E9' },
@@ -49,7 +49,7 @@ const items = [
 For widgets inside `GlobalChartsProvider`, use `LegendWithTheme` instead. It automatically resolves colors from the chart theme:
 
 ```tsx
-import { LegendWithTheme as Legend } from '@next-woo-analytics/widgets-toolkit';
+import { LegendWithTheme as Legend } from '@jetpack-premium-analytics/widgets-toolkit';
 
 // Colors are injected from theme - no need to specify them
 <PieChart.Legend

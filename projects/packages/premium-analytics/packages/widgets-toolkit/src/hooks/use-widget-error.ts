@@ -3,7 +3,7 @@
  */
 import { useEffect } from 'react';
 import { __ } from '@wordpress/i18n';
-import { useGlobalError } from '@next-woo-analytics/data';
+import { useGlobalError } from '@jetpack-premium-analytics/data';
 
 /**
  * Internal dependencies
@@ -80,10 +80,10 @@ export function useWidgetError(
 		setError( {
 			message: __(
 				"We couldn't load this data. Please try again in a moment.",
-				'woocommerce-analytics'
+				'jetpack-premium-analytics'
 			),
 			action: {
-				label: __( 'Retry', 'woocommerce-analytics' ),
+				label: __( 'Retry', 'jetpack-premium-analytics' ),
 				onClick: () => {
 					setError?.( null );
 					refetch?.();

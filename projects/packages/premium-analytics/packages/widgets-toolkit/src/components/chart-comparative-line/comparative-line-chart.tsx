@@ -3,7 +3,7 @@
  */
 import { useCallback, useMemo } from 'react';
 import { LineChart } from '@automattic/charts';
-import { formatDate, formatMetricValue } from '@wc-analytics/formatters';
+import { formatDate, formatMetricValue } from '@jetpack-premium-analytics/formatters';
 import { type ComponentProps } from 'react';
 import clsx from 'clsx';
 

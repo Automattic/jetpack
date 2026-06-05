@@ -6,8 +6,8 @@ import { WidgetLoadingOverlay } from '@automattic/dashboard';
 import {
 	useReportOrderAttribution,
 	type FilterCondition,
-} from '@next-woo-analytics/data';
-import { device } from '@next-woo-analytics/icons';
+} from '@jetpack-premium-analytics/data';
+import { device } from '@jetpack-premium-analytics/icons';
 
 /**
  * Internal dependencies

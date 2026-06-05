@@ -1,8 +1,8 @@
 /**
  * External dependencies
  */
-import { formatMetricValue } from '@wc-analytics/formatters';
-import type { ReportDataMap } from '@next-woo-analytics/data';
+import { formatMetricValue } from '@jetpack-premium-analytics/formatters';
+import type { ReportDataMap } from '@jetpack-premium-analytics/data';
 
 export type OrdersSummary = ReportDataMap[ 'orders' ][ 'summary' ];
 

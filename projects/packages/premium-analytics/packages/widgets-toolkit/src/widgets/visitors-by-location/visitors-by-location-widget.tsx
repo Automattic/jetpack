@@ -11,7 +11,7 @@ import { __, sprintf } from '@wordpress/i18n';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { GeoChart } from '@automattic/charts';
 import { WidgetLoadingOverlay } from '@automattic/dashboard';
-import { location } from '@next-woo-analytics/icons';
+import { location } from '@jetpack-premium-analytics/icons';
 
 /**
  * Internal dependencies
@@ -82,10 +82,10 @@ export function VisitorsByLocationWidget() {
 					typeof item.label === 'string' ? item.label : '';
 				const imageAlt =
 					region === 'US'
-						? __( 'United States flag', 'woocommerce-analytics' )
+						? __( 'United States flag', 'jetpack-premium-analytics' )
 						: sprintf(
 								/* translators: %s is the country name */
-								__( 'Flag of %s', 'woocommerce-analytics' ),
+								__( 'Flag of %s', 'jetpack-premium-analytics' ),
 								labelText
 						  );
 
@@ -245,7 +245,7 @@ export function VisitorsByLocationWidget() {
 								hideLabelFromVision
 								label={ __(
 									'Location',
-									'woocommerce-analytics'
+									'jetpack-premium-analytics'
 								) }
 								onChange={ ( value ) => {
 									if ( isRegion( value ) ) {
@@ -258,14 +258,14 @@ export function VisitorsByLocationWidget() {
 									value="US"
 									label={ __(
 										'United States',
-										'woocommerce-analytics'
+										'jetpack-premium-analytics'
 									) }
 								/>
 								<ToggleGroupControlOption
 									value="world"
 									label={ __(
 										'Worldwide',
-										'woocommerce-analytics'
+										'jetpack-premium-analytics'
 									) }
 								/>
 							</ToggleGroupControl>

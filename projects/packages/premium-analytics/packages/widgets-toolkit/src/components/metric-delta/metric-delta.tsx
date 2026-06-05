@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { Stack } from '@wordpress/ui';
-import { formatMetricValue } from '@wc-analytics/formatters';
+import { formatMetricValue } from '@jetpack-premium-analytics/formatters';
 import type { ComponentProps } from 'react';
 import clsx from 'clsx';
 

@@ -45,7 +45,7 @@ export function MetricsField( {
 			'Choose up to %d metric',
 			'Choose up to %d metrics',
 			attributes.metrics?.length ?? 1,
-			'woocommerce-analytics'
+			'jetpack-premium-analytics'
 		),
 		attributes.metrics?.length ?? 1
 	);
@@ -53,7 +53,7 @@ export function MetricsField( {
 	return (
 		<Fieldset.Root>
 			<Fieldset.Legend>
-				{ __( 'Metrics', 'woocommerce-analytics' ) }
+				{ __( 'Metrics', 'jetpack-premium-analytics' ) }
 			</Fieldset.Legend>
 			<Fieldset.Description>{ help }</Fieldset.Description>
 			<Stack direction="column" gap="sm">

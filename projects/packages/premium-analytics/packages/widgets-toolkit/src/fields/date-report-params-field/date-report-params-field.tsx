@@ -2,26 +2,26 @@
  * External dependencies
  */
 import { Stack } from '@wordpress/ui';
-import { DateFiltersPanel } from '@next-woo-analytics/components';
+import { DateFiltersPanel } from '@jetpack-premium-analytics/ui';
 import {
 	getDefaultPreset,
 	normalizeReportParams,
 	localTZDate,
 	getSiteTimezone,
-} from '@next-woo-analytics/data';
+} from '@jetpack-premium-analytics/data';
 import { getStoreInfo } from '@woocommerce-next/data';
 import { endOfDay } from 'date-fns';
 import {
 	deriveComparisonRange,
 	encodeDateToSearchParam,
-} from '@next-woo-analytics/routing';
+} from '@jetpack-premium-analytics/routing';
 import { useCallback, useMemo, useState, useEffect } from 'react';
 import type { DataFormControlProps } from '@ciab/dataviews';
 import {
 	type ComparisonPresetId,
 	isPrimaryPreset,
 	type DateRange,
-} from '@next-woo-analytics/datetime';
+} from '@jetpack-premium-analytics/datetime';
 
 /**
  * Inferred types

@@ -2,8 +2,8 @@
  * External dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { formatMetricValue } from '@wc-analytics/formatters';
-import type { ReportDataMap } from '@next-woo-analytics/data';
+import { formatMetricValue } from '@jetpack-premium-analytics/formatters';
+import type { ReportDataMap } from '@jetpack-premium-analytics/data';
 
 /**
  * Internal dependencies
@@ -63,7 +63,7 @@ export function buildPaymentStatusData(
 	// Build chart data
 	const chartData: DonutChartData = [
 		{
-			label: __( 'Paid', 'woocommerce-analytics' ),
+			label: __( 'Paid', 'jetpack-premium-analytics' ),
 			value: paidNetSales,
 			valueDisplay: formatMetricValue( paidNetSales, 'currency', {
 				useMultipliers: true,
@@ -71,7 +71,7 @@ export function buildPaymentStatusData(
 			} ),
 		},
 		{
-			label: __( 'Unpaid', 'woocommerce-analytics' ),
+			label: __( 'Unpaid', 'jetpack-premium-analytics' ),
 			value: unpaidNetSales,
 			valueDisplay: formatMetricValue( unpaidNetSales, 'currency', {
 				useMultipliers: true,
@@ -83,7 +83,7 @@ export function buildPaymentStatusData(
 	// Build legend data
 	const legendData: LegendItem[] = [
 		{
-			label: __( 'Paid', 'woocommerce-analytics' ),
+			label: __( 'Paid', 'jetpack-premium-analytics' ),
 			value: paidNetSales,
 			displayValue: formatMetricValue( paidNetSales, 'currency', {
 				useMultipliers: true,
@@ -92,7 +92,7 @@ export function buildPaymentStatusData(
 			comparison: comparisonOrders ? comparisonPaidNetSales : undefined,
 		},
 		{
-			label: __( 'Unpaid', 'woocommerce-analytics' ),
+			label: __( 'Unpaid', 'jetpack-premium-analytics' ),
 			value: unpaidNetSales,
 			displayValue: formatMetricValue( unpaidNetSales, 'currency', {
 				useMultipliers: true,

@@ -3,8 +3,8 @@
  */
 import { useMemo } from 'react';
 import { WidgetLoadingOverlay } from '@automattic/dashboard';
-import { useReportOrders } from '@next-woo-analytics/data';
-import { paymentReturn } from '@next-woo-analytics/icons';
+import { useReportOrders } from '@jetpack-premium-analytics/data';
+import { paymentReturn } from '@jetpack-premium-analytics/icons';
 
 /**
  * Internal dependencies

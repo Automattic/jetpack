@@ -5,7 +5,7 @@ import { useMemo } from 'react';
 import {
 	type ReportParams,
 	useReportVisitorsByLocation,
-} from '@next-woo-analytics/data';
+} from '@jetpack-premium-analytics/data';
 
 /**
  * Internal dependencies

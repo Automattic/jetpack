@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { calendar } from '@next-woo-analytics/icons';
+import { calendar } from '@jetpack-premium-analytics/icons';
 
 /**
  * Internal dependencies

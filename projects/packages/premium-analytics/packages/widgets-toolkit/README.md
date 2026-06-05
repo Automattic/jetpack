@@ -1,13 +1,14 @@
-# @next-woo-analytics/widgets-toolkit
+# @automattic/jetpack-premium-analytics-widgets-toolkit
 
-A collection of focused, single-responsibility components for building WooCommerce Analytics widgets.
+A collection of focused, single-responsibility components for building analytics widgets.
 Each component has a clear API and specific purpose, making them easy to understand, test, and compose.
 
 ## Installation
 
-```bash
-npm install @next-woo-analytics/widgets-toolkit
-```
+This is an internal package of Jetpack Premium Analytics — it is never
+published to npm and is resolved entirely in-tree. It's automatically
+available to routes and other internal packages within
+`@automattic/jetpack-premium-analytics`.
 
 ## Components
 
@@ -16,6 +17,7 @@ npm install @next-woo-analytics/widgets-toolkit
 Displays a formatted numeric value. Does NOT handle comparisons or deltas.
 
 **Props:**
+
 - `value` (number) - The numeric value to display
 - `format` ('number' | 'currency' | 'percentage') - How to format the value (default: 'number')
 - `formatter` ((value: number) => string) - Custom formatter function (overrides format)
@@ -26,7 +28,7 @@ Displays a formatted numeric value. Does NOT handle comparisons or deltas.
 **Examples:**
 
 ```tsx
-import { MetricValue } from '@next-woo-analytics/widgets-toolkit';
+import { MetricValue } from '@jetpack-premium-analytics/widgets-toolkit';
 
 // Simple number
 <MetricValue value={ 1234 } />
@@ -48,6 +50,7 @@ import { MetricValue } from '@next-woo-analytics/widgets-toolkit';
 Displays the change between two values (as percentage or absolute).
 
 **Props:**
+
 - `current` (number) - The current/new value
 - `previous` (number) - The previous/comparison value
 - `fallback` (string) - Display when calculation fails (default: '—')
@@ -60,7 +63,7 @@ Displays the change between two values (as percentage or absolute).
 **Examples:**
 
 ```tsx
-import { MetricDelta } from '@next-woo-analytics/widgets-toolkit';
+import { MetricDelta } from '@jetpack-premium-analytics/widgets-toolkit';
 
 // Percentage change: +50%
 <MetricDelta current={ 150 } previous={ 100 } />
@@ -77,6 +80,7 @@ import { MetricDelta } from '@next-woo-analytics/widgets-toolkit';
 ```
 
 **Delta Calculation:**
+
 - Returns percentage change: `( ( current - previous ) / |previous| ) * 100`
 - Returns `null` if inputs are invalid or previous is zero (displays fallback)
 - Returns `0` if both current and previous are zero
@@ -88,6 +92,7 @@ import { MetricDelta } from '@next-woo-analytics/widgets-toolkit';
 Composite component that combines MetricValue and MetricDelta.
 
 **Props:**
+
 - `value` (number) - The current value
 - `previousValue` (number | null) - Previous value for comparison (no delta if null)
 - `format` ('number' | 'currency' | 'percentage') - How to format the value (default: 'number')
@@ -103,7 +108,7 @@ Composite component that combines MetricValue and MetricDelta.
 **Examples:**
 
 ```tsx
-import { MetricWithComparison } from '@next-woo-analytics/widgets-toolkit';
+import { MetricWithComparison } from '@jetpack-premium-analytics/widgets-toolkit';
 
 // Simple metric with comparison
 <MetricWithComparison
@@ -146,6 +151,7 @@ Responsive line chart wrapper for displaying time-series data with comparison su
 Handles automatic resizing and provides sensible defaults for analytics visualizations.
 
 **Props:**
+
 - `series` (SeriesData[]) - Array of series data to display in the chart
 - `dataFormat` (DataFormat) - Format configuration for tooltips (required)
 - `className` (string) - CSS class for the chart container (optional)
@@ -153,20 +159,21 @@ Handles automatic resizing and provides sensible defaults for analytics visualiz
 **Note:** Y-axis ticks are automatically formatted using the `dataFormat.type` with multipliers and zero decimals for concise labels (e.g., "1K", "2.5M"). Tooltips display full precision values according to `dataFormat` configuration.
 
 **DataFormat Type:**
+
 ```tsx
 type DataFormat = {
-  type: 'number' | 'currency' | 'percentage' | 'average';
-  options?: {
-    useMultipliers?: boolean;
-    decimals?: number;
-  };
+	type: 'number' | 'currency' | 'percentage' | 'average';
+	options?: {
+		useMultipliers?: boolean;
+		decimals?: number;
+	};
 };
 ```
 
 **Examples:**
 
 ```tsx
-import { ComparativeLineChart, getFormatByMetricKey } from '@next-woo-analytics/widgets-toolkit';
+import { ComparativeLineChart, getFormatByMetricKey } from '@jetpack-premium-analytics/widgets-toolkit';
 
 // Simple line chart with currency formatting
 <ComparativeLineChart
@@ -224,6 +231,7 @@ import { ComparativeLineChart, getFormatByMetricKey } from '@next-woo-analytics/
 Internal chart tooltip component used by `ComparativeLineChart`. Displays formatted values and dates for primary and comparison series.
 
 **Props:**
+
 - `tooltipData` - Tooltip data from chart (provided by LineChart)
 - `colorScale` - Function to get color for series keys
 - `dataFormat` (DataFormat) - Format configuration for values
@@ -241,11 +249,13 @@ Internal chart tooltip component used by `ComparativeLineChart`. Displays format
 Returns the appropriate `DataFormat` configuration for a given metric key.
 
 **Signature:**
+
 ```tsx
-function getFormatByMetricKey( metricKey: MetricKey ): DataFormat
+function getFormatByMetricKey( metricKey: MetricKey ): DataFormat;
 ```
 
 **Supported Metrics:**
+
 - `orders_no` - Number format
 - `total_sales` - Currency format
 - `average_order_value` - Currency format
@@ -257,8 +267,9 @@ function getFormatByMetricKey( metricKey: MetricKey ): DataFormat
 - `visitors` - Number format with multipliers
 
 **Example:**
+
 ```tsx
-import { getFormatByMetricKey, ComparativeLineChart } from '@next-woo-analytics/widgets-toolkit';
+import { getFormatByMetricKey, ComparativeLineChart } from '@jetpack-premium-analytics/widgets-toolkit';
 
 <ComparativeLineChart
   series={ ordersSeries }
@@ -280,28 +291,31 @@ import { getFormatByMetricKey, ComparativeLineChart } from '@next-woo-analytics/
 Injects theme styles into chart series, so each series has everything it needs to render correctly (stroke color, strokeDasharray, strokeWidth, etc.) without depending on the theme context at render time.
 
 **Signature:**
+
 ```tsx
 function applyThemeStylesToSeries(
-  series: SeriesData[],
-  chartTheme: ReturnType< typeof useChartTheme >
-): SeriesData[]
+	series: SeriesData[],
+	chartTheme: ReturnType< typeof useChartTheme >
+): SeriesData[];
 ```
 
 **Example:**
+
 ```tsx
 import {
-  applyThemeStylesToSeries,
-  useChartTheme,
-  ComparativeLineChart,
-} from '@next-woo-analytics/widgets-toolkit';
+	applyThemeStylesToSeries,
+	useChartTheme,
+	ComparativeLineChart,
+} from '@jetpack-premium-analytics/widgets-toolkit';
 
 const chartTheme = useChartTheme();
 const styledSeries = applyThemeStylesToSeries( series, chartTheme );
 
-<ComparativeLineChart series={ styledSeries } dataFormat={ dataFormat } />
+<ComparativeLineChart series={ styledSeries } dataFormat={ dataFormat } />;
 ```
 
 **What it does:**
+
 - Maps `chartTheme.seriesLineStyles` to each series
 - Sets `options.stroke` from `chartTheme.colors[ 0 ]`
 - Sets `options.seriesLineStyle` with strokeWidth, strokeDasharray, etc.
@@ -314,16 +328,18 @@ const styledSeries = applyThemeStylesToSeries( series, chartTheme );
 Creates a formatter function for a specific order metric.
 
 **Signature:**
+
 ```tsx
 function formatOrderMetric(
-  metricKey: MetricKey,
-  options?: FormatMetricValueOptions
-): ( value: number ) => string
+	metricKey: MetricKey,
+	options?: FormatMetricValueOptions
+): ( value: number ) => string;
 ```
 
 **Example:**
+
 ```tsx
-import { formatOrderMetric } from '@next-woo-analytics/widgets-toolkit';
+import { formatOrderMetric } from '@jetpack-premium-analytics/widgets-toolkit';
 
 const formatter = formatOrderMetric( 'total_sales' );
 formatter( 1234.56 ); // Returns: "$1,234.56"
@@ -342,11 +358,11 @@ Configuration object for formatting chart values and tooltips.
 
 ```tsx
 type DataFormat = {
-  type: 'number' | 'currency' | 'percentage' | 'average';
-  options?: {
-    useMultipliers?: boolean;  // Use K, M, B suffixes for large numbers
-    decimals?: number;          // Number of decimal places
-  };
+	type: 'number' | 'currency' | 'percentage' | 'average';
+	options?: {
+		useMultipliers?: boolean; // Use K, M, B suffixes for large numbers
+		decimals?: number; // Number of decimal places
+	};
 };
 ```
 
@@ -356,14 +372,14 @@ Union type of all supported metric keys.
 
 ```tsx
 type OrderMetricKey =
-  | 'orders_no'
-  | 'total_sales'
-  | 'average_order_value'
-  | 'avg_items'
-  | 'orders_value_net'
-  | 'orders_value_gross'
-  | 'coupons'
-  | 'profit_margin';
+	| 'orders_no'
+	| 'total_sales'
+	| 'average_order_value'
+	| 'avg_items'
+	| 'orders_value_net'
+	| 'orders_value_gross'
+	| 'coupons'
+	| 'profit_margin';
 
 type VisitorsMetricKey = 'visitors';
 
@@ -381,10 +397,7 @@ Components use CSS Modules for styling. You can customize appearance by:
 3. **Overriding styles**: Use CSS Modules or styled-components
 
 Example:
+
 ```tsx
-<MetricWithComparison
-  value={ 1250 }
-  previousValue={ 1000 }
-  className="custom-container"
-/>
+<MetricWithComparison value={ 1250 } previousValue={ 1000 } className="custom-container" />
 ```

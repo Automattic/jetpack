@@ -11,7 +11,7 @@ import {
 import clsx from 'clsx';
 import type { ComponentProps, ReactNode } from 'react';
 import { useMemo } from 'react';
-import { formatMetricValue } from '@wc-analytics/formatters';
+import { formatMetricValue } from '@jetpack-premium-analytics/formatters';
 
 /**
  * Internal dependencies

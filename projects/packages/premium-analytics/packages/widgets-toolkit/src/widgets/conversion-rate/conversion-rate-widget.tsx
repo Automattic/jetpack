@@ -8,8 +8,8 @@ import { WidgetLoadingOverlay } from '@automattic/dashboard';
 import {
 	FilterCondition,
 	useReportConversionRate,
-} from '@next-woo-analytics/data';
-import { goal } from '@next-woo-analytics/icons';
+} from '@jetpack-premium-analytics/data';
+import { goal } from '@jetpack-premium-analytics/icons';
 
 /**
  * Internal dependencies

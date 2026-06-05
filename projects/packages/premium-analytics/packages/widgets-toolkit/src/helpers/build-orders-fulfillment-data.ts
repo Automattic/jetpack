@@ -2,8 +2,8 @@
  * External dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { formatMetricValue } from '@wc-analytics/formatters';
-import type { ReportDataMap } from '@next-woo-analytics/data';
+import { formatMetricValue } from '@jetpack-premium-analytics/formatters';
+import type { ReportDataMap } from '@jetpack-premium-analytics/data';
 
 /**
  * Internal dependencies
@@ -63,12 +63,12 @@ export function buildOrdersFulfillmentData(
 
 	const chartData: DonutChartData = [
 		{
-			label: __( 'Fulfilled', 'woocommerce-analytics' ),
+			label: __( 'Fulfilled', 'jetpack-premium-analytics' ),
 			value: fulfilledCount,
 			valueDisplay: formatCount( fulfilledCount ),
 		},
 		{
-			label: __( 'Unfulfilled', 'woocommerce-analytics' ),
+			label: __( 'Unfulfilled', 'jetpack-premium-analytics' ),
 			value: unfulfilledCount,
 			valueDisplay: formatCount( unfulfilledCount ),
 		},
@@ -76,7 +76,7 @@ export function buildOrdersFulfillmentData(
 
 	const legendData: LegendItem[] = [
 		{
-			label: __( 'Fulfilled', 'woocommerce-analytics' ),
+			label: __( 'Fulfilled', 'jetpack-premium-analytics' ),
 			value: fulfilledCount,
 			displayValue: formatCount( fulfilledCount ),
 			comparison: comparisonFulfilledOrders
@@ -84,7 +84,7 @@ export function buildOrdersFulfillmentData(
 				: undefined,
 		},
 		{
-			label: __( 'Unfulfilled', 'woocommerce-analytics' ),
+			label: __( 'Unfulfilled', 'jetpack-premium-analytics' ),
 			value: unfulfilledCount,
 			displayValue: formatCount( unfulfilledCount ),
 			comparison: comparisonUnfulfilledOrders

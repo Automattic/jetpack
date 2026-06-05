@@ -21,7 +21,7 @@ Dashboard widgets are ES Modules loaded asynchronously via lazy-load. This means
 
 ```tsx
 // dashboard-widgets/my-widget/render.tsx
-import { WidgetRoot, MyWidget } from '@next-woo-analytics/widgets-toolkit';
+import { WidgetRoot, MyWidget } from '@jetpack-premium-analytics/widgets-toolkit';
 
 export default function MyWidgetRender( { attributes } ) {
     return (

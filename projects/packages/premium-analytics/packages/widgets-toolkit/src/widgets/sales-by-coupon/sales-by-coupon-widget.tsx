@@ -3,8 +3,8 @@
  */
 import { useMemo } from 'react';
 import { WidgetLoadingOverlay } from '@automattic/dashboard';
-import { useReportCoupons } from '@next-woo-analytics/data';
-import { coupon } from '@next-woo-analytics/icons';
+import { useReportCoupons } from '@jetpack-premium-analytics/data';
+import { coupon } from '@jetpack-premium-analytics/icons';
 
 /**
  * Internal dependencies

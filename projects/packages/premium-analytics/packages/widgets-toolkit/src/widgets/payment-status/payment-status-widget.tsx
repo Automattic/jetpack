@@ -4,8 +4,8 @@
 import { useMemo } from 'react';
 import { Stack } from '@wordpress/ui';
 import { WidgetLoadingOverlay } from '@automattic/dashboard';
-import { useReportOrders } from '@next-woo-analytics/data';
-import { payment } from '@next-woo-analytics/icons';
+import { useReportOrders } from '@jetpack-premium-analytics/data';
+import { payment } from '@jetpack-premium-analytics/icons';
 
 /**
  * Internal dependencies

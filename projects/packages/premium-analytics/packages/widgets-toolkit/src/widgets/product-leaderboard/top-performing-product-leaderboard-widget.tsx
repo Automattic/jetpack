@@ -7,9 +7,9 @@ import {
 	useReportProducts,
 	useProductImages,
 	type FilterCondition,
-} from '@next-woo-analytics/data';
+} from '@jetpack-premium-analytics/data';
 import { Icon } from '@wordpress/ui';
-import { productBlouse } from '@next-woo-analytics/icons';
+import { productBlouse } from '@jetpack-premium-analytics/icons';
 
 /**
  * Internal dependencies

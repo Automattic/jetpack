@@ -2,8 +2,8 @@
  * External dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { formatDateRange } from '@wc-analytics/formatters';
-import type { ReportParams } from '@next-woo-analytics/data';
+import { formatDateRange } from '@jetpack-premium-analytics/formatters';
+import type { ReportParams } from '@jetpack-premium-analytics/data';
 
 /**
  * Internal dependencies
@@ -44,7 +44,7 @@ export function formatLegendLabels( reportParams: ReportParams ): LegendLabels {
 					from: new Date( reportParams.compare_from ),
 					to: new Date( reportParams.compare_to ),
 			  } )
-			: __( 'Previous period', 'woocommerce-analytics' );
+			: __( 'Previous period', 'jetpack-premium-analytics' );
 
 	return {
 		primary: primaryLabel,

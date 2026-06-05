@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { __ } from '@wordpress/i18n';
-import type { ReportDataMap } from '@next-woo-analytics/data';
+import type { ReportDataMap } from '@jetpack-premium-analytics/data';
 
 /**
  * Internal dependencies
@@ -47,7 +47,7 @@ export function buildSalesByUtmData(
 
 		return {
 			id: item.item ? String( item.item ) : String( idx ),
-			label: item.item || __( 'Unassigned', 'woocommerce-analytics' ),
+			label: item.item || __( 'Unassigned', 'jetpack-premium-analytics' ),
 			currentValue,
 			previousValue,
 			currentShare: ( currentValue / maxValue ) * 100,

@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { __ } from '@wordpress/i18n';
-import type { ReportDataMap, ReportParams } from '@next-woo-analytics/data';
+import type { ReportDataMap, ReportParams } from '@jetpack-premium-analytics/data';
 import type { SeriesData } from '@automattic/charts';
 
 /**
@@ -44,7 +44,7 @@ export function buildSalesByDeviceData(
 		{
 			label: primaryLabel,
 			data: data.map( ( item ) => ( {
-				label: item.item || __( 'Unassigned', 'woocommerce-analytics' ),
+				label: item.item || __( 'Unassigned', 'jetpack-premium-analytics' ),
 				value: item.current_period?.value ?? 0,
 			} ) ),
 		},
@@ -55,7 +55,7 @@ export function buildSalesByDeviceData(
 		chartData.push( {
 			label: comparisonLabel,
 			data: data.map( ( item ) => ( {
-				label: item.item || __( 'Unassigned', 'woocommerce-analytics' ),
+				label: item.item || __( 'Unassigned', 'jetpack-premium-analytics' ),
 				value: item.previous_period?.value ?? 0,
 			} ) ),
 		} );

@@ -28,7 +28,7 @@ import { GlobalChartsProvider } from '@automattic/charts';
 ## Usage
 
 ```tsx
-import { LeaderboardChart } from '@next-woo-analytics/widgets-toolkit';
+import { LeaderboardChart } from '@jetpack-premium-analytics/widgets-toolkit';
 
 const data = [
 	{
@@ -204,7 +204,7 @@ The component automatically retrieves colors from the GlobalChartsProvider conte
 
 ```tsx
 import { GlobalChartsProvider } from '@automattic/charts';
-import { LeaderboardChart } from '@next-woo-analytics/widgets-toolkit';
+import { LeaderboardChart } from '@jetpack-premium-analytics/widgets-toolkit';
 
 function MyWidget() {
 	return (

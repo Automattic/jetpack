@@ -1,7 +1,7 @@
 /**
  * Mock formatters to avoid pulling in heavy transitive deps.
  */
-jest.mock( '@next-woo-analytics/formatters', () => ( {
+jest.mock( '@jetpack-premium-analytics/formatters', () => ( {
 	formatDateRange: () => 'Jan 1 – 31, 2024',
 } ) );
 

@@ -47,8 +47,8 @@ export function buildVisitorsByLocationData( {
 }: BuildVisitorsByLocationDataParams ): VisitorsByLocationData {
 	const headerLabel =
 		region === 'US'
-			? __( 'State', 'woocommerce-analytics' )
-			: __( 'Country', 'woocommerce-analytics' );
+			? __( 'State', 'jetpack-premium-analytics' )
+			: __( 'Country', 'jetpack-premium-analytics' );
 
 	// Build geo chart data
 	const geoData: GeoData = [

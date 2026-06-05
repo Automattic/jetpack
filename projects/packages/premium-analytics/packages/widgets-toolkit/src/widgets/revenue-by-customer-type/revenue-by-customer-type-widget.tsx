@@ -6,8 +6,8 @@ import { WidgetLoadingOverlay } from '@automattic/dashboard';
 import {
 	useReportCustomers,
 	type FilterCondition,
-} from '@next-woo-analytics/data';
-import { customer } from '@next-woo-analytics/icons';
+} from '@jetpack-premium-analytics/data';
+import { customer } from '@jetpack-premium-analytics/icons';
 
 /**
  * Internal dependencies

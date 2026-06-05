@@ -4,8 +4,8 @@
 import { useMemo } from 'react';
 import { Stack } from '@wordpress/ui';
 import { WidgetLoadingOverlay } from '@automattic/dashboard';
-import { useReportSessionsByDevice } from '@next-woo-analytics/data';
-import { device } from '@next-woo-analytics/icons';
+import { useReportSessionsByDevice } from '@jetpack-premium-analytics/data';
+import { device } from '@jetpack-premium-analytics/icons';
 
 /**
  * Internal dependencies

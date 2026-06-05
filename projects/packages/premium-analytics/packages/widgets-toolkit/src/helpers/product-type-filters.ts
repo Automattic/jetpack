@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import type { FilterCondition } from '@next-woo-analytics/data';
+import type { FilterCondition } from '@jetpack-premium-analytics/data';
 
 /**
  * Product type filter constants for coupon-based widgets.

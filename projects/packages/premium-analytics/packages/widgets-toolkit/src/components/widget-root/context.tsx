@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { createContext, useContext } from 'react';
-import type { ReportParams } from '@next-woo-analytics/data';
+import type { ReportParams } from '@jetpack-premium-analytics/data';
 import type { WidgetErrorConfig } from '@automattic/dashboard';
 
 export type WidgetRootContextValue = {
