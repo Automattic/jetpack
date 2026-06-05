@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Write: Lists now stay a single block when you switch styles, and adjacent markdown lists merge instead of stacking.
+Write: Switching between bulleted and numbered keeps the whole list as one block instead of splitting off the current item.

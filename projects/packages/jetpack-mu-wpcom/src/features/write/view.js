@@ -2217,43 +2217,18 @@ function parseMarkdownListShortcut( text ) {
 }
 
 /**
- * Replace a paragraph with a list item, merging into an adjacent same-tag
- * list when one exists so contiguous markdown shortcuts produce a single
- * list rather than a stack of disconnected one-item lists.
+ * Replace a paragraph with a fresh list containing one empty item, and move the cursor into it.
  *
  * @param {HTMLElement} paragraph - The paragraph to convert.
  * @param {'ul'|'ol'}   listTag   - The list tag to create.
  */
 function applyMarkdownListShortcut( paragraph, listTag ) {
+	const list = document.createElement( listTag );
 	const li = document.createElement( 'li' );
 	li.innerHTML = '<br>';
-
-	const prev = paragraph.previousElementSibling;
-	const next = paragraph.nextElementSibling;
-	const prevIsSameTag = prev && prev.tagName.toLowerCase() === listTag;
-	const nextIsSameTag = next && next.tagName.toLowerCase() === listTag;
-
-	if ( prevIsSameTag ) {
-		prev.appendChild( li );
-		// If the paragraph sat between two same-tag lists, absorb the
-		// trailing list so the cursor lands in one continuous list.
-		if ( nextIsSameTag ) {
-			while ( next.firstChild ) {
-				prev.appendChild( next.firstChild );
-			}
-			next.remove();
-		}
-		paragraph.remove();
-	} else if ( nextIsSameTag ) {
-		next.insertBefore( li, next.firstChild );
-		paragraph.remove();
-	} else {
-		const list = document.createElement( listTag );
-		list.appendChild( li );
-		paragraph.after( list );
-		paragraph.remove();
-	}
-
+	list.appendChild( li );
+	paragraph.after( list );
+	paragraph.remove();
 	placeCursorAt( li );
 	state.formatUList = listTag === 'ul';
 	state.formatOList = listTag === 'ol';
