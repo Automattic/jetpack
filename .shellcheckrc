@@ -42,5 +42,3 @@ disable=SC2166
 disable=SC2184
 # SC2206: Quote to prevent word splitting/globbing in array assignment. https://www.shellcheck.net/wiki/SC2206
 disable=SC2206
-# SC2209: Use var=$(command) to assign output (or quote to assign string). https://www.shellcheck.net/wiki/SC2209
-disable=SC2209

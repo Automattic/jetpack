@@ -35,12 +35,12 @@ if [[ $# -eq 0 ]]; then
 fi
 
 # Sets options.
-OP=get
+OP="get"
 while getopts ":v:n:h" opt; do
 	case ${opt} in
 		v)
 			VERSION_RAW=$OPTARG
-			OP=set
+			OP="set"
 			;;
 		n)
 			NORMALIZE_COUNT=$OPTARG
