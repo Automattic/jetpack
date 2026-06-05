@@ -1,6 +1,5 @@
+const { webpackPostcssPlugins } = require( '@automattic/jetpack-webpack-config/postcss' );
+
 module.exports = () => ( {
-	plugins: [
-		require( '@wordpress/theme/postcss-plugins/postcss-ds-token-fallbacks' ).default,
-		require( 'autoprefixer' ),
-	],
+	plugins: webpackPostcssPlugins( { fromDir: __dirname } ),
 } );
