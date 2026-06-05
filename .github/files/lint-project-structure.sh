@@ -715,6 +715,9 @@ done < <( git -c core.quotepath=off grep -l '\(random\|unique-id\)\s*(' '*.sass'
 # - package.json name fields must be prefixed or already registered.
 debug "Checking for bad package.json names"
 while IFS=$'\t' read -r FILE NAME; do
+	# Ignore this one
+	[[ "$FILE" == "tools/cli/skeletons/common/package.json" ]] && continue
+
 	LINE=$(grep --line-number --max-count=1 '^	"name":' "$FILE" || true)
 	if [[ -n "$LINE" ]]; then
 		LINE=",line=${LINE%%:*}"
