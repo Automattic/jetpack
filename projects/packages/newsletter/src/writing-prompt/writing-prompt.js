@@ -1,9 +1,7 @@
 import apiFetch from '@wordpress/api-fetch';
-import { useEffect, useState } from '@wordpress/element';
+import { useCallback, useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { addQueryArgs } from '@wordpress/url';
-
-import './style.scss';
 
 export default () => {
 	const [ prompts, setPrompts ] = useState( [] );
@@ -22,6 +20,9 @@ export default () => {
 		apiFetch( { path } ).then( setPrompts );
 	}, [] );
 
+	const goToPrevious = useCallback( () => setIndex( current => current - 1 ), [] );
+	const goToNext = useCallback( () => setIndex( current => current + 1 ), [] );
+
 	if ( prompts.length === 0 ) {
 		return null;
 	}
@@ -33,39 +34,34 @@ export default () => {
 			<div className="wpcom-daily-writing-prompt--prompt">
 				<p>{ prompt.text }</p>
 				<div className="wpcom-daily-writing-prompt--previous-next">
+					<button className="button button-link" onClick={ goToPrevious } disabled={ index === 0 }>
+						{ __( '← Previous', 'jetpack-newsletter' ) }
+					</button>{ ' ' }
 					<button
 						className="button button-link"
-						onClick={ () => setIndex( index - 1 ) }
-						disabled={ index === 0 }
-					>
-						{ __( '← Previous', 'jetpack-mu-wpcom' ) }
-					</button>
-					{ ' ' }
-					<button
-						className="button button-link"
-						onClick={ () => setIndex( index + 1 ) }
+						onClick={ goToNext }
 						disabled={ index === prompts.length - 1 }
 					>
-						{ __( 'Next →', 'jetpack-mu-wpcom' ) }
+						{ __( 'Next →', 'jetpack-newsletter' ) }
 					</button>
 				</div>
 			</div>
 			<div className="wpcom-daily-writing-prompt--action-row">
 				<a className="button" href={ `post-new.php?answer_prompt=${ prompt.id }` }>
-					{ __( 'Post Answer', 'jetpack-mu-wpcom' ) }
+					{ __( 'Post Answer', 'jetpack-newsletter' ) }
 				</a>
 				{ prompt.answered_users_sample.length > 0 && (
 					<div className="wpcom-daily-writing-prompt--answered-users">
 						{ prompt.answered_users_count > 0 && (
 							<a href={ new URL( prompt.answered_link ) }>
-								{ __( 'View all responses', 'jetpack-mu-wpcom' ) }
+								{ __( 'View all responses', 'jetpack-newsletter' ) }
 							</a>
 						) }{ ' ' }
 						<span>
 							{ prompt.answered_users_sample.map( sample => {
 								return (
 									<img
-										alt={ __( 'User avatar', 'jetpack-mu-wpcom' ) }
+										alt={ __( 'User avatar', 'jetpack-newsletter' ) }
 										src={ addQueryArgs( sample.avatar, {
 											s: 22 * 2,
 										} ) }

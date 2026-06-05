@@ -403,6 +403,14 @@ class Jetpack_Mu_Wpcom {
 			\Automattic\Jetpack\Newsletter\Settings::init();
 		}
 
+		// Register the Daily Writing Prompt dashboard widget, which now lives in
+		// the jetpack-newsletter package. Guarded with class_exists for the same
+		// reason as Settings above: mu-wpcom doesn't composer-require the package.
+		if ( class_exists( '\Automattic\Jetpack\Newsletter\Writing_Prompt_Widget' ) ) {
+			// @phan-suppress-next-line PhanUndeclaredClassMethod -- class_exists guarded above; provided by sibling autoloader.
+			\Automattic\Jetpack\Newsletter\Writing_Prompt_Widget::init();
+		}
+
 		// Only load the Masterbar features on WoA sites.
 		if ( class_exists( '\Automattic\Jetpack\Status\Host' ) && ( new \Automattic\Jetpack\Status\Host() )->is_woa_site() ) {
 			// This is temporary. After we cleanup Masterbar on WPCOM we should load Masterbar for Simple sites too.
