@@ -111,7 +111,7 @@ async function getMilestoneDates(
 		// Spaces between words.
 		.join( ' ' );
 
-	let pluginMessage = '';
+	let pluginMessage;
 	if ( ! releaseDate ) {
 		pluginMessage = `No scheduled milestone found for this plugin.`;
 	} else if ( plugin === 'jetpack' ) {

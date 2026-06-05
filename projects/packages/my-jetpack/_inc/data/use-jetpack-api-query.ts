@@ -20,6 +20,7 @@ type QueryParams< T > = {
 	errorMessage?: string;
 };
 const useJetpackApiQuery = < T >( { name, queryFn, errorMessage }: QueryParams< T > ) => {
+	// eslint-disable-next-line @tanstack/query/exhaustive-deps -- Sticking `queryFn` in the key seems wrong, but what would be right?
 	const queryResult = useQuery( {
 		queryKey: [ name ],
 		queryFn: () => {

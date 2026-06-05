@@ -27282,6 +27282,9 @@ abstract class Renderer
     protected function setCommonTemplateVariables(\SebastianBergmann\Template\Template $template, \SebastianBergmann\CodeCoverage\Node\AbstractNode $node): void
     {
     }
+    protected function escapeHtml(string $value): string
+    {
+    }
     protected function breadcrumbs(\SebastianBergmann\CodeCoverage\Node\AbstractNode $node): string
     {
     }

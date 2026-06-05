@@ -11,7 +11,7 @@ if [[ ! -d coverage ]]; then
 fi
 
 echo '::group::Copy coverage into artifacts'
-tar --owner=0 --group=0 --xz -cvvf artifacts/coverage.tar.xz coverage
+tar --owner=0 --group=0 --xz -cvvf "artifacts/coverage-$COVERAGE_GROUP.tar.xz" coverage
 echo '::endgroup::'
 
 TMP_DIR=$( mktemp -d )
