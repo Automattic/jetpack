@@ -246,7 +246,11 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	 */
 	private function is_sidebar_dev_mode() {
 		$method = new ReflectionMethod( Jetpack_AI_Sidebar::class, 'is_dev_mode' );
-		$method->setAccessible( true );
+		// setAccessible() is required on PHP < 8.1, a no-op on 8.1-8.4,
+		// and deprecated on PHP 8.5+.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true );
+		}
 		return $method->invoke( null );
 	}
 
