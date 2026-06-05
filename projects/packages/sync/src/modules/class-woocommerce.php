@@ -544,16 +544,13 @@ class WooCommerce extends Module {
 		'woocommerce_shop_page_id',
 		'woocommerce_stock_email_recipient',
 		'woocommerce_stock_format',
-		'wc_pending_batch_processes', // This and the below options relate to the WooCommerce Advanced settings page. Required for the Activity Log.
-		'woocommerce_analytics_enabled',
+		'woocommerce_analytics_enabled', // This and the below options relate to the WooCommerce Advanced settings page. Required for the Activity Log.
 		'woocommerce_cart_page_id',
 		'woocommerce_checkout_order_received_endpoint',
 		'woocommerce_checkout_page_id',
 		'woocommerce_checkout_pay_endpoint',
 		'woocommerce_custom_orders_table_data_sync_enabled',
 		'woocommerce_custom_orders_table_enabled',
-		'woocommerce_email_improvements_disabled_count',
-		'woocommerce_email_improvements_last_disabled_at',
 		'woocommerce_feature_block_email_editor_enabled',
 		'woocommerce_feature_blueprint_enabled',
 		'woocommerce_feature_cost_of_goods_sold_enabled',
