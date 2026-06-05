@@ -382,6 +382,7 @@ for PROJECT in projects/*/*; do
 
 	# - If a package is published (i.e. it has a mirror-repo), all its non-dev deps should also be published.
 	if [[ "$TYPE" == "packages" ]] && jq -e '.extra["mirror-repo"]' "$PROJECT/composer.json" >/dev/null; then
+		# shellcheck disable=SC2043
 		for WHICH in require; do
 			TMP=$(jq -r --arg which "$WHICH" --argjson packages "$PACKAGES" '.[$which] // {} | to_entries[] | select( .key | in( $packages ) ) | select( $packages[.key] | not ) | [ .key ] | @tsv' "$PROJECT/composer.json")
 			if [[ -n "$TMP" ]]; then
@@ -396,6 +397,7 @@ for PROJECT in projects/*/*; do
 
 	# - Plugins can only depend on published packages.
 	if [[ "$TYPE" == "plugins" ]]; then
+		# shellcheck disable=SC2043
 		for WHICH in require; do
 			TMP=$(jq -r --arg which "$WHICH" --argjson packages "$PACKAGES" '.[$which] // {} | to_entries[] | select( .key | in( $packages ) ) | select( $packages[.key] | not ) | [ .key ] | @tsv' "$PROJECT/composer.json")
 			if [[ -n "$TMP" ]]; then

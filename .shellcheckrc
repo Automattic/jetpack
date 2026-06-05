@@ -12,5 +12,3 @@ disable=SC1087
 disable=SC1090
 # SC2034: Variable appears unused. https://www.shellcheck.net/wiki/SC2034
 disable=SC2034
-# SC2043: This loop will only ever run once. https://www.shellcheck.net/wiki/SC2043
-disable=SC2043
