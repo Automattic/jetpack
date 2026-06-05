@@ -70,6 +70,12 @@ class Js_Structure_Scanner {
 	 * fraction of the original is treated as truncated. The threshold is
 	 * deliberately conservative so it only trips on gross truncation, never on
 	 * ordinary (even aggressive) minification.
+	 *
+	 * Blind spot: a size-preserving break above the cap (e.g. an unterminated
+	 * template at EOF, which drops only a byte or two) leaves the ratio normal and
+	 * is not caught. Accepted because minification runs per source file, so the cap
+	 * only engages for a pathological multi-MB single file; the fallback hook
+	 * surfaces any real-world occurrence.
 	 */
 	private const TRUNCATION_RATIO = 0.5;
 
