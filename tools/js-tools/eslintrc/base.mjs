@@ -227,7 +227,7 @@ export function makeBaseConfig( configurl, opts = {} ) {
 			name: 'Monorepo base config',
 			files: javascriptFiles,
 			plugins: {
-				import: eslintPluginImport,
+				import: fixupPluginRules( eslintPluginImport ), // https://github.com/import-js/eslint-plugin-import/issues/3227
 				lodash: eslintPluginLodash,
 				n: eslintPluginN,
 				'@typescript-eslint': typescriptEslint.plugin,
@@ -526,6 +526,7 @@ export function makeBaseConfig( configurl, opts = {} ) {
 			ignores: jsPackageJsons,
 			rules: {
 				'package-json/require-name': 'off',
+				'package-json/valid-name': 'off',
 			},
 		},
 		{

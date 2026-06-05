@@ -18,7 +18,7 @@ import { useUpload } from '../../src/dashboard/hooks/use-upload';
 import { useUploadFromLibrary } from '../../src/dashboard/hooks/use-upload-from-library';
 import './style.scss';
 import type { LibraryItem, LibraryItemPrivacy } from '../../src/dashboard/types/library';
-import type { View } from '@wordpress/dataviews';
+import type { SupportedLayouts, View } from '@wordpress/dataviews';
 import type { ChangeEvent } from 'react';
 
 const PRIVACY_LABELS: Record< LibraryItemPrivacy, string > = {
@@ -51,9 +51,9 @@ const DEFAULT_VIEW: View = {
 	search: '',
 };
 
-const defaultLayouts = {
-	grid: { previewSize: 220, density: 'comfortable' as const },
-	table: { density: 'balanced' as const },
+const defaultLayouts: SupportedLayouts = {
+	grid: { layout: { previewSize: 220, density: 'comfortable' } },
+	table: { layout: { density: 'balanced' } },
 };
 
 const StageInner = () => {

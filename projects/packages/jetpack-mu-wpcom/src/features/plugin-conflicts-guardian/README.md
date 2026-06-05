@@ -4,8 +4,8 @@ Pre-flight plugin-activation check. When an admin clicks Activate (or finishes a
 
 Two independent filters:
 
-- `pcg_guard_activation` — enables the activation probe and the syntax-only install/update gate. Defaults `true`.
-- `pcg_guard_updates` — enables the post-update health check + rollback flow. Defaults `true`.
+- `pcg_guard_activation` — enables the activation probe. Defaults `true`.
+- `pcg_guard_updates` — enables the syntax-only install/update gate and the post-update health check + rollback flow. Defaults `true`.
 
 ## Files
 
@@ -86,6 +86,20 @@ add_filter( 'pcg_rollout_percentage', fn () => 10 ); // 10% cohort
 ```
 
 Bucketing is `crc32(blog_id) % 100`, so ramping from 10% → 50% strictly adds blogs (no reshuffling between tiers). The gate only narrows — emergency-override filters at priority > 100 on `pcg_guard_activation` / `pcg_guard_updates` can still re-enable or disable a blog.
+
+## Force override
+
+The activation, update, and install block notices each expose opt-out controls so an admin who disagrees with a verdict can still push through:
+
+- **One-shot retry** — re-runs the original action with `pcg_force=1` on the URL. The action's own admin nonce still has to validate; PCG just steps out of the way for that one request.
+  - Activation notice: `Activate <Name> anyway` (one per blocked plugin) — replays `plugins.php?action=activate&plugin=<basename>`.
+  - Update notice: `Update <Name> anyway` — replays `update.php?action=upgrade-plugin&plugin=<basename>`.
+  - Install notice: **no one-shot retry.** `Plugin_Upgrader::install()` doesn't populate `hook_extra['plugin']`; even with a slug recovered from the source basename, the .org `install-plugin` URL can't replay an uploaded zip and can't reliably resolve .org-search installs whose canonical slug differs from the extracted folder name. Operators flip the bypass and re-trigger from Add Plugin themselves.
+- **Time-boxed bypass** — `Disable checks for 10 minutes` sets a user-scoped transient (`pcg_force_bypass_<user_id>`) consumed by `pcg_force_override_active( $cap )`. The activation guard, the syntax-only install/update gate, and the post-update health check + rollback all short-circuit while the transient is live, so a user who turns this on isn't quietly rolled back behind their back.
+
+Capabilities are checked per surface: `activate_plugins` for the activation guard, `update_plugins` for the install/update gate and the healthcheck. The shared bypass-set handler accepts either cap.
+
+Every override is logged via `pcg_log_event( 'Force override used' )` (`source: pcg_force_flag` for one-shot, `bypass_transient` for the 10-min window) and `'Force bypass enabled'` when the transient is set.
 
 ## Limitations
 

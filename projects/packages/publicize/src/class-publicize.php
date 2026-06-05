@@ -551,7 +551,6 @@ class Publicize extends Publicize_Base {
 			'instagram-business' => array(),
 			'nextdoor'           => array(),
 			'threads'            => array(),
-			'x'                  => array(),
 			'bluesky'            => array(),
 		);
 

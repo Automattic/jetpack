@@ -61,7 +61,7 @@ export function createTZDateFromParts(
 
 /**
  * Create a TZDate in the provided timezone.
- * Mirrors your current localTZDate, applies UTC to be default TZ.
+ * Create a TZDate in the provided timezone. Defaults to UTC when no timezone is given.
  * @param value
  * @param timeZone
  */

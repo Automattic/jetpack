@@ -6,7 +6,6 @@ import {
 	SET_RECONNECTING_ACCOUNT,
 	SET_CONNECTIONS,
 	SET_KEYRING_RESULT,
-	SET_SHOW_SINGLE_X_NOTICE,
 	TOGGLE_CONNECTION,
 	TOGGLE_CONNECTIONS_MODAL,
 	UPDATE_CONNECTION,
@@ -154,12 +153,6 @@ const connectionData = ( state: ConnectionData = { connections: [] }, action: Ac
 					}
 					return connection;
 				} ),
-			};
-
-		case SET_SHOW_SINGLE_X_NOTICE:
-			return {
-				...state,
-				shouldShowSingleXNotice: action.show,
 			};
 
 		case CUSTOMIZE_CONNECTION:

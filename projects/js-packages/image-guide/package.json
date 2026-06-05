@@ -20,9 +20,6 @@
 		}
 	},
 	"main": "./src/index.ts",
-	"browser": {
-		"@automattic/jetpack-image-guide": false
-	},
 	"scripts": {
 		"build": "rollup -c && tsgo --emitDeclarationOnly",
 		"build-concurrently": "pnpm run clear-dist && concurrently 'pnpm:validate-ts' 'rollup -c'",
