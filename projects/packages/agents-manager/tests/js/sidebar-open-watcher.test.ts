@@ -1,11 +1,14 @@
 import { jest } from '@jest/globals';
 
 const WATCHER_DATA = {
-	cookieKey: 'agents_manager_chat_sidebar_open',
+	cookieKey: 'agents_manager_chat_sidebar_open_class_list',
 	// jsdom only returns cookies whose path matches the document URL ("/"),
 	// so use a root path here rather than the real "/wp-admin".
 	cookiePath: '/',
-	sidebarOpenClass: 'agents-manager-sidebar-container--sidebar-open',
+	sidebarOpenClasses: [
+		'agents-manager-sidebar-container',
+		'agents-manager-sidebar-container--sidebar-open',
+	],
 };
 
 /**
@@ -36,23 +39,23 @@ function readCookie( key: string ): string | undefined {
 }
 
 /**
- * Wait for the MutationObserver callback (a microtask) to flush.
+ * Dispatch a sidebar open/close event to the watcher listener.
  *
- * @return A promise that resolves once pending mutations have been observed.
+ * @param detail - Sidebar state carried on the custom event.
  */
-function flushMutations(): Promise< void > {
-	return new Promise( resolve => setTimeout( resolve, 0 ) );
+function dispatchSidebarChange(
+	detail: { isOpen: true; classList: string[] } | { isOpen: false }
+) {
+	window.dispatchEvent( new CustomEvent( 'agentsManagerSidebarChange', { detail } ) );
 }
 
 describe( 'registerSidebarOpenWatcher', () => {
 	afterEach( () => {
-		// Disconnect observers/pagehide listeners created during the test so
-		// they cannot keep mutating the cookie across tests (the jsdom
-		// document is shared for the whole file).
+		// Remove listeners created during the test so they cannot keep mutating
+		// the cookie across tests (the jsdom document is shared for the whole file).
 		window.dispatchEvent( new window.Event( 'pagehide' ) );
 
 		delete window.AgentsManagerSidebarOpenWatcherData;
-		document.body.className = '';
 		document.cookie = `${ WATCHER_DATA.cookieKey }=; path=${ WATCHER_DATA.cookiePath }; expires=Thu, 01 Jan 1970 00:00:00 GMT`;
 	} );
 
@@ -67,61 +70,94 @@ describe( 'registerSidebarOpenWatcher', () => {
 		);
 	} );
 
-	it( 'sets the cookie to 1 on init when the sidebar-open class is present', async () => {
+	it( 'does not modify the cookie on init without a sidebar change event', async () => {
 		window.AgentsManagerSidebarOpenWatcherData = WATCHER_DATA;
-		document.body.classList.add( WATCHER_DATA.sidebarOpenClass );
+		document.cookie = `${ WATCHER_DATA.cookieKey }=${ WATCHER_DATA.sidebarOpenClasses.join(
+			','
+		) }; path=${ WATCHER_DATA.cookiePath }`;
 
 		await importWatcher();
 
-		expect( readCookie( WATCHER_DATA.cookieKey ) ).toBe( '1' );
+		expect( readCookie( WATCHER_DATA.cookieKey ) ).toBe(
+			WATCHER_DATA.sidebarOpenClasses.join( ',' )
+		);
 	} );
 
-	it( 'clears the cookie on init when the sidebar-open class is absent', async () => {
+	it( 'sets the cookie when the sidebar opens', async () => {
 		window.AgentsManagerSidebarOpenWatcherData = WATCHER_DATA;
-		// Seed an existing open cookie to prove it gets cleared.
-		document.cookie = `${ WATCHER_DATA.cookieKey }=1; path=${ WATCHER_DATA.cookiePath }`;
 
 		await importWatcher();
+
+		dispatchSidebarChange( {
+			isOpen: true,
+			classList: WATCHER_DATA.sidebarOpenClasses,
+		} );
+
+		expect( readCookie( WATCHER_DATA.cookieKey ) ).toBe(
+			WATCHER_DATA.sidebarOpenClasses.join( ',' )
+		);
+	} );
+
+	it( 'clears the cookie when the sidebar closes', async () => {
+		window.AgentsManagerSidebarOpenWatcherData = WATCHER_DATA;
+		document.cookie = `${ WATCHER_DATA.cookieKey }=${ WATCHER_DATA.sidebarOpenClasses.join(
+			','
+		) }; path=${ WATCHER_DATA.cookiePath }`;
+
+		await importWatcher();
+
+		dispatchSidebarChange( { isOpen: false } );
 
 		expect( readCookie( WATCHER_DATA.cookieKey ) ).toBeUndefined();
 	} );
 
-	it( 'updates the cookie when the body class is added after init', async () => {
+	it( 'updates the cookie when the sidebar opens after init', async () => {
 		window.AgentsManagerSidebarOpenWatcherData = WATCHER_DATA;
 
 		await importWatcher();
 		expect( readCookie( WATCHER_DATA.cookieKey ) ).toBeUndefined();
 
-		document.body.classList.add( WATCHER_DATA.sidebarOpenClass );
-		await flushMutations();
+		dispatchSidebarChange( {
+			isOpen: true,
+			classList: WATCHER_DATA.sidebarOpenClasses,
+		} );
 
-		expect( readCookie( WATCHER_DATA.cookieKey ) ).toBe( '1' );
+		expect( readCookie( WATCHER_DATA.cookieKey ) ).toBe(
+			WATCHER_DATA.sidebarOpenClasses.join( ',' )
+		);
 	} );
 
-	it( 'clears the cookie when the body class is removed after init', async () => {
+	it( 'clears the cookie when the sidebar closes after init', async () => {
 		window.AgentsManagerSidebarOpenWatcherData = WATCHER_DATA;
-		document.body.classList.add( WATCHER_DATA.sidebarOpenClass );
 
 		await importWatcher();
-		expect( readCookie( WATCHER_DATA.cookieKey ) ).toBe( '1' );
 
-		document.body.classList.remove( WATCHER_DATA.sidebarOpenClass );
-		await flushMutations();
+		dispatchSidebarChange( {
+			isOpen: true,
+			classList: WATCHER_DATA.sidebarOpenClasses,
+		} );
+		expect( readCookie( WATCHER_DATA.cookieKey ) ).toBe(
+			WATCHER_DATA.sidebarOpenClasses.join( ',' )
+		);
+
+		dispatchSidebarChange( { isOpen: false } );
 
 		expect( readCookie( WATCHER_DATA.cookieKey ) ).toBeUndefined();
 	} );
 
-	it( 'stops syncing after the pagehide event disconnects the observer', async () => {
+	it( 'stops syncing after the pagehide event removes the listener', async () => {
 		window.AgentsManagerSidebarOpenWatcherData = WATCHER_DATA;
 
 		await importWatcher();
 
 		window.dispatchEvent( new window.Event( 'pagehide' ) );
 
-		document.body.classList.add( WATCHER_DATA.sidebarOpenClass );
-		await flushMutations();
+		dispatchSidebarChange( {
+			isOpen: true,
+			classList: WATCHER_DATA.sidebarOpenClasses,
+		} );
 
-		// Observer disconnected: the post-pagehide class change is ignored.
+		// Listener removed: the post-pagehide event is ignored.
 		expect( readCookie( WATCHER_DATA.cookieKey ) ).toBeUndefined();
 	} );
 } );

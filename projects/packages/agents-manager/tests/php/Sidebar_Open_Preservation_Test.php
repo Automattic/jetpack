@@ -20,8 +20,15 @@ require_once __DIR__ . '/../../src/class-sidebar-open-preservation.php';
 #[CoversClass( Sidebar_Open_Preservation::class )]
 class Sidebar_Open_Preservation_Test extends \WorDBless\BaseTestCase {
 
-	const COOKIE_KEY         = 'agents_manager_chat_sidebar_open';
+	const COOKIE_KEY         = 'agents_manager_chat_sidebar_open_class_list';
 	const SIDEBAR_OPEN_CLASS = 'agents-manager-sidebar-container--sidebar-open';
+
+	/**
+	 * Comma-separated class list stored in the open-state cookie.
+	 *
+	 * @var string
+	 */
+	private const OPEN_CLASS_LIST_COOKIE = 'agents-manager-sidebar-container,agents-manager-sidebar-container--sidebar-open';
 
 	/**
 	 * The Sidebar_Open_Preservation instance.
@@ -138,7 +145,7 @@ class Sidebar_Open_Preservation_Test extends \WorDBless\BaseTestCase {
 	 */
 	public function test_add_preopen_body_classes_unchanged_on_frontend() {
 		// Not admin, even though the cookie says the sidebar is open.
-		$_COOKIE[ self::COOKIE_KEY ] = '1';
+		$_COOKIE[ self::COOKIE_KEY ] = self::OPEN_CLASS_LIST_COOKIE;
 
 		$this->assertFalse( is_admin() );
 		$this->assertSame( 'foo bar', $this->preservation->add_preopen_body_classes( 'foo bar' ) );
@@ -150,7 +157,7 @@ class Sidebar_Open_Preservation_Test extends \WorDBless\BaseTestCase {
 	public function test_add_preopen_body_classes_unchanged_when_unified_experience_disabled() {
 		require_once ABSPATH . 'wp-admin/includes/screen.php';
 		set_current_screen( 'dashboard' );
-		$_COOKIE[ self::COOKIE_KEY ] = '1';
+		$_COOKIE[ self::COOKIE_KEY ] = self::OPEN_CLASS_LIST_COOKIE;
 
 		// No unified experience filter added -> defaults to false.
 		$this->assertSame( 'foo bar', $this->preservation->add_preopen_body_classes( 'foo bar' ) );
@@ -167,21 +174,21 @@ class Sidebar_Open_Preservation_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Tests that body classes are unchanged when the cookie is not "1".
+	 * Tests that body classes are unchanged when the cookie is empty.
 	 */
-	public function test_add_preopen_body_classes_unchanged_when_cookie_not_open() {
+	public function test_add_preopen_body_classes_unchanged_when_cookie_empty() {
 		$this->enable_preservation();
-		$_COOKIE[ self::COOKIE_KEY ] = '0';
+		$_COOKIE[ self::COOKIE_KEY ] = '';
 
 		$this->assertSame( 'foo bar', $this->preservation->add_preopen_body_classes( 'foo bar' ) );
 	}
 
 	/**
-	 * Tests that the sidebar-open classes are appended when the cookie is "1".
+	 * Tests that the sidebar-open classes are appended when the cookie carries a class list.
 	 */
 	public function test_add_preopen_body_classes_appends_classes_when_open() {
 		$this->enable_preservation();
-		$_COOKIE[ self::COOKIE_KEY ] = '1';
+		$_COOKIE[ self::COOKIE_KEY ] = self::OPEN_CLASS_LIST_COOKIE;
 
 		$result = $this->preservation->add_preopen_body_classes( 'foo bar' );
 
@@ -195,7 +202,7 @@ class Sidebar_Open_Preservation_Test extends \WorDBless\BaseTestCase {
 	 */
 	public function test_add_preopen_body_classes_trims_when_input_empty() {
 		$this->enable_preservation();
-		$_COOKIE[ self::COOKIE_KEY ] = '1';
+		$_COOKIE[ self::COOKIE_KEY ] = self::OPEN_CLASS_LIST_COOKIE;
 
 		$result = $this->preservation->add_preopen_body_classes( '' );
 
@@ -206,12 +213,12 @@ class Sidebar_Open_Preservation_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Tests that the open cookie value is sanitized before being compared.
+	 * Tests that the cookie value is sanitized before being applied.
 	 */
 	public function test_add_preopen_body_classes_handles_slashed_cookie_value() {
 		$this->enable_preservation();
-		// A slashed/padded value that is not exactly "1" should not open the sidebar.
-		$_COOKIE[ self::COOKIE_KEY ] = '1; rm -rf';
+		// A slashed/padded value that sanitizes to empty should not open the sidebar.
+		$_COOKIE[ self::COOKIE_KEY ] = '   ';
 
 		$result = $this->preservation->add_preopen_body_classes( 'foo' );
 
@@ -248,7 +255,6 @@ class Sidebar_Open_Preservation_Test extends \WorDBless\BaseTestCase {
 
 		$this->assertStringContainsString( 'window.AgentsManagerSidebarOpenWatcherData =', $inline_script );
 		$this->assertStringContainsString( '"cookieKey":"' . self::COOKIE_KEY . '"', $inline_script );
-		$this->assertStringContainsString( '"sidebarOpenClass":"' . self::SIDEBAR_OPEN_CLASS . '"', $inline_script );
 		$this->assertStringContainsString( '"cookiePath":"/wp-admin"', $inline_script );
 	}
 }
