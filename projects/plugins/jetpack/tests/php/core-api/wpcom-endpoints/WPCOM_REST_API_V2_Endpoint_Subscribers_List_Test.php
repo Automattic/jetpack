@@ -6,6 +6,7 @@
  */
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use WpOrg\Requests\Requests;
 
 require_once dirname( __DIR__, 2 ) . '/lib/Jetpack_REST_TestCase.php';
@@ -224,5 +225,80 @@ class WPCOM_REST_API_V2_Endpoint_Subscribers_List_Test extends Jetpack_REST_Test
 
 		$this->assertSame( 400, $response->get_status() );
 		$this->assertSame( 'subscriber_stats_missing_id', $response->get_data()['code'] );
+	}
+
+	/**
+	 * `get_wpcom_error_message()` digs the most specific reason out of a Memberships API body:
+	 * the nested `error.message` the comp endpoints use, then a top-level `message`, then a string
+	 * `error`, and finally the supplied default. This is what lets the comp/remove-comp endpoints
+	 * surface "User has already been comped this plan" instead of a generic failure.
+	 *
+	 * @param string $expected Expected message.
+	 * @param mixed  $body     Decoded response body.
+	 * @param string $default  Fallback message.
+	 * @dataProvider provider_wpcom_error_messages
+	 */
+	#[DataProvider( 'provider_wpcom_error_messages' )]
+	public function test_get_wpcom_error_message( $expected, $body, $default ) {
+		$endpoint = new WPCOM_REST_API_V2_Endpoint_Subscribers_List();
+		$method   = new ReflectionMethod( WPCOM_REST_API_V2_Endpoint_Subscribers_List::class, 'get_wpcom_error_message' );
+		$method->setAccessible( true );
+
+		$this->assertSame( $expected, $method->invoke( $endpoint, $body, $default ) );
+	}
+
+	/**
+	 * Data for {@see test_get_wpcom_error_message()}.
+	 *
+	 * @return array<string, array{0: string, 1: mixed, 2: string}>
+	 */
+	public static function provider_wpcom_error_messages() {
+		$default = 'Could not comp the subscription.';
+
+		return array(
+			'nested error.message (already-comped case)' => array(
+				'User has already been comped this plan',
+				array(
+					'error' => array(
+						'code'    => 'validation_error',
+						'message' => 'User has already been comped this plan',
+					),
+				),
+				$default,
+			),
+			'nested error.message wins over top-level message' => array(
+				'Nested wins',
+				array(
+					'message' => 'Top level',
+					'error'   => array( 'message' => 'Nested wins' ),
+				),
+				$default,
+			),
+			'top-level message when no nested error.message' => array(
+				'Top level reason',
+				array( 'message' => 'Top level reason' ),
+				$default,
+			),
+			'string error'                               => array(
+				'Plain string error',
+				array( 'error' => 'Plain string error' ),
+				$default,
+			),
+			'default when error.message is not a string' => array(
+				$default,
+				array( 'error' => array( 'message' => array( 'unexpected' ) ) ),
+				$default,
+			),
+			'default when body has no usable message'    => array(
+				$default,
+				array( 'error' => array( 'code' => 'validation_error' ) ),
+				$default,
+			),
+			'default when body is not an array'          => array(
+				$default,
+				null,
+				$default,
+			),
+		);
 	}
 }

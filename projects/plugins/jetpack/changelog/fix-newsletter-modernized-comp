@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Subscribers: surface the specific Memberships API error (such as when a reader is already comped) from the comp endpoints instead of a generic failure message
