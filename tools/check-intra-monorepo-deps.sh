@@ -124,7 +124,7 @@ function get_packages {
 		PACKAGES='{}'
 		PKGS=( "$BASE"/projects/packages/*/composer.json )
 	elif [[ "$1" == packages/* ]]; then
-		PKGS=( "$BASE"/projects/$1/composer.json )
+		PKGS=( "$BASE/projects/$1/composer.json" )
 	else
 		PKGS=()
 	fi

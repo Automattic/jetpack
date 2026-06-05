@@ -131,7 +131,7 @@ install_db() {
 	fi
 
 	# parse DB_HOST for port or socket references
-	local PARTS=(${DB_HOST//\:/ })
+	local PARTS=("${DB_HOST//\:/ }")
 	local DB_HOSTNAME=${PARTS[0]};
 	local DB_SOCK_OR_PORT=${PARTS[1]};
 	local EXTRA=""
