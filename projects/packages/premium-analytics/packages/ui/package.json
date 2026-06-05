@@ -1,25 +1,28 @@
 {
-	"name": "@next-woo-analytics/components",
-	"description": "WooCommerce Analytics components",
-	"version": "1.0.0",
+	"name": "@automattic/jetpack-premium-analytics-ui",
+	"version": "0.1.0",
+	"private": true,
 	"type": "module",
-	"wpModule": true,
 	"main": "src/index.ts",
-	"exports": {
-		".": "./build/src/index.js"
-	},
+	"types": "src/index.ts",
+	"sideEffects": [
+		"*.scss"
+	],
 	"dependencies": {
-		"@automattic/ui": "*",
-		"date-fns": "*",
-		"@next-woo-analytics/data": "workspace:*",
-		"@next-woo-analytics/datetime": "workspace:*",
-		"@wc-analytics/formatters": "workspace:*",
-		"@wordpress/components": "*",
 		"@automattic/admin-toolkit": "*",
-		"@automattic/design-system": "*",
-		"@wordpress/icons": "*",
-		"@wordpress/compose": "*",
-		"@wordpress/ui": "*",
-		"clsx": "*"
+		"@automattic/ui": "1.0.2",
+		"@jetpack-premium-analytics/datetime": "workspace:*",
+		"@jetpack-premium-analytics/formatters": "workspace:*",
+		"@wordpress/components": "33.1.0",
+		"@wordpress/compose": "7.46.0",
+		"@wordpress/i18n": "^6.9.0",
+		"@wordpress/icons": "^13.0.0",
+		"@wordpress/ui": "0.13.0",
+		"clsx": "2.1.1",
+		"react": "18.3.1"
+	},
+	"devDependencies": {
+		"@storybook/react": "10.3.6",
+		"date-fns": "4.1.0"
 	}
 }

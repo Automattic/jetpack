@@ -4,8 +4,8 @@
 import { __ } from '@wordpress/i18n';
 import { Field, Input, Stack } from '@wordpress/ui';
 import { useCallback, useEffect, useState } from 'react';
-import { createTZDateFromParts } from '@next-woo-analytics/datetime';
-import { formatDate } from '@wc-analytics/formatters';
+import { createTZDateFromParts } from '@jetpack-premium-analytics/datetime';
+import { formatDate } from '@jetpack-premium-analytics/formatters';
 
 /**
  * Internal dependencies
@@ -94,7 +94,7 @@ export function DateRangeInput( {
 	return (
 		<Stack gap="sm" justify="space-between">
 			<DateInput
-				label={ __( 'From', 'woocommerce-analytics' ) }
+				label={ __( 'From', 'jetpack-premium-analytics' ) }
 				date={ from }
 				timeZone={ timeZone }
 				onChange={ ( nextFrom ) => {
@@ -105,7 +105,7 @@ export function DateRangeInput( {
 			/>
 
 			<DateInput
-				label={ __( 'To', 'woocommerce-analytics' ) }
+				label={ __( 'To', 'jetpack-premium-analytics' ) }
 				date={ to }
 				timeZone={ timeZone }
 				onChange={ ( nextTo ) => {

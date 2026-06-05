@@ -1,10 +1,10 @@
 /**
  * External dependencies
  */
-import type { Meta, StoryObj } from '@storybook/react-vite';
+import type { Meta, StoryObj } from '@storybook/react';
 import { useState } from 'react';
 import { subDays, startOfDay, endOfDay } from 'date-fns';
-import type { ComparisonPresetId } from '@next-woo-analytics/datetime';
+import type { ComparisonPresetId } from '@jetpack-premium-analytics/datetime';
 
 /**
  * Internal dependencies
@@ -14,7 +14,7 @@ import { useComparisonDatePresets } from '../../use-comparison-date-presets';
 import type { DateRange } from '../../date-range-popover';
 
 const meta: Meta< typeof DateComparisonDropdown > = {
-	title: 'Components/DateComparisonDropdown',
+	title: 'Packages/Premium Analytics/UI/DateComparisonDropdown',
 	component: DateComparisonDropdown,
 	tags: [ 'autodocs' ],
 	parameters: {

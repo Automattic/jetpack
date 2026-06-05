@@ -1,10 +1,10 @@
 /**
  * External dependencies
  */
-import type { Meta, StoryObj } from '@storybook/react-vite';
+import type { Meta, StoryObj } from '@storybook/react';
 import { useState } from 'react';
 import { subDays, startOfDay, endOfDay } from 'date-fns';
-import type { PrimaryPresetId } from '@next-woo-analytics/datetime';
+import type { PrimaryPresetId } from '@jetpack-premium-analytics/datetime';
 
 /**
  * Internal dependencies
@@ -16,7 +16,7 @@ import {
 import type { DateRange } from '../date-range-filter';
 
 const meta: Meta< typeof DateRangePopover > = {
-	title: 'Components/DateRangePopover',
+	title: 'Packages/Premium Analytics/UI/DateRangePopover',
 	component: DateRangePopover,
 	tags: [ 'autodocs' ],
 	decorators: [

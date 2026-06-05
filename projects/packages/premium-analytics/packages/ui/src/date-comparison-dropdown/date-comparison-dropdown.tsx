@@ -4,10 +4,10 @@
 import { privateApis as componentsPrivateApis } from '@wordpress/components';
 import { unlock } from '@automattic/admin-toolkit';
 import { Button } from '@wordpress/ui';
-import { formatDateRange } from '@wc-analytics/formatters';
+import { formatDateRange } from '@jetpack-premium-analytics/formatters';
 import { sprintf, __ } from '@wordpress/i18n';
 import { useMemo } from 'react';
-import type { ComparisonPresetId } from '@next-woo-analytics/datetime';
+import type { ComparisonPresetId } from '@jetpack-premium-analytics/datetime';
 
 const { Menu } = unlock( componentsPrivateApis );
 
@@ -80,7 +80,7 @@ export function DateComparisonDropdown( {
 							size="compact"
 							id="date-comparison-dropdown-button"
 						>
-							{ __( 'No comparison', 'woocommerce-analytics' ) }
+							{ __( 'No comparison', 'jetpack-premium-analytics' ) }
 						</Button>
 					}
 				/>
@@ -94,7 +94,7 @@ export function DateComparisonDropdown( {
 							<Menu.ItemLabel>
 								{ __(
 									'No comparison',
-									'woocommerce-analytics'
+									'jetpack-premium-analytics'
 								) }
 							</Menu.ItemLabel>
 						</Menu.CheckboxItem>
@@ -109,7 +109,7 @@ export function DateComparisonDropdown( {
 							<Menu.ItemLabel>
 								{ __(
 									'Comparison to past',
-									'woocommerce-analytics'
+									'jetpack-premium-analytics'
 								) }
 							</Menu.ItemLabel>
 						</Menu.CheckboxItem>
@@ -119,14 +119,14 @@ export function DateComparisonDropdown( {
 		);
 	}
 
-	let label: string = __( 'Select comparison', 'woocommerce-analytics' );
+	let label: string = __( 'Select comparison', 'jetpack-premium-analytics' );
 	if ( hasValidPreset ) {
 		if ( removeCompareToPrefix ) {
 			label = formatDateRange( comparisonRange );
 		} else {
 			label = sprintf(
 				// translators: %s is the comparison range label
-				__( 'Compare to: %s', 'woocommerce-analytics' ),
+				__( 'Compare to: %s', 'jetpack-premium-analytics' ),
 				formatDateRange( comparisonRange )
 			);
 		}

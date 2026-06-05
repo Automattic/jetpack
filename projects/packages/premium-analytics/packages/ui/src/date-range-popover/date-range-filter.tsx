@@ -12,7 +12,7 @@ import { calendar } from '@wordpress/icons';
 import { Badge, Button, Stack } from '@wordpress/ui';
 import { useState, useCallback, useMemo, useEffect } from 'react';
 import { useResizeObserver } from '@wordpress/compose';
-import { formatDateRange } from '@wc-analytics/formatters';
+import { formatDateRange } from '@jetpack-premium-analytics/formatters';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import '@automattic/ui/style.css';
@@ -22,7 +22,7 @@ import {
 	PRESET_CUSTOM,
 	type PrimaryPresetId,
 	type DateRangePreset,
-} from '@next-woo-analytics/datetime';
+} from '@jetpack-premium-analytics/datetime';
 
 /**
  * Internal dependencies
@@ -130,7 +130,7 @@ function DateRangePopoverActions( {
 			className="date-range-popover-actions"
 		>
 			<Button variant="minimal" size="compact" onClick={ onCancel }>
-				{ __( 'Cancel', 'woocommerce-analytics' ) }
+				{ __( 'Cancel', 'jetpack-premium-analytics' ) }
 			</Button>
 			<Button
 				variant="solid"
@@ -138,7 +138,7 @@ function DateRangePopoverActions( {
 				disabled={ ! canApply }
 				onClick={ onApply }
 			>
-				{ __( 'Apply', 'woocommerce-analytics' ) }
+				{ __( 'Apply', 'jetpack-premium-analytics' ) }
 			</Button>
 		</Stack>
 	);
@@ -168,7 +168,7 @@ function DateRangePresetsDropdown( {
 			} ) ),
 			{
 				value: PRESET_CUSTOM,
-				label: __( 'Custom range', 'woocommerce-analytics' ),
+				label: __( 'Custom range', 'jetpack-premium-analytics' ),
 			},
 		],
 		[ presets ]

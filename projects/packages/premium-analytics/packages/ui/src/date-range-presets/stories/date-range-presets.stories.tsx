@@ -1,12 +1,12 @@
 /**
  * External dependencies
  */
-import type { Meta, StoryObj } from '@storybook/react-vite';
+import type { Meta, StoryObj } from '@storybook/react';
 import { useState } from 'react';
 import { subDays, startOfDay, endOfDay } from 'date-fns';
 import { privateApis as componentsPrivateApis } from '@wordpress/components';
 import { unlock } from '@automattic/admin-toolkit';
-import type { PrimaryPresetId } from '@next-woo-analytics/datetime';
+import type { PrimaryPresetId } from '@jetpack-premium-analytics/datetime';
 
 /**
  * Internal dependencies
@@ -23,7 +23,7 @@ const { Menu } = unlock( componentsPrivateApis );
 const STORY_TIMEZONE = 'America/New_York';
 
 const meta: Meta< typeof DateRangePresets > = {
-	title: 'Components/DateRangePresets',
+	title: 'Packages/Premium Analytics/UI/DateRangePresets',
 	component: DateRangePresets,
 	tags: [ 'autodocs' ],
 	decorators: [
