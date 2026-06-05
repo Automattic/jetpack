@@ -613,9 +613,8 @@ class Agents_Manager {
 	 * Register the Agents Manager endpoints.
 	 */
 	public function register_rest_api() {
-		require_once __DIR__ . '/class-wp-rest-agents-manager-persisted-open-state.php';
-		$controller = new WP_REST_Agents_Manager_Persisted_Open_State();
-		$controller->register_rest_route();
+		( new WP_REST_Agents_Manager_Persisted_Open_State() )->register_rest_route();
+		( new WP_REST_Jetpack_AI_JWT() )->register_rest_route();
 	}
 
 	/**

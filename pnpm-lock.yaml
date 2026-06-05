@@ -2918,9 +2918,6 @@ importers:
       '@lezer/lr':
         specifier: 1.4.3
         version: 1.4.3
-      '@popperjs/core':
-        specifier: ^2.11.8
-        version: 2.11.8
       '@preact/signals':
         specifier: 1.2.2
         version: 1.2.2(preact@10.28.2)
@@ -3035,9 +3032,6 @@ importers:
       preact:
         specifier: 10.28.2
         version: 10.28.2
-      react-popper:
-        specifier: ^2.3.0
-        version: 2.3.0(@popperjs/core@2.11.8)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       redux:
         specifier: ^4.2.1
         version: 4.2.1
@@ -3872,6 +3866,12 @@ importers:
 
   projects/packages/premium-analytics:
     dependencies:
+      '@automattic/number-formatters':
+        specifier: workspace:*
+        version: link:../../js-packages/number-formatters
+      '@date-fns/tz':
+        specifier: 1.4.1
+        version: 1.4.1
       '@wordpress/boot':
         specifier: 0.13.0
         version: 0.13.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -3884,9 +3884,15 @@ importers:
       '@wordpress/icons':
         specifier: ^13.0.0
         version: 13.1.0(react@18.3.1)
+      '@wordpress/primitives':
+        specifier: 4.46.0
+        version: 4.46.0(react@18.3.1)
       '@wordpress/route':
         specifier: 0.12.0
         version: 0.12.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      date-fns:
+        specifier: 4.1.0
+        version: 4.1.0
       react:
         specifier: 18.3.1
         version: 18.3.1
@@ -3897,12 +3903,33 @@ importers:
       '@babel/core':
         specifier: 7.29.0
         version: 7.29.0
+      '@storybook/react':
+        specifier: 10.3.6
+        version: 10.3.6(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(storybook@10.3.6(@testing-library/dom@10.4.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(typescript@5.9.3)
+      '@testing-library/dom':
+        specifier: 10.4.1
+        version: 10.4.1
+      '@types/jest':
+        specifier: 30.0.0
+        version: 30.0.0
+      '@typescript/native-preview':
+        specifier: 7.0.0-dev.20260225.1
+        version: 7.0.0-dev.20260225.1
       '@wordpress/build':
         specifier: 0.14.0
         version: 0.14.0(@babel/core@7.29.0)(@wordpress/boot@0.13.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@wordpress/route@0.12.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(browserslist@4.28.2)
+      '@wordpress/ui':
+        specifier: 0.13.0
+        version: 0.13.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       browserslist:
         specifier: 4.28.2
         version: 4.28.2
+      storybook:
+        specifier: 10.3.6
+        version: 10.3.6(@testing-library/dom@10.4.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      typescript:
+        specifier: 5.9.3
+        version: 5.9.3
 
   projects/packages/protect-models: {}
 
@@ -9131,9 +9158,6 @@ packages:
 
   '@polka/url@1.0.0-next.29':
     resolution: {integrity: sha512-wwQAWhWSuHaag8c4q/KN/vCoeOJYshAIvMQwD4GpSb3OiZklFfvAgmj0VCBBImRpuF/aFgIRzllXlVX93Jevww==}
-
-  '@popperjs/core@2.11.8':
-    resolution: {integrity: sha512-P1st0aksCrn9sGZhp8GMYwBnQsbvAWsZAX44oXNNvLHGqAOcoVxmjZiohstwQ7SqKnbR47akdNi+uleWD8+g6A==}
 
   '@preact/signals-core@1.14.1':
     resolution: {integrity: sha512-vxPpfXqrwUe9lpjqfYNjAF/0RF/eFGeLgdJzdmIIZjpOnTmGmAB4BjWone562mJGMRP4frU6iZ6ei3PDsu52Ng==}
@@ -16141,9 +16165,6 @@ packages:
       react: '>=16.4.0'
       react-dom: '>=16.4.0'
 
-  react-fast-compare@3.2.2:
-    resolution: {integrity: sha512-nsO+KSNgo1SbJqJEYRE9ERzo7YtYbou/OqjSQKxV7jcKox7+usiUVZOAC+XnDOABXggQTno0Y1CpVnuWEc1boQ==}
-
   react-google-charts@5.2.1:
     resolution: {integrity: sha512-mCbPiObP8yWM5A9ogej7Qp3/HX4EzOwuEzUYvcfHtL98Xt4V/brD14KgfDzSNNtyD48MNXCpq5oVaYKt0ykQUQ==}
     peerDependencies:
@@ -16176,13 +16197,6 @@ packages:
     engines: {node: '>=10'}
     peerDependencies:
       react: ^16.13.1 || ^17.0.0 || ^18.0.0
-
-  react-popper@2.3.0:
-    resolution: {integrity: sha512-e1hj8lL3uM+sgSR4Lxzn5h1GxBlpa4CQz0XLF8kx4MDrDRWY0Ena4c97PUeSX9i5W3UAfDP0z0FXCTQkoXUl3Q==}
-    peerDependencies:
-      '@popperjs/core': ^2.0.0
-      react: ^16.8.0 || ^17 || ^18
-      react-dom: ^16.8.0 || ^17 || ^18
 
   react-property@2.0.2:
     resolution: {integrity: sha512-+PbtI3VuDV0l6CleQMsx2gtK0JZbZKbpdu5ynr+lbsuvtmgbNcS3VM0tuY2QjFNOcWxvXeHjDpy42RO+4U2rug==}
@@ -21415,8 +21429,6 @@ snapshots:
       webpack-dev-server: 5.2.4(webpack-cli@6.0.1)(webpack@5.105.2)
 
   '@polka/url@1.0.0-next.29': {}
-
-  '@popperjs/core@2.11.8': {}
 
   '@preact/signals-core@1.14.1': {}
 
@@ -31726,8 +31738,6 @@ snapshots:
       react-dom: 18.3.1(react@18.3.1)
       tslib: 2.8.1
 
-  react-fast-compare@3.2.2: {}
-
   react-google-charts@5.2.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
     dependencies:
       react: 18.3.1
@@ -31756,14 +31766,6 @@ snapshots:
     dependencies:
       prop-types: 15.8.1
       react: 18.3.1
-
-  react-popper@2.3.0(@popperjs/core@2.11.8)(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
-    dependencies:
-      '@popperjs/core': 2.11.8
-      react: 18.3.1
-      react-dom: 18.3.1(react@18.3.1)
-      react-fast-compare: 3.2.2
-      warning: 4.0.3
 
   react-property@2.0.2: {}
 
