@@ -2,7 +2,6 @@
  * External dependencies
  */
 import { type BaseLegendItem, useGlobalChartsContext } from '@automattic/charts';
-
 /**
  * Internal dependencies
  */

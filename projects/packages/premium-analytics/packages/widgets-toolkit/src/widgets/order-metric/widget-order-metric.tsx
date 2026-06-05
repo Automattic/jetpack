@@ -2,7 +2,6 @@
  * External dependencies
  */
 import { useReportOrders } from '@jetpack-premium-analytics/data';
-
 /**
  * Internal dependencies
  */
@@ -25,7 +24,7 @@ export type OrderMetricWidgetProps = {
  * This component must be used within a WidgetRoot which provides reportParams
  * via context.
  *
- * @param {Object}         props           - Component props
+ * @param {object}         props           - Component props
  * @param {OrderMetricKey} props.metricKey - The metric key to display
  *
  * @example

@@ -1,18 +1,17 @@
 /**
  * External dependencies
  */
-import { useMemo } from 'react';
 import { ConversionFunnelChart } from '@automattic/charts';
-import { Icon, Stack } from '@wordpress/ui';
-import { WidgetLoadingOverlay } from '../../components/widget-loading-overlay';
 import { FilterCondition, useReportConversionRate } from '@jetpack-premium-analytics/data';
 import { goal } from '@jetpack-premium-analytics/icons';
-
+import { Icon, Stack } from '@wordpress/ui';
+import { useMemo } from 'react';
 /**
  * Internal dependencies
  */
-import { useWidgetRootContext } from '../../components/widget-root';
 import { MetricWithComparison, ChartEmptyState } from '../../components';
+import { WidgetLoadingOverlay } from '../../components/widget-loading-overlay';
+import { useWidgetRootContext } from '../../components/widget-root';
 import { BOOKINGS_FILTER } from '../../helpers';
 import { useWidgetError } from '../../hooks';
 import styles from './conversion-rate-widget.module.scss';

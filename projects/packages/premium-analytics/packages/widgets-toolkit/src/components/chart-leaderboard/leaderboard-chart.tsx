@@ -1,25 +1,24 @@
 /**
  * External dependencies
  */
-import { Icon, Stack } from '@wordpress/ui';
 import {
 	LeaderboardChartUnresponsive as BaseLeaderboardChart,
 	useGlobalChartsContext,
 	Legend,
 	hexToRgba,
 } from '@automattic/charts';
-import clsx from 'clsx';
-import type { ComponentProps, ReactNode } from 'react';
-import { useMemo } from 'react';
 import { formatMetricValue } from '@jetpack-premium-analytics/formatters';
-
+import { Icon, Stack } from '@wordpress/ui';
+import clsx from 'clsx';
+import { useMemo } from 'react';
 /**
  * Internal dependencies
  */
-import type { DataFormat } from '../../types';
-import type { WooChartTheme } from '../../hooks/use-chart-theme';
 import { ChartEmptyState } from '../chart-empty-state';
 import styles from './leaderboard-chart.module.scss';
+import type { WooChartTheme } from '../../hooks/use-chart-theme';
+import type { DataFormat } from '../../types';
+import type { ComponentProps, ReactNode } from 'react';
 
 type LeaderboardChartData = ComponentProps< typeof BaseLeaderboardChart >[ 'data' ];
 

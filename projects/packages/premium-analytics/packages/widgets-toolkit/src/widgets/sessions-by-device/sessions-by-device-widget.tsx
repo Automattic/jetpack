@@ -1,19 +1,18 @@
 /**
  * External dependencies
  */
-import { useMemo } from 'react';
-import { Stack } from '@wordpress/ui';
-import { WidgetLoadingOverlay } from '../../components/widget-loading-overlay';
 import { useReportSessionsByDevice } from '@jetpack-premium-analytics/data';
 import { device } from '@jetpack-premium-analytics/icons';
-
+import { Stack } from '@wordpress/ui';
+import { useMemo } from 'react';
+import { SemiCircleChart } from '../../components';
+import { WidgetLoadingOverlay } from '../../components/widget-loading-overlay';
 /**
  * Internal dependencies
  */
 import { useWidgetRootContext } from '../../components/widget-root';
-import { useWidgetError } from '../../hooks';
-import { SemiCircleChart } from '../../components';
 import { buildSessionsByDeviceData } from '../../helpers';
+import { useWidgetError } from '../../hooks';
 import { useSegmentStyles } from '../common';
 import styles from './sessions-by-device-widget.module.scss';
 

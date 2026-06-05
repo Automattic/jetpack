@@ -3,7 +3,6 @@
  */
 import { Stack } from '@wordpress/ui';
 import clsx from 'clsx';
-
 /**
  * Internal dependencies
  */

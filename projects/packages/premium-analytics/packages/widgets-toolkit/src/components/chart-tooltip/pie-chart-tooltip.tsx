@@ -1,16 +1,16 @@
 /**
  * External dependencies
  */
-import { Stack } from '@wordpress/ui';
-import type { DataPointPercentage } from '@automattic/charts';
 import { RectShape } from '@automattic/charts/visx/legend';
+import { Stack } from '@wordpress/ui';
+import styles from './chart-tooltip.module.scss';
+import { TooltipRow } from './tooltip-row';
+import type { DataFormat } from '../../types';
+import type { DataPointPercentage } from '@automattic/charts';
 
 /**
  * Internal dependencies
  */
-import type { DataFormat } from '../../types';
-import { TooltipRow } from './tooltip-row';
-import styles from './chart-tooltip.module.scss';
 
 export type PieChartTooltipProps = {
 	/**

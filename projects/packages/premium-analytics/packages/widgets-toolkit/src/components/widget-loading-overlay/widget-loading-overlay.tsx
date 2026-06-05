@@ -3,7 +3,6 @@
  */
 import { Spinner } from '@wordpress/components';
 import { Stack } from '@wordpress/ui';
-
 /**
  * Internal dependencies
  */

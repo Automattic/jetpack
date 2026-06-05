@@ -1,16 +1,15 @@
 /**
  * External dependencies
  */
-import { type CSSProperties, useMemo } from 'react';
 import { formatMetricValue } from '@jetpack-premium-analytics/formatters';
-import type { FontSize } from '@wordpress/theme';
 import clsx from 'clsx';
-
+import { type CSSProperties, useMemo } from 'react';
 /**
  * Internal dependencies
  */
 import styles from './metric-value.module.scss';
 import type { DataFormat } from '../../types';
+import type { FontSize } from '@wordpress/theme';
 
 export type MetricValueProps = {
 	/**

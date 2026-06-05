@@ -2,13 +2,12 @@
  * External dependencies
  */
 import { __experimentalGrid as Grid } from '@wordpress/components';
-
 /**
  * Internal dependencies
  */
-import { LegendRow } from './row';
 import { MetricDelta } from '../metric-delta';
 import styles from './legend.module.scss';
+import { LegendRow } from './row';
 
 export type LegendItem = {
 	label: string;

@@ -1,9 +1,8 @@
 /**
  * External dependencies
  */
-import { useMemo } from 'react';
 import { useGlobalChartsContext } from '@automattic/charts';
-
+import { useMemo } from 'react';
 /**
  * Internal dependencies
  */

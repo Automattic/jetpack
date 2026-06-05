@@ -2,7 +2,6 @@
  * External dependencies
  */
 import { useReportVisitors } from '@jetpack-premium-analytics/data';
-
 /**
  * Internal dependencies
  */

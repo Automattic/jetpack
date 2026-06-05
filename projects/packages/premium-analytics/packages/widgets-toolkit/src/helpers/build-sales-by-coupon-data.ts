@@ -2,13 +2,13 @@
  * External dependencies
  */
 import { __ } from '@wordpress/i18n';
-import type { ReportDataMap, ReportParams } from '@jetpack-premium-analytics/data';
+import { formatLegendLabels } from './format-legend-labels';
 import type { SeriesData } from '@automattic/charts';
+import type { ReportDataMap, ReportParams } from '@jetpack-premium-analytics/data';
 
 /**
  * Internal dependencies
  */
-import { formatLegendLabels } from './format-legend-labels';
 
 export interface SalesByCouponData {
 	chartData: SeriesData[];

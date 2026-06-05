@@ -1,9 +1,8 @@
 /**
  * External dependencies
  */
-import { useMemo } from 'react';
 import { type ReportParams, useReportVisitorsByLocation } from '@jetpack-premium-analytics/data';
-
+import { useMemo } from 'react';
 /**
  * Internal dependencies
  */

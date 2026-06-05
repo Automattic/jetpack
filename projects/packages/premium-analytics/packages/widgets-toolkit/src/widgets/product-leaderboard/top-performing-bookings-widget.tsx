@@ -2,12 +2,11 @@
  * External dependencies
  */
 import { calendar } from '@jetpack-premium-analytics/icons';
-
 /**
  * Internal dependencies
  */
-import { TopPerformingProductLeaderboardWidget } from './top-performing-product-leaderboard-widget';
 import { BOOKINGS_FILTER } from '../../helpers';
+import { TopPerformingProductLeaderboardWidget } from './top-performing-product-leaderboard-widget';
 
 export type TopPerformingBookingsWidgetProps = {
 	/**

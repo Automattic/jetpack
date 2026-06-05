@@ -1,6 +1,6 @@
 /**
  * Given a country code, return a flag SVG URL from CDN.
- * @param countryCode A two-letter ISO 3166-1 country code (lowercase)
+ * @param countryCode - A two-letter ISO 3166-1 country code (lowercase)
  * @return Flag SVG URL
  */
 export function flagUrl( countryCode: string ): string | null {

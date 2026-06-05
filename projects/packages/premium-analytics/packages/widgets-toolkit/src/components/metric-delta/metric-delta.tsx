@@ -1,15 +1,14 @@
 /**
  * External dependencies
  */
-import { Stack } from '@wordpress/ui';
 import { formatMetricValue } from '@jetpack-premium-analytics/formatters';
-import type { ComponentProps } from 'react';
+import { Stack } from '@wordpress/ui';
 import clsx from 'clsx';
-
 /**
  * Internal dependencies
  */
 import styles from './metric-delta.module.scss';
+import type { ComponentProps } from 'react';
 
 export type MetricDeltaProps = {
 	/**

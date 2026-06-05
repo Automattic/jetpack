@@ -1,17 +1,16 @@
 /**
  * External dependencies
  */
-import { useMemo } from 'react';
-import { Stack } from '@wordpress/ui';
-import { WidgetLoadingOverlay } from '../../components/widget-loading-overlay';
 import { useReportCustomersByDate } from '@jetpack-premium-analytics/data';
 import { customer } from '@jetpack-premium-analytics/icons';
-
+import { Stack } from '@wordpress/ui';
+import { useMemo } from 'react';
+import { DonutChart } from '../../components';
+import { WidgetLoadingOverlay } from '../../components/widget-loading-overlay';
 /**
  * Internal dependencies
  */
 import { useWidgetRootContext } from '../../components/widget-root';
-import { DonutChart } from '../../components';
 import { buildNewVsReturningCustomerData } from '../../helpers';
 import { useWidgetError } from '../../hooks';
 import { useSegmentStyles } from '../common';

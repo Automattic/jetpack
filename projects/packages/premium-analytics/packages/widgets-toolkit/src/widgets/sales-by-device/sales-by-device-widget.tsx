@@ -1,16 +1,15 @@
 /**
  * External dependencies
  */
-import { useMemo } from 'react';
-import { WidgetLoadingOverlay } from '../../components/widget-loading-overlay';
 import { useReportOrderAttribution, type FilterCondition } from '@jetpack-premium-analytics/data';
 import { device } from '@jetpack-premium-analytics/icons';
-
+import { useMemo } from 'react';
+import { BarChart } from '../../components';
+import { WidgetLoadingOverlay } from '../../components/widget-loading-overlay';
 /**
  * Internal dependencies
  */
 import { useWidgetRootContext } from '../../components/widget-root';
-import { BarChart } from '../../components';
 import { buildSalesByDeviceData, BOOKINGS_FILTER } from '../../helpers';
 import { useWidgetError } from '../../hooks';
 import { useBarStyles } from '../common';

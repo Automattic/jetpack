@@ -2,8 +2,8 @@
  * External dependencies
  */
 import { createContext, useContext } from 'react';
-import type { ReportParams } from '@jetpack-premium-analytics/data';
 import type { WidgetErrorConfig } from '../../types';
+import type { ReportParams } from '@jetpack-premium-analytics/data';
 
 export type WidgetRootContextValue = {
 	/**

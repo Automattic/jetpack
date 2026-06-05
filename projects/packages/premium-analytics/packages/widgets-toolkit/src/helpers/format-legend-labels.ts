@@ -1,14 +1,14 @@
 /**
  * External dependencies
  */
-import { __ } from '@wordpress/i18n';
 import { formatDateRange } from '@jetpack-premium-analytics/formatters';
+import { __ } from '@wordpress/i18n';
+import type { LegendLabels } from '../components/chart-leaderboard';
 import type { ReportParams } from '@jetpack-premium-analytics/data';
 
 /**
  * Internal dependencies
  */
-import type { LegendLabels } from '../components/chart-leaderboard';
 
 /**
  * Formats legend labels from report parameters.

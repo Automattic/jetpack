@@ -1,25 +1,24 @@
 /**
  * External dependencies
  */
+import { GlobalChartsProvider } from '@automattic/charts';
 import {
 	AnalyticsQueryClientProvider,
 	getDefaultPreset,
 	normalizeReportParams,
 } from '@jetpack-premium-analytics/data';
-import { getStoreInfo } from '../../helpers/store-info';
-import { GlobalChartsProvider } from '@automattic/charts';
 import { useSearch } from '@wordpress/route';
 import { useMemo, type ReactNode } from 'react';
-import type { WidgetErrorConfig } from '../../types';
+import { getStoreInfo } from '../../helpers/store-info';
 import '@automattic/charts/style.css';
-
 /**
  * Internal dependencies
  */
 import { useChartTheme } from '../../hooks';
 import { WidgetRootContext } from './context';
-import type { ReportParamsFieldAttributes } from '../../fields';
 import styles from './widget-root.module.scss';
+import type { ReportParamsFieldAttributes } from '../../fields';
+import type { WidgetErrorConfig } from '../../types';
 
 type WidgetRootProps = {
 	/**

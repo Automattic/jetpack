@@ -5,17 +5,16 @@ import { BarChart as BarChartBase } from '@automattic/charts';
 import { Icon } from '@wordpress/ui';
 import clsx from 'clsx';
 import { useCallback, useMemo, useId } from 'react';
-
-import type { ComponentProps } from 'react';
 /**
  * Internal dependencies
  */
-import type { DataFormat } from '../../types';
 import { RESIZE_DEBOUNCE_MS } from '../../constants';
 import { isEmptyChartData, getEmptyChartDomain } from '../../helpers';
 import { ChartEmptyState } from '../chart-empty-state';
 import { ChartTooltip } from '../chart-tooltip';
 import styles from './bar-chart.module.scss';
+import type { DataFormat } from '../../types';
+import type { ComponentProps } from 'react';
 
 export type BarChartData = ComponentProps< typeof BarChartBase >[ 'data' ];
 

@@ -1,9 +1,8 @@
 /**
  * External dependencies
  */
-import { __ } from '@wordpress/i18n';
 import { FilterCondition } from '@jetpack-premium-analytics/data';
-
+import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */

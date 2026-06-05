@@ -1,19 +1,18 @@
 /**
  * External dependencies
  */
-import { useMemo } from 'react';
-import { WidgetLoadingOverlay } from '../../components/widget-loading-overlay';
 import {
 	useReportOrderAttribution,
 	ORDER_ATTRIBUTION_VIEWS,
 } from '@jetpack-premium-analytics/data';
 import { megaphone, search, channel } from '@jetpack-premium-analytics/icons';
-
+import { useMemo } from 'react';
+import { LeaderboardChart } from '../../components/chart-leaderboard';
+import { WidgetLoadingOverlay } from '../../components/widget-loading-overlay';
 /**
  * Internal dependencies
  */
 import { useWidgetRootContext } from '../../components/widget-root';
-import { LeaderboardChart } from '../../components/chart-leaderboard';
 import { buildSalesByUtmData, formatLegendLabels } from '../../helpers';
 import { useWidgetError } from '../../hooks';
 

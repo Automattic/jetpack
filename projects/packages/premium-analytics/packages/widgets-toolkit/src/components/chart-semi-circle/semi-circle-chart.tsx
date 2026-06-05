@@ -4,16 +4,7 @@
 import { PieSemiCircleChart } from '@automattic/charts';
 import { Icon, Stack } from '@wordpress/ui';
 import { useMemo } from 'react';
-
-import type { ComponentProps } from 'react';
-/**
- * Internal dependencies
- */
-import { PieChartTooltip } from '../chart-tooltip';
-import { MetricWithComparison } from '../metric-with-comparison';
-import { Legend as LegendPure } from '../legend/legend';
-import type { LegendItem } from '../legend/legend';
-import type { DataFormat } from '../../types';
+import { RESIZE_DEBOUNCE_MS } from '../../constants';
 import {
 	resolveSegmentStyles,
 	applyStylesToItems,
@@ -21,8 +12,16 @@ import {
 	type SegmentStyle,
 } from '../../helpers';
 import { ChartEmptyState } from '../chart-empty-state';
+import { PieChartTooltip } from '../chart-tooltip';
+/**
+ * Internal dependencies
+ */
+import { Legend as LegendPure } from '../legend/legend';
+import { MetricWithComparison } from '../metric-with-comparison';
 import styles from './semi-circle-chart.module.scss';
-import { RESIZE_DEBOUNCE_MS } from '../../constants';
+import type { DataFormat } from '../../types';
+import type { LegendItem } from '../legend/legend';
+import type { ComponentProps } from 'react';
 
 // Default chart configuration
 const DEFAULT_THICKNESS = 0.3;

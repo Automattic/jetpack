@@ -1,8 +1,8 @@
 /**
  * Internal dependencies
  */
-import { TopPerformingProductLeaderboardWidget } from './top-performing-product-leaderboard-widget';
 import { PHYSICAL_PRODUCTS_FILTER } from '../../helpers';
+import { TopPerformingProductLeaderboardWidget } from './top-performing-product-leaderboard-widget';
 
 export type TopPerformingProductsWidgetProps = {
 	/**

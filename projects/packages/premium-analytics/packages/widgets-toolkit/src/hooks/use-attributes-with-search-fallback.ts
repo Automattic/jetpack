@@ -2,7 +2,6 @@
  * External dependencies
  */
 import { useSearch } from '@wordpress/route';
-
 /**
  * Internal dependencies
  */

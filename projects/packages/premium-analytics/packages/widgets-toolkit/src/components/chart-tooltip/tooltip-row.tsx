@@ -2,13 +2,12 @@
  * External dependencies
  */
 import { Stack } from '@wordpress/ui';
-
 /**
  * Internal dependencies
  */
-import type { DataFormat } from '../../types';
 import { MetricValue } from '../metric-value';
 import styles from './chart-tooltip.module.scss';
+import type { DataFormat } from '../../types';
 
 export type TooltipRowProps = {
 	/** Pre-rendered indicator element (LineShape, RectShape, etc.) */

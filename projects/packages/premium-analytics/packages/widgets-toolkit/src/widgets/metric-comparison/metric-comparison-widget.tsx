@@ -2,17 +2,16 @@
  * External dependencies
  */
 import { Stack } from '@wordpress/ui';
-
 /**
  * Internal dependencies
  */
 import { MetricWithComparison, ComparativeLineChart } from '../../components';
-import type { DataFormat } from '../../types';
+import styles from './metric-comparison-widget.module.scss';
 import type {
 	ComparativeLineChartSeries,
 	SeriesStyle,
 } from '../../components/chart-comparative-line/types';
-import styles from './metric-comparison-widget.module.scss';
+import type { DataFormat } from '../../types';
 
 export type MetricComparisonWidgetProps = {
 	/**

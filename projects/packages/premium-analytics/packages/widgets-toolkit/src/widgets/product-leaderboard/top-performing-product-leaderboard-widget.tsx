@@ -1,21 +1,20 @@
 /**
  * External dependencies
  */
-import { useMemo } from 'react';
-import { WidgetLoadingOverlay } from '../../components/widget-loading-overlay';
 import {
 	useReportProducts,
 	useProductImages,
 	type FilterCondition,
 } from '@jetpack-premium-analytics/data';
-import { Icon } from '@wordpress/ui';
 import { productBlouse } from '@jetpack-premium-analytics/icons';
-
+import { Icon } from '@wordpress/ui';
+import { useMemo } from 'react';
+import { LeaderboardChart, LeaderboardLabel } from '../../components/chart-leaderboard';
+import { WidgetLoadingOverlay } from '../../components/widget-loading-overlay';
 /**
  * Internal dependencies
  */
 import { useWidgetRootContext } from '../../components/widget-root';
-import { LeaderboardChart, LeaderboardLabel } from '../../components/chart-leaderboard';
 import { formatLegendLabels, calculateDelta } from '../../helpers';
 import { useWidgetError } from '../../hooks';
 

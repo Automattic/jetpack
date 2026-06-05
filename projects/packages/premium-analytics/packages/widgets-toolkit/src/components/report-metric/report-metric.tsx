@@ -1,16 +1,15 @@
 /**
  * External dependencies
  */
-import { WidgetLoadingOverlay } from '../widget-loading-overlay';
 import { useGlobalChartsContext } from '@automattic/charts';
 import { useMemo } from 'react';
-
 /**
  * Internal dependencies
  */
-import { MetricComparisonWidget } from '../../widgets/metric-comparison';
 import { buildTimeSeriesChartData } from '../../helpers';
 import { useWidgetError } from '../../hooks';
+import { MetricComparisonWidget } from '../../widgets/metric-comparison';
+import { WidgetLoadingOverlay } from '../widget-loading-overlay';
 import type { DataFormat } from '../../types';
 
 /**

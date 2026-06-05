@@ -1,14 +1,14 @@
 /**
  * External dependencies
  */
-import { useMemo } from 'react';
 import { useGlobalChartsContext } from '@automattic/charts';
+import { useMemo } from 'react';
+import type { BarChartStyle } from '../../components';
 import type { SeriesData } from '@automattic/charts';
 
 /**
  * Internal dependencies
  */
-import type { BarChartStyle } from '../../components';
 
 /**
  * Hook to build bar chart styles from theme.

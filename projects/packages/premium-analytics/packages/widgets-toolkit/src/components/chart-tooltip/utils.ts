@@ -11,7 +11,7 @@ export type ChartDatumEntry< T = unknown > = {
 /**
  * Type guard to check if an entry is a valid chart datum entry.
  *
- * @param entry The entry to check.
+ * @param entry - The entry to check.
  * @return True if the entry has the expected structure.
  */
 export const isChartDatumEntry = < T >( entry: unknown ): entry is ChartDatumEntry< T > => {

@@ -1,13 +1,12 @@
 /**
  * External dependencies
  */
-import type { GeoData } from '@automattic/charts';
 import { __ } from '@wordpress/i18n';
-
 /**
  * Internal dependencies
  */
 import type { LeaderboardChartData } from '../components/chart-leaderboard/leaderboard-chart';
+import type { GeoData } from '@automattic/charts';
 
 export type Region = 'US' | 'world';
 

@@ -4,7 +4,6 @@
 jest.mock( '@jetpack-premium-analytics/formatters', () => ( {
 	formatMetricValue: ( value: number ) => `$${ value }`,
 } ) );
-
 /**
  * Internal dependencies
  */

@@ -1,16 +1,15 @@
 /**
  * External dependencies
  */
-import { Stack } from '@wordpress/ui';
 import { LineShape, RectShape } from '@automattic/charts/visx/legend';
-
+import { Stack } from '@wordpress/ui';
 /**
  * Internal dependencies
  */
-import type { DataFormat } from '../../types';
-import { isChartDatumEntry } from './utils';
-import { TooltipRow } from './tooltip-row';
 import styles from './chart-tooltip.module.scss';
+import { TooltipRow } from './tooltip-row';
+import { isChartDatumEntry } from './utils';
+import type { DataFormat } from '../../types';
 
 /**
  * Style configuration for tooltip indicators.
@@ -44,7 +43,6 @@ type DatumWithValue = { value: number };
  * @param datum - The data point
  */
 function defaultGetLabel( datum: unknown ): string {
-	// eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion -- generic datum narrowed by convention
 	return ( datum as DatumWithLabel ).label ?? '';
 }
 
@@ -52,7 +50,6 @@ function defaultGetLabel( datum: unknown ): string {
  * Default value extractor - assumes datum has a 'value' property.
  */
 function defaultGetValue( datum: unknown ): number {
-	// eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion -- generic datum narrowed by convention
 	return ( datum as DatumWithValue ).value;
 }
 

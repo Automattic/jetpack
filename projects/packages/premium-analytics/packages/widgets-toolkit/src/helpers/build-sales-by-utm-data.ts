@@ -2,13 +2,13 @@
  * External dependencies
  */
 import { __ } from '@wordpress/i18n';
+import { calculateDelta } from './calculate-delta';
+import type { LeaderboardChartData } from '../components/chart-leaderboard';
 import type { ReportDataMap } from '@jetpack-premium-analytics/data';
 
 /**
  * Internal dependencies
  */
-import type { LeaderboardChartData } from '../components/chart-leaderboard';
-import { calculateDelta } from './calculate-delta';
 
 /**
  * Builds leaderboard chart data for the Sales by UTM widget.

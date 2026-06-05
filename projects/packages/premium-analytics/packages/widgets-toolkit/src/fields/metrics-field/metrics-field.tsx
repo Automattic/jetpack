@@ -1,16 +1,15 @@
 /**
  * External dependencies
  */
-import { Fieldset, Stack } from '@wordpress/ui';
 import { CheckboxControl } from '@wordpress/components';
 import { __, _n, sprintf } from '@wordpress/i18n';
+import { Fieldset, Stack } from '@wordpress/ui';
 import { useCallback, useEffect } from 'react';
-import type { DataFormControlProps } from '@wordpress/dataviews';
-
 /**
  * Internal dependencies
  */
 import { DEFAULT_METRICS, type Metric } from './metrics';
+import type { DataFormControlProps } from '@wordpress/dataviews';
 
 type MetricsAttributes = {
 	metrics: Metric[];

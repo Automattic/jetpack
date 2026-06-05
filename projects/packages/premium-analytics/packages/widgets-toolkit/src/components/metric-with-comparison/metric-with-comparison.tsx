@@ -3,14 +3,13 @@
  */
 import { Stack } from '@wordpress/ui';
 import { ComponentProps } from 'react';
-
 /**
  * Internal dependencies
  */
-import { MetricValue } from '../metric-value';
 import { MetricDelta } from '../metric-delta';
-import type { MetricValueProps } from '../metric-value';
+import { MetricValue } from '../metric-value';
 import type { DataFormat } from '../../types';
+import type { MetricValueProps } from '../metric-value';
 
 export type MetricWithComparisonProps = {
 	/**

@@ -1,22 +1,21 @@
 /**
  * External dependencies
  */
-import { useCallback, useMemo } from 'react';
 import { LineChart } from '@automattic/charts';
 import { formatDate, formatMetricValue } from '@jetpack-premium-analytics/formatters';
-import { type ComponentProps } from 'react';
 import clsx from 'clsx';
-
+import { useCallback, useMemo } from 'react';
+import { type ComponentProps } from 'react';
 /**
  * Internal dependencies
  */
-import { ChartTooltip } from '../chart-tooltip';
-import { alignSeriesDates } from './utils';
 import { RESIZE_DEBOUNCE_MS } from '../../constants';
 import { isEmptyChartData, getEmptyChartDomain } from '../../helpers';
+import { ChartTooltip } from '../chart-tooltip';
+import styles from './comparative-line-chart.module.scss';
+import { alignSeriesDates } from './utils';
 import type { ComparativeLineChartSeries, SeriesStyle } from './types';
 import type { DataFormat } from '../../types';
-import styles from './comparative-line-chart.module.scss';
 
 /**
  * Resolves series styles from either the explicit styles prop or series options.

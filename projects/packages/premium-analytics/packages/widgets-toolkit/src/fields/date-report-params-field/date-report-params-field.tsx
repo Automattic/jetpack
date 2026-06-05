@@ -1,24 +1,24 @@
 /**
  * External dependencies
  */
-import { Stack } from '@wordpress/ui';
-import { DateFiltersPanel } from '@jetpack-premium-analytics/ui';
 import {
 	getDefaultPreset,
 	normalizeReportParams,
 	localTZDate,
 	getSiteTimezone,
 } from '@jetpack-premium-analytics/data';
-import { getStoreInfo } from '../../helpers/store-info';
-import { endOfDay } from 'date-fns';
-import { deriveComparisonRange, encodeDateToSearchParam } from '@jetpack-premium-analytics/routing';
-import { useCallback, useMemo, useState, useEffect } from 'react';
-import type { DataFormControlProps } from '@wordpress/dataviews';
 import {
 	type ComparisonPresetId,
 	isPrimaryPreset,
 	type DateRange,
 } from '@jetpack-premium-analytics/datetime';
+import { deriveComparisonRange, encodeDateToSearchParam } from '@jetpack-premium-analytics/routing';
+import { DateFiltersPanel } from '@jetpack-premium-analytics/ui';
+import { Stack } from '@wordpress/ui';
+import { endOfDay } from 'date-fns';
+import { useCallback, useMemo, useState, useEffect } from 'react';
+import { getStoreInfo } from '../../helpers/store-info';
+import type { DataFormControlProps } from '@wordpress/dataviews';
 
 /**
  * Inferred types

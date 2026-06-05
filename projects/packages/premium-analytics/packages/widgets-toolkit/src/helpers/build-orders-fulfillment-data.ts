@@ -1,15 +1,14 @@
 /**
  * External dependencies
  */
-import { __ } from '@wordpress/i18n';
 import { formatMetricValue } from '@jetpack-premium-analytics/formatters';
-import type { ReportDataMap } from '@jetpack-premium-analytics/data';
-
+import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
 import type { LegendItem } from '../components';
 import type { DonutChartData } from '../components/chart-donut/donut-chart';
+import type { ReportDataMap } from '@jetpack-premium-analytics/data';
 
 export interface OrdersFulfillmentData {
 	chartData: DonutChartData;

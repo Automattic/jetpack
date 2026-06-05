@@ -1,6 +1,8 @@
 /**
  * External dependencies
  */
+import { GeoChart } from '@automattic/charts';
+import { location } from '@jetpack-premium-analytics/icons';
 import {
 	__experimentalToggleGroupControl as ToggleGroupControl,
 	__experimentalToggleGroupControlOption as ToggleGroupControlOption,
@@ -9,21 +11,18 @@ import {
 import { useResizeObserver } from '@wordpress/compose';
 import { __, sprintf } from '@wordpress/i18n';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { GeoChart } from '@automattic/charts';
+import { ChartEmptyState } from '../../components';
+import { LeaderboardChart, LeaderboardLabel } from '../../components/chart-leaderboard';
 import { WidgetLoadingOverlay } from '../../components/widget-loading-overlay';
-import { location } from '@jetpack-premium-analytics/icons';
-
 /**
  * Internal dependencies
  */
 import { useWidgetRootContext } from '../../components/widget-root';
+import { RESIZE_DEBOUNCE_MS } from '../../constants';
+import { flagUrl } from '../../helpers';
 import { useWidgetError } from '../../hooks';
 import { useVisitorsByLocation, type Region } from './use-visitors-by-location';
-import { LeaderboardChart, LeaderboardLabel } from '../../components/chart-leaderboard';
-import { flagUrl } from '../../helpers';
 import styles from './visitors-by-location-widget.module.scss';
-import { ChartEmptyState } from '../../components';
-import { RESIZE_DEBOUNCE_MS } from '../../constants';
 
 function isRegion( value: unknown ): value is Region {
 	return value === 'US' || value === 'world';

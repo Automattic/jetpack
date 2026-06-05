@@ -2,7 +2,6 @@
  * External dependencies
  */
 import { formatMetricValue } from '@jetpack-premium-analytics/formatters';
-
 /**
  * Internal dependencies
  */

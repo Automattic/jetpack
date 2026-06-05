@@ -2,19 +2,12 @@
  * External dependencies
  */
 import { PieChartUnresponsive as PieChart } from '@automattic/charts';
-import { Icon, Stack } from '@wordpress/ui';
 import { useResizeObserver } from '@wordpress/compose';
+import { Icon, Stack } from '@wordpress/ui';
 import { useMemo, useState } from 'react';
-
-import type { ComponentProps } from 'react';
 /**
  * Internal dependencies
  */
-import { PieChartTooltip } from '../chart-tooltip';
-import { MetricWithComparison } from '../metric-with-comparison';
-import { Legend as LegendPure } from '../legend/legend';
-import type { LegendItem } from '../legend/legend';
-import type { DataFormat } from '../../types';
 import {
 	resolveSegmentStyles,
 	applyStylesToItems,
@@ -22,7 +15,13 @@ import {
 	type SegmentStyle,
 } from '../../helpers';
 import { ChartEmptyState } from '../chart-empty-state';
+import { PieChartTooltip } from '../chart-tooltip';
+import { Legend as LegendPure } from '../legend/legend';
+import { MetricWithComparison } from '../metric-with-comparison';
 import styles from './donut-chart.module.scss';
+import type { DataFormat } from '../../types';
+import type { LegendItem } from '../legend/legend';
+import type { ComponentProps } from 'react';
 
 // Default chart configuration
 const DEFAULT_THICKNESS = 0.3;

@@ -1,10 +1,9 @@
 /**
  * External dependencies
  */
-import { useEffect } from 'react';
-import { __ } from '@wordpress/i18n';
 import { useGlobalError } from '@jetpack-premium-analytics/data';
-
+import { __ } from '@wordpress/i18n';
+import { useEffect } from 'react';
 /**
  * Internal dependencies
  */
