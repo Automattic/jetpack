@@ -8,14 +8,8 @@
 // (inline-search, customberg, instant-search) keep `postcss.config.js`
 // with `preserve: false` — `instant-search` in particular reads
 // calypso-color-schemes vars that aren't shipped to the runtime.
+const { webpackPostcssPlugins } = require( '@automattic/jetpack-webpack-config/postcss' );
+
 module.exports = () => ( {
-	plugins: [
-		require( '@csstools/postcss-global-data' )( {
-			files: [ require.resolve( '@automattic/calypso-color-schemes/root-only/index.css' ) ],
-		} ),
-		require( 'postcss-custom-properties' )( {
-			preserve: true,
-		} ),
-		require( 'autoprefixer' ),
-	],
+	plugins: webpackPostcssPlugins( { fromDir: __dirname, preserve: true } ),
 } );
