@@ -29,6 +29,7 @@
 		"@wordpress/eslint-plugin": "25.2.0",
 		"@wordpress/jest-console": "8.46.0",
 		"@wordpress/stylelint-config": "23.38.0",
+		"@wordpress/theme": "0.13.0",
 		"babel-jest": "30.4.1",
 		"chalk": "5.6.2",
 		"debug": "4.4.3",

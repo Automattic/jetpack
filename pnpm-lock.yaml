@@ -6585,6 +6585,9 @@ importers:
       '@wordpress/stylelint-config':
         specifier: 23.38.0
         version: 23.38.0(postcss@8.5.14)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(stylelint-scss@7.0.0(stylelint@17.7.0(typescript@5.9.3)))(stylelint@17.7.0(typescript@5.9.3))
+      '@wordpress/theme':
+        specifier: 0.13.0
+        version: 0.13.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(stylelint@17.7.0(typescript@5.9.3))
       babel-jest:
         specifier: 30.4.1
         version: 30.4.1(@babel/core@7.29.0)
