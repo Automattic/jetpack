@@ -5174,12 +5174,12 @@ importers:
 
   projects/plugins/automattic-for-agencies-client/tests/e2e:
     devDependencies:
+      '@automattic/_jetpack-e2e-commons':
+        specifier: workspace:*
+        version: link:../../../../../tools/e2e-commons
       '@playwright/test':
         specifier: 1.60.0
         version: 1.60.0
-      _jetpack-e2e-commons:
-        specifier: workspace:*
-        version: link:../../../../../tools/e2e-commons
       allure-playwright:
         specifier: 2.15.1
         version: 2.15.1
@@ -5343,6 +5343,9 @@ importers:
 
   projects/plugins/boost/tests/e2e:
     devDependencies:
+      '@automattic/_jetpack-e2e-commons':
+        specifier: workspace:*
+        version: link:../../../../../tools/e2e-commons
       '@playwright/test':
         specifier: 1.60.0
         version: 1.60.0
@@ -5352,9 +5355,6 @@ importers:
       '@typescript/native-preview':
         specifier: 7.0.0-dev.20260225.1
         version: 7.0.0-dev.20260225.1
-      _jetpack-e2e-commons:
-        specifier: workspace:*
-        version: link:../../../../../tools/e2e-commons
       allure-playwright:
         specifier: 2.15.1
         version: 2.15.1
@@ -5443,6 +5443,9 @@ importers:
 
   projects/plugins/classic-theme-helper-plugin/tests/e2e:
     devDependencies:
+      '@automattic/_jetpack-e2e-commons':
+        specifier: workspace:*
+        version: link:../../../../../tools/e2e-commons
       '@playwright/test':
         specifier: 1.60.0
         version: 1.60.0
@@ -5452,9 +5455,6 @@ importers:
       '@typescript/native-preview':
         specifier: 7.0.0-dev.20260225.1
         version: 7.0.0-dev.20260225.1
-      _jetpack-e2e-commons:
-        specifier: workspace:*
-        version: link:../../../../../tools/e2e-commons
       allure-playwright:
         specifier: 2.15.1
         version: 2.15.1
@@ -5907,6 +5907,9 @@ importers:
 
   projects/plugins/jetpack/tests/e2e:
     devDependencies:
+      '@automattic/_jetpack-e2e-commons':
+        specifier: workspace:*
+        version: link:../../../../../tools/e2e-commons
       '@playwright/test':
         specifier: 1.60.0
         version: 1.60.0
@@ -5916,9 +5919,6 @@ importers:
       '@typescript/native-preview':
         specifier: 7.0.0-dev.20260225.1
         version: 7.0.0-dev.20260225.1
-      _jetpack-e2e-commons:
-        specifier: workspace:*
-        version: link:../../../../../tools/e2e-commons
       allure-playwright:
         specifier: 2.15.1
         version: 2.15.1
@@ -5988,12 +5988,12 @@ importers:
 
   projects/plugins/paypal-payment-buttons/tests/e2e:
     devDependencies:
+      '@automattic/_jetpack-e2e-commons':
+        specifier: workspace:*
+        version: link:../../../../../tools/e2e-commons
       '@playwright/test':
         specifier: 1.60.0
         version: 1.60.0
-      _jetpack-e2e-commons:
-        specifier: workspace:*
-        version: link:../../../../../tools/e2e-commons
       allure-playwright:
         specifier: 2.15.1
         version: 2.15.1
@@ -6112,6 +6112,9 @@ importers:
 
   projects/plugins/protect/tests/e2e:
     devDependencies:
+      '@automattic/_jetpack-e2e-commons':
+        specifier: workspace:*
+        version: link:../../../../../tools/e2e-commons
       '@playwright/test':
         specifier: 1.60.0
         version: 1.60.0
@@ -6121,9 +6124,6 @@ importers:
       '@typescript/native-preview':
         specifier: 7.0.0-dev.20260225.1
         version: 7.0.0-dev.20260225.1
-      _jetpack-e2e-commons:
-        specifier: workspace:*
-        version: link:../../../../../tools/e2e-commons
       allure-playwright:
         specifier: 2.15.1
         version: 2.15.1
@@ -6138,6 +6138,9 @@ importers:
 
   projects/plugins/search/tests/e2e:
     devDependencies:
+      '@automattic/_jetpack-e2e-commons':
+        specifier: workspace:*
+        version: link:../../../../../tools/e2e-commons
       '@playwright/test':
         specifier: 1.60.0
         version: 1.60.0
@@ -6147,9 +6150,6 @@ importers:
       '@typescript/native-preview':
         specifier: 7.0.0-dev.20260225.1
         version: 7.0.0-dev.20260225.1
-      _jetpack-e2e-commons:
-        specifier: workspace:*
-        version: link:../../../../../tools/e2e-commons
       allure-playwright:
         specifier: 2.15.1
         version: 2.15.1
@@ -6168,6 +6168,9 @@ importers:
 
   projects/plugins/social/tests/e2e:
     devDependencies:
+      '@automattic/_jetpack-e2e-commons':
+        specifier: workspace:*
+        version: link:../../../../../tools/e2e-commons
       '@playwright/test':
         specifier: 1.60.0
         version: 1.60.0
@@ -6177,9 +6180,6 @@ importers:
       '@typescript/native-preview':
         specifier: 7.0.0-dev.20260225.1
         version: 7.0.0-dev.20260225.1
-      _jetpack-e2e-commons:
-        specifier: workspace:*
-        version: link:../../../../../tools/e2e-commons
       allure-playwright:
         specifier: 2.15.1
         version: 2.15.1
@@ -6265,6 +6265,9 @@ importers:
 
   projects/plugins/starter-plugin/tests/e2e:
     devDependencies:
+      '@automattic/_jetpack-e2e-commons':
+        specifier: workspace:*
+        version: link:../../../../../tools/e2e-commons
       '@playwright/test':
         specifier: 1.60.0
         version: 1.60.0
@@ -6274,9 +6277,6 @@ importers:
       '@typescript/native-preview':
         specifier: 7.0.0-dev.20260225.1
         version: 7.0.0-dev.20260225.1
-      _jetpack-e2e-commons:
-        specifier: workspace:*
-        version: link:../../../../../tools/e2e-commons
       allure-playwright:
         specifier: 2.15.1
         version: 2.15.1
@@ -6350,6 +6350,9 @@ importers:
 
   projects/plugins/videopress/tests/e2e:
     devDependencies:
+      '@automattic/_jetpack-e2e-commons':
+        specifier: workspace:*
+        version: link:../../../../../tools/e2e-commons
       '@playwright/test':
         specifier: 1.60.0
         version: 1.60.0
@@ -6359,9 +6362,6 @@ importers:
       '@typescript/native-preview':
         specifier: 7.0.0-dev.20260225.1
         version: 7.0.0-dev.20260225.1
-      _jetpack-e2e-commons:
-        specifier: workspace:*
-        version: link:../../../../../tools/e2e-commons
       allure-playwright:
         specifier: 2.15.1
         version: 2.15.1
