@@ -76,7 +76,7 @@ nvm install && nvm use
 
 # Install our requirements
 info "Checking Bash version..."
-if [[ -z "${BASH_VERSINFO}" || -z "${BASH_VERSINFO[0]}" || ${BASH_VERSINFO[0]} -lt 4 ]]; then
+if [[ -z "${BASH_VERSINFO[0]}" || ${BASH_VERSINFO[0]} -lt 4 ]]; then
 	brew install bash
 fi
 

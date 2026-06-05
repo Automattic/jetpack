@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-. "$(dirname "$BASH_SOURCE[0]")/changelogger.sh"
+. "$(dirname "${BASH_SOURCE[0]}")/changelogger.sh"
 
 ## Determine the alpha prerelease tag, "alpha" or "a.0".
 #

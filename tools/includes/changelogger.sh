@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-CLBASE=$(cd "$(dirname "$BASH_SOURCE[0]")/../.." && pwd)
+CLBASE=$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)
 
 source "$CLBASE/tools/includes/chalk-lite.sh"
 

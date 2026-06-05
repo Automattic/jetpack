@@ -24,5 +24,3 @@ disable=SC2091
 disable=SC2104
 # SC2120: Function references arguments, but none are ever passed. https://www.shellcheck.net/wiki/SC2120
 disable=SC2120
-# SC2128: Expanding an array without an index only gives the first element. https://www.shellcheck.net/wiki/SC2128
-disable=SC2128
