@@ -1,0 +1,101 @@
+/**
+ * External dependencies
+ */
+import { useMemo } from 'react';
+import { Stack } from '@wordpress/ui';
+import { WidgetLoadingOverlay } from '@automattic/dashboard';
+import { useReportSessionsByDevice } from '@next-woo-analytics/data';
+import { device } from '@next-woo-analytics/icons';
+
+/**
+ * Internal dependencies
+ */
+import { useWidgetRootContext } from '../../components/widget-root';
+import { useWidgetError } from '../../hooks';
+import { SemiCircleChart } from '../../components';
+import { buildSessionsByDeviceData } from '../../helpers';
+import { useSegmentStyles } from '../common';
+import styles from './sessions-by-device-widget.module.scss';
+
+/**
+ * Sessions by Device Type Widget Component
+ *
+ * Displays a semi-circle chart showing the breakdown of website sessions
+ * by device category: Mobile, Desktop, and Tablet.
+ *
+ * Features:
+ * - Shows total sessions in the center with comparison delta
+ * - Legend with individual device counts and comparison deltas
+ * - Supports comparison periods
+ *
+ * Must be used within a WidgetRoot which provides reportParams via context.
+ *
+ * @example
+ * ```tsx
+ * <WidgetRoot attributes={ attributes }>
+ *     <SessionsByDeviceWidget />
+ * </WidgetRoot>
+ * ```
+ */
+export function SessionsByDeviceWidget() {
+	const { reportParams } = useWidgetRootContext();
+
+	const {
+		primary,
+		comparison,
+		hasComparison,
+		isLoading,
+		isFetching,
+		hasData,
+		isError,
+		error,
+		refetch,
+	} = useReportSessionsByDevice( reportParams );
+
+	const isInitialLoading = isLoading && ! hasData;
+	const isRefetching = isFetching && hasData;
+
+	const { chartData, total, comparisonTotal, legendData } = useMemo(
+		() => buildSessionsByDeviceData( primary.data, comparison.data ),
+		[ primary.data, comparison.data ]
+	);
+
+	const segmentStyles = useSegmentStyles( chartData );
+
+	const hasError = useWidgetError( isError, error, refetch );
+	if ( hasError ) {
+		return null;
+	}
+
+	if ( isInitialLoading ) {
+		return <WidgetLoadingOverlay />;
+	}
+
+	return (
+		<>
+			<Stack
+				className={ styles.container }
+				direction="column"
+				align="center"
+				justify="center"
+			>
+				<SemiCircleChart
+					chartData={ chartData }
+					value={ total }
+					styles={ segmentStyles }
+					emptyStateIcon={ device }
+					comparisonValue={ hasComparison ? comparisonTotal : null }
+					legendData={ legendData }
+					showLegend={ true }
+					dataFormat={ {
+						type: 'number',
+						options: { useMultipliers: true, decimals: 0 },
+					} }
+					withTooltips
+					maxWidth={ 220 }
+				/>
+			</Stack>
+			{ isRefetching && <WidgetLoadingOverlay /> }
+		</>
+	);
+}

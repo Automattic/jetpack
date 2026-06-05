@@ -1,0 +1,33 @@
+{
+	"name": "@next-woo-analytics/widgets-toolkit",
+	"description": "Widgets Toolkit for WooCommerce Analytics",
+	"version": "1.0.0",
+	"wpModule": true,
+	"type": "module",
+	"main": "src/index.ts",
+	"exports": {
+		".": "./build/src/index.js"
+	},
+	"dependencies": {
+		"@automattic/dashboard": "*",
+		"@automattic/design-system": "*",
+		"@automattic/admin-toolkit": "*",
+		"@automattic/charts": "*",
+		"@next-woo-analytics/components": "workspace:*",
+		"@next-woo-analytics/data": "workspace:*",
+		"@woocommerce-next/data": "*",
+		"@next-woo-analytics/datetime": "workspace:*",
+		"@wc-analytics/formatters": "workspace:*",
+		"@next-woo-analytics/icons": "workspace:*",
+		"@next-woo-analytics/routing": "workspace:*",
+		"@wordpress/components": "*",
+		"@wordpress/compose": "*",
+		"@wordpress/icons": "*",
+		"@ciab/dataviews": "*",
+		"@tanstack/react-router": "*",
+		"date-fns": "*",
+		"@wordpress/theme": "*",
+		"@wordpress/ui": "*",
+		"clsx": "*"
+	}
+}

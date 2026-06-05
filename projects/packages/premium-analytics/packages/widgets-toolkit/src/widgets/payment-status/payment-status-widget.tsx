@@ -1,0 +1,98 @@
+/**
+ * External dependencies
+ */
+import { useMemo } from 'react';
+import { Stack } from '@wordpress/ui';
+import { WidgetLoadingOverlay } from '@automattic/dashboard';
+import { useReportOrders } from '@next-woo-analytics/data';
+import { payment } from '@next-woo-analytics/icons';
+
+/**
+ * Internal dependencies
+ */
+import { useWidgetRootContext } from '../../components/widget-root';
+import { DonutChart } from '../../components';
+import { buildPaymentStatusData, PAYMENT_STATUS_FILTERS } from '../../helpers';
+import { useWidgetError } from '../../hooks';
+import { useSegmentStyles } from '../common';
+import styles from '../common/donut-widget.module.scss';
+
+/**
+ * Payment Status Widget Component
+ *
+ * Displays a donut chart comparing revenue from paid orders vs unpaid orders.
+ * Shows the total revenue in the center with a breakdown in the legend.
+ *
+ * Must be used within a WidgetRoot which provides reportParams via context.
+ *
+ * @example
+ * ```tsx
+ * <WidgetRoot attributes={ attributes }>
+ *     <PaymentStatusWidget />
+ * </WidgetRoot>
+ * ```
+ */
+export function PaymentStatusWidget() {
+	const { reportParams } = useWidgetRootContext();
+
+	const {
+		primary,
+		comparison,
+		hasComparison,
+		isLoading,
+		isFetching,
+		hasData,
+		isError,
+		error,
+		refetch,
+	} = useReportOrders( {
+		...reportParams,
+		filters: PAYMENT_STATUS_FILTERS,
+	} );
+
+	const isInitialLoading = isLoading && ! hasData;
+	const isRefetching = isFetching && hasData;
+
+	const { chartData, total, comparisonTotal, legendData } = useMemo(
+		() => buildPaymentStatusData( primary.data, comparison.data ),
+		[ primary.data, comparison.data ]
+	);
+
+	const segmentStyles = useSegmentStyles( chartData );
+
+	const hasError = useWidgetError( isError, error, refetch );
+	if ( hasError ) {
+		return null;
+	}
+
+	if ( isInitialLoading ) {
+		return <WidgetLoadingOverlay />;
+	}
+
+	return (
+		<>
+			<Stack
+				className={ styles.container }
+				direction="column"
+				align="center"
+				justify="center"
+			>
+				<DonutChart
+					chartData={ chartData }
+					value={ total }
+					styles={ segmentStyles }
+					comparisonValue={ hasComparison ? comparisonTotal : null }
+					legendData={ legendData }
+					showLegend={ true }
+					dataFormat={ {
+						type: 'currency',
+						options: { useMultipliers: true, decimals: 1 },
+					} }
+					emptyStateIcon={ payment }
+					withTooltips
+				/>
+			</Stack>
+			{ isRefetching && <WidgetLoadingOverlay /> }
+		</>
+	);
+}

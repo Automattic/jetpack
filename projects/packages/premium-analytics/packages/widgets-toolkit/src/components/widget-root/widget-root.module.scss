@@ -1,0 +1,5 @@
+@use '../../styles/widget-container' as *;
+
+.root {
+	@extend .widgetContainer;
+}
