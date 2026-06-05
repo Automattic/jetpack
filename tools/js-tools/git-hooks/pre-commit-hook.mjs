@@ -475,7 +475,7 @@ function runCssLint( cssFilesToLint ) {
 	}
 
 	if ( cssLintResult && cssLintResult.status && ! isJetpackDraftMode() ) {
-		checkFailed( 'CSS linting found issues that cannot be automatically fixed!\n' );
+		checkFailed( 'Stylelint found issues that cannot be automatically fixed!\n' );
 	}
 }
 
