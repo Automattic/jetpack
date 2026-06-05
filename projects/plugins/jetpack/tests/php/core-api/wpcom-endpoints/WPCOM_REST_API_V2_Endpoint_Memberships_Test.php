@@ -922,8 +922,7 @@ class WPCOM_REST_API_V2_Endpoint_Memberships_Test extends Jetpack_REST_TestCase 
 		$this->assertEquals( Requests::POST, $args['method'] );
 		$this->assertStringStartsWith( 'https://public-api.wordpress.com/wpcom/v2/sites/' . static::$blog_id . '/memberships/product', $url );
 
-		$payload = json_decode( $args['body'], true );
-		$this->assertSame( 'Full archive access and community Q&A', $payload['description'] );
+		$this->assertStringContainsString( '"description":"Full archive access and community Q&A"', $args['body'] );
 
 		return array(
 			'headers'     => array(
@@ -966,8 +965,7 @@ class WPCOM_REST_API_V2_Endpoint_Memberships_Test extends Jetpack_REST_TestCase 
 		$this->assertEquals( Requests::PUT, $args['method'] );
 		$this->assertStringStartsWith( 'https://public-api.wordpress.com/wpcom/v2/sites/' . static::$blog_id . '/memberships/product/123', $url );
 
-		$payload = json_decode( $args['body'], true );
-		$this->assertSame( 'Updated tier description for subscribers', $payload['description'] );
+		$this->assertStringContainsString( '"description":"Updated tier description for subscribers"', $args['body'] );
 
 		return array(
 			'headers'     => array(
