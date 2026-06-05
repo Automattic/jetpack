@@ -32,6 +32,8 @@ class Js_Structure_Scanner_Test extends Base_TestCase {
 			'unterminated block cmt'  => 'var a=1;/* still open',
 			'truncated mid call'      => 'foo(bar,baz',
 			'regex after throw eof'   => 'throw /bad',
+			'regex escaped newline'   => "var a=/ab\\\nc/",
+			'line comment cr break'   => "var z=1;//c\r{{{",
 		);
 
 		foreach ( $broken as $label => $js ) {
@@ -78,6 +80,7 @@ class Js_Structure_Scanner_Test extends Base_TestCase {
 			'arrow returns object'     => 'const f=()=>({a:1})',
 			'block comment braces'     => 'var a=1;/* { ( [ */var b=2',
 			'regex after throw'        => 'function f(){throw /a|b/g}',
+			'cr in line comment ok'    => "var a=1;//c\rvar b=2",
 		);
 
 		foreach ( $valid as $label => $js ) {

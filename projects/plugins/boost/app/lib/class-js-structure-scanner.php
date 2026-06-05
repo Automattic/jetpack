@@ -466,6 +466,14 @@ class Js_Structure_Scanner {
 	private function scan_regex() {
 		$c = $this->js[ $this->pos ];
 		if ( '\\' === $c ) {
+			// Unlike a string (where `\<LF>` is a valid line continuation), a line
+			// terminator cannot be escaped inside a regex literal -- a backslash
+			// immediately before a raw LF/CR is the truncation signature. Check the
+			// escaped byte before skipping over the pair.
+			$escaped = $this->peek();
+			if ( "\n" === $escaped || "\r" === $escaped ) {
+				return true; // Unterminated regex literal.
+			}
 			$this->pos += 2;
 			return false;
 		}
@@ -505,7 +513,12 @@ class Js_Structure_Scanner {
 	 * @return bool
 	 */
 	private function scan_line_comment() {
-		if ( "\n" === $this->js[ $this->pos ] ) {
+		// CR, LF, and CRLF all end a line comment in JS; a bare CR must close it too,
+		// otherwise code after a CR-only line ending is swallowed and broken input
+		// can read as intact. (CRLF closes on the CR; the trailing LF is then a
+		// no-op space in code state.)
+		$c = $this->js[ $this->pos ];
+		if ( "\n" === $c || "\r" === $c ) {
 			$this->state = self::ST_CODE;
 		}
 		++$this->pos;
