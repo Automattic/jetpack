@@ -948,11 +948,7 @@ class Jetpack_Carousel {
 		$size            = isset( $meta['width'] ) ? (int) $meta['width'] . ',' . (int) $meta['height'] : '';
 		$img_meta        = ( ! empty( $meta['image_meta'] ) ) ? (array) $meta['image_meta'] : array();
 		$comments_opened = (int) comments_open( $attachment_id );
-
-		// Only emit the EXIF metadata when the option to display it is enabled,
-		// to avoid bloating the markup on sites that have turned EXIF off.
-		// See https://github.com/Automattic/jetpack/issues/32862.
-		$display_exif = $this->test_1or0_option( Jetpack_Options::get_option_and_ensure_autoload( 'carousel_display_exif', true ) );
+		$display_exif    = $this->test_1or0_option( Jetpack_Options::get_option_and_ensure_autoload( 'carousel_display_exif', true ) );
 
 		/**
 		 * Note: Cannot generate a filename from the width and height wp_get_attachment_image_src() returns because
