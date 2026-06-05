@@ -81,26 +81,31 @@ class Writing_Prompt_Widget_Test extends BaseTestCase {
 	 * Test that init() only registers the hook once (singleton pattern).
 	 */
 	public function test_init_only_runs_once() {
-		Writing_Prompt_Widget::init();
-		Writing_Prompt_Widget::init();
-
-		$count = 0;
-		global $wp_filter;
-		if ( isset( $wp_filter['wp_dashboard_setup'] ) ) {
-			foreach ( $wp_filter['wp_dashboard_setup']->callbacks as $callbacks ) {
-				foreach ( $callbacks as $callback ) {
-					if (
-						is_array( $callback['function'] )
-						&& $callback['function'][0] === Writing_Prompt_Widget::class
-						&& $callback['function'][1] === 'register_widget'
-					) {
-						++$count;
+		$count_register_hooks = static function () {
+			$count = 0;
+			global $wp_filter;
+			if ( isset( $wp_filter['wp_dashboard_setup'] ) ) {
+				foreach ( $wp_filter['wp_dashboard_setup']->callbacks as $callbacks ) {
+					foreach ( $callbacks as $callback ) {
+						if (
+							is_array( $callback['function'] )
+							&& $callback['function'][0] === Writing_Prompt_Widget::class
+							&& $callback['function'][1] === 'register_widget'
+						) {
+							++$count;
+						}
 					}
 				}
 			}
-		}
+			return $count;
+		};
 
-		$this->assertSame( 1, $count, 'register_widget should only be hooked once.' );
+		Writing_Prompt_Widget::init();
+		$this->assertSame( 1, $count_register_hooks(), 'register_widget should be hooked after the first init.' );
+
+		// Calling init again should be a no-op.
+		Writing_Prompt_Widget::init();
+		$this->assertSame( 1, $count_register_hooks(), 'register_widget should only be hooked once.' );
 	}
 
 	/**
