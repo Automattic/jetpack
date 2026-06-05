@@ -5,7 +5,7 @@ import type { Meta, StoryObj } from '@storybook/react';
 import { useState } from 'react';
 import { subDays, startOfDay, endOfDay } from 'date-fns';
 import { privateApis as componentsPrivateApis } from '@wordpress/components';
-import { unlock } from '@automattic/admin-toolkit';
+import { unlock } from '../../lock/unlock';
 import type { PrimaryPresetId } from '@jetpack-premium-analytics/datetime';
 
 /**
@@ -14,7 +14,6 @@ import type { PrimaryPresetId } from '@jetpack-premium-analytics/datetime';
 import { DateRangePresets } from '../date-range-presets';
 import type { DateRange } from '../../date-range-popover';
 
-// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
 const { Menu } = unlock( componentsPrivateApis );
 
 /**

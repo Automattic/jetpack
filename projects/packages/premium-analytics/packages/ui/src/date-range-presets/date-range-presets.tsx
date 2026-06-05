@@ -3,7 +3,7 @@
  */
 import { __ } from '@wordpress/i18n';
 import { privateApis as componentsPrivateApis } from '@wordpress/components';
-import { unlock } from '@automattic/admin-toolkit';
+import { unlock } from '../lock/unlock';
 import { useMemo } from 'react';
 import {
 	PRESET_CUSTOM,
@@ -18,7 +18,6 @@ import {
 import { DateRangePopover } from '../date-range-popover/date-range-filter';
 import './date-range-presets.scss';
 
-// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
 const { Menu } = unlock( componentsPrivateApis );
 
 type DateRange = Parameters< typeof DateRangePopover >[ 0 ][ 'range' ];

@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { privateApis as componentsPrivateApis } from '@wordpress/components';
-import { unlock } from '@automattic/admin-toolkit';
+import { unlock } from '../lock/unlock';
 import { Button } from '@wordpress/ui';
 import { formatDateRange } from '@jetpack-premium-analytics/formatters';
 import { sprintf, __ } from '@wordpress/i18n';

@@ -7,7 +7,7 @@ import {
 	SelectControl,
 	privateApis as componentsPrivateApis,
 } from '@wordpress/components';
-import { unlock } from '@automattic/admin-toolkit';
+import { unlock } from '../lock/unlock';
 import { calendar } from '@wordpress/icons';
 import { Badge, Button, Stack } from '@wordpress/ui';
 import { useState, useCallback, useMemo, useEffect } from 'react';
@@ -31,7 +31,6 @@ import { DateRangePresets } from '../date-range-presets';
 import { DateRangeInput } from '../date-range-input';
 import './date-range-filter.scss';
 
-// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
 const { Menu } = unlock( componentsPrivateApis );
 
 /**

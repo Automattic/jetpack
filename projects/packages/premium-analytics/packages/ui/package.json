@@ -9,7 +9,6 @@
 		"*.scss"
 	],
 	"dependencies": {
-		"@automattic/admin-toolkit": "*",
 		"@automattic/ui": "1.0.2",
 		"@jetpack-premium-analytics/datetime": "workspace:*",
 		"@jetpack-premium-analytics/formatters": "workspace:*",
@@ -17,6 +16,7 @@
 		"@wordpress/compose": "7.46.0",
 		"@wordpress/i18n": "^6.9.0",
 		"@wordpress/icons": "^13.0.0",
+		"@wordpress/private-apis": "1.46.0",
 		"@wordpress/ui": "0.13.0",
 		"clsx": "2.1.1",
 		"react": "18.3.1"
