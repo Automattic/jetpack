@@ -1788,6 +1788,9 @@ importers:
       '@wordpress/dependency-extraction-webpack-plugin':
         specifier: 6.50.0
         version: 6.50.0(webpack@5.107.2)
+      '@wordpress/theme':
+        specifier: 0.15.1
+        version: 0.15.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       babel-loader:
         specifier: 10.0.0
         version: 10.0.0(@babel/core@7.29.7)(webpack@5.107.2)
@@ -29990,6 +29993,14 @@ snapshots:
       lib0: 0.2.99
       y-protocols: 1.0.7(yjs@13.6.29)
       yjs: 13.6.29
+
+  '@wordpress/theme@0.13.0':
+    dependencies:
+      '@wordpress/element': 6.46.0
+      '@wordpress/private-apis': 1.46.0
+      '@wordpress/style-runtime': 0.2.0
+      colorjs.io: 0.6.1
+      memize: 2.1.1
 
   '@wordpress/theme@0.13.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
