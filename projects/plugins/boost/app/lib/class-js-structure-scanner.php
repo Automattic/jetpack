@@ -92,10 +92,17 @@ class Js_Structure_Scanner {
 	 * prevent. Nesting this deep never occurs in legitimate output (real code nests a
 	 * few levels), so reaching the cap is itself a corruption/abuse signature: the
 	 * scan stops and returns "broken", routing the caller to the fail-safe original
-	 * bytes. Set far above any real bundle while keeping peak frame memory in the low
-	 * tens of MB.
+	 * bytes.
+	 *
+	 * Kept to a few thousand rather than higher: the check runs after each push, so
+	 * the cap also bounds peak frame state, and each interp frame is a small array.
+	 * A higher cap (e.g. 100k) lets ~150 KB of runaway `${` openers build ~22 MB of
+	 * state before tripping -- enough to OOM-fatal a low-memory shared host (Boost's
+	 * core audience) before the cap engages, reintroducing the white-screen. At a few
+	 * thousand the peak stays well under 1 MB while still sitting orders of magnitude
+	 * above any real nesting.
 	 */
-	private const MAX_NESTING_DEPTH = 100000;
+	private const MAX_NESTING_DEPTH = 2000;
 
 	/**
 	 * JS being scanned and its length.
