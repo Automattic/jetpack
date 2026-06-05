@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Move the jetpack-ai-jwt REST endpoint to the Agents Manager package.
