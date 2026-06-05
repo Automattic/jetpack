@@ -1,0 +1,4 @@
+Significance: minor
+Type: fixed
+
+Agents Manager: Get sidebar open state through an event instead of watching class names.
