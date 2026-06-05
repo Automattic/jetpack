@@ -1,8 +1,11 @@
+@use "sass:map";
+
 /**
  * Widget Container Queries
  *
  * Provides CSS Container Query support for responsive widgets.
- * Breakpoints aligned with Tailwind defaults for consistency with Design System.
+ * Breakpoints aligned with Tailwind defaults for consistency with the
+ * Design System.
  *
  * @see https://linear.app/a8c/issue/ARC-464/design-system-wide-responsiveness
  * @see https://tailwindcss.com/docs/responsive-design#container-size-reference
@@ -44,7 +47,8 @@ $widget-breakpoints: (
  * Container query mixin for widgets.
  *
  * @param {string} $breakpoint - Breakpoint name (xs, sm, md, lg, xl, 2xl)
- * @param {string} $type - Query type (min-width or max-width), default: min-width
+ * @param {string} $type - Query type (min-width or max-width),
+ * default: min-width
  *
  * @example
  * // Min-width query (mobile-first)
@@ -54,9 +58,10 @@ $widget-breakpoints: (
  * @include widget-query( sm, max-width ) { ... }
  */
 @mixin widget-query( $breakpoint, $type: min-width ) {
-	$size: map-get( $widget-breakpoints, $breakpoint );
+	$size: map.get($widget-breakpoints, $breakpoint);
 
 	@if not $size {
+
 		@error "Unknown breakpoint: #{$breakpoint}. Valid: xs, sm, md, lg, xl, 2xl";
 	}
 
@@ -66,10 +71,10 @@ $widget-breakpoints: (
 }
 
 /**
- * Widget container base class.
- * Apply to the widget wrapper element to enable container queries.
+ * Widget container base placeholder.
+ * Extend from the widget wrapper element to enable container queries.
  */
-.widgetContainer {
+%widget-container {
 	container-type: inline-size;
 	container-name: widget;
 	width: 100%;

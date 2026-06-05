@@ -1,5 +1,6 @@
-@use '../../styles/widget-container' as *;
+@use "../../styles/widget-container" as *;
 
 .root {
-	@extend .widgetContainer;
+
+	@extend %widget-container;
 }

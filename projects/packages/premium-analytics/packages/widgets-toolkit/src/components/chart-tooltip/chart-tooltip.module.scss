@@ -1,14 +1,14 @@
 .tooltip {
-	color: var( --wpds-color-fg-content-neutral );
-	padding: var( --wpds-dimension-padding-sm );
+	color: var(--wpds-color-fg-content-neutral);
+	padding: var(--wpds-dimension-padding-sm);
 	margin: 0;
-	box-shadow: var( --wpds-elevation-sm );
+	box-shadow: var(--wpds-elevation-sm);
 	min-width: 200px;
 }
 
 .item {
 	font-weight: 400;
-	line-height: var( --wpds-typography-line-height-xs );
+	line-height: var(--wpds-typography-line-height-xs);
 }
 
 .label {
@@ -16,9 +16,10 @@
 }
 
 // Override visx-tooltip ONLY when our custom tooltip components are used.
-// This applies to ChartTooltip (line/bar) and PieChartTooltip (pie/semi-circle).
+// This applies to ChartTooltip (line/bar) and PieChartTooltip
+// (pie/semi-circle).
 /* stylelint-disable-next-line selector-pseudo-class-no-unknown */
-:global( .visx-tooltip ):has( .tooltip ) {
+:global(.visx-tooltip):has(.tooltip) {
 	max-width: none !important;
 	box-shadow: none !important;
 	margin: 0 !important;
