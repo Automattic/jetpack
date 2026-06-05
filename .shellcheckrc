@@ -20,5 +20,3 @@ disable=SC2089
 disable=SC2090
 # SC2091: Remove surrounding $() to avoid executing output. https://www.shellcheck.net/wiki/SC2091
 disable=SC2091
-# SC2104: In functions, use return instead of break/continue. https://www.shellcheck.net/wiki/SC2104
-disable=SC2104
