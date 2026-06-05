@@ -462,14 +462,6 @@ export function makeBaseConfig( configurl, opts = {} ) {
 			},
 		},
 
-		// The components package implements Jetpack UI primitives.
-		{
-			files: [ 'projects/js-packages/components/**/*.{js,jsx,ts,tsx,mjs,cjs,svelte}' ],
-			rules: {
-				'@automattic/jetpack/use-recommended-jetpack-components': 'off',
-			},
-		},
-
 		// Various config files should allow 'node' globals.
 		{
 			files: [
