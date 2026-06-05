@@ -1,21 +1,20 @@
 /**
  * External dependencies
  */
-import { Stack } from '@wordpress/ui';
-import { BaseControl } from '@wordpress/components';
-import { useMemo, useCallback } from 'react';
 import {
 	isComparisonPresetId,
 	isPrimaryPreset,
 	type ComparisonPresetId,
 	type PrimaryPresetId,
 } from '@jetpack-premium-analytics/datetime';
-
+import { BaseControl } from '@wordpress/components';
+import { Stack } from '@wordpress/ui';
+import { useMemo, useCallback } from 'react';
 /**
  * Internal dependencies
  */
-import { DateRangePopover } from '../date-range-popover';
 import { DateComparisonDropdown } from '../date-comparison-dropdown';
+import { DateRangePopover } from '../date-range-popover';
 import { useComparisonDatePresets } from '../use-comparison-date-presets';
 
 type DateRangePopoverProps = Parameters< typeof DateRangePopover >[ 0 ];
@@ -47,26 +46,17 @@ export type DateFiltersPanelProps = {
 	 * Callback when the comparison date range changes.
 	 * Receives the calculated comparison range and the preset ID used.
 	 */
-	onComparisonChange: (
-		range: DateRange | undefined,
-		presetId?: ComparisonPresetId
-	) => void;
+	onComparisonChange: ( range: DateRange | undefined, presetId?: ComparisonPresetId ) => void;
 
 	/**
 	 * Props for the date range popover.
 	 */
-	rangeControlProps?: Omit<
-		Parameters< typeof BaseControl >[ 0 ],
-		'children'
-	>;
+	rangeControlProps?: Omit< Parameters< typeof BaseControl >[ 0 ], 'children' >;
 
 	/**
 	 * Props for the date comparison dropdown.
 	 */
-	comparisonControlProps?: Omit<
-		Parameters< typeof BaseControl >[ 0 ],
-		'children'
-	>;
+	comparisonControlProps?: Omit< Parameters< typeof BaseControl >[ 0 ], 'children' >;
 
 	/**
 	 * Callback when the primary date range is applied.
@@ -141,9 +131,7 @@ export function DateFiltersPanel( {
 
 	// Validate and normalize the comparison preset ID
 	const validatedComparisonPresetId = useMemo( () => {
-		return isComparisonPresetId( comparisonPresetId )
-			? comparisonPresetId
-			: undefined;
+		return isComparisonPresetId( comparisonPresetId ) ? comparisonPresetId : undefined;
 	}, [ comparisonPresetId ] );
 
 	// Derive comparison enabled state directly from validated prop
@@ -161,8 +149,8 @@ export function DateFiltersPanel( {
 	 */
 	const defaultPresetId = useMemo( () => {
 		return (
-			presets.find( ( p ) => p.id === 'previous-period' )?.id ??
-			presets.find( ( p ) => p.id === 'previous-month' )?.id ??
+			presets.find( p => p.id === 'previous-period' )?.id ??
+			presets.find( p => p.id === 'previous-month' )?.id ??
 			presets[ 0 ]?.id
 		);
 	}, [ presets ] );
@@ -175,12 +163,12 @@ export function DateFiltersPanel( {
 	 */
 	const preset = useMemo( () => {
 		const id = validatedComparisonPresetId ?? defaultPresetId;
-		return id ? presets.find( ( p ) => p.id === id ) : undefined;
+		return id ? presets.find( p => p.id === id ) : undefined;
 	}, [ presets, validatedComparisonPresetId, defaultPresetId ] );
 
 	const presetChange = useCallback(
 		( id: ComparisonPresetId ) => {
-			const nextPreset = presets.find( ( p ) => p.id === id );
+			const nextPreset = presets.find( p => p.id === id );
 			onComparisonChange( nextPreset?.range, id );
 		},
 		[ onComparisonChange, presets ]
@@ -200,12 +188,7 @@ export function DateFiltersPanel( {
 		if ( preset?.range && presetIdToUse ) {
 			onComparisonChange( preset.range, presetIdToUse );
 		}
-	}, [
-		onComparisonChange,
-		preset,
-		validatedComparisonPresetId,
-		defaultPresetId,
-	] );
+	}, [ onComparisonChange, preset, validatedComparisonPresetId, defaultPresetId ] );
 
 	return (
 		<Stack gap="sm" wrap="wrap">

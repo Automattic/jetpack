@@ -1,26 +1,16 @@
-/**
- * External dependencies
- */
-import type { Meta, StoryObj } from '@storybook/react';
-import { useState } from 'react';
 import { subDays, startOfDay, endOfDay } from 'date-fns';
-import type { PrimaryPresetId } from '@jetpack-premium-analytics/datetime';
-
-/**
- * Internal dependencies
- */
-import {
-	DateRangePopover,
-	DateRangePopoverContent,
-} from '../date-range-filter';
+import { useState } from 'react';
+import { DateRangePopover, DateRangePopoverContent } from '../date-range-filter';
 import type { DateRange } from '../date-range-filter';
+import type { PrimaryPresetId } from '@jetpack-premium-analytics/datetime';
+import type { Meta, StoryObj } from '@storybook/react';
 
 const meta: Meta< typeof DateRangePopover > = {
 	title: 'Packages/Premium Analytics/UI/DateRangePopover',
 	component: DateRangePopover,
 	tags: [ 'autodocs' ],
 	decorators: [
-		( Story ) => (
+		Story => (
 			<div style={ { width: 'max-content' } }>
 				<Story />
 			</div>
@@ -42,17 +32,12 @@ const STORYBOOK_TIMEZONE = 'America/New_York';
 
 function DateRangePopoverWithState() {
 	const [ range, setRange ] = useState< DateRange >( defaultRange );
-	const [ presetId, setPrimaryPresetId ] =
-		useState< PrimaryPresetId >( 'last-7-days' );
-	const [ pendingRange, setPendingRange ] =
-		useState< DateRange >( defaultRange );
+	const [ presetId, setPrimaryPresetId ] = useState< PrimaryPresetId >( 'last-7-days' );
+	const [ pendingRange, setPendingRange ] = useState< DateRange >( defaultRange );
 	const [ pendingPrimaryPresetId, setPendingPrimaryPresetId ] =
 		useState< PrimaryPresetId >( 'last-7-days' );
 
-	const handleChange = (
-		nextRange?: DateRange,
-		nextPrimaryPresetId?: PrimaryPresetId
-	) => {
+	const handleChange = ( nextRange?: DateRange, nextPrimaryPresetId?: PrimaryPresetId ) => {
 		if ( nextRange ) {
 			setPendingRange( nextRange );
 		}
@@ -71,8 +56,7 @@ function DateRangePopoverWithState() {
 		setPendingPrimaryPresetId( presetId );
 	};
 
-	const canApply =
-		pendingRange.from !== range.from || pendingRange.to !== range.to;
+	const canApply = pendingRange.from !== range.from || pendingRange.to !== range.to;
 
 	return (
 		<DateRangePopover
@@ -149,13 +133,9 @@ export const TodayPreset: Story = {
  */
 function PopoverContentWithState( { isWideScreen = false } ) {
 	const [ range, setRange ] = useState< DateRange >( defaultRange );
-	const [ presetId, setPrimaryPresetId ] =
-		useState< PrimaryPresetId >( 'last-7-days' );
+	const [ presetId, setPrimaryPresetId ] = useState< PrimaryPresetId >( 'last-7-days' );
 
-	const handleChange = (
-		nextRange?: DateRange,
-		nextPrimaryPresetId?: PrimaryPresetId
-	) => {
+	const handleChange = ( nextRange?: DateRange, nextPrimaryPresetId?: PrimaryPresetId ) => {
 		if ( nextRange ) {
 			setRange( nextRange );
 		}

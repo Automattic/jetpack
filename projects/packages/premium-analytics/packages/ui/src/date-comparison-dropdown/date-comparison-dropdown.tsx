@@ -1,26 +1,25 @@
 /**
  * External dependencies
  */
-import { privateApis as componentsPrivateApis } from '@wordpress/components';
-import { unlock } from '../lock/unlock';
-import { Button } from '@wordpress/ui';
 import { formatDateRange } from '@jetpack-premium-analytics/formatters';
+import { privateApis as componentsPrivateApis } from '@wordpress/components';
 import { sprintf, __ } from '@wordpress/i18n';
+import { Button } from '@wordpress/ui';
 import { useMemo } from 'react';
+/**
+ * Internal dependencies
+ */
+import { DateRangePresets } from '../date-range-presets';
+import { unlock } from '../lock/unlock';
+import type { ComparisonDateRangePreset } from '../use-comparison-date-presets';
 import type {
 	ComparisonPresetId,
 	DateRangePreset,
 	PrimaryPresetId,
 } from '@jetpack-premium-analytics/datetime';
+import './date-comparison-dropdown.scss';
 
 const { Menu } = unlock( componentsPrivateApis );
-
-/**
- * Internal dependencies
- */
-import { DateRangePresets } from '../date-range-presets';
-import type { ComparisonDateRangePreset } from '../use-comparison-date-presets';
-import './date-comparison-dropdown.scss';
 
 type DateComparisonDropdownProps = {
 	/**
@@ -63,8 +62,7 @@ export function DateComparisonDropdown( {
 	onClear,
 }: DateComparisonDropdownProps ) {
 	const selectedPreset = useMemo(
-		() =>
-			presetId ? presets.find( ( p ) => p.id === presetId ) : undefined,
+		() => ( presetId ? presets.find( p => p.id === presetId ) : undefined ),
 		[ presets, presetId ]
 	);
 
@@ -90,16 +88,9 @@ export function DateComparisonDropdown( {
 				/>
 				<Menu.Popover className="date-comparison-dropdown__popover">
 					<Menu.Group>
-						<Menu.CheckboxItem
-							name="comparison-toggle"
-							value="no-comparison"
-							checked={ true }
-						>
+						<Menu.CheckboxItem name="comparison-toggle" value="no-comparison" checked={ true }>
 							<Menu.ItemLabel>
-								{ __(
-									'No comparison',
-									'jetpack-premium-analytics'
-								) }
+								{ __( 'No comparison', 'jetpack-premium-analytics' ) }
 							</Menu.ItemLabel>
 						</Menu.CheckboxItem>
 
@@ -111,10 +102,7 @@ export function DateComparisonDropdown( {
 							hideOnClick
 						>
 							<Menu.ItemLabel>
-								{ __(
-									'Comparison to past',
-									'jetpack-premium-analytics'
-								) }
+								{ __( 'Comparison to past', 'jetpack-premium-analytics' ) }
 							</Menu.ItemLabel>
 						</Menu.CheckboxItem>
 					</Menu.Group>

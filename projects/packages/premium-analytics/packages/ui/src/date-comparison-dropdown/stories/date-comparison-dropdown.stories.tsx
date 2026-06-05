@@ -1,17 +1,10 @@
-/**
- * External dependencies
- */
-import type { Meta, StoryObj } from '@storybook/react';
-import { useState } from 'react';
 import { subDays, startOfDay, endOfDay } from 'date-fns';
-import type { ComparisonPresetId } from '@jetpack-premium-analytics/datetime';
-
-/**
- * Internal dependencies
- */
-import { DateComparisonDropdown } from '../date-comparison-dropdown';
+import { useState } from 'react';
 import { useComparisonDatePresets } from '../../use-comparison-date-presets';
+import { DateComparisonDropdown } from '../date-comparison-dropdown';
 import type { DateRange } from '../../date-range-popover';
+import type { ComparisonPresetId } from '@jetpack-premium-analytics/datetime';
+import type { Meta, StoryObj } from '@storybook/react';
 
 const meta: Meta< typeof DateComparisonDropdown > = {
 	title: 'Packages/Premium Analytics/UI/DateComparisonDropdown',
@@ -48,9 +41,9 @@ function DateComparisonDropdownWithState( {
 	removeCompareToPrefix?: boolean;
 } ) {
 	const [ enabled, setEnabled ] = useState( initialEnabled );
-	const [ presetId, setPresetId ] = useState<
-		ComparisonPresetId | undefined
-	>( initialEnabled ? initialPresetId : undefined );
+	const [ presetId, setPresetId ] = useState< ComparisonPresetId | undefined >(
+		initialEnabled ? initialPresetId : undefined
+	);
 
 	const presets = useComparisonDatePresets( defaultRange );
 
@@ -92,9 +85,7 @@ export const Disabled: Story = {
  * With "Previous month" preset selected.
  */
 export const PreviousMonthSelected: Story = {
-	render: () => (
-		<DateComparisonDropdownWithState initialPresetId="previous-month" />
-	),
+	render: () => <DateComparisonDropdownWithState initialPresetId="previous-month" />,
 };
 
 /**

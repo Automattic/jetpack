@@ -1,18 +1,11 @@
-/**
- * External dependencies
- */
-import type { Meta, StoryObj } from '@storybook/react';
-import { useState } from 'react';
-import { subDays, startOfDay, endOfDay } from 'date-fns';
 import { privateApis as componentsPrivateApis } from '@wordpress/components';
+import { subDays, startOfDay, endOfDay } from 'date-fns';
+import { useState } from 'react';
 import { unlock } from '../../lock/unlock';
-import type { PrimaryPresetId } from '@jetpack-premium-analytics/datetime';
-
-/**
- * Internal dependencies
- */
 import { DateRangePresets } from '../date-range-presets';
 import type { DateRange } from '../../date-range-popover';
+import type { PrimaryPresetId } from '@jetpack-premium-analytics/datetime';
+import type { Meta, StoryObj } from '@storybook/react';
 
 const { Menu } = unlock( componentsPrivateApis );
 
@@ -26,7 +19,7 @@ const meta: Meta< typeof DateRangePresets > = {
 	component: DateRangePresets,
 	tags: [ 'autodocs' ],
 	decorators: [
-		( Story ) => (
+		Story => (
 			// Menu.Group must be wrapped in a Menu to work correctly in Storybook.
 			<Menu open={ true }>
 				<Story />
@@ -46,18 +39,13 @@ function DateRangePresetsWithState( {
 }: {
 	initialPrimaryPresetId?: PrimaryPresetId;
 } ) {
-	const [ presetId, setPrimaryPresetId ] = useState< PrimaryPresetId >(
-		initialPrimaryPresetId
-	);
+	const [ presetId, setPrimaryPresetId ] = useState< PrimaryPresetId >( initialPrimaryPresetId );
 	const [ , setRange ] = useState< DateRange >( {
 		from: startOfDay( subDays( today, 7 ) ),
 		to: endOfDay( subDays( today, 1 ) ),
 	} );
 
-	const handleChange = (
-		nextRange: DateRange,
-		nextPrimaryPresetId: PrimaryPresetId
-	) => {
+	const handleChange = ( nextRange: DateRange, nextPrimaryPresetId: PrimaryPresetId ) => {
 		setRange( nextRange );
 		setPrimaryPresetId( nextPrimaryPresetId );
 	};

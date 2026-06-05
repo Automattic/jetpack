@@ -1,12 +1,11 @@
 /**
  * External dependencies
  */
+import { createTZDateFromParts } from '@jetpack-premium-analytics/datetime';
+import { formatDate } from '@jetpack-premium-analytics/formatters';
 import { __ } from '@wordpress/i18n';
 import { Field, Input, Stack } from '@wordpress/ui';
 import { useCallback, useEffect, useState } from 'react';
-import { createTZDateFromParts } from '@jetpack-premium-analytics/datetime';
-import { formatDate } from '@jetpack-premium-analytics/formatters';
-
 /**
  * Internal dependencies
  */
@@ -26,18 +25,12 @@ type DateInputProps = Pick< DateRangeInputProps, 'timeZone' > & {
 	onChange: ( date?: Date ) => void;
 };
 
-const formatToString = ( date?: Date ) =>
-	date ? formatDate( date, 'iso' ) : '';
+const formatToString = ( date?: Date ) => ( date ? formatDate( date, 'iso' ) : '' );
 
 function parseFromString( dateString: string, timeZone: string ) {
-	const [ year, month, day ] = dateString
-		.split( '-' )
-		.map( ( x ) => Number( x ) );
+	const [ year, month, day ] = dateString.split( '-' ).map( x => Number( x ) );
 
-	const parsedDate = createTZDateFromParts(
-		[ year, month - 1, day ],
-		timeZone
-	);
+	const parsedDate = createTZDateFromParts( [ year, month - 1, day ], timeZone );
 
 	return ! isNaN( parsedDate.getTime() ) ? parsedDate : undefined;
 }
@@ -74,21 +67,12 @@ function DateInput( { label, date, onChange, timeZone }: DateInputProps ) {
 	return (
 		<Field.Root className="input-date-control">
 			<Field.Label>{ label }</Field.Label>
-			<Input
-				type="date"
-				value={ value }
-				onChange={ onInputChange }
-				onClick={ onClick }
-			/>
+			<Input type="date" value={ value } onChange={ onInputChange } onClick={ onClick } />
 		</Field.Root>
 	);
 }
 
-export function DateRangeInput( {
-	range,
-	onChange,
-	timeZone,
-}: DateRangeInputProps ) {
+export function DateRangeInput( { range, onChange, timeZone }: DateRangeInputProps ) {
 	const { from, to } = range;
 
 	return (
@@ -97,7 +81,7 @@ export function DateRangeInput( {
 				label={ __( 'From', 'jetpack-premium-analytics' ) }
 				date={ from }
 				timeZone={ timeZone }
-				onChange={ ( nextFrom ) => {
+				onChange={ nextFrom => {
 					if ( nextFrom && to && nextFrom <= to ) {
 						onChange( { from: nextFrom, to } );
 					}
@@ -108,7 +92,7 @@ export function DateRangeInput( {
 				label={ __( 'To', 'jetpack-premium-analytics' ) }
 				date={ to }
 				timeZone={ timeZone }
-				onChange={ ( nextTo ) => {
+				onChange={ nextTo => {
 					if ( nextTo && from && from <= nextTo ) {
 						onChange( { from, to: nextTo } );
 					}

@@ -1,11 +1,12 @@
 .date-comparison-dropdown {
+
 	&__button {
-		background-color: var( --wpds-color-bg-surface-neutral-strong );                                                                                                 
+		background-color: var(--wpds-color-bg-surface-neutral-strong);
 	}
 }
 
 .date-filters-panel-button {
-	background-color: var( --wpds-color-bg-surface-neutral-strong );
+	background-color: var(--wpds-color-bg-surface-neutral-strong);
 }
 
 .date-comparison-dropdown__popover {
@@ -14,7 +15,8 @@
 
 /* disable animation for the date range popover */
 /* stylelint-disable property-no-unknown, selector-pseudo-element-no-unknown */
-@media not (prefers-reduced-motion: reduce) {
+@media not ( prefers-reduced-motion: reduce ) {
+
 	.date-comparison-dropdown__popover {
 		view-transition-name: next-admin--date-comparison-dropdown;
 		transition: none !important;

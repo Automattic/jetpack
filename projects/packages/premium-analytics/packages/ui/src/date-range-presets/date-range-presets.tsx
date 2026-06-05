@@ -1,21 +1,20 @@
 /**
  * External dependencies
  */
-import { __ } from '@wordpress/i18n';
-import { privateApis as componentsPrivateApis } from '@wordpress/components';
-import { unlock } from '../lock/unlock';
-import { useMemo } from 'react';
 import {
 	PRESET_CUSTOM,
 	getDefaultDateRangePresets,
 	type PrimaryPresetId,
 	type DateRangePreset,
 } from '@jetpack-premium-analytics/datetime';
-
+import { privateApis as componentsPrivateApis } from '@wordpress/components';
+import { __ } from '@wordpress/i18n';
+import { useMemo } from 'react';
 /**
  * Internal dependencies
  */
 import { DateRangePopover } from '../date-range-popover/date-range-filter';
+import { unlock } from '../lock/unlock';
 import './date-range-presets.scss';
 
 const { Menu } = unlock( componentsPrivateApis );
@@ -87,10 +86,7 @@ export function DateRangePresets( {
 		return getDefaultDateRangePresets( timeZone );
 	}, [ presetsProp, timeZone ] );
 
-	const presets = useMemo(
-		() => presetsProp || defaultPresets,
-		[ presetsProp, defaultPresets ]
-	);
+	const presets = useMemo( () => presetsProp || defaultPresets, [ presetsProp, defaultPresets ] );
 
 	return (
 		<>
@@ -121,9 +117,7 @@ export function DateRangePresets( {
 					checked={ value === PRESET_CUSTOM }
 					disabled
 				>
-					<Menu.ItemLabel>
-						{ __( 'Custom', 'jetpack-premium-analytics' ) }
-					</Menu.ItemLabel>
+					<Menu.ItemLabel>{ __( 'Custom', 'jetpack-premium-analytics' ) }</Menu.ItemLabel>
 				</Menu.CheckboxItem>
 
 				{ onClear && (
@@ -136,9 +130,7 @@ export function DateRangePresets( {
 						onChange={ onClear }
 						hideOnClick
 					>
-						<Menu.ItemLabel>
-							{ __( 'No comparison', 'jetpack-premium-analytics' ) }
-						</Menu.ItemLabel>
+						<Menu.ItemLabel>{ __( 'No comparison', 'jetpack-premium-analytics' ) }</Menu.ItemLabel>
 					</Menu.CheckboxItem>
 				) }
 			</Menu.Group>
