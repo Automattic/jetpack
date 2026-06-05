@@ -26,14 +26,7 @@ class Sidebar_Open_Preservation {
 	 *
 	 * @var string
 	 */
-	private const COOKIE_KEY = 'agents_manager_chat_sidebar_open';
-
-	/**
-	 * The class name for the agents manager sidebar open state.
-	 *
-	 * @var string
-	 */
-	private const SIDEBAR_OPEN_CLASS = 'agents-manager-sidebar-container--sidebar-open';
+	private const COOKIE_KEY = 'agents_manager_chat_sidebar_open_class_list';
 
 	/**
 	 * Creates instance.
@@ -70,19 +63,17 @@ class Sidebar_Open_Preservation {
 		$cookie_value = isset( $_COOKIE[ self::COOKIE_KEY ] )
 			? sanitize_text_field( wp_unslash( (string) $_COOKIE[ self::COOKIE_KEY ] ) )
 			: '';
-		$is_open      = '1' === $cookie_value;
 
-		if ( ! $is_open ) {
+		if ( empty( $cookie_value ) ) {
 			return $classes;
 		}
 
 		return implode(
 			' ',
 			array_filter(
-				array(
-					$classes,
-					'agents-manager-sidebar-container',
-					self::SIDEBAR_OPEN_CLASS,
+				array_merge(
+					array( $classes ),
+					explode( ',', $cookie_value )
 				)
 			)
 		);
@@ -113,9 +104,8 @@ class Sidebar_Open_Preservation {
 		);
 
 		$script_data = array(
-			'cookieKey'        => self::COOKIE_KEY,
-			'cookiePath'       => Constants::get_constant( 'ADMIN_COOKIE_PATH' ),
-			'sidebarOpenClass' => self::SIDEBAR_OPEN_CLASS,
+			'cookieKey'  => self::COOKIE_KEY,
+			'cookiePath' => Constants::get_constant( 'ADMIN_COOKIE_PATH' ),
 		);
 
 		$script_data = wp_json_encode(

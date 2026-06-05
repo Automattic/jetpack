@@ -3,7 +3,6 @@ declare global {
 		AgentsManagerSidebarOpenWatcherData?: {
 			cookieKey: string;
 			cookiePath: string;
-			sidebarOpenClass: string;
 		};
 	}
 }
@@ -19,41 +18,32 @@ function registerSidebarOpenWatcher() {
 		throw new Error( 'AgentsManagerSidebarOpenWatcherData is not defined' );
 	}
 
-	const { cookieKey, cookiePath, sidebarOpenClass } = window.AgentsManagerSidebarOpenWatcherData;
+	const { cookieKey, cookiePath } = window.AgentsManagerSidebarOpenWatcherData;
 
 	/**
 	 * Update the sidebar open cookie from the current body class.
+	 * @param root0        - The custom event.
+	 * @param root0.detail - Sidebar state: `{ isOpen: true, classList: string[] }` or `{ isOpen: false }`.
 	 */
-	function syncSidebarOpenCookie() {
-		const isOpen = document.body.classList.contains( sidebarOpenClass );
-
-		if ( isOpen ) {
-			document.cookie = `${ cookieKey }=1; path=${ cookiePath }; samesite=lax`;
+	function syncSidebarOpenCookie( {
+		detail,
+	}: CustomEvent< { isOpen: true; classList: string[] } | { isOpen: false } > ) {
+		if ( detail.isOpen ) {
+			document.cookie = `${ cookieKey }=${ detail.classList.join(
+				','
+			) }; path=${ cookiePath }; samesite=lax`;
 		} else {
 			document.cookie = `${ cookieKey }=; path=${ cookiePath }; samesite=lax`;
 		}
 	}
 
-	const observer = new window.MutationObserver( function () {
-		syncSidebarOpenCookie();
-	} );
-
-	observer.observe( document.body, {
-		attributes: true,
-		attributeFilter: [ 'class' ],
-	} );
-
-	syncSidebarOpenCookie();
+	window.addEventListener( 'agentsManagerSidebarChange', syncSidebarOpenCookie );
 
 	window.addEventListener( 'pagehide', function () {
-		observer.disconnect();
+		window.removeEventListener( 'agentsManagerSidebarChange', syncSidebarOpenCookie );
 	} );
 }
 
-if ( document.readyState === 'loading' ) {
-	document.addEventListener( 'DOMContentLoaded', registerSidebarOpenWatcher );
-} else {
-	registerSidebarOpenWatcher();
-}
+registerSidebarOpenWatcher();
 
 export { registerSidebarOpenWatcher };
