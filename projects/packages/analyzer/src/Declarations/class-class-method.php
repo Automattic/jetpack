@@ -67,7 +67,6 @@ class Class_Method extends Declaration {
 
 		if ( is_array( $obj->fnc_params ) ) {
 			foreach ( $obj->fnc_params as $param ) {
-				// phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 				$declaration->add_param( $param->name, $param->default, $param->type, $param->byRef, $param->variadic );
 			}
 		}

@@ -910,11 +910,11 @@ class SSO {
 	 * @return bool True if WP.com authorized broker mode for this nonce.
 	 */
 	private static function is_broker_authorized() {
-		$broker_signal = ! empty( $_COOKIE[ self::BROKER_COOKIE ] ) // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-			? sanitize_key( wp_unslash( $_COOKIE[ self::BROKER_COOKIE ] ) ) // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$broker_signal = ! empty( $_COOKIE[ self::BROKER_COOKIE ] )
+			? sanitize_key( wp_unslash( $_COOKIE[ self::BROKER_COOKIE ] ) )
 			: false;
-		$current_nonce = ! empty( $_COOKIE['jetpack_sso_nonce'] ) // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-			? sanitize_key( wp_unslash( $_COOKIE['jetpack_sso_nonce'] ) ) // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$current_nonce = ! empty( $_COOKIE['jetpack_sso_nonce'] )
+			? sanitize_key( wp_unslash( $_COOKIE['jetpack_sso_nonce'] ) )
 			: false;
 
 		return $broker_signal && $current_nonce && $broker_signal === $current_nonce;
@@ -933,7 +933,7 @@ class SSO {
 		// Check the cookie persisted by save_cookies() on the initial login page
 		// load. The live HTTP Referer changes to the site's own wp-login.php when
 		// the user clicks the SSO button, so the cookie carries the original signal.
-		if ( ! empty( $_COOKIE['jetpack_sso_wpcom_referrer'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		if ( ! empty( $_COOKIE['jetpack_sso_wpcom_referrer'] ) ) {
 			return true;
 		}
 

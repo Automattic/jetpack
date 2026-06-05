@@ -336,7 +336,6 @@ class TestWithHandler extends Handler {
 	 */
 	private static function array_is_list( array $arr ) {
 		if ( function_exists( 'array_is_list' ) ) {
-			// phpcs:ignore PHPCompatibility.FunctionUse.NewFunctions.array_is_listFound -- Checked before use.
 			return array_is_list( $arr );
 		}
 		return array_values( $arr ) === $arr;

@@ -232,7 +232,6 @@ class Jetpack_Memberships {
 	private function register_init_hook() {
 		add_action( 'init', array( $this, 'init_hook_action' ) );
 		add_action( 'jetpack_register_gutenberg_extensions', array( $this, 'register_gutenberg_block' ) );
-		// phpcs:ignore WPCUT.SwitchBlog.SwitchBlog -- wpcom flags **every** use of switch_blog, apparently expecting valid instances to ignore or suppress the sniff.
 		add_action( 'switch_blog', array( $this, 'clear_post_access_level_cache' ) );
 	}
 
@@ -717,7 +716,6 @@ class Jetpack_Memberships {
 	 */
 	public static function user_can_edit() {
 		$user = wp_get_current_user();
-		// phpcs:ignore ImportDetection.Imports.RequireImports.Symbol
 		return 0 !== $user->ID && current_user_can( 'edit_post', get_the_ID() );
 	}
 

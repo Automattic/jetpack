@@ -9,10 +9,6 @@
  * This script is meant to run outside of typical WordPress environments and only by knowledgeable folks.
  * Disabling some phpcs scripts:
  *
- * phpcs:disable WordPress.PHP.DiscouragedPHPFunctions.system_calls_exec
- * phpcs:disable WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
- * phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped
- * phpcs:disable Squiz.PHP.CommentedOutCode.Found
  */
 
 require dirname( __DIR__ ) . '/vendor/autoload.php';
@@ -91,4 +87,3 @@ echo $warnings->summary() . "\n";
 
 echo "*** Done\n";
 
-// phpcs:enable

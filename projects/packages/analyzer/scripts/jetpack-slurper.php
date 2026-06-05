@@ -11,9 +11,6 @@
  * This script is meant to run outside of typical WordPress environments and only by knowledgeable folks.
  * Disabling some phpcs scripts:
  *
- * phpcs:disable WordPress.PHP.DiscouragedPHPFunctions.system_calls_exec
- * phpcs:disable WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
- * phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped
  *
  * To prepare for scanning Jetpack against all plugins of WordPress.org directory you need to
  * use the slurper tool.
@@ -29,7 +26,7 @@
  * affected by the changes.
  */
 
-ini_set( 'memory_limit', '2048M' ); // phpcs:ignore WordPress.PHP.IniSet.memory_limit_Blacklisted
+ini_set( 'memory_limit', '2048M' );
 
 require dirname( __DIR__ ) . '/vendor/autoload.php';
 
@@ -65,4 +62,3 @@ foreach ( glob( $slurper_path . '/*' ) as $folder_name ) {
 	unset( $invocations, $warnings );
 }
 
-// phpcs:enable

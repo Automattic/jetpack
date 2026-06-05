@@ -1476,7 +1476,7 @@ class ABC_FOO_TEST_Taxonomy_Example {
 			'posts',
 			array(
 				'meta_box_cb'           => 'bob',
-				'update_count_callback' => array( $this, 'callback_update_count_callback_tags' ), // phpcs:ignore WordPress.Arrays.CommaAfterArrayItem.NoComma
+				'update_count_callback' => array( $this, 'callback_update_count_callback_tags' ),
 				'rest_controller_class' => 'tom',
 			)
 		);

@@ -60,7 +60,6 @@ class Function_ extends Declaration {
 		$declaration = new Function_( $obj->file_path, $obj->file_line, $obj->member_name, $obj->is_deprecated );
 		if ( is_array( $obj->fnc_params ) ) {
 			foreach ( $obj->fnc_params as $param ) {
-				// phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 				$declaration->add_param( $param->name, $param->default, $param->type, $param->byRef, $param->variadic );
 			}
 		}

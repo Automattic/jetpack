@@ -93,7 +93,7 @@ class Visitor extends NodeVisitorAbstract {
 		} elseif ( isset( $node->dim->name ) ) {
 			$dimension = $node->dim->name;
 		} else {
-			trigger_error( 'Unable to find the array dimension name' ); // phpcs:ignore
+			trigger_error( 'Unable to find the array dimension name' );
 		}
 		if ( isset( $node->var ) && $node->var instanceof Node\Expr\ArrayDimFetch ) {
 			$name = $this->getArrayToken( $node->var );
