@@ -1,8 +1,7 @@
 import apiFetch from '@wordpress/api-fetch';
-import { Button } from '@wordpress/components';
 import { useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { Link, Stack, Text } from '@wordpress/ui';
+import { Button, Link, Stack, Text } from '@wordpress/ui';
 import { addQueryArgs } from '@wordpress/url';
 
 import './style.scss';
@@ -42,11 +41,17 @@ export default () => {
 					justify="flex-end"
 					gap="sm"
 				>
-					<Button variant="link" onClick={ () => setIndex( index - 1 ) } disabled={ index === 0 }>
+					<Button
+						variant="minimal"
+						size="small"
+						onClick={ () => setIndex( index - 1 ) }
+						disabled={ index === 0 }
+					>
 						{ __( '← Previous', 'jetpack-mu-wpcom' ) }
 					</Button>
 					<Button
-						variant="link"
+						variant="minimal"
+						size="small"
 						onClick={ () => setIndex( index + 1 ) }
 						disabled={ index === prompts.length - 1 }
 					>
@@ -61,7 +66,14 @@ export default () => {
 				align="center"
 				gap="sm"
 			>
-				<Button variant="secondary" href={ `post-new.php?answer_prompt=${ prompt.id }` }>
+				{ /* Replace with LinkButton once available: https://github.com/WordPress/gutenberg/issues/77098 */ }
+				<Button
+					variant="outline"
+					size="compact"
+					onClick={ () => {
+						document.location = `post-new.php?answer_prompt=${ prompt.id }`;
+					} }
+				>
 					{ __( 'Post Answer', 'jetpack-mu-wpcom' ) }
 				</Button>
 				{ prompt.answered_users_sample.length > 0 && (
