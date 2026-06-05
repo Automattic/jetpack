@@ -11,7 +11,6 @@
 // ```
 
 import fs from 'node:fs';
-import { createRequire } from 'node:module';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { fixupPluginRules } from '@eslint/compat';
@@ -40,6 +39,7 @@ import eslintPluginYouDontNeedLodashUnderscore from 'eslint-plugin-you-dont-need
 import { glob } from 'glob';
 import globals from 'globals';
 import typescriptEslint from 'typescript-eslint';
+import jetpackEslintPlugin from '../eslint-plugin-jetpack/index.mjs';
 import loadIgnorePatterns from '../load-eslint-ignore.js';
 import { javascriptFiles, jsonFiles, typescriptFiles, jestFiles } from './files.mjs';
 import jestConfig from './jest.mjs';
@@ -49,7 +49,6 @@ export * from './files.mjs';
 export { defineConfig, globalIgnores } from 'eslint/config';
 
 const debug = makeDebug( 'eslintrc/base' );
-const require = createRequire( import.meta.url );
 
 const rootdir = fileURLToPath( new URL( '../../..', import.meta.url ) );
 
@@ -151,9 +150,6 @@ export function makeBaseConfig( configurl, opts = {} ) {
 	const jetpackComponentsDenylistPath = path.join(
 		rootdir,
 		'tools/eslint/jetpack-components-denylist.json'
-	);
-	const jetpackEslintPlugin = fixupPluginRules(
-		require( path.join( rootdir, 'tools/eslint/eslint-plugin-jetpack/index.cjs' ) )
 	);
 
 	return defineConfig(
@@ -467,7 +463,7 @@ export function makeBaseConfig( configurl, opts = {} ) {
 			files: [
 				'.pnpmfile.cjs',
 				'tools/js-tools/eslintrc/get-ts-parser.cjs',
-				'tools/eslint/eslint-plugin-jetpack/**/*.cjs',
+				'tools/js-tools/eslint-plugin-jetpack/**/*.mjs',
 				'**/tests/e2e/config/default.cjs',
 				'**/*.config.?([cm])js',
 				'**/webpack.config.*.?([cm])js',

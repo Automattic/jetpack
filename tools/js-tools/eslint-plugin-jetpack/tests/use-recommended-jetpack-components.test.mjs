@@ -1,14 +1,17 @@
-const { createRequire } = require( 'node:module' );
-const path = require( 'node:path' );
-const requireFromJsTools = createRequire(
-	path.join( __dirname, '..', '..', '..', '..', 'js-tools', 'package.json' )
-);
-const { RuleTester } = requireFromJsTools( 'eslint' );
-const rule = require( '../use-recommended-jetpack-components.cjs' );
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { RuleTester } from 'eslint';
+import rule from '../rules/use-recommended-jetpack-components.mjs';
+
+const __dirname = path.dirname( fileURLToPath( import.meta.url ) );
 
 const denylistPath = path.resolve(
 	__dirname,
-	'../../../jetpack-components-denylist.json'
+	'..',
+	'..',
+	'..',
+	'eslint',
+	'jetpack-components-denylist.json'
 );
 
 const ruleTester = new RuleTester( {

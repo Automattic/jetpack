@@ -1,11 +1,16 @@
-const fs = require( 'node:fs' );
-const path = require( 'node:path' );
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const __dirname = path.dirname( fileURLToPath( import.meta.url ) );
 
 const PACKAGE_NAME = '@automattic/jetpack-components';
 const DEFAULT_DENYLIST_PATH = path.resolve(
 	__dirname,
 	'..',
 	'..',
+	'..',
+	'eslint',
 	'jetpack-components-denylist.json'
 );
 
@@ -187,4 +192,4 @@ function reportSubpathImports( context, node, source, subpath, components, subpa
 	} );
 }
 
-module.exports = rule;
+export default rule;
