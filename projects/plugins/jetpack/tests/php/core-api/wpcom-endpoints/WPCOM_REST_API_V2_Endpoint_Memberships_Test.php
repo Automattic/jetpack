@@ -348,7 +348,7 @@ class WPCOM_REST_API_V2_Endpoint_Memberships_Test extends Jetpack_REST_TestCase 
 	public function test_get_payload_for_product_includes_description_when_provided() {
 		$endpoint = new WPCOM_REST_API_V2_Endpoint_Memberships();
 		$request  = new WP_REST_Request( Requests::POST, '/wpcom/v2/memberships/product' );
-		$request->set_json_params(
+		$request->set_body_params(
 			array(
 				'title'       => 'Premium Tier',
 				'price'       => 10,
@@ -377,7 +377,7 @@ class WPCOM_REST_API_V2_Endpoint_Memberships_Test extends Jetpack_REST_TestCase 
 	public function test_get_payload_for_product_omits_description_when_not_provided() {
 		$endpoint = new WPCOM_REST_API_V2_Endpoint_Memberships();
 		$request  = new WP_REST_Request( Requests::POST, '/wpcom/v2/memberships/product' );
-		$request->set_json_params(
+		$request->set_body_params(
 			array(
 				'title'    => 'Premium Tier',
 				'price'    => 10,
