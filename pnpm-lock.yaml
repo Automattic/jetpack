@@ -3869,6 +3869,9 @@ importers:
       '@automattic/number-formatters':
         specifier: workspace:*
         version: link:../../js-packages/number-formatters
+      '@automattic/ui':
+        specifier: 1.0.2
+        version: 1.0.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@date-fns/tz':
         specifier: 1.4.1
         version: 1.4.1
@@ -3881,6 +3884,12 @@ importers:
       '@wordpress/boot':
         specifier: 0.13.0
         version: 0.13.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@wordpress/components':
+        specifier: 33.1.0
+        version: 33.1.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@wordpress/compose':
+        specifier: 7.46.0
+        version: 7.46.0(react@18.3.1)
       '@wordpress/core-data':
         specifier: 7.46.0
         version: 7.46.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -3896,12 +3905,21 @@ importers:
       '@wordpress/primitives':
         specifier: 4.46.0
         version: 4.46.0(react@18.3.1)
+      '@wordpress/private-apis':
+        specifier: 1.46.0
+        version: 1.46.0
       '@wordpress/route':
         specifier: 0.12.0
         version: 0.12.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@wordpress/ui':
+        specifier: 0.13.0
+        version: 0.13.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/url':
         specifier: 4.46.0
         version: 4.46.0
+      clsx:
+        specifier: 2.1.1
+        version: 2.1.1
       date-fns:
         specifier: 4.1.0
         version: 4.1.0
@@ -3933,12 +3951,12 @@ importers:
       '@typescript/native-preview':
         specifier: 7.0.0-dev.20260225.1
         version: 7.0.0-dev.20260225.1
+      '@wordpress/base-styles':
+        specifier: 8.0.0
+        version: 8.0.0
       '@wordpress/build':
         specifier: 0.14.0
-        version: 0.14.0(@babel/core@7.29.0)(@wordpress/boot@0.13.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@wordpress/route@0.12.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(browserslist@4.28.2)
-      '@wordpress/ui':
-        specifier: 0.13.0
-        version: 0.13.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        version: 0.14.0(@babel/core@7.29.0)(@wordpress/boot@0.13.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@wordpress/private-apis@1.46.0)(@wordpress/route@0.12.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(browserslist@4.28.2)
       browserslist:
         specifier: 4.28.2
         version: 4.28.2
@@ -24147,7 +24165,7 @@ snapshots:
       - browserslist
       - supports-color
 
-  '@wordpress/build@0.14.0(@babel/core@7.29.0)(@wordpress/boot@0.13.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@wordpress/route@0.12.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(browserslist@4.28.2)':
+  '@wordpress/build@0.14.0(@babel/core@7.29.0)(@wordpress/boot@0.13.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@wordpress/private-apis@1.46.0)(@wordpress/route@0.12.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(browserslist@4.28.2)':
     dependencies:
       '@emotion/babel-plugin': 11.13.5
       '@wordpress/style-runtime': 0.2.0
@@ -24167,6 +24185,7 @@ snapshots:
       sass-embedded: 1.97.3
     optionalDependencies:
       '@wordpress/boot': 0.13.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@wordpress/private-apis': 1.46.0
       '@wordpress/route': 0.12.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
     transitivePeerDependencies:
       - '@babel/core'
