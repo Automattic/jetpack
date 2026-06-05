@@ -13,7 +13,12 @@ use Automattic\Jetpack_Boost\Modules\Optimizations\Minify\Minify_JS;
  * to ensure a new version of Jetpack Boost never reuses old cached URLs.
  */
 function jetpack_boost_minify_cache_buster() {
-	return 1;
+	// Bumped to 2 so the JS truncation fix actually reaches already-affected sites:
+	// the cached concat bundle is served before any rebuild, so a site that cached a
+	// corrupted bundle would keep shipping it (until its source mtime changed) even
+	// after upgrade. Changing the buster invalidates those cache keys and forces a
+	// rebuild through the new structural-validation/fallback path.
+	return 2;
 }
 
 /**
