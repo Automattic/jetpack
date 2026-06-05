@@ -1,17 +1,20 @@
+.wpcom-daily-writing-prompt {
+	padding: var(--wpds-dimension-padding-md);
+}
+
 .wpcom-daily-writing-prompt--prompt {
-	background-color: #f0f0f1;
-	padding: 1px 16px;
-	border-radius: 4px;
-	margin: 1em 0;
+	background-color: var(--wpds-color-bg-surface-neutral-weak);
+	padding: var(--wpds-dimension-padding-md);
+	border-radius: var(--wpds-border-radius-sm);
 }
 
 .wpcom-daily-writing-prompt--answered-users {
 
 	img {
 		vertical-align: middle;
-		border-radius: 100%;
-		border: 2px solid #fff;
-		margin-inline-start: -10px;
+		border-radius: 50%;
+		border: var(--wpds-border-width-sm) solid var(--wpds-color-bg-surface-neutral);
+		margin-inline-start: calc(-1 * (var(--wpds-dimension-gap-sm) + var(--wpds-border-width-sm)));
 	}
 
 	img:first-child {

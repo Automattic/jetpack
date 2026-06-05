@@ -31,8 +31,8 @@ export default () => {
 	const prompt = prompts[ index ];
 
 	return (
-		<>
-			<div className="wpcom-daily-writing-prompt--prompt">
+		<Stack className="wpcom-daily-writing-prompt" direction="column" gap="md">
+			<Stack className="wpcom-daily-writing-prompt--prompt" direction="column" gap="md">
 				<Text variant="body-md" render={ <p /> }>
 					{ prompt.text }
 				</Text>
@@ -53,7 +53,7 @@ export default () => {
 						{ __( 'Next →', 'jetpack-mu-wpcom' ) }
 					</Button>
 				</Stack>
-			</div>
+			</Stack>
 			<Stack
 				className="wpcom-daily-writing-prompt--action-row"
 				direction="row"
@@ -94,6 +94,6 @@ export default () => {
 					</Stack>
 				) }
 			</Stack>
-		</>
+		</Stack>
 	);
 };
