@@ -18,6 +18,7 @@
 		".": "./src/index.js",
 		"./babel": "./src/babel.js",
 		"./babel/preset": "./src/babel-preset.js",
+		"./postcss": "./src/postcss.js",
 		"./targets": "./src/targets.js",
 		"./webpack": "./src/webpack.js"
 	},
