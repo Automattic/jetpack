@@ -31,6 +31,7 @@ class Js_Structure_Scanner_Test extends Base_TestCase {
 			'bool member e (no exp)'  => 'var z=!0.entries()',
 			'unterminated block cmt'  => 'var a=1;/* still open',
 			'truncated mid call'      => 'foo(bar,baz',
+			'regex after throw eof'   => 'throw /bad',
 		);
 
 		foreach ( $broken as $label => $js ) {
@@ -76,6 +77,7 @@ class Js_Structure_Scanner_Test extends Base_TestCase {
 			'negated exponent upper'   => 'var z=!0.E3',
 			'arrow returns object'     => 'const f=()=>({a:1})',
 			'block comment braces'     => 'var a=1;/* { ( [ */var b=2',
+			'regex after throw'        => 'function f(){throw /a|b/g}',
 		);
 
 		foreach ( $valid as $label => $js ) {
@@ -155,6 +157,19 @@ class Js_Structure_Scanner_Test extends Base_TestCase {
 		$original = str_repeat( 'x', 10 * 1024 * 1024 ); // 10 MB input.
 		$output   = str_repeat( 'x', 9 * 1024 * 1024 );  // 9 MB output (>50% of input), above cap.
 		$this->assertFalse( Js_Structure_Scanner::looks_broken( $output, $original ) );
+	}
+
+	/**
+	 * Pathologically deep structural nesting (here, runaway template
+	 * interpolations) is itself a corruption signature: the lexer caps its own
+	 * nesting depth and reports "broken" rather than letting $stack/$frames grow
+	 * until the PHP memory limit fatals. That fatal would be uncatchable and
+	 * white-screen the page, so the depth cap is part of the fail-safe contract.
+	 */
+	public function test_pathological_nesting_is_flagged_before_exhausting_memory() {
+		// 60k `${ openers (no closers) push well past MAX_NESTING_DEPTH.
+		$deeply_nested = str_repeat( '`${', 60000 );
+		$this->assertTrue( Js_Structure_Scanner::looks_broken( $deeply_nested ) );
 	}
 
 	public function test_handles_empty_input() {

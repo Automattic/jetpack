@@ -28,9 +28,10 @@ namespace Automattic\Jetpack_Boost\Lib;
  * division, because telling a block `}` apart from an object-literal `}` needs a
  * full parser; so valid object-literal division such as `({}/2)` is reported
  * "broken". This generalizes to any object-literal `}` followed by `/` anywhere
- * in the bundle (`f({}/2)`, `[{}/2]`, `var o={a:1}/2`), and because one
- * occurrence skips re-minification for the entire concatenated bundle, the cost
- * is more than a single statement's worth of compression. It is still fail-safe
+ * in a source file (`f({}/2)`, `[{}/2]`, `var o={a:1}/2`), and because one
+ * occurrence skips re-minification of that whole file's contribution to the
+ * bundle, the cost is more than a single statement's worth of compression. It is
+ * still fail-safe
  * (it only skips re-minification, never corrupts output), so the heuristic stays
  * simple rather than guess at block-vs-expression context; the new fallback
  * observability hook lets the real-world frequency be measured.
@@ -73,11 +74,28 @@ class Js_Structure_Scanner {
 	 *
 	 * Blind spot: a size-preserving break above the cap (e.g. an unterminated
 	 * template at EOF, which drops only a byte or two) leaves the ratio normal and
-	 * is not caught. Accepted because minification runs per source file, so the cap
-	 * only engages for a pathological multi-MB single file; the fallback hook
-	 * surfaces any real-world occurrence.
+	 * is not caught -- and because no fallback fires, the observability hook does not
+	 * surface it either. Accepted because minification runs per source file, so the
+	 * cap only engages for a pathological multi-MB single source file, a vanishingly
+	 * rare input for this corruption.
 	 */
 	private const TRUNCATION_RATIO = 0.5;
+
+	/**
+	 * Upper bound on simultaneous open brackets / template-interpolation frames.
+	 *
+	 * $stack and $frames grow with structural nesting depth, which is bounded by
+	 * input bytes but not proportional to them: a small file of runaway `${`/`[`/`(`
+	 * openers can amplify into hundreds of MB of frame state and trip the PHP memory
+	 * limit. That fatal is NOT a \Throwable, so Minify::js()'s try/catch cannot catch
+	 * it -- it would white-screen the page, the exact failure this scanner exists to
+	 * prevent. Nesting this deep never occurs in legitimate output (real code nests a
+	 * few levels), so reaching the cap is itself a corruption/abuse signature: the
+	 * scan stops and returns "broken", routing the caller to the fail-safe original
+	 * bytes. Set far above any real bundle while keeping peak frame memory in the low
+	 * tens of MB.
+	 */
+	private const MAX_NESTING_DEPTH = 100000;
 
 	/**
 	 * JS being scanned and its length.
@@ -252,6 +270,15 @@ class Js_Structure_Scanner {
 					return true; // Unknown state: fail safe.
 			}
 			if ( $broken ) {
+				return true;
+			}
+
+			// Structural nesting this deep never occurs in legitimate output; stop
+			// before unbounded $stack/$frames growth can exhaust memory (an
+			// uncatchable fatal). The depth itself is a corruption signature, so the
+			// fail-safe verdict is "broken".
+			if ( count( $this->stack ) > self::MAX_NESTING_DEPTH
+				|| count( $this->frames ) > self::MAX_NESTING_DEPTH ) {
 				return true;
 			}
 		}
@@ -592,6 +619,7 @@ class Js_Structure_Scanner {
 		if ( self::is_ident_char( $prev ) ) {
 			static $kw = array(
 				'return'     => 1,
+				'throw'      => 1,
 				'typeof'     => 1,
 				'in'         => 1,
 				'of'         => 1,
