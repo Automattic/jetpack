@@ -27,5 +27,18 @@ export default defineConfig(
 			'jsdoc/require-returns': 'off',
 			'jsdoc/check-indentation': 'off',
 		},
+	},
+	{
+		// Dashboard route + statically bundled widgets: the initial dashboard
+		// port consumes vendored engine packages and uses core's import-group
+		// and JSDoc style. Soften the conflicting rules so it can land.
+		files: [ 'routes/dashboard/**' ],
+		rules: {
+			'import/order': 'off',
+			'jsdoc/require-description': 'off',
+			'jsdoc/require-param-description': 'off',
+			'jsdoc/require-returns': 'off',
+			'jsdoc/check-indentation': 'off',
+		},
 	}
 );

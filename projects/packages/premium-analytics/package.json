@@ -30,14 +30,21 @@
 		}
 	},
 	"dependencies": {
+		"@automattic/jetpack-grid": "workspace:*",
+		"@automattic/jetpack-widget-dashboard": "workspace:*",
+		"@automattic/jetpack-widget-primitives": "workspace:*",
 		"@automattic/number-formatters": "workspace:*",
 		"@date-fns/tz": "1.4.1",
+		"@wordpress/admin-ui": "2.1.0",
 		"@wordpress/boot": "0.13.0",
 		"@wordpress/data": "10.46.0",
+		"@wordpress/element": "6.46.0",
 		"@wordpress/i18n": "^6.9.0",
 		"@wordpress/icons": "^13.0.0",
 		"@wordpress/primitives": "4.46.0",
 		"@wordpress/route": "0.12.0",
+		"@wordpress/ui": "0.13.0",
+		"clsx": "^2.1.1",
 		"date-fns": "4.1.0",
 		"react": "18.3.1",
 		"react-dom": "18.3.1"
@@ -49,7 +56,6 @@
 		"@types/jest": "30.0.0",
 		"@typescript/native-preview": "7.0.0-dev.20260225.1",
 		"@wordpress/build": "0.14.0",
-		"@wordpress/ui": "0.13.0",
 		"browserslist": "4.28.2",
 		"storybook": "10.3.6",
 		"typescript": "5.9.3"
