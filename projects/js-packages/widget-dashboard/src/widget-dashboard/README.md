@@ -76,7 +76,7 @@ Optional. Composition slot for arbitrary dashboard markup. When omitted, the eng
 
 #### `<WidgetDashboard.Widgets />`
 
-Iterates `layout`, renders each entry through `<WidgetDashboard.WidgetChrome />`, and feeds the resulting tree into the underlying grid (`@wordpress/grid`).
+Iterates `layout`, renders each entry through `<WidgetDashboard.WidgetChrome />`, and feeds the resulting tree into the underlying grid (`@automattic/jetpack-grid`).
 
 #### `<WidgetDashboard.WidgetChrome />`
 
@@ -142,4 +142,4 @@ interface WidgetRenderProps< Item = unknown > {
 - `ResolveWidgetModule` — module resolver signature.
 - `WidgetGridSettings` — grid configuration.
 
-The widget contract types (`WidgetName`, `WidgetType`, `WidgetRenderProps`, `ResolveWidgetModule`) are defined in `widget-primitives` and imported from there directly; this engine does not re-export them.
+The widget contract types (`WidgetName`, `WidgetType`, `WidgetRenderProps`, `ResolveWidgetModule`) are defined in `@automattic/jetpack-widget-primitives` and imported from there directly; this engine does not re-export them.
