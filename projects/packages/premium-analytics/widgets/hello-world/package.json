@@ -1,0 +1,11 @@
+{
+	"name": "@automattic/jetpack-premium-analytics-widget-hello-world",
+	"version": "0.1.0-alpha",
+	"private": true,
+	"type": "module",
+	"dependencies": {
+		"@wordpress/icons": "^13.0.0",
+		"@wordpress/ui": "0.13.0",
+		"clsx": "^2.1.1"
+	}
+}

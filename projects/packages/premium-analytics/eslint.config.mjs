@@ -29,10 +29,10 @@ export default defineConfig(
 		},
 	},
 	{
-		// Dashboard route + statically bundled widgets: the initial dashboard
-		// port consumes vendored engine packages and uses core's import-group
-		// and JSDoc style. Soften the conflicting rules so it can land.
-		files: [ 'routes/dashboard/**' ],
+		// Dashboard route + bundled widgets: the initial dashboard port consumes
+		// vendored engine packages and uses core's import-group and JSDoc style.
+		// Soften the conflicting rules so it can land.
+		files: [ 'routes/dashboard/**', 'widgets/**' ],
 		rules: {
 			'import/order': 'off',
 			'jsdoc/require-description': 'off',
