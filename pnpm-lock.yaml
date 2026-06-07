@@ -1886,6 +1886,49 @@ importers:
         specifier: 5.2.4
         version: 5.2.4(webpack-cli@6.0.1)(webpack@5.105.2)
 
+  projects/js-packages/widget-primitives:
+    dependencies:
+      '@wordpress/core-data':
+        specifier: 7.46.0
+        version: 7.46.0(@types/react-dom@18.3.7(@types/react@18.3.28))(@types/react@18.3.28)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@wordpress/data':
+        specifier: 10.46.0
+        version: 10.46.0(react@18.3.1)
+      '@wordpress/dataviews':
+        specifier: 14.3.0
+        version: 14.3.0(@types/react@18.3.28)(react@18.3.1)
+      '@wordpress/element':
+        specifier: 6.46.0
+        version: 6.46.0
+      '@wordpress/i18n':
+        specifier: 6.19.0
+        version: 6.19.0
+      '@wordpress/ui':
+        specifier: 0.13.0
+        version: 0.13.0(@types/react@18.3.28)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+    devDependencies:
+      '@types/react':
+        specifier: ^18.3.27
+        version: 18.3.28
+      '@types/react-dom':
+        specifier: ^18.3.7
+        version: 18.3.7(@types/react@18.3.28)
+      '@typescript/native-preview':
+        specifier: 7.0.0-dev.20260225.1
+        version: 7.0.0-dev.20260225.1
+      jetpack-js-tools:
+        specifier: workspace:*
+        version: link:../../../tools/js-tools
+      react:
+        specifier: 18.3.1
+        version: 18.3.1
+      react-dom:
+        specifier: 18.3.1
+        version: 18.3.1(react@18.3.1)
+      typescript:
+        specifier: 5.9.3
+        version: 5.9.3
+
   projects/packages/account-protection: {}
 
   projects/packages/activity-log:
