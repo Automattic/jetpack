@@ -16,6 +16,13 @@ Ported verbatim from [`WordPress/gutenberg`](https://github.com/WordPress/gutenb
 When core publishes `@wordpress/widget-primitives`, replace this package with the published
 dependency and update import names in consumers. Keep this commit reference updated when syncing.
 
+### Local deviations from core
+
+- `src/hooks/use-widget-types.ts`: the `widgetModule` entity `baseURL` is
+  `/jetpack/v4/widget-modules` (core uses `/wp/v2/widget-modules`). Premium Analytics serves
+  the endpoint under the Jetpack REST namespace. If this package later needs to stay
+  host-agnostic, make the baseURL configurable instead of hardcoding it.
+
 ## Privacy
 
 `"private": true` in `package.json` + `composer.json` without `npmjs-autopublish`/`mirror-repo`
