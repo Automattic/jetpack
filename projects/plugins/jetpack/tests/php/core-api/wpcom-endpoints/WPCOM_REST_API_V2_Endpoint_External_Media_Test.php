@@ -32,6 +32,13 @@ class WPCOM_REST_API_V2_Endpoint_External_Media_Test extends Jetpack_REST_TestCa
 	private $image_name = 'example_image';
 
 	/**
+	 * Counter for unique test image names.
+	 *
+	 * @var int
+	 */
+	private static $image_counter = 0;
+
+	/**
 	 * Path to test image.
 	 *
 	 * @var string
@@ -57,6 +64,9 @@ class WPCOM_REST_API_V2_Endpoint_External_Media_Test extends Jetpack_REST_TestCa
 		$this->image_name = 'example_image-' . getmypid() . '-' . uniqid();
 
 		wp_set_current_user( static::$user_id );
+
+		++static::$image_counter;
+		$this->image_name = 'example_image_' . static::$image_counter;
 
 		add_filter( 'pre_option_jetpack_private_options', array( $this, 'mock_jetpack_private_options' ) );
 	}
