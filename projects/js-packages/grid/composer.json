@@ -1,0 +1,21 @@
+{
+	"name": "automattic/jetpack-js-grid",
+	"description": "Grid component with drag-and-drop reordering and resize for dashboard layouts. Internal port of @wordpress/grid until it is published.",
+	"type": "library",
+	"license": "GPL-2.0-or-later",
+	"require": {},
+	"repositories": [
+		{
+			"type": "path",
+			"url": "../../packages/*",
+			"options": {
+				"monorepo": true
+			}
+		}
+	],
+	"minimum-stability": "dev",
+	"prefer-stable": true,
+	"extra": {
+		"textdomain": "jetpack-grid"
+	}
+}
