@@ -58,6 +58,10 @@ class Analytics {
 			require_once $build_entry;
 		}
 
+		// Expose dashboard widget modules over REST and wire them into the
+		// page import map for dynamic import() on the client.
+		require_once __DIR__ . '/widget-modules.php';
+
 		Sync_Status_Tracker::configure();
 
 		add_action( 'admin_menu', array( static::class, 'register_admin_menu' ) );

@@ -10,9 +10,6 @@
 		"@automattic/jetpack-widget-primitives": "workspace:*",
 		"@wordpress/admin-ui": "2.1.0",
 		"@wordpress/element": "6.46.0",
-		"@wordpress/i18n": "^6.9.0",
-		"@wordpress/icons": "^13.0.0",
-		"@wordpress/ui": "0.13.0",
-		"clsx": "^2.1.1"
+		"@wordpress/i18n": "^6.9.0"
 	}
 }
