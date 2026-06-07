@@ -5,7 +5,7 @@
  * The wp-build-generated `build/widgets.php` registers each widget's render and
  * metadata as script modules and exposes `jpa_get_registered_widget_modules()`.
  * This file exposes that registry to the client through the
- * `/wp/v2/widget-modules` REST endpoint (read by the `widgetModule` core-data
+ * `/jetpack/v4/widget-modules` REST endpoint (read by the `widgetModule` core-data
  * entity in @automattic/jetpack-widget-primitives), and adds the modules to the
  * dashboard page's import map so the client can dynamically `import()` them on
  * demand.
@@ -16,13 +16,13 @@
 namespace Automattic\Jetpack\PremiumAnalytics;
 
 /**
- * Register the `/wp/v2/widget-modules` REST route.
+ * Register the `/jetpack/v4/widget-modules` REST route.
  *
  * @return void
  */
 function register_widget_modules_rest_route() {
 	register_rest_route(
-		'wp/v2',
+		'jetpack/v4',
 		'/widget-modules',
 		array(
 			'methods'             => \WP_REST_Server::READABLE,
@@ -89,4 +89,8 @@ function add_widget_modules_to_boot_deps( $boot_dependencies ) {
 
 	return $boot_dependencies;
 }
+// The full-page interceptor (page.php) renders via the `{page-id}` filter; the
+// in-admin variant (page-wp-admin.php) uses the `{page-id}-wp-admin` filter. Hook
+// both so the widget modules land in the import map regardless of which renders.
+add_filter( 'jetpack-premium-analytics_boot_dependencies', __NAMESPACE__ . '\\add_widget_modules_to_boot_deps' );
 add_filter( 'jetpack-premium-analytics-wp-admin_boot_dependencies', __NAMESPACE__ . '\\add_widget_modules_to_boot_deps' );
