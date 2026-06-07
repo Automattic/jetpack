@@ -23,7 +23,7 @@ dispatch( coreStore ).addEntities( [
 		name: 'widgetModule',
 		kind: 'root',
 		key: 'name',
-		baseURL: '/wp/v2/widget-modules',
+		baseURL: '/jetpack/v4/widget-modules',
 		plural: 'widgetModules',
 		label: __( 'Widget modules', 'jetpack-widget-primitives' ),
 		supportsPagination: false,
@@ -31,7 +31,7 @@ dispatch( coreStore ).addEntities( [
 ] );
 
 /**
- * Shape returned by the `/wp/v2/widget-modules` REST endpoint. PHP keeps
+ * Shape returned by the `/jetpack/v4/widget-modules` REST endpoint. PHP keeps
  * snake_case (project convention); the camelCase mapping happens here at
  * the JS boundary.
  */
@@ -54,7 +54,7 @@ export type UseWidgetTypesResult = readonly [ WidgetType[], boolean ];
  * resolved from its `widget_module` script module.
  *
  * The list of records is read from the `widgetModule` core-data entity,
- * which fetches `/wp/v2/widget-modules` on first selector resolution.
+ * which fetches `/jetpack/v4/widget-modules` on first selector resolution.
  * For each record this hook dynamically imports `widget_module` and
  * merges the module's default export with the runtime fields (`name`,
  * `renderModule`).
