@@ -1,0 +1,21 @@
+{
+	"name": "automattic/jetpack-js-widget-dashboard",
+	"description": "Stateless rendering engine for widget dashboards. Internal port of @wordpress/dashboard until it is published.",
+	"type": "library",
+	"license": "GPL-2.0-or-later",
+	"require": {},
+	"repositories": [
+		{
+			"type": "path",
+			"url": "../../packages/*",
+			"options": {
+				"monorepo": true
+			}
+		}
+	],
+	"minimum-stability": "dev",
+	"prefer-stable": true,
+	"extra": {
+		"textdomain": "jetpack-widget-dashboard"
+	}
+}
