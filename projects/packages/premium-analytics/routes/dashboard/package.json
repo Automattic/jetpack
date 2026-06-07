@@ -7,7 +7,14 @@
 	},
 	"dependencies": {
 		"@automattic/jetpack-script-data": "workspace:*",
+		"@automattic/jetpack-widget-dashboard": "workspace:*",
+		"@automattic/jetpack-widget-primitives": "workspace:*",
+		"@wordpress/admin-ui": "2.1.0",
+		"@wordpress/element": "8.0.1",
 		"@wordpress/i18n": "^6.9.0",
-		"@wordpress/route": "0.13.1"
+		"@wordpress/icons": "^13.0.0",
+		"@wordpress/route": "0.14.1",
+		"@wordpress/ui": "0.13.0",
+		"clsx": "^2.1.1"
 	}
 }
