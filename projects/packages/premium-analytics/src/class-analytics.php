@@ -61,6 +61,10 @@ class Analytics {
 			require_once $build_entry;
 		}
 
+		// Expose dashboard widget modules over REST and wire them into the
+		// page import map for dynamic import() on the client.
+		require_once __DIR__ . '/widget-modules.php';
+
 		Sync_Status_Tracker::configure();
 		// TEMPORARY (WOOA7S-1550): register the interim woocommerce_analytics sync module so
 		// Sync_Status_Tracker has a full sync to observe. Remove when the shared sync-modules package lands.
