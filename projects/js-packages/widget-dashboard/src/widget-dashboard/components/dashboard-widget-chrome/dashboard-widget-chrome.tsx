@@ -132,7 +132,7 @@ export interface DashboardWidgetChromeProps {
 	widget: DashboardWidget< unknown >;
 	index: number;
 	/**
-	 * Lifted by the surrounding `@wordpress/grid` surface into a sibling
+	 * Lifted by the surrounding `@automattic/jetpack-grid` surface into a sibling
 	 * slot of the grid item; not rendered by `DashboardWidgetChrome` itself.
 	 * Living outside `Card.Root` is what keeps these controls interactive
 	 * while edit mode applies `inert` to the chrome.

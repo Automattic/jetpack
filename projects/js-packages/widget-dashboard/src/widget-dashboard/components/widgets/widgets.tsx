@@ -106,7 +106,7 @@ export interface WidgetsProps {
 
 /**
  * Iterates `layout`, delegates each entry to `WidgetDashboard.WidgetChrome`, and
- * feeds the resulting tree into the active `@wordpress/grid` surface (2D grid
+ * feeds the resulting tree into the active `@automattic/jetpack-grid` surface (2D grid
  * or masonry, picked from `gridSettings.model`).
  */
 export const Widgets = forwardRef< HTMLDivElement, WidgetsProps >( function Widgets(
