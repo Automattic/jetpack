@@ -231,13 +231,9 @@ class Settings {
 	}
 
 	/**
-	 * Raw show cover image URL for settings reads. `podcasting_image_id`
-	 * resolved to its attachment URL when it points at an actual image,
-	 * otherwise the raw `podcasting_image` option. Never Photon-routed —
-	 * feed rendering applies its own square resize separately.
-	 *
-	 * Mirrors `Automattic_Podcasting::podcasting_get_image_url` in the wpcom
-	 * mu-plugin (with `''` in place of its falsy returns).
+	 * Show cover image URL: `podcasting_image_id` resolved to its attachment
+	 * URL when it points at an image, otherwise the raw `podcasting_image`
+	 * option. Never Photon-routed — feed rendering applies its own resize.
 	 *
 	 * @return string Image URL, or '' when not configured.
 	 */

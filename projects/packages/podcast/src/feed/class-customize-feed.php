@@ -406,10 +406,8 @@ class Customize_Feed {
 	 * legacy `podcasting_archive` option — older sites pre-date numeric
 	 * storage and only have the slug. Returns 0 when neither resolves.
 	 *
-	 * Mirrors `Automattic_Podcasting::podcasting_get_podcasting_category_id`
-	 * in the wpcom mu-plugin, including its deleted-category semantics: a
-	 * numeric ID whose term no longer exists means "not configured" — no
-	 * fallback to the slug in that case.
+	 * A numeric ID whose term was deleted means "not configured" — the slug
+	 * is not consulted in that case.
 	 *
 	 * @return int
 	 */

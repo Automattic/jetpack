@@ -344,8 +344,7 @@ class Customize_Feed_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Deleted-category semantics, matching legacy wpcom: a numeric ID whose
-	 * term no longer exists means "not configured" — the legacy
+	 * A numeric ID whose term no longer exists means "not configured" — the
 	 * `podcasting_archive` slug must NOT be consulted as a fallback, even
 	 * when it would resolve.
 	 */

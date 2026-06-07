@@ -191,8 +191,7 @@ class Settings_Test extends BaseTestCase {
 
 	/**
 	 * The `wp_attachment_is_image` gate: an ID pointing at a non-image
-	 * attachment (or nothing at all) must fall back to the raw option —
-	 * matches legacy `Automattic_Podcasting::podcasting_get_image_url`.
+	 * attachment (or nothing at all) must fall back to the raw option.
 	 */
 	public function test_raw_show_image_url_falls_back_to_raw_option_for_non_image_id() {
 		$attachment_id = wp_insert_post(
