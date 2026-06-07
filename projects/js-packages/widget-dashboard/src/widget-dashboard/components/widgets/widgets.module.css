@@ -16,7 +16,7 @@
 
 /*
  * Edit-mode tiles stay at resting elevation (`xs`) on hover; only the
- * drag preview (`.drag-preview-frame` on `@wordpress/grid`) lifts to `md`.
+ * drag preview (`.drag-preview-frame` on `@automattic/jetpack-grid`) lifts to `md`.
  */
 .tileEditMode {
 	box-shadow: var(--wpds-elevation-xs);
@@ -28,7 +28,7 @@
 }
 
 /*
- * Wrapper applied through `renderDragPreview` on @wordpress/grid.
+ * Wrapper applied through `renderDragPreview` on @automattic/jetpack-grid.
  * `height: 100%` keeps the inner `.tile` height: 100% chain alive
  * (without it, the wrapper auto-sizes and the cloned tile collapses
  * to content height). Drag elevation is owned by the grid
