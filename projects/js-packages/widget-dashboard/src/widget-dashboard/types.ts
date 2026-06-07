@@ -3,7 +3,7 @@
  * `WidgetDashboard` prop bag.
  *
  * The widget contract types (`WidgetName`, `WidgetType`, `WidgetRenderProps`,
- * `ResolveWidgetModule`) live in `widget-primitives` and are imported from there
+ * `ResolveWidgetModule`) live in `@automattic/jetpack-widget-primitives` and are imported from there
  * directly; this module does not re-export them.
  */
 
@@ -102,12 +102,12 @@ export interface WidgetContextValue {
 }
 
 /**
- * Identifier for the active grid model. Drives which `@wordpress/grid`
+ * Identifier for the active grid model. Drives which `@automattic/jetpack-grid`
  * surface the dashboard mounts and which per-model settings the
  * `WidgetGridSettings` union admits.
  *
  * Model names describe user-facing concepts. The mapping to the
- * underlying `@wordpress/grid` component is an implementation detail
+ * underlying `@automattic/jetpack-grid` component is an implementation detail
  * resolved in the render layer; `'masonry'` is rendered today through
  * `DashboardLanes` (skyline placement) but could swap to a future
  * native `display: grid-lanes` path without affecting the model name.
@@ -125,7 +125,7 @@ export const WIDGET_DASHBOARD_COLUMN_COUNT = 4;
  * Settings common to every grid model. Column count is resolved from
  * the dashboard container width (see
  * `utils/resolve-dashboard-column-count`). `columns` and `minColumnWidth`
- * on this type remain for persisted payloads and `@wordpress/grid`
+ * on this type remain for persisted payloads and `@automattic/jetpack-grid`
  * compatibility; the dashboard ignores user-facing values for both.
  *
  * `spacing` is intentionally absent: the gap between tiles is

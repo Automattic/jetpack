@@ -15,7 +15,7 @@ interface MigrationContext {
 	 * from the 2D grid model to masonry. When the surface is in
 	 * responsive mode and the runtime column count is unknown,
 	 * callers should pass a sensible fallback (e.g., the default of
-	 * 6 used by `@wordpress/grid`).
+	 * 6 used by `@automattic/jetpack-grid`).
 	 */
 	columns: number;
 }

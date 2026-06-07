@@ -22,7 +22,7 @@ export const WIDGET_DASHBOARD_CONTAINER_BREAKPOINT_TWO_COLUMNS = 960;
  * media queries.
  *
  * @param containerWidth - Measured inline size of the dashboard grid container.
- * @return Column count for {@link @wordpress/grid} surfaces.
+ * @return Column count for {@link @automattic/jetpack-grid} surfaces.
  */
 export function resolveDashboardColumnCount( containerWidth: number ): number {
 	if ( containerWidth <= 0 ) {
