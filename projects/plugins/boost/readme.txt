@@ -5,7 +5,7 @@ Tags: performance, speed, web vitals, critical css, cache
 Requires at least: 6.9
 Tested up to: 7.0
 Requires PHP: 7.2
-Stable tag: 4.5.9
+Stable tag: 4.6.0-beta
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -185,13 +185,38 @@ If you run into compatibility issues, please do let us know. You can drop us a l
 4. Historical performance tracking with the upgraded plan.
 
 == Changelog ==
-### 4.5.9 - 2026-04-13
+### 4.6.0-beta - 2026-06-08
+#### Added
+- Concatenate JS: Add a `jetpack_boost_js_minify_fallback` action that fires when JS minification is skipped in favor of the original bundle, so logging plugins can observe how often (and why) the safety net engages.
+- Register Jetpack Boost abilities via the WordPress Abilities API (modules read/toggle, latest speed score, and page cache flush) for AI agents on WordPress 6.9+.
 
 #### Changed
-- Update package dependencies.
+- Adopt the shared Jetpack admin-page-layout mixin on the Boost admin pages. Drops inline JetpackFooter renders and `showFooter={false}` overrides so AdminPage's built-in footer lives inside the flex column that the mixin pins.
+- Boost: Remove translation wrappers from the "Boost" product name.
+- Componentry: align Boost UI with the WordPress admin color scheme to match the rest of Jetpack.
+- Components: Use Link from `@wordpress/ui` instead of ExternalLink.
+- General: Update minimum WordPress version to 6.9.
+- Internal: migrate Notice component usages to @wordpress/ui.
+- Internal: No longer require automattic/jetpack-changelogger as a per-project dev dependency.
+- Remove Beta label from the Optimize LCP Images module.
+- Remove Jetpack color overrides on core components, allowing them to use native WordPress admin theme colors.
+- Remove the per-page Hello Dolly rule; its content is now covered by the centralized normalize rule shipped with `@automattic/jetpack-components`'s AdminPage component.
+- Remove unneeded development and documentation files from the published plugin.
+- Replace deprecated jetpack-components Spinner with WordPress Core Spinner.
+- Replace Gridicon with Icon and named icon exports from `@wordpress/icons`.
+- Tested up to WordPress 7.0.
+- Update composer.lock files.
+- Updated package dependencies. [#48735] [#48064] [#48106] [#48126] [#48302] [#48404][#48405]
 
 #### Fixed
-- Image Guide: Fix script errors when JavaScript concatenation is enabled under certain conditions.
+- Cache debug log: remove the duplicate Jetpack logo and restyle the header breadcrumbs to match the design system, and modernize the "Copy to clipboard" and "See Logs" links. The TanStack Query debugger no longer renders.
+- Concatenate JS: Fix pages breaking with an "Unexpected end of input" error when Concatenate JS is enabled on sites that use modern JavaScript under specific conditions.
+- Fix Critical CSS progress bar backward jumps and incomplete fill to 100%.
+- Fixed a duplicate scrollbar on the Boost dashboard by removing an obsolete full-height override.
+- Include blog_id in frontend Tracks events.
+- LCP: Fix Cornerstone Page analysis errors on some sites.
+- Phan: Address PhanPluginDuplicateConditionalNullCoalescing violations.
+- Render Blocking JS: Fix is_opened_script() regex interpolation and counting asymmetry so unclosed scripts are correctly detected when ignored scripts are present.
 
 --------
 

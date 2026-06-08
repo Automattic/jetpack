@@ -1,3 +1,4 @@
+import JetpackLogo from '@automattic/jetpack-components/jetpack-logo';
 import apiFetch from '@wordpress/api-fetch';
 import { useCallback, useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -58,6 +59,16 @@ export default () => {
 				<Button variant="outline" size="compact" onClick={ postAnswer }>
 					{ __( 'Post Answer', 'jetpack-newsletter' ) }
 				</Button>
+			</Stack>
+			<Stack
+				className="wpcom-daily-writing-prompt--branding"
+				direction="row"
+				justify="space-between"
+				align="center"
+				gap="sm"
+				wrap="wrap"
+			>
+				<JetpackLogo logoColor="#000000" height={ 20 } />
 				{ prompt.answered_users_sample.length > 0 && (
 					<Stack
 						className="wpcom-daily-writing-prompt--answered-users"
@@ -66,7 +77,12 @@ export default () => {
 						gap="xs"
 					>
 						{ prompt.answered_users_count > 0 && (
-							<Link href={ new URL( prompt.answered_link ).toString() }>
+							<Link
+								tone="neutral"
+								openInNewTab
+								rel="noreferrer noopener"
+								href={ new URL( prompt.answered_link ).toString() }
+							>
 								{ __( 'View all responses', 'jetpack-newsletter' ) }
 							</Link>
 						) }

@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Settings REST API: load the Monitor and Post by Email module classes on demand when updating their options, preventing a fatal on bulk settings updates while the module is inactive.
