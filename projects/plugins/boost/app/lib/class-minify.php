@@ -22,7 +22,7 @@ class Minify {
 	 * consumers can compare against Minify::FALLBACK_* instead of bare strings; the
 	 * string values are the stable wire format and must not change.
 	 *
-	 * @since $$next-version$$
+	 * @since 4.6.0
 	 */
 	public const FALLBACK_EXCEPTION    = 'exception';
 	public const FALLBACK_ERROR        = 'error';
@@ -124,7 +124,7 @@ class Minify {
 			 * engages. Callbacks must not throw; a throwing callback is swallowed so
 			 * it cannot break minification.
 			 *
-			 * @since $$next-version$$
+			 * @since 4.6.0
 			 *
 			 * @param string          $reason Why the fallback fired: one of the Minify::FALLBACK_* values ('exception', 'error', 'scan_error', 'empty_output', 'looks_broken'). 'error' is a \Throwable raised by the minifier itself; 'scan_error' is a \Throwable raised by the structural scanner -- both carry it in $error.
 			 * @param int             $bytes  Length of the original JS being served, in bytes.

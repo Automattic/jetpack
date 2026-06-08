@@ -31,7 +31,7 @@ function jetpack_boost_minify_cache_buster() {
  * JS can silently corrupt it. The mime type already routes JS and CSS down
  * separate branches, so matching both extensions here is safe for either.
  *
- * @since $$next-version$$
+ * @since 4.6.0
  *
  * @param string $fullpath Absolute path to the file being served.
  *
