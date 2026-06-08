@@ -25,19 +25,19 @@ const isEditable = ( item: LibraryItem ): boolean =>
 
 /**
  * Parent breadcrumb item — labelled "VideoPress" in every case, but the
- * link target depends on where the user arrived from. Overview's ranking
- * links tag their navigation with `state: { from: 'overview' }`; we read
- * that here so the breadcrumb routes back to the Overview tab instead of
- * defaulting to Library. TanStack stores user state on `window.history.state`,
- * so reading it directly avoids needing `useLocation` (which `@wordpress/route`
- * doesn't re-export from TanStack). Stable for the lifetime of the mount,
- * so no reactivity hook is needed.
+ * link target depends on where the user arrived from. The Stats tab's
+ * ranking links tag their navigation with `state: { from: 'overview' }`;
+ * we read that here so the breadcrumb routes back to the Stats tab
+ * (`/stats`) instead of defaulting to the Videos tab (`/`). TanStack stores
+ * user state on `window.history.state`, so reading it directly avoids needing
+ * `useLocation` (which `@wordpress/route` doesn't re-export from TanStack).
+ * Stable for the lifetime of the mount, so no reactivity hook is needed.
  *
  * @return The parent breadcrumb item.
  */
 const getParentBreadcrumbItem = (): { label: string; to: string } => {
 	const from = ( window.history.state as { from?: string } | null )?.from;
-	return { label: 'VideoPress', to: from === 'overview' ? '/' : '/library' };
+	return { label: 'VideoPress', to: from === 'overview' ? '/stats' : '/' };
 };
 
 const NotFound = () => (
@@ -54,7 +54,7 @@ const NotFound = () => (
 		<div className="vp-video-details vp-video-details__not-found">
 			<Stack direction="column" gap="md" align="center">
 				<Text>{ __( "We couldn't find that video.", 'jetpack-videopress-pkg' ) }</Text>
-				<Link to="/library">{ __( 'Back to Library', 'jetpack-videopress-pkg' ) }</Link>
+				<Link to="/">{ __( 'Back to Videos', 'jetpack-videopress-pkg' ) }</Link>
 			</Stack>
 		</div>
 	</AdminPage>
@@ -189,7 +189,7 @@ const StageReady = ( { video }: StageReadyProps ) => {
 				deleteVideo( Number( video.id ), {
 					onSuccess: () => {
 						createSuccessNotice( __( 'Video deleted.', 'jetpack-videopress-pkg' ) );
-						navigate( { href: '/library' } );
+						navigate( { href: '/' } );
 					},
 					onError: () => {
 						createErrorNotice( __( 'Failed to delete video.', 'jetpack-videopress-pkg' ) );
