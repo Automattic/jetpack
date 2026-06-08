@@ -655,6 +655,11 @@ class WooCommerce extends Module {
 		'woocommerce_subscriptions_subscriber_role',
 		'woocommerce_subscriptions_turn_off_automatic_payments',
 		'woocommerce_subscriptions_zero_initial_payment_requires_payment',
+		'woocommerce_email_from_address', // This and the below options relate to the WooCommerce Emails settings page. Required for the Activity Log.
+		'woocommerce_email_from_name',
+		'woocommerce_email_reply_to_address',
+		'woocommerce_email_reply_to_enabled',
+		'woocommerce_email_reply_to_name',
 	);
 
 	/**
