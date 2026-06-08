@@ -139,6 +139,39 @@ function maybe_renew_session_cookie( $paywall, $user_id, $raw_subscriptions, $ab
 }
 
 /**
+ * Resolve the current logged-in visitor's subscriptions from the authoritative
+ * WordPress.com Memberships filter.
+ *
+ * Translates the local user id to the WordPress.com user id (via the `wpcom_user_id`
+ * user_meta populated by Jetpack SSO) and queries the filter with the paywall's
+ * WordPress.com blog id (not get_current_blog_id(), which is the independent local id
+ * on Atomic/WoA). Shared by the access decision and the cookie self-heal.
+ *
+ * @param object $paywall Subscription service (provides the WordPress.com blog id).
+ * @return array{0:int,1:array,2:array} [ wpcom_user_id, raw_subscriptions, abbreviated_subscriptions ].
+ */
+function get_subscriptions_for_logged_in_user( $paywall ) {
+	$local_user_id = wp_get_current_user()->ID;
+	$wpcom_user_id = (int) get_user_meta( $local_user_id, 'wpcom_user_id', true );
+	$user_id       = $wpcom_user_id > 0 ? $wpcom_user_id : $local_user_id;
+	$site_id       = $paywall->get_site_id();
+
+	/**
+	 * Filter the subscriptions attached to a specific user on a given site.
+	 *
+	 * @since 9.4.0
+	 *
+	 * @param array $subscriptions Array of subscriptions.
+	 * @param int   $user_id The user's ID.
+	 * @param int   $site_id ID of the current site.
+	 */
+	$raw_subscriptions         = apply_filters( 'earn_get_user_subscriptions_for_site_id', array(), $user_id, $site_id );
+	$abbreviated_subscriptions = WPCOM_Online_Subscription_Service::abbreviate_subscriptions( $raw_subscriptions );
+
+	return array( $user_id, $raw_subscriptions, $abbreviated_subscriptions );
+}
+
+/**
  * Determines if the current user can view the protected content of the given block.
  *
  * @param array  $attributes Block attributes.
@@ -185,30 +218,7 @@ function current_visitor_can_access( $attributes, $block ) {
 
 		$subscriptions = array();
 		if ( is_user_logged_in() ) {
-			$local_user_id = wp_get_current_user()->ID;
-			// On WPCOM Simple the local user_id matches the WPCOM user_id, but on Atomic
-			// the local wp_users table is independent. The bridge is the `wpcom_user_id`
-			// user_meta populated by Jetpack SSO. The Memberships filter at WPCOM only
-			// knows WPCOM user IDs, so translate before querying.
-			$wpcom_user_id = (int) get_user_meta( $local_user_id, 'wpcom_user_id', true );
-			$user_id       = $wpcom_user_id > 0 ? $wpcom_user_id : $local_user_id;
-			// Use the paywall's site id rather than get_current_blog_id(): on Atomic/WoA the
-			// local blog id is independent from the WordPress.com blog id, and the Memberships
-			// filter only knows WordPress.com blog ids. `get_site_id()` resolves to the WPCOM
-			// blog id (via Jetpack_Options on Atomic/Jetpack) for the active subscription service.
-			$site_id = $paywall->get_site_id();
-			/**
-			 * Filter the subscriptions attached to a specific user on a given site.
-			 *
-			 * @since 9.4.0
-			 *
-			 * @param array $subscriptions Array of subscriptions.
-			 * @param int   $user_id The user's ID.
-			 * @param int   $site_id ID of the current site.
-			 */
-			$raw_subscriptions = apply_filters( 'earn_get_user_subscriptions_for_site_id', array(), $user_id, $site_id );
-			// format the subscriptions so that they can be validated.
-			$subscriptions = WPCOM_Online_Subscription_Service::abbreviate_subscriptions( $raw_subscriptions );
+			list( $user_id, $raw_subscriptions, $subscriptions ) = get_subscriptions_for_logged_in_user( $paywall );
 
 			// Self-heal: when we have authoritative subscriptions from WPCOM but no valid
 			// JWT cookie yet, mint and set one so subsequent requests use the cached path
