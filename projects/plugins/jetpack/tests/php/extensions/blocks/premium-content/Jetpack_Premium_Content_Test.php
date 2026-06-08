@@ -427,6 +427,33 @@ class Jetpack_Premium_Content_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * `maybe_renew_session_cookie` must populate the $_COOKIE superglobal with the freshly
+	 * minted token so the render path can read it within the same request (no double filter
+	 * round-trip on the first visit).
+	 *
+	 * @return void
+	 */
+	public function test_maybe_renew_session_cookie_populates_cookie_superglobal() {
+		unset( $_COOKIE['wp-jp-premium-content-session'] );
+
+		$paywall     = subscription_service();
+		$raw         = array(
+			array(
+				'product_id' => $this->product_id,
+				'status'     => 'active',
+				'end_date'   => gmdate( 'Y-m-d H:i:s', time() + DAY_IN_SECONDS ),
+			),
+		);
+		$abbreviated = \Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\WPCOM_Online_Subscription_Service::abbreviate_subscriptions( $raw );
+
+		$token = maybe_renew_session_cookie( $paywall, 999999, $raw, $abbreviated );
+
+		$this->assertSame( $token, $_COOKIE['wp-jp-premium-content-session'] );
+
+		unset( $_COOKIE['wp-jp-premium-content-session'] );
+	}
+
+	/**
 	 * Test that plan id can be passed 2 ways
 	 *
 	 * @return void

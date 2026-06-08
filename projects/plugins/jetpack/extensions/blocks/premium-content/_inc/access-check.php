@@ -131,6 +131,10 @@ function maybe_renew_session_cookie( $paywall, $user_id, $raw_subscriptions, $ab
 		setcookie( Abstract_Token_Subscription_Service::JWT_AUTH_TOKEN_COOKIE_NAME, $token, strtotime( '+1 month' ), '/', '', is_ssl(), false );
 	}
 
+	// Reflect the cookie in the current request so the render path (and any later code in
+	// this request) reads the freshly minted token instead of re-querying the filter.
+	$_COOKIE[ Abstract_Token_Subscription_Service::JWT_AUTH_TOKEN_COOKIE_NAME ] = $token;
+
 	return $token;
 }
 
