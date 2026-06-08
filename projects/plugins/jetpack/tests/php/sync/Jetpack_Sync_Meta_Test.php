@@ -150,7 +150,7 @@ class Jetpack_Sync_Meta_Test extends Jetpack_Sync_TestBase {
 		$this->sender->do_sync();
 		$this->server_event_storage->reset();
 
-		delete_metadata( 'post', null, $this->whitelisted_post_meta, 'stale', true );
+		delete_metadata( 'post', 0, $this->whitelisted_post_meta, 'stale', true );
 		$this->sender->do_sync();
 
 		$event = $this->server_event_storage->get_most_recent_event( 'deleted_post_meta' );
@@ -181,7 +181,7 @@ class Jetpack_Sync_Meta_Test extends Jetpack_Sync_TestBase {
 		$this->sender->do_sync();
 		$this->server_event_storage->reset();
 
-		delete_metadata( 'post', null, $this->whitelisted_post_meta, '', true );
+		delete_metadata( 'post', 0, $this->whitelisted_post_meta, '', true );
 		$this->sender->do_sync();
 
 		$this->assertFalse( $this->server_event_storage->get_most_recent_event( 'deleted_post_meta' ) );
@@ -196,7 +196,7 @@ class Jetpack_Sync_Meta_Test extends Jetpack_Sync_TestBase {
 		$this->sender->do_sync();
 		$this->server_event_storage->reset();
 
-		delete_metadata( 'post', null, '_private_meta', 'private', true );
+		delete_metadata( 'post', 0, '_private_meta', 'private', true );
 		$this->sender->do_sync();
 
 		$this->assertFalse( $this->server_event_storage->get_most_recent_event( 'deleted_post_meta' ) );

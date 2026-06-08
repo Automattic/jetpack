@@ -109,7 +109,10 @@ class Jetpack_Sync_Server_Replicator {
 				if ( 0 === $object_id ) {
 					$this->store->delete_metadata_by_key_value( $type, $meta_key, $meta_value );
 				} else {
-					$this->store->delete_metadata( $type, $object_id, $meta_ids );
+					if ( ! is_numeric( $object_id ) || ! is_array( $meta_ids ) ) {
+						break;
+					}
+					$this->store->delete_metadata( $type, (int) $object_id, array_map( 'intval', $meta_ids ) );
 				}
 				break;
 			case 'jetpack_post_meta_batch_delete':
