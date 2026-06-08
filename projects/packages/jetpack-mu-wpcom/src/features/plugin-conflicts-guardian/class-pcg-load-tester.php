@@ -119,7 +119,7 @@ class PCG_Load_Tester {
 		}
 
 		if ( ! empty( $blocking ) ) {
-			$verdict = $blocking['front'] ?? $blocking['admin'];
+			$verdict = $this->is_block( $front_result ) ? $front_result : $admin_result;
 
 			// Confirm each blocking surface via WP's normal active-plugin
 			// bootstrap; downgrade only when EVERY one comes back an explicit
