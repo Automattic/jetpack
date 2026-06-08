@@ -1,4 +1,4 @@
 Significance: patch
 Type: changed
 
-My Jetpack: modernize the Help section's Useful links by migrating them to the @wordpress/ui Link component, and only show them when the Jetpack plugin is active to avoid dead links.
+My Jetpack: only show the Help section's Useful links (All Jetpack modules, Debug information) when the Jetpack plugin is active, to avoid linking to wp-admin pages that don't exist in other standalone plugins.
