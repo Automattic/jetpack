@@ -1,4 +1,4 @@
-import { getAdminUrl } from '@automattic/jetpack-script-data';
+import { currentUserCan, getAdminUrl } from '@automattic/jetpack-script-data';
 import { __ } from '@wordpress/i18n';
 import { Link, Text } from '@wordpress/ui';
 import { useCallback } from 'react';
@@ -27,10 +27,13 @@ export function HelpFooter() {
 	}, [ trackHelpRequest ] );
 
 	// These links target wp-admin pages (the Jetpack modules list and the
-	// Debugger) that are only registered by the Jetpack plugin. My Jetpack also
-	// runs inside other standalone plugins where those pages don't exist, so only
-	// surface the links when the Jetpack plugin is active to avoid dead-ends.
-	const isJetpackActive = isJetpackPluginActive();
+	// Debugger) that only exist, and are only reachable, under two conditions:
+	// the Jetpack plugin is active (My Jetpack also runs inside other standalone
+	// plugins where these pages aren't registered), and the current user can
+	// manage options (both pages require it, but the Help tab is also shown to
+	// non-admins like editors). Guard on both to avoid links that dead-end on a
+	// "you are not allowed to access this page" screen.
+	const showUsefulLinks = isJetpackPluginActive() && currentUserCan( 'manage_options' );
 
 	return (
 		<div className={ styles.footer }>
@@ -53,7 +56,7 @@ export function HelpFooter() {
 						{ __( 'Learn more about us', 'jetpack-my-jetpack' ) }
 					</Link>
 
-					{ isJetpackActive && (
+					{ showUsefulLinks && (
 						<nav
 							className={ styles[ 'footer-nav' ] }
 							aria-label={ __( 'Useful links', 'jetpack-my-jetpack' ) }
