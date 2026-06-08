@@ -13,7 +13,32 @@ use Automattic\Jetpack_Boost\Modules\Optimizations\Minify\Minify_JS;
  * to ensure a new version of Jetpack Boost never reuses old cached URLs.
  */
 function jetpack_boost_minify_cache_buster() {
-	return 1;
+	// Bumped to 2 so the JS truncation fix actually reaches already-affected sites:
+	// the cached concat bundle is served before any rebuild, so a site that cached a
+	// corrupted bundle would keep shipping it (until its source mtime changed) even
+	// after upgrade. Changing the buster invalidates those cache keys and forces a
+	// rebuild through the new structural-validation/fallback path.
+	return 2;
+}
+
+/**
+ * Whether a file should be treated as already minified (so the serving path must
+ * not re-minify it).
+ *
+ * This is the load-bearing skip for assets shipped as `.min.js` / `.min.css`
+ * (e.g. Boost's own image-guide bundle, which webpack/Terser has already
+ * minified): re-running the ES5-era PHP minifier over modern, already-minified
+ * JS can silently corrupt it. The mime type already routes JS and CSS down
+ * separate branches, so matching both extensions here is safe for either.
+ *
+ * @since 4.6.0
+ *
+ * @param string $fullpath Absolute path to the file being served.
+ *
+ * @return bool True if the filename indicates already-minified content.
+ */
+function jetpack_boost_page_optimize_is_already_minified( $fullpath ) {
+	return (bool) preg_match( '/\.min\.(css|js)$/', (string) $fullpath );
 }
 
 /**

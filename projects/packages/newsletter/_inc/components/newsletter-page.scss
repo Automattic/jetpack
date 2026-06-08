@@ -28,12 +28,19 @@ body.jetpack_page_jetpack-newsletter {
 
 	// `AdminPage` wraps its children in `<Container><Col>`; the layout mixin
 	// flexes that pair but stops at `Col`. Continue the flex column through our
-	// `Tabs.Root` so the active tab fills the bounded middle.
+	// `Tabs.Root`. The tab strip (`.jp-admin-page-tabs`) is `position: sticky`
+	// inside this element, and a sticky child only stays pinned while its
+	// containing block is in view. So by default — the Settings tab, a long
+	// scrolling document — let `Tabs.Root` size to its full content height
+	// (`flex: 0 0 auto`) so the strip stays stuck the whole way down. Capping
+	// it to the viewport here (as the Subscribers branch below does, so its
+	// DataViews surface can fill the middle and pin its pagination footer)
+	// shrinks the containing block to ~one screen and drops the tab strip
+	// after the first viewport of scrolling.
 	.jetpack-newsletter-tabs {
 		display: flex;
-		flex: 1 1 auto;
+		flex: 0 0 auto;
 		flex-direction: column;
-		min-block-size: 0;
 	}
 
 	// On the Subscribers tab, let the DataViews surface fill the tab panel
@@ -46,6 +53,15 @@ body.jetpack_page_jetpack-newsletter {
 	// renames the panel's generated class across versions (the old
 	// `[class*="__tabpanel"]` hook silently broke on the 0.13.0 bump).
 	.jp-admin-page:has(.dataviews-wrapper) {
+
+		// Cap `Tabs.Root` to the bounded middle so the DataViews surface below
+		// can fill it (and pin its pagination footer) instead of growing to its
+		// natural height. Only the Subscribers tab wants this — see the base
+		// `.jetpack-newsletter-tabs` rule above for why Settings must not.
+		.jetpack-newsletter-tabs {
+			flex: 1 1 auto;
+			min-block-size: 0;
+		}
 
 		.jetpack-newsletter-page__content,
 		.jetpack-newsletter-page__content > [role="tabpanel"] {

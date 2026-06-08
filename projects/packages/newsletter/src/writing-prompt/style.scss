@@ -5,6 +5,11 @@
 	border-radius: var(--wpds-border-radius-md);
 }
 
+.wpcom-daily-writing-prompt--branding {
+	padding-block-start: var(--wpds-dimension-padding-md);
+	border-block-start: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral-weak);
+}
+
 .wpcom-daily-writing-prompt--answered-users {
 
 	img {
