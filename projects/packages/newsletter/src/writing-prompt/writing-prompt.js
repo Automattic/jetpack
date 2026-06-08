@@ -77,7 +77,12 @@ export default () => {
 						gap="xs"
 					>
 						{ prompt.answered_users_count > 0 && (
-							<Link tone="neutral" href={ new URL( prompt.answered_link ).toString() }>
+							<Link
+								tone="neutral"
+								openInNewTab
+								rel="noreferrer noopener"
+								href={ new URL( prompt.answered_link ).toString() }
+							>
 								{ __( 'View all responses', 'jetpack-newsletter' ) }
 							</Link>
 						) }
