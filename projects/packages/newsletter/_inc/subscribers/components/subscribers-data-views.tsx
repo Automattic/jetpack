@@ -336,7 +336,7 @@ export default function SubscribersDataViews( {
 	const hasTotal = totalData !== undefined;
 	const countLabel = sprintf(
 		// translators: %s is the formatted total number of subscribers.
-		_n( '%s subscriber', '%s subscribers', totalSubscribers, 'jetpack-newsletter' ),
+		_n( '%s total subscriber', '%s total subscribers', totalSubscribers, 'jetpack-newsletter' ),
 		new Intl.NumberFormat().format( totalSubscribers )
 	);
 
