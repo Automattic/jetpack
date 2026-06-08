@@ -571,11 +571,8 @@ If you need to update something in that package that is used by Jetpack, you sho
 
 - Make the necessary changes in the `wp-calypso` repository.
 - Use pnpm link to link the package in Jetpack to the local version in `wp-calypso`. Like this
-  - `cd wp-calypso/packages/social-previews`
-  - `pnpm link --global`
-- Then in Jetpack
   - `cd projects/js-packages/publicize-components`
-  - `pnpm link --global @automattic/social-previews`
+  - `pnpm link /path/to/wp-calypso/packages/social-previews`
   - Do the same for `projects/plugins/jetpack`
 - Test your changes
 - Create a branch/PR in `wp-calypso`
@@ -585,6 +582,7 @@ If you need to update something in that package that is used by Jetpack, you sho
   - `git push --tags`
   - `cd packages/social-previews`
   - `yarn npm publish`
+- Revert the changes in the Jetpack monorepo that `pnpm link` made.
 - Update the package version in Jetpack to the beta version.
 - Create a PR in Jetpack which should now have the beta version of the package.
 - Follow the instructions in Calypso to publish the package to npm after merging the PR to trunk

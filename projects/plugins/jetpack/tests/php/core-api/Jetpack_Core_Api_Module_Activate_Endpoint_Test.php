@@ -166,4 +166,113 @@ class Jetpack_Core_Api_Module_Activate_Endpoint_Test extends Jetpack_REST_TestCa
 			),
 		);
 	}
+
+	// ──────────────────────────────────────────────────
+	// subscription_options write path
+	// ──────────────────────────────────────────────────
+
+	/**
+	 * Seed `subscription_options` with a known full set so each test can verify
+	 * merge / trim / allowlist behaviour against a deterministic baseline.
+	 */
+	private function seed_subscription_options() {
+		update_option(
+			'subscription_options',
+			array(
+				'invitation'              => 'Existing invitation',
+				'comment_follow'          => 'Existing comment follow',
+				'welcome'                 => 'Existing welcome',
+				'subscribe_modal_heading' => 'Existing heading',
+			)
+		);
+	}
+
+	public function test_update_data_subscription_options_strips_unknown_keys() {
+		$this->seed_subscription_options();
+
+		$request = new WP_REST_Request();
+		$request->set_body_params(
+			array(
+				'subscription_options' => array(
+					'subscribe_modal_heading' => 'Updated heading',
+					'evil_key'                => 'should be dropped',
+					'arbitrary'               => 'also dropped',
+				),
+			)
+		);
+
+		$result = ( new Jetpack_Core_API_Data() )->update_data( $request );
+
+		$this->assertSame( 200, $result->get_status() );
+		$stored = get_option( 'subscription_options' );
+		$this->assertArrayNotHasKey( 'evil_key', $stored );
+		$this->assertArrayNotHasKey( 'arbitrary', $stored );
+		$this->assertSame( 'Updated heading', $stored['subscribe_modal_heading'] );
+	}
+
+	public function test_update_data_subscription_options_trims_whitespace_only_modal_heading() {
+		// Pre-seed with a non-empty heading so the post-trim '' is a meaningful
+		// change and survives the same-value short-circuit in the endpoint.
+		$this->seed_subscription_options();
+
+		$request = new WP_REST_Request();
+		$request->set_body_params(
+			array(
+				'subscription_options' => array(
+					'subscribe_modal_heading' => "   \n\t  ",
+				),
+			)
+		);
+
+		$result = ( new Jetpack_Core_API_Data() )->update_data( $request );
+
+		$this->assertSame( 200, $result->get_status() );
+		$stored = get_option( 'subscription_options' );
+		$this->assertSame( '', $stored['subscribe_modal_heading'] );
+	}
+
+	public function test_update_data_subscription_options_merges_with_existing() {
+		$this->seed_subscription_options();
+
+		$request = new WP_REST_Request();
+		$request->set_body_params(
+			array(
+				'subscription_options' => array(
+					'subscribe_modal_heading' => 'Brand new heading',
+				),
+			)
+		);
+
+		$result = ( new Jetpack_Core_API_Data() )->update_data( $request );
+
+		$this->assertSame( 200, $result->get_status() );
+		$stored = get_option( 'subscription_options' );
+		$this->assertSame( 'Brand new heading', $stored['subscribe_modal_heading'] );
+		$this->assertSame( 'Existing invitation', $stored['invitation'] );
+		$this->assertSame( 'Existing welcome', $stored['welcome'] );
+		$this->assertSame( 'Existing comment follow', $stored['comment_follow'] );
+	}
+
+	public function test_update_data_subscription_options_strips_disallowed_html() {
+		$this->seed_subscription_options();
+
+		$request = new WP_REST_Request();
+		$request->set_body_params(
+			array(
+				'subscription_options' => array(
+					// `<script>` is disallowed, but `wp_kses` only strips the
+					// tags — it keeps the text content. Use an empty-content
+					// `<iframe>` so the post-kses string is unambiguous.
+					'subscribe_modal_heading' => '<iframe src="evil"></iframe>Subscribe today',
+				),
+			)
+		);
+
+		$result = ( new Jetpack_Core_API_Data() )->update_data( $request );
+
+		$this->assertSame( 200, $result->get_status() );
+		$stored = get_option( 'subscription_options' );
+		$this->assertStringNotContainsString( '<iframe', $stored['subscribe_modal_heading'] );
+		$this->assertSame( 'Subscribe today', $stored['subscribe_modal_heading'] );
+	}
 }

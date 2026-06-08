@@ -554,4 +554,12 @@ if ( cssFiles.length > 0 ) {
 	runCssLint( cssFiles );
 }
 
+// Check pnpm-lock.yaml for pnpm trying to manage the package manager, even though we don't want it to.
+// https://github.com/pnpm/pnpm/issues/12228
+if ( fs.readFileSync( __dirname + '/../../../pnpm-lock.yaml', 'utf8' ).includes( '@pnpm/exe' ) ) {
+	checkFailed(
+		'It appears pnpm-lock.yaml is being affected by https://github.com/pnpm/pnpm/issues/12228.\nTo clean this up, try running `git restore --staged pnpm-lock.yaml && git restore pnpm-lock.yaml && pnpm dedupe`.\n\n'
+	);
+}
+
 exit( exitCode );
