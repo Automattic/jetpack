@@ -101,17 +101,10 @@
 		max-height: 60vh;
 		overflow-y: auto;
 		overscroll-behavior: contain;
-		// `background-color` longhand + 3-tier `--base → --background → #fff`
-		// fallback chain matches `filters-popover` / `results-sort`. The
-		// shorthand `background:` collapses to `transparent` on themes that
-		// emit neither token, letting result-card content bleed through behind
-		// the dropdown.
-		background-color: var(--wp--preset--color--base, var(--wp--preset--color--background, #fff));
-		// The dropdown owns its surface, so pin the ink color too — otherwise
-		// the option text inherits a low-contrast theme accent from the
-		// surrounding page (e.g. a muted header link color). 3-tier fallback
-		// chain mirrors the popover panel's `--contrast → --foreground → inherit`.
-		color: var(--wp--preset--color--contrast, var(--wp--preset--color--foreground, inherit));
+		// `background-color` longhand (not shorthand) — `background:` collapses
+		// to `transparent` when the var resolves to nothing.
+		background-color: var(--jp-search-page-surface, var(--wp--preset--color--base, var(--wp--preset--color--background, #fff)));
+		color: var(--jp-search-page-ink, var(--wp--preset--color--contrast, var(--wp--preset--color--foreground, inherit)));
 		// Reset the inherited theme base size so option text tracks the
 		// other block surfaces (sort menu, filters popover) at 1rem instead
 		// of the host theme's oversized default.

@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Search Blocks: deep-linking to `/?s=` (empty value) on the blocks-powered Overlay now runs the initial search instead of latching the "Searching…" skeleton on forever.

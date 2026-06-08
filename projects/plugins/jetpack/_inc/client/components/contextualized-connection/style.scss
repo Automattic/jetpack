@@ -4,9 +4,9 @@
 .jp-contextualized-connection {
 	display: flex;
 	flex-direction: column;
-	background: var(--jp-white);
-	box-shadow: 0 0 40px rgba(0, 0, 0, 0.08);
-	border-radius: var(--jp-border-radius);
+	background: var(--wpds-color-bg-surface-neutral-strong, #fff);
+	border: 1px solid var(--wpds-color-stroke-surface-neutral-weak, #e4e4e4);
+	border-radius: var(--wpds-border-radius-lg, 8px);
 
 	&__content {
 		display: flex;

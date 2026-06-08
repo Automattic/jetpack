@@ -127,8 +127,7 @@ export function makeBaseConfig( configurl, opts = {} ) {
 		}
 	}
 
-	const envConditionNames =
-		process.env.npm_config_jetpack_webpack_config_resolve_conditions?.split( ',' ) ?? [];
+	const envConditionNames = [ 'jetpack:src' ];
 
 	const jsPackageJsons = glob
 		.sync( path.join( rootdir, 'projects/js-packages/*/package.json' ) )
@@ -228,7 +227,7 @@ export function makeBaseConfig( configurl, opts = {} ) {
 			name: 'Monorepo base config',
 			files: javascriptFiles,
 			plugins: {
-				import: eslintPluginImport,
+				import: fixupPluginRules( eslintPluginImport ), // https://github.com/import-js/eslint-plugin-import/issues/3227
 				lodash: eslintPluginLodash,
 				n: eslintPluginN,
 				'@typescript-eslint': typescriptEslint.plugin,

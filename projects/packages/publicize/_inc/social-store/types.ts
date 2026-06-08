@@ -37,12 +37,6 @@ export type ConnectionData = {
 	keyringResult?: KeyringResult;
 	abortControllers?: Record< string, Array< AbortController > >;
 	isConnectionsModalOpen?: boolean;
-	/**
-	 * Transient flag set when the user toggles a second X connection on,
-	 * which causes another X connection to auto-disable. Surfaces the
-	 * single-X-per-post info notice in the sidebar.
-	 */
-	shouldShowSingleXNotice?: boolean;
 };
 
 export type JetpackSettings = {

@@ -51,28 +51,16 @@ $input_id      = wp_unique_id( 'jetpack-search-input-' );
 // DOM ids. Only generated (and only emitted) when suggestions are on, to
 // keep the default DOM untouched for authors who haven't opted in.
 $listbox_id = $enable_suggestions ? wp_unique_id( 'jetpack-search-suggestions-' ) : '';
-// Per-instance post-type scope. Reusing `Filter_Post_Type::build_constraint()`
-// keeps slug sanitization + the live-post-type allowlist identical to the
-// standalone `jetpack-search/filter-post-type` block. Carried in this block's
-// own `data-wp-context` (not the shared store) so each Search Input only
-// constrains the searches it initiates — view.js hands the scope to
-// `actions.search()`, which overrides the page-global `state.staticPostTypes`
-// for that input while an unscoped input falls back to it.
-$post_type_scope     = Filter_Post_Type::build_constraint(
-	array(
-		'mode'      => ( $attributes['postTypeMode'] ?? 'exclude' ) === 'include' ? 'include' : 'exclude',
-		'postTypes' => $attributes['postTypes'] ?? array(),
-	)
-);
-$has_post_type_scope = ! empty( $post_type_scope['include'] ) || ! empty( $post_type_scope['exclude'] );
-// `data-wp-context` seeds the per-instance Interactivity state. Keeping it
-// per-block (rather than on the shared `jetpack-search` store) means a
-// header + sidebar Search Input on the same page never share a dropdown's
-// `showSuggestions` / `activeIndex` — each instance owns its own UI state
-// while still pulling the query from the shared `state.searchQuery`.
-$context = array();
-if ( $enable_suggestions ) {
-	$context = array(
+// `data-wp-context` seeds the per-instance Interactivity state for the
+// suggestions dropdown. Keeping it per-block (rather than on the shared
+// `jetpack-search` store) means a header + sidebar Search Input on the
+// same page never share a dropdown's `showSuggestions` / `activeIndex` —
+// each instance owns its own UI state while still pulling the query from
+// the shared `state.searchQuery`. Post-type scope lives on the parent
+// `search-results` block, not here — inputs are entry points, not
+// boundaries.
+$context = $enable_suggestions
+	? array(
 		'showSuggestions' => false,
 		'activeIndex'     => -1,
 		'activeOptionId'  => '',
@@ -83,11 +71,8 @@ if ( $enable_suggestions ) {
 		// a roundtrip. Per-instance because two Search Input blocks
 		// on the same page could pick different shapes.
 		'suggestionTypes' => $suggestion_types,
-	);
-}
-if ( $has_post_type_scope ) {
-	$context['staticPostTypes'] = $post_type_scope;
-}
+	)
+	: array();
 $emit_context = ! empty( $context );
 $context_json = $emit_context
 	? wp_json_encode( $context, JSON_HEX_AMP | JSON_UNESCAPED_SLASHES )

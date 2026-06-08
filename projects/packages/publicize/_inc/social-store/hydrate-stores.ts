@@ -77,16 +77,4 @@ export async function hydrateStores() {
 			},
 		] );
 	}
-
-	if ( ! wpcomEntities.some( ( { name } ) => name === 'publicize/x-usage' ) ) {
-		await addEntities( [
-			{
-				kind: 'wpcom/v2',
-				name: 'publicize/x-usage',
-				baseURL: '/wpcom/v2/publicize/x-usage',
-				label: __( 'Publicize X Usage', 'jetpack-publicize-pkg' ),
-				key: 'period',
-			},
-		] );
-	}
 }

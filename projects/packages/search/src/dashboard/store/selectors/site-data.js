@@ -38,6 +38,12 @@ const siteDataSelectors = {
 	// edit gate so the link is hidden in that state.
 	getBlockTemplateOverlayConfig: state =>
 		state.siteData?.blockTemplateOverlay ?? singletonTemplateConfigDefault,
+	// Sibling of `getBlockTemplateOverlayConfig` for the WooCommerce product
+	// variant of the overlay. The Overlay card surfaces a second "Edit the
+	// product Search overlay" entry from this config on Woo stores, pointed at
+	// the `Product_Overlay_Template` CPT.
+	getProductOverlayTemplateConfig: state =>
+		state.siteData?.productOverlayTemplate ?? singletonTemplateConfigDefault,
 	// Same shape as `getBlockTemplateOverlayConfig`, sibling under the
 	// same singleton-CPT pattern — see `Singleton_Template_Cpt` on the
 	// PHP side. Used by the Embedded card on classic themes (which

@@ -15,6 +15,12 @@ import MyPlanBody from './my-plan-body';
 import MyPlanHeader from './my-plan-header';
 import MyPlanPartnerCoupon from './my-plan-partner-coupon';
 
+/**
+ * My Plan page component.
+ *
+ * @param {object} props - Component props.
+ * @return {import('react').ReactElement} React element.
+ */
 export function MyPlan( props ) {
 	let sitePlan = props.sitePlan.product_slug || '',
 		availableFeatures = props.availableFeatures,

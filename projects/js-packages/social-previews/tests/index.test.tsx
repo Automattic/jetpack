@@ -9,8 +9,10 @@ import {
 	TwitterPostPreview as Twitter,
 	TwitterPreviews,
 	GoogleSearchPreview as Search,
+	MastodonPostPreview as Mastodon,
 } from '../src';
 import { formatTweetDate } from '../src/helpers';
+import { mastodonBody } from '../src/mastodon-preview/helpers';
 
 // Mock @wordpress/components SandBox to avoid iframe initialization issues in tests
 // The mock prefix is required for jest to allow variable access in the factory
@@ -706,5 +708,56 @@ describe( 'Google Search previews', () => {
 			expect( fallback ).toBeVisible();
 			expect( fallback.querySelector( 'svg' ) ).toBeVisible();
 		} );
+	} );
+} );
+
+describe( 'Mastodon previews', () => {
+	const mastodonUser = {
+		displayName: 'Test User',
+		avatarUrl: 'https://example.com/avatar.png',
+		address: '@test@mastodon.social',
+	};
+
+	it( 'should not duplicate the URL when the custom message already contains it', () => {
+		const { container } = render(
+			<Mastodon
+				url={ DEFAULT_POST_URL }
+				title={ DEFAULT_POST_TITLE }
+				customText={ `Hello World\n\nAn excerpt\n\n${ DEFAULT_POST_URL }` }
+				user={ mastodonUser }
+			/>
+		);
+
+		const body = container.querySelector( '.mastodon-preview__body' );
+		expect( body ).toBeVisible();
+		// The URL is auto-linked once within the body; it must not be appended a second time.
+		expect( body.querySelectorAll( `a[href="${ DEFAULT_POST_URL }"]` ) ).toHaveLength( 1 );
+	} );
+
+	it( 'should not render a URL link when the message does not contain it', () => {
+		// The body is the source of truth: the post URL is no longer appended
+		// separately, so a message without the URL shows no URL link.
+		const { container } = render(
+			<Mastodon
+				url={ DEFAULT_POST_URL }
+				title={ DEFAULT_POST_TITLE }
+				customText="Hello World, an excerpt"
+				user={ mastodonUser }
+			/>
+		);
+
+		const body = container.querySelector( '.mastodon-preview__body' );
+		expect( body ).toBeVisible();
+		expect( body.querySelectorAll( `a[href="${ DEFAULT_POST_URL }"]` ) ).toHaveLength( 0 );
+	} );
+
+	it( 'should not reserve body space for a separately-appended URL', () => {
+		// The full Mastodon character budget is available to the body, since the
+		// URL is no longer rendered as a separate link below it. A trailing URL
+		// within the limit therefore survives instead of being truncated early.
+		const text = `${ 'a'.repeat( 460 ) } ${ DEFAULT_POST_URL }`;
+
+		const { container } = render( <>{ mastodonBody( text, { offset: 0, instance: '' } ) }</> );
+		expect( container.querySelector( `a[href="${ DEFAULT_POST_URL }"]` ) ).toBeInTheDocument();
 	} );
 } );

@@ -1,0 +1,20 @@
+# Files to include in the mirror repo, but excluded via gitignore
+# Remember to end all directories with `/**` to properly tag every file.
+# /src/js/example.min.js  production-include
+build/**          production-include
+
+# Files to exclude from the mirror repo, but included in the monorepo.
+# (see also entries in the monorepo root .gitattributes)
+# Remember to end all directories with `/**` to properly tag every file.
+#
+# Source files compiled during build (uncomment as needed):
+# src/**/*.ts       production-exclude
+# src/**/*.tsx      production-exclude
+# src/**/*.jsx      production-exclude
+# src/**/*.scss     production-exclude
+#
+# wp-build stuff compiled during build (uncomment as needed):
+# modules/**        production-exclude
+# routes/**         production-exclude
+# scripts/**        production-exclude
+# styles/**         production-exclude

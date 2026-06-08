@@ -25,6 +25,7 @@
 		"build-production": "NODE_ENV=production BABEL_ENV=production pnpm run build && pnpm run build:strip-unminified-prod && pnpm run validate",
 		"clean": "rm -rf build/",
 		"test": "NODE_OPTIONS=--experimental-vm-modules jest --config=tests/jest.config.js",
+		"test-coverage": "pnpm run test --coverage",
 		"typecheck": "tsgo --noEmit",
 		"validate": "pnpm exec validate-es --no-error-on-unmatched-pattern build/",
 		"watch": "wp-build --watch"
@@ -70,7 +71,7 @@
 		"@types/react-dom": "18.3.7",
 		"@typescript/native-preview": "7.0.0-dev.20260225.1",
 		"@wordpress/browserslist-config": "6.46.0",
-		"@wordpress/build": "0.13.0",
+		"@wordpress/build": "0.14.0",
 		"browserslist": "^4.24.0",
 		"jest": "30.4.2",
 		"react": "18.3.1",
