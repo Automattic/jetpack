@@ -50,7 +50,7 @@ jobs:
           TOKEN: ${{ secrets.RENOVATE_TOKEN }}
         run: |
           curl --no-progress-meter --header "Authorization: Bearer $TOKEN" https://api.github.com/rate_limit
-      - uses: renovatebot/github-action@e23f4d9675532445118c886434f5a34292b630b4 # v46.0.2
+      - uses: renovatebot/github-action@693b9ef15eec82123529a37c782242f091365961 # v46.1.14
         with:
           configurationFile: /tmp/monorepo/.github/renovate-config.js
           token: ${{ secrets.RENOVATE_TOKEN }}
