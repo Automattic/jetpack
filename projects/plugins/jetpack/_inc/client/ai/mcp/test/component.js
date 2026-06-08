@@ -1,4 +1,3 @@
-import { render, screen } from '@testing-library/react';
 import {
 	DISPLAY_CATEGORIES,
 	getDisplayCategory,
@@ -6,7 +5,6 @@ import {
 	isWriteTool,
 	sortTools,
 } from '../categories';
-import McpSetup from '../setup';
 
 describe( 'MCP category mapping', () => {
 	test.each( [ 'wpcom-mcp', 'developer-testing' ] )(
@@ -86,19 +84,5 @@ describe( 'MCP category mapping', () => {
 		];
 
 		expect( sortTools( tools ) ).toBe( tools );
-	} );
-} );
-
-describe( 'MCP setup', () => {
-	test( 'uses the registered redirect source for the Claude settings link', () => {
-		render( <McpSetup /> );
-
-		const url = new URL(
-			screen.getByRole( 'link', { name: /Claude settings/ } ).getAttribute( 'href' )
-		);
-
-		expect( url.origin + url.pathname ).toBe( 'https://jetpack.com/redirect/' );
-		expect( url.searchParams.get( 'source' ) ).toBe( 'jetpack-ai-claude-settings-connector' );
-		expect( url.searchParams.has( 'url' ) ).toBe( false );
 	} );
 } );

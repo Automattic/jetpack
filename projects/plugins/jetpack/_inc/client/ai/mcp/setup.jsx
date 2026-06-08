@@ -32,13 +32,13 @@ const CLIENT_OPTIONS = [
 	{ label: __( 'Other MCP client', 'jetpack' ), value: 'default' },
 ];
 
-const CLIENT_DOCS = {
-	claude: getRedirectUrl( 'https://docs.claude.com/en/docs/mcp' ),
-	'claude-code': getRedirectUrl( 'https://code.claude.com/docs/en/mcp' ),
-	vscode: getRedirectUrl( 'https://code.visualstudio.com/docs/copilot/customization/mcp-servers' ),
-	cursor: getRedirectUrl( 'https://docs.cursor.com/en/context/mcp' ),
-	continue: getRedirectUrl( 'https://docs.continue.dev/customize/deep-dives/mcp' ),
-	default: getRedirectUrl( 'https://modelcontextprotocol.io/docs/develop/connect-local-servers' ),
+const CLIENT_DOCS_SOURCES = {
+	claude: 'jetpack-ai-docs-claude',
+	'claude-code': 'jetpack-ai-docs-claude-code',
+	vscode: 'jetpack-ai-docs-vscode',
+	cursor: 'jetpack-ai-docs-cursor',
+	continue: 'jetpack-ai-docs-continue',
+	default: 'jetpack-ai-docs-mcp',
 };
 
 const CLIENT_DOCS_LABELS = {
@@ -266,8 +266,8 @@ export default function McpSetup() {
 							onChange={ handleConfigChange }
 							readOnly
 						/>
-						{ CLIENT_DOCS[ selectedClient ] && (
-							<Link href={ CLIENT_DOCS[ selectedClient ] } openInNewTab>
+						{ CLIENT_DOCS_SOURCES[ selectedClient ] && (
+							<Link href={ getRedirectUrl( CLIENT_DOCS_SOURCES[ selectedClient ] ) } openInNewTab>
 								{ CLIENT_DOCS_LABELS[ selectedClient ] }
 							</Link>
 						) }
