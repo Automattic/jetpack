@@ -17,8 +17,14 @@ use const Automattic\Jetpack\Extensions\Premium_Content\PAYWALL_FILTER;
 
 /**
  * @covers ::Automattic\Jetpack\Extensions\Premium_Content\current_visitor_can_access
+ * @covers ::Automattic\Jetpack\Extensions\Premium_Content\get_subscriptions_for_logged_in_user
+ * @covers ::Automattic\Jetpack\Extensions\Premium_Content\maybe_renew_session_cookie
+ * @covers ::Automattic\Jetpack\Extensions\Premium_Content\prewarm_premium_content_session_cookie
  */
 #[CoversFunction( 'Automattic\\Jetpack\\Extensions\\Premium_Content\\current_visitor_can_access' )]
+#[CoversFunction( 'Automattic\\Jetpack\\Extensions\\Premium_Content\\get_subscriptions_for_logged_in_user' )]
+#[CoversFunction( 'Automattic\\Jetpack\\Extensions\\Premium_Content\\maybe_renew_session_cookie' )]
+#[CoversFunction( 'Automattic\\Jetpack\\Extensions\\Premium_Content\\prewarm_premium_content_session_cookie' )]
 class Jetpack_Premium_Content_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 
@@ -455,6 +461,36 @@ class Jetpack_Premium_Content_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * `maybe_renew_session_cookie` no-ops when the signing key is unavailable — we cannot mint a
+	 * valid token, so the caller must fall back to the live filter rather than set a bogus cookie.
+	 *
+	 * @return void
+	 */
+	public function test_maybe_renew_session_cookie_returns_null_without_signing_key() {
+		unset( $_COOKIE['wp-jp-premium-content-session'] );
+
+		// No cookie is set, so `has_token_from_cookie()` is false and `decode_token()` is never
+		// reached; the stub only needs to report a missing signing key.
+		$keyless_paywall = new class() {
+			public function get_key() {
+				return false;
+			}
+		};
+
+		$raw         = array(
+			array(
+				'product_id' => $this->product_id,
+				'status'     => 'active',
+				'end_date'   => gmdate( 'Y-m-d H:i:s', time() + DAY_IN_SECONDS ),
+			),
+		);
+		$abbreviated = \Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\WPCOM_Online_Subscription_Service::abbreviate_subscriptions( $raw );
+
+		$this->assertNull( maybe_renew_session_cookie( $keyless_paywall, 999999, $raw, $abbreviated ) );
+		$this->assertArrayNotHasKey( 'wp-jp-premium-content-session', $_COOKIE );
+	}
+
+	/**
 	 * Option A (cookie-first): a logged-in visitor whose valid session cookie already grants
 	 * the tier must be served from the cookie WITHOUT querying the WPCOM filter — that is the
 	 * fast cached path the self-heal exists to enable.
@@ -581,6 +617,61 @@ class Jetpack_Premium_Content_Test extends WP_UnitTestCase {
 
 		$this->assertArrayNotHasKey( 'wp-jp-premium-content-session', $_COOKIE );
 		$this->assertSame( 0, $filter_calls, 'Filter must not be queried on pages without the block.' );
+	}
+
+	/**
+	 * The pre-warm hook does nothing for logged-out visitors — they rely on the `?token=` magic
+	 * link, not a minted session cookie.
+	 *
+	 * @return void
+	 */
+	public function test_prewarm_noop_when_not_logged_in() {
+		unset( $_COOKIE['wp-jp-premium-content-session'] );
+		wp_set_current_user( 0 );
+
+		prewarm_premium_content_session_cookie();
+
+		$this->assertArrayNotHasKey( 'wp-jp-premium-content-session', $_COOKIE );
+	}
+
+	/**
+	 * The pre-warm hook bails (without querying the filter) when a valid session cookie already
+	 * exists — there is nothing to heal and we must not pay the WPCOM round-trip.
+	 *
+	 * @return void
+	 */
+	public function test_prewarm_noop_when_valid_cookie_present() {
+		unset( $_GET['token'] );
+
+		$post_id = $this->factory->post->create(
+			array( 'post_content' => '<!-- wp:premium-content/container --><!-- /wp:premium-content/container -->' )
+		);
+
+		$local_user_id = $this->factory->user->create();
+		update_user_meta( $local_user_id, 'wpcom_user_id', 999999 );
+
+		$paywall                                  = subscription_service();
+		$_COOKIE['wp-jp-premium-content-session'] = JWT::encode( $this->get_payload( true, true ), $paywall->get_key() );
+
+		$filter_calls = 0;
+		add_filter(
+			'earn_get_user_subscriptions_for_site_id',
+			static function ( $subs ) use ( &$filter_calls ) {
+				++$filter_calls;
+				return $subs;
+			},
+			10,
+			1
+		);
+
+		$this->go_to( get_permalink( $post_id ) );
+		wp_set_current_user( $local_user_id );
+
+		prewarm_premium_content_session_cookie();
+
+		$this->assertSame( 0, $filter_calls, 'Pre-warm must not query the filter when a valid cookie already exists.' );
+
+		unset( $_COOKIE['wp-jp-premium-content-session'] );
 	}
 
 	/**
