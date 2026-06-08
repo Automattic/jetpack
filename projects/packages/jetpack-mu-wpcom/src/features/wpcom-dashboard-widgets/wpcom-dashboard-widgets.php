@@ -56,12 +56,6 @@ function load_wpcom_dashboard_widgets() {
 			'context'  => 'side',
 			'priority' => 'high',
 		),
-		array(
-			'id'       => 'wpcom_daily_writing_prompt',
-			'name'     => __( 'Daily Writing Prompt', 'jetpack-mu-wpcom' ),
-			'context'  => 'side',
-			'priority' => 'high',
-		),
 	);
 
 	$launchpad_context = 'wpadmin-dashboard-widget';

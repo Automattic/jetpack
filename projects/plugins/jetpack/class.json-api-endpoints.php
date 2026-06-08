@@ -2791,6 +2791,14 @@ abstract class WPCOM_JSON_API_Endpoint {
 			$response = new WP_Error( 'empty_response', 'Endpoint response is empty', 500 );
 		}
 
+		// Mirror the XML-RPC path, which runs filter_fields() in WPCOM_JSON_API::output() before
+		// returning, so a `fields` request yields the same keys on both transports. Endpoints may
+		// force-add keys past `fields` for internal processors (e.g. the post type/status/password);
+		// without this they would leak on the REST transport only.
+		if ( ! is_wp_error( $response ) ) {
+			$response = $this->api->filter_fields( $response );
+		}
+
 		$status_code = 200;
 
 		if ( is_wp_error( $response ) ) {

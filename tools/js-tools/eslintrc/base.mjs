@@ -526,7 +526,6 @@ export function makeBaseConfig( configurl, opts = {} ) {
 			ignores: jsPackageJsons,
 			rules: {
 				'package-json/require-name': 'off',
-				'package-json/valid-name': 'off',
 			},
 		},
 		{
