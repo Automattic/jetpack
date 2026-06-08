@@ -239,10 +239,16 @@ class Waf_Runner {
 		define( 'JETPACK_WAF_RUN', defined( 'ABSPATH' ) ? 'plugin' : 'preload' );
 
 		// if the WAF is being run before a command line script, don't try to execute rules (there's no request).
-		// Also skip when there is no REQUEST_METHOD, which covers PHP wrappers that don't report PHP_SAPI as 'cli'
-		// but still lack an HTTP context (e.g. server-side cron jobs run via a php-wrapper executable).
-		if ( PHP_SAPI === 'cli' || empty( $_SERVER['REQUEST_METHOD'] ) ) {
+		if ( PHP_SAPI === 'cli' ) {
 			return;
+		}
+
+		// When running via a headless or pseudo-browser (e.g. server-side cron via a PHP
+		// wrapper that does not report PHP_SAPI as 'cli') REQUEST_METHOD may be absent.
+		// Default to GET so that rules validating the HTTP method (e.g. rule 911100) do
+		// not generate a false-positive 403 block.
+		if ( empty( $_SERVER['REQUEST_METHOD'] ) ) {
+			$_SERVER['REQUEST_METHOD'] = 'GET'; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 		}
 
 		// if something terrible happens during the WAF running, we don't want to interfere with the rest of the site,

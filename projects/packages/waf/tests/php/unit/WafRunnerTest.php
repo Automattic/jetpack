@@ -54,18 +54,20 @@ final class WafRunnerTest extends PHPUnit\Framework\TestCase {
 	}
 
 	/**
-	 * Test that run exits early and skips rule evaluation when REQUEST_METHOD is absent.
+	 * Test that run defaults REQUEST_METHOD to GET when absent and continues to evaluate rules.
 	 *
 	 * This reproduces the scenario where wp-cron.php is executed directly via a PHP
-	 * wrapper that does not set REQUEST_METHOD (no HTTP context), which caused rule 911100
-	 * to fire a 403 because the empty request method was not in the allowed-methods list.
+	 * wrapper (or headless/pseudo-browser) that does not set REQUEST_METHOD, which
+	 * previously caused rule 911100 to fire a 403 because the empty request method was
+	 * not in the allowed-methods list.  Defaulting to GET lets the rule pass while still
+	 * allowing the WAF to protect the site.
 	 *
 	 * @runInSeparateProcess
 	 * @preserveGlobalState disabled
 	 */
 	#[RunInSeparateProcess]
 	#[PreserveGlobalState( false )]
-	public function testRunSkipsRulesWhenRequestMethodIsAbsent() {
+	public function testRunDefaultsRequestMethodToGetWhenAbsent() {
 		define( 'ABSPATH', '/pseudo' );
 		define( 'WP_CONTENT_DIR', '/pseudo/dir' );
 
@@ -85,8 +87,11 @@ final class WafRunnerTest extends PHPUnit\Framework\TestCase {
 
 		Waf_Runner::run();
 
-		// The rules file must NOT have been included: no HTTP context means no rules.
-		$this->assertFalse( defined( 'JETPACK_WAF_RULES_EXECUTED' ), 'WAF rules must not be evaluated when REQUEST_METHOD is absent.' );
+		// REQUEST_METHOD should have been defaulted to GET.
+		$this->assertSame( 'GET', $_SERVER['REQUEST_METHOD'], 'REQUEST_METHOD must default to GET when absent.' );
+
+		// Rules SHOULD have been evaluated since the method is now valid.
+		$this->assertTrue( defined( 'JETPACK_WAF_RULES_EXECUTED' ), 'WAF rules must be evaluated when REQUEST_METHOD defaults to GET.' );
 
 		// Clean up.
 		unlink( $rules_file );

@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-WAF: Skip HTTP rule evaluation when no REQUEST_METHOD is present, preventing false-positive blocks on server-side cron jobs executed via PHP wrappers.
+WAF: Default REQUEST_METHOD to GET when absent (e.g. server-side cron via PHP wrapper or headless browser), preventing false-positive 403 blocks from rule 911100.
