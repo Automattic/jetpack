@@ -716,9 +716,7 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 					break;
 
 				case 'monitor_receive_notifications':
-					// The module class is only loaded when the module is active. On a bulk ( slug "any" )
-					// update the inactive-module check is skipped, so load the class on demand to avoid a fatal.
-					if ( ! class_exists( 'Jetpack_Monitor' ) && ! include_once Jetpack::get_module_path( $option_attrs['jp_group'] ) ) {
+					if ( ! class_exists( 'Jetpack_Monitor' ) ) {
 						$updated = false;
 						break;
 					}
@@ -730,9 +728,7 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 					break;
 
 				case 'post_by_email_address':
-					// The module class is only loaded when the module is active. On a bulk ( slug "any" )
-					// update the inactive-module check is skipped, so load the class on demand to avoid a fatal.
-					if ( ! class_exists( 'Jetpack_Post_By_Email' ) && ! include_once Jetpack::get_module_path( $option_attrs['jp_group'] ) ) {
+					if ( ! class_exists( 'Jetpack_Post_By_Email' ) ) {
 						$updated = false;
 						break;
 					}
