@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.41.0] - 2026-06-08
+### Added
+- Add options from Advanced WooCommerce settings pages to sync whitelist, as part of activity log improvements. [#49435]
+- Add options from Shipping WooCommerce settings pages to sync whitelist, as part of activity log improvements. [#49371]
+
 ## [4.40.0] - 2026-06-08
 ### Added
 - Add options from Payments WooCommerce settings pages to sync whitelist, as part of activity log improvements. [#49200]
@@ -1773,6 +1778,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Packages: Move sync to a classmapped package
 
+[4.41.0]: https://github.com/Automattic/jetpack-sync/compare/v4.40.0...v4.41.0
 [4.40.0]: https://github.com/Automattic/jetpack-sync/compare/v4.39.1...v4.40.0
 [4.39.1]: https://github.com/Automattic/jetpack-sync/compare/v4.39.0...v4.39.1
 [4.39.0]: https://github.com/Automattic/jetpack-sync/compare/v4.38.4...v4.39.0
