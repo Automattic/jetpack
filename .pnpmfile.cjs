@@ -281,12 +281,6 @@ async function fixDeps( pkg ) {
 		pkg.dependencies[ '@date-fns/tz' ] ??= '^1.2.0';
 	}
 
-	// Temporary override. Seems to work fine with 24.14, and bumping the min version is more disruptive.
-	// We'll plan to remove this hack and bump the version along with pnpm 11 and/or composer 2.10 soon.
-	if ( pkg.name === 'eslint-plugin-package-json' ) {
-		delete pkg.engines;
-	}
-
 	return pkg;
 }
 
