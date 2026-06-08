@@ -95,11 +95,15 @@ export function useGoogleVerify(): GoogleVerify {
 				return;
 			}
 			setIsVerifying( true );
-			apiFetch< GoogleVerifyStatus >( {
+			// POST verifies the site, then re-fetch the authoritative status: the
+			// verify response doesn't reliably carry the final verified flag, so the
+			// badge is driven by a follow-up status check (mirrors the legacy flow).
+			apiFetch( {
 				path: ENDPOINT,
 				method: 'POST',
 				data: { keyring_id: keyringId },
 			} )
+				.then( () => apiFetch< GoogleVerifyStatus >( { path: `${ ENDPOINT }/${ keyringId }` } ) )
 				.then( applyStatus )
 				.catch( () => setState( 'unverified' ) )
 				.finally( () => setIsVerifying( false ) );
