@@ -75,14 +75,21 @@ export default () => {
 						gap="xs"
 					>
 						{ prompt.answered_users_count > 0 && (
-							<Link
+							<Button
+								variant="outline"
+								size="compact"
 								tone="neutral"
-								openInNewTab
-								rel="noreferrer noopener"
-								href={ new URL( prompt.answered_link ).toString() }
+								nativeButton={ false }
+								render={
+									<a
+										href={ new URL( prompt.answered_link ).toString() }
+										target="_blank"
+										rel="noreferrer noopener"
+									/>
+								}
 							>
 								{ __( 'View all responses', 'jetpack-newsletter' ) }
-							</Link>
+							</Button>
 						) }
 						<span>
 							{ prompt.answered_users_sample.map( sample => {

@@ -80,29 +80,32 @@ describe( 'WritingPrompt widget Reader link and responses', () => {
 		mockIsWpcomPlatformSite.mockReturnValue( true );
 	} );
 
-	it( 'renders the View all responses link and avatar faces outside the footer', async () => {
+	it( 'renders the View all responses button and avatar faces outside the footer', async () => {
 		mockApiFetch.mockResolvedValue( [ PROMPT_WITH_RESPONSES ] );
 
 		const { container } = render( <WritingPrompt /> );
 
-		const responsesLink = await screen.findByRole( 'link', { name: /View all responses/ } );
-		expect( responsesLink ).toHaveAttribute( 'href', 'https://example.com/tag/dailyprompt-1' );
+		// The responses control is a secondary button rendered as an anchor, so it
+		// carries the button role while still navigating via its href.
+		const responsesButton = await screen.findByRole( 'button', { name: /View all responses/ } );
+		expect( responsesButton ).toHaveAttribute( 'href', 'https://example.com/tag/dailyprompt-1' );
+		expect( responsesButton ).toHaveAttribute( 'target', '_blank' );
 		expect( screen.getAllByRole( 'img', { name: 'User avatar' } ) ).toHaveLength( 2 );
 
-		// The responses link now lives in the answered-users group, next to the avatars.
+		// The responses button now lives in the answered-users group, next to the avatars.
 		// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access -- The answered-users group has no ARIA role, so a class selector is the most direct way to scope this assertion.
 		const answeredUsers = container.querySelector( '.wpcom-daily-writing-prompt--answered-users' );
 		expect( answeredUsers ).not.toBeNull();
 		expect(
-			within( answeredUsers as HTMLElement ).getByRole( 'link', { name: /View all responses/ } )
+			within( answeredUsers as HTMLElement ).getByRole( 'button', { name: /View all responses/ } )
 		).toBeInTheDocument();
 
-		// The branding footer must NOT contain the responses link.
+		// The branding footer must NOT contain the responses button.
 		// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access -- The branding footer has no ARIA role, so a class selector is the most direct way to scope this assertion.
 		const footer = container.querySelector( '.wpcom-daily-writing-prompt--branding' );
 		expect( footer ).not.toBeNull();
 		expect(
-			within( footer as HTMLElement ).queryByRole( 'link', { name: /View all responses/ } )
+			within( footer as HTMLElement ).queryByRole( 'button', { name: /View all responses/ } )
 		).not.toBeInTheDocument();
 	} );
 
