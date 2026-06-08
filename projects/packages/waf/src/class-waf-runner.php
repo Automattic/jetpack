@@ -239,7 +239,9 @@ class Waf_Runner {
 		define( 'JETPACK_WAF_RUN', defined( 'ABSPATH' ) ? 'plugin' : 'preload' );
 
 		// if the WAF is being run before a command line script, don't try to execute rules (there's no request).
-		if ( PHP_SAPI === 'cli' ) {
+		// Also skip when there is no REQUEST_METHOD, which covers PHP wrappers that don't report PHP_SAPI as 'cli'
+		// but still lack an HTTP context (e.g. server-side cron jobs run via a php-wrapper executable).
+		if ( PHP_SAPI === 'cli' || empty( $_SERVER['REQUEST_METHOD'] ) ) {
 			return;
 		}
 

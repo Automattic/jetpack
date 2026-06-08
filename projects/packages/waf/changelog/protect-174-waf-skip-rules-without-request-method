@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+WAF: Skip HTTP rule evaluation when no REQUEST_METHOD is present, preventing false-positive blocks on server-side cron jobs executed via PHP wrappers.
