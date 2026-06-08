@@ -6492,8 +6492,8 @@ importers:
         specifier: 7.0.0-dev.20260225.1
         version: 7.0.0-dev.20260225.1
       '@wordpress/e2e-test-utils-playwright':
-        specifier: 1.48.0
-        version: 1.48.0(@playwright/test@1.60.0)(@types/node@24.12.3)
+        specifier: 1.46.0
+        version: 1.46.0(@playwright/test@1.60.0)(@types/node@24.12.3)
       allure-playwright:
         specifier: 2.15.1
         version: 2.15.1
@@ -11010,8 +11010,8 @@ packages:
     resolution: {integrity: sha512-9UARZ0YQfmhx9VAi+QynSwu5fOJoG4mmPNTpYW8jDmtKh+9c2YIi1YSQFuOa1sipj78ZLPaBxaceZ7dbxKc3UA==}
     engines: {node: '>=18.12.0', npm: '>=8.19.2'}
 
-  '@wordpress/e2e-test-utils-playwright@1.48.0':
-    resolution: {integrity: sha512-jLzobHMQha8ZUHkRhl4OJVCkk26jTVqbhN5hFpQruVTETMI3Z1PFJZH1DFAumJKKAIociVMVeH2MDD8XVp72ww==}
+  '@wordpress/e2e-test-utils-playwright@1.46.0':
+    resolution: {integrity: sha512-Bls5BGRNda0Oo4biTZ/KIwO8iHBeovvfWNfrPXReIsrW1td1UqXw2Z9l0/LaP3euJZFNom2QExHCOba+8eN5lQ==}
     engines: {node: '>=18.12.0', npm: '>=8.19.2'}
     peerDependencies:
       '@playwright/test': '>=1'
@@ -24848,7 +24848,7 @@ snapshots:
     dependencies:
       '@wordpress/deprecated': 4.48.0
 
-  '@wordpress/e2e-test-utils-playwright@1.48.0(@playwright/test@1.60.0)(@types/node@24.12.3)':
+  '@wordpress/e2e-test-utils-playwright@1.46.0(@playwright/test@1.60.0)(@types/node@24.12.3)':
     dependencies:
       '@playwright/test': 1.60.0
       '@types/node': 24.12.3
