@@ -70,6 +70,7 @@ function register_block() {
 	add_action( 'wp_after_insert_post', __NAMESPACE__ . '\add_paid_content_post_meta', 99, 2 );
 }
 add_action( 'init', __NAMESPACE__ . '\register_block' );
+add_action( 'template_redirect', __NAMESPACE__ . '\prewarm_premium_content_session_cookie' );
 
 /**
  * Render callback.

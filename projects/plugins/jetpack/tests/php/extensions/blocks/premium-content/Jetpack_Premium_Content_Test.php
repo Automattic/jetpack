@@ -11,6 +11,7 @@ use PHPUnit\Framework\Attributes\CoversFunction;
 use Tests\Automattic\Jetpack\Extensions\Premium_Content\Test_Jetpack_Token_Subscription_Service;
 use function Automattic\Jetpack\Extensions\Premium_Content\current_visitor_can_access;
 use function Automattic\Jetpack\Extensions\Premium_Content\maybe_renew_session_cookie;
+use function Automattic\Jetpack\Extensions\Premium_Content\prewarm_premium_content_session_cookie;
 use function Automattic\Jetpack\Extensions\Premium_Content\subscription_service;
 use const Automattic\Jetpack\Extensions\Premium_Content\PAYWALL_FILTER;
 
@@ -497,6 +498,89 @@ class Jetpack_Premium_Content_Test extends WP_UnitTestCase {
 		$this->assertSame( 0, $filter_calls, 'Filter must not be queried when a valid cookie is present.' );
 
 		unset( $_COOKIE['wp-jp-premium-content-session'] );
+	}
+
+	/**
+	 * The template_redirect pre-warm hook mints the session cookie before output when the
+	 * viewed post contains the block, the visitor is logged in, and no valid cookie exists.
+	 *
+	 * @return void
+	 */
+	public function test_prewarm_mints_cookie_when_block_present_and_no_cookie() {
+		unset( $_COOKIE['wp-jp-premium-content-session'] );
+		unset( $_GET['token'] );
+
+		$post_id = $this->factory->post->create(
+			array( 'post_content' => '<!-- wp:premium-content/container --><!-- /wp:premium-content/container -->' )
+		);
+
+		$local_user_id = $this->factory->user->create();
+		update_user_meta( $local_user_id, 'wpcom_user_id', 999999 );
+
+		$product_id = $this->product_id;
+		add_filter(
+			'earn_get_user_subscriptions_for_site_id',
+			static function ( $subs, $subscriber_id ) use ( $product_id ) {
+				if ( (int) $subscriber_id === 999999 ) {
+					$subs[] = array(
+						'product_id' => $product_id,
+						'status'     => 'active',
+						'end_date'   => gmdate( 'Y-m-d H:i:s', time() + HOUR_IN_SECONDS ),
+					);
+				}
+				return $subs;
+			},
+			10,
+			2
+		);
+
+		$this->go_to( get_permalink( $post_id ) );
+		wp_set_current_user( $local_user_id );
+
+		prewarm_premium_content_session_cookie();
+
+		$this->assertNotEmpty( $_COOKIE['wp-jp-premium-content-session'] );
+		$payload = subscription_service()->decode_token( $_COOKIE['wp-jp-premium-content-session'] );
+		$this->assertSame( 999999, (int) $payload['user_id'] );
+
+		unset( $_COOKIE['wp-jp-premium-content-session'] );
+	}
+
+	/**
+	 * The pre-warm hook does nothing when the viewed post does not contain the block, so we
+	 * never pay the filter round-trip on unrelated pages.
+	 *
+	 * @return void
+	 */
+	public function test_prewarm_noop_when_block_absent() {
+		unset( $_COOKIE['wp-jp-premium-content-session'] );
+		unset( $_GET['token'] );
+
+		$post_id = $this->factory->post->create(
+			array( 'post_content' => 'Just a regular post with no premium content.' )
+		);
+
+		$local_user_id = $this->factory->user->create();
+		update_user_meta( $local_user_id, 'wpcom_user_id', 999999 );
+
+		$filter_calls = 0;
+		add_filter(
+			'earn_get_user_subscriptions_for_site_id',
+			static function ( $subs ) use ( &$filter_calls ) {
+				++$filter_calls;
+				return $subs;
+			},
+			10,
+			1
+		);
+
+		$this->go_to( get_permalink( $post_id ) );
+		wp_set_current_user( $local_user_id );
+
+		prewarm_premium_content_session_cookie();
+
+		$this->assertArrayNotHasKey( 'wp-jp-premium-content-session', $_COOKIE );
+		$this->assertSame( 0, $filter_calls, 'Filter must not be queried on pages without the block.' );
 	}
 
 	/**

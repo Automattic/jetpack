@@ -172,6 +172,46 @@ function get_subscriptions_for_logged_in_user( $paywall ) {
 }
 
 /**
+ * Pre-warm the premium-content session cookie before output starts.
+ *
+ * `current_visitor_can_access()` runs during `the_content`, by which point headers are
+ * already sent and `setcookie()` is a no-op. This `template_redirect` callback runs earlier —
+ * after the main query resolves but before the template renders — so the self-heal cookie can
+ * actually persist for subsequent requests. It does work only on front-end page views that
+ * contain the block, for logged-in visitors who do not already have a valid cookie.
+ *
+ * @return void
+ */
+function prewarm_premium_content_session_cookie() {
+	if ( ! is_user_logged_in() ) {
+		return;
+	}
+
+	// Front-end page views only — skip admin, REST, feeds and cron.
+	if ( is_admin() || is_feed() || ( defined( 'REST_REQUEST' ) && REST_REQUEST ) || ( defined( 'DOING_CRON' ) && DOING_CRON ) ) {
+		return;
+	}
+
+	// Only on singular content that actually contains the block, so we never pay the filter
+	// round-trip on unrelated pages.
+	$queried = get_queried_object();
+	if ( ! ( $queried instanceof \WP_Post ) || ! has_block( 'premium-content/container', $queried ) ) {
+		return;
+	}
+
+	$paywall = subscription_service();
+
+	// Already have a valid cached session? Nothing to heal — and don't query the filter.
+	$existing_payload = $paywall->decode_token( $paywall->get_and_set_token_from_request() );
+	if ( ! empty( $existing_payload ) ) {
+		return;
+	}
+
+	list( $user_id, $raw_subscriptions, $abbreviated_subscriptions ) = get_subscriptions_for_logged_in_user( $paywall );
+	maybe_renew_session_cookie( $paywall, $user_id, $raw_subscriptions, $abbreviated_subscriptions );
+}
+
+/**
  * Determines if the current user can view the protected content of the given block.
  *
  * @param array  $attributes Block attributes.
