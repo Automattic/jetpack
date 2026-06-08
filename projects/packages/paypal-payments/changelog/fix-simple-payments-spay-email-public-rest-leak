@@ -1,0 +1,4 @@
+Significance: patch
+Type: security
+
+Simple Payments: strip seller PayPal email (spay_email) from public REST responses while preserving editor read/write.
