@@ -1,6 +1,6 @@
 import { DataViews } from '@wordpress/dataviews';
 import { useCallback, useMemo, useState } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { __, _n, sprintf } from '@wordpress/i18n';
 import { Notice } from '@wordpress/ui';
 import { useSubscriberRemoveMutation } from '../data/use-subscriber-remove-mutation';
 import { useSubscribers } from '../data/use-subscribers';
@@ -27,6 +27,21 @@ const DEFAULT_PER_PAGE = 20;
 
 // Stable reference so passing "no rows" to DataViews doesn't churn on every render.
 const NO_SUBSCRIBERS: Subscriber[] = [];
+
+// Unfiltered query used solely to read the site-wide subscriber total for the
+// count header. Frozen at module scope so it keeps a stable React Query key —
+// when the visitor has no active filter/search it matches the main list query
+// and is served from the same cache entry (no extra request); once a filter or
+// search narrows the list it falls back to its own cached total so the headline
+// keeps reporting the full count rather than the filtered subset.
+const TOTAL_QUERY_PARAMS = {
+	page: 1,
+	perPage: DEFAULT_PER_PAGE,
+	sort: 'date_subscribed' as SubscribersSortField,
+	sortOrder: 'desc' as const,
+	search: '',
+	filters: [ 'all' ] as SubscribersFilter[],
+};
 
 const defaultView: View = {
 	type: 'table',
@@ -90,6 +105,9 @@ export default function SubscribersDataViews( {
 	);
 
 	const { data, isLoading, error } = useSubscribers( queryParams );
+	// Site-wide total for the count header — independent of the active filter /
+	// search so the headline never collapses to the filtered subset.
+	const { data: totalData } = useSubscribers( TOTAL_QUERY_PARAMS );
 	const removeMutation = useSubscriberRemoveMutation();
 
 	// Fired off `onChangeView` rather than per-control handlers because DataViews owns
@@ -303,6 +321,25 @@ export default function SubscribersDataViews( {
 		( view.filters && view.filters.length > 0 ) || ( view.search && view.search.length > 0 )
 	);
 
+	// Site-wide subscriber total for the count header. Sourced from the
+	// unfiltered query so it stays constant while the visitor filters or
+	// searches. The owner is always returned in the list but isn't a real
+	// subscriber until they subscribe, so collapse the owner-only case to 0 to
+	// match the cold-start empty state.
+	const totalSubscribers = hasNoSubscribersOtherThanOwner(
+		totalData?.total ?? 0,
+		totalData?.is_owner_subscribed ?? false
+	)
+		? 0
+		: totalData?.total ?? 0;
+
+	const hasTotal = totalData !== undefined;
+	const countLabel = sprintf(
+		// translators: %s is the formatted total number of subscribers.
+		_n( '%s subscriber', '%s subscribers', totalSubscribers, 'jetpack-newsletter' ),
+		new Intl.NumberFormat().format( totalSubscribers )
+	);
+
 	// The owner is always returned in the list, so when they're the only subscriber the table
 	// would render a single row and DataViews' `empty` slot would never fire. Mirror Calypso's
 	// launchpad condition and present the cold-start empty state ourselves. Gated on no active
@@ -332,6 +369,11 @@ export default function SubscribersDataViews( {
 
 	return (
 		<>
+			{ hasTotal && (
+				<p className="jetpack-newsletter__subscribers-count" aria-live="polite">
+					{ countLabel }
+				</p>
+			) }
 			<DataViews< Subscriber >
 				data={ displayedSubscribers }
 				fields={ fields }

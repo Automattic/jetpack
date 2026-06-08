@@ -11,7 +11,6 @@
 $jetpack-newsletter-inset: var(--wpds-dimension-padding-2xl, 24px);
 
 body.jetpack_page_jetpack-newsletter {
-
 	// Off-white page surface so the white settings cards stand out against the
 	// background. `AdminPage` paints `.jp-admin-page` (its outer wrapper) and
 	// `.jp-admin-page__page` (the admin-ui `Page` shell) white by default via
@@ -74,6 +73,18 @@ body.jetpack_page_jetpack-newsletter {
 		.dataviews-wrapper {
 			flex: 1 1 auto;
 			min-block-size: 0;
+		}
+
+		// Site-wide subscriber total above the table. A fixed-height flex item so
+		// `.dataviews-wrapper` (flex: 1) still absorbs the remaining height and
+		// pins its pagination footer to the viewport bottom.
+		.jetpack-newsletter__subscribers-count {
+			flex: 0 0 auto;
+			margin: 0;
+			padding-block: var(--wpds-dimension-padding-md, 12px);
+			padding-inline: var(--wpds-dimension-padding-lg, 16px);
+			color: var(--wpds-color-fg-content-neutral-weak, #50575e);
+			font-size: var(--wpds-typography-font-size-sm, 13px);
 		}
 
 		// The dataviews "no results" message centres within the area below the
