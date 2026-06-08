@@ -1,4 +1,5 @@
 import JetpackLogo from '@automattic/jetpack-components/jetpack-logo';
+import { getSiteData, isWpcomPlatformSite } from '@automattic/jetpack-script-data';
 import apiFetch from '@wordpress/api-fetch';
 import { useCallback, useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -34,6 +35,13 @@ export default () => {
 
 	const prompt = prompts[ index ];
 
+	const blogId = getSiteData()?.wpcom?.blog_id;
+	const readerUrl = addQueryArgs(
+		'https://wordpress.com/reader',
+		blogId ? { origin_site_id: blogId } : {}
+	);
+	const openReaderInNewTab = ! isWpcomPlatformSite();
+
 	return (
 		<Stack direction="column" gap="md">
 			<Stack className="wpcom-daily-writing-prompt--prompt" direction="column" gap="md">
@@ -59,16 +67,6 @@ export default () => {
 				<Button variant="outline" size="compact" onClick={ postAnswer }>
 					{ __( 'Post Answer', 'jetpack-newsletter' ) }
 				</Button>
-			</Stack>
-			<Stack
-				className="wpcom-daily-writing-prompt--branding"
-				direction="row"
-				justify="space-between"
-				align="center"
-				gap="sm"
-				wrap="wrap"
-			>
-				<JetpackLogo logoColor="#000000" height={ 20 } />
 				{ prompt.answered_users_sample.length > 0 && (
 					<Stack
 						className="wpcom-daily-writing-prompt--answered-users"
@@ -103,6 +101,24 @@ export default () => {
 						</span>
 					</Stack>
 				) }
+			</Stack>
+			<Stack
+				className="wpcom-daily-writing-prompt--branding"
+				direction="row"
+				justify="space-between"
+				align="center"
+				gap="sm"
+				wrap="wrap"
+			>
+				<JetpackLogo logoColor="#000000" height={ 20 } />
+				<Link
+					tone="neutral"
+					href={ readerUrl }
+					openInNewTab={ openReaderInNewTab }
+					rel={ openReaderInNewTab ? 'noreferrer noopener' : undefined }
+				>
+					{ __( 'Read the blogs and topics you follow', 'jetpack-newsletter' ) }
+				</Link>
 			</Stack>
 		</Stack>
 	);
