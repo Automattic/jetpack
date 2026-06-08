@@ -11,9 +11,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Update package dependencies. [#49379]
 
 ### Fixed
-- Fix admin page crash on video upload/delete when the free-plan upgrade nudge is shown [#49340]
+- Fix admin page crash on video upload/delete when the free-plan upgrade nudge is shown. [#49340]
 - Fix a TypeScript error in the library route's DataViews default layouts. [#49368]
-- Restructure the free-plan upgrade notice into a balanced Notice.Title heads-up line, a Notice.Description upsell pitch, and a concise "Upgrade" Notice.ActionButton, replacing the out-of-place dark button. [#49400]
+- Restructure the free-plan upgrade notice into a balanced heads-up line, an upsell pitch, and a concise "Upgrade" button. [#49400]
 
 ## [0.36.12] - 2026-06-01
 ### Changed

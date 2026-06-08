@@ -4,37 +4,37 @@
 
 ## 15.9-beta - 2026-06-08
 ### Enhancements
-- Enqueue the shared WPDS design-tokens stylesheet on Jetpack admin pages so design tokens resolve at runtime on the Dashboard, Settings, and Debugger. [#49345]
-- SEO: scaffold the new jetpack-seo package and mount its admin page at admin.php?page=jetpack-seo, reachable on every site type. Initial release ships the Overview screen with a Site visibility card. [#49203]
+- Enqueue the shared WPDS design tokens stylesheet on Jetpack admin pages. [#49345]
+- SEO: Scaffold the new `jetpack-seo` package and mount its admin page. [#49203]
+- SEO: Create an Overview screen with a Site visibility card. [#49203]
 
 ### Improved compatibility
-- Jetpack: resolve WPDS design tokens in the legacy settings dashboard CSS so token-based colors (e.g. Hello Dolly) use the design-system value instead of a hardcoded hex fallback. [#48750]
+- Resolve WPDS design tokens in the legacy settings dashboard CSS. [#48750]
 
 ### Bug fixes
 - AI: Fix broken external links (Claude settings and agent documentation) in the MCP quick setup. [#49453]
-- Carousel: stop adding EXIF image metadata to the page markup when the option to display it is disabled. [#49433]
+- Carousel: Stop adding EXIF image metadata to the page markup when the option to display it is disabled. [#49433]
 - Image Studio: Add site context to tracking data. [#49186]
-- Jetpack Network Admin: pin the Sites and Settings footers to the bottom on real multisite, and remove core admin notices on those modernized pages. [#49344]
-- JSON API: guard media metadata access to avoid PHP warnings when attachment metadata is missing or incomplete. [#49332]
+- JSON API: Guard media metadata access to avoid PHP warnings when attachment metadata is missing or incomplete. [#49332]
 - JSON API: Honor the `fields` parameter on REST-dispatched responses so they return the same keys as the XML-RPC transport. [#49396]
-- JSON API: stop emitting "Unknown user" PHP warnings from get_author() for the expected case of an unresolvable author. [#49339]
-- Newsletter: Prevent a fatal error when loading wp-admin with the modernization filter unavailable. [#49319]
-- Settings REST API: load the Monitor and Post by Email module classes on demand when updating their options, preventing a fatal on bulk settings updates while the module is inactive. [#49454]
-- Sharing: fix the Pinterest sharing button leading to a blank Pinterest page by using Pinterest's direct link sharing endpoint. [#49363]
-- Shortcode embeds: ensure the SoundCloud player iFrame is always correctly escaped. [#49315]
-- Shortcodes: fix [archiveorg] so query parameters such as playlist, autoplay, and poster produce valid Archive.org embed URLs. [#49195]
+- JSON API: Stop emitting "Unknown user" PHP warnings from `get_author()` for the expected case of an unresolvable author. [#49339]
+- Network Admin: Pin the Sites and Settings footers to the bottom and remove core admin notices on modernized pages. [#49344]
+- Newsletter: Prevent a fatal error when loading WP Admin with the modernization filter unavailable. [#49319]
+- Settings REST API: Load the Monitor and Post by Email module classes on demand when updating their options, preventing a fatal on bulk settings updates while the module is inactive. [#49454]
+- Sharing: Fix the Pinterest sharing button leading to a blank Pinterest page by using Pinterest's direct link sharing endpoint. [#49363]
+- Shortcodes: Ensure the SoundCloud player iFrame is always correctly escaped. [#49315]
+- Shortcodes: Fix query parameters such as playlist, autoplay, and poster to produce valid Archive.org embed URLs. [#49195]
 - Social: Fix PHP warnings on the front end of posts shared with the no link sharing option. [#49372]
-- VideoPress: fix admin page crash on video upload/delete when the free-plan upgrade nudge is shown [#49340]
-- XML-RPC: guard JSON API request parsing to avoid PHP warnings on non-scalar post bodies and failed signature verification. [#49334]
+- VideoPress: Fix admin page crash on video upload/delete when the free-plan upgrade nudge is shown. [#49340]
+- XML-RPC: Guard JSON API request parsing to avoid PHP warnings on non-scalar post bodies and failed signature verification. [#49334]
 
 ### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
 - E2E tests: Improve Sync cleanup and isolation. [#49346]
-- Hello Dolly: retire the legacy per-page `#dolly` color rules so the normalized `.jetpack-admin-page #dolly` treatment (WPDS design token) governs consistently across admin pages. [#49402]
+- Hello Dolly: Retire the legacy per-page `#dolly` color rules and normalize `.jetpack-admin-page #dolly` WPDS design token across admin pages. [#49402]
 - Shortcodes: Prevent PHP warning when Mailchimp embed is malformed. [#48872]
 - Update composer.lock files. [#49415]
-- Updated package dependencies. [#49425]
+- Updated package dependencies. [#49425] [#49379]
 - Updated WooCommerce Analytics package to version 0.16.5. [#49329]
-- Update package dependencies. [#49379]
 
 ## 15.9-a.7 - 2026-06-01
 ### Major Enhancements

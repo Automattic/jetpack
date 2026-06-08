@@ -7,5 +7,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## 0.1.0 - 2026-06-08
 ### Added
-- Add a Settings tab to the SEO admin page: site visibility (search-engine indexing + XML sitemap), post title structure, front-page description, and site verification. Saves through the existing /jetpack/v4/settings and core /wp/v2/settings REST endpoints — no new package endpoint. [#49256]
-- Initialize SEO package under feature flag [#49203]
+- Create an Overview screen with a Site visibility card. [#49203]
+- Create a Settings screen with site visibility, post title structure, front-page description, and site verification.[#49256]
+- Scaffold the new `jetpack-seo` package and mount its admin page. [#49203]

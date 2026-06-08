@@ -20,7 +20,7 @@
 
 ## [1.4.54] - 2026-06-01
 ### Changed
-- Connection: Migrate ActionButton, Button, and Text consumers off @automattic/jetpack-components to @wordpress/ui equivalents; brings the package to zero migration-relevant jetpack-components imports. [#49099]
+- Connection: Migrate ActionButton, Button, and Text consumers off @automattic/jetpack-components to @wordpress/ui equivalents. [#49099]
 - Update package dependencies. [#48404]
 
 ## [1.4.53] - 2026-05-25

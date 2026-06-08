@@ -10,9 +10,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Revert the Jetpack-side changes that re-enabled X (Twitter) sharing in Jetpack Social. [#49309]
 
 ### Fixed
-- Include the routes directory in the TypeScript config so dashboard route files type-check correctly. [#49368]
+- Include the routes directory in the TypeScript config to route files type-check correctly. [#49368]
 - Request a full width and height size for attached media images so WordPress core no longer reads an undefined array index, removing PHP "Undefined array key 1" warnings on posts shared with the no link option. [#49372]
-- Social: refine connection card spacing and accessibility, add breathing room to the connection confirmation modal, and rename the Social Notes settings card. [#49313]
+- Social: Refine connection card spacing and accessibility, add breathing room to the connection confirmation modal, and rename the Social Notes settings card. [#49313]
 - Social Image Generator: Pre-warm the generated image cache after publish so freshly published posts shared on X get a preview thumbnail without waiting on a cold render. [#49390]
 
 ## [0.81.2] - 2026-06-01

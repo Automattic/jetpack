@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.28.7] - 2026-06-08
 ### Fixed
-- Brute force protection: Avoid a fatal error when rendering the login recovery form while an output buffer handler is active. [#49404]
+- Brute Force Protection: Avoid a fatal error when rendering the login recovery form while an output buffer handler is active. [#49404]
 
 ## [0.28.6] - 2026-06-01
 ### Fixed
