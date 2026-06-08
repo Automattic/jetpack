@@ -89,8 +89,8 @@ export default () => {
 					</Stack>
 				) }
 			</Stack>
-			<Stack className="wpcom-daily-writing-prompt--branding" direction="row" justify="flex-end">
-				<JetpackLogo height={ 16 } />
+			<Stack className="wpcom-daily-writing-prompt--branding" direction="row" align="center">
+				<JetpackLogo logoColor="#000000" height={ 24 } />
 			</Stack>
 		</Stack>
 	);
