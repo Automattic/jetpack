@@ -1,0 +1,4 @@
+Significance: patch
+Type: removed
+
+Remove the React version hotfix that pinned react/react-dom/react-jsx-runtime to 18.3.1; the underlying Gutenberg CDN-cache issue is resolved and WordPress.com now ships React 19.

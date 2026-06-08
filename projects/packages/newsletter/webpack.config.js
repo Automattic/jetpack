@@ -12,6 +12,7 @@ export default {
 	entry: {
 		newsletter: path.join( __dirname, 'src/settings/index.tsx' ),
 		'reader-link': path.join( __dirname, 'src/reader-link/style.scss' ),
+		'writing-prompt': path.join( __dirname, 'src/writing-prompt/index.js' ),
 	},
 	output: {
 		...jetpackWebpackConfig.output,

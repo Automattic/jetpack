@@ -1,5 +1,5 @@
-import logger from '_jetpack-e2e-commons/logger';
-import { JetpackOnboarding } from '_jetpack-e2e-commons/utils/jetpack-onboarding';
+import logger from '@automattic/_jetpack-e2e-commons/logger';
+import { JetpackOnboarding } from '@automattic/_jetpack-e2e-commons/utils/jetpack-onboarding';
 import type { Page } from '@playwright/test';
 
 export class Onboarding extends JetpackOnboarding {

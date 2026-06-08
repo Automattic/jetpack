@@ -9,7 +9,7 @@ packages:
   - .github/files/coverage-munger
 
 engineStrict: true
-managePackageManagerVersions: false
+pmOnFail: ignore
 preferWorkspacePackages: true
 
 # Be strict about peer deps
