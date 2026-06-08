@@ -585,6 +585,12 @@ class WooCommerce extends Module {
 		'woocommerce_myaccount_view_subscription_endpoint',
 		'woocommerce_show_marketplace_suggestions',
 		'woocommerce_terms_page_id',
+		'woocommerce_pickup_location_settings',  // This and the below options relate to the WooCommerce Shipping settings page. Required for the Activity Log.
+		'pickup_location_pickup_locations',
+		'woocommerce_ship_to_destination',
+		'woocommerce_shipping_cost_requires_address',
+		'woocommerce_shipping_debug_mode',
+		'woocommerce_shipping_hide_rates_when_free',
 		'woocommerce-ppcp-data-payment', // This and the below options relate to the Pay with PayPal payments settings page. Required for the Activity Log.
 		'woocommerce-ppcp-data-settings',
 		'woocommerce_ppcp-applepay_settings',
