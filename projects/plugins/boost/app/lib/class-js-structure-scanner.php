@@ -208,7 +208,7 @@ class Js_Structure_Scanner {
 	/**
 	 * Whether the given minified JS looks structurally broken/truncated.
 	 *
-	 * @since $$next-version$$
+	 * @since 4.6.0
 	 *
 	 * @param string      $js          Minified JS to inspect.
 	 * @param string|null $original_js The pre-minification input, when available. Used
