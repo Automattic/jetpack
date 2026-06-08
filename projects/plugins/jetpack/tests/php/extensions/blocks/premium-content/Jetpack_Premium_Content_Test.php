@@ -24,9 +24,10 @@ class Jetpack_Premium_Content_Test extends WP_UnitTestCase {
 
 	/**
 	 * Optional override for the refresh endpoint response. If null, refresh is blocked
-	 * (simulates a transient 500). Tests can set this to control refresh behavior.
+	 * (simulates a transient 500). Tests can set this to control refresh behavior — an
+	 * array shape for normal HTTP responses, or a WP_Error to simulate transport failure.
 	 *
-	 * @var array|null
+	 * @var array|\WP_Error|null
 	 */
 	protected $refresh_response_override = null;
 
@@ -42,6 +43,9 @@ class Jetpack_Premium_Content_Test extends WP_UnitTestCase {
 		parent::set_up();
 		Jetpack_Subscriptions::init();
 		add_filter( 'jetpack_is_connection_ready', '__return_true' );
+		// Refresh endpoint URL embeds the site id; without this it resolves to 0 and the
+		// production code's `$site_id <= 0` guard short-circuits before any HTTP call.
+		Jetpack_Options::update_option( 'id', 12345 );
 		add_filter(
 			PAYWALL_FILTER,
 			function () {
@@ -58,6 +62,7 @@ class Jetpack_Premium_Content_Test extends WP_UnitTestCase {
 		remove_all_filters( 'jetpack_is_connection_ready' );
 		remove_all_filters( PAYWALL_FILTER );
 		remove_all_filters( 'pre_http_request' );
+		Jetpack_Options::delete_option( 'id' );
 		$this->refresh_response_override = null;
 		$this->refresh_call_count        = 0;
 		unset( $_COOKIE['wp-jp-premium-content-session'] );

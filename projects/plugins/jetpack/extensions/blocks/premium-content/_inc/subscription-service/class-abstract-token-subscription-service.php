@@ -720,11 +720,11 @@ abstract class Abstract_Token_Subscription_Service implements Subscription_Servi
 	 * on the same response.
 	 */
 	public static function clear_token_cookie() {
+		unset( $_COOKIE[ self::JWT_AUTH_TOKEN_COOKIE_NAME ] );
+
 		if ( defined( 'TESTING_IN_JETPACK' ) && TESTING_IN_JETPACK ) {
 			return;
 		}
-
-		unset( $_COOKIE[ self::JWT_AUTH_TOKEN_COOKIE_NAME ] );
 
 		if ( ! headers_sent() ) {
 			// phpcs:ignore Jetpack.Functions.SetCookie.FoundNonHTTPOnlyFalse
