@@ -59,6 +59,16 @@ export default () => {
 				<Button variant="outline" size="compact" onClick={ postAnswer }>
 					{ __( 'Post Answer', 'jetpack-newsletter' ) }
 				</Button>
+			</Stack>
+			<Stack
+				className="wpcom-daily-writing-prompt--branding"
+				direction="row"
+				justify="space-between"
+				align="center"
+				gap="sm"
+				wrap="wrap"
+			>
+				<JetpackLogo logoColor="#000000" height={ 20 } />
 				{ prompt.answered_users_sample.length > 0 && (
 					<Stack
 						className="wpcom-daily-writing-prompt--answered-users"
@@ -66,6 +76,11 @@ export default () => {
 						align="center"
 						gap="xs"
 					>
+						{ prompt.answered_users_count > 0 && (
+							<Link tone="neutral" href={ new URL( prompt.answered_link ).toString() }>
+								{ __( 'View all responses', 'jetpack-newsletter' ) }
+							</Link>
+						) }
 						<span>
 							{ prompt.answered_users_sample.map( sample => {
 								return (
@@ -82,21 +97,6 @@ export default () => {
 							} ) }
 						</span>
 					</Stack>
-				) }
-			</Stack>
-			<Stack
-				className="wpcom-daily-writing-prompt--branding"
-				direction="row"
-				justify="space-between"
-				align="center"
-				gap="sm"
-				wrap="wrap"
-			>
-				<JetpackLogo logoColor="#000000" height={ 20 } />
-				{ prompt.answered_users_count > 0 && (
-					<Link href={ new URL( prompt.answered_link ).toString() }>
-						{ __( 'View all responses', 'jetpack-newsletter' ) }
-					</Link>
 				) }
 			</Stack>
 		</Stack>
