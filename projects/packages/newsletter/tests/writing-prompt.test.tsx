@@ -89,6 +89,14 @@ describe( 'WritingPrompt widget Reader link and responses', () => {
 		expect( responsesLink ).toHaveAttribute( 'href', 'https://example.com/tag/dailyprompt-1' );
 		expect( screen.getAllByRole( 'img', { name: 'User avatar' } ) ).toHaveLength( 2 );
 
+		// The responses link now lives in the answered-users group, next to the avatars.
+		// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access -- The answered-users group has no ARIA role, so a class selector is the most direct way to scope this assertion.
+		const answeredUsers = container.querySelector( '.wpcom-daily-writing-prompt--answered-users' );
+		expect( answeredUsers ).not.toBeNull();
+		expect(
+			within( answeredUsers as HTMLElement ).getByRole( 'link', { name: /View all responses/ } )
+		).toBeInTheDocument();
+
 		// The branding footer must NOT contain the responses link.
 		// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access -- The branding footer has no ARIA role, so a class selector is the most direct way to scope this assertion.
 		const footer = container.querySelector( '.wpcom-daily-writing-prompt--branding' );
@@ -143,9 +151,10 @@ describe( 'WritingPrompt widget Reader link and responses', () => {
 			name: /Read the blogs and topics you follow/,
 		} );
 		expect( readerLink ).not.toHaveAttribute( 'target' );
+		expect( readerLink ).not.toHaveAttribute( 'rel' );
 	} );
 
-	it( 'falls back to the bare Reader URL when no blog_id is available', async () => {
+	it( 'falls back to the bare Reader URL when site data is unavailable', async () => {
 		mockGetSiteData.mockReturnValue( undefined );
 		mockApiFetch.mockResolvedValue( [ PROMPT_WITH_RESPONSES ] );
 
@@ -155,5 +164,20 @@ describe( 'WritingPrompt widget Reader link and responses', () => {
 			name: /Read the blogs and topics you follow/,
 		} );
 		expect( readerLink ).toHaveAttribute( 'href', 'https://wordpress.com/reader' );
+	} );
+
+	it( 'falls back to the bare Reader URL on a self-hosted site with no wpcom data', async () => {
+		// On a self-hosted Jetpack site, getSiteData() returns a valid object with no wpcom key.
+		mockGetSiteData.mockReturnValue( { site: { title: 'My Blog' } } );
+		mockIsWpcomPlatformSite.mockReturnValue( false );
+		mockApiFetch.mockResolvedValue( [ PROMPT_WITH_RESPONSES ] );
+
+		render( <WritingPrompt /> );
+
+		const readerLink = await screen.findByRole( 'link', {
+			name: /Read the blogs and topics you follow/,
+		} );
+		expect( readerLink ).toHaveAttribute( 'href', 'https://wordpress.com/reader' );
+		expect( readerLink ).toHaveAttribute( 'target', '_blank' );
 	} );
 } );
