@@ -139,7 +139,7 @@ async function fixDeps( pkg ) {
 	}
 
 	// Unnecessarily explicit deps. I don't think we really even need @wordpress/babel-preset-default at all.
-	if ( pkg.name === '@wordpress/babel-preset-default' || pkg.name === '@wordpress/eslint-plugin' ) {
+	if ( pkg.name === '@wordpress/babel-preset-default' ) {
 		for ( const [ dep, ver ] of Object.entries( pkg.dependencies ) ) {
 			if ( dep.startsWith( '@babel/' ) && ! ver.startsWith( '^' ) && ! ver.startsWith( '>' ) ) {
 				pkg.dependencies[ dep ] = '^' + ver;
@@ -276,16 +276,6 @@ async function fixDeps( pkg ) {
 		pkg.dependencies.glob = '^13';
 	}
 
-	// `@base-ui/react` added a peer dependency on `date-fns`, but `@wordpress/ui` doesn't satisfy it.
-	// https://github.com/WordPress/gutenberg/issues/77395
-	if (
-		( pkg.name === '@wordpress/ui' || pkg.name === '@wordpress/dataviews' ) &&
-		( ! pkg.dependencies?.[ 'date-fns' ] || ! pkg.dependencies?.[ '@date-fns/tz' ] )
-	) {
-		pkg.dependencies[ 'date-fns' ] ??= '^4.0.0';
-		pkg.dependencies[ '@date-fns/tz' ] ??= '^1.2.0';
-	}
-
 	return pkg;
 }
 
@@ -405,15 +395,6 @@ function fixPeerDeps( pkg ) {
 		pkg.peerDependencies?.stylelint?.startsWith( '^16.' )
 	) {
 		pkg.peerDependencies.stylelint = '^17';
-	}
-
-	// 0.x versions treat `^` like `~`. Replace with `>=`.
-	if ( pkg.name === '@wordpress/build' && pkg.peerDependencies ) {
-		for ( const [ dep, ver ] of Object.entries( pkg.peerDependencies ) ) {
-			if ( ver.startsWith( '^0.' ) ) {
-				pkg.peerDependencies[ dep ] = '>=' + ver.substring( 1 );
-			}
-		}
 	}
 
 	return pkg;
