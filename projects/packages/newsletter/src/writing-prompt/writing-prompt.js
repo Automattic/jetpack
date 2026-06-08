@@ -66,11 +66,6 @@ export default () => {
 						align="center"
 						gap="xs"
 					>
-						{ prompt.answered_users_count > 0 && (
-							<Link href={ new URL( prompt.answered_link ).toString() }>
-								{ __( 'View all responses', 'jetpack-newsletter' ) }
-							</Link>
-						) }
 						<span>
 							{ prompt.answered_users_sample.map( sample => {
 								return (
@@ -89,8 +84,20 @@ export default () => {
 					</Stack>
 				) }
 			</Stack>
-			<Stack className="wpcom-daily-writing-prompt--branding" direction="row" align="center">
+			<Stack
+				className="wpcom-daily-writing-prompt--branding"
+				direction="row"
+				justify="space-between"
+				align="center"
+				gap="sm"
+				wrap="wrap"
+			>
 				<JetpackLogo logoColor="#000000" height={ 20 } />
+				{ prompt.answered_users_count > 0 && (
+					<Link href={ new URL( prompt.answered_link ).toString() }>
+						{ __( 'View all responses', 'jetpack-newsletter' ) }
+					</Link>
+				) }
 			</Stack>
 		</Stack>
 	);
