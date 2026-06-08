@@ -84,6 +84,11 @@ async function fixDeps( pkg ) {
 		pkg.peerDependencies.react = '^18';
 	}
 
+	// Unnecessary dep. Probably waiting on https://github.com/WordPress/gutenberg/pull/78747 to resolve it.
+	if ( pkg.name === '@wordpress/components' && pkg.dependencies?.[ '@emotion/native' ] ) {
+		delete pkg.dependencies?.[ '@emotion/native' ];
+	}
+
 	// We need to add the missing deps for `@wordpress/dataviews` because
 	// the build fails when using pnpm with hoisting.
 	// @see https://github.com/WordPress/gutenberg/issues/67864
@@ -351,13 +356,20 @@ function fixPeerDeps( pkg ) {
 		pkg.peerDependenciesMeta[ '@size-limit/file' ] = { optional: true };
 	}
 
-	// Override @automattic/launchpad peer dependency to use @wordpress/i18n v6 if it's on v5.
-	if (
-		pkg.name === '@automattic/launchpad' &&
-		pkg.peerDependencies?.[ '@wordpress/i18n' ] &&
-		pkg.peerDependencies?.[ '@wordpress/i18n' ].startsWith( '^5.' )
-	) {
-		pkg.peerDependencies[ '@wordpress/i18n' ] = '^6';
+	// Override @automattic/launchpad outdated peer dependencies.
+	if ( pkg.name === '@automattic/launchpad' ) {
+		if (
+			pkg.peerDependencies?.[ '@wordpress/element' ] &&
+			pkg.peerDependencies?.[ '@wordpress/element' ].startsWith( '^6.' )
+		) {
+			pkg.peerDependencies[ '@wordpress/element' ] = '^8';
+		}
+		if (
+			pkg.peerDependencies?.[ '@wordpress/i18n' ] &&
+			pkg.peerDependencies?.[ '@wordpress/i18n' ].startsWith( '^5.' )
+		) {
+			pkg.peerDependencies[ '@wordpress/i18n' ] = '^6';
+		}
 	}
 
 	// Outdated peer dependency because Gutenberg is still on node 20.
