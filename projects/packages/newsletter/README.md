@@ -53,7 +53,7 @@ When the subscriptions module is active, a notice is added to the wp-admin **Set
 
 ## Daily Writing Prompt widget
 
-`Writing_Prompt_Widget::init()` registers a `Daily Writing Prompt` dashboard widget for users who can `manage_options`. The widget renders a hydration container and enqueues the `writing-prompt` build assets, which mount a React app that fetches the latest blogging prompts from `/wpcom/v3/blogging-prompts` and lets the user jump into answering one. Its footer also links to the WordPress.com Reader, built client-side from `@automattic/jetpack-script-data` (`blog_id` supplies the `origin_site_id`) to mirror `Reader_Link`.
+`Writing_Prompt_Widget::init()` registers a `Daily Writing Prompt` dashboard widget for users who can `manage_options`. The widget renders a hydration container and enqueues the `writing-prompt` build assets, which mount a React app that fetches the latest blogging prompts from `/wpcom/v3/blogging-prompts` and lets the user jump into answering one.
 
 ## Using this package in your WordPress plugin
 
