@@ -179,7 +179,6 @@ add_action(
 			#adminmenuback,
 			#adminmenumain,
 			#wpfooter,
-			#wpcom-help-center,
 			.wp-admin-bar-fix { display: none !important; }
 			#wpcontent,
 			#wpbody,
@@ -920,6 +919,7 @@ function wpcom_write_template( $edit_title = '', $edit_content = '', $edit_post_
 			<div class="bw-help-row"><kbd>Tab</kbd><span><?php echo esc_html__( 'Navigate slash menu options', 'jetpack-mu-wpcom' ); ?></span></div>
 			<div class="bw-help-row"><kbd>Shift+Tab</kbd><span><?php echo esc_html__( 'Focus formatting toolbar', 'jetpack-mu-wpcom' ); ?></span></div>
 			<div class="bw-help-row"><kbd>#tag</kbd><span><?php echo esc_html__( 'A line containing only #tags assigns them to the post on save', 'jetpack-mu-wpcom' ); ?></span></div>
+			<a class="bw-help-link" data-target="wpcom-help-center" href="https://wordpress.com/support/editors/write-editor/" target="_blank" rel="noopener noreferrer"><?php echo esc_html__( 'Read the Write editor guide', 'jetpack-mu-wpcom' ); ?> <span aria-hidden="true">&#8599;</span></a>
 		</div>
 		</div><!-- /.bw-help-wrap -->
 		<span class="bw-status" data-wp-text="state.displayStatus"></span>
