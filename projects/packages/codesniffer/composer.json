@@ -43,7 +43,6 @@
 		"phpunit": [
 			"phpunit-select-config phpunit.#.xml.dist --colors=always"
 		],
-		"test-coverage": "@composer test-php-coverage",
 		"test-php": [
 			"@composer phpunit",
 			"./check-docs.sh"

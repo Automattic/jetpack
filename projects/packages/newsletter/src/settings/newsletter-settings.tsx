@@ -484,6 +484,12 @@ export function NewsletterSettingsBody( {
 									hasActivePlan={ data.newsletter_has_active_plan }
 								/>
 
+								<EmailDefaultsSection
+									data={ data }
+									onChange={ handleAutoSave }
+									isNewsletterEnabled={ data.subscriptions }
+								/>
+
 								<SubscriptionsSection
 									data={ data }
 									onChange={ handleSubscriptionChange }
@@ -491,12 +497,6 @@ export function NewsletterSettingsBody( {
 									isSaving={ isSavingSubscriptions }
 									hasChanges={ hasSubscriptionChanges }
 									changedKeys={ Object.keys( subscriptionChanges ) }
-									isNewsletterEnabled={ data.subscriptions }
-								/>
-
-								<EmailDefaultsSection
-									data={ data }
-									onChange={ handleAutoSave }
 									isNewsletterEnabled={ data.subscriptions }
 								/>
 

@@ -13,7 +13,7 @@
             "dist": {
                 "type": "path",
                 "url": "projects/packages/ignorefile",
-                "reference": "5ecafb846fd3310a04c74d9a2288a03114a6c3ce"
+                "reference": "cf5678c913ecf584aa9a8e1cb08a91a52e065290"
             },
             "require": {
                 "php": ">=7.2"
@@ -42,9 +42,6 @@
                 "phpunit": [
                     "phpunit-select-config phpunit.#.xml.dist --colors=always"
                 ],
-                "test-coverage": [
-                    "@composer test-php-coverage"
-                ],
                 "test-php": [
                     "@composer phpunit"
                 ],
@@ -66,7 +63,7 @@
             "dist": {
                 "type": "path",
                 "url": "projects/packages/codesniffer",
-                "reference": "c7693c2d7a69610a508daaef83832587f1aa68d2"
+                "reference": "7e231b40683ea82fd42417276e1f6fe0665157db"
             },
             "require": {
                 "automattic/vipwpcs": "^3.0",
@@ -111,9 +108,6 @@
                 "phpunit": [
                     "phpunit-select-config phpunit.#.xml.dist --colors=always"
                 ],
-                "test-coverage": [
-                    "@composer test-php-coverage"
-                ],
                 "test-php": [
                     "@composer phpunit",
                     "./check-docs.sh"
@@ -144,7 +138,7 @@
             "dist": {
                 "type": "path",
                 "url": "projects/packages/phan-plugins",
-                "reference": "6c00dcad2320364816faf378c8e0d24c1f49ef18"
+                "reference": "7b54675be8c2d8e8a04854ce9101618296be0fc5"
             },
             "require": {
                 "phan/phan": "5.5.2",
@@ -174,9 +168,6 @@
                 "phpunit": [
                     "phpunit-select-config phpunit.#.xml.dist --colors=always"
                 ],
-                "test-coverage": [
-                    "@composer test-php-coverage"
-                ],
                 "test-php": [
                     "@composer phpunit"
                 ],
@@ -204,7 +195,7 @@
             "dist": {
                 "type": "path",
                 "url": "projects/packages/phpcs-filter",
-                "reference": "7c4a33c02dd8c279c807fd0350b27996d836799b"
+                "reference": "72cdb43773a1ccc86f44e57ff87ef8e5aa787a03"
             },
             "require": {
                 "automattic/ignorefile": "@dev",
@@ -229,9 +220,6 @@
             "scripts": {
                 "phpunit": [
                     "phpunit-select-config phpunit.#.xml.dist --colors=always"
-                ],
-                "test-coverage": [
-                    "@composer test-php-coverage"
                 ],
                 "test-php": [
                     "@composer phpunit"

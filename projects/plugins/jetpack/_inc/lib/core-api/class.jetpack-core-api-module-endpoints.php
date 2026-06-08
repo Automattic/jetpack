@@ -716,6 +716,11 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 					break;
 
 				case 'monitor_receive_notifications':
+					if ( ! class_exists( 'Jetpack_Monitor' ) ) {
+						$updated = false;
+						break;
+					}
+
 					$monitor = new Jetpack_Monitor();
 
 					// If we got true as response, consider it done.
@@ -723,6 +728,11 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 					break;
 
 				case 'post_by_email_address':
+					if ( ! class_exists( 'Jetpack_Post_By_Email' ) ) {
+						$updated = false;
+						break;
+					}
+
 					$result = Jetpack_Post_By_Email::init()->process_api_request( $value );
 
 					// If we got an email address (create or regenerate) or 1 (delete), consider it done.

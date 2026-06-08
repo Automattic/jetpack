@@ -31,10 +31,6 @@
 		"phpunit": [
 			"phpunit-select-config phpunit.#.xml.dist --colors=always"
 		],
-		"test-coverage": [
-			"@composer test-php-coverage",
-			"@composer test-js-coverage"
-		],
 		"test-js": "pnpm run test:js",
 		"test-js-coverage": "pnpm run test:js --coverage",
 		"test-php": "@composer phpunit",

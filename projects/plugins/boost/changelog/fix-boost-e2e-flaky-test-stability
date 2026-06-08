@@ -1,3 +1,0 @@
-Significance: patch
-Type: fixed
-Comment: Fix flaky E2E tests with deterministic network synchronization.
