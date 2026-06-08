@@ -1,4 +1,4 @@
 Significance: minor
 Type: added
 
-Add Settings::raw_show_image_url() and validate the stored category ID in Customize_Feed::resolve_category_id(), matching legacy WPCOM semantics
+Podcast: ignore a deleted podcast category and add a raw show image URL accessor
