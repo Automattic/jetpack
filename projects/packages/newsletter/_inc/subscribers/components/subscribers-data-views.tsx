@@ -1,7 +1,7 @@
 import { DataViews } from '@wordpress/dataviews';
 import { useCallback, useMemo, useState } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
-import { Notice } from '@wordpress/ui';
+import { Notice, Text } from '@wordpress/ui';
 import { useSubscriberRemoveMutation } from '../data/use-subscriber-remove-mutation';
 import { useSubscribers } from '../data/use-subscribers';
 import {
@@ -370,9 +370,13 @@ export default function SubscribersDataViews( {
 	return (
 		<>
 			{ hasTotal && (
-				<p className="jetpack-newsletter__subscribers-count" aria-live="polite">
+				<Text
+					variant="body-sm"
+					className="jetpack-newsletter__subscribers-count"
+					aria-live="polite"
+				>
 					{ countLabel }
-				</p>
+				</Text>
 			) }
 			<DataViews< Subscriber >
 				data={ displayedSubscribers }
