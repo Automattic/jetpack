@@ -7,6 +7,7 @@
 
 use Automattic\Jetpack\Waf\Waf_Constants;
 use Automattic\Jetpack\Waf\Waf_Runner;
+use PHPUnit\Framework\Attributes\PreserveGlobalState;
 use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 
 /**
@@ -60,8 +61,10 @@ final class WafRunnerTest extends PHPUnit\Framework\TestCase {
 	 * to fire a 403 because the empty request method was not in the allowed-methods list.
 	 *
 	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
 	 */
 	#[RunInSeparateProcess]
+	#[PreserveGlobalState(false)]
 	public function testRunSkipsRulesWhenRequestMethodIsAbsent() {
 		define( 'ABSPATH', '/pseudo' );
 		define( 'WP_CONTENT_DIR', '/pseudo/dir' );
