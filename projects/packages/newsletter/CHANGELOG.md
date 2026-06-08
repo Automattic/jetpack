@@ -15,7 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - Include the routes directory in the TypeScript config so dashboard route files type-check correctly. [#49368]
-- Newsletter: Don't show the WordPress.com connection prompt on Simple sites, which are already connected. [#49365]
+- Don't show the WordPress.com connection prompt on Simple sites, which are already connected. [#49365]
 - Restore body padding by wrapping content in Dialog.Content in Add subscribers and Comp modals. [#49327]
 - Subscribers Dashboard: Fix several Comp modal issues — show the plan billing interval in the picker, correct plan selection, disable and explain (via tooltip) plans the reader already has, surface the specific already-comped error message, and fix a clipped focus ring. [#49441]
 - Subscribers Dashboard: Show the empty state when the site owner is the only subscriber, and point the empty-state copy at the subscription form documentation. [#49410]
