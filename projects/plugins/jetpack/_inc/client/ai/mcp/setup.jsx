@@ -21,6 +21,7 @@ import { Button, Link, Stack } from '@wordpress/ui';
 
 const MCP_SERVER_NAME = 'wpcom-mcp';
 const MCP_SERVER_URL = 'https://public-api.wordpress.com/wpcom/v2/mcp/v1';
+const CLAUDE_SETTINGS_CONNECTOR_REDIRECT_SOURCE = 'jetpack-ai-claude-settings-connector';
 
 const CLIENT_OPTIONS = [
 	{ label: 'Claude', value: 'claude' },
@@ -132,7 +133,7 @@ export default function McpSetup() {
 											{ createInterpolateElement( __( 'Open <ClaudeSettings/>.', 'jetpack' ), {
 												ClaudeSettings: (
 													<Link
-														href={ getRedirectUrl( 'https://claude.ai/settings/connectors' ) }
+														href={ getRedirectUrl( CLAUDE_SETTINGS_CONNECTOR_REDIRECT_SOURCE ) }
 														openInNewTab
 													>
 														{ __( 'Claude settings', 'jetpack' ) }
