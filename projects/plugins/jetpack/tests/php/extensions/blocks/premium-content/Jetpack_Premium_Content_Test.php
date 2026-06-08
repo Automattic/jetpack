@@ -355,8 +355,10 @@ class Jetpack_Premium_Content_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * When the refresh endpoint returns a transient failure (5xx), the original
-	 * stale token behavior should apply — access denied, cookie left alone.
+	 * When the refresh endpoint returns a transient failure (5xx), access is
+	 * denied AND the cookie is left intact — this is what distinguishes the
+	 * transient branch from the deterministic `success: false` branch, so we
+	 * assert both halves explicitly.
 	 *
 	 * @return void
 	 */
@@ -366,10 +368,12 @@ class Jetpack_Premium_Content_Test extends WP_UnitTestCase {
 		$plan_id            = $users_plans[3];
 
 		wp_set_current_user( $paid_subscriber_id );
-		$stale_payload = $this->get_payload( true, true, time() - HOUR_IN_SECONDS );
-		$this->set_returned_token( $stale_payload );
+		$stale_payload                            = $this->get_payload( true, true, time() - HOUR_IN_SECONDS );
+		$service                                  = subscription_service();
+		$token_string                             = JWT::encode( $stale_payload, $service->get_key() );
+		$_COOKIE['wp-jp-premium-content-session'] = $token_string;
+		$_GET['token']                            = $token_string;
 
-		// Refresh endpoint returns a 500 (the default mock behavior).
 		$this->refresh_response_override = array(
 			'response' => array(
 				'code'    => 500,
@@ -381,6 +385,8 @@ class Jetpack_Premium_Content_Test extends WP_UnitTestCase {
 		);
 
 		$this->assertFalse( current_visitor_can_access( array( 'selectedPlanIds' => array( $plan_id ) ), array() ) );
+		$this->assertSame( 1, $this->refresh_call_count, 'Refresh should have been attempted for a stale token with matching product_id.' );
+		$this->assertSame( $token_string, $_COOKIE['wp-jp-premium-content-session'] ?? null, 'Cookie must be preserved on transient failure so the next request can retry.' );
 	}
 
 	/**
@@ -425,8 +431,8 @@ class Jetpack_Premium_Content_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * A WP_Error from the HTTP layer (e.g. network timeout) is treated as a
-	 * transient failure — deny access, leave cookie alone.
+	 * A WP_Error from the HTTP layer (e.g. network timeout) is treated the same
+	 * as a 5xx: deny access, leave the cookie intact for the next request to retry.
 	 *
 	 * @return void
 	 */
@@ -436,12 +442,17 @@ class Jetpack_Premium_Content_Test extends WP_UnitTestCase {
 		$plan_id            = $users_plans[3];
 
 		wp_set_current_user( $paid_subscriber_id );
-		$stale_payload = $this->get_payload( true, true, time() - HOUR_IN_SECONDS );
-		$this->set_returned_token( $stale_payload );
+		$stale_payload                            = $this->get_payload( true, true, time() - HOUR_IN_SECONDS );
+		$service                                  = subscription_service();
+		$token_string                             = JWT::encode( $stale_payload, $service->get_key() );
+		$_COOKIE['wp-jp-premium-content-session'] = $token_string;
+		$_GET['token']                            = $token_string;
 
 		$this->refresh_response_override = new WP_Error( 'http_request_failed', 'cURL error 28: Operation timed out' );
 
 		$this->assertFalse( current_visitor_can_access( array( 'selectedPlanIds' => array( $plan_id ) ), array() ) );
+		$this->assertSame( 1, $this->refresh_call_count, 'Refresh should have been attempted for a stale token with matching product_id.' );
+		$this->assertSame( $token_string, $_COOKIE['wp-jp-premium-content-session'] ?? null, 'Cookie must be preserved on WP_Error so the next request can retry.' );
 	}
 
 	/**
