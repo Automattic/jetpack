@@ -112,14 +112,25 @@ export function useGoogleVerify(): GoogleVerify {
 				type: 'snackbar',
 				isDismissible: false,
 			} );
-			// POST verifies the site, then re-fetch the authoritative status: the
-			// verify response doesn't reliably carry the final verified flag, so the
-			// badge is driven by a follow-up status check (mirrors the legacy flow).
-			apiFetch( {
-				path: ENDPOINT,
-				method: 'POST',
-				data: { keyring_id: keyringId },
-			} )
+			// The auto-verify flow is: (1) fetch the verification token for this keyring,
+			// (2) save it to `verification_services_codes.google` so the site serves the
+			// `google-site-verification` meta tag, (3) ask Google to verify (it fetches the
+			// tag), (4) re-read the authoritative status. Skipping step 2 fails with
+			// "the necessary verification token could not be found on your site".
+			apiFetch< GoogleVerifyStatus >( { path: `${ ENDPOINT }/${ keyringId }` } )
+				.then( status => {
+					if ( status.verified || ! status.token ) {
+						return undefined;
+					}
+					return apiFetch( {
+						path: '/jetpack/v4/settings',
+						method: 'POST',
+						data: { google: status.token },
+					} );
+				} )
+				.then( () =>
+					apiFetch( { path: ENDPOINT, method: 'POST', data: { keyring_id: keyringId } } )
+				)
 				.then( () => apiFetch< GoogleVerifyStatus >( { path: `${ ENDPOINT }/${ keyringId }` } ) )
 				.then( status => {
 					applyStatus( status );

@@ -17,4 +17,11 @@ export interface GoogleVerifyStatus {
 	verified: boolean;
 	is_owner: boolean;
 	google_search_console_url: string;
+	/**
+	 * The verification token Google expects to find on the site. It must be saved to
+	 * `verification_services_codes.google` (so the `google-site-verification` meta tag
+	 * is emitted) BEFORE asking Google to verify, or verification fails with
+	 * "the necessary verification token could not be found on your site".
+	 */
+	token?: string;
 }
