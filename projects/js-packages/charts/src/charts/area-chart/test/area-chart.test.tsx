@@ -240,7 +240,7 @@ describe( 'AreaChart', () => {
 			expect( keyboardCall![ 0 ].tooltipData?.nearestDatum?.key ).not.toBe( 'Series A' );
 		} );
 
-		test( 'y-axis domain stays fixed across legend toggles', async () => {
+		test( 'y-axis rescales across legend toggles by default', async () => {
 			const user = userEvent.setup();
 			const ref = createRef< SingleChartRef >();
 			render(
@@ -248,8 +248,73 @@ describe( 'AreaChart', () => {
 					<AreaChartUnresponsive
 						{ ...defaultProps }
 						showLegend
-						chartId="test-interactive-domain"
+						chartId="test-interactive-domain-rescale"
 						legend={ { interactive: true } }
+						ref={ ref }
+					/>
+				</GlobalChartsProvider>
+			);
+
+			const initialDomain = (
+				ref.current?.getScales()?.yScale as { domain: () => number[] } | undefined
+			 )?.domain();
+			expect( initialDomain ).toBeDefined();
+
+			await user.click( screen.getByText( 'Series A' ) );
+
+			const afterToggleDomain = (
+				ref.current?.getScales()?.yScale as { domain: () => number[] } | undefined
+			 )?.domain();
+			// Hiding Series A drops the upper bound; visx should refit.
+			expect( afterToggleDomain ).toBeDefined();
+			expect( afterToggleDomain![ 1 ] ).toBeLessThan( initialDomain![ 1 ] );
+		} );
+
+		test( 'y-axis stays pinned for unstacked area when rescaleYOnLegendToggle is false', async () => {
+			// Exercises the non-stacked branch of fixedYDomain, which scans the
+			// raw min/max across all series rather than summing stack columns.
+			const user = userEvent.setup();
+			const ref = createRef< SingleChartRef >();
+			render(
+				<GlobalChartsProvider>
+					<AreaChartUnresponsive
+						{ ...defaultProps }
+						showLegend
+						chartId="test-interactive-domain-pin-unstacked"
+						legend={ { interactive: true } }
+						stacked={ false }
+						rescaleYOnLegendToggle={ false }
+						ref={ ref }
+					/>
+				</GlobalChartsProvider>
+			);
+
+			const initialDomain = (
+				ref.current?.getScales()?.yScale as { domain: () => number[] } | undefined
+			 )?.domain();
+			expect( initialDomain ).toBeDefined();
+			// defaultProps has values up to 20; pinned-unstacked should cover the max.
+			expect( initialDomain![ 1 ] ).toBeGreaterThanOrEqual( 20 );
+
+			await user.click( screen.getByText( 'Series A' ) );
+
+			const afterToggleDomain = (
+				ref.current?.getScales()?.yScale as { domain: () => number[] } | undefined
+			 )?.domain();
+			expect( afterToggleDomain ).toEqual( initialDomain );
+		} );
+
+		test( 'y-axis stays pinned when rescaleYOnLegendToggle is false', async () => {
+			const user = userEvent.setup();
+			const ref = createRef< SingleChartRef >();
+			render(
+				<GlobalChartsProvider>
+					<AreaChartUnresponsive
+						{ ...defaultProps }
+						showLegend
+						chartId="test-interactive-domain-pin"
+						legend={ { interactive: true } }
+						rescaleYOnLegendToggle={ false }
 						ref={ ref }
 					/>
 				</GlobalChartsProvider>
@@ -268,7 +333,11 @@ describe( 'AreaChart', () => {
 			expect( afterToggleDomain ).toEqual( initialDomain );
 		} );
 
-		test( 'supports negative stacked values without clipping', () => {
+		test( 'supports negative stacked values without clipping (with pinned Y)', () => {
+			// The mixed-sign full-extent pin only kicks in when the consumer
+			// opts into pinned-Y behavior; visx's natural domain derivation for
+			// a `stackOffset: 'none'` stack does not extend below zero for
+			// purely-negative series, which is what this test guards against.
 			const ref = createRef< SingleChartRef >();
 			render(
 				<GlobalChartsProvider>
@@ -278,6 +347,7 @@ describe( 'AreaChart', () => {
 						chartId="test-interactive-negative"
 						showLegend
 						legend={ { interactive: true } }
+						rescaleYOnLegendToggle={ false }
 						data={ [
 							{
 								label: 'Pos',
@@ -463,5 +533,15 @@ describe( 'AreaChart', () => {
 			expect( screen.getByTestId( 'area-chart-hover-glyph-1' ) ).toBeInTheDocument();
 			expect( screen.queryByTestId( 'area-chart-hover-glyph-0' ) ).not.toBeInTheDocument();
 		} );
+	} );
+
+	// The area is animated, so it clips whenever zoomable (not just while zoomed).
+	test( 'clips the series to the plot when zoomable', () => {
+		renderUnresponsive( { zoomable: true, chartId: 'zoomtest' } );
+
+		expect( screen.getByTestId( 'chart-series-clip-group' ) ).toHaveAttribute(
+			'clip-path',
+			'url(#chart-zoom-clip-zoomtest)'
+		);
 	} );
 } );

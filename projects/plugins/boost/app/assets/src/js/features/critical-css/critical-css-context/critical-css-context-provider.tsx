@@ -86,6 +86,8 @@ export function useCriticalCssRetriedAfterErrorState() {
 	return [ hasRetried, setHasRetried ] as const;
 }
 
+const COMPLETION_HOLD_MS = 750;
+
 /**
  * For Critical CSS UI: Actually run the local generator and return its status.
  */
@@ -107,14 +109,34 @@ export function useLocalCriticalCssGenerator() {
 		() => {
 			if ( cssState.status === 'pending' && cssState.providers.length > 0 ) {
 				let abortController: AbortController | undefined;
+				let holdTimerId: ReturnType< typeof setTimeout > | undefined;
 
 				setGenerating( true );
 				abortController = runLocalGenerator( cssState.providers, proxyNonce, {
 					onError: ( error: Error ) => setCssState( criticalCssErrorState( error.message ) ),
 
-					onFinished: () => {
-						setGenerating( false );
-						abortController = undefined;
+					onFinished: ( succeeded: boolean ) => {
+						if ( holdTimerId ) {
+							clearTimeout( holdTimerId );
+							holdTimerId = undefined;
+						}
+
+						if ( succeeded ) {
+							// Hold progress at 100% briefly so the bar visually reaches
+							// completion before the server status flips to 'generated'
+							// and the progress bar is replaced by the completed view.
+							setProviderProgress( 1 );
+							holdTimerId = setTimeout( () => {
+								setProviderProgress( 0 );
+								setGenerating( false );
+								holdTimerId = undefined;
+								abortController = undefined;
+							}, COMPLETION_HOLD_MS );
+						} else {
+							setProviderProgress( 0 );
+							setGenerating( false );
+							abortController = undefined;
+						}
 					},
 
 					setProviderCss: ( key: string, css: string ) => {
@@ -127,7 +149,11 @@ export function useLocalCriticalCssGenerator() {
 					setProviderProgress,
 				} );
 
-				return () => abortController && abortController.abort();
+				return () => {
+					if ( abortController ) {
+						abortController.abort();
+					}
+				};
 			} else if ( cssState.status === 'not_generated' ) {
 				// If there is no css generated, request that the generator start.
 				generateCriticalCssAction.mutate();
@@ -141,8 +167,9 @@ export function useLocalCriticalCssGenerator() {
 		[ cssState.status, cssState.providers.length ]
 	);
 
-	const progress =
-		( isGenerating && calculateCriticalCssProgress( cssState.providers, providerProgress ) ) || 0;
+	// Always calculate progress so it reflects the true state even after
+	// the server status flips to 'generated' but isGenerating is still true.
+	const progress = calculateCriticalCssProgress( cssState.providers, providerProgress );
 
 	return { isGenerating, progress };
 }

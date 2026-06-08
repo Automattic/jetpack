@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Plugin Conflicts Guardian: add force-override controls on the block notice — "Activate anyway" / "Retry without check" for one-shot bypass and a 10-minute bypass toggle for repeated retries.

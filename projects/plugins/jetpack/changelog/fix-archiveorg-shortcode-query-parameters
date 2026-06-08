@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Shortcodes: fix [archiveorg] so query parameters such as playlist, autoplay, and poster produce valid Archive.org embed URLs.

@@ -511,7 +511,7 @@ if ( ! function_exists( 'jetpack_is_internal_testing_environment' ) ) {
 	 * WordPress.com.
 	 *
 	 * Note: This intentionally duplicates the logic from
-	 * Agents_Manager::is_dev_mode() in jetpack-mu-wpcom rather than calling
+	 * Agents_Manager::is_dev_mode() in jetpack-agents-manager rather than calling
 	 * it directly, because that package is only available on WordPress.com
 	 * hosted sites, while Jetpack also runs on self-hosted sites.
 	 *

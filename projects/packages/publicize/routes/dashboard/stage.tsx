@@ -1,5 +1,8 @@
+import analytics from '@automattic/jetpack-analytics';
+import { getScriptData } from '@automattic/jetpack-script-data';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useDispatch } from '@wordpress/data';
+import { useEffect, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { useSearch } from '@wordpress/route';
 import { Button, Tabs } from '@wordpress/ui';
@@ -39,13 +42,11 @@ const AddAccountAction = () => {
  * active-tab indicator slides between Overview and Settings instead of
  * remounting on each route hop.
  *
- * `ConnectionScreen` (site not connected) and `PricingPage` (free
- * Jetpack, not dismissed) pre-empt the chassis at the PHP layer: when
- * either condition holds, `Social_Admin_Page` routes the menu callback
- * to the legacy `SocialAdminPage` shell so those flows render exactly
- * as they do today. The chassis therefore renders only on the happy
- * path — connected + paid/dismissed — and stays free of the
- * jetpack-connection bundle's asset imports.
+ * When the site is disconnected, or on the free plan with the pricing
+ * nudge not yet dismissed, the client-side `SocialGate` (rendered inside
+ * `SocialPage`) shows the connection or pricing gate in place of these
+ * tabs — so the modernized dashboard handles those states itself instead
+ * of falling back to the legacy admin page.
  *
  * @return Stage content.
  */
@@ -58,6 +59,30 @@ const Stage = () => {
 	const activeTab: SocialTab = search.tab === 'settings' ? 'settings' : 'overview';
 
 	const actions = activeTab === 'overview' ? <AddAccountAction /> : null;
+
+	// Initialize analytics once per mount so subsequent `recordEvent` calls
+	// queue with a user identity attached. Mirrors the Newsletter chassis.
+	useEffect( () => {
+		const wpcomUser = getScriptData()?.user?.current_user?.wpcom;
+		if ( wpcomUser?.ID && wpcomUser?.login ) {
+			analytics.initialize( wpcomUser.ID, wpcomUser.login );
+		}
+	}, [] );
+
+	// Record a tab-view event on initial mount and whenever the active tab
+	// changes. The `lastTrackedTab` ref dedupes React 18 StrictMode's
+	// dev-only mount/cleanup/remount cycle — refs persist across the
+	// simulated remount, so the second setup invocation finds the current
+	// tab already recorded and bails out. Production sees one fire per tab
+	// change either way.
+	const lastTrackedTab = useRef< SocialTab | null >( null );
+	useEffect( () => {
+		if ( lastTrackedTab.current === activeTab ) {
+			return;
+		}
+		lastTrackedTab.current = activeTab;
+		analytics.tracks.recordEvent( 'jetpack_social_tab_view', { tab: activeTab } );
+	}, [ activeTab ] );
 
 	return (
 		<QueryClientProvider client={ queryClient }>

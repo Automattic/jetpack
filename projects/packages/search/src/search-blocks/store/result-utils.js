@@ -379,6 +379,10 @@ export function normalizeResult( raw, locale = 'en-US', searchQuery = '' ) {
 	const matchHint = hasQuery ? deriveMatchHint( highlight, titlePieces ) : '';
 	return {
 		id: String( raw?.result_id ?? fields.post_id ?? permalink ),
+		// Server-assigned TrainTracks payload (fetch_algo, railcar, session_id…).
+		// The search API attaches it per-result; carried through so the relevance
+		// events in store/index.js can read it off `context.result`.
+		railcar: raw?.railcar ?? null,
 		title: plainTitle,
 		titlePieces,
 		hasTitlePieces: titlePieces.length > 0,

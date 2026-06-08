@@ -26,7 +26,7 @@ export function ConnectionsToggleList( {
 	onClickItem,
 	getItemClassName,
 }: ConnectionsToggleListProps ) {
-	const { canBeTurnedOn, shouldBeDisabled, getDisabledReason } = useConnectionState();
+	const { canBeTurnedOn, shouldBeDisabled } = useConnectionState();
 	const { connections } = useSocialMediaConnections();
 
 	const onClickConnection = useCallback(
@@ -46,19 +46,8 @@ export function ConnectionsToggleList( {
 				const isSelected = Boolean( canBeTurnedOn( connection ) && connection.enabled );
 
 				const isDisabled = shouldBeDisabled( connection );
-				const isQuotaBlocked = getDisabledReason( connection ) === 'quota_exceeded';
 
 				const ariaLabel = getA11yLabelForConnectionToggle( connection );
-				const quotaReachedLabel = __( 'Sharing limit reached', 'jetpack-publicize-pkg' );
-
-				const quotaTooltipProps = isQuotaBlocked
-					? {
-							label: quotaReachedLabel,
-							description: quotaReachedLabel,
-							showTooltip: true,
-							accessibleWhenDisabled: true,
-					  }
-					: {};
 
 				return (
 					<Button
@@ -78,7 +67,6 @@ export function ConnectionsToggleList( {
 						aria-label={ ariaLabel }
 						aria-checked={ isSelected }
 						className={ clsx( styles.item, getItemClassName?.( connection ) ) }
-						{ ...quotaTooltipProps }
 					>
 						<div className={ styles[ 'connection-info' ] }>
 							<FormToggle
@@ -88,7 +76,9 @@ export function ConnectionsToggleList( {
 								disabled={ isDisabled }
 								aria-label={ ariaLabel }
 							/>
-							<div className={ styles[ 'display-name' ] }>{ connection.display_name }</div>
+							<div className={ styles[ 'display-name' ] } title={ connection.display_name }>
+								{ connection.display_name }
+							</div>
 						</div>
 					</Button>
 				);

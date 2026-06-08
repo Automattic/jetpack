@@ -297,8 +297,7 @@
 		},
 
 		toCSS: function ( type, alpha ) {
-			let rgb = {},
-				hsl = {};
+			let rgb, hsl;
 
 			type = type || 'hex';
 			alpha = parseFloat( alpha || this._alpha );

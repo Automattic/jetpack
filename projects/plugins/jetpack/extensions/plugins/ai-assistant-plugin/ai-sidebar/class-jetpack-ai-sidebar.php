@@ -602,7 +602,7 @@ class Jetpack_AI_Sidebar {
 	 * Inject Jetpack AI Sidebar Preview data into an externally enqueued AM bundle.
 	 *
 	 * The design-intended hook is jetpack_ai_sidebar_agents_manager_data, applied
-	 * by jetpack-mu-wpcom Agents_Manager::enqueue_scripts(). On Atomic the bundled
+	 * by jetpack-agents-manager Agents_Manager::enqueue_scripts(). On Atomic the bundled
 	 * mu-wpcom (via wpcomsh) lags this PR, so the filter never fires and the
 	 * client gets agentsManagerData without our fields. This `before` script runs
 	 * after the upstream `before` that declares the const (added earlier) but

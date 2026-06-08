@@ -8,10 +8,11 @@
 namespace Automattic\Jetpack\Search;
 
 /**
- * Server-side post-type scope helpers shared by `filter-post-type` and
- * `search-input`'s post-type setting. Single-mode (include OR exclude);
- * translates `{ mode, postTypes }` into the `{ include, exclude }` shape
- * that `buildStaticPostTypeClauses()` consumes.
+ * Server-side post-type scope helpers for the `search-results` block's
+ * `postTypeMode` / `postTypes` author setting. Single-mode (include OR
+ * exclude); translates `{ mode, postTypes }` into the `{ include, exclude }`
+ * shape that `buildStaticPostTypeClauses()` consumes. Slugs are validated
+ * against the live searchable-types registry.
  */
 class Filter_Post_Type {
 
@@ -86,23 +87,5 @@ class Filter_Post_Type {
 			get_post_types( array( 'exclude_from_search' => false ) )
 		);
 		return static::$searchable_cache;
-	}
-
-	/**
-	 * Union (not intersect) a block's contribution into `staticPostTypes` so
-	 * stacked blocks can't silently produce zero results.
-	 *
-	 * @param array{include?: mixed, exclude?: mixed}     $existing     Current slot value.
-	 * @param array{include: string[], exclude: string[]} $contribution New block lists.
-	 * @return array{include: string[], exclude: string[]}
-	 */
-	public static function merge_state( array $existing, array $contribution ): array {
-		$existing_include = static::sanitize_slug_list( $existing['include'] ?? array() );
-		$existing_exclude = static::sanitize_slug_list( $existing['exclude'] ?? array() );
-
-		return array(
-			'include' => array_values( array_unique( array_merge( $existing_include, $contribution['include'] ) ) ),
-			'exclude' => array_values( array_unique( array_merge( $existing_exclude, $contribution['exclude'] ) ) ),
-		);
 	}
 }
