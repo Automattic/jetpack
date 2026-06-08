@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Fix preg_match TypeError in Feedback_Field::render_email_url() when the URL field value is an array instead of a string.
+Fix preg_match TypeError when a URL field value is an array instead of a string.
