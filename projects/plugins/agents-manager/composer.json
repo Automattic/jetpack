@@ -19,6 +19,16 @@
 	],
 	"minimum-stability": "dev",
 	"prefer-stable": true,
+	"extra": {
+		"autorelease": true,
+		"autotagger": true,
+		"beta-plugin-slug": "agents-manager",
+		"changelogger": {
+			"link-template": "https://github.com/Automattic/agents-manager/compare/v${old}...v${new}"
+		},
+		"mirror-repo": "Automattic/agents-manager",
+		"release-branch-prefix": "agents-manager"
+	},
 	"config": {
 		"allow-plugins": {
 			"automattic/jetpack-autoloader": true,

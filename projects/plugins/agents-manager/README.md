@@ -1,8 +1,8 @@
 # Jetpack Agents Manager
 
 A standalone WordPress plugin that loads the
-[`automattic/jetpack-agents-manager`](../../packages/agents-manager) Composer
-package and initializes it via `Agents_Manager::init()`.
+[`automattic/jetpack-agents-manager`](https://github.com/Automattic/jetpack/tree/trunk/projects/packages/agents-manager)
+Composer package and initializes it via `Agents_Manager::init()`.
 
 The Agents Manager feature was extracted from `jetpack-mu-wpcom` into a shared
 package in [#49202](https://github.com/Automattic/jetpack/pull/49202). This
