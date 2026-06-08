@@ -12,7 +12,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/a8c-mc-stats",
-                "reference": "8443aa479793285c9292368f6a68f35ec6d0c590"
+                "reference": "48895090b425c307b50fdf77f2c770719e1d3cf4"
             },
             "require": {
                 "php": ">=7.2"
@@ -44,9 +44,6 @@
                 "phpunit": [
                     "phpunit-select-config phpunit.#.xml.dist --colors=always"
                 ],
-                "test-coverage": [
-                    "@composer test-php-coverage"
-                ],
                 "test-php": [
                     "@composer phpunit"
                 ],
@@ -68,7 +65,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/admin-ui",
-                "reference": "eae2c9e0df1ed986b421070c2fbe50cd49de9974"
+                "reference": "96398da45af93491fdd90cea96331e624b42e39e"
             },
             "require": {
                 "automattic/jetpack-redirect": "@dev",
@@ -94,7 +91,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-admin-ui/compare/${old}...${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "0.8.x-dev"
+                    "dev-trunk": "0.9.x-dev"
                 },
                 "dependencies": {
                     "test-only": [
@@ -119,9 +116,6 @@
                 ],
                 "phpunit": [
                     "phpunit-select-config phpunit.#.xml.dist --colors=always"
-                ],
-                "test-coverage": [
-                    "@composer test-php-coverage"
                 ],
                 "test-php": [
                     "@composer phpunit"
@@ -148,7 +142,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/agents-manager",
-                "reference": "4c4fe4f98ce5013c690f6a98342e7fbf160a1b17"
+                "reference": "1110ac76c0e1331af6e87ee79239531e83359d10"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
@@ -170,7 +164,7 @@
                 "autorelease": true,
                 "autotagger": true,
                 "branch-alias": {
-                    "dev-trunk": "0.2.x-dev"
+                    "dev-trunk": "0.3.x-dev"
                 },
                 "changelogger": {
                     "link-template": "https://github.com/Automattic/jetpack-agents-manager/compare/v${old}...v${new}"
@@ -195,9 +189,6 @@
                 ],
                 "phpunit": [
                     "phpunit-select-config phpunit.#.xml.dist --colors=always"
-                ],
-                "test-coverage": [
-                    "pnpm concurrently --names php,js 'php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\"' 'pnpm:test-coverage'"
                 ],
                 "test-js": [
                     "pnpm run test"
@@ -226,7 +217,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/assets",
-                "reference": "ab84a3084dc16b99c8a7ff899bb1c195a8f7f0d1"
+                "reference": "34c28243fe1b82bec808b44208ca33bb69a7ab51"
             },
             "require": {
                 "automattic/jetpack-constants": "@dev",
@@ -272,9 +263,6 @@
                 "phpunit": [
                     "phpunit-select-config phpunit.#.xml.dist --colors=always"
                 ],
-                "test-coverage": [
-                    "pnpm concurrently --names php,js 'composer test-php-coverage' 'composer test-js-coverage'"
-                ],
                 "test-js": [
                     "pnpm run test"
                 ],
@@ -302,7 +290,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/autoloader",
-                "reference": "c88a5a494429a86c5ee53970546e927d90626ee2"
+                "reference": "afee041b24440e62c6ddb502b3c6716044f8c3ed"
             },
             "require": {
                 "composer-plugin-api": "^2.2",
@@ -340,9 +328,6 @@
                 "phpunit": [
                     "phpunit-select-config phpunit.#.xml.dist --colors=always"
                 ],
-                "test-coverage": [
-                    "@composer test-php-coverage"
-                ],
                 "test-php": [
                     "@composer phpunit"
                 ],
@@ -373,7 +358,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/boost-core",
-                "reference": "c72549f0a4441b5a4be4191b6ff944ea8f750b36"
+                "reference": "df08fb330780a8f58a84f370929051a76a93c49e"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
@@ -407,9 +392,6 @@
                 "phpunit": [
                     "phpunit-select-config phpunit.#.xml.dist --colors=always"
                 ],
-                "test-coverage": [
-                    "@composer test-php-coverage"
-                ],
                 "test-php": [
                     "@composer phpunit"
                 ],
@@ -431,7 +413,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/boost-speed-score",
-                "reference": "a4067f065fdae5a9d8b52468cfcf8ad15c7a9dac"
+                "reference": "5d26f7dade0d8f1ffa8c4130c208795710fa29f7"
             },
             "require": {
                 "automattic/jetpack-boost-core": "@dev",
@@ -474,9 +456,6 @@
                 "phpunit": [
                     "phpunit-select-config phpunit.#.xml.dist --colors=always"
                 ],
-                "test-coverage": [
-                    "@composer test-php-coverage"
-                ],
                 "test-php": [
                     "@composer phpunit"
                 ],
@@ -498,7 +477,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/composer-plugin",
-                "reference": "3cc54a57a13a11e2a44bd6c05c6480c84ea5020e"
+                "reference": "4c4b86f8b4a330c7033d2f49e33397d044a3d7a0"
             },
             "require": {
                 "composer-plugin-api": "^2.2",
@@ -530,9 +509,6 @@
             "scripts": {
                 "phpunit": [
                     "phpunit-select-config phpunit.#.xml.dist --colors=always"
-                ],
-                "test-coverage": [
-                    "@composer test-php-coverage"
                 ],
                 "test-php": [
                     "@composer phpunit"
@@ -632,7 +608,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/connection",
-                "reference": "d7ac4116bf3c1cd3fa52769332b874d8189558d5"
+                "reference": "cda184a300cc9a8012a1ddcd7756b369fbbc062c"
             },
             "require": {
                 "automattic/jetpack-a8c-mc-stats": "@dev",
@@ -698,9 +674,6 @@
                 "phpunit": [
                     "phpunit-select-config phpunit.#.xml.dist --colors=always"
                 ],
-                "test-coverage": [
-                    "@composer test-php-coverage"
-                ],
                 "test-php": [
                     "@composer phpunit"
                 ],
@@ -722,7 +695,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/constants",
-                "reference": "8bd044cca03bd1e08acf7f2c9c4b1ed94b31396c"
+                "reference": "a2f68c778c6c47b3e9f7699379fe5efa8ffe2acc"
             },
             "require": {
                 "php": ">=7.2"
@@ -755,9 +728,6 @@
                 "phpunit": [
                     "phpunit-select-config phpunit.#.xml.dist --colors=always"
                 ],
-                "test-coverage": [
-                    "@composer test-php-coverage"
-                ],
                 "test-php": [
                     "@composer phpunit"
                 ],
@@ -779,7 +749,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/device-detection",
-                "reference": "15f79a836938b5dab699ea6bf0e83a7ccd238701"
+                "reference": "060e4e98b1fb7351b6635c5c8c16a0a2f365ce90"
             },
             "require": {
                 "php": ">=7.2"
@@ -811,9 +781,6 @@
                 "phpunit": [
                     "phpunit-select-config phpunit.#.xml.dist --colors=always"
                 ],
-                "test-coverage": [
-                    "@composer test-php-coverage"
-                ],
                 "test-php": [
                     "@composer phpunit"
                 ],
@@ -835,7 +802,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/explat",
-                "reference": "428b33cb8b31328263d84b98918c60f750368ca4"
+                "reference": "452b5f580baa9c5efc133ec57eee4fc8a113c62a"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
@@ -871,9 +838,6 @@
             "scripts": {
                 "phpunit": [
                     "phpunit-select-config phpunit.#.xml.dist --colors=always"
-                ],
-                "test-coverage": [
-                    "pnpm concurrently --names php,js 'composer test-php-coverage' 'composer test-js-coverage'"
                 ],
                 "test-js": [
                     "pnpm run test"
@@ -916,7 +880,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/ip",
-                "reference": "2f87505583e195d74ae5e56b9ffad816a34394f2"
+                "reference": "83c25c578ff27f736d3e5c8b94dd3456eb43ba01"
             },
             "require": {
                 "php": ">=7.2"
@@ -953,9 +917,6 @@
                 "phpunit": [
                     "phpunit-select-config phpunit.#.xml.dist --colors=always"
                 ],
-                "test-coverage": [
-                    "@composer test-php-coverage"
-                ],
                 "test-php": [
                     "@composer phpunit"
                 ],
@@ -977,7 +938,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/jitm",
-                "reference": "46682567d0ff306cfe92f2203a8db95e53123f3d"
+                "reference": "9060a71b2749d8026a07f334efc6e536114a7ced"
             },
             "require": {
                 "automattic/jetpack-a8c-mc-stats": "@dev",
@@ -1027,9 +988,6 @@
                 "phpunit": [
                     "phpunit-select-config phpunit.#.xml.dist --colors=always"
                 ],
-                "test-coverage": [
-                    "@composer test-php-coverage"
-                ],
                 "test-php": [
                     "@composer phpunit"
                 ],
@@ -1055,7 +1013,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/licensing",
-                "reference": "a75ee2aa5e3bd443bce10d65092f83d9b0290d61"
+                "reference": "ec3d61e7f74cc0cdee6f028c67ff5db7c0dc50b9"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
@@ -1090,9 +1048,6 @@
                 "phpunit": [
                     "phpunit-select-config phpunit.#.xml.dist --colors=always"
                 ],
-                "test-coverage": [
-                    "@composer test-php-coverage"
-                ],
                 "test-php": [
                     "@composer phpunit"
                 ],
@@ -1114,7 +1069,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/logo",
-                "reference": "1db2d98f399cb43da09d5a15c35a4e57f52ecdd1"
+                "reference": "9772ff10ed4f2e82abda216a2631b547d0a562e9"
             },
             "require": {
                 "php": ">=7.2"
@@ -1146,9 +1101,6 @@
                 "phpunit": [
                     "phpunit-select-config phpunit.#.xml.dist --colors=always"
                 ],
-                "test-coverage": [
-                    "@composer test-php-coverage"
-                ],
                 "test-php": [
                     "@composer phpunit"
                 ],
@@ -1170,7 +1122,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/my-jetpack",
-                "reference": "7e4acfedcf5f8fbe4413564eabf0a265de0022e6"
+                "reference": "1efd5d854bbfcc500b9b4ac7af9903e73e156cdc"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
@@ -1209,7 +1161,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-my-jetpack/compare/${old}...${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "5.37.x-dev"
+                    "dev-trunk": "5.38.x-dev"
                 },
                 "version-constants": {
                     "::PACKAGE_VERSION": "src/class-initializer.php"
@@ -1230,9 +1182,6 @@
             "scripts": {
                 "phpunit": [
                     "phpunit-select-config phpunit.#.xml.dist --colors=always"
-                ],
-                "test-coverage": [
-                    "pnpm concurrently --names php,js 'composer test-php-coverage' 'composer test-js-coverage'"
                 ],
                 "test-js": [
                     "pnpm run test"
@@ -1279,7 +1228,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/password-checker",
-                "reference": "e6097efa225ac7961e67c81db2b5d0adefaceb52"
+                "reference": "d9e7a7a8db710ebc8d064ae207775df8bd9e6662"
             },
             "require": {
                 "php": ">=7.2"
@@ -1313,9 +1262,6 @@
                 "phpunit": [
                     "phpunit-select-config phpunit.#.xml.dist --colors=always"
                 ],
-                "test-coverage": [
-                    "@composer test-php-coverage"
-                ],
                 "test-php": [
                     "@composer phpunit"
                 ],
@@ -1337,7 +1283,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/plans",
-                "reference": "6f8b9727f62c7ae497e507e516782c7a31f6224d"
+                "reference": "d694876b1987293d1f9c0de3ff6ae37d8be95e85"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
@@ -1372,9 +1318,6 @@
                 "phpunit": [
                     "phpunit-select-config phpunit.#.xml.dist --colors=always"
                 ],
-                "test-coverage": [
-                    "@composer test-php-coverage"
-                ],
                 "test-php": [
                     "@composer phpunit"
                 ],
@@ -1402,7 +1345,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/plugins-installer",
-                "reference": "907b7ac67360d27f963f3e8403decfc5734f451a"
+                "reference": "15f58ebd10de1132242538d0d649774637fa14c3"
             },
             "require": {
                 "automattic/jetpack-a8c-mc-stats": "@dev",
@@ -1437,9 +1380,6 @@
                 "phpunit": [
                     "phpunit-select-config phpunit.#.xml.dist --colors=always"
                 ],
-                "test-coverage": [
-                    "@composer test-php-coverage"
-                ],
                 "test-php": [
                     "@composer phpunit"
                 ],
@@ -1461,7 +1401,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/protect-models",
-                "reference": "f6f3814dc61b5771b0a2354cb625c62251c97680"
+                "reference": "d030dc4cdd0116bfb3073f0cb767398d85f48127"
             },
             "require": {
                 "automattic/jetpack-redirect": "@dev",
@@ -1505,9 +1445,6 @@
                 "phpunit": [
                     "phpunit-select-config phpunit.#.xml.dist --colors=always"
                 ],
-                "test-coverage": [
-                    "@composer test-php-coverage"
-                ],
                 "test-php": [
                     "@composer phpunit"
                 ],
@@ -1529,7 +1466,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/protect-status",
-                "reference": "2e72ebd4a66ce3543c7f07ae53de3923b5d65dfe"
+                "reference": "6b28cbfe429b6998ea50c241085a364c67a82062"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
@@ -1577,9 +1514,6 @@
                 "phpunit": [
                     "phpunit-select-config phpunit.#.xml.dist --colors=always"
                 ],
-                "test-coverage": [
-                    "@composer test-php-coverage"
-                ],
                 "test-php": [
                     "@composer phpunit"
                 ],
@@ -1601,7 +1535,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/redirect",
-                "reference": "aa695458e9b39a71137a72d95f073547d78a8a87"
+                "reference": "84a8949d203512d279ad65280af8d2af01d4d799"
             },
             "require": {
                 "automattic/jetpack-status": "@dev",
@@ -1635,9 +1569,6 @@
                 "phpunit": [
                     "phpunit-select-config phpunit.#.xml.dist --colors=always"
                 ],
-                "test-coverage": [
-                    "@composer test-php-coverage"
-                ],
                 "test-php": [
                     "@composer phpunit"
                 ],
@@ -1659,7 +1590,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/roles",
-                "reference": "f2745a04bc53d16f9d8cb870a3e7ad775a213913"
+                "reference": "a9e558a67db231ecf3194a02125a4b3f14a48b94"
             },
             "require": {
                 "php": ">=7.2"
@@ -1692,9 +1623,6 @@
                 "phpunit": [
                     "phpunit-select-config phpunit.#.xml.dist --colors=always"
                 ],
-                "test-coverage": [
-                    "@composer test-php-coverage"
-                ],
                 "test-php": [
                     "@composer phpunit"
                 ],
@@ -1716,7 +1644,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/status",
-                "reference": "7621f015c5b69e32e50192144b7a46a92b5c11a3"
+                "reference": "30e50be852b4f6b22a2a47ed7ab3ef6daa4074b6"
             },
             "require": {
                 "automattic/jetpack-constants": "@dev",
@@ -1759,9 +1687,6 @@
                 "phpunit": [
                     "phpunit-select-config phpunit.#.xml.dist --colors=always"
                 ],
-                "test-coverage": [
-                    "@composer test-php-coverage"
-                ],
                 "test-php": [
                     "@composer phpunit"
                 ],
@@ -1783,7 +1708,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/sync",
-                "reference": "4b74d197f01461cab088d45f54c28540fbd6e03d"
+                "reference": "5737491da7d2a336f6f4778edce28250be8fda1e"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
@@ -1834,9 +1759,6 @@
                 "phpunit": [
                     "phpunit-select-config phpunit.#.xml.dist --colors=always"
                 ],
-                "test-coverage": [
-                    "@composer test-php-coverage"
-                ],
                 "test-php": [
                     "@composer phpunit"
                 ],
@@ -1860,7 +1782,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/test-environment",
-                "reference": "0cad49cca18c9483f924049e6bae229a9842eefc"
+                "reference": "734d268ff73839769bd167a6d1ccdd87390e9d84"
             },
             "require": {
                 "php": ">=7.2"
@@ -1891,9 +1813,6 @@
                 "phpunit": [
                     "phpunit-select-config phpunit.#.xml.dist --colors=always"
                 ],
-                "test-coverage": [
-                    "@composer test-php-coverage"
-                ],
                 "test-php": [
                     "@composer phpunit"
                 ],
@@ -1915,7 +1834,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/phpunit-select-config",
-                "reference": "e2dba22a94b753ed9f3681dd513f2b7707c3298e"
+                "reference": "f34d251d44e96b67a97272b464b69fc9ffb7de76"
             },
             "require": {
                 "composer-runtime-api": "^2.2.2",
@@ -1943,9 +1862,6 @@
             "scripts": {
                 "phpunit": [
                     "./vendor/bin/phpunit-select-config phpunit.#.xml.dist --colors=always"
-                ],
-                "test-coverage": [
-                    "@composer test-php-coverage"
                 ],
                 "test-php": [
                     "@composer phpunit"

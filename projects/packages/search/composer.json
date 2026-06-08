@@ -40,7 +40,6 @@
 		"phpunit": [
 			"phpunit-select-config phpunit.#.xml.dist --colors=always"
 		],
-		"test-coverage": "pnpm concurrently --names php,js 'composer test-php-coverage' 'composer test-js-coverage'",
 		"test-js": "pnpm run test",
 		"test-js-coverage": "pnpm concurrently --names dashboard,url 'pnpm:test-scripts --coverage' 'pnpm:test-url-tests --coverage'",
 		"test-php": "@composer phpunit",

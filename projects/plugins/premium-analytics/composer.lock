@@ -12,7 +12,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/autoloader",
-                "reference": "c88a5a494429a86c5ee53970546e927d90626ee2"
+                "reference": "afee041b24440e62c6ddb502b3c6716044f8c3ed"
             },
             "require": {
                 "composer-plugin-api": "^2.2",
@@ -50,9 +50,6 @@
                 "phpunit": [
                     "phpunit-select-config phpunit.#.xml.dist --colors=always"
                 ],
-                "test-coverage": [
-                    "@composer test-php-coverage"
-                ],
                 "test-php": [
                     "@composer phpunit"
                 ],
@@ -83,7 +80,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/composer-plugin",
-                "reference": "3cc54a57a13a11e2a44bd6c05c6480c84ea5020e"
+                "reference": "4c4b86f8b4a330c7033d2f49e33397d044a3d7a0"
             },
             "require": {
                 "composer-plugin-api": "^2.2",
@@ -116,9 +113,6 @@
                 "phpunit": [
                     "phpunit-select-config phpunit.#.xml.dist --colors=always"
                 ],
-                "test-coverage": [
-                    "@composer test-php-coverage"
-                ],
                 "test-php": [
                     "@composer phpunit"
                 ],
@@ -146,7 +140,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/premium-analytics",
-                "reference": "67a5bb20b51254ded18f82f79b298092cd0eb803"
+                "reference": "1e2a2b366f850f1872018c9fc93699d4674a8757"
             },
             "require": {
                 "php": ">=7.2"
@@ -179,9 +173,6 @@
                 "phpunit": [
                     "phpunit-select-config phpunit.#.xml.dist --colors=always"
                 ],
-                "test-coverage": [
-                    "@composer test-php-coverage"
-                ],
                 "test-php": [
                     "@composer phpunit"
                 ],
@@ -211,7 +202,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/phpunit-select-config",
-                "reference": "e2dba22a94b753ed9f3681dd513f2b7707c3298e"
+                "reference": "f34d251d44e96b67a97272b464b69fc9ffb7de76"
             },
             "require": {
                 "composer-runtime-api": "^2.2.2",
@@ -239,9 +230,6 @@
             "scripts": {
                 "phpunit": [
                     "./vendor/bin/phpunit-select-config phpunit.#.xml.dist --colors=always"
-                ],
-                "test-coverage": [
-                    "@composer test-php-coverage"
                 ],
                 "test-php": [
                     "@composer phpunit"
