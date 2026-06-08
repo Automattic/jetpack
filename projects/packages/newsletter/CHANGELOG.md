@@ -5,6 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.9.0] - 2026-06-08
+### Added
+- Add Jetpack branding to the Daily Writing Prompt dashboard widget. [#49438]
+- Add the Daily Writing Prompt dashboard widget, moved here from the jetpack-mu-wpcom package. [#49425]
+
+### Changed
+- Remove the per-page Hello Dolly rule; its content is now covered by the centralized normalize rule shipped with `@automattic/jetpack-components`'s AdminPage component. [#48472]
+
+### Fixed
+- Add subscribers and Comp modals: restore body padding by wrapping content in Dialog.Content [#49327]
+- Include the routes directory in the TypeScript config so dashboard route files type-check correctly. [#49368]
+- Newsletter: don't show the WordPress.com connection prompt on Simple sites, which are already connected [#49365]
+- Subscribers dashboard: fix several Comp modal issues — show the plan billing interval in the picker, correct plan selection, disable and explain (via tooltip) plans the reader already has, surface the specific already-comped error message, and fix a clipped focus ring [#49441]
+- Subscribers dashboard: show the empty state when the site owner is the only subscriber, and point the empty-state copy at the subscription form documentation [#49410]
+
 ## [0.8.10] - 2026-06-01
 ### Changed
 - Update package dependencies. [#48404] [#49152]
@@ -203,6 +218,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Update package dependencies. [#46143]
 
+[0.9.0]: https://github.com/Automattic/jetpack-newsletter/compare/v0.8.10...v0.9.0
 [0.8.10]: https://github.com/Automattic/jetpack-newsletter/compare/v0.8.9...v0.8.10
 [0.8.9]: https://github.com/Automattic/jetpack-newsletter/compare/v0.8.8...v0.8.9
 [0.8.8]: https://github.com/Automattic/jetpack-newsletter/compare/v0.8.7...v0.8.8

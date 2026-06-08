@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Subscribers dashboard: show the empty state when the site owner is the only subscriber, and point the empty-state copy at the subscription form documentation
