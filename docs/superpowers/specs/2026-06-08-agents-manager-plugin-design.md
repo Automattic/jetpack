@@ -77,6 +77,30 @@ plugin intentionally drops the prefix because it is not released.)
   `rest_api_init`, `admin_enqueue_scripts`, `wp_enqueue_scripts`, and
   `next_admin_init` hooks itself, so `plugins_loaded` is early enough.
 
+- Register an `admin_notices` callback that warns when Jetpack is not both
+  active **and** connected:
+
+  ```php
+  add_action( 'admin_notices', function () {
+      $jetpack_active = class_exists( 'Jetpack' ) || defined( 'JETPACK__VERSION' );
+      $connected      = class_exists( \Automattic\Jetpack\Connection\Manager::class )
+          && ( new \Automattic\Jetpack\Connection\Manager( 'agents-manager' ) )->is_connected();
+
+      if ( $jetpack_active && $connected ) {
+          return;
+      }
+      // Render a `notice notice-warning` explaining that Agents Manager needs
+      // Jetpack active and connected to a WordPress.com account to function.
+  } );
+  ```
+
+  The notice is informational only — it does not block `Agents_Manager::init()`
+  (the package has graceful disconnected variants); it explains why
+  functionality may be unavailable. Message text is escaped and translated
+  against the `agents-manager` text domain. `Manager::is_connected()` checks for
+  a site-level connection; this is sufficient to tell the admin the connection
+  step is incomplete.
+
 ### 2. `composer.json`
 
 ```json
