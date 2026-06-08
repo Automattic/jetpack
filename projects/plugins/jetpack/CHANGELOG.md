@@ -14,7 +14,6 @@
 ### Bug fixes
 - AI: Fix broken external links (Claude settings and agent documentation) in the MCP quick setup. [#49453]
 - Carousel: Stop adding EXIF image metadata to the page markup when the option to display it is disabled. [#49433]
-- Image Studio: Add site context to tracking data. [#49186]
 - JSON API: Guard media metadata access to avoid PHP warnings when attachment metadata is missing or incomplete. [#49332]
 - JSON API: Honor the `fields` parameter on REST-dispatched responses so they return the same keys as the XML-RPC transport. [#49396]
 - JSON API: Stop emitting "Unknown user" PHP warnings from `get_author()` for the expected case of an unresolvable author. [#49339]
@@ -22,7 +21,7 @@
 - Newsletter: Prevent a fatal error when loading WP Admin with the modernization filter unavailable. [#49319]
 - Settings REST API: Load the Monitor and Post by Email module classes on demand when updating their options, preventing a fatal on bulk settings updates while the module is inactive. [#49454]
 - Sharing: Fix the Pinterest sharing button leading to a blank Pinterest page by using Pinterest's direct link sharing endpoint. [#49363]
-- Shortcodes: Ensure the SoundCloud player iFrame is always correctly escaped. [#49315]
+- Shortcode embeds: Ensure the SoundCloud player iFrame is always correctly escaped. [#49315]
 - Shortcodes: Fix query parameters such as playlist, autoplay, and poster to produce valid Archive.org embed URLs. [#49195]
 - Social: Fix PHP warnings on the front end of posts shared with the no link sharing option. [#49372]
 - VideoPress: Fix admin page crash on video upload/delete when the free-plan upgrade nudge is shown. [#49340]
@@ -31,9 +30,10 @@
 ### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
 - E2E tests: Improve Sync cleanup and isolation. [#49346]
 - Hello Dolly: Retire the legacy per-page `#dolly` color rules and normalize `.jetpack-admin-page #dolly` WPDS design token across admin pages. [#49402]
+- Image Studio: Add site context to tracking data. [#49186]
 - Shortcodes: Prevent PHP warning when Mailchimp embed is malformed. [#48872]
 - Update composer.lock files. [#49415]
-- Updated package dependencies. [#49425] [#49379]
+- Update package dependencies. [#49425] [#49379]
 - Updated WooCommerce Analytics package to version 0.16.5. [#49329]
 
 ## 15.9-a.7 - 2026-06-01
