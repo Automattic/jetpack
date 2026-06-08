@@ -1,17 +1,16 @@
 // The `newsletter-page.tsx` shell is the surface that two routed tabs share —
 // the active-tab indicator slides between Subscribers and Settings because the
-// `Tabs.Root` mounts once. We're exercising three contracts this PR cares about:
+// `Tabs.Root` mounts once. Tab-view analytics are owned by the route stage
+// (covered in `stage.test.tsx`), so this file's contracts are navigation-only:
 //
-// 1. flipping to a different tab fires `jetpack_newsletter_tab_view` with
-//    `{ site_type, tab }` and routes the visitor via `useNavigate` with the
+// 1. flipping to a different tab routes the visitor via `useNavigate` with the
 //    subscriber-detail params cleared.
-// 2. clicking the already-active tab is a no-op (no event, no navigate).
+// 2. clicking the already-active tab still navigates so the URL stays
+//    canonical (`?tab=undefined` clears stale params).
 // 3. when `subscriberManagementEnabled` is false the tab nav doesn't render
 //    so Settings-only hosts never see a phantom Subscribers tab.
 
-const mockRecordEvent = jest.fn();
 const mockNavigate = jest.fn();
-const mockGetSiteType = jest.fn( () => 'jetpack' );
 const mockGetSiteData = jest.fn( () => ( {
 	rest_root: 'https://example.com/wp-json/',
 	rest_nonce: 'test-nonce',
@@ -28,15 +27,7 @@ const mockTabsOnValueChange: { current: ( ( value: string | null ) => void ) | n
 	current: null,
 };
 
-jest.mock( '@automattic/jetpack-analytics', () => ( {
-	__esModule: true,
-	default: {
-		tracks: { recordEvent: ( ...args: unknown[] ) => mockRecordEvent( ...args ) },
-	},
-} ) );
-
 jest.mock( '@automattic/jetpack-script-data', () => ( {
-	getSiteType: () => mockGetSiteType(),
 	getSiteData: () => mockGetSiteData(),
 } ) );
 
@@ -109,10 +100,7 @@ import { render, screen } from '@testing-library/react';
 import NewsletterPage from '../_inc/components/newsletter-page';
 
 beforeEach( () => {
-	mockRecordEvent.mockReset();
 	mockNavigate.mockReset();
-	mockGetSiteType.mockReset();
-	mockGetSiteType.mockReturnValue( 'jetpack' );
 	mockGetSiteData.mockClear();
 	mockAdminPageProps.mockClear();
 	mockGetNewsletterScriptData.mockReset();
@@ -121,26 +109,6 @@ beforeEach( () => {
 } );
 
 describe( 'NewsletterPage tab navigation', () => {
-	it( 'records jetpack_newsletter_tab_view with site_type + tab when switching tabs', async () => {
-		render(
-			<NewsletterPage activeTab="subscribers">
-				<div>panel body</div>
-			</NewsletterPage>
-		);
-
-		// The Tabs.Tab mock renders the tab as a button; click "Settings" to flip.
-		const settingsTab = screen
-			.getAllByRole( 'tab' )
-			.find( tab => tab.getAttribute( 'data-tab-value' ) === 'settings' );
-		settingsTab?.click();
-
-		expect( mockRecordEvent ).toHaveBeenCalledTimes( 1 );
-		expect( mockRecordEvent ).toHaveBeenCalledWith( 'jetpack_newsletter_tab_view', {
-			site_type: 'jetpack',
-			tab: 'settings',
-		} );
-	} );
-
 	it( 'navigates to ?tab=settings and clears subscriber-detail params on switch', () => {
 		render(
 			<NewsletterPage activeTab="subscribers">
@@ -178,7 +146,7 @@ describe( 'NewsletterPage tab navigation', () => {
 		expect( navArg.search.tab ).toBeUndefined();
 	} );
 
-	it( 'does not fire analytics or navigate when clicking the active tab', () => {
+	it( 'still navigates when clicking the active tab so the URL stays canonical', () => {
 		render(
 			<NewsletterPage activeTab="subscribers">
 				<div>panel body</div>
@@ -190,10 +158,12 @@ describe( 'NewsletterPage tab navigation', () => {
 			.find( tab => tab.getAttribute( 'data-tab-value' ) === 'subscribers' )
 			?.click();
 
-		expect( mockRecordEvent ).not.toHaveBeenCalled();
-		// `navigate` is still invoked so the URL stays canonical (?tab=undefined
-		// clears stale params), but no analytics event fires — that's the contract
-		// the same-tab guard protects.
+		// Clicking the active tab still runs the navigate(?tab=undefined) call so
+		// stale `subscriber`/`u` params get cleared. No analytics fire from this
+		// surface; the route stage owns the tab-view event and dedupes on its end.
+		expect( mockNavigate ).toHaveBeenCalledTimes( 1 );
+		const navArg = mockNavigate.mock.calls[ 0 ][ 0 ] as { search: Record< string, unknown > };
+		expect( navArg.search.tab ).toBeUndefined();
 	} );
 
 	it( 'ignores unknown tab values from the underlying Tabs primitive', () => {
@@ -206,12 +176,11 @@ describe( 'NewsletterPage tab navigation', () => {
 		// Drive `onValueChange` directly with garbage values that the underlying
 		// `Tabs.Root` can emit (e.g. `null` while clearing focus, or a
 		// stale value from a third-party panel). The shell must short-circuit
-		// before either analytics or navigation runs.
+		// before navigation runs.
 		expect( mockTabsOnValueChange.current ).not.toBeNull();
 		mockTabsOnValueChange.current?.( null );
 		mockTabsOnValueChange.current?.( 'gibberish' );
 
-		expect( mockRecordEvent ).not.toHaveBeenCalled();
 		expect( mockNavigate ).not.toHaveBeenCalled();
 	} );
 

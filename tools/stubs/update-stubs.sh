@@ -145,5 +145,13 @@ info 'Extracting Gutenberg stubs'
 "$BASE/projects/packages/stub-generator/vendor/bin/jetpack-stub-generator" --output "$BASE/.phan/stubs/gutenberg-stubs.php" "$BASE/tools/stubs/gutenberg-stub-defs.php"
 
 echo
+info 'Downloading Jetpack CRM'
+fetch_plugin zero-bs-crm
+
+echo
+info 'Extracting Jetpack CRM stubs'
+"$BASE/projects/packages/stub-generator/vendor/bin/jetpack-stub-generator" --output "$BASE/.phan/stubs/zero-bs-crm-stubs.php" "$BASE/tools/stubs/zero-bs-crm-stub-defs.php"
+
+echo
 info 'Updating composer stub packages'
 COMPOSER_ROOT_VERSION=dev-trunk composer --working-dir="$BASE" update --no-install --no-audit --ignore-platform-reqs 'php-stubs/*'

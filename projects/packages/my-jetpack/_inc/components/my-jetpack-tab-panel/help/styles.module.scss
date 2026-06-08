@@ -58,8 +58,12 @@
 
 	@include parent.full-width-container;
 
-	@media ( max-width: 1288px ) {
-		padding-inline: 0;
+	// Match `.tab-content-wrapper`'s gutter so the footer content stays aligned
+	// with the cards above. (The previous `padding-inline: 0` relied on the
+	// wrapper's padding, which no longer applies now the footer renders outside
+	// `.my-jetpack-tab-panel-inner`.)
+	@media ( max-width: gb.$break-medium ) {
+		padding-inline: 1.5rem;
 	}
 }
 

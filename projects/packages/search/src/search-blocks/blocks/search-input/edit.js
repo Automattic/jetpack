@@ -18,7 +18,6 @@ import {
 } from '@wordpress/components';
 import { useId } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import PostTypeScopeControl from '../../editor/post-type-control';
 
 // Width control constants mirror `core/search`'s defaults so authors get the
 // same feel across the two blocks (`packages/block-library/src/search/utils.js`).
@@ -282,25 +281,6 @@ export default function SearchInputEdit( { attributes, setAttributes } ) {
 					<p className="components-base-control__help" style={ HELP_STYLE }>
 						{ __( 'Leave empty to use the full container width.', 'jetpack-search-pkg' ) }
 					</p>
-				</PanelBody>
-				<PanelBody title={ __( 'Post types', 'jetpack-search-pkg' ) } initialOpen={ false }>
-					<p className="components-base-control__help" style={ HELP_STYLE }>
-						{ __(
-							'Limit which post types this search returns. Leave the list empty to search everything.',
-							'jetpack-search-pkg'
-						) }
-					</p>
-					{ /* The mode is stored as `postTypeMode` (not `mode`, which the
-						   standalone filter-post-type block uses) to avoid colliding
-						   with any future generic `mode` attribute on this block. The
-						   shared control only ever sees it as the neutral `mode` prop. */ }
-					<PostTypeScopeControl
-						mode={ attributes?.postTypeMode }
-						postTypes={ attributes?.postTypes }
-						onChange={ ( { mode: postTypeMode, postTypes } ) =>
-							setAttributes( { postTypeMode, postTypes } )
-						}
-					/>
 				</PanelBody>
 			</InspectorControls>
 			<div { ...blockProps }>

@@ -9,9 +9,6 @@ jest.mock( '../../../connection-icon', () => ( {
 	__esModule: true,
 	default: () => <div>icon</div>,
 } ) );
-jest.mock( '../../../services/x-notice', () => ( {
-	XNotice: () => <div>x-notice</div>,
-} ) );
 jest.mock( '../../connection-name', () => ( {
 	ConnectionName: ( { connection } ) => <a href="#profile">{ connection.display_name }</a>,
 } ) );
@@ -82,7 +79,7 @@ describe( 'ModernConnectionInfo', () => {
 		expect( screen.getByRole( 'button', { expanded: false } ) ).toBeInTheDocument();
 	} );
 
-	test( 'clicking the row toggles the disclosure open', async () => {
+	test( 'clicking the chevron toggle opens the disclosure', async () => {
 		const user = userEvent.setup();
 		renderInfo();
 

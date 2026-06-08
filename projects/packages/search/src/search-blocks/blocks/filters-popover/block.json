@@ -5,12 +5,8 @@
 	"version": "0.1.0",
 	"title": "Collapsible Filters",
 	"category": "jetpack-search",
-	"description": "Tucks the filters behind a compact button that opens them in a popover. Can also show them inline on wider screens. Powered by Jetpack Search.",
+	"description": "Tucks the filters behind a compact button that opens them in a popover. Powered by Jetpack Search.",
 	"attributes": {
-		"displayMode": {
-			"type": "string",
-			"default": "popover-always"
-		},
 		"interactiveScope": {
 			"type": "boolean",
 			"default": true

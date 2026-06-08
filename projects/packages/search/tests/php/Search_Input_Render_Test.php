@@ -159,65 +159,30 @@ class Search_Input_Render_Test extends TestCase {
 	}
 
 	/**
-	 * An include scope must seed the per-instance `staticPostTypes` constraint
-	 * into this block's own `data-wp-context` so view.js can hand it to
-	 * `actions.search()` for the searches this input initiates.
+	 * Without the suggestions dropdown the block emits no `data-wp-context`
+	 * at all — there's nothing per-instance to seed. (Post-type scope used
+	 * to live in this slot, but it moved to the `search-results` block;
+	 * this guards against accidentally re-introducing the per-instance pipe.)
 	 */
-	public function test_post_type_include_scope_emits_context() {
-		$markup  = $this->render(
-			array(
-				'postTypeMode' => 'include',
-				'postTypes'    => array( 'post' ),
-			)
-		);
-		$decoded = html_entity_decode( $markup, ENT_QUOTES | ENT_HTML401 );
-		$this->assertStringContainsString( 'data-wp-context', $markup );
-		$this->assertStringContainsString(
-			'"staticPostTypes":{"include":["post"],"exclude":[]}',
-			$decoded
-		);
-	}
-
-	/**
-	 * An exclude scope must seed the same constraint shape with the slug in the
-	 * exclude list.
-	 */
-	public function test_post_type_exclude_scope_emits_context() {
-		$markup  = $this->render(
-			array(
-				'postTypeMode' => 'exclude',
-				'postTypes'    => array( 'page' ),
-			)
-		);
-		$decoded = html_entity_decode( $markup, ENT_QUOTES | ENT_HTML401 );
-		$this->assertStringContainsString(
-			'"staticPostTypes":{"include":[],"exclude":["page"]}',
-			$decoded
-		);
-	}
-
-	/**
-	 * With no scope (and no suggestions) the block must not emit a
-	 * `data-wp-context` attribute — the default DOM stays untouched for authors
-	 * who haven't configured a post-type constraint.
-	 */
-	public function test_no_post_type_scope_omits_context() {
+	public function test_no_data_wp_context_when_suggestions_disabled() {
 		$markup = $this->render();
 		$this->assertStringNotContainsString( 'data-wp-context', $markup );
 	}
 
 	/**
-	 * Slugs that aren't registered as searchable post types are dropped by
-	 * `Filter_Post_Type::build_constraint()`, collapsing the constraint to
-	 * empty — so no context is emitted for a bogus slug.
+	 * Saved markup that still carries `postTypeMode` / `postTypes` from the
+	 * pre-migration block schema must not leak into the rendered DOM —
+	 * the attributes aren't declared on this block anymore, and the renderer
+	 * must not seed them anywhere.
 	 */
-	public function test_unknown_post_type_scope_is_dropped() {
+	public function test_legacy_post_type_attributes_are_ignored() {
 		$markup = $this->render(
 			array(
 				'postTypeMode' => 'include',
-				'postTypes'    => array( 'definitely_not_a_real_post_type' ),
+				'postTypes'    => array( 'post', 'page' ),
 			)
 		);
+		$this->assertStringNotContainsString( 'staticPostTypes', $markup );
 		$this->assertStringNotContainsString( 'data-wp-context', $markup );
 	}
 }

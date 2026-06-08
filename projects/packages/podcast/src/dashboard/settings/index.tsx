@@ -352,7 +352,7 @@ const SettingsTab = ( { onAfterDisable }: SettingsTabProps = {} ) => {
 							__next40pxDefaultSize
 							__nextHasNoMarginBottom
 							type="email"
-							label={ __( 'Email address', 'jetpack-podcast' ) }
+							label={ __( 'Owner email address', 'jetpack-podcast' ) }
 							help={ __(
 								'Included in your feed so podcast directories can verify ownership. Most require it for submission.',
 								'jetpack-podcast'

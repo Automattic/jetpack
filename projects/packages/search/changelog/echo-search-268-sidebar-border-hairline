@@ -1,4 +1,0 @@
-Significance: patch
-Type: changed
-
-Search Blocks: sidebar left divider and search-input underline now both render as a 15%-currentColor hairline (matching the overlay header hairline) instead of a hardcoded grey or a full-strength currentColor rule, so the three "hair" surfaces read as one family across the embedded, WC product-results, and blocks-overlay experiences.

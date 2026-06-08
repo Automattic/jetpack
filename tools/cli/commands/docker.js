@@ -974,11 +974,6 @@ const buildExecCmd = argv => {
 				unitTestArgs.plugin = 'jetpack';
 				unitTestArgs.envVars = [ 'JETPACK_TEST_WPCOMSH=1' ];
 				break;
-			case 'crm':
-				unitTestArgs.plugin = 'zero-bs-crm';
-				// @todo: Remove this when we drop support for PHP <8.0 and we can bump `thecodingmachine/safe` to v2.
-				unitTestArgs.prependFile = 'tests/suppress_php84_deprecations.php';
-				break;
 			case 'wpcomsh':
 				unitTestArgs.plugin = 'wpcomsh';
 				unitTestArgs.envVars = [
@@ -992,7 +987,6 @@ const buildExecCmd = argv => {
 	} else if (
 		cmd === 'phpunit-jp-multisite' ||
 		cmd === 'phpunit-jp-wpcomsh' ||
-		cmd === 'phpunit-crm' ||
 		cmd === 'phpunit-wpcomsh'
 	) {
 		console.error(
@@ -1298,7 +1292,7 @@ export function dockerDefine( yargs ) {
 							} )
 							.positional( 'target', {
 								describe:
-									'Which PHPUnit tests to run:\n- jetpack: Jetpack plugin tests\n- jp-multisite: Jetpack plugin multisite tests.\n- jp-wpcomsh: Jetpack plugin tests with wpcomsh installed.\n- crm: Jetpack CRM plugin tests.\n- wpcomsh: Wpcomsh plugin tests.',
+									'Which PHPUnit tests to run:\n- jetpack: Jetpack plugin tests\n- jp-multisite: Jetpack plugin multisite tests.\n- jp-wpcomsh: Jetpack plugin tests with wpcomsh installed.\n- wpcomsh: Wpcomsh plugin tests.',
 								type: 'string',
 							} ),
 					handler: argv => execDockerCmdHandler( argv ),
@@ -1328,11 +1322,6 @@ export function dockerDefine( yargs ) {
 				} )
 				.command( {
 					command: 'phpunit-jp-wpcomsh',
-					deprecated: true,
-					handler: argv => execDockerCmdHandler( argv ),
-				} )
-				.command( {
-					command: 'phpunit-crm',
 					deprecated: true,
 					handler: argv => execDockerCmdHandler( argv ),
 				} )

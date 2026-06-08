@@ -1,18 +1,20 @@
-import { Path } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import renderMaterialIcon from '../shared/components/render-material-icon.jsx';
+import { SVG, Path } from '@wordpress/primitives';
 import { RATING_ICONS } from './rating-icons.js';
 
 /**
- * Rating icon Path component for block variation icons.
+ * Rating icon for block variation icons.
  *
- * @param {object} props           - Component props.
- * @param {string} props.iconStyle - The icon style ('stars' or 'hearts').
- * @return {import('react').ReactElement} Path component with the icon.
+ * @param {string} iconStyle - The icon style ('stars' or 'hearts').
+ * @return {import('react').ReactElement} SVG icon element.
  */
-function RatingIconPath( { iconStyle } ) {
+function createRatingIcon( iconStyle ) {
 	const d = RATING_ICONS[ iconStyle ] || RATING_ICONS.stars;
-	return <Path d={ d } fill="none" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" />;
+	return (
+		<SVG xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+			<Path d={ d } fill="none" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" />
+		</SVG>
+	);
 }
 
 const variations = [
@@ -21,7 +23,7 @@ const variations = [
 		title: __( 'Stars rating field', 'jetpack-forms' ),
 		description: __( 'Rating field with star icons.', 'jetpack-forms' ),
 		icon: {
-			src: renderMaterialIcon( <RatingIconPath iconStyle="stars" /> ),
+			src: createRatingIcon( 'stars' ),
 		},
 		attributes: { iconStyle: 'stars' },
 		isActive: [ 'iconStyle' ],
@@ -33,7 +35,7 @@ const variations = [
 		title: __( 'Hearts rating field', 'jetpack-forms' ),
 		description: __( 'Rating field with heart icons.', 'jetpack-forms' ),
 		icon: {
-			src: renderMaterialIcon( <RatingIconPath iconStyle="hearts" /> ),
+			src: createRatingIcon( 'hearts' ),
 		},
 		attributes: { iconStyle: 'hearts' },
 		isActive: [ 'iconStyle' ],

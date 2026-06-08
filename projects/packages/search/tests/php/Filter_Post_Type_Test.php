@@ -10,8 +10,8 @@ namespace Automattic\Jetpack\Search;
 use PHPUnit\Framework\TestCase;
 
 /**
- * Tests for Filter_Post_Type helpers — single-mode constraint building,
- * registry-allowlist enforcement, and multi-instance state merging.
+ * Tests for Filter_Post_Type helpers — single-mode constraint building
+ * and registry-allowlist enforcement.
  */
 class Filter_Post_Type_Test extends TestCase {
 
@@ -208,48 +208,5 @@ class Filter_Post_Type_Test extends TestCase {
 			array( 'postTypes' => array( 'page', array( 'nested' ), null, false, 'product' ) )
 		);
 		$this->assertSame( array( 'page', 'product' ), $mixed_input['exclude'] );
-	}
-
-	/**
-	 * Multi-instance composition is union, not intersection — picking
-	 * intersection would silently zero out results when an editor stacks
-	 * two blocks configured for non-overlapping post types.
-	 */
-	public function test_merge_state_unions_lists_across_instances() {
-		$merged = Filter_Post_Type::merge_state(
-			array(
-				'include' => array( 'post' ),
-				'exclude' => array( 'product' ),
-			),
-			array(
-				'include' => array( 'page' ),
-				'exclude' => array( 'shop_order' ),
-			)
-		);
-		$this->assertSame( array( 'post', 'page' ), $merged['include'] );
-		$this->assertSame( array( 'product', 'shop_order' ), $merged['exclude'] );
-	}
-
-	/**
-	 * Existing state may carry malformed entries (forward-compat with a
-	 * future shape change); the merge sanitizes both sides before unioning
-	 * so a stray non-array value can't poison the merged output.
-	 * `merge_state` does not enforce the registry allowlist on the
-	 * existing-state side (already-filtered by the contributing block's
-	 * own `build_constraint()` call).
-	 */
-	public function test_merge_state_sanitizes_existing_state() {
-		$merged = Filter_Post_Type::merge_state(
-			array(
-				'include' => 'malformed',
-				'exclude' => array( 'product', 42 ),
-			),
-			array(
-				'include' => array( 'post' ),
-				'exclude' => array( 'shop_order' ),
-			)
-		);
-		$this->assertSame( array( 'post' ), $merged['include'] );
-		$this->assertSame( array( 'product', '42', 'shop_order' ), $merged['exclude'] );
 	}
 }

@@ -165,7 +165,7 @@ async function checkTestReminderComment( github, context, core ) {
 		simpleLine =
 			`- To test on Simple, run the following command on your sandbox:` +
 			data.simple.reduce( ( acc, cur ) => {
-				return ( acc += `\n\`\`\`\nbin/jetpack-downloader test ${ cur } ${ BRANCH_NAME }\n\`\`\`` );
+				return acc + `\n\`\`\`\nbin/jetpack-downloader test ${ cur } ${ BRANCH_NAME }\n\`\`\``;
 			}, '' );
 	}
 	if ( data.woa.length ) {

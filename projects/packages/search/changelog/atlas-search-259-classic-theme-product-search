@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Search Blocks: render the product-results body (filters-product, results-list layout=product, WC-only filters) on classic themes when "Use Jetpack Search for product search results" is enabled.
