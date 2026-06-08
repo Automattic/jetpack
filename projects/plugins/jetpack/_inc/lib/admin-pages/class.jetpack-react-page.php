@@ -82,25 +82,69 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 	 * Remove Jetpack submenus that should not appear in the current context.
 	 *
 	 * @since 13.8
-	 * @since $$next-version$$ Remove all Jetpack submenus while Offline Mode is active.
 	 */
 	public function remove_jetpack_menu() {
-		$is_offline_mode = ( new Status() )->is_offline_mode();
-		$has_my_jetpack  = (
+		if ( ( new Status() )->is_offline_mode() ) {
+			$this->remove_offline_mode_unavailable_submenus();
+			return;
+		}
+
+		$has_my_jetpack = (
 			class_exists( 'Automattic\Jetpack\My_Jetpack\Initializer' ) &&
 			method_exists( 'Automattic\Jetpack\My_Jetpack\Initializer', 'should_initialize' ) &&
 			\Automattic\Jetpack\My_Jetpack\Initializer::should_initialize()
 		);
 
-		if ( $is_offline_mode ) {
-			global $submenu;
-			unset( $submenu['jetpack'] );
-			return;
-		}
-
 		if ( $has_my_jetpack || Jetpack::is_connection_ready() ) {
 			remove_submenu_page( 'jetpack', 'jetpack' );
 		}
+	}
+
+	/**
+	 * Remove Jetpack submenus that do not have useful Offline Mode behavior.
+	 *
+	 * @return void
+	 */
+	private function remove_offline_mode_unavailable_submenus() {
+		global $submenu;
+
+		if ( empty( $submenu['jetpack'] ) || ! is_array( $submenu['jetpack'] ) ) {
+			return;
+		}
+
+		foreach ( $submenu['jetpack'] as $position => $item ) {
+			$menu_slug = $item[2] ?? '';
+
+			if ( ! self::is_offline_mode_allowed_submenu_slug( $menu_slug ) ) {
+				unset( $submenu['jetpack'][ $position ] );
+			}
+		}
+	}
+
+	/**
+	 * Check if a Jetpack submenu slug points to an Offline Mode supported page.
+	 *
+	 * @param string $menu_slug Submenu slug.
+	 * @return bool
+	 */
+	private static function is_offline_mode_allowed_submenu_slug( $menu_slug ) {
+		if ( ! is_string( $menu_slug ) ) {
+			return false;
+		}
+
+		$allowed_slugs = array(
+			'jetpack-boost',
+			'jetpack-forms-admin',
+			'jetpack-forms-responses-wp-admin',
+			'jetpack-newsletter',
+		);
+
+		if ( in_array( $menu_slug, $allowed_slugs, true ) ) {
+			return true;
+		}
+
+		return false !== strpos( $menu_slug, 'page=jetpack#/offline-mode' )
+			|| false !== strpos( $menu_slug, 'page=jetpack#/settings' );
 	}
 
 	/**

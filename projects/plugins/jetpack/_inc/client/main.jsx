@@ -30,11 +30,6 @@ import SupportCard from 'components/support-card';
 import Tracker from 'components/tracker';
 import { imagePath } from 'constants/urls';
 import analytics from 'lib/analytics';
-import {
-	getJetpackCurrentMenuKey,
-	getJetpackEffectiveRoute,
-	getJetpackPageOrder,
-} from 'lib/jetpack-admin-menu';
 import MyPlan from 'my-plan/index.jsx';
 import OfflineMode from 'offline-mode';
 import ProductDescriptions from 'product-descriptions';
@@ -286,11 +281,11 @@ class Main extends Component {
 	}
 
 	getEffectiveRoute() {
-		return getJetpackEffectiveRoute( {
-			route: this.props.location.pathname,
-			isOfflineMode: this.props.isOfflineMode,
-			dashboardRoutes,
-		} );
+		if ( this.props.isOfflineMode && dashboardRoutes.includes( this.props.location.pathname ) ) {
+			return '/offline-mode';
+		}
+
+		return this.props.location.pathname;
 	}
 
 	maybeRedirectToEffectiveRoute() {
@@ -1055,15 +1050,54 @@ export default connect(
 function jetpackPageOrder() {
 	const jetpackParentMenu = document.querySelector( '#toplevel_page_jetpack' );
 
-	if ( jetpackParentMenu ) {
-		const jetpackSubMenu = jetpackParentMenu.querySelector( '.wp-submenu' );
-
-		if ( jetpackSubMenu ) {
-			const subMenuItems = jetpackSubMenu.querySelectorAll( 'li:not(.wp-submenu-head) a' );
-
-			return getJetpackPageOrder( subMenuItems );
-		}
+	if ( ! jetpackParentMenu ) {
+		return;
 	}
+
+	const jetpackSubMenu = jetpackParentMenu.querySelector( '.wp-submenu' );
+
+	if ( ! jetpackSubMenu ) {
+		return;
+	}
+
+	const subMenuItems = jetpackSubMenu.querySelectorAll( 'li:not(.wp-submenu-head) a' );
+	const pageOrder = {};
+	const urlPatterns = [
+		{
+			key: 'dashboard',
+			pattern: '/wp-admin/admin.php?page=jetpack#/dashboard',
+			matchType: 'end',
+		},
+		{
+			key: 'activityLog',
+			pattern: 'https://jetpack.com/redirect/?source=cloud-activity-log-wp-menu',
+			matchType: 'start',
+		},
+		{
+			key: 'settings',
+			pattern: '/wp-admin/admin.php?page=jetpack#/settings',
+			matchType: 'end',
+		},
+	];
+
+	urlPatterns.forEach( ( { key, pattern, matchType } ) => {
+		let foundIndex = -1;
+
+		subMenuItems.forEach( ( item, index ) => {
+			const { href } = item;
+
+			if (
+				( matchType === 'end' && href.endsWith( pattern ) ) ||
+				( matchType === 'start' && href.startsWith( pattern ) )
+			) {
+				foundIndex = index + 1;
+			}
+		} );
+
+		pageOrder[ key ] = foundIndex;
+	} );
+
+	return pageOrder;
 }
 
 /**
@@ -1092,15 +1126,23 @@ window.wpNavMenuClassChange = function () {
 	// Set the current sub-nav item according to the current hash route
 	page = page.get( 'page' );
 
-	const currentMenuKey = getJetpackCurrentMenuKey( {
-		hash,
-		page,
-		myJetpackRoutes,
-		dashboardRoutes,
-		recommendationsRoutes,
-		productDescriptionRoutes,
-		settingsRoutes,
-	} );
+	let currentMenuKey;
+
+	if ( myJetpackRoutes.includes( page ) ) {
+		currentMenuKey = 'myJetpack';
+	} else {
+		const normalizedHash = hash.split( '?' )[ 0 ].replace( /#/, '' );
+
+		if (
+			dashboardRoutes.includes( normalizedHash ) ||
+			recommendationsRoutes.includes( normalizedHash ) ||
+			productDescriptionRoutes.includes( normalizedHash )
+		) {
+			currentMenuKey = 'dashboard';
+		} else if ( settingsRoutes.includes( normalizedHash ) ) {
+			currentMenuKey = 'settings';
+		}
+	}
 
 	if ( currentMenuKey ) {
 		getJetpackSubNavItem( pageOrder[ currentMenuKey ] )?.classList.add( 'current' );

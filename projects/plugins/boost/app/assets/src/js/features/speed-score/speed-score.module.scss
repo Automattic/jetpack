@@ -7,22 +7,11 @@
 		margin: 1em 0;
 	}
 
-	.offline,
-	.top {
-		margin-bottom: 2rem;
-	}
-
-	.offline p {
-		font-weight: 400;
-		max-width: 560px;
-		line-height: 1.5;
-		color: variables.$gray_70;
-	}
-
 	.top {
 		display: flex;
 		align-items: center;
 		color: #000;
+		margin-bottom: 2rem;
 	}
 
 	.action-button {
@@ -43,6 +32,18 @@
 	:global(.jb-score-bar__no_boost_score_tooltip::after) {
 		font-size: 0.7em;
 		left: 50%;
+	}
+}
+
+.offline-notice {
+	margin: 0;
+
+	p {
+		margin: 0;
+	}
+
+	p + p {
+		margin-block-start: 4px;
 	}
 }
 

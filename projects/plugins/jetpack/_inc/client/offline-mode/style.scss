@@ -95,7 +95,6 @@ body.toplevel_page_jetpack.jetpack-offline-mode-page {
 	inline-size: 100%;
 	margin-inline: auto;
 	max-inline-size: 760px;
-	padding-block: 32px;
 }
 
 .jp-offline-mode__feature-row {
@@ -107,6 +106,10 @@ body.toplevel_page_jetpack.jetpack-offline-mode-page {
 
 .jp-offline-mode__feature-copy {
 	min-inline-size: 0;
+}
+
+.jp-offline-mode__feature-name {
+	margin-block: 0;
 }
 
 .jp-offline-mode__feature-documentation-link {
@@ -127,10 +130,6 @@ body.toplevel_page_jetpack.jetpack-offline-mode-page {
 }
 
 @media ( max-width: 782px ) {
-
-	.jp-offline-mode__content {
-		padding-block: 24px;
-	}
 
 	.jp-offline-mode__feature-row {
 		grid-template-columns: 1fr;
