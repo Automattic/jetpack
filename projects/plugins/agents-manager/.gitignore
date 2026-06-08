@@ -1,0 +1,7 @@
+vendor/
+jetpack_vendor/
+node_modules/
+wordpress
+build/
+.cache/
+composer.lock

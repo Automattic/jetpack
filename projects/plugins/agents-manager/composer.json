@@ -1,0 +1,42 @@
+{
+	"name": "automattic/agents-manager-plugin",
+	"description": "Standalone plugin that loads the Jetpack Agents Manager package.",
+	"type": "wordpress-plugin",
+	"license": "GPL-2.0-or-later",
+	"require": {
+		"automattic/jetpack-agents-manager": "@dev",
+		"automattic/jetpack-autoloader": "@dev",
+		"automattic/jetpack-composer-plugin": "@dev"
+	},
+	"require-dev": {
+		"yoast/phpunit-polyfills": "^4.0.0",
+		"automattic/jetpack-test-environment": "@dev",
+		"automattic/phpunit-select-config": "@dev"
+	},
+	"scripts": {
+		"build-development": [
+			"echo 'Add your build step to composer.json, please!'"
+		],
+		"build-production": [
+			"echo 'Add your build step to composer.json, please!'"
+		]
+	},
+	"repositories": [
+		{
+			"type": "path",
+			"url": "../../packages/*",
+			"options": {
+				"monorepo": true
+			}
+		}
+	],
+	"minimum-stability": "dev",
+	"prefer-stable": true,
+	"config": {
+		"allow-plugins": {
+			"automattic/jetpack-autoloader": true,
+			"automattic/jetpack-composer-plugin": true
+		},
+		"autoloader-suffix": "a0c8b4b8a21285954dcfaae4c85e8ab2_agents_managerⓥ0_1_0"
+	}
+}
