@@ -30,6 +30,14 @@ class Jetpack_Premium_Content_Test extends WP_UnitTestCase {
 	 */
 	protected $refresh_response_override = null;
 
+	/**
+	 * Number of times the refresh endpoint mock was hit during a test. Lets tests
+	 * assert that refresh was (or was not) called, independent of the access outcome.
+	 *
+	 * @var int
+	 */
+	protected $refresh_call_count = 0;
+
 	public function set_up() {
 		parent::set_up();
 		Jetpack_Subscriptions::init();
@@ -51,6 +59,7 @@ class Jetpack_Premium_Content_Test extends WP_UnitTestCase {
 		remove_all_filters( PAYWALL_FILTER );
 		remove_all_filters( 'pre_http_request' );
 		$this->refresh_response_override = null;
+		$this->refresh_call_count        = 0;
 		unset( $_COOKIE['wp-jp-premium-content-session'] );
 		parent::tear_down();
 	}
@@ -66,6 +75,7 @@ class Jetpack_Premium_Content_Test extends WP_UnitTestCase {
 	 */
 	public function mock_refresh_endpoint( $preempt, $args, $url ) {
 		if ( false !== strpos( $url, 'memberships/token/refresh' ) ) {
+			++$this->refresh_call_count;
 			if ( null !== $this->refresh_response_override ) {
 				return $this->refresh_response_override;
 			}
@@ -430,6 +440,29 @@ class Jetpack_Premium_Content_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * A token with no subscription matching any required plan (free subscriber on a
+	 * paid post, or tier mismatch) must NOT trigger a refresh — refresh can only
+	 * resolve stale-end_date for an existing matching subscription, not conjure a
+	 * subscription that never existed. This guards against refresh-on-every-render
+	 * for the (much larger) never-paid and tier-mismatch populations.
+	 *
+	 * @return void
+	 */
+	public function test_refresh_not_called_when_token_has_no_matching_product() {
+		$users_plans           = $this->set_up_users_and_plans();
+		$regular_subscriber_id = $users_plans[1];
+		$plan_id               = $users_plans[3];
+
+		wp_set_current_user( $regular_subscriber_id );
+		// Free subscriber: blog_sub active, no paid subscriptions in token.
+		$payload = $this->get_payload( true, false );
+		$this->set_returned_token( $payload );
+
+		$this->assertFalse( current_visitor_can_access( array( 'selectedPlanIds' => array( $plan_id ) ), array() ) );
+		$this->assertSame( 0, $this->refresh_call_count, 'Refresh endpoint should not be called when the token has no matching product_id.' );
+	}
+
+	/**
 	 * An active subscription with a future end_date should not trigger a refresh
 	 * at all — no HTTP call is made.
 	 *
@@ -444,9 +477,7 @@ class Jetpack_Premium_Content_Test extends WP_UnitTestCase {
 		$valid_payload = $this->get_payload( true, true, time() + HOUR_IN_SECONDS );
 		$this->set_returned_token( $valid_payload );
 
-		// If a refresh call were made, this override would throw — proving it is not called.
-		$this->refresh_response_override = new WP_Error( 'should_not_be_called', 'refresh should not be called for valid token' );
-
 		$this->assertTrue( current_visitor_can_access( array( 'selectedPlanIds' => array( $plan_id ) ), array() ) );
+		$this->assertSame( 0, $this->refresh_call_count, 'Refresh endpoint should not be called when the token is still active.' );
 	}
 }

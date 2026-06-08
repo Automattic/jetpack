@@ -136,7 +136,7 @@ abstract class Abstract_Token_Subscription_Service implements Subscription_Servi
 				$site_id
 			),
 			array(
-				'timeout' => 10,
+				'timeout' => 5,
 				'headers' => array( 'Content-Type' => 'application/json' ),
 				'body'    => wp_json_encode(
 					array( 'jwt_token' => $current_token ),
@@ -165,6 +165,29 @@ abstract class Abstract_Token_Subscription_Service implements Subscription_Servi
 		// success === false → deterministic auth failure. Clear cookie.
 		self::clear_token_cookie();
 		return null;
+	}
+
+	/**
+	 * Whether the token already carries a subscription whose product_id matches one of
+	 * the required plans. Used to gate the refresh path: combined with `validate_subscriptions`
+	 * having returned false, a match here implies the matching subscription's end_date is
+	 * in the past — the only case the refresh endpoint can help with.
+	 *
+	 * @param int[] $valid_plan_ids      Plan IDs required by the post.
+	 * @param array $token_subscriptions Subscriptions from the current token (keyed by product_id).
+	 * @return bool
+	 */
+	private function token_has_matching_product( array $valid_plan_ids, array $token_subscriptions ) {
+		if ( empty( $token_subscriptions ) ) {
+			return false;
+		}
+		foreach ( $valid_plan_ids as $plan_id ) {
+			$product_id = (int) get_post_meta( $plan_id, 'jetpack_memberships_product_id', true );
+			if ( $product_id > 0 && isset( $token_subscriptions[ $product_id ] ) ) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	/**
@@ -255,10 +278,16 @@ abstract class Abstract_Token_Subscription_Service implements Subscription_Servi
 			$subscriptions      = (array) $payload['subscriptions'];
 			$is_paid_subscriber = static::validate_subscriptions( $valid_plan_ids, $subscriptions );
 
-			// If the token's subscriptions do not satisfy the required plans (e.g. the token has a
-			// stale end_date from before a subscription renewal), attempt a single refresh against
-			// the WordPress.com refresh endpoint before denying access.
-			if ( ! $is_paid_subscriber && ! empty( $valid_plan_ids ) ) {
+			// Only attempt a refresh in the specific stale-end_date case: the token already carries a
+			// subscription whose product_id matches one of the required plans, but validation failed
+			// (which, given the match, can only be because end_date is in the past). This excludes
+			// free subscribers, tier mismatches, and cancellations from triggering an HTTP call on
+			// every render.
+			if (
+				! $is_paid_subscriber
+				&& ! empty( $valid_plan_ids )
+				&& $this->token_has_matching_product( $valid_plan_ids, $subscriptions )
+			) {
 				$fresh_payload = $this->refresh_token_payload();
 				if ( ! empty( $fresh_payload ) ) {
 					$payload            = $fresh_payload;
@@ -683,13 +712,15 @@ abstract class Abstract_Token_Subscription_Service implements Subscription_Servi
 
 	/**
 	 * Clear the auth cookie.
+	 *
+	 * Always emits the clearing Set-Cookie header (when headers aren't already sent), even
+	 * if $_COOKIE is empty for this request. This matters for the URL-token entry path:
+	 * set_token_cookie() only emits a Set-Cookie header and never populates $_COOKIE, so a
+	 * $_COOKIE-based early-return here would let a freshly-set stale cookie escape clearing
+	 * on the same response.
 	 */
 	public static function clear_token_cookie() {
 		if ( defined( 'TESTING_IN_JETPACK' ) && TESTING_IN_JETPACK ) {
-			return;
-		}
-
-		if ( ! self::has_token_from_cookie() ) {
 			return;
 		}
 
