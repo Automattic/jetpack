@@ -487,7 +487,6 @@ class WPCOM_Features {
 	public const SOCIAL_SHARES_1000                = 'social-shares-1000';
 	public const SOCIAL_ENHANCED_PUBLISHING        = 'social-enhanced-publishing';
 	public const SOCIAL_IMAGE_AUTO_CONVERT         = 'social-image-auto-convert';
-	public const SOCIAL_UNIFIED_UI_V1              = 'social-unified-ui-v1';
 	public const SPACE                             = 'space';
 	public const SPACE_UPGRADED_STORAGE            = 'space-upgraded-storage';
 	public const SSH                               = 'ssh';
@@ -1357,10 +1356,6 @@ class WPCOM_Features {
 			self::JETPACK_SOCIAL_PLANS,
 			self::JETPACK_GROWTH_PLANS,
 			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
-		),
-		self::SOCIAL_UNIFIED_UI_V1              => array(
-			self::WPCOM_ALL_SITES,
-			// For Jetpack sites, the feature is controlled in Store_Product_List.
 		),
 		self::SOCIAL_MESSAGE_TEMPLATES          => array(
 			// Gated on the paid social plans, matching SOCIAL_ENHANCED_PUBLISHING.

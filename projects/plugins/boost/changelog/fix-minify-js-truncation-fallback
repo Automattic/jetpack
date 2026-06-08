@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Concatenate JS: Fix pages breaking with an "Unexpected end of input" error when Concatenate JS is enabled on sites that use modern JavaScript under specific conditions.
