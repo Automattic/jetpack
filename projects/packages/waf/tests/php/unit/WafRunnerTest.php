@@ -64,7 +64,7 @@ final class WafRunnerTest extends PHPUnit\Framework\TestCase {
 	 * @preserveGlobalState disabled
 	 */
 	#[RunInSeparateProcess]
-	#[PreserveGlobalState(false)]
+	#[PreserveGlobalState( false )]
 	public function testRunSkipsRulesWhenRequestMethodIsAbsent() {
 		define( 'ABSPATH', '/pseudo' );
 		define( 'WP_CONTENT_DIR', '/pseudo/dir' );
