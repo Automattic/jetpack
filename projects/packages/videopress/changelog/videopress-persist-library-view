@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+VideoPress: Persist Library view settings (layout, columns, sort) per-user across reloads, and replace the layout dropdown with a Grid/Table toggle.

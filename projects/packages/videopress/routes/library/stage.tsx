@@ -1,8 +1,16 @@
 import { useGlobalNotices } from '@automattic/jetpack-components/global-notices';
-import { DropZone, Tooltip } from '@wordpress/components';
+import {
+	DropZone,
+	Tooltip,
+	// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
+	__experimentalToggleGroupControl as ToggleGroupControl,
+	// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
+	__experimentalToggleGroupControlOptionIcon as ToggleGroupControlOptionIcon,
+} from '@wordpress/components';
 import { DataViews } from '@wordpress/dataviews';
 import { useCallback, useMemo, useRef, useState } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
+import { grid, list } from '@wordpress/icons';
 import { useNavigate } from '@wordpress/route';
 import { Button } from '@wordpress/ui';
 import DashboardLayout from '../../src/dashboard/components/dashboard-layout';
@@ -13,6 +21,7 @@ import QueryClientWrapper from '../../src/dashboard/components/query-client-wrap
 import { DeleteVideosError, useDeleteVideo } from '../../src/dashboard/hooks/use-delete-video';
 import { useFreeTier } from '../../src/dashboard/hooks/use-free-tier';
 import { useLibrary } from '../../src/dashboard/hooks/use-library';
+import { usePersistedView } from '../../src/dashboard/hooks/use-persisted-view';
 import { useSetPrivacy } from '../../src/dashboard/hooks/use-set-privacy';
 import { useUpload } from '../../src/dashboard/hooks/use-upload';
 import { useUploadFromLibrary } from '../../src/dashboard/hooks/use-upload-from-library';
@@ -53,13 +62,14 @@ const DEFAULT_VIEW: View = {
 	search: '',
 };
 
-const defaultLayouts: SupportedLayouts = {
+const LAYOUT_CONFIGS = {
 	grid: { layout: { previewSize: 220, density: 'comfortable' } },
 	table: { layout: { density: 'balanced' } },
-};
+} as const satisfies SupportedLayouts;
 
 const StageInner = () => {
-	const [ view, setView ] = useState< View >( DEFAULT_VIEW );
+	const [ initialView, persistView ] = usePersistedView( DEFAULT_VIEW );
+	const [ view, setView ] = useState< View >( initialView );
 	const [ selection, setSelection ] = useState< string[] >( [] );
 	// Local IDs currently being promoted from local-storage to VideoPress.
 	// The upload-from-library endpoint doesn't report progress, so we just
@@ -78,17 +88,44 @@ const StageInner = () => {
 	const { isAtLimit, isFree, isUnlimited, videoCount, limit } = useFreeTier();
 	const runUpgrade = useVideoPressUpgrade();
 
-	const onChangeView = useCallback( ( next: View ) => {
-		setView( current => {
-			if ( next.type === current.type ) {
-				return next;
-			}
-			return {
-				...next,
-				fields: next.type === 'table' ? TABLE_VISIBLE_FIELDS : GRID_VISIBLE_FIELDS,
-			};
-		} );
-	}, [] );
+	const onChangeView = useCallback(
+		( next: View ) => {
+			setView( current => {
+				const resolved =
+					next.type === current.type
+						? next
+						: {
+								...next,
+								fields: next.type === 'table' ? TABLE_VISIBLE_FIELDS : GRID_VISIBLE_FIELDS,
+						  };
+				persistView( resolved );
+				return resolved;
+			} );
+		},
+		[ persistView ]
+	);
+
+	// Custom Grid/Table toggle in the header. Switching the layout type
+	// reuses the same field-reset rule as `onChangeView` and also restores
+	// that layout's configured density/preview size.
+	const onChangeLayout = useCallback(
+		( type: View[ 'type' ] ) => {
+			setView( current => {
+				if ( type === current.type ) {
+					return current;
+				}
+				const resolved: View = {
+					...current,
+					type,
+					fields: type === 'table' ? TABLE_VISIBLE_FIELDS : GRID_VISIBLE_FIELDS,
+					layout: LAYOUT_CONFIGS[ type ]?.layout,
+				};
+				persistView( resolved );
+				return resolved;
+			} );
+		},
+		[ persistView ]
+	);
 
 	const filePickerRef = useRef< HTMLInputElement >( null );
 	const onClickHeaderUpload = useCallback( () => {
@@ -398,12 +435,44 @@ const StageInner = () => {
 
 	const getItemId = useCallback( ( item: LibraryItem ) => item.id, [] );
 
+	// Only advertise the active layout to DataViews. With a single layout
+	// available, DataViews suppresses its built-in layout dropdown, leaving
+	// our header Grid/Table toggle as the one place to switch layouts.
+	const activeLayouts = useMemo< SupportedLayouts >(
+		() => ( { [ view.type ]: LAYOUT_CONFIGS[ view.type ] } ),
+		[ view.type ]
+	);
+
+	const layoutToggle = (
+		<ToggleGroupControl
+			className="vp-library__layout-toggle"
+			__nextHasNoMarginBottom
+			hideLabelFromVision
+			isBlock
+			label={ __( 'Layout', 'jetpack-videopress-pkg' ) }
+			value={ view.type }
+			onChange={ value => onChangeLayout( value as View[ 'type' ] ) }
+		>
+			<ToggleGroupControlOptionIcon
+				value="grid"
+				icon={ grid }
+				label={ __( 'Grid', 'jetpack-videopress-pkg' ) }
+			/>
+			<ToggleGroupControlOptionIcon
+				value="table"
+				icon={ list }
+				label={ __( 'Table', 'jetpack-videopress-pkg' ) }
+			/>
+		</ToggleGroupControl>
+	);
+
 	return (
 		<DashboardLayout
 			activeTab="library"
 			hideFooter
 			actions={
 				<>
+					{ layoutToggle }
 					<input
 						ref={ filePickerRef }
 						type="file"
@@ -450,7 +519,7 @@ const StageInner = () => {
 						getItemId={ getItemId }
 						paginationInfo={ paginationInfo }
 						isLoading={ isLoading }
-						defaultLayouts={ defaultLayouts }
+						defaultLayouts={ activeLayouts }
 					/>
 				</div>
 			</UploadActionsProvider>

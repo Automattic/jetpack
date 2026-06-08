@@ -1,6 +1,14 @@
 @use "sass:meta";
 @include meta.load-css("@wordpress/dataviews/build-style/style.css");
 
+// Header Grid/Table toggle. Lives in the dashboard header (outside the
+// `.vp-library` viewport), so it's scoped on its own class. Keep it compact
+// and aligned with the neighbouring "Upload video" button.
+.vp-library__layout-toggle {
+	width: auto;
+	flex-shrink: 0;
+}
+
 .vp-library {
 
 	// `aria-disabled` rather than `disabled` so the button stays in the
