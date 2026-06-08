@@ -118,14 +118,18 @@ class PCG_Load_Tester {
 		}
 
 		// Activation-mode captured fatal: re-probe via WP's normal
-		// active-plugin bootstrap to confirm. Block only when the
-		// confirmation also captures a fatal. Clean confirmation OR
-		// confirmation transport failure → downgrade (we either have
-		// positive evidence the plugin loads cleanly, or we've lost
-		// the ability to disambiguate — keeping the block in the
-		// latter case would re-introduce the false positives the
-		// confirmation is meant to eliminate). Update mode never
-		// confirms — fatals must block so PCG_Rollback can fire.
+		// active-plugin bootstrap to confirm, and downgrade ONLY on an
+		// explicit clean `ok` verdict (see is_clean_confirmation). Any
+		// other confirmation result — transport failure, ok-inconclusive,
+		// ok-shutdown, error — keeps the original captured fatal. A fatal
+		// during the active_plugins-driven load dies in wp-settings.php,
+		// before the probe endpoint registers its shutdown handler, so it
+		// can never come back as status=fatal; it surfaces as a bare 500 /
+		// ok-inconclusive / transport error. Treating that ambiguity as a
+		// pass would downgrade a real fatal, so we trust the genuine fatal
+		// the first probe captured unless the confirmation produces
+		// positive clean evidence. Update mode never confirms — fatals
+		// must block so PCG_Rollback can fire.
 		if ( null !== $verdict ) {
 			if ( self::MODE_ACTIVATION === $mode ) {
 				// Re-probe only the surface that captured. The other surface
@@ -133,16 +137,7 @@ class PCG_Load_Tester {
 				// adds cost without changing the outcome.
 				$surface      = $this->is_block( $front_result ) ? 'front' : 'admin';
 				$confirmation = $this->confirm_via_normal_load( $plugin_mains, $surface );
-				if ( null === $confirmation ) {
-					return $this->downgrade_after_confirmation(
-						$verdict,
-						array(
-							'status' => 'error',
-							'reason' => 'Confirmation probe transport failure; treating original fatal as inconclusive.',
-						)
-					);
-				}
-				if ( ! $this->is_block( $confirmation ) ) {
+				if ( $this->is_clean_confirmation( $confirmation ) ) {
 					return $this->downgrade_after_confirmation( $verdict, $confirmation );
 				}
 			}
@@ -191,6 +186,25 @@ class PCG_Load_Tester {
 		}
 
 		return $this->parse_response( $responses[ $surface ] );
+	}
+
+	/**
+	 * Whether a confirmation-probe verdict is an explicit clean load. Only
+	 * status=`ok` qualifies — the probe endpoint emits it from
+	 * wp_loaded/admin_init once the candidate loaded via the real
+	 * active_plugins path and the whole bootstrap completed without a
+	 * captured fatal. This is the sole result that downgrades a captured
+	 * fatal: a fatal during the active_plugins-driven load dies in
+	 * wp-settings.php before the endpoint registers its shutdown handler,
+	 * so it can never return as status=`fatal` — it comes back as a 500 /
+	 * `ok-inconclusive` / transport error (null), none of which we trust
+	 * to override a genuine captured fatal.
+	 *
+	 * @param array|null $confirmation Confirmation verdict, or null on transport failure.
+	 * @return bool
+	 */
+	protected function is_clean_confirmation( $confirmation ) {
+		return is_array( $confirmation ) && 'ok' === (string) ( $confirmation['status'] ?? '' );
 	}
 
 	/**

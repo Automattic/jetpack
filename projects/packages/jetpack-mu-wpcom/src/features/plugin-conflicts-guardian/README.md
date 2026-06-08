@@ -83,9 +83,8 @@ The probe endpoint loads candidates via a manual `require_once`, which doesn't p
 
 When the first probe captures a fatal in activation mode, the load tester fires a **confirmation probe** with `pcg_confirm=1`. An early-bootstrap hook (`probe-confirm-bootstrap.php`, required from `Jetpack_Mu_Wpcom::init()` at mu-plugin load time) hooks `pre_option_active_plugins` so the candidate is treated as already-active for that request; the probe endpoint skips its manual require and observes whether `wp_loaded` / `admin_init` complete cleanly.
 
-- Clean confirmation → downgrade to `ok-inconclusive`; log `Probe fatal downgraded after confirmation`.
-- Confirmation also fatals → keep the original verdict; block.
-- Confirmation transport error → downgrade as well — we've lost the ability to disambiguate, and keeping the block would re-introduce the false-positive class. CLI activation remains the recovery path.
+- Explicit clean `ok` confirmation → downgrade to `ok-inconclusive`; log `Probe fatal downgraded after confirmation`.
+- Anything else — confirmation fatal, transport error, or an ambiguous `ok-inconclusive` / `ok-shutdown` — keeps the original verdict and blocks. A fatal during the injected `active_plugins` load dies in `wp-settings.php` before the probe endpoint arms its shutdown handler, so it can't return as `status=fatal`; treating that ambiguity as a pass would downgrade a real fatal. We only override a captured fatal on positive clean evidence.
 
 Update mode never confirms — the candidate is already loaded by WP's normal bootstrap before the probe fires, so there's no different ordering to test against, and a fatal MUST block to let `PCG_Rollback::to_snapshot()` fire.
 
