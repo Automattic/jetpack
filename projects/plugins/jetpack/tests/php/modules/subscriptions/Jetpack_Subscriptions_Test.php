@@ -61,7 +61,7 @@ class Jetpack_Subscriptions_Test extends WP_UnitTestCase {
 	 * @return mixed
 	 */
 	public function block_refresh_endpoint( $preempt, $args, $url ) {
-		if ( false !== strpos( $url, 'memberships/jwt/refresh' ) ) {
+		if ( false !== strpos( $url, 'memberships/token/refresh' ) ) {
 			return array(
 				'response' => array(
 					'code'    => 500,

@@ -65,7 +65,7 @@ class Jetpack_Premium_Content_Test extends WP_UnitTestCase {
 	 * @return mixed
 	 */
 	public function mock_refresh_endpoint( $preempt, $args, $url ) {
-		if ( false !== strpos( $url, 'memberships/jwt/refresh' ) ) {
+		if ( false !== strpos( $url, 'memberships/token/refresh' ) ) {
 			if ( null !== $this->refresh_response_override ) {
 				return $this->refresh_response_override;
 			}
@@ -260,7 +260,13 @@ class Jetpack_Premium_Content_Test extends WP_UnitTestCase {
 				'code'    => 200,
 				'message' => 'OK',
 			),
-			'body'     => wp_json_encode( array( 'token' => $fresh_token ), JSON_UNESCAPED_SLASHES ),
+			'body'     => wp_json_encode(
+				array(
+					'success'   => true,
+					'jwt_token' => $fresh_token,
+				),
+				JSON_UNESCAPED_SLASHES
+			),
 			'headers'  => array(),
 			'cookies'  => array(),
 		);
@@ -319,7 +325,13 @@ class Jetpack_Premium_Content_Test extends WP_UnitTestCase {
 				'code'    => 200,
 				'message' => 'OK',
 			),
-			'body'     => wp_json_encode( array( 'token' => $empty_token ), JSON_UNESCAPED_SLASHES ),
+			'body'     => wp_json_encode(
+				array(
+					'success'   => true,
+					'jwt_token' => $empty_token,
+				),
+				JSON_UNESCAPED_SLASHES
+			),
 			'headers'  => array(),
 			'cookies'  => array(),
 		);
@@ -357,8 +369,10 @@ class Jetpack_Premium_Content_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * When the refresh endpoint returns 401 (bad signature), access is denied
-	 * AND the cookie is cleared so the subscriber re-authenticates on next visit.
+	 * When the refresh endpoint returns 200 + { success: false } (wpcom refused the
+	 * refresh — token no longer eligible, or signature/site/user check failed),
+	 * access is denied AND the cookie is cleared so the subscriber re-authenticates
+	 * on next visit.
 	 *
 	 * @return void
 	 */
@@ -376,10 +390,16 @@ class Jetpack_Premium_Content_Test extends WP_UnitTestCase {
 
 		$this->refresh_response_override = array(
 			'response' => array(
-				'code'    => 401,
-				'message' => 'Unauthorized',
+				'code'    => 200,
+				'message' => 'OK',
 			),
-			'body'     => '',
+			'body'     => wp_json_encode(
+				array(
+					'success' => false,
+					'error'   => 'token-too-old',
+				),
+				JSON_UNESCAPED_SLASHES
+			),
 			'headers'  => array(),
 			'cookies'  => array(),
 		);

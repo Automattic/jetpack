@@ -109,60 +109,61 @@ abstract class Abstract_Token_Subscription_Service implements Subscription_Servi
 	}
 
 	/**
-	 * POST the current token to the WordPress.com refresh endpoint and return a
-	 * fresh JWT string, or null on any failure.
+	 * POST the current token to the WordPress.com memberships token-refresh endpoint
+	 * and return a fresh JWT string, or null on any failure.
 	 *
-	 * Response handling:
-	 *  - 200 with jwt_token → return fresh token string.
-	 *  - 400 (iat expired) / 401 (bad signature) → deterministic failure: clear the
-	 *    cookie so the visitor is routed through the normal auth flow on the next
-	 *    page load, and return null.
-	 *  - Any other non-200 / WP_Error / network timeout → transient failure: leave
-	 *    the cookie alone so a temporary endpoint outage does not mass-log-out
-	 *    subscribers, and return null.
+	 * Endpoint contract (POST /sites/<site_id>/memberships/token/refresh):
+	 *  - 200 + { success: true,  jwt_token: "<jwt>" } → fresh token; return it.
+	 *  - 200 + { success: false, ... }                → wpcom refused the refresh
+	 *    (token no longer eligible, or signature/site/user check failed).
+	 *    Deterministic; clear the cookie so the visitor is routed through the normal
+	 *    auth flow on the next page load.
+	 *  - Anything else (non-200, WP_Error, network timeout, malformed body) → transient;
+	 *    leave the cookie alone so a temporary outage does not mass-log-out subscribers.
 	 *
 	 * @param string $current_token The token to present for refresh.
 	 * @return string|null Fresh token string, or null on failure.
 	 */
 	protected function fetch_refreshed_token( $current_token ) {
+		$site_id = (int) $this->get_site_id();
+		if ( $site_id <= 0 ) {
+			return null;
+		}
+
 		$response = wp_remote_post(
-			self::REST_URL_ORIGIN . 'memberships/jwt/refresh',
+			sprintf(
+				'https://public-api.wordpress.com/rest/v1.1/sites/%d/memberships/token/refresh',
+				$site_id
+			),
 			array(
 				'timeout' => 10,
 				'headers' => array( 'Content-Type' => 'application/json' ),
 				'body'    => wp_json_encode(
-					array(
-						'token'   => $current_token,
-						'site_id' => $this->get_site_id(),
-					),
+					array( 'jwt_token' => $current_token ),
 					JSON_UNESCAPED_SLASHES
 				),
 			)
 		);
 
 		if ( is_wp_error( $response ) ) {
-			// Transient (network error / timeout). Leave cookie, deny.
 			return null;
 		}
 
-		$code = (int) wp_remote_retrieve_response_code( $response );
-
-		if ( 200 === $code ) {
-			$body = json_decode( wp_remote_retrieve_body( $response ), true );
-			if ( is_array( $body ) && ! empty( $body['token'] ) && is_string( $body['token'] ) ) {
-				return $body['token'];
-			}
-			// Malformed 200 — treat as transient.
+		if ( 200 !== (int) wp_remote_retrieve_response_code( $response ) ) {
 			return null;
 		}
 
-		if ( 400 === $code || 401 === $code ) {
-			// Deterministic failure — clear cookie so the subscriber re-authenticates.
-			self::clear_token_cookie();
+		$body = json_decode( wp_remote_retrieve_body( $response ), true );
+		if ( ! is_array( $body ) || ! isset( $body['success'] ) ) {
 			return null;
 		}
 
-		// Any other status (5xx, 403, 404, etc.) — transient. Leave cookie, deny.
+		if ( true === $body['success'] && ! empty( $body['jwt_token'] ) && is_string( $body['jwt_token'] ) ) {
+			return $body['jwt_token'];
+		}
+
+		// success === false → deterministic auth failure. Clear cookie.
+		self::clear_token_cookie();
 		return null;
 	}
 
