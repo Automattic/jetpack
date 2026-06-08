@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.7.2] - 2026-06-08
 ### Security
-- Simple Payments: strip seller PayPal email (spay_email) from public REST responses while preserving editor read/write. [#49194]
+- Simple Payments: Strip seller PayPal email (spay_email) from public REST responses while preserving editor read/write. [#49194]
 
 ### Changed
 - Update dependencies. [#49354]

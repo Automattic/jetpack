@@ -14,18 +14,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Remove the per-page Hello Dolly rule; its content is now covered by the centralized normalize rule shipped with `@automattic/jetpack-components`'s AdminPage component. [#48472]
 
 ### Fixed
-- Add subscribers and Comp modals: restore body padding by wrapping content in Dialog.Content [#49327]
 - Include the routes directory in the TypeScript config so dashboard route files type-check correctly. [#49368]
-- Newsletter: don't show the WordPress.com connection prompt on Simple sites, which are already connected [#49365]
-- Subscribers dashboard: fix several Comp modal issues — show the plan billing interval in the picker, correct plan selection, disable and explain (via tooltip) plans the reader already has, surface the specific already-comped error message, and fix a clipped focus ring [#49441]
-- Subscribers dashboard: show the empty state when the site owner is the only subscriber, and point the empty-state copy at the subscription form documentation [#49410]
+- Newsletter: Don't show the WordPress.com connection prompt on Simple sites, which are already connected. [#49365]
+- Restore body padding by wrapping content in Dialog.Content in Add subscribers and Comp modals. [#49327]
+- Subscribers Dashboard: Fix several Comp modal issues — show the plan billing interval in the picker, correct plan selection, disable and explain (via tooltip) plans the reader already has, surface the specific already-comped error message, and fix a clipped focus ring. [#49441]
+- Subscribers Dashboard: Show the empty state when the site owner is the only subscriber, and point the empty-state copy at the subscription form documentation. [#49410]
 
 ## [0.8.10] - 2026-06-01
 ### Changed
 - Update package dependencies. [#48404] [#49152]
 
 ### Fixed
-- Newsletter dashboard now records a `jetpack_newsletter_tab_view` Tracks event on initial page load (matching its tab-switch behavior). [#49243]
+- Record a `jetpack_newsletter_tab_view` Tracks event on initial page load in Newsletter dashboard (matching its tab-switch behavior). [#49243]
 
 ## [0.8.9] - 2026-05-25
 ### Changed

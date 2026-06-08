@@ -7,12 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [4.41.0] - 2026-06-08
 ### Added
-- Add options from Advanced WooCommerce settings pages to sync whitelist, as part of activity log improvements. [#49435]
-- Add options from Shipping WooCommerce settings pages to sync whitelist, as part of activity log improvements. [#49371]
+- Add options from Advanced WooCommerce settings pages to sync whitelist. [#49435] [#49371]
 
 ## [4.40.0] - 2026-06-08
 ### Added
-- Add options from Payments WooCommerce settings pages to sync whitelist, as part of activity log improvements. [#49200]
+- Add options from Payments WooCommerce settings pages to sync whitelist. [#49200]
 
 ## [4.39.1] - 2026-06-05
 ### Changed
