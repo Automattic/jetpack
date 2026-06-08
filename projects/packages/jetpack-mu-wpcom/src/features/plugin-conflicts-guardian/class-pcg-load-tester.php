@@ -107,38 +107,37 @@ class PCG_Load_Tester {
 		$front_result = $this->parse_response( $responses['front'] );
 		$admin_result = $this->parse_response( $responses['admin'] );
 
-		// fatal/throwable wins; an inconclusive `error` from one probe must
-		// not shadow a real fatal from the other. Front-end is the canonical
-		// "site works" signal when neither probe captured a fatal.
-		$verdict = null;
+		// Every surface that captured a fatal. An admin-only fatal still
+		// crashes the site, so both must be confirmed. Front-end is the
+		// canonical verdict when both block.
+		$blocking = array();
 		if ( $this->is_block( $front_result ) ) {
-			$verdict = $front_result;
-		} elseif ( $this->is_block( $admin_result ) ) {
-			$verdict = $admin_result;
+			$blocking['front'] = $front_result;
+		}
+		if ( $this->is_block( $admin_result ) ) {
+			$blocking['admin'] = $admin_result;
 		}
 
-		// Activation-mode captured fatal: re-probe via WP's normal
-		// active-plugin bootstrap to confirm, and downgrade ONLY on an
-		// explicit clean `ok` verdict (see is_clean_confirmation). Any
-		// other confirmation result — transport failure, ok-inconclusive,
-		// ok-shutdown, error — keeps the original captured fatal. A fatal
-		// during the active_plugins-driven load dies in wp-settings.php,
-		// before the probe endpoint registers its shutdown handler, so it
-		// can never come back as status=fatal; it surfaces as a bare 500 /
-		// ok-inconclusive / transport error. Treating that ambiguity as a
-		// pass would downgrade a real fatal, so we trust the genuine fatal
-		// the first probe captured unless the confirmation produces
-		// positive clean evidence. Update mode never confirms — fatals
-		// must block so PCG_Rollback can fire.
-		if ( null !== $verdict ) {
+		if ( ! empty( $blocking ) ) {
+			$verdict = $blocking['front'] ?? $blocking['admin'];
+
+			// Confirm each blocking surface via WP's normal active-plugin
+			// bootstrap; downgrade only when EVERY one comes back an explicit
+			// clean `ok`. Anything else keeps the captured fatal (see
+			// is_clean_confirmation). Update mode never confirms — fatals must
+			// block so PCG_Rollback can fire.
 			if ( self::MODE_ACTIVATION === $mode ) {
-				// Re-probe only the surface that captured. The other surface
-				// already returned a non-fatal response, so re-running it
-				// adds cost without changing the outcome.
-				$surface      = $this->is_block( $front_result ) ? 'front' : 'admin';
-				$confirmation = $this->confirm_via_normal_load( $plugin_mains, $surface );
-				if ( $this->is_clean_confirmation( $confirmation ) ) {
-					return $this->downgrade_after_confirmation( $verdict, $confirmation );
+				$clean_confirmation = null;
+				foreach ( array_keys( $blocking ) as $surface ) {
+					$confirmation = $this->confirm_via_normal_load( $plugin_mains, $surface );
+					if ( ! $this->is_clean_confirmation( $confirmation ) ) {
+						$clean_confirmation = null;
+						break;
+					}
+					$clean_confirmation = $confirmation;
+				}
+				if ( null !== $clean_confirmation ) {
+					return $this->downgrade_after_confirmation( $verdict, $clean_confirmation );
 				}
 			}
 			return $verdict;
