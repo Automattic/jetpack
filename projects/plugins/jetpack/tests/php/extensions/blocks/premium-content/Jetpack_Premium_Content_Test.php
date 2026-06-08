@@ -454,6 +454,52 @@ class Jetpack_Premium_Content_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Option A (cookie-first): a logged-in visitor whose valid session cookie already grants
+	 * the tier must be served from the cookie WITHOUT querying the WPCOM filter — that is the
+	 * fast cached path the self-heal exists to enable.
+	 *
+	 * @return void
+	 */
+	public function test_access_check_logged_in_with_valid_cookie_skips_filter() {
+		unset( $_GET['token'] );
+
+		$plan_id = $this->factory->post->create(
+			array( 'post_type' => Jetpack_Memberships::$post_type_plan )
+		);
+		update_post_meta( $plan_id, 'jetpack_memberships_product_id', $this->product_id );
+		update_post_meta( $plan_id, 'jetpack_memberships_type', Jetpack_Memberships::$type_tier );
+		update_post_meta( $plan_id, 'jetpack_memberships_price', 15 );
+		update_post_meta( $plan_id, 'jetpack_memberships_currency', 'CAD' );
+		update_post_meta( $plan_id, 'jetpack_memberships_interval', '1 year' );
+
+		$local_user_id = $this->factory->user->create();
+		update_user_meta( $local_user_id, 'wpcom_user_id', 999999 );
+		wp_set_current_user( $local_user_id );
+
+		// A valid cookie that already grants the tier's product.
+		$paywall                                  = subscription_service();
+		$_COOKIE['wp-jp-premium-content-session'] = JWT::encode( $this->get_payload( true, true ), $paywall->get_key() );
+
+		$filter_calls = 0;
+		add_filter(
+			'earn_get_user_subscriptions_for_site_id',
+			static function ( $subs ) use ( &$filter_calls ) {
+				++$filter_calls;
+				return $subs;
+			},
+			10,
+			1
+		);
+
+		$can_view = current_visitor_can_access( array( 'selectedPlanIds' => array( $plan_id ) ), array() );
+
+		$this->assertTrue( $can_view );
+		$this->assertSame( 0, $filter_calls, 'Filter must not be queried when a valid cookie is present.' );
+
+		unset( $_COOKIE['wp-jp-premium-content-session'] );
+	}
+
+	/**
 	 * Test that plan id can be passed 2 ways
 	 *
 	 * @return void

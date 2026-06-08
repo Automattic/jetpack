@@ -217,26 +217,20 @@ function current_visitor_can_access( $attributes, $block ) {
 		// This is to prevent situation where the user upgrades and lose access to premium-gated content
 
 		$subscriptions = array();
-		if ( is_user_logged_in() ) {
-			list( $user_id, $raw_subscriptions, $subscriptions ) = get_subscriptions_for_logged_in_user( $paywall );
 
-			// Self-heal: when we have authoritative subscriptions from WPCOM but no valid
-			// JWT cookie yet, mint and set one so subsequent requests use the cached path
-			// (and remain accessible if the filter becomes unavailable later).
-			maybe_renew_session_cookie( $paywall, $user_id, $raw_subscriptions, $subscriptions );
+		// Cookie/token first (fast cached path, no WPCOM round-trip). Also covers anonymous
+		// visitors arriving via a `?token=` magic link, which takes precedence over the cookie.
+		$token   = $paywall->get_and_set_token_from_request();
+		$payload = $paywall->decode_token( $token );
+		if ( ! empty( $payload ) ) {
+			$subscriptions = (array) $payload['subscriptions'];
 		}
 
-		// Fall back to the JWT cookie/token when the filter returned nothing (e.g. Jetpack
-		// self-hosted without the WPCOM filter registered, or anonymous visitor arriving
-		// via a `?token=` magic link).
-		if ( empty( $subscriptions ) ) {
-			$token          = $paywall->get_and_set_token_from_request();
-			$payload        = $paywall->decode_token( $token );
-			$is_valid_token = ! empty( $payload );
-
-			if ( $is_valid_token ) {
-				$subscriptions = (array) $payload['subscriptions'];
-			}
+		// No valid cookie yet, but logged in: consult the authoritative WPCOM filter. This is
+		// the first-visit / expired-cookie path; the template_redirect pre-warm hook mints the
+		// cookie for subsequent requests. Keeps CM-584 fixed (expired cookie still grants access).
+		if ( empty( $subscriptions ) && is_user_logged_in() ) {
+			list( , , $subscriptions ) = get_subscriptions_for_logged_in_user( $paywall );
 		}
 
 		foreach ( $tier_ids as $tier_id ) {
