@@ -507,7 +507,7 @@ class WooCommerce extends Module {
 		'woocommerce_store_city',
 		'woocommerce_store_postcode',
 		'woocommerce_admin_install_timestamp',
-		'woocommerce_enable_signup_from_checkout_for_subscriptions',
+		'woocommerce_enable_signup_from_checkout_for_subscriptions', // This and the below options relate to the WooCommerce Accounts and Privacy settings page. Required for the Activity Log.
 		'woocommerce_enable_myaccount_registration',
 		'woocommerce_registration_generate_password',
 		'woocommerce_erasure_request_removes_order_data',
@@ -544,6 +544,40 @@ class WooCommerce extends Module {
 		'woocommerce_shop_page_id',
 		'woocommerce_stock_email_recipient',
 		'woocommerce_stock_format',
+		'woocommerce-ppcp-data-payment', // This and the below options relate to the Pay with PayPal payments settings page. Required for the Activity Log.
+		'woocommerce-ppcp-data-settings',
+		'woocommerce_ppcp-applepay_settings',
+		'woocommerce_ppcp-axo-gateway_settings',
+		'woocommerce_ppcp-bancontact_settings',
+		'woocommerce_ppcp-blik_settings',
+		'woocommerce_ppcp-card-button-gateway_settings',
+		'woocommerce_ppcp-credit-card-gateway_settings',
+		'woocommerce_ppcp-eps_settings',
+		'woocommerce-ppcp-data-common',
+		'woocommerce-ppcp-data-onboarding',
+		'woocommerce_ppcp-googlepay_settings',
+		'woocommerce_ppcp-ideal_settings',
+		'woocommerce_ppcp-multibanco_settings',
+		'woocommerce_ppcp-mybank_settings',
+		'woocommerce_ppcp-oxxo-gateway_settings',
+		'woocommerce_ppcp-p24_settings',
+		'woocommerce_ppcp-pay-upon-invoice-gateway_settings',
+		'woocommerce_ppcp-pwc_settings',
+		'woocommerce_ppcp-trustly_settings',
+		'_wcpay_feature_customer_multi_currency', // This and the below options relate to WooPayments.
+		'current_protection_level',
+		'woocommerce_woocommerce_payments_apple_pay_settings',
+		'woocommerce_woocommerce_payments_google_pay_settings',
+		'woocommerce_woocommerce_payments_settings',
+		'wc_stripe_agentic_commerce_webhook_secret',  // This and the below options relate to additional payment types.
+		'woocommerce_amazon_payments_advanced_settings',
+		'woocommerce_gift_cards_pay_settings',
+		'woocommerce_square_cash_app_pay_settings',
+		'woocommerce_square_credit_card_settings',
+		'woocommerce_stripe_settings',
+		'woocommerce_bacs_accounts', // This and the below options relate to offline payments.
+		'woocommerce_bacs_settings',
+		'woocommerce_cheque_settings',
 	);
 
 	/**
