@@ -1,10 +1,16 @@
 import { getScriptData } from '@automattic/jetpack-script-data';
 import requestExternalAccess from '@automattic/request-external-access';
 import apiFetch from '@wordpress/api-fetch';
+import { useDispatch } from '@wordpress/data';
 import { useCallback, useEffect, useMemo, useState } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
+import { store as noticesStore } from '@wordpress/notices';
 import type { GoogleVerifyBootstrap, GoogleVerifyStatus } from './google-verify-types';
 
 const ENDPOINT = '/jetpack/v4/verify-site/google';
+// Single snackbar id reused across a verify so the "Verifying…" toast is replaced
+// in place by the result.
+const NOTICE_ID = 'jetpack-seo-google-verify';
 
 type SeoScriptData = {
 	seo?: {
@@ -55,6 +61,7 @@ export function useGoogleVerify(): GoogleVerify {
 	const [ isOwner, setIsOwner ] = useState( false );
 	const [ searchConsoleUrl, setSearchConsoleUrl ] = useState( '' );
 	const [ isVerifying, setIsVerifying ] = useState( false );
+	const { createInfoNotice, createSuccessNotice, createErrorNotice } = useDispatch( noticesStore );
 
 	const applyStatus = useCallback( ( status: GoogleVerifyStatus ) => {
 		setState( status.verified ? 'verified' : 'unverified' );
@@ -90,11 +97,21 @@ export function useGoogleVerify(): GoogleVerify {
 		if ( ! connectUrl || isVerifying ) {
 			return;
 		}
-		requestExternalAccess( connectUrl, ( keyringId: number | null ) => {
+		// `@automattic/request-external-access` invokes the callback with a RESULT
+		// OBJECT ({ keyring_id, id_token, user }) — NOT a bare keyring id like the
+		// legacy `lib/sharing` helper did. Pull the id out; it's absent when the user
+		// closes the popup without authorizing.
+		requestExternalAccess( connectUrl, ( result: { keyring_id?: number } ) => {
+			const keyringId = result?.keyring_id;
 			if ( ! keyringId ) {
 				return;
 			}
 			setIsVerifying( true );
+			createInfoNotice( __( 'Verifying with Google…', 'jetpack-seo' ), {
+				id: NOTICE_ID,
+				type: 'snackbar',
+				isDismissible: false,
+			} );
 			// POST verifies the site, then re-fetch the authoritative status: the
 			// verify response doesn't reliably carry the final verified flag, so the
 			// badge is driven by a follow-up status check (mirrors the legacy flow).
@@ -104,11 +121,40 @@ export function useGoogleVerify(): GoogleVerify {
 				data: { keyring_id: keyringId },
 			} )
 				.then( () => apiFetch< GoogleVerifyStatus >( { path: `${ ENDPOINT }/${ keyringId }` } ) )
-				.then( applyStatus )
-				.catch( () => setState( 'unverified' ) )
+				.then( status => {
+					applyStatus( status );
+					if ( status.verified ) {
+						createSuccessNotice( __( 'Your site is verified with Google.', 'jetpack-seo' ), {
+							id: NOTICE_ID,
+							type: 'snackbar',
+						} );
+					} else {
+						createErrorNotice(
+							__(
+								"Google couldn't verify this site. Make sure the Google account you used has access to it in Search Console.",
+								'jetpack-seo'
+							),
+							{ id: NOTICE_ID, type: 'snackbar' }
+						);
+					}
+				} )
+				.catch( ( error: { message?: string } ) => {
+					setState( 'unverified' );
+					createErrorNotice(
+						error?.message ?? __( 'Could not verify the site. Please try again.', 'jetpack-seo' ),
+						{ id: NOTICE_ID, type: 'snackbar' }
+					);
+				} )
 				.finally( () => setIsVerifying( false ) );
 		} );
-	}, [ connectUrl, isVerifying, applyStatus ] );
+	}, [
+		connectUrl,
+		isVerifying,
+		applyStatus,
+		createInfoNotice,
+		createSuccessNotice,
+		createErrorNotice,
+	] );
 
 	return { state, isConnected, isOwner, searchConsoleUrl, isVerifying, autoVerify };
 }
