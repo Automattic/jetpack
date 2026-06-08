@@ -77,7 +77,6 @@
 		"phpunit": [
 			"tests/action-phpunit.sh"
 		],
-		"test-coverage": "pnpm concurrently --names php,js 'composer test-php-coverage' 'composer test-js-coverage'",
 		"test-js": "pnpm concurrently 'pnpm:test-adminpage' 'pnpm:test-extensions'",
 		"test-js-coverage": "tests/action-test-js-coverage.sh",
 		"test-php": [
