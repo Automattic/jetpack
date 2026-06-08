@@ -214,13 +214,22 @@ class Jetpack_Premium_Content_Test extends WP_UnitTestCase {
 		$wpcom_user_id = 999999;
 		update_user_meta( $local_user_id, 'wpcom_user_id', $wpcom_user_id );
 
+		// Simulate Atomic: the local blog id (get_current_blog_id()) is independent from the
+		// WordPress.com blog id. The Memberships filter only knows the WPCOM blog id, which the
+		// subscription service resolves via Jetpack_Options. Make them deliberately different so
+		// passing get_current_blog_id() to the filter would query the wrong site and fail.
+		$wpcom_blog_id = 555;
+		\Jetpack_Options::update_option( 'id', $wpcom_blog_id );
+		$this->assertNotSame( $wpcom_blog_id, get_current_blog_id() );
+
 		// The `earn_get_user_subscriptions_for_site_id` filter at WPCOM only knows about
-		// WPCOM user IDs. It returns nothing when queried with a local Atomic user_id.
+		// WPCOM user IDs and the WPCOM blog id. It returns nothing when queried with a local
+		// Atomic user_id or the local blog id.
 		$product_id = $this->product_id;
 		add_filter(
 			'earn_get_user_subscriptions_for_site_id',
-			static function ( $subscriptions, $subscriber_id ) use ( $wpcom_user_id, $product_id ) {
-				if ( (int) $subscriber_id === $wpcom_user_id ) {
+			static function ( $subscriptions, $subscriber_id, $site_id ) use ( $wpcom_user_id, $wpcom_blog_id, $product_id ) {
+				if ( (int) $subscriber_id === $wpcom_user_id && (int) $site_id === $wpcom_blog_id ) {
 					$subscriptions[] = array(
 						'product_id' => $product_id,
 						'status'     => 'active',
@@ -230,7 +239,7 @@ class Jetpack_Premium_Content_Test extends WP_UnitTestCase {
 				return $subscriptions;
 			},
 			10,
-			2
+			3
 		);
 
 		wp_set_current_user( $local_user_id );

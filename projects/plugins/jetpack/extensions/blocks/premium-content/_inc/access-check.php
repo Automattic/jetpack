@@ -188,6 +188,11 @@ function current_visitor_can_access( $attributes, $block ) {
 			// knows WPCOM user IDs, so translate before querying.
 			$wpcom_user_id = (int) get_user_meta( $local_user_id, 'wpcom_user_id', true );
 			$user_id       = $wpcom_user_id > 0 ? $wpcom_user_id : $local_user_id;
+			// Use the paywall's site id rather than get_current_blog_id(): on Atomic/WoA the
+			// local blog id is independent from the WordPress.com blog id, and the Memberships
+			// filter only knows WordPress.com blog ids. `get_site_id()` resolves to the WPCOM
+			// blog id (via Jetpack_Options on Atomic/Jetpack) for the active subscription service.
+			$site_id = $paywall->get_site_id();
 			/**
 			 * Filter the subscriptions attached to a specific user on a given site.
 			 *
@@ -197,7 +202,7 @@ function current_visitor_can_access( $attributes, $block ) {
 			 * @param int   $user_id The user's ID.
 			 * @param int   $site_id ID of the current site.
 			 */
-			$raw_subscriptions = apply_filters( 'earn_get_user_subscriptions_for_site_id', array(), $user_id, get_current_blog_id() );
+			$raw_subscriptions = apply_filters( 'earn_get_user_subscriptions_for_site_id', array(), $user_id, $site_id );
 			// format the subscriptions so that they can be validated.
 			$subscriptions = WPCOM_Online_Subscription_Service::abbreviate_subscriptions( $raw_subscriptions );
 
