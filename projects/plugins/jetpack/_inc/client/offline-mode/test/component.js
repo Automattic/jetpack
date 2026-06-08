@@ -28,8 +28,18 @@ describe( 'OfflineMode', () => {
 		expect( screen.getByRole( 'checkbox', { name: 'Forms' } ) ).toBeChecked();
 		expect( screen.getByRole( 'checkbox', { name: 'Blocks' } ) ).not.toBeChecked();
 		expect( screen.getByRole( 'checkbox', { name: 'Newsletter' } ) ).not.toBeChecked();
+		expect( screen.getByRole( 'heading', { name: 'Performance' } ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'heading', { name: 'Boost' } ) ).toBeInTheDocument();
+		expect( screen.queryByRole( 'checkbox', { name: 'Boost' } ) ).not.toBeInTheDocument();
+		expect( screen.getByRole( 'heading', { name: 'Theme enhancements' } ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'heading', { name: 'Theme tools' } ) ).toBeInTheDocument();
+		expect( screen.queryByRole( 'checkbox', { name: 'Theme tools' } ) ).not.toBeInTheDocument();
+		expect( screen.getAllByText( 'Always available' ) ).toHaveLength( 2 );
 		expect( screen.getAllByText( 'Recommended' ) ).toHaveLength( 2 );
-		expect( screen.getByText( 'Partial support' ) ).toBeInTheDocument();
+		expect( screen.getAllByText( 'Partial support' ) ).toHaveLength( 3 );
+		expect(
+			screen.getByText( 'Some blocks require a WordPress.com connection.' )
+		).toBeInTheDocument();
 		expect(
 			screen.getAllByText( 'Email delivery still requires a connection.' ).length
 		).toBeGreaterThan( 0 );
@@ -48,7 +58,7 @@ describe( 'OfflineMode', () => {
 
 		const documentationLinks = screen.getAllByRole( 'link', { name: /documentation/ } );
 
-		expect( documentationLinks ).toHaveLength( 3 );
+		expect( documentationLinks ).toHaveLength( 5 );
 		expect( screen.queryByText( 'View documentation' ) ).not.toBeInTheDocument();
 		expect( screen.getByRole( 'link', { name: 'View Forms documentation' } ) ).toHaveAttribute(
 			'href',
@@ -73,7 +83,11 @@ describe( 'OfflineMode', () => {
 			screen.findByRole( 'heading', { name: 'Requires connection' } )
 		).resolves.toBeInTheDocument();
 		expect( screen.getByText( 'Jetpack AI' ) ).toBeInTheDocument();
+		expect( screen.getByText( 'Jetpack Comments' ) ).toBeInTheDocument();
 		expect( screen.queryByRole( 'checkbox', { name: 'Jetpack AI' } ) ).not.toBeInTheDocument();
+		expect(
+			screen.queryByRole( 'checkbox', { name: 'Jetpack Comments' } )
+		).not.toBeInTheDocument();
 	} );
 
 	it( 'optimistically activates an inactive feature with its underlying module', async () => {

@@ -94,18 +94,28 @@ class Jetpack_Admin_Menu_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test Jetpack submenus are removed while Offline Mode is active.
+	 * Test Jetpack submenus are limited to offline-capable pages while Offline Mode is active.
 	 */
-	public function test_jetpack_submenu_is_removed_in_offline_mode() {
+	public function test_jetpack_submenu_is_filtered_in_offline_mode() {
 		global $submenu;
 
 		require_once JETPACK__PLUGIN_DIR . '_inc/lib/admin-pages/class.jetpack-react-page.php';
 
 		$jetpack_react      = new Jetpack_React_Page();
 		$submenu['jetpack'] = array(
+			array( 'Dashboard', 'jetpack_admin_page', 'jetpack', 'Dashboard' ),
 			array( 'Boost', 'jetpack_admin_page', 'jetpack-boost', 'Boost' ),
 			array( 'Offline Mode', 'jetpack_admin_page', Jetpack::admin_url( array( 'page' => 'jetpack#/offline-mode' ) ), 'Offline Mode' ),
+			array( 'Forms', 'edit_pages', 'jetpack-forms-admin', 'Jetpack Forms' ),
+			array( 'Newsletter', 'manage_options', 'jetpack-newsletter', 'Newsletter' ),
 			array( 'Settings', 'jetpack_admin_page', Jetpack::admin_url( array( 'page' => 'jetpack#/settings' ) ), 'Settings' ),
+			array( 'VideoPress', 'manage_options', 'jetpack-videopress', 'Jetpack VideoPress' ),
+			array( 'Social', 'publish_posts', 'jetpack-social', 'Jetpack Social' ),
+			array( 'Protect', 'manage_options', 'jetpack-protect', 'Jetpack Protect' ),
+			array( 'Akismet Anti-spam', 'manage_options', 'akismet-key-config', 'Akismet Anti-spam' ),
+			array( 'Backup', 'manage_options', 'jetpack-backup', 'Jetpack Backup' ),
+			array( 'Search', 'manage_options', 'jetpack-search', 'Jetpack Search' ),
+			array( 'Activity Log', 'manage_options', 'https://jetpack.com/redirect/?source=cloud-activity-log-wp-menu', 'Activity Log' ),
 		);
 
 		StatusCache::clear();
@@ -114,7 +124,19 @@ class Jetpack_Admin_Menu_Test extends WP_UnitTestCase {
 		try {
 			$jetpack_react->remove_jetpack_menu();
 
-			$this->assertArrayNotHasKey( 'jetpack', $submenu );
+			$this->assertArrayHasKey( 'jetpack', $submenu );
+			$submenu_titles = wp_list_pluck( $submenu['jetpack'], 3 );
+
+			$this->assertSame(
+				array(
+					'Boost',
+					'Offline Mode',
+					'Jetpack Forms',
+					'Newsletter',
+					'Settings',
+				),
+				array_values( $submenu_titles )
+			);
 		} finally {
 			unset( $submenu['jetpack'] );
 			remove_filter( 'jetpack_offline_mode', '__return_true' );

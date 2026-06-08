@@ -52,6 +52,26 @@ class Jetpack_Offline_Mode_Features_Test extends WP_UnitTestCase {
 		$this->assertStringContainsString( 'delivery', $partials['newsletter']['limitation'] );
 	}
 
+	public function test_get_partial_features_contains_boost_when_plugin_is_active() {
+		$active_plugins = get_option( 'active_plugins', array() );
+
+		update_option( 'active_plugins', array( 'boost/jetpack-boost.php' ) );
+
+		try {
+			$partials = Jetpack_Offline_Mode_Features::get_partial_features();
+		} finally {
+			update_option( 'active_plugins', $active_plugins );
+		}
+
+		$this->assertArrayHasKey( 'boost', $partials );
+		$this->assertSame( '', $partials['boost']['module'] );
+		$this->assertSame( 'partial', $partials['boost']['type'] );
+		$this->assertFalse( $partials['boost']['toggleable'] );
+		$this->assertSame( 'performance', $partials['boost']['group'] );
+		$this->assertStringContainsString( 'Image Guide', $partials['boost']['limitation'] );
+		$this->assertStringContainsString( 'Speed scores', $partials['boost']['limitation'] );
+	}
+
 	public function test_get_dashboard_data_lists_offline_modules_and_partials() {
 		Jetpack::update_active_modules( array( 'contact-form' ) );
 
@@ -63,7 +83,65 @@ class Jetpack_Offline_Mode_Features_Test extends WP_UnitTestCase {
 		$this->assertNotContains( 'stats', $slugs );
 		$this->assertSame( 1, $data['counts']['enabled'] );
 		$this->assertGreaterThan( 0, $data['counts']['offline_safe'] );
-		$this->assertSame( 1, $data['counts']['partial'] );
+		$this->assertSame( 4, $data['counts']['partial'] );
+	}
+
+	public function test_get_dashboard_data_marks_mixed_offline_modules_as_partial() {
+		$data     = Jetpack_Offline_Mode_Features::get_dashboard_data();
+		$features = array_combine( wp_list_pluck( $data['features'], 'slug' ), $data['features'] );
+
+		foreach ( array( 'blocks', 'shortcodes', 'widgets' ) as $slug ) {
+			$this->assertArrayHasKey( $slug, $features );
+			$this->assertSame( 'partial', $features[ $slug ]['type'] );
+			$this->assertTrue( $features[ $slug ]['toggleable'] );
+			$this->assertNotEmpty( $features[ $slug ]['limitation'] );
+		}
+	}
+
+	public function test_get_dashboard_data_includes_always_available_theme_tools() {
+		$data     = Jetpack_Offline_Mode_Features::get_dashboard_data();
+		$features = array_combine( wp_list_pluck( $data['features'], 'slug' ), $data['features'] );
+
+		$this->assertArrayHasKey( 'theme-tools', $features );
+		$this->assertSame( 'always_available', $features['theme-tools']['type'] );
+		$this->assertFalse( $features['theme-tools']['toggleable'] );
+		$this->assertTrue( $features['theme-tools']['active'] );
+		$this->assertSame( 'theme', $features['theme-tools']['group'] );
+	}
+
+	public function test_get_dashboard_data_lists_connection_required_modules_outside_toggleable_features() {
+		$data                    = Jetpack_Offline_Mode_Features::get_dashboard_data();
+		$feature_slugs           = wp_list_pluck( $data['features'], 'slug' );
+		$requires_connection     = array_combine( wp_list_pluck( $data['requires_connection'], 'slug' ), $data['requires_connection'] );
+		$partial_module_features = wp_list_pluck( Jetpack_Offline_Mode_Features::get_partial_features(), 'module' );
+
+		foreach ( Jetpack::get_available_modules( false, false, true, null ) as $module ) {
+			if ( in_array( $module, $partial_module_features, true ) ) {
+				continue;
+			}
+
+			$this->assertArrayHasKey( $module, $requires_connection, $module . ' should be listed as requiring a connection.' );
+			$this->assertNotContains( $module, $feature_slugs, $module . ' should not be toggleable in Offline Mode.' );
+			$this->assertSame( 'requires_connection', $requires_connection[ $module ]['type'] );
+		}
+	}
+
+	public function test_get_dashboard_data_includes_connection_required_non_module_features() {
+		$data                = Jetpack_Offline_Mode_Features::get_dashboard_data();
+		$requires_connection = wp_list_pluck( $data['requires_connection'], 'slug' );
+
+		$this->assertContains( 'jetpack-ai', $requires_connection );
+		$this->assertContains( 'scan', $requires_connection );
+		$this->assertContains( 'activity-log', $requires_connection );
+		$this->assertContains( 'payments', $requires_connection );
+	}
+
+	public function test_get_dashboard_data_labels_enhanced_comments_clearly() {
+		$data                = Jetpack_Offline_Mode_Features::get_dashboard_data();
+		$requires_connection = array_combine( wp_list_pluck( $data['requires_connection'], 'slug' ), $data['requires_connection'] );
+
+		$this->assertArrayHasKey( 'comments', $requires_connection );
+		$this->assertSame( 'Jetpack Comments', $requires_connection['comments']['name'] );
 	}
 
 	public function test_get_dashboard_data_includes_documentation_redirect_urls() {

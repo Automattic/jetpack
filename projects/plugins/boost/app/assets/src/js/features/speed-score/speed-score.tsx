@@ -4,6 +4,7 @@ import {
 	getScoreMovementPercentage,
 } from '@automattic/jetpack-boost-score-api';
 import { BoostScoreBar, Button } from '@automattic/jetpack-components';
+import { Notice } from '@wordpress/components';
 import { sprintf, __ } from '@wordpress/i18n';
 import ContextTooltip from './context-tooltip/context-tooltip';
 import RefreshIcon from '$svg/refresh';
@@ -98,6 +99,25 @@ const SpeedScore = () => {
 		refreshScore
 	);
 
+	if ( ! site.online ) {
+		return (
+			<div className="jb-container">
+				<div id="jp-admin-notices" className="jetpack-boost-jitm-card" />
+				<Notice className={ styles[ 'offline-notice' ] } isDismissible={ false } status="warning">
+					<p>
+						<strong>{ __( 'Website is not publicly available', 'jetpack-boost' ) }</strong>
+					</p>
+					<p>
+						{ __(
+							'Speed scores and cloud-backed Boost features cannot run because Boost Cloud cannot reach this website. Local Boost features can still be tested below.',
+							'jetpack-boost'
+						) }
+					</p>
+				</Notice>
+			</div>
+		);
+	}
+
 	// translators: %s is a letter grade, e.g. "A" or "B"
 	let heading = sprintf( __( 'Overall Score: %s', 'jetpack-boost' ), scoreLetter );
 	if ( status === 'loading' ) {
@@ -114,33 +134,21 @@ const SpeedScore = () => {
 					data-testid="speed-scores"
 					className={ clsx( styles[ 'speed-scores' ], { loading: status === 'loading' } ) }
 				>
-					{ site.online ? (
-						<div className={ styles.top } data-testid="speed-scores-top">
-							<h2>{ heading }</h2>
-							{ status === 'loaded' && <ContextTooltip /> }
-							<Button
-								variant="link"
-								size="small"
-								weight="regular"
-								className={ styles[ 'action-button' ] }
-								onClick={ handleClickRefresh }
-								disabled={ status === 'loading' }
-								icon={ <RefreshIcon /> }
-							>
-								{ __( 'Refresh', 'jetpack-boost' ) }
-							</Button>
-						</div>
-					) : (
-						<div className={ styles.offline } data-testid="speed-scores-offline">
-							<h2>{ __( 'Website is not publicly available', 'jetpack-boost' ) }</h2>
-							<p>
-								{ __(
-									'Performance score and some other Boost features cannot work because the Boost Cloud cannot reach your website. To fix this, you need to make your website publicly available.',
-									'jetpack-boost'
-								) }
-							</p>
-						</div>
-					) }
+					<div className={ styles.top } data-testid="speed-scores-top">
+						<h2>{ heading }</h2>
+						{ status === 'loaded' && <ContextTooltip /> }
+						<Button
+							variant="link"
+							size="small"
+							weight="regular"
+							className={ styles[ 'action-button' ] }
+							onClick={ handleClickRefresh }
+							disabled={ status === 'loading' }
+							icon={ <RefreshIcon /> }
+						>
+							{ __( 'Refresh', 'jetpack-boost' ) }
+						</Button>
+					</div>
 
 					{ status === 'error' && (
 						<ErrorNotice
@@ -156,7 +164,7 @@ const SpeedScore = () => {
 					<BoostScoreBar
 						prevScore={ scores.noBoost?.mobile }
 						score={ scores.current.mobile }
-						active={ site.online }
+						active
 						isLoading={ status === 'loading' }
 						showPrevScores={ showPrevScores }
 						scoreBarType="mobile"
@@ -166,14 +174,14 @@ const SpeedScore = () => {
 					<BoostScoreBar
 						prevScore={ scores.noBoost?.desktop }
 						score={ scores.current.desktop }
-						active={ site.online }
+						active
 						isLoading={ status === 'loading' }
 						showPrevScores={ showPrevScores }
 						scoreBarType="desktop"
 						noBoostScoreTooltip={ __( 'Your desktop score without Boost', 'jetpack-boost' ) }
 					/>
 				</div>
-				{ site.online && <PerformanceHistory /> }
+				<PerformanceHistory />
 			</div>
 
 			<PopOut scoreChange={ showScoreChangePopOut } />

@@ -29,54 +29,18 @@ import './style.scss';
 
 const OFFLINE_MODE_FEATURES_PATH = '/jetpack/v4/offline-mode/features';
 const EMPTY_FEATURES = [];
+const EMPTY_REQUIRES_CONNECTION_FEATURES = [];
 const EMPTY_GROUPS = {};
-
-const REQUIRES_CONNECTION_FEATURES = [
-	{
-		name: __( 'Jetpack AI', 'jetpack' ),
-		description: __(
-			'Requires a WordPress.com connection to generate and process AI content.',
-			'jetpack'
-		),
-	},
-	{
-		name: __( 'Stats', 'jetpack' ),
-		description: __( 'Requires a connection to collect and display site traffic data.', 'jetpack' ),
-	},
-	{
-		name: __( 'Backups', 'jetpack' ),
-		description: __( 'Requires a connection to store backups and manage restores.', 'jetpack' ),
-	},
-	{
-		name: __( 'Scan', 'jetpack' ),
-		description: __(
-			'Requires a connection to scan site files and receive security results.',
-			'jetpack'
-		),
-	},
-	{
-		name: __( 'Search', 'jetpack' ),
-		description: __( 'Requires a connection to index site content for Jetpack Search.', 'jetpack' ),
-	},
-	{
-		name: __( 'VideoPress', 'jetpack' ),
-		description: __( 'Requires a connection to upload, process, and serve videos.', 'jetpack' ),
-	},
-	{
-		name: __( 'Social publishing', 'jetpack' ),
-		description: __(
-			'Requires a connection to publish posts to connected social accounts.',
-			'jetpack'
-		),
-	},
-];
 
 const hasOwn = ( object, property ) => Object.prototype.hasOwnProperty.call( object, property );
 
 const getFeatureModule = feature => feature.underlying_module || feature.module || feature.slug;
 
 const getRecommendedInactiveFeatures = features =>
-	features.filter( feature => feature.recommended && feature.available && ! feature.active );
+	features.filter(
+		feature =>
+			feature.recommended && feature.available && false !== feature.toggleable && ! feature.active
+	);
 
 const settlePromise = promise =>
 	promise.then(
@@ -139,16 +103,23 @@ const FeatureRow = ( { feature, isUpdating, onActivate, onDeactivate } ) => {
 	const handleToggle = useCallback( () => {
 		return feature.active ? onDeactivate( module ) : onActivate( module );
 	}, [ feature.active, module, onActivate, onDeactivate ] );
+	const isToggleable = false !== feature.toggleable;
 
 	return (
 		<div className="jp-offline-mode__feature-row">
-			<ToggleControl
-				checked={ feature.active }
-				disabled={ ! feature.available || isUpdating }
-				label={ feature.name }
-				onChange={ handleToggle }
-				__nextHasNoMarginBottom
-			/>
+			{ isToggleable ? (
+				<ToggleControl
+					checked={ feature.active }
+					disabled={ ! feature.available || isUpdating }
+					label={ feature.name }
+					onChange={ handleToggle }
+					__nextHasNoMarginBottom
+				/>
+			) : (
+				<Text as="h3" className="jp-offline-mode__feature-name" size={ 14 } weight={ 500 }>
+					{ feature.name }
+				</Text>
+			) }
 			<div className="jp-offline-mode__feature-copy">
 				<Text as="p" size={ 13 } variant="muted">
 					{ feature.description }
@@ -174,7 +145,10 @@ const FeatureRow = ( { feature, isUpdating, onActivate, onDeactivate } ) => {
 				{ 'partial' === feature.type && (
 					<Badge intent="informational">{ __( 'Partial support', 'jetpack' ) }</Badge>
 				) }
-				<FeatureStatusBadge active={ feature.active } isUpdating={ isUpdating } />
+				{ ! isToggleable && <Badge intent="stable">{ __( 'Always available', 'jetpack' ) }</Badge> }
+				{ isToggleable && (
+					<FeatureStatusBadge active={ feature.active } isUpdating={ isUpdating } />
+				) }
 			</HStack>
 		</div>
 	);
@@ -191,6 +165,7 @@ FeatureRow.propTypes = {
 		name: PropTypes.string.isRequired,
 		recommended: PropTypes.bool.isRequired,
 		slug: PropTypes.string.isRequired,
+		toggleable: PropTypes.bool,
 		type: PropTypes.string.isRequired,
 		underlying_module: PropTypes.string,
 	} ).isRequired,
@@ -236,41 +211,57 @@ FeatureGroup.propTypes = {
 	updatingModules: PropTypes.arrayOf( PropTypes.string ).isRequired,
 };
 
-const RequiresConnectionSection = () => (
-	<Card isBorderless={ false } size="small">
-		<CardHeader>
-			<VStack spacing={ 1 }>
-				<Text as="h2" size={ 14 } weight={ 600 }>
-					{ __( 'Requires connection', 'jetpack' ) }
-				</Text>
-				<Text as="p" size={ 13 } variant="muted">
-					{ __(
-						'These Jetpack features are shown for planning purposes and are unavailable while the site is offline.',
-						'jetpack'
-					) }
-				</Text>
-			</VStack>
-		</CardHeader>
-		{ REQUIRES_CONNECTION_FEATURES.map( ( feature, index ) => (
-			<Fragment key={ feature.name }>
-				{ index > 0 && <CardDivider /> }
-				<CardBody>
-					<HStack alignment="flex-start" justify="space-between" spacing={ 4 } wrap>
-						<VStack spacing={ 1 }>
-							<Text as="h3" size={ 14 } weight={ 500 }>
-								{ feature.name }
-							</Text>
-							<Text as="p" size={ 13 } variant="muted">
-								{ feature.description }
-							</Text>
-						</VStack>
-						<Badge intent="medium">{ __( 'Connection required', 'jetpack' ) }</Badge>
-					</HStack>
-				</CardBody>
-			</Fragment>
-		) ) }
-	</Card>
-);
+const RequiresConnectionSection = ( { features } ) => {
+	if ( 0 === features.length ) {
+		return null;
+	}
+
+	return (
+		<Card isBorderless={ false } size="small">
+			<CardHeader>
+				<VStack spacing={ 1 }>
+					<Text as="h2" size={ 14 } weight={ 600 }>
+						{ __( 'Requires connection', 'jetpack' ) }
+					</Text>
+					<Text as="p" size={ 13 } variant="muted">
+						{ __(
+							'These Jetpack features are shown for planning purposes and are unavailable while the site is offline.',
+							'jetpack'
+						) }
+					</Text>
+				</VStack>
+			</CardHeader>
+			{ features.map( ( feature, index ) => (
+				<Fragment key={ feature.slug || feature.name }>
+					{ index > 0 && <CardDivider /> }
+					<CardBody>
+						<HStack alignment="flex-start" justify="space-between" spacing={ 4 } wrap>
+							<VStack spacing={ 1 }>
+								<Text as="h3" size={ 14 } weight={ 500 }>
+									{ feature.name }
+								</Text>
+								<Text as="p" size={ 13 } variant="muted">
+									{ feature.description }
+								</Text>
+							</VStack>
+							<Badge intent="medium">{ __( 'Connection required', 'jetpack' ) }</Badge>
+						</HStack>
+					</CardBody>
+				</Fragment>
+			) ) }
+		</Card>
+	);
+};
+
+RequiresConnectionSection.propTypes = {
+	features: PropTypes.arrayOf(
+		PropTypes.shape( {
+			description: PropTypes.string.isRequired,
+			name: PropTypes.string.isRequired,
+			slug: PropTypes.string,
+		} )
+	).isRequired,
+};
 
 const EnableRecommendedButton = ( { canEnableRecommended, isSaving, onEnableRecommended } ) => (
 	<Button
@@ -366,6 +357,8 @@ export const OfflineMode = ( {
 	}, [ loadDashboardData ] );
 
 	const features = dashboardData?.features || EMPTY_FEATURES;
+	const requiresConnectionFeatures =
+		dashboardData?.requires_connection || EMPTY_REQUIRES_CONNECTION_FEATURES;
 	const groups = dashboardData?.groups || EMPTY_GROUPS;
 	const featuresWithOptimisticState = useMemo(
 		() =>
@@ -523,7 +516,7 @@ export const OfflineMode = ( {
 					<Notice isDismissible={ false } status="info">
 						{ __( 'No offline-safe features are available for this site.', 'jetpack' ) }
 					</Notice>
-					<RequiresConnectionSection />
+					<RequiresConnectionSection features={ requiresConnectionFeatures } />
 				</VStack>
 			</OfflineModePage>
 		);
@@ -553,7 +546,7 @@ export const OfflineMode = ( {
 						/>
 					) ) }
 				</VStack>
-				<RequiresConnectionSection />
+				<RequiresConnectionSection features={ requiresConnectionFeatures } />
 			</VStack>
 		</OfflineModePage>
 	);

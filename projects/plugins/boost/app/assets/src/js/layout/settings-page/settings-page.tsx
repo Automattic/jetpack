@@ -17,6 +17,7 @@ type SettingsPageProps = {
 const SettingsPage = ( { children }: SettingsPageProps ) => {
 	const premiumFeatures = usePremiumFeatures();
 	const hasPrioritySupport = premiumFeatures && premiumFeatures.includes( 'support' );
+	const isSiteOnline = Boolean( Jetpack_Boost.site.online );
 
 	return (
 		<NoticeProvider>
@@ -33,9 +34,9 @@ const SettingsPage = ( { children }: SettingsPageProps ) => {
 							</div>
 						) }
 
-						<Tips />
+						{ isSiteOnline && <Tips /> }
 
-						{ hasPrioritySupport && <Support /> }
+						{ isSiteOnline && hasPrioritySupport && <Support /> }
 
 						<NoticeManager />
 					</div>
