@@ -163,6 +163,7 @@ describe( 'Blaze settings', () => {
 		await expect(
 			screen.findByRole( 'dialog', { name: /Active Blaze campaigns are still running/ } )
 		).resolves.toBeInTheDocument();
+		expect( screen.getByRole( 'button', { name: /^Close$/ } ) ).toBeInTheDocument();
 		expect( screen.getByRole( 'link', { name: /Manage campaigns/ } ) ).toHaveAttribute(
 			'href',
 			'https://example.com/wp-admin/tools.php?page=advertising'

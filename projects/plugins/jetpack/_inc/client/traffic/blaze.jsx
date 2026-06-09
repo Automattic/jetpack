@@ -1,12 +1,18 @@
 import restApi from '@automattic/jetpack-api';
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { isWoASite } from '@automattic/jetpack-script-data';
-import { Button, ToggleControl } from '@wordpress/components';
+import {
+	Button,
+	Modal,
+	ToggleControl,
+	__experimentalHStack as HStack, // eslint-disable-line @wordpress/no-unsafe-wp-apis
+	__experimentalText as Text, // eslint-disable-line @wordpress/no-unsafe-wp-apis
+	__experimentalVStack as VStack, // eslint-disable-line @wordpress/no-unsafe-wp-apis
+} from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { useCallback, useState } from 'react';
 import { connect } from 'react-redux';
 import Card from 'components/card';
-import Modal from 'components/modal';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import { ModuleToggle } from 'components/module-toggle';
 import SettingsCard from 'components/settings-card';
@@ -176,19 +182,18 @@ export function Blaze( props ) {
 			{ canInit && blazeActive && ! isOfflineMode && blazeDashboardLink() }
 			{ showDisableWarning && (
 				<Modal
-					className="jp-blaze-disable-warning-modal"
 					title={ __( 'Active Blaze campaigns are still running', 'jetpack' ) }
 					onRequestClose={ closeDisableWarning }
+					size="medium"
 				>
-					<div className="jp-blaze-disable-warning-modal__content">
-						<h1>{ __( 'Active Blaze campaigns are still running', 'jetpack' ) }</h1>
-						<p>
+					<VStack spacing="4">
+						<Text as="p">
 							{ __(
 								'Disabling this setting only hides the Blaze interface. Your campaigns will continue to serve ads, and you will continue to be charged. To stop your campaigns, open campaign management.',
 								'jetpack'
 							) }
-						</p>
-						<div className="jp-blaze-disable-warning-modal__actions">
+						</Text>
+						<HStack justify="start" spacing="3" wrap>
 							<Button variant="primary" onClick={ closeDisableWarning }>
 								{ __( 'Keep Blaze enabled', 'jetpack' ) }
 							</Button>
@@ -203,8 +208,8 @@ export function Blaze( props ) {
 							<Button variant="tertiary" isDestructive onClick={ disableBlaze }>
 								{ __( 'Disable anyway', 'jetpack' ) }
 							</Button>
-						</div>
-					</div>
+						</HStack>
+					</VStack>
 				</Modal>
 			) }
 		</SettingsCard>
