@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+VideoPress: Add drag-and-drop video upload to the new Library, with upload progress and a notice when the single-video plan limit is reached.
