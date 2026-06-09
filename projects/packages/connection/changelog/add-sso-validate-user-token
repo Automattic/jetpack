@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+SSO: Validate user tokens during SSO login to detect and replace stale tokens after database migration.
