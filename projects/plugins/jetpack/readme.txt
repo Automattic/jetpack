@@ -327,9 +327,6 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 == Changelog ==
 ### 15.9 - 2026-06-09
-#### Major Enhancements
-- General: Update minimum WordPress version to 6.9.
-
 #### Enhancements
 - Abilities API: Register Shortlinks support for the WP.me Shortlinks module on WordPress 6.9+.
 - Admin Menu: Add sidebar redesign fields, group metadata, and saved layout data to the `/wpcom/v2/admin-menu` endpoint when the public `wp-admin-sidebar` plugin is loaded.
@@ -361,6 +358,7 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 #### Improved compatibility
 - ActivityPub: Allow Jetpack-signed admin requests to reach the inbox, proxy, and outbox client-to-server endpoints used by the connected site's WordPress.com Reader, without an OAuth bearer.
+- General: Update minimum WordPress version to 6.9.
 - Migrate Status indicator to @wordpress/ui Text.
 - Resolve WPDS design tokens in the legacy settings dashboard CSS.
 - Settings And AI Pages: Replace the `.admin-ui-page` selector hook with the stable `.jp-admin-page__page` className passed through by AdminPage, restoring page-specific layout overrides.
