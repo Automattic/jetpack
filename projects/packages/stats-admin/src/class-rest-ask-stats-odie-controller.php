@@ -20,6 +20,14 @@ use WP_REST_Server;
 class REST_Ask_Stats_Odie_Controller {
 	const DEFAULT_BOT_SLUG = 'wpcom-agent-ask_stats';
 
+	const DEFAULT_MAX_MESSAGE_LENGTH = 4000;
+
+	const DEFAULT_RATE_LIMIT_MAX_REQUESTS = 20;
+
+	const DEFAULT_RATE_LIMIT_WINDOW = HOUR_IN_SECONDS;
+
+	const RATE_LIMIT_TRANSIENT_PREFIX = 'STATS_ASK_STATS_RL_';
+
 	/**
 	 * Namespace for the REST API.
 	 *
@@ -35,7 +43,7 @@ class REST_Ask_Stats_Odie_Controller {
 	protected $connection_manager;
 
 	/**
-	 * Initializes the connection manager.
+	 * Constructor.
 	 *
 	 * @param Connection_Manager|null $connection_manager Connection manager.
 	 */
@@ -75,7 +83,7 @@ class REST_Ask_Stats_Odie_Controller {
 	}
 
 	/**
-	 * Checks the feature, capability, connection, and plan gates.
+	 * Checks access to Ask Stats.
 	 *
 	 * @return bool|WP_Error True when access is allowed, WP_Error otherwise.
 	 */
@@ -105,6 +113,9 @@ class REST_Ask_Stats_Odie_Controller {
 	/**
 	 * Forwards a chat message to the configured Odie bot.
 	 *
+	 * Only the message and server-derived site context are forwarded; the client
+	 * cannot inject the bot slug or other context values.
+	 *
 	 * @param WP_REST_Request $req The request object.
 	 * @return array|WP_Error
 	 */
@@ -116,6 +127,11 @@ class REST_Ask_Stats_Odie_Controller {
 				esc_html__( 'Ask Stats is not configured.', 'jetpack-stats-admin' ),
 				array( 'status' => 503 )
 			);
+		}
+
+		$allowance_result = $this->consume_rate_limit_allowance();
+		if ( is_wp_error( $allowance_result ) ) {
+			return $allowance_result;
 		}
 
 		$chat_id = absint( $req->get_param( 'chat_id' ) );
@@ -144,17 +160,23 @@ class REST_Ask_Stats_Odie_Controller {
 	}
 
 	/**
-	 * Validates that the message is a non-empty string.
+	 * Validates the message argument.
 	 *
 	 * @param mixed $value Message value.
 	 * @return bool
 	 */
 	public function validate_message( $value ) {
-		return is_string( $value ) && '' !== trim( $value );
+		if ( ! is_string( $value ) || '' === trim( $value ) ) {
+			return false;
+		}
+
+		$max_length = $this->get_max_message_length();
+
+		return mb_strlen( $value, 'UTF-8' ) <= $max_length;
 	}
 
 	/**
-	 * Checks the Ask Stats feature gate.
+	 * Checks the Ask Stats feature flag.
 	 *
 	 * @return bool
 	 */
@@ -216,7 +238,7 @@ class REST_Ask_Stats_Odie_Controller {
 	}
 
 	/**
-	 * Creates the forbidden error response.
+	 * Return a WP_Error object with a forbidden error.
 	 */
 	protected function get_forbidden_error() {
 		$error_msg = esc_html__(
@@ -229,5 +251,123 @@ class REST_Ask_Stats_Odie_Controller {
 			$error_msg,
 			array( 'status' => rest_authorization_required_code() )
 		);
+	}
+
+	/**
+	 * Gets the maximum Ask Stats message length.
+	 *
+	 * @return int
+	 */
+	protected function get_max_message_length() {
+		/**
+		 * Filters the maximum Ask Stats message length.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param int $max_length Maximum length in characters.
+		 */
+		$max_length = (int) apply_filters(
+			'jetpack_stats_ask_stats_max_message_length',
+			self::DEFAULT_MAX_MESSAGE_LENGTH
+		);
+
+		if ( $max_length < 1 ) {
+			return self::DEFAULT_MAX_MESSAGE_LENGTH;
+		}
+
+		return $max_length;
+	}
+
+	/**
+	 * Gets the request-time rate-limit configuration.
+	 *
+	 * The `window` value is the sliding inactivity window, in seconds.
+	 *
+	 * @param int $blog_id Connected site ID.
+	 * @param int $user_id Current user ID.
+	 * @return array{enabled: bool, max_requests: int, window: int}
+	 */
+	protected function get_rate_limit_config( $blog_id, $user_id ) {
+		$default_config = array(
+			'enabled'      => true,
+			'max_requests' => self::DEFAULT_RATE_LIMIT_MAX_REQUESTS,
+			'window'       => self::DEFAULT_RATE_LIMIT_WINDOW,
+		);
+
+		/**
+		 * Filters the local Ask Stats rate limit.
+		 *
+		 * Supports `enabled`, `max_requests`, and `window`. Invalid values use defaults.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param array{enabled?: bool, max_requests?: int, window?: int} $config  Rate limit configuration.
+		 * @param int $blog_id Connected site ID.
+		 * @param int $user_id Current user ID.
+		 */
+		$filtered_config = apply_filters( 'jetpack_stats_ask_stats_rate_limit', $default_config, $blog_id, $user_id );
+
+		if ( ! is_array( $filtered_config ) ) {
+			return $default_config;
+		}
+
+		// max_requests below 1 blocks every request; a window below 1 makes the transient
+		// never expire or expire instantly, breaking the guard. Fall back to the default.
+		$max_requests   = (int) ( $filtered_config['max_requests'] ?? 0 );
+		$window_seconds = (int) ( $filtered_config['window'] ?? 0 );
+
+		return array(
+			'enabled'      => (bool) ( $filtered_config['enabled'] ?? $default_config['enabled'] ),
+			'max_requests' => $max_requests >= 1 ? $max_requests : $default_config['max_requests'],
+			'window'       => $window_seconds >= 1 ? $window_seconds : $default_config['window'],
+		);
+	}
+
+	/**
+	 * Builds the rate-limit transient key.
+	 *
+	 * @param int $blog_id Connected site ID.
+	 * @param int $user_id Current user ID.
+	 * @return string
+	 */
+	protected function get_rate_limit_transient_key( $blog_id, $user_id ) {
+		return self::RATE_LIMIT_TRANSIENT_PREFIX . (int) $blog_id . '_' . (int) $user_id;
+	}
+
+	/**
+	 * Consumes one local rate-limit allowance for the current user.
+	 *
+	 * Allowed requests increment the transient counter and refresh its TTL.
+	 * Blocked requests leave the counter and TTL unchanged.
+	 *
+	 * @return true|WP_Error
+	 */
+	protected function consume_rate_limit_allowance() {
+		$blog_id = (int) Jetpack_Options::get_option( 'id' );
+		$user_id = get_current_user_id();
+		$config  = $this->get_rate_limit_config( $blog_id, $user_id );
+
+		if ( ! $config['enabled'] ) {
+			return true;
+		}
+
+		$key   = $this->get_rate_limit_transient_key( $blog_id, $user_id );
+		$count = get_transient( $key );
+		if ( false === $count ) {
+			$count = 0;
+		}
+
+		if ( (int) $count >= $config['max_requests'] ) {
+			return new WP_Error(
+				'jetpack_stats_ask_stats_rate_limited',
+				esc_html__( 'Too many Ask Stats requests. Please try again later.', 'jetpack-stats-admin' ),
+				array( 'status' => 429 )
+			);
+		}
+
+		// Odie failures may still incur cost, so allowance is consumed before forwarding.
+		set_transient( $key, (int) $count + 1, $config['window'] );
+
+		return true;
 	}
 }

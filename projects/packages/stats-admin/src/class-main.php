@@ -79,6 +79,7 @@ class Main {
 	 */
 	public function register_transient_cleanup_prefix( $prefixes ) {
 		$prefixes[] = WPCOM_Client::CACHE_TRANSIENT_PREFIX;
+		$prefixes[] = REST_Ask_Stats_Odie_Controller::RATE_LIMIT_TRANSIENT_PREFIX;
 		return $prefixes;
 	}
 
