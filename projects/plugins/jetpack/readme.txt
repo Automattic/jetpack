@@ -361,7 +361,7 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 - General: Update minimum WordPress version to 6.9.
 - Migrate Status indicator to @wordpress/ui Text.
 - Resolve WPDS design tokens in the legacy settings dashboard CSS.
-- Settings And AI Pages: Replace the `.admin-ui-page` selector hook with the stable `.jp-admin-page__page` className passed through by AdminPage, restoring page-specific layout overrides.
+- Settings and AI Pages: Replace the `.admin-ui-page` selector hook with the stable `.jp-admin-page__page` className passed through by AdminPage, restoring page-specific layout overrides.
 
 #### Bug fixes
 - AI: Fix broken external links (Claude settings and agent documentation) in the MCP quick setup.
