@@ -54,7 +54,7 @@ function check_secret {
 	if JSON=$( gh api "/repos/$repo/actions/secrets/$2" 2>/dev/null ); then
 		ok "Secret $2 is set (required by $1 workflow)"
 	elif jq -e '.status == 404 or .status == "404"' <<<"$JSON" &>/dev/null; then
-		err "Secret $2 is not set, but is required by the $1 workflow"
+		err "Secret $2 is not set, but is required by the $1 workflow (see PCYsg-xsv-p2#mirror-repo-secrets)"
 	elif jq -e '.message' <<<"$JSON" &>/dev/null; then
 		err "Failed to fetch secret $2: $( jq -r '.message' <<<"$JSON" )"
 	else
