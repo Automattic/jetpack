@@ -66,7 +66,6 @@ class Jetpack_Premium_Content_Test extends WP_UnitTestCase {
 		remove_all_filters( 'jetpack_is_connection_ready' );
 		remove_all_filters( PAYWALL_FILTER );
 		remove_all_filters( 'pre_http_request' );
-		remove_all_actions( 'wp_footer' );
 		Jetpack_Options::delete_option( 'id' );
 		$this->refresh_response_override = null;
 		$this->refresh_call_count        = 0;
@@ -580,37 +579,5 @@ class Jetpack_Premium_Content_Test extends WP_UnitTestCase {
 
 		$this->assertTrue( current_visitor_can_access( array( 'selectedPlanIds' => array( $plan_id ) ), array() ) );
 		$this->assertSame( 0, $this->refresh_call_count, 'Refresh endpoint should not be called when the token is still active.' );
-	}
-
-	/**
-	 * Refresh runs during `the_content`, well after the theme has output `<!DOCTYPE html>`
-	 * and headers have been sent — so `setcookie()` is a no-op. The fallback is to register
-	 * a `wp_footer` callback that updates `document.cookie`. Verify that callback exists
-	 * and emits a well-formed cookie-update snippet referencing the fresh token.
-	 *
-	 * @return void
-	 */
-	public function test_queue_cookie_update_via_js_emits_document_cookie_snippet() {
-		Abstract_Token_Subscription_Service::queue_cookie_update_via_js( 'fresh.jwt.token', MONTH_IN_SECONDS );
-
-		// Call only our registered priority-1 callback rather than firing the full
-		// wp_footer action — the latter triggers WP-core deprecation warnings unrelated
-		// to this test that the WP_UnitTestCase framework treats as failures.
-		global $wp_filter;
-		$this->assertArrayHasKey( 'wp_footer', $wp_filter, 'A wp_footer action should be registered after the JS-fallback path.' );
-		$priority_one_callbacks = $wp_filter['wp_footer']->callbacks[1] ?? array();
-		$this->assertNotEmpty( $priority_one_callbacks, 'The cookie-update callback should be registered at priority 1.' );
-
-		ob_start();
-		foreach ( $priority_one_callbacks as $cb ) {
-			call_user_func( $cb['function'] );
-		}
-		$output = ob_get_clean();
-
-		$this->assertMatchesRegularExpression(
-			'#^<script>document\.cookie="wp-jp-premium-content-session=fresh\.jwt\.token; path=/; max-age=' . MONTH_IN_SECONDS . '";</script>$#',
-			$output,
-			'The cookie-update snippet should contain the fresh token, path, and max-age, and nothing else.'
-		);
 	}
 }

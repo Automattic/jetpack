@@ -696,6 +696,14 @@ abstract class Abstract_Token_Subscription_Service implements Subscription_Servi
 	/**
 	 * Store the auth cookie.
 	 *
+	 * Updates `$_COOKIE` in memory so subsequent code in the same request (e.g. another
+	 * Premium Content block on the same post) reads the new value and doesn't re-trigger
+	 * a refresh against a now-stale value. The Set-Cookie header is emitted via the
+	 * standard `setcookie()` — on Atomic / wpcom the response is output-buffered so this
+	 * still works during `the_content`; on stricter self-hosted setups the header may
+	 * silently be dropped after output starts, in which case the browser keeps the prior
+	 * cookie value and the refresh fires again on the next visit (correct degradation).
+	 *
 	 * @param  string $token Auth token.
 	 * @return void
 	 */
@@ -703,91 +711,34 @@ abstract class Abstract_Token_Subscription_Service implements Subscription_Servi
 		if ( empty( $token ) ) {
 			return;
 		}
-		self::write_cookie( $token, MONTH_IN_SECONDS );
-	}
 
-	/**
-	 * Clear the auth cookie.
-	 *
-	 * Always updates $_COOKIE for in-request consistency, then either emits a clearing
-	 * Set-Cookie header (when headers haven't been sent) or schedules a JS-based cookie
-	 * clear for the footer (when they have — see write_cookie()).
-	 */
-	public static function clear_token_cookie() {
-		self::write_cookie( '', 0 );
-	}
+		$_COOKIE[ self::JWT_AUTH_TOKEN_COOKIE_NAME ] = $token;
 
-	/**
-	 * Persist or clear the auth cookie via the best mechanism available for the current
-	 * point in the request lifecycle.
-	 *
-	 * Always updates `$_COOKIE` so subsequent code in the same request sees the new value.
-	 * Then, if headers haven't been sent, uses the standard `setcookie()`. If headers have
-	 * already been sent — which is the common case for the refresh path that runs during
-	 * `the_content` after the theme has output `<!DOCTYPE html>` — registers a `wp_footer`
-	 * callback that emits an inline `<script>document.cookie = ...</script>` instead.
-	 *
-	 * The cookie isn't HttpOnly, so JS-write is equivalent to a Set-Cookie header for the
-	 * browser. Pages that grant paid-content access already opt out of HTML caching via
-	 * `jetpack_earn_remove_cache_headers`, so embedding the JWT in the page isn't a new
-	 * exposure relative to the existing JS-readable cookie.
-	 *
-	 * @param string $token   Token value, or empty string to clear the cookie.
-	 * @param int    $max_age Seconds until expiry. Use 0 to clear.
-	 */
-	private static function write_cookie( $token, $max_age ) {
-		if ( '' === $token ) {
-			unset( $_COOKIE[ self::JWT_AUTH_TOKEN_COOKIE_NAME ] );
-		} else {
-			$_COOKIE[ self::JWT_AUTH_TOKEN_COOKIE_NAME ] = $token;
+		if ( defined( 'TESTING_IN_JETPACK' ) && TESTING_IN_JETPACK ) {
+			return;
 		}
 
 		if ( ! headers_sent() ) {
-			if ( defined( 'TESTING_IN_JETPACK' ) && TESTING_IN_JETPACK ) {
-				// Skip setcookie() in tests to avoid "headers already sent" warnings from
-				// PHPUnit's preamble output. The $_COOKIE update above is enough for
-				// in-request assertions; the JS fallback is exercised by its own unit test.
-				return;
-			}
-			$expires = $max_age > 0 ? time() + $max_age : 1;
 			// phpcs:ignore Jetpack.Functions.SetCookie.FoundNonHTTPOnlyFalse
-			setcookie( self::JWT_AUTH_TOKEN_COOKIE_NAME, $token, $expires, '/', '', is_ssl(), false );
-			return;
+			setcookie( self::JWT_AUTH_TOKEN_COOKIE_NAME, $token, strtotime( '+1 month' ), '/', '', is_ssl(), false );
 		}
-
-		self::queue_cookie_update_via_js( $token, $max_age );
 	}
 
 	/**
-	 * Schedule a `wp_footer` callback that updates `document.cookie` to the given value.
-	 * Used as a fallback for `write_cookie()` when headers have already been sent.
-	 *
-	 * @param string $token   Token value, or empty string to clear.
-	 * @param int    $max_age Seconds until expiry. 0 to clear immediately.
-	 * @return void
+	 * Clear the auth cookie. Mirrors set_token_cookie(): updates `$_COOKIE` for
+	 * in-request consistency, then emits a clearing Set-Cookie header.
 	 */
-	public static function queue_cookie_update_via_js( $token, $max_age ) {
-		if ( ! function_exists( 'add_action' ) ) {
+	public static function clear_token_cookie() {
+		unset( $_COOKIE[ self::JWT_AUTH_TOKEN_COOKIE_NAME ] );
+
+		if ( defined( 'TESTING_IN_JETPACK' ) && TESTING_IN_JETPACK ) {
 			return;
 		}
-		$cookie_str = sprintf(
-			'%s=%s; path=/; max-age=%d%s',
-			self::JWT_AUTH_TOKEN_COOKIE_NAME,
-			$token,
-			max( 0, (int) $max_age ),
-			is_ssl() ? '; secure' : ''
-		);
-		add_action(
-			'wp_footer',
-			static function () use ( $cookie_str ) {
-				// wp_json_encode handles JS-string escaping (quotes, control chars, slashes).
-				printf(
-					'<script>document.cookie=%s;</script>',
-					wp_json_encode( $cookie_str, JSON_UNESCAPED_SLASHES ) // phpcs:ignore WordPress.Security.EscapeOutput
-				);
-			},
-			1
-		);
+
+		if ( ! headers_sent() ) {
+			// phpcs:ignore Jetpack.Functions.SetCookie.FoundNonHTTPOnlyFalse
+			setcookie( self::JWT_AUTH_TOKEN_COOKIE_NAME, '', 1, '/', '', is_ssl(), false );
+		}
 	}
 
 	/**
