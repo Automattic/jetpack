@@ -319,4 +319,109 @@ class Search_Product_Test extends TestCase {
 			Search::SEARCH_NEW_PRICING_VERSION
 		);
 	}
+
+	/**
+	 * Registers a prepended autoloader that throws if Automattic\Jetpack\Search\Plan is ever
+	 * requested, modelling a standalone bundle (e.g. Jetpack Boost) that ships My Jetpack without the
+	 * jetpack-search package. Returns the callable so the caller can unregister it in a finally block.
+	 *
+	 * Prepended so it runs before Composer's classmap loader -- a no-op loader would not stop Composer
+	 * from loading the class from the dev-only jetpack-search package, so the tripwire must throw.
+	 *
+	 * @return callable The registered autoloader, for spl_autoload_unregister().
+	 */
+	private function block_search_plan_autoload(): callable {
+		$tripwire = static function ( $class ) {
+			if ( 'Automattic\\Jetpack\\Search\\Plan' === $class ) {
+				throw new \RuntimeException(
+					'Standalone-bundle contract broken: My Jetpack pricing code attempted to load '
+					. 'Automattic\\Jetpack\\Search\\Plan, which is absent in bundles without jetpack-search (e.g. Boost).'
+				);
+			}
+		};
+		spl_autoload_register( $tripwire, true, true );
+		return $tripwire;
+	}
+
+	/**
+	 * Contract test: the success-branch pricing-version comparison must work when the jetpack-search
+	 * package is absent -- the standalone Jetpack Boost runtime that originally fataled.
+	 *
+	 * Before the fix, the is_new_pricing_202208() comparison referenced Automattic\Jetpack\Search\Plan,
+	 * fataling on bundles without the Search package; it now uses the self-owned SEARCH_NEW_PRICING_VERSION
+	 * constant. A tripwire autoloader throws if Search\Plan is loaded, so any reintroduced runtime reference
+	 * fails here instead of in production -- unlike the constant-drift guard, which runs with Search present.
+	 *
+	 * Runs in a separate process for two reasons: (1) the drift-guard test loads Search\Plan into the
+	 * shared process, and an already-loaded class never triggers the autoloader, defeating the tripwire;
+	 * (2) the function-static $pricings cache in get_pricing_from_wpcom() must start empty. The opening
+	 * assertion confirms Search\Plan is not already loaded, proving the isolated process is clean.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_pricing_succeeds_when_search_plan_unavailable() {
+		$this->assertFalse(
+			class_exists( \Automattic\Jetpack\Search\Plan::class, false ),
+			'Search\Plan must not be pre-loaded, or the tripwire cannot detect a regression.'
+		);
+
+		unset( $_GET['new_pricing_202208'] );
+		add_filter( 'pre_http_request', array( $this, 'force_pricing_success' ) );
+		$tripwire = $this->block_search_plan_autoload();
+
+		try {
+			$is_new_pricing = Search::is_new_pricing_202208();
+			$pricing        = Search::get_pricing_for_ui();
+		} finally {
+			spl_autoload_unregister( $tripwire );
+			remove_filter( 'pre_http_request', array( $this, 'force_pricing_success' ) );
+		}
+
+		// The comparison line ran without loading Search\Plan and matched the self-owned constant.
+		$this->assertTrue( $is_new_pricing );
+		// estimated_record_count is only set on the success branch, proving we did not fall back.
+		$this->assertArrayHasKey( 'estimated_record_count', $pricing );
+		$this->assertSame( Search::SEARCH_NEW_PRICING_VERSION, $pricing['pricing_version'] );
+	}
+
+	/**
+	 * Contract test: the WP_Error fallback in get_pricing_for_ui() must work when the jetpack-search
+	 * package is absent -- the standalone Jetpack Boost runtime that originally fataled.
+	 *
+	 * When the WPCOM pricing fetch errors, get_pricing_for_ui() defaults pricing_version to the
+	 * new-pricing value. Before the fix this assignment referenced Automattic\Jetpack\Search\Plan,
+	 * fataling on bundles without the Search package. The tripwire autoloader throws if Search\Plan is
+	 * loaded, so a reintroduced runtime reference fails here instead of in production.
+	 *
+	 * Runs in a separate process so Search\Plan is not already loaded (the drift-guard test loads it in
+	 * the shared process) and so the function-static $pricings cache starts empty. The opening assertion
+	 * confirms the isolated process is clean.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_pricing_fallback_succeeds_when_search_plan_unavailable() {
+		$this->assertFalse(
+			class_exists( \Automattic\Jetpack\Search\Plan::class, false ),
+			'Search\Plan must not be pre-loaded, or the tripwire cannot detect a regression.'
+		);
+
+		add_filter( 'pre_http_request', array( $this, 'force_http_error' ) );
+		$tripwire = $this->block_search_plan_autoload();
+
+		try {
+			$pricing = Search::get_pricing_for_ui();
+		} finally {
+			spl_autoload_unregister( $tripwire );
+			remove_filter( 'pre_http_request', array( $this, 'force_http_error' ) );
+		}
+
+		// The fallback assignment ran without loading Search\Plan and used the self-owned constant.
+		$this->assertSame( Search::SEARCH_NEW_PRICING_VERSION, $pricing['pricing_version'] );
+	}
 }
