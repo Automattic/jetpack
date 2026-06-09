@@ -146,6 +146,15 @@ class Jetpack_Subscriptions {
 		// Add Subscribers menu to Jetpack navigation.
 		add_action( 'jetpack_admin_menu', array( $this, 'add_subscribers_menu' ) );
 
+		// Transitional Subscribers announcement page, shown in place of the
+		// Calypso shortcut while the Newsletter modernization filter is on.
+		// Its AJAX/admin-post handlers must be registered here because
+		// `admin_menu` does not fire on admin-ajax.php / admin-post.php.
+		if ( is_admin() ) {
+			require_once __DIR__ . '/subscriptions/class-jetpack-subscribers-announcement-page.php';
+			Jetpack_Subscribers_Announcement_Page::register_handlers();
+		}
+
 		// Customize the configuration URL to lead to the Subscriptions settings.
 		add_filter(
 			'jetpack_module_configuration_url_subscriptions',
@@ -1022,25 +1031,13 @@ class Jetpack_Subscriptions {
 	 *
 	 * - It is not displayed on WordPress.com sites.
 	 * - It directs you to Calypso to the existing Subscribers page.
-	 * - It is retired once the Newsletter modernization filter is on, since the
-	 *   unified Newsletter page then owns the Subscribers tab.
+	 * - Once the Newsletter modernization filter is on, the unified Newsletter
+	 *   page owns the Subscribers tab, so the Calypso shortcut is replaced by a
+	 *   transitional announcement page pointing there.
 	 *
 	 * @return void
 	 */
 	public function add_subscribers_menu() {
-		/*
-		 * Once the Newsletter modernization filter is on, the unified Newsletter
-		 * page owns the Subscribers tab and this standalone Calypso shortcut is
-		 * retired. While the filter is off (the default) we keep showing it.
-		 *
-		 * Referenced as a string literal (mirrors Newsletter\Settings::MODERNIZATION_FILTER)
-		 * to keep this bootstrap path safe if the packaged Newsletter Settings class does
-		 * not expose the constant yet.
-		 */
-		if ( apply_filters( 'rsm_jetpack_ui_modernization_newsletter', false ) ) {
-			return;
-		}
-
 		/**
 		 * Enables the new in development subscribers in wp-admin dashboard.
 		 *
@@ -1070,6 +1067,21 @@ class Jetpack_Subscriptions {
 			$status->is_offline_mode()
 			|| ! ( new Connection_Manager( 'jetpack' ) )->is_user_connected()
 		) {
+			return;
+		}
+
+		/*
+		 * Once the Newsletter modernization filter is on, the unified Newsletter
+		 * page owns the Subscribers tab and this standalone Calypso shortcut is
+		 * retired. In its place, a transitional announcement page tells people
+		 * where subscriber management moved and lets them remove the menu item.
+		 *
+		 * Referenced as a string literal (mirrors Newsletter\Settings::MODERNIZATION_FILTER)
+		 * to keep this bootstrap path safe if the packaged Newsletter Settings class does
+		 * not expose the constant yet.
+		 */
+		if ( apply_filters( 'rsm_jetpack_ui_modernization_newsletter', false ) ) {
+			Jetpack_Subscribers_Announcement_Page::add_menu();
 			return;
 		}
 
