@@ -46,7 +46,6 @@ class Podcast_Episode_Block {
 	public static function register_hooks() {
 		add_action( 'init', array( __CLASS__, 'register_block' ), 9 );
 		add_action( 'enqueue_block_editor_assets', array( __CLASS__, 'load_editor_scripts' ), 9 );
-		add_filter( 'woocommerce_email_renderer_styles', array( __CLASS__, 'add_email_styles' ), 10, 2 );
 	}
 
 	/**
@@ -611,6 +610,7 @@ class Podcast_Episode_Block {
 	 */
 	public static function render_email( $block_content, array $parsed_block, $rendering_context ) {
 		if ( ! isset( $parsed_block['attrs'] ) || ! is_array( $parsed_block['attrs'] ) ||
+			! class_exists( '\Automattic\WooCommerce\EmailEditor\Integrations\Utils\Styles_Helper' ) ||
 			! class_exists( '\Automattic\WooCommerce\EmailEditor\Integrations\Utils\Table_Wrapper_Helper' ) ) {
 			return '';
 		}
@@ -697,7 +697,6 @@ class Podcast_Episode_Block {
 			$cells .= \Automattic\WooCommerce\EmailEditor\Integrations\Utils\Table_Wrapper_Helper::render_table_cell(
 				$image_link,
 				array(
-					'class'  => 'jetpack-podcast-episode-email-card__media',
 					'width'  => '96',
 					'valign' => 'top',
 					'style'  => 'width: 96px; padding: 16px 0 16px 16px;',
@@ -718,7 +717,8 @@ class Podcast_Episode_Block {
 		// (method_exists guards against older email editor versions).
 		$target_width = 600;
 		if ( method_exists( $rendering_context, 'get_layout_width_without_padding' ) ) {
-			$layout_width = (int) $rendering_context->get_layout_width_without_padding();
+			// @phan-suppress-next-line PhanUndeclaredClassMethod -- Optional WooCommerce dependency, checked with class_exists() above.
+			$layout_width = (int) \Automattic\WooCommerce\EmailEditor\Integrations\Utils\Styles_Helper::parse_value( $rendering_context->get_layout_width_without_padding() );
 			if ( $layout_width > 0 ) {
 				$target_width = $layout_width;
 			}
@@ -739,12 +739,10 @@ class Podcast_Episode_Block {
 
 		// Append user-set block supports (padding, border, colors) so editor
 		// styling overrides the card defaults.
-		if ( class_exists( '\Automattic\WooCommerce\EmailEditor\Integrations\Utils\Styles_Helper' ) ) {
-			// @phan-suppress-next-line PhanUndeclaredClassMethod -- Optional WooCommerce dependency, checked with class_exists() above.
-			$user_styles = \Automattic\WooCommerce\EmailEditor\Integrations\Utils\Styles_Helper::get_block_styles( $attrs, $rendering_context, array( 'padding', 'border', 'background-color', 'color' ) );
-			if ( ! empty( $user_styles['css'] ) ) {
-				$table_style .= ' ' . $user_styles['css'];
-			}
+		// @phan-suppress-next-line PhanUndeclaredClassMethod -- Optional WooCommerce dependency, checked with class_exists() above.
+		$user_styles = \Automattic\WooCommerce\EmailEditor\Integrations\Utils\Styles_Helper::get_block_styles( $attrs, $rendering_context, array( 'padding', 'border', 'background-color', 'color' ) );
+		if ( ! empty( $user_styles['css'] ) ) {
+			$table_style .= ' ' . $user_styles['css'];
 		}
 
 		// @phan-suppress-next-line PhanUndeclaredClassMethod -- Optional WooCommerce dependency, checked with class_exists() above.
@@ -758,37 +756,5 @@ class Podcast_Episode_Block {
 			array(),
 			false
 		);
-	}
-
-	/**
-	 * Append the episode card's mobile stacking rules to the email
-	 * template stylesheet. Media queries can't be CSS-inlined, so the
-	 * engine keeps them in a `<style>` tag; clients without media-query
-	 * support fall back to the side-by-side layout. Breakpoint matches
-	 * the engine's own in template-canvas.css.
-	 *
-	 * @param string        $styles Email template CSS.
-	 * @param \WP_Post|null $post   The post being rendered as an email.
-	 * @return string
-	 */
-	public static function add_email_styles( $styles, $post = null ) {
-		if ( ! self::is_enabled() || ! $post instanceof \WP_Post || ! has_block( 'jetpack/podcast-episode', $post ) ) {
-			return $styles;
-		}
-
-		return $styles . '
-@media screen and (max-width: 660px) {
-	.jetpack-podcast-episode-email-card,
-	.jetpack-podcast-episode-email-card tbody,
-	.jetpack-podcast-episode-email-card tr,
-	.jetpack-podcast-episode-email-card td {
-		display: block !important;
-		width: 100% !important;
-		box-sizing: border-box !important;
-	}
-	.jetpack-podcast-episode-email-card__media {
-		padding: 16px 16px 0 !important;
-	}
-}';
 	}
 }
