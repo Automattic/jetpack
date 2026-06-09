@@ -43,7 +43,7 @@ function jetpack_sync_phpunit_tests_with_core( $upgrader, $hook_extra ) {
 		$output = shell_exec( $cmd );
 		if ( $output ) {
 			// Error!
-			error_log( "Error while updating test suite to match core version! Error:\n$output" );
+			error_log( "Error while updating test suite to match core version!\n\nSVN output:\n$output" );
 		} else {
 			error_log( "Successfully updated test suite to match core version: svn switch $dir -> tags/$tag" );
 		}
