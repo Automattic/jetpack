@@ -18,6 +18,11 @@
 		flex: 1;
 		min-height: 0;
 
+		// Positioning context for the `@wordpress/components` DropZone, which
+		// overlays its nearest positioned ancestor while a file is dragged
+		// over the library so a video can be dropped anywhere on the listing.
+		position: relative;
+
 		// Flex-grow the single DataViews child inside this viewport so its
 		// pagination footer lands at the bottom. Targets `> *` rather than
 		// `.dataviews-wrapper` to avoid coupling to DataViews' internal class

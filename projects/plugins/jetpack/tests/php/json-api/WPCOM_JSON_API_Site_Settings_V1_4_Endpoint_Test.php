@@ -314,7 +314,7 @@ class WPCOM_JSON_API_Site_Settings_V1_4_Endpoint_Test extends WP_UnitTestCase {
 					'show_on_front'                        => '(string) Whether homepage should display related posts or a static page. The expected value is \'posts\' or \'page\'.',
 					'page_on_front'                        => '(string) The page ID of the page to use as the site\'s homepage. It will apply only if \'show_on_front\' is set to \'page\'.',
 					'page_for_posts'                       => '(string) The page ID of the page to use as the site\'s posts page. It will apply only if \'show_on_front\' is set to \'page\'.',
-					'subscription_options'                 => '(array) Array of two options used in subscription email templates: \'invitation\' and \'comment_follow\' strings.',
+					'subscription_options'                 => '(array) Array of options used in subscription email templates and the Subscribe block: \'invitation\', \'welcome\', \'comment_follow\' and \'subscribe_modal_heading\' strings.',
 					'mcp_abilities'                        => '(array) List of MCP Abilities',
 				),
 
@@ -438,6 +438,15 @@ class WPCOM_JSON_API_Site_Settings_V1_4_Endpoint_Test extends WP_UnitTestCase {
 				array(
 					'invitation'     => 'Test string <a href="#">link</a>',
 					'comment_follow' => "Test string 2\n\n Other line",
+				),
+			),
+			'subscription_options heading'              => array(
+				'subscription_options',
+				array(
+					'subscribe_modal_heading' => 'Join my newsletter <a href="#">today</a>!',
+				),
+				array(
+					'subscribe_modal_heading' => 'Join my newsletter <a href="#">today</a>!',
 				),
 			),
 			// Add MCP settings POST tests

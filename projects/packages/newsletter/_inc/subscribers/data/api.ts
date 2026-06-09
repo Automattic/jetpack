@@ -119,11 +119,13 @@ export function fetchSubscriberStats( params: IndividualParams ): Promise< Subsc
 }
 
 export type MembershipsProduct = {
-	ID: number;
+	id: number;
 	title: string;
 	currency?: string;
-	price?: number;
-	renewal_schedule?: string;
+	// The wpcom proxy sends the price as a preformatted string (e.g. `12.00`), not a number.
+	price?: string;
+	// Billing cadence, e.g. `1 month` or `1 year`.
+	interval?: string;
 };
 
 /**

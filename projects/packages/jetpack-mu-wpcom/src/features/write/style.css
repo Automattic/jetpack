@@ -125,6 +125,21 @@
 	color: #888;
 }
 
+.bw-help-link {
+	display: block;
+	margin-top: 12px;
+	padding-top: 12px;
+	border-top: 1px solid #f0f0f0;
+	font-size: 13px;
+	color: #2271b1;
+	text-decoration: none;
+}
+
+.bw-help-link:hover,
+.bw-help-link:focus {
+	text-decoration: underline;
+}
+
 .bw-back {
 	font-size: 22px;
 	color: #999;
