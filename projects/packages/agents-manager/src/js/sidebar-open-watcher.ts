@@ -23,11 +23,11 @@ function registerSidebarOpenWatcher() {
 	/**
 	 * Update the sidebar open cookie from the current body class.
 	 * @param root0        - The custom event.
-	 * @param root0.detail - Sidebar state: `{ isOpen: true, classList: string[] }` or `{ isOpen: false }`.
+	 * @param root0.detail - Sidebar state: `{ isOpen: boolean, classList: string[] }`.
 	 */
 	function syncSidebarOpenCookie( {
 		detail,
-	}: CustomEvent< { isOpen: true; classList: string[] } > ) {
+	}: CustomEvent< { isOpen: boolean; classList: string[] } > ) {
 		if ( detail.isOpen ) {
 			document.cookie = `${ cookieKey }=${ detail.classList.join(
 				','

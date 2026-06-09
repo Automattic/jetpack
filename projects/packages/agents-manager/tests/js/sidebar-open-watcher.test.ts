@@ -41,11 +41,11 @@ function readCookie( key: string ): string | undefined {
 /**
  * Dispatch a sidebar open/close event to the watcher listener.
  *
- * @param detail - Sidebar state carried on the custom event.
+ * @param detail           - Sidebar state carried on the custom event.
+ * @param detail.isOpen    - Whether the sidebar is open.
+ * @param detail.classList - Body classes to sync when the sidebar is open.
  */
-function dispatchSidebarChange(
-	detail: { isOpen: true; classList: string[] } | { isOpen: false }
-) {
+function dispatchSidebarChange( detail: { isOpen: boolean; classList: string[] } ) {
 	window.dispatchEvent( new CustomEvent( 'agentsManagerSidebarChange', { detail } ) );
 }
 
@@ -106,7 +106,7 @@ describe( 'registerSidebarOpenWatcher', () => {
 
 		await importWatcher();
 
-		dispatchSidebarChange( { isOpen: false } );
+		dispatchSidebarChange( { isOpen: false, classList: WATCHER_DATA.sidebarOpenClasses } );
 
 		expect( readCookie( WATCHER_DATA.cookieKey ) ).toBeUndefined();
 	} );
@@ -140,7 +140,7 @@ describe( 'registerSidebarOpenWatcher', () => {
 			WATCHER_DATA.sidebarOpenClasses.join( ',' )
 		);
 
-		dispatchSidebarChange( { isOpen: false } );
+		dispatchSidebarChange( { isOpen: false, classList: WATCHER_DATA.sidebarOpenClasses } );
 
 		expect( readCookie( WATCHER_DATA.cookieKey ) ).toBeUndefined();
 	} );
