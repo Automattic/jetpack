@@ -697,6 +697,7 @@ class Podcast_Episode_Block {
 			$cells .= \Automattic\WooCommerce\EmailEditor\Integrations\Utils\Table_Wrapper_Helper::render_table_cell(
 				$image_link,
 				array(
+					'class'  => 'layout-flex-item',
 					'width'  => '96',
 					'valign' => 'top',
 					'style'  => 'width: 96px; padding: 16px 0 16px 16px;',
@@ -708,6 +709,7 @@ class Podcast_Episode_Block {
 		$cells .= \Automattic\WooCommerce\EmailEditor\Integrations\Utils\Table_Wrapper_Helper::render_table_cell(
 			$body,
 			array(
+				'class'  => 'layout-flex-item',
 				'valign' => 'top',
 				'style'  => 'padding: 16px;',
 			)
@@ -730,6 +732,10 @@ class Podcast_Episode_Block {
 		$email_attrs        = $parsed_block['email_attrs'] ?? array();
 		$table_margin_style = (string) \WP_Style_Engine::compile_css( array_intersect_key( $email_attrs, array_flip( array( 'margin', 'margin-top' ) ) ), '' );
 
+		// `layout-flex-wrapper` opts the card into the engine's own mobile
+		// stacking: its template-canvas.css media query collapses
+		// `.layout-flex-wrapper`/`.layout-flex-item` to full-width blocks under
+		// 660px, so no custom media query (or template-style filter) is needed.
 		// border-collapse must stay `separate` for the rounded card border to render.
 		$table_style = sprintf(
 			'%s width: 100%%; max-width: %dpx; border-collapse: separate; border: 1px solid #ddd; border-radius: 6px;',
@@ -749,7 +755,7 @@ class Podcast_Episode_Block {
 		return \Automattic\WooCommerce\EmailEditor\Integrations\Utils\Table_Wrapper_Helper::render_table_wrapper(
 			$cells,
 			array(
-				'class' => 'jetpack-podcast-episode-email-card',
+				'class' => 'jetpack-podcast-episode-email-card layout-flex-wrapper',
 				'style' => $table_style,
 			),
 			array(),
