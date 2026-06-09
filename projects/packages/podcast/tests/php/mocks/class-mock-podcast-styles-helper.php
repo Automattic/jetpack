@@ -28,14 +28,15 @@ if ( ! class_exists( '\Automattic\WooCommerce\EmailEditor\Integrations\Utils\Sty
 		}
 
 		/**
-		 * Return no user-set block styles.
+		 * Return no user-set block styles. Parameters mirror the real signature
+		 * but are unused by the mock.
 		 *
 		 * @param array  $block_attributes  Block attributes.
 		 * @param object $rendering_context Rendering context.
 		 * @param array  $properties        Requested style properties.
 		 * @return array
 		 */
-		public static function get_block_styles( $block_attributes, $rendering_context, $properties ) {
+		public static function get_block_styles( $block_attributes, $rendering_context, $properties ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 			return array( 'css' => '' );
 		}
 	}

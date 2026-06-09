@@ -15,8 +15,8 @@ use WP_Block_Supports;
 
 // Stand in for the optional WooCommerce Email Editor helpers the email
 // renderer leans on, so render_email() can run in the package test env.
-require_once __DIR__ . '/../mocks/class-mock-table-wrapper-helper.php';
-require_once __DIR__ . '/../mocks/class-mock-styles-helper.php';
+require_once __DIR__ . '/../mocks/class-mock-podcast-table-wrapper-helper.php';
+require_once __DIR__ . '/../mocks/class-mock-podcast-styles-helper.php';
 
 /**
  * Render-path coverage for Podcast_Episode_Block.
@@ -365,7 +365,12 @@ class Podcast_Episode_Block_Test extends BaseTestCase {
 	}
 
 	public function test_render_email_uses_watch_label_for_video() {
-		$result = $this->render_email( array( 'mediaUrl' => 'https://example.com/episode.mp4', 'mediaType' => 'video' ) );
+		$result = $this->render_email(
+			array(
+				'mediaUrl'  => 'https://example.com/episode.mp4',
+				'mediaType' => 'video',
+			)
+		);
 
 		$this->assertStringContainsString( 'Watch the episode', $result );
 		$this->assertStringNotContainsString( 'Listen to the episode', $result );
