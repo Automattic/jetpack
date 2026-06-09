@@ -3,9 +3,6 @@
 ### This is a list detailing changes for all Jetpack releases.
 
 ## 15.9 - 2026-06-09
-### Major Enhancements
-- General: Update minimum WordPress version to 6.9. [#49021]
-
 ### Enhancements
 - Abilities API: Register Shortlinks support for the WP.me Shortlinks module on WordPress 6.9+. [#48334]
 - Admin Menu: Add sidebar redesign fields, group metadata, and saved layout data to the `/wpcom/v2/admin-menu` endpoint when the public `wp-admin-sidebar` plugin is loaded. [#48715]
@@ -37,6 +34,7 @@
 
 ### Improved compatibility
 - ActivityPub: Allow Jetpack-signed admin requests to reach the inbox, proxy, and outbox client-to-server endpoints used by the connected site's WordPress.com Reader, without an OAuth bearer. [#48812]
+- General: Update minimum WordPress version to 6.9. [#49021]
 - Migrate Status indicator to @wordpress/ui Text. [#48711]
 - Resolve WPDS design tokens in the legacy settings dashboard CSS. [#48750]
 - Settings And AI Pages: Replace the `.admin-ui-page` selector hook with the stable `.jp-admin-page__page` className passed through by AdminPage, restoring page-specific layout overrides. [#48410]
