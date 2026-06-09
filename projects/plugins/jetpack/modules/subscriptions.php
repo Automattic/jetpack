@@ -1038,17 +1038,6 @@ class Jetpack_Subscriptions {
 	 * @return void
 	 */
 	public function add_subscribers_menu() {
-		/**
-		 * Enables the new in development subscribers in wp-admin dashboard.
-		 *
-		 * @since 9.5.0
-		 *
-		 * @param bool If the new dashboard is enabled. Default false.
-		 */
-		if ( apply_filters( 'jetpack_wp_admin_subscriber_management_enabled', false ) ) {
-			return;
-		}
-
 		/*
 		 * Do not display any menu on WoA and WordPress.com Simple sites (unless Classic wp-admin is enabled).
 		 * They already get a menu item under Users via nav-unification.
@@ -1075,6 +1064,9 @@ class Jetpack_Subscriptions {
 		 * page owns the Subscribers tab and this standalone Calypso shortcut is
 		 * retired. In its place, a transitional announcement page tells people
 		 * where subscriber management moved and lets them remove the menu item.
+		 * This takes precedence over the subscriber-management filter below,
+		 * mirroring the pre-announcement behavior where the modernization
+		 * filter was checked first.
 		 *
 		 * Referenced as a string literal (mirrors Newsletter\Settings::MODERNIZATION_FILTER)
 		 * to keep this bootstrap path safe if the packaged Newsletter Settings class does
@@ -1082,6 +1074,17 @@ class Jetpack_Subscriptions {
 		 */
 		if ( apply_filters( 'rsm_jetpack_ui_modernization_newsletter', false ) ) {
 			Jetpack_Subscribers_Announcement_Page::add_menu();
+			return;
+		}
+
+		/**
+		 * Enables the new in development subscribers in wp-admin dashboard.
+		 *
+		 * @since 9.5.0
+		 *
+		 * @param bool If the new dashboard is enabled. Default false.
+		 */
+		if ( apply_filters( 'jetpack_wp_admin_subscriber_management_enabled', false ) ) {
 			return;
 		}
 

@@ -94,33 +94,32 @@ class Jetpack_Subscribers_Announcement_Page {
 	 * @return void
 	 */
 	public static function add_menu() {
-		$page_suffix = Admin_Menu::add_menu(
-			__( 'Subscribers', 'jetpack' ),
-			__( 'Subscribers', 'jetpack' ),
-			'manage_options',
-			self::PAGE_SLUG,
-			array( __CLASS__, 'render' ),
-			15
-		);
+		if ( get_option( self::REMOVED_OPTION ) ) {
+			// Register as a hidden page (empty parent slug): it stays reachable
+			// at its URL — so the choice can be undone from the page itself —
+			// but never appears in the sidebar.
+			$page_suffix = add_submenu_page(
+				'',
+				__( 'Subscribers', 'jetpack' ),
+				__( 'Subscribers', 'jetpack' ),
+				'manage_options',
+				self::PAGE_SLUG,
+				array( __CLASS__, 'render' )
+			);
+		} else {
+			$page_suffix = Admin_Menu::add_menu(
+				__( 'Subscribers', 'jetpack' ),
+				__( 'Subscribers', 'jetpack' ),
+				'manage_options',
+				self::PAGE_SLUG,
+				array( __CLASS__, 'render' ),
+				15
+			);
+		}
 
 		if ( $page_suffix ) {
 			add_action( 'load-' . $page_suffix, array( __CLASS__, 'track_page_view' ) );
 		}
-
-		if ( get_option( self::REMOVED_OPTION ) ) {
-			// Admin_Menu flushes its queued items at `admin_menu` priority 1000,
-			// so the entry can only be removed after that.
-			add_action( 'admin_menu', array( __CLASS__, 'remove_menu_item' ), 1001 );
-		}
-	}
-
-	/**
-	 * Remove the Subscribers entry from the Jetpack menu, keeping the page registered.
-	 *
-	 * @return void
-	 */
-	public static function remove_menu_item() {
-		remove_submenu_page( 'jetpack', self::PAGE_SLUG );
 	}
 
 	/**
