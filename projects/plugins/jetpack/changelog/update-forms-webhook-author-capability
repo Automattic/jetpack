@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Forms: restrict webhook and integration configuration to users with the manage_options capability.
