@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Abilities: Allow readonly stats abilities with optional input to run when no input is sent.
