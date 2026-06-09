@@ -5,7 +5,7 @@ Tags: performance, speed, web vitals, critical css, cache
 Requires at least: 6.9
 Tested up to: 7.0
 Requires PHP: 7.2
-Stable tag: 4.5.9
+Stable tag: 4.6.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -185,7 +185,7 @@ If you run into compatibility issues, please do let us know. You can drop us a l
 4. Historical performance tracking with the upgraded plan.
 
 == Changelog ==
-### 4.6.0-beta - 2026-06-08
+### 4.6.0 2026-06-09
 #### Added
 - Concatenate JS: Add a `jetpack_boost_js_minify_fallback` action that fires when JS minification is skipped in favor of the original bundle, so logging plugins can observe how often (and why) the safety net engages.
 - Register Jetpack Boost abilities via the WordPress Abilities API (modules read/toggle, latest speed score, and page cache flush) for AI agents on WordPress 6.9+.
