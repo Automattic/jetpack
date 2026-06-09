@@ -34,9 +34,10 @@ export default function SectionGenerateButton( { slug } ) {
 			const existingContent = draft ? { [ slug ]: draft } : {};
 			const response = await suggestGuidelines( [ slug ], existingContent );
 			const suggestion = response?.suggestions?.[ slug ];
-			if ( suggestion ) {
-				setSuggestion( slug, suggestion );
+			if ( ! suggestion ) {
+				throw new Error( 'No suggestion returned.' );
 			}
+			setSuggestion( slug, suggestion );
 		} catch {
 			createErrorNotice( __( 'Failed to generate guidelines. Please try again.', 'jetpack' ), {
 				type: 'snackbar',

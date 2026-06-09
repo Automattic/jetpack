@@ -43,9 +43,10 @@ export default function BlockSuggestionButtons( { blockName, blockModal } ) {
 			const existingContent = currentText ? { [ blockName ]: currentText } : {};
 			const response = await suggestGuidelines( [ blockName ], existingContent );
 			const text = response?.suggestions?.[ blockName ];
-			if ( text ) {
-				setSuggestion( blockName, text );
+			if ( ! text ) {
+				throw new Error( 'No suggestion returned.' );
 			}
+			setSuggestion( blockName, text );
 		} catch {
 			createErrorNotice( __( 'Failed to generate guidelines. Please try again.', 'jetpack' ), {
 				type: 'snackbar',

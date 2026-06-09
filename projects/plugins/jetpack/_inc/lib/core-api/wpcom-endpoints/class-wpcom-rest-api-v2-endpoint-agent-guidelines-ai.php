@@ -118,9 +118,17 @@ class WPCOM_REST_API_V2_Endpoint_Agent_Guidelines_AI extends WP_REST_Controller 
 		$data        = json_decode( $body_str, true );
 
 		if ( $status_code !== 200 ) {
-			$message = $data['message'] ?? __( 'Failed to generate guidelines.', 'jetpack' );
-			$code    = $data['code'] ?? 'upstream_error';
+			$message = is_array( $data ) && isset( $data['message'] ) ? $data['message'] : __( 'Failed to generate guidelines.', 'jetpack' );
+			$code    = is_array( $data ) && isset( $data['code'] ) ? $data['code'] : 'upstream_error';
 			return new WP_Error( $code, $message, array( 'status' => $status_code ) );
+		}
+
+		if ( JSON_ERROR_NONE !== json_last_error() ) {
+			return new WP_Error(
+				'invalid_response',
+				__( 'The guidelines service returned a malformed response.', 'jetpack' ),
+				array( 'status' => 502 )
+			);
 		}
 
 		return $data;
