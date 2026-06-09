@@ -77,10 +77,15 @@ class SharedStoresAssetsTest extends TestCase {
 			)
 		);
 
-		$registered = array();
+		// Initialized so static analysis knows the types; the mock overwrites them by reference.
+		$registered_handle    = '';
+		$registered_url       = '';
+		$registered_in_footer = false;
 		Functions\expect( 'wp_register_script' )->once()->andReturnUsing(
-			function ( $handle, $url, $deps, $ver, $args ) use ( &$registered ) {
-				$registered = compact( 'handle', 'url', 'args' );
+			function ( $handle, $url, $deps, $ver, $args ) use ( &$registered_handle, &$registered_url, &$registered_in_footer ) {
+				$registered_handle    = (string) $handle;
+				$registered_url       = (string) $url;
+				$registered_in_footer = (bool) $args['in_footer'];
 				return true;
 			}
 		);
@@ -88,8 +93,8 @@ class SharedStoresAssetsTest extends TestCase {
 		Shared_Stores_Assets::register_assets();
 
 		$this->assertSame( 'jetpack-shared-stores', Shared_Stores_Assets::SCRIPT_HANDLE );
-		$this->assertSame( Shared_Stores_Assets::SCRIPT_HANDLE, $registered['handle'] );
-		$this->assertStringContainsString( 'jetpack-shared-stores.js', $registered['url'] );
-		$this->assertTrue( $registered['args']['in_footer'] );
+		$this->assertSame( Shared_Stores_Assets::SCRIPT_HANDLE, $registered_handle );
+		$this->assertStringContainsString( 'jetpack-shared-stores.js', $registered_url );
+		$this->assertTrue( $registered_in_footer );
 	}
 }
