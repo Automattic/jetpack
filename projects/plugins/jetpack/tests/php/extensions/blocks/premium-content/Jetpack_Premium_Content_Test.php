@@ -7,6 +7,8 @@ require_once JETPACK__PLUGIN_DIR . 'modules/memberships/class-jetpack-membership
 require_once __DIR__ . '/class-test-jetpack-token-subscription-service.php';
 
 use Automattic\Jetpack\Extensions\Premium_Content\JWT;
+use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\Abstract_Token_Subscription_Service;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\CoversFunction;
 use Tests\Automattic\Jetpack\Extensions\Premium_Content\Test_Jetpack_Token_Subscription_Service;
 use function Automattic\Jetpack\Extensions\Premium_Content\current_visitor_can_access;
@@ -15,8 +17,10 @@ use const Automattic\Jetpack\Extensions\Premium_Content\PAYWALL_FILTER;
 
 /**
  * @covers ::Automattic\Jetpack\Extensions\Premium_Content\current_visitor_can_access
+ * @covers \Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\Abstract_Token_Subscription_Service
  */
 #[CoversFunction( 'Automattic\\Jetpack\\Extensions\\Premium_Content\\current_visitor_can_access' )]
+#[CoversClass( Abstract_Token_Subscription_Service::class )]
 class Jetpack_Premium_Content_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 
