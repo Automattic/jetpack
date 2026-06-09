@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Forms: harden the legacy Salesforce post-to-URL path so the destination cannot be overridden by user-controlled block attributes, and route the request through the WordPress safe HTTP API.
