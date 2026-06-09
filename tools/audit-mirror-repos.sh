@@ -178,7 +178,7 @@ for repo in $REPOS; do
 	fi
 
 	# Fetch the repo's secrets once, then verify each required one is present.
-	if [[ -n "${SECRETS_NEEDED[*]}" ]]; then
+	if [[ ${#SECRETS_NEEDED[@]} -gt 0 ]]; then
 		if SECRETS=$( gh api "/repos/$repo/actions/secrets" --jq '.secrets[].name' 2>/dev/null ); then
 			for secret in "${SECRETS_NEEDED[@]}"; do
 				workflow=$( jq -r --arg s "$secret" '.[$s]' <<<"$WORKFLOW_SECRETS" )
