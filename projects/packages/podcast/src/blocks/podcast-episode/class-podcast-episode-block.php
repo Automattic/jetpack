@@ -699,7 +699,7 @@ class Podcast_Episode_Block {
 			// against the border.
 			// @phan-suppress-next-line PhanUndeclaredClassMethod -- Optional WooCommerce dependency, checked with class_exists() above.
 			$cells .= \Automattic\WooCommerce\EmailEditor\Integrations\Utils\Table_Wrapper_Helper::render_table_cell(
-				'<div style="padding: 16px 0 16px 16px;">' . $image_link . '</div>',
+				'<div style="padding: 16px 0 0 16px;">' . $image_link . '</div>',
 				array(
 					'class'  => 'layout-flex-item',
 					'width'  => '96',
