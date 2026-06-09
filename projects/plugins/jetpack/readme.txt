@@ -387,6 +387,7 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 - Shortcode embeds: Ensure the SoundCloud player iFrame is always correctly escaped.
 - Shortcodes: Fix query parameters such as playlist, autoplay, and poster to produce valid Archive.org embed URLs.
 - Shortcodes: Google Maps shortcode now preserves URL-encoded and HTML-encoded characters inside place names.
+- Shortcodes: Prevent PHP warning when Mailchimp embed is malformed.
 - Social: Fall back to the site-wide social message template when no per-post share message is set.
 - Social: Fix PHP warnings on the front end of posts shared with the no link sharing option.
 - VideoPress: Fix admin page crash on video upload/delete when the free-plan upgrade nudge is shown.
