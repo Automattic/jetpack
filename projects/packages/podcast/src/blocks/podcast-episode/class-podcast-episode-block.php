@@ -693,25 +693,28 @@ class Podcast_Episode_Block {
 				esc_url( $image_url )
 			);
 
+			// Padding lives on an inner wrapper, not the cell: the engine's
+			// mobile media query zeroes `.layout-flex-item` horizontal padding
+			// when it stacks the card, which would otherwise flush the content
+			// against the border.
 			// @phan-suppress-next-line PhanUndeclaredClassMethod -- Optional WooCommerce dependency, checked with class_exists() above.
 			$cells .= \Automattic\WooCommerce\EmailEditor\Integrations\Utils\Table_Wrapper_Helper::render_table_cell(
-				$image_link,
+				'<div style="padding: 16px 0 16px 16px;">' . $image_link . '</div>',
 				array(
 					'class'  => 'layout-flex-item',
 					'width'  => '96',
 					'valign' => 'top',
-					'style'  => 'width: 96px; padding: 16px 0 16px 16px;',
+					'style'  => 'width: 96px;',
 				)
 			);
 		}
 
 		// @phan-suppress-next-line PhanUndeclaredClassMethod -- Optional WooCommerce dependency, checked with class_exists() above.
 		$cells .= \Automattic\WooCommerce\EmailEditor\Integrations\Utils\Table_Wrapper_Helper::render_table_cell(
-			$body,
+			'<div style="padding: 16px;">' . $body . '</div>',
 			array(
 				'class'  => 'layout-flex-item',
 				'valign' => 'top',
-				'style'  => 'padding: 16px;',
 			)
 		);
 
