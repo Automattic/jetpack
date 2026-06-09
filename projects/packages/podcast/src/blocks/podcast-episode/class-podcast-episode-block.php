@@ -709,9 +709,22 @@ class Podcast_Episode_Block {
 			);
 		}
 
+		// Wrap the body in a nested table rather than dropping the loose <p>/<h3>
+		// straight into the layout cell. Core blocks (e.g. Media_Text) never put
+		// bare block-level elements in a cell — they table-wrap content so it
+		// survives email pipelines intact. The padding rides on the nested cell,
+		// which the engine's mobile `.layout-flex-item td` rule leaves untouched,
+		// so it also stays put when the card stacks.
+		// @phan-suppress-next-line PhanUndeclaredClassMethod -- Optional WooCommerce dependency, checked with class_exists() above.
+		$body_table = \Automattic\WooCommerce\EmailEditor\Integrations\Utils\Table_Wrapper_Helper::render_table_wrapper(
+			$body,
+			array( 'style' => 'width: 100%; border-collapse: collapse;' ),
+			array( 'style' => 'padding: 16px;' )
+		);
+
 		// @phan-suppress-next-line PhanUndeclaredClassMethod -- Optional WooCommerce dependency, checked with class_exists() above.
 		$cells .= \Automattic\WooCommerce\EmailEditor\Integrations\Utils\Table_Wrapper_Helper::render_table_cell(
-			'<div style="padding: 16px;">' . $body . '</div>',
+			$body_table,
 			array(
 				'class'  => 'layout-flex-item',
 				'valign' => 'top',
