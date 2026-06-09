@@ -50,7 +50,7 @@ function check {
 }
 
 function check_secret {
-	JSON=
+	local JSON=
 	if JSON=$( gh api "/repos/$repo/actions/secrets/$2" 2>/dev/null ); then
 		ok "Secret $2 is set (required by $1 workflow)"
 	elif jq -e '.status == 404 or .status == "404"' <<<"$JSON" &>/dev/null; then
