@@ -298,4 +298,25 @@ class Search_Product_Test extends TestCase {
 		$this->assertArrayHasKey( 'estimated_record_count', $pricing );
 		$this->assertSame( '202208', $pricing['pricing_version'] );
 	}
+
+	/**
+	 * The locally-owned SEARCH_NEW_PRICING_VERSION constant must stay in sync with the Search
+	 * package's canonical Automattic\Jetpack\Search\Plan::JETPACK_SEARCH_NEW_PRICING_VERSION.
+	 *
+	 * The two are intentionally duplicated -- My Jetpack ships in standalone plugins that do not
+	 * bundle jetpack-search, so this class cannot reference Search\Plan at runtime -- but they
+	 * describe the same WPCOM pricing-API contract and must not drift. jetpack-search is a dev
+	 * dependency of this package, so this guard runs in CI and fails if the Search package ever
+	 * changes the version without updating the My Jetpack copy.
+	 */
+	public function test_new_pricing_version_constant_matches_search_package() {
+		if ( ! class_exists( \Automattic\Jetpack\Search\Plan::class ) ) {
+			$this->markTestSkipped( 'jetpack-search package not available; cannot compare constants.' );
+		}
+
+		$this->assertSame(
+			\Automattic\Jetpack\Search\Plan::JETPACK_SEARCH_NEW_PRICING_VERSION,
+			Search::SEARCH_NEW_PRICING_VERSION
+		);
+	}
 }
