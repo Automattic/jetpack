@@ -212,9 +212,14 @@ class Subscribers_Announcement {
 			'ajaxUrl'           => admin_url( 'admin-ajax.php' ),
 			'toggleAction'      => self::TOGGLE_ACTION,
 			'toggleNonce'       => wp_create_nonce( self::TOGGLE_ACTION ),
-			'goToNewsletterUrl' => wp_nonce_url(
-				admin_url( 'admin-post.php?action=' . self::GO_ACTION ),
-				self::GO_ACTION
+			// Built with add_query_arg (not wp_nonce_url, which HTML-escapes
+			// the ampersands) because the app navigates to it via JS.
+			'goToNewsletterUrl' => add_query_arg(
+				array(
+					'action'   => self::GO_ACTION,
+					'_wpnonce' => wp_create_nonce( self::GO_ACTION ),
+				),
+				admin_url( 'admin-post.php' )
 			),
 			'menuRemoved'       => (bool) get_option( self::REMOVED_OPTION ),
 			'menuSlug'          => self::PAGE_SLUG,
