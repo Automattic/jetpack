@@ -226,6 +226,19 @@ class REST_Ask_Stats_Odie_Controller_Test extends Stats_TestCase {
 		$this->assertEquals( 403, $response->get_status() );
 	}
 
+	public function test_send_chat_message_complete_plan_allowed() {
+		wp_set_current_user( $this->admin_id );
+		$this->set_plan( 'jetpack_complete' );
+
+		$response = $this->dispatch_ask_stats_request(
+			array(
+				'message' => 'How is my site doing today?',
+			)
+		);
+
+		$this->assertEquals( 200, $response->get_status() );
+	}
+
 	/**
 	 * Test missing message returns bad request.
 	 */

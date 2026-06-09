@@ -215,8 +215,9 @@ class REST_Ask_Stats_Odie_Controller {
 	/**
 	 * Checks the current site plan class.
 	 *
-	 * Premium and business-class plans are allowed. The `business` class includes
-	 * Business and Commerce SKUs in Current_Plan (see jetpack-plans PLAN_DATA).
+	 * Premium, business, and complete-class plans are allowed. The `business`
+	 * class includes Business and Commerce SKUs; the `complete` class includes
+	 * Jetpack Complete and VIP.
 	 *
 	 * @return bool
 	 */
@@ -224,7 +225,7 @@ class REST_Ask_Stats_Odie_Controller {
 		$plan       = Jetpack_Plan::get();
 		$plan_class = isset( $plan['class'] ) ? $plan['class'] : '';
 
-		$is_eligible = in_array( $plan_class, array( 'premium', 'business' ), true );
+		$is_eligible = in_array( $plan_class, array( 'premium', 'business', 'complete' ), true );
 
 		/**
 		 * Filters whether the current site plan is eligible for Ask Stats.
