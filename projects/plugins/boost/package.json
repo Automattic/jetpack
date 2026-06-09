@@ -71,7 +71,7 @@
 		"@typescript/native-preview": "7.0.0-dev.20260225.1",
 		"@wordpress/browserslist-config": "6.48.0",
 		"@wordpress/i18n": "6.21.0",
-		"concurrently": "9.2.1",
+		"concurrently": "10.0.3",
 		"jest": "30.4.2",
 		"livereload": "0.10.3",
 		"path-browserify": "1.0.1",
