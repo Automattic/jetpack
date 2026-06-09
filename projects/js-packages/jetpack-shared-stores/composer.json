@@ -25,7 +25,7 @@
 		"mirror-repo": "Automattic/jetpack-shared-stores",
 		"textdomain": "jetpack-shared-stores",
 		"changelogger": {
-			"link-template": "https://github.com/Automattic/jetpack-shared-stores/compare/${old}...${new}"
+			"link-template": "https://github.com/Automattic/jetpack-shared-stores/compare/v${old}...v${new}"
 		}
 	}
 }

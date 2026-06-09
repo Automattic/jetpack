@@ -126,6 +126,12 @@ const defaultRequestMap = {
 		external: 'JetpackSharedStores',
 		handle: 'jetpack-shared-stores',
 	},
+	// Type-only today (erased before webpack sees it), but mapped defensively so a
+	// future runtime import from the types subpath cannot silently re-bundle a store.
+	'@automattic/jetpack-shared-stores/store/wordpress-com/types': {
+		external: 'JetpackSharedStores',
+		handle: 'jetpack-shared-stores',
+	},
 };
 
 const DependencyExtractionPlugin = ( { requestMap, ...options } = {} ) => {
