@@ -1,11 +1,9 @@
 import AdminPage from '@automattic/jetpack-components/admin-page';
 import { getSiteData } from '@automattic/jetpack-script-data';
-import { CheckboxControl } from '@wordpress/components';
 import { useCallback, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { people } from '@wordpress/icons';
-import { Button, EmptyState, Text } from '@wordpress/ui';
 import './route.scss';
+import type { ChangeEvent } from 'react';
 
 /**
  * Server data printed by Subscribers_Announcement::print_app_data() on the
@@ -31,6 +29,9 @@ const getAnnouncementData = (): AnnouncementData | undefined =>
  * modernization filter is on, pointing people at the unified
  * Jetpack → Newsletter page and letting them remove the leftover menu item.
  *
+ * The Jetpack header and footer come from AdminPage; the body mirrors the
+ * Jetpack Forms "Forms moved" announcement page.
+ *
  * @return Stage content.
  */
 const Stage = (): JSX.Element => {
@@ -38,17 +39,13 @@ const Stage = (): JSX.Element => {
 	const [ menuRemoved, setMenuRemoved ] = useState( Boolean( data?.menuRemoved ) );
 	const [ isSaving, setIsSaving ] = useState( false );
 
-	const goToNewsletter = useCallback( () => {
-		if ( data?.goToNewsletterUrl ) {
-			window.location.href = data.goToNewsletterUrl;
-		}
-	}, [ data?.goToNewsletterUrl ] );
-
 	const toggleMenu = useCallback(
-		( removed: boolean ) => {
+		( event: ChangeEvent< HTMLInputElement > ) => {
 			if ( ! data ) {
 				return;
 			}
+
+			const removed = event.target.checked;
 
 			setIsSaving( true );
 
@@ -85,47 +82,48 @@ const Stage = (): JSX.Element => {
 			apiRoot={ getSiteData()?.rest_root }
 			apiNonce={ getSiteData()?.rest_nonce }
 			title={ __( 'Subscribers', 'jetpack-newsletter' ) }
-			subTitle={ __( 'Subscriber management has a new home.', 'jetpack-newsletter' ) }
 			unwrapped
 		>
 			<div className="jetpack-subscribers-announcement">
-				<EmptyState.Root>
-					<EmptyState.Visual>
-						<EmptyState.Icon icon={ people } />
-					</EmptyState.Visual>
-					<EmptyState.Title>{ __( 'Subscribers moved', 'jetpack-newsletter' ) }</EmptyState.Title>
-					<EmptyState.Description>
-						{ __(
-							'Now it’s part of Jetpack → Newsletter, where you can manage your subscribers and newsletter settings together.',
-							'jetpack-newsletter'
-						) }
-					</EmptyState.Description>
-					<EmptyState.Actions>
-						<Button onClick={ goToNewsletter }>
+				<div className="jetpack-subscribers-announcement__hero">
+					<h1>{ __( 'Subscribers moved', 'jetpack-newsletter' ) }</h1>
+					<p className="jetpack-subscribers-announcement__subtitle">
+						{ __( 'Now it’s part of Jetpack → Newsletter', 'jetpack-newsletter' ) }
+					</p>
+					<p>
+						<a
+							className="jetpack-subscribers-announcement__button"
+							href={ data?.goToNewsletterUrl }
+						>
 							{ __( 'Take me to Newsletter', 'jetpack-newsletter' ) }
-						</Button>
-					</EmptyState.Actions>
-				</EmptyState.Root>
-				<div className="jetpack-subscribers-announcement__remove">
-					<CheckboxControl
-						__nextHasNoMarginBottom
-						label={ __( 'Remove Subscribers from the sidebar', 'jetpack-newsletter' ) }
-						help={ __(
-							'This shortcut will be removed automatically in a future release. You can always manage your subscribers from the Newsletter page.',
-							'jetpack-newsletter'
-						) }
-						checked={ menuRemoved }
-						disabled={ isSaving || ! data }
-						onChange={ toggleMenu }
-					/>
-					{ menuRemoved && (
-						<Text variant="body-sm" className="jetpack-subscribers-announcement__remove-feedback">
+						</a>
+					</p>
+					<div className="jetpack-subscribers-announcement__remove">
+						<label htmlFor="jetpack-subscribers-announcement-remove-checkbox">
+							<input
+								type="checkbox"
+								id="jetpack-subscribers-announcement-remove-checkbox"
+								checked={ menuRemoved }
+								disabled={ isSaving || ! data }
+								onChange={ toggleMenu }
+							/>{ ' ' }
+							{ __( 'Remove Subscribers from the sidebar', 'jetpack-newsletter' ) }
+						</label>
+						<p className="description">
 							{ __(
-								'Subscribers has been removed from the sidebar. You can undo this by unchecking the box.',
+								'This shortcut will be removed automatically in a future release. You can always manage your subscribers from the Newsletter page.',
 								'jetpack-newsletter'
 							) }
-						</Text>
-					) }
+						</p>
+						{ menuRemoved && (
+							<p className="jetpack-subscribers-announcement__remove-feedback">
+								{ __(
+									'Subscribers has been removed from the sidebar. You can undo this by unchecking the box.',
+									'jetpack-newsletter'
+								) }
+							</p>
+						) }
+					</div>
 				</div>
 			</div>
 		</AdminPage>

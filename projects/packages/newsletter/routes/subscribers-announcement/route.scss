@@ -1,24 +1,64 @@
 /**
  * Transitional Subscribers announcement page.
  *
- * The EmptyState supplies its own internal spacing; this wrapper centers it
- * in the content column and keeps the remove-from-sidebar control aligned
- * with it underneath.
+ * The header and footer come from AdminPage; this styles the body, which
+ * mirrors the Jetpack Forms "Forms moved" announcement page: a white hero
+ * on the admin-gray background.
  */
 .jetpack-subscribers-announcement {
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	padding: 96px 32px 64px;
+	background: #f0f0f1;
+	min-height: 480px;
+	font-size: 14px;
+	color: #1e1e1e;
+
+	&__hero {
+		background: #fff;
+		margin-top: 32px;
+		padding: 48px 48px 64px;
+	}
+
+	&__hero h1 {
+		font-size: 36px;
+		font-weight: 700;
+		line-height: 1.2;
+		margin: 0;
+	}
+
+	&__subtitle {
+		font-size: 21px;
+		color: #3c434a;
+		margin: 12px 0 32px;
+	}
+
+	&__button {
+		display: inline-block;
+		background: #000;
+		border-radius: 4px;
+		color: #fff;
+		font-size: 14px;
+		font-weight: 600;
+		line-height: 1;
+		padding: 13px 20px;
+		text-decoration: none;
+
+		&:hover,
+		&:focus {
+			background: #2c3338;
+			color: #fff;
+		}
+	}
 
 	&__remove {
-		margin-top: 48px;
-		max-width: 420px;
+		margin-top: 56px;
+		max-width: 640px;
+
+		.description {
+			margin: 8px 0 0 24px;
+		}
 	}
 
 	&__remove-feedback {
-		display: block;
-		margin-top: 12px;
-		color: var( --wp-ui-color-green-60, #008a20 );
+		margin: 8px 0 0 24px;
+		color: #008a20;
 	}
 }
