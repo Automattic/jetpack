@@ -49,6 +49,19 @@ function check {
 	fi
 }
 
+function check_secret {
+	JSON=
+	if JSON=$( gh api "/repos/$repo/actions/secrets/$2" 2>/dev/null ); then
+		ok "Secret $2 is set (required by $1 workflow)"
+	elif jq -e '.status == 404 or .status == "404"' <<<"$JSON" &>/dev/null; then
+		err "Secret $2 is not set, but is required by the $1 workflow"
+	elif jq -e '.message' <<<"$JSON" &>/dev/null; then
+		err "Failed to fetch secret $2: $( jq -r '.message' <<<"$JSON" )"
+	else
+		err "Failed to fetch secret $2"
+	fi
+}
+
 # Sets options.
 QUIET=
 while getopts ":qh" opt; do
@@ -88,6 +101,13 @@ if [[ -n "$1" ]]; then
 else
 	REPOS=$( jq -r '.extra["mirror-repo"] // empty' projects/*/*/composer.json | sort -u )
 fi
+
+# Index mirror repos by the workflows they use so we can verify they have the secrets those workflows require.
+AUTOTAGGER_REPOS=$( jq -r 'select( .extra.autotagger ) | .extra["mirror-repo"] // empty' projects/*/*/composer.json )
+WPSVN_REPOS=$( jq -r 'select( .extra["wp-svn-autopublish"] ) | .extra["mirror-repo"] // empty' projects/*/*/composer.json )
+E2E_REPOS=$( for f in projects/*/*/composer.json; do
+	[[ -d "${f%composer.json}tests/e2e" ]] && jq -r '.extra["mirror-repo"] // empty' "$f"
+done )
 
 cd "$BASE"
 for repo in $REPOS; do
@@ -148,6 +168,18 @@ for repo in $REPOS; do
 		err "Failed to fetch workflow permissions setting: $( jq -e '.message' <<<"$JSON" )"
 	else
 		err "Failed to fetch workflow permissions setting"
+	fi
+
+	# Mirror repos using these workflows need their corresponding secrets set.
+	if grep -qxF "$repo" <<<"$AUTOTAGGER_REPOS"; then
+		check_secret Autotagger API_TOKEN_GITHUB
+	fi
+	if grep -qxF "$repo" <<<"$WPSVN_REPOS"; then
+		check_secret 'WordPress.org SVN autopublish' WPSVN_USERNAME
+		check_secret 'WordPress.org SVN autopublish' WPSVN_PASSWORD
+	fi
+	if grep -qxF "$repo" <<<"$E2E_REPOS"; then
+		check_secret 'E2E tests' REPO_DISPATCH_TOKEN
 	fi
 done
 
