@@ -2,19 +2,17 @@
  * Transitional Subscribers announcement page.
  *
  * The header and footer come from AdminPage; this styles the body, which
- * mirrors the Jetpack Forms "Forms moved" announcement page: a white hero
- * on the admin-gray background.
+ * mirrors the Jetpack Forms "Forms moved" announcement page. The horizontal
+ * inset matches the AdminPage header/footer gutter so the heading, the
+ * header logo, and the footer all align on one edge, on the page's plain
+ * white canvas.
  */
 .jetpack-subscribers-announcement {
-	background: #f0f0f1;
-	min-height: 480px;
 	font-size: 14px;
 	color: #1e1e1e;
 
 	&__hero {
-		background: #fff;
-		margin-top: 32px;
-		padding: 48px 48px 64px;
+		padding: 48px var(--wpds-dimension-padding-2xl, 24px) 64px;
 	}
 
 	&__hero h1 {
