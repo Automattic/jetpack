@@ -36,6 +36,12 @@ class Tracking_Pixel_Test extends StatsBaseTestCase {
 		$wp_the_query           = new WP_Query();
 		$_SERVER['REQUEST_URI'] = '';
 		unregister_taxonomy( 'testtax' );
+
+		// Unconditionally drop the filters that enqueue_stats_script() registers so a
+		// mid-test assertion failure can't leak them into sibling tests. remove_filter()
+		// is a no-op when the filter isn't registered, so this is always safe.
+		remove_filter( 'wp_script_attributes', array( Tracking_Pixel::class, 'add_low_fetchpriority' ) );
+		remove_filter( 'wp_resource_hints', array( Tracking_Pixel::class, 'remove_stats_dns_prefetch' ), 100 );
 	}
 
 	/**
@@ -274,6 +280,134 @@ class Tracking_Pixel_Test extends StatsBaseTestCase {
 			'arch_other' => $_SERVER['REQUEST_URI'],
 		);
 		$this->assertSame( $expected_view_data, $view_data );
+	}
+
+	/**
+	 * Test that the wp_script_attributes filter adds fetchpriority="low" to the jetpack-stats script.
+	 */
+	public function test_add_fetchpriority_low_via_script_attributes() {
+		$attributes = array(
+			'id'  => 'jetpack-stats-js',
+			'src' => 'https://stats.wp.com/e-202620.js',
+		);
+		$result     = Tracking_Pixel::add_low_fetchpriority( $attributes );
+		$this->assertSame( 'low', $result['fetchpriority'] );
+	}
+
+	/**
+	 * Test that the wp_script_attributes filter does not modify other scripts.
+	 */
+	public function test_add_fetchpriority_low_ignores_other_scripts() {
+		$attributes = array(
+			'id'  => 'other-script-js',
+			'src' => 'https://example.com/script.js',
+		);
+		$result     = Tracking_Pixel::add_low_fetchpriority( $attributes );
+		$this->assertArrayNotHasKey( 'fetchpriority', $result );
+	}
+
+	/**
+	 * Test that the wp_resource_hints filter removes dns-prefetch for stats.wp.com.
+	 */
+	public function test_remove_stats_dns_prefetch() {
+		$urls   = array( '//stats.wp.com', '//example.com', '//other.com' );
+		$result = Tracking_Pixel::remove_stats_dns_prefetch( $urls, 'dns-prefetch' );
+		$this->assertNotContains( '//stats.wp.com', $result );
+		$this->assertContains( '//example.com', $result );
+		$this->assertContains( '//other.com', $result );
+	}
+
+	/**
+	 * Test that the wp_resource_hints filter removes the bare-host form that WordPress core
+	 * actually emits for dns-prefetch (wp_dependencies_unique_hosts() returns bare hosts).
+	 */
+	public function test_remove_stats_dns_prefetch_removes_bare_host() {
+		$urls   = array( 'stats.wp.com', 'example.com', 'mystats.wp.com' );
+		$result = Tracking_Pixel::remove_stats_dns_prefetch( $urls, 'dns-prefetch' );
+		$this->assertNotContains( 'stats.wp.com', $result );
+		$this->assertContains( 'example.com', $result );
+		$this->assertContains( 'mystats.wp.com', $result );
+	}
+
+	/**
+	 * Test that the wp_resource_hints filter removes array-form hints pointing at stats.wp.com
+	 * while leaving array-form hints for other hosts intact.
+	 */
+	public function test_remove_stats_dns_prefetch_removes_array_form() {
+		$stats_hint = array( 'href' => '//stats.wp.com' );
+		$other_hint = array( 'href' => '//fonts.example.com' );
+		$urls       = array( $stats_hint, $other_hint );
+		$result     = Tracking_Pixel::remove_stats_dns_prefetch( $urls, 'dns-prefetch' );
+		$this->assertNotContains( $stats_hint, $result );
+		$this->assertContains( $other_hint, $result );
+	}
+
+	/**
+	 * Test that the wp_resource_hints filter does not affect non-dns-prefetch hints.
+	 */
+	public function test_remove_stats_dns_prefetch_ignores_other_relations() {
+		$urls   = array( '//stats.wp.com', '//example.com' );
+		$result = Tracking_Pixel::remove_stats_dns_prefetch( $urls, 'preconnect' );
+		$this->assertContains( '//stats.wp.com', $result );
+	}
+
+	/**
+	 * Test that the wp_resource_hints filter matches the stats host exactly and leaves
+	 * look-alike hosts and non-string entries (e.g. array-form hints) untouched.
+	 */
+	public function test_remove_stats_dns_prefetch_matches_host_exactly() {
+		$array_hint = array( 'href' => '//fonts.example.com' );
+		$urls       = array(
+			'//stats.wp.com',
+			'https://stats.wp.com/e-202620.js',
+			'//mystats.wp.com',
+			'//stats.wp.com.evil.tld',
+			$array_hint,
+		);
+		$result     = Tracking_Pixel::remove_stats_dns_prefetch( $urls, 'dns-prefetch' );
+
+		$this->assertNotContains( '//stats.wp.com', $result );
+		$this->assertNotContains( 'https://stats.wp.com/e-202620.js', $result );
+		$this->assertContains( '//mystats.wp.com', $result );
+		$this->assertContains( '//stats.wp.com.evil.tld', $result );
+		$this->assertContains( $array_hint, $result );
+	}
+
+	/**
+	 * Test that enqueue_stats_script registers the script-attribute and resource-hint
+	 * filters and that they behave as expected when applied.
+	 */
+	public function test_enqueue_stats_script_registers_filters() {
+		// Registered filters are cleaned up unconditionally in tear_down().
+		Tracking_Pixel::enqueue_stats_script();
+
+		// Assert the exact priorities the implementation relies on: default 10 for the
+		// script attribute, and 100 for resource hints so it runs after WP adds its own.
+		$this->assertSame(
+			10,
+			has_filter( 'wp_script_attributes', array( Tracking_Pixel::class, 'add_low_fetchpriority' ) )
+		);
+		$this->assertSame(
+			100,
+			has_filter( 'wp_resource_hints', array( Tracking_Pixel::class, 'remove_stats_dns_prefetch' ) )
+		);
+
+		$script_attributes = apply_filters(
+			'wp_script_attributes',
+			array(
+				'id'  => 'jetpack-stats-js',
+				'src' => 'https://stats.wp.com/e-202445.js',
+			)
+		);
+		$this->assertSame( 'low', $script_attributes['fetchpriority'] );
+
+		$resource_hints = apply_filters(
+			'wp_resource_hints',
+			array( '//stats.wp.com', '//example.com' ),
+			'dns-prefetch'
+		);
+		$this->assertNotContains( '//stats.wp.com', $resource_hints );
+		$this->assertContains( '//example.com', $resource_hints );
 	}
 
 	/**
