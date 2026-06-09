@@ -20,7 +20,7 @@ use WP_REST_Server;
 class REST_Ask_Stats_Odie_Controller {
 	const DEFAULT_BOT_SLUG = 'wpcom-agent-ask_stats';
 
-	const DEFAULT_MAX_MESSAGE_LENGTH = 4000;
+	const DEFAULT_MAX_MESSAGE_LENGTH = 400;
 
 	const DEFAULT_RATE_LIMIT_MAX_REQUESTS = 20;
 
