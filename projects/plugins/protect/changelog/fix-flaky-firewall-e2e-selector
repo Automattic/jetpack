@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Tests: fix flaky E2E selector by scoping the "Firewall is on" assertion to the Firewall tab panel.

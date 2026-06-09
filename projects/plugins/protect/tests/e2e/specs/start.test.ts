@@ -61,7 +61,13 @@ test.describe( 'Jetpack Protect Plugin', () => {
 	test( 'Jetpack Protect firewall page', async ( { page, admin } ) => {
 		await test.step( 'Navigate to firewall page', async () => {
 			await admin.visitAdminPage( 'admin.php', 'page=jetpack-protect#/firewall' );
-			await expect( page.getByText( 'Firewall is on' ) ).toBeVisible();
+			// Scope to the Firewall tab panel: while the route settles, the matched
+			// FirewallRoute can briefly render in the default Scan panel's <Outlet />
+			// too, so a bare getByText( 'Firewall is on' ) matches two headings and
+			// trips strict mode. The Firewall panel always holds exactly one.
+			await expect(
+				page.getByLabel( 'Firewall' ).getByRole( 'heading', { name: 'Firewall is on' } )
+			).toBeVisible();
 		} );
 
 		await test.step( 'Test the brute force protection setting', async () => {
