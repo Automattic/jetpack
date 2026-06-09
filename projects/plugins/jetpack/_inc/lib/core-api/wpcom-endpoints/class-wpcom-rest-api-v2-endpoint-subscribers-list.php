@@ -785,15 +785,17 @@ class WPCOM_REST_API_V2_Endpoint_Subscribers_List extends WP_REST_Controller {
 	}
 
 	/**
-	 * Helper: POST to a v1.1 wpcom REST path as the current user.
+	 * Helper: POST to a v1.1 wpcom REST path using the blog (site) token.
 	 *
-	 * Note on caps: WP.com's followers / email-followers / memberships endpoints require the
-	 * calling user to have the `delete_followers` capability on the wpcom-side blog. That maps
-	 * 1:1 with the wpcom blog admin role, so this works on real Jetpack-connected sites where
-	 * the wp-admin admin user is also the wpcom-side blog admin. It does NOT work on environments
-	 * where the wpcom-side blog is owned by a different account than the locally-connected user
-	 * (e.g. some Jurassic Ninja test sites). We tried `as_blog` and forwarding as the connection
-	 * owner — both hit the same wpcom cap gate. The fix lives on the wpcom side, not here.
+	 * Why the blog token and not the current user: a user-token request
+	 * (`wpcom_json_api_request_as_user`) to the classic v1.1 `/rest` API arrives with no
+	 * authenticated principal — the classic API does not establish a wpcom user from the Jetpack
+	 * auth header the way the wpcom/v2 layer does, so the request runs with `get_current_user_id()
+	 * === 0`. Any `current_user_can()` gate on the wpcom side is therefore unsatisfiable. The blog
+	 * token always validates for a connected site, and the wpcom followers / email-followers /
+	 * memberships endpoints accept it via `is_jetpack_authorized_for_site()` (mirroring the
+	 * subscriber-list read endpoint, which already trusts the blog token). Authorization of the
+	 * acting admin happens locally in `permission_check()` before we ever proxy.
 	 *
 	 * Returns null on success or a WP_Error describing the failure.
 	 *
@@ -801,7 +803,7 @@ class WPCOM_REST_API_V2_Endpoint_Subscribers_List extends WP_REST_Controller {
 	 * @return WP_Error|null
 	 */
 	private function wpcom_post( $path ) {
-		$response = Client::wpcom_json_api_request_as_user(
+		$response = Client::wpcom_json_api_request_as_blog(
 			$path,
 			'1.1',
 			array( 'method' => 'POST' ),
@@ -814,6 +816,15 @@ class WPCOM_REST_API_V2_Endpoint_Subscribers_List extends WP_REST_Controller {
 		}
 
 		$status = (int) wp_remote_retrieve_response_code( $response );
+
+		// A 404 means the target is already gone — removing the wpcom follower also clears the
+		// shared blog subscription, so the email-follower step then finds nothing. Deleting a
+		// missing record is an idempotent no-op success, not an error, so don't surface it in the
+		// aggregated multi-step result.
+		if ( 404 === $status ) {
+			return null;
+		}
+
 		if ( $status >= 400 ) {
 			$body    = json_decode( wp_remote_retrieve_body( $response ), true );
 			$message = is_array( $body ) && isset( $body['message'] ) ? $body['message'] : __( 'WP.com call failed.', 'jetpack' );

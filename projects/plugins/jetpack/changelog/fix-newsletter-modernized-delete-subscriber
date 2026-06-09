@@ -1,0 +1,5 @@
+Significance: patch
+Type: other
+Comment: Subscribers (Newsletter modernization, behind a feature flag): fix removing a subscriber. Authorize the wpcom follower/email-follower/paid-cancel calls with the blog token (the user-token path resolved to no current user on the classic v1.1 API), and treat a 404 from any step as an idempotent no-op so a subscriber who is both a follower and an email subscriber no longer reports a false error after a successful removal.
+
+
