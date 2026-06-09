@@ -146,15 +146,6 @@ class Jetpack_Subscriptions {
 		// Add Subscribers menu to Jetpack navigation.
 		add_action( 'jetpack_admin_menu', array( $this, 'add_subscribers_menu' ) );
 
-		// Transitional Subscribers announcement page, shown in place of the
-		// Calypso shortcut while the Newsletter modernization filter is on.
-		// Its AJAX/admin-post handlers must be registered here because
-		// `admin_menu` does not fire on admin-ajax.php / admin-post.php.
-		if ( is_admin() ) {
-			require_once __DIR__ . '/subscriptions/class-jetpack-subscribers-announcement-page.php';
-			Jetpack_Subscribers_Announcement_Page::register_handlers();
-		}
-
 		// Customize the configuration URL to lead to the Subscriptions settings.
 		add_filter(
 			'jetpack_module_configuration_url_subscriptions',
@@ -1073,7 +1064,9 @@ class Jetpack_Subscriptions {
 		 * not expose the constant yet.
 		 */
 		if ( apply_filters( 'rsm_jetpack_ui_modernization_newsletter', false ) ) {
-			Jetpack_Subscribers_Announcement_Page::add_menu();
+			if ( class_exists( '\Automattic\Jetpack\Newsletter\Subscribers_Announcement' ) ) {
+				\Automattic\Jetpack\Newsletter\Subscribers_Announcement::add_menu();
+			}
 			return;
 		}
 

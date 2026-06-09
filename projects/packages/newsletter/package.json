@@ -96,7 +96,8 @@
 		"packageNamespace": "jetpack-newsletter",
 		"handlePrefix": "jetpack-newsletter",
 		"pages": [
-			"jetpack-newsletter-dashboard"
+			"jetpack-newsletter-dashboard",
+			"jetpack-subscribers-announcement"
 		]
 	}
 }

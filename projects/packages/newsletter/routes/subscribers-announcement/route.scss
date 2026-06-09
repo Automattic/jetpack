@@ -1,0 +1,24 @@
+/**
+ * Transitional Subscribers announcement page.
+ *
+ * The EmptyState supplies its own internal spacing; this wrapper centers it
+ * in the content column and keeps the remove-from-sidebar control aligned
+ * with it underneath.
+ */
+.jetpack-subscribers-announcement {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	padding: 96px 32px 64px;
+
+	&__remove {
+		margin-top: 48px;
+		max-width: 420px;
+	}
+
+	&__remove-feedback {
+		display: block;
+		margin-top: 12px;
+		color: var( --wp-ui-color-green-60, #008a20 );
+	}
+}
