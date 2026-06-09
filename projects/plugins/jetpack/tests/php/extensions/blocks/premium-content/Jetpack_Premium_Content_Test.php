@@ -439,6 +439,43 @@ class Jetpack_Premium_Content_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * 200 + `{ success: true }` but with a missing / non-string `jwt_token` is a
+	 * malformed response shape, not an auth failure. Treat as transient: deny
+	 * access (no fresh token to validate against), but DON'T clear the cookie —
+	 * otherwise a server-side response-shape bug at wpcom would mass-log-out
+	 * subscribers.
+	 *
+	 * @return void
+	 */
+	public function test_refresh_before_deny_treats_malformed_success_as_transient() {
+		$users_plans        = $this->set_up_users_and_plans();
+		$paid_subscriber_id = $users_plans[2];
+		$plan_id            = $users_plans[3];
+
+		wp_set_current_user( $paid_subscriber_id );
+		$stale_payload                            = $this->get_payload( true, true, time() - HOUR_IN_SECONDS );
+		$service                                  = subscription_service();
+		$token_string                             = JWT::encode( $stale_payload, $service->get_key() );
+		$_COOKIE['wp-jp-premium-content-session'] = $token_string;
+		$_GET['token']                            = $token_string;
+
+		// success: true but no jwt_token field — malformed response.
+		$this->refresh_response_override = array(
+			'response' => array(
+				'code'    => 200,
+				'message' => 'OK',
+			),
+			'body'     => wp_json_encode( array( 'success' => true ), JSON_UNESCAPED_SLASHES ),
+			'headers'  => array(),
+			'cookies'  => array(),
+		);
+
+		$this->assertFalse( current_visitor_can_access( array( 'selectedPlanIds' => array( $plan_id ) ), array() ) );
+		$this->assertSame( 1, $this->refresh_call_count, 'Refresh should have been attempted.' );
+		$this->assertSame( $token_string, $_COOKIE['wp-jp-premium-content-session'] ?? null, 'Cookie must be preserved on malformed success response so the next request can retry.' );
+	}
+
+	/**
 	 * When the refresh endpoint returns a transient failure (5xx), access is
 	 * denied AND the cookie is left intact — this is what distinguishes the
 	 * transient branch from the deterministic `success: false` branch, so we

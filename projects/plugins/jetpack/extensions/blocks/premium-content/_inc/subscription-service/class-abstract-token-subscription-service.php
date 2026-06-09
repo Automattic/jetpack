@@ -158,8 +158,14 @@ abstract class Abstract_Token_Subscription_Service implements Subscription_Servi
 			return null;
 		}
 
-		if ( true === $body['success'] && ! empty( $body['jwt_token'] ) && is_string( $body['jwt_token'] ) ) {
-			return $body['jwt_token'];
+		if ( true === $body['success'] ) {
+			if ( ! empty( $body['jwt_token'] ) && is_string( $body['jwt_token'] ) ) {
+				return $body['jwt_token'];
+			}
+			// Malformed 200: success: true but no usable jwt_token. Treat as transient —
+			// leave the cookie alone rather than logging the visitor out over a response
+			// shape problem.
+			return null;
 		}
 
 		// success === false → deterministic auth failure. Clear cookie.
