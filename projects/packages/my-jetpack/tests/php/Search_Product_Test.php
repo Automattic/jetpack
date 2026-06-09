@@ -5,6 +5,8 @@ namespace Automattic\Jetpack\My_Jetpack;
 use Automattic\Jetpack\Connection\Tokens;
 use Automattic\Jetpack\My_Jetpack\Products\Search;
 use Jetpack_Options;
+use PHPUnit\Framework\Attributes\PreserveGlobalState;
+use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use PHPUnit\Framework\TestCase;
 use WorDBless\Options as WorDBless_Options;
 use WorDBless\Users as WorDBless_Users;
@@ -245,5 +247,55 @@ class Search_Product_Test extends TestCase {
 		remove_filter( 'pre_http_request', array( $this, 'force_http_error' ) );
 
 		$this->assertTrue( $is_new_pricing );
+	}
+
+	/**
+	 * Forces the WPCOM pricing fetch to succeed with a 200 carrying the new-pricing version.
+	 *
+	 * @return array
+	 */
+	public function force_pricing_success() {
+		return array(
+			'response' => array(
+				'code'    => 200,
+				'message' => 'OK',
+			),
+			'body'     => '{"pricing_version":"202208"}',
+		);
+	}
+
+	/**
+	 * Success-path regression test for the pricing-version comparison.
+	 *
+	 * PR #48892 swapped the hardcoded '202208' literal for a reference to
+	 * Automattic\Jetpack\Search\Plan::JETPACK_SEARCH_NEW_PRICING_VERSION. That class ships only in the
+	 * jetpack-search package, so in standalone plugins that bundle My Jetpack without it (e.g. Jetpack
+	 * Boost) the success-path comparison in is_new_pricing_202208() fatals with "Class not found".
+	 * The existing tests only cover the WP_Error branch, so the comparison line was never exercised.
+	 * This locks in the success path against the self-owned SEARCH_NEW_PRICING_VERSION constant.
+	 *
+	 * Runs in a separate process so the function-static $pricings cache in get_pricing_from_wpcom()
+	 * starts empty; otherwise a WP_Error cached by an earlier failure-path test (same record-count
+	 * key) would be returned and the success comparison would never run.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_is_new_pricing_202208_true_on_successful_fetch() {
+		unset( $_GET['new_pricing_202208'] );
+		add_filter( 'pre_http_request', array( $this, 'force_pricing_success' ) );
+
+		$is_new_pricing = Search::is_new_pricing_202208();
+		$pricing        = Search::get_pricing_for_ui();
+
+		remove_filter( 'pre_http_request', array( $this, 'force_pricing_success' ) );
+
+		// Comparison line (the one that fataled) ran on the success path and matched the constant.
+		$this->assertTrue( $is_new_pricing );
+		// estimated_record_count is only set on the success branch, proving we did not fall back.
+		$this->assertArrayHasKey( 'estimated_record_count', $pricing );
+		$this->assertSame( '202208', $pricing['pricing_version'] );
 	}
 }

@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Search: fix a fatal error on sites that include My Jetpack without the Search package (e.g. standalone Jetpack Boost).
