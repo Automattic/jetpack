@@ -8,6 +8,8 @@
 use Automattic\Jetpack\Extensions\AiAssistantPlugin;
 use Automattic\Jetpack\Extensions\AiAssistantPlugin\Jetpack_AI_Sidebar;
 use Automattic\Jetpack\Status\Cache as Status_Cache;
+use PHPUnit\Framework\Attributes\PreserveGlobalState;
+use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 
 require_once JETPACK__PLUGIN_DIR . '/extensions/plugins/ai-assistant-plugin/ai-sidebar/class-jetpack-ai-sidebar.php';
 
@@ -445,6 +447,8 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	 * @runInSeparateProcess
 	 * @preserveGlobalState disabled
 	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
 	public function test_maybe_enqueue_am_skips_non_block_editor() {
 		set_current_screen( 'dashboard' );
 		$this->cache_am_asset_data();
@@ -460,6 +464,8 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	 * @runInSeparateProcess
 	 * @preserveGlobalState disabled
 	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
 	public function test_maybe_enqueue_am_skips_page_editor() {
 		$this->set_page_block_editor_screen();
 		$this->cache_am_asset_data();
@@ -475,6 +481,8 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	 * @runInSeparateProcess
 	 * @preserveGlobalState disabled
 	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
 	public function test_maybe_enqueue_am_skips_when_preview_disabled() {
 		$this->set_block_editor_screen();
 		$this->cache_am_asset_data();
@@ -491,6 +499,8 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	 * @runInSeparateProcess
 	 * @preserveGlobalState disabled
 	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
 	public function test_maybe_enqueue_am_enqueues_in_block_editor() {
 		$this->set_block_editor_screen();
 		$this->cache_am_asset_data();
@@ -506,6 +516,8 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	 * @runInSeparateProcess
 	 * @preserveGlobalState disabled
 	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
 	public function test_maybe_enqueue_am_skips_when_ai_assistant_setting_disabled() {
 		update_option( 'big_sky_enable', '0' );
 		$this->set_block_editor_screen();
@@ -522,6 +534,8 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	 * @runInSeparateProcess
 	 * @preserveGlobalState disabled
 	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
 	public function test_maybe_enqueue_am_respects_ai_editorial_review_filter() {
 		$this->set_block_editor_screen();
 		$this->cache_am_asset_data();
@@ -542,6 +556,8 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	 * @runInSeparateProcess
 	 * @preserveGlobalState disabled
 	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
 	public function test_maybe_enqueue_am_exposes_ai_editorial_review_by_default() {
 		$this->set_block_editor_screen();
 		$this->cache_am_asset_data();
@@ -564,6 +580,8 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	 * @runInSeparateProcess
 	 * @preserveGlobalState disabled
 	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
 	public function test_maybe_enqueue_am_exposes_ai_editorial_review_enabled_in_dev_mode() {
 		$this->set_block_editor_screen();
 		$this->cache_am_asset_data();
@@ -580,6 +598,8 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	 * @runInSeparateProcess
 	 * @preserveGlobalState disabled
 	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
 	public function test_maybe_enqueue_am_allows_ai_editorial_review_filter_to_disable_dev_mode() {
 		$this->set_block_editor_screen();
 		$this->cache_am_asset_data();
@@ -682,6 +702,8 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	 * @runInSeparateProcess
 	 * @preserveGlobalState disabled
 	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
 	public function test_maybe_enqueue_am_falls_back_when_filter_returns_non_array() {
 		$this->set_block_editor_screen();
 		$this->cache_am_asset_data();
@@ -710,6 +732,8 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	 * @runInSeparateProcess
 	 * @preserveGlobalState disabled
 	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
 	public function test_maybe_enqueue_am_keeps_ai_editorial_review_flag_authoritative_after_data_filter() {
 		$this->set_block_editor_screen();
 		$this->cache_am_asset_data();
@@ -735,6 +759,8 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	 * @runInSeparateProcess
 	 * @preserveGlobalState disabled
 	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
 	public function test_maybe_enqueue_am_prevents_data_filter_from_enabling_ai_editorial_review() {
 		$this->set_block_editor_screen();
 		$this->cache_am_asset_data();
@@ -761,6 +787,8 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	 * @runInSeparateProcess
 	 * @preserveGlobalState disabled
 	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
 	public function test_maybe_enqueue_am_skips_when_am_already_loaded() {
 		$this->set_block_editor_screen();
 		$this->cache_am_asset_data();
@@ -792,6 +820,8 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	 * @runInSeparateProcess
 	 * @preserveGlobalState disabled
 	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
 	public function test_maybe_enqueue_am_skips_when_ai_disabled() {
 		$this->set_block_editor_screen();
 		$this->cache_am_asset_data();
