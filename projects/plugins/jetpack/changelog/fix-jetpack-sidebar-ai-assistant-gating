@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+AI Sidebar: Respect the site-level AI assistant setting before loading the sidebar.

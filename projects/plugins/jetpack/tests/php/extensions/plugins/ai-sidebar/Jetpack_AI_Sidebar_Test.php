@@ -64,9 +64,9 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 		$this->saved_screen          = $GLOBALS['current_screen'] ?? null;
 		$this->saved_current_user_id = get_current_user_id();
 		$this->simulate_connected_owner();
-		// Ensure Big Sky is disabled by default so tests aren't affected by the
-		// Big_Sky class persisting across tests once it is declared.
-		update_option( 'big_sky_enable', '0' );
+		// Keep the AI assistant setting enabled by default. maybe_enqueue_am()
+		// tests run in separate processes because Big_Sky stubs can persist.
+		update_option( 'big_sky_enable', '1' );
 	}
 
 	/**
@@ -152,16 +152,6 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	 */
 	private function enable_sidebar() {
 		add_filter( 'jetpack_ai_sidebar_enabled', '__return_true' );
-	}
-
-	/**
-	 * Simulate the Big_Sky class existing.
-	 */
-	private function simulate_big_sky_class() {
-		if ( ! class_exists( 'Big_Sky' ) ) {
-			// phpcs:ignore Generic.Files.OneObjectStructurePerFile.MultipleFound, Generic.Classes.DuplicateClassName.Found
-			eval( 'class Big_Sky {}' ); // @codingStandardsIgnoreLine — minimal stub for unit test isolation.
-		}
 	}
 
 	/**
@@ -290,6 +280,42 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Test that init() does nothing when the site-level AI assistant setting is disabled.
+	 */
+	public function test_init_does_nothing_when_ai_assistant_setting_disabled() {
+		update_option( 'big_sky_enable', '0' );
+		add_filter( 'jetpack_ai_sidebar_enabled', '__return_true' );
+		Jetpack_AI_Sidebar::init();
+
+		$this->assertFalse(
+			has_filter( 'agents_manager_agent_providers', array( Jetpack_AI_Sidebar::class, 'register_provider' ) ),
+			'register_provider should not be hooked when the site-level AI assistant setting is disabled.'
+		);
+		$this->assertFalse(
+			has_filter( 'agents_manager_enabled_in_block_editor', array( Jetpack_AI_Sidebar::class, 'enable_agents_manager_in_post_editor' ) ),
+			'enable_agents_manager_in_post_editor should not be hooked when the site-level AI assistant setting is disabled.'
+		);
+	}
+
+	/**
+	 * Test that init() defaults closed when the site-level AI assistant setting is absent.
+	 */
+	public function test_init_does_nothing_when_ai_assistant_setting_absent() {
+		delete_option( 'big_sky_enable' );
+		add_filter( 'jetpack_ai_sidebar_enabled', '__return_true' );
+		Jetpack_AI_Sidebar::init();
+
+		$this->assertFalse(
+			has_filter( 'agents_manager_agent_providers', array( Jetpack_AI_Sidebar::class, 'register_provider' ) ),
+			'register_provider should not be hooked when the site-level AI assistant setting is absent.'
+		);
+		$this->assertFalse(
+			has_filter( 'agents_manager_enabled_in_block_editor', array( Jetpack_AI_Sidebar::class, 'enable_agents_manager_in_post_editor' ) ),
+			'enable_agents_manager_in_post_editor should not be hooked when the site-level AI assistant setting is absent.'
+		);
+	}
+
+	/**
 	 * Test that the preview surface can initialize without AI Editorial Review.
 	 */
 	public function test_init_registers_hooks_when_preview_is_enabled_without_ai_editorial_review() {
@@ -390,6 +416,16 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Test that the Agents Manager block-editor gate respects the site-level AI assistant setting.
+	 */
+	public function test_enable_agents_manager_in_post_editor_respects_disabled_ai_assistant_setting() {
+		update_option( 'big_sky_enable', '0' );
+		$this->set_block_editor_screen();
+
+		$this->assertFalse( Jetpack_AI_Sidebar::enable_agents_manager_in_post_editor( false ) );
+	}
+
+	/**
 	 * Test that the Agents Manager block-editor gate does not open when AI features are disabled.
 	 */
 	public function test_enable_agents_manager_in_post_editor_skips_when_ai_disabled() {
@@ -405,6 +441,9 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 
 	/**
 	 * Test that maybe_enqueue_am does nothing outside the block editor.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
 	 */
 	public function test_maybe_enqueue_am_skips_non_block_editor() {
 		set_current_screen( 'dashboard' );
@@ -417,6 +456,9 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 
 	/**
 	 * Test that maybe_enqueue_am does nothing outside the post editor.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
 	 */
 	public function test_maybe_enqueue_am_skips_page_editor() {
 		$this->set_page_block_editor_screen();
@@ -429,6 +471,9 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 
 	/**
 	 * Test that maybe_enqueue_am does nothing when the preview gate is disabled.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
 	 */
 	public function test_maybe_enqueue_am_skips_when_preview_disabled() {
 		$this->set_block_editor_screen();
@@ -442,6 +487,9 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 
 	/**
 	 * Test that maybe_enqueue_am enqueues scripts in the block editor.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
 	 */
 	public function test_maybe_enqueue_am_enqueues_in_block_editor() {
 		$this->set_block_editor_screen();
@@ -453,21 +501,26 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test that maybe_enqueue_am enqueues when Big Sky exists but is disabled.
+	 * Test that maybe_enqueue_am skips when the site-level AI assistant setting is disabled.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
 	 */
-	public function test_maybe_enqueue_am_enqueues_when_big_sky_is_disabled() {
-		$this->simulate_big_sky_class();
+	public function test_maybe_enqueue_am_skips_when_ai_assistant_setting_disabled() {
 		update_option( 'big_sky_enable', '0' );
 		$this->set_block_editor_screen();
 		$this->cache_am_asset_data();
 
 		Jetpack_AI_Sidebar::maybe_enqueue_am();
 
-		$this->assertTrue( wp_script_is( 'agents-manager', 'enqueued' ) );
+		$this->assertFalse( wp_script_is( 'agents-manager', 'enqueued' ) );
 	}
 
 	/**
 	 * The AI Editorial Review-specific filter controls the feature flag.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
 	 */
 	public function test_maybe_enqueue_am_respects_ai_editorial_review_filter() {
 		$this->set_block_editor_screen();
@@ -485,6 +538,9 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 
 	/**
 	 * AI Editorial Review is on by default when no filter override is present.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
 	 */
 	public function test_maybe_enqueue_am_exposes_ai_editorial_review_by_default() {
 		$this->set_block_editor_screen();
@@ -504,6 +560,9 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 
 	/**
 	 * Dev-mode signals keep AI Editorial Review enabled by default.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
 	 */
 	public function test_maybe_enqueue_am_exposes_ai_editorial_review_enabled_in_dev_mode() {
 		$this->set_block_editor_screen();
@@ -517,6 +576,9 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 
 	/**
 	 * The AI Editorial Review-specific filter can suppress the flag even in dev mode.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
 	 */
 	public function test_maybe_enqueue_am_allows_ai_editorial_review_filter_to_disable_dev_mode() {
 		$this->set_block_editor_screen();
@@ -616,6 +678,9 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 
 	/**
 	 * A misbehaving filter that returns non-array must not break the payload.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
 	 */
 	public function test_maybe_enqueue_am_falls_back_when_filter_returns_non_array() {
 		$this->set_block_editor_screen();
@@ -641,6 +706,9 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 
 	/**
 	 * Generic Agents Manager data filters should not override Jetpack's AI Editorial Review flag.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
 	 */
 	public function test_maybe_enqueue_am_keeps_ai_editorial_review_flag_authoritative_after_data_filter() {
 		$this->set_block_editor_screen();
@@ -663,6 +731,9 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 
 	/**
 	 * The generic data filter should not bypass the AI Editorial Review-specific gate.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
 	 */
 	public function test_maybe_enqueue_am_prevents_data_filter_from_enabling_ai_editorial_review() {
 		$this->set_block_editor_screen();
@@ -686,6 +757,9 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 
 	/**
 	 * Test that maybe_enqueue_am skips when AM is already loaded.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
 	 */
 	public function test_maybe_enqueue_am_skips_when_am_already_loaded() {
 		$this->set_block_editor_screen();
@@ -714,6 +788,9 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 
 	/**
 	 * Test that maybe_enqueue_am skips when AI features are disabled.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
 	 */
 	public function test_maybe_enqueue_am_skips_when_ai_disabled() {
 		$this->set_block_editor_screen();

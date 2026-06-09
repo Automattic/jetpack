@@ -42,6 +42,10 @@ class Jetpack_AI_Sidebar {
 	 * @return void
 	 */
 	public static function init(): void {
+		if ( ! self::is_ai_assistant_setting_enabled() ) {
+			return;
+		}
+
 		/**
 		 * Filter to enable or disable the Jetpack AI sidebar feature.
 		 *
@@ -507,10 +511,25 @@ class Jetpack_AI_Sidebar {
 	 * @return bool
 	 */
 	private static function is_jetpack_ai_sidebar_preview_enabled(): bool {
+		if ( ! self::is_ai_assistant_setting_enabled() ) {
+			return false;
+		}
+
 		return (bool) apply_filters(
 			'jetpack_ai_sidebar_preview_enabled',
 			self::is_ai_editorial_review_enabled()
 		);
+	}
+
+	/**
+	 * Check whether the site-level AI assistant setting is enabled.
+	 *
+	 * @return bool
+	 */
+	private static function is_ai_assistant_setting_enabled(): bool {
+		// Self-hosted sites do not have the WordPress.com AI tools setting UI.
+		// Treat a missing option as not opted in.
+		return (bool) get_option( 'big_sky_enable', '0' );
 	}
 
 	/**
