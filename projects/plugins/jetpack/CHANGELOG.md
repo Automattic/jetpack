@@ -2,11 +2,11 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
-## 15.9-beta - 2026-06-08
+## 15.9 - 2026-06-09
 ### Enhancements
 - Enqueue the shared WPDS design tokens stylesheet on Jetpack admin pages. [#49345]
-- SEO: Scaffold the new `jetpack-seo` package and mount its admin page. [#49203]
 - SEO: Create an Overview screen with a Site visibility card. [#49203]
+- SEO: Scaffold the new `jetpack-seo` package and mount its admin page. [#49203]
 
 ### Improved compatibility
 - Resolve WPDS design tokens in the legacy settings dashboard CSS. [#48750]
@@ -33,8 +33,8 @@
 - Hello Dolly: Retire the legacy per-page `#dolly` color rules and normalize `.jetpack-admin-page #dolly` WPDS design token across admin pages. [#49402]
 - Image Studio: Add site context to tracking data. [#49186]
 - Update composer.lock files. [#49415]
-- Update package dependencies. [#49425] [#49379]
 - Updated WooCommerce Analytics package to version 0.16.5. [#49329]
+- Update package dependencies. [#49425] [#49379]
 
 ## 15.9-a.7 - 2026-06-01
 ### Major Enhancements
