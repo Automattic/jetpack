@@ -659,16 +659,16 @@
         },
         {
             "name": "automattic/jetpack-blocks",
-            "version": "v3.3.4",
+            "version": "v3.3.5",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/jetpack-blocks.git",
-                "reference": "9d9601517e2b2e72d92274aedde2735d412a53b4"
+                "reference": "d0c4df3ce7d34041e5442e839ec04692af0c3f97"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-blocks/zipball/9d9601517e2b2e72d92274aedde2735d412a53b4",
-                "reference": "9d9601517e2b2e72d92274aedde2735d412a53b4",
+                "url": "https://api.github.com/repos/Automattic/jetpack-blocks/zipball/d0c4df3ce7d34041e5442e839ec04692af0c3f97",
+                "reference": "d0c4df3ce7d34041e5442e839ec04692af0c3f97",
                 "shasum": ""
             },
             "require": {
@@ -706,9 +706,9 @@
             ],
             "description": "Register and manage blocks within a plugin. Used to manage block registration, enqueues, and more.",
             "support": {
-                "source": "https://github.com/Automattic/jetpack-blocks/tree/v3.3.4"
+                "source": "https://github.com/Automattic/jetpack-blocks/tree/v3.3.5"
             },
-            "time": "2026-06-08T15:29:13+00:00"
+            "time": "2026-06-09T12:29:52+00:00"
         },
         {
             "name": "automattic/jetpack-boost-core",
