@@ -372,13 +372,14 @@ class Search_Product_Test extends TestCase {
 		add_filter( 'pre_http_request', array( $this, 'force_pricing_success' ) );
 		$tripwire = $this->block_search_plan_autoload();
 
-		try {
-			$is_new_pricing = Search::is_new_pricing_202208();
-			$pricing        = Search::get_pricing_for_ui();
-		} finally {
-			spl_autoload_unregister( $tripwire );
-			remove_filter( 'pre_http_request', array( $this, 'force_pricing_success' ) );
-		}
+		// If production regresses to a Search\Plan reference, the tripwire throws here and the test
+		// errors with the contract message; the separate process is torn down regardless, so the
+		// unregister/remove_filter below only need to run on the success path.
+		$is_new_pricing = Search::is_new_pricing_202208();
+		$pricing        = Search::get_pricing_for_ui();
+
+		spl_autoload_unregister( $tripwire );
+		remove_filter( 'pre_http_request', array( $this, 'force_pricing_success' ) );
 
 		// The comparison line ran without loading Search\Plan and matched the self-owned constant.
 		$this->assertTrue( $is_new_pricing );
@@ -414,12 +415,13 @@ class Search_Product_Test extends TestCase {
 		add_filter( 'pre_http_request', array( $this, 'force_http_error' ) );
 		$tripwire = $this->block_search_plan_autoload();
 
-		try {
-			$pricing = Search::get_pricing_for_ui();
-		} finally {
-			spl_autoload_unregister( $tripwire );
-			remove_filter( 'pre_http_request', array( $this, 'force_http_error' ) );
-		}
+		// If production regresses to a Search\Plan reference, the tripwire throws here and the test
+		// errors with the contract message; the separate process is torn down regardless, so the
+		// unregister/remove_filter below only need to run on the success path.
+		$pricing = Search::get_pricing_for_ui();
+
+		spl_autoload_unregister( $tripwire );
+		remove_filter( 'pre_http_request', array( $this, 'force_http_error' ) );
 
 		// The fallback assignment ran without loading Search\Plan and used the self-owned constant.
 		$this->assertSame( Search::SEARCH_NEW_PRICING_VERSION, $pricing['pricing_version'] );
