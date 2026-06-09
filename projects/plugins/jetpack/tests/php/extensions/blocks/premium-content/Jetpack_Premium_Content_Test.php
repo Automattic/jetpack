@@ -315,6 +315,86 @@ class Jetpack_Premium_Content_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Newsletter-tier subscribers (`jetpack_memberships_type=tier`) route through
+	 * `maybe_gate_access_for_user_if_tier` in access-check.php rather than the
+	 * non-tier `visitor_can_view_content` path. Verify that the refresh-before-deny
+	 * logic also fires for the tier path when the token references the requested
+	 * tier's product_id but with a stale end_date. This is the population most
+	 * likely to hit the renewal-lockout bug in production.
+	 *
+	 * @return void
+	 */
+	public function test_refresh_before_deny_grants_tier_access_on_successful_refresh() {
+		$paid_subscriber_id = $this->factory->user->create(
+			array( 'user_email' => 'tier-paid@example.com' )
+		);
+		wp_set_current_user( $paid_subscriber_id );
+
+		// Create a newsletter tier whose product_id matches the test's token product_id.
+		$tier_plan_id = $this->factory->post->create(
+			array( 'post_type' => Jetpack_Memberships::$post_type_plan )
+		);
+		update_post_meta( $tier_plan_id, 'jetpack_memberships_product_id', $this->product_id );
+		update_post_meta( $tier_plan_id, 'jetpack_memberships_site_subscriber', true );
+		update_post_meta( $tier_plan_id, 'jetpack_memberships_price', 10 );
+		update_post_meta( $tier_plan_id, 'jetpack_memberships_currency', 'USD' );
+		update_post_meta( $tier_plan_id, 'jetpack_memberships_interval', '1 month' );
+		update_post_meta( $tier_plan_id, 'jetpack_memberships_type', 'tier' );
+
+		// Stale token — product_id matches the tier, but end_date is past.
+		$stale_payload = $this->get_payload( true, true, time() - HOUR_IN_SECONDS );
+		$this->set_returned_token( $stale_payload );
+
+		$this->refresh_response_override = $this->build_refresh_success_response();
+
+		$this->assertTrue(
+			current_visitor_can_access(
+				array( 'selectedPlanIds' => array( $tier_plan_id ) ),
+				array()
+			),
+			'Tier subscriber with a stale end_date should regain access after the refresh.'
+		);
+		$this->assertSame( 1, $this->refresh_call_count, 'Refresh endpoint should be called exactly once for the tier path.' );
+	}
+
+	/**
+	 * The tier path should NOT trigger a refresh when the token has no subscription
+	 * matching any of the required tiers — same narrowing as the non-tier path, to
+	 * keep refresh traffic limited to the renewal-stale case (not free subscribers
+	 * or tier mismatches).
+	 *
+	 * @return void
+	 */
+	public function test_refresh_not_called_for_tier_when_token_has_no_matching_product() {
+		$regular_subscriber_id = $this->factory->user->create(
+			array( 'user_email' => 'tier-free@example.com' )
+		);
+		wp_set_current_user( $regular_subscriber_id );
+
+		$tier_plan_id = $this->factory->post->create(
+			array( 'post_type' => Jetpack_Memberships::$post_type_plan )
+		);
+		update_post_meta( $tier_plan_id, 'jetpack_memberships_product_id', $this->product_id );
+		update_post_meta( $tier_plan_id, 'jetpack_memberships_site_subscriber', true );
+		update_post_meta( $tier_plan_id, 'jetpack_memberships_price', 10 );
+		update_post_meta( $tier_plan_id, 'jetpack_memberships_currency', 'USD' );
+		update_post_meta( $tier_plan_id, 'jetpack_memberships_interval', '1 month' );
+		update_post_meta( $tier_plan_id, 'jetpack_memberships_type', 'tier' );
+
+		// Free subscriber: blog_sub active, no paid subscriptions in token.
+		$payload = $this->get_payload( true, false );
+		$this->set_returned_token( $payload );
+
+		$this->assertFalse(
+			current_visitor_can_access(
+				array( 'selectedPlanIds' => array( $tier_plan_id ) ),
+				array()
+			)
+		);
+		$this->assertSame( 0, $this->refresh_call_count, 'Refresh endpoint must not fire for a free subscriber on a tier-gated post.' );
+	}
+
+	/**
 	 * When the refresh endpoint returns 200 with a token whose subscriptions no
 	 * longer include the required plan (e.g. the subscription was cancelled),
 	 * access should be denied.

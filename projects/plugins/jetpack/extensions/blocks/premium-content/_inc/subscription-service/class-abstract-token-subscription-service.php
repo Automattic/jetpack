@@ -88,7 +88,7 @@ abstract class Abstract_Token_Subscription_Service implements Subscription_Servi
 	 *
 	 * @return array|null Decoded fresh payload on success, null on any failure.
 	 */
-	protected function refresh_token_payload() {
+	public function refresh_token_payload() {
 		$current_token = $this->get_and_set_token_from_request();
 		if ( empty( $current_token ) ) {
 			return null;
@@ -177,7 +177,7 @@ abstract class Abstract_Token_Subscription_Service implements Subscription_Servi
 	 * @param array $token_subscriptions Subscriptions from the current token (keyed by product_id).
 	 * @return bool
 	 */
-	private function token_has_matching_product( array $valid_plan_ids, array $token_subscriptions ) {
+	public function token_has_matching_product( array $valid_plan_ids, array $token_subscriptions ) {
 		if ( empty( $token_subscriptions ) ) {
 			return false;
 		}
