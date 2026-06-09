@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Forms: tighten the permission check on the bulk-delete-by-status feedback endpoint so it requires the same authority as the rest of the feedback admin REST surface.

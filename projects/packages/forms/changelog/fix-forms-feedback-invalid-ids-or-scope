@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Forms: ensure the feedback REST collection endpoint never returns posts of unrelated types when the invalid_ids filter is in use.

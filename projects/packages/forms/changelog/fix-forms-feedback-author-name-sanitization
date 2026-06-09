@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Forms: improve sanitization of submitted first-name and last-name values used in author display and notification emails.
