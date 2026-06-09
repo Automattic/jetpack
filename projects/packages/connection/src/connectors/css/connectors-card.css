@@ -23,6 +23,29 @@
 	padding-inline: 20px;
 }
 
+.jetpack-connector__idc-options {
+	flex-wrap: wrap;
+	margin-block-end: 16px;
+}
+
+.jetpack-connector__idc-footer {
+	flex-wrap: wrap;
+}
+
+.jetpack-connector__idc-option {
+	flex: 1 1 200px;
+	min-inline-size: 200px;
+}
+
+.jetpack-connector__idc-option .jetpack-connector__inline-action {
+	margin-inline-start: 0;
+	margin-block-start: auto;
+}
+
+.jetpack-connector__idc-safe-mode-link {
+	margin-inline-start: 0;
+}
+
 .jetpack-connector__status-badge {
 	padding-block: 4px;
 	padding-inline: 12px;
@@ -40,6 +63,11 @@
 .jetpack-connector__status-badge--site-registered {
 	color: #1e4c5e;
 	background-color: #e9f0f5;
+}
+
+.jetpack-connector__status-badge--safe-mode {
+	color: #4f3500;
+	background-color: #fcf0e5;
 }
 
 .jetpack-connector__section {

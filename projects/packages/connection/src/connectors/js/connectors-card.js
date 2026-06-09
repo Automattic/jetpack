@@ -52,6 +52,16 @@ const CONNECTOR_LOGO = data.connectorLogoUrl
 const ssoStatus = data.ssoStatus ?? null;
 const isFirstConnection = Boolean( data.isFirstConnection );
 const isOfflineMode = Boolean( data.isOfflineMode );
+const isInSafeMode = Boolean( data.isInSafeMode );
+const isSafeModeConfirmed = Boolean( data.isSafeModeConfirmed );
+const idc = data.idc || null;
+// Stats and Backups are Jetpack-plugin features, so only cite them as examples
+// of paused features when a Jetpack-family plugin is actually connected.
+// Other plugin families (WooCommerce, Automattic for Agencies) fall back to the
+// generic "features that sync with WordPress.com" wording.
+const hasJetpackPlugin = connectedPlugins.some(
+	plugin => plugin.slug === 'jetpack' || plugin.slug.startsWith( 'jetpack-' )
+);
 
 /**
  * Start the Jetpack connection flow: register the site (if needed),
@@ -529,6 +539,379 @@ function SiteDetailsModal( { onClose } ) {
 	);
 }
 
+/* ── Identity crisis (Safe Mode) panel ──────────────────────────── */
+
+/**
+ * POST to an identity-crisis REST endpoint.
+ *
+ * @param {string} action - Endpoint suffix (e.g. 'migrate', 'start-fresh', 'confirm-safe-mode').
+ * @param {object} [body] - Optional JSON body.
+ * @return {Promise<object|string>} Parsed JSON response.
+ */
+async function postIdcAction( action, body = null ) {
+	const options = {
+		method: 'POST',
+		headers: {
+			'Content-Type': 'application/json',
+			'X-WP-Nonce': apiNonce,
+		},
+	};
+	if ( body ) {
+		options.body = JSON.stringify( body );
+	}
+
+	const response = await window.fetch( apiRoot + 'jetpack/v4/identity-crisis/' + action, options );
+
+	if ( ! response.ok ) {
+		const errBody = await response.json().catch( () => null );
+		throw new Error( errBody?.message || __( 'Something went wrong.', 'jetpack-connection' ) );
+	}
+
+	return response.json();
+}
+
+/**
+ * A single identity-crisis resolution option (title, description, action button).
+ *
+ * @param {object}   props             - Component props.
+ * @param {string}   props.title       - Option heading.
+ * @param {object}   props.description - Body element/text describing the option.
+ * @param {string}   props.buttonLabel - Action button label.
+ * @param {string}   props.busyLabel   - Action button label while busy.
+ * @param {boolean}  props.isBusy      - Whether this action is in progress.
+ * @param {boolean}  props.disabled    - Whether the button is disabled.
+ * @param {Function} props.onClick     - Action callback.
+ * @param {boolean}  props.isPrimary   - Whether to render a primary (vs secondary) button.
+ * @return {object} React element.
+ */
+function IDCOption( {
+	title,
+	description,
+	buttonLabel,
+	busyLabel,
+	isBusy,
+	disabled,
+	onClick,
+	isPrimary,
+} ) {
+	return createElement(
+		VStack,
+		{ spacing: 2, className: 'jetpack-connector__idc-option' },
+		createElement( Text, { weight: 600, size: 13 }, title ),
+		createElement( Text, { variant: 'muted', size: 12 }, description ),
+		createElement(
+			Button,
+			{
+				variant: isPrimary ? 'primary' : 'secondary',
+				size: 'compact',
+				isBusy,
+				disabled,
+				onClick,
+				className: 'jetpack-connector__inline-action',
+			},
+			isBusy ? busyLabel : buttonLabel
+		)
+	);
+}
+
+/**
+ * Identity crisis (Safe Mode) resolution panel.
+ *
+ * Replaces the standard expanded details when the site URL recorded with
+ * WordPress.com no longer matches the current site URL. Offers the same
+ * resolutions as the standard Jetpack IDC screen (migrate the connection,
+ * create a fresh connection, stay in Safe Mode) via the identity-crisis REST
+ * endpoints, and adds a Disconnect site option.
+ *
+ * @return {object} React element.
+ */
+function IDCPanel() {
+	const [ busyAction, setBusyAction ] = useState( null );
+	const [ isMigrated, setIsMigrated ] = useState( false );
+	const [ error, setError ] = useState( null );
+	const [ pendingConfirm, setPendingConfirm ] = useState( null );
+
+	const handleMigrate = async () => {
+		setBusyAction( 'migrate' );
+		setError( null );
+		try {
+			await postIdcAction( 'migrate' );
+			setIsMigrated( true );
+		} catch ( err ) {
+			setError(
+				err?.message ||
+					__( 'Failed to move the connection. Please try again.', 'jetpack-connection' )
+			);
+		} finally {
+			setBusyAction( null );
+		}
+	};
+
+	const handleStartFresh = async () => {
+		setBusyAction( 'start-fresh' );
+		setError( null );
+		try {
+			const body = redirectUri ? { redirect_uri: redirectUri } : null;
+			const result = await postIdcAction( 'start-fresh', body );
+			const url = typeof result === 'string' ? result : result?.authorizeUrl || result?.url;
+			if ( typeof url !== 'string' || ! url ) {
+				throw new Error( __( 'No connection URL received.', 'jetpack-connection' ) );
+			}
+			window.location.href = url;
+		} catch ( err ) {
+			setError(
+				err?.message ||
+					__( 'Failed to create a fresh connection. Please try again.', 'jetpack-connection' )
+			);
+			setBusyAction( null );
+		}
+	};
+
+	const handleStaySafe = async () => {
+		setBusyAction( 'safe-mode' );
+		setError( null );
+		try {
+			await postIdcAction( 'confirm-safe-mode' );
+			window.location.reload();
+		} catch ( err ) {
+			setError(
+				err?.message || __( 'Failed to confirm Safe Mode. Please try again.', 'jetpack-connection' )
+			);
+			setBusyAction( null );
+		}
+	};
+
+	// Disconnect is safe during IDC: Identity_Crisis filters out the remote
+	// WordPress.com deregister call, so only this (cloned) site's local tokens
+	// are removed — the original site keeps its connection.
+	const executeDisconnect = async () => {
+		setPendingConfirm( null );
+		setBusyAction( 'disconnect' );
+		setError( null );
+		try {
+			const response = await window.fetch( apiRoot + 'jetpack/v4/connection', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+					'X-WP-Nonce': apiNonce,
+				},
+				body: JSON.stringify( { isActive: false } ),
+			} );
+
+			if ( response.ok ) {
+				window.location.reload();
+				return;
+			}
+
+			const errBody = await response.json().catch( () => null );
+			setError(
+				errBody?.message ||
+					__( 'Failed to disconnect the site. Please try again.', 'jetpack-connection' )
+			);
+			setBusyAction( null );
+		} catch {
+			setError( __( 'Failed to disconnect the site. Please try again.', 'jetpack-connection' ) );
+			setBusyAction( null );
+		}
+	};
+
+	const handleDisconnect = () => {
+		setPendingConfirm( {
+			title: __( 'Disconnect site', 'jetpack-connection' ),
+			message: __(
+				'Are you sure you want to disconnect from WordPress.com? This will affect all plugins using this connection.',
+				'jetpack-connection'
+			),
+			onConfirm: executeDisconnect,
+		} );
+	};
+
+	if ( isMigrated ) {
+		return createElement(
+			VStack,
+			{ spacing: 4, className: 'jetpack-connector__idc-panel' },
+			createElement(
+				Text,
+				{ weight: 600, size: 14 },
+				__( 'Connection moved', 'jetpack-connection' )
+			),
+			createElement(
+				Text,
+				{ variant: 'muted', size: 13 },
+				__( 'This site now uses the existing connection and all its data.', 'jetpack-connection' )
+			),
+			createElement(
+				Button,
+				{
+					variant: 'primary',
+					size: 'compact',
+					onClick: () => window.location.reload(),
+					className: 'jetpack-connector__inline-action',
+				},
+				__( 'Got it, thanks', 'jetpack-connection' )
+			)
+		);
+	}
+
+	const currentUrl = idc?.currentUrl || ( siteDetails ? siteDetails.homeUrl : '' );
+	const wpcomUrl = idc?.wpcomHomeUrl || '';
+	const isDevelopmentSite = Boolean( idc?.isDevelopmentSite );
+	const possibleDynamicSiteUrl = Boolean( idc?.possibleDynamicSiteUrlDetected );
+
+	// Build a fresh <strong> element for a URL on each call so the same React
+	// element is never reused across parents.
+	const urlEl = ( url, fallback ) =>
+		url
+			? createElement( 'strong', { title: url }, url )
+			: createElement( 'strong', null, fallback );
+
+	const introText = hasJetpackPlugin
+		? __(
+				'Connected to <wpcom />, but now loading at <current />. Features that sync with WordPress.com — like Stats and Backups — are paused until you choose how to continue.',
+				'jetpack-connection'
+		  )
+		: __(
+				'Connected to <wpcom />, but now loading at <current />. Features that sync with WordPress.com are paused until you choose how to continue.',
+				'jetpack-connection'
+		  );
+
+	const intro = createInterpolateElement( introText, {
+		wpcom: urlEl( wpcomUrl, __( 'its original address', 'jetpack-connection' ) ),
+		current: urlEl( currentUrl, __( 'this address', 'jetpack-connection' ) ),
+	} );
+
+	const migrateOption = createElement( IDCOption, {
+		key: 'migrate',
+		title: __( 'Same site, new address', 'jetpack-connection' ),
+		description: __(
+			'Move the connection here. The site ID and all its connected data and features follow this address.',
+			'jetpack-connection'
+		),
+		buttonLabel: __( 'Move connection', 'jetpack-connection' ),
+		busyLabel: __( 'Moving…', 'jetpack-connection' ),
+		isBusy: busyAction === 'migrate',
+		disabled: Boolean( busyAction ),
+		onClick: handleMigrate,
+		isPrimary: ! isDevelopmentSite,
+	} );
+
+	const freshOption = createElement( IDCOption, {
+		key: 'fresh',
+		title: __( 'A separate site', 'jetpack-connection' ),
+		description: __(
+			'Start a new connection here. The original site keeps its data.',
+			'jetpack-connection'
+		),
+		buttonLabel: __( 'Create a fresh connection', 'jetpack-connection' ),
+		busyLabel: __( 'Connecting…', 'jetpack-connection' ),
+		isBusy: busyAction === 'start-fresh',
+		disabled: Boolean( busyAction ),
+		onClick: handleStartFresh,
+		isPrimary: isDevelopmentSite,
+	} );
+
+	// Development/staging sites are most often intentional clones, so migrating
+	// (which would reassign the production site's ID and data to this copy) is
+	// not offered — only a fresh connection, matching the Jetpack IDC screen
+	// (ScreenMain in @automattic/jetpack-idc).
+	const options = isDevelopmentSite ? [ freshOption ] : [ migrateOption, freshOption ];
+
+	return createElement(
+		VStack,
+		{ spacing: 5, className: 'jetpack-connector__idc-panel' },
+		createElement(
+			Text,
+			{ weight: 600, size: 14 },
+			__( 'Your site address has changed', 'jetpack-connection' )
+		),
+		createElement( Text, { size: 13 }, intro ),
+		// A dynamic site URL in wp-config.php can keep re-triggering Safe Mode,
+		// so resolving the crisis won't stick until it's made static.
+		possibleDynamicSiteUrl
+			? createElement(
+					Notice,
+					{
+						status: 'warning',
+						isDismissible: false,
+						className: 'jetpack-connector__notice',
+					},
+					createInterpolateElement(
+						__(
+							'Your <code>wp-config.php</code> may set the site URL dynamically, which can keep re-triggering Safe Mode. <link>Learn how to set a static site URL.</link>',
+							'jetpack-connection'
+						),
+						{
+							code: createElement( 'code' ),
+							link: createElement( 'a', {
+								href: 'https://jetpack.com/redirect/?source=jetpack-idcscreen-dynamic-site-urls',
+								target: '_blank',
+								rel: 'noopener noreferrer',
+							} ),
+						}
+					)
+			  )
+			: null,
+		error
+			? createElement( ErrorNotice, { message: error, onDismiss: () => setError( null ) } )
+			: null,
+		createElement(
+			HStack,
+			{ spacing: 4, alignment: 'top', className: 'jetpack-connector__idc-options' },
+			...options
+		),
+		createElement( 'hr', { className: 'jetpack-connector__divider' } ),
+		createElement(
+			HStack,
+			{ spacing: 3, alignment: 'center', className: 'jetpack-connector__idc-footer' },
+			isSafeModeConfirmed
+				? createElement(
+						Text,
+						{ variant: 'muted', size: 12 },
+						__(
+							'In Safe Mode. Features stay paused until you choose an option above.',
+							'jetpack-connection'
+						)
+				  )
+				: createElement(
+						Button,
+						{
+							variant: 'link',
+							isBusy: busyAction === 'safe-mode',
+							disabled: Boolean( busyAction ),
+							onClick: handleStaySafe,
+							className: 'jetpack-connector__idc-safe-mode-link',
+						},
+						busyAction === 'safe-mode'
+							? __( 'Saving…', 'jetpack-connection' )
+							: __( 'Not sure? Stay in Safe Mode', 'jetpack-connection' )
+				  ),
+			isManagedPlatformSite
+				? null
+				: createElement(
+						Button,
+						{
+							variant: 'secondary',
+							isDestructive: true,
+							size: 'compact',
+							isBusy: busyAction === 'disconnect',
+							disabled: Boolean( busyAction ),
+							onClick: handleDisconnect,
+							className: 'jetpack-connector__disconnect-site',
+						},
+						__( 'Disconnect site', 'jetpack-connection' )
+				  )
+		),
+		pendingConfirm
+			? createElement( ConfirmationModal, {
+					title: pendingConfirm.title,
+					message: pendingConfirm.message,
+					onConfirm: pendingConfirm.onConfirm,
+					onCancel: () => setPendingConfirm( null ),
+			  } )
+			: null
+	);
+}
+
 /* ── Expanded details panel ─────────────────────────────────────── */
 
 /**
@@ -842,12 +1225,21 @@ function JetpackConnectorCard( { name, label, description, logo, icon } ) {
 
 	if ( isConnected || isSiteRegistered ) {
 		// Site is registered with WordPress.com (with or without a connected owner).
-		const badgeProps = isConnected
-			? { label: __( 'Connected', 'jetpack-connection' ) }
-			: {
-					label: __( 'Site registered', 'jetpack-connection' ),
-					modifier: 'site-registered',
-			  };
+		let badgeProps;
+		if ( isInSafeMode ) {
+			// Identity crisis: the recorded site URL no longer matches WordPress.com.
+			badgeProps = {
+				label: __( 'Safe Mode', 'jetpack-connection' ),
+				modifier: 'safe-mode',
+			};
+		} else if ( isConnected ) {
+			badgeProps = { label: __( 'Connected', 'jetpack-connection' ) };
+		} else {
+			badgeProps = {
+				label: __( 'Site registered', 'jetpack-connection' ),
+				modifier: 'site-registered',
+			};
+		}
 
 		actionArea = createElement(
 			HStack,
@@ -870,10 +1262,14 @@ function JetpackConnectorCard( { name, label, description, logo, icon } ) {
 			expandedContent = createElement(
 				'div',
 				{ className: 'jetpack-connector__expanded' },
-				createElement( ExpandedDetails, {
-					isConnecting: needsUserConnection ? isConnecting : false,
-					onConnect: needsUserConnection ? handleConnect : null,
-				} )
+				// While in Safe Mode, the identity-crisis resolution options
+				// replace the standard connection details.
+				isInSafeMode
+					? createElement( IDCPanel )
+					: createElement( ExpandedDetails, {
+							isConnecting: needsUserConnection ? isConnecting : false,
+							onConnect: needsUserConnection ? handleConnect : null,
+					  } )
 			);
 		}
 	} else {

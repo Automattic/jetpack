@@ -11,6 +11,7 @@
 
 namespace Automattic\Jetpack\Connection;
 
+use Automattic\Jetpack\Identity_Crisis;
 use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
@@ -168,6 +169,8 @@ class Jetpack_Connector {
 			if ( in_array( 'jetpack', array_column( $data['connectedPlugins'], 'slug' ), true ) ) {
 				$data['ssoStatus'] = ( new Modules() )->is_active( 'sso', false );
 			}
+
+			static::add_identity_crisis_data( $data );
 		}
 
 		if ( $is_connected ) {
@@ -185,6 +188,42 @@ class Jetpack_Connector {
 		}
 
 		return $data;
+	}
+
+	/**
+	 * Add Jetpack Identity Crisis (Safe Mode) data to the script module data.
+	 *
+	 * The connector card uses this to swap the status badge to "Safe Mode" and
+	 * to render IDC resolution options (migrate / start fresh / stay in safe
+	 * mode) in the expanded details. Mirrors the data assembled by
+	 * \Automattic\Jetpack\IdentityCrisis\UI::get_initial_state_data().
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param array $data Script module data passed by reference.
+	 */
+	private static function add_identity_crisis_data( &$data ) {
+		if ( ! class_exists( Identity_Crisis::class ) ) {
+			return;
+		}
+
+		$in_safe_mode = ( new Status() )->in_safe_mode();
+
+		$data['isInSafeMode'] = $in_safe_mode;
+
+		if ( ! $in_safe_mode ) {
+			return;
+		}
+
+		$idc_urls = Identity_Crisis::get_mismatched_urls();
+
+		$data['isSafeModeConfirmed'] = (bool) Identity_Crisis::$is_safe_mode_confirmed;
+		$data['idc']                 = array(
+			'currentUrl'                     => ( is_array( $idc_urls ) && array_key_exists( 'current_url', $idc_urls ) ) ? $idc_urls['current_url'] : home_url(),
+			'wpcomHomeUrl'                   => ( is_array( $idc_urls ) && array_key_exists( 'wpcom_url', $idc_urls ) ) ? $idc_urls['wpcom_url'] : '',
+			'isDevelopmentSite'              => (bool) Status::is_development_site(),
+			'possibleDynamicSiteUrlDetected' => (bool) Identity_Crisis::detect_possible_dynamic_site_url(),
+		);
 	}
 
 	/**
