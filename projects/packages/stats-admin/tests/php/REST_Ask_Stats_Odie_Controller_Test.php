@@ -95,6 +95,10 @@ class REST_Ask_Stats_Odie_Controller_Test extends Stats_TestCase {
 		remove_action( 'rest_api_init', array( $this->rest_ask_stats_odie_controller, 'register_rest_routes' ) );
 		remove_filter( 'pre_http_request', array( $this, 'odie_http_response_fixture' ), 9 );
 		remove_filter( 'jetpack_stats_ask_stats_enabled', '__return_true' );
+		remove_all_filters( 'jetpack_stats_ask_stats_bot_slug' );
+		remove_all_filters( 'jetpack_stats_ask_stats_rate_limit' );
+		remove_all_filters( 'jetpack_stats_ask_stats_max_message_length' );
+		$this->clear_rate_limit_transients();
 		$this->reset_active_plan_cache();
 
 		parent::tearDown();
@@ -235,8 +239,38 @@ class REST_Ask_Stats_Odie_Controller_Test extends Stats_TestCase {
 		$this->assertEquals( 400, $response->get_status() );
 	}
 
+	public function test_send_chat_message_whitespace_message() {
+		wp_set_current_user( $this->admin_id );
+
+		$response = $this->dispatch_ask_stats_request(
+			array(
+				'message' => '   ',
+			)
+		);
+
+		$this->assertEquals( 400, $response->get_status() );
+		$this->assertNull( $this->last_odie_url );
+		$this->assertFalse( get_transient( $this->get_rate_limit_transient_key() ) );
+	}
+
+	public function test_send_chat_message_empty_bot_slug_not_configured() {
+		wp_set_current_user( $this->admin_id );
+		add_filter( 'jetpack_stats_ask_stats_bot_slug', '__return_empty_string' );
+
+		$response = $this->dispatch_ask_stats_request(
+			array(
+				'message' => 'How is my site doing today?',
+			)
+		);
+
+		$this->assertEquals( 503, $response->get_status() );
+		$this->assertEquals( 'jetpack_stats_ask_stats_not_configured', $response->get_data()['code'] );
+		$this->assertNull( $this->last_odie_url );
+		$this->assertFalse( get_transient( $this->get_rate_limit_transient_key() ) );
+	}
+
 	/**
-	 * Test remote Odie errors are returned.
+	 * Remote Odie errors should keep their upstream status and code.
 	 */
 	public function test_send_chat_message_remote_error() {
 		wp_set_current_user( $this->admin_id );
@@ -250,6 +284,246 @@ class REST_Ask_Stats_Odie_Controller_Test extends Stats_TestCase {
 
 		$this->assertEquals( 500, $response->get_status() );
 		$this->assertEquals( 'bot_run_failed', $response->get_data()['code'] );
+	}
+
+	public function test_send_chat_message_allows_requests_up_to_rate_limit() {
+		wp_set_current_user( $this->admin_id );
+		add_filter( 'jetpack_stats_ask_stats_rate_limit', array( $this, 'filter_rate_limit_max_two' ) );
+
+		for ( $i = 0; $i < 2; $i++ ) {
+			$response = $this->dispatch_ask_stats_request(
+				array(
+					'message' => 'How is my site doing today?',
+				)
+			);
+
+			$this->assertEquals( 200, $response->get_status(), 'Request ' . ( $i + 1 ) . ' should succeed.' );
+		}
+
+		$this->assertEquals( 2, (int) get_transient( $this->get_rate_limit_transient_key() ) );
+	}
+
+	public function test_send_chat_message_blocks_when_rate_limit_exceeded() {
+		wp_set_current_user( $this->admin_id );
+		add_filter( 'jetpack_stats_ask_stats_rate_limit', array( $this, 'filter_rate_limit_max_two' ) );
+		set_transient( $this->get_rate_limit_transient_key(), 2, HOUR_IN_SECONDS );
+
+		$response = $this->dispatch_ask_stats_request(
+			array(
+				'message' => 'How is my site doing today?',
+			)
+		);
+
+		$this->assertEquals( 429, $response->get_status() );
+		$this->assertEquals( 'jetpack_stats_ask_stats_rate_limited', $response->get_data()['code'] );
+		$this->assertNull( $this->last_odie_url );
+		$this->assertEquals( 2, (int) get_transient( $this->get_rate_limit_transient_key() ) );
+	}
+
+	/**
+	 * Blocked 429 responses must not extend the inactivity window.
+	 */
+	public function test_send_chat_message_rate_limit_block_does_not_increment_or_refresh_ttl() {
+		wp_set_current_user( $this->admin_id );
+		add_filter( 'jetpack_stats_ask_stats_rate_limit', array( $this, 'filter_rate_limit_max_two' ) );
+
+		$key = $this->get_rate_limit_transient_key();
+		set_transient( $key, 2, HOUR_IN_SECONDS );
+		$timeout_before = get_option( '_transient_timeout_' . $key );
+
+		$response = $this->dispatch_ask_stats_request(
+			array(
+				'message' => 'How is my site doing today?',
+			)
+		);
+
+		$this->assertEquals( 429, $response->get_status() );
+		$this->assertEquals( 2, (int) get_transient( $key ) );
+		$this->assertEquals( $timeout_before, get_option( '_transient_timeout_' . $key ) );
+	}
+
+	public function test_send_chat_message_rate_limit_is_per_user() {
+		add_filter( 'jetpack_stats_ask_stats_rate_limit', array( $this, 'filter_rate_limit_max_two' ) );
+
+		wp_set_current_user( $this->admin_id );
+		set_transient( $this->get_rate_limit_transient_key(), 2, HOUR_IN_SECONDS );
+
+		$editor = new \WP_User( $this->editor_id );
+		$editor->add_cap( 'view_stats' );
+		wp_set_current_user( $this->editor_id );
+
+		$response = $this->dispatch_ask_stats_request(
+			array(
+				'message' => 'How is my site doing today?',
+			)
+		);
+
+		$this->assertEquals( 200, $response->get_status() );
+		$this->assertSame( 1, (int) get_transient( $this->get_rate_limit_transient_key( $this->editor_id ) ) );
+		$this->assertEquals( 2, (int) get_transient( $this->get_rate_limit_transient_key( $this->admin_id ) ) );
+	}
+
+	public function test_send_chat_message_forbidden_does_not_increment_rate_limit() {
+		wp_set_current_user( $this->editor_id );
+
+		$response = $this->dispatch_ask_stats_request(
+			array(
+				'message' => 'How is my site doing today?',
+			)
+		);
+
+		$this->assertEquals( 403, $response->get_status() );
+		$this->assertFalse( get_transient( $this->get_rate_limit_transient_key() ) );
+	}
+
+	/**
+	 * Forwarded Odie failures may still incur cost, so they consume allowance.
+	 */
+	public function test_send_chat_message_odie_failure_still_increments_rate_limit() {
+		wp_set_current_user( $this->admin_id );
+		add_filter( 'jetpack_stats_ask_stats_rate_limit', array( $this, 'filter_rate_limit_max_two' ) );
+		$this->odie_response_code = 500;
+
+		for ( $i = 0; $i < 2; $i++ ) {
+			$response = $this->dispatch_ask_stats_request(
+				array(
+					'message' => 'How is my site doing today?',
+				)
+			);
+
+			$this->assertEquals( 500, $response->get_status() );
+		}
+
+		$this->assertEquals( 2, (int) get_transient( $this->get_rate_limit_transient_key() ) );
+
+		$this->last_odie_url = null;
+		$response            = $this->dispatch_ask_stats_request(
+			array(
+				'message' => 'How is my site doing today?',
+			)
+		);
+
+		$this->assertEquals( 429, $response->get_status() );
+		$this->assertNull( $this->last_odie_url );
+	}
+
+	public function test_send_chat_message_rate_limit_invalid_filter_uses_defaults() {
+		wp_set_current_user( $this->admin_id );
+		add_filter(
+			'jetpack_stats_ask_stats_rate_limit',
+			static function () {
+				return array(
+					'enabled'      => true,
+					'max_requests' => 0,
+					'window'       => -5,
+				);
+			}
+		);
+
+		$key = $this->get_rate_limit_transient_key();
+		set_transient( $key, 19, HOUR_IN_SECONDS );
+
+		$response = $this->dispatch_ask_stats_request(
+			array(
+				'message' => 'How is my site doing today?',
+			)
+		);
+
+		$this->assertEquals( 200, $response->get_status() );
+		$this->assertEquals( 20, (int) get_transient( $key ) );
+	}
+
+	public function test_send_chat_message_rate_limit_non_array_filter_uses_defaults() {
+		wp_set_current_user( $this->admin_id );
+		add_filter(
+			'jetpack_stats_ask_stats_rate_limit',
+			static function () {
+				return 'bad';
+			}
+		);
+
+		$key = $this->get_rate_limit_transient_key();
+		set_transient( $key, 19, HOUR_IN_SECONDS );
+
+		$response = $this->dispatch_ask_stats_request(
+			array(
+				'message' => 'How is my site doing today?',
+			)
+		);
+
+		$this->assertEquals( 200, $response->get_status() );
+		$this->assertEquals( 20, (int) get_transient( $key ) );
+	}
+
+	public function test_send_chat_message_rate_limit_can_be_disabled() {
+		wp_set_current_user( $this->admin_id );
+		add_filter(
+			'jetpack_stats_ask_stats_rate_limit',
+			static function () {
+				return array(
+					'enabled'      => false,
+					'max_requests' => 1,
+					'window'       => HOUR_IN_SECONDS,
+				);
+			}
+		);
+		set_transient( $this->get_rate_limit_transient_key(), 99, HOUR_IN_SECONDS );
+
+		$response = $this->dispatch_ask_stats_request(
+			array(
+				'message' => 'How is my site doing today?',
+			)
+		);
+
+		$this->assertEquals( 200, $response->get_status() );
+		$this->assertEquals( 99, (int) get_transient( $this->get_rate_limit_transient_key() ) );
+	}
+
+	public function test_send_chat_message_rejects_overlong_message() {
+		wp_set_current_user( $this->admin_id );
+
+		$response = $this->dispatch_ask_stats_request(
+			array(
+				'message' => str_repeat( 'a', REST_Ask_Stats_Odie_Controller::DEFAULT_MAX_MESSAGE_LENGTH + 1 ),
+			)
+		);
+
+		$this->assertEquals( 400, $response->get_status() );
+		$this->assertNull( $this->last_odie_url );
+		$this->assertFalse( get_transient( $this->get_rate_limit_transient_key() ) );
+	}
+
+	public function test_send_chat_message_allows_multibyte_message_at_max_length() {
+		wp_set_current_user( $this->admin_id );
+
+		$response = $this->dispatch_ask_stats_request(
+			array(
+				'message' => str_repeat( "\xC3\xA9", REST_Ask_Stats_Odie_Controller::DEFAULT_MAX_MESSAGE_LENGTH ),
+			)
+		);
+
+		$this->assertEquals( 200, $response->get_status() );
+	}
+
+	public function filter_rate_limit_max_two() {
+		return array(
+			'enabled'      => true,
+			'max_requests' => 2,
+			'window'       => HOUR_IN_SECONDS,
+		);
+	}
+
+	protected function get_rate_limit_transient_key( $user_id = null ) {
+		if ( null === $user_id ) {
+			$user_id = get_current_user_id();
+		}
+
+		return REST_Ask_Stats_Odie_Controller::RATE_LIMIT_TRANSIENT_PREFIX . '999_' . (int) $user_id;
+	}
+
+	protected function clear_rate_limit_transients() {
+		delete_transient( $this->get_rate_limit_transient_key( $this->admin_id ) );
+		delete_transient( $this->get_rate_limit_transient_key( $this->editor_id ) );
 	}
 
 	/**
@@ -267,7 +541,7 @@ class REST_Ask_Stats_Odie_Controller_Test extends Stats_TestCase {
 	}
 
 	/**
-	 * Add http response fixtures for Odie calls.
+	 * Records the forwarded Odie request while keeping tests off the network.
 	 *
 	 * @param false|array $response    HTTP response.
 	 * @param array       $parsed_args Request arguments.
