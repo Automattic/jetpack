@@ -55,4 +55,41 @@ class SharedStoresAssetsTest extends TestCase {
 			$actions
 		);
 	}
+
+	/**
+	 * Test that register_assets registers the externalized bundle under the
+	 * expected handle, path, and footer option (the externalization contract).
+	 */
+	public function test_register_assets() {
+		Functions\stubs(
+			array(
+				'wp_parse_url'       => 'parse_url',
+				'plugins_url'        => function ( $path ) {
+					return 'http://example.com/wp-content/plugins/assets/' . basename( $path );
+				},
+				'add_query_arg'      => function ( $key, $value, $url ) {
+					return $url . ( strpos( $url, '?' ) === false ? '?' : '&' ) . "$key=$value";
+				},
+				'wp_style_is'        => false,
+				'wp_script_add_data' => true,
+				// Used only when the bundle has not been built; harmless otherwise.
+				'filemtime'          => 1234567,
+			)
+		);
+
+		$registered = array();
+		Functions\expect( 'wp_register_script' )->once()->andReturnUsing(
+			function ( $handle, $url, $deps, $ver, $args ) use ( &$registered ) {
+				$registered = compact( 'handle', 'url', 'args' );
+				return true;
+			}
+		);
+
+		Shared_Stores_Assets::register_assets();
+
+		$this->assertSame( 'jetpack-shared-stores', Shared_Stores_Assets::SCRIPT_HANDLE );
+		$this->assertSame( Shared_Stores_Assets::SCRIPT_HANDLE, $registered['handle'] );
+		$this->assertStringContainsString( 'jetpack-shared-stores.js', $registered['url'] );
+		$this->assertTrue( $registered['args']['in_footer'] );
+	}
 }

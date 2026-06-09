@@ -12,6 +12,7 @@
 	},
 	"license": "GPL-2.0-or-later",
 	"author": "Automattic",
+	"sideEffects": true,
 	"exports": {
 		".": {
 			"react-native": "./index.native.js",
