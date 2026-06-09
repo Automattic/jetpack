@@ -37,7 +37,7 @@
 - General: Update minimum WordPress version to 6.9. [#49021]
 - Migrate Status indicator to @wordpress/ui Text. [#48711]
 - Resolve WPDS design tokens in the legacy settings dashboard CSS. [#48750]
-- Settings And AI Pages: Replace the `.admin-ui-page` selector hook with the stable `.jp-admin-page__page` className passed through by AdminPage, restoring page-specific layout overrides. [#48410]
+- Settings and AI Pages: Replace the `.admin-ui-page` selector hook with the stable `.jp-admin-page__page` className passed through by AdminPage, restoring page-specific layout overrides. [#48410]
 
 ### Bug fixes
 - AI: Fix broken external links (Claude settings and agent documentation) in the MCP quick setup. [#49453]
