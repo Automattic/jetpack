@@ -5,6 +5,7 @@ import {
 	stripHtmlTags,
 	preparePreviewText,
 	Formatter,
+	AnchorLink,
 } from '../helpers';
 
 const TITLE_LENGTH = 200;
@@ -26,13 +27,14 @@ export const blueskyTitle: Formatter = text =>
 
 export const blueskyBody = (
 	text: string,
-	options: { offset?: number; reserveUrlSpace?: boolean } = {}
+	options: { offset?: number; reserveUrlSpace?: boolean; anchorLinks?: AnchorLink[] } = {}
 ) => {
-	const { offset = 0, reserveUrlSpace = true } = options;
+	const { offset = 0, reserveUrlSpace = true, anchorLinks } = options;
 
 	return preparePreviewText( text, {
 		platform: 'bluesky',
 		maxChars: BODY_LENGTH - ( reserveUrlSpace ? URL_LENGTH : 0 ) - offset,
+		anchorLinks,
 	} );
 };
 

@@ -124,7 +124,65 @@ type PreviewTextOptions = {
 	hyperlinkUrls?: boolean;
 	hyperlinkHashtags?: boolean;
 	hashtagDomain?: string;
+	/**
+	 * Editor hyperlinks — `(text, href)` pairs pulled from the post content —
+	 * to render as links over the matching text in the body. Supplied only for
+	 * the networks whose APIs support inline links (Bluesky, Tumblr); every
+	 * other network leaves the text plain, matching the backend.
+	 */
+	anchorLinks?: AnchorLink[];
 };
+
+/**
+ * An editor hyperlink: the visible anchor text and the URL it points to.
+ */
+export type AnchorLink = {
+	text: string;
+	href: string;
+};
+
+// `<a href="…">text</a>`, capturing the (quoted) href and the inner markup. The
+// `\1` backreference forces the lazy href group to expand to the matching quote.
+const ANCHOR_TAG = /<a\b[^>]*?\shref\s*=\s*("|')(.*?)\1[^>]*>([\s\S]*?)<\/a>/gi;
+
+/**
+ * Collapses whitespace runs to a single space so the anchor's visible text
+ * matches the surrounding sanitized body text.
+ *
+ * @param text - The anchor's inner text.
+ * @return The whitespace-collapsed text.
+ */
+const collapseWhitespace = ( text: string ): string => text.replace( /\s+/g, ' ' ).trim();
+
+/**
+ * Extracts `(text, href)` pairs from `<a href="…">text</a>` in HTML, skipping
+ * autolinks (text already equals the URL) and non-http(s) hrefs. Mirrors the
+ * backend `ExtractorUtils::get_anchor_links_from_html` so the preview links the
+ * same anchors the published share will.
+ *
+ * @param html - Raw post content HTML.
+ * @return The editor hyperlinks found, in document order.
+ */
+export function getAnchorLinks( html: string ): AnchorLink[] {
+	if ( ! html ) {
+		return [];
+	}
+
+	const links: AnchorLink[] = [];
+
+	for ( const match of html.matchAll( ANCHOR_TAG ) ) {
+		const href = match[ 2 ];
+		const text = collapseWhitespace( stripHtmlTags( match[ 3 ] ) );
+
+		if ( ! /^https?:\/\//i.test( href ) || '' === text || text === href ) {
+			continue;
+		}
+
+		links.push( { text, href } );
+	}
+
+	return links;
+}
 
 export const hashtagUrlMap = {
 	twitter: 'https://twitter.com/hashtag/%1$s',
@@ -152,6 +210,7 @@ export function preparePreviewText( text: string, options: PreviewTextOptions ):
 		hyperlinkHashtags = true,
 		// Instagram doesn't support hyperlink URLs at the moment.
 		hyperlinkUrls = 'instagram' !== platform,
+		anchorLinks,
 	} = options;
 
 	let result = stripHtmlTags( text );
@@ -244,6 +303,35 @@ export function preparePreviewText( text: string, options: PreviewTextOptions ):
 		 * Hashtag2: <a href="https://twitter.com/hashtag/web" ...>#web</a>
 		 * }
 		 */
+	}
+
+	// Render editor hyperlinks: locate each anchor's text in the finished body
+	// and wrap it in a link. Anchors are consumed left-to-right so repeated texts
+	// map to the right href, and anchors whose text isn't present (e.g. truncated
+	// away, or overlapping an already-linked bare URL) are skipped — mirroring the
+	// backend's link-entity matching. Runs after the URL/hashtag passes, so the
+	// only edits left are newline -> <br />; the inserted tags stay balanced.
+	if ( anchorLinks?.length ) {
+		let cursor = 0;
+
+		anchorLinks.forEach( ( { text: anchorText, href }, index ) => {
+			if ( ! anchorText ) {
+				return;
+			}
+
+			const pos = result.indexOf( anchorText, cursor );
+
+			if ( pos === -1 ) {
+				return;
+			}
+
+			const token = `Anchor${ index }`;
+			componentMap[ token ] = <a href={ href } rel="noopener noreferrer" target="_blank" />;
+
+			const wrapped = `<${ token }>${ anchorText }</${ token }>`;
+			result = result.slice( 0, pos ) + wrapped + result.slice( pos + anchorText.length );
+			cursor = pos + wrapped.length;
+		} );
 	}
 
 	// Convert newlines to <br> tags.

@@ -1,3 +1,4 @@
+import type { AnchorLink } from './helpers';
 import type { SectionHeadingProps } from './shared/section-heading';
 
 export interface SocialPreviewBaseProps {
@@ -5,6 +6,13 @@ export interface SocialPreviewBaseProps {
 	 * The URL of the post/page to preview.
 	 */
 	url: string;
+
+	/**
+	 * Editor hyperlinks from the post content, used to render `<a>` links over
+	 * the matching body text on the networks that support inline links (Bluesky,
+	 * Tumblr). Other networks ignore this.
+	 */
+	anchorLinks?: AnchorLink[];
 
 	/**
 	 * The title of the post/page to preview.

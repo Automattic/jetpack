@@ -1,3 +1,4 @@
+import { getAnchorLinks } from '@automattic/social-previews';
 import { Attachment, store as coreStore } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
@@ -84,11 +85,25 @@ export function useSocialPreviewPostData(): PostPreviewData {
 		);
 	}, [] );
 
+	// Editor hyperlinks are read from the full serialized content (which keeps
+	// the `<a>` tags) rather than the excerpt/content attribute, which is already
+	// HTML-stripped. Entities are decoded so the anchor text matches the decoded
+	// body text the previews render.
+	const anchorLinks = useSelect( select => {
+		const content = select( editorStore ).getEditedPostContent();
+
+		return getAnchorLinks( content ).map( ( { text, href } ) => ( {
+			text: decodeEntities( text ),
+			href: decodeEntities( href ),
+		} ) );
+	}, [] );
+
 	return useMemo( () => {
 		return {
 			...linkPreviewData,
 			excerpt,
+			anchorLinks,
 			media,
 		};
-	}, [ excerpt, linkPreviewData, media ] );
+	}, [ anchorLinks, excerpt, linkPreviewData, media ] );
 }
