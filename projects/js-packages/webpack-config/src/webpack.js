@@ -110,6 +110,22 @@ const defaultRequestMap = {
 		external: 'JetpackConnection',
 		handle: 'jetpack-connection',
 	},
+	// The shared data stores must resolve to a single externalized bundle so
+	// they register exactly once. Map the package root and its store subpaths
+	// (used directly and via shared-extension-utils re-exports) to the same
+	// handle so no consumer ever re-bundles a store.
+	'@automattic/jetpack-shared-stores': {
+		external: 'JetpackSharedStores',
+		handle: 'jetpack-shared-stores',
+	},
+	'@automattic/jetpack-shared-stores/modules-state': {
+		external: 'JetpackSharedStores',
+		handle: 'jetpack-shared-stores',
+	},
+	'@automattic/jetpack-shared-stores/store/wordpress-com': {
+		external: 'JetpackSharedStores',
+		handle: 'jetpack-shared-stores',
+	},
 };
 
 const DependencyExtractionPlugin = ( { requestMap, ...options } = {} ) => {

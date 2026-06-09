@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Register and enqueue the jetpack-shared-stores asset bundle for dependent scripts.

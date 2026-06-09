@@ -1072,6 +1072,49 @@ importers:
         specifier: 6.0.1
         version: 6.0.1(webpack@5.105.2)
 
+  projects/js-packages/jetpack-shared-stores:
+    dependencies:
+      '@automattic/jetpack-script-data':
+        specifier: workspace:*
+        version: link:../script-data
+      '@wordpress/api-fetch':
+        specifier: 7.48.0
+        version: 7.48.0
+      '@wordpress/data':
+        specifier: 10.48.0
+        version: 10.48.0(react@18.3.1)
+    devDependencies:
+      '@automattic/jetpack-webpack-config':
+        specifier: workspace:*
+        version: link:../webpack-config
+      '@babel/core':
+        specifier: 7.29.0
+        version: 7.29.0
+      '@babel/preset-react':
+        specifier: 7.28.5
+        version: 7.28.5(@babel/core@7.29.0)
+      '@babel/runtime':
+        specifier: 7.29.2
+        version: 7.29.2
+      '@types/jest':
+        specifier: 30.0.0
+        version: 30.0.0
+      '@typescript/native-preview':
+        specifier: 7.0.0-dev.20260225.1
+        version: 7.0.0-dev.20260225.1
+      babel-jest:
+        specifier: 30.4.1
+        version: 30.4.1(@babel/core@7.29.0)
+      jest:
+        specifier: 30.4.2
+        version: 30.4.2
+      jetpack-js-tools:
+        specifier: workspace:*
+        version: link:../../../tools/js-tools
+      react:
+        specifier: 18.3.1
+        version: 18.3.1
+
   projects/js-packages/licensing:
     dependencies:
       '@automattic/jetpack-analytics':
@@ -1418,6 +1461,9 @@ importers:
       '@automattic/jetpack-script-data':
         specifier: workspace:*
         version: link:../script-data
+      '@automattic/jetpack-shared-stores':
+        specifier: workspace:*
+        version: link:../jetpack-shared-stores
       '@types/jest':
         specifier: 30.0.0
         version: 30.0.0
@@ -2025,6 +2071,9 @@ importers:
       '@automattic/jetpack-script-data':
         specifier: workspace:*
         version: link:../../js-packages/script-data
+      '@automattic/jetpack-shared-stores':
+        specifier: workspace:*
+        version: link:../../js-packages/jetpack-shared-stores
       '@wordpress/i18n':
         specifier: 6.21.0
         version: 6.21.0
@@ -5565,6 +5614,9 @@ importers:
       '@automattic/jetpack-shared-extension-utils':
         specifier: workspace:*
         version: link:../../js-packages/shared-extension-utils
+      '@automattic/jetpack-shared-stores':
+        specifier: workspace:*
+        version: link:../../js-packages/jetpack-shared-stores
       '@automattic/number-formatters':
         specifier: workspace:*
         version: link:../../js-packages/number-formatters

@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Initial release: dedicated package for the externalized `jetpack-modules` and `wordpress-com/plans` data stores.
