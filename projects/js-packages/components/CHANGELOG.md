@@ -16,10 +16,10 @@
 
 ## [1.12.2] - 2026-06-02
 ### Changed
-- AdminPage: Expand the Hello Dolly normalize rule to cover the full visual treatment (italic, gray text, white background, right-aligned, hidden under 660px). [#48472]
+- AdminPage: Ensure Hello Dolly doesn't require per-page overrides. [#48472]
 
 ### Fixed
-- Pricing table: render feature tooltips as a portal so they are no longer hidden behind the admin sidebar [#49318]
+- Pricing table: Render feature tooltips as a portal so they are no longer hidden behind the admin sidebar. [#49318]
 
 ## [1.12.1] - 2026-06-01
 ### Changed

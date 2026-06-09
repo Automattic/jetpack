@@ -10,7 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Update dependencies. [#49354]
 
 ### Fixed
-- Fix Mastodon share preview showing the post URL twice when the custom message already includes it. [#49338]
+- Avoid having the Mastodon share preview show post URL twice when the custom message already includes it. [#49338]
 
 ## [3.2.3] - 2026-05-25
 ### Changed
