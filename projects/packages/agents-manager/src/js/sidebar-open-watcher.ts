@@ -27,13 +27,14 @@ function registerSidebarOpenWatcher() {
 	 */
 	function syncSidebarOpenCookie( {
 		detail,
-	}: CustomEvent< { isOpen: true; classList: string[] } | { isOpen: false } > ) {
+	}: CustomEvent< { isOpen: true; classList: string[] } > ) {
 		if ( detail.isOpen ) {
 			document.cookie = `${ cookieKey }=${ detail.classList.join(
 				','
 			) }; path=${ cookiePath }; samesite=lax`;
 		} else {
 			document.cookie = `${ cookieKey }=; path=${ cookiePath }; samesite=lax`;
+			document.body.classList.remove( ...detail.classList );
 		}
 	}
 
