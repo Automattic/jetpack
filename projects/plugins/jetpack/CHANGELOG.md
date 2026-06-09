@@ -114,11 +114,7 @@
 - Tests: drop a Related Posts ability assertion that fails on CI. [#48335]
 - Update composer.lock files. [#49415]
 - Updated WooCommerce Analytics package to version 0.16.5. [#49329]
-- Update package dependencies. [#48329] [#48405] [#49012]
-- Update package dependencies. [#48404] [#49218]
-- Update package dependencies. [#48683] [#48695]
-- Update package dependencies. [#48689]
-- Update package dependencies. [#49425] [#49379]
+- Update package dependencies. [#48329] [#48405] [#49012] [#48404] [#49218] [#48683] [#48695] [#48689] [#49425] [#49379]
 - Verification Tools: remove trailing slash from meta void elements to conform with the HTML spec. [#48869]
 - Widgets: Prevent a PHP error when Display Posts data is malformed. [#49295]
 
