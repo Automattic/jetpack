@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Connection;
 
+use Automattic\Jetpack\Status\Cache as StatusCache;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use WorDBless\Options as WorDBless_Options;
@@ -95,6 +96,9 @@ class Jetpack_Connector_Test extends TestCase {
 		WorDBless_Options::init()->clear_options();
 		WorDBless_Users::init()->clear_all_users();
 		wp_set_current_user( 0 );
+
+		remove_all_filters( 'jetpack_offline_mode' );
+		StatusCache::clear();
 	}
 
 	/* ── init() ────────────────────────────────────────────────── */
@@ -176,6 +180,32 @@ class Jetpack_Connector_Test extends TestCase {
 		$this->assertArrayNotHasKey( 'currentUser', $data );
 		$this->assertArrayNotHasKey( 'connectionOwner', $data );
 		$this->assertArrayNotHasKey( 'ssoStatus', $data );
+	}
+
+	/* ── get_connector_data() — offline mode ───────────────────── */
+
+	/**
+	 * Test that isOfflineMode is false when the site is not in offline mode.
+	 */
+	public function test_get_connector_data_offline_mode_false_by_default() {
+		StatusCache::clear();
+
+		$data = Jetpack_Connector::get_connector_data( array() );
+
+		$this->assertArrayHasKey( 'isOfflineMode', $data );
+		$this->assertFalse( $data['isOfflineMode'] );
+	}
+
+	/**
+	 * Test that isOfflineMode is true when the site is in offline mode.
+	 */
+	public function test_get_connector_data_offline_mode_true_when_offline() {
+		StatusCache::clear();
+		add_filter( 'jetpack_offline_mode', '__return_true' );
+
+		$data = Jetpack_Connector::get_connector_data( array() );
+
+		$this->assertTrue( $data['isOfflineMode'] );
 	}
 
 	/**

@@ -13,7 +13,7 @@ import styles from './styles.module.scss';
  * @return The description component.
  */
 export function Description() {
-	const { hasConnectionsReadyToShare } = useSelectSocialMediaConnections();
+	const { hasEnabledConnections } = useSelectSocialMediaConnections();
 	const isPostPublished = useSelect( select => select( editorStore ).isCurrentPostPublished(), [] );
 
 	const { isPublicizeEnabled } = usePublicizeConfig();
@@ -29,7 +29,7 @@ export function Description() {
 						);
 					}
 
-					return isPublicizeEnabled && hasConnectionsReadyToShare
+					return isPublicizeEnabled && hasEnabledConnections
 						? __(
 								'When the post is published, it will be shared automatically on:',
 								'jetpack-publicize-pkg'

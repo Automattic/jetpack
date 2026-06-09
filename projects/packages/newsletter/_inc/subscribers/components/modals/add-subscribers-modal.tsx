@@ -371,26 +371,28 @@ export default function AddSubscribersModal( { isOpen, onClose }: Props ): JSX.E
 					<Dialog.Title>{ __( 'Add subscribers', 'jetpack-newsletter' ) }</Dialog.Title>
 					<Dialog.CloseIcon />
 				</Dialog.Header>
-				<Tabs.Root
-					value={ tab }
-					onValueChange={ handleTabChange }
-					render={ <Stack direction="column" gap="lg" /> }
-				>
-					<Tabs.List variant="minimal">
-						<Tabs.Tab value="manual">{ __( 'Manual', 'jetpack-newsletter' ) }</Tabs.Tab>
-						<Tabs.Tab value="upload">{ __( 'Upload CSV', 'jetpack-newsletter' ) }</Tabs.Tab>
-						<Tabs.Tab value="substack">{ __( 'Substack', 'jetpack-newsletter' ) }</Tabs.Tab>
-					</Tabs.List>
-					<Tabs.Panel value="manual">
-						<ManualTab mutation={ mutation } onClose={ onClose } />
-					</Tabs.Panel>
-					<Tabs.Panel value="upload">
-						<UploadTab mutation={ mutation } onClose={ onClose } />
-					</Tabs.Panel>
-					<Tabs.Panel value="substack">
-						<SubstackTab />
-					</Tabs.Panel>
-				</Tabs.Root>
+				<Dialog.Content>
+					<Tabs.Root
+						value={ tab }
+						onValueChange={ handleTabChange }
+						render={ <Stack direction="column" gap="lg" /> }
+					>
+						<Tabs.List variant="minimal">
+							<Tabs.Tab value="manual">{ __( 'Manual', 'jetpack-newsletter' ) }</Tabs.Tab>
+							<Tabs.Tab value="upload">{ __( 'Upload CSV', 'jetpack-newsletter' ) }</Tabs.Tab>
+							<Tabs.Tab value="substack">{ __( 'Substack', 'jetpack-newsletter' ) }</Tabs.Tab>
+						</Tabs.List>
+						<Tabs.Panel value="manual">
+							<ManualTab mutation={ mutation } onClose={ onClose } />
+						</Tabs.Panel>
+						<Tabs.Panel value="upload">
+							<UploadTab mutation={ mutation } onClose={ onClose } />
+						</Tabs.Panel>
+						<Tabs.Panel value="substack">
+							<SubstackTab />
+						</Tabs.Panel>
+					</Tabs.Root>
+				</Dialog.Content>
 			</Dialog.Popup>
 		</Dialog.Root>
 	);

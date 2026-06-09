@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Search Blocks: blocks-powered Overlay card now widens on viewports ≥992px, matching the legacy Instant Search overlay's wide-screen behavior.

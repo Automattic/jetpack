@@ -1,0 +1,4 @@
+Significance: patch
+Type: compat
+
+Jetpack: resolve WPDS design tokens in the legacy settings dashboard CSS so token-based colors (e.g. Hello Dolly) use the design-system value instead of a hardcoded hex fallback.

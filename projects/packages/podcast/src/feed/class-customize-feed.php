@@ -363,22 +363,13 @@ class Customize_Feed {
 	}
 
 	/**
-	 * Show-level cover image URL. Prefers `podcasting_image_id` (resolves to
-	 * an attachment URL) when it points at an actual image attachment, falls
-	 * back to the raw `podcasting_image` URL. Routes through Photon at
-	 * 3000×3000 when available.
+	 * Show-level cover image URL — `Settings::raw_show_image_url()` routed
+	 * through Photon at 3000×3000 when available.
 	 *
 	 * @return string
 	 */
 	private static function show_image_url(): string {
-		$image_id = (int) get_option( 'podcasting_image_id', 0 );
-		if ( $image_id > 0 && wp_attachment_is_image( $image_id ) ) {
-			$url = wp_get_attachment_url( $image_id );
-			if ( false !== $url ) {
-				return self::maybe_photon( $url );
-			}
-		}
-		$url = (string) get_option( 'podcasting_image', '' );
+		$url = Settings::raw_show_image_url();
 		return '' === $url ? '' : self::maybe_photon( $url );
 	}
 
@@ -415,15 +406,16 @@ class Customize_Feed {
 	 * legacy `podcasting_archive` option — older sites pre-date numeric
 	 * storage and only have the slug. Returns 0 when neither resolves.
 	 *
-	 * Mirrors `Automattic_Podcasting::podcasting_get_podcasting_category_id`
-	 * in the wpcom mu-plugin.
+	 * A numeric ID whose term was deleted means "not configured" — the slug
+	 * is not consulted in that case.
 	 *
 	 * @return int
 	 */
 	public static function resolve_category_id(): int {
 		$category_id = (int) get_option( 'podcasting_category_id', 0 );
 		if ( $category_id > 0 ) {
-			return $category_id;
+			$category = get_category( $category_id );
+			return ( $category && ! is_wp_error( $category ) && isset( $category->term_id ) ) ? (int) $category->term_id : 0;
 		}
 
 		$slug = (string) get_option( 'podcasting_archive', '' );

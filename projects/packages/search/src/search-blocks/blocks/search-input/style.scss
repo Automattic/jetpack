@@ -101,15 +101,10 @@
 		max-height: 60vh;
 		overflow-y: auto;
 		overscroll-behavior: contain;
-		// Fallbacks keep the surface opaque on themes that don't define the
-		// `base` / `contrast` tokens — without them the rule resolves to
-		// nothing and the panel paints transparent, letting whatever sits
-		// behind it (results rows, filter labels) bleed through.
-		background: var(--wp--preset--color--base, #fff);
-		// The dropdown owns its surface, so pin the ink color too — otherwise
-		// the option text inherits a low-contrast theme accent from the
-		// surrounding page (e.g. a muted header link color).
-		color: var(--wp--preset--color--contrast, currentColor);
+		// `background-color` longhand (not shorthand) — `background:` collapses
+		// to `transparent` when the var resolves to nothing.
+		background-color: var(--jp-search-page-surface, var(--wp--preset--color--base, var(--wp--preset--color--background, #fff)));
+		color: var(--jp-search-page-ink, var(--wp--preset--color--contrast, var(--wp--preset--color--foreground, inherit)));
 		// Reset the inherited theme base size so option text tracks the
 		// other block surfaces (sort menu, filters popover) at 1rem instead
 		// of the host theme's oversized default.

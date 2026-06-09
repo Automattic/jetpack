@@ -7,8 +7,6 @@
  * @package automattic/jetpack-stats
  */
 
-// @phan-file-suppress PhanUndeclaredFunction, PhanUndeclaredClassMethod @phan-suppress-current-line UnusedSuppression -- Abilities API added in WP 6.9; suppressions needed for older-WP compatibility runs.
-
 namespace Automattic\Jetpack\Stats\Abilities;
 
 use Automattic\Jetpack\Stats\Options;
@@ -168,6 +166,7 @@ class Stats_Abilities extends Registrar {
 			),
 			'input_schema'        => array(
 				'type'                 => 'object',
+				'default'              => array(),
 				'properties'           => new \stdClass(),
 				'additionalProperties' => false,
 			),
@@ -357,6 +356,7 @@ class Stats_Abilities extends Registrar {
 			),
 			'input_schema'        => array(
 				'type'                 => 'object',
+				'default'              => array(),
 				'properties'           => array(
 					'unit'     => array(
 						'type'        => 'string',
@@ -427,6 +427,7 @@ class Stats_Abilities extends Registrar {
 			),
 			'input_schema'        => array(
 				'type'                 => 'object',
+				'default'              => array(),
 				'properties'           => new \stdClass(),
 				'additionalProperties' => false,
 			),
@@ -471,6 +472,7 @@ class Stats_Abilities extends Registrar {
 			),
 			'input_schema'        => array(
 				'type'                 => 'object',
+				'default'              => array(),
 				'properties'           => new \stdClass(),
 				'additionalProperties' => false,
 			),

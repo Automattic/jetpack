@@ -140,6 +140,68 @@ class Social_Admin_Page_Test extends BaseTestCase {
 	}
 
 	/**
+	 * When modernization is OFF, the legacy admin script is enqueued.
+	 */
+	public function test_enqueue_loads_legacy_script_when_not_modernized() {
+		Social_Admin_Page::init()->enqueue_admin_scripts();
+
+		$this->assertTrue(
+			wp_script_is( 'social-admin-page', 'enqueued' ),
+			'Legacy Social admin script should be enqueued when modernization is off.'
+		);
+
+		wp_dequeue_script( 'social-admin-page' );
+		wp_deregister_script( 'social-admin-page' );
+	}
+
+	/**
+	 * When modernization is ON, the legacy admin script is NOT enqueued
+	 * (the wp-build chassis owns its own enqueue pipeline).
+	 */
+	public function test_enqueue_skips_legacy_script_when_modernized() {
+		add_filter( Social_Admin_Page::MODERNIZATION_FILTER, '__return_true' );
+		// Define the wp-build render fn in the GLOBAL namespace (via fixture) so
+		// is_wp_build_dashboard_active()'s function_exists() check passes. A function
+		// declared inline in this namespaced test file would land in
+		// Automattic\Jetpack\Publicize, which function_exists() (global) won't find.
+		require_once __DIR__ . '/fixtures/wp-build-render-fn.php';
+
+		Social_Admin_Page::init()->enqueue_admin_scripts();
+
+		$this->assertFalse(
+			wp_script_is( 'social-admin-page', 'enqueued' ),
+			'Legacy script should not be enqueued when the wp-build chassis is active.'
+		);
+
+		remove_filter( Social_Admin_Page::MODERNIZATION_FILTER, '__return_true' );
+	}
+
+	/**
+	 * Kill switch: when the modernization filter is forced false, the wp-build
+	 * dashboard is inactive even if the chassis render function is defined, so
+	 * the legacy admin script IS enqueued (legacy fallback).
+	 */
+	public function test_enqueue_loads_legacy_script_when_kill_switch_engaged() {
+		add_filter( Social_Admin_Page::MODERNIZATION_FILTER, '__return_false' );
+		// Define the wp-build render fn in the GLOBAL namespace (via fixture) so
+		// is_wp_build_dashboard_active()'s function_exists() check passes. The
+		// kill switch must still win, gating the dashboard off despite a loaded
+		// chassis.
+		require_once __DIR__ . '/fixtures/wp-build-render-fn.php';
+
+		Social_Admin_Page::init()->enqueue_admin_scripts();
+
+		$this->assertTrue(
+			wp_script_is( 'social-admin-page', 'enqueued' ),
+			'Legacy script should be enqueued when the modernization kill switch is engaged.'
+		);
+
+		wp_dequeue_script( 'social-admin-page' );
+		wp_deregister_script( 'social-admin-page' );
+		remove_filter( Social_Admin_Page::MODERNIZATION_FILTER, '__return_false' );
+	}
+
+	/**
 	 * It rejects plan refresh when the nonce is missing or invalid.
 	 */
 	public function test_admin_init_rejects_plan_refresh_without_valid_nonce() {

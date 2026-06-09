@@ -85,12 +85,7 @@ const optimization = {
 };
 const resolve = {
 	extensions: [ '.js', '.jsx', '.ts', '.tsx', '...' ],
-	conditionNames: [
-		...( process.env.npm_config_jetpack_webpack_config_resolve_conditions
-			? process.env.npm_config_jetpack_webpack_config_resolve_conditions.split( ',' )
-			: [] ),
-		'...',
-	],
+	conditionNames: [ 'jetpack:src', '...' ],
 };
 const watchOptions = {
 	ignored: [ '**/node_modules', '**/dist', '**/vendor' ],

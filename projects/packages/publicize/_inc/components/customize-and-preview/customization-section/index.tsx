@@ -4,7 +4,6 @@ import { __, sprintf } from '@wordpress/i18n';
 import { Connection } from '../../../social-store/types';
 import { hasSocialPaidFeatures } from '../../../utils';
 import { MediaValidationNotices } from '../../form/media-validation-notices';
-import { SingleXNotice } from '../../form/single-x-notice';
 import { GlobalCustomizationForm } from '../customization-forms/global';
 import { PerNetworkCustomizationForm } from '../customization-forms/per-network';
 import { PerConnectionNotice } from './per-connection-notice';
@@ -86,13 +85,11 @@ export function CustomizationSection( {
 				<>
 					<PerNetworkCustomizationForm connection={ connection } />
 					<PerConnectionNotice connection={ connection } />
-					<SingleXNotice />
 				</>
 			) : (
 				<>
 					<GlobalCustomizationForm />
 					<MediaValidationNotices />
-					<SingleXNotice />
 				</>
 			) }
 		</fieldset>

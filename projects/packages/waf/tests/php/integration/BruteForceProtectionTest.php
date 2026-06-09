@@ -40,6 +40,18 @@ class BruteForceProtectionTest extends WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * Test that log_successful_login still calls protect_call when get_user_by returns false.
+	 */
+	public function test_log_successful_login_handles_unknown_user() {
+		$this->instance->expects( $this->once() )
+			->method( 'protect_call' )
+			->with( 'successful_login', array( 'roles' => array() ) );
+
+		// 'nonexistent-user' has no corresponding DB row, so get_user_by() returns false.
+		$this->instance->log_successful_login( 'nonexistent-user' );
+	}
+
+	/**
 	 * Test that log_failed_attempt can handle null usernames.
 	 */
 	public function test_log_failed_attempt_handles_null_username() {
