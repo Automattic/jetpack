@@ -35,9 +35,6 @@ trustPolicyExclude:
   # https://github.com/paulmillr/chokidar/issues/1440
   - chokidar@4.0.3
 
-  # https://github.com/reduxjs/reselect/issues/752
-  - reselect@5.1.1
-
   # Packages where newer majors have provenance but we're still on an older one.
   - rollup@3.30.0
   - rxjs@7.8.2
