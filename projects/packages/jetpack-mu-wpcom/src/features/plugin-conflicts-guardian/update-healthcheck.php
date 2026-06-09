@@ -29,6 +29,9 @@ function pcg_healthcheck_capture_snapshot( $return, $hook_extra ) {
 	if ( ! apply_filters( 'pcg_guard_updates', true ) ) {
 		return $return;
 	}
+	if ( pcg_force_override_active( 'update_plugins' ) ) {
+		return $return;
+	}
 	if ( ! pcg_healthcheck_is_plugin_pre_install_update( $hook_extra ) ) {
 		return $return;
 	}
@@ -67,6 +70,9 @@ function pcg_healthcheck_capture_snapshot( $return, $hook_extra ) {
  */
 function pcg_healthcheck_after_update( $upgrader, $hook_extra ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed -- $upgrader is the WP-Upgrader-supplied argument; we accept it for the action signature.
 	if ( ! apply_filters( 'pcg_guard_updates', true ) ) {
+		return;
+	}
+	if ( pcg_force_override_active( 'update_plugins' ) ) {
 		return;
 	}
 	if ( ! pcg_healthcheck_is_plugin_update( $hook_extra ) ) {

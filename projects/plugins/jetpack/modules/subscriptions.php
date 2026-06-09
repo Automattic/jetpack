@@ -1032,8 +1032,12 @@ class Jetpack_Subscriptions {
 		 * Once the Newsletter modernization filter is on, the unified Newsletter
 		 * page owns the Subscribers tab and this standalone Calypso shortcut is
 		 * retired. While the filter is off (the default) we keep showing it.
+		 *
+		 * Referenced as a string literal (mirrors Newsletter\Settings::MODERNIZATION_FILTER)
+		 * to keep this bootstrap path safe if the packaged Newsletter Settings class does
+		 * not expose the constant yet.
 		 */
-		if ( apply_filters( Newsletter_Settings::MODERNIZATION_FILTER, false ) ) {
+		if ( apply_filters( 'rsm_jetpack_ui_modernization_newsletter', false ) ) {
 			return;
 		}
 

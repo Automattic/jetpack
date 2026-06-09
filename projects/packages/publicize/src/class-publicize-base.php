@@ -1653,7 +1653,7 @@ abstract class Publicize_Base {
 			return array();
 		}
 
-		$image = wp_get_attachment_image_src( $media_id, array( 1200 ) );
+		$image = wp_get_attachment_image_src( $media_id, array( 1200, 1200 ) );
 
 		if ( ! $image ) {
 			return array();

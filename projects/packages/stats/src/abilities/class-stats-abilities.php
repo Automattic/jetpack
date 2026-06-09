@@ -166,6 +166,7 @@ class Stats_Abilities extends Registrar {
 			),
 			'input_schema'        => array(
 				'type'                 => 'object',
+				'default'              => array(),
 				'properties'           => new \stdClass(),
 				'additionalProperties' => false,
 			),
@@ -355,6 +356,7 @@ class Stats_Abilities extends Registrar {
 			),
 			'input_schema'        => array(
 				'type'                 => 'object',
+				'default'              => array(),
 				'properties'           => array(
 					'unit'     => array(
 						'type'        => 'string',
@@ -425,6 +427,7 @@ class Stats_Abilities extends Registrar {
 			),
 			'input_schema'        => array(
 				'type'                 => 'object',
+				'default'              => array(),
 				'properties'           => new \stdClass(),
 				'additionalProperties' => false,
 			),
@@ -469,6 +472,7 @@ class Stats_Abilities extends Registrar {
 			),
 			'input_schema'        => array(
 				'type'                 => 'object',
+				'default'              => array(),
 				'properties'           => new \stdClass(),
 				'additionalProperties' => false,
 			),

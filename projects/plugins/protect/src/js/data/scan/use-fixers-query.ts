@@ -65,6 +65,7 @@ export default function useFixersQuery( {
 	);
 
 	// Main query function to fetch fixer status
+	// eslint-disable-next-line @tanstack/query/exhaustive-deps -- Sticking `queryClient` and `showBulkNotices` in the key seems wrong, but what would be right?
 	const fixersQuery = useQuery( {
 		queryKey: [ QUERY_FIXERS_KEY, threatIds ],
 		queryFn: async () => {

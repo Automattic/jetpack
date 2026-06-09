@@ -1,0 +1,5 @@
+Significance: patch
+Type: other
+Comment: ename internal JS packages to no longer prefix with underscore, pnpm 11 won't allow it. Sigh.
+
+

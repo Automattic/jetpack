@@ -12,7 +12,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/autoloader",
-                "reference": "8f0a2f6a6e125dc5e36f16323624fb2dfbc65a4b"
+                "reference": "afee041b24440e62c6ddb502b3c6716044f8c3ed"
             },
             "require": {
                 "composer-plugin-api": "^2.2",
@@ -50,12 +50,12 @@
                 "phpunit": [
                     "phpunit-select-config phpunit.#.xml.dist --colors=always"
                 ],
-                "test-coverage": [
-                    "php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"./tests/php/tmp/coverage-report.php\"",
-                    "php ./tests/php/bin/test-coverage.php \"$COVERAGE_DIR/php.cov\""
-                ],
                 "test-php": [
                     "@composer phpunit"
+                ],
+                "test-php-coverage": [
+                    "php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"./tests/php/tmp/coverage-report.php\"",
+                    "php ./tests/php/bin/test-coverage.php \"$COVERAGE_DIR/php.cov\""
                 ]
             },
             "license": [
@@ -80,7 +80,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/logo",
-                "reference": "340235b11e6729a362dcf53389a72c52b590a3ff"
+                "reference": "9772ff10ed4f2e82abda216a2631b547d0a562e9"
             },
             "require": {
                 "php": ">=7.2"
@@ -112,11 +112,11 @@
                 "phpunit": [
                     "phpunit-select-config phpunit.#.xml.dist --colors=always"
                 ],
-                "test-coverage": [
-                    "php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\""
-                ],
                 "test-php": [
                     "@composer phpunit"
+                ],
+                "test-php-coverage": [
+                    "php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\""
                 ]
             },
             "license": [
@@ -135,7 +135,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/phpunit-select-config",
-                "reference": "9e44d830cefeebc6c9b5a108cfab1ac3c1e3fd98"
+                "reference": "f34d251d44e96b67a97272b464b69fc9ffb7de76"
             },
             "require": {
                 "composer-runtime-api": "^2.2.2",
@@ -164,11 +164,11 @@
                 "phpunit": [
                     "./vendor/bin/phpunit-select-config phpunit.#.xml.dist --colors=always"
                 ],
-                "test-coverage": [
-                    "php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\""
-                ],
                 "test-php": [
                     "@composer phpunit"
+                ],
+                "test-php-coverage": [
+                    "php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\""
                 ],
                 "post-install-cmd": [
                     "rm -f vendor/bin/phpunit-select-config && ln -s ../../bin/local-phpunit-select-config vendor/bin/phpunit-select-config"

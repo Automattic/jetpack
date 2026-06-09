@@ -1,4 +1,0 @@
-Significance: minor
-Type: changed
-
-Remove use of `.npmrc` environment variable for setting condition names. The "jetpack:src" condition is now always added.

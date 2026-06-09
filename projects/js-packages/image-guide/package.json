@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-image-guide",
-	"version": "1.0.14",
+	"version": "1.0.15",
 	"description": "Go through the dom to analyze image size on screen vs actual file size.",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/image-guide/#readme",
 	"bugs": {
@@ -20,9 +20,6 @@
 		}
 	},
 	"main": "./src/index.ts",
-	"browser": {
-		"@automattic/jetpack-image-guide": false
-	},
 	"scripts": {
 		"build": "rollup -c && tsgo --emitDeclarationOnly",
 		"build-concurrently": "pnpm run clear-dist && concurrently 'pnpm:validate-ts' 'rollup -c'",

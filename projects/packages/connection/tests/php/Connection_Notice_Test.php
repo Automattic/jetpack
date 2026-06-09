@@ -53,11 +53,12 @@ class Connection_Notice_Test extends TestCase {
 
 		$notice = new Connection_Notice();
 
-		$this->expectOutputRegex( '#Connect to WordPress.com#i' );
-
-		$this->expectOutputRegex( '#https:\/\/jetpack\.wordpress\.com\/jetpack\.authorize\/1\/\?response_type=code#i' ); // phpcs:ignore WordPress.WP.CapitalPDangit.MisspelledInText
-
+		ob_start();
 		$notice->delete_user_update_connection_owner_notice();
+		$output = ob_get_clean();
+
+		$this->assertMatchesRegularExpression( '#Connect to WordPress.com#i', $output );
+		$this->assertMatchesRegularExpression( '#https:\/\/jetpack\.wordpress\.com\/jetpack\.authorize\/1\/\?response_type=code#i', $output ); // phpcs:ignore WordPress.WP.CapitalPDangit.MisspelledInText
 
 		\Jetpack_Options::update_option( 'user_tokens', $tokens );
 	}
@@ -68,10 +69,12 @@ class Connection_Notice_Test extends TestCase {
 	public function test_delete_user_change_owner_notice() {
 		$notice = new Connection_Notice();
 
-		$this->expectOutputRegex( '#Set new connection owner#i' );
-		$this->expectOutputRegex( '#' . preg_quote( 'http://example.org/index.php?rest_route=/jetpack/v4/connection/owner', '#' ) . '#i' );
-
+		ob_start();
 		$notice->delete_user_update_connection_owner_notice();
+		$output = ob_get_clean();
+
+		$this->assertMatchesRegularExpression( '#Set new connection owner#i', $output );
+		$this->assertMatchesRegularExpression( '#' . preg_quote( 'http://example.org/index.php?rest_route=/jetpack/v4/connection/owner', '#' ) . '#i', $output );
 	}
 
 	/**

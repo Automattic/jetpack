@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Subscribers dashboard: fix several Comp modal issues — show the plan billing interval in the picker, correct plan selection, disable and explain (via tooltip) plans the reader already has, surface the specific already-comped error message, and fix a clipped focus ring

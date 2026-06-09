@@ -118,8 +118,10 @@ We use `composer.json` to hold metadata about projects. Much of our generic tool
 * `.scripts.build-production`: If your project requires a production-specific build step, this must run the necessary commands. See [Building](#building) for details.
 * `.scripts.watch`: If your project supports watch mode for development, this should run the necessary commands to watch for file changes and rebuild automatically.
 * `.scripts.watch-hot`: If your project supports HMR (Hot Module Replacement), this should run the necessary commands to enable hot reloading during development. Used by `jetpack watch --hot`.
-* `.scripts.test-coverage`: If the package contains any tests, this must run the necessary commands to generate a coverage report. See [Code coverage](#code-coverage) for details.
-  * `.scripts.skip-test-coverage`: Run before `.scripts.test-coverage` in CI. If it exits with code 3, the test run will be skipped.
+* `.scripts.test-php-coverage`: If the package contains any PHPUnit tests, this must run the necessary commands to generate a PHP coverage report. See [Code coverage](#code-coverage) for details.
+  * `.scripts.skip-test-php-coverage`: Run before `.scripts.test-php-coverage` in CI. If it exits with code 3, the test run will be skipped.
+* `.scripts.test-js-coverage`: If the package contains any JavaScript tests, this must run the necessary commands to generate a JS coverage report. See [Code coverage](#code-coverage) for details.
+  * `.scripts.skip-test-js-coverage`: Run before `.scripts.test-js-coverage` in CI. If it exits with code 3, the test run will be skipped.
 * `.scripts.test-e2e`: If the package contains any E2E tests, this must run the necessary commands. See [E2E tests](#e2e-tests) for details.
 * `.scripts.test-js`: If the package contains any JavaScript tests, this must run the necessary commands. See [JavaScript tests](#javascript-tests) for details.
   * `.scripts.skip-test-js`: Run before `.scripts.test-js` in CI. If it exits with code 3, the test run will be skipped.
@@ -310,17 +312,17 @@ If a project contains end-to-end tests, it must define `.scripts.test-e2e` in `c
 
 ### Code coverage
 
-If a project contains PHP or JavaScript tests, it should also define `.scripts.test-coverage` in `composer.json` to run the tests in a mode that will generate code coverage output. The CI environment will run `pnpm install` and `composer install` beforehand, but if a build step is required before running tests the necessary commands for that should also be included in `.scripts.test-coverage`.
+If a project contains PHP or JavaScript tests, it should define `.scripts.test-php-coverage` and/or `.scripts.test-js-coverage` in `composer.json` to run the tests in a mode that generates code coverage output. The CI environment runs `pnpm install` and `composer install` beforehand, but if a build step is required before running tests the necessary commands for that should also be included in the relevant script.
 
 Output should be written to the path specified via the `COVERAGE_DIR` environment variable. Subdirectories of that path may be used as desired.
 
 For PHP tests, you'll probably run PHPUnit as `php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php "$COVERAGE_DIR/php.cov"`. If you have multiple runs (e.g. unit and integration), be sure to write the `php.cov` files to separate subdirectories of `$COVERAGE_DIR`.
 
-For JS tests, you'll probably have a `test` script in package.json that runs `jest` with any needed options, and then a `test-coverage` script that does `pnpm run test --coverage`. If you have multiple runs (e.g. unit and integration), be sure each run writes to a different subdirectory of `$COVERAGE_DIR`.
+For JS tests, you'll probably have a `test` script in package.json that runs `jest` with any needed options, and then a `test-js-coverage` script that does `pnpm run test --coverage`. If you have multiple runs (e.g. unit and integration), be sure each run writes to a different subdirectory of `$COVERAGE_DIR`.
 
-There's no need to be concerned about collisions with other projects' coverage files, a separate directory is used per project. The coverage files are also automatically copied to `ARTIFACTS_DIR`.
+There's no need to be concerned about collisions with other projects' coverage files, as a separate directory is used per project. The coverage files are also automatically copied to `ARTIFACTS_DIR`.
 
-If you want to generate coverage locally, e.g. with `jetpack test coverage`, note that generating PHP coverage requires the [pcov](https://pecl.php.net/package/pcov) or [xdebug](https://pecl.php.net/package/xdebug) extensions. We use `pcov` for the CI runs; results from `xdebug` may be slightly different.
+If you want to generate coverage locally, this can be done with `jetpack test php-coverage` or `jetpack test js-coverage`. Note that generating PHP coverage requires the [pcov](https://pecl.php.net/package/pcov) or [xdebug](https://pecl.php.net/package/xdebug) extensions. We use `pcov` for the CI runs; results from `xdebug` may be slightly different.
 
 <details><summary>Installing the PHP pcov extension on Linux</summary>
 
@@ -569,11 +571,8 @@ If you need to update something in that package that is used by Jetpack, you sho
 
 - Make the necessary changes in the `wp-calypso` repository.
 - Use pnpm link to link the package in Jetpack to the local version in `wp-calypso`. Like this
-  - `cd wp-calypso/packages/social-previews`
-  - `pnpm link --global`
-- Then in Jetpack
   - `cd projects/js-packages/publicize-components`
-  - `pnpm link --global @automattic/social-previews`
+  - `pnpm link /path/to/wp-calypso/packages/social-previews`
   - Do the same for `projects/plugins/jetpack`
 - Test your changes
 - Create a branch/PR in `wp-calypso`
@@ -583,6 +582,7 @@ If you need to update something in that package that is used by Jetpack, you sho
   - `git push --tags`
   - `cd packages/social-previews`
   - `yarn npm publish`
+- Revert the changes in the Jetpack monorepo that `pnpm link` made.
 - Update the package version in Jetpack to the beta version.
 - Create a PR in Jetpack which should now have the beta version of the package.
 - Follow the instructions in Calypso to publish the package to npm after merging the PR to trunk
