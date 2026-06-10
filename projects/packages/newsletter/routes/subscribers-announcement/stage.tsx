@@ -106,7 +106,7 @@ const Stage = (): JSX.Element => {
 					</Text>
 					<div className="jetpack-subscribers-announcement__cta">
 						<Button onClick={ goToNewsletter }>
-							{ __( 'Take me to Newsletter', 'jetpack-newsletter' ) }
+							{ __( 'View my subscribers', 'jetpack-newsletter' ) }
 						</Button>
 					</div>
 					<div className="jetpack-subscribers-announcement__remove">
