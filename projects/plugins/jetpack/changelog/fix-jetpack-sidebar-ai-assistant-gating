@@ -1,4 +1,4 @@
 Significance: patch
 Type: bugfix
 
-AI Sidebar: Respect the site-level AI assistant setting before loading the sidebar.
+AI Sidebar: only load on WordPress.com Simple and Atomic when the AI assistant setting is enabled; never load on self-hosted Jetpack.

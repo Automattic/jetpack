@@ -5,6 +5,7 @@
  * @package automattic/jetpack
  */
 
+use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Extensions\AiAssistantPlugin;
 use Automattic\Jetpack\Extensions\AiAssistantPlugin\Jetpack_AI_Sidebar;
 use Automattic\Jetpack\Status\Cache as Status_Cache;
@@ -66,9 +67,11 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 		$this->saved_screen          = $GLOBALS['current_screen'] ?? null;
 		$this->saved_current_user_id = get_current_user_id();
 		$this->simulate_connected_owner();
-		// Keep the AI assistant setting enabled by default. maybe_enqueue_am()
+		// Keep the AI assistant setting enabled by default: a WordPress.com platform
+		// (simulated via the WoA constants) with big_sky_enable on. maybe_enqueue_am()
 		// tests run in separate processes because Big_Sky stubs can persist.
 		update_option( 'big_sky_enable', '1' );
+		$this->simulate_wpcom_platform();
 	}
 
 	/**
@@ -87,6 +90,7 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 		( new \Automattic\Jetpack\Connection\Manager( 'jetpack' ) )->reset_connection_status();
 		delete_option( 'jetpack_offline_mode' );
 		delete_option( 'big_sky_enable' );
+		$this->simulate_self_hosted();
 		wp_set_current_user( $this->saved_current_user_id );
 		$GLOBALS['current_screen'] = $this->saved_screen;
 		$GLOBALS['wp_scripts']     = $this->saved_wp_scripts;
@@ -119,6 +123,29 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 		\Jetpack_Options::update_option( 'master_user', $user_id );
 		\Jetpack_Options::update_option( 'user_tokens', array( $user_id => 'token.secret.' . $user_id ) );
 		( new \Automattic\Jetpack\Connection\Manager( 'jetpack' ) )->reset_connection_status();
+	}
+
+	/**
+	 * Simulate a WordPress.com platform site (WoA) so Host::is_wpcom_platform() is true
+	 * while is_wpcom_simple() stays false — keeping has_ai_features() on the
+	 * connected-owner / jetpack_ai_enabled path the other tests rely on.
+	 */
+	private function simulate_wpcom_platform() {
+		Constants::set_constant( 'ATOMIC_SITE_ID', 123456789 );
+		Constants::set_constant( 'ATOMIC_CLIENT_ID', '2' );
+		Constants::set_constant( 'WPCOMSH__PLUGIN_FILE', '/wpcomsh/wpcomsh.php' );
+		Status_Cache::clear();
+	}
+
+	/**
+	 * Simulate a self-hosted Jetpack site: no WordPress.com platform constants, so
+	 * Host::is_wpcom_platform() is false.
+	 */
+	private function simulate_self_hosted() {
+		Constants::clear_single_constant( 'ATOMIC_SITE_ID' );
+		Constants::clear_single_constant( 'ATOMIC_CLIENT_ID' );
+		Constants::clear_single_constant( 'WPCOMSH__PLUGIN_FILE' );
+		Status_Cache::clear();
 	}
 
 	/**
@@ -300,20 +327,34 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test that init() defaults closed when the site-level AI assistant setting is absent.
+	 * Test that init() does nothing on a non-WordPress.com platform (self-hosted),
+	 * even when big_sky_enable is present and enabled.
 	 */
-	public function test_init_does_nothing_when_ai_assistant_setting_absent() {
-		delete_option( 'big_sky_enable' );
-		add_filter( 'jetpack_ai_sidebar_enabled', '__return_true' );
+	public function test_init_does_nothing_on_self_hosted() {
+		$this->simulate_self_hosted();
 		Jetpack_AI_Sidebar::init();
 
 		$this->assertFalse(
 			has_filter( 'agents_manager_agent_providers', array( Jetpack_AI_Sidebar::class, 'register_provider' ) ),
-			'register_provider should not be hooked when the site-level AI assistant setting is absent.'
+			'register_provider should not be hooked on a self-hosted (non-WordPress.com) site.'
 		);
 		$this->assertFalse(
 			has_filter( 'agents_manager_enabled_in_block_editor', array( Jetpack_AI_Sidebar::class, 'enable_agents_manager_in_post_editor' ) ),
-			'enable_agents_manager_in_post_editor should not be hooked when the site-level AI assistant setting is absent.'
+			'enable_agents_manager_in_post_editor should not be hooked on a self-hosted site.'
+		);
+	}
+
+	/**
+	 * Test that init() defaults open on WordPress.com when big_sky_enable is absent —
+	 * the AI assistant setting is opt-out, so a missing option means enabled.
+	 */
+	public function test_init_registers_hooks_when_setting_absent_on_wpcom() {
+		delete_option( 'big_sky_enable' );
+		Jetpack_AI_Sidebar::init();
+
+		$this->assertNotFalse(
+			has_filter( 'agents_manager_agent_providers', array( Jetpack_AI_Sidebar::class, 'register_provider' ) ),
+			'register_provider should be hooked on WordPress.com when the setting is absent (defaults on).'
 		);
 	}
 
