@@ -7,6 +7,10 @@
 
 namespace Automattic\Jetpack\Newsletter;
 
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Status;
+use Automattic\Jetpack\Status\Host;
+
 /**
  * Register and render the Daily Writing Prompt dashboard widget.
  */
@@ -24,7 +28,7 @@ class Writing_Prompt_Widget {
 	 * Hooks the widget registration into `wp_dashboard_setup`. It can be called
 	 * multiple times safely as it will only initialize once.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.9.0
 	 *
 	 * @return void
 	 */
@@ -41,12 +45,16 @@ class Writing_Prompt_Widget {
 	/**
 	 * Register the Daily Writing Prompt dashboard widget.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.9.0
 	 *
 	 * @return void
 	 */
 	public static function register_widget() {
 		if ( ! current_user_can( 'manage_options' ) ) {
+			return;
+		}
+
+		if ( ! self::should_load() ) {
 			return;
 		}
 
@@ -67,9 +75,34 @@ class Writing_Prompt_Widget {
 	}
 
 	/**
-	 * Enqueue the assets used to display the Daily Writing Prompt widget.
+	 * Whether the Daily Writing Prompt widget should load.
+	 *
+	 * The widget fetches prompts from WordPress.com through the Jetpack proxy, so
+	 * it can only load where the site is able to reach WordPress.com: on Simple
+	 * sites, or on online, connected Jetpack sites (including Atomic).
+	 *
+	 * This runs on `wp_dashboard_setup` rather than at plugin-load time so that
+	 * the connection check happens after Core's pluggable functions are loaded.
+	 * Checking the connection any earlier triggers a fatal error on Atomic.
 	 *
 	 * @since $$next-version$$
+	 *
+	 * @return bool
+	 */
+	private static function should_load() {
+		// Simple sites can always reach WordPress.com, with no Jetpack connection involved.
+		if ( ( new Host() )->is_wpcom_simple() ) {
+			return true;
+		}
+
+		// Everywhere else the widget needs an online, connected site to fetch prompts.
+		return ( new Connection_Manager() )->is_connected() && ! ( new Status() )->is_offline_mode();
+	}
+
+	/**
+	 * Enqueue the assets used to display the Daily Writing Prompt widget.
+	 *
+	 * @since 0.9.0
 	 *
 	 * @return string The script/style handle.
 	 */
@@ -115,7 +148,7 @@ class Writing_Prompt_Widget {
 	 * The widget is hydrated client-side by the `writing-prompt` JS entry, which
 	 * mounts the React app into the container rendered here.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.9.0
 	 *
 	 * @return void
 	 */

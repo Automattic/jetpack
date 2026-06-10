@@ -126,8 +126,8 @@ if [[ "$SVN_LATEST" == "$GH_LATEST" ]] && version_compare "$SVN_LATEST" "$CURREN
 	svn -q checkout "https://plugins.svn.wordpress.org/$WPSLUG/" --depth=empty "$DIR"
 	success "Done!"
 
-	info "Checking out SVN trunk to $DIR/trunk"
-	svn -q up trunk
+	info "Checking out SVN trunk readme.txt to $DIR/trunk"
+	svn -q up --parents trunk/readme.txt
 	success "Done!"
 
 	# Update trunk to point to the last stable tag.

@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "cdc9310a7ef499e0c54bb2b98d2d64e5",
+    "content-hash": "f192e420674625eaa5069489f56c80d7",
     "packages": [
         {
             "name": "automattic/jetpack-a8c-mc-stats",
@@ -608,7 +608,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/connection",
-                "reference": "cda184a300cc9a8012a1ddcd7756b369fbbc062c"
+                "reference": "eebe307b66ea009bea1ebd421a53ba8be8b4060c"
             },
             "require": {
                 "automattic/jetpack-a8c-mc-stats": "@dev",
@@ -644,7 +644,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-connection/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "8.5.x-dev"
+                    "dev-trunk": "8.6.x-dev"
                 },
                 "dependencies": {
                     "test-only": [
@@ -1900,7 +1900,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/sync",
-                "reference": "5737491da7d2a336f6f4778edce28250be8fda1e"
+                "reference": "6254b8706cb045c8ece15843d6fc8cc13fbaa328"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
@@ -1933,7 +1933,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-sync/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "4.39.x-dev"
+                    "dev-trunk": "4.42.x-dev"
                 },
                 "dependencies": {
                     "test-only": [
@@ -3155,16 +3155,16 @@
         },
         {
             "name": "phpunit/phpunit",
-            "version": "12.5.28",
+            "version": "12.5.29",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/phpunit.git",
-                "reference": "5895d05f5bf421ed230fbd76e1277e4b8955def4"
+                "reference": "9aa66a47db3ea70f1a468e66dd969f67e594945a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/5895d05f5bf421ed230fbd76e1277e4b8955def4",
-                "reference": "5895d05f5bf421ed230fbd76e1277e4b8955def4",
+                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/9aa66a47db3ea70f1a468e66dd969f67e594945a",
+                "reference": "9aa66a47db3ea70f1a468e66dd969f67e594945a",
                 "shasum": ""
             },
             "require": {
@@ -3178,7 +3178,7 @@
                 "phar-io/manifest": "^2.0.4",
                 "phar-io/version": "^3.2.1",
                 "php": ">=8.3",
-                "phpunit/php-code-coverage": "^12.5.6",
+                "phpunit/php-code-coverage": "^12.5.7",
                 "phpunit/php-file-iterator": "^6.0.1",
                 "phpunit/php-invoker": "^6.0.0",
                 "phpunit/php-text-template": "^5.0.0",
@@ -3188,7 +3188,7 @@
                 "sebastian/diff": "^7.0.0",
                 "sebastian/environment": "^8.1.2",
                 "sebastian/exporter": "^7.0.3",
-                "sebastian/global-state": "^8.0.2",
+                "sebastian/global-state": "^8.0.3",
                 "sebastian/object-enumerator": "^7.0.0",
                 "sebastian/recursion-context": "^7.0.1",
                 "sebastian/type": "^6.0.4",
@@ -3233,7 +3233,7 @@
             "support": {
                 "issues": "https://github.com/sebastianbergmann/phpunit/issues",
                 "security": "https://github.com/sebastianbergmann/phpunit/security/policy",
-                "source": "https://github.com/sebastianbergmann/phpunit/tree/12.5.28"
+                "source": "https://github.com/sebastianbergmann/phpunit/tree/12.5.29"
             },
             "funding": [
                 {
@@ -3241,7 +3241,7 @@
                     "type": "other"
                 }
             ],
-            "time": "2026-05-27T14:01:10+00:00"
+            "time": "2026-06-04T06:14:42+00:00"
         },
         {
             "name": "sebastian/cli-parser",

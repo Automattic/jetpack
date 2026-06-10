@@ -1,4 +1,0 @@
-Significance: patch
-Type: enhancement
-
-Enqueue the shared WPDS design-tokens stylesheet on Jetpack admin pages so design tokens resolve at runtime on the Dashboard, Settings, and Debugger.

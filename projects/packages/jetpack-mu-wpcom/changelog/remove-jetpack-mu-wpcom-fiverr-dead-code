@@ -1,0 +1,4 @@
+Significance: patch
+Type: removed
+
+Remove the orphaned wpcom-fiverr feature; the Fiverr logo maker CTA is provided by the wpcom-options-general feature.

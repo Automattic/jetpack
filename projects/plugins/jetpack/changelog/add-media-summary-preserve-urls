@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Media Summary: allow callers to opt out of URL stripping via a new preserve_urls argument.

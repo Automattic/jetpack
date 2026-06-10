@@ -29,6 +29,7 @@ export interface NewsletterSettings {
 		invitation: string;
 		welcome: string;
 		comment_follow: string;
+		subscribe_modal_heading: string;
 	};
 	newsletter_has_active_plan: boolean;
 	[ key: string ]: unknown;
