@@ -75,7 +75,7 @@ function ImportConsentNotice(): JSX.Element {
  */
 function getSubstackImportUrl( hostname: string ): string {
 	const params = new URLSearchParams( {
-		ref: 'wp-admin-importers-list-direct-importer',
+		ref: 'wp-admin-newsletter-ui',
 		siteSlug: hostname,
 	} );
 	return `https://wordpress.com/setup/site-setup/importerSubstack?${ params.toString() }`;
