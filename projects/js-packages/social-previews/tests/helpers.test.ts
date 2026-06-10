@@ -1,6 +1,6 @@
 import '@testing-library/jest-dom';
 import { render } from '@testing-library/react';
-import { preparePreviewText } from '../src/helpers';
+import { parseHyperlinks, preparePreviewText } from '../src/helpers';
 
 const platformsWithHyperlinkUrls = [ 'facebook', 'linkedin', 'twitter' ] as const;
 
@@ -141,5 +141,112 @@ describe( 'preparePreviewText', () => {
 				'#breaking text with a #hashtag on the #web<br>with a url https://github.com/Automattic/wp-calypso#security that has a hash in it<br>#thisone after a new line'
 			);
 		}
+	} );
+
+	describe( 'editor hyperlinks (`hyperlinks`)', () => {
+		it( 'links the matching anchor text when hyperlinks are provided', () => {
+			const { container } = render(
+				preparePreviewText( 'Read the launch post now.', {
+					platform: 'tumblr',
+					hyperlinks: [ { text: 'launch post', href: 'https://example.com/anchor' } ],
+				} )
+			);
+
+			expect( container.innerHTML ).toBe(
+				'Read the <a href="https://example.com/anchor" rel="noopener noreferrer" target="_blank">launch post</a> now.'
+			);
+		} );
+
+		it( 'leaves the text plain when no hyperlinks are provided (default)', () => {
+			for ( const platform of allPlatforms ) {
+				const { container } = render(
+					preparePreviewText( 'Read the launch post now.', { platform } )
+				);
+
+				expect( container.innerHTML ).toBe( 'Read the launch post now.' );
+			}
+		} );
+
+		it( 'links multiple anchors independently', () => {
+			const { container } = render(
+				preparePreviewText( 'this has a link and also this s', {
+					platform: 'bluesky',
+					hyperlinks: [
+						{ text: 'this', href: 'https://a.com/1' },
+						{ text: 'and also this', href: 'https://b.com/2' },
+					],
+				} )
+			);
+
+			expect( container.innerHTML ).toBe(
+				'<a href="https://a.com/1" rel="noopener noreferrer" target="_blank">this</a> has a link <a href="https://b.com/2" rel="noopener noreferrer" target="_blank">and also this</a> s'
+			);
+		} );
+
+		it( 'links the occurrence the anchor covers, not the first matching text', () => {
+			const { container } = render(
+				preparePreviewText( 'Read this post today. Later, read this post again.', {
+					platform: 'tumblr',
+					hyperlinks: [ { text: 'this post', href: 'https://example.com/real', occurrence: 1 } ],
+				} )
+			);
+
+			expect( container.innerHTML ).toBe(
+				'Read this post today. Later, read <a href="https://example.com/real" rel="noopener noreferrer" target="_blank">this post</a> again.'
+			);
+		} );
+
+		it( 'skips an anchor whose text is not present (e.g. truncated away)', () => {
+			const { container } = render(
+				preparePreviewText( 'short body', {
+					platform: 'tumblr',
+					maxChars: 10,
+					hyperlinks: [ { text: 'missing phrase', href: 'https://example.com/x' } ],
+				} )
+			);
+
+			// No `<a>`: the anchor text isn't in the (truncated) body, so it's skipped.
+			expect( container.innerHTML ).toBe( 'short body' );
+		} );
+	} );
+
+	describe( 'parseHyperlinks', () => {
+		it( 'extracts (text, href) pairs from anchor tags in document order', () => {
+			const html =
+				'<p>Read the <a href="https://example.com/x">launch post</a> now and <a href="http://b.test" data-type="link">click here</a>.</p>';
+
+			expect( parseHyperlinks( html ) ).toEqual( [
+				{ text: 'launch post', href: 'https://example.com/x', occurrence: 0 },
+				{ text: 'click here', href: 'http://b.test', occurrence: 0 },
+			] );
+		} );
+
+		it( 'skips autolinks and non-http(s) hrefs', () => {
+			const html =
+				'<a href="https://wp.org">https://wp.org</a> <a href="mailto:a@b.com">mail</a> <a href="/relative">rel</a>';
+
+			expect( parseHyperlinks( html ) ).toEqual( [] );
+		} );
+
+		it( 'strips nested markup and collapses whitespace in the text', () => {
+			const html = '<a href="https://example.com">launch\n   <strong>post</strong></a>';
+
+			expect( parseHyperlinks( html ) ).toEqual( [
+				{ text: 'launch post', href: 'https://example.com', occurrence: 0 },
+			] );
+		} );
+
+		it( 'returns an empty array for empty input', () => {
+			expect( parseHyperlinks( '' ) ).toEqual( [] );
+		} );
+
+		it( 'records which occurrence of duplicated text an anchor covers', () => {
+			const html =
+				'<p>Read this post today. Later, read <a href="https://example.com/real">this post</a> again.</p>';
+
+			expect( parseHyperlinks( html ) ).toEqual( [
+				{ text: 'this post', href: 'https://example.com/real', occurrence: 1 },
+			] );
+		} );
 	} );
 } );
