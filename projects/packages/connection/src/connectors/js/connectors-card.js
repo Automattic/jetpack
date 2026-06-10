@@ -990,8 +990,10 @@ function IDCPanel() {
 				: createElement(
 						Button,
 						{
+							// No isBusy here: the striped "busy" background looks
+							// odd on a link-style button, so the "Saving…" label
+							// plus the disabled state convey progress instead.
 							variant: 'link',
-							isBusy: busyAction === 'safe-mode',
 							disabled: Boolean( busyAction ),
 							onClick: handleStaySafe,
 							className: 'jetpack-connector__idc-safe-mode-link',
