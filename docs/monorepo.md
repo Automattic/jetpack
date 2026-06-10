@@ -122,7 +122,6 @@ We use `composer.json` to hold metadata about projects. Much of our generic tool
   * `.scripts.skip-test-php-coverage`: Run before `.scripts.test-php-coverage` in CI. If it exits with code 3, the test run will be skipped.
 * `.scripts.test-js-coverage`: If the package contains any JavaScript tests, this must run the necessary commands to generate a JS coverage report. See [Code coverage](#code-coverage) for details.
   * `.scripts.skip-test-js-coverage`: Run before `.scripts.test-js-coverage` in CI. If it exits with code 3, the test run will be skipped.
-* `.scripts.test-coverage` (legacy): Convenience script that delegates to `test-php-coverage` and/or `test-js-coverage` (typically via `pnpm concurrently`). This will be removed soon.
 * `.scripts.test-e2e`: If the package contains any E2E tests, this must run the necessary commands. See [E2E tests](#e2e-tests) for details.
 * `.scripts.test-js`: If the package contains any JavaScript tests, this must run the necessary commands. See [JavaScript tests](#javascript-tests) for details.
   * `.scripts.skip-test-js`: Run before `.scripts.test-js` in CI. If it exits with code 3, the test run will be skipped.
@@ -572,11 +571,8 @@ If you need to update something in that package that is used by Jetpack, you sho
 
 - Make the necessary changes in the `wp-calypso` repository.
 - Use pnpm link to link the package in Jetpack to the local version in `wp-calypso`. Like this
-  - `cd wp-calypso/packages/social-previews`
-  - `pnpm link --global`
-- Then in Jetpack
   - `cd projects/js-packages/publicize-components`
-  - `pnpm link --global @automattic/social-previews`
+  - `pnpm link /path/to/wp-calypso/packages/social-previews`
   - Do the same for `projects/plugins/jetpack`
 - Test your changes
 - Create a branch/PR in `wp-calypso`
@@ -586,6 +582,7 @@ If you need to update something in that package that is used by Jetpack, you sho
   - `git push --tags`
   - `cd packages/social-previews`
   - `yarn npm publish`
+- Revert the changes in the Jetpack monorepo that `pnpm link` made.
 - Update the package version in Jetpack to the beta version.
 - Create a PR in Jetpack which should now have the beta version of the package.
 - Follow the instructions in Calypso to publish the package to npm after merging the PR to trunk

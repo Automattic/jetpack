@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Cache debug log: remove the duplicate Jetpack logo and restyle the header breadcrumbs to match the design system, and modernize the "Copy to clipboard" and "See Logs" links. The TanStack Query debugger no longer renders.

@@ -601,6 +601,7 @@ function StageInner() {
 			subTitle={ subtitle }
 			actions={ headerActions }
 			hasPadding={ false }
+			showFooter={ false }
 		>
 			<DataViews
 				paginationInfo={ paginationInfo }

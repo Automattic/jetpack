@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Guard against malformed allowlist data.

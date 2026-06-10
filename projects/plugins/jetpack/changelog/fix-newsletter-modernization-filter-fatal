@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Newsletter: Prevent a fatal error when loading wp-admin with the modernization filter unavailable.

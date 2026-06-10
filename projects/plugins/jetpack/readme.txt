@@ -1,7 +1,7 @@
 === Jetpack - WP Security, Backup, Speed, & Growth ===
 Contributors: automattic, adamkheckler, adrianmoldovanwp, aduth, akirk, allendav, alternatekev, andy, annamcphee, annezazu, apeatling, arcangelini, arsihasi, azaozz, barry, batmoo, beaulebens, bindlegirl, biskobe, bjorsch, blobaugh, brbrr, brileyhooper, cainm, cena, cfinke, cgastrell, chaselivingston, chellycat, clickysteve, csonnek, danielbachhuber, daniloercoli, davoraltman, delawski, designsimply, dkmyta, dllh, dlocc, drawmyface, dsmart, dun2mis, dzver, ebinnion, egregor, eliorivero, enej, eoigal, erania-pinnera, ethitter, fgiannar, gcorne, georgestephanis, gibrown, goldsounds, hew, hugobaeta, hypertextranch, iammattthomas, iandunn, joen, jblz, jeffgolenski, jeherve, jennywp, jenia, jessefriedman, jgs, jkudish, jmdodd, joanrho, johnjamesjacoby, jshreve, kbrownkd, keoshi, koke, kraftbj, lancewillett, leogermani, lhkowalski, lschuyler, macmanx, martinremy, matt, mattwiebe, matveb, maverick3x6, mcsf, mdawaffe, mdbitz, MichaelArestad, migueluy, miguelxavierpenha, mikeyarce, mkaz, nancythanki, nickmomrik, njweller, nunyvega, obenland, oskosk, pento, professor44, rachelsquirrel, rdcoll, renatoagds, retrofox, richardmtl, richardmuscat, robertbpugh, roccotripaldi, ryanc413, samhotchkiss, samiff, scarstocea, scottsweb, sdixon194, sdquirk, sermitr, simison, stephdau, thehenridev, tmoorewp, tyxla, Viper007Bond, westi, williamvianas, wpkaren, yoavf, zinigor
 Tags: Security, backup, malware, scan, performance
-Stable tag: 15.9-a.7
+Stable tag: 15.9-beta
 Requires at least: 6.9
 Requires PHP: 7.2
 Tested up to: 7.0
@@ -326,15 +326,31 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 15.9-a.7 - 2026-06-01
-#### Major Enhancements
-- General: Update minimum WordPress version to 6.9.
-
+### 15.9-beta - 2026-06-08
 #### Enhancements
-- Search: Register the AI Agents Access opt-in setting for regular site owners.
+- Enqueue the shared WPDS design tokens stylesheet on Jetpack admin pages.
+- SEO: Scaffold the new `jetpack-seo` package and mount its admin page.
+- SEO: Create an Overview screen with a Site visibility card.
+
+#### Improved compatibility
+- Resolve WPDS design tokens in the legacy settings dashboard CSS.
 
 #### Bug fixes
-- VideoPress: Fix the post-connection redirect so the modernized dashboard returns users to the VideoPress page instead of a 404.
+- AI: Fix broken external links (Claude settings and agent documentation) in the MCP quick setup.
+- Carousel: Stop adding EXIF image metadata to the page markup when the option to display it is disabled.
+- JSON API: Guard media metadata access to avoid PHP warnings when attachment metadata is missing or incomplete.
+- JSON API: Honor the `fields` parameter on REST-dispatched responses so they return the same keys as the XML-RPC transport.
+- JSON API: Stop emitting "Unknown user" PHP warnings from `get_author()` for the expected case of an unresolvable author.
+- Network Admin: Pin the Sites and Settings footers to the bottom and remove core admin notices on modernized pages.
+- Newsletter: Prevent a fatal error when loading WP Admin with the modernization filter unavailable.
+- Settings REST API: Load the Monitor and Post by Email module classes on demand when updating their options, preventing a fatal on bulk settings updates while the module is inactive.
+- Sharing: Fix the Pinterest sharing button leading to a blank Pinterest page by using Pinterest's direct link sharing endpoint.
+- Shortcode embeds: Ensure the SoundCloud player iFrame is always correctly escaped.
+- Shortcodes: Fix query parameters such as playlist, autoplay, and poster to produce valid Archive.org embed URLs.
+- Shortcodes: Prevent PHP warning when Mailchimp embed is malformed.
+- Social: Fix PHP warnings on the front end of posts shared with the no link sharing option.
+- VideoPress: Fix admin page crash on video upload/delete when the free-plan upgrade nudge is shown.
+- XML-RPC: Guard JSON API request parsing to avoid PHP warnings on non-scalar post bodies and failed signature verification.
 
 --------
 
