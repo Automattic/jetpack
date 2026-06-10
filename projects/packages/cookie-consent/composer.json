@@ -32,11 +32,7 @@
 	"prefer-stable": true,
 	"extra": {
 		"autotagger": true,
-		"mirror-repo": "Automattic/jetpack-cookie-consent",
 		"textdomain": "jetpack-cookie-consent",
-		"version-constants": {
-			"::PACKAGE_VERSION": "src/class-cookie-consent.php"
-		},
 		"changelogger": {
 			"link-template": "https://github.com/Automattic/jetpack-cookie-consent/compare/${old}...${new}"
 		},
