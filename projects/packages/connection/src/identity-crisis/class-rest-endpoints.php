@@ -133,6 +133,22 @@ class REST_Endpoints {
 	}
 
 	/**
+	 * Flush any cached copy of the sync_error_idc option so a subsequent read
+	 * reflects the option's true state in the database.
+	 *
+	 * The option is read via the WordPress `jetpack_sync_error_idc` option, which
+	 * is typically autoloaded — so bust both the individual key and the
+	 * autoloaded-options cache to keep persistent object caches from returning a
+	 * stale value across requests.
+	 *
+	 * @since $$next-version$$
+	 */
+	private static function flush_sync_error_idc_cache() {
+		wp_cache_delete( 'jetpack_sync_error_idc', 'options' );
+		wp_cache_delete( 'alloptions', 'options' );
+	}
+
+	/**
 	 * Handles identity crisis mitigation, migrating stats and subscribers from old url to this, new url.
 	 *
 	 * @since 0.2.0
@@ -141,12 +157,28 @@ class REST_Endpoints {
 	 * @return bool | WP_Error True if option is properly set.
 	 */
 	public static function migrate_stats_and_subscribers() {
-		if ( Jetpack_Options::get_option( 'sync_error_idc' ) && ! Jetpack_Options::delete_option( 'sync_error_idc' ) ) {
-			return new WP_Error(
-				'error_deleting_sync_error_idc',
-				esc_html__( 'Could not delete sync error option.', 'jetpack-connection' ),
-				array( 'status' => 500 )
-			);
+		// Read the option's true DB state, not a stale cached copy: on sites with
+		// a persistent object cache, a prior successful migrate (or an IDC
+		// revalidation) may have already removed the option while a cached value
+		// lingers, which would otherwise make the delete below report a false
+		// failure.
+		self::flush_sync_error_idc_cache();
+
+		if ( Jetpack_Options::get_option( 'sync_error_idc' ) ) {
+			Jetpack_Options::delete_option( 'sync_error_idc' );
+
+			// delete_option() returns false both when the write fails and when
+			// there is nothing to delete, so re-read (cache-busted) and only treat
+			// a still-present option as a real failure.
+			self::flush_sync_error_idc_cache();
+
+			if ( Jetpack_Options::get_option( 'sync_error_idc' ) ) {
+				return new WP_Error(
+					'error_deleting_sync_error_idc',
+					esc_html__( 'Could not delete sync error option.', 'jetpack-connection' ),
+					array( 'status' => 500 )
+				);
+			}
 		}
 
 		if ( Jetpack_Options::get_option( 'migrate_for_idc' ) || Jetpack_Options::update_option( 'migrate_for_idc', true ) ) {
