@@ -203,6 +203,104 @@ class WPCOM_REST_API_V2_Endpoint_Subscribers_List_Test extends Jetpack_REST_Test
 	}
 
 	/**
+	 * `/subscribers/remove` forwards a single request to the consolidated wpcom
+	 * `/sites/{blog_id}/subscribers/remove` (v2) endpoint and returns its aggregated body verbatim.
+	 */
+	public function test_remove_forwards_to_consolidated_endpoint_and_returns_body() {
+		$captured = array();
+		$filter   = function ( $preempt, $parsed_args, $url ) use ( &$captured ) {
+			$captured['url']  = $url;
+			$captured['body'] = $parsed_args['body'] ?? null;
+
+			return array(
+				'headers'  => array(),
+				'body'     => wp_json_encode(
+					array(
+						'ok'     => true,
+						'errors' => array(),
+					),
+					JSON_UNESCAPED_SLASHES
+				),
+				'response' => array(
+					'code'    => 200,
+					'message' => 'OK',
+				),
+				'cookies'  => array(),
+				'filename' => null,
+			);
+		};
+		add_filter( 'pre_http_request', $filter, 10, 3 );
+
+		$request = new WP_REST_Request( Requests::POST, '/wpcom/v2/subscribers/remove' );
+		$request->set_header( 'content_type', 'application/json' );
+		$request->set_body(
+			wp_json_encode(
+				array(
+					'user_id'               => 281425227,
+					'email_subscription_id' => 943104114,
+					'paid_subscription_ids' => array( '5', '6' ),
+				),
+				JSON_UNESCAPED_SLASHES
+			)
+		);
+
+		$response = $this->server->dispatch( $request );
+
+		remove_filter( 'pre_http_request', $filter, 10 );
+
+		$this->assertSame( 200, $response->get_status() );
+		$this->assertSame(
+			array(
+				'ok'     => true,
+				'errors' => array(),
+			),
+			$response->get_data()
+		);
+
+		// Single consolidated call to the site-scoped v2 route — not the old v1.1 fan-out.
+		$this->assertStringContainsString(
+			'/wpcom/v2/sites/' . static::$blog_id . '/subscribers/remove',
+			$captured['url']
+		);
+
+		$sent = json_decode( (string) $captured['body'], true );
+		$this->assertSame( 281425227, $sent['user_id'] );
+		$this->assertSame( 943104114, $sent['email_subscription_id'] );
+		$this->assertSame( array( '5', '6' ), $sent['paid_subscription_ids'] );
+	}
+
+	/**
+	 * A 4xx from the consolidated endpoint surfaces as a WP_Error carrying the upstream message.
+	 */
+	public function test_remove_maps_wpcom_error_to_wp_error() {
+		$filter = function () {
+			return array(
+				'headers'  => array(),
+				'body'     => wp_json_encode( array( 'message' => 'Nope.' ), JSON_UNESCAPED_SLASHES ),
+				'response' => array(
+					'code'    => 403,
+					'message' => 'Forbidden',
+				),
+				'cookies'  => array(),
+				'filename' => null,
+			);
+		};
+		add_filter( 'pre_http_request', $filter );
+
+		$request = new WP_REST_Request( Requests::POST, '/wpcom/v2/subscribers/remove' );
+		$request->set_header( 'content_type', 'application/json' );
+		$request->set_body( wp_json_encode( array( 'user_id' => 123 ), JSON_UNESCAPED_SLASHES ) );
+
+		$response = $this->server->dispatch( $request );
+
+		remove_filter( 'pre_http_request', $filter );
+
+		$this->assertSame( 403, $response->get_status() );
+		$this->assertSame( 'subscribers_remove_failed', $response->get_data()['code'] );
+		$this->assertSame( 'Nope.', $response->get_data()['message'] );
+	}
+
+	/**
 	 * `/subscribers/individual` requires either a subscription_id or a user_id — without both,
 	 * there's nothing to fetch.
 	 */
