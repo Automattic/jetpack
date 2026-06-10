@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Brute force protection: Avoid a fatal error when rendering the login recovery form while an output buffer handler is active.

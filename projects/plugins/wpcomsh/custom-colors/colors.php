@@ -1424,7 +1424,8 @@ class Colors_Manager_Common {
 	}
 
 	/**
-	 * Enqueue theme CSS for the block editor.
+	 * Enqueue the Customizer's custom colors for the block editor, scoped to the
+	 * editor content so they can't leak into the editor UI.
 	 *
 	 * @since 9.0.0
 	 */
@@ -1432,17 +1433,12 @@ class Colors_Manager_Common {
 		if ( ! self::should_enable_colors() ) {
 			return;
 		}
-		$css = self::get_theme_css();
 
-		// Gutenberg 22.6.0+ renders the editor in an iframe for all themes.
-		// #editor no longer exists inside the iframe, so extend any
-		// "#editor .editor-styles-wrapper" selector to also match the
-		// iframe context while keeping the original for older versions.
-		$css = str_replace(
-			'#editor .editor-styles-wrapper',
-			'#editor .editor-styles-wrapper, :root :where(.editor-styles-wrapper)',
-			$css
-		);
+		// `@scope` already scopes to the wrapper, so map any legacy explicit
+		// "#editor .editor-styles-wrapper" prefix to `:scope` (the scope root)
+		// rather than leaving a redundant — and no-longer-matching — prefix.
+		$css = str_replace( '#editor .editor-styles-wrapper', ':scope', self::get_theme_css() );
+		$css = '@scope (.editor-styles-wrapper) {' . $css . '}';
 
 		wp_register_style( 'custom-colors-editor-css', false, array(), '20210311' ); // Register an empty stylesheet to append custom CSS to.
 		wp_enqueue_style( 'custom-colors-editor-css' );

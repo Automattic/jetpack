@@ -1006,8 +1006,16 @@ class SSO {
 		$wpcom_nonce   = isset( $_GET['sso_nonce'] ) ? sanitize_key( $_GET['sso_nonce'] ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		$wpcom_user_id = isset( $_GET['user_id'] ) ? (int) $_GET['user_id'] : 0; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 
+		$token_lookup             = $this->get_signed_user_token_for_wpcom_id( $wpcom_user_id );
+		$signed_user_token        = $token_lookup['signed_token'];
+		$token_validated_for_user = $token_lookup['local_user_id'];
+
 		$xml = new Jetpack_IXR_Client();
-		$xml->query( 'jetpack.sso.validateResult', $wpcom_nonce, $wpcom_user_id );
+		if ( $signed_user_token ) {
+			$xml->query( 'jetpack.sso.validateResult', $wpcom_nonce, $wpcom_user_id, $signed_user_token );
+		} else {
+			$xml->query( 'jetpack.sso.validateResult', $wpcom_nonce, $wpcom_user_id );
+		}
 
 		$user_data = $xml->isError() ? false : $xml->getResponse();
 		if ( empty( $user_data ) ) {
@@ -1071,7 +1079,7 @@ class SSO {
 					add_filter( 'login_message', array( Notices::class, 'error_invalid_response_data' ) ); // @todo Need to have a better notice. This is only for the sake of testing the validation.
 					return;
 				}
-				update_user_meta( $user->ID, 'wpcom_user_id', $user_data->ID );
+				self::set_wpcom_user_id_meta( $user->ID, $user_data->ID );
 			}
 		}
 
@@ -1080,7 +1088,7 @@ class SSO {
 			$user_found_with = 'match_by_email';
 			$user            = get_user_by( 'email', $user_data->email );
 			if ( $user ) {
-				update_user_meta( $user->ID, 'wpcom_user_id', $user_data->ID );
+				self::set_wpcom_user_id_meta( $user->ID, $user_data->ID );
 			}
 		}
 
@@ -1112,6 +1120,10 @@ class SSO {
 					add_filter( 'login_message', array( Notices::class, 'error_unable_to_create_user' ) );
 					return;
 				}
+
+				// generate_user() sets wpcom_user_id meta on the new user,
+				// but another user may still have stale meta for this WP.com ID.
+				self::set_wpcom_user_id_meta( $user->ID, $user_data->ID );
 
 				$user_found_with = $new_user_override_role
 				? 'user_created_new_user_override'
@@ -1199,8 +1211,19 @@ class SSO {
 			$json_api_auth_environment = Helpers::get_json_api_auth_environment();
 
 			$is_json_api_auth  = ! empty( $json_api_auth_environment );
-			$is_user_connected = ( new Manager() )->is_user_connected( $user->ID );
-			$roles             = new Roles();
+			$manager           = new Manager();
+			$is_user_connected = $manager->is_user_connected( $user->ID );
+
+			if ( $is_user_connected ) {
+				$is_user_connected = $this->verify_user_token(
+					$user->ID,
+					$user_data,
+					$manager->get_tokens(),
+					$token_validated_for_user
+				);
+			}
+
+			$roles = new Roles();
 			$tracking->record_user_event(
 				'sso_user_logged_in',
 				array(
@@ -1455,6 +1478,37 @@ class SSO {
 	}
 
 	/**
+	 * Sets the wpcom_user_id meta on a local user, removing it from any other user first.
+	 *
+	 * Multiple local users should never share the same wpcom_user_id. This can happen
+	 * when user resolution changes (e.g., external_user_id points to a different local
+	 * user than the one that previously had the meta).
+	 *
+	 * @since 8.6.0
+	 *
+	 * @param int $user_id       The local WordPress user ID to set the meta on.
+	 * @param int $wpcom_user_id The WordPress.com user ID.
+	 */
+	private static function set_wpcom_user_id_meta( $user_id, $wpcom_user_id ) {
+		$existing = new WP_User_Query(
+			array(
+				'meta_key'   => 'wpcom_user_id',
+				'meta_value' => (int) $wpcom_user_id,
+				'exclude'    => array( $user_id ),
+				'fields'     => 'ID',
+			)
+		);
+
+		foreach ( $existing->get_results() as $stale_user_id ) {
+			delete_user_meta( $stale_user_id, 'wpcom_user_id' );
+			clean_user_cache( $stale_user_id );
+		}
+
+		update_user_meta( $user_id, 'wpcom_user_id', $wpcom_user_id );
+		clean_user_cache( $user_id );
+	}
+
+	/**
 	 * Determines local user associated with a given WordPress.com user ID.
 	 *
 	 * @since jetpack-2.6.0
@@ -1473,6 +1527,93 @@ class SSO {
 
 		$users = $user_query->get_results();
 		return $users ? array_shift( $users ) : null;
+	}
+
+	/**
+	 * Retrieves the signed user token for a given WP.com user ID, if one exists locally.
+	 *
+	 * Looks up the local WordPress user associated with the WP.com user ID and returns
+	 * a signed representation of their user token along with the local user ID.
+	 * The signed token is sent to WP.com during SSO validation so WP.com can verify
+	 * the token is still valid on its side.
+	 *
+	 * @since 8.6.0
+	 *
+	 * @param int $wpcom_user_id The WordPress.com user ID.
+	 * @return array{signed_token: string, local_user_id: int} The signed token and local user ID.
+	 *               Both values are 0/empty when no valid token exists.
+	 */
+	private function get_signed_user_token_for_wpcom_id( $wpcom_user_id ) {
+		$result = array(
+			'signed_token'  => '',
+			'local_user_id' => 0,
+		);
+
+		if ( ! $wpcom_user_id ) {
+			return $result;
+		}
+
+		$local_user = self::get_user_by_wpcom_id( $wpcom_user_id );
+		if ( ! $local_user ) {
+			return $result;
+		}
+
+		$tokens     = new Tokens();
+		$user_token = $tokens->get_access_token( $local_user->ID );
+		if ( ! $user_token ) {
+			return $result;
+		}
+
+		$signed = $tokens->get_signed_token( $user_token );
+		if ( is_wp_error( $signed ) ) {
+			return $result;
+		}
+
+		$result['signed_token']  = $signed;
+		$result['local_user_id'] = $local_user->ID;
+		return $result;
+	}
+
+	/**
+	 * Verifies that a locally-stored user token is still valid on WP.com.
+	 *
+	 * Uses the `user_token_valid` field from the SSO validate response when the
+	 * signed token was sent for the same user that was resolved during login.
+	 *
+	 * When the validate response can't be trusted for this user (a different user
+	 * was resolved, or no signed token was sent), login proceeds without an extra
+	 * verification call. In that case `set_wpcom_user_id_meta()` records the
+	 * mapping during this login, so the fast path validates the token on the next
+	 * SSO login. This avoids an extra HTTP request on every first-SSO login and
+	 * keeps the Error_Handler from being triggered for users whose token state can
+	 * only be resolved by a direct token-health check.
+	 *
+	 * If the token is found to be invalid, it is removed locally so the user will be
+	 * prompted to re-authorize and obtain a fresh token.
+	 *
+	 * @since 8.6.0
+	 *
+	 * @param int    $user_id                  The local WordPress user ID (the resolved user).
+	 * @param object $user_data                The WP.com user data from jetpack.sso.validateResult.
+	 * @param Tokens $tokens                   The Tokens instance.
+	 * @param int    $token_validated_for_user  The local user ID whose token was sent to WP.com, or 0 if none.
+	 * @return bool True if the user token is valid (or could not be verified), false if invalid and removed.
+	 */
+	private function verify_user_token( $user_id, $user_data, Tokens $tokens, $token_validated_for_user ) {
+		// Only trust the validateResult response if the signed token was for this same user.
+		if ( $token_validated_for_user === $user_id && isset( $user_data->user_token_valid ) ) {
+			if ( false === $user_data->user_token_valid ) {
+				$tokens->disconnect_user( $user_id );
+				return false;
+			}
+			return true;
+		}
+
+		// The signed token was for a different user (or wasn't sent at all), so the
+		// validateResult response can't be trusted for this user. Let login proceed;
+		// the wpcom_user_id meta set during this login means the next SSO login will
+		// validate the token via the fast path.
+		return true;
 	}
 
 	/**

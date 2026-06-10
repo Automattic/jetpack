@@ -24,7 +24,7 @@ class Writing_Prompt_Widget {
 	 * Hooks the widget registration into `wp_dashboard_setup`. It can be called
 	 * multiple times safely as it will only initialize once.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.9.0
 	 *
 	 * @return void
 	 */
@@ -41,7 +41,7 @@ class Writing_Prompt_Widget {
 	/**
 	 * Register the Daily Writing Prompt dashboard widget.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.9.0
 	 *
 	 * @return void
 	 */
@@ -69,7 +69,7 @@ class Writing_Prompt_Widget {
 	/**
 	 * Enqueue the assets used to display the Daily Writing Prompt widget.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.9.0
 	 *
 	 * @return string The script/style handle.
 	 */
@@ -115,7 +115,7 @@ class Writing_Prompt_Widget {
 	 * The widget is hydrated client-side by the `writing-prompt` JS entry, which
 	 * mounts the React app into the container rendered here.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.9.0
 	 *
 	 * @return void
 	 */

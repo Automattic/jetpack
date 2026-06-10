@@ -225,22 +225,27 @@ export function SubscriptionsSection( {
 					</Text>
 					<Fieldset.Root disabled={ ! isNewsletterEnabled }>
 						<Stack gap="lg" direction="column">
-							<div className="jetpack-newsletter-placements-grid">
-								{ placements.map( placement => (
-									<PlacementCard
-										key={ placement.key }
-										id={ `placement-${ placement.key }` }
-										name={ String( placement.key ) }
-										title={ placement.title }
-										illustration={ placement.illustration }
-										previewUrl={ placement.previewUrl }
-										checked={ Boolean( data[ placement.key ] ) }
-										onChange={ handlePlacementChange }
-										onPreviewClick={ handlePlacementPreviewClick }
-										disabled={ ! isNewsletterEnabled }
-									/>
-								) ) }
-							</div>
+							<Stack gap="sm" direction="column">
+								<Text variant="heading-sm" render={ <h3 /> }>
+									{ __( 'Homepage and posts', 'jetpack-newsletter' ) }
+								</Text>
+								<div className="jetpack-newsletter-placements-grid">
+									{ placements.map( placement => (
+										<PlacementCard
+											key={ placement.key }
+											id={ `placement-${ placement.key }` }
+											name={ String( placement.key ) }
+											title={ placement.title }
+											illustration={ placement.illustration }
+											previewUrl={ placement.previewUrl }
+											checked={ Boolean( data[ placement.key ] ) }
+											onChange={ handlePlacementChange }
+											onPreviewClick={ handlePlacementPreviewClick }
+											disabled={ ! isNewsletterEnabled }
+										/>
+									) ) }
+								</div>
+							</Stack>
 
 							<Stack gap="sm" direction="column">
 								<Text variant="heading-sm" render={ <h3 /> }>

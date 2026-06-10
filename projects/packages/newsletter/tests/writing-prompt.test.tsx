@@ -15,7 +15,16 @@ jest.mock( '@wordpress/api-fetch', () => ( {
 	default: ( ...args: unknown[] ) => mockApiFetch( ...args ),
 } ) );
 
-import { render, screen } from '@testing-library/react';
+const mockGetSiteData = jest.fn();
+const mockIsWpcomPlatformSite = jest.fn();
+
+jest.mock( '@automattic/jetpack-script-data', () => ( {
+	__esModule: true,
+	getSiteData: ( ...args: unknown[] ) => mockGetSiteData( ...args ),
+	isWpcomPlatformSite: ( ...args: unknown[] ) => mockIsWpcomPlatformSite( ...args ),
+} ) );
+
+import { render, screen, within } from '@testing-library/react';
 import WritingPrompt from '../src/writing-prompt/writing-prompt';
 
 const PROMPT = {
@@ -48,5 +57,130 @@ describe( 'WritingPrompt widget branding', () => {
 
 		expect( container ).toBeEmptyDOMElement();
 		expect( screen.queryByRole( 'img', { name: 'Jetpack Logo' } ) ).not.toBeInTheDocument();
+	} );
+} );
+
+const PROMPT_WITH_RESPONSES = {
+	id: 1,
+	text: 'What is your favorite way to relax?',
+	answered_link: 'https://example.com/tag/dailyprompt-1',
+	answered_users_count: 3,
+	answered_users_sample: [
+		{ avatar: 'https://example.com/avatar1.png' },
+		{ avatar: 'https://example.com/avatar2.png' },
+	],
+};
+
+describe( 'WritingPrompt widget Reader link and responses', () => {
+	beforeEach( () => {
+		mockApiFetch.mockReset();
+		mockGetSiteData.mockReset();
+		mockIsWpcomPlatformSite.mockReset();
+		mockGetSiteData.mockReturnValue( { wpcom: { blog_id: 12345 } } );
+		mockIsWpcomPlatformSite.mockReturnValue( true );
+	} );
+
+	it( 'renders the View all responses button and avatar faces outside the footer', async () => {
+		mockApiFetch.mockResolvedValue( [ PROMPT_WITH_RESPONSES ] );
+
+		const { container } = render( <WritingPrompt /> );
+
+		// The responses control is a secondary button rendered as an anchor, so it
+		// carries the button role while still navigating via its href.
+		const responsesButton = await screen.findByRole( 'button', { name: /View all responses/ } );
+		expect( responsesButton ).toHaveAttribute( 'href', 'https://example.com/tag/dailyprompt-1' );
+		expect( responsesButton ).toHaveAttribute( 'target', '_blank' );
+		expect( screen.getAllByRole( 'img', { name: 'User avatar' } ) ).toHaveLength( 2 );
+
+		// The responses button now lives in the answered-users group, next to the avatars.
+		// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access -- The answered-users group has no ARIA role, so a class selector is the most direct way to scope this assertion.
+		const answeredUsers = container.querySelector( '.wpcom-daily-writing-prompt--answered-users' );
+		expect( answeredUsers ).not.toBeNull();
+		expect(
+			within( answeredUsers as HTMLElement ).getByRole( 'button', { name: /View all responses/ } )
+		).toBeInTheDocument();
+
+		// The branding footer must NOT contain the responses button.
+		// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access -- The branding footer has no ARIA role, so a class selector is the most direct way to scope this assertion.
+		const footer = container.querySelector( '.wpcom-daily-writing-prompt--branding' );
+		expect( footer ).not.toBeNull();
+		expect(
+			within( footer as HTMLElement ).queryByRole( 'button', { name: /View all responses/ } )
+		).not.toBeInTheDocument();
+	} );
+
+	it( 'renders the Reader link in the footer with the origin_site_id', async () => {
+		mockApiFetch.mockResolvedValue( [ PROMPT_WITH_RESPONSES ] );
+
+		const { container } = render( <WritingPrompt /> );
+
+		const readerLink = await screen.findByRole( 'link', {
+			name: /Read the blogs and topics you follow/,
+		} );
+		expect( readerLink ).toHaveAttribute(
+			'href',
+			'https://wordpress.com/reader?origin_site_id=12345'
+		);
+
+		// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access -- The branding footer has no ARIA role, so a class selector is the most direct way to scope this assertion.
+		const footer = container.querySelector( '.wpcom-daily-writing-prompt--branding' );
+		expect(
+			within( footer as HTMLElement ).getByRole( 'link', {
+				name: /Read the blogs and topics you follow/,
+			} )
+		).toBeInTheDocument();
+	} );
+
+	it( 'opens the Reader link in a new tab on non-wpcom platforms', async () => {
+		mockIsWpcomPlatformSite.mockReturnValue( false );
+		mockApiFetch.mockResolvedValue( [ PROMPT_WITH_RESPONSES ] );
+
+		render( <WritingPrompt /> );
+
+		const readerLink = await screen.findByRole( 'link', {
+			name: /Read the blogs and topics you follow/,
+		} );
+		expect( readerLink ).toHaveAttribute( 'target', '_blank' );
+		expect( readerLink ).toHaveAttribute( 'rel', expect.stringContaining( 'noopener' ) );
+	} );
+
+	it( 'opens the Reader link in the same tab on wpcom platforms', async () => {
+		mockIsWpcomPlatformSite.mockReturnValue( true );
+		mockApiFetch.mockResolvedValue( [ PROMPT_WITH_RESPONSES ] );
+
+		render( <WritingPrompt /> );
+
+		const readerLink = await screen.findByRole( 'link', {
+			name: /Read the blogs and topics you follow/,
+		} );
+		expect( readerLink ).not.toHaveAttribute( 'target' );
+		expect( readerLink ).not.toHaveAttribute( 'rel' );
+	} );
+
+	it( 'falls back to the bare Reader URL when site data is unavailable', async () => {
+		mockGetSiteData.mockReturnValue( undefined );
+		mockApiFetch.mockResolvedValue( [ PROMPT_WITH_RESPONSES ] );
+
+		render( <WritingPrompt /> );
+
+		const readerLink = await screen.findByRole( 'link', {
+			name: /Read the blogs and topics you follow/,
+		} );
+		expect( readerLink ).toHaveAttribute( 'href', 'https://wordpress.com/reader' );
+	} );
+
+	it( 'falls back to the bare Reader URL on a self-hosted site with no wpcom data', async () => {
+		// On a self-hosted Jetpack site, getSiteData() returns a valid object with no wpcom key.
+		mockGetSiteData.mockReturnValue( { site: { title: 'My Blog' } } );
+		mockIsWpcomPlatformSite.mockReturnValue( false );
+		mockApiFetch.mockResolvedValue( [ PROMPT_WITH_RESPONSES ] );
+
+		render( <WritingPrompt /> );
+
+		const readerLink = await screen.findByRole( 'link', {
+			name: /Read the blogs and topics you follow/,
+		} );
+		expect( readerLink ).toHaveAttribute( 'href', 'https://wordpress.com/reader' );
+		expect( readerLink ).toHaveAttribute( 'target', '_blank' );
 	} );
 } );

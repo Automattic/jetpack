@@ -1686,15 +1686,10 @@ class Contact_Form_Plugin {
 				Post_To_Url::init();
 			}
 
-			// Deprecate postToUrl, migrate to webhooks in case someone put it to work.
-			if ( ! empty( $form->attributes['postToUrl'] ) ) {
-				// webhooks should be a collection.
-				// Turn postToUrl into a collection and merge with existing webhooks.
-				$form->attributes['webhooks'] = array_merge(
-					$form->attributes['webhooks'] ?? array(),
-					array( $form->attributes['postToUrl'] )
-				);
-			}
+			// Outbound destinations declared in the form content are only honored when the
+			// source post author is allowed to configure them. Filter-supplied webhooks
+			// (applied below) are exempt, so this runs before the filter.
+			$this->reconcile_content_destinations( $form );
 
 			/**
 			 * Filters the list of extra webhooks to be called when a form is submitted.
@@ -1927,17 +1922,11 @@ class Contact_Form_Plugin {
 			Post_To_Url::init();
 		}
 
-		// Deprecate postToUrl, migrate to webhooks in case someone put it to work.
-		if ( ! empty( $form->attributes['postToUrl'] ) ) {
-			// webhooks should be a collection.
-			// Turn postToUrl into a collection and merge with existing webhooks.
-			$form->attributes['webhooks'] = array_merge(
-				$form->attributes['webhooks'] ?? array(),
-				array( $form->attributes['postToUrl'] )
-			);
-		}
+		// Outbound destinations declared in the form content are only honored when the
+		// source post author is allowed to configure them.
+		$this->reconcile_content_destinations( $form );
 
-		if ( ! empty( $form->attributes['webhooks'] ) ) {
+		if ( Jetpack_Forms::is_webhooks_enabled() && ! empty( $form->attributes['webhooks'] ) ) {
 			Form_Webhooks::init();
 		}
 
@@ -2021,6 +2010,51 @@ class Contact_Form_Plugin {
 			)
 		);
 		die();
+	}
+
+	/**
+	 * Enforcement point for outbound-destination authorization on a submitted form.
+	 *
+	 * Destinations declared in the form content — webhooks, the legacy postToUrl attribute and
+	 * the Salesforce integration — are kept only when the source post's author may configure
+	 * them; otherwise they are removed from the form attributes in place, before the submission
+	 * is processed and the Form_Webhooks / Post_To_Url services read those attributes. The
+	 * mutation is safe because nothing re-reads the original attribute values within the request
+	 * and the form attributes are not persisted after this point.
+	 *
+	 * Webhooks supplied via the jetpack_forms_extra_webhooks filter (JWT submissions only) are
+	 * applied by the caller afterwards and are never affected here.
+	 *
+	 * @param Contact_Form $form The form whose attributes may be modified in place.
+	 */
+	private function reconcile_content_destinations( Contact_Form $form ) {
+		if ( empty( $form->attributes['webhooks'] )
+			&& empty( $form->attributes['postToUrl'] )
+			&& empty( $form->attributes['salesforceData'] ) ) {
+			return;
+		}
+
+		if ( ! Jetpack_Forms::should_honor_content_destinations( $form->get_source()->get_id() ) ) {
+			// Drop every content-configured destination before the services read them.
+			// postToUrl and salesforceData are read directly by Post_To_Url.
+			$form->attributes['webhooks']       = array();
+			$form->attributes['postToUrl']      = array();
+			$form->attributes['salesforceData'] = null;
+
+			/** This action is documented already in this file. */
+			do_action( 'jetpack_forms_log', 'content_destinations_dropped', 'author_unauthorized' );
+			return;
+		}
+
+		// Deprecate postToUrl, migrate to webhooks in case someone put it to work.
+		if ( ! empty( $form->attributes['postToUrl'] ) ) {
+			// webhooks should be a collection.
+			// Turn postToUrl into a collection and merge with existing webhooks.
+			$form->attributes['webhooks'] = array_merge(
+				$form->attributes['webhooks'] ?? array(),
+				array( $form->attributes['postToUrl'] )
+			);
+		}
 	}
 
 	/**

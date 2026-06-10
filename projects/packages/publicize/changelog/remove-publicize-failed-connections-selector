@@ -1,0 +1,4 @@
+Significance: patch
+Type: removed
+
+Remove the unused getFailedConnections selector in favor of its duplicate getBrokenConnections
