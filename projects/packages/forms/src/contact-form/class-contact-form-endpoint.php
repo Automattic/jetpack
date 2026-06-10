@@ -1098,9 +1098,11 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 
 		$invalid_ids_sql = implode( ',', array_map( 'absint', $this->temp_invalid_ids ) );
 
-		// Add OR condition for invalid_ids at the end of the WHERE clause
-		// Keep the AND at the beginning since WordPress WHERE clauses start with "AND"
-		$where .= " OR {$wpdb->posts}.ID IN ({$invalid_ids_sql})";
+		// Wrap the existing WHERE in parentheses before appending the OR branch, and re-assert
+		// post_type='feedback' on the OR side. SQL AND binds tighter than OR; without these
+		// guards the appended " OR ID IN (...)" would collapse the existing post_type filter
+		// and let any post ID (regardless of type or status) be returned by the endpoint.
+		$where = "({$where}) OR ({$wpdb->posts}.ID IN ({$invalid_ids_sql}) AND {$wpdb->posts}.post_type = 'feedback')";
 
 		return $where;
 	}
@@ -1410,7 +1412,7 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 			return true;
 		}
 
-		if ( ! current_user_can( 'delete_posts' ) ) {
+		if ( ! current_user_can( 'delete_others_pages' ) ) {
 			return false;
 		}
 

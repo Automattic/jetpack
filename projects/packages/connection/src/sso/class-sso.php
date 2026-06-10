@@ -1484,7 +1484,7 @@ class SSO {
 	 * when user resolution changes (e.g., external_user_id points to a different local
 	 * user than the one that previously had the meta).
 	 *
-	 * @since $$next-version$$
+	 * @since 8.6.0
 	 *
 	 * @param int $user_id       The local WordPress user ID to set the meta on.
 	 * @param int $wpcom_user_id The WordPress.com user ID.
@@ -1537,7 +1537,7 @@ class SSO {
 	 * The signed token is sent to WP.com during SSO validation so WP.com can verify
 	 * the token is still valid on its side.
 	 *
-	 * @since $$next-version$$
+	 * @since 8.6.0
 	 *
 	 * @param int $wpcom_user_id The WordPress.com user ID.
 	 * @return array{signed_token: string, local_user_id: int} The signed token and local user ID.
@@ -1591,7 +1591,7 @@ class SSO {
 	 * If the token is found to be invalid, it is removed locally so the user will be
 	 * prompted to re-authorize and obtain a fresh token.
 	 *
-	 * @since $$next-version$$
+	 * @since 8.6.0
 	 *
 	 * @param int    $user_id                  The local WordPress user ID (the resolved user).
 	 * @param object $user_data                The WP.com user data from jetpack.sso.validateResult.
