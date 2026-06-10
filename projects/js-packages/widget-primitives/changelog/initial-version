@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Initial version: private port of WordPress core's @wordpress/widget-primitives (widget contract, discovery, and render resolution).
