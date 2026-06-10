@@ -1,6 +1,6 @@
 import AdminPage from '@automattic/jetpack-components/admin-page';
 import { getSiteData } from '@automattic/jetpack-script-data';
-import { CheckboxControl } from '@wordpress/components';
+import { ToggleControl } from '@wordpress/components';
 import { useCallback, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Button, Notice, Text } from '@wordpress/ui';
@@ -110,7 +110,7 @@ const Stage = (): JSX.Element => {
 						</Button>
 					</div>
 					<div className="jetpack-subscribers-announcement__remove">
-						<CheckboxControl
+						<ToggleControl
 							__nextHasNoMarginBottom
 							label={ __( 'Remove Subscribers from the sidebar', 'jetpack-newsletter' ) }
 							help={ __(
