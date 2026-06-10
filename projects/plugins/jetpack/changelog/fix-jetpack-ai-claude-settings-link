@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-AI: Fix broken external links (Claude settings and agent documentation) in the MCP quick setup.

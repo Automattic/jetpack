@@ -1,3 +1,0 @@
-Significance: patch
-Type: other
-Comment: Subscribers (Newsletter modernization, behind a feature flag): surface the specific Memberships API error such as "User has already been comped this plan" from the comp endpoints instead of a generic failure message.

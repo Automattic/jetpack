@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Port data package (React Query report hooks, fetchers, and processing) as an internal package from next-woocommerce-analytics.

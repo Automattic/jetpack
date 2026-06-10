@@ -10,7 +10,7 @@
  */
 class PCG_Rollout {
 
-	const DEFAULT_PERCENTAGE = 0;
+	const DEFAULT_PERCENTAGE = 5;
 
 	/**
 	 * Priority 100 leaves room for emergency overrides at higher priorities.
