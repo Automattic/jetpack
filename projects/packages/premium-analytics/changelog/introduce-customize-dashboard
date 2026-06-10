@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add the customizable widget dashboard route, ported from the experimental Gutenberg dashboard: the grid surface, the stateless widget rendering engine, and the dynamic widget registry (REST + lazy-loaded script modules).
