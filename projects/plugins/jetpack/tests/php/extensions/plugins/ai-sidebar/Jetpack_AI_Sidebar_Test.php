@@ -67,10 +67,9 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 		$this->saved_screen          = $GLOBALS['current_screen'] ?? null;
 		$this->saved_current_user_id = get_current_user_id();
 		$this->simulate_connected_owner();
-		// Keep the AI assistant setting enabled by default: a WordPress.com platform
-		// (simulated via the WoA constants) with big_sky_enable on. maybe_enqueue_am()
-		// tests run in separate processes because Big_Sky stubs can persist.
-		update_option( 'big_sky_enable', '1' );
+		// Enabled by default: a WordPress.com platform (simulated via the WoA constants).
+		// big_sky_enable is left unset so it falls back to the opt-out default ('1'); the
+		// maybe_enqueue_am() tests run in separate processes because Big_Sky stubs persist.
 		$this->simulate_wpcom_platform();
 	}
 
