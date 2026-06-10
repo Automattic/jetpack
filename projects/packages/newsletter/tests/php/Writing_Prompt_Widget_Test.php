@@ -7,7 +7,10 @@
 
 namespace Automattic\Jetpack\Newsletter\Tests;
 
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Newsletter\Writing_Prompt_Widget;
+use Automattic\Jetpack\Status\Cache as Status_Cache;
 use PHPUnit\Framework\Attributes\CoversClass;
 use WorDBless\BaseTestCase;
 
@@ -34,6 +37,8 @@ class Writing_Prompt_Widget_Test extends BaseTestCase {
 		$property->setValue( null, false );
 
 		remove_all_actions( 'wp_dashboard_setup' );
+		( new Connection_Manager() )->reset_connection_status();
+		Status_Cache::clear();
 
 		$GLOBALS['wp_meta_boxes'] = array();
 	}
@@ -45,7 +50,40 @@ class Writing_Prompt_Widget_Test extends BaseTestCase {
 		wp_set_current_user( 0 );
 		unset( $GLOBALS['wp_meta_boxes'] );
 
+		remove_all_filters( 'jetpack_options' );
+		remove_all_filters( 'jetpack_offline_mode' );
+		Constants::clear_constants();
+		( new Connection_Manager() )->reset_connection_status();
+		Status_Cache::clear();
+
 		parent::tear_down();
+	}
+
+	/**
+	 * Put the site into a state where the widget is allowed to load: not a
+	 * Simple site, online, and with a working WordPress.com connection.
+	 */
+	private function allow_widget_to_load() {
+		add_filter( 'jetpack_options', array( $this, 'mock_connection_options' ), 10, 2 );
+		( new Connection_Manager() )->reset_connection_status();
+	}
+
+	/**
+	 * Mock the Jetpack blog ID and token so the site reports as connected.
+	 *
+	 * @param mixed  $value The option value.
+	 * @param string $name  The option name.
+	 * @return mixed
+	 */
+	public function mock_connection_options( $value, $name ) {
+		switch ( $name ) {
+			case 'id':
+				return 1234;
+			case 'blog_token':
+				return 'test.blogtoken.123';
+		}
+
+		return $value;
 	}
 
 	/**
@@ -114,6 +152,7 @@ class Writing_Prompt_Widget_Test extends BaseTestCase {
 	public function test_register_widget_adds_widget_for_admin() {
 		require_once ABSPATH . 'wp-admin/includes/dashboard.php';
 		$this->set_current_user_admin();
+		$this->allow_widget_to_load();
 
 		Writing_Prompt_Widget::register_widget();
 
@@ -121,6 +160,49 @@ class Writing_Prompt_Widget_Test extends BaseTestCase {
 			'wpcom_daily_writing_prompt',
 			$GLOBALS['wp_meta_boxes']['dashboard']['side']['high']
 		);
+	}
+
+	/**
+	 * Test that the widget is registered on Simple sites without a Jetpack
+	 * connection, since Simple sites can always reach WordPress.com.
+	 */
+	public function test_register_widget_adds_widget_on_wpcom_simple() {
+		require_once ABSPATH . 'wp-admin/includes/dashboard.php';
+		$this->set_current_user_admin();
+		Constants::set_constant( 'IS_WPCOM', true );
+
+		Writing_Prompt_Widget::register_widget();
+
+		$this->assertArrayHasKey(
+			'wpcom_daily_writing_prompt',
+			$GLOBALS['wp_meta_boxes']['dashboard']['side']['high']
+		);
+	}
+
+	/**
+	 * Test that the widget is not registered when the site has no ready
+	 * WordPress.com connection and is not a Simple site.
+	 */
+	public function test_register_widget_skips_without_connection() {
+		$this->set_current_user_admin();
+
+		Writing_Prompt_Widget::register_widget();
+
+		$this->assertArrayNotHasKey( 'dashboard', $GLOBALS['wp_meta_boxes'] );
+	}
+
+	/**
+	 * Test that the widget is not registered in offline mode, even with an
+	 * otherwise working connection.
+	 */
+	public function test_register_widget_skips_in_offline_mode() {
+		$this->set_current_user_admin();
+		$this->allow_widget_to_load();
+		add_filter( 'jetpack_offline_mode', '__return_true' );
+
+		Writing_Prompt_Widget::register_widget();
+
+		$this->assertArrayNotHasKey( 'dashboard', $GLOBALS['wp_meta_boxes'] );
 	}
 
 	/**
