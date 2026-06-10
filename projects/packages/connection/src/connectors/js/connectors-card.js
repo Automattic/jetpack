@@ -75,6 +75,88 @@ const subjectNoun = hasWooPlugin
 	: _x( 'site', 'The thing connected to WordPress.com.', 'jetpack-connection' );
 
 /**
+ * Make a POST/GET request to a Jetpack REST endpoint with the standard
+ * connection headers and error handling.
+ *
+ * Resolves with the parsed JSON body (or null if there is no body), and
+ * throws an Error whose message is the server-provided message — falling
+ * back to `fallbackError` — for both non-OK responses and network failures.
+ *
+ * @param {string} endpoint                - REST path relative to apiRoot.
+ * @param {object} [options]               - Request options.
+ * @param {string} [options.method]        - HTTP method (default 'GET').
+ * @param {object} [options.body]          - JSON body; sets Content-Type when present.
+ * @param {string} [options.fallbackError] - Message used when the server provides none.
+ * @return {Promise<object|string|null>} Parsed JSON response.
+ */
+async function apiRequest( endpoint, { method = 'GET', body = null, fallbackError = '' } = {} ) {
+	const errorMessage = fallbackError || __( 'Something went wrong.', 'jetpack-connection' );
+	const options = { method, headers: { 'X-WP-Nonce': apiNonce } };
+	if ( body ) {
+		options.headers[ 'Content-Type' ] = 'application/json';
+		options.body = JSON.stringify( body );
+	}
+
+	let response;
+	try {
+		response = await window.fetch( apiRoot + endpoint, options );
+	} catch {
+		throw new Error( errorMessage );
+	}
+
+	if ( ! response.ok ) {
+		const errBody = await response.json().catch( () => null );
+		throw new Error( errBody?.message || errorMessage );
+	}
+
+	// Some endpoints (e.g. disconnect) return an empty body on success; treat
+	// an unparseable body as a successful no-content response rather than a
+	// failure.
+	return response.json().catch( () => null );
+}
+
+/**
+ * Decorate a Calypso authorize URL with the params every connector flow needs:
+ * `from=jetpack-connector` so Calypso returns the user to the Connectors page,
+ * and `skip_pricing` so the post-auth redirect honours redirect_after_auth
+ * instead of routing through the Calypso plans page.
+ *
+ * TEMPORARY: `skip_pricing` can be dropped once Calypso recognises
+ * `from=jetpack-connector` natively and redirects to redirectAfterAuth.
+ *
+ * @param {string} url - Calypso authorize URL.
+ * @return {string} Decorated URL (unchanged if it can't be parsed).
+ */
+function decorateAuthUrl( url ) {
+	try {
+		const parsed = new URL( url );
+		parsed.searchParams.set( 'from', 'jetpack-connector' );
+		parsed.searchParams.set( 'skip_pricing', 'true' );
+		return parsed.toString();
+	} catch {
+		return url;
+	}
+}
+
+/**
+ * Disconnect this site from WordPress.com.
+ *
+ * During an identity crisis this only clears the local tokens — the
+ * Identity_Crisis filter blocks the remote deregister call — so the original
+ * site keeps its registration.
+ *
+ * @param {string} [fallbackError] - Message used when the server provides none.
+ * @return {Promise<object|string|null>} Parsed JSON response.
+ */
+function disconnectSite( fallbackError ) {
+	return apiRequest( 'jetpack/v4/connection', {
+		method: 'POST',
+		body: { isActive: false },
+		fallbackError,
+	} );
+}
+
+/**
  * Start the Jetpack connection flow: register the site (if needed),
  * then redirect to WordPress.com for user authorization.
  *
@@ -92,22 +174,15 @@ async function startConnectionFlow( siteRegistered ) {
 		}
 		params.set( 'from', 'jetpack-connector' );
 		const qs = params.toString();
-		const authRes = await window.fetch(
-			apiRoot + 'jetpack/v4/connection/authorize_url' + ( qs ? '?' + qs : '' ),
-			{ headers: { 'X-WP-Nonce': apiNonce } }
+		const authData = await apiRequest(
+			'jetpack/v4/connection/authorize_url' + ( qs ? '?' + qs : '' ),
+			{ fallbackError: __( 'Failed to retrieve authorization URL.', 'jetpack-connection' ) }
 		);
-		if ( ! authRes.ok ) {
-			const errBody = await authRes.json().catch( () => null );
-			throw new Error(
-				errBody?.message || __( 'Failed to retrieve authorization URL.', 'jetpack-connection' )
-			);
-		}
-		const authData = await authRes.json();
 		const authorizeUrl = authData?.authorizeUrl || authData;
 		if ( typeof authorizeUrl !== 'string' || ! authorizeUrl ) {
 			throw new Error( 'No authorization URL received' );
 		}
-		window.location.href = addSkipPricing( authorizeUrl );
+		window.location.href = decorateAuthUrl( authorizeUrl );
 		return;
 	}
 
@@ -116,48 +191,17 @@ async function startConnectionFlow( siteRegistered ) {
 		body.redirect_uri = redirectUri;
 	}
 
-	const response = await window.fetch( apiRoot + 'jetpack/v4/connection/register', {
+	const result = await apiRequest( 'jetpack/v4/connection/register', {
 		method: 'POST',
-		headers: {
-			'Content-Type': 'application/json',
-			'X-WP-Nonce': apiNonce,
-		},
-		body: JSON.stringify( body ),
+		body,
+		fallbackError: __( 'Site registration failed.', 'jetpack-connection' ),
 	} );
 
-	if ( ! response.ok ) {
-		const errBody = await response.json().catch( () => null );
-		throw new Error( errBody?.message || __( 'Site registration failed.', 'jetpack-connection' ) );
-	}
-
-	const result = await response.json();
-
-	if ( ! result.authorizeUrl ) {
+	if ( ! result?.authorizeUrl ) {
 		throw new Error( 'No authorization URL received' );
 	}
 
-	window.location.href = addSkipPricing( result.authorizeUrl );
-}
-
-/**
- * Append skip_pricing to a Calypso authorize URL so that the post-auth
- * redirect honours redirect_after_auth instead of sending the user to
- * the Calypso plans page.
- *
- * TEMPORARY: Remove once Calypso recognises `from=jetpack-connector`
- * natively and redirects to redirectAfterAuth for this flow.
- *
- * @param {string} url - Calypso authorize URL.
- * @return {string} URL with skip_pricing appended.
- */
-function addSkipPricing( url ) {
-	try {
-		const parsed = new URL( url );
-		parsed.searchParams.set( 'skip_pricing', 'true' );
-		return parsed.toString();
-	} catch {
-		return url;
-	}
+	window.location.href = decorateAuthUrl( result.authorizeUrl );
 }
 
 /**
@@ -560,25 +604,7 @@ function SiteDetailsModal( { onClose } ) {
  * @return {Promise<object|string>} Parsed JSON response.
  */
 async function postIdcAction( action, body = null ) {
-	const options = {
-		method: 'POST',
-		headers: {
-			'Content-Type': 'application/json',
-			'X-WP-Nonce': apiNonce,
-		},
-	};
-	if ( body ) {
-		options.body = JSON.stringify( body );
-	}
-
-	const response = await window.fetch( apiRoot + 'jetpack/v4/identity-crisis/' + action, options );
-
-	if ( ! response.ok ) {
-		const errBody = await response.json().catch( () => null );
-		throw new Error( errBody?.message || __( 'Something went wrong.', 'jetpack-connection' ) );
-	}
-
-	return response.json();
+	return apiRequest( 'jetpack/v4/identity-crisis/' + action, { method: 'POST', body } );
 }
 
 /**
@@ -673,17 +699,7 @@ function IDCPanel() {
 			if ( typeof url !== 'string' || ! url ) {
 				throw new Error( __( 'No connection URL received.', 'jetpack-connection' ) );
 			}
-			// Tag the flow as jetpack-connector so Calypso returns the user to the
-			// Connectors page, matching the card's other connection flows.
-			let authorizeUrl = url;
-			try {
-				const parsed = new URL( url );
-				parsed.searchParams.set( 'from', 'jetpack-connector' );
-				authorizeUrl = parsed.toString();
-			} catch {
-				// Use the URL as-is if it can't be parsed.
-			}
-			window.location.href = addSkipPricing( authorizeUrl );
+			window.location.href = decorateAuthUrl( url );
 		} catch ( err ) {
 			setError(
 				err?.message ||
@@ -707,46 +723,21 @@ function IDCPanel() {
 		}
 	};
 
-	// Disconnect is safe during IDC: Identity_Crisis filters out the remote
-	// WordPress.com deregister call, so only this (cloned) site's local tokens
-	// are removed — the original site keeps its registration.
 	const executeDisconnect = async () => {
 		setPendingConfirm( null );
 		setBusyAction( 'disconnect' );
 		setError( null );
 		try {
-			const response = await window.fetch( apiRoot + 'jetpack/v4/connection', {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json',
-					'X-WP-Nonce': apiNonce,
-				},
-				body: JSON.stringify( { isActive: false } ),
-			} );
-
-			if ( response.ok ) {
-				window.location.reload();
-				return;
-			}
-
-			const errBody = await response.json().catch( () => null );
-			setError(
-				errBody?.message ||
-					sprintf(
-						// translators: %s: "site" or "store".
-						__( 'Failed to disconnect the %s. Please try again.', 'jetpack-connection' ),
-						subjectNoun
-					)
-			);
-			setBusyAction( null );
-		} catch {
-			setError(
+			await disconnectSite(
 				sprintf(
 					// translators: %s: "site" or "store".
 					__( 'Failed to disconnect the %s. Please try again.', 'jetpack-connection' ),
 					subjectNoun
 				)
 			);
+			window.location.reload();
+		} catch ( err ) {
+			setError( err.message );
 			setBusyAction( null );
 		}
 	};
@@ -1066,29 +1057,12 @@ function ExpandedDetails( { isConnecting = false, onConnect = null } ) {
 		setActionError( null );
 
 		try {
-			const response = await window.fetch( apiRoot + 'jetpack/v4/connection', {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json',
-					'X-WP-Nonce': apiNonce,
-				},
-				body: JSON.stringify( { isActive: false } ),
-			} );
-
-			if ( response.ok ) {
-				window.location.reload();
-				return;
-			}
-
-			const errBody = await response.json().catch( () => null );
-			setActionError(
-				errBody?.message ||
-					__( 'Failed to disconnect the site. Please try again.', 'jetpack-connection' )
-			);
-		} catch {
-			setActionError(
+			await disconnectSite(
 				__( 'Failed to disconnect the site. Please try again.', 'jetpack-connection' )
 			);
+			window.location.reload();
+		} catch ( err ) {
+			setActionError( err.message );
 		} finally {
 			setIsDisconnecting( false );
 		}
@@ -1120,29 +1094,17 @@ function ExpandedDetails( { isConnecting = false, onConnect = null } ) {
 				body[ 'disconnect-all-users' ] = true;
 			}
 
-			const response = await window.fetch( apiRoot + 'jetpack/v4/connection/user', {
+			await apiRequest( 'jetpack/v4/connection/user', {
 				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json',
-					'X-WP-Nonce': apiNonce,
-				},
-				body: JSON.stringify( body ),
+				body,
+				fallbackError: __(
+					'Failed to disconnect the account. Please try again.',
+					'jetpack-connection'
+				),
 			} );
-
-			if ( response.ok ) {
-				window.location.reload();
-				return;
-			}
-
-			const errBody = await response.json().catch( () => null );
-			setActionError(
-				errBody?.message ||
-					__( 'Failed to disconnect the account. Please try again.', 'jetpack-connection' )
-			);
-		} catch {
-			setActionError(
-				__( 'Failed to disconnect the account. Please try again.', 'jetpack-connection' )
-			);
+			window.location.reload();
+		} catch ( err ) {
+			setActionError( err.message );
 		} finally {
 			setIsUnlinking( false );
 		}
