@@ -115,6 +115,7 @@ class Jetpack_Connector {
 			(string) @filemtime( $css_path ) // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged -- fallback to empty string if file is missing.
 		);
 
+		$js_path = __DIR__ . '/js/connectors-card.js';
 		wp_register_script_module(
 			static::MODULE_ID,
 			plugins_url( 'js/connectors-card.js', __FILE__ ),
@@ -123,7 +124,8 @@ class Jetpack_Connector {
 					'id'     => '@wordpress/connectors',
 					'import' => 'static',
 				),
-			)
+			),
+			(string) @filemtime( $js_path ) // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged -- fallback to empty string if file is missing.
 		);
 		wp_enqueue_script_module( static::MODULE_ID );
 
