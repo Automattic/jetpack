@@ -7,6 +7,18 @@
  * header logo, and the footer all align on one edge, on the page's plain
  * white canvas.
  */
+// AdminPage applies a `margin-left: -20px` on its outer wrapper to bleed past
+// `#wpcontent`'s padding. This page doesn't want the full-bleed treatment, so
+// neutralize it — scoped via `:has()` to our content so no other AdminPage is
+// affected (mirrors the Newsletter dashboard's `:has(.dataviews-wrapper)` hook).
+.jp-admin-page:has(.jetpack-subscribers-announcement) {
+	margin-left: 0;
+
+	@media (max-width: 782px) {
+		margin-left: 0;
+	}
+}
+
 .jetpack-subscribers-announcement {
 	font-size: 14px;
 	color: #1e1e1e;
