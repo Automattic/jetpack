@@ -47,7 +47,7 @@ class Consent_Log_Controller extends WP_REST_Controller {
 	 *
 	 * @var string
 	 */
-	private const TABLE_NAME = 'jetpack_consent_logs';
+	private const TABLE_NAME = 'jetpack_cookie_consent_logs';
 
 	/**
 	 * Database version.
@@ -82,7 +82,7 @@ class Consent_Log_Controller extends WP_REST_Controller {
 	 *
 	 * @var string
 	 */
-	private const DB_VERSION_OPTION = 'jetpack_cookie_consent_log_db_version';
+	private const DB_VERSION_OPTION = 'jetpack_cookie_consent_consent_log_db_version';
 
 	/**
 	 * Initialize the controller: create the table, schedule cleanup,
@@ -260,7 +260,7 @@ class Consent_Log_Controller extends WP_REST_Controller {
 	 * @return bool
 	 */
 	public function check_read_permission() {
-		return current_user_can( 'manage_options' );
+		return current_user_can( 'manage_privacy_options' );
 	}
 
 	/**

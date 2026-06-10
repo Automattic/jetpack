@@ -28,69 +28,61 @@ class Cookie_Consent {
 	const PACKAGE_VERSION = '0.1.0-alpha';
 
 	/**
-	 * Instance of this class
+	 * Whether the class has been initialized.
 	 *
-	 * @var Cookie_Consent
+	 * @var bool
 	 */
-	private static $instance = null;
+	private static $initialized = false;
 
 	/**
-	 * Get singleton instance
+	 * Initialize the package. Idempotent; safe to call multiple times.
 	 *
-	 * @return Cookie_Consent
-	 */
-	public static function get_instance() {
-		if ( null === self::$instance ) {
-			self::$instance = new self();
-		}
-		return self::$instance;
-	}
-
-	/**
-	 * Initialize the package.
-	 *
-	 * Public entry point a consumer calls to activate cookie consent. Boots the
-	 * front-end controls (banner, CCPA flow, enqueue) and the consent log REST
-	 * controller (table creation, cron scheduling, route registration).
-	 *
-	 * @return Cookie_Consent
+	 * Public entry point a consumer calls to activate cookie consent. Registers
+	 * the front-end controls (banner, CCPA flow, enqueue) and boots the consent
+	 * log REST controller (table creation, cron scheduling, route registration).
 	 */
 	public static function init() {
-		$instance = self::get_instance();
-		Consent_Log_Controller::init();
-		return $instance;
-	}
+		if ( self::$initialized ) {
+			return;
+		}
+		self::$initialized = true;
 
-	/**
-	 * Constructor
-	 */
-	private function __construct() {
-		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_assets' ) );
-		add_action( 'wp_footer', array( $this, 'render_banner' ), 999 );
+		add_action( 'wp_enqueue_scripts', array( __CLASS__, 'enqueue_assets' ) );
+		add_action( 'wp_footer', array( __CLASS__, 'render_banner' ), 999 );
+
+		// Create the CCPA opt-out page once (guarded), now that the Atomic
+		// garden_site_provisioning hook is no longer available in this context.
+		add_action( 'init', array( __CLASS__, 'maybe_create_ccpa_page' ) );
 
 		// Prevent CCPA and Privacy Policy page deletion.
-		add_filter( 'map_meta_cap', array( $this, 'prevent_privacy_pages_deletion' ), 10, 4 );
+		add_filter( 'map_meta_cap', array( __CLASS__, 'prevent_privacy_pages_deletion' ), 10, 4 );
 
 		// Hook Privacy Policy and CCPA links into navigation blocks using Block Hooks API.
-		add_filter( 'hooked_block_types', array( $this, 'register_footer_navigation_links' ), 10, 4 );
-		add_filter( 'hooked_block_core/navigation-link', array( $this, 'set_footer_navigation_link_attributes' ), 10, 4 );
-		add_filter( 'render_block_core/navigation-link', array( $this, 'add_ccpa_interactivity_directives' ), 10, 2 );
-		add_filter( 'render_block_core/navigation-link', array( $this, 'add_gdpr_manage_preferences_directives' ), 10, 2 );
+		add_filter( 'hooked_block_types', array( __CLASS__, 'register_footer_navigation_links' ), 10, 4 );
+		add_filter( 'hooked_block_core/navigation-link', array( __CLASS__, 'set_footer_navigation_link_attributes' ), 10, 4 );
+		add_filter( 'render_block_core/navigation-link', array( __CLASS__, 'add_ccpa_interactivity_directives' ), 10, 2 );
+		add_filter( 'render_block_core/navigation-link', array( __CLASS__, 'add_gdpr_manage_preferences_directives' ), 10, 2 );
 
 		// Add Interactivity API directive to CCPA opt-out button.
-		add_filter( 'render_block_core/button', array( $this, 'add_ccpa_button_directive' ), 10, 2 );
+		add_filter( 'render_block_core/button', array( __CLASS__, 'add_ccpa_button_directive' ), 10, 2 );
 
 		// Add Interactivity API directives to CCPA group block and inject snackbar.
-		add_filter( 'render_block_core/group', array( $this, 'add_ccpa_group_directives' ), 10, 2 );
+		add_filter( 'render_block_core/group', array( __CLASS__, 'add_ccpa_group_directives' ), 10, 2 );
 
 		// Exclude CCPA page from page-list block using get_pages filter.
-		add_filter( 'get_pages', array( $this, 'exclude_ccpa_from_get_pages' ), 10, 2 );
+		add_filter( 'get_pages', array( __CLASS__, 'exclude_ccpa_from_get_pages' ), 10, 2 );
+
+		// Register the CCPA page id setting for REST access.
+		add_action( 'rest_api_init', array( __CLASS__, 'register_ccpa_page_setting' ) );
+
+		// Consent log REST controller: table, cron cleanup, routes.
+		Consent_Log_Controller::init();
 	}
 
 	/**
 	 * Create CCPA opt-out page if it doesn't exist
 	 */
-	public function maybe_create_ccpa_page() {
+	public static function maybe_create_ccpa_page() {
 		// Check if we've already created the page (by ID, since slug can be changed).
 		$page_id = get_option( 'jetpack_cookie_consent_ccpa_page_id' );
 		if ( $page_id && get_post( $page_id ) ) {
@@ -113,7 +105,7 @@ class Cookie_Consent {
 		}
 
 		// Build the page content with blocks.
-		$content = $this->get_ccpa_page_content();
+		$content = self::get_ccpa_page_content();
 
 		// Create the page without content first.
 		$page_id = wp_insert_post(
@@ -140,11 +132,26 @@ class Cookie_Consent {
 	}
 
 	/**
+	 * Register the CCPA page id setting for REST API access.
+	 */
+	public static function register_ccpa_page_setting() {
+		register_setting(
+			'general',
+			'jetpack_cookie_consent_ccpa_page_id',
+			array(
+				'show_in_rest' => true,
+				'type'         => 'integer',
+				'description'  => __( 'CCPA opt-out page ID', 'jetpack-cookie-consent' ),
+			)
+		);
+	}
+
+	/**
 	 * Get CCPA page content in block format
 	 *
 	 * @return string Page content with WordPress blocks
 	 */
-	private function get_ccpa_page_content() {
+	private static function get_ccpa_page_content() {
 		$template_path = plugin_dir_path( __FILE__ ) . 'ccpa-content.php';
 
 		if ( ! file_exists( $template_path ) ) {
@@ -163,7 +170,7 @@ class Cookie_Consent {
 	 * @param array     $args  Array of get_pages() arguments.
 	 * @return WP_Post[] Filtered array of page objects.
 	 */
-	public function exclude_ccpa_from_get_pages( $pages, $args ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed
+	public static function exclude_ccpa_from_get_pages( $pages, $args ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed
 		if ( is_admin() ) {
 			// In admin, include the CCPA page in the results.
 			return $pages;
@@ -193,7 +200,7 @@ class Cookie_Consent {
 	 * @param array  $args    Additional arguments.
 	 * @return array Modified capabilities.
 	 */
-	public function prevent_privacy_pages_deletion( $caps, $cap, $user_id, $args ) {
+	public static function prevent_privacy_pages_deletion( $caps, $cap, $user_id, $args ) {
 		// Only intercept delete_post capability checks.
 		if ( 'delete_post' !== $cap ) {
 			return $caps;
@@ -225,7 +232,7 @@ class Cookie_Consent {
 	 * @param WP_Block_Template|array $context            The block template, template part, or pattern.
 	 * @return array Modified array of hooked block types.
 	 */
-	public function register_footer_navigation_links( $hooked_block_types, $relative_position, $anchor_block_type, $context ) {
+	public static function register_footer_navigation_links( $hooked_block_types, $relative_position, $anchor_block_type, $context ) {
 		// Only hook to navigation blocks.
 		if ( 'core/navigation' !== $anchor_block_type ) {
 			return $hooked_block_types;
@@ -283,7 +290,7 @@ class Cookie_Consent {
 	 * @param array      $anchor_block      The anchor block.
 	 * @return array|null Modified hooked block.
 	 */
-	public function set_footer_navigation_link_attributes( $hooked_block, $hooked_block_type, $relative_position, $anchor_block ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed
+	public static function set_footer_navigation_link_attributes( $hooked_block, $hooked_block_type, $relative_position, $anchor_block ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed
 		// Track which blocks we've processed.
 		static $privacy_policy_processed     = false;
 		static $ccpa_processed               = false;
@@ -359,7 +366,7 @@ class Cookie_Consent {
 	 * @param array  $block         The full block, including name and attributes.
 	 * @return string Modified block content.
 	 */
-	public function add_ccpa_interactivity_directives( $block_content, $block ) {
+	public static function add_ccpa_interactivity_directives( $block_content, $block ) {
 		// Check if this is our CCPA link by looking for our metadata marker.
 		if ( ! isset( $block['attrs']['metadata']['name'] ) || 'jetpack-cookie-consent-ccpa-privacy-link' !== $block['attrs']['metadata']['name'] ) {
 			return $block_content;
@@ -389,7 +396,7 @@ class Cookie_Consent {
 	 * @param array  $block         The full block, including name and attributes.
 	 * @return string Modified block content.
 	 */
-	public function add_gdpr_manage_preferences_directives( $block_content, $block ) {
+	public static function add_gdpr_manage_preferences_directives( $block_content, $block ) {
 		// Check if this is our manage preferences link by looking for our metadata marker.
 		if ( ! isset( $block['attrs']['metadata']['name'] ) || 'jetpack-cookie-consent-gdpr-manage-preferences-link' !== $block['attrs']['metadata']['name'] ) {
 			return $block_content;
@@ -423,7 +430,7 @@ class Cookie_Consent {
 	 * @param array  $block         The full block, including name and attributes.
 	 * @return string Modified block content.
 	 */
-	public function add_ccpa_button_directive( $block_content, $block ) {
+	public static function add_ccpa_button_directive( $block_content, $block ) {
 		// Check if this button has the CCPA opt-out class.
 		if ( ! isset( $block['attrs']['className'] ) || false === strpos( $block['attrs']['className'], 'jetpack-cookie-consent-ccpa-opt-out-button' ) ) {
 			return $block_content;
@@ -448,7 +455,7 @@ class Cookie_Consent {
 	 * @param array  $block         The full block, including name and attributes.
 	 * @return string Modified block content.
 	 */
-	public function add_ccpa_group_directives( $block_content, $block ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed
+	public static function add_ccpa_group_directives( $block_content, $block ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed
 		// Check if this group block has the CCPA opt-out section class.
 		if ( ! isset( $block['attrs']['className'] ) || false === strpos( $block['attrs']['className'], 'jetpack-cookie-consent-ccpa-opt-out-section' ) ) {
 			return $block_content;
@@ -490,7 +497,7 @@ class Cookie_Consent {
 	 *
 	 * @return array Configuration array
 	 */
-	private function get_config() {
+	private static function get_config() {
 		$default_config = array(
 			'geo_api_url'         => 'https://public-api.wordpress.com/geo/',
 			'geo_cookie_duration' => 6 * HOUR_IN_SECONDS, // 6 hours.
@@ -564,7 +571,7 @@ class Cookie_Consent {
 	/**
 	 * Enqueue scripts and styles
 	 */
-	public function enqueue_assets() {
+	public static function enqueue_assets() {
 		// Don't load in admin.
 		if ( is_admin() ) {
 			return;
@@ -573,7 +580,7 @@ class Cookie_Consent {
 		// Load Automattic Tracks (w.js) for analytics.
 		// External script, version managed by Automattic - no version needed.
 		wp_enqueue_script(
-			'automattic-tracks',
+			'jetpack-cookie-consent-tracks',
 			'https://stats.wp.com/w.js',
 			array(),
 			gmdate( 'YW' ),
@@ -610,7 +617,7 @@ class Cookie_Consent {
 		);
 
 		// Resolve the configured Tracks event prefix once so it can be shared below.
-		$config = $this->get_config();
+		$config = self::get_config();
 
 		// Pass REST API URL and Tracks event prefix to the module via global config.
 		wp_print_inline_script_tag(
@@ -652,7 +659,7 @@ class Cookie_Consent {
 	 *
 	 * @return bool True if consent has been set
 	 */
-	private function has_consent_set() {
+	private static function has_consent_set() {
 		// Check if any WP Consent API cookie exists.
 		// If user has made a choice, at least one of these should be set.
 		return isset( $_COOKIE['wp_consent_functional'] );
@@ -661,7 +668,7 @@ class Cookie_Consent {
 	/**
 	 * Render the cookie consent banner
 	 */
-	public function render_banner() {
+	public static function render_banner() {
 		// Don't render in admin.
 		if ( is_admin() ) {
 			return;
@@ -677,7 +684,7 @@ class Cookie_Consent {
 		$template_path = plugin_dir_path( __FILE__ ) . 'cookie-banner-content.php';
 		if ( file_exists( $template_path ) ) {
 			// Get config for template.
-			$config = $this->get_config();
+			$config = self::get_config();
 			ob_start();
 			include $template_path;
 			$html = ob_get_clean();

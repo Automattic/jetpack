@@ -51,14 +51,14 @@ if ( ! defined( 'ABSPATH' ) ) {
 			<div class="jetpack-cookie-consent__banner-actions">
 				<button
 					type="button"
-					class="wp-element-button jetpack-cookie-consent__button jetpack-cookie-consent__button--primary"
+					class="wc-block-components-button wp-element-button jetpack-cookie-consent__button jetpack-cookie-consent__button--primary"
 					data-wp-on--click="actions.acceptAll"
 				>
 					<?php echo esc_html__( 'Accept', 'jetpack-cookie-consent' ); ?>
 				</button>
 				<button
 					type="button"
-					class="wp-element-button jetpack-cookie-consent__button jetpack-cookie-consent__button--primary"
+					class="wc-block-components-button wp-element-button jetpack-cookie-consent__button jetpack-cookie-consent__button--primary"
 					data-wp-on--click="actions.rejectAll"
 				>
 					<?php echo esc_html__( 'Reject', 'jetpack-cookie-consent' ); ?>
@@ -246,7 +246,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 			<div class="jetpack-cookie-consent__modal-footer">
 				<button
 					type="button"
-					class="wp-element-button jetpack-cookie-consent__button jetpack-cookie-consent__button--primary"
+					class="wc-block-components-button wp-element-button jetpack-cookie-consent__button jetpack-cookie-consent__button--primary"
 					data-wp-on--click="actions.savePreferences"
 				>
 					<?php echo esc_html__( 'Save preferences', 'jetpack-cookie-consent' ); ?>
