@@ -5,7 +5,7 @@ Tags: performance, speed, web vitals, critical css, cache
 Requires at least: 6.9
 Tested up to: 7.0
 Requires PHP: 7.2
-Stable tag: 4.6.0
+Stable tag: 4.6.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -185,10 +185,12 @@ If you run into compatibility issues, please do let us know. You can drop us a l
 4. Historical performance tracking with the upgraded plan.
 
 == Changelog ==
-### 4.6.1-beta - 2026-06-10
+### 4.6.1 - 2026-06-10
 #### Changed
 - Update dependencies.
 - Update package dependencies.
+
+#### Fixed
 - My Jetpack: Fix fatal error being logged when My Jetpack page is loaded.
 
 --------
