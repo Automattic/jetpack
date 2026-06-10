@@ -94,11 +94,11 @@ function shouldShowManagePreferencesLink( config: StoreConfig ): boolean {
 
 function focusModal(): void {
 	setTimeout( () => {
-		document.querySelector< HTMLElement >( '.wc-cookie-consent__modal' )?.focus();
+		document.querySelector< HTMLElement >( '.jetpack-cookie-consent__modal' )?.focus();
 	}, 0 );
 }
 
-const SCROLL_LOCK_CLASS = 'wc-cookie-consent-scroll-lock';
+const SCROLL_LOCK_CLASS = 'jetpack-cookie-consent-scroll-lock';
 
 function lockScrollAndFocusModal(): void {
 	document.body.classList.add( SCROLL_LOCK_CLASS );
@@ -272,7 +272,7 @@ const { actions } = store( 'jetpack/cookie-consent', {
 					return;
 				}
 
-				const modal = target.closest( '.wc-cookie-consent__modal' );
+				const modal = target.closest( '.jetpack-cookie-consent__modal' );
 				if ( ! modal ) {
 					return;
 				}
