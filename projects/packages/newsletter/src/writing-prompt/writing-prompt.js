@@ -118,7 +118,7 @@ export default () => {
 									/>
 								}
 							>
-								{ __( 'View all responses', 'jetpack-newsletter' ) }
+								{ __( 'View responses', 'jetpack-newsletter' ) }
 							</Button>
 						) }
 						<span>

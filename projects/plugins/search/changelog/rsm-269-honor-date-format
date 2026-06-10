@@ -1,4 +1,0 @@
-Significance: patch
-Type: changed
-
-Search 3.0: result cards now honor the site's date_format option (F j, Y, Y-m-d, etc.) instead of a fixed Intl shape.
