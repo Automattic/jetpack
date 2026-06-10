@@ -207,7 +207,10 @@ class WPCOM_REST_API_V2_Endpoint_Subscribers_List_Test extends Jetpack_REST_Test
 	 * `/sites/{blog_id}/subscribers/remove` (v2) endpoint and returns its aggregated body verbatim.
 	 */
 	public function test_remove_forwards_to_consolidated_endpoint_and_returns_body() {
-		$captured = array();
+		$captured = array(
+			'url'  => '',
+			'body' => '',
+		);
 		$filter   = function ( $preempt, $parsed_args, $url ) use ( &$captured ) {
 			$captured['url']  = $url;
 			$captured['body'] = $parsed_args['body'] ?? null;
@@ -263,7 +266,7 @@ class WPCOM_REST_API_V2_Endpoint_Subscribers_List_Test extends Jetpack_REST_Test
 			$captured['url']
 		);
 
-		$sent = json_decode( (string) $captured['body'], true );
+		$sent = (array) json_decode( (string) $captured['body'], true );
 		$this->assertSame( 281425227, $sent['user_id'] );
 		$this->assertSame( 943104114, $sent['email_subscription_id'] );
 		$this->assertSame( array( '5', '6' ), $sent['paid_subscription_ids'] );
