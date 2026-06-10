@@ -823,7 +823,12 @@ function IDCPanel() {
 
 	const whyExplanation = createElement(
 		VStack,
-		{ spacing: 2, className: 'jetpack-connector__idc-why' },
+		{
+			spacing: 2,
+			className: 'jetpack-connector__idc-why',
+			id: 'jetpack-connector-idc-why',
+			hidden: ! showWhy,
+		},
 		createElement(
 			Text,
 			{ size: 12, variant: 'muted' },
@@ -935,11 +940,12 @@ function IDCPanel() {
 				variant: 'link',
 				onClick: () => setShowWhy( value => ! value ),
 				'aria-expanded': showWhy,
+				'aria-controls': 'jetpack-connector-idc-why',
 				className: 'jetpack-connector__idc-why-toggle',
 			},
 			__( 'Why am I seeing this?', 'jetpack-connection' )
 		),
-		showWhy ? whyExplanation : null,
+		whyExplanation,
 		// A dynamic site URL in wp-config.php can keep re-triggering Safe Mode,
 		// so resolving the crisis won't stick until it's made static.
 		possibleDynamicSiteUrl
