@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Request a full width and height size for attached media images so WordPress core no longer reads an undefined array index, removing PHP "Undefined array key 1" warnings on posts shared with the no link option.

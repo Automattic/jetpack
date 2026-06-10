@@ -32,6 +32,10 @@ class Jetpack_Mu_Wpcom {
 		require_once __DIR__ . '/common/fatal-error-signature.php';
 		require_once __DIR__ . '/utils.php';
 
+		// PCG confirmation probe wires its `pre_option_active_plugins`
+		// filter at mu-plugin time, before WP loads active plugins.
+		require_once __DIR__ . '/features/plugin-conflicts-guardian/probe-confirm-bootstrap.php';
+
 		// Load features that don't need any special loading considerations.
 		add_action( 'plugins_loaded', array( __CLASS__, 'load_features' ) );
 
@@ -401,6 +405,14 @@ class Jetpack_Mu_Wpcom {
 		if ( class_exists( '\Automattic\Jetpack\Newsletter\Settings' ) ) {
 			// @phan-suppress-next-line PhanUndeclaredClassMethod -- class_exists guarded above; provided by sibling autoloader.
 			\Automattic\Jetpack\Newsletter\Settings::init();
+		}
+
+		// Register the Daily Writing Prompt dashboard widget, which now lives in
+		// the jetpack-newsletter package. Guarded with class_exists for the same
+		// reason as Settings above: mu-wpcom doesn't composer-require the package.
+		if ( class_exists( '\Automattic\Jetpack\Newsletter\Writing_Prompt_Widget' ) ) {
+			// @phan-suppress-next-line PhanUndeclaredClassMethod -- class_exists guarded above; provided by sibling autoloader.
+			\Automattic\Jetpack\Newsletter\Writing_Prompt_Widget::init();
 		}
 
 		// Only load the Masterbar features on WoA sites.

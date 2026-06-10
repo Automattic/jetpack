@@ -1,5 +1,5 @@
 import { useGlobalNotices } from '@automattic/jetpack-components/global-notices';
-import { Tooltip } from '@wordpress/components';
+import { DropZone, Tooltip } from '@wordpress/components';
 import { DataViews } from '@wordpress/dataviews';
 import { useCallback, useMemo, useRef, useState } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
@@ -16,6 +16,8 @@ import { useLibrary } from '../../src/dashboard/hooks/use-library';
 import { useUpdateVideoMeta } from '../../src/dashboard/hooks/use-update-video-meta';
 import { useUpload } from '../../src/dashboard/hooks/use-upload';
 import { useUploadFromLibrary } from '../../src/dashboard/hooks/use-upload-from-library';
+import { useVideoPressUpgrade } from '../../src/dashboard/hooks/use-videopress-upgrade';
+import { planVideoDrop } from './upload-drop';
 import './style.scss';
 import type { LibraryItem, LibraryItemPrivacy } from '../../src/dashboard/types/library';
 import type { SupportedLayouts, View } from '@wordpress/dataviews';
@@ -69,7 +71,8 @@ const StageInner = () => {
 	const { mutate: deleteVideo } = useDeleteVideo();
 	const { mutate: updateMeta } = useUpdateVideoMeta();
 	const { mutate: uploadFromLibrary } = useUploadFromLibrary();
-	const { isAtLimit } = useFreeTier();
+	const { isAtLimit, isFree, isUnlimited, videoCount, limit } = useFreeTier();
+	const runUpgrade = useVideoPressUpgrade();
 
 	const onChangeView = useCallback( ( next: View ) => {
 		setView( current => {
@@ -111,6 +114,56 @@ const StageInner = () => {
 	);
 
 	const { createSuccessNotice, createErrorNotice } = useGlobalNotices();
+
+	// Drag-and-drop entry point. Mirrors the file-picker's `startUpload`
+	// path but accepts multiple files and enforces the free-tier cap up
+	// front so a drop can't sneak past the limit the picker button guards.
+	const handleFilesDrop = useCallback(
+		( files: File[] ) => {
+			const decision = planVideoDrop( files, {
+				isFree,
+				isUnlimited,
+				limit,
+				videoCount,
+			} );
+
+			if ( decision.kind === 'no-videos' ) {
+				createErrorNotice( __( 'Only video files can be uploaded.', 'jetpack-videopress-pkg' ) );
+				return;
+			}
+
+			if ( decision.kind === 'at-limit' ) {
+				createErrorNotice(
+					__(
+						'You’ve reached the free plan’s 1-video limit. Upgrade to upload more.',
+						'jetpack-videopress-pkg'
+					),
+					{
+						actions: [ { label: __( 'Upgrade', 'jetpack-videopress-pkg' ), onClick: runUpgrade } ],
+					}
+				);
+				return;
+			}
+
+			decision.toUpload.forEach( file => startUpload( file ) );
+
+			if ( decision.skipped > 0 ) {
+				createErrorNotice(
+					sprintf(
+						/* translators: %d: number of videos that could not be uploaded because the plan limit was reached. */
+						_n(
+							'%d video wasn’t uploaded because it exceeds your plan’s limit.',
+							'%d videos weren’t uploaded because they exceed your plan’s limit.',
+							decision.skipped,
+							'jetpack-videopress-pkg'
+						),
+						decision.skipped
+					)
+				);
+			}
+		},
+		[ isFree, isUnlimited, limit, videoCount, startUpload, createErrorNotice, runUpgrade ]
+	);
 
 	const promoteLocal = useCallback(
 		( id: string ) => {
@@ -296,6 +349,10 @@ const StageInner = () => {
 		>
 			<UploadActionsProvider value={ { promoteLocal, retryUpload } }>
 				<div className={ `vp-library__viewport vp-library__viewport--${ view.type }` }>
+					<DropZone
+						label={ __( 'Drop a video to upload', 'jetpack-videopress-pkg' ) }
+						onFilesDrop={ handleFilesDrop }
+					/>
 					<DataViews< LibraryItem >
 						data={ renderedItems }
 						fields={ libraryFields }

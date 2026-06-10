@@ -12,7 +12,7 @@ const baseConfig = {
 			{
 				ignore: 'non-comments',
 				ignorePattern: [
-					'/(https?://[0-9,a-z]*.*)|(^description\\:.+)|(^tags\\:.+)/i',
+					'/(https?://[0-9,a-z]*.*)|(^description:.+)|(^tags:.+)/i',
 					'/stylelint-disable/',
 				],
 			},

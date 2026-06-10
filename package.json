@@ -1,5 +1,5 @@
 {
-	"name": "@automattic/Jetpack_Monorepo",
+	"name": "@automattic/_jetpack_monorepo",
 	"private": true,
 	"description": "[Jetpack](https://jetpack.com/) is a set of WordPress plugins that supercharges your self-hosted WordPress site with the awesome cloud power of [WordPress.com](https://wordpress.com).",
 	"homepage": "https://jetpack.com",
@@ -34,9 +34,14 @@
 		"jetpack-cli": "workspace:*",
 		"jetpack-js-tools": "workspace:*"
 	},
-	"packageManager": "pnpm@10.28.2",
+	"devEngines": {
+		"packageManager": {
+			"name": "pnpm",
+			"version": "^11.5.0"
+		}
+	},
 	"engines": {
-		"node": "^24.14.0",
-		"pnpm": "^10.28.2"
+		"node": "^24.15.0",
+		"pnpm": "^11.5.0"
 	}
 }

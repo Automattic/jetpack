@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Add a shared, token-only WPDS design-tokens stylesheet and enqueue it on Jetpack admin pages so `var(--wpds-*)` values resolve at runtime.

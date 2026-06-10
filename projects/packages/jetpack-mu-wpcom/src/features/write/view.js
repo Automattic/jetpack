@@ -1405,6 +1405,59 @@ function exitBlockAndApplyList( listTag ) {
 }
 
 /**
+ * If the cursor is inside a list whose tag differs from `listTag`, replace
+ * the parent <ul>/<ol> with the requested tag while keeping every <li> in
+ * place. Avoids the browser's `execCommand('insert*List')` behavior, which
+ * pulls only the current <li> out into a new list and leaves siblings behind.
+ *
+ * @param {string} listTag - 'ul' or 'ol'.
+ * @return {boolean} Whether the parent list's tag was changed.
+ */
+function changeListTagAtCursor( listTag ) {
+	const sel = window.getSelection();
+	if ( ! sel.rangeCount ) return false;
+
+	const content = getContent();
+	let node = sel.anchorNode;
+	let li = null;
+	while ( node && node !== content && ! node.classList?.contains( 'bw-content' ) ) {
+		if ( node.nodeType === Node.ELEMENT_NODE && node.tagName === 'LI' ) {
+			li = node;
+			break;
+		}
+		node = node.parentNode;
+	}
+	if ( ! li ) return false;
+
+	const list = li.parentNode;
+	if ( ! list || ! /^(UL|OL)$/i.test( list.tagName ) ) return false;
+	if ( list.tagName.toLowerCase() === listTag.toLowerCase() ) return false;
+
+	const range = sel.getRangeAt( 0 );
+	const startContainer = range.startContainer;
+	const startOffset = range.startOffset;
+	const endContainer = range.endContainer;
+	const endOffset = range.endOffset;
+
+	const newList = document.createElement( listTag );
+	while ( list.firstChild ) {
+		newList.appendChild( list.firstChild );
+	}
+	list.replaceWith( newList );
+
+	try {
+		const newRange = document.createRange();
+		newRange.setStart( startContainer, startOffset );
+		newRange.setEnd( endContainer, endOffset );
+		sel.removeAllRanges();
+		sel.addRange( newRange );
+	} catch {
+		placeCursorAt( li );
+	}
+	return true;
+}
+
+/**
  * Indent or outdent a list item by nesting/unnesting it in a sub-list.
  *
  * Indent: moves the <li> into a new sub-list appended to the previous sibling <li>.
@@ -4077,7 +4130,10 @@ const { state } = store( 'wpcom-write', {
 		// --- Lists ---
 
 		formatUList() {
-			if ( exitBlockAndApplyList( 'ul' ) ) {
+			if ( changeListTagAtCursor( 'ul' ) ) {
+				state.formatUList = true;
+				state.formatOList = false;
+			} else if ( exitBlockAndApplyList( 'ul' ) ) {
 				state.formatUList = true;
 				state.formatOList = false;
 			} else {
@@ -4088,7 +4144,10 @@ const { state } = store( 'wpcom-write', {
 		},
 
 		formatOList() {
-			if ( exitBlockAndApplyList( 'ol' ) ) {
+			if ( changeListTagAtCursor( 'ol' ) ) {
+				state.formatOList = true;
+				state.formatUList = false;
+			} else if ( exitBlockAndApplyList( 'ol' ) ) {
 				state.formatOList = true;
 				state.formatUList = false;
 			} else {
