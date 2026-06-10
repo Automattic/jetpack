@@ -61,7 +61,7 @@ class Sidebar_Open_Preservation_Test extends \WorDBless\BaseTestCase {
 	 */
 	public function tear_down() {
 		// Remove hooks added by the constructor.
-		remove_filter( 'admin_body_class', array( $this->preservation, 'add_preopen_body_classes' ) );
+		remove_filter( 'admin_body_class', array( $this->preservation, 'add_preopen_body_classes' ), PHP_INT_MAX );
 		remove_action( 'admin_enqueue_scripts', array( $this->preservation, 'enqueue_sidebar_open_watcher_script' ), 1 );
 
 		// Clean up the unified experience filter that tests may add.
@@ -122,7 +122,7 @@ class Sidebar_Open_Preservation_Test extends \WorDBless\BaseTestCase {
 		$this->assertSame( $first, $second, 'init() should not replace an existing instance.' );
 
 		// Clean up hooks added by the instance created here.
-		remove_filter( 'admin_body_class', array( $first, 'add_preopen_body_classes' ) );
+		remove_filter( 'admin_body_class', array( $first, 'add_preopen_body_classes' ), PHP_INT_MAX );
 		remove_action( 'admin_enqueue_scripts', array( $first, 'enqueue_sidebar_open_watcher_script' ), 1 );
 		$property->setValue( null, null );
 	}
@@ -131,13 +131,46 @@ class Sidebar_Open_Preservation_Test extends \WorDBless\BaseTestCase {
 	 * Tests that the constructor registers the expected hooks.
 	 */
 	public function test_constructor_registers_hooks() {
-		$this->assertNotFalse(
-			has_filter( 'admin_body_class', array( $this->preservation, 'add_preopen_body_classes' ) )
+		// Registered at `PHP_INT_MAX` so our class is always appended last and cannot be
+		// glued onto a class added by a later `admin_body_class` filter.
+		$this->assertSame(
+			PHP_INT_MAX,
+			has_filter( 'admin_body_class', array( $this->preservation, 'add_preopen_body_classes' ) ),
+			'The pre-open body class filter must run last.'
 		);
 		$this->assertSame(
 			1,
 			has_action( 'admin_enqueue_scripts', array( $this->preservation, 'enqueue_sidebar_open_watcher_script' ) )
 		);
+	}
+
+	/**
+	 * Tests that our pre-open class survives a misbehaving later filter that appends
+	 * a class without a leading space. Because our filter runs last, our class lands
+	 * at the very end of the list as a clean, standalone token.
+	 */
+	public function test_add_preopen_body_classes_runs_last_and_survives_concatenation() {
+		$this->enable_preservation();
+		$_COOKIE[ self::COOKIE_KEY ] = self::OPEN_CLASS_LIST_COOKIE;
+
+		// Mimic the real-world bug: a filter at the default priority that appends a
+		// class without a leading space (e.g. `legacy-color-modern`).
+		add_filter(
+			'admin_body_class',
+			static function ( $classes ) {
+				return $classes . 'legacy-color-modern';
+			}
+		);
+
+		$result = apply_filters( 'admin_body_class', 'foo' );
+		$tokens = preg_split( '/\s+/', trim( $result ) );
+
+		// Our open class is present as a clean, standalone token (not glued onto another).
+		$this->assertContains( self::SIDEBAR_OPEN_CLASS, $tokens );
+		// And it is the final token, confirming our filter ran last.
+		$this->assertSame( self::SIDEBAR_OPEN_CLASS, end( $tokens ) );
+
+		remove_all_filters( 'admin_body_class' );
 	}
 
 	/**

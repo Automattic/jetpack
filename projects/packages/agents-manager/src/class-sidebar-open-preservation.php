@@ -43,7 +43,10 @@ class Sidebar_Open_Preservation {
 	 * Sidebar_Open_Preservation constructor.
 	 */
 	public function __construct() {
-		add_filter( 'admin_body_class', array( $this, 'add_preopen_body_classes' ) );
+		// Run last so our class sits at the end of the `admin_body_class` list. Otherwise
+		// a later filter could append its class without a leading space and glue it onto
+		// ours, breaking the CSS selector that pre-opens the sidebar.
+		add_filter( 'admin_body_class', array( $this, 'add_preopen_body_classes' ), PHP_INT_MAX );
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_sidebar_open_watcher_script' ), 1 );
 	}
 
