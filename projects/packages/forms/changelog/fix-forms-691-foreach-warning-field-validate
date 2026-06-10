@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix foreach warning in contact form field validation when field value is a string instead of an array.
