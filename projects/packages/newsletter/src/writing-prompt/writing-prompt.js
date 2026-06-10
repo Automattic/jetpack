@@ -1,12 +1,16 @@
 import analytics from '@automattic/jetpack-analytics';
 import JetpackLogo from '@automattic/jetpack-components/jetpack-logo';
-import { getSiteData, getSiteType, isWpcomPlatformSite } from '@automattic/jetpack-script-data';
+import {
+	getScriptData,
+	getSiteData,
+	getSiteType,
+	isWpcomPlatformSite,
+} from '@automattic/jetpack-script-data';
 import apiFetch from '@wordpress/api-fetch';
 import { useCallback, useEffect, useMemo, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Button, Link, Stack, Text } from '@wordpress/ui';
 import { addQueryArgs } from '@wordpress/url';
-import { getNewsletterScriptData } from '../settings/script-data';
 
 export default () => {
 	const [ prompts, setPrompts ] = useState( [] );
@@ -17,7 +21,7 @@ export default () => {
 
 	// Initialize analytics with user data.
 	useEffect( () => {
-		const tracksUserData = getNewsletterScriptData()?.tracksUserData;
+		const tracksUserData = getScriptData()?.newsletter?.tracksUserData;
 		if ( tracksUserData && typeof tracksUserData === 'object' ) {
 			analytics.initialize( tracksUserData.userid, tracksUserData.username );
 		}
