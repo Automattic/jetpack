@@ -1,24 +1,39 @@
 <?php
 /**
- * Consent Log controller for CIAB Admin.
+ * Consent Log REST controller.
  * Handles cookie consent logging for GDPR compliance.
  *
- * @package ciab-next
+ * @package automattic/jetpack-cookie-consent
  */
+
+namespace Automattic\Jetpack\CookieConsent;
+
+use WP_Error;
+use WP_REST_Controller;
+use WP_REST_Request;
+use WP_REST_Response;
+use WP_REST_Server;
 
 defined( 'ABSPATH' ) || exit;
 
 /**
  * REST API Consent Log controller class.
  */
-class Next_Admin_Consent_Log_Controller extends WC_REST_Controller {
+class Consent_Log_Controller extends WP_REST_Controller {
+
+	/**
+	 * Singleton instance.
+	 *
+	 * @var Consent_Log_Controller
+	 */
+	private static $instance = null;
 
 	/**
 	 * Endpoint namespace.
 	 *
 	 * @var string
 	 */
-	protected $namespace = 'wc/next';
+	protected $namespace = 'jetpack/v4/cookie-consent';
 
 	/**
 	 * Route base.
@@ -32,7 +47,7 @@ class Next_Admin_Consent_Log_Controller extends WC_REST_Controller {
 	 *
 	 * @var string
 	 */
-	private const TABLE_NAME = 'wc_consent_logs';
+	private const TABLE_NAME = 'jetpack_consent_logs';
 
 	/**
 	 * Database version.
@@ -60,14 +75,36 @@ class Next_Admin_Consent_Log_Controller extends WC_REST_Controller {
 	 *
 	 * @var string
 	 */
-	private const CLEANUP_HOOK = 'wc_next_cleanup_consent_logs';
+	private const CLEANUP_HOOK = 'jetpack_cookie_consent_cleanup_consent_logs';
 
 	/**
-	 * Cleanup cron group.
+	 * Database version option name.
 	 *
 	 * @var string
 	 */
-	private const CLEANUP_GROUP = 'wc_next_consent_logs';
+	private const DB_VERSION_OPTION = 'jetpack_cookie_consent_log_db_version';
+
+	/**
+	 * Initialize the controller: create the table, schedule cleanup,
+	 * register REST routes, and wire the cleanup cron callback.
+	 *
+	 * @return Consent_Log_Controller
+	 */
+	public static function init() {
+		if ( null === self::$instance ) {
+			self::$instance = new self();
+		}
+
+		$instance = self::$instance;
+
+		$instance->maybe_create_table();
+		$instance->schedule_cleanup();
+
+		add_action( 'rest_api_init', array( $instance, 'register_routes' ) );
+		add_action( self::CLEANUP_HOOK, array( $instance, 'cleanup_expired_logs' ) );
+
+		return $instance;
+	}
 
 	/**
 	 * Get the full table name with WordPress prefix.
@@ -83,11 +120,11 @@ class Next_Admin_Consent_Log_Controller extends WC_REST_Controller {
 	 * Create or upgrade the database table if needed.
 	 */
 	public function maybe_create_table() {
-		$installed_version = get_option( 'wc_next_consent_log_db_version', '0' );
+		$installed_version = get_option( self::DB_VERSION_OPTION, '0' );
 
 		if ( version_compare( $installed_version, self::DB_VERSION, '<' ) ) {
 			$this->create_table();
-			update_option( 'wc_next_consent_log_db_version', self::DB_VERSION );
+			update_option( self::DB_VERSION_OPTION, self::DB_VERSION );
 		}
 	}
 
@@ -136,13 +173,13 @@ class Next_Admin_Consent_Log_Controller extends WC_REST_Controller {
 					'args'                => array(
 						'consent_id'    => array(
 							'type'              => 'string',
-							'description'       => __( 'Optional unique consent identifier (UUID v4 format).', 'ciab' ),
+							'description'       => __( 'Optional unique consent identifier (UUID v4 format).', 'jetpack-cookie-consent' ),
 							'validate_callback' => array( $this, 'validate_uuid' ),
 							'sanitize_callback' => 'sanitize_text_field',
 						),
 						'event_type'    => array(
 							'type'              => 'string',
-							'description'       => __( 'Type of consent event: accept_all, accept_selected, reject_all, auto_granted, or opt-out.', 'ciab' ),
+							'description'       => __( 'Type of consent event: accept_all, accept_selected, reject_all, auto_granted, or opt-out.', 'jetpack-cookie-consent' ),
 							'required'          => true,
 							'enum'              => array( 'accept_all', 'accept_selected', 'reject_all', 'auto_granted', 'opt-out' ),
 							'validate_callback' => 'rest_validate_request_arg',
@@ -150,13 +187,13 @@ class Next_Admin_Consent_Log_Controller extends WC_REST_Controller {
 						),
 						'url'           => array(
 							'type'              => 'string',
-							'description'       => __( 'URL where consent was given.', 'ciab' ),
+							'description'       => __( 'URL where consent was given.', 'jetpack-cookie-consent' ),
 							'validate_callback' => 'rest_validate_request_arg',
 							'sanitize_callback' => 'esc_url_raw',
 						),
 						'consent_types' => array(
 							'type'              => 'object',
-							'description'       => __( 'Consent status for different cookie types (e.g., {"functional": true, "analytics": false, "marketing": true}).', 'ciab' ),
+							'description'       => __( 'Consent status for different cookie types (e.g., {"functional": true, "analytics": false, "marketing": true}).', 'jetpack-cookie-consent' ),
 							'validate_callback' => 'rest_validate_request_arg',
 							'sanitize_callback' => array( $this, 'sanitize_consent_types' ),
 						),
@@ -178,34 +215,34 @@ class Next_Admin_Consent_Log_Controller extends WC_REST_Controller {
 					'args'                => array(
 						'customer_id' => array(
 							'type'              => 'integer',
-							'description'       => __( 'Filter by WordPress user ID.', 'ciab' ),
+							'description'       => __( 'Filter by WordPress user ID.', 'jetpack-cookie-consent' ),
 							'validate_callback' => 'rest_validate_request_arg',
 							'sanitize_callback' => 'absint',
 						),
 						'before'      => array(
 							'type'              => 'string',
 							'format'            => 'date-time',
-							'description'       => __( 'Filter logs created before this date (ISO 8601 format).', 'ciab' ),
+							'description'       => __( 'Filter logs created before this date (ISO 8601 format).', 'jetpack-cookie-consent' ),
 							'validate_callback' => 'rest_validate_request_arg',
 							'sanitize_callback' => 'sanitize_text_field',
 						),
 						'after'       => array(
 							'type'              => 'string',
 							'format'            => 'date-time',
-							'description'       => __( 'Filter logs created after this date (ISO 8601 format).', 'ciab' ),
+							'description'       => __( 'Filter logs created after this date (ISO 8601 format).', 'jetpack-cookie-consent' ),
 							'validate_callback' => 'rest_validate_request_arg',
 							'sanitize_callback' => 'sanitize_text_field',
 						),
 						'page'        => array(
 							'type'              => 'integer',
-							'description'       => __( 'Current page of the collection.', 'ciab' ),
+							'description'       => __( 'Current page of the collection.', 'jetpack-cookie-consent' ),
 							'default'           => 1,
 							'validate_callback' => 'rest_validate_request_arg',
 							'sanitize_callback' => 'absint',
 						),
 						'per_page'    => array(
 							'type'              => 'integer',
-							'description'       => __( 'Maximum number of items to return (max 100).', 'ciab' ),
+							'description'       => __( 'Maximum number of items to return (max 100).', 'jetpack-cookie-consent' ),
 							'default'           => 50,
 							'validate_callback' => 'rest_validate_request_arg',
 							'sanitize_callback' => 'absint',
@@ -223,8 +260,7 @@ class Next_Admin_Consent_Log_Controller extends WC_REST_Controller {
 	 * @return bool
 	 */
 	public function check_read_permission() {
-		// phpcs:ignore WordPress.WP.Capabilities.Unknown -- manage_woocommerce is a WooCommerce capability.
-		return current_user_can( 'manage_woocommerce' );
+		return current_user_can( 'manage_options' );
 	}
 
 	/**
@@ -247,7 +283,7 @@ class Next_Admin_Consent_Log_Controller extends WC_REST_Controller {
 				'rest_invalid_param',
 				sprintf(
 					/* translators: %s: parameter name */
-					__( '%s must be a valid UUID format.', 'ciab' ),
+					__( '%s must be a valid UUID format.', 'jetpack-cookie-consent' ),
 					$param
 				),
 				array( 'status' => 400 )
@@ -274,7 +310,7 @@ class Next_Admin_Consent_Log_Controller extends WC_REST_Controller {
 		 * @param array $allowed_types Array of allowed consent type keys.
 		 */
 		$allowed_types = apply_filters(
-			'ciab_next_allowed_consent_types',
+			'jetpack_cookie_consent_allowed_consent_types',
 			self::DEFAULT_CONSENT_TYPES
 		);
 
@@ -332,7 +368,7 @@ class Next_Admin_Consent_Log_Controller extends WC_REST_Controller {
 		if ( false === $result ) {
 			return new WP_Error(
 				'database_error',
-				__( 'Failed to create consent log.', 'ciab' ),
+				__( 'Failed to create consent log.', 'jetpack-cookie-consent' ),
 				array( 'status' => 500 )
 			);
 		}
@@ -436,7 +472,7 @@ class Next_Admin_Consent_Log_Controller extends WC_REST_Controller {
 			'type'       => 'object',
 			'properties' => array(
 				'consent_id' => array(
-					'description' => __( 'The unique consent identifier.', 'ciab' ),
+					'description' => __( 'The unique consent identifier.', 'jetpack-cookie-consent' ),
 					'type'        => 'string',
 					'context'     => array( 'view' ),
 					'readonly'    => true,
@@ -461,56 +497,56 @@ class Next_Admin_Consent_Log_Controller extends WC_REST_Controller {
 				'type'       => 'object',
 				'properties' => array(
 					'id'               => array(
-						'description' => __( 'The consent log ID.', 'ciab' ),
+						'description' => __( 'The consent log ID.', 'jetpack-cookie-consent' ),
 						'type'        => 'integer',
 						'context'     => array( 'view' ),
 						'readonly'    => true,
 					),
 					'consent_id'       => array(
-						'description' => __( 'The unique consent identifier.', 'ciab' ),
+						'description' => __( 'The unique consent identifier.', 'jetpack-cookie-consent' ),
 						'type'        => 'string',
 						'context'     => array( 'view' ),
 						'readonly'    => true,
 					),
 					'event_type'       => array(
-						'description' => __( 'Type of consent event.', 'ciab' ),
+						'description' => __( 'Type of consent event.', 'jetpack-cookie-consent' ),
 						'type'        => 'string',
 						'context'     => array( 'view' ),
 						'readonly'    => true,
 					),
 					'customer_id'      => array(
-						'description' => __( 'The WordPress user ID.', 'ciab' ),
+						'description' => __( 'The WordPress user ID.', 'jetpack-cookie-consent' ),
 						'type'        => 'integer',
 						'context'     => array( 'view' ),
 						'readonly'    => true,
 					),
 					'ip_address'       => array(
-						'description' => __( 'The client IP address.', 'ciab' ),
+						'description' => __( 'The client IP address.', 'jetpack-cookie-consent' ),
 						'type'        => 'string',
 						'context'     => array( 'view' ),
 						'readonly'    => true,
 					),
 					'url'              => array(
-						'description' => __( 'URL where consent was given.', 'ciab' ),
+						'description' => __( 'URL where consent was given.', 'jetpack-cookie-consent' ),
 						'type'        => 'string',
 						'context'     => array( 'view' ),
 						'readonly'    => true,
 					),
 					'consent_types'    => array(
-						'description' => __( 'Consent status for different cookie types as JSON string.', 'ciab' ),
+						'description' => __( 'Consent status for different cookie types as JSON string.', 'jetpack-cookie-consent' ),
 						'type'        => 'string',
 						'context'     => array( 'view' ),
 						'readonly'    => true,
 					),
 					'date_created'     => array(
-						'description' => __( 'Date created in local time.', 'ciab' ),
+						'description' => __( 'Date created in local time.', 'jetpack-cookie-consent' ),
 						'type'        => 'string',
 						'format'      => 'date-time',
 						'context'     => array( 'view' ),
 						'readonly'    => true,
 					),
 					'date_created_gmt' => array(
-						'description' => __( 'Date created in GMT.', 'ciab' ),
+						'description' => __( 'Date created in GMT.', 'jetpack-cookie-consent' ),
 						'type'        => 'string',
 						'format'      => 'date-time',
 						'context'     => array( 'view' ),
@@ -535,7 +571,7 @@ class Next_Admin_Consent_Log_Controller extends WC_REST_Controller {
 		 *
 		 * @param int $retention_days The retention period in days.
 		 */
-		$retention_days = filter_var( apply_filters( 'ciab_next_consent_log_retention_days', self::DEFAULT_RETENTION_DAYS ), FILTER_VALIDATE_INT );
+		$retention_days = filter_var( apply_filters( 'jetpack_cookie_consent_log_retention_days', self::DEFAULT_RETENTION_DAYS ), FILTER_VALIDATE_INT );
 
 		if ( false === $retention_days || $retention_days <= 0 ) {
 			$retention_days = self::DEFAULT_RETENTION_DAYS;
@@ -570,34 +606,23 @@ class Next_Admin_Consent_Log_Controller extends WC_REST_Controller {
 	}
 
 	/**
-	 * Schedule daily cleanup action using Action Scheduler.
+	 * Schedule daily cleanup event using WP-Cron.
 	 */
 	public function schedule_cleanup() {
-		if ( ! function_exists( 'as_schedule_recurring_action' ) ) {
-			return;
-		}
-
 		// Only schedule if not already scheduled.
-		if ( false === as_next_scheduled_action( self::CLEANUP_HOOK, array(), self::CLEANUP_GROUP ) ) {
-			as_schedule_recurring_action(
-				time(),
-				DAY_IN_SECONDS,
-				self::CLEANUP_HOOK,
-				array(),
-				self::CLEANUP_GROUP
-			);
+		if ( ! wp_next_scheduled( self::CLEANUP_HOOK ) ) {
+			wp_schedule_event( time(), 'daily', self::CLEANUP_HOOK );
 		}
 	}
 
 	/**
-	 * Unschedule cleanup action.
+	 * Unschedule cleanup event.
 	 * This method can be called on plugin deactivation.
 	 */
 	public function unschedule_cleanup() {
-		if ( ! function_exists( 'as_unschedule_all_actions' ) ) {
-			return;
+		$timestamp = wp_next_scheduled( self::CLEANUP_HOOK );
+		if ( $timestamp ) {
+			wp_unschedule_event( $timestamp, self::CLEANUP_HOOK );
 		}
-
-		as_unschedule_all_actions( self::CLEANUP_HOOK, array(), self::CLEANUP_GROUP );
 	}
 }
