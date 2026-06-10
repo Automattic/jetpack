@@ -74,7 +74,11 @@ function ImportConsentNotice(): JSX.Element {
  * @return Absolute URL.
  */
 function getSubstackImportUrl( hostname: string ): string {
-	return `https://wordpress.com/import/newsletter/substack/${ encodeURIComponent( hostname ) }`;
+	const params = new URLSearchParams( {
+		ref: 'wp-admin-importers-list-direct-importer',
+		siteSlug: hostname,
+	} );
+	return `https://wordpress.com/setup/site-setup/importerSubstack?${ params.toString() }`;
 }
 
 /**
