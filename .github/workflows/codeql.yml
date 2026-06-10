@@ -1,0 +1,42 @@
+# CodeQL Advanced Setup
+# Replaces GitHub Default Setup to avoid the "feature enablement" REST API check that
+# intermittently fails with "Requires authentication" in the default/managed workflow.
+# See: https://github.com/Automattic/jetpack/actions/runs/27288843019/job/80603514749
+name: "CodeQL"
+
+on:
+  push:
+    branches: [ "trunk" ]
+  pull_request:
+    branches: [ "trunk" ]
+  schedule:
+    - cron: '30 7 * * 1'
+
+jobs:
+  analyze:
+    name: Analyze (${{ matrix.language }})
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+
+    strategy:
+      fail-fast: false
+      matrix:
+        language: [ 'javascript-typescript' ]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v4
+        with:
+          languages: ${{ matrix.language }}
+          build-mode: none
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v4
+        with:
+          category: "/language:${{ matrix.language }}"
