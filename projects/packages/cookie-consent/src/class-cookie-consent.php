@@ -1,11 +1,15 @@
 <?php
 /**
- * Shoppers Privacy Controls
+ * Cookie Consent
  *
- * GDPR-compliant shoppers privacy controls implementation using WordPress Interactivity API.
+ * GDPR-compliant cookie consent controls implementation using the WordPress Interactivity API.
  *
- * @package ciab-next
+ * @package automattic/jetpack-cookie-consent
  */
+
+namespace Automattic\Jetpack\CookieConsent;
+
+use WP_HTML_Tag_Processor;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -14,19 +18,26 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Cookie Consent class
  */
-class CIAB_Next_Shoppers_Privacy {
+class Cookie_Consent {
+
+	/**
+	 * Package version.
+	 *
+	 * @var string
+	 */
+	const PACKAGE_VERSION = '0.1.0-alpha';
 
 	/**
 	 * Instance of this class
 	 *
-	 * @var CIAB_Next_Shoppers_Privacy
+	 * @var Cookie_Consent
 	 */
 	private static $instance = null;
 
 	/**
 	 * Get singleton instance
 	 *
-	 * @return CIAB_Next_Shoppers_Privacy
+	 * @return Cookie_Consent
 	 */
 	public static function get_instance() {
 		if ( null === self::$instance ) {
@@ -36,17 +47,26 @@ class CIAB_Next_Shoppers_Privacy {
 	}
 
 	/**
+	 * Initialize the package.
+	 *
+	 * Public entry point a consumer calls to activate cookie consent. Boots the
+	 * front-end controls (banner, CCPA flow, enqueue) and the consent log REST
+	 * controller (table creation, cron scheduling, route registration).
+	 *
+	 * @return Cookie_Consent
+	 */
+	public static function init() {
+		$instance = self::get_instance();
+		Consent_Log_Controller::init();
+		return $instance;
+	}
+
+	/**
 	 * Constructor
 	 */
 	private function __construct() {
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_assets' ) );
 		add_action( 'wp_footer', array( $this, 'render_banner' ), 999 );
-		// Run one-time setup during site provisioning (priority 15 to run after WC setup).
-		add_action( 'garden_site_provisioning', array( $this, 'maybe_create_ccpa_page' ), 15 );
-		// TODO: Uncomment once legal team provides final privacy policy copy.
-		// For the time being, we want to use default WordPress content.
-		// See: https://linear.app/a8c/issue/ARC-1031/privacy-policy-update-copy-of-privacy-policy.
-		// add_action( 'garden_site_provisioning', array( $this, 'maybe_update_privacy_policy_content' ), 15 );.
 
 		// Prevent CCPA and Privacy Policy page deletion.
 		add_filter( 'map_meta_cap', array( $this, 'prevent_privacy_pages_deletion' ), 10, 4 );
@@ -72,14 +92,14 @@ class CIAB_Next_Shoppers_Privacy {
 	 */
 	public function maybe_create_ccpa_page() {
 		// Check if we've already created the page (by ID, since slug can be changed).
-		$page_id = get_option( 'wc_ccpa_page_id' );
+		$page_id = get_option( 'jetpack_cookie_consent_ccpa_page_id' );
 		if ( $page_id && get_post( $page_id ) ) {
 			return;
 		}
 
 		// If we have a stale page ID (option exists but post doesn't), clear it.
 		if ( $page_id && ! get_post( $page_id ) ) {
-			delete_option( 'wc_ccpa_page_id' );
+			delete_option( 'jetpack_cookie_consent_ccpa_page_id' );
 		}
 
 		// Fallback: check if page exists by slug (for backwards compatibility).
@@ -88,7 +108,7 @@ class CIAB_Next_Shoppers_Privacy {
 
 		// If page exists by slug, save its ID and we're done.
 		if ( $page ) {
-			update_option( 'wc_ccpa_page_id', $page->ID );
+			update_option( 'jetpack_cookie_consent_ccpa_page_id', $page->ID );
 			return;
 		}
 
@@ -98,7 +118,7 @@ class CIAB_Next_Shoppers_Privacy {
 		// Create the page without content first.
 		$page_id = wp_insert_post(
 			array(
-				'post_title'     => __( 'Your Privacy Choices', 'ciab' ),
+				'post_title'     => __( 'Your Privacy Choices', 'jetpack-cookie-consent' ),
 				'post_name'      => $page_slug,
 				'post_status'    => 'publish',
 				'post_type'      => 'page',
@@ -109,7 +129,7 @@ class CIAB_Next_Shoppers_Privacy {
 
 		// Store the page ID and update with content to create a first revision.
 		if ( $page_id && ! is_wp_error( $page_id ) ) {
-			update_option( 'wc_ccpa_page_id', $page_id );
+			update_option( 'jetpack_cookie_consent_ccpa_page_id', $page_id );
 			wp_update_post(
 				array(
 					'ID'           => $page_id,
@@ -137,66 +157,6 @@ class CIAB_Next_Shoppers_Privacy {
 	}
 
 	/**
-	 * Update the Privacy Policy page content if it's in pristine state
-	 *
-	 * This method checks if the Privacy Policy page exists and if it's in pristine state
-	 * (no edits beyond the initial creation). If so, it updates the content with
-	 * CIAB-specific privacy policy content.
-	 *
-	 * @return bool True on success, false on failure.
-	 */
-	public function maybe_update_privacy_policy_content() {
-		$page_id = get_option( 'wp_page_for_privacy_policy' );
-
-		if ( ! $page_id ) {
-			return false;
-		}
-
-		// Check if we've already updated this page.
-		$already_updated = get_post_meta( $page_id, '_ciab_privacy_policy_updated', true );
-		if ( $already_updated ) {
-			return false;
-		}
-
-		// Check if the page is in pristine state using WordPress core APIs.
-		$revisions   = wp_get_post_revisions( $page_id );
-		$is_pristine = count( $revisions ) <= 1;
-
-		if ( ! $is_pristine ) {
-			return false;
-		}
-
-		// TODO: Update the content once provided by legal team
-		// https://linear.app/a8c/issue/ARC-1031/privacy-policy-update-copy-of-privacy-policy.
-		$new_content = '<!-- wp:paragraph --><p>
-		   Custom CIAB Privacy Policy
-		   </p><!-- /wp:paragraph -->';
-
-		// Update the page content.
-		$result = wp_update_post(
-			array(
-				'ID'           => $page_id,
-				'post_content' => $new_content,
-			),
-			true
-		);
-
-		if ( is_wp_error( $result ) ) {
-			if ( defined( 'WP_DEBUG' ) && WP_DEBUG && defined( 'WP_DEBUG_LOG' ) && WP_DEBUG_LOG ) {
-				error_log( // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
-					'CIAB Next: Failed to update Privacy Policy page. Error: ' . $result->get_error_message()
-				);
-			}
-			return false;
-		}
-
-		// Mark the page as updated to avoid re-updating on subsequent loads.
-		update_post_meta( $page_id, '_ciab_privacy_policy_updated', '1' );
-
-		return true;
-	}
-
-	/**
 	 * Exclude CCPA page from get_pages() results
 	 *
 	 * @param WP_Post[] $pages Array of page objects.
@@ -209,7 +169,7 @@ class CIAB_Next_Shoppers_Privacy {
 			return $pages;
 		}
 
-		$ccpa_page_id = get_option( 'wc_ccpa_page_id' );
+		$ccpa_page_id = get_option( 'jetpack_cookie_consent_ccpa_page_id' );
 
 		if ( ! $ccpa_page_id || empty( $pages ) ) {
 			return $pages;
@@ -242,13 +202,13 @@ class CIAB_Next_Shoppers_Privacy {
 		$post_id = isset( $args[0] ) ? (int) $args[0] : 0;
 
 		// Prevent deletion of CCPA page.
-		$ccpa_page_id = get_option( 'wc_ccpa_page_id' );
+		$ccpa_page_id = get_option( 'jetpack_cookie_consent_ccpa_page_id' );
 		if ( $ccpa_page_id && $post_id === (int) $ccpa_page_id ) {
 			return array( 'do_not_allow' );
 		}
 
 		// Prevent deletion of Privacy Policy page.
-		$privacy_policy_page_id = function_exists( 'wc_privacy_policy_page_id' ) ? wc_privacy_policy_page_id() : get_option( 'wp_page_for_privacy_policy' );
+		$privacy_policy_page_id = (int) get_option( 'wp_page_for_privacy_policy' );
 		if ( $privacy_policy_page_id && $post_id === (int) $privacy_policy_page_id ) {
 			return array( 'do_not_allow' );
 		}
@@ -295,7 +255,7 @@ class CIAB_Next_Shoppers_Privacy {
 		}
 
 		// Check CCPA page.
-		$ccpa_page_id = get_option( 'wc_ccpa_page_id' );
+		$ccpa_page_id = get_option( 'jetpack_cookie_consent_ccpa_page_id' );
 		if ( $ccpa_page_id && get_post( $ccpa_page_id ) ) {
 			$ccpa_page_exists = true;
 		}
@@ -349,7 +309,7 @@ class CIAB_Next_Shoppers_Privacy {
 			}
 		}
 
-		$ccpa_page_id     = get_option( 'wc_ccpa_page_id' );
+		$ccpa_page_id     = get_option( 'jetpack_cookie_consent_ccpa_page_id' );
 		$ccpa_page_exists = $ccpa_page_id && get_post( $ccpa_page_id );
 
 		// Process Privacy Policy first (if it exists and hasn't been processed).
@@ -358,7 +318,7 @@ class CIAB_Next_Shoppers_Privacy {
 			$hooked_block['attrs']['label']    = get_the_title( $privacy_policy_page_id );
 			$hooked_block['attrs']['kind']     = 'custom';
 			$hooked_block['attrs']['metadata'] = array(
-				'name' => 'wc-privacy-policy-link',
+				'name' => 'jetpack-cookie-consent-privacy-policy-link',
 			);
 			$privacy_policy_processed          = true;
 			return $hooked_block;
@@ -370,7 +330,7 @@ class CIAB_Next_Shoppers_Privacy {
 			$hooked_block['attrs']['label']    = get_the_title( $ccpa_page_id );
 			$hooked_block['attrs']['kind']     = 'custom';
 			$hooked_block['attrs']['metadata'] = array(
-				'name' => 'wc-ccpa-privacy-link',
+				'name' => 'jetpack-cookie-consent-ccpa-privacy-link',
 			);
 			$ccpa_processed                    = true;
 			return $hooked_block;
@@ -379,10 +339,10 @@ class CIAB_Next_Shoppers_Privacy {
 		// Process GDPR "Manage Privacy Preferences" link last.
 		if ( ! $manage_preferences_processed ) {
 			$hooked_block['attrs']['url']      = '#manage-preferences';
-			$hooked_block['attrs']['label']    = __( 'Manage Privacy Preferences', 'ciab' );
+			$hooked_block['attrs']['label']    = __( 'Manage Privacy Preferences', 'jetpack-cookie-consent' );
 			$hooked_block['attrs']['kind']     = 'custom';
 			$hooked_block['attrs']['metadata'] = array(
-				'name' => 'wc-gdpr-manage-preferences-link',
+				'name' => 'jetpack-cookie-consent-gdpr-manage-preferences-link',
 			);
 			$manage_preferences_processed      = true;
 			return $hooked_block;
@@ -401,7 +361,7 @@ class CIAB_Next_Shoppers_Privacy {
 	 */
 	public function add_ccpa_interactivity_directives( $block_content, $block ) {
 		// Check if this is our CCPA link by looking for our metadata marker.
-		if ( ! isset( $block['attrs']['metadata']['name'] ) || 'wc-ccpa-privacy-link' !== $block['attrs']['metadata']['name'] ) {
+		if ( ! isset( $block['attrs']['metadata']['name'] ) || 'jetpack-cookie-consent-ccpa-privacy-link' !== $block['attrs']['metadata']['name'] ) {
 			return $block_content;
 		}
 
@@ -411,9 +371,9 @@ class CIAB_Next_Shoppers_Privacy {
 		// Find the first <li> tag (the navigation item wrapper).
 		if ( $tags->next_tag( 'li' ) ) {
 			// Add Interactivity API directives to the <li>.
-			$tags->set_attribute( 'data-wp-interactive', 'cookie-consent' );
+			$tags->set_attribute( 'data-wp-interactive', 'jetpack/cookie-consent' );
 			$tags->set_attribute( 'data-wp-context', '{"isCcpaRegion": false}' );
-			$tags->set_attribute( 'data-wp-class--wc-ccpa-privacy-link-hidden', '!state.isCcpaRegion' );
+			$tags->set_attribute( 'data-wp-class--jetpack-cookie-consent-ccpa-privacy-link-hidden', '!state.isCcpaRegion' );
 			$tags->set_attribute( 'data-wp-init', 'callbacks.init' );
 
 			return $tags->get_updated_html();
@@ -431,7 +391,7 @@ class CIAB_Next_Shoppers_Privacy {
 	 */
 	public function add_gdpr_manage_preferences_directives( $block_content, $block ) {
 		// Check if this is our manage preferences link by looking for our metadata marker.
-		if ( ! isset( $block['attrs']['metadata']['name'] ) || 'wc-gdpr-manage-preferences-link' !== $block['attrs']['metadata']['name'] ) {
+		if ( ! isset( $block['attrs']['metadata']['name'] ) || 'jetpack-cookie-consent-gdpr-manage-preferences-link' !== $block['attrs']['metadata']['name'] ) {
 			return $block_content;
 		}
 
@@ -441,11 +401,11 @@ class CIAB_Next_Shoppers_Privacy {
 		// Find the first <li> tag (the navigation item wrapper).
 		if ( $tags->next_tag( 'li' ) ) {
 			// Add Interactivity API directives to the <li>.
-			$tags->set_attribute( 'data-wp-interactive', 'cookie-consent' );
+			$tags->set_attribute( 'data-wp-interactive', 'jetpack/cookie-consent' );
 			$tags->set_attribute( 'data-wp-context', '{"isGdprManageLink": false}' );
-			$tags->set_attribute( 'data-wp-class--wc-gdpr-manage-link-hidden', '!context.isGdprManageLink' );
+			$tags->set_attribute( 'data-wp-class--jetpack-cookie-consent-gdpr-manage-link-hidden', '!context.isGdprManageLink' );
 			$tags->set_attribute( 'data-wp-init', 'callbacks.init' );
-			$tags->add_class( 'wc-gdpr-manage-link-hidden' );
+			$tags->add_class( 'jetpack-cookie-consent-gdpr-manage-link-hidden' );
 		}
 
 		// Find the <a> tag and add click handler.
@@ -465,7 +425,7 @@ class CIAB_Next_Shoppers_Privacy {
 	 */
 	public function add_ccpa_button_directive( $block_content, $block ) {
 		// Check if this button has the CCPA opt-out class.
-		if ( ! isset( $block['attrs']['className'] ) || false === strpos( $block['attrs']['className'], 'wc-ccpa-opt-out-button' ) ) {
+		if ( ! isset( $block['attrs']['className'] ) || false === strpos( $block['attrs']['className'], 'jetpack-cookie-consent-ccpa-opt-out-button' ) ) {
 			return $block_content;
 		}
 
@@ -490,7 +450,7 @@ class CIAB_Next_Shoppers_Privacy {
 	 */
 	public function add_ccpa_group_directives( $block_content, $block ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed
 		// Check if this group block has the CCPA opt-out section class.
-		if ( ! isset( $block['attrs']['className'] ) || false === strpos( $block['attrs']['className'], 'wc-ccpa-opt-out-section' ) ) {
+		if ( ! isset( $block['attrs']['className'] ) || false === strpos( $block['attrs']['className'], 'jetpack-cookie-consent-ccpa-opt-out-section' ) ) {
 			return $block_content;
 		}
 
@@ -499,21 +459,21 @@ class CIAB_Next_Shoppers_Privacy {
 
 		// Find the group div.
 		if ( $tags->next_tag( array( 'class_name' => 'wp-block-group' ) ) ) {
-			$tags->set_attribute( 'data-wp-interactive', 'cookie-consent' );
+			$tags->set_attribute( 'data-wp-interactive', 'jetpack/cookie-consent' );
 			$tags->set_attribute( 'data-wp-context', '{"showSnackbar": false}' );
 			$block_content = $tags->get_updated_html();
 		}
 
 		// Build the snackbar HTML.
 		$snackbar_html = sprintf(
-			'<div class="wc-ccpa-snackbar" data-wp-bind--hidden="!state.showSnackbar">
-				<div class="wc-ccpa-snackbar__content">
+			'<div class="jetpack-cookie-consent-ccpa-snackbar" data-wp-bind--hidden="!state.showSnackbar">
+				<div class="jetpack-cookie-consent-ccpa-snackbar__content">
 					<span>%s</span>
-					<button type="button" class="wc-ccpa-snackbar__dismiss" data-wp-on--click="actions.dismissSnackbar" aria-label="%s">×</button>
+					<button type="button" class="jetpack-cookie-consent-ccpa-snackbar__dismiss" data-wp-on--click="actions.dismissSnackbar" aria-label="%s">×</button>
 				</div>
 			</div>',
-			esc_html__( 'Your browser has been successfully opted out from sharing personal data.', 'ciab' ),
-			esc_attr__( 'Dismiss', 'ciab' )
+			esc_html__( 'Your browser has been successfully opted out from sharing personal data.', 'jetpack-cookie-consent' ),
+			esc_attr__( 'Dismiss', 'jetpack-cookie-consent' )
 		);
 
 		// Insert the snackbar inside the group block (before the closing </div>).
@@ -590,6 +550,7 @@ class CIAB_Next_Shoppers_Privacy {
 				'delaware',
 			),
 			'show_on_error'       => true, // Show banner if geolocation fails.
+			'event_prefix'        => 'jetpack', // Tracks event name prefix; set to 'woocommerceanalytics' for Unified Analytics continuity.
 		);
 
 		/**
@@ -597,7 +558,7 @@ class CIAB_Next_Shoppers_Privacy {
 		 *
 		 * @param array $config Configuration array
 		 */
-		return apply_filters( 'ciab_next_shoppers_privacy_config', $default_config );
+		return apply_filters( 'jetpack_cookie_consent_config', $default_config );
 	}
 
 	/**
@@ -622,19 +583,47 @@ class CIAB_Next_Shoppers_Privacy {
 			)
 		);
 
-		wp_enqueue_script_module( '@ciab-next/shoppers-privacy' );
+		// Register and enqueue the Interactivity API script module built by webpack.
+		$asset_file   = __DIR__ . '/../build/modules/cookie-consent/index.asset.php';
+		$asset        = file_exists( $asset_file ) ? require $asset_file : array(
+			'dependencies' => array( '@wordpress/interactivity' ),
+			'version'      => self::PACKAGE_VERSION,
+		);
+		$module_url   = plugins_url( 'build/modules/cookie-consent/index.js', __DIR__ );
+		$module_id    = '@automattic/jetpack-cookie-consent';
 
-		// Pass REST API URL to the module via global config.
+		wp_register_script_module(
+			$module_id,
+			$module_url,
+			$asset['dependencies'],
+			$asset['version']
+		);
+		wp_enqueue_script_module( $module_id );
+
+		// Enqueue the module's compiled styles.
+		$style_url = plugins_url( 'build/modules/cookie-consent/index.css', __DIR__ );
+		wp_enqueue_style(
+			'jetpack-cookie-consent',
+			$style_url,
+			array(),
+			$asset['version']
+		);
+
+		// Resolve the configured Tracks event prefix once so it can be shared below.
+		$config = $this->get_config();
+
+		// Pass REST API URL and Tracks event prefix to the module via global config.
 		wp_print_inline_script_tag(
 			sprintf(
-				'window.wcConsentLoggerConfig = %s;',
+				'window.jetpackCookieConsentConfig = %s;',
 				wp_json_encode(
 					array(
-						'apiUrl' => rest_url( 'wc/next/consent-log' ),
+						'apiUrl'      => rest_url( 'jetpack/v4/cookie-consent/consent-log' ),
+						'eventPrefix' => $config['event_prefix'],
 					)
 				)
 			),
-			array( 'id' => 'wc-consent-logger-config' )
+			array( 'id' => 'jetpack-cookie-consent-config' )
 		);
 
 		// Check for preview query parameter.
@@ -642,9 +631,8 @@ class CIAB_Next_Shoppers_Privacy {
 		$force_preview = isset( $_GET['preview_cookie_consent'] ) && '1' === $_GET['preview_cookie_consent'];
 
 		// Pass configuration to frontend using wp_interactivity_config.
-		$config = $this->get_config();
 		wp_interactivity_config(
-			'cookie-consent',
+			'jetpack/cookie-consent',
 			array(
 				'geoApiUrl'         => $config['geo_api_url'],
 				'geoCookieDuration' => $config['geo_cookie_duration'],
