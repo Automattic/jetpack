@@ -67,12 +67,13 @@ class PersistentList {
 			return '';
 		}
 
+		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_read_file_put_contents
 		if ( ! file_exists( dirname( $file_path ) ) ) {
 			mkdir( dirname( $file_path ), 0777, true );
 		}
-		file_put_contents(
+		file_put_contents( // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_read_file_put_contents
 			$file_path,
-			json_encode(
+			json_encode( // phpcs:ignore WordPress.WP.AlternativeFunctions.json_encode_json_encode
 				array_map(
 					function ( $item ) {
 						return $item->to_map();

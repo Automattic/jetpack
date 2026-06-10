@@ -148,6 +148,7 @@ class Differences extends PersistentList {
 	 * @param string $file_path JSON file path.
 	 */
 	public function load( $file_path ) {
+		// phpcs:ignore
 		$contents = json_decode( file_get_contents( $file_path ) );
 
 		foreach ( $contents as $obj ) {
@@ -181,7 +182,7 @@ class Differences extends PersistentList {
 					break;
 				default:
 					// TODO: Implement handlers to other difference types.
-					echo "Difference not implemented: " . $obj->diff_type . "\n";
+					echo "Difference not implemented: " . $obj->diff_type . "\n"; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 					break;
 			}
 		}
