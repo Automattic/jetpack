@@ -125,10 +125,8 @@ type PreviewTextOptions = {
 	hyperlinkHashtags?: boolean;
 	hashtagDomain?: string;
 	/**
-	 * Editor hyperlinks — `(text, href)` pairs pulled from the post content —
-	 * to render as links over the matching text in the body. Supplied only for
-	 * the networks whose APIs support inline links (Bluesky, Tumblr); every
-	 * other network leaves the text plain, matching the backend.
+	 * Editor hyperlinks to render as links over the matching body text. Only
+	 * passed for the networks whose APIs support inline links (Bluesky, Tumblr).
 	 */
 	hyperlinks?: Hyperlink[];
 };
@@ -139,16 +137,42 @@ type PreviewTextOptions = {
 export type Hyperlink = {
 	text: string;
 	href: string;
+	/**
+	 * Zero-based index of this anchor among identical occurrences of `text` in
+	 * the content, so repeated texts link the right duplicate. Defaults to 0.
+	 */
+	occurrence?: number;
 };
 
-/**
- * Collapses whitespace runs to a single space so the anchor's visible text
- * matches the surrounding sanitized body text.
- *
- * @param text - The anchor's inner text.
- * @return The whitespace-collapsed text.
- */
+// Collapses whitespace runs to a single space so anchor text matches the sanitized body text.
 const collapseWhitespace = ( text: string ): string => text.replace( /\s+/g, ' ' ).trim();
+
+// Counts the occurrences of `needle` in `haystack`, scanning from each match's next character.
+const countOccurrences = ( haystack: string, needle: string ): number => {
+	let count = 0;
+
+	for (
+		let pos = haystack.indexOf( needle );
+		pos !== -1;
+		pos = haystack.indexOf( needle, pos + 1 )
+	) {
+		count++;
+	}
+
+	return count;
+};
+
+// Index of the zero-based `n`-th occurrence of `needle` in `haystack`, or -1.
+const nthIndexOf = ( haystack: string, needle: string, n: number ): number => {
+	let pos = haystack.indexOf( needle );
+
+	while ( pos !== -1 && n > 0 ) {
+		n--;
+		pos = haystack.indexOf( needle, pos + 1 );
+	}
+
+	return pos;
+};
 
 /**
  * Extracts `(text, href)` pairs from `<a href="…">text</a>` in HTML, skipping
@@ -177,7 +201,14 @@ export function parseHyperlinks( html: string ): Hyperlink[] {
 			continue;
 		}
 
-		links.push( { text, href } );
+		// Record which duplicate of `text` this anchor covers, by counting the
+		// identical occurrences in the plain text before the anchor.
+		const range = doc.createRange();
+		range.selectNodeContents( doc.body );
+		range.setEndBefore( anchor );
+		const occurrence = countOccurrences( collapseWhitespace( range.toString() ), text );
+
+		links.push( { text, href, occurrence } );
 	}
 
 	return links;
@@ -304,33 +335,43 @@ export function preparePreviewText( text: string, options: PreviewTextOptions ):
 		 */
 	}
 
-	// Render editor hyperlinks: locate each anchor's text in the finished body
-	// and wrap it in a link. Anchors are consumed left-to-right so repeated texts
-	// map to the right href, and anchors whose text isn't present (e.g. truncated
-	// away, or overlapping an already-linked bare URL) are skipped — mirroring the
-	// backend's link-entity matching. Runs after the URL/hashtag passes, so the
-	// only edits left are newline -> <br />; the inserted tags stay balanced.
+	// Render editor hyperlinks: wrap each anchor's own occurrence of its text in
+	// a link, resolving all positions before any tags are inserted. Anchors whose
+	// occurrence isn't present (e.g. truncated away) or overlaps another match
+	// are skipped. Runs after the URL/hashtag passes so the inserted tags stay balanced.
 	if ( hyperlinks?.length ) {
-		let cursor = 0;
+		const matches: Array< { pos: number; text: string; href: string; index: number } > = [];
 
-		hyperlinks.forEach( ( { text: anchorText, href }, index ) => {
+		hyperlinks.forEach( ( { text: anchorText, href, occurrence = 0 }, index ) => {
 			if ( ! anchorText ) {
 				return;
 			}
 
-			const pos = result.indexOf( anchorText, cursor );
+			const pos = nthIndexOf( result, anchorText, occurrence );
 
 			if ( pos === -1 ) {
 				return;
 			}
 
+			const overlaps = matches.some(
+				match => pos < match.pos + match.text.length && match.pos < pos + anchorText.length
+			);
+
+			if ( ! overlaps ) {
+				matches.push( { pos, text: anchorText, href, index } );
+			}
+		} );
+
+		// Insert right-to-left so earlier positions stay valid.
+		matches.sort( ( a, b ) => b.pos - a.pos );
+
+		for ( const { pos, text: anchorText, href, index } of matches ) {
 			const token = `Hyperlink${ index }`;
 			componentMap[ token ] = <a href={ href } rel="noopener noreferrer" target="_blank" />;
 
 			const wrapped = `<${ token }>${ anchorText }</${ token }>`;
 			result = result.slice( 0, pos ) + wrapped + result.slice( pos + anchorText.length );
-			cursor = pos + wrapped.length;
-		} );
+		}
 	}
 
 	// Convert newlines to <br> tags.

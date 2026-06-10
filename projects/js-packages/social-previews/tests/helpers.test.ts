@@ -167,7 +167,7 @@ describe( 'preparePreviewText', () => {
 			}
 		} );
 
-		it( 'links multiple anchors, consuming repeated text left-to-right', () => {
+		it( 'links multiple anchors independently', () => {
 			const { container } = render(
 				preparePreviewText( 'this has a link and also this s', {
 					platform: 'bluesky',
@@ -180,6 +180,19 @@ describe( 'preparePreviewText', () => {
 
 			expect( container.innerHTML ).toBe(
 				'<a href="https://a.com/1" rel="noopener noreferrer" target="_blank">this</a> has a link <a href="https://b.com/2" rel="noopener noreferrer" target="_blank">and also this</a> s'
+			);
+		} );
+
+		it( 'links the occurrence the anchor covers, not the first matching text', () => {
+			const { container } = render(
+				preparePreviewText( 'Read this post today. Later, read this post again.', {
+					platform: 'tumblr',
+					hyperlinks: [ { text: 'this post', href: 'https://example.com/real', occurrence: 1 } ],
+				} )
+			);
+
+			expect( container.innerHTML ).toBe(
+				'Read this post today. Later, read <a href="https://example.com/real" rel="noopener noreferrer" target="_blank">this post</a> again.'
 			);
 		} );
 
@@ -203,8 +216,8 @@ describe( 'preparePreviewText', () => {
 				'<p>Read the <a href="https://example.com/x">launch post</a> now and <a href="http://b.test" data-type="link">click here</a>.</p>';
 
 			expect( parseHyperlinks( html ) ).toEqual( [
-				{ text: 'launch post', href: 'https://example.com/x' },
-				{ text: 'click here', href: 'http://b.test' },
+				{ text: 'launch post', href: 'https://example.com/x', occurrence: 0 },
+				{ text: 'click here', href: 'http://b.test', occurrence: 0 },
 			] );
 		} );
 
@@ -219,12 +232,21 @@ describe( 'preparePreviewText', () => {
 			const html = '<a href="https://example.com">launch\n   <strong>post</strong></a>';
 
 			expect( parseHyperlinks( html ) ).toEqual( [
-				{ text: 'launch post', href: 'https://example.com' },
+				{ text: 'launch post', href: 'https://example.com', occurrence: 0 },
 			] );
 		} );
 
 		it( 'returns an empty array for empty input', () => {
 			expect( parseHyperlinks( '' ) ).toEqual( [] );
+		} );
+
+		it( 'records which occurrence of duplicated text an anchor covers', () => {
+			const html =
+				'<p>Read this post today. Later, read <a href="https://example.com/real">this post</a> again.</p>';
+
+			expect( parseHyperlinks( html ) ).toEqual( [
+				{ text: 'this post', href: 'https://example.com/real', occurrence: 1 },
+			] );
 		} );
 	} );
 } );

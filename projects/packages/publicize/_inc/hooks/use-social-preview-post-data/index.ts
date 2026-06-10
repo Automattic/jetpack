@@ -89,16 +89,9 @@ export function useSocialPreviewPostData(): PostPreviewData {
 
 	// Editor hyperlinks are read from the full serialized content (which keeps
 	// the `<a>` tags) rather than the excerpt/content attribute, which is already
-	// HTML-stripped. Entities are decoded so the anchor text matches the decoded
-	// body text the previews render.
-	const hyperlinks = useMemo(
-		() =>
-			parseHyperlinks( content ).map( ( { text, href } ) => ( {
-				text: decodeEntities( text ),
-				href: decodeEntities( href ),
-			} ) ),
-		[ content ]
-	);
+	// HTML-stripped. The DOM parser decodes entities, so the anchor text matches
+	// the decoded body text the previews render.
+	const hyperlinks = useMemo( () => parseHyperlinks( content ), [ content ] );
 
 	return useMemo( () => {
 		return {

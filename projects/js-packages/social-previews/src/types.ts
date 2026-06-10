@@ -8,9 +8,8 @@ export interface SocialPreviewBaseProps {
 	url: string;
 
 	/**
-	 * Editor hyperlinks from the post content, used to render `<a>` links over
-	 * the matching body text on the networks that support inline links (Bluesky,
-	 * Tumblr). Other networks ignore this.
+	 * Editor hyperlinks rendered over the matching body text on the networks
+	 * that support inline links (Bluesky, Tumblr). Other networks ignore this.
 	 */
 	hyperlinks?: Hyperlink[];
 
