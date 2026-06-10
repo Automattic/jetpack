@@ -763,13 +763,13 @@ describe( 'Mastodon previews', () => {
 		expect( container.querySelector( `a[href="${ DEFAULT_POST_URL }"]` ) ).toBeInTheDocument();
 	} );
 
-	it( 'ignores anchorLinks — link-over-text is Bluesky/Tumblr only', () => {
+	it( 'ignores hyperlinks — link-over-text is Bluesky/Tumblr only', () => {
 		const { container } = render(
 			<Mastodon
 				url={ DEFAULT_POST_URL }
 				title={ DEFAULT_POST_TITLE }
 				customText="Read the launch post now."
-				anchorLinks={ [ { text: 'launch post', href: 'https://example.com/anchor' } ] }
+				hyperlinks={ [ { text: 'launch post', href: 'https://example.com/anchor' } ] }
 				user={ mastodonUser }
 			/>
 		);
@@ -793,7 +793,7 @@ describe( 'Bluesky previews', () => {
 				url={ DEFAULT_POST_URL }
 				title={ DEFAULT_POST_TITLE }
 				customText="Read the launch post now."
-				anchorLinks={ [ { text: 'launch post', href: 'https://example.com/anchor' } ] }
+				hyperlinks={ [ { text: 'launch post', href: 'https://example.com/anchor' } ] }
 				user={ blueskyUser }
 			/>
 		);
@@ -818,7 +818,7 @@ describe( 'Tumblr previews', () => {
 				url={ DEFAULT_POST_URL }
 				title={ DEFAULT_POST_TITLE }
 				description="Read the launch post now."
-				anchorLinks={ [ { text: 'launch post', href: 'https://example.com/anchor' } ] }
+				hyperlinks={ [ { text: 'launch post', href: 'https://example.com/anchor' } ] }
 				user={ tumblrUser }
 			/>
 		);

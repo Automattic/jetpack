@@ -130,20 +130,16 @@ type PreviewTextOptions = {
 	 * the networks whose APIs support inline links (Bluesky, Tumblr); every
 	 * other network leaves the text plain, matching the backend.
 	 */
-	anchorLinks?: AnchorLink[];
+	hyperlinks?: Hyperlink[];
 };
 
 /**
  * An editor hyperlink: the visible anchor text and the URL it points to.
  */
-export type AnchorLink = {
+export type Hyperlink = {
 	text: string;
 	href: string;
 };
-
-// `<a href="…">text</a>`, capturing the (quoted) href and the inner markup. The
-// `\1` backreference forces the lazy href group to expand to the matching quote.
-const ANCHOR_TAG = /<a\b[^>]*?\shref\s*=\s*("|')(.*?)\1[^>]*>([\s\S]*?)<\/a>/gi;
 
 /**
  * Collapses whitespace runs to a single space so the anchor's visible text
@@ -163,16 +159,19 @@ const collapseWhitespace = ( text: string ): string => text.replace( /\s+/g, ' '
  * @param html - Raw post content HTML.
  * @return The editor hyperlinks found, in document order.
  */
-export function getAnchorLinks( html: string ): AnchorLink[] {
+export function parseHyperlinks( html: string ): Hyperlink[] {
 	if ( ! html ) {
 		return [];
 	}
 
-	const links: AnchorLink[] = [];
+	const doc = document.implementation.createHTMLDocument( '' );
+	doc.body.innerHTML = html;
 
-	for ( const match of html.matchAll( ANCHOR_TAG ) ) {
-		const href = match[ 2 ];
-		const text = collapseWhitespace( stripHtmlTags( match[ 3 ] ) );
+	const links: Hyperlink[] = [];
+
+	for ( const anchor of Array.from( doc.body.querySelectorAll( 'a[href]' ) ) ) {
+		const href = anchor.getAttribute( 'href' ) ?? '';
+		const text = collapseWhitespace( anchor.textContent ?? '' );
 
 		if ( ! /^https?:\/\//i.test( href ) || '' === text || text === href ) {
 			continue;
@@ -210,7 +209,7 @@ export function preparePreviewText( text: string, options: PreviewTextOptions ):
 		hyperlinkHashtags = true,
 		// Instagram doesn't support hyperlink URLs at the moment.
 		hyperlinkUrls = 'instagram' !== platform,
-		anchorLinks,
+		hyperlinks,
 	} = options;
 
 	let result = stripHtmlTags( text );
@@ -311,10 +310,10 @@ export function preparePreviewText( text: string, options: PreviewTextOptions ):
 	// away, or overlapping an already-linked bare URL) are skipped — mirroring the
 	// backend's link-entity matching. Runs after the URL/hashtag passes, so the
 	// only edits left are newline -> <br />; the inserted tags stay balanced.
-	if ( anchorLinks?.length ) {
+	if ( hyperlinks?.length ) {
 		let cursor = 0;
 
-		anchorLinks.forEach( ( { text: anchorText, href }, index ) => {
+		hyperlinks.forEach( ( { text: anchorText, href }, index ) => {
 			if ( ! anchorText ) {
 				return;
 			}
@@ -325,7 +324,7 @@ export function preparePreviewText( text: string, options: PreviewTextOptions ):
 				return;
 			}
 
-			const token = `Anchor${ index }`;
+			const token = `Hyperlink${ index }`;
 			componentMap[ token ] = <a href={ href } rel="noopener noreferrer" target="_blank" />;
 
 			const wrapped = `<${ token }>${ anchorText }</${ token }>`;

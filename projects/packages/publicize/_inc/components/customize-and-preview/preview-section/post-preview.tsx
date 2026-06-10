@@ -54,7 +54,7 @@ export function PostPreview( { connection, previewData }: PostPreviewProps ) {
 		[ connection ]
 	);
 
-	const { image, media, title, description, url, excerpt, message, anchorLinks } = previewData;
+	const { image, media, title, description, url, excerpt, message, hyperlinks } = previewData;
 
 	const commonProps = useMemo(
 		() => ( {
@@ -63,9 +63,9 @@ export function PostPreview( { connection, previewData }: PostPreviewProps ) {
 			media,
 			title,
 			url,
-			anchorLinks,
+			hyperlinks,
 		} ),
-		[ anchorLinks, description, image, media, title, url ]
+		[ hyperlinks, description, image, media, title, url ]
 	);
 
 	const siteName = useSelect( select => {

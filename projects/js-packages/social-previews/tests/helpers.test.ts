@@ -1,6 +1,6 @@
 import '@testing-library/jest-dom';
 import { render } from '@testing-library/react';
-import { getAnchorLinks, preparePreviewText } from '../src/helpers';
+import { parseHyperlinks, preparePreviewText } from '../src/helpers';
 
 const platformsWithHyperlinkUrls = [ 'facebook', 'linkedin', 'twitter' ] as const;
 
@@ -143,12 +143,12 @@ describe( 'preparePreviewText', () => {
 		}
 	} );
 
-	describe( 'editor hyperlinks (`anchorLinks`)', () => {
-		it( 'links the matching anchor text when anchorLinks are provided', () => {
+	describe( 'editor hyperlinks (`hyperlinks`)', () => {
+		it( 'links the matching anchor text when hyperlinks are provided', () => {
 			const { container } = render(
 				preparePreviewText( 'Read the launch post now.', {
 					platform: 'tumblr',
-					anchorLinks: [ { text: 'launch post', href: 'https://example.com/anchor' } ],
+					hyperlinks: [ { text: 'launch post', href: 'https://example.com/anchor' } ],
 				} )
 			);
 
@@ -157,7 +157,7 @@ describe( 'preparePreviewText', () => {
 			);
 		} );
 
-		it( 'leaves the text plain when no anchorLinks are provided (default)', () => {
+		it( 'leaves the text plain when no hyperlinks are provided (default)', () => {
 			for ( const platform of allPlatforms ) {
 				const { container } = render(
 					preparePreviewText( 'Read the launch post now.', { platform } )
@@ -171,7 +171,7 @@ describe( 'preparePreviewText', () => {
 			const { container } = render(
 				preparePreviewText( 'this has a link and also this s', {
 					platform: 'bluesky',
-					anchorLinks: [
+					hyperlinks: [
 						{ text: 'this', href: 'https://a.com/1' },
 						{ text: 'and also this', href: 'https://b.com/2' },
 					],
@@ -188,7 +188,7 @@ describe( 'preparePreviewText', () => {
 				preparePreviewText( 'short body', {
 					platform: 'tumblr',
 					maxChars: 10,
-					anchorLinks: [ { text: 'missing phrase', href: 'https://example.com/x' } ],
+					hyperlinks: [ { text: 'missing phrase', href: 'https://example.com/x' } ],
 				} )
 			);
 
@@ -197,12 +197,12 @@ describe( 'preparePreviewText', () => {
 		} );
 	} );
 
-	describe( 'getAnchorLinks', () => {
+	describe( 'parseHyperlinks', () => {
 		it( 'extracts (text, href) pairs from anchor tags in document order', () => {
 			const html =
 				'<p>Read the <a href="https://example.com/x">launch post</a> now and <a href="http://b.test" data-type="link">click here</a>.</p>';
 
-			expect( getAnchorLinks( html ) ).toEqual( [
+			expect( parseHyperlinks( html ) ).toEqual( [
 				{ text: 'launch post', href: 'https://example.com/x' },
 				{ text: 'click here', href: 'http://b.test' },
 			] );
@@ -212,19 +212,19 @@ describe( 'preparePreviewText', () => {
 			const html =
 				'<a href="https://wp.org">https://wp.org</a> <a href="mailto:a@b.com">mail</a> <a href="/relative">rel</a>';
 
-			expect( getAnchorLinks( html ) ).toEqual( [] );
+			expect( parseHyperlinks( html ) ).toEqual( [] );
 		} );
 
 		it( 'strips nested markup and collapses whitespace in the text', () => {
 			const html = '<a href="https://example.com">launch\n   <strong>post</strong></a>';
 
-			expect( getAnchorLinks( html ) ).toEqual( [
+			expect( parseHyperlinks( html ) ).toEqual( [
 				{ text: 'launch post', href: 'https://example.com' },
 			] );
 		} );
 
 		it( 'returns an empty array for empty input', () => {
-			expect( getAnchorLinks( '' ) ).toEqual( [] );
+			expect( parseHyperlinks( '' ) ).toEqual( [] );
 		} );
 	} );
 } );

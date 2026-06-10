@@ -15,7 +15,7 @@ export const TumblrPostPreview: React.FC< TumblrPreviewProps > = ( {
 	user,
 	url,
 	media,
-	anchorLinks,
+	hyperlinks,
 } ) => {
 	const avatarUrl = user?.avatarUrl;
 
@@ -34,7 +34,7 @@ export const TumblrPostPreview: React.FC< TumblrPreviewProps > = ( {
 								{ visibleText =>
 									preparePreviewText( tumblrDescription( visibleText ), {
 										platform: 'tumblr',
-										anchorLinks,
+										hyperlinks,
 									} )
 								}
 							</ExpandableText>
