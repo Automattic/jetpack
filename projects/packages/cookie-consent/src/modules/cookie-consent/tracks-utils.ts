@@ -12,23 +12,15 @@ import type { TrackingProperties } from './types';
  * @param url Optional URL to parse (defaults to current location)
  * @return Object containing UTM parameters (empty object if URL is invalid)
  */
-export function getUtmParameters(
-	url: string = window.location.href
-): Record< string, string > {
+export function getUtmParameters( url: string = window.location.href ): Record< string, string > {
 	const utmParams: Record< string, string > = {};
 
 	try {
 		const urlParams = new URLSearchParams( new URL( url ).search );
 
-		const utmKeys = [
-			'utm_source',
-			'utm_medium',
-			'utm_campaign',
-			'utm_term',
-			'utm_content',
-		];
+		const utmKeys = [ 'utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content' ];
 
-		utmKeys.forEach( ( key ) => {
+		utmKeys.forEach( key => {
 			const value = urlParams.get( key );
 			if ( value ) {
 				utmParams[ key ] = value;
@@ -79,11 +71,8 @@ export function ensureTrackingQueue(): void {
  * @param eventNameSuffix The event name (must follow Tracks naming conventions).
  * @param properties      Event properties object.
  */
-export function recordEvent(
-	eventNameSuffix: string,
-	properties: TrackingProperties
-): void {
-	const eventNamePrefix = 'woocommerceanalytics';
+export function recordEvent( eventNameSuffix: string, properties: TrackingProperties ): void {
+	const eventNamePrefix = window.jetpackCookieConsentConfig?.eventPrefix || 'jetpack';
 	const eventName = `${ eventNamePrefix }_${ eventNameSuffix }`;
 	// Ensure queue exists - w.js will process events when it loads
 	ensureTrackingQueue();
