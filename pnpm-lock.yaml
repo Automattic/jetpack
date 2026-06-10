@@ -4063,6 +4063,27 @@ importers:
       '@date-fns/tz':
         specifier: 1.4.1
         version: 1.4.1
+      '@jetpack-premium-analytics/data':
+        specifier: link:packages/data
+        version: link:packages/data
+      '@jetpack-premium-analytics/datetime':
+        specifier: link:packages/datetime
+        version: link:packages/datetime
+      '@jetpack-premium-analytics/formatters':
+        specifier: link:packages/formatters
+        version: link:packages/formatters
+      '@jetpack-premium-analytics/icons':
+        specifier: link:packages/icons
+        version: link:packages/icons
+      '@jetpack-premium-analytics/routing':
+        specifier: link:packages/routing
+        version: link:packages/routing
+      '@jetpack-premium-analytics/ui':
+        specifier: link:packages/ui
+        version: link:packages/ui
+      '@jetpack-premium-analytics/widgets-toolkit':
+        specifier: link:packages/widgets-toolkit
+        version: link:packages/widgets-toolkit
       '@tanstack/react-query':
         specifier: 5.90.8
         version: 5.90.8(react@18.3.1)
