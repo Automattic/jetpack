@@ -37,7 +37,7 @@ class Sync_Status_Tracker_Test extends TestCase {
 	public function tear_down() {
 		delete_option( Sync_Status_Tracker::INITIAL_FULL_SYNC_OPTION );
 		remove_all_actions( Sync_Status_Tracker::MILESTONE_ACTION );
-		remove_all_filters( 'jetpack_premium_analytics_sync_module_name' );
+		remove_all_filters( 'jetpack_premium_analytics_sync_modules' );
 		\WorDBless\Options::init()->clear_options();
 	}
 
@@ -111,11 +111,11 @@ class Sync_Status_Tracker_Test extends TestCase {
 		$this->assertSame( 0, (int) get_option( Sync_Status_Tracker::INITIAL_FULL_SYNC_OPTION, 0 ) );
 	}
 
-	public function test_filter_overrides_analytics_sync_module() {
+	public function test_filter_overrides_analytics_sync_modules() {
 		add_filter(
-			'jetpack_premium_analytics_sync_module_name',
+			'jetpack_premium_analytics_sync_modules',
 			static function () {
-				return 'custom_module_name';
+				return array( 'custom_module_name' );
 			}
 		);
 
@@ -125,6 +125,35 @@ class Sync_Status_Tracker_Test extends TestCase {
 		);
 
 		$this->assertSame( 1730000123, (int) get_option( Sync_Status_Tracker::INITIAL_FULL_SYNC_OPTION ) );
+	}
+
+	public function test_filter_can_add_a_second_analytics_module() {
+		add_filter(
+			'jetpack_premium_analytics_sync_modules',
+			static function ( $modules ) {
+				$modules[] = 'second_analytics';
+				return $modules;
+			}
+		);
+
+		Sync_Status_Tracker::maybe_set_milestone(
+			array( 'config' => array( 'second_analytics' => true ) ),
+			array( array( 'jetpack_full_sync_end', array(), 0, 1730000123 ) )
+		);
+
+		$this->assertSame( 1730000123, (int) get_option( Sync_Status_Tracker::INITIAL_FULL_SYNC_OPTION ) );
+	}
+
+	public function test_listener_bails_before_module_lookup_when_milestone_reached() {
+		update_option( Sync_Status_Tracker::INITIAL_FULL_SYNC_OPTION, 1730000000 );
+
+		// Once the milestone is set the listener must return before reaching the
+		// sync-module registry, so this call stays a no-op without it standing up.
+		Sync_Status_Tracker::on_sync_processed_actions(
+			array( array( 'jetpack_full_sync_end', array(), 0, 1730099999 ) )
+		);
+
+		$this->assertSame( 1730000000, (int) get_option( Sync_Status_Tracker::INITIAL_FULL_SYNC_OPTION ) );
 	}
 
 	public function test_script_data_reports_zero_before_milestone() {
