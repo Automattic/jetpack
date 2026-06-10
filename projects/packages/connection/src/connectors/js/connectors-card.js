@@ -823,12 +823,7 @@ function IDCPanel() {
 
 	const whyExplanation = createElement(
 		VStack,
-		{
-			spacing: 2,
-			className: 'jetpack-connector__idc-why',
-			id: 'jetpack-connector-idc-why',
-			hidden: ! showWhy,
-		},
+		{ spacing: 2, className: 'jetpack-connector__idc-why' },
 		createElement(
 			Text,
 			{ size: 12, variant: 'muted' },
@@ -945,7 +940,10 @@ function IDCPanel() {
 			},
 			__( 'Why am I seeing this?', 'jetpack-connection' )
 		),
-		whyExplanation,
+		// Wrap in a plain element so the `hidden` attribute actually hides the
+		// region: VStack renders `display: flex`, which would override `hidden`.
+		// The wrapper stays in the DOM so the toggle's aria-controls is always valid.
+		createElement( 'div', { id: 'jetpack-connector-idc-why', hidden: ! showWhy }, whyExplanation ),
 		// A dynamic site URL in wp-config.php can keep re-triggering Safe Mode,
 		// so resolving the crisis won't stick until it's made static.
 		possibleDynamicSiteUrl
