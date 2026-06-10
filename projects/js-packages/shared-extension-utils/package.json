@@ -13,10 +13,7 @@
 	"license": "GPL-2.0-or-later",
 	"author": "Automattic",
 	"exports": {
-		".": {
-			"react-native": "./index.native.js",
-			"default": "./index.js"
-		},
+		".": "./index.js",
 		"./components": "./src/components/index.js",
 		"./components/wpcom-support-link": "./src/components/wpcom-support-link.jsx",
 		"./icons": "./src/icons.js",
