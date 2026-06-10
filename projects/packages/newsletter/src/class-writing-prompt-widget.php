@@ -7,6 +7,10 @@
 
 namespace Automattic\Jetpack\Newsletter;
 
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Status;
+use Automattic\Jetpack\Status\Host;
+
 /**
  * Register and render the Daily Writing Prompt dashboard widget.
  */
@@ -50,6 +54,10 @@ class Writing_Prompt_Widget {
 			return;
 		}
 
+		if ( ! self::should_load() ) {
+			return;
+		}
+
 		wp_add_dashboard_widget(
 			'wpcom_daily_writing_prompt',
 			__( 'Daily Writing Prompt', 'jetpack-newsletter' ),
@@ -64,6 +72,31 @@ class Writing_Prompt_Widget {
 		// screen and runs before the header is printed) rather than in the render
 		// callback, so the stylesheet lands in the head like it did previously.
 		self::enqueue_assets();
+	}
+
+	/**
+	 * Whether the Daily Writing Prompt widget should load.
+	 *
+	 * The widget fetches prompts from WordPress.com through the Jetpack proxy, so
+	 * it can only load where the site is able to reach WordPress.com: on Simple
+	 * sites, or on online, connected Jetpack sites (including Atomic).
+	 *
+	 * This runs on `wp_dashboard_setup` rather than at plugin-load time so that
+	 * the connection check happens after Core's pluggable functions are loaded.
+	 * Checking the connection any earlier triggers a fatal error on Atomic.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return bool
+	 */
+	private static function should_load() {
+		// Simple sites can always reach WordPress.com, with no Jetpack connection involved.
+		if ( ( new Host() )->is_wpcom_simple() ) {
+			return true;
+		}
+
+		// Everywhere else the widget needs an online, connected site to fetch prompts.
+		return ( new Connection_Manager() )->is_connected() && ! ( new Status() )->is_offline_mode();
 	}
 
 	/**
