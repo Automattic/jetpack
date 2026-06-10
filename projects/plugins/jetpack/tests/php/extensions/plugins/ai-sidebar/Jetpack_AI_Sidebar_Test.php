@@ -89,7 +89,7 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 		( new \Automattic\Jetpack\Connection\Manager( 'jetpack' ) )->reset_connection_status();
 		delete_option( 'jetpack_offline_mode' );
 		delete_option( 'big_sky_enable' );
-		$this->simulate_self_hosted();
+		$this->reset_platform_constants();
 		wp_set_current_user( $this->saved_current_user_id );
 		$GLOBALS['current_screen'] = $this->saved_screen;
 		$GLOBALS['wp_scripts']     = $this->saved_wp_scripts;
@@ -127,9 +127,12 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	/**
 	 * Simulate a WordPress.com platform site (WoA) so Host::is_wpcom_platform() is true
 	 * while is_wpcom_simple() stays false — keeping has_ai_features() on the
-	 * connected-owner / jetpack_ai_enabled path the other tests rely on.
+	 * connected-owner / jetpack_ai_enabled path the other tests rely on. Every platform
+	 * constant is overridden so the result is the same regardless of the test
+	 * environment's real constants (e.g. JETPACK_TEST_WPCOMSH).
 	 */
 	private function simulate_wpcom_platform() {
+		Constants::set_constant( 'IS_WPCOM', false );
 		Constants::set_constant( 'ATOMIC_SITE_ID', 123456789 );
 		Constants::set_constant( 'ATOMIC_CLIENT_ID', '2' );
 		Constants::set_constant( 'WPCOMSH__PLUGIN_FILE', '/wpcomsh/wpcomsh.php' );
@@ -137,10 +140,24 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Simulate a self-hosted Jetpack site: no WordPress.com platform constants, so
-	 * Host::is_wpcom_platform() is false.
+	 * Simulate a self-hosted Jetpack site by overriding every WordPress.com platform
+	 * constant to false, forcing Host::is_wpcom_platform() false regardless of the test
+	 * environment's real constants (e.g. JETPACK_TEST_WPCOMSH, where they may be defined).
 	 */
 	private function simulate_self_hosted() {
+		Constants::set_constant( 'IS_WPCOM', false );
+		Constants::set_constant( 'ATOMIC_SITE_ID', false );
+		Constants::set_constant( 'ATOMIC_CLIENT_ID', false );
+		Constants::set_constant( 'WPCOMSH__PLUGIN_FILE', false );
+		Status_Cache::clear();
+	}
+
+	/**
+	 * Clear the platform-constant overrides so this test class never leaks WordPress.com
+	 * platform state into later test classes.
+	 */
+	private function reset_platform_constants() {
+		Constants::clear_single_constant( 'IS_WPCOM' );
 		Constants::clear_single_constant( 'ATOMIC_SITE_ID' );
 		Constants::clear_single_constant( 'ATOMIC_CLIENT_ID' );
 		Constants::clear_single_constant( 'WPCOMSH__PLUGIN_FILE' );
