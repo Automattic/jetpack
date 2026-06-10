@@ -18,8 +18,16 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit( 0 );
 }
 
-$manifest   = $plugin->get_manifest( true );
+$manifest = $plugin->get_manifest( true );
+
+// For unpublished plugins get_wporg_data() is a no-op returning an empty object.
+// @todo Refactor everywhere to use a generic plugin data object instead of `$wporg_data`.
 $wporg_data = $plugin->get_wporg_data( true );
+
+// Refresh plugin details from GitHub.
+if ( $plugin->is_unpublished() ) {
+	$plugin->get_latest_github_release( true );
+}
 
 $existing_branch = null;
 if ( file_exists( $plugin->plugin_path() ) ) {

@@ -27,13 +27,22 @@ if ( ! defined( 'ABSPATH' ) ) {
 		// translators: Translates the `More info` link. %1$s: URL. %2$s: PR number.
 		$more_info[] = sprintf( __( '<a target="_blank" rel="external noopener noreferrer" href="%1$s">more info #%2$s</a>', 'jetpack-beta' ), $branch->plugin_url, $branch->pr );
 	} elseif ( 'release' === $branch->source ) {
-		$data_attr   = sprintf( 'data-release="%s"', esc_attr( $branch->version ) );
-		$more_info[] = sprintf(
-			// translators: Which release is being selected.
-			__( 'Public release (%1$s) <a href="https://plugins.trac.wordpress.org/browser/jetpack/tags/%2$s" target="_blank" rel="">available on WordPress.org</a>', 'jetpack-beta' ),
-			esc_html( $branch->version ),
-			esc_attr( $branch->version )
-		);
+		$data_attr = sprintf( 'data-release="%s"', esc_attr( $branch->version ) );
+		if ( isset( $branch->plugin_url ) ) {
+			$more_info[] = sprintf(
+				// translators: Which release is being selected. %1$s: Version number. %2$s: GitHub release URL.
+				__( 'Public release (%1$s) <a href="%2$s" target="_blank">available on GitHub</a>', 'jetpack-beta' ),
+				esc_html( $branch->version ),
+				esc_url( $branch->plugin_url )
+			);
+		} else {
+			$more_info[] = sprintf(
+				// translators: Which release is being selected. %1$s: Version number. %2$s: GitHub release URL.
+				__( 'Public release (%1$s) <a href="https://plugins.trac.wordpress.org/browser/jetpack/tags/%2$s" target="_blank" rel="">available on WordPress.org</a>', 'jetpack-beta' ),
+				esc_html( $branch->version ),
+				esc_attr( $branch->version )
+			);
+		}
 	} elseif ( 'rc' === $branch->source || 'trunk' === $branch->source || 'unknown' === $branch->source && $branch->version ) {
 		$more_info[] = sprintf(
 			// translators: %s: Version number.

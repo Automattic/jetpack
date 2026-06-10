@@ -376,6 +376,15 @@ class Plugin {
 	}
 
 	/**
+	 * Is this plugin unpublished (i.e. not in the WordPress Plugin Directory)?
+	 *
+	 * @return bool
+	 */
+	public function is_unpublished() {
+		return $this->unpublished;
+	}
+
+	/**
 	 * Get the manifest data (i.e. branches) for the plugin.
 	 *
 	 * @param bool $no_cache Set true to bypass the transients cache.
@@ -425,6 +434,33 @@ class Plugin {
 			$this->wporg_data = $data;
 		}
 		return $this->wporg_data;
+	}
+
+	/**
+	 * Get info from the latest GitHub release of the plugin's mirror repo.
+	 *
+	 * Used in place of WordPress.org data for unpublished plugins.
+	 *
+	 * @param bool $no_cache Set true to bypass the transients cache.
+	 * @return object Object with plugin data.
+	 * @throws PluginDataException If the data cannot be fetched or is invalid.
+	 */
+	public function get_latest_github_release( $no_cache = false ) {
+		$url     = sprintf( 'https://api.github.com/repos/%s/releases/latest', $this->mirror );
+		$release = Utils::get_remote_data( $url, "github_latest_$this->slug", $no_cache );
+		if ( ! is_object( $release ) || ! isset( $release->tag_name ) || ! isset( $release->assets[0]->browser_download_url ) ) {
+			throw new PluginDataException(
+				// translators: %s: Plugin slug.
+				sprintf( __( 'Failed to download GitHub release data for plugin \'%s\'. Check your Internet connection.', 'jetpack-beta' ), $this->slug )
+			);
+		}
+
+		return (object) array(
+			'download_url' => $release->assets[0]->browser_download_url,
+			'version'      => ltrim( $release->tag_name, 'v' ),
+			'update_date'  => date_create( $release->published_at, timezone_open( 'UTC' ) )->format( 'Y-m-d H:i:s' ),
+			'plugin_url'   => $release->html_url,
+		);
 	}
 
 	/**
@@ -910,22 +946,26 @@ class Plugin {
 		// Get the info based on the source.
 		switch ( $source ) {
 			case 'stable':
-				$which      = 'stable';
-				$wporg_data = $this->get_wporg_data();
-				if ( ! isset( $wporg_data->download_link ) ) {
-					return new WP_Error(
-						'stable_url_missing',
-						// translators: %s: Plugin slug.
-						sprintf( __( 'No stable download URL is available for %s.', 'jetpack-beta' ), $this->plugin_slug() )
+				$which = 'stable';
+				if ( $this->unpublished ) {
+					$info = $this->get_latest_github_release();
+				} else {
+					$wporg_data = $this->get_wporg_data();
+					if ( ! isset( $wporg_data->download_link ) ) {
+						return new WP_Error(
+							'stable_url_missing',
+							// translators: %s: Plugin slug.
+							sprintf( __( 'No stable download URL is available for %s.', 'jetpack-beta' ), $this->plugin_slug() )
+						);
+					}
+					$info = (object) array(
+						'download_url' => $wporg_data->download_link,
+						'version'      => $wporg_data->version,
+						'update_date'  => date_create( $wporg_data->last_updated, timezone_open( 'UTC' ) )->format( 'Y-m-d H:i:s' ),
 					);
 				}
-				$info   = (object) array(
-					'download_url' => $wporg_data->download_link,
-					'version'      => $wporg_data->version,
-					'update_date'  => date_create( $wporg_data->last_updated, timezone_open( 'UTC' ) )->format( 'Y-m-d H:i:s' ),
-				);
 				$source = 'release';
-				$id     = $wporg_data->version;
+				$id     = $info->version;
 				break;
 
 			// Master case remains purely for back-compatibility (in case anyone has bookmarked URLs).
@@ -977,7 +1017,18 @@ class Plugin {
 				break;
 
 			case 'release':
-				$which      = 'stable';
+				$which = 'stable';
+				if ( $this->unpublished ) {
+					$info = $this->get_latest_github_release();
+					if ( $info->version !== $id ) {
+						return new WP_Error(
+							'release_missing',
+							// translators: %1$s: Version number. %2$s: Plugin slug.
+							sprintf( __( 'Version %1$s does not exist for %2$s.', 'jetpack-beta' ), $id, $this->plugin_slug() )
+						);
+					}
+					break;
+				}
 				$wporg_data = $this->get_wporg_data();
 				if ( ! isset( $wporg_data->versions->{$id} ) ) {
 					return new WP_Error(
