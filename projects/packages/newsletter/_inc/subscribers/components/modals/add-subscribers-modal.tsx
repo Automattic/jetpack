@@ -93,7 +93,7 @@ type SubmitButtonProps = {
  * disables itself when the user has nothing to submit.
  *
  * @param props           - Component props.
- * @param props.count     - Number of valid emails to invite.
+ * @param props.count     - Number of valid emails to import.
  * @param props.isPending - Whether the underlying mutation is in flight.
  * @param props.onClick   - Submit handler.
  * @return Submit button.
@@ -102,8 +102,8 @@ function SubmitButton( { count, isPending, onClick }: SubmitButtonProps ): JSX.E
 	const label =
 		count > 0
 			? sprintf(
-					// translators: %d: number of subscribers to invite.
-					_n( 'Invite %d subscriber', 'Invite %d subscribers', count, 'jetpack-newsletter' ),
+					// translators: %d: number of subscribers to add.
+					_n( 'Add %d subscriber', 'Add %d subscribers', count, 'jetpack-newsletter' ),
 					count
 			  )
 			: __( 'Add subscribers', 'jetpack-newsletter' );
@@ -131,7 +131,7 @@ type AddTabProps = {
 function ManualTab( { mutation, onClose }: AddTabProps ): JSX.Element {
 	const [ value, setValue ] = useState( '' );
 
-	// Submit button reflects the *live* value so the user never has to wait to invite — typing one
+	// Submit button reflects the *live* value so the user never has to wait to submit — typing one
 	// valid email enables the CTA right away.
 	const { valid } = useMemo( () => partitionEmails( splitEntries( value ) ), [ value ] );
 
@@ -174,7 +174,7 @@ function ManualTab( { mutation, onClose }: AddTabProps ): JSX.Element {
 				__nextHasNoMarginBottom
 				label={ __( 'Email addresses', 'jetpack-newsletter' ) }
 				help={ __(
-					'Enter one email per line. Subscribers receive an invitation by email.',
+					'Enter one email per line. We’ll automatically clean duplicate, incomplete, outdated, or spammy emails.',
 					'jetpack-newsletter'
 				) }
 				value={ value }
@@ -252,7 +252,7 @@ function UploadTab( { mutation, onClose }: AddTabProps ): JSX.Element {
 		<Stack direction="column" gap="md">
 			<Text variant="body-md">
 				{ __(
-					'Upload a CSV from Substack, Beehiiv, Mailchimp, Ghost, Patreon, Kit or Medium. We’ll pick the email column for you and send each address an invitation.',
+					'Upload a CSV from Substack, Beehiiv, Mailchimp, Ghost, Patreon, Kit or Medium. We’ll pick the email column for you and import each address.',
 					'jetpack-newsletter'
 				) }
 			</Text>
@@ -327,7 +327,7 @@ function SubstackTab(): JSX.Element {
 }
 
 /**
- * Modal that invites new subscribers by email. Three tabs — manual entry, CSV upload, and a
+ * Modal that imports new subscribers by email. Three tabs — manual entry, CSV upload, and a
  * Substack importer hand-off — share a single `useAddSubscribersMutation` so the snackbar
  * feedback + dashboard cache invalidation behave identically across tabs. (Calypso also has a
  * "Migrate from another WordPress.com site" flow; we don't ship it from inside the in-admin

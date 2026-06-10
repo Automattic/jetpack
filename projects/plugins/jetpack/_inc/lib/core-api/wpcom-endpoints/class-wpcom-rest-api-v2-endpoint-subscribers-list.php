@@ -515,8 +515,10 @@ class WPCOM_REST_API_V2_Endpoint_Subscribers_List extends WP_REST_Controller {
 	}
 
 	/**
-	 * Add subscribers by email — proxies to `/sites/{blog_id}/invites/new` (v1.1) which sends a
-	 * "follower" invitation email per address. Mirrors Calypso's `addSubscribers` action.
+	 * Add subscribers by email — proxies to `/sites/{blog_id}/subscribers/import` (v2), the same
+	 * async import job Calypso's Add Subscribers modal starts. Addresses are imported directly as
+	 * subscribers (no invitation email); WP.com processes the job in the background and emails the
+	 * importing user a "Subscriber import completed" summary when it finishes.
 	 *
 	 * @param WP_REST_Request $request Request.
 	 * @return WP_REST_Response|WP_Error
@@ -546,23 +548,28 @@ class WPCOM_REST_API_V2_Endpoint_Subscribers_List extends WP_REST_Controller {
 			);
 		}
 
+		// JSON body, not the form encoding Calypso submits: WP.com's Jetpack signature verifier
+		// canonicalizes `application/x-www-form-urlencoded` bodies differently from the Jetpack
+		// client (it re-encodes the parsed array as JSON before hashing), so a form-encoded POST
+		// fails the body-hash check and arrives unauthenticated (user 0) — surfacing as a 401
+		// `invalid_capabilities`. JSON bodies hash identically on both sides, and the endpoint
+		// reads its params from either encoding. `parse_only => false` runs the import rather
+		// than only validating the payload.
 		$response = Client::wpcom_json_api_request_as_user(
-			sprintf( '/sites/%d/invites/new', (int) $blog_id ),
-			'1.1',
+			sprintf( '/sites/%d/subscribers/import', (int) $blog_id ),
+			'2',
 			array(
 				'method'  => 'POST',
 				'headers' => array( 'Content-Type' => 'application/json' ),
 			),
 			wp_json_encode(
 				array(
-					'invitees'    => $emails,
-					'role'        => 'follower',
-					'source'      => 'jetpack-subscribers-dashboard',
-					'is_external' => false,
+					'emails'     => $emails,
+					'parse_only' => false,
 				),
 				JSON_UNESCAPED_SLASHES
 			),
-			'rest'
+			'wpcom'
 		);
 
 		if ( is_wp_error( $response ) ) {
@@ -572,11 +579,13 @@ class WPCOM_REST_API_V2_Endpoint_Subscribers_List extends WP_REST_Controller {
 		$status = (int) wp_remote_retrieve_response_code( $response );
 		$body   = json_decode( wp_remote_retrieve_body( $response ), true );
 
-		if ( $status >= 400 ) {
+		// A successful import start carries the async job id as `upload_id`. Mirror Calypso, which
+		// treats any response without one as a failure even when the HTTP status is 2xx.
+		if ( $status >= 400 || ! is_array( $body ) || empty( $body['upload_id'] ) ) {
 			return new WP_Error(
 				'subscribers_add_failed',
-				is_array( $body ) && isset( $body['message'] ) ? $body['message'] : __( 'Could not add subscribers.', 'jetpack' ),
-				array( 'status' => $status )
+				$this->get_wpcom_error_message( $body, __( 'Could not add subscribers.', 'jetpack' ) ),
+				array( 'status' => $status >= 400 ? $status : 400 )
 			);
 		}
 
