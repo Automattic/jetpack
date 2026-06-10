@@ -90,6 +90,14 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 					'methods'             => WP_REST_Server::READABLE,
 					'callback'            => array( $this, 'handle_proxy_request' ),
 					'permission_callback' => array( $this, 'check_permission' ),
+					'args'                => array(
+						'endpoint' => array(
+							'description'       => __( 'The analytics sub-path to proxy.', 'jetpack-premium-analytics' ),
+							'type'              => 'string',
+							'required'          => true,
+							'sanitize_callback' => 'sanitize_text_field',
+						),
+					),
 				),
 				'schema' => array( $this, 'get_public_item_schema' ),
 			)
@@ -165,8 +173,8 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 	 * @return string
 	 */
 	protected function build_endpoint_url( WP_REST_Request $request ): string {
-		$site_id      = (string) Jetpack_Options::get_option( 'id' );
-		$endpoint_url = sprintf( '/sites/%s/analytics/%s', $site_id, (string) $request->get_param( 'endpoint' ) );
+		$site_id      = (int) Jetpack_Options::get_option( 'id' );
+		$endpoint_url = sprintf( '/sites/%d/analytics/%s', $site_id, (string) $request->get_param( 'endpoint' ) );
 
 		$params = $this->get_forwarded_params( $request );
 		if ( ! empty( $params ) ) {
@@ -205,16 +213,25 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 	 * @param array  $http_response Raw response from the Jetpack client.
 	 * @param string $cache_key     Transient key for this request signature.
 	 *
-	 * @return WP_REST_Response
+	 * @return WP_REST_Response|WP_Error
 	 */
-	private function cache_and_build_response( array $http_response, string $cache_key ): WP_REST_Response {
-		$status  = (int) wp_remote_retrieve_response_code( $http_response );
-		$headers = wp_remote_retrieve_headers( $http_response );
+	private function cache_and_build_response( array $http_response, string $cache_key ) {
+		$status = (int) wp_remote_retrieve_response_code( $http_response );
+		$data   = json_decode( wp_remote_retrieve_body( $http_response ), false );
+
+		// A 200 with an undecodable body means the upstream is degraded; don't cache garbage.
+		if ( 200 === $status && null === $data && JSON_ERROR_NONE !== json_last_error() ) {
+			return new WP_Error(
+				'api_error',
+				__( 'The analytics service returned an unreadable response.', 'jetpack-premium-analytics' ),
+				array( 'status' => 502 )
+			);
+		}
 
 		$payload = array(
-			'data'    => json_decode( wp_remote_retrieve_body( $http_response ), false ),
+			'data'    => $data,
 			'status'  => $status,
-			'headers' => $this->extract_forwarded_headers( $headers ),
+			'headers' => $this->extract_forwarded_headers( wp_remote_retrieve_headers( $http_response ) ),
 		);
 
 		if ( 200 === $status ) {
@@ -271,7 +288,8 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 	 */
 	private function get_forwarded_params( WP_REST_Request $request ): array {
 		$params = $request->get_query_params();
-		unset( $params['rest_route'] );
+		// Drop the params WordPress adds for its own routing — they're meaningless to WPCOM.
+		unset( $params['rest_route'], $params['_locale'] );
 
 		return is_array( $params ) ? $params : array();
 	}

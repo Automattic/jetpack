@@ -114,6 +114,37 @@ class Api_Proxy_Controller_Test extends BaseTestCase {
 		$this->assertNotSame( $this->cache_key( $a ), $this->cache_key( $c ) );
 	}
 
+	public function test_cache_key_ignores_wordpress_routing_params() {
+		$bare    = $this->build_request( 'reports/totals', array( 'period' => 'week' ) );
+		$routing = $this->build_request(
+			'reports/totals',
+			array(
+				'period'     => 'week',
+				'rest_route' => '/jetpack-premium-analytics/v1/proxy/reports/totals',
+				'_locale'    => 'user',
+			)
+		);
+
+		$this->assertSame( $this->cache_key( $bare ), $this->cache_key( $routing ) );
+	}
+
+	public function test_undecodable_200_body_returns_502_and_is_not_cached() {
+		$request  = $this->build_request( 'reports/totals' );
+		$response = $this->cache_and_build_response(
+			array(
+				'response' => array( 'code' => 200 ),
+				'body'     => '<html>not json</html>',
+				'headers'  => array(),
+			),
+			$this->cache_key( $request )
+		);
+
+		$this->assertInstanceOf( \WP_Error::class, $response );
+		$this->assertSame( 'api_error', $response->get_error_code() );
+		$this->assertSame( 502, $response->get_error_data()['status'] );
+		$this->assertFalse( get_transient( $this->cache_key( $request ) ) );
+	}
+
 	/**
 	 * Build a proxy request with the endpoint capture and forwarded query params set.
 	 *
@@ -143,5 +174,21 @@ class Api_Proxy_Controller_Test extends BaseTestCase {
 		};
 
 		return $accessor->call( $this->controller, $request );
+	}
+
+	/**
+	 * Invoke the controller's private cache_and_build_response().
+	 *
+	 * @param array  $http_response Raw HTTP response array.
+	 * @param string $cache_key     Transient key.
+	 *
+	 * @return WP_REST_Response|\WP_Error
+	 */
+	private function cache_and_build_response( array $http_response, string $cache_key ) {
+		$accessor = function ( array $resp, string $key ) {
+			return $this->cache_and_build_response( $resp, $key );
+		};
+
+		return $accessor->call( $this->controller, $http_response, $cache_key );
 	}
 }
