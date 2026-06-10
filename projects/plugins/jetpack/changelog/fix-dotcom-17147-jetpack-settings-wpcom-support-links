@@ -1,4 +1,4 @@
 Significance: patch
-Type: changed
+Type: enhancement
 
-Settings: On WordPress.com sites, support links in Jetpack Settings now point to the matching wordpress.com/support docs and open inside the Help Center. The "Privacy information" link is hidden in this context.
+Settings: On WordPress.com sites, support links in Jetpack Settings now point to the matching wordpress.com/support docs and open inside the Help Center. The "Privacy information" link is hidden when a wordpress.com doc replaces it.
