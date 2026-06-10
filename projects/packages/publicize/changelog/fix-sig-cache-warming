@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Social Image Generator: Pre-warm the generated image cache after publish so freshly published posts shared on X get a preview thumbnail without waiting on a cold render.

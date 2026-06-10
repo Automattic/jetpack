@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.19.4] - 2026-06-08
+### Fixed
+- Abilities: Allow readonly stats abilities with optional input to run when no input is sent. [#49370]
+
 ## [0.19.3] - 2026-06-01
 ### Changed
 - Internal updates.
@@ -331,6 +335,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Fixing static method which was called without self reference. [#26640]
 
+[0.19.4]: https://github.com/Automattic/jetpack-stats/compare/v0.19.3...v0.19.4
 [0.19.3]: https://github.com/Automattic/jetpack-stats/compare/v0.19.2...v0.19.3
 [0.19.2]: https://github.com/Automattic/jetpack-stats/compare/v0.19.1...v0.19.2
 [0.19.1]: https://github.com/Automattic/jetpack-stats/compare/v0.19.0...v0.19.1
