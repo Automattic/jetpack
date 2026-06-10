@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Subscribers: Hide the "Comp a subscription" action when the site has no paid newsletter plans.
