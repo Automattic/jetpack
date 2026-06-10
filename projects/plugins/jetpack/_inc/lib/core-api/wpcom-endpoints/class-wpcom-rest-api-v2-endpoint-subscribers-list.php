@@ -386,8 +386,12 @@ class WPCOM_REST_API_V2_Endpoint_Subscribers_List extends WP_REST_Controller {
 	 * Remove a subscriber by cancelling any paid subscriptions and deleting both the WPCOM
 	 * follower and email follower records, mirroring Calypso's `useSubscriberRemoveMutation`.
 	 *
-	 * Each underlying call is best-effort — we collect errors per step so the caller can show a
-	 * partial-failure notice instead of giving up on the first 4xx.
+	 * Proxies to the consolidated wpcom `/sites/{blog_id}/subscribers/remove` (v2) endpoint, which
+	 * runs all three steps in-process after switching to the blog and returns an aggregated
+	 * `{ ok, errors }` result. Forwarded as the current user (not the blog token): the wpcom/v2
+	 * authorization layer maps the Jetpack user token to the wpcom user, so the endpoint's
+	 * `manage_options` gate evaluates against the acting admin — unlike the classic v1.1 `/rest`
+	 * API, which left the request with no current user.
 	 *
 	 * @param WP_REST_Request $request Request.
 	 * @return WP_REST_Response|WP_Error
@@ -401,7 +405,9 @@ class WPCOM_REST_API_V2_Endpoint_Subscribers_List extends WP_REST_Controller {
 
 		$user_id               = (int) $request->get_param( 'user_id' );
 		$email_subscription_id = (int) $request->get_param( 'email_subscription_id' );
-		$paid_subscription_ids = (array) $request->get_param( 'paid_subscription_ids' );
+		$paid_subscription_ids = array_values(
+			array_filter( array_map( 'strval', (array) $request->get_param( 'paid_subscription_ids' ) ) )
+		);
 
 		if ( ! $user_id && ! $email_subscription_id && empty( $paid_subscription_ids ) ) {
 			return new WP_Error(
@@ -411,57 +417,40 @@ class WPCOM_REST_API_V2_Endpoint_Subscribers_List extends WP_REST_Controller {
 			);
 		}
 
-		$errors = array();
-
-		foreach ( $paid_subscription_ids as $paid_id ) {
-			$paid_id = sanitize_text_field( (string) $paid_id );
-			if ( '' === $paid_id ) {
-				continue;
-			}
-			$step_error = $this->wpcom_post(
-				sprintf( '/sites/%d/memberships/subscriptions/%s/cancel', (int) $blog_id, $paid_id )
-			);
-			if ( is_wp_error( $step_error ) ) {
-				$errors[] = array(
-					'step'  => 'cancel_paid_subscription',
-					'id'    => $paid_id,
-					'error' => $step_error->get_error_message(),
-				);
-			}
-		}
-
-		if ( $user_id ) {
-			$step_error = $this->wpcom_post(
-				sprintf( '/sites/%d/followers/%d/delete', (int) $blog_id, $user_id )
-			);
-			if ( is_wp_error( $step_error ) ) {
-				$errors[] = array(
-					'step'  => 'delete_follower',
-					'id'    => (string) $user_id,
-					'error' => $step_error->get_error_message(),
-				);
-			}
-		}
-
-		if ( $email_subscription_id ) {
-			$step_error = $this->wpcom_post(
-				sprintf( '/sites/%d/email-followers/%d/delete', (int) $blog_id, $email_subscription_id )
-			);
-			if ( is_wp_error( $step_error ) ) {
-				$errors[] = array(
-					'step'  => 'delete_email_follower',
-					'id'    => (string) $email_subscription_id,
-					'error' => $step_error->get_error_message(),
-				);
-			}
-		}
-
-		return rest_ensure_response(
+		$response = Client::wpcom_json_api_request_as_user(
+			sprintf( '/sites/%d/subscribers/remove', (int) $blog_id ),
+			'2',
 			array(
-				'ok'     => empty( $errors ),
-				'errors' => $errors,
-			)
+				'method'  => 'POST',
+				'headers' => array( 'Content-Type' => 'application/json' ),
+			),
+			wp_json_encode(
+				array(
+					'user_id'               => $user_id,
+					'email_subscription_id' => $email_subscription_id,
+					'paid_subscription_ids' => $paid_subscription_ids,
+				),
+				JSON_UNESCAPED_SLASHES
+			),
+			'wpcom'
 		);
+
+		if ( is_wp_error( $response ) ) {
+			return $response;
+		}
+
+		$status = (int) wp_remote_retrieve_response_code( $response );
+		$body   = json_decode( wp_remote_retrieve_body( $response ), true );
+
+		if ( $status >= 400 ) {
+			return new WP_Error(
+				'subscribers_remove_failed',
+				is_array( $body ) && isset( $body['message'] ) ? $body['message'] : __( 'Could not remove the subscriber.', 'jetpack' ),
+				array( 'status' => $status )
+			);
+		}
+
+		return rest_ensure_response( $body );
 	}
 
 	/**
@@ -782,45 +771,6 @@ class WPCOM_REST_API_V2_Endpoint_Subscribers_List extends WP_REST_Controller {
 		}
 
 		return rest_ensure_response( $body );
-	}
-
-	/**
-	 * Helper: POST to a v1.1 wpcom REST path as the current user.
-	 *
-	 * Note on caps: WP.com's followers / email-followers / memberships endpoints require the
-	 * calling user to have the `delete_followers` capability on the wpcom-side blog. That maps
-	 * 1:1 with the wpcom blog admin role, so this works on real Jetpack-connected sites where
-	 * the wp-admin admin user is also the wpcom-side blog admin. It does NOT work on environments
-	 * where the wpcom-side blog is owned by a different account than the locally-connected user
-	 * (e.g. some Jurassic Ninja test sites). We tried `as_blog` and forwarding as the connection
-	 * owner — both hit the same wpcom cap gate. The fix lives on the wpcom side, not here.
-	 *
-	 * Returns null on success or a WP_Error describing the failure.
-	 *
-	 * @param string $path Path under `/rest/v1.1`.
-	 * @return WP_Error|null
-	 */
-	private function wpcom_post( $path ) {
-		$response = Client::wpcom_json_api_request_as_user(
-			$path,
-			'1.1',
-			array( 'method' => 'POST' ),
-			null,
-			'rest'
-		);
-
-		if ( is_wp_error( $response ) ) {
-			return $response;
-		}
-
-		$status = (int) wp_remote_retrieve_response_code( $response );
-		if ( $status >= 400 ) {
-			$body    = json_decode( wp_remote_retrieve_body( $response ), true );
-			$message = is_array( $body ) && isset( $body['message'] ) ? $body['message'] : __( 'WP.com call failed.', 'jetpack' );
-			return new WP_Error( 'wpcom_call_failed', $message, array( 'status' => $status ) );
-		}
-
-		return null;
 	}
 }
 
