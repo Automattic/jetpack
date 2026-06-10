@@ -5,6 +5,7 @@
  * @package automattic/jetpack
  */
 
+use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Extensions\AiAssistantPlugin;
 use Automattic\Jetpack\Extensions\AiAssistantPlugin\Jetpack_AI_Sidebar;
 use Automattic\Jetpack\Status\Cache as Status_Cache;
@@ -81,6 +82,7 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 		remove_all_filters( 'jetpack_ai_enabled' );
 		remove_all_filters( 'jetpack_offline_mode' );
 		Status_Cache::clear();
+		Constants::clear_single_constant( 'IS_WPCOM' );
 		unset( $_SERVER['A8C_PROXIED_REQUEST'] );
 		( new \Automattic\Jetpack\Connection\Manager( 'jetpack' ) )->reset_connection_status();
 		delete_option( 'jetpack_offline_mode' );
@@ -236,9 +238,10 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	// ──────────────────────────────────────────────────
 
 	/**
-	 * Test that init() registers hooks by default for AI Editorial Review.
+	 * Test that init() registers hooks by default on WordPress.com Simple sites.
 	 */
 	public function test_init_registers_hooks_by_default() {
+		Constants::set_constant( 'IS_WPCOM', true );
 		Jetpack_AI_Sidebar::init();
 
 		$this->assertNotFalse(
@@ -259,6 +262,7 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	 * Test that init() does nothing when the sidebar gate is explicitly disabled.
 	 */
 	public function test_init_does_nothing_when_filter_is_false() {
+		Constants::set_constant( 'IS_WPCOM', true );
 		add_filter( 'jetpack_ai_sidebar_enabled', '__return_false' );
 		Jetpack_AI_Sidebar::init();
 
@@ -276,6 +280,7 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	 * Test that init() does nothing when the preview gate is disabled.
 	 */
 	public function test_init_does_nothing_when_preview_gate_is_false() {
+		Constants::set_constant( 'IS_WPCOM', true );
 		add_filter( 'jetpack_ai_sidebar_preview_enabled', '__return_false' );
 		Jetpack_AI_Sidebar::init();
 
@@ -295,6 +300,7 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	public function test_init_registers_hooks_when_preview_is_enabled_without_ai_editorial_review() {
 		add_filter( 'jetpack_ai_editorial_review_enabled', '__return_false' );
 		add_filter( 'jetpack_ai_sidebar_preview_enabled', '__return_true' );
+		Constants::set_constant( 'IS_WPCOM', true );
 		Jetpack_AI_Sidebar::init();
 
 		$this->assertNotFalse(
@@ -333,6 +339,29 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 		$this->assertNotFalse(
 			has_action( 'admin_enqueue_scripts', array( Jetpack_AI_Sidebar::class, 'maybe_enqueue_abilities_script' ) ),
 			'maybe_enqueue_abilities_script should be hooked when filter is true.'
+		);
+	}
+
+	/**
+	 * Test that init() registers nothing on non-Simple sites by default, and that
+	 * the jetpack_ai_sidebar_enabled filter can still force it on (e.g. for testing).
+	 */
+	public function test_init_skips_when_not_simple_unless_filter_forced() {
+		// No IS_WPCOM constant => not a Simple site: the gate keeps init() inert.
+		Jetpack_AI_Sidebar::init();
+
+		$this->assertFalse(
+			has_filter( 'agents_manager_agent_providers', array( Jetpack_AI_Sidebar::class, 'register_provider' ) ),
+			'register_provider should not be hooked on non-Simple sites by default.'
+		);
+
+		// Forcing the kill-switch filter opts a non-Simple site back in.
+		$this->enable_sidebar();
+		Jetpack_AI_Sidebar::init();
+
+		$this->assertNotFalse(
+			has_filter( 'agents_manager_agent_providers', array( Jetpack_AI_Sidebar::class, 'register_provider' ) ),
+			'register_provider should be hooked when the filter forces enablement on a non-Simple site.'
 		);
 	}
 
@@ -1043,6 +1072,7 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	 */
 	public function test_full_flow_with_default_enabled() {
 		$this->set_block_editor_screen();
+		Constants::set_constant( 'IS_WPCOM', true );
 		Jetpack_AI_Sidebar::init();
 		$this->cache_sidebar_asset_data();
 
@@ -1056,6 +1086,7 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	 * Test full flow: filter disabled, init, verify no provider registered.
 	 */
 	public function test_full_flow_with_filter_disabled() {
+		Constants::set_constant( 'IS_WPCOM', true );
 		add_filter( 'jetpack_ai_sidebar_enabled', '__return_false' );
 		Jetpack_AI_Sidebar::init();
 

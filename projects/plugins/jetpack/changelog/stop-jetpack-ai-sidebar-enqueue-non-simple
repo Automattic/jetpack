@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Jetpack AI Sidebar: only enqueue on WordPress.com Simple sites; skip Atomic and self-hosted Jetpack, where it is not surfaced via Calypso.

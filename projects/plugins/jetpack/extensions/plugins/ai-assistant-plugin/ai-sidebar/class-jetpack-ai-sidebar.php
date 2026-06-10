@@ -45,12 +45,15 @@ class Jetpack_AI_Sidebar {
 		/**
 		 * Filter to enable or disable the Jetpack AI sidebar feature.
 		 *
-		 * Defaults to the Jetpack AI Sidebar Preview gate. Use this filter as
-		 * a host-level kill switch for the whole sidebar entrypoint.
+		 * Defaults to the Jetpack AI Sidebar Preview gate, limited to WordPress.com
+		 * Simple sites: on Atomic and self-hosted Jetpack the sidebar is not surfaced
+		 * via Calypso, so its scripts are not enqueued here. Use this filter as a
+		 * host-level kill switch, or to opt a non-Simple site back in (e.g. for testing).
 		 *
 		 * @param bool $enabled Whether the AI sidebar is enabled.
 		 */
-		if ( ! apply_filters( 'jetpack_ai_sidebar_enabled', self::is_jetpack_ai_sidebar_preview_enabled() ) ) {
+		$is_enabled = self::is_jetpack_ai_sidebar_preview_enabled() && ( new Host() )->is_wpcom_simple();
+		if ( ! apply_filters( 'jetpack_ai_sidebar_enabled', $is_enabled ) ) {
 			return;
 		}
 
@@ -61,8 +64,9 @@ class Jetpack_AI_Sidebar {
 
 		add_filter( 'jetpack_ai_sidebar_agents_manager_data', array( __CLASS__, 'add_agents_manager_data' ), 10, 1 );
 
-		// Allow jetpack-mu-wpcom's bundled Agents Manager to mount in the
-		// post editor on WordPress.com and Atomic sites.
+		// Allow jetpack-mu-wpcom's bundled Agents Manager to mount in the post
+		// editor. Reached on WordPress.com Simple by default; Atomic and self-hosted
+		// only when jetpack_ai_sidebar_enabled is forced on (see the gate above).
 		add_filter( 'agents_manager_enabled_in_block_editor', array( __CLASS__, 'enable_agents_manager_in_post_editor' ) );
 
 		// Load AM from CDN if not already present.
