@@ -12,6 +12,9 @@ engineStrict: true
 pmOnFail: ignore
 preferWorkspacePackages: true
 
+# Feature is buggy in pnpm 11.5, e.g. https://github.com/pnpm/pnpm/issues/12100.
+optimisticRepeatInstall: false
+
 # Be strict about peer deps
 autoInstallPeers: false
 dedupePeerDependents: false

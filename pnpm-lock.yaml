@@ -1033,8 +1033,8 @@ importers:
         specifier: 7.0.0-dev.20260225.1
         version: 7.0.0-dev.20260225.1
       concurrently:
-        specifier: 9.2.1
-        version: 9.2.1
+        specifier: 10.0.3
+        version: 10.0.3
       jest:
         specifier: 30.4.2
         version: 30.4.2
@@ -1930,8 +1930,8 @@ importers:
         specifier: 6.48.0
         version: 6.48.0
       concurrently:
-        specifier: 9.2.1
-        version: 9.2.1
+        specifier: 10.0.3
+        version: 10.0.3
       sass-embedded:
         specifier: 1.97.3
         version: 1.97.3
@@ -2008,8 +2008,8 @@ importers:
         specifier: ^4.24.0
         version: 4.28.2
       concurrently:
-        specifier: 9.2.1
-        version: 9.2.1
+        specifier: 10.0.3
+        version: 10.0.3
       jest:
         specifier: 30.4.2
         version: 30.4.2
@@ -2039,8 +2039,8 @@ importers:
         specifier: 6.48.0
         version: 6.48.0
       concurrently:
-        specifier: 9.2.1
-        version: 9.2.1
+        specifier: 10.0.3
+        version: 10.0.3
       jest:
         specifier: 30.4.2
         version: 30.4.2
@@ -2172,8 +2172,8 @@ importers:
         specifier: ^4.24.0
         version: 4.28.2
       concurrently:
-        specifier: 9.2.1
-        version: 9.2.1
+        specifier: 10.0.3
+        version: 10.0.3
       jest:
         specifier: 30.4.2
         version: 30.4.2
@@ -2406,8 +2406,8 @@ importers:
         specifier: 7.0.0-dev.20260225.1
         version: 7.0.0-dev.20260225.1
       concurrently:
-        specifier: 9.2.1
-        version: 9.2.1
+        specifier: 10.0.3
+        version: 10.0.3
       jest:
         specifier: 30.4.2
         version: 30.4.2(@types/node@24.13.1)
@@ -2793,8 +2793,8 @@ importers:
         specifier: ^4.24.0
         version: 4.28.2
       concurrently:
-        specifier: 9.2.1
-        version: 9.2.1
+        specifier: 10.0.3
+        version: 10.0.3
       glob:
         specifier: 13.0.6
         version: 13.0.6
@@ -3326,8 +3326,8 @@ importers:
         specifier: 7.0.0-dev.20260225.1
         version: 7.0.0-dev.20260225.1
       concurrently:
-        specifier: 9.2.1
-        version: 9.2.1
+        specifier: 10.0.3
+        version: 10.0.3
       jest:
         specifier: 30.4.2
         version: 30.4.2(@types/node@24.13.1)
@@ -3489,8 +3489,8 @@ importers:
         specifier: ^4.24.0
         version: 4.28.2
       concurrently:
-        specifier: 9.2.1
-        version: 9.2.1
+        specifier: 10.0.3
+        version: 10.0.3
       jest:
         specifier: 30.4.2
         version: 30.4.2
@@ -3833,8 +3833,8 @@ importers:
         specifier: ^4.24.0
         version: 4.28.2
       concurrently:
-        specifier: 9.2.1
-        version: 9.2.1
+        specifier: 10.0.3
+        version: 10.0.3
       sass-embedded:
         specifier: 1.97.3
         version: 1.97.3
@@ -3865,12 +3865,30 @@ importers:
       '@automattic/number-formatters':
         specifier: workspace:*
         version: link:../../js-packages/number-formatters
+      '@automattic/ui':
+        specifier: 1.0.2
+        version: 1.0.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@date-fns/tz':
         specifier: 1.4.1
         version: 1.4.1
+      '@tanstack/react-query':
+        specifier: 5.90.8
+        version: 5.90.8(react@18.3.1)
+      '@wordpress/api-fetch':
+        specifier: 7.48.0
+        version: 7.48.0
       '@wordpress/boot':
         specifier: 0.14.1
         version: 0.14.1(@date-fns/tz@1.4.1)(date-fns@4.1.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@wordpress/components':
+        specifier: 35.0.0
+        version: 35.0.0(@date-fns/tz@1.4.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@wordpress/compose':
+        specifier: 8.1.0
+        version: 8.1.0(react@18.3.1)
+      '@wordpress/core-data':
+        specifier: 7.48.0
+        version: 7.48.0(@date-fns/tz@1.4.1)(date-fns@4.1.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/data':
         specifier: 10.48.0
         version: 10.48.0(react@18.3.1)
@@ -3883,9 +3901,21 @@ importers:
       '@wordpress/primitives':
         specifier: 4.48.0
         version: 4.48.0(react@18.3.1)
+      '@wordpress/private-apis':
+        specifier: 1.48.0
+        version: 1.48.0
       '@wordpress/route':
         specifier: 0.13.1
         version: 0.13.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@wordpress/ui':
+        specifier: 0.13.0
+        version: 0.13.0(@date-fns/tz@1.4.1)(date-fns@4.1.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@wordpress/url':
+        specifier: 4.48.0
+        version: 4.48.0
+      clsx:
+        specifier: 2.1.1
+        version: 2.1.1
       date-fns:
         specifier: 4.1.0
         version: 4.1.0
@@ -3896,12 +3926,18 @@ importers:
         specifier: 18.3.1
         version: 18.3.1(react@18.3.1)
     devDependencies:
+      '@automattic/jetpack-webpack-config':
+        specifier: workspace:*
+        version: link:../../js-packages/webpack-config
       '@babel/core':
         specifier: 7.29.0
         version: 7.29.0
       '@storybook/react':
         specifier: 10.3.6
         version: 10.3.6(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(storybook@10.3.6(@testing-library/dom@10.4.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(typescript@5.9.3)
+      '@tanstack/react-query-devtools':
+        specifier: 5.90.2
+        version: 5.90.2(@tanstack/react-query@5.90.8(react@18.3.1))(react@18.3.1)
       '@testing-library/dom':
         specifier: 10.4.1
         version: 10.4.1
@@ -3911,15 +3947,18 @@ importers:
       '@typescript/native-preview':
         specifier: 7.0.0-dev.20260225.1
         version: 7.0.0-dev.20260225.1
+      '@wordpress/base-styles':
+        specifier: 8.0.0
+        version: 8.0.0
       '@wordpress/build':
         specifier: 0.14.0
-        version: 0.14.0(@babel/core@7.29.0)(@wordpress/boot@0.14.1(@date-fns/tz@1.4.1)(date-fns@4.1.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@wordpress/route@0.13.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(browserslist@4.28.2)
-      '@wordpress/ui':
-        specifier: 0.13.0
-        version: 0.13.0(@date-fns/tz@1.4.1)(date-fns@4.1.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        version: 0.14.0(@babel/core@7.29.0)(@wordpress/boot@0.14.1(@date-fns/tz@1.4.1)(date-fns@4.1.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@wordpress/private-apis@1.48.0)(@wordpress/route@0.13.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(browserslist@4.28.2)
       browserslist:
         specifier: 4.28.2
         version: 4.28.2
+      jest:
+        specifier: 30.4.2
+        version: 30.4.2
       storybook:
         specifier: 10.3.6
         version: 10.3.6(@testing-library/dom@10.4.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -4142,8 +4181,8 @@ importers:
         specifier: ^4.24.0
         version: 4.28.2
       concurrently:
-        specifier: 9.2.1
-        version: 9.2.1
+        specifier: 10.0.3
+        version: 10.0.3
       copy-webpack-plugin:
         specifier: 14.0.0
         version: 14.0.0(webpack@5.105.2)
@@ -4553,8 +4592,8 @@ importers:
         specifier: 30.4.1
         version: 30.4.1(@babel/core@7.29.0)
       concurrently:
-        specifier: 9.2.1
-        version: 9.2.1
+        specifier: 10.0.3
+        version: 10.0.3
       core-js:
         specifier: 3.38.1
         version: 3.38.1
@@ -4904,8 +4943,8 @@ importers:
         specifier: ^4.24.0
         version: 4.28.2
       concurrently:
-        specifier: 9.2.1
-        version: 9.2.1
+        specifier: 10.0.3
+        version: 10.0.3
       copy-webpack-plugin:
         specifier: 14.0.0
         version: 14.0.0(webpack@5.105.2)
@@ -5150,8 +5189,8 @@ importers:
         specifier: 35.0.0
         version: 35.0.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       concurrently:
-        specifier: 9.2.1
-        version: 9.2.1
+        specifier: 10.0.3
+        version: 10.0.3
       jest:
         specifier: 30.4.2
         version: 30.4.2
@@ -5292,8 +5331,8 @@ importers:
         specifier: 6.21.0
         version: 6.21.0
       concurrently:
-        specifier: 9.2.1
-        version: 9.2.1
+        specifier: 10.0.3
+        version: 10.0.3
       jest:
         specifier: 30.4.2
         version: 30.4.2
@@ -5419,8 +5458,8 @@ importers:
         specifier: 6.48.0
         version: 6.48.0
       concurrently:
-        specifier: 9.2.1
-        version: 9.2.1
+        specifier: 10.0.3
+        version: 10.0.3
       jest:
         specifier: 30.4.2
         version: 30.4.2
@@ -5867,8 +5906,8 @@ importers:
         specifier: 30.4.1
         version: 30.4.1(@babel/core@7.29.0)
       concurrently:
-        specifier: 9.2.1
-        version: 9.2.1
+        specifier: 10.0.3
+        version: 10.0.3
       eval:
         specifier: 0.1.8
         version: 0.1.8
@@ -5964,8 +6003,8 @@ importers:
         specifier: 6.48.0
         version: 6.48.0
       concurrently:
-        specifier: 9.2.1
-        version: 9.2.1
+        specifier: 10.0.3
+        version: 10.0.3
       jest:
         specifier: 30.4.2
         version: 30.4.2
@@ -6091,8 +6130,8 @@ importers:
         specifier: 6.48.0
         version: 6.48.0
       concurrently:
-        specifier: 9.2.1
-        version: 9.2.1
+        specifier: 10.0.3
+        version: 10.0.3
       sass-embedded:
         specifier: 1.97.3
         version: 1.97.3
@@ -6159,8 +6198,8 @@ importers:
   projects/plugins/social:
     devDependencies:
       concurrently:
-        specifier: 9.2.1
-        version: 9.2.1
+        specifier: 10.0.3
+        version: 10.0.3
 
   projects/plugins/social/tests/e2e:
     devDependencies:
@@ -6241,8 +6280,8 @@ importers:
         specifier: 6.48.0
         version: 6.48.0
       concurrently:
-        specifier: 9.2.1
-        version: 9.2.1
+        specifier: 10.0.3
+        version: 10.0.3
       jest:
         specifier: 30.4.2
         version: 30.4.2
@@ -6329,8 +6368,8 @@ importers:
         specifier: 6.48.0
         version: 6.48.0
       concurrently:
-        specifier: 9.2.1
-        version: 9.2.1
+        specifier: 10.0.3
+        version: 10.0.3
       sass-embedded:
         specifier: 1.97.3
         version: 1.97.3
@@ -9982,6 +10021,15 @@ packages:
   '@tanstack/query-core@5.90.8':
     resolution: {integrity: sha512-4E0RP/0GJCxSNiRF2kAqE/LQkTJVlL/QNU7gIJSptaseV9HP6kOuA+N11y4bZKZxa3QopK3ZuewwutHx6DqDXQ==}
 
+  '@tanstack/query-devtools@5.90.1':
+    resolution: {integrity: sha512-GtINOPjPUH0OegJExZ70UahT9ykmAhmtNVcmtdnOZbxLwT7R5OmRztR5Ahe3/Cu7LArEmR6/588tAycuaWb1xQ==}
+
+  '@tanstack/react-query-devtools@5.90.2':
+    resolution: {integrity: sha512-vAXJzZuBXtCQtrY3F/yUNJCV4obT/A/n81kb3+YqLbro5Z2+phdAbceO+deU3ywPw8B42oyJlp4FhO0SoivDFQ==}
+    peerDependencies:
+      '@tanstack/react-query': ^5.90.2
+      react: ^18 || ^19
+
   '@tanstack/react-query@5.90.8':
     resolution: {integrity: sha512-/3b9QGzkf4rE5/miL6tyhldQRlLXzMHcySOm/2Tm2OLEFE9P1ImkH0+OviDBSvyAvtAOJocar5xhd7vxdLi3aQ==}
     peerDependencies:
@@ -12306,9 +12354,9 @@ packages:
   concat-with-sourcemaps@1.1.0:
     resolution: {integrity: sha512-4gEjHJFT9e+2W/77h/DS5SGUgwDaOwprX8L/gl5+3ixnzkVJJsZWDSelmN3Oilw3LNDZjZV0yqH1hLG3k6nghg==}
 
-  concurrently@9.2.1:
-    resolution: {integrity: sha512-fsfrO0MxV64Znoy8/l1vVIjjHa29SZyyqPgQBwhiDcaW8wJc2W3XWVOGx4M3oJBnv/zdUZIIp1gDeS98GzP8Ng==}
-    engines: {node: '>=18'}
+  concurrently@10.0.3:
+    resolution: {integrity: sha512-hc3LH4UaKWd/bbyDK/IGVa4RB6PtQ3CUYwtrkzqHn+wIG3Hr5fhpRlk0L/gCa8ZE1L/Ufj50Zho69cI5w8SQBA==}
+    engines: {node: '>=22'}
     hasBin: true
 
   confbox@0.1.8:
@@ -16975,10 +17023,6 @@ packages:
 
   shell-escape@0.2.0:
     resolution: {integrity: sha512-uRRBT2MfEOyxuECseCZd28jC1AJ8hmqqneWQ4VWUTgCAFvb3wKU1jLqj6egC4Exrr88ogg3dp+zroH4wJuaXzw==}
-
-  shell-quote@1.8.3:
-    resolution: {integrity: sha512-ObmnIF4hXNg1BqhnHmgbDETF8dLPCggZWBjkQfhZpbszZnYur5DUljTcCHii5LC3J5E0yeO/1LIMyH+UvHQgyw==}
-    engines: {node: '>= 0.4'}
 
   shell-quote@1.8.4:
     resolution: {integrity: sha512-VsC6n6vz1ihYYyZZwX7YZSF5l5x36ca17OC+a69h94YqB7X6XLwf+5MOgynYir2SLFUbl8gIYvBo8K8RoNQ6bQ==}
@@ -22616,6 +22660,14 @@ snapshots:
 
   '@tanstack/query-core@5.90.8': {}
 
+  '@tanstack/query-devtools@5.90.1': {}
+
+  '@tanstack/react-query-devtools@5.90.2(@tanstack/react-query@5.90.8(react@18.3.1))(react@18.3.1)':
+    dependencies:
+      '@tanstack/query-devtools': 5.90.1
+      '@tanstack/react-query': 5.90.8(react@18.3.1)
+      react: 18.3.1
+
   '@tanstack/react-query@5.90.8(react@18.3.1)':
     dependencies:
       '@tanstack/query-core': 5.90.8
@@ -24707,7 +24759,7 @@ snapshots:
 
   '@wordpress/browserslist-config@6.48.0': {}
 
-  '@wordpress/build@0.14.0(@babel/core@7.29.0)(@wordpress/boot@0.14.1(@date-fns/tz@1.4.1)(date-fns@4.1.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@wordpress/route@0.13.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(browserslist@4.28.2)':
+  '@wordpress/build@0.14.0(@babel/core@7.29.0)(@wordpress/boot@0.14.1(@date-fns/tz@1.4.1)(date-fns@4.1.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@wordpress/private-apis@1.48.0)(@wordpress/route@0.13.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(browserslist@4.28.2)':
     dependencies:
       '@emotion/babel-plugin': 11.13.5
       '@wordpress/style-runtime': 0.2.0
@@ -24727,6 +24779,7 @@ snapshots:
       sass-embedded: 1.97.3
     optionalDependencies:
       '@wordpress/boot': 0.14.1(@date-fns/tz@1.4.1)(date-fns@4.1.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@wordpress/private-apis': 1.48.0
       '@wordpress/route': 0.13.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
     transitivePeerDependencies:
       - '@babel/core'
@@ -29299,14 +29352,14 @@ snapshots:
     dependencies:
       source-map: 0.6.1
 
-  concurrently@9.2.1:
+  concurrently@10.0.3:
     dependencies:
-      chalk: 4.1.2
+      chalk: 5.6.2
       rxjs: 7.8.2
-      shell-quote: 1.8.3
-      supports-color: 8.1.1
+      shell-quote: 1.8.4
+      supports-color: 10.2.2
       tree-kill: 1.2.2
-      yargs: 17.7.2
+      yargs: 18.0.0
 
   confbox@0.1.8: {}
 
@@ -34741,8 +34794,6 @@ snapshots:
   shebang-regex@3.0.0: {}
 
   shell-escape@0.2.0: {}
-
-  shell-quote@1.8.3: {}
 
   shell-quote@1.8.4: {}
 

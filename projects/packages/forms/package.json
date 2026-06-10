@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-forms",
-	"version": "7.22.1",
+	"version": "7.22.2",
 	"private": true,
 	"description": "Jetpack Forms",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/packages/forms/#readme",
@@ -117,7 +117,7 @@
 		"@wordpress/date": "5.48.0",
 		"autoprefixer": "10.4.20",
 		"browserslist": "^4.24.0",
-		"concurrently": "9.2.1",
+		"concurrently": "10.0.3",
 		"glob": "13.0.6",
 		"jest": "30.4.2",
 		"jquery": "3.7.1",

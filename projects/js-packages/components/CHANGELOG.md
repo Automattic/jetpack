@@ -2,6 +2,10 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## [1.12.6] - 2026-06-09
+### Changed
+- Update package dependencies. [#49273]
+
 ## [1.12.5] - 2026-06-08
 ### Fixed
 - NavigatorModal: Keep the modal open when the control inside opens an external WP Modal. [#49389]
@@ -1832,6 +1836,7 @@
 ### Changed
 - Update node version requirement to 14.16.1
 
+[1.12.6]: https://github.com/Automattic/jetpack-components/compare/1.12.5...1.12.6
 [1.12.5]: https://github.com/Automattic/jetpack-components/compare/1.12.4...1.12.5
 [1.12.4]: https://github.com/Automattic/jetpack-components/compare/1.12.3...1.12.4
 [1.12.3]: https://github.com/Automattic/jetpack-components/compare/1.12.2...1.12.3

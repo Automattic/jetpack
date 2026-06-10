@@ -26,7 +26,7 @@ const blockSettings = {
 	example: {
 		attributes: {
 			answersLink: 'https://wordpress.com/tag/dailyprompt',
-			answersLinkText: __( 'View all responses', 'jetpack' ),
+			answersLinkText: __( 'View responses', 'jetpack' ),
 			gravatars: [ { url: avatar1 }, { url: avatar2 }, { url: avatar3 } ],
 			promptLabel: __( 'Daily writing prompt', 'jetpack' ),
 			promptText: __( "What's your favorite place to visit?", 'jetpack' ),
