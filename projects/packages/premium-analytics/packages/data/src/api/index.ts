@@ -41,5 +41,12 @@ export { fetchReportVisitors } from './report-visitors-fetch';
 export { fetchReportVisitorsByLocation } from './report-visitors-by-location-fetch';
 export { fetchReportBookings } from './report-bookings-fetch';
 export { fetchReportSessionsByDevice } from './report-sessions-by-device-fetch';
+export { fetchReportStatsVisits } from './report-stats-visits-fetch';
+export type {
+	RequestReportStatsVisitsParams,
+	StatsVisitsResponse,
+	StatsVisitsUnit,
+	StatsVisitsField,
+} from './report-stats-visits-fetch';
 export { exportReport } from './report-export-fetch';
 export type { ExportReportParams, ExportReportResponse } from './report-export-fetch';

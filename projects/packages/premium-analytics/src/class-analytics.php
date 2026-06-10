@@ -66,6 +66,10 @@ class Analytics {
 		Sync_Status_Tracker::configure();
 		Api_Proxy_Controller::register();
 
+		// Emit `window.jpaConfig` (site ID, REST root, nonce) ahead of the boot script.
+		require_once __DIR__ . '/class-config-data.php';
+		Config_Data::init();
+
 		add_action( 'admin_menu', array( static::class, 'register_admin_menu' ) );
 		add_action( 'jetpack-premium-analytics_init', array( static::class, 'register_sidebar_items' ) );
 	}

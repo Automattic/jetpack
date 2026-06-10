@@ -29,6 +29,26 @@ export default defineConfig(
 		},
 	},
 	{
+		// Dashboard route + bundled widgets: the initial dashboard port consumes
+		// vendored engine packages and uses core's import-group and JSDoc style.
+		// Soften the conflicting rules so it can land.
+		files: [ 'routes/dashboard/**', 'widgets/**' ],
+		rules: {
+			'import/order': 'off',
+			'jsdoc/require-description': 'off',
+			'jsdoc/require-param-description': 'off',
+			'jsdoc/require-returns': 'off',
+			'jsdoc/check-indentation': 'off',
+			// Ported widget code keeps the upstream next-woocommerce-analytics
+			// JSDoc style, and imports internal `@jetpack-premium-analytics/*`
+			// link: packages whose deps are declared on the parent manifest.
+			'jsdoc/require-param': 'off',
+			'jsdoc/require-jsdoc': 'off',
+			'jsdoc/escape-inline-tags': 'off',
+			'import/no-extraneous-dependencies': 'off',
+		},
+	},
+	{
 		// The data port carries a couple of upstream patterns this temporary
 		// override keeps as-is: intentional `any` escapes for the generic report
 		// `TData` (see use-report.ts), and `react` flagged as extraneous because
@@ -102,19 +122,6 @@ export default defineConfig(
 			'@typescript-eslint/no-explicit-any': 'off',
 			'@wordpress/no-unsafe-wp-apis': 'off',
 			'@wordpress/no-unknown-ds-tokens': 'off',
-		},
-	},
-	{
-		// Dashboard route + bundled widgets: the initial dashboard port consumes
-		// vendored engine packages and uses core's import-group and JSDoc style.
-		// Soften the conflicting rules so it can land.
-		files: [ 'routes/dashboard/**', 'widgets/**' ],
-		rules: {
-			'import/order': 'off',
-			'jsdoc/require-description': 'off',
-			'jsdoc/require-param-description': 'off',
-			'jsdoc/require-returns': 'off',
-			'jsdoc/check-indentation': 'off',
 		},
 	}
 );

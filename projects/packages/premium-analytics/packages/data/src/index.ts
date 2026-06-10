@@ -14,6 +14,17 @@ export { useReportVisitors } from './hooks/use-report-visitors';
 export { useReportVisitorsByLocation } from './hooks/use-report-visitors-by-location';
 export { useReportBookings } from './hooks/use-report-bookings';
 export { useReportSessionsByDevice } from './hooks/use-report-sessions-by-device';
+export {
+	useReportStatsVisits,
+	type UseReportStatsVisitsParams,
+} from './hooks/use-report-stats-visits';
+export { getJpaConfig, type JpaConfig } from './utils/jpa-config';
+export type {
+	StatsVisitsUnit,
+	StatsVisitsField,
+	StatsVisitsResponse,
+} from './api/report-stats-visits-fetch';
+export type { StatsVisitsItem, SanitizedStatsVisits } from './processing/stats-visits';
 export { prefetchReport } from './prefetch';
 export {
 	normalizeReportParams,

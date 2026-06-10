@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add the Traffic chart stats widget (jpa/traffic-chart) charting site views and visitors over time, plus the stats-visits data hook and window.jpaConfig boot config it reads.
