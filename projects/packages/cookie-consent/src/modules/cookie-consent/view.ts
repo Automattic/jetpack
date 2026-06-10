@@ -395,7 +395,6 @@ const { actions } = store( 'jetpack/cookie-consent', {
 			}
 
 			// getConfig() is not typed, so we need to assert the type.
-			// eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
 			const config = getConfig() as unknown as StoreConfig;
 
 			// Check if we already have country code from cookies
@@ -451,14 +450,12 @@ const { actions } = store( 'jetpack/cookie-consent', {
 		 */
 		*updateContextFromGeolocation() {
 			// Context is not typed, so we need to assert the type.
-			// eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
 			const context = getContext() as
 				| CookieBannerContext
 				| CcpaContext
 				| GdprManageLinkContext
 				| ( CookieBannerContext & CcpaContext );
 			// getConfig() is not typed, so we need to assert the type.
-			// eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
 			const config = getConfig() as unknown as StoreConfig;
 
 			// Initialize geolocation (will use cache if already done)
@@ -496,7 +493,6 @@ const { actions } = store( 'jetpack/cookie-consent', {
 		 */
 		async init(): Promise< void > {
 			// Context is not typed, so we need to assert the type
-			// eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
 			const context = getContext() as
 				| CookieBannerContext
 				| CcpaContext
@@ -532,7 +528,6 @@ const { actions } = store( 'jetpack/cookie-consent', {
 				};
 
 				// getConfig() is not typed, so we need to assert the type.
-				// eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
 				const config = getConfig() as unknown as StoreConfig;
 
 				// Check for force preview mode
@@ -552,7 +547,6 @@ const { actions } = store( 'jetpack/cookie-consent', {
 
 				// Keep the footer link visibility in sync after the shopper saves consent.
 				// Without this, the link stays hidden until a full page reload.
-				// eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
 				const config = getConfig() as unknown as StoreConfig;
 				if ( ! manageLinkConsentListenerRegistered ) {
 					manageLinkConsentListenerRegistered = true;
