@@ -21,7 +21,12 @@ function registerSidebarOpenWatcher() {
 	const { cookieKey, cookiePath } = window.AgentsManagerSidebarOpenWatcherData;
 
 	/**
-	 * Update the sidebar open cookie from the current body class.
+	 * Sync the sidebar-open cookie from a sidebar change event.
+	 *
+	 * The cookie lets PHP pre-apply the sidebar body classes on the next full
+	 * admin load (avoiding flicker). This watcher owns only the cookie; the
+	 * React layout hook owns the live body classes.
+	 *
 	 * @param root0        - The custom event.
 	 * @param root0.detail - Sidebar state: `{ isOpen: boolean, classList: string[] }`.
 	 */
@@ -34,7 +39,6 @@ function registerSidebarOpenWatcher() {
 			) }; path=${ cookiePath }; samesite=lax`;
 		} else {
 			document.cookie = `${ cookieKey }=; path=${ cookiePath }; samesite=lax`;
-			document.body.classList.remove( ...detail.classList );
 		}
 	}
 

@@ -111,6 +111,23 @@ describe( 'registerSidebarOpenWatcher', () => {
 		expect( readCookie( WATCHER_DATA.cookieKey ) ).toBeUndefined();
 	} );
 
+	it( 'does not remove body classes when the sidebar closes', async () => {
+		window.AgentsManagerSidebarOpenWatcherData = WATCHER_DATA;
+		document.body.classList.add( ...WATCHER_DATA.sidebarOpenClasses );
+
+		await importWatcher();
+
+		dispatchSidebarChange( { isOpen: false, classList: WATCHER_DATA.sidebarOpenClasses } );
+
+		// The watcher is cookie-only: live body classes are owned by the React
+		// layout hook, so closing must not strip them here.
+		expect( document.body ).toHaveClass( 'agents-manager-sidebar-container' );
+		expect( document.body ).toHaveClass( 'agents-manager-sidebar-container--sidebar-open' );
+
+		// Cleanup so the shared jsdom body doesn't leak into other tests.
+		document.body.classList.remove( ...WATCHER_DATA.sidebarOpenClasses );
+	} );
+
 	it( 'updates the cookie when the sidebar opens after init', async () => {
 		window.AgentsManagerSidebarOpenWatcherData = WATCHER_DATA;
 
