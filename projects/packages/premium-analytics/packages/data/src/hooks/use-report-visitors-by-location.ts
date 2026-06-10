@@ -12,11 +12,6 @@ type UseReportVisitorsByLocationOptions = {
 	limit?: number;
 };
 
-/**
- *
- * @param params
- * @param options
- */
 export function useReportVisitorsByLocation(
 	params: ReportParams,
 	options?: UseReportVisitorsByLocationOptions

@@ -42,7 +42,6 @@ type SanitizedCouponsResponse = {
 
 /**
  * Sanitize/process a single coupon item by converting strings to numbers
- * @param item
  */
 function sanitizeCouponItem( item: RawCouponsDataItem ): SanitizedCouponsDataItem {
 	return {
@@ -55,7 +54,6 @@ function sanitizeCouponItem( item: RawCouponsDataItem ): SanitizedCouponsDataIte
 
 /**
  * Sanitize/process summary by converting strings to numbers
- * @param summary
  */
 function sanitizeCouponSummary( summary: RawCouponsDataSummary ): SanitizedCouponsDataSummary {
 	return {
@@ -69,7 +67,6 @@ function sanitizeCouponSummary( summary: RawCouponsDataSummary ): SanitizedCoupo
 /**
  * Sanitize the response from the reports/coupons endpoint
  * Converts string values to numbers for easier calculations and charting.
- * @param response
  */
 export const sanitizeReportCouponsResponse = (
 	response: ReportsCouponsResponse

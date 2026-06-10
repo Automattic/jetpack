@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Register Jetpack Boost abilities via the WordPress Abilities API (modules read/toggle, latest speed score, and page cache flush) for AI agents on WordPress 6.9+.

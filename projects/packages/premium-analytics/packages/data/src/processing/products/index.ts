@@ -31,7 +31,6 @@ type SanitizedProductsSummary = Override<
 
 /**
  * Sanitize/process a single product item by converting strings to numbers
- * @param item
  */
 function sanitizeProductItem( item: RawProductsReportDataItem ): SanitizedProductsItem {
 	return {
@@ -43,10 +42,6 @@ function sanitizeProductItem( item: RawProductsReportDataItem ): SanitizedProduc
 	};
 }
 
-/**
- *
- * @param summary
- */
 function sanitizeProductSummary( summary: RawProductsReportSummary ): SanitizedProductsSummary {
 	return {
 		...summary,
@@ -71,7 +66,6 @@ type SanitizedProductsResponse = {
  *
  * The `summary` single item has basically the same structure
  * as the `data` array items, so we can use the same mapper function for both.
- * @param response
  */
 export const sanitizeReportProductsResponse = (
 	response: ReportProductsResponse

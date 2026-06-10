@@ -37,7 +37,6 @@ type SanitizeVisitorsItemArg = Override<
 
 /**
  * Sanitize/process a single visitors item by converting strings to numbers
- * @param item
  */
 function sanitizeVisitorsItem( item: SanitizeVisitorsItemArg ): SanitizedVisitorsByDateItem {
 	return {
@@ -61,7 +60,6 @@ type SanitizedVisitorsByDateResponse = {
  *
  * The `summary` single item has basically the same structure
  * as the `data` array items, so we can use the same mapper function for both.
- * @param response
  */
 export const sanitizeReportVisitorsResponse = (
 	response: ReportsVisitorsByDateResponse

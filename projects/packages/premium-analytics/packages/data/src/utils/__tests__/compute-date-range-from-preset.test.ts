@@ -45,10 +45,6 @@ const UTC = tz( '+00:00' );
  * Normalize a TZDate or Date to Z-format ISO string,
  * ensuring the expected values match the mock's output format.
  */
-/**
- *
- * @param date
- */
 function toZ( date: Date ): string {
 	return new Date( date.getTime() ).toISOString();
 }

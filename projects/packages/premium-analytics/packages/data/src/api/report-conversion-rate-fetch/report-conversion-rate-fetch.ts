@@ -39,14 +39,6 @@ export type RequestReportConversionRateParams = BaseReportParams & {
 	filters?: FilterCondition[];
 };
 
-/**
- *
- * @param root0
- * @param root0.from
- * @param root0.to
- * @param root0.interval
- * @param root0.filters
- */
 export async function fetchReportConversionRate( {
 	from,
 	to,

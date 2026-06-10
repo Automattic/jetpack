@@ -39,7 +39,6 @@ type ReportProductsResponse = {
 
 /**
  * Fetches products report data from the WooCommerce Analytics API
- * @param params
  */
 export async function fetchReportProducts(
 	params: RequestReportProductsParams

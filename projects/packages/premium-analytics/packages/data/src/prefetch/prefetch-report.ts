@@ -30,11 +30,6 @@ type RequestReportParamsMap = {
 	'conversion-rate': Parameters< typeof reportConversionRateQuery >[ 0 ];
 };
 
-/**
- *
- * @param reportType
- * @param params
- */
 export async function prefetchReport< T extends keyof RequestReportParamsMap >(
 	reportType: T = 'orders' as T,
 	params: RequestReportParamsMap[ T ]

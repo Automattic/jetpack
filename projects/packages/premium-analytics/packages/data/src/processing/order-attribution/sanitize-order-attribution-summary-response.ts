@@ -60,7 +60,6 @@ export type SanitizedOrderAttributionSummaryResponse = {
 
 /**
  * Sanitizes a single interval by converting string net_sales to number
- * @param interval
  */
 function sanitizeOrderAttributionInterval(
 	interval: OrderAttributionInterval
@@ -75,7 +74,6 @@ function sanitizeOrderAttributionInterval(
 
 /**
  * Sanitizes a period by converting value to number and intervals
- * @param period
  */
 function sanitizeOrderAttributionPeriod(
 	period: OrderAttributionPeriod
@@ -88,7 +86,6 @@ function sanitizeOrderAttributionPeriod(
 
 /**
  * Sanitizes a single order attribution summary item
- * @param item
  */
 function sanitizeOrderAttributionSummaryItem(
 	item: OrderAttributionSummaryItem

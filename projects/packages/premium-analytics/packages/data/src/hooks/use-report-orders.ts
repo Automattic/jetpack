@@ -9,11 +9,6 @@ type UseReportOrdersOptions = {
 	enabled?: boolean;
 };
 
-/**
- *
- * @param params
- * @param options
- */
 export function useReportOrders( params: ReportParams, options?: UseReportOrdersOptions ) {
 	return useReport( p => reportOrdersQuery( p ), params, {
 		enabled: options?.enabled,

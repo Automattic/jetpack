@@ -9,11 +9,6 @@ type UseReportCustomersByDateOptions = {
 	enabled?: boolean;
 };
 
-/**
- *
- * @param params
- * @param options
- */
 export function useReportCustomersByDate(
 	params: ReportParams,
 	options?: UseReportCustomersByDateOptions

@@ -49,7 +49,6 @@ const toComparisonPresetId = ( value?: string ): ComparisonPresetId | undefined 
  * - Only derive when comparison is enabled (comp === "1") AND a preset is present.
  * - Normalize main range to site-local day bounds before computing presets.
  * - Return ISO strings WITH site offset (same format you write to the URL).
- * @param opts
  */
 export function deriveComparisonRange( opts: ReportParams ):
 	| {

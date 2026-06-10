@@ -662,11 +662,14 @@ class WPCOM_REST_API_V2_Endpoint_Subscribers_List extends WP_REST_Controller {
 		$status = (int) wp_remote_retrieve_response_code( $response );
 		$body   = json_decode( wp_remote_retrieve_body( $response ), true );
 
-		if ( $status >= 400 ) {
+		// The Memberships API can report a failure either with an HTTP error status or with a 2xx
+		// response carrying an `error` payload (e.g. "User has already been comped this plan"), so
+		// treat both as failures and surface the upstream message rather than a generic one.
+		if ( $status >= 400 || ( is_array( $body ) && ! empty( $body['error'] ) ) ) {
 			return new WP_Error(
 				'subscribers_comp_failed',
-				is_array( $body ) && isset( $body['message'] ) ? $body['message'] : __( 'Could not comp the subscription.', 'jetpack' ),
-				array( 'status' => $status )
+				$this->get_wpcom_error_message( $body, __( 'Could not comp the subscription.', 'jetpack' ) ),
+				array( 'status' => $status >= 400 ? $status : 400 )
 			);
 		}
 
@@ -709,15 +712,42 @@ class WPCOM_REST_API_V2_Endpoint_Subscribers_List extends WP_REST_Controller {
 		$status = (int) wp_remote_retrieve_response_code( $response );
 		$body   = json_decode( wp_remote_retrieve_body( $response ), true );
 
-		if ( $status >= 400 ) {
+		// Mirror add_comp: the Memberships API can report a failure with an error status or with a
+		// 2xx response that carries an `error` payload, so treat both as failures.
+		if ( $status >= 400 || ( is_array( $body ) && ! empty( $body['error'] ) ) ) {
 			return new WP_Error(
 				'subscribers_remove_comp_failed',
-				is_array( $body ) && isset( $body['message'] ) ? $body['message'] : __( 'Could not remove the comp.', 'jetpack' ),
-				array( 'status' => $status )
+				$this->get_wpcom_error_message( $body, __( 'Could not remove the comp.', 'jetpack' ) ),
+				array( 'status' => $status >= 400 ? $status : 400 )
 			);
 		}
 
 		return rest_ensure_response( $body );
+	}
+
+	/**
+	 * Extract the most specific human-readable error message from a wpcom Memberships API response
+	 * body. The Memberships endpoints nest the reason under `error.message` (e.g. "User has already
+	 * been comped this plan"); fall back to a top-level `message`, a string `error`, then the default.
+	 *
+	 * @param mixed  $body            Decoded response body.
+	 * @param string $default_message Fallback used when the body carries no message.
+	 * @return string Error message.
+	 */
+	private function get_wpcom_error_message( $body, $default_message ) {
+		if ( is_array( $body ) ) {
+			if ( isset( $body['error']['message'] ) && is_string( $body['error']['message'] ) ) {
+				return $body['error']['message'];
+			}
+			if ( isset( $body['message'] ) && is_string( $body['message'] ) ) {
+				return $body['message'];
+			}
+			if ( isset( $body['error'] ) && is_string( $body['error'] ) ) {
+				return $body['error'];
+			}
+		}
+
+		return $default_message;
 	}
 
 	/**

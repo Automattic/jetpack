@@ -64,11 +64,6 @@ export type UseStagedSearchReturn< TSearch extends AnyObject > = {
 	cancelAutoCommit: () => void;
 };
 
-/**
- *
- * @param a
- * @param b
- */
 function shallowEqual( a: AnyObject, b: AnyObject ) {
 	if ( a === b ) {
 		return true;
@@ -89,11 +84,6 @@ function shallowEqual( a: AnyObject, b: AnyObject ) {
 	return true;
 }
 
-/**
- *
- * @param base
- * @param patch
- */
 function mergeDefined< T extends AnyObject >( base: T, patch: Partial< T > ): T {
 	const out: AnyObject = { ...base };
 	for ( const key in patch ) {
@@ -105,10 +95,6 @@ function mergeDefined< T extends AnyObject >( base: T, patch: Partial< T > ): T 
 	return out as T;
 }
 
-/**
- *
- * @param opts
- */
 export function useStagedSearch< TSearch extends AnyObject, TFrom extends string >(
 	opts: UseStagedSearchOptions< TFrom >
 ): UseStagedSearchReturn< TSearch > {

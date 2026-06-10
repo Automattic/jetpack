@@ -15,10 +15,6 @@ type RequestReportCustomersByDateParams = Parameters< typeof fetchReportCustomer
 const getReportCustomersByDateQueryKey = ( p: RequestReportCustomersByDateParams ) =>
 	[ 'reports', 'customers', 'by-date', p.from, p.to, p.interval, p.date_type ] as const;
 
-/**
- *
- * @param params
- */
 export function reportCustomersByDateQuery(
 	params: RequestReportCustomersByDateParams
 ): UseQueryOptions< ReportDataMap[ 'customersByDate' ] > {
@@ -36,7 +32,6 @@ export function reportCustomersByDateQuery(
 
 		/**
 		 * Keep previous data while fetching new data to prevent blank states
-		 * @param previousData
 		 */
 		placeholderData: previousData => previousData,
 	};

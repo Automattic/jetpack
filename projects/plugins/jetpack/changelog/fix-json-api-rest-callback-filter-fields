@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-JSON API: Honor the `fields` parameter on REST-dispatched responses so they return the same keys as the XML-RPC transport.

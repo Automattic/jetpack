@@ -16,11 +16,6 @@ const DISABLED_COMPARISON_KEY = [
 	'included-in-primary',
 ];
 
-/**
- *
- * @param params
- * @param options
- */
 export function useReportOrderAttribution(
 	params: ReportParams,
 	options?: UseReportOrderAttributionOptions

@@ -27,8 +27,6 @@ const GlobalErrorContext = createContext< GlobalErrorContextValue | null >( null
 /**
  * Connects React to the global error manager via useSyncExternalStore.
  * Also subscribes to network status changes via onlineManager.
- * @param root0
- * @param root0.children
  */
 export function GlobalErrorProvider( { children }: { children: ReactNode } ) {
 	const globalError = useSyncExternalStore(

@@ -26,7 +26,6 @@ type ReportOrderAttributionSummaryParams = Parameters<
  *
  * Note: All comparison parameters are included in the query key because
  * order attribution returns both primary and comparison data in a single response.
- * @param params
  */
 const getReportOrderAttributionQueryKey = ( params: ReportOrderAttributionSummaryParams ) =>
 	[
@@ -123,7 +122,6 @@ export function reportOrderAttributionSummaryQuery(
 		/**
 		 * Keep previous data while fetching to prevent flash of empty state.
 		 * This provides a smoother user experience during data refetching.
-		 * @param previousData
 		 */
 		placeholderData: previousData => previousData,
 	};

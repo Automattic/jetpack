@@ -129,6 +129,7 @@ class Simple_Payments {
 	private function register_init_hooks() {
 		add_action( 'init', array( $this, 'init_hook_action' ) );
 		add_action( 'rest_api_init', array( $this, 'register_meta_fields_in_rest_api' ) );
+		add_filter( 'rest_prepare_' . self::$post_type_product, array( $this, 'redact_spay_email_for_unauthorized' ), 10, 2 );
 	}
 
 	/**
@@ -517,6 +518,35 @@ class Simple_Payments {
 				'type'              => 'string',
 			)
 		);
+	}
+
+	/**
+	 * Strip the seller's PayPal email (`spay_email`) from REST responses when the
+	 * requester cannot edit the product. The meta stays `show_in_rest => true` so
+	 * the block editor's read/write round-trip keeps working — but unauthenticated
+	 * or read-only callers no longer see the address in collection or single-item
+	 * responses for the `jp_pay_product` post type.
+	 *
+	 * @param mixed $response The response object (expected: \WP_REST_Response).
+	 * @param mixed $post     The product post (expected: \WP_Post).
+	 * @return mixed
+	 */
+	public function redact_spay_email_for_unauthorized( $response, $post ) {
+		if ( ! $response instanceof \WP_REST_Response || ! $post instanceof WP_Post ) {
+			return $response;
+		}
+
+		if ( current_user_can( 'edit_post', $post->ID ) ) {
+			return $response;
+		}
+
+		$data = $response->get_data();
+		if ( isset( $data['meta']['spay_email'] ) ) {
+			unset( $data['meta']['spay_email'] );
+			$response->set_data( $data );
+		}
+
+		return $response;
 	}
 
 	/**

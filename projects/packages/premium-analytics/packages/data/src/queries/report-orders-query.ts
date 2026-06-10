@@ -22,10 +22,6 @@ const getReportOrdersQueryKey = ( p: RequestReportOrdersParams ) => [
 	p.filters || [],
 ];
 
-/**
- *
- * @param params
- */
 export function reportOrdersQuery(
 	params: RequestReportOrdersParams
 ): UseQueryOptions< ReportDataMap[ 'orders' ] > {
@@ -43,7 +39,6 @@ export function reportOrdersQuery(
 
 		/**
 		 * Keep previous data while fetching new data to prevent blank states
-		 * @param previousData
 		 */
 		placeholderData: previousData => previousData,
 	};

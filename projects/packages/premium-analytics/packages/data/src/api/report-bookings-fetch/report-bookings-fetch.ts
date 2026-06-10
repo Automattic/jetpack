@@ -37,15 +37,6 @@ export type RequestReportBookingsParams = BaseReportParams & {
 	filters?: FilterCondition[];
 };
 
-/**
- *
- * @param root0
- * @param root0.from
- * @param root0.to
- * @param root0.interval
- * @param root0.filters
- * @param root0.date_type
- */
 export async function fetchReportBookings( {
 	from,
 	to,

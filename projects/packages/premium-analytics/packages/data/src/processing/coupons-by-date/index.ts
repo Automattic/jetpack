@@ -52,10 +52,6 @@ type SanitizedCouponsByDateResponse = {
 	data: SanitizedCouponsByDateDataItem[];
 };
 
-/**
- *
- * @param item
- */
 function sanitizeItem( item: RawDataItem ): SanitizedCouponsByDateDataItem {
 	return {
 		...item,
@@ -71,10 +67,6 @@ function sanitizeItem( item: RawDataItem ): SanitizedCouponsByDateDataItem {
 	};
 }
 
-/**
- *
- * @param summary
- */
 function sanitizeSummary( summary: RawSummary ): SanitizedCouponsByDateSummary {
 	return {
 		...summary,
@@ -93,7 +85,6 @@ function sanitizeSummary( summary: RawSummary ): SanitizedCouponsByDateSummary {
 /**
  * Sanitize the response from the reports/coupons/by-date endpoint.
  * Converts string values to numbers for calculations and charting.
- * @param response
  */
 export const sanitizeReportCouponsByDateResponse = (
 	response: ReportsCouponsByDateResponse

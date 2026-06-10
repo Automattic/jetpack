@@ -73,7 +73,6 @@ export type SanitizedCustomersByDateResponse = {
 
 /**
  * Sanitize/process a single customer item by converting strings to numbers
- * @param item
  */
 function sanitizeCustomerByDateItem( item: RawCustomersByDateItem ): SanitizedCustomersByDateItem {
 	const totalCustomers = parseInt( item.total_customers, 10 );
@@ -95,7 +94,6 @@ function sanitizeCustomerByDateItem( item: RawCustomersByDateItem ): SanitizedCu
 
 /**
  * Sanitize/process the summary by converting strings to numbers
- * @param summary
  */
 function sanitizeCustomerByDateSummary(
 	summary: RawCustomersByDateSummary
@@ -137,7 +135,6 @@ function sanitizeCustomerByDateSummary(
 /**
  * Sanitize the response from the reports/customers/by-date endpoint
  * Converts string values to numbers for easier calculations and charting.
- * @param response
  */
 export const sanitizeReportCustomersByDateResponse = (
 	response: ReportsCustomersByDateResponse

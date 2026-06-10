@@ -38,8 +38,27 @@ class Customize_Feed_Test extends BaseTestCase {
 		remove_all_filters( 'wpcom_podcasting_enable_play_tracking' );
 		remove_all_filters( 'wpcom_podcasting_tracked_blog_id' );
 		Jetpack_Options::delete_option( 'id' );
+		wp_cache_flush();
 		unset( $GLOBALS['post'] );
 		parent::tearDown();
+	}
+
+	/**
+	 * WorDBless lacks term-taxonomy plumbing, so seed the `terms` object cache
+	 * with a fully-formed `WP_Term` directly — `get_category()` short-circuits
+	 * to that before falling through to its DB query.
+	 */
+	private function seed_category_term( int $id ): void {
+		$term = new WP_Term(
+			(object) array(
+				'term_id'          => $id,
+				'name'             => 'Podcast',
+				'slug'             => 'podcast-' . $id,
+				'taxonomy'         => 'category',
+				'term_taxonomy_id' => $id,
+			)
+		);
+		wp_cache_set( $id, $term, 'terms' );
 	}
 
 	/**
@@ -314,6 +333,7 @@ class Customize_Feed_Test extends BaseTestCase {
 	}
 
 	public function test_resolve_category_id_prefers_numeric_id_over_archive_slug() {
+		$this->seed_category_term( 17 );
 		update_option( 'podcasting_category_id', 17 );
 		update_option( 'podcasting_archive', 'unrelated-slug' );
 
@@ -321,6 +341,39 @@ class Customize_Feed_Test extends BaseTestCase {
 		// find no term, and return 0 — so the assertion below covers both
 		// "right answer" and "took the right code path".
 		$this->assertSame( 17, Customize_Feed::resolve_category_id() );
+	}
+
+	/**
+	 * A numeric ID whose term no longer exists means "not configured" — the
+	 * `podcasting_archive` slug must NOT be consulted as a fallback, even
+	 * when it would resolve.
+	 */
+	public function test_resolve_category_id_returns_zero_when_stored_category_deleted() {
+		update_option( 'podcasting_category_id', 12345 ); // No such term seeded.
+
+		// A resolvable slug that must be ignored on the deleted-ID path.
+		$callback = static function ( $terms, $query ) {
+			if ( isset( $query->query_vars['slug'] ) && 'resolvable-slug' === $query->query_vars['slug'][0] ) {
+				return array(
+					new WP_Term(
+						(object) array(
+							'term_id'  => 777,
+							'slug'     => 'resolvable-slug',
+							'name'     => 'Podcast',
+							'taxonomy' => 'category',
+						)
+					),
+				);
+			}
+			return $terms;
+		};
+		add_filter( 'terms_pre_query', $callback, 10, 2 );
+
+		update_option( 'podcasting_archive', 'resolvable-slug' );
+
+		$this->assertSame( 0, Customize_Feed::resolve_category_id() );
+
+		remove_filter( 'terms_pre_query', $callback, 10 );
 	}
 
 	public function test_output_namespaces_declares_itunes_and_podcast() {
@@ -349,6 +402,7 @@ class Customize_Feed_Test extends BaseTestCase {
 	}
 
 	public function test_filter_posts_with_enclosure_passes_through_when_queried_term_does_not_match() {
+		$this->seed_category_term( 17 );
 		update_option( 'podcasting_category_id', 17 );
 
 		$posts = array( new WP_Post( (object) array( 'ID' => 1 ) ) );
@@ -358,6 +412,7 @@ class Customize_Feed_Test extends BaseTestCase {
 	}
 
 	public function test_filter_posts_with_enclosure_drops_posts_without_enclosure_meta() {
+		$this->seed_category_term( 17 );
 		update_option( 'podcasting_category_id', 17 );
 
 		$with_enclosure    = new WP_Post( (object) array( 'ID' => 100 ) );

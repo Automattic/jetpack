@@ -27,10 +27,6 @@ type SanitizedVisitorsByLocationSummary = Override<
 	}
 >;
 
-/**
- *
- * @param item
- */
 function sanitizeVisitorsByLocationItem(
 	item: RawVisitorsByLocationItem
 ): SanitizedVisitorsByLocationItem {
@@ -42,10 +38,6 @@ function sanitizeVisitorsByLocationItem(
 	};
 }
 
-/**
- *
- * @param summary
- */
 function sanitizeVisitorsByLocationSummary(
 	summary: RawVisitorsByLocationSummary
 ): SanitizedVisitorsByLocationSummary {

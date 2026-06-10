@@ -41,7 +41,6 @@ type SanitizedBookingsSummaryItem = Override<
 
 /**
  * Sanitize/process a single booking item by converting strings to numbers
- * @param item
  */
 function sanitizeBookingItem( item: RawBookingsReportDataItem ): SanitizedBookingsByDateItem {
 	return {
@@ -60,7 +59,6 @@ function sanitizeBookingItem( item: RawBookingsReportDataItem ): SanitizedBookin
 
 /**
  * Sanitize/process a single booking summary item by converting strings to numbers
- * @param item
  */
 function sanitizeBookingSummaryItem(
 	item: RawBookingsReportSummaryItem
@@ -93,7 +91,6 @@ type SanitizedBookingsByDateResponse = {
  *
  * The `summary` and `data` items have different structures (summary lacks time_interval),
  * so we use different sanitizer functions for each.
- * @param response
  */
 export const sanitizeReportBookingsResponse = (
 	response: ReportsBookingsByDateResponse

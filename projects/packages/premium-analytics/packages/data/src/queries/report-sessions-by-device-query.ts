@@ -38,7 +38,6 @@ export function reportSessionsByDeviceQuery(
 
 		/**
 		 * Keep previous data while fetching new data to prevent blank states
-		 * @param previousData
 		 */
 		placeholderData: previousData => previousData,
 	};

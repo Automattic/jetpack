@@ -27,10 +27,6 @@ const getReportVisitorsByLocationQueryKey = ( p: RequestReportVisitorsByLocation
 		p.limit ?? null,
 	] as const;
 
-/**
- *
- * @param params
- */
 export function reportVisitorsByLocationQuery(
 	params: RequestReportVisitorsByLocationParams
 ): UseQueryOptions< ReportDataMap[ 'visitorsByLocation' ] > {

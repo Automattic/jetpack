@@ -7,15 +7,16 @@ Data management for Jetpack Premium Analytics with React Query integration.
 This is an internal package of Jetpack Premium Analytics — it is never
 published to npm and is resolved entirely in-tree. It's automatically
 available to routes and other internal packages within
-`@automattic/jetpack-premium-analytics`.
+`@automattic/jetpack-premium-analytics`, imported via the
+`@jetpack-premium-analytics/data` path alias.
 
 ```tsx
-import { 
-  AnalyticsQueryClientProvider,
-  useReport,
-  prefetchReport,
-  // ... other exports
-} from '@automattic/jetpack-premium-analytics-data';
+import {
+	AnalyticsQueryClientProvider,
+	useReport,
+	prefetchReport,
+	// ... other exports
+} from '@jetpack-premium-analytics/data';
 ```
 
 ## Features
@@ -36,26 +37,22 @@ import {
 ### Setup
 
 ```tsx
-import { AnalyticsQueryClientProvider } from '@automattic/jetpack-premium-analytics-data';
+import { AnalyticsQueryClientProvider } from '@jetpack-premium-analytics/data';
 
 function App() {
-	return (
-		<AnalyticsQueryClientProvider>
-			{/* Your app components */}
-		</AnalyticsQueryClientProvider>
-	);
+	return <AnalyticsQueryClientProvider>{ /* Your app components */ }</AnalyticsQueryClientProvider>;
 }
 ```
 
 ### Fetching Data
 
 ```tsx
-import { 
+import {
 	useReportOrders,
 	useReportOrdersByProductType,
-	useReportOrderAttribution, 
-	useReportCoupons 
-} from '@automattic/jetpack-premium-analytics-data';
+	useReportOrderAttribution,
+	useReportCoupons,
+} from '@jetpack-premium-analytics/data';
 
 function OrdersReport() {
 	// Orders endpoint separates primary and comparison periods
@@ -75,10 +72,10 @@ function OrdersByProductTypeReport() {
 		filters: [
 			{
 				key: 'product_type',
-				value: ['simple'],
-				compare: 'IN'
-			}
-		]
+				value: [ 'simple' ],
+				compare: 'IN',
+			},
+		],
 	} );
 }
 
@@ -105,13 +102,13 @@ function CouponsReport() {
 ### Prefetching
 
 ```tsx
-import { prefetchReport, ensureCoreSettingsReady } from '@automattic/jetpack-premium-analytics-data';
+import { prefetchReport, ensureCoreSettingsReady } from '@jetpack-premium-analytics/data';
 
 export const route = {
 	beforeLoad: async () => {
 		// Ensure site settings are loaded first
 		await ensureCoreSettingsReady();
-		
+
 		// Now safely prefetch reports
 		await prefetchReport( 'orders' );
 	},
@@ -127,6 +124,7 @@ export const route = {
 Fetches orders report data with automatic processing and comparison support.
 
 **Parameters:**
+
 - `params`: `ReportParams` with `from`, `to`, `interval`, and optional comparison params
 
 **Returns:** `{ primary, comparison, hasComparison }`
@@ -136,18 +134,21 @@ Fetches orders report data with automatic processing and comparison support.
 Fetches orders report data filtered by product type or other product characteristics with automatic processing and comparison support.
 
 **Parameters:**
+
 - `params`: `ReportParams` with `from`, `to`, `interval`, optional `filters` array, and optional comparison params
 
 **Filters Structure:**
+
 ```typescript
-filters: Array<{
-  key: string;     // e.g., 'product_type', 'virtual'
-  value: string | string[];  // e.g., ['simple'], '1'
-  compare: '=' | 'IN' | 'NOT IN' | '!=' | '>' | '<' | '>=' | '<=';
-}>
+filters: Array< {
+	key: string; // e.g., 'product_type', 'virtual'
+	value: string | string[]; // e.g., ['simple'], '1'
+	compare: '=' | 'IN' | 'NOT IN' | '!=' | '>' | '<' | '>=' | '<=';
+} >;
 ```
 
 **Common Filter Examples:**
+
 - Product types: `{ key: 'product_type', value: ['simple', 'variable'], compare: 'IN' }`
 - Virtual products: `{ key: 'virtual', value: '1', compare: '=' }`
 - Non-virtual products: `{ key: 'virtual', value: '0', compare: '=' }`
@@ -159,6 +160,7 @@ filters: Array<{
 Fetches order attribution data with built-in comparison handling.
 
 **Parameters:**
+
 - `params`: `ReportParams` with `from`, `to`, `interval`, `view`, and optional comparison params
 
 **Returns:** `{ primary, comparison, hasComparison }`
@@ -168,6 +170,7 @@ Fetches order attribution data with built-in comparison handling.
 Fetches coupons report data with automatic processing and comparison support.
 
 **Parameters:**
+
 - `params`: `ReportParams` with `from`, `to`, `interval`, and optional comparison params
 
 **Returns:** `{ primary, comparison, hasComparison }`
@@ -179,6 +182,7 @@ Fetches coupons report data with automatic processing and comparison support.
 **⚠️ Deprecated:** Use individual hooks instead for better type safety and performance.
 
 **Parameters:**
+
 - `reportType`: `'orders'` | `'orders-by-product-type'` | `'order-attribution'` | `'coupons'`
 - `params`: `ReportParams`
 
@@ -196,16 +200,17 @@ Prefetches data for improved performance. Same parameters as `useReport`.
 instant
 
 **Example:**
+
 ```tsx
 // Prefetch orders data
 await prefetchReport( 'orders', { from, to, interval } );
 
 // Prefetch orders by product type data
-await prefetchReport( 'orders-by-product-type', { 
-  from, 
-  to, 
-  interval, 
-  filters: [{ key: 'product_type', value: ['simple'], compare: 'IN' }] 
+await prefetchReport( 'orders-by-product-type', {
+	from,
+	to,
+	interval,
+	filters: [ { key: 'product_type', value: [ 'simple' ], compare: 'IN' } ],
 } );
 
 // Prefetch order attribution data
@@ -220,6 +225,7 @@ await prefetchReport( 'coupons', { from, to, interval } );
 Normalizes and validates report parameters, providing defaults when needed.
 
 **Parameters:**
+
 - `params`: Optional partial parameters object
 
 **Returns:** `{ primary, comparison? }` with normalized parameters
@@ -233,6 +239,7 @@ Normalizes and validates report parameters, providing defaults when needed.
 Returns the optimal default interval for a given time period.
 
 **Parameters:**
+
 - `period`: `string` - Period identifier (e.g., 'today', 'last-7-days', 'last-30-days')
 - `from`: `string` - Start date
 - `to`: `string` - End date
@@ -240,8 +247,9 @@ Returns the optimal default interval for a given time period.
 **Returns:** `IntervalType` - Optimal interval ('hour', 'day', 'week', 'month', 'quarter', 'year')
 
 **Example:**
+
 ```tsx
-import { getDefaultIntervalForPeriod } from '@automattic/jetpack-premium-analytics-data';
+import { getDefaultIntervalForPeriod } from '@jetpack-premium-analytics/data';
 
 const interval = getDefaultIntervalForPeriod( 'last-7-days', from, to ); // Returns 'day'
 ```
@@ -253,8 +261,9 @@ Constant array of available order attribution views.
 **Values:** `['channel', 'source', 'campaign', 'device', 'channel-source']`
 
 **Example:**
+
 ```tsx
-import { ORDER_ATTRIBUTION_VIEWS } from '@automattic/jetpack-premium-analytics-data';
+import { ORDER_ATTRIBUTION_VIEWS } from '@jetpack-premium-analytics/data';
 
 // Use in components for view selection
 const views = ORDER_ATTRIBUTION_VIEWS; // ['channel', 'source', ...]
@@ -274,7 +283,7 @@ src/
 │   │   ├── index.ts       # Orders by product type API exports
 │   │   └── report-orders-by-product-type-fetch.ts  # Orders by product type API implementation
 │   ├── report-order-attribution-summary-fetch/  # Attribution API client
-│   │   ├── index.ts       # Attribution API exports  
+│   │   ├── index.ts       # Attribution API exports
 │   │   └── report-order-attribution-summary-fetch.ts  # Attribution API implementation
 │   └── report-coupons-fetch/               # Coupons API client
 │       ├── index.ts       # Coupons API exports
@@ -333,19 +342,19 @@ Creates a timezone-aware date using the site's configured timezone by
 default.
 
 ```typescript
-import { localTZDate } from '@automattic/jetpack-premium-analytics-data';
+import { localTZDate } from '@jetpack-premium-analytics/data';
 
 const now = localTZDate(); // Current time in site timezone
 const custom = localTZDate( '2024-01-15', 'America/New_York' );
 ```
 
 **Parameters:**
+
 - `value` (optional): `number | string | Date` - Date value to convert
 - `timezone` (optional): `string` - Target timezone (defaults to site
   timezone)
 
 **Returns:** `TZDate` - Timezone-aware date object
-
 
 ### `dateToISOStringWithLocalTZ( date, timezone? )`
 
@@ -357,6 +366,7 @@ const withTZ = dateToISOStringWithLocalTZ( new Date() );
 ```
 
 **Parameters:**
+
 - `date`: `Date` - Date to convert
 - `timezone` (optional): `string` - Target timezone (defaults to site
   timezone)
@@ -392,6 +402,7 @@ await ensureCoreSettingsReady();
 **Returns:** `Promise<void>` - Resolves when settings are loaded
 
 **Features:**
+
 - Memoizes the promise to avoid duplicate requests
 - Prevents race conditions during navigation
 - Essential for route prefetching and hover preloading
@@ -404,28 +415,34 @@ and provide consistent date handling across the analytics interface.
 This package exports the following public API:
 
 ### Components
+
 - `AnalyticsQueryClientProvider` - React Query provider wrapper
 
 ### Hooks
+
 - `useReportOrders` - Hook for fetching orders report data
 - `useReportOrdersByProductType` - Hook for fetching orders by product type with filtering
-- `useReportOrderAttribution` - Hook for fetching order attribution data  
+- `useReportOrderAttribution` - Hook for fetching order attribution data
 - `useReportCoupons` - Hook for fetching coupons report data
 - `useReport` - Legacy main hook for fetching report data (deprecated)
 
 ### Functions
+
 - `prefetchReport` - Prefetch data for routes
 - `normalizeReportParams` - Normalize and validate parameters
 - `getDefaultIntervalForPeriod` - Get optimal interval for time period
 
 ### Date Utilities
+
 - `localTZDate` - Create timezone-aware dates
 - `dateToISOStringWithLocalTZ` - Convert to ISO with timezone
 - `getSiteTimezone` - Get WordPress site timezone
 - `ensureCoreSettingsReady` - Ensure settings are loaded
 
 ### Constants
+
 - `ORDER_ATTRIBUTION_VIEWS` - Available attribution view types
 
 ### Types
+
 - `ReportDataMap` - TypeScript type mapping for report data structures

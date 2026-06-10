@@ -42,7 +42,6 @@ type SanitizedCustomersNewReturningResponse = {
 
 /**
  * Sanitize/process a single customer item by converting strings to numbers
- * @param item
  */
 function sanitizeCustomerItem(
 	item: RawCustomersNewReturningItem
@@ -56,7 +55,6 @@ function sanitizeCustomerItem(
 
 /**
  * Sanitize/process the summary by converting strings to numbers
- * @param summary
  */
 function sanitizeCustomerSummary(
 	summary: RawCustomersNewReturningSummary
@@ -73,7 +71,6 @@ function sanitizeCustomerSummary(
 /**
  * Sanitize the response from the reports/customers/new-returning endpoint
  * Converts string values to numbers for easier calculations and charting.
- * @param response
  */
 export const sanitizeReportCustomersResponse = (
 	response: ReportsCustomersNewReturningResponse

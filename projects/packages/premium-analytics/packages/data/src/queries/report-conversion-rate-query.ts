@@ -13,10 +13,6 @@ import type { UseQueryOptions } from '@tanstack/react-query';
 const getReportConversionRateQueryKey = ( p: RequestReportConversionRateParams ) =>
 	[ 'reports', 'conversion-rate', p.from, p.to, p.interval, p.date_type, p.filters ] as const;
 
-/**
- *
- * @param params
- */
 export function reportConversionRateQuery(
 	params: RequestReportConversionRateParams
 ): UseQueryOptions< ReturnType< typeof sanitizeReportConversionRateResponse > > {
@@ -34,7 +30,6 @@ export function reportConversionRateQuery(
 
 		/**
 		 * Keep previous data while fetching new data to prevent blank states
-		 * @param previousData
 		 */
 		placeholderData: previousData => previousData,
 	};

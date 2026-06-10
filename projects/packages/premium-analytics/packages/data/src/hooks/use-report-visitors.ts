@@ -9,11 +9,6 @@ type UseReportVisitorsOptions = {
 	enabled?: boolean;
 };
 
-/**
- *
- * @param params
- * @param options
- */
 export function useReportVisitors( params: ReportParams, options?: UseReportVisitorsOptions ) {
 	return useReport( p => reportVisitorsQuery( p ), params, {
 		enabled: options?.enabled,

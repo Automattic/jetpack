@@ -15,10 +15,6 @@ type RequestReportVisitorsParams = Parameters< typeof fetchReportVisitors >[ 0 ]
 const getReportVisitorsQueryKey = ( p: RequestReportVisitorsParams ) =>
 	[ 'reports', 'visitors', 'by-date', p.from, p.to, p.interval, p.date_type ] as const;
 
-/**
- *
- * @param params
- */
 export function reportVisitorsQuery(
 	params: RequestReportVisitorsParams
 ): UseQueryOptions< ReportDataMap[ 'visitors' ] > {
@@ -36,7 +32,6 @@ export function reportVisitorsQuery(
 
 		/**
 		 * Keep previous data while fetching new data to prevent blank states
-		 * @param previousData
 		 */
 		placeholderData: previousData => previousData,
 	};

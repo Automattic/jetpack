@@ -11,38 +11,22 @@ import { globalErrorManager } from './global-error-manager';
 const DEFAULT_STALE_TIME = 5 * 60 * 1000;
 const DEFAULT_GC_TIME = 10 * 60 * 1000;
 
-/**
- * Whether to render the React Query Devtools.
- *
- * Devtools are opt-in and OFF by default. Enable them by setting a global
- * debug flag on `window` (e.g. in the browser console:
- * `window.jetpackPremiumAnalyticsQueryDevtools = true`) and reloading. They
- * are also enabled automatically outside of production builds.
- *
- * @return Whether the devtools should be rendered.
- */
-function areQueryDevtoolsEnabled(): boolean {
-	if (
-		typeof window !== 'undefined' &&
-		( window as { jetpackPremiumAnalyticsQueryDevtools?: boolean } )
-			.jetpackPremiumAnalyticsQueryDevtools === true
-	) {
-		return true;
-	}
-
-	return process.env.NODE_ENV !== 'production';
-}
-
-const ReactQueryDevtoolsProduction = lazy( () =>
-	import( '@tanstack/react-query-devtools/production' ).then( d => ( {
-		default: d.ReactQueryDevtools,
-	} ) )
-);
+// Upstream gates devtools behind an admin-toolkit experiment flag; that system
+// isn't available here, so we show them in dev builds only. Gate the `lazy()`
+// creation on NODE_ENV (not just the render) so the dynamic import sits in a
+// dead branch that production builds tree-shake out — no orphaned chunk.
+const ReactQueryDevtools =
+	process.env.NODE_ENV !== 'production'
+		? lazy( () =>
+				import( '@tanstack/react-query-devtools' ).then( d => ( {
+					default: d.ReactQueryDevtools,
+				} ) )
+		  )
+		: null;
 
 /**
  * Extract HTTP status code from various error formats.
  * WordPress REST API errors may have different shapes.
- * @param error
  */
 function getErrorStatus( error: unknown ): number | null {
 	if ( ! error || typeof error !== 'object' ) {
@@ -152,9 +136,9 @@ export const AnalyticsQueryClientProvider = ( { children }: { children: ReactNod
 	return (
 		<QueryClientProvider client={ queryClient }>
 			<>{ children }</>
-			{ areQueryDevtoolsEnabled() && (
+			{ ReactQueryDevtools && (
 				<Suspense fallback={ null }>
-					<ReactQueryDevtoolsProduction initialIsOpen={ true } />
+					<ReactQueryDevtools initialIsOpen={ false } />
 				</Suspense>
 			) }
 		</QueryClientProvider>

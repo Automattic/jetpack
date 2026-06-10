@@ -8,8 +8,6 @@ import type { DateRange } from '@jetpack-premium-analytics/datetime';
  * Serializes a Date into an ISO string with the site's timezone
  * (or returns an empty string if no date is provided).
  * Useful for writing dates to the URL and for API requests.
- * @param date
- * @param timezone
  */
 export function encodeDateToSearchParam( date?: Date, timezone?: string ): string | undefined {
 	return date ? dateToISOStringWithLocalTZ( localTZDate( date, timezone ) ) : undefined;
@@ -37,12 +35,6 @@ type WriteDateRangeToSearchProps = {
  *   pass them in `search`.
  * - Note: whether other existing params are preserved depends on the
  *   router's navigate implementation. This helper sets an explicit object.
- * @param root0
- * @param root0.navigate
- * @param root0.to
- * @param root0.range
- * @param root0.timezone
- * @param root0.search
  */
 export function writeDateRangeToSearch( {
 	navigate,
@@ -80,17 +72,6 @@ type WriteComparisonToSearchProps = {
 	search?: Record< string, string | undefined | null >;
 };
 
-/**
- *
- * @param root0
- * @param root0.navigate
- * @param root0.to
- * @param root0.range
- * @param root0.presetId
- * @param root0.enabled
- * @param root0.timezone
- * @param root0.search
- */
 export function writeComparisonToSearch( {
 	navigate,
 	to: toPath,

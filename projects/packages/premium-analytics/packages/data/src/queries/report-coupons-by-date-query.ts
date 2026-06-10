@@ -18,10 +18,6 @@ type RequestReportCouponsByDateParams = Parameters< typeof fetchReportCouponsByD
 const getQueryKey = ( p: RequestReportCouponsByDateParams ) =>
 	[ 'reports', 'couponsByDate', p.from, p.to, p.interval, p.date_type, p.filters ] as const;
 
-/**
- *
- * @param params
- */
 export function reportCouponsByDateQuery(
 	params: RequestReportCouponsByDateParams
 ): UseQueryOptions< ReportDataMap[ 'couponsByDate' ] > {
@@ -39,7 +35,6 @@ export function reportCouponsByDateQuery(
 
 		/**
 		 * Keep previous data while fetching new data to prevent blank states
-		 * @param previousData
 		 */
 		placeholderData: previousData => previousData,
 	};

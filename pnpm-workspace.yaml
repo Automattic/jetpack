@@ -9,8 +9,11 @@ packages:
   - .github/files/coverage-munger
 
 engineStrict: true
-managePackageManagerVersions: false
+pmOnFail: ignore
 preferWorkspacePackages: true
+
+# Feature is buggy in pnpm 11.5, e.g. https://github.com/pnpm/pnpm/issues/12100.
+optimisticRepeatInstall: false
 
 # Be strict about peer deps
 autoInstallPeers: false
@@ -34,9 +37,6 @@ trustPolicy: no-downgrade
 trustPolicyExclude:
   # https://github.com/paulmillr/chokidar/issues/1440
   - chokidar@4.0.3
-
-  # https://github.com/reduxjs/reselect/issues/752
-  - reselect@5.1.1
 
   # Packages where newer majors have provenance but we're still on an older one.
   - rollup@3.30.0

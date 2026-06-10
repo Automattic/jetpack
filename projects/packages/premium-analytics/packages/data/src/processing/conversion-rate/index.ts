@@ -28,7 +28,6 @@ type SanitizedConversionRateByDateItem = Override<
 /**
  * Sanitize/process a single conversion rate item by converting strings to numbers
  * and calculating the conversion rate
- * @param item
  */
 function sanitizeConversionRateItem(
 	item: RawConversionRateReportDataItem
@@ -80,7 +79,6 @@ type SanitizedConversionRateByDateResponse = {
  *
  * The `summary` single item has basically the same structure
  * as the `data` array items, so we can use the same mapper function for both.
- * @param response
  */
 export const sanitizeReportConversionRateResponse = (
 	response: ReportsConversionRateByDateResponse

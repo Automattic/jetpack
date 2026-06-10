@@ -26,10 +26,6 @@ const getReportProductsQueryKey = ( p: RequestReportProductsParams ) =>
 		p.filters,
 	] as const;
 
-/**
- *
- * @param params
- */
 export function reportProductsQuery(
 	params: RequestReportProductsParams
 ): UseQueryOptions< SanitizedProductsResponse > {
@@ -47,7 +43,6 @@ export function reportProductsQuery(
 
 		/**
 		 * Keep previous data while fetching new data to prevent blank states
-		 * @param previousData
 		 */
 		placeholderData: previousData => previousData,
 	};

@@ -9,11 +9,6 @@ type UseReportConversionRateOptions = {
 	enabled?: boolean;
 };
 
-/**
- *
- * @param params
- * @param options
- */
 export function useReportConversionRate(
 	params: ReportParams,
 	options?: UseReportConversionRateOptions

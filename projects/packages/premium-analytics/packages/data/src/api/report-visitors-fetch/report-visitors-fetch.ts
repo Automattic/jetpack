@@ -27,13 +27,6 @@ type ReportsVisitorsByDateResponse = {
 
 export type RequestReportVisitorsParams = BaseReportParams;
 
-/**
- *
- * @param root0
- * @param root0.from
- * @param root0.to
- * @param root0.interval
- */
 export async function fetchReportVisitors( {
 	from,
 	to,

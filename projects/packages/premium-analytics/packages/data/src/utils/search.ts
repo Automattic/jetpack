@@ -57,10 +57,6 @@ type PartialComparisonFields = Partial<
 /*
  * Checks if the comparison is present in the search params.
  */
-/**
- *
- * @param p
- */
 export function hasComparisonEnabled< T extends PartialComparisonFields >( p: T ) {
 	return p.comp === '1' && !! p.compare_from?.trim() && !! p.compare_to?.trim();
 }

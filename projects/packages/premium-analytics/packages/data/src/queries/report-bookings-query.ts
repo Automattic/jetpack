@@ -15,10 +15,6 @@ type RequestReportBookingsParams = Parameters< typeof fetchReportBookings >[ 0 ]
 const getReportBookingsQueryKey = ( p: RequestReportBookingsParams ) =>
 	[ 'reports', 'bookings', 'by-date', p.from, p.to, p.interval, p.date_type, p.filters ] as const;
 
-/**
- *
- * @param params
- */
 export function reportBookingsQuery(
 	params: RequestReportBookingsParams
 ): UseQueryOptions< ReportDataMap[ 'bookings' ] > {
@@ -36,7 +32,6 @@ export function reportBookingsQuery(
 
 		/**
 		 * Keep previous data while fetching new data to prevent blank states
-		 * @param previousData
 		 */
 		placeholderData: previousData => previousData,
 	};

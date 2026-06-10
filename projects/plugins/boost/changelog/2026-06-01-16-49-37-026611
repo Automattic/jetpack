@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Fixed a duplicate scrollbar on the Boost dashboard by removing an obsolete full-height override.
