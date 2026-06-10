@@ -45,7 +45,7 @@ async function logConsentEvent(
 
 		// Store consent ID in localStorage for future reference
 		if ( data.consent_id ) {
-			localStorage.setItem( 'wc_consent_id', data.consent_id );
+			localStorage.setItem( 'jetpack_cookie_consent_id', data.consent_id );
 		}
 
 		return data.consent_id;
