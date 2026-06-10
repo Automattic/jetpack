@@ -144,7 +144,6 @@ class Post_To_Url {
 				'user-agent'   => $user_agent,
 			),
 		);
-		// phpcs:ignore Universal.CodeAnalysis.ConstructorDestructorReturn.ReturnValueFound -- this is no constructor
 		return wp_safe_remote_post( $options['url'], $args );
 	}
 

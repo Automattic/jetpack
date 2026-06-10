@@ -392,9 +392,7 @@ class Jetpack_Redux_State_Helper {
 	 */
 	public static function get_external_services_connect_urls() {
 		$connect_urls = array();
-		// phpcs:disable
 		foreach ( Keyring_Helper::SERVICES as $service_name => $service_info ) {
-			// phpcs:enable
 			$connect_urls[ $service_name ] = Keyring_Helper::connect_url( $service_name, $service_info['for'] );
 		}
 		return $connect_urls;

@@ -871,7 +871,7 @@ class Jetpack_Mu_Wpcom {
 						require_once $log2logstash_path;
 					}
 				}
-			} catch ( \Throwable $e ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch -- require_once can still throw (parse error / top-level fatal in the included file); fall through to the HTTP dispatch.
+			} catch ( \Throwable $e ) { // require_once can still throw (parse error / top-level fatal in the included file); fall through to the HTTP dispatch.
 				unset( $e );
 			}
 			$dispatch = function_exists( 'log2logstash' ) ? 'native' : 'http';
@@ -898,7 +898,7 @@ class Jetpack_Mu_Wpcom {
 			// POST guarantees delivery without adding latency to the
 			// user-visible response.
 			self::queue_logstash_http( $payload );
-		} catch ( \Throwable $e ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch -- best-effort: a logging failure must never escalate into a fatal for the caller.
+		} catch ( \Throwable $e ) { // best-effort: a logging failure must never escalate into a fatal for the caller.
 			unset( $e );
 		}
 	}
@@ -952,7 +952,7 @@ class Jetpack_Mu_Wpcom {
 									'timeout' => 5,
 								)
 							);
-						} catch ( \Throwable $e ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch -- best-effort: a logging failure must never escalate into a fatal at shutdown.
+						} catch ( \Throwable $e ) { // best-effort: a logging failure must never escalate into a fatal at shutdown.
 							unset( $e );
 						}
 					}

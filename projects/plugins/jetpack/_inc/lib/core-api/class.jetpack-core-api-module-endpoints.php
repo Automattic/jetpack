@@ -1294,7 +1294,6 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
  * phpcs:disable Generic.Files.OneObjectStructurePerFile.MultipleFound
  */
 class Jetpack_Core_API_Module_Data_Endpoint {
-	// phpcs:disable Generic.Files.OneObjectStructurePerFile.MultipleFound
 
 	/**
 	 * Process request and return different data based on the module we are interested in.

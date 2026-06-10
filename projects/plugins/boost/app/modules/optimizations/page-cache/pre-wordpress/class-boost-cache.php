@@ -220,7 +220,7 @@ class Boost_Cache {
 
 			$result = $this->storage->write( $this->request->get_uri(), $this->request->get_parameters(), $buffer );
 
-			if ( $result instanceof Boost_Cache_Error ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedIf
+			if ( $result instanceof Boost_Cache_Error ) {
 				Logger::debug( 'Error writing cache file: ' . $result->get_error_message() );
 			} else {
 				$ignored_cookies_message = $this->ignored_cookies === '' ? '' : " and ignored cookies: {$this->ignored_cookies}";

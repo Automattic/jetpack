@@ -17,7 +17,6 @@ use Automattic\Jetpack\Connection\Rest_Authentication;
 use WP_Error;
 use WP_REST_Request;
 use WP_REST_Server;
-// phpcs:ignore WordPress.Utils.I18nTextDomainFixer.MissingArgs
 use function esc_html__;
 use function is_wp_error;
 use function register_rest_route;
