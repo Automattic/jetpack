@@ -212,7 +212,7 @@ class Validation_Service {
 		 * Filters the minimum allowed password length for Account Protection.
 		 *
 		 * The default is a floor: values below it are ignored, so the filter can only
-		 * make the requirement stricter, never weaker.
+		 * raise the minimum, never lower it.
 		 *
 		 * @since $$next-version$$
 		 *
@@ -231,11 +231,15 @@ class Validation_Service {
 		/**
 		 * Filters the maximum allowed password length for Account Protection.
 		 *
+		 * The default is a floor: values below it are ignored, so the filter can only
+		 * raise the maximum, never lower it.
+		 *
 		 * @since $$next-version$$
 		 *
 		 * @param int $max_length The maximum allowed password length.
 		 */
-		return (int) apply_filters( 'jetpack_account_protection_validation_max_length', Config::VALIDATION_SERVICE_MAX_LENGTH );
+		$max_length = (int) apply_filters( 'jetpack_account_protection_validation_max_length', Config::VALIDATION_SERVICE_MAX_LENGTH );
+		return max( Config::VALIDATION_SERVICE_MAX_LENGTH, $max_length );
 	}
 
 	/**

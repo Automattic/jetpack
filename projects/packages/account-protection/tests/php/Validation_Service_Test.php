@@ -235,17 +235,31 @@ class Validation_Service_Test extends BaseTestCase {
 	}
 
 	public function test_max_length_is_filterable() {
-		$password = str_repeat( 'a', 21 );
+		$password = str_repeat( 'a', 172 );
 
 		$validation_service = new Validation_Service( $this->get_connection_manager() );
 		$this->assertSame( 150, $validation_service->get_max_length() );
 
 		$callback = function () {
-			return 20;
+			return 200;
 		};
 		add_filter( 'jetpack_account_protection_validation_max_length', $callback );
-		$this->assertSame( 20, $validation_service->get_max_length() );
-		$this->assertTrue( $validation_service->is_invalid_length( $password ) );
+		$this->assertSame( 200, $validation_service->get_max_length() );
+		$this->assertFalse( $validation_service->is_invalid_length( $password ) );
+		remove_filter( 'jetpack_account_protection_validation_max_length', $callback );
+	}
+
+	public function test_max_length_cannot_be_filtered_below_default() {
+		$password = str_repeat( 'a', 127 );
+
+		$validation_service = new Validation_Service( $this->get_connection_manager() );
+
+		$callback = function () {
+			return 100;
+		};
+		add_filter( 'jetpack_account_protection_validation_max_length', $callback );
+		$this->assertSame( 150, $validation_service->get_max_length() );
+		$this->assertFalse( $validation_service->is_invalid_length( $password ) );
 		remove_filter( 'jetpack_account_protection_validation_max_length', $callback );
 	}
 
