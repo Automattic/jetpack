@@ -442,17 +442,22 @@ class Plugin {
 	 * Used in place of WordPress.org data for unpublished plugins.
 	 *
 	 * @param bool $no_cache Set true to bypass the transients cache.
-	 * @return object Object with plugin data.
-	 * @throws PluginDataException If the data cannot be fetched or is invalid.
+	 * @return object|null Object with plugin data, or null if no usable release exists.
+	 * @throws PluginDataException If the data cannot be fetched.
 	 */
 	public function get_latest_github_release( $no_cache = false ) {
 		$url     = sprintf( 'https://api.github.com/repos/%s/releases/latest', $this->mirror );
 		$release = Utils::get_remote_data( $url, "github_latest_$this->slug", $no_cache );
-		if ( ! is_object( $release ) || ! isset( $release->tag_name ) || ! isset( $release->assets[0]->browser_download_url ) ) {
+		if ( $release === false ) {
 			throw new PluginDataException(
 				// translators: %s: Plugin slug.
 				sprintf( __( 'Failed to download GitHub release data for plugin \'%s\'. Check your Internet connection.', 'jetpack-beta' ), $this->slug )
 			);
+		}
+
+		// A repo with no releases returns a 404 body. Let's treat that as "no stable version".
+		if ( ! is_object( $release ) || ! isset( $release->tag_name ) || ! isset( $release->assets[0]->browser_download_url ) ) {
+			return null;
 		}
 
 		return (object) array(
@@ -949,6 +954,13 @@ class Plugin {
 				$which = 'stable';
 				if ( $this->unpublished ) {
 					$info = $this->get_latest_github_release();
+					if ( ! $info ) {
+						return new WP_Error(
+							'stable_url_missing',
+							// translators: %s: Plugin slug.
+							sprintf( __( 'No stable download URL is available for %s.', 'jetpack-beta' ), $this->plugin_slug() )
+						);
+					}
 				} else {
 					$wporg_data = $this->get_wporg_data();
 					if ( ! isset( $wporg_data->download_link ) ) {
@@ -1020,7 +1032,7 @@ class Plugin {
 				$which = 'stable';
 				if ( $this->unpublished ) {
 					$info = $this->get_latest_github_release();
-					if ( $info->version !== $id ) {
+					if ( ! $info || $info->version !== $id ) {
 						return new WP_Error(
 							'release_missing',
 							// translators: %1$s: Version number. %2$s: Plugin slug.
