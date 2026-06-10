@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add the Locations widget (country-level views) to the Premium Analytics dashboard, ported from the Jetpack Stats Locations module.

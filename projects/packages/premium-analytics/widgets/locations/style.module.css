@@ -1,0 +1,44 @@
+.root {
+	display: flex;
+	flex-direction: column;
+	gap: var(--wpds-dimension-gap-md, 16px);
+	height: 100%;
+}
+
+.placeholder {
+	min-height: 200px;
+	color: var(--wpds-color-fg-content-neutral-weak);
+}
+
+.list {
+	display: flex;
+	flex-direction: column;
+	gap: var(--wpds-dimension-gap-xs, 4px);
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+.row {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: var(--wpds-dimension-gap-md, 16px);
+	padding-block: var(--wpds-dimension-padding-xs, 4px);
+}
+
+.label {
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.value {
+	flex-shrink: 0;
+	font-variant-numeric: tabular-nums;
+}
+
+.sampleNote {
+	align-self: flex-end;
+	color: var(--wpds-color-fg-content-neutral-weak);
+}
