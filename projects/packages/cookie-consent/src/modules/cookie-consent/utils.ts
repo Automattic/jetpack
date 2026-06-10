@@ -2,12 +2,8 @@
  * Shared utility functions for cookie consent
  */
 
-import type {
-	ConsentType,
-	ConsentEventType,
-	ConsentEventChoices,
-} from './types';
 import { trackPrivacyBannerView } from './tracks';
+import type { ConsentType, ConsentEventType, ConsentEventChoices } from './types';
 
 export const UNKNOWN_COUNTRY_CODE = 'UNKNOWN';
 
@@ -80,20 +76,13 @@ export function saveConsentChoices(
 	window.wp_set_consent( 'functional', 'allow' );
 
 	// Set consent for each mapped WP category, merging and deduplicating where appropriate
-	const categories: Array< keyof ConsentEventChoices > = [
-		'analytics',
-		'advertising',
-	];
-	categories.forEach( ( category ) => {
+	const categories: Array< keyof ConsentEventChoices > = [ 'analytics', 'advertising' ];
+	categories.forEach( category => {
 		if ( category in choices && choices[ category ] !== undefined ) {
 			const value = choices[ category ];
 			const mappedCategories = categoryMap[ category ];
 			mappedCategories.forEach(
-				( wpCategory ) =>
-					window.wp_set_consent?.(
-						wpCategory,
-						value ? 'allow' : 'deny'
-					)
+				wpCategory => window.wp_set_consent?.( wpCategory, value ? 'allow' : 'deny' )
 			);
 		}
 	} );
@@ -115,17 +104,10 @@ export function setConsentType( consentType: ConsentType ): void {
 }
 
 export function isGdprCountry( countryCode: string, config: Config ): boolean {
-	return (
-		countryCode === UNKNOWN_COUNTRY_CODE ||
-		config.gdprCountries.includes( countryCode )
-	);
+	return countryCode === UNKNOWN_COUNTRY_CODE || config.gdprCountries.includes( countryCode );
 }
 
-export function pertainsToCCPA(
-	countryCode: string,
-	region: string,
-	config: Config
-): boolean {
+export function pertainsToCCPA( countryCode: string, region: string, config: Config ): boolean {
 	const _region = ( region || '' ).toLowerCase();
 	return countryCode === 'US' && config.ccpaRegions.includes( _region );
 }

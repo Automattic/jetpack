@@ -21,9 +21,7 @@ export function trackPrivacyBannerView(): void {
  *
  * @param preferences Object with consent preferences (required, analytics, advertising).
  */
-export function trackPrivacyBannerAccept(
-	preferences: ConsentPreferences
-): void {
+export function trackPrivacyBannerAccept( preferences: ConsentPreferences ): void {
 	recordEvent( 'privacy_banner_button_accept', {
 		...getCommonProperties(),
 		preferences_required: preferences.required,

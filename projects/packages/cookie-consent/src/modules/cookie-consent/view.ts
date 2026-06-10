@@ -7,6 +7,13 @@
 
 import { store, getContext, getConfig, withSyncEvent } from '@wordpress/interactivity';
 import {
+	trackPrivacyBannerAccept,
+	trackPrivacyBannerCustomize,
+	trackPrivacyBannerReject,
+	trackPrivacyManageOpen,
+	trackPrivacyPolicyOptOut,
+} from './tracks';
+import {
 	UNKNOWN_COUNTRY_CODE,
 	getCookie,
 	setCookie,
@@ -17,13 +24,6 @@ import {
 	pertainsToCCPA,
 	handleConsentByRegion,
 } from './utils';
-import {
-	trackPrivacyBannerAccept,
-	trackPrivacyBannerCustomize,
-	trackPrivacyBannerReject,
-	trackPrivacyManageOpen,
-	trackPrivacyPolicyOptOut,
-} from './tracks';
 
 interface GeoState {
 	initialized: boolean;
