@@ -21,12 +21,10 @@ import wordpressEslintPlugin from '@wordpress/eslint-plugin';
 import makeDebug from 'debug';
 import { defineConfig, globalIgnores } from 'eslint/config';
 import { defaultConditionNames } from 'eslint-import-resolver-typescript';
-// @todo Remove use of eslint-json-compat-utils (and jsonc-eslint-parser) once https://github.com/JoshuaKGoldberg/eslint-plugin-package-json/issues/655 is fixed.
-import { toCompatPlugin as jsonToCompatPlugin } from 'eslint-json-compat-utils';
 import eslintPluginImport from 'eslint-plugin-import';
 import eslintPluginLodash from 'eslint-plugin-lodash';
 import eslintPluginN from 'eslint-plugin-n';
-import eslintPluginPackageJson from 'eslint-plugin-package-json';
+import eslintPluginPackageJson from 'eslint-plugin-package-json/experimental';
 import eslintPluginPrettier from 'eslint-plugin-prettier';
 import eslintPluginPrettierRecommended from 'eslint-plugin-prettier/recommended';
 import eslintPluginStorybook from 'eslint-plugin-storybook';
@@ -464,7 +462,7 @@ export function makeBaseConfig( configurl, opts = {} ) {
 			name: 'Package.json - base',
 			files: [ '**/package.json' ],
 			plugins: {
-				'package-json': jsonToCompatPlugin( eslintPluginPackageJson ),
+				'package-json': eslintPluginPackageJson,
 			},
 			rules: {
 				...eslintPluginPackageJson.configs.recommended.rules,
