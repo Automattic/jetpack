@@ -532,10 +532,7 @@ async function checkDescription(
 		return;
 	}
 
-	if (
-		ref === 'update/pnpm_and_composer_lock_files' &&
-		( author === 'matticbot' || author === 'github-actions[bot]' )
-	) {
+	if ( ref === 'update/pnpm_and_composer_lock_files' && author === 'matticbot' ) {
 		debug( `check-description: Automated lock file update, skipping` );
 		return;
 	}
