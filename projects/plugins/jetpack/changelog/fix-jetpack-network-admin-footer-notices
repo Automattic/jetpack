@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Jetpack Network Admin: pin the Sites and Settings footers to the bottom on real multisite, and remove core admin notices on those modernized pages.

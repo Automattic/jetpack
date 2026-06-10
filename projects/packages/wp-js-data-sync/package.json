@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-wp-js-data-sync",
-	"version": "0.6.8",
+	"version": "0.6.9",
 	"private": true,
 	"description": "A package to setup REST API and script localization to pass data to a JavaScript client.",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/packages/wp-js-data-sync/#readme",

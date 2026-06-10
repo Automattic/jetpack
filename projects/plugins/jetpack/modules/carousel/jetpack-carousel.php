@@ -948,6 +948,7 @@ class Jetpack_Carousel {
 		$size            = isset( $meta['width'] ) ? (int) $meta['width'] . ',' . (int) $meta['height'] : '';
 		$img_meta        = ( ! empty( $meta['image_meta'] ) ) ? (array) $meta['image_meta'] : array();
 		$comments_opened = (int) comments_open( $attachment_id );
+		$display_exif    = $this->test_1or0_option( Jetpack_Options::get_option_and_ensure_autoload( 'carousel_display_exif', true ) );
 
 		/**
 		 * Note: Cannot generate a filename from the width and height wp_get_attachment_image_src() returns because
@@ -971,19 +972,22 @@ class Jetpack_Carousel {
 		$attachment_desc    = wpautop( wptexturize( $attachment->post_content ) );
 		$attachment_caption = wpautop( wptexturize( $attachment->post_excerpt ) );
 
-		// See https://github.com/Automattic/jetpack/issues/2765.
-		if ( isset( $img_meta['keywords'] ) ) {
-			unset( $img_meta['keywords'] );
-		}
-
-		$img_meta = wp_json_encode( array_map( 'strval', array_filter( $img_meta, 'is_scalar' ) ), JSON_UNESCAPED_SLASHES | JSON_HEX_AMP );
-
 		$attr['data-attachment-id']   = $attachment_id;
 		$attr['data-permalink']       = esc_attr( get_permalink( $attachment_id ) );
 		$attr['data-orig-file']       = esc_attr( $orig_file );
 		$attr['data-orig-size']       = $size;
 		$attr['data-comments-opened'] = $comments_opened;
-		$attr['data-image-meta']      = esc_attr( $img_meta );
+
+		if ( $display_exif ) {
+			// See https://github.com/Automattic/jetpack/issues/2765.
+			if ( isset( $img_meta['keywords'] ) ) {
+				unset( $img_meta['keywords'] );
+			}
+
+			$img_meta                = wp_json_encode( array_map( 'strval', array_filter( $img_meta, 'is_scalar' ) ), JSON_UNESCAPED_SLASHES | JSON_HEX_AMP );
+			$attr['data-image-meta'] = esc_attr( $img_meta );
+		}
+
 		// The lines below use `esc_attr( htmlspecialchars( ) )` because esc_attr tries to be too smart and won't double-encode, and we need that here.
 		$attr['data-image-title']       = esc_attr( htmlspecialchars( $attachment_title, ENT_COMPAT ) );
 		$attr['data-image-description'] = esc_attr( htmlspecialchars( $attachment_desc, ENT_COMPAT ) );
