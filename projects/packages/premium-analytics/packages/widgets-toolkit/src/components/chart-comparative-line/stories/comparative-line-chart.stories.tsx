@@ -1,4 +1,5 @@
 import { formatDate } from '@jetpack-premium-analytics/formatters';
+import { withChartTheme } from '../../../stories/with-chart-theme';
 import { ComparativeLineChart } from '../comparative-line-chart';
 import type { ComparativeLineChartSeries, SeriesStyle } from '../types';
 import type { Meta, StoryObj } from '@storybook/react';
@@ -86,6 +87,7 @@ const meta: Meta< typeof ComparativeLineChart > = {
 		layout: 'padded',
 	},
 	decorators: [
+		withChartTheme,
 		Story => (
 			<div style={ { width: '100%', height: '300px' } }>
 				<Story />

@@ -1,23 +1,13 @@
 import { getDefaultQueryParams } from '@jetpack-premium-analytics/data';
-import { WidgetRootContext } from '../../../components/widget-root/context';
+import { withWidgetRoot } from '../../../stories/with-widget-root';
 import { SalesByUtmWidget } from '../sales-by-utm-widget';
 import type { Meta, StoryObj, Decorator } from '@storybook/react';
-
-/**
- * Default decorator that provides WidgetRootContext for all stories.
- * Uses comparison mode enabled by default.
- */
-const withWidgetContext: Decorator = Story => (
-	<WidgetRootContext.Provider value={ { reportParams: getDefaultQueryParams( true ) } }>
-		<Story />
-	</WidgetRootContext.Provider>
-);
 
 const meta: Meta< typeof SalesByUtmWidget > = {
 	title: 'Packages/Premium Analytics/Widgets Toolkit/Widgets/SalesByUtm',
 	component: SalesByUtmWidget,
 	tags: [ 'autodocs' ],
-	decorators: [ withWidgetContext ],
+	decorators: [ withWidgetRoot( getDefaultQueryParams( true ) ) ],
 	argTypes: {
 		view: {
 			control: 'select',

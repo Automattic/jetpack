@@ -1,3 +1,4 @@
+import { withChartTheme } from '../../../stories/with-chart-theme';
 import { SemiCircleChart } from '../semi-circle-chart';
 import type { SegmentStyle } from '../../../helpers';
 import type { LegendItem } from '../../legend/legend';
@@ -11,6 +12,7 @@ const meta: Meta< typeof SemiCircleChart > = {
 	parameters: {
 		layout: 'padded',
 	},
+	decorators: [ withChartTheme ],
 };
 
 export default meta;

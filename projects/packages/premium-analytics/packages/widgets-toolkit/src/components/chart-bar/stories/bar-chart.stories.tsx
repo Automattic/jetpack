@@ -1,3 +1,4 @@
+import { withChartTheme } from '../../../stories/with-chart-theme';
 import { BarChart, type BarChartStyle } from '../bar-chart';
 import type { SeriesData } from '@automattic/charts';
 import type { Meta, StoryObj } from '@storybook/react';
@@ -10,6 +11,7 @@ const meta: Meta< typeof BarChart > = {
 		layout: 'padded',
 	},
 	decorators: [
+		withChartTheme,
 		Story => (
 			<div style={ { width: '100%', height: '300px' } }>
 				<Story />

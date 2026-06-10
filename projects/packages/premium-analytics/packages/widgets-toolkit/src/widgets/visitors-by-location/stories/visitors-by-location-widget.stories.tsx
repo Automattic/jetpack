@@ -1,5 +1,5 @@
-import { getDefaultQueryParams, normalizeReportParams } from '@jetpack-premium-analytics/data';
-import { WidgetRoot } from '../../../components/widget-root/widget-root';
+import { getDefaultQueryParams } from '@jetpack-premium-analytics/data';
+import { withWidgetRoot } from '../../../stories/with-widget-root';
 import { VisitorsByLocationWidget } from '../visitors-by-location-widget';
 import type { Meta, StoryObj } from '@storybook/react';
 
@@ -12,18 +12,6 @@ const meta: Meta< typeof VisitorsByLocationWidget > = {
 export default meta;
 
 type Story = StoryObj< typeof VisitorsByLocationWidget >;
-
-function withWidgetRoot( reportParams = getDefaultQueryParams() ) {
-	const normalizedReportParams = normalizeReportParams( reportParams );
-
-	return function Decorator( Story: () => JSX.Element ) {
-		return (
-			<WidgetRoot attributes={ { reportParams: normalizedReportParams } }>
-				<Story />
-			</WidgetRoot>
-		);
-	};
-}
 
 /**
  * Default state with mock data (no comparison)

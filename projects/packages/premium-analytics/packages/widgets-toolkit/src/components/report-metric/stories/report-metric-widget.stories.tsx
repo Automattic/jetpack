@@ -1,3 +1,4 @@
+import { withWidgetRoot } from '../../../stories/with-widget-root';
 import { ReportMetricWidget } from '../report-metric';
 import type { ReportMetricWidgetProps } from '../report-metric';
 import type { Meta, StoryObj } from '@storybook/react';
@@ -103,6 +104,7 @@ const meta: Meta< typeof ReportMetricWidget > = {
 			},
 		},
 	},
+	decorators: [ withWidgetRoot() ],
 };
 
 export default meta;

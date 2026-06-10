@@ -1,3 +1,4 @@
+import { withChartTheme } from '../../../stories/with-chart-theme';
 import { LeaderboardChart } from '../leaderboard-chart';
 import type { LeaderboardChartData } from '../leaderboard-chart';
 import type { Meta, StoryObj, Decorator } from '@storybook/react';
@@ -14,6 +15,7 @@ const meta: Meta< typeof LeaderboardChart > = {
 			},
 		},
 	},
+	decorators: [ withChartTheme ],
 };
 
 export default meta;

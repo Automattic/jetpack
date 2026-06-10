@@ -1,5 +1,6 @@
 import { getDefaultQueryParams } from '@jetpack-premium-analytics/data';
 import { WidgetRootContext } from '../../../components/widget-root/context';
+import { withWidgetRoot } from '../../../stories/with-widget-root';
 import { SessionsByDeviceWidget } from '../sessions-by-device-widget';
 import type { Meta, StoryObj, Decorator } from '@storybook/react';
 
@@ -15,6 +16,7 @@ const meta: Meta< typeof SessionsByDeviceWidget > = {
 			},
 		},
 	},
+	decorators: [ withWidgetRoot() ],
 };
 
 export default meta;

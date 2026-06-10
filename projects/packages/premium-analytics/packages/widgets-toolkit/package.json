@@ -16,6 +16,7 @@
 		"@jetpack-premium-analytics/icons": "workspace:*",
 		"@jetpack-premium-analytics/routing": "workspace:*",
 		"@jetpack-premium-analytics/ui": "workspace:*",
+		"@wordpress/api-fetch": "7.48.0",
 		"@wordpress/components": "33.1.0",
 		"@wordpress/compose": "7.46.0",
 		"@wordpress/dataviews": "14.3.0",
