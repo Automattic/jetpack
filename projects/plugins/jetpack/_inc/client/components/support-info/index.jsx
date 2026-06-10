@@ -1,5 +1,5 @@
 import { isWpcomPlatformSite } from '@automattic/jetpack-script-data';
-import { WpcomSupportLink } from '@automattic/jetpack-shared-extension-utils/components';
+import { WpcomSupportLink } from '@automattic/jetpack-shared-extension-utils/components/wpcom-support-link';
 import { __ } from '@wordpress/i18n';
 import { Link } from '@wordpress/ui';
 import PropTypes from 'prop-types';
@@ -69,9 +69,9 @@ export default class SupportInfo extends Component {
 		const { text, link, wpcomLink, wpcomPostId } = this.props;
 		let { privacyLink } = this.props;
 
-		// On WordPress.com (Simple/Atomic) sites, surface the Dotcom support doc and
-		// open it in the Help Center. The standalone "Privacy information" link is
-		// not relevant for Dotcom users. See DOTCOM-17147.
+		// On WordPress.com (Simple/Atomic) sites with a wpcomLink, surface the Dotcom
+		// support doc and open it in the Help Center instead of the Jetpack support
+		// and privacy links. See DOTCOM-17147.
 		const isWpcom = isWpcomPlatformSite();
 		const useWpcomSupport = isWpcom && !! wpcomLink;
 
@@ -109,7 +109,7 @@ export default class SupportInfo extends Component {
 							) }
 						</div>
 					) }
-					{ ! isWpcom && (
+					{ ! useWpcomSupport && (
 						<span className="jp-support-info__privacy">
 							<Link
 								openInNewTab
