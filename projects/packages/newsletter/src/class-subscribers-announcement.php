@@ -279,7 +279,7 @@ class Subscribers_Announcement {
 	 * Tracking the click server-side before the redirect avoids relying on a
 	 * JS tracking pipeline on a page that is otherwise static.
 	 *
-	 * @return void
+	 * @return never
 	 */
 	public static function handle_go_to_newsletter() {
 		check_admin_referer( self::GO_ACTION );
