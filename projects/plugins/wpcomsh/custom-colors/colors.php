@@ -1745,9 +1745,9 @@ class Colors_Manager_Common {
 
 		foreach ( $top_palette['colors'] as $palette_role => $palette_color_hex ) {
 			$base_color_hex = $colors[ $palette_role ];
-			// phpcs:ignore Squiz.PHP.CommentedOutCode.Found
-			// $base_color:$new_color :: $palette_color:$equivalent_color
 			try {
+				// phpcs:ignore Squiz.PHP.CommentedOutCode.Found
+				// $base_color:$new_color :: $palette_color:$equivalent_color
 				$base_color       = new Jetpack_Color( $base_color_hex );
 				$palette_color    = new Jetpack_Color( $palette_color_hex );
 				$equivalent_color = new Jetpack_Color( $equivalent_color_hex );

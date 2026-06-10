@@ -105,7 +105,7 @@ function wpcomsh_fatal_identify_plugin( $error ) {
 				);
 			}
 		}
-	} catch ( \Throwable $e ) {
+	} catch ( \Throwable $e ) { // identification is best-effort; swallow and return null.
 		return null;
 	}
 	return null;
@@ -492,7 +492,7 @@ function wpcomsh_fatal_verify_payload( $payload_prefix, $exp, $sig ) {
 function wpcomsh_fatal_dedup_acquire( $key, $ttl = 5 * MINUTE_IN_SECONDS ) {
 	try {
 		return (bool) wp_cache_add( $key, 1, 'wpcomsh', $ttl );
-	} catch ( \Throwable $e ) {
+	} catch ( \Throwable $e ) { // fail open: a cache outage shouldn't silence telemetry or block real actions.
 		return true;
 	}
 }
