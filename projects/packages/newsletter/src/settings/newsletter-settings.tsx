@@ -55,6 +55,28 @@ function normalizeSettings( settings: Record< string, unknown > ): NewsletterSet
 	};
 }
 
+// Module-level cache of the last resolved settings. The modernized dashboard
+// renders this body inside a `Tabs.Panel` that unmounts when the visitor
+// switches to the Subscribers tab and remounts on return, so without a cache
+// every revisit re-initialized `isLoading` to true and flashed the full-page
+// spinner while re-fetching. Seeding initial state from this cache lets repeat
+// mounts paint the settings immediately; only the genuine first load (empty
+// cache) shows the spinner. The mount effect still re-fetches in the
+// background to refresh the cache, so a returning visitor sees current values
+// without the flash.
+let cachedSettings: NewsletterSettings | null = null;
+
+/**
+ * Test-only: clear the module-level settings cache so each test starts cold.
+ * The cache deliberately outlives any single component instance (that's the
+ * whole point — it survives the tab unmount/remount), which also means it
+ * leaks across tests in a file. Call this in `beforeEach` to keep cold-cache
+ * assertions order-independent.
+ */
+export function __resetNewsletterSettingsCacheForTests(): void {
+	cachedSettings = null;
+}
+
 export type NewsletterSettingsBodyProps = {
 	/**
 	 * Whether the active user has a connected WordPress.com owner account.
@@ -111,8 +133,10 @@ export function NewsletterSettingsBody( {
 	connectUrl,
 	isModernized = false,
 }: NewsletterSettingsBodyProps ): JSX.Element | null {
-	const [ data, setData ] = useState< NewsletterSettings | null >( null );
-	const [ isLoading, setIsLoading ] = useState( true );
+	// Seed from the module cache so a remount (e.g. returning to the Settings
+	// tab) paints immediately instead of flashing the full-page spinner.
+	const [ data, setData ] = useState< NewsletterSettings | null >( () => cachedSettings );
+	const [ isLoading, setIsLoading ] = useState( () => ! cachedSettings );
 	const [ error, setError ] = useState< string | null >( null );
 
 	// Subscription settings state (for manual save).
@@ -173,7 +197,9 @@ export function NewsletterSettingsBody( {
 		}
 	}, [ newsletterScriptData ] );
 
-	// Load settings on mount.
+	// Load settings on mount. When the cache is already populated (a remount)
+	// this refetch runs in the background to refresh values without a spinner —
+	// `isLoading` is only true on the genuine first load.
 	useEffect( () => {
 		fetchSettings()
 			.then( ( settings: Record< string, unknown > ) => {
@@ -183,10 +209,34 @@ export function NewsletterSettingsBody( {
 			.catch( ( err: Error ) => {
 				// eslint-disable-next-line no-console
 				console.error( 'Newsletter settings load error:', err );
-				setError( err.message || __( 'Failed to load settings', 'jetpack-newsletter' ) );
+				// Only surface a blocking error when there's no cached data to
+				// fall back on; a background refresh failure shouldn't blank a
+				// page that's already rendering.
+				if ( ! cachedSettings ) {
+					setError( err.message || __( 'Failed to load settings', 'jetpack-newsletter' ) );
+				}
 				setIsLoading( false );
 			} );
 	}, [] );
+
+	// Keep the module cache in sync with local state so optimistic edits,
+	// saves, and reverts all carry over to the next mount — a returning visitor
+	// sees their latest values, not a pre-save snapshot.
+	//
+	// Known caveat (low severity): this mirrors the *optimistic* `data`, so a
+	// staged-but-unsaved edit briefly survives a tab switch — on remount the
+	// visitor sees the un-persisted value while the per-section `*Changes` state
+	// has reset to `{}` (no "unsaved changes" affordance), until the background
+	// refetch overwrites it with the server value. The end state is correct
+	// (server wins) and unsaved edits were already discarded on unmount pre-cache,
+	// so this isn't a regression. The structural fix is a persisted saved-baseline
+	// to reconcile against on remount (see the stacked preview-link PR's
+	// `savedData`); tracked as a follow-up.
+	useEffect( () => {
+		if ( data ) {
+			cachedSettings = data;
+		}
+	}, [ data ] );
 
 	// Handle auto-save for newsletter toggle and email settings.
 	const handleAutoSave = useCallback(
