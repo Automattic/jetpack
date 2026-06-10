@@ -1,2 +1,1 @@
 <!-- parent and child -->
-<?php
