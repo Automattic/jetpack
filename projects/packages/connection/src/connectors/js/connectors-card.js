@@ -24,7 +24,7 @@ const registerConnector =
 const ConnectorItem = connectors.__experimentalConnectorItem || connectors.ConnectorItem;
 
 const { createElement, createInterpolateElement, useState, useEffect, useRef } = window.wp.element;
-const { __ } = window.wp.i18n;
+const { __, _x, sprintf } = window.wp.i18n;
 const { Button, Modal, Notice } = window.wp.components;
 const HStack = window.wp.components.__experimentalHStack || window.wp.components.HStack;
 const VStack = window.wp.components.__experimentalVStack || window.wp.components.VStack;
@@ -62,6 +62,17 @@ const idc = data.idc || null;
 const hasJetpackPlugin = connectedPlugins.some(
 	plugin => plugin.slug === 'jetpack' || plugin.slug.startsWith( 'jetpack-' )
 );
+// Per the Jetpack Connection language guidelines, use "store" whenever a
+// WooCommerce-family plugin is connected (Woo is the user's primary context),
+// and "site" otherwise.
+const hasWooPlugin = connectedPlugins.some( plugin => plugin.slug.startsWith( 'woocommerce' ) );
+const subjectNoun = hasWooPlugin
+	? _x(
+			'store',
+			'The thing connected to WordPress.com, in a WooCommerce context.',
+			'jetpack-connection'
+	  )
+	: _x( 'site', 'The thing connected to WordPress.com.', 'jetpack-connection' );
 
 /**
  * Start the Jetpack connection flow: register the site (if needed),
@@ -630,6 +641,7 @@ function IDCPanel() {
 	const [ isMigrated, setIsMigrated ] = useState( false );
 	const [ error, setError ] = useState( null );
 	const [ pendingConfirm, setPendingConfirm ] = useState( null );
+	const [ showWhy, setShowWhy ] = useState( false );
 
 	const handleMigrate = async () => {
 		setBusyAction( 'migrate' );
@@ -640,7 +652,11 @@ function IDCPanel() {
 		} catch ( err ) {
 			setError(
 				err?.message ||
-					__( 'Failed to move the connection. Please try again.', 'jetpack-connection' )
+					sprintf(
+						// translators: %s: "site" or "store".
+						__( 'Failed to update the %s address. Please try again.', 'jetpack-connection' ),
+						subjectNoun
+					)
 			);
 		} finally {
 			setBusyAction( null );
@@ -657,7 +673,17 @@ function IDCPanel() {
 			if ( typeof url !== 'string' || ! url ) {
 				throw new Error( __( 'No connection URL received.', 'jetpack-connection' ) );
 			}
-			window.location.href = url;
+			// Tag the flow as jetpack-connector so Calypso returns the user to the
+			// Connectors page, matching the card's other connection flows.
+			let authorizeUrl = url;
+			try {
+				const parsed = new URL( url );
+				parsed.searchParams.set( 'from', 'jetpack-connector' );
+				authorizeUrl = parsed.toString();
+			} catch {
+				// Use the URL as-is if it can't be parsed.
+			}
+			window.location.href = addSkipPricing( authorizeUrl );
 		} catch ( err ) {
 			setError(
 				err?.message ||
@@ -683,7 +709,7 @@ function IDCPanel() {
 
 	// Disconnect is safe during IDC: Identity_Crisis filters out the remote
 	// WordPress.com deregister call, so only this (cloned) site's local tokens
-	// are removed — the original site keeps its connection.
+	// are removed — the original site keeps its registration.
 	const executeDisconnect = async () => {
 		setPendingConfirm( null );
 		setBusyAction( 'disconnect' );
@@ -706,21 +732,39 @@ function IDCPanel() {
 			const errBody = await response.json().catch( () => null );
 			setError(
 				errBody?.message ||
-					__( 'Failed to disconnect the site. Please try again.', 'jetpack-connection' )
+					sprintf(
+						// translators: %s: "site" or "store".
+						__( 'Failed to disconnect the %s. Please try again.', 'jetpack-connection' ),
+						subjectNoun
+					)
 			);
 			setBusyAction( null );
 		} catch {
-			setError( __( 'Failed to disconnect the site. Please try again.', 'jetpack-connection' ) );
+			setError(
+				sprintf(
+					// translators: %s: "site" or "store".
+					__( 'Failed to disconnect the %s. Please try again.', 'jetpack-connection' ),
+					subjectNoun
+				)
+			);
 			setBusyAction( null );
 		}
 	};
 
 	const handleDisconnect = () => {
 		setPendingConfirm( {
-			title: __( 'Disconnect site', 'jetpack-connection' ),
-			message: __(
-				'Are you sure you want to disconnect from WordPress.com? This will affect all plugins using this connection.',
-				'jetpack-connection'
+			title: sprintf(
+				// translators: %s: "site" or "store".
+				__( 'Disconnect this %s', 'jetpack-connection' ),
+				subjectNoun
+			),
+			message: sprintf(
+				// translators: %1$s: "site" or "store".
+				__(
+					'This clears the stale connection that triggered Safe Mode, so this %1$s stops being mistaken for another. Only this %1$s is affected — the original %1$s keeps its registration and data.',
+					'jetpack-connection'
+				),
+				subjectNoun
 			),
 			onConfirm: executeDisconnect,
 		} );
@@ -733,12 +777,16 @@ function IDCPanel() {
 			createElement(
 				Text,
 				{ weight: 600, size: 14 },
-				__( 'Connection moved', 'jetpack-connection' )
+				__( 'Address updated', 'jetpack-connection' )
 			),
 			createElement(
 				Text,
 				{ variant: 'muted', size: 13 },
-				__( 'This site now uses the existing connection and all its data.', 'jetpack-connection' )
+				sprintf(
+					// translators: %s: "site" or "store".
+					__( 'WordPress.com now recognizes this %s at its new address.', 'jetpack-connection' ),
+					subjectNoun
+				)
 			),
 			createElement(
 				Button,
@@ -766,29 +814,80 @@ function IDCPanel() {
 			: createElement( 'strong', null, fallback );
 
 	const introText = hasJetpackPlugin
-		? __(
-				'Connected to <wpcom />, but now loading at <current />. Features that sync with WordPress.com — like Stats and Backups — are paused until you choose how to continue.',
+		? // translators: %s: "site" or "store".
+		  __(
+				'This %s is registered with WordPress.com at <wpcom />, but now loads at <current />. Features that sync with WordPress.com — like Stats and Backups — are paused in Safe Mode until you resolve this.',
 				'jetpack-connection'
 		  )
-		: __(
-				'Connected to <wpcom />, but now loading at <current />. Features that sync with WordPress.com are paused until you choose how to continue.',
+		: // translators: %s: "site" or "store".
+		  __(
+				'This %s is registered with WordPress.com at <wpcom />, but now loads at <current />. Features that sync with WordPress.com are paused in Safe Mode until you resolve this.',
 				'jetpack-connection'
 		  );
 
-	const intro = createInterpolateElement( introText, {
+	const intro = createInterpolateElement( sprintf( introText, subjectNoun ), {
 		wpcom: urlEl( wpcomUrl, __( 'its original address', 'jetpack-connection' ) ),
 		current: urlEl( currentUrl, __( 'this address', 'jetpack-connection' ) ),
 	} );
 
+	const whyExplanation = createElement(
+		VStack,
+		{ spacing: 2, className: 'jetpack-connector__idc-why' },
+		createElement(
+			Text,
+			{ size: 12, variant: 'muted' },
+			__( 'This can happen when:', 'jetpack-connection' )
+		),
+		createElement(
+			'ul',
+			{ className: 'jetpack-connector__idc-why-list' },
+			createElement(
+				'li',
+				null,
+				sprintf(
+					// translators: %s: "site" or "store".
+					__( "You changed your %s's address.", 'jetpack-connection' ),
+					subjectNoun
+				)
+			),
+			createElement(
+				'li',
+				null,
+				sprintf(
+					// translators: %s: "site" or "store".
+					__( 'Your %s is reachable at more than one address.', 'jetpack-connection' ),
+					subjectNoun
+				)
+			),
+			createElement(
+				'li',
+				null,
+				__(
+					'You restored or copied a database from another site that was already registered with WordPress.com.',
+					'jetpack-connection'
+				)
+			)
+		),
+		createElement(
+			Text,
+			{ size: 12, variant: 'muted' },
+			__( 'Choose the option below that matches your situation.', 'jetpack-connection' )
+		)
+	);
+
 	const migrateOption = createElement( IDCOption, {
 		key: 'migrate',
-		title: __( 'Same site, new address', 'jetpack-connection' ),
+		title: sprintf(
+			// translators: %s: "site" or "store".
+			__( 'Same %s, new address', 'jetpack-connection' ),
+			subjectNoun
+		),
 		description: __(
-			'Move the connection here. The site ID and all its connected data and features follow this address.',
+			'Update the address WordPress.com has on file. Your connection, history, and data stay the same.',
 			'jetpack-connection'
 		),
-		buttonLabel: __( 'Move connection', 'jetpack-connection' ),
-		busyLabel: __( 'Moving…', 'jetpack-connection' ),
+		buttonLabel: __( 'Update address', 'jetpack-connection' ),
+		busyLabel: __( 'Updating…', 'jetpack-connection' ),
 		isBusy: busyAction === 'migrate',
 		disabled: Boolean( busyAction ),
 		onClick: handleMigrate,
@@ -797,12 +896,20 @@ function IDCPanel() {
 
 	const freshOption = createElement( IDCOption, {
 		key: 'fresh',
-		title: __( 'A separate site', 'jetpack-connection' ),
-		description: __(
-			'Start a new connection here. The original site keeps its data.',
-			'jetpack-connection'
+		title: sprintf(
+			// translators: %s: "site" or "store".
+			__( 'A separate %s', 'jetpack-connection' ),
+			subjectNoun
 		),
-		buttonLabel: __( 'Create a fresh connection', 'jetpack-connection' ),
+		description: sprintf(
+			// translators: %1$s: "site" or "store" (repeated).
+			__(
+				'Connect this address on its own — restoring its previous connection if it had one, or starting a new one. The original %1$s keeps its connection.',
+				'jetpack-connection'
+			),
+			subjectNoun
+		),
+		buttonLabel: __( 'Connect separately', 'jetpack-connection' ),
 		busyLabel: __( 'Connecting…', 'jetpack-connection' ),
 		isBusy: busyAction === 'start-fresh',
 		disabled: Boolean( busyAction ),
@@ -822,9 +929,26 @@ function IDCPanel() {
 		createElement(
 			Text,
 			{ weight: 600, size: 14 },
-			__( 'Your site address has changed', 'jetpack-connection' )
+			sprintf(
+				// translators: %s: "site" or "store".
+				__( 'Your %s address has changed', 'jetpack-connection' ),
+				subjectNoun
+			)
 		),
 		createElement( Text, { size: 13 }, intro ),
+		// Collapsible "Why am I seeing this?" explanation keeps the panel compact
+		// while making the likely causes available to anyone who wants them.
+		createElement(
+			Button,
+			{
+				variant: 'link',
+				onClick: () => setShowWhy( value => ! value ),
+				'aria-expanded': showWhy,
+				className: 'jetpack-connector__idc-why-toggle',
+			},
+			__( 'Why am I seeing this?', 'jetpack-connection' )
+		),
+		showWhy ? whyExplanation : null,
 		// A dynamic site URL in wp-config.php can keep re-triggering Safe Mode,
 		// so resolving the crisis won't stick until it's made static.
 		possibleDynamicSiteUrl
@@ -1241,20 +1365,29 @@ function JetpackConnectorCard( { name, label, description, logo, icon } ) {
 			};
 		}
 
+		// In Safe Mode the toggle becomes a red "Resolve" call to action that
+		// surfaces the identity-crisis options. Once expanded it reverts to a
+		// neutral "Close".
+		const toggleProps = {
+			variant: 'secondary',
+			size: 'compact',
+			onClick: () => setIsExpanded( ! isExpanded ),
+			'aria-expanded': isExpanded,
+		};
+		let toggleLabel = isExpanded
+			? __( 'Close', 'jetpack-connection' )
+			: __( 'Details', 'jetpack-connection' );
+		if ( isInSafeMode && ! isExpanded ) {
+			toggleProps.variant = 'primary';
+			toggleProps.isDestructive = true;
+			toggleLabel = __( 'Resolve', 'jetpack-connection' );
+		}
+
 		actionArea = createElement(
 			HStack,
 			{ spacing: 3, expanded: false },
 			createElement( StatusBadge, badgeProps ),
-			createElement(
-				Button,
-				{
-					variant: 'secondary',
-					size: 'compact',
-					onClick: () => setIsExpanded( ! isExpanded ),
-					'aria-expanded': isExpanded,
-				},
-				isExpanded ? __( 'Close', 'jetpack-connection' ) : __( 'Details', 'jetpack-connection' )
-			)
+			createElement( Button, toggleProps, toggleLabel )
 		);
 
 		if ( isExpanded ) {
