@@ -86,7 +86,7 @@ class Sidebar_Open_Preservation {
 			return $classes;
 		}
 
-		return implode(
+		$body_classes_with_sidebar_classes = implode(
 			' ',
 			array_filter(
 				array_merge(
@@ -95,6 +95,8 @@ class Sidebar_Open_Preservation {
 				)
 			)
 		);
+
+		return ' ' . $body_classes_with_sidebar_classes . ' ';
 	}
 
 	/**

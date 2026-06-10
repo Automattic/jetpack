@@ -148,6 +148,9 @@ class Sidebar_Open_Preservation_Test extends \WorDBless\BaseTestCase {
 	 * Tests that our pre-open class survives a misbehaving later filter that appends
 	 * a class without a leading space. Because our filter runs last, our class lands
 	 * at the very end of the list as a clean, standalone token.
+	 *
+	 * This is a WordPress community convention that we should preserve to avoid breaking CSS selectors.
+	 * See more: https://developer.wordpress.org/reference/hooks/admin_body_class/#comment-1012
 	 */
 	public function test_add_preopen_body_classes_runs_last_and_survives_concatenation() {
 		$this->enable_preservation();
@@ -228,21 +231,6 @@ class Sidebar_Open_Preservation_Test extends \WorDBless\BaseTestCase {
 		$this->assertStringContainsString( 'foo bar', $result );
 		$this->assertStringContainsString( 'agents-manager-sidebar-container', $result );
 		$this->assertStringContainsString( self::SIDEBAR_OPEN_CLASS, $result );
-	}
-
-	/**
-	 * Tests that no leading whitespace is produced when the incoming class string is empty.
-	 */
-	public function test_add_preopen_body_classes_trims_when_input_empty() {
-		$this->enable_preservation();
-		$_COOKIE[ self::COOKIE_KEY ] = self::OPEN_CLASS_LIST_COOKIE;
-
-		$result = $this->preservation->add_preopen_body_classes( '' );
-
-		$this->assertSame(
-			'agents-manager-sidebar-container ' . self::SIDEBAR_OPEN_CLASS,
-			$result
-		);
 	}
 
 	/**
