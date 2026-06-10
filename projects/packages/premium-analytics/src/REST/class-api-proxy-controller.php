@@ -87,6 +87,7 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 			'/' . $this->rest_base . '/(?P<endpoint>.*)',
 			array(
 				array(
+					// @phan-suppress-next-line PhanPluginMixedKeyNoKey -- `register_rest_route()` requires mixed key/no-key for `$args`, and then https://github.com/phan/phan/issues/4852 puts the error on the wrong line.
 					'methods'             => WP_REST_Server::READABLE,
 					'callback'            => array( $this, 'handle_proxy_request' ),
 					'permission_callback' => array( $this, 'check_permission' ),

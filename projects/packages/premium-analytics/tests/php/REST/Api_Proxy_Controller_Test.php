@@ -170,6 +170,7 @@ class Api_Proxy_Controller_Test extends BaseTestCase {
 	 */
 	private function cache_key( WP_REST_Request $request ): string {
 		$accessor = function ( WP_REST_Request $req ) {
+			// @phan-suppress-next-line PhanUndeclaredMethod -- rebound to the controller via Closure::call() below.
 			return $this->get_cache_key( $req );
 		};
 
