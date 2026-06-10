@@ -104,6 +104,17 @@ export type AddSubscribersResponse = {
 	[ key: string ]: unknown;
 };
 
+export type ImportJobStatus = 'pending' | 'importing' | 'imported' | 'failed' | 'cancelled';
+
+export type ImportJob = {
+	id: number;
+	status: ImportJobStatus;
+	// WP.com sends counts as numeric strings (e.g. `"1"`).
+	email_count?: number | string;
+	scheduled_at?: string;
+	[ key: string ]: unknown;
+};
+
 export type SubscriberCountry = {
 	code: string;
 	name: string;

@@ -148,6 +148,30 @@ class WPCOM_REST_API_V2_Endpoint_Subscribers_List extends WP_REST_Controller {
 
 		register_rest_route(
 			$this->namespace,
+			'/subscribers/import',
+			array(
+				array(
+					'methods'             => WP_REST_Server::READABLE,
+					'callback'            => array( $this, 'get_import_jobs' ),
+					'permission_callback' => array( $this, 'permission_check' ),
+				),
+			)
+		);
+
+		register_rest_route(
+			$this->namespace,
+			'/subscribers/import/reset-state',
+			array(
+				array(
+					'methods'             => WP_REST_Server::CREATABLE,
+					'callback'            => array( $this, 'reset_import_state' ),
+					'permission_callback' => array( $this, 'permission_check' ),
+				),
+			)
+		);
+
+		register_rest_route(
+			$this->namespace,
 			'/subscribers/totals',
 			array(
 				array(
@@ -586,6 +610,66 @@ class WPCOM_REST_API_V2_Endpoint_Subscribers_List extends WP_REST_Controller {
 				'subscribers_add_failed',
 				$this->get_wpcom_error_message( $body, __( 'Could not add subscribers.', 'jetpack' ) ),
 				array( 'status' => $status >= 400 ? $status : 400 )
+			);
+		}
+
+		return rest_ensure_response( $body );
+	}
+
+	/**
+	 * Proxy GET /wpcom/v2/sites/{blog_id}/subscribers/import — the site's subscriber import jobs,
+	 * newest first. The dashboard polls this while the Add Subscribers modal is open so it can
+	 * show the "import in progress" / stale-import notices (WP.com runs one import per site at a
+	 * time).
+	 *
+	 * @return WP_REST_Response|WP_Error
+	 */
+	public function get_import_jobs() {
+		$blog_id = Connection_Manager::get_site_id();
+
+		if ( is_wp_error( $blog_id ) ) {
+			return $blog_id;
+		}
+
+		return $this->wpcom_get( sprintf( '/sites/%d/subscribers/import', (int) $blog_id ) );
+	}
+
+	/**
+	 * POST /wpcom/v2/subscribers/import/reset-state — cancel stuck (pending / importing)
+	 * subscriber import jobs, mirroring Calypso's stale-import "Cancel import" action
+	 * (`useSubscriberImportStatusReset`). Proxies to the wpcom
+	 * `/sites/{blog_id}/subscribers/import/reset_state` endpoint and returns its
+	 * `{ reset_count }` body.
+	 *
+	 * @return WP_REST_Response|WP_Error
+	 */
+	public function reset_import_state() {
+		$blog_id = Connection_Manager::get_site_id();
+
+		if ( is_wp_error( $blog_id ) ) {
+			return $blog_id;
+		}
+
+		$response = Client::wpcom_json_api_request_as_user(
+			sprintf( '/sites/%d/subscribers/import/reset_state', (int) $blog_id ),
+			'2',
+			array( 'method' => 'POST' ),
+			null,
+			'wpcom'
+		);
+
+		if ( is_wp_error( $response ) ) {
+			return $response;
+		}
+
+		$status = (int) wp_remote_retrieve_response_code( $response );
+		$body   = json_decode( wp_remote_retrieve_body( $response ), true );
+
+		if ( $status >= 400 ) {
+			return new WP_Error(
+				'subscribers_reset_import_failed',
+				$this->get_wpcom_error_message( $body, __( 'Could not cancel the import.', 'jetpack' ) ),
+				array( 'status' => $status )
 			);
 		}
 

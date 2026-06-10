@@ -2,6 +2,7 @@ import apiFetch from '@wordpress/api-fetch';
 import { addQueryArgs } from '@wordpress/url';
 import type {
 	AddSubscribersResponse,
+	ImportJob,
 	RemoveSubscriberPayload,
 	RemoveSubscriberResponse,
 	SubscriberDetails,
@@ -79,6 +80,33 @@ export function addSubscribers( emails: string[] ): Promise< AddSubscribersRespo
 		path: '/wpcom/v2/subscribers/add',
 		method: 'POST',
 		data: { emails },
+	} );
+}
+
+/**
+ * Fetch the site's subscriber import jobs, newest first. Used by the Add Subscribers modal to
+ * detect an in-flight or stale import — WP.com runs one import per site at a time.
+ *
+ * @return Import jobs.
+ */
+export function fetchImportJobs(): Promise< ImportJob[] > {
+	return apiFetch< ImportJob[] >( {
+		path: '/wpcom/v2/subscribers/import',
+		method: 'GET',
+	} );
+}
+
+/**
+ * Cancel stuck (pending / importing) subscriber import jobs, mirroring Calypso's stale-import
+ * "Cancel import" action (`useSubscriberImportStatusReset`). The proxy forwards to
+ * `/sites/{id}/subscribers/import/reset_state`.
+ *
+ * @return WP.com response with the number of jobs reset.
+ */
+export function resetImportState(): Promise< { reset_count?: number } > {
+	return apiFetch( {
+		path: '/wpcom/v2/subscribers/import/reset-state',
+		method: 'POST',
 	} );
 }
 

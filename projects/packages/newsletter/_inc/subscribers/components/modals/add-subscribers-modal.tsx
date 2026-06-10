@@ -3,8 +3,11 @@ import { useCallback, useMemo, useRef, useState } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { Button, Dialog, Notice, Stack, Tabs, Text } from '@wordpress/ui';
 import { useAddSubscribersMutation } from '../../data/use-add-subscribers-mutation';
+import { isJobInProgress, isJobStale, useImportJobs } from '../../data/use-import-jobs';
+import { useResetImportMutation } from '../../data/use-reset-import-mutation';
 import { extractEmailsFromCsv } from '../../lib/csv-parse';
 import { recordTracksEvent } from '../../lib/tracks';
+import type { ImportJob } from '../../data/types';
 
 type Props = {
 	isOpen: boolean;
@@ -82,9 +85,86 @@ function InvalidEntriesNotice( { invalid }: { invalid: string[] } ): JSX.Element
 	);
 }
 
+/**
+ * Status notice shown while WP.com is running an import for this site (one import runs per site
+ * at a time, so the form below is disabled). The stale variant mirrors Calypso's
+ * `StaleImportJobsNotice`: after 24 hours a stuck job gets a "Cancel import" escape hatch — or,
+ * when a previous job was already cancelled, a pointer to support.
+ *
+ * @param props      - Component props.
+ * @param props.jobs - Import jobs, newest first.
+ * @return Notice element, or null when no import is running.
+ */
+function ImportStatusNotice( { jobs }: { jobs: ImportJob[] } ): JSX.Element | null {
+	const resetMutation = useResetImportMutation();
+	const handleCancelImport = useCallback( () => resetMutation.mutate(), [ resetMutation ] );
+
+	if ( ! jobs.some( isJobInProgress ) ) {
+		return null;
+	}
+
+	// Each variant carries a `key` (remount instead of reusing the previous variant's hook
+	// state) and an explicit string `spokenMessage` — Notice.Root otherwise renderToString()s
+	// its children mid-render, which corrupts hook order when they include action buttons.
+	if ( ! jobs.some( job => isJobStale( job ) ) ) {
+		const inProgressMessage = __(
+			'Your subscribers are being imported. This may take a few minutes. You can close this window and we’ll notify you when the import is complete.',
+			'jetpack-newsletter'
+		);
+		return (
+			<Notice.Root key="import-in-progress" intent="info" spokenMessage={ inProgressMessage }>
+				<Notice.Description>{ inProgressMessage }</Notice.Description>
+			</Notice.Root>
+		);
+	}
+
+	// Mirrors Calypso: once a reset has already been tried (the previous job shows as
+	// cancelled), another "Cancel import" is unlikely to help — point at support instead.
+	if ( jobs[ 1 ]?.status === 'cancelled' ) {
+		const contactSupportMessage = __(
+			'Your recent import is taking longer than expected to complete. If this issue persists, please contact our support team for assistance.',
+			'jetpack-newsletter'
+		);
+		return (
+			<Notice.Root
+				key="import-stale-support"
+				intent="warning"
+				spokenMessage={ contactSupportMessage }
+			>
+				<Notice.Description>{ contactSupportMessage }</Notice.Description>
+				<Notice.Actions>
+					<Notice.ActionLink
+						href="https://jetpack.com/support/newsletter/import-subscribers/"
+						target="_blank"
+						rel="noreferrer"
+					>
+						{ __( 'Learn more', 'jetpack-newsletter' ) }
+					</Notice.ActionLink>
+				</Notice.Actions>
+			</Notice.Root>
+		);
+	}
+
+	const staleMessage = __(
+		'Your recent import is taking longer than expected to complete. Please cancel your import and try again.',
+		'jetpack-newsletter'
+	);
+	return (
+		<Notice.Root key="import-stale" intent="warning" spokenMessage={ staleMessage }>
+			<Notice.Description>{ staleMessage }</Notice.Description>
+			<Notice.Actions>
+				<Notice.ActionButton onClick={ handleCancelImport } loading={ resetMutation.isPending }>
+					{ __( 'Cancel import', 'jetpack-newsletter' ) }
+				</Notice.ActionButton>
+			</Notice.Actions>
+		</Notice.Root>
+	);
+}
+
 type SubmitButtonProps = {
 	count: number;
 	isPending: boolean;
+	disabled?: boolean;
 	onClick: () => void;
 };
 
@@ -95,10 +175,11 @@ type SubmitButtonProps = {
  * @param props           - Component props.
  * @param props.count     - Number of valid emails to import.
  * @param props.isPending - Whether the underlying mutation is in flight.
+ * @param props.disabled  - Whether submitting is blocked (an import is already running).
  * @param props.onClick   - Submit handler.
  * @return Submit button.
  */
-function SubmitButton( { count, isPending, onClick }: SubmitButtonProps ): JSX.Element {
+function SubmitButton( { count, isPending, disabled, onClick }: SubmitButtonProps ): JSX.Element {
 	const label =
 		count > 0
 			? sprintf(
@@ -108,7 +189,11 @@ function SubmitButton( { count, isPending, onClick }: SubmitButtonProps ): JSX.E
 			  )
 			: __( 'Add subscribers', 'jetpack-newsletter' );
 	return (
-		<Button onClick={ onClick } loading={ isPending } disabled={ isPending || count === 0 }>
+		<Button
+			onClick={ onClick }
+			loading={ isPending }
+			disabled={ disabled || isPending || count === 0 }
+		>
 			{ label }
 		</Button>
 	);
@@ -116,6 +201,8 @@ function SubmitButton( { count, isPending, onClick }: SubmitButtonProps ): JSX.E
 
 type AddTabProps = {
 	mutation: ReturnType< typeof useAddSubscribersMutation >;
+	// True while WP.com is already running an import — submitting would be rejected upstream.
+	importInProgress: boolean;
 	onClose: () => void;
 };
 
@@ -123,12 +210,13 @@ type AddTabProps = {
  * Manual entry tab. Plain textarea + same forgiving comma/semicolon/whitespace parser the
  * original modal shipped with.
  *
- * @param props          - Component props.
- * @param props.mutation - Shared add-subscribers mutation handle.
- * @param props.onClose  - Close handler invoked after a successful submit.
+ * @param props                  - Component props.
+ * @param props.mutation         - Shared add-subscribers mutation handle.
+ * @param props.importInProgress - Whether an import is already running.
+ * @param props.onClose          - Close handler invoked after a successful submit.
  * @return Tab body.
  */
-function ManualTab( { mutation, onClose }: AddTabProps ): JSX.Element {
+function ManualTab( { mutation, importInProgress, onClose }: AddTabProps ): JSX.Element {
 	const [ value, setValue ] = useState( '' );
 
 	// Submit button reflects the *live* value so the user never has to wait to submit — typing one
@@ -188,6 +276,7 @@ function ManualTab( { mutation, onClose }: AddTabProps ): JSX.Element {
 				<SubmitButton
 					count={ valid.length }
 					isPending={ mutation.isPending }
+					disabled={ importInProgress }
 					onClick={ handleSubmit }
 				/>
 			</Stack>
@@ -201,12 +290,13 @@ function ManualTab( { mutation, onClose }: AddTabProps ): JSX.Element {
  * parser tolerates CSVs from Substack, Beehiiv, Mailchimp, Ghost, Patreon, Kit and Medium because
  * it just pulls email-shaped substrings out of the raw text.
  *
- * @param props          - Component props.
- * @param props.mutation - Shared add-subscribers mutation handle.
- * @param props.onClose  - Close handler invoked after a successful submit.
+ * @param props                  - Component props.
+ * @param props.mutation         - Shared add-subscribers mutation handle.
+ * @param props.importInProgress - Whether an import is already running.
+ * @param props.onClose          - Close handler invoked after a successful submit.
  * @return Tab body.
  */
-function UploadTab( { mutation, onClose }: AddTabProps ): JSX.Element {
+function UploadTab( { mutation, importInProgress, onClose }: AddTabProps ): JSX.Element {
 	const fileInputRef = useRef< HTMLInputElement | null >( null );
 	const [ fileName, setFileName ] = useState< string | null >( null );
 	const [ emails, setEmails ] = useState< string[] >( [] );
@@ -287,6 +377,7 @@ function UploadTab( { mutation, onClose }: AddTabProps ): JSX.Element {
 				<SubmitButton
 					count={ emails.length }
 					isPending={ mutation.isPending }
+					disabled={ importInProgress }
 					onClick={ handleSubmit }
 				/>
 			</Stack>
@@ -342,6 +433,7 @@ function SubstackTab(): JSX.Element {
 export default function AddSubscribersModal( { isOpen, onClose }: Props ): JSX.Element | null {
 	const mutation = useAddSubscribersMutation();
 	const [ tab, setTab ] = useState< TabValue >( 'manual' );
+	const importJobsQuery = useImportJobs( isOpen );
 
 	const handleOpenChange = useCallback(
 		( nextOpen: boolean ) => {
@@ -364,6 +456,9 @@ export default function AddSubscribersModal( { isOpen, onClose }: Props ): JSX.E
 		return null;
 	}
 
+	const importJobs = importJobsQuery.data ?? [];
+	const importInProgress = importJobs.some( isJobInProgress );
+
 	return (
 		<Dialog.Root open onOpenChange={ handleOpenChange }>
 			<Dialog.Popup>
@@ -372,26 +467,37 @@ export default function AddSubscribersModal( { isOpen, onClose }: Props ): JSX.E
 					<Dialog.CloseIcon />
 				</Dialog.Header>
 				<Dialog.Content>
-					<Tabs.Root
-						value={ tab }
-						onValueChange={ handleTabChange }
-						render={ <Stack direction="column" gap="lg" /> }
-					>
-						<Tabs.List variant="minimal">
-							<Tabs.Tab value="manual">{ __( 'Manual', 'jetpack-newsletter' ) }</Tabs.Tab>
-							<Tabs.Tab value="upload">{ __( 'Upload CSV', 'jetpack-newsletter' ) }</Tabs.Tab>
-							<Tabs.Tab value="substack">{ __( 'Substack', 'jetpack-newsletter' ) }</Tabs.Tab>
-						</Tabs.List>
-						<Tabs.Panel value="manual">
-							<ManualTab mutation={ mutation } onClose={ onClose } />
-						</Tabs.Panel>
-						<Tabs.Panel value="upload">
-							<UploadTab mutation={ mutation } onClose={ onClose } />
-						</Tabs.Panel>
-						<Tabs.Panel value="substack">
-							<SubstackTab />
-						</Tabs.Panel>
-					</Tabs.Root>
+					<Stack direction="column" gap="lg">
+						<ImportStatusNotice jobs={ importJobs } />
+						<Tabs.Root
+							value={ tab }
+							onValueChange={ handleTabChange }
+							render={ <Stack direction="column" gap="lg" /> }
+						>
+							<Tabs.List variant="minimal">
+								<Tabs.Tab value="manual">{ __( 'Manual', 'jetpack-newsletter' ) }</Tabs.Tab>
+								<Tabs.Tab value="upload">{ __( 'Upload CSV', 'jetpack-newsletter' ) }</Tabs.Tab>
+								<Tabs.Tab value="substack">{ __( 'Substack', 'jetpack-newsletter' ) }</Tabs.Tab>
+							</Tabs.List>
+							<Tabs.Panel value="manual">
+								<ManualTab
+									mutation={ mutation }
+									importInProgress={ importInProgress }
+									onClose={ onClose }
+								/>
+							</Tabs.Panel>
+							<Tabs.Panel value="upload">
+								<UploadTab
+									mutation={ mutation }
+									importInProgress={ importInProgress }
+									onClose={ onClose }
+								/>
+							</Tabs.Panel>
+							<Tabs.Panel value="substack">
+								<SubstackTab />
+							</Tabs.Panel>
+						</Tabs.Root>
+					</Stack>
 				</Dialog.Content>
 			</Dialog.Popup>
 		</Dialog.Root>
