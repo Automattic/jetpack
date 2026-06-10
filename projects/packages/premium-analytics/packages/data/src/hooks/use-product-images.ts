@@ -63,7 +63,9 @@ async function fetchProductImages(
 }
 
 const getProductImagesQueryKey = ( params: UseProductImagesParams ) =>
-	[ 'product-images', params.productIds.sort().join( ',' ) ] as const;
+	// Copy before sorting: `sort()` mutates in place, and this runs during render.
+	// The sort makes `[ 1, 2 ]` and `[ 2, 1 ]` share a cache entry.
+	[ 'product-images', [ ...params.productIds ].sort().join( ',' ) ] as const;
 
 /**
  * Hook to fetch product images for a list of product IDs
