@@ -1,0 +1,701 @@
+<?php
+/**
+ * Shoppers Privacy Controls
+ *
+ * GDPR-compliant shoppers privacy controls implementation using WordPress Interactivity API.
+ *
+ * @package ciab-next
+ */
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
+/**
+ * Cookie Consent class
+ */
+class CIAB_Next_Shoppers_Privacy {
+
+	/**
+	 * Instance of this class
+	 *
+	 * @var CIAB_Next_Shoppers_Privacy
+	 */
+	private static $instance = null;
+
+	/**
+	 * Get singleton instance
+	 *
+	 * @return CIAB_Next_Shoppers_Privacy
+	 */
+	public static function get_instance() {
+		if ( null === self::$instance ) {
+			self::$instance = new self();
+		}
+		return self::$instance;
+	}
+
+	/**
+	 * Constructor
+	 */
+	private function __construct() {
+		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_assets' ) );
+		add_action( 'wp_footer', array( $this, 'render_banner' ), 999 );
+		// Run one-time setup during site provisioning (priority 15 to run after WC setup).
+		add_action( 'garden_site_provisioning', array( $this, 'maybe_create_ccpa_page' ), 15 );
+		// TODO: Uncomment once legal team provides final privacy policy copy.
+		// For the time being, we want to use default WordPress content.
+		// See: https://linear.app/a8c/issue/ARC-1031/privacy-policy-update-copy-of-privacy-policy.
+		// add_action( 'garden_site_provisioning', array( $this, 'maybe_update_privacy_policy_content' ), 15 );.
+
+		// Prevent CCPA and Privacy Policy page deletion.
+		add_filter( 'map_meta_cap', array( $this, 'prevent_privacy_pages_deletion' ), 10, 4 );
+
+		// Hook Privacy Policy and CCPA links into navigation blocks using Block Hooks API.
+		add_filter( 'hooked_block_types', array( $this, 'register_footer_navigation_links' ), 10, 4 );
+		add_filter( 'hooked_block_core/navigation-link', array( $this, 'set_footer_navigation_link_attributes' ), 10, 4 );
+		add_filter( 'render_block_core/navigation-link', array( $this, 'add_ccpa_interactivity_directives' ), 10, 2 );
+		add_filter( 'render_block_core/navigation-link', array( $this, 'add_gdpr_manage_preferences_directives' ), 10, 2 );
+
+		// Add Interactivity API directive to CCPA opt-out button.
+		add_filter( 'render_block_core/button', array( $this, 'add_ccpa_button_directive' ), 10, 2 );
+
+		// Add Interactivity API directives to CCPA group block and inject snackbar.
+		add_filter( 'render_block_core/group', array( $this, 'add_ccpa_group_directives' ), 10, 2 );
+
+		// Exclude CCPA page from page-list block using get_pages filter.
+		add_filter( 'get_pages', array( $this, 'exclude_ccpa_from_get_pages' ), 10, 2 );
+	}
+
+	/**
+	 * Create CCPA opt-out page if it doesn't exist
+	 */
+	public function maybe_create_ccpa_page() {
+		// Check if we've already created the page (by ID, since slug can be changed).
+		$page_id = get_option( 'wc_ccpa_page_id' );
+		if ( $page_id && get_post( $page_id ) ) {
+			return;
+		}
+
+		// If we have a stale page ID (option exists but post doesn't), clear it.
+		if ( $page_id && ! get_post( $page_id ) ) {
+			delete_option( 'wc_ccpa_page_id' );
+		}
+
+		// Fallback: check if page exists by slug (for backwards compatibility).
+		$page_slug = 'your-privacy-choices';
+		$page      = get_page_by_path( $page_slug );
+
+		// If page exists by slug, save its ID and we're done.
+		if ( $page ) {
+			update_option( 'wc_ccpa_page_id', $page->ID );
+			return;
+		}
+
+		// Build the page content with blocks.
+		$content = $this->get_ccpa_page_content();
+
+		// Create the page without content first.
+		$page_id = wp_insert_post(
+			array(
+				'post_title'     => __( 'Your Privacy Choices', 'ciab' ),
+				'post_name'      => $page_slug,
+				'post_status'    => 'publish',
+				'post_type'      => 'page',
+				'comment_status' => 'closed',
+				'ping_status'    => 'closed',
+			)
+		);
+
+		// Store the page ID and update with content to create a first revision.
+		if ( $page_id && ! is_wp_error( $page_id ) ) {
+			update_option( 'wc_ccpa_page_id', $page_id );
+			wp_update_post(
+				array(
+					'ID'           => $page_id,
+					'post_content' => $content,
+				)
+			);
+		}
+	}
+
+	/**
+	 * Get CCPA page content in block format
+	 *
+	 * @return string Page content with WordPress blocks
+	 */
+	private function get_ccpa_page_content() {
+		$template_path = plugin_dir_path( __FILE__ ) . 'ccpa-content.php';
+
+		if ( ! file_exists( $template_path ) ) {
+			return '';
+		}
+
+		ob_start();
+		include $template_path;
+		return ob_get_clean();
+	}
+
+	/**
+	 * Update the Privacy Policy page content if it's in pristine state
+	 *
+	 * This method checks if the Privacy Policy page exists and if it's in pristine state
+	 * (no edits beyond the initial creation). If so, it updates the content with
+	 * CIAB-specific privacy policy content.
+	 *
+	 * @return bool True on success, false on failure.
+	 */
+	public function maybe_update_privacy_policy_content() {
+		$page_id = get_option( 'wp_page_for_privacy_policy' );
+
+		if ( ! $page_id ) {
+			return false;
+		}
+
+		// Check if we've already updated this page.
+		$already_updated = get_post_meta( $page_id, '_ciab_privacy_policy_updated', true );
+		if ( $already_updated ) {
+			return false;
+		}
+
+		// Check if the page is in pristine state using WordPress core APIs.
+		$revisions   = wp_get_post_revisions( $page_id );
+		$is_pristine = count( $revisions ) <= 1;
+
+		if ( ! $is_pristine ) {
+			return false;
+		}
+
+		// TODO: Update the content once provided by legal team
+		// https://linear.app/a8c/issue/ARC-1031/privacy-policy-update-copy-of-privacy-policy.
+		$new_content = '<!-- wp:paragraph --><p>
+		   Custom CIAB Privacy Policy
+		   </p><!-- /wp:paragraph -->';
+
+		// Update the page content.
+		$result = wp_update_post(
+			array(
+				'ID'           => $page_id,
+				'post_content' => $new_content,
+			),
+			true
+		);
+
+		if ( is_wp_error( $result ) ) {
+			if ( defined( 'WP_DEBUG' ) && WP_DEBUG && defined( 'WP_DEBUG_LOG' ) && WP_DEBUG_LOG ) {
+				error_log( // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+					'CIAB Next: Failed to update Privacy Policy page. Error: ' . $result->get_error_message()
+				);
+			}
+			return false;
+		}
+
+		// Mark the page as updated to avoid re-updating on subsequent loads.
+		update_post_meta( $page_id, '_ciab_privacy_policy_updated', '1' );
+
+		return true;
+	}
+
+	/**
+	 * Exclude CCPA page from get_pages() results
+	 *
+	 * @param WP_Post[] $pages Array of page objects.
+	 * @param array     $args  Array of get_pages() arguments.
+	 * @return WP_Post[] Filtered array of page objects.
+	 */
+	public function exclude_ccpa_from_get_pages( $pages, $args ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed
+		if ( is_admin() ) {
+			// In admin, include the CCPA page in the results.
+			return $pages;
+		}
+
+		$ccpa_page_id = get_option( 'wc_ccpa_page_id' );
+
+		if ( ! $ccpa_page_id || empty( $pages ) ) {
+			return $pages;
+		}
+
+		// Filter out the CCPA page from the results.
+		return array_filter(
+			$pages,
+			function ( $page ) use ( $ccpa_page_id ) {
+				return (int) $page->ID !== (int) $ccpa_page_id;
+			}
+		);
+	}
+
+	/**
+	 * Prevent CCPA and Privacy Policy pages from being deleted
+	 *
+	 * @param array  $caps    Required capabilities.
+	 * @param string $cap     Capability being checked.
+	 * @param int    $user_id User ID.
+	 * @param array  $args    Additional arguments.
+	 * @return array Modified capabilities.
+	 */
+	public function prevent_privacy_pages_deletion( $caps, $cap, $user_id, $args ) {
+		// Only intercept delete_post capability checks.
+		if ( 'delete_post' !== $cap ) {
+			return $caps;
+		}
+
+		$post_id = isset( $args[0] ) ? (int) $args[0] : 0;
+
+		// Prevent deletion of CCPA page.
+		$ccpa_page_id = get_option( 'wc_ccpa_page_id' );
+		if ( $ccpa_page_id && $post_id === (int) $ccpa_page_id ) {
+			return array( 'do_not_allow' );
+		}
+
+		// Prevent deletion of Privacy Policy page.
+		$privacy_policy_page_id = function_exists( 'wc_privacy_policy_page_id' ) ? wc_privacy_policy_page_id() : get_option( 'wp_page_for_privacy_policy' );
+		if ( $privacy_policy_page_id && $post_id === (int) $privacy_policy_page_id ) {
+			return array( 'do_not_allow' );
+		}
+
+		return $caps;
+	}
+
+	/**
+	 * Register Privacy Policy and CCPA navigation links as hooked blocks
+	 *
+	 * @param array                   $hooked_block_types Array of hooked block types.
+	 * @param string                  $relative_position  The relative position.
+	 * @param string                  $anchor_block_type  The anchor block type.
+	 * @param WP_Block_Template|array $context            The block template, template part, or pattern.
+	 * @return array Modified array of hooked block types.
+	 */
+	public function register_footer_navigation_links( $hooked_block_types, $relative_position, $anchor_block_type, $context ) {
+		// Only hook to navigation blocks.
+		if ( 'core/navigation' !== $anchor_block_type ) {
+			return $hooked_block_types;
+		}
+
+		// Only hook as last child.
+		if ( 'last_child' !== $relative_position ) {
+			return $hooked_block_types;
+		}
+
+		// Only hook in footer template parts.
+		if ( ! is_array( $context ) || ! str_contains( $context['slug'], '/footer' ) ) {
+			return $hooked_block_types;
+		}
+
+		// Check which pages exist and register appropriate blocks.
+		$privacy_policy_exists = false;
+		$ccpa_page_exists      = false;
+
+		// Check Privacy Policy page.
+		$privacy_policy_page_id = (int) get_option( 'wp_page_for_privacy_policy' );
+		if ( $privacy_policy_page_id ) {
+			$page = get_post( $privacy_policy_page_id );
+			if ( $page && 'publish' === $page->post_status ) {
+				$privacy_policy_exists = true;
+			}
+		}
+
+		// Check CCPA page.
+		$ccpa_page_id = get_option( 'wc_ccpa_page_id' );
+		if ( $ccpa_page_id && get_post( $ccpa_page_id ) ) {
+			$ccpa_page_exists = true;
+		}
+
+		// Register one block for each page that exists.
+		if ( $privacy_policy_exists ) {
+			$hooked_block_types[] = 'core/navigation-link';
+		}
+		if ( $ccpa_page_exists ) {
+			$hooked_block_types[] = 'core/navigation-link';
+		}
+
+		// Register GDPR "Manage Privacy Preferences" link (visibility handled client-side).
+		$hooked_block_types[] = 'core/navigation-link';
+
+		return $hooked_block_types;
+	}
+
+	/**
+	 * Set attributes for hooked footer navigation links (Privacy Policy and CCPA)
+	 *
+	 * @param array|null $hooked_block      The hooked block, or null to suppress.
+	 * @param string     $hooked_block_type The hooked block type name.
+	 * @param string     $relative_position The relative position of the hooked block.
+	 * @param array      $anchor_block      The anchor block.
+	 * @return array|null Modified hooked block.
+	 */
+	public function set_footer_navigation_link_attributes( $hooked_block, $hooked_block_type, $relative_position, $anchor_block ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed
+		// Track which blocks we've processed.
+		static $privacy_policy_processed     = false;
+		static $ccpa_processed               = false;
+		static $manage_preferences_processed = false;
+
+		// Has the hooked block been suppressed by a previous filter?
+		if ( is_null( $hooked_block ) ) {
+			return $hooked_block;
+		}
+
+		// If another filter already set metadata, skip this block.
+		if ( isset( $hooked_block['attrs']['metadata']['name'] ) ) {
+			return $hooked_block;
+		}
+
+		// Check which pages exist (same logic as registration).
+		$privacy_policy_page_id = (int) get_option( 'wp_page_for_privacy_policy' );
+		$privacy_policy_exists  = false;
+		if ( $privacy_policy_page_id ) {
+			$page = get_post( $privacy_policy_page_id );
+			if ( $page && 'publish' === $page->post_status ) {
+				$privacy_policy_exists = true;
+			}
+		}
+
+		$ccpa_page_id     = get_option( 'wc_ccpa_page_id' );
+		$ccpa_page_exists = $ccpa_page_id && get_post( $ccpa_page_id );
+
+		// Process Privacy Policy first (if it exists and hasn't been processed).
+		if ( $privacy_policy_exists && ! $privacy_policy_processed ) {
+			$hooked_block['attrs']['url']      = get_permalink( $privacy_policy_page_id );
+			$hooked_block['attrs']['label']    = get_the_title( $privacy_policy_page_id );
+			$hooked_block['attrs']['kind']     = 'custom';
+			$hooked_block['attrs']['metadata'] = array(
+				'name' => 'wc-privacy-policy-link',
+			);
+			$privacy_policy_processed          = true;
+			return $hooked_block;
+		}
+
+		// Process CCPA next (if it exists and hasn't been processed).
+		if ( $ccpa_page_exists && ! $ccpa_processed ) {
+			$hooked_block['attrs']['url']      = get_permalink( $ccpa_page_id );
+			$hooked_block['attrs']['label']    = get_the_title( $ccpa_page_id );
+			$hooked_block['attrs']['kind']     = 'custom';
+			$hooked_block['attrs']['metadata'] = array(
+				'name' => 'wc-ccpa-privacy-link',
+			);
+			$ccpa_processed                    = true;
+			return $hooked_block;
+		}
+
+		// Process GDPR "Manage Privacy Preferences" link last.
+		if ( ! $manage_preferences_processed ) {
+			$hooked_block['attrs']['url']      = '#manage-preferences';
+			$hooked_block['attrs']['label']    = __( 'Manage Privacy Preferences', 'ciab' );
+			$hooked_block['attrs']['kind']     = 'custom';
+			$hooked_block['attrs']['metadata'] = array(
+				'name' => 'wc-gdpr-manage-preferences-link',
+			);
+			$manage_preferences_processed      = true;
+			return $hooked_block;
+		}
+
+		// If we get here, all have been processed or don't exist.
+		return $hooked_block;
+	}
+
+	/**
+	 * Add Interactivity API directives to the CCPA navigation link for conditional rendering
+	 *
+	 * @param string $block_content The block content.
+	 * @param array  $block         The full block, including name and attributes.
+	 * @return string Modified block content.
+	 */
+	public function add_ccpa_interactivity_directives( $block_content, $block ) {
+		// Check if this is our CCPA link by looking for our metadata marker.
+		if ( ! isset( $block['attrs']['metadata']['name'] ) || 'wc-ccpa-privacy-link' !== $block['attrs']['metadata']['name'] ) {
+			return $block_content;
+		}
+
+		// Use WP_HTML_Tag_Processor to safely add Interactivity API directives.
+		$tags = new WP_HTML_Tag_Processor( $block_content );
+
+		// Find the first <li> tag (the navigation item wrapper).
+		if ( $tags->next_tag( 'li' ) ) {
+			// Add Interactivity API directives to the <li>.
+			$tags->set_attribute( 'data-wp-interactive', 'cookie-consent' );
+			$tags->set_attribute( 'data-wp-context', '{"isCcpaRegion": false}' );
+			$tags->set_attribute( 'data-wp-class--wc-ccpa-privacy-link-hidden', '!state.isCcpaRegion' );
+			$tags->set_attribute( 'data-wp-init', 'callbacks.init' );
+
+			return $tags->get_updated_html();
+		}
+
+		return $block_content;
+	}
+
+	/**
+	 * Add Interactivity API directives to the GDPR "Manage Privacy Preferences" link
+	 *
+	 * @param string $block_content The block content.
+	 * @param array  $block         The full block, including name and attributes.
+	 * @return string Modified block content.
+	 */
+	public function add_gdpr_manage_preferences_directives( $block_content, $block ) {
+		// Check if this is our manage preferences link by looking for our metadata marker.
+		if ( ! isset( $block['attrs']['metadata']['name'] ) || 'wc-gdpr-manage-preferences-link' !== $block['attrs']['metadata']['name'] ) {
+			return $block_content;
+		}
+
+		// Use WP_HTML_Tag_Processor to safely add Interactivity API directives.
+		$tags = new WP_HTML_Tag_Processor( $block_content );
+
+		// Find the first <li> tag (the navigation item wrapper).
+		if ( $tags->next_tag( 'li' ) ) {
+			// Add Interactivity API directives to the <li>.
+			$tags->set_attribute( 'data-wp-interactive', 'cookie-consent' );
+			$tags->set_attribute( 'data-wp-context', '{"isGdprManageLink": false}' );
+			$tags->set_attribute( 'data-wp-class--wc-gdpr-manage-link-hidden', '!context.isGdprManageLink' );
+			$tags->set_attribute( 'data-wp-init', 'callbacks.init' );
+			$tags->add_class( 'wc-gdpr-manage-link-hidden' );
+		}
+
+		// Find the <a> tag and add click handler.
+		if ( $tags->next_tag( 'a' ) ) {
+			$tags->set_attribute( 'data-wp-on--click', 'actions.openManagePreferences' );
+		}
+
+		return $tags->get_updated_html();
+	}
+
+	/**
+	 * Add Interactivity API directive to CCPA opt-out button
+	 *
+	 * @param string $block_content The block content.
+	 * @param array  $block         The full block, including name and attributes.
+	 * @return string Modified block content.
+	 */
+	public function add_ccpa_button_directive( $block_content, $block ) {
+		// Check if this button has the CCPA opt-out class.
+		if ( ! isset( $block['attrs']['className'] ) || false === strpos( $block['attrs']['className'], 'wc-ccpa-opt-out-button' ) ) {
+			return $block_content;
+		}
+
+		// Use WP_HTML_Tag_Processor to safely add the directive.
+		$tags = new WP_HTML_Tag_Processor( $block_content );
+
+		// Find the button element with the wp-block-button__link class.
+		if ( $tags->next_tag( array( 'class_name' => 'wp-block-button__link' ) ) ) {
+			$tags->set_attribute( 'data-wp-on--click', 'actions.optOut' );
+			return $tags->get_updated_html();
+		}
+
+		return $block_content;
+	}
+
+	/**
+	 * Add Interactivity API directives to CCPA group block and inject snackbar
+	 *
+	 * @param string $block_content The block content.
+	 * @param array  $block         The full block, including name and attributes.
+	 * @return string Modified block content.
+	 */
+	public function add_ccpa_group_directives( $block_content, $block ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed
+		// Check if this group block has the CCPA opt-out section class.
+		if ( ! isset( $block['attrs']['className'] ) || false === strpos( $block['attrs']['className'], 'wc-ccpa-opt-out-section' ) ) {
+			return $block_content;
+		}
+
+		// Use WP_HTML_Tag_Processor to add Interactivity API directives.
+		$tags = new WP_HTML_Tag_Processor( $block_content );
+
+		// Find the group div.
+		if ( $tags->next_tag( array( 'class_name' => 'wp-block-group' ) ) ) {
+			$tags->set_attribute( 'data-wp-interactive', 'cookie-consent' );
+			$tags->set_attribute( 'data-wp-context', '{"showSnackbar": false}' );
+			$block_content = $tags->get_updated_html();
+		}
+
+		// Build the snackbar HTML.
+		$snackbar_html = sprintf(
+			'<div class="wc-ccpa-snackbar" data-wp-bind--hidden="!state.showSnackbar">
+				<div class="wc-ccpa-snackbar__content">
+					<span>%s</span>
+					<button type="button" class="wc-ccpa-snackbar__dismiss" data-wp-on--click="actions.dismissSnackbar" aria-label="%s">×</button>
+				</div>
+			</div>',
+			esc_html__( 'Your browser has been successfully opted out from sharing personal data.', 'ciab' ),
+			esc_attr__( 'Dismiss', 'ciab' )
+		);
+
+		// Insert the snackbar inside the group block (before the closing </div>).
+		$closing_tag_pos = strrpos( $block_content, '</div>' );
+		if ( false !== $closing_tag_pos ) {
+			$block_content = substr_replace( $block_content, $snackbar_html, $closing_tag_pos, 0 );
+		}
+
+		return $block_content;
+	}
+
+	/**
+	 * Get configuration with filters
+	 *
+	 * @return array Configuration array
+	 */
+	private function get_config() {
+		$default_config = array(
+			'geo_api_url'         => 'https://public-api.wordpress.com/geo/',
+			'geo_cookie_duration' => 6 * HOUR_IN_SECONDS, // 6 hours.
+			'country_code_cookie' => 'country_code',
+			'region_cookie'       => 'region',
+			'cookie_policy_url'   => 'https://automattic.com/cookies/',
+			'gdpr_countries'      => array(
+				// European Member countries.
+				'AT', // Austria.
+				'BE', // Belgium.
+				'BG', // Bulgaria.
+				'CY', // Cyprus.
+				'CZ', // Czech Republic.
+				'DE', // Germany.
+				'DK', // Denmark.
+				'EE', // Estonia.
+				'ES', // Spain.
+				'FI', // Finland.
+				'FR', // France.
+				'GR', // Greece.
+				'HR', // Croatia.
+				'HU', // Hungary.
+				'IE', // Ireland.
+				'IT', // Italy.
+				'LT', // Lithuania.
+				'LU', // Luxembourg.
+				'LV', // Latvia.
+				'MT', // Malta.
+				'NL', // Netherlands.
+				'PL', // Poland.
+				'PT', // Portugal.
+				'RO', // Romania.
+				'SE', // Sweden.
+				'SI', // Slovenia.
+				'SK', // Slovakia.
+				'GB', // United Kingdom.
+				// Single Market Countries that GDPR applies to.
+				'CH', // Switzerland.
+				'IS', // Iceland.
+				'LI', // Liechtenstein.
+				'NO', // Norway.
+			),
+			'ccpa_regions'        => array(
+				/* US regions/states that are treated like California for Do Not Sell requests. */
+				'california',
+				'utah',
+				'virginia',
+				'colorado',
+				'connecticut',
+				'texas',
+				'tennessee',
+				'oregon',
+				'new jersey',
+				'montana',
+				'iowa',
+				'indiana',
+				'delaware',
+			),
+			'show_on_error'       => true, // Show banner if geolocation fails.
+		);
+
+		/**
+		 * Filter cookie consent configuration
+		 *
+		 * @param array $config Configuration array
+		 */
+		return apply_filters( 'ciab_next_shoppers_privacy_config', $default_config );
+	}
+
+	/**
+	 * Enqueue scripts and styles
+	 */
+	public function enqueue_assets() {
+		// Don't load in admin.
+		if ( is_admin() ) {
+			return;
+		}
+
+		// Load Automattic Tracks (w.js) for analytics.
+		// External script, version managed by Automattic - no version needed.
+		wp_enqueue_script(
+			'automattic-tracks',
+			'https://stats.wp.com/w.js',
+			array(),
+			gmdate( 'YW' ),
+			array(
+				'strategy'  => 'defer',
+				'in_footer' => true,
+			)
+		);
+
+		wp_enqueue_script_module( '@ciab-next/shoppers-privacy' );
+
+		// Pass REST API URL to the module via global config.
+		wp_print_inline_script_tag(
+			sprintf(
+				'window.wcConsentLoggerConfig = %s;',
+				wp_json_encode(
+					array(
+						'apiUrl' => rest_url( 'wc/next/consent-log' ),
+					)
+				)
+			),
+			array( 'id' => 'wc-consent-logger-config' )
+		);
+
+		// Check for preview query parameter.
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$force_preview = isset( $_GET['preview_cookie_consent'] ) && '1' === $_GET['preview_cookie_consent'];
+
+		// Pass configuration to frontend using wp_interactivity_config.
+		$config = $this->get_config();
+		wp_interactivity_config(
+			'cookie-consent',
+			array(
+				'geoApiUrl'         => $config['geo_api_url'],
+				'geoCookieDuration' => $config['geo_cookie_duration'],
+				'countryCodeCookie' => $config['country_code_cookie'],
+				'regionCookie'      => $config['region_cookie'],
+				'cookiePolicyUrl'   => $config['cookie_policy_url'],
+				'gdprCountries'     => $config['gdpr_countries'],
+				'ccpaRegions'       => $config['ccpa_regions'],
+				'showOnError'       => $config['show_on_error'],
+				'forcePreview'      => $force_preview,
+			)
+		);
+	}
+
+	/**
+	 * Check if consent has been set
+	 *
+	 * @return bool True if consent has been set
+	 */
+	private function has_consent_set() {
+		// Check if any WP Consent API cookie exists.
+		// If user has made a choice, at least one of these should be set.
+		return isset( $_COOKIE['wp_consent_functional'] );
+	}
+
+	/**
+	 * Render the cookie consent banner
+	 */
+	public function render_banner() {
+		// Don't render in admin.
+		if ( is_admin() ) {
+			return;
+		}
+
+		// Check for preview query parameter.
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$force_preview = isset( $_GET['preview_cookie_consent'] ) && '1' === $_GET['preview_cookie_consent'];
+
+		// Always render the banner/modal HTML so the "Manage Privacy Preferences" footer link
+		// can reopen the modal after consent has been set. The banner visibility is controlled
+		// client-side via Interactivity API directives (showBanner starts as false).
+		$template_path = plugin_dir_path( __FILE__ ) . 'cookie-banner-content.php';
+		if ( file_exists( $template_path ) ) {
+			// Get config for template.
+			$config = $this->get_config();
+			ob_start();
+			include $template_path;
+			$html = ob_get_clean();
+			// Process directives and output.
+			// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+			echo wp_interactivity_process_directives( $html );
+		}
+	}
+}
