@@ -259,7 +259,6 @@ class Waf_Runner {
 			// execute waf rules.
 			$rules_file_path = self::get_waf_file_path( JETPACK_WAF_ENTRYPOINT );
 			if ( file_exists( $rules_file_path ) ) {
-				// phpcs:ignore
 				include $rules_file_path;
 			}
 		} catch ( \Exception $err ) { // phpcs:ignore

@@ -148,7 +148,7 @@ class MailPoet_Integration {
 		// Subscriber does not exist, so add new subscriber to list and send confirmation email.
 		try {
 			return $mailpoet_api->addSubscriber( $subscriber_data, array( $list_id ) );
-		} catch ( \Exception $e ) { // phpcs:ignore Squiz.PHP.EmptyCatchComment
+		} catch ( \Exception $e ) {
 			return null;
 		}
 	}

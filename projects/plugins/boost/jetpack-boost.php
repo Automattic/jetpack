@@ -141,7 +141,6 @@ if ( is_readable( $boost_packages_path ) ) {
 require_once JETPACK_BOOST_DIR_PATH . '/app/lib/minify/loader.php';
 
 // Potential improvement: Make concat URL dir configurable
-// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 if ( isset( $_SERVER['REQUEST_URI'] ) ) {
 	// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 	$request_path = explode( '?', wp_unslash( $_SERVER['REQUEST_URI'] ) )[0];
