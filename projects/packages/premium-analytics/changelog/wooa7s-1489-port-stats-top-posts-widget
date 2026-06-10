@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Add a Top posts & pages stats widget backed by the Jetpack Stats top-posts endpoint, with a useReportTopPosts data hook and a window.jpaConfig boot config emitter.

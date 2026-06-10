@@ -1,0 +1,13 @@
+.labelLink {
+	display: block;
+	overflow: hidden;
+	color: inherit;
+	text-decoration: none;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.labelLink:hover,
+.labelLink:focus {
+	text-decoration: underline;
+}

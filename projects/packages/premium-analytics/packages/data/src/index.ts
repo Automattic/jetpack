@@ -14,6 +14,13 @@ export { useReportVisitors } from './hooks/use-report-visitors';
 export { useReportVisitorsByLocation } from './hooks/use-report-visitors-by-location';
 export { useReportBookings } from './hooks/use-report-bookings';
 export { useReportSessionsByDevice } from './hooks/use-report-sessions-by-device';
+export {
+	useReportTopPosts,
+	type UseReportTopPostsParams,
+	type TopPostRow,
+} from './hooks/use-report-top-posts';
+export { getJpaConfig, type JpaConfig } from './utils/jpa-config';
+export type { TopPostsPeriod, TopPostsResponse } from './api';
 export { prefetchReport } from './prefetch';
 export {
 	normalizeReportParams,

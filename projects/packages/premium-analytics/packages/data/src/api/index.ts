@@ -41,5 +41,12 @@ export { fetchReportVisitors } from './report-visitors-fetch';
 export { fetchReportVisitorsByLocation } from './report-visitors-by-location-fetch';
 export { fetchReportBookings } from './report-bookings-fetch';
 export { fetchReportSessionsByDevice } from './report-sessions-by-device-fetch';
+export { fetchReportTopPosts } from './report-top-posts-fetch';
+export type {
+	RequestReportTopPostsParams,
+	TopPostsPeriod,
+	TopPostsPostView,
+	TopPostsResponse,
+} from './report-top-posts-fetch';
 export { exportReport } from './report-export-fetch';
 export type { ExportReportParams, ExportReportResponse } from './report-export-fetch';
