@@ -5,12 +5,7 @@
  * Uses separate contexts for each UI component while sharing actions and initialization.
  */
 
-import {
-	store,
-	getContext,
-	getConfig,
-	withSyncEvent,
-} from '@wordpress/interactivity';
+import { store, getContext, getConfig, withSyncEvent } from '@wordpress/interactivity';
 import {
 	UNKNOWN_COUNTRY_CODE,
 	getCookie,
@@ -94,17 +89,12 @@ let manageLinkConsentListenerRegistered = false;
 const gdprManageLinkContexts = new Set< GdprManageLinkContext >();
 
 function shouldShowManagePreferencesLink( config: StoreConfig ): boolean {
-	return (
-		isGdprCountry( geoState.countryCode || UNKNOWN_COUNTRY_CODE, config ) &&
-		hasConsentSet()
-	);
+	return isGdprCountry( geoState.countryCode || UNKNOWN_COUNTRY_CODE, config ) && hasConsentSet();
 }
 
 function focusModal(): void {
 	setTimeout( () => {
-		document
-			.querySelector< HTMLElement >( '.wc-cookie-consent__modal' )
-			?.focus();
+		document.querySelector< HTMLElement >( '.wc-cookie-consent__modal' )?.focus();
 	}, 0 );
 }
 
@@ -128,12 +118,12 @@ function hideConsentUi( context: CookieBannerContext ): void {
 
 function updateManageLinkContexts( config: StoreConfig ): void {
 	const shouldShow = shouldShowManagePreferencesLink( config );
-	gdprManageLinkContexts.forEach( ( context ) => {
+	gdprManageLinkContexts.forEach( context => {
 		context.isGdprManageLink = shouldShow;
 	} );
 }
 
-const { actions } = store( 'cookie-consent', {
+const { actions } = store( 'jetpack/cookie-consent', {
 	state: {
 		// Cookie banner state
 		get showBanner() {
@@ -299,22 +289,15 @@ const { actions } = store( 'cookie-consent', {
 				}
 
 				const firstFocusableElement = focusableElements[ 0 ];
-				const lastFocusableElement =
-					focusableElements[ focusableElements.length - 1 ];
+				const lastFocusableElement = focusableElements[ focusableElements.length - 1 ];
 
-				if (
-					! event.shiftKey &&
-					event.target === lastFocusableElement
-				) {
+				if ( ! event.shiftKey && event.target === lastFocusableElement ) {
 					event.preventDefault();
 					firstFocusableElement.focus();
 					return;
 				}
 
-				if (
-					event.shiftKey &&
-					event.target === firstFocusableElement
-				) {
+				if ( event.shiftKey && event.target === firstFocusableElement ) {
 					event.preventDefault();
 					lastFocusableElement.focus();
 				}
@@ -430,9 +413,7 @@ const { actions } = store( 'cookie-consent', {
 
 			// If there is not country_code or region cookie set, fetch geolocation
 			try {
-				const response = ( yield fetch(
-					config.geoApiUrl
-				) ) as Response;
+				const response = ( yield fetch( config.geoApiUrl ) ) as Response;
 				if ( ! response.ok ) {
 					throw new Error( 'Geolocation request failed' );
 				}
@@ -442,16 +423,8 @@ const { actions } = store( 'cookie-consent', {
 				const region = data.region || '';
 
 				// Store country code and region in cookies
-				setCookie(
-					config.countryCodeCookie,
-					countryCode,
-					config.geoCookieDuration
-				);
-				setCookie(
-					config.regionCookie,
-					region,
-					config.geoCookieDuration
-				);
+				setCookie( config.countryCodeCookie, countryCode, config.geoCookieDuration );
+				setCookie( config.regionCookie, region, config.geoCookieDuration );
 
 				geoState = {
 					initialized: true,
@@ -467,11 +440,7 @@ const { actions } = store( 'cookie-consent', {
 					countryCode: UNKNOWN_COUNTRY_CODE,
 					region: '',
 				};
-				setCookie(
-					config.countryCodeCookie,
-					UNKNOWN_COUNTRY_CODE,
-					config.geoCookieDuration
-				);
+				setCookie( config.countryCodeCookie, UNKNOWN_COUNTRY_CODE, config.geoCookieDuration );
 			}
 
 			return geoState;
@@ -516,8 +485,7 @@ const { actions } = store( 'cookie-consent', {
 
 			// Update GDPR manage preferences link context if present
 			if ( 'isGdprManageLink' in context ) {
-				context.isGdprManageLink =
-					shouldShowManagePreferencesLink( config );
+				context.isGdprManageLink = shouldShowManagePreferencesLink( config );
 			}
 		},
 	},
@@ -554,10 +522,8 @@ const { actions } = store( 'cookie-consent', {
 
 				openModalFromFooter = () => {
 					const currentConsent = readConsentChoices();
-					bannerContext.categories.analytics =
-						currentConsent.analytics;
-					bannerContext.categories.advertising =
-						currentConsent.advertising;
+					bannerContext.categories.analytics = currentConsent.analytics;
+					bannerContext.categories.advertising = currentConsent.advertising;
 					bannerContext.showModal = true;
 					bannerContext.showBanner = false;
 					openedFromFooter = true;

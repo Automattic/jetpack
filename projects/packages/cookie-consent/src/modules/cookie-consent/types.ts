@@ -38,8 +38,9 @@ export interface ConsentPreferences {
 // Global window declarations
 declare global {
 	interface Window {
-		wcConsentLoggerConfig?: {
+		jetpackCookieConsentConfig?: {
 			apiUrl: string;
+			eventPrefix?: string;
 		};
 		wp_set_consent?: ( category: string, value: 'allow' | 'deny' ) => void;
 		wp_consent_type?: ConsentType;
