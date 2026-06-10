@@ -80,14 +80,14 @@ describe( 'WritingPrompt widget Reader link and responses', () => {
 		mockIsWpcomPlatformSite.mockReturnValue( true );
 	} );
 
-	it( 'renders the View all responses button and avatar faces outside the footer', async () => {
+	it( 'renders the View responses button and avatar faces outside the footer', async () => {
 		mockApiFetch.mockResolvedValue( [ PROMPT_WITH_RESPONSES ] );
 
 		const { container } = render( <WritingPrompt /> );
 
 		// The responses control is a secondary button rendered as an anchor, so it
 		// carries the button role while still navigating via its href.
-		const responsesButton = await screen.findByRole( 'button', { name: /View all responses/ } );
+		const responsesButton = await screen.findByRole( 'button', { name: /View responses/ } );
 		expect( responsesButton ).toHaveAttribute( 'href', 'https://example.com/tag/dailyprompt-1' );
 		expect( responsesButton ).toHaveAttribute( 'target', '_blank' );
 		expect( screen.getAllByRole( 'img', { name: 'User avatar' } ) ).toHaveLength( 2 );
@@ -97,7 +97,7 @@ describe( 'WritingPrompt widget Reader link and responses', () => {
 		const answeredUsers = container.querySelector( '.wpcom-daily-writing-prompt--answered-users' );
 		expect( answeredUsers ).not.toBeNull();
 		expect(
-			within( answeredUsers as HTMLElement ).getByRole( 'button', { name: /View all responses/ } )
+			within( answeredUsers as HTMLElement ).getByRole( 'button', { name: /View responses/ } )
 		).toBeInTheDocument();
 
 		// The branding footer must NOT contain the responses button.
@@ -105,7 +105,7 @@ describe( 'WritingPrompt widget Reader link and responses', () => {
 		const footer = container.querySelector( '.wpcom-daily-writing-prompt--branding' );
 		expect( footer ).not.toBeNull();
 		expect(
-			within( footer as HTMLElement ).queryByRole( 'button', { name: /View all responses/ } )
+			within( footer as HTMLElement ).queryByRole( 'button', { name: /View responses/ } )
 		).not.toBeInTheDocument();
 	} );
 
