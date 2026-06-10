@@ -26,6 +26,16 @@ const trackDashboardClick = () => {
 	analytics.tracks.recordJetpackClick( 'blaze-dashboard' );
 };
 
+const disableWarningModalStyle = {
+	alignSelf: 'center',
+	borderRadius: '8px',
+	height: 'auto',
+	margin: 'auto',
+	maxHeight: 'calc(100% - 32px)',
+	maxWidth: '512px',
+	width: 'calc(100% - 32px)',
+};
+
 /**
  * Blaze settings component.
  *
@@ -184,7 +194,9 @@ export function Blaze( props ) {
 				<Modal
 					title={ __( 'Active Blaze campaigns are still running', 'jetpack' ) }
 					onRequestClose={ closeDisableWarning }
+					className="jp-blaze-disable-warning-modal"
 					size="medium"
+					style={ disableWarningModalStyle }
 				>
 					<VStack spacing="4">
 						<Text as="p">
