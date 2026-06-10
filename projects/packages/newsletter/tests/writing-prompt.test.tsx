@@ -276,10 +276,10 @@ describe( 'WritingPrompt widget analytics', () => {
 		expect( console ).toHaveErrored();
 	} );
 
-	it( 'records a view-responses event with the prompt id when View all responses is clicked', async () => {
+	it( 'records a view-responses event with the prompt id when View responses is clicked', async () => {
 		render( <WritingPrompt /> );
 
-		const responsesButton = await screen.findByRole( 'button', { name: /View all responses/ } );
+		const responsesButton = await screen.findByRole( 'button', { name: /View responses/ } );
 		responsesButton.click();
 
 		expect( mockRecordEvent ).toHaveBeenCalledWith(
