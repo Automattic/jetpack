@@ -12,7 +12,7 @@
 
 .wpcom-daily-writing-prompt--answered-users {
 
-	// The "View all responses" secondary button renders as an anchor, so it
+	// The "View responses" secondary button renders as an anchor, so it
 	// inherits wp-admin's unlayered `a { color: #2271b1 }` rule, which would
 	// otherwise beat @wordpress/ui's layered button color. Re-apply the button's
 	// own foreground color. See settings/sections/paid-newsletter-section.tsx.
