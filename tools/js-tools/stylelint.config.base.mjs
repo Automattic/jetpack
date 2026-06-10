@@ -51,7 +51,6 @@ const baseConfig = {
 			true,
 			{
 				ignoreSelectors: [ ':export' ], // Ignore selector used by CSS Modules.
-				ignoreProperties: [ 'shadow-color' ], // Ignore property used by React Native.
 			},
 		],
 
