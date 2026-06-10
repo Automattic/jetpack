@@ -63,5 +63,18 @@ export default defineConfig(
 			'jsdoc/escape-inline-tags': 'off',
 			'react/jsx-no-bind': 'off',
 		},
+	},
+	{
+		// The routing port also imports `react` directly (the staged-search
+		// hook), flagged as extraneous because the internal package's deps are
+		// declared on the parent manifest.
+		files: [ 'packages/routing/**' ],
+		rules: {
+			'jsdoc/require-jsdoc': 'off',
+			'jsdoc/require-param': 'off',
+			'jsdoc/require-returns': 'off',
+			'jsdoc/check-indentation': 'off',
+			'import/no-extraneous-dependencies': 'off',
+		},
 	}
 );
