@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Initial version: standalone plugin that loads the Jetpack Agents Manager package.
