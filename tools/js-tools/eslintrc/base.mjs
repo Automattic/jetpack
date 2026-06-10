@@ -20,12 +20,7 @@ import tanstackEslintPluginQuery from '@tanstack/eslint-plugin-query';
 import wordpressEslintPlugin from '@wordpress/eslint-plugin';
 import makeDebug from 'debug';
 import { defineConfig, globalIgnores } from 'eslint/config';
-import {
-	defaultConditionNames,
-	defaultExtensions,
-	defaultExtensionAlias,
-	defaultMainFields,
-} from 'eslint-import-resolver-typescript';
+import { defaultConditionNames } from 'eslint-import-resolver-typescript';
 // @todo Remove use of eslint-json-compat-utils (and jsonc-eslint-parser) once https://github.com/JoshuaKGoldberg/eslint-plugin-package-json/issues/655 is fixed.
 import { toCompatPlugin as jsonToCompatPlugin } from 'eslint-json-compat-utils';
 import eslintPluginImport from 'eslint-plugin-import';
@@ -385,41 +380,6 @@ export function makeBaseConfig( configurl, opts = {} ) {
 						// `cond && func()` and `cond ? func1() : func2()` are too useful to forbid.
 						allowShortCircuit: true,
 						allowTernary: true,
-					},
-				],
-			},
-		},
-
-		// React Native files need adjustments to the import plugin configuration.
-		{
-			name: 'React native overrides',
-			files: [ '**/*.native.[jt]s' ],
-			settings: {
-				'import/resolver': {
-					typescript: {
-						extensions: [ '.native.ts', '.native.js', ...defaultExtensions ],
-						extensionAlias: {
-							'.scss': [ '.native.scss', '.scss' ],
-							...Object.fromEntries(
-								Object.entries( defaultExtensionAlias ).map( ( [ k, v ] ) => [
-									k,
-									[ ...v, ...v.map( vv => '.native' + vv ) ],
-								] )
-							),
-						},
-						conditionNames: [ ...envConditionNames, 'react-native', ...defaultConditionNames ],
-						mainFields: [ 'react-native', ...defaultMainFields ],
-					},
-				},
-			},
-			rules: {
-				'import/no-unresolved': [
-					'error',
-					{
-						ignore: [
-							// Since we don't build React Native, we don't include these deps.
-							'^(react-native|@react-navigation/native|@wordpress/react-native-bridge)$',
-						],
 					},
 				],
 			},
