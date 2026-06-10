@@ -3,7 +3,7 @@
  */
 import { useGlobalChartsContext } from '@automattic/charts';
 import { useReportStatsVisits } from '@jetpack-premium-analytics/data';
-import { useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 /**
  * Internal dependencies
  */
@@ -57,13 +57,16 @@ export function TrafficChartWidget( { unit, quantity }: TrafficChartWidgetProps 
 		[ series, getElementStyles ]
 	);
 
-	if ( isError ) {
-		// Log error for debugging - captures API errors, network failures, etc.
-		if ( error ) {
+	// Log once per error transition, not on every render. Captures API errors,
+	// network failures, etc. for debugging.
+	useEffect( () => {
+		if ( isError && error ) {
 			// eslint-disable-next-line no-console
 			console.error( '[Widget Error]', error.message, error );
 		}
+	}, [ isError, error ] );
 
+	if ( isError ) {
 		// Inline error UI: the host widget contract has no setError channel.
 		return <WidgetErrorNotice onRetry={ refetch } />;
 	}

@@ -75,6 +75,13 @@ class Config_Data {
 	 * which this package assumes is present at runtime (Jetpack is installed
 	 * alongside Premium Analytics) without declaring a composer dependency.
 	 *
+	 * `siteId` is the only field the client reads today (to build the stats
+	 * proxy path); `apiFetch` resolves the REST root and nonce from the
+	 * enqueued `wp-api-fetch` script, like the existing report fetchers.
+	 * `apiRoot`/`nonce` are emitted for parity with stats-admin's
+	 * `Odyssey_Config_Data` and reserved for an explicit apiFetch middleware
+	 * path should the full-page app ever need one.
+	 *
 	 * @return array
 	 */
 	public static function get_data() {
