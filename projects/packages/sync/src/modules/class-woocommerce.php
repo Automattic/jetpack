@@ -631,7 +631,7 @@ class WooCommerce extends Module {
 		'woocommerce_store_pages_only', // This and the below options relate to the WooCommerce Site Visibility settings page. Required for the Activity Log.
 		'woocommerce_private_link',
 		'woocommerce_coming_soon',
-		'wcpay_multi_currency_enabled_currencies ',  // This and the below option relate to the WooCommerce Multi-Currency settings page. Required for the Activity Log.
+		'wcpay_multi_currency_enabled_currencies',  // This and the below option relate to the WooCommerce Multi-Currency settings page. Required for the Activity Log.
 		'wcpay_multi_currency_enable_auto_currency',
 		'woocommerce_pos_store_name', // This and the below options relate to the WooCommerce Point of Sale settings page. Required for the Activity Log.
 		'woocommerce_pos_store_address',
