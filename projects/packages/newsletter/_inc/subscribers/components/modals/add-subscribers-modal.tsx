@@ -463,7 +463,7 @@ function SubstackTab(): JSX.Element {
 	const importUrl = getSubstackImportUrl( hostname );
 
 	const handleOpen = useCallback( () => {
-		window.open( importUrl, '_blank', 'noopener,noreferrer' );
+		window.location.href = importUrl;
 	}, [ importUrl ] );
 
 	return (
