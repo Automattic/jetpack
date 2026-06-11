@@ -1348,6 +1348,12 @@
 	padding: 0;
 	position: relative;
 	text-align: center;
+
+	/* Each figure clears any prior float so floated figures stack vertically
+	 * in the editor and a later figure's bounding box can't overlap a
+	 * floated image above it (which would otherwise break hover targeting
+	 * for the Edit pencil and other controls). */
+	clear: both;
 }
 
 /* Image size presets.

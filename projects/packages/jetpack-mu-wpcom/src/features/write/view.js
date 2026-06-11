@@ -473,6 +473,33 @@ function setFigureSize( fig, slug ) {
 }
 
 /**
+ * Infer a size slug for a figure by matching the img's current src against
+ * the media library's registered sizes. Used when a figure loaded from
+ * outside Write (e.g. block-editor default insert) has no `size-X` class
+ * but the img URL matches a known preset — Write's panel should show that
+ * preset as the active selection instead of a blank state.
+ *
+ * Asynchronous because the registered sizes come from a REST request that's
+ * cached in memory after the first call.
+ *
+ * @param {Element} fig - The figure element.
+ * @return {Promise<string>} Slug ('thumbnail'/'medium'/'large'/'full') or '' when no match (custom size, external URL, etc).
+ */
+async function inferSizeFromImgSrc( fig ) {
+	const img = fig.querySelector( 'img' );
+	if ( ! img ) return '';
+	const id = getMediaIdFromImg( img );
+	if ( ! id ) return '';
+	const sizes = await fetchMediaSizes( id );
+	if ( ! sizes ) return '';
+	const src = img.src;
+	for ( const slug of IMAGE_SIZE_SLUGS ) {
+		if ( sizes[ slug ]?.source_url === src ) return slug;
+	}
+	return '';
+}
+
+/**
  * Toggle an alignment class on a figure, replacing any existing one.  Always
  * adds one of alignleft/aligncenter/alignright so the published view centers
  * reliably (themes key off these classes; unaligned figures don't center
@@ -4364,6 +4391,22 @@ const { state } = store( 'wpcom-write', {
 			const mediaId = getMediaIdFromImg( img );
 			state.editingImageHasMediaId = !! mediaId;
 			state.setAsFeatured = !! ( mediaId && state.featuredMediaId === mediaId );
+
+			// Block-editor inserts often omit `sizeSlug` even though the img
+			// src matches a registered size — so the figure has no `size-X`
+			// class and the panel would show no size as selected.  When that
+			// happens, fall back to matching the img URL against the media
+			// library's registered sizes so the panel reflects what the user
+			// actually sees.  Stamp the matched class onto the figure so the
+			// figure is self-describing and round-trips through save.
+			if ( ! state.editingImageSize && mediaId ) {
+				inferSizeFromImgSrc( figure ).then( slug => {
+					if ( slug && figure === editingFigure ) {
+						state.editingImageSize = slug;
+						setFigureSize( figure, slug );
+					}
+				} );
+			}
 
 			state.showImageModal = true;
 			focusModalInput();
