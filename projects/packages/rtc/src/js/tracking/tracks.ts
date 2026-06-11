@@ -12,10 +12,6 @@ interface EditorSelectors {
 	getCurrentPostType?: () => string | undefined;
 }
 
-interface CoreSelectors {
-	getCurrentUser?: () => { id?: number } | undefined;
-}
-
 /**
  * Read the server-provided RTC globals off `window`.
  *
@@ -55,21 +51,6 @@ function getPostContext(): { post_id?: number; post_type?: string } {
 }
 
 /**
- * The current user's WordPress user id.
- *
- * This is in the same id-space as the `contributors` list (the WP user id, which
- * is the WordPress.com id on Simple sites but the site-local id on Atomic), so it
- * lets the recording user be located within the room roster — useful on Atomic,
- * where `contributors` ids do not match the wpcom id Tracks records as `_ui`.
- *
- * @return The WP user id, or undefined when unavailable.
- */
-function getCurrentUserId(): number | undefined {
-	const core = select( 'core' ) as CoreSelectors | undefined;
-	return core?.getCurrentUser?.()?.id;
-}
-
-/**
  * Record an RTC Tracks event with the common properties merged in.
  *
  * `blog_id` is attached automatically by `@automattic/jetpack-analytics` from
@@ -86,7 +67,6 @@ export function recordRtcEvent(
 	try {
 		analytics.tracks.recordEvent( eventName, {
 			transport: getTransport(),
-			wp_user_id: getCurrentUserId(),
 			...getPostContext(),
 			...properties,
 		} );

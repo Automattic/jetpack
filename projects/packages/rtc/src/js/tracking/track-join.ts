@@ -37,30 +37,47 @@ function getContributorIds( awareness: Awareness ): number[] {
 }
 
 /**
- * Whether the local client's presence has been established in awareness.
+ * The local client's WordPress user id from awareness.
  *
- * The local awareness state (with collaboratorInfo) is populated by core-data
- * shortly after the provider is created, not synchronously, so this is false
- * at provider-creation time.
+ * Read from the local awareness state's `collaboratorInfo.id`, which is
+ * populated by core-data shortly after the provider is created (not
+ * synchronously). Same id-space as `contributors` (see `getContributorIds`), so
+ * it locates the recording user within the roster — on Atomic this is the
+ * site-local id, which differs from the wpcom id Tracks records as `_ui`.
+ *
+ * @param awareness - The Yjs awareness instance for the room.
+ * @return The local client's WP user id, or undefined when not yet present.
+ */
+function getLocalUserId( awareness: Awareness ): number | undefined {
+	const localState = awareness.getStates().get( awareness.clientID ) as
+		| CollaboratorAwarenessState
+		| undefined;
+	return localState?.collaboratorInfo?.id;
+}
+
+/**
+ * Whether the local client's presence has been established in awareness.
  *
  * @param awareness - The Yjs awareness instance for the room.
  * @return True once the local client has a collaborator id in awareness.
  */
 function isLocalClientPresent( awareness: Awareness ): boolean {
-	const localState = awareness.getStates().get( awareness.clientID ) as
-		| CollaboratorAwarenessState
-		| undefined;
-	return typeof localState?.collaboratorInfo?.id === 'number';
+	return typeof getLocalUserId( awareness ) === 'number';
 }
 
 /**
  * Record the join event with a snapshot of the contributors currently present.
+ *
+ * `wp_user_id` is read from awareness here (guaranteed present once
+ * `isLocalClientPresent` is true) rather than from the resolver-backed
+ * `core` store, so it is always populated.
  *
  * @param awareness - The Yjs awareness instance for the room.
  */
 function recordJoin( awareness: Awareness ): void {
 	const contributors = getContributorIds( awareness );
 	recordRtcEvent( JOIN_EVENT, {
+		wp_user_id: getLocalUserId( awareness ),
 		contributor_count: contributors.length,
 		contributors,
 	} );
