@@ -194,16 +194,94 @@ function jetpack_boost_enqueued_to_absolute_url( $url ) {
 
 /**
  * Get the list of JS slugs to exclude from minification.
+ *
+ * Administrators can append extra handles for the current request only via the
+ * `jb-minify-js-excludes` GET parameter (comma-separated handles). See
+ * jetpack_boost_page_optimize_merge_debug_excludes() for details.
  */
 function jetpack_boost_page_optimize_js_exclude_list() {
-	return jetpack_boost_ds_get( 'minify_js_excludes' );
+	return jetpack_boost_page_optimize_merge_debug_excludes(
+		jetpack_boost_ds_get( 'minify_js_excludes' ),
+		'jb-minify-js-excludes'
+	);
 }
 
 /**
  * Get the list of CSS slugs to exclude from minification.
+ *
+ * Administrators can append extra handles for the current request only via the
+ * `jb-minify-css-excludes` GET parameter (comma-separated handles). See
+ * jetpack_boost_page_optimize_merge_debug_excludes() for details.
  */
 function jetpack_boost_page_optimize_css_exclude_list() {
-	return jetpack_boost_ds_get( 'minify_css_excludes' );
+	return jetpack_boost_page_optimize_merge_debug_excludes(
+		jetpack_boost_ds_get( 'minify_css_excludes' ),
+		'jb-minify-css-excludes'
+	);
+}
+
+/**
+ * Debugging aid: merge per-request exclude handles from a GET parameter into a
+ * saved concatenate/minify exclude list.
+ *
+ * Lets administrators test "would excluding handle X fix this page?" by loading
+ * the page with e.g. `?jb-minify-js-excludes=jquery-core,my-plugin-script`
+ * without editing the saved settings, and without needing a staging site.
+ *
+ * Safety properties:
+ * - Only honored for logged-in users with the `manage_options` capability. The
+ *   exclude lists are read while scripts/styles are printed (wp_head/wp_footer),
+ *   i.e. within normal WordPress runtime where capability APIs are loaded; the
+ *   function_exists() check makes this a no-op anywhere they are not.
+ * - Each handle is sanitized: only lowercase alphanumerics, dash, underscore and
+ *   dot are accepted, anything else is ignored entirely.
+ * - The merged list is never persisted — nothing is written to the data sync
+ *   store or options; the merge only affects the current request.
+ * - No Page Cache interaction: logged-in users always bypass Boost's page cache
+ *   (Request::is_cacheable() returns false), so pages rendered with these debug
+ *   parameters are neither served from nor written to the cache.
+ *
+ * @since $$next-version$$
+ *
+ * @param array  $excludes  The saved exclude list.
+ * @param string $param     The GET parameter to read extra handles from.
+ *
+ * @return array The exclude list, with any valid per-request handles appended.
+ */
+function jetpack_boost_page_optimize_merge_debug_excludes( $excludes, $param ) {
+	if ( ! is_array( $excludes ) ) {
+		$excludes = array();
+	}
+
+	// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only debugging parameter; capability-gated below and never persisted.
+	if ( ! isset( $_GET[ $param ] ) || ! is_string( $_GET[ $param ] ) ) {
+		return $excludes;
+	}
+
+	// Only administrators may use the debug parameters.
+	if ( ! function_exists( 'current_user_can' ) || ! current_user_can( 'manage_options' ) ) {
+		return $excludes;
+	}
+
+	// phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Each handle is validated against a strict allowlist below.
+	$raw_handles = explode( ',', wp_unslash( $_GET[ $param ] ) );
+
+	$extra_handles = array();
+	foreach ( $raw_handles as $handle ) {
+		$handle = strtolower( trim( $handle ) );
+
+		// sanitize_key()-style allowlist (plus dots, which are common in handles).
+		// Handles containing any other character are ignored entirely.
+		if ( $handle !== '' && preg_match( '/^[a-z0-9_.\-]+$/', $handle ) ) {
+			$extra_handles[] = $handle;
+		}
+	}
+
+	if ( empty( $extra_handles ) ) {
+		return $excludes;
+	}
+
+	return array_values( array_unique( array_merge( $excludes, $extra_handles ) ) );
 }
 
 /**
