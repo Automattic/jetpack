@@ -22,8 +22,10 @@ const makeActions = ( overrides: Partial< UploadActions > = {} ): UploadActions 
 const renderField = ( ui: React.ReactNode, actions: UploadActions ) =>
 	render( <UploadActionsProvider value={ actions }>{ ui }</UploadActionsProvider> );
 
-// The title cell render is whatever the exported `title` field declares.
+// The cell renders are whatever the exported field declarations provide.
 const TitleCellRender = ( libraryFields.find( f => f.id === 'title' ) as Field< LibraryItem > )
+	.render as ( args: { item: LibraryItem } ) => React.ReactNode;
+const FilenameRender = ( libraryFields.find( f => f.id === 'filename' ) as Field< LibraryItem > )
 	.render as ( args: { item: LibraryItem } ) => React.ReactNode;
 
 describe( 'ThumbnailField — grid Details access', () => {
@@ -137,9 +139,6 @@ describe( 'TitleCell — grid Details access', () => {
 
 	it( 'exposes the full filename via a title attribute (forwarded through the Text component)', () => {
 		const longName = 'a-very-long-filename-that-needs-truncation-in-the-table-layout.mov';
-		const FilenameRender = (
-			libraryFields.find( f => f.id === 'filename' ) as Field< LibraryItem >
-		 ).render as ( args: { item: LibraryItem } ) => React.ReactNode;
 		renderField( <FilenameRender item={ item( { filename: longName } ) } />, makeActions() );
 		expect( screen.getByText( longName ) ).toHaveAttribute( 'title', longName );
 	} );

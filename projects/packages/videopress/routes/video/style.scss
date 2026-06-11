@@ -38,6 +38,12 @@
 // because @wordpress/admin-ui's Breadcrumbs uses hashed CSS-module class
 // names. Long video titles are clamped so they can't crowd the header's
 // Save button; the full title remains visible in the Title field below.
+// Upstream defect this works around: Breadcrumbs ships its own
+// `li:last-child { flex-shrink: 1; min-width: 0 }` intending exactly this
+// truncation, but it never engages — the nav and the header's inner Stack
+// are flex items left at `min-width: auto`, so no width constraint ever
+// reaches the list. If that's fixed upstream, this block can shrink to
+// just the max-width cap (or go away entirely).
 .vp-video-details__breadcrumbs {
 	display: contents;
 
