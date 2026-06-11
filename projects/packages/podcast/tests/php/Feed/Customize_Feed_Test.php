@@ -37,6 +37,7 @@ class Customize_Feed_Test extends BaseTestCase {
 		remove_all_filters( 'pre_attachment_url_to_postid' );
 		remove_all_filters( 'wpcom_podcasting_enable_play_tracking' );
 		remove_all_filters( 'wpcom_podcasting_tracked_blog_id' );
+		remove_all_filters( 'wp_trim_excerpt' );
 		Jetpack_Options::delete_option( 'id' );
 		wp_cache_flush();
 		unset( $GLOBALS['post'] );
@@ -548,7 +549,7 @@ class Customize_Feed_Test extends BaseTestCase {
 		$this->assertStringContainsString( 'type="application/json+chapters"', $output );
 	}
 
-	public function test_filter_excerpt_to_manual_only_returns_manual_excerpt() {
+	public function test_filter_episode_excerpt_returns_manual_excerpt() {
 		global $post;
 		$post = new WP_Post(
 			(object) array(
@@ -560,28 +561,80 @@ class Customize_Feed_Test extends BaseTestCase {
 
 		$this->assertSame(
 			'A manually written episode summary.',
-			Customize_Feed::filter_excerpt_to_manual_only()
+			Customize_Feed::filter_episode_excerpt()
 		);
 	}
 
-	public function test_filter_excerpt_to_manual_only_returns_empty_when_no_manual_excerpt() {
+	/**
+	 * Episodes with no manual excerpt (no "Show notes") fall back to the
+	 * auto-generated body excerpt — the description Apple/Spotify showed before
+	 * the regression, rather than the empty string the leak-fix produced.
+	 *
+	 * The trimming itself is WP core's `wp_trim_excerpt()`; we stub its output
+	 * filter to assert only that the fallback is taken.
+	 */
+	public function test_filter_episode_excerpt_falls_back_to_auto_excerpt() {
 		global $post;
 		$post = new WP_Post(
 			(object) array(
 				'ID'           => 102,
 				'post_excerpt' => '',
-				'post_content' => '<p>Body paragraph that should NOT leak into description.</p><h2>A heading</h2>',
+				'post_content' => '<!-- wp:jetpack/podcast-episode {"mediaUrl":"https://example.com/ep.mp3"} /--><p>Body prose that listeners should see.</p>',
 			)
 		);
 
-		$this->assertSame( '', Customize_Feed::filter_excerpt_to_manual_only() );
+		add_filter( 'wp_trim_excerpt', array( $this, 'return_stub_excerpt' ) );
+
+		$this->assertSame( 'Auto-generated summary.', Customize_Feed::filter_episode_excerpt() );
 	}
 
-	public function test_filter_excerpt_to_manual_only_handles_missing_post() {
+	/**
+	 * The auto-excerpt fallback runs the body through WP core's real
+	 * `wp_trim_excerpt()` (no stub): `excerpt_remove_blocks()` drops the
+	 * Podcast Episode player block, leaving only the prose. This is the exact
+	 * leak the fix relies on not happening — the player markup must never reach
+	 * the description.
+	 */
+	public function test_filter_episode_excerpt_strips_podcast_block_from_auto_excerpt() {
+		// A real inserted post (not a bare WP_Post) so core's `get_the_content()`
+		// inside `wp_trim_excerpt()` has the post data it needs to render.
+		$post_id = wp_insert_post(
+			array(
+				'post_title'   => 'Episode without Show notes',
+				'post_status'  => 'publish',
+				'post_excerpt' => '',
+				'post_content' => '<!-- wp:jetpack/podcast-episode {"mediaUrl":"https://example.com/ep.mp3"} /--><p>Body prose that listeners should see.</p>',
+			)
+		);
+
+		global $post;
+		$post = get_post( $post_id );
+		setup_postdata( $post );
+
+		$excerpt = Customize_Feed::filter_episode_excerpt();
+
+		wp_reset_postdata();
+
+		$this->assertStringContainsString( 'Body prose that listeners should see.', $excerpt );
+		$this->assertStringNotContainsString( 'podcast-episode', $excerpt );
+		$this->assertStringNotContainsString( 'mediaUrl', $excerpt );
+		$this->assertStringNotContainsString( 'example.com/ep.mp3', $excerpt );
+	}
+
+	/**
+	 * Helper for stubbing `wp_trim_excerpt` in the auto-excerpt fallback tests.
+	 *
+	 * @return string
+	 */
+	public function return_stub_excerpt(): string {
+		return 'Auto-generated summary.';
+	}
+
+	public function test_filter_episode_excerpt_handles_missing_post() {
 		global $post;
 		$post = null;
 
-		$this->assertSame( '', Customize_Feed::filter_excerpt_to_manual_only() );
+		$this->assertSame( '', Customize_Feed::filter_episode_excerpt() );
 	}
 
 	public function test_output_item_tags_uses_manual_excerpt_for_itunes_summary() {
@@ -606,7 +659,7 @@ class Customize_Feed_Test extends BaseTestCase {
 		);
 	}
 
-	public function test_output_item_tags_omits_itunes_summary_when_no_manual_excerpt() {
+	public function test_output_item_tags_uses_auto_excerpt_when_no_manual_excerpt() {
 		global $post;
 		$post = new WP_Post(
 			(object) array(
@@ -618,11 +671,14 @@ class Customize_Feed_Test extends BaseTestCase {
 			)
 		);
 
+		add_filter( 'wp_trim_excerpt', array( $this, 'return_stub_excerpt' ) );
+
 		ob_start();
 		Customize_Feed::output_item_tags();
 		$output = (string) ob_get_clean();
 
-		$this->assertStringNotContainsString( '<itunes:summary>', $output );
-		$this->assertStringNotContainsString( 'Body content', $output );
+		// No manual excerpt → the auto-generated body excerpt is mirrored into
+		// <itunes:summary>, matching what <description> emits.
+		$this->assertStringContainsString( '<itunes:summary>Auto-generated summary.</itunes:summary>', $output );
 	}
 }
