@@ -527,10 +527,16 @@ class Jetpack_AI_Sidebar {
 	 * @return bool
 	 */
 	private static function is_ai_assistant_setting_enabled(): bool {
-		// The AI tools "AI assistant" setting (big_sky_enable, default on) ships with the
-		// Big Sky plugin on WordPress.com Simple and Atomic. Self-hosted has no such setting,
-		// so the platform check short-circuits there (no option read) and the sidebar stays off.
-		return ( new Host() )->is_wpcom_platform() && (bool) get_option( 'big_sky_enable', '1' );
+		$host = new Host();
+		if ( ! $host->is_wpcom_platform() ) {
+			return false;
+		}
+
+		// Simple: wpcom enforces the AI Assistant toggle server-side; an unset option stays open.
+		// Atomic: the option mirrors the Site Settings > AI Assistant toggle ('1'/'0' synced on
+		// change), so an absent option means never enabled — matching what the toggle displays.
+		$default = $host->is_wpcom_simple() ? '1' : '0';
+		return (bool) get_option( 'big_sky_enable', $default );
 	}
 
 	/**

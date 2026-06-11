@@ -67,10 +67,11 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 		$this->saved_screen          = $GLOBALS['current_screen'] ?? null;
 		$this->saved_current_user_id = get_current_user_id();
 		$this->simulate_connected_owner();
-		// Enabled by default: a WordPress.com platform (simulated via the WoA constants).
-		// big_sky_enable is left unset so it falls back to the opt-out default ('1'); the
+		// Enabled by default for tests: a WoA platform (simulated constants) with the
+		// AI Assistant setting explicitly on — on Atomic an absent option means off; the
 		// maybe_enqueue_am() tests run in separate processes because Big_Sky stubs persist.
 		$this->simulate_wpcom_platform();
+		update_option( 'big_sky_enable', '1' );
 	}
 
 	/**
@@ -136,6 +137,18 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 		Constants::set_constant( 'ATOMIC_SITE_ID', 123456789 );
 		Constants::set_constant( 'ATOMIC_CLIENT_ID', '2' );
 		Constants::set_constant( 'WPCOMSH__PLUGIN_FILE', '/wpcomsh/wpcomsh.php' );
+		Status_Cache::clear();
+	}
+
+	/**
+	 * Simulate a WordPress.com Simple site so Host::is_wpcom_simple() is true, with every
+	 * other platform constant overridden off.
+	 */
+	private function simulate_wpcom_simple() {
+		Constants::set_constant( 'IS_WPCOM', true );
+		Constants::set_constant( 'ATOMIC_SITE_ID', false );
+		Constants::set_constant( 'ATOMIC_CLIENT_ID', false );
+		Constants::set_constant( 'WPCOMSH__PLUGIN_FILE', false );
 		Status_Cache::clear();
 	}
 
@@ -361,16 +374,31 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test that init() defaults open on WordPress.com when big_sky_enable is absent —
-	 * the AI assistant setting is opt-out, so a missing option means enabled.
+	 * Test that init() defaults open on Simple when big_sky_enable is absent — the
+	 * toggle is enforced server-side by WordPress.com there, so an unset option stays open.
 	 */
-	public function test_init_registers_hooks_when_setting_absent_on_wpcom() {
+	public function test_init_registers_hooks_when_setting_absent_on_simple() {
+		$this->simulate_wpcom_simple();
 		delete_option( 'big_sky_enable' );
 		Jetpack_AI_Sidebar::init();
 
 		$this->assertNotFalse(
 			has_filter( 'agents_manager_agent_providers', array( Jetpack_AI_Sidebar::class, 'register_provider' ) ),
-			'register_provider should be hooked on WordPress.com when the setting is absent (defaults on).'
+			'register_provider should be hooked on Simple when the setting is absent (defaults on).'
+		);
+	}
+
+	/**
+	 * Test that init() defaults closed on Atomic when big_sky_enable is absent — the
+	 * option mirrors the Site Settings > AI Assistant toggle, so absent means never enabled.
+	 */
+	public function test_init_does_nothing_when_setting_absent_on_atomic() {
+		delete_option( 'big_sky_enable' );
+		Jetpack_AI_Sidebar::init();
+
+		$this->assertFalse(
+			has_filter( 'agents_manager_agent_providers', array( Jetpack_AI_Sidebar::class, 'register_provider' ) ),
+			'register_provider should not be hooked on Atomic when the setting is absent (never enabled).'
 		);
 	}
 
@@ -479,6 +507,17 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	 */
 	public function test_enable_agents_manager_in_post_editor_respects_disabled_ai_assistant_setting() {
 		update_option( 'big_sky_enable', '0' );
+		$this->set_block_editor_screen();
+
+		$this->assertFalse( Jetpack_AI_Sidebar::enable_agents_manager_in_post_editor( false ) );
+	}
+
+	/**
+	 * Test that the Agents Manager block-editor gate defaults closed on Atomic when the
+	 * setting is absent (the option mirrors the Site Settings > AI Assistant toggle).
+	 */
+	public function test_enable_agents_manager_in_post_editor_defaults_closed_when_setting_absent_on_atomic() {
+		delete_option( 'big_sky_enable' );
 		$this->set_block_editor_screen();
 
 		$this->assertFalse( Jetpack_AI_Sidebar::enable_agents_manager_in_post_editor( false ) );
