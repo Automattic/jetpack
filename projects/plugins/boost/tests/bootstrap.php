@@ -28,6 +28,7 @@ if ( ! function_exists( 'str_contains' ) ) {
 	 * @param string $haystack String to search in.
 	 * @param string $needle   Substring to search for.
 	 * @return bool Whether $haystack contains $needle.
+	 * @suppress PhanRedefineFunctionInternal -- Guarded polyfill for PHP < 8.0.
 	 */
 	function str_contains( $haystack, $needle ) {
 		return '' === $needle || false !== strpos( $haystack, $needle );
