@@ -858,11 +858,6 @@ function IDCPanel() {
 					'jetpack-connection'
 				)
 			)
-		),
-		createElement(
-			Text,
-			{ size: 12, variant: 'muted' },
-			__( 'Choose the option below that matches your situation.', 'jetpack-connection' )
 		)
 	);
 
@@ -889,13 +884,13 @@ function IDCPanel() {
 		key: 'fresh',
 		title: sprintf(
 			// translators: %s: "site" or "store".
-			__( 'A separate %s', 'jetpack-connection' ),
+			__( 'A different %s', 'jetpack-connection' ),
 			subjectNoun
 		),
 		description: sprintf(
 			// translators: %1$s: "site" or "store" (repeated).
 			__(
-				'Connect this address on its own — restoring its previous connection if it had one, or starting a new one. The original %1$s keeps its connection.',
+				'This is a different %1$s from the one registered with WordPress.com. Give it its own connection — restoring its previous one if it had it, or starting fresh. The original %1$s is unaffected.',
 				'jetpack-connection'
 			),
 			subjectNoun
@@ -974,6 +969,11 @@ function IDCPanel() {
 			? createElement( ErrorNotice, { message: error, onDismiss: () => setError( null ) } )
 			: null,
 		createElement(
+			Text,
+			{ size: 12, variant: 'muted' },
+			__( 'Choose the option below that matches your situation.', 'jetpack-connection' )
+		),
+		createElement(
 			HStack,
 			{ spacing: 4, alignment: 'top', className: 'jetpack-connector__idc-options' },
 			...options
@@ -992,19 +992,34 @@ function IDCPanel() {
 						)
 				  )
 				: createElement(
-						Button,
-						{
-							// No isBusy here: the striped "busy" background looks
-							// odd on a link-style button, so the "Saving…" label
-							// plus the disabled state convey progress instead.
-							variant: 'link',
-							disabled: Boolean( busyAction ),
-							onClick: handleStaySafe,
-							className: 'jetpack-connector__idc-safe-mode-link',
-						},
-						busyAction === 'safe-mode'
-							? __( 'Saving…', 'jetpack-connection' )
-							: __( 'Not sure? Stay in Safe Mode', 'jetpack-connection' )
+						'span',
+						{ className: 'jetpack-connector__idc-safe-mode-group' },
+						createElement(
+							Button,
+							{
+								// No isBusy here: the striped "busy" background looks
+								// odd on a link-style button, so the "Saving…" label
+								// plus the disabled state convey progress instead.
+								variant: 'link',
+								disabled: Boolean( busyAction ),
+								onClick: handleStaySafe,
+								className: 'jetpack-connector__idc-safe-mode-link',
+							},
+							busyAction === 'safe-mode'
+								? __( 'Saving…', 'jetpack-connection' )
+								: __( 'Not sure? Stay in Safe Mode', 'jetpack-connection' )
+						),
+						createElement(
+							Text,
+							{ variant: 'muted', size: 12 },
+							createInterpolateElement( __( 'or <link>learn more</link>', 'jetpack-connection' ), {
+								link: createElement( 'a', {
+									href: 'https://jetpack.com/redirect/?source=jetpack-support-safe-mode',
+									target: '_blank',
+									rel: 'noopener noreferrer',
+								} ),
+							} )
+						)
 				  ),
 			isManagedPlatformSite
 				? null

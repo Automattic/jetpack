@@ -60,6 +60,12 @@
 	margin-inline-start: 0;
 }
 
+.jetpack-connector__idc-safe-mode-group {
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
+}
+
 .jetpack-connector__idc-why-toggle {
 	align-self: flex-start;
 	padding-inline: 0;
