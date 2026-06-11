@@ -129,6 +129,7 @@ class WooCommerce extends Module {
 		add_filter( 'jetpack_sync_comment_meta_whitelist', array( $this, 'add_woocommerce_comment_meta_whitelist' ), 10 );
 
 		add_filter( 'jetpack_sync_before_enqueue_woocommerce_new_order_item', array( $this, 'filter_order_item' ) );
+		add_filter( 'jetpack_sync_before_enqueue_woocommerce_customer_object_updated_props', array( $this, 'filter_customer_updated_props' ) );
 		add_filter( 'jetpack_sync_whitelisted_comment_types', array( $this, 'add_review_comment_types' ) );
 
 		// Blacklist Action Scheduler comment types.
@@ -194,6 +195,9 @@ class WooCommerce extends Module {
 		add_action( 'woocommerce_new_webhook', $callable, 10, 1 );
 		add_action( 'woocommerce_webhook_deleted', $callable, 10, 2 );
 		add_action( 'woocommerce_webhook_updated', $callable, 10, 1 );
+
+		// Customers.
+		add_action( 'woocommerce_customer_object_updated_props', $callable, 10, 2 );
 	}
 
 	/**
@@ -240,6 +244,78 @@ class WooCommerce extends Module {
 		// Make sure we always have all the data - prior to WooCommerce 3.0 we only have the user supplied data in the second argument and not the full details.
 		$args[1] = $this->build_order_item( $args[0] );
 		return $args;
+	}
+
+	/**
+	 * Replace the customer object with a minimal user object before enqueueing.
+	 *
+	 * @param array $args Hook arguments.
+	 * @return array|false Minimal user object and changed prop names, or false when invalid.
+	 */
+	public function filter_customer_updated_props( $args ) {
+		if (
+			! is_array( $args )
+			|| ! isset( $args[0] )
+			|| ! isset( $args[1] )
+			|| ! is_object( $args[0] )
+			|| ! is_callable( array( $args[0], 'get_id' ) )
+			|| ! is_array( $args[1] )
+		) {
+			return false;
+		}
+
+		$customer_id = (int) $args[0]->get_id();
+		if ( $customer_id <= 0 ) {
+			return false;
+		}
+
+		$updated_props = array();
+		foreach ( $args[1] as $prop ) {
+			if ( ! is_string( $prop ) && ! is_numeric( $prop ) ) {
+				continue;
+			}
+
+			$prop = sanitize_key( (string) $prop );
+			if ( '' === $prop ) {
+				continue;
+			}
+
+			$updated_props[] = $prop;
+		}
+
+		$updated_props = array_values( array_unique( $updated_props ) );
+		if ( empty( $updated_props ) ) {
+			return false;
+		}
+
+		return array( $this->build_minimal_customer_user_object( $customer_id ), $updated_props );
+	}
+
+	/**
+	 * Build a minimal WP_User-shaped object for Activity Log.
+	 *
+	 * @param int $customer_id Customer user ID.
+	 * @return object Minimal user object.
+	 */
+	private function build_minimal_customer_user_object( $customer_id ) {
+		$user_data = (object) array(
+			'ID'           => $customer_id,
+			'display_name' => '',
+			'user_login'   => '',
+			'user_email'   => '',
+		);
+
+		$user = get_userdata( $customer_id );
+		if ( $user ) {
+			$user_data->display_name = (string) $user->display_name;
+			$user_data->user_login   = (string) $user->user_login;
+			$user_data->user_email   = (string) $user->user_email;
+		}
+
+		return (object) array(
+			'ID'   => $customer_id,
+			'data' => $user_data,
+		);
 	}
 
 	/**

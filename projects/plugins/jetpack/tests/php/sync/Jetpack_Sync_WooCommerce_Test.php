@@ -152,6 +152,39 @@ class Jetpack_Sync_WooCommerce_Test extends Jetpack_Sync_TestBase {
 		$this->assertEmpty( $foo_events );
 	}
 
+	public function test_customer_updated_props_are_synced_without_customer_data() {
+		$user_id  = wp_insert_user(
+			array(
+				'user_login' => 'test_customer',
+				'user_email' => 'customer@example.com',
+				'user_pass'  => 'test',
+			)
+		);
+		$customer = new WC_Customer( $user_id );
+
+		$customer->set_billing_email( 'updated@example.com' );
+		$customer->set_billing_city( 'San Francisco' );
+		$customer->save();
+
+		$this->sender->do_sync();
+
+		$customer_updated_event = $this->server_event_storage->get_most_recent_event( 'woocommerce_customer_object_updated_props' );
+
+		$this->assertTrue( (bool) $customer_updated_event );
+		$this->assertIsObject( $customer_updated_event->args[0] );
+		$this->assertNotInstanceOf( 'WC_Customer', $customer_updated_event->args[0] );
+		$this->assertEquals( $user_id, $customer_updated_event->args[0]->ID );
+		$this->assertEquals( $user_id, $customer_updated_event->args[0]->data->ID );
+		$this->assertEquals( 'test_customer', $customer_updated_event->args[0]->data->user_login );
+		$this->assertEquals( 'customer@example.com', $customer_updated_event->args[0]->data->user_email );
+		$this->assertContains( 'billing_email', $customer_updated_event->args[1] );
+		$this->assertContains( 'billing_city', $customer_updated_event->args[1] );
+
+		$encoded_event_args = wp_json_encode( $customer_updated_event->args, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT );
+		$this->assertStringNotContainsString( 'updated@example.com', $encoded_event_args );
+		$this->assertStringNotContainsString( 'San Francisco', $encoded_event_args );
+	}
+
 	public function test_approving_a_review_is_synced() {
 		$post_id    = self::factory()->post->create();
 		$review_ids = self::factory()->comment->create_post_comments(
