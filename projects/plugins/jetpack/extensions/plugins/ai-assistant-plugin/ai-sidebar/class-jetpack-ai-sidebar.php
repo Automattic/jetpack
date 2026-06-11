@@ -1,10 +1,9 @@
 <?php
 /**
- * Jetpack AI Sidebar — Agents Manager CDN loader and provider registration.
+ * Jetpack AI Sidebar provider registration.
  *
- * Loads the Agents Manager gutenberg variant from the widgets.wp.com CDN
- * (following the Image Studio pattern) and registers the Jetpack AI
- * provider for Jetpack AI tools.
+ * Registers the Jetpack AI provider for Jetpack AI tools when the
+ * WordPress.com AI Assistant setting allows the sidebar surface.
  *
  * @package automattic/jetpack
  */
@@ -14,14 +13,8 @@ namespace Automattic\Jetpack\Extensions\AiAssistantPlugin;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
-use Jetpack_Options;
-use function Automattic\Jetpack\Extensions\Shared\determine_iso_639_locale;
-
-require_once __DIR__ . '/../../../shared/cdn-locale.php';
 
 const AM_ASSET_BASE_PATH          = 'widgets.wp.com/agents-manager/';
-const AM_ASSET_TRANSIENT          = 'jetpack_am_gutenberg_asset';
-const AM_ASSET_DC_TRANSIENT       = 'jetpack_am_gutenberg_dc_asset';
 const AI_SIDEBAR_ASSET_TRANSIENT  = 'jetpack_ai_sidebar_asset';
 const AI_SIDEBAR_JS_URL           = 'https://' . AM_ASSET_BASE_PATH . 'jetpack-ai-sidebar.min.js';
 const AI_SIDEBAR_CSS_URL          = 'https://' . AM_ASSET_BASE_PATH . 'jetpack-ai-sidebar.css';
@@ -31,8 +24,7 @@ const AI_SIDEBAR_AGENT_ID         = 'wp-orchestrator';
 const BIG_SKY_AGENT_PROVIDER_PATH = '/big-sky-plugin/build/calypso-agent-provider/';
 
 /**
- * Handles loading the Agents Manager from CDN and registering the
- * Jetpack AI provider in the block editor.
+ * Handles registering the Jetpack AI provider in the block editor.
  */
 class Jetpack_AI_Sidebar {
 
@@ -45,12 +37,12 @@ class Jetpack_AI_Sidebar {
 		/**
 		 * Filter to enable or disable the Jetpack AI sidebar feature.
 		 *
-		 * Defaults to the Jetpack AI Sidebar Preview gate. Use this filter as
-		 * a host-level kill switch for the whole sidebar entrypoint.
+		 * Runs after the WordPress.com AI Assistant setting gate, so hosts can
+		 * disable this entrypoint but cannot bypass the site-level user setting.
 		 *
 		 * @param bool $enabled Whether the AI sidebar is enabled.
 		 */
-		if ( ! apply_filters( 'jetpack_ai_sidebar_enabled', self::is_jetpack_ai_sidebar_preview_enabled() ) ) {
+		if ( ! self::is_jetpack_ai_sidebar_preview_enabled() || ! apply_filters( 'jetpack_ai_sidebar_enabled', true ) ) {
 			return;
 		}
 
@@ -65,11 +57,6 @@ class Jetpack_AI_Sidebar {
 		// post editor on WordPress.com and Atomic sites.
 		add_filter( 'agents_manager_enabled_in_block_editor', array( __CLASS__, 'enable_agents_manager_in_post_editor' ) );
 
-		// Load AM from CDN if not already present.
-		// Priority 200: runs AFTER the AM class in jetpack-mu-wpcom (priority 101),
-		// so wp_script_is('agents-manager') correctly detects if AM is already loaded.
-		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'maybe_enqueue_am' ), 200 );
-
 		// Enqueue the IIFE bundle in the preview post editor — it registers
 		// Jetpack AI abilities via @wordpress/abilities, which Big Sky or AM
 		// can discover regardless of which provider system is active.
@@ -78,46 +65,13 @@ class Jetpack_AI_Sidebar {
 		// Patch Jetpack AI Sidebar Preview data into agentsManagerData when AM
 		// was enqueued by an external host (Big Sky on Atomic, etc.) and the
 		// jetpack_ai_sidebar_agents_manager_data filter never fired. Priority
-		// 250 runs after both mu-wpcom (101) and the CDN loader above (200).
+		// 250 runs after mu-wpcom (101).
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'maybe_patch_jetpack_ai_sidebar_preview_data' ), 250 );
 	}
 
 	// ──────────────────────────────────────────────────
-	// AM CDN loading
+	// Sidebar bundle loading
 	// ──────────────────────────────────────────────────
-
-	/**
-	 * Load AM from CDN if not already present and we're in the preview post editor.
-	 *
-	 * @return void
-	 */
-	public static function maybe_enqueue_am(): void {
-		if ( ! self::is_jetpack_ai_sidebar_preview_enabled() || ! self::is_post_editor() || ! self::has_ai_features() ) {
-			return;
-		}
-
-		// Big Sky has its own chat UI — don't load AM separately.
-		// When Big Sky enables AM via unified-big-sky flag, AM is loaded
-		// by jetpack-mu-wpcom and caught by the wp_script_is check below.
-		// Check both class existence AND the enable option — the class is
-		// declared unconditionally when the plugin is present.
-		if ( class_exists( 'Big_Sky' ) && get_option( 'big_sky_enable', '1' ) ) {
-			return;
-		}
-
-		// CIAB (next-admin) has AM natively via jetpack-mu-wpcom — skip CDN load.
-		if ( did_action( 'next_admin_init' ) ) {
-			return;
-		}
-
-		// AM already loaded by jetpack-mu-wpcom — skip CDN load.
-		if ( wp_script_is( 'agents-manager' ) ) {
-			return;
-		}
-
-		$variant = self::get_variant();
-		self::enqueue_am_from_cdn( $variant );
-	}
 
 	/**
 	 * Enqueue the IIFE bundle that registers Jetpack AI abilities.
@@ -170,168 +124,9 @@ class Jetpack_AI_Sidebar {
 		);
 	}
 
-	/**
-	 * Determine which AM variant to load.
-	 *
-	 * @return string 'gutenberg' or 'gutenberg-disconnected'.
-	 */
-	private static function get_variant(): string {
-		return self::is_jetpack_disconnected() ? 'gutenberg-disconnected' : 'gutenberg';
-	}
-
-	/**
-	 * Enqueue the AM gutenberg variant from the widgets.wp.com CDN.
-	 *
-	 * @param string $variant The variant name ('gutenberg' or 'gutenberg-disconnected').
-	 * @return void
-	 */
-	private static function enqueue_am_from_cdn( string $variant ): void {
-		$asset_data = self::get_asset_data( $variant );
-		if ( ! $asset_data ) {
-			return;
-		}
-
-		$version      = $asset_data['version'] ?? false;
-		$dependencies = $asset_data['dependencies'] ?? array();
-
-		// Dev-mode cache busting — match AM class pattern.
-		if ( self::is_dev_mode() ) {
-			$version .= '-' . wp_rand();
-		}
-
-		// Translations.
-		$locale = determine_iso_639_locale();
-		if ( 'en' !== $locale ) {
-			wp_enqueue_script(
-				'agents-manager-translations',
-				'https://' . AM_ASSET_BASE_PATH . "languages/{$locale}-v1.js",
-				array( 'wp-i18n' ),
-				$version,
-				true
-			);
-			$dependencies[] = 'agents-manager-translations';
-		}
-
-		// Main JS bundle.
-		$js_url = 'https://' . AM_ASSET_BASE_PATH . "agents-manager-{$variant}.min.js";
-		wp_enqueue_script( 'agents-manager', $js_url, $dependencies, $version, true );
-
-		// Inline data — injected for ALL variants (matching AM class behavior).
-		$am_data = self::get_agents_manager_data( $variant );
-		wp_add_inline_script(
-			'agents-manager',
-			'const agentsManagerData = ' . wp_json_encode(
-				$am_data,
-				JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP
-			) . ';',
-			'before'
-		);
-
-		// CSS — disconnected variants skip CSS (matching AM class behavior).
-		if ( ! str_contains( $variant, 'disconnected' ) ) {
-			$css_url = 'https://' . AM_ASSET_BASE_PATH . "agents-manager-{$variant}.css";
-			$rtl_url = 'https://' . AM_ASSET_BASE_PATH . "agents-manager-{$variant}.rtl.css";
-			wp_enqueue_style(
-				'agents-manager-style',
-				is_rtl() ? $rtl_url : $css_url,
-				array(),
-				$version
-			);
-		}
-	}
-
-	/**
-	 * Build the agentsManagerData object for the inline script.
-	 *
-	 * @param string $variant The loaded variant name.
-	 * @return array The data array for JSON encoding.
-	 */
-	private static function get_agents_manager_data( string $variant ): array {
-		/**
-		 * Filter to register agent provider modules for the Agents Manager.
-		 *
-		 * @param array $providers Array of provider script module IDs.
-		 */
-		$agent_providers = apply_filters( 'agents_manager_agent_providers', array() );
-
-		$am_data = array(
-			'agentProviders'       => $agent_providers,
-			'useUnifiedExperience' => false,
-			'isDevMode'            => self::is_dev_mode(),
-			'sectionName'          => $variant,
-			'currentUser'          => self::get_current_user_data(),
-			'site'                 => self::get_current_site(),
-			'helpCenterUrl'        => 'https://wordpress.com/help?help-center=home',
-		);
-
-		/**
-		 * Filter the data exposed to the Agents Manager frontend.
-		 *
-		 * @param array $am_data Data encoded into `agentsManagerData`.
-		 */
-		$filtered = apply_filters( 'jetpack_ai_sidebar_agents_manager_data', $am_data );
-		$am_data  = is_array( $filtered ) ? $filtered : $am_data;
-
-		// Direct CDN-loader fallback. Jetpack owns these defaults; hosts can
-		// override via the AI Editorial Review and preview filters.
-		$am_data['agentId']                  = AI_SIDEBAR_AGENT_ID;
-		$am_data['aiEditorialReviewEnabled'] = self::is_ai_editorial_review_enabled();
-		$am_data['jetpackAiSidebarPreview']  = self::get_jetpack_ai_sidebar_preview_config();
-		return $am_data;
-	}
-
 	// ──────────────────────────────────────────────────
-	// Asset manifest (Image Studio pattern)
+	// Asset manifest
 	// ──────────────────────────────────────────────────
-
-	/**
-	 * Fetch and cache the remote asset manifest for a variant.
-	 *
-	 * @param string $variant The variant name.
-	 * @return array|false The decoded asset data, or false on failure.
-	 */
-	private static function get_asset_data( string $variant ) {
-		$transient_key = str_contains( $variant, 'disconnected' ) ? AM_ASSET_DC_TRANSIENT : AM_ASSET_TRANSIENT;
-		$skip_cache    = defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG;
-
-		if ( ! $skip_cache ) {
-			$cached = get_transient( $transient_key );
-			if ( false !== $cached ) {
-				return $cached;
-			}
-		}
-
-		$json_path = AM_ASSET_BASE_PATH . "agents-manager-{$variant}.asset.json";
-
-		// Try local file first (available on WordPress.com).
-		$data = self::get_asset_data_from_file( $json_path );
-
-		// Fallback to remote fetch.
-		if ( false === $data ) {
-			$json_url = 'https://' . $json_path;
-			$data     = self::get_asset_data_from_remote( $json_url );
-		}
-
-		if ( false === $data ) {
-			// In dev mode (sandbox/JN), the server-side fetch to widgets.wp.com
-			// won't route through the developer's sandbox. Return a minimal
-			// fallback so the AM enqueue still works — the browser will load
-			// the real bundle from the sandbox.
-			if ( self::is_dev_mode() ) {
-				return array(
-					'dependencies' => array( 'react', 'wp-components', 'wp-data', 'wp-element', 'wp-i18n' ),
-					'version'      => 'dev-' . time(),
-				);
-			}
-			return false;
-		}
-
-		if ( ! $skip_cache ) {
-			set_transient( $transient_key, $data, HOUR_IN_SECONDS );
-		}
-
-		return $data;
-	}
 
 	/**
 	 * Try to read the asset manifest from the local filesystem.
@@ -485,8 +280,7 @@ class Jetpack_AI_Sidebar {
 	 * UI feature flag for AI Editorial Review.
 	 *
 	 * Server-side permission checks still gate execution. This site-side flag
-	 * controls whether the sidebar suggestion is exposed, while keeping a
-	 * feature-specific filter available as a kill switch.
+	 * controls whether the sidebar exposes AI Editorial Review-specific UI.
 	 *
 	 * @return bool
 	 */
@@ -500,30 +294,23 @@ class Jetpack_AI_Sidebar {
 	/**
 	 * UI feature flag for the public Jetpack AI Sidebar Preview surface.
 	 *
-	 * AI Editorial Review remains a feature inside the preview. Hosts can open
-	 * the preview independently in the future while keeping AI Editorial Review
-	 * behind its own feature-specific gate.
+	 * Self-hosted sites do not expose the WordPress.com AI Assistant setting, so
+	 * this surface stays closed there. On WordPress.com, the Big Sky class plus
+	 * option mirror the site-level AI Assistant toggle.
 	 *
 	 * @return bool
 	 */
 	private static function is_jetpack_ai_sidebar_preview_enabled(): bool {
 		$host = new Host();
-		// Bail early for self hosted
-		if ( ! $host->is_wpcom_platform() ) {
+		if ( ! $host->is_wpcom_platform() || ! class_exists( 'Big_Sky' ) ) {
 			return false;
 		}
 
-		// Simple: Site Settings > AI Assistant Toggle off - Removes class big sky, option defaults to 1
-		// Atomic: Toggle governs both class and option
-		if ( ! ( class_exists( 'Big_Sky' ) && get_option( 'big_sky_enable', '1' ) ) ) {
+		$default = $host->is_wpcom_simple() ? '1' : '0';
+		if ( ! get_option( 'big_sky_enable', $default ) ) {
 			return false;
 		}
 
-		// Temp: filter bypassed for this experiment — the toggle-derived check above decides.
-		// return (bool) apply_filters(
-		// 'jetpack_ai_sidebar_preview_enabled',
-		// self::is_ai_editorial_review_enabled()
-		// );
 		return true;
 	}
 
@@ -570,8 +357,7 @@ class Jetpack_AI_Sidebar {
 			return $data;
 		}
 
-		// Set Jetpack's defaults for externally emitted payloads. Hosts that need
-		// intentional overrides should use the AI Editorial Review and preview filters.
+		// Set Jetpack's defaults for externally emitted payloads.
 		if ( isset( $data['agentProviders'] ) && is_array( $data['agentProviders'] ) ) {
 			$data['agentProviders'] = self::filter_agent_providers_for_jetpack_ai_sidebar( $data['agentProviders'] );
 		}
@@ -624,8 +410,8 @@ class Jetpack_AI_Sidebar {
 	 * Gives Atomic parity with Jurassic Ninja without depending on a wpcomsh
 	 * redeploy.
 	 *
-	 * Skipped on WordPress.com Simple — wpcom's data extension owns the predicate
-	 * there, including any WordPress.com-specific kill-switch override.
+	 * Skipped on WordPress.com Simple — wpcom's data extension owns its
+	 * WordPress.com-specific predicate there.
 	 *
 	 * @return void
 	 */
@@ -723,23 +509,6 @@ class Jetpack_AI_Sidebar {
 	}
 
 	/**
-	 * Check if the current user's Jetpack connection is disconnected.
-	 *
-	 * Only relevant on Atomic and self-hosted Jetpack sites.
-	 * On wpcom simple, users are never "disconnected" in this sense.
-	 *
-	 * @return bool
-	 */
-	private static function is_jetpack_disconnected(): bool {
-		$host = new Host();
-		if ( $host->is_wpcom_simple() ) {
-			return false;
-		}
-
-		return ! ( new Connection_Manager( 'jetpack' ) )->is_user_connected( get_current_user_id() );
-	}
-
-	/**
 	 * Check if the current request is from a development environment.
 	 *
 	 * Matches Agents_Manager::is_dev_mode() and Image Studio's is_dev_mode().
@@ -788,62 +557,5 @@ class Jetpack_AI_Sidebar {
 		}
 
 		return false;
-	}
-
-	/**
-	 * Get current user data for the agents manager.
-	 *
-	 * @return array|null User data array or null if not logged in.
-	 */
-	private static function get_current_user_data() {
-		$user_id = get_current_user_id();
-		if ( ! $user_id ) {
-			return null;
-		}
-
-		$user_data = get_userdata( $user_id );
-		if ( ! $user_data ) {
-			return null;
-		}
-
-		$user_email = $user_data->user_email;
-
-		// Use wpcom_get_avatar_url on Simple sites, fall back to get_avatar_url elsewhere.
-		if ( function_exists( 'wpcom_get_avatar_url' ) ) {
-			$avatar_result = wpcom_get_avatar_url( $user_email, 64, '', true );
-			$avatar_url    = is_array( $avatar_result ) ? $avatar_result[0] : get_avatar_url( $user_id );
-		} else {
-			$avatar_url = get_avatar_url( $user_id );
-		}
-
-		return array(
-			'ID'           => $user_id,
-			'username'     => $user_data->user_login,
-			'display_name' => $user_data->display_name,
-			'avatar_URL'   => $avatar_url,
-			'email'        => $user_email,
-		);
-	}
-
-	/**
-	 * Get current site data for the agents manager.
-	 *
-	 * On wpcom simple, the blog ID is the wpcom site ID.
-	 * On Atomic/self-hosted, the wpcom site ID is stored in Jetpack options.
-	 *
-	 * @return array Site data with ID and domain.
-	 */
-	private static function get_current_site(): array {
-		$host = new Host();
-		if ( $host->is_wpcom_simple() ) {
-			$site_id = get_current_blog_id();
-		} else {
-			$site_id = (int) Jetpack_Options::get_option( 'id' );
-		}
-
-		return array(
-			'ID'     => $site_id,
-			'domain' => wp_parse_url( home_url(), PHP_URL_HOST ),
-		);
 	}
 }
