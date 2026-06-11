@@ -181,7 +181,9 @@ async function createBrowserInterface(
 
 /**
  * Generate Critical CSS for the specified Provider Keys, sending each block
- * to the server. Throws on error or cancellation.
+ * to the server. Per-provider errors are recorded against the offending
+ * provider and do not stop the remaining providers from generating. Only
+ * throws on global failures (e.g. the generator library failing to load).
  *
  * @param {Object}      providers            - Set of URLs to use for each provider key
  * @param {Viewport[]}  viewports            - Viewports to use when generating Critical CSS.
@@ -312,11 +314,17 @@ async function generateForKeys(
 					recordBoostEvent( 'critical_css_url_error', eventProps );
 				}
 			} else {
+				// Swallow errors caused by cancelling the process.
+				if ( signal.aborted ) {
+					return;
+				}
+
+				stepsFailed++;
 				const stdError = standardizeError( err );
 				const type =
 					( 'type' in stdError && typeof stdError.type === 'string' && stdError.type ) || 'unknown';
 
-				// Track showstopper Critical CSS generation error.
+				// Track unexpected per-provider Critical CSS generation error.
 				const eventProps = {
 					time: Date.now() - startTime,
 					provider_key: key,
@@ -326,7 +334,17 @@ async function generateForKeys(
 
 				recordBoostEvent( 'critical_css_failure', eventProps );
 
-				throw err;
+				// Record the error against this provider, and continue generating
+				// Critical CSS for the remaining providers.
+				await callbacks.setProviderErrors(
+					key,
+					urls.map( url => ( {
+						url,
+						message: stdError.message,
+						type: 'UnknownError',
+						meta: {},
+					} ) )
+				);
 			}
 		} finally {
 			// Always increment provider index and update boundary progress,
