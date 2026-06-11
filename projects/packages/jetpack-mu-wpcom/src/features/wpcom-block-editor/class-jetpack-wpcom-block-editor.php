@@ -403,6 +403,7 @@ class Jetpack_WPCOM_Block_Editor {
 					'jquery',
 					'lodash',
 					'react',
+					'wp-annotations', // DNM: test edit for single-artifact coverage run.
 					'wp-blocks',
 					'wp-data',
 					'wp-hooks',
