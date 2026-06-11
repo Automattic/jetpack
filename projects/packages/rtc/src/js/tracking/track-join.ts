@@ -4,6 +4,14 @@ import type { Awareness, ProviderCreator } from '@wordpress/sync';
 
 const JOIN_EVENT = 'jetpack_rtc_join';
 
+/**
+ * Delay between the local client appearing in awareness and snapshotting the
+ * contributor list. Peers already in the room sync into awareness within ~1s of
+ * connecting; this leaves headroom so an early joiner doesn't record a self-only
+ * roster, without waiting so long that the editor may have been closed.
+ */
+const SETTLE_DELAY_MS = 3000;
+
 interface CollaboratorAwarenessState {
 	collaboratorInfo?: { id?: number };
 }
@@ -54,13 +62,36 @@ function recordJoin( awareness: Awareness ): void {
 }
 
 /**
+ * Snapshot the join once the local client is present, after a short settle
+ * delay so peers already in the room have time to sync into awareness.
+ *
+ * Recording at provider-creation time (when awareness is empty) yields a
+ * self-only or empty roster; waiting for the local client and then a brief
+ * delay lets the snapshot include the peers who were already editing.
+ *
+ * @param awareness - The Yjs awareness instance for the room.
+ */
+function recordJoinAfterSettle( awareness: Awareness ): void {
+	let scheduled = false;
+
+	const scheduleSnapshot = (): void => {
+		if ( scheduled || ! isLocalClientPresent( awareness ) ) {
+			return;
+		}
+		scheduled = true;
+		awareness.off( 'change', scheduleSnapshot );
+		setTimeout( () => recordJoin( awareness ), SETTLE_DELAY_MS );
+	};
+
+	awareness.on( 'change', scheduleSnapshot );
+	// Handle the case where the local client is already present at creation time.
+	scheduleSnapshot();
+}
+
+/**
  * Wrap a provider creator so that joining an entity room records a
  * `jetpack_rtc_join` Tracks event. Collection rooms (objectId === null) are
  * ignored, matching the room-limit wrapper.
- *
- * The contributor snapshot is taken once the local client's presence is
- * established in awareness, not at provider-creation time (when awareness is
- * still empty), so the event always includes at least the local user.
  *
  * @param creator - The provider creator to wrap.
  * @return The wrapped provider creator.
@@ -69,20 +100,8 @@ export function withJoinTracking( creator: ProviderCreator ): ProviderCreator {
 	return async options => {
 		const result = await creator( options );
 		const { objectId, awareness } = options;
-		if ( objectId === null || ! awareness ) {
-			return result;
-		}
-
-		if ( isLocalClientPresent( awareness ) ) {
-			recordJoin( awareness );
-		} else {
-			const onChange = () => {
-				if ( isLocalClientPresent( awareness ) ) {
-					awareness.off( 'change', onChange );
-					recordJoin( awareness );
-				}
-			};
-			awareness.on( 'change', onChange );
+		if ( objectId !== null && awareness ) {
+			recordJoinAfterSettle( awareness );
 		}
 		return result;
 	};

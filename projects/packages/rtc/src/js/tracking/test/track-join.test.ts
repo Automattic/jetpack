@@ -55,15 +55,29 @@ const entityRoom = ( awareness: unknown ) => ( {
 	awareness: awareness as never,
 } );
 
-describe( 'withJoinTracking', () => {
-	beforeEach( () => recordRtcEventMock.mockClear() );
+// Mirrors SETTLE_DELAY_MS in track-join.ts.
+const SETTLE_DELAY_MS = 3000;
 
-	it( 'records a join with contributor ids when the local client is already present', async () => {
+describe( 'withJoinTracking', () => {
+	beforeEach( () => {
+		recordRtcEventMock.mockClear();
+		jest.useFakeTimers();
+	} );
+
+	afterEach( () => {
+		jest.useRealTimers();
+	} );
+
+	it( 'records the settled roster a delay after the local client is present', async () => {
 		const creator = jest.fn().mockResolvedValue( makeProvider() );
 		const wrapped = withJoinTracking( creator as never );
 
 		// clientID 1 (user 7) is present, plus a second tab of user 7 and user 9.
 		await wrapped( entityRoom( fakeAwareness( { states: { 1: 7, 2: 7, 3: 9 }, clientID: 1 } ) ) );
+
+		// Nothing recorded until the settle delay elapses.
+		expect( recordRtcEventMock ).not.toHaveBeenCalled();
+		jest.advanceTimersByTime( SETTLE_DELAY_MS );
 
 		expect( recordRtcEventMock ).toHaveBeenCalledTimes( 1 );
 		expect( recordRtcEventMock ).toHaveBeenCalledWith( 'jetpack_rtc_join', {
@@ -72,7 +86,26 @@ describe( 'withJoinTracking', () => {
 		} );
 	} );
 
-	it( 'defers recording until the local client becomes present', async () => {
+	it( 'captures peers that sync in during the settle delay', async () => {
+		const creator = jest.fn().mockResolvedValue( makeProvider() );
+		const wrapped = withJoinTracking( creator as never );
+
+		// The local client (user 7) joins; a peer's awareness has not synced yet.
+		const awareness = fakeAwareness( { states: { 1: 7 }, clientID: 1 } );
+		await wrapped( entityRoom( awareness ) );
+
+		// A peer syncs in before the delay elapses.
+		awareness.setState( 2, 9 );
+		jest.advanceTimersByTime( SETTLE_DELAY_MS );
+
+		expect( recordRtcEventMock ).toHaveBeenCalledTimes( 1 );
+		expect( recordRtcEventMock ).toHaveBeenCalledWith( 'jetpack_rtc_join', {
+			contributor_count: 2,
+			contributors: [ 7, 9 ],
+		} );
+	} );
+
+	it( 'defers until the local client becomes present, then waits the delay', async () => {
 		const creator = jest.fn().mockResolvedValue( makeProvider() );
 		const wrapped = withJoinTracking( creator as never );
 
@@ -80,12 +113,16 @@ describe( 'withJoinTracking', () => {
 		const awareness = fakeAwareness( { states: {}, clientID: 1 } );
 		await wrapped( entityRoom( awareness ) );
 
+		// The delay running out while absent records nothing.
+		jest.advanceTimersByTime( SETTLE_DELAY_MS );
 		expect( recordRtcEventMock ).not.toHaveBeenCalled();
 
 		// Core-data populates the local client's collaboratorInfo and fires a change.
 		awareness.setState( 1, 7 );
 		awareness.emitChange();
+		expect( recordRtcEventMock ).not.toHaveBeenCalled();
 
+		jest.advanceTimersByTime( SETTLE_DELAY_MS );
 		expect( recordRtcEventMock ).toHaveBeenCalledTimes( 1 );
 		expect( recordRtcEventMock ).toHaveBeenCalledWith( 'jetpack_rtc_join', {
 			contributor_count: 1,
@@ -93,38 +130,16 @@ describe( 'withJoinTracking', () => {
 		} );
 	} );
 
-	it( 'does not record on changes where only remote clients are present', async () => {
-		const creator = jest.fn().mockResolvedValue( makeProvider() );
-		const wrapped = withJoinTracking( creator as never );
-
-		// A remote peer is present but the local client (clientID 1) is not yet.
-		const awareness = fakeAwareness( { states: { 2: 9 }, clientID: 1 } );
-		await wrapped( entityRoom( awareness ) );
-		awareness.emitChange();
-
-		expect( recordRtcEventMock ).not.toHaveBeenCalled();
-
-		// Once the local client appears, the snapshot includes both.
-		awareness.setState( 1, 7 );
-		awareness.emitChange();
-
-		expect( recordRtcEventMock ).toHaveBeenCalledTimes( 1 );
-		expect( recordRtcEventMock ).toHaveBeenCalledWith( 'jetpack_rtc_join', {
-			contributor_count: 2,
-			contributors: [ 9, 7 ],
-		} );
-	} );
-
 	it( 'records only once even if awareness changes again', async () => {
 		const creator = jest.fn().mockResolvedValue( makeProvider() );
 		const wrapped = withJoinTracking( creator as never );
 
-		const awareness = fakeAwareness( { states: {}, clientID: 1 } );
+		const awareness = fakeAwareness( { states: { 1: 7 }, clientID: 1 } );
 		await wrapped( entityRoom( awareness ) );
 
-		awareness.setState( 1, 7 );
+		jest.advanceTimersByTime( SETTLE_DELAY_MS );
 		awareness.emitChange();
-		awareness.emitChange();
+		jest.advanceTimersByTime( SETTLE_DELAY_MS );
 
 		expect( recordRtcEventMock ).toHaveBeenCalledTimes( 1 );
 	} );
@@ -139,6 +154,7 @@ describe( 'withJoinTracking', () => {
 			ydoc: {} as never,
 			awareness: fakeAwareness( { states: { 1: 7 }, clientID: 1 } ) as never,
 		} );
+		jest.advanceTimersByTime( SETTLE_DELAY_MS );
 
 		expect( recordRtcEventMock ).not.toHaveBeenCalled();
 	} );
@@ -152,6 +168,7 @@ describe( 'withJoinTracking', () => {
 			objectId: 'post-42',
 			ydoc: {} as never,
 		} );
+		jest.advanceTimersByTime( SETTLE_DELAY_MS );
 
 		expect( recordRtcEventMock ).not.toHaveBeenCalled();
 	} );
@@ -163,6 +180,7 @@ describe( 'withJoinTracking', () => {
 		await wrapped(
 			entityRoom( fakeAwareness( { states: { 1: 7, 2: null, 3: 9 }, clientID: 1 } ) )
 		);
+		jest.advanceTimersByTime( SETTLE_DELAY_MS );
 
 		expect( recordRtcEventMock ).toHaveBeenCalledWith( 'jetpack_rtc_join', {
 			contributor_count: 2,
