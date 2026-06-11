@@ -109,15 +109,46 @@ class Debug_Excludes_Test extends Base_TestCase {
 		);
 	}
 
-	public function test_handles_are_lowercased_and_trimmed() {
+	public function test_handles_are_trimmed_but_case_is_preserved() {
+		// Handles are matched case-sensitively downstream, so an uppercase handle
+		// must be preserved verbatim (after trimming) rather than lowercased —
+		// lowercasing would silently fail to exclude it.
 		$_GET['jb-minify-js-excludes'] = '  My-Plugin-Script  ';
 
 		Functions\when( 'current_user_can' )->justReturn( true );
 
 		$this->assertSame(
-			array( 'jquery', 'jquery-core', 'my-plugin-script' ),
+			array( 'jquery', 'jquery-core', 'My-Plugin-Script' ),
 			jetpack_boost_page_optimize_js_exclude_list()
 		);
+	}
+
+	public function test_saved_list_returned_unchanged_when_all_handles_invalid() {
+		// Param is present, is a string, and the user is an admin, but every handle
+		// is rejected by the allowlist — the saved list must come back untouched.
+		$_GET['jb-minify-js-excludes'] = '<script>, ../../etc/passwd,    ';
+
+		Functions\when( 'current_user_can' )->justReturn( true );
+
+		$this->assertSame( self::SAVED_JS_EXCLUDES, jetpack_boost_page_optimize_js_exclude_list() );
+	}
+
+	public function test_saved_list_returned_when_param_is_empty_string() {
+		$_GET['jb-minify-js-excludes'] = '';
+
+		Functions\when( 'current_user_can' )->justReturn( true );
+
+		$this->assertSame( self::SAVED_JS_EXCLUDES, jetpack_boost_page_optimize_js_exclude_list() );
+	}
+
+	public function test_overlong_param_is_ignored() {
+		// A debug session never needs thousands of characters; oversized values
+		// are dropped wholesale so the parser cannot be made to do unbounded work.
+		$_GET['jb-minify-js-excludes'] = str_repeat( 'a', 2001 );
+
+		Functions\when( 'current_user_can' )->justReturn( true );
+
+		$this->assertSame( self::SAVED_JS_EXCLUDES, jetpack_boost_page_optimize_js_exclude_list() );
 	}
 
 	public function test_duplicate_handles_are_not_added_twice() {

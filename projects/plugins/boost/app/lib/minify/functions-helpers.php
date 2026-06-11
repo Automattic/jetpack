@@ -229,17 +229,28 @@ function jetpack_boost_page_optimize_css_exclude_list() {
  * without editing the saved settings, and without needing a staging site.
  *
  * Safety properties:
- * - Only honored for logged-in users with the `manage_options` capability. The
- *   exclude lists are read while scripts/styles are printed (wp_head/wp_footer),
- *   i.e. within normal WordPress runtime where capability APIs are loaded; the
- *   function_exists() check makes this a no-op anywhere they are not.
- * - Each handle is sanitized: only lowercase alphanumerics, dash, underscore and
- *   dot are accepted, anything else is ignored entirely.
+ * - Only honored for logged-in users with the `manage_options` capability.
+ *   current_user_can() is available during normal page rendering (the exclude
+ *   lists are read while scripts/styles are printed at wp_head/wp_footer); the
+ *   function_exists() guard defensively no-ops in any pre-WordPress context
+ *   (e.g. the page-cache layer) where it is not yet loaded.
+ * - Each handle is validated against a strict allowlist (alphanumerics, dash,
+ *   underscore and dot); anything else is ignored entirely. Case is preserved
+ *   because script/style handles are matched case-sensitively downstream.
+ * - The number of handles processed is capped to bound the work this debug aid
+ *   can be made to do per request.
  * - The merged list is never persisted — nothing is written to the data sync
  *   store or options; the merge only affects the current request.
  * - No Page Cache interaction: logged-in users always bypass Boost's page cache
  *   (Request::is_cacheable() returns false), so pages rendered with these debug
  *   parameters are neither served from nor written to the cache.
+ *
+ * Residual note: changing the exclude list changes concatenate-bundle membership,
+ * so each distinct combination an admin renders generates its own concat-path
+ * transient (and static file when static minification is on), just like any new
+ * page does. These are reclaimed by the normal Cleanup_Stored_Paths schedule.
+ * The parameter is intentionally nonce-free so it can be shared as a plain URL,
+ * so this stays capability-gated rather than CSRF-gated.
  *
  * @since $$next-version$$
  *
@@ -264,15 +275,27 @@ function jetpack_boost_page_optimize_merge_debug_excludes( $excludes, $param ) {
 	}
 
 	// phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Each handle is validated against a strict allowlist below.
-	$raw_handles = explode( ',', wp_unslash( $_GET[ $param ] ) );
+	$raw_value = wp_unslash( $_GET[ $param ] );
+
+	// Bound the work: a real debug session never needs more than a handful of
+	// handles, so ignore absurdly long values outright.
+	if ( strlen( $raw_value ) > 2000 ) {
+		return $excludes;
+	}
+
+	$raw_handles = explode( ',', $raw_value );
 
 	$extra_handles = array();
 	foreach ( $raw_handles as $handle ) {
-		$handle = strtolower( trim( $handle ) );
+		$handle = trim( $handle );
 
-		// sanitize_key()-style allowlist (plus dots, which are common in handles).
-		// Handles containing any other character are ignored entirely.
-		if ( $handle !== '' && preg_match( '/^[a-z0-9_.\-]+$/', $handle ) ) {
+		/*
+		 * Allowlist of characters valid in script/style handles. Case is preserved
+		 * (not lowercased) because handles are matched case-sensitively downstream,
+		 * so lowercasing would silently fail to exclude a handle registered with
+		 * uppercase letters. Handles containing any other character are ignored.
+		 */
+		if ( $handle !== '' && preg_match( '/^[a-zA-Z0-9_.\-]+$/', $handle ) ) {
 			$extra_handles[] = $handle;
 		}
 	}
