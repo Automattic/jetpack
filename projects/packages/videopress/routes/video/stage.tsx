@@ -160,10 +160,12 @@ const Editor = ( {
 
 type StageReadyProps = { video: LibraryItem };
 
-// Stable id so the settle notices replace the in-progress snackbar in place
-// (the notices store drops an existing notice with the same id on create)
-// instead of stacking a second notice next to it.
-const DELETING_NOTICE_ID = 'vp-video-deleting';
+// Per-video id so the settle notices replace the in-progress snackbar in
+// place (the notices store drops an existing notice with the same id on
+// create) instead of stacking a second notice next to it. Keyed by video id
+// so two overlapping deletes — start one, navigate away mid-flight, delete
+// another — can't clobber each other's notices.
+const deletingNoticeId = ( videoId: string ) => `vp-video-deleting-${ videoId }`;
 
 const StageReady = ( { video }: StageReadyProps ) => {
 	const navigate = useNavigate();
@@ -185,7 +187,10 @@ const StageReady = ( { video }: StageReadyProps ) => {
 	return (
 		<Editor
 			video={ video }
-			isSaving={ isSaving }
+			// Treat an in-flight delete like an in-flight save: Save stays
+			// disabled so a slow delete can't be raced by a meta update
+			// against the attachment being removed.
+			isSaving={ isSaving || isDeleting }
 			onSave={ ( values, reset ) => {
 				updateMeta(
 					{ id: video.id, patch: values },
@@ -209,7 +214,7 @@ const StageReady = ( { video }: StageReadyProps ) => {
 				// action doesn't feel frozen. `explicitDismiss` keeps the snackbar
 				// from auto-expiring before the request settles.
 				createInfoNotice( __( 'Deleting video…', 'jetpack-videopress-pkg' ), {
-					id: DELETING_NOTICE_ID,
+					id: deletingNoticeId( video.id ),
 					explicitDismiss: true,
 				} );
 				// Promise chain rather than mutate-level callbacks: those are
@@ -218,7 +223,7 @@ const StageReady = ( { video }: StageReadyProps ) => {
 				deleteVideo( Number( video.id ) )
 					.then( () => {
 						createSuccessNotice( __( 'Video deleted.', 'jetpack-videopress-pkg' ), {
-							id: DELETING_NOTICE_ID,
+							id: deletingNoticeId( video.id ),
 						} );
 						if ( isMountedRef.current ) {
 							navigate( { href: '/library' } );
@@ -226,7 +231,7 @@ const StageReady = ( { video }: StageReadyProps ) => {
 					} )
 					.catch( () => {
 						createErrorNotice( __( 'Failed to delete video.', 'jetpack-videopress-pkg' ), {
-							id: DELETING_NOTICE_ID,
+							id: deletingNoticeId( video.id ),
 						} );
 					} );
 			} }

@@ -14,7 +14,9 @@ describe( 'useDeleteVideo', () => {
 			throw new Error( 'unexpected' );
 		} );
 
-		const wrapper = createTestWrapper( createTestQueryClient() );
+		const client = createTestQueryClient();
+		const removeSpy = jest.spyOn( client, 'removeQueries' );
+		const wrapper = createTestWrapper( client );
 		const { result } = renderHook( () => useDeleteVideo(), { wrapper } );
 		await act( async () => {
 			await result.current.mutateAsync( [ 1, 2, 3 ] );
@@ -25,6 +27,12 @@ describe( 'useDeleteVideo', () => {
 			'/wp/v2/media/2?force=true',
 			'/wp/v2/media/3?force=true',
 		] );
+		// Deleted ids' item-detail queries are dropped so a back-navigation
+		// can't render a ghost editor from cache.
+		expect( removeSpy ).toHaveBeenCalledTimes( 3 );
+		expect( removeSpy ).toHaveBeenCalledWith( {
+			queryKey: [ 'jetpack-videopress-library', 'item', '2' ],
+		} );
 	} );
 
 	it( 'rejects with a DeleteVideosError listing only the failed ids, still attempting every id', async () => {
@@ -40,7 +48,9 @@ describe( 'useDeleteVideo', () => {
 			throw new Error( 'unexpected' );
 		} );
 
-		const wrapper = createTestWrapper( createTestQueryClient() );
+		const client = createTestQueryClient();
+		const removeSpy = jest.spyOn( client, 'removeQueries' );
+		const wrapper = createTestWrapper( client );
 		const { result } = renderHook( () => useDeleteVideo(), { wrapper } );
 
 		let caught: unknown;
@@ -56,6 +66,15 @@ describe( 'useDeleteVideo', () => {
 		expect( ( caught as DeleteVideosError ).failedIds ).toEqual( [ 2 ] );
 		// A failure must not short-circuit the rest of the batch.
 		expect( paths ).toHaveLength( 3 );
+		// Only the SUCCEEDED ids' item queries are dropped — the failed row
+		// still exists and its cached details remain valid.
+		expect( removeSpy ).toHaveBeenCalledTimes( 2 );
+		expect( removeSpy ).toHaveBeenCalledWith( {
+			queryKey: [ 'jetpack-videopress-library', 'item', '1' ],
+		} );
+		expect( removeSpy ).toHaveBeenCalledWith( {
+			queryKey: [ 'jetpack-videopress-library', 'item', '3' ],
+		} );
 	} );
 
 	it( 'invalidates library list queries (not item queries) even when deletions fail', async () => {

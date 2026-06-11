@@ -53,16 +53,31 @@ export function useDeleteVideo() {
 				throw new DeleteVideosError( failedIds );
 			}
 		},
-		// Predicate rather than a key prefix: plain [ LIBRARY_QUERY_KEY ] would
-		// also match useVideo's item queries — on the details page that query
-		// is active for the id being deleted, and the refetch would 404
-		// (+ one retry) and stall settling by seconds. Deleting can't change
-		// other items' detail data, so item queries are excluded entirely.
-		onSettled: () =>
-			client.invalidateQueries( {
+		onSettled: ( _data, error, input ) => {
+			// Drop the deleted ids' item-detail queries outright. Invalidating
+			// them is no help — a refetch 404s and TanStack retains the stale
+			// data — so a cached entry would let a back-navigation render a
+			// ghost editor for a video that no longer exists.
+			const ids = Array.isArray( input ) ? input : [ input ];
+			const failedIds = error instanceof DeleteVideosError ? new Set( error.failedIds ) : null;
+			ids
+				.filter( id => ! failedIds?.has( id ) )
+				.forEach( id =>
+					client.removeQueries( {
+						queryKey: [ LIBRARY_QUERY_KEY, LIBRARY_ITEM_QUERY_SEGMENT, String( id ) ],
+					} )
+				);
+			// Predicate rather than a key prefix: plain [ LIBRARY_QUERY_KEY ]
+			// would also match useVideo's item queries — on the details page
+			// that query is active for the id being deleted, and the refetch
+			// would 404 (+ one retry) and stall settling by seconds. Deleting
+			// can't change other items' detail data, so item queries are
+			// excluded entirely.
+			return client.invalidateQueries( {
 				predicate: query =>
 					query.queryKey[ 0 ] === LIBRARY_QUERY_KEY &&
 					query.queryKey[ 1 ] !== LIBRARY_ITEM_QUERY_SEGMENT,
-			} ),
+			} );
+		},
 	} );
 }

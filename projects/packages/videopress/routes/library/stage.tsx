@@ -117,7 +117,7 @@ const StageInner = () => {
 		[ navigate ]
 	);
 
-	const { createSuccessNotice, createErrorNotice } = useGlobalNotices();
+	const { createSuccessNotice, createErrorNotice, createInfoNotice } = useGlobalNotices();
 
 	// Drag-and-drop entry point. Mirrors the file-picker's `startUpload`
 	// path but accepts multiple files and enforces the free-tier cap up
@@ -215,6 +215,25 @@ const StageInner = () => {
 				openVideoDetails,
 				deleteItems: async ( ids: string[] ) => {
 					setDeletingIds( prev => new Set( [ ...prev, ...ids ] ) );
+					// The row overlay/pill is purely visual; this notice is what
+					// announces the in-flight state to screen readers. Per-batch id
+					// (rows mid-delete are ineligible for another delete, so the
+					// first id can't repeat across concurrent batches) lets the
+					// settle notices below replace it in place rather than stack.
+					const noticeId = `vp-library-deleting-${ ids[ 0 ] }-${ ids.length }`;
+					createInfoNotice(
+						sprintf(
+							/* translators: %d: number of videos being deleted. */
+							_n(
+								'Deleting %d video…',
+								'Deleting %d videos…',
+								ids.length,
+								'jetpack-videopress-pkg'
+							),
+							ids.length
+						),
+						{ id: noticeId, explicitDismiss: true }
+					);
 					// React via the mutateAsync promise, not mutate-level callbacks:
 					// those are dropped if another delete starts while this one is in
 					// flight (TanStack detaches the observer), which would strand
@@ -235,7 +254,8 @@ const StageInner = () => {
 									'jetpack-videopress-pkg'
 								),
 								ids.length
-							)
+							),
+							{ id: noticeId }
 						);
 					} catch ( error ) {
 						// Unknown error shape → assume nothing was deleted.
@@ -253,7 +273,8 @@ const StageInner = () => {
 									'jetpack-videopress-pkg'
 								),
 								failedIds.size
-							)
+							),
+							{ id: noticeId }
 						);
 					}
 					setDeletingIds( prev => {
@@ -295,6 +316,7 @@ const StageInner = () => {
 			openVideoDetails,
 			createSuccessNotice,
 			createErrorNotice,
+			createInfoNotice,
 		]
 	);
 
