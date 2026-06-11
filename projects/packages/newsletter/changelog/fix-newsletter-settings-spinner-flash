@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Newsletter: stop the modernized Settings tab from flashing a full-page loading spinner on every visit by caching resolved settings across mounts.
