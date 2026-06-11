@@ -22,6 +22,11 @@ interface CollaboratorAwarenessState {
  * A user editing in multiple tabs appears multiple times (same id); distinct
  * users appear as distinct ids. States with no collaborator id are skipped.
  *
+ * The ids come from awareness `collaboratorInfo.id`, i.e. the WordPress user id.
+ * On Simple sites that is the WordPress.com user id, but on Atomic/Jetpack sites
+ * it is the *site-local* WP user id (not the wpcom id used by Tracks' `_ui`), so
+ * `contributors` is only meaningful scoped to a single `blog_id`.
+ *
  * @param awareness - The Yjs awareness instance for the room.
  * @return The WP user IDs currently present in the room.
  */

@@ -3,6 +3,7 @@ import { jest } from '@jest/globals';
 const mockRecordEvent = jest.fn();
 const mockGetCurrentPostId = jest.fn( (): number | undefined => 42 );
 const mockGetCurrentPostType = jest.fn( (): string | undefined => 'post' );
+const mockGetCurrentUser = jest.fn( (): { id?: number } | undefined => ( { id: 99 } ) );
 
 jest.unstable_mockModule( '@automattic/jetpack-analytics', () => ( {
 	__esModule: true,
@@ -13,6 +14,7 @@ jest.unstable_mockModule( '@wordpress/data', () => ( {
 	select: () => ( {
 		getCurrentPostId: mockGetCurrentPostId,
 		getCurrentPostType: mockGetCurrentPostType,
+		getCurrentUser: mockGetCurrentUser,
 	} ),
 } ) );
 
@@ -56,6 +58,7 @@ describe( 'recordRtcEvent', () => {
 		expect( recordEvent ).toHaveBeenCalledTimes( 1 );
 		expect( recordEvent ).toHaveBeenCalledWith( 'jetpack_rtc_join', {
 			transport: 'pinghub',
+			wp_user_id: 99,
 			post_id: 42,
 			post_type: 'post',
 			contributor_count: 2,
@@ -69,10 +72,17 @@ describe( 'recordRtcEvent', () => {
 
 		expect( recordEvent ).toHaveBeenCalledWith( 'jetpack_rtc_join', {
 			transport: 'http-polling',
+			wp_user_id: 99,
 			post_id: 42,
 			post_type: 'post',
 			contributor_count: 1,
 		} );
+	} );
+
+	it( 'includes the current user WP id as wp_user_id', () => {
+		recordRtcEvent( 'jetpack_rtc_join' );
+
+		expect( recordEvent.mock.calls[ 0 ][ 1 ] ).toMatchObject( { wp_user_id: 99 } );
 	} );
 
 	it( 'does not set blog_id (left to jpTracksContext)', () => {
