@@ -1,10 +1,19 @@
 import { jest } from '@jest/globals';
 
 const mockRecordEvent = jest.fn();
+const mockGetCurrentPostId = jest.fn( (): number | undefined => 42 );
+const mockGetCurrentPostType = jest.fn( (): string | undefined => 'post' );
 
 jest.unstable_mockModule( '@automattic/jetpack-analytics', () => ( {
 	__esModule: true,
 	default: { tracks: { recordEvent: mockRecordEvent } },
+} ) );
+
+jest.unstable_mockModule( '@wordpress/data', () => ( {
+	select: () => ( {
+		getCurrentPostId: mockGetCurrentPostId,
+		getCurrentPostType: mockGetCurrentPostType,
+	} ),
 } ) );
 
 const { getTransport, recordRtcEvent } = await import( '../tracks' );
@@ -34,18 +43,14 @@ describe( 'getTransport', () => {
 describe( 'recordRtcEvent', () => {
 	beforeEach( () => {
 		recordEvent.mockClear();
-		( window as Record< string, unknown > ).jetpackRTC = {
-			providers: [ 'pinghub' ],
-			currentPostId: 42,
-			currentPostType: 'post',
-		};
+		( window as Record< string, unknown > ).jetpackRTC = { providers: [ 'pinghub' ] };
 	} );
 
 	afterEach( () => {
 		delete ( window as Record< string, unknown > ).jetpackRTC;
 	} );
 
-	it( 'merges transport and post context into the event properties', () => {
+	it( 'merges transport and editor post context into the event properties', () => {
 		recordRtcEvent( 'jetpack_rtc_join', { contributor_count: 2 } );
 
 		expect( recordEvent ).toHaveBeenCalledTimes( 1 );
@@ -54,6 +59,19 @@ describe( 'recordRtcEvent', () => {
 			post_id: 42,
 			post_type: 'post',
 			contributor_count: 2,
+		} );
+	} );
+
+	it( 'reads post context from the editor store on http-polling (no window.jetpackRTC)', () => {
+		delete ( window as Record< string, unknown > ).jetpackRTC;
+
+		recordRtcEvent( 'jetpack_rtc_join', { contributor_count: 1 } );
+
+		expect( recordEvent ).toHaveBeenCalledWith( 'jetpack_rtc_join', {
+			transport: 'http-polling',
+			post_id: 42,
+			post_type: 'post',
+			contributor_count: 1,
 		} );
 	} );
 
