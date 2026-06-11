@@ -511,32 +511,25 @@ class Jetpack_AI_Sidebar {
 	 * @return bool
 	 */
 	private static function is_jetpack_ai_sidebar_preview_enabled(): bool {
-		if ( ! self::is_ai_assistant_setting_enabled() ) {
-			return false;
-		}
-
-		return (bool) apply_filters(
-			'jetpack_ai_sidebar_preview_enabled',
-			self::is_ai_editorial_review_enabled()
-		);
-	}
-
-	/**
-	 * Check whether the site-level AI assistant setting is enabled.
-	 *
-	 * @return bool
-	 */
-	private static function is_ai_assistant_setting_enabled(): bool {
 		$host = new Host();
+		// Bail early for self hosted
 		if ( ! $host->is_wpcom_platform() ) {
 			return false;
 		}
 
-		// Simple: wpcom enforces the AI Assistant toggle server-side; an unset option stays open.
-		// Atomic: the option mirrors the Site Settings > AI Assistant toggle ('1'/'0' synced on
-		// change), so an absent option means never enabled — matching what the toggle displays.
-		$default = $host->is_wpcom_simple() ? '1' : '0';
-		return (bool) get_option( 'big_sky_enable', $default );
+		// Simple: Site Settings > AI Assistant Toggle off - Removes class big sky, option defaults to 1
+		// Atomic: Toggle governs both class and option
+		if ( ! ( class_exists( 'Big_Sky' ) && get_option( 'big_sky_enable', '1' ) ) ) {
+			return false;
+		}
+
+		// Temp comment
+		// return (bool) apply_filters(
+		// 'jetpack_ai_sidebar_preview_enabled',
+		// self::is_ai_editorial_review_enabled()
+		// );
+		// Bail by default
+		return false;
 	}
 
 	/**
