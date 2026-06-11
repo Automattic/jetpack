@@ -241,6 +241,35 @@ class Filesystem_Utils_Test extends TestCase {
 		}
 	}
 
+	public function test_delete_directory_refuses_file_path() {
+		$file = $this->boost_cache_dir . '/cached-page.html';
+		file_put_contents( $file, 'cached page' );
+
+		$result = Filesystem_Utils::delete_directory( $file );
+		$this->assertInstanceOf( Boost_Cache_Error::class, $result );
+		$this->assertEquals( 'not-a-directory', $result->get_error_code() );
+		$this->assertTrue( file_exists( $file ) );
+	}
+
+	public function test_delete_directory_returns_error_for_unreadable_subdirectory() {
+		if ( function_exists( 'posix_geteuid' ) && 0 === posix_geteuid() ) {
+			$this->markTestSkipped( 'Directory permission restrictions do not apply when running as root.' );
+		}
+
+		$locked = $this->boost_cache_dir . '/cache/locked';
+		mkdir( $locked, 0755, true );
+		file_put_contents( $locked . '/file.html', 'cached page' );
+		chmod( $locked, 0000 );
+
+		try {
+			$result = Filesystem_Utils::delete_directory( $this->boost_cache_dir );
+			$this->assertInstanceOf( Boost_Cache_Error::class, $result );
+			$this->assertEquals( 'could-not-delete-directory', $result->get_error_code() );
+		} finally {
+			chmod( $locked, 0755 );
+		}
+	}
+
 	public function test_delete_directory_with_missing_directory() {
 		$result = Filesystem_Utils::delete_directory( $this->boost_cache_dir . '/non-existent' );
 		$this->assertTrue( $result );
