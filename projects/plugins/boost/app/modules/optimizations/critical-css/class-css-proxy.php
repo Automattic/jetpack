@@ -3,6 +3,7 @@
 namespace Automattic\Jetpack_Boost\Modules\Optimizations\Critical_CSS;
 
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Critical_CSS_State;
+use Automattic\Jetpack_Boost\Lib\Critical_CSS\Display_Critical_CSS;
 
 /**
  * Add an ajax endpoint to proxy external CSS files.
@@ -77,9 +78,12 @@ class CSS_Proxy {
 
 		if ( $css ) {
 			header( 'Content-type: text/css' );
-			// Outputting proxied CSS contents unescaped.
+			header( 'X-Content-Type-Options: nosniff' );
+			// Outputting proxied CSS contents unescaped. Do not strip tags here;
+			// valid CSS values may contain markup (e.g. inline SVGs in data: URIs),
+			// and stripping them corrupts the CSS fed to the generator.
 			// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-			echo wp_strip_all_tags( $css );
+			echo Display_Critical_CSS::sanitize_css( $css );
 			die( 0 );
 		}
 	}

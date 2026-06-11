@@ -70,19 +70,66 @@ class Display_Critical_CSS_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Test display_critical_css() strips HTML tags.
+	 * Test display_critical_css() neutralizes closing style tags, so the CSS
+	 * cannot terminate the style element early and break out into HTML context.
 	 */
-	public function test_display_critical_css_strips_html() {
-		$css_with_html = 'body { color: red; }</style><script>alert("xss")</script>';
-		$instance      = new Display_Critical_CSS( $css_with_html );
+	public function test_display_critical_css_neutralizes_style_breakout() {
+		$css_with_breakout = 'body { color: red; }</style><script>alert("xss")</script>';
+		$instance          = new Display_Critical_CSS( $css_with_breakout );
 
 		ob_start();
 		$instance->display_critical_css();
 		$output = ob_get_clean();
 
-		$this->assertStringNotContainsString( '<script>', $output );
-		$this->assertStringNotContainsString( 'alert', $output );
-		$this->assertSame( 1, substr_count( $output, '</style>' ) );
+		// The only `</style` sequence left must be the real closing tag, so the
+		// injected markup stays inert inside the style element's raw text.
+		$this->assertSame( 1, substr_count( strtolower( $output ), '</style' ) );
+		$this->assertStringEndsWith( '</style>', $output );
+		$this->assertStringContainsString( '<\/style><script>', $output );
+	}
+
+	/**
+	 * Test display_critical_css() neutralizes closing style tags regardless of case.
+	 */
+	public function test_display_critical_css_neutralizes_style_breakout_case_insensitively() {
+		$instance = new Display_Critical_CSS( 'body { color: red; }</StYlE ><p>injected</p>' );
+
+		ob_start();
+		$instance->display_critical_css();
+		$output = ob_get_clean();
+
+		$this->assertSame( 1, substr_count( strtolower( $output ), '</style' ) );
+		$this->assertStringEndsWith( '</style>', $output );
+	}
+
+	/**
+	 * Test display_critical_css() preserves inline SVGs in CSS values.
+	 *
+	 * @see https://github.com/Automattic/jetpack/issues/42321
+	 */
+	public function test_display_critical_css_preserves_inline_svg_data_uri() {
+		$css      = '.hero { background-image: url("data:image/svg+xml,<svg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 8 8\'><circle cx=\'4\' cy=\'4\' r=\'4\' fill=\'%23f00\'/></svg>"); }';
+		$instance = new Display_Critical_CSS( $css );
+
+		ob_start();
+		$instance->display_critical_css();
+		$output = ob_get_clean();
+
+		$this->assertStringContainsString( $css, $output );
+	}
+
+	/**
+	 * Test display_critical_css() preserves double quotes in CSS values.
+	 */
+	public function test_display_critical_css_preserves_double_quotes() {
+		$css      = '.quote::before { content: "\201C"; font-family: "Times New Roman", serif; }';
+		$instance = new Display_Critical_CSS( $css );
+
+		ob_start();
+		$instance->display_critical_css();
+		$output = ob_get_clean();
+
+		$this->assertStringContainsString( $css, $output );
 	}
 
 	/**

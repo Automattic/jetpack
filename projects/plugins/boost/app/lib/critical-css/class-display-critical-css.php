@@ -106,11 +106,29 @@ class Display_Critical_CSS {
 
 		echo '<style id="jetpack-boost-critical-css">';
 
-		// Ensure no </style> tag (or any HTML tags) in output.
+		// Ensure the CSS cannot terminate the style element early.
 		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-		echo wp_strip_all_tags( $critical_css );
+		echo self::sanitize_css( $critical_css );
 
 		echo '</style>';
+	}
+
+	/**
+	 * Sanitize CSS for output inside a <style> element.
+	 *
+	 * Avoids wp_strip_all_tags(), which corrupts valid CSS values that contain
+	 * markup - e.g. `background-image: url("data:image/svg+xml,<svg ...></svg>")`.
+	 *
+	 * The only sequence which can terminate a <style> element early is a closing
+	 * style tag, so neutralize that sequence (case-insensitively) by escaping its
+	 * forward slash. Inside CSS strings and url() tokens `\/` is a valid escape
+	 * for `/`, so legitimate CSS keeps its meaning.
+	 *
+	 * @param string $css CSS to sanitize.
+	 * @return string CSS that is safe to print inside a <style> element.
+	 */
+	public static function sanitize_css( $css ) {
+		return str_ireplace( '</style', '<\/style', $css );
 	}
 
 	/**
