@@ -37,13 +37,10 @@ function getContributorIds( awareness: Awareness ): number[] {
 }
 
 /**
- * The local client's WordPress user id from awareness.
- *
- * Read from the local awareness state's `collaboratorInfo.id`, which is
- * populated by core-data shortly after the provider is created (not
- * synchronously). Same id-space as `contributors` (see `getContributorIds`), so
- * it locates the recording user within the roster — on Atomic this is the
- * site-local id, which differs from the wpcom id Tracks records as `_ui`.
+ * The local client's WordPress user id, read from the local awareness state's
+ * `collaboratorInfo.id` (same id-space as `contributors` — see
+ * `getContributorIds`). Undefined until core-data populates it, shortly after
+ * the provider is created.
  *
  * @param awareness - The Yjs awareness instance for the room.
  * @return The local client's WP user id, or undefined when not yet present.
@@ -84,12 +81,8 @@ function recordJoin( awareness: Awareness ): void {
 }
 
 /**
- * Snapshot the join once the local client is present, after a short settle
- * delay so peers already in the room have time to sync into awareness.
- *
- * Recording at provider-creation time (when awareness is empty) yields a
- * self-only or empty roster; waiting for the local client and then a brief
- * delay lets the snapshot include the peers who were already editing.
+ * Snapshot the join once the local client is present, after `SETTLE_DELAY_MS`
+ * so peers already in the room have time to sync into awareness.
  *
  * @param awareness - The Yjs awareness instance for the room.
  */
