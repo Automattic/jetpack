@@ -9,15 +9,20 @@
 
 namespace Automattic\Jetpack_Boost\Modules\Optimizations\Render_Blocking_JS;
 
+use Automattic\Jetpack\Schema\Schema;
+use Automattic\Jetpack\WP_JS_Data_Sync\Data_Sync;
+use Automattic\Jetpack_Boost\Contracts\Changes_Output_After_Activation;
 use Automattic\Jetpack_Boost\Contracts\Changes_Output_On_Activation;
 use Automattic\Jetpack_Boost\Contracts\Feature;
+use Automattic\Jetpack_Boost\Contracts\Has_Data_Sync;
 use Automattic\Jetpack_Boost\Contracts\Optimization;
+use Automattic\Jetpack_Boost\Data_Sync\Minify_Excludes_State_Entry;
 use Automattic\Jetpack_Boost\Lib\Output_Filter;
 
 /**
  * Class Render_Blocking_JS
  */
-class Render_Blocking_JS implements Feature, Changes_Output_On_Activation, Optimization {
+class Render_Blocking_JS implements Feature, Changes_Output_On_Activation, Changes_Output_After_Activation, Optimization, Has_Data_Sync {
 	/**
 	 * Holds the script tags removed from the output buffer.
 	 *
@@ -77,6 +82,29 @@ class Render_Blocking_JS implements Feature, Changes_Output_On_Activation, Optim
 
 	public static function is_available() {
 		return true;
+	}
+
+	/**
+	 * Register the data sync entry holding the list of URL patterns
+	 * excluded from JS deferring.
+	 *
+	 * @param Data_Sync $instance The data sync instance.
+	 */
+	public function register_data_sync( Data_Sync $instance ) {
+		$instance->register(
+			'render_blocking_js_excludes',
+			Schema::as_array( Schema::as_string() )->fallback( array() ),
+			new Minify_Excludes_State_Entry( 'render_blocking_js_excludes' )
+		);
+	}
+
+	/**
+	 * Cached pages need to be invalidated when the exclusion list changes.
+	 *
+	 * @return string[] Action names fired when the exclusion list is updated.
+	 */
+	public static function get_change_output_action_names() {
+		return array( 'update_option_' . JETPACK_BOOST_DATASYNC_NAMESPACE . '_render_blocking_js_excludes' );
 	}
 
 	/**
@@ -154,6 +182,13 @@ class Render_Blocking_JS implements Feature, Changes_Output_On_Activation, Optim
 
 		// Disable in AMP pages.
 		if ( function_exists( 'amp_is_request' ) && amp_is_request() ) {
+			return;
+		}
+
+		// Disable on URLs excluded by the user.
+		if ( $this->is_current_request_excluded() ) {
+			// Leave the page output completely untouched, as if the module was off.
+			remove_filter( 'do_shortcode_tag', array( $this, 'add_ignore_attribute' ) );
 			return;
 		}
 
@@ -366,6 +401,122 @@ class Render_Blocking_JS implements Feature, Changes_Output_On_Activation, Optim
 		$closing_tags_count = preg_match_all( '~<\s*/\s*script\s*>~i', $stripped );
 
 		return $opening_tags_count > $closing_tags_count;
+	}
+
+	/**
+	 * Checks if the current request URL matches one of the exclusion patterns
+	 * configured by the user.
+	 *
+	 * Runs at template_redirect time, when REQUEST_URI is available.
+	 *
+	 * @return bool
+	 */
+	private function is_current_request_excluded() {
+		if ( ! isset( $_SERVER['REQUEST_URI'] ) ) {
+			return false;
+		}
+
+		$patterns = function_exists( 'jetpack_boost_ds_get' ) ? jetpack_boost_ds_get( 'render_blocking_js_excludes' ) : array();
+		if ( empty( $patterns ) || ! is_array( $patterns ) ) {
+			return false;
+		}
+
+		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Only used for comparison.
+		return self::is_url_excluded( wp_unslash( $_SERVER['REQUEST_URI'] ), $patterns );
+	}
+
+	/**
+	 * Checks whether a request URI matches any of the given exclusion patterns.
+	 *
+	 * Patterns follow the semantics documented for Page Cache bypass patterns:
+	 * they are compared against the URL path (query strings are ignored),
+	 * a `(.*)` or `*` wildcard matches any part of the path, trailing slashes
+	 * are optional and the comparison is case-insensitive. Anything else in a
+	 * pattern is treated literally.
+	 *
+	 * @param string $request_uri The request URI to check.
+	 * @param array  $patterns    List of URL patterns.
+	 *
+	 * @return bool
+	 */
+	public static function is_url_excluded( $request_uri, $patterns ) {
+		$path = self::normalize_url_path( $request_uri );
+
+		foreach ( $patterns as $pattern ) {
+			$regex = self::get_exclusion_regex( $pattern );
+			if ( null !== $regex && preg_match( $regex, $path ) ) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * Extracts a normalized path from a URL or request URI.
+	 *
+	 * Drops the query string, ensures a leading slash and removes trailing
+	 * slashes (except for the root path).
+	 *
+	 * @param string $url URL or request URI.
+	 *
+	 * @return string
+	 */
+	private static function normalize_url_path( $url ) {
+		$path = (string) wp_parse_url( $url, PHP_URL_PATH );
+		$path = '/' . ltrim( $path, '/' );
+
+		if ( '/' !== $path ) {
+			$path = rtrim( $path, '/' );
+		}
+
+		return $path;
+	}
+
+	/**
+	 * Turns a single exclusion pattern into an anchored regular expression.
+	 *
+	 * @param mixed $pattern A user-provided URL pattern.
+	 *
+	 * @return string|null The regular expression, or null if the pattern is empty.
+	 */
+	private static function get_exclusion_regex( $pattern ) {
+		if ( ! is_string( $pattern ) ) {
+			return null;
+		}
+
+		$pattern = trim( $pattern );
+		if ( '' === $pattern ) {
+			return null;
+		}
+
+		// Allow full URLs by stripping the home URL prefix (both secure and non-secure).
+		$home_url = home_url( '/' );
+		$pattern  = str_ireplace(
+			array(
+				$home_url,
+				str_replace( 'http:', 'https:', $home_url ),
+			),
+			'/',
+			$pattern
+		);
+
+		$pattern = self::normalize_url_path( $pattern );
+
+		// Convert wildcard tokens to regex groups, treating the rest of the pattern literally.
+		$tokens = preg_split( '/\(\.\*\)|\(\*\)|\.\*|\*/', $pattern );
+		if ( false === $tokens ) {
+			return null;
+		}
+
+		$quoted = array_map(
+			function ( $token ) {
+				return preg_quote( $token, '~' );
+			},
+			$tokens
+		);
+
+		return '~^' . implode( '(.*)', $quoted ) . '/?$~i';
 	}
 
 	public static function get_slug() {

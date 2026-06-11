@@ -9,6 +9,7 @@ import MinifyJs from '$features/minify-js/minify-js';
 import { useSingleModuleState } from '$features/module/lib/stores';
 import Module from '$features/module/module';
 import PageCacheModule from '$features/page-cache/page-cache';
+import RenderBlockingJsMeta from '$features/render-blocking-js/render-blocking-js-meta';
 import PremiumTooltip from '$features/premium-tooltip/premium-tooltip';
 import Upgraded from '$features/ui/upgraded/upgraded';
 import InterstitialModalCTA from '$features/upgrade-cta/interstitial-modal-cta';
@@ -153,7 +154,9 @@ const Index = () => {
 						) }
 					</p>
 				}
-			></Module>
+			>
+				<RenderBlockingJsMeta />
+			</Module>
 			<MinifyJs />
 			<MinifyCss />
 			<Module
