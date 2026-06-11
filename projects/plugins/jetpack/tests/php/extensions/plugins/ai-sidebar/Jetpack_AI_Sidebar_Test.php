@@ -65,10 +65,10 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 		$this->saved_screen          = $GLOBALS['current_screen'] ?? null;
 		$this->saved_current_user_id = get_current_user_id();
 		$this->simulate_connected_owner();
-		// Default to a WoA platform. Tests that need the AI Assistant setting on
-		// opt in explicitly with enable_ai_assistant_setting().
+		// Default to a WoA platform with the AI Assistant setting off. Tests that
+		// need the setting on opt in explicitly with enable_ai_assistant_setting().
 		$this->simulate_wpcom_platform();
-		update_option( 'big_sky_enable', '1' );
+		update_option( 'big_sky_enable', '0' );
 	}
 
 	/**
