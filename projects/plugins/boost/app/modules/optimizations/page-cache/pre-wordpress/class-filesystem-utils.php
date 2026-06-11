@@ -91,13 +91,23 @@ class Filesystem_Utils {
 	 */
 	public static function delete_directory( $path ) {
 		clearstatcache();
-		$validation_error = self::validate_path( $path );
-		if ( $validation_error instanceof Boost_Cache_Error ) {
+		$resolved = realpath( $path );
+		if ( false === $resolved ) {
 			// Nothing to delete if the directory is already gone.
-			if ( $validation_error->get_error_code() === 'directory-missing' ) {
-				return true;
-			}
-			return $validation_error;
+			return true;
+		}
+
+		// Strict containment check. is_boost_cache_directory() only does a substring
+		// match, which would also accept sibling paths like boost-cache-old; since
+		// this helper deletes whole trees during uninstall, only the cache root
+		// itself or paths inside it are accepted, compared on resolved paths.
+		$cache_root = realpath( WP_CONTENT_DIR . '/boost-cache' );
+		if ( false === $cache_root || ( $resolved !== $cache_root && strpos( $resolved, $cache_root . '/' ) !== 0 ) ) {
+			return new Boost_Cache_Error( 'invalid-directory', 'Invalid directory ' . $path );
+		}
+
+		if ( ! is_dir( $resolved ) ) {
+			return new Boost_Cache_Error( 'not-a-directory', 'Not a directory' );
 		}
 
 		// Deleting a large cache can take a while; try not to time out half-way through.
@@ -105,23 +115,30 @@ class Filesystem_Utils {
 			@set_time_limit( 0 ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
 		}
 
-		$iterator = new \RecursiveIteratorIterator(
-			new \RecursiveDirectoryIterator( $path, \RecursiveDirectoryIterator::SKIP_DOTS ),
-			\RecursiveIteratorIterator::CHILD_FIRST
-		);
+		try {
+			$iterator = new \RecursiveIteratorIterator(
+				new \RecursiveDirectoryIterator( $resolved, \RecursiveDirectoryIterator::SKIP_DOTS ),
+				\RecursiveIteratorIterator::CHILD_FIRST
+			);
 
-		// Errors for individual entries are suppressed so a single failure doesn't abort the cleanup.
-		foreach ( $iterator as $file ) {
-			if ( $file->isDir() && ! $file->isLink() ) {
-				@rmdir( $file->getPathname() ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_rmdir, WordPress.PHP.NoSilencedErrors.Discouraged
-			} else {
-				@unlink( $file->getPathname() ); // phpcs:ignore WordPress.WP.AlternativeFunctions.unlink_unlink, WordPress.PHP.NoSilencedErrors.Discouraged
+			// Errors for individual entries are suppressed so a single failure doesn't abort the cleanup.
+			foreach ( $iterator as $file ) {
+				if ( $file->isDir() && ! $file->isLink() ) {
+					@rmdir( $file->getPathname() ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_rmdir, WordPress.PHP.NoSilencedErrors.Discouraged
+				} else {
+					@unlink( $file->getPathname() ); // phpcs:ignore WordPress.WP.AlternativeFunctions.unlink_unlink, WordPress.PHP.NoSilencedErrors.Discouraged
+				}
 			}
+		} catch ( \Throwable $e ) {
+			// The iterator itself can throw (e.g. an unreadable subdirectory).
+			// Uninstall cleanup must fail with a controlled error, not an
+			// uncaught exception.
+			return new Boost_Cache_Error( 'could-not-delete-directory', 'Could not completely delete directory: ' . $e->getMessage() );
 		}
 
-		@rmdir( $path ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_rmdir, WordPress.PHP.NoSilencedErrors.Discouraged
+		@rmdir( $resolved ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_rmdir, WordPress.PHP.NoSilencedErrors.Discouraged
 
-		if ( is_dir( $path ) ) {
+		if ( is_dir( $resolved ) ) {
 			return new Boost_Cache_Error( 'could-not-delete-directory', 'Could not completely delete directory: ' . $path );
 		}
 

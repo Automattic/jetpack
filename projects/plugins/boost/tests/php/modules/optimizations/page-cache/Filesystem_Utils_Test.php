@@ -222,6 +222,25 @@ class Filesystem_Utils_Test extends TestCase {
 		$this->assertTrue( file_exists( $this->test_dir . '/test.html' ) );
 	}
 
+	public function test_delete_directory_refuses_sibling_directory_with_boost_cache_prefix() {
+		// A sibling like boost-cache-old passes is_boost_cache_directory()'s
+		// substring match, so delete_directory()'s own strict containment
+		// check is what must refuse it.
+		$sibling = $this->boost_cache_dir . '-old';
+		mkdir( $sibling, 0755, true );
+		file_put_contents( $sibling . '/test.html', 'Test content' );
+
+		try {
+			$result = Filesystem_Utils::delete_directory( $sibling );
+			$this->assertInstanceOf( Boost_Cache_Error::class, $result );
+			$this->assertEquals( 'invalid-directory', $result->get_error_code() );
+			$this->assertTrue( is_dir( $sibling ) );
+			$this->assertTrue( file_exists( $sibling . '/test.html' ) );
+		} finally {
+			$this->recursive_rmdir( $sibling );
+		}
+	}
+
 	public function test_delete_directory_with_missing_directory() {
 		$result = Filesystem_Utils::delete_directory( $this->boost_cache_dir . '/non-existent' );
 		$this->assertTrue( $result );
