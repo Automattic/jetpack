@@ -31,6 +31,11 @@ for ( const slug of VALID_SECTIONS ) {
 slots[ 'block-actions' ] = { container: null, root: null };
 slots[ 'block-suggestion-buttons' ] = { container: null, root: null };
 
+// Block name the block-modal slots were last rendered with. Lets runAll()
+// detect when the create-mode combobox switches to a different block while
+// the slots are still mounted.
+let lastBlockName = null;
+
 /**
  * Inject a React component into the DOM, reusing or replacing the slot.
  *
@@ -74,6 +79,27 @@ function inject( key, findParent, Component, props ) {
 
 	slot.container = container;
 	slot.root = root;
+}
+
+/**
+ * Unmount a slot's React root and remove its container from the DOM.
+ *
+ * Unlike inject()'s cleanup path, the container may still be connected —
+ * used when a slot must re-render with different props (e.g. the block
+ * modal's combobox switching blocks).
+ *
+ * @param {string} key - Slot key in the slots map.
+ */
+function unmountSlot( key ) {
+	const slot = slots[ key ];
+	if ( slot.root ) {
+		slot.root.unmount();
+		slot.root = null;
+	}
+	if ( slot.container ) {
+		slot.container.remove();
+		slot.container = null;
+	}
 }
 
 /**
@@ -254,15 +280,22 @@ function runAll() {
 	// Block guideline modal injections.
 	const blockModal = document.querySelector( '.block-guideline-modal' );
 
-	// Resolving the block name reads the block registry and scans all block
-	// types, so only do it when we actually need to inject — i.e. the modal is
-	// open and its slots are not already mounted. Once injected, inject() below
-	// short-circuits on isConnected and never reads blockName.
-	const blockSlotsConnected =
-		slots[ 'block-actions' ].container?.isConnected &&
-		slots[ 'block-suggestion-buttons' ].container?.isConnected;
-	const blockName =
-		blockModal && ! blockSlotsConnected ? getBlockNameFromModal( blockModal ) : null;
+	// Resolve the block name on every pass while the modal is open — even when
+	// the slots are already mounted. In create mode the user can switch the
+	// combobox to a different block after our components rendered, and
+	// blockName is bound as a prop at render time. When the resolved name
+	// changes, tear the mounted slots down so they re-inject below with the
+	// new name; otherwise a suggestion generated for the previous block would
+	// be accepted into the newly selected one. Unmounting also runs
+	// BlockSuggestionActions' cleanup, clearing the stale suggestion from the
+	// store.
+	const blockName = blockModal ? getBlockNameFromModal( blockModal ) : null;
+
+	if ( blockName !== lastBlockName ) {
+		unmountSlot( 'block-actions' );
+		unmountSlot( 'block-suggestion-buttons' );
+		lastBlockName = blockName;
+	}
 
 	// Always invoke inject so previously mounted roots get unmounted when
 	// the modal closes — findParent() returns null for "no place to inject"
