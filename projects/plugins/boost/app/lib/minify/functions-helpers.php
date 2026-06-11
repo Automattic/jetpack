@@ -243,7 +243,7 @@ function jetpack_boost_page_optimize_css_exclude_list() {
  *
  * @since $$next-version$$
  *
- * @param array  $excludes  The saved exclude list.
+ * @param mixed  $excludes  The saved exclude list; non-array values are treated as an empty list.
  * @param string $param     The GET parameter to read extra handles from.
  *
  * @return array The exclude list, with any valid per-request handles appended.
