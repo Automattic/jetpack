@@ -195,7 +195,7 @@ class Validation_Service {
 	 *
 	 * @param string $password The password to check.
 	 *
-	 * @return bool True if the password is between 6 and 150 characters, false otherwise.
+	 * @return bool True if the password is between get_min_length() and get_max_length() characters, false otherwise.
 	 */
 	public function is_invalid_length( string $password ): bool {
 		$length = strlen( $password );
