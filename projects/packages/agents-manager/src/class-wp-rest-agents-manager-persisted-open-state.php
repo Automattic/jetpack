@@ -55,6 +55,7 @@ class WP_REST_Agents_Manager_Persisted_Open_State extends \WP_REST_Controller {
 		'agents_manager_minimized'         => false,
 		'agents_manager_floating_position' => 'right',
 		'agents_manager_router_history'    => null,
+		'agents_manager_last_activity'     => null,
 	);
 
 	/**
@@ -87,6 +88,7 @@ class WP_REST_Agents_Manager_Persisted_Open_State extends \WP_REST_Controller {
 				'agents_manager_minimized'         => (bool) ( $response['agents_manager_minimized'] ?? self::DEFAULTS['agents_manager_minimized'] ),
 				'agents_manager_floating_position' => $response['agents_manager_floating_position'] ?? self::DEFAULTS['agents_manager_floating_position'],
 				'agents_manager_router_history'    => $response['agents_manager_router_history'] ?? self::DEFAULTS['agents_manager_router_history'],
+				'agents_manager_last_activity'     => $response['agents_manager_last_activity'] ?? self::DEFAULTS['agents_manager_last_activity'],
 			)
 		);
 	}
@@ -136,6 +138,7 @@ class WP_REST_Agents_Manager_Persisted_Open_State extends \WP_REST_Controller {
 				'agents_manager_minimized'         => (bool) ( $response['agents_manager_minimized'] ?? self::DEFAULTS['agents_manager_minimized'] ),
 				'agents_manager_floating_position' => $response['agents_manager_floating_position'] ?? self::DEFAULTS['agents_manager_floating_position'],
 				'agents_manager_router_history'    => $response['agents_manager_router_history'] ?? self::DEFAULTS['agents_manager_router_history'],
+				'agents_manager_last_activity'     => $response['agents_manager_last_activity'] ?? self::DEFAULTS['agents_manager_last_activity'],
 			)
 		);
 	}
