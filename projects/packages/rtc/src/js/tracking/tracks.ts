@@ -1,3 +1,5 @@
+import analytics from '@automattic/jetpack-analytics';
+
 type RtcTransport = 'pinghub' | 'http-polling';
 
 interface JetpackRtcGlobals {
@@ -23,4 +25,31 @@ function getRtcGlobals(): JetpackRtcGlobals {
 export function getTransport(): RtcTransport {
 	const { providers } = getRtcGlobals();
 	return Array.isArray( providers ) && providers.includes( 'pinghub' ) ? 'pinghub' : 'http-polling';
+}
+
+/**
+ * Record an RTC Tracks event with the common properties merged in.
+ *
+ * `blog_id` is attached automatically by `@automattic/jetpack-analytics` from
+ * `window.jpTracksContext`, so it is intentionally not set here. Event names
+ * must be prefixed `jetpack_` or the analytics package drops them silently.
+ *
+ * @param eventName  - Tracks event name (must start with `jetpack_`).
+ * @param properties - Event-specific properties.
+ */
+export function recordRtcEvent(
+	eventName: string,
+	properties: Record< string, unknown > = {}
+): void {
+	const { currentPostId, currentPostType } = getRtcGlobals();
+	try {
+		analytics.tracks.recordEvent( eventName, {
+			transport: getTransport(),
+			post_id: currentPostId,
+			post_type: currentPostType,
+			...properties,
+		} );
+	} catch {
+		// Telemetry must never break the editor.
+	}
 }
