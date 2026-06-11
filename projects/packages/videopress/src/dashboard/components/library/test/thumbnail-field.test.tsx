@@ -114,14 +114,17 @@ describe( 'TitleCell — grid Details access', () => {
 		expect( screen.queryByRole( 'button', { name: 'Doomed' } ) ).not.toBeInTheDocument();
 	} );
 
-	it( 'exposes the full title via a title attribute (hover affordance for truncated text)', () => {
+	it( 'exposes the full title via a title attribute on the clickable variant', () => {
 		const longTitle = 'A very long recording title that will be truncated with an ellipsis';
 		renderField( <TitleCellRender item={ item( { title: longTitle } ) } />, makeActions() );
 		expect( screen.getByRole( 'button', { name: longTitle } ) ).toHaveAttribute(
 			'title',
 			longTitle
 		);
+	} );
 
+	it( 'exposes the full title via a title attribute on the plain-text variant', () => {
+		const longTitle = 'A very long recording title that will be truncated with an ellipsis';
 		renderField(
 			<TitleCellRender item={ item( { type: 'local', title: longTitle } ) } />,
 			makeActions()
@@ -130,5 +133,14 @@ describe( 'TitleCell — grid Details access', () => {
 			'title',
 			longTitle
 		);
+	} );
+
+	it( 'exposes the full filename via a title attribute (forwarded through the Text component)', () => {
+		const longName = 'a-very-long-filename-that-needs-truncation-in-the-table-layout.mov';
+		const FilenameRender = (
+			libraryFields.find( f => f.id === 'filename' ) as Field< LibraryItem >
+		 ).render as ( args: { item: LibraryItem } ) => React.ReactNode;
+		renderField( <FilenameRender item={ item( { filename: longName } ) } />, makeActions() );
+		expect( screen.getByText( longName ) ).toHaveAttribute( 'title', longName );
 	} );
 } );
