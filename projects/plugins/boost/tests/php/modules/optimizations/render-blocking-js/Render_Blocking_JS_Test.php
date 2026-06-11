@@ -9,6 +9,7 @@ namespace Automattic\Jetpack_Boost\Tests\Modules\Optimizations\Render_Blocking_J
 
 use Automattic\Jetpack_Boost\Modules\Optimizations\Render_Blocking_JS\Render_Blocking_JS;
 use Brain\Monkey;
+use Brain\Monkey\Functions;
 use Mockery\Adapter\Phpunit\MockeryTestCase;
 
 /**
@@ -46,6 +47,10 @@ class Render_Blocking_JS_Test extends MockeryTestCase {
 			$val_prop->setAccessible( true );
 		}
 		$val_prop->setValue( $this->instance, 'ignore' );
+
+		// Used by add_ignore_attribute() when scripts are marked as ignored.
+		Functions\when( 'esc_html' )->returnArg();
+		Functions\when( 'esc_attr' )->returnArg();
 	}
 
 	/**
@@ -199,5 +204,123 @@ class Render_Blocking_JS_Test extends MockeryTestCase {
 		// opens=1, closes=1 → false. A genuinely unclosed normal script goes
 		// unreported — same trade-off as get_script_tags().
 		$this->assertFalse( $this->instance->is_opened_script( $buffer ) );
+	}
+
+	/**
+	 * Run a buffer through the same pipeline the module uses on a real page:
+	 * handle_output_stream() strips the movable scripts, append_script_tags()
+	 * re-appends them at the end (before </body> when present).
+	 *
+	 * @param string $html Page HTML.
+	 * @return string Filtered output.
+	 */
+	private function filter_output( $html ) {
+		list( $buffer_start, $buffer_end ) = $this->instance->handle_output_stream( $html, '' );
+
+		return $this->instance->append_script_tags( $buffer_start . $buffer_end );
+	}
+
+	/**
+	 * Test that an inline script using document.write() stays in its original
+	 * position (its output is position-dependent) while a normal script is
+	 * still moved to the end of the document.
+	 */
+	public function test_inline_document_write_script_stays_in_place_while_normal_script_is_moved() {
+		$html = '<html><body><p>Before</p>' .
+			'<script>document.write("inline content");</script>' .
+			'<p>After</p>' .
+			'<script src="https://example.com/external.js"></script>' .
+			'</body></html>';
+
+		$output = $this->filter_output( $html );
+
+		// The document.write script must remain between the two paragraphs.
+		$this->assertLessThan( strpos( $output, 'document.write' ), strpos( $output, '<p>Before</p>' ) );
+		$this->assertLessThan( strpos( $output, '<p>After</p>' ), strpos( $output, 'document.write' ) );
+
+		// The external script must have been moved after the content, before </body>.
+		$this->assertLessThan( strpos( $output, 'external.js' ), strpos( $output, '<p>After</p>' ) );
+		$this->assertStringContainsString( 'external.js"></script></body>', $output );
+	}
+
+	/**
+	 * Test that an inline script using document.writeln() also stays in place.
+	 */
+	public function test_inline_document_writeln_script_stays_in_place() {
+		$html = '<html><body><p>Before</p>' .
+			'<script>document.writeln("inline content");</script>' .
+			'<p>After</p>' .
+			'</body></html>';
+
+		$output = $this->filter_output( $html );
+
+		$this->assertLessThan( strpos( $output, '<p>After</p>' ), strpos( $output, 'document.writeln' ) );
+	}
+
+	/**
+	 * Test that a script already carrying the ignore attribute keeps working as
+	 * before: it stays in place and its markup is not modified (no duplicate
+	 * ignore attribute), even when it contains document.write.
+	 */
+	public function test_ignore_attribute_still_works_and_is_not_duplicated() {
+		$script = '<script data-jetpack-boost="ignore">document.write("kept");</script>';
+		$html   = '<html><body><p>Before</p>' . $script . '<p>After</p></body></html>';
+
+		$output = $this->filter_output( $html );
+
+		// Still in its original position.
+		$this->assertLessThan( strpos( $output, '<p>After</p>' ), strpos( $output, 'document.write' ) );
+
+		// Markup unchanged: exactly one ignore attribute, no duplicates added.
+		$this->assertStringContainsString( $script, $output );
+		$this->assertSame( 1, substr_count( $output, 'data-jetpack-boost' ) );
+	}
+
+	/**
+	 * Test that a plain inline script without document.write is still moved to
+	 * the end of the document (current behavior preserved).
+	 */
+	public function test_plain_inline_script_is_still_moved() {
+		$html = '<html><body><p>Before</p>' .
+			'<script>console.log("plain inline");</script>' .
+			'<p>After</p>' .
+			'</body></html>';
+
+		$output = $this->filter_output( $html );
+
+		// Moved after the content, before </body>.
+		$this->assertLessThan( strpos( $output, 'console.log' ), strpos( $output, '<p>After</p>' ) );
+		$this->assertStringContainsString( 'console.log("plain inline");</script></body>', $output );
+	}
+
+	/**
+	 * Test that the document.write check is case-insensitive.
+	 */
+	public function test_inline_document_write_check_is_case_insensitive() {
+		$html = '<html><body><p>Before</p>' .
+			'<script>Document.Write("inline content");</script>' .
+			'<p>After</p>' .
+			'</body></html>';
+
+		$output = $this->filter_output( $html );
+
+		$this->assertLessThan( strpos( $output, '<p>After</p>' ), strpos( $output, 'Document.Write' ) );
+	}
+
+	/**
+	 * Test that a script with a src attribute is still moved even if its
+	 * (non-executing) body mentions document.write — only inline scripts are
+	 * position-dependent.
+	 */
+	public function test_script_with_src_and_document_write_body_is_still_moved() {
+		$html = '<html><body><p>Before</p>' .
+			'<script src="https://example.com/external.js">document.write("never runs");</script>' .
+			'<p>After</p>' .
+			'</body></html>';
+
+		$output = $this->filter_output( $html );
+
+		// Moved after the content, before </body>.
+		$this->assertLessThan( strpos( $output, 'external.js' ), strpos( $output, '<p>After</p>' ) );
 	}
 }

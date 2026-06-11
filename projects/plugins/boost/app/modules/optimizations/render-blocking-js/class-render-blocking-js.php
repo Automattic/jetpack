@@ -249,10 +249,39 @@ class Render_Blocking_JS implements Feature, Changes_Output_On_Activation, Optim
 			'~<script\s+[^\>]*type=(?<q>["\']*)(application\/(ld\+)?json|importmap)\k<q>.*?>.*?<\/script>~si',
 		);
 
-		return preg_replace_callback(
+		$buffer = preg_replace_callback(
 			$exclusions,
 			function ( $script_match ) {
 				return $this->add_ignore_attribute( $script_match[0] );
+			},
+			$buffer
+		);
+
+		// Inline scripts (no src) whose output is position-dependent must stay where
+		// they are: document.write()/writeln() insert markup at the script's location,
+		// so moving such a script to the end of the document renders its output after
+		// the footer instead of inside the content (e.g. a Custom HTML block in a post).
+		// Scripts that already carry the ignore attribute are skipped so their
+		// behavior (and markup) is unchanged.
+		$inline_script_regex = sprintf(
+			'~<script\b(?![^>]*\ssrc\s*=)(?![^>]*%s=(?<q>["\']*)%s\k<q>)[^>]*>[\s\S]*?<\/script>~i',
+			preg_quote( $this->ignore_attribute, '~' ),
+			preg_quote( $this->ignore_value, '~' )
+		);
+
+		return preg_replace_callback(
+			$inline_script_regex,
+			function ( $script_match ) {
+				// Intentionally conservative: a simple case-insensitive substring check
+				// on the script body. It can over-match (e.g. "document.write" inside a
+				// JS comment or string), but a false positive only leaves a script in
+				// place — the safe outcome — while parsing JS to do better is not worth
+				// the complexity here. "document.write" also covers "document.writeln".
+				if ( false !== stripos( $script_match[0], 'document.write' ) ) {
+					return $this->add_ignore_attribute( $script_match[0] );
+				}
+
+				return $script_match[0];
 			},
 			$buffer
 		);
