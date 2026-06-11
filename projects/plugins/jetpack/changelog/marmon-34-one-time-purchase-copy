@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+Payments block: Use 'purchase' language instead of 'subscription' for one-time payment plans in the editor UI and the Subscriber Login block.
