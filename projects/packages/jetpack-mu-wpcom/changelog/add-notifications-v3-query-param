@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+wpcom-admin-bar: position the v3 notifications panel (#wpnt-notes-panel3) on mobile alongside the existing v2 panel.
