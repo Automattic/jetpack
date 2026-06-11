@@ -1,0 +1,3 @@
+Significance: minor
+Type: changed
+Comment: Podcast settings now read/write through a dedicated jetpack/v4/podcast/settings REST endpoint owned by the package, instead of core /wp/v2/settings. The schema and sanitizers stay the single source of truth in the package, so the feature works unchanged on self-hosted sites.

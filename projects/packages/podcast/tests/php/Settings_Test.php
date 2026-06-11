@@ -15,14 +15,61 @@ use WorDBless\BaseTestCase;
 #[CoversClass( Settings::class )]
 class Settings_Test extends BaseTestCase {
 
-	public function test_register_settings_exposes_every_option_to_rest() {
+	public function test_register_settings_registers_every_option() {
 		Settings::register_settings();
 
 		$registered = get_registered_settings();
 
 		foreach ( Settings::OPTION_NAMES as $name ) {
 			$this->assertArrayHasKey( $name, $registered, "$name should be registered" );
-			$this->assertNotEmpty( $registered[ $name ]['show_in_rest'], "$name should declare show_in_rest" );
+		}
+	}
+
+	/**
+	 * The options must NOT leak into core `/wp/v2/settings`; REST exposure lives
+	 * on the dedicated Podcast_Settings_Endpoint instead. This is what ends the
+	 * wpcom core settings-controller test churn.
+	 */
+	public function test_register_settings_keeps_options_out_of_core_rest() {
+		Settings::register_settings();
+
+		$registered = get_registered_settings();
+
+		foreach ( Settings::OPTION_NAMES as $name ) {
+			$this->assertEmpty( $registered[ $name ]['show_in_rest'], "$name must not set show_in_rest" );
+		}
+	}
+
+	public function test_get_all_returns_every_option_key_with_padded_maps() {
+		update_option( 'podcasting_title', 'My Show' );
+		update_option( 'podcasting_show_urls', array( 'apple' => 'https://podcasts.apple.com/show/1' ) );
+
+		$all = Settings::get_all();
+
+		foreach ( Settings::OPTION_NAMES as $name ) {
+			$this->assertArrayHasKey( $name, $all, "$name should be present in get_all()" );
+		}
+
+		$this->assertSame( 'My Show', $all['podcasting_title'] );
+		$this->assertIsBool( $all['podcasting_explicit'] );
+
+		// Both podcatcher maps are padded to every known directory.
+		$expected_keys = array_keys( Settings::SHOW_URL_HOSTS );
+		$this->assertSame( $expected_keys, array_keys( $all['podcasting_show_urls'] ) );
+		$this->assertSame( $expected_keys, array_keys( $all['podcasting_show_states'] ) );
+		$this->assertSame( 'https://podcasts.apple.com/show/1', $all['podcasting_show_urls']['apple'] );
+		$this->assertSame( '', $all['podcasting_show_urls']['spotify'] );
+
+		delete_option( 'podcasting_title' );
+		delete_option( 'podcasting_show_urls' );
+	}
+
+	public function test_empty_podcatcher_map_covers_all_directories_with_empty_strings() {
+		$map = Settings::empty_podcatcher_map();
+
+		$this->assertSame( array_keys( Settings::SHOW_URL_HOSTS ), array_keys( $map ) );
+		foreach ( $map as $value ) {
+			$this->assertSame( '', $value );
 		}
 	}
 

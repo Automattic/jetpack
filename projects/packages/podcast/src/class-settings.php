@@ -1,6 +1,6 @@
 <?php
 /**
- * Podcast settings: option schema, REST exposure, and sync opt-in.
+ * Podcast settings: option schema, sanitizers, and Jetpack Sync opt-in.
  *
  * @package automattic/jetpack-podcast
  */
@@ -8,9 +8,10 @@
 namespace Automattic\Jetpack\Podcast;
 
 /**
- * Registers the `podcasting_*` options for `/wp/v2/settings` exposure on
- * Atomic. Simple stays on WPCOM's `site_settings_endpoint_get` filter in the
- * wpcom mu-plugin.
+ * Registers the `podcasting_*` options so each `sanitize_callback` runs on
+ * {@see update_option()} writes. REST exposure lives on the dedicated
+ * {@see Podcast_Settings_Endpoint} (`jetpack/v4/podcast/settings`); these keys
+ * are deliberately kept out of core `/wp/v2/settings`.
  *
  * Array-shaped options merge against stored values on sanitize, not replace —
  * the SPA can PATCH partial entries without losing the rest.
@@ -124,7 +125,6 @@ class Settings {
 					'type'              => $type,
 					'default'           => $default,
 					'sanitize_callback' => $sanitize,
-					'show_in_rest'      => true,
 				)
 			);
 		}
@@ -136,13 +136,6 @@ class Settings {
 				'type'              => 'string',
 				'default'           => '',
 				'sanitize_callback' => 'esc_url_raw',
-				'show_in_rest'      => array(
-					'schema' => array(
-						'type'    => 'string',
-						'default' => '',
-						'format'  => 'uri',
-					),
-				),
 			)
 		);
 
@@ -153,7 +146,6 @@ class Settings {
 				'type'              => 'boolean',
 				'default'           => false,
 				'sanitize_callback' => array( __CLASS__, 'sanitize_explicit' ),
-				'show_in_rest'      => true,
 			)
 		);
 
@@ -164,7 +156,6 @@ class Settings {
 				'type'              => 'string',
 				'default'           => '',
 				'sanitize_callback' => 'sanitize_email',
-				'show_in_rest'      => true,
 			)
 		);
 
@@ -175,12 +166,8 @@ class Settings {
 				'type'              => 'integer',
 				'default'           => 0,
 				'sanitize_callback' => 'absint',
-				'show_in_rest'      => true,
 			)
 		);
-
-		$podcatcher_keys = array_keys( self::SHOW_URL_HOSTS );
-		$empty_map       = array_fill_keys( $podcatcher_keys, '' );
 
 		register_setting(
 			self::OPTIONS_GROUP,
@@ -189,20 +176,6 @@ class Settings {
 				'type'              => 'object',
 				'default'           => array(),
 				'sanitize_callback' => array( __CLASS__, 'sanitize_show_urls' ),
-				'show_in_rest'      => array(
-					'schema' => array(
-						'type'       => 'object',
-						'default'    => $empty_map,
-						'properties' => array_fill_keys(
-							$podcatcher_keys,
-							array(
-								'type'      => 'string',
-								'format'    => 'uri',
-								'maxLength' => self::SHOW_URL_MAX_LENGTH,
-							)
-						),
-					),
-				),
 			)
 		);
 
@@ -213,21 +186,74 @@ class Settings {
 				'type'              => 'object',
 				'default'           => array(),
 				'sanitize_callback' => array( __CLASS__, 'sanitize_show_states' ),
-				'show_in_rest'      => array(
-					'schema' => array(
-						'type'       => 'object',
-						'default'    => $empty_map,
-						'properties' => array_fill_keys(
-							$podcatcher_keys,
-							array(
-								'type' => 'string',
-								'enum' => array( '', 'pending', 'active' ),
-							)
-						),
-					),
-				),
 			)
 		);
+	}
+
+	/**
+	 * Stable, fully-padded settings payload for the REST endpoint. Every
+	 * `OPTION_NAMES` key is present; the two podcatcher maps are padded to all
+	 * known directories with empty strings so the SPA always sees a fixed shape.
+	 *
+	 * @return array<string, mixed>
+	 */
+	public static function get_all(): array {
+		$empty_map   = self::empty_podcatcher_map();
+		$show_urls   = (array) get_option( 'podcasting_show_urls', array() );
+		$show_states = (array) get_option( 'podcasting_show_states', array() );
+
+		return array(
+			'podcasting_category_id' => (int) get_option( 'podcasting_category_id', 0 ),
+			'podcasting_title'       => (string) get_option( 'podcasting_title', '' ),
+			'podcasting_talent_name' => (string) get_option( 'podcasting_talent_name', '' ),
+			'podcasting_summary'     => (string) get_option( 'podcasting_summary', '' ),
+			'podcasting_copyright'   => (string) get_option( 'podcasting_copyright', '' ),
+			'podcasting_explicit'    => self::sanitize_explicit( get_option( 'podcasting_explicit', false ) ),
+			'podcasting_image'       => self::raw_show_image_url(),
+			'podcasting_image_id'    => (int) get_option( 'podcasting_image_id', 0 ),
+			'podcasting_category_1'  => (string) get_option( 'podcasting_category_1', '' ),
+			'podcasting_category_2'  => (string) get_option( 'podcasting_category_2', '' ),
+			'podcasting_category_3'  => (string) get_option( 'podcasting_category_3', '' ),
+			'podcasting_email'       => (string) get_option( 'podcasting_email', '' ),
+			'podcasting_show_urls'   => array_merge( $empty_map, array_intersect_key( $show_urls, $empty_map ) ),
+			'podcasting_show_states' => array_merge( $empty_map, array_intersect_key( $show_states, $empty_map ) ),
+		);
+	}
+
+	/**
+	 * Per-key type map for the endpoint's update args. Type coercion only — the
+	 * registered `sanitize_callback`s do the real validation on write, so a single
+	 * bad field can't 400 the whole partial patch.
+	 *
+	 * @return array<string, array<string, mixed>>
+	 */
+	public static function rest_schema_properties(): array {
+		return array(
+			'podcasting_category_id' => array( 'type' => 'integer' ),
+			'podcasting_title'       => array( 'type' => 'string' ),
+			'podcasting_talent_name' => array( 'type' => 'string' ),
+			'podcasting_summary'     => array( 'type' => 'string' ),
+			'podcasting_copyright'   => array( 'type' => 'string' ),
+			'podcasting_explicit'    => array( 'type' => array( 'boolean', 'string' ) ),
+			'podcasting_image'       => array( 'type' => 'string' ),
+			'podcasting_image_id'    => array( 'type' => 'integer' ),
+			'podcasting_category_1'  => array( 'type' => 'string' ),
+			'podcasting_category_2'  => array( 'type' => 'string' ),
+			'podcasting_category_3'  => array( 'type' => 'string' ),
+			'podcasting_email'       => array( 'type' => 'string' ),
+			'podcasting_show_urls'   => array( 'type' => 'object' ),
+			'podcasting_show_states' => array( 'type' => 'object' ),
+		);
+	}
+
+	/**
+	 * Map of every podcatcher key => '' — the padding baseline for the show URL
+	 * and show state objects.
+	 *
+	 * @return array<string, string>
+	 */
+	public static function empty_podcatcher_map(): array {
+		return array_fill_keys( array_keys( self::SHOW_URL_HOSTS ), '' );
 	}
 
 	/**

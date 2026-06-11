@@ -1,6 +1,6 @@
-import { useEntityRecord, store as coreStore } from '@wordpress/core-data';
-import { useDispatch, useSelect } from '@wordpress/data';
-import { useCallback, useMemo } from '@wordpress/element';
+import apiFetch from '@wordpress/api-fetch';
+import { useDispatch } from '@wordpress/data';
+import { useCallback, useEffect, useState } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
 import { __ } from '@wordpress/i18n';
 import { store as noticesStore } from '@wordpress/notices';
@@ -12,6 +12,10 @@ import type {
 	PodcastShowUrls,
 	PodcatcherId,
 } from '../types';
+
+// Package-owned endpoint — deliberately not core /wp/v2/settings, which is
+// shape-guarded on WPCOM and would re-bloat the core settings response.
+const SETTINGS_PATH = '/jetpack/v4/podcast/settings';
 
 const PODCAST_KEYS: Array< keyof PodcastSettings > = [
 	'podcasting_category_id',
@@ -106,6 +110,30 @@ const pickPodcastFields = ( raw: Record< string, unknown > ): PodcastSettings =>
 	return out as unknown as PodcastSettings;
 };
 
+// Module-level cache + subscriber set so every mounted consumer shares one
+// fetch and one source of truth. A save updates the cache and notifies all
+// subscribers, mirroring the cross-component refresh core-data gave us before.
+let cache: PodcastSettings | undefined;
+let inflight: Promise< PodcastSettings > | undefined;
+const subscribers = new Set< ( next: PodcastSettings ) => void >();
+
+const publish = ( next: PodcastSettings ): PodcastSettings => {
+	cache = next;
+	subscribers.forEach( notify => notify( next ) );
+	return next;
+};
+
+const loadSettings = (): Promise< PodcastSettings > => {
+	if ( ! inflight ) {
+		inflight = apiFetch( { path: SETTINGS_PATH } )
+			.then( raw => publish( pickPodcastFields( raw as Record< string, unknown > ) ) )
+			.finally( () => {
+				inflight = undefined;
+			} );
+	}
+	return inflight;
+};
+
 interface MutateCallbacks {
 	onSuccess?: ( result: PodcastSettings ) => void;
 	onError?: ( error: unknown ) => void;
@@ -115,29 +143,55 @@ interface MutateCallbacks {
 }
 
 /**
- * Read the current `podcasting_*` options out of the core-data 'site' entity.
+ * Read the current `podcasting_*` settings from the package's REST endpoint.
  *
- * Matches the Forms / VideoPress pattern. On WPCOM Simple/Atomic the package's
- * `register_setting()` calls route through the standard WP REST settings
- * controller, so `/wp/v2/settings` exposes the keys here directly.
+ * Backed by a shared module-level cache so multiple consumers issue a single
+ * request and stay in sync after a save.
  *
  * @return `{ data, isLoading }` matching the prior TanStack-shaped contract.
  */
 export function usePodcastSettings(): { data: PodcastSettings | undefined; isLoading: boolean } {
-	const { record, hasResolved } = useEntityRecord< Record< string, unknown > >( 'root', 'site' );
-	// Memoised so the derived object identity is stable across renders. Without
-	// this, every render builds a new `data` object, breaking reference checks
-	// downstream (Settings' isDirty was permanently true on `podcasting_show_urls`).
-	const data = useMemo( () => ( record ? pickPodcastFields( record ) : undefined ), [ record ] );
-	return { data, isLoading: ! hasResolved };
+	const [ data, setData ] = useState< PodcastSettings | undefined >( cache );
+	const [ isLoading, setIsLoading ] = useState( cache === undefined );
+
+	useEffect( () => {
+		let active = true;
+		const notify = ( next: PodcastSettings ) => {
+			if ( active ) {
+				setData( next );
+			}
+		};
+		subscribers.add( notify );
+
+		if ( cache === undefined ) {
+			// Settle loading on both paths — a 403 (e.g. a non-admin opening the
+			// episode block) must not leave the consumer spinning forever.
+			const settle = () => {
+				if ( active ) {
+					setIsLoading( false );
+				}
+			};
+			loadSettings().then( settle, settle );
+		} else {
+			setData( cache );
+			setIsLoading( false );
+		}
+
+		return () => {
+			active = false;
+			subscribers.delete( notify );
+		};
+	}, [] );
+
+	return { data, isLoading };
 }
 
 /**
- * Save a partial settings update through core-data.
+ * Save a partial settings update through the package's REST endpoint.
  *
  * The server merges the patch into the stored settings and returns the full
- * record, which core-data uses to refresh the cache. Snackbars are dispatched
- * here so callers don't have to wire them up.
+ * record, which refreshes the shared cache. Snackbars are dispatched here so
+ * callers don't have to wire them up.
  *
  * @return `{ mutate, mutateAsync, isPending }` matching the prior TanStack-shaped contract.
  */
@@ -149,33 +203,28 @@ export function useUpdatePodcastSettings(): {
 	) => Promise< PodcastSettings >;
 	isPending: boolean;
 } {
-	const { saveEntityRecord } = useDispatch( coreStore );
 	const { createSuccessNotice, createErrorNotice } = useDispatch( noticesStore );
-	const isPending = useSelect(
-		select => !! select( coreStore ).isSavingEntityRecord( 'root', 'site', undefined ),
-		[]
-	);
+	const [ isPending, setIsPending ] = useState( false );
 
 	const mutateAsync = useCallback(
 		async (
 			updates: PodcastSettingsUpdate,
 			{ silent = false }: { silent?: boolean } = {}
 		): Promise< PodcastSettings > => {
+			setIsPending( true );
 			try {
-				const record = await saveEntityRecord(
-					'root',
-					'site',
-					updates as Record< string, unknown >
-				);
-				if ( ! record ) {
-					throw new Error( 'save returned no record' );
-				}
+				const raw = await apiFetch( {
+					path: SETTINGS_PATH,
+					method: 'PUT',
+					data: updates as Record< string, unknown >,
+				} );
+				const record = publish( pickPodcastFields( raw as Record< string, unknown > ) );
 				if ( ! silent ) {
 					createSuccessNotice( __( 'Settings saved.', 'jetpack-podcast' ), {
 						type: 'snackbar',
 					} );
 				}
-				return pickPodcastFields( record as Record< string, unknown > );
+				return record;
 			} catch ( error ) {
 				if ( ! silent ) {
 					createErrorNotice(
@@ -184,9 +233,11 @@ export function useUpdatePodcastSettings(): {
 					);
 				}
 				throw error;
+			} finally {
+				setIsPending( false );
 			}
 		},
-		[ saveEntityRecord, createSuccessNotice, createErrorNotice ]
+		[ createSuccessNotice, createErrorNotice ]
 	);
 
 	const mutate = useCallback(

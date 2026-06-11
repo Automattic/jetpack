@@ -51,11 +51,12 @@ class Podcast {
 		Posts_To_Podcast_Endpoint::init();
 		Podcast_Stats_Endpoint::init();
 		Podcast_Distribution_Endpoint::init();
+		Podcast_Settings_Endpoint::init();
 
-		// Register the `podcasting_*` option schema so the SPA can read/write
-		// via `/wp/v2/settings`. On Simple, the legacy WPCOM site-settings
-		// filters in the wpcom mu-plugin remain authoritative for
-		// `/rest/v1.4/sites/{id}/settings`; this is the non-Simple equivalent.
+		// Register the `podcasting_*` option schema (defaults + sanitizers) and
+		// opt them into Jetpack Sync. The SPA reads/writes them through the
+		// package's own `jetpack/v4/podcast/settings` endpoint — deliberately
+		// not core `/wp/v2/settings` — so this works the same on self-hosted.
 		Settings::register();
 
 		// Wire the RSS feed customizations (`<itunes:*>` + `<podcast:*>` tags,
