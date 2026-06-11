@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Page Cache: fully remove the boost-cache directory on uninstall, and make cleanup resilient on very large caches.

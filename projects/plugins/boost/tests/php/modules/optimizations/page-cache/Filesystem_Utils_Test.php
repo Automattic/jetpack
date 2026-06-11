@@ -16,6 +16,10 @@ class Filesystem_Utils_Test extends TestCase {
 	public function setUp(): void {
 		parent::setUp();
 
+		if ( ! defined( 'WP_CONTENT_DIR' ) ) {
+			define( 'WP_CONTENT_DIR', '/tmp/wordpress/wp-content' );
+		}
+
 		// Create a temporary test directory
 		$this->test_dir        = sys_get_temp_dir() . '/boost-test-' . uniqid();
 		$this->boost_cache_dir = WP_CONTENT_DIR . '/boost-cache';
@@ -159,6 +163,68 @@ class Filesystem_Utils_Test extends TestCase {
 		$this->assertSame( 1, $count );
 		$this->assertFalse( file_exists( $file1 ) );
 		$this->assertTrue( file_exists( $file2 ) );
+	}
+
+	public function test_delete_directory_removes_entire_tree() {
+		// Mimic the layout of a real boost-cache directory, including index.html
+		// placeholder files in every directory, and the logs/ and static/ subdirectories.
+		mkdir( $this->boost_cache_dir . '/cache/example.com/some/page', 0755, true );
+		mkdir( $this->boost_cache_dir . '/logs', 0755, true );
+		mkdir( $this->boost_cache_dir . '/static', 0755, true );
+
+		file_put_contents( $this->boost_cache_dir . '/index.html', '' );
+		file_put_contents( $this->boost_cache_dir . '/cache/index.html', '' );
+		file_put_contents( $this->boost_cache_dir . '/cache/example.com/index.html', '' );
+		file_put_contents( $this->boost_cache_dir . '/cache/example.com/some/index.html', '' );
+		file_put_contents( $this->boost_cache_dir . '/cache/example.com/some/page/index.html', '' );
+		file_put_contents( $this->boost_cache_dir . '/cache/example.com/some/page/' . md5( 'request' ) . '.html', 'cached page' );
+		file_put_contents( $this->boost_cache_dir . '/logs/index.html', '' );
+		file_put_contents( $this->boost_cache_dir . '/logs/log-2026-06-11.log.php', 'log data' );
+		file_put_contents( $this->boost_cache_dir . '/static/index.html', '' );
+		file_put_contents( $this->boost_cache_dir . '/static/file.css', 'css' );
+
+		$result = Filesystem_Utils::delete_directory( $this->boost_cache_dir );
+		$this->assertTrue( $result );
+		$this->assertFalse( file_exists( $this->boost_cache_dir ) );
+	}
+
+	public function test_delete_directory_with_deep_and_many_file_tree() {
+		// Many files spread across many subdirectories.
+		for ( $i = 0; $i < 20; $i++ ) {
+			$dir = $this->boost_cache_dir . '/cache/example.com/page-' . $i;
+			mkdir( $dir, 0755, true );
+			file_put_contents( $dir . '/index.html', '' );
+			for ( $j = 0; $j < 50; $j++ ) {
+				file_put_contents( $dir . '/file-' . $j . '.html', 'cached content' );
+			}
+		}
+
+		// A deeply nested directory tree.
+		$deep_dir = $this->boost_cache_dir . '/cache/deep';
+		for ( $i = 0; $i < 30; $i++ ) {
+			$deep_dir .= '/level-' . $i;
+		}
+		mkdir( $deep_dir, 0755, true );
+		file_put_contents( $deep_dir . '/leaf.html', 'cached content' );
+
+		$result = Filesystem_Utils::delete_directory( $this->boost_cache_dir );
+		$this->assertTrue( $result );
+		$this->assertFalse( is_dir( $this->boost_cache_dir ) );
+	}
+
+	public function test_delete_directory_refuses_paths_outside_boost_cache() {
+		file_put_contents( $this->test_dir . '/test.html', 'Test content' );
+
+		$result = Filesystem_Utils::delete_directory( $this->test_dir );
+		$this->assertInstanceOf( Boost_Cache_Error::class, $result );
+		$this->assertEquals( 'invalid-directory', $result->get_error_code() );
+		$this->assertTrue( is_dir( $this->test_dir ) );
+		$this->assertTrue( file_exists( $this->test_dir . '/test.html' ) );
+	}
+
+	public function test_delete_directory_with_missing_directory() {
+		$result = Filesystem_Utils::delete_directory( $this->boost_cache_dir . '/non-existent' );
+		$this->assertTrue( $result );
 	}
 
 	public function test_invalid_directory_operations() {
