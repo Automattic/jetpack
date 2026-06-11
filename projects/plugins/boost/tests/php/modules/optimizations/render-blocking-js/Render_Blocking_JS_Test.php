@@ -247,16 +247,29 @@ class Render_Blocking_JS_Test extends MockeryTestCase {
 
 	/**
 	 * Test that an inline script using document.writeln() also stays in place.
+	 *
+	 * The sibling movable script is required: with no movable script in the buffer,
+	 * handle_output_stream() returns the original buffers unchanged, so the pinned
+	 * script would stay in place even if pinning never ran. The sibling forces the
+	 * move path so this test actually exercises pin_position_dependent_scripts().
 	 */
 	public function test_inline_document_writeln_script_stays_in_place() {
 		$html = '<html><body><p>Before</p>' .
 			'<script>document.writeln("inline content");</script>' .
+			'<script>console.log("sibling");</script>' .
 			'<p>After</p>' .
 			'</body></html>';
 
 		$output = $this->filter_output( $html );
 
+		// The writeln script is pinned between the paragraphs; bracket on both sides
+		// so a dropped script (strpos === false === 0) can't pass trivially.
+		$this->assertStringContainsString( 'document.writeln("inline content");', $output );
+		$this->assertLessThan( strpos( $output, 'document.writeln' ), strpos( $output, '<p>Before</p>' ) );
 		$this->assertLessThan( strpos( $output, '<p>After</p>' ), strpos( $output, 'document.writeln' ) );
+
+		// The sibling movable script was relocated past the content.
+		$this->assertLessThan( strpos( $output, 'console.log' ), strpos( $output, '<p>After</p>' ) );
 	}
 
 	/**
@@ -266,7 +279,10 @@ class Render_Blocking_JS_Test extends MockeryTestCase {
 	 */
 	public function test_ignore_attribute_still_works_and_is_not_duplicated() {
 		$script = '<script data-jetpack-boost="ignore">document.write("kept");</script>';
-		$html   = '<html><body><p>Before</p>' . $script . '<p>After</p></body></html>';
+		// Sibling movable script forces the move path so this test is not vacuous.
+		$html = '<html><body><p>Before</p>' . $script .
+			'<script>console.log("sibling");</script>' .
+			'<p>After</p></body></html>';
 
 		$output = $this->filter_output( $html );
 
@@ -301,12 +317,19 @@ class Render_Blocking_JS_Test extends MockeryTestCase {
 	public function test_inline_document_write_check_is_case_insensitive() {
 		$html = '<html><body><p>Before</p>' .
 			'<script>Document.Write("inline content");</script>' .
+			'<script>console.log("sibling");</script>' .
 			'<p>After</p>' .
 			'</body></html>';
 
 		$output = $this->filter_output( $html );
 
+		// Pinned in place; bracket on both sides so a dropped script can't pass trivially.
+		$this->assertStringContainsString( 'Document.Write("inline content");', $output );
+		$this->assertLessThan( strpos( $output, 'Document.Write' ), strpos( $output, '<p>Before</p>' ) );
 		$this->assertLessThan( strpos( $output, '<p>After</p>' ), strpos( $output, 'Document.Write' ) );
+
+		// Sibling movable script relocated past the content.
+		$this->assertLessThan( strpos( $output, 'console.log' ), strpos( $output, '<p>After</p>' ) );
 	}
 
 	/**
@@ -324,5 +347,102 @@ class Render_Blocking_JS_Test extends MockeryTestCase {
 
 		// Moved after the content, before </body>.
 		$this->assertLessThan( strpos( $output, 'external.js' ), strpos( $output, '<p>After</p>' ) );
+	}
+
+	/**
+	 * Regression guard: an inline script that document.write()s its own <script>
+	 * markup must never be corrupted. Such a script is NOT pinned (there is no safe
+	 * in-place rewrite), but the key contract is that its body is left byte-for-byte
+	 * intact. A naive global '<script' replace would inject
+	 * data-jetpack-boost="ignore" into the written markup and, with a double-quoted
+	 * outer string, the unescaped " would break the JS string literal.
+	 *
+	 * The sibling movable script forces the move path: with no movable script,
+	 * handle_output_stream() returns the original buffers and any corruption from
+	 * pinning would be discarded, hiding the regression.
+	 */
+	public function test_document_write_of_script_tag_is_not_corrupted() {
+		// Double-quoted outer string is the dangerous case for a global '<script'
+		// replace; the closing tag is escaped as <\/script> as real markup would be.
+		$writer = '<script>document.write("<script src=\"https://example.com/widget.js\"><\/script>");</script>'; // phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedScript -- test fixture markup.
+		$html   = '<html><body><p>Before</p>' . $writer .
+			'<script>console.log("sibling");</script>' .
+			'<p>After</p></body></html>';
+
+		$output = $this->filter_output( $html );
+
+		// The document.write payload survives verbatim — no attribute was injected
+		// into the markup the script writes, so the JS string is intact.
+		$this->assertStringContainsString( 'document.write("<script src=\"https://example.com/widget.js\"><\/script>");', $output ); // phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedScript -- test fixture assertion.
+		$this->assertStringNotContainsString( 'data-jetpack-boost="ignore" src=', $output );
+	}
+
+	/**
+	 * Test the documented conservative trade-off: a script that merely mentions
+	 * "document.write" inside a string or comment (without calling it) is left in
+	 * place. This is an accepted false positive — the substring check does not
+	 * parse JS — and the safe outcome (a script not moved) is preferred over the
+	 * risk of moving a genuinely position-dependent script.
+	 */
+	public function test_document_write_substring_in_string_literal_is_left_in_place() {
+		$html = '<html><body><p>Before</p>' .
+			'<script>var note = "call document.write here"; alert( note );</script>' .
+			'<script>console.log("sibling");</script>' .
+			'<p>After</p></body></html>';
+
+		$output = $this->filter_output( $html );
+
+		// Conservatively kept in place (between the paragraphs), not moved.
+		$this->assertStringContainsString( 'var note = "call document.write here";', $output );
+		$this->assertLessThan( strpos( $output, 'var note' ), strpos( $output, '<p>Before</p>' ) );
+		$this->assertLessThan( strpos( $output, '<p>After</p>' ), strpos( $output, 'var note' ) );
+
+		// Sibling movable script relocated past the content (forces the move path).
+		$this->assertLessThan( strpos( $output, 'console.log' ), strpos( $output, '<p>After</p>' ) );
+	}
+
+	/**
+	 * Test that two distinct document.write scripts each stay in their own
+	 * position while a normal script between them is still moved to the end.
+	 */
+	public function test_multiple_document_write_scripts_each_stay_in_place() {
+		$html = '<html><body>' .
+			'<p>A</p><script>document.write("first");</script>' .
+			'<p>B</p><script>console.log("movable");</script>' .
+			'<p>C</p><script>document.write("second");</script>' .
+			'<p>D</p>' .
+			'</body></html>';
+
+		$output = $this->filter_output( $html );
+
+		// Both document.write scripts kept in their respective positions.
+		$this->assertLessThan( strpos( $output, 'document.write("first")' ), strpos( $output, '<p>A</p>' ) );
+		$this->assertLessThan( strpos( $output, '<p>B</p>' ), strpos( $output, 'document.write("first")' ) );
+		$this->assertLessThan( strpos( $output, 'document.write("second")' ), strpos( $output, '<p>C</p>' ) );
+		$this->assertLessThan( strpos( $output, '<p>D</p>' ), strpos( $output, 'document.write("second")' ) );
+
+		// The plain script between them is still moved to the end, before </body>.
+		$this->assertLessThan( strpos( $output, 'console.log' ), strpos( $output, '<p>D</p>' ) );
+		$this->assertStringContainsString( 'console.log("movable");</script></body>', $output );
+	}
+
+	/**
+	 * Test that a document.write script with no closing </body> is appended at the
+	 * end of the buffer (the append_script_tags() fallback branch) without
+	 * dropping the position-dependent script.
+	 */
+	public function test_document_write_script_in_place_without_body_tag() {
+		$html = '<p>Before</p>' .
+			'<script>document.write("inline content");</script>' .
+			'<p>After</p>' .
+			'<script>console.log("movable");</script>';
+
+		$output = $this->filter_output( $html );
+
+		// document.write stays before the trailing content.
+		$this->assertLessThan( strpos( $output, '<p>After</p>' ), strpos( $output, 'document.write' ) );
+		// The movable script is appended at the very end (no </body> present).
+		$this->assertStringContainsString( 'console.log("movable");</script>', $output );
+		$this->assertLessThan( strpos( $output, 'console.log' ), strpos( $output, '<p>After</p>' ) );
 	}
 }

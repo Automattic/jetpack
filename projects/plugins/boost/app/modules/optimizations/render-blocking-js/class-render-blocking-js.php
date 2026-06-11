@@ -19,6 +19,16 @@ use Automattic\Jetpack_Boost\Lib\Output_Filter;
  */
 class Render_Blocking_JS implements Feature, Changes_Output_On_Activation, Optimization {
 	/**
+	 * Substring that marks an inline script as producing position-dependent
+	 * output (document.write()/document.writeln()). Such scripts must stay where
+	 * they are rather than being moved to the end of the document. The fast-path
+	 * guard and the per-script check must use the same needle to stay in lockstep.
+	 *
+	 * @var string
+	 */
+	private const POSITION_DEPENDENT_OUTPUT_NEEDLE = 'document.write';
+
+	/**
 	 * Holds the script tags removed from the output buffer.
 	 *
 	 * @var array
@@ -214,7 +224,7 @@ class Render_Blocking_JS implements Feature, Changes_Output_On_Activation, Optim
 	 * @return array
 	 */
 	protected function get_script_tags( $buffer ) {
-		$regex = sprintf( '~<script(?![^>]*%s=(?<q>["\']*)%s\k<q>)([^>]*)>[\s\S]*?<\/script>~si', preg_quote( $this->ignore_attribute, '~' ), preg_quote( $this->ignore_value, '~' ) );
+		$regex = '~<script' . $this->ignore_attribute_lookahead() . '([^>]*)>[\s\S]*?<\/script>~si';
 		preg_match_all( $regex, $buffer, $script_tags, PREG_OFFSET_CAPTURE );
 
 		// No script_tags in the joint buffer.
@@ -249,48 +259,102 @@ class Render_Blocking_JS implements Feature, Changes_Output_On_Activation, Optim
 			'~<script\s+[^\>]*type=(?<q>["\']*)(application\/(ld\+)?json|importmap)\k<q>.*?>.*?<\/script>~si',
 		);
 
-		$buffer = preg_replace_callback(
+		$excluded = preg_replace_callback(
 			$exclusions,
 			function ( $script_match ) {
 				return $this->add_ignore_attribute( $script_match[0] );
 			},
 			$buffer
 		);
+		// preg_replace_callback() returns null on PCRE failure; keep the original
+		// buffer in that case rather than propagating null downstream.
+		if ( null !== $excluded ) {
+			$buffer = $excluded;
+		}
 
-		// Inline scripts (no src) whose output is position-dependent must stay where
-		// they are: document.write()/writeln() insert markup at the script's location,
-		// so moving such a script to the end of the document renders its output after
-		// the footer instead of inside the content (e.g. a Custom HTML block in a post).
-		// Scripts that already carry the ignore attribute are skipped so their
-		// behavior (and markup) is unchanged.
-		//
+		return $this->pin_position_dependent_scripts( $buffer );
+	}
+
+	/**
+	 * Keep inline scripts whose output is position-dependent in their original place.
+	 *
+	 * Scripts using document.write()/document.writeln() insert markup at the script's
+	 * location, so moving such a script to the end of the document renders its output
+	 * after the footer instead of inside the content (e.g. a Custom HTML block).
+	 * Marking the script with the ignore attribute keeps the rest of the pipeline
+	 * from moving it. Scripts that already carry the ignore attribute are skipped so
+	 * their behavior and markup are unchanged.
+	 *
+	 * Best-effort and deliberately conservative: it pins the common case (an inline
+	 * script that calls document.write) and otherwise leaves the script to the
+	 * default move behavior. It does not pin scripts that write their own
+	 * '<script ...>' markup (no safe in-place edit exists), nor exotic call forms a
+	 * substring check cannot see. A miss never corrupts the page — worst case is a
+	 * script that still moves, exactly as it does without this method.
+	 *
+	 * @param string $buffer Captured piece of output buffer.
+	 *
+	 * @return string
+	 */
+	private function pin_position_dependent_scripts( $buffer ) {
 		// Fast path: skip the inline-script scan entirely when the buffer cannot
 		// contain a position-dependent script.
-		if ( false === stripos( $buffer, 'document.write' ) ) {
+		if ( false === stripos( $buffer, self::POSITION_DEPENDENT_OUTPUT_NEEDLE ) ) {
 			return $buffer;
 		}
 
-		$inline_script_regex = sprintf(
-			'~<script\b(?![^>]*\ssrc\s*=)(?![^>]*%s=(?<q>["\']*)%s\k<q>)[^>]*>[\s\S]*?<\/script>~i',
-			preg_quote( $this->ignore_attribute, '~' ),
-			preg_quote( $this->ignore_value, '~' )
-		);
+		// Match inline scripts only (no src attribute) that do not already carry
+		// the ignore attribute.
+		$inline_script_regex = '~<script\b(?![^>]*\ssrc\s*=)' . $this->ignore_attribute_lookahead() . '[^>]*>[\s\S]*?</script>~i';
 
-		return preg_replace_callback(
+		$result = preg_replace_callback(
 			$inline_script_regex,
 			function ( $script_match ) {
 				// Intentionally conservative: a simple case-insensitive substring check
-				// on the script body. It can over-match (e.g. "document.write" inside a
-				// JS comment or string), but a false positive only leaves a script in
-				// place — the safe outcome — while parsing JS to do better is not worth
-				// the complexity here. "document.write" also covers "document.writeln".
-				if ( false !== stripos( $script_match[0], 'document.write' ) ) {
-					return $this->add_ignore_attribute( $script_match[0] );
+				// for "document.write" (which also covers "document.writeln"). It does
+				// not parse JS, so exotic call forms it cannot see — document['write'](),
+				// "document . write()", or an uppercase <SCRIPT> tag that
+				// add_ignore_attribute()'s lowercase replace won't touch — simply fall
+				// back to the default behavior (the script is moved, as it is today).
+				// That is the safe direction: a miss never corrupts the page.
+				if ( false === stripos( $script_match[0], self::POSITION_DEPENDENT_OUTPUT_NEEDLE ) ) {
+					return $script_match[0];
 				}
 
-				return $script_match[0];
+				// Do not touch a script that writes its own '<script ...>' markup. There
+				// is no safe in-place edit for it: add_ignore_attribute() does a global
+				// str_replace() on '<script', which rewrites the inner literal and can
+				// break the quoting of the string the script writes; tagging only the
+				// outer tag would instead let get_script_tags() match and move that inner
+				// literal. Such scripts keep the default behavior rather than risk
+				// corrupting the page.
+				if ( substr_count( strtolower( $script_match[0] ), '<script' ) > 1 ) {
+					return $script_match[0];
+				}
+
+				return $this->add_ignore_attribute( $script_match[0] );
 			},
 			$buffer
+		);
+
+		// preg_replace_callback() returns null on PCRE failure (e.g. backtrack limit
+		// on a pathological buffer); fall back to the unmodified buffer so the page is
+		// never blanked. Mirrors the guard in is_opened_script().
+		return null === $result ? $buffer : $result;
+	}
+
+	/**
+	 * Negative lookahead asserting a <script> tag does not already carry the
+	 * ignore attribute. Shared by the regexes that select movable scripts so the
+	 * attribute-matching rule lives in one place.
+	 *
+	 * @return string Regex fragment (uses named group "q"; safe to use once per pattern).
+	 */
+	private function ignore_attribute_lookahead() {
+		return sprintf(
+			'(?![^>]*%s=(?<q>["\']*)%s\k<q>)',
+			preg_quote( $this->ignore_attribute, '~' ),
+			preg_quote( $this->ignore_value, '~' )
 		);
 	}
 
