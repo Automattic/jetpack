@@ -73,7 +73,6 @@ class Customize_Feed {
 		add_action( 'rss2_head', array( __CLASS__, 'output_channel_tags' ) );
 		add_action( 'rss2_item', array( __CLASS__, 'output_item_tags' ) );
 		add_filter( 'rss_enclosure', array( __CLASS__, 'rewrite_enclosure' ) );
-		add_filter( 'the_excerpt_rss', array( __CLASS__, 'filter_episode_excerpt' ) );
 
 		// Prune RSS chrome that podcatchers don't read. Cuts payload size and
 		// keeps incidental post data (body content, gravatar URLs, image EXIF,
@@ -92,28 +91,6 @@ class Customize_Feed {
 		remove_action( 'rss2_item', 'mrss_news_item' );
 
 		Feed_Detection::detect_and_record();
-	}
-
-	/**
-	 * Episode description for `<description>` and `<itunes:summary>`: manual excerpt when set, else the auto-generated body excerpt (`wp_trim_excerpt()` drops the player block, keeping only prose).
-	 *
-	 * @return string Manual excerpt, or the auto-generated body excerpt when none is set.
-	 */
-	public static function filter_episode_excerpt(): string {
-		global $post;
-		if ( ! $post instanceof WP_Post ) {
-			return '';
-		}
-		if ( '' !== trim( (string) $post->post_excerpt ) ) {
-			return (string) $post->post_excerpt;
-		}
-
-		// Memoize: called twice per item and `wp_trim_excerpt()` re-renders the body each time.
-		static $auto_excerpts = array();
-		if ( ! array_key_exists( $post->ID, $auto_excerpts ) ) {
-			$auto_excerpts[ $post->ID ] = (string) wp_trim_excerpt( '', $post );
-		}
-		return $auto_excerpts[ $post->ID ];
 	}
 
 	/**
@@ -219,8 +196,8 @@ class Customize_Feed {
 			echo '<itunes:author>' . esc_xml( wp_strip_all_tags( $author ) ) . "</itunes:author>\n";
 		}
 
-		// Mirror what the `<description>` emits (see `filter_episode_excerpt()`).
-		$excerpt = self::filter_episode_excerpt();
+		// Mirror what `<description>` emits: manual excerpt, else WP's auto-generated body excerpt.
+		$excerpt = (string) get_the_excerpt( $post );
 		if ( '' !== trim( $excerpt ) ) {
 			echo '<itunes:summary>' . esc_xml( wp_strip_all_tags( $excerpt ) ) . "</itunes:summary>\n";
 		}
