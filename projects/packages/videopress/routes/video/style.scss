@@ -32,6 +32,23 @@
 	}
 }
 
+// Scoping hook only — display: contents removes the wrapper's box from
+// layout, so the breadcrumb list flows in the header exactly as before.
+// The current-item crumb is targeted structurally (li:last-child h1)
+// because @wordpress/admin-ui's Breadcrumbs uses hashed CSS-module class
+// names. Long video titles are clamped so they can't crowd the header's
+// Save button; the full title remains visible in the Title field below.
+.vp-video-details__breadcrumbs {
+	display: contents;
+
+	li:last-child h1 {
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+		max-width: min(60ch, 45vw);
+	}
+}
+
 .vp-video-details__not-found {
 	padding: 48px 24px;
 	text-align: center;

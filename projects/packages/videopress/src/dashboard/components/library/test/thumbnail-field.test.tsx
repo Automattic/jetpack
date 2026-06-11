@@ -113,4 +113,22 @@ describe( 'TitleCell — grid Details access', () => {
 		expect( screen.getByText( 'Deleting…' ) ).toBeInTheDocument();
 		expect( screen.queryByRole( 'button', { name: 'Doomed' } ) ).not.toBeInTheDocument();
 	} );
+
+	it( 'exposes the full title via a title attribute (hover affordance for truncated text)', () => {
+		const longTitle = 'A very long recording title that will be truncated with an ellipsis';
+		renderField( <TitleCellRender item={ item( { title: longTitle } ) } />, makeActions() );
+		expect( screen.getByRole( 'button', { name: longTitle } ) ).toHaveAttribute(
+			'title',
+			longTitle
+		);
+
+		renderField(
+			<TitleCellRender item={ item( { type: 'local', title: longTitle } ) } />,
+			makeActions()
+		);
+		expect( screen.getByText( longTitle, { selector: 'span' } ) ).toHaveAttribute(
+			'title',
+			longTitle
+		);
+	} );
 } );
