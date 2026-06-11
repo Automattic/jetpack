@@ -8,7 +8,9 @@
  * @package automattic/jetpack
  */
 
+use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Status\Visitor;
+use Automattic\Jetpack\Tracking;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit( 0 );
@@ -53,25 +55,31 @@ function jetpack_content_guidelines_ai_enqueue_scripts( $hook_suffix ) {
 		return;
 	}
 
-	$asset_file = JETPACK__PLUGIN_DIR . '_inc/build/content-guidelines-ai.min.asset.php';
-	$asset      = file_exists( $asset_file ) ? require $asset_file : array(
-		'dependencies' => array( 'wp-api-fetch', 'wp-components', 'wp-data', 'wp-element', 'wp-i18n', 'wp-notices', 'wp-ui' ),
-		'version'      => JETPACK__VERSION,
-	);
+	// Bail when build artifacts are missing rather than enqueueing a script
+	// with guessed (and likely wrong) dependencies.
+	if ( ! file_exists( JETPACK__PLUGIN_DIR . '_inc/build/content-guidelines-ai.min.asset.php' ) ) {
+		return;
+	}
 
-	wp_enqueue_script(
-		'jetpack-content-guidelines-ai',
-		plugins_url( '_inc/build/content-guidelines-ai.min.js', JETPACK__PLUGIN_FILE ),
-		$asset['dependencies'],
-		$asset['version'],
-		true
-	);
+	// The bundle records Tracks events via @automattic/jetpack-analytics,
+	// which only queues into window._tkq. Enqueue the Tracks client (w.js)
+	// so events send without relying on whichever platform widgets happen
+	// to load it.
+	Tracking::register_tracks_functions_scripts( true );
 
-	wp_enqueue_style(
+	// Handles dependencies/version from the asset file, JS translations for
+	// the text domain, the CSS (including the .rtl.css variant), and style
+	// dependencies derived from the script's.
+	Assets::register_script(
 		'jetpack-content-guidelines-ai',
-		plugins_url( '_inc/build/content-guidelines-ai.css', JETPACK__PLUGIN_FILE ),
-		array( 'wp-components' ),
-		$asset['version']
+		'_inc/build/content-guidelines-ai.min.js',
+		JETPACK__PLUGIN_FILE,
+		array(
+			'in_footer'  => true,
+			'textdomain' => 'jetpack',
+			'css_path'   => '_inc/build/content-guidelines-ai.css',
+			'enqueue'    => true,
+		)
 	);
 }
 
