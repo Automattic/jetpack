@@ -29,7 +29,9 @@ class Post_To_Url_Test extends BaseTestCase {
 	private function invoke_get_form_data( $form, $entry_values = array() ) {
 		$instance = Post_To_Url::init();
 		$method   = new \ReflectionMethod( Post_To_Url::class, 'get_form_data' );
-		$method->setAccessible( true );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true );
+		}
 		return $method->invoke( $instance, $form, $entry_values );
 	}
 
