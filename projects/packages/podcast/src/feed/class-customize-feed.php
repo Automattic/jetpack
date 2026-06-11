@@ -196,9 +196,11 @@ class Customize_Feed {
 			echo '<itunes:author>' . esc_xml( wp_strip_all_tags( $author ) ) . "</itunes:author>\n";
 		}
 
-		// Mirror what `<description>` emits: manual excerpt, else WP's auto-generated body excerpt.
-		$excerpt = (string) get_the_excerpt( $post );
-		if ( '' !== trim( $excerpt ) ) {
+		// Re-applying `the_excerpt_rss` so `<itunes:summary>` matches whatever
+		// the item's `<description>` ends up emitting — `get_the_excerpt()`
+		// doesn't run the filter chain itself.
+		$excerpt = (string) apply_filters( 'the_excerpt_rss', get_the_excerpt() );
+		if ( '' !== $excerpt ) {
 			echo '<itunes:summary>' . esc_xml( wp_strip_all_tags( $excerpt ) ) . "</itunes:summary>\n";
 		}
 
