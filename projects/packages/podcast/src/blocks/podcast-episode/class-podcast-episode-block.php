@@ -87,8 +87,9 @@ class Podcast_Episode_Block {
 		Blocks::jetpack_register_block(
 			__DIR__,
 			array(
-				'render_callback' => array( __CLASS__, 'render_block' ),
-				'style'           => self::STYLE_HANDLE,
+				'render_callback'       => array( __CLASS__, 'render_block' ),
+				'style'                 => self::STYLE_HANDLE,
+				'render_email_callback' => array( __CLASS__, 'render_email' ),
 			)
 		);
 	}
@@ -183,6 +184,31 @@ class Podcast_Episode_Block {
 	}
 
 	/**
+	 * Resolve the episode cover art URL: episode override → post featured
+	 * image → show-level `podcasting_image` option → empty string.
+	 *
+	 * @param array    $attributes Block attributes.
+	 * @param \WP_Post $post       Episode post.
+	 * @param string   $size       Featured-image size to request.
+	 * @return string
+	 */
+	private static function resolve_cover_art_url( array $attributes, $post, $size ) {
+		if ( isset( $attributes['coverArt'] ) && is_array( $attributes['coverArt'] ) && ! empty( $attributes['coverArt']['url'] ) ) {
+			return esc_url_raw( $attributes['coverArt']['url'] );
+		}
+
+		$featured_id = (int) get_post_thumbnail_id( $post );
+		if ( $featured_id ) {
+			$featured_url = (string) wp_get_attachment_image_url( $featured_id, $size );
+			if ( '' !== $featured_url ) {
+				return $featured_url;
+			}
+		}
+
+		return (string) get_option( 'podcasting_image', '' );
+	}
+
+	/**
 	 * Render callback.
 	 *
 	 * Pulls title, author, and date from the surrounding post — the post is
@@ -270,24 +296,10 @@ class Podcast_Episode_Block {
 		$show_image_url = (string) get_option( 'podcasting_image', '' );
 		$show_email     = (string) get_option( 'podcasting_email', '' );
 
-		// Cover art chain: episode override → post featured image → show-level cover → none.
-		// Resolved unconditionally so schema metadata always carries the image; the
-		// `$show_poster` toggle only gates the visible figure and the video poster.
-		$image_url = '';
-		if ( isset( $attributes['coverArt'] ) && is_array( $attributes['coverArt'] ) && ! empty( $attributes['coverArt']['url'] ) ) {
-			$image_url = esc_url_raw( $attributes['coverArt']['url'] );
-		} else {
-			$featured_id = (int) get_post_thumbnail_id( $post );
-			if ( $featured_id ) {
-				$featured_url = (string) wp_get_attachment_image_url( $featured_id, 'full' );
-				if ( '' !== $featured_url ) {
-					$image_url = $featured_url;
-				}
-			}
-			if ( '' === $image_url ) {
-				$image_url = $show_image_url;
-			}
-		}
+		// Cover art chain resolved unconditionally so schema metadata always carries
+		// the image; the `$show_poster` toggle only gates the visible figure and the
+		// video poster.
+		$image_url = self::resolve_cover_art_url( $attributes, $post, 'full' );
 
 		// AudioObject/VideoObject @type for the embedded media.
 		$media_object_type = 'video' === $media_type ? 'VideoObject' : 'AudioObject';
@@ -582,5 +594,189 @@ class Podcast_Episode_Block {
 		<?php
 
 		return ob_get_clean();
+	}
+
+	/**
+	 * Render the block for email via the WooCommerce Email Editor.
+	 *
+	 * Email clients can't run the interactive player, so render a static
+	 * episode card — cover art, title, byline, duration — linking back to
+	 * the episode post, where the full player lives.
+	 *
+	 * @param string $block_content     The original block HTML content.
+	 * @param array  $parsed_block      The parsed block data including attributes.
+	 * @param object $rendering_context Email rendering context.
+	 * @return string
+	 */
+	public static function render_email( $block_content, array $parsed_block, $rendering_context ) {
+		if ( ! isset( $parsed_block['attrs'] ) || ! is_array( $parsed_block['attrs'] ) ||
+			! class_exists( '\Automattic\WooCommerce\EmailEditor\Integrations\Utils\Styles_Helper' ) ||
+			! class_exists( '\Automattic\WooCommerce\EmailEditor\Integrations\Utils\Table_Wrapper_Helper' ) ) {
+			return '';
+		}
+
+		$attrs = $parsed_block['attrs'];
+
+		if ( empty( $attrs['mediaUrl'] ) || ! wp_http_validate_url( $attrs['mediaUrl'] ) ) {
+			return '';
+		}
+
+		$post = get_post();
+		if ( ! $post ) {
+			return '';
+		}
+
+		$post_url = get_permalink( $post );
+		if ( empty( $post_url ) ) {
+			return '';
+		}
+
+		$title          = get_the_title( $post );
+		$author_name    = get_the_author_meta( 'display_name', (int) $post->post_author );
+		$publish_date   = get_the_date( '', $post );
+		$duration       = isset( $attrs['duration'] ) ? trim( (string) $attrs['duration'] ) : '';
+		$season_number  = isset( $attrs['seasonNumber'] ) ? (int) $attrs['seasonNumber'] : 0;
+		$episode_number = isset( $attrs['episodeNumber'] ) ? (int) $attrs['episodeNumber'] : 0;
+
+		$image_url = self::resolve_cover_art_url( $attrs, $post, 'thumbnail' );
+		if ( '' !== $image_url && ! wp_http_validate_url( $image_url ) ) {
+			$image_url = '';
+		}
+
+		$cta_label = isset( $attrs['mediaType'] ) && 'video' === $attrs['mediaType']
+			? __( 'Watch the episode', 'jetpack-podcast' )
+			: __( 'Listen to the episode', 'jetpack-podcast' );
+
+		$meta_parts = array();
+		if ( $season_number ) {
+			/* translators: %d: season number. */
+			$meta_parts[] = sprintf( __( 'Season %d', 'jetpack-podcast' ), $season_number );
+		}
+		if ( $episode_number ) {
+			/* translators: %d: episode number. */
+			$meta_parts[] = sprintf( __( 'Episode %d', 'jetpack-podcast' ), $episode_number );
+		}
+
+		$byline_parts = array_filter( array( $author_name, $publish_date, $duration ) );
+
+		$body = '';
+		if ( $meta_parts ) {
+			$body .= sprintf(
+				'<p style="margin: 0 0 4px; font-size: 12px; line-height: 1.4; text-transform: uppercase; letter-spacing: 0.5px; color: #757575;">%s</p>',
+				esc_html( implode( ' · ', $meta_parts ) )
+			);
+		}
+		if ( $title ) {
+			$body .= sprintf(
+				'<h3 style="margin: 0 0 4px; font-size: 18px; line-height: 1.3;"><a href="%s" style="color: inherit; text-decoration: none;">%s</a></h3>',
+				esc_url( $post_url ),
+				esc_html( $title )
+			);
+		}
+		if ( $byline_parts ) {
+			$body .= sprintf(
+				'<p style="margin: 0 0 12px; font-size: 13px; line-height: 1.4; color: #757575;">%s</p>',
+				esc_html( implode( ' · ', $byline_parts ) )
+			);
+		}
+		$body .= sprintf(
+			'<p style="margin: 0; font-size: 14px;"><a href="%s" style="font-weight: 600;">&#9654;&nbsp; %s</a></p>',
+			esc_url( $post_url ),
+			esc_html( $cta_label )
+		);
+
+		$cells = '';
+		if ( '' !== $image_url ) {
+			$image_link = sprintf(
+				'<a href="%s"><img src="%s" alt="" width="96" height="96" style="display: block; width: 96px; height: 96px; border-radius: 4px;" /></a>',
+				esc_url( $post_url ),
+				esc_url( $image_url )
+			);
+
+			// Padding lives on an inner wrapper, not the cell: the engine's
+			// mobile media query zeroes `.layout-flex-item` horizontal padding
+			// when it stacks the card, which would otherwise flush the content
+			// against the border.
+			// @phan-suppress-next-line PhanUndeclaredClassMethod -- Optional WooCommerce dependency, checked with class_exists() above.
+			$cells .= \Automattic\WooCommerce\EmailEditor\Integrations\Utils\Table_Wrapper_Helper::render_table_cell(
+				'<div style="padding: 16px 0 0 16px;">' . $image_link . '</div>',
+				array(
+					'class'  => 'layout-flex-item',
+					'width'  => '96',
+					'valign' => 'top',
+					'style'  => 'width: 96px;',
+				)
+			);
+		}
+
+		// Wrap the body in a nested table rather than dropping the loose <p>/<h3>
+		// straight into the layout cell. Core blocks (e.g. Media_Text) never put
+		// bare block-level elements in a cell — they table-wrap content so it
+		// survives email pipelines intact. The padding rides on the nested cell,
+		// which the engine's mobile `.layout-flex-item td` rule leaves untouched,
+		// so it also stays put when the card stacks.
+		// @phan-suppress-next-line PhanUndeclaredClassMethod -- Optional WooCommerce dependency, checked with class_exists() above.
+		$body_table = \Automattic\WooCommerce\EmailEditor\Integrations\Utils\Table_Wrapper_Helper::render_table_wrapper(
+			$body,
+			array( 'style' => 'width: 100%; border-collapse: collapse;' ),
+			array( 'style' => 'padding: 16px;' )
+		);
+
+		// @phan-suppress-next-line PhanUndeclaredClassMethod -- Optional WooCommerce dependency, checked with class_exists() above.
+		$cells .= \Automattic\WooCommerce\EmailEditor\Integrations\Utils\Table_Wrapper_Helper::render_table_cell(
+			$body_table,
+			array(
+				'class'  => 'layout-flex-item',
+				'valign' => 'top',
+			)
+		);
+
+		// Cap the card to the email layout width when the context exposes it
+		// (method_exists guards against older email editor versions).
+		$target_width = 600;
+		if ( method_exists( $rendering_context, 'get_layout_width_without_padding' ) ) {
+			// @phan-suppress-next-line PhanUndeclaredClassMethod -- Optional WooCommerce dependency, checked with class_exists() above.
+			$layout_width = (int) \Automattic\WooCommerce\EmailEditor\Integrations\Utils\Styles_Helper::parse_value( $rendering_context->get_layout_width_without_padding() );
+			if ( $layout_width > 0 ) {
+				$target_width = $layout_width;
+			}
+		}
+
+		// Preserve the vertical gap from email_attrs — the engine's spacing
+		// preprocessor sets `margin-top`; horizontal root padding is applied
+		// to the callback output by the engine itself.
+		$email_attrs        = $parsed_block['email_attrs'] ?? array();
+		$table_margin_style = (string) \WP_Style_Engine::compile_css( array_intersect_key( $email_attrs, array_flip( array( 'margin', 'margin-top' ) ) ), '' );
+
+		// `layout-flex-wrapper` opts the card into the engine's own mobile
+		// stacking: its template-canvas.css media query collapses
+		// `.layout-flex-wrapper`/`.layout-flex-item` to full-width blocks under
+		// 660px, so no custom media query (or template-style filter) is needed.
+		// border-collapse must stay `separate` for the rounded card border to render.
+		$table_style = sprintf(
+			'%s width: 100%%; max-width: %dpx; border-collapse: separate; border: 1px solid #ddd; border-radius: 6px;',
+			$table_margin_style ? $table_margin_style : 'margin: 16px 0;',
+			$target_width
+		);
+
+		// Append user-set block supports (padding, border, colors) so editor
+		// styling overrides the card defaults.
+		// @phan-suppress-next-line PhanUndeclaredClassMethod -- Optional WooCommerce dependency, checked with class_exists() above.
+		$user_styles = \Automattic\WooCommerce\EmailEditor\Integrations\Utils\Styles_Helper::get_block_styles( $attrs, $rendering_context, array( 'padding', 'border', 'background-color', 'color' ) );
+		if ( ! empty( $user_styles['css'] ) ) {
+			$table_style .= ' ' . $user_styles['css'];
+		}
+
+		// @phan-suppress-next-line PhanUndeclaredClassMethod -- Optional WooCommerce dependency, checked with class_exists() above.
+		return \Automattic\WooCommerce\EmailEditor\Integrations\Utils\Table_Wrapper_Helper::render_table_wrapper(
+			$cells,
+			array(
+				'class' => 'jetpack-podcast-episode-email-card layout-flex-wrapper',
+				'style' => $table_style,
+			),
+			array(),
+			array(),
+			false
+		);
 	}
 }

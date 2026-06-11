@@ -74,8 +74,8 @@ class Feedback_Author {
 	 * @return Feedback_Author The Feedback_Author instance.
 	 */
 	public static function from_submission( $post_data, $form ) {
-		$first = isset( $post_data['first-name'] ) ? wp_unslash( $post_data['first-name'] ) : '';
-		$last  = isset( $post_data['last-name'] ) ? wp_unslash( $post_data['last-name'] ) : '';
+		$first = isset( $post_data['first-name'] ) ? sanitize_text_field( wp_unslash( $post_data['first-name'] ) ) : '';
+		$last  = isset( $post_data['last-name'] ) ? sanitize_text_field( wp_unslash( $post_data['last-name'] ) ) : '';
 		return new self(
 			self::get_computed_author_info( $post_data, 'name', 'pre_comment_author_name', $form ),
 			self::get_computed_author_info( $post_data, 'email', 'pre_comment_author_email', $form ),

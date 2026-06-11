@@ -8,7 +8,7 @@
 // Constants.
 const WP_PLUGIN_DIR = __DIR__ . '/data/plugins';
 if ( ! file_exists( WP_PLUGIN_DIR ) ) {
-	mkdir( WP_PLUGIN_DIR, 0777, true ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_mkdir
+	mkdir( WP_PLUGIN_DIR, 0777, true );
 }
 
 /**

@@ -347,7 +347,7 @@ const StageInner = () => {
 				</>
 			}
 		>
-			<UploadActionsProvider value={ { promoteLocal, retryUpload } }>
+			<UploadActionsProvider value={ { promoteLocal, retryUpload, openVideoDetails } }>
 				<div className={ `vp-library__viewport vp-library__viewport--${ view.type }` }>
 					<DropZone
 						label={ __( 'Drop a video to upload', 'jetpack-videopress-pkg' ) }

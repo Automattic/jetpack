@@ -717,7 +717,6 @@ class Jetpack_Memberships {
 	 */
 	public static function user_can_edit() {
 		$user = wp_get_current_user();
-		// phpcs:ignore ImportDetection.Imports.RequireImports.Symbol
 		return 0 !== $user->ID && current_user_can( 'edit_post', get_the_ID() );
 	}
 

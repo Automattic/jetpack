@@ -1424,7 +1424,8 @@ class Colors_Manager_Common {
 	}
 
 	/**
-	 * Enqueue theme CSS for the block editor.
+	 * Enqueue the Customizer's custom colors for the block editor, scoped to the
+	 * editor content so they can't leak into the editor UI.
 	 *
 	 * @since 9.0.0
 	 */
@@ -1432,17 +1433,12 @@ class Colors_Manager_Common {
 		if ( ! self::should_enable_colors() ) {
 			return;
 		}
-		$css = self::get_theme_css();
 
-		// Gutenberg 22.6.0+ renders the editor in an iframe for all themes.
-		// #editor no longer exists inside the iframe, so extend any
-		// "#editor .editor-styles-wrapper" selector to also match the
-		// iframe context while keeping the original for older versions.
-		$css = str_replace(
-			'#editor .editor-styles-wrapper',
-			'#editor .editor-styles-wrapper, :root :where(.editor-styles-wrapper)',
-			$css
-		);
+		// `@scope` already scopes to the wrapper, so map any legacy explicit
+		// "#editor .editor-styles-wrapper" prefix to `:scope` (the scope root)
+		// rather than leaving a redundant — and no-longer-matching — prefix.
+		$css = str_replace( '#editor .editor-styles-wrapper', ':scope', self::get_theme_css() );
+		$css = '@scope (.editor-styles-wrapper) {' . $css . '}';
 
 		wp_register_style( 'custom-colors-editor-css', false, array(), '20210311' ); // Register an empty stylesheet to append custom CSS to.
 		wp_enqueue_style( 'custom-colors-editor-css' );
@@ -1750,7 +1746,8 @@ class Colors_Manager_Common {
 		foreach ( $top_palette['colors'] as $palette_role => $palette_color_hex ) {
 			$base_color_hex = $colors[ $palette_role ];
 			try {
-				// phpcs:ignore -- $base_color:$new_color :: $palette_color:$equivalent_color
+				// phpcs:ignore Squiz.PHP.CommentedOutCode.Found
+				// $base_color:$new_color :: $palette_color:$equivalent_color
 				$base_color       = new Jetpack_Color( $base_color_hex );
 				$palette_color    = new Jetpack_Color( $palette_color_hex );
 				$equivalent_color = new Jetpack_Color( $equivalent_color_hex );
@@ -1787,7 +1784,8 @@ class Colors_Manager_Common {
 	public static function exception_mailer( $message = 'Needs a message' ) {
 		$message .= "\n\nblog: " . home_url() . "\n";
 		$message .= 'backtrace: ' . wp_debug_backtrace_summary() . "\n"; // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_wp_debug_backtrace_summary
-		// phpcs:ignore -- wp_mail( 'wiebe@automattic.com', 'Color Exception on WordPress.com', $message );
+		// phpcs:ignore Squiz.PHP.CommentedOutCode.Found
+		// wp_mail( 'someone@example.com', 'Color Exception on WordPress.com', $message );
 	}
 	// phpcs:enable VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 

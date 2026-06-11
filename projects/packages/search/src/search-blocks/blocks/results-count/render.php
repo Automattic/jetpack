@@ -7,7 +7,6 @@
 
 namespace Automattic\Jetpack\Search;
 
-// phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
 ?>
 <?php
 // Intentionally render the element even when the count text is empty. The

@@ -35,6 +35,9 @@ class Jetpack_Subscriptions_Test extends WP_UnitTestCase {
 		parent::set_up();
 		Jetpack_Subscriptions::init();
 		add_filter( 'jetpack_is_connection_ready', '__return_true' );
+		// Block refresh endpoint HTTP calls in tests by default so stale tokens deny
+		// access (existing test expectations). Individual refresh tests can override.
+		add_filter( 'pre_http_request', array( $this, 'block_refresh_endpoint' ), 10, 3 );
 		$this->set_up_users();
 	}
 
@@ -42,8 +45,34 @@ class Jetpack_Subscriptions_Test extends WP_UnitTestCase {
 		// Clean up
 		remove_all_filters( 'earn_get_user_subscriptions_for_site_id' );
 		remove_all_filters( 'jetpack_is_connection_ready' );
+		remove_all_filters( 'pre_http_request' );
 
 		parent::tear_down();
+	}
+
+	/**
+	 * Default pre_http_request mock for the refresh endpoint — returns a 500 so that
+	 * refresh attempts fail transiently and the existing "expired subscription denies
+	 * access" expectations in the access matrix still hold.
+	 *
+	 * @param mixed  $preempt Current preempt value.
+	 * @param array  $args    Request args.
+	 * @param string $url     Request URL.
+	 * @return mixed
+	 */
+	public function block_refresh_endpoint( $preempt, $args, $url ) {
+		if ( false !== strpos( $url, 'memberships/token/refresh' ) ) {
+			return array(
+				'response' => array(
+					'code'    => 500,
+					'message' => 'blocked in tests',
+				),
+				'body'     => '',
+				'headers'  => array(),
+				'cookies'  => array(),
+			);
+		}
+		return $preempt;
 	}
 
 	private function set_up_users() {
