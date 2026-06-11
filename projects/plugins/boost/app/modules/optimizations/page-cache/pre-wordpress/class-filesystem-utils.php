@@ -91,6 +91,19 @@ class Filesystem_Utils {
 	 */
 	public static function delete_directory( $path ) {
 		clearstatcache();
+
+		// Refuse to follow a symlinked cache root. realpath() resolves a symlink
+		// to its target, so a boost-cache symlink pointing outside wp-content would
+		// resolve identically to $cache_root below and pass the containment check,
+		// causing the target tree to be deleted. Boost never creates boost-cache as
+		// a symlink, so a symlinked root is unexpected and we refuse it outright.
+		// This is checked on the literal $path, not the resolved target, and only
+		// guards the root itself; symlinks encountered inside the tree are unlinked
+		// (never followed) by the deletion loop below.
+		if ( is_link( $path ) ) {
+			return new Boost_Cache_Error( 'invalid-directory', 'Refusing to delete a symlinked directory: ' . $path );
+		}
+
 		$resolved = realpath( $path );
 		if ( false === $resolved ) {
 			// Nothing to delete if the directory is already gone.

@@ -275,6 +275,91 @@ class Filesystem_Utils_Test extends TestCase {
 		$this->assertTrue( $result );
 	}
 
+	public function test_delete_directory_unlinks_symlink_without_deleting_target() {
+		if ( ! function_exists( 'symlink' ) ) {
+			$this->markTestSkipped( 'symlink() is not available on this platform.' );
+		}
+
+		// A directory outside boost-cache, with a file in it, that must survive.
+		$external_target = $this->test_dir . '/external-target';
+		mkdir( $external_target, 0755, true );
+		file_put_contents( $external_target . '/keep.txt', 'must survive' );
+
+		// A symlink INSIDE the cache tree that points at the external directory.
+		// The deletion loop must unlink the link itself, not follow it.
+		if ( ! @symlink( $external_target, $this->boost_cache_dir . '/link-to-outside' ) ) { // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+			$this->markTestSkipped( 'Could not create a symlink on this platform.' );
+		}
+		file_put_contents( $this->boost_cache_dir . '/cached.html', 'cached page' );
+
+		$result = Filesystem_Utils::delete_directory( $this->boost_cache_dir );
+
+		$this->assertTrue( $result );
+		$this->assertFalse( is_dir( $this->boost_cache_dir ) );
+		// The link was removed but its target and contents are untouched.
+		$this->assertTrue( is_dir( $external_target ) );
+		$this->assertTrue( file_exists( $external_target . '/keep.txt' ) );
+	}
+
+	public function test_delete_directory_refuses_symlinked_cache_root() {
+		if ( ! function_exists( 'symlink' ) ) {
+			$this->markTestSkipped( 'symlink() is not available on this platform.' );
+		}
+
+		// A directory outside boost-cache that must survive.
+		$external_target = $this->test_dir . '/external-root-target';
+		mkdir( $external_target, 0755, true );
+		file_put_contents( $external_target . '/keep.txt', 'must survive' );
+
+		// Replace the boost-cache root itself with a symlink to the external
+		// directory. realpath() resolves both sides identically, so the
+		// containment check passes; the is_link() guard is what must refuse it.
+		rmdir( $this->boost_cache_dir );
+		if ( ! @symlink( $external_target, $this->boost_cache_dir ) ) { // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+			mkdir( $this->boost_cache_dir, 0755, true );
+			$this->markTestSkipped( 'Could not create a symlink on this platform.' );
+		}
+
+		try {
+			$result = Filesystem_Utils::delete_directory( $this->boost_cache_dir );
+
+			$this->assertInstanceOf( Boost_Cache_Error::class, $result );
+			$this->assertEquals( 'invalid-directory', $result->get_error_code() );
+			$this->assertTrue( is_dir( $external_target ) );
+			$this->assertTrue( file_exists( $external_target . '/keep.txt' ) );
+		} finally {
+			// Remove the symlink so tearDown does not follow it into the target.
+			if ( is_link( $this->boost_cache_dir ) ) {
+				unlink( $this->boost_cache_dir );
+			}
+		}
+	}
+
+	public function test_delete_directory_returns_error_when_root_rmdir_fails() {
+		if ( function_exists( 'posix_geteuid' ) && 0 === posix_geteuid() ) {
+			$this->markTestSkipped( 'Directory permission restrictions do not apply when running as root.' );
+		}
+
+		// Files inside the cache delete fine, but a read-only parent makes the
+		// final rmdir() of the root fail. This exercises the post-iteration
+		// is_dir() guard, a different code path than the iterator-throw case.
+		file_put_contents( $this->boost_cache_dir . '/cached.html', 'cached page' );
+		$parent = dirname( $this->boost_cache_dir );
+		chmod( $parent, 0555 );
+
+		try {
+			$result = Filesystem_Utils::delete_directory( $this->boost_cache_dir );
+
+			$this->assertInstanceOf( Boost_Cache_Error::class, $result );
+			$this->assertEquals( 'could-not-delete-directory', $result->get_error_code() );
+			// The contents were removed but the root itself could not be.
+			$this->assertTrue( is_dir( $this->boost_cache_dir ) );
+			$this->assertFalse( file_exists( $this->boost_cache_dir . '/cached.html' ) );
+		} finally {
+			chmod( $parent, 0755 );
+		}
+	}
+
 	public function test_invalid_directory_operations() {
 		$non_existent_dir = $this->boost_cache_dir . '/non-existent';
 		$invalid_dir      = $this->test_dir;
