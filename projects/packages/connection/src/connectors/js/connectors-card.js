@@ -970,7 +970,7 @@ function IDCPanel() {
 			: null,
 		createElement(
 			Text,
-			{ size: 12, variant: 'muted' },
+			{ weight: 600, size: 14, className: 'jetpack-connector__idc-choose' },
 			__( 'Choose the option below that matches your situation.', 'jetpack-connection' )
 		),
 		createElement(
@@ -1011,7 +1011,7 @@ function IDCPanel() {
 						),
 						createElement(
 							Text,
-							{ variant: 'muted', size: 12 },
+							{ variant: 'muted', size: 13 },
 							createInterpolateElement( __( 'or <link>learn more</link>', 'jetpack-connection' ), {
 								link: createElement( 'a', {
 									href: 'https://jetpack.com/redirect/?source=jetpack-support-safe-mode',

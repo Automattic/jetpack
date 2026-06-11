@@ -66,6 +66,10 @@
 	gap: 4px;
 }
 
+.jetpack-connector__idc-choose {
+	margin-block-start: 16px;
+}
+
 .jetpack-connector__idc-why-toggle {
 	align-self: flex-start;
 	padding-inline: 0;
