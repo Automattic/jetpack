@@ -1,5 +1,11 @@
 import { TextareaControl } from '@wordpress/components';
-import { useCallback, useMemo, useRef, useState } from '@wordpress/element';
+import {
+	createInterpolateElement,
+	useCallback,
+	useMemo,
+	useRef,
+	useState,
+} from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { Button, Dialog, Notice, Stack, Tabs, Text } from '@wordpress/ui';
 import { useAddSubscribersMutation } from '../../data/use-add-subscribers-mutation';
@@ -16,7 +22,49 @@ type Props = {
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
+// Help-center articles for exporting a subscriber list from each supported platform, linked from
+// the CSV upload tab the same way Calypso links them.
+const PLATFORM_EXPORT_URLS = {
+	beehiiv: 'https://www.beehiiv.com/support/article/12234988536215-how-to-export-subscribers',
+	ghost: 'https://ghost.org/help/exports/#members',
+	kit: 'https://help.kit.com/en/articles/2502489-how-to-export-subscribers-in-kit',
+	mailchimp: 'https://mailchimp.com/help/view-export-contacts/',
+	medium: 'https://help.medium.com/hc/en-us/articles/360059837393-Email-subscriptions',
+	patreon:
+		'https://support.patreon.com/hc/en-gb/articles/360004385971-How-do-I-manage-my-members#h_01EQGYDNF2J3XR12ABBMTZPSQM',
+};
+
 type TabValue = 'manual' | 'upload' | 'substack';
+
+/**
+ * Consent + large-import notice shown under both the manual and CSV entry forms, mirroring the copy
+ * Calypso shows on its own Add Subscribers flow.
+ *
+ * @return Two-paragraph notice.
+ */
+function ImportConsentNotice(): JSX.Element {
+	return (
+		// Match the muted gray of the WordPress control "help" text the notice sits beneath.
+		<Stack
+			direction="column"
+			gap="xs"
+			style={ { color: 'var(--wpds-color-fg-content-neutral-weak)' } }
+		>
+			<Text variant="body-sm">
+				{ __(
+					'Imports of more than 10,000 subscribers will go through a manual review before being added to your site.',
+					'jetpack-newsletter'
+				) }
+			</Text>
+			<Text variant="body-sm">
+				{ __(
+					'By clicking “Add subscribers,” you represent that you’ve obtained the appropriate consent to email each person. Spam complaints or high bounce rate from your subscribers may lead to action against your account.',
+					'jetpack-newsletter'
+				) }
+			</Text>
+		</Stack>
+	);
+}
 
 /**
  * Calypso's Substack importer wizard. We don't reimplement the multi-step Stripe / paid-plan
@@ -271,6 +319,7 @@ function ManualTab( { mutation, importInProgress, onClose }: AddTabProps ): JSX.
 				rows={ 6 }
 				placeholder="reader@example.com&#10;another@example.com"
 			/>
+			<ImportConsentNotice />
 			<InvalidEntriesNotice invalid={ invalid } />
 			<Stack direction="row" justify="end" gap="sm">
 				<SubmitButton
@@ -341,9 +390,21 @@ function UploadTab( { mutation, importInProgress, onClose }: AddTabProps ): JSX.
 	return (
 		<Stack direction="column" gap="md">
 			<Text variant="body-md">
-				{ __(
-					'Upload a CSV from Substack, Beehiiv, Mailchimp, Ghost, Patreon, Kit or Medium. We’ll pick the email column for you and import each address.',
-					'jetpack-newsletter'
+				{ createInterpolateElement(
+					__(
+						'Upload a CSV file with your existing subscribers list from platforms like <beehiiv>Beehiiv</beehiiv>, <ghost>Ghost</ghost>, <kit>Kit</kit>, <mailchimp>Mailchimp</mailchimp>, <medium>Medium</medium>, <patreon>Patreon</patreon>, and many others.',
+						'jetpack-newsletter'
+					),
+					{
+						beehiiv: <a href={ PLATFORM_EXPORT_URLS.beehiiv } target="_blank" rel="noreferrer" />,
+						ghost: <a href={ PLATFORM_EXPORT_URLS.ghost } target="_blank" rel="noreferrer" />,
+						kit: <a href={ PLATFORM_EXPORT_URLS.kit } target="_blank" rel="noreferrer" />,
+						mailchimp: (
+							<a href={ PLATFORM_EXPORT_URLS.mailchimp } target="_blank" rel="noreferrer" />
+						),
+						medium: <a href={ PLATFORM_EXPORT_URLS.medium } target="_blank" rel="noreferrer" />,
+						patreon: <a href={ PLATFORM_EXPORT_URLS.patreon } target="_blank" rel="noreferrer" />,
+					}
 				) }
 			</Text>
 			<input
@@ -353,6 +414,7 @@ function UploadTab( { mutation, importInProgress, onClose }: AddTabProps ): JSX.
 				onChange={ handleFileChange }
 				disabled={ mutation.isPending }
 			/>
+			<ImportConsentNotice />
 			{ readError ? (
 				<Notice.Root intent="error">
 					<Notice.Description>{ readError }</Notice.Description>
