@@ -213,12 +213,8 @@ const StageInner = () => {
 				promoteLocal,
 				retryUpload,
 				openVideoDetails,
-				deleteItems: ( ids: string[] ) => {
-					setDeletingIds( prev => {
-						const next = new Set( prev );
-						ids.forEach( id => next.add( id ) );
-						return next;
-					} );
+				deleteItems: async ( ids: string[] ) => {
+					setDeletingIds( prev => new Set( [ ...prev, ...ids ] ) );
 					// React via the mutateAsync promise, not mutate-level callbacks:
 					// those are dropped if another delete starts while this one is in
 					// flight (TanStack detaches the observer), which would strand
@@ -226,55 +222,50 @@ const StageInner = () => {
 					// the hook's awaited library refetch, so the cleanup below can't
 					// flash rows back to their normal state ahead of their removal
 					// from the listing.
-					deleteVideo( ids )
-						.then( () => {
-							createSuccessNotice(
-								sprintf(
-									/* translators: %d: number of deleted videos. */
-									_n(
-										'%d video deleted.',
-										'%d videos deleted.',
-										ids.length,
-										'jetpack-videopress-pkg'
-									),
-									ids.length
-								)
-							);
-							return new Set< string >();
-						} )
-						.catch( ( error: Error ) => {
-							// Unknown error shape → assume nothing was deleted.
-							const failedIds =
-								error instanceof DeleteVideosError
-									? new Set( error.failedIds.map( String ) )
-									: new Set( ids );
-							createErrorNotice(
-								sprintf(
-									/* translators: %d: number of videos that could not be deleted. */
-									_n(
-										'Failed to delete %d video.',
-										'Failed to delete %d videos.',
-										failedIds.size,
-										'jetpack-videopress-pkg'
-									),
-									failedIds.size
-								)
-							);
-							return failedIds;
-						} )
-						.then( failedIds => {
-							setDeletingIds( prev => {
-								const next = new Set( prev );
-								ids.forEach( id => next.delete( id ) );
-								return next;
-							} );
-							// Prune rows that are now gone from the DataViews selection
-							// so the bulk-actions toolbar doesn't keep counting them. On
-							// partial failure the failed rows survive and stay selected.
-							setSelection( prev =>
-								prev.filter( id => ! ids.includes( id ) || failedIds.has( id ) )
-							);
-						} );
+					let failedIds = new Set< string >();
+					try {
+						await deleteVideo( ids );
+						createSuccessNotice(
+							sprintf(
+								/* translators: %d: number of deleted videos. */
+								_n(
+									'%d video deleted.',
+									'%d videos deleted.',
+									ids.length,
+									'jetpack-videopress-pkg'
+								),
+								ids.length
+							)
+						);
+					} catch ( error ) {
+						// Unknown error shape → assume nothing was deleted.
+						failedIds =
+							error instanceof DeleteVideosError
+								? new Set( error.failedIds.map( String ) )
+								: new Set( ids );
+						createErrorNotice(
+							sprintf(
+								/* translators: %d: number of videos that could not be deleted. */
+								_n(
+									'Failed to delete %d video.',
+									'Failed to delete %d videos.',
+									failedIds.size,
+									'jetpack-videopress-pkg'
+								),
+								failedIds.size
+							)
+						);
+					}
+					setDeletingIds( prev => {
+						const next = new Set( prev );
+						ids.forEach( id => next.delete( id ) );
+						return next;
+					} );
+					// Prune rows that are now gone from the DataViews selection so
+					// the bulk-actions toolbar doesn't keep counting them. On partial
+					// failure the failed rows survive and stay selected.
+					const requested = new Set( ids );
+					setSelection( prev => prev.filter( id => ! requested.has( id ) || failedIds.has( id ) ) );
 				},
 				setPrivacy: ( id: string, privacy: LibraryItemPrivacy ) => {
 					updateMeta(
@@ -339,18 +330,15 @@ const StageInner = () => {
 		// local-storage to VideoPress or being deleted, so the title-cell
 		// pill and the thumbnail overlay reflect the operation without
 		// needing a parallel signal at every render site.
-		const overlaid =
-			promotingIds.size || deletingIds.size
-				? items.map( item => {
-						if ( promotingIds.has( item.id ) ) {
-							return { ...item, upload: { status: 'promoting' as const, progress: 0 } };
-						}
-						if ( deletingIds.has( item.id ) ) {
-							return { ...item, upload: { status: 'deleting' as const, progress: 0 } };
-						}
-						return item;
-				  } )
-				: items;
+		const overlaid = items.map( item => {
+			if ( promotingIds.has( item.id ) ) {
+				return { ...item, upload: { status: 'promoting' as const, progress: 0 } };
+			}
+			if ( deletingIds.has( item.id ) ) {
+				return { ...item, upload: { status: 'deleting' as const, progress: 0 } };
+			}
+			return item;
+		} );
 		return [ ...inFlight, ...overlaid ];
 	}, [ uploadQueue, items, promotingIds, deletingIds ] );
 

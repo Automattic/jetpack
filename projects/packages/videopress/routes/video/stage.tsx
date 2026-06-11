@@ -160,16 +160,16 @@ const Editor = ( {
 
 type StageReadyProps = { video: LibraryItem };
 
-// Stable id so the in-progress snackbar can be replaced/removed once the
-// delete settles instead of stacking a second notice next to it.
+// Stable id so the settle notices replace the in-progress snackbar in place
+// (the notices store drops an existing notice with the same id on create)
+// instead of stacking a second notice next to it.
 const DELETING_NOTICE_ID = 'vp-video-deleting';
 
 const StageReady = ( { video }: StageReadyProps ) => {
 	const navigate = useNavigate();
 	const { mutate: updateMeta, isPending: isSaving } = useUpdateVideoMeta();
 	const { mutateAsync: deleteVideo, isPending: isDeleting } = useDeleteVideo();
-	const { createSuccessNotice, createErrorNotice, createInfoNotice, removeNotice } =
-		useGlobalNotices();
+	const { createSuccessNotice, createErrorNotice, createInfoNotice } = useGlobalNotices();
 	const [ chaptersOpen, setChaptersOpen ] = useState( false );
 	// Deletes keep running after an unmount (the user can navigate away via
 	// the breadcrumb mid-flight). The notice cleanup below must still happen
@@ -217,15 +217,17 @@ const StageReady = ( { video }: StageReadyProps ) => {
 				// orphan the explicitDismiss notice above forever.
 				deleteVideo( Number( video.id ) )
 					.then( () => {
-						removeNotice( DELETING_NOTICE_ID );
-						createSuccessNotice( __( 'Video deleted.', 'jetpack-videopress-pkg' ) );
+						createSuccessNotice( __( 'Video deleted.', 'jetpack-videopress-pkg' ), {
+							id: DELETING_NOTICE_ID,
+						} );
 						if ( isMountedRef.current ) {
 							navigate( { href: '/library' } );
 						}
 					} )
 					.catch( () => {
-						removeNotice( DELETING_NOTICE_ID );
-						createErrorNotice( __( 'Failed to delete video.', 'jetpack-videopress-pkg' ) );
+						createErrorNotice( __( 'Failed to delete video.', 'jetpack-videopress-pkg' ), {
+							id: DELETING_NOTICE_ID,
+						} );
 					} );
 			} }
 			onDownload={ () => {

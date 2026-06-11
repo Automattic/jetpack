@@ -1,27 +1,5 @@
+import { makeLibraryItem as item } from '../../../test-utils/library-item';
 import { buildLibraryActions } from '../actions';
-import type { LibraryItem } from '../../../types/library';
-
-const item = ( overrides: Partial< LibraryItem > = {} ): LibraryItem => ( {
-	id: '42',
-	guid: 'abc123',
-	type: 'videopress',
-	title: 'My Clip',
-	filename: 'clip.mp4',
-	thumbnailUrl: null,
-	durationSeconds: 0,
-	uploadDate: '2026-01-01T00:00:00',
-	privacy: 'public',
-	isPrivate: false,
-	fileSizeBytes: 0,
-	upload: { status: 'idle', progress: 0 },
-	description: '',
-	rating: 'G',
-	displayEmbed: true,
-	allowDownloads: false,
-	shortcode: '',
-	isProcessing: false,
-	...overrides,
-} );
 
 const makeApi = () => ( {
 	promoteLocal: jest.fn(),

@@ -10,10 +10,11 @@ type Api = {
 	openVideoDetails: ( id: string ) => void;
 };
 
+// Allowlist on 'idle' (matching TitleText and ThumbnailField) rather than a
+// blocklist of known in-flight statuses, so any future status is excluded
+// from row actions by default instead of silently slipping through.
 const isVideoPressIdle = ( item: LibraryItem ) =>
-	item.type === 'videopress' &&
-	item.upload.status !== 'failed' &&
-	item.upload.status !== 'deleting';
+	item.type === 'videopress' && item.upload.status === 'idle';
 
 /**
  * Build the DataViews actions array for the Library tab. Eligibility predicates
