@@ -10,7 +10,7 @@ import { buildLibraryActions } from '../../src/dashboard/components/library/acti
 import { libraryFields } from '../../src/dashboard/components/library/fields';
 import { UploadActionsProvider } from '../../src/dashboard/components/library/upload-actions-context';
 import QueryClientWrapper from '../../src/dashboard/components/query-client-wrapper';
-import { useDeleteVideo } from '../../src/dashboard/hooks/use-delete-video';
+import { DeleteVideosError, useDeleteVideo } from '../../src/dashboard/hooks/use-delete-video';
 import { useFreeTier } from '../../src/dashboard/hooks/use-free-tier';
 import { useLibrary } from '../../src/dashboard/hooks/use-library';
 import { useUpdateVideoMeta } from '../../src/dashboard/hooks/use-update-video-meta';
@@ -65,10 +65,14 @@ const StageInner = () => {
 	// The upload-from-library endpoint doesn't report progress, so we just
 	// need to know which rows to overlay with an "Uploading…" state.
 	const [ promotingIds, setPromotingIds ] = useState< Set< string > >( () => new Set() );
+	// IDs currently being deleted. Same overlay technique as promotingIds:
+	// rows get a "Deleting…" state (thumbnail overlay in grid, title pill in
+	// table) until the post-delete refetch removes them from the listing.
+	const [ deletingIds, setDeletingIds ] = useState< Set< string > >( () => new Set() );
 
 	const { items, isLoading, paginationInfo } = useLibrary( view );
 	const { uploadQueue, startUpload, retryUpload } = useUpload();
-	const { mutate: deleteVideo } = useDeleteVideo();
+	const { mutateAsync: deleteVideo } = useDeleteVideo();
 	const { mutate: updateMeta } = useUpdateVideoMeta();
 	const { mutate: uploadFromLibrary } = useUploadFromLibrary();
 	const { isAtLimit, isFree, isUnlimited, videoCount, limit } = useFreeTier();
@@ -210,8 +214,20 @@ const StageInner = () => {
 				retryUpload,
 				openVideoDetails,
 				deleteItems: ( ids: string[] ) => {
-					deleteVideo( ids, {
-						onSuccess: () => {
+					setDeletingIds( prev => {
+						const next = new Set( prev );
+						ids.forEach( id => next.add( id ) );
+						return next;
+					} );
+					// React via the mutateAsync promise, not mutate-level callbacks:
+					// those are dropped if another delete starts while this one is in
+					// flight (TanStack detaches the observer), which would strand
+					// rows in the "Deleting…" state. The promise settles only after
+					// the hook's awaited library refetch, so the cleanup below can't
+					// flash rows back to their normal state ahead of their removal
+					// from the listing.
+					deleteVideo( ids )
+						.then( () => {
 							createSuccessNotice(
 								sprintf(
 									/* translators: %d: number of deleted videos. */
@@ -224,18 +240,41 @@ const StageInner = () => {
 									ids.length
 								)
 							);
-						},
-						onError: () => {
+							return new Set< string >();
+						} )
+						.catch( ( error: Error ) => {
+							// Unknown error shape → assume nothing was deleted.
+							const failedIds =
+								error instanceof DeleteVideosError
+									? new Set( error.failedIds.map( String ) )
+									: new Set( ids );
 							createErrorNotice(
-								_n(
-									'Failed to delete video.',
-									'Failed to delete videos.',
-									ids.length,
-									'jetpack-videopress-pkg'
+								sprintf(
+									/* translators: %d: number of videos that could not be deleted. */
+									_n(
+										'Failed to delete %d video.',
+										'Failed to delete %d videos.',
+										failedIds.size,
+										'jetpack-videopress-pkg'
+									),
+									failedIds.size
 								)
 							);
-						},
-					} );
+							return failedIds;
+						} )
+						.then( failedIds => {
+							setDeletingIds( prev => {
+								const next = new Set( prev );
+								ids.forEach( id => next.delete( id ) );
+								return next;
+							} );
+							// Prune rows that are now gone from the DataViews selection
+							// so the bulk-actions toolbar doesn't keep counting them. On
+							// partial failure the failed rows survive and stay selected.
+							setSelection( prev =>
+								prev.filter( id => ! ids.includes( id ) || failedIds.has( id ) )
+							);
+						} );
 				},
 				setPrivacy: ( id: string, privacy: LibraryItemPrivacy ) => {
 					updateMeta(
@@ -296,19 +335,24 @@ const StageInner = () => {
 				shortcode: '',
 				isProcessing: false,
 			} ) );
-		// Overlay an "uploading"-style state on items currently being
-		// promoted from local-storage to VideoPress, so the title-cell
-		// pill and the thumbnail overlay reflect the in-flight state
-		// without needing a parallel signal at every render site.
-		const overlaid = promotingIds.size
-			? items.map( item =>
-					promotingIds.has( item.id )
-						? { ...item, upload: { status: 'promoting' as const, progress: 0 } }
-						: item
-			  )
-			: items;
+		// Overlay an in-flight state on items currently being promoted from
+		// local-storage to VideoPress or being deleted, so the title-cell
+		// pill and the thumbnail overlay reflect the operation without
+		// needing a parallel signal at every render site.
+		const overlaid =
+			promotingIds.size || deletingIds.size
+				? items.map( item => {
+						if ( promotingIds.has( item.id ) ) {
+							return { ...item, upload: { status: 'promoting' as const, progress: 0 } };
+						}
+						if ( deletingIds.has( item.id ) ) {
+							return { ...item, upload: { status: 'deleting' as const, progress: 0 } };
+						}
+						return item;
+				  } )
+				: items;
 		return [ ...inFlight, ...overlaid ];
-	}, [ uploadQueue, items, promotingIds ] );
+	}, [ uploadQueue, items, promotingIds, deletingIds ] );
 
 	const getItemId = useCallback( ( item: LibraryItem ) => item.id, [] );
 

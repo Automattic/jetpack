@@ -1,7 +1,7 @@
 import AdminPage from '@automattic/jetpack-components/admin-page';
 import { useGlobalNotices } from '@automattic/jetpack-components/global-notices';
 import { Breadcrumbs } from '@wordpress/admin-ui';
-import { useCallback, useState } from '@wordpress/element';
+import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Link, useNavigate, useParams } from '@wordpress/route';
 import { Stack, Text } from '@wordpress/ui';
@@ -160,12 +160,27 @@ const Editor = ( {
 
 type StageReadyProps = { video: LibraryItem };
 
+// Stable id so the in-progress snackbar can be replaced/removed once the
+// delete settles instead of stacking a second notice next to it.
+const DELETING_NOTICE_ID = 'vp-video-deleting';
+
 const StageReady = ( { video }: StageReadyProps ) => {
 	const navigate = useNavigate();
 	const { mutate: updateMeta, isPending: isSaving } = useUpdateVideoMeta();
-	const { mutate: deleteVideo } = useDeleteVideo();
-	const { createSuccessNotice, createErrorNotice } = useGlobalNotices();
+	const { mutateAsync: deleteVideo, isPending: isDeleting } = useDeleteVideo();
+	const { createSuccessNotice, createErrorNotice, createInfoNotice, removeNotice } =
+		useGlobalNotices();
 	const [ chaptersOpen, setChaptersOpen ] = useState( false );
+	// Deletes keep running after an unmount (the user can navigate away via
+	// the breadcrumb mid-flight). The notice cleanup below must still happen
+	// then, but we shouldn't yank them to the Library if they've moved on.
+	const isMountedRef = useRef( true );
+	useEffect( () => {
+		isMountedRef.current = true;
+		return () => {
+			isMountedRef.current = false;
+		};
+	}, [] );
 
 	return (
 		<Editor
@@ -186,15 +201,32 @@ const StageReady = ( { video }: StageReadyProps ) => {
 				);
 			} }
 			onDelete={ () => {
-				deleteVideo( Number( video.id ), {
-					onSuccess: () => {
-						createSuccessNotice( __( 'Video deleted.', 'jetpack-videopress-pkg' ) );
-						navigate( { href: '/library' } );
-					},
-					onError: () => {
-						createErrorNotice( __( 'Failed to delete video.', 'jetpack-videopress-pkg' ) );
-					},
+				if ( isDeleting ) {
+					return;
+				}
+				// Deleting can take several seconds (the backend also removes the
+				// remote VideoPress copy); surface progress immediately so the
+				// action doesn't feel frozen. `explicitDismiss` keeps the snackbar
+				// from auto-expiring before the request settles.
+				createInfoNotice( __( 'Deleting video…', 'jetpack-videopress-pkg' ), {
+					id: DELETING_NOTICE_ID,
+					explicitDismiss: true,
 				} );
+				// Promise chain rather than mutate-level callbacks: those are
+				// dropped when the component unmounts mid-flight, which would
+				// orphan the explicitDismiss notice above forever.
+				deleteVideo( Number( video.id ) )
+					.then( () => {
+						removeNotice( DELETING_NOTICE_ID );
+						createSuccessNotice( __( 'Video deleted.', 'jetpack-videopress-pkg' ) );
+						if ( isMountedRef.current ) {
+							navigate( { href: '/library' } );
+						}
+					} )
+					.catch( () => {
+						removeNotice( DELETING_NOTICE_ID );
+						createErrorNotice( __( 'Failed to delete video.', 'jetpack-videopress-pkg' ) );
+					} );
 			} }
 			onDownload={ () => {
 				if ( video.sourceUrl ) {

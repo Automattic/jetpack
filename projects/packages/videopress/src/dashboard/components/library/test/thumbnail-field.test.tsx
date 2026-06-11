@@ -95,6 +95,15 @@ describe( 'ThumbnailField — grid Details access', () => {
 		expect( screen.queryByRole( 'button', { name: /Edit details/ } ) ).not.toBeInTheDocument();
 		expect( screen.getByText( '40%' ) ).toBeInTheDocument();
 	} );
+
+	it( 'shows a Deleting… overlay and removes the open-details button while deleting', () => {
+		renderField(
+			<ThumbnailField item={ item( { upload: { status: 'deleting', progress: 0 } } ) } />,
+			makeActions()
+		);
+		expect( screen.getByText( 'Deleting…' ) ).toBeInTheDocument();
+		expect( screen.queryByRole( 'button', { name: /Edit details/ } ) ).not.toBeInTheDocument();
+	} );
 } );
 
 describe( 'TitleCell — grid Details access', () => {
@@ -113,5 +122,16 @@ describe( 'TitleCell — grid Details access', () => {
 		);
 		expect( screen.getByText( 'Raw Footage' ) ).toBeInTheDocument();
 		expect( screen.queryByRole( 'button', { name: 'Raw Footage' } ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'renders a Deleting… pill and a non-interactive title while deleting', () => {
+		renderField(
+			<TitleCellRender
+				item={ item( { title: 'Doomed', upload: { status: 'deleting', progress: 0 } } ) }
+			/>,
+			makeActions()
+		);
+		expect( screen.getByText( 'Deleting…' ) ).toBeInTheDocument();
+		expect( screen.queryByRole( 'button', { name: 'Doomed' } ) ).not.toBeInTheDocument();
 	} );
 } );
