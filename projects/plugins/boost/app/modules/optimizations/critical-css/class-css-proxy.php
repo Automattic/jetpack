@@ -60,7 +60,12 @@ class CSS_Proxy {
 		}
 
 		$css = '';
-		if ( false === $response ) {
+		if ( is_string( $response ) ) {
+			// Cache hit: the transient stores the CSS body from a previous
+			// successful fetch. Without this, cache hits served an empty
+			// response, feeding the Critical CSS generator no CSS at all.
+			$css = $response;
+		} elseif ( false === $response ) {
 			$response     = wp_safe_remote_get( $proxy_url );
 			$content_type = wp_remote_retrieve_header( $response, 'content-type' );
 			if ( strpos( $content_type, 'text/css' ) === false ) {
