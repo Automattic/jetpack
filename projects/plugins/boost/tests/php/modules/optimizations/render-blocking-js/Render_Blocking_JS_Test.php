@@ -226,10 +226,12 @@ class Render_Blocking_JS_Test extends MockeryTestCase {
 	 * still moved to the end of the document.
 	 */
 	public function test_inline_document_write_script_stays_in_place_while_normal_script_is_moved() {
+		// The external script sits BEFORE the closing paragraph so the position
+		// assertions below can only pass if the pipeline actually moved it.
 		$html = '<html><body><p>Before</p>' .
 			'<script>document.write("inline content");</script>' .
+			'<script src="https://example.com/external.js"></script>' . // phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedScript -- test fixture markup.
 			'<p>After</p>' .
-			'<script src="https://example.com/external.js"></script>' .
 			'</body></html>';
 
 		$output = $this->filter_output( $html );
@@ -314,7 +316,7 @@ class Render_Blocking_JS_Test extends MockeryTestCase {
 	 */
 	public function test_script_with_src_and_document_write_body_is_still_moved() {
 		$html = '<html><body><p>Before</p>' .
-			'<script src="https://example.com/external.js">document.write("never runs");</script>' .
+			'<script src="https://example.com/external.js">document.write("never runs");</script>' . // phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedScript -- test fixture markup.
 			'<p>After</p>' .
 			'</body></html>';
 

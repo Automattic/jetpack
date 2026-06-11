@@ -263,6 +263,13 @@ class Render_Blocking_JS implements Feature, Changes_Output_On_Activation, Optim
 		// the footer instead of inside the content (e.g. a Custom HTML block in a post).
 		// Scripts that already carry the ignore attribute are skipped so their
 		// behavior (and markup) is unchanged.
+		//
+		// Fast path: skip the inline-script scan entirely when the buffer cannot
+		// contain a position-dependent script.
+		if ( false === stripos( $buffer, 'document.write' ) ) {
+			return $buffer;
+		}
+
 		$inline_script_regex = sprintf(
 			'~<script\b(?![^>]*\ssrc\s*=)(?![^>]*%s=(?<q>["\']*)%s\k<q>)[^>]*>[\s\S]*?<\/script>~i',
 			preg_quote( $this->ignore_attribute, '~' ),
