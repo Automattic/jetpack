@@ -57,6 +57,8 @@ class Settings_Test extends BaseTestCase {
 
 		unset( $_GET['page'] );
 		remove_all_filters( Settings::MODERNIZATION_FILTER );
+		remove_all_filters( 'site_url' );
+		remove_all_filters( 'home_url' );
 
 		// Dequeue any scripts that may have leaked into globals during the test.
 		wp_dequeue_script( 'jp-tracks' );
@@ -199,9 +201,6 @@ class Settings_Test extends BaseTestCase {
 		add_filter( 'home_url', array( $this, 'mock_subdirectory_home_url' ) );
 
 		$data = ( new Settings() )->add_script_data( array() );
-
-		remove_filter( 'site_url', array( $this, 'mock_subdirectory_site_url' ) );
-		remove_filter( 'home_url', array( $this, 'mock_subdirectory_home_url' ) );
 
 		$this->assertSame(
 			'https://cloud.jetpack.com/monetize/payments/example.com',
