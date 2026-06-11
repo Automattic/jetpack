@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+Notifications: gate the v3 panel behind the hosting dashboard opt-in instead of a query parameter.

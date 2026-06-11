@@ -195,9 +195,8 @@ class Jetpack_Notifications {
 
 		$third_party_cookie_check_iframe = '<span style="display:none;"><iframe class="jetpack-notes-cookie-check" src="https://widgets.wp.com/3rd-party-cookie-check/index.html"></iframe></span>';
 
-		// Opt into the v3 notifications panel/iframe via the `notifications=v3` query parameter.
-		$notifications_version = sanitize_key( wp_unslash( $_GET['notifications'] ?? '' ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		$panel_id              = 'v3' === $notifications_version ? 'wpnt-notes-panel3' : 'wpnt-notes-panel2';
+		// Use the v3 notifications panel/iframe for users who have opted into the hosting dashboard.
+		$panel_id = self::has_hosting_dashboard_opt_in() ? 'wpnt-notes-panel3' : 'wpnt-notes-panel2';
 
 		$title = self::get_notes_markup();
 
@@ -216,6 +215,21 @@ class Jetpack_Notifications {
 				'href'   => 'https://wordpress.com/reader/notifications',
 			)
 		);
+	}
+
+	/**
+	 * Whether the current user has opted into the hosting dashboard, which also enables the v3 notifications panel.
+	 *
+	 * @return bool
+	 */
+	private static function has_hosting_dashboard_opt_in() {
+		if ( ! function_exists( 'get_user_attribute' ) ) {
+			return false;
+		}
+
+		$preferences = get_user_attribute( get_current_user_id(), 'calypso_preferences' );
+
+		return 'opt-in' === ( $preferences['hosting-dashboard-opt-in']['value'] ?? null );
 	}
 
 	/**
