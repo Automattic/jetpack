@@ -4,28 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "f027d03433b3a70bb6f4b28317c7a19c",
+    "content-hash": "d0871f7a7395d1ee5864c7d40d2e35df",
     "packages": [
-        {
-            "name": "automattic/at-pressable-podcasting",
-            "version": "v2.0.8",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/automattic/at-pressable-podcasting.git",
-                "reference": "78780729dbf7b01e67e2a6472f8576ce8ba7f0fc"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/automattic/at-pressable-podcasting/zipball/78780729dbf7b01e67e2a6472f8576ce8ba7f0fc",
-                "reference": "78780729dbf7b01e67e2a6472f8576ce8ba7f0fc",
-                "shasum": ""
-            },
-            "type": "wordpress-plugin",
-            "license": [
-                "GPL-2.0-or-later"
-            ],
-            "time": "2026-05-12T12:18:56+00:00"
-        },
         {
             "name": "automattic/block-delimiter",
             "version": "dev-trunk",

@@ -13,12 +13,11 @@ use Automattic\Jetpack\Status\Host;
 
 /**
  * Loads Jetpack Podcast on Simple and Atomic sites, gated behind the
- * `jetpack_podcast_untangle` feature filter.
+ * `jetpack_podcast_untangle` feature filter (default on).
  *
- * Until the filter returns true, `init()` is a no-op so the legacy podcasting
- * code (`Automattic_Podcasting` from the wpcom mu-plugin and the
- * at-pressable-podcasting bridge plugin) keeps running unchanged. Subsequent
- * PRs in the untangle train fill this in.
+ * If the filter is flipped off, `init()` is a no-op so the legacy
+ * `Automattic_Podcasting` code in the wpcom mu-plugin keeps running on Simple
+ * sites. (The Atomic-side at-pressable-podcasting bridge has been removed.)
  */
 class Podcast {
 

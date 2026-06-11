@@ -2,4 +2,4 @@
 
 Hosts the wp-admin Podcast experience for the Jetpack plugin (Simple and Atomic only).
 
-The package is gated behind the `jetpack_podcast_untangle` filter (default off). Until the filter is flipped on, the package contributes nothing — the legacy podcasting code (`Automattic_Podcasting` in the wpcom mu-plugin and the `at-pressable-podcasting` bridge plugin) keeps running unchanged. Subsequent PRs in the untangle train layer the new wp-admin SPA, REST integration, and feed customization on top of this gate.
+The package owns the wp-admin SPA, REST integration, and feed customization, and is gated behind the `jetpack_podcast_untangle` filter (default on). The filter remains an escape hatch for forcing the legacy stack back on: filtering it off falls back to the legacy `Automattic_Podcasting` code in the wpcom mu-plugin on Simple sites. (The Atomic-side `at-pressable-podcasting` bridge has been removed.)
