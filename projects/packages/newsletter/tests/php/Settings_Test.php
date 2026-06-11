@@ -188,6 +188,52 @@ class Settings_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Regression test for NL-695: on a WordPress install living in a subdirectory,
+	 * `site_url` includes the subdirectory path (e.g. `example.com/pages`) while
+	 * `home_url` is the bare host (e.g. `example.com`). The "Add plans" URL must be
+	 * built from the home host so Calypso receives a valid site slug, not the
+	 * subdirectory path.
+	 */
+	public function test_add_script_data_payment_url_uses_home_host_on_subdirectory_install() {
+		add_filter( 'site_url', array( $this, 'mock_subdirectory_site_url' ) );
+		add_filter( 'home_url', array( $this, 'mock_subdirectory_home_url' ) );
+
+		$data = ( new Settings() )->add_script_data( array() );
+
+		remove_filter( 'site_url', array( $this, 'mock_subdirectory_site_url' ) );
+		remove_filter( 'home_url', array( $this, 'mock_subdirectory_home_url' ) );
+
+		$this->assertSame(
+			'https://cloud.jetpack.com/monetize/payments/example.com',
+			$data['newsletter']['setupPaymentPlansUrl'],
+			'Add plans URL must use the home host, not the site_url subdirectory path.'
+		);
+		$this->assertStringNotContainsString(
+			'pages',
+			$data['newsletter']['setupPaymentPlansUrl'],
+			'Add plans URL must not leak the site_url subdirectory segment.'
+		);
+	}
+
+	/**
+	 * Mock `site_url` for a subdirectory install (WordPress lives in `/pages`).
+	 *
+	 * @return string
+	 */
+	public function mock_subdirectory_site_url() {
+		return 'https://example.com/pages';
+	}
+
+	/**
+	 * Mock `home_url` for a subdirectory install (the site is served from the root).
+	 *
+	 * @return string
+	 */
+	public function mock_subdirectory_home_url() {
+		return 'https://example.com';
+	}
+
+	/**
 	 * Reflection helper for the private static `Settings::is_modernized()`.
 	 *
 	 * Going through reflection rather than `apply_filters()` ensures we test the
