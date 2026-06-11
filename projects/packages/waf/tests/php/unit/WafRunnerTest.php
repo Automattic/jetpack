@@ -85,15 +85,17 @@ final class WafRunnerTest extends PHPUnit\Framework\TestCase {
 		define( 'JETPACK_WAF_ENTRYPOINT', 'rules.php' );
 		define( 'JETPACK_WAF_MODE', 'normal' );
 
-		Waf_Runner::run();
+		try {
+			Waf_Runner::run();
 
-		// run() reached the guard (the run-context constant is set before it)...
-		$this->assertTrue( defined( 'JETPACK_WAF_RUN' ), 'Waf_Runner::run() should have started executing.' );
-		// ...but returned early without ever including the rules file.
-		$this->assertFalse( defined( 'JETPACK_WAF_RULES_EXECUTED' ), 'WAF rules must not be evaluated when there is no HTTP request method.' );
-
-		// Clean up.
-		unlink( $rules_file );
-		rmdir( $rules_dir );
+			// run() reached the guard (the run-context constant is set before it)...
+			$this->assertTrue( defined( 'JETPACK_WAF_RUN' ), 'Waf_Runner::run() should have started executing.' );
+			// ...but returned early without ever including the rules file.
+			$this->assertFalse( defined( 'JETPACK_WAF_RULES_EXECUTED' ), 'WAF rules must not be evaluated when there is no HTTP request method.' );
+		} finally {
+			// Clean up, even if an assertion fails.
+			unlink( $rules_file );
+			rmdir( $rules_dir );
+		}
 	}
 }

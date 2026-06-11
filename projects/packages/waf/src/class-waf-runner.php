@@ -243,7 +243,7 @@ class Waf_Runner {
 		// PHP_SAPI as 'cli'), there is no HTTP request to evaluate. Skip rule execution so
 		// HTTP-specific rules (e.g. rule 911100, which checks the request method) don't
 		// produce a false-positive 403 block.
-		if ( PHP_SAPI === 'cli' || empty( $_SERVER['REQUEST_METHOD'] ) ) {
+		if ( PHP_SAPI === 'cli' || ! isset( $_SERVER['REQUEST_METHOD'] ) ) {
 			return;
 		}
 
