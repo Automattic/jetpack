@@ -14,10 +14,7 @@ use Automattic\Jetpack\Status\Request;
 /**
  * Registers and renders the Podcast Episode block.
  *
- * Activation is gated by the `jetpack_podcast_untangle` filter; the
- * caller (Podcast::init()) is responsible for the host gate. Each action
- * callback re-checks the filter at hook time, so a late-registered filter
- * callback still takes effect.
+ * The caller (Podcast::init()) is responsible for the host gate.
  */
 class Podcast_Episode_Block {
 
@@ -40,8 +37,7 @@ class Podcast_Episode_Block {
 	const VIEW_HANDLE = 'jetpack-podcast-episode-view';
 
 	/**
-	 * Wire the block's actions. Hooks are added unconditionally; each
-	 * callback re-checks the untangle filter and short-circuits when off.
+	 * Wire the block's actions.
 	 */
 	public static function register_hooks() {
 		add_action( 'init', array( __CLASS__, 'register_block' ), 9 );
@@ -49,17 +45,7 @@ class Podcast_Episode_Block {
 	}
 
 	/**
-	 * Whether the new podcast experience is enabled.
-	 *
-	 * Delegates to {@see Podcast::is_enabled()} so the block honors the
-	 * same default (proxied A8C requests) as the rest of the package.
-	 */
-	private static function is_enabled(): bool {
-		return Podcast::is_enabled();
-	}
-
-	/**
-	 * Register the block when the gate is open.
+	 * Register the block.
 	 *
 	 * Also registers the front-end style bundle (built separately from the
 	 * editor bundle so it actually ships on the public post page) and hands
@@ -67,10 +53,6 @@ class Podcast_Episode_Block {
 	 * enqueues it whenever the block is rendered.
 	 */
 	public static function register_block() {
-		if ( ! self::is_enabled() ) {
-			return;
-		}
-
 		// Assets::register_script side-loads the sibling style.css and
 		// registers a style handle under the same name. The accompanying
 		// (essentially empty) style.js handle is registered too but never
@@ -118,10 +100,6 @@ class Podcast_Episode_Block {
 	 * Enqueue the bundled editor script + style from the package's dist/.
 	 */
 	public static function load_editor_scripts() {
-		if ( ! self::is_enabled() ) {
-			return;
-		}
-
 		Assets::register_script(
 			self::EDITOR_HANDLE,
 			'../../../dist/blocks/podcast-episode/editor.js',

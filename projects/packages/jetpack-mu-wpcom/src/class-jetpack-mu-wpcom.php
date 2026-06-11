@@ -440,9 +440,7 @@ class Jetpack_Mu_Wpcom {
 		// Initialize the Podcast package here (rather than in
 		// load_wpcom_user_features) so feed-customization hooks register
 		// for anonymous requests too — Apple Podcasts / Spotify crawlers
-		// aren't logged in. Podcast::init() gates itself on host
-		// (Simple/WoA) and `jetpack_podcast_untangle`, so the legacy
-		// podcasting code keeps running until the flag flips.
+		// aren't logged in. Podcast::init() gates itself on host (Simple/WoA).
 		\Automattic\Jetpack\Podcast\Podcast::init();
 	}
 
