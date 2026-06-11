@@ -1495,7 +1495,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/jetpack-mu-wpcom",
-                "reference": "370824ff914142adb36b88b2070396f96836d43b"
+                "reference": "17cf4ffb6db2e468d015f3840acf680595023045"
             },
             "require": {
                 "automattic/block-delimiter": "@dev",
@@ -1553,6 +1553,9 @@
                 ],
                 "test-js": [
                     "pnpm run test"
+                ],
+                "test-js-coverage": [
+                    "pnpm run test-coverage"
                 ],
                 "test-php": [
                     "@composer phpunit"
@@ -2413,7 +2416,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/wp-build-polyfills",
-                "reference": "0a2f5b88f7c6792cd06a0533d66d3867f8d15aac"
+                "reference": "3f3fcbaa85914479f57f85c64247b824101cf185"
             },
             "require": {
                 "php": ">=7.2"
@@ -2459,6 +2462,10 @@
                 "test-js": [
                     "pnpm run build",
                     "pnpm run test"
+                ],
+                "test-js-coverage": [
+                    "pnpm run build",
+                    "pnpm run test-coverage"
                 ]
             },
             "license": [

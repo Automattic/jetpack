@@ -1862,7 +1862,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/wp-build-polyfills",
-                "reference": "0a2f5b88f7c6792cd06a0533d66d3867f8d15aac"
+                "reference": "3f3fcbaa85914479f57f85c64247b824101cf185"
             },
             "require": {
                 "php": ">=7.2"
@@ -1908,6 +1908,10 @@
                 "test-js": [
                     "pnpm run build",
                     "pnpm run test"
+                ],
+                "test-js-coverage": [
+                    "pnpm run build",
+                    "pnpm run test-coverage"
                 ]
             },
             "license": [
