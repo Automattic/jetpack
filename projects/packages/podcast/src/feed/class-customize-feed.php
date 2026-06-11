@@ -95,21 +95,7 @@ class Customize_Feed {
 	}
 
 	/**
-	 * Episode description for `<description>` and the `<itunes:summary>` we
-	 * mirror from it: the post's manual excerpt (the block editor's "Show
-	 * notes" field) when set, otherwise the auto-generated excerpt trimmed
-	 * from the post body.
-	 *
-	 * Returning only the manual excerpt (empty otherwise) blanked the
-	 * descriptions Apple Podcasts and Spotify show for every episode that
-	 * never set show notes — a regression for sites relying on the
-	 * auto-generated summary. `wp_trim_excerpt()` runs the body through
-	 * `excerpt_remove_blocks()` first, so the Podcast Episode player block is
-	 * dropped and only prose (paragraphs/headings) survives — no player markup
-	 * leaks into the description.
-	 *
-	 * Hooked to `the_excerpt_rss` and called directly for `<itunes:summary>`
-	 * so both fields always emit the same text.
+	 * Episode description for `<description>` and `<itunes:summary>`: manual excerpt when set, else the auto-generated body excerpt (`wp_trim_excerpt()` drops the player block, keeping only prose).
 	 *
 	 * @return string Manual excerpt, or the auto-generated body excerpt when none is set.
 	 */
@@ -122,9 +108,7 @@ class Customize_Feed {
 			return (string) $post->post_excerpt;
 		}
 
-		// Called twice per item (the `the_excerpt_rss` filter + the
-		// `<itunes:summary>` mirror), and `wp_trim_excerpt()` re-renders the
-		// whole body through `the_content` each time — memoize per post.
+		// Memoize: called twice per item and `wp_trim_excerpt()` re-renders the body each time.
 		static $auto_excerpts = array();
 		if ( ! array_key_exists( $post->ID, $auto_excerpts ) ) {
 			$auto_excerpts[ $post->ID ] = (string) wp_trim_excerpt( '', $post );
@@ -235,8 +219,7 @@ class Customize_Feed {
 			echo '<itunes:author>' . esc_xml( wp_strip_all_tags( $author ) ) . "</itunes:author>\n";
 		}
 
-		// Mirror what the `<description>` emits — manual excerpt when set,
-		// otherwise the auto-generated body excerpt (see `filter_episode_excerpt()`).
+		// Mirror what the `<description>` emits (see `filter_episode_excerpt()`).
 		$excerpt = self::filter_episode_excerpt();
 		if ( '' !== trim( $excerpt ) ) {
 			echo '<itunes:summary>' . esc_xml( wp_strip_all_tags( $excerpt ) ) . "</itunes:summary>\n";

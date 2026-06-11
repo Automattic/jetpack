@@ -566,12 +566,7 @@ class Customize_Feed_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Episodes with no manual excerpt (no "Show notes") fall back to the
-	 * auto-generated body excerpt — the description Apple/Spotify showed before
-	 * the regression, rather than the empty string the leak-fix produced.
-	 *
-	 * The trimming itself is WP core's `wp_trim_excerpt()`; we stub its output
-	 * filter to assert only that the fallback is taken.
+	 * Episodes with no manual excerpt fall back to the auto-generated body excerpt (stubbed here to assert only that the fallback is taken).
 	 */
 	public function test_filter_episode_excerpt_falls_back_to_auto_excerpt() {
 		global $post;
@@ -589,15 +584,10 @@ class Customize_Feed_Test extends BaseTestCase {
 	}
 
 	/**
-	 * The auto-excerpt fallback runs the body through WP core's real
-	 * `wp_trim_excerpt()` (no stub): `excerpt_remove_blocks()` drops the
-	 * Podcast Episode player block, leaving only the prose. This is the exact
-	 * leak the fix relies on not happening — the player markup must never reach
-	 * the description.
+	 * The real `wp_trim_excerpt()` fallback strips the Podcast Episode player block, leaking only prose into the description.
 	 */
 	public function test_filter_episode_excerpt_strips_podcast_block_from_auto_excerpt() {
-		// A real inserted post (not a bare WP_Post) so core's `get_the_content()`
-		// inside `wp_trim_excerpt()` has the post data it needs to render.
+		// Real inserted post so core's `get_the_content()` has the data it needs to render.
 		$post_id = wp_insert_post(
 			array(
 				'post_title'   => 'Episode without Show notes',
@@ -677,8 +667,7 @@ class Customize_Feed_Test extends BaseTestCase {
 		Customize_Feed::output_item_tags();
 		$output = (string) ob_get_clean();
 
-		// No manual excerpt → the auto-generated body excerpt is mirrored into
-		// <itunes:summary>, matching what <description> emits.
+		// No manual excerpt → auto-generated body excerpt mirrored into <itunes:summary>.
 		$this->assertStringContainsString( '<itunes:summary>Auto-generated summary.</itunes:summary>', $output );
 	}
 }
