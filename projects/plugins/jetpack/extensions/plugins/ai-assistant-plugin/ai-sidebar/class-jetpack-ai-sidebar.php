@@ -42,10 +42,6 @@ class Jetpack_AI_Sidebar {
 	 * @return void
 	 */
 	public static function init(): void {
-		if ( ! self::is_ai_assistant_setting_enabled() ) {
-			return;
-		}
-
 		/**
 		 * Filter to enable or disable the Jetpack AI sidebar feature.
 		 *
@@ -523,13 +519,12 @@ class Jetpack_AI_Sidebar {
 			return false;
 		}
 
-		// Temp comment
+		// Temp: filter bypassed for this experiment — the toggle-derived check above decides.
 		// return (bool) apply_filters(
 		// 'jetpack_ai_sidebar_preview_enabled',
 		// self::is_ai_editorial_review_enabled()
 		// );
-		// Bail by default
-		return false;
+		return true;
 	}
 
 	/**
