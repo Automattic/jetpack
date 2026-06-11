@@ -1,3 +1,4 @@
+import { addFilter } from '@wordpress/hooks';
 import { recordRtcEvent } from './tracks';
 import type { Awareness, ProviderCreator } from '@wordpress/sync';
 
@@ -42,4 +43,19 @@ export function withJoinTracking( creator: ProviderCreator ): ProviderCreator {
 		}
 		return result;
 	};
+}
+
+/**
+ * Register the join-tracking wrapper on the sync.providers filter.
+ *
+ * Runs at priority 30 so it wraps providers after the rtc package (priority 10)
+ * and the room-limit wrapper (priority 20).
+ */
+export function registerJoinTracking(): void {
+	addFilter(
+		'sync.providers',
+		'jetpack/rtc-join-tracking',
+		( providers: ProviderCreator[] ) => providers.map( withJoinTracking ),
+		30
+	);
 }

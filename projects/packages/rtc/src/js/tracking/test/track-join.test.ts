@@ -1,12 +1,17 @@
 import { jest } from '@jest/globals';
 
 const recordRtcEventMock = jest.fn();
+const addFilterMock = jest.fn();
 
 jest.unstable_mockModule( '../tracks', () => ( {
 	recordRtcEvent: recordRtcEventMock,
 } ) );
 
-const { withJoinTracking } = await import( '../track-join' );
+jest.unstable_mockModule( '@wordpress/hooks', () => ( {
+	addFilter: addFilterMock,
+} ) );
+
+const { withJoinTracking, registerJoinTracking } = await import( '../track-join' );
 
 /**
  * Build a fake awareness whose getStates() returns states keyed by client id,
@@ -103,5 +108,33 @@ describe( 'withJoinTracking', () => {
 		} );
 
 		expect( result ).toBe( provider );
+	} );
+} );
+
+describe( 'registerJoinTracking', () => {
+	beforeEach( () => addFilterMock.mockClear() );
+
+	it( 'registers a sync.providers filter at priority 30', () => {
+		registerJoinTracking();
+
+		expect( addFilterMock ).toHaveBeenCalledWith(
+			'sync.providers',
+			'jetpack/rtc-join-tracking',
+			expect.any( Function ),
+			30
+		);
+	} );
+
+	it( 'wraps each provider creator with join tracking', () => {
+		registerJoinTracking();
+
+		const mapper = addFilterMock.mock.calls[ 0 ][ 2 ] as ( p: unknown[] ) => unknown[];
+		const creatorA = jest.fn();
+		const creatorB = jest.fn();
+		const wrapped = mapper( [ creatorA, creatorB ] );
+
+		expect( wrapped ).toHaveLength( 2 );
+		expect( wrapped[ 0 ] ).not.toBe( creatorA );
+		expect( wrapped[ 1 ] ).not.toBe( creatorB );
 	} );
 } );
