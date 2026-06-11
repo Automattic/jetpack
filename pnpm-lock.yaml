@@ -4237,6 +4237,9 @@ importers:
 
   projects/packages/rtc:
     dependencies:
+      '@automattic/jetpack-analytics':
+        specifier: workspace:*
+        version: link:../../js-packages/analytics
       '@wordpress/api-fetch':
         specifier: 7.48.0
         version: 7.48.0
@@ -4277,12 +4280,30 @@ importers:
       '@automattic/jetpack-webpack-config':
         specifier: workspace:*
         version: link:../../js-packages/webpack-config
+      '@babel/core':
+        specifier: 7.29.0
+        version: 7.29.0
+      '@babel/preset-react':
+        specifier: 7.28.5
+        version: 7.28.5(@babel/core@7.29.0)
+      '@jest/globals':
+        specifier: 30.4.1
+        version: 30.4.1
+      '@types/jest':
+        specifier: 30.0.0
+        version: 30.0.0
       '@wordpress/base-styles':
         specifier: 9.1.0
         version: 9.1.0
       '@wordpress/browserslist-config':
         specifier: 6.48.0
         version: 6.48.0
+      jest:
+        specifier: 30.4.2
+        version: 30.4.2
+      jetpack-js-tools:
+        specifier: workspace:*
+        version: link:../../../tools/js-tools
       sass-embedded:
         specifier: 1.97.3
         version: 1.97.3
