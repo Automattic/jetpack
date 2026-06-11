@@ -116,8 +116,19 @@ class REST_Endpoints {
 	 * @return bool | WP_Error True if option is properly set.
 	 */
 	public static function confirm_safe_mode() {
-		$updated = Jetpack_Options::update_option( 'safe_mode_confirmed', true );
-		if ( $updated ) {
+		// Read the option's true DB state, not a stale cached copy: on sites with
+		// a persistent object cache, a prior un-confirm (the admin-bar "clear
+		// confirmation" action deletes jetpack_safe_mode_confirmed) can leave a
+		// lingering cached value that would make update_option() below see the new
+		// value as unchanged and report a false failure.
+		self::flush_jetpack_option_cache( 'jetpack_safe_mode_confirmed' );
+
+		// update_option() returns false both when the write fails and when the
+		// value is already set, so treat an already-confirmed option as success.
+		if (
+			Jetpack_Options::get_option( 'safe_mode_confirmed' )
+			|| Jetpack_Options::update_option( 'safe_mode_confirmed', true )
+		) {
 			return rest_ensure_response(
 				array(
 					'code' => 'success',
@@ -133,19 +144,30 @@ class REST_Endpoints {
 	}
 
 	/**
+	 * Flush any cached copy of a Jetpack option so a subsequent read reflects the
+	 * option's true state in the database.
+	 *
+	 * Jetpack options are stored as autoloaded `jetpack_*` WordPress options, so
+	 * bust both the individual key and the autoloaded-options cache to keep
+	 * persistent object caches from returning a stale value across requests.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param string $option The prefixed option name (e.g. `jetpack_safe_mode_confirmed`).
+	 */
+	private static function flush_jetpack_option_cache( $option ) {
+		wp_cache_delete( $option, 'options' );
+		wp_cache_delete( 'alloptions', 'options' );
+	}
+
+	/**
 	 * Flush any cached copy of the sync_error_idc option so a subsequent read
 	 * reflects the option's true state in the database.
-	 *
-	 * The option is read via the WordPress `jetpack_sync_error_idc` option, which
-	 * is typically autoloaded — so bust both the individual key and the
-	 * autoloaded-options cache to keep persistent object caches from returning a
-	 * stale value across requests.
 	 *
 	 * @since $$next-version$$
 	 */
 	private static function flush_sync_error_idc_cache() {
-		wp_cache_delete( 'jetpack_sync_error_idc', 'options' );
-		wp_cache_delete( 'alloptions', 'options' );
+		self::flush_jetpack_option_cache( 'jetpack_sync_error_idc' );
 	}
 
 	/**
