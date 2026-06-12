@@ -112,17 +112,18 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 		);
 
 		foreach ( $this->get_stats_routes() as $route ) {
-			register_rest_route(
-				$this->namespace,
-				'/' . $route['route'],
-				array(
-					'methods'             => $route['methods'],
-					'callback'            => function ( WP_REST_Request $request ) use ( $route ) {
-						return $this->handle_stats_request( $request, $route );
-					},
-					'permission_callback' => $this->permission_callback_for( $route['permission'] ?? 'stats' ),
-				)
+			$config = array(
+				'methods'             => $route['methods'],
+				'callback'            => function ( WP_REST_Request $request ) use ( $route ) {
+					return $this->handle_stats_request( $request, $route );
+				},
+				'permission_callback' => $this->permission_callback_for( $route['permission'] ?? 'stats' ),
 			);
+			if ( isset( $route['args'] ) ) {
+				$config['args'] = $route['args'];
+			}
+
+			register_rest_route( $this->namespace, '/' . $route['route'], $config );
 		}
 	}
 
@@ -163,6 +164,12 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 				'methods' => $read . ',' . $write,
 				'version' => '1.1',
 				'base'    => 'rest',
+				'args'    => array(
+					'subpath' => array(
+						'validate_callback' => array( $this, 'validate_subpath' ),
+						'sanitize_callback' => 'sanitize_text_field',
+					),
+				),
 			),
 			array(
 				'route'   => 'subscribers/counts',
@@ -181,14 +188,16 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 				'cache'   => false,
 			),
 			array(
-				'route'   => 'jetpack-stats-dashboard/modules',
-				'wpcom'   => 'jetpack-stats-dashboard/modules',
-				'methods' => $read . ',' . $write,
+				'route'         => 'jetpack-stats-dashboard/modules',
+				'wpcom'         => 'jetpack-stats-dashboard/modules',
+				'methods'       => $read . ',' . $write,
+				'bust_on_write' => true,
 			),
 			array(
-				'route'   => 'jetpack-stats-dashboard/module-settings',
-				'wpcom'   => 'jetpack-stats-dashboard/module-settings',
-				'methods' => $read . ',' . $write,
+				'route'         => 'jetpack-stats-dashboard/module-settings',
+				'wpcom'         => 'jetpack-stats-dashboard/module-settings',
+				'methods'       => $read . ',' . $write,
+				'bust_on_write' => true,
 			),
 			array(
 				'route'   => 'commercial-classification',
@@ -278,6 +287,25 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 	}
 
 	/**
+	 * Confine a Stats sub-path to a relative segment so it cannot escape `/sites/<id>/stats/`
+	 * via traversal (`..`) or an absolute path. Broader than {@see validate_endpoint()}, since
+	 * Stats sub-paths legitimately contain commas (e.g. the UTM params list).
+	 *
+	 * @param mixed $value Raw subpath param.
+	 *
+	 * @return bool
+	 */
+	public function validate_subpath( $value ): bool {
+		$value = (string) $value;
+
+		if ( '' === $value || str_starts_with( $value, '/' ) || str_contains( $value, '..' ) ) {
+			return false;
+		}
+
+		return (bool) preg_match( '#^[\w.,/-]+$#', $value );
+	}
+
+	/**
 	 * Proxy the analytics catch-all to `/sites/<id>/analytics/<endpoint>`.
 	 *
 	 * @param WP_REST_Request $request Request object.
@@ -307,9 +335,10 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 			$request,
 			$this->build_stats_path( $request, $route ),
 			array(
-				'version' => $route['version'] ?? '2',
-				'base'    => $route['base'] ?? 'wpcom',
-				'cache'   => $route['cache'] ?? true,
+				'version'       => $route['version'] ?? '2',
+				'base'          => $route['base'] ?? 'wpcom',
+				'cache'         => $route['cache'] ?? true,
+				'bust_on_write' => $route['bust_on_write'] ?? false,
 			)
 		);
 	}
@@ -329,7 +358,7 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 			return ( $route['build'] )( $site_id );
 		}
 
-		$relative = $route['wpcom'];
+		$relative = $route['wpcom'] ?? '';
 		if ( str_contains( $relative, '%s' ) ) {
 			$relative = sprintf( $relative, (string) $request->get_param( 'subpath' ) );
 		}
@@ -364,7 +393,7 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 		if ( ! ( new Manager( self::SLUG ) )->is_connected() ) {
 			return new WP_Error(
 				'no_connection',
-				__( 'Please connect Jetpack to load analytics data.', 'jetpack-premium-analytics' ),
+				__( 'Please connect Jetpack to load your data.', 'jetpack-premium-analytics' ),
 				array( 'status' => 403 )
 			);
 		}
@@ -390,7 +419,7 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 		} catch ( \Exception $e ) {
 			return new WP_Error(
 				'api_error',
-				__( 'Error processing the analytics request.', 'jetpack-premium-analytics' ),
+				__( 'Error processing the request.', 'jetpack-premium-analytics' ),
 				array( 'status' => 500 )
 			);
 		}
@@ -398,9 +427,14 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 		if ( is_wp_error( $response ) ) {
 			return new WP_Error(
 				'api_error',
-				__( 'Error communicating with the analytics service.', 'jetpack-premium-analytics' ),
+				__( 'Error communicating with the data service.', 'jetpack-premium-analytics' ),
 				array( 'status' => 500 )
 			);
+		}
+
+		// Mirror stats-admin: a successful write invalidates the matching (param-less) read cache.
+		if ( ! $is_read && ( $opts['bust_on_write'] ?? false ) && 200 === (int) wp_remote_retrieve_response_code( $response ) ) {
+			delete_transient( $this->cache_key_for( $wpcom_path, array() ) );
 		}
 
 		return $this->cache_and_build_response( $response, $cache_key );
@@ -445,7 +479,7 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 		if ( 200 === $status && null === $data && JSON_ERROR_NONE !== json_last_error() ) {
 			return new WP_Error(
 				'api_error',
-				__( 'The analytics service returned an unreadable response.', 'jetpack-premium-analytics' ),
+				__( 'The data service returned an unreadable response.', 'jetpack-premium-analytics' ),
 				array( 'status' => 502 )
 			);
 		}
@@ -544,7 +578,18 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 	 * @return string
 	 */
 	private function get_cache_key( WP_REST_Request $request, string $wpcom_path ): string {
-		$params = $this->get_forwarded_params( $request );
+		return $this->cache_key_for( $wpcom_path, $this->get_forwarded_params( $request ) );
+	}
+
+	/**
+	 * Transient key for a target path and a set of forwarded params (order-independent).
+	 *
+	 * @param string $wpcom_path WPCOM path without the forwarded query string.
+	 * @param array  $params     Forwarded query params.
+	 *
+	 * @return string
+	 */
+	private function cache_key_for( string $wpcom_path, array $params ): string {
 		ksort( $params );
 		$signature = $wpcom_path . '|' . (string) wp_json_encode( $params, JSON_UNESCAPED_SLASHES );
 

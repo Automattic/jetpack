@@ -305,6 +305,44 @@ class Api_Proxy_Controller_Test extends BaseTestCase {
 		$this->assertSame( 200, $response->get_status() );
 	}
 
+	public function test_stats_wildcard_route_validates_subpath() {
+		$route = rest_get_server()->get_routes()['/jetpack-premium-analytics/v1/stats/(?P<subpath>.+)'][0];
+		$this->assertSame(
+			array( $this->controller, 'validate_subpath' ),
+			$route['args']['subpath']['validate_callback']
+		);
+	}
+
+	public function test_validate_subpath_accepts_real_stats_subpaths() {
+		$this->assertTrue( $this->controller->validate_subpath( 'top-posts' ) );
+		$this->assertTrue( $this->controller->validate_subpath( 'post/123' ) );
+		$this->assertTrue( $this->controller->validate_subpath( 'opens/emails/123/rate' ) );
+		// UTM params arrive comma-separated — must be allowed.
+		$this->assertTrue( $this->controller->validate_subpath( 'utm/utm_campaign,utm_source,utm_medium' ) );
+	}
+
+	/**
+	 * @dataProvider data_invalid_subpaths
+	 *
+	 * @param string $subpath A subpath that must be rejected.
+	 */
+	#[DataProvider( 'data_invalid_subpaths' )]
+	public function test_validate_subpath_rejects_traversal_and_absolute( string $subpath ) {
+		$this->assertFalse( $this->controller->validate_subpath( $subpath ) );
+	}
+
+	/**
+	 * @return array<string, string[]>
+	 */
+	public static function data_invalid_subpaths(): array {
+		return array(
+			'parent traversal' => array( '../../purchases' ),
+			'absolute path'    => array( '/sites/1/purchases' ),
+			'scheme injection' => array( 'http://evil.test/' ),
+			'empty'            => array( '' ),
+		);
+	}
+
 	/**
 	 * Build a proxy request with the endpoint capture and forwarded query params set.
 	 *
