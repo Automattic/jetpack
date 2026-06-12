@@ -3,6 +3,7 @@ import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { useNavigate, useSearch } from '@wordpress/route';
 import { Tabs } from '@wordpress/ui';
+import getOverview from './data/get-overview';
 import { useSettingsForm } from './data/use-settings';
 import NoticesList from './notices-list';
 import OverviewScreen from './screens/overview';
@@ -43,6 +44,11 @@ const App: FC = () => {
 		[ navigate ]
 	);
 
+	// While the `seo-tools` module is off, the server registers only the menu
+	// and app shell (not the settings surface), so the page is purely a
+	// discovery/enable surface: render the Overview alone, with no tab bar.
+	const seoToolsActive = getOverview()?.site_visibility.seo_tools_active ?? false;
+
 	return (
 		<ThemeProvider>
 			<AdminPage
@@ -53,24 +59,30 @@ const App: FC = () => {
 				) }
 				showFooter
 			>
-				<Tabs.Root value={ activeTab } onValueChange={ onTabChange }>
-					<div className="jp-admin-page-tabs jp-admin-page-tabs--minimal">
-						<Tabs.List variant="minimal">
-							<Tabs.Tab value="overview">{ __( 'Overview', 'jetpack-seo' ) }</Tabs.Tab>
-							<Tabs.Tab value="settings">{ __( 'Settings', 'jetpack-seo' ) }</Tabs.Tab>
-						</Tabs.List>
+				{ seoToolsActive ? (
+					<Tabs.Root value={ activeTab } onValueChange={ onTabChange }>
+						<div className="jp-admin-page-tabs jp-admin-page-tabs--minimal">
+							<Tabs.List variant="minimal">
+								<Tabs.Tab value="overview">{ __( 'Overview', 'jetpack-seo' ) }</Tabs.Tab>
+								<Tabs.Tab value="settings">{ __( 'Settings', 'jetpack-seo' ) }</Tabs.Tab>
+							</Tabs.List>
+						</div>
+						<Tabs.Panel value="overview" focusable={ false }>
+							<div className="jetpack-seo-page-content">
+								<OverviewScreen />
+							</div>
+						</Tabs.Panel>
+						<Tabs.Panel value="settings" focusable={ false }>
+							<div className="jetpack-seo-page-content">
+								<SettingsScreen form={ settingsForm } />
+							</div>
+						</Tabs.Panel>
+					</Tabs.Root>
+				) : (
+					<div className="jetpack-seo-page-content">
+						<OverviewScreen />
 					</div>
-					<Tabs.Panel value="overview" focusable={ false }>
-						<div className="jetpack-seo-page-content">
-							<OverviewScreen />
-						</div>
-					</Tabs.Panel>
-					<Tabs.Panel value="settings" focusable={ false }>
-						<div className="jetpack-seo-page-content">
-							<SettingsScreen form={ settingsForm } />
-						</div>
-					</Tabs.Panel>
-				</Tabs.Root>
+				) }
 				<NoticesList />
 			</AdminPage>
 		</ThemeProvider>

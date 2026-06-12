@@ -5,6 +5,7 @@ import { __ } from '@wordpress/i18n';
 import { useNavigate } from '@wordpress/route';
 import { Notice } from '@wordpress/ui';
 import getOverview from '../../data/get-overview';
+import EnableSeoCard from './enable-seo-card';
 import SiteVerificationCard from './site-verification-card';
 import SiteVisibilityCard from './site-visibility-card';
 import './style.scss';
@@ -33,6 +34,16 @@ const OverviewScreen: FC = () => {
 			<Notice.Root intent="error">
 				<Notice.Description>{ __( 'Unable to load overview.', 'jetpack-seo' ) }</Notice.Description>
 			</Notice.Root>
+		);
+	}
+
+	// When the SEO Tools module is off the page is a discovery surface: show
+	// only the enable affordance, not the full (and mostly empty) card set.
+	if ( ! data.site_visibility.seo_tools_active ) {
+		return (
+			<div className="jetpack-seo-overview">
+				<EnableSeoCard />
+			</div>
 		);
 	}
 
