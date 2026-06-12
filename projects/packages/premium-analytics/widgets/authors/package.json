@@ -1,0 +1,9 @@
+{
+	"name": "@automattic/jetpack-premium-analytics-widget-authors",
+	"version": "0.1.0-alpha",
+	"private": true,
+	"type": "module",
+	"dependencies": {
+		"react": "18.3.1"
+	}
+}

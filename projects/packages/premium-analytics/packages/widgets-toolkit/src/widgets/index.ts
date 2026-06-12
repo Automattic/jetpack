@@ -22,3 +22,4 @@ export {
 export { CouponUseWidget } from './coupon-use';
 export { OrdersFulfillmentWidget } from './orders-fulfillment';
 export { VisitorsByLocationWidget } from './visitors-by-location';
+export { AuthorsWidget } from './authors';

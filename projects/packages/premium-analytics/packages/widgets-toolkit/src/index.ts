@@ -83,6 +83,7 @@ export {
 	BookingsByAttendanceWidget,
 	BookingsRevenueByCustomerTypeWidget,
 	BookingConversionRateWidget,
+	AuthorsWidget,
 	ConversionRateWidget,
 	CouponUseWidget,
 	MetricComparisonWidget,

@@ -44,3 +44,4 @@ export {
 } from './build-visitors-by-location-data';
 export { flagUrl } from './flag-url';
 export { isEmptyChartData, isEmptyPieChartData, getEmptyChartDomain } from './chart-empty-state';
+export { buildTopAuthorsData } from './build-top-authors-data';
