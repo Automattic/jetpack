@@ -4,6 +4,7 @@ set -eo pipefail
 
 : "${TESTDIR:?}"
 BASE=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
+# shellcheck source=../funcs.sh  # It gets confused otherwise
 source "$BASE/funcs.sh"
 
 # Variables expected in the environment.
