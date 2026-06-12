@@ -1,4 +1,5 @@
 import { addFilter } from '@wordpress/hooks';
+import { isRoomLimitBreached } from '../notices/room-limit';
 import { getContributorIds, getLocalUserId } from './awareness';
 import { recordRtcEvent } from './tracks';
 import type { Awareness, ProviderCreator } from '@wordpress/sync';
@@ -54,7 +55,14 @@ function recordJoinAfterSettle( awareness: Awareness ): void {
 		}
 		scheduled = true;
 		awareness.off( 'change', scheduleSnapshot );
-		setTimeout( () => recordJoin( awareness ), SETTLE_DELAY_MS );
+		setTimeout( () => {
+			// A client turned away by the room limit emits jetpack_rtc_blocked,
+			// not a join, so skip the snapshot if the limit was breached while we
+			// were waiting (its provider has also been torn down by then).
+			if ( ! isRoomLimitBreached() ) {
+				recordJoin( awareness );
+			}
+		}, SETTLE_DELAY_MS );
 	};
 
 	awareness.on( 'change', scheduleSnapshot );
