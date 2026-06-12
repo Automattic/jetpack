@@ -1,14 +1,10 @@
 import { currentUserCan, siteHasFeature } from '@automattic/jetpack-script-data';
-import { useSelect } from '@wordpress/data';
-import { Card, Stack } from '@wordpress/ui';
-import { store as socialStore } from '../../social-store';
+import { Stack } from '@wordpress/ui';
 import { features, getSocialScriptData } from '../../utils';
-import { canToggleSocialModule } from '../../utils/misc';
 import ContentCreationCard from './content-creation-card';
 import CustomizeLinksCard from './customize-links-card';
 import CustomizeMediaCard from './customize-media-card';
 import DefaultShareMessageCard from './default-share-message-card';
-import PublicizeInactiveEmptyState from './publicize-inactive-empty-state';
 import './style.scss';
 
 /**
@@ -21,33 +17,14 @@ import './style.scss';
  * - **Customize media** — Social Image Generator (paid).
  * - **Customize links** — UTM parameters.
  *
- * The legacy master Publicize on/off toggle (`SocialModuleToggle`) is
- * intentionally not ported; product visibility lives on the wp-admin
- * module-toggles surface. When an admin lands on the page while
- * Publicize is inactive on a self-hosted site, the empty state points
- * them back there. WPCOM Simple sites never hit that state — Publicize
- * is always on, and `canToggleSocialModule()` returns false.
+ * The legacy master Publicize on/off toggle (`SocialModuleToggle`) is not
+ * ported here. When Publicize is off and the user can switch it on, the
+ * page-level `ActivationGate` (see `useSocialGate`) intercepts before this
+ * tab renders, so the Settings tab never has to handle the inactive state.
  *
  * @return The Settings tab body.
  */
 export default function SettingsTab(): JSX.Element {
-	const isPublicizeActive = useSelect(
-		select => select( socialStore ).getSocialModuleSettings().publicize,
-		[]
-	);
-
-	if ( ! isPublicizeActive && canToggleSocialModule() ) {
-		return (
-			<div className="jetpack-social-settings">
-				<Card.Root>
-					<Card.Content>
-						<PublicizeInactiveEmptyState />
-					</Card.Content>
-				</Card.Root>
-			</div>
-		);
-	}
-
 	const hasSocialPlugin = Boolean( getSocialScriptData().plugin_info.social.version );
 	const hasImageGenerator = siteHasFeature( features.IMAGE_GENERATOR );
 	const hasMessageTemplates =

@@ -64,3 +64,51 @@
 		flex-shrink: 0;
 	}
 }
+
+.jetpack-social-activation {
+	// Wider than the centered connection/pricing cards: the toggle help text and
+	// the two-column stats need the room. The `.jetpack-social-gate` wrapper still
+	// centers it on the page.
+	&__card {
+		max-width: 720px;
+		width: 100%;
+		text-align: start;
+	}
+
+	&__hero {
+		text-align: center;
+	}
+
+	&__stats {
+		display: grid;
+		gap: 16px 32px;
+		padding-top: 8px;
+		border-top: 1px solid var(--wpds-color-stroke-surface-neutral-weak, #e0e0e0);
+
+		@media ( min-width: 600px ) {
+			grid-template-columns: 1fr 1fr;
+		}
+	}
+
+	&__stats-title {
+		grid-column: 1 / -1;
+		margin: 0;
+	}
+
+	&__stat {
+		display: flex;
+		align-items: flex-start;
+		gap: 16px;
+
+		p {
+			margin: 0;
+		}
+	}
+
+	&__stat-number {
+		flex-shrink: 0;
+		font-size: 2rem;
+		font-weight: 600;
+		line-height: 1.1;
+	}
+}

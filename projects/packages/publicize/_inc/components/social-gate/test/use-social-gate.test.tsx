@@ -3,6 +3,7 @@ import { isJetpackSelfHostedSite, isSimpleSite } from '@automattic/jetpack-scrip
 import { renderHook, act } from '@testing-library/react';
 import { useSelect } from '@wordpress/data';
 import { hasSocialPaidFeatures } from '../../../utils';
+import { canToggleSocialModule } from '../../../utils/misc';
 import useSocialGate from '../use-social-gate';
 
 jest.mock( '@automattic/jetpack-connection/use-connection', () => jest.fn() );
@@ -12,6 +13,7 @@ jest.mock( '@automattic/jetpack-script-data', () => ( {
 	isSimpleSite: jest.fn(),
 } ) );
 jest.mock( '../../../utils', () => ( { hasSocialPaidFeatures: jest.fn() } ) );
+jest.mock( '../../../utils/misc', () => ( { canToggleSocialModule: jest.fn() } ) );
 jest.mock( '../../../social-store', () => ( { store: {} } ) );
 
 const mockState = ( {
@@ -21,12 +23,18 @@ const mockState = ( {
 	paid = true,
 	jetpackSite = true,
 	simple = false,
+	publicizeActive = true,
+	canToggle = false,
 } ) => {
 	( useConnection as jest.Mock ).mockReturnValue( { isRegistered, isUserConnected } );
-	( useSelect as jest.Mock ).mockReturnValue( showPricingPage );
+	( useSelect as jest.Mock ).mockReturnValue( {
+		showPricingPage,
+		isPublicizeActive: publicizeActive,
+	} );
 	( hasSocialPaidFeatures as jest.Mock ).mockReturnValue( paid );
 	( isJetpackSelfHostedSite as jest.Mock ).mockReturnValue( jetpackSite );
 	( isSimpleSite as jest.Mock ).mockReturnValue( simple );
+	( canToggleSocialModule as jest.Mock ).mockReturnValue( canToggle );
 };
 
 describe( 'useSocialGate', () => {
@@ -53,6 +61,32 @@ describe( 'useSocialGate', () => {
 	it( 'never gates on a WPCOM Simple site, even when disconnected', () => {
 		mockState( { isRegistered: false, isUserConnected: false, simple: true } );
 		expect( renderHook( () => useSocialGate() ).result.current.gate ).toBeNull();
+	} );
+
+	it( 'returns "inactive" when Publicize is off and the user can toggle it', () => {
+		mockState( { publicizeActive: false, canToggle: true } );
+		expect( renderHook( () => useSocialGate() ).result.current.gate ).toBe( 'inactive' );
+	} );
+
+	it( 'returns null when Publicize is off but the user cannot toggle it', () => {
+		mockState( { publicizeActive: false, canToggle: false } );
+		expect( renderHook( () => useSocialGate() ).result.current.gate ).toBeNull();
+	} );
+
+	it( 'returns null when Publicize is active even if the user can toggle it', () => {
+		mockState( { publicizeActive: true, canToggle: true } );
+		expect( renderHook( () => useSocialGate() ).result.current.gate ).toBeNull();
+	} );
+
+	it( 'prefers the pricing gate over the inactive gate when both would apply', () => {
+		mockState( {
+			paid: false,
+			showPricingPage: true,
+			jetpackSite: true,
+			publicizeActive: false,
+			canToggle: true,
+		} );
+		expect( renderHook( () => useSocialGate() ).result.current.gate ).toBe( 'pricing' );
 	} );
 
 	it( 'returns null on the happy path', () => {

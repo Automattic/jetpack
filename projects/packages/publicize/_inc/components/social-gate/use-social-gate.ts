@@ -4,8 +4,9 @@ import { useSelect } from '@wordpress/data';
 import { useCallback, useState } from '@wordpress/element';
 import { store as socialStore } from '../../social-store';
 import { hasSocialPaidFeatures } from '../../utils';
+import { canToggleSocialModule } from '../../utils/misc';
 
-export type SocialGateType = 'connection' | 'pricing' | null;
+export type SocialGateType = 'connection' | 'pricing' | 'inactive' | null;
 
 /**
  * Decides which gate (if any) the modernized Social dashboard should show.
@@ -21,10 +22,13 @@ export default function useSocialGate(): {
 } {
 	const { isRegistered, isUserConnected } = useConnection();
 
-	const showPricingPage = useSelect(
-		select => select( socialStore ).getSocialSettings().showPricingPage,
-		[]
-	);
+	const { showPricingPage, isPublicizeActive } = useSelect( select => {
+		const store = select( socialStore );
+		return {
+			showPricingPage: store.getSocialSettings().showPricingPage,
+			isPublicizeActive: store.getSocialModuleSettings().publicize,
+		};
+	}, [] );
 
 	const [ pricingDismissed, setPricingDismissed ] = useState( false );
 	const dismissPricing = useCallback( () => setPricingDismissed( true ), [] );
@@ -42,6 +46,12 @@ export default function useSocialGate(): {
 		! pricingDismissed
 	) {
 		gate = 'pricing';
+	} else if ( ! isPublicizeActive && canToggleSocialModule() ) {
+		// Publicize is off and this user can switch it on — show the activation
+		// gate (educational onboarding + the master toggle) in place of the tabs.
+		// `canToggleSocialModule()` is false on WPCOM (always-on) and for users
+		// without `manage_modules`, so those fall straight through to the tabs.
+		gate = 'inactive';
 	}
 
 	return { gate, dismissPricing };

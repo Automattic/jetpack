@@ -1,3 +1,4 @@
+import ActivationGate from './activation-gate';
 import ConnectionGate from './connection-gate';
 import PricingGate from './pricing-gate';
 import type { SocialGateType } from './use-social-gate';
@@ -29,6 +30,10 @@ export default function SocialGate( {
 
 	if ( gate === 'pricing' ) {
 		return <PricingGate onDismiss={ onDismissPricing } />;
+	}
+
+	if ( gate === 'inactive' ) {
+		return <ActivationGate />;
 	}
 
 	return <>{ children }</>;
