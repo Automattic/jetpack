@@ -36,4 +36,21 @@ class InitializerTest extends TestCase {
 	public function test_feature_filter_constant_is_defined() {
 		$this->assertSame( 'rsm_jetpack_seo', Initializer::FEATURE_FILTER );
 	}
+
+	/**
+	 * The factual content-coverage counts expose the expected integer shape
+	 * (state, not a score). Invoked directly to avoid get_overview_data()'s
+	 * Modules dependency, which needs host-plugin option classes absent here.
+	 */
+	public function test_content_coverage_shape() {
+		$method   = new \ReflectionMethod( Initializer::class, 'get_content_coverage' );
+		$coverage = $method->invoke( null );
+
+		$this->assertArrayHasKey( 'total', $coverage );
+		$this->assertArrayHasKey( 'with_description', $coverage );
+		$this->assertArrayHasKey( 'with_schema', $coverage );
+		$this->assertIsInt( $coverage['total'] );
+		$this->assertIsInt( $coverage['with_description'] );
+		$this->assertIsInt( $coverage['with_schema'] );
+	}
 }
