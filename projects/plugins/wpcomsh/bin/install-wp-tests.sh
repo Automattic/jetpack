@@ -18,9 +18,9 @@ WP_TESTS_DIR=${WP_TESTS_DIR-$TMPDIR/wordpress-tests-lib}
 WP_CORE_DIR=${WP_CORE_DIR-$TMPDIR/wordpress/}
 
 download() {
-    if [ "$(which curl)" ]; then
+    if command -v curl &>/dev/null; then
         curl -s "$1" > "$2";
-    elif [ "$(which wget)" ]; then
+    elif command -v wget &>/dev/null; then
         wget -nv -O "$2" "$1"
     fi
 }
