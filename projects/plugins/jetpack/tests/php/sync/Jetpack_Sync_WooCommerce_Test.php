@@ -1,6 +1,7 @@
 <?php
 
 use Automattic\Jetpack\Sync\Modules;
+use Automattic\Jetpack\Sync\Modules\WooCommerce as WooCommerce_Module;
 use PHPUnit\Framework\Attributes\Group;
 
 require_once __DIR__ . '/Jetpack_Sync_TestBase.php';
@@ -152,23 +153,17 @@ class Jetpack_Sync_WooCommerce_Test extends Jetpack_Sync_TestBase {
 		$this->assertEmpty( $foo_events );
 	}
 
-	public function test_customer_updated_props_are_synced_without_customer_data() {
-		$user_id  = wp_insert_user(
-			array(
-				'user_login' => 'test_customer',
-				'user_email' => 'customer@example.com',
-				'user_pass'  => 'test',
-			)
-		);
-		$customer = new WC_Customer( $user_id );
+	public function test_customer_meta_updates_are_synced_without_customer_data() {
+		$user_id = $this->create_test_customer_user( 'test_customer', 'customer@example.com' );
 
-		$customer->set_billing_email( 'updated@example.com' );
-		$customer->set_billing_city( 'San Francisco' );
-		$customer->save();
+		update_user_meta( $user_id, 'billing_email', 'updated@example.com' );
+		update_user_meta( $user_id, 'billing_city', 'San Francisco' );
+		update_user_meta( $user_id, 'paying_customer', '1' );
 
+		$this->flush_customer_meta_updates();
 		$this->sender->do_sync();
 
-		$customer_updated_event = $this->server_event_storage->get_most_recent_event( 'woocommerce_customer_object_updated_props' );
+		$customer_updated_event = $this->server_event_storage->get_most_recent_event( 'jetpack_updated_woo_customer_meta' );
 
 		$this->assertTrue( (bool) $customer_updated_event );
 		$this->assertIsObject( $customer_updated_event->args[0] );
@@ -179,10 +174,60 @@ class Jetpack_Sync_WooCommerce_Test extends Jetpack_Sync_TestBase {
 		$this->assertEquals( 'customer@example.com', $customer_updated_event->args[0]->data->user_email );
 		$this->assertContains( 'billing_email', $customer_updated_event->args[1] );
 		$this->assertContains( 'billing_city', $customer_updated_event->args[1] );
+		$this->assertContains( 'is_paying_customer', $customer_updated_event->args[1] );
+		$this->assertNotContains( 'paying_customer', $customer_updated_event->args[1] );
 
 		$encoded_event_args = wp_json_encode( $customer_updated_event->args, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT );
 		$this->assertStringNotContainsString( 'updated@example.com', $encoded_event_args );
 		$this->assertStringNotContainsString( 'San Francisco', $encoded_event_args );
+	}
+
+	public function test_non_customer_meta_updates_are_not_synced_as_customer_details() {
+		$user_id = $this->create_test_customer_user( 'test_customer_untracked_meta', 'untracked-customer@example.com' );
+
+		update_user_meta( $user_id, 'session_tokens', 'secret' );
+		update_user_meta( $user_id, 'first_name', 'Ada' );
+		update_user_meta( $user_id, 'last_name', 'Lovelace' );
+
+		$this->flush_customer_meta_updates();
+		$this->sender->do_sync();
+
+		$this->assertFalse( (bool) $this->server_event_storage->get_most_recent_event( 'jetpack_updated_woo_customer_meta' ) );
+	}
+
+	/**
+	 * Create a customer user for WooCommerce sync tests.
+	 *
+	 * @param string $user_login User login.
+	 * @param string $user_email User email.
+	 * @return int User ID.
+	 */
+	private function create_test_customer_user( $user_login, $user_email ) {
+		$user_id = wp_insert_user(
+			array(
+				'user_login' => $user_login,
+				'user_email' => $user_email,
+				'user_pass'  => 'test',
+			)
+		);
+
+		if ( is_wp_error( $user_id ) ) {
+			$this->fail( $user_id->get_error_message() );
+		}
+
+		return (int) $user_id;
+	}
+
+	/**
+	 * Flush pending customer meta updates.
+	 */
+	private function flush_customer_meta_updates() {
+		$woocommerce_module = Modules::get_module( 'woocommerce' );
+		if ( ! $woocommerce_module instanceof WooCommerce_Module ) {
+			$this->fail( 'WooCommerce sync module is not available.' );
+		}
+
+		$woocommerce_module->action_customer_meta_updates();
 	}
 
 	public function test_approving_a_review_is_synced() {
