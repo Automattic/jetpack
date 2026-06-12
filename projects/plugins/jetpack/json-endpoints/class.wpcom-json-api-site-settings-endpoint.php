@@ -980,9 +980,11 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					}
 
 					// `hide_free_tier` is a boolean flag, so pull it out before the HTML
-					// sanitization below (which expects strings) and cast it explicitly.
+					// sanitization below (which expects strings). Parse it with is_truthy()
+					// so stringy booleans (e.g. "false", "0") are interpreted correctly
+					// rather than being treated as truthy by a plain `! empty()`.
 					$has_hide_free_tier = array_key_exists( 'hide_free_tier', $filtered_value );
-					$hide_free_tier     = ! empty( $filtered_value['hide_free_tier'] );
+					$hide_free_tier     = $has_hide_free_tier && WPCOM_JSON_API::is_truthy( $filtered_value['hide_free_tier'] );
 					unset( $filtered_value['hide_free_tier'] );
 
 					array_walk_recursive(

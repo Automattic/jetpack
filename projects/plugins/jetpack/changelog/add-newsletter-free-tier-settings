@@ -1,4 +1,4 @@
 Significance: minor
 Type: enhancement
 
-Newsletter: allow a custom description and a hide option for the free subscription tier via the subscription_options site setting.
+Newsletter: Allow setting a custom description for the free tier and hiding it from the subscriber plan selector.

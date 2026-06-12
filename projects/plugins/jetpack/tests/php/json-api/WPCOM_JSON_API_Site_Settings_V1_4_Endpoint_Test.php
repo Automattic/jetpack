@@ -179,7 +179,7 @@ class WPCOM_JSON_API_Site_Settings_V1_4_Endpoint_Test extends WP_UnitTestCase {
 		$updated  = $response['updated'];
 		$this->assertSame(
 			500,
-			mb_strlen( $updated['subscription_options']['free_tier_description'] )
+			strlen( $updated['subscription_options']['free_tier_description'] )
 		);
 	}
 
