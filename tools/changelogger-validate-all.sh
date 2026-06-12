@@ -93,8 +93,7 @@ function checkpkg {
 	debug "Checking version numbers $SLUG"
 	local PRERELEASE VER
 	PRERELEASE=$(alpha_tag composer.json 0)
-	# shellcheck disable=SC2104
-	VER=$(changelogger version current --default-first-version --prerelease=$PRERELEASE) || { err "$VER"; EXIT=1; continue; }
+	VER=$(changelogger version current --default-first-version --prerelease=$PRERELEASE) || { err "$DIR: $VER"; return 1; }
 	if ! $BASE/tools/project-version.sh "${ARGS2[@]}" $CHECK_OR_UPDATE "$VER" "$SLUG"; then
 		return 1
 	fi
