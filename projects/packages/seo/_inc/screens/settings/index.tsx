@@ -5,6 +5,7 @@ import { useEffect, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { useSearch } from '@wordpress/route';
 import { Badge, Card, CollapsibleCard, Notice, Stack } from '@wordpress/ui';
+import SocialPreviewsCard from './social-previews-card';
 import TitleStructureField from './title-structure-field';
 import VerificationCard from './verification-card';
 import './style.scss';
@@ -144,6 +145,8 @@ const SettingsScreen: FC< Props > = ( { form } ) => {
 					/>
 				</CollapsibleCard.Content>
 			</CollapsibleCard.Root>
+
+			<SocialPreviewsCard description={ local.front_page_description } />
 
 			<div id="verification" className="jetpack-seo-settings__section">
 				<VerificationCard

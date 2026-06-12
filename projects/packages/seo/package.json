@@ -40,6 +40,7 @@
 		"@automattic/jetpack-components": "workspace:*",
 		"@automattic/jetpack-script-data": "workspace:*",
 		"@automattic/jetpack-wp-build-polyfills": "workspace:*",
+		"@automattic/social-previews": "workspace:*",
 		"@wordpress/api-fetch": "7.48.0",
 		"@wordpress/components": "35.0.0",
 		"@wordpress/data": "10.48.0",
