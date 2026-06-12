@@ -176,6 +176,136 @@ class Api_Proxy_Controller_Test extends BaseTestCase {
 	}
 
 	/**
+	 * The Stats routes that should be registered under the package namespace.
+	 *
+	 * @return array<string, array{0: string, 1: string[]}>
+	 */
+	public static function data_stats_routes(): array {
+		$ns = '/jetpack-premium-analytics/v1/';
+
+		return array(
+			'site stats'         => array( $ns . 'stats', array( 'GET' ) ),
+			'stats resource'     => array( $ns . 'stats/(?P<subpath>.+)', array( 'GET', 'POST' ) ),
+			'subscribers counts' => array( $ns . 'subscribers/counts', array( 'GET' ) ),
+			'never published'    => array( $ns . 'site-has-never-published-post', array( 'GET' ) ),
+			'plan usage'         => array( $ns . 'jetpack-stats/usage', array( 'GET' ) ),
+			'dashboard modules'  => array( $ns . 'jetpack-stats-dashboard/modules', array( 'GET', 'POST' ) ),
+			'module settings'    => array( $ns . 'jetpack-stats-dashboard/module-settings', array( 'GET', 'POST' ) ),
+			'commercial class.'  => array( $ns . 'commercial-classification', array( 'POST' ) ),
+			'wordads'            => array( $ns . 'wordads/(?P<subpath>earnings|stats)', array( 'GET' ) ),
+			'purchases'          => array( $ns . 'purchases', array( 'GET' ) ),
+		);
+	}
+
+	/**
+	 * @dataProvider data_stats_routes
+	 *
+	 * @param string   $route            The expected route pattern.
+	 * @param string[] $expected_methods The HTTP methods the route must accept.
+	 */
+	#[DataProvider( 'data_stats_routes' )]
+	public function test_registers_stats_route( string $route, array $expected_methods ) {
+		$routes = rest_get_server()->get_routes();
+		$this->assertArrayHasKey( $route, $routes );
+
+		$methods = $routes[ $route ][0]['methods'];
+		foreach ( $expected_methods as $method ) {
+			$this->assertArrayHasKey( $method, $methods );
+		}
+	}
+
+	public function test_stats_routes_use_the_stats_permission_callback() {
+		$route = rest_get_server()->get_routes()['/jetpack-premium-analytics/v1/stats'][0];
+		$this->assertSame( array( $this->controller, 'check_stats_permission' ), $route['permission_callback'] );
+	}
+
+	public function test_wordads_route_uses_the_wordads_permission_callback() {
+		$route = rest_get_server()->get_routes()['/jetpack-premium-analytics/v1/wordads/(?P<subpath>earnings|stats)'][0];
+		$this->assertSame( array( $this->controller, 'check_wordads_permission' ), $route['permission_callback'] );
+	}
+
+	public function test_stats_permission_granted_for_view_stats_capability() {
+		$user_id = wp_insert_user(
+			array(
+				'user_login' => 'jpa_viewer',
+				'user_pass'  => 'password',
+				'role'       => 'subscriber',
+			)
+		);
+		$user    = new \WP_User( $user_id );
+		$user->add_cap( 'view_stats' );
+		wp_set_current_user( $user_id );
+
+		$this->assertTrue( $this->controller->check_stats_permission() );
+		$this->assertFalse( $this->controller->check_wordads_permission() );
+	}
+
+	public function test_permissions_denied_for_anonymous_user() {
+		wp_set_current_user( 0 );
+		$this->assertFalse( $this->controller->check_stats_permission() );
+		$this->assertFalse( $this->controller->check_wordads_permission() );
+	}
+
+	/**
+	 * @dataProvider data_stats_paths
+	 *
+	 * @param array<string, mixed> $route    The route description to resolve.
+	 * @param string               $subpath  The matched `subpath` capture, if any.
+	 * @param string               $expected The expected WPCOM path.
+	 */
+	#[DataProvider( 'data_stats_paths' )]
+	public function test_build_stats_path( array $route, string $subpath, string $expected ) {
+		$request = new WP_REST_Request( 'GET', '/' );
+		if ( '' !== $subpath ) {
+			$request->set_param( 'subpath', $subpath );
+		}
+
+		$accessor = function ( WP_REST_Request $req, array $r ) {
+			// @phan-suppress-next-line PhanUndeclaredMethod -- rebound to the controller via Closure::call() below.
+			return $this->build_stats_path( $req, $r );
+		};
+
+		$site_id  = (int) \Jetpack_Options::get_option( 'id' );
+		$resolved = $accessor->call( $this->controller, $request, $route );
+
+		$this->assertSame( sprintf( $expected, $site_id ), $resolved );
+	}
+
+	/**
+	 * @return array<string, array{0: array<string, mixed>, 1: string, 2: string}>
+	 */
+	public static function data_stats_paths(): array {
+		return array(
+			'wildcard subpath' => array( array( 'wpcom' => 'stats/%s' ), 'top-posts', '/sites/%d/stats/top-posts' ),
+			'wordads subpath'  => array( array( 'wpcom' => 'wordads/%s' ), 'earnings', '/sites/%d/wordads/earnings' ),
+			'static path'      => array( array( 'wpcom' => 'subscribers/counts' ), '', '/sites/%d/subscribers/counts' ),
+			'build override'   => array(
+				array(
+					'build' => static function ( int $id ): string {
+						return sprintf( '/upgrades?site=%d', $id );
+					},
+				),
+				'',
+				'/upgrades?site=%d',
+			),
+		);
+	}
+
+	public function test_response_with_null_cache_key_is_not_cached() {
+		$response = $this->cache_and_build_response(
+			array(
+				'response' => array( 'code' => 200 ),
+				'body'     => wp_json_encode( array( 'ok' => true ), JSON_UNESCAPED_SLASHES ),
+				'headers'  => array(),
+			),
+			null
+		);
+
+		$this->assertInstanceOf( WP_REST_Response::class, $response );
+		$this->assertSame( 200, $response->get_status() );
+	}
+
+	/**
 	 * Build a proxy request with the endpoint capture and forwarded query params set.
 	 *
 	 * @param string $endpoint The analytics endpoint to proxy.
@@ -192,31 +322,37 @@ class Api_Proxy_Controller_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Compute the controller's transient cache key for a request.
+	 * Compute the controller's transient cache key for an analytics request.
 	 *
 	 * @param WP_REST_Request $request Request object.
 	 *
 	 * @return string
 	 */
 	private function cache_key( WP_REST_Request $request ): string {
-		$accessor = function ( WP_REST_Request $req ) {
+		$path = sprintf(
+			'/sites/%d/analytics/%s',
+			(int) \Jetpack_Options::get_option( 'id' ),
+			(string) $request->get_param( 'endpoint' )
+		);
+
+		$accessor = function ( WP_REST_Request $req, string $wpcom_path ) {
 			// @phan-suppress-next-line PhanUndeclaredMethod -- rebound to the controller via Closure::call() below.
-			return $this->get_cache_key( $req );
+			return $this->get_cache_key( $req, $wpcom_path );
 		};
 
-		return $accessor->call( $this->controller, $request );
+		return $accessor->call( $this->controller, $request, $path );
 	}
 
 	/**
 	 * Invoke the controller's private cache_and_build_response().
 	 *
-	 * @param array  $http_response Raw HTTP response array.
-	 * @param string $cache_key     Transient key.
+	 * @param array       $http_response Raw HTTP response array.
+	 * @param string|null $cache_key     Transient key, or null to skip caching.
 	 *
 	 * @return WP_REST_Response|\WP_Error
 	 */
-	private function cache_and_build_response( array $http_response, string $cache_key ) {
-		$accessor = function ( array $resp, string $key ) {
+	private function cache_and_build_response( array $http_response, ?string $cache_key ) {
+		$accessor = function ( array $resp, ?string $key ) {
 			return $this->cache_and_build_response( $resp, $key );
 		};
 

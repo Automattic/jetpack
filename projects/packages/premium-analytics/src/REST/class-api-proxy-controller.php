@@ -17,10 +17,16 @@ use WP_REST_Response;
 use WP_REST_Server;
 
 /**
- * Forwards an authenticated dashboard request to the WPCOM analytics endpoint for the
- * connected site's blog ID, caches the successful response in a short-lived transient,
- * and returns it. Lets the extracted frontend's data layer talk to WPCOM without each
- * call leaving the WordPress origin.
+ * Forwards an authenticated dashboard request to the WPCOM endpoint for the connected
+ * site's blog ID, caches the successful response in a short-lived transient, and returns
+ * it. Lets the extracted frontend's data layer talk to WPCOM without each call leaving the
+ * WordPress origin.
+ *
+ * Two route families share one forwarding core:
+ *  - the analytics catch-all (`proxy/<endpoint>` → `/sites/<id>/analytics/<endpoint>`); and
+ *  - the Stats routes (declared in {@see get_stats_routes()}), which re-expose the
+ *    `stats-admin` package's WPCOM pass-through endpoints under this namespace, minus the
+ *    blog ID in the URL.
  */
 class Api_Proxy_Controller extends WP_REST_Controller {
 
@@ -77,7 +83,7 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 	}
 
 	/**
-	 * Register the proxy route. The trailing capture group is the target analytics path.
+	 * Register the analytics catch-all and the Stats pass-through routes.
 	 *
 	 * @return void
 	 */
@@ -104,6 +110,110 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 				'schema' => array( $this, 'get_public_item_schema' ),
 			)
 		);
+
+		foreach ( $this->get_stats_routes() as $route ) {
+			register_rest_route(
+				$this->namespace,
+				'/' . $route['route'],
+				array(
+					'methods'             => $route['methods'],
+					'callback'            => function ( WP_REST_Request $request ) use ( $route ) {
+						return $this->handle_stats_request( $request, $route );
+					},
+					'permission_callback' => $this->permission_callback_for( $route['permission'] ?? 'stats' ),
+				)
+			);
+		}
+	}
+
+	/**
+	 * The Stats endpoints to re-expose, mirroring `stats-admin` minus the `/sites/<id>` URL
+	 * segment. Each entry is a thin description the shared forwarder turns into a WPCOM call:
+	 *
+	 *  - `route`      Relative route regex; `%s` captures (named `subpath`) act as whitelists.
+	 *  - `wpcom`      Path relative to `/sites/<id>/`; a `%s` is filled from the `subpath` param.
+	 *  - `build`      Optional callable( int $site_id ): string for paths not under `/sites/<id>/`.
+	 *  - `methods`    Allowed HTTP verbs (defaults handled per entry).
+	 *  - `version`    WPCOM API version. Defaults to '2'.
+	 *  - `base`       WPCOM API base ('rest' | 'wpcom'). Defaults to 'wpcom'.
+	 *  - `permission` 'stats' (default) or 'wordads'.
+	 *  - `cache`      Whether GET responses may be cached. Defaults to true.
+	 *
+	 * The single `stats/(?P<subpath>.+)` route absorbs every `/sites/<id>/stats/*` endpoint
+	 * (per-resource stats, single post/video, email stats, UTM, devices, location views, and
+	 * referrer-spam list/new/delete) the same way the analytics catch-all works.
+	 *
+	 * @return array<int, array<string, mixed>>
+	 */
+	private function get_stats_routes(): array {
+		$read  = WP_REST_Server::READABLE;
+		$write = WP_REST_Server::EDITABLE;
+
+		return array(
+			array(
+				'route'   => 'stats',
+				'wpcom'   => 'stats',
+				'methods' => $read,
+				'version' => '1.1',
+				'base'    => 'rest',
+			),
+			array(
+				'route'   => 'stats/(?P<subpath>.+)',
+				'wpcom'   => 'stats/%s',
+				'methods' => $read . ',' . $write,
+				'version' => '1.1',
+				'base'    => 'rest',
+			),
+			array(
+				'route'   => 'subscribers/counts',
+				'wpcom'   => 'subscribers/counts',
+				'methods' => $read,
+			),
+			array(
+				'route'   => 'site-has-never-published-post',
+				'wpcom'   => 'site-has-never-published-post',
+				'methods' => $read,
+			),
+			array(
+				'route'   => 'jetpack-stats/usage',
+				'wpcom'   => 'jetpack-stats/usage',
+				'methods' => $read,
+				'cache'   => false,
+			),
+			array(
+				'route'   => 'jetpack-stats-dashboard/modules',
+				'wpcom'   => 'jetpack-stats-dashboard/modules',
+				'methods' => $read . ',' . $write,
+			),
+			array(
+				'route'   => 'jetpack-stats-dashboard/module-settings',
+				'wpcom'   => 'jetpack-stats-dashboard/module-settings',
+				'methods' => $read . ',' . $write,
+			),
+			array(
+				'route'   => 'commercial-classification',
+				'wpcom'   => 'commercial-classification',
+				'methods' => $write,
+			),
+			array(
+				'route'      => 'wordads/(?P<subpath>earnings|stats)',
+				'wpcom'      => 'wordads/%s',
+				'methods'    => $read,
+				'version'    => '1.1',
+				'base'       => 'rest',
+				'permission' => 'wordads',
+			),
+			array(
+				'route'   => 'purchases',
+				'methods' => $read,
+				'version' => '1.2',
+				'base'    => 'rest',
+				'cache'   => false,
+				'build'   => static function ( int $site_id ): string {
+					return sprintf( '/upgrades?site=%d', $site_id );
+				},
+			),
+		);
 	}
 
 	/**
@@ -113,6 +223,40 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 	 */
 	public function check_permission(): bool {
 		return current_user_can( 'manage_options' );
+	}
+
+	/**
+	 * Administrators, or users who can view stats, may reach the Stats data.
+	 *
+	 * @return bool
+	 */
+	public function check_stats_permission(): bool {
+		return current_user_can( 'manage_options' ) || current_user_can( 'view_stats' );
+	}
+
+	/**
+	 * Administrators, or users who can manage WordAds, may reach the WordAds data.
+	 *
+	 * @return bool
+	 */
+	public function check_wordads_permission(): bool {
+		// phpcs:ignore WordPress.WP.Capabilities.Unknown
+		return current_user_can( 'manage_options' ) || current_user_can( 'activate_wordads' );
+	}
+
+	/**
+	 * Map a route's permission key to its callback.
+	 *
+	 * @param string $permission Permission key ('stats' | 'wordads').
+	 *
+	 * @return callable
+	 */
+	private function permission_callback_for( string $permission ): callable {
+		if ( 'wordads' === $permission ) {
+			return array( $this, 'check_wordads_permission' );
+		}
+
+		return array( $this, 'check_stats_permission' );
 	}
 
 	/**
@@ -134,17 +278,87 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 	}
 
 	/**
-	 * Serve a cached payload when available, otherwise fetch from WPCOM and cache it.
+	 * Proxy the analytics catch-all to `/sites/<id>/analytics/<endpoint>`.
 	 *
 	 * @param WP_REST_Request $request Request object.
 	 *
 	 * @return WP_REST_Response|WP_Error
 	 */
 	public function handle_proxy_request( WP_REST_Request $request ) {
-		$cache_key = $this->get_cache_key( $request );
-		$cached    = get_transient( $cache_key );
-		if ( false !== $cached ) {
-			return $this->build_response( $cached );
+		$path = sprintf(
+			'/sites/%d/analytics/%s',
+			(int) Jetpack_Options::get_option( 'id' ),
+			(string) $request->get_param( 'endpoint' )
+		);
+
+		return $this->forward( $request, $path, array() );
+	}
+
+	/**
+	 * Proxy a declared Stats route to its WPCOM endpoint.
+	 *
+	 * @param WP_REST_Request      $request Request object.
+	 * @param array<string, mixed> $route   The matched route description.
+	 *
+	 * @return WP_REST_Response|WP_Error
+	 */
+	private function handle_stats_request( WP_REST_Request $request, array $route ) {
+		return $this->forward(
+			$request,
+			$this->build_stats_path( $request, $route ),
+			array(
+				'version' => $route['version'] ?? '2',
+				'base'    => $route['base'] ?? 'wpcom',
+				'cache'   => $route['cache'] ?? true,
+			)
+		);
+	}
+
+	/**
+	 * Resolve a Stats route to its WPCOM path (without the forwarded query string).
+	 *
+	 * @param WP_REST_Request      $request Request object.
+	 * @param array<string, mixed> $route   The matched route description.
+	 *
+	 * @return string
+	 */
+	private function build_stats_path( WP_REST_Request $request, array $route ): string {
+		$site_id = (int) Jetpack_Options::get_option( 'id' );
+
+		if ( isset( $route['build'] ) ) {
+			return ( $route['build'] )( $site_id );
+		}
+
+		$relative = $route['wpcom'];
+		if ( str_contains( $relative, '%s' ) ) {
+			$relative = sprintf( $relative, (string) $request->get_param( 'subpath' ) );
+		}
+
+		return sprintf( '/sites/%d/%s', $site_id, $relative );
+	}
+
+	/**
+	 * Serve a cached payload when available, otherwise forward to WPCOM and cache the result.
+	 *
+	 * @param WP_REST_Request      $request    Request object.
+	 * @param string               $wpcom_path WPCOM path without the forwarded query string.
+	 * @param array<string, mixed> $opts       version | base | cache overrides.
+	 *
+	 * @return WP_REST_Response|WP_Error
+	 */
+	private function forward( WP_REST_Request $request, string $wpcom_path, array $opts ) {
+		$version   = $opts['version'] ?? '2';
+		$base      = $opts['base'] ?? 'wpcom';
+		$method    = strtoupper( $request->get_method() );
+		$is_read   = 'GET' === $method;
+		$cacheable = $is_read && ( $opts['cache'] ?? true );
+
+		$cache_key = $cacheable ? $this->get_cache_key( $request, $wpcom_path ) : null;
+		if ( null !== $cache_key ) {
+			$cached = get_transient( $cache_key );
+			if ( false !== $cached ) {
+				return $this->build_response( $cached );
+			}
 		}
 
 		if ( ! ( new Manager( self::SLUG ) )->is_connected() ) {
@@ -155,16 +369,23 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 			);
 		}
 
+		$args = array(
+			'method'  => $method,
+			'timeout' => self::API_TIMEOUT,
+		);
+		$body = null;
+		if ( ! $is_read ) {
+			$body            = $request->get_body();
+			$args['headers'] = array( 'Content-Type' => 'application/json' );
+		}
+
 		try {
 			$response = Client::wpcom_json_api_request_as_blog(
-				$this->build_endpoint_url( $request ),
-				'2',
-				array(
-					'method'  => 'GET',
-					'timeout' => self::API_TIMEOUT,
-				),
-				null,
-				'wpcom'
+				$this->append_forwarded_params( $request, $wpcom_path ),
+				$version,
+				$args,
+				$body,
+				$base
 			);
 		} catch ( \Exception $e ) {
 			return new WP_Error(
@@ -183,25 +404,6 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 		}
 
 		return $this->cache_and_build_response( $response, $cache_key );
-	}
-
-	/**
-	 * Build the WPCOM analytics path for the connected blog from the request.
-	 *
-	 * @param WP_REST_Request $request Request object.
-	 *
-	 * @return string
-	 */
-	protected function build_endpoint_url( WP_REST_Request $request ): string {
-		$site_id      = (int) Jetpack_Options::get_option( 'id' );
-		$endpoint_url = sprintf( '/sites/%d/analytics/%s', $site_id, (string) $request->get_param( 'endpoint' ) );
-
-		$params = $this->get_forwarded_params( $request );
-		if ( ! empty( $params ) ) {
-			$endpoint_url .= '?' . http_build_query( $params );
-		}
-
-		return $endpoint_url;
 	}
 
 	/**
@@ -228,14 +430,14 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 	}
 
 	/**
-	 * Cache a successful (200) response and return it to the caller.
+	 * Cache a successful (200) response when a cache key is given, and return it to the caller.
 	 *
-	 * @param array  $http_response Raw response from the Jetpack client.
-	 * @param string $cache_key     Transient key for this request signature.
+	 * @param array       $http_response Raw response from the Jetpack client.
+	 * @param string|null $cache_key     Transient key, or null to skip caching.
 	 *
 	 * @return WP_REST_Response|WP_Error
 	 */
-	private function cache_and_build_response( array $http_response, string $cache_key ) {
+	private function cache_and_build_response( array $http_response, ?string $cache_key ) {
 		$status = (int) wp_remote_retrieve_response_code( $http_response );
 		$data   = json_decode( wp_remote_retrieve_body( $http_response ), false );
 
@@ -254,7 +456,7 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 			'headers' => $this->extract_forwarded_headers( wp_remote_retrieve_headers( $http_response ) ),
 		);
 
-		if ( 200 === $status ) {
+		if ( null !== $cache_key && 200 === $status ) {
 			set_transient( $cache_key, $payload, self::CACHE_TTL );
 		}
 
@@ -300,7 +502,26 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 	}
 
 	/**
-	 * Query params to forward to WPCOM, minus the WordPress routing param.
+	 * Append the forwarded query params to a WPCOM path, choosing the right separator.
+	 *
+	 * @param WP_REST_Request $request    Request object.
+	 * @param string          $wpcom_path WPCOM path that may already carry a query string.
+	 *
+	 * @return string
+	 */
+	private function append_forwarded_params( WP_REST_Request $request, string $wpcom_path ): string {
+		$params = $this->get_forwarded_params( $request );
+		if ( empty( $params ) ) {
+			return $wpcom_path;
+		}
+
+		$separator = str_contains( $wpcom_path, '?' ) ? '&' : '?';
+
+		return $wpcom_path . $separator . http_build_query( $params );
+	}
+
+	/**
+	 * Query params to forward to WPCOM, minus the WordPress routing params.
 	 *
 	 * @param WP_REST_Request $request Request object.
 	 *
@@ -315,16 +536,17 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 	}
 
 	/**
-	 * Build the transient key from the request signature (endpoint + forwarded params).
+	 * Build the transient key from the request signature (target path + forwarded params).
 	 *
-	 * @param WP_REST_Request $request Request object.
+	 * @param WP_REST_Request $request    Request object.
+	 * @param string          $wpcom_path WPCOM path without the forwarded query string.
 	 *
 	 * @return string
 	 */
-	private function get_cache_key( WP_REST_Request $request ): string {
+	private function get_cache_key( WP_REST_Request $request, string $wpcom_path ): string {
 		$params = $this->get_forwarded_params( $request );
 		ksort( $params );
-		$signature = (string) $request->get_param( 'endpoint' ) . '|' . (string) wp_json_encode( $params, JSON_UNESCAPED_SLASHES );
+		$signature = $wpcom_path . '|' . (string) wp_json_encode( $params, JSON_UNESCAPED_SLASHES );
 
 		return self::CACHE_PREFIX . md5( $signature );
 	}
