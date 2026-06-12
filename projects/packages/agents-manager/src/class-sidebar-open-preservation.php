@@ -112,6 +112,11 @@ class Sidebar_Open_Preservation {
 	 * hook read. Width and fullscreen gating are declarative (CSS) / owned by the
 	 * hook, so they are intentionally not duplicated here.
 	 *
+	 * X-REF: that body class is consumed by the Calypso package's reshape selectors
+	 * as the `$dock-too-short-class` SCSS variable in
+	 * packages/agents-manager/src/styles/variables.scss. If you rename it, rename it
+	 * there too — the two are coupled by string and won't fail loudly on drift.
+	 *
 	 * @return void
 	 */
 	public function print_sidebar_open_sync_script() {
