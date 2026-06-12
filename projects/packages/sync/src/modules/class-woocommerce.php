@@ -104,6 +104,13 @@ class WooCommerce extends Module {
 	private $customer_meta_updates = array();
 
 	/**
+	 * User IDs deleted during the current request.
+	 *
+	 * @var array
+	 */
+	private $deleted_user_ids = array();
+
+	/**
 	 * The table name.
 	 *
 	 * @access public
@@ -239,6 +246,8 @@ class WooCommerce extends Module {
 		add_action( 'added_user_meta', array( $this, 'maybe_sync_customer_meta_update' ), 10, 4 );
 		add_action( 'updated_user_meta', array( $this, 'maybe_sync_customer_meta_update' ), 10, 4 );
 		add_action( 'deleted_user_meta', array( $this, 'maybe_sync_customer_meta_update' ), 10, 4 );
+		add_action( 'delete_user', array( $this, 'action_delete_user' ), 10, 1 );
+		add_action( 'wpmu_delete_user', array( $this, 'action_delete_user' ), 10, 1 );
 		add_action( 'shutdown', array( $this, 'action_customer_meta_updates' ) );
 		add_action( 'jetpack_updated_woo_customer_meta', $callable, 10, 2 );
 	}
@@ -337,6 +346,10 @@ class WooCommerce extends Module {
 			return;
 		}
 
+		if ( 'deleted_user_meta' === current_action() && isset( $this->deleted_user_ids[ $customer_id ] ) ) {
+			return;
+		}
+
 		$updated_props = $this->get_customer_detail_props( array( $meta_key ) );
 		if ( empty( $updated_props ) ) {
 			return;
@@ -352,6 +365,21 @@ class WooCommerce extends Module {
 	}
 
 	/**
+	 * Mark a deleted user so customer meta cleanup does not sync as profile changes.
+	 *
+	 * @param int $user_id User ID.
+	 */
+	public function action_delete_user( $user_id ) {
+		$customer_id = (int) $user_id;
+		if ( $customer_id <= 0 ) {
+			return;
+		}
+
+		$this->deleted_user_ids[ $customer_id ] = true;
+		unset( $this->customer_meta_updates[ $customer_id ] );
+	}
+
+	/**
 	 * Send batched WooCommerce customer meta updates.
 	 */
 	public function action_customer_meta_updates() {
@@ -363,6 +391,10 @@ class WooCommerce extends Module {
 		$this->customer_meta_updates = array();
 
 		foreach ( $customer_meta_updates as $customer_id => $updated_props ) {
+			if ( isset( $this->deleted_user_ids[ (int) $customer_id ] ) ) {
+				continue;
+			}
+
 			/**
 			 * Fires when WooCommerce customer details stored in user meta are updated.
 			 *

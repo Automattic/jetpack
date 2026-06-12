@@ -195,6 +195,23 @@ class Jetpack_Sync_WooCommerce_Test extends Jetpack_Sync_TestBase {
 		$this->assertFalse( (bool) $this->server_event_storage->get_most_recent_event( 'jetpack_updated_woo_customer_meta' ) );
 	}
 
+	public function test_customer_meta_deletes_from_user_deletion_are_not_synced_as_customer_details() {
+		$user_id = $this->create_test_customer_user( 'test_customer_deleted', 'deleted-customer@example.com' );
+
+		update_user_meta( $user_id, 'billing_email', 'deleted-customer@example.com' );
+
+		$this->flush_customer_meta_updates();
+		$this->sender->do_sync();
+		$this->server_event_storage->reset();
+
+		wp_delete_user( $user_id );
+
+		$this->flush_customer_meta_updates();
+		$this->sender->do_sync();
+
+		$this->assertFalse( (bool) $this->server_event_storage->get_most_recent_event( 'jetpack_updated_woo_customer_meta' ) );
+	}
+
 	public function test_customer_meta_filter_rebuilds_minimal_customer_object() {
 		$user_id            = $this->create_test_customer_user( 'test_customer_extra_data', 'extra-customer@example.com' );
 		$woocommerce_module = $this->get_woocommerce_module();
