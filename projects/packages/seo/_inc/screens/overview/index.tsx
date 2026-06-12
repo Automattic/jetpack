@@ -5,6 +5,7 @@ import { __ } from '@wordpress/i18n';
 import { useNavigate } from '@wordpress/route';
 import { Notice } from '@wordpress/ui';
 import getOverview from '../../data/get-overview';
+import DisableSeoTools from './disable-seo-tools';
 import EnableSeoCard from './enable-seo-card';
 import SiteVerificationCard from './site-verification-card';
 import SiteVisibilityCard from './site-visibility-card';
@@ -69,6 +70,7 @@ const OverviewScreen: FC = () => {
 					onManage={ () => goToSection( 'verification' ) }
 				/>
 			</div>
+			<DisableSeoTools />
 		</div>
 	);
 };

@@ -1,3 +1,5 @@
+/* eslint-disable react/jsx-no-bind */
+
 import { Button } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { Card, Stack } from '@wordpress/ui';
@@ -12,7 +14,7 @@ import type { FC } from 'react';
  * @return The enable-SEO-tools card.
  */
 const EnableSeoCard: FC = () => {
-	const { isEnabling, enable } = useSeoToolsToggle();
+	const { isToggling, setActive } = useSeoToolsToggle();
 
 	return (
 		<Card.Root>
@@ -30,9 +32,9 @@ const EnableSeoCard: FC = () => {
 					<div>
 						<Button
 							variant="primary"
-							onClick={ enable }
-							isBusy={ isEnabling }
-							disabled={ isEnabling }
+							onClick={ () => setActive( true ) }
+							isBusy={ isToggling }
+							disabled={ isToggling }
 						>
 							{ __( 'Enable SEO tools', 'jetpack-seo' ) }
 						</Button>
