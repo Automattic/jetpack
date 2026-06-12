@@ -3582,7 +3582,10 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 * @return bool|WP_Error
 	 */
 	public static function validate_subscription_options( $values ) {
-		if ( is_object( $values ) ) {
+		// A REST "object" decodes to a PHP associative array. Reject any other
+		// type (object, string, int, null, ...) up front so the array_keys()
+		// loop below never runs against a non-array and triggers a PHP warning.
+		if ( ! is_array( $values ) ) {
 			return new WP_Error(
 				'invalid_param',
 				/* Translators: subscription_options is a variable name, and shouldn't be translated. */
