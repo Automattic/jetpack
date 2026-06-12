@@ -166,8 +166,8 @@ class Cookie_Consent {
 	/**
 	 * Exclude CCPA page from get_pages() results
 	 *
-	 * @param WP_Post[] $pages Array of page objects.
-	 * @return WP_Post[] Filtered array of page objects.
+	 * @param \WP_Post[] $pages Array of page objects.
+	 * @return \WP_Post[] Filtered array of page objects.
 	 */
 	public static function exclude_ccpa_from_get_pages( $pages ) {
 		if ( is_admin() ) {
@@ -215,7 +215,7 @@ class Cookie_Consent {
 
 		// Prevent deletion of Privacy Policy page.
 		$privacy_policy_page_id = (int) get_option( 'wp_page_for_privacy_policy' );
-		if ( $privacy_policy_page_id && $post_id === (int) $privacy_policy_page_id ) {
+		if ( $privacy_policy_page_id && $post_id === $privacy_policy_page_id ) {
 			return array( 'do_not_allow' );
 		}
 
@@ -228,7 +228,7 @@ class Cookie_Consent {
 	 * @param array                   $hooked_block_types Array of hooked block types.
 	 * @param string                  $relative_position  The relative position.
 	 * @param string                  $anchor_block_type  The anchor block type.
-	 * @param WP_Block_Template|array $context            The block template, template part, or pattern.
+	 * @param \WP_Block_Template|array $context            The block template, template part, or pattern.
 	 * @return array Modified array of hooked block types.
 	 */
 	public static function register_footer_navigation_links( $hooked_block_types, $relative_position, $anchor_block_type, $context ) {
