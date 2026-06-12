@@ -15,7 +15,7 @@ import {
 	type WizardState,
 	type WizardStep,
 } from './lib.ts';
-import type { GoalSlug, WizardInput } from '../lib/types.ts';
+import type { GoalSlug, TailorResult, WizardInput } from '../lib/types.ts';
 
 import './style.scss';
 
@@ -24,9 +24,11 @@ interface Props {
 	initialSiteName?: string;
 	// User locale, forwarded to the wizard payload and the AI call.
 	locale?: string;
-	// Fired with the persisted wizard input once Finish completes, so the host
-	// can swap the wizard for the tailored list.
-	onComplete?: ( input: WizardInput ) => void;
+	// Fired once Finish completes, so the host can swap the wizard for the
+	// tailored list. Receives the persisted wizard input and the in-flight
+	// tailor promise, so the host can hand the promise to the tailored list and
+	// have it wait for PUT /tailored to land before reading the output back.
+	onComplete?: ( input: WizardInput, tailoring: Promise< TailorResult > ) => void;
 }
 
 /**
@@ -36,7 +38,7 @@ interface Props {
  * @param props                 - Component props.
  * @param props.initialSiteName - Existing site title used to pre-fill Name.
  * @param props.locale          - User locale forwarded to the payload.
- * @param props.onComplete      - Called with the persisted input on Finish.
+ * @param props.onComplete      - Called with the input and tailor promise on Finish.
  * @return The wizard element.
  */
 export function Wizard( { initialSiteName = '', locale = 'en', onComplete }: Props ) {
@@ -69,9 +71,9 @@ export function Wizard( { initialSiteName = '', locale = 'en', onComplete }: Pro
 			method: 'PUT',
 			data: payload,
 		} );
-		getPrewarmedTailor( payload );
+		const tailoring = getPrewarmedTailor( payload );
 		trackWizardCompleted();
-		onComplete?.( payload );
+		onComplete?.( payload, tailoring );
 	};
 
 	const handleBack = () => {

@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+AI Launchpad: orchestrate the wizard and tailored list into one flow - new users see the wizard then transition to the tailored list, returning users land on the list directly
