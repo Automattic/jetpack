@@ -225,9 +225,9 @@ class Cookie_Consent {
 	/**
 	 * Register Privacy Policy and CCPA navigation links as hooked blocks
 	 *
-	 * @param array                   $hooked_block_types Array of hooked block types.
-	 * @param string                  $relative_position  The relative position.
-	 * @param string                  $anchor_block_type  The anchor block type.
+	 * @param array                    $hooked_block_types Array of hooked block types.
+	 * @param string                   $relative_position  The relative position.
+	 * @param string                   $anchor_block_type  The anchor block type.
 	 * @param \WP_Block_Template|array $context            The block template, template part, or pattern.
 	 * @return array Modified array of hooked block types.
 	 */
