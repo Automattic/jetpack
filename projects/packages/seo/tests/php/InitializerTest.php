@@ -204,4 +204,26 @@ class InitializerTest extends TestCase {
 		$this->assertIsString( $site['icon'] );
 		$this->assertIsString( $site['image'] );
 	}
+
+	/**
+	 * Reads the durable sitemap option without consulting the live module state
+	 * when the option is present (set or explicitly off).
+	 */
+	public function test_is_sitemap_enabled_reads_durable_option() {
+		$method = new \ReflectionMethod( Initializer::class, 'is_sitemap_enabled' );
+		// Required to invoke a private method on PHP < 8.1 (a no-op from 8.1 on).
+		if ( PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true );
+		}
+		$modules = new \Automattic\Jetpack\Modules();
+
+		update_option( Initializer::SITEMAP_ENABLED_OPTION, '1' );
+		$this->assertTrue( $method->invoke( null, $modules ) );
+
+		// Present-but-off: still read from the option, never the module fallback.
+		update_option( Initializer::SITEMAP_ENABLED_OPTION, '' );
+		$this->assertFalse( $method->invoke( null, $modules ) );
+
+		delete_option( Initializer::SITEMAP_ENABLED_OPTION );
+	}
 }
