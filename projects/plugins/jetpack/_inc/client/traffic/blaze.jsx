@@ -52,7 +52,7 @@ function Blaze( props ) {
 				className="jp-settings-card__configure-link"
 				href={
 					blazeDashboardEnabled
-						? siteAdminUrl + 'tools.php?page=advertising'
+						? siteAdminUrl + 'admin.php?page=advertising'
 						: getRedirectUrl( 'jetpack-blaze' )
 				}
 				onClick={ trackDashboardClick }

@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Rename the Advertising menu to Blaze Ads, move it under the Jetpack (or WooCommerce Marketing) menu, and leave a temporary migration notice at the old Tools location.

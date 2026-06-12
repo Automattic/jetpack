@@ -707,9 +707,10 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/blaze",
-                "reference": "0fef5e07c47f2991c3c9b7a8a0fa33142793c816"
+                "reference": "66186f7bc5595357512833c76816e8496b6a6c0b"
             },
             "require": {
+                "automattic/jetpack-admin-ui": "@dev",
                 "automattic/jetpack-assets": "@dev",
                 "automattic/jetpack-connection": "@dev",
                 "automattic/jetpack-constants": "@dev",
