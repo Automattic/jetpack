@@ -10,6 +10,8 @@ namespace Automattic\Jetpack\Jetpack_Mu_Wpcom;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom;
 use Brain\Monkey\Functions;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\PreserveGlobalState;
+use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 
 require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/ai-launchpad/ai-launchpad.php';
 
@@ -17,6 +19,22 @@ require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/ai-launchpad/ai-launchpad
  * @covers \Automattic\Jetpack\Jetpack_Mu_Wpcom\AI_Launchpad::is_eligible
  */
 class AI_Launchpad_Eligibility_Test extends \WorDBless\BaseTestCase {
+	/**
+	 * Set up.
+	 */
+	public function set_up() {
+		parent::set_up();
+		\Brain\Monkey\setUp();
+	}
+
+	/**
+	 * Tear down.
+	 */
+	public function tear_down() {
+		\Brain\Monkey\tearDown();
+		parent::tear_down();
+	}
+
 	/**
 	 * Assert that is_eligible() returns the expected boolean for each combination
 	 * of the gate's inputs.
@@ -30,9 +48,11 @@ class AI_Launchpad_Eligibility_Test extends \WorDBless\BaseTestCase {
 	 * @param bool $expected        Expected eligibility result.
 	 */
 	#[DataProvider( 'provide_eligibility_inputs' )]
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
 	public function test_is_eligible( $has_paid_plan, $was_ai_onboarded, $is_automattician, $has_sticker, $expected ) {
 		Functions\when( 'wpcom_get_site_purchases' )->justReturn(
-			$has_paid_plan ? array( array( 'product_type' => 'bundle' ) ) : array()
+			$has_paid_plan ? array( (object) array( 'product_type' => 'bundle' ) ) : array()
 		);
 		Functions\when( 'is_automattician' )->justReturn( $is_automattician );
 		Functions\when( 'has_blog_sticker' )->justReturn( $has_sticker );
