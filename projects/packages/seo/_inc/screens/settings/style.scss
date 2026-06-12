@@ -30,13 +30,23 @@
 	gap: var(--wpds-dimension-gap-md, 12px);
 }
 
-// Platform label above each social/search preview so it's clear which network
-// each card represents.
+// Intro copy above the preview list.
+.jetpack-seo-settings__preview-intro {
+	margin: 0 0 var(--wpds-dimension-gap-xl, 24px);
+}
+
+// Each preview + its heading, generously separated so each platform reads as
+// its own block at a glance.
+.jetpack-seo-settings__preview-group + .jetpack-seo-settings__preview-group {
+	margin-block-start: var(--wpds-dimension-gap-2xl, 32px);
+}
+
+// Platform label above each preview: prominent enough to scan, with clear space
+// before the card it describes.
 .jetpack-seo-settings__preview-label {
-	margin: 0 0 var(--wpds-dimension-gap-xs, 4px);
-	font-size: 13px;
+	margin: 0 0 var(--wpds-dimension-gap-md, 12px);
+	font-size: 15px;
 	font-weight: 600;
-	color: var(--wpds-color-fg-content-neutral-weak, #757575);
 }
 
 // In-house search/social preview cards (no third-party library). Approximate

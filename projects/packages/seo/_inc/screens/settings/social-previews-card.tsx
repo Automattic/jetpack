@@ -1,7 +1,7 @@
 /* eslint-disable jsdoc/require-param, jsdoc/require-returns */
 
 import { __ } from '@wordpress/i18n';
-import { Card, CollapsibleCard, Stack } from '@wordpress/ui';
+import { Card, CollapsibleCard } from '@wordpress/ui';
 import getSite from '../../data/get-site';
 import type { SiteData } from '../../data/get-site';
 import type { FC } from 'react';
@@ -86,32 +86,30 @@ const SocialPreviewsCard: FC< Props > = ( { description } ) => {
 				<Card.Title>{ __( 'Search & social previews', 'jetpack-seo' ) }</Card.Title>
 			</CollapsibleCard.Header>
 			<CollapsibleCard.Content>
-				<Stack direction="column" gap="lg">
-					<p>
-						{ __(
-							'A preview of how your home page looks in search results and when shared on social media. It updates as you edit the front-page description above.',
-							'jetpack-seo'
-						) }
-					</p>
-					<div className="jetpack-seo-settings__preview-group">
-						<h3 className="jetpack-seo-settings__preview-label">
-							{ __( 'Google search result', 'jetpack-seo' ) }
-						</h3>
-						<GooglePreview site={ site } description={ description } />
-					</div>
-					<div className="jetpack-seo-settings__preview-group">
-						<h3 className="jetpack-seo-settings__preview-label">
-							{ __( 'Facebook', 'jetpack-seo' ) }
-						</h3>
-						<LinkCardPreview site={ site } description={ description } />
-					</div>
-					<div className="jetpack-seo-settings__preview-group">
-						<h3 className="jetpack-seo-settings__preview-label">
-							{ __( 'X (Twitter)', 'jetpack-seo' ) }
-						</h3>
-						<LinkCardPreview site={ site } description={ description } />
-					</div>
-				</Stack>
+				<p className="jetpack-seo-settings__preview-intro">
+					{ __(
+						'A preview of how your home page looks in search results and when shared on social media. It updates as you edit the front-page description above.',
+						'jetpack-seo'
+					) }
+				</p>
+				<div className="jetpack-seo-settings__preview-group">
+					<h3 className="jetpack-seo-settings__preview-label">
+						{ __( 'Google search result', 'jetpack-seo' ) }
+					</h3>
+					<GooglePreview site={ site } description={ description } />
+				</div>
+				<div className="jetpack-seo-settings__preview-group">
+					<h3 className="jetpack-seo-settings__preview-label">
+						{ __( 'Facebook', 'jetpack-seo' ) }
+					</h3>
+					<LinkCardPreview site={ site } description={ description } />
+				</div>
+				<div className="jetpack-seo-settings__preview-group">
+					<h3 className="jetpack-seo-settings__preview-label">
+						{ __( 'X (Twitter)', 'jetpack-seo' ) }
+					</h3>
+					<LinkCardPreview site={ site } description={ description } />
+				</div>
 			</CollapsibleCard.Content>
 		</CollapsibleCard.Root>
 	);
