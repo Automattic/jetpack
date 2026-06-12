@@ -1,0 +1,91 @@
+<?php
+/**
+ * AI Launchpad task completion listeners.
+ *
+ * @package automattic/jetpack-mu-wpcom
+ */
+
+/**
+ * Registers the existing Launchpad completion listeners for the tasks the AI
+ * Launchpad selected, mirroring Launchpad_Task_Lists::add_hooks_for_active_tasks()
+ * without the fullscreen-launchpad gate. Task selection is read from the
+ * `wpcom_ai_launchpad_ai_output` option; completion writes go through each
+ * task's own `add_listener_callback` into `launchpad_checklist_tasks_statuses`.
+ */
+class AI_Launchpad_Listeners {
+
+	/**
+	 * Hooks listener registration after the Launchpad task catalog is registered on `init` (priority 11).
+	 *
+	 * @return void
+	 */
+	public static function register() {
+		add_action( 'init', array( __CLASS__, 'add_listener_hooks_to_correct_action' ), 12 );
+	}
+
+	/**
+	 * Adds the listeners now, or on `rest_api_switched_to_blog` for REST API
+	 * requests, mirroring wpcom_add_active_task_listener_hooks_to_correct_action().
+	 *
+	 * @return void
+	 */
+	public static function add_listener_hooks_to_correct_action() {
+		$url = wp_parse_url( home_url(), PHP_URL_HOST );
+		if ( $url === 'public-api.wordpress.com' ) {
+			add_action( 'rest_api_switched_to_blog', array( __CLASS__, 'add_active_task_listeners' ) );
+			return;
+		}
+
+		self::add_active_task_listeners();
+	}
+
+	/**
+	 * Adds each AI-selected task's `add_listener_callback` hooks for incomplete tasks.
+	 *
+	 * @return void
+	 */
+	public static function add_active_task_listeners() {
+		$task_ids = self::get_ai_task_ids();
+		if ( empty( $task_ids ) ) {
+			return;
+		}
+
+		$task_lists = wpcom_launchpad_checklists();
+
+		foreach ( $task_ids as $task_id ) {
+			$task_definition = $task_lists->get_task( $task_id );
+			if ( ! isset( $task_definition['add_listener_callback'] ) || ! is_callable( $task_definition['add_listener_callback'] ) ) {
+				continue;
+			}
+
+			if ( $task_lists->is_task_id_complete( $task_id ) ) {
+				continue;
+			}
+
+			call_user_func( $task_definition['add_listener_callback'], $task_definition );
+		}
+	}
+
+	/**
+	 * Reads the AI-selected task IDs from the `wpcom_ai_launchpad_ai_output` option.
+	 *
+	 * @return string[] Task IDs, empty when the option is unset or malformed.
+	 */
+	private static function get_ai_task_ids() {
+		$ai_output = get_option( 'wpcom_ai_launchpad_ai_output' );
+		if ( ! is_array( $ai_output ) || ! isset( $ai_output['payload']['tasks'] ) || ! is_array( $ai_output['payload']['tasks'] ) ) {
+			return array();
+		}
+
+		$task_ids = array();
+		foreach ( $ai_output['payload']['tasks'] as $task ) {
+			if ( is_array( $task ) && isset( $task['id'] ) && is_string( $task['id'] ) ) {
+				$task_ids[] = $task['id'];
+			}
+		}
+
+		return $task_ids;
+	}
+}
+
+AI_Launchpad_Listeners::register();
