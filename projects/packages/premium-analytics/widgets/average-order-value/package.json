@@ -1,0 +1,12 @@
+{
+	"name": "@automattic/jetpack-premium-analytics-widget-average-order-value",
+	"version": "0.1.0-alpha",
+	"private": true,
+	"type": "module",
+	"dependencies": {
+		"@wordpress/i18n": "^6.9.0",
+		"@wordpress/icons": "^13.0.0",
+		"@wordpress/ui": "0.13.0",
+		"react": "18.3.1"
+	}
+}
