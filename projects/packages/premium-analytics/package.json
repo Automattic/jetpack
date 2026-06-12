@@ -33,6 +33,7 @@
 	"dependencies": {
 		"@automattic/charts": "workspace:*",
 		"@automattic/jetpack-grid": "workspace:*",
+		"@automattic/jetpack-premium-analytics-widgets-toolkit": "link:packages/widgets-toolkit",
 		"@automattic/jetpack-widget-dashboard": "workspace:*",
 		"@automattic/jetpack-widget-primitives": "workspace:*",
 		"@automattic/number-formatters": "workspace:*",

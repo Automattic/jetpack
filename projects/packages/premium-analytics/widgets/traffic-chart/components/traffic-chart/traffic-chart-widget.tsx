@@ -2,16 +2,16 @@
  * External dependencies
  */
 import { useGlobalChartsContext } from '@automattic/charts';
+import { ComparativeLineChart } from '@automattic/jetpack-premium-analytics-widgets-toolkit/src/components/chart-comparative-line';
+import { WidgetLoadingOverlay } from '@automattic/jetpack-premium-analytics-widgets-toolkit/src/components/widget-loading-overlay';
 import { useReportStatsVisits } from '@jetpack-premium-analytics/data';
 import { useEffect, useMemo } from 'react';
 /**
  * Internal dependencies
  */
 import { buildVisitsSeries } from '../../helpers';
-import { ComparativeLineChart } from '../chart-comparative-line';
 import { WidgetErrorNotice } from '../widget-error-notice';
-import { WidgetLoadingOverlay } from '../widget-loading-overlay';
-import type { SeriesStyle } from '../chart-comparative-line';
+import type { SeriesStyle } from '@automattic/jetpack-premium-analytics-widgets-toolkit/src/components/chart-comparative-line';
 import type { DataFormat, TrafficChartAttributes } from '../../types';
 import type { StatsVisitsField } from '@jetpack-premium-analytics/data';
 

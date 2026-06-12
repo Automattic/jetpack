@@ -4048,6 +4048,9 @@ importers:
       '@automattic/jetpack-grid':
         specifier: workspace:*
         version: link:../../js-packages/grid
+      '@automattic/jetpack-premium-analytics-widgets-toolkit':
+        specifier: link:packages/widgets-toolkit
+        version: link:packages/widgets-toolkit
       '@automattic/jetpack-widget-dashboard':
         specifier: workspace:*
         version: link:../../js-packages/widget-dashboard

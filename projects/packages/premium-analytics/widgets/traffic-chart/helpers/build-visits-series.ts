@@ -6,8 +6,8 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
+import type { ComparativeLineChartSeries } from '@automattic/jetpack-premium-analytics-widgets-toolkit/src/components/chart-comparative-line';
 import type { SanitizedStatsVisits } from '@jetpack-premium-analytics/data';
-import type { ComparativeLineChartSeries } from '../components/chart-comparative-line';
 
 /**
  * Metrics charted as parallel series, in series order (Views primary,

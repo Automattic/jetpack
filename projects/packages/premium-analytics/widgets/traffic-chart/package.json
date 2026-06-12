@@ -5,6 +5,7 @@
 	"type": "module",
 	"dependencies": {
 		"@automattic/charts": "workspace:*",
+		"@automattic/jetpack-premium-analytics-widgets-toolkit": "workspace:*",
 		"@wordpress/i18n": "^6.9.0",
 		"@wordpress/icons": "^13.0.0",
 		"@wordpress/ui": "0.13.0",
