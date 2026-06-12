@@ -7,7 +7,6 @@
 
 namespace Automattic\Jetpack\Agents_Manager;
 
-use Automattic\Jetpack\Constants;
 use PHPUnit\Framework\Attributes\CoversClass;
 
 require_once __DIR__ . '/../../src/class-sidebar-open-preservation.php';
@@ -20,15 +19,8 @@ require_once __DIR__ . '/../../src/class-sidebar-open-preservation.php';
 #[CoversClass( Sidebar_Open_Preservation::class )]
 class Sidebar_Open_Preservation_Test extends \WorDBless\BaseTestCase {
 
-	const COOKIE_KEY         = 'agents_manager_chat_sidebar_open_class_list';
-	const SIDEBAR_OPEN_CLASS = 'agents-manager-sidebar-container--sidebar-open';
-
-	/**
-	 * Comma-separated class list stored in the open-state cookie.
-	 *
-	 * @var string
-	 */
-	private const OPEN_CLASS_LIST_COOKIE = 'agents-manager-sidebar-container,agents-manager-sidebar-container--sidebar-open';
+	const SIDEBAR_CONTAINER_CLASS = 'agents-manager-sidebar-container';
+	const SIDEBAR_OPEN_CLASS      = 'agents-manager-sidebar-container--sidebar-open';
 
 	/**
 	 * The Sidebar_Open_Preservation instance.
@@ -38,11 +30,11 @@ class Sidebar_Open_Preservation_Test extends \WorDBless\BaseTestCase {
 	private $preservation;
 
 	/**
-	 * Original $_COOKIE value to restore after tests.
+	 * The current test user ID.
 	 *
-	 * @var mixed
+	 * @var int
 	 */
-	private $original_cookie;
+	private $user_id;
 
 	/**
 	 * Set up test fixtures.
@@ -52,27 +44,30 @@ class Sidebar_Open_Preservation_Test extends \WorDBless\BaseTestCase {
 
 		$this->preservation = new Sidebar_Open_Preservation();
 
-		// Save original cookie value so tests can mutate it freely.
-		$this->original_cookie = $_COOKIE[ self::COOKIE_KEY ] ?? null;
+		$this->user_id = wp_insert_user(
+			array(
+				'user_login' => 'preservation_tester',
+				'user_pass'  => 'password',
+				'role'       => 'administrator',
+			)
+		);
+		wp_set_current_user( $this->user_id );
 	}
 
 	/**
 	 * Tear down test fixtures.
 	 */
 	public function tear_down() {
-		// Remove hooks added by the constructor.
+		// Remove the hooks added by the constructor.
 		remove_filter( 'admin_body_class', array( $this->preservation, 'add_preopen_body_classes' ), PHP_INT_MAX );
-		remove_action( 'admin_enqueue_scripts', array( $this->preservation, 'enqueue_sidebar_open_watcher_script' ), 1 );
+		remove_action( 'in_admin_header', array( $this->preservation, 'print_sidebar_open_sync_script' ) );
 
-		// Clean up the unified experience filter that tests may add.
+		// Clean up filters tests may add.
 		remove_all_filters( 'agents_manager_use_unified_experience' );
+		remove_all_filters( 'agents_manager_variant' );
 
-		// Restore the cookie superglobal.
-		if ( $this->original_cookie === null ) {
-			unset( $_COOKIE[ self::COOKIE_KEY ] );
-		} else {
-			$_COOKIE[ self::COOKIE_KEY ] = $this->original_cookie;
-		}
+		// Clear the cached open state.
+		delete_transient( 'agents_manager_open_state_' . $this->user_id );
 
 		// Restore admin/screen context.
 		if ( function_exists( 'set_current_screen' ) ) {
@@ -80,23 +75,33 @@ class Sidebar_Open_Preservation_Test extends \WorDBless\BaseTestCase {
 		}
 		unset( $GLOBALS['current_screen'] );
 
-		// Reset the script registry.
-		global $wp_scripts;
-		$wp_scripts = null;
-
-		Constants::clear_constants();
-
 		parent::tear_down();
 	}
 
 	/**
-	 * Put the request into the "should preserve" state: admin context with the
-	 * unified experience enabled.
+	 * Put the request into the "should preserve" state: admin context with the app
+	 * loading a connected (non-disconnected) variant.
 	 */
 	private function enable_preservation() {
 		require_once ABSPATH . 'wp-admin/includes/screen.php';
 		set_current_screen( 'dashboard' );
 		add_filter( 'agents_manager_use_unified_experience', '__return_true' );
+	}
+
+	/**
+	 * Cache a sidebar state for the current user.
+	 *
+	 * @param bool $open   Whether the sidebar is open.
+	 * @param bool $docked Whether the sidebar is docked. Defaults to true.
+	 */
+	private function cache_open_state( bool $open, bool $docked = true ) {
+		set_transient(
+			'agents_manager_open_state_' . $this->user_id,
+			array(
+				'agents_manager_open'   => $open,
+				'agents_manager_docked' => $docked,
+			)
+		);
 	}
 
 	/**
@@ -121,16 +126,16 @@ class Sidebar_Open_Preservation_Test extends \WorDBless\BaseTestCase {
 
 		$this->assertSame( $first, $second, 'init() should not replace an existing instance.' );
 
-		// Clean up hooks added by the instance created here.
+		// Clean up the hooks added by the instance created here.
 		remove_filter( 'admin_body_class', array( $first, 'add_preopen_body_classes' ), PHP_INT_MAX );
-		remove_action( 'admin_enqueue_scripts', array( $first, 'enqueue_sidebar_open_watcher_script' ), 1 );
+		remove_action( 'in_admin_header', array( $first, 'print_sidebar_open_sync_script' ) );
 		$property->setValue( null, null );
 	}
 
 	/**
-	 * Tests that the constructor registers the expected hooks.
+	 * Tests that the constructor registers the body class filter last.
 	 */
-	public function test_constructor_registers_hooks() {
+	public function test_constructor_registers_hook_last() {
 		// Registered at `PHP_INT_MAX` so our class is always appended last and cannot be
 		// glued onto a class added by a later `admin_body_class` filter.
 		$this->assertSame(
@@ -138,10 +143,48 @@ class Sidebar_Open_Preservation_Test extends \WorDBless\BaseTestCase {
 			has_filter( 'admin_body_class', array( $this->preservation, 'add_preopen_body_classes' ) ),
 			'The pre-open body class filter must run last.'
 		);
-		$this->assertSame(
-			1,
-			has_action( 'admin_enqueue_scripts', array( $this->preservation, 'enqueue_sidebar_open_watcher_script' ) )
+	}
+
+	/**
+	 * Tests that the constructor registers the early dock-sync script hook.
+	 */
+	public function test_constructor_registers_sync_script_hook() {
+		$this->assertNotFalse(
+			has_action( 'in_admin_header', array( $this->preservation, 'print_sidebar_open_sync_script' ) ),
+			'The dock-sync script must be hooked into the admin body.'
 		);
+	}
+
+	/**
+	 * Tests that the dock-sync script is printed (with canDock logic) when the
+	 * docked-open shell is pre-rendered.
+	 */
+	public function test_print_sync_script_outputs_when_pre_rendering() {
+		$this->enable_preservation();
+		$this->cache_open_state( true );
+
+		ob_start();
+		$this->preservation->print_sidebar_open_sync_script();
+		$output = ob_get_clean();
+
+		$this->assertStringContainsString( '<script', $output );
+		$this->assertStringContainsString( 'matchMedia', $output );
+		$this->assertStringContainsString( 'is-fullscreen-mode', $output );
+		$this->assertStringContainsString( 'agents-manager-sidebar-container', $output );
+	}
+
+	/**
+	 * Tests that the dock-sync script is not printed when nothing is pre-rendered.
+	 */
+	public function test_print_sync_script_noop_when_not_pre_rendering() {
+		$this->enable_preservation();
+		$this->cache_open_state( false );
+
+		ob_start();
+		$this->preservation->print_sidebar_open_sync_script();
+		$output = ob_get_clean();
+
+		$this->assertSame( '', $output );
 	}
 
 	/**
@@ -149,12 +192,11 @@ class Sidebar_Open_Preservation_Test extends \WorDBless\BaseTestCase {
 	 * a class without a leading space. Because our filter runs last, our class lands
 	 * at the very end of the list as a clean, standalone token.
 	 *
-	 * This is a WordPress community convention that we should preserve to avoid breaking CSS selectors.
-	 * See more: https://developer.wordpress.org/reference/hooks/admin_body_class/#comment-1012
+	 * @see https://developer.wordpress.org/reference/hooks/admin_body_class/#comment-1012
 	 */
 	public function test_add_preopen_body_classes_runs_last_and_survives_concatenation() {
 		$this->enable_preservation();
-		$_COOKIE[ self::COOKIE_KEY ] = self::OPEN_CLASS_LIST_COOKIE;
+		$this->cache_open_state( true );
 
 		// Mimic the real-world bug: a filter at the default priority that appends a
 		// class without a leading space (e.g. `legacy-color-modern`).
@@ -180,102 +222,82 @@ class Sidebar_Open_Preservation_Test extends \WorDBless\BaseTestCase {
 	 * Tests that body classes are unchanged on the site frontend.
 	 */
 	public function test_add_preopen_body_classes_unchanged_on_frontend() {
-		// Not admin, even though the cookie says the sidebar is open.
-		$_COOKIE[ self::COOKIE_KEY ] = self::OPEN_CLASS_LIST_COOKIE;
+		// Not admin, even though the cached state says the sidebar is open.
+		$this->cache_open_state( true );
 
 		$this->assertFalse( is_admin() );
 		$this->assertSame( 'foo bar', $this->preservation->add_preopen_body_classes( 'foo bar' ) );
 	}
 
 	/**
-	 * Tests that body classes are unchanged when the unified experience is disabled.
+	 * Tests that body classes are unchanged when the app is not loading (no variant).
 	 */
-	public function test_add_preopen_body_classes_unchanged_when_unified_experience_disabled() {
+	public function test_add_preopen_body_classes_unchanged_when_app_inactive() {
 		require_once ABSPATH . 'wp-admin/includes/screen.php';
 		set_current_screen( 'dashboard' );
-		$_COOKIE[ self::COOKIE_KEY ] = self::OPEN_CLASS_LIST_COOKIE;
+		$this->cache_open_state( true );
 
-		// No unified experience filter added -> defaults to false.
+		// No unified experience filter added -> no active variant -> no app loaded.
 		$this->assertSame( 'foo bar', $this->preservation->add_preopen_body_classes( 'foo bar' ) );
 	}
 
 	/**
-	 * Tests that body classes are unchanged when the cookie is absent.
+	 * Tests that preservation runs for any active variant (the gate is purely
+	 * "is the app loading on this request?").
 	 */
-	public function test_add_preopen_body_classes_unchanged_when_cookie_missing() {
+	public function test_add_preopen_body_classes_runs_for_any_active_variant() {
 		$this->enable_preservation();
-		unset( $_COOKIE[ self::COOKIE_KEY ] );
+		$this->cache_open_state( true );
 
-		$this->assertSame( 'foo bar', $this->preservation->add_preopen_body_classes( 'foo bar' ) );
-	}
-
-	/**
-	 * Tests that body classes are unchanged when the cookie is empty.
-	 */
-	public function test_add_preopen_body_classes_unchanged_when_cookie_empty() {
-		$this->enable_preservation();
-		$_COOKIE[ self::COOKIE_KEY ] = '';
-
-		$this->assertSame( 'foo bar', $this->preservation->add_preopen_body_classes( 'foo bar' ) );
-	}
-
-	/**
-	 * Tests that the sidebar-open classes are appended when the cookie carries a class list.
-	 */
-	public function test_add_preopen_body_classes_appends_classes_when_open() {
-		$this->enable_preservation();
-		$_COOKIE[ self::COOKIE_KEY ] = self::OPEN_CLASS_LIST_COOKIE;
+		add_filter( 'agents_manager_variant', fn () => 'wp-admin-disconnected' );
 
 		$result = $this->preservation->add_preopen_body_classes( 'foo bar' );
 
-		$this->assertStringContainsString( 'foo bar', $result );
-		$this->assertStringContainsString( 'agents-manager-sidebar-container', $result );
 		$this->assertStringContainsString( self::SIDEBAR_OPEN_CLASS, $result );
 	}
 
 	/**
-	 * Tests that the cookie value is sanitized before being applied.
+	 * Tests that body classes are unchanged when there is no cached state.
 	 */
-	public function test_add_preopen_body_classes_handles_slashed_cookie_value() {
+	public function test_add_preopen_body_classes_unchanged_when_state_uncached() {
 		$this->enable_preservation();
-		// A slashed/padded value that sanitizes to empty should not open the sidebar.
-		$_COOKIE[ self::COOKIE_KEY ] = '   ';
+		delete_transient( 'agents_manager_open_state_' . $this->user_id );
 
-		$result = $this->preservation->add_preopen_body_classes( 'foo' );
-
-		$this->assertSame( 'foo', $result );
+		$this->assertSame( 'foo bar', $this->preservation->add_preopen_body_classes( 'foo bar' ) );
 	}
 
 	/**
-	 * Tests that the watcher script is not enqueued when preservation is disabled.
+	 * Tests that body classes are unchanged when the cached state is closed.
 	 */
-	public function test_enqueue_does_nothing_when_disabled() {
-		// Frontend context: should_preserve_sidebar_open_state() returns false.
-		$this->preservation->enqueue_sidebar_open_watcher_script();
+	public function test_add_preopen_body_classes_unchanged_when_closed() {
+		$this->enable_preservation();
+		$this->cache_open_state( false );
 
-		$this->assertFalse( wp_script_is( 'jetpack-agents-manager-sidebar-open-watcher', 'registered' ) );
-		$this->assertFalse( wp_script_is( 'jetpack-agents-manager-sidebar-open-watcher', 'enqueued' ) );
+		$this->assertSame( 'foo bar', $this->preservation->add_preopen_body_classes( 'foo bar' ) );
 	}
 
 	/**
-	 * Tests that the watcher script is registered, enqueued, and carries inline data when enabled.
+	 * Tests that body classes are unchanged when the sidebar is open but undocked
+	 * (floating). The docked-sidebar classes would wrongly reshape the layout.
 	 */
-	public function test_enqueue_registers_and_enqueues_script_when_enabled() {
+	public function test_add_preopen_body_classes_unchanged_when_open_but_undocked() {
 		$this->enable_preservation();
-		Constants::set_constant( 'ADMIN_COOKIE_PATH', '/wp-admin' );
+		$this->cache_open_state( true, false );
 
-		$this->preservation->enqueue_sidebar_open_watcher_script();
+		$this->assertSame( 'foo bar', $this->preservation->add_preopen_body_classes( 'foo bar' ) );
+	}
 
-		$handle = 'jetpack-agents-manager-sidebar-open-watcher';
-		$this->assertTrue( wp_script_is( $handle, 'registered' ) );
-		$this->assertTrue( wp_script_is( $handle, 'enqueued' ) );
+	/**
+	 * Tests that the sidebar-open classes are appended when the cached state is open.
+	 */
+	public function test_add_preopen_body_classes_appends_classes_when_open() {
+		$this->enable_preservation();
+		$this->cache_open_state( true );
 
-		global $wp_scripts;
-		$inline_scripts = $wp_scripts->registered[ $handle ]->extra['before'] ?? array();
-		$inline_script  = implode( "\n", array_filter( (array) $inline_scripts ) );
+		$result = $this->preservation->add_preopen_body_classes( 'foo bar' );
 
-		$this->assertStringContainsString( 'window.AgentsManagerSidebarOpenWatcherData =', $inline_script );
-		$this->assertStringContainsString( '"cookieKey":"' . self::COOKIE_KEY . '"', $inline_script );
-		$this->assertStringContainsString( '"cookiePath":"/wp-admin"', $inline_script );
+		$this->assertStringContainsString( 'foo bar', $result );
+		$this->assertStringContainsString( self::SIDEBAR_CONTAINER_CLASS, $result );
+		$this->assertStringContainsString( self::SIDEBAR_OPEN_CLASS, $result );
 	}
 }
