@@ -118,6 +118,17 @@ const SettingsScreen: FC< Props > = ( { form } ) => {
 				</CollapsibleCard.Root>
 			</div>
 
+			<div id="verification" className="jetpack-seo-settings__section">
+				<VerificationCard
+					value={ local.verification }
+					onChange={ setVerification }
+					onCommit={ () => commit() }
+					disabled={ isSaving }
+					open={ verificationOpen }
+					onOpenChange={ setVerificationOpen }
+				/>
+			</div>
+
 			<TitleStructureField
 				tokens={ postsTokens }
 				onChange={ next => commit( { title_formats: { ...local.title_formats, posts: next } } ) }
@@ -147,17 +158,6 @@ const SettingsScreen: FC< Props > = ( { form } ) => {
 			</CollapsibleCard.Root>
 
 			<SocialPreviewsCard description={ local.front_page_description } />
-
-			<div id="verification" className="jetpack-seo-settings__section">
-				<VerificationCard
-					value={ local.verification }
-					onChange={ setVerification }
-					onCommit={ () => commit() }
-					disabled={ isSaving }
-					open={ verificationOpen }
-					onOpenChange={ setVerificationOpen }
-				/>
-			</div>
 		</div>
 	);
 };
