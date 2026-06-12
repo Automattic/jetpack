@@ -1,0 +1,4 @@
+Significance: minor
+Type: fixed
+
+Agents Manager: drive the sidebar pre-render from the persisted open state (cached in a transient) instead of a path-scoped cookie, and only pre-render where the app is actually loaded, so closing the assistant on another domain no longer leaves a stale sidebar shell behind.
