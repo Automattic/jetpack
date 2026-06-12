@@ -1,7 +1,7 @@
-import { requestJwt } from '@automattic/jetpack-ai-client';
 import apiFetch from '@wordpress/api-fetch';
 import { addQueryArgs } from '@wordpress/url';
 import { selectFallback } from './fallback.ts';
+import { requestJwt } from './jwt.ts';
 import { buildTailorPrompt } from './prompts.ts';
 import { parseAgentResponse } from './schema-validator.ts';
 import type { TailoredOutput, TailorResult, TailorSource, WizardInput } from './types.ts';

@@ -1,0 +1,69 @@
+import { isSimpleSite } from '@automattic/jetpack-script-data';
+import apiFetch from '@wordpress/api-fetch';
+
+/**
+ * Jetpack AI JWT, minted from the site and cached in localStorage.
+ *
+ * Ported from `@automattic/jetpack-ai-client`'s `requestJwt`: that package
+ * cannot currently be bundled by wp-build (its build output is misconfigured -
+ * see js/lib/README context in the PR), and we only need this one function, so
+ * we inline it against `@wordpress/api-fetch` rather than pull the whole package
+ * into the bundle.
+ */
+
+interface TokenData {
+	token: string;
+	blogId: string;
+	expire: number;
+}
+
+interface TokenEndpointResponse {
+	token: string;
+	blog_id: string;
+}
+
+const JWT_TOKEN_ID = 'jetpack-ai-jwt';
+const JWT_TOKEN_EXPIRATION_TIME = 2 * 60 * 1000;
+
+/**
+ * Mint (or return a cached) Jetpack AI JWT for the current site.
+ *
+ * @return The token, blog id, and expiry timestamp.
+ */
+export async function requestJwt(): Promise< TokenData > {
+	const initialState = window.JP_CONNECTION_INITIAL_STATE;
+	const apiNonce = initialState?.apiNonce;
+	const siteId = initialState?.siteSuffix;
+
+	const cached = localStorage.getItem( JWT_TOKEN_ID );
+	if ( cached ) {
+		try {
+			const parsed: TokenData = JSON.parse( cached );
+			if ( parsed?.expire > Date.now() ) {
+				return parsed;
+			}
+		} catch {
+			// Fall through and mint a fresh token.
+		}
+	}
+
+	const isSimple = isSimpleSite();
+	const data = ( await apiFetch( {
+		path: isSimple
+			? '/wpcom/v2/sites/' + siteId + '/jetpack-openai-query/jwt'
+			: '/jetpack/v4/jetpack-ai-jwt?_cacheBuster=' + Date.now(),
+		method: 'POST',
+		credentials: 'same-origin',
+		headers: isSimple ? undefined : { 'X-WP-Nonce': apiNonce },
+	} ) ) as TokenEndpointResponse;
+
+	const tokenData: TokenData = {
+		token: data.token,
+		blogId: isSimple ? String( siteId ) : data.blog_id,
+		expire: Date.now() + JWT_TOKEN_EXPIRATION_TIME,
+	};
+
+	localStorage.setItem( JWT_TOKEN_ID, JSON.stringify( tokenData ) );
+
+	return tokenData;
+}
