@@ -116,8 +116,8 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 	}
 
 	/**
-	 * Confine the endpoint to a relative analytics sub-path so it cannot escape the
-	 * `/sites/<id>/analytics/` prefix via traversal (`..`), an absolute path, or a scheme.
+	 * Confine the endpoint to a relative sub-path so it cannot escape the
+	 * `/sites/<id>/` prefix via traversal (`..`), an absolute path, or a scheme.
 	 *
 	 * @param mixed $value Raw endpoint param.
 	 *
@@ -155,16 +155,18 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 			);
 		}
 
+		$target = $this->resolve_upstream( $request );
+
 		try {
 			$response = Client::wpcom_json_api_request_as_blog(
-				$this->build_endpoint_url( $request ),
-				'2',
+				$target['path'],
+				$target['version'],
 				array(
 					'method'  => 'GET',
 					'timeout' => self::API_TIMEOUT,
 				),
 				null,
-				'wpcom'
+				$target['base']
 			);
 		} catch ( \Exception $e ) {
 			return new WP_Error(
@@ -186,22 +188,37 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 	}
 
 	/**
-	 * Build the WPCOM analytics path for the connected blog from the request.
+	 * Resolve the upstream WPCOM request for the proxied endpoint: its path, API
+	 * version, and base.
+	 *
+	 * Most endpoints target the v2 analytics namespace (`/sites/<id>/analytics/…`).
+	 * Jetpack Stats endpoints (`stats/…`, e.g. `stats/top-posts`) instead live on
+	 * the v1.1 REST API directly under the site, so they are routed there.
 	 *
 	 * @param WP_REST_Request $request Request object.
 	 *
-	 * @return string
+	 * @return array{path: string, version: string, base: string}
 	 */
-	protected function build_endpoint_url( WP_REST_Request $request ): string {
-		$site_id      = (int) Jetpack_Options::get_option( 'id' );
-		$endpoint_url = sprintf( '/sites/%d/analytics/%s', $site_id, (string) $request->get_param( 'endpoint' ) );
+	protected function resolve_upstream( WP_REST_Request $request ): array {
+		$site_id  = (int) Jetpack_Options::get_option( 'id' );
+		$endpoint = (string) $request->get_param( 'endpoint' );
 
 		$params = $this->get_forwarded_params( $request );
-		if ( ! empty( $params ) ) {
-			$endpoint_url .= '?' . http_build_query( $params );
+		$query  = empty( $params ) ? '' : '?' . http_build_query( $params );
+
+		if ( str_starts_with( $endpoint, 'stats/' ) ) {
+			return array(
+				'path'    => sprintf( '/sites/%d/%s%s', $site_id, $endpoint, $query ),
+				'version' => '1.1',
+				'base'    => 'rest',
+			);
 		}
 
-		return $endpoint_url;
+		return array(
+			'path'    => sprintf( '/sites/%d/analytics/%s%s', $site_id, $endpoint, $query ),
+			'version' => '2',
+			'base'    => 'wpcom',
+		);
 	}
 
 	/**

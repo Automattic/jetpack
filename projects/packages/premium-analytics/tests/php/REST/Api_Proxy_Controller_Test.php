@@ -175,6 +175,26 @@ class Api_Proxy_Controller_Test extends BaseTestCase {
 		$this->assertFalse( get_transient( $this->cache_key( $request ) ) );
 	}
 
+	public function test_resolve_upstream_routes_stats_endpoints_to_the_v1_1_rest_api() {
+		\Jetpack_Options::update_option( 'id', 123 );
+
+		$target = $this->resolve_upstream( $this->build_request( 'stats/top-posts', array( 'period' => 'day' ) ) );
+
+		$this->assertSame( '/sites/123/stats/top-posts?period=day', $target['path'] );
+		$this->assertSame( '1.1', $target['version'] );
+		$this->assertSame( 'rest', $target['base'] );
+	}
+
+	public function test_resolve_upstream_routes_other_endpoints_to_the_v2_analytics_api() {
+		\Jetpack_Options::update_option( 'id', 123 );
+
+		$target = $this->resolve_upstream( $this->build_request( 'reports/totals', array( 'period' => 'week' ) ) );
+
+		$this->assertSame( '/sites/123/analytics/reports/totals?period=week', $target['path'] );
+		$this->assertSame( '2', $target['version'] );
+		$this->assertSame( 'wpcom', $target['base'] );
+	}
+
 	/**
 	 * Build a proxy request with the endpoint capture and forwarded query params set.
 	 *
@@ -185,7 +205,10 @@ class Api_Proxy_Controller_Test extends BaseTestCase {
 	 */
 	private function build_request( string $endpoint, array $params = array() ): WP_REST_Request {
 		$request = new WP_REST_Request( 'GET', '/jetpack-premium-analytics/v1/proxy/' . $endpoint );
-		$request->set_param( 'endpoint', $endpoint );
+		// Mirror real routing: `endpoint` is the URL regex capture, query params
+		// are separate. Setting it as a query param would let set_query_params()
+		// clobber it (and would forward it upstream).
+		$request->set_url_params( array( 'endpoint' => $endpoint ) );
 		$request->set_query_params( $params );
 
 		return $request;
@@ -221,5 +244,21 @@ class Api_Proxy_Controller_Test extends BaseTestCase {
 		};
 
 		return $accessor->call( $this->controller, $http_response, $cache_key );
+	}
+
+	/**
+	 * Invoke the controller's protected resolve_upstream().
+	 *
+	 * @param WP_REST_Request $request Request object.
+	 *
+	 * @return array{path: string, version: string, base: string}
+	 */
+	private function resolve_upstream( WP_REST_Request $request ): array {
+		$accessor = function ( WP_REST_Request $req ) {
+			// @phan-suppress-next-line PhanUndeclaredMethod -- rebound to the controller via Closure::call() below.
+			return $this->resolve_upstream( $req );
+		};
+
+		return $accessor->call( $this->controller, $request );
 	}
 }

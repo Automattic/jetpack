@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Api_Proxy_Controller: route stats/* endpoints (e.g. stats/top-posts) to the v1.1 Stats REST API; other endpoints continue to target the v2 analytics API.
