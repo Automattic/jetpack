@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+AI Launchpad: render the tailored task list as a vertical card stack with auto-expand, per-task CTAs, completion styling, and a loading skeleton
