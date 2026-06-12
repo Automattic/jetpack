@@ -173,9 +173,57 @@ JS;
 			return false;
 		}
 
+		// On Gutenberg editor screens the chat only docks in fullscreen mode.
+		// Unlike width/height (handled in CSS / by the reconciler against the live
+		// viewport), the body's `is-fullscreen-mode` class can't be trusted at
+		// paint: core adds it unconditionally and Gutenberg only removes it after
+		// boot. So read the real persisted preference and skip the pre-render when
+		// fullscreen is off, avoiding a docked-shell flash before the editor JS
+		// corrects the class.
+		if ( $this->is_non_fullscreen_editor() ) {
+			return false;
+		}
+
 		$state = Open_State_Store::get_cached();
 
 		return $state && true === $state['agents_manager_open'] && true === $state['agents_manager_docked'];
+	}
+
+	/**
+	 * Whether the current request is a Gutenberg editor screen with fullscreen
+	 * mode turned off — the case where the chat floats rather than docks.
+	 *
+	 * Mirrors the front-end's fullscreen-gated screens (post / site editor). The
+	 * `fullscreenMode` preference lives in the per-user `persisted_preferences`
+	 * meta written by the block editor; it defaults to on, so only an explicit
+	 * `false` counts as off.
+	 *
+	 * @return bool
+	 */
+	private function is_non_fullscreen_editor(): bool {
+		global $wpdb, $pagenow;
+
+		// Map each fullscreen-gated editor screen to its preference scope.
+		$scope = null;
+		if ( 'post.php' === $pagenow || 'post-new.php' === $pagenow ) {
+			$scope = 'core/edit-post';
+		} elseif ( 'site-editor.php' === $pagenow ) {
+			$scope = 'core/edit-site';
+		}
+
+		if ( null === $scope ) {
+			return false;
+		}
+
+		$user_id = get_current_user_id();
+		if ( ! $user_id ) {
+			return false;
+		}
+
+		$preferences = get_user_meta( $user_id, $wpdb->get_blog_prefix() . 'persisted_preferences', true );
+
+		return is_array( $preferences ) && isset( $preferences[ $scope ]['fullscreenMode'] )
+			&& false === (bool) $preferences[ $scope ]['fullscreenMode'];
 	}
 
 	/**

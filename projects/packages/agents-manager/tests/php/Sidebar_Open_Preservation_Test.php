@@ -73,7 +73,7 @@ class Sidebar_Open_Preservation_Test extends \WorDBless\BaseTestCase {
 		if ( function_exists( 'set_current_screen' ) ) {
 			set_current_screen( 'front' );
 		}
-		unset( $GLOBALS['current_screen'] );
+		unset( $GLOBALS['current_screen'], $GLOBALS['pagenow'] );
 
 		parent::tear_down();
 	}
@@ -300,6 +300,53 @@ class Sidebar_Open_Preservation_Test extends \WorDBless\BaseTestCase {
 
 		$this->assertStringContainsString( 'foo bar', $result );
 		$this->assertStringContainsString( self::SIDEBAR_CONTAINER_CLASS, $result );
+		$this->assertStringContainsString( self::SIDEBAR_OPEN_CLASS, $result );
+	}
+
+	/**
+	 * Persist a Gutenberg fullscreen-mode preference for the current user.
+	 *
+	 * @param string $scope      Preference scope (e.g. 'core/edit-post').
+	 * @param bool   $fullscreen Whether fullscreen mode is on.
+	 */
+	private function set_fullscreen_preference( string $scope, bool $fullscreen ) {
+		global $wpdb;
+		update_user_meta(
+			$this->user_id,
+			$wpdb->get_blog_prefix() . 'persisted_preferences',
+			array( $scope => array( 'fullscreenMode' => $fullscreen ) )
+		);
+	}
+
+	/**
+	 * Tests that nothing is pre-rendered on an editor screen when fullscreen mode
+	 * is off — there the chat floats, so the docked classes would be a stale shell.
+	 */
+	public function test_no_pre_render_on_non_fullscreen_editor() {
+		$this->enable_preservation();
+		$this->cache_open_state( true );
+		$GLOBALS['pagenow'] = 'post.php';
+		$this->set_fullscreen_preference( 'core/edit-post', false );
+
+		$this->assertSame( 'foo bar', $this->preservation->add_preopen_body_classes( 'foo bar' ) );
+
+		ob_start();
+		$this->preservation->print_sidebar_open_sync_script();
+		$this->assertSame( '', ob_get_clean() );
+	}
+
+	/**
+	 * Tests that the shell is still pre-rendered on an editor screen when
+	 * fullscreen mode is on (the default), where the chat docks.
+	 */
+	public function test_pre_renders_on_fullscreen_editor() {
+		$this->enable_preservation();
+		$this->cache_open_state( true );
+		$GLOBALS['pagenow'] = 'site-editor.php';
+		$this->set_fullscreen_preference( 'core/edit-site', true );
+
+		$result = $this->preservation->add_preopen_body_classes( 'foo bar' );
+
 		$this->assertStringContainsString( self::SIDEBAR_OPEN_CLASS, $result );
 	}
 }
