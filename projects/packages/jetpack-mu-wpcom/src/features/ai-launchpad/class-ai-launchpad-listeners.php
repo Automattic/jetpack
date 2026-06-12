@@ -21,6 +21,24 @@ class AI_Launchpad_Listeners {
 	 */
 	public static function register() {
 		add_action( 'init', array( __CLASS__, 'add_listener_hooks_to_correct_action' ), 12 );
+		add_filter( 'wpcom_launchpad_is_task_active_for_completion', array( __CLASS__, 'treat_ai_task_as_active' ), 10, 2 );
+	}
+
+	/**
+	 * Treats AI-selected tasks as active so their shared completion callbacks
+	 * write status even when the task is absent from the site's `site_intent`
+	 * task list.
+	 *
+	 * @param bool   $is_active Whether the task is active per the site_intent task list.
+	 * @param string $task_id   The task being completed.
+	 * @return bool
+	 */
+	public static function treat_ai_task_as_active( $is_active, $task_id ) {
+		if ( $is_active ) {
+			return true;
+		}
+
+		return in_array( $task_id, self::get_ai_task_ids(), true );
 	}
 
 	/**
