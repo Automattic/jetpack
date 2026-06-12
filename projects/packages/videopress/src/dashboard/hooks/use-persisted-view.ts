@@ -48,9 +48,14 @@ const VALID_SORT_DIRECTIONS = new Set( [ 'asc', 'desc' ] );
  */
 function getStorageKey(): string {
 	const data = getScriptData();
-	const blogId = data?.site?.wpcom?.blog_id ?? data?.site?.host ?? 'site';
+	// `blog_id` defaults to 0 for disconnected sites (see assets Script_Data),
+	// and `??` would treat that 0 as a real id — collapsing every disconnected
+	// site in the same browser onto one shared key. Only trust a positive id;
+	// otherwise fall back to the host so different sites stay separate.
+	const blogId = data?.site?.wpcom?.blog_id;
+	const scope = typeof blogId === 'number' && blogId > 0 ? blogId : data?.site?.host ?? 'site';
 	const userId = data?.user?.current_user?.id ?? 'user';
-	return `jetpack-videopress-preferences-${ blogId }-${ userId }`;
+	return `jetpack-videopress-preferences-${ scope }-${ userId }`;
 }
 
 /**
@@ -206,6 +211,9 @@ export function usePersistedView( defaultView: View ): [ View, ( view: View ) =>
 	// with the persisted view immediately. The store still owns subsequent
 	// writes (and mirrors them back to the same storage key).
 	const initialView = useRef< View | null >( null );
+	// Serialized snapshot of the last subset we persisted, so we can skip
+	// redundant writes (see `persistView`).
+	const lastPersisted = useRef< string | null >( null );
 	if ( initialView.current === null ) {
 		const scoped = readStoredData()[ PREFERENCES_SCOPE ] as Record< string, unknown > | undefined;
 		const sanitized = sanitizePersistedView( scoped?.[ PREFERENCES_NAME ] );
@@ -216,11 +224,24 @@ export function usePersistedView( defaultView: View ): [ View, ( view: View ) =>
 			page: 1,
 			search: '',
 		};
+		// Seed the dedup baseline from the hydrated view so the first real
+		// change isn't written back as a no-op.
+		lastPersisted.current = JSON.stringify( toPersistedView( initialView.current ) );
 	}
 
 	const persistView = useCallback(
 		( view: View ) => {
-			set( PREFERENCES_SCOPE, PREFERENCES_NAME, toPersistedView( view ) );
+			// `onChangeView` fires for every view change, including non-persisted
+			// state like `search`, `page`, and `filters`. Only write when the
+			// whitelisted subset actually changes, so a search keystroke doesn't
+			// hammer localStorage with an identical payload.
+			const subset = toPersistedView( view );
+			const serialized = JSON.stringify( subset );
+			if ( serialized === lastPersisted.current ) {
+				return;
+			}
+			lastPersisted.current = serialized;
+			set( PREFERENCES_SCOPE, PREFERENCES_NAME, subset );
 		},
 		[ set ]
 	);

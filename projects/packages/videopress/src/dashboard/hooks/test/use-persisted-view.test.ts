@@ -2,11 +2,15 @@ import { act, renderHook } from '@testing-library/react';
 import { usePersistedView } from '../use-persisted-view';
 import type { View } from '@wordpress/dataviews';
 
+// Mutable so individual tests can exercise different site shapes (e.g. a
+// disconnected site whose `blog_id` is 0).
+let mockScriptData: unknown = {
+	site: { wpcom: { blog_id: 123 } },
+	user: { current_user: { id: 7 } },
+};
+
 jest.mock( '@automattic/jetpack-script-data', () => ( {
-	getScriptData: () => ( {
-		site: { wpcom: { blog_id: 123 } },
-		user: { current_user: { id: 7 } },
-	} ),
+	getScriptData: () => mockScriptData,
 } ) );
 
 const STORAGE_KEY = 'jetpack-videopress-preferences-123-7';
@@ -39,6 +43,10 @@ describe( 'usePersistedView', () => {
 	beforeEach( () => {
 		window.localStorage.clear();
 		jest.resetModules();
+		mockScriptData = {
+			site: { wpcom: { blog_id: 123 } },
+			user: { current_user: { id: 7 } },
+		};
 	} );
 
 	it( 'falls back to the default view when nothing is persisted', () => {
@@ -116,5 +124,44 @@ describe( 'usePersistedView', () => {
 		// search and page are not part of the persisted whitelist.
 		expect( persisted.search ).toBeUndefined();
 		expect( persisted.page ).toBeUndefined();
+	} );
+
+	it( 'scopes storage by host when blog_id is 0 (disconnected site)', () => {
+		// A disconnected site's `blog_id` defaults to 0; `??` would treat that
+		// as a real id and collapse every disconnected site onto one key. The
+		// key should fall back to the host so different sites stay separate.
+		mockScriptData = {
+			site: { wpcom: { blog_id: 0 }, host: 'example.com' },
+			user: { current_user: { id: 7 } },
+		};
+		window.localStorage.setItem(
+			'jetpack-videopress-preferences-example.com-7',
+			JSON.stringify( { [ SCOPE ]: { [ NAME ]: { type: 'table' } } } )
+		);
+
+		const { result } = renderHook( () => usePersistedView( DEFAULT_VIEW ) );
+		const [ initialView ] = result.current;
+
+		// Hydrated from the host-scoped key, not the shared `...-0-...` one.
+		expect( initialView.type ).toBe( 'table' );
+	} );
+
+	it( 'skips redundant writes when the persisted subset is unchanged', () => {
+		const { result } = renderHook( () => usePersistedView( DEFAULT_VIEW ) );
+		const [ , persistView ] = result.current;
+
+		const setItem = jest.spyOn( window.localStorage.__proto__, 'setItem' );
+
+		const changed: View = { ...DEFAULT_VIEW, type: 'table', fields: [ 'filename' ] };
+		act( () => persistView( changed ) );
+		const afterFirst = setItem.mock.calls.length;
+		expect( afterFirst ).toBeGreaterThan( 0 );
+
+		// Same whitelisted subset, but with non-persisted state churn (a search
+		// keystroke, a page change). No new write should hit storage.
+		act( () => persistView( { ...changed, search: 'typing', page: 4 } ) );
+		expect( setItem.mock.calls ).toHaveLength( afterFirst );
+
+		setItem.mockRestore();
 	} );
 } );
