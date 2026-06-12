@@ -22,14 +22,12 @@ use WP_REST_Server;
  * it. Lets the extracted frontend's data layer talk to WPCOM without each call leaving the
  * WordPress origin.
  *
- * Two route families share one forwarding core:
- *  - the analytics catch-all (`proxy/<endpoint>` → `/sites/<id>/analytics/<endpoint>`, v2); and
- *  - an agnostic data proxy that re-exposes the `stats-admin` package's WPCOM pass-through
- *    endpoints under this namespace, minus the blog ID in the URL. Rather than registering
- *    each endpoint, it accepts any sub-path under an allowed top-level prefix (see
- *    {@see ALLOWED_PREFIXES}) and lets the caller pick the WPCOM API `version`; the proxy
- *    stays endpoint-agnostic while the prefix allowlist + write policy keep the blast radius
- *    of the blog token bounded.
+ * One agnostic route serves the whole surface (analytics + the re-exposed `stats-admin`
+ * endpoints), minus the blog ID in the URL. Rather than registering each endpoint, it
+ * accepts any sub-path under an allowed top-level prefix (see {@see ALLOWED_PREFIXES}) and
+ * lets the caller pick the WPCOM API `version` (the base is derived: v2 → wpcom, v1.x →
+ * rest). The proxy stays endpoint-agnostic while the prefix allowlist + write-method policy
+ * keep the blast radius of the blog token bounded.
  */
 class Api_Proxy_Controller extends WP_REST_Controller {
 
@@ -75,6 +73,7 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 	 * @var string[]
 	 */
 	private const ALLOWED_PREFIXES = array(
+		'analytics',
 		'stats',
 		'wordads',
 		'subscribers',
@@ -102,7 +101,6 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 	 */
 	public function __construct() {
 		$this->namespace = self::SLUG . '/v1';
-		$this->rest_base = 'proxy';
 	}
 
 	/**
@@ -116,34 +114,11 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 	}
 
 	/**
-	 * Register the analytics catch-all and the agnostic data proxy.
+	 * Register the agnostic data proxy route.
 	 *
 	 * @return void
 	 */
 	public function register_routes(): void {
-		register_rest_route(
-			$this->namespace,
-			'/' . $this->rest_base . '/(?P<endpoint>.*)',
-			array(
-				array(
-					// @phan-suppress-next-line PhanPluginMixedKeyNoKey -- `register_rest_route()` requires mixed key/no-key for `$args`, and then https://github.com/phan/phan/issues/4852 puts the error on the wrong line.
-					'methods'             => WP_REST_Server::READABLE,
-					'callback'            => array( $this, 'handle_proxy_request' ),
-					'permission_callback' => array( $this, 'check_permission' ),
-					'args'                => array(
-						'endpoint' => array(
-							'description'       => __( 'The analytics sub-path to proxy.', 'jetpack-premium-analytics' ),
-							'type'              => 'string',
-							'required'          => true,
-							'validate_callback' => array( $this, 'validate_endpoint' ),
-							'sanitize_callback' => 'sanitize_text_field',
-						),
-					),
-				),
-				'schema' => array( $this, 'get_public_item_schema' ),
-			)
-		);
-
 		register_rest_route(
 			$this->namespace,
 			'/(?P<endpoint>(?:' . $this->allowed_prefix_pattern() . ')(?:/.*)?)',
@@ -187,17 +162,8 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 	}
 
 	/**
-	 * Only site administrators may reach the analytics data.
-	 *
-	 * @return bool
-	 */
-	public function check_permission(): bool {
-		return current_user_can( 'manage_options' );
-	}
-
-	/**
-	 * Permission for the data proxy: WordAds endpoints need the WordAds capability, the rest
-	 * the general stats capability.
+	 * Permission for the data proxy: analytics needs `manage_options`, WordAds needs the WordAds
+	 * capability, and the rest the general stats capability.
 	 *
 	 * @param WP_REST_Request $request Request object.
 	 *
@@ -205,11 +171,26 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 	 */
 	public function check_data_permission( WP_REST_Request $request ): bool {
 		// WordPress matches REST routes case-insensitively, so classify case-insensitively too.
-		if ( str_starts_with( strtolower( (string) $request->get_param( 'endpoint' ) ), 'wordads' ) ) {
+		$endpoint = strtolower( (string) $request->get_param( 'endpoint' ) );
+
+		if ( str_starts_with( $endpoint, 'analytics' ) ) {
+			return $this->check_permission();
+		}
+
+		if ( str_starts_with( $endpoint, 'wordads' ) ) {
 			return $this->check_wordads_permission();
 		}
 
 		return $this->check_stats_permission();
+	}
+
+	/**
+	 * Only site administrators may reach the premium analytics data.
+	 *
+	 * @return bool
+	 */
+	public function check_permission(): bool {
+		return current_user_can( 'manage_options' );
 	}
 
 	/**
@@ -232,27 +213,9 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 	}
 
 	/**
-	 * Confine the analytics endpoint to a relative sub-path so it cannot escape the
-	 * `/sites/<id>/analytics/` prefix via traversal (`..`), an absolute path, or a scheme.
-	 *
-	 * @param mixed $value Raw endpoint param.
-	 *
-	 * @return bool
-	 */
-	public function validate_endpoint( $value ): bool {
-		$value = (string) $value;
-
-		if ( str_starts_with( $value, '/' ) || str_contains( $value, '..' ) || str_contains( $value, ':' ) ) {
-			return false;
-		}
-
-		return (bool) preg_match( '#^[A-Za-z0-9._/-]+$#', $value );
-	}
-
-	/**
-	 * Confine a data endpoint to a relative sub-path, rejecting traversal (`..`). Broader than
-	 * {@see validate_endpoint()} since stats sub-paths legitimately contain commas (UTM params).
-	 * The allowed top-level prefix is already enforced by the route regex.
+	 * Confine a data endpoint to a relative sub-path, rejecting traversal (`..`) and schemes
+	 * (`:`). The allowed top-level prefix is already enforced by the route regex; commas are
+	 * permitted since stats sub-paths legitimately contain them (UTM params).
 	 *
 	 * @param mixed $value Raw endpoint param.
 	 *
@@ -277,23 +240,6 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 	 */
 	public function validate_version( $value ): bool {
 		return (bool) preg_match( '#^[0-9]+(\.[0-9]+)?$#', (string) $value );
-	}
-
-	/**
-	 * Proxy the analytics catch-all to `/sites/<id>/analytics/<endpoint>`.
-	 *
-	 * @param WP_REST_Request $request Request object.
-	 *
-	 * @return WP_REST_Response|WP_Error
-	 */
-	public function handle_proxy_request( WP_REST_Request $request ) {
-		$path = sprintf(
-			'/sites/%d/analytics/%s',
-			(int) Jetpack_Options::get_option( 'id' ),
-			(string) $request->get_param( 'endpoint' )
-		);
-
-		return $this->forward( $request, $path, array() );
 	}
 
 	/**
@@ -452,29 +398,6 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 		}
 
 		return $this->cache_and_build_response( $response, $cache_key );
-	}
-
-	/**
-	 * Schema for the analytics proxy endpoint.
-	 *
-	 * @return array
-	 */
-	public function get_item_schema(): array {
-		$schema = array(
-			'$schema'    => 'http://json-schema.org/draft-04/schema#',
-			'title'      => 'proxy',
-			'type'       => 'object',
-			'properties' => array(
-				'endpoint' => array(
-					'description' => __( 'The remote analytics endpoint to proxy.', 'jetpack-premium-analytics' ),
-					'type'        => 'string',
-					'context'     => array( 'view', 'edit' ),
-					'required'    => true,
-				),
-			),
-		);
-
-		return $this->add_additional_fields_schema( $schema );
 	}
 
 	/**

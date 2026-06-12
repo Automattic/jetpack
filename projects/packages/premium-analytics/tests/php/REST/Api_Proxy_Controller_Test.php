@@ -20,8 +20,6 @@ use WP_REST_Server;
 #[CoversClass( Api_Proxy_Controller::class )]
 class Api_Proxy_Controller_Test extends BaseTestCase {
 
-	private const ROUTE = '/jetpack-premium-analytics/v1/proxy/(?P<endpoint>.*)';
-
 	/**
 	 * Controller under test.
 	 *
@@ -42,14 +40,30 @@ class Api_Proxy_Controller_Test extends BaseTestCase {
 		do_action( 'rest_api_init' );
 	}
 
-	public function test_registers_proxy_route_under_package_namespace() {
-		$routes = rest_get_server()->get_routes();
-		$this->assertArrayHasKey( self::ROUTE, $routes );
+	public function test_legacy_proxy_route_is_no_longer_registered() {
+		$this->assertArrayNotHasKey( '/jetpack-premium-analytics/v1/proxy/(?P<endpoint>.*)', rest_get_server()->get_routes() );
 	}
 
-	public function test_route_uses_the_controllers_permission_callback() {
-		$route = rest_get_server()->get_routes()[ self::ROUTE ][0];
-		$this->assertSame( array( $this->controller, 'check_permission' ), $route['permission_callback'] );
+	public function test_analytics_is_served_by_the_data_route() {
+		// Analytics is now an allowed prefix on the single agnostic route, not a dedicated route.
+		$this->assertStringContainsString( 'analytics', $this->data_route_key() );
+	}
+
+	public function test_analytics_requires_manage_options() {
+		$user_id = wp_insert_user(
+			array(
+				'user_login' => 'jpa_stats_only',
+				'user_pass'  => 'password',
+				'role'       => 'subscriber',
+			)
+		);
+		$user    = new \WP_User( $user_id );
+		$user->add_cap( 'view_stats' );
+		wp_set_current_user( $user_id );
+
+		// view_stats reaches stats data but NOT the premium analytics surface.
+		$this->assertFalse( $this->controller->check_data_permission( $this->build_data_request( 'GET', 'analytics/reports/totals' ) ) );
+		$this->assertTrue( $this->controller->check_data_permission( $this->build_data_request( 'GET', 'stats/top-posts' ) ) );
 	}
 
 	public function test_permission_denied_without_manage_options() {
@@ -70,7 +84,7 @@ class Api_Proxy_Controller_Test extends BaseTestCase {
 	}
 
 	public function test_returns_403_error_when_not_connected() {
-		$response = $this->controller->handle_proxy_request( $this->build_request( 'reports/totals' ) );
+		$response = $this->controller->handle_data_request( $this->build_request( 'reports/totals' ) );
 
 		$this->assertInstanceOf( \WP_Error::class, $response );
 		$this->assertSame( 'no_connection', $response->get_error_code() );
@@ -86,7 +100,7 @@ class Api_Proxy_Controller_Test extends BaseTestCase {
 		);
 		set_transient( $this->cache_key( $request ), $payload, MINUTE_IN_SECONDS );
 
-		$response = $this->controller->handle_proxy_request( $request );
+		$response = $this->controller->handle_data_request( $request );
 
 		$this->assertInstanceOf( WP_REST_Response::class, $response );
 		$this->assertSame( 200, $response->get_status() );
@@ -127,35 +141,6 @@ class Api_Proxy_Controller_Test extends BaseTestCase {
 		);
 
 		$this->assertSame( $this->cache_key( $bare ), $this->cache_key( $routing ) );
-	}
-
-	public function test_validate_endpoint_accepts_a_relative_sub_path() {
-		$this->assertTrue( $this->controller->validate_endpoint( 'reports/totals' ) );
-	}
-
-	/**
-	 * @dataProvider data_invalid_endpoints
-	 *
-	 * @param string $endpoint An endpoint that must be rejected.
-	 */
-	#[DataProvider( 'data_invalid_endpoints' )]
-	public function test_validate_endpoint_rejects_traversal_and_scheme( string $endpoint ) {
-		$this->assertFalse( $this->controller->validate_endpoint( $endpoint ) );
-	}
-
-	/**
-	 * Endpoints that would escape the `/analytics/` prefix.
-	 *
-	 * @return array<string, string[]>
-	 */
-	public static function data_invalid_endpoints(): array {
-		return array(
-			'parent traversal' => array( '../../sites/1/posts' ),
-			'absolute path'    => array( '/sites/1/posts' ),
-			'scheme injection' => array( 'http://evil.test/' ),
-			'disallowed char'  => array( 'reports totals' ),
-			'empty'            => array( '' ),
-		);
 	}
 
 	public function test_undecodable_200_body_returns_502_and_is_not_cached() {
@@ -216,6 +201,7 @@ class Api_Proxy_Controller_Test extends BaseTestCase {
 	public function test_data_route_only_matches_allowed_prefixes() {
 		// The route regex enumerates the allowed prefixes — a non-allowed prefix is absent.
 		$route = $this->data_route_key();
+		$this->assertStringContainsString( 'analytics', $route );
 		$this->assertStringContainsString( 'stats', $route );
 		$this->assertStringContainsString( 'commercial', $route );
 		$this->assertStringNotContainsString( 'posts', $route );
@@ -415,20 +401,15 @@ class Api_Proxy_Controller_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Build an analytics proxy request with the endpoint capture and forwarded query params set.
+	 * Build an analytics GET request on the data route (analytics is the `analytics` prefix, v2).
 	 *
-	 * @param string $endpoint The analytics endpoint to proxy.
+	 * @param string $endpoint The analytics sub-path (without the `analytics/` prefix).
 	 * @param array  $params   Forwarded query params.
 	 *
 	 * @return WP_REST_Request
 	 */
 	private function build_request( string $endpoint, array $params = array() ): WP_REST_Request {
-		$request = new WP_REST_Request( 'GET', '/jetpack-premium-analytics/v1/proxy/' . $endpoint );
-		// The capture is a route (URL) param in production, not a query param.
-		$request->set_url_params( array( 'endpoint' => $endpoint ) );
-		$request->set_query_params( $params );
-
-		return $request;
+		return $this->build_data_request( 'GET', 'analytics/' . $endpoint, $params, '2' );
 	}
 
 	/**
@@ -476,18 +457,14 @@ class Api_Proxy_Controller_Test extends BaseTestCase {
 	 * @return string
 	 */
 	private function cache_key( WP_REST_Request $request ): string {
-		$path = sprintf(
-			'/sites/%d/analytics/%s',
-			(int) \Jetpack_Options::get_option( 'id' ),
-			(string) $request->get_param( 'endpoint' )
-		);
-
-		$accessor = function ( WP_REST_Request $req, string $wpcom_path ) {
+		$accessor = function ( WP_REST_Request $req ) {
 			// @phan-suppress-next-line PhanUndeclaredMethod -- rebound to the controller via Closure::call() below.
-			return $this->cache_key_for( $wpcom_path, '2', 'wpcom', $this->get_forwarded_params( $req ) );
+			$path = $this->build_data_path( (string) $req->get_param( 'endpoint' ) );
+			// @phan-suppress-next-line PhanUndeclaredMethod -- rebound to the controller via Closure::call() below.
+			return $this->cache_key_for( $path, '2', 'wpcom', $this->get_forwarded_params( $req ) );
 		};
 
-		return $accessor->call( $this->controller, $request, $path );
+		return $accessor->call( $this->controller, $request );
 	}
 
 	/**

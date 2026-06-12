@@ -1,4 +1,4 @@
 Significance: minor
 Type: added
 
-REST: Extend the analytics API proxy to forward the Stats dashboard endpoints (stats, subscribers, dashboard modules, WordAds, purchases, and more) under the jetpack-premium-analytics/v1 namespace, ahead of deprecating the stats-admin package.
+REST: Serve the whole analytics + Stats surface through one endpoint-agnostic proxy under jetpack-premium-analytics/v1 (allowed-prefix + write-method allowlist; caller passes the WPCOM API version), ahead of deprecating the stats-admin package. The analytics data now lives under the `analytics/` prefix on this route instead of the dedicated `proxy/` route.
