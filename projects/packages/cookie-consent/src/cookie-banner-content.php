@@ -8,6 +8,9 @@
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
+
+// $config is supplied by Cookie_Consent::render_banner() when this template is included.
+$config = isset( $config ) && is_array( $config ) ? $config : array( 'cookie_policy_url' => '' );
 ?>
 
 <div
