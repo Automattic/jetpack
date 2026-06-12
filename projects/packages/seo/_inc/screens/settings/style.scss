@@ -41,12 +41,21 @@
 	margin-block-start: var(--wpds-dimension-gap-2xl, 32px);
 }
 
-// Platform label above each preview: prominent enough to scan, with clear space
-// before the card it describes.
+// Platform label above each preview: brand icon + name, prominent enough to
+// scan, with clear space before the card it describes.
 .jetpack-seo-settings__preview-label {
+	display: flex;
+	align-items: center;
+	gap: 8px;
 	margin: 0 0 var(--wpds-dimension-gap-md, 12px);
 	font-size: 15px;
 	font-weight: 600;
+}
+
+.jetpack-seo-preview__platform-icon {
+	inline-size: 18px;
+	block-size: 18px;
+	flex-shrink: 0;
 }
 
 // In-house search/social preview cards (no third-party library). Approximate
