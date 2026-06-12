@@ -1064,8 +1064,14 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 
 					// The free tier description is stored as plain markdown source, so strip
 					// all HTML and cap its length to match the paid-tier description field.
+					// mbstring is optional in some environments, so fall back to substr().
 					if ( isset( $filtered_value['free_tier_description'] ) ) {
-						$filtered_value['free_tier_description'] = mb_substr( wp_kses( $filtered_value['free_tier_description'], array() ), 0, 500 );
+						$free_tier_description = wp_kses( $filtered_value['free_tier_description'], array() );
+						if ( function_exists( 'mb_substr' ) ) {
+							$filtered_value['free_tier_description'] = mb_substr( $free_tier_description, 0, 500 );
+						} else {
+							$filtered_value['free_tier_description'] = substr( $free_tier_description, 0, 500 );
+						}
 					}
 
 					if ( $has_hide_free_tier ) {
