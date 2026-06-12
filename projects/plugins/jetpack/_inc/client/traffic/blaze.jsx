@@ -26,6 +26,13 @@ const trackDashboardClick = () => {
 	analytics.tracks.recordJetpackClick( 'blaze-dashboard' );
 };
 
+const trackModuleToggle = ( module, activated ) => {
+	analytics.tracks.recordEvent( 'jetpack_wpa_module_toggle', {
+		module,
+		toggled: activated ? 'off' : 'on',
+	} );
+};
+
 const disableWarningModalStyle = {
 	alignSelf: 'center',
 	borderRadius: '8px',
@@ -74,15 +81,23 @@ export function Blaze( props ) {
 		setShowDisableWarning( false );
 	}, [] );
 
-	const disableBlaze = useCallback( () => {
-		setShowDisableWarning( false );
-		toggleModuleNow( 'blaze' );
-	}, [ toggleModuleNow ] );
-
 	const manageCampaigns = useCallback( () => {
 		setShowDisableWarning( false );
 		trackDashboardClick();
 	}, [] );
+
+	const toggleBlazeModule = useCallback(
+		( module, currentlyActivated ) => {
+			trackModuleToggle( module, currentlyActivated );
+			toggleModuleNow( module );
+		},
+		[ toggleModuleNow ]
+	);
+
+	const disableBlaze = useCallback( () => {
+		setShowDisableWarning( false );
+		toggleBlazeModule( 'blaze', true );
+	}, [ toggleBlazeModule ] );
 
 	const handleToggleModule = useCallback(
 		async ( module, currentlyActivated ) => {
@@ -91,7 +106,7 @@ export function Blaze( props ) {
 			}
 
 			if ( ! currentlyActivated ) {
-				toggleModuleNow( module );
+				toggleBlazeModule( module, currentlyActivated );
 				return;
 			}
 
@@ -101,7 +116,7 @@ export function Blaze( props ) {
 				const activeCampaignsStatus = await restApi.fetchBlazeActiveCampaigns();
 
 				if ( activeCampaignsStatus?.status === 'none' ) {
-					toggleModuleNow( module );
+					toggleBlazeModule( module, currentlyActivated );
 					return;
 				}
 			} catch {
@@ -112,7 +127,7 @@ export function Blaze( props ) {
 
 			setShowDisableWarning( true );
 		},
-		[ checkingActiveCampaigns, toggleModuleNow ]
+		[ checkingActiveCampaigns, toggleBlazeModule ]
 	);
 
 	if ( isWoASite() ) {
@@ -166,6 +181,7 @@ export function Blaze( props ) {
 					isSavingAnyOption( 'blaze' ) ||
 					checkingActiveCampaigns
 				}
+				trackToggle={ false }
 				toggleModule={ handleToggleModule }
 			>
 				<span className="jp-form-toggle-explanation">

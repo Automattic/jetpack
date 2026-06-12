@@ -1,5 +1,6 @@
 import restApi from '@automattic/jetpack-api';
 import userEvent from '@testing-library/user-event';
+import analytics from 'lib/analytics';
 import { render, screen } from 'test/test-utils';
 import { Blaze } from '../../blaze';
 
@@ -142,6 +143,10 @@ describe( 'Blaze settings', () => {
 
 		expect( restApi.fetchBlazeActiveCampaigns ).toHaveBeenCalledTimes( 1 );
 		expect( props.toggleModuleNow ).toHaveBeenCalledWith( 'blaze' );
+		expect( analytics.tracks.recordEvent ).toHaveBeenCalledWith( 'jetpack_wpa_module_toggle', {
+			module: 'blaze',
+			toggled: 'off',
+		} );
 		expect(
 			screen.queryByRole( 'dialog', { name: /Active Blaze campaigns/ } )
 		).not.toBeInTheDocument();
@@ -160,6 +165,7 @@ describe( 'Blaze settings', () => {
 
 		expect( restApi.fetchBlazeActiveCampaigns ).toHaveBeenCalledTimes( 1 );
 		expect( props.toggleModuleNow ).not.toHaveBeenCalled();
+		expect( analytics.tracks.recordEvent ).not.toHaveBeenCalled();
 		await expect(
 			screen.findByRole( 'dialog', { name: /Active Blaze campaigns are still running/ } )
 		).resolves.toBeInTheDocument();
@@ -190,6 +196,10 @@ describe( 'Blaze settings', () => {
 		);
 
 		expect( props.toggleModuleNow ).toHaveBeenCalledWith( 'blaze' );
+		expect( analytics.tracks.recordEvent ).toHaveBeenCalledWith( 'jetpack_wpa_module_toggle', {
+			module: 'blaze',
+			toggled: 'off',
+		} );
 	} );
 
 	it( 'keeps Blaze enabled from the warning', async () => {
@@ -209,6 +219,7 @@ describe( 'Blaze settings', () => {
 		);
 
 		expect( props.toggleModuleNow ).not.toHaveBeenCalled();
+		expect( analytics.tracks.recordEvent ).not.toHaveBeenCalled();
 		expect(
 			screen.queryByRole( 'dialog', { name: /Active Blaze campaigns are still running/ } )
 		).not.toBeInTheDocument();
@@ -230,6 +241,7 @@ describe( 'Blaze settings', () => {
 		await user.click( manageCampaignsLink );
 
 		expect( props.toggleModuleNow ).not.toHaveBeenCalled();
+		expect( analytics.tracks.recordEvent ).not.toHaveBeenCalled();
 		expect(
 			screen.queryByRole( 'dialog', { name: /Active Blaze campaigns are still running/ } )
 		).not.toBeInTheDocument();
@@ -245,6 +257,7 @@ describe( 'Blaze settings', () => {
 
 		expect( restApi.fetchBlazeActiveCampaigns ).toHaveBeenCalledTimes( 1 );
 		expect( props.toggleModuleNow ).not.toHaveBeenCalled();
+		expect( analytics.tracks.recordEvent ).not.toHaveBeenCalled();
 		await expect(
 			screen.findByRole( 'dialog', { name: /Active Blaze campaigns are still running/ } )
 		).resolves.toBeInTheDocument();
@@ -258,5 +271,9 @@ describe( 'Blaze settings', () => {
 
 		expect( restApi.fetchBlazeActiveCampaigns ).not.toHaveBeenCalled();
 		expect( props.toggleModuleNow ).toHaveBeenCalledWith( 'blaze' );
+		expect( analytics.tracks.recordEvent ).toHaveBeenCalledWith( 'jetpack_wpa_module_toggle', {
+			module: 'blaze',
+			toggled: 'on',
+		} );
 	} );
 } );
