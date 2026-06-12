@@ -21,7 +21,7 @@ namespace Automattic\Jetpack\Agents_Manager;
  * live viewport — and the docked layout only fits above a width breakpoint and
  * when the admin menu fits vertically. Width is handled in CSS (a static media
  * query). Height cannot be: the threshold is the *measured* #adminmenu height,
- * which varies per page. So a tiny synchronous reconciler is printed on
+ * which varies per page. So a tiny synchronous viewport-height gate is printed on
  * `in_admin_header` (which fires after #adminmenu is in the DOM, before the
  * content paints) to re-evaluate the real dock gate and strip the pre-rendered
  * classes when the chat will actually float — pre-paint, so there is no flash.
@@ -112,7 +112,7 @@ class Sidebar_Open_Preservation {
 	 * reshape CSS and the React hook read. Width and fullscreen gating are
 	 * declarative (CSS) / owned by the hook, so they are not duplicated here.
 	 *
-	 * The script lives in src/js/sidebar-dock-reconciler.js and is inlined (not
+	 * The script lives in src/js/sidebar-docking-viewport-height-gate.js and is inlined (not
 	 * referenced via `src`) on purpose: it must run render-blocking before paint,
 	 * and a same- or cross-origin fetch would add latency to that blocking window.
 	 * Reading the bundled file and printing it inline keeps it a real, lintable JS
@@ -131,7 +131,7 @@ class Sidebar_Open_Preservation {
 		}
 
 		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- Reading a local file bundled with the package; wp_remote_get is for remote URLs.
-		$script = file_get_contents( __DIR__ . '/../build/sidebar-dock-reconciler.js' );
+		$script = file_get_contents( __DIR__ . '/../build/sidebar-docking-viewport-height-gate.js' );
 		if ( false === $script ) {
 			return;
 		}
@@ -155,8 +155,8 @@ class Sidebar_Open_Preservation {
 		}
 
 		// On Gutenberg editor screens the chat only docks in fullscreen mode.
-		// Unlike width/height (handled in CSS / by the reconciler against the live
-		// viewport), the body's `is-fullscreen-mode` class can't be trusted at
+		// Unlike width/height (handled in CSS / by the viewport-height gate against
+		// the live viewport), the body's `is-fullscreen-mode` class can't be trusted at
 		// paint: core adds it unconditionally and Gutenberg only removes it after
 		// boot. So read the real persisted preference and skip the pre-render when
 		// fullscreen is off, avoiding a docked-shell flash before the editor JS

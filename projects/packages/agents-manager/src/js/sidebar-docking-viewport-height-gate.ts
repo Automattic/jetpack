@@ -1,5 +1,5 @@
 /**
- * Agents Manager pre-paint dock-height reconciler.
+ * Agents Manager pre-paint sidebar-docking viewport-height gate.
  *
  * Inlined synchronously by `Sidebar_Open_Preservation::print_sidebar_open_sync_script()`
  * on `in_admin_header` (after #adminmenu is in the DOM, before the content
@@ -27,11 +27,7 @@
 	}
 
 	// The docked layout pins the admin menu to the viewport; if the menu is taller
-	// than the room below the admin bar it would be clipped, so the chat floats
-	// instead. Offset by the admin bar's *height* (class-independent) rather than
-	// the menu's getBoundingClientRect().top, which is distorted while the docked
-	// classes are applied. Keep this formula identical to the hook's
-	// adminMenuHeight read so both agree.
+	// than the room below the admin bar it would be clipped, so the chat floats instead.
 	const adminBar = document.getElementById( 'wpadminbar' );
 	const adminBarHeight = adminBar ? adminBar.offsetHeight : 32;
 	const tooShort = window.innerHeight < adminMenu.offsetHeight + adminBarHeight + 20;

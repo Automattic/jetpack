@@ -6,7 +6,7 @@ module.exports = [
 		entry: {
 			// Add more standalone scripts here; each becomes build/<name>.js
 			// plus build/<name>.asset.php for Assets::register_script().
-			'sidebar-dock-reconciler': './src/js/sidebar-dock-reconciler.ts',
+			'sidebar-docking-viewport-height-gate': './src/js/sidebar-docking-viewport-height-gate.ts',
 		},
 		mode: jetpackWebpackConfig.mode,
 		devtool: jetpackWebpackConfig.devtool,
