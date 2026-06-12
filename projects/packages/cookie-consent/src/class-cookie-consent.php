@@ -587,19 +587,21 @@ class Cookie_Consent {
 		);
 
 		// Register and enqueue the Interactivity API script module built by webpack.
+		// Only the build version is read from the asset file; module dependencies are
+		// declared explicitly. Script modules may only depend on other script modules,
+		// so the asset file's `dependencies` (which can include classic scripts such as
+		// `wp-polyfill`) must not be forwarded to wp_register_script_module().
 		$asset_file = __DIR__ . '/../build/modules/cookie-consent/index.asset.php';
-		$asset      = file_exists( $asset_file ) ? require $asset_file : array(
-			'dependencies' => array( '@wordpress/interactivity' ),
-			'version'      => self::PACKAGE_VERSION,
-		);
+		$asset      = file_exists( $asset_file ) ? require $asset_file : array();
+		$version    = isset( $asset['version'] ) ? $asset['version'] : self::PACKAGE_VERSION;
 		$module_url = plugins_url( 'build/modules/cookie-consent/index.js', __DIR__ );
 		$module_id  = '@automattic/jetpack-cookie-consent';
 
 		wp_register_script_module(
 			$module_id,
 			$module_url,
-			$asset['dependencies'],
-			$asset['version']
+			array( '@wordpress/interactivity' ),
+			$version
 		);
 		wp_enqueue_script_module( $module_id );
 
@@ -609,7 +611,7 @@ class Cookie_Consent {
 			'jetpack-cookie-consent',
 			$style_url,
 			array(),
-			$asset['version']
+			$version
 		);
 
 		// Resolve the configured Tracks event prefix once so it can be shared below.
