@@ -86,4 +86,17 @@ class Jetpack_SEO_Posts_Test extends WP_UnitTestCase {
 			$invalid
 		);
 	}
+
+	/**
+	 * Registers the SEO post meta keys (including the schema-type enum) for the
+	 * REST API.
+	 */
+	public function test_register_post_meta() {
+		Jetpack_SEO_Posts::register_post_meta();
+
+		$this->assertTrue( registered_meta_key_exists( 'post', Jetpack_SEO_Posts::SCHEMA_TYPE_META_KEY ) );
+		$this->assertTrue( registered_meta_key_exists( 'post', Jetpack_SEO_Posts::DESCRIPTION_META_KEY ) );
+		$this->assertTrue( registered_meta_key_exists( 'post', Jetpack_SEO_Posts::HTML_TITLE_META_KEY ) );
+		$this->assertTrue( registered_meta_key_exists( 'post', Jetpack_SEO_Posts::NOINDEX_META_KEY ) );
+	}
 }
