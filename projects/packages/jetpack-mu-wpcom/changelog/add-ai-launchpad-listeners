@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+AI Launchpad: register existing Launchpad completion listeners for AI-selected tasks.
