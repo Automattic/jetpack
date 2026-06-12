@@ -261,9 +261,10 @@ function wpcom_write_allowed_block_attrs() {
 		// id: media-library metadata, not visible formatting.
 		// alt: preserved via HTML element, not block JSON.
 		// sizeSlug: thumbnail/medium/large/full size presets.
-		// align: left/center/right via the image properties modal.  Wide and
-		// full alignments are accepted here too — they round-trip as a
-		// centered image because Write has no wide/full preview.
+		// align: left/center/right via the image properties panel.  Wide and
+		// full alignment values are rejected by wpcom_write_has_unsupported_blocks
+		// further down (the same value check used for paragraph/heading),
+		// so posts using those bounce to the block editor.
 		'image'     => array( 'id', 'sizeSlug', 'alt', 'align' ),
 		'embed'     => array( 'url', 'type', 'providerNameSlug', 'responsive' ),
 		'quote'     => array( 'align', 'citation' ),

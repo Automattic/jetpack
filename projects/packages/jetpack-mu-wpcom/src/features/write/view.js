@@ -378,8 +378,11 @@ function getContent() {
 // block editor (see RSM-3472).
 const IMAGE_SIZE_SLUGS = [ 'thumbnail', 'medium', 'large', 'full' ];
 
-// Image alignment values we ship. 'center' is the default and emits no class
-// or attribute, matching block editor behavior for unaligned images.
+// Image alignment values we ship. All three are made explicit on save —
+// every image gets an `align*` class on the figure and an `align`
+// attribute in the block JSON, including center, so themes can rely on
+// the class to position the figure (many don't center unaligned figures
+// by default).
 const IMAGE_ALIGNS = [ 'left', 'center', 'right' ];
 
 // Cache of media library size lookups keyed by attachment ID.  Populated
@@ -1144,9 +1147,8 @@ function convertToBlocks( html ) {
 			// Read figure size + alignment classes plus the `wp-image-<id>`
 			// class for the media-library attachment ID.  These map to core
 			// wp:image attributes so the published markup matches what the
-			// block editor would emit, and the block editor can re-open these
-			// images without surprises.  Center alignment is the default and
-			// emits no attribute, matching block editor behavior.
+			// block editor would emit, and the block editor can re-open
+			// these images without surprises.
 			const imageSizeSlug = IMAGE_SIZE_SLUGS.find( s => node.classList.contains( 'size-' + s ) );
 			// Always emit an explicit align attr + class.  Without aligncenter
 			// many themes don't center the figure in the published view, and
