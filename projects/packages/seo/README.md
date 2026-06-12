@@ -2,7 +2,7 @@
 
 The visibility command center for WordPress sites in the agentic web — a unified wp-admin screen that consolidates SEO, sitemaps, AI discoverability, and site verification settings across all site types (self-hosted, Atomic/WoW, Simple).
 
-This package is built up across a stacked series of PRs (see #48154 for the split plan). It currently provides, on a wp-admin page registered at `admin.php?page=jetpack-seo` (gated on the `seo-tools` module being active):
+This package is built up across a stacked series of PRs (see #48154 for the split plan). It currently provides, on a wp-admin page registered at `admin.php?page=jetpack-seo` (gated on the `rsm_jetpack_seo` feature flag; the page registers even when the `seo-tools` module is inactive, in which case the Overview shows an affordance to enable SEO tools):
 
 - **Overview** — a dashboard with **Site visibility** and **Site verification** cards, each deep-linking into the matching Settings section.
 - **Settings** — a tab to configure search-engine indexing, the XML sitemap, post title structure, the front-page description, and site verification codes.
