@@ -36,6 +36,31 @@ const PLATFORM_EXPORT_URLS = {
 		'https://support.patreon.com/hc/en-gb/articles/360004385971-How-do-I-manage-my-members#h_01EQGYDNF2J3XR12ABBMTZPSQM',
 };
 
+// Text formats the importer accepts. The picker's `accept` attribute and the drag-and-drop
+// validation both derive from this single list, so click-to-upload and drop enforce the same set.
+const ACCEPTED_CSV_EXTENSIONS = [ 'csv', 'txt', 'tsv' ];
+const ACCEPTED_CSV_ACCEPT_ATTR = [
+	...ACCEPTED_CSV_EXTENSIONS.map( extension => `.${ extension }` ),
+	'text/csv',
+	'text/plain',
+].join( ',' );
+
+/**
+ * Whether a file is one of the accepted text exports, by extension. Extension-based because CSV
+ * MIME types are unreliable (often empty or `application/vnd.ms-excel`), and this matches the
+ * `accept` attribute the file picker already advertises — so a dropped file is held to the same
+ * rule the picker enforces.
+ *
+ * @param file - Candidate file.
+ * @return True when the extension is one we parse.
+ */
+function isAcceptedCsvFile( file: File ): boolean {
+	const name = file.name.toLowerCase();
+	const dot = name.lastIndexOf( '.' );
+	const extension = dot === -1 ? '' : name.slice( dot + 1 );
+	return ACCEPTED_CSV_EXTENSIONS.includes( extension );
+}
+
 type TabValue = 'manual' | 'upload' | 'substack';
 
 /**
@@ -414,7 +439,7 @@ function CsvDropzone( { fileName, disabled, onFile, inputRef }: CsvDropzoneProps
 			<input
 				ref={ inputRef }
 				type="file"
-				accept=".csv,.txt,.tsv,text/csv,text/plain"
+				accept={ ACCEPTED_CSV_ACCEPT_ATTR }
 				className="jetpack-newsletter__csv-dropzone-input"
 				onChange={ handleInputChange }
 				disabled={ disabled }
@@ -442,6 +467,19 @@ function UploadTab( { mutation, importInProgress, onClose }: AddTabProps ): JSX.
 	const [ readError, setReadError ] = useState< string | null >( null );
 
 	const handleFile = useCallback( ( file: File ) => {
+		// Drag-and-drop can deliver any file type, so enforce the same allow-list the picker
+		// advertises rather than reading an arbitrary file as text.
+		if ( ! isAcceptedCsvFile( file ) ) {
+			setFileName( null );
+			setEmails( [] );
+			setReadError(
+				__(
+					'That file type isn’t supported. Please upload a CSV file (.csv, .txt, or .tsv).',
+					'jetpack-newsletter'
+				)
+			);
+			return;
+		}
 		setFileName( file.name );
 		setReadError( null );
 		setEmails( [] );
