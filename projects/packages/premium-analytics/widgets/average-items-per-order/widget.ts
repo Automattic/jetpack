@@ -2,6 +2,7 @@
  * External dependencies
  */
 import { getDefaultQueryParams } from '@jetpack-premium-analytics/data';
+import { ReportParamsField } from '@jetpack-premium-analytics/fields';
 /**
  * WordPress dependencies
  */
@@ -14,13 +15,11 @@ import { chartBar } from '@wordpress/icons';
  * Ported from `woocommerce-analytics/average-items-per-order` in
  * woocommerce/woocommerce-analytics (next-woocommerce-analytics).
  *
- * The upstream `reportParams` range editor (the toolkit's
- * `ReportParamsField`) is not wired yet: wp-build's widget *metadata*
- * build has no style plugins, and the field's import graph (ui package
- * date pickers) carries `.module.scss`. Until the metadata build gains
- * style support, the widget exposes no editable attributes and new
- * instances start from the default last-30-days range with comparison
- * enabled.
+ * The `Range` attribute's `Edit` control comes from the fields package,
+ * delivered as a script module: the import is externalized rather than
+ * bundled, so the styled date-picker graph never enters this metadata
+ * module's build (which has no style plugins). See
+ * `packages/fields/README.md`.
  */
 export default {
 	name: 'jpa/average-items-per-order',
@@ -30,6 +29,13 @@ export default {
 		'jetpack-premium-analytics'
 	),
 	icon: chartBar,
+	attributes: [
+		{
+			id: 'reportParams',
+			label: __( 'Range', 'jetpack-premium-analytics' ),
+			Edit: ReportParamsField,
+		},
+	],
 	example: {
 		attributes: {
 			reportParams: getDefaultQueryParams( true ),
