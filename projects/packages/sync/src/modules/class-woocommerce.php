@@ -315,24 +315,21 @@ class WooCommerce extends Module {
 			return false;
 		}
 
-		$args[0]->ID       = $customer_id;
-		$args[0]->data->ID = $customer_id;
-
 		$updated_props = $this->get_customer_detail_props( $args[1] );
 		if ( empty( $updated_props ) ) {
 			return false;
 		}
 
-		return array( $args[0], $updated_props );
+		return array( $this->build_minimal_customer_user_object( $customer_id ), $updated_props );
 	}
 
 	/**
 	 * Track updated WooCommerce customer meta props for syncing.
 	 *
-	 * @param int    $meta_id  ID of the meta object.
-	 * @param int    $user_id  User ID.
-	 * @param string $meta_key Meta key.
-	 * @param mixed  $value    Meta value.
+	 * @param int|array $meta_id  ID of the meta object, or IDs for deleted meta.
+	 * @param int       $user_id  User ID.
+	 * @param string    $meta_key Meta key.
+	 * @param mixed     $value    Meta value.
 	 */
 	public function maybe_sync_customer_meta_update( $meta_id, $user_id, $meta_key, $value ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		$customer_id = (int) $user_id;

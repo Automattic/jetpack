@@ -195,6 +195,44 @@ class Jetpack_Sync_WooCommerce_Test extends Jetpack_Sync_TestBase {
 		$this->assertFalse( (bool) $this->server_event_storage->get_most_recent_event( 'jetpack_updated_woo_customer_meta' ) );
 	}
 
+	public function test_customer_meta_filter_rebuilds_minimal_customer_object() {
+		$user_id            = $this->create_test_customer_user( 'test_customer_extra_data', 'extra-customer@example.com' );
+		$woocommerce_module = $this->get_woocommerce_module();
+
+		$filtered_args = $woocommerce_module->filter_customer_updated_meta(
+			array(
+				(object) array(
+					'ID'              => $user_id,
+					'extra_top_level' => 'secret',
+					'data'            => (object) array(
+						'ID'                => $user_id,
+						'user_login'        => 'injected_login',
+						'user_email'        => 'injected@example.com',
+						'billing_address_1' => '123 Secret St',
+					),
+				),
+				array( 'billing_email' ),
+			)
+		);
+
+		if ( ! is_array( $filtered_args ) ) {
+			$this->fail( 'Customer meta filter returned an invalid payload.' );
+		}
+
+		$customer = $filtered_args[0];
+		if ( ! is_object( $customer ) || ! isset( $customer->data ) || ! is_object( $customer->data ) ) {
+			$this->fail( 'Customer meta filter did not return a minimal customer object.' );
+		}
+
+		$this->assertEquals( $user_id, $customer->ID );
+		$this->assertEquals( $user_id, $customer->data->ID );
+		$this->assertEquals( 'test_customer_extra_data', $customer->data->user_login );
+		$this->assertEquals( 'extra-customer@example.com', $customer->data->user_email );
+		$this->assertObjectNotHasProperty( 'extra_top_level', $customer );
+		$this->assertObjectNotHasProperty( 'billing_address_1', $customer->data );
+		$this->assertSame( array( 'billing_email' ), $filtered_args[1] );
+	}
+
 	/**
 	 * Create a customer user for WooCommerce sync tests.
 	 *
@@ -219,15 +257,24 @@ class Jetpack_Sync_WooCommerce_Test extends Jetpack_Sync_TestBase {
 	}
 
 	/**
-	 * Flush pending customer meta updates.
+	 * Retrieve the WooCommerce sync module.
+	 *
+	 * @return WooCommerce_Module WooCommerce sync module.
 	 */
-	private function flush_customer_meta_updates() {
+	private function get_woocommerce_module() {
 		$woocommerce_module = Modules::get_module( 'woocommerce' );
 		if ( ! $woocommerce_module instanceof WooCommerce_Module ) {
 			$this->fail( 'WooCommerce sync module is not available.' );
 		}
 
-		$woocommerce_module->action_customer_meta_updates();
+		return $woocommerce_module;
+	}
+
+	/**
+	 * Flush pending customer meta updates.
+	 */
+	private function flush_customer_meta_updates() {
+		$this->get_woocommerce_module()->action_customer_meta_updates();
 	}
 
 	public function test_approving_a_review_is_synced() {
