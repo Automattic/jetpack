@@ -593,7 +593,7 @@ class Cookie_Consent {
 		// `wp-polyfill`) must not be forwarded to wp_register_script_module().
 		$asset_file = __DIR__ . '/../build/modules/cookie-consent/index.asset.php';
 		$asset      = file_exists( $asset_file ) ? require $asset_file : array();
-		$version    = isset( $asset['version'] ) ? $asset['version'] : self::PACKAGE_VERSION;
+		$version    = $asset['version'] ?? self::PACKAGE_VERSION;
 		$module_url = plugins_url( 'build/modules/cookie-consent/index.js', __DIR__ );
 		$module_id  = '@automattic/jetpack-cookie-consent';
 
