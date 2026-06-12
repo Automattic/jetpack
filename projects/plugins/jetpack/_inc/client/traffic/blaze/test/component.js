@@ -214,6 +214,27 @@ describe( 'Blaze settings', () => {
 		).not.toBeInTheDocument();
 	} );
 
+	it( 'keeps Blaze enabled after opening campaign management from the warning', async () => {
+		restApi.fetchBlazeActiveCampaigns.mockResolvedValue( {
+			has_active_campaigns: true,
+			status: 'active',
+		} );
+
+		const user = userEvent.setup();
+		const { toggle, props } = renderCard();
+
+		await user.click( toggle );
+
+		const manageCampaignsLink = await screen.findByRole( 'link', { name: /Manage campaigns/ } );
+		manageCampaignsLink.addEventListener( 'click', event => event.preventDefault() );
+		await user.click( manageCampaignsLink );
+
+		expect( props.toggleModuleNow ).not.toHaveBeenCalled();
+		expect(
+			screen.queryByRole( 'dialog', { name: /Active Blaze campaigns are still running/ } )
+		).not.toBeInTheDocument();
+	} );
+
 	it( 'warns conservatively when the active campaign lookup fails', async () => {
 		restApi.fetchBlazeActiveCampaigns.mockRejectedValue( new Error( 'network unavailable' ) );
 

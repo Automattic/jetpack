@@ -251,7 +251,7 @@ class Blaze_Test extends BaseTestCase {
 	 */
 	#[DataProvider( 'get_active_campaign_status_responses' )]
 	public function test_get_active_campaigns_status( $response_details, $expected_status ) {
-		$request_url   = null;
+		$request_url   = '';
 		$request_count = 0;
 
 		Constants::$set_constants['JETPACK__WPCOM_JSON_API_BASE'] = 'https://public-api.wordpress.com';

@@ -87,8 +87,7 @@ class REST_Controller_Test extends BaseTestCase {
 		$this->is_user_connected                                  = true;
 
 		add_filter( 'jetpack_options', array( $this, 'mock_jetpack_site_connection_options' ), 10, 2 );
-		add_action( 'rest_api_init', array( new REST_Controller( $this->get_mocked_connection_manager() ), 'register_rest_routes' ) );
-		do_action( 'rest_api_init' );
+		( new REST_Controller( $this->get_mocked_connection_manager() ) )->register_rest_routes();
 	}
 
 	/**

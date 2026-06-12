@@ -79,6 +79,11 @@ export function Blaze( props ) {
 		toggleModuleNow( 'blaze' );
 	}, [ toggleModuleNow ] );
 
+	const manageCampaigns = useCallback( () => {
+		setShowDisableWarning( false );
+		trackDashboardClick();
+	}, [] );
+
 	const handleToggleModule = useCallback(
 		async ( module, currentlyActivated ) => {
 			if ( checkingActiveCampaigns ) {
@@ -212,7 +217,7 @@ export function Blaze( props ) {
 							<Button
 								variant="secondary"
 								href={ getBlazeDashboardUrl() }
-								onClick={ trackDashboardClick }
+								onClick={ manageCampaigns }
 								{ ...getBlazeDashboardLinkProps() }
 							>
 								{ __( 'Manage campaigns', 'jetpack' ) }
