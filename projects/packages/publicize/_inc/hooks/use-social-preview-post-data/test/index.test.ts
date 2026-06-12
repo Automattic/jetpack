@@ -49,10 +49,12 @@ const getDefaultMockPostMeta = () => ( {
 	isPublicizeEnabled: true,
 	jetpackSocialOptions: {},
 	mediaSource: undefined,
+	imageFocalPoints: {},
 	shareMessage: '',
 	togglePublicizeFeature: jest.fn(),
 	updateMeta: jest.fn(),
 	updateJetpackSocialOptions: jest.fn(),
+	updateImageFocalPoint: jest.fn(),
 } );
 
 const getDefaultLinkPreviewData = () => ( {

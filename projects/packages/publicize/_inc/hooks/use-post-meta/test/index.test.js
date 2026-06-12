@@ -94,6 +94,20 @@ describe( 'usePostMeta', () => {
 			result.current.updateJetpackSocialOptions( 'should_upload_attached_media', true );
 		} );
 
+		// Per-image focal points merge into the map without clobbering other entries.
+		act( () => {
+			result.current.updateImageFocalPoint( 26, { x: 0.25, y: 0.75 } );
+		} );
+
+		act( () => {
+			result.current.updateImageFocalPoint( 27, { x: 0.1, y: 0.2 } );
+		} );
+
+		expect( result.current.imageFocalPoints ).toEqual( {
+			26: { x: 0.25, y: 0.75 },
+			27: { x: 0.1, y: 0.2 },
+		} );
+
 		expect( result.current.isPublicizeEnabled ).toBe( false );
 		expect( result.current.shareMessage ).toBe( 'updated message' );
 		expect( result.current.isPostAlreadyShared ).toBe( true );
@@ -115,6 +129,10 @@ describe( 'usePostMeta', () => {
 				enabled: true,
 			},
 			should_upload_attached_media: true,
+			image_focal_points: {
+				26: { x: 0.25, y: 0.75 },
+				27: { x: 0.1, y: 0.2 },
+			},
 			version: 2,
 		} );
 	} );

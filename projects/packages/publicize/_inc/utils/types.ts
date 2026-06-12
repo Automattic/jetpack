@@ -16,10 +16,22 @@ export type AttachedMedia = {
 
 export type MediaSourceValue = 'featured-image' | 'sig' | 'media-library' | 'upload-video' | 'none';
 
+export type FocalPoint = {
+	x: number;
+	y: number;
+};
+
+/**
+ * One focal point per image, keyed by attachment ID. Consumers look up the
+ * image they are processing; a missing key means unset.
+ */
+export type ImageFocalPoints = Record< number, FocalPoint >;
+
 export type JetpackSocialOptions = {
 	attached_media?: Array< AttachedMedia >;
 	image_generator_settings?: SIGSettings;
 	media_source?: MediaSourceValue;
+	image_focal_points?: ImageFocalPoints;
 };
 
 export type JetpackSocialPostMeta = {
@@ -34,6 +46,7 @@ export type UsePostMeta = {
 	imageGeneratorSettings: SIGSettings;
 	isPostAlreadyShared: boolean;
 	isPublicizeEnabled: boolean;
+	imageFocalPoints: ImageFocalPoints;
 	jetpackSocialOptions: JetpackSocialOptions;
 	mediaSource: MediaSourceValue | undefined;
 	shareMessage: string;
@@ -48,4 +61,5 @@ export type UsePostMeta = {
 		// Batch update with object
 		( updates: Partial< JetpackSocialOptions > ): void;
 	};
+	updateImageFocalPoint: ( attachmentId: number, point: FocalPoint ) => void;
 };

@@ -1231,6 +1231,30 @@ abstract class Publicize_Base {
 							'type' => 'string',
 							'enum' => array( 'featured-image', 'sig', 'media-library', 'upload-video', 'none' ),
 						),
+						'image_focal_points'       => array(
+							'type'                 => 'object',
+							// One focal point per image, keyed by attachment ID. Consumers
+							// look up the image they are processing; a missing key means unset.
+							'patternProperties'    => array(
+								'^[0-9]+$' => array(
+									'type'                 => 'object',
+									'properties'           => array(
+										'x' => array(
+											'type'    => 'number',
+											'minimum' => 0,
+											'maximum' => 1,
+										),
+										'y' => array(
+											'type'    => 'number',
+											'minimum' => 0,
+											'maximum' => 1,
+										),
+									),
+									'additionalProperties' => false,
+								),
+							),
+							'additionalProperties' => false,
+						),
 					),
 				),
 			),

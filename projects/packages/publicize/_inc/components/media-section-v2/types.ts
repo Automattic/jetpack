@@ -151,6 +151,22 @@ export interface MediaSourceMenuProps {
 }
 
 /**
+ * Props for MediaFocalPoint component
+ */
+export interface MediaFocalPointProps {
+	/**
+	 * URL of the image to pick the focal point on
+	 */
+	url: string;
+
+	/**
+	 * ID of the attachment whose entry in the image_focal_points map this
+	 * picker reads and writes.
+	 */
+	attachmentId: number;
+}
+
+/**
  * Props for MediaPreview component
  */
 export interface MediaPreviewProps {

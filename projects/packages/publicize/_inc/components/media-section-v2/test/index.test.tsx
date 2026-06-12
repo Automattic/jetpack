@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import MediaSectionV2 from '..';
 import useFeaturedImage from '../../../hooks/use-featured-image';
@@ -12,6 +12,15 @@ const mockUpdateJetpackSocialOptions = jest.fn();
 const mockRecordEvent = jest.fn();
 const mockOpenUnifiedModal = jest.fn();
 const mockApplyFilters = jest.fn();
+const mockSiteHasFeature = jest.fn< boolean, [ string ] >( () => true );
+
+jest.mock( '@automattic/jetpack-script-data', () => {
+	const actual = jest.requireActual( '@automattic/jetpack-script-data' );
+	return {
+		...actual,
+		siteHasFeature: ( feature: string ) => mockSiteHasFeature( feature ),
+	};
+} );
 
 // Mock the social store to prevent importing @wordpress/editor
 jest.mock( '../../../social-store', () => ( {
@@ -85,6 +94,7 @@ jest.mock( '../../../utils', () => ( {
 			jetpack: { version: '15.5' },
 		},
 	} ) ),
+	features: jest.requireActual( '../../../utils/constants' ).features,
 } ) );
 
 jest.mock(
@@ -396,6 +406,155 @@ describe( 'MediaSectionV2', () => {
 			render( <MediaSectionV2 disabled={ true } /> );
 
 			expect( screen.getByRole( 'button', { name: 'Select' } ) ).toBeDisabled();
+		} );
+	} );
+
+	describe( 'Focal point picker', () => {
+		const attachedImageState = {
+			attachedMedia: [ { id: 789, url: 'https://example.com/attached.jpg', type: 'image/jpeg' } ],
+			imageGeneratorSettings: { enabled: false },
+			mediaSource: 'media-library',
+			updateJetpackSocialOptions: mockUpdateJetpackSocialOptions,
+		};
+
+		afterEach( () => {
+			mockSiteHasFeature.mockReturnValue( true );
+			( usePostMeta as jest.Mock ).mockReturnValue( {
+				attachedMedia: [],
+				imageGeneratorSettings: { enabled: false },
+				mediaSource: undefined,
+				updateJetpackSocialOptions: mockUpdateJetpackSocialOptions,
+			} );
+			( useMediaDetails as jest.Mock ).mockReturnValue( [
+				{
+					mediaData: { sourceUrl: 'https://example.com/featured.jpg' },
+					metaData: { mime: 'image/jpeg' },
+				},
+				false,
+			] );
+		} );
+
+		it( 'should hide the picker when the feature flag is off', () => {
+			mockSiteHasFeature.mockReturnValue( false );
+			( useMediaDetails as jest.Mock ).mockReturnValue( [
+				{
+					mediaData: { sourceUrl: 'https://example.com/featured.jpg' },
+					metaData: { mime: 'image/jpeg' },
+				},
+				false,
+			] );
+
+			render( <MediaSectionV2 /> );
+
+			expect( mockSiteHasFeature ).toHaveBeenCalledWith( 'social-image-focal-point' );
+			expect( screen.queryByText( 'Focal point' ) ).not.toBeInTheDocument();
+			// The plain preview is shown instead.
+			expect( screen.getByRole( 'img' ) ).toHaveAttribute(
+				'src',
+				'https://example.com/featured.jpg'
+			);
+		} );
+
+		it( 'should show the picker for an attached image', () => {
+			( usePostMeta as jest.Mock ).mockReturnValue( attachedImageState );
+			( useMediaDetails as jest.Mock ).mockReturnValue( [
+				{
+					mediaData: { sourceUrl: 'https://example.com/attached.jpg' },
+					metaData: { mime: 'image/jpeg' },
+				},
+				false,
+			] );
+
+			render( <MediaSectionV2 /> );
+
+			expect( screen.getByText( 'Focal point' ) ).toBeInTheDocument();
+		} );
+
+		it( 'should show the picker for the featured image', () => {
+			render( <MediaSectionV2 /> );
+
+			expect( screen.getByText( 'Focal point' ) ).toBeInTheDocument();
+		} );
+
+		it( 'should hide the picker when SIG is the media source', () => {
+			( usePostMeta as jest.Mock ).mockReturnValue( {
+				attachedMedia: [],
+				imageGeneratorSettings: { enabled: true },
+				mediaSource: 'sig',
+				updateJetpackSocialOptions: mockUpdateJetpackSocialOptions,
+			} );
+
+			render( <MediaSectionV2 /> );
+
+			expect( screen.queryByText( 'Focal point' ) ).not.toBeInTheDocument();
+			// The plain preview is shown instead.
+			expect( screen.getByRole( 'img' ) ).toHaveAttribute(
+				'src',
+				'https://example.com/sig-preview.jpg'
+			);
+		} );
+
+		it( 'should hide the picker for videos', () => {
+			( usePostMeta as jest.Mock ).mockReturnValue( {
+				...attachedImageState,
+				attachedMedia: [ { id: 789, url: 'https://example.com/video.mp4', type: 'video/mp4' } ],
+			} );
+			( useMediaDetails as jest.Mock ).mockReturnValue( [
+				{
+					mediaData: { sourceUrl: 'https://example.com/video.mp4' },
+					metaData: { mime: 'video/mp4' },
+				},
+				false,
+			] );
+
+			render( <MediaSectionV2 /> );
+
+			expect( screen.queryByText( 'Focal point' ) ).not.toBeInTheDocument();
+		} );
+
+		it( 'should show the picker in per-network/controlled mode', () => {
+			render(
+				<MediaSectionV2
+					attachmentToggleMode="hidden"
+					mediaSource="media-library"
+					attachedMedia={ [
+						{ id: 789, url: 'https://example.com/attached.jpg', type: 'image/jpeg' },
+					] }
+					onMediaChange={ mockUpdateJetpackSocialOptions }
+				/>
+			);
+
+			// The point is per image, not per connection, so the picker renders in
+			// controlled mode too and writes the post-level map directly.
+			expect( screen.getByText( 'Focal point' ) ).toBeInTheDocument();
+		} );
+
+		it( 'should not touch the focal point map when the media changes', async () => {
+			const user = userEvent.setup();
+
+			render( <MediaSectionV2 /> );
+
+			await user.click( screen.getByRole( 'button', { name: 'Select' } ) );
+			await user.click( screen.getByRole( 'menuitemradio', { name: 'From Media Library' } ) );
+
+			await waitFor( () => expect( mockUpdateJetpackSocialOptions ).toHaveBeenCalled() );
+
+			// Each image keeps its own entry — switching media must not clear the map.
+			const updates = mockUpdateJetpackSocialOptions.mock.calls[ 0 ][ 0 ];
+			expect( updates.media_source ).toBe( 'media-library' );
+			expect( 'image_focal_points' in updates ).toBe( false );
+		} );
+
+		it( 'should not touch the focal point map when toggling share as attachment', async () => {
+			const user = userEvent.setup();
+
+			render( <MediaSectionV2 /> );
+
+			await user.click( screen.getByRole( 'checkbox', { name: 'Share as attachment' } ) );
+
+			const updates = mockUpdateJetpackSocialOptions.mock.calls[ 0 ][ 0 ];
+			expect( updates.media_source ).toBe( 'featured-image' );
+			expect( 'image_focal_points' in updates ).toBe( false );
 		} );
 	} );
 
