@@ -698,7 +698,7 @@ class Write_Test extends \WorDBless\BaseTestCase {
 		// then pass placeholders to the template for post-kses replacement.
 		$post         = get_post( $post_id );
 		$video_result = wpcom_write_convert_video_embeds( $post->post_content );
-		$rendered     = apply_filters( 'the_content', $video_result['content'] ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound
+		$rendered     = apply_filters( 'the_content', $video_result['content'] );
 		$output       = $this->render_template( 'Video Post', $rendered, $post_id, array(), 'draft', $video_result['placeholders'] );
 
 		$this->assertStringContainsString( '<iframe', $output );

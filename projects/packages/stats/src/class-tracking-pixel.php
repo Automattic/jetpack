@@ -80,9 +80,7 @@ class Tracking_Pixel {
 		$url_query = wp_parse_url( wp_unslash( $_SERVER['REQUEST_URI'] ?? '' ), PHP_URL_QUERY );
 		parse_str( (string) $url_query, $url_params );
 		foreach ( self::TRACKED_UTM_PARAMETERS as $utm_parameter ) {
-			// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- UTMs are standardized parameters coming from outside WordPress, adding nonce is not possible
 			if ( isset( $url_params[ $utm_parameter ] ) && is_scalar( $url_params[ $utm_parameter ] ) ) {
-				// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- UTMs are standardized parameters coming from outside WordPress, adding nonce is not possible
 				$view_data[ $utm_parameter ] = substr( sanitize_textarea_field( wp_unslash( $url_params[ $utm_parameter ] ) ), 0, 255 );
 			}
 		}
@@ -196,7 +194,7 @@ _stq.push([ "clickTrackerInit", "%2$s", "%3$s" ]);',
 	 * element image). This benefits Safari and Firefox, which don't automatically assign low
 	 * priority to async/defer scripts (unlike Chrome).
 	 *
-	 * @since $$next-version$$
+	 * @since 0.19.5
 	 *
 	 * @param array $attributes Script tag attributes.
 	 * @return array Modified attributes.
@@ -219,7 +217,7 @@ _stq.push([ "clickTrackerInit", "%2$s", "%3$s" ]);',
 	 * the dns-prefetch is counterproductive — it front-loads DNS resolution for a
 	 * resource we're intentionally delaying.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.19.5
 	 *
 	 * @param array  $urls          Array of resource hint URLs.
 	 * @param string $relation_type The relation type (dns-prefetch, preconnect, etc.).

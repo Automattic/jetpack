@@ -87,7 +87,7 @@ class Initializer_Test extends BaseTestCase {
 	private function get_oembed_key_suffix() {
 		$url        = wp_kses_post( Utils::get_video_press_url( 'testGUID1', self::$default_attributes ) );
 		$embed_attr = wp_embed_defaults( $url );
-		return md5( $url . serialize( $embed_attr ) ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.serialize_serialize
+		return md5( $url . serialize( $embed_attr ) );
 	}
 
 	/** Tests that the fallback iframe is rendered when oEmbed fails. */

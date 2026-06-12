@@ -2079,7 +2079,7 @@ class Contact_Form_Test extends BaseTestCase {
 
 				// Try to get input from inside label (new markup)
 				// @phan-suppress-next-line PhanUndeclaredMethod -- getElementsByTagName is available on DOMElement, which label elements are.
-				$input = $real_label->getElementsByTagName( 'input' )->item( 0 ); //phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+				$input = $real_label->getElementsByTagName( 'input' )->item( 0 );
 
 				// If input is not inside label, get it from parent (old markup)
 				// In old markup, each <p> has one input and one label, so always use item(0)

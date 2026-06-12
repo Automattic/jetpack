@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Fix mobile overflow on the upsell/pricing page so cards no longer get clipped.

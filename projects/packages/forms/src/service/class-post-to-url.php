@@ -144,7 +144,6 @@ class Post_To_Url {
 				'user-agent'   => $user_agent,
 			),
 		);
-		// phpcs:ignore Universal.CodeAnalysis.ConstructorDestructorReturn.ReturnValueFound -- this is no constructor
 		return wp_safe_remote_post( $options['url'], $args );
 	}
 
@@ -168,9 +167,26 @@ class Post_To_Url {
 			$fields['lead_source'] = $entry_values['entry_permalink'];
 		}
 
-		$hidden_fields = (array) ( $form->attributes['hiddenFields'] ?? array() );
-		foreach ( $hidden_fields as $hidden_field ) {
-			$fields[ $hidden_field['name'] ] = sanitize_text_field( $hidden_field['value'] );
+		// `hiddenFields` is a legacy attribute that may appear in a few shapes on forms
+		// in the wild: an array of `{ name, value }` objects (its original design), an
+		// associative `name => value` map, or a JSON-encoded string. Iterating it blindly
+		// and accessing `['name']`/`['value']` on a non-array element fatals on PHP 8 with
+		// "Cannot access offset of type string on string", so normalize defensively.
+		$hidden_fields = $form->attributes['hiddenFields'] ?? array();
+		if ( is_string( $hidden_fields ) ) {
+			$decoded       = json_decode( $hidden_fields, true );
+			$hidden_fields = is_array( $decoded ) ? $decoded : array();
+		}
+		foreach ( (array) $hidden_fields as $key => $hidden_field ) {
+			if ( is_array( $hidden_field ) ) {
+				// Original `{ name, value }` object shape.
+				if ( isset( $hidden_field['name'] ) ) {
+					$fields[ $hidden_field['name'] ] = sanitize_text_field( $hidden_field['value'] ?? '' );
+				}
+			} elseif ( ! is_int( $key ) ) {
+				// Associative `name => value` shape.
+				$fields[ $key ] = sanitize_text_field( (string) $hidden_field );
+			}
 		}
 
 		return $fields;

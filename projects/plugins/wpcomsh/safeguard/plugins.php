@@ -35,7 +35,7 @@ add_filter(
 			 *
 			 * @return bool|\WP_Error
 			 */
-			function ( $reply, $package, $wp_upgrader ) use ( $attachment_data ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter
+			function ( $reply, $package, $wp_upgrader ) use ( $attachment_data ) {
 				// Ensure package is a plugin.
 				if (
 					! property_exists( $wp_upgrader, 'skin' ) ||

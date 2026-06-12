@@ -1,0 +1,42 @@
+.container {
+	height: 100%;
+}
+
+.chart {
+	height: 100%;
+	justify-content: space-between;
+
+	.legend {
+		flex-wrap: nowrap;
+	}
+
+	.legendItem {
+		min-width: 0;
+	}
+
+	.legendLabel {
+		min-width: 0;
+		flex: 1 1 0 !important; // Override the 0 0 auto default value
+
+		span {
+			display: block;
+		}
+	}
+}
+
+.emptyState {
+	padding: 48px 24px;
+	min-height: 200px;
+}
+
+.emptyStateIcon {
+	color: var(--wpds-color-fg-content-neutral-weak);
+	opacity: 0.5;
+}
+
+.emptyStateText {
+	margin: 0;
+	color: var(--wpds-color-fg-content-neutral);
+	font-size: 14px;
+	text-align: center;
+}

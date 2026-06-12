@@ -1146,7 +1146,7 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 					'compare' => 'NOT EXISTS',
 				);
 			}
-			$args['meta_query'] = $meta_query; // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
+			$args['meta_query'] = $meta_query;
 		}
 
 		return $args;
@@ -1302,7 +1302,7 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 			$query_args = array(
 				'post_type'      => 'feedback',
 				'post_status'    => $status,
-				'posts_per_page' => $batch_size, // phpcs:ignore WordPress.WP.PostsPerPage.posts_per_page_posts_per_page
+				'posts_per_page' => $batch_size,
 				'fields'         => 'ids', // Only get IDs to reduce memory usage
 			);
 
