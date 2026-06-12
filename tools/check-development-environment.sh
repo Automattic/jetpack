@@ -324,6 +324,14 @@ else
 	fi
 fi
 
+checking '[optional] ShellCheck is available'
+BIN="$(command -v shellcheck)"
+if [[ -z "$BIN" ]]; then
+	warning "no" '' "ShellCheck is used to lint shell scripts. See https://www.shellcheck.net/ for installation instructions."
+else
+	success "yes"
+fi
+
 echo ""
 echo "Installation"
 echo "============"
