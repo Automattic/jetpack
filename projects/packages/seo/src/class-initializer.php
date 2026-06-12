@@ -307,7 +307,16 @@ class Initializer {
 	 * @return bool
 	 */
 	private static function is_sitemap_enabled( Modules $modules ) {
-		return (bool) get_option( self::SITEMAP_ENABLED_OPTION, $modules->is_active( 'sitemaps' ) );
+		$enabled = get_option( self::SITEMAP_ENABLED_OPTION, null );
+
+		// Only fall back to the live module state when the durable option is absent.
+		// Passing it as get_option()'s default would evaluate it on every call, since
+		// PHP resolves function arguments eagerly even when the option exists.
+		if ( null === $enabled ) {
+			$enabled = $modules->is_active( 'sitemaps' );
+		}
+
+		return (bool) $enabled;
 	}
 
 	/**
