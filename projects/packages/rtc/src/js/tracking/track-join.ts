@@ -26,16 +26,14 @@ function isLocalClientPresent( awareness: Awareness ): boolean {
 /**
  * Record the join event with a snapshot of the contributors currently present.
  *
- * `wp_user_id` is read from awareness here (guaranteed present once
- * `isLocalClientPresent` is true) rather than from the resolver-backed
- * `core` store, so it is always populated.
+ * `transport`, `post_id`, `post_type`, and `wp_user_id` are added by
+ * `recordRtcEvent`; this only supplies the room roster.
  *
  * @param awareness - The Yjs awareness instance for the room.
  */
 function recordJoin( awareness: Awareness ): void {
 	const contributors = getContributorIds( awareness );
 	recordRtcEvent( JOIN_EVENT, {
-		wp_user_id: getLocalUserId( awareness ),
 		contributor_count: contributors.length,
 		contributors,
 	} );

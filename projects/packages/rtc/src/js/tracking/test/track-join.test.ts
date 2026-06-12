@@ -81,7 +81,6 @@ describe( 'withJoinTracking', () => {
 
 		expect( recordRtcEventMock ).toHaveBeenCalledTimes( 1 );
 		expect( recordRtcEventMock ).toHaveBeenCalledWith( 'jetpack_rtc_join', {
-			wp_user_id: 7,
 			contributor_count: 3,
 			contributors: [ 7, 7, 9 ],
 		} );
@@ -101,7 +100,6 @@ describe( 'withJoinTracking', () => {
 
 		expect( recordRtcEventMock ).toHaveBeenCalledTimes( 1 );
 		expect( recordRtcEventMock ).toHaveBeenCalledWith( 'jetpack_rtc_join', {
-			wp_user_id: 7,
 			contributor_count: 2,
 			contributors: [ 7, 9 ],
 		} );
@@ -127,7 +125,6 @@ describe( 'withJoinTracking', () => {
 		jest.advanceTimersByTime( SETTLE_DELAY_MS );
 		expect( recordRtcEventMock ).toHaveBeenCalledTimes( 1 );
 		expect( recordRtcEventMock ).toHaveBeenCalledWith( 'jetpack_rtc_join', {
-			wp_user_id: 7,
 			contributor_count: 1,
 			contributors: [ 7 ],
 		} );
@@ -186,7 +183,6 @@ describe( 'withJoinTracking', () => {
 		jest.advanceTimersByTime( SETTLE_DELAY_MS );
 
 		expect( recordRtcEventMock ).toHaveBeenCalledWith( 'jetpack_rtc_join', {
-			wp_user_id: 7,
 			contributor_count: 2,
 			contributors: [ 7, 9 ],
 		} );

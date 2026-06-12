@@ -393,6 +393,8 @@ class RTC {
 				'isAdmin'            => $is_admin_user,
 				'isPlanOwner'        => $is_plan_owner,
 				'postId'             => get_the_ID(),
+				'postType'           => get_post_type() ? get_post_type() : null,
+				'userId'             => get_current_user_id(),
 				'postTitle'          => get_the_title(),
 				'postEditUrl'        => get_edit_post_link( get_the_ID(), 'raw' ),
 				'postsListUrl'       => admin_url( 'edit.php' ),
