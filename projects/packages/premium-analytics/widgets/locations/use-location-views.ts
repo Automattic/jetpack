@@ -29,8 +29,23 @@ interface RawCountryViews {
 	};
 }
 
+/**
+ * Date-range presets the widget exposes. Each maps to a trailing window of
+ * N days, summarized server-side (`period=day` + `num=N` + `summarize`).
+ */
+export type RangeKey = 'today' | 'last-7-days' | 'last-30-days' | 'last-year';
+
+const RANGE_DAYS: Record< RangeKey, number > = {
+	today: 1,
+	'last-7-days': 7,
+	'last-30-days': 30,
+	'last-year': 365,
+};
+
+const DEFAULT_RANGE: RangeKey = 'last-30-days';
+
 interface UseLocationViewsArgs {
-	period: string;
+	range: RangeKey;
 	max: number;
 }
 
@@ -40,16 +55,15 @@ interface LocationViewsState {
 	isError: boolean;
 	/**
 	 * True when the data is the bundled placeholder rather than live stats —
-	 * either because the site id isn't exposed on the page yet or the request
-	 * failed. See README for the data dependencies this widget needs.
+	 * shown when the blog id isn't available (site not connected) or the
+	 * request failed.
 	 */
 	isSample: boolean;
 }
 
 /**
- * Country-level placeholder data, shown until the stats data layer is wired
- * into Premium Analytics (see README). Lets the widget render in the dashboard
- * preview without a live connection.
+ * Country-level placeholder data, shown when live stats aren't available.
+ * Lets the widget render in the dashboard preview without a connected site.
  */
 const SAMPLE_LOCATIONS: LocationView[] = [
 	{
@@ -88,9 +102,9 @@ const UNKNOWN_COUNTRY_CODES = [ 'A1', 'A2', 'ZZ' ];
 /**
  * Read the WordPress.com blog id exposed on the page.
  *
- * Uses the Odyssey `window.configData.blog_id` convention. Premium Analytics
- * pages don't expose this yet, so this returns undefined there today — the
- * dependency this widget needs from the package (see README).
+ * Uses the Odyssey `window.configData.blog_id` convention; the package's
+ * `src/stats-config.php` inlines it on the dashboard page. Absent when the
+ * site isn't connected.
  *
  * @return The numeric blog id, or undefined when not available.
  */
@@ -149,16 +163,19 @@ export function normalizeCountryViews(
  *
  * Calls the stats-admin proxy route
  * `/jetpack/v4/stats-app/sites/{blogId}/stats/country-views`, which forwards to
- * the wpcom `country-views` endpoint. Falls back to bundled sample data when
- * the blog id isn't available or the request fails.
+ * the wpcom `country-views` endpoint. The range preset maps to a trailing
+ * window of N days summarized server-side; `date` is intentionally omitted so
+ * the endpoint anchors the window to "today" in the site's own timezone.
+ * Falls back to bundled sample data when the blog id isn't available or the
+ * request fails.
  *
- * @param args        - Hook arguments.
- * @param args.period - Stats period: `day` | `week` | `month` | `year`.
- * @param args.max    - Maximum number of countries to return.
+ * @param args       - Hook arguments.
+ * @param args.range - Date-range preset, e.g. `last-30-days`.
+ * @param args.max   - Maximum number of countries to return.
  * @return The current data/loading/error state.
  */
 export default function useLocationViews( {
-	period,
+	range,
 	max,
 }: UseLocationViewsArgs ): LocationViewsState {
 	const [ state, setState ] = useState< LocationViewsState >( {
@@ -171,8 +188,8 @@ export default function useLocationViews( {
 	useEffect( () => {
 		const blogId = getBlogId();
 
-		// No live data layer on this page yet — render sample data so the widget
-		// is demoable. See README for the package support this needs.
+		// Without a blog id there's no live data source — render sample data so
+		// the widget is still demoable.
 		if ( ! blogId ) {
 			setState( {
 				data: SAMPLE_LOCATIONS.slice( 0, max ),
@@ -186,14 +203,11 @@ export default function useLocationViews( {
 		let cancelled = false;
 		setState( prev => ( { ...prev, isLoading: true } ) );
 
-		const date = new Date().toISOString().slice( 0, 10 );
 		const params = new URLSearchParams( {
-			period,
-			date,
+			period: 'day',
+			num: String( RANGE_DAYS[ range ] ?? RANGE_DAYS[ DEFAULT_RANGE ] ),
 			summarize: '1',
 			max: String( max ),
-			num: '1',
-			days: '1',
 		} );
 		const path = `/jetpack/v4/stats-app/sites/${ blogId }/stats/country-views?${ params.toString() }`;
 
@@ -224,7 +238,7 @@ export default function useLocationViews( {
 		return () => {
 			cancelled = true;
 		};
-	}, [ period, max ] );
+	}, [ range, max ] );
 
 	return state;
 }

@@ -17,14 +17,14 @@ export default {
 	presentation: 'framed',
 	attributes: [
 		{
-			id: 'period',
-			label: 'Period',
+			id: 'range',
+			label: 'Date range',
 			type: 'text',
 			elements: [
-				{ label: 'Day', value: 'day' },
-				{ label: 'Week', value: 'week' },
-				{ label: 'Month', value: 'month' },
-				{ label: 'Year', value: 'year' },
+				{ label: 'Today', value: 'today' },
+				{ label: 'Last 7 days', value: 'last-7-days' },
+				{ label: 'Last 30 days', value: 'last-30-days' },
+				{ label: 'Last year', value: 'last-year' },
 			],
 		},
 		{
@@ -35,7 +35,7 @@ export default {
 	],
 	example: {
 		attributes: {
-			period: 'day',
+			range: 'last-30-days',
 			max: 10,
 		},
 	},

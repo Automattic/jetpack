@@ -9,7 +9,7 @@ import clsx from 'clsx';
 /**
  * Internal dependencies
  */
-import useLocationViews from './use-location-views';
+import useLocationViews, { type RangeKey } from './use-location-views';
 import styles from './style.module.css';
 /**
  * Types
@@ -17,7 +17,7 @@ import styles from './style.module.css';
 import type { GeoData } from '@automattic/charts';
 
 interface LocationsAttributes {
-	period?: 'day' | 'week' | 'month' | 'year';
+	range?: RangeKey;
 	max?: number;
 }
 
@@ -32,13 +32,13 @@ const numberFormatter = new Intl.NumberFormat();
  * list. Ported from the Jetpack Stats Locations module (country mode).
  *
  * @param root0            - Render props.
- * @param root0.attributes - Widget attributes (period, max).
+ * @param root0.attributes - Widget attributes (range, max).
  */
 export default function Locations( { attributes }: LocationsRenderProps ) {
-	const period = attributes?.period ?? 'day';
+	const range = attributes?.range ?? 'last-30-days';
 	const max = attributes?.max ?? 10;
 
-	const { data, isLoading, isSample } = useLocationViews( { period, max } );
+	const { data, isLoading, isSample } = useLocationViews( { range, max } );
 
 	// Google Charts format: a header row followed by [ country, views ] rows.
 	const geoData = useMemo(
