@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Agents_Manager;
 
+use PHPUnit\Framework\Assert;
 use PHPUnit\Framework\Attributes\CoversClass;
 
 require_once __DIR__ . '/../../src/class-sidebar-open-preservation.php';
@@ -37,6 +38,20 @@ class Sidebar_Open_Preservation_Test extends \WorDBless\BaseTestCase {
 	private $user_id;
 
 	/**
+	 * Whether a test replaced the $wp_filesystem global and it must be restored.
+	 *
+	 * @var bool
+	 */
+	private $stubbed_filesystem = false;
+
+	/**
+	 * The $wp_filesystem global captured before a test stubbed it out.
+	 *
+	 * @var mixed
+	 */
+	private $previous_filesystem;
+
+	/**
 	 * Set up test fixtures.
 	 */
 	public function set_up() {
@@ -60,11 +75,18 @@ class Sidebar_Open_Preservation_Test extends \WorDBless\BaseTestCase {
 	public function tear_down() {
 		// Remove the hooks added by the constructor.
 		remove_filter( 'admin_body_class', array( $this->preservation, 'add_preopen_body_classes' ), PHP_INT_MAX );
-		remove_action( 'in_admin_header', array( $this->preservation, 'print_sidebar_open_sync_script' ) );
+		remove_action( 'in_admin_header', array( $this->preservation, 'print_sidebar_docking_viewport_height_gate_script' ) );
 
 		// Clean up filters tests may add.
 		remove_all_filters( 'agents_manager_use_unified_experience' );
 		remove_all_filters( 'agents_manager_variant' );
+
+		// Restore any filesystem global a test stubbed out.
+		if ( $this->stubbed_filesystem ) {
+			$GLOBALS['wp_filesystem']  = $this->previous_filesystem;
+			$this->stubbed_filesystem  = false;
+			$this->previous_filesystem = null;
+		}
 
 		// Clear the cached open state.
 		delete_transient( 'agents_manager_open_state_' . $this->user_id );
@@ -86,6 +108,63 @@ class Sidebar_Open_Preservation_Test extends \WorDBless\BaseTestCase {
 		require_once ABSPATH . 'wp-admin/includes/screen.php';
 		set_current_screen( 'dashboard' );
 		add_filter( 'agents_manager_use_unified_experience', '__return_true' );
+	}
+
+	/**
+	 * Replace the $wp_filesystem global with a stub whose get_contents() returns
+	 * the given script, so the print method can be exercised without the built JS
+	 * bundle on disk. The stub also asserts both filesystem calls receive the
+	 * expected built-bundle path. The original global is restored in tear_down().
+	 *
+	 * @param string $contents      Script the stub's get_contents() should return.
+	 * @param string $expected_path Path both exists() and get_contents() must be called with.
+	 */
+	private function stub_filesystem( string $contents, string $expected_path ) {
+		$this->previous_filesystem = $GLOBALS['wp_filesystem'] ?? null;
+		$this->stubbed_filesystem  = true;
+
+		$GLOBALS['wp_filesystem'] = new class( $contents, $expected_path ) {
+			/**
+			 * Canned file contents.
+			 *
+			 * @var string
+			 */
+			private $contents;
+
+			/**
+			 * Path the filesystem methods are expected to be called with.
+			 *
+			 * @var string
+			 */
+			private $expected_path;
+
+			/**
+			 * @param string $contents      Canned file contents.
+			 * @param string $expected_path Expected path for filesystem calls.
+			 */
+			public function __construct( string $contents, string $expected_path ) {
+				$this->contents      = $contents;
+				$this->expected_path = $expected_path;
+			}
+
+			/**
+			 * @param string $file Path under test; asserted against the expected path.
+			 * @return bool
+			 */
+			public function exists( $file ) {
+				Assert::assertSame( $this->expected_path, $file, 'exists() must be called with the built gate script path.' );
+				return true;
+			}
+
+			/**
+			 * @param string $file Path under test; asserted against the expected path.
+			 * @return string
+			 */
+			public function get_contents( $file ) {
+				Assert::assertSame( $this->expected_path, $file, 'get_contents() must be called with the built gate script path.' );
+				return $this->contents;
+			}
+		};
 	}
 
 	/**
@@ -128,7 +207,7 @@ class Sidebar_Open_Preservation_Test extends \WorDBless\BaseTestCase {
 
 		// Clean up the hooks added by the instance created here.
 		remove_filter( 'admin_body_class', array( $first, 'add_preopen_body_classes' ), PHP_INT_MAX );
-		remove_action( 'in_admin_header', array( $first, 'print_sidebar_open_sync_script' ) );
+		remove_action( 'in_admin_header', array( $first, 'print_sidebar_docking_viewport_height_gate_script' ) );
 		$property->setValue( null, null );
 	}
 
@@ -150,8 +229,8 @@ class Sidebar_Open_Preservation_Test extends \WorDBless\BaseTestCase {
 	 */
 	public function test_constructor_registers_sync_script_hook() {
 		$this->assertNotFalse(
-			has_action( 'in_admin_header', array( $this->preservation, 'print_sidebar_open_sync_script' ) ),
-			'The dock-sync script must be hooked into the admin body.'
+			has_action( 'in_admin_header', array( $this->preservation, 'print_sidebar_docking_viewport_height_gate_script' ) ),
+			'The docking viewport height gate script must be hooked into the admin body.'
 		);
 	}
 
@@ -163,15 +242,21 @@ class Sidebar_Open_Preservation_Test extends \WorDBless\BaseTestCase {
 		$this->enable_preservation();
 		$this->cache_open_state( true );
 
+		// Inject a stub filesystem so the test does not depend on the built JS
+		// bundle (absent in PHP-only CI runs) and can assert that exactly what
+		// get_contents() returns is what gets inlined. The stub also asserts the
+		// filesystem is read from the built bundle path (mirrors the path the
+		// production method builds from the src directory).
+		$gate_script   = '/* gate */ document.body.classList.toggle( "agents-manager--viewport-height-too-short-for-docking", innerHeight < adminmenu );';
+		$expected_path = dirname( __DIR__, 2 ) . '/src/../build/sidebar-docking-viewport-height-gate.js';
+		$this->stub_filesystem( $gate_script, $expected_path );
+
 		ob_start();
-		$this->preservation->print_sidebar_open_sync_script();
+		$this->preservation->print_sidebar_docking_viewport_height_gate_script();
 		$output = ob_get_clean();
 
 		$this->assertStringContainsString( '<script', $output );
-		// Height is the only gate measured here: it reads the admin menu and
-		// publishes the verdict as the dock-too-short body class (mount only).
-		$this->assertStringContainsString( 'adminmenu', $output );
-		$this->assertStringContainsString( 'agents-manager--viewport-height-too-short-for-docking', $output );
+		$this->assertStringContainsString( $gate_script, $output );
 	}
 
 	/**
@@ -182,7 +267,7 @@ class Sidebar_Open_Preservation_Test extends \WorDBless\BaseTestCase {
 		$this->cache_open_state( false );
 
 		ob_start();
-		$this->preservation->print_sidebar_open_sync_script();
+		$this->preservation->print_sidebar_docking_viewport_height_gate_script();
 		$output = ob_get_clean();
 
 		$this->assertSame( '', $output );
@@ -335,7 +420,7 @@ class Sidebar_Open_Preservation_Test extends \WorDBless\BaseTestCase {
 		$this->assertSame( 'foo bar', $this->preservation->add_preopen_body_classes( 'foo bar' ) );
 
 		ob_start();
-		$this->preservation->print_sidebar_open_sync_script();
+		$this->preservation->print_sidebar_docking_viewport_height_gate_script();
 		$this->assertSame( '', ob_get_clean() );
 	}
 

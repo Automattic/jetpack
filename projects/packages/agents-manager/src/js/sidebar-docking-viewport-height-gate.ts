@@ -1,7 +1,7 @@
 /**
  * Agents Manager pre-paint sidebar-docking viewport-height gate.
  *
- * Inlined synchronously by `Sidebar_Open_Preservation::print_sidebar_open_sync_script()`
+ * Inlined synchronously by `Sidebar_Open_Preservation::print_sidebar_docking_viewport_height_gate_script()`
  * on `in_admin_header` (after #adminmenu is in the DOM, before the content
  * paints), so it runs render-blocking and there is no docked-shell flicker.
  *

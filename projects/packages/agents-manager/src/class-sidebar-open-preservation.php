@@ -71,7 +71,7 @@ class Sidebar_Open_Preservation {
 		// Reconcile the pre-rendered shell against the live viewport before the
 		// page content paints. `in_admin_header` fires after #adminmenu is in the
 		// DOM, so the script can measure it the same way the React app does.
-		add_action( 'in_admin_header', array( $this, 'print_sidebar_open_sync_script' ) );
+		add_action( 'in_admin_header', array( $this, 'print_sidebar_docking_viewport_height_gate_script' ) );
 	}
 
 	/**
@@ -125,14 +125,26 @@ class Sidebar_Open_Preservation {
 	 *
 	 * @return void
 	 */
-	public function print_sidebar_open_sync_script() {
+	public function print_sidebar_docking_viewport_height_gate_script() {
 		if ( ! $this->should_pre_render_docked_shell() ) {
 			return;
 		}
 
-		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- Reading a local file bundled with the package; wp_remote_get is for remote URLs.
-		$script = file_get_contents( __DIR__ . '/../build/sidebar-docking-viewport-height-gate.js' );
-		if ( false === $script ) {
+		global $wp_filesystem;
+
+		if ( empty( $wp_filesystem ) ) {
+			require_once ABSPATH . 'wp-admin/includes/file.php';
+			WP_Filesystem();
+		}
+
+		$script_path = __DIR__ . '/../build/sidebar-docking-viewport-height-gate.js';
+
+		if ( empty( $wp_filesystem ) || ! $wp_filesystem->exists( $script_path ) ) {
+			return;
+		}
+
+		$script = $wp_filesystem->get_contents( $script_path );
+		if ( ! is_string( $script ) || '' === $script ) {
 			return;
 		}
 
