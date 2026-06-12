@@ -1,4 +1,4 @@
 Significance: minor
 Type: added
 
-Initial version: cookie-consent package (GDPR banner, CCPA opt-out, consent logging) migrated from CIAB shoppers-privacy.
+Initial version: scaffold the cookie-consent package.
