@@ -5,7 +5,7 @@ import { __ } from '@wordpress/i18n';
 import { pencil } from '@wordpress/icons';
 import { Badge, Link } from '@wordpress/ui';
 import useSeoPosts from '../../data/use-seo-posts';
-import EditSeoModal from './edit-seo-modal';
+import SeoInspector from './seo-inspector';
 import './style.scss';
 import type { ContentPostType, ContentRow, CoverageDelta } from '../../data/content-types';
 import type { Field, Operator, View } from '@wordpress/dataviews';
@@ -47,7 +47,7 @@ const DEFAULT_VIEW: View = {
 	search: '',
 	sort: { field: 'title', direction: 'asc' },
 	titleField: 'title',
-	fields: [ 'schema', 'metaDescription', 'searchVisibility', 'editAction' ],
+	fields: [ 'schema', 'seoTitle', 'metaDescription', 'searchVisibility', 'editAction' ],
 	// No post-type filter by default, so both posts and pages show.
 	filters: [],
 };
@@ -85,7 +85,8 @@ function schemaLabel( schemaType: ContentRow[ 'schemaType' ] ): string {
  * REST, reporting the factual *state* of each post's SEO fields (never a
  * score). The hook fetches both types and merges them; filtering (including the
  * post-type filter), sorting and pagination all run client-side over the merged
- * set via `filterSortAndPaginate`.
+ * set via `filterSortAndPaginate`. Editing a row opens the SEO inspector in a
+ * side panel beside the table.
  *
  * @return The Content tab content.
  */
@@ -97,7 +98,7 @@ interface Props {
 
 const ContentScreen: FC< Props > = ( { onSaved } ) => {
 	const [ view, setView ] = useState< View >( DEFAULT_VIEW );
-	const [ editing, setEditing ] = useState< ContentRow | null >( null );
+	const [ selected, setSelected ] = useState< ContentRow | null >( null );
 
 	const { items, isLoading } = useSeoPosts();
 
@@ -148,6 +149,17 @@ const ContentScreen: FC< Props > = ( { onSaved } ) => {
 				// Map the no-override value ('') to the filter's sentinel so it
 				// matches the "Default" element.
 				getValue: ( { item } ) => ( item.schemaType === '' ? SCHEMA_DEFAULT : item.schemaType ),
+			},
+			{
+				id: 'seoTitle',
+				label: __( 'SEO title', 'jetpack-seo' ),
+				enableSorting: false,
+				getValue: ( { item } ) => ( item.hasCustomTitle ? 'set' : 'not_set' ),
+				render: ( { item } ) => (
+					<Badge intent={ item.hasCustomTitle ? 'stable' : 'draft' }>
+						{ item.hasCustomTitle ? setLabel : notSetLabel }
+					</Badge>
+				),
 			},
 			{
 				id: 'metaDescription',
@@ -203,7 +215,7 @@ const ContentScreen: FC< Props > = ( { onSaved } ) => {
 				enableSorting: false,
 				enableHiding: false,
 				getValue: () => '',
-				render: ( { item } ) => <EditButton item={ item } onEdit={ setEditing } />,
+				render: ( { item } ) => <EditButton item={ item } onEdit={ setSelected } />,
 			},
 		],
 		[]
@@ -218,30 +230,34 @@ const ContentScreen: FC< Props > = ( { onSaved } ) => {
 
 	const onChangeView = useCallback( ( next: View ) => setView( next ), [] );
 	const getItemId = useCallback( ( item: ContentRow ) => String( item.id ), [] );
-	const closeModal = useCallback( () => setEditing( null ), [] );
+	const closeInspector = useCallback( () => setSelected( null ), [] );
 
 	return (
 		<div className="jetpack-seo-content">
-			<DataViews
-				data={ data }
-				fields={ fields as Field< unknown >[] }
-				view={ view }
-				onChangeView={ onChangeView }
-				paginationInfo={ paginationInfo }
-				isLoading={ isLoading }
-				getItemId={ getItemId as ( item: unknown ) => string }
-				defaultLayouts={ defaultLayouts }
-			/>
-			{ editing && (
-				<EditSeoModal
-					row={ editing }
-					// Save through the row's own core endpoint; the merged list
-					// mixes posts and pages, so derive the type per row.
-					postType={ editing.type as ContentPostType }
-					onClose={ closeModal }
-					onSaved={ onSaved }
-				/>
-			) }
+			<div className="jetpack-seo-content__layout">
+				<div className="jetpack-seo-content__main">
+					<DataViews
+						data={ data }
+						fields={ fields as Field< unknown >[] }
+						view={ view }
+						onChangeView={ onChangeView }
+						paginationInfo={ paginationInfo }
+						isLoading={ isLoading }
+						getItemId={ getItemId as ( item: unknown ) => string }
+						defaultLayouts={ defaultLayouts }
+					/>
+				</div>
+				{ selected && (
+					<SeoInspector
+						row={ selected }
+						// Save through the row's own core endpoint; the merged list
+						// mixes posts and pages, so derive the type per row.
+						postType={ selected.type as ContentPostType }
+						onClose={ closeInspector }
+						onSaved={ onSaved }
+					/>
+				) }
+			</div>
 		</div>
 	);
 };

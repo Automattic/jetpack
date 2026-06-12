@@ -2,7 +2,6 @@
 
 import {
 	Button,
-	Modal,
 	SelectControl,
 	TextControl,
 	TextareaControl,
@@ -13,6 +12,7 @@ import { useDispatch } from '@wordpress/data';
 import { useCallback, useEffect, useMemo, useState } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
 import { __ } from '@wordpress/i18n';
+import { close } from '@wordpress/icons';
 import { store as noticesStore } from '@wordpress/notices';
 import SerpPreview from './serp-preview';
 import type {
@@ -38,7 +38,7 @@ const SCHEMA_OPTIONS: Array< { value: SchemaType; label: string } > = [
 ];
 
 interface Props {
-	// The row that opened the modal (table-loaded values are the initial state).
+	// The row selected in the table (table-loaded values are the initial state).
 	row: ContentRow;
 	// The core endpoint to save through: 'post' or 'page'.
 	postType: ContentPostType;
@@ -48,7 +48,7 @@ interface Props {
 	onSaved: ( delta: CoverageDelta ) => void;
 }
 
-// The editable subset of SEO meta the modal owns.
+// The editable subset of SEO meta the inspector owns.
 type EditableMeta = Pick<
 	SeoPostMeta,
 	| 'advanced_seo_description'
@@ -58,19 +58,20 @@ type EditableMeta = Pick<
 >;
 
 /**
- * Edit one post's SEO fields. Loads the live record via core-data
+ * Edit one post's SEO fields in a side panel beside the Content table (the
+ * inspector pattern, in place of a modal). Loads the live record via core-data
  * (`useEntityRecord`) and saves the post's `meta` through
- * `editEntityRecord` → `saveEditedEntityRecord( 'postType', type, id )`.
- * No custom endpoint. The SERP preview updates live as fields change.
+ * `editEntityRecord` → `saveEditedEntityRecord( 'postType', type, id )`. No
+ * custom endpoint. The SERP preview updates live as fields change.
  *
  * @param props          - Component props.
- * @param props.row      - The row that opened the modal (initial field values).
+ * @param props.row      - The selected row (initial field values).
  * @param props.postType - The core endpoint to save through ('post' | 'page').
- * @param props.onClose  - Called to dismiss the modal.
+ * @param props.onClose  - Called to dismiss the inspector.
  * @param props.onSaved  - Called after a successful save with the coverage delta.
- * @return The edit-SEO modal.
+ * @return The SEO inspector panel.
  */
-const EditSeoModal: FC< Props > = ( { row, postType, onClose, onSaved } ) => {
+const SeoInspector: FC< Props > = ( { row, postType, onClose, onSaved } ) => {
 	const { record, isResolving } = useEntityRecord( 'postType', postType, row.id );
 	const { editEntityRecord, saveEditedEntityRecord } = useDispatch( coreStore );
 	const { createInfoNotice, createSuccessNotice, createErrorNotice } = useDispatch( noticesStore );
@@ -123,11 +124,22 @@ const EditSeoModal: FC< Props > = ( { row, postType, onClose, onSaved } ) => {
 				id: SAVE_NOTICE_ID,
 				type: 'snackbar',
 			} );
-			// Nudge the Overview coverage card to reflect this edit without a reload:
-			// +1/-1/0 per metric, comparing the row's prior state to what we saved.
+			// Nudge the Overview coverage card to reflect this edit without a reload.
+			// Baseline the delta against the live pre-save record (`recordMeta`) when
+			// it has resolved, falling back to the table-row snapshot — the row can be
+			// stale relative to the meta we reconcile into `local`, which would drift
+			// the Overview counts until a reload.
+			const priorHasDescription = recordMeta
+				? ( recordMeta.advanced_seo_description ?? '' ) !== ''
+				: row.hasDescription;
+			const priorHasSchema = recordMeta
+				? recordMeta.jetpack_seo_schema_type === 'article' ||
+				  recordMeta.jetpack_seo_schema_type === 'faq'
+				: row.schemaType !== '';
 			onSaved( {
-				description: Number( local.advanced_seo_description !== '' ) - Number( row.hasDescription ),
-				schema: Number( local.jetpack_seo_schema_type !== '' ) - Number( row.schemaType !== '' ),
+				description:
+					Number( local.advanced_seo_description !== '' ) - Number( priorHasDescription ),
+				schema: Number( local.jetpack_seo_schema_type !== '' ) - Number( priorHasSchema ),
 			} );
 			onClose();
 		} catch ( error ) {
@@ -148,6 +160,7 @@ const EditSeoModal: FC< Props > = ( { row, postType, onClose, onSaved } ) => {
 		onClose,
 		onSaved,
 		postType,
+		recordMeta,
 		row.hasDescription,
 		row.id,
 		row.schemaType,
@@ -162,12 +175,23 @@ const EditSeoModal: FC< Props > = ( { row, postType, onClose, onSaved } ) => {
 	const permalink = ( record as { link?: string } | undefined )?.link ?? row.link;
 
 	return (
-		<Modal
-			title={ __( 'Edit SEO', 'jetpack-seo' ) }
-			onRequestClose={ onClose }
-			className="jetpack-seo-content__modal"
+		<aside
+			className="jetpack-seo-content__inspector"
+			aria-label={ __( 'Edit SEO', 'jetpack-seo' ) }
 		>
-			<div className="jetpack-seo-content__modal-body">
+			<div className="jetpack-seo-content__inspector-header">
+				<h2 className="jetpack-seo-content__inspector-title">
+					{ __( 'Edit SEO', 'jetpack-seo' ) }
+				</h2>
+				<Button
+					icon={ close }
+					label={ __( 'Close', 'jetpack-seo' ) }
+					onClick={ onClose }
+					disabled={ isSaving }
+					size="small"
+				/>
+			</div>
+			<div className="jetpack-seo-content__inspector-body">
 				<TextControl
 					label={ __( 'SEO title', 'jetpack-seo' ) }
 					help={ __(
@@ -216,7 +240,7 @@ const EditSeoModal: FC< Props > = ( { row, postType, onClose, onSaved } ) => {
 					description={ local.advanced_seo_description }
 				/>
 			</div>
-			<div className="jetpack-seo-content__modal-actions">
+			<div className="jetpack-seo-content__inspector-actions">
 				<Button variant="tertiary" onClick={ onClose } disabled={ isSaving }>
 					{ __( 'Cancel', 'jetpack-seo' ) }
 				</Button>
@@ -224,8 +248,8 @@ const EditSeoModal: FC< Props > = ( { row, postType, onClose, onSaved } ) => {
 					{ __( 'Save', 'jetpack-seo' ) }
 				</Button>
 			</div>
-		</Modal>
+		</aside>
 	);
 };
 
-export default EditSeoModal;
+export default SeoInspector;
