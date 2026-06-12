@@ -103,6 +103,7 @@ export function useChartTheme(): AnalyticsChartTheme {
 				},
 				{
 					strokeWidth: 2,
+					strokeDasharray: '4 4',
 				},
 			],
 		};
