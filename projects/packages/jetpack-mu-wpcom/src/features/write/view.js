@@ -137,6 +137,15 @@ let selectedFigure = null;
 // if the user cancels the selection (Escape, click, or typing a letter).
 let preFigureSelectionRange = null;
 
+// The figure currently open in the image properties panel. Set by editImage()
+// and cleared by closeImageModal(); changes made in the panel apply to this
+// figure live.
+let editingFigure = null;
+
+// The element that triggered the edit panel (typically the per-image Edit
+// pencil button) — focus returns here when the panel closes for a11y.
+let editTriggerEl = null;
+
 let cachedContent = null;
 
 // --- Undo/redo helpers ---
@@ -253,9 +262,7 @@ function stripRuntimeFigureControls( root ) {
 		wrapper.remove();
 	} );
 	root
-		.querySelectorAll(
-			'.bw-img-delete, .bw-img-alt, .bw-img-alt-input, .bw-img-caption-btn, .bw-img-size, .bw-img-size-menu'
-		)
+		.querySelectorAll( '.bw-img-delete, .bw-img-caption-btn, .bw-img-edit' )
 		.forEach( el => el.remove() );
 }
 
@@ -367,9 +374,16 @@ function getContent() {
 	return cachedContent;
 }
 
-// Image size presets we ship. Alignment, wide/full layouts, and custom
-// widths stay in the block editor (see RSM-3472).
+// Image size presets we ship. Wide/full layouts and custom widths stay in the
+// block editor (see RSM-3472).
 const IMAGE_SIZE_SLUGS = [ 'thumbnail', 'medium', 'large', 'full' ];
+
+// Image alignment values we ship. All three are made explicit on save —
+// every image gets an `align*` class on the figure and an `align`
+// attribute in the block JSON, including center, so themes can rely on
+// the class to position the figure (many don't center unaligned figures
+// by default).
+const IMAGE_ALIGNS = [ 'left', 'center', 'right' ];
 
 // Cache of media library size lookups keyed by attachment ID.  Populated
 // at upload time from the API response, then again lazily when the user
@@ -462,6 +476,62 @@ function setFigureSize( fig, slug ) {
 }
 
 /**
+ * Infer a size slug for a figure by matching the img's current src against
+ * the media library's registered sizes. Used when a figure loaded from
+ * outside Write (e.g. block-editor default insert) has no `size-X` class
+ * but the img URL matches a known preset — Write's panel should show that
+ * preset as the active selection instead of a blank state.
+ *
+ * Asynchronous because the registered sizes come from a REST request that's
+ * cached in memory after the first call.
+ *
+ * @param {Element} fig - The figure element.
+ * @return {Promise<string>} Slug ('thumbnail'/'medium'/'large'/'full') or '' when no match (custom size, external URL, etc).
+ */
+async function inferSizeFromImgSrc( fig ) {
+	const img = fig.querySelector( 'img' );
+	if ( ! img ) return '';
+	const id = getMediaIdFromImg( img );
+	if ( ! id ) return '';
+	const sizes = await fetchMediaSizes( id );
+	if ( ! sizes ) return '';
+	const src = img.src;
+	for ( const slug of IMAGE_SIZE_SLUGS ) {
+		if ( sizes[ slug ]?.source_url === src ) return slug;
+	}
+	return '';
+}
+
+/**
+ * Toggle an alignment class on a figure, replacing any existing one.  Always
+ * adds one of alignleft/aligncenter/alignright so the published view centers
+ * reliably (themes key off these classes; unaligned figures don't center
+ * consistently across themes).
+ *
+ * @param {Element} fig   - The figure element.
+ * @param {string}  align - 'left', 'center', or 'right'.
+ */
+function setFigureAlignment( fig, align ) {
+	fig.classList.remove( 'alignleft', 'alignright', 'aligncenter' );
+	if ( align === 'left' ) fig.classList.add( 'alignleft' );
+	else if ( align === 'right' ) fig.classList.add( 'alignright' );
+	else fig.classList.add( 'aligncenter' );
+}
+
+/**
+ * Read the current alignment from a figure's class list. Returns 'center'
+ * when no align class is set.
+ *
+ * @param {Element} fig - The figure element.
+ * @return {string} 'left', 'center', or 'right'.
+ */
+function getFigureAlignment( fig ) {
+	if ( fig.classList.contains( 'alignleft' ) ) return 'left';
+	if ( fig.classList.contains( 'alignright' ) ) return 'right';
+	return 'center';
+}
+
+/**
  * Deselect the currently-selected figure, if any, and optionally
  * restore the cursor position saved before the figure was selected.
  *
@@ -484,22 +554,6 @@ function clearFigureSelection( restoreCursor = true ) {
 // Deselect figure on any click — don't restore the saved cursor
 // because the click itself places the caret where the user wants it.
 document.addEventListener( 'click', () => clearFigureSelection( false ) );
-
-// Close any open per-image Size dropdown on outside click.  One listener
-// total — avoids the per-figure listener accumulation that would otherwise
-// pile up as users insert / undo / redo images over a session.
-// The menu's own trigger button is its previousElementSibling; only clicks
-// on *that* button are exempt, so clicking a different image's Size button
-// still closes the menu (and lets that image's button open its own menu).
-document.addEventListener( 'click', ev => {
-	const openMenu = document.querySelector( '.bw-img-size-menu:not([hidden])' );
-	if ( ! openMenu ) return;
-	if ( openMenu.contains( ev.target ) ) return;
-	const trigger = openMenu.previousElementSibling;
-	if ( trigger && trigger.contains( ev.target ) ) return;
-	openMenu.hidden = true;
-	trigger?.setAttribute( 'aria-expanded', 'false' );
-} );
 
 /**
  * Whether the editor has anything worth saving — non-empty title, any
@@ -659,15 +713,41 @@ function createLinkFromUrl( url ) {
 }
 
 /**
- * Focus the first visible input inside a modal after it becomes visible.
- * Uses requestAnimationFrame so the element is no longer hidden.
+ * End an in-progress edit-panel session: commit changes as a discrete undo
+ * entry and reset edit-only state. Returns the trigger element that opened
+ * the panel so the caller can decide whether to return focus there.
+ *
+ * No-op when no edit session is in progress.
+ *
+ * @return {Element|null} The Edit pencil that opened the panel, or null.
+ */
+function endEditSession() {
+	if ( ! state.isEditMode ) return null;
+	const trigger = editTriggerEl;
+	if ( editingFigure ) {
+		editingFigure.classList.remove( 'bw-figure-editing' );
+	}
+	editingFigure = null;
+	editTriggerEl = null;
+	state.isEditMode = false;
+	state.editingImageAlign = 'center';
+	state.editingImageSize = '';
+	state.editingImageHasMediaId = false;
+	pushToUndoHistory();
+	return trigger;
+}
+
+/**
+ * Focus the first visible input inside the image insert overlay or the edit
+ * panel after it becomes visible. Uses requestAnimationFrame so the element
+ * is no longer hidden.
  */
 function focusModalInput() {
 	requestAnimationFrame( () => {
-		const overlay = document.querySelector( '.bw-image-overlay:not([hidden])' );
-		if ( ! overlay ) return;
-		const input = overlay.querySelector( 'input:not([hidden])' );
-		if ( input ) input.focus();
+		const target = document.querySelector(
+			'.bw-image-edit-panel:not([hidden]) input:not([hidden]), .bw-image-overlay:not([hidden]) input:not([hidden])'
+		);
+		if ( target ) target.focus();
 	} );
 }
 
@@ -1064,32 +1144,54 @@ function convertToBlocks( html ) {
 				? `<figcaption class="wp-element-caption">${ figcaption.innerHTML }</figcaption>`
 				: '';
 
-			// Read figure size class + the `wp-image-<id>` class for the
-			// media library attachment ID.  These map to core wp:image
-			// attributes so the published markup matches what the block
-			// editor would emit, and the block editor can re-open these
-			// images without surprises.
-			const imageSizeSlug = [ 'thumbnail', 'medium', 'large', 'full' ].find( s =>
-				node.classList.contains( 'size-' + s )
-			);
+			// Read figure size + alignment classes plus the `wp-image-<id>`
+			// class for the media-library attachment ID.  These map to core
+			// wp:image attributes so the published markup matches what the
+			// block editor would emit, and the block editor can re-open
+			// these images without surprises.
+			const imageSizeSlug = IMAGE_SIZE_SLUGS.find( s => node.classList.contains( 'size-' + s ) );
+			// Always emit an explicit align attr + class.  Without aligncenter
+			// many themes don't center the figure in the published view, and
+			// the block editor reads "no align" as "default" (which renders
+			// differently from explicit center).  Match the block editor's
+			// convention so the published post centers reliably.
+			let imageAlign = 'center';
+			if ( node.classList.contains( 'alignleft' ) ) {
+				imageAlign = 'left';
+			} else if ( node.classList.contains( 'alignright' ) ) {
+				imageAlign = 'right';
+			}
 			const mediaId = getMediaIdFromImg( img );
 
 			const imageAttrs = [];
 			if ( mediaId ) imageAttrs.push( `"id":${ mediaId }` );
 			if ( imageSizeSlug ) imageAttrs.push( `"sizeSlug":"${ imageSizeSlug }"` );
+			imageAttrs.push( `"align":"${ imageAlign }"` );
 			const imageAttrsJson = imageAttrs.length ? ` {${ imageAttrs.join( ',' ) }}` : '';
 
 			const figureClasses = [ 'wp-block-image' ];
 			if ( imageSizeSlug ) figureClasses.push( 'size-' + imageSizeSlug );
+			figureClasses.push( 'align' + imageAlign );
 
 			const imgClassAttr = mediaId ? ` class="wp-image-${ mediaId }"` : '';
+
+			// Preserve the img's width/height attrs so the browser knows the
+			// intrinsic size in the published view.  Without them, themes
+			// that don't constrain `.size-thumbnail` etc. let the img stretch
+			// to fill its container — even when the URL points at a
+			// 150x150 resized file.  applyMediaSizeToFigure sets these on
+			// every media-library size swap; we just need to keep them.
+			const imgWidth = img.getAttribute( 'width' );
+			const imgHeight = img.getAttribute( 'height' );
+			const imgWidthAttr = imgWidth ? ` width="${ escapeAttr( imgWidth ) }"` : '';
+			const imgHeightAttr = imgHeight ? ` height="${ escapeAttr( imgHeight ) }"` : '';
 
 			blocks.push(
 				`<!-- wp:image${ imageAttrsJson } -->\n<figure class="${ figureClasses.join(
 					' '
 				) }"><img src="${ escapeAttr( src ) }" alt="${ escapeAttr(
 					alt
-				) }"${ imgClassAttr }/>${ captionHtml }</figure>\n<!-- /wp:image -->`
+				) }"${ imgClassAttr }${ imgWidthAttr }${ imgHeightAttr }/>${ captionHtml }</figure>\n<!-- /wp:image -->`
 			);
 		} else if ( tag === 'blockquote' ) {
 			// Extract citation from <cite> if present.
@@ -1536,6 +1638,12 @@ function placeCursorAtEnd( el ) {
  * @param {Element} fig - The figure element to delete.
  */
 function animateAndDeleteFigure( fig ) {
+	// If the edit panel is open for this figure, close it first — the
+	// figure is about to disappear and the panel's target is gone.
+	if ( editingFigure === fig ) {
+		const { actions } = store( 'wpcom-write' );
+		actions.closeImageModal();
+	}
 	// Mark as deleting so getFigureAdjacentToCursor skips it during
 	// the animation delay (prevents rapid Backspace from re-selecting).
 	fig.dataset.bwDeleting = '';
@@ -1655,49 +1763,10 @@ function addDeleteButtons() {
 		} );
 		controls.appendChild( btn );
 
-		// Alt text button (only for images, not videos).
+		// Skip the rest (caption, edit) for non-image figures — videos use
+		// only the delete control.
 		const imgEl = controls.querySelector( 'img' );
 		if ( ! imgEl ) return;
-
-		const altBtn = document.createElement( 'button' );
-		altBtn.className = 'bw-img-alt';
-		altBtn.textContent = i18n.alt || 'ALT';
-		altBtn.contentEditable = 'false';
-		altBtn.addEventListener( 'click', e => {
-			e.preventDefault();
-			e.stopPropagation();
-
-			const existing = controls.querySelector( '.bw-img-alt-input' );
-			if ( existing ) {
-				existing.remove();
-				return;
-			}
-
-			const input = document.createElement( 'input' );
-			input.type = 'text';
-			input.className = 'bw-img-alt-input';
-			input.placeholder = i18n.describeImage || 'Describe this image...';
-			input.value = imgEl.alt || '';
-			input.contentEditable = 'false';
-			input.addEventListener( 'click', ev => ev.stopPropagation() );
-			input.addEventListener( 'keydown', ev => {
-				ev.stopPropagation();
-				if ( ev.key === 'Enter' ) {
-					imgEl.alt = input.value;
-					input.remove();
-				}
-				if ( ev.key === 'Escape' ) {
-					input.remove();
-				}
-			} );
-			input.addEventListener( 'blur', () => {
-				imgEl.alt = input.value;
-				setTimeout( () => input.remove(), 150 );
-			} );
-			controls.appendChild( input );
-			input.focus();
-		} );
-		controls.appendChild( altBtn );
 
 		// Captions saved by the editor come back from the server with class
 		// `wp-element-caption` and no `contentEditable`, so without this any
@@ -1739,113 +1808,23 @@ function addDeleteButtons() {
 		} );
 		controls.appendChild( capBtn );
 
-		// Size button + dropdown (only for media-library images: external
-		// URLs have no registered sizes to swap between).
-		const isMediaLibrary = !! getMediaIdFromImg( imgEl );
-		if ( isMediaLibrary ) {
-			const sizeBtn = document.createElement( 'button' );
-			sizeBtn.className = 'bw-img-size';
-			sizeBtn.textContent = i18n.size || 'Size';
-			sizeBtn.contentEditable = 'false';
-			sizeBtn.setAttribute( 'aria-haspopup', 'menu' );
-			sizeBtn.setAttribute( 'aria-expanded', 'false' );
-
-			const menu = document.createElement( 'div' );
-			menu.className = 'bw-img-size-menu';
-			menu.contentEditable = 'false';
-			menu.hidden = true;
-			menu.setAttribute( 'role', 'menu' );
-			const sizeOptions = [
-				[ 'thumbnail', i18n.sizeThumbnail || 'Thumbnail' ],
-				[ 'medium', i18n.sizeMedium || 'Medium' ],
-				[ 'large', i18n.sizeLarge || 'Large' ],
-				[ 'full', i18n.sizeFull || 'Full' ],
-			];
-			sizeOptions.forEach( ( [ slug, label ] ) => {
-				const opt = document.createElement( 'button' );
-				opt.className = 'bw-img-size-option';
-				opt.textContent = label;
-				opt.contentEditable = 'false';
-				opt.setAttribute( 'role', 'menuitemradio' );
-				opt.dataset.size = slug;
-				opt.tabIndex = -1;
-				opt.addEventListener( 'click', ev => {
-					ev.preventDefault();
-					ev.stopPropagation();
-					setFigureSize( fig, slug );
-					trackMediaSizeSwap( applyMediaSizeToFigure( fig, slug ) ).then( pushToUndoHistory );
-					closeSizeMenu( true );
-				} );
-				menu.appendChild( opt );
-			} );
-
-			const openSizeMenu = () => {
-				// Close any other image's open Size menu first.  sizeBtn's click
-				// handler stops propagation so the document-level outside-click
-				// listener can't do this for us.
-				document.querySelectorAll( '.bw-img-size-menu:not([hidden])' ).forEach( other => {
-					if ( other === menu ) return;
-					other.hidden = true;
-					other.previousElementSibling?.setAttribute( 'aria-expanded', 'false' );
-				} );
-				// Mark the option that matches the figure's current size class
-				// (none on figures loaded without an explicit sizeSlug).
-				const current = IMAGE_SIZE_SLUGS.find( s => fig.classList.contains( 'size-' + s ) );
-				const options = [ ...menu.querySelectorAll( '.bw-img-size-option' ) ];
-				options.forEach( opt => {
-					opt.setAttribute( 'aria-checked', opt.dataset.size === current ? 'true' : 'false' );
-				} );
-				menu.hidden = false;
-				sizeBtn.setAttribute( 'aria-expanded', 'true' );
-				// Focus the current option so arrow keys move from there.
-				const focusTarget = options.find( o => o.dataset.size === current ) || options[ 0 ];
-				focusTarget?.focus();
-			};
-			const closeSizeMenu = ( returnFocus = false ) => {
-				menu.hidden = true;
-				sizeBtn.setAttribute( 'aria-expanded', 'false' );
-				if ( returnFocus ) sizeBtn.focus();
-			};
-
-			sizeBtn.addEventListener( 'click', ev => {
-				ev.preventDefault();
-				ev.stopPropagation();
-				if ( menu.hidden ) {
-					openSizeMenu();
-				} else {
-					closeSizeMenu();
-				}
-			} );
-
-			// Arrow / Home / End / Escape navigation within the open menu.
-			menu.addEventListener( 'keydown', ev => {
-				const options = [ ...menu.querySelectorAll( '.bw-img-size-option' ) ];
-				const idx = options.indexOf( menu.ownerDocument.activeElement );
-				if ( ev.key === 'ArrowDown' ) {
-					ev.preventDefault();
-					options[ ( idx + 1 ) % options.length ]?.focus();
-				} else if ( ev.key === 'ArrowUp' ) {
-					ev.preventDefault();
-					options[ ( idx - 1 + options.length ) % options.length ]?.focus();
-				} else if ( ev.key === 'Home' ) {
-					ev.preventDefault();
-					options[ 0 ]?.focus();
-				} else if ( ev.key === 'End' ) {
-					ev.preventDefault();
-					options[ options.length - 1 ]?.focus();
-				} else if ( ev.key === 'Escape' ) {
-					ev.preventDefault();
-					closeSizeMenu( true );
-				} else if ( ev.key === 'Tab' ) {
-					// Tab out of the menu closes it.  The browser handles the
-					// focus move; we just clean up state.
-					closeSizeMenu();
-				}
-			} );
-
-			controls.appendChild( sizeBtn );
-			controls.appendChild( menu );
-		}
+		// Edit button — opens the image properties modal (alt, size, align,
+		// featured). Anchored to the bottom-right so it doesn't stack
+		// horizontally with the Caption button on narrow (Thumbnail / Medium)
+		// images (RSM-3980).
+		const editBtn = document.createElement( 'button' );
+		editBtn.className = 'bw-img-edit';
+		editBtn.innerHTML = '<span class="dashicons dashicons-edit" aria-hidden="true"></span>';
+		editBtn.contentEditable = 'false';
+		editBtn.setAttribute( 'aria-label', i18n.editImage || 'Edit image' );
+		editBtn.setAttribute( 'title', i18n.editImage || 'Edit image' );
+		editBtn.addEventListener( 'click', e => {
+			e.preventDefault();
+			e.stopPropagation();
+			const { actions } = store( 'wpcom-write' );
+			actions.editImage( fig, e.currentTarget );
+		} );
+		controls.appendChild( editBtn );
 
 		// Enter inside the figcaption exits to the next block. Attached on every
 		// figure init (not just on first caption-button click) so it survives an
@@ -2314,7 +2293,7 @@ function updateFormattingState() {
 	state.formatHeading = false;
 	state.formatQuote = false;
 	state.headingLabel = i18n.normal || 'Normal';
-	state.formatAlignLeft = true;
+	state.formatAlignLeft = false;
 	state.formatAlignCenter = false;
 	state.formatAlignRight = false;
 	state.formatAlignJustify = false;
@@ -2335,10 +2314,14 @@ function updateFormattingState() {
 				if ( node.tagName === 'BLOCKQUOTE' ) {
 					state.formatQuote = true;
 				}
-				// Detect alignment from the nearest block element.
+				// Detect alignment from the nearest block element. Only highlight
+				// a button when alignment is explicitly set — empty textAlign
+				// means "default", which is left in browsers but shouldn't show
+				// any align button as active (matches block-editor behavior and
+				// avoids misleading users when nearby figures render centered).
 				if ( /^(P|H[1-6]|DIV|BLOCKQUOTE)$/.test( node.tagName ) && node.style.textAlign ) {
 					const align = node.style.textAlign;
-					state.formatAlignLeft = align === 'left' || align === 'start' || align === '';
+					state.formatAlignLeft = align === 'left' || align === 'start';
 					state.formatAlignCenter = align === 'center';
 					state.formatAlignRight = align === 'right';
 					state.formatAlignJustify = align === 'justify';
@@ -3091,6 +3074,39 @@ const { state } = store( 'wpcom-write', {
 			inner.setAttribute( 'aria-expanded', state.showSlashMenu ? 'true' : 'false' );
 			inner.setAttribute( 'aria-activedescendant', state.slashActiveId || '' );
 		},
+
+		/**
+		 * Mirror edit-modal radio state onto aria-checked + tabindex so the
+		 * active option is visually marked AND owns the roving tab stop per
+		 * the WAI-ARIA radio pattern (only one radio per group in tab order;
+		 * arrow keys move within the group). Reading state.editingImageAlign
+		 * / state.editingImageSize here subscribes the watcher to those
+		 * signals; the panel's data-wp-watch wires this up.
+		 */
+		syncEditImageModalRadios() {
+			const align = state.editingImageAlign;
+			const size = state.editingImageSize;
+			if ( ! state.showImageModal || ! state.isEditMode ) return;
+			const sync = ( selector, activeValue ) => {
+				const options = document.querySelectorAll( selector );
+				let activeFound = false;
+				options.forEach( btn => {
+					const isActive = btn.value === activeValue;
+					btn.setAttribute( 'aria-checked', isActive ? 'true' : 'false' );
+					btn.tabIndex = isActive ? 0 : -1;
+					if ( isActive ) activeFound = true;
+				} );
+				// Keep one option tabbable even when nothing matches the
+				// current state (e.g. size: '' for non-media-library images
+				// where the section is hidden anyway, but the rule still
+				// holds — no group should be entirely untabbable).
+				if ( ! activeFound && options.length ) {
+					options[ 0 ].tabIndex = 0;
+				}
+			};
+			sync( '.bw-edit-align-option', align );
+			sync( '.bw-edit-size-option', size );
+		},
 	},
 	state: {
 		formatBold: false,
@@ -3112,6 +3128,18 @@ const { state } = store( 'wpcom-write', {
 		},
 		get isBlockEditorWarning() {
 			return state.unsupportedWarning === 'block-editor';
+		},
+		// True when a "true modal" overlay is open (insert image, video,
+		// post picker). Used to gate keystroke handlers — the edit panel is
+		// non-modal and intentionally not included here.
+		get hasBlockingModal() {
+			return state.showImageInsertOverlay || state.showVideoModal || state.showPostPicker;
+		},
+		// True when the centered insert overlay should be visible. The
+		// underlying state.showImageModal flag is shared between insert and
+		// edit; this getter separates them in markup bindings.
+		get showImageInsertOverlay() {
+			return state.showImageModal && ! state.isEditMode;
 		},
 		get unsupportedDescId() {
 			if ( state.unsupportedWarning === 'classic-editor' ) {
@@ -3140,11 +3168,12 @@ const { state } = store( 'wpcom-write', {
 		},
 
 		handleTitleKeyDown( event ) {
-			// Block keystrokes while a modal overlay is open.
-			if ( state.showImageModal || state.showVideoModal || state.showPostPicker ) {
+			// Block keystrokes while a blocking overlay is open. The image
+			// edit panel is non-modal and doesn't block title editing.
+			if ( state.hasBlockingModal ) {
 				if ( event.key === 'Escape' ) {
 					const { actions: a } = store( 'wpcom-write' );
-					if ( state.showImageModal ) {
+					if ( state.showImageInsertOverlay ) {
 						a.closeImageModal();
 					} else {
 						a.closeVideoModal();
@@ -3358,15 +3387,16 @@ const { state } = store( 'wpcom-write', {
 
 		handleKeyDown( event ) {
 			// Keep savedRange current before any key changes the selection.
-			if ( ! state.showImageModal && ! state.showVideoModal && ! state.showPostPicker ) {
+			if ( ! state.hasBlockingModal ) {
 				saveSelection();
 			}
 
-			// Block all keystrokes while a modal overlay is open.
-			if ( state.showImageModal || state.showVideoModal || state.showPostPicker ) {
+			// Block all keystrokes while a blocking overlay is open. The
+			// image edit panel is non-modal and doesn't block editor input.
+			if ( state.hasBlockingModal ) {
 				if ( event.key === 'Escape' ) {
 					const { actions: a } = store( 'wpcom-write' );
-					if ( state.showImageModal ) {
+					if ( state.showImageInsertOverlay ) {
 						a.closeImageModal();
 					} else {
 						a.closeVideoModal();
@@ -4307,14 +4337,92 @@ const { state } = store( 'wpcom-write', {
 
 		toggleFeaturedImage() {
 			state.setAsFeatured = ! state.setAsFeatured;
+			// In edit mode the toggle applies to the post immediately.  The
+			// post-level featuredMediaId is the source of truth on save; we
+			// set / clear it here so the change survives modal close.
+			if ( state.isEditMode && editingFigure ) {
+				const mediaId = getMediaIdFromImg( editingFigure.querySelector( 'img' ) );
+				if ( ! mediaId ) return;
+				state.featuredMediaId = state.setAsFeatured ? mediaId : 0;
+			}
 		},
 
 		updateImageAlt() {
 			const el = getElement();
 			state.imageAlt = el.ref.value;
+			// In edit mode, apply to the figure live.  Undo coalesces all
+			// modal edits into a single history entry pushed on close.
+			if ( state.isEditMode && editingFigure ) {
+				const img = editingFigure.querySelector( 'img' );
+				if ( img ) img.alt = state.imageAlt;
+			}
+		},
+
+		setEditImageSize() {
+			const el = getElement();
+			const slug = el.ref.value;
+			if ( ! editingFigure || ! IMAGE_SIZE_SLUGS.includes( slug ) ) return;
+			state.editingImageSize = slug;
+			setFigureSize( editingFigure, slug );
+			trackMediaSizeSwap( applyMediaSizeToFigure( editingFigure, slug ) );
+		},
+
+		setEditImageAlign() {
+			const el = getElement();
+			const align = el.ref.value;
+			if ( ! editingFigure || ! IMAGE_ALIGNS.includes( align ) ) return;
+			state.editingImageAlign = align;
+			setFigureAlignment( editingFigure, align );
+		},
+
+		/**
+		 * Arrow / Home / End navigation within the Size and Alignment
+		 * radiogroups in the edit panel. Implements the WAI-ARIA radio
+		 * pattern: arrow keys move focus to the next/previous option AND
+		 * activate it; Home / End jump to first / last; only the active
+		 * option carries tabindex=0 so Tab moves out of the group.
+		 *
+		 * @param {KeyboardEvent} event - The keydown event.
+		 */
+		handleEditRadiogroupKeyDown( event ) {
+			const nav = [ 'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Home', 'End' ];
+			if ( ! nav.includes( event.key ) ) return;
+			const group = event.currentTarget;
+			const options = [ ...group.querySelectorAll( '[role="radio"]' ) ];
+			if ( ! options.length ) return;
+			event.preventDefault();
+			const current = group.ownerDocument.activeElement;
+			const idx = Math.max( 0, options.indexOf( current ) );
+			let next;
+			switch ( event.key ) {
+				case 'ArrowLeft':
+				case 'ArrowUp':
+					next = options[ ( idx - 1 + options.length ) % options.length ];
+					break;
+				case 'ArrowRight':
+				case 'ArrowDown':
+					next = options[ ( idx + 1 ) % options.length ];
+					break;
+				case 'Home':
+					next = options[ 0 ];
+					break;
+				case 'End':
+					next = options[ options.length - 1 ];
+					break;
+			}
+			if ( next ) {
+				next.focus();
+				// Activate the new option — the radio pattern selects on
+				// move (vs. menu, which moves focus without selecting).
+				next.click();
+			}
 		},
 
 		openImageModal() {
+			// If the edit panel is open for an existing image, end that
+			// session first so the user's changes land as a discrete undo
+			// entry before the insert overlay replaces the panel.
+			endEditSession();
 			saveSelection();
 			state.imageUrl = '';
 			state.imageAlt = '';
@@ -4326,7 +4434,68 @@ const { state } = store( 'wpcom-write', {
 			focusModalInput();
 		},
 
+		editImage( figure, triggerEl ) {
+			// `figure` and `triggerEl` are passed by the per-image Edit pencil
+			// handler — not by Interactivity bindings — so we accept them as
+			// arguments rather than reading from getElement().
+			if ( ! figure ) return;
+			const img = figure.querySelector( 'img' );
+			if ( ! img ) return;
+
+			// Switching mid-edit from one image's panel to another: commit
+			// the previous session as a discrete undo entry and clear the
+			// outline on the old figure before retargeting.
+			if ( state.isEditMode && editingFigure && editingFigure !== figure ) {
+				editingFigure.classList.remove( 'bw-figure-editing' );
+				pushToUndoHistory();
+			}
+
+			editingFigure = figure;
+			editTriggerEl = triggerEl || null;
+			figure.classList.add( 'bw-figure-editing' );
+			state.isEditMode = true;
+			state.imageAlt = img.alt || '';
+			state.editingImageAlign = getFigureAlignment( figure );
+			state.editingImageSize =
+				IMAGE_SIZE_SLUGS.find( s => figure.classList.contains( 'size-' + s ) ) || '';
+
+			const mediaId = getMediaIdFromImg( img );
+			state.editingImageHasMediaId = !! mediaId;
+			state.setAsFeatured = !! ( mediaId && state.featuredMediaId === mediaId );
+
+			// Block-editor inserts often omit `sizeSlug` even though the img
+			// src matches a registered size — so the figure has no `size-X`
+			// class and the panel would show no size as selected.  When that
+			// happens, fall back to matching the img URL against the media
+			// library's registered sizes so the panel reflects what the user
+			// actually sees.  Stamp the matched class onto the figure so the
+			// figure is self-describing and round-trips through save.
+			if ( ! state.editingImageSize && mediaId ) {
+				inferSizeFromImgSrc( figure ).then( slug => {
+					if ( slug && figure === editingFigure ) {
+						state.editingImageSize = slug;
+						setFigureSize( figure, slug );
+					}
+				} );
+			}
+
+			state.showImageModal = true;
+			focusModalInput();
+
+			// On mobile the panel slides up as a bottom sheet that covers
+			// roughly the lower half of the viewport. Scroll the figure
+			// near the top so it stays visible while the user edits.
+			if ( window.matchMedia( '(max-width: 640px)' ).matches ) {
+				requestAnimationFrame( () => {
+					figure.scrollIntoView( { block: 'start', behavior: 'smooth' } );
+				} );
+			}
+		},
+
 		closeImageModal() {
+			// endEditSession returns the Edit pencil that opened the panel
+			// (when we were in edit mode) so we can return focus there.
+			const triggerToRefocus = endEditSession();
 			state.showImageModal = false;
 			state.imageUrl = '';
 			state.imageAlt = '';
@@ -4334,7 +4503,11 @@ const { state } = store( 'wpcom-write', {
 			state.uploadedMediaId = 0;
 			resetUploadZone();
 			restoreSelection();
-			getContent()?.focus();
+			if ( triggerToRefocus && document.contains( triggerToRefocus ) ) {
+				triggerToRefocus.focus();
+			} else {
+				getContent()?.focus();
+			}
 		},
 
 		handleImageModalKeyDown( event ) {
@@ -4410,14 +4583,14 @@ const { state } = store( 'wpcom-write', {
 				// editor and swap src to the Large-sized URL so the natural
 				// img dimensions match the default preset.
 				img.className = 'wp-image-' + state.uploadedMediaId;
-				figure.className = 'bw-image-figure size-large';
+				figure.className = 'bw-image-figure size-large aligncenter';
 				figure.appendChild( img );
 				trackMediaSizeSwap( applyMediaSizeToFigure( figure, 'large' ) );
 			} else {
 				// External URL (no media library entry, no resized files):
 				// no size preset — the per-image Size button is hidden, matching
 				// block editor behavior.
-				figure.className = 'bw-image-figure';
+				figure.className = 'bw-image-figure aligncenter';
 				figure.appendChild( img );
 			}
 
@@ -4596,6 +4769,10 @@ const { state } = store( 'wpcom-write', {
 		},
 
 		insertImage() {
+			// Slash-menu image insert: close any open edit panel first so
+			// the in-progress edit session is committed as a discrete undo
+			// entry before the insert overlay takes over.
+			endEditSession();
 			flushUndoDebounce();
 			clearSlashText();
 			clearSlashActive();
@@ -5369,8 +5546,8 @@ async function savePost( postStatus, isAutosave = false ) {
 			p.remove();
 		}
 	} );
-	clone.querySelectorAll( '.bw-figure-selected' ).forEach( el => {
-		el.classList.remove( 'bw-figure-selected' );
+	clone.querySelectorAll( '.bw-figure-selected, .bw-figure-editing' ).forEach( el => {
+		el.classList.remove( 'bw-figure-selected', 'bw-figure-editing' );
 	} );
 	// Also strip the contenteditable attribute from figures — it's a
 	// runtime attribute that shouldn't be persisted.
@@ -5636,13 +5813,7 @@ document.addEventListener( 'keydown', event => {
 	if ( event.key?.toLowerCase() !== 's' ) return;
 	if ( ! ( event.ctrlKey || event.metaKey ) ) return;
 	if ( event.shiftKey || event.altKey ) return;
-	if (
-		state.isSaving ||
-		state.unsupportedWarning ||
-		state.showImageModal ||
-		state.showVideoModal ||
-		state.showPostPicker
-	) {
+	if ( state.isSaving || state.unsupportedWarning || state.hasBlockingModal ) {
 		return;
 	}
 
@@ -5653,6 +5824,22 @@ document.addEventListener( 'keydown', event => {
 	} else {
 		actions.saveDraft();
 	}
+} );
+
+// Escape closes the image edit panel from anywhere on the page. The panel
+// is non-modal — focus may live in the editor, the title, or anywhere
+// outside the panel itself — so it needs a global Escape handler instead
+// of relying on the panel's own keydown.  Skipped when a blocking overlay
+// is open (those handle Escape themselves) and when an active text-editing
+// surface might want Escape for its own purposes (the alt-text input
+// inside the panel uses default behavior — losing focus on Escape is OK).
+document.addEventListener( 'keydown', event => {
+	if ( event.key !== 'Escape' ) return;
+	if ( ! state.isEditMode ) return;
+	if ( state.hasBlockingModal ) return;
+	event.preventDefault();
+	const { actions } = store( 'wpcom-write' );
+	actions.closeImageModal();
 } );
 
 // File-drop safety net: .bw-content has min-height:60vh but doesn't

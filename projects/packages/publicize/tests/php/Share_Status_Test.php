@@ -1,4 +1,4 @@
-<?php // phpcs:disable WordPress.Files.FileName.InvalidClassFileName, Squiz.Commenting.InlineComment.WrongStyle
+<?php
 /**
  * Tests for Share Status.
  */

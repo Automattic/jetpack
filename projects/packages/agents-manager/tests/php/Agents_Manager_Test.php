@@ -497,6 +497,52 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * Tests that the standalone AI chat button is added to the admin bar when the
+	 * unified experience is enabled.
+	 */
+	public function test_ai_chat_button_registered_in_unified_experience() {
+		// Set admin context so the admin bar nodes are registered.
+		require_once ABSPATH . 'wp-admin/includes/screen.php';
+		set_current_screen( 'dashboard' );
+
+		// Register the script so enqueue_scripts can attach its inline data.
+		wp_register_script( 'agents-manager', 'https://example.com/agents-manager.js', array(), '1.0', true );
+
+		// Enable the unified experience (priority 20 runs after the class's own filter).
+		add_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
+
+		$this->agents_manager->enqueue_scripts();
+
+		$this->assertNotFalse(
+			has_action( 'admin_bar_menu', array( $this->agents_manager, 'add_ai_chat_button' ) )
+		);
+
+		remove_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
+	}
+
+	/**
+	 * Tests that the standalone AI chat button is not added to the admin bar when
+	 * the unified experience is disabled.
+	 */
+	public function test_ai_chat_button_not_registered_without_unified_experience() {
+		// Same admin context as the enabled case, so only the unified flag differs.
+		require_once ABSPATH . 'wp-admin/includes/screen.php';
+		set_current_screen( 'dashboard' );
+		wp_register_script( 'agents-manager', 'https://example.com/agents-manager.js', array(), '1.0', true );
+
+		// Disable the unified experience (priority 20 runs after the class's own filter).
+		add_filter( 'agents_manager_use_unified_experience', '__return_false', 20 );
+
+		$this->agents_manager->enqueue_scripts();
+
+		$this->assertFalse(
+			has_action( 'admin_bar_menu', array( $this->agents_manager, 'add_ai_chat_button' ) )
+		);
+
+		remove_filter( 'agents_manager_use_unified_experience', '__return_false', 20 );
+	}
+
+	/**
 	 * Tests that should_display_menu_panel returns false by default.
 	 */
 	public function test_should_display_menu_panel_returns_false_by_default() {

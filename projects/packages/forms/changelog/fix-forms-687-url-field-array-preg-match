@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Fix preg_match TypeError when a URL field value is an array instead of a string.

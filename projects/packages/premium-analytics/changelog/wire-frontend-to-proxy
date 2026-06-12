@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Data layer: route report requests through the jetpack-premium-analytics proxy controller instead of the legacy woocommerce-analytics proxy route.

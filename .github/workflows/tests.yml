@@ -344,18 +344,14 @@ jobs:
         with:
           pattern: 'Code coverage (*)'
           path: coverage_dl
+          merge-multiple: true # This extracts all artifacts into the same dir (but beware of file collisons, where last one wins).
 
       - name: Merge coverage artifacts
         run: |
           mkdir coverage
-          # If there's only one matching artifact, actions/download-artifact puts it directly in the specified path. If multiple, it makes subdirectories that need merging.
-          if [[ -f coverage_dl/summary.tsv ]]; then
-            mv coverage_dl/* coverage/
-          else
-            sort coverage_dl/*/summary.tsv > coverage/summary.tsv
-            rm coverage_dl/*/summary.tsv
-            mv coverage_dl/*/* coverage/
-          fi
+          sort coverage_dl/summary-*.tsv > coverage/summary.tsv
+          rm coverage_dl/summary-*.tsv
+          mv coverage_dl/* coverage/
 
       - name: Upload coverage results
         env:
