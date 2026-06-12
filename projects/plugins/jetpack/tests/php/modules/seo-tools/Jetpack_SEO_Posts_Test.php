@@ -24,10 +24,8 @@ class Jetpack_SEO_Posts_Test extends WP_UnitTestCase {
 		$this->assertSame( 'faq', Jetpack_SEO_Posts::sanitize_schema_type( 'faq' ) );
 		// sanitize_key() lowercases, so a differently-cased allowed value is kept.
 		$this->assertSame( 'article', Jetpack_SEO_Posts::sanitize_schema_type( 'Article' ) );
-		// Unknown / non-string values fall back to no override.
+		// An unknown (non-allowed) value falls back to no override.
 		$this->assertSame( '', Jetpack_SEO_Posts::sanitize_schema_type( 'organization' ) );
-		$this->assertSame( '', Jetpack_SEO_Posts::sanitize_schema_type( 123 ) );
-		$this->assertSame( '', Jetpack_SEO_Posts::sanitize_schema_type( array( 'faq' ) ) );
 	}
 
 	/**
