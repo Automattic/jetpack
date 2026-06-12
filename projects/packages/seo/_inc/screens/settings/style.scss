@@ -29,3 +29,12 @@
 	grid-template-columns: 1fr;
 	gap: var(--wpds-dimension-gap-md, 12px);
 }
+
+// Platform label above each social/search preview so it's clear which network
+// each card represents.
+.jetpack-seo-settings__preview-label {
+	margin: 0 0 var(--wpds-dimension-gap-xs, 4px);
+	font-size: 13px;
+	font-weight: 600;
+	color: var(--wpds-color-fg-content-neutral-weak, #757575);
+}

@@ -48,25 +48,40 @@ const SocialPreviewsCard: FC< Props > = ( { description } ) => {
 							'jetpack-seo'
 						) }
 					</p>
-					<GoogleSearchPreview
-						siteIcon={ site.icon }
-						siteTitle={ site.title }
-						title={ site.title }
-						url={ site.url }
-						description={ description }
-					/>
-					<FacebookLinkPreview
-						title={ site.title }
-						url={ site.url }
-						description={ description }
-						image={ site.image }
-					/>
-					<TwitterLinkPreview
-						title={ site.title }
-						url={ site.url }
-						description={ description }
-						image={ site.image }
-					/>
+					<div className="jetpack-seo-settings__preview-group">
+						<h3 className="jetpack-seo-settings__preview-label">
+							{ __( 'Google search result', 'jetpack-seo' ) }
+						</h3>
+						<GoogleSearchPreview
+							siteIcon={ site.icon }
+							siteTitle={ site.title }
+							title={ site.title }
+							url={ site.url }
+							description={ description }
+						/>
+					</div>
+					<div className="jetpack-seo-settings__preview-group">
+						<h3 className="jetpack-seo-settings__preview-label">
+							{ __( 'Facebook', 'jetpack-seo' ) }
+						</h3>
+						<FacebookLinkPreview
+							title={ site.title }
+							url={ site.url }
+							description={ description }
+							image={ site.image }
+						/>
+					</div>
+					<div className="jetpack-seo-settings__preview-group">
+						<h3 className="jetpack-seo-settings__preview-label">
+							{ __( 'X (Twitter)', 'jetpack-seo' ) }
+						</h3>
+						<TwitterLinkPreview
+							title={ site.title }
+							url={ site.url }
+							description={ description }
+							image={ site.image }
+						/>
+					</div>
 				</Stack>
 			</CollapsibleCard.Content>
 		</CollapsibleCard.Root>
