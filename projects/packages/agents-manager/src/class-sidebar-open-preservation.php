@@ -131,7 +131,7 @@ class Sidebar_Open_Preservation {
 		}
 
 		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- Reading a local file bundled with the package; wp_remote_get is for remote URLs.
-		$script = file_get_contents( __DIR__ . '/js/sidebar-dock-reconciler.js' );
+		$script = file_get_contents( __DIR__ . '/../build/sidebar-dock-reconciler.js' );
 		if ( false === $script ) {
 			return;
 		}

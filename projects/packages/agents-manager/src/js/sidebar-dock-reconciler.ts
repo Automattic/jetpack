@@ -15,7 +15,6 @@
  * variable in the Calypso package
  * (packages/agents-manager/src/styles/variables.scss). Keep the name in sync.
  */
-/* global window, document */
 ( function () {
 	const body = document.body;
 	if ( ! body ) {
