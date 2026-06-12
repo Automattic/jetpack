@@ -505,7 +505,6 @@ function runShellcheck( shellFilesToLint ) {
 		stdio: 'inherit',
 	} );
 
-	// There's wrapper package in npm that installs it on first run, but for now let's just skip if not present.
 	if ( shellcheckResult.error?.code === 'ENOENT' ) {
 		console.log(
 			chalk.yellow( 'Skipping shellcheck: not installed. See https://www.shellcheck.net/' )
