@@ -7,12 +7,31 @@ import type { TailorSource } from './types.ts';
  */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 
+/** Stream G records the page-view event. */
 export function trackViewed(): void {}
 
+/** Stream G records the wizard-completed event. */
 export function trackWizardCompleted(): void {}
 
-export function trackAiResponseReceived( props: { duration_ms: number; source: TailorSource } ): void {}
+/**
+ * Stream G records the AI-response-received event.
+ *
+ * @param props             - The event properties.
+ * @param props.duration_ms - How long the AI response took, in milliseconds.
+ * @param props.source      - Where the tailored output came from.
+ */
+export function trackAiResponseReceived( props: {
+	duration_ms: number;
+	source: TailorSource;
+} ): void {}
 
+/**
+ * Stream G records the task-clicked event.
+ *
+ * @param props         - The event properties.
+ * @param props.task_id - The id of the clicked task.
+ */
 export function trackTaskClicked( props: { task_id: string } ): void {}
 
+/** Stream G records the launched event. */
 export function trackLaunched(): void {}

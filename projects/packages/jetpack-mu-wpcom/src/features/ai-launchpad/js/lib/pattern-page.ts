@@ -2,6 +2,9 @@ import type { TailoredInferred } from './types.ts';
 
 /**
  * Stream F replaces this body with the PTK pattern fetch + POST /wp/v2/pages.
+ *
+ * @param inferred - The AI-inferred site details.
+ * @return The created page id and its editor URL.
  */
 export async function createPatternPage(
 	inferred: TailoredInferred // eslint-disable-line @typescript-eslint/no-unused-vars

@@ -5,6 +5,9 @@ import type { TailoredOutput, WizardInput } from './types.ts';
  * Stream F replaces this body with the per-goal picker ported from the PoC's
  * select-tasks.ts. The stub returns a schema-valid default: six real catalog
  * task IDs with launch last.
+ *
+ * @param input - The collected wizard input.
+ * @return A schema-valid tailored output.
  */
 export function selectFallback( input: WizardInput ): TailoredOutput {
 	return {
@@ -23,7 +26,9 @@ export function selectFallback( input: WizardInput ): TailoredOutput {
 		first_post_draft: {
 			title: 'Hello from ' + input.site_name,
 			paragraphs: [
-				'This is the first post on ' + input.site_name + '. It marks the starting point of something new.',
+				'This is the first post on ' +
+					input.site_name +
+					'. It marks the starting point of something new.',
 				'There is more to come. Stay tuned for the next update.',
 			],
 		},
