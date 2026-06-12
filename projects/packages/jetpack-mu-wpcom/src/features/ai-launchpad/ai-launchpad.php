@@ -15,6 +15,7 @@ use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills;
 // regardless of which admin page is showing.
 require_once __DIR__ . '/class-ai-launchpad-rest.php';
 require_once __DIR__ . '/class-ai-launchpad-listeners.php';
+require_once __DIR__ . '/class-ai-launchpad-theme-listener.php';
 
 /**
  * Registers the AI Launchpad admin page and its wp-build assets.
