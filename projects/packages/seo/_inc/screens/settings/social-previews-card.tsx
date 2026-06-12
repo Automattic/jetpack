@@ -3,6 +3,10 @@ import {
 	FacebookLinkPreview,
 	TwitterLinkPreview,
 } from '@automattic/social-previews';
+// The preview components' own SCSS lives in node_modules, which wp-build does
+// not compile; import the package's prebuilt stylesheet so the previews are
+// styled (otherwise icons/layout render unstyled).
+import '@automattic/social-previews/style.css';
 import { __ } from '@wordpress/i18n';
 import { Card, CollapsibleCard, Stack } from '@wordpress/ui';
 import getSite from '../../data/get-site';
