@@ -1,4 +1,4 @@
-import { TextareaControl } from '@wordpress/components';
+import { DropZone, TextareaControl } from '@wordpress/components';
 import {
 	createInterpolateElement,
 	useCallback,
@@ -349,9 +349,10 @@ type CsvDropzoneProps = {
 /**
  * Clickable + drag-and-drop CSV drop area. Visually replaces the bare file input: the real
  * `<input>` stays in the DOM but hidden and is driven through `inputRef`, so a click anywhere in the
- * box — or a keyboard activation — opens the native picker, while files dragged onto the box are
- * handled the same way. The drag-over highlight borrows VideoPress's Library overlay, recolored to
- * the modal's WPDS tokens.
+ * box — or a keyboard activation — opens the native picker. Core's `<DropZone>` (the same primitive
+ * the modernized VideoPress Library uses) overlays the box and handles the drag-and-drop, showing
+ * its accent-colored "drop to upload" overlay while a file is dragged over. The inactive DropZone is
+ * `visibility: hidden`, so it never blocks the click target underneath.
  *
  * @param props          - Component props.
  * @param props.fileName - Name of the selected file, or null.
@@ -361,8 +362,6 @@ type CsvDropzoneProps = {
  * @return Drop area element.
  */
 function CsvDropzone( { fileName, disabled, onFile, inputRef }: CsvDropzoneProps ): JSX.Element {
-	const [ isDraggingOver, setIsDraggingOver ] = useState( false );
-
 	const openPicker = useCallback( () => {
 		if ( ! disabled ) {
 			inputRef.current?.click();
@@ -379,57 +378,23 @@ function CsvDropzone( { fileName, disabled, onFile, inputRef }: CsvDropzoneProps
 		[ onFile ]
 	);
 
-	const handleDragOver = useCallback(
-		( event: React.DragEvent ) => {
-			// preventDefault keeps the browser from navigating to the dropped file.
-			event.preventDefault();
-			if ( ! disabled ) {
-				setIsDraggingOver( true );
-			}
-		},
-		[ disabled ]
-	);
-
-	const handleDragLeave = useCallback( ( event: React.DragEvent ) => {
-		event.preventDefault();
-		setIsDraggingOver( false );
-	}, [] );
-
-	const handleDrop = useCallback(
-		( event: React.DragEvent ) => {
-			event.preventDefault();
-			setIsDraggingOver( false );
-			if ( disabled ) {
-				return;
-			}
-			const file = event.dataTransfer.files?.[ 0 ];
+	const handleFilesDrop = useCallback(
+		( files: File[] ) => {
+			const file = files?.[ 0 ];
 			if ( file ) {
 				onFile( file );
 			}
 		},
-		[ disabled, onFile ]
+		[ onFile ]
 	);
 
-	const className = [
-		'jetpack-newsletter__csv-dropzone',
-		isDraggingOver && 'is-dragging',
-		fileName && 'has-file',
-	]
+	const className = [ 'jetpack-newsletter__csv-dropzone', fileName && 'has-file' ]
 		.filter( Boolean )
 		.join( ' ' );
 
 	return (
-		<>
-			<button
-				type="button"
-				className={ className }
-				onClick={ openPicker }
-				onDragOver={ handleDragOver }
-				onDragEnter={ handleDragOver }
-				onDragLeave={ handleDragLeave }
-				onDrop={ handleDrop }
-				disabled={ disabled }
-			>
+		<div className="jetpack-newsletter__csv-dropzone-wrap">
+			<button type="button" className={ className } onClick={ openPicker } disabled={ disabled }>
 				<Icon
 					className="jetpack-newsletter__csv-dropzone-icon"
 					icon={ fileName ? check : cloudUpload }
@@ -439,6 +404,13 @@ function CsvDropzone( { fileName, disabled, onFile, inputRef }: CsvDropzoneProps
 					{ fileName ?? __( 'Drag a file here, or click to upload a file', 'jetpack-newsletter' ) }
 				</Text>
 			</button>
+			{ ! disabled && (
+				<DropZone
+					icon={ cloudUpload }
+					label={ __( 'Drop your CSV file to upload', 'jetpack-newsletter' ) }
+					onFilesDrop={ handleFilesDrop }
+				/>
+			) }
 			<input
 				ref={ inputRef }
 				type="file"
@@ -447,7 +419,7 @@ function CsvDropzone( { fileName, disabled, onFile, inputRef }: CsvDropzoneProps
 				onChange={ handleInputChange }
 				disabled={ disabled }
 			/>
-		</>
+		</div>
 	);
 }
 
