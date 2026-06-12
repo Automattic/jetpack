@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\PremiumAnalytics\REST;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use WorDBless\BaseTestCase;
 use WP_REST_Request;
 use WP_REST_Response;
@@ -126,6 +127,35 @@ class Api_Proxy_Controller_Test extends BaseTestCase {
 		);
 
 		$this->assertSame( $this->cache_key( $bare ), $this->cache_key( $routing ) );
+	}
+
+	public function test_validate_endpoint_accepts_a_relative_sub_path() {
+		$this->assertTrue( $this->controller->validate_endpoint( 'reports/totals' ) );
+	}
+
+	/**
+	 * @dataProvider data_invalid_endpoints
+	 *
+	 * @param string $endpoint An endpoint that must be rejected.
+	 */
+	#[DataProvider( 'data_invalid_endpoints' )]
+	public function test_validate_endpoint_rejects_traversal_and_scheme( string $endpoint ) {
+		$this->assertFalse( $this->controller->validate_endpoint( $endpoint ) );
+	}
+
+	/**
+	 * Endpoints that would escape the `/analytics/` prefix.
+	 *
+	 * @return array<string, string[]>
+	 */
+	public static function data_invalid_endpoints(): array {
+		return array(
+			'parent traversal' => array( '../../sites/1/posts' ),
+			'absolute path'    => array( '/sites/1/posts' ),
+			'scheme injection' => array( 'http://evil.test/' ),
+			'disallowed char'  => array( 'reports totals' ),
+			'empty'            => array( '' ),
+		);
 	}
 
 	public function test_undecodable_200_body_returns_502_and_is_not_cached() {

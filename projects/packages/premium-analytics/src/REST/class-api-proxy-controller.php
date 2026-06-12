@@ -96,6 +96,7 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 							'description'       => __( 'The analytics sub-path to proxy.', 'jetpack-premium-analytics' ),
 							'type'              => 'string',
 							'required'          => true,
+							'validate_callback' => array( $this, 'validate_endpoint' ),
 							'sanitize_callback' => 'sanitize_text_field',
 						),
 					),
@@ -112,6 +113,24 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 	 */
 	public function check_permission(): bool {
 		return current_user_can( 'manage_options' );
+	}
+
+	/**
+	 * Confine the endpoint to a relative analytics sub-path so it cannot escape the
+	 * `/sites/<id>/analytics/` prefix via traversal (`..`), an absolute path, or a scheme.
+	 *
+	 * @param mixed $value Raw endpoint param.
+	 *
+	 * @return bool
+	 */
+	public function validate_endpoint( $value ): bool {
+		$value = (string) $value;
+
+		if ( str_starts_with( $value, '/' ) || str_contains( $value, '..' ) || str_contains( $value, ':' ) ) {
+			return false;
+		}
+
+		return (bool) preg_match( '#^[A-Za-z0-9._/-]+$#', $value );
 	}
 
 	/**
