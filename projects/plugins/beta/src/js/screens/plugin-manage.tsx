@@ -22,18 +22,21 @@ import {
 import { __, sprintf } from '@wordpress/i18n';
 import { Button, Card, Link, Notice, Stack, Text } from '@wordpress/ui';
 import { errorMessage, getPlugin } from '../api/abilities';
+import { getBetaData } from '../api/boot';
+import { isPlainClick, useBetaNavigate } from '../api/navigation';
 import BranchRow from '../components/branch-card';
 import BranchSection from '../components/branch-section';
 import MarkdownPanel from '../components/markdown-panel';
 import { ListSkeleton } from '../components/skeleton';
 import UpdatesPanel from '../components/updates-panel';
 import type { BranchCard as BranchCardType, PluginView } from '../api/types';
+import type { MouseEvent } from 'react';
 
 type Props = {
 	slug: string;
 };
 
-const boot = window.JetpackBeta;
+const boot = getBetaData();
 
 /**
  * Section definitions in display order.
@@ -94,14 +97,17 @@ const groupSections = ( sections: BranchCardType[] ): Map< string, BranchCardTyp
  * @param pluginName - The current plugin name, or null while loading.
  * @return The breadcrumb element.
  */
-const renderBreadcrumbs = ( pluginName: string | null ) => (
+const renderBreadcrumbs = ( pluginName: string | null, onBack: ( event: MouseEvent ) => void ) => (
 	<Stack
 		direction="row"
 		align="center"
 		gap="sm"
 		render={ <nav aria-label={ __( 'Breadcrumbs', 'jetpack-beta' ) } /> }
 	>
-		<Text variant="body-lg" render={ <Link tone="neutral" href={ boot.adminUrl } /> }>
+		<Text
+			variant="body-lg"
+			render={ <Link tone="neutral" href={ boot.adminUrl } onClick={ onBack } /> }
+		>
 			{ __( 'Beta Tester', 'jetpack-beta' ) }
 		</Text>
 		{ pluginName && (
@@ -183,6 +189,18 @@ const PluginManage = ( { slug }: Props ) => {
 	// Prefer the name from the bootstrap so the header renders immediately, then
 	// keep using it once the full view has loaded.
 	const pluginName = view?.name ?? boot.pluginName ?? null;
+
+	const navigate = useBetaNavigate();
+	const onBack = useCallback(
+		( event: MouseEvent ) => {
+			// Return to the overview client-side on a plain click.
+			if ( isPlainClick( event ) ) {
+				event.preventDefault();
+				navigate( null );
+			}
+		},
+		[ navigate ]
+	);
 	const sectionMap = useMemo(
 		() => ( view ? groupSections( view.sections ) : new Map< string, BranchCardType[] >() ),
 		[ view ]
@@ -204,7 +222,7 @@ const PluginManage = ( { slug }: Props ) => {
 			title={ undefined }
 			apiRoot={ boot.apiRoot }
 			apiNonce={ boot.apiNonce }
-			breadcrumbs={ renderBreadcrumbs( pluginName ) }
+			breadcrumbs={ renderBreadcrumbs( pluginName, onBack ) }
 			showFooter={ false }
 			unwrapped
 		>

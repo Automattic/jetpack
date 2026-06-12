@@ -1,4 +1,5 @@
 # Files to include in mirror repo: Automattic/vaultpress
+# Remember to end all directories with `/**` to properly tag every file.
 build/**                                    production-include
 jetpack_vendor/**                           production-include
 vendor/autoload.php                         production-include
@@ -11,3 +12,9 @@ vendor/jetpack-autoloader/**                production-include
 
 # Files not needed in the production build.
 # (see also entries in the monorepo root .gitattributes)
+# Remember to end all directories with `/**` to properly tag every file.
+global.d.ts                                 production-exclude
+routes/**                                   production-exclude
+src/**/*.scss                               production-exclude
+src/**/*.tsx                                production-exclude
+src/**/*.ts                                 production-exclude

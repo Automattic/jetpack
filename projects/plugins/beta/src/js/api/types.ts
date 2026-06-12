@@ -56,17 +56,16 @@ export type PluginUpdate = {
 	new_version: string;
 };
 
+/**
+ * State the server bootstraps onto `window.JetpackScriptData.betaTester`.
+ *
+ * The active plugin slug is no longer part of this payload — it comes from the
+ * `?plugin=` route search param (see `app.tsx`).
+ */
 export type BetaBootstrap = {
 	apiRoot: string;
 	apiNonce: string;
-	plugin: string | null;
 	pluginName: string | null;
 	plugins: PluginListItem[] | null;
 	adminUrl: string;
 };
-
-declare global {
-	interface Window {
-		JetpackBeta: BetaBootstrap;
-	}
-}

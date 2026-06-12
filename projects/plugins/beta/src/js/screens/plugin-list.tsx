@@ -10,6 +10,8 @@ import { __, sprintf } from '@wordpress/i18n';
 import { Icon, chevronRight, plugins as pluginsIcon } from '@wordpress/icons';
 import { Badge, Card, Notice, Stack, Text } from '@wordpress/ui';
 import { errorMessage, listPlugins } from '../api/abilities';
+import { getBetaData } from '../api/boot';
+import { isPlainClick, useBetaNavigate } from '../api/navigation';
 import GlobalToggles from '../components/global-toggles';
 import { ListSkeleton } from '../components/skeleton';
 import UpdatesPanel from '../components/updates-panel';
@@ -59,6 +61,7 @@ const pluginStatus = (
  */
 const PluginCard = ( { plugin }: { plugin: PluginListItem } ) => {
 	const { versionText, versionDetail, badgeLabel } = pluginStatus( plugin );
+	const navigate = useBetaNavigate();
 	// Plugins without wordpress.org assets (unpublished betas) fall back to a
 	// generic plugin icon so every row stays visually aligned.
 	const [ iconFailed, setIconFailed ] = useState( false );
@@ -71,6 +74,14 @@ const PluginCard = ( { plugin }: { plugin: PluginListItem } ) => {
 		<a
 			className="jetpack-beta-list-row jetpack-beta-plugin-row"
 			href={ plugin.manage_url }
+			onClick={ event => {
+				// Navigate client-side on a plain click; let modified clicks
+				// (new tab, etc.) follow the href.
+				if ( isPlainClick( event ) ) {
+					event.preventDefault();
+					navigate( plugin.slug );
+				}
+			} }
 			aria-label={ sprintf(
 				/* translators: %s: plugin name. */
 				__( 'Manage %s', 'jetpack-beta' ),
@@ -119,13 +130,19 @@ const PluginCard = ( { plugin }: { plugin: PluginListItem } ) => {
 	);
 };
 
-const boot = window.JetpackBeta;
+const boot = getBetaData();
+
+// Module-level cache of the last-loaded plugin list, seeded from the server
+// bootstrap. It outlives PluginList unmounting while the user is on a plugin's
+// manage screen, so returning to the overview paints the list straight away
+// (stale-while-revalidate) instead of re-showing the loading skeleton.
+let listCache: PluginListItem[] | null = boot.plugins;
 
 /**
  * PluginList screen component.
  *
  * Renders a card per managed plugin alongside the GlobalToggles settings panel.
- * The list is preloaded from the page bootstrap (`window.JetpackBeta.plugins`,
+ * The list is preloaded from the page bootstrap (`betaTester.plugins`,
  * cached data the server localizes on each load) so it paints instantly, then
  * revalidates against the (cache-bypassing) list-plugins ability and reconciles
  * — stale-while-revalidate, with the server bootstrap as the cache.
@@ -133,17 +150,18 @@ const boot = window.JetpackBeta;
  * @return The plugin list screen element.
  */
 const PluginList = () => {
-	const [ plugins, setPlugins ] = useState< PluginListItem[] | null >( boot.plugins );
-	const [ loading, setLoading ] = useState( boot.plugins === null );
+	const [ plugins, setPlugins ] = useState< PluginListItem[] | null >( listCache );
+	const [ loading, setLoading ] = useState( listCache === null );
 	const [ error, setError ] = useState< string | null >( null );
 
 	useEffect( () => {
-		// Revalidate against fresh server data; the bootstrap preload keeps painting
+		// Revalidate against fresh server data; the cached list keeps painting
 		// instantly in the meantime.
 		let cancelled = false;
 		listPlugins()
 			.then( data => {
 				if ( ! cancelled ) {
+					listCache = data.plugins;
 					setPlugins( data.plugins );
 					setLoading( false );
 				}
@@ -151,8 +169,8 @@ const PluginList = () => {
 			.catch( ( err: unknown ) => {
 				if ( ! cancelled ) {
 					// Only surface an error when there's nothing to show; otherwise
-					// keep the bootstrap preload rather than replacing it.
-					if ( boot.plugins === null ) {
+					// keep the cached list rather than replacing it.
+					if ( listCache === null ) {
 						setError( errorMessage( err, __( 'Could not load plugins.', 'jetpack-beta' ) ) );
 					}
 					setLoading( false );

@@ -13,41 +13,61 @@
 	},
 	"license": "GPL-2.0-or-later",
 	"author": "Automattic",
+	"sideEffects": [
+		"*.css",
+		"*.scss"
+	],
 	"scripts": {
-		"build": "pnpm run clean && pnpm run build-client",
-		"build-client": "webpack",
-		"build-production": "NODE_ENV=production BABEL_ENV=production pnpm run build-client",
+		"build": "pnpm run clean && pnpm run build:wp-build && pnpm run build:boot-asset",
+		"build:boot-asset": "provide-boot-asset-file",
+		"build:strip-unminified-prod": "strip-unminified-prod",
+		"build:wp-build": "wp-build",
+		"build-production": "NODE_ENV=production BABEL_ENV=production pnpm run build && pnpm run build:strip-unminified-prod",
 		"clean": "rm -rf build/",
 		"typecheck": "tsgo --noEmit",
-		"watch": "pnpm run build && webpack watch"
+		"watch": "wp-build --watch"
 	},
 	"browserslist": [
 		"extends @wordpress/browserslist-config"
 	],
 	"dependencies": {
+		"@automattic/babel-plugin-replace-textdomain": "workspace:*",
 		"@automattic/jetpack-base-styles": "workspace:*",
 		"@automattic/jetpack-components": "workspace:*",
-		"@wordpress/api-fetch": "7.46.0",
-		"@wordpress/components": "33.1.0",
-		"@wordpress/element": "6.46.0",
-		"@wordpress/i18n": "6.19.0",
+		"@automattic/jetpack-script-data": "workspace:*",
+		"@automattic/jetpack-wp-build-polyfills": "workspace:*",
+		"@wordpress/api-fetch": "7.48.0",
+		"@wordpress/components": "35.0.0",
+		"@wordpress/element": "8.0.0",
+		"@wordpress/i18n": "6.21.0",
 		"@wordpress/icons": "13.1.0",
+		"@wordpress/route": "0.13.1",
 		"@wordpress/ui": "0.13.0",
-		"@wordpress/url": "4.46.0",
+		"@wordpress/url": "4.48.0",
 		"react": "18.3.1",
 		"react-dom": "18.3.1"
 	},
 	"devDependencies": {
-		"@automattic/jetpack-webpack-config": "workspace:*",
 		"@babel/core": "7.29.0",
 		"@babel/preset-env": "7.29.2",
 		"@babel/runtime": "7.29.2",
 		"@types/react": "18.3.28",
 		"@typescript/native-preview": "7.0.0-dev.20260225.1",
-		"@wordpress/browserslist-config": "6.46.0",
+		"@wordpress/base-styles": "9.1.0",
+		"@wordpress/browserslist-config": "6.48.0",
+		"@wordpress/build": "0.14.0",
+		"@wordpress/theme": "0.15.0",
+		"browserslist": "^4.24.0",
 		"sass-embedded": "1.97.3",
-		"sass-loader": "16.0.5",
-		"webpack": "5.105.2",
-		"webpack-cli": "6.0.1"
+		"sass-loader": "16.0.5"
+	},
+	"wpPlugin": {
+		"name": "jetpack_beta",
+		"scriptGlobal": "jetpackBeta",
+		"packageNamespace": "jetpack-beta",
+		"handlePrefix": "jetpack-beta",
+		"pages": [
+			"jetpack-beta-dashboard"
+		]
 	}
 }

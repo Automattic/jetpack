@@ -17,17 +17,30 @@ import type { Settings } from '../api/types';
 
 type InFlight = 'autoupdates' | 'email_notifications' | null;
 
+// Module-level cache so the settings card paints instantly when the overview is
+// revisited (after the user opens a plugin's manage screen), instead of
+// re-showing the loading skeleton on every mount.
+let settingsCache: Settings | null = null;
+
 /**
  * Settings panel that exposes the autoupdates and email notification toggles.
  *
  * @return The settings card element, a loading placeholder, or an error notice.
  */
 const GlobalToggles = () => {
-	const [ settings, setSettings ] = useState< Settings | null >( null );
-	const [ loading, setLoading ] = useState( true );
+	const [ settings, setSettings ] = useState< Settings | null >( settingsCache );
+	const [ loading, setLoading ] = useState( settingsCache === null );
 	const [ fetchError, setFetchError ] = useState< string | null >( null );
 	const [ updateError, setUpdateError ] = useState< string | null >( null );
 	const [ inFlight, setInFlight ] = useState< InFlight >( null );
+
+	// Keep the cache in sync with the latest settings (fetched or toggled) so a
+	// later remount paints from it immediately.
+	useEffect( () => {
+		if ( settings ) {
+			settingsCache = settings;
+		}
+	}, [ settings ] );
 
 	useEffect( () => {
 		let cancelled = false;
