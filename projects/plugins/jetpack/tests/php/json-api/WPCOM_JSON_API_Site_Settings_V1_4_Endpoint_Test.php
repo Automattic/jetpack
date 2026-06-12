@@ -167,6 +167,23 @@ class WPCOM_JSON_API_Site_Settings_V1_4_Endpoint_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * The free tier description is capped to 500 characters to match the
+	 * paid-tier description field.
+	 */
+	public function test_post_free_tier_description_is_length_capped() {
+		$setting  = wp_json_encode(
+			array( 'subscription_options' => array( 'free_tier_description' => str_repeat( 'a', 600 ) ) ),
+			JSON_UNESCAPED_SLASHES
+		);
+		$response = $this->make_post_request( $setting );
+		$updated  = $response['updated'];
+		$this->assertSame(
+			500,
+			mb_strlen( $updated['subscription_options']['free_tier_description'] )
+		);
+	}
+
+	/**
 	 * Returns the response of a successful GET request to `sites/%s/settings`.
 	 */
 	public function make_get_request() {
@@ -447,6 +464,34 @@ class WPCOM_JSON_API_Site_Settings_V1_4_Endpoint_Test extends WP_UnitTestCase {
 				),
 				array(
 					'subscribe_modal_heading' => 'Join my newsletter <a href="#">today</a>!',
+				),
+			),
+			'subscription_options free description'     => array(
+				'subscription_options',
+				array(
+					'free_tier_description' => '<strong>Free</strong> taste <a href="#">link</a>',
+				),
+				array(
+					// The free tier description is stored as plain markdown source, so all HTML is stripped.
+					'free_tier_description' => 'Free taste link',
+				),
+			),
+			'subscription_options hide free tier true'  => array(
+				'subscription_options',
+				array(
+					'hide_free_tier' => true,
+				),
+				array(
+					'hide_free_tier' => true,
+				),
+			),
+			'subscription_options hide free tier false' => array(
+				'subscription_options',
+				array(
+					'hide_free_tier' => false,
+				),
+				array(
+					'hide_free_tier' => false,
 				),
 			),
 			// Add MCP settings POST tests

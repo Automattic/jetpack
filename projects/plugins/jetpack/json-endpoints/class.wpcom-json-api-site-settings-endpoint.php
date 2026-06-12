@@ -966,7 +966,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 						break;
 					}
 
-					$allowed_keys   = array( 'invitation', 'comment_follow', 'welcome', 'subscribe_modal_heading' );
+					$allowed_keys   = array( 'invitation', 'comment_follow', 'welcome', 'subscribe_modal_heading', 'free_tier_description', 'hide_free_tier' );
 					$filtered_value = array_filter(
 						$value,
 						function ( $key ) use ( $allowed_keys ) {
@@ -978,6 +978,12 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					if ( empty( $filtered_value ) ) {
 						break;
 					}
+
+					// `hide_free_tier` is a boolean flag, so pull it out before the HTML
+					// sanitization below (which expects strings) and cast it explicitly.
+					$has_hide_free_tier = array_key_exists( 'hide_free_tier', $filtered_value );
+					$hide_free_tier     = ! empty( $filtered_value['hide_free_tier'] );
+					unset( $filtered_value['hide_free_tier'] );
 
 					array_walk_recursive(
 						$filtered_value,
@@ -998,6 +1004,16 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					// `"   "` as non-empty, which would otherwise render a blank heading.
 					if ( isset( $filtered_value['subscribe_modal_heading'] ) ) {
 						$filtered_value['subscribe_modal_heading'] = trim( $filtered_value['subscribe_modal_heading'] );
+					}
+
+					// The free tier description is stored as plain markdown source, so strip
+					// all HTML and cap its length to match the paid-tier description field.
+					if ( isset( $filtered_value['free_tier_description'] ) ) {
+						$filtered_value['free_tier_description'] = mb_substr( wp_kses( $filtered_value['free_tier_description'], array() ), 0, 500 );
+					}
+
+					if ( $has_hide_free_tier ) {
+						$filtered_value['hide_free_tier'] = $hide_free_tier;
 					}
 
 					$old_subscription_options = get_option( 'subscription_options', array() );

@@ -2600,13 +2600,15 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'jp_group'          => 'subscriptions',
 			),
 			'subscription_options'                      => array(
-				'description'       => esc_html__( 'Options used in subscription email templates and the Subscribe block: \'invitation\', \'welcome\', \'comment_follow\' and \'subscribe_modal_heading\'.', 'jetpack' ),
+				'description'       => esc_html__( 'Options used in subscription email templates and the Subscribe block: \'invitation\', \'welcome\', \'comment_follow\', \'subscribe_modal_heading\', \'free_tier_description\' and \'hide_free_tier\'.', 'jetpack' ),
 				'type'              => 'object',
 				'default'           => array(
 					'invitation'              => '',
 					'welcome'                 => '',
 					'comment_follow'          => '',
 					'subscribe_modal_heading' => '',
+					'free_tier_description'   => '',
+					'hide_free_tier'          => false,
 				),
 				'validate_callback' => __CLASS__ . '::validate_subscription_options',
 				'jp_group'          => 'subscriptions',
@@ -3588,7 +3590,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 			);
 		}
 		foreach ( array_keys( $values ) as $key ) {
-			if ( ! in_array( $key, array( 'welcome', 'invitation', 'comment_follow', 'subscribe_modal_heading' ), true ) ) {
+			if ( ! in_array( $key, array( 'welcome', 'invitation', 'comment_follow', 'subscribe_modal_heading', 'free_tier_description', 'hide_free_tier' ), true ) ) {
 				return new WP_Error(
 					'invalid_param',
 					sprintf(
