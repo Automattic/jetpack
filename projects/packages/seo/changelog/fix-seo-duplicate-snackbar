@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-SEO: remove the package's duplicate snackbar list so toasts no longer appear twice; the wp-build boot layer already renders a single snackbar for the page.
