@@ -31,7 +31,6 @@
 	"minimum-stability": "dev",
 	"prefer-stable": true,
 	"extra": {
-		"autotagger": true,
 		"textdomain": "jetpack-cookie-consent",
 		"changelogger": {
 			"link-template": "https://github.com/Automattic/jetpack-cookie-consent/compare/${old}...${new}"
