@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+AI Launchpad: add REST endpoints for the wizard, tailored AI output, and dismissal.
