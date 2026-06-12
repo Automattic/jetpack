@@ -3,7 +3,9 @@ import MinifyMeta from '$features/minify-meta/minify-meta';
 import { useSingleModuleState } from '$features/module/lib/stores';
 import Module from '$features/module/module';
 import { useShowMinifyLegacy } from '$lib/stores/minify';
+import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { Link } from '@wordpress/ui';
 
 const MinifyCss = () => {
 	const showMinifyLegacy = useShowMinifyLegacy();
@@ -15,9 +17,19 @@ const MinifyCss = () => {
 			title={ __( 'Concatenate CSS', 'jetpack-boost' ) }
 			description={
 				<p>
-					{ __(
-						'Styles are grouped by their original placement, concatenated and minified to reduce site loading time and reduce the number of requests.',
-						'jetpack-boost'
+					{ createInterpolateElement(
+						__(
+							'Styles are grouped by their original placement, concatenated and minified to reduce site loading time and reduce the number of requests. <learnMore>Learn more</learnMore>.',
+							'jetpack-boost'
+						),
+						{
+							learnMore: (
+								<Link
+									openInNewTab
+									href="https://jetpack.com/support/jetpack-boost/troubleshooting-concatenated-css-or-javascript-delivery-methods/"
+								/>
+							),
+						}
 					) }
 				</p>
 			}

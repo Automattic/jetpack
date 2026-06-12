@@ -5,8 +5,9 @@ import { ReactNode, useEffect, useState } from 'react';
 import { useMutationNotice } from '$features/ui';
 import { useShowCacheEngineErrorNotice } from './lib/stores';
 import { usePageCacheError, usePageCacheSetup } from '$lib/stores/page-cache';
+import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { Notice } from '@wordpress/ui';
+import { Link, Notice } from '@wordpress/ui';
 import { useSingleModuleState } from '$features/module/lib/stores';
 import styles from './page-cache.module.scss';
 import { isWpCloudClient, isWoaHosting } from '$lib/utils/hosting';
@@ -99,9 +100,19 @@ const PageCache = () => {
 			description={
 				<>
 					<p>
-						{ __(
-							'Store and serve preloaded content to reduce load times and enhance your site performance and user experience.',
-							'jetpack-boost'
+						{ createInterpolateElement(
+							__(
+								'Store and serve preloaded content to reduce load times and enhance your site performance and user experience. <learnMore>Learn more</learnMore>.',
+								'jetpack-boost'
+							),
+							{
+								learnMore: (
+									<Link
+										openInNewTab
+										href="https://jetpack.com/support/jetpack-boost/troubleshooting-caching-issues/"
+									/>
+								),
+							}
 						) }
 					</p>
 					{ showCacheFromHostingNotice &&

@@ -51,12 +51,18 @@ const Index = () => {
 						<p>
 							{ createInterpolateElement(
 								__(
-									`Move important styling information to the start of the page, which helps pages display your content sooner, so your users don’t have to wait for the entire page to load. Commonly referred to as <link>Critical CSS</link>.`,
+									`Move important styling information to the start of the page, which helps pages display your content sooner, so your users don't have to wait for the entire page to load. Commonly referred to as <link>Critical CSS</link>. <learnMore>Learn more</learnMore>.`,
 									'jetpack-boost'
 								),
 								{
 									link: (
 										<Link openInNewTab href={ criticalCssLink } onClick={ handleCriticalCssLink } />
+									),
+									learnMore: (
+										<Link
+											openInNewTab
+											href="https://jetpack.com/support/jetpack-boost/troubleshooting-critical-css-issues/"
+										/>
 									),
 								}
 							) }
@@ -103,12 +109,18 @@ const Index = () => {
 						<p>
 							{ createInterpolateElement(
 								__(
-									`Move important styling information to the start of the page, which helps pages display your content sooner, so your users don’t have to wait for the entire page to load. Commonly referred to as <link>Critical CSS</link>.`,
+									`Move important styling information to the start of the page, which helps pages display your content sooner, so your users don't have to wait for the entire page to load. Commonly referred to as <link>Critical CSS</link>. <learnMore>Learn more</learnMore>.`,
 									'jetpack-boost'
 								),
 								{
 									link: (
 										<Link openInNewTab href={ criticalCssLink } onClick={ handleCriticalCssLink } />
+									),
+									learnMore: (
+										<Link
+											openInNewTab
+											href="https://jetpack.com/support/jetpack-boost/troubleshooting-critical-css-issues/"
+										/>
 									),
 								}
 							) }
@@ -138,7 +150,7 @@ const Index = () => {
 					<p>
 						{ createInterpolateElement(
 							__(
-								`Run non-essential JavaScript after the page has loaded so that styles and images can load more quickly. Read more on <link>web.dev</link>.`,
+								`Run non-essential JavaScript after the page has loaded so that styles and images can load more quickly. Read more on <link>web.dev</link>. <learnMore>Learn more</learnMore>.`,
 								'jetpack-boost'
 							),
 							{
@@ -147,6 +159,12 @@ const Index = () => {
 										openInNewTab
 										onClick={ () => recordBoostEvent( 'defer_js_link_clicked', {} ) }
 										href={ deferJsLink }
+									/>
+								),
+								learnMore: (
+									<Link
+										openInNewTab
+										href="https://jetpack.com/support/jetpack-boost/exclude-javascript-files-from-jetpack-boost-deferral/"
 									/>
 								),
 							}
@@ -167,9 +185,14 @@ const Index = () => {
 				worksOffline={ false }
 				description={
 					<p>
-						{ __(
-							`Deliver images from Jetpack's Content Delivery Network. Automatically resizes your images to an appropriate size, converts them to modern efficient formats like WebP, and serves them from a worldwide network of servers.`,
-							'jetpack-boost'
+						{ createInterpolateElement(
+							__(
+								`Deliver images from Jetpack's Content Delivery Network. Automatically resizes your images to an appropriate size, converts them to modern efficient formats like WebP, and serves them from a worldwide network of servers. <learnMore>Learn more</learnMore>.`,
+								'jetpack-boost'
+							),
+							{
+								learnMore: <Link openInNewTab href="https://jetpack.com/support/jetpack-boost/" />,
+							}
 						) }
 					</p>
 				}

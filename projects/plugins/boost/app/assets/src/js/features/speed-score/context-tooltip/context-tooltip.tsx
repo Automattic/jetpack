@@ -1,5 +1,7 @@
 import { IconTooltip } from '@automattic/jetpack-components';
+import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { Link } from '@wordpress/ui';
 import styles from './context-tooltip.module.scss';
 
 const ContextTooltip = () => {
@@ -49,6 +51,19 @@ const ContextTooltip = () => {
 					</tr>
 				</tbody>
 			</table>
+			<p>
+				{ createInterpolateElement(
+					__( '<link>Learn more about how your speed score is measured</link>.', 'jetpack-boost' ),
+					{
+						link: (
+							<Link
+								openInNewTab
+								href="https://jetpack.com/support/jetpack-boost/how-speed-is-measured/"
+							/>
+						),
+					}
+				) }
+			</p>
 		</IconTooltip>
 	);
 };
