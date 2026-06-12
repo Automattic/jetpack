@@ -1,20 +1,37 @@
-import type { TailorSource } from './types.ts';
+import type { TailorSource, TrackEventProps } from './types.ts';
 
-/*
- * Typed no-ops; Stream G replaces the bodies with real recordTracksEvent
- * calls that add launchpad_variant: 'ai' to every event. Streams D and E
- * call these through the signatures below — the signatures are the contract.
- */
-/* eslint-disable @typescript-eslint/no-unused-vars */
-
-/** Stream G records the page-view event. */
-export function trackViewed(): void {}
-
-/** Stream G records the wizard-completed event. */
-export function trackWizardCompleted(): void {}
+declare global {
+	interface Window {
+		_tkq: Array< [ 'recordEvent', string, TrackEventProps ] >;
+	}
+}
 
 /**
- * Stream G records the AI-response-received event.
+ * Records a Tracks event with `launchpad_variant: 'ai'` baked in, so call sites
+ * can't forget it. Mirrors the `_tkq` recording pattern already used elsewhere
+ * in jetpack-mu-wpcom (jetpack-global-styles/customizer-fonts), which is what
+ * `@automattic/jetpack-analytics`'s `tracks.recordEvent` pushes under the hood.
+ *
+ * @param eventName - The Tracks event name, already feature-prefixed.
+ * @param props     - Event properties. No PII: task IDs are fine, free text is not.
+ */
+function record( eventName: string, props: TrackEventProps = {} ): void {
+	window._tkq = window._tkq || [];
+	window._tkq.push( [ 'recordEvent', eventName, { ...props, launchpad_variant: 'ai' } ] );
+}
+
+/** Records the page-view event. */
+export function trackViewed(): void {
+	record( 'jetpack_ai_launchpad_viewed' );
+}
+
+/** Records the wizard-completed event. */
+export function trackWizardCompleted(): void {
+	record( 'jetpack_ai_launchpad_wizard_completed' );
+}
+
+/**
+ * Records the AI-response-received event.
  *
  * @param props             - The event properties.
  * @param props.duration_ms - How long the AI response took, in milliseconds.
@@ -23,15 +40,21 @@ export function trackWizardCompleted(): void {}
 export function trackAiResponseReceived( props: {
 	duration_ms: number;
 	source: TailorSource;
-} ): void {}
+} ): void {
+	record( 'jetpack_ai_launchpad_ai_response_received', props );
+}
 
 /**
- * Stream G records the task-clicked event.
+ * Records the task-clicked event.
  *
  * @param props         - The event properties.
  * @param props.task_id - The id of the clicked task.
  */
-export function trackTaskClicked( props: { task_id: string } ): void {}
+export function trackTaskClicked( props: { task_id: string } ): void {
+	record( 'jetpack_ai_launchpad_task_clicked', props );
+}
 
-/** Stream G records the launched event. */
-export function trackLaunched(): void {}
+/** Records the launched event. */
+export function trackLaunched(): void {
+	record( 'jetpack_ai_launchpad_launched' );
+}
