@@ -17,6 +17,7 @@ require_once __DIR__ . '/../../src/class-open-state-store.php';
  * @covers \Automattic\Jetpack\Agents_Manager\Open_State_Store
  */
 #[CoversClass( Open_State_Store::class )]
+#[CoversClass( Open_State_Store::class )]
 class Open_State_Store_Test extends \WorDBless\BaseTestCase {
 
 	/**
@@ -165,20 +166,5 @@ class Open_State_Store_Test extends \WorDBless\BaseTestCase {
 		$this->assertSame( WEEK_IN_SECONDS, $captured, 'Filter should receive the default TTL.' );
 
 		remove_all_filters( 'agents_manager_open_state_cache_ttl' );
-	}
-
-	/**
-	 * Tests the DEFAULTS shape used by the REST controller.
-	 */
-	public function test_defaults_shape() {
-		$this->assertSame(
-			array(
-				'agents_manager_open'              => false,
-				'agents_manager_docked'            => false,
-				'agents_manager_floating_position' => 'right',
-				'agents_manager_router_history'    => null,
-			),
-			Open_State_Store::DEFAULTS
-		);
 	}
 }

@@ -204,7 +204,7 @@ class Sidebar_Open_Preservation {
 		$preferences = get_user_meta( $user_id, $wpdb->get_blog_prefix() . 'persisted_preferences', true );
 
 		return is_array( $preferences ) && isset( $preferences[ $scope ]['fullscreenMode'] )
-			&& false === (bool) $preferences[ $scope ]['fullscreenMode'];
+			&& ! ( (bool) $preferences[ $scope ]['fullscreenMode'] );
 	}
 
 	/**
