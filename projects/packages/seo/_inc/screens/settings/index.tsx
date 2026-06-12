@@ -67,7 +67,6 @@ const SettingsScreen: FC< Props > = ( { form } ) => {
 		);
 	}
 
-	const postsTokens = local.title_formats.posts ?? [];
 	const visibilityEnabledCount =
 		( local.search_engines_visible ? 1 : 0 ) + ( local.sitemap_active ? 1 : 0 );
 
@@ -118,8 +117,10 @@ const SettingsScreen: FC< Props > = ( { form } ) => {
 			</div>
 
 			<TitleStructureField
-				tokens={ postsTokens }
-				onChange={ next => commit( { title_formats: { ...local.title_formats, posts: next } } ) }
+				formats={ local.title_formats }
+				onChange={ ( pageType, next ) =>
+					commit( { title_formats: { ...local.title_formats, [ pageType ]: next } } )
+				}
 				disabled={ isSaving }
 			/>
 
