@@ -84,6 +84,13 @@ class Schema_Builder {
 			return null;
 		}
 
+		// Only emit structured data for published content. Previews, drafts, and
+		// private posts are viewable by logged-in users (and may be edge-cached),
+		// so we must not output JSON-LD for anything that isn't publicly published.
+		if ( 'publish' !== $post->post_status ) {
+			return null;
+		}
+
 		// @phan-suppress-next-line PhanUndeclaredClassMethod -- Jetpack_SEO_Posts lives in plugins/jetpack; emit() guards on class_exists.
 		$override = Jetpack_SEO_Posts::get_post_schema_type( $post );
 		$type     = '' !== $override ? $override : self::default_schema_for_post( $post );
@@ -99,14 +106,16 @@ class Schema_Builder {
 	}
 
 	/**
-	 * Default Schema type for a post when the user hasn't set an override:
-	 * Article for posts, none for pages.
+	 * Default Schema type for a post when the user has not set an override:
+	 * Article for standard posts, none for pages, attachments, or custom types.
 	 *
 	 * @param WP_Post $post The post.
 	 * @return string
 	 */
 	private static function default_schema_for_post( WP_Post $post ) {
-		return 'page' === $post->post_type ? '' : 'article';
+		// Only standard posts get Article schema by default; everything else
+		// (pages, attachments, custom post types) requires an explicit override.
+		return 'post' === $post->post_type ? 'article' : '';
 	}
 
 	/**
@@ -166,7 +175,14 @@ class Schema_Builder {
 				continue;
 			}
 			$question = trim( (string) ( $block['attrs']['summary'] ?? '' ) );
-			$answer   = trim( wp_strip_all_tags( render_block( $block ) ) );
+
+			// Render only the inner blocks for the answer. Rendering the whole
+			// core/details block would re-include the <summary> (the question).
+			$answer_html = '';
+			foreach ( $block['innerBlocks'] ?? array() as $inner_block ) {
+				$answer_html .= render_block( $inner_block );
+			}
+			$answer = trim( wp_strip_all_tags( $answer_html ) );
 			if ( '' === $question || '' === $answer ) {
 				continue;
 			}

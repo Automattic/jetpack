@@ -88,15 +88,21 @@ class Jetpack_SEO_Admin_Columns {
 				break;
 
 			case 'jetpack_seo_description':
-				echo $coverage['has_description']
-					? esc_html__( 'Set', 'jetpack' )
-					: '<span class="jetpack-seo-col-muted">' . esc_html__( 'Not set', 'jetpack' ) . '</span>';
+				// wp_kses_post() sanitizes the markup and signals the escaping to PHPCS;
+				// the muted branch wraps its (already-escaped) label in a <span>.
+				echo wp_kses_post(
+					$coverage['has_description']
+						? esc_html__( 'Set', 'jetpack' )
+						: '<span class="jetpack-seo-col-muted">' . esc_html__( 'Not set', 'jetpack' ) . '</span>'
+				);
 				break;
 
 			case 'jetpack_seo_search':
-				echo $coverage['noindex']
-					? esc_html__( 'Hidden', 'jetpack' )
-					: '<span class="jetpack-seo-col-muted">' . esc_html__( 'Visible', 'jetpack' ) . '</span>';
+				echo wp_kses_post(
+					$coverage['noindex']
+						? esc_html__( 'Hidden', 'jetpack' )
+						: '<span class="jetpack-seo-col-muted">' . esc_html__( 'Visible', 'jetpack' ) . '</span>'
+				);
 				break;
 		}
 	}
