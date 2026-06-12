@@ -175,59 +175,74 @@ class Api_Proxy_Controller_Test extends BaseTestCase {
 		$this->assertFalse( get_transient( $this->cache_key( $request ) ) );
 	}
 
-	/**
-	 * The Stats routes that should be registered under the package namespace.
-	 *
-	 * @return array<string, array{0: string, 1: string[]}>
-	 */
-	public static function data_stats_routes(): array {
-		$ns = '/jetpack-premium-analytics/v1/';
-
-		return array(
-			'site stats'         => array( $ns . 'stats', array( 'GET' ) ),
-			'stats resource'     => array( $ns . 'stats/(?P<subpath>.+)', array( 'GET', 'POST' ) ),
-			'subscribers counts' => array( $ns . 'subscribers/counts', array( 'GET' ) ),
-			'never published'    => array( $ns . 'site-has-never-published-post', array( 'GET' ) ),
-			'plan usage'         => array( $ns . 'jetpack-stats/usage', array( 'GET' ) ),
-			'dashboard modules'  => array( $ns . 'jetpack-stats-dashboard/modules', array( 'GET', 'POST' ) ),
-			'module settings'    => array( $ns . 'jetpack-stats-dashboard/module-settings', array( 'GET', 'POST' ) ),
-			'commercial class.'  => array( $ns . 'commercial-classification', array( 'POST' ) ),
-			'wordads'            => array( $ns . 'wordads/(?P<subpath>earnings|stats)', array( 'GET' ) ),
-			'purchases'          => array( $ns . 'purchases', array( 'GET' ) ),
+	public function test_response_with_null_cache_key_is_not_cached() {
+		$response = $this->cache_and_build_response(
+			array(
+				'response' => array( 'code' => 200 ),
+				'body'     => wp_json_encode( array( 'ok' => true ), JSON_UNESCAPED_SLASHES ),
+				'headers'  => array(),
+			),
+			null
 		);
+
+		$this->assertInstanceOf( WP_REST_Response::class, $response );
+		$this->assertSame( 200, $response->get_status() );
 	}
 
-	/**
-	 * @dataProvider data_stats_routes
-	 *
-	 * @param string   $route            The expected route pattern.
-	 * @param string[] $expected_methods The HTTP methods the route must accept.
-	 */
-	#[DataProvider( 'data_stats_routes' )]
-	public function test_registers_stats_route( string $route, array $expected_methods ) {
-		$routes = rest_get_server()->get_routes();
-		$this->assertArrayHasKey( $route, $routes );
+	public function test_registers_data_route_with_read_and_write_methods() {
+		$route = $this->data_route_key();
+		$this->assertNotSame( '', $route, 'The agnostic data route should be registered.' );
 
-		$methods = $routes[ $route ][0]['methods'];
-		foreach ( $expected_methods as $method ) {
-			$this->assertArrayHasKey( $method, $methods );
-		}
+		$methods = rest_get_server()->get_routes()[ $route ][0]['methods'];
+		$this->assertArrayHasKey( 'GET', $methods );
+		$this->assertArrayHasKey( 'POST', $methods );
 	}
 
-	public function test_stats_routes_use_the_stats_permission_callback() {
-		$route = rest_get_server()->get_routes()['/jetpack-premium-analytics/v1/stats'][0];
-		$this->assertSame( array( $this->controller, 'check_stats_permission' ), $route['permission_callback'] );
+	public function test_data_route_uses_data_callbacks() {
+		$handler = rest_get_server()->get_routes()[ $this->data_route_key() ][0];
+
+		$this->assertSame( array( $this->controller, 'handle_data_request' ), $handler['callback'] );
+		$this->assertSame( array( $this->controller, 'check_data_permission' ), $handler['permission_callback'] );
 	}
 
-	public function test_wordads_route_uses_the_wordads_permission_callback() {
-		$route = rest_get_server()->get_routes()['/jetpack-premium-analytics/v1/wordads/(?P<subpath>earnings|stats)'][0];
-		$this->assertSame( array( $this->controller, 'check_wordads_permission' ), $route['permission_callback'] );
+	public function test_data_route_validates_endpoint_and_version() {
+		$args = rest_get_server()->get_routes()[ $this->data_route_key() ][0]['args'];
+
+		$this->assertSame( array( $this->controller, 'validate_data_endpoint' ), $args['endpoint']['validate_callback'] );
+		$this->assertSame( array( $this->controller, 'validate_version' ), $args['version']['validate_callback'] );
+		$this->assertSame( '2', $args['version']['default'] );
+	}
+
+	public function test_data_route_only_matches_allowed_prefixes() {
+		// The route regex enumerates the allowed prefixes — a non-allowed prefix is absent.
+		$route = $this->data_route_key();
+		$this->assertStringContainsString( 'stats', $route );
+		$this->assertStringContainsString( 'commercial', $route );
+		$this->assertStringNotContainsString( 'posts', $route );
+		$this->assertStringNotContainsString( 'media', $route );
+	}
+
+	public function test_data_permission_dispatches_by_endpoint() {
+		$user_id = wp_insert_user(
+			array(
+				'user_login' => 'jpa_viewer',
+				'user_pass'  => 'password',
+				'role'       => 'subscriber',
+			)
+		);
+		$user    = new \WP_User( $user_id );
+		$user->add_cap( 'view_stats' );
+		wp_set_current_user( $user_id );
+
+		// view_stats reaches the stats data but not WordAds.
+		$this->assertTrue( $this->controller->check_data_permission( $this->build_data_request( 'GET', 'stats/top-posts' ) ) );
+		$this->assertFalse( $this->controller->check_data_permission( $this->build_data_request( 'GET', 'wordads/earnings' ) ) );
 	}
 
 	public function test_stats_permission_granted_for_view_stats_capability() {
 		$user_id = wp_insert_user(
 			array(
-				'user_login' => 'jpa_viewer',
+				'user_login' => 'jpa_viewer2',
 				'user_pass'  => 'password',
 				'role'       => 'subscriber',
 			)
@@ -247,104 +262,120 @@ class Api_Proxy_Controller_Test extends BaseTestCase {
 	}
 
 	/**
-	 * @dataProvider data_stats_paths
+	 * @dataProvider data_data_paths
 	 *
-	 * @param array<string, mixed> $route    The route description to resolve.
-	 * @param string               $subpath  The matched `subpath` capture, if any.
-	 * @param string               $expected The expected WPCOM path.
+	 * @param string $endpoint The validated endpoint.
+	 * @param string $expected The expected WPCOM path (with %d for the site id).
 	 */
-	#[DataProvider( 'data_stats_paths' )]
-	public function test_build_stats_path( array $route, string $subpath, string $expected ) {
-		$request = new WP_REST_Request( 'GET', '/' );
-		if ( '' !== $subpath ) {
-			$request->set_param( 'subpath', $subpath );
-		}
-
-		$accessor = function ( WP_REST_Request $req, array $r ) {
+	#[DataProvider( 'data_data_paths' )]
+	public function test_build_data_path( string $endpoint, string $expected ) {
+		$accessor = function ( string $e ) {
 			// @phan-suppress-next-line PhanUndeclaredMethod -- rebound to the controller via Closure::call() below.
-			return $this->build_stats_path( $req, $r );
+			return $this->build_data_path( $e );
 		};
 
-		$site_id  = (int) \Jetpack_Options::get_option( 'id' );
-		$resolved = $accessor->call( $this->controller, $request, $route );
-
-		$this->assertSame( sprintf( $expected, $site_id ), $resolved );
-	}
-
-	/**
-	 * @return array<string, array{0: array<string, mixed>, 1: string, 2: string}>
-	 */
-	public static function data_stats_paths(): array {
-		return array(
-			'wildcard subpath' => array( array( 'wpcom' => 'stats/%s' ), 'top-posts', '/sites/%d/stats/top-posts' ),
-			'wordads subpath'  => array( array( 'wpcom' => 'wordads/%s' ), 'earnings', '/sites/%d/wordads/earnings' ),
-			'static path'      => array( array( 'wpcom' => 'subscribers/counts' ), '', '/sites/%d/subscribers/counts' ),
-			'build override'   => array(
-				array(
-					'build' => static function ( int $id ): string {
-						return sprintf( '/upgrades?site=%d', $id );
-					},
-				),
-				'',
-				'/upgrades?site=%d',
-			),
-		);
-	}
-
-	public function test_response_with_null_cache_key_is_not_cached() {
-		$response = $this->cache_and_build_response(
-			array(
-				'response' => array( 'code' => 200 ),
-				'body'     => wp_json_encode( array( 'ok' => true ), JSON_UNESCAPED_SLASHES ),
-				'headers'  => array(),
-			),
-			null
-		);
-
-		$this->assertInstanceOf( WP_REST_Response::class, $response );
-		$this->assertSame( 200, $response->get_status() );
-	}
-
-	public function test_stats_wildcard_route_validates_subpath() {
-		$route = rest_get_server()->get_routes()['/jetpack-premium-analytics/v1/stats/(?P<subpath>.+)'][0];
-		$this->assertSame(
-			array( $this->controller, 'validate_subpath' ),
-			$route['args']['subpath']['validate_callback']
-		);
-	}
-
-	public function test_validate_subpath_accepts_real_stats_subpaths() {
-		$this->assertTrue( $this->controller->validate_subpath( 'top-posts' ) );
-		$this->assertTrue( $this->controller->validate_subpath( 'post/123' ) );
-		$this->assertTrue( $this->controller->validate_subpath( 'opens/emails/123/rate' ) );
-		// UTM params arrive comma-separated — must be allowed.
-		$this->assertTrue( $this->controller->validate_subpath( 'utm/utm_campaign,utm_source,utm_medium' ) );
-	}
-
-	/**
-	 * @dataProvider data_invalid_subpaths
-	 *
-	 * @param string $subpath A subpath that must be rejected.
-	 */
-	#[DataProvider( 'data_invalid_subpaths' )]
-	public function test_validate_subpath_rejects_traversal_and_absolute( string $subpath ) {
-		$this->assertFalse( $this->controller->validate_subpath( $subpath ) );
+		$site_id = (int) \Jetpack_Options::get_option( 'id' );
+		$this->assertSame( sprintf( $expected, $site_id ), $accessor->call( $this->controller, $endpoint ) );
 	}
 
 	/**
 	 * @return array<string, string[]>
 	 */
-	public static function data_invalid_subpaths(): array {
+	public static function data_data_paths(): array {
 		return array(
-			'parent traversal' => array( '../../purchases' ),
-			'absolute path'    => array( '/sites/1/purchases' ),
-			'scheme injection' => array( 'http://evil.test/' ),
-			'empty'            => array( '' ),
+			'stats resource' => array( 'stats/top-posts', '/sites/%d/stats/top-posts' ),
+			'wordads'        => array( 'wordads/earnings', '/sites/%d/wordads/earnings' ),
+			'utm commas'     => array( 'stats/utm/utm_campaign,utm_source', '/sites/%d/stats/utm/utm_campaign,utm_source' ),
+			'purchases'      => array( 'upgrades', '/upgrades?site=%d' ),
 		);
 	}
 
 	/**
-	 * Build a proxy request with the endpoint capture and forwarded query params set.
+	 * @dataProvider data_write_endpoints
+	 *
+	 * @param string $endpoint The endpoint to check.
+	 * @param bool   $allowed  Whether a non-GET method is permitted.
+	 */
+	#[DataProvider( 'data_write_endpoints' )]
+	public function test_is_write_allowed( string $endpoint, bool $allowed ) {
+		$accessor = function ( string $e ) {
+			// @phan-suppress-next-line PhanUndeclaredMethod -- rebound to the controller via Closure::call() below.
+			return $this->is_write_allowed( $e );
+		};
+
+		$this->assertSame( $allowed, $accessor->call( $this->controller, $endpoint ) );
+	}
+
+	/**
+	 * @return array<string, array{0: string, 1: bool}>
+	 */
+	public static function data_write_endpoints(): array {
+		return array(
+			'dashboard modules' => array( 'jetpack-stats-dashboard/modules', true ),
+			'module settings'   => array( 'jetpack-stats-dashboard/module-settings', true ),
+			'commercial class.' => array( 'commercial-classification', true ),
+			'spam new'          => array( 'stats/referrers/spam/new', true ),
+			'spam delete'       => array( 'stats/referrers/spam/delete', true ),
+			'stats read'        => array( 'stats/top-posts', false ),
+			'subscribers read'  => array( 'subscribers/counts', false ),
+			'usage read'        => array( 'jetpack-stats/usage', false ),
+			'wordads read'      => array( 'wordads/earnings', false ),
+		);
+	}
+
+	public function test_write_to_read_only_endpoint_returns_405() {
+		$response = $this->controller->handle_data_request( $this->build_data_request( 'POST', 'stats/top-posts' ) );
+
+		$this->assertInstanceOf( \WP_Error::class, $response );
+		$this->assertSame( 'rest_read_only', $response->get_error_code() );
+		$this->assertSame( 405, $response->get_error_data()['status'] );
+	}
+
+	public function test_validate_data_endpoint_accepts_commas_and_rejects_traversal() {
+		$this->assertTrue( $this->controller->validate_data_endpoint( 'stats/utm/utm_campaign,utm_source,utm_medium' ) );
+		$this->assertTrue( $this->controller->validate_data_endpoint( 'stats/opens/emails/123/rate' ) );
+		$this->assertFalse( $this->controller->validate_data_endpoint( 'stats/../../purchases' ) );
+		$this->assertFalse( $this->controller->validate_data_endpoint( 'stats/a:b' ) );
+	}
+
+	/**
+	 * @dataProvider data_versions
+	 *
+	 * @param string $version A version string.
+	 * @param bool   $valid   Whether it should validate.
+	 */
+	#[DataProvider( 'data_versions' )]
+	public function test_validate_version( string $version, bool $valid ) {
+		$this->assertSame( $valid, $this->controller->validate_version( $version ) );
+	}
+
+	/**
+	 * @return array<string, array{0: string, 1: bool}>
+	 */
+	public static function data_versions(): array {
+		return array(
+			'v2'        => array( '2', true ),
+			'v1.1'      => array( '1.1', true ),
+			'v1.2'      => array( '1.2', true ),
+			'word'      => array( 'latest', false ),
+			'injection' => array( '2;DROP', false ),
+			'empty'     => array( '', false ),
+		);
+	}
+
+	public function test_data_cache_key_varies_by_version() {
+		$accessor = function ( string $path, string $version ) {
+			// @phan-suppress-next-line PhanUndeclaredMethod -- rebound to the controller via Closure::call() below.
+			return $this->cache_key_for( $path, $version, '2' === $version ? 'wpcom' : 'rest', array() );
+		};
+
+		$v2  = $accessor->call( $this->controller, '/sites/0/stats/top-posts', '2' );
+		$v11 = $accessor->call( $this->controller, '/sites/0/stats/top-posts', '1.1' );
+		$this->assertNotSame( $v2, $v11 );
+	}
+
+	/**
+	 * Build an analytics proxy request with the endpoint capture and forwarded query params set.
 	 *
 	 * @param string $endpoint The analytics endpoint to proxy.
 	 * @param array  $params   Forwarded query params.
@@ -353,14 +384,52 @@ class Api_Proxy_Controller_Test extends BaseTestCase {
 	 */
 	private function build_request( string $endpoint, array $params = array() ): WP_REST_Request {
 		$request = new WP_REST_Request( 'GET', '/jetpack-premium-analytics/v1/proxy/' . $endpoint );
-		$request->set_param( 'endpoint', $endpoint );
+		// The capture is a route (URL) param in production, not a query param.
+		$request->set_url_params( array( 'endpoint' => $endpoint ) );
 		$request->set_query_params( $params );
 
 		return $request;
 	}
 
 	/**
-	 * Compute the controller's transient cache key for an analytics request.
+	 * Build a data proxy request with the endpoint capture set.
+	 *
+	 * @param string      $method   HTTP method.
+	 * @param string      $endpoint The data endpoint to proxy.
+	 * @param array       $params   Forwarded query params.
+	 * @param string|null $version  WPCOM API version param, if any.
+	 *
+	 * @return WP_REST_Request
+	 */
+	private function build_data_request( string $method, string $endpoint, array $params = array(), ?string $version = null ): WP_REST_Request {
+		$request = new WP_REST_Request( $method, '/jetpack-premium-analytics/v1/' . $endpoint );
+		// The capture is a route (URL) param; `version` arrives as a query param.
+		$request->set_url_params( array( 'endpoint' => $endpoint ) );
+		if ( null !== $version ) {
+			$params['version'] = $version;
+		}
+		$request->set_query_params( $params );
+
+		return $request;
+	}
+
+	/**
+	 * The registered route key of the agnostic data proxy.
+	 *
+	 * @return string
+	 */
+	private function data_route_key(): string {
+		foreach ( array_keys( rest_get_server()->get_routes() ) as $key ) {
+			if ( str_contains( $key, '(?P<endpoint>' ) && str_contains( $key, 'commercial' ) ) {
+				return $key;
+			}
+		}
+
+		return '';
+	}
+
+	/**
+	 * Compute the controller's transient cache key for an analytics request (v2 / wpcom).
 	 *
 	 * @param WP_REST_Request $request Request object.
 	 *
@@ -375,7 +444,7 @@ class Api_Proxy_Controller_Test extends BaseTestCase {
 
 		$accessor = function ( WP_REST_Request $req, string $wpcom_path ) {
 			// @phan-suppress-next-line PhanUndeclaredMethod -- rebound to the controller via Closure::call() below.
-			return $this->get_cache_key( $req, $wpcom_path );
+			return $this->cache_key_for( $wpcom_path, '2', 'wpcom', $this->get_forwarded_params( $req ) );
 		};
 
 		return $accessor->call( $this->controller, $request, $path );
