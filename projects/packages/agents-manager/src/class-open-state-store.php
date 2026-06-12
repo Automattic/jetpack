@@ -135,7 +135,7 @@ class Open_State_Store {
 			'agents_manager_floating_position' => $response['agents_manager_floating_position'] ?? self::DEFAULTS['agents_manager_floating_position'],
 			'agents_manager_router_history'    => $response['agents_manager_router_history'] ?? self::DEFAULTS['agents_manager_router_history'],
 			'agents_manager_last_activity'     => $response['agents_manager_last_activity'] ?? self::DEFAULTS['agents_manager_last_activity'],
-	);
+		);
 	}
 
 	/**

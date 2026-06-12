@@ -250,7 +250,12 @@ class Sidebar_Open_Preservation_Test extends \WorDBless\BaseTestCase {
 		$this->enable_preservation();
 		$this->cache_open_state( true );
 
-		add_filter( 'agents_manager_variant', fn () => 'wp-admin-disconnected' );
+		add_filter(
+			'agents_manager_variant',
+			static function () {
+				return 'wp-admin-disconnected';
+			}
+		);
 
 		$result = $this->preservation->add_preopen_body_classes( 'foo bar' );
 
