@@ -156,7 +156,7 @@ class Sidebar_Open_Preservation_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Tests that the dock-sync script is printed (with canDock logic) when the
+	 * Tests that the dock-height sync script is printed when the
 	 * docked-open shell is pre-rendered.
 	 */
 	public function test_print_sync_script_outputs_when_pre_rendering() {
@@ -168,9 +168,11 @@ class Sidebar_Open_Preservation_Test extends \WorDBless\BaseTestCase {
 		$output = ob_get_clean();
 
 		$this->assertStringContainsString( '<script', $output );
-		$this->assertStringContainsString( 'matchMedia', $output );
-		$this->assertStringContainsString( 'is-fullscreen-mode', $output );
-		$this->assertStringContainsString( 'agents-manager-sidebar-container', $output );
+		// Height is the only gate measured here; it reads the admin menu and
+		// publishes the verdict as the dock-too-short body class, on load + resize.
+		$this->assertStringContainsString( 'adminmenu', $output );
+		$this->assertStringContainsString( 'agents-manager-dock-too-short', $output );
+		$this->assertStringContainsString( 'resize', $output );
 	}
 
 	/**

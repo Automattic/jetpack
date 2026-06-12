@@ -107,15 +107,17 @@ class Sidebar_Open_Preservation {
 	}
 
 	/**
-	 * Print the synchronous dock-reconciliation script.
+	 * Print the synchronous dock-height reconciliation script.
 	 *
-	 * Only emitted when the docked shell was pre-rendered. Runs before the page
-	 * content paints and mirrors the front-end `canDock` gate in
-	 * `use-agent-layout-manager` (Calypso): desktop width, enough height for the
-	 * admin menu, and — on Gutenberg editor screens — fullscreen mode. When the
-	 * gate is closed the chat will float, so the pre-rendered docked classes are
-	 * stripped here to avoid a stale shell. Keep this logic in sync with the
-	 * hook; it is the source of truth for the breakpoints and gated screens.
+	 * Only emitted when the docked shell was pre-rendered. The one dock gate that
+	 * needs a live measurement is height: the docked layout pins the admin menu to
+	 * the viewport, and a menu taller than the room below the admin bar would be
+	 * clipped, so the chat floats instead. That threshold is dynamic, so it can't
+	 * be a CSS media query. This script measures it before the content paints (and
+	 * on resize) and publishes the verdict as the body class
+	 * `agents-manager-dock-too-short`, which both the reshape CSS and the React
+	 * hook read. Width and fullscreen gating are declarative (CSS) / owned by the
+	 * hook, so they are intentionally not duplicated here.
 	 *
 	 * @return void
 	 */
@@ -127,42 +129,29 @@ class Sidebar_Open_Preservation {
 		$script = <<<'JS'
 ( function () {
 	var body = document.body;
-	if ( ! body || ! body.classList.contains( 'agents-manager-sidebar-container' ) ) {
+	if ( ! body ) {
 		return;
 	}
 
-	// Desktop-width gate. Matches the hook's `isDesktop` media query.
-	var isDesktop = window.matchMedia( '(min-width: 1200px)' ).matches;
-
-	// Enough-height gate. Mirrors the hook's admin-menu-fit check: is there room
-	// for the full menu below the admin bar? Offset by the admin bar's *height*
-	// (class-independent) rather than the menu's `getBoundingClientRect().top` —
-	// the docked classes are still applied here, so the menu is `position: fixed`
-	// and its top is distorted, which would wrongly fail the gate. Keep this
-	// formula identical to the hook so both agree when the classes are present.
-	var hasEnoughHeight = true;
-	var adminMenu = document.getElementById( 'adminmenu' );
-	if ( adminMenu ) {
+	// The docked layout pins the admin menu to the viewport; if the menu is
+	// taller than the room below the admin bar it would be clipped, so the chat
+	// floats instead. Offset by the admin bar's *height* (class-independent)
+	// rather than the menu's getBoundingClientRect().top, which is distorted
+	// while the docked classes are applied. Keep this formula identical to the
+	// hook's adminMenuHeight read so both agree.
+	function reconcileDockHeight() {
+		var adminMenu = document.getElementById( 'adminmenu' );
+		if ( ! adminMenu ) {
+			return;
+		}
 		var adminBar = document.getElementById( 'wpadminbar' );
 		var adminBarHeight = adminBar ? adminBar.offsetHeight : 32;
-		hasEnoughHeight = window.innerHeight >= adminMenu.offsetHeight + adminBarHeight + 20;
+		var tooShort = window.innerHeight < adminMenu.offsetHeight + adminBarHeight + 20;
+		body.classList.toggle( 'agents-manager-dock-too-short', tooShort );
 	}
 
-	// Fullscreen gate. On editor screens, only dock in fullscreen mode.
-	var fullscreenGatedScreens = [ 'post-php', 'post-new-php', 'site-editor-php' ];
-	var isGatedScreen = fullscreenGatedScreens.some( function ( cls ) {
-		return body.classList.contains( cls );
-	} );
-	var isFullscreenGateOpen = ! isGatedScreen || body.classList.contains( 'is-fullscreen-mode' );
-
-	var canDock = isDesktop && hasEnoughHeight && isFullscreenGateOpen;
-	if ( ! canDock ) {
-		body.classList.remove(
-			'agents-manager-sidebar-container',
-			'agents-manager-sidebar-container--sidebar-open',
-			'agents-manager-sidebar-container--closing'
-		);
-	}
+	reconcileDockHeight();
+	window.addEventListener( 'resize', reconcileDockHeight );
 } )();
 JS;
 
