@@ -62,9 +62,12 @@ class SchemaBuilderTest extends TestCase {
 	 * @return mixed
 	 */
 	private function invoke( string $name, ...$args ) {
-		// Private methods are reflection-invocable without setAccessible() on
-		// PHP 8.1+, where setAccessible() is a deprecated no-op.
 		$method = new ReflectionMethod( Schema_Builder::class, $name );
+		// setAccessible() is required to invoke a private method on PHP < 8.1, and a
+		// deprecated no-op from 8.1 on — call it only where it's actually needed.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true );
+		}
 		return $method->invoke( null, ...$args );
 	}
 

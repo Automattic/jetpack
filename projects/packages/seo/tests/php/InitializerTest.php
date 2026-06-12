@@ -43,7 +43,11 @@ class InitializerTest extends TestCase {
 	 * Modules dependency, which needs host-plugin option classes absent here.
 	 */
 	public function test_content_coverage_shape() {
-		$method   = new \ReflectionMethod( Initializer::class, 'get_content_coverage' );
+		$method = new \ReflectionMethod( Initializer::class, 'get_content_coverage' );
+		// Required to invoke a private method on PHP < 8.1 (a no-op from 8.1 on).
+		if ( PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true );
+		}
 		$coverage = $method->invoke( null );
 
 		$this->assertArrayHasKey( 'total', $coverage );
