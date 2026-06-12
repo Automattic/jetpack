@@ -55,8 +55,7 @@ class Blaze {
 		add_action( 'enqueue_block_editor_assets', array( __CLASS__, 'enqueue_block_editor_assets' ) );
 		// Add a Blaze Menu.
 		add_action( 'admin_menu', array( __CLASS__, 'enable_blaze_menu' ), 999 );
-		// Redirect the legacy tools.php URL to the canonical admin.php URL.
-		// Hooked early on admin_menu so it runs before WordPress validates the page parameter.
+		// Redirect the legacy tools.php URL before WordPress validates the page parameter.
 		add_action( 'admin_menu', array( __CLASS__, 'redirect_legacy_advertising_url' ), 1 );
 		// Add Blaze dashboard app REST API endpoints.
 		add_action( 'rest_api_init', array( new Blaze_Dashboard_REST_Controller(), 'register_rest_routes' ) );
@@ -122,13 +121,11 @@ class Blaze {
 		/**
 		 * Filter the menu label for the Blaze dashboard menu item.
 		 *
-		 * The product name is not translatable: "Blaze Ads" is always used verbatim.
-		 *
 		 * @since $$next-version$$
 		 *
 		 * @param string $menu_label The menu label. Default 'Blaze Ads'.
 		 */
-		$menu_label = apply_filters( 'jetpack_blaze_menu_label', 'Blaze Ads' );
+		$menu_label = apply_filters( 'jetpack_blaze_menu_label', 'Blaze Ads' ); // Product name, do not translate.
 
 		/**
 		 * Filter the CSS class prefix for the Blaze dashboard.
@@ -144,12 +141,9 @@ class Blaze {
 
 		if ( self::is_dashboard_enabled() || ( new Host() )->is_wpcom_platform() ) {
 			if ( 'jetpack' === $parent_slug ) {
-				// Use Admin_Menu to register under Jetpack. This avoids a race
-				// condition on WordPress.com Simple sites, where the Jetpack
-				// top-level menu is created at priority 1000 while this code runs
-				// at 999. Registering via add_submenu_page before the parent
-				// exists makes WordPress compute the wrong page hookname,
-				// resulting in a broken menu URL.
+				// Register through Admin_Menu: on WordPress.com Simple sites the Jetpack
+				// parent menu does not exist yet at this priority, and registering the
+				// submenu before its parent produces a broken menu URL.
 				$page_suffix = Admin_Menu::add_menu(
 					esc_attr( $menu_label ),
 					$menu_label,
@@ -159,8 +153,7 @@ class Blaze {
 					1
 				);
 			} else {
-				// Other parents (tools.php, woocommerce-marketing) already exist
-				// at this priority, so add_submenu_page is safe.
+				// Other parents already exist at this priority, so add_submenu_page is safe.
 				$page_suffix = add_submenu_page(
 					$parent_slug,
 					esc_attr( $menu_label ),
@@ -173,9 +166,7 @@ class Blaze {
 			}
 			add_action( 'load-' . $page_suffix, array( $blaze_dashboard, 'admin_init' ) );
 
-			// When the menu moves away from Tools, leave a temporary entry at the
-			// old location pointing users to the new one. To be removed roughly a
-			// month after the menu change ships.
+			// Temporary entry at the old Tools location; remove ~1 month after the move ships.
 			if ( 'tools.php' !== $parent_slug ) {
 				self::add_migration_notice_menu( $menu_label );
 			}
@@ -214,9 +205,6 @@ class Blaze {
 			return apply_filters( 'jetpack_blaze_menu_parent', 'jetpack' );
 		}
 
-		// should_initialize() already checks the Jetpack connection, so by the
-		// time enable_blaze_menu() runs on a self-hosted site, the site is
-		// usually connected. We still check to be safe.
 		if ( ( new Jetpack_Connection() )->is_connected() ) {
 			/** This filter is documented above. */
 			return apply_filters( 'jetpack_blaze_menu_parent', 'jetpack' );
@@ -228,10 +216,6 @@ class Blaze {
 
 	/**
 	 * Register a temporary "moved" notice page at the old Tools menu location.
-	 *
-	 * Follows the pattern used when Jetpack Forms and Stats moved menu locations:
-	 * keep an entry at the old place for a while, telling users where the
-	 * section lives now.
 	 *
 	 * @param string $menu_label The menu label.
 	 * @return void
@@ -302,10 +286,7 @@ class Blaze {
 
 	/**
 	 * Redirect the legacy tools.php?page=advertising URL to the new
-	 * admin.php?page=advertising location.
-	 *
-	 * Only redirects when the menu has actually moved away from Tools, so the
-	 * fallback Tools location keeps working on its canonical URL.
+	 * admin.php?page=advertising location, when the menu has moved away from Tools.
 	 *
 	 * @return void
 	 */
