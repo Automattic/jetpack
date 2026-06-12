@@ -1010,14 +1010,10 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 
 					// The free tier description is stored as plain markdown source, so strip
 					// all HTML and cap its length to match the paid-tier description field.
-					// mbstring is optional in some environments, so fall back to substr().
+					// WordPress core guarantees mb_substr() (polyfilled in wp-includes/compat.php
+					// when the mbstring extension is unavailable), so it's safe to use directly.
 					if ( isset( $filtered_value['free_tier_description'] ) ) {
-						$free_tier_description = wp_kses( $filtered_value['free_tier_description'], array() );
-						if ( function_exists( 'mb_substr' ) ) {
-							$filtered_value['free_tier_description'] = mb_substr( $free_tier_description, 0, 500 );
-						} else {
-							$filtered_value['free_tier_description'] = substr( $free_tier_description, 0, 500 );
-						}
+						$filtered_value['free_tier_description'] = mb_substr( wp_kses( $filtered_value['free_tier_description'], array() ), 0, 500 );
 					}
 
 					if ( $has_hide_free_tier ) {

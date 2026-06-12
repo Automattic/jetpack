@@ -7,8 +7,10 @@ require_once JETPACK__PLUGIN_DIR . '/tests/php/lib/Jetpack_REST_TestCase.php';
 
 /**
  * @covers \Jetpack_Core_Json_Api_Endpoints
+ * @covers \Jetpack_Core_API_Data
  */
 #[CoversClass( Jetpack_Core_Json_Api_Endpoints::class )]
+#[CoversClass( Jetpack_Core_API_Data::class )]
 class Jetpack_Core_Api_Module_Activate_Endpoint_Test extends Jetpack_REST_TestCase {
 	/**
 	 * @author zinigor
