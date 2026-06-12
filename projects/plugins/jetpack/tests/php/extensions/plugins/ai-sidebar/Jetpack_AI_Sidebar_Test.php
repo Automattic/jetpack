@@ -565,9 +565,9 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Big Sky's provider should not participate in the Jetpack AI Sidebar surface.
+	 * Existing agent providers should be preserved for client-side preview gating.
 	 */
-	public function test_add_agents_manager_data_filters_big_sky_provider() {
+	public function test_add_agents_manager_data_preserves_agent_providers() {
 		$this->enable_ai_assistant_setting();
 		$this->set_block_editor_screen();
 
@@ -584,11 +584,16 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 
 		$this->assertSame(
 			array(
+				'https://example.com/wp-content/plugins/big-sky-plugin/build/calypso-agent-provider/index.js?ver=123',
 				'https://widgets.wp.com/agents-manager/jetpack-ai-sidebar.provider.mjs',
 				array( 'provider' => 'metadata' ),
 			),
 			$data['agentProviders']
 		);
+		$this->assertSame( 'wp-orchestrator', $data['agentId'] );
+		$this->assertSame( true, $data['aiEditorialReviewEnabled'] );
+		$this->assertSame( true, $data['jetpackAiSidebarPreview']['enabled'] );
+		$this->assertSame( true, $data['jetpackAiSidebarPreview']['features']['blockTransformations'] );
 	}
 
 	/**
@@ -651,25 +656,31 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 
 		Jetpack_AI_Sidebar::maybe_patch_jetpack_ai_sidebar_preview_data();
 
-		$this->assertStringContainsString(
-			'agentsManagerData.agentProviders = agentsManagerData.agentProviders.filter',
-			$this->get_agents_manager_inline_script()
+		$inline_script = $this->get_agents_manager_inline_script();
+
+		$this->assertStringNotContainsString(
+			'agentsManagerData.agentProviders =',
+			$inline_script
+		);
+		$this->assertStringNotContainsString(
+			'agentsManagerData.agentProviders.',
+			$inline_script
 		);
 		$this->assertStringContainsString(
 			'/big-sky-plugin/build/calypso-agent-provider/',
-			$this->get_agents_manager_inline_script()
+			$inline_script
 		);
 		$this->assertStringContainsString(
 			'agentsManagerData.agentId = "wp-orchestrator"',
-			$this->get_agents_manager_inline_script()
+			$inline_script
 		);
 		$this->assertStringContainsString(
 			'agentsManagerData.aiEditorialReviewEnabled = true',
-			$this->get_agents_manager_inline_script()
+			$inline_script
 		);
 		$this->assertStringContainsString(
 			'agentsManagerData.jetpackAiSidebarPreview = {"enabled":true',
-			$this->get_agents_manager_inline_script()
+			$inline_script
 		);
 	}
 

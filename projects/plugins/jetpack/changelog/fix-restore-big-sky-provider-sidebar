@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+AI Sidebar: Preserve Big Sky provider fallback when Jetpack AI Sidebar preview data is added.
