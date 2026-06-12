@@ -1173,12 +1173,23 @@ function convertToBlocks( html ) {
 
 			const imgClassAttr = mediaId ? ` class="wp-image-${ mediaId }"` : '';
 
+			// Preserve the img's width/height attrs so the browser knows the
+			// intrinsic size in the published view.  Without them, themes
+			// that don't constrain `.size-thumbnail` etc. let the img stretch
+			// to fill its container — even when the URL points at a
+			// 150x150 resized file.  applyMediaSizeToFigure sets these on
+			// every media-library size swap; we just need to keep them.
+			const imgWidth = img.getAttribute( 'width' );
+			const imgHeight = img.getAttribute( 'height' );
+			const imgWidthAttr = imgWidth ? ` width="${ escapeAttr( imgWidth ) }"` : '';
+			const imgHeightAttr = imgHeight ? ` height="${ escapeAttr( imgHeight ) }"` : '';
+
 			blocks.push(
 				`<!-- wp:image${ imageAttrsJson } -->\n<figure class="${ figureClasses.join(
 					' '
 				) }"><img src="${ escapeAttr( src ) }" alt="${ escapeAttr(
 					alt
-				) }"${ imgClassAttr }/>${ captionHtml }</figure>\n<!-- /wp:image -->`
+				) }"${ imgClassAttr }${ imgWidthAttr }${ imgHeightAttr }/>${ captionHtml }</figure>\n<!-- /wp:image -->`
 			);
 		} else if ( tag === 'blockquote' ) {
 			// Extract citation from <cite> if present.
