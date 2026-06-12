@@ -295,8 +295,8 @@ class Blaze {
 
 		if (
 			'tools.php' !== $pagenow
-			|| ! isset( $_GET['page'] ) // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-			|| 'advertising' !== $_GET['page'] // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			|| ! isset( $_GET['page'] ) // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only check to redirect, no data is processed.
+			|| 'advertising' !== $_GET['page'] // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only check to redirect, no data is processed.
 		) {
 			return;
 		}
