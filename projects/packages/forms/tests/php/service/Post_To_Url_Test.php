@@ -98,6 +98,31 @@ class Post_To_Url_Test extends BaseTestCase {
 	}
 
 	/**
+	 * A hiddenFields string that is not valid JSON, or whose JSON does not decode to an
+	 * array (number, string, bool, null, or a JSON array of scalars), must be ignored
+	 * without fataling rather than partially processed.
+	 */
+	public function test_get_form_data_hidden_fields_malformed_json_string() {
+		$malformed = array(
+			'truncated object'      => '{"campaign":',
+			'truncated array'       => '[{"name":"a"',
+			'unquoted garbage'      => 'not json at all',
+			'trailing comma'        => '{"a":"b",}',
+			'json number'           => '123',
+			'json bare string'      => '"justastring"',
+			'json boolean'          => 'true',
+			'json null literal'     => 'null',
+			'json array of scalars' => '["a","b","c"]',
+		);
+
+		foreach ( $malformed as $label => $value ) {
+			$form = $this->create_mock_form( array( 'hiddenFields' => $value ) );
+			$data = $this->invoke_get_form_data( $form );
+			$this->assertSame( array(), $data, "Malformed hiddenFields ({$label}) should yield no fields." );
+		}
+	}
+
+	/**
 	 * Empty / missing / malformed hiddenFields should be ignored without fatal.
 	 */
 	public function test_get_form_data_hidden_fields_empty_or_malformed() {
