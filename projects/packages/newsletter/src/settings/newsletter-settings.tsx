@@ -66,15 +66,26 @@ function normalizeSettings( settings: Record< string, unknown > ): NewsletterSet
 // without the flash.
 let cachedSettings: NewsletterSettings | null = null;
 
+// Module-level cache of the last *persisted* settings — the saved baseline,
+// as opposed to `cachedSettings` above which mirrors the optimistic (possibly
+// unsaved) `data`. Kept in sync on fetch and after every successful save, and
+// module-cached for the same reason: so a remount on tab-return knows the
+// saved state immediately instead of treating it as unknown until the
+// background refetch resolves. Consumed by the Subscriptions section to gate
+// each placement's "Preview and edit" link on whether that placement is
+// enabled *in the saved state* (an unsaved toggle previews nothing).
+let cachedSavedSettings: NewsletterSettings | null = null;
+
 /**
- * Test-only: clear the module-level settings cache so each test starts cold.
- * The cache deliberately outlives any single component instance (that's the
- * whole point — it survives the tab unmount/remount), which also means it
- * leaks across tests in a file. Call this in `beforeEach` to keep cold-cache
+ * Test-only: clear the module-level settings caches so each test starts cold.
+ * The caches deliberately outlive any single component instance (that's the
+ * whole point — they survive the tab unmount/remount), which also means they
+ * leak across tests in a file. Call this in `beforeEach` to keep cold-cache
  * assertions order-independent.
  */
 export function __resetNewsletterSettingsCacheForTests(): void {
 	cachedSettings = null;
+	cachedSavedSettings = null;
 }
 
 export type NewsletterSettingsBodyProps = {
@@ -136,6 +147,11 @@ export function NewsletterSettingsBody( {
 	// Seed from the module cache so a remount (e.g. returning to the Settings
 	// tab) paints immediately instead of flashing the full-page spinner.
 	const [ data, setData ] = useState< NewsletterSettings | null >( () => cachedSettings );
+	// Last persisted settings (saved baseline), seeded from the module cache so a
+	// remount knows the saved state without waiting on the background refetch.
+	const [ savedData, setSavedData ] = useState< NewsletterSettings | null >(
+		() => cachedSavedSettings
+	);
 	const [ isLoading, setIsLoading ] = useState( () => ! cachedSettings );
 	const [ error, setError ] = useState< string | null >( null );
 
@@ -203,7 +219,10 @@ export function NewsletterSettingsBody( {
 	useEffect( () => {
 		fetchSettings()
 			.then( ( settings: Record< string, unknown > ) => {
-				setData( normalizeSettings( settings ) );
+				const normalized = normalizeSettings( settings );
+				setData( normalized );
+				// Server truth on load is both the optimistic value and the saved baseline.
+				setSavedData( normalized );
 				setIsLoading( false );
 			} )
 			.catch( ( err: Error ) => {
@@ -237,6 +256,14 @@ export function NewsletterSettingsBody( {
 			cachedSettings = data;
 		}
 	}, [ data ] );
+
+	// Mirror the saved baseline to the module cache so it, too, survives a
+	// remount (parallel to `cachedSettings` above, but for persisted values).
+	useEffect( () => {
+		if ( savedData ) {
+			cachedSavedSettings = savedData;
+		}
+	}, [ savedData ] );
 
 	// Handle auto-save for newsletter toggle and email settings.
 	const handleAutoSave = useCallback(
@@ -277,6 +304,8 @@ export function NewsletterSettingsBody( {
 			// Save to backend.
 			updateSettings( updates )
 				.then( () => {
+					// Advance the saved baseline now that these values are persisted.
+					setSavedData( prev => ( { ...prev, ...updates } ) );
 					createSuccessNotice( __( 'Settings saved', 'jetpack-newsletter' ) );
 				} )
 				.catch( ( err: Error ) => {
@@ -308,6 +337,7 @@ export function NewsletterSettingsBody( {
 
 		updateSettings( senderNameChanges )
 			.then( () => {
+				setSavedData( prev => ( { ...prev, ...senderNameChanges } ) );
 				setSenderNameChanges( {} );
 				createSuccessNotice( __( 'Sender name saved', 'jetpack-newsletter' ) );
 			} )
@@ -341,6 +371,9 @@ export function NewsletterSettingsBody( {
 
 		updateSettings( subscriptionChanges )
 			.then( () => {
+				// Advance the saved baseline so each placement's "Preview and edit"
+				// link reflects the just-saved enabled state.
+				setSavedData( prev => ( { ...prev, ...subscriptionChanges } ) );
 				setSubscriptionChanges( {} );
 				createSuccessNotice( __( 'Settings saved', 'jetpack-newsletter' ) );
 			} )
@@ -395,6 +428,8 @@ export function NewsletterSettingsBody( {
 
 		updateSettings( apiUpdates )
 			.then( () => {
+				// Merge the staged (string) values so the baseline mirrors `data`'s shape.
+				setSavedData( prev => ( { ...prev, ...newsletterCategoriesChanges } ) );
 				setNewsletterCategoriesChanges( {} );
 				createSuccessNotice( __( 'Newsletter categories saved', 'jetpack-newsletter' ) );
 			} )
@@ -428,6 +463,7 @@ export function NewsletterSettingsBody( {
 
 		updateSettings( welcomeEmailChanges )
 			.then( () => {
+				setSavedData( prev => ( { ...prev, ...welcomeEmailChanges } ) );
 				setWelcomeEmailChanges( {} );
 				createSuccessNotice( __( 'Welcome email message saved', 'jetpack-newsletter' ) );
 			} )
@@ -459,6 +495,7 @@ export function NewsletterSettingsBody( {
 
 		updateSettings( subscribeModalChanges )
 			.then( () => {
+				setSavedData( prev => ( { ...prev, ...subscribeModalChanges } ) );
 				setSubscribeModalChanges( {} );
 				createSuccessNotice( __( 'Subscribe modal heading saved', 'jetpack-newsletter' ) );
 			} )
@@ -542,6 +579,7 @@ export function NewsletterSettingsBody( {
 
 								<SubscriptionsSection
 									data={ data }
+									savedData={ savedData }
 									onChange={ handleSubscriptionChange }
 									onSave={ saveSubscriptionSettings }
 									isSaving={ isSavingSubscriptions }
