@@ -237,6 +237,8 @@ class Api_Proxy_Controller_Test extends BaseTestCase {
 		// view_stats reaches the stats data but not WordAds.
 		$this->assertTrue( $this->controller->check_data_permission( $this->build_data_request( 'GET', 'stats/top-posts' ) ) );
 		$this->assertFalse( $this->controller->check_data_permission( $this->build_data_request( 'GET', 'wordads/earnings' ) ) );
+		// WordPress routes case-insensitively — a mixed-case WordAds path must still hit the WordAds gate.
+		$this->assertFalse( $this->controller->check_data_permission( $this->build_data_request( 'GET', 'WordAds/earnings' ) ) );
 	}
 
 	public function test_stats_permission_granted_for_view_stats_capability() {
@@ -316,6 +318,7 @@ class Api_Proxy_Controller_Test extends BaseTestCase {
 			'commercial class.' => array( 'commercial-classification', true ),
 			'spam new'          => array( 'stats/referrers/spam/new', true ),
 			'spam delete'       => array( 'stats/referrers/spam/delete', true ),
+			'mixed case write'  => array( 'JETPACK-STATS-DASHBOARD/modules', true ),
 			'stats read'        => array( 'stats/top-posts', false ),
 			'subscribers read'  => array( 'subscribers/counts', false ),
 			'usage read'        => array( 'jetpack-stats/usage', false ),
@@ -329,6 +332,43 @@ class Api_Proxy_Controller_Test extends BaseTestCase {
 		$this->assertInstanceOf( \WP_Error::class, $response );
 		$this->assertSame( 'rest_read_only', $response->get_error_code() );
 		$this->assertSame( 405, $response->get_error_data()['status'] );
+	}
+
+	public function test_put_to_write_endpoint_returns_405() {
+		// Only POST may mutate — PUT/PATCH on a write-allowed endpoint is still rejected locally.
+		$response = $this->controller->handle_data_request( $this->build_data_request( 'PUT', 'jetpack-stats-dashboard/modules' ) );
+
+		$this->assertInstanceOf( \WP_Error::class, $response );
+		$this->assertSame( 'rest_read_only', $response->get_error_code() );
+		$this->assertSame( 405, $response->get_error_data()['status'] );
+	}
+
+	public function test_post_to_write_endpoint_passes_the_method_gate() {
+		// A POST to a write-allowed endpoint clears the gate and reaches the connection check.
+		$response = $this->controller->handle_data_request( $this->build_data_request( 'POST', 'jetpack-stats-dashboard/modules' ) );
+
+		$this->assertInstanceOf( \WP_Error::class, $response );
+		$this->assertSame( 'no_connection', $response->get_error_code() );
+	}
+
+	public function test_forwarded_params_drop_caller_supplied_site() {
+		// `site` is the proxy's own path-scoping param for `upgrades`; a caller must not set it.
+		$request  = $this->build_data_request(
+			'GET',
+			'upgrades',
+			array(
+				'site'   => '999',
+				'period' => 'year',
+			)
+		);
+		$accessor = function ( WP_REST_Request $req ) {
+			// @phan-suppress-next-line PhanUndeclaredMethod -- rebound to the controller via Closure::call() below.
+			return $this->get_forwarded_params( $req );
+		};
+
+		$forwarded = $accessor->call( $this->controller, $request );
+		$this->assertArrayNotHasKey( 'site', $forwarded );
+		$this->assertArrayHasKey( 'period', $forwarded );
 	}
 
 	public function test_validate_data_endpoint_accepts_commas_and_rejects_traversal() {

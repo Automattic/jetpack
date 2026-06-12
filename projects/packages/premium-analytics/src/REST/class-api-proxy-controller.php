@@ -204,7 +204,8 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 	 * @return bool
 	 */
 	public function check_data_permission( WP_REST_Request $request ): bool {
-		if ( str_starts_with( (string) $request->get_param( 'endpoint' ), 'wordads' ) ) {
+		// WordPress matches REST routes case-insensitively, so classify case-insensitively too.
+		if ( str_starts_with( strtolower( (string) $request->get_param( 'endpoint' ) ), 'wordads' ) ) {
 			return $this->check_wordads_permission();
 		}
 
@@ -304,8 +305,11 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 	 */
 	public function handle_data_request( WP_REST_Request $request ) {
 		$endpoint = (string) $request->get_param( 'endpoint' );
+		$method   = strtoupper( $request->get_method() );
 
-		if ( 'GET' !== strtoupper( $request->get_method() ) && ! $this->is_write_allowed( $endpoint ) ) {
+		// Reads are open across the allowed prefixes; only POST may mutate, and only the
+		// few endpoints on the write allowlist. Everything else is rejected locally.
+		if ( 'GET' !== $method && ! ( 'POST' === $method && $this->is_write_allowed( $endpoint ) ) ) {
 			return new WP_Error(
 				'rest_read_only',
 				__( 'This endpoint is read-only.', 'jetpack-premium-analytics' ),
@@ -353,6 +357,7 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 	 * @return bool
 	 */
 	private function is_write_allowed( string $endpoint ): bool {
+		$endpoint = strtolower( $endpoint );
 		foreach ( self::WRITE_PREFIXES as $prefix ) {
 			if ( $endpoint === $prefix || str_starts_with( $endpoint, $prefix ) ) {
 				return true;
@@ -370,7 +375,7 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 	 * @return bool
 	 */
 	private function busts_cache( string $endpoint ): bool {
-		return str_starts_with( $endpoint, 'jetpack-stats-dashboard/' );
+		return str_starts_with( strtolower( $endpoint ), 'jetpack-stats-dashboard/' );
 	}
 
 	/**
@@ -564,8 +569,9 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 	}
 
 	/**
-	 * Query params to forward to WPCOM, minus the WordPress routing params and the proxy's own
-	 * control param (`version`).
+	 * Query params to forward to WPCOM, minus the WordPress routing params, the proxy's own
+	 * control param (`version`), and `site` (the proxy pins the site itself, so a caller-supplied
+	 * `site` must not reach the `upgrades` query string).
 	 *
 	 * @param WP_REST_Request $request Request object.
 	 *
@@ -573,8 +579,7 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 	 */
 	private function get_forwarded_params( WP_REST_Request $request ): array {
 		$params = $request->get_query_params();
-		// Drop the params WordPress adds for its own routing, plus the proxy's own version selector.
-		unset( $params['rest_route'], $params['_locale'], $params['version'] );
+		unset( $params['rest_route'], $params['_locale'], $params['version'], $params['site'] );
 
 		return is_array( $params ) ? $params : array();
 	}
