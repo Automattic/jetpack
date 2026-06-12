@@ -28,6 +28,16 @@ function navigate( url: string ): void {
 	window.location.href = url;
 }
 
+interface Props {
+	// When the host transitions here straight from the wizard, the AI tailoring
+	// is still in flight and its PUT /tailored has not necessarily landed. The
+	// host passes the tailor promise so the list waits for it to settle before
+	// reading GET /ai-launchpad — otherwise the GET races the PUT and returns an
+	// empty task list. While awaiting, the skeleton shows. Omitted for returning
+	// users, where the output is already persisted.
+	pendingTailor?: Promise< unknown >;
+}
+
 /**
  * The tailored launchpad list: six task cards rendered from the AI output. The
  * first incomplete task auto-expands; each task offers "Get started" and "Skip"
@@ -38,9 +48,11 @@ function navigate( url: string ): void {
  * renders from a committed fixture so it can be worked on before the AI call
  * exists.
  *
+ * @param props               - Component props.
+ * @param props.pendingTailor - In-flight tailor call to await before fetching.
  * @return The tailored-list element.
  */
-export function TailoredList() {
+export function TailoredList( { pendingTailor }: Props = {} ) {
 	const [ tasks, setTasks ] = useState< EnrichedTask[] | null >( null );
 	const [ output, setOutput ] = useState< TailoredOutput | null >( null );
 	const [ expandedId, setExpandedId ] = useState< string | null >( null );
@@ -55,11 +67,22 @@ export function TailoredList() {
 			return;
 		}
 
-		apiFetch< LaunchpadData >( { path: '/wpcom/v2/ai-launchpad' } ).then( data => {
-			setTasks( data.tasks );
-			setOutput( data.ai_output?.payload ?? null );
-		} );
-	}, [] );
+		let cancelled = false;
+		// When arriving from the wizard, wait for the tailor call to settle so the
+		// PUT /tailored has persisted before we read it back; otherwise fetch now.
+		Promise.resolve( pendingTailor )
+			.then( () => apiFetch< LaunchpadData >( { path: '/wpcom/v2/ai-launchpad' } ) )
+			.then( data => {
+				if ( cancelled ) {
+					return;
+				}
+				setTasks( data.tasks );
+				setOutput( data.ai_output?.payload ?? null );
+			} );
+		return () => {
+			cancelled = true;
+		};
+	}, [ pendingTailor ] );
 
 	useEffect( () => {
 		if ( ! tasks || expandedId !== null ) {

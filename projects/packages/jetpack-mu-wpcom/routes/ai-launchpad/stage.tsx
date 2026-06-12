@@ -1,20 +1,14 @@
 /**
  * Internal dependencies
  */
-import { TailoredList } from '../../src/features/ai-launchpad/js/tailored-list/tailored-list.tsx';
-import { Wizard } from '../../src/features/ai-launchpad/js/wizard/wizard.tsx';
+import { App } from '../../src/features/ai-launchpad/js/app.tsx';
 
 /*
- * Owned by Stream A. Other streams replace the bodies of the imported
- * modules; they never edit this file.
+ * The wp-build route entry. The orchestration host (`App`) decides whether to
+ * show the wizard or the tailored list and handles the transition between them.
  */
 const Stage = () => {
-	return (
-		<>
-			<Wizard />
-			<TailoredList />
-		</>
-	);
+	return <App />;
 };
 
 export { Stage as stage };
