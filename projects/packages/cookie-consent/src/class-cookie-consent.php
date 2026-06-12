@@ -167,10 +167,9 @@ class Cookie_Consent {
 	 * Exclude CCPA page from get_pages() results
 	 *
 	 * @param WP_Post[] $pages Array of page objects.
-	 * @param array     $args  Array of get_pages() arguments.
 	 * @return WP_Post[] Filtered array of page objects.
 	 */
-	public static function exclude_ccpa_from_get_pages( $pages, $args ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed
+	public static function exclude_ccpa_from_get_pages( $pages ) {
 		if ( is_admin() ) {
 			// In admin, include the CCPA page in the results.
 			return $pages;
@@ -284,20 +283,17 @@ class Cookie_Consent {
 	/**
 	 * Set attributes for hooked footer navigation links (Privacy Policy and CCPA)
 	 *
-	 * @param array|null $hooked_block      The hooked block, or null to suppress.
-	 * @param string     $hooked_block_type The hooked block type name.
-	 * @param string     $relative_position The relative position of the hooked block.
-	 * @param array      $anchor_block      The anchor block.
+	 * @param array|null $hooked_block The hooked block, or null to suppress.
 	 * @return array|null Modified hooked block.
 	 */
-	public static function set_footer_navigation_link_attributes( $hooked_block, $hooked_block_type, $relative_position, $anchor_block ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed
+	public static function set_footer_navigation_link_attributes( $hooked_block ) {
 		// Track which blocks we've processed.
 		static $privacy_policy_processed     = false;
 		static $ccpa_processed               = false;
 		static $manage_preferences_processed = false;
 
 		// Has the hooked block been suppressed by a previous filter?
-		if ( is_null( $hooked_block ) ) {
+		if ( null === $hooked_block ) {
 			return $hooked_block;
 		}
 
@@ -591,13 +587,13 @@ class Cookie_Consent {
 		);
 
 		// Register and enqueue the Interactivity API script module built by webpack.
-		$asset_file   = __DIR__ . '/../build/modules/cookie-consent/index.asset.php';
-		$asset        = file_exists( $asset_file ) ? require $asset_file : array(
+		$asset_file = __DIR__ . '/../build/modules/cookie-consent/index.asset.php';
+		$asset      = file_exists( $asset_file ) ? require $asset_file : array(
 			'dependencies' => array( '@wordpress/interactivity' ),
 			'version'      => self::PACKAGE_VERSION,
 		);
-		$module_url   = plugins_url( 'build/modules/cookie-consent/index.js', __DIR__ );
-		$module_id    = '@automattic/jetpack-cookie-consent';
+		$module_url = plugins_url( 'build/modules/cookie-consent/index.js', __DIR__ );
+		$module_id  = '@automattic/jetpack-cookie-consent';
 
 		wp_register_script_module(
 			$module_id,
@@ -627,7 +623,8 @@ class Cookie_Consent {
 					array(
 						'apiUrl'      => rest_url( 'jetpack/v4/cookie-consent/consent-log' ),
 						'eventPrefix' => $config['event_prefix'],
-					)
+					),
+					JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT
 				)
 			),
 			array( 'id' => 'jetpack-cookie-consent-config' )
@@ -674,17 +671,13 @@ class Cookie_Consent {
 			return;
 		}
 
-		// Check for preview query parameter.
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		$force_preview = isset( $_GET['preview_cookie_consent'] ) && '1' === $_GET['preview_cookie_consent'];
-
 		// Always render the banner/modal HTML so the "Manage Privacy Preferences" footer link
 		// can reopen the modal after consent has been set. The banner visibility is controlled
 		// client-side via Interactivity API directives (showBanner starts as false).
 		$template_path = plugin_dir_path( __FILE__ ) . 'cookie-banner-content.php';
 		if ( file_exists( $template_path ) ) {
-			// Get config for template.
-			$config = self::get_config();
+			// Get config for template (consumed by cookie-banner-content.php via include scope).
+			$config = self::get_config(); // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 			ob_start();
 			include $template_path;
 			$html = ob_get_clean();

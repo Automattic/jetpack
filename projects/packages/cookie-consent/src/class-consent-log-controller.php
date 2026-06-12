@@ -346,7 +346,7 @@ class Consent_Log_Controller extends WP_REST_Controller {
 
 		// Get consent types and encode as JSON.
 		$consent_types = $request->get_param( 'consent_types' );
-		$consent_json  = ! empty( $consent_types ) ? wp_json_encode( $consent_types ) : null;
+		$consent_json  = ! empty( $consent_types ) ? wp_json_encode( $consent_types, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE ) : null;
 
 		$data = array(
 			'consent_id'       => $consent_id,
@@ -581,9 +581,8 @@ class Consent_Log_Controller extends WP_REST_Controller {
 		$cutoff_timestamp = time() - ( $retention_days * DAY_IN_SECONDS );
 		$cutoff_date      = gmdate( 'Y-m-d H:i:s', $cutoff_timestamp );
 
-		$table_name    = $this->get_table_name();
-		$batch_size    = 1000;
-		$total_deleted = 0;
+		$table_name = $this->get_table_name();
+		$batch_size = 1000;
 
 		// Delete in batches until all expired records are removed.
 		do {
@@ -595,8 +594,6 @@ class Consent_Log_Controller extends WP_REST_Controller {
 					$batch_size
 				)
 			);
-
-			$total_deleted += $deleted;
 
 			// Avoid infinite loop in case of errors.
 			if ( false === $deleted ) {
