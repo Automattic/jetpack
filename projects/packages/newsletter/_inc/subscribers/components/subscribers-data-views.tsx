@@ -2,6 +2,7 @@ import { DataViews } from '@wordpress/dataviews';
 import { useCallback, useMemo, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Notice } from '@wordpress/ui';
+import { useMembershipsProducts } from '../data/use-memberships-products';
 import { useSubscriberRemoveMutation } from '../data/use-subscriber-remove-mutation';
 import { useSubscribers } from '../data/use-subscribers';
 import {
@@ -91,6 +92,20 @@ export default function SubscribersDataViews( {
 
 	const { data, isLoading, error } = useSubscribers( queryParams );
 	const removeMutation = useSubscriberRemoveMutation();
+
+	// Fetch the site's paid products once for the whole table (not per row) so the "Comp a
+	// subscription" action can be hidden when there's nothing to comp onto — otherwise it opens a
+	// dead-end modal that only reports "no paid plans". The Subscribers tab is already gated behind
+	// a WordPress.com connection, so the proxied request is safe to fire eagerly.
+	const { data: membershipsProducts, isError: membershipsProductsError } =
+		useMembershipsProducts( true );
+	const hasPaidProducts = ( membershipsProducts?.length ?? 0 ) > 0;
+	// Offer the action when we know there's a paid product to comp onto, OR when we couldn't
+	// determine it because the products request errored. Failing open on error preserves the
+	// capability and lets the modal surface the fetch error, rather than silently removing the
+	// action on a transient failure. It stays hidden only while the request is still loading and
+	// when the site genuinely has zero paid products (the dead-end case this fix targets).
+	const canShowCompAction = hasPaidProducts || membershipsProductsError;
 
 	// Fired off `onChangeView` rather than per-control handlers because DataViews owns
 	// the controls — we diff the previous view against the next to mirror Calypso's
@@ -216,11 +231,13 @@ export default function SubscribersDataViews( {
 			{
 				id: 'comp',
 				label: __( 'Comp a subscription', 'jetpack-newsletter' ),
-				// We need a wpcom user id to attach the comp to (Calypso's
-				// `hasUncompedPlans` also checks the plans list, but that requires the site's
-				// products to be loaded — we let the modal handle the "all comped" /
-				// "no paid plans" edge cases instead).
-				isEligible: ( subscriber: Subscriber ) => !! subscriber.user_id,
+				// Needs a wpcom user id to attach the comp to, plus a paid product to comp onto —
+				// otherwise the modal is a dead-end that only reports "no paid plans".
+				// `canShowCompAction` comes from a single table-level fetch (see above: true when
+				// products exist or the fetch errored, false while loading or on a genuinely empty
+				// site), so this stays cheap per row. The modal still handles the per-subscriber
+				// "already comped on every plan" edge case.
+				isEligible: ( subscriber: Subscriber ) => !! subscriber.user_id && canShowCompAction,
 				callback: ( items: Subscriber[] ) => {
 					const target = items[ 0 ];
 					if ( ! target ) {
@@ -261,7 +278,7 @@ export default function SubscribersDataViews( {
 				},
 			},
 		],
-		[ onViewSubscriber ]
+		[ onViewSubscriber, canShowCompAction ]
 	);
 
 	const handleConfirmRemoval = useCallback( async () => {
