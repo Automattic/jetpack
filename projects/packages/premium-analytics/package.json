@@ -48,6 +48,7 @@
 		"@jetpack-premium-analytics/routing": "link:packages/routing",
 		"@jetpack-premium-analytics/site-sync": "link:packages/site-sync",
 		"@jetpack-premium-analytics/ui": "link:packages/ui",
+		"@jetpack-premium-analytics/widgets-toolkit": "link:packages/widgets-toolkit",
 		"@tanstack/react-query": "5.90.8",
 		"@wordpress/admin-ui": "2.3.1",
 		"@wordpress/api-fetch": "7.48.1",

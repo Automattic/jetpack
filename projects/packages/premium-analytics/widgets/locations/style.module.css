@@ -10,32 +10,20 @@
 	color: var(--wpds-color-fg-content-neutral-weak);
 }
 
-.list {
-	display: flex;
-	flex-direction: column;
-	gap: var(--wpds-dimension-gap-xs, 4px);
-	margin: 0;
-	padding: 0;
-	list-style: none;
-}
-
-.row {
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
+.chartArea {
+	display: grid;
+	grid-template-columns: 400fr 280fr;
 	gap: var(--wpds-dimension-gap-md, 16px);
-	padding-block: var(--wpds-dimension-padding-xs, 4px);
+	align-items: start;
+	min-width: 0;
 }
 
-.label {
-	overflow: hidden;
-	text-overflow: ellipsis;
-	white-space: nowrap;
+.geoChart {
+	min-width: 0;
 }
 
-.value {
-	flex-shrink: 0;
-	font-variant-numeric: tabular-nums;
+.leaderboard {
+	min-width: 0;
 }
 
 .sampleNote {
