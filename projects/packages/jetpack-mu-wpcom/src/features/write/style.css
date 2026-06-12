@@ -188,7 +188,7 @@
 
 .bw-btn:disabled {
 	opacity: 0.5;
-	cursor: not-allowed;
+	cursor: progress;
 }
 
 .bw-btn-draft {
