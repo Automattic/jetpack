@@ -143,6 +143,7 @@ describe( 'Blaze settings', () => {
 
 		expect( restApi.fetchBlazeActiveCampaigns ).toHaveBeenCalledTimes( 1 );
 		expect( props.toggleModuleNow ).toHaveBeenCalledWith( 'blaze' );
+		expect( analytics.tracks.recordEvent ).toHaveBeenCalledTimes( 1 );
 		expect( analytics.tracks.recordEvent ).toHaveBeenCalledWith( 'jetpack_wpa_module_toggle', {
 			module: 'blaze',
 			toggled: 'off',
@@ -196,6 +197,7 @@ describe( 'Blaze settings', () => {
 		);
 
 		expect( props.toggleModuleNow ).toHaveBeenCalledWith( 'blaze' );
+		expect( analytics.tracks.recordEvent ).toHaveBeenCalledTimes( 1 );
 		expect( analytics.tracks.recordEvent ).toHaveBeenCalledWith( 'jetpack_wpa_module_toggle', {
 			module: 'blaze',
 			toggled: 'off',
@@ -271,6 +273,7 @@ describe( 'Blaze settings', () => {
 
 		expect( restApi.fetchBlazeActiveCampaigns ).not.toHaveBeenCalled();
 		expect( props.toggleModuleNow ).toHaveBeenCalledWith( 'blaze' );
+		expect( analytics.tracks.recordEvent ).toHaveBeenCalledTimes( 1 );
 		expect( analytics.tracks.recordEvent ).toHaveBeenCalledWith( 'jetpack_wpa_module_toggle', {
 			module: 'blaze',
 			toggled: 'on',
