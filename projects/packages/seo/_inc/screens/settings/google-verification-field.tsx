@@ -51,8 +51,10 @@ const GoogleVerificationField: FC< Props > = ( { value, onChange, onCommit, disa
 		/>
 	);
 
-	// Disconnected self-hosted site: no keyring popup, so manual entry only.
-	if ( ! isConnected ) {
+	// Manual entry only when there is no keyring auto-verify path: a disconnected
+	// self-hosted site (no popup), or a site where the status check came back
+	// `unavailable` (e.g. a `forbidden` response on an under-construction site).
+	if ( ! isConnected || state === 'unavailable' ) {
 		return (
 			<div className="jetpack-seo-settings__google-verification">
 				<TextControl

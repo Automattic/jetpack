@@ -12,6 +12,10 @@ const ENDPOINT = '/jetpack/v4/verify-site/google';
 // in place by the result.
 const NOTICE_ID = 'jetpack-seo-google-verify';
 
+// Thrown to short-circuit the auto-verify promise chain when the site is already
+// verified; the chain's catch handler ignores it so it is not treated as a failure.
+const ALREADY_VERIFIED = {};
+
 type SeoScriptData = {
 	seo?: {
 		google_verify?: GoogleVerifyBootstrap;
@@ -81,12 +85,15 @@ export function useGoogleVerify(): GoogleVerify {
 					applyStatus( status );
 				}
 			} )
-			.catch( () => {
-				// Treat a failed status check as "not verified" so the verify button
-				// and manual fallback stay available.
-				if ( ! cancelled ) {
-					setState( 'unverified' );
+			.catch( ( error: unknown ) => {
+				if ( cancelled ) {
+					return;
 				}
+				// A `forbidden` status (e.g. the site is under construction) means
+				// auto-verify is blocked, so fall back to manual entry only. Any other
+				// failure leaves the verify button and manual fallback available.
+				const code = ( error as { code?: string } )?.code;
+				setState( code === 'forbidden' ? 'unavailable' : 'unverified' );
 			} );
 		return () => {
 			cancelled = true;
@@ -119,8 +126,24 @@ export function useGoogleVerify(): GoogleVerify {
 			// "the necessary verification token could not be found on your site".
 			apiFetch< GoogleVerifyStatus >( { path: `${ ENDPOINT }/${ keyringId }` } )
 				.then( status => {
-					if ( status.verified || ! status.token ) {
-						return undefined;
+					if ( status.verified ) {
+						// Already verified: report it and skip the save/verify round-trips.
+						applyStatus( status );
+						createSuccessNotice( __( 'Your site is verified with Google.', 'jetpack-seo' ), {
+							id: NOTICE_ID,
+							type: 'snackbar',
+						} );
+						throw ALREADY_VERIFIED;
+					}
+					if ( ! status.token ) {
+						// Without a token the meta tag cannot be served, so verification
+						// cannot proceed; surface it as an actionable error.
+						throw new Error(
+							__(
+								'Google did not return a verification token for this account. Try another account, or enter a code manually.',
+								'jetpack-seo'
+							)
+						);
 					}
 					return apiFetch( {
 						path: '/jetpack/v4/settings',
@@ -149,10 +172,16 @@ export function useGoogleVerify(): GoogleVerify {
 						);
 					}
 				} )
-				.catch( ( error: { message?: string } ) => {
+				.catch( ( error: unknown ) => {
+					// The already-verified short-circuit throws a sentinel; that is a
+					// success path, so leave the state and notice it set in place.
+					if ( error === ALREADY_VERIFIED ) {
+						return;
+					}
 					setState( 'unverified' );
 					createErrorNotice(
-						error?.message ?? __( 'Could not verify the site. Please try again.', 'jetpack-seo' ),
+						( error as { message?: string } )?.message ??
+							__( 'Could not verify the site. Please try again.', 'jetpack-seo' ),
 						{ id: NOTICE_ID, type: 'snackbar' }
 					);
 				} )
