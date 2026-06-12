@@ -6,9 +6,9 @@ const JOIN_EVENT = 'jetpack_rtc_join';
 
 /**
  * Delay between the local client appearing in awareness and snapshotting the
- * contributor list. Peers already in the room sync into awareness within ~1s of
- * connecting; this leaves headroom so an early joiner doesn't record a self-only
- * roster, without waiting so long that the editor may have been closed.
+ * contributor list, to give peers already in the room time to sync in. PingHub
+ * propagates awareness sub-second; HTTP-polling is slower (a poll cycle), so the
+ * roster stays best-effort there — see the limitation note on `getContributorIds`.
  */
 const SETTLE_DELAY_MS = 3000;
 
@@ -26,6 +26,13 @@ interface CollaboratorAwarenessState {
  * On Simple sites that is the WordPress.com user id, but on Atomic/Jetpack sites
  * it is the *site-local* WP user id (not the wpcom id used by Tracks' `_ui`), so
  * `contributors` is only meaningful scoped to a single `blog_id`.
+ *
+ * Limitation: this roster is best-effort. A client records only the peers it has
+ * synced when the snapshot fires. On HTTP-polling, awareness arrives on a poll
+ * cycle (up to 25s for a backgrounded tab), so a joiner can record a self-only
+ * roster even when others are editing. Derive simultaneous-editor and multi-tab
+ * counts by correlating join events (distinct/repeated `wp_user_id` on the same
+ * `post_id` within a time window), not from a single event's `contributors`.
  *
  * @param awareness - The Yjs awareness instance for the room.
  * @return The WP user IDs currently present in the room.
