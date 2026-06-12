@@ -17,7 +17,6 @@ require_once __DIR__ . '/../../src/class-open-state-store.php';
  * @covers \Automattic\Jetpack\Agents_Manager\Open_State_Store
  */
 #[CoversClass( Open_State_Store::class )]
-#[CoversClass( Open_State_Store::class )]
 class Open_State_Store_Test extends \WorDBless\BaseTestCase {
 
 	/**
