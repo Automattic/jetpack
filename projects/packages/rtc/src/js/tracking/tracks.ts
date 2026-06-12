@@ -50,14 +50,20 @@ export function recordRtcEvent(
 	properties: Record< string, unknown > = {}
 ): void {
 	const notices = window.jetpackRtcNotices;
+	const props: Record< string, unknown > = {
+		transport: getTransport(),
+		post_id: notices?.postId,
+		post_type: notices?.postType,
+		wp_user_id: notices?.userId,
+		...properties,
+	};
 	try {
-		analytics.tracks.recordEvent( eventName, {
-			transport: getTransport(),
-			post_id: notices?.postId,
-			post_type: notices?.postType,
-			wp_user_id: notices?.userId,
-			...properties,
-		} );
+		// Tracks serialises a present-but-nullish value as the literal string
+		// "null"/"undefined" rather than omitting it, so drop those keys entirely.
+		analytics.tracks.recordEvent(
+			eventName,
+			Object.fromEntries( Object.entries( props ).filter( ( [ , value ] ) => value != null ) )
+		);
 	} catch {
 		// Telemetry must never break the editor.
 	}

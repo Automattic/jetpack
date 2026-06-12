@@ -39,17 +39,18 @@ describe( 'recordBlocked', () => {
 		delete ( window as Record< string, unknown > ).jetpackRtcNotices;
 	} );
 
-	it( 'records jetpack_rtc_blocked with the roster and role flags', () => {
-		// The room holds users 7, 8, 9 when the local client is turned away.
-		// transport/post/wp_user_id are added by recordRtcEvent (mocked here).
+	it( 'records jetpack_rtc_blocked with the room occupants (excluding the blocked local client) and role flags', () => {
+		// clientID 3 (user 9) is the local client being turned away; users 7 and 8
+		// hold the room. The blocked user is reported via wp_user_id (added by the
+		// mocked recordRtcEvent), not in contributors.
 		const awareness = fakeAwareness( { 1: 7, 2: 8, 3: 9 }, 3 );
 
 		recordBlocked( awareness as never );
 
 		expect( recordRtcEventMock ).toHaveBeenCalledTimes( 1 );
 		expect( recordRtcEventMock ).toHaveBeenCalledWith( 'jetpack_rtc_blocked', {
-			contributor_count: 3,
-			contributors: [ 7, 8, 9 ],
+			contributor_count: 2,
+			contributors: [ 7, 8 ],
 			is_admin: false,
 			is_plan_owner: true,
 		} );

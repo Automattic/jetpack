@@ -74,6 +74,16 @@ describe( 'recordRtcEvent', () => {
 		} );
 	} );
 
+	it( 'omits context fields that are not set, rather than sending null/undefined', () => {
+		( window as Record< string, unknown > ).jetpackRtcNotices = { postId: 42, userId: 99 };
+
+		recordRtcEvent( 'jetpack_rtc_join' );
+
+		const props = recordEvent.mock.calls[ 0 ][ 1 ];
+		expect( props ).not.toHaveProperty( 'post_type' );
+		expect( props ).toMatchObject( { post_id: 42, wp_user_id: 99 } );
+	} );
+
 	it( 'does not set blog_id (left to jpTracksContext)', () => {
 		recordRtcEvent( 'jetpack_rtc_join' );
 

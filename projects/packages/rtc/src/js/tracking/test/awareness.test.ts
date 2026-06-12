@@ -29,6 +29,12 @@ describe( 'getContributorIds', () => {
 		const awareness = fakeAwareness( { 1: 7, 2: null, 3: 9 }, 1 );
 		expect( getContributorIds( awareness as never ) ).toEqual( [ 7, 9 ] );
 	} );
+
+	it( 'with excludeLocal, omits the local client entry but keeps other tabs of the same user', () => {
+		// clientID 2 is the local client (user 7); clientID 3 is another tab of user 7.
+		const awareness = fakeAwareness( { 1: 9, 2: 7, 3: 7 }, 2 );
+		expect( getContributorIds( awareness as never, { excludeLocal: true } ) ).toEqual( [ 9, 7 ] );
+	} );
 } );
 
 describe( 'getLocalUserId', () => {

@@ -22,12 +22,21 @@ interface CollaboratorAwarenessState {
  * counts by correlating events (distinct/repeated `wp_user_id` on the same
  * `post_id` within a time window), not from a single event's `contributors`.
  *
- * @param awareness - The Yjs awareness instance for the room.
+ * @param awareness            - The Yjs awareness instance for the room.
+ * @param options              - Options.
+ * @param options.excludeLocal - Omit the local client's own entry (by clientID).
+ *                             Used for the blocked event, where the turned-away
+ *                             local user is reported via `wp_user_id`, not as a
+ *                             room occupant. Other tabs of the same user remain.
  * @return The WP user IDs currently present in the room.
  */
-export function getContributorIds( awareness: Awareness ): number[] {
-	return Array.from( awareness.getStates().values() )
-		.map( state => ( state as CollaboratorAwarenessState )?.collaboratorInfo?.id )
+export function getContributorIds(
+	awareness: Awareness,
+	options: { excludeLocal?: boolean } = {}
+): number[] {
+	return Array.from( awareness.getStates().entries() )
+		.filter( ( [ clientId ] ) => ! options.excludeLocal || clientId !== awareness.clientID )
+		.map( ( [ , state ] ) => ( state as CollaboratorAwarenessState )?.collaboratorInfo?.id )
 		.filter( ( id ): id is number => typeof id === 'number' );
 }
 
