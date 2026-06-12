@@ -1348,6 +1348,12 @@
 	padding: 0;
 	position: relative;
 	text-align: center;
+
+	/* Each figure clears any prior float so floated figures stack vertically
+	 * in the editor and a later figure's bounding box can't overlap a
+	 * floated image above it (which would otherwise break hover targeting
+	 * for the Edit pencil and other controls). */
+	clear: both;
 }
 
 /* Image size presets.
@@ -1382,6 +1388,47 @@
 	height: auto;
 }
 
+/* Image alignment.  Every image gets an explicit aligncenter / alignleft /
+ * alignright class — themes (and the published post) key off these for
+ * positioning, and we want predictable round-trip with the block editor.
+ *
+ * Float-based wrap on alignleft / alignright comes from wp-admin's core
+ * editor stylesheet which is inherited here.  We let it apply: text wraps
+ * around aligned images in the editor preview just as it will in the
+ * published post.  The rules below add fallback margin/text-align so the
+ * positioning is still correct on contexts where the core editor.css is
+ * not loaded. */
+.bw-content figure.aligncenter,
+.bw-content .bw-image-figure.aligncenter {
+	margin-left: auto;
+	margin-right: auto;
+	text-align: center;
+}
+
+.bw-content figure.alignleft,
+.bw-content .bw-image-figure.alignleft {
+	margin-left: 0;
+	margin-right: auto;
+	text-align: left;
+}
+
+.bw-content figure.alignleft img,
+.bw-content .bw-image-figure.alignleft img {
+	margin-left: 0;
+}
+
+.bw-content figure.alignright,
+.bw-content .bw-image-figure.alignright {
+	margin-left: auto;
+	margin-right: 0;
+	text-align: right;
+}
+
+.bw-content figure.alignright img,
+.bw-content .bw-image-figure.alignright img {
+	margin-right: 0;
+}
+
 /* Center images horizontally inside the figure.  For sized figures the
  * img already fills the figure box, so this is a no-op visually; for
  * URL-pasted (non-sized) figures it centers a smaller-than-parent img. */
@@ -1390,10 +1437,17 @@
 	margin-right: auto;
 }
 
+/* The controls wrapper hugs the image, not the figure, so the floating
+ * buttons anchor to the visible image edges.  Without this, sizes where the
+ * image's natural width is smaller than the figure's CSS width (notably
+ * Medium, where a 300px image sits inside a 50%-of-content-area figure) push
+ * the bottom-left and bottom-right buttons past the image bounds. */
 .bw-content figure .bw-img-controls,
 .bw-content .bw-image-figure .bw-img-controls {
 	position: relative;
-	display: block;
+	display: inline-block;
+	max-width: 100%;
+	vertical-align: top;
 }
 
 .bw-content figure .bw-img-delete,
@@ -1435,66 +1489,11 @@
 	background: rgba(214, 54, 56, 0.85);
 }
 
-/* Alt text button */
-.bw-img-alt {
-	position: absolute;
-	bottom: 10px;
-	left: 10px;
-	padding: 4px 10px;
-	border-radius: 4px;
-	background: rgba(0, 0, 0, 0.6);
-	backdrop-filter: blur(4px);
-	color: #fff;
-	border: none;
-	font-size: 11px;
-	font-weight: 700;
-	letter-spacing: 0.05em;
-	cursor: pointer;
-	opacity: 0;
-	transform: scale(0.8);
-	transition: opacity 0.15s ease, transform 0.15s ease, background 0.15s ease;
-	z-index: 5;
-}
-
-.bw-img-controls:hover .bw-img-alt,
-.bw-img-controls:focus-within .bw-img-alt {
-	opacity: 1;
-	transform: scale(1);
-}
-
-.bw-img-alt:hover {
-	background: rgba(33, 113, 177, 0.85);
-}
-
-/* Alt text inline input */
-.bw-img-alt-input {
-	position: absolute;
-	bottom: 10px;
-	left: 10px;
-	right: 10px;
-	z-index: 6;
-	padding: 8px 12px;
-	border: none;
-	border-radius: 6px;
-	background: rgba(0, 0, 0, 0.7);
-	backdrop-filter: blur(8px);
-	color: #fff;
-	font-size: 13px;
-	font-family: inherit;
-	outline: none;
-	box-sizing: border-box;
-	animation: bw-fade-in 0.12s ease;
-}
-
-.bw-img-alt-input::placeholder {
-	color: rgba(255, 255, 255, 0.5);
-}
-
-/* Caption button */
+/* Caption button — leftmost bottom control. */
 .bw-img-caption-btn {
 	position: absolute;
 	bottom: 10px;
-	left: 60px;
+	left: 10px;
 	padding: 4px 10px;
 	border-radius: 4px;
 	background: rgba(0, 0, 0, 0.6);
@@ -1520,83 +1519,46 @@
 	background: rgba(33, 113, 177, 0.85);
 }
 
-/* Size button — mirrors .bw-img-caption-btn styling, sits to its right. */
-.bw-img-size {
+/* Edit (pencil) button — opens the image properties modal. Anchored to the
+ * bottom-right so it doesn't stack horizontally with Caption on narrow
+ * images (RSM-3980). */
+.bw-img-edit {
 	position: absolute;
 	bottom: 10px;
-	left: 130px;
-	padding: 4px 10px;
+	right: 10px;
+	width: 28px;
+	height: 24px;
+	padding: 0;
 	border-radius: 4px;
 	background: rgba(0, 0, 0, 0.6);
 	backdrop-filter: blur(4px);
 	color: #fff;
 	border: none;
-	font-size: 11px;
-	font-weight: 600;
 	cursor: pointer;
+	display: flex;
+	align-items: center;
+	justify-content: center;
 	opacity: 0;
 	transform: scale(0.8);
 	transition: opacity 0.15s ease, transform 0.15s ease, background 0.15s ease;
 	z-index: 5;
 }
 
-.bw-img-controls:hover .bw-img-size,
-.bw-img-controls:focus-within .bw-img-size {
+.bw-img-edit .dashicons {
+	font-size: 16px;
+	width: 16px;
+	height: 16px;
+	line-height: 16px;
+}
+
+.bw-img-controls:hover .bw-img-edit,
+.bw-img-controls:focus-within .bw-img-edit {
 	opacity: 1;
 	transform: scale(1);
 }
 
-.bw-img-size:hover {
+.bw-img-edit:hover {
 	background: rgba(33, 113, 177, 0.85);
-}
-
-.bw-img-size-menu {
-	position: absolute;
-	bottom: 40px;
-	left: 130px;
-	z-index: 6;
-	background: rgba(0, 0, 0, 0.8);
-	backdrop-filter: blur(8px);
-	border-radius: 6px;
-	padding: 4px;
-	min-width: 110px;
-	box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
-	animation: bw-fade-in 0.12s ease;
-}
-
-.bw-img-size-menu[hidden] {
-	display: none;
-}
-
-.bw-img-size-option {
-	display: block;
-	width: 100%;
-	padding: 6px 10px 6px 24px;
-	border: none;
-	border-radius: 4px;
-	background: transparent;
-	text-align: start;
-	cursor: pointer;
-	font-family: inherit;
-	font-size: 12px;
-	color: #fff;
-	position: relative;
-	transition: background 0.1s ease;
-}
-
-.bw-img-size-option:hover {
-	background: rgba(255, 255, 255, 0.15);
-}
-
-.bw-img-size-option[aria-checked="true"] {
-	font-weight: 700;
-}
-
-.bw-img-size-option[aria-checked="true"]::before {
-	content: "✓";
-	position: absolute;
-	left: 8px;
-	font-weight: 700;
 }
 
 /* Figcaption.
@@ -1653,6 +1615,14 @@
 .bw-figure-selected {
 	outline: 3px solid var(--wp-admin-theme-color, #3858e9);
 	outline-offset: 4px;
+	border-radius: 4px;
+}
+
+/* Edit panel target: shows which figure the floating edit panel is currently
+ * pointed at, so switching panels between images is visually clear. */
+.bw-figure-editing {
+	outline: 2px solid var(--wp-admin-theme-color, #3858e9);
+	outline-offset: 6px;
 	border-radius: 4px;
 }
 
@@ -1883,6 +1853,150 @@
 	width: 16px;
 	height: 16px;
 	cursor: pointer;
+}
+
+/* ===== Image edit panel =====
+ * Non-modal floating panel docked to the bottom-right on desktop, sliding up
+ * as a full-width bottom sheet on mobile. Lets the user keep seeing the
+ * image change as size/alignment are picked. */
+.bw-image-edit-panel {
+	position: fixed;
+	bottom: 24px;
+	right: 24px;
+	z-index: 300;
+	width: 320px;
+	max-width: calc(100vw - 48px);
+	background: #fff;
+	border-radius: 12px;
+	padding: 20px 24px 24px;
+	box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18), 0 0 0 1px rgba(0, 0, 0, 0.06);
+	animation: bw-fade-in 0.15s ease;
+}
+
+.bw-image-edit-panel[hidden] {
+	display: none;
+}
+
+@media (max-width: 640px) {
+
+	.bw-image-edit-panel {
+		right: 0;
+		bottom: 0;
+		left: 0;
+		width: auto;
+		max-width: none;
+		border-radius: 12px 12px 0 0;
+		padding: 16px 16px max(20px, env(safe-area-inset-bottom));
+		box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.18), 0 0 0 1px rgba(0, 0, 0, 0.06);
+		animation: bw-slide-up 0.2s ease;
+	}
+}
+
+@keyframes bw-slide-up {
+
+	from {
+		transform: translateY(100%);
+	}
+
+	to {
+		transform: translateY(0);
+	}
+}
+
+.bw-edit-panel-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	margin: 0 0 16px;
+	gap: 8px;
+}
+
+.bw-edit-panel-title {
+	margin: 0;
+	font-size: 15px;
+	font-weight: 600;
+	color: #1a1a1a;
+}
+
+.bw-edit-panel-close {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 28px;
+	height: 28px;
+	padding: 0;
+	border: none;
+	border-radius: 4px;
+	background: transparent;
+	color: #555;
+	font-size: 20px;
+	line-height: 1;
+	cursor: pointer;
+	transition: background 0.12s ease, color 0.12s ease;
+}
+
+.bw-edit-panel-close:hover,
+.bw-edit-panel-close:focus {
+	background: rgba(0, 0, 0, 0.06);
+	color: #1a1a1a;
+}
+
+.bw-edit-panel-done {
+	width: 100%;
+	margin-top: 16px;
+}
+
+/* Per-section label + radio-button row inside the edit panel. */
+.bw-edit-section {
+	margin-top: 16px;
+}
+
+.bw-edit-section[hidden] {
+	display: none;
+}
+
+.bw-edit-label {
+	display: block;
+	font-size: 12px;
+	font-weight: 600;
+	color: #555;
+	margin-bottom: 6px;
+	letter-spacing: 0.02em;
+}
+
+.bw-edit-radios {
+	display: flex;
+	gap: 4px;
+	background: #f3f4f6;
+	border-radius: 8px;
+	padding: 4px;
+}
+
+.bw-edit-size-option,
+.bw-edit-align-option {
+	flex: 1;
+	padding: 6px 10px;
+	border: none;
+	border-radius: 6px;
+	background: transparent;
+	cursor: pointer;
+	font-family: inherit;
+	font-size: 13px;
+	color: #555;
+	transition: background 0.12s ease, color 0.12s ease;
+}
+
+.bw-edit-size-option:hover,
+.bw-edit-align-option:hover {
+	background: rgba(33, 113, 177, 0.08);
+}
+
+.bw-edit-size-option[aria-checked="true"],
+.bw-edit-align-option[aria-checked="true"] {
+	background: #fff;
+	color: #1a1a1a;
+	font-weight: 600;
+	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
 }
 
 /* ===== Post picker modal ===== */
