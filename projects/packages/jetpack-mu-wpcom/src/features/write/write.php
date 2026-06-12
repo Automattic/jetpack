@@ -1233,20 +1233,20 @@ function wpcom_write_template( $edit_title = '', $edit_content = '', $edit_post_
 
 		<div class="bw-edit-section" hidden data-wp-bind--hidden="!state.editingImageHasMediaId">
 			<div class="bw-edit-label"><?php echo esc_html__( 'Size', 'jetpack-mu-wpcom' ); ?></div>
-			<div class="bw-edit-radios" role="radiogroup" aria-label="<?php echo esc_attr__( 'Image size', 'jetpack-mu-wpcom' ); ?>">
-				<button type="button" class="bw-edit-size-option" role="radio" aria-checked="false" value="thumbnail" data-wp-on--click="actions.setEditImageSize"><?php echo esc_html__( 'Thumbnail', 'jetpack-mu-wpcom' ); ?></button>
-				<button type="button" class="bw-edit-size-option" role="radio" aria-checked="false" value="medium" data-wp-on--click="actions.setEditImageSize"><?php echo esc_html__( 'Medium', 'jetpack-mu-wpcom' ); ?></button>
-				<button type="button" class="bw-edit-size-option" role="radio" aria-checked="false" value="large" data-wp-on--click="actions.setEditImageSize"><?php echo esc_html__( 'Large', 'jetpack-mu-wpcom' ); ?></button>
-				<button type="button" class="bw-edit-size-option" role="radio" aria-checked="false" value="full" data-wp-on--click="actions.setEditImageSize"><?php echo esc_html__( 'Full', 'jetpack-mu-wpcom' ); ?></button>
+			<div class="bw-edit-radios" role="radiogroup" aria-label="<?php echo esc_attr__( 'Image size', 'jetpack-mu-wpcom' ); ?>" data-wp-on--keydown="actions.handleEditRadiogroupKeyDown">
+				<button type="button" class="bw-edit-size-option" role="radio" aria-checked="false" tabindex="-1" value="thumbnail" data-wp-on--click="actions.setEditImageSize"><?php echo esc_html__( 'Thumbnail', 'jetpack-mu-wpcom' ); ?></button>
+				<button type="button" class="bw-edit-size-option" role="radio" aria-checked="false" tabindex="-1" value="medium" data-wp-on--click="actions.setEditImageSize"><?php echo esc_html__( 'Medium', 'jetpack-mu-wpcom' ); ?></button>
+				<button type="button" class="bw-edit-size-option" role="radio" aria-checked="false" tabindex="-1" value="large" data-wp-on--click="actions.setEditImageSize"><?php echo esc_html__( 'Large', 'jetpack-mu-wpcom' ); ?></button>
+				<button type="button" class="bw-edit-size-option" role="radio" aria-checked="false" tabindex="-1" value="full" data-wp-on--click="actions.setEditImageSize"><?php echo esc_html__( 'Full', 'jetpack-mu-wpcom' ); ?></button>
 			</div>
 		</div>
 
 		<div class="bw-edit-section">
 			<div class="bw-edit-label"><?php echo esc_html__( 'Alignment', 'jetpack-mu-wpcom' ); ?></div>
-			<div class="bw-edit-radios" role="radiogroup" aria-label="<?php echo esc_attr__( 'Image alignment', 'jetpack-mu-wpcom' ); ?>">
-				<button type="button" class="bw-edit-align-option" role="radio" aria-checked="false" value="left" data-wp-on--click="actions.setEditImageAlign"><?php echo esc_html__( 'Left', 'jetpack-mu-wpcom' ); ?></button>
-				<button type="button" class="bw-edit-align-option" role="radio" aria-checked="false" value="center" data-wp-on--click="actions.setEditImageAlign"><?php echo esc_html__( 'Center', 'jetpack-mu-wpcom' ); ?></button>
-				<button type="button" class="bw-edit-align-option" role="radio" aria-checked="false" value="right" data-wp-on--click="actions.setEditImageAlign"><?php echo esc_html__( 'Right', 'jetpack-mu-wpcom' ); ?></button>
+			<div class="bw-edit-radios" role="radiogroup" aria-label="<?php echo esc_attr__( 'Image alignment', 'jetpack-mu-wpcom' ); ?>" data-wp-on--keydown="actions.handleEditRadiogroupKeyDown">
+				<button type="button" class="bw-edit-align-option" role="radio" aria-checked="false" tabindex="-1" value="left" data-wp-on--click="actions.setEditImageAlign"><?php echo esc_html__( 'Left', 'jetpack-mu-wpcom' ); ?></button>
+				<button type="button" class="bw-edit-align-option" role="radio" aria-checked="false" tabindex="-1" value="center" data-wp-on--click="actions.setEditImageAlign"><?php echo esc_html__( 'Center', 'jetpack-mu-wpcom' ); ?></button>
+				<button type="button" class="bw-edit-align-option" role="radio" aria-checked="false" tabindex="-1" value="right" data-wp-on--click="actions.setEditImageAlign"><?php echo esc_html__( 'Right', 'jetpack-mu-wpcom' ); ?></button>
 			</div>
 		</div>
 

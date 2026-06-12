@@ -3063,21 +3063,36 @@ const { state } = store( 'wpcom-write', {
 		},
 
 		/**
-		 * Mirror edit-modal radio state onto aria-checked attributes so the
-		 * active option is visually marked.  Reading state.editingImageAlign
+		 * Mirror edit-modal radio state onto aria-checked + tabindex so the
+		 * active option is visually marked AND owns the roving tab stop per
+		 * the WAI-ARIA radio pattern (only one radio per group in tab order;
+		 * arrow keys move within the group). Reading state.editingImageAlign
 		 * / state.editingImageSize here subscribes the watcher to those
-		 * signals; the modal's data-wp-watch wires this up.
+		 * signals; the panel's data-wp-watch wires this up.
 		 */
 		syncEditImageModalRadios() {
 			const align = state.editingImageAlign;
 			const size = state.editingImageSize;
 			if ( ! state.showImageModal || ! state.isEditMode ) return;
-			document.querySelectorAll( '.bw-edit-align-option' ).forEach( btn => {
-				btn.setAttribute( 'aria-checked', btn.value === align ? 'true' : 'false' );
-			} );
-			document.querySelectorAll( '.bw-edit-size-option' ).forEach( btn => {
-				btn.setAttribute( 'aria-checked', btn.value === size ? 'true' : 'false' );
-			} );
+			const sync = ( selector, activeValue ) => {
+				const options = document.querySelectorAll( selector );
+				let activeFound = false;
+				options.forEach( btn => {
+					const isActive = btn.value === activeValue;
+					btn.setAttribute( 'aria-checked', isActive ? 'true' : 'false' );
+					btn.tabIndex = isActive ? 0 : -1;
+					if ( isActive ) activeFound = true;
+				} );
+				// Keep one option tabbable even when nothing matches the
+				// current state (e.g. size: '' for non-media-library images
+				// where the section is hidden anyway, but the rule still
+				// holds — no group should be entirely untabbable).
+				if ( ! activeFound && options.length ) {
+					options[ 0 ].tabIndex = 0;
+				}
+			};
+			sync( '.bw-edit-align-option', align );
+			sync( '.bw-edit-size-option', size );
 		},
 	},
 	state: {
@@ -4345,6 +4360,49 @@ const { state } = store( 'wpcom-write', {
 			if ( ! editingFigure || ! IMAGE_ALIGNS.includes( align ) ) return;
 			state.editingImageAlign = align;
 			setFigureAlignment( editingFigure, align );
+		},
+
+		/**
+		 * Arrow / Home / End navigation within the Size and Alignment
+		 * radiogroups in the edit panel. Implements the WAI-ARIA radio
+		 * pattern: arrow keys move focus to the next/previous option AND
+		 * activate it; Home / End jump to first / last; only the active
+		 * option carries tabindex=0 so Tab moves out of the group.
+		 *
+		 * @param {KeyboardEvent} event - The keydown event.
+		 */
+		handleEditRadiogroupKeyDown( event ) {
+			const nav = [ 'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Home', 'End' ];
+			if ( ! nav.includes( event.key ) ) return;
+			const group = event.currentTarget;
+			const options = [ ...group.querySelectorAll( '[role="radio"]' ) ];
+			if ( ! options.length ) return;
+			event.preventDefault();
+			const current = group.ownerDocument.activeElement;
+			const idx = Math.max( 0, options.indexOf( current ) );
+			let next;
+			switch ( event.key ) {
+				case 'ArrowLeft':
+				case 'ArrowUp':
+					next = options[ ( idx - 1 + options.length ) % options.length ];
+					break;
+				case 'ArrowRight':
+				case 'ArrowDown':
+					next = options[ ( idx + 1 ) % options.length ];
+					break;
+				case 'Home':
+					next = options[ 0 ];
+					break;
+				case 'End':
+					next = options[ options.length - 1 ];
+					break;
+			}
+			if ( next ) {
+				next.focus();
+				// Activate the new option — the radio pattern selects on
+				// move (vs. menu, which moves focus without selecting).
+				next.click();
+			}
 		},
 
 		openImageModal() {
