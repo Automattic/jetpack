@@ -168,11 +168,10 @@ class Sidebar_Open_Preservation_Test extends \WorDBless\BaseTestCase {
 		$output = ob_get_clean();
 
 		$this->assertStringContainsString( '<script', $output );
-		// Height is the only gate measured here; it reads the admin menu and
-		// publishes the verdict as the dock-too-short body class, on load + resize.
+		// Height is the only gate measured here: it reads the admin menu and
+		// publishes the verdict as the dock-too-short body class (mount only).
 		$this->assertStringContainsString( 'adminmenu', $output );
 		$this->assertStringContainsString( 'agents-manager--viewport-height-too-short-for-docking', $output );
-		$this->assertStringContainsString( 'resize', $output );
 	}
 
 	/**

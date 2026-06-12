@@ -100,17 +100,23 @@ class Sidebar_Open_Preservation {
 	}
 
 	/**
-	 * Print the synchronous minimum height for docking reconciliation script.
+	 * Print the synchronous minimum-height-for-docking reconciliation script.
 	 *
 	 * Only emitted when the docked shell was pre-rendered. The one dock gate that
 	 * needs a live measurement is height: the docked layout pins the admin menu to
 	 * the viewport, and a menu taller than the room below the admin bar would be
 	 * clipped, so the chat floats instead. That threshold is dynamic, so it can't
-	 * be a CSS media query. This script measures it before the content paints (and
-	 * on resize) and publishes the verdict as the body class
-	 * `agents-manager--viewport-height-too-short-for-docking`, which both the reshape CSS and the React
-	 * hook read. Width and fullscreen gating are declarative (CSS) / owned by the
-	 * hook, so they are intentionally not duplicated here.
+	 * be a CSS media query. The script measures it before the content paints and
+	 * publishes the verdict as the body class
+	 * `agents-manager--viewport-height-too-short-for-docking`, which both the
+	 * reshape CSS and the React hook read. Width and fullscreen gating are
+	 * declarative (CSS) / owned by the hook, so they are not duplicated here.
+	 *
+	 * The script lives in src/js/sidebar-dock-reconciler.js and is inlined (not
+	 * referenced via `src`) on purpose: it must run render-blocking before paint,
+	 * and a same- or cross-origin fetch would add latency to that blocking window.
+	 * Reading the bundled file and printing it inline keeps it a real, lintable JS
+	 * file with zero request cost.
 	 *
 	 * X-REF: that body class is consumed by the Calypso package's reshape selectors
 	 * as the `$dock-too-short-class` SCSS variable in
@@ -124,34 +130,11 @@ class Sidebar_Open_Preservation {
 			return;
 		}
 
-		$script = <<<'JS'
-( function () {
-	var body = document.body;
-	if ( ! body ) {
-		return;
-	}
-
-	// The docked layout pins the admin menu to the viewport; if the menu is
-	// taller than the room below the admin bar it would be clipped, so the chat
-	// floats instead. Offset by the admin bar's *height* (class-independent)
-	// rather than the menu's getBoundingClientRect().top, which is distorted
-	// while the docked classes are applied. Keep this formula identical to the
-	// hook's adminMenuHeight read so both agree.
-	function reconcileMinimumHeightForDockedShell() {
-		var adminMenu = document.getElementById( 'adminmenu' );
-		if ( ! adminMenu ) {
+		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- Reading a local file bundled with the package; wp_remote_get is for remote URLs.
+		$script = file_get_contents( __DIR__ . '/js/sidebar-dock-reconciler.js' );
+		if ( false === $script ) {
 			return;
 		}
-		var adminBar = document.getElementById( 'wpadminbar' );
-		var adminBarHeight = adminBar ? adminBar.offsetHeight : 32;
-		var tooShort = window.innerHeight < adminMenu.offsetHeight + adminBarHeight + 20;
-		body.classList.toggle( 'agents-manager--viewport-height-too-short-for-docking', tooShort );
-	}
-
-	reconcileMinimumHeightForDockedShell();
-	// window.addEventListener( 'resize', reconcileMinimumHeightForDockedShell );
-} )();
-JS;
 
 		wp_print_inline_script_tag( $script );
 	}
