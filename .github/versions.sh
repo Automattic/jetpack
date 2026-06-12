@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# This file is also parsed by tools/cli (whose `envfile` dependency doesn't understand `export`).
+# We can't use `export`, because this file is also parsed by tools/cli (whose `envfile` dependency doesn't understand `export`).
 # shellcheck disable=SC2034
 
 # Versions of tools to use in CI.
