@@ -43,15 +43,23 @@ class InitializerTest extends TestCase {
 	 * enhancer is unavailable.
 	 */
 	public function test_get_ai_data_shape() {
-		$ai = Initializer::get_ai_data();
+		// Force the enhancer feature filter off so availability is deterministic
+		// regardless of whether Current_Plan happens to be loaded in the test
+		// environment (availability is `filter_on && plan_supports`).
+		add_filter( 'ai_seo_enhancer_enabled', '__return_false' );
 
-		$this->assertArrayHasKey( 'enhancer', $ai );
-		$this->assertArrayHasKey( 'available', $ai['enhancer'] );
-		$this->assertArrayHasKey( 'enabled', $ai['enhancer'] );
-		$this->assertIsBool( $ai['enhancer']['available'] );
-		$this->assertIsBool( $ai['enhancer']['enabled'] );
-		// Current_Plan isn't present in the package test context, so the enhancer
-		// can't be available regardless of the feature filter.
-		$this->assertFalse( $ai['enhancer']['available'] );
+		try {
+			$ai = Initializer::get_ai_data();
+
+			$this->assertArrayHasKey( 'enhancer', $ai );
+			$this->assertArrayHasKey( 'available', $ai['enhancer'] );
+			$this->assertArrayHasKey( 'enabled', $ai['enhancer'] );
+			$this->assertIsBool( $ai['enhancer']['available'] );
+			$this->assertIsBool( $ai['enhancer']['enabled'] );
+			// With the feature filter forced off, the enhancer is never available.
+			$this->assertFalse( $ai['enhancer']['available'] );
+		} finally {
+			remove_filter( 'ai_seo_enhancer_enabled', '__return_false' );
+		}
 	}
 }

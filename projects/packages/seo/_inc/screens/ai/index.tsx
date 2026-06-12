@@ -39,7 +39,7 @@ const AiScreen: FC< Props > = ( { form } ) => {
 	// the free AI settings still to come.
 	if ( ! enhancer.available ) {
 		return (
-			<Notice.Root intent="default">
+			<Notice.Root intent="info">
 				<Notice.Description>
 					{ __( 'More AI tools for your SEO are on the way.', 'jetpack-seo' ) }
 				</Notice.Description>
@@ -51,7 +51,7 @@ const AiScreen: FC< Props > = ( { form } ) => {
 		<div className="jetpack-seo-ai">
 			<CollapsibleCard.Root defaultOpen>
 				<CollapsibleCard.Header>
-					<Card.Title>{ __( 'SEO Enhancer', 'jetpack-seo' ) }</Card.Title>
+					<Card.Title>{ __( 'AI SEO Enhancer', 'jetpack-seo' ) }</Card.Title>
 				</CollapsibleCard.Header>
 				<CollapsibleCard.Content>
 					<ToggleControl
