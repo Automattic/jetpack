@@ -85,6 +85,30 @@ class AI_Launchpad_Listeners_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * An AI-selected task completes even when it is absent from the site's
+	 * legacy site_intent task list (the GATED-completion gap): site_intent=build
+	 * does not contain first_post_published, yet publishing must still complete it.
+	 */
+	public function test_ai_task_completes_when_absent_from_site_intent_list() {
+		update_option( 'site_intent', 'build' );
+		$this->seed_ai_output( array( 'first_post_published' ) );
+
+		AI_Launchpad_Listeners::add_listener_hooks_to_correct_action();
+
+		wp_insert_post(
+			array(
+				'post_title'   => 'First post',
+				'post_content' => 'Hello world.',
+				'post_status'  => 'publish',
+			)
+		);
+
+		$statuses = get_option( 'launchpad_checklist_tasks_statuses' );
+		$this->assertIsArray( $statuses );
+		$this->assertTrue( $statuses['first_post_published'] );
+	}
+
+	/**
 	 * Without the AI output option, no listeners are registered and legacy
 	 * launchpad sites see no behavior change.
 	 */
