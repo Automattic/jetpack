@@ -49,6 +49,11 @@ class Critical_CSS_Storage_Test extends BaseTestCase {
 	 * @return \WP_Post[]|null
 	 */
 	public function emulate_name_query( $posts, $query ) {
+		// Respect any earlier filter that already short-circuited the query.
+		if ( null !== $posts ) {
+			return $posts;
+		}
+
 		$name      = $query->get( 'name' );
 		$post_type = $query->get( 'post_type' );
 
