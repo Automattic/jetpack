@@ -39,6 +39,7 @@ const DASHBOARD_ONE_COLUMN_WIDTH = 256;
 const DASHBOARD_TWO_COLUMN_WIDTH = 448;
 const DASHBOARD_SINGLE_COLUMN_WIDTH = 576;
 const DESKTOP_DASHBOARD_WIDTH = `${ DASHBOARD_ONE_COLUMN_WIDTH * 4 + DASHBOARD_GRID_GAP * 3 }px`;
+const MOBILE_DASHBOARD_PAGE_WIDTH = '370px';
 const NARROW_DASHBOARD_PAGE_WIDTH = '640px';
 const DASHBOARD_DEFAULT_HEIGHT = `${ DASHBOARD_ROW_HEIGHT * 2 + DASHBOARD_GRID_GAP }px`;
 const DASHBOARD_MIN_HEIGHT = `${ DASHBOARD_ROW_HEIGHT }px`;
@@ -239,6 +240,14 @@ export const DashboardPageNarrow: Story = {
 	render: () => <DashboardPageStory width={ NARROW_DASHBOARD_PAGE_WIDTH } />,
 };
 
+export const DashboardPageNarrowEditMode: Story = {
+	render: () => <DashboardPageStory width={ NARROW_DASHBOARD_PAGE_WIDTH } initialEditMode />,
+};
+
+export const DashboardPageMobile: Story = {
+	render: () => <DashboardPageStory width={ MOBILE_DASHBOARD_PAGE_WIDTH } />,
+};
+
 export const DashboardPageMinimumTile: Story = {
 	render: () => (
 		<DashboardPageStory
@@ -251,6 +260,39 @@ export const DashboardPageMinimumTile: Story = {
 				} ),
 			] }
 			rowHeight={ 200 }
+		/>
+	),
+};
+
+export const DashboardPageMobileMinimumTile: Story = {
+	render: () => (
+		<DashboardPageStory
+			width={ MOBILE_DASHBOARD_PAGE_WIDTH }
+			initialLayout={ [
+				createAverageItemsWidget( {
+					width: 1,
+					height: 1,
+					order: 0,
+				} ),
+			] }
+			rowHeight={ 200 }
+		/>
+	),
+};
+
+export const DashboardPageMinimumTileEditMode: Story = {
+	render: () => (
+		<DashboardPageStory
+			width={ NARROW_DASHBOARD_PAGE_WIDTH }
+			initialLayout={ [
+				createAverageItemsWidget( {
+					width: 1,
+					height: 1,
+					order: 0,
+				} ),
+			] }
+			rowHeight={ 200 }
+			initialEditMode
 		/>
 	),
 };

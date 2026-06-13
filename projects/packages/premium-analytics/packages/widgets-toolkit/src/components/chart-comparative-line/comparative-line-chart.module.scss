@@ -40,16 +40,16 @@
 		}
 	}
 
-	@include widget-query( xxs, max-width ) {
+	@include widget-query( xs, max-width ) {
 
 		.legend {
 			width: 100%;
 			height: auto;
-			min-height: calc(var(--wpds-typography-line-height-lg, 28px) + var(--wpds-typography-line-height-lg, 28px) + var(--wpds-dimension-gap-sm, 8px));
+			min-height: calc(var(--wpds-typography-line-height-lg, 28px) + var(--wpds-typography-line-height-lg, 28px) + var(--wpds-dimension-gap-xs, 4px));
 			align-items: center;
 			align-content: center;
 			justify-content: center;
-			row-gap: var(--wpds-dimension-gap-sm) !important;
+			row-gap: var(--wpds-dimension-gap-xs) !important;
 		}
 
 		.legendItem {
