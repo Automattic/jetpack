@@ -431,8 +431,13 @@ class Render_Blocking_JS implements Feature, Changes_Output_On_Activation, Chang
 	 * Patterns follow the semantics documented for Page Cache bypass patterns:
 	 * they are compared against the URL path (query strings are ignored),
 	 * a `(.*)` or `*` wildcard matches any part of the path, trailing slashes
-	 * are optional and the comparison is case-insensitive. Anything else in a
-	 * pattern is treated literally.
+	 * are optional and the comparison is case-insensitive.
+	 *
+	 * Unlike Page Cache (which stores raw regular expressions), every character
+	 * outside the wildcard tokens is escaped via preg_quote() and matched
+	 * literally here, so a user pattern like `page.html` only matches that exact
+	 * path and never acts as a regular expression. Keep that difference in mind
+	 * before unifying the two implementations.
 	 *
 	 * @param string $request_uri The request URI to check.
 	 * @param array  $patterns    List of URL patterns.
@@ -503,12 +508,23 @@ class Render_Blocking_JS implements Feature, Changes_Output_On_Activation, Chang
 
 		$pattern = self::normalize_url_path( $pattern );
 
-		// Convert wildcard tokens to regex groups, treating the rest of the pattern literally.
-		$tokens = preg_split( '/\(\.\*\)|\(\*\)|\.\*|\*/', $pattern );
+		/*
+		 * Split on wildcard tokens, treating any run of adjacent wildcards as a
+		 * single split point. The possessive `++` is important: without coalescing,
+		 * a pattern such as `****` would expand to one `.*` group per character, and
+		 * thousands of wildcards would compile to thousands of groups and exhaust
+		 * memory when matched against every front-end request. Possessive (rather
+		 * than greedy `+`) keeps the split itself linear, so a pathological run of
+		 * thousands of adjacent wildcards cannot exhaust the PCRE backtrack/JIT
+		 * stack and make preg_split() return false.
+		 */
+		$tokens = preg_split( '/(?:\(\.\*\)|\(\*\)|\.\*|\*)++/', $pattern );
 		if ( false === $tokens ) {
 			return null;
 		}
 
+		// Everything between wildcards is matched literally; only the wildcards
+		// become a (non-capturing) `.*` group.
 		$quoted = array_map(
 			function ( $token ) {
 				return preg_quote( $token, '~' );
@@ -516,7 +532,7 @@ class Render_Blocking_JS implements Feature, Changes_Output_On_Activation, Chang
 			$tokens
 		);
 
-		return '~^' . implode( '(.*)', $quoted ) . '/?$~i';
+		return '~^' . implode( '(?:.*)', $quoted ) . '/?$~i';
 	}
 
 	public static function get_slug() {

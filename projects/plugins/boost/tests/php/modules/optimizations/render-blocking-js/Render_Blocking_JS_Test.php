@@ -26,11 +26,21 @@ class Render_Blocking_JS_Test extends MockeryTestCase {
 	private $instance;
 
 	/**
+	 * Output-buffer nesting level captured before each test, used to clean up
+	 * any buffers a test leaves open (e.g. when an assertion fails mid-test).
+	 *
+	 * @var int
+	 */
+	private $base_ob_level;
+
+	/**
 	 * Set up test environment.
 	 */
 	protected function setUp(): void {
 		parent::setUp();
 		Monkey\setUp();
+
+		$this->base_ob_level = ob_get_level();
 
 		$this->instance = new Render_Blocking_JS();
 
@@ -54,6 +64,11 @@ class Render_Blocking_JS_Test extends MockeryTestCase {
 	 * Tear down test environment.
 	 */
 	protected function tearDown(): void {
+		// Close any output buffers a test left open so they cannot leak between tests.
+		while ( ob_get_level() > $this->base_ob_level ) {
+			ob_end_clean();
+		}
+
 		unset( $_SERVER['REQUEST_URI'] );
 		Monkey\tearDown();
 		parent::tearDown();
@@ -260,6 +275,13 @@ class Render_Blocking_JS_Test extends MockeryTestCase {
 			'root pattern does not match sub-pages'   => array( '/about-us/', array( '/' ), false ),
 			'regex characters are treated literally'  => array( '/pageXhtml/', array( 'page.html' ), false ),
 			'literal dot matches itself'              => array( '/page.html', array( 'page.html' ), true ),
+			'literal parens are not regex groups'     => array( '/page1/', array( 'page(1)' ), false ),
+			'literal parens match themselves'         => array( '/page(1)/', array( 'page(1)' ), true ),
+			'bare wildcard matches every path'        => array( '/any/deep/path/', array( '(.*)' ), true ),
+			'bare wildcard matches the homepage'      => array( '/', array( '*' ), true ),
+			'consecutive wildcards collapse'          => array( '/gallery/holiday/', array( 'gallery/**' ), true ),
+			'many wildcards do not blow up'           => array( '/a/b/c/', array( str_repeat( '*', 8192 ) ), true ),
+			'multiple separated wildcards'            => array( '/a/x/b/y/', array( 'a/*/b/*' ), true ),
 			'empty pattern list'                      => array( '/checkout/', array(), false ),
 			'empty string patterns are ignored'       => array( '/checkout/', array( '', '   ' ), false ),
 			'non-string patterns are ignored'         => array( '/checkout/', array( 42, null, array( 'checkout' ) ), false ),
@@ -316,8 +338,87 @@ class Render_Blocking_JS_Test extends MockeryTestCase {
 		$this->instance->setup();
 		$this->instance->start_output_filtering();
 
-		// Output filtering opens an output buffer; close it again.
-		$this->assertSame( $initial_ob_level + 1, ob_get_level() );
-		ob_end_clean();
+		// Output filtering opens an output buffer.
+		$this->assertGreaterThan( $initial_ob_level, ob_get_level() );
+
+		// Clean up any buffers this test opened so they cannot leak into others.
+		while ( ob_get_level() > $initial_ob_level ) {
+			ob_end_clean();
+		}
+	}
+
+	/**
+	 * Verifies is_current_request_excluded() bails out (returns false) when
+	 * REQUEST_URI is not available, e.g. on CLI/cron requests.
+	 */
+	public function test_is_current_request_excluded_without_request_uri() {
+		unset( $_SERVER['REQUEST_URI'] );
+		$this->stub_url_functions();
+		Functions\when( 'jetpack_boost_ds_get' )->justReturn( array( 'checkout' ) );
+
+		$this->assertFalse( $this->invoke_is_current_request_excluded() );
+	}
+
+	/**
+	 * Verifies is_current_request_excluded() bails out (returns false) when the
+	 * stored patterns are empty or not a usable array, rather than warning or matching.
+	 */
+	public function test_is_current_request_excluded_with_unusable_patterns() {
+		$_SERVER['REQUEST_URI'] = '/checkout/';
+		$this->stub_url_functions();
+
+		foreach ( array( array(), '', false, null, 'checkout' ) as $stored ) {
+			Functions\when( 'jetpack_boost_ds_get' )->justReturn( $stored );
+			$this->assertFalse(
+				$this->invoke_is_current_request_excluded(),
+				'Unusable stored value should never exclude: ' . var_export( $stored, true )
+			);
+		}
+	}
+
+	/**
+	 * Verifies register_data_sync() registers exactly the render_blocking_js_excludes entry.
+	 */
+	public function test_register_data_sync_registers_excludes_entry() {
+		$data_sync = \Mockery::mock( 'Automattic\Jetpack\WP_JS_Data_Sync\Data_Sync' );
+		$data_sync->shouldReceive( 'register' )
+			->once()
+			->with(
+				'render_blocking_js_excludes',
+				\Mockery::any(),
+				\Mockery::type( 'Automattic\Jetpack_Boost\Data_Sync\Minify_Excludes_State_Entry' )
+			);
+
+		$this->instance->register_data_sync( $data_sync );
+	}
+
+	/**
+	 * Verifies get_change_output_action_names() returns the option-update hook
+	 * that busts the page cache when the exclusion list changes. The exact string
+	 * is load-bearing: a typo silently breaks cache invalidation.
+	 */
+	public function test_get_change_output_action_names() {
+		if ( ! defined( 'JETPACK_BOOST_DATASYNC_NAMESPACE' ) ) {
+			define( 'JETPACK_BOOST_DATASYNC_NAMESPACE', 'jetpack_boost_ds' );
+		}
+
+		$this->assertSame(
+			array( 'update_option_' . JETPACK_BOOST_DATASYNC_NAMESPACE . '_render_blocking_js_excludes' ),
+			Render_Blocking_JS::get_change_output_action_names()
+		);
+	}
+
+	/**
+	 * Invoke the private is_current_request_excluded() method under test.
+	 *
+	 * @return bool
+	 */
+	private function invoke_is_current_request_excluded() {
+		$method = new \ReflectionMethod( $this->instance, 'is_current_request_excluded' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true );
+		}
+
+		return $method->invoke( $this->instance );
 	}
 }

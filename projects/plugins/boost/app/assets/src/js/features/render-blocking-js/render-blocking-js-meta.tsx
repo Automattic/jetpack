@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Button } from '@automattic/jetpack-components';
 import { useDataSync } from '@automattic/jetpack-react-data-sync-client';
 import { createInterpolateElement } from '@wordpress/element';
@@ -47,9 +47,24 @@ const RenderBlockingJsMeta = () => {
 	const [ inputValue, setInputValue ] = useState( () => values.join( ', ' ) );
 	const { setNotice } = useNotices();
 
+	const serverValue = values.join( ', ' );
+
+	/*
+	 * Data Sync resolves asynchronously, so on the first render `values` is empty
+	 * and the lazy initializer above seeds `inputValue` with an empty string.
+	 * Sync the field once the saved patterns arrive (and after a save) so the
+	 * input never shows a stale empty value while the Save button is enabled —
+	 * which would otherwise let a stray click overwrite the list with an empty
+	 * string. Keyed on the joined string rather than the array reference so it
+	 * does not clobber what the user is currently typing.
+	 */
+	useEffect( () => {
+		setInputValue( serverValue );
+	}, [ serverValue ] );
+
 	const onToggleHandler = ( isExpanded: boolean ) => {
 		if ( ! isExpanded ) {
-			setInputValue( values.join( ', ' ) );
+			setInputValue( serverValue );
 		}
 	};
 
@@ -80,52 +95,50 @@ const RenderBlockingJsMeta = () => {
 	}
 
 	const content = (
-		<div className={ styles.body }>
-			<div className={ styles.section }>
-				<div className={ styles.title }>{ __( 'Exceptions', 'jetpack-boost' ) }</div>
-				<div className={ styles[ 'manage-excludes' ] }>
-					<label className={ styles[ 'sub-header' ] } htmlFor={ htmlId }>
-						{ __( 'Exclude URL patterns:', 'jetpack-boost' ) }
-					</label>
-					<input
-						type="text"
-						value={ inputValue }
-						placeholder={ __(
-							'Comma-separated list of URL patterns to exclude, e.g.: checkout, gallery/(.*)',
+		<div className={ styles.section }>
+			<div className={ styles.title }>{ __( 'Exceptions', 'jetpack-boost' ) }</div>
+			<div className={ styles[ 'manage-excludes' ] }>
+				<label className={ styles[ 'sub-header' ] } htmlFor={ htmlId }>
+					{ __( 'Exclude URL patterns:', 'jetpack-boost' ) }
+				</label>
+				<input
+					type="text"
+					value={ inputValue }
+					placeholder={ __(
+						'Comma-separated list of URL patterns to exclude, e.g.: checkout, gallery/(.*)',
+						'jetpack-boost'
+					) }
+					id={ htmlId }
+					onChange={ e => setInputValue( e.target.value ) }
+					onKeyDown={ e => {
+						if ( e.key === 'Enter' || e.key === 'NumpadEnter' ) {
+							save();
+						}
+					} }
+				/>
+				<div className={ styles.description }>
+					{ __(
+						'JavaScript will not be deferred on pages matching these URL patterns. Use a comma (,) to separate the patterns. Use (.*) to address multiple URLs under a given path.',
+						'jetpack-boost'
+					) }
+					<br />
+					{ createInterpolateElement(
+						__(
+							'To keep a single script in place on every page instead, add the <code>data-jetpack-boost="ignore"</code> attribute to its script tag.',
 							'jetpack-boost'
-						) }
-						id={ htmlId }
-						onChange={ e => setInputValue( e.target.value ) }
-						onKeyDown={ e => {
-							if ( e.key === 'Enter' || e.key === 'NumpadEnter' ) {
-								save();
-							}
-						} }
-					/>
-					<div className={ styles.description }>
-						{ __(
-							'JavaScript will not be deferred on pages matching these URL patterns. Use a comma (,) to separate the patterns. Use (.*) to address multiple URLs under a given path.',
-							'jetpack-boost'
-						) }
-						<br />
-						{ createInterpolateElement(
-							__(
-								'To keep a single script in place on every page instead, add the <code>data-jetpack-boost="ignore"</code> attribute to its script tag.',
-								'jetpack-boost'
-							),
-							{
-								code: <code />,
-							}
-						) }
-					</div>
-					<Button
-						disabled={ values.join( ', ' ) === inputValue }
-						className={ styles.button }
-						onClick={ save }
-					>
-						{ __( 'Save', 'jetpack-boost' ) }
-					</Button>
+						),
+						{
+							code: <code />,
+						}
+					) }
 				</div>
+				<Button
+					disabled={ serverValue === inputValue }
+					className={ styles.button }
+					onClick={ save }
+				>
+					{ __( 'Save', 'jetpack-boost' ) }
+				</Button>
 			</div>
 		</div>
 	);
