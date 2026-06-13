@@ -1,3 +1,5 @@
+@use "../../styles/widget-container" as *;
+
 .chart {
 	height: 100%;
 
@@ -21,6 +23,21 @@
 
 		span {
 			display: block;
+		}
+	}
+
+	@include widget-query( xxs, max-width ) {
+
+		.legend {
+			width: 100%;
+			height: auto;
+			min-height: calc(var(--wpds-typography-line-height-lg, 28px) + var(--wpds-typography-line-height-lg, 28px) + var(--wpds-dimension-gap-lg, 16px));
+			justify-content: flex-start;
+		}
+
+		.legendItem {
+			flex: 0 0 100%;
+			max-width: 100%;
 		}
 	}
 }
