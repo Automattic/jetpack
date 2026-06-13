@@ -64,17 +64,19 @@ const resolveAverageItemsWidgetModule: ResolveWidgetModule = async moduleId => {
 	};
 };
 
-const createAverageItemsWidget = (): DashboardWidget => ( {
+const createAverageItemsWidget = (
+	placement: DashboardWidget[ 'placement' ] = {
+		width: 1,
+		height: 2,
+		order: 0,
+	}
+): DashboardWidget => ( {
 	uuid: 'average-items-per-order-story',
 	type: averageItemsWidgetType.name,
 	attributes: {
 		reportParams: getDefaultQueryParams( true ),
 	},
-	placement: {
-		width: 1,
-		height: 2,
-		order: 0,
-	},
+	placement,
 } );
 
 function ResizableDashboardTileStory() {
@@ -91,6 +93,31 @@ function ResizableDashboardTileStory() {
 				resolveWidgetModule={ resolveAverageItemsWidgetModule }
 				editMode={ true }
 				gridSettings={ { model: 'grid', rowHeight: DASHBOARD_ROW_HEIGHT } }
+			>
+				<WidgetDashboard.Widgets />
+			</WidgetDashboard>
+		</div>
+	);
+}
+
+function MinimumDashboardTileStory() {
+	const [ layout, setLayout ] = useState< DashboardWidget[] >( () => [
+		createAverageItemsWidget( {
+			width: 1,
+			height: 1,
+			order: 0,
+		} ),
+	] );
+
+	return (
+		<div style={ { width: DESKTOP_DASHBOARD_WIDTH, maxWidth: '100%' } }>
+			<WidgetDashboard
+				layout={ layout }
+				onLayoutChange={ setLayout }
+				widgetTypes={ [ averageItemsWidgetType ] }
+				resolveWidgetModule={ resolveAverageItemsWidgetModule }
+				editMode={ true }
+				gridSettings={ { model: 'grid', rowHeight: 200 } }
 			>
 				<WidgetDashboard.Widgets />
 			</WidgetDashboard>
@@ -161,4 +188,8 @@ export const MinimumResizedTile: Story = {
 
 export const ResizableDashboardTile: Story = {
 	render: () => <ResizableDashboardTileStory />,
+};
+
+export const MinimumDashboardTile: Story = {
+	render: () => <MinimumDashboardTileStory />,
 };
