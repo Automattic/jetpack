@@ -43,16 +43,26 @@ class CSS_Proxy_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Invoke the private CSS_Proxy::get_proxied_css() resolver.
+	 * Invoke the protected CSS_Proxy::get_proxied_css() resolver via a subclass
+	 * (avoids ReflectionMethod::setAccessible(), deprecated as of PHP 8.5).
 	 *
 	 * @param string $proxy_url URL to resolve.
 	 * @return string
 	 */
 	private function resolve( $proxy_url ) {
-		$method = new \ReflectionMethod( CSS_Proxy::class, 'get_proxied_css' );
-		$method->setAccessible( true );
+		$proxy = new class() extends CSS_Proxy {
+			/**
+			 * Expose the protected resolver for testing.
+			 *
+			 * @param string $url URL to resolve.
+			 * @return string
+			 */
+			public function resolve_proxied_css( $url ) {
+				return $this->get_proxied_css( $url );
+			}
+		};
 
-		return $method->invoke( new CSS_Proxy(), $proxy_url );
+		return $proxy->resolve_proxied_css( $proxy_url );
 	}
 
 	/**

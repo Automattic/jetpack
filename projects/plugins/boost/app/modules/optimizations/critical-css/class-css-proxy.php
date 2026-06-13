@@ -81,7 +81,7 @@ class CSS_Proxy {
 	 * @param string $proxy_url Validated external CSS URL.
 	 * @return string The CSS body, or '' when there is none to serve.
 	 */
-	private function get_proxied_css( $proxy_url ) {
+	protected function get_proxied_css( $proxy_url ) {
 		$cache_key = 'jb_css_proxy_' . md5( $proxy_url );
 		$response  = get_transient( $cache_key );
 
