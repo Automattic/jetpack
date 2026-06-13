@@ -181,9 +181,11 @@ async function createBrowserInterface(
 
 /**
  * Generate Critical CSS for the specified Provider Keys, sending each block
- * to the server. Per-provider errors are recorded against the offending
- * provider and do not stop the remaining providers from generating. Only
- * throws on global failures (e.g. the generator library failing to load).
+ * to the server. Per-provider generation errors are recorded against the
+ * offending provider and do not stop the remaining providers from generating.
+ * Throws only on failures that aren't tied to a single provider's generation
+ * step, e.g. the generator library failing to load, or a state-persistence
+ * callback rejecting.
  *
  * @param {Object}      providers            - Set of URLs to use for each provider key
  * @param {Viewport[]}  viewports            - Viewports to use when generating Critical CSS.
@@ -335,7 +337,10 @@ async function generateForKeys(
 				recordBoostEvent( 'critical_css_failure', eventProps );
 
 				// Record the error against this provider, and continue generating
-				// Critical CSS for the remaining providers.
+				// Critical CSS for the remaining providers. The stored type is the
+				// catch-all 'UnknownError' (a valid CriticalCssErrorType) rather than
+				// the analytics `type` above, which may be 'unknown' or some other
+				// value that isn't a recognised member.
 				await callbacks.setProviderErrors(
 					key,
 					urls.map( url => ( {
