@@ -23,6 +23,7 @@
 			<directory suffix="Test.php">tests/php</directory>
 			<exclude>tests/php/lib/critical-css/Display_Critical_CSS_Test.php</exclude>
 			<exclude>tests/php/lib/critical-css/Critical_CSS_Storage_Test.php</exclude>
+			<exclude>tests/php/modules/optimizations/critical-css/CSS_Proxy_Test.php</exclude>
 			<exclude>tests/php/Jetpack_Boost_Test.php</exclude>
 			<exclude>tests/php/modules/optimizations/lcp/LCP_Optimize_Bg_Image_Test.php</exclude>
 			<exclude>tests/php/modules/optimizations/lcp/LCP_Optimize_Img_Tag_Test.php</exclude>
@@ -32,6 +33,7 @@
 			<file>tests/php/Jetpack_Boost_Test.php</file>
 			<file>tests/php/lib/critical-css/Display_Critical_CSS_Test.php</file>
 			<file>tests/php/lib/critical-css/Critical_CSS_Storage_Test.php</file>
+			<file>tests/php/modules/optimizations/critical-css/CSS_Proxy_Test.php</file>
 			<file>tests/php/modules/optimizations/lcp/LCP_Optimize_Bg_Image_Test.php</file>
 			<file>tests/php/modules/optimizations/lcp/LCP_Optimize_Img_Tag_Test.php</file>
 			<file>tests/php/abilities/Boost_Abilities_Test.php</file>

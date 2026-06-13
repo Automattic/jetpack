@@ -52,44 +52,7 @@ class CSS_Proxy {
 			wp_die( 'Invalid CSS file URL', 400 );
 		}
 
-		$cache_key = 'jb_css_proxy_' . md5( $proxy_url );
-		$response  = get_transient( $cache_key );
-
-		if ( is_array( $response ) && isset( $response['error'] ) ) {
-			wp_die( esc_html( $response['error'] ), 400 );
-		}
-
-		$css = '';
-		if ( is_string( $response ) ) {
-			// Cache hit: the transient stores the CSS body from a previous
-			// successful fetch. Without this branch a cached body was ignored
-			// ($css stayed empty), so the handler returned no CSS to the
-			// Critical CSS generator.
-			$css = $response;
-		} elseif ( false === $response ) {
-			$response = wp_safe_remote_get( $proxy_url );
-
-			// Check for transport errors before inspecting the response, so a
-			// network failure is not misreported (and cached) as a bad content type.
-			if ( is_wp_error( $response ) ) {
-				// TODO: Nicer error handling.
-				die( 'error' );
-			}
-
-			$content_type = wp_remote_retrieve_header( $response, 'content-type' );
-			if ( strpos( $content_type, 'text/css' ) === false ) {
-				set_transient( $cache_key, array( 'error' => 'Invalid content type. Expected CSS.' ), HOUR_IN_SECONDS );
-				wp_die( 'Invalid content type. Expected CSS.', 400 );
-			}
-			$css = wp_remote_retrieve_body( $response );
-
-			// Only cache a non-empty body. Caching an empty string would make
-			// is_string() cache hits replay it for the full TTL, pinning empty
-			// CSS for an hour after a single transient empty/failed fetch.
-			if ( '' !== $css ) {
-				set_transient( $cache_key, $css, HOUR_IN_SECONDS );
-			}
-		}
+		$css = $this->get_proxied_css( $proxy_url );
 
 		if ( $css ) {
 			header( 'Content-type: text/css' );
@@ -107,5 +70,62 @@ class CSS_Proxy {
 			echo Display_Critical_CSS::neutralize_style_closing_tags( $css );
 			die( 0 );
 		}
+	}
+
+	/**
+	 * Resolve the CSS for a proxied URL from cache, or by fetching and caching it.
+	 *
+	 * Separated from handle_css_proxy() so the cache/fetch logic is unit-testable
+	 * without the surrounding request teardown (die()).
+	 *
+	 * @param string $proxy_url Validated external CSS URL.
+	 * @return string The CSS body, or '' when there is none to serve.
+	 */
+	private function get_proxied_css( $proxy_url ) {
+		$cache_key = 'jb_css_proxy_' . md5( $proxy_url );
+		$response  = get_transient( $cache_key );
+
+		if ( is_array( $response ) && isset( $response['error'] ) ) {
+			wp_die( esc_html( $response['error'] ), 400 );
+		}
+
+		if ( is_string( $response ) ) {
+			// Cache hit: the transient stores the CSS body from a previous
+			// successful fetch. Without this branch a cached body was ignored
+			// (the handler saw no CSS), so it returned nothing to the Critical
+			// CSS generator.
+			return $response;
+		}
+
+		// Anything other than a missing entry (false) has been handled above.
+		if ( false !== $response ) {
+			return '';
+		}
+
+		$response = wp_safe_remote_get( $proxy_url );
+
+		// Check for transport errors before inspecting the response, so a
+		// network failure is not misreported (and cached) as a bad content type.
+		if ( is_wp_error( $response ) ) {
+			// TODO: Nicer error handling.
+			die( 'error' );
+		}
+
+		$content_type = wp_remote_retrieve_header( $response, 'content-type' );
+		if ( strpos( $content_type, 'text/css' ) === false ) {
+			set_transient( $cache_key, array( 'error' => 'Invalid content type. Expected CSS.' ), HOUR_IN_SECONDS );
+			wp_die( 'Invalid content type. Expected CSS.', 400 );
+		}
+
+		$css = wp_remote_retrieve_body( $response );
+
+		// Only cache a non-empty body. Caching an empty string would make
+		// is_string() cache hits replay it for the full TTL, pinning empty
+		// CSS for an hour after a single transient empty/failed fetch.
+		if ( '' !== $css ) {
+			set_transient( $cache_key, $css, HOUR_IN_SECONDS );
+		}
+
+		return $css;
 	}
 }

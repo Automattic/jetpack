@@ -1,0 +1,138 @@
+<?php
+/**
+ * Tests for CSS_Proxy class.
+ *
+ * @package automattic/jetpack-boost
+ */
+
+namespace Automattic\Jetpack_Boost\Tests\Modules\Optimizations\Critical_CSS;
+
+use Automattic\Jetpack_Boost\Modules\Optimizations\Critical_CSS\CSS_Proxy;
+use WorDBless\BaseTestCase;
+
+/**
+ * Class CSS_Proxy_Test
+ *
+ * Covers the cache/fetch resolution used by the boost_proxy_css endpoint:
+ * cache hits replay the stored body, cache misses fetch + cache it, empty
+ * bodies are not cached, and a non-CSS response is rejected.
+ */
+class CSS_Proxy_Test extends BaseTestCase {
+
+	/**
+	 * Tear down test environment.
+	 */
+	public function tear_down() {
+		remove_all_filters( 'pre_http_request' );
+		remove_all_filters( 'wp_die_handler' );
+		remove_all_filters( 'wp_die_ajax_handler' );
+		parent::tear_down();
+	}
+
+	/**
+	 * Make wp_die() throw instead of terminating, regardless of request context.
+	 */
+	private function make_wp_die_throw() {
+		$handler = function () {
+			return function ( $message ) {
+				throw new \RuntimeException( is_string( $message ) ? $message : 'wp_die' );
+			};
+		};
+		add_filter( 'wp_die_handler', $handler );
+		add_filter( 'wp_die_ajax_handler', $handler );
+	}
+
+	/**
+	 * Invoke the private CSS_Proxy::get_proxied_css() resolver.
+	 *
+	 * @param string $proxy_url URL to resolve.
+	 * @return string
+	 */
+	private function resolve( $proxy_url ) {
+		$method = new \ReflectionMethod( CSS_Proxy::class, 'get_proxied_css' );
+		$method->setAccessible( true );
+
+		return $method->invoke( new CSS_Proxy(), $proxy_url );
+	}
+
+	/**
+	 * Mock the next HTTP request with the given content type and body.
+	 *
+	 * @param string $content_type Response content-type header.
+	 * @param string $body         Response body.
+	 */
+	private function mock_http_response( $content_type, $body ) {
+		add_filter(
+			'pre_http_request',
+			function () use ( $content_type, $body ) {
+				return array(
+					'headers'  => array( 'content-type' => $content_type ),
+					'body'     => $body,
+					'response' => array(
+						'code'    => 200,
+						'message' => 'OK',
+					),
+				);
+			}
+		);
+	}
+
+	/**
+	 * A cached string body is replayed verbatim on a cache hit.
+	 */
+	public function test_returns_cached_css_body_on_cache_hit() {
+		$url = 'https://example.com/cached.css';
+		$css = '.cached { color: red; }';
+		set_transient( 'jb_css_proxy_' . md5( $url ), $css, HOUR_IN_SECONDS );
+
+		$this->assertSame( $css, $this->resolve( $url ) );
+	}
+
+	/**
+	 * A cache miss fetches the body and caches it for subsequent hits.
+	 */
+	public function test_fetches_and_caches_body_on_cache_miss() {
+		$url = 'https://example.com/fresh.css';
+		$css = '.fresh { background: url("data:image/svg+xml,<svg></svg>"); }';
+		$this->mock_http_response( 'text/css', $css );
+
+		$result = $this->resolve( $url );
+
+		$this->assertSame( $css, $result );
+		$this->assertSame( $css, get_transient( 'jb_css_proxy_' . md5( $url ) ) );
+	}
+
+	/**
+	 * An empty (but successful) body is returned but never cached, so a single
+	 * empty fetch is not replayed for the full TTL.
+	 */
+	public function test_empty_body_is_not_cached() {
+		$url = 'https://example.com/empty.css';
+		$this->mock_http_response( 'text/css', '' );
+
+		$result = $this->resolve( $url );
+
+		$this->assertSame( '', $result );
+		$this->assertFalse( get_transient( 'jb_css_proxy_' . md5( $url ) ) );
+	}
+
+	/**
+	 * A non-CSS response is rejected (and the error cached) via wp_die().
+	 */
+	public function test_non_css_response_is_rejected_and_error_cached() {
+		$url = 'https://example.com/notcss.css';
+		$this->mock_http_response( 'text/html', '<html></html>' );
+		$this->make_wp_die_throw();
+
+		try {
+			$this->resolve( $url );
+			$this->fail( 'Expected wp_die() for a non-CSS response.' );
+		} catch ( \RuntimeException $e ) {
+			$this->assertStringContainsString( 'Invalid content type', $e->getMessage() );
+		}
+
+		$cached = get_transient( 'jb_css_proxy_' . md5( $url ) );
+		$this->assertIsArray( $cached );
+		$this->assertArrayHasKey( 'error', $cached );
+	}
+}
