@@ -5,25 +5,50 @@ import {
 	OrderMetricWidget,
 	WidgetRoot,
 	type ReportParamsFieldAttributes,
+	type WidgetErrorConfig,
 } from '@jetpack-premium-analytics/widgets-toolkit';
-import { useState, type ComponentProps } from 'react';
+import { useState } from 'react';
 /**
- * Internal dependencies
+ * WordPress dependencies
  */
-import { WidgetErrorNotice } from './components/widget-error-notice';
-
-type WidgetRootProps = ComponentProps< typeof WidgetRoot >;
+import { __ } from '@wordpress/i18n';
+import { Notice } from '@wordpress/ui';
 
 /*
  * Error config reported by toolkit widgets through WidgetRoot's setError
- * channel (`WidgetErrorConfig | true | null`; the type itself is not
- * exported from the toolkit index).
+ * channel.
  */
-type WidgetError = Parameters< NonNullable< WidgetRootProps[ 'setError' ] > >[ 0 ];
+type WidgetError = WidgetErrorConfig | true | null;
 
 type AverageItemsPerOrderRenderProps = {
 	attributes?: Partial< ReportParamsFieldAttributes >;
 };
+
+type WidgetErrorNoticeProps = {
+	error: WidgetErrorConfig | true;
+};
+
+function WidgetErrorNotice( { error }: WidgetErrorNoticeProps ) {
+	const config: Partial< WidgetErrorConfig > = error === true ? {} : error;
+	const defaultMessage = __(
+		"We couldn't load this data. Please try again in a moment.",
+		'jetpack-premium-analytics'
+	);
+	const message = config.message ?? defaultMessage;
+
+	return (
+		<Notice.Root intent="error" spokenMessage={ message || defaultMessage }>
+			{ message && <Notice.Description>{ message }</Notice.Description> }
+			{ config.action && (
+				<Notice.Actions>
+					<Notice.ActionButton onClick={ config.action.onClick }>
+						{ config.action.label }
+					</Notice.ActionButton>
+				</Notice.Actions>
+			) }
+		</Notice.Root>
+	);
+}
 
 /**
  * Average items per order widget.
@@ -35,8 +60,8 @@ type AverageItemsPerOrderRenderProps = {
  *
  * The host widget contract (`WidgetRenderProps`) has no error channel, so the
  * widget holds the toolkit's setError state itself and renders an inline
- * notice. Clearing the error remounts OrderMetricWidget, which refetches the
- * errored query on mount.
+ * notice. OrderMetricWidget stays mounted while reporting an error so retry
+ * results and report-param changes can clear the local error state.
  */
 export default function AverageItemsPerOrderRender( {
 	attributes,
@@ -44,12 +69,9 @@ export default function AverageItemsPerOrderRender( {
 	const [ error, setError ] = useState< WidgetError >( null );
 
 	return (
-		<WidgetRoot attributes={ attributes } setError={ setError }>
-			{ error ? (
-				<WidgetErrorNotice error={ error } />
-			) : (
-				<OrderMetricWidget metricKey="avg_items" />
-			) }
+		<WidgetRoot attributes={ attributes } setError={ setError } options={ { from: '/' } }>
+			{ error && <WidgetErrorNotice error={ error } /> }
+			<OrderMetricWidget metricKey="avg_items" />
 		</WidgetRoot>
 	);
 }

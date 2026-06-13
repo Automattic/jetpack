@@ -1,9 +1,4 @@
 /**
- * External dependencies
- */
-import { getDefaultQueryParams } from '@jetpack-premium-analytics/data';
-import { ReportParamsField } from '@jetpack-premium-analytics/fields';
-/**
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
@@ -15,11 +10,10 @@ import { chartBar } from '@wordpress/icons';
  * Ported from `woocommerce-analytics/average-items-per-order` in
  * woocommerce/woocommerce-analytics (next-woocommerce-analytics).
  *
- * The `Range` attribute's `Edit` control comes from the fields package,
- * delivered as a script module: the import is externalized rather than
- * bundled, so the styled date-picker graph never enters this metadata
- * module's build (which has no style plugins). See
- * `packages/fields/README.md`.
+ * Report params intentionally come from the analytics dashboard's global
+ * date-range state for now. Adding widget-level overrides needs a host-level
+ * control registry so analytics dashboards can hide the field while other
+ * dashboards can opt in.
  */
 export default {
 	name: 'jpa/average-items-per-order',
@@ -29,16 +23,4 @@ export default {
 		'jetpack-premium-analytics'
 	),
 	icon: chartBar,
-	attributes: [
-		{
-			id: 'reportParams',
-			label: __( 'Range', 'jetpack-premium-analytics' ),
-			Edit: ReportParamsField,
-		},
-	],
-	example: {
-		attributes: {
-			reportParams: getDefaultQueryParams( true ),
-		},
-	},
 };
