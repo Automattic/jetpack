@@ -56,8 +56,14 @@ class Critical_CSS_Storage_Test extends BaseTestCase {
 			return $posts;
 		}
 
+		// Mirror get_post_by_name(), which restricts to published posts. Other
+		// WP_Query semantics are intentionally not emulated here.
+		$post_status = $query->get( 'post_status' );
+
 		foreach ( \WorDBless\Posts::init()->posts as $id => $post ) {
-			if ( $post->post_name === $name && $post->post_type === $post_type ) {
+			if ( $post->post_name === $name
+				&& $post->post_type === $post_type
+				&& ( ! $post_status || $post->post_status === $post_status ) ) {
 				return array( get_post( $id ) );
 			}
 		}

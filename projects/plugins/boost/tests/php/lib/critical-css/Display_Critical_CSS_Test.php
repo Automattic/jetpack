@@ -9,6 +9,7 @@
 namespace Automattic\Jetpack_Boost\Tests\Lib\Critical_CSS;
 
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Display_Critical_CSS;
+use PHPUnit\Framework\Attributes\DataProvider;
 use WorDBless\BaseTestCase;
 
 // phpcs:disable WordPress.WP.EnqueuedResources.NonEnqueuedStylesheet
@@ -100,6 +101,52 @@ class Display_Critical_CSS_Test extends BaseTestCase {
 
 		$this->assertSame( 1, substr_count( strtolower( $output ), '</style' ) );
 		$this->assertStringEndsWith( '</style>', $output );
+		// The slash must actually be escaped (not merely stripped). str_ireplace
+		// matches case-insensitively but substitutes the literal lowercase
+		// replacement, so the matched run is normalized to `<\/style`; the trailing
+		// payload is left untouched and stays inert text.
+		$this->assertStringContainsString( '<\/style ><p>injected</p>', $output );
+	}
+
+	/**
+	 * Test neutralize_style_closing_tags() locks in the security-critical invariant:
+	 * no input can leave a `</style` sequence in the output. This is the shared
+	 * sanitizer used by both the inline <style> block and the CSS proxy, so it is
+	 * exercised directly here against adversarial and boundary inputs. A single
+	 * left-to-right pass over `</style` cannot reconstruct the sequence from its own
+	 * `<\/style` output, including from nested/overlapping inputs.
+	 *
+	 * @dataProvider provide_style_breakout_inputs
+	 *
+	 * @param string $input Raw CSS input containing one or more `</style` runs.
+	 */
+	#[DataProvider( 'provide_style_breakout_inputs' )]
+	public function test_neutralize_style_closing_tags_blocks_reconstruction( $input ) {
+		$output = Display_Critical_CSS::neutralize_style_closing_tags( $input );
+
+		$this->assertSame( 0, substr_count( strtolower( $output ), '</style' ) );
+	}
+
+	/**
+	 * Adversarial and boundary inputs for the breakout sanitizer. Each contains at
+	 * least one `</style` substring; none may survive in the output.
+	 *
+	 * @return array<string, array{0: string}>
+	 */
+	public function provide_style_breakout_inputs() {
+		return array(
+			'simple closing tag'            => array( '</style>' ),
+			'closing tag at EOF no bracket' => array( 'a{}</style' ),
+			'closing tag with whitespace'   => array( '</style >' ),
+			'closing tag with tab'          => array( "</style\t>" ),
+			'closing tag with newline'      => array( "</style\n>" ),
+			'closing tag with slash'        => array( '</style/' ),
+			'mixed case'                    => array( '</StYlE>' ),
+			'nested overlap interleave'     => array( '<</style/style>' ),
+			'nested split'                  => array( '</sty</style>le>' ),
+			'adjacent doubles'              => array( '</style></style>' ),
+			'substring in longer word'      => array( '.x{}</styles-thing' ),
+		);
 	}
 
 	/**

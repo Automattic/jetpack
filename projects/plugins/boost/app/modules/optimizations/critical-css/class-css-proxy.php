@@ -62,8 +62,9 @@ class CSS_Proxy {
 		$css = '';
 		if ( is_string( $response ) ) {
 			// Cache hit: the transient stores the CSS body from a previous
-			// successful fetch. Without this, cache hits served an empty
-			// response, feeding the Critical CSS generator no CSS at all.
+			// successful fetch. Without this branch a cached body was ignored
+			// ($css stayed empty), so the handler returned no CSS to the
+			// Critical CSS generator.
 			$css = $response;
 		} elseif ( false === $response ) {
 			$response     = wp_safe_remote_get( $proxy_url );
@@ -73,7 +74,13 @@ class CSS_Proxy {
 				wp_die( 'Invalid content type. Expected CSS.', 400 );
 			}
 			$css = wp_remote_retrieve_body( $response );
-			set_transient( $cache_key, $css, HOUR_IN_SECONDS );
+
+			// Only cache a non-empty body. Caching an empty string would make
+			// is_string() cache hits replay it for the full TTL, pinning empty
+			// CSS for an hour after a single transient empty/failed fetch.
+			if ( '' !== $css ) {
+				set_transient( $cache_key, $css, HOUR_IN_SECONDS );
+			}
 		}
 
 		if ( is_wp_error( $response ) ) {
@@ -84,11 +91,17 @@ class CSS_Proxy {
 		if ( $css ) {
 			header( 'Content-type: text/css' );
 			header( 'X-Content-Type-Options: nosniff' );
-			// Outputting proxied CSS contents unescaped. Do not strip tags here;
-			// valid CSS values may contain markup (e.g. inline SVGs in data: URIs),
-			// and stripping them corrupts the CSS fed to the generator.
+
+			/*
+			 * Outputting proxied CSS contents unescaped. Do not strip tags here;
+			 * valid CSS values may contain markup (e.g. inline SVGs in data: URIs),
+			 * and stripping them corrupts the CSS fed to the generator. The
+			 * text/css + nosniff headers stop a browser from sniffing this body as
+			 * HTML; neutralizing </style is defense-in-depth in case the body is
+			 * ever embedded inside a <style> element downstream.
+			 */
 			// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-			echo Display_Critical_CSS::sanitize_css( $css );
+			echo Display_Critical_CSS::neutralize_style_closing_tags( $css );
 			die( 0 );
 		}
 	}

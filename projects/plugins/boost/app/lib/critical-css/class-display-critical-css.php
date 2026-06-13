@@ -108,26 +108,37 @@ class Display_Critical_CSS {
 
 		// Ensure the CSS cannot terminate the style element early.
 		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-		echo self::sanitize_css( $critical_css );
+		echo self::neutralize_style_closing_tags( $critical_css );
 
 		echo '</style>';
 	}
 
 	/**
-	 * Sanitize CSS for output inside a <style> element.
+	 * Neutralize any closing </style tag so CSS can be printed inside a <style>
+	 * element without breaking out of it.
 	 *
-	 * Avoids wp_strip_all_tags(), which corrupts valid CSS values that contain
-	 * markup - e.g. `background-image: url("data:image/svg+xml,<svg ...></svg>")`.
+	 * This is NOT a general-purpose CSS sanitizer: it does exactly one thing,
+	 * which is to stop the CSS from terminating the surrounding <style> element.
+	 * It deliberately avoids wp_strip_all_tags(), which corrupts valid CSS values
+	 * that contain markup - e.g. `background-image: url("data:image/svg+xml,<svg ...></svg>")`.
 	 *
-	 * The only sequence which can terminate a <style> element early is a closing
-	 * style tag, so neutralize that sequence (case-insensitively) by escaping its
-	 * forward slash. Inside CSS strings and url() tokens `\/` is a valid escape
-	 * for `/`, so legitimate CSS keeps its meaning.
+	 * Per the HTML rawtext tokenizer, a <style> element can only be terminated by
+	 * the literal sequence `</style` (case-insensitive). Escaping its forward slash
+	 * to `<\/style` defeats the tokenizer - `</` must be immediately followed by the
+	 * tag name, and `<\` is treated as literal text - so the markup stays inert. The
+	 * replacement string contains no `</style` substring, so a single left-to-right
+	 * pass cannot reconstruct the sequence (including from nested input like
+	 * `<</style/style`), and the transform is idempotent.
 	 *
-	 * @param string $css CSS to sanitize.
-	 * @return string CSS that is safe to print inside a <style> element.
+	 * Inside CSS strings and url() tokens `\/` is a valid escape for `/`, so
+	 * legitimate quoted values keep their meaning. (A literal `</style` outside a
+	 * quoted string does not occur in well-formed CSS; the security guarantee takes
+	 * priority there regardless.)
+	 *
+	 * @param string $css CSS to neutralize.
+	 * @return string CSS that cannot terminate the surrounding <style> element.
 	 */
-	public static function sanitize_css( $css ) {
+	public static function neutralize_style_closing_tags( $css ) {
 		return str_ireplace( '</style', '<\/style', $css );
 	}
 
