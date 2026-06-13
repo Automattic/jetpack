@@ -236,6 +236,13 @@ class Render_Blocking_JS_Test extends MockeryTestCase {
 
 		$output = $this->filter_output( $html );
 
+		// Assert the anchors and needle are present so the strpos() ordering checks
+		// below can't pass vacuously (a missing string makes strpos() return
+		// false === 0, which can satisfy a one-sided ordering assertion).
+		$this->assertStringContainsString( '<p>Before</p>', $output );
+		$this->assertStringContainsString( '<p>After</p>', $output );
+		$this->assertStringContainsString( 'document.write("inline content");', $output );
+
 		// The document.write script must remain between the two paragraphs.
 		$this->assertLessThan( strpos( $output, 'document.write' ), strpos( $output, '<p>Before</p>' ) );
 		$this->assertLessThan( strpos( $output, '<p>After</p>' ), strpos( $output, 'document.write' ) );
