@@ -278,12 +278,13 @@ function jetpack_boost_page_optimize_merge_debug_excludes( $excludes, $param ) {
 	$raw_value = wp_unslash( $_GET[ $param ] );
 
 	// Bound the work: a real debug session never needs more than a handful of
-	// handles, so ignore absurdly long values outright.
+	// handles, so ignore absurdly long values outright and cap the number of
+	// handles actually processed.
 	if ( strlen( $raw_value ) > 2000 ) {
 		return $excludes;
 	}
 
-	$raw_handles = explode( ',', $raw_value );
+	$raw_handles = array_slice( explode( ',', $raw_value ), 0, 100 );
 
 	$extra_handles = array();
 	foreach ( $raw_handles as $handle ) {

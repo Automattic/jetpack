@@ -141,6 +141,27 @@ class Debug_Excludes_Test extends Base_TestCase {
 		$this->assertSame( self::SAVED_JS_EXCLUDES, jetpack_boost_page_optimize_js_exclude_list() );
 	}
 
+	public function test_number_of_handles_processed_is_capped() {
+		// Even within the length limit, only the first 100 handles are processed so
+		// the per-asset parse stays bounded.
+		$handles                       = array_map(
+			static function ( $i ) {
+				return sprintf( 'h%03d', $i );
+			},
+			range( 1, 150 )
+		);
+		$_GET['jb-minify-js-excludes'] = implode( ',', $handles );
+
+		Functions\when( 'current_user_can' )->justReturn( true );
+
+		$result = jetpack_boost_page_optimize_js_exclude_list();
+
+		// Two saved handles + the first 100 requested handles.
+		$this->assertCount( 102, $result );
+		$this->assertContains( 'h100', $result );
+		$this->assertNotContains( 'h101', $result );
+	}
+
 	public function test_overlong_param_is_ignored() {
 		// A debug session never needs thousands of characters; oversized values
 		// are dropped wholesale so the parser cannot be made to do unbounded work.
