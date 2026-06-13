@@ -31,13 +31,22 @@
 		.legend {
 			width: 100%;
 			height: auto;
-			min-height: calc(var(--wpds-typography-line-height-lg, 28px) + var(--wpds-typography-line-height-lg, 28px) + var(--wpds-dimension-gap-lg, 16px));
-			justify-content: flex-start;
+			min-height: calc(var(--wpds-typography-line-height-lg, 28px) + var(--wpds-typography-line-height-lg, 28px) + var(--wpds-dimension-gap-sm, 8px));
+			align-items: center;
+			align-content: center;
+			justify-content: center;
+			row-gap: var(--wpds-dimension-gap-sm) !important;
 		}
 
 		.legendItem {
-			flex: 0 0 100%;
+			flex: 0 1 auto;
 			max-width: 100%;
+			justify-content: flex-start;
+		}
+
+		.legendLabel {
+			flex: 0 1 auto !important;
+			text-align: start;
 		}
 	}
 }
