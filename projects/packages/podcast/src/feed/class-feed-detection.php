@@ -12,8 +12,9 @@ namespace Automattic\Jetpack\Podcast\Feed;
 use Automattic\Jetpack\Podcast\Settings;
 
 /**
- * Promotes a podcatcher's `podcasting_show_states` entry to `'active'` the
- * first time we see its UA fetch the feed. Idempotent thereafter.
+ * Promotes an existing pending podcatcher `podcasting_show_states` entry to
+ * `'active'` the first time we see its UA fetch the feed. Idempotent
+ * thereafter.
  */
 class Feed_Detection {
 
@@ -65,8 +66,9 @@ class Feed_Detection {
 
 	/**
 	 * Inspect the current request's User-Agent and, if it's a directory
-	 * crawler, mark its state `'active'`. No-op if the UA is missing or not
-	 * in the directory allowlist.
+	 * crawler with an existing pending state, mark its state `'active'`.
+	 * No-op if the UA is missing, not in the directory allowlist, or the
+	 * matched directory has no pending state.
 	 */
 	public static function detect_and_record(): void {
 		$ua = isset( $_SERVER['HTTP_USER_AGENT'] )
@@ -93,7 +95,7 @@ class Feed_Detection {
 			$states = array();
 		}
 
-		if ( isset( $states[ $slug ] ) && 'active' === $states[ $slug ] ) {
+		if ( ! isset( $states[ $slug ] ) || 'pending' !== $states[ $slug ] ) {
 			return;
 		}
 

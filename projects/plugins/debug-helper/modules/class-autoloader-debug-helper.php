@@ -1,4 +1,4 @@
-<?php // phpcs:disable WordPress.PHP.DevelopmentFunctions.error_log_print_r
+<?php
 /**
  * Plugin Name: Autoloader Debugger
  * Description: View current autoloader classmaps and cache settings.

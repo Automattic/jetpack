@@ -14,7 +14,7 @@ use Automattic\Jetpack\Forms\Dashboard\Dashboard;
  */
 class Jetpack_Forms {
 
-	const PACKAGE_VERSION = '7.22.1';
+	const PACKAGE_VERSION = '7.22.2';
 
 	/**
 	 * Load the contact form module.
@@ -140,6 +140,33 @@ class Jetpack_Forms {
 		 * @param bool true Whether webhooks should be enabled. Default true.
 		 */
 		return apply_filters( 'jetpack_forms_webhooks_enabled', true );
+	}
+
+	/**
+	 * Whether author-configured outbound destinations from a form source should be honored.
+	 *
+	 * Destinations declared in the form content (webhooks, the legacy postToUrl attribute and
+	 * the Salesforce integration) are only honored when the source post's author has the
+	 * `manage_options` capability. Returns false when no post author can be determined (for
+	 * example, widget or block-template forms whose source id is not a numeric post).
+	 *
+	 * @param int|string $source_id The form source id: a post id for post/page forms, or a
+	 *                              non-numeric value for widget or block-template sources.
+	 * @return boolean
+	 */
+	public static function should_honor_content_destinations( $source_id ) {
+		if ( ! is_numeric( $source_id ) ) {
+			return false;
+		}
+
+		$source_id = (int) $source_id;
+		if ( $source_id <= 0 ) {
+			return false;
+		}
+
+		$author_id = (int) get_post_field( 'post_author', $source_id );
+
+		return $author_id > 0 && user_can( $author_id, 'manage_options' );
 	}
 
 	/**

@@ -109,7 +109,7 @@ class Jetpack_RSS_Links_Widget extends WP_Widget {
 	 *
 	 * @return array Updated safe values to be saved.
 	 */
-	public function update( $new_instance, $old_instance ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+	public function update( $new_instance, $old_instance ) {
 		$instance = $old_instance;
 
 		$instance['title']      = wp_filter_nohtml_kses( $new_instance['title'] );
@@ -270,8 +270,8 @@ class Jetpack_RSS_Links_Widget extends WP_Widget {
 
 		printf(
 			'%1$s<a target="%3$s" href="%4$s" title="%5$s">%6$s</a>%2$s',
-			'text' === $format ? '<li>' : '<p>', // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-			'text' === $format ? '</li>' : '</p>', // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+			'text' === $format ? '<li>' : '<p>',
+			'text' === $format ? '</li>' : '</p>',
 			esc_attr( $link_target ),
 			esc_url( get_bloginfo( $rss_type ) ),
 			esc_attr( $subscribe_to ),

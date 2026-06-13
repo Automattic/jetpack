@@ -140,6 +140,29 @@ function current_visitor_can_access( $attributes, $block ) {
 				break;
 			}
 		}
+
+		// Refresh-before-deny for the tier path. If the tier check denied access but the
+		// token already references a subscription whose product_id maps to one of the
+		// requested tiers, the most likely cause is a stale end_date from a renewal —
+		// attempt a single refresh against the WordPress.com token-refresh endpoint and
+		// re-check with the fresh subscriptions. Mirrors the same gate inside
+		// visitor_can_view_content() for the non-tier path.
+		if (
+			! $can_view
+			&& method_exists( $paywall, 'token_has_matching_product' )
+			&& $paywall->token_has_matching_product( $tier_ids, $subscriptions )
+		) {
+			$fresh_payload = $paywall->refresh_token_payload();
+			if ( ! empty( $fresh_payload ) ) {
+				$subscriptions = isset( $fresh_payload['subscriptions'] ) ? (array) $fresh_payload['subscriptions'] : array();
+				foreach ( $tier_ids as $tier_id ) {
+					$can_view = ! $paywall->maybe_gate_access_for_user_if_tier( $tier_id, $subscriptions );
+					if ( $can_view ) {
+						break;
+					}
+				}
+			}
+		}
 	}
 
 	$non_tier_ids = array_diff( $selected_plan_ids, $tier_ids );

@@ -186,7 +186,6 @@ class Jetpack_Network_Sites_List_Table extends WP_List_Table {
 	 * Process bulk actions.
 	 */
 	public function process_bulk_action() {
-		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Check if we have anything to do before checking the nonce.
 		if ( empty( $_POST['bulk'] ) ) {
 			return; // Thou shall not pass! There is nothing to do.
 		}

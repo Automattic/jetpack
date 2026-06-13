@@ -212,7 +212,6 @@ class Form_Webhooks {
 
 			// Check for IPv4-mapped IPv6 addresses (::ffff:x.x.x.x)
 			// These are 16 bytes where first 10 are zeros, next 2 are 0xff, last 4 are IPv4
-			// phpcs:ignore Generic.Strings.UnnecessaryStringConcat.Found -- string concat for readability
 			if ( strlen( $ip_binary ) === 16 &&
 				substr( $ip_binary, 0, 10 ) === "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00" &&
 				substr( $ip_binary, 10, 2 ) === "\xff\xff" ) {
