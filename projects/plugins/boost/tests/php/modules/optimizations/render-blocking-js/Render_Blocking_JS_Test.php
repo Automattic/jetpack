@@ -377,19 +377,23 @@ class Render_Blocking_JS_Test extends MockeryTestCase {
 	}
 
 	/**
-	 * Verifies register_data_sync() registers exactly the render_blocking_js_excludes entry.
+	 * Verifies register_data_sync() registers the render_blocking_js_excludes entry.
+	 *
+	 * Data_Sync is a final class, so it cannot be mocked; use a real instance and
+	 * assert the entry landed in its registry. Stub the two WordPress helpers the
+	 * registry touches so this runs in the WordPress-free unit suite.
 	 */
 	public function test_register_data_sync_registers_excludes_entry() {
-		$data_sync = \Mockery::mock( 'Automattic\Jetpack\WP_JS_Data_Sync\Data_Sync' );
-		$data_sync->shouldReceive( 'register' )
-			->once()
-			->with(
-				'render_blocking_js_excludes',
-				\Mockery::any(),
-				\Mockery::type( 'Automattic\Jetpack_Boost\Data_Sync\Minify_Excludes_State_Entry' )
-			);
+		Functions\when( 'sanitize_key' )->returnArg();
+		Functions\when( 'add_action' )->justReturn( true );
 
+		$data_sync = new \Automattic\Jetpack\WP_JS_Data_Sync\Data_Sync( 'jetpack_boost_ds' );
 		$this->instance->register_data_sync( $data_sync );
+
+		$this->assertNotFalse(
+			$data_sync->get_registry()->get_entry( 'render_blocking_js_excludes' ),
+			'register_data_sync() should register the render_blocking_js_excludes entry.'
+		);
 	}
 
 	/**
