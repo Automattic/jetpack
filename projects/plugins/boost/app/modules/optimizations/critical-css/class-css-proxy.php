@@ -67,7 +67,15 @@ class CSS_Proxy {
 			// Critical CSS generator.
 			$css = $response;
 		} elseif ( false === $response ) {
-			$response     = wp_safe_remote_get( $proxy_url );
+			$response = wp_safe_remote_get( $proxy_url );
+
+			// Check for transport errors before inspecting the response, so a
+			// network failure is not misreported (and cached) as a bad content type.
+			if ( is_wp_error( $response ) ) {
+				// TODO: Nicer error handling.
+				die( 'error' );
+			}
+
 			$content_type = wp_remote_retrieve_header( $response, 'content-type' );
 			if ( strpos( $content_type, 'text/css' ) === false ) {
 				set_transient( $cache_key, array( 'error' => 'Invalid content type. Expected CSS.' ), HOUR_IN_SECONDS );
@@ -81,11 +89,6 @@ class CSS_Proxy {
 			if ( '' !== $css ) {
 				set_transient( $cache_key, $css, HOUR_IN_SECONDS );
 			}
-		}
-
-		if ( is_wp_error( $response ) ) {
-			// TODO: Nicer error handling.
-			die( 'error' );
 		}
 
 		if ( $css ) {

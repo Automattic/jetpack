@@ -133,7 +133,7 @@ class Display_Critical_CSS_Test extends BaseTestCase {
 	 *
 	 * @return array<string, array{0: string}>
 	 */
-	public function provide_style_breakout_inputs() {
+	public static function provide_style_breakout_inputs() {
 		return array(
 			'simple closing tag'            => array( '</style>' ),
 			'closing tag at EOF no bracket' => array( 'a{}</style' ),
