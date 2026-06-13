@@ -1,4 +1,6 @@
 import { onlineManager } from '@tanstack/react-query';
+import { __ } from '@wordpress/i18n';
+import { Notice } from '@wordpress/ui';
 import { useCallback, useEffect, useMemo, useState, type CSSProperties } from 'react';
 import { getDefaultQueryParams } from '@jetpack-premium-analytics/data';
 import { WidgetRoot } from '../../../../widgets-toolkit/src/components/widget-root/widget-root';
@@ -64,6 +66,16 @@ const codeStyle: CSSProperties = {
 	whiteSpace: 'pre-wrap',
 };
 
+const widgetPreviewStyle: CSSProperties = {
+	background: 'var(--wpds-color-bg-surface-neutral-strong, #fff)',
+	border: '1px solid var(--wpds-color-stroke-surface-neutral-weak, #dcdcde)',
+	borderRadius: '8px',
+	display: 'grid',
+	gap: '12px',
+	minHeight: '144px',
+	padding: '16px',
+};
+
 const buttonStyle = ( isSelected = false ): CSSProperties => ( {
 	background: isSelected
 		? 'var(--wpds-color-fg-interactive-brand, #3858e9)'
@@ -99,6 +111,28 @@ function StatusPill( { active, label }: { active: boolean; label: string } ) {
 		>
 			{ label }
 		</span>
+	);
+}
+
+function WidgetErrorNotice( { error }: { error: WidgetErrorConfig | true } ) {
+	const config: Partial< WidgetErrorConfig > = error === true ? {} : error;
+	const defaultMessage = __(
+		"We couldn't load this data. Please try again in a moment.",
+		'jetpack-premium-analytics'
+	);
+	const message = config.message ?? defaultMessage;
+
+	return (
+		<Notice.Root intent="error" spokenMessage={ message || defaultMessage }>
+			{ message && <Notice.Description>{ message }</Notice.Description> }
+			{ config.action && (
+				<Notice.Actions>
+					<Notice.ActionButton onClick={ config.action.onClick }>
+						{ config.action.label }
+					</Notice.ActionButton>
+				</Notice.Actions>
+			) }
+		</Notice.Root>
 	);
 }
 
@@ -249,9 +283,21 @@ function WidgetErrorProbe( { isError, onRefetch }: { isError: boolean; onRefetch
 function WidgetErrorPreview( { error, retryCount }: { error: WidgetError; retryCount: number } ) {
 	if ( ! error ) {
 		return (
-			<div style={ { ...sectionStyle, minHeight: '120px' } }>
-				<p style={ mutedTextStyle }>Dashboard error payload</p>
-				<pre style={ codeStyle }>null</pre>
+			<div style={ widgetPreviewStyle }>
+				<p style={ mutedTextStyle }>Widget host output</p>
+				<div
+					style={ {
+						alignItems: 'center',
+						background: 'var(--wpds-color-bg-surface-success, #edfaef)',
+						border: '1px solid var(--wpds-color-stroke-surface-success-strong, #4ab866)',
+						borderRadius: '4px',
+						display: 'flex',
+						minHeight: '72px',
+						padding: '12px',
+					} }
+				>
+					Widget content rendered without an error.
+				</div>
 			</div>
 		);
 	}
@@ -260,12 +306,12 @@ function WidgetErrorPreview( { error, retryCount }: { error: WidgetError; retryC
 	const isGlobalWidgetError = config.message === '';
 
 	return (
-		<div style={ { ...sectionStyle, minHeight: '120px' } }>
+		<div style={ widgetPreviewStyle }>
 			<div style={ { display: 'flex', justifyContent: 'space-between', gap: '12px' } }>
 				<div>
-					<p style={ mutedTextStyle }>Dashboard error payload</p>
+					<p style={ mutedTextStyle }>Widget host output</p>
 					<h3 style={ { fontSize: '16px', lineHeight: '24px', margin: '4px 0 8px' } }>
-						{ isGlobalWidgetError ? 'Global error payload' : 'Widget-specific payload' }
+						{ isGlobalWidgetError ? 'Global error path' : 'Widget-specific error' }
 					</h3>
 				</div>
 				<StatusPill
@@ -274,27 +320,8 @@ function WidgetErrorPreview( { error, retryCount }: { error: WidgetError; retryC
 				/>
 			</div>
 
-			<pre style={ codeStyle }>
-				{ JSON.stringify(
-					{
-						message: config.message ?? true,
-						hasAction: !! config.action,
-						retryCount,
-					},
-					null,
-					2
-				) }
-			</pre>
-
-			{ config.action && (
-				<button
-					type="button"
-					style={ { ...buttonStyle(), marginBlockStart: '12px' } }
-					onClick={ config.action.onClick }
-				>
-					{ config.action.label }
-				</button>
-			) }
+			<WidgetErrorNotice error={ error } />
+			<p style={ mutedTextStyle }>Retry count: { retryCount }</p>
 		</div>
 	);
 }
@@ -310,7 +337,8 @@ function WidgetErrorSection( { widgetError }: { widgetError: boolean } ) {
 				Widget error consumer
 			</h3>
 			<p style={ { ...mutedTextStyle, marginBlockEnd: '16px' } }>
-				This uses the real <code>WidgetRoot</code> and <code>useWidgetError()</code> path.
+				This uses the real <code>WidgetRoot</code> and <code>useWidgetError()</code> path, then
+				previews the same notice output used by the widget render host.
 			</p>
 
 			<div style={ gridStyle }>

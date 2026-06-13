@@ -1,7 +1,11 @@
 import { WidgetDashboard, type DashboardWidget } from '@automattic/jetpack-widget-dashboard';
-import { getDefaultQueryParams } from '@jetpack-premium-analytics/data';
+import {
+	getDefaultQueryParams,
+	globalErrorManager,
+	queryClient,
+} from '@jetpack-premium-analytics/data';
 import { Page } from '@wordpress/admin-ui';
-import { useState, type ComponentType } from 'react';
+import { useEffect, useRef, useState, type ComponentType, type ReactNode } from 'react';
 import { registerReportMocks } from '../../../packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
 import AverageItemsPerOrderRender from '../render';
 import widgetDefinition from '../widget';
@@ -33,6 +37,7 @@ export default meta;
 type Story = StoryObj< typeof AverageItemsPerOrderRender >;
 
 const AVERAGE_ITEMS_RENDER_MODULE = 'storybook/average-items-per-order';
+const REPORT_ERROR_PATHS = [ '/orders/by-date' ];
 const DASHBOARD_ROW_HEIGHT = 300;
 const DASHBOARD_GRID_GAP = 24;
 const DASHBOARD_ONE_COLUMN_WIDTH = 256;
@@ -43,6 +48,19 @@ const MOBILE_DASHBOARD_PAGE_WIDTH = '370px';
 const NARROW_DASHBOARD_PAGE_WIDTH = '640px';
 const DASHBOARD_DEFAULT_HEIGHT = `${ DASHBOARD_ROW_HEIGHT * 2 + DASHBOARD_GRID_GAP }px`;
 const DASHBOARD_MIN_HEIGHT = `${ DASHBOARD_ROW_HEIGHT }px`;
+
+type ReportMockErrorConfig = {
+	enabled?: boolean;
+	message?: string;
+	status?: number;
+	paths?: string[];
+};
+
+declare global {
+	interface Window {
+		__STORYBOOK_REPORT_MOCK_ERROR__?: ReportMockErrorConfig;
+	}
+}
 
 const averageItemsWidgetType = {
 	...widgetDefinition,
@@ -74,6 +92,54 @@ const createAverageItemsWidget = (
 	},
 	placement,
 } );
+
+function ReportMockErrorScope( {
+	children,
+	config,
+}: {
+	children: ReactNode;
+	config: ReportMockErrorConfig;
+} ) {
+	const previousConfig = useRef< ReportMockErrorConfig | undefined >( undefined );
+	const initialized = useRef( false );
+
+	if ( typeof window !== 'undefined' && ! initialized.current ) {
+		previousConfig.current = window.__STORYBOOK_REPORT_MOCK_ERROR__;
+		window.__STORYBOOK_REPORT_MOCK_ERROR__ = config;
+		queryClient.clear();
+		globalErrorManager.clearError();
+		initialized.current = true;
+	}
+
+	useEffect( () => {
+		return () => {
+			if ( typeof window !== 'undefined' ) {
+				window.__STORYBOOK_REPORT_MOCK_ERROR__ = previousConfig.current;
+			}
+
+			queryClient.clear();
+			globalErrorManager.clearError();
+		};
+	}, [] );
+
+	return children;
+}
+
+function DashboardPageErrorStory( {
+	errorConfig,
+	initialEditMode = false,
+	width = DESKTOP_DASHBOARD_WIDTH,
+}: {
+	errorConfig: ReportMockErrorConfig;
+	initialEditMode?: boolean;
+	width?: string;
+} ) {
+	return (
+		<ReportMockErrorScope config={ errorConfig }>
+			<DashboardPageStory width={ width } initialEditMode={ initialEditMode } />
+		</ReportMockErrorScope>
+	);
+}
 
 function ResizableDashboardTileStory() {
 	const [ layout, setLayout ] = useState< DashboardWidget[] >( () => [
@@ -292,6 +358,39 @@ export const DashboardPageMinimumTileEditMode: Story = {
 				} ),
 			] }
 			rowHeight={ 200 }
+			initialEditMode
+		/>
+	),
+};
+
+export const DashboardPageWidgetError: Story = {
+	render: () => (
+		<DashboardPageErrorStory
+			errorConfig={ {
+				enabled: true,
+				message: 'Storybook forced the orders report to fail.',
+				paths: REPORT_ERROR_PATHS,
+			} }
+		/>
+	),
+	parameters: {
+		docs: {
+			description: {
+				story:
+					'For a widget-specific report failure, the widget render function keeps the error in local state and shows the inline error notice with a Retry action.',
+			},
+		},
+	},
+};
+
+export const DashboardPageWidgetErrorEditMode: Story = {
+	render: () => (
+		<DashboardPageErrorStory
+			errorConfig={ {
+				enabled: true,
+				message: 'Storybook forced the orders report to fail.',
+				paths: REPORT_ERROR_PATHS,
+			} }
 			initialEditMode
 		/>
 	),

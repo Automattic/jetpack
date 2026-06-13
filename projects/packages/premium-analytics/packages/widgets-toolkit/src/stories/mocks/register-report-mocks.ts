@@ -64,6 +64,19 @@ interface MockDataParams {
 	volume: number;
 }
 
+type ReportMockErrorConfig = {
+	enabled?: boolean;
+	message?: string;
+	status?: number;
+	paths?: string[];
+};
+
+declare global {
+	interface Window {
+		__STORYBOOK_REPORT_MOCK_ERROR__?: ReportMockErrorConfig;
+	}
+}
+
 type VisitorsByLocationSignatureState = {
 	primaryFrom?: string;
 	comparisonFrom?: string;
@@ -161,6 +174,36 @@ function parseReportPath( path: string ): {
 	const subPath = queryIndex === -1 ? withoutBase : withoutBase.slice( 0, queryIndex );
 	const query = new URLSearchParams( queryIndex === -1 ? '' : withoutBase.slice( queryIndex + 1 ) );
 	return { subPath, query };
+}
+
+function getReportMockErrorConfig( subPath: string ): ReportMockErrorConfig | null {
+	const config = typeof window !== 'undefined' ? window.__STORYBOOK_REPORT_MOCK_ERROR__ : undefined;
+
+	if ( ! config?.enabled ) {
+		return null;
+	}
+
+	if ( config.paths?.length && ! config.paths.some( path => subPath.startsWith( path ) ) ) {
+		return null;
+	}
+
+	return config;
+}
+
+function throwReportMockError( config: ReportMockErrorConfig ): never {
+	const error = new Error( config.message ?? 'Storybook report request failed.' ) as Error & {
+		status?: number;
+		data?: {
+			status: number;
+		};
+	};
+
+	if ( config.status ) {
+		error.status = config.status;
+		error.data = { status: config.status };
+	}
+
+	throw error;
 }
 
 /**
@@ -366,6 +409,12 @@ const reportMocksMiddleware: APIFetchMiddleware = async ( options: APIFetchOptio
 	}
 
 	const { subPath, query } = parseReportPath( requestPath );
+	const errorConfig = getReportMockErrorConfig( subPath );
+
+	if ( errorConfig ) {
+		throwReportMockError( errorConfig );
+	}
+
 	const response = routeReport( subPath, query );
 
 	if ( response !== null ) {
