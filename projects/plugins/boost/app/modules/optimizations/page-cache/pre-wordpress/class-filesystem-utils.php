@@ -151,6 +151,9 @@ class Filesystem_Utils {
 
 		@rmdir( $resolved ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_rmdir, WordPress.PHP.NoSilencedErrors.Discouraged
 
+		// Re-check against the filesystem, not a stale stat cache, so a successful
+		// removal is not misreported as a failure.
+		clearstatcache();
 		if ( is_dir( $resolved ) ) {
 			return new Boost_Cache_Error( 'could-not-delete-directory', 'Could not completely delete directory: ' . $path );
 		}
