@@ -1,6 +1,6 @@
 import { expect, test } from '@automattic/_jetpack-e2e-commons/fixtures/base-test';
 import { connect } from '../flows/connection';
-import type { Page } from '@playwright/test';
+import type { Locator, Page } from '@playwright/test';
 
 /**
  * Checks for and then closes the "Changes saved" notice.
@@ -16,19 +16,18 @@ async function closeChangesSavedNotice( page: Page ) {
  *
  * The firewall ToggleControls have no visible label and the WP `<label htmlFor>`
  * association is empty, so accessibility-tree based locators (getByRole/getByLabel)
- * don't match reliably. Instead, scope to the active tab panel, then find the
+ * don't match reliably. Instead, scope to the Firewall tab panel, then find the
  * smallest containing div that has both the section heading and a checkbox, and
  * return the checkbox inside it.
- * @param {Page}   page        - Playwright page object
- * @param {string} headingName - Visible heading text of the section
- * @return {ReturnType<Page['locator']>} Locator for the checkbox in that section
+ * @param {Locator} panel       - Locator for the Firewall tab panel
+ * @param {string}  headingName - Visible heading text of the section
+ * @return {Locator} Locator for the checkbox in that section
  */
-function getToggleBySection( page: Page, headingName: string ) {
-	return page
-		.getByRole( 'tabpanel' )
+function getToggleBySection( panel: Locator, headingName: string ) {
+	return panel
 		.locator( 'div' )
-		.filter( { has: page.getByRole( 'heading', { name: headingName } ) } )
-		.filter( { has: page.locator( 'input[type="checkbox"]' ) } )
+		.filter( { has: panel.getByRole( 'heading', { name: headingName } ) } )
+		.filter( { has: panel.locator( 'input[type="checkbox"]' ) } )
 		.last()
 		.locator( 'input[type="checkbox"]' );
 }
@@ -59,21 +58,29 @@ test.describe( 'Jetpack Protect Plugin', () => {
 	} );
 
 	test( 'Jetpack Protect firewall page', async ( { page, admin } ) => {
+		// Scope every assertion on this page to the Firewall tab panel. During route
+		// transitions the previously active (Scan) tab panel can stay briefly mounted
+		// while the Firewall panel mounts, and because every tab panel renders the same
+		// react-router <Outlet />, the matched FirewallRoute can appear in two panels at
+		// once. Scoping to the Firewall panel keeps each locator matching a single
+		// element instead of tripping Playwright strict mode. `exact` avoids matching the
+		// "Automatic firewall is on" heading variant. The "Changes saved" notice is left
+		// page-scoped on purpose: it renders at the app level, outside the tab panels.
+		const firewallPanel = page.getByRole( 'tabpanel', { name: 'Firewall', exact: true } );
+
 		await test.step( 'Navigate to firewall page', async () => {
 			await admin.visitAdminPage( 'admin.php', 'page=jetpack-protect#/firewall' );
-			// Scope to the Firewall tab panel: while the route settles, the matched
-			// FirewallRoute can briefly render in the default Scan panel's <Outlet />
-			// too, so a bare getByText( 'Firewall is on' ) matches two headings and
-			// trips strict mode. The Firewall panel always holds exactly one.
 			await expect(
-				page.getByLabel( 'Firewall' ).getByRole( 'heading', { name: 'Firewall is on' } )
+				firewallPanel.getByRole( 'heading', { name: 'Firewall is on', exact: true } )
 			).toBeVisible();
 		} );
 
 		await test.step( 'Test the brute force protection setting', async () => {
 			// Test the setting is present and enabled by default
-			const bruteForceToggle = getToggleBySection( page, 'Brute force protection' );
-			await expect( page.getByRole( 'heading', { name: 'Brute force protection' } ) ).toBeVisible();
+			const bruteForceToggle = getToggleBySection( firewallPanel, 'Brute force protection' );
+			await expect(
+				firewallPanel.getByRole( 'heading', { name: 'Brute force protection' } )
+			).toBeVisible();
 			await expect( bruteForceToggle, 'Brute force protection should be enabled' ).toBeEnabled();
 			await expect( bruteForceToggle, 'Brute force protection should be on' ).toBeChecked();
 
@@ -91,11 +98,13 @@ test.describe( 'Jetpack Protect Plugin', () => {
 		} );
 
 		await test.step( 'Test the IP block list settings', async () => {
-			const blockListTextarea = page.locator( '#jetpack_waf_ip_block_list' );
-			const blockListToggle = getToggleBySection( page, 'Block IP addresses' );
+			const blockListTextarea = firewallPanel.locator( '#jetpack_waf_ip_block_list' );
+			const blockListToggle = getToggleBySection( firewallPanel, 'Block IP addresses' );
 
 			// Test the default block list state
-			await expect( page.getByRole( 'heading', { name: 'Block IP addresses' } ) ).toBeVisible();
+			await expect(
+				firewallPanel.getByRole( 'heading', { name: 'Block IP addresses' } )
+			).toBeVisible();
 			await expect( blockListToggle, 'Block list toggle should be enabled' ).toBeEnabled();
 			await expect( blockListToggle, 'Block list should be off' ).not.toBeChecked();
 
@@ -107,17 +116,19 @@ test.describe( 'Jetpack Protect Plugin', () => {
 
 			// Test adding an IP address to the block list
 			await blockListTextarea.fill( '192.168.1.1' );
-			await page.getByRole( 'button', { name: 'Save block list' } ).click();
+			await firewallPanel.getByRole( 'button', { name: 'Save block list' } ).click();
 			await expect( blockListToggle, 'Block list toggle should be enabled' ).toBeEnabled();
 			await closeChangesSavedNotice( page );
 		} );
 
 		await test.step( 'Test the IP allow list settings', async () => {
-			const trustedIPsToggle = getToggleBySection( page, 'Trusted IP addresses' );
-			const saveAllowListButton = page.getByRole( 'button', { name: 'Save allow list' } );
+			const trustedIPsToggle = getToggleBySection( firewallPanel, 'Trusted IP addresses' );
+			const saveAllowListButton = firewallPanel.getByRole( 'button', { name: 'Save allow list' } );
 
 			// Validate the default allow list state
-			await expect( page.getByRole( 'heading', { name: 'Trusted IP addresses' } ) ).toBeVisible();
+			await expect(
+				firewallPanel.getByRole( 'heading', { name: 'Trusted IP addresses' } )
+			).toBeVisible();
 			await expect( trustedIPsToggle, 'Trusted IPs toggle should be enabled' ).toBeEnabled();
 			await expect( trustedIPsToggle, 'Trusted IPs should be off' ).not.toBeChecked();
 
@@ -127,17 +138,17 @@ test.describe( 'Jetpack Protect Plugin', () => {
 			await expect( trustedIPsToggle, 'Trusted IPs should be on' ).toBeChecked();
 
 			// Test adding an IP address to the allow list
-			await page.locator( '#jetpack_waf_ip_allow_list' ).fill( '192.168.1.1' );
+			await firewallPanel.locator( '#jetpack_waf_ip_allow_list' ).fill( '192.168.1.1' );
 			await saveAllowListButton.click();
 			await expect( trustedIPsToggle, 'Trusted IPs toggle should be enabled' ).toBeEnabled();
 			await closeChangesSavedNotice( page );
 		} );
 
 		await test.step( 'Test the data sharing settings', async () => {
-			const basicDataSharingToggle = page.getByRole( 'checkbox', {
+			const basicDataSharingToggle = firewallPanel.getByRole( 'checkbox', {
 				name: 'Share basic data',
 			} );
-			const advancedDataSharingToggle = page.getByRole( 'checkbox', {
+			const advancedDataSharingToggle = firewallPanel.getByRole( 'checkbox', {
 				name: 'Share detailed data',
 			} );
 

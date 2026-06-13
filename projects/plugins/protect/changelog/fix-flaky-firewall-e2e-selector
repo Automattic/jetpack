@@ -1,4 +1,3 @@
 Significance: patch
-Type: fixed
-
-Tests: fix flaky E2E selector by scoping the "Firewall is on" assertion to the Firewall tab panel.
+Type: changed
+Comment: Scope the Protect firewall E2E assertions to the Firewall tab panel to fix a flaky Playwright strict-mode failure. Test-only; no functional change.
