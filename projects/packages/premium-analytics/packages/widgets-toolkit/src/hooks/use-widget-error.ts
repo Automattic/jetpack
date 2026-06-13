@@ -10,10 +10,10 @@ import { useEffect } from 'react';
 import { useWidgetRootContext } from '../components/widget-root';
 
 /**
- * Hook to report widget errors to the dashboard's error boundary.
+ * Hook to report recoverable widget data errors to the dashboard chrome.
  *
  * This hook manages the error lifecycle:
- * - When an error occurs, it logs the error and reports to the dashboard via setError
+ * - When an error occurs, it logs the error and reports it to the dashboard via setError
  * - When the error clears, it clears the error state
  * - Provides a retry action that clears the error and refetches data
  * - Cleans up error state when the widget unmounts
@@ -31,7 +31,7 @@ import { useWidgetRootContext } from '../components/widget-root';
  *   const hasError = useWidgetError( isError, error, refetch );
  *
  *   if ( hasError ) {
- *     return null; // Dashboard shows error UI via WidgetErrorBoundary
+ *     return null; // Dashboard chrome shows the recoverable error UI
  *   }
  *
  *   return <div>Widget content</div>;
@@ -60,7 +60,7 @@ export function useWidgetError(
 		}
 
 		if ( isGlobalError ) {
-			// Global error: show illustration only
+			// Global error: let the dashboard host choose the page-level/compact treatment.
 			setError( {
 				message: '',
 			} );
@@ -88,9 +88,9 @@ export function useWidgetError(
 			},
 		} );
 
-		// No cleanup function needed: error UI is shown by WidgetErrorBoundary, which unmounts this widget.
+		// No cleanup function needed: while the query remains in an error state,
+		// clearing here would immediately hide the dashboard's error UI.
 		// Calling setError(null) in a cleanup would wrongly clear the error.
-		// Error state is handled and cleared by SingleDashboardWidget as needed.
 	}, [ isError, error, isGlobalError, setError, refetch ] );
 
 	return isError;

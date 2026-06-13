@@ -377,7 +377,7 @@ export const DashboardPageWidgetError: Story = {
 		docs: {
 			description: {
 				story:
-					'For a widget-specific report failure, the widget render function keeps the error in local state and shows the inline error notice with a Retry action.',
+					'For a widget-specific report failure, the widget reports the error through setError and the dashboard chrome shows the inline notice with a Retry action.',
 			},
 		},
 	},
