@@ -8,8 +8,8 @@ By keeping these stores in a dedicated package that is externalized into a singl
 
 ## Stores
 
-- **`jetpack-modules`** (`./modules-state`) — Jetpack module activation state. Backed by the `/jetpack/v4/module/*` REST endpoints.
-- **`wordpress-com/plans`** (`./store/wordpress-com`) — WordPress.com plans and AI Assistant feature data.
+- **`jetpack-modules`** — Jetpack module activation state. Backed by the `/jetpack/v4/module/*` REST endpoints.
+- **`wordpress-com/plans`** — WordPress.com plans and AI Assistant feature data.
 
 ## Usage
 

@@ -5,4 +5,4 @@
  * This shim preserves the historical
  * `@automattic/jetpack-shared-extension-utils/store/wordpress-com/types` import path.
  */
-export * from '@automattic/jetpack-shared-stores/store/wordpress-com/types';
+export * from '@automattic/jetpack-shared-stores';

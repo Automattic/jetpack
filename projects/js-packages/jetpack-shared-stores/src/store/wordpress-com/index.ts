@@ -12,6 +12,10 @@ import reducer from './reducer.ts';
  */
 import type { AiFeatureProps, PlanStateProps } from './types.ts';
 
+// Re-export the store's public types so they are reachable from the package
+// barrel (the only entry point this package exposes).
+export type * from './types.ts';
+
 const store = 'wordpress-com/plans';
 
 export const selectors = {

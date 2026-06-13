@@ -1,4 +1,4 @@
-import { JETPACK_MODULES_STORE_ID } from '@automattic/jetpack-shared-stores/modules-state';
+import { JETPACK_MODULES_STORE_ID } from '@automattic/jetpack-shared-stores';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useMemo, useCallback } from '@wordpress/element';
 

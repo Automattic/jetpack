@@ -110,25 +110,10 @@ const defaultRequestMap = {
 		external: 'JetpackConnection',
 		handle: 'jetpack-connection',
 	},
-	// The shared data stores must resolve to a single externalized bundle so
-	// they register exactly once. Map the package root and its store subpaths
-	// (used directly and via shared-extension-utils re-exports) to the same
-	// handle so no consumer ever re-bundles a store.
+	// The shared data stores are externalized into a single bundle so they
+	// register exactly once. The package exposes only its barrel entry, so a
+	// single mapping covers every consumer.
 	'@automattic/jetpack-shared-stores': {
-		external: 'JetpackSharedStores',
-		handle: 'jetpack-shared-stores',
-	},
-	'@automattic/jetpack-shared-stores/modules-state': {
-		external: 'JetpackSharedStores',
-		handle: 'jetpack-shared-stores',
-	},
-	'@automattic/jetpack-shared-stores/store/wordpress-com': {
-		external: 'JetpackSharedStores',
-		handle: 'jetpack-shared-stores',
-	},
-	// Type-only today (erased before webpack sees it), but mapped defensively so a
-	// future runtime import from the types subpath cannot silently re-bundle a store.
-	'@automattic/jetpack-shared-stores/store/wordpress-com/types': {
 		external: 'JetpackSharedStores',
 		handle: 'jetpack-shared-stores',
 	},

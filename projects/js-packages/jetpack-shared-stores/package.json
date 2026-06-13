@@ -14,13 +14,7 @@
 	"author": "Automattic",
 	"sideEffects": true,
 	"exports": {
-		".": {
-			"react-native": "./index.native.js",
-			"default": "./index.js"
-		},
-		"./modules-state": "./src/modules-state/index.js",
-		"./store/wordpress-com": "./src/store/wordpress-com/index.ts",
-		"./store/wordpress-com/types": "./src/store/wordpress-com/types.ts"
+		".": "./index.js"
 	},
 	"scripts": {
 		"test": "jest",

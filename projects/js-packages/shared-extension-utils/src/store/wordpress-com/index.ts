@@ -6,4 +6,4 @@
  * This shim preserves the historical `@automattic/jetpack-shared-extension-utils/store/wordpress-com`
  * import path for existing consumers.
  */
-export * from '@automattic/jetpack-shared-stores/store/wordpress-com';
+export * from '@automattic/jetpack-shared-stores';
