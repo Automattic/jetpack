@@ -30,6 +30,11 @@ export default meta;
 
 type Story = StoryObj< typeof AverageItemsPerOrderRender >;
 
+const DASHBOARD_ROW_HEIGHT = 300;
+const DASHBOARD_GRID_GAP = 24;
+const DASHBOARD_DEFAULT_HEIGHT = `${ DASHBOARD_ROW_HEIGHT * 2 + DASHBOARD_GRID_GAP }px`;
+const DASHBOARD_MIN_HEIGHT = `${ DASHBOARD_ROW_HEIGHT }px`;
+
 export const Default: Story = {
 	args: {
 		attributes: {
@@ -46,12 +51,16 @@ export const WithComparison: Story = {
 	},
 };
 
-const createSizeDecorator = ( width: string, height = '300px' ): Decorator => {
+const createDashboardSizeDecorator = (
+	width: string,
+	height = DASHBOARD_DEFAULT_HEIGHT
+): Decorator => {
 	return Story => (
 		<div
 			style={ {
 				width,
 				height,
+				boxSizing: 'border-box',
 				border: '1px dashed #ccc',
 				borderRadius: '8px',
 				padding: '16px',
@@ -65,17 +74,22 @@ const createSizeDecorator = ( width: string, height = '300px' ): Decorator => {
 	);
 };
 
-export const SizeXXSmall: Story = {
+export const DesktopOneColumnDefault: Story = {
 	args: WithComparison.args,
-	decorators: [ createSizeDecorator( '256px' ) ],
+	decorators: [ createDashboardSizeDecorator( '256px' ) ],
 };
 
-export const SizeMedium: Story = {
+export const TwoColumnDashboardDefault: Story = {
 	args: WithComparison.args,
-	decorators: [ createSizeDecorator( '448px' ) ],
+	decorators: [ createDashboardSizeDecorator( '448px' ) ],
 };
 
-export const SizeLarge: Story = {
+export const SingleColumnDashboardDefault: Story = {
 	args: WithComparison.args,
-	decorators: [ createSizeDecorator( '576px' ) ],
+	decorators: [ createDashboardSizeDecorator( '576px' ) ],
+};
+
+export const MinimumResizedTile: Story = {
+	args: WithComparison.args,
+	decorators: [ createDashboardSizeDecorator( '256px', DASHBOARD_MIN_HEIGHT ) ],
 };
