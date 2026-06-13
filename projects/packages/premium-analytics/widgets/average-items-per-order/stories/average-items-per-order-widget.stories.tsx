@@ -1,5 +1,6 @@
 import { WidgetDashboard, type DashboardWidget } from '@automattic/jetpack-widget-dashboard';
 import { getDefaultQueryParams } from '@jetpack-premium-analytics/data';
+import { Page } from '@wordpress/admin-ui';
 import { useState, type ComponentType } from 'react';
 import { registerReportMocks } from '../../../packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
 import AverageItemsPerOrderRender from '../render';
@@ -25,13 +26,6 @@ const meta: Meta< typeof AverageItemsPerOrderRender > = {
 			},
 		},
 	},
-	decorators: [
-		Story => (
-			<div style={ { width: '100%', height: '300px' } }>
-				<Story />
-			</div>
-		),
-	],
 };
 
 export default meta;
@@ -45,6 +39,7 @@ const DASHBOARD_ONE_COLUMN_WIDTH = 256;
 const DASHBOARD_TWO_COLUMN_WIDTH = 448;
 const DASHBOARD_SINGLE_COLUMN_WIDTH = 576;
 const DESKTOP_DASHBOARD_WIDTH = `${ DASHBOARD_ONE_COLUMN_WIDTH * 4 + DASHBOARD_GRID_GAP * 3 }px`;
+const NARROW_DASHBOARD_PAGE_WIDTH = '640px';
 const DASHBOARD_DEFAULT_HEIGHT = `${ DASHBOARD_ROW_HEIGHT * 2 + DASHBOARD_GRID_GAP }px`;
 const DASHBOARD_MIN_HEIGHT = `${ DASHBOARD_ROW_HEIGHT }px`;
 
@@ -125,12 +120,53 @@ function MinimumDashboardTileStory() {
 	);
 }
 
+function DashboardPageStory( {
+	width = DESKTOP_DASHBOARD_WIDTH,
+	initialLayout = [ createAverageItemsWidget() ],
+	rowHeight = DASHBOARD_ROW_HEIGHT,
+	initialEditMode = false,
+}: {
+	width?: string;
+	initialLayout?: DashboardWidget[];
+	rowHeight?: number;
+	initialEditMode?: boolean;
+} ) {
+	const [ layout, setLayout ] = useState< DashboardWidget[] >( () => initialLayout );
+	const [ editMode, setEditMode ] = useState( initialEditMode );
+
+	return (
+		<div style={ { width, maxWidth: '100%' } }>
+			<WidgetDashboard
+				layout={ layout }
+				onLayoutChange={ setLayout }
+				widgetTypes={ [ averageItemsWidgetType ] }
+				resolveWidgetModule={ resolveAverageItemsWidgetModule }
+				gridSettings={ { model: 'grid', rowHeight } }
+				editMode={ editMode }
+				onEditChange={ setEditMode }
+			>
+				<Page title="Analytics" actions={ <WidgetDashboard.Actions /> } hasPadding>
+					<WidgetDashboard.NoWidgetsState />
+					<WidgetDashboard.Widgets />
+				</Page>
+			</WidgetDashboard>
+		</div>
+	);
+}
+
+const widgetCanvasDecorator: Decorator = Story => (
+	<div style={ { width: '100%', height: '300px' } }>
+		<Story />
+	</div>
+);
+
 export const Default: Story = {
 	args: {
 		attributes: {
 			reportParams: getDefaultQueryParams(),
 		},
 	},
+	decorators: [ widgetCanvasDecorator ],
 };
 
 export const WithComparison: Story = {
@@ -139,6 +175,7 @@ export const WithComparison: Story = {
 			reportParams: getDefaultQueryParams( true ),
 		},
 	},
+	decorators: [ widgetCanvasDecorator ],
 };
 
 const createDashboardSizeDecorator = (
@@ -192,4 +229,28 @@ export const ResizableDashboardTile: Story = {
 
 export const MinimumDashboardTile: Story = {
 	render: () => <MinimumDashboardTileStory />,
+};
+
+export const DashboardPageDefault: Story = {
+	render: () => <DashboardPageStory />,
+};
+
+export const DashboardPageNarrow: Story = {
+	render: () => <DashboardPageStory width={ NARROW_DASHBOARD_PAGE_WIDTH } />,
+};
+
+export const DashboardPageMinimumTile: Story = {
+	render: () => (
+		<DashboardPageStory
+			width={ NARROW_DASHBOARD_PAGE_WIDTH }
+			initialLayout={ [
+				createAverageItemsWidget( {
+					width: 1,
+					height: 1,
+					order: 0,
+				} ),
+			] }
+			rowHeight={ 200 }
+		/>
+	),
 };
