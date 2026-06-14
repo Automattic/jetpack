@@ -1,0 +1,67 @@
+.wp-block-jetpack-post-to-audio {
+
+	.jetpack-post-to-audio__actions {
+		display: flex;
+		align-items: center;
+		gap: 12px;
+		width: 100%;
+		flex-wrap: wrap;
+	}
+
+	.jetpack-post-to-audio__progress {
+		color: #757575;
+		font-size: 13px;
+	}
+
+	.jetpack-post-to-audio__voice-line {
+		font-size: 12px;
+		color: #757575;
+		margin: 4px 0 8px;
+	}
+
+	.jetpack-post-to-audio__done-actions {
+		display: flex;
+		gap: 8px;
+		margin-top: 8px;
+		flex-wrap: wrap;
+	}
+
+	.jetpack-post-to-audio__chunk-list {
+		padding: 8px;
+		background: #f0f0f0;
+		border-radius: 4px;
+
+		summary {
+			cursor: pointer;
+			user-select: none;
+		}
+	}
+
+	.jetpack-post-to-audio__chunk {
+		padding: 8px;
+		margin-bottom: 6px;
+		background: #fff;
+		border: 1px solid #ddd;
+		border-radius: 4px;
+		font-size: 12px;
+		white-space: pre-wrap;
+		line-height: 1.5;
+
+		.jetpack-post-to-audio__chunk-heading {
+			font-weight: 600;
+			margin-bottom: 4px;
+			color: #757575;
+		}
+	}
+
+	.jetpack-post-to-audio__preview-panel {
+		display: flex;
+		flex-direction: column;
+		gap: 8px;
+	}
+
+	.jetpack-post-to-audio__preview-meta {
+		color: #757575;
+		font-size: 12px;
+	}
+}

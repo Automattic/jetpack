@@ -53,6 +53,7 @@ class Podcast {
 		Posts_To_Podcast_Endpoint::init();
 		Podcast_Stats_Endpoint::init();
 		Podcast_Distribution_Endpoint::init();
+		Post_To_Audio_Endpoint::init();
 
 		// Register the `podcasting_*` option schema so the SPA can read/write
 		// via `/wp/v2/settings`. On Simple, the legacy WPCOM site-settings
@@ -86,6 +87,35 @@ class Podcast {
 		if ( self::is_posts_to_podcast_enabled() ) {
 			Create_AI_Podcast_Page::init();
 		}
+
+		// Post to Audio (single-post narration block) ships behind its own
+		// filter so it can roll out independently of Posts to Podcast. The
+		// REST relay above is always registered (public-api requests may not
+		// satisfy this gate); only the editor block is gated here.
+		if ( self::is_post_to_audio_enabled() ) {
+			Post_To_Audio_Block::register_hooks();
+		}
+	}
+
+	/**
+	 * Whether the Post to Audio feature (narration block + REST proxy) is
+	 * enabled for the current request.
+	 *
+	 * Defaults to true for connected WordPress.com users, and can be flipped
+	 * globally via the `jetpack_post_to_audio` filter (e.g. keyed to a blog
+	 * sticker or Experiment on the wpcom side for staged rollout).
+	 */
+	public static function is_post_to_audio_enabled() {
+		/**
+		 * Master switch for the Post to Audio feature.
+		 *
+		 * @since 1.0.3
+		 *
+		 * @param bool $enabled Whether to enable Post to Audio.
+		 */
+		$enabled = self::is_user_connected( get_current_user_id() );
+
+		return (bool) apply_filters( 'jetpack_post_to_audio', $enabled );
 	}
 
 	/**

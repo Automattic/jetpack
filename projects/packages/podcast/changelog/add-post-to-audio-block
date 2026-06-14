@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Post to Audio: add the editor block and REST relay for generating a single-voice audio narration of a post.
