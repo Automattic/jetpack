@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Post to Audio: register the editor block with registerBlockType so it appears in the inserter. It was using the availability-gated registerJetpackBlockFromMetadata helper, but the extension is never added to Jetpack_Gutenberg's known-extensions list, so the client gate returned "unavailable (unknown)" and skipped it.
