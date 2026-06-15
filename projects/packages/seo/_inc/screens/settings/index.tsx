@@ -40,7 +40,11 @@ const SettingsScreen: FC< Props > = ( { form } ) => {
 	// Overview deep links (`?focus=visibility|verification`) scroll the matching
 	// section to its top. `scroll-margin-top` on the section (style.scss) clears
 	// the fixed header + sticky tabs so the section title stays visible.
-	const search = useSearch( { from: '/' as unknown as never, strict: false } ) as SettingsSearch;
+	// Bound to the Settings route id (`/settings`); the screen only renders there.
+	const search = useSearch( {
+		from: '/settings' as unknown as never,
+		strict: false,
+	} ) as SettingsSearch;
 	const focus = search.focus;
 	useEffect( () => {
 		if ( focus !== 'visibility' && focus !== 'verification' ) {
