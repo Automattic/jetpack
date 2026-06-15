@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Tooltip: keep the HTML tooltip inside the viewport so it is no longer clipped at the screen edge when the content width varies between data points.

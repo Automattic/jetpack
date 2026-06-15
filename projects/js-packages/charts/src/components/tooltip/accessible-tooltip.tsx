@@ -1,5 +1,6 @@
 import { Tooltip, TooltipContext } from '@visx/xychart';
 import { useContext, useEffect, useCallback, useMemo } from 'react';
+import { useViewportClamp } from './use-viewport-clamp';
 import type { SeriesData, DataPointDate } from '../../types';
 import type {
 	TooltipProps as BaseTooltipProps,
@@ -38,6 +39,25 @@ interface AccessibleTooltipProps
 	 */
 	mode?: 'individual' | 'group';
 }
+
+// Wraps tooltip content in the `role="tooltip"` element while keeping it inside
+// the viewport (see `useViewportClamp`). Used for both the live (pointer)
+// tooltip and the keyboard-focused tooltip so the edge handling is consistent.
+const TooltipContentWrapper = ( {
+	children,
+	tooltipRef,
+	...divProps
+}: {
+	children: ReactNode;
+	tooltipRef?: ( element: HTMLDivElement | null ) => void;
+} & React.HTMLAttributes< HTMLDivElement > ) => {
+	const { ref, style } = useViewportClamp< HTMLDivElement >( tooltipRef );
+	return (
+		<div ref={ ref } role="tooltip" style={ style } { ...divProps }>
+			{ children }
+		</div>
+	);
+};
 
 export const AccessibleTooltip: React.FC< AccessibleTooltipProps > = ( {
 	renderTooltip,
@@ -126,25 +146,20 @@ export const AccessibleTooltip: React.FC< AccessibleTooltipProps > = ( {
 
 			if ( selectedIndex !== undefined ) {
 				return (
-					<div
-						ref={ tooltipRef }
+					<TooltipContentWrapper
+						tooltipRef={ tooltipRef }
 						tabIndex={ -1 }
-						role="tooltip"
 						aria-atomic="true"
 						className={ keyboardFocusedClassName }
 						data-testid={ `chart-tooltip-${ selectedIndex }` }
 						key={ `chart-tooltip-${ selectedIndex }` }
 					>
 						{ tooltipContent }
-					</div>
+					</TooltipContentWrapper>
 				);
 			}
 
-			return (
-				<div role="tooltip" aria-live="polite">
-					{ tooltipContent }
-				</div>
-			);
+			return <TooltipContentWrapper aria-live="polite">{ tooltipContent }</TooltipContentWrapper>;
 		};
 	}, [ renderTooltip, selectedIndex, tooltipRef, keyboardFocusedClassName ] );
 
