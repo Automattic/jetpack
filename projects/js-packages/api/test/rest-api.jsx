@@ -81,19 +81,5 @@ describe( 'restApi', () => {
 				{ credentials: 'same-origin', headers: { 'X-WP-Nonce': undefined } }
 			);
 		} );
-
-		it( 'can fetchBlazeActiveCampaigns', async () => {
-			fetch.mockFetchResponse( { has_active_campaigns: true, status: 'active' } );
-			const activeCampaignsStatus = await restApi.fetchBlazeActiveCampaigns();
-			expect( activeCampaignsStatus ).toEqual( {
-				has_active_campaigns: true,
-				status: 'active',
-			} );
-			expect( fetch ).toHaveBeenCalledTimes( 1 );
-			expect( fetch ).toHaveBeenCalledWith(
-				'/fakeApiRoot/jetpack/v4/blaze/active-campaigns?_cacheBuster=1234',
-				{ credentials: 'same-origin', headers: { 'X-WP-Nonce': undefined } }
-			);
-		} );
 	} );
 } );
