@@ -25,7 +25,6 @@ export default {
 	optimization: { ...jetpackWebpackConfig.optimization },
 	resolve: {
 		...jetpackWebpackConfig.resolve,
-		modules: [ 'node_modules' ],
 	},
 	externals: {
 		...jetpackWebpackConfig.externals,
