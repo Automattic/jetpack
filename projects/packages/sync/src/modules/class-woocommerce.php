@@ -548,6 +548,7 @@ class WooCommerce extends Module {
 		'woocommerce_specific_allowed_countries',
 		'woocommerce_ship_to_countries',
 		'woocommerce_specific_ship_to_countries',
+		'woocommerce_all_except_countries',
 		'woocommerce_calc_taxes',
 		'woocommerce_calc_discounts_sequentially',
 		'woocommerce_analytics_enabled', // This and the below options relate to the WooCommerce Advanced settings page. Required for the Activity Log.
