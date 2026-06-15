@@ -52,7 +52,9 @@ export default defineConfig(
 		// First UI package in the port: also soften JSDoc rules for the ui
 		// package and allow the upstream inline-handler JSX style. Temporary —
 		// tighten these up in a follow-up alongside datetime/formatters.
-		files: [ 'packages/ui/**' ],
+		// `packages/fields` carries field controls copied from the
+		// widgets-toolkit port and keeps the same upstream style.
+		files: [ 'packages/ui/**', 'packages/fields/**' ],
 		rules: {
 			'jsdoc/require-jsdoc': 'off',
 			'jsdoc/require-description': 'off',

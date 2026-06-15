@@ -10,7 +10,7 @@
  * Auto Activate: No
  * Module Tags: Social, Appearance
  * Feature: Traffic
- * Additional Search Queries: search engine optimization, social preview, meta description, custom title format
+ * Additional Search Queries: search engine optimization, social preview, meta description, custom title format, seo, sitemap, open graph, search engine, title tag
  *
  * @package automattic/jetpack
  */

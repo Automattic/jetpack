@@ -1,9 +1,9 @@
 # Podcast
 
-The wp-admin Podcast experience for the Jetpack plugin. Currently an
-empty package gated behind the `jetpack_podcast_untangle` filter
-(default off); follow-up PRs in the untangle train layer the SPA, REST
-settings, and RSS feed customization on top of this gate.
+The wp-admin Podcast experience for the Jetpack plugin: the SPA, REST
+settings, and RSS feed customization for podcasting on Simple and Atomic
+sites. The package owns the experience outright now that the legacy stack
+it replaced has been removed.
 
 ## UI primitives
 

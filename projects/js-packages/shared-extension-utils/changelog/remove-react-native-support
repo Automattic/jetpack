@@ -1,4 +1,0 @@
-Significance: major
-Type: removed
-
-Remove `react-native` export condition.

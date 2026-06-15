@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+VideoPress dashboard: truncate long video titles and filenames with an ellipsis in the library grid and table, and clamp long titles in the video details breadcrumb.
