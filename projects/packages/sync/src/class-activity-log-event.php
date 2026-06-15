@@ -218,7 +218,7 @@ class Activity_Log_Event {
 	 * @param \WP_REST_Request $request  REST request.
 	 * @return mixed|\WP_Error
 	 */
-	public static function authorize_rest_request( $response, $handler, $request ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+	public static function authorize_rest_request( $response, $handler, $request ) {
 		if ( null !== $response || ! $request instanceof \WP_REST_Request ) {
 			return $response;
 		}

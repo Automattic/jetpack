@@ -46,9 +46,9 @@ fi
 # Do the pnpm install. Turn off some strictness settings to make it more likely this will work.
 cd "$BASE"
 TMP=$(< pnpm-workspace.yaml )
-pnpm config set --location project strict-peer-dependencies false
-pnpm config set --location project strict-dep-builds false
-pnpm config set --location project allow-unused-patches true
+pnpm config set --location project strictPeerDependencies false
+pnpm config set --location project strictDepBuilds false
+pnpm config set --location project allowUnusedPatches true
 pnpm install || EXIT=$?
 echo "$TMP" > pnpm-workspace.yaml
 

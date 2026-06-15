@@ -65,7 +65,7 @@ class WPCOM_Content_Research {
 
 		// Try filesystem first (Simple sites). Failures are not cached.
 		if ( file_exists( ABSPATH . $filepath ) ) {
-			$contents = file_get_contents( ABSPATH . $filepath ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
+			$contents = file_get_contents( ABSPATH . $filepath );
 			if ( false !== $contents ) {
 				$data = json_decode( $contents, true );
 				if ( is_array( $data ) ) {

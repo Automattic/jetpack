@@ -13,7 +13,6 @@ use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\My_Jetpack\Hybrid_Product;
 use Automattic\Jetpack\My_Jetpack\Wpcom_Products;
 use Automattic\Jetpack\Search\Module_Control as Search_Module_Control;
-use Automattic\Jetpack\Search\Plan as Search_Plan;
 use WP_Error;
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -31,6 +30,18 @@ class Search extends Hybrid_Product {
 	 * @var float
 	 */
 	const FALLBACK_STARTING_PRICE_USD = 100;
+
+	/**
+	 * Search "new pricing" version identifier (introduced 202208).
+	 *
+	 * Intentionally duplicated from Automattic\Jetpack\Search\Plan::JETPACK_SEARCH_NEW_PRICING_VERSION
+	 * rather than referencing that class. My Jetpack is bundled into standalone plugins (e.g. Jetpack
+	 * Boost) that do NOT ship the jetpack-search package, so referencing Search\Plan here fatals with
+	 * "Class not found" the moment this product builds its pricing data (introduced by PR #48892).
+	 *
+	 * @var string
+	 */
+	const SEARCH_NEW_PRICING_VERSION = '202208';
 
 	/**
 	 * The product slug
@@ -179,7 +190,7 @@ class Search extends Hybrid_Product {
 		if ( is_wp_error( $search_pricing ) ) {
 			// Default to the current pricing experience when the WPCOM fetch fails so the
 			// dashboard degrades to the production default, not the legacy single-card view.
-			$pricing['pricing_version'] = Search_Plan::JETPACK_SEARCH_NEW_PRICING_VERSION;
+			$pricing['pricing_version'] = self::SEARCH_NEW_PRICING_VERSION;
 
 			// If the generic product pricing was also unavailable, fall back to a USD
 			// starting price so the pricing grid renders a price instead of "$0".
@@ -240,7 +251,7 @@ class Search extends Hybrid_Product {
 			return true;
 		}
 
-		return Search_Plan::JETPACK_SEARCH_NEW_PRICING_VERSION === $search_pricing['pricing_version'];
+		return self::SEARCH_NEW_PRICING_VERSION === $search_pricing['pricing_version'];
 	}
 
 	/**

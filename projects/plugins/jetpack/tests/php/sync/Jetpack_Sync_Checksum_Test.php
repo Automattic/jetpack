@@ -781,7 +781,6 @@ class Jetpack_Sync_Checksum_Test extends WP_UnitTestCase {
 		}
 
 		// Delete all posts via SQL to leave orphaned postmeta rows.
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$wpdb->query( "DELETE FROM {$wpdb->posts}" );
 
 		Table_Checksum::reset_range_edges_cache();
@@ -833,7 +832,6 @@ class Jetpack_Sync_Checksum_Test extends WP_UnitTestCase {
 
 		// item_count must reflect the actual distinct post_ids in this sub-range,
 		// not the total posts count. The sub-range has at most 5 distinct post_ids.
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$actual_distinct = (int) $wpdb->get_var(
 			$wpdb->prepare(
 				"SELECT COUNT(DISTINCT post_id) FROM {$wpdb->postmeta} WHERE post_id >= %d AND post_id <= %d",
@@ -878,7 +876,6 @@ class Jetpack_Sync_Checksum_Test extends WP_UnitTestCase {
 		$meta_tc    = new Table_Checksum( 'postmeta' );
 		$meta_range = $meta_tc->get_range_edges();
 
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$full_posts_count = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$wpdb->posts}" );
 
 		// item_count should equal the full posts count, not the sub-range count.

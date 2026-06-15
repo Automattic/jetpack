@@ -80,9 +80,7 @@ class Tracking_Pixel {
 		$url_query = wp_parse_url( wp_unslash( $_SERVER['REQUEST_URI'] ?? '' ), PHP_URL_QUERY );
 		parse_str( (string) $url_query, $url_params );
 		foreach ( self::TRACKED_UTM_PARAMETERS as $utm_parameter ) {
-			// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- UTMs are standardized parameters coming from outside WordPress, adding nonce is not possible
 			if ( isset( $url_params[ $utm_parameter ] ) && is_scalar( $url_params[ $utm_parameter ] ) ) {
-				// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- UTMs are standardized parameters coming from outside WordPress, adding nonce is not possible
 				$view_data[ $utm_parameter ] = substr( sanitize_textarea_field( wp_unslash( $url_params[ $utm_parameter ] ) ), 0, 255 );
 			}
 		}
@@ -190,6 +188,77 @@ _stq.push([ "clickTrackerInit", "%2$s", "%3$s" ]);',
 	}
 
 	/**
+	 * Add fetchpriority="low" to the Stats script attributes.
+	 *
+	 * Reduces network contention with resources in the critical rendering path (e.g., the LCP
+	 * element image). This benefits Safari and Firefox, which don't automatically assign low
+	 * priority to async/defer scripts (unlike Chrome).
+	 *
+	 * @since 0.19.5
+	 *
+	 * @param array $attributes Script tag attributes.
+	 * @return array Modified attributes.
+	 */
+	public static function add_low_fetchpriority( $attributes ) {
+		// WordPress derives the tag id from the enqueue handle as "{handle}-js", so the
+		// 'jetpack-stats' script (registered in enqueue_stats_script()) prints as
+		// 'jetpack-stats-js'. Keep this in sync if the handle is ever renamed.
+		if ( isset( $attributes['id'] ) && 'jetpack-stats-js' === $attributes['id'] ) {
+			$attributes['fetchpriority'] = 'low';
+		}
+		return $attributes;
+	}
+
+	/**
+	 * Remove the dns-prefetch resource hint for stats.wp.com.
+	 *
+	 * WordPress automatically adds dns-prefetch hints for enqueued script hosts via
+	 * wp_dependencies_unique_hosts(). Since we're deprioritizing the stats script,
+	 * the dns-prefetch is counterproductive — it front-loads DNS resolution for a
+	 * resource we're intentionally delaying.
+	 *
+	 * @since 0.19.5
+	 *
+	 * @param array  $urls          Array of resource hint URLs.
+	 * @param string $relation_type The relation type (dns-prefetch, preconnect, etc.).
+	 * @return array Filtered URLs.
+	 */
+	public static function remove_stats_dns_prefetch( $urls, $relation_type ) {
+		if ( 'dns-prefetch' !== $relation_type ) {
+			return $urls;
+		}
+
+		return array_filter(
+			$urls,
+			static function ( $url ) {
+				// Resource hints can be arrays that carry the URL under an 'href' key.
+				if ( is_array( $url ) ) {
+					$candidate = ( isset( $url['href'] ) && is_string( $url['href'] ) ) ? $url['href'] : '';
+				} elseif ( is_string( $url ) ) {
+					$candidate = $url;
+				} else {
+					return true; // Unknown entry shape; leave it untouched.
+				}
+
+				// dns-prefetch entries arrive in several shapes: WordPress core emits bare
+				// hosts ('stats.wp.com') via wp_dependencies_unique_hosts(), while other
+				// filters may add scheme-relative ('//stats.wp.com') or full URLs. Normalize
+				// each to a host so we drop stats.wp.com exactly without removing look-alike
+				// hosts such as 'mystats.wp.com' or 'stats.wp.com.evil.tld'.
+				if ( str_starts_with( $candidate, '//' ) ) {
+					$host = wp_parse_url( 'https:' . $candidate, PHP_URL_HOST );
+				} elseif ( str_contains( $candidate, '://' ) ) {
+					$host = wp_parse_url( $candidate, PHP_URL_HOST );
+				} else {
+					$host = $candidate; // Bare host form, e.g. 'stats.wp.com'.
+				}
+
+				return ! is_string( $host ) || 'stats.wp.com' !== strtolower( $host );
+			}
+		);
+	}
+
+	/**
 	 * Enqueue the Stats pixel.
 	 * Do not use this function directly, it is hooked into `wp_enqueue_scripts`.
 	 *
@@ -211,6 +280,8 @@ _stq.push([ "clickTrackerInit", "%2$s", "%3$s" ]);',
 				'strategy'  => 'defer',
 			)
 		);
+		add_filter( 'wp_script_attributes', array( static::class, 'add_low_fetchpriority' ) );
+		add_filter( 'wp_resource_hints', array( static::class, 'remove_stats_dns_prefetch' ), 100, 2 );
 
 		$data = self::build_view_data();
 

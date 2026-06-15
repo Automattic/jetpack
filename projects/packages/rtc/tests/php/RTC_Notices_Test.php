@@ -75,8 +75,8 @@ class RTC_Notices_Test extends \WorDBless\BaseTestCase {
 	 */
 	public function tear_down(): void {
 		global $wp_scripts, $wp_styles;
-		$wp_scripts = $this->original_wp_scripts; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
-		$wp_styles  = $this->original_wp_styles; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+		$wp_scripts = $this->original_wp_scripts;
+		$wp_styles  = $this->original_wp_styles;
 
 		wp_set_current_user( 0 );
 		wp_delete_user( $this->user_id );
@@ -94,7 +94,7 @@ class RTC_Notices_Test extends \WorDBless\BaseTestCase {
 		// Reset the REST server so stale route registrations don't leak
 		// into other test classes.
 		global $wp_rest_server;
-		$wp_rest_server = null; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+		$wp_rest_server = null;
 
 		parent::tear_down();
 	}
@@ -314,8 +314,8 @@ class RTC_Notices_Test extends \WorDBless\BaseTestCase {
 	 */
 	private function reset_scripts(): void {
 		global $wp_scripts, $wp_styles;
-		$wp_scripts = new \WP_Scripts(); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
-		$wp_styles  = new \WP_Styles(); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+		$wp_scripts = new \WP_Scripts();
+		$wp_styles  = new \WP_Styles();
 	}
 
 	/**

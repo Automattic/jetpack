@@ -1,7 +1,7 @@
 import {
 	getConnections,
 	hasConnections,
-	getFailedConnections,
+	getBrokenConnections,
 	getMustReauthConnections,
 	getEnabledConnections,
 	getDisabledConnections,
@@ -70,14 +70,14 @@ describe( 'Social store selectors: connectionData', () => {
 		} );
 	} );
 
-	describe( 'getFailedConnections', () => {
+	describe( 'getBrokenConnections', () => {
 		it( 'should return empty array if no connections', () => {
-			expect( getFailedConnections( {} ) ).toEqual( [] );
+			expect( getBrokenConnections( {} ) ).toEqual( [] );
 		} );
 
-		it( 'should return failed connections', () => {
-			const failedConnections = getFailedConnections( state );
-			expect( failedConnections ).toEqual( [ state.connectionData.connections[ 1 ] ] );
+		it( 'should return broken connections', () => {
+			const brokenConnections = getBrokenConnections( state );
+			expect( brokenConnections ).toEqual( [ state.connectionData.connections[ 1 ] ] );
 		} );
 	} );
 

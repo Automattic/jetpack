@@ -5,7 +5,6 @@ import { useNavigate, useSearch } from '@wordpress/route';
 import { Tabs } from '@wordpress/ui';
 import { useAiForm } from './data/use-ai';
 import { useSettingsForm } from './data/use-settings';
-import NoticesList from './notices-list';
 import AiScreen from './screens/ai';
 import OverviewScreen from './screens/overview';
 import SettingsScreen from './screens/settings';
@@ -81,7 +80,6 @@ const App: FC = () => {
 						</div>
 					</Tabs.Panel>
 				</Tabs.Root>
-				<NoticesList />
 			</AdminPage>
 		</ThemeProvider>
 	);

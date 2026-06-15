@@ -28,7 +28,7 @@ class New_Episode_Prefill_Test extends BaseTestCase {
 			remove_filter( 'default_content', array( New_Episode_Prefill::class, 'prefill_block_content' ), 10 );
 		}
 		delete_option( 'podcasting_category_id' );
-		$_GET = array(); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$_GET = array();
 		$this->reset_prefill_state();
 		parent::tearDown();
 	}
@@ -37,7 +37,7 @@ class New_Episode_Prefill_Test extends BaseTestCase {
 		global $pagenow;
 		$pagenow = 'post-new.php';
 
-		$_GET[ New_Episode_Prefill::QUERY_VAR ] = '1'; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$_GET[ New_Episode_Prefill::QUERY_VAR ] = '1';
 		New_Episode_Prefill::maybe_register_handlers();
 
 		$this->assertFalse( has_action( 'wp_insert_post', array( New_Episode_Prefill::class, 'assign_category' ) ) );

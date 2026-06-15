@@ -28,3 +28,4 @@ render: function() {
 * `toggling`: (bool) - If true, the toggle is rendered in a transition state style.
 * `className`: (string) - A CSS class to append
 * `overrideCondition`: (string) - By default, the toggle will be disabled if the module is overridden. When this prop is `active`, the toggle will only be disabled when the module is forced on and when this prop is `inactive` the toggle will be disabled when the module is forced off.
+* `trackToggle`: (bool) - If false, the toggle does not record the default module toggle event.
