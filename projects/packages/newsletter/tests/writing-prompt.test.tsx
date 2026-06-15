@@ -16,12 +16,29 @@ jest.mock( '@wordpress/api-fetch', () => ( {
 } ) );
 
 const mockGetSiteData = jest.fn();
+const mockGetSiteType = jest.fn();
+const mockGetScriptData = jest.fn();
 const mockIsWpcomPlatformSite = jest.fn();
 
 jest.mock( '@automattic/jetpack-script-data', () => ( {
 	__esModule: true,
 	getSiteData: ( ...args: unknown[] ) => mockGetSiteData( ...args ),
+	getSiteType: ( ...args: unknown[] ) => mockGetSiteType( ...args ),
+	getScriptData: ( ...args: unknown[] ) => mockGetScriptData( ...args ),
 	isWpcomPlatformSite: ( ...args: unknown[] ) => mockIsWpcomPlatformSite( ...args ),
+} ) );
+
+const mockInitialize = jest.fn();
+const mockRecordEvent = jest.fn();
+
+jest.mock( '@automattic/jetpack-analytics', () => ( {
+	__esModule: true,
+	default: {
+		initialize: ( ...args: unknown[] ) => mockInitialize( ...args ),
+		tracks: {
+			recordEvent: ( ...args: unknown[] ) => mockRecordEvent( ...args ),
+		},
+	},
 } ) );
 
 import { render, screen, within } from '@testing-library/react';
@@ -182,5 +199,106 @@ describe( 'WritingPrompt widget Reader link and responses', () => {
 		} );
 		expect( readerLink ).toHaveAttribute( 'href', 'https://wordpress.com/reader' );
 		expect( readerLink ).toHaveAttribute( 'target', '_blank' );
+	} );
+} );
+
+const PROMPTS = [
+	{
+		id: 1,
+		text: 'What is your favorite way to relax?',
+		answered_link: 'https://example.com/tag/dailyprompt-1',
+		answered_users_count: 3,
+		answered_users_sample: [ { avatar: 'https://example.com/avatar1.png' } ],
+	},
+	{
+		id: 2,
+		text: 'What did you eat for breakfast?',
+		answered_link: 'https://example.com/tag/dailyprompt-2',
+		answered_users_count: 0,
+		answered_users_sample: [],
+	},
+];
+
+describe( 'WritingPrompt widget analytics', () => {
+	beforeEach( () => {
+		mockApiFetch.mockReset();
+		mockGetSiteData.mockReset();
+		mockGetSiteType.mockReset();
+		mockGetScriptData.mockReset();
+		mockIsWpcomPlatformSite.mockReset();
+		mockInitialize.mockReset();
+		mockRecordEvent.mockReset();
+
+		mockApiFetch.mockResolvedValue( PROMPTS );
+		mockGetSiteData.mockReturnValue( { wpcom: { blog_id: 12345 } } );
+		mockGetSiteType.mockReturnValue( 'jetpack' );
+		mockGetScriptData.mockReturnValue( {
+			newsletter: { tracksUserData: { userid: 7, username: 'tester' } },
+		} );
+		mockIsWpcomPlatformSite.mockReturnValue( true );
+	} );
+
+	it( 'initializes analytics with the connected user Tracks identity on mount', async () => {
+		render( <WritingPrompt /> );
+
+		// Wait for the prompts to load before asserting on the mount effect.
+		await expect(
+			screen.findByRole( 'img', { name: 'Jetpack Logo' } )
+		).resolves.toBeInTheDocument();
+		expect( mockInitialize ).toHaveBeenCalledWith( 7, 'tester' );
+	} );
+
+	it( 'does not initialize analytics when no Tracks identity is available', async () => {
+		mockGetScriptData.mockReturnValue( { newsletter: { tracksUserData: false } } );
+
+		render( <WritingPrompt /> );
+
+		await expect(
+			screen.findByRole( 'img', { name: 'Jetpack Logo' } )
+		).resolves.toBeInTheDocument();
+		expect( mockInitialize ).not.toHaveBeenCalled();
+	} );
+
+	it( 'records a post-answer event with the prompt id when Post Answer is clicked', async () => {
+		render( <WritingPrompt /> );
+
+		const postAnswerButton = await screen.findByRole( 'button', { name: 'Post Answer' } );
+		postAnswerButton.click();
+
+		expect( mockRecordEvent ).toHaveBeenCalledWith(
+			'jetpack_newsletter_writing_prompt_post_answer_click',
+			{ site_type: 'jetpack', prompt_id: 1 }
+		);
+
+		// Posting an answer assigns document.location to navigate to the editor;
+		// jsdom cannot perform that navigation and logs an expected error, which
+		// @wordpress/jest-console requires us to acknowledge.
+		expect( console ).toHaveErrored();
+	} );
+
+	it( 'records a view-responses event with the prompt id when View responses is clicked', async () => {
+		render( <WritingPrompt /> );
+
+		const responsesButton = await screen.findByRole( 'button', { name: /View responses/ } );
+		responsesButton.click();
+
+		expect( mockRecordEvent ).toHaveBeenCalledWith(
+			'jetpack_newsletter_writing_prompt_view_responses_click',
+			{ site_type: 'jetpack', prompt_id: 1 }
+		);
+	} );
+
+	it( 'records a reader-click event when the Reader link is clicked', async () => {
+		render( <WritingPrompt /> );
+
+		const readerLink = await screen.findByRole( 'link', {
+			name: /Read the blogs and topics you follow/,
+		} );
+		readerLink.click();
+
+		expect( mockRecordEvent ).toHaveBeenCalledWith(
+			'jetpack_newsletter_writing_prompt_reader_click',
+			{ site_type: 'jetpack' }
+		);
 	} );
 } );

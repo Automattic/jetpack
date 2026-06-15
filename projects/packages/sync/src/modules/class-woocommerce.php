@@ -56,6 +56,38 @@ class WooCommerce extends Module {
 	);
 
 	/**
+	 * Mapping between WooCommerce customer detail user meta keys and customer prop names.
+	 *
+	 * @access private
+	 *
+	 * @var array
+	 */
+	private static $customer_detail_meta_key_to_prop = array(
+		'paying_customer'     => 'is_paying_customer',
+		'billing_first_name'  => 'billing_first_name',
+		'billing_last_name'   => 'billing_last_name',
+		'billing_company'     => 'billing_company',
+		'billing_address_1'   => 'billing_address_1',
+		'billing_address_2'   => 'billing_address_2',
+		'billing_city'        => 'billing_city',
+		'billing_state'       => 'billing_state',
+		'billing_postcode'    => 'billing_postcode',
+		'billing_country'     => 'billing_country',
+		'billing_email'       => 'billing_email',
+		'billing_phone'       => 'billing_phone',
+		'shipping_first_name' => 'shipping_first_name',
+		'shipping_last_name'  => 'shipping_last_name',
+		'shipping_company'    => 'shipping_company',
+		'shipping_address_1'  => 'shipping_address_1',
+		'shipping_address_2'  => 'shipping_address_2',
+		'shipping_city'       => 'shipping_city',
+		'shipping_state'      => 'shipping_state',
+		'shipping_postcode'   => 'shipping_postcode',
+		'shipping_country'    => 'shipping_country',
+		'shipping_phone'      => 'shipping_phone',
+	);
+
+	/**
 	 * Name of the order item database table.
 	 *
 	 * @access private
@@ -63,6 +95,20 @@ class WooCommerce extends Module {
 	 * @var string
 	 */
 	private $order_item_table_name;
+
+	/**
+	 * Customer detail meta changes to sync at the end of the request.
+	 *
+	 * @var array
+	 */
+	private $customer_meta_updates = array();
+
+	/**
+	 * User IDs deleted during the current request.
+	 *
+	 * @var array
+	 */
+	private $deleted_user_ids = array();
 
 	/**
 	 * The table name.
@@ -129,6 +175,7 @@ class WooCommerce extends Module {
 		add_filter( 'jetpack_sync_comment_meta_whitelist', array( $this, 'add_woocommerce_comment_meta_whitelist' ), 10 );
 
 		add_filter( 'jetpack_sync_before_enqueue_woocommerce_new_order_item', array( $this, 'filter_order_item' ) );
+		add_filter( 'jetpack_sync_before_enqueue_jetpack_updated_woo_customer_meta', array( $this, 'filter_customer_updated_meta' ) );
 		add_filter( 'jetpack_sync_whitelisted_comment_types', array( $this, 'add_review_comment_types' ) );
 
 		// Blacklist Action Scheduler comment types.
@@ -194,6 +241,15 @@ class WooCommerce extends Module {
 		add_action( 'woocommerce_new_webhook', $callable, 10, 1 );
 		add_action( 'woocommerce_webhook_deleted', $callable, 10, 2 );
 		add_action( 'woocommerce_webhook_updated', $callable, 10, 1 );
+
+		// Customers.
+		add_action( 'added_user_meta', array( $this, 'maybe_sync_customer_meta_update' ), 10, 4 );
+		add_action( 'updated_user_meta', array( $this, 'maybe_sync_customer_meta_update' ), 10, 4 );
+		add_action( 'deleted_user_meta', array( $this, 'maybe_sync_customer_meta_update' ), 10, 4 );
+		add_action( 'delete_user', array( $this, 'action_delete_user' ), 10, 1 );
+		add_action( 'wpmu_delete_user', array( $this, 'action_delete_user' ), 10, 1 );
+		add_action( 'shutdown', array( $this, 'action_customer_meta_updates' ) );
+		add_action( 'jetpack_updated_woo_customer_meta', $callable, 10, 2 );
 	}
 
 	/**
@@ -240,6 +296,175 @@ class WooCommerce extends Module {
 		// Make sure we always have all the data - prior to WooCommerce 3.0 we only have the user supplied data in the second argument and not the full details.
 		$args[1] = $this->build_order_item( $args[0] );
 		return $args;
+	}
+
+	/**
+	 * Validate the minimal customer meta update payload before enqueueing.
+	 *
+	 * @param array $args Hook arguments.
+	 * @return array|false Minimal user object and changed prop names, or false when invalid.
+	 */
+	public function filter_customer_updated_meta( $args ) {
+		if (
+			! is_array( $args )
+			|| ! isset( $args[0] )
+			|| ! isset( $args[1] )
+			|| ! is_object( $args[0] )
+			|| ! isset( $args[0]->data )
+			|| ! is_object( $args[0]->data )
+			|| ! isset( $args[0]->data->ID )
+			|| ! is_numeric( $args[0]->data->ID )
+			|| ! is_array( $args[1] )
+		) {
+			return false;
+		}
+
+		$customer_id = (int) $args[0]->data->ID;
+		if ( $customer_id <= 0 ) {
+			return false;
+		}
+
+		$updated_props = $this->get_customer_detail_props( $args[1] );
+		if ( empty( $updated_props ) ) {
+			return false;
+		}
+
+		return array( $this->build_minimal_customer_user_object( $customer_id ), $updated_props );
+	}
+
+	/**
+	 * Track updated WooCommerce customer meta props for syncing.
+	 *
+	 * @param int|array $meta_id  ID of the meta object, or IDs for deleted meta.
+	 * @param int       $user_id  User ID.
+	 * @param string    $meta_key Meta key.
+	 * @param mixed     $value    Meta value.
+	 */
+	public function maybe_sync_customer_meta_update( $meta_id, $user_id, $meta_key, $value ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		$customer_id = (int) $user_id;
+		if ( $customer_id <= 0 ) {
+			return;
+		}
+
+		if ( 'deleted_user_meta' === current_action() && isset( $this->deleted_user_ids[ $customer_id ] ) ) {
+			return;
+		}
+
+		if ( ! is_string( $meta_key ) && ! is_numeric( $meta_key ) ) {
+			return;
+		}
+
+		$meta_key = sanitize_key( (string) $meta_key );
+		if ( ! isset( self::$customer_detail_meta_key_to_prop[ $meta_key ] ) ) {
+			return;
+		}
+
+		$updated_prop = self::$customer_detail_meta_key_to_prop[ $meta_key ];
+
+		if ( ! isset( $this->customer_meta_updates[ $customer_id ] ) ) {
+			$this->customer_meta_updates[ $customer_id ] = array();
+		}
+
+		$this->customer_meta_updates[ $customer_id ][ $updated_prop ] = true;
+	}
+
+	/**
+	 * Mark a deleted user so customer meta cleanup does not sync as profile changes.
+	 *
+	 * @param int $user_id User ID.
+	 */
+	public function action_delete_user( $user_id ) {
+		$customer_id = (int) $user_id;
+		if ( $customer_id <= 0 ) {
+			return;
+		}
+
+		$this->deleted_user_ids[ $customer_id ] = true;
+		unset( $this->customer_meta_updates[ $customer_id ] );
+	}
+
+	/**
+	 * Send batched WooCommerce customer meta updates.
+	 */
+	public function action_customer_meta_updates() {
+		if ( empty( $this->customer_meta_updates ) ) {
+			return;
+		}
+
+		$customer_meta_updates       = $this->customer_meta_updates;
+		$this->customer_meta_updates = array();
+
+		foreach ( $customer_meta_updates as $customer_id => $updated_props ) {
+			if ( isset( $this->deleted_user_ids[ (int) $customer_id ] ) ) {
+				continue;
+			}
+
+			/**
+			 * Fires when WooCommerce customer details stored in user meta are updated.
+			 *
+			 * @param object $customer      Minimal WP_User-shaped customer object.
+			 * @param array  $updated_props Updated customer detail prop names.
+			 */
+			do_action(
+				'jetpack_updated_woo_customer_meta',
+				$this->build_minimal_customer_user_object( (int) $customer_id ),
+				array_keys( $updated_props )
+			);
+		}
+	}
+
+	/**
+	 * Retrieve whitelisted WooCommerce customer detail props.
+	 *
+	 * @param array $props Customer detail meta keys or prop names.
+	 * @return array Customer detail prop names.
+	 */
+	private function get_customer_detail_props( $props ) {
+		$updated_props = array();
+		foreach ( $props as $prop ) {
+			if ( ! is_string( $prop ) && ! is_numeric( $prop ) ) {
+				continue;
+			}
+
+			$prop = sanitize_key( (string) $prop );
+			if ( isset( self::$customer_detail_meta_key_to_prop[ $prop ] ) ) {
+				$updated_props[] = self::$customer_detail_meta_key_to_prop[ $prop ];
+				continue;
+			}
+
+			if ( in_array( $prop, self::$customer_detail_meta_key_to_prop, true ) ) {
+				$updated_props[] = $prop;
+			}
+		}
+
+		return array_values( array_unique( $updated_props ) );
+	}
+
+	/**
+	 * Build a minimal WP_User-shaped object for Activity Log.
+	 *
+	 * @param int $customer_id Customer user ID.
+	 * @return object Minimal user object.
+	 */
+	private function build_minimal_customer_user_object( $customer_id ) {
+		$user_data = (object) array(
+			'ID'           => $customer_id,
+			'display_name' => '',
+			'user_login'   => '',
+			'user_email'   => '',
+		);
+
+		$user = get_userdata( $customer_id );
+		if ( $user ) {
+			$user_data->display_name = (string) $user->display_name;
+			$user_data->user_login   = (string) $user->user_login;
+			$user_data->user_email   = (string) $user->user_email;
+		}
+
+		return (object) array(
+			'ID'   => $customer_id,
+			'data' => $user_data,
+		);
 	}
 
 	/**
