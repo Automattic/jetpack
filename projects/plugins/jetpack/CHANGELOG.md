@@ -4,20 +4,18 @@
 
 ## 16.0-a.1 - 2026-06-15
 ### Enhancements
-- Daily Writing Prompt: load the dashboard widget on connected self-hosted Jetpack sites. [#49491]
-- Notifications: support a notifications=v3 query parameter to opt into the v3 notifications panel. [#49514]
-- Subscriptions Block: customize the subscribe modal heading site-wide via a new Newsletter setting; applies to the Button only style. [#49171]
+- Daily Writing Prompt: Load the Dashboard widget on connected self-hosted Jetpack sites. [#49491]
+- Subscriptions Block: Customize the Subscribe modal heading site-wide via a new Newsletter setting. [#49171]
 
 ### Bug fixes
-- Daily Writing Prompt: defer the connection-readiness check to dashboard setup, avoiding a fatal error on Atomic sites when the check ran before Core's pluggable functions were loaded. [#49525]
-- Paid Content block: refresh the subscription token on-demand when it contains a stale end_date, preventing lockout after a subscription renewal. [#48008]
+- Daily Writing Prompt: Defer the connection-readiness check to Dashboard setup to avoid a fatal error on Atomic sites. [#49525]
+- Paid Content Block: Prevent lockout after a subscription renewal. [#48008]
 
 ### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
-- Media Summary: allow callers to opt out of URL stripping via a new preserve_urls argument. [#49397]
-- Newsletter: Register the description field for the memberships endpoint to support paid tier descriptions. [#49413]
-- Update package dependencies. [#49273]
-- Update package dependencies. [#49448]
-- Update package dependencies. [#49492]
+- Media Summary: Allow callers to opt out of URL stripping via a new `preserve_urls` argument. [#49397]
+- Newsletter: Register the `description` field for the memberships endpoint to support paid tier descriptions. [#49413]
+- Notifications: Let users opt into the v3 notifications panel via the `notifications=v3` query parameter. [#49514]
+- Update package dependencies. [#49273] [#49448] [#49492]
 
 ## 15.9 - 2026-06-09
 ### Enhancements

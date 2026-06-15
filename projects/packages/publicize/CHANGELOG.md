@@ -7,15 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.81.4] - 2026-06-15
 ### Changed
-- Update package dependencies. [#49273]
-- Update package dependencies. [#49492]
+- Update package dependencies. [#49273] [#49492]
 
 ### Removed
-- Remove the unused getFailedConnections selector in favor of its duplicate getBrokenConnections [#49515]
-- Remove unused scheduled posts components left behind after the old social post modal was replaced by the unified modal [#49516]
+- Remove the unused `getFailedConnections` selector in favor of its duplicate `getBrokenConnections`. [#49515]
+- Remove unused scheduled posts components left behind after the old social post modal was replaced by the unified modal. [#49516]
 
 ### Fixed
-- Render editor hyperlinks as clickable links in Bluesky and Tumblr social previews [#49483]
+- Render editor hyperlinks as clickable links in Bluesky and Tumblr social previews. [#49483]
 
 ## [0.81.3] - 2026-06-08
 ### Removed

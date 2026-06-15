@@ -11,8 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - VideoPress: Open a video's details from the Library grid by clicking the thumbnail or title, with a hover "Edit details" affordance and full keyboard support. [#49472]
 
 ### Changed
-- Update package dependencies. [#49273]
-- Update package dependencies. [#49492]
+- Update package dependencies. [#49273] [#49492]
 
 ## [0.36.13] - 2026-06-08
 ### Changed

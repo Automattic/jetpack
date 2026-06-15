@@ -7,22 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.9.1] - 2026-06-15
 ### Added
-- Add a setting for the Subscribe modal heading shown by Subscribe blocks using the Button only style. [#49171]
-- Daily Writing Prompt widget: record Tracks events when interacting with the widget's actions. [#49534]
+- Add a setting for the Subscribe modal heading shown by Subscribe blocks using the Button-only style. [#49171]
+- Daily Writing Prompt: Record Tracks events when interacting with the widget's actions. [#49534]
 
 ### Changed
-- Daily Writing Prompt widget: link to the WordPress.com Reader and move the responses button next to the Post Answer button. [#49462]
-- Newsletter: label the subscription placement options with a "Homepage and posts" section header. [#49466]
-- Update package dependencies. [#49273]
-- Update package dependencies. [#49492]
+- Daily Writing Prompt: Link to the WordPress.com Reader and move the responses button next to the Post Answer button. [#49462]
+- Label the subscription placement options with a "Homepage and posts" section header. [#49466]
+- Update package dependencies. [#49273] [#49492]
 
 ### Fixed
-- Daily Writing Prompt: defer the connection-readiness check to dashboard setup, avoiding a fatal error on Atomic sites when the check ran before Core's pluggable functions were loaded. [#49525]
-- Newsletter: fix the "Add plans" link for WordPress installs in a subdirectory by deriving the site slug from home_url instead of site_url. [#49553]
-- Newsletter: keep the Subscribers/Settings tab bar pinned while scrolling the modernized Settings tab [#49460]
-- Newsletter: Only show the subscription placement "Preview and edit" link once the placement is enabled and saved. [#49532]
-- Newsletter: render the same initials avatar in the subscriber row and detail panel when a subscriber has no Gravatar [#49581]
-- Newsletter: stop the modernized Settings tab from flashing a full-page loading spinner on every visit by caching resolved settings across mounts. [#49530]
+- Daily Writing Prompt: Defer the connection-readiness check to Dashboard setup to avoid a fatal error on Atomic sites. [#49525]
+- Fix the "Add plans" link for WordPress installs in a subdirectory. [#49553]
+- Keep the Subscribers/Settings tab bar pinned while scrolling the modernized Settings tab. [#49460]
+- Only show the subscription placement "Preview and edit" link once the placement is enabled and saved. [#49532]
+- Render the same initials avatar in the subscriber row and detail panel when a subscriber has no Gravatar. [#49581]
+- Stop the modernized Settings tab from flashing a full-page loading spinner on every visit. [#49530]
 - Subscribers: Hide the "Comp a subscription" action when the site has no paid newsletter plans. [#49531]
 
 ## [0.9.0] - 2026-06-08

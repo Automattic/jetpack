@@ -10,7 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Update package dependencies. [#49273]
 
 ### Fixed
-- Remove the package's duplicate snackbar list so save/verify toasts no longer appear twice; the wp-build boot layer already renders a single snackbar for the page. [#49470]
+- Remove the package's duplicate snackbar list. [#49470]
 
 ## 0.1.0 - 2026-06-08
 ### Added
