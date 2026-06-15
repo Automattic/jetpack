@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Paid Content block: refresh the subscription token on-demand when it contains a stale end_date, preventing lockout after a subscription renewal.

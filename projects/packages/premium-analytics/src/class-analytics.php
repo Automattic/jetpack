@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\PremiumAnalytics;
 
+use Automattic\Jetpack\PremiumAnalytics\REST\Api_Proxy_Controller;
 use Automattic\Jetpack\PremiumAnalytics\Sync\Sync_Status_Tracker;
 
 /**
@@ -59,6 +60,7 @@ class Analytics {
 		}
 
 		Sync_Status_Tracker::configure();
+		Api_Proxy_Controller::register();
 
 		add_action( 'admin_menu', array( static::class, 'register_admin_menu' ) );
 		add_action( 'jetpack-premium-analytics_init', array( static::class, 'register_sidebar_items' ) );

@@ -10,14 +10,19 @@ type Api = {
 	openVideoDetails: ( id: string ) => void;
 };
 
+// Allowlist on 'idle' (matching TitleText and ThumbnailField) rather than a
+// blocklist of known in-flight statuses, so any future status is excluded
+// from row actions by default instead of silently slipping through.
 const isVideoPressIdle = ( item: LibraryItem ) =>
-	item.type === 'videopress' && item.upload.status !== 'failed';
+	item.type === 'videopress' && item.upload.status === 'idle';
 
 /**
  * Build the DataViews actions array for the Library tab. Eligibility predicates
  * gate per-row availability based on `item.type` and `item.upload.status`. The
  * Delete action sets `supportsBulk: true` and `isEligible` to filter local items
- * out of mixed selections (DataViews silently skips ineligible items).
+ * out of mixed selections (DataViews silently skips ineligible items). Rows with
+ * a delete already in flight are ineligible for every action so a slow delete
+ * can't be double-fired or raced by an edit.
  *
  * @param api - Hook mutators forwarded into the action callbacks.
  * @return The actions array for `<DataViews>`.
@@ -41,7 +46,7 @@ export function buildLibraryActions( api: Api ): Action< LibraryItem >[] {
 			id: 'set-privacy-public',
 			label: __( 'Make public', 'jetpack-videopress-pkg' ),
 			supportsBulk: false,
-			isEligible: item => item.type === 'videopress' && item.privacy !== 'public',
+			isEligible: item => isVideoPressIdle( item ) && item.privacy !== 'public',
 			callback: items => {
 				const [ item ] = items;
 				if ( item ) {
@@ -53,7 +58,7 @@ export function buildLibraryActions( api: Api ): Action< LibraryItem >[] {
 			id: 'set-privacy-private',
 			label: __( 'Make private', 'jetpack-videopress-pkg' ),
 			supportsBulk: false,
-			isEligible: item => item.type === 'videopress' && item.privacy !== 'private',
+			isEligible: item => isVideoPressIdle( item ) && item.privacy !== 'private',
 			callback: items => {
 				const [ item ] = items;
 				if ( item ) {
@@ -65,7 +70,7 @@ export function buildLibraryActions( api: Api ): Action< LibraryItem >[] {
 			id: 'set-privacy-site',
 			label: __( 'Reset to site default', 'jetpack-videopress-pkg' ),
 			supportsBulk: false,
-			isEligible: item => item.type === 'videopress' && item.privacy !== 'site-default',
+			isEligible: item => isVideoPressIdle( item ) && item.privacy !== 'site-default',
 			callback: items => {
 				const [ item ] = items;
 				if ( item ) {
@@ -77,7 +82,7 @@ export function buildLibraryActions( api: Api ): Action< LibraryItem >[] {
 			id: 'delete',
 			label: __( 'Delete', 'jetpack-videopress-pkg' ),
 			supportsBulk: true,
-			isEligible: item => item.type === 'videopress',
+			isEligible: isVideoPressIdle,
 			callback: items => {
 				api.deleteItems( items.map( i => i.id ) );
 			},
