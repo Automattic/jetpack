@@ -71,34 +71,47 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 	private const FORWARDED_HEADERS = array( 'x-wp-total', 'x-wp-totalpages' );
 
 	/**
-	 * Top-level resource groups the data proxy may reach under `/sites/<id>/` (plus the
-	 * site-less `upgrades`). This is the security boundary: the route only matches these
-	 * prefixes, so the blog token can never be driven against the whole WPCOM site API.
+	 * Per-prefix configuration — the single source of truth for everything the proxy needs to
+	 * know about a top-level resource group. The keys are also the security boundary: the route
+	 * only matches these prefixes, so the blog token can never be driven against the whole WPCOM
+	 * site API. Adding or changing an endpoint group is a one-entry edit here, not a sweep across
+	 * the permission / write / cache / path methods, all of which read from this table.
 	 *
-	 * @var string[]
-	 */
-	private const ALLOWED_PREFIXES = array(
-		'analytics',
-		'stats',
-		'wordads',
-		'subscribers',
-		'jetpack-stats',
-		'jetpack-stats-dashboard',
-		'commercial-classification',
-		'upgrades',
-	);
-
-	/**
-	 * Sub-paths the data proxy may reach with a non-GET (write) method. Everything else is
-	 * read-only — reads can only surface this site's own data, but writes are confined to the
-	 * few endpoints the dashboard legitimately mutates.
+	 * Per entry:
+	 *  - `capability` (string, required) Capability that grants access; `manage_options` always
+	 *                  grants too, so `analytics` (capability `manage_options`) stays admin-only.
+	 *  - `writes`     (string[])  Sub-paths a non-GET (POST) may reach. Trailing `/` = this prefix
+	 *                  and any sub-path; no trailing `/` = that exact endpoint only. Absent =
+	 *                  read-only.
+	 *  - `cache_bust` (bool)      Whether a successful write invalidates the matching read cache.
+	 *  - `path`       (string)    A printf template (`%d` = blog ID) for endpoints not scoped under
+	 *                  `/sites/<id>/` (e.g. `upgrades`). A prefix with a fixed `path` takes no
+	 *                  sub-path. Absent = `/sites/<id>/<endpoint>`.
 	 *
-	 * @var string[]
+	 * @var array<string, array<string, mixed>>
 	 */
-	private const WRITE_PREFIXES = array(
-		'jetpack-stats-dashboard/',
-		'commercial-classification',
-		'stats/referrers/spam/',
+	private const PREFIX_CONFIG = array(
+		'analytics'                 => array( 'capability' => 'manage_options' ),
+		'stats'                     => array(
+			'capability' => 'view_stats',
+			'writes'     => array( 'stats/referrers/spam/' ),
+		),
+		'wordads'                   => array( 'capability' => 'activate_wordads' ),
+		'subscribers'               => array( 'capability' => 'view_stats' ),
+		'jetpack-stats'             => array( 'capability' => 'view_stats' ),
+		'jetpack-stats-dashboard'   => array(
+			'capability' => 'view_stats',
+			'writes'     => array( 'jetpack-stats-dashboard/' ),
+			'cache_bust' => true,
+		),
+		'commercial-classification' => array(
+			'capability' => 'view_stats',
+			'writes'     => array( 'commercial-classification' ),
+		),
+		'upgrades'                  => array(
+			'capability' => 'view_stats',
+			'path'       => '/upgrades?site=%d',
+		),
 	);
 
 	/**
@@ -153,7 +166,8 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 	}
 
 	/**
-	 * Regex alternation of the allowed prefixes, used to anchor the data route.
+	 * Regex alternation of the allowed prefixes (the {@see PREFIX_CONFIG} keys), used to anchor
+	 * the data route.
 	 *
 	 * @return string
 	 */
@@ -164,60 +178,41 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 				static function ( string $prefix ): string {
 					return preg_quote( $prefix, '#' );
 				},
-				self::ALLOWED_PREFIXES
+				array_keys( self::PREFIX_CONFIG )
 			)
 		);
 	}
 
 	/**
-	 * Permission for the data proxy: analytics needs `manage_options`, WordAds needs the WordAds
-	 * capability, and the rest the general stats capability.
+	 * The {@see PREFIX_CONFIG} entry for an endpoint's top-level prefix, or null if not allowed.
+	 *
+	 * @param string $endpoint The endpoint value (`get_param('endpoint')`).
+	 *
+	 * @return array<string, mixed>|null
+	 */
+	private function config_for( string $endpoint ): ?array {
+		$prefix = strtolower( explode( '/', $endpoint )[0] );
+
+		return self::PREFIX_CONFIG[ $prefix ] ?? null;
+	}
+
+	/**
+	 * Permission for the data proxy: the prefix's configured capability grants access, and
+	 * `manage_options` always does (so `analytics`, whose capability is `manage_options`, stays
+	 * admin-only). The capability comes from {@see PREFIX_CONFIG}.
 	 *
 	 * @param WP_REST_Request $request Request object.
 	 *
 	 * @return bool
 	 */
 	public function check_data_permission( WP_REST_Request $request ): bool {
-		// WordPress matches REST routes case-insensitively, so classify case-insensitively too.
-		$endpoint = strtolower( (string) $request->get_param( 'endpoint' ) );
-
-		if ( str_starts_with( $endpoint, 'analytics' ) ) {
-			return $this->check_permission();
+		$config = $this->config_for( (string) $request->get_param( 'endpoint' ) );
+		if ( null === $config ) {
+			return false;
 		}
 
-		if ( str_starts_with( $endpoint, 'wordads' ) ) {
-			return $this->check_wordads_permission();
-		}
-
-		return $this->check_stats_permission();
-	}
-
-	/**
-	 * Only site administrators may reach the premium analytics data.
-	 *
-	 * @return bool
-	 */
-	public function check_permission(): bool {
-		return current_user_can( 'manage_options' );
-	}
-
-	/**
-	 * Administrators, or users who can view stats, may reach the Stats data.
-	 *
-	 * @return bool
-	 */
-	public function check_stats_permission(): bool {
-		return current_user_can( 'manage_options' ) || current_user_can( 'view_stats' );
-	}
-
-	/**
-	 * Administrators, or users who can manage WordAds, may reach the WordAds data.
-	 *
-	 * @return bool
-	 */
-	public function check_wordads_permission(): bool {
-		// phpcs:ignore WordPress.WP.Capabilities.Unknown
-		return current_user_can( 'manage_options' ) || current_user_can( 'activate_wordads' );
+		// phpcs:ignore WordPress.WP.Capabilities.Unknown -- capability is from the PREFIX_CONFIG allowlist.
+		return current_user_can( 'manage_options' ) || current_user_can( $config['capability'] );
 	}
 
 	/**
@@ -245,15 +240,18 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 			return false;
 		}
 
-		$prefix = strtolower( explode( '/', $value )[0] );
-		if ( ! in_array( $prefix, self::ALLOWED_PREFIXES, true ) ) {
+		$config = $this->config_for( $value );
+		if ( null === $config ) {
 			return false;
 		}
 
-		// `upgrades` is the site-less purchases endpoint — it takes no sub-path, so reject
-		// `upgrades/<anything>` (which build_data_path() would otherwise mis-route under /sites/).
-		if ( 'upgrades' === $prefix && 'upgrades' !== rtrim( strtolower( $value ), '/' ) ) {
-			return false;
+		// A prefix with a fixed `path` (e.g. site-less `upgrades`) takes no sub-path, so reject
+		// `<prefix>/<anything>` — build_data_path() ignores sub-paths there and would mis-route.
+		if ( isset( $config['path'] ) ) {
+			$prefix = strtolower( explode( '/', $value )[0] );
+			if ( $prefix !== rtrim( strtolower( $value ), '/' ) ) {
+				return false;
+			}
 		}
 
 		return true;
@@ -326,17 +324,18 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 	private function build_data_path( string $endpoint ): string {
 		$site_id = (int) Jetpack_Options::get_option( 'id' );
 
-		// `upgrades` (purchases) is the one endpoint not scoped under `/sites/<id>/`. Match the
-		// trailing-slash variant the validator tolerates so it can't fall through to /sites/.
-		if ( 'upgrades' === rtrim( $endpoint, '/' ) ) {
-			return sprintf( '/upgrades?site=%d', $site_id );
+		// A prefix with a fixed `path` (e.g. site-less `upgrades`) is not scoped under /sites/<id>/.
+		$config = $this->config_for( $endpoint );
+		if ( null !== $config && isset( $config['path'] ) ) {
+			return sprintf( $config['path'], $site_id );
 		}
 
 		return sprintf( '/sites/%d/%s', $site_id, $endpoint );
 	}
 
 	/**
-	 * Whether a non-GET method may be forwarded for this endpoint.
+	 * Whether a non-GET method may be forwarded for this endpoint, per the prefix's `writes`.
+	 * A `writes` entry ending in `/` matches that sub-path prefix; otherwise it matches exactly.
 	 *
 	 * @param string $endpoint The validated sub-path.
 	 *
@@ -344,12 +343,13 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 	 */
 	private function is_write_allowed( string $endpoint ): bool {
 		$endpoint = strtolower( $endpoint );
-		foreach ( self::WRITE_PREFIXES as $prefix ) {
-			// Honor the WRITE_PREFIXES convention: a trailing slash means "this prefix and any
-			// sub-path"; no trailing slash means "this exact endpoint only".
-			$matches = str_ends_with( $prefix, '/' )
-				? str_starts_with( $endpoint, $prefix )
-				: $endpoint === $prefix;
+		$config   = $this->config_for( $endpoint );
+
+		foreach ( $config['writes'] ?? array() as $matcher ) {
+			$matcher = strtolower( $matcher );
+			$matches = str_ends_with( $matcher, '/' )
+				? str_starts_with( $endpoint, $matcher )
+				: $endpoint === $matcher;
 			if ( $matches ) {
 				return true;
 			}
@@ -366,7 +366,9 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 	 * @return bool
 	 */
 	private function busts_cache( string $endpoint ): bool {
-		return str_starts_with( strtolower( $endpoint ), 'jetpack-stats-dashboard/' );
+		$config = $this->config_for( $endpoint );
+
+		return ! empty( $config['cache_bust'] );
 	}
 
 	/**

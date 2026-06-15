@@ -68,7 +68,7 @@ class Api_Proxy_Controller_Test extends BaseTestCase {
 
 	public function test_permission_denied_without_manage_options() {
 		wp_set_current_user( 0 );
-		$this->assertFalse( $this->controller->check_permission() );
+		$this->assertFalse( $this->controller->check_data_permission( $this->build_data_request( 'GET', 'analytics/reports/totals' ) ) );
 	}
 
 	public function test_permission_granted_for_administrator() {
@@ -80,7 +80,7 @@ class Api_Proxy_Controller_Test extends BaseTestCase {
 			)
 		);
 		wp_set_current_user( $admin_id );
-		$this->assertTrue( $this->controller->check_permission() );
+		$this->assertTrue( $this->controller->check_data_permission( $this->build_data_request( 'GET', 'analytics/reports/totals' ) ) );
 	}
 
 	public function test_returns_403_error_when_not_connected() {
@@ -246,14 +246,16 @@ class Api_Proxy_Controller_Test extends BaseTestCase {
 		$user->add_cap( 'view_stats' );
 		wp_set_current_user( $user_id );
 
-		$this->assertTrue( $this->controller->check_stats_permission() );
-		$this->assertFalse( $this->controller->check_wordads_permission() );
+		// view_stats reaches stats, but not the WordAds (activate_wordads) or analytics (manage_options) tiers.
+		$this->assertTrue( $this->controller->check_data_permission( $this->build_data_request( 'GET', 'stats/top-posts' ) ) );
+		$this->assertFalse( $this->controller->check_data_permission( $this->build_data_request( 'GET', 'wordads/earnings' ) ) );
+		$this->assertFalse( $this->controller->check_data_permission( $this->build_data_request( 'GET', 'analytics/reports/totals' ) ) );
 	}
 
 	public function test_permissions_denied_for_anonymous_user() {
 		wp_set_current_user( 0 );
-		$this->assertFalse( $this->controller->check_stats_permission() );
-		$this->assertFalse( $this->controller->check_wordads_permission() );
+		$this->assertFalse( $this->controller->check_data_permission( $this->build_data_request( 'GET', 'stats/top-posts' ) ) );
+		$this->assertFalse( $this->controller->check_data_permission( $this->build_data_request( 'GET', 'wordads/earnings' ) ) );
 	}
 
 	/**
