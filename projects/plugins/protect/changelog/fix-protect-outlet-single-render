@@ -1,0 +1,3 @@
+Significance: patch
+Type: changed
+Comment: Render the active route's content in a single tab panel so it is not duplicated in the DOM during tab transitions. No user-facing change.
