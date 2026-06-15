@@ -1,3 +1,0 @@
-Significance: patch
-Type: changed
-Comment: Subscribers dashboard (Newsletter modernization, behind a feature flag): add subscribers through the async WP.com subscriber import instead of follower invitations, matching Calypso, and surface in-progress / stale imports in the modal with a cancel action.
