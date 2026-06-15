@@ -270,6 +270,35 @@ class Filesystem_Utils_Test extends TestCase {
 		}
 	}
 
+	public function test_delete_directory_sweeps_readable_entries_despite_unreadable_subdirectory() {
+		if ( function_exists( 'posix_geteuid' ) && 0 === posix_geteuid() ) {
+			$this->markTestSkipped( 'Directory permission restrictions do not apply when running as root.' );
+		}
+
+		// One unreadable subdirectory must not abort the whole cleanup: the walk is
+		// best-effort (CATCH_GET_CHILD), so readable siblings are still deleted.
+		$readable = $this->boost_cache_dir . '/cache/readable';
+		mkdir( $readable, 0755, true );
+		file_put_contents( $readable . '/file.html', 'cached page' );
+
+		$locked = $this->boost_cache_dir . '/cache/locked';
+		mkdir( $locked, 0755, true );
+		file_put_contents( $locked . '/file.html', 'cached page' );
+		chmod( $locked, 0000 );
+
+		try {
+			$result = Filesystem_Utils::delete_directory( $this->boost_cache_dir );
+
+			// The unreadable subtree survives, so the overall result is still an error.
+			$this->assertInstanceOf( Boost_Cache_Error::class, $result );
+			$this->assertEquals( 'could-not-delete-directory', $result->get_error_code() );
+			// ...but the readable sibling was swept rather than left behind.
+			$this->assertFalse( is_dir( $readable ) );
+		} finally {
+			chmod( $locked, 0755 );
+		}
+	}
+
 	public function test_delete_directory_with_missing_directory() {
 		$result = Filesystem_Utils::delete_directory( $this->boost_cache_dir . '/non-existent' );
 		$this->assertTrue( $result );

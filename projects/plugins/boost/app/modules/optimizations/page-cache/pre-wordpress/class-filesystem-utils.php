@@ -92,6 +92,12 @@ class Filesystem_Utils {
 	public static function delete_directory( $path ) {
 		clearstatcache();
 
+		// Strip a trailing slash so the is_link() guard below sees the link itself.
+		// is_link( 'foo/' ) is false on POSIX, which would let a trailing-slash path
+		// slip past the symlink-root check; rtrim() closes that for this public,
+		// destructive primitive even though the current caller passes no slash.
+		$path = rtrim( $path, '/' );
+
 		// Refuse to follow a symlinked cache root. realpath() resolves a symlink
 		// to its target, so a boost-cache symlink pointing outside wp-content would
 		// resolve identically to $cache_root below and pass the containment check,
@@ -129,9 +135,14 @@ class Filesystem_Utils {
 		}
 
 		try {
+			// CATCH_GET_CHILD keeps the walk best-effort: an unreadable subdirectory
+			// is skipped instead of throwing and aborting the whole cleanup, so the
+			// rest of the tree is still deleted. Anything left behind is reported by
+			// the final is_dir() re-check below.
 			$iterator = new \RecursiveIteratorIterator(
 				new \RecursiveDirectoryIterator( $resolved, \RecursiveDirectoryIterator::SKIP_DOTS ),
-				\RecursiveIteratorIterator::CHILD_FIRST
+				\RecursiveIteratorIterator::CHILD_FIRST,
+				\RecursiveIteratorIterator::CATCH_GET_CHILD
 			);
 
 			// Errors for individual entries are suppressed so a single failure doesn't abort the cleanup.
