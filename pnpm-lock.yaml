@@ -4310,9 +4310,6 @@ importers:
       '@wordpress/components':
         specifier: 35.0.0
         version: 35.0.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@wordpress/data':
-        specifier: 10.48.0
-        version: 10.48.0(react@18.3.1)
       '@wordpress/element':
         specifier: 8.0.0
         version: 8.0.0
