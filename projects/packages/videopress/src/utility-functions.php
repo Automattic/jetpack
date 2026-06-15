@@ -607,7 +607,7 @@ function video_format_done( $info, $format ) {
  *
  * @param string $guid VideoPress GUID.
  * @param string $format Video format.
- * @return string
+ * @return string|null The poster image URL, or null if it cannot be resolved.
  */
 function video_image_url_by_guid( $guid, $format ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 

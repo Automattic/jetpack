@@ -175,6 +175,12 @@ class Data_Test extends BaseTestCase {
 	private function prepare_videopress_video_data( $video ) {
 		$method = new \ReflectionMethod( Data::class, 'prepare_videopress_video_data' );
 
+		// setAccessible() is required to invoke private methods on PHP < 8.1, but
+		// is a no-op (and deprecated as of 8.5) on newer versions.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true );
+		}
+
 		return $method->invoke( null, $video );
 	}
 

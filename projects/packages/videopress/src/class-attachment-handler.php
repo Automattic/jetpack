@@ -290,7 +290,7 @@ class Attachment_Handler {
 		}
 
 		// Only apply this filter to VideoPress attachments
-		if ( ! is_videopress_attachment( $args[2] ) ) {
+		if ( ! isset( $args[2] ) || ! is_videopress_attachment( $args[2] ) ) {
 			return $allcaps;
 		}
 
