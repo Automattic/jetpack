@@ -408,8 +408,8 @@ class Data {
 		$files         = $videopress_media_details['files'] ?? null;
 		$filename      = $original !== null ? basename( $original ) : null;
 
-		if ( isset( $files['dvd']['original_img'] ) && $privacy_setting !== 1 ) {
-			$thumbnail = ( $file_url_base['https'] ?? '' ) . $files['dvd']['original_img'];
+		if ( isset( $files['dvd']['original_img'] ) && isset( $file_url_base['https'] ) && $privacy_setting !== 1 ) {
+			$thumbnail = $file_url_base['https'] . $files['dvd']['original_img'];
 		} else {
 			$thumbnail = null;
 		}

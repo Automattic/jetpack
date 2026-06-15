@@ -263,4 +263,24 @@ class Data_Test extends BaseTestCase {
 		$this->assertSame( 'original.mp4', $result['filename'] );
 		$this->assertSame( 'https://videos.example.com/thumb.jpg', $result['thumbnail'] );
 	}
+
+	/**
+	 * Test that the thumbnail is null when the DVD image is present but its base
+	 * URL is missing, rather than a bare, relative filename.
+	 */
+	public function test_prepare_videopress_video_data_thumbnail_null_without_base_url() {
+		$video = $this->videopress_rest_video(
+			array(
+				'videopress' => array(
+					// original_img is present, but file_url_base is missing.
+					'files' => array( 'dvd' => array( 'original_img' => 'thumb.jpg' ) ),
+				),
+			)
+		);
+		$video['jetpack_videopress']['privacy_setting'] = 0;
+
+		$result = $this->prepare_videopress_video_data( $video );
+
+		$this->assertNull( $result['thumbnail'] );
+	}
 }
