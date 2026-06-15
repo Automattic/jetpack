@@ -354,7 +354,6 @@ class Jetpack_Plugin_Search {
 				'vaultpress',
 				'videopress',
 				'search',
-				'seo-tools',
 			);
 
 			/*
@@ -366,6 +365,16 @@ class Jetpack_Plugin_Search {
 				$searchable_modules[] = 'sharing-block';
 			} else {
 				$searchable_modules[] = 'sharedaddy';
+			}
+
+			/*
+			 * Only surface the SEO Tools hint once the new Jetpack SEO admin page is
+			 * available. The page is gated behind the `rsm_jetpack_seo` feature flag,
+			 * so without this gate the hint's CTAs would point to a page that isn't
+			 * registered yet.
+			 */
+			if ( apply_filters( 'rsm_jetpack_seo', false ) ) {
+				$searchable_modules[] = 'seo-tools';
 			}
 
 			require_once JETPACK__PLUGIN_DIR . 'class.jetpack-admin.php';
