@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Post to URL: Prevent a fatal TypeError when a form's legacy hiddenFields attribute is stored as a name => value map or JSON string instead of an array of objects.

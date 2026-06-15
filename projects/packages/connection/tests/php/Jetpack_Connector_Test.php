@@ -98,6 +98,7 @@ class Jetpack_Connector_Test extends TestCase {
 		wp_set_current_user( 0 );
 
 		remove_all_filters( 'jetpack_offline_mode' );
+		remove_all_filters( 'jetpack_is_in_safe_mode' );
 		StatusCache::clear();
 	}
 
@@ -260,6 +261,57 @@ class Jetpack_Connector_Test extends TestCase {
 		$data = Jetpack_Connector::get_connector_data( array() );
 
 		$this->assertTrue( $data['ssoStatus'] );
+	}
+
+	/* ── get_connector_data() — identity crisis (Safe Mode) ─────── */
+
+	/**
+	 * Test that isInSafeMode is false and no idc data is exposed when the site is not in Safe Mode.
+	 */
+	public function test_idc_data_absent_when_not_in_safe_mode() {
+		\Jetpack_Options::update_option( 'blog_token', 'test.secret' );
+		\Jetpack_Options::update_option( 'id', 12345 );
+		StatusCache::clear();
+
+		$data = Jetpack_Connector::get_connector_data( array() );
+
+		$this->assertArrayHasKey( 'isInSafeMode', $data );
+		$this->assertFalse( $data['isInSafeMode'] );
+		$this->assertArrayNotHasKey( 'idc', $data );
+	}
+
+	/**
+	 * Test that Safe Mode data is exposed when the site is in Safe Mode.
+	 */
+	public function test_idc_data_present_when_in_safe_mode() {
+		\Jetpack_Options::update_option( 'blog_token', 'test.secret' );
+		\Jetpack_Options::update_option( 'id', 12345 );
+		StatusCache::clear();
+		add_filter( 'jetpack_is_in_safe_mode', '__return_true' );
+
+		$data = Jetpack_Connector::get_connector_data( array() );
+
+		$this->assertTrue( $data['isInSafeMode'] );
+		$this->assertArrayHasKey( 'isSafeModeConfirmed', $data );
+		$this->assertArrayHasKey( 'idc', $data );
+		$this->assertArrayHasKey( 'currentUrl', $data['idc'] );
+		$this->assertArrayHasKey( 'wpcomHomeUrl', $data['idc'] );
+		$this->assertArrayHasKey( 'isDevelopmentSite', $data['idc'] );
+		$this->assertArrayHasKey( 'possibleDynamicSiteUrlDetected', $data['idc'] );
+		$this->assertNotEmpty( $data['idc']['currentUrl'] );
+	}
+
+	/**
+	 * Test that Safe Mode data is not exposed for an unregistered site.
+	 */
+	public function test_idc_data_absent_when_unregistered() {
+		StatusCache::clear();
+		add_filter( 'jetpack_is_in_safe_mode', '__return_true' );
+
+		$data = Jetpack_Connector::get_connector_data( array() );
+
+		$this->assertArrayNotHasKey( 'isInSafeMode', $data );
+		$this->assertArrayNotHasKey( 'idc', $data );
 	}
 
 	/* ── is_connectors_screen() ────────────────────────────────── */

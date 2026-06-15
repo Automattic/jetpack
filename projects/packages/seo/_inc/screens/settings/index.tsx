@@ -15,6 +15,8 @@ import type { FC } from 'react';
 // calls (breaks i18n extraction). See feedback_i18n_ternary_minifier_fold.
 const setLabel = __( 'Set', 'jetpack-seo' );
 const notSetLabel = __( 'Not set', 'jetpack-seo' );
+const enabledLabel = __( 'Enabled', 'jetpack-seo' );
+const disabledLabel = __( 'Disabled', 'jetpack-seo' );
 
 interface Props {
 	form: SettingsForm;
@@ -115,6 +117,30 @@ const SettingsScreen: FC< Props > = ( { form } ) => {
 					</CollapsibleCard.Content>
 				</CollapsibleCard.Root>
 			</div>
+
+			<CollapsibleCard.Root defaultOpen={ false }>
+				<CollapsibleCard.Header>
+					<Stack direction="row" justify="space-between" align="center" gap="sm">
+						<Card.Title>{ __( 'Canonical URLs', 'jetpack-seo' ) }</Card.Title>
+						<Badge intent={ local.canonical_active ? 'stable' : 'draft' }>
+							{ local.canonical_active ? enabledLabel : disabledLabel }
+						</Badge>
+					</Stack>
+				</CollapsibleCard.Header>
+				<CollapsibleCard.Content>
+					<ToggleControl
+						label={ __( 'Add canonical URLs to archive pages', 'jetpack-seo' ) }
+						help={ __(
+							'Adds a rel="canonical" link to archive pages, helping search engines identify the preferred URL and avoid indexing duplicate content.',
+							'jetpack-seo'
+						) }
+						checked={ local.canonical_active }
+						onChange={ next => commit( { canonical_active: next } ) }
+						disabled={ isSaving }
+						__nextHasNoMarginBottom
+					/>
+				</CollapsibleCard.Content>
+			</CollapsibleCard.Root>
 
 			<TitleStructureField
 				formats={ local.title_formats }

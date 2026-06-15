@@ -24,11 +24,15 @@ const TitleText = ( { item }: { item: LibraryItem } ) => {
 	const { openVideoDetails } = useUploadActions();
 	const { type, upload, title, id } = item;
 
+	// `title` attributes expose the full text on hover; the elements
+	// themselves truncate with an ellipsis (see &__title-link /
+	// &__title-text in style.scss).
 	if ( type === 'videopress' && upload.status === 'idle' ) {
 		return (
 			<button
 				type="button"
 				className="vp-library__title-link"
+				title={ title }
 				onClick={ () => openVideoDetails( id ) }
 			>
 				{ title }
@@ -36,7 +40,11 @@ const TitleText = ( { item }: { item: LibraryItem } ) => {
 		);
 	}
 
-	return <span>{ title }</span>;
+	return (
+		<span className="vp-library__title-text" title={ title }>
+			{ title }
+		</span>
+	);
 };
 
 const privacyLabel = ( privacy: LibraryItem[ 'privacy' ] ): string => {
@@ -66,6 +74,11 @@ const TitleCell = ( { item }: { item: LibraryItem } ) => {
 		pill = {
 			intent: 'informational',
 			label: __( 'Uploading…', 'jetpack-videopress-pkg' ),
+		};
+	} else if ( upload.status === 'deleting' ) {
+		pill = {
+			intent: 'informational',
+			label: __( 'Deleting…', 'jetpack-videopress-pkg' ),
 		};
 	} else if ( upload.status === 'failed' ) {
 		pill = {
@@ -116,7 +129,7 @@ export const libraryFields: Field< LibraryItem >[] = [
 		label: __( 'Filename', 'jetpack-videopress-pkg' ),
 		getValue: ( { item } ) => item.filename,
 		render: ( { item } ) => (
-			<Text variant="body-sm" className="vp-library__filename">
+			<Text variant="body-sm" className="vp-library__filename" title={ item.filename }>
 				{ item.filename }
 			</Text>
 		),
