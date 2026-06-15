@@ -183,6 +183,47 @@ class Utility_Functions_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Test that video_image_url_by_guid returns null without warnings when the
+	 * attachment is found but has no usable poster metadata.
+	 *
+	 * When wp_get_attachment_metadata() returns false (no metadata stored), or
+	 * the metadata lacks videopress['poster'], reading
+	 * $meta['videopress']['poster'] previously raised "Trying to access array
+	 * offset on false" / "Undefined array key" warnings.
+	 */
+	public function test_video_image_url_by_guid_returns_null_for_missing_poster_metadata() {
+		// Attachment with a guid but no stored metadata: wp_get_attachment_metadata() returns false.
+		$no_meta_guid = 'guid-without-metadata';
+		$no_meta_id   = wp_insert_post(
+			array(
+				'post_type'      => 'attachment',
+				'post_mime_type' => 'video/videopress',
+				'post_status'    => 'inherit',
+				'post_title'     => 'VideoPress video without metadata',
+			)
+		);
+		// Prime the guid->ID lookup cache directly, since the meta_query lookup is not supported by the test DB.
+		set_transient( 'videopress_get_post_id_by_guid_' . $no_meta_guid, $no_meta_id, HOUR_IN_SECONDS );
+
+		$this->assertNull( video_image_url_by_guid( $no_meta_guid, 'jpg' ) );
+
+		// Attachment whose metadata exists but lacks a videopress poster.
+		$partial_guid = 'guid-with-partial-metadata';
+		$partial_id   = wp_insert_post(
+			array(
+				'post_type'      => 'attachment',
+				'post_mime_type' => 'video/videopress',
+				'post_status'    => 'inherit',
+				'post_title'     => 'VideoPress video with partial metadata',
+			)
+		);
+		wp_update_attachment_metadata( $partial_id, array( 'videopress' => array( 'finished' => false ) ) );
+		set_transient( 'videopress_get_post_id_by_guid_' . $partial_guid, $partial_id, HOUR_IN_SECONDS );
+
+		$this->assertNull( video_image_url_by_guid( $partial_guid, 'jpg' ) );
+	}
+
+	/**
 	 * Test that videopress_update_meta_data returns false without warnings when
 	 * the stored videopress metadata has no guid.
 	 *
