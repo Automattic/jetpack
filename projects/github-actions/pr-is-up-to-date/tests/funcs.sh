@@ -4,15 +4,16 @@ set -eo pipefail
 
 : "${TESTDIR:?}"
 BASE=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
+# shellcheck source=../funcs.sh  # It gets confused otherwise
 source "$BASE/funcs.sh"
 
 # Variables expected in the environment.
-GITHUB_SERVER_URL="file://$TESTDIR"
-GITHUB_REPOSITORY=repo
-BRANCH=main
-DATA_FAIL='"FAIL"'
-DATA_OK='"OK"'
-CI=true
+export GITHUB_SERVER_URL="file://$TESTDIR"
+export GITHUB_REPOSITORY=repo
+export BRANCH=main
+export DATA_FAIL='"FAIL"'
+export DATA_OK='"OK"'
+export CI=true
 
 # Git needs these
 export GIT_AUTHOR_DATE="1640995200 +0000"

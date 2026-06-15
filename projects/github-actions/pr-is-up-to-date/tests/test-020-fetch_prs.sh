@@ -22,6 +22,7 @@ test_make_pr 4 PR4
 test_make_pr 5 PR5
 test_make_tag tagB B
 
+# shellcheck disable=SC2034
 TAGS=( tagB )
 
 test_begin "Fetching PR descended from main"
