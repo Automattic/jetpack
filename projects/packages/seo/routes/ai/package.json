@@ -7,8 +7,11 @@
 		"@types/react": "18.3.28",
 		"@wordpress/api-fetch": "7.48.0",
 		"@wordpress/components": "35.0.0",
+		"@wordpress/core-data": "7.48.0",
 		"@wordpress/data": "10.48.0",
+		"@wordpress/dataviews": "14.3.0",
 		"@wordpress/element": "8.0.0",
+		"@wordpress/html-entities": "4.48.0",
 		"@wordpress/i18n": "6.21.0",
 		"@wordpress/icons": "13.1.0",
 		"@wordpress/notices": "5.48.0",
@@ -18,7 +21,7 @@
 		"clsx": "2.1.1"
 	},
 	"route": {
-		"path": "/",
+		"path": "/ai",
 		"page": "jetpack-seo-dashboard"
 	}
 }
