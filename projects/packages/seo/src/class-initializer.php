@@ -320,8 +320,8 @@ class Initializer {
 		$logo_url = $logo_id ? (string) wp_get_attachment_image_url( $logo_id, 'full' ) : '';
 
 		return array(
-			'title' => get_bloginfo( 'name' ),
-			'url'   => home_url(),
+			'title' => (string) get_bloginfo( 'name' ),
+			'url'   => (string) home_url(),
 			'icon'  => $icon_url,
 			'image' => $logo_url ? $logo_url : $icon_url,
 		);
