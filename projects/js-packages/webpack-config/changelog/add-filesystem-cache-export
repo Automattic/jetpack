@@ -1,3 +1,4 @@
-Significance: patch
+Significance: minor
 Type: added
-Comment: Export a `cache( configFile )` helper that consumers can opt in to via `cache: jetpackWebpackConfig.cache( __filename )` for filesystem-backed webpack caching at `.cache/webpack/`. Internal build tooling; no user-facing effect.
+
+Add webpack cache setup function.
