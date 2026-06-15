@@ -62,12 +62,6 @@ class Analytics {
 		Sync_Status_Tracker::configure();
 		Api_Proxy_Controller::register();
 
-		// TEMP (harness, do not merge): the real analytics sync module
-		// `woocommerce_analytics` is not registered yet, so flip the milestone on
-		// the always-enqueued `posts` full-sync instead. Mirrors the frontend
-		// ANALYTICS_SYNC_MODULE override so reviewers can exercise the flow.
-		add_filter( 'jetpack_premium_analytics_sync_modules', static fn() => array( 'posts' ) );
-
 		add_action( 'admin_menu', array( static::class, 'register_admin_menu' ) );
 		add_action( 'jetpack-premium-analytics_init', array( static::class, 'register_sidebar_items' ) );
 	}
