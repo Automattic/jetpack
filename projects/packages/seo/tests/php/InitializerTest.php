@@ -79,4 +79,23 @@ class InitializerTest extends TestCase {
 			remove_filter( 'ai_seo_enhancer_enabled', '__return_false' );
 		}
 	}
+
+	/**
+	 * The site-identity bootstrap (used by the Settings search/social previews)
+	 * exposes title, url, icon and image, all as strings. With no site icon or
+	 * custom logo in the test environment the image falls back to the (empty)
+	 * icon.
+	 */
+	public function test_get_site_data_shape() {
+		$site = Initializer::get_site_data();
+
+		$this->assertArrayHasKey( 'title', $site );
+		$this->assertArrayHasKey( 'url', $site );
+		$this->assertArrayHasKey( 'icon', $site );
+		$this->assertArrayHasKey( 'image', $site );
+		$this->assertIsString( $site['title'] );
+		$this->assertIsString( $site['url'] );
+		$this->assertIsString( $site['icon'] );
+		$this->assertIsString( $site['image'] );
+	}
 }
