@@ -40,19 +40,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 class Akismet_Admin_Chrome {
 
 	/**
-	 * Hook suffixes of Akismet's settings page, depending on where it ends up in the menu.
-	 *
-	 * - `jetpack_page_akismet-key-config`  when Jetpack is active and Akismet is a Jetpack submenu.
-	 * - `settings_page_akismet-key-config` when Jetpack is not driving the menu (Settings submenu).
-	 *
-	 * @var string[]
-	 */
-	const PAGE_HOOK_SUFFIXES = array(
-		'jetpack_page_akismet-key-config',
-		'settings_page_akismet-key-config',
-	);
-
-	/**
 	 * The green Jetpack logo mark, sized via the `height` attribute by callers.
 	 *
 	 * @param int $height Pixel height of the logo.
@@ -178,7 +165,7 @@ class Akismet_Admin_Chrome {
 				exactly like every other unified Jetpack admin page. */
 			.jetpack-admin-page #dolly {
 				float: none;
-				text-align: right;
+				text-align: end;
 				background: var(--wpds-color-bg-surface-neutral-strong, #fff);
 				font-style: italic;
 				color: var(--wpds-color-fg-content-neutral-weak, #87a6bc);
@@ -193,9 +180,15 @@ class Akismet_Admin_Chrome {
 			/* ── Contained layout: fixed header, scrolling middle, pinned footer ──
 				Mirrors the jetpack-admin-page-layout mixin, adapted to Akismet's
 				markup (#wpbody-content > #akismet-plugin-container > header/.akismet-lower/footer).
-				Scoped to both menu locations: jetpack_page_… and settings_page_… */
+				Scoped to both menu locations: jetpack_page_… and settings_page_…
+
+				The mixin uses physical `left`/`right` because its SCSS is compiled
+				through rtlcss, which emits a flipped stylesheet. This inline `<style>`
+				has no such build step, so it uses CSS logical properties
+				(`inset-inline-*`, `padding-inline-*`, `margin-inline`) to flip with the
+				admin menu under RTL locales. */
 			body[class*="_page_akismet-key-config"] #wpcontent {
-				padding-left: 0;
+				padding-inline-start: 0;
 			}
 			body[class*="_page_akismet-key-config"] #wpfooter {
 				display: none;
@@ -204,8 +197,8 @@ class Akismet_Admin_Chrome {
 				box-sizing: border-box;
 				position: fixed;
 				top: var(--wp-admin-bar-height, 32px);
-				left: 160px;
-				right: 0;
+				inset-inline-start: 160px;
+				inset-inline-end: 0;
 				bottom: 0;
 				width: auto;
 				padding-bottom: 0;
@@ -214,16 +207,16 @@ class Akismet_Admin_Chrome {
 				flex-direction: column;
 			}
 			body[class*="_page_akismet-key-config"].folded #wpbody-content {
-				left: 36px;
+				inset-inline-start: 36px;
 			}
 			@media (max-width: 960px) {
 				body[class*="_page_akismet-key-config"].auto-fold #wpbody-content {
-					left: 36px;
+					inset-inline-start: 36px;
 				}
 			}
 			@media (min-width: 961px) {
 				body[class*="_page_akismet-key-config"].is-nav-unification:not(.folded) #wpbody-content {
-					left: 272px;
+					inset-inline-start: 272px;
 				}
 			}
 			body[class*="_page_akismet-key-config"] #akismet-plugin-container {
@@ -260,8 +253,7 @@ class Akismet_Admin_Chrome {
 			body[class*="_page_akismet-key-config"] .akismet-lower > * {
 				box-sizing: border-box;
 				max-width: 45rem;
-				margin-left: auto;
-				margin-right: auto;
+				margin-inline: auto;
 			}
 			body[class*="_page_akismet-key-config"] .jp-akismet-footer {
 				flex-shrink: 0;
@@ -271,7 +263,7 @@ class Akismet_Admin_Chrome {
 				body[class*="_page_akismet-key-config"].folded #wpbody-content,
 				body[class*="_page_akismet-key-config"].auto-fold #wpbody-content {
 					top: var(--wp-admin-bar-height, 46px);
-					left: 0;
+					inset-inline-start: 0;
 				}
 			}
 		</style>
