@@ -136,9 +136,8 @@
 	height: auto !important;
 }
 
+// `.quicklinks` beats core's `.quicklinks a { display: block }`.
 #wpadminbar .wp-admin-bar__site-info,
-// `.quicklinks` raises specificity above core's `#wpadminbar .quicklinks a { display: block }`,
-// which otherwise ties our anchor rule and wins on source order.
 #wpadminbar .quicklinks a.wp-admin-bar__site-info {
 	display: flex;
 	flex-direction: row;
