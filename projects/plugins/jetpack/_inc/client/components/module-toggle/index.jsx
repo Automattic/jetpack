@@ -19,20 +19,16 @@ class ModuleToggleComponent extends Component {
 		compact: PropTypes.bool,
 		id: PropTypes.string,
 		overrideCondition: PropTypes.string,
-		trackToggle: PropTypes.bool,
 	};
 
 	static defaultProps = {
 		activated: false,
 		disabled: false,
 		overrideCondition: '',
-		trackToggle: true,
 	};
 
 	toggleModule = () => {
-		if ( this.props.trackToggle ) {
-			this.trackModuleToggle( this.props.slug, this.props.activated );
-		}
+		this.trackModuleToggle( this.props.slug, this.props.activated );
 		return this.props.toggleModule( this.props.slug, this.props.activated );
 	};
 
