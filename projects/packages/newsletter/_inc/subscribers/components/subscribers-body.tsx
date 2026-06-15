@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from '@wordpress/element';
 import { useNavigate, useSearch } from '@wordpress/route';
 import { installDataViewsFooterI18n } from '../lib/dataviews-i18n';
 import { getBlogId } from '../lib/site';
+import { isOpenSubscriberRemoved, toFiniteNumber } from '../lib/subscriber-helpers';
 import HeaderActions from './header-actions';
 import AddSubscribersModal from './modals/add-subscribers-modal';
 import SubscribersDataViews from './subscribers-data-views';
@@ -77,11 +78,35 @@ export default function SubscribersBody( {
 		[ navigate, search ]
 	);
 
+	// Close the inspector when the subscriber it's showing gets removed — otherwise it lingers
+	// with stale data (and on reload reopens from the URL but never loads the deleted row). The
+	// inspector is keyed entirely by the `subscriber`/`u` URL params, so clearing them closes it.
+	const handleSubscribersRemoved = useCallback(
+		( removed: Subscriber[] ) => {
+			const open = {
+				subscriptionId: toFiniteNumber( search.subscriber ),
+				userId: toFiniteNumber( search.u ),
+			};
+			if ( ! isOpenSubscriberRemoved( open, removed ) ) {
+				return;
+			}
+			navigate( {
+				search: {
+					...search,
+					subscriber: undefined,
+					u: undefined,
+				},
+			} as unknown as Parameters< typeof navigate >[ 0 ] );
+		},
+		[ navigate, search ]
+	);
+
 	const body = (
 		<>
 			<SubscribersDataViews
 				onAddSubscribers={ openAdd }
 				onViewSubscriber={ handleViewSubscriber }
+				onSubscribersRemoved={ handleSubscribersRemoved }
 			/>
 			<AddSubscribersModal isOpen={ isAddOpen } onClose={ closeAdd } />
 		</>

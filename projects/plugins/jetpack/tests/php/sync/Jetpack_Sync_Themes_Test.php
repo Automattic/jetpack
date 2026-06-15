@@ -151,6 +151,7 @@ class Jetpack_Sync_Themes_Test extends Jetpack_Sync_TestBase {
 		set_theme_mod( 'foo', 'bar' );
 		$this->sender->do_sync();
 
+		// @phan-suppress-next-line PhanPluginDuplicateAdjacentStatement -- See above todo.
 		$this->sender->do_sync();
 		$theme_supports = $this->server_replica_storage->get_callable( 'theme_support' );
 

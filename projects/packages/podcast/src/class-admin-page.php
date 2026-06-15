@@ -10,10 +10,7 @@ namespace Automattic\Jetpack\Podcast;
 use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills;
 
 /**
- * Adds the "Jetpack > Podcast" wp-admin screen on Simple and Atomic when the
- * `jetpack_podcast_untangle` filter is enabled. Until that filter flips, every
- * entry point here is a no-op so the legacy podcasting experience keeps
- * running unchanged.
+ * Adds the "Jetpack > Podcast" wp-admin screen on Simple and Atomic.
  */
 class Admin_Page {
 
@@ -52,10 +49,6 @@ class Admin_Page {
 	 * parent menu exists.
 	 */
 	public static function add_wp_admin_submenu() {
-		if ( ! self::is_enabled() ) {
-			return;
-		}
-
 		$wp_build_render = 'jetpack_podcast_jetpack_podcast_dashboard_wp_admin_render_page';
 		$callback        = function_exists( $wp_build_render )
 			? $wp_build_render
@@ -90,7 +83,7 @@ class Admin_Page {
 	 * before `add_wp_admin_submenu()` runs at priority 999999.
 	 */
 	public static function maybe_load_wp_build() {
-		if ( ! self::is_enabled() || ! self::is_podcast_admin_request() ) {
+		if ( ! self::is_podcast_admin_request() ) {
 			return;
 		}
 
@@ -162,13 +155,6 @@ class Admin_Page {
 			<h1>Podcast</h1>
 		</div>
 		<?php
-	}
-
-	/**
-	 * Whether the Podcast untangle is enabled.
-	 */
-	private static function is_enabled() {
-		return Podcast::is_enabled();
 	}
 
 	/**
