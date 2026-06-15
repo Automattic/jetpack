@@ -37,6 +37,7 @@ const mockUseLinkPreviewPostData = useLinkPreviewPostData as jest.MockedFunction
 const mockGetMediaSourceUrl = getMediaSourceUrl as jest.MockedFunction< typeof getMediaSourceUrl >;
 
 const mockGetEditedPostAttribute = jest.fn();
+const mockGetEditedPostContent = jest.fn( () => '' );
 
 const getDefaultMockPostMeta = () => ( {
 	attachedMedia: [] as Array< { id: number; type: string; url: string } >,
@@ -83,6 +84,7 @@ describe( 'useSocialPreviewPostData', () => {
 				const mockSelect = () => ( {
 					getEntityRecords: jest.fn().mockReturnValue( [] ),
 					getEditedPostAttribute: mockGetEditedPostAttribute,
+					getEditedPostContent: mockGetEditedPostContent,
 				} );
 				return selectorOrMapper( mockSelect );
 			}
@@ -202,6 +204,7 @@ describe( 'useSocialPreviewPostData', () => {
 				const mockSelect = () => ( {
 					getEntityRecords: jest.fn().mockReturnValue( [ mockMediaItem ] ),
 					getEditedPostAttribute: mockGetEditedPostAttribute,
+					getEditedPostContent: mockGetEditedPostContent,
 				} );
 				return selectorOrMapper( mockSelect );
 			}
@@ -229,6 +232,7 @@ describe( 'useSocialPreviewPostData', () => {
 				const mockSelect = () => ( {
 					getEntityRecords: mockGetEntityRecords,
 					getEditedPostAttribute: mockGetEditedPostAttribute,
+					getEditedPostContent: mockGetEditedPostContent,
 				} );
 				return selectorOrMapper( mockSelect );
 			}

@@ -102,13 +102,11 @@
 		// We'll leave major updates ungrouped though, as those likely need more individualized attention.
 		{
 			extends: [ 'helpers:pinGitHubActionDigests' ],
-			matchPackageNames: [ '!actions/**' ],
 		},
 		{
 			groupName: 'GitHub Actions minor version bumps',
 			matchDepTypes: [ 'action' ],
-			matchUpdateTypes: [ 'minor', 'patch', 'pin', 'digest' ],
-			matchPackageNames: [ '!actions/**' ],
+			matchUpdateTypes: [ 'minor', 'patch', 'pin', 'digest', 'pinDigest' ],
 			schedule: [ '* 0-3 * * 1' ],
 			additionalReviewers: [ 'team:qualityops' ],
 		},

@@ -111,6 +111,48 @@
 		}
 	}
 
+	// Full-cover, transparent button that turns the whole idle-VideoPress
+	// thumbnail into a single keyboard-reachable target that opens Details
+	// (mirroring Core, where clicking the media opens it). It carries the
+	// shared `&__hover-action` overlay as a non-interactive child, so the
+	// "Edit details" label reveals on hover/focus without adding a second
+	// tab stop.
+	&__open-details {
+		position: absolute;
+		inset: 0;
+		margin: 0;
+		padding: 0;
+		border: 0;
+		background: transparent;
+		cursor: pointer;
+		appearance: none;
+
+		// The hover-action child is purely a visual label here; let clicks
+		// fall through to this button so the entire thumbnail is clickable.
+		.vp-library__hover-action {
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			pointer-events: none;
+		}
+
+		&-label {
+			padding: 4px 12px;
+			border-radius: 2px;
+			background: #fff;
+			color: #1e1e1e;
+			font-size: 13px;
+			font-weight: 500;
+			box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.1);
+		}
+
+		// Keep the keyboard focus ring visible above the overlay.
+		&:focus-visible {
+			outline: 2px solid var(--wp-admin-theme-color, #3858e9);
+			outline-offset: -2px;
+		}
+	}
+
 	&__progress {
 		position: absolute;
 		inset: 0;
@@ -140,6 +182,28 @@
 		overflow: hidden;
 		text-overflow: ellipsis;
 		white-space: nowrap;
+	}
+
+	// Link-styled button used by the title cell for idle VideoPress videos so
+	// the title opens Details (mirroring Core). Rendered as a <button> rather
+	// than an <a> because navigation is handled by the in-app router, not an
+	// href; styled to read as a link and inherit the cell's typography.
+	&__title-link {
+		display: inline;
+		margin: 0;
+		padding: 0;
+		border: 0;
+		background: none;
+		color: inherit;
+		font: inherit;
+		text-align: inherit;
+		cursor: pointer;
+
+		&:hover,
+		&:focus-visible {
+			color: var(--wp-admin-theme-color, #3858e9);
+			text-decoration: underline;
+		}
 	}
 
 	// Table view: DataViews gives a 32x32 cell slot but doesn't force the img,

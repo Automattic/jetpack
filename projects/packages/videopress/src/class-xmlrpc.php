@@ -61,7 +61,7 @@ class XMLRPC {
 	 *
 	 * @return array
 	 */
-	public function xmlrpc_methods( $methods, $core_methods, $user ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+	public function xmlrpc_methods( $methods, $core_methods, $user ) {
 		if ( $user && $user instanceof WP_User ) {
 			$this->current_user = $user;
 		}

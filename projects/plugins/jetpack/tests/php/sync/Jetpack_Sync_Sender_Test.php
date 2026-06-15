@@ -956,7 +956,7 @@ class Jetpack_Sync_Sender_Test extends Jetpack_Sync_TestBase {
 	 *
 	 * @return array
 	 */
-	public function pre_http_sync_request_spawned( $preempt, $args, $url ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+	public function pre_http_sync_request_spawned( $preempt, $args, $url ) {
 		$this->dedicated_sync_request_spawned = strpos( $url, 'spawn-sync' ) > 0;
 
 		return array(

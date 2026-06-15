@@ -7,3 +7,4 @@
 !jetpack-debug-helper-loader.php
 !/jetpack-debug-helper
 !offline-mode-force-wpcom-disconnect.php
+!sync_wp_test_suite_with_core_version.php

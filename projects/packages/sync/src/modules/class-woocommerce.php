@@ -617,6 +617,7 @@ class WooCommerce extends Module {
 		'woocommerce_woocommerce_payments_google_pay_settings',
 		'woocommerce_woocommerce_payments_settings',
 		'wc_stripe_agentic_commerce_webhook_secret',  // This and the below options relate to additional payment types.
+		'wc_square_settings',
 		'woocommerce_amazon_payments_advanced_settings',
 		'woocommerce_gift_cards_pay_settings',
 		'woocommerce_square_cash_app_pay_settings',
@@ -625,6 +626,18 @@ class WooCommerce extends Module {
 		'woocommerce_bacs_accounts', // This and the below options relate to offline payments.
 		'woocommerce_bacs_settings',
 		'woocommerce_cheque_settings',
+		'woocommerce_ppcp-recaptcha_settings', // This and the below options relate to the WooCommerce Integrations settings page. Required for the Activity Log.
+		'woocommerce_maxmind_geolocation_settings',
+		'woocommerce_store_pages_only', // This and the below options relate to the WooCommerce Site Visibility settings page. Required for the Activity Log.
+		'woocommerce_private_link',
+		'woocommerce_coming_soon',
+		'wcpay_multi_currency_enabled_currencies',  // This and the below option relate to the WooCommerce Multi-Currency settings page. Required for the Activity Log.
+		'wcpay_multi_currency_enable_auto_currency',
+		'woocommerce_pos_store_name', // This and the below options relate to the WooCommerce Point of Sale settings page. Required for the Activity Log.
+		'woocommerce_pos_store_address',
+		'woocommerce_pos_store_phone',
+		'woocommerce_pos_store_email',
+		'woocommerce_pos_refund_returns_policy',
 		'wcs_notification_settings_update_time', // This and the below options relate to the WooCommerce Subscriptions settings page. Required for the Activity Log.
 		'wcsatt_add_cart_to_subscription',
 		'wcsatt_add_product_to_subscription',

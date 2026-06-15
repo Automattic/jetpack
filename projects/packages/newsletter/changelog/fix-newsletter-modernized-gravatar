@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Newsletter: render the same initials avatar in the subscriber row and detail panel when a subscriber has no Gravatar

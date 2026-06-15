@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Persist the Agents Manager minimized and last-activity state via the open-state endpoint.

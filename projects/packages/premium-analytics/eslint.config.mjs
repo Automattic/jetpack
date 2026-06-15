@@ -49,6 +49,24 @@ export default defineConfig(
 		},
 	},
 	{
+		// First UI package in the port: also soften JSDoc rules for the ui
+		// package and allow the upstream inline-handler JSX style. Temporary —
+		// tighten these up in a follow-up alongside datetime/formatters.
+		// `packages/fields` carries field controls copied from the
+		// widgets-toolkit port and keeps the same upstream style.
+		files: [ 'packages/ui/**', 'packages/fields/**' ],
+		rules: {
+			'jsdoc/require-jsdoc': 'off',
+			'jsdoc/require-description': 'off',
+			'jsdoc/require-param': 'off',
+			'jsdoc/require-param-description': 'off',
+			'jsdoc/require-returns': 'off',
+			'jsdoc/check-indentation': 'off',
+			'jsdoc/escape-inline-tags': 'off',
+			'react/jsx-no-bind': 'off',
+		},
+	},
+	{
 		// The routing port also imports `react` directly (the staged-search
 		// hook), flagged as extraneous because the internal package's deps are
 		// declared on the parent manifest.
@@ -59,6 +77,33 @@ export default defineConfig(
 			'jsdoc/require-returns': 'off',
 			'jsdoc/check-indentation': 'off',
 			'import/no-extraneous-dependencies': 'off',
+		},
+	},
+	{
+		// Same as the ui package: soften JSDoc rules for the widgets-toolkit
+		// port and allow the upstream inline-handler JSX style. Temporary —
+		// tighten these up in a follow-up alongside the other ports.
+		// The port also keeps a few upstream patterns as-is:
+		// - intentional `any` escapes in test fixtures and the router search
+		//   record (see use-attributes-with-search-fallback.ts)
+		// - `__experimental*` imports from `@wordpress/components`
+		//   (ToggleGroupControl, Grid) that have no stable equivalents yet
+		// - CIAB design-system tokens not yet in the local token inventory,
+		//   plus raw/dynamic token names required by the `@automattic/charts`
+		//   theme contract (see use-chart-theme.ts, metric-value.tsx)
+		files: [ 'packages/widgets-toolkit/**' ],
+		rules: {
+			'jsdoc/require-jsdoc': 'off',
+			'jsdoc/require-description': 'off',
+			'jsdoc/require-param': 'off',
+			'jsdoc/require-param-description': 'off',
+			'jsdoc/require-returns': 'off',
+			'jsdoc/check-indentation': 'off',
+			'jsdoc/escape-inline-tags': 'off',
+			'react/jsx-no-bind': 'off',
+			'@typescript-eslint/no-explicit-any': 'off',
+			'@wordpress/no-unsafe-wp-apis': 'off',
+			'@wordpress/no-unknown-ds-tokens': 'off',
 		},
 	}
 );
