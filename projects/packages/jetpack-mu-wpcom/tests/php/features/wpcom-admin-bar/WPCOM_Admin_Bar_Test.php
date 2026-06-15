@@ -5,6 +5,7 @@
  * @package automattic/jetpack-mu-wpcom
  */
 
+use Automattic\Jetpack\Current_Plan;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom;
 
 require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/wpcom-admin-bar/wpcom-admin-bar.php';
@@ -103,5 +104,31 @@ class WPCOM_Admin_Bar_Test extends \WorDBless\BaseTestCase {
 				$this->assertStringNotContainsString( 'origin_admin_bar=wpcom', $node->href );
 			}
 		}
+	}
+
+	/**
+	 * The plan badge must always render a clickable anchor, including on Atomic
+	 * sites where \WPCOM_Masterbar is absent and the slug falls back to the site
+	 * suffix. It must never render the old non-clickable <div>.
+	 */
+	public function test_plan_badge_is_a_clickable_link() {
+		// Drive a known plan name through Current_Plan::get() and reset its
+		// per-request static cache so the option below is actually read.
+		update_option( Current_Plan::PLAN_OPTION, array( 'product_name_short' => 'Business' ) );
+		$cache = new ReflectionProperty( Current_Plan::class, 'active_plan_cache' );
+		$cache->setAccessible( true );
+		$cache->setValue( null, null );
+
+		$admin_bar = self::make_test_admin_bar();
+		$badge     = $admin_bar->get_node( 'site-plan-badge' );
+
+		$this->assertNotNull( $badge, 'The site-plan-badge node should exist when a plan name is set.' );
+		$this->assertStringContainsString( '<a class="wp-admin-bar__site-info"', $badge->title );
+		$this->assertStringContainsString( 'href="https://wordpress.com/plans/', $badge->title );
+		$this->assertStringContainsString( 'Business', $badge->title );
+		$this->assertStringNotContainsString( '<div class="wp-admin-bar__site-info"', $badge->title );
+
+		delete_option( Current_Plan::PLAN_OPTION );
+		$cache->setValue( null, null );
 	}
 }

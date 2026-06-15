@@ -440,21 +440,16 @@ function wpcom_add_site_badges_and_plan( $wp_admin_bar ) {
 		$plan_name = $current_plan['product_name_short'] ?? '';
 
 		if ( $plan_name ) {
+			// Prefer the Calypso site slug, but fall back to the site suffix so the link
+			// also works on Atomic sites where \WPCOM_Masterbar does not exist.
 			$site_slug = method_exists( '\WPCOM_Masterbar', 'get_calypso_site_slug' )
-				? WPCOM_Masterbar::get_calypso_site_slug( get_current_blog_id() )
-				: '';
+				? WPCOM_Masterbar::get_calypso_site_slug( $blog_id )
+				: $status->get_site_suffix();
 
-			if ( $site_slug ) {
-				$plan_text = '<a class="wp-admin-bar__site-info" href="https://wordpress.com/plans/' . esc_attr( $site_slug ) . '">
-								<span class="wp-admin-bar__site-info-label">' . __( 'Plan', 'jetpack-mu-wpcom' ) . '</span>
-								<span class="wp-admin-bar__info-badges">' . esc_html( $plan_name ) . '</span>
-							</a>';
-			} else {
-				$plan_text = '<div class="wp-admin-bar__site-info">
-								<span class="wp-admin-bar__site-info-label">' . __( 'Plan', 'jetpack-mu-wpcom' ) . '</span>
-								<span class="wp-admin-bar__info-badges">' . esc_html( $plan_name ) . '</span>
-							</div>';
-			}
+			$plan_text = '<a class="wp-admin-bar__site-info" href="https://wordpress.com/plans/' . esc_attr( $site_slug ) . '">
+							<span class="wp-admin-bar__site-info-label">' . __( 'Plan', 'jetpack-mu-wpcom' ) . '</span>
+							<span class="wp-admin-bar__info-badges">' . esc_html( $plan_name ) . '</span>
+						</a>';
 		}
 	}
 
