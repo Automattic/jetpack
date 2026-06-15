@@ -183,9 +183,15 @@ async function createBrowserInterface(
  * Generate Critical CSS for the specified Provider Keys, sending each block
  * to the server. Per-provider generation errors are recorded against the
  * offending provider and do not stop the remaining providers from generating.
+ *
  * Throws only on failures that aren't tied to a single provider's generation
- * step, e.g. the generator library failing to load, or a state-persistence
- * callback rejecting.
+ * step, e.g. the generator library failing to load. Note that the
+ * state-persistence callbacks (setProviderCss / setProviderErrors) are
+ * intentionally awaited without a local catch: if persisting a provider's
+ * result rejects (e.g. the data-sync REST call fails), the rejection
+ * propagates and aborts the whole run. That is deliberate -- when Boost can't
+ * persist state, failing loudly beats silently dropping results -- and is
+ * consistent across all three catch arms below.
  *
  * @param {Object}      providers            - Set of URLs to use for each provider key
  * @param {Viewport[]}  viewports            - Viewports to use when generating Critical CSS.
@@ -340,7 +346,7 @@ async function generateForKeys(
 				// Critical CSS for the remaining providers. The stored type is the
 				// catch-all 'UnknownError' (a valid CriticalCssErrorType) rather than
 				// the analytics `type` above, which may be 'unknown' or some other
-				// value that isn't a recognised member.
+				// value that isn't a recognized member.
 				await callbacks.setProviderErrors(
 					key,
 					urls.map( url => ( {
