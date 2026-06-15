@@ -660,8 +660,10 @@ class Api_Proxy_Controller_Test extends BaseTestCase {
 	 * @return string
 	 */
 	private function data_route_key(): string {
+		// Identify the route by its stable structural markers (the proxy/v<version>/ shape and the
+		// endpoint capture), not by any one prefix — so it survives changes to the allowlist.
 		foreach ( array_keys( rest_get_server()->get_routes() ) as $key ) {
-			if ( str_contains( $key, '(?P<endpoint>' ) && str_contains( $key, 'commercial' ) ) {
+			if ( str_contains( $key, '/proxy/v' ) && str_contains( $key, '(?P<endpoint>' ) ) {
 				return $key;
 			}
 		}
