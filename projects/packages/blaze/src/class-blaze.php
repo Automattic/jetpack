@@ -55,8 +55,10 @@ class Blaze {
 		add_action( 'enqueue_block_editor_assets', array( __CLASS__, 'enqueue_block_editor_assets' ) );
 		// Add a Blaze Menu.
 		add_action( 'admin_menu', array( __CLASS__, 'enable_blaze_menu' ), 999 );
-		// Redirect the legacy tools.php URL before WordPress validates the page parameter.
-		add_action( 'admin_menu', array( __CLASS__, 'redirect_legacy_advertising_url' ), 1 );
+		// Redirect the legacy tools.php URL. Runs late (after WooCommerce and core
+		// register their menus, so get_menu_parent() resolves the real parent) but
+		// still before WordPress validates the page parameter.
+		add_action( 'admin_menu', array( __CLASS__, 'redirect_legacy_advertising_url' ), 999 );
 		// Add Blaze dashboard app REST API endpoints.
 		add_action( 'rest_api_init', array( new Blaze_Dashboard_REST_Controller(), 'register_rest_routes' ) );
 		// Add general Blaze REST API endpoints.
@@ -258,29 +260,66 @@ class Blaze {
 			? __( 'Marketing', 'jetpack-blaze' )
 			: 'Jetpack';
 
+		$dashboard_url = admin_url( 'admin.php?page=' . $menu_slug );
+		$image_path    = dirname( __DIR__ ) . '/assets/images/blaze-ads-moved.webp';
+		$image_url     = plugins_url( 'assets/images/blaze-ads-moved.webp', __DIR__ );
+
 		?>
-		<div class="wrap">
-			<h1>Blaze Ads</h1>
-			<p>
+		<div class="wrap blaze-ads-migration">
+			<div class="blaze-ads-migration__header">
+				<svg class="blaze-ads-migration__logo" xmlns="http://www.w3.org/2000/svg" height="32" width="32" viewBox="0 0 32 32" aria-hidden="true" focusable="false">
+					<path d="M16,0C7.2,0,0,7.2,0,16s7.2,16,16,16s16-7.2,16-16S24.8,0,16,0z" fill="#069e08" />
+					<polygon points="15,19 7,19 15,3" fill="#fff" />
+					<polygon points="17,29 17,13 25,13" fill="#fff" />
+				</svg>
+				<span class="blaze-ads-migration__brand">Blaze Ads</span>
+			</div>
+			<h1 class="blaze-ads-migration__title">
 				<?php
 				printf(
-					/* translators: %1$s is the product name (not translatable), %2$s is the menu path where the section lives now, e.g. "Jetpack → Blaze Ads". */
-					esc_html__( '%1$s has a new home! You can now find it under %2$s.', 'jetpack-blaze' ),
-					'Blaze Ads',
+					/* translators: %s is the product name (not translatable). */
+					esc_html__( '%s has moved', 'jetpack-blaze' ),
+					'Blaze Ads'
+				);
+				?>
+			</h1>
+			<p class="blaze-ads-migration__subtitle">
+				<?php
+				printf(
+					/* translators: %s is the menu path where the section lives now, e.g. "Jetpack → Blaze Ads" or "Marketing → Blaze Ads". */
+					esc_html__( "Now it's part of %s", 'jetpack-blaze' ),
 					esc_html( $parent_label . ' → Blaze Ads' )
 				);
 				?>
 			</p>
-			<a class="button button-primary" href="<?php echo esc_url( admin_url( 'admin.php?page=' . $menu_slug ) ); ?>">
-				<?php
-				printf(
-					/* translators: %s is the product name (not translatable). */
-					esc_html__( 'Go to %s', 'jetpack-blaze' ),
-					'Blaze Ads'
-				);
-				?>
-			</a>
+			<p>
+				<a class="button button-primary button-hero" href="<?php echo esc_url( $dashboard_url ); ?>">
+					<?php
+					printf(
+						/* translators: %s is the product name (not translatable). */
+						esc_html__( 'Check new %s', 'jetpack-blaze' ),
+						'Blaze Ads'
+					);
+					?>
+				</a>
+			</p>
+			<?php if ( file_exists( $image_path ) ) : ?>
+				<p class="blaze-ads-migration__image">
+					<img
+						src="<?php echo esc_url( $image_url ); ?>"
+						alt="<?php echo esc_attr( sprintf( /* translators: %s is the product name (not translatable). */ __( '%s has moved', 'jetpack-blaze' ), 'Blaze Ads' ) ); ?>"
+					/>
+				</p>
+			<?php endif; ?>
 		</div>
+		<style>
+			.blaze-ads-migration__header { display: flex; align-items: center; gap: 8px; margin: 16px 0 24px; }
+			.blaze-ads-migration__brand { font-size: 1.65em; font-weight: 500; line-height: 1; }
+			.blaze-ads-migration__title { font-size: 2.5em; margin-bottom: 0.25em; padding: 0; }
+			.blaze-ads-migration__subtitle { font-size: 1.4em; margin-top: 0; color: #50575e; }
+			.blaze-ads-migration__image { margin-top: 3em; }
+			.blaze-ads-migration__image img { max-width: 100%; height: auto; }
+		</style>
 		<?php
 	}
 

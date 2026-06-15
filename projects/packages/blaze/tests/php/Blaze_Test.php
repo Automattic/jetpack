@@ -560,7 +560,13 @@ class Blaze_Test extends BaseTestCase {
 	 */
 	public function test_redirect_legacy_url_is_hooked() {
 		Blaze::init();
-		$this->assertIsInt( has_action( 'admin_menu', array( Blaze::class, 'redirect_legacy_advertising_url' ) ) );
+		// Must run late on admin_menu: get_menu_parent() needs WooCommerce/core
+		// menus registered to resolve the real parent, while still running before
+		// WordPress validates the page parameter.
+		$this->assertSame(
+			999,
+			has_action( 'admin_menu', array( Blaze::class, 'redirect_legacy_advertising_url' ) )
+		);
 	}
 
 	/**
