@@ -1,4 +1,5 @@
 import { useGlobalNotices } from '@automattic/jetpack-components';
+import { getAdminUrl } from '@automattic/jetpack-script-data';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -33,7 +34,7 @@ function isValidBlueskyHandle( handle: string ) {
 
 export type RequestAccessOptions = {
 	service: SupportedService;
-	onConfirm: ( data: unknown ) => void;
+	onConfirm: ( requestId: string ) => void | Promise< void >;
 };
 
 /**
@@ -127,7 +128,22 @@ export function useRequestAccess( { service, onConfirm }: RequestAccessOptions )
 					break;
 			}
 
-			requestExternalAccess( url.toString(), onConfirm );
+			/*
+			 * auth_flow=v2 returns the connection result via a same-origin BroadcastChannel
+			 * instead of window.opener.postMessage (which Meta/Threads sever via COOP).
+			 * The unique request_id correlates the connect request with the stored result, and
+			 * return_url is where public-api redirects the popup back to so it can broadcast.
+			 */
+			const requestId = Math.random().toString( 36 ).slice( 2, 12 );
+
+			url.searchParams.set( 'auth_flow', 'v2' );
+			url.searchParams.set( 'request_id', requestId );
+			url.searchParams.set(
+				'return_url',
+				getAdminUrl( 'admin-post.php?action=jetpack_social_keyring_done' )
+			);
+
+			requestExternalAccess( url.toString(), () => onConfirm( requestId ) );
 		},
 		[
 			createErrorNotice,
