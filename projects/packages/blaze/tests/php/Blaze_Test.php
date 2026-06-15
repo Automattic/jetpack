@@ -355,8 +355,11 @@ class Blaze_Test extends BaseTestCase {
 			3
 		);
 
-		$this->assertSame( $expected, Blaze::get_active_campaigns_status( 123 ) );
-		$this->assertSame( $expected, Blaze::get_active_campaigns_status( 123 ) );
+		$first_status  = Blaze::get_active_campaigns_status( 123 );
+		$second_status = Blaze::get_active_campaigns_status( 123 );
+
+		$this->assertSame( $expected, $first_status );
+		$this->assertSame( $expected, $second_status );
 		$this->assertSame( 1, $request_count );
 
 		delete_transient( 'jetpack_blaze_active_campaigns_status_123' );
@@ -396,7 +399,8 @@ class Blaze_Test extends BaseTestCase {
 			'pre_http_request',
 			function ( $preempt, $args, $url ) use ( &$request_count, $responses ) {
 				if ( false !== strpos( $url, '/sites/123/wordads/dsp/api/v1/search/campaigns/site/123' ) ) {
-					$response = $responses[ $request_count ] ?? end( $responses );
+					$response_index = min( $request_count, count( $responses ) - 1 );
+					$response       = $responses[ $response_index ];
 					++$request_count;
 
 					return $response;
