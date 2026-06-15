@@ -23,5 +23,9 @@ export const FULL_SYNC_PATH = '/jetpack/v4/sync/full-sync';
 /**
  * Sync-module key whose progress gates the analytics dashboard. Mirrors the
  * backend default (`Sync_Status_Tracker::ANALYTICS_SYNC_MODULE`).
+ *
+ * TEMP (harness): the production value is `woocommerce_analytics`, but that sync
+ * module is not registered yet, so this throwaway branch watches `posts` (always
+ * enqueued) so the panel can show real progress. Do not merge.
  */
-export const ANALYTICS_SYNC_MODULE = 'woocommerce_analytics';
+export const ANALYTICS_SYNC_MODULE = 'posts';
