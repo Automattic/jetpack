@@ -168,4 +168,46 @@ class Utility_Functions_Test extends BaseTestCase {
 
 		$this->assertSame( $finish_time, videopress_is_finished_processing( $post_id ) );
 	}
+
+	/**
+	 * Test that video_image_url_by_guid returns null without warnings when no
+	 * post matches the guid.
+	 *
+	 * The videopress_get_post_by_guid() helper returns false (not a WP_Error)
+	 * when no post is found. The function previously only guarded against
+	 * WP_Error and then dereferenced false ($post->ID), raising "Attempt to read
+	 * property on false" and "array offset on false" warnings.
+	 */
+	public function test_video_image_url_by_guid_returns_null_for_unknown_guid() {
+		$this->assertNull( video_image_url_by_guid( 'nonexistent-guid', 'jpg' ) );
+	}
+
+	/**
+	 * Test that videopress_update_meta_data returns false without warnings when
+	 * the stored videopress metadata has no guid.
+	 *
+	 * Attachment metadata can contain a `videopress` key without a `guid` (e.g.
+	 * a video still being processed). Building the request URL from $info->guid
+	 * previously raised an "Undefined property: stdClass::$guid" warning.
+	 */
+	public function test_videopress_update_meta_data_without_guid_returns_false() {
+		$post_id = wp_insert_post(
+			array(
+				'post_type'      => 'attachment',
+				'post_mime_type' => 'video/videopress',
+				'post_title'     => 'Processing video',
+			)
+		);
+
+		wp_update_attachment_metadata(
+			$post_id,
+			array(
+				'videopress' => array(
+					'finished' => false,
+				),
+			)
+		);
+
+		$this->assertFalse( videopress_update_meta_data( $post_id ) );
+	}
 }

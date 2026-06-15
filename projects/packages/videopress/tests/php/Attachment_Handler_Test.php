@@ -203,4 +203,20 @@ class Attachment_Handler_Test extends BaseTestCase {
 
 		$this->assertArrayNotHasKey( 'videopress_processing_status', $result );
 	}
+
+	/**
+	 * Test that disable_delete_if_disconnected handles an empty $args array.
+	 *
+	 * The `user_has_cap` filter can invoke the callback with an empty $args
+	 * array (e.g. for capability checks made without an object). Reading
+	 * $args[0] unconditionally previously raised an "Undefined array key 0"
+	 * warning. The capabilities should be returned unchanged.
+	 */
+	public function test_disable_delete_if_disconnected_ignores_empty_args() {
+		$allcaps = array( 'delete_posts' => true );
+
+		$result = Attachment_Handler::disable_delete_if_disconnected( $allcaps, array( 'delete_posts' ), array() );
+
+		$this->assertSame( $allcaps, $result );
+	}
 }

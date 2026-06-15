@@ -285,7 +285,7 @@ class Attachment_Handler {
 	public static function disable_delete_if_disconnected( $allcaps, $cap, $args ) {
 
 		// Only apply this filter to `delete_post` checks
-		if ( 'delete_post' !== $args[0] ) {
+		if ( ! isset( $args[0] ) || 'delete_post' !== $args[0] ) {
 			return $allcaps;
 		}
 

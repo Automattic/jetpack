@@ -377,6 +377,11 @@ function videopress_update_meta_data( $post_id ) {
 
 	$info = (object) $meta['videopress'];
 
+	// Without a guid there is no video to query for.
+	if ( ! isset( $info->guid ) ) {
+		return false;
+	}
+
 	$result = Client::wpcom_json_api_request_as_blog( 'videos/' . $info->guid );
 
 	if ( is_wp_error( $result ) ) {
@@ -608,11 +613,15 @@ function video_image_url_by_guid( $guid, $format ) { // phpcs:ignore VariableAna
 
 	$post = videopress_get_post_by_guid( $guid );
 
-	if ( is_wp_error( $post ) ) {
+	if ( is_wp_error( $post ) || ! $post ) {
 		return null;
 	}
 
 	$meta = wp_get_attachment_metadata( $post->ID );
+
+	if ( ! is_array( $meta ) || ! isset( $meta['videopress']['poster'] ) ) {
+		return null;
+	}
 
 	$poster = apply_filters( 'jetpack_photon_url', $meta['videopress']['poster'] );
 
