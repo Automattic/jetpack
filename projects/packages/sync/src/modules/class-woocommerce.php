@@ -769,6 +769,13 @@ class WooCommerce extends Module {
 		'woocommerce_shop_page_id',
 		'woocommerce_stock_email_recipient',
 		'woocommerce_stock_format',
+		'woocommerce_allowed_countries',  // This and the below options relate to the WooCommerce General settings page. Required for the Activity Log.
+		'woocommerce_specific_allowed_countries',
+		'woocommerce_ship_to_countries',
+		'woocommerce_specific_ship_to_countries',
+		'woocommerce_all_except_countries',
+		'woocommerce_calc_taxes',
+		'woocommerce_calc_discounts_sequentially',
 		'woocommerce_analytics_enabled', // This and the below options relate to the WooCommerce Advanced settings page. Required for the Activity Log.
 		'woocommerce_cart_page_id',
 		'woocommerce_checkout_order_received_endpoint',
