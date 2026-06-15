@@ -397,19 +397,86 @@ class Render_Blocking_JS_Test extends MockeryTestCase {
 	}
 
 	/**
-	 * Verifies get_change_output_action_names() returns the option-update hook
-	 * that busts the page cache when the exclusion list changes. The exact string
-	 * is load-bearing: a typo silently breaks cache invalidation.
+	 * Verifies get_change_output_action_names() returns the option hooks that
+	 * bust the page cache when the exclusion list changes. Both add_option_ (first
+	 * save, when the option is created) and update_option_ (every later save) are
+	 * load-bearing: a typo or omission silently breaks cache invalidation.
 	 */
 	public function test_get_change_output_action_names() {
 		if ( ! defined( 'JETPACK_BOOST_DATASYNC_NAMESPACE' ) ) {
 			define( 'JETPACK_BOOST_DATASYNC_NAMESPACE', 'jetpack_boost_ds' );
 		}
 
+		$option = JETPACK_BOOST_DATASYNC_NAMESPACE . '_render_blocking_js_excludes';
 		$this->assertSame(
-			array( 'update_option_' . JETPACK_BOOST_DATASYNC_NAMESPACE . '_render_blocking_js_excludes' ),
+			array(
+				'add_option_' . $option,
+				'update_option_' . $option,
+			),
 			Render_Blocking_JS::get_change_output_action_names()
 		);
+	}
+
+	/**
+	 * On a subdirectory install the request URI carries the subdirectory but
+	 * user-entered patterns generally do not. Patterns must still match once both
+	 * sides are normalized relative to the home directory.
+	 */
+	public function test_is_url_excluded_on_subdirectory_install() {
+		Functions\when( 'home_url' )->alias(
+			function ( $path = '' ) {
+				return 'http://example.com/blog' . $path;
+			}
+		);
+		Functions\when( 'wp_parse_url' )->alias(
+			function ( $url, $component = -1 ) {
+				return parse_url( $url, $component ); // phpcs:ignore WordPress.WP.AlternativeFunctions.parse_url_parse_url
+			}
+		);
+
+		$cases = array(
+			'bare pattern matches under subdir'      => array( '/blog/checkout/', array( 'checkout' ), true ),
+			'pattern including subdir still matches' => array( '/blog/checkout/', array( '/blog/checkout' ), true ),
+			'full URL pattern matches under subdir'  => array( '/blog/checkout/', array( 'http://example.com/blog/checkout' ), true ),
+			'wildcard matches under subdir'          => array( '/blog/gallery/holiday/', array( 'gallery/(.*)' ), true ),
+			'home root matches root pattern'         => array( '/blog/', array( '/' ), true ),
+			'no false match on a different page'     => array( '/blog/about/', array( 'checkout' ), false ),
+		);
+
+		foreach ( $cases as $description => $case ) {
+			list( $request_uri, $patterns, $expected ) = $case;
+			$this->assertSame(
+				$expected,
+				Render_Blocking_JS::is_url_excluded( $request_uri, $patterns ),
+				'Failed case: ' . $description
+			);
+		}
+	}
+
+	/**
+	 * When PCRE cannot fully evaluate a pattern (e.g. it exhausts the backtrack
+	 * limit), preg_match() returns false. The exclusion must be honoured as a
+	 * match rather than silently skipped. The backtrack limit is dropped to 1 to
+	 * force that error deterministically; the possessive wildcard split is
+	 * unaffected, so only the match itself errors.
+	 */
+	public function test_pattern_that_exceeds_backtrack_limit_is_treated_as_match() {
+		$this->stub_url_functions();
+
+		$original_limit = ini_get( 'pcre.backtrack_limit' );
+		ini_set( 'pcre.backtrack_limit', '1' ); // phpcs:ignore WordPress.PHP.IniSet.Risky -- Restored below; forces a backtrack-limit error deterministically.
+
+		try {
+			$patterns = array( 'gallery/*' );
+			$path     = '/gallery/' . str_repeat( 'a', 50 );
+
+			$this->assertTrue(
+				Render_Blocking_JS::is_url_excluded( $path, $patterns ),
+				'A pattern that exhausts the PCRE backtrack limit should be treated as a match.'
+			);
+		} finally {
+			ini_set( 'pcre.backtrack_limit', false === $original_limit ? '1000000' : $original_limit ); // phpcs:ignore WordPress.PHP.IniSet.Risky -- Restore original limit.
+		}
 	}
 
 	/**

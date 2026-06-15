@@ -104,7 +104,14 @@ class Render_Blocking_JS implements Feature, Changes_Output_On_Activation, Chang
 	 * @return string[] Action names fired when the exclusion list is updated.
 	 */
 	public static function get_change_output_action_names() {
-		return array( 'update_option_' . JETPACK_BOOST_DATASYNC_NAMESPACE . '_render_blocking_js_excludes' );
+		$option = JETPACK_BOOST_DATASYNC_NAMESPACE . '_render_blocking_js_excludes';
+
+		// `add_option_*` covers the very first save, when the option is created
+		// rather than updated, so the cache is invalidated on that write too.
+		return array(
+			'add_option_' . $option,
+			'update_option_' . $option,
+		);
 	}
 
 	/**
@@ -449,7 +456,20 @@ class Render_Blocking_JS implements Feature, Changes_Output_On_Activation, Chang
 
 		foreach ( $patterns as $pattern ) {
 			$regex = self::get_exclusion_regex( $pattern );
-			if ( null !== $regex && preg_match( $regex, $path ) ) {
+			if ( null === $regex ) {
+				continue;
+			}
+
+			$matched = preg_match( $regex, $path );
+
+			/*
+			 * preg_match() returns false when PCRE cannot evaluate the pattern —
+			 * e.g. a pathological pattern with several literal-separated wildcards
+			 * hits the backtrack limit on a long URL. Treat that as a match so a
+			 * deliberate exclusion is honoured (defer stays off on the page)
+			 * rather than silently ignored.
+			 */
+			if ( 1 === $matched || false === $matched ) {
 				return true;
 			}
 		}
@@ -473,6 +493,36 @@ class Render_Blocking_JS implements Feature, Changes_Output_On_Activation, Chang
 
 		if ( '/' !== $path ) {
 			$path = rtrim( $path, '/' );
+		}
+
+		return self::strip_home_path( $path );
+	}
+
+	/**
+	 * Removes the site's home directory prefix from a path.
+	 *
+	 * On a subdirectory install (e.g. a site at `/blog/`) the request URI
+	 * includes the subdirectory but user-entered patterns generally do not.
+	 * Stripping the home directory from both sides makes the comparison relative
+	 * to the home root, so a `checkout` pattern matches `/blog/checkout`.
+	 *
+	 * @param string $path A normalized URL path (leading slash, no query/trailing slash).
+	 *
+	 * @return string
+	 */
+	private static function strip_home_path( $path ) {
+		$home_path = rtrim( (string) wp_parse_url( home_url( '/' ), PHP_URL_PATH ), '/' );
+
+		if ( '' === $home_path ) {
+			return $path;
+		}
+
+		if ( 0 === strcasecmp( $path, $home_path ) ) {
+			return '/';
+		}
+
+		if ( 0 === strncasecmp( $path, $home_path . '/', strlen( $home_path ) + 1 ) ) {
+			return substr( $path, strlen( $home_path ) );
 		}
 
 		return $path;
