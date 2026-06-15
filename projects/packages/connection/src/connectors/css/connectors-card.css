@@ -51,7 +51,14 @@
 	min-inline-size: 200px;
 }
 
+/*
+ * Size the action to its label instead of stretching full-width (the option
+ * card is a VStack, which stretches its children on the cross axis).
+ * margin-block-start: auto keeps it pinned to the bottom so the two cards'
+ * buttons stay aligned regardless of copy length.
+ */
 .jetpack-connector__idc-option .jetpack-connector__inline-action {
+	align-self: flex-start;
 	margin-inline-start: 0;
 	margin-block-start: auto;
 }

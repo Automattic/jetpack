@@ -877,7 +877,7 @@ function IDCPanel() {
 		isBusy: busyAction === 'migrate',
 		disabled: Boolean( busyAction ),
 		onClick: handleMigrate,
-		isPrimary: ! isDevelopmentSite,
+		isPrimary: true,
 	} );
 
 	const freshOption = createElement( IDCOption, {
@@ -900,7 +900,7 @@ function IDCPanel() {
 		isBusy: busyAction === 'start-fresh',
 		disabled: Boolean( busyAction ),
 		onClick: handleStartFresh,
-		isPrimary: isDevelopmentSite,
+		isPrimary: true,
 	} );
 
 	// Development/staging sites are most often intentional clones, so migrating
@@ -922,7 +922,7 @@ function IDCPanel() {
 			)
 		),
 		createElement( Text, { size: 13 }, intro ),
-		// Collapsible "Why am I seeing this?" explanation keeps the panel compact
+		// Collapsible "Show more details?" explanation keeps the panel compact
 		// while making the likely causes available to anyone who wants them.
 		createElement(
 			Button,
@@ -933,7 +933,7 @@ function IDCPanel() {
 				'aria-controls': 'jetpack-connector-idc-why',
 				className: 'jetpack-connector__idc-why-toggle',
 			},
-			__( 'Why am I seeing this?', 'jetpack-connection' )
+			__( 'Show more details?', 'jetpack-connection' )
 		),
 		// Wrap in a plain element so the `hidden` attribute actually hides the
 		// region: VStack renders `display: flex`, which would override `hidden`.
@@ -971,7 +971,7 @@ function IDCPanel() {
 		createElement(
 			Text,
 			{ weight: 600, size: 14, className: 'jetpack-connector__idc-choose' },
-			__( 'Choose the option below that matches your situation.', 'jetpack-connection' )
+			__( 'Choose the option below that matches your situation', 'jetpack-connection' )
 		),
 		createElement(
 			HStack,
@@ -1348,9 +1348,9 @@ function JetpackConnectorCard( { name, label, description, logo, icon } ) {
 			};
 		}
 
-		// In Safe Mode the toggle becomes a red "Resolve" call to action that
-		// surfaces the identity-crisis options. Once expanded it reverts to a
-		// neutral "Close".
+		// In Safe Mode the toggle becomes a primary "Resolve" call to action
+		// that surfaces the identity-crisis options. Once expanded it reverts to
+		// a neutral "Close".
 		const toggleProps = {
 			variant: 'secondary',
 			size: 'compact',
@@ -1362,7 +1362,6 @@ function JetpackConnectorCard( { name, label, description, logo, icon } ) {
 			: __( 'Details', 'jetpack-connection' );
 		if ( isInSafeMode && ! isExpanded ) {
 			toggleProps.variant = 'primary';
-			toggleProps.isDestructive = true;
 			toggleLabel = __( 'Resolve', 'jetpack-connection' );
 		}
 
