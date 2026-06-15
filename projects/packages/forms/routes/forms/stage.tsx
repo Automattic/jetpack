@@ -15,7 +15,6 @@ import { useEffect, useMemo, useState, useCallback } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { useSearch, useNavigate } from '@wordpress/route';
 import { Badge, EmptyState } from '@wordpress/ui';
-import * as React from 'react';
 /**
  * Internal dependencies
  */
@@ -48,7 +47,7 @@ import './style.scss';
  * Types
  */
 import type { FormListItem } from '../../src/dashboard/hooks/use-forms-data.ts';
-import type { Action, Operator, View } from '@wordpress/dataviews';
+import type { Action, Field, Operator, View } from '@wordpress/dataviews';
 
 /**
  * Default DataViews config for the Forms list.
@@ -200,7 +199,7 @@ function StageInner() {
 		}
 	}, [ confirmPermanentDelete ] );
 
-	const fields = useMemo(
+	const fields = useMemo< Field< FormListItem >[] >(
 		() => [
 			{
 				id: 'title',
@@ -602,6 +601,7 @@ function StageInner() {
 			subTitle={ subtitle }
 			actions={ headerActions }
 			hasPadding={ false }
+			showFooter={ false }
 		>
 			<DataViews
 				paginationInfo={ paginationInfo }

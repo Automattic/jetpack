@@ -7,7 +7,7 @@ const getAttributesFromUrl = url => {
 		return;
 	}
 
-	let src = '';
+	let src;
 	if ( url.indexOf( 'http' ) === 0 ) {
 		src = new URL( url );
 	} else {

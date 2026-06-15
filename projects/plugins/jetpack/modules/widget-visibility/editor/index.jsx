@@ -341,7 +341,7 @@ const visibilityAdvancedControls = createHigherOrderComponent(
 			[ tracks, rules, setAttributes, conditions ]
 		);
 
-		let mainRender = null;
+		let mainRender;
 		if ( rules.length === 0 ) {
 			mainRender = (
 				<BaseControl

@@ -12,7 +12,7 @@ const baseConfig = {
 			{
 				ignore: 'non-comments',
 				ignorePattern: [
-					'/(https?://[0-9,a-z]*.*)|(^description\\:.+)|(^tags\\:.+)/i',
+					'/(https?://[0-9,a-z]*.*)|(^description:.+)|(^tags:.+)/i',
 					'/stylelint-disable/',
 				],
 			},
@@ -51,7 +51,6 @@ const baseConfig = {
 			true,
 			{
 				ignoreSelectors: [ ':export' ], // Ignore selector used by CSS Modules.
-				ignoreProperties: [ 'shadow-color' ], // Ignore property used by React Native.
 			},
 		],
 

@@ -526,7 +526,6 @@ function wpcom_display_global_styles_notice_admin_bar( $wp_admin_bar ) {
 
 	$support_url = function_exists( 'localized_wpcom_url' )
 		? localized_wpcom_url( 'https://wordpress.com/support/using-styles/' )
-		// phpcs:ignore WPCOM.I18nRules.LocalizedUrl.UnlocalizedUrl
 		: 'https://wordpress.com/support/using-styles/';
 
 	$message = sprintf(

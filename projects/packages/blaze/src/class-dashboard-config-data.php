@@ -163,7 +163,6 @@ class Dashboard_Config_Data {
 	 * Page base for the Calypso admin page.
 	 */
 	protected function get_admin_path() {
-		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 		if ( ! isset( $_SERVER['PHP_SELF'] ) || ! isset( $_SERVER['QUERY_STRING'] ) ) {
 			$admin_path = $this->admin_page . '?page=' . $this->menu_slug;
 			$parsed     = wp_parse_url( admin_url( $admin_path ) );

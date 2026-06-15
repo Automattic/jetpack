@@ -25,7 +25,7 @@ export default async function transcribeAudio(
 	debug( 'Transcribing audio: %o. Feature: %o', audio, feature );
 
 	// Get a token to use the transcription service
-	let token = '';
+	let token;
 	try {
 		token = ( await requestJwt() ).token;
 	} catch ( error ) {

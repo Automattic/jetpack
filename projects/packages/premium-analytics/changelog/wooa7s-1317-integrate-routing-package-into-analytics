@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Port routing package (date-range/comparison search-param helpers and the staged-search hook) as an internal package from next-woocommerce-analytics.

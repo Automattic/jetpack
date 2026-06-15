@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.2.5] - 2026-06-15
+### Changed
+- Update package dependencies. [#49273]
+
+### Fixed
+- Render hyperlinks as clickable links in Bluesky and Tumblr previews. [#49483]
+
+## [3.2.4] - 2026-06-08
+### Changed
+- Update dependencies. [#49354]
+
+### Fixed
+- Avoid having the Mastodon share preview show post URL twice when the custom message already includes it. [#49338]
+
 ## [3.2.3] - 2026-05-25
 ### Changed
 - Update package dependencies. [#48405] [#49012]
@@ -193,6 +207,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Initial release after extracting from Calypso.
 
+[3.2.5]: https://github.com/Automattic/social-previews/compare/v3.2.4...v3.2.5
+[3.2.4]: https://github.com/Automattic/social-previews/compare/v3.2.3...v3.2.4
 [3.2.3]: https://github.com/Automattic/social-previews/compare/v3.2.2...v3.2.3
 [3.2.2]: https://github.com/Automattic/social-previews/compare/v3.2.1...v3.2.2
 [3.2.1]: https://github.com/Automattic/social-previews/compare/v3.2.0...v3.2.1

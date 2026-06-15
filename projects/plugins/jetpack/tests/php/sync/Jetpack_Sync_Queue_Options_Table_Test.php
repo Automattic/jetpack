@@ -39,7 +39,6 @@ class Jetpack_Sync_Queue_Options_Table_Test extends Jetpack_Sync_Queue_TestBase 
 		$this->assertSame( 0, $this->queue->size() );
 		$this->queue->add( 'foo' );
 
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
 		$queue = $wpdb->get_row( "SELECT * FROM $wpdb->options WHERE option_name LIKE 'jpsq_my_queue%'" );
 
 		$this->assertEquals( 'no', $queue->autoload );

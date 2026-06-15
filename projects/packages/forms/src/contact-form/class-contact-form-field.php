@@ -1809,7 +1809,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			/*
 			 * For the "outlined" style, the styles and classes are applied to the fieldset element.
 			 */
-			$field = "<fieldset {$fieldset_id} class='grunion-checkbox-multiple-options " . $options_classes . "' style='" . $options_styles . "' " . ( $required ? 'data-required' : '' ) . ' data-wp-bind--aria-invalid="state.fieldAriaInvalid">';
+			$field = "<fieldset {$fieldset_id} class='grunion-checkbox-multiple-options " . esc_attr( $options_classes ) . "' style='" . esc_attr( $options_styles ) . "' " . ( $required ? 'data-required' : '' ) . ' data-wp-bind--aria-invalid="state.fieldAriaInvalid">';
 		} else {
 			$field = "<fieldset {$fieldset_id} class='jetpack-field-multiple__fieldset'" . ( $required ? 'data-required' : '' ) . ' data-wp-bind--aria-invalid="state.fieldAriaInvalid">';
 		}
@@ -1817,7 +1817,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		$field .= $this->render_legend_as_label( '', $id, $label, $required, $required_field_text, array(), $required_indicator );
 
 		if ( ! $is_outlined_style ) {
-			$field .= "<div class='grunion-checkbox-multiple-options " . $options_classes . "' style='" . $options_styles . "' " . '>';
+			$field .= "<div class='grunion-checkbox-multiple-options " . esc_attr( $options_classes ) . "' style='" . esc_attr( $options_styles ) . "' " . '>';
 		}
 
 		$options_data  = $this->get_attribute( 'optionsdata' );
@@ -2253,7 +2253,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 
 			$default_classes = 'jetpack-field jetpack-input-image-option';
 			$option_styles   = empty( $option['style'] ) ? '' : "style='" . esc_attr( $option['style'] ) . "'";
-			$option_classes  = "class='" . ( empty( $option['class'] ) ? $default_classes : $default_classes . ' ' . $option['class'] ) . "'";
+			$option_classes  = "class='" . ( empty( $option['class'] ) ? $default_classes : $default_classes . ' ' . esc_attr( $option['class'] ) ) . "'";
 
 			$field .= "<div {$option_classes} {$option_styles} data-wp-on--click='actions.onImageOptionClick' data-wp-init='callbacks.setImageOptionOutlineColor'>";
 
@@ -2965,7 +2965,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			</fieldset>',
 			$style_attr,
 			$options,
-			$this->field_classes,
+			esc_attr( $this->field_classes ),
 			esc_attr( $id ),
 			$label_html
 		) . $this->get_error_div( $id, 'rating' );

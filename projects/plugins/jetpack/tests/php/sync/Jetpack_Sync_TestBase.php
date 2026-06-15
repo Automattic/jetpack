@@ -222,7 +222,7 @@ abstract class Jetpack_Sync_TestBase extends WP_UnitTestCase {
 	 *
 	 * @return array
 	 */
-	public static function pre_http_request_wordpress_org_updates( $preempt, $args, $url ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+	public static function pre_http_request_wordpress_org_updates( $preempt, $args, $url ) {
 		if ( strpos( $url, 'api.wordpress.org/core/version-check' ) > 0 ) {
 			return array(
 				'response'    => array(
@@ -324,7 +324,7 @@ abstract class Jetpack_Sync_TestBase extends WP_UnitTestCase {
 	 *
 	 * @return array
 	 */
-	public static function pre_http_request_bruteprotect_api( $preempt, $args, $url ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+	public static function pre_http_request_bruteprotect_api( $preempt, $args, $url ) {
 		if ( strpos( $url, 'api.bruteprotect.com' ) > 0 ) {
 			return array(
 				'response'    => array(

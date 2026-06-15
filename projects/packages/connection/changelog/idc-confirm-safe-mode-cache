@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Identity Crisis: Fix confirming Safe Mode again after clearing it from the admin bar, which could silently fail when the safe_mode_confirmed option was stale in a persistent object cache.
