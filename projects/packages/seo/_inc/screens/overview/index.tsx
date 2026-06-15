@@ -22,17 +22,11 @@ const OverviewScreen: FC< Props > = ( { coverage } ) => {
 	const data = getOverview();
 	const navigate = useNavigate();
 
-	// Deep-link to a Settings section: switch to the Settings tab and set
+	// Deep-link to a Settings section: navigate to the Settings route with
 	// `?focus=`, which the Settings screen reads to scroll the section to top.
 	const goToSection = useCallback(
 		( section: 'visibility' | 'verification' ) =>
-			navigate( {
-				search: ( prev: Record< string, unknown > ) => ( {
-					...prev,
-					tab: 'settings',
-					focus: section,
-				} ),
-			} as unknown as Parameters< typeof navigate >[ 0 ] ),
+			navigate( { href: `/settings?focus=${ encodeURIComponent( section ) }` } ),
 		[ navigate ]
 	);
 

@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.7.3] - 2026-06-15
+### Changed
+- Update package dependencies. [#49273]
+
 ## [0.7.2] - 2026-06-08
 ### Security
 - Simple Payments: Strip seller PayPal email (`spay_email`) from public REST responses while preserving editor read/write. [#49194]
@@ -247,6 +251,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Simple Payments: Move Simple Payments block to PayPal Payments package. [#43413]
 
+[0.7.3]: https://github.com/Automattic/jetpack-paypal-payments/compare/v0.7.2...v0.7.3
 [0.7.2]: https://github.com/Automattic/jetpack-paypal-payments/compare/v0.7.1...v0.7.2
 [0.7.1]: https://github.com/Automattic/jetpack-paypal-payments/compare/v0.7.0...v0.7.1
 [0.7.0]: https://github.com/Automattic/jetpack-paypal-payments/compare/v0.6.20...v0.7.0

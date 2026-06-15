@@ -126,7 +126,12 @@ const Editor = ( {
 	return (
 		<AdminPage
 			breadcrumbs={
-				<Breadcrumbs items={ [ getParentBreadcrumbItem(), { label: video.title } ] } />
+				// display: contents wrapper — a pure scoping hook so the
+				// stylesheet can clamp long video titles in the current-item
+				// crumb (Breadcrumbs' own class names are CSS-module hashes).
+				<div className="vp-video-details__breadcrumbs">
+					<Breadcrumbs items={ [ getParentBreadcrumbItem(), { label: video.title } ] } />
+				</div>
 			}
 			actions={
 				<HeaderActions

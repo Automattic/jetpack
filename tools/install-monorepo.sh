@@ -2,7 +2,7 @@
 
 set -eo pipefail
 
-BASE=$(cd $(dirname "${BASH_SOURCE[0]}")/.. && pwd)
+BASE=$(cd "$(dirname "${BASH_SOURCE[0]}")"/.. && pwd)
 source "$BASE/tools/includes/chalk-lite.sh"
 
 # Print help and exit.
@@ -76,7 +76,7 @@ nvm install && nvm use
 
 # Install our requirements
 info "Checking Bash version..."
-if [[ -z "${BASH_VERSINFO}" || -z "${BASH_VERSINFO[0]}" || ${BASH_VERSINFO[0]} -lt 4 ]]; then
+if [[ -z "${BASH_VERSINFO[0]}" || ${BASH_VERSINFO[0]} -lt 4 ]]; then
 	brew install bash
 fi
 
@@ -127,7 +127,6 @@ if ! command -v composer &>/dev/null; then
 	fi
 
 	php composer-setup.php --version=$COMPOSER_VERSION --quiet
-	RESULT=$?
 	rm composer-setup.php
 	sudo mkdir -p /usr/local/bin
 	sudo mv composer.phar /usr/local/bin/composer

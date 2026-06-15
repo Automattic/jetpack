@@ -17,8 +17,12 @@ return make_phan_config(
 		// Jetpack_SEO_Utils) via tests/php/stubs/. Keep phan from parsing those
 		// stubs — otherwise it treats them as the real classes and flags the
 		// source's class_exists()-guarded @phan-suppress annotations as unused —
-		// and skip analyzing the tests that reference the stand-ins.
-		'exclude_file_regex'              => array( 'tests/php/stubs/' ),
+		// and skip analyzing the tests that reference the stand-ins. Also exclude
+		// the generated build/ output.
+		'exclude_file_regex'              => array(
+			'build/',
+			'tests/php/stubs/',
+		),
 		'exclude_analysis_directory_list' => array( 'tests/php/' ),
 	)
 );

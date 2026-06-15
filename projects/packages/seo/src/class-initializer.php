@@ -28,7 +28,7 @@ class Initializer {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '0.1.0';
+	const PACKAGE_VERSION = '0.1.1';
 
 	/**
 	 * Filter name that gates the entire Jetpack SEO surface.
@@ -235,8 +235,10 @@ class Initializer {
 			$data = array();
 		}
 
-		$data[ self::SCRIPT_DATA_KEY ]['overview'] = self::get_overview_data();
-		$data[ self::SCRIPT_DATA_KEY ]['settings'] = self::get_settings_data();
+		$data[ self::SCRIPT_DATA_KEY ]['overview']      = self::get_overview_data();
+		$data[ self::SCRIPT_DATA_KEY ]['settings']      = self::get_settings_data();
+		$data[ self::SCRIPT_DATA_KEY ]['google_verify'] = self::get_google_verify_data();
+		$data[ self::SCRIPT_DATA_KEY ]['ai']            = self::get_ai_data();
 
 		return $data;
 	}
@@ -429,6 +431,8 @@ class Initializer {
 			// The real `sitemaps` module is the source of truth (not a bespoke
 			// option). The Settings toggle drives it via `/jetpack/v4/settings`.
 			'sitemap_active'         => $modules->is_active( 'sitemaps' ),
+			// Canonical URLs is its own module, toggled the same way as sitemaps.
+			'canonical_active'       => $modules->is_active( 'canonical-urls' ),
 			// Cast to object so an empty format set serializes as `{}`, not `[]`.
 			'title_formats'          => (object) $title_formats,
 			'front_page_description' => (string) $front_page_desc,
@@ -438,6 +442,71 @@ class Initializer {
 				'pinterest' => isset( $codes['pinterest'] ) ? (string) $codes['pinterest'] : '',
 				'yandex'    => isset( $codes['yandex'] ) ? (string) $codes['yandex'] : '',
 				'facebook'  => isset( $codes['facebook'] ) ? (string) $codes['facebook'] : '',
+			),
+		);
+	}
+
+	/**
+	 * Build the Google site-verification state for the Settings tab.
+	 *
+	 * The Settings verification card lets a connected user verify with Google via a
+	 * WordPress.com keyring OAuth popup (in addition to pasting a meta-tag code). This
+	 * bootstraps the keyring connect URL and whether the current user is connected —
+	 * the live verified status is fetched client-side from `/jetpack/v4/verify-site/google`
+	 * (a wpcom round-trip we don't want to make on every page load).
+	 *
+	 * Both `Keyring_Helper` (Publicize package) and the connection `Manager` are provided
+	 * by the host Jetpack plugin, so they're guarded with `class_exists` like the
+	 * `Jetpack_SEO_*` helpers. On a disconnected self-hosted site `is_connected` is false
+	 * and the UI falls back to manual code entry only.
+	 *
+	 * @return array
+	 */
+	public static function get_google_verify_data() {
+		$connect_url = '';
+		if ( class_exists( 'Automattic\\Jetpack\\Publicize\\Keyring_Helper' ) ) {
+			// @phan-suppress-next-line PhanUndeclaredClassMethod -- guarded; Publicize package is provided by the host plugin.
+			$connect_url = (string) \Automattic\Jetpack\Publicize\Keyring_Helper::connect_url( 'google_site_verification', 'other' );
+		}
+
+		$is_connected = false;
+		if ( class_exists( 'Automattic\\Jetpack\\Connection\\Manager' ) ) {
+			// @phan-suppress-next-line PhanUndeclaredClassMethod -- guarded; Connection package is provided by the host plugin.
+			$is_connected = ( new \Automattic\Jetpack\Connection\Manager() )->is_user_connected();
+		}
+
+		return array(
+			'connect_url'  => $connect_url,
+			'is_connected' => (bool) $is_connected,
+		);
+	}
+
+	/**
+	 * Build the AI tab's initial state.
+	 *
+	 * The AI SEO Enhancer auto-generates SEO titles/descriptions/alt-text in the
+	 * editor (the generation itself is wpcom/AI-Assistant side); this exposes only
+	 * its persisted on/off toggle and whether it's available. Availability mirrors
+	 * the legacy Traffic page: the `ai_seo_enhancer_enabled` feature filter must be
+	 * on (it still depends on AI being available) AND the site's plan must support
+	 * the `ai-seo-enhancer` feature. The toggle writes through the existing
+	 * `/jetpack/v4/settings` endpoint (`ai_seo_enhancer_enabled`).
+	 *
+	 * @return array
+	 */
+	public static function get_ai_data() {
+		$filter_on = (bool) apply_filters( 'ai_seo_enhancer_enabled', true );
+
+		// Current_Plan is provided by the host Jetpack plugin, not a package
+		// dependency — guard like the Jetpack_SEO_* helpers above.
+		$plan_supports = class_exists( 'Automattic\\Jetpack\\Current_Plan' )
+			// @phan-suppress-next-line PhanUndeclaredClassMethod -- guarded by class_exists; host plugin provides the class.
+			&& \Automattic\Jetpack\Current_Plan::supports( 'ai-seo-enhancer' );
+
+		return array(
+			'enhancer' => array(
+				'available' => $filter_on && $plan_supports,
+				'enabled'   => (bool) get_option( 'ai_seo_enhancer_enabled', false ),
 			),
 		);
 	}
