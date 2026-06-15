@@ -29,13 +29,6 @@ class Agents_Manager {
 	private const HELP_CENTER_URL = 'https://wordpress.com/help?help-center=home';
 
 	/**
-	 * Class instance.
-	 *
-	 * @var Agents_Manager
-	 */
-	private static $instance = null;
-
-	/**
 	 * Agents_Manager constructor.
 	 */
 	public function __construct() {
@@ -576,9 +569,18 @@ class Agents_Manager {
 	 * @return void
 	 */
 	public static function init() {
-		if ( self::$instance === null ) {
-			self::$instance = new self();
+		if ( did_action( 'jetpack_agents_manager_initialized' ) ) {
+			return;
 		}
+
+		new self();
+
+		/**
+		 * Fires once the Agents Manager class has been instantiated.
+		 *
+		 * @since 0.5.0
+		 */
+		do_action( 'jetpack_agents_manager_initialized' );
 	}
 
 	/**
