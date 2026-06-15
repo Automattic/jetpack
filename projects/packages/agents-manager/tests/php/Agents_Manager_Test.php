@@ -91,7 +91,7 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 			}
 		);
 
-		$this->agents_manager = new Agents_Manager();
+		$this->agents_manager = Agents_Manager::init();
 
 		// Save original superglobal values that tests may modify.
 		$this->original_get_preview = $_GET['preview'] ?? null;
@@ -388,7 +388,9 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 
 		// Simulate multiple bootstrappers each calling init() independently.
 		Agents_Manager::init();
+		// @phan-suppress-next-line PhanPluginDuplicateAdjacentStatement -- Intentionally calling twice to ensure duplicates are not registered.
 		Agents_Manager::init();
+		// @phan-suppress-next-line PhanPluginDuplicateAdjacentStatement -- Intentionally calling twice to ensure duplicates are not registered.
 		Agents_Manager::init();
 
 		// The action - and therefore the constructor - runs exactly once.
