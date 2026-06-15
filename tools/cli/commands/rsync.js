@@ -457,11 +457,7 @@ async function addVendorFilesToPathSet( source, paths ) {
  * @return {object} As from `tmp.fileSync()`.
  */
 async function createFilterFile( paths ) {
-	/*
-	 * Detach tmp's fd so only the write stream (autoClose) closes it. Otherwise the same fd is
-	 * closed twice — by the stream and again by removeCallback() — which can clobber an unrelated,
-	 * recycled fd.
-	 */
+	// Set `detachDescriptor` to let the WriteStream close the FD.
 	const tmpFile = tmp.fileSync( { detachDescriptor: true } );
 
 	// Wrap the tmpFile fd in a stream.
