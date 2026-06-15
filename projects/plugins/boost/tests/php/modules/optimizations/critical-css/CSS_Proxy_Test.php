@@ -34,9 +34,15 @@ class CSS_Proxy_Test extends BaseTestCase {
 	 */
 	private function make_wp_die_throw() {
 		$handler = function () {
-			return function ( $message ) {
+			/**
+			 * @param string|\WP_Error $message Message passed to wp_die().
+			 * @return never
+			 */
+			$thrower = function ( $message ) {
 				throw new \RuntimeException( is_string( $message ) ? $message : 'wp_die' );
 			};
+
+			return $thrower;
 		};
 		add_filter( 'wp_die_handler', $handler );
 		add_filter( 'wp_die_ajax_handler', $handler );
@@ -66,20 +72,21 @@ class CSS_Proxy_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Mock the next HTTP request with the given content type and body.
+	 * Mock the next HTTP request with the given content type, body and status.
 	 *
 	 * @param string $content_type Response content-type header.
 	 * @param string $body         Response body.
+	 * @param int    $status_code  Response HTTP status code.
 	 */
-	private function mock_http_response( $content_type, $body ) {
+	private function mock_http_response( $content_type, $body, $status_code = 200 ) {
 		add_filter(
 			'pre_http_request',
-			function () use ( $content_type, $body ) {
+			function () use ( $content_type, $body, $status_code ) {
 				return array(
 					'headers'  => array( 'content-type' => $content_type ),
 					'body'     => $body,
 					'response' => array(
-						'code'    => 200,
+						'code'    => $status_code,
 						'message' => 'OK',
 					),
 				);
@@ -144,5 +151,72 @@ class CSS_Proxy_Test extends BaseTestCase {
 		$cached = get_transient( 'jb_css_proxy_' . md5( $url ) );
 		$this->assertIsArray( $cached );
 		$this->assertArrayHasKey( 'error', $cached );
+	}
+
+	/**
+	 * A transport failure exits with a 5xx (never a 200 the generator would
+	 * consume as a stylesheet) and is not cached.
+	 */
+	public function test_transport_error_fails_loudly_and_is_not_cached() {
+		$url = 'https://example.com/down.css';
+		add_filter(
+			'pre_http_request',
+			function () {
+				return new \WP_Error( 'http_request_failed', 'Connection refused' );
+			}
+		);
+		$this->make_wp_die_throw();
+
+		try {
+			$this->resolve( $url );
+			$this->fail( 'Expected wp_die() for a transport failure.' );
+		} catch ( \RuntimeException $e ) {
+			$this->addToAssertionCount( 1 );
+		}
+
+		$this->assertFalse( get_transient( 'jb_css_proxy_' . md5( $url ) ) );
+	}
+
+	/**
+	 * A non-2xx response served as text/css is rejected and not cached, so a
+	 * 404/500 body is never treated as valid CSS.
+	 */
+	public function test_non_2xx_response_is_rejected_and_not_cached() {
+		$url = 'https://example.com/missing.css';
+		$this->mock_http_response( 'text/css', '.a { color: red; }', 404 );
+		$this->make_wp_die_throw();
+
+		try {
+			$this->resolve( $url );
+			$this->fail( 'Expected wp_die() for a non-2xx response.' );
+		} catch ( \RuntimeException $e ) {
+			$this->addToAssertionCount( 1 );
+		}
+
+		$this->assertFalse( get_transient( 'jb_css_proxy_' . md5( $url ) ) );
+	}
+
+	/**
+	 * The served output neutralizes a </style sequence in the proxied body, so a
+	 * proxied stylesheet cannot break out of a downstream <style> element.
+	 */
+	public function test_serve_proxied_css_neutralizes_style_breakout() {
+		$proxy = new class() extends CSS_Proxy {
+			/**
+			 * Expose the protected output method for testing.
+			 *
+			 * @param string $css CSS body to serve.
+			 */
+			public function serve( $css ) {
+				$this->serve_proxied_css( $css );
+			}
+		};
+
+		ob_start();
+		$proxy->serve( 'body { color: red; }</style><script>alert(1)</script>' );
+		$output = ob_get_clean();
+
+		$this->assertStringNotContainsString( '</style', $output );
+		$this->assertStringContainsString( '<\/style><script>', $output );
 	}
 }
