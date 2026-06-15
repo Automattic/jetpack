@@ -14,12 +14,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [7.22.2] - 2026-06-09
 ### Changed
-- Hide the Jetpack footer across the Forms list and Responses views wp-build Forms dashboard. [#49432]
+- Hide the Jetpack footer across on the Forms list and Responses views wp-build Forms dashboard. [#49432]
 - Update package dependencies. [#49273]
 
 ### Fixed
-- Fix `preg_match` TypeError when a URL field value is an array instead of a string. [#49323]
-- Tighten sanitization and security of the package overall.
+- Fix preg_match TypeError when a URL field value is an array instead of a string. [#49323]
+- Ensure the feedback REST collection endpoint never returns posts of unrelated types when the invalid_ids filter is in use.
+- Harden the legacy Salesforce post-to-URL path and route the request through the WordPress safe HTTP API.
+- Improve sanitization of class and style attribute values, and submitted values across the package.
+- Restrict webhook and integration configuration to users with the manage_options capability.
+- Tighten the permission check on the bulk-delete-by-status feedback endpoint.
 
 ## [7.22.1] - 2026-06-08
 ### Changed
