@@ -326,8 +326,9 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 	private function build_data_path( string $endpoint ): string {
 		$site_id = (int) Jetpack_Options::get_option( 'id' );
 
-		// `upgrades` (purchases) is the one endpoint not scoped under `/sites/<id>/`.
-		if ( 'upgrades' === $endpoint ) {
+		// `upgrades` (purchases) is the one endpoint not scoped under `/sites/<id>/`. Match the
+		// trailing-slash variant the validator tolerates so it can't fall through to /sites/.
+		if ( 'upgrades' === rtrim( $endpoint, '/' ) ) {
 			return sprintf( '/upgrades?site=%d', $site_id );
 		}
 

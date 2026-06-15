@@ -278,10 +278,11 @@ class Api_Proxy_Controller_Test extends BaseTestCase {
 	 */
 	public static function data_data_paths(): array {
 		return array(
-			'stats resource' => array( 'stats/top-posts', '/sites/%d/stats/top-posts' ),
-			'wordads'        => array( 'wordads/earnings', '/sites/%d/wordads/earnings' ),
-			'utm commas'     => array( 'stats/utm/utm_campaign,utm_source', '/sites/%d/stats/utm/utm_campaign,utm_source' ),
-			'purchases'      => array( 'upgrades', '/upgrades?site=%d' ),
+			'stats resource'  => array( 'stats/top-posts', '/sites/%d/stats/top-posts' ),
+			'wordads'         => array( 'wordads/earnings', '/sites/%d/wordads/earnings' ),
+			'utm commas'      => array( 'stats/utm/utm_campaign,utm_source', '/sites/%d/stats/utm/utm_campaign,utm_source' ),
+			'purchases'       => array( 'upgrades', '/upgrades?site=%d' ),
+			'purchases slash' => array( 'upgrades/', '/upgrades?site=%d' ),
 		);
 	}
 
