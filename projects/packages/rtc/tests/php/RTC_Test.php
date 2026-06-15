@@ -185,7 +185,6 @@ class RTC_Test extends \WorDBless\BaseTestCase {
 	public function test_is_enabled_returns_true_when_allowed_and_option_enabled() {
 		add_filter( 'jetpack_rtc_enabled', '__return_true' );
 		update_option( RTC::OPTION_NEW, '1' );
-		RTC::init();
 		$this->assertTrue( RTC::is_enabled() );
 	}
 
