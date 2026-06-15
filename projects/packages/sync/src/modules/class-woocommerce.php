@@ -350,18 +350,22 @@ class WooCommerce extends Module {
 			return;
 		}
 
-		$updated_props = $this->get_customer_detail_props( array( $meta_key ) );
-		if ( empty( $updated_props ) ) {
+		if ( ! is_string( $meta_key ) && ! is_numeric( $meta_key ) ) {
 			return;
 		}
+
+		$meta_key = sanitize_key( (string) $meta_key );
+		if ( ! isset( self::$customer_detail_meta_key_to_prop[ $meta_key ] ) ) {
+			return;
+		}
+
+		$updated_prop = self::$customer_detail_meta_key_to_prop[ $meta_key ];
 
 		if ( ! isset( $this->customer_meta_updates[ $customer_id ] ) ) {
 			$this->customer_meta_updates[ $customer_id ] = array();
 		}
 
-		foreach ( $updated_props as $prop ) {
-			$this->customer_meta_updates[ $customer_id ][ $prop ] = true;
-		}
+		$this->customer_meta_updates[ $customer_id ][ $updated_prop ] = true;
 	}
 
 	/**
