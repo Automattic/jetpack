@@ -264,7 +264,6 @@ class Playground_DB_Importer {
 		}
 
 		while ( $entry = $entries->fetchArray( SQLITE3_ASSOC ) ) { // phpcs:ignore Generic.CodeAnalysis.AssignmentInCondition.FoundInWhileCondition
-			// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Prepared outside.
 			$generator->table_insert( $field_names, $this->prepare( $format, $entry ) );
 		}
 	}
@@ -312,7 +311,6 @@ class Playground_DB_Importer {
 		}
 
 		// Get the "type map" of the table.
-		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- SQLITE_DATA_TYPES_TABLE is a constant string.
 		$query   = $this->prepare( 'SELECT COLUMN_NAME, COLUMN_TYPE from ' . self::SQLITE_DATA_TYPES_TABLE . ' where `TABLE_NAME`=%s;', $table_name );
 		$results = $this->db->query( $query );
 

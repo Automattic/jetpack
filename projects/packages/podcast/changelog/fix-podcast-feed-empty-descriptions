@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Podcast: fix empty episode descriptions in the feed when no excerpt is set.

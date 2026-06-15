@@ -122,7 +122,6 @@ class Block_Notes_Test extends \WP_UnitTestCase {
 	 */
 	private function simulate_big_sky_class() {
 		if ( ! class_exists( 'Big_Sky' ) ) {
-			// phpcs:ignore Generic.Files.OneObjectStructurePerFile.MultipleFound, Generic.Classes.DuplicateClassName.Found
 			eval( 'class Big_Sky {}' ); // @codingStandardsIgnoreLine — minimal stub for unit test isolation.
 		}
 	}
@@ -783,12 +782,10 @@ class Block_Notes_Test extends \WP_UnitTestCase {
 		$dir        = dirname( $local_path );
 
 		wp_mkdir_p( $dir );
-		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
 		file_put_contents( $local_path, wp_json_encode( $asset_data, JSON_UNESCAPED_SLASHES ) );
 
 		$result = BlockNotes\get_asset_data_from_file();
 
-		// phpcs:ignore WordPress.WP.AlternativeFunctions.unlink_unlink
 		unlink( $local_path );
 
 		$this->assertEquals( $asset_data, $result );
@@ -802,12 +799,10 @@ class Block_Notes_Test extends \WP_UnitTestCase {
 		$dir        = dirname( $local_path );
 
 		wp_mkdir_p( $dir );
-		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
 		file_put_contents( $local_path, 'not valid json{{{' );
 
 		$result = BlockNotes\get_asset_data_from_file();
 
-		// phpcs:ignore WordPress.WP.AlternativeFunctions.unlink_unlink
 		unlink( $local_path );
 
 		$this->assertFalse( $result );
@@ -821,12 +816,10 @@ class Block_Notes_Test extends \WP_UnitTestCase {
 		$dir        = dirname( $local_path );
 
 		wp_mkdir_p( $dir );
-		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
 		file_put_contents( $local_path, '"just a string"' );
 
 		$result = BlockNotes\get_asset_data_from_file();
 
-		// phpcs:ignore WordPress.WP.AlternativeFunctions.unlink_unlink
 		unlink( $local_path );
 
 		$this->assertFalse( $result );
@@ -849,14 +842,12 @@ class Block_Notes_Test extends \WP_UnitTestCase {
 		$dir        = dirname( $local_path );
 
 		wp_mkdir_p( $dir );
-		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
 		file_put_contents( $local_path, wp_json_encode( $local_data, JSON_UNESCAPED_SLASHES ) );
 
 		$this->mock_remote_asset( $remote_data );
 
 		$result = BlockNotes\get_asset_data();
 
-		// phpcs:ignore WordPress.WP.AlternativeFunctions.unlink_unlink
 		unlink( $local_path );
 
 		$this->assertEquals( $local_data, $result );

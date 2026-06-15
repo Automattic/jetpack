@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Remove the React Query devtools from DataSyncProvider so the TanStack debugger no longer renders in consuming apps.

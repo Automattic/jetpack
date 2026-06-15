@@ -15,16 +15,9 @@ class Posts_To_Podcast_Helper {
 	/**
 	 * Whether the Posts to Podcast feature is active for the current request.
 	 *
-	 * Inherits the package-level untangle gate so the feature only registers
-	 * when the rest of the podcast package is active.
-	 *
 	 * @return bool
 	 */
 	public static function is_enabled() {
-		if ( ! Podcast::is_enabled() ) {
-			return false;
-		}
-
 		/**
 		 * Filter to allow disabling the Posts to Podcast feature on a per-site basis.
 		 * Defaults to true wherever the podcast package is active; flip this to false

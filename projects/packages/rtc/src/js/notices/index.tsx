@@ -13,6 +13,7 @@ import './public-path';
 
 import { addFilter } from '@wordpress/hooks';
 import { registerPlugin } from '@wordpress/plugins';
+import { registerJoinTracking } from '../tracking/track-join';
 import RtcAdminSomeoneWaitingNotice from './notices/rtc-admin-someone-waiting-notice';
 import { registerConnectionErrorModalFilter } from './notices/rtc-connection-error-modal-filter';
 import RtcNonAdminPostUpgradeNotice from './notices/rtc-non-admin-post-upgrade-notice';
@@ -46,6 +47,9 @@ function registerRoomLimitFilter(): void {
 		() => Number.MAX_SAFE_INTEGER
 	);
 }
+
+// Join tracking runs on every site with RTC, regardless of the room limit.
+registerJoinTracking();
 
 // Room-limit enforcement always runs (it stops polling, sends join requests).
 // The branded modals are gated behind enableLimitNotices.

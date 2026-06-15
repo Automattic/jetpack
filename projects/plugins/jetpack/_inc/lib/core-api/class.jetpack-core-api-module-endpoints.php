@@ -716,6 +716,11 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 					break;
 
 				case 'monitor_receive_notifications':
+					if ( ! class_exists( 'Jetpack_Monitor' ) ) {
+						$updated = false;
+						break;
+					}
+
 					$monitor = new Jetpack_Monitor();
 
 					// If we got true as response, consider it done.
@@ -723,6 +728,11 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 					break;
 
 				case 'post_by_email_address':
+					if ( ! class_exists( 'Jetpack_Post_By_Email' ) ) {
+						$updated = false;
+						break;
+					}
+
 					$result = Jetpack_Post_By_Email::init()->process_api_request( $value );
 
 					// If we got an email address (create or regenerate) or 1 (delete), consider it done.
@@ -1003,7 +1013,7 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 						break;
 					}
 
-					$allowed_keys   = array( 'invitation', 'comment_follow', 'welcome' );
+					$allowed_keys   = array( 'invitation', 'comment_follow', 'welcome', 'subscribe_modal_heading' );
 					$filtered_value = array_filter(
 						$value,
 						function ( $key ) use ( $allowed_keys ) {
@@ -1035,6 +1045,13 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 							);
 						}
 					);
+
+					// Normalize whitespace-only `subscribe_modal_heading` input to empty so
+					// the modal template's `empty()` fallback fires. PHP's `empty()` treats
+					// `"   "` as non-empty, which would otherwise render a blank heading.
+					if ( isset( $filtered_value['subscribe_modal_heading'] ) ) {
+						$filtered_value['subscribe_modal_heading'] = trim( $filtered_value['subscribe_modal_heading'] );
+					}
 
 					$old_subscription_options = get_option( 'subscription_options' );
 					if ( ! is_array( $old_subscription_options ) ) {
@@ -1277,7 +1294,6 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
  * phpcs:disable Generic.Files.OneObjectStructurePerFile.MultipleFound
  */
 class Jetpack_Core_API_Module_Data_Endpoint {
-	// phpcs:disable Generic.Files.OneObjectStructurePerFile.MultipleFound
 
 	/**
 	 * Process request and return different data based on the module we are interested in.

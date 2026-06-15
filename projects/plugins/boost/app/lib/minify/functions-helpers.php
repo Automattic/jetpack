@@ -31,7 +31,7 @@ function jetpack_boost_minify_cache_buster() {
  * JS can silently corrupt it. The mime type already routes JS and CSS down
  * separate branches, so matching both extensions here is safe for either.
  *
- * @since $$next-version$$
+ * @since 4.6.0
  *
  * @param string $fullpath Absolute path to the file being served.
  *
@@ -410,7 +410,6 @@ function jetpack_boost_get_minify_file_path( $file_name = '' ) {
  */
 function jetpack_boost_minify_serve_concatenated() {
 	// Potential improvement: Make concat URL dir configurable
-	// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 	if ( isset( $_SERVER['REQUEST_URI'] ) ) {
 		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 		$request_path = explode( '?', wp_unslash( $_SERVER['REQUEST_URI'] ) )[0];

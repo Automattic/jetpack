@@ -1,0 +1,4 @@
+Significance: patch
+Type: removed
+
+Podcasting: drop the legacy podcasting admin-menu fallback now that the jetpack-podcast package owns the experience unconditionally.

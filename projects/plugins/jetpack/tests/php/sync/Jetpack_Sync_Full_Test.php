@@ -350,7 +350,6 @@ class Jetpack_Sync_Full_Test extends Jetpack_Sync_TestBase {
 		}
 
 		// 28
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
 		$original_number_of_term_relationships = (int) $wpdb->get_var( "SELECT COUNT(*) FROM $wpdb->term_relationships" );
 		// ceil(28/4) = 7 phpcs:ignore Squiz.PHP.CommentedOutCode.Found
 		$total_items = (int) ceil( $original_number_of_term_relationships / $sync_item_size );

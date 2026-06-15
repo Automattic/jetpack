@@ -92,7 +92,7 @@ describe( 'NavigatorModal', () => {
 			expect( mockOnClose ).toHaveBeenCalledTimes( 1 );
 		} );
 
-		it( 'calls onClose on overlay click (onRequestClose without event but after pointer interaction)', async () => {
+		it( 'calls onClose on overlay click (pointerdown on the overlay itself, then onRequestClose without event)', async () => {
 			const user = userEvent.setup();
 			const mockOnClose = jest.fn();
 
@@ -102,12 +102,33 @@ describe( 'NavigatorModal', () => {
 				</NavigatorModal>
 			);
 
-			// Clicking the button triggers pointerdown on the overlay (bubbles up
-			// to mock-modal ref), then the button calls onRequestClose() without event.
-			// This mirrors the real overlay click flow.
+			// A genuine backdrop click: the pointerdown target is the overlay
+			// element itself (the mock-modal ref), then WP Modal calls
+			// onRequestClose() without an event from its pointerup handler.
+			await user.click( screen.getByTestId( 'mock-modal' ) );
 			await user.click( screen.getByTestId( 'close-without-event' ) );
 
 			expect( mockOnClose ).toHaveBeenCalledTimes( 1 );
+		} );
+
+		it( 'does not close when an inner control opens another modal (dismisser fires onRequestClose without event)', async () => {
+			const user = userEvent.setup();
+			const mockOnClose = jest.fn();
+
+			render(
+				<NavigatorModal onClose={ mockOnClose }>
+					<button data-testid="inner-control">Generate image</button>
+				</NavigatorModal>
+			);
+
+			// Regression for SOCIAL-477: pressing a control inside the modal (e.g.
+			// "Generate image") must not mark the next eventless onRequestClose as a
+			// backdrop click. The pointerdown target is the inner control, not the
+			// overlay, so the dismisser-driven close (Image Studio mounting) is ignored.
+			await user.click( screen.getByTestId( 'inner-control' ) );
+			await user.click( screen.getByTestId( 'close-without-event' ) );
+
+			expect( mockOnClose ).not.toHaveBeenCalled();
 		} );
 
 		it( 'does not crash when onClose is not provided', async () => {

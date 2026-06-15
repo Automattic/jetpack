@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Carousel: stop adding EXIF image metadata to the page markup when the option to display it is disabled.
