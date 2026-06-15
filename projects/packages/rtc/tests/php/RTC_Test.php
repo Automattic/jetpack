@@ -184,6 +184,7 @@ class RTC_Test extends \WorDBless\BaseTestCase {
 	 */
 	public function test_is_enabled_returns_true_when_allowed_and_option_enabled() {
 		add_filter( 'jetpack_rtc_enabled', '__return_true' );
+		update_option( RTC::OPTION_NEW, '1' );
 		RTC::init();
 		$this->assertTrue( RTC::is_enabled() );
 	}
@@ -240,6 +241,7 @@ class RTC_Test extends \WorDBless\BaseTestCase {
 	 */
 	public function test_get_providers_returns_providers_when_enabled() {
 		add_filter( 'jetpack_rtc_enabled', '__return_true' );
+		update_option( RTC::OPTION_NEW, '1' );
 		RTC::init();
 		add_filter(
 			'jetpack_rtc_providers',
@@ -256,6 +258,7 @@ class RTC_Test extends \WorDBless\BaseTestCase {
 	 */
 	public function test_get_providers_filters_unknown_providers() {
 		add_filter( 'jetpack_rtc_enabled', '__return_true' );
+		update_option( RTC::OPTION_NEW, '1' );
 		RTC::init();
 		add_filter(
 			'jetpack_rtc_providers',
@@ -288,6 +291,7 @@ class RTC_Test extends \WorDBless\BaseTestCase {
 	 */
 	public function test_get_providers_reindexes_after_filtering() {
 		add_filter( 'jetpack_rtc_enabled', '__return_true' );
+		update_option( RTC::OPTION_NEW, '1' );
 		RTC::init();
 		add_filter(
 			'jetpack_rtc_providers',
@@ -323,6 +327,7 @@ class RTC_Test extends \WorDBless\BaseTestCase {
 	 */
 	public function test_get_providers_default_passes_allowlist() {
 		add_filter( 'jetpack_rtc_enabled', '__return_true' );
+		update_option( RTC::OPTION_NEW, '1' );
 		RTC::init();
 
 		$this->assertSame( array( 'pinghub' ), RTC::get_providers() );
@@ -355,6 +360,7 @@ class RTC_Test extends \WorDBless\BaseTestCase {
 	 */
 	public function test_register_providers_enqueues_when_pinghub() {
 		add_filter( 'jetpack_rtc_enabled', '__return_true' );
+		update_option( RTC::OPTION_NEW, '1' );
 		RTC::init();
 		add_filter(
 			'jetpack_rtc_providers',
@@ -373,6 +379,7 @@ class RTC_Test extends \WorDBless\BaseTestCase {
 	 */
 	public function test_register_providers_enqueues_with_multiple_providers() {
 		add_filter( 'jetpack_rtc_enabled', '__return_true' );
+		update_option( RTC::OPTION_NEW, '1' );
 		RTC::init();
 		add_filter(
 			'jetpack_rtc_providers',
@@ -391,6 +398,7 @@ class RTC_Test extends \WorDBless\BaseTestCase {
 	 */
 	public function test_register_providers_does_not_include_jwt_token() {
 		add_filter( 'jetpack_rtc_enabled', '__return_true' );
+		update_option( RTC::OPTION_NEW, '1' );
 		RTC::init();
 		add_filter(
 			'jetpack_rtc_providers',
