@@ -10,7 +10,7 @@ type Props = { item: LibraryItem };
 
 /**
  * Render the media-area for one DataViews grid card. Layers (priority order):
- * 1. uploading → ProgressBar overlay
+ * 1. uploading / promoting / deleting → ProgressBar overlay
  * 2. failed    → red overlay with Retry
  * 3. local     → "Local video" placeholder + hover-revealed Upload button
  * 4. videopress → thumbnail image + duration badge + click/hover "Edit details"
@@ -113,7 +113,7 @@ export default function ThumbnailField( { item }: Props ) {
 				</Stack>
 			) : null }
 
-			{ upload.status === 'promoting' ? (
+			{ upload.status === 'promoting' || upload.status === 'deleting' ? (
 				<Stack
 					direction="column"
 					gap="sm"
@@ -121,7 +121,11 @@ export default function ThumbnailField( { item }: Props ) {
 					justify="center"
 					className="vp-library__progress"
 				>
-					<Text>{ __( 'Uploading…', 'jetpack-videopress-pkg' ) }</Text>
+					<Text>
+						{ upload.status === 'deleting'
+							? __( 'Deleting…', 'jetpack-videopress-pkg' )
+							: __( 'Uploading…', 'jetpack-videopress-pkg' ) }
+					</Text>
 					<ProgressBar className="vp-library__progress-bar" />
 				</Stack>
 			) : null }

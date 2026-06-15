@@ -3,33 +3,36 @@ import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { useNavigate, useSearch } from '@wordpress/route';
 import { Tabs } from '@wordpress/ui';
+import { useAiForm } from './data/use-ai';
 import { useSettingsForm } from './data/use-settings';
-import NoticesList from './notices-list';
+import AiScreen from './screens/ai';
 import OverviewScreen from './screens/overview';
 import SettingsScreen from './screens/settings';
 import './admin-page-layout.scss';
 import type { FC } from 'react';
 
 type StageSearch = Record< string, unknown > & { tab?: string };
-type SeoTab = 'overview' | 'settings';
+type SeoTab = 'overview' | 'settings' | 'ai';
 
 /**
  * Root of the Jetpack SEO admin app, mounted by `@wordpress/build` as the
  * route's `stage`. Renders the shared `AdminPage` chrome and an Overview /
- * Settings tab pair driven by `?tab=`. The Settings form state lives here
- * (above the tab panels) so unsaved edits survive switching tabs.
+ * Settings / AI tab set driven by `?tab=`. The Settings and AI form state lives
+ * here (above the tab panels) so unsaved edits survive switching tabs.
  *
  * @return The Jetpack SEO admin page.
  */
 const App: FC = () => {
 	const search = useSearch( { from: '/' as unknown as never, strict: false } ) as StageSearch;
-	const activeTab: SeoTab = search.tab === 'settings' ? 'settings' : 'overview';
+	const activeTab: SeoTab =
+		search.tab === 'settings' || search.tab === 'ai' ? search.tab : 'overview';
 	const navigate = useNavigate();
 	const settingsForm = useSettingsForm();
+	const aiForm = useAiForm();
 
 	const onTabChange = useCallback(
 		( next: string | null ) => {
-			if ( next !== 'overview' && next !== 'settings' ) {
+			if ( next !== 'overview' && next !== 'settings' && next !== 'ai' ) {
 				return;
 			}
 			navigate( {
@@ -58,6 +61,7 @@ const App: FC = () => {
 						<Tabs.List variant="minimal">
 							<Tabs.Tab value="overview">{ __( 'Overview', 'jetpack-seo' ) }</Tabs.Tab>
 							<Tabs.Tab value="settings">{ __( 'Settings', 'jetpack-seo' ) }</Tabs.Tab>
+							<Tabs.Tab value="ai">{ __( 'AI', 'jetpack-seo' ) }</Tabs.Tab>
 						</Tabs.List>
 					</div>
 					<Tabs.Panel value="overview" focusable={ false }>
@@ -70,8 +74,12 @@ const App: FC = () => {
 							<SettingsScreen form={ settingsForm } />
 						</div>
 					</Tabs.Panel>
+					<Tabs.Panel value="ai" focusable={ false }>
+						<div className="jetpack-seo-page-content">
+							<AiScreen form={ aiForm } />
+						</div>
+					</Tabs.Panel>
 				</Tabs.Root>
-				<NoticesList />
 			</AdminPage>
 		</ThemeProvider>
 	);
