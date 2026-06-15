@@ -185,13 +185,13 @@ async function createBrowserInterface(
  * offending provider and do not stop the remaining providers from generating.
  *
  * Throws only on failures that aren't tied to a single provider's generation
- * step, e.g. the generator library failing to load. Note that the
- * state-persistence callbacks (setProviderCss / setProviderErrors) are
- * intentionally awaited without a local catch: if persisting a provider's
- * result rejects (e.g. the data-sync REST call fails), the rejection
+ * step, e.g. the generator library failing to load. A failure to persist a
+ * provider's CSS (setProviderCss rejecting) is caught and recorded as that
+ * provider's error, so the run continues. By contrast, the setProviderErrors
+ * calls are awaited without a local catch: if recording a provider's error
+ * itself rejects (e.g. the data-sync REST call fails), the rejection
  * propagates and aborts the whole run. That is deliberate -- when Boost can't
- * persist state, failing loudly beats silently dropping results -- and is
- * consistent across all three catch arms below.
+ * even persist the error state, failing loudly beats silently dropping it.
  *
  * @param {Object}      providers            - Set of URLs to use for each provider key
  * @param {Viewport[]}  viewports            - Viewports to use when generating Critical CSS.

@@ -1,5 +1,5 @@
 import { runLocalGenerator } from './generate-critical-css';
-import type { Provider } from './stores/critical-css-state-types';
+import type { CriticalCssErrorDetails, Provider } from './stores/critical-css-state-types';
 
 /*
  * Mock the side-effecting helpers so the test stays focused on control flow:
@@ -48,7 +48,7 @@ function makeProvider( key: string ): Provider {
 		urls: [ `https://example.com/${ key }` ],
 		success_ratio: 1,
 		status: 'pending',
-	} as Provider;
+	};
 }
 
 function makeCallbacks() {
@@ -57,8 +57,12 @@ function makeCallbacks() {
 		resolveFinished = resolve;
 	} );
 	return {
-		setProviderCss: jest.fn().mockResolvedValue( undefined ),
-		setProviderErrors: jest.fn().mockResolvedValue( undefined ),
+		setProviderCss: jest
+			.fn< Promise< unknown >, [ string, string ] >()
+			.mockResolvedValue( undefined ),
+		setProviderErrors: jest
+			.fn< Promise< unknown >, [ string, CriticalCssErrorDetails[] ] >()
+			.mockResolvedValue( undefined ),
 		setProviderProgress: jest.fn(),
 		onError: jest.fn(),
 		onFinished: jest.fn( ( succeeded: boolean ) => resolveFinished( succeeded ) ),
@@ -111,11 +115,22 @@ describe( 'runLocalGenerator - per-provider error resilience', () => {
 		);
 		await callbacks.finished;
 
+		/*
+		 * Both providers are recorded as errors and no CSS is saved. onFinished
+		 * still reports true: it signals that the run reached completion without a
+		 * global crash, not that any provider succeeded. The all-failed UX is
+		 * surfaced separately by isFatalError(), which reports a fatal error once
+		 * no provider is in a success/pending state.
+		 */
 		expect( callbacks.onError ).not.toHaveBeenCalled();
 		expect( callbacks.onFinished ).toHaveBeenCalledWith( true );
 		expect( callbacks.setProviderCss ).not.toHaveBeenCalled();
 
 		expect( callbacks.setProviderErrors ).toHaveBeenCalledTimes( 2 );
+		expect( callbacks.setProviderErrors.mock.calls.map( ( [ key ] ) => key ) ).toEqual( [
+			'provider_a',
+			'provider_b',
+		] );
 		const allUnknown = callbacks.setProviderErrors.mock.calls.every(
 			( [ , errors ] ) => errors[ 0 ].type === 'UnknownError'
 		);

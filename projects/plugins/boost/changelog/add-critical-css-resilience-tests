@@ -1,5 +1,5 @@
 Significance: patch
 Type: changed
-Comment: Critical CSS: add regression tests for per-provider error resilience and clarify related code comments.
+Comment: No user-facing changelog entry needed: tests, test infrastructure, and code comments only (regression coverage for the Critical CSS per-provider error handling).
 
 
