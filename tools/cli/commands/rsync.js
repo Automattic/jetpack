@@ -188,12 +188,17 @@ export async function rsyncInit( argv ) {
 					ignoreInitial: true,
 					depth: 0,
 					/*
-					 * Poll instead of using the native fs.watch backend, whose watcher fds race
-					 * against spawned git pipe fds on macOS/Node 24 and cause intermittent EBADF.
+					 * On macOS, chokidar 4 (which no longer bundles fsevents) opens one fs.watch
+					 * kqueue descriptor per watched path. With the thousands of paths we watch, that
+					 * makes later child_process spawns fail with EBADF, which crashes the watch.
+					 * See https://github.com/paulmillr/chokidar/issues/1452. Polling avoids the
+					 * per-path descriptors; it's more expensive, so only use it where it's needed.
 					 */
-					usePolling: true,
-					interval: 500,
-					binaryInterval: 1000,
+					...( process.platform === 'darwin' && {
+						usePolling: true,
+						interval: 500,
+						binaryInterval: 1000,
+					} ),
 				} );
 
 				// Always watch the plugin base dir.
@@ -453,11 +458,14 @@ async function addVendorFilesToPathSet( source, paths ) {
  */
 async function createFilterFile( paths ) {
 	/*
-	 * Discard tmp's fd and let the stream own its own. Otherwise the same fd is closed twice
-	 * (stream autoClose + removeCallback), which can clobber an unrelated, recycled fd.
+	 * Detach tmp's fd so only the write stream (autoClose) closes it. Otherwise the same fd is
+	 * closed twice — by the stream and again by removeCallback() — which can clobber an unrelated,
+	 * recycled fd.
 	 */
-	const tmpFile = tmp.fileSync( { discardDescriptor: true } );
-	const tmpStream = createWriteStream( tmpFile.name );
+	const tmpFile = tmp.fileSync( { detachDescriptor: true } );
+
+	// Wrap the tmpFile fd in a stream.
+	const tmpStream = createWriteStream( null, { fd: tmpFile.fd } );
 	const writeTmp = data => {
 		return new Promise( resolve => {
 			if ( ! tmpStream.write( data ) ) {
