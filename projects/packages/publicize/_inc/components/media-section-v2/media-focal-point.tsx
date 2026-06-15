@@ -6,6 +6,7 @@
 import { FocalPointPicker } from '@wordpress/components';
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import styles from './styles.module.scss';
 import { MediaFocalPointProps } from './types';
 import type { FocalPoint } from '../../utils/types';
 
@@ -29,17 +30,19 @@ export default function MediaFocalPoint( { url, value, onChange }: MediaFocalPoi
 	);
 
 	return (
-		<FocalPointPicker
-			__nextHasNoMarginBottom
-			label={ __( 'Focal point', 'jetpack-publicize-pkg' ) }
-			hideLabelFromVision
-			help={ __(
-				'Drag the point to the most important part of the image.',
-				'jetpack-publicize-pkg'
-			) }
-			url={ url }
-			value={ value }
-			onChange={ handleChange }
-		/>
+		<div className={ styles[ 'focal-point' ] }>
+			<FocalPointPicker
+				__nextHasNoMarginBottom
+				label={ __( 'Focal point', 'jetpack-publicize-pkg' ) }
+				hideLabelFromVision
+				help={ __(
+					'Drag the point to the most important part of the image.',
+					'jetpack-publicize-pkg'
+				) }
+				url={ url }
+				value={ value }
+				onChange={ handleChange }
+			/>
+		</div>
 	);
 }
