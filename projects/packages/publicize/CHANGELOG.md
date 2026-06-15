@@ -14,7 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Remove unused scheduled posts components left behind after the old social post modal was replaced by the unified modal. [#49516]
 
 ### Fixed
-- Render editor hyperlinks as clickable links in Bluesky and Tumblr social previews. [#49483]
+- Render content hyperlinks as clickable links in Bluesky and Tumblr social previews. [#49483]
 
 ## [0.81.3] - 2026-06-08
 ### Removed

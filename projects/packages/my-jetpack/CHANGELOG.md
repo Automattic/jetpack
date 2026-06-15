@@ -11,7 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [5.38.3] - 2026-06-10
 ### Changed
-- My Jetpack: Only show the Help section's Useful links when the Jetpack plugin is active and the user can manage options. [#49277]
+- Only show the Help section's Useful links when the Jetpack plugin is active and the user can manage options. [#49277]
 - Update package dependencies. [#49273] [#49492]
 
 ## [5.38.2] - 2026-06-08

@@ -7,8 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.37.0] - 2026-06-15
 ### Added
-- VideoPress: Add drag-and-drop video upload to the new Library, with upload progress and a notice when the single-video plan limit is reached. [#49358]
-- VideoPress: Open a video's details from the Library grid by clicking the thumbnail or title, with a hover "Edit details" affordance and full keyboard support. [#49472]
+- Add drag-and-drop video upload to the new library, with upload progress and a notice when the single-video plan limit is reached. [#49358]
+- Open a video's details from the library grid by clicking the thumbnail or title, with a hover "Edit details" affordance and full keyboard support. [#49472]
 
 ### Changed
 - Update package dependencies. [#49273] [#49492]

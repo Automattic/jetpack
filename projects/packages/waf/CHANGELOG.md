@@ -8,7 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.28.8] - 2026-06-15
 ### Fixed
 - Guard against malformed allowlist data. [#49481]
-- WAF: Skip rule evaluation when there is no HTTP request (e.g. server-side cron executed via a PHP CLI wrapper), preventing false-positive 403 blocks. [#49465]
+- Skip rule evaluation when there is no HTTP request (e.g. server-side cron executed via a PHP CLI wrapper), preventing false-positive 403 blocks. [#49465]
 
 ## [0.28.7] - 2026-06-08
 ### Fixed

@@ -8,7 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [4.43.0] - 2026-06-15
 ### Added
 - Add options from assorted WooCommerce settings pages to sync whitelist, as part of activity log improvements. [#49520]
-- Sync: Send WooCommerce customer account detail updates. [#49551]
+- Send WooCommerce customer account detail updates. [#49551]
 
 ## [4.42.0] - 2026-06-10
 ### Added

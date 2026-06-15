@@ -10,7 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Update package dependencies. [#49273]
 
 ### Fixed
-- Render editor hyperlinks as clickable links in Bluesky and Tumblr previews [#49483]
+- Render hyperlinks as clickable links in Bluesky and Tumblr previews. [#49483]
 
 ## [3.2.4] - 2026-06-08
 ### Changed
