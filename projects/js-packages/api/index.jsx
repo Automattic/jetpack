@@ -192,6 +192,11 @@ function JetpackRestApiClient( root, nonce ) {
 				.then( checkStatus )
 				.then( parseJsonResponse ),
 
+		fetchBlazeActiveCampaigns: () =>
+			getRequest( `${ apiRoot }jetpack/v4/blaze/active-campaigns`, getParams )
+				.then( checkStatus )
+				.then( parseJsonResponse ),
+
 		fetchModule: slug =>
 			getRequest( `${ apiRoot }jetpack/v4/module/${ slug }`, getParams )
 				.then( checkStatus )

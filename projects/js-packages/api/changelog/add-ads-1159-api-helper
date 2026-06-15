@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+API: add a Blaze active campaign status request helper.
