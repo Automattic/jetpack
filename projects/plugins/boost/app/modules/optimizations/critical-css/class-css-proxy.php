@@ -69,8 +69,10 @@ class CSS_Proxy {
 	 * @param string $css CSS body to serve.
 	 */
 	protected function serve_proxied_css( $css ) {
-		header( 'Content-type: text/css' );
-		header( 'X-Content-Type-Options: nosniff' );
+		if ( ! headers_sent() ) {
+			header( 'Content-type: text/css' );
+			header( 'X-Content-Type-Options: nosniff' );
+		}
 
 		/*
 		 * Outputting proxied CSS contents unescaped. Do not strip tags here;
