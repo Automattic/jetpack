@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "b35c8f741ab239d96006476386767f79",
+    "content-hash": "d3ed8813c6d6d4597f32863db79188e8",
     "packages": [
         {
             "name": "automattic/jetpack-admin-ui",
@@ -79,6 +79,76 @@
                 "GPL-2.0-or-later"
             ],
             "description": "Generic Jetpack wp-admin UI elements",
+            "transport-options": {
+                "relative": true
+            }
+        },
+        {
+            "name": "automattic/jetpack-assets",
+            "version": "dev-trunk",
+            "dist": {
+                "type": "path",
+                "url": "../../packages/assets",
+                "reference": "a4c3991ea97f5705663221c8ebff9758b46fd683"
+            },
+            "require": {
+                "automattic/jetpack-constants": "@dev",
+                "automattic/jetpack-status": "@dev",
+                "php": ">=7.2"
+            },
+            "require-dev": {
+                "automattic/phpunit-select-config": "@dev",
+                "brain/monkey": "^2.6.2",
+                "wikimedia/testing-access-wrapper": "^1.0 || ^2.0 || ^3.0 || ^4.0",
+                "yoast/phpunit-polyfills": "^4.0.0"
+            },
+            "suggest": {
+                "automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
+            },
+            "type": "jetpack-library",
+            "extra": {
+                "autotagger": true,
+                "mirror-repo": "Automattic/jetpack-assets",
+                "textdomain": "jetpack-assets",
+                "changelogger": {
+                    "link-template": "https://github.com/Automattic/jetpack-assets/compare/v${old}...v${new}"
+                },
+                "branch-alias": {
+                    "dev-trunk": "4.3.x-dev"
+                }
+            },
+            "autoload": {
+                "files": [
+                    "actions.php"
+                ],
+                "classmap": [
+                    "src/"
+                ]
+            },
+            "scripts": {
+                "build-development": [
+                    "pnpm run build"
+                ],
+                "build-production": [
+                    "pnpm run build-production"
+                ],
+                "phpunit": [
+                    "phpunit-select-config phpunit.#.xml.dist --colors=always"
+                ],
+                "test-coverage": [
+                    "pnpm concurrently --names php,js 'php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\"' 'pnpm:test-coverage'"
+                ],
+                "test-js": [
+                    "pnpm run test"
+                ],
+                "test-php": [
+                    "@composer phpunit"
+                ]
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "description": "Asset management utilities for Jetpack ecosystem packages",
             "transport-options": {
                 "relative": true
             }
@@ -378,6 +448,64 @@
             }
         },
         {
+            "name": "automattic/jetpack-wp-abilities",
+            "version": "dev-trunk",
+            "dist": {
+                "type": "path",
+                "url": "../../packages/wp-abilities",
+                "reference": "e71e43ab54aaf244b0cb2e29999da393164021f5"
+            },
+            "require": {
+                "php": ">=7.2"
+            },
+            "require-dev": {
+                "automattic/phpunit-select-config": "@dev",
+                "brain/monkey": "^2.6.2",
+                "yoast/phpunit-polyfills": "^4.0.0"
+            },
+            "suggest": {
+                "automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
+            },
+            "type": "jetpack-library",
+            "extra": {
+                "autotagger": true,
+                "mirror-repo": "Automattic/jetpack-wp-abilities",
+                "changelogger": {
+                    "link-template": "https://github.com/automattic/jetpack-wp-abilities/compare/v${old}...v${new}"
+                },
+                "branch-alias": {
+                    "dev-trunk": "0.1.x-dev"
+                },
+                "textdomain": "jetpack-wp-abilities",
+                "version-constants": {
+                    "::PACKAGE_VERSION": "src/class-registrar.php"
+                }
+            },
+            "autoload": {
+                "classmap": [
+                    "src/"
+                ]
+            },
+            "scripts": {
+                "phpunit": [
+                    "phpunit-select-config phpunit.#.xml.dist --colors=always"
+                ],
+                "test-coverage": [
+                    "php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\""
+                ],
+                "test-php": [
+                    "@composer phpunit"
+                ]
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "description": "Shared utilities for registering abilities with the WordPress Abilities API from Jetpack packages and plugins.",
+            "transport-options": {
+                "relative": true
+            }
+        },
+        {
             "name": "composer/semver",
             "version": "3.4.3",
             "source": {
@@ -514,8 +642,10 @@
     "minimum-stability": "dev",
     "stability-flags": {
         "automattic/jetpack-admin-ui": 20,
+        "automattic/jetpack-assets": 20,
         "automattic/jetpack-autoloader": 20,
-        "automattic/jetpack-logo": 20
+        "automattic/jetpack-logo": 20,
+        "automattic/jetpack-wp-abilities": 20
     },
     "prefer-stable": true,
     "prefer-lowest": false,
