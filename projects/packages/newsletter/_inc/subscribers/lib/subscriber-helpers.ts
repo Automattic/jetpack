@@ -1,6 +1,20 @@
 import type { RemoveSubscriberPayload, Subscriber } from '../data/types';
 
 /**
+ * Coerce a URL search-param value into a positive finite number.
+ *
+ * @param value - Raw search-param value (string, number, undefined).
+ * @return Positive finite number, or undefined when the input is empty/invalid.
+ */
+export function toFiniteNumber( value: unknown ): number | undefined {
+	if ( value === undefined || value === null || value === '' ) {
+		return undefined;
+	}
+	const num = Number( value );
+	return Number.isFinite( num ) && num > 0 ? num : undefined;
+}
+
+/**
  * Best-effort subscription date — Calypso prefers `wpcom_date_subscribed`, falling back to the
  * email subscription date for email-only subscribers. Returns the value with a `+00:00` suffix
  * appended (matching Calypso's `getFormattedSubscriptionDate` helper) so the date renders in the
@@ -56,6 +70,38 @@ export function getRemovePayload( subscriber: Subscriber ): RemoveSubscriberPayl
  */
 export function getSubscriberLabel( subscriber: Subscriber ): string {
 	return subscriber.display_name || subscriber.email_address;
+}
+
+/**
+ * Whether the subscriber currently shown in the inspector — identified by the `subscriber`/`u`
+ * URL params — is among a list of just-removed subscribers. Used to close the inspector when its
+ * subscriber gets deleted from the table, so it doesn't linger with stale data. The open identity
+ * mirrors `handleViewSubscriber`: `subscriptionId` is the email-or-wpcom subscription id, `userId`
+ * is the wpcom user id. A removed row matches when either set identifier is the same.
+ *
+ * @param open                - Inspector's open identity from the URL.
+ * @param open.subscriptionId - Email or wpcom subscription id the inspector is keyed by, if any.
+ * @param open.userId         - WPCOM user id the inspector is keyed by, if any.
+ * @param removed             - Subscribers that were just removed.
+ * @return True when the open subscriber is among the removed rows.
+ */
+export function isOpenSubscriberRemoved(
+	open: { subscriptionId?: number; userId?: number },
+	removed: Subscriber[]
+): boolean {
+	const { subscriptionId, userId } = open;
+	if ( ! subscriptionId && ! userId ) {
+		return false;
+	}
+	return removed.some( subscriber => {
+		const removedSubscriptionId =
+			subscriber.email_subscription_id || subscriber.wpcom_subscription_id || undefined;
+		const removedUserId = subscriber.user_id || undefined;
+		return (
+			( !! subscriptionId && removedSubscriptionId === subscriptionId ) ||
+			( !! userId && removedUserId === userId )
+		);
+	} );
 }
 
 /**
