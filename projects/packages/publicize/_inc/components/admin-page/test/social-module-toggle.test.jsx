@@ -27,6 +27,17 @@ describe( 'SocialModuleToggle', () => {
 		expect( screen.queryByText( /Manage social media connections/i ) ).not.toBeInTheDocument();
 	} );
 
+	it( 'should not render the module on/off switch', () => {
+		render( <SocialModuleToggle /> );
+
+		// The "When enabled, …" copy only renders next to the switch; its absence
+		// confirms the module toggle is no longer shown on the dashboard.
+		expect( screen.queryByText( /When enabled, you/i, ignoreA11ySpeak ) ).not.toBeInTheDocument();
+		expect(
+			screen.getByText( /Connect your social media accounts and send/i, ignoreA11ySpeak )
+		).toBeInTheDocument();
+	} );
+
 	it( 'should show upgrade trigger when no paid features', () => {
 		render( <SocialModuleToggle /> );
 
