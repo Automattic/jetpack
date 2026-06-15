@@ -184,7 +184,9 @@ class RTC_Test extends \WorDBless\BaseTestCase {
 	 */
 	public function test_is_enabled_returns_true_when_allowed_and_option_enabled() {
 		add_filter( 'jetpack_rtc_enabled', '__return_true' );
-		update_option( RTC::OPTION_NEW, '1' );
+		// Short-circuit get_option so the stored value is independent of how the
+		// test harness persists this option across WP versions.
+		add_filter( 'pre_option_' . RTC::OPTION_NEW, '__return_true' );
 		$this->assertTrue( RTC::is_enabled() );
 	}
 
