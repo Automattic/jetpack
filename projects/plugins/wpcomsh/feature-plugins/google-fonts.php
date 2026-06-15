@@ -1,7 +1,6 @@
 <?php
 /**
  * Customizations to the Google Fonts module available in Jetpack.
- * We want that feature to always be available on Atomic sites.
  *
  * @package wpcomsh
  */
@@ -13,54 +12,6 @@
 if ( ! defined( 'FONT_LIBRARY_DISABLED' ) ) {
 	define( 'FONT_LIBRARY_DISABLED', true );
 }
-
-/**
- * Option that records an explicit user opt-out of the Google Fonts module.
- *
- * When set, wpcomsh stops force-activating the module on every request so the
- * user's deactivation (e.g. via My Jetpack) actually sticks.
- */
-const WPCOMSH_GOOGLE_FONTS_OPTED_OUT = 'wpcomsh_google_fonts_opted_out';
-
-/**
- * Force-enable the Google fonts module
- * If you use a version of Jetpack that supports it,
- * if it is not already enabled,
- * and if the user has not explicitly deactivated it.
- */
-function wpcomsh_activate_google_fonts_module() {
-	if ( ! defined( 'JETPACK__VERSION' ) ) {
-		return;
-	}
-
-	// Respect an explicit user deactivation instead of re-enabling on every request.
-	if ( get_option( WPCOMSH_GOOGLE_FONTS_OPTED_OUT ) ) {
-		return;
-	}
-
-	if ( ! Jetpack::is_module_active( 'google-fonts' ) ) {
-		Jetpack::activate_module( 'google-fonts', false, false );
-	}
-}
-add_action( 'setup_theme', 'wpcomsh_activate_google_fonts_module' );
-
-/**
- * Record that the user has explicitly deactivated the Google Fonts module so
- * wpcomsh stops force-activating it on subsequent requests.
- */
-function wpcomsh_google_fonts_opt_out() {
-	update_option( WPCOMSH_GOOGLE_FONTS_OPTED_OUT, true );
-}
-add_action( 'jetpack_deactivate_module_google-fonts', 'wpcomsh_google_fonts_opt_out' );
-
-/**
- * Clear the opt-out when the user re-activates the Google Fonts module so the
- * default "always available on Atomic" behavior resumes.
- */
-function wpcomsh_google_fonts_opt_in() {
-	delete_option( WPCOMSH_GOOGLE_FONTS_OPTED_OUT );
-}
-add_action( 'jetpack_activate_module_google-fonts', 'wpcomsh_google_fonts_opt_in' );
 
 /**
  * Remove Google Fonts from the old Module list.
