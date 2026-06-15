@@ -1,4 +1,0 @@
-Significance: patch
-Type: changed
-
-useSyncStatus now refreshes initial_full_sync_finished live from each /sync/status poll (seeded from page-load script-data), so the milestone can flip mid-session.
