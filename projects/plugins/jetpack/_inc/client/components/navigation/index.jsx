@@ -46,10 +46,6 @@ export class Navigation extends Component {
 		this.trackNavClick( 'dashboard' );
 	};
 
-	trackOfflineModeClick = () => {
-		this.trackNavClick( 'offline-mode' );
-	};
-
 	trackMyPlanClick = () => {
 		this.trackNavClick( 'my-plan' );
 	};
@@ -110,15 +106,6 @@ export class Navigation extends Component {
 					>
 						{ _x( 'At a Glance', 'Navigation item.', 'jetpack' ) }
 					</NavItem>
-					{ this.props.isOfflineMode && (
-						<NavItem
-							path="#/offline-mode"
-							onClick={ this.trackOfflineModeClick }
-							selected={ this.props.location.pathname === '/offline-mode' }
-						>
-							{ _x( 'Offline Mode', 'Navigation item.', 'jetpack' ) }
-						</NavItem>
-					) }
 					{ ! this.props.isOfflineMode && this.props.isLinked && (
 						<NavItem
 							path="#/my-plan"

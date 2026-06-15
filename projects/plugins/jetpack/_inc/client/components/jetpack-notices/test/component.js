@@ -167,7 +167,7 @@ describe( 'OfflineModeNotice', () => {
 		);
 		expect( screen.getByRole( 'link', { name: 'Manage Offline Mode' } ) ).toHaveAttribute(
 			'href',
-			'#/offline-mode'
+			'admin.php?page=jetpack-offline-mode'
 		);
 	} );
 

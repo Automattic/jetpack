@@ -1,77 +1,14 @@
 @use "@automattic/jetpack-base-styles/admin-page-layout" as *;
 
-body.toplevel_page_jetpack.jetpack-offline-mode-page {
+body.jetpack-offline-mode-page {
 	--jp-offline-mode-canvas-background: #fcfcfc;
 
-	@include jetpack-admin-page-layout;
+	@include jetpack-admin-page-layout-wp-build;
 
 	&,
 	.jp-admin-page,
 	.jp-admin-page__page {
 		background-color: var(--jp-offline-mode-canvas-background);
-	}
-
-	#wpbody-content {
-		background-color: transparent;
-
-		.jp-offline-mode-admin-shell,
-		.boot-layout-container {
-			display: flex;
-			flex: 1 1 auto;
-			flex-direction: column;
-			min-block-size: 0;
-			min-inline-size: 0;
-		}
-
-		.boot-layout {
-			background: #141d22;
-			display: flex;
-			flex: 1 1 auto;
-			inline-size: 100%;
-			inset-block: 0;
-			inset-inline: 0;
-			isolation: isolate;
-			min-block-size: calc(100vh - 32px);
-			min-inline-size: 0;
-			position: absolute;
-		}
-
-		.boot-layout__surfaces {
-			display: flex;
-			flex: 1 1 auto;
-			gap: 8px;
-			margin-block: 0 8px;
-			margin-inline: 0 8px;
-			min-block-size: 0;
-			min-inline-size: 0;
-		}
-
-		.boot-layout__stage {
-			background: #fff;
-			border-radius: 8px;
-			flex: 1 1 auto;
-			min-block-size: 0;
-			min-inline-size: 0;
-			overflow: auto;
-		}
-	}
-
-	@media ( max-width: 782px ) {
-
-		#wpbody-content {
-
-			.boot-layout {
-				min-block-size: calc(100vh - 46px);
-			}
-
-			.boot-layout__surfaces {
-				margin: 0;
-			}
-
-			.boot-layout__stage {
-				border-radius: 0;
-			}
-		}
 	}
 }
 
@@ -94,18 +31,42 @@ body.toplevel_page_jetpack.jetpack-offline-mode-page {
 .jp-offline-mode__content {
 	inline-size: 100%;
 	margin-inline: auto;
-	max-inline-size: 760px;
+	max-inline-size: 880px;
+	padding-block-end: 24px;
+}
+
+.jp-offline-mode__feature-group,
+.jp-offline-mode__requires-connection {
+	box-shadow: none;
+}
+
+.jp-offline-mode__feature-group-header {
+	background: #fff;
+	border-block-end: 1px solid #f0f0f0;
+	min-block-size: 48px;
 }
 
 .jp-offline-mode__feature-row {
 	align-items: flex-start;
 	display: grid;
-	gap: 16px;
-	grid-template-columns: minmax(160px, 220px) minmax(0, 1fr) auto;
+	gap: 16px 20px;
+	grid-template-columns: minmax(168px, 224px) minmax(0, 1fr) minmax(148px, max-content);
+
+	.components-toggle-control {
+		margin-block-start: -2px;
+	}
+
+	.components-toggle-control__label {
+		font-weight: 500;
+	}
 }
 
 .jp-offline-mode__feature-copy {
 	min-inline-size: 0;
+
+	p {
+		margin-block: 0;
+	}
 }
 
 .jp-offline-mode__feature-name {
@@ -125,13 +86,34 @@ body.toplevel_page_jetpack.jetpack-offline-mode-page {
 }
 
 .jp-offline-mode__limitation {
-	margin-block: 12px 0;
+	grid-column: 2 / 4;
+	min-inline-size: 0;
+}
+
+.jp-offline-mode__limitation-notice {
+	margin-block: 0;
 	margin-inline: 0;
+}
+
+.jp-offline-mode__feature-badges {
+	min-inline-size: 0;
+
+	.components-badge {
+		white-space: nowrap;
+	}
 }
 
 @media ( max-width: 782px ) {
 
 	.jp-offline-mode__feature-row {
 		grid-template-columns: 1fr;
+	}
+
+	.jp-offline-mode__limitation {
+		grid-column: 1;
+	}
+
+	.jp-offline-mode__feature-badges {
+		justify-content: flex-start;
 	}
 }

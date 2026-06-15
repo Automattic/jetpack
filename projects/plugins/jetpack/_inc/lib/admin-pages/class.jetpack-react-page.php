@@ -137,14 +137,14 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 			'jetpack-forms-admin',
 			'jetpack-forms-responses-wp-admin',
 			'jetpack-newsletter',
+			'jetpack-offline-mode',
 		);
 
 		if ( in_array( $menu_slug, $allowed_slugs, true ) ) {
 			return true;
 		}
 
-		return false !== strpos( $menu_slug, 'page=jetpack#/offline-mode' )
-			|| false !== strpos( $menu_slug, 'page=jetpack#/settings' );
+		return false !== strpos( $menu_slug, 'page=jetpack#/settings' );
 	}
 
 	/**

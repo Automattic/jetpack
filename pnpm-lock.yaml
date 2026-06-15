@@ -5734,6 +5734,9 @@ importers:
       '@wordpress/a11y':
         specifier: 4.48.0
         version: 4.48.0
+      '@wordpress/admin-ui':
+        specifier: 2.1.0
+        version: 2.1.0(@types/react@18.3.28)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/base-styles':
         specifier: 9.1.0
         version: 9.1.0
@@ -5743,6 +5746,9 @@ importers:
       '@wordpress/blocks':
         specifier: 15.21.0
         version: 15.21.0(react@18.3.1)
+      '@wordpress/boot':
+        specifier: 0.14.1
+        version: 0.14.1(@types/react-dom@18.3.7(@types/react@18.3.28))(@types/react@18.3.28)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/browserslist-config':
         specifier: 6.48.0
         version: 6.48.0
@@ -5779,6 +5785,9 @@ importers:
       '@wordpress/primitives':
         specifier: 4.48.0
         version: 4.48.0(react@18.3.1)
+      '@wordpress/route':
+        specifier: 0.13.1
+        version: 0.13.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/rich-text':
         specifier: 7.48.0
         version: 7.48.0(react@18.3.1)
@@ -5957,6 +5966,9 @@ importers:
       '@types/react':
         specifier: 18.3.28
         version: 18.3.28
+      '@types/react-dom':
+        specifier: 18.3.7
+        version: 18.3.7(@types/react@18.3.28)
       '@types/wordpress__block-editor':
         specifier: 15.0.6
         version: 15.0.6(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -5972,6 +5984,9 @@ importers:
       '@wordpress/block-serialization-default-parser':
         specifier: 5.48.0
         version: 5.48.0
+      '@wordpress/build':
+        specifier: 0.14.0
+        version: 0.14.0(@babel/core@7.29.0)(@wordpress/boot@0.14.1(@types/react-dom@18.3.7(@types/react@18.3.28))(@types/react@18.3.28)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@wordpress/route@0.13.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@wordpress/theme@0.15.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(browserslist@4.28.2)
       '@wordpress/components':
         specifier: 35.0.0
         version: 35.0.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -6002,6 +6017,9 @@ importers:
       babel-jest:
         specifier: 30.4.1
         version: 30.4.1(@babel/core@7.29.0)
+      browserslist:
+        specifier: ^4.24.0
+        version: 4.28.2
       concurrently:
         specifier: 10.0.3
         version: 10.0.3

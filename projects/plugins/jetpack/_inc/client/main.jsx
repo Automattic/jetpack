@@ -31,7 +31,6 @@ import Tracker from 'components/tracker';
 import { imagePath } from 'constants/urls';
 import analytics from 'lib/analytics';
 import MyPlan from 'my-plan/index.jsx';
-import OfflineMode from 'offline-mode';
 import ProductDescriptions from 'product-descriptions';
 import { productDescriptionRoutes } from 'product-descriptions/constants';
 import { Recommendations } from 'recommendations';
@@ -286,6 +285,10 @@ class Main extends Component {
 		}
 
 		return this.props.location.pathname;
+	}
+
+	getOfflineModeAdminUrl() {
+		return `${ this.props.siteAdminUrl }admin.php?page=jetpack-offline-mode`;
 	}
 
 	maybeRedirectToEffectiveRoute() {
@@ -564,9 +567,7 @@ class Main extends Component {
 					pageComponent = this.getAtAGlance();
 					break;
 				}
-				pageComponent = (
-					<OfflineMode apiNonce={ this.props.apiNonce } apiRoot={ this.props.apiRoot } />
-				);
+				window.location.href = this.getOfflineModeAdminUrl();
 				break;
 			case '/newsletter':
 				window.location.href = `${ this.props.siteAdminUrl }admin.php?page=jetpack-newsletter`;
@@ -884,16 +885,10 @@ class Main extends Component {
 
 		if ( this.isOfflineModeRoute( pathname ) && this.props.isOfflineMode ) {
 			return (
-				<div className="jp-offline-mode-admin-shell boot-layout-container">
-					<div className="boot-layout boot-layout--single-page">
-						<div className="boot-layout__surfaces">
-							<div className="boot-layout__stage">
-								<NoticesList />
-								{ this.renderMainContent( pathname ) }
-								<Tracker analytics={ analytics } />
-							</div>
-						</div>
-					</div>
+				<div>
+					<NoticesList />
+					{ this.renderMainContent( pathname ) }
+					<Tracker analytics={ analytics } />
 				</div>
 			);
 		}

@@ -131,7 +131,7 @@ class Jetpack_Offline_Mode_Features {
 				'name'              => __( 'Newsletter', 'jetpack' ),
 				'description'       => $module['description'] ?? __( 'Grow your subscriber list and deliver your content directly to their email inbox.', 'jetpack' ),
 				'type'              => self::TYPE_PARTIAL,
-				'group'             => 'audience',
+				'group'             => 'newsletter',
 				'active'            => Jetpack::is_module_active( 'subscriptions' ),
 				'available'         => true,
 				'recommended'       => false,
@@ -149,7 +149,7 @@ class Jetpack_Offline_Mode_Features {
 				'name'              => __( 'Boost', 'jetpack' ),
 				'description'       => __( 'Use Jetpack Boost performance tools that can run on a local site.', 'jetpack' ),
 				'type'              => self::TYPE_PARTIAL,
-				'group'             => 'performance',
+				'group'             => 'boost',
 				'active'            => true,
 				'available'         => true,
 				'recommended'       => false,
@@ -176,7 +176,7 @@ class Jetpack_Offline_Mode_Features {
 				'name'              => __( 'Theme tools', 'jetpack' ),
 				'description'       => __( 'Use Jetpack theme integrations that are loaded automatically for local development.', 'jetpack' ),
 				'type'              => self::TYPE_ALWAYS_AVAILABLE,
-				'group'             => 'theme',
+				'group'             => 'design',
 				'active'            => true,
 				'available'         => true,
 				'recommended'       => false,
@@ -266,13 +266,17 @@ class Jetpack_Offline_Mode_Features {
 	 */
 	public static function get_groups() {
 		return array(
-			'content'     => __( 'Content and editor', 'jetpack' ),
-			'audience'    => __( 'Audience and engagement', 'jetpack' ),
-			'media'       => __( 'Media', 'jetpack' ),
-			'performance' => __( 'Performance', 'jetpack' ),
-			'traffic'     => __( 'Traffic and discovery', 'jetpack' ),
-			'theme'       => __( 'Theme enhancements', 'jetpack' ),
-			'other'       => __( 'Other local features', 'jetpack' ),
+			'boost'              => __( 'Boost', 'jetpack' ),
+			'protect'            => __( 'Protect', 'jetpack' ),
+			'forms'              => __( 'Forms', 'jetpack' ),
+			'newsletter'         => __( 'Newsletter', 'jetpack' ),
+			'search'             => __( 'Search', 'jetpack' ),
+			'social'             => __( 'Social', 'jetpack' ),
+			'media'              => __( 'Media', 'jetpack' ),
+			'writing'            => __( 'Writing', 'jetpack' ),
+			'design'             => __( 'Design', 'jetpack' ),
+			'vaultpress-backups' => __( 'VaultPress Backup', 'jetpack' ),
+			'other'              => __( 'Other local features', 'jetpack' ),
 		);
 	}
 
@@ -370,25 +374,25 @@ class Jetpack_Offline_Mode_Features {
 				'activity-log',
 				__( 'Activity Log', 'jetpack' ),
 				__( 'Requires a WordPress.com connection to collect, sync, and display site activity history.', 'jetpack' ),
-				'security'
+				'protect'
 			),
 			'jetpack-ai'   => self::get_requires_connection_feature(
 				'jetpack-ai',
 				__( 'Jetpack AI', 'jetpack' ),
 				__( 'Requires a WordPress.com connection to generate, process, and manage AI content.', 'jetpack' ),
-				'content'
+				'writing'
 			),
 			'payments'     => self::get_requires_connection_feature(
 				'payments',
 				__( 'Payments and paid content', 'jetpack' ),
 				__( 'Requires a WordPress.com connection for payment accounts, paid plans, subscriber authentication, and checkout flows.', 'jetpack' ),
-				'audience'
+				'newsletter'
 			),
 			'scan'         => self::get_requires_connection_feature(
 				'scan',
 				__( 'Jetpack Scan', 'jetpack' ),
 				__( 'Requires a WordPress.com connection to scan site files and receive security results.', 'jetpack' ),
-				'security'
+				'protect'
 			),
 		);
 	}
@@ -532,11 +536,15 @@ class Jetpack_Offline_Mode_Features {
 	 */
 	private static function get_module_group( $module ) {
 		$groups = array(
-			'content'  => array( 'blocks', 'contact-form', 'copy-post', 'custom-content-types', 'latex', 'markdown', 'shortcodes' ),
-			'audience' => array( 'gravatar-hovercards', 'sharedaddy', 'wpcom-reader' ),
-			'media'    => array( 'carousel', 'photon-cdn', 'tiled-gallery' ),
-			'traffic'  => array( 'canonical-urls', 'seo-tools', 'sitemaps', 'verification-tools' ),
-			'theme'    => array( 'google-fonts', 'infinite-scroll', 'post-list', 'widget-visibility', 'widgets' ),
+			'protect'            => array( 'activity-log', 'monitor', 'protect', 'scan', 'sso', 'waf' ),
+			'forms'              => array( 'contact-form' ),
+			'newsletter'         => array( 'memberships', 'payments', 'subscriptions' ),
+			'search'             => array( 'canonical-urls', 'related-posts', 'search', 'seo-tools', 'sitemaps', 'stats', 'verification-tools' ),
+			'social'             => array( 'comment-likes', 'comments', 'gravatar-hovercards', 'publicize', 'sharedaddy', 'wordads', 'wpcom-reader' ),
+			'media'              => array( 'carousel', 'photon', 'photon-cdn', 'tiled-gallery', 'videopress' ),
+			'writing'            => array( 'blocks', 'copy-post', 'custom-content-types', 'jetpack-ai', 'latex', 'markdown', 'post-by-email', 'shortcodes' ),
+			'design'             => array( 'google-fonts', 'infinite-scroll', 'post-list', 'theme-tools', 'widget-visibility', 'widgets' ),
+			'vaultpress-backups' => array( 'vaultpress' ),
 		);
 
 		foreach ( $groups as $group => $modules ) {

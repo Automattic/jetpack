@@ -1,3 +1,4 @@
+import { readFileSync } from 'fs';
 import userEvent from '@testing-library/user-event';
 import apiFetch from '@wordpress/api-fetch';
 import { act, render, screen, waitFor } from 'test/test-utils';
@@ -24,15 +25,24 @@ describe( 'OfflineMode', () => {
 			screen.findByRole( 'heading', { name: 'Offline Mode' } )
 		).resolves.toBeInTheDocument();
 		expect( screen.queryByText( '2 offline-safe' ) ).not.toBeInTheDocument();
-		expect( screen.getByRole( 'heading', { name: 'Content and editor' } ) ).toBeInTheDocument();
+		expect(
+			screen.queryByRole( 'heading', { name: 'Content and editor' } )
+		).not.toBeInTheDocument();
+		expect( screen.getByRole( 'heading', { level: 2, name: 'Forms' } ) ).toBeInTheDocument();
 		expect( screen.getByRole( 'checkbox', { name: 'Forms' } ) ).toBeChecked();
+		expect( screen.getByRole( 'heading', { level: 2, name: 'Writing' } ) ).toBeInTheDocument();
 		expect( screen.getByRole( 'checkbox', { name: 'Blocks' } ) ).not.toBeChecked();
+		expect( screen.getByRole( 'heading', { level: 2, name: 'Newsletter' } ) ).toBeInTheDocument();
 		expect( screen.getByRole( 'checkbox', { name: 'Newsletter' } ) ).not.toBeChecked();
-		expect( screen.getByRole( 'heading', { name: 'Performance' } ) ).toBeInTheDocument();
-		expect( screen.getByRole( 'heading', { name: 'Boost' } ) ).toBeInTheDocument();
+		expect( screen.queryByRole( 'heading', { name: 'Performance' } ) ).not.toBeInTheDocument();
+		expect( screen.getByRole( 'heading', { level: 2, name: 'Boost' } ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'heading', { level: 3, name: 'Boost' } ) ).toBeInTheDocument();
 		expect( screen.queryByRole( 'checkbox', { name: 'Boost' } ) ).not.toBeInTheDocument();
-		expect( screen.getByRole( 'heading', { name: 'Theme enhancements' } ) ).toBeInTheDocument();
-		expect( screen.getByRole( 'heading', { name: 'Theme tools' } ) ).toBeInTheDocument();
+		expect(
+			screen.queryByRole( 'heading', { name: 'Theme enhancements' } )
+		).not.toBeInTheDocument();
+		expect( screen.getByRole( 'heading', { level: 2, name: 'Design' } ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'heading', { level: 3, name: 'Theme tools' } ) ).toBeInTheDocument();
 		expect( screen.queryByRole( 'checkbox', { name: 'Theme tools' } ) ).not.toBeInTheDocument();
 		expect( screen.getAllByText( 'Always available' ) ).toHaveLength( 2 );
 		expect( screen.getAllByText( 'Recommended' ) ).toHaveLength( 2 );
@@ -68,6 +78,38 @@ describe( 'OfflineMode', () => {
 			'href',
 			'https://jetpack.com/redirect/?url=https%3A%2F%2Fjetpack.com%2Fsupport%2Fnewsletter'
 		);
+	} );
+
+	it( 'renders limitation notices as row-level content for wider layout', async () => {
+		render(
+			<OfflineMode
+				activateModule={ jest.fn() }
+				deactivateModule={ jest.fn() }
+				fetchModules={ jest.fn() }
+			/>
+		);
+
+		const limitationNotice = await screen.findByRole( 'note', {
+			name: 'Newsletter limitation',
+		} );
+
+		expect( limitationNotice ).toHaveClass( 'jp-offline-mode__limitation' );
+		expect( limitationNotice ).toHaveTextContent( 'Email delivery still requires a connection.' );
+	} );
+
+	it( 'uses the modern wp-build admin page layout', () => {
+		const offlineModeStyles = readFileSync( `${ __dirname }/../style.scss`, 'utf8' );
+
+		expect( offlineModeStyles ).toContain( '@include jetpack-admin-page-layout-wp-build;' );
+		expect( offlineModeStyles ).not.toContain( 'boot-layout' );
+		expect( offlineModeStyles ).not.toContain( '#wpwrap' );
+	} );
+
+	it( 'hands legacy Offline Mode hash routes off to the boot-backed admin page', () => {
+		const mainSource = readFileSync( `${ __dirname }/../../main.jsx`, 'utf8' );
+
+		expect( mainSource ).toContain( 'admin.php?page=jetpack-offline-mode' );
+		expect( mainSource ).not.toContain( '<OfflineMode' );
 	} );
 
 	it( 'renders a separate informational list for features that require a connection', async () => {

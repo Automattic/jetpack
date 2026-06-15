@@ -101,7 +101,9 @@ export class OfflineModeNotice extends Component {
 						'Jetpack is running in Offline Mode because this site is local or unavailable to WordPress.com.',
 						'jetpack'
 					) }{ ' ' }
-					<a href="#/offline-mode">{ __( 'Manage Offline Mode', 'jetpack' ) }</a>
+					<a href="admin.php?page=jetpack-offline-mode">
+						{ __( 'Manage Offline Mode', 'jetpack' ) }
+					</a>
 					{ detectedBy && (
 						<>
 							<br />

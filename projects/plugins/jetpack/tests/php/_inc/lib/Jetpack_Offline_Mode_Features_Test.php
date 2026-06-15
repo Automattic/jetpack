@@ -67,9 +67,28 @@ class Jetpack_Offline_Mode_Features_Test extends WP_UnitTestCase {
 		$this->assertSame( '', $partials['boost']['module'] );
 		$this->assertSame( 'partial', $partials['boost']['type'] );
 		$this->assertFalse( $partials['boost']['toggleable'] );
-		$this->assertSame( 'performance', $partials['boost']['group'] );
+		$this->assertSame( 'boost', $partials['boost']['group'] );
 		$this->assertStringContainsString( 'Image Guide', $partials['boost']['limitation'] );
 		$this->assertStringContainsString( 'Speed scores', $partials['boost']['limitation'] );
+	}
+
+	public function test_get_groups_returns_product_focused_categories() {
+		$this->assertSame(
+			array(
+				'boost'              => 'Boost',
+				'protect'            => 'Protect',
+				'forms'              => 'Forms',
+				'newsletter'         => 'Newsletter',
+				'search'             => 'Search',
+				'social'             => 'Social',
+				'media'              => 'Media',
+				'writing'            => 'Writing',
+				'design'             => 'Design',
+				'vaultpress-backups' => 'VaultPress Backup',
+				'other'              => 'Other local features',
+			),
+			Jetpack_Offline_Mode_Features::get_groups()
+		);
 	}
 
 	public function test_get_dashboard_data_lists_offline_modules_and_partials() {
@@ -106,7 +125,20 @@ class Jetpack_Offline_Mode_Features_Test extends WP_UnitTestCase {
 		$this->assertSame( 'always_available', $features['theme-tools']['type'] );
 		$this->assertFalse( $features['theme-tools']['toggleable'] );
 		$this->assertTrue( $features['theme-tools']['active'] );
-		$this->assertSame( 'theme', $features['theme-tools']['group'] );
+		$this->assertSame( 'design', $features['theme-tools']['group'] );
+	}
+
+	public function test_get_dashboard_data_assigns_offline_features_to_product_groups() {
+		$data     = Jetpack_Offline_Mode_Features::get_dashboard_data();
+		$features = array_combine( wp_list_pluck( $data['features'], 'slug' ), $data['features'] );
+
+		$this->assertSame( 'forms', $features['contact-form']['group'] );
+		$this->assertSame( 'writing', $features['blocks']['group'] );
+		$this->assertSame( 'newsletter', $features['newsletter']['group'] );
+		$this->assertSame( 'search', $features['seo-tools']['group'] );
+		$this->assertSame( 'media', $features['tiled-gallery']['group'] );
+		$this->assertSame( 'design', $features['widget-visibility']['group'] );
+		$this->assertSame( 'social', $features['sharedaddy']['group'] );
 	}
 
 	public function test_get_dashboard_data_lists_connection_required_modules_outside_toggleable_features() {
@@ -134,6 +166,19 @@ class Jetpack_Offline_Mode_Features_Test extends WP_UnitTestCase {
 		$this->assertContains( 'scan', $requires_connection );
 		$this->assertContains( 'activity-log', $requires_connection );
 		$this->assertContains( 'payments', $requires_connection );
+	}
+
+	public function test_get_dashboard_data_assigns_connection_required_features_to_product_groups() {
+		$data                = Jetpack_Offline_Mode_Features::get_dashboard_data();
+		$requires_connection = array_combine( wp_list_pluck( $data['requires_connection'], 'slug' ), $data['requires_connection'] );
+
+		$this->assertSame( 'protect', $requires_connection['scan']['group'] );
+		$this->assertSame( 'protect', $requires_connection['activity-log']['group'] );
+		$this->assertSame( 'newsletter', $requires_connection['payments']['group'] );
+
+		if ( isset( $requires_connection['search'] ) ) {
+			$this->assertSame( 'search', $requires_connection['search']['group'] );
+		}
 	}
 
 	public function test_get_dashboard_data_labels_enhanced_comments_clearly() {

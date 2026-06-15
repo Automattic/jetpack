@@ -43,6 +43,8 @@ class Jetpack_Admin_Menu_Test extends WP_UnitTestCase {
 		Jetpack_Options::delete_option( 'blog_token' );
 		Jetpack_Options::delete_option( 'user_tokens' );
 		remove_filter( 'jetpack_offline_mode', '__return_true' );
+		remove_all_actions( 'load-jetpack_page_jetpack-offline-mode' );
+		\Automattic\Jetpack\Admin_UI\Admin_Menu::remove_menu( 'jetpack-offline-mode' );
 		StatusCache::clear();
 	}
 
@@ -100,12 +102,13 @@ class Jetpack_Admin_Menu_Test extends WP_UnitTestCase {
 		global $submenu;
 
 		require_once JETPACK__PLUGIN_DIR . '_inc/lib/admin-pages/class.jetpack-react-page.php';
+		require_once JETPACK__PLUGIN_DIR . '_inc/lib/admin-pages/class-jetpack-offline-mode-page.php';
 
 		$jetpack_react      = new Jetpack_React_Page();
 		$submenu['jetpack'] = array(
 			array( 'Dashboard', 'jetpack_admin_page', 'jetpack', 'Dashboard' ),
+			array( 'Offline Mode', 'manage_options', Jetpack_Offline_Mode_Page::MENU_SLUG, 'Offline Mode' ),
 			array( 'Boost', 'jetpack_admin_page', 'jetpack-boost', 'Boost' ),
-			array( 'Offline Mode', 'jetpack_admin_page', Jetpack::admin_url( array( 'page' => 'jetpack#/offline-mode' ) ), 'Offline Mode' ),
 			array( 'Forms', 'edit_pages', 'jetpack-forms-admin', 'Jetpack Forms' ),
 			array( 'Newsletter', 'manage_options', 'jetpack-newsletter', 'Newsletter' ),
 			array( 'Settings', 'jetpack_admin_page', Jetpack::admin_url( array( 'page' => 'jetpack#/settings' ) ), 'Settings' ),
@@ -129,8 +132,8 @@ class Jetpack_Admin_Menu_Test extends WP_UnitTestCase {
 
 			$this->assertSame(
 				array(
-					'Boost',
 					'Offline Mode',
+					'Boost',
 					'Jetpack Forms',
 					'Newsletter',
 					'Settings',
@@ -142,6 +145,63 @@ class Jetpack_Admin_Menu_Test extends WP_UnitTestCase {
 			remove_filter( 'jetpack_offline_mode', '__return_true' );
 			StatusCache::clear();
 		}
+	}
+
+	/**
+	 * Test the Offline Mode page is not added when Jetpack is online.
+	 */
+	public function test_offline_mode_menu_item_is_not_added_when_online() {
+		require_once JETPACK__PLUGIN_DIR . '_inc/lib/admin-pages/class-jetpack-offline-mode-page.php';
+
+		StatusCache::clear();
+
+		$this->assertNull( Jetpack_Offline_Mode_Page::add_menu_item() );
+		$this->assertFalse(
+			has_action( 'load-jetpack_page_jetpack-offline-mode', array( 'Jetpack_Offline_Mode_Page', 'admin_init' ) )
+		);
+	}
+
+	/**
+	 * Test the Offline Mode page is added when Jetpack is offline.
+	 */
+	public function test_offline_mode_menu_item_is_added_when_offline() {
+		require_once JETPACK__PLUGIN_DIR . '_inc/lib/admin-pages/class-jetpack-offline-mode-page.php';
+
+		StatusCache::clear();
+		add_filter( 'jetpack_offline_mode', '__return_true' );
+
+		try {
+			$this->assertSame( 'jetpack_page_jetpack-offline-mode', Jetpack_Offline_Mode_Page::add_menu_item() );
+			$this->assertNotFalse(
+				has_action( 'load-jetpack_page_jetpack-offline-mode', array( 'Jetpack_Offline_Mode_Page', 'admin_init' ) )
+			);
+		} finally {
+			remove_filter( 'jetpack_offline_mode', '__return_true' );
+			StatusCache::clear();
+		}
+	}
+
+	/**
+	 * Test the Offline Mode page is the first queued Jetpack package submenu item.
+	 */
+	public function test_offline_mode_menu_item_uses_first_package_menu_position() {
+		require_once JETPACK__PLUGIN_DIR . '_inc/lib/admin-pages/class-jetpack-offline-mode-page.php';
+
+		$this->assertSame( 1, Jetpack_Offline_Mode_Page::MENU_POSITION );
+	}
+
+	/**
+	 * Test the internal wp-build page slug does not intercept the wp-admin Offline Mode URL.
+	 */
+	public function test_offline_mode_wp_build_slug_does_not_match_menu_slug() {
+		require_once JETPACK__PLUGIN_DIR . '_inc/lib/admin-pages/class-jetpack-offline-mode-page.php';
+
+		$this->assertSame( 'jetpack-offline-mode', Jetpack_Offline_Mode_Page::MENU_SLUG );
+		$this->assertNotSame(
+			Jetpack_Offline_Mode_Page::MENU_SLUG,
+			Jetpack_Offline_Mode_Page::WP_BUILD_SLUG,
+			'The generated full-page wp-build slug must stay distinct from the wp-admin menu slug.'
+		);
 	}
 
 	/**
