@@ -1,6 +1,8 @@
 <?php
 /**
- * Tests for Render_Blocking_JS::is_opened_script()
+ * Tests for the Render_Blocking_JS module: is_opened_script() detection and the
+ * inline-script handling that keeps position-dependent document.write() scripts
+ * in place when Defer JS moves other scripts to the end of the document.
  *
  * @package automattic/jetpack-boost
  */
@@ -216,6 +218,25 @@ class Render_Blocking_JS_Test extends MockeryTestCase {
 	 */
 	private function filter_output( $html ) {
 		list( $buffer_start, $buffer_end ) = $this->instance->handle_output_stream( $html, '' );
+
+		return $this->instance->append_script_tags( $buffer_start . $buffer_end );
+	}
+
+	/**
+	 * Like filter_output(), but split the page into two output-buffer chunks at
+	 * the given offset, mirroring how Output_Filter feeds handle_output_stream()
+	 * a (buffer_start, buffer_end) pair. Guards against a future refactor that
+	 * scans a single chunk instead of the joint buffer.
+	 *
+	 * @param string $html  Page HTML.
+	 * @param int    $split Byte offset to split the page at.
+	 * @return string Filtered output.
+	 */
+	private function split_filter_output( $html, $split ) {
+		list( $buffer_start, $buffer_end ) = $this->instance->handle_output_stream(
+			substr( $html, 0, $split ),
+			substr( $html, $split )
+		);
 
 		return $this->instance->append_script_tags( $buffer_start . $buffer_end );
 	}
@@ -450,6 +471,55 @@ class Render_Blocking_JS_Test extends MockeryTestCase {
 		$this->assertLessThan( strpos( $output, '<p>After</p>' ), strpos( $output, 'document.write' ) );
 		// The movable script is appended at the very end (no </body> present).
 		$this->assertStringContainsString( 'console.log("movable");</script>', $output );
+		$this->assertLessThan( strpos( $output, 'console.log' ), strpos( $output, '<p>After</p>' ) );
+	}
+
+	/**
+	 * Test that an uppercase/mixed-case <SCRIPT> tag using document.write is
+	 * pinned. The tag matcher is case-insensitive and add_ignore_attribute() uses
+	 * str_ireplace(), so the opening tag is tagged (and normalized to lowercase,
+	 * which is semantically identical) rather than left movable — the existing
+	 * case-insensitivity test only varies the JS call casing, not the tag.
+	 */
+	public function test_uppercase_script_tag_with_document_write_is_pinned() {
+		$html = '<html><body><p>Before</p>' .
+			'<SCRIPT>document.write("upper");</SCRIPT>' .
+			'<script>console.log("sibling");</script>' .
+			'<p>After</p></body></html>';
+
+		$output = $this->filter_output( $html );
+
+		// Pinned in place and given the ignore attribute despite the uppercase tag.
+		$this->assertStringContainsString( 'document.write("upper");', $output );
+		$this->assertStringContainsString( 'data-jetpack-boost="ignore"', $output );
+		$this->assertLessThan( strpos( $output, 'document.write' ), strpos( $output, '<p>Before</p>' ) );
+		$this->assertLessThan( strpos( $output, '<p>After</p>' ), strpos( $output, 'document.write' ) );
+
+		// Sibling movable script still relocated past the content.
+		$this->assertLessThan( strpos( $output, 'console.log' ), strpos( $output, '<p>After</p>' ) );
+	}
+
+	/**
+	 * Test that a document.write script split across two output-buffer chunks is
+	 * still pinned. Output_Filter pins on the joint buffer, so the split must not
+	 * matter; this guards against a refactor that scans a single chunk alone.
+	 */
+	public function test_document_write_script_pinned_across_buffer_split() {
+		$html = '<html><body><p>Before</p>' .
+			'<script>document.write("inline content");</script>' .
+			'<script>console.log("sibling");</script>' .
+			'<p>After</p></body></html>';
+
+		// Split inside the document.write script body, so the opening tag lands in
+		// buffer_start and the closing tag in buffer_end.
+		$split  = strpos( $html, 'inline content' ) + 3;
+		$output = $this->split_filter_output( $html, $split );
+
+		$this->assertStringContainsString( 'document.write("inline content");', $output );
+		$this->assertLessThan( strpos( $output, 'document.write' ), strpos( $output, '<p>Before</p>' ) );
+		$this->assertLessThan( strpos( $output, '<p>After</p>' ), strpos( $output, 'document.write' ) );
+
+		// Sibling movable script still relocated past the content.
 		$this->assertLessThan( strpos( $output, 'console.log' ), strpos( $output, '<p>After</p>' ) );
 	}
 }

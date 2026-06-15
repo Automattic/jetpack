@@ -304,7 +304,9 @@ class Render_Blocking_JS implements Feature, Changes_Output_On_Activation, Optim
 		}
 
 		// Match inline scripts only (no src attribute) that do not already carry
-		// the ignore attribute.
+		// the ignore attribute. This runs on the buffer Output_Filter hands us
+		// (a bounded window), not a whole page; the lazy [\s\S]*? would be
+		// superlinear on a multi-megabyte single buffer, so keep it window-scoped.
 		$inline_script_regex = '~<script\b(?![^>]*\ssrc\s*=)' . $this->ignore_attribute_lookahead() . '[^>]*>[\s\S]*?</script>~i';
 
 		$result = preg_replace_callback(
@@ -430,14 +432,18 @@ class Render_Blocking_JS implements Feature, Changes_Output_On_Activation, Optim
 	}
 
 	/**
-	 * Add the ignore attribute to the script tags
+	 * Add the ignore attribute to the script tags.
+	 *
+	 * Case-insensitive so uppercase/mixed-case tags (`<SCRIPT>`, valid HTML and
+	 * common in hand-written Custom HTML / legacy embeds) are handled too; a
+	 * case-sensitive match would silently no-op on them and leave them movable.
 	 *
 	 * @param string $html HTML code possibly containing a <script> opening tag.
 	 *
 	 * @return string
 	 */
 	public function add_ignore_attribute( $html ) {
-		return str_replace( '<script', sprintf( '<script %s="%s"', esc_html( $this->ignore_attribute ), esc_attr( $this->ignore_value ) ), $html );
+		return str_ireplace( '<script', sprintf( '<script %s="%s"', esc_html( $this->ignore_attribute ), esc_attr( $this->ignore_value ) ), $html );
 	}
 
 	/**
