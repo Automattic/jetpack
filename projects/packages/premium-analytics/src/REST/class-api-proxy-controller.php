@@ -71,22 +71,40 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 	private const FORWARDED_HEADERS = array( 'x-wp-total', 'x-wp-totalpages' );
 
 	/**
-	 * Per-prefix configuration — the single source of truth for everything the proxy needs to
-	 * know about a top-level resource group. The keys are also the security boundary: the route
-	 * only matches these prefixes, so the blog token can never be driven against the whole WPCOM
-	 * site API. Adding or changing an endpoint group is a one-entry edit here, not a sweep across
-	 * the permission / write / cache / path methods, all of which read from this table.
+	 * Per-prefix configuration — the single source of truth for every proxied endpoint group.
+	 * The route regex, permission check, write gate, cache-busting, and path builder all read
+	 * from this table, so an endpoint group is defined here and nowhere else.
 	 *
-	 * Per entry:
-	 *  - `capability` (string, required) Capability that grants access; `manage_options` always
-	 *                  grants too, so `analytics` (capability `manage_options`) stays admin-only.
-	 *  - `writes`     (string[])  Sub-paths a non-GET (POST) may reach. Trailing `/` = this prefix
-	 *                  and any sub-path; no trailing `/` = that exact endpoint only. Absent =
-	 *                  read-only.
-	 *  - `cache_bust` (bool)      Whether a successful write invalidates the matching read cache.
-	 *  - `path`       (string)    A printf template (`%d` = blog ID) for endpoints not scoped under
-	 *                  `/sites/<id>/` (e.g. `upgrades`). A prefix with a fixed `path` takes no
-	 *                  sub-path. Absent = `/sites/<id>/<endpoint>`.
+	 * The keys double as the security boundary: a request is only routed (and the blog token only
+	 * forwarded) if its first path segment is a key here — so the proxy can never be driven
+	 * against the whole WPCOM site API. Keep keys lowercase; they are matched case-insensitively.
+	 *
+	 * A request maps to `proxy/v<version>/<key>/<sub-path>` →
+	 * `/sites/<blog-id>/<key>/<sub-path>` (the caller chooses `<version>`; the base is derived).
+	 *
+	 * Fields per entry:
+	 *  - `capability` (string, required) Capability granting access. `manage_options` is always
+	 *                  also accepted, so a value of `manage_options` means "admins only". A
+	 *                  missing/unknown value fails closed (denies).
+	 *  - `writes`     (string[], optional) Sub-paths reachable with POST (the only write verb).
+	 *                  Each matcher: trailing `/` = that sub-path and anything under it; no
+	 *                  trailing `/` = that exact endpoint only. Omit for a read-only group.
+	 *  - `cache_bust` (bool, optional) If true, a successful POST clears the matching read cache.
+	 *                  Only meaningful alongside `writes`.
+	 *  - `path`       (string, optional) printf template (`%d` = blog id) for groups NOT under
+	 *                  `/sites/<id>/` (e.g. `upgrades` → `/upgrades?site=%d`). A group with a
+	 *                  fixed `path` takes no sub-path. Omit for the normal `/sites/<id>/<key>/…`.
+	 *
+	 * Maintaining endpoints (this table is the only edit needed for a pass-through endpoint):
+	 *  - ADD a group:   add a key with at least `capability`. Reads work immediately at
+	 *                   `proxy/v<version>/<key>/<sub-path>`. The frontend picks the WPCOM version.
+	 *  - ALLOW writes:  add `writes` (and `cache_bust` if a write should freshen a cached read).
+	 *  - CHANGE access: edit `capability` (e.g. tighten a group to `manage_options`).
+	 *  - REMOVE a group: delete its key — the route stops matching it and it 404s.
+	 *  - Cover it with a row in `data_endpoint_matrix()` (capability / writable / WPCOM path).
+	 *  - NOTE: this is for transparent WPCOM forwards only. Endpoints needing local processing
+	 *    (DB reads, body rewrites, the Notices class, …) are NOT proxied — they get their own
+	 *    routes outside `proxy/`; do not add them here.
 	 *
 	 * @var array<string, array<string, mixed>>
 	 */
