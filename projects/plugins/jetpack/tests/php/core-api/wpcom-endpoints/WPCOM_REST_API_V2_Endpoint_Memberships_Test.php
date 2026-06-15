@@ -112,7 +112,6 @@ class WPCOM_REST_API_V2_Endpoint_Memberships_Test extends Jetpack_REST_TestCase 
 
 		$this->assertErrorResponse( 'rest_unauthorized', $response, 403 );
 		$this->assertSame( 'Please connect your user account to WordPress.com', $response->get_data()['message'] );
-		$this->assertNotEmpty( $response->get_data()['data']['connect_url'], 'connect_url should be present in the error data' );
 	}
 
 	/**

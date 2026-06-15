@@ -8,10 +8,13 @@ import {
 } from '../actions';
 import { API_STATE_NOTCONNECTED } from '../constants';
 import { getPostEmailSentState, getProducts, getTotalEmailsSentCount } from '../resolvers';
-import * as utils from '../utils';
 
 const mockCreateNotice = jest.fn();
-const mockNoticesDispatch = jest.fn( () => ( { createNotice: mockCreateNotice } ) );
+const mockCreateErrorNotice = jest.fn();
+const mockNoticesDispatch = jest.fn( () => ( {
+	createNotice: mockCreateNotice,
+	createErrorNotice: mockCreateErrorNotice,
+} ) );
 
 jest.mock( '@wordpress/api-fetch' );
 jest.mock( '@automattic/jetpack-connection', () => ( {
@@ -33,7 +36,6 @@ describe( 'Membership Products Resolvers', () => {
 	beforeEach( () => {
 		jest.clearAllMocks();
 		executionLock.clearAll();
-		jest.spyOn( utils, 'onError' ).mockImplementation( () => {} );
 	} );
 
 	describe( 'getPostEmailSentState', () => {
@@ -77,7 +79,7 @@ describe( 'Membership Products Resolvers', () => {
 			expect( mockDispatch ).not.toHaveBeenCalled();
 		} );
 
-		test( 'WP_Error response: calls onError and does not dispatch setPostEmailSentState', async () => {
+		test( 'WP_Error response: shows snackbar error and does not dispatch setPostEmailSentState', async () => {
 			apiFetch.mockResolvedValue( {
 				errors: { rest_forbidden: [ 'Sorry, you are not allowed.' ] },
 			} );
@@ -85,7 +87,9 @@ describe( 'Membership Products Resolvers', () => {
 			const thunk = getPostEmailSentState( 5 );
 			await thunk( { dispatch: mockDispatch, registry: mockRegistry } );
 
-			expect( utils.onError ).toHaveBeenCalled();
+			expect( mockCreateErrorNotice ).toHaveBeenCalledWith( 'Sorry, you are not allowed.', {
+				type: 'snackbar',
+			} );
 			expect( mockDispatch ).not.toHaveBeenCalled();
 		} );
 	} );
@@ -131,7 +135,7 @@ describe( 'Membership Products Resolvers', () => {
 			const thunk = getTotalEmailsSentCount( 123, 456 );
 			await thunk( { dispatch: mockDispatch, registry: mockRegistry } );
 
-			expect( utils.onError ).not.toHaveBeenCalled();
+			expect( mockCreateErrorNotice ).not.toHaveBeenCalled();
 			expect( mockDispatch ).not.toHaveBeenCalled();
 			expect( warnSpy ).toHaveBeenCalled();
 			warnSpy.mockRestore();
@@ -144,7 +148,7 @@ describe( 'Membership Products Resolvers', () => {
 			const thunk = getTotalEmailsSentCount( 123, 456 );
 			await thunk( { dispatch: mockDispatch, registry: mockRegistry } );
 
-			expect( utils.onError ).not.toHaveBeenCalled();
+			expect( mockCreateErrorNotice ).not.toHaveBeenCalled();
 			expect( mockDispatch ).not.toHaveBeenCalled();
 			expect( warnSpy ).toHaveBeenCalledWith(
 				'Failed to fetch total emails sent count:',
@@ -176,7 +180,7 @@ describe( 'Membership Products Resolvers', () => {
 
 			expect( mockDispatch ).toHaveBeenCalledWith( setConnectUrl( null ) );
 			expect( mockDispatch ).toHaveBeenCalledWith( setApiState( API_STATE_NOTCONNECTED ) );
-			expect( utils.onError ).not.toHaveBeenCalled();
+			expect( mockCreateErrorNotice ).not.toHaveBeenCalled();
 			expect( mockNoticesDispatch ).toHaveBeenCalledWith( 'core/notices' );
 			expect( mockCreateNotice ).toHaveBeenCalledWith(
 				'warning',
@@ -193,7 +197,7 @@ describe( 'Membership Products Resolvers', () => {
 			);
 		} );
 
-		test( 'rest_unauthorized on simple site: falls through to generic onError', async () => {
+		test( 'rest_unauthorized on simple site: falls through to generic snackbar error', async () => {
 			isSimpleSite.mockReturnValue( true );
 			const unauthorizedError = Object.assign(
 				new Error( 'Please connect your user account to WordPress.com' ),
@@ -206,17 +210,22 @@ describe( 'Membership Products Resolvers', () => {
 			const thunk = getProducts();
 			await thunk( { dispatch: mockDispatch, registry: mockRegistry, select: mockSelect } );
 
-			expect( utils.onError ).toHaveBeenCalled();
+			expect( mockCreateErrorNotice ).toHaveBeenCalledWith(
+				'Please connect your user account to WordPress.com',
+				{ type: 'snackbar' }
+			);
 			expect( mockCreateNotice ).not.toHaveBeenCalled();
 		} );
 
-		test( 'other error: calls onError with the error message', async () => {
+		test( 'other error: shows snackbar error with the error message', async () => {
 			apiFetch.mockRejectedValue( new Error( 'Something went wrong' ) );
 
 			const thunk = getProducts();
 			await thunk( { dispatch: mockDispatch, registry: mockRegistry, select: mockSelect } );
 
-			expect( utils.onError ).toHaveBeenCalledWith( 'Something went wrong', mockRegistry );
+			expect( mockCreateErrorNotice ).toHaveBeenCalledWith( 'Something went wrong', {
+				type: 'snackbar',
+			} );
 			expect( mockCreateNotice ).not.toHaveBeenCalled();
 		} );
 	} );
