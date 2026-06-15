@@ -120,6 +120,17 @@ const SettingsScreen: FC< Props > = ( { form } ) => {
 				</CollapsibleCard.Root>
 			</div>
 
+			<div id="verification" className="jetpack-seo-settings__section">
+				<VerificationCard
+					value={ local.verification }
+					onChange={ setVerification }
+					onCommit={ () => commit() }
+					disabled={ isSaving }
+					open={ verificationOpen }
+					onOpenChange={ setVerificationOpen }
+				/>
+			</div>
+
 			<CollapsibleCard.Root defaultOpen={ false }>
 				<CollapsibleCard.Header>
 					<Stack direction="row" justify="space-between" align="center" gap="sm">
@@ -171,17 +182,6 @@ const SettingsScreen: FC< Props > = ( { form } ) => {
 					/>
 				</CollapsibleCard.Content>
 			</CollapsibleCard.Root>
-
-			<div id="verification" className="jetpack-seo-settings__section">
-				<VerificationCard
-					value={ local.verification }
-					onChange={ setVerification }
-					onCommit={ () => commit() }
-					disabled={ isSaving }
-					open={ verificationOpen }
-					onOpenChange={ setVerificationOpen }
-				/>
-			</div>
 
 			<SocialPreviewsCard description={ local.front_page_description } />
 		</div>
