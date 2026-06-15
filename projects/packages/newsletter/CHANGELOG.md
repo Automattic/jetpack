@@ -5,6 +5,26 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.9.1] - 2026-06-15
+### Added
+- Add a setting for the Subscribe modal heading shown by Subscribe blocks using the Button only style. [#49171]
+- Daily Writing Prompt widget: record Tracks events when interacting with the widget's actions. [#49534]
+
+### Changed
+- Daily Writing Prompt widget: link to the WordPress.com Reader and move the responses button next to the Post Answer button. [#49462]
+- Newsletter: label the subscription placement options with a "Homepage and posts" section header. [#49466]
+- Update package dependencies. [#49273]
+- Update package dependencies. [#49492]
+
+### Fixed
+- Daily Writing Prompt: defer the connection-readiness check to dashboard setup, avoiding a fatal error on Atomic sites when the check ran before Core's pluggable functions were loaded. [#49525]
+- Newsletter: fix the "Add plans" link for WordPress installs in a subdirectory by deriving the site slug from home_url instead of site_url. [#49553]
+- Newsletter: keep the Subscribers/Settings tab bar pinned while scrolling the modernized Settings tab [#49460]
+- Newsletter: Only show the subscription placement "Preview and edit" link once the placement is enabled and saved. [#49532]
+- Newsletter: render the same initials avatar in the subscriber row and detail panel when a subscriber has no Gravatar [#49581]
+- Newsletter: stop the modernized Settings tab from flashing a full-page loading spinner on every visit by caching resolved settings across mounts. [#49530]
+- Subscribers: Hide the "Comp a subscription" action when the site has no paid newsletter plans. [#49531]
+
 ## [0.9.0] - 2026-06-08
 ### Added
 - Add Jetpack branding to the Daily Writing Prompt dashboard widget. [#49438]
@@ -218,6 +238,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Update package dependencies. [#46143]
 
+[0.9.1]: https://github.com/Automattic/jetpack-newsletter/compare/v0.9.0...v0.9.1
 [0.9.0]: https://github.com/Automattic/jetpack-newsletter/compare/v0.8.10...v0.9.0
 [0.8.10]: https://github.com/Automattic/jetpack-newsletter/compare/v0.8.9...v0.8.10
 [0.8.9]: https://github.com/Automattic/jetpack-newsletter/compare/v0.8.8...v0.8.9
