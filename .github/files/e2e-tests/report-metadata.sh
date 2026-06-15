@@ -1,3 +1,5 @@
+#!/usr/bin/env bash
+
 if [[ -z "$SUITE" ]]; then
 	echo "SUITE is not defined, using pull request number or branch"
 
