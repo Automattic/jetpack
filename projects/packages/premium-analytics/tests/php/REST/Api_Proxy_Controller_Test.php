@@ -396,6 +396,75 @@ class Api_Proxy_Controller_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Unsupported endpoints must not route at all — the request never reaches the handler and the
+	 * blog token is never forwarded. Covers other resources, foreign namespaces, prefix-extension
+	 * strings, and deep sub-paths under a non-allowed prefix.
+	 *
+	 * @dataProvider data_unsupported_paths
+	 *
+	 * @param string $path The endpoint path (after proxy/v2/).
+	 */
+	#[DataProvider( 'data_unsupported_paths' )]
+	public function test_unsupported_endpoint_is_not_routed( string $path ) {
+		$response = rest_get_server()->dispatch(
+			new WP_REST_Request( 'GET', '/jetpack-premium-analytics/v1/proxy/v2/' . $path )
+		);
+
+		$this->assertSame( 404, $response->get_status(), "$path must not route" );
+	}
+
+	/**
+	 * @return array<string, string[]>
+	 */
+	public static function data_unsupported_paths(): array {
+		return array(
+			'other resource'        => array( 'posts' ),
+			'core wp namespace'     => array( 'wp/v2/users' ),
+			'me namespace'          => array( 'me/settings' ),
+			'raw sites passthrough' => array( 'sites/1/options' ),
+			'prefix extension'      => array( 'statsfoo' ),
+			'analytics extension'   => array( 'analyticsx' ),
+			'deep unsupported path' => array( 'posts/123/revisions/456' ),
+		);
+	}
+
+	public function test_shadowed_unsupported_endpoint_is_rejected_on_dispatch() {
+		$admin_id = wp_insert_user(
+			array(
+				'user_login' => 'jpa_admin_shadow',
+				'user_pass'  => 'password',
+				'role'       => 'administrator',
+			)
+		);
+		wp_set_current_user( $admin_id );
+
+		// URL prefix is allowed (stats), but a shadowing ?endpoint= points outside the allowlist.
+		// Even as an admin the request is rejected before anything is forwarded.
+		foreach ( array( 'me/settings', 'posts/1', 'wp/v2/users/1/meta' ) as $shadow ) {
+			$request = new WP_REST_Request( 'GET', '/jetpack-premium-analytics/v1/proxy/v1.1/stats' );
+			$request->set_query_params( array( 'endpoint' => $shadow ) );
+			$response = rest_get_server()->dispatch( $request );
+
+			$this->assertGreaterThanOrEqual( 400, $response->get_status(), "shadow $shadow must be rejected" );
+		}
+	}
+
+	public function test_permission_denies_unsupported_prefix_even_for_admin() {
+		$admin_id = wp_insert_user(
+			array(
+				'user_login' => 'jpa_admin_unsupported',
+				'user_pass'  => 'password',
+				'role'       => 'administrator',
+			)
+		);
+		wp_set_current_user( $admin_id );
+
+		// A prefix outside the config fails closed (config lookup misses) — admins included.
+		$this->assertFalse( $this->controller->check_data_permission( $this->build_data_request( 'GET', 'posts' ) ) );
+		$this->assertFalse( $this->controller->check_data_permission( $this->build_data_request( 'GET', 'wp/v2/users' ) ) );
+	}
+
+	/**
 	 * @dataProvider data_version_bases
 	 *
 	 * @param string $version A version string.
