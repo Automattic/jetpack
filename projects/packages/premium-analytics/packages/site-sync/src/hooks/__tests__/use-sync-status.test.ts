@@ -8,6 +8,7 @@ import { renderHook, act, waitFor } from '@testing-library/react';
  */
 import { fetchSyncStatus } from '../../api/fetch-sync-status';
 import { triggerFullSync } from '../../api/trigger-full-sync';
+import { POLL_INTERVAL, MAX_POLL_FAILURES } from '../../constants';
 import { useSyncStatus } from '../use-sync-status';
 import type { SyncStatusApiResponse } from '../../types';
 
@@ -116,6 +117,97 @@ describe( 'useSyncStatus', () => {
 
 		await waitFor( () => expect( result.current.isComplete ).toBe( true ) );
 		expect( mockFetch ).not.toHaveBeenCalled();
+	} );
+
+	it( 'keeps polling on each interval while the sync is still running', async () => {
+		mockFetch.mockResolvedValue( rawStatus() ); // 50%, never completes.
+		const { result } = renderHook( () => useSyncStatus() );
+
+		await waitFor( () => expect( result.current.isLoading ).toBe( false ) );
+		expect( mockFetch ).toHaveBeenCalledTimes( 1 );
+
+		await act( async () => {
+			jest.advanceTimersByTime( POLL_INTERVAL );
+		} );
+		expect( mockFetch ).toHaveBeenCalledTimes( 2 );
+
+		await act( async () => {
+			jest.advanceTimersByTime( POLL_INTERVAL );
+		} );
+		expect( mockFetch ).toHaveBeenCalledTimes( 3 );
+	} );
+
+	it( 'stops polling after the hook unmounts', async () => {
+		const { result, unmount } = renderHook( () => useSyncStatus() );
+
+		await waitFor( () => expect( result.current.isLoading ).toBe( false ) );
+		const callsAtUnmount = mockFetch.mock.calls.length;
+
+		unmount();
+		await act( async () => {
+			jest.advanceTimersByTime( POLL_INTERVAL * 3 );
+		} );
+		expect( mockFetch ).toHaveBeenCalledTimes( callsAtUnmount );
+	} );
+
+	it( 'resumes polling and re-fetches after a successful triggerSync', async () => {
+		// Start stalled so the initial poll tears down the interval.
+		mockFetch.mockResolvedValue( rawStatus( { started: true, finished: true } ) );
+		const { result } = renderHook( () => useSyncStatus() );
+		await waitFor( () => expect( result.current.isStalled ).toBe( true ) );
+
+		// Backend is healthy again on the next trigger.
+		mockFetch.mockResolvedValue( rawStatus() );
+		const before = mockFetch.mock.calls.length;
+
+		await act( async () => {
+			await result.current.triggerSync();
+		} );
+
+		expect( mockTrigger ).toHaveBeenCalledTimes( 1 );
+		expect( mockFetch.mock.calls.length ).toBeGreaterThan( before ); // Immediate poll().
+		expect( result.current.error ).toBeNull();
+		expect( result.current.isStalled ).toBe( false );
+
+		const afterTrigger = mockFetch.mock.calls.length;
+		await act( async () => {
+			jest.advanceTimersByTime( POLL_INTERVAL );
+		} );
+		expect( mockFetch.mock.calls.length ).toBeGreaterThan( afterTrigger ); // Polling resumed.
+	} );
+
+	it( 'keeps polling through a transient fetch error and self-heals on the next success', async () => {
+		mockFetch.mockRejectedValueOnce( new Error( 'blip' ) );
+		const { result } = renderHook( () => useSyncStatus() );
+
+		// The error surfaces, but polling is not torn down.
+		await waitFor( () => expect( result.current.error?.message ).toBe( 'blip' ) );
+
+		// The next tick succeeds and clears the error.
+		await act( async () => {
+			jest.advanceTimersByTime( POLL_INTERVAL );
+		} );
+		await waitFor( () => expect( result.current.error ).toBeNull() );
+		expect( result.current.data?.percentage ).toBe( 50 );
+	} );
+
+	it( 'gives up polling after MAX_POLL_FAILURES consecutive fetch errors', async () => {
+		mockFetch.mockRejectedValue( new Error( 'down' ) );
+		const { result } = renderHook( () => useSyncStatus() );
+
+		await waitFor( () => expect( result.current.error?.message ).toBe( 'down' ) );
+
+		// Drive past the failure cap, then confirm polling has stopped.
+		await act( async () => {
+			jest.advanceTimersByTime( POLL_INTERVAL * ( MAX_POLL_FAILURES + 1 ) );
+		} );
+		const callsAfterGivingUp = mockFetch.mock.calls.length;
+
+		await act( async () => {
+			jest.advanceTimersByTime( POLL_INTERVAL * 5 );
+		} );
+		expect( mockFetch ).toHaveBeenCalledTimes( callsAfterGivingUp );
+		expect( result.current.error?.message ).toBe( 'down' );
 	} );
 
 	it( 'updates the milestone live from the sync-status poll', async () => {

@@ -4,6 +4,13 @@
 export const POLL_INTERVAL = 3_000;
 
 /**
+ * Consecutive poll failures tolerated before polling gives up. A transient
+ * error (a network blip, a 500) is retried on the next tick; only a sustained
+ * run of failures stops polling and surfaces a terminal error.
+ */
+export const MAX_POLL_FAILURES = 3;
+
+/**
  * Jetpack core sync status endpoint (queue + full-sync state).
  */
 export const SYNC_STATUS_PATH = '/jetpack/v4/sync/status';

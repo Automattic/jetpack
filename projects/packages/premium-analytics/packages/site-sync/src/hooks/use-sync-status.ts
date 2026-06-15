@@ -9,7 +9,7 @@ import { useState, useEffect, useRef, useCallback } from 'react';
  */
 import { fetchSyncStatus } from '../api/fetch-sync-status';
 import { triggerFullSync } from '../api/trigger-full-sync';
-import { POLL_INTERVAL } from '../constants';
+import { POLL_INTERVAL, MAX_POLL_FAILURES } from '../constants';
 import { toSyncStatus, isSyncComplete, isSyncStalled } from '../status';
 import type { SyncStatus, UseSyncStatusReturn } from '../types';
 
@@ -27,7 +27,9 @@ function readMilestone(): number {
 /**
  * Polls Jetpack's sync status and returns analytics-scoped progress.
  *
- * Polling auto-stops when the sync is complete, stalled, or errors. If the
+ * Polling auto-stops when the sync completes or stalls, or after
+ * `MAX_POLL_FAILURES` consecutive fetch errors; a single transient error is
+ * retried on the next tick and self-heals on the next success. If the
  * page-load milestone is already set, the dashboard is gated open immediately
  * and no polling occurs. `triggerSync` POSTs the full-sync trigger and resumes
  * polling; it never rejects (failures surface via `error`).
@@ -41,6 +43,9 @@ export function useSyncStatus(): UseSyncStatusReturn {
 	const [ isStalled, setIsStalled ] = useState( false );
 
 	const intervalRef = useRef< ReturnType< typeof setInterval > | null >( null );
+	// Consecutive fetch failures. Reset on every success and whenever polling
+	// (re)starts; polling only gives up once this reaches `MAX_POLL_FAILURES`.
+	const failureCountRef = useRef( 0 );
 	// Hold the latest `poll` in a ref so the interval always calls the current
 	// closure. Preserves the original package's pollRef pattern and keeps the
 	// interval stable if `poll`'s identity ever changes.
@@ -65,6 +70,7 @@ export function useSyncStatus(): UseSyncStatusReturn {
 				}
 
 				const status = toSyncStatus( raw, milestoneRef.current );
+				failureCountRef.current = 0;
 				setData( status );
 				setError( null );
 				setIsStalled( false );
@@ -83,11 +89,16 @@ export function useSyncStatus(): UseSyncStatusReturn {
 				}
 			} )
 			.catch( ( e: unknown ) => {
-				clearPolling();
 				const message =
 					e instanceof Error
 						? e.message
 						: __( 'Unable to get sync status.', 'jetpack-premium-analytics' );
+				// Keep polling through transient blips; only give up once failures
+				// pile up, so a momentary network/500 hiccup self-heals next tick.
+				failureCountRef.current += 1;
+				if ( failureCountRef.current >= MAX_POLL_FAILURES ) {
+					clearPolling();
+				}
 				setError( new Error( message ) );
 			} );
 	}, [ clearPolling ] );
@@ -96,6 +107,7 @@ export function useSyncStatus(): UseSyncStatusReturn {
 
 	const startPolling = useCallback( () => {
 		clearPolling();
+		failureCountRef.current = 0;
 		intervalRef.current = setInterval( () => {
 			pollRef.current?.();
 		}, POLL_INTERVAL );
