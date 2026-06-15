@@ -5,7 +5,6 @@
 	"license": "GPL-2.0-or-later",
 	"require": {
 		"php": ">=8.1",
-		"automattic/at-pressable-podcasting": "^2.0.8",
 		"automattic/custom-fonts": "^3.0",
 		"automattic/custom-fonts-typekit": "^2.0",
 		"automattic/text-media-widget-styles": "^2.0",
@@ -55,12 +54,8 @@
 		"phpunit": [
 			"phpunit-select-config phpunit.#.xml.dist --colors=always"
 		],
-		"test-coverage": [
-			"php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\""
-		],
-		"test-php": [
-			"@composer phpunit"
-		]
+		"test-php": "@composer phpunit",
+		"test-php-coverage": "php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\""
 	},
 	"repositories": [
 		{
@@ -81,12 +76,6 @@
 			"type": "vcs",
 			"no-api": true,
 			"url": "https://github.com/Automattic/custom-fonts-typekit.git"
-		},
-		{
-			"name": "automattic/at-pressable-podcasting",
-			"type": "vcs",
-			"no-api": true,
-			"url": "https://github.com/automattic/at-pressable-podcasting.git"
 		},
 		{
 			"name": "automattic/text-media-widget-styles",

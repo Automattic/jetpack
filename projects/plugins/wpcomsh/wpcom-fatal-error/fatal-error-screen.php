@@ -24,7 +24,7 @@
  * @param array  $error   Error details (type, message, file, line) when available.
  * @return string
  */
-function wpcomsh_customize_fatal_error_message( $message, $error = array() ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+function wpcomsh_customize_fatal_error_message( $message, $error = array() ) {
 	unset( $message );
 
 	wpcomsh_fatal_load_textdomain();

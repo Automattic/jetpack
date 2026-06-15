@@ -139,9 +139,7 @@ class Utils {
 			 * When WordPress.com returns an error from Boost Cloud, the body contains
 			 * statusCode and error. When it returns a WP_Error, it contains code and message.
 			 */
-			// phpcs:disable WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 			if ( isset( $data['statusCode'] ) && isset( $data['error'] ) ) {
-				// phpcs:disable WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 				$data_code    = $data['statusCode'];
 				$data_message = $data['error'];
 			} elseif ( isset( $data['code'] ) && isset( $data['message'] ) ) {

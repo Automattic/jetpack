@@ -7,6 +7,7 @@
  */
 
 add_filter( 'upgrader_source_selection', 'pcg_update_guard_check', 99, 4 );
+add_action( 'admin_notices', 'pcg_update_guard_render_retry_notice' );
 
 /**
  * Wall-clock budget (seconds) for scanning a package for parse errors.
@@ -15,6 +16,19 @@ add_filter( 'upgrader_source_selection', 'pcg_update_guard_check', 99, 4 );
  * timeout.
  */
 const PCG_UPDATE_GUARD_BUDGET_SECONDS = 8.0;
+
+/**
+ * Capability that gates the update guard for a given upgrader action.
+ * `install` → `install_plugins`; everything else (i.e. `update`) → `update_plugins`.
+ * Stock WP roles bundle both on administrator, but a custom role plugin
+ * could split them — derive the cap from the action so we honor that.
+ *
+ * @param string $action `install` or `update`.
+ * @return string
+ */
+function pcg_update_guard_cap_for_action( $action ) {
+	return 'install' === $action ? 'install_plugins' : 'update_plugins';
+}
 
 /**
  * Filter callback. Returns a WP_Error (aborts the install/update) when
@@ -32,12 +46,15 @@ function pcg_update_guard_check( $source, $remote_source, $upgrader, $hook_extra
 	if ( is_wp_error( $source ) ) {
 		return $source;
 	}
-	if ( ! apply_filters( 'pcg_guard_activation', true ) ) {
+	if ( ! apply_filters( 'pcg_guard_updates', true ) ) {
 		return $source;
 	}
 	$type   = $hook_extra['type'] ?? '';
 	$action = (string) ( $hook_extra['action'] ?? '' );
 	if ( 'plugin' !== $type || ! in_array( $action, array( 'install', 'update' ), true ) ) {
+		return $source;
+	}
+	if ( pcg_force_override_active( pcg_update_guard_cap_for_action( $action ) ) ) {
 		return $source;
 	}
 
@@ -58,6 +75,7 @@ function pcg_update_guard_check( $source, $remote_source, $upgrader, $hook_extra
 	$first = $scan['errors'][0];
 
 	pcg_update_guard_log_blocked( $action, $hook_extra, $scan, (string) $source );
+	pcg_update_guard_stash_retry_context( $action, $hook_extra, (string) $source );
 
 	return new WP_Error(
 		'pcg_update_parse_error',
@@ -103,6 +121,117 @@ function pcg_update_guard_log_blocked( $action, array $hook_extra, array $scan, 
 			'error_count' => count( $scan['errors'] ),
 		)
 	);
+}
+
+/**
+ * Stash the slug/action of a blocked install or update so the next admin
+ * page render can offer a force-retry button. Only logged-in users with
+ * `update_plugins` get a stash (the only callers who'll see the notice).
+ *
+ * @param string $action     `install` or `update`.
+ * @param array  $hook_extra Hook payload from `upgrader_source_selection`.
+ * @param string $source     Extracted package directory — fallback slug source on installs,
+ *                           since `Plugin_Upgrader::install()` doesn't populate `hook_extra['plugin']`.
+ * @return void
+ */
+function pcg_update_guard_stash_retry_context( $action, array $hook_extra, $source = '' ) {
+	if ( ! is_user_logged_in() || ! current_user_can( pcg_update_guard_cap_for_action( $action ) ) ) {
+		return;
+	}
+	$slug = (string) ( $hook_extra['plugin'] ?? '' );
+	if ( '' === $slug && '' !== $source ) {
+		$slug = basename( untrailingslashit( $source ) );
+	}
+	if ( '' === $slug ) {
+		return;
+	}
+	set_transient(
+		'pcg_update_blocked_' . get_current_user_id(),
+		array(
+			'slug'   => $slug,
+			'action' => (string) $action,
+		),
+		5 * MINUTE_IN_SECONDS
+	);
+}
+
+/**
+ * Render an admin notice that offers force-retry options after an update
+ * block. The transient is set by the upgrader filter; we consume it here.
+ */
+function pcg_update_guard_render_retry_notice() {
+	if ( ! is_user_logged_in() ) {
+		return;
+	}
+	$key = 'pcg_update_blocked_' . get_current_user_id();
+	$ctx = get_transient( $key );
+	if ( ! is_array( $ctx ) || empty( $ctx['slug'] ) ) {
+		return;
+	}
+	$action = (string) ( $ctx['action'] ?? '' );
+	if ( ! current_user_can( pcg_update_guard_cap_for_action( $action ) ) ) {
+		return;
+	}
+	delete_transient( $key );
+
+	$slug      = (string) $ctx['slug'];
+	$is_update = 'install' !== $action;
+	// One-shot retry only makes sense for updates: the original update
+	// request is replay-safe (the .org zip URL is reproducible). Installs
+	// from an uploaded zip aren't — there's no zip to replay — and even
+	// .org installs would need the user back on the Add Plugin page, so
+	// we only surface the bypass-then-retry path for installs.
+	$retry = $is_update
+		? wp_nonce_url(
+			add_query_arg(
+				array(
+					'action'    => 'upgrade-plugin',
+					'plugin'    => $slug,
+					'pcg_force' => '1',
+				),
+				self_admin_url( 'update.php' )
+			),
+			'upgrade-plugin_' . $slug
+		)
+		: '';
+	?>
+	<div class="notice notice-warning">
+		<p>
+			<strong>
+				<?php
+				if ( $is_update ) {
+					esc_html_e( 'WordPress.com blocked the last plugin update because the package failed PCG checks:', 'jetpack-mu-wpcom' );
+				} else {
+					esc_html_e( 'WordPress.com blocked the last plugin install because the package failed PCG checks:', 'jetpack-mu-wpcom' );
+				}
+				?>
+			</strong>
+			<code><?php echo esc_html( $slug ); ?></code>.
+			<?php esc_html_e( 'Try one of these overrides:', 'jetpack-mu-wpcom' ); ?>
+		</p>
+		<ul style="list-style:disc;padding-inline-start:24px;margin-block-end:0;">
+			<?php if ( $is_update ) : ?>
+				<?php $plugin_name = function_exists( 'pcg_guard_plugin_display_name' ) ? pcg_guard_plugin_display_name( $slug ) : ''; ?>
+				<li>
+					<a href="<?php echo esc_url( $retry ); ?>" class="button-link">
+						<?php
+						if ( '' !== $plugin_name ) {
+							printf(
+								/* translators: %s: plugin display name. */
+								esc_html__( 'Update %s anyway', 'jetpack-mu-wpcom' ),
+								esc_html( $plugin_name )
+							);
+						} else {
+							esc_html_e( 'Update anyway', 'jetpack-mu-wpcom' );
+						}
+						?>
+					</a>
+				</li>
+			<?php endif; ?>
+			<li><?php pcg_force_render_bypass_form(); ?></li>
+		</ul>
+	</div>
+	<?php
 }
 
 /**

@@ -247,7 +247,7 @@ if ( class_exists( 'WP_CLI_Command' ) ) {
 		 *
 		 * @subcommand deactivate-user-plugins
 		 */
-		public function deactivate_user_installed_plugins( $args, $assoc_args = array() ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter
+		public function deactivate_user_installed_plugins( $args, $assoc_args = array() ) {
 			$active_plugins = wpcomsh_cli_get_plugins_with_status( 'active' );
 			if ( false === $active_plugins ) {
 				WP_CLI::log( 'Failed to list active plugins.' );
@@ -312,7 +312,7 @@ if ( class_exists( 'WP_CLI_Command' ) ) {
 		 *
 		 * @subcommand reactivate-user-plugins
 		 */
-		public function reactivate_user_installed_plugins( $args, $assoc_args = array() ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter
+		public function reactivate_user_installed_plugins( $args, $assoc_args = array() ) {
 			// Clean up before getting the deactivation list so there are only current entries.
 			wpcomsh_cli_remove_expired_from_deactivation_record();
 
@@ -394,7 +394,7 @@ if ( class_exists( 'WP_CLI_Command' ) ) {
 		 *
 		 * @subcommand domain-name-changed
 		 */
-		public function domain_name_changed( $args, $assoc_args = array() ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter
+		public function domain_name_changed( $args, $assoc_args = array() ) {
 			$old_domain = WP_CLI\Utils\get_flag_value( $assoc_args, 'old_url', false );
 			if ( false === $old_domain ) {
 				WP_CLI::error( 'Missing required --old_url=url value.' );
@@ -553,7 +553,7 @@ if ( class_exists( 'WP_CLI_Command' ) ) {
 		 *
 		 * @subcommand purchases
 		 */
-		public function purchases( $args, $assoc_args ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter
+		public function purchases( $args, $assoc_args ) {
 			WP_CLI::runcommand( 'wpcomsh persistent-data WPCOM_PURCHASES --format=' . $assoc_args['format'], array( 'launch' => false ) );
 		}
 
@@ -922,6 +922,97 @@ if ( class_exists( 'WP_CLI_Command' ) ) {
 		}
 
 		/**
+		 * Patch mega_main_menu plugin to work with PHP 8.3+.
+		 *
+		 * The `mm_options_generator()` function declares `static $theme_option_file`
+		 * in both the `file` and `background_image` cases of the same switch. PHP 8.3
+		 * turned a repeated `static` declaration of the same variable in one function
+		 * scope into a "Duplicate declaration of static variable" fatal error. This
+		 * renames the copy in the `background_image` case so only a single declaration
+		 * of `$theme_option_file` remains. Both cases merely enqueue the media uploader
+		 * scripts, and `wp_enqueue_*` is idempotent, so behavior is unchanged.
+		 *
+		 * ## OPTIONS
+		 *
+		 * <plugin>
+		 * : The plugin to patch.
+		 *
+		 * @subcommand php83-plugin-patch
+		 */
+		public function php_83_plugin_patch( $args, $assoc_args ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+			if ( 'mega_main_menu' !== $args[0] ) {
+				WP_CLI::error( 'Wrong plugin to patch.' );
+			}
+
+			$plugins = get_plugins();
+			$folder  = 'mega_main_menu/mega_main_menu.php';
+
+			if ( ! isset( $plugins[ $folder ] ) ) {
+				WP_CLI::error( 'mega_main_menu plugin is not installed.' );
+			}
+
+			// Don't patch if an update is pending: the new version may already fix this,
+			// and an update would overwrite the patched file anyway. Refresh the
+			// transient first so the decision is based on current data.
+			wp_update_plugins();
+			$update_plugins = get_site_transient( 'update_plugins' );
+
+			if ( isset( $update_plugins->response[ $folder ] ) ) {
+				$new_version = $update_plugins->response[ $folder ]->new_version ?? 'unknown';
+				WP_CLI::error( "An update to mega_main_menu $new_version is available; update the plugin instead of patching." );
+			}
+
+			$file = WP_PLUGIN_DIR . '/mega_main_menu/framework/options_generator.php';
+
+			if ( ! file_exists( $file ) ) {
+				WP_CLI::error( 'File not found: ' . $file );
+			}
+
+			// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
+			$file_content = file_get_contents( $file );
+
+			if ( false === $file_content ) {
+				WP_CLI::error( 'File not found: ' . $file );
+			}
+
+			// Already patched: re-running is a safe no-op.
+			if ( false !== strpos( $file_content, '$theme_option_file_background' ) ) {
+				WP_CLI::success( 'Already patched.' );
+				return;
+			}
+
+			// The duplicate `static $theme_option_file` lives in the `background_image`
+			// case. Split the file there so we only rename that copy and leave the
+			// original declaration in the `file` case untouched.
+			$marker     = "case 'background_image':";
+			$marker_pos = strpos( $file_content, $marker );
+
+			if ( false === $marker_pos ) {
+				WP_CLI::error( 'Patch target not found in ' . $file );
+			}
+
+			$before = substr( $file_content, 0, $marker_pos );
+			$after  = substr( $file_content, $marker_pos );
+
+			// Within $after only the `background_image` case references
+			// `$theme_option_file` (the `file` case sits in $before, `gradient` uses a
+			// different variable), so renaming every occurrence here is surgical.
+			$count = 0;
+			$after = str_replace( '$theme_option_file', '$theme_option_file_background', $after, $count );
+
+			if ( ! $count ) {
+				WP_CLI::error( 'String not found on ' . $file );
+			}
+
+			// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
+			if ( ! file_put_contents( $file, $before . $after ) ) {
+				WP_CLI::error( 'Failed to write to ' . $file );
+			}
+
+			WP_CLI::success( 'Success' );
+		}
+
+		/**
 		 * Enable or disable fatal error emails.
 		 *
 		 * ## OPTIONS
@@ -945,7 +1036,7 @@ if ( class_exists( 'WP_CLI_Command' ) ) {
 		 *
 		 * @subcommand disable-fatal-error-emails
 		 */
-		public function fatal_error_emails_disable( $args, $assoc_args ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		public function fatal_error_emails_disable( $args, $assoc_args ) {
 			$command = $args[0];
 			$value   = (bool) $assoc_args['value'];
 

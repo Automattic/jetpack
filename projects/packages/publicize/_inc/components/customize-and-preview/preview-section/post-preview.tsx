@@ -8,7 +8,6 @@ import {
 	NextdoorPostPreview,
 	ThreadsPostPreview,
 	TumblrPostPreview,
-	TwitterPostPreview,
 } from '@automattic/social-previews';
 import { store as coreStore } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
@@ -55,7 +54,7 @@ export function PostPreview( { connection, previewData }: PostPreviewProps ) {
 		[ connection ]
 	);
 
-	const { image, media, title, description, url, excerpt, message } = previewData;
+	const { image, media, title, description, url, excerpt, message, hyperlinks } = previewData;
 
 	const commonProps = useMemo(
 		() => ( {
@@ -64,8 +63,9 @@ export function PostPreview( { connection, previewData }: PostPreviewProps ) {
 			media,
 			title,
 			url,
+			hyperlinks,
 		} ),
-		[ description, image, media, title, url ]
+		[ hyperlinks, description, image, media, title, url ]
 	);
 
 	const siteName = useSelect( select => {
@@ -255,30 +255,6 @@ export function PostPreview( { connection, previewData }: PostPreviewProps ) {
 					title={ message ? '' : title }
 					description={ desc }
 					user={ { displayName: user.displayName, avatarUrl: user.profileImage } }
-				/>
-			);
-		}
-
-		case 'x': {
-			let text = title;
-
-			if ( message ) {
-				text = message;
-			} else if ( title && excerpt ) {
-				text = getCombinedText( title, excerpt );
-			}
-
-			if ( url && ! text.includes( url ) ) {
-				text += `\n\n${ url }`;
-			}
-
-			return (
-				<TwitterPostPreview
-					{ ...commonProps }
-					description={ description }
-					text={ text }
-					screenName={ user.externalName }
-					name={ user.displayName }
 				/>
 			);
 		}

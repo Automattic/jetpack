@@ -81,13 +81,28 @@ if ! gh auth status --hostname github.com &> /dev/null; then
 fi
 
 DESC_RE1='^\[READ ONLY\] '
-DESC_RE2=' This repository is a mirror([,;] f|\. F)or issue tracking and development,? (go|head) (to:?|here:) https://github\.com/[Aa]utomattic/[Jj]etpack/?\.?\s*$'
+DESC_RE2=' This repository is a mirror([,;] f|\. F)or issue tracking and development,? (go|head) (to:?|here:) https://github\.com/[Aa]utomattic/[Jj]etpack/?\.?[[:space:]]*$'
 
 if [[ -n "$1" ]]; then
 	REPOS="$1"
 else
 	REPOS=$( jq -r '.extra["mirror-repo"] // empty' projects/*/*/composer.json | sort -u )
 fi
+
+# Index mirror repos by the workflows they use so we can verify they have the secrets those workflows require.
+AUTOTAGGER_REPOS=$( jq -r 'select( .extra.autotagger ) | .extra["mirror-repo"] // empty' projects/*/*/composer.json )
+WPSVN_REPOS=$( jq -r 'select( .extra["wp-svn-autopublish"] ) | .extra["mirror-repo"] // empty' projects/*/*/composer.json )
+E2E_REPOS=$( for f in projects/*/*/composer.json; do
+	[[ -d "${f%composer.json}tests/e2e" ]] && jq -r '.extra["mirror-repo"] // empty' "$f"
+done )
+
+# Maps each secret to the workflow that requires it.
+WORKFLOW_SECRETS='{
+	"API_TOKEN_GITHUB": "Autotagger",
+	"WPSVN_USERNAME": "WordPress.org SVN autopublish",
+	"WPSVN_PASSWORD": "WordPress.org SVN autopublish",
+	"REPO_DISPATCH_TOKEN": "E2E tests"
+}'
 
 cd "$BASE"
 for repo in $REPOS; do
@@ -148,6 +163,34 @@ for repo in $REPOS; do
 		err "Failed to fetch workflow permissions setting: $( jq -e '.message' <<<"$JSON" )"
 	else
 		err "Failed to fetch workflow permissions setting"
+	fi
+
+	# Mirror repos using these workflows need their corresponding secrets set.
+	SECRETS_NEEDED=()
+	if grep -qxF "$repo" <<<"$AUTOTAGGER_REPOS"; then
+		SECRETS_NEEDED+=( API_TOKEN_GITHUB )
+	fi
+	if grep -qxF "$repo" <<<"$WPSVN_REPOS"; then
+		SECRETS_NEEDED+=( WPSVN_USERNAME WPSVN_PASSWORD )
+	fi
+	if grep -qxF "$repo" <<<"$E2E_REPOS"; then
+		SECRETS_NEEDED+=( REPO_DISPATCH_TOKEN )
+	fi
+
+	# Fetch the repo's secrets once, then verify each required one is present.
+	if [[ ${#SECRETS_NEEDED[@]} -gt 0 ]]; then
+		if SECRETS=$( gh api "/repos/$repo/actions/secrets" --jq '.secrets[].name' 2>/dev/null ); then
+			for secret in "${SECRETS_NEEDED[@]}"; do
+				workflow=$( jq -r --arg s "$secret" '.[$s]' <<<"$WORKFLOW_SECRETS" )
+				if grep -qxF "$secret" <<<"$SECRETS"; then
+					ok "Secret $secret is set (required by $workflow workflow)"
+				else
+					err "Secret $secret is not set, but is required by the $workflow workflow (see PCYsg-xsv-p2#mirror-repo-secrets)"
+				fi
+			done
+		else
+			err "Failed to fetch secrets"
+		fi
 	fi
 done
 

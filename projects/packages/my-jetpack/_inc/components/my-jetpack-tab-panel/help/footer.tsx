@@ -1,7 +1,8 @@
-import { getAdminUrl } from '@automattic/jetpack-script-data';
+import { currentUserCan, getAdminUrl } from '@automattic/jetpack-script-data';
 import { __ } from '@wordpress/i18n';
 import { Link, Text } from '@wordpress/ui';
 import { useCallback } from 'react';
+import { isJetpackPluginActive } from '../../../utils/is-jetpack-plugin-active';
 import styles from './styles.module.scss';
 import { useHelpTracking } from './use-help-tracking';
 
@@ -25,6 +26,15 @@ export function HelpFooter() {
 		trackHelpRequest( 'documentation', 'clicked_debug_information_link' );
 	}, [ trackHelpRequest ] );
 
+	// These links target wp-admin pages (the Jetpack modules list and the
+	// Debugger) that only exist, and are only reachable, under two conditions:
+	// the Jetpack plugin is active (My Jetpack also runs inside other standalone
+	// plugins where these pages aren't registered), and the current user can
+	// manage options (both pages require it, but the Help tab is also shown to
+	// non-admins like editors). Guard on both to avoid links that dead-end on a
+	// "you are not allowed to access this page" screen.
+	const showUsefulLinks = isJetpackPluginActive() && currentUserCan( 'manage_options' );
+
 	return (
 		<div className={ styles.footer }>
 			{ /* Needed to show different background colour */ }
@@ -46,30 +56,32 @@ export function HelpFooter() {
 						{ __( 'Learn more about us', 'jetpack-my-jetpack' ) }
 					</Link>
 
-					<nav
-						className={ styles[ 'footer-nav' ] }
-						aria-label={ __( 'Useful links', 'jetpack-my-jetpack' ) }
-					>
-						<h4>{ __( 'Useful links', 'jetpack-my-jetpack' ) }</h4>
-						<ul>
-							<li>
-								<Link
-									href={ getAdminUrl( 'admin.php?page=jetpack_modules' ) }
-									onClick={ handleAllModulesClick }
-								>
-									{ __( 'All Jetpack modules', 'jetpack-my-jetpack' ) }
-								</Link>
-							</li>
-							<li>
-								<Link
-									href={ getAdminUrl( 'admin.php?page=jetpack-debugger' ) }
-									onClick={ handleDebugInfoClick }
-								>
-									{ __( 'Debug information', 'jetpack-my-jetpack' ) }
-								</Link>
-							</li>
-						</ul>
-					</nav>
+					{ showUsefulLinks && (
+						<nav
+							className={ styles[ 'footer-nav' ] }
+							aria-label={ __( 'Useful links', 'jetpack-my-jetpack' ) }
+						>
+							<h4>{ __( 'Useful links', 'jetpack-my-jetpack' ) }</h4>
+							<ul>
+								<li>
+									<Link
+										href={ getAdminUrl( 'admin.php?page=jetpack_modules' ) }
+										onClick={ handleAllModulesClick }
+									>
+										{ __( 'All Jetpack modules', 'jetpack-my-jetpack' ) }
+									</Link>
+								</li>
+								<li>
+									<Link
+										href={ getAdminUrl( 'admin.php?page=jetpack-debugger' ) }
+										onClick={ handleDebugInfoClick }
+									>
+										{ __( 'Debug information', 'jetpack-my-jetpack' ) }
+									</Link>
+								</li>
+							</ul>
+						</nav>
+					) }
 				</section>
 			</div>
 		</div>

@@ -1,0 +1,36 @@
+.reference {
+	width: 100%;
+	height: 100%;
+	position: relative;
+}
+
+.wrapper {
+	position: absolute;
+	top: 0;
+	left: 0;
+	bottom: 0;
+	right: 0;
+}
+
+.chart {
+	position: relative;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	min-width: 96px;
+	max-width: 192px;
+	width: 100%;
+}
+
+.metricContainer {
+	position: absolute;
+	pointer-events: none;
+}
+
+.noChart {
+	height: 100%;
+}
+
+.legendContainer {
+	width: 200px;
+}

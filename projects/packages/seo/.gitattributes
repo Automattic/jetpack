@@ -1,0 +1,17 @@
+# Files to include in the mirror repo, but excluded via gitignore
+# Remember to end all directories with `/**` to properly tag every file.
+/build/**         production-include
+
+# Files to exclude from the mirror repo, but included in the monorepo.
+# (see also entries in the monorepo root .gitattributes)
+# Remember to end all directories with `/**` to properly tag every file.
+global.d.ts       production-exclude
+routes/**         production-exclude
+_inc/**/*.scss    production-exclude
+_inc/**/*.tsx     production-exclude
+_inc/**/*.ts      production-exclude
+_inc/**/*.jsx     production-exclude
+src/**/*.scss     production-exclude
+src/**/*.tsx      production-exclude
+src/**/*.ts       production-exclude
+src/**/*.jsx      production-exclude

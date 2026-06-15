@@ -698,7 +698,7 @@ class Write_Test extends \WorDBless\BaseTestCase {
 		// then pass placeholders to the template for post-kses replacement.
 		$post         = get_post( $post_id );
 		$video_result = wpcom_write_convert_video_embeds( $post->post_content );
-		$rendered     = apply_filters( 'the_content', $video_result['content'] ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound
+		$rendered     = apply_filters( 'the_content', $video_result['content'] );
 		$output       = $this->render_template( 'Video Post', $rendered, $post_id, array(), 'draft', $video_result['placeholders'] );
 
 		$this->assertStringContainsString( '<iframe', $output );
@@ -801,21 +801,20 @@ class Write_Test extends \WorDBless\BaseTestCase {
 	public function test_detect_unsupported_image_with_align() {
 		foreach ( array( 'left', 'center', 'right' ) as $align ) {
 			$content = '<!-- wp:image {"align":"' . $align . '"} --><figure class="wp-block-image align' . $align . '"><img src="test.jpg" alt=""/></figure><!-- /wp:image -->';
-			$this->assertSame(
-				'block-editor',
+			$this->assertFalse(
 				wpcom_write_detect_unsupported_content( $content ),
-				"align={$align} should bounce to block editor"
+				"align={$align} should round-trip through Write"
 			);
 		}
 	}
 
 	/**
-	 * Test that an image with align + sizeSlug returns 'block-editor'.
-	 * sizeSlug round-trips, but align triggers the unsupported modal.
+	 * Test that an image with align + sizeSlug round-trips. Both are now
+	 * supported via the image properties modal.
 	 */
 	public function test_detect_unsupported_image_with_align_and_size_slug() {
 		$content = '<!-- wp:image {"align":"center","sizeSlug":"medium","id":42} --><figure class="wp-block-image aligncenter size-medium"><img src="test.jpg" alt=""/></figure><!-- /wp:image -->';
-		$this->assertSame( 'block-editor', wpcom_write_detect_unsupported_content( $content ) );
+		$this->assertFalse( wpcom_write_detect_unsupported_content( $content ) );
 	}
 
 	/**
@@ -1270,7 +1269,7 @@ class Write_Test extends \WorDBless\BaseTestCase {
 		$js_attrs = array(
 			'embed'     => array( 'providerNameSlug', 'responsive', 'type', 'url' ),
 			'heading'   => array( 'align', 'level' ),
-			'image'     => array( 'id', 'sizeSlug' ),
+			'image'     => array( 'align', 'id', 'sizeSlug' ),
 			'list'      => array( 'ordered' ),
 			'list-item' => array(),
 			'paragraph' => array( 'align' ),

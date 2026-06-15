@@ -13,7 +13,7 @@ ENV LANG=en_US.UTF-8 \
     JETPACK_MONOREPO_ENV=1 \
     PNPM_HOME=/usr/local/pnpm \
     PATH="/usr/local/pnpm:${PATH}" \
-    npm_config_update_notifier=false
+    pnpm_config_update_notifier=false
 
 WORKDIR /app
 

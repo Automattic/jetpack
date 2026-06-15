@@ -10,4 +10,6 @@ const icon = (
 	</SVG>
 );
 
-export default icon;
+export default {
+	src: icon,
+};

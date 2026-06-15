@@ -104,7 +104,7 @@ class The_Neverending_Home_Page {
 			'render'          => false, // optional function, otherwise the `content` template part will be used
 			'footer'          => true, // boolean to enable or disable the infinite footer | string to provide an html id to derive footer width from
 			'footer_callback' => false, // function to be called to render the IS footer, in place of the default
-			'posts_per_page'  => false, // phpcs:ignore WordPress.WP.PostsPerPage.posts_per_page_posts_per_page -- int | false to set based on IS type
+			'posts_per_page'  => false,
 			'click_handle'    => true, // boolean to enable or disable rendering the click handler div. If type is click and this is false, page must include its own trigger with the HTML ID `infinite-handle`.
 		);
 
@@ -381,7 +381,7 @@ class The_Neverending_Home_Page {
 		 * @param object    self::wp_query()     WP_Query object for current request
 		 * @param object    self::get_settings() Infinite Scroll settings
 		 */
-		$override = apply_filters( 'infinite_scroll_is_last_batch', null, self::wp_query(), self::get_settings() ); // phpcs:ignore WordPress.WP.ClassNameCase.Incorrect -- False positive.
+		$override = apply_filters( 'infinite_scroll_is_last_batch', null, self::wp_query(), self::get_settings() );
 		if ( is_bool( $override ) ) {
 			return $override;
 		}
@@ -1398,7 +1398,7 @@ class The_Neverending_Home_Page {
 			array(
 				'paged'          => $page,
 				'post_status'    => $post_status,
-				'posts_per_page' => self::posts_per_page(), // phpcs:ignore WordPress.WP.PostsPerPage.posts_per_page_posts_per_page
+				'posts_per_page' => self::posts_per_page(),
 				'order'          => $order,
 			)
 		);

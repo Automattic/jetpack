@@ -143,7 +143,6 @@ class WPCOM_JSON_API_GET_Post_Counts_V1_1_Endpoint extends WPCOM_JSON_API_Endpoi
 		}
 
 		// @todo see if we can use a strict comparison here.
-		// phpcs:ignore WordPress.PHP.StrictInArray.MissingTrueStrict
 		if ( ! in_array( $post_type, array( 'post', 'revision', 'page', 'any' ), true ) && defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 			$this->load_theme_functions();
 		}

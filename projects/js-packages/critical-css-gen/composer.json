@@ -11,12 +11,8 @@
 		"build-production": [
 			"NODE_ENV=production pnpm run build"
 		],
-		"test-coverage": [
-			"pnpm exec playwright install --with-deps chromium && pnpm run test-coverage"
-		],
-		"test-js": [
-			"pnpm exec playwright install --with-deps chromium && pnpm run test"
-		],
+		"test-js": "pnpm exec playwright install --with-deps chromium && pnpm run test",
+		"test-js-coverage": "pnpm exec playwright install --with-deps chromium && pnpm run test-coverage",
 		"watch": [
 			"Composer\\Config::disableProcessTimeout",
 			"pnpm run watch"

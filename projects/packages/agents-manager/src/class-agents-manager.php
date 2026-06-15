@@ -19,7 +19,7 @@ class Agents_Manager {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '0.1.0-alpha';
+	const PACKAGE_VERSION = '0.3.2';
 
 	/**
 	 * Help Center URL for disconnected variants.
@@ -46,6 +46,8 @@ class Agents_Manager {
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_scripts' ), 101 );
 		add_action( 'next_admin_init', array( $this, 'enqueue_scripts' ), 1001 );
 		add_filter( 'agents_manager_use_unified_experience', array( $this, 'should_use_unified_experience' ) );
+
+		Sidebar_Open_Preservation::init();
 	}
 
 	/**
@@ -160,6 +162,23 @@ class Agents_Manager {
 	}
 
 	/**
+	 * Add the standalone AI chat button to the admin bar.
+	 *
+	 * @param \WP_Admin_Bar $wp_admin_bar The WP_Admin_Bar instance.
+	 */
+	public function add_ai_chat_button( $wp_admin_bar ) {
+		$wp_admin_bar->add_menu(
+			array(
+				'id'     => 'agents-manager-ai-chat',
+				'parent' => 'top-secondary',
+				'title'  => '<span title="' . esc_attr__( 'Ask AI', 'jetpack-agents-manager' ) . '"><svg class="ab-icon" role="img" aria-label="' . esc_attr__( 'Ask AI', 'jetpack-agents-manager' ) . '" width="24" height="24" viewBox="-45 -45 490 490" xmlns="http://www.w3.org/2000/svg">
+								<path fill="currentColor" d="M391.528 188.061L309.455 159.75C276.997 148.597 251.403 123.003 240.25 90.5451L211.939 8.47185C208.079 -2.82395 191.921 -2.82395 188.061 8.47185L159.75 90.5451C148.597 123.003 123.003 148.597 90.5451 159.75L8.47185 188.061C-2.82395 191.921 -2.82395 208.079 8.47185 211.939L90.5451 240.25C123.003 251.403 148.597 276.997 159.75 309.455L188.061 391.528C191.921 402.824 208.079 402.824 211.939 391.528L240.25 309.455C251.403 276.997 276.997 251.403 309.455 240.25L391.528 211.939C402.824 208.079 402.824 191.921 391.528 188.061ZM295.728 206.077L254.692 220.232C238.391 225.809 225.666 238.677 220.089 254.835L205.934 295.871C203.932 301.591 195.925 301.591 193.923 295.871L179.768 254.835C174.191 238.534 161.323 225.809 145.165 220.232L104.129 206.077C98.4093 204.075 98.4093 196.068 104.129 194.066L145.165 179.911C161.466 174.334 174.191 161.466 179.768 145.308L193.923 104.272C195.925 98.5523 203.932 98.5523 205.934 104.272L220.089 145.308C225.666 161.609 238.534 174.334 254.692 179.911L295.728 194.066C301.448 196.068 301.448 204.075 295.728 206.077Z" />
+							</svg></span>',
+			)
+		);
+	}
+
+	/**
 	 * Enqueue Agents Manager scripts and add inline script data.
 	 */
 	public function enqueue_scripts() {
@@ -172,7 +191,7 @@ class Agents_Manager {
 		}
 
 		// Determine which variant to load (null = don't load).
-		$variant = $this->get_variant();
+		$variant = apply_filters( 'agents_manager_variant', $this->get_variant() );
 		if ( null === $variant ) {
 			return;
 		}
@@ -233,6 +252,11 @@ class Agents_Manager {
 			if ( ! $use_disconnected ) {
 				add_action( 'admin_bar_menu', array( $this, 'add_menu_panel' ), 100 );
 			}
+
+			// Standalone AI chat button, shown only in the unified experience.
+			if ( ! $use_disconnected && apply_filters( 'agents_manager_use_unified_experience', false ) ) {
+				add_action( 'admin_bar_menu', array( $this, 'add_ai_chat_button' ), 100 );
+			}
 		}
 
 		/**
@@ -273,7 +297,7 @@ class Agents_Manager {
 			'agentProviders'       => $agent_providers,
 			'useUnifiedExperience' => $use_unified_experience,
 			'isDevMode'            => self::is_dev_mode(),
-			'sectionName'          => $variant,
+			'sectionName'          => apply_filters( 'agents_manager_section_name', $variant ),
 			'currentUser'          => $this->get_current_user_data(),
 			'site'                 => $this->get_current_site(),
 			'helpCenterUrl'        => self::HELP_CENTER_URL,
@@ -431,7 +455,13 @@ class Agents_Manager {
 			'https://widgets.wp.com/agents-manager/agents-manager-' . $variant . '.min.js',
 			$script_dependencies,
 			$version,
-			true
+			/**
+			 * Filter the strategy to use when enqueuing the script.
+			 *
+			 * @param array|bool $args The arguments to pass to wp_enqueue_script. Default is true.
+			 * @param string $handle The handle of the script.
+			 */
+			apply_filters( 'agents_manager_enqueue_script_strategy', true, 'agents-manager' )
 		);
 
 		if ( 'gutenberg-disconnected' !== $variant && 'ciab-disconnected' !== $variant ) {
@@ -605,9 +635,8 @@ class Agents_Manager {
 	 * Register the Agents Manager endpoints.
 	 */
 	public function register_rest_api() {
-		require_once __DIR__ . '/class-wp-rest-agents-manager-persisted-open-state.php';
-		$controller = new WP_REST_Agents_Manager_Persisted_Open_State();
-		$controller->register_rest_route();
+		( new WP_REST_Agents_Manager_Persisted_Open_State() )->register_rest_route();
+		( new WP_REST_Jetpack_AI_JWT() )->register_rest_route();
 	}
 
 	/**
