@@ -31,7 +31,12 @@ export function removeDataTestId(): TsdownPlugin {
 					return;
 				}
 				const { type, name, start, end } = node as AstNode;
-				if ( type === 'JSXAttribute' && name?.name === 'data-testid' ) {
+				if (
+					type === 'JSXAttribute' &&
+					name?.name === 'data-testid' &&
+					typeof start === 'number' &&
+					typeof end === 'number'
+				) {
 					ranges.push( [ start, end ] );
 				}
 				Object.values( node ).forEach( visit );

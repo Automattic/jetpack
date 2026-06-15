@@ -7,4 +7,7 @@ export default defineConfig( {
 	dts: true,
 	format: [ 'esm', 'cjs' ],
 	outDir: 'dist',
+	css: {
+		fileName: 'style.css',
+	},
 } );
