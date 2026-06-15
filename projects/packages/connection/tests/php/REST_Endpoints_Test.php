@@ -2104,7 +2104,7 @@ class REST_Endpoints_Test extends TestCase {
 	 */
 	public function test_connection_test_wpcom_expired_signature() {
 		$expired_timestamp  = time() - 600; // 10 minutes ago, limit is 5.
-		$_GET['signature']  = base64_encode( 'fake-signature' ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
+		$_GET['signature']  = base64_encode( 'fake-signature' );
 		$_GET['timestamp']  = (string) $expired_timestamp;
 		$_GET['url']        = 'https://example.org';
 		$_GET['rest_route'] = '/jetpack/v4/connection/test-wpcom';

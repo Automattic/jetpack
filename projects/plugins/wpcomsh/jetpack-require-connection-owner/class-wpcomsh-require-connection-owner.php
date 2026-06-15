@@ -21,7 +21,7 @@ class WPCOMSH_Require_Connection_Owner {
 	 * @param Automattic\Jetpack\Connection\Manager $connection_manager Instance of the Manager class, can be used to check the connection status.
 	 * @return bool
 	 */
-	public static function filter_is_connection_ready( $is_connection_ready, $connection_manager ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter
+	public static function filter_is_connection_ready( $is_connection_ready, $connection_manager ) {
 		return $connection_manager->has_connected_owner() || $connection_manager->is_user_connected();
 	}
 }

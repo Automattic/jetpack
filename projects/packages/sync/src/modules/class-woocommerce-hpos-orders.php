@@ -528,7 +528,7 @@ class WooCommerce_HPOS_Orders extends Module {
 	 * @param array $config Full sync configuration for this sync module.
 	 * @return int Number of items yet to be enqueued.
 	 */
-	public function estimate_full_sync_actions( $config ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- We return all order count for full sync, so confit is not required.
+	public function estimate_full_sync_actions( $config ) {
 		global $wpdb;
 
 		$query = "SELECT count(*) FROM {$this->table()} WHERE {$this->get_where_sql( $config ) }";

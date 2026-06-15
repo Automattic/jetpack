@@ -1,0 +1,7 @@
+# ShellCheck configuration for the Jetpack monorepo.
+# Docs: https://github.com/koalaman/shellcheck/wiki/Directive#shellcheckrc-file
+
+# Read referenced files, which helps avoid SC1090 (can't follow non-constant source) and SC2154 (var referenced but not assigned).
+external-sources=true
+# Resolve from script dir, not cwd.
+source-path=SCRIPTDIR

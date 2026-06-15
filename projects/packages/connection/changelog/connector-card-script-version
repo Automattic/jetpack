@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Connectors: Add cache-busting version to the connector card script module so updated assets are served after changes.

@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.6] - 2026-06-09
+### Changed
+- Update package dependencies. [#49273]
+
 ## [1.2.5] - 2026-06-01
 ### Fixed
 - Stop the admin-page-layout flex chain at the boot stage so a @wordpress/boot dashboard's inspector renders beside the page instead of below it. [#49199]
@@ -538,6 +542,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies.
 - Use Node 16.7.0 in tooling. This shouldn't change the behavior of the code itself.
 
+[1.2.6]: https://github.com/Automattic/jetpack-base-styles/compare/1.2.5...1.2.6
 [1.2.5]: https://github.com/Automattic/jetpack-base-styles/compare/1.2.4...1.2.5
 [1.2.4]: https://github.com/Automattic/jetpack-base-styles/compare/1.2.3...1.2.4
 [1.2.3]: https://github.com/Automattic/jetpack-base-styles/compare/1.2.2...1.2.3

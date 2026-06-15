@@ -40,6 +40,10 @@
 		"test-js": [
 			"pnpm run build",
 			"pnpm run test"
+		],
+		"test-js-coverage": [
+			"pnpm run build",
+			"pnpm run test-coverage"
 		]
 	},
 	"config": {

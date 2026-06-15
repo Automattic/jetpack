@@ -1,0 +1,146 @@
+/**
+ * External dependencies
+ */
+import { QueryClient, QueryClientProvider, QueryCache } from '@tanstack/react-query';
+import { ReactNode, lazy, Suspense } from 'react';
+/**
+ * Internal dependencies
+ */
+import { globalErrorManager } from './global-error-manager';
+
+const DEFAULT_STALE_TIME = 5 * 60 * 1000;
+const DEFAULT_GC_TIME = 10 * 60 * 1000;
+
+// Upstream gates devtools behind an admin-toolkit experiment flag; that system
+// isn't available here, so we show them in dev builds only. Gate the `lazy()`
+// creation on NODE_ENV (not just the render) so the dynamic import sits in a
+// dead branch that production builds tree-shake out — no orphaned chunk.
+const ReactQueryDevtools =
+	process.env.NODE_ENV !== 'production'
+		? lazy( () =>
+				import( '@tanstack/react-query-devtools' ).then( d => ( {
+					default: d.ReactQueryDevtools,
+				} ) )
+		  )
+		: null;
+
+/**
+ * Extract HTTP status code from various error formats.
+ * WordPress REST API errors may have different shapes.
+ */
+function getErrorStatus( error: unknown ): number | null {
+	if ( ! error || typeof error !== 'object' ) {
+		return null;
+	}
+
+	const err = error as Record< string, unknown >;
+
+	// Standard fetch Response error
+	if ( typeof err.status === 'number' ) {
+		return err.status;
+	}
+
+	// WordPress REST API error format
+	if ( err.data && typeof err.data === 'object' ) {
+		const data = err.data as Record< string, unknown >;
+		if ( typeof data.status === 'number' ) {
+			return data.status;
+		}
+	}
+
+	// Nested response object
+	if ( err.response && typeof err.response === 'object' ) {
+		const response = err.response as Record< string, unknown >;
+		if ( typeof response.status === 'number' ) {
+			return response.status;
+		}
+	}
+
+	return null;
+}
+
+/**
+ * QueryCache with global error detection for auth and server errors.
+ *
+ * Error codes handled:
+ * - 401: Authentication failure (session expired, invalid token)
+ * - 502: Bad gateway (proxy/load balancer can't reach upstream)
+ * - 503: Service unavailable (server overloaded or under maintenance)
+ * - 504: Gateway timeout (request took too long)
+ *
+ * This is QueryClient configuration (not a side effect subscription), so it's
+ * appropriate at module level. The globalErrorManager singleton is used here
+ * because QueryClient must be instantiated once (singleton pattern), but the
+ * error state is safely consumed via useSyncExternalStore in GlobalErrorProvider.
+ *
+ * Network errors are handled separately in GlobalErrorProvider via onlineManager.
+ */
+const queryCache = new QueryCache( {
+	onError: error => {
+		const currentError = globalErrorManager.getError();
+
+		// Don't override network error (highest priority)
+		if ( currentError === 'network' ) {
+			return;
+		}
+
+		const status = getErrorStatus( error );
+
+		if ( status === 401 ) {
+			// Auth errors take precedence over server errors, but not network errors.
+			if ( currentError !== 'auth' ) {
+				globalErrorManager.setError( 'auth' );
+			}
+		} else if ( status === 502 || status === 503 || status === 504 ) {
+			// Server errors: only set if no higher-priority error exists.
+			if ( currentError !== 'auth' && currentError !== 'server' ) {
+				globalErrorManager.setError( 'server' );
+			}
+		}
+	},
+	onSuccess: () => {
+		// Clear transient server errors once queries start succeeding again.
+		if ( globalErrorManager.getError() === 'server' ) {
+			globalErrorManager.clearError();
+		}
+	},
+} );
+
+export const queryClient = new QueryClient( {
+	queryCache,
+	defaultOptions: {
+		queries: {
+			/*
+			 * Stale time is the time after which the data
+			 * is considered stale and a new request is made.
+			 * Stale time: 5 minutes
+			 */
+			staleTime: DEFAULT_STALE_TIME,
+
+			/*
+			 * GC time is the time after which the data is considered garbage
+			 * collected and removed from the cache.
+			 * GC time: 10 minutes
+			 */
+			gcTime: DEFAULT_GC_TIME,
+
+			/**
+			 * Noop fetcher to prevent react-query errors for empty queries in console.
+			 */
+			queryFn: () => Promise.resolve( undefined ),
+		},
+	},
+} );
+
+export const AnalyticsQueryClientProvider = ( { children }: { children: ReactNode } ) => {
+	return (
+		<QueryClientProvider client={ queryClient }>
+			<>{ children }</>
+			{ ReactQueryDevtools && (
+				<Suspense fallback={ null }>
+					<ReactQueryDevtools initialIsOpen={ false } />
+				</Suspense>
+			) }
+		</QueryClientProvider>
+	);
+};

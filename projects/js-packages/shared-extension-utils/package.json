@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-shared-extension-utils",
-	"version": "1.5.21",
+	"version": "2.0.0",
 	"description": "Utility functions used by the block editor extensions",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/shared-extension-utils/#readme",
 	"bugs": {
@@ -13,10 +13,7 @@
 	"license": "GPL-2.0-or-later",
 	"author": "Automattic",
 	"exports": {
-		".": {
-			"react-native": "./index.native.js",
-			"default": "./index.js"
-		},
+		".": "./index.js",
 		"./components": "./src/components/index.js",
 		"./components/wpcom-support-link": "./src/components/wpcom-support-link.jsx",
 		"./icons": "./src/icons.js",
