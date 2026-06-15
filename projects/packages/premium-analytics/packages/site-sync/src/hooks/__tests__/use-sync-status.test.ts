@@ -117,4 +117,18 @@ describe( 'useSyncStatus', () => {
 		await waitFor( () => expect( result.current.isComplete ).toBe( true ) );
 		expect( mockFetch ).not.toHaveBeenCalled();
 	} );
+
+	it( 'updates the milestone live from the sync-status poll', async () => {
+		// Milestone unset at page load; the backend then exposes it on the poll.
+		mockFetch.mockResolvedValue( rawStatus( { initial_full_sync_finished: 1_700_000_500 } ) );
+
+		const { result } = renderHook( () => useSyncStatus() );
+
+		await waitFor( () =>
+			expect( result.current.data?.initialFullSyncFinished ).toBe( 1_700_000_500 )
+		);
+		// Milestone > 0 ⇒ complete even though analytics progress is only at 50%.
+		expect( result.current.isComplete ).toBe( true );
+		expect( result.current.data?.percentage ).toBe( 50 );
+	} );
 } );

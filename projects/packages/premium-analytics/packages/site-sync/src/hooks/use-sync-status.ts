@@ -15,7 +15,8 @@ import type { SyncStatus, UseSyncStatusReturn } from '../types';
 
 /**
  * Read the page-load milestone injected by the backend Sync_Status_Tracker.
- * Static for the lifetime of the page — never re-read while polling.
+ * Used as the initial seed at mount; thereafter the milestone is refreshed live
+ * from each /sync/status poll (see `poll`), so it can flip mid-session.
  *
  * @return The initial full-sync milestone (unix ts), or 0 if never finished.
  */
@@ -55,6 +56,14 @@ export function useSyncStatus(): UseSyncStatusReturn {
 	const poll = useCallback( () => {
 		fetchSyncStatus()
 			.then( raw => {
+				// Refresh the milestone live: the backend exposes the persisted
+				// value on every /sync/status response, so it can flip mid-session
+				// even though the script-data seed was captured once at mount.
+				const live = raw.initial_full_sync_finished ?? 0;
+				if ( live > milestoneRef.current ) {
+					milestoneRef.current = live;
+				}
+
 				const status = toSyncStatus( raw, milestoneRef.current );
 				setData( status );
 				setError( null );

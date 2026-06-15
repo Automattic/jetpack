@@ -7,6 +7,12 @@ export type SyncStatusApiResponse = {
 	started?: boolean;
 	finished?: boolean | number;
 	progress?: Record< string, { sent?: number; total?: number } >;
+	/**
+	 * Persisted analytics initial-full-sync milestone (unix ts, or 0), injected
+	 * onto this response by the backend Sync_Status_Tracker so it can be read live
+	 * on every poll rather than only at page load.
+	 */
+	initial_full_sync_finished?: number;
 };
 
 /**
@@ -17,7 +23,7 @@ export type SyncStatus = {
 	isRunning: boolean;
 	/** Analytics-module progress, 0–100, computed client-side. */
 	percentage: number;
-	/** Page-load milestone: unix ts when the initial analytics sync first finished, else 0. */
+	/** Milestone (unix ts) when the initial analytics sync first finished — seeded from script-data, refreshed live from the poll; else 0. */
 	initialFullSyncFinished: number;
 };
 
