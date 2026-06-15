@@ -1,4 +1,0 @@
-Significance: minor
-Type: fixed
-
-Agents Manager: Bootstrap hooks exactly once even if multiple versions of the class are shipped.
