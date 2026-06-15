@@ -7,7 +7,9 @@ import {
 	PAGE_TYPE_TOKENS,
 	buildPreview,
 	fromDisplay,
+	stringToTokens,
 	toDisplay,
+	tokensToString,
 } from '../title-format-tokens';
 import type { TitleFormatToken } from '../settings-types';
 
@@ -126,5 +128,69 @@ describe( 'buildPreview', () => {
 
 	it( 'falls back to the raw value for an unknown token id', () => {
 		expect( buildPreview( [ { type: 'token', value: 'mystery' } ] ) ).toBe( 'mystery' );
+	} );
+} );
+
+describe( 'tokensToString', () => {
+	it( 'joins placeholders (as labels) and literal fragments into one string', () => {
+		const tokens: TitleFormatToken[] = [
+			{ type: 'token', value: 'post_title' },
+			{ type: 'string', value: ' | ' },
+			{ type: 'token', value: 'site_name' },
+		];
+		expect( tokensToString( tokens ) ).toBe( '[Post title] | [Site name]' );
+	} );
+
+	it( 'returns an empty string for no tokens', () => {
+		expect( tokensToString( [] ) ).toBe( '' );
+	} );
+} );
+
+describe( 'stringToTokens', () => {
+	it( 'parses bracketed labels into placeholders and keeps text as literals', () => {
+		expect( stringToTokens( '[Post title] | [Site name]', PAGE_TYPE_TOKENS.posts ) ).toEqual( [
+			{ type: 'token', value: 'post_title' },
+			{ type: 'string', value: ' | ' },
+			{ type: 'token', value: 'site_name' },
+		] );
+	} );
+
+	it( 'preserves a separator with its surrounding whitespace', () => {
+		expect( stringToTokens( '[Site name] — [Tagline]', PAGE_TYPE_TOKENS.front_page ) ).toEqual( [
+			{ type: 'token', value: 'site_name' },
+			{ type: 'string', value: ' — ' },
+			{ type: 'token', value: 'tagline' },
+		] );
+	} );
+
+	it( 'preserves repeated separators (unlike a token/chip field, which would dedupe)', () => {
+		expect(
+			stringToTokens( '[Post title] | [Site name] | [Tagline]', PAGE_TYPE_TOKENS.posts )
+		).toEqual( [
+			{ type: 'token', value: 'post_title' },
+			{ type: 'string', value: ' | ' },
+			{ type: 'token', value: 'site_name' },
+			{ type: 'string', value: ' | ' },
+			{ type: 'token', value: 'tagline' },
+		] );
+	} );
+
+	it( 'keeps a label not allowed for the page type as a literal fragment', () => {
+		expect( stringToTokens( '[Post title]', PAGE_TYPE_TOKENS.front_page ) ).toEqual( [
+			{ type: 'string', value: '[Post title]' },
+		] );
+	} );
+
+	it( 'returns no tokens for an empty string', () => {
+		expect( stringToTokens( '' ) ).toEqual( [] );
+	} );
+
+	it( 'round-trips with tokensToString', () => {
+		const tokens: TitleFormatToken[] = [
+			{ type: 'token', value: 'post_title' },
+			{ type: 'string', value: ' - ' },
+			{ type: 'token', value: 'site_name' },
+		];
+		expect( stringToTokens( tokensToString( tokens ), PAGE_TYPE_TOKENS.posts ) ).toEqual( tokens );
 	} );
 } );

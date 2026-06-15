@@ -2,8 +2,8 @@
 
 /* eslint-disable react/jsx-no-bind */
 
-import { FormTokenField } from '@wordpress/components';
-import { useMemo } from '@wordpress/element';
+import { Button, TextControl } from '@wordpress/components';
+import { useCallback, useMemo, useRef } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { Badge, Card, CollapsibleCard, Stack } from '@wordpress/ui';
 import {
@@ -12,8 +12,8 @@ import {
 	PAGE_TYPE_TOKENS,
 	TOKEN_LABELS,
 	buildPreview,
-	fromDisplay,
-	toDisplay,
+	stringToTokens,
+	tokensToString,
 } from '../../data/title-format-tokens';
 import './style.scss';
 import type { TitleFormatToken } from '../../data/settings-types';
@@ -34,32 +34,67 @@ interface RowProps {
 }
 
 /**
- * One page type's title-structure editor: a FormTokenField scoped to the tokens
- * that page type allows, plus a live preview. Tokens display as bracketed pretty
- * labels (e.g. `[Site name]`) while raw string fragments like " | " coexist as
- * distinct chips. A bracketed label that isn't valid for this page type is kept
- * as a literal fragment so the save never carries a token the back-end rejects.
+ * One page type's title-structure editor: a text input holding the format as an
+ * editable string (placeholders shown as bracketed labels like `[Site name]`,
+ * with literal text — including separators like ` | ` — typed in between), plus
+ * a row of buttons that insert a placeholder at the caret, and a live preview.
+ *
+ * This mirrors the legacy Jetpack SEO title editor (a text field + insert-token
+ * buttons) rather than a token/chip field, so separators and repeated separators
+ * round-trip cleanly. A bracketed label not valid for this page type is kept as
+ * a literal fragment so the save never carries a token the back-end rejects.
  */
 const TitleStructureRow: FC< RowProps > = ( { pageTypeId, label, tokens, onChange, disabled } ) => {
-	const displayValues = useMemo( () => tokens.map( toDisplay ), [ tokens ] );
-	const suggestions = useMemo(
-		() => PAGE_TYPE_SUGGESTIONS[ pageTypeId ].map( id => `[${ TOKEN_LABELS[ id ] }]` ),
-		[ pageTypeId ]
-	);
+	const inputRef = useRef< HTMLInputElement | null >( null );
+	const value = useMemo( () => tokensToString( tokens ), [ tokens ] );
 	const allowed = PAGE_TYPE_TOKENS[ pageTypeId ];
 	const preview = useMemo( () => buildPreview( tokens ), [ tokens ] );
 
+	const setFromString = useCallback(
+		( next: string ) => onChange( stringToTokens( next, allowed ) ),
+		[ onChange, allowed ]
+	);
+
+	const insertToken = useCallback(
+		( tokenId: string ) => {
+			const input = inputRef.current;
+			const insert = `[${ TOKEN_LABELS[ tokenId ] }]`;
+			// Insert at the caret when we can read it; otherwise append.
+			const caret = input ? input.selectionStart ?? value.length : value.length;
+			setFromString( value.slice( 0, caret ) + insert + value.slice( caret ) );
+			// Restore focus + place the caret after the inserted placeholder.
+			const nextCaret = caret + insert.length;
+			requestAnimationFrame( () => {
+				if ( input ) {
+					input.focus();
+					input.setSelectionRange( nextCaret, nextCaret );
+				}
+			} );
+		},
+		[ value, setFromString ]
+	);
+
 	return (
 		<div className="jetpack-seo-settings__title-row">
-			<FormTokenField
+			<Stack direction="row" gap="xs" wrap>
+				{ PAGE_TYPE_SUGGESTIONS[ pageTypeId ].map( tokenId => (
+					<Button
+						key={ tokenId }
+						variant="secondary"
+						size="small"
+						disabled={ disabled }
+						onClick={ () => insertToken( tokenId ) }
+					>
+						{ TOKEN_LABELS[ tokenId ] }
+					</Button>
+				) ) }
+			</Stack>
+			<TextControl
+				ref={ inputRef }
 				label={ label }
-				value={ displayValues }
-				suggestions={ suggestions }
-				onChange={ next =>
-					onChange( ( next as string[] ).map( display => fromDisplay( display, allowed ) ) )
-				}
+				value={ value }
+				onChange={ setFromString }
 				disabled={ disabled }
-				__experimentalExpandOnFocus
 				__next40pxDefaultSize
 				__nextHasNoMarginBottom
 			/>
@@ -80,7 +115,7 @@ interface Props {
 
 /**
  * Title structure editor covering every page type (front page, posts, pages,
- * tags, archives), one FormTokenField per type. The back-end stores a format
+ * tags, archives), one text-input row per type. The back-end stores a format
  * per page type under `advanced_seo_title_formats`; each type accepts its own
  * token subset (see `PAGE_TYPE_TOKENS`).
  */

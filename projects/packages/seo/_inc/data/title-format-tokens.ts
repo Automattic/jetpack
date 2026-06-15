@@ -85,6 +85,17 @@ const LABEL_TO_TOKEN_ID: Record< string, string > = Object.fromEntries(
 	TOKEN_IDS.map( id => [ TOKEN_LABELS[ id ], id ] )
 );
 
+// Escape a label for safe use inside a RegExp (labels are translated, so a
+// locale could introduce regex-special characters).
+const escapeRegExp = ( value: string ): string => value.replace( /[.*+?^${}()|[\]\\]/g, '\\$&' );
+
+// Matches a bracketed known label, e.g. `[Site name]`, as a *capturing* group so
+// `String.prototype.split` keeps the delimiters — letting us tokenize a format
+// string into an alternating sequence of literal fragments and placeholders.
+const LABEL_PATTERN = new RegExp(
+	`(\\[(?:${ Object.values( TOKEN_LABELS ).map( escapeRegExp ).join( '|' ) })\\])`
+);
+
 /**
  * Render a token as its display string: bracketed pretty label for a known
  * placeholder, raw value for a literal string fragment.
@@ -134,3 +145,33 @@ export const buildPreview = ( tokens: TitleFormatToken[] ): string =>
 			token.type === 'string' ? token.value : TOKEN_PREVIEW_SAMPLES[ token.value ] ?? token.value
 		)
 		.join( '' );
+
+/**
+ * Render an ordered token list into the single editable string shown in the
+ * title-structure text input: bracketed labels for placeholders, literal text
+ * (including separators like ` | `) passed through. Inverse of `stringToTokens`.
+ *
+ * @param tokens - The ordered token list.
+ * @return The editable format string.
+ */
+export const tokensToString = ( tokens: TitleFormatToken[] ): string =>
+	tokens.map( toDisplay ).join( '' );
+
+/**
+ * Parse the editable format string back into the canonical token list: each
+ * `[Known label]` becomes a placeholder (when valid for the page type), and
+ * everything between/around them — separators, spaces, arbitrary text — is kept
+ * verbatim as literal `string` fragments. Unlike a token/chip field this
+ * preserves whitespace and repeated separators. Inverse of `tokensToString`.
+ *
+ * @param input           - The format string from the text input.
+ * @param allowedTokenIds - Token ids valid for this page type; a bracketed label
+ *                        outside the set is kept literal so the save isn't
+ *                        rejected by the back-end.
+ * @return The canonical token list.
+ */
+export const stringToTokens = ( input: string, allowedTokenIds?: string[] ): TitleFormatToken[] =>
+	input
+		.split( LABEL_PATTERN )
+		.filter( segment => segment !== '' )
+		.map( segment => fromDisplay( segment, allowedTokenIds ) );
