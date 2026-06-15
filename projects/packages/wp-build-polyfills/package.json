@@ -24,7 +24,7 @@
 	},
 	"devDependencies": {
 		"@automattic/jetpack-webpack-config": "workspace:*",
-		"@babel/core": "7.29.0",
+		"@babel/core": "7.29.6",
 		"@wordpress/a11y": "^4.40.0",
 		"@wordpress/admin-ui": "2.1.0",
 		"@wordpress/boot": "^0.14.0",
