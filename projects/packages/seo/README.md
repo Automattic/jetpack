@@ -5,7 +5,7 @@ The visibility command center for WordPress sites in the agentic web — a unifi
 This package is built up across a stacked series of PRs (see #48154 for the split plan). It currently provides, on a wp-admin page registered at `admin.php?page=jetpack-seo` (gated on the `seo-tools` module being active):
 
 - **Overview** — a dashboard with **Site visibility** and **Site verification** cards, each deep-linking into the matching Settings section.
-- **Settings** — search-engine indexing, the XML sitemap, canonical URLs, post title structure, the front-page description, and site verification codes, plus read-only search & social previews of the home page (Google / Facebook / X).
+- **Settings** — search-engine indexing, the XML sitemap, canonical URLs, the title structure for all page types (front page, posts, pages, tags, archives), the front-page description, and site verification codes, plus read-only search & social previews of the home page (Google / Facebook / X).
 - **AI** — the AI SEO Enhancer toggle.
 
 The Per-post SEO (Content) tab lands in a follow-up PR.
