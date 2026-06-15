@@ -3,11 +3,11 @@ import { DataViews, filterSortAndPaginate } from '@wordpress/dataviews';
 import { useCallback, useMemo, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { pencil } from '@wordpress/icons';
+import { useNavigate } from '@wordpress/route';
 import { Badge, Link } from '@wordpress/ui';
 import useSeoPosts from '../../data/use-seo-posts';
-import SeoInspector from './seo-inspector';
 import './style.scss';
-import type { ContentPostType, ContentRow, CoverageDelta } from '../../data/content-types';
+import type { ContentRow } from '../../data/content-types';
 import type { Field, Operator, View } from '@wordpress/dataviews';
 import type { FC } from 'react';
 
@@ -81,26 +81,31 @@ function schemaLabel( schemaType: ContentRow[ 'schemaType' ] ): string {
 }
 
 /**
- * Content tab: a DataViews list of posts *and* pages backed by WordPress core
- * REST, reporting the factual *state* of each post's SEO fields (never a
- * score). The hook fetches both types and merges them; filtering (including the
- * post-type filter), sorting and pagination all run client-side over the merged
- * set via `filterSortAndPaginate`. Editing a row opens the SEO inspector in a
- * side panel beside the table.
+ * Content route stage: a DataViews list of posts *and* pages backed by
+ * WordPress core REST, reporting the factual *state* of each post's SEO fields
+ * (never a score). The hook fetches both types and merges them; filtering
+ * (including the post-type filter), sorting and pagination all run client-side
+ * over the merged set via `filterSortAndPaginate`. Editing a row selects it via
+ * the URL (`?postId`), which opens the SEO editor in the route's native
+ * inspector sidebar.
  *
- * @return The Content tab content.
+ * @return The Content stage content.
  */
-interface Props {
-	// Called after a successful per-post SEO save, with the coverage delta to
-	// apply to the Overview card (so it reflects the edit without a reload).
-	onSaved: ( delta: CoverageDelta ) => void;
-}
-
-const ContentScreen: FC< Props > = ( { onSaved } ) => {
+const ContentScreen: FC = () => {
 	const [ view, setView ] = useState< View >( DEFAULT_VIEW );
-	const [ selected, setSelected ] = useState< ContentRow | null >( null );
+	const navigate = useNavigate();
 
 	const { items, isLoading } = useSeoPosts();
+
+	// Select a row for editing by writing it to the URL; the Content route's
+	// `inspector` predicate (`?postId`) then renders the editor in the sidebar.
+	const onEdit = useCallback(
+		( item: ContentRow ) =>
+			navigate( {
+				href: `/content?postId=${ item.id }&postType=${ encodeURIComponent( item.type ) }`,
+			} ),
+		[ navigate ]
+	);
 
 	const fields: Field< ContentRow >[] = useMemo(
 		() => [
@@ -215,10 +220,10 @@ const ContentScreen: FC< Props > = ( { onSaved } ) => {
 				enableSorting: false,
 				enableHiding: false,
 				getValue: () => '',
-				render: ( { item } ) => <EditButton item={ item } onEdit={ setSelected } />,
+				render: ( { item } ) => <EditButton item={ item } onEdit={ onEdit } />,
 			},
 		],
-		[]
+		[ onEdit ]
 	);
 
 	// Client-side filter, sort and paginate the merged posts+pages set. Returns
@@ -230,34 +235,19 @@ const ContentScreen: FC< Props > = ( { onSaved } ) => {
 
 	const onChangeView = useCallback( ( next: View ) => setView( next ), [] );
 	const getItemId = useCallback( ( item: ContentRow ) => String( item.id ), [] );
-	const closeInspector = useCallback( () => setSelected( null ), [] );
 
 	return (
 		<div className="jetpack-seo-content">
-			<div className="jetpack-seo-content__layout">
-				<div className="jetpack-seo-content__main">
-					<DataViews
-						data={ data }
-						fields={ fields as Field< unknown >[] }
-						view={ view }
-						onChangeView={ onChangeView }
-						paginationInfo={ paginationInfo }
-						isLoading={ isLoading }
-						getItemId={ getItemId as ( item: unknown ) => string }
-						defaultLayouts={ defaultLayouts }
-					/>
-				</div>
-				{ selected && (
-					<SeoInspector
-						row={ selected }
-						// Save through the row's own core endpoint; the merged list
-						// mixes posts and pages, so derive the type per row.
-						postType={ selected.type as ContentPostType }
-						onClose={ closeInspector }
-						onSaved={ onSaved }
-					/>
-				) }
-			</div>
+			<DataViews
+				data={ data }
+				fields={ fields as Field< unknown >[] }
+				view={ view }
+				onChangeView={ onChangeView }
+				paginationInfo={ paginationInfo }
+				isLoading={ isLoading }
+				getItemId={ getItemId as ( item: unknown ) => string }
+				defaultLayouts={ defaultLayouts }
+			/>
 		</div>
 	);
 };

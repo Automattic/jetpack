@@ -4,30 +4,14 @@
 	inline-size: 100%;
 }
 
-// Table on the left, inspector panel on the right while a row is being edited.
-.jetpack-seo-content__layout {
-	display: flex;
-	gap: var(--wpds-dimension-gap-lg, 16px);
-	align-items: flex-start;
-}
-
-.jetpack-seo-content__main {
-	flex: 1 1 auto;
-	// Let the table shrink rather than overflow when the inspector is open.
-	min-inline-size: 0;
-}
-
+// The per-post SEO editor, rendered in the route's native inspector sidebar.
+// The framework owns the sidebar panel; this just lays out the editor's
+// contents (header, fields + live preview, actions).
 .jetpack-seo-content__inspector {
-	flex: 0 0 360px;
 	display: flex;
 	flex-direction: column;
 	gap: var(--wpds-dimension-gap-lg, 16px);
 	padding: var(--wpds-dimension-padding-md, 12px);
-	border: 1px solid var(--wpds-color-stroke-surface-neutral-weak, #e0e0e0);
-	border-radius: var(--wpds-border-radius-md, 4px);
-	// Keep the panel in view while scrolling a long table.
-	position: sticky;
-	inset-block-start: var(--wpds-dimension-gap-lg, 16px);
 }
 
 .jetpack-seo-content__inspector-header {
@@ -54,20 +38,6 @@
 	display: flex;
 	justify-content: flex-end;
 	gap: var(--wpds-dimension-gap-sm, 8px);
-}
-
-// Stack the inspector under the table on narrow viewports.
-@media (max-width: 782px) {
-
-	.jetpack-seo-content__layout {
-		flex-direction: column;
-	}
-
-	.jetpack-seo-content__inspector {
-		flex-basis: auto;
-		inline-size: 100%;
-		position: static;
-	}
 }
 
 // Google-style search-result snippet shown live in the inspector.

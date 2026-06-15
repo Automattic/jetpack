@@ -1,26 +1,25 @@
 /* eslint-disable react/jsx-no-bind */
 
+import { useSelect } from '@wordpress/data';
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { useNavigate } from '@wordpress/route';
 import { Notice } from '@wordpress/ui';
+import { coverageStore } from '../../data/coverage-store';
 import getOverview from '../../data/get-overview';
 import ContentCoverageCard from './content-coverage-card';
 import SiteVerificationCard from './site-verification-card';
 import SiteVisibilityCard from './site-visibility-card';
 import './style.scss';
-import type { ContentCoverage } from '../../data/overview-types';
 import type { FC } from 'react';
 
-interface Props {
-	// Live coverage counts, lifted to the app root so Content-tab edits reflect
-	// here on tab switch without a page reload. Falls back to the bootstrap.
-	coverage: ContentCoverage | null;
-}
-
-const OverviewScreen: FC< Props > = ( { coverage } ) => {
+const OverviewScreen: FC = () => {
 	const data = getOverview();
 	const navigate = useNavigate();
+
+	// Coverage comes from the shared store (seeded from the bootstrap) so a save
+	// in the Content route's inspector reflects here on navigation, no reload.
+	const coverage = useSelect( select => select( coverageStore ).getCoverage(), [] );
 
 	// Deep-link to a Settings section: navigate to the Settings route with
 	// `?focus=`, which the Settings screen reads to scroll the section to top.
@@ -30,14 +29,8 @@ const OverviewScreen: FC< Props > = ( { coverage } ) => {
 		[ navigate ]
 	);
 
-	// Deep-link to the Content tab.
-	const goToContent = useCallback(
-		() =>
-			navigate( {
-				search: ( prev: Record< string, unknown > ) => ( { ...prev, tab: 'content' } ),
-			} as unknown as Parameters< typeof navigate >[ 0 ] ),
-		[ navigate ]
-	);
+	// Deep-link to the Content route.
+	const goToContent = useCallback( () => navigate( { href: '/content' } ), [ navigate ] );
 
 	if ( ! data ) {
 		return (

@@ -14,14 +14,9 @@ import { decodeEntities } from '@wordpress/html-entities';
 import { __ } from '@wordpress/i18n';
 import { close } from '@wordpress/icons';
 import { store as noticesStore } from '@wordpress/notices';
+import { coverageStore } from '../../data/coverage-store';
 import SerpPreview from './serp-preview';
-import type {
-	ContentPostType,
-	ContentRow,
-	CoverageDelta,
-	SchemaType,
-	SeoPostMeta,
-} from '../../data/content-types';
+import type { ContentPostType, SchemaType, SeoPostMeta } from '../../data/content-types';
 import type { FC } from 'react';
 
 // Single snackbar id reused across a save so "Saving…" is replaced in place by
@@ -38,14 +33,12 @@ const SCHEMA_OPTIONS: Array< { value: SchemaType; label: string } > = [
 ];
 
 interface Props {
-	// The row selected in the table (table-loaded values are the initial state).
-	row: ContentRow;
+	// The selected post id (from the Content route's `?postId`).
+	postId: number;
 	// The core endpoint to save through: 'post' or 'page'.
 	postType: ContentPostType;
+	// Dismiss the inspector (clears the URL selection).
 	onClose: () => void;
-	// Called after a successful save with the coverage delta to apply to the
-	// Overview card (so it updates without a page reload).
-	onSaved: ( delta: CoverageDelta ) => void;
 }
 
 // The editable subset of SEO meta the inspector owns.
@@ -57,34 +50,39 @@ type EditableMeta = Pick<
 	| 'jetpack_seo_schema_type'
 >;
 
+const EMPTY_META: EditableMeta = {
+	advanced_seo_description: '',
+	jetpack_seo_html_title: '',
+	jetpack_seo_noindex: false,
+	jetpack_seo_schema_type: '',
+};
+
 /**
- * Edit one post's SEO fields in a side panel beside the Content table (the
- * inspector pattern, in place of a modal). Loads the live record via core-data
- * (`useEntityRecord`) and saves the post's `meta` through
- * `editEntityRecord` → `saveEditedEntityRecord( 'postType', type, id )`. No
- * custom endpoint. The SERP preview updates live as fields change.
+ * Edit one post's SEO fields, rendered in the Content route's native inspector
+ * sidebar and keyed by the selected `postId`. Loads the live record via
+ * core-data (`useEntityRecord`) and saves the post's `meta` through
+ * `editEntityRecord` → `saveEditedEntityRecord( 'postType', type, id )` — no
+ * custom endpoint. On success it dispatches a coverage delta to the shared store
+ * so the Overview card reflects the change without a page reload. The SERP
+ * preview updates live as fields change.
  *
  * @param props          - Component props.
- * @param props.row      - The selected row (initial field values).
+ * @param props.postId   - The selected post id.
  * @param props.postType - The core endpoint to save through ('post' | 'page').
- * @param props.onClose  - Called to dismiss the inspector.
- * @param props.onSaved  - Called after a successful save with the coverage delta.
- * @return The SEO inspector panel.
+ * @param props.onClose  - Dismiss the inspector.
+ * @return The SEO inspector editor.
  */
-const SeoInspector: FC< Props > = ( { row, postType, onClose, onSaved } ) => {
-	const { record, isResolving } = useEntityRecord( 'postType', postType, row.id );
+const SeoInspector: FC< Props > = ( { postId, postType, onClose } ) => {
+	const { record, isResolving } = useEntityRecord( 'postType', postType, postId );
 	const { editEntityRecord, saveEditedEntityRecord } = useDispatch( coreStore );
 	const { createInfoNotice, createSuccessNotice, createErrorNotice } = useDispatch( noticesStore );
+	const { applyCoverageDelta } = useDispatch( coverageStore );
 	const [ isSaving, setIsSaving ] = useState( false );
 
-	// Local form state, seeded from the table row so fields are populated before
-	// the live record resolves, then reconciled once core-data returns `meta`.
-	const [ local, setLocal ] = useState< EditableMeta >( () => ( {
-		advanced_seo_description: row.description,
-		jetpack_seo_html_title: row.customTitle,
-		jetpack_seo_noindex: row.noindex,
-		jetpack_seo_schema_type: row.schemaType,
-	} ) );
+	// Empty until the live record resolves; reconciled from its `meta` below.
+	// Saving is blocked while resolving so we never persist these empty defaults
+	// over the post's existing meta.
+	const [ local, setLocal ] = useState< EditableMeta >( EMPTY_META );
 
 	const recordMeta = ( record as { meta?: Partial< SeoPostMeta > } | undefined )?.meta;
 	useEffect( () => {
@@ -118,25 +116,19 @@ const SeoInspector: FC< Props > = ( { row, postType, onClose, onSaved } ) => {
 		try {
 			// Stage the meta edit, then persist it. core-data merges `meta`, so we
 			// only send the four SEO keys, leaving any other post meta untouched.
-			editEntityRecord( 'postType', postType, row.id, { meta: local } );
-			await saveEditedEntityRecord( 'postType', postType, row.id );
+			editEntityRecord( 'postType', postType, postId, { meta: local } );
+			await saveEditedEntityRecord( 'postType', postType, postId );
 			createSuccessNotice( __( 'SEO updated.', 'jetpack-seo' ), {
 				id: SAVE_NOTICE_ID,
 				type: 'snackbar',
 			} );
-			// Nudge the Overview coverage card to reflect this edit without a reload.
-			// Baseline the delta against the live pre-save record (`recordMeta`) when
-			// it has resolved, falling back to the table-row snapshot — the row can be
-			// stale relative to the meta we reconcile into `local`, which would drift
-			// the Overview counts until a reload.
-			const priorHasDescription = recordMeta
-				? ( recordMeta.advanced_seo_description ?? '' ) !== ''
-				: row.hasDescription;
-			const priorHasSchema = recordMeta
-				? recordMeta.jetpack_seo_schema_type === 'article' ||
-				  recordMeta.jetpack_seo_schema_type === 'faq'
-				: row.schemaType !== '';
-			onSaved( {
+			// Reflect the edit on the Overview coverage card without a reload,
+			// baselining the delta against the live pre-save record's meta.
+			const priorHasDescription = ( recordMeta?.advanced_seo_description ?? '' ) !== '';
+			const priorHasSchema =
+				recordMeta?.jetpack_seo_schema_type === 'article' ||
+				recordMeta?.jetpack_seo_schema_type === 'faq';
+			applyCoverageDelta( {
 				description:
 					Number( local.advanced_seo_description !== '' ) - Number( priorHasDescription ),
 				schema: Number( local.jetpack_seo_schema_type !== '' ) - Number( priorHasSchema ),
@@ -152,33 +144,28 @@ const SeoInspector: FC< Props > = ( { row, postType, onClose, onSaved } ) => {
 			setIsSaving( false );
 		}
 	}, [
+		applyCoverageDelta,
 		createErrorNotice,
 		createInfoNotice,
 		createSuccessNotice,
 		editEntityRecord,
 		local,
 		onClose,
-		onSaved,
+		postId,
 		postType,
 		recordMeta,
-		row.hasDescription,
-		row.id,
-		row.schemaType,
 		saveEditedEntityRecord,
 	] );
 
 	const postTitle = useMemo( () => {
 		const rendered = ( record as { title?: { rendered?: string } } | undefined )?.title?.rendered;
-		return rendered ? decodeEntities( rendered ) : row.title;
-	}, [ record, row.title ] );
+		return rendered ? decodeEntities( rendered ) : '';
+	}, [ record ] );
 
-	const permalink = ( record as { link?: string } | undefined )?.link ?? row.link;
+	const permalink = ( record as { link?: string } | undefined )?.link ?? '';
 
 	return (
-		<aside
-			className="jetpack-seo-content__inspector"
-			aria-label={ __( 'Edit SEO', 'jetpack-seo' ) }
-		>
+		<div className="jetpack-seo-content__inspector" aria-label={ __( 'Edit SEO', 'jetpack-seo' ) }>
 			<div className="jetpack-seo-content__inspector-header">
 				<h2 className="jetpack-seo-content__inspector-title">
 					{ __( 'Edit SEO', 'jetpack-seo' ) }
@@ -244,11 +231,16 @@ const SeoInspector: FC< Props > = ( { row, postType, onClose, onSaved } ) => {
 				<Button variant="tertiary" onClick={ onClose } disabled={ isSaving }>
 					{ __( 'Cancel', 'jetpack-seo' ) }
 				</Button>
-				<Button variant="primary" onClick={ onSave } isBusy={ isSaving } disabled={ isSaving }>
+				<Button
+					variant="primary"
+					onClick={ onSave }
+					isBusy={ isSaving }
+					disabled={ isSaving || isResolving }
+				>
 					{ __( 'Save', 'jetpack-seo' ) }
 				</Button>
 			</div>
-		</aside>
+		</div>
 	);
 };
 
