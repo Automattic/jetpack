@@ -713,11 +713,13 @@ class Api_Proxy_Controller_Test extends BaseTestCase {
 	private function invoke_bust( string $endpoint, string $version, bool $is_write, bool $bust_on_write, int $status ): void {
 		$accessor = function ( string $e, string $v, bool $w, bool $b, int $s ) {
 			// @phan-suppress-next-line PhanUndeclaredMethod -- rebound to the controller via Closure::call().
+			$path = $this->build_data_path( $e );
+			// @phan-suppress-next-line PhanUndeclaredMethod -- rebound to the controller via Closure::call().
 			$this->maybe_bust_read_cache(
 				array( 'response' => array( 'code' => $s ) ),
 				$w,
 				array( 'bust_on_write' => $b ),
-				$this->build_data_path( $e ),
+				$path,
 				$v,
 				'2' === $v ? 'wpcom' : 'rest'
 			);
