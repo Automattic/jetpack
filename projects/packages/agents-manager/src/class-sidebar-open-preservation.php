@@ -12,7 +12,7 @@ namespace Automattic\Jetpack\Agents_Manager;
  * navigations so the next page load can pre-apply them server-side (avoiding a
  * flicker before the React app boots).
  *
- * The open state comes from Open_State_Store's cache, and the pre-render only
+ * The open state comes from Open_State_Store::get_cached(), and the pre-render only
  * runs when the Agents Manager app is actually loading on this request — so the
  * pre-rendered shell is always reconciled by the app that mounts to manage it,
  * never left orphaned.

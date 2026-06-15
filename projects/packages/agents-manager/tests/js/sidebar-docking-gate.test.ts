@@ -71,6 +71,15 @@ async function runGate(): Promise< void > {
 	} );
 }
 
+/**
+ * Let queued MutationObserver callbacks run.
+ */
+async function flushMutations(): Promise< void > {
+	await new Promise( resolve => {
+		setTimeout( resolve, 0 );
+	} );
+}
+
 describe( 'sidebar-docking-gate', () => {
 	beforeEach( () => {
 		document.body.innerHTML = '';
@@ -231,6 +240,105 @@ describe( 'sidebar-docking-gate', () => {
 
 		DOCKED_SIDEBAR_BODY_CLASSES.forEach( cls => {
 			expect( document.body ).not.toHaveClass( cls );
+		} );
+	} );
+
+	it( 'strips the shell when a fullscreen-gated class is added after the first run', async () => {
+		addDockedClasses();
+
+		const adminMenu = document.createElement( 'div' );
+		adminMenu.id = 'adminmenu';
+		stubOffsetHeight( adminMenu, 400 );
+		document.body.appendChild( adminMenu );
+		setViewportHeight( 1000 );
+
+		await runGate();
+
+		// Not a gated screen yet, so the shell is kept on the first run.
+		DOCKED_SIDEBAR_BODY_CLASSES.forEach( cls => {
+			expect( document.body ).toHaveClass( cls );
+		} );
+
+		// The editor screen class lands later and we are not in fullscreen → strip.
+		document.body.classList.add( 'post-php' );
+		await flushMutations();
+
+		DOCKED_SIDEBAR_BODY_CLASSES.forEach( cls => {
+			expect( document.body ).not.toHaveClass( cls );
+		} );
+	} );
+
+	it( 'keeps the shell when a gated class is added while in fullscreen mode', async () => {
+		addDockedClasses();
+
+		const adminMenu = document.createElement( 'div' );
+		adminMenu.id = 'adminmenu';
+		stubOffsetHeight( adminMenu, 400 );
+		document.body.appendChild( adminMenu );
+		setViewportHeight( 1000 );
+
+		await runGate();
+
+		document.body.classList.add( 'post-php', 'is-fullscreen-mode' );
+		await flushMutations();
+
+		DOCKED_SIDEBAR_BODY_CLASSES.forEach( cls => {
+			expect( document.body ).toHaveClass( cls );
+		} );
+	} );
+
+	it( 'stops observing once the chat app mounts', async () => {
+		addDockedClasses();
+
+		const adminMenu = document.createElement( 'div' );
+		adminMenu.id = 'adminmenu';
+		stubOffsetHeight( adminMenu, 400 );
+		document.body.appendChild( adminMenu );
+		setViewportHeight( 1000 );
+
+		await runGate();
+
+		// The app mounted and owns docking from here on.
+		const portal = document.createElement( 'div' );
+		portal.className = 'agents-manager-chat';
+		document.body.appendChild( portal );
+
+		// A late gated, non-fullscreen change would otherwise strip — but the gate
+		// has handed off, so it leaves the shell for the app to manage.
+		document.body.classList.add( 'post-php' );
+		await flushMutations();
+
+		DOCKED_SIDEBAR_BODY_CLASSES.forEach( cls => {
+			expect( document.body ).toHaveClass( cls );
+		} );
+	} );
+
+	it( 'disconnects after one strip and never loops or re-strips', async () => {
+		addDockedClasses();
+
+		const adminMenu = document.createElement( 'div' );
+		adminMenu.id = 'adminmenu';
+		stubOffsetHeight( adminMenu, 400 );
+		document.body.appendChild( adminMenu );
+		setViewportHeight( 1000 );
+
+		await runGate();
+
+		// A gated, non-fullscreen change lands → the observer strips once. The strip
+		// mutates the class attribute; if it re-triggered itself, flushMutations()
+		// would never settle and this test would hang.
+		document.body.classList.add( 'post-php' );
+		await flushMutations();
+		DOCKED_SIDEBAR_BODY_CLASSES.forEach( cls => {
+			expect( document.body ).not.toHaveClass( cls );
+		} );
+
+		// Re-add the shell on the still-gated body: a live observer would strip it
+		// again, so its survival proves the observer disconnected after the strip.
+		addDockedClasses();
+		await flushMutations();
+		DOCKED_SIDEBAR_BODY_CLASSES.forEach( cls => {
+			expect( document.body ).toHaveClass( cls );
 		} );
 	} );
 } );

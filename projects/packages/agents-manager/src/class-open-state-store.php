@@ -8,16 +8,19 @@
 namespace Automattic\Jetpack\Agents_Manager;
 
 use Automattic\Jetpack\Connection\Client;
+use Automattic\Jetpack\Status\Host;
 
 /**
  * Reads and writes the Agents Manager open state.
  *
- * The source of truth is a global (per-user) wpcom preference exposed by the
- * `/agents-manager/state` endpoint. Because that read is a remote HTTP request,
- * the resolved state is mirrored into a short-lived per-user transient so other
- * code paths (notably the server-side sidebar pre-render) can read it without
- * paying the round-trip. The transient is refreshed for free every time the
- * frontend reads or writes the state through this store.
+ * The state is a global, per-user wpcom preference behind the
+ * `/agents-manager/state` endpoint. How the server reads it depends on the site:
+ *
+ * - wpcom Simple: the preference is local, so read `calypso_preferences` directly.
+ * - WoA / self-hosted: the preference is remote, so reads/writes go through this
+ *   store's local REST route, which calls wpcom over the Jetpack Connection and
+ *   caches the result in a per-user transient. Latency-sensitive readers (the
+ *   server-side pre-render) use that transient to skip the round-trip.
  */
 class Open_State_Store {
 
@@ -102,11 +105,12 @@ class Open_State_Store {
 	}
 
 	/**
-	 * Read the cached open state for the current user without hitting wpcom.
+	 * Read the current user's open state from the fastest local source.
 	 *
-	 * Intended for latency-sensitive paths (e.g. server-side pre-render). Returns
-	 * null when nothing is cached yet; callers should treat that as "unknown" and
-	 * avoid pre-rendering, letting the frontend establish the real state.
+	 * For latency-sensitive callers like the server-side pre-render: Simple sites
+	 * read `calypso_preferences` directly, everywhere else uses the cached
+	 * transient (see the class docblock). Returns null when nothing is known yet,
+	 * so callers can skip pre-rendering until the frontend sets the real state.
 	 *
 	 * @return array|null `{ agents_manager_open, agents_manager_docked }` or null.
 	 */
@@ -114,6 +118,20 @@ class Open_State_Store {
 		$user_id = get_current_user_id();
 		if ( ! $user_id ) {
 			return null;
+		}
+
+		// Simple sites have the preference locally, so read it directly (the
+		// transient is never primed there).
+		if ( ( new Host() )->is_wpcom_simple() && function_exists( '\get_user_attribute' ) ) {
+			$calypso_prefs = \get_user_attribute( $user_id, 'calypso_preferences' );
+			if ( ! is_array( $calypso_prefs ) ) {
+				return null;
+			}
+
+			return array(
+				'agents_manager_open'   => (bool) ( $calypso_prefs['agents_manager_open'] ?? false ),
+				'agents_manager_docked' => (bool) ( $calypso_prefs['agents_manager_docked'] ?? false ),
+			);
 		}
 
 		$cached = get_transient( self::cache_key( $user_id ) );
@@ -139,7 +157,10 @@ class Open_State_Store {
 	}
 
 	/**
-	 * Cache the bits of state the pre-render needs for the current user.
+	 * Cache the open/docked bits in a per-user transient.
+	 *
+	 * Only used on the remote (WoA / self-hosted) path — it's what get_cached()
+	 * reads there. Simple sites read `calypso_preferences` directly and skip this.
 	 *
 	 * @param array $state Normalized state.
 	 */
@@ -152,9 +173,8 @@ class Open_State_Store {
 		/**
 		 * Filter how long the cached open state lives.
 		 *
-		 * The cache is refreshed on every read/write through this store, so this
-		 * mainly bounds how long a stale value set on another domain (e.g. the
-		 * Calypso app) can linger before it is re-fetched.
+		 * It's refreshed on every read/write through this store, so the TTL mainly
+		 * caps how long a value changed elsewhere (e.g. in Calypso) stays stale.
 		 *
 		 * @since 0.4.0
 		 *
