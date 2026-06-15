@@ -18,9 +18,7 @@ const OverviewScreen: FC = () => {
 	// `?focus=`, which the Settings screen reads to scroll the section to top.
 	const goToSection = useCallback(
 		( section: 'visibility' | 'verification' ) =>
-			navigate( { href: `/settings?focus=${ section }` } as unknown as Parameters<
-				typeof navigate
-			>[ 0 ] ),
+			navigate( { href: `/settings?focus=${ encodeURIComponent( section ) }` } ),
 		[ navigate ]
 	);
 

@@ -29,7 +29,7 @@ const DashboardNav = ( { active }: { active: SeoTab } ) => {
 	const onTabChange = useCallback(
 		( next: string | null ) => {
 			if ( next === 'overview' || next === 'settings' || next === 'ai' ) {
-				navigate( { href: ROUTE_BY_TAB[ next ] } as unknown as Parameters< typeof navigate >[ 0 ] );
+				navigate( { href: ROUTE_BY_TAB[ next ] } );
 			}
 		},
 		[ navigate ]
