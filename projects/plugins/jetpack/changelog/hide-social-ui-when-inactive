@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+Social: hide the Social admin menu and block editor sidebar when the Social module is disabled
