@@ -191,7 +191,7 @@ class Agents_Manager {
 		}
 
 		// Determine which variant to load (null = don't load).
-		$variant = apply_filters( 'agents_manager_variant', $this->get_variant() );
+		$variant = self::get_active_variant();
 		if ( null === $variant ) {
 			return;
 		}
@@ -326,6 +326,27 @@ class Agents_Manager {
 	}
 
 	/**
+	 * The script variant active for this request, or null if none.
+	 *
+	 * Single source of truth for "is the Agents Manager app loaded on this
+	 * request?". Used both to enqueue the app and to gate the server-side
+	 * sidebar pre-render, so the pre-rendered shell can never appear on a page
+	 * where the app won't mount to reconcile it.
+	 *
+	 * @return string|null The variant name, or null if scripts should not be loaded.
+	 */
+	public static function get_active_variant() {
+		/**
+		 * Filter the script variant the Agents Manager loads for this request.
+		 *
+		 * @since 0.1.0
+		 *
+		 * @param string|null $variant The resolved variant, or null to not load.
+		 */
+		return apply_filters( 'agents_manager_variant', self::get_variant() );
+	}
+
+	/**
 	 * Determine which script variant to load, or null if none should be loaded.
 	 *
 	 * Combines the gating logic (should we load at all?) with variant selection
@@ -333,22 +354,22 @@ class Agents_Manager {
 	 *
 	 * @return string|null The variant name, or null if scripts should not be loaded.
 	 */
-	private function get_variant() {
+	private static function get_variant() {
 		// CIAB: Load either the connected or disconnected variants if enabled.
-		if ( $this->is_ciab_environment() && self::is_enabled() ) {
-			return $this->is_jetpack_disconnected() ? 'ciab-disconnected' : 'ciab';
+		if ( self::is_ciab_environment() && self::is_enabled() ) {
+			return self::is_jetpack_disconnected() ? 'ciab-disconnected' : 'ciab';
 		}
 
 		// Frontend: load disconnected variant for eligible logged-in editors.
 		if ( ! is_admin() ) {
-			if ( $this->is_loading_on_frontend() && self::is_enabled() ) {
+			if ( self::is_loading_on_frontend() && self::is_enabled() ) {
 				return 'wp-admin-disconnected';
 			}
 			return null;
 		}
 
 		// Apply wp-admin exclusions (WooCommerce, customizer, preview contexts).
-		if ( ! $this->passes_admin_checks() ) {
+		if ( ! self::passes_admin_checks() ) {
 			return null;
 		}
 
@@ -356,9 +377,9 @@ class Agents_Manager {
 			return null;
 		}
 
-		$disconnected = $this->is_jetpack_disconnected();
+		$disconnected = self::is_jetpack_disconnected();
 
-		if ( $this->is_block_editor() ) {
+		if ( self::is_block_editor() ) {
 			return $disconnected ? 'gutenberg-disconnected' : 'gutenberg';
 		}
 
@@ -403,7 +424,7 @@ class Agents_Manager {
 	 *
 	 * @return bool
 	 */
-	private function passes_admin_checks() {
+	private static function passes_admin_checks() {
 		// Don't load on WooCommerce Admin home page to avoid UI conflicts.
 		global $current_screen;
 		if ( $current_screen && $current_screen->id === 'woocommerce_page_wc-admin' ) {
@@ -785,7 +806,7 @@ class Agents_Manager {
 	 *
 	 * @return bool True if loading on the frontend for an eligible user.
 	 */
-	private function is_loading_on_frontend() {
+	private static function is_loading_on_frontend() {
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- This is a context check, not a form submission.
 		if ( isset( $_GET['na_site_preview'] ) || isset( $_GET['preview_overlay'] ) ) {
 			return false;
@@ -797,7 +818,7 @@ class Agents_Manager {
 		}
 
 		$can_edit_posts = current_user_can( 'edit_posts' ) && is_user_member_of_blog();
-		return ! is_admin() && ! $this->is_block_editor() && $can_edit_posts;
+		return ! is_admin() && ! self::is_block_editor() && $can_edit_posts;
 	}
 
 	/**
@@ -833,7 +854,7 @@ class Agents_Manager {
 	 *
 	 * @return bool True if the site uses Jetpack but the current user is not connected.
 	 */
-	private function is_jetpack_disconnected() {
+	private static function is_jetpack_disconnected() {
 		$user_id = get_current_user_id();
 		$blog_id = get_current_blog_id();
 
