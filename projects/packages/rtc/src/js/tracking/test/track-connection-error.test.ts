@@ -24,7 +24,7 @@ type StatusListener = ( status: unknown ) => void;
 
 /**
  * Build a fake provider whose `on('status')` listeners can be fired by the test
- * via the returned `emitStatus()` helper.
+ * via the returned `emitStatus()` helper, and whose `destroy` is observable.
  *
  * @return A fake provider result plus an `emitStatus` trigger.
  */
@@ -53,31 +53,58 @@ describe( 'withConnectionErrorTracking', () => {
 		isRoomLimitBreachedMock.mockReturnValue( false );
 	} );
 
-	it( 'records jetpack_rtc_connection_error on a genuine disconnect with an error', async () => {
-		const provider = makeProvider();
-		const creator = jest.fn().mockResolvedValue( provider );
-		const wrapped = withConnectionErrorTracking( creator as never );
-
-		await wrapped( entityRoom as never );
-		provider.emitStatus( { status: 'disconnected', error: { code: 'unknown-error' } } );
-
-		expect( recordRtcEventMock ).toHaveBeenCalledTimes( 1 );
-		expect( recordRtcEventMock ).toHaveBeenCalledWith( 'jetpack_rtc_connection_error', {
-			error_code: 'unknown-error',
-		} );
-	} );
-
-	it( 'does not record a clean disconnect with no error', async () => {
+	it( 'records jetpack_rtc_connection_error on a bare disconnect (no error, e.g. PingHub)', async () => {
 		const provider = makeProvider();
 		const creator = jest.fn().mockResolvedValue( provider );
 		const wrapped = withConnectionErrorTracking( creator as never );
 
 		await wrapped( entityRoom as never );
 		provider.emitStatus( { status: 'disconnected' } );
-		provider.emitStatus( { status: 'connected' } );
+
+		expect( recordRtcEventMock ).toHaveBeenCalledTimes( 1 );
+		expect( recordRtcEventMock ).toHaveBeenCalledWith( 'jetpack_rtc_connection_error', {
+			error_code: undefined,
+		} );
+	} );
+
+	it( 'includes the error code when the transport supplies one', async () => {
+		const provider = makeProvider();
+		const creator = jest.fn().mockResolvedValue( provider );
+		const wrapped = withConnectionErrorTracking( creator as never );
+
+		await wrapped( entityRoom as never );
+		provider.emitStatus( { status: 'disconnected', error: { code: 'authentication-failed' } } );
+
+		expect( recordRtcEventMock ).toHaveBeenCalledWith( 'jetpack_rtc_connection_error', {
+			error_code: 'authentication-failed',
+		} );
+	} );
+
+	it( 'does not record connected or connecting statuses', async () => {
+		const provider = makeProvider();
+		const creator = jest.fn().mockResolvedValue( provider );
+		const wrapped = withConnectionErrorTracking( creator as never );
+
+		await wrapped( entityRoom as never );
 		provider.emitStatus( { status: 'connecting' } );
+		provider.emitStatus( { status: 'connected' } );
 
 		expect( recordRtcEventMock ).not.toHaveBeenCalled();
+	} );
+
+	it( 'does not record a disconnect emitted during teardown', async () => {
+		const provider = makeProvider();
+		const creator = jest.fn().mockResolvedValue( provider );
+		const wrapped = withConnectionErrorTracking( creator as never );
+
+		const result = await wrapped( entityRoom as never );
+		// Navigating away / switching posts tears the provider down, which emits
+		// 'disconnected' synchronously — that must not count as a connection error.
+		( result as { destroy: () => void } ).destroy();
+		provider.emitStatus( { status: 'disconnected' } );
+
+		expect( recordRtcEventMock ).not.toHaveBeenCalled();
+		expect( provider.destroy ).toHaveBeenCalledTimes( 1 );
 	} );
 
 	it( 'skips the per-room-limit case (connection-limit-exceeded code)', async () => {
@@ -101,19 +128,20 @@ describe( 'withConnectionErrorTracking', () => {
 		const wrapped = withConnectionErrorTracking( creator as never );
 
 		await wrapped( entityRoom as never );
-		provider.emitStatus( { status: 'disconnected', error: { code: 'unknown-error' } } );
+		provider.emitStatus( { status: 'disconnected' } );
 
 		expect( recordRtcEventMock ).not.toHaveBeenCalled();
 	} );
 
-	it( 'records only once even if the connection keeps flapping', async () => {
+	it( 'records only once even if the connection keeps dropping', async () => {
 		const provider = makeProvider();
 		const creator = jest.fn().mockResolvedValue( provider );
 		const wrapped = withConnectionErrorTracking( creator as never );
 
 		await wrapped( entityRoom as never );
+		provider.emitStatus( { status: 'disconnected' } );
+		provider.emitStatus( { status: 'connecting' } );
 		provider.emitStatus( { status: 'disconnected', error: { code: 'unknown-error' } } );
-		provider.emitStatus( { status: 'disconnected', error: { code: 'connection-expired' } } );
 
 		expect( recordRtcEventMock ).toHaveBeenCalledTimes( 1 );
 	} );
@@ -124,19 +152,20 @@ describe( 'withConnectionErrorTracking', () => {
 		const wrapped = withConnectionErrorTracking( creator as never );
 
 		await wrapped( { ...entityRoom, objectId: null } as never );
-		provider.emitStatus( { status: 'disconnected', error: { code: 'unknown-error' } } );
+		provider.emitStatus( { status: 'disconnected' } );
 
 		expect( recordRtcEventMock ).not.toHaveBeenCalled();
 	} );
 
-	it( 'returns the inner provider result', async () => {
+	it( 'forwards destroy to the inner provider', async () => {
 		const provider = makeProvider();
 		const creator = jest.fn().mockResolvedValue( provider );
 		const wrapped = withConnectionErrorTracking( creator as never );
 
 		const result = await wrapped( entityRoom as never );
+		( result as { destroy: () => void } ).destroy();
 
-		expect( result ).toBe( provider );
+		expect( provider.destroy ).toHaveBeenCalledTimes( 1 );
 	} );
 } );
 

@@ -6,37 +6,42 @@ import type { ConnectionStatus, ProviderCreator } from '@wordpress/sync';
 const CONNECTION_ERROR_EVENT = 'jetpack_rtc_connection_error';
 
 /**
- * Whether a status event represents a genuine, non-limit connection error.
+ * Whether a disconnect is the per-room-limit case, which is reported separately
+ * as `jetpack_rtc_blocked` and so must be skipped here to avoid double-counting.
  *
- * A clean disconnect (no `error`, e.g. page teardown or a normal close) is not
- * an error. The per-room-limit case is deliberately skipped: it is already
- * reported as `jetpack_rtc_blocked`, so counting it here too would double-count.
- * The limit case is recognised exactly as the connection-error modal recognises
- * it — the `connection-limit-exceeded` code (emitted by the room-limit wrapper)
- * or the `isRoomLimitBreached()` flag that wrapper sets.
+ * Recognised by the `connection-limit-exceeded` code the room-limit wrapper
+ * emits, or the `isRoomLimitBreached()` flag it sets — the same distinction the
+ * connection-error modal uses.
  *
- * @param status - The connection status emitted by the provider.
- * @return True for a genuine, non-limit connection error.
+ * @param status - The disconnected status emitted by the provider.
+ * @return True for the room-limit disconnect.
  */
-function isGenuineConnectionError( status: ConnectionStatus ): boolean {
-	if ( status.status !== 'disconnected' || ! status.error ) {
-		return false;
-	}
-	return status.error.code !== 'connection-limit-exceeded' && ! isRoomLimitBreached();
+function isRoomLimitDisconnect( status: ConnectionStatus ): boolean {
+	const code = status.status === 'disconnected' ? status.error?.code : undefined;
+	return code === 'connection-limit-exceeded' || isRoomLimitBreached();
 }
 
 /**
- * Wrap a provider creator so the first genuine (non-limit) connection error on
- * an entity room records a `jetpack_rtc_connection_error` Tracks event.
+ * Wrap a provider creator so the first genuine (non-limit) connection loss on an
+ * entity room records a `jetpack_rtc_connection_error` Tracks event.
  *
- * Records at most once per provider: a flapping connection emits repeated
- * `disconnected` events, but the metric only needs the first occurrence per
- * room. `transport`, `post_id`, `post_type`, and `wp_user_id` are added by
+ * The signal is the provider's own `disconnected` status, not Gutenberg's error
+ * modal: the modal is shown via a filter whose API has changed across Gutenberg
+ * versions (and the component variant is gated behind `IS_GUTENBERG_PLUGIN`),
+ * whereas the provider status is the transport-agnostic source of truth that
+ * drives it. The PingHub transport emits a bare `disconnected` with no `error`,
+ * so an `error` is not required; `error_code` is reported when the transport
+ * supplies one (e.g. `authentication-failed`, `protocol-mismatch`).
+ *
+ * Records at most once per provider — a connection that keeps dropping and
+ * retrying emits repeated `disconnected` events, but the metric only needs the
+ * first occurrence per room. A clean teardown (navigating away, switching posts)
+ * also emits `disconnected`, so the `tearingDown` guard keeps it from counting
+ * as an error. Collection rooms (objectId === null) are ignored, matching the
+ * room-limit and join-tracking wrappers.
+ *
+ * `transport`, `post_id`, `post_type`, and `wp_user_id` are added by
  * `recordRtcEvent`; this only supplies the error code.
- *
- * Collection rooms (objectId === null) are ignored — they disconnect in lockstep
- * with the entity room on a network drop, so tracking both would double-count.
- * This matches the room-limit and join-tracking wrappers.
  *
  * @param creator - The provider creator to wrap.
  * @return The wrapped provider creator.
@@ -49,17 +54,28 @@ export function withConnectionErrorTracking( creator: ProviderCreator ): Provide
 		}
 
 		let recorded = false;
+		let tearingDown = false;
+
 		result.on( 'status', ( status: ConnectionStatus ) => {
-			if ( recorded || ! isGenuineConnectionError( status ) ) {
+			if ( recorded || tearingDown || status.status !== 'disconnected' ) {
+				return;
+			}
+			if ( isRoomLimitDisconnect( status ) ) {
 				return;
 			}
 			recorded = true;
 			recordRtcEvent( CONNECTION_ERROR_EVENT, {
-				error_code: status.status === 'disconnected' ? status.error?.code : undefined,
+				error_code: status.error?.code,
 			} );
 		} );
 
-		return result;
+		return {
+			...result,
+			destroy: () => {
+				tearingDown = true;
+				result.destroy();
+			},
+		};
 	};
 }
 
@@ -68,7 +84,7 @@ export function withConnectionErrorTracking( creator: ProviderCreator ): Provide
  *
  * Runs at priority 30 — outside the room-limit wrapper (priority 20) — so it
  * observes the synthetic `connection-limit-exceeded` status that wrapper emits
- * and skips it, alongside the join-tracking wrapper.
+ * (and skips it), alongside the join-tracking wrapper.
  */
 export function registerConnectionErrorTracking(): void {
 	addFilter(
