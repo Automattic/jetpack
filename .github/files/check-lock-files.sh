@@ -24,7 +24,7 @@ for FILE in $(git -c core.quotepath=off ls-files 'composer.lock' '**/composer.lo
 done
 
 for FILE in $(git -c core.quotepath=off ls-files 'pnpm-lock.yaml' '**/pnpm-lock.yaml'); do
-	cd $(dirname "$FILE")
+	cd "$(dirname "$FILE")"
 	echo "::group::$FILE - pnpm install"
 	pnpm install --no-frozen-lockfile --resolution-only
 	echo "::endgroup::"

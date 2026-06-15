@@ -9,9 +9,6 @@ set -e
 
 source /etc/docker-args.sh
 
-user="${APACHE_RUN_USER:-www-data}"
-group="${APACHE_RUN_GROUP:-www-data}"
-
 # Download WordPress
 # Sometimes it fails, and a retry would be nice:
 #   https://github.com/wp-cli/core-command/pull/258
@@ -82,7 +79,7 @@ fi
 
 if [ "$COMPOSE_PROJECT_NAME" == "jetpack_dev" ] ; then
 	# If we don't have the wordpress test helpers, download them
-	if [ ! -d /tmp/wordpress-develop/tests/phpunit/data -o ! -d /tmp/wordpress-develop/tests/phpunit/includes ]; then
+	if [[ ! -d /tmp/wordpress-develop/tests/phpunit/data || ! -d /tmp/wordpress-develop/tests/phpunit/includes ]]; then
 		CUR_WP_VERSION=$(wp core version);
 		# Get latest WordPress unit-test helper files
 		svn co \
