@@ -34,8 +34,11 @@ const manualHelp = __(
  * @return The Google verification controls.
  */
 const GoogleVerificationField: FC< Props > = ( { value, onChange, onCommit, disabled } ) => {
+	// `onCodeSaved` mirrors the auto-verified code into the form's local state so the
+	// card's "configured" badge stays in sync without a reload (the hook already
+	// persisted it, so this only updates local state — no extra save).
 	const { state, isConnected, isOwner, searchConsoleUrl, isVerifying, autoVerify } =
-		useGoogleVerify();
+		useGoogleVerify( { onCodeSaved: onChange } );
 	const [ manualOpen, setManualOpen ] = useState( false );
 
 	const manualField = (

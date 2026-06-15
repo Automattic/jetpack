@@ -52,9 +52,15 @@ export interface GoogleVerify {
  * `/jetpack/v4/verify-site/google` endpoint. On a disconnected site there's no keyring,
  * so it reports `unavailable` and the UI falls back to manual code entry.
  *
+ * @param options             - Hook options.
+ * @param options.onCodeSaved - Called with the verification code once auto-verify
+ *                            persists it, so the consumer can mirror it into form
+ *                            state (e.g. to keep a "configured" badge in sync).
  * @return The Google-verification controller.
  */
-export function useGoogleVerify(): GoogleVerify {
+export function useGoogleVerify( {
+	onCodeSaved,
+}: { onCodeSaved?: ( code: string ) => void } = {} ): GoogleVerify {
 	const bootstrap = useMemo( () => getGoogleVerifyBootstrap(), [] );
 	const isConnected = bootstrap?.is_connected ?? false;
 	const connectUrl = bootstrap?.connect_url ?? '';
@@ -104,6 +110,11 @@ export function useGoogleVerify(): GoogleVerify {
 		if ( ! connectUrl || isVerifying ) {
 			return;
 		}
+		// Mark the flow in progress *before* opening the popup. The Verify button is
+		// disabled on `isVerifying`; setting it only after the popup returns would leave
+		// the button clickable while the popup is open, letting a user open overlapping
+		// verify flows.
+		setIsVerifying( true );
 		// `@automattic/request-external-access` invokes the callback with a RESULT
 		// OBJECT ({ keyring_id, id_token, user }) — NOT a bare keyring id like the
 		// legacy `lib/sharing` helper did. Pull the id out; it's absent when the user
@@ -111,14 +122,16 @@ export function useGoogleVerify(): GoogleVerify {
 		requestExternalAccess( connectUrl, ( result: { keyring_id?: number } ) => {
 			const keyringId = result?.keyring_id;
 			if ( ! keyringId ) {
+				// Popup closed without authorizing — re-enable the button.
+				setIsVerifying( false );
 				return;
 			}
-			setIsVerifying( true );
 			createInfoNotice( __( 'Verifying with Google…', 'jetpack-seo' ), {
 				id: NOTICE_ID,
 				type: 'snackbar',
 				isDismissible: false,
 			} );
+			let savedToken = '';
 			// The auto-verify flow is: (1) fetch the verification token for this keyring,
 			// (2) save it to `verification_services_codes.google` so the site serves the
 			// `google-site-verification` meta tag, (3) ask Google to verify (it fetches the
@@ -145,15 +158,24 @@ export function useGoogleVerify(): GoogleVerify {
 							)
 						);
 					}
+					savedToken = status.token;
 					return apiFetch( {
 						path: '/jetpack/v4/settings',
 						method: 'POST',
 						data: { google: status.token },
 					} );
 				} )
-				.then( () =>
-					apiFetch( { path: ENDPOINT, method: 'POST', data: { keyring_id: keyringId } } )
-				)
+				.then( () => {
+					// The code is now persisted to `verification_services_codes.google`;
+					// mirror it into the consumer's form state so the verification card's
+					// "configured" badge updates without a reload.
+					onCodeSaved?.( savedToken );
+					return apiFetch( {
+						path: ENDPOINT,
+						method: 'POST',
+						data: { keyring_id: keyringId },
+					} );
+				} )
 				.then( () => apiFetch< GoogleVerifyStatus >( { path: `${ ENDPOINT }/${ keyringId }` } ) )
 				.then( status => {
 					applyStatus( status );
@@ -191,6 +213,7 @@ export function useGoogleVerify(): GoogleVerify {
 		connectUrl,
 		isVerifying,
 		applyStatus,
+		onCodeSaved,
 		createInfoNotice,
 		createSuccessNotice,
 		createErrorNotice,
