@@ -12,7 +12,7 @@ return [
     // PhanTypeMismatchArgument : 420+ occurrences
     // PhanTypeMismatchArgumentProbablyReal : 220+ occurrences
     // PhanTypeMismatchReturn : 140+ occurrences
-    // PhanTypeMismatchReturnProbablyReal : 120+ occurrences
+    // PhanTypeMismatchReturnProbablyReal : 110+ occurrences
     // PhanTypePossiblyInvalidDimOffset : 90+ occurrences
     // PhanTypeArraySuspiciousNullable : 70+ occurrences
     // PhanDeprecatedFunction : 60+ occurrences
@@ -156,7 +156,7 @@ return [
         'extensions/blocks/rating-star/rating-meta.php' => ['PhanTypeMismatchArgument'],
         'extensions/blocks/rating-star/rating-star.php' => ['PhanTypeMismatchArgumentNullableInternal'],
         'extensions/blocks/sharing-button/class-sharing-source-block.php' => ['PhanTypeMismatchArgument', 'PhanTypeMismatchReturnProbablyReal'],
-        'extensions/blocks/slideshow/slideshow.php' => ['PhanTypeMismatchArgument', 'PhanTypeMismatchReturnProbablyReal'],
+        'extensions/blocks/slideshow/slideshow.php' => ['PhanTypeMismatchArgument'],
         'extensions/blocks/top-posts/top-posts.php' => ['PhanTypeMismatchReturnProbablyReal'],
         'extensions/blocks/wordads/wordads.php' => ['PhanTypeMismatchArgument'],
         'functions.compat.php' => ['PhanRedefineFunction'],
