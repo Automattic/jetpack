@@ -17,6 +17,7 @@ import { ListSkeleton } from '../components/skeleton';
 import UpdatesPanel from '../components/updates-panel';
 import Welcome from '../components/welcome';
 import type { PluginListItem } from '../api/types';
+import type { MouseEvent } from 'react';
 
 /**
  * Derive the display version string and badge label for a plugin row.
@@ -70,18 +71,23 @@ const PluginCard = ( { plugin }: { plugin: PluginListItem } ) => {
 		setIconFailed( true );
 	}, [] );
 
+	const onClick = useCallback(
+		( event: MouseEvent ) => {
+			// Navigate client-side on a plain click; let modified clicks
+			// (new tab, etc.) follow the href.
+			if ( isPlainClick( event ) ) {
+				event.preventDefault();
+				navigate( plugin.slug );
+			}
+		},
+		[ navigate, plugin.slug ]
+	);
+
 	return (
 		<a
 			className="jetpack-beta-list-row jetpack-beta-plugin-row"
 			href={ plugin.manage_url }
-			onClick={ event => {
-				// Navigate client-side on a plain click; let modified clicks
-				// (new tab, etc.) follow the href.
-				if ( isPlainClick( event ) ) {
-					event.preventDefault();
-					navigate( plugin.slug );
-				}
-			} }
+			onClick={ onClick }
 			aria-label={ sprintf(
 				/* translators: %s: plugin name. */
 				__( 'Manage %s', 'jetpack-beta' ),

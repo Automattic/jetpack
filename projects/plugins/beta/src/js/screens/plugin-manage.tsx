@@ -95,6 +95,7 @@ const groupSections = ( sections: BranchCardType[] ): Map< string, BranchCardTyp
  * Tracked upstream: https://github.com/WordPress/gutenberg/issues/77039
  *
  * @param pluginName - The current plugin name, or null while loading.
+ * @param onBack     - Click handler for the root breadcrumb link.
  * @return The breadcrumb element.
  */
 const renderBreadcrumbs = ( pluginName: string | null, onBack: ( event: MouseEvent ) => void ) => (
