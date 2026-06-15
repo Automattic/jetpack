@@ -518,12 +518,9 @@ class Jetpack_Plugin_Search {
 				$configure_url = Redirect::get_url( 'calypso-marketing-connections' );
 				break;
 			case 'seo-tools':
-				$configure_url = Redirect::get_url(
-					'calypso-marketing-traffic',
-					array(
-						'anchor' => 'seo',
-					)
-				);
+				// Jetpack SEO has its own wp-admin page (the new SEO home base);
+				// send users there rather than the legacy Traffic page.
+				$configure_url = admin_url( 'admin.php?page=jetpack-seo' );
 				break;
 			case 'google-analytics':
 				$configure_url = Redirect::get_url(
@@ -602,6 +599,17 @@ class Jetpack_Plugin_Search {
 				data-track="configure"
 				>' . esc_html__( 'Configure', 'jetpack' ) . '</a>';
 			// Module is active, doesn't have options to configure.
+		} elseif ( 'seo-tools' === $plugin['module'] && Jetpack::is_module_active( $plugin['module'] ) ) {
+			// Jetpack SEO has its own wp-admin page; send users there (same tab)
+			// rather than a jetpack.com doc redirect, which isn't registered for
+			// this module.
+			$links['jp_get_started'] = '<a
+				id="plugin-select-settings"
+				class="jetpack-plugin-search__primary jetpack-plugin-search__get-started button"
+				href="' . esc_url( admin_url( 'admin.php?page=jetpack-seo' ) ) . '"
+				data-module="' . esc_attr( $plugin['module'] ) . '"
+				data-track="get_started"
+				>' . esc_html__( 'Get started', 'jetpack' ) . '</a>';
 		} elseif ( Jetpack::is_module_active( $plugin['module'] ) ) {
 			$links['jp_get_started'] = '<a
 				id="plugin-select-settings"
