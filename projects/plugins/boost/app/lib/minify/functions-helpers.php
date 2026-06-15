@@ -193,7 +193,7 @@ function jetpack_boost_enqueued_to_absolute_url( $url ) {
 }
 
 /**
- * Get the list of JS slugs to exclude from minification.
+ * Get the list of JS handles to exclude from minification.
  *
  * Administrators can append extra handles for the current request only via the
  * `jb-minify-js-excludes` GET parameter (comma-separated handles). See
@@ -207,7 +207,7 @@ function jetpack_boost_page_optimize_js_exclude_list() {
 }
 
 /**
- * Get the list of CSS slugs to exclude from minification.
+ * Get the list of CSS handles to exclude from minification.
  *
  * Administrators can append extra handles for the current request only via the
  * `jb-minify-css-excludes` GET parameter (comma-separated handles). See
