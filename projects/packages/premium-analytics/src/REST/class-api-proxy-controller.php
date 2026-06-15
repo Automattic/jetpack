@@ -212,8 +212,11 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 			return false;
 		}
 
+		// Fall back to `do_not_allow` so a config entry missing `capability` fails closed.
+		$capability = $config['capability'] ?? 'do_not_allow';
+
 		// phpcs:ignore WordPress.WP.Capabilities.Unknown -- capability is from the PREFIX_CONFIG allowlist.
-		return current_user_can( 'manage_options' ) || current_user_can( $config['capability'] );
+		return current_user_can( 'manage_options' ) || current_user_can( $capability );
 	}
 
 	/**
