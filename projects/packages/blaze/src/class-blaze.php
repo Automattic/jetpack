@@ -44,6 +44,13 @@ class Blaze {
 	const ACTIVE_CAMPAIGNS_STATUS_TRANSIENT_TTL = HOUR_IN_SECONDS;
 
 	/**
+	 * Transient TTL for active campaign status checks that cannot determine campaign status.
+	 *
+	 * @var int
+	 */
+	const UNKNOWN_ACTIVE_CAMPAIGNS_STATUS_TRANSIENT_TTL = 5 * MINUTE_IN_SECONDS;
+
+	/**
 	 * Minimum campaign statuses that should trigger a warning.
 	 *
 	 * @var string[]
@@ -271,13 +278,13 @@ class Blaze {
 		);
 
 		if ( is_wp_error( $response ) || 200 !== wp_remote_retrieve_response_code( $response ) ) {
-			return self::get_unknown_active_campaigns_status();
+			return self::get_unknown_active_campaigns_status( $transient_name );
 		}
 
 		$result = json_decode( wp_remote_retrieve_body( $response ), true );
 
 		if ( ! is_array( $result ) || ! isset( $result['campaigns'] ) || ! is_array( $result['campaigns'] ) ) {
-			return self::get_unknown_active_campaigns_status();
+			return self::get_unknown_active_campaigns_status( $transient_name );
 		}
 
 		$has_active_campaigns = ! empty( $result['campaigns'] );
@@ -296,13 +303,20 @@ class Blaze {
 	/**
 	 * Get the unknown active campaign status response.
 	 *
+	 * @param string|null $transient_name Optional transient name used to cache the unknown status.
 	 * @return array Unknown active campaign status.
 	 */
-	private static function get_unknown_active_campaigns_status() {
-		return array(
+	private static function get_unknown_active_campaigns_status( $transient_name = null ) {
+		$status = array(
 			'has_active_campaigns' => false,
 			'status'               => 'unknown',
 		);
+
+		if ( $transient_name ) {
+			set_transient( $transient_name, $status, self::UNKNOWN_ACTIVE_CAMPAIGNS_STATUS_TRANSIENT_TTL );
+		}
+
+		return $status;
 	}
 
 	/**

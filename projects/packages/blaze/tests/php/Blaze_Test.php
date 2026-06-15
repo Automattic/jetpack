@@ -324,6 +324,110 @@ class Blaze_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Test that unknown status responses use a transient cache.
+	 */
+	public function test_get_active_campaigns_status_uses_unknown_cache() {
+		$request_count = 0;
+		$expected      = array(
+			'has_active_campaigns' => false,
+			'status'               => 'unknown',
+		);
+
+		Constants::$set_constants['JETPACK__WPCOM_JSON_API_BASE'] = 'https://public-api.wordpress.com';
+		wp_set_current_user( $this->admin_id );
+		add_filter( 'jetpack_options', array( $this, 'mock_jetpack_site_connection_options' ), 10, 2 );
+
+		add_filter(
+			'pre_http_request',
+			function ( $preempt, $args, $url ) use ( &$request_count ) {
+				if ( false !== strpos( $url, '/sites/123/wordads/dsp/api/v1/search/campaigns/site/123' ) ) {
+					++$request_count;
+
+					return array(
+						'response' => array( 'code' => 500 ),
+						'body'     => wp_json_encode( array( 'error' => 'server_error' ), JSON_UNESCAPED_SLASHES ),
+					);
+				}
+
+				return $preempt;
+			},
+			10,
+			3
+		);
+
+		$this->assertSame( $expected, Blaze::get_active_campaigns_status( 123 ) );
+		$this->assertSame( $expected, Blaze::get_active_campaigns_status( 123 ) );
+		$this->assertSame( 1, $request_count );
+
+		delete_transient( 'jetpack_blaze_active_campaigns_status_123' );
+	}
+
+	/**
+	 * Test that statuses without active campaigns are not cached.
+	 */
+	public function test_get_active_campaigns_status_does_not_cache_none_status() {
+		$request_count = 0;
+		$responses     = array(
+			array(
+				'response' => array( 'code' => 200 ),
+				'body'     => wp_json_encode( array( 'campaigns' => array() ), JSON_UNESCAPED_SLASHES ),
+			),
+			array(
+				'response' => array( 'code' => 200 ),
+				'body'     => wp_json_encode(
+					array(
+						'campaigns' => array(
+							array(
+								'campaign_id' => 1,
+								'status'      => 'active',
+							),
+						),
+					),
+					JSON_UNESCAPED_SLASHES
+				),
+			),
+		);
+
+		Constants::$set_constants['JETPACK__WPCOM_JSON_API_BASE'] = 'https://public-api.wordpress.com';
+		wp_set_current_user( $this->admin_id );
+		add_filter( 'jetpack_options', array( $this, 'mock_jetpack_site_connection_options' ), 10, 2 );
+
+		add_filter(
+			'pre_http_request',
+			function ( $preempt, $args, $url ) use ( &$request_count, $responses ) {
+				if ( false !== strpos( $url, '/sites/123/wordads/dsp/api/v1/search/campaigns/site/123' ) ) {
+					$response = $responses[ $request_count ] ?? end( $responses );
+					++$request_count;
+
+					return $response;
+				}
+
+				return $preempt;
+			},
+			10,
+			3
+		);
+
+		$this->assertSame(
+			array(
+				'has_active_campaigns' => false,
+				'status'               => 'none',
+			),
+			Blaze::get_active_campaigns_status( 123 )
+		);
+		$this->assertSame(
+			array(
+				'has_active_campaigns' => true,
+				'status'               => 'active',
+			),
+			Blaze::get_active_campaigns_status( 123 )
+		);
+		$this->assertSame( 2, $request_count );
+
+		delete_transient( 'jetpack_blaze_active_campaigns_status_123' );
+	}
+
+	/**
 	 * Test that empty blog IDs return an unknown status.
 	 */
 	public function test_get_active_campaigns_status_returns_unknown_without_blog_id() {

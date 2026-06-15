@@ -26,10 +26,10 @@ const trackDashboardClick = () => {
 	analytics.tracks.recordJetpackClick( 'blaze-dashboard' );
 };
 
-const trackModuleToggle = ( module, activated ) => {
+const trackModuleToggle = ( module, currentlyActivated ) => {
 	analytics.tracks.recordEvent( 'jetpack_wpa_module_toggle', {
 		module,
-		toggled: activated ? 'off' : 'on',
+		toggled: currentlyActivated ? 'off' : 'on',
 	} );
 };
 
