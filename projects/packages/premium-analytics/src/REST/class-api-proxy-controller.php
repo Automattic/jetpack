@@ -345,7 +345,12 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 	private function is_write_allowed( string $endpoint ): bool {
 		$endpoint = strtolower( $endpoint );
 		foreach ( self::WRITE_PREFIXES as $prefix ) {
-			if ( $endpoint === $prefix || str_starts_with( $endpoint, $prefix ) ) {
+			// Honor the WRITE_PREFIXES convention: a trailing slash means "this prefix and any
+			// sub-path"; no trailing slash means "this exact endpoint only".
+			$matches = str_ends_with( $prefix, '/' )
+				? str_starts_with( $endpoint, $prefix )
+				: $endpoint === $prefix;
+			if ( $matches ) {
 				return true;
 			}
 		}
@@ -533,10 +538,10 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 
 	/**
 	 * Query params to forward to WPCOM, minus the WordPress routing params, the proxy's own
-	 * control/routing captures (`endpoint`, `version` — which a caller could also pass as query
-	 * params since `get_param()` prefers GET), and `site` (the proxy pins the site itself, so a
-	 * caller-supplied `site` must not reach the `upgrades` query string). Dropping the control
-	 * params also keeps them out of the cache key.
+	 * control params (`endpoint`, `version`, `force_refresh` — which a caller could also pass as
+	 * query params since `get_param()` prefers GET), and `site` (the proxy pins the site itself,
+	 * so a caller-supplied `site` must not reach the `upgrades` query string). Dropping the
+	 * control params also keeps them out of the cache key.
 	 *
 	 * @param WP_REST_Request $request Request object.
 	 *
@@ -544,7 +549,7 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 	 */
 	private function get_forwarded_params( WP_REST_Request $request ): array {
 		$params = $request->get_query_params();
-		unset( $params['rest_route'], $params['_locale'], $params['site'], $params['endpoint'], $params['version'] );
+		unset( $params['rest_route'], $params['_locale'], $params['site'], $params['endpoint'], $params['version'], $params['force_refresh'] );
 
 		return is_array( $params ) ? $params : array();
 	}

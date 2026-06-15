@@ -307,16 +307,17 @@ class Api_Proxy_Controller_Test extends BaseTestCase {
 	 */
 	public static function data_write_endpoints(): array {
 		return array(
-			'dashboard modules' => array( 'jetpack-stats-dashboard/modules', true ),
-			'module settings'   => array( 'jetpack-stats-dashboard/module-settings', true ),
-			'commercial class.' => array( 'commercial-classification', true ),
-			'spam new'          => array( 'stats/referrers/spam/new', true ),
-			'spam delete'       => array( 'stats/referrers/spam/delete', true ),
-			'mixed case write'  => array( 'JETPACK-STATS-DASHBOARD/modules', true ),
-			'stats read'        => array( 'stats/top-posts', false ),
-			'subscribers read'  => array( 'subscribers/counts', false ),
-			'usage read'        => array( 'jetpack-stats/usage', false ),
-			'wordads read'      => array( 'wordads/earnings', false ),
+			'dashboard modules'  => array( 'jetpack-stats-dashboard/modules', true ),
+			'module settings'    => array( 'jetpack-stats-dashboard/module-settings', true ),
+			'commercial class.'  => array( 'commercial-classification', true ),
+			'spam new'           => array( 'stats/referrers/spam/new', true ),
+			'spam delete'        => array( 'stats/referrers/spam/delete', true ),
+			'mixed case write'   => array( 'JETPACK-STATS-DASHBOARD/modules', true ),
+			'commercial subpath' => array( 'commercial-classification/foo', false ),
+			'stats read'         => array( 'stats/top-posts', false ),
+			'subscribers read'   => array( 'subscribers/counts', false ),
+			'usage read'         => array( 'jetpack-stats/usage', false ),
+			'wordads read'       => array( 'wordads/earnings', false ),
 		);
 	}
 
