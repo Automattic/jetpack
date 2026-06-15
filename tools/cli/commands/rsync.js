@@ -187,6 +187,13 @@ export async function rsyncInit( argv ) {
 					disableGlobbing: true,
 					ignoreInitial: true,
 					depth: 0,
+					/*
+					 * Poll instead of using the native fs.watch backend, whose watcher fds race
+					 * against spawned git pipe fds on macOS/Node 24 and cause intermittent EBADF.
+					 */
+					usePolling: true,
+					interval: 500,
+					binaryInterval: 1000,
 				} );
 
 				// Always watch the plugin base dir.
@@ -445,10 +452,12 @@ async function addVendorFilesToPathSet( source, paths ) {
  * @return {object} As from `tmp.fileSync()`.
  */
 async function createFilterFile( paths ) {
-	const tmpFile = tmp.fileSync();
-
-	// Wrap the tmpFile fd in a stream.
-	const tmpStream = createWriteStream( null, { fd: tmpFile.fd } );
+	/*
+	 * Discard tmp's fd and let the stream own its own. Otherwise the same fd is closed twice
+	 * (stream autoClose + removeCallback), which can clobber an unrelated, recycled fd.
+	 */
+	const tmpFile = tmp.fileSync( { discardDescriptor: true } );
+	const tmpStream = createWriteStream( tmpFile.name );
 	const writeTmp = data => {
 		return new Promise( resolve => {
 			if ( ! tmpStream.write( data ) ) {
