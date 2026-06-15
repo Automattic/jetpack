@@ -8,7 +8,7 @@
 
 import { store as coreStore } from '@wordpress/core-data';
 import { useDispatch, useSelect } from '@wordpress/data';
-import { useCallback } from '@wordpress/element';
+import { useCallback, useState } from '@wordpress/element';
 import type { FocalPoint } from '../../utils/types';
 
 /** Attachment meta key — must match ATTACHMENT_IMAGE_FOCAL_POINT in PHP. */
@@ -16,10 +16,8 @@ export const FOCAL_POINT_META_KEY = '_jetpack_social_image_focal_point';
 
 const DEFAULT_FOCAL_POINT: FocalPoint = { x: 0.5, y: 0.5 };
 
-const noop = () => {};
-
 export type UseMediaFocalPoint = {
-	/** The stored point, or the centered default when unset. */
+	/** The point to display: the optimistic value while saving, else the stored one. */
 	value: FocalPoint;
 	/** Whether the current user can edit this image (undefined while resolving). */
 	canEdit: boolean | undefined;
@@ -34,10 +32,10 @@ export type UseMediaFocalPoint = {
  * @return {UseMediaFocalPoint} The focal point, edit permission, and a setter.
  */
 export function useMediaFocalPoint( attachmentId: number ): UseMediaFocalPoint {
-	const { value, canEdit } = useSelect(
+	const { storedValue, canEdit } = useSelect(
 		select => {
 			if ( ! attachmentId ) {
-				return { value: DEFAULT_FOCAL_POINT, canEdit: false };
+				return { storedValue: DEFAULT_FOCAL_POINT, canEdit: false };
 			}
 			const core = select( coreStore );
 			const record = core.getEntityRecord( 'postType', 'attachment', attachmentId ) as
@@ -45,7 +43,7 @@ export function useMediaFocalPoint( attachmentId: number ): UseMediaFocalPoint {
 				| undefined;
 
 			return {
-				value: record?.meta?.[ FOCAL_POINT_META_KEY ] ?? DEFAULT_FOCAL_POINT,
+				storedValue: record?.meta?.[ FOCAL_POINT_META_KEY ] ?? DEFAULT_FOCAL_POINT,
 				canEdit: core.canUser( 'update', 'media', attachmentId ),
 			};
 		},
@@ -54,17 +52,27 @@ export function useMediaFocalPoint( attachmentId: number ): UseMediaFocalPoint {
 
 	const { saveEntityRecord } = useDispatch( coreStore );
 
+	// The persisted store value lags the network round-trip, and FocalPointPicker
+	// snaps its marker to the value prop on release — so without an optimistic value
+	// the point jumps back to the old spot until the save lands. Keep the pending
+	// point keyed by image so switching images falls straight back to its stored value.
+	const [ pending, setPending ] = useState< { id: number; point: FocalPoint } | null >( null );
+	const value = pending && pending.id === attachmentId ? pending.point : storedValue;
+
 	const setFocalPoint = useCallback(
 		( point: FocalPoint ) => {
+			setPending( { id: attachmentId, point } );
+
 			// Saves directly to the image, separate from the post's save/undo.
-			// canEdit gates this, so a rejection here is unexpected; error
-			// surfacing is left to a follow-up (core-data records the error).
 			Promise.resolve(
 				saveEntityRecord( 'postType', 'attachment', {
 					id: attachmentId,
 					meta: { [ FOCAL_POINT_META_KEY ]: point },
 				} )
-			).catch( noop );
+			).catch( () => {
+				// Revert the optimistic value if the save fails.
+				setPending( current => ( current && current.id === attachmentId ? null : current ) );
+			} );
 		},
 		[ attachmentId, saveEntityRecord ]
 	);

@@ -1,4 +1,4 @@
-import { renderHook } from '@testing-library/react';
+import { act, renderHook } from '@testing-library/react';
 import { FOCAL_POINT_META_KEY, useMediaFocalPoint } from '../use-media-focal-point';
 
 const mockGetEntityRecord = jest.fn();
@@ -61,11 +61,24 @@ describe( 'useMediaFocalPoint', () => {
 	it( 'should save the point to the attachment', () => {
 		const { result } = renderHook( () => useMediaFocalPoint( 123 ) );
 
-		result.current.setFocalPoint( { x: 0.3, y: 0.6 } );
+		act( () => {
+			result.current.setFocalPoint( { x: 0.3, y: 0.6 } );
+		} );
 
 		expect( mockSaveEntityRecord ).toHaveBeenCalledWith( 'postType', 'attachment', {
 			id: 123,
 			meta: { [ FOCAL_POINT_META_KEY ]: { x: 0.3, y: 0.6 } },
 		} );
+	} );
+
+	it( 'should show the new point optimistically before the store updates', () => {
+		// The store still returns the old (default) value.
+		const { result } = renderHook( () => useMediaFocalPoint( 123 ) );
+
+		act( () => {
+			result.current.setFocalPoint( { x: 0.3, y: 0.6 } );
+		} );
+
+		expect( result.current.value ).toEqual( { x: 0.3, y: 0.6 } );
 	} );
 } );
