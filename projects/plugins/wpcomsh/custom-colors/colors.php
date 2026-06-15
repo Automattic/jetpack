@@ -197,13 +197,11 @@ class Colors_Manager_Common {
 			add_filter( 'tonesque_image_url', array( __CLASS__, 'gravatar_image_url' ) );
 		}
 
-		if ( self::is_gutenberg() ) {
-			// If colors are set, print them in the Block Editor as well.
-			if ( self::theme_has_set_colors() ) {
-				self::override_themecolors();
-				add_action( 'enqueue_block_editor_assets', array( __CLASS__, 'print_block_editor_css' ), 20 );
-			}
-		}
+		// Customizer colors apply on the frontend only (see the `wp_head` hook
+		// above). We deliberately don't inject them into the block editor: Core
+		// doesn't either, and the site background is often not the post background,
+		// so injecting them leaks into the editor UI. The editor renders with
+		// default colors, matching Core.
 	}
 
 	/**
@@ -1421,28 +1419,6 @@ class Colors_Manager_Common {
 			wp_strip_all_tags( $css ), // phpcs:ignore -- CSS can't be properly escaped with esc_html
 			"\n"
 		);
-	}
-
-	/**
-	 * Enqueue the Customizer's custom colors for the block editor, scoped to the
-	 * editor content so they can't leak into the editor UI.
-	 *
-	 * @since 9.0.0
-	 */
-	public static function print_block_editor_css() {
-		if ( ! self::should_enable_colors() ) {
-			return;
-		}
-
-		// `@scope` already scopes to the wrapper, so map any legacy explicit
-		// "#editor .editor-styles-wrapper" prefix to `:scope` (the scope root)
-		// rather than leaving a redundant — and no-longer-matching — prefix.
-		$css = str_replace( '#editor .editor-styles-wrapper', ':scope', self::get_theme_css() );
-		$css = '@scope (.editor-styles-wrapper) {' . $css . '}';
-
-		wp_register_style( 'custom-colors-editor-css', false, array(), '20210311' ); // Register an empty stylesheet to append custom CSS to.
-		wp_enqueue_style( 'custom-colors-editor-css' );
-		wp_add_inline_style( 'custom-colors-editor-css', $css ); // Append inline style to our new stylesheet
 	}
 
 	/**
