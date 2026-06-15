@@ -38,7 +38,7 @@ class Agents_Manager {
 	/**
 	 * Agents_Manager constructor.
 	 */
-	public function __construct() {
+	private function __construct() {
 		add_action( 'rest_api_init', array( $this, 'register_rest_api' ) );
 		add_filter( 'calypso_preferences_update', array( $this, 'calypso_preferences_update' ) );
 
@@ -573,12 +573,32 @@ class Agents_Manager {
 	/**
 	 * Creates instance.
 	 *
-	 * @return void
+	 * @return Agents_Manager
 	 */
 	public static function init() {
-		if ( self::$instance === null ) {
-			self::$instance = new self();
+		if ( did_action( 'jetpack_agents_manager_initialized' ) ) {
+			return self::get_instance();
 		}
+
+		self::$instance = new self();
+
+		/**
+		 * Fires once the Agents Manager class has been instantiated.
+		 *
+		 * @since 0.5.0
+		 */
+		do_action( 'jetpack_agents_manager_initialized' );
+
+		return self::$instance;
+	}
+
+	/**
+	 * Returns the instance of the Agents Manager class.
+	 *
+	 * @return Agents_Manager
+	 */
+	public static function get_instance() {
+		return self::$instance;
 	}
 
 	/**
