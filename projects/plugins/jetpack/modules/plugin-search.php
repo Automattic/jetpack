@@ -611,11 +611,12 @@ class Jetpack_Plugin_Search {
 		} elseif ( 'seo-tools' === $plugin['module'] && Jetpack::is_module_active( $plugin['module'] ) ) {
 			// Jetpack SEO has its own wp-admin page; send users there (same tab)
 			// rather than a jetpack.com doc redirect, which isn't registered for
-			// this module.
+			// this module. Reuse get_configure_url() so the destination stays in
+			// one place.
 			$links['jp_get_started'] = '<a
 				id="plugin-select-settings"
 				class="jetpack-plugin-search__primary jetpack-plugin-search__get-started button"
-				href="' . esc_url( admin_url( 'admin.php?page=jetpack-seo' ) ) . '"
+				href="' . esc_url( $this->get_configure_url( $plugin['module'], $plugin['configure_url'] ) ) . '"
 				data-module="' . esc_attr( $plugin['module'] ) . '"
 				data-track="get_started"
 				>' . esc_html__( 'Get started', 'jetpack' ) . '</a>';
