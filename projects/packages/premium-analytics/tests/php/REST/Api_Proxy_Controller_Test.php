@@ -195,7 +195,14 @@ class Api_Proxy_Controller_Test extends BaseTestCase {
 
 		$this->assertSame( array( $this->controller, 'validate_data_endpoint' ), $args['endpoint']['validate_callback'] );
 		$this->assertSame( array( $this->controller, 'validate_version' ), $args['version']['validate_callback'] );
-		$this->assertSame( '2', $args['version']['default'] );
+		$this->assertTrue( $args['version']['required'] );
+	}
+
+	public function test_data_route_carries_proxy_and_version_path_segments() {
+		// The route is proxy/v<version>/<prefix>/<subpath>.
+		$route = $this->data_route_key();
+		$this->assertStringContainsString( 'proxy/v', $route );
+		$this->assertStringContainsString( '(?P<version>', $route );
 	}
 
 	public function test_data_route_only_matches_allowed_prefixes() {
@@ -432,12 +439,15 @@ class Api_Proxy_Controller_Test extends BaseTestCase {
 	 * @return WP_REST_Request
 	 */
 	private function build_data_request( string $method, string $endpoint, array $params = array(), ?string $version = null ): WP_REST_Request {
-		$request = new WP_REST_Request( $method, '/jetpack-premium-analytics/v1/' . $endpoint );
-		// The capture is a route (URL) param; `version` arrives as a query param.
-		$request->set_url_params( array( 'endpoint' => $endpoint ) );
-		if ( null !== $version ) {
-			$params['version'] = $version;
-		}
+		$version = $version ?? '2';
+		$request = new WP_REST_Request( $method, '/jetpack-premium-analytics/v1/proxy/v' . $version . '/' . $endpoint );
+		// `endpoint` and `version` are both route (URL) captures in production.
+		$request->set_url_params(
+			array(
+				'endpoint' => $endpoint,
+				'version'  => $version,
+			)
+		);
 		$request->set_query_params( $params );
 
 		return $request;

@@ -22,12 +22,17 @@ use WP_REST_Server;
  * it. Lets the extracted frontend's data layer talk to WPCOM without each call leaving the
  * WordPress origin.
  *
- * One agnostic route serves the whole surface (analytics + the re-exposed `stats-admin`
- * endpoints), minus the blog ID in the URL. Rather than registering each endpoint, it
- * accepts any sub-path under an allowed top-level prefix (see {@see ALLOWED_PREFIXES}) and
- * lets the caller pick the WPCOM API `version` (the base is derived: v2 → wpcom, v1.x →
- * rest). The proxy stays endpoint-agnostic while the prefix allowlist + write-method policy
- * keep the blast radius of the blog token bounded.
+ * One agnostic route serves the whole pass-through surface (analytics + the re-exposed
+ * `stats-admin` endpoints), minus the blog ID in the URL:
+ *
+ *     proxy/v<version>/<prefix>/<subpath>   e.g. proxy/v1.1/wordads/earnings
+ *
+ * The `proxy/` segment marks a transparent WPCOM forward (future local endpoints live
+ * elsewhere under the namespace). Rather than registering each endpoint, it accepts any
+ * sub-path under an allowed top-level prefix (see {@see ALLOWED_PREFIXES}); the caller picks
+ * the WPCOM API `version` in the path (the base is derived: v2 → wpcom, v1.x → rest). The
+ * proxy stays endpoint-agnostic while the prefix allowlist + write-method policy keep the
+ * blast radius of the blog token bounded.
  */
 class Api_Proxy_Controller extends WP_REST_Controller {
 
@@ -119,9 +124,13 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 	 * @return void
 	 */
 	public function register_routes(): void {
+		// proxy/v<version>/<prefix>/<subpath> — the `proxy/` segment marks a transparent WPCOM
+		// pass-through (local endpoints live elsewhere under the namespace), the version is part
+		// of the path (matching WPCOM's own `rest/v1.1` / `wpcom/v2` structure), and the prefix
+		// allowlist is anchored into the route.
 		register_rest_route(
 			$this->namespace,
-			'/(?P<endpoint>(?:' . $this->allowed_prefix_pattern() . ')(?:/.*)?)',
+			'/proxy/v(?P<version>[0-9]+(?:\.[0-9]+)?)/(?P<endpoint>(?:' . $this->allowed_prefix_pattern() . ')(?:/.*)?)',
 			array(
 				'methods'             => WP_REST_Server::READABLE . ',' . WP_REST_Server::EDITABLE,
 				'callback'            => array( $this, 'handle_data_request' ),
@@ -135,9 +144,8 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 					'version'  => array(
 						'description'       => __( 'WPCOM API version to forward to (e.g. 1.1, 1.2, 2).', 'jetpack-premium-analytics' ),
 						'type'              => 'string',
-						'default'           => '2',
+						'required'          => true,
 						'validate_callback' => array( $this, 'validate_version' ),
-						'sanitize_callback' => 'sanitize_text_field',
 					),
 				),
 			)
@@ -501,9 +509,8 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 	}
 
 	/**
-	 * Query params to forward to WPCOM, minus the WordPress routing params, the proxy's own
-	 * control param (`version`), and `site` (the proxy pins the site itself, so a caller-supplied
-	 * `site` must not reach the `upgrades` query string).
+	 * Query params to forward to WPCOM, minus the WordPress routing params and `site` (the proxy
+	 * pins the site itself, so a caller-supplied `site` must not reach the `upgrades` query string).
 	 *
 	 * @param WP_REST_Request $request Request object.
 	 *
@@ -511,7 +518,7 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 	 */
 	private function get_forwarded_params( WP_REST_Request $request ): array {
 		$params = $request->get_query_params();
-		unset( $params['rest_route'], $params['_locale'], $params['version'], $params['site'] );
+		unset( $params['rest_route'], $params['_locale'], $params['site'] );
 
 		return is_array( $params ) ? $params : array();
 	}
