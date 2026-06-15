@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Google Fonts: respect an explicit user deactivation instead of force-re-activating the module on every request, so the My Jetpack toggle sticks.
