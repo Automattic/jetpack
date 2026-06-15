@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Publicize;
 
 use Automattic\Jetpack\Current_Plan;
+use Automattic\Jetpack\Publicize\Publicize_Utils as Utils;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
 
@@ -72,18 +73,27 @@ class Publicize_Setup {
 			return;
 		}
 
+		/**
+		 * When Social is unavailable - the Publicize module is inactive and the
+		 * standalone Jetpack Social plugin is not installed - we load nothing:
+		 * no assets, no script data, no admin page and no editor scripts/styles.
+		 *
+		 * Users can still enable the module from Jetpack > Settings > Sharing;
+		 * that toggle does not rely on any of the code gated here.
+		 */
+		if ( ! Utils::is_social_ui_available() ) {
+			return;
+		}
+
 		$is_wpcom_simple = ( new Host() )->is_wpcom_simple();
 
 		/**
-		 * Assets are to be loaded in all cases.
-		 *
-		 * To allow loading of admin page and
-		 * the editor placeholder when publicize is OFF.
+		 * Register the script data and the block editor assets.
 		 */
 		Publicize_Assets::configure();
 
 		/**
-		 * Social admin page is to be always registered.
+		 * Register the Social admin page.
 		 */
 		Social_Admin_Page::init();
 

@@ -94,9 +94,9 @@ class Social_Admin_Page {
 		// Remove the old Social menu item, if it exists.
 		Admin_Menu::remove_menu( 'jetpack-social' );
 
-		// Hide the Social admin page when the Publicize module is inactive
-		// and the standalone Jetpack Social plugin is not active.
-		if ( ! Utils::is_publicize_active() && ! defined( 'JETPACK_SOCIAL_PLUGIN_DIR' ) ) {
+		// If this isn't an admin (or someone with the capability to change the module status )
+		// and Publicize is inactive, then don't render the admin page.
+		if ( ! current_user_can( 'manage_options' ) && ! Utils::is_publicize_active() ) {
 			return;
 		}
 
