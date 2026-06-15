@@ -2369,6 +2369,49 @@ importers:
         specifier: 6.0.1
         version: 6.0.1(webpack@5.105.2)
 
+  projects/packages/cookie-consent:
+    dependencies:
+      '@wordpress/interactivity':
+        specifier: 6.48.0
+        version: 6.48.0
+    devDependencies:
+      '@automattic/jetpack-webpack-config':
+        specifier: workspace:*
+        version: link:../../js-packages/webpack-config
+      '@typescript/native-preview':
+        specifier: 7.0.0-dev.20260225.1
+        version: 7.0.0-dev.20260225.1
+      '@wordpress/base-styles':
+        specifier: 9.1.0
+        version: 9.1.0
+      '@wordpress/browserslist-config':
+        specifier: 6.48.0
+        version: 6.48.0
+      autoprefixer:
+        specifier: 10.4.20
+        version: 10.4.20(postcss@8.5.14)
+      postcss:
+        specifier: 8.5.14
+        version: 8.5.14
+      postcss-loader:
+        specifier: 8.2.0
+        version: 8.2.0(postcss@8.5.14)(typescript@5.9.3)(webpack@5.105.2)
+      sass-embedded:
+        specifier: 1.97.3
+        version: 1.97.3
+      sass-loader:
+        specifier: 16.0.5
+        version: 16.0.5(sass-embedded@1.97.3)(webpack@5.105.2)
+      typescript:
+        specifier: 5.9.3
+        version: 5.9.3
+      webpack:
+        specifier: 5.105.2
+        version: 5.105.2(webpack-cli@6.0.1)
+      webpack-cli:
+        specifier: 6.0.1
+        version: 6.0.1(webpack@5.105.2)
+
   projects/packages/explat:
     dependencies:
       '@automattic/explat-client':
