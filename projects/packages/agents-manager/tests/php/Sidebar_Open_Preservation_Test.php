@@ -75,7 +75,7 @@ class Sidebar_Open_Preservation_Test extends \WorDBless\BaseTestCase {
 	public function tear_down() {
 		// Remove the hooks added by the constructor.
 		remove_filter( 'admin_body_class', array( $this->preservation, 'add_preopen_body_classes' ), PHP_INT_MAX );
-		remove_action( 'in_admin_header', array( $this->preservation, 'print_sidebar_docking_viewport_height_gate_script' ) );
+		remove_action( 'in_admin_header', array( $this->preservation, 'print_sidebar_docking_gate_script' ) );
 
 		// Clean up filters tests may add.
 		remove_all_filters( 'agents_manager_use_unified_experience' );
@@ -207,7 +207,7 @@ class Sidebar_Open_Preservation_Test extends \WorDBless\BaseTestCase {
 
 		// Clean up the hooks added by the instance created here.
 		remove_filter( 'admin_body_class', array( $first, 'add_preopen_body_classes' ), PHP_INT_MAX );
-		remove_action( 'in_admin_header', array( $first, 'print_sidebar_docking_viewport_height_gate_script' ) );
+		remove_action( 'in_admin_header', array( $first, 'print_sidebar_docking_gate_script' ) );
 		$property->setValue( null, null );
 	}
 
@@ -229,7 +229,7 @@ class Sidebar_Open_Preservation_Test extends \WorDBless\BaseTestCase {
 	 */
 	public function test_constructor_registers_sync_script_hook() {
 		$this->assertNotFalse(
-			has_action( 'in_admin_header', array( $this->preservation, 'print_sidebar_docking_viewport_height_gate_script' ) ),
+			has_action( 'in_admin_header', array( $this->preservation, 'print_sidebar_docking_gate_script' ) ),
 			'The docking viewport height gate script must be hooked into the admin body.'
 		);
 	}
@@ -247,12 +247,12 @@ class Sidebar_Open_Preservation_Test extends \WorDBless\BaseTestCase {
 		// get_contents() returns is what gets inlined. The stub also asserts the
 		// filesystem is read from the built bundle path (mirrors the path the
 		// production method builds from the src directory).
-		$gate_script   = '/* gate */ document.body.classList.toggle( "agents-manager--viewport-height-too-short-for-docking", innerHeight < adminmenu );';
-		$expected_path = dirname( __DIR__, 2 ) . '/src/../build/sidebar-docking-viewport-height-gate.js';
+		$gate_script   = '/* gate */ document.body.classList.remove( "agents-manager-sidebar-container", "agents-manager-sidebar-container--sidebar-open" );';
+		$expected_path = dirname( __DIR__, 2 ) . '/src/../build/sidebar-docking-gate.js';
 		$this->stub_filesystem( $gate_script, $expected_path );
 
 		ob_start();
-		$this->preservation->print_sidebar_docking_viewport_height_gate_script();
+		$this->preservation->print_sidebar_docking_gate_script();
 		$output = ob_get_clean();
 
 		$this->assertStringContainsString( '<script', $output );
@@ -267,7 +267,7 @@ class Sidebar_Open_Preservation_Test extends \WorDBless\BaseTestCase {
 		$this->cache_open_state( false );
 
 		ob_start();
-		$this->preservation->print_sidebar_docking_viewport_height_gate_script();
+		$this->preservation->print_sidebar_docking_gate_script();
 		$output = ob_get_clean();
 
 		$this->assertSame( '', $output );
@@ -408,20 +408,28 @@ class Sidebar_Open_Preservation_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Tests that nothing is pre-rendered on an editor screen when fullscreen mode
-	 * is off — there the chat floats, so the docked classes would be a stale shell.
+	 * Tests that the docked shell is still pre-rendered on an editor screen when
+	 * fullscreen mode is off. Fullscreen gating now lives in the JS gate, which
+	 * removes the optimistically-injected classes at runtime, so PHP injects them
+	 * unconditionally and prints the reconciliation script.
 	 */
-	public function test_no_pre_render_on_non_fullscreen_editor() {
+	public function test_pre_renders_on_non_fullscreen_editor() {
 		$this->enable_preservation();
 		$this->cache_open_state( true );
 		$GLOBALS['pagenow'] = 'post.php';
 		$this->set_fullscreen_preference( 'core/edit-post', false );
 
-		$this->assertSame( 'foo bar', $this->preservation->add_preopen_body_classes( 'foo bar' ) );
+		$result = $this->preservation->add_preopen_body_classes( 'foo bar' );
+		$this->assertStringContainsString( self::SIDEBAR_CONTAINER_CLASS, $result );
+		$this->assertStringContainsString( self::SIDEBAR_OPEN_CLASS, $result );
+
+		$gate_script   = '/* gate */';
+		$expected_path = dirname( __DIR__, 2 ) . '/src/../build/sidebar-docking-gate.js';
+		$this->stub_filesystem( $gate_script, $expected_path );
 
 		ob_start();
-		$this->preservation->print_sidebar_docking_viewport_height_gate_script();
-		$this->assertSame( '', ob_get_clean() );
+		$this->preservation->print_sidebar_docking_gate_script();
+		$this->assertStringContainsString( $gate_script, ob_get_clean() );
 	}
 
 	/**

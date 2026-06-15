@@ -71,7 +71,7 @@ class Sidebar_Open_Preservation {
 		// Reconcile the pre-rendered shell against the live viewport before the
 		// page content paints. `in_admin_header` fires after #adminmenu is in the
 		// DOM, so the script can measure it the same way the React app does.
-		add_action( 'in_admin_header', array( $this, 'print_sidebar_docking_viewport_height_gate_script' ) );
+		add_action( 'in_admin_header', array( $this, 'print_sidebar_docking_gate_script' ) );
 	}
 
 	/**
@@ -100,32 +100,21 @@ class Sidebar_Open_Preservation {
 	}
 
 	/**
-	 * Print the synchronous minimum-height-for-docking reconciliation script.
+	 * Print the synchronous sidebar-docking reconciliation script.
 	 *
-	 * Only emitted when the docked shell was pre-rendered. The one dock gate that
-	 * needs a live measurement is height: the docked layout pins the admin menu to
-	 * the viewport, and a menu taller than the room below the admin bar would be
-	 * clipped, so the chat floats instead. That threshold is dynamic, so it can't
-	 * be a CSS media query. The script measures it before the content paints and
-	 * publishes the verdict as the body class
-	 * `agents-manager--viewport-height-too-short-for-docking`, which both the
-	 * reshape CSS and the React hook read. Width and fullscreen gating are
-	 * declarative (CSS) / owned by the hook, so they are not duplicated here.
+	 * Only emitted when the docked shell was pre-rendered. Because we optimistically
+	 * inject the docked sidebar body classes, this script reconciles the gates that
+	 * the React hook applies and removes those classes so the chat floats instead.
 	 *
-	 * The script lives in src/js/sidebar-docking-viewport-height-gate.js and is inlined (not
+	 * The script lives in src/js/sidebar-docking-gate.js and is inlined (not
 	 * referenced via `src`) on purpose: it must run render-blocking before paint,
 	 * and a same- or cross-origin fetch would add latency to that blocking window.
 	 * Reading the bundled file and printing it inline keeps it a real, lintable JS
 	 * file with zero request cost.
 	 *
-	 * X-REF: that body class is consumed by the Calypso package's reshape selectors
-	 * as the `$dock-too-short-class` SCSS variable in
-	 * packages/agents-manager/src/styles/variables.scss. If you rename it, rename it
-	 * there too — the two are coupled by string and won't fail loudly on drift.
-	 *
 	 * @return void
 	 */
-	public function print_sidebar_docking_viewport_height_gate_script() {
+	public function print_sidebar_docking_gate_script() {
 		if ( ! $this->should_pre_render_docked_shell() ) {
 			return;
 		}
@@ -137,7 +126,7 @@ class Sidebar_Open_Preservation {
 			WP_Filesystem();
 		}
 
-		$script_path = __DIR__ . '/../build/sidebar-docking-viewport-height-gate.js';
+		$script_path = __DIR__ . '/../build/sidebar-docking-gate.js';
 
 		if ( empty( $wp_filesystem ) || ! $wp_filesystem->exists( $script_path ) ) {
 			return;
@@ -166,57 +155,9 @@ class Sidebar_Open_Preservation {
 			return false;
 		}
 
-		// On Gutenberg editor screens the chat only docks in fullscreen mode.
-		// Unlike width/height (handled in CSS / by the viewport-height gate against
-		// the live viewport), the body's `is-fullscreen-mode` class can't be trusted at
-		// paint: core adds it unconditionally and Gutenberg only removes it after
-		// boot. So read the real persisted preference and skip the pre-render when
-		// fullscreen is off, avoiding a docked-shell flash before the editor JS
-		// corrects the class.
-		if ( $this->is_non_fullscreen_editor() ) {
-			return false;
-		}
-
 		$state = Open_State_Store::get_cached();
 
 		return $state && true === $state['agents_manager_open'] && true === $state['agents_manager_docked'];
-	}
-
-	/**
-	 * Whether the current request is a Gutenberg editor screen with fullscreen
-	 * mode turned off — the case where the chat floats rather than docks.
-	 *
-	 * Mirrors the front-end's fullscreen-gated screens (post / site editor). The
-	 * `fullscreenMode` preference lives in the per-user `persisted_preferences`
-	 * meta written by the block editor; it defaults to on, so only an explicit
-	 * `false` counts as off.
-	 *
-	 * @return bool
-	 */
-	private function is_non_fullscreen_editor(): bool {
-		global $wpdb, $pagenow;
-
-		// Map each fullscreen-gated editor screen to its preference scope.
-		$scope = null;
-		if ( 'post.php' === $pagenow || 'post-new.php' === $pagenow ) {
-			$scope = 'core/edit-post';
-		} elseif ( 'site-editor.php' === $pagenow ) {
-			$scope = 'core/edit-site';
-		}
-
-		if ( null === $scope ) {
-			return false;
-		}
-
-		$user_id = get_current_user_id();
-		if ( ! $user_id ) {
-			return false;
-		}
-
-		$preferences = get_user_meta( $user_id, $wpdb->get_blog_prefix() . 'persisted_preferences', true );
-
-		return is_array( $preferences ) && isset( $preferences[ $scope ]['fullscreenMode'] )
-			&& ! ( (bool) $preferences[ $scope ]['fullscreenMode'] );
 	}
 
 	/**
