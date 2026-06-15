@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Identity Crisis: Prevent the migrate (Update address) action from failing with a false "Could not delete sync error option" error when the sync_error_idc option is stale in cache.
