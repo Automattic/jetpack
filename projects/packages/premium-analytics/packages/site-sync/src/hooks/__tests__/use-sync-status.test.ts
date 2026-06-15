@@ -66,6 +66,7 @@ describe( 'useSyncStatus', () => {
 			rawStatus( {
 				finished: true,
 				progress: { woocommerce_analytics: { sent: 2, total: 2 } },
+				initial_full_sync_finished: 1_700_000_000,
 			} )
 		);
 		const { result } = renderHook( () => useSyncStatus() );
@@ -219,8 +220,8 @@ describe( 'useSyncStatus', () => {
 		await waitFor( () =>
 			expect( result.current.data?.initialFullSyncFinished ).toBe( 1_700_000_500 )
 		);
-		// Milestone > 0 ⇒ complete even though analytics progress is only at 50%.
-		expect( result.current.isComplete ).toBe( true );
+		// Milestone is live, but analytics progress is only 50% ⇒ not complete (AND).
+		expect( result.current.isComplete ).toBe( false );
 		expect( result.current.data?.percentage ).toBe( 50 );
 	} );
 } );

@@ -57,7 +57,7 @@ describe( 'toSyncStatus', () => {
 		expect( status.percentage ).toBe( 100 );
 	} );
 
-	it( 'is complete (and gates open) when analytics hits 100% even if finished is still false', () => {
+	it( 'is not complete from progress alone until the milestone is set', () => {
 		const status = toSyncStatus(
 			{
 				started: true,
@@ -68,6 +68,22 @@ describe( 'toSyncStatus', () => {
 		);
 		expect( status.percentage ).toBe( 100 );
 		expect( status.isRunning ).toBe( true );
+		// 100% progress but the milestone is unset ⇒ not complete (AND), and not
+		// stalled because the sync is still running.
+		expect( isSyncComplete( status ) ).toBe( false );
+		expect( isSyncStalled( status ) ).toBe( false );
+	} );
+
+	it( 'is complete once progress is 100% and the milestone is set', () => {
+		const status = toSyncStatus(
+			{
+				started: true,
+				finished: true,
+				progress: { woocommerce_analytics: { sent: 2, total: 2 } },
+			},
+			1_700_000_000
+		);
+		expect( status.percentage ).toBe( 100 );
 		expect( isSyncComplete( status ) ).toBe( true );
 		expect( isSyncStalled( status ) ).toBe( false );
 	} );
@@ -101,7 +117,7 @@ describe( 'isSyncComplete', () => {
 		).toBe( true );
 	} );
 
-	it( 'is complete when analytics progress reaches 100 this session', () => {
+	it( 'is not complete from progress alone without the milestone', () => {
 		expect(
 			isSyncComplete( {
 				isStarted: true,
@@ -109,7 +125,18 @@ describe( 'isSyncComplete', () => {
 				percentage: 100,
 				initialFullSyncFinished: 0,
 			} )
-		).toBe( true );
+		).toBe( false );
+	} );
+
+	it( 'is not complete when the milestone is set but progress is below 100', () => {
+		expect(
+			isSyncComplete( {
+				isStarted: true,
+				isRunning: true,
+				percentage: 50,
+				initialFullSyncFinished: 1_700_000_000,
+			} )
+		).toBe( false );
 	} );
 
 	it( 'is not complete mid-progress', () => {

@@ -21,9 +21,8 @@ export function toSyncStatus( raw: SyncStatusApiResponse, milestone: number ): S
 	let percentage = 0;
 	if ( total > 0 ) {
 		percentage = Math.min( 100, Math.floor( ( sent / total ) * 100 ) );
-	} else if ( milestone > 0 || finished ) {
-		// No analytics bucket in this batch, but the sync has finished (now or
-		// before) — treat analytics as fully synced.
+	} else if ( milestone > 0 ) {
+		// No analytics bucket this batch, but the milestone is set: initial sync done.
 		percentage = 100;
 	}
 
@@ -36,13 +35,12 @@ export function toSyncStatus( raw: SyncStatusApiResponse, milestone: number ): S
 }
 
 /**
- * The analytics initial sync has finished — either before this page load
- * (milestone) or analytics progress reached 100 during this session.
+ * Determine whether sync is complete.
  * @param status - Normalized sync status.
  * @return Whether the analytics initial sync has finished.
  */
 export function isSyncComplete( status: SyncStatus ): boolean {
-	return status.initialFullSyncFinished > 0 || status.percentage >= 100;
+	return status.percentage >= 100 && status.initialFullSyncFinished > 0;
 }
 
 /**
