@@ -461,12 +461,39 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 			);
 		}
 
-		// Mirror stats-admin: a successful write invalidates the matching (param-less) read cache.
-		if ( ! $is_read && ( $opts['bust_on_write'] ?? false ) && 200 === (int) wp_remote_retrieve_response_code( $response ) ) {
-			delete_transient( $this->cache_key_for( $wpcom_path, $version, $base, array() ) );
-		}
+		$this->maybe_bust_read_cache( $response, ! $is_read, $opts, $wpcom_path, $version, $base );
 
 		return $this->cache_and_build_response( $response, $cache_key );
+	}
+
+	/**
+	 * Mirror stats-admin: a successful write invalidates the matching (param-less) read cache, so
+	 * the next GET reflects the change instead of serving the cached pre-write value. It busts only
+	 * when the request was a write, the prefix opted in (`bust_on_write`), and WPCOM returned 200.
+	 *
+	 * This is a pure function of the response and route context — it takes the raw client response
+	 * rather than reaching out to WPCOM itself, so the full bust decision is unit-testable without
+	 * a live connection.
+	 *
+	 * @param array                $http_response Raw response from the Jetpack client.
+	 * @param bool                 $is_write      Whether the request used a write (non-GET) method.
+	 * @param array<string, mixed> $opts          Forwarding opts (reads `bust_on_write`).
+	 * @param string               $wpcom_path    WPCOM path without the forwarded query string.
+	 * @param string               $version       WPCOM API version.
+	 * @param string               $base          WPCOM API base.
+	 *
+	 * @return void
+	 */
+	private function maybe_bust_read_cache( array $http_response, bool $is_write, array $opts, string $wpcom_path, string $version, string $base ): void {
+		if ( ! $is_write || empty( $opts['bust_on_write'] ) ) {
+			return;
+		}
+
+		if ( 200 !== (int) wp_remote_retrieve_response_code( $http_response ) ) {
+			return;
+		}
+
+		delete_transient( $this->cache_key_for( $wpcom_path, $version, $base, array() ) );
 	}
 
 	/**

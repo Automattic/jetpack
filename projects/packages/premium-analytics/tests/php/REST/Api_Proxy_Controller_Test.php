@@ -618,6 +618,133 @@ class Api_Proxy_Controller_Test extends BaseTestCase {
 	}
 
 	/**
+	 * @dataProvider data_cache_bust_endpoints
+	 *
+	 * @param string $endpoint The endpoint.
+	 * @param bool   $busts    Whether a successful write should invalidate the read cache.
+	 */
+	#[DataProvider( 'data_cache_bust_endpoints' )]
+	public function test_busts_cache_decision_from_config( string $endpoint, bool $busts ) {
+		$accessor = function ( string $e ) {
+			// @phan-suppress-next-line PhanUndeclaredMethod -- rebound to the controller via Closure::call().
+			return $this->busts_cache( $e );
+		};
+
+		$this->assertSame( $busts, $accessor->call( $this->controller, $endpoint ) );
+	}
+
+	/**
+	 * @return array<string, array{0: string, 1: bool}>
+	 */
+	public static function data_cache_bust_endpoints(): array {
+		return array(
+			'dashboard modules' => array( 'jetpack-stats-dashboard/modules', true ),
+			'module settings'   => array( 'jetpack-stats-dashboard/module-settings', true ),
+			'commercial class.' => array( 'commercial-classification', false ),
+			'referrer spam new' => array( 'stats/referrers/spam/new', false ),
+			'stats read'        => array( 'stats/top-posts', false ),
+		);
+	}
+
+	public function test_successful_write_busts_matching_read_cache() {
+		// A no-param GET to this dashboard read caches under this key; a 200 POST to it clears it.
+		$endpoint = 'jetpack-stats-dashboard/modules';
+		$read_key = $this->read_cache_key( $endpoint, '2' );
+		set_transient( $read_key, array( 'data' => 'stale' ), MINUTE_IN_SECONDS );
+
+		$this->invoke_bust( $endpoint, '2', true, true, 200 );
+
+		$this->assertFalse( get_transient( $read_key ), 'a 200 write to a bust endpoint clears its read cache' );
+	}
+
+	/**
+	 * @dataProvider data_non_busting_cases
+	 *
+	 * @param bool $is_write      Whether the request was a write.
+	 * @param bool $bust_on_write Whether the prefix opted into cache-busting.
+	 * @param int  $status        The WPCOM response status.
+	 */
+	#[DataProvider( 'data_non_busting_cases' )]
+	public function test_read_cache_survives_when_bust_conditions_are_not_met( bool $is_write, bool $bust_on_write, int $status ) {
+		$endpoint = 'jetpack-stats-dashboard/modules';
+		$read_key = $this->read_cache_key( $endpoint, '2' );
+		set_transient( $read_key, array( 'data' => 'keep' ), MINUTE_IN_SECONDS );
+
+		$this->invoke_bust( $endpoint, '2', $is_write, $bust_on_write, $status );
+
+		$this->assertNotFalse( get_transient( $read_key ) );
+	}
+
+	/**
+	 * @return array<string, array{0: bool, 1: bool, 2: int}>
+	 */
+	public static function data_non_busting_cases(): array {
+		return array(
+			'read request'        => array( false, true, 200 ),
+			'non-200 write'       => array( true, true, 500 ),
+			'prefix not opted in' => array( true, false, 200 ),
+		);
+	}
+
+	public function test_bust_is_scoped_to_the_written_path_and_version() {
+		// An unrelated path, and the same path at a different version, must survive a bust.
+		$other_path    = $this->read_cache_key( 'stats/top-posts', '1.1' );
+		$other_version = $this->read_cache_key( 'jetpack-stats-dashboard/modules', '1.1' );
+		set_transient( $other_path, array( 'data' => 'keep' ), MINUTE_IN_SECONDS );
+		set_transient( $other_version, array( 'data' => 'keep' ), MINUTE_IN_SECONDS );
+
+		$this->invoke_bust( 'jetpack-stats-dashboard/modules', '2', true, true, 200 );
+
+		$this->assertNotFalse( get_transient( $other_path ), 'an unrelated path must not be busted' );
+		$this->assertNotFalse( get_transient( $other_version ), 'a different version of the same path must not be busted' );
+	}
+
+	/**
+	 * Invoke the (connection-free) cache-bust decision with a synthetic response.
+	 *
+	 * @param string $endpoint      The endpoint.
+	 * @param string $version       The WPCOM API version.
+	 * @param bool   $is_write      Whether the request was a write.
+	 * @param bool   $bust_on_write Whether the prefix opted into cache-busting.
+	 * @param int    $status        The WPCOM response status.
+	 *
+	 * @return void
+	 */
+	private function invoke_bust( string $endpoint, string $version, bool $is_write, bool $bust_on_write, int $status ): void {
+		$accessor = function ( string $e, string $v, bool $w, bool $b, int $s ) {
+			// @phan-suppress-next-line PhanUndeclaredMethod -- rebound to the controller via Closure::call().
+			$this->maybe_bust_read_cache(
+				array( 'response' => array( 'code' => $s ) ),
+				$w,
+				array( 'bust_on_write' => $b ),
+				$this->build_data_path( $e ),
+				$v,
+				'2' === $v ? 'wpcom' : 'rest'
+			);
+		};
+
+		$accessor->call( $this->controller, $endpoint, $version, $is_write, $bust_on_write, $status );
+	}
+
+	/**
+	 * The param-less read cache key for an endpoint at a given version (what a no-param GET caches
+	 * under, and what a successful write to it busts).
+	 *
+	 * @param string $endpoint The endpoint.
+	 * @param string $version  The WPCOM API version.
+	 *
+	 * @return string
+	 */
+	private function read_cache_key( string $endpoint, string $version ): string {
+		$accessor = function ( string $e, string $v ) {
+			// @phan-suppress-next-line PhanUndeclaredMethod -- rebound to the controller via Closure::call().
+			return $this->cache_key_for( $this->build_data_path( $e ), $v, '2' === $v ? 'wpcom' : 'rest', array() );
+		};
+
+		return $accessor->call( $this->controller, $endpoint, $version );
+	}
+
+	/**
 	 * Build an analytics GET request on the data route (analytics is the `analytics` prefix, v2).
 	 *
 	 * @param string $endpoint The analytics sub-path (without the `analytics/` prefix).
