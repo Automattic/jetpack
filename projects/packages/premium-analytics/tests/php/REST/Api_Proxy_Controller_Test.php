@@ -424,6 +424,95 @@ class Api_Proxy_Controller_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Exhaustive behavior matrix: every WPCOM-proxy endpoint the controller exposes must still
+	 * validate, resolve to the same capability tier + method policy + WPCOM path it did before the
+	 * config refactor (and as the originating stats-admin controller forwarded it).
+	 *
+	 * @dataProvider data_endpoint_matrix
+	 *
+	 * @param string $endpoint   The endpoint sub-path (after proxy/v<version>/).
+	 * @param string $capability The capability that gates it.
+	 * @param bool   $writable   Whether a POST is permitted.
+	 * @param string $wpcom_path The expected WPCOM path (with %d for the site id).
+	 */
+	#[DataProvider( 'data_endpoint_matrix' )]
+	public function test_endpoint_behavior_matrix( string $endpoint, string $capability, bool $writable, string $wpcom_path ) {
+		$site_id = (int) \Jetpack_Options::get_option( 'id' );
+
+		$resolve = function ( string $e ) {
+			// @phan-suppress-next-line PhanUndeclaredMethod -- rebound to the controller via Closure::call().
+			$cfg = $this->config_for( $e );
+			return array(
+				// @phan-suppress-next-line PhanUndeclaredMethod
+				'valid'      => $this->validate_data_endpoint( $e ),
+				'capability' => $cfg['capability'] ?? null,
+				// @phan-suppress-next-line PhanUndeclaredMethod
+				'writable'   => $this->is_write_allowed( $e ),
+				// @phan-suppress-next-line PhanUndeclaredMethod
+				'path'       => $this->build_data_path( $e ),
+			);
+		};
+		$got     = $resolve->call( $this->controller, $endpoint );
+
+		$this->assertTrue( $got['valid'], "$endpoint should validate" );
+		$this->assertSame( $capability, $got['capability'], "$endpoint capability" );
+		$this->assertSame( $writable, $got['writable'], "$endpoint writability" );
+		$this->assertSame( sprintf( $wpcom_path, $site_id ), $got['path'], "$endpoint WPCOM path" );
+	}
+
+	/**
+	 * Every WPCOM-proxy endpoint, with the capability / writability / path it forwarded as in
+	 * stats-admin. Reads are GET-only (writable=false); the four mutations are POST.
+	 *
+	 * @return array<string, array{0: string, 1: string, 2: bool, 3: string}>
+	 */
+	public static function data_endpoint_matrix(): array {
+		$stats   = 'view_stats';
+		$wordads = 'activate_wordads';
+		$admin   = 'manage_options';
+
+		return array(
+			// Analytics (manage_options).
+			'analytics report'     => array( 'analytics/reports/totals', $admin, false, '/sites/%d/analytics/reports/totals' ),
+
+			// Site stats + every /stats/* read family (v1.1, view_stats).
+			'site stats'           => array( 'stats', $stats, false, '/sites/%d/stats' ),
+			'stats resource'       => array( 'stats/top-posts', $stats, false, '/sites/%d/stats/top-posts' ),
+			'stats file dl'        => array( 'stats/file-downloads', $stats, false, '/sites/%d/stats/file-downloads' ),
+			'stats subscribers'    => array( 'stats/subscribers', $stats, false, '/sites/%d/stats/subscribers' ),
+			'single post stats'    => array( 'stats/post/123', $stats, false, '/sites/%d/stats/post/123' ),
+			'single video stats'   => array( 'stats/video/45', $stats, false, '/sites/%d/stats/video/45' ),
+			'email summary'        => array( 'stats/emails/summary', $stats, false, '/sites/%d/stats/emails/summary' ),
+			'email opens single'   => array( 'stats/opens/emails/12/rate', $stats, false, '/sites/%d/stats/opens/emails/12/rate' ),
+			'email clicks single'  => array( 'stats/clicks/emails/12/link', $stats, false, '/sites/%d/stats/clicks/emails/12/link' ),
+			'email time series'    => array( 'stats/opens/emails/12', $stats, false, '/sites/%d/stats/opens/emails/12' ),
+			'utm series'           => array( 'stats/utm/utm_source,utm_medium', $stats, false, '/sites/%d/stats/utm/utm_source,utm_medium' ),
+			'devices series'       => array( 'stats/devices/screensize', $stats, false, '/sites/%d/stats/devices/screensize' ),
+			'location views'       => array( 'stats/location-views/country', $stats, false, '/sites/%d/stats/location-views/country' ),
+			'referrer spam list'   => array( 'stats/referrers/spam', $stats, false, '/sites/%d/stats/referrers/spam' ),
+
+			// Stats writes (POST, v1.1, view_stats).
+			'referrer spam new'    => array( 'stats/referrers/spam/new', $stats, true, '/sites/%d/stats/referrers/spam/new' ),
+			'referrer spam delete' => array( 'stats/referrers/spam/delete', $stats, true, '/sites/%d/stats/referrers/spam/delete' ),
+
+			// v2 / wpcom endpoints (view_stats).
+			'subscribers counts'   => array( 'subscribers/counts', $stats, false, '/sites/%d/subscribers/counts' ),
+			'never published'      => array( 'site-has-never-published-post', $stats, false, '/sites/%d/site-has-never-published-post' ),
+			'plan usage'           => array( 'jetpack-stats/usage', $stats, false, '/sites/%d/jetpack-stats/usage' ),
+			'dashboard modules'    => array( 'jetpack-stats-dashboard/modules', $stats, true, '/sites/%d/jetpack-stats-dashboard/modules' ),
+			'module settings'      => array( 'jetpack-stats-dashboard/module-settings', $stats, true, '/sites/%d/jetpack-stats-dashboard/module-settings' ),
+			'commercial class.'    => array( 'commercial-classification', $stats, true, '/sites/%d/commercial-classification' ),
+
+			// WordAds (activate_wordads).
+			'wordads earnings'     => array( 'wordads/earnings', $wordads, false, '/sites/%d/wordads/earnings' ),
+			'wordads stats'        => array( 'wordads/stats', $wordads, false, '/sites/%d/wordads/stats' ),
+
+			// Purchases — site-less path (view_stats).
+			'purchases'            => array( 'upgrades', $stats, false, '/upgrades?site=%d' ),
+		);
+	}
+
+	/**
 	 * @dataProvider data_versions
 	 *
 	 * @param string $version A version string.

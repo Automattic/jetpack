@@ -29,10 +29,10 @@ use WP_REST_Server;
  *
  * The `proxy/` segment marks a transparent WPCOM forward (future local endpoints live
  * elsewhere under the namespace). Rather than registering each endpoint, it accepts any
- * sub-path under an allowed top-level prefix (see {@see ALLOWED_PREFIXES}); the caller picks
- * the WPCOM API `version` in the path (the base is derived: v2 → wpcom, v1.x → rest). The
- * proxy stays endpoint-agnostic while the prefix allowlist + write-method policy keep the
- * blast radius of the blog token bounded.
+ * sub-path under an allowed top-level prefix (see {@see PREFIX_CONFIG}); the caller picks the
+ * WPCOM API `version` in the path (the base is derived: v2 → wpcom, v1.x → rest). The proxy
+ * stays endpoint-agnostic while the prefix allowlist + write-method policy keep the blast
+ * radius of the blog token bounded.
  */
 class Api_Proxy_Controller extends WP_REST_Controller {
 
@@ -91,24 +91,25 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 	 * @var array<string, array<string, mixed>>
 	 */
 	private const PREFIX_CONFIG = array(
-		'analytics'                 => array( 'capability' => 'manage_options' ),
-		'stats'                     => array(
+		'analytics'                     => array( 'capability' => 'manage_options' ),
+		'stats'                         => array(
 			'capability' => 'view_stats',
 			'writes'     => array( 'stats/referrers/spam/' ),
 		),
-		'wordads'                   => array( 'capability' => 'activate_wordads' ),
-		'subscribers'               => array( 'capability' => 'view_stats' ),
-		'jetpack-stats'             => array( 'capability' => 'view_stats' ),
-		'jetpack-stats-dashboard'   => array(
+		'wordads'                       => array( 'capability' => 'activate_wordads' ),
+		'subscribers'                   => array( 'capability' => 'view_stats' ),
+		'site-has-never-published-post' => array( 'capability' => 'view_stats' ),
+		'jetpack-stats'                 => array( 'capability' => 'view_stats' ),
+		'jetpack-stats-dashboard'       => array(
 			'capability' => 'view_stats',
 			'writes'     => array( 'jetpack-stats-dashboard/' ),
 			'cache_bust' => true,
 		),
-		'commercial-classification' => array(
+		'commercial-classification'     => array(
 			'capability' => 'view_stats',
 			'writes'     => array( 'commercial-classification' ),
 		),
-		'upgrades'                  => array(
+		'upgrades'                      => array(
 			'capability' => 'view_stats',
 			'path'       => '/upgrades?site=%d',
 		),
