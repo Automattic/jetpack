@@ -213,9 +213,14 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 	}
 
 	/**
-	 * Confine a data endpoint to a relative sub-path, rejecting traversal (`..`) and schemes
-	 * (`:`). The allowed top-level prefix is already enforced by the route regex; commas are
-	 * permitted since stats sub-paths legitimately contain them (UTM params).
+	 * Confine a data endpoint to a relative sub-path under an allowed prefix, rejecting traversal
+	 * (`..`) and schemes (`:`). Commas are permitted since stats sub-paths legitimately contain
+	 * them (UTM params).
+	 *
+	 * The prefix is re-checked here, not just in the route regex: WP's `get_param()` prefers
+	 * GET/JSON/POST over the URL route capture, so a caller could otherwise shadow the matched
+	 * `endpoint` with `?endpoint=…` and escape the allowlist. This runs against the same
+	 * `get_param()` value the handler forwards, so it closes the hole whichever source wins.
 	 *
 	 * @param mixed $value Raw endpoint param.
 	 *
@@ -228,7 +233,11 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 			return false;
 		}
 
-		return (bool) preg_match( '#^[\w.,/-]+$#', $value );
+		if ( ! preg_match( '#^[\w.,/-]+$#', $value ) ) {
+			return false;
+		}
+
+		return in_array( strtolower( explode( '/', $value )[0] ), self::ALLOWED_PREFIXES, true );
 	}
 
 	/**

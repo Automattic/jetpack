@@ -360,8 +360,17 @@ class Api_Proxy_Controller_Test extends BaseTestCase {
 	public function test_validate_data_endpoint_accepts_commas_and_rejects_traversal() {
 		$this->assertTrue( $this->controller->validate_data_endpoint( 'stats/utm/utm_campaign,utm_source,utm_medium' ) );
 		$this->assertTrue( $this->controller->validate_data_endpoint( 'stats/opens/emails/123/rate' ) );
+		$this->assertTrue( $this->controller->validate_data_endpoint( 'analytics/reports/totals' ) );
 		$this->assertFalse( $this->controller->validate_data_endpoint( 'stats/../../purchases' ) );
 		$this->assertFalse( $this->controller->validate_data_endpoint( 'stats/a:b' ) );
+	}
+
+	public function test_validate_data_endpoint_re_enforces_the_prefix_allowlist() {
+		// WP get_param() prefers a GET/JSON/POST `endpoint` over the URL capture, so a shadowed
+		// value with a non-allowed prefix must be rejected even though the URL matched the route.
+		$this->assertFalse( $this->controller->validate_data_endpoint( 'me/settings' ) );
+		$this->assertFalse( $this->controller->validate_data_endpoint( 'posts' ) );
+		$this->assertFalse( $this->controller->validate_data_endpoint( 'sites/123/users' ) );
 	}
 
 	/**
