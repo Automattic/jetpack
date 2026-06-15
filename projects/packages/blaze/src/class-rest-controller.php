@@ -45,7 +45,6 @@ class REST_Controller {
 	 * Registers the REST routes.
 	 *
 	 * @access public
-	 * @static
 	 */
 	public function register_rest_routes() {
 		$site_id = $this->get_site_id();

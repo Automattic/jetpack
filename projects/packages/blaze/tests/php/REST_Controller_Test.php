@@ -61,6 +61,8 @@ class REST_Controller_Test extends BaseTestCase {
 	 * Setting up the test.
 	 */
 	public function set_up() {
+		parent::set_up();
+
 		global $wp_rest_server;
 
 		$wp_rest_server = new WP_REST_Server();
@@ -97,6 +99,8 @@ class REST_Controller_Test extends BaseTestCase {
 		wp_set_current_user( 0 );
 		remove_all_filters( 'pre_http_request' );
 		remove_filter( 'jetpack_options', array( $this, 'mock_jetpack_site_connection_options' ), 10 );
+
+		parent::tear_down();
 	}
 
 	/**
