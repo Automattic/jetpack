@@ -16,6 +16,7 @@ use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills;
 require_once __DIR__ . '/class-ai-launchpad-rest.php';
 require_once __DIR__ . '/class-ai-launchpad-listeners.php';
 require_once __DIR__ . '/class-ai-launchpad-theme-listener.php';
+require_once __DIR__ . '/eligibility.php';
 
 /**
  * Registers the AI Launchpad admin page and its wp-build assets.
@@ -61,17 +62,21 @@ class AI_Launchpad {
 	}
 
 	/**
-	 * Whether the current user and site are eligible for the AI Launchpad.
+	 * Whether the current site is eligible for the AI Launchpad.
 	 *
-	 * MVP gate: paid plan, not already AI-onboarded, and either an
-	 * Automattician or a site carrying the `ai-launchpad-tester` blog sticker.
+	 * MVP gate: paid plan, not already AI-onboarded, and explicitly enabled for
+	 * the site via the `wpcom_ai_launchpad_enabled` option (set per-site over
+	 * wp-cli). Replaces the earlier automattician/blog-sticker check, which did
+	 * not work on Atomic: `is_automattician()` is undefined there and blog
+	 * stickers require the wpcom sandbox. The option works identically on Simple
+	 * and Atomic and is context-independent (admin, REST, and CLI agree).
 	 *
 	 * @return bool
 	 */
 	public static function is_eligible() {
 		return self::has_paid_plan()
 			&& ! self::was_ai_onboarded()
-			&& ( self::is_automattician_user() || wpcom_has_blog_sticker( 'ai-launchpad-tester', get_current_blog_id() ) );
+			&& self::is_enabled_for_site();
 	}
 
 	/**
@@ -99,12 +104,14 @@ class AI_Launchpad {
 	}
 
 	/**
-	 * Whether the current user is an Automattician.
+	 * Whether the AI Launchpad has been explicitly enabled for this site.
+	 *
+	 * Set per-site with `wp option update wpcom_ai_launchpad_enabled 1`.
 	 *
 	 * @return bool
 	 */
-	private static function is_automattician_user() {
-		return function_exists( 'is_automattician' ) && is_automattician();
+	private static function is_enabled_for_site() {
+		return (bool) get_option( 'wpcom_ai_launchpad_enabled' );
 	}
 
 	/**
