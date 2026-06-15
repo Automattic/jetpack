@@ -26,9 +26,9 @@ type SettingsSearch = Record< string, unknown > & { focus?: string };
 
 /**
  * Consolidated Settings screen. State + auto-save live in the `form` controller
- * (passed from the page root so it survives tab switches); this component is
- * the presentation. There's no Save button — toggles save on change, text and
- * token fields save on blur.
+ * (owned by the Settings route stage); this component is the presentation.
+ * There's no Save button — toggles save on change, text and token fields save
+ * on blur.
  *
  * @param props      - Component props.
  * @param props.form - The settings form controller from `useSettingsForm`.
