@@ -224,6 +224,7 @@ class Initializer {
 		$data[ self::SCRIPT_DATA_KEY ]['settings']      = self::get_settings_data();
 		$data[ self::SCRIPT_DATA_KEY ]['google_verify'] = self::get_google_verify_data();
 		$data[ self::SCRIPT_DATA_KEY ]['ai']            = self::get_ai_data();
+		$data[ self::SCRIPT_DATA_KEY ]['site']          = self::get_site_data();
 
 		return $data;
 	}
@@ -301,6 +302,28 @@ class Initializer {
 			'plan'              => array(
 				'seo_enabled_for_site' => $seo_enabled,
 			),
+		);
+	}
+
+	/**
+	 * Site identity used to render the homepage search/social previews on the
+	 * Settings tab: title, URL, and representative images. The front-page
+	 * description that completes the preview is read from the Settings form
+	 * (it's editable there), not bootstrapped here.
+	 *
+	 * @return array
+	 */
+	public static function get_site_data() {
+		$icon_url = (string) get_site_icon_url();
+
+		$logo_id  = (int) get_theme_mod( 'custom_logo' );
+		$logo_url = $logo_id ? (string) wp_get_attachment_image_url( $logo_id, 'full' ) : '';
+
+		return array(
+			'title' => (string) get_bloginfo( 'name' ),
+			'url'   => (string) home_url(),
+			'icon'  => $icon_url,
+			'image' => $logo_url ? $logo_url : $icon_url,
 		);
 	}
 

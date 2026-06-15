@@ -94,7 +94,7 @@
 		"@automattic/jetpack-base-styles": "workspace:*",
 		"@automattic/jetpack-webpack-config": "workspace:*",
 		"@automattic/jetpack-wp-build-polyfills": "workspace:*",
-		"@babel/core": "7.29.0",
+		"@babel/core": "7.29.6",
 		"@babel/plugin-transform-react-jsx": "7.28.6",
 		"@babel/preset-env": "7.29.2",
 		"@babel/preset-react": "7.28.5",

@@ -152,7 +152,7 @@ class WP_REST_Jetpack_AI_JWT_Test extends \WorDBless\BaseTestCase {
 	 */
 	public function test_register_rest_route_does_not_register_duplicate_route() {
 		$this->controller->register_rest_route();
-		// phan-suppress-next-line PhanPluginDuplicateAdjacentStatement reason: Intentionally calling twice to ensure duplicates are not registered.
+		// @phan-suppress-next-line PhanPluginDuplicateAdjacentStatement -- Intentionally calling twice to ensure duplicates are not registered.
 		$this->controller->register_rest_route();
 
 		$routes     = rest_get_server()->get_routes();

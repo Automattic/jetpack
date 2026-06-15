@@ -38,7 +38,7 @@
 		"tslib": "^2.5.0"
 	},
 	"devDependencies": {
-		"@babel/core": "7.29.0",
+		"@babel/core": "7.29.6",
 		"@babel/preset-react": "7.28.5",
 		"@jest/globals": "30.4.1",
 		"@knighted/duel": "4.0.2",

@@ -74,7 +74,7 @@
 	"devDependencies": {
 		"@automattic/jetpack-base-styles": "workspace:*",
 		"@automattic/jetpack-wp-build-polyfills": "workspace:*",
-		"@babel/core": "7.29.0",
+		"@babel/core": "7.29.6",
 		"@babel/runtime": "7.29.2",
 		"@types/canvas-confetti": "1.9.0",
 		"@types/react": "18.3.28",

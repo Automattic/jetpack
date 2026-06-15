@@ -3,7 +3,7 @@
 set -eo pipefail
 shopt -s dotglob
 
-cd $(dirname "${BASH_SOURCE[0]}")/../..
+cd "$(dirname "${BASH_SOURCE[0]}")"/../..
 BASE=$PWD
 . "$BASE/tools/includes/check-osx-bash-version.sh"
 . "$BASE/tools/includes/chalk-lite.sh"
@@ -49,11 +49,11 @@ function check_composer_no_dev_deps {
 		RE='^(@dev(#.*)?|dev-.*|[^@# ]*-dev([@# ].*)?)$'
 		WHAT="a release version"
 	fi
-	local PKG VER
-	local TMP="$(jq -r --arg which "$WHICH" --arg re "$RE" --argjson packages "$PACKAGES" '.[$which] // {} | to_entries[] | select( .key | in($packages) | not ) | select( .value | test( $re ) ) | [ .key, .value ] | @tsv' "$FILE")"
+	local PKG VER TMP LINE
+	TMP="$(jq -r --arg which "$WHICH" --arg re "$RE" --argjson packages "$PACKAGES" '.[$which] // {} | to_entries[] | select( .key | in($packages) | not ) | select( .value | test( $re ) ) | [ .key, .value ] | @tsv' "$FILE")"
 	[[ -n "$TMP" ]] || return 0
 	while IFS=$'\t' read -r PKG VER; do
-		local LINE=$(jq --stream --arg which "$WHICH" --arg pkg "$PKG" 'if length == 1 then .[0][:-1] else .[0] end | if . == [$which,$pkg] then input_line_number else empty end' "$FILE" | head -n 1)
+		LINE=$(jq --stream --arg which "$WHICH" --arg pkg "$PKG" 'if length == 1 then .[0][:-1] else .[0] end | if . == [$which,$pkg] then input_line_number else empty end' "$FILE" | head -n 1)
 		EXIT=1
 		echo "::error file=$FILE,line=$LINE::$SLUG must depend on $WHAT of \`$PKG\`, not \`$VER\`, to avoid lock file errors every time $PKG is updated."
 	done <<<"$TMP"
@@ -382,6 +382,7 @@ for PROJECT in projects/*/*; do
 
 	# - If a package is published (i.e. it has a mirror-repo), all its non-dev deps should also be published.
 	if [[ "$TYPE" == "packages" ]] && jq -e '.extra["mirror-repo"]' "$PROJECT/composer.json" >/dev/null; then
+		# shellcheck disable=SC2043
 		for WHICH in require; do
 			TMP=$(jq -r --arg which "$WHICH" --argjson packages "$PACKAGES" '.[$which] // {} | to_entries[] | select( .key | in( $packages ) ) | select( $packages[.key] | not ) | [ .key ] | @tsv' "$PROJECT/composer.json")
 			if [[ -n "$TMP" ]]; then
@@ -396,6 +397,7 @@ for PROJECT in projects/*/*; do
 
 	# - Plugins can only depend on published packages.
 	if [[ "$TYPE" == "plugins" ]]; then
+		# shellcheck disable=SC2043
 		for WHICH in require; do
 			TMP=$(jq -r --arg which "$WHICH" --argjson packages "$PACKAGES" '.[$which] // {} | to_entries[] | select( .key | in( $packages ) ) | select( $packages[.key] | not ) | [ .key ] | @tsv' "$PROJECT/composer.json")
 			if [[ -n "$TMP" ]]; then
@@ -726,6 +728,7 @@ done < <( git -c core.quotepath=off grep -l '\(random\|unique-id\)\s*(' '*.sass'
 
 # - package.json name fields must be prefixed or already registered.
 debug "Checking for bad package.json names"
+mapfile -t pkg_json_files < <(git -c core.quotepath=off ls-files package.json '*/package.json')
 while IFS=$'\t' read -r FILE NAME; do
 	# Ignore this one
 	[[ "$FILE" == "tools/cli/skeletons/common/package.json" ]] && continue
@@ -743,7 +746,7 @@ while IFS=$'\t' read -r FILE NAME; do
 		EXIT=1
 		echo "::error file=$FILE$LINE::Name $NAME is not owned by us (\`matticbot\`) or the NPM security account (\`npm\`). If this is not supposed to be published to npmjs, then if possible omit the \"name\" field entirely or otherwise rename it like \"@automattic/$NAME\". If it will be published, either add \`matticbot\` as a maintainer if we can or you'll have to rename (e.g. like \"@automattic/$NAME\")."
 	fi
-done < <( jq -r '.name // empty | select( startswith( "@automattic/" ) | not ) | [ input_filename, . ] | @tsv' $( git ls-files package.json '*/package.json' ) )
+done < <( jq -r '.name // empty | select( startswith( "@automattic/" ) | not ) | [ input_filename, . ] | @tsv' "${pkg_json_files[@]}" )
 
 # - Check for old GPL text.
 debug "Checking for references to the FSF's old addresses"
