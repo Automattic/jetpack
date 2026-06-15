@@ -47,20 +47,23 @@ const defaultLayouts = {
 type Props = {
 	onAddSubscribers: () => void;
 	onViewSubscriber: ( subscriber: Subscriber ) => void;
+	onSubscribersRemoved: ( removed: Subscriber[] ) => void;
 };
 
 /**
  * Subscribers DataViews table — server-driven pagination, sort, search, filters with URL
  * persistence, and per-row + bulk subscriber removal.
  *
- * @param props                  - Component props.
- * @param props.onAddSubscribers - Open the Add Subscribers modal (used by the empty-state CTA).
- * @param props.onViewSubscriber - Callback fired when the View row action is invoked.
+ * @param props                      - Component props.
+ * @param props.onAddSubscribers     - Open the Add Subscribers modal (used by the empty-state CTA).
+ * @param props.onViewSubscriber     - Callback fired when the View row action is invoked.
+ * @param props.onSubscribersRemoved - Callback fired with the rows that were actually removed.
  * @return The DataViews component bound to the subscribers query.
  */
 export default function SubscribersDataViews( {
 	onAddSubscribers,
 	onViewSubscriber,
+	onSubscribersRemoved,
 }: Props ): JSX.Element {
 	const [ view, setView ] = useViewState( defaultView );
 	const [ pendingRemoval, setPendingRemoval ] = useState< Subscriber[] >( [] );
@@ -287,11 +290,14 @@ export default function SubscribersDataViews( {
 			return;
 		}
 		try {
-			await removeMutation.mutateAsync( targets );
+			const result = await removeMutation.mutateAsync( targets );
+			if ( result.removed.length > 0 ) {
+				onSubscribersRemoved( result.removed );
+			}
 		} finally {
 			setPendingRemoval( [] );
 		}
-	}, [ pendingRemoval, removeMutation ] );
+	}, [ pendingRemoval, removeMutation, onSubscribersRemoved ] );
 
 	const handleCancelRemoval = useCallback( () => {
 		setPendingRemoval( [] );

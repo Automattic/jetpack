@@ -1,5 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { makeLibraryItem as item } from '../../../test-utils/library-item';
 import { libraryFields } from '../fields';
 import ThumbnailField from '../thumbnail-field';
 import { UploadActionsProvider, type UploadActions } from '../upload-actions-context';
@@ -10,28 +11,6 @@ import type { Field } from '@wordpress/dataviews';
 jest.mock( '../../../hooks/use-poster-url', () => ( {
 	usePosterUrl: jest.fn( () => null ),
 } ) );
-
-const item = ( overrides: Partial< LibraryItem > = {} ): LibraryItem => ( {
-	id: '42',
-	guid: 'abc123',
-	type: 'videopress',
-	title: 'My Clip',
-	filename: 'clip.mp4',
-	thumbnailUrl: null,
-	durationSeconds: 0,
-	uploadDate: '2026-01-01T00:00:00',
-	privacy: 'public',
-	isPrivate: false,
-	fileSizeBytes: 0,
-	upload: { status: 'idle', progress: 0 },
-	description: '',
-	rating: 'G',
-	displayEmbed: true,
-	allowDownloads: false,
-	shortcode: '',
-	isProcessing: false,
-	...overrides,
-} );
 
 const makeActions = ( overrides: Partial< UploadActions > = {} ): UploadActions => ( {
 	promoteLocal: jest.fn(),
@@ -95,6 +74,15 @@ describe( 'ThumbnailField — grid Details access', () => {
 		expect( screen.queryByRole( 'button', { name: /Edit details/ } ) ).not.toBeInTheDocument();
 		expect( screen.getByText( '40%' ) ).toBeInTheDocument();
 	} );
+
+	it( 'shows a Deleting… overlay and removes the open-details button while deleting', () => {
+		renderField(
+			<ThumbnailField item={ item( { upload: { status: 'deleting', progress: 0 } } ) } />,
+			makeActions()
+		);
+		expect( screen.getByText( 'Deleting…' ) ).toBeInTheDocument();
+		expect( screen.queryByRole( 'button', { name: /Edit details/ } ) ).not.toBeInTheDocument();
+	} );
 } );
 
 describe( 'TitleCell — grid Details access', () => {
@@ -113,5 +101,16 @@ describe( 'TitleCell — grid Details access', () => {
 		);
 		expect( screen.getByText( 'Raw Footage' ) ).toBeInTheDocument();
 		expect( screen.queryByRole( 'button', { name: 'Raw Footage' } ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'renders a Deleting… pill and a non-interactive title while deleting', () => {
+		renderField(
+			<TitleCellRender
+				item={ item( { title: 'Doomed', upload: { status: 'deleting', progress: 0 } } ) }
+			/>,
+			makeActions()
+		);
+		expect( screen.getByText( 'Deleting…' ) ).toBeInTheDocument();
+		expect( screen.queryByRole( 'button', { name: 'Doomed' } ) ).not.toBeInTheDocument();
 	} );
 } );

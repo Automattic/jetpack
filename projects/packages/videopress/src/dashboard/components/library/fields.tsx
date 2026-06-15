@@ -67,6 +67,11 @@ const TitleCell = ( { item }: { item: LibraryItem } ) => {
 			intent: 'informational',
 			label: __( 'Uploading…', 'jetpack-videopress-pkg' ),
 		};
+	} else if ( upload.status === 'deleting' ) {
+		pill = {
+			intent: 'informational',
+			label: __( 'Deleting…', 'jetpack-videopress-pkg' ),
+		};
 	} else if ( upload.status === 'failed' ) {
 		pill = {
 			intent: 'high',
