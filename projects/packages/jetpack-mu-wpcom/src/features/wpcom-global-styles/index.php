@@ -41,8 +41,8 @@ function wpcom_should_limit_global_styles( $blog_id = 0 ) {
 		return false;
 	}
 
-	// Do not limit Global Styles if the site paid for it.
-	if ( wpcom_site_has_global_styles_feature( $blog_id ) ) {
+	// Do not limit Global Styles if the site's plan grants the feature.
+	if ( wpcom_site_has_feature( WPCOM_Features::GLOBAL_STYLES, $blog_id ) ) {
 		return false;
 	}
 
@@ -633,42 +633,6 @@ function wpcom_is_previewing_global_styles( ?int $user_id = null ) {
 
 	// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 	return ! isset( $_GET['hide-global-styles'] ) && user_can( $user_id, 'manage_options' );
-}
-
-/**
- * Checks whether the site has a Personal plan.
- *
- * @param  int $blog_id Blog ID.
- * @return bool Whether the site has a Personal plan.
- */
-function wpcom_site_has_personal_plan( $blog_id ) {
-	$personal_plans = array_filter(
-		wpcom_get_site_purchases( $blog_id ),
-		function ( $purchase ) {
-			return strpos( $purchase->product_slug, 'personal-bundle' ) === 0;
-		}
-	);
-
-	return ! empty( $personal_plans );
-}
-
-/**
- * Checks whether the site has a plan that grants access to the Global Styles feature.
- *
- * @param  int $blog_id Blog ID.
- * @return bool Whether the site has access to Global Styles.
- */
-function wpcom_site_has_global_styles_feature( $blog_id = 0 ) {
-	if ( wpcom_site_has_feature( WPCOM_Features::GLOBAL_STYLES, $blog_id ) ) {
-		return true;
-	}
-
-	// Global Styles are available on the Personal plan.
-	if ( wpcom_site_has_personal_plan( $blog_id ) ) {
-		return true;
-	}
-
-	return false;
 }
 
 /**
