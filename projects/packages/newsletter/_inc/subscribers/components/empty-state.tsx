@@ -60,7 +60,7 @@ export default function SubscribersEmptyState( {
 			<EmptyState.Description>
 				{ createInterpolateElement(
 					__(
-						'<link>Turn your site visitors into subscribers</link> or bring readers in by inviting them by email. They’ll get a confirmation message and start receiving your posts.',
+						'<link>Turn your site visitors into subscribers</link> or bring readers in by adding their emails. They’ll start receiving your posts right away.',
 						'jetpack-newsletter'
 					),
 					{

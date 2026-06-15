@@ -1,2 +1,6 @@
 _inc/lib/markdown/extra.php
 _inc/lib/markdown/gfm.php
+tests/php/files/theme-file-sync-child/child-only.php
+tests/php/files/theme-file-sync-child/parent-and-child.php
+tests/php/files/theme-file-sync-parent/parent-only.php
+tests/php/files/theme-file-sync-parent/parent-and-child.php

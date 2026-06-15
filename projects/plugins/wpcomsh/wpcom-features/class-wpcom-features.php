@@ -37,6 +37,10 @@ class WPCOM_Features {
 	private const GAPPS_UNLIMITED                             = 'gapps_unlimited'; // 70
 	private const WP_TITAN_MAIL_MONTHLY                       = 'wp_titan_mail_monthly'; // 400
 	private const WP_TITAN_MAIL_YEARLY                        = 'wp_titan_mail_yearly'; // 401
+	private const WP_TITAN_MAIL_PREMIUM_MONTHLY               = 'wp_titan_mail_premium_monthly'; // 402
+	private const WP_TITAN_MAIL_PREMIUM_YEARLY                = 'wp_titan_mail_premium_yearly'; // 403
+	private const WP_TITAN_MAIL_ULTRA_MONTHLY                 = 'wp_titan_mail_ultra_monthly'; // 404
+	private const WP_TITAN_MAIL_ULTRA_YEARLY                  = 'wp_titan_mail_ultra_yearly'; // 405
 	private const WP_GOOGLE_WORKSPACE_BUSINESS_STARTER_YEARLY = 'wp_google_workspace_business_starter_yearly'; // 690
 	private const WPCOM_SEARCH                                = 'wpcom_search'; // 800
 	private const WPCOM_SEARCH_MONTHLY                        = 'wpcom_search_monthly'; // 801
@@ -248,7 +252,7 @@ class WPCOM_Features {
 	private const WOO_HOSTED_PLANS              = array( self::WOO_HOSTED_BASIC_PLAN_MONTHLY, self::WOO_HOSTED_BASIC_PLAN_YEARLY, self::WOO_HOSTED_PRO_PLAN_MONTHLY, self::WOO_HOSTED_PRO_PLAN_YEARLY );
 	private const GOOGLE_WORKSPACE_PRODUCTS     = array( self::WP_GOOGLE_WORKSPACE_BUSINESS_STARTER_YEARLY );
 	private const GSUITE_PRODUCTS               = array( self::GAPPS, self::GAPPS_UNLIMITED );
-	private const WPCOM_TITAN_MAIL_PRODUCTS     = array( self::WP_TITAN_MAIL_MONTHLY, self::WP_TITAN_MAIL_YEARLY );
+	private const WPCOM_TITAN_MAIL_PRODUCTS     = array( self::WP_TITAN_MAIL_MONTHLY, self::WP_TITAN_MAIL_YEARLY, self::WP_TITAN_MAIL_PREMIUM_MONTHLY, self::WP_TITAN_MAIL_PREMIUM_YEARLY, self::WP_TITAN_MAIL_ULTRA_MONTHLY, self::WP_TITAN_MAIL_ULTRA_YEARLY );
 
 	private const WPCOM_PERSONAL_AND_PREMIUM_PLANS = array( self::WPCOM_PERSONAL_PLANS, self::WPCOM_PREMIUM_PLANS );
 	// Unlock Business-gated features for sites with the flex-cache-site sticker via the free plan.
@@ -713,8 +717,15 @@ class WPCOM_Features {
 			self::WPCOM_BUSINESS_PLANS,
 		),
 		self::COPY_SITE                         => array(
-			self::WPCOM_BUSINESS_PLANS,
-			self::WPCOM_ECOMMERCE_PLANS,
+			self::WPCOM_PRO_PLANS,
+			self::EXCLUDE_PLANS => array(
+				self::WPCOM_ECOMMERCE_TRIAL_PLANS,
+			),
+			// Copy a site requires an Atomic site, so this mirrors the plans that can be
+			// Atomic: Personal, Premium, and Business or higher plans (not all paid plans).
+			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
+			self::WPCOM_PERSONAL_AND_PREMIUM_PLANS,
+			self::WPCOM_FLEX_CACHE_SITE_FREE_PLANS,
 		),
 		// CORE_AUDIO - core/audio requires a paid plan for uploading audio files.
 		self::CORE_AUDIO                        => array(
@@ -863,8 +874,7 @@ class WPCOM_Features {
 			),
 		),
 		self::GLOBAL_STYLES                     => array(
-			self::WPCOM_PREMIUM_AND_HIGHER_PLANS,
-			self::WPCOM_STARTER_PLANS,
+			self::WPCOM_PERSONAL_AND_HIGHER_PLANS,
 		),
 		self::GOOGLE_ANALYTICS                  => array(
 			self::JETPACK_PREMIUM_AND_HIGHER,

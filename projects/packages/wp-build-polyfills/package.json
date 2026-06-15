@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-wp-build-polyfills",
-	"version": "0.1.11",
+	"version": "0.1.14",
 	"private": true,
 	"description": "Polyfills for WordPress Core packages not available in WP < 7.0",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/packages/wp-build-polyfills/#readme",
@@ -19,7 +19,8 @@
 		"build": "pnpm run clean && webpack && node bin/validate-boot-asset.js",
 		"build-production": "NODE_ENV=production BABEL_ENV=production pnpm run build",
 		"clean": "rm -rf build/",
-		"test": "node --test 'tests/js/**/*.test.js'"
+		"test": "node --test 'tests/js/**/*.test.js'",
+		"test-coverage": "c8 --report-dir=\"$COVERAGE_DIR\" --temp-directory=\"$ARTIFACTS_DIR/v8\" pnpm run test"
 	},
 	"devDependencies": {
 		"@automattic/jetpack-webpack-config": "workspace:*",
@@ -37,6 +38,7 @@
 		"@wordpress/theme": "^0.15.0",
 		"@wordpress/ui": "^0.13.0",
 		"browserslist": "^4.24.0",
+		"c8": "^11.0.0",
 		"webpack": "^5.104.1",
 		"webpack-cli": "^6.0.1"
 	},

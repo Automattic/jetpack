@@ -53,4 +53,30 @@ class InitializerTest extends TestCase {
 		$this->assertSame( '', $data['connect_url'] );
 		$this->assertFalse( $data['is_connected'] );
 	}
+
+	/**
+	 * The AI tab bootstrap exposes the enhancer shape the React app expects, with
+	 * boolean availability/enabled. Without a plan-supporting environment the
+	 * enhancer is unavailable.
+	 */
+	public function test_get_ai_data_shape() {
+		// Force the enhancer feature filter off so availability is deterministic
+		// regardless of whether Current_Plan happens to be loaded in the test
+		// environment (availability is `filter_on && plan_supports`).
+		add_filter( 'ai_seo_enhancer_enabled', '__return_false' );
+
+		try {
+			$ai = Initializer::get_ai_data();
+
+			$this->assertArrayHasKey( 'enhancer', $ai );
+			$this->assertArrayHasKey( 'available', $ai['enhancer'] );
+			$this->assertArrayHasKey( 'enabled', $ai['enhancer'] );
+			$this->assertIsBool( $ai['enhancer']['available'] );
+			$this->assertIsBool( $ai['enhancer']['enabled'] );
+			// With the feature filter forced off, the enhancer is never available.
+			$this->assertFalse( $ai['enhancer']['available'] );
+		} finally {
+			remove_filter( 'ai_seo_enhancer_enabled', '__return_false' );
+		}
+	}
 }

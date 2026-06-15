@@ -134,7 +134,7 @@ abstract class Jetpack_Display_Posts_Widget__Base extends WP_Widget {
 		if ( ! empty( $instance['title'] ) ) {
 			/** This filter is documented in core/src/wp-includes/default-widgets.php */
 			$instance['title'] = apply_filters( 'widget_title', $instance['title'] );
-			$content          .= $args['before_title'] . $instance['title'] . ': ' . $site_info->name . $args['after_title']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+			$content          .= $args['before_title'] . $instance['title'] . ': ' . $site_info->name . $args['after_title'];
 		} else {
 			$content .= $args['before_title'] . esc_html( $site_info->name ) . $args['after_title'];
 		}

@@ -1,5 +1,5 @@
 import { useGlobalNotices } from '@automattic/jetpack-components/global-notices';
-import { Tooltip } from '@wordpress/components';
+import { DropZone, Tooltip } from '@wordpress/components';
 import { DataViews } from '@wordpress/dataviews';
 import { useCallback, useMemo, useRef, useState } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
@@ -10,12 +10,14 @@ import { buildLibraryActions } from '../../src/dashboard/components/library/acti
 import { libraryFields } from '../../src/dashboard/components/library/fields';
 import { UploadActionsProvider } from '../../src/dashboard/components/library/upload-actions-context';
 import QueryClientWrapper from '../../src/dashboard/components/query-client-wrapper';
-import { useDeleteVideo } from '../../src/dashboard/hooks/use-delete-video';
+import { DeleteVideosError, useDeleteVideo } from '../../src/dashboard/hooks/use-delete-video';
 import { useFreeTier } from '../../src/dashboard/hooks/use-free-tier';
 import { useLibrary } from '../../src/dashboard/hooks/use-library';
 import { useUpdateVideoMeta } from '../../src/dashboard/hooks/use-update-video-meta';
 import { useUpload } from '../../src/dashboard/hooks/use-upload';
 import { useUploadFromLibrary } from '../../src/dashboard/hooks/use-upload-from-library';
+import { useVideoPressUpgrade } from '../../src/dashboard/hooks/use-videopress-upgrade';
+import { planVideoDrop } from './upload-drop';
 import './style.scss';
 import type { LibraryItem, LibraryItemPrivacy } from '../../src/dashboard/types/library';
 import type { SupportedLayouts, View } from '@wordpress/dataviews';
@@ -63,13 +65,18 @@ const StageInner = () => {
 	// The upload-from-library endpoint doesn't report progress, so we just
 	// need to know which rows to overlay with an "Uploading…" state.
 	const [ promotingIds, setPromotingIds ] = useState< Set< string > >( () => new Set() );
+	// IDs currently being deleted. Same overlay technique as promotingIds:
+	// rows get a "Deleting…" state (thumbnail overlay in grid, title pill in
+	// table) until the post-delete refetch removes them from the listing.
+	const [ deletingIds, setDeletingIds ] = useState< Set< string > >( () => new Set() );
 
 	const { items, isLoading, paginationInfo } = useLibrary( view );
 	const { uploadQueue, startUpload, retryUpload } = useUpload();
-	const { mutate: deleteVideo } = useDeleteVideo();
+	const { mutateAsync: deleteVideo } = useDeleteVideo();
 	const { mutate: updateMeta } = useUpdateVideoMeta();
 	const { mutate: uploadFromLibrary } = useUploadFromLibrary();
-	const { isAtLimit } = useFreeTier();
+	const { isAtLimit, isFree, isUnlimited, videoCount, limit } = useFreeTier();
+	const runUpgrade = useVideoPressUpgrade();
 
 	const onChangeView = useCallback( ( next: View ) => {
 		setView( current => {
@@ -110,7 +117,57 @@ const StageInner = () => {
 		[ navigate ]
 	);
 
-	const { createSuccessNotice, createErrorNotice } = useGlobalNotices();
+	const { createSuccessNotice, createErrorNotice, createInfoNotice } = useGlobalNotices();
+
+	// Drag-and-drop entry point. Mirrors the file-picker's `startUpload`
+	// path but accepts multiple files and enforces the free-tier cap up
+	// front so a drop can't sneak past the limit the picker button guards.
+	const handleFilesDrop = useCallback(
+		( files: File[] ) => {
+			const decision = planVideoDrop( files, {
+				isFree,
+				isUnlimited,
+				limit,
+				videoCount,
+			} );
+
+			if ( decision.kind === 'no-videos' ) {
+				createErrorNotice( __( 'Only video files can be uploaded.', 'jetpack-videopress-pkg' ) );
+				return;
+			}
+
+			if ( decision.kind === 'at-limit' ) {
+				createErrorNotice(
+					__(
+						'You’ve reached the free plan’s 1-video limit. Upgrade to upload more.',
+						'jetpack-videopress-pkg'
+					),
+					{
+						actions: [ { label: __( 'Upgrade', 'jetpack-videopress-pkg' ), onClick: runUpgrade } ],
+					}
+				);
+				return;
+			}
+
+			decision.toUpload.forEach( file => startUpload( file ) );
+
+			if ( decision.skipped > 0 ) {
+				createErrorNotice(
+					sprintf(
+						/* translators: %d: number of videos that could not be uploaded because the plan limit was reached. */
+						_n(
+							'%d video wasn’t uploaded because it exceeds your plan’s limit.',
+							'%d videos weren’t uploaded because they exceed your plan’s limit.',
+							decision.skipped,
+							'jetpack-videopress-pkg'
+						),
+						decision.skipped
+					)
+				);
+			}
+		},
+		[ isFree, isUnlimited, limit, videoCount, startUpload, createErrorNotice, runUpgrade ]
+	);
 
 	const promoteLocal = useCallback(
 		( id: string ) => {
@@ -156,33 +213,80 @@ const StageInner = () => {
 				promoteLocal,
 				retryUpload,
 				openVideoDetails,
-				deleteItems: ( ids: string[] ) => {
-					deleteVideo( ids, {
-						onSuccess: () => {
-							createSuccessNotice(
-								sprintf(
-									/* translators: %d: number of deleted videos. */
-									_n(
-										'%d video deleted.',
-										'%d videos deleted.',
-										ids.length,
-										'jetpack-videopress-pkg'
-									),
-									ids.length
-								)
-							);
-						},
-						onError: () => {
-							createErrorNotice(
+				deleteItems: async ( ids: string[] ) => {
+					setDeletingIds( prev => new Set( [ ...prev, ...ids ] ) );
+					// The row overlay/pill is purely visual; this notice is what
+					// announces the in-flight state to screen readers. Per-batch id
+					// (rows mid-delete are ineligible for another delete, so the
+					// first id can't repeat across concurrent batches) lets the
+					// settle notices below replace it in place rather than stack.
+					const noticeId = `vp-library-deleting-${ ids[ 0 ] }-${ ids.length }`;
+					createInfoNotice(
+						sprintf(
+							/* translators: %d: number of videos being deleted. */
+							_n(
+								'Deleting %d video…',
+								'Deleting %d videos…',
+								ids.length,
+								'jetpack-videopress-pkg'
+							),
+							ids.length
+						),
+						{ id: noticeId, explicitDismiss: true }
+					);
+					// React via the mutateAsync promise, not mutate-level callbacks:
+					// those are dropped if another delete starts while this one is in
+					// flight (TanStack detaches the observer), which would strand
+					// rows in the "Deleting…" state. The promise settles only after
+					// the hook's awaited library refetch, so the cleanup below can't
+					// flash rows back to their normal state ahead of their removal
+					// from the listing.
+					let failedIds = new Set< string >();
+					try {
+						await deleteVideo( ids );
+						createSuccessNotice(
+							sprintf(
+								/* translators: %d: number of deleted videos. */
 								_n(
-									'Failed to delete video.',
-									'Failed to delete videos.',
+									'%d video deleted.',
+									'%d videos deleted.',
 									ids.length,
 									'jetpack-videopress-pkg'
-								)
-							);
-						},
+								),
+								ids.length
+							),
+							{ id: noticeId }
+						);
+					} catch ( error ) {
+						// Unknown error shape → assume nothing was deleted.
+						failedIds =
+							error instanceof DeleteVideosError
+								? new Set( error.failedIds.map( String ) )
+								: new Set( ids );
+						createErrorNotice(
+							sprintf(
+								/* translators: %d: number of videos that could not be deleted. */
+								_n(
+									'Failed to delete %d video.',
+									'Failed to delete %d videos.',
+									failedIds.size,
+									'jetpack-videopress-pkg'
+								),
+								failedIds.size
+							),
+							{ id: noticeId }
+						);
+					}
+					setDeletingIds( prev => {
+						const next = new Set( prev );
+						ids.forEach( id => next.delete( id ) );
+						return next;
 					} );
+					// Prune rows that are now gone from the DataViews selection so
+					// the bulk-actions toolbar doesn't keep counting them. On partial
+					// failure the failed rows survive and stay selected.
+					const requested = new Set( ids );
+					setSelection( prev => prev.filter( id => ! requested.has( id ) || failedIds.has( id ) ) );
 				},
 				setPrivacy: ( id: string, privacy: LibraryItemPrivacy ) => {
 					updateMeta(
@@ -212,6 +316,7 @@ const StageInner = () => {
 			openVideoDetails,
 			createSuccessNotice,
 			createErrorNotice,
+			createInfoNotice,
 		]
 	);
 
@@ -243,19 +348,21 @@ const StageInner = () => {
 				shortcode: '',
 				isProcessing: false,
 			} ) );
-		// Overlay an "uploading"-style state on items currently being
-		// promoted from local-storage to VideoPress, so the title-cell
-		// pill and the thumbnail overlay reflect the in-flight state
-		// without needing a parallel signal at every render site.
-		const overlaid = promotingIds.size
-			? items.map( item =>
-					promotingIds.has( item.id )
-						? { ...item, upload: { status: 'promoting' as const, progress: 0 } }
-						: item
-			  )
-			: items;
+		// Overlay an in-flight state on items currently being promoted from
+		// local-storage to VideoPress or being deleted, so the title-cell
+		// pill and the thumbnail overlay reflect the operation without
+		// needing a parallel signal at every render site.
+		const overlaid = items.map( item => {
+			if ( promotingIds.has( item.id ) ) {
+				return { ...item, upload: { status: 'promoting' as const, progress: 0 } };
+			}
+			if ( deletingIds.has( item.id ) ) {
+				return { ...item, upload: { status: 'deleting' as const, progress: 0 } };
+			}
+			return item;
+		} );
 		return [ ...inFlight, ...overlaid ];
-	}, [ uploadQueue, items, promotingIds ] );
+	}, [ uploadQueue, items, promotingIds, deletingIds ] );
 
 	const getItemId = useCallback( ( item: LibraryItem ) => item.id, [] );
 
@@ -294,8 +401,12 @@ const StageInner = () => {
 				</>
 			}
 		>
-			<UploadActionsProvider value={ { promoteLocal, retryUpload } }>
+			<UploadActionsProvider value={ { promoteLocal, retryUpload, openVideoDetails } }>
 				<div className={ `vp-library__viewport vp-library__viewport--${ view.type }` }>
+					<DropZone
+						label={ __( 'Drop a video to upload', 'jetpack-videopress-pkg' ) }
+						onFilesDrop={ handleFilesDrop }
+					/>
 					<DataViews< LibraryItem >
 						data={ renderedItems }
 						fields={ libraryFields }

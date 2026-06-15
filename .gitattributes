@@ -21,6 +21,7 @@ AGENTS.md              production-exclude
 babel.config.js        production-exclude
 babel.config.[cm]js    production-exclude
 .babelrc               production-exclude
+.c8rc.json             production-exclude
 CLAUDE.md              production-exclude
 composer.lock          production-exclude
 eslint.config.mjs      production-exclude

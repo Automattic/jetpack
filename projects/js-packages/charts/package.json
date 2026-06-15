@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/charts",
-	"version": "1.5.2",
+	"version": "1.5.3",
 	"description": "Display charts within Automattic products.",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/charts/#readme",
 	"bugs": {
@@ -122,7 +122,7 @@
 		"@wordpress/private-apis": "1.48.0",
 		"babel-jest": "30.4.1",
 		"babel-plugin-react-remove-properties": "^0.3.1",
-		"esbuild": "0.27.4",
+		"esbuild": "0.28.1",
 		"esbuild-plugin-babel": "^0.2.3",
 		"esbuild-sass-plugin": "^3.1.0",
 		"identity-obj-proxy": "^3.0.0",

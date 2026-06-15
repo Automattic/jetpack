@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Include the routes directory in the TypeScript config and fix type errors in the dashboard route files.
