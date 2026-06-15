@@ -504,12 +504,14 @@ class RTC_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Tests that default_rtc_option returns '1' when RTC is allowed and no option is stored.
+	 * Tests that default_rtc_option returns '0' when RTC is allowed but no option is stored.
+	 *
+	 * RTC is disabled by default; sites must explicitly opt in via the setting.
 	 */
-	public function test_default_rtc_option_returns_1_when_allowed() {
+	public function test_default_rtc_option_returns_0_when_allowed_and_not_stored() {
 		add_filter( 'jetpack_rtc_enabled', '__return_true' );
 
-		$this->assertSame( '1', RTC::default_rtc_option( '', RTC::OPTION_OLD ) );
+		$this->assertSame( '0', RTC::default_rtc_option( '', RTC::OPTION_OLD ) );
 	}
 
 	/**
@@ -517,9 +519,9 @@ class RTC_Test extends \WorDBless\BaseTestCase {
 	 */
 	public function test_default_rtc_option_migrates_old_to_new() {
 		add_filter( 'jetpack_rtc_enabled', '__return_true' );
-		update_option( RTC::OPTION_OLD, '0' );
+		update_option( RTC::OPTION_OLD, '1' );
 
-		$this->assertSame( '0', RTC::default_rtc_option( '', RTC::OPTION_NEW ) );
+		$this->assertSame( '1', RTC::default_rtc_option( '', RTC::OPTION_NEW ) );
 	}
 
 	// -------------------------------------------------------------------------
