@@ -10,6 +10,8 @@ namespace Automattic\Jetpack\Newsletter;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
+use Automattic\Jetpack\Tracking;
+use Jetpack_Tracks_Client;
 
 /**
  * Register and render the Daily Writing Prompt dashboard widget.
@@ -128,6 +130,12 @@ class Writing_Prompt_Widget {
 		);
 		wp_set_script_translations( $handle, 'jetpack-newsletter' );
 
+		// Load the Tracks transport so the widget's analytics events can fire.
+		Tracking::register_tracks_functions_scripts( true );
+
+		// Expose the connected user's Tracks identity to the widget script.
+		add_filter( 'jetpack_admin_js_script_data', array( __CLASS__, 'add_script_data' ) );
+
 		$css_ext  = is_rtl() ? 'rtl.css' : 'css';
 		$css_path = dirname( __DIR__ ) . "/build/writing-prompt.$css_ext";
 		if ( file_exists( $css_path ) ) {
@@ -140,6 +148,28 @@ class Writing_Prompt_Widget {
 		}
 
 		return $handle;
+	}
+
+	/**
+	 * Add the connected user's Tracks identity to the admin script data.
+	 *
+	 * Mirrors the `newsletter.tracksUserData` shape provided by the Newsletter
+	 * settings page so the widget can reuse the same `getNewsletterScriptData()`
+	 * helper and `analytics.initialize()` flow.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param array $data The script data.
+	 * @return array The filtered script data.
+	 */
+	public static function add_script_data( $data ) {
+		if ( ! isset( $data['newsletter'] ) || ! is_array( $data['newsletter'] ) ) {
+			$data['newsletter'] = array();
+		}
+
+		$data['newsletter']['tracksUserData'] = Jetpack_Tracks_Client::get_connected_user_tracks_identity();
+
+		return $data;
 	}
 
 	/**
