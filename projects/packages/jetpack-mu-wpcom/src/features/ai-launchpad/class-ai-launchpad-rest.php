@@ -375,4 +375,5 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 	}
 }
 
+// @phan-suppress-next-line PhanNoopNew -- instantiated for the constructor's add_action side effect.
 new AI_Launchpad_REST();

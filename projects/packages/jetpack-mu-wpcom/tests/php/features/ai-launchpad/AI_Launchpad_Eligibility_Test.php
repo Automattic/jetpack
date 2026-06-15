@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\Jetpack_Mu_Wpcom;
 
 use Automattic\Jetpack\Jetpack_Mu_Wpcom;
 use Brain\Monkey\Functions;
+use PHPUnit\Framework\Attributes\CoversMethod;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\PreserveGlobalState;
 use PHPUnit\Framework\Attributes\RunInSeparateProcess;
@@ -16,6 +17,7 @@ use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 /**
  * @covers \Automattic\Jetpack\Jetpack_Mu_Wpcom\AI_Launchpad::is_eligible
  */
+#[CoversMethod( AI_Launchpad::class, 'is_eligible' )]
 class AI_Launchpad_Eligibility_Test extends \WorDBless\BaseTestCase {
 	/**
 	 * Set up.
@@ -39,6 +41,8 @@ class AI_Launchpad_Eligibility_Test extends \WorDBless\BaseTestCase {
 	 * of the gate's inputs.
 	 *
 	 * @dataProvider provide_eligibility_inputs
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
 	 *
 	 * @param bool $has_paid_plan    Whether the site owns a bundle purchase.
 	 * @param bool $was_ai_onboarded Whether the site already went through AI onboarding.

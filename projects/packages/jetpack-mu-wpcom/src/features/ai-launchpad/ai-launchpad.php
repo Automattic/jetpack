@@ -1,4 +1,4 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName -- Feature entry file, named after the feature, also holds the AI_Launchpad bootstrap class.
 /**
  * AI Launchpad: an AI-tailored onboarding tasklist on a top-level wp-admin page.
  *
