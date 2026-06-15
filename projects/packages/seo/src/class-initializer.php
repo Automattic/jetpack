@@ -222,6 +222,7 @@ class Initializer {
 
 		$data[ self::SCRIPT_DATA_KEY ]['overview'] = self::get_overview_data();
 		$data[ self::SCRIPT_DATA_KEY ]['settings'] = self::get_settings_data();
+		$data[ self::SCRIPT_DATA_KEY ]['ai']       = self::get_ai_data();
 
 		return $data;
 	}
@@ -364,6 +365,36 @@ class Initializer {
 				'pinterest' => isset( $codes['pinterest'] ) ? (string) $codes['pinterest'] : '',
 				'yandex'    => isset( $codes['yandex'] ) ? (string) $codes['yandex'] : '',
 				'facebook'  => isset( $codes['facebook'] ) ? (string) $codes['facebook'] : '',
+			),
+		);
+	}
+
+	/**
+	 * Build the AI tab's initial state.
+	 *
+	 * The AI SEO Enhancer auto-generates SEO titles/descriptions/alt-text in the
+	 * editor (the generation itself is wpcom/AI-Assistant side); this exposes only
+	 * its persisted on/off toggle and whether it's available. Availability mirrors
+	 * the legacy Traffic page: the `ai_seo_enhancer_enabled` feature filter must be
+	 * on (it still depends on AI being available) AND the site's plan must support
+	 * the `ai-seo-enhancer` feature. The toggle writes through the existing
+	 * `/jetpack/v4/settings` endpoint (`ai_seo_enhancer_enabled`).
+	 *
+	 * @return array
+	 */
+	public static function get_ai_data() {
+		$filter_on = (bool) apply_filters( 'ai_seo_enhancer_enabled', true );
+
+		// Current_Plan is provided by the host Jetpack plugin, not a package
+		// dependency — guard like the Jetpack_SEO_* helpers above.
+		$plan_supports = class_exists( 'Automattic\\Jetpack\\Current_Plan' )
+			// @phan-suppress-next-line PhanUndeclaredClassMethod -- guarded by class_exists; host plugin provides the class.
+			&& \Automattic\Jetpack\Current_Plan::supports( 'ai-seo-enhancer' );
+
+		return array(
+			'enhancer' => array(
+				'available' => $filter_on && $plan_supports,
+				'enabled'   => (bool) get_option( 'ai_seo_enhancer_enabled', false ),
 			),
 		);
 	}
