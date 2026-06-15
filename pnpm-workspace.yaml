@@ -37,6 +37,8 @@ minimumReleaseAgeExclude:
   - esbuild@0.28.1
   # Renovate security update: tmp@0.2.7
   - tmp@0.2.7
+  # Renovate security update: vite@8.0.16
+  - vite@8.0.16
 trustPolicy: no-downgrade
 trustPolicyExclude:
   # https://github.com/paulmillr/chokidar/issues/1440
