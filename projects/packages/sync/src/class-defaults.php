@@ -755,6 +755,7 @@ class Defaults {
 		'_feedback_extra_fields',
 		'_g_feedback_shortcode',
 		'_jetpack_post_thumbnail',
+		'_jetpack_social_image_focal_point',
 		'_last_editor_used_jetpack',
 		'_menu_item_classes',
 		'_menu_item_menu_item_parent',

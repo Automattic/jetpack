@@ -2,7 +2,12 @@
  * Types for the unified media section component
  */
 
-import type { AttachedMedia, JetpackSocialOptions, SIGSettings } from '../../utils/types';
+import type {
+	AttachedMedia,
+	FocalPoint,
+	JetpackSocialOptions,
+	SIGSettings,
+} from '../../utils/types';
 
 /**
  * Media source types
@@ -160,10 +165,14 @@ export interface MediaFocalPointProps {
 	url: string;
 
 	/**
-	 * ID of the attachment whose entry in the image_focal_points map this
-	 * picker reads and writes.
+	 * The current focal point (both axes 0-1).
 	 */
-	attachmentId: number;
+	value: FocalPoint;
+
+	/**
+	 * Called with the rounded focal point when the user finishes dragging.
+	 */
+	onChange: ( point: FocalPoint ) => void;
 }
 
 /**

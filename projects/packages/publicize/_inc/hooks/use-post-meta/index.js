@@ -32,7 +32,6 @@ export function usePostMeta() {
 			const imageGeneratorSettings =
 				jetpackSocialOptions.image_generator_settings ?? DEFAULT_IMAGE_GENERATOR_SETTINGS;
 			const mediaSource = jetpackSocialOptions.media_source;
-			const imageFocalPoints = jetpackSocialOptions.image_focal_points || EMPTY_OBJECT;
 			const isPostAlreadyShared = meta.jetpack_social_post_already_shared ?? false;
 
 			let shareMessage = meta.jetpack_publicize_message || '';
@@ -47,7 +46,6 @@ export function usePostMeta() {
 				attachedMedia,
 				imageGeneratorSettings,
 				mediaSource,
-				imageFocalPoints,
 				isPostAlreadyShared,
 				shareMessage,
 			};
@@ -90,32 +88,13 @@ export function usePostMeta() {
 		[ updateMeta ]
 	);
 
-	const updateImageFocalPoint = useCallback(
-		( attachmentId, point ) => {
-			// Merge into the map explicitly — the top-level shallow merge in
-			// updateJetpackSocialOptions would clobber the other images' entries.
-			updateJetpackSocialOptions( 'image_focal_points', {
-				...jetpackSocialOptionsRef.current.image_focal_points,
-				[ attachmentId ]: point,
-			} );
-		},
-		[ updateJetpackSocialOptions ]
-	);
-
 	return useMemo(
 		() => ( {
 			...metaValues,
 			togglePublicizeFeature,
 			updateJetpackSocialOptions,
-			updateImageFocalPoint,
 			updateMeta,
 		} ),
-		[
-			metaValues,
-			togglePublicizeFeature,
-			updateJetpackSocialOptions,
-			updateImageFocalPoint,
-			updateMeta,
-		]
+		[ metaValues, togglePublicizeFeature, updateJetpackSocialOptions, updateMeta ]
 	);
 }

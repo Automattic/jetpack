@@ -26,6 +26,7 @@ import MediaPreview from './media-preview';
 import MediaSourceMenu from './media-source-menu';
 import styles from './styles.module.scss';
 import { MediaPreviewData, MediaSectionV2Props, MediaSourceType, WPMediaObject } from './types';
+import { useMediaFocalPoint } from './use-media-focal-point';
 import { detectMediaSource } from './utils/detect-media-source';
 import { getMediaSourceDescription } from './utils/media-source-options';
 
@@ -191,17 +192,25 @@ export default function MediaSectionV2( {
 	// Preview will render the SIG image whenever SIG is the explicit source or the OG fallback in Default mode.
 	const isPreviewingSig = currentSource === 'sig' || ( ! currentSource && sigEnabled );
 
+	// The focal point lives on the image (attachment meta), so it's the same point in
+	// every mode and every post that uses the image.
+	const {
+		value: focalPointValue,
+		canEdit: canEditImage,
+		setFocalPoint,
+	} = useMediaFocalPoint( previewData?.id ?? 0 );
+
 	/*
-	 * The focal point can only be set against a real image attachment: hidden for SIG
-	 * (attachment id 0) and video. It is per image, not per connection, so it shows in
-	 * controlled/per-network mode too — MediaFocalPoint reads and writes the post-level
-	 * image_focal_points map directly via use-post-meta, never through onMediaChange.
-	 * Gated on the wpcom-controlled rollout flag until the cropping consumers ship.
+	 * The focal point can only be set against a real image attachment the user can edit:
+	 * hidden for SIG (attachment id 0), video, and images the user can't edit (v1: no
+	 * fallback — the static preview shows instead). Gated on the wpcom-controlled rollout
+	 * flag until the cropping consumers ship.
 	 */
 	const showFocalPointPicker =
 		siteHasFeature( features.IMAGE_FOCAL_POINT ) &&
 		previewData?.type === 'image' &&
-		previewData.id > 0;
+		previewData.id > 0 &&
+		canEditImage === true;
 
 	// Handle media source selection from dropdown
 	const handleSourceSelect = useCallback(
@@ -444,7 +453,11 @@ export default function MediaSectionV2( {
 					{ previewData && (
 						<>
 							{ showFocalPointPicker ? (
-								<MediaFocalPoint url={ previewData.url } attachmentId={ previewData.id } />
+								<MediaFocalPoint
+									url={ previewData.url }
+									value={ focalPointValue }
+									onChange={ setFocalPoint }
+								/>
 							) : (
 								<MediaPreview media={ previewData } isLoading={ isPreviewingSig && sigIsLoading } />
 							) }

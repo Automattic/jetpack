@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import MediaSectionV2 from '..';
 import useFeaturedImage from '../../../hooks/use-featured-image';
@@ -13,6 +13,12 @@ const mockRecordEvent = jest.fn();
 const mockOpenUnifiedModal = jest.fn();
 const mockApplyFilters = jest.fn();
 const mockSiteHasFeature = jest.fn< boolean, [ string ] >( () => true );
+const mockSetFocalPoint = jest.fn();
+const mockUseMediaFocalPoint = jest.fn( () => ( {
+	value: { x: 0.5, y: 0.5 },
+	canEdit: true as boolean | undefined,
+	setFocalPoint: mockSetFocalPoint,
+} ) );
 
 jest.mock( '@automattic/jetpack-script-data', () => {
 	const actual = jest.requireActual( '@automattic/jetpack-script-data' );
@@ -21,6 +27,10 @@ jest.mock( '@automattic/jetpack-script-data', () => {
 		siteHasFeature: ( feature: string ) => mockSiteHasFeature( feature ),
 	};
 } );
+
+jest.mock( '../use-media-focal-point', () => ( {
+	useMediaFocalPoint: () => mockUseMediaFocalPoint(),
+} ) );
 
 // Mock the social store to prevent importing @wordpress/editor
 jest.mock( '../../../social-store', () => ( {
@@ -419,6 +429,11 @@ describe( 'MediaSectionV2', () => {
 
 		afterEach( () => {
 			mockSiteHasFeature.mockReturnValue( true );
+			mockUseMediaFocalPoint.mockReturnValue( {
+				value: { x: 0.5, y: 0.5 },
+				canEdit: true,
+				setFocalPoint: mockSetFocalPoint,
+			} );
 			( usePostMeta as jest.Mock ).mockReturnValue( {
 				attachedMedia: [],
 				imageGeneratorSettings: { enabled: false },
@@ -447,6 +462,23 @@ describe( 'MediaSectionV2', () => {
 			render( <MediaSectionV2 /> );
 
 			expect( mockSiteHasFeature ).toHaveBeenCalledWith( 'social-image-focal-point' );
+			expect( screen.queryByText( 'Focal point' ) ).not.toBeInTheDocument();
+			// The plain preview is shown instead.
+			expect( screen.getByRole( 'img' ) ).toHaveAttribute(
+				'src',
+				'https://example.com/featured.jpg'
+			);
+		} );
+
+		it( 'should hide the picker when the user cannot edit the image', () => {
+			mockUseMediaFocalPoint.mockReturnValue( {
+				value: { x: 0.5, y: 0.5 },
+				canEdit: false,
+				setFocalPoint: mockSetFocalPoint,
+			} );
+
+			render( <MediaSectionV2 /> );
+
 			expect( screen.queryByText( 'Focal point' ) ).not.toBeInTheDocument();
 			// The plain preview is shown instead.
 			expect( screen.getByRole( 'img' ) ).toHaveAttribute(
@@ -525,36 +557,8 @@ describe( 'MediaSectionV2', () => {
 			);
 
 			// The point is per image, not per connection, so the picker renders in
-			// controlled mode too and writes the post-level map directly.
+			// controlled mode too and writes the image's attachment meta directly.
 			expect( screen.getByText( 'Focal point' ) ).toBeInTheDocument();
-		} );
-
-		it( 'should not touch the focal point map when the media changes', async () => {
-			const user = userEvent.setup();
-
-			render( <MediaSectionV2 /> );
-
-			await user.click( screen.getByRole( 'button', { name: 'Select' } ) );
-			await user.click( screen.getByRole( 'menuitemradio', { name: 'From Media Library' } ) );
-
-			await waitFor( () => expect( mockUpdateJetpackSocialOptions ).toHaveBeenCalled() );
-
-			// Each image keeps its own entry — switching media must not clear the map.
-			const updates = mockUpdateJetpackSocialOptions.mock.calls[ 0 ][ 0 ];
-			expect( updates.media_source ).toBe( 'media-library' );
-			expect( 'image_focal_points' in updates ).toBe( false );
-		} );
-
-		it( 'should not touch the focal point map when toggling share as attachment', async () => {
-			const user = userEvent.setup();
-
-			render( <MediaSectionV2 /> );
-
-			await user.click( screen.getByRole( 'checkbox', { name: 'Share as attachment' } ) );
-
-			const updates = mockUpdateJetpackSocialOptions.mock.calls[ 0 ][ 0 ];
-			expect( updates.media_source ).toBe( 'featured-image' );
-			expect( 'image_focal_points' in updates ).toBe( false );
 		} );
 	} );
 

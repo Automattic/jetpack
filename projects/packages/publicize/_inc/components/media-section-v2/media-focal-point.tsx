@@ -6,10 +6,8 @@
 import { FocalPointPicker } from '@wordpress/components';
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { usePostMeta } from '../../hooks/use-post-meta';
 import { MediaFocalPointProps } from './types';
-
-const DEFAULT_FOCAL_POINT = { x: 0.5, y: 0.5 };
+import type { FocalPoint } from '../../utils/types';
 
 /**
  * MediaFocalPoint component
@@ -17,21 +15,17 @@ const DEFAULT_FOCAL_POINT = { x: 0.5, y: 0.5 };
  * @param {MediaFocalPointProps} props - Component props
  * @return MediaFocalPoint component
  */
-export default function MediaFocalPoint( { url, attachmentId }: MediaFocalPointProps ) {
-	const { imageFocalPoints, updateImageFocalPoint } = usePostMeta();
-
-	// One point per image: look up the entry for this attachment.
-	const value = imageFocalPoints?.[ attachmentId ] ?? DEFAULT_FOCAL_POINT;
-
+export default function MediaFocalPoint( { url, value, onChange }: MediaFocalPointProps ) {
 	// Commit only on drag end (onChange); the picker tracks the marker during drag itself.
-	const onChange = useCallback(
-		( focalPoint: { x: number; y: number } ) => {
-			updateImageFocalPoint( attachmentId, {
-				x: Math.round( focalPoint.x * 100 ) / 100,
-				y: Math.round( focalPoint.y * 100 ) / 100,
+	// Round to 2 decimals before handing the point up for persistence.
+	const handleChange = useCallback(
+		( point: FocalPoint ) => {
+			onChange( {
+				x: Math.round( point.x * 100 ) / 100,
+				y: Math.round( point.y * 100 ) / 100,
 			} );
 		},
-		[ attachmentId, updateImageFocalPoint ]
+		[ onChange ]
 	);
 
 	return (
@@ -44,7 +38,7 @@ export default function MediaFocalPoint( { url, attachmentId }: MediaFocalPointP
 			) }
 			url={ url }
 			value={ value }
-			onChange={ onChange }
+			onChange={ handleChange }
 		/>
 	);
 }

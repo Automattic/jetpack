@@ -80,6 +80,16 @@ abstract class Publicize_Base {
 	 */
 	const POST_CUSTOMIZE_PER_NETWORK = '_wpas_customize_per_network';
 
+	/**
+	 * Attachment meta key for the social image focal point.
+	 *
+	 * Stored on the image (attachment), not the post, so a focal point set once is
+	 * shared by every post that uses the image.
+	 *
+	 * @var string
+	 */
+	const ATTACHMENT_IMAGE_FOCAL_POINT = '_jetpack_social_image_focal_point';
+
 	// Skip meta keys. We used to rely on _wpas_skip_ appended with the token_id to skip posts. But to support
 	// multiple connections for the same token, we are going to use the _wpas_skip_publicize_ which
 	// will be appended with the connection_id.
@@ -1231,34 +1241,35 @@ abstract class Publicize_Base {
 							'type' => 'string',
 							'enum' => array( 'featured-image', 'sig', 'media-library', 'upload-video', 'none' ),
 						),
-						'image_focal_points'       => array(
-							'type'                 => 'object',
-							// One focal point per image, keyed by attachment ID. Consumers
-							// look up the image they are processing; a missing key means unset.
-							'patternProperties'    => array(
-								'^[0-9]+$' => array(
-									'type'                 => 'object',
-									'properties'           => array(
-										'x' => array(
-											'type'    => 'number',
-											'minimum' => 0,
-											'maximum' => 1,
-										),
-										'y' => array(
-											'type'    => 'number',
-											'minimum' => 0,
-											'maximum' => 1,
-										),
-									),
-									'additionalProperties' => false,
-								),
-							),
-							'additionalProperties' => false,
-						),
 					),
 				),
 			),
 			'auth_callback' => array( $this, 'message_meta_auth_callback' ),
+		);
+
+		$image_focal_point_args = array(
+			'type'          => 'object',
+			'description'   => __( 'The focal point of the image, used to crop social share variants.', 'jetpack-publicize-pkg' ),
+			'single'        => true,
+			'show_in_rest'  => array(
+				'schema' => array(
+					'type'                 => 'object',
+					'properties'           => array(
+						'x' => array(
+							'type'    => 'number',
+							'minimum' => 0,
+							'maximum' => 1,
+						),
+						'y' => array(
+							'type'    => 'number',
+							'minimum' => 0,
+							'maximum' => 1,
+						),
+					),
+					'additionalProperties' => false,
+				),
+			),
+			'auth_callback' => array( $this, 'image_focal_point_auth_callback' ),
 		);
 
 		$connection_overrides_args = array(
@@ -1302,6 +1313,24 @@ abstract class Publicize_Base {
 			register_meta( 'post', self::POST_CONNECTION_OVERRIDES, $connection_overrides_args );
 			register_meta( 'post', self::POST_CUSTOMIZE_PER_NETWORK, $customize_per_network_args );
 		}
+
+		// The focal point lives on the image (attachment), not the post, so it is shared
+		// by every post that uses the image. Registered once, not per publicizeable type.
+		register_post_meta( 'attachment', self::ATTACHMENT_IMAGE_FOCAL_POINT, $image_focal_point_args );
+	}
+
+	/**
+	 * Auth callback for the image focal point attachment meta.
+	 *
+	 * Writing the focal point edits the image, so it requires edit rights on the attachment.
+	 *
+	 * @param bool   $allowed   Whether the user can edit the meta. Unused; recomputed here.
+	 * @param string $meta_key  The meta key. Unused.
+	 * @param int    $object_id The attachment ID.
+	 * @return bool
+	 */
+	public function image_focal_point_auth_callback( $allowed, $meta_key, $object_id ) {
+		return current_user_can( 'edit_post', $object_id );
 	}
 
 	/**
