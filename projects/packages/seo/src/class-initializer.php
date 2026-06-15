@@ -220,9 +220,10 @@ class Initializer {
 			$data = array();
 		}
 
-		$data[ self::SCRIPT_DATA_KEY ]['overview'] = self::get_overview_data();
-		$data[ self::SCRIPT_DATA_KEY ]['settings'] = self::get_settings_data();
-		$data[ self::SCRIPT_DATA_KEY ]['ai']       = self::get_ai_data();
+		$data[ self::SCRIPT_DATA_KEY ]['overview']      = self::get_overview_data();
+		$data[ self::SCRIPT_DATA_KEY ]['settings']      = self::get_settings_data();
+		$data[ self::SCRIPT_DATA_KEY ]['google_verify'] = self::get_google_verify_data();
+		$data[ self::SCRIPT_DATA_KEY ]['ai']            = self::get_ai_data();
 
 		return $data;
 	}
@@ -366,6 +367,41 @@ class Initializer {
 				'yandex'    => isset( $codes['yandex'] ) ? (string) $codes['yandex'] : '',
 				'facebook'  => isset( $codes['facebook'] ) ? (string) $codes['facebook'] : '',
 			),
+		);
+	}
+
+	/**
+	 * Build the Google site-verification state for the Settings tab.
+	 *
+	 * The Settings verification card lets a connected user verify with Google via a
+	 * WordPress.com keyring OAuth popup (in addition to pasting a meta-tag code). This
+	 * bootstraps the keyring connect URL and whether the current user is connected —
+	 * the live verified status is fetched client-side from `/jetpack/v4/verify-site/google`
+	 * (a wpcom round-trip we don't want to make on every page load).
+	 *
+	 * Both `Keyring_Helper` (Publicize package) and the connection `Manager` are provided
+	 * by the host Jetpack plugin, so they're guarded with `class_exists` like the
+	 * `Jetpack_SEO_*` helpers. On a disconnected self-hosted site `is_connected` is false
+	 * and the UI falls back to manual code entry only.
+	 *
+	 * @return array
+	 */
+	public static function get_google_verify_data() {
+		$connect_url = '';
+		if ( class_exists( 'Automattic\\Jetpack\\Publicize\\Keyring_Helper' ) ) {
+			// @phan-suppress-next-line PhanUndeclaredClassMethod -- guarded; Publicize package is provided by the host plugin.
+			$connect_url = (string) \Automattic\Jetpack\Publicize\Keyring_Helper::connect_url( 'google_site_verification', 'other' );
+		}
+
+		$is_connected = false;
+		if ( class_exists( 'Automattic\\Jetpack\\Connection\\Manager' ) ) {
+			// @phan-suppress-next-line PhanUndeclaredClassMethod -- guarded; Connection package is provided by the host plugin.
+			$is_connected = ( new \Automattic\Jetpack\Connection\Manager() )->is_user_connected();
+		}
+
+		return array(
+			'connect_url'  => $connect_url,
+			'is_connected' => (bool) $is_connected,
 		);
 	}
 

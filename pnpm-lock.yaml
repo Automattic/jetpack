@@ -4739,6 +4739,9 @@ importers:
       '@automattic/jetpack-wp-build-polyfills':
         specifier: workspace:*
         version: link:../wp-build-polyfills
+      '@automattic/request-external-access':
+        specifier: 1.0.1
+        version: 1.0.1
       '@wordpress/api-fetch':
         specifier: 7.48.0
         version: 7.48.0
