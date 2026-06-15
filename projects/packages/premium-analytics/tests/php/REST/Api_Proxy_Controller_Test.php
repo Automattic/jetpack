@@ -344,14 +344,17 @@ class Api_Proxy_Controller_Test extends BaseTestCase {
 		$this->assertSame( 'no_connection', $response->get_error_code() );
 	}
 
-	public function test_forwarded_params_drop_caller_supplied_site() {
-		// `site` is the proxy's own path-scoping param for `upgrades`; a caller must not set it.
+	public function test_forwarded_params_drop_control_and_site_params() {
+		// `site` (path-scoping) and the `endpoint`/`version` control captures must never be
+		// forwarded to WPCOM or folded into the cache key, even if passed as query params.
 		$request  = $this->build_data_request(
 			'GET',
 			'upgrades',
 			array(
-				'site'   => '999',
-				'period' => 'year',
+				'site'     => '999',
+				'endpoint' => 'me/settings',
+				'version'  => '9',
+				'period'   => 'year',
 			)
 		);
 		$accessor = function ( WP_REST_Request $req ) {
@@ -361,6 +364,8 @@ class Api_Proxy_Controller_Test extends BaseTestCase {
 
 		$forwarded = $accessor->call( $this->controller, $request );
 		$this->assertArrayNotHasKey( 'site', $forwarded );
+		$this->assertArrayNotHasKey( 'endpoint', $forwarded );
+		$this->assertArrayNotHasKey( 'version', $forwarded );
 		$this->assertArrayHasKey( 'period', $forwarded );
 	}
 
@@ -378,6 +383,40 @@ class Api_Proxy_Controller_Test extends BaseTestCase {
 		$this->assertFalse( $this->controller->validate_data_endpoint( 'me/settings' ) );
 		$this->assertFalse( $this->controller->validate_data_endpoint( 'posts' ) );
 		$this->assertFalse( $this->controller->validate_data_endpoint( 'sites/123/users' ) );
+	}
+
+	public function test_validate_data_endpoint_rejects_upgrades_subpaths() {
+		// `upgrades` is site-less and takes no sub-path; build_data_path only handles the exact form.
+		$this->assertTrue( $this->controller->validate_data_endpoint( 'upgrades' ) );
+		$this->assertFalse( $this->controller->validate_data_endpoint( 'upgrades/foo' ) );
+	}
+
+	/**
+	 * @dataProvider data_version_bases
+	 *
+	 * @param string $version A version string.
+	 * @param string $base    The expected WPCOM base.
+	 */
+	#[DataProvider( 'data_version_bases' )]
+	public function test_base_for_version( string $version, string $base ) {
+		$accessor = function ( string $v ) {
+			// @phan-suppress-next-line PhanUndeclaredMethod -- rebound to the controller via Closure::call() below.
+			return $this->base_for_version( $v );
+		};
+
+		$this->assertSame( $base, $accessor->call( $this->controller, $version ) );
+	}
+
+	/**
+	 * @return array<string, string[]>
+	 */
+	public static function data_version_bases(): array {
+		return array(
+			'v2'   => array( '2', 'wpcom' ),
+			'v2.0' => array( '2.0', 'wpcom' ),
+			'v1.1' => array( '1.1', 'rest' ),
+			'v1.2' => array( '1.2', 'rest' ),
+		);
 	}
 
 	/**

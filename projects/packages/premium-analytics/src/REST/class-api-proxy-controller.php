@@ -245,7 +245,18 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 			return false;
 		}
 
-		return in_array( strtolower( explode( '/', $value )[0] ), self::ALLOWED_PREFIXES, true );
+		$prefix = strtolower( explode( '/', $value )[0] );
+		if ( ! in_array( $prefix, self::ALLOWED_PREFIXES, true ) ) {
+			return false;
+		}
+
+		// `upgrades` is the site-less purchases endpoint — it takes no sub-path, so reject
+		// `upgrades/<anything>` (which build_data_path() would otherwise mis-route under /sites/).
+		if ( 'upgrades' === $prefix && 'upgrades' !== rtrim( strtolower( $value ), '/' ) ) {
+			return false;
+		}
+
+		return true;
 	}
 
 	/**
@@ -286,12 +297,23 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 			$request,
 			$this->build_data_path( $endpoint ),
 			array(
-				// WPCOM exposes v2 under the `wpcom` base and v1.x under the `rest` base.
 				'version'       => $version,
-				'base'          => '2' === $version ? 'wpcom' : 'rest',
+				'base'          => $this->base_for_version( $version ),
 				'bust_on_write' => $this->busts_cache( $endpoint ),
 			)
 		);
+	}
+
+	/**
+	 * The WPCOM API base for a version: v2 lives under `wpcom`, v1.x under `rest`. Derived from
+	 * the major component so dotted forms (e.g. `2.0`) map correctly.
+	 *
+	 * @param string $version WPCOM API version.
+	 *
+	 * @return string
+	 */
+	private function base_for_version( string $version ): string {
+		return 2 === (int) $version ? 'wpcom' : 'rest';
 	}
 
 	/**
@@ -509,8 +531,11 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 	}
 
 	/**
-	 * Query params to forward to WPCOM, minus the WordPress routing params and `site` (the proxy
-	 * pins the site itself, so a caller-supplied `site` must not reach the `upgrades` query string).
+	 * Query params to forward to WPCOM, minus the WordPress routing params, the proxy's own
+	 * control/routing captures (`endpoint`, `version` — which a caller could also pass as query
+	 * params since `get_param()` prefers GET), and `site` (the proxy pins the site itself, so a
+	 * caller-supplied `site` must not reach the `upgrades` query string). Dropping the control
+	 * params also keeps them out of the cache key.
 	 *
 	 * @param WP_REST_Request $request Request object.
 	 *
@@ -518,7 +543,7 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 	 */
 	private function get_forwarded_params( WP_REST_Request $request ): array {
 		$params = $request->get_query_params();
-		unset( $params['rest_route'], $params['_locale'], $params['site'] );
+		unset( $params['rest_route'], $params['_locale'], $params['site'], $params['endpoint'], $params['version'] );
 
 		return is_array( $params ) ? $params : array();
 	}
