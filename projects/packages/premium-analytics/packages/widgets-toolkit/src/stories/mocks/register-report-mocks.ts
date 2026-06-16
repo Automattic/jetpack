@@ -48,7 +48,7 @@ import type { APIFetchMiddleware, APIFetchOptions } from '@wordpress/api-fetch';
  * Base path that all report requests share. Matches `reportsPath` in the data
  * package (`@jetpack-premium-analytics/data`).
  */
-const API_BASE = '/jetpack-premium-analytics/v1/proxy/reports';
+const API_BASE = '/jetpack-premium-analytics/v1/proxy/v2/analytics/reports';
 
 /**
  * Days of mock data to generate (covering past requests).
