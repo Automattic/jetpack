@@ -7,6 +7,7 @@ import { Stack } from '@wordpress/ui';
  * Internal dependencies
  */
 import { Connect } from './components/connect';
+import { ConnectOffline } from './components/connect-offline';
 import { ConnectUnavailable } from './components/connect-unavailable';
 import './style.scss';
 
@@ -21,6 +22,12 @@ export const stage = () => {
 
 	if ( ! connectionData ) {
 		return <ConnectUnavailable />;
+	}
+
+	// Offline/staging mode forces `jetpack_connect` -> `do_not_allow`, so the
+	// authorize button would always 403. Show an informative state instead.
+	if ( connectionData.connectionStatus?.offlineMode?.isActive ) {
+		return <ConnectOffline />;
 	}
 
 	return (
