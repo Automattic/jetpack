@@ -34,6 +34,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 define( 'JPBETA__PLUGIN_FOLDER', dirname( plugin_basename( __FILE__ ) ) );
+define( 'JPBETA__PLUGIN_FILE', __FILE__ );
 define( 'JPBETA_VERSION', '4.2.0' );
 
 define( 'JETPACK_BETA_PLUGINS_URL', 'https://betadownload.jetpack.me/plugins.json' );
@@ -115,6 +116,8 @@ if ( is_readable( $jetpack_beta_autoloader ) ) {
 add_action( 'init', array( Automattic\JetpackBeta\AutoupdateSelf::class, 'instance' ) );
 
 Automattic\JetpackBeta\Hooks::setup();
+
+add_action( 'plugins_loaded', array( Automattic\JetpackBeta\Abilities\Beta_Abilities::class, 'init' ), 20 );
 
 register_activation_hook( __FILE__, array( Automattic\JetpackBeta\Hooks::class, 'activate' ) );
 register_deactivation_hook( __FILE__, array( Automattic\JetpackBeta\Hooks::class, 'deactivate' ) );
