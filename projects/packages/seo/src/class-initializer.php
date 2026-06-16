@@ -109,10 +109,15 @@ class Initializer {
 			return;
 		}
 
+		// The opt-in endpoint must be reachable even before the surface is visible, so
+		// existing self-hosted installs can switch to the new experience from the legacy
+		// Traffic page or My Jetpack (JETPACK-1700). Registered ahead of the cohort gate.
+		add_action( 'rest_api_init', array( __CLASS__, 'register_optin_route' ) );
+
 		// Discoverability cohort gate: the SEO surface is auto-discoverable for fresh
 		// installs and all WordPress.com sites; existing self-hosted installs opt in via
 		// the legacy Traffic page or My Jetpack (JETPACK-1700). Until it's visible we
-		// register nothing here and let those opt-in surfaces drive discovery.
+		// register nothing else here and let those opt-in surfaces drive discovery.
 		if ( ! self::is_seo_surface_visible() ) {
 			return;
 		}
@@ -389,6 +394,55 @@ class Initializer {
 				'show_in_rest' => true,
 				'type'         => 'integer',
 				'default'      => 1,
+			)
+		);
+	}
+
+	/**
+	 * Register the opt-in REST route that switches an existing self-hosted install over to
+	 * the new SEO experience.
+	 *
+	 * Lives on the `jetpack/v4` namespace and is registered ahead of the cohort gate, so a
+	 * site whose SEO surface is still hidden can reach it from the legacy Traffic page or
+	 * My Jetpack. See {@see self::handle_optin()}.
+	 *
+	 * @return void
+	 */
+	public static function register_optin_route() {
+		register_rest_route(
+			'jetpack/v4',
+			'/seo/opt-in',
+			array(
+				'methods'             => \WP_REST_Server::CREATABLE,
+				'callback'            => array( __CLASS__, 'handle_optin' ),
+				'permission_callback' => function () {
+					return current_user_can( 'manage_options' );
+				},
+			)
+		);
+	}
+
+	/**
+	 * Opt an existing install into the new SEO experience: mark the surface visible and
+	 * activate the `seo-tools` module, then hand back the dashboard URL to redirect to.
+	 *
+	 * Idempotent — re-opting-in is harmless. `Modules::activate()` is called with
+	 * `$exit = false, $redirect = false`; the defaults would `exit()` and send a 302,
+	 * which break a REST response.
+	 *
+	 * @return \WP_REST_Response
+	 */
+	public static function handle_optin() {
+		update_option( self::VISIBILITY_OPTION, true );
+
+		if ( class_exists( 'Automattic\\Jetpack\\Modules' ) ) {
+			( new Modules() )->activate( 'seo-tools', false, false );
+		}
+
+		return rest_ensure_response(
+			array(
+				'success'  => true,
+				'redirect' => admin_url( 'admin.php?page=' . self::MENU_SLUG ),
 			)
 		);
 	}
