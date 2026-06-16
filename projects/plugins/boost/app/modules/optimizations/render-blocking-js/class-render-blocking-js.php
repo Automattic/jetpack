@@ -440,11 +440,11 @@ class Render_Blocking_JS implements Feature, Changes_Output_On_Activation, Chang
 	 * a `(.*)` or `*` wildcard matches any part of the path, trailing slashes
 	 * are optional and the comparison is case-insensitive.
 	 *
-	 * Unlike Page Cache (which stores raw regular expressions), every character
-	 * outside the wildcard tokens is escaped via preg_quote() and matched
-	 * literally here, so a user pattern like `page.html` only matches that exact
-	 * path and never acts as a regular expression. Keep that difference in mind
-	 * before unifying the two implementations.
+	 * Two things differ from Page Cache, so keep them in mind before unifying the
+	 * two implementations: every character outside the wildcard tokens is escaped
+	 * via preg_quote() and matched literally (a pattern like `page.html` never
+	 * acts as a regular expression), and the path is percent-decoded so a pattern
+	 * typed as it appears in the address bar matches an encoded request path.
 	 *
 	 * @param string $request_uri The request URI to check.
 	 * @param array  $patterns    List of URL patterns.
@@ -553,13 +553,21 @@ class Render_Blocking_JS implements Feature, Changes_Output_On_Activation, Chang
 		}
 
 		/*
-		 * Reject malformed URL patterns. A typo like `http://[::1` parses to a
-		 * scheme and host with no path; without this guard it would collapse to
-		 * `/` and silently exclude only the homepage.
+		 * Reject malformed URL patterns. A full URL with a scheme but no path
+		 * (e.g. a typo'd `http://[::1`) would otherwise collapse to `/` and
+		 * silently exclude only the homepage. A pathless URL that points at this
+		 * site (e.g. the home URL pasted as `https://example.com`) is allowed
+		 * through, since it legitimately means the homepage.
 		 */
 		$parsed = wp_parse_url( $pattern );
-		if ( false === $parsed || ( isset( $parsed['scheme'] ) && empty( $parsed['path'] ) ) ) {
+		if ( false === $parsed ) {
 			return null;
+		}
+		if ( isset( $parsed['scheme'] ) && empty( $parsed['path'] ) ) {
+			$home_host = wp_parse_url( home_url( '/' ), PHP_URL_HOST );
+			if ( empty( $parsed['host'] ) || 0 !== strcasecmp( $parsed['host'], (string) $home_host ) ) {
+				return null;
+			}
 		}
 
 		// Allow full URLs by stripping the home URL prefix (both secure and non-secure).
