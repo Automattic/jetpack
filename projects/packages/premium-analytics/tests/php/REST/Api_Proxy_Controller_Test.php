@@ -135,7 +135,7 @@ class Api_Proxy_Controller_Test extends BaseTestCase {
 			'reports/totals',
 			array(
 				'period'     => 'week',
-				'rest_route' => '/jetpack-premium-analytics/v1/proxy/reports/totals',
+				'rest_route' => '/jetpack-premium-analytics/v1/proxy/v2/analytics/reports/totals',
 				'_locale'    => 'user',
 			)
 		);
