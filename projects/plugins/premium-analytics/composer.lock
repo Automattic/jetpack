@@ -597,9 +597,10 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/premium-analytics",
-                "reference": "dd17cf5694478ecd58ce9249b8dc70081a75531a"
+                "reference": "a2ca034c3043429146e5aa85d6f39ee94724adb5"
             },
             "require": {
+                "automattic/jetpack-assets": "@dev",
                 "automattic/jetpack-connection": "@dev",
                 "automattic/jetpack-sync": "@dev",
                 "php": ">=7.2"
