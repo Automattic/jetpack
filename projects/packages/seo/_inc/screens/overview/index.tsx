@@ -8,6 +8,8 @@ import { Notice } from '@wordpress/ui';
 import { coverageStore } from '../../data/coverage-store';
 import getOverview from '../../data/get-overview';
 import ContentCoverageCard from './content-coverage-card';
+import DisableSeoTools from './disable-seo-tools';
+import EnableSeoCard from './enable-seo-card';
 import SiteVerificationCard from './site-verification-card';
 import SiteVisibilityCard from './site-visibility-card';
 import './style.scss';
@@ -40,6 +42,18 @@ const OverviewScreen: FC = () => {
 		);
 	}
 
+	// When the `seo-tools` module is off, the Overview shows only the enable
+	// affordance — the cards have nothing to act on until SEO tools are turned on,
+	// and the Settings surface isn't registered server-side yet. See
+	// `useSeoToolsToggle` and `Initializer::init()`.
+	if ( ! data.site_visibility.seo_tools_active ) {
+		return (
+			<div className="jetpack-seo-overview">
+				<EnableSeoCard />
+			</div>
+		);
+	}
+
 	return (
 		<div className="jetpack-seo-overview">
 			{ ! data.plan.seo_enabled_for_site && (
@@ -65,6 +79,7 @@ const OverviewScreen: FC = () => {
 			<div className="jetpack-seo-overview__content-card">
 				<ContentCoverageCard data={ coverage ?? data.content_coverage } onManage={ goToContent } />
 			</div>
+			<DisableSeoTools />
 		</div>
 	);
 };
