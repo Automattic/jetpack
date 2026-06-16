@@ -116,7 +116,9 @@ class InitializerTest extends TestCase {
 		}
 		$initialized->setValue( null, false );
 
-		$enable_module = static fn () => array( 'seo-tools' );
+		$enable_module = static function () {
+			return array( 'seo-tools' );
+		};
 		add_filter( 'rsm_jetpack_seo', '__return_true' );
 		add_filter( 'jetpack_active_modules', $enable_module );
 
