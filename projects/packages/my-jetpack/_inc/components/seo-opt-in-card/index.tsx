@@ -5,6 +5,12 @@ import useSeoOptIn from '../../data/use-seo-opt-in';
 import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
 import useAnalytics from '../../hooks/use-analytics';
 
+// Pre-resolved so the production minifier can't fold the adjacent `cond ? __(A) : __(B)`
+// into `__(cond ? A : B)`, which breaks i18n static extraction (i18n-check-webpack-plugin).
+// See feedback_i18n_ternary_minifier_fold.
+const enablingLabel = __( 'Enabling…', 'jetpack-my-jetpack' );
+const tryItLabel = __( 'Try the new SEO experience', 'jetpack-my-jetpack' );
+
 /**
  * Promotional notice inviting an existing self-hosted install to try the new Jetpack SEO dashboard
  * (JETPACK-1700). The primary CTA opts the site in via `/jetpack/v4/seo/opt-in` and, on success,
@@ -33,9 +39,7 @@ export default function SeoOptInCard() {
 		return null;
 	}
 
-	const ctaLabel = isPending
-		? __( 'Enabling…', 'jetpack-my-jetpack' )
-		: __( 'Try the new SEO experience', 'jetpack-my-jetpack' );
+	const ctaLabel = isPending ? enablingLabel : tryItLabel;
 
 	const actions = [
 		<Button
