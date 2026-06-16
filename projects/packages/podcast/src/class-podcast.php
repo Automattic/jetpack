@@ -13,9 +13,7 @@ use Automattic\Jetpack\Status\Host;
 
 /**
  * Loads Jetpack Podcast on Simple and Atomic sites. The package owns the
- * podcasting experience outright now that the legacy stack — the wpcom
- * mu-plugin `Automattic_Podcasting` code and the Atomic-side
- * at-pressable-podcasting bridge — has been removed.
+ * podcasting experience outright.
  */
 class Podcast {
 
