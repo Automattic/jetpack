@@ -13,17 +13,14 @@ body.jetpack_page_jetpack-podcast {
 }
 
 // The header CTA is a WP UI solid Button rendered as an `<a>`. wp-admin's
-// global, unlayered `a` / `a:hover` color beats the button's layered foreground,
-// tinting the label blue. Re-pin it to the button's own variable across states;
-// the `:hover`/`:focus`/`:active` selectors add the specificity to outrank
-// `a:hover`, and a solid Button keeps one foreground color throughout.
-.podcast__header-cta {
-	&,
-	&:hover,
-	&:focus,
-	&:active {
-		color: var(--wp-ui-button-foreground-color);
-	}
+// unlayered `a`/`a:hover` color beats the button's layered foreground, so
+// re-pin its own color across states with enough specificity to win out. A
+// solid Button keeps one foreground color throughout.
+.podcast__header-cta,
+.podcast__header-cta:hover,
+.podcast__header-cta:focus,
+.podcast__header-cta:active {
+	color: var(--wp-ui-button-foreground-color);
 }
 
 .podcast__tab-content {
