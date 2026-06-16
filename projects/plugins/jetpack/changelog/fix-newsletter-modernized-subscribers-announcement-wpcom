@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Subscriptions: register the transitional Subscribers announcement page on WordPress.com Simple and WoA sites when the Newsletter modernization filter is on.
