@@ -1,26 +1,26 @@
-.wc-analytics-syncing {
+.jetpack-premium-analytics-syncing {
 	max-width: 450px;
 	text-align: center;
 }
 
-.wc-analytics-syncing__title {
-	font-size: var( --wpds-font-size-xl );
-	font-weight: var( --wpds-font-weight-medium );
-	line-height: var( --wpds-font-line-height-lg );
+.jetpack-premium-analytics-syncing__title {
+	font-size: var( --wpds-typography-font-size-xl );
+	font-weight: var( --wpds-typography-font-weight-medium );
+	line-height: var( --wpds-typography-line-height-lg );
 }
 
-.wc-analytics-syncing__description {
+.jetpack-premium-analytics-syncing__description {
 	color: var( --wpds-color-fg-content-neutral-weak );
-	font-size: var( --wpds-font-size-md );
-	line-height: var( --wpds-font-line-height-sm );
+	font-size: var( --wpds-typography-font-size-md );
+	line-height: var( --wpds-typography-line-height-sm );
 }
 
-.wc-analytics-syncing__progress {
+.jetpack-premium-analytics-syncing__progress {
 	width: 100%;
 }
 
-.wc-analytics-syncing__percentage {
+.jetpack-premium-analytics-syncing__percentage {
 	color: var( --wpds-color-fg-content-neutral-weak );
-	font-size: var( --wpds-font-size-sm );
-	line-height: var( --wpds-font-line-height-xs );
+	font-size: var( --wpds-typography-font-size-sm );
+	line-height: var( --wpds-typography-line-height-xs );
 }

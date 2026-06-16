@@ -18,7 +18,7 @@ export const stage = () => {
 		<Stack
 			align="center"
 			justify="center"
-			className="wc-analytics-syncing-stage"
+			className="jetpack-premium-analytics-syncing-stage"
 		>
 			<Syncing />
 		</Stack>

@@ -1,13 +1,17 @@
 {
-	"name": "connect-route",
+	"private": true,
+	"name": "@automattic/jetpack-premium-analytics-connect-route",
 	"route": {
 		"path": "/connect",
-		"page": "wc-analytics"
+		"page": "jetpack-premium-analytics"
 	},
 	"dependencies": {
-		"@wordpress/ui": "next",
-		"@wordpress/components": "catalog:",
-		"@automattic/jetpack-connection": "^1.4.33",
-		"@automattic/jetpack-script-data": "^0.5.4"
+		"@wordpress/ui": "0.13.0",
+		"@wordpress/components": "35.0.0",
+		"@automattic/jetpack-connection": "workspace:*",
+		"@automattic/jetpack-script-data": "workspace:*",
+		"@wordpress/element": "8.0.0",
+		"@wordpress/i18n": "^6.9.0",
+		"@wordpress/route": "0.13.1"
 	}
 }

@@ -1,11 +1,11 @@
 /**
  * External dependencies
  */
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { Stack, Button } from '@wordpress/ui';
 import { ProgressBar } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { useSyncStatus } from '@wc-analytics/site-sync';
+import { useSyncStatus } from '@jetpack-premium-analytics/site-sync';
 
 /**
  * Internal dependencies
@@ -33,32 +33,37 @@ export function Syncing() {
 		}
 	}, [ data, triggerSync ] );
 
-	if ( isComplete ) {
-		window.location.reload();
-		return null;
-	}
-
-	const handleTriggerSync = async () => {
+	const handleTriggerSync = useCallback( async () => {
 		setIsTriggering( true );
 		try {
 			await triggerSync();
 		} finally {
 			setIsTriggering( false );
 		}
-	};
+	}, [ triggerSync ] );
+
+	useEffect( () => {
+		if ( isComplete ) {
+			window.location.reload();
+		}
+	}, [ isComplete ] );
+
+	if ( isComplete ) {
+		return null;
+	}
 
 	const title = error
-		? __( 'Sync interrupted', 'woocommerce-analytics' )
-		: __( "We're preparing your data", 'woocommerce-analytics' );
+		? __( 'Sync interrupted', 'jetpack-premium-analytics' )
+		: __( "We're preparing your data", 'jetpack-premium-analytics' );
 
 	const description = error
 		? __(
 				'Something went wrong while syncing your store data. Please try again.',
-				'woocommerce-analytics'
+				'jetpack-premium-analytics'
 		  )
 		: __(
 				'Your store data is being synced. This may take a few minutes depending on the size of your store.',
-				'woocommerce-analytics'
+				'jetpack-premium-analytics'
 		  );
 
 	const percentage = data?.percentage ?? 0;
@@ -68,14 +73,14 @@ export function Syncing() {
 			direction="column"
 			gap="xl"
 			align="center"
-			className="wc-analytics-syncing"
+			className="jetpack-premium-analytics-syncing"
 		>
 			<Connection />
 
 			<Stack direction="column" gap="sm" align="center">
-				<span className="wc-analytics-syncing__title">{ title }</span>
+				<span className="jetpack-premium-analytics-syncing__title">{ title }</span>
 
-				<span className="wc-analytics-syncing__description">
+				<span className="jetpack-premium-analytics-syncing__description">
 					{ description }
 				</span>
 			</Stack>
@@ -85,11 +90,11 @@ export function Syncing() {
 					direction="column"
 					gap="sm"
 					align="center"
-					className="wc-analytics-syncing__progress"
+					className="jetpack-premium-analytics-syncing__progress"
 				>
 					<ProgressBar value={ percentage } />
 					{ ! isLoading && (
-						<span className="wc-analytics-syncing__percentage">
+						<span className="jetpack-premium-analytics-syncing__percentage">
 							{ percentage }%
 						</span>
 					) }
@@ -103,7 +108,7 @@ export function Syncing() {
 					disabled={ isTriggering }
 					loading={ isTriggering }
 				>
-					{ __( 'Try again', 'woocommerce-analytics' ) }
+					{ __( 'Try again', 'jetpack-premium-analytics' ) }
 				</Button>
 			) }
 		</Stack>

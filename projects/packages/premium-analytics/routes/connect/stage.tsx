@@ -26,7 +26,7 @@ export const stage = () => {
 		<Stack
 			align="center"
 			justify="center"
-			className="wc-analytics-connect-stage"
+			className="jetpack-premium-analytics-connect-stage"
 		>
 			<Connect data={ connectionData } />
 		</Stack>

@@ -16,18 +16,18 @@ export function ConnectUnavailable() {
 			direction="column"
 			gap="xl"
 			align="center"
-			className="wc-analytics-connect-unavailable"
+			className="jetpack-premium-analytics-connect-unavailable"
 		>
 			<ConnectionError />
 
 			<Stack direction="column" gap="sm" align="center">
-				<span className="wc-analytics-connect-unavailable__title">
-					{ __( 'Connection unavailable', 'woocommerce-analytics' ) }
+				<span className="jetpack-premium-analytics-connect-unavailable__title">
+					{ __( 'Connection unavailable', 'jetpack-premium-analytics' ) }
 				</span>
-				<span className="wc-analytics-connect-unavailable__description">
+				<span className="jetpack-premium-analytics-connect-unavailable__description">
 					{ __(
 						'Jetpack connection data is unavailable. Make sure the Jetpack plugin is installed and active.',
-						'woocommerce-analytics'
+						'jetpack-premium-analytics'
 					) }
 				</span>
 			</Stack>
