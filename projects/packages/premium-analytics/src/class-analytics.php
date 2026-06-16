@@ -61,7 +61,7 @@ class Analytics {
 		}
 
 		Sync_Status_Tracker::configure();
-		// TEMPORARY (WOOA7S-1550 Option B): register the interim woocommerce_analytics sync module so
+		// TEMPORARY (WOOA7S-1550): register the interim woocommerce_analytics sync module so
 		// Sync_Status_Tracker has a full sync to observe. Remove when the shared sync-modules package lands.
 		Sync_Configuration::register();
 		Api_Proxy_Controller::register();

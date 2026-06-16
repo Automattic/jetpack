@@ -1,6 +1,6 @@
 <?php
 /**
- * TEMPORARY: interim port for WOOA7S-1550 Option B — remove when the shared sync-modules composer package lands.
+ * TEMPORARY: interim port for WOOA7S-1550 — remove when the shared sync-modules composer package lands.
  *
  * Ported (near-verbatim) from woocommerce-analytics'
  * src/Internal/Jetpack/Sync/Modules/Analytics.php so the monorepo package can register the

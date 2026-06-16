@@ -1,6 +1,6 @@
 <?php
 /**
- * TEMPORARY: interim port for WOOA7S-1550 Option B — remove when the shared sync-modules composer package lands.
+ * TEMPORARY: interim port for WOOA7S-1550 — remove when the shared sync-modules composer package lands.
  *
  * Plain replacement for woocommerce-analytics' src/Internal/Jetpack/Sync/Configuration.php.
  * The upstream class is wired through a PHP-DI container and RegistrableInterface; the

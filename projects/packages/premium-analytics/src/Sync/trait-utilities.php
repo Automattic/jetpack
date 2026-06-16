@@ -1,6 +1,6 @@
 <?php
 /**
- * TEMPORARY: interim port for WOOA7S-1550 Option B — remove when the shared sync-modules composer package lands.
+ * TEMPORARY: interim port for WOOA7S-1550 — remove when the shared sync-modules composer package lands.
  *
  * Minimal slice of woocommerce-analytics' HelperTraits\Utilities trait: only the
  * helpers actually referenced by the ported sync module and its registration.
