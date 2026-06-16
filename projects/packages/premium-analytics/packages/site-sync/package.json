@@ -1,6 +1,6 @@
 {
 	"private": true,
-	"name": "@automattic/jetpack-premium-analytics-init",
+	"name": "@automattic/jetpack-premium-analytics-site-sync",
 	"version": "0.1.0",
 	"type": "module",
 	"wpScript": true,
@@ -9,8 +9,10 @@
 	"dependencies": {
 		"@automattic/jetpack-script-data": "workspace:*",
 		"@wordpress/api-fetch": "7.48.0",
-		"@wordpress/boot": "0.14.1",
-		"@wordpress/data": "10.48.0",
-		"@wordpress/icons": "^13.0.0"
+		"@wordpress/i18n": "^6.9.0",
+		"react": "18.3.1"
+	},
+	"devDependencies": {
+		"@testing-library/react": "16.3.2"
 	}
 }
