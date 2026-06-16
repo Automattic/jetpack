@@ -405,6 +405,17 @@ class Api_Proxy_Controller_Test extends BaseTestCase {
 		$this->assertSame( 405, $response->get_error_data()['status'] );
 	}
 
+	public function test_user_feedback_cannot_be_written_through_the_agnostic_proxy_route() {
+		// The bespoke route is the only POST path that injects the user's email. A POST to the same
+		// endpoint via the agnostic proxy must be rejected (the `jetpack-stats` prefix has no write
+		// allowlist), so the augmentation can never be bypassed.
+		$response = $this->controller->handle_data_request( $this->build_data_request( 'POST', 'jetpack-stats/user-feedback' ) );
+
+		$this->assertInstanceOf( \WP_Error::class, $response );
+		$this->assertSame( 'rest_read_only', $response->get_error_code() );
+		$this->assertSame( 405, $response->get_error_data()['status'] );
+	}
+
 	public function test_put_to_write_endpoint_returns_405() {
 		// Only POST may mutate — PUT/PATCH on a write-allowed endpoint is still rejected locally.
 		$response = $this->controller->handle_data_request( $this->build_data_request( 'PUT', 'jetpack-stats-dashboard/modules' ) );
