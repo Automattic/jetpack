@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.43.0] - 2026-06-15
+### Added
+- Add options from assorted WooCommerce settings pages to sync whitelist, as part of activity log improvements. [#49520]
+- Send WooCommerce customer account detail updates. [#49551]
+
 ## [4.42.0] - 2026-06-10
 ### Added
 - Add options from WooCommerce Subscriptions and Emails settings pages to sync whitelist, as part of activity log improvements. [#49461]
@@ -1785,6 +1790,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Packages: Move sync to a classmapped package
 
+[4.43.0]: https://github.com/Automattic/jetpack-sync/compare/v4.42.0...v4.43.0
 [4.42.0]: https://github.com/Automattic/jetpack-sync/compare/v4.41.1...v4.42.0
 [4.41.1]: https://github.com/Automattic/jetpack-sync/compare/v4.41.0...v4.41.1
 [4.41.0]: https://github.com/Automattic/jetpack-sync/compare/v4.40.0...v4.41.0

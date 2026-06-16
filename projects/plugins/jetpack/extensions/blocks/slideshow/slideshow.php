@@ -255,7 +255,7 @@ function slides( $ids = array(), $width = 400, $height = 300 ) {
  * @param array $ids Array of image ids.
  * @param int   $block_ordinal The ordinal number of the block, used in unique ID.
  *
- * @return array Array of bullets markup.
+ * @return string Bullets or count markup.
  */
 function render_paginator( $ids = array(), $block_ordinal = 0 ) {
 	$total = count( $ids );
@@ -277,7 +277,7 @@ function render_paginator( $ids = array(), $block_ordinal = 0 ) {
  * @param array $ids Array of image ids.
  * @param int   $block_ordinal The ordinal number of the block, used in unique ID.
  *
- * @return array Array of bullets markup.
+ * @return string Bullets markup.
  */
 function bullets( $ids = array(), $block_ordinal = 0 ) {
 	$buttons = array_map(
