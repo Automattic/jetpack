@@ -63,6 +63,7 @@ export const PRODUCT_SLUGS = {
 	CREATOR: 'creator',
 	EXTRAS: 'extras',
 	JETPACK_AI: 'jetpack-ai',
+	JETPACK_FORMS: 'jetpack-forms',
 	NEWSLETTER: 'newsletter',
 	PROTECT: 'protect',
 	RELATED_POSTS: 'related-posts',

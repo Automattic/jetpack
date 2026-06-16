@@ -112,6 +112,18 @@ function ActivationToggle( {
 export function ProductCardAction( { product, module: $module }: ProductCardActionProps ) {
 	const { data: interstitials } = useInterstitialsState();
 
+	// Forms is a free module feature with no interstitial yet — show the activation
+	// toggle directly instead of a "Learn more" link. (An interstitial may be added later.)
+	if ( product.slug === 'jetpack-forms' ) {
+		return (
+			<ActivationToggle
+				product={ product }
+				active={ product.status === PRODUCT_STATUSES.ACTIVE }
+				disabled={ ! $module?.available }
+			/>
+		);
+	}
+
 	if ( ! product.hasPaidPlanForProduct && ! interstitials?.[ product.slug ] ) {
 		return <UpgradeAction product={ product } />;
 	}

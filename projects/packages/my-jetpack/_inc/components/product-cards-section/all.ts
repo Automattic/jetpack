@@ -38,6 +38,7 @@ export const JetpackModuleToProductCard: {
 	scan: null,
 	creator: null,
 	'brute-force': null,
+	'jetpack-forms': null,
 	// Features:
 	newsletter: NewsletterCard,
 	'related-posts': RelatedPostsCard,
