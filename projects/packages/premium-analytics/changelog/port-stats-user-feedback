@@ -1,4 +1,4 @@
 Significance: minor
 Type: added
 
-REST: Port the Stats user-feedback POST to the premium-analytics proxy. Served at jetpack-premium-analytics/v1/jetpack-stats/user-feedback, it injects the current user's email into the request body and reuses the shared forward core to reach WordPress.com.
+REST: Port the Stats user-feedback POST to a dedicated premium-analytics controller. Served at jetpack-premium-analytics/v1/jetpack-stats/user-feedback, it injects the current user's email into the request body before forwarding to WordPress.com. It is kept separate from the transparent API proxy, which does not rewrite request bodies.

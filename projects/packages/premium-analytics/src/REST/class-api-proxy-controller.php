@@ -206,55 +206,6 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 				),
 			)
 		);
-
-		// Bespoke endpoint: not a transparent forward. It rewrites the request body (injects the
-		// current user's email) before reusing the shared forward() core, so it lives on its own
-		// route outside `proxy/` per this controller's pass-through-only policy.
-		register_rest_route(
-			$this->namespace,
-			'/jetpack-stats/user-feedback',
-			array(
-				'methods'             => WP_REST_Server::CREATABLE,
-				'callback'            => array( $this, 'handle_user_feedback' ),
-				'permission_callback' => array( $this, 'check_stats_permission' ),
-			)
-		);
-	}
-
-	/**
-	 * Permission for the Stats user-feedback endpoint: `view_stats`, with `manage_options` always
-	 * accepted. Mirrors the `jetpack-stats` prefix's capability and stats-admin's parity check.
-	 *
-	 * @return bool
-	 */
-	public function check_stats_permission(): bool {
-		return current_user_can( 'manage_options' ) || current_user_can( 'view_stats' );
-	}
-
-	/**
-	 * Proxy the Stats user-feedback POST to WPCOM, injecting the current user's email into the body
-	 * first. The augmentation is the only thing this endpoint does beyond a plain forward, so it
-	 * mutates the request body and then delegates to the shared forward() core (connection check,
-	 * error normalization, header forwarding) — keeping forward() a pure transparent transport.
-	 *
-	 * @param WP_REST_Request $request Request object.
-	 *
-	 * @return WP_REST_Response|WP_Error
-	 */
-	public function handle_user_feedback( WP_REST_Request $request ) {
-		$body               = json_decode( (string) $request->get_body(), true );
-		$body               = is_array( $body ) ? $body : array();
-		$body['user_email'] = wp_get_current_user()->user_email;
-		$request->set_body( wp_json_encode( $body, JSON_UNESCAPED_SLASHES ) );
-
-		return $this->forward(
-			$request,
-			sprintf( '/sites/%d/jetpack-stats/user-feedback', (int) Jetpack_Options::get_option( 'id' ) ),
-			array(
-				'version' => '2',
-				'base'    => 'wpcom',
-			)
-		);
 	}
 
 	/**

@@ -258,80 +258,6 @@ class Api_Proxy_Controller_Test extends BaseTestCase {
 		$this->assertFalse( $this->controller->check_data_permission( $this->build_data_request( 'GET', 'wordads/earnings' ) ) );
 	}
 
-	public function test_user_feedback_route_is_registered_outside_the_proxy_path() {
-		// The body-rewriting feedback endpoint is bespoke, so it lives on its own route — not under
-		// the agnostic `proxy/` path that only carries transparent forwards.
-		$route   = '/jetpack-premium-analytics/v1/jetpack-stats/user-feedback';
-		$routes  = rest_get_server()->get_routes();
-		$handler = $routes[ $route ][0] ?? null;
-
-		$this->assertNotNull( $handler, 'The user-feedback route should be registered.' );
-		$this->assertStringNotContainsString( 'proxy', $route );
-		$this->assertArrayHasKey( 'POST', $handler['methods'] );
-		$this->assertSame( array( $this->controller, 'handle_user_feedback' ), $handler['callback'] );
-		$this->assertSame( array( $this->controller, 'check_stats_permission' ), $handler['permission_callback'] );
-	}
-
-	public function test_stats_permission_matches_view_stats_tier() {
-		$user_id = wp_insert_user(
-			array(
-				'user_login' => 'jpa_feedback_viewer',
-				'user_pass'  => 'password',
-				'role'       => 'subscriber',
-			)
-		);
-		$user    = new \WP_User( $user_id );
-		$user->add_cap( 'view_stats' );
-		wp_set_current_user( $user_id );
-		$this->assertTrue( $this->controller->check_stats_permission() );
-
-		wp_set_current_user( 0 );
-		$this->assertFalse( $this->controller->check_stats_permission() );
-	}
-
-	public function test_user_feedback_injects_current_user_email_into_the_body() {
-		$user_id = wp_insert_user(
-			array(
-				'user_login' => 'jpa_feedback_author',
-				'user_pass'  => 'password',
-				'user_email' => 'feedback@example.com',
-				'role'       => 'administrator',
-			)
-		);
-		wp_set_current_user( $user_id );
-
-		$request = new WP_REST_Request( 'POST', '/jetpack-premium-analytics/v1/jetpack-stats/user-feedback' );
-		$request->set_body( wp_json_encode( array( 'message' => 'hello' ), JSON_UNESCAPED_SLASHES ) );
-
-		// Not connected, so the forward bails after the body is augmented — which is all we assert.
-		$response = $this->controller->handle_user_feedback( $request );
-		$this->assertInstanceOf( \WP_Error::class, $response );
-		$this->assertSame( 'no_connection', $response->get_error_code() );
-
-		$augmented = (array) json_decode( $request->get_body(), true );
-		$this->assertSame( 'hello', $augmented['message'], 'the original body is preserved' );
-		$this->assertSame( 'feedback@example.com', $augmented['user_email'], 'the current user email is injected' );
-	}
-
-	public function test_user_feedback_tolerates_an_empty_body() {
-		$user_id = wp_insert_user(
-			array(
-				'user_login' => 'jpa_feedback_empty',
-				'user_pass'  => 'password',
-				'user_email' => 'empty@example.com',
-				'role'       => 'administrator',
-			)
-		);
-		wp_set_current_user( $user_id );
-
-		$request = new WP_REST_Request( 'POST', '/jetpack-premium-analytics/v1/jetpack-stats/user-feedback' );
-
-		$this->controller->handle_user_feedback( $request );
-
-		$augmented = json_decode( $request->get_body(), true );
-		$this->assertSame( array( 'user_email' => 'empty@example.com' ), $augmented );
-	}
-
 	/**
 	 * @dataProvider data_data_paths
 	 *
@@ -406,9 +332,10 @@ class Api_Proxy_Controller_Test extends BaseTestCase {
 	}
 
 	public function test_user_feedback_cannot_be_written_through_the_agnostic_proxy_route() {
-		// The bespoke route is the only POST path that injects the user's email. A POST to the same
-		// endpoint via the agnostic proxy must be rejected (the `jetpack-stats` prefix has no write
-		// allowlist), so the augmentation can never be bypassed.
+		// User-feedback has its own controller (User_Feedback_Controller) that injects the user's
+		// email. A POST to the same endpoint via the agnostic proxy must be rejected (the
+		// `jetpack-stats` prefix has no write allowlist), so the proxy can't be used to submit
+		// feedback while sidestepping that injection.
 		$response = $this->controller->handle_data_request( $this->build_data_request( 'POST', 'jetpack-stats/user-feedback' ) );
 
 		$this->assertInstanceOf( \WP_Error::class, $response );
