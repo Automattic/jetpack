@@ -23,6 +23,13 @@ export default defineConfig( {
 	outDir: 'dist',
 	platform: 'browser',
 	/*
+	 * `platform: 'browser'` otherwise treats `process` as undefined and folds
+	 * `process.env.NODE_ENV` checks (e.g. emotion's dev labels/sourcemaps) to their
+	 * dev branch. Define it to itself so the reference is preserved for the consumer's
+	 * bundler to replace — keeping those dev-only artifacts out of production builds.
+	 */
+	define: { 'process.env.NODE_ENV': 'process.env.NODE_ENV' },
+	/*
 	 * Keep tsup's extension scheme: this package is ESM (`"type": "module"`), so
 	 * ESM output is `.js` and CJS output is `.cjs`, matching `exports`, `main`,
 	 * `module`, and the `.d.ts` paths in `typesVersions`.
