@@ -14,21 +14,6 @@ if ( ! defined( 'FONT_LIBRARY_DISABLED' ) ) {
 }
 
 /**
- * Remove Google Fonts from the old Module list.
- * Available at wp-admin/admin.php?page=jetpack_modules
- *
- * @param array $items Array of Jetpack modules.
- * @return array
- */
-function wpcomsh_rm_google_fonts_module_list( $items ) {
-	if ( isset( $items['google-fonts'] ) ) {
-		unset( $items['google-fonts'] );
-	}
-	return $items;
-}
-add_filter( 'jetpack_modules_list_table_items', 'wpcomsh_rm_google_fonts_module_list' );
-
-/**
  * Replaces Google Fonts API references in enqueued styles with our caching reverse proxy.
  *
  * @see pMz3w-g6E-p2#comment-103418
