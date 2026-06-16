@@ -1,7 +1,7 @@
 import { WidgetDashboard, type DashboardWidget } from '@automattic/jetpack-widget-dashboard';
 import { getDefaultQueryParams } from '@jetpack-premium-analytics/data';
 import { Page } from '@wordpress/admin-ui';
-import { useState, type ComponentType } from 'react';
+import { useEffect, useState, type ComponentType, type ReactNode } from 'react';
 import { registerReportMocks } from '../../../packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
 import AverageItemsPerOrderRender from '../render';
 import widgetDefinition from '../widget';
@@ -167,6 +167,25 @@ const widgetCanvasDecorator: Decorator = Story => (
 	</div>
 );
 
+function WordPressAdminRootFontSize( { children }: { children: ReactNode } ) {
+	useEffect( () => {
+		const { fontSize } = document.documentElement.style;
+		document.documentElement.style.fontSize = '13px';
+
+		return () => {
+			document.documentElement.style.fontSize = fontSize;
+		};
+	}, [] );
+
+	return children;
+}
+
+const wordpressAdminRootFontSizeDecorator: Decorator = Story => (
+	<WordPressAdminRootFontSize>
+		<Story />
+	</WordPressAdminRootFontSize>
+);
+
 export const Default: Story = {
 	args: {
 		attributes: {
@@ -240,6 +259,11 @@ export const MinimumDashboardTile: Story = {
 
 export const DashboardPageDefault: Story = {
 	render: () => <DashboardPageStory />,
+};
+
+export const DashboardPageWordPressAdminRootFontSize: Story = {
+	render: () => <DashboardPageStory />,
+	decorators: [ wordpressAdminRootFontSizeDecorator ],
 };
 
 export const DashboardPageNarrow: Story = {
