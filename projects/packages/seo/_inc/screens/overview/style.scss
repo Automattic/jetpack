@@ -44,3 +44,10 @@
 	margin-top: auto;
 	padding-top: var(--wpds-dimension-gap-md, 12px);
 }
+
+// Low-emphasis "disable SEO tools" off-ramp at the foot of the Overview.
+.jetpack-seo-overview__disable {
+	margin-top: var(--wpds-dimension-gap-lg, 16px);
+	color: var(--wpds-color-fg-content-neutral-weak, #757575);
+	font-size: 13px;
+}
