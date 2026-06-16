@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+REST: Add a dedicated single-post endpoint (`jetpack-premium-analytics/v1/posts/<id>`) that serves a post's display metadata from the local database, ported from the stats-admin controller as part of deprecating that package.
