@@ -18,8 +18,8 @@ function wpcomsh_maybe_disable_custom_css() {
 		return;
 	}
 
-	// If global styles are enabled on personal plan, all atomic sites have custom css enabled.
-	if ( function_exists( 'is_global_styles_on_personal_plan' ) && is_global_styles_on_personal_plan() && defined( 'IS_ATOMIC' ) && IS_ATOMIC ) {
+	// Global Styles are available on the Personal plan, so all Atomic sites have custom CSS enabled.
+	if ( defined( 'IS_ATOMIC' ) && IS_ATOMIC ) {
 		return;
 	}
 

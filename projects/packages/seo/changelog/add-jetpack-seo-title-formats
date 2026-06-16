@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+SEO: edit the title structure for all page types (front page, posts, pages, tags, archives) from the Settings tab, not just posts. Tokens are inserted from buttons into a text field, so literal text and separators (e.g. " | ") between tokens are preserved.
