@@ -9,6 +9,8 @@ namespace Automattic\Jetpack\PremiumAnalytics;
 
 use Automattic\Jetpack\Stats\Options as Stats_Options;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\PreserveGlobalState;
+use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use WorDBless\BaseTestCase;
 
 /**
@@ -65,6 +67,25 @@ class Notices_Test extends BaseTestCase {
 
 	public function test_gdpr_notice_hidden_without_complianz() {
 		$this->assertFalse( $this->notices->get_notices_to_show()[ Notices::GDPR_COOKIE_CONSENT_NOTICE_ID ] );
+	}
+
+	/**
+	 * Runs in a separate process: aliasing a stub onto the global `COMPLIANZ` name to satisfy the
+	 * notice's `class_exists()` gate would otherwise leak into the negative test above.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_gdpr_notice_shows_when_complianz_blocks_jetpack() {
+		require_once __DIR__ . '/fixtures/class-complianz-stub.php';
+		class_alias( Complianz_Stub::class, 'COMPLIANZ' );
+
+		// No `jetpack` key in the integrations option means Jetpack is treated as blocked.
+		delete_option( 'complianz_options_integrations' );
+
+		$this->assertTrue( ( new Notices() )->get_notices_to_show()[ Notices::GDPR_COOKIE_CONSENT_NOTICE_ID ] );
 	}
 
 	public function test_wpcom_dismissal_fetch_fails_closed_to_empty_array() {

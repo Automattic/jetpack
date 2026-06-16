@@ -119,7 +119,8 @@ class Notices {
 		if ( ! $bypass_cache ) {
 			$cached = get_transient( self::NOTICES_CACHE_KEY );
 			if ( false !== $cached ) {
-				return json_decode( $cached, true );
+				$decoded = json_decode( $cached, true );
+				return is_array( $decoded ) ? $decoded : array();
 			}
 		}
 
@@ -186,8 +187,10 @@ class Notices {
 		}
 
 		if ( null !== $error_code || 200 !== $response_code ) {
+			// Fall back to a non-empty code so WP_Error keeps the status/message instead of
+			// constructing an empty error (WP_Error::__construct bails on an empty code).
 			return new WP_Error(
-				$error_code,
+				$error_code ?? 'notices_request_failed',
 				is_array( $decoded ) ? ( $decoded['message'] ?? 'unknown remote error' ) : 'unknown remote error',
 				array( 'status' => $response_code )
 			);
