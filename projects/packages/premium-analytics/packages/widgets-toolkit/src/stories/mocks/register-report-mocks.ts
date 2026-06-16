@@ -3,10 +3,10 @@
  *
  * The shared Jetpack Storybook config cannot be modified, and there is no
  * analytics backend in Storybook. Upstream (woocommerce-analytics) solves this
- * with MSW handlers that intercept `/wc/v3/woocommerce-analytics/proxy/reports/*`.
+ * with MSW handlers that intercept its report REST paths.
  *
  * Here we achieve the same effect by registering an `apiFetch` middleware that
- * intercepts the same report paths and returns generated mock data. The data
+ * intercepts the proxy report paths and returns generated mock data. The data
  * package fetches every report through `apiFetch( { path } )` using the same
  * base path (`reportsPath`), so a single middleware covers all widget stories.
  *
@@ -48,7 +48,7 @@ import type { APIFetchMiddleware, APIFetchOptions } from '@wordpress/api-fetch';
  * Base path that all report requests share. Matches `reportsPath` in the data
  * package (`@jetpack-premium-analytics/data`).
  */
-const API_BASE = '/wc/v3/woocommerce-analytics/proxy/reports';
+const API_BASE = '/jetpack-premium-analytics/v1/proxy/v2/analytics/reports';
 
 /**
  * Days of mock data to generate (covering past requests).

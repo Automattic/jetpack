@@ -1,4 +1,4 @@
 /**
  * Constants for API endpoints
  */
-export const reportsPath = '/wc/v3/woocommerce-analytics/proxy/reports';
+export const reportsPath = '/jetpack-premium-analytics/v1/proxy/v2/analytics/reports';

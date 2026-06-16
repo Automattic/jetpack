@@ -2,7 +2,7 @@
 
 # Quick script to output commits from the most recent full week (Monday to Sunday) that are probably "maintenance" commits.
 
-cd $(dirname "${BASH_SOURCE[0]}")/..
+cd "$(dirname "${BASH_SOURCE[0]}")"/.. || exit
 source tools/includes/chalk-lite.sh
 source tools/includes/check-osx-bash-version.sh
 

@@ -23,6 +23,7 @@
 		"e2e-tests": "playwright test --config src/features/verbum-comments/playwright.config.ts",
 		"sync:newspack-blocks": "./bin/sync-newspack-blocks.sh",
 		"test": "node --test --test-reporter spec src/features/write/test/undo-history.test.mjs",
+		"test-coverage": "c8 --report-dir=\"$COVERAGE_DIR\" --temp-directory=\"$ARTIFACTS_DIR/v8\" pnpm run test",
 		"typecheck": "tsgo --build",
 		"watch": "pnpm run build-production-js && pnpm webpack watch"
 	},
@@ -102,7 +103,7 @@
 	},
 	"devDependencies": {
 		"@automattic/jetpack-webpack-config": "workspace:*",
-		"@babel/core": "7.29.0",
+		"@babel/core": "7.29.6",
 		"@babel/plugin-transform-react-jsx": "7.28.6",
 		"@babel/preset-react": "7.28.5",
 		"@babel/runtime": "7.29.2",
@@ -115,6 +116,7 @@
 		"@types/react-dom": "18.3.7",
 		"@typescript/native-preview": "7.0.0-dev.20260225.1",
 		"babel-plugin-transform-rename-properties": "0.1.0",
+		"c8": "^11.0.0",
 		"package-directory": "^8.1.0",
 		"sass-embedded": "1.97.3",
 		"sass-loader": "16.0.5",

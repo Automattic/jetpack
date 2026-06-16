@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+RTC: source Tracks event post and user context from the server-injected config so post_id, post_type, and wp_user_id are populated on all transports and even when an event fires before the editor and awareness have initialized.
