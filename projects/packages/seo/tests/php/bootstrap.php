@@ -17,3 +17,4 @@ define( 'WP_DEBUG', true );
 // drive Schema_Builder's behavior. Tests set their public static properties.
 require_once __DIR__ . '/stubs/class-jetpack-seo-utils.php';
 require_once __DIR__ . '/stubs/class-jetpack-seo-posts.php';
+require_once __DIR__ . '/stubs/class-jetpack-options.php';
