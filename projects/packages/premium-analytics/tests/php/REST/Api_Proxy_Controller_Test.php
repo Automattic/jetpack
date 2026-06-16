@@ -646,6 +646,42 @@ class Api_Proxy_Controller_Test extends BaseTestCase {
 		);
 	}
 
+	public function test_register_transient_cleanup_prefix_covers_the_stored_transients() {
+		$prefixes = $this->controller->register_transient_cleanup_prefix( array() );
+
+		$this->assertContains( 'jetpack-premium-analytics_proxy_', $prefixes );
+
+		// The registered prefix must genuinely prefix the keys the controller writes, so the stats
+		// cron's LIKE match reaches them — guards against it drifting from CACHE_PREFIX.
+		$real_key = $this->cache_key( $this->build_data_request( 'GET', 'analytics/reports/totals' ) );
+		$this->assertStringStartsWith( 'jetpack-premium-analytics_proxy_', $real_key );
+	}
+
+	public function test_register_transient_cleanup_prefix_preserves_existing_and_passes_non_array_through() {
+		$this->assertSame(
+			array( 'other_prefix_', 'jetpack-premium-analytics_proxy_' ),
+			$this->controller->register_transient_cleanup_prefix( array( 'other_prefix_' ) )
+		);
+
+		// A non-array (from a misbehaving upstream filter) is returned untouched, so the stats
+		// consumer's own fall-back-to-defaults normalization runs instead of being masked.
+		$this->assertSame(
+			'not-an-array',
+			$this->controller->register_transient_cleanup_prefix( 'not-an-array' )
+		);
+	}
+
+	public function test_register_hooks_the_proxy_prefix_onto_the_stats_cleanup_filter() {
+		remove_all_filters( 'jetpack_stats_transient_cleanup_prefixes' );
+
+		Api_Proxy_Controller::register();
+		$prefixes = apply_filters( 'jetpack_stats_transient_cleanup_prefixes', array() );
+
+		$this->assertContains( 'jetpack-premium-analytics_proxy_', $prefixes );
+
+		remove_all_filters( 'jetpack_stats_transient_cleanup_prefixes' );
+	}
+
 	public function test_successful_write_busts_matching_read_cache() {
 		// A no-param GET to this dashboard read caches under this key; a 200 POST to it clears it.
 		$endpoint = 'jetpack-stats-dashboard/modules';
