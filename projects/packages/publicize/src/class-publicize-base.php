@@ -1251,9 +1251,14 @@ abstract class Publicize_Base {
 			'type'          => 'object',
 			'description'   => __( 'The focal point of the image, used to crop social share variants.', 'jetpack-publicize-pkg' ),
 			'single'        => true,
+			'default'       => array(
+				'x' => 0.5,
+				'y' => 0.5,
+			),
 			'show_in_rest'  => array(
 				'schema' => array(
 					'type'                 => 'object',
+					'required'             => array( 'x', 'y' ),
 					'properties'           => array(
 						'x' => array(
 							'type'    => 'number',

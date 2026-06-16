@@ -138,6 +138,37 @@ class Image_Focal_Point_Meta_Test extends TestCase {
 	}
 
 	/**
+	 * Test that an attachment without saved focal point meta returns the centered default.
+	 */
+	public function test_focal_point_defaults_to_center() {
+		$request  = new WP_REST_Request( 'GET', sprintf( '/wp/v2/media/%d', $this->attachment_id ) );
+		$response = $this->server->dispatch( $request );
+		$data     = $response->get_data();
+
+		$this->assertEquals(
+			array(
+				'x' => 0.5,
+				'y' => 0.5,
+			),
+			$data['meta'][ Publicize_Base::ATTACHMENT_IMAGE_FOCAL_POINT ]
+		);
+	}
+
+	/**
+	 * Test that both focal point coordinates are required.
+	 */
+	public function test_focal_point_requires_both_coordinates() {
+		$response = $this->update_focal_point(
+			array(
+				'x' => 0.5,
+			)
+		);
+
+		$this->assertSame( 400, $response->get_status() );
+		$this->assertSame( 'rest_property_required', $response->get_data()['code'] );
+	}
+
+	/**
 	 * Test that out-of-range coordinates are rejected.
 	 */
 	public function test_focal_point_rejects_out_of_range_coordinates() {

@@ -1,4 +1,4 @@
-import { act, renderHook } from '@testing-library/react';
+import { act, renderHook, waitFor } from '@testing-library/react';
 import { FOCAL_POINT_META_KEY, useMediaFocalPoint } from '../use-media-focal-point';
 
 const mockGetEntityRecord = jest.fn();
@@ -40,6 +40,16 @@ describe( 'useMediaFocalPoint', () => {
 		expect( result.current.value ).toEqual( { x: 0.25, y: 0.75 } );
 	} );
 
+	it( 'should return the centered default when the stored point is invalid', () => {
+		mockGetEntityRecord.mockReturnValue( {
+			meta: { [ FOCAL_POINT_META_KEY ]: { x: 0.25 } },
+		} );
+
+		const { result } = renderHook( () => useMediaFocalPoint( 123 ) );
+
+		expect( result.current.value ).toEqual( { x: 0.5, y: 0.5 } );
+	} );
+
 	it( 'should report edit permission from canUser', () => {
 		mockCanUser.mockReturnValue( false );
 
@@ -65,10 +75,15 @@ describe( 'useMediaFocalPoint', () => {
 			result.current.setFocalPoint( { x: 0.3, y: 0.6 } );
 		} );
 
-		expect( mockSaveEntityRecord ).toHaveBeenCalledWith( 'postType', 'attachment', {
-			id: 123,
-			meta: { [ FOCAL_POINT_META_KEY ]: { x: 0.3, y: 0.6 } },
-		} );
+		expect( mockSaveEntityRecord ).toHaveBeenCalledWith(
+			'postType',
+			'attachment',
+			{
+				id: 123,
+				meta: { [ FOCAL_POINT_META_KEY ]: { x: 0.3, y: 0.6 } },
+			},
+			{ throwOnError: true }
+		);
 	} );
 
 	it( 'should show the new point optimistically before the store updates', () => {
@@ -80,5 +95,20 @@ describe( 'useMediaFocalPoint', () => {
 		} );
 
 		expect( result.current.value ).toEqual( { x: 0.3, y: 0.6 } );
+	} );
+
+	it( 'should revert the optimistic point when saving fails', async () => {
+		mockSaveEntityRecord.mockRejectedValueOnce( new Error( 'Unable to save focal point' ) );
+		const { result } = renderHook( () => useMediaFocalPoint( 123 ) );
+
+		act( () => {
+			result.current.setFocalPoint( { x: 0.3, y: 0.6 } );
+		} );
+
+		expect( result.current.value ).toEqual( { x: 0.3, y: 0.6 } );
+
+		await waitFor( () => {
+			expect( result.current.value ).toEqual( { x: 0.5, y: 0.5 } );
+		} );
 	} );
 } );

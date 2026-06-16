@@ -16,6 +16,25 @@ export const FOCAL_POINT_META_KEY = '_jetpack_social_image_focal_point';
 
 const DEFAULT_FOCAL_POINT: FocalPoint = { x: 0.5, y: 0.5 };
 
+const isValidFocalPoint = ( value: unknown ): value is FocalPoint => {
+	if ( ! value || typeof value !== 'object' || Array.isArray( value ) ) {
+		return false;
+	}
+
+	const point = value as Partial< Record< keyof FocalPoint, unknown > >;
+
+	return (
+		typeof point.x === 'number' &&
+		Number.isFinite( point.x ) &&
+		point.x >= 0 &&
+		point.x <= 1 &&
+		typeof point.y === 'number' &&
+		Number.isFinite( point.y ) &&
+		point.y >= 0 &&
+		point.y <= 1
+	);
+};
+
 export type UseMediaFocalPoint = {
 	/** The point to display: the optimistic value while saving, else the stored one. */
 	value: FocalPoint;
@@ -39,11 +58,12 @@ export function useMediaFocalPoint( attachmentId: number ): UseMediaFocalPoint {
 			}
 			const core = select( coreStore );
 			const record = core.getEntityRecord( 'postType', 'attachment', attachmentId ) as
-				| { meta?: { [ FOCAL_POINT_META_KEY ]?: FocalPoint } }
+				| { meta?: { [ FOCAL_POINT_META_KEY ]?: unknown } }
 				| undefined;
+			const focalPoint = record?.meta?.[ FOCAL_POINT_META_KEY ];
 
 			return {
-				storedValue: record?.meta?.[ FOCAL_POINT_META_KEY ] ?? DEFAULT_FOCAL_POINT,
+				storedValue: isValidFocalPoint( focalPoint ) ? focalPoint : DEFAULT_FOCAL_POINT,
 				canEdit: core.canUser( 'update', 'media', attachmentId ),
 			};
 		},
@@ -65,10 +85,15 @@ export function useMediaFocalPoint( attachmentId: number ): UseMediaFocalPoint {
 
 			// Saves directly to the image, separate from the post's save/undo.
 			Promise.resolve(
-				saveEntityRecord( 'postType', 'attachment', {
-					id: attachmentId,
-					meta: { [ FOCAL_POINT_META_KEY ]: point },
-				} )
+				saveEntityRecord(
+					'postType',
+					'attachment',
+					{
+						id: attachmentId,
+						meta: { [ FOCAL_POINT_META_KEY ]: point },
+					},
+					{ throwOnError: true }
+				)
 			).catch( () => {
 				// Revert the optimistic value if the save fails.
 				setPending( current => ( current && current.id === attachmentId ? null : current ) );
