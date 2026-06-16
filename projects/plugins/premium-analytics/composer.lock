@@ -597,7 +597,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/premium-analytics",
-                "reference": "3bae8046405853284fdd3b0fa970b5dfb173cb12"
+                "reference": "dd17cf5694478ecd58ce9249b8dc70081a75531a"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
@@ -644,6 +644,10 @@
                 ],
                 "build-production": [
                     "pnpm run build-production"
+                ],
+                "watch": [
+                    "Composer\\Config::disableProcessTimeout",
+                    "pnpm run watch"
                 ]
             },
             "license": [
