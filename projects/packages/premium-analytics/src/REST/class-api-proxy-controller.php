@@ -141,13 +141,37 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 	}
 
 	/**
-	 * Hook the controller's routes onto rest_api_init.
+	 * Hook the controller's routes onto rest_api_init, and register its cache prefix with the
+	 * stats package's transient cleanup cron.
 	 *
 	 * @return void
 	 */
 	public static function register(): void {
 		$controller = new self();
 		add_action( 'rest_api_init', array( $controller, 'register_routes' ) );
+		add_filter( 'jetpack_stats_transient_cleanup_prefixes', array( $controller, 'register_transient_cleanup_prefix' ) );
+	}
+
+	/**
+	 * Register the proxy cache prefix with the stats package's transient cleanup cron, so expired
+	 * proxy transients are swept on sites without a persistent object cache (where WordPress's lazy
+	 * GC never reaches the rarely re-read, param-keyed entries). The coupling is loose: the filter
+	 * is just a hook name, so if the stats package isn't loaded it never fires and nothing breaks.
+	 *
+	 * Appends only when handed a valid array; a non-array (from a misbehaving upstream filter) is
+	 * returned untouched so the stats consumer's own fall-back-to-defaults normalization still runs
+	 * instead of being masked into dropping the default stats prefix.
+	 *
+	 * @param mixed $prefixes Transient prefixes the stats cleanup cron will sweep.
+	 *
+	 * @return mixed
+	 */
+	public function register_transient_cleanup_prefix( $prefixes ) {
+		if ( is_array( $prefixes ) ) {
+			$prefixes[] = self::CACHE_PREFIX;
+		}
+
+		return $prefixes;
 	}
 
 	/**
