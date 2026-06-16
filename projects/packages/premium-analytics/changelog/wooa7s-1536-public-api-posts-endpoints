@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+REST: Add dedicated post-list (`jetpack-premium-analytics/v1/posts`, WPCOM API v1.1, `force=wpcom`) and post-likes (`jetpack-premium-analytics/v1/posts/<id>/likes`, v1.2) endpoints that read from the WordPress.com public API, ported from the stats-admin controller as part of deprecating that package.
