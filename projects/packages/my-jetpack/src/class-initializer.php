@@ -326,6 +326,7 @@ class Initializer {
 				'isAtomic'               => ( new Status_Host() )->is_woa_site(),
 				'isJetpackPluginActive'  => class_exists( 'Jetpack' ),
 				'latestBoostSpeedScores' => $latest_score,
+				'seoOptIn'               => self::get_seo_opt_in_state(),
 			)
 		);
 
@@ -442,6 +443,55 @@ class Initializer {
 		);
 
 		return $flags;
+	}
+
+	/**
+	 * Build the state the My Jetpack "try the new SEO experience" opt-in card hydrates from.
+	 *
+	 * The card invites an existing self-hosted install to switch over to the new Jetpack SEO
+	 * dashboard (JETPACK-1700). Gating lives server-side, where the signals actually are. The
+	 * card shows only when all of:
+	 *
+	 * - the new SEO product is available — the `rsm_jetpack_seo` feature filter is on (the SEO
+	 *   package autoloads regardless, so `class_exists()` alone isn't enough; the filter is the
+	 *   real availability switch and the same one the SEO package gates its own surface behind);
+	 * - the site is self-hosted — WordPress.com (Simple + Atomic) decides its own SEO surface, so
+	 *   the opt-in card is for self-hosted installs only;
+	 * - the install hasn't opted in yet — `jetpack_seo_surface_visible` is still false. On wpcom
+	 *   the SEO package's `is_seo_surface_visible()` short-circuits to `true`, so the
+	 *   "not visible yet" check also doubles as the self-hosted guard, but we check the platform
+	 *   explicitly for clarity.
+	 *
+	 * Referenced through `class_exists()` rather than a hard composer dependency: both packages
+	 * ship inside the Jetpack plugin and the SEO surface is feature-flagged, so a guarded read of
+	 * its public API keeps this from adding plumbing to consumers that don't load SEO.
+	 *
+	 * The on-success destination is computed by the opt-in endpoint itself; we only seed the card
+	 * with the same admin URL so the button has a sensible fallback before the request resolves.
+	 *
+	 * @return array{showCard: bool, redirect: string}
+	 */
+	public static function get_seo_opt_in_state() {
+		$show_card = false;
+
+		// The SEO package gates its whole surface behind this filter (see
+		// SEO\Initializer::FEATURE_FILTER); mirror it here so the card only appears where the
+		// product is actually available. TODO(JETPACK-1700): replace with a public availability
+		// helper on the SEO package if one is added, to avoid duplicating the filter name.
+		$seo_available = class_exists( 'Automattic\\Jetpack\\SEO\\Initializer' )
+			&& (bool) apply_filters( 'rsm_jetpack_seo', false );
+
+		if ( $seo_available ) {
+			$is_wpcom = ( new Status_Host() )->is_wpcom_platform();
+
+			// @phan-suppress-next-line PhanUndeclaredClassMethod -- guarded by class_exists above.
+			$show_card = ! $is_wpcom && ! \Automattic\Jetpack\SEO\Initializer::is_seo_surface_visible();
+		}
+
+		return array(
+			'showCard' => $show_card,
+			'redirect' => admin_url( 'admin.php?page=jetpack-seo' ),
+		);
 	}
 
 	/**
