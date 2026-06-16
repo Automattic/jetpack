@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Keep the SEO menu discoverable when the `seo-tools` module is off and add an in-app enable/disable affordance on the Overview (one-click enable card when off, low-emphasis disable off-ramp when on).

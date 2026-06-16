@@ -156,28 +156,28 @@ class Initializer {
 			return;
 		}
 
-		// Gate the entire SEO surface on the `seo-tools` module being active,
-		// the same way other Jetpack modules do. When the module is off we
-		// register nothing — no admin menu, no assets — rather than registering
-		// everything and hiding the menu downstream.
-		if ( ! self::is_seo_tools_module_active() ) {
-			return;
-		}
-
-		// Front-end JSON-LD schema (Article / FAQ). Self-hooks `wp_head`, so it
-		// only emits on front-end requests.
-		Schema_Builder::init();
-
+		// The admin menu and app shell register whenever the surface is visible, even
+		// when the `seo-tools` module is inactive, so SEO stays discoverable and can be
+		// turned on from within the page itself (JETPACK-1700). When the module is off,
+		// the Overview renders only its "enable SEO tools" affordance.
+		//
 		// Priority 1: load the wp-build bundle (and define its render function)
 		// before `add_menu_item()` runs at the default priority and needs it.
 		add_action( 'admin_menu', array( __CLASS__, 'maybe_load_wp_build' ), 1 );
 		add_action( 'admin_menu', array( __CLASS__, 'add_menu_item' ), 10 );
 
-		// Expose the core `blog_public` option to the REST settings endpoint so
-		// the Settings tab can save search-engine visibility via `/wp/v2/settings`.
-		// (The Jetpack settings endpoint only accepts Jetpack options.) Writes
-		// are still capability-gated by the core settings controller.
-		add_action( 'rest_api_init', array( __CLASS__, 'register_rest_settings' ) );
+		// The settings surface only comes online once SEO tools are active — there's
+		// nothing to configure while the module is off, so we don't register its REST
+		// endpoints until then. Expose the core `blog_public` option to the REST settings
+		// endpoint so the Settings tab can save search-engine visibility via
+		// `/wp/v2/settings` (the Jetpack settings endpoint only accepts Jetpack options).
+		// Writes are still capability-gated by the core settings controller.
+		if ( self::is_seo_tools_module_active() ) {
+			// Front-end JSON-LD schema (Article / FAQ). Self-hooks `wp_head`, so it only
+			// emits on front-end requests.
+			Schema_Builder::init();
+			add_action( 'rest_api_init', array( __CLASS__, 'register_rest_settings' ) );
+		}
 
 		/**
 		 * Fires after the Jetpack SEO package is initialized.
