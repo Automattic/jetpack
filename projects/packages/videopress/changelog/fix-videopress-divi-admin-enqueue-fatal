@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix a fatal error in the VideoPress Divi extension caused by hooking an undefined `admin_hook_enqueue_scripts` callback to `admin_enqueue_scripts`.
