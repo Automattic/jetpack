@@ -6,7 +6,7 @@
 
 set -eo pipefail
 
-BASE="$(cd "$(dirname "$BASH_SOURCE[0]")/../../.." && pwd)"
+BASE="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)"
 
 cd "$BASE/projects/github-actions/required-review"
 composer build-development

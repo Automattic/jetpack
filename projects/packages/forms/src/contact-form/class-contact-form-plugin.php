@@ -621,10 +621,6 @@ class Contact_Form_Plugin {
 						unset( $atts['default'] );
 					}
 
-					if ( ! isset( $atts['showCountrySelector'] ) || ! $atts['showCountrySelector'] ) {
-						unset( $atts['default'] );
-					}
-
 					$input_attrs           = self::get_block_support_classes_and_styles( $block_name, $inner_block['attrs'] );
 					$atts['inputclasses']  = 'wp-block-jetpack-input';
 					$atts['inputclasses'] .= isset( $input_attrs['class'] ) ? ' ' . $input_attrs['class'] : '';
@@ -952,6 +948,7 @@ class Contact_Form_Plugin {
 		$processor = new \WP_HTML_Tag_Processor( $button_blocks_html );
 
 		$processor->next_tag();
+		// @phan-suppress-next-line PhanPluginDuplicateAdjacentStatement -- Intentionally bumping cursor to next tag.
 		$processor->next_tag();
 
 		$processor->set_attribute( 'data-wp-interactive', 'jetpack/form' );
@@ -3746,9 +3743,8 @@ class Contact_Form_Plugin {
 				}
 			}
 
-			array_shift( $lines ); // Array
-			array_shift( $lines ); // (
-			array_pop( $lines ); // )
+			array_splice( $lines, 0, 2 ); // Remove first two items: 'Array' and '('.
+			array_pop( $lines ); // Remove last item: ')'.
 			$print_r_output = implode( "\n", $lines );
 
 			// make sure we only match stuff with 4 preceding spaces (stuff for this array and not a nested one
