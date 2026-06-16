@@ -182,7 +182,7 @@ class Configuration {
 		// Let's ensure Terms and Term_Relationships will always get synced before Posts during Full Sync.
 		if ( isset( $config['posts'] ) ) {
 			unset( $config['posts'] );
-			$config = $config + array( 'posts' => 1 );
+			$config += array( 'posts' => 1 );
 		}
 
 		if ( ! isset( $config['woocommerce_analytics'] ) ) {

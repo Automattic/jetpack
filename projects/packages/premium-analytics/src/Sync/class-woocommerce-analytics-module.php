@@ -36,8 +36,6 @@ defined( 'ABSPATH' ) || exit;
 
 /**
  * WooCommerce Analytics Module class.
- *
- * @phan-suppress-next-line PhanUndeclaredTrait -- OrderAttributionMeta is a WooCommerce runtime trait; WC is a runtime, not composer, dependency.
  */
 class WooCommerce_Analytics_Module extends JetpackSyncModule {
 
@@ -104,7 +102,7 @@ class WooCommerce_Analytics_Module extends JetpackSyncModule {
 	 *
 	 * @param array $args List of arguments.
 	 *
-	 * @return array
+	 * @return array|false
 	 */
 	public function expand_data( $args ) {
 		if ( ! is_array( $args ) || ! isset( $args[0] ) ) {
@@ -627,7 +625,7 @@ class WooCommerce_Analytics_Module extends JetpackSyncModule {
 					$order_stats_data['tax_total']      = -1 * $parent_order->get_total_tax();
 					$order_stats_data['num_items_sold'] = -1 * self::get_num_items_sold( $parent_order );
 					$order_stats_data['net_total']      = -1 * self::get_net_total( $parent_order );
-					$order_stats_data['shipping_total'] = -1 * $parent_order->get_shipping_total();
+					$order_stats_data['shipping_total'] = -1 * (float) $parent_order->get_shipping_total();
 				}
 			}
 			/**
@@ -671,7 +669,7 @@ class WooCommerce_Analytics_Module extends JetpackSyncModule {
 	 */
 	protected static function get_net_total( $order ) {
 		$net_total = floatval( $order->get_total() ) - floatval( $order->get_total_tax() ) - floatval( $order->get_shipping_total() );
-		return (float) $net_total;
+		return $net_total;
 	}
 
 	/**

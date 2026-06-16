@@ -114,7 +114,7 @@ trait Utilities {
 	/**
 	 * Convert offset in seconds to ISO 8601 timezone offset format.
 	 *
-	 * @param int $offset_seconds The timezone offset in seconds.
+	 * @param int|float $offset_seconds The timezone offset in seconds.
 	 * @return string The ISO 8601 timezone offset string (e.g., '+08:00', '-08:30', '+00:00').
 	 */
 	protected static function format_utc_offset( $offset_seconds ) {
