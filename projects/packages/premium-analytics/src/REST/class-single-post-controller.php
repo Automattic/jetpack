@@ -18,8 +18,13 @@ use WP_REST_Server;
  *
  * Unlike the WPCOM pass-through endpoints ({@see Api_Proxy_Controller}), this reads the post
  * locally via `get_post()` rather than forwarding to WPCOM: `/sites/<id>/posts/<id>` can require a
- * user token for private posts/sites, which users without a WordPress.com account don't have. The
- * response shape mirrors `/sites/<id>/posts/<id>` so the dashboard can consume either source.
+ * user token for private posts/sites, which users without a WordPress.com account don't have.
+ *
+ * The response shape deliberately mirrors WordPress.com's `/sites/<id>/posts/<id>` (not WP core's
+ * `/wp/v2/posts/<id>`): the dashboard's data layer is shared between the public-api source and this
+ * local endpoint, so keeping one shape lets the same frontend code consume both. We may later
+ * migrate to the Core single-post endpoint and drop this controller, which would mean reworking
+ * that shared frontend data layer to handle Core's shape.
  */
 class Single_Post_Controller extends WP_REST_Controller {
 
