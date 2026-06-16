@@ -482,7 +482,7 @@ class Connection_Health_Tests extends Connection_Health_Test_Base {
 	 *
 	 * @return array Test results.
 	 */
-	protected function evaluate_wpcom_connection_result( $name, $result, $status_code ) {
+	public function evaluate_wpcom_connection_result( $name, $result, $status_code ) {
 		if ( ! empty( $result->connected ) ) {
 			return self::passing_test( array( 'name' => $name ) );
 		}

@@ -541,22 +541,15 @@ class Connection_Health_Tests_Test extends TestCase {
 	 * @param int|string $status_code   HTTP status code of the WP.com response.
 	 * @return array Test result.
 	 */
-	private function evaluate_wpcom_connection_result( array $response_body, $status_code = 200 ) {
-		$method = new \ReflectionMethod( Connection_Health_Tests::class, 'evaluate_wpcom_connection_result' );
-		if ( PHP_VERSION_ID < 80100 ) {
-			// setAccessible() has no effect (and is deprecated) on PHP 8.1+, but is required on older versions.
-			// @phan-suppress-next-line PhanDeprecatedFunctionInternal
-			$method->setAccessible( true );
-		}
-
-		return $method->invoke( $this->tests, 'test__wpcom_connection_test', (object) $response_body, $status_code );
+	private function evaluate_response( array $response_body, $status_code = 200 ) {
+		return $this->tests->evaluate_wpcom_connection_result( 'test__wpcom_connection_test', (object) $response_body, $status_code );
 	}
 
 	/**
 	 * Test wpcom_connection_test passes when WP.com reports the site as connected.
 	 */
 	public function test_wpcom_connection_test_passes_when_connected() {
-		$result = $this->evaluate_wpcom_connection_result( array( 'connected' => true ) );
+		$result = $this->evaluate_response( array( 'connected' => true ) );
 		$this->assertTrue( $result['pass'] );
 	}
 
@@ -578,7 +571,7 @@ class Connection_Health_Tests_Test extends TestCase {
 			}
 		);
 
-		$result = $this->evaluate_wpcom_connection_result(
+		$result = $this->evaluate_response(
 			array(
 				'connected'        => false,
 				'message'          => 'XML-RPC request was blocked.',
@@ -598,7 +591,7 @@ class Connection_Health_Tests_Test extends TestCase {
 	 * Test the blocked-request result omits the HTTP status when it is unknown.
 	 */
 	public function test_wpcom_connection_test_blocked_without_status_code() {
-		$result = $this->evaluate_wpcom_connection_result(
+		$result = $this->evaluate_response(
 			array(
 				'connected'  => false,
 				'message'    => 'XML-RPC request was blocked.',
@@ -622,7 +615,7 @@ class Connection_Health_Tests_Test extends TestCase {
 			}
 		);
 
-		$result = $this->evaluate_wpcom_connection_result(
+		$result = $this->evaluate_response(
 			array(
 				'connected' => false,
 				'message'   => 'Invalid token.',
