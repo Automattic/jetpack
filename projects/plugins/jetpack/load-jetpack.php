@@ -86,16 +86,9 @@ if ( is_admin() ) {
 
 add_action( 'updating_jetpack_version', array( 'Jetpack', 'do_version_bump' ), 10, 2 );
 add_action( 'updating_jetpack_version', array( 'Jetpack', 'activate_subscriptions_module_for_existing_sites' ), 10, 2 );
-add_action( 'updating_jetpack_version', array( 'Jetpack', 'migrate_sitemaps_module_to_seo_option' ) );
-// Keep the Jetpack SEO sitemap option in sync with the legacy `sitemaps` module while
-// both still exist. Removed when the standalone module is removed.
-add_action( 'jetpack_activate_module_sitemaps', array( 'Jetpack', 'sync_seo_sitemap_option' ) );
-add_action( 'jetpack_deactivate_module_sitemaps', array( 'Jetpack', 'sync_seo_sitemap_option' ) );
-add_action( 'updating_jetpack_version', array( 'Jetpack', 'migrate_canonical_urls_module_to_seo_option' ) );
-// Keep the Jetpack SEO canonical-urls option in sync with the legacy `canonical-urls`
-// module while both still exist. Removed when the standalone module is removed.
-add_action( 'jetpack_activate_module_canonical-urls', array( 'Jetpack', 'sync_seo_canonical_urls_option' ) );
-add_action( 'jetpack_deactivate_module_canonical-urls', array( 'Jetpack', 'sync_seo_canonical_urls_option' ) );
+// Seed + keep in sync the durable Jetpack SEO module-state options while the legacy
+// Sitemaps / Canonical URLs modules still exist. Removed in the #5b cleanup.
+Jetpack::register_seo_module_migration_hooks();
 add_filter( 'is_jetpack_site', '__return_true' );
 
 require_once JETPACK__PLUGIN_DIR . '3rd-party/3rd-party.php';

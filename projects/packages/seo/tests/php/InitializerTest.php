@@ -248,4 +248,23 @@ class InitializerTest extends TestCase {
 
 		delete_option( Initializer::CANONICAL_ENABLED_OPTION );
 	}
+
+	/**
+	 * The Settings bootstrap sources `sitemap_active` / `canonical_active` from the durable
+	 * options, so the module toggles hydrate correctly without reading live module state.
+	 */
+	public function test_get_settings_data_reads_module_toggles_from_options() {
+		update_option( Initializer::SITEMAP_ENABLED_OPTION, '1' );
+		update_option( Initializer::CANONICAL_ENABLED_OPTION, '' );
+
+		$settings = Initializer::get_settings_data();
+
+		$this->assertArrayHasKey( 'sitemap_active', $settings );
+		$this->assertArrayHasKey( 'canonical_active', $settings );
+		$this->assertTrue( $settings['sitemap_active'] );
+		$this->assertFalse( $settings['canonical_active'] );
+
+		delete_option( Initializer::SITEMAP_ENABLED_OPTION );
+		delete_option( Initializer::CANONICAL_ENABLED_OPTION );
+	}
 }

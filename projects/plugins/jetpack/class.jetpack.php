@@ -2851,6 +2851,26 @@ p {
 	}
 
 	/**
+	 * Wires up the migration + sync hooks that keep the durable Jetpack SEO module-state
+	 * options ({@see Jetpack_SEO_Initializer::SITEMAP_ENABLED_OPTION} /
+	 * {@see Jetpack_SEO_Initializer::CANONICAL_ENABLED_OPTION}) seeded and in sync with their
+	 * legacy modules. Called once from `load-jetpack.php`.
+	 *
+	 * Extracted from file scope so the wiring is unit-testable (file-scope `add_action()`
+	 * calls run during bootstrap and can't be exercised by a test). Removed alongside the
+	 * modules in the #5b cleanup.
+	 */
+	public static function register_seo_module_migration_hooks() {
+		add_action( 'updating_jetpack_version', array( 'Jetpack', 'migrate_sitemaps_module_to_seo_option' ) );
+		add_action( 'jetpack_activate_module_sitemaps', array( 'Jetpack', 'sync_seo_sitemap_option' ) );
+		add_action( 'jetpack_deactivate_module_sitemaps', array( 'Jetpack', 'sync_seo_sitemap_option' ) );
+
+		add_action( 'updating_jetpack_version', array( 'Jetpack', 'migrate_canonical_urls_module_to_seo_option' ) );
+		add_action( 'jetpack_activate_module_canonical-urls', array( 'Jetpack', 'sync_seo_canonical_urls_option' ) );
+		add_action( 'jetpack_deactivate_module_canonical-urls', array( 'Jetpack', 'sync_seo_canonical_urls_option' ) );
+	}
+
+	/**
 	 * Sets the display_update_modal state.
 	 */
 	public static function set_update_modal_display() {

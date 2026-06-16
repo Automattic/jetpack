@@ -117,4 +117,19 @@ class SEO_Canonical_URLs_Migration_Test extends WP_UnitTestCase {
 
 		$this->assertTrue( $settings['canonical_active'] );
 	}
+
+	/**
+	 * The registrar wires up every migration + sync hook for both modules at the
+	 * expected priority, from a single bootstrap call.
+	 */
+	public function test_register_seo_module_migration_hooks_wires_all_hooks() {
+		Jetpack::register_seo_module_migration_hooks();
+
+		$this->assertSame( 10, has_action( 'updating_jetpack_version', array( 'Jetpack', 'migrate_sitemaps_module_to_seo_option' ) ) );
+		$this->assertSame( 10, has_action( 'jetpack_activate_module_sitemaps', array( 'Jetpack', 'sync_seo_sitemap_option' ) ) );
+		$this->assertSame( 10, has_action( 'jetpack_deactivate_module_sitemaps', array( 'Jetpack', 'sync_seo_sitemap_option' ) ) );
+		$this->assertSame( 10, has_action( 'updating_jetpack_version', array( 'Jetpack', 'migrate_canonical_urls_module_to_seo_option' ) ) );
+		$this->assertSame( 10, has_action( 'jetpack_activate_module_canonical-urls', array( 'Jetpack', 'sync_seo_canonical_urls_option' ) ) );
+		$this->assertSame( 10, has_action( 'jetpack_deactivate_module_canonical-urls', array( 'Jetpack', 'sync_seo_canonical_urls_option' ) ) );
+	}
 }
