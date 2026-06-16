@@ -257,16 +257,6 @@ async function fixDeps( pkg ) {
 		pkg.dependencies[ '@xmldom/xmldom' ] = '^0.9';
 	}
 
-	// Dependency on "latest" makes for many spurious updates. Leave it for the lockfile maintenance PRs.
-	// No upstream evident to report bugs to.
-	if ( pkg.name === '@paulirish/trace_engine' ) {
-		for ( const k of Object.keys( pkg.dependencies ) ) {
-			if ( pkg.dependencies[ k ] === 'latest' ) {
-				pkg.dependencies[ k ] = '*';
-			}
-		}
-	}
-
 	// Glob decided to deprecate everything <12, even though tons of stuff still depends on older versions.
 	// On the plus side, the net change from v10 to v13 is deleting the CLI from the package.
 	if ( pkg.dependencies?.glob?.match( /^\^1[0-2](?:\.\d+)*$/ ) ) {
@@ -282,6 +272,12 @@ async function fixDeps( pkg ) {
 		! pkg.dependencies?.esbuild?.match( /\^0\.28/ )
 	) {
 		pkg.dependencies.esbuild += ' || ^0.28';
+	}
+
+	// We don't use this in our E2E runs, and it brings in a lot of extraneous deps (and CVE-2026-54285).
+	// (if you bring this back, do it by reverting the pnpmfile changes in commit X, don't just delete this bit).
+	if ( pkg.name === '@wordpress/e2e-test-utils-playwright' ) {
+		delete pkg.dependencies.lighthouse;
 	}
 
 	return pkg;
