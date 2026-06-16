@@ -45,18 +45,38 @@ class VideoPress_Module implements DependencyInterface {
 	 * @return void
 	 */
 	public function load() {
+		/*
+		 * Divi rebuilds its module dependency tree more than once per request
+		 * (front-end render and builder asset enqueue both walk it, each with a
+		 * fresh instance), so guard against registering the module twice. A
+		 * method-static flag is required because the instance differs each time.
+		 */
+		static $registered = false;
+		if ( $registered ) {
+			return;
+		}
+		$registered = true;
+
 		$module_json_folder_path = dirname( __DIR__ ) . '/client/divi-5/modules/videopress';
 
-		add_action(
-			'init',
-			function () use ( $module_json_folder_path ) {
-				ModuleRegistration::register_module(
-					$module_json_folder_path,
-					array(
-						'render_callback' => array( self::class, 'render_callback' ),
-					)
-				);
-			}
-		);
+		$register = function () use ( $module_json_folder_path ) {
+			ModuleRegistration::register_module(
+				$module_json_folder_path,
+				array(
+					'render_callback' => array( self::class, 'render_callback' ),
+				)
+			);
+		};
+
+		/*
+		 * Divi can build its dependency tree once `init` is already underway or
+		 * finished (e.g. during builder asset enqueue), where deferring to `init`
+		 * would never run. Register immediately in that case, otherwise defer.
+		 */
+		if ( did_action( 'init' ) ) {
+			$register();
+		} else {
+			add_action( 'init', $register );
+		}
 	}
 }

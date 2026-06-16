@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\VideoPress\Divi5;
 
+use Automattic\Jetpack\VideoPress\Package_Version;
 use ET\Builder\VisualBuilder\Assets\PackageBuildManager;
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -51,7 +52,7 @@ class Divi_5 {
 		PackageBuildManager::register_package_build(
 			array(
 				'name'    => 'jetpack-videopress-divi5-visual-builder',
-				'version' => '1.0.0',
+				'version' => Package_Version::PACKAGE_VERSION,
 				'script'  => array(
 					'src'                => plugins_url( '../../build/divi-5/index.js', __FILE__ ),
 					'deps'               => array(
