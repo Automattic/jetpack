@@ -54,7 +54,9 @@ assert_status PR1 "$DATA_OK"
 process_pr 2
 assert_status PR2 "$DATA_FAIL"
 
+# shellcheck disable=SC2034
 NOTIFY_SUCCESS=true
+# shellcheck disable=SC2034
 TAGS=( tagB )
 test_begin "Forgot to fetch the PR"
 init_repo

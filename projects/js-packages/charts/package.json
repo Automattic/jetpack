@@ -103,7 +103,7 @@
 	},
 	"devDependencies": {
 		"@automattic/jetpack-webpack-config": "workspace:*",
-		"@babel/core": "7.29.0",
+		"@babel/core": "7.29.6",
 		"@babel/preset-react": "7.28.5",
 		"@babel/preset-typescript": "7.28.5",
 		"@storybook/addon-docs": "10.3.6",
@@ -122,7 +122,7 @@
 		"@wordpress/private-apis": "1.48.0",
 		"babel-jest": "30.4.1",
 		"babel-plugin-react-remove-properties": "^0.3.1",
-		"esbuild": "0.27.4",
+		"esbuild": "0.28.1",
 		"esbuild-plugin-babel": "^0.2.3",
 		"esbuild-sass-plugin": "^3.1.0",
 		"identity-obj-proxy": "^3.0.0",

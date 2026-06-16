@@ -1,6 +1,10 @@
 export type LibraryItemType = 'videopress' | 'local';
 export type LibraryItemPrivacy = 'public' | 'private' | 'site-default';
-export type UploadStatus = 'idle' | 'uploading' | 'promoting' | 'failed';
+// `upload.status` doubles as the row's single in-flight-operation slot:
+// 'deleting' isn't an upload state, but riding this channel means every
+// render site that keys interactivity off `status === 'idle'` (title link,
+// thumbnail button, action eligibility) handles it without extra plumbing.
+export type UploadStatus = 'idle' | 'uploading' | 'promoting' | 'deleting' | 'failed';
 export type VideoRating = 'G' | 'PG-13' | 'R';
 
 export interface UploadState {

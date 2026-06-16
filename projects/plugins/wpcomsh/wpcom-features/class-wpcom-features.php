@@ -874,8 +874,7 @@ class WPCOM_Features {
 			),
 		),
 		self::GLOBAL_STYLES                     => array(
-			self::WPCOM_PREMIUM_AND_HIGHER_PLANS,
-			self::WPCOM_STARTER_PLANS,
+			self::WPCOM_PERSONAL_AND_HIGHER_PLANS,
 		),
 		self::GOOGLE_ANALYTICS                  => array(
 			self::JETPACK_PREMIUM_AND_HIGHER,

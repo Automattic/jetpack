@@ -1,15 +1,9 @@
 import analytics from '@automattic/jetpack-analytics';
-import { select } from '@wordpress/data';
 
 type RtcTransport = 'pinghub' | 'http-polling';
 
 interface JetpackRtcGlobals {
 	providers?: string[];
-}
-
-interface EditorSelectors {
-	getCurrentPostId?: () => number | undefined;
-	getCurrentPostType?: () => string | undefined;
 }
 
 /**
@@ -35,23 +29,14 @@ export function getTransport(): RtcTransport {
 }
 
 /**
- * Read the current post context from the editor store.
- *
- * This is transport-agnostic: it works on both PingHub and HTTP-polling sites,
- * unlike `window.jetpackRTC`, which the server only injects on the PingHub path.
- *
- * @return The current post id and type (each undefined when unavailable).
- */
-function getPostContext(): { post_id?: number; post_type?: string } {
-	const editor = select( 'core/editor' ) as EditorSelectors | undefined;
-	return {
-		post_id: editor?.getCurrentPostId?.(),
-		post_type: editor?.getCurrentPostType?.(),
-	};
-}
-
-/**
  * Record an RTC Tracks event with the common properties merged in.
+ *
+ * `post_id`, `post_type`, and `wp_user_id` are read from the server-injected
+ * `window.jetpackRtcNotices` config (present on both transports, and available
+ * synchronously) rather than from the editor store or awareness — those aren't
+ * reliably populated when an event fires very early, e.g. the room-limit block
+ * on a tab that has only just connected. `wp_user_id` is the site-local WP user
+ * id (= the wpcom id on Simple sites), the same id-space as `contributors`.
  *
  * `blog_id` is attached automatically by `@automattic/jetpack-analytics` from
  * `window.jpTracksContext`, so it is intentionally not set here. Event names
@@ -64,12 +49,21 @@ export function recordRtcEvent(
 	eventName: string,
 	properties: Record< string, unknown > = {}
 ): void {
+	const notices = window.jetpackRtcNotices;
+	const props: Record< string, unknown > = {
+		transport: getTransport(),
+		post_id: notices?.postId,
+		post_type: notices?.postType,
+		wp_user_id: notices?.userId,
+		...properties,
+	};
 	try {
-		analytics.tracks.recordEvent( eventName, {
-			transport: getTransport(),
-			...getPostContext(),
-			...properties,
-		} );
+		// Tracks serialises a present-but-nullish value as the literal string
+		// "null"/"undefined" rather than omitting it, so drop those keys entirely.
+		analytics.tracks.recordEvent(
+			eventName,
+			Object.fromEntries( Object.entries( props ).filter( ( [ , value ] ) => value != null ) )
+		);
 	} catch {
 		// Telemetry must never break the editor.
 	}

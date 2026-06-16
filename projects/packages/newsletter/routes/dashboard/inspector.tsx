@@ -7,25 +7,12 @@ import { useNavigate, useSearch } from '@wordpress/route';
 import { Stack } from '@wordpress/ui';
 import SubscriberDetailContent from '../../_inc/subscribers/components/detail/subscriber-detail-content';
 import { queryClient } from '../../_inc/subscribers/lib/query-client';
+import { toFiniteNumber } from '../../_inc/subscribers/lib/subscriber-helpers';
 
 type SubscribersSearch = Record< string, unknown > & {
 	subscriber?: string | number;
 	u?: string | number;
 };
-
-/**
- * Coerce a URL search-param value into a positive finite number.
- *
- * @param value - Raw search-param value (string, number, undefined).
- * @return Positive finite number, or undefined when the input is empty/invalid.
- */
-function toFiniteNumber( value: unknown ): number | undefined {
-	if ( value === undefined || value === null || value === '' ) {
-		return undefined;
-	}
-	const num = Number( value );
-	return Number.isFinite( num ) && num > 0 ? num : undefined;
-}
 
 /**
  * Inspector body — reads the selected subscriber from URL search params and

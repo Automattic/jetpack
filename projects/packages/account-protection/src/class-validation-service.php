@@ -214,7 +214,7 @@ class Validation_Service {
 		 * The default is a floor: values below it are ignored, so the filter can only
 		 * raise the minimum, never lower it.
 		 *
-		 * @since $$next-version$$
+		 * @since 0.3.4
 		 *
 		 * @param int $min_length The minimum allowed password length.
 		 */
@@ -234,7 +234,7 @@ class Validation_Service {
 		 * The default is a floor: values below it are ignored, so the filter can only
 		 * raise the maximum, never lower it.
 		 *
-		 * @since $$next-version$$
+		 * @since 0.3.4
 		 *
 		 * @param int $max_length The maximum allowed password length.
 		 */
