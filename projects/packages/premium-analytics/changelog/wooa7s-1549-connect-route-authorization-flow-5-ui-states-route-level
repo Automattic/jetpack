@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add /connect and /syncing routes with connection-aware route guards for the Jetpack connection and sync flow.

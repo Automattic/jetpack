@@ -1,32 +1,32 @@
 # Connect Route — Agent Guide
 
-Companion to `README.md`. Focuses on the mental model and debugging playbook for Jetpack connectivity issues. When something breaks, always ask: *is it our wiring or the upstream package?*
+Companion to `README.md`. Focuses on the mental model and debugging playbook for Jetpack connectivity issues. When something breaks, always ask: _is it our wiring or the upstream package?_
 
 ## Upstream (source of truth)
 
 The connection machinery is not ours — we consume `@automattic/jetpack-connection`. Read the real code before theorizing:
 
-| What | Where |
-|------|-------|
-| `useConnection` hook | [js-packages/connection/components/use-connection/index.ts](https://github.com/Automattic/jetpack/blob/trunk/projects/js-packages/connection/components/use-connection/index.ts) |
-| Redux store (actions, reducers, controls) | [js-packages/connection/state/](https://github.com/Automattic/jetpack/tree/trunk/projects/js-packages/connection/state) |
-| Script data types | [js-packages/connection/types.ts](https://github.com/Automattic/jetpack/blob/trunk/projects/js-packages/connection/types.ts) |
-| REST routes + permission callbacks | [packages/connection/src/class-rest-connector.php](https://github.com/Automattic/jetpack/blob/trunk/projects/packages/connection/src/class-rest-connector.php) |
-| Capability map (where offline mode blocks `jetpack_connect`) | [packages/connection/src/class-manager.php](https://github.com/Automattic/jetpack/blob/trunk/projects/packages/connection/src/class-manager.php) |
+| What                                                         | Where                                                                                                                                                                            |
+| ------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `useConnection` hook                                         | [js-packages/connection/components/use-connection/index.ts](https://github.com/Automattic/jetpack/blob/trunk/projects/js-packages/connection/components/use-connection/index.ts) |
+| Redux store (actions, reducers, controls)                    | [js-packages/connection/state/](https://github.com/Automattic/jetpack/tree/trunk/projects/js-packages/connection/state)                                                          |
+| Script data types                                            | [js-packages/connection/types.ts](https://github.com/Automattic/jetpack/blob/trunk/projects/js-packages/connection/types.ts)                                                     |
+| REST routes + permission callbacks                           | [packages/connection/src/class-rest-connector.php](https://github.com/Automattic/jetpack/blob/trunk/projects/packages/connection/src/class-rest-connector.php)                   |
+| Capability map (where offline mode blocks `jetpack_connect`) | [packages/connection/src/class-manager.php](https://github.com/Automattic/jetpack/blob/trunk/projects/packages/connection/src/class-manager.php)                                 |
 
 ## `useConnection` contract
 
 Call site: `components/connect/connect.tsx`.
 
-We pass `apiNonce`, `apiRoot`, `registrationNonce` from `getScriptData().connection`, plus `redirectUri`, `from: 'woocommerce-analytics'`, and `skipUserConnection: true`.
+We pass `apiNonce`, `apiRoot`, `registrationNonce` from `getScriptData().connection`, plus `redirectUri`, `from: 'jetpack-premium-analytics'`, and `skipUserConnection: true`.
 
 **Why `skipUserConnection: true`:** we only need the site-level blog token to sync aggregated data. No per-user WP.com identity. The flow ends after site registration (`POST /jetpack/v4/connection/register`).
 
-Today we only render `registrationError`. The hook also exposes `isOfflineMode`, `isRegistered`, and `connectionErrors` — these are the building blocks for the WOOA7S-1220 fix.
+Today we only render `registrationError`. The hook also exposes `isOfflineMode`, `isRegistered`, and `connectionErrors` — these are the building blocks for the WOOA7S-1327 fix.
 
 ## Script data
 
-`getScriptData().connection` is populated server-side by `standalone/integration.php::wc_analytics_standalone_enqueue_jetpack_script_data()`. If it returns `undefined` at runtime, that function did not run — that's the bug, not a missing connection.
+`getScriptData().connection` is populated server-side by the `jetpack-connection` package itself: `Initial_State::set_connection_script_data()` auto-hooks onto the `jetpack_admin_js_script_data` filter (via `Connection_Assets::configure()` on `plugins_loaded`). Because premium-analytics requires `automattic/jetpack-connection` in Composer, this happens for free — no wiring in this package. If it returns `undefined` at runtime, the connection package's assets did not boot, or `JetpackScriptData` was not emitted on the page.
 
 The field that matters most for UX is **`connectionStatus.offlineMode.isActive`**. When true, `permissions.connect` is also false regardless of user role, because `Manager::jetpack_connection_custom_caps()` forces `jetpack_connect` → `do_not_allow`. Full shape: see `types.ts` link above.
 
@@ -39,12 +39,12 @@ There are two separate error surfaces:
 
 Known `registrationError` codes:
 
-| Code | Cause |
-|------|-------|
-| `invalid_user_permission_jetpack_connect` | Site in offline/staging mode — **not a real permission issue**. See README Troubleshooting. |
-| `invalid_registration_nonce` | Nonce expired. Hard reload. |
-| `invalid_blog_token` / `blog_token_invalid` | Stale token in DB. `wp option delete jetpack_options jetpack_private_options`. |
-| `connection_unavailable` | Outbound HTTPS to WP.com failed. Check Jurassic Tube / firewall. |
+| Code                                        | Cause                                                                                       |
+| ------------------------------------------- | ------------------------------------------------------------------------------------------- |
+| `invalid_user_permission_jetpack_connect`   | Site in offline/staging mode — **not a real permission issue**. See README Troubleshooting. |
+| `invalid_registration_nonce`                | Nonce expired. Hard reload.                                                                 |
+| `invalid_blog_token` / `blog_token_invalid` | Stale token in DB. `wp option delete jetpack_options jetpack_private_options`.              |
+| `connection_unavailable`                    | Outbound HTTPS to WP.com failed. Check Jurassic Tube / firewall.                            |
 
 ## Debugging checklist
 
@@ -65,5 +65,5 @@ Walk in order, stop at the first red flag:
 
 ## Related
 
-- **WOOA7S-1220** — gate the authorize button on `offlineMode.isActive` so users see an unavailable state instead of a button that always 403s.
-- **WOOA7S-1224** / PR #1770 — README troubleshooting for the offline-mode 403.
+- **WOOA7S-1327** — gate the authorize button on `offlineMode.isActive` so users see an unavailable state instead of a button that always 403s.
+- **WOOA7S-1224** — README troubleshooting for the offline-mode 403 (done in the old standalone project).
