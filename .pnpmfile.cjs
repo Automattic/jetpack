@@ -276,6 +276,14 @@ async function fixDeps( pkg ) {
 		pkg.dependencies.glob = '^13';
 	}
 
+	// Temporarily outdated deps. Storybook is already updated upstream.
+	if (
+		pkg.dependencies?.esbuild?.match( /\^0\.27/ ) &&
+		! pkg.dependencies?.esbuild?.match( /\^0\.28/ )
+	) {
+		pkg.dependencies.esbuild += ' || ^0.28';
+	}
+
 	return pkg;
 }
 
