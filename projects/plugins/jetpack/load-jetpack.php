@@ -91,6 +91,11 @@ add_action( 'updating_jetpack_version', array( 'Jetpack', 'migrate_sitemaps_modu
 // both still exist. Removed when the standalone module is removed.
 add_action( 'jetpack_activate_module_sitemaps', array( 'Jetpack', 'sync_seo_sitemap_option' ) );
 add_action( 'jetpack_deactivate_module_sitemaps', array( 'Jetpack', 'sync_seo_sitemap_option' ) );
+add_action( 'updating_jetpack_version', array( 'Jetpack', 'migrate_canonical_urls_module_to_seo_option' ) );
+// Keep the Jetpack SEO canonical-urls option in sync with the legacy `canonical-urls`
+// module while both still exist. Removed when the standalone module is removed.
+add_action( 'jetpack_activate_module_canonical-urls', array( 'Jetpack', 'sync_seo_canonical_urls_option' ) );
+add_action( 'jetpack_deactivate_module_canonical-urls', array( 'Jetpack', 'sync_seo_canonical_urls_option' ) );
 add_filter( 'is_jetpack_site', '__return_true' );
 
 require_once JETPACK__PLUGIN_DIR . '3rd-party/3rd-party.php';

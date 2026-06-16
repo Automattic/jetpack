@@ -95,6 +95,20 @@ class Initializer {
 	const SITEMAP_ENABLED_OPTION = 'jetpack_seo_sitemap_enabled';
 
 	/**
+	 * Option recording whether canonical URLs are enabled.
+	 *
+	 * Read in place of the standalone `canonical-urls` module's active state. Module-active
+	 * state is filtered against the modules present on disk, so once that module is
+	 * removed it would read as inactive even for sites that had it on. A one-time
+	 * migration in the Jetpack plugin seeds this option from the site's existing module
+	 * state and keeps it in sync while the legacy module still exists. See
+	 * `Jetpack::migrate_canonical_urls_module_to_seo_option()`.
+	 *
+	 * @var string
+	 */
+	const CANONICAL_ENABLED_OPTION = 'jetpack_seo_canonical_urls_enabled';
+
+	/**
 	 * Whether the package has been initialized.
 	 *
 	 * @var bool
@@ -320,6 +334,30 @@ class Initializer {
 	}
 
 	/**
+	 * Whether canonical URLs are enabled.
+	 *
+	 * Reads the durable {@see self::CANONICAL_ENABLED_OPTION} flag. The default is only
+	 * used when the option is absent (for example before the Jetpack plugin's migration
+	 * has run on a freshly upgraded site), in which case it falls back to the live
+	 * `canonical-urls` module state so behavior is unchanged in that gap.
+	 *
+	 * @param Modules $modules Modules instance to read live module state from.
+	 * @return bool
+	 */
+	private static function is_canonical_enabled( Modules $modules ) {
+		$enabled = get_option( self::CANONICAL_ENABLED_OPTION, null );
+
+		// Only fall back to the live module state when the durable option is absent.
+		// Passing it as get_option()'s default would evaluate it on every call, since
+		// PHP resolves function arguments eagerly even when the option exists.
+		if ( null === $enabled ) {
+			$enabled = $modules->is_active( 'canonical-urls' );
+		}
+
+		return (bool) $enabled;
+	}
+
+	/**
 	 * Build the aggregated Overview state the dashboard renders.
 	 *
 	 * @return array
@@ -492,8 +530,9 @@ class Initializer {
 			// Read the durable SEO option (seeded/synced from the `sitemaps` module
 			// by the Jetpack plugin) so the state survives the module's removal.
 			'sitemap_active'         => self::is_sitemap_enabled( $modules ),
-			// Canonical URLs is its own module, toggled the same way as sitemaps.
-			'canonical_active'       => $modules->is_active( 'canonical-urls' ),
+			// Read the durable SEO option (seeded/synced from the `canonical-urls` module
+			// by the Jetpack plugin) so the state survives the module's removal.
+			'canonical_active'       => self::is_canonical_enabled( $modules ),
 			// Cast to object so an empty format set serializes as `{}`, not `[]`.
 			'title_formats'          => (object) $title_formats,
 			'front_page_description' => (string) $front_page_desc,

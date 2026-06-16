@@ -2811,6 +2811,46 @@ p {
 	}
 
 	/**
+	 * Records whether the standalone Canonical URLs module is active so the setting survives
+	 * the module's removal.
+	 *
+	 * The Jetpack SEO product reads the {@see Jetpack_SEO_Initializer::CANONICAL_ENABLED_OPTION}
+	 * option instead of the `canonical-urls` module's active state. Module-active state is
+	 * filtered against the modules present on disk, so once the standalone module is
+	 * removed it would read as inactive even for sites that had it on. This one-time
+	 * migration captures the raw `active_modules` membership — which persists regardless
+	 * of whether the module file is present — into the durable option.
+	 *
+	 * Deliberately non-destructive: `add_option()` only seeds when the option is absent, so
+	 * it is safe to run on every version bump and never reverts a value the user has since
+	 * set.
+	 *
+	 * Hooked on `updating_jetpack_version`; the version arguments are not needed because
+	 * `add_option()` provides the run-once guard.
+	 */
+	public static function migrate_canonical_urls_module_to_seo_option() {
+		// $available_only = false reads raw `active_modules` membership, so the value is
+		// correct even when the standalone canonical-urls module file has already been removed.
+		$canonical_active = ( new Modules() )->is_active( 'canonical-urls', false );
+
+		add_option( Jetpack_SEO_Initializer::CANONICAL_ENABLED_OPTION, $canonical_active );
+	}
+
+	/**
+	 * Keeps the Jetpack SEO canonical-urls option in sync with the legacy `canonical-urls`
+	 * module while both still exist.
+	 *
+	 * Hooked to the module's activate/deactivate actions, so toggling canonical URLs from any
+	 * surface (the legacy Traffic settings, the SEO Settings tab, or WP-CLI) keeps the
+	 * durable {@see Jetpack_SEO_Initializer::CANONICAL_ENABLED_OPTION} option current. The
+	 * actions fire after `active_modules` is updated, so the module state read here
+	 * already reflects the new value. Removed alongside the module itself.
+	 */
+	public static function sync_seo_canonical_urls_option() {
+		update_option( Jetpack_SEO_Initializer::CANONICAL_ENABLED_OPTION, ( new Modules() )->is_active( 'canonical-urls' ) );
+	}
+
+	/**
 	 * Sets the display_update_modal state.
 	 */
 	public static function set_update_modal_display() {

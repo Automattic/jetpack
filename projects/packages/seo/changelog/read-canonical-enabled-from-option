@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Read the canonical-URLs enabled-state from the durable `jetpack_seo_canonical_urls_enabled` option (falling back to the live module state when unset) so it survives the standalone Canonical URLs module's eventual removal.
