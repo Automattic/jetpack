@@ -88,6 +88,29 @@ describe( 'toSyncStatus', () => {
 		expect( isSyncStalled( status ) ).toBe( false );
 	} );
 
+	it( 'is not started or stalled after the connection-time initial_sync (no analytics bucket)', () => {
+		// Jetpack runs a lightweight initial_sync on connection (options/functions/
+		// users only) that sets started/finished but never includes the analytics
+		// module. The screen must treat this as "not started yet" so it auto-triggers
+		// the analytics sync — NOT classify the finished initial_sync as a stalled
+		// analytics sync ("Sync interrupted").
+		const status = toSyncStatus(
+			{
+				started: true,
+				finished: 1_700_000_000,
+				progress: {
+					options: { sent: 432, total: 432 },
+					users: { sent: 1, total: 1 },
+				},
+			},
+			0
+		);
+		expect( status.isStarted ).toBe( false );
+		expect( status.isRunning ).toBe( false );
+		expect( isSyncStalled( status ) ).toBe( false );
+		expect( isSyncComplete( status ) ).toBe( false );
+	} );
+
 	it( 'treats a numeric finished timestamp as finished', () => {
 		const status = toSyncStatus(
 			{
