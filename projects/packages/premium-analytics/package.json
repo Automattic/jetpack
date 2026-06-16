@@ -32,6 +32,7 @@
 	},
 	"dependencies": {
 		"@automattic/charts": "workspace:*",
+		"@automattic/jetpack-connection": "workspace:*",
 		"@automattic/jetpack-script-data": "workspace:*",
 		"@automattic/number-formatters": "workspace:*",
 		"@automattic/ui": "1.0.2",
