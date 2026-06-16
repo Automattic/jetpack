@@ -11,4 +11,10 @@ export { useWidgetTypes } from './hooks';
 /**
  * Types
  */
-export type { WidgetName, WidgetType, WidgetRenderProps, ResolveWidgetModule } from './types';
+export type {
+	WidgetName,
+	WidgetType,
+	WidgetRenderProps,
+	WidgetErrorConfig,
+	ResolveWidgetModule,
+} from './types';

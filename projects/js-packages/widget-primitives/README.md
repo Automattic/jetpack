@@ -22,6 +22,8 @@ dependency and update import names in consumers. Keep this commit reference upda
   `/jetpack/v4/widget-modules` (core uses `/wp/v2/widget-modules`). Premium Analytics serves
   the endpoint under the Jetpack REST namespace. If this package later needs to stay
   host-agnostic, make the baseURL configurable instead of hardcoding it.
+- `WidgetRenderProps` includes `setError`, matching the dashboard widget error contract used by
+  Premium Analytics widgets while this package is still an internal port.
 
 ## Privacy
 

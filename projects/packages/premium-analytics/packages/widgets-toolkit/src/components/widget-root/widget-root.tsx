@@ -4,6 +4,7 @@
 import { GlobalChartsProvider } from '@automattic/charts';
 import {
 	AnalyticsQueryClientProvider,
+	GlobalErrorProvider,
 	getDefaultPreset,
 	normalizeReportParams,
 } from '@jetpack-premium-analytics/data';
@@ -118,12 +119,14 @@ export function WidgetRoot( { attributes, children, setError, options }: WidgetR
 	const contextValue = useMemo( () => ( { reportParams, setError } ), [ reportParams, setError ] );
 
 	return (
-		<AnalyticsQueryClientProvider>
-			<GlobalChartsProvider theme={ chartTheme }>
-				<WidgetRootContext.Provider value={ contextValue }>
-					<div className={ styles.root }>{ children }</div>
-				</WidgetRootContext.Provider>
-			</GlobalChartsProvider>
-		</AnalyticsQueryClientProvider>
+		<GlobalErrorProvider>
+			<AnalyticsQueryClientProvider>
+				<GlobalChartsProvider theme={ chartTheme }>
+					<WidgetRootContext.Provider value={ contextValue }>
+						<div className={ styles.root }>{ children }</div>
+					</WidgetRootContext.Provider>
+				</GlobalChartsProvider>
+			</AnalyticsQueryClientProvider>
+		</GlobalErrorProvider>
 	);
 }

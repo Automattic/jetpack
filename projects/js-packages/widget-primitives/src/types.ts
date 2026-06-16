@@ -156,7 +156,26 @@ export interface WidgetRenderProps< Item = unknown > {
 	 * hosts render widgets in read-only contexts.
 	 */
 	setAttributes?: ( next: Partial< Item > ) => void;
+
+	/**
+	 * Reports a recoverable widget data error to the host chrome.
+	 *
+	 * Pass `true` for the host default error UI, a config object to customize
+	 * the message/action, or `null` to clear the error.
+	 */
+	setError?: ( error: WidgetErrorConfig | true | null ) => void;
 }
+
+/**
+ * Recoverable widget error shown by the host chrome.
+ */
+export type WidgetErrorConfig = {
+	message: string;
+	action?: {
+		label: string;
+		onClick: () => void;
+	};
+};
 
 /**
  * Widget render module shape returned by the module resolver.

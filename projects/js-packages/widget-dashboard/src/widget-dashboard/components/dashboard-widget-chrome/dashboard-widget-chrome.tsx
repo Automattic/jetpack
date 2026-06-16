@@ -3,12 +3,21 @@
  */
 import clsx from 'clsx';
 import type { ReactNode } from 'react';
+import type { WidgetErrorConfig, WidgetType } from '@automattic/jetpack-widget-primitives';
 
 /**
  * WordPress dependencies
  */
 import { Spinner } from '@wordpress/components';
-import { Component, Suspense, forwardRef, useId, useMemo } from '@wordpress/element';
+import {
+	Component,
+	Suspense,
+	forwardRef,
+	useCallback,
+	useId,
+	useMemo,
+	useState,
+} from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { plugins } from '@wordpress/icons';
 import { Card, Icon, Stack, Notice, Text, VisuallyHidden } from '@wordpress/ui';
@@ -21,7 +30,39 @@ import { WidgetContextProvider } from '../../context/widget-context';
 import { DashboardWidgetRender } from '../widget-render';
 import styles from './dashboard-widget-chrome.module.css';
 import type { DashboardWidget } from '../../types';
-import type { WidgetType } from '@automattic/jetpack-widget-primitives';
+
+type WidgetError = WidgetErrorConfig | true | null;
+
+interface WidgetErrorNoticeProps {
+	error: WidgetErrorConfig | true;
+}
+
+/**
+ *
+ * @param root0
+ * @param root0.error
+ */
+function WidgetErrorNotice( { error }: WidgetErrorNoticeProps ) {
+	const config: Partial< WidgetErrorConfig > = error === true ? {} : error;
+	const defaultMessage = __(
+		"We couldn't load this data. Please try again in a moment.",
+		'jetpack-widget-dashboard'
+	);
+	const message = config.message || defaultMessage;
+
+	return (
+		<Notice.Root intent="error" spokenMessage={ message }>
+			<Notice.Description>{ message }</Notice.Description>
+			{ config.action && (
+				<Notice.Actions>
+					<Notice.ActionButton onClick={ config.action.onClick }>
+						{ config.action.label }
+					</Notice.ActionButton>
+				</Notice.Actions>
+			) }
+		</Notice.Root>
+	);
+}
 
 interface ErrorBoundaryProps {
 	children: ReactNode;
@@ -152,6 +193,10 @@ export const DashboardWidgetChrome = forwardRef< HTMLDivElement, DashboardWidget
 		const { widgetTypes, isResolvingWidgetTypes, editMode } = useDashboardInternalContext();
 		const widgetType = widgetTypes.find( t => t.name === widget.type );
 		const titleId = useId();
+		const [ error, setErrorState ] = useState< WidgetError >( null );
+		const setError = useCallback( ( next: WidgetError ) => {
+			setErrorState( next );
+		}, [] );
 
 		const contextValue = useMemo(
 			() => ( {
@@ -206,7 +251,12 @@ export const DashboardWidgetChrome = forwardRef< HTMLDivElement, DashboardWidget
 		const body = (
 			<WidgetErrorBoundary>
 				<Suspense fallback={ <LoadingOverlay /> }>
-					<DashboardWidgetRender widget={ widget } widgetType={ widgetType } />
+					{ error && <WidgetErrorNotice error={ error } /> }
+					<DashboardWidgetRender
+						widget={ widget }
+						widgetType={ widgetType }
+						setError={ setError }
+					/>
 				</Suspense>
 			</WidgetErrorBoundary>
 		);

@@ -129,10 +129,11 @@ Widget render modules receive only what they need to render and edit:
 interface WidgetRenderProps< Item = unknown > {
 	attributes: Item;
 	setAttributes?: ( next: Partial< Item > ) => void;
+	setError?: ( error: WidgetErrorConfig | true | null ) => void;
 }
 ```
 
-`setAttributes` flows back through `onLayoutChange` on the dashboard. Removal, badges, and error chrome are not part of this contract — those belong to the host.
+`setAttributes` flows back through `onLayoutChange` on the dashboard. `setError` reports recoverable data-fetch errors to the host chrome; pass a config object for a custom message/action, `true` for the default widget error, or `null` to clear it. Removal controls, badges, and thrown-error boundaries are still host chrome responsibilities.
 
 ## Types
 

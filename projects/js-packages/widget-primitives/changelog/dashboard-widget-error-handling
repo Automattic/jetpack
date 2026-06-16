@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Widget Primitives: Add a render prop for reporting recoverable widget data errors.

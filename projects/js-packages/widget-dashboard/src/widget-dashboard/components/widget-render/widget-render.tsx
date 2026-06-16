@@ -1,4 +1,10 @@
 /**
+ * External dependencies
+ */
+import { WidgetRender } from '@automattic/jetpack-widget-primitives';
+import type { WidgetErrorConfig, WidgetType } from '@automattic/jetpack-widget-primitives';
+
+/**
  * WordPress dependencies
  */
 import { useCallback } from '@wordpress/element';
@@ -7,13 +13,12 @@ import { useCallback } from '@wordpress/element';
  * Internal dependencies
  */
 import { useDashboardInternalContext } from '../../context/dashboard-context';
-import { WidgetRender } from '@automattic/jetpack-widget-primitives';
 import type { DashboardWidget } from '../../types';
-import type { WidgetType } from '@automattic/jetpack-widget-primitives';
 
 interface DashboardWidgetRenderProps {
 	widget: DashboardWidget< unknown >;
 	widgetType: WidgetType;
+	setError?: ( error: WidgetErrorConfig | true | null ) => void;
 }
 
 /*
@@ -27,8 +32,13 @@ interface DashboardWidgetRenderProps {
  * @param root0
  * @param root0.widget
  * @param root0.widgetType
+ * @param root0.setError
  */
-export function DashboardWidgetRender( { widget, widgetType }: DashboardWidgetRenderProps ) {
+export function DashboardWidgetRender( {
+	widget,
+	widgetType,
+	setError,
+}: DashboardWidgetRenderProps ) {
 	const { layout, onLayoutChange, resolveWidgetModule } = useDashboardInternalContext();
 
 	const setAttributes = useCallback(
@@ -55,6 +65,7 @@ export function DashboardWidgetRender( { widget, widgetType }: DashboardWidgetRe
 			widgetType={ widgetType }
 			attributes={ widget.attributes }
 			setAttributes={ setAttributes }
+			setError={ setError }
 			resolveWidgetModule={ resolveWidgetModule }
 		/>
 	);
