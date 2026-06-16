@@ -1,10 +1,10 @@
 import AdminPage from '@automattic/jetpack-components/admin-page';
 import { getAdminUrl, getScriptData, getSiteData } from '@automattic/jetpack-script-data';
-import { Button, Spinner } from '@wordpress/components';
+import { Spinner } from '@wordpress/components';
 import { lazy, Suspense, useCallback, useEffect, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { useNavigate, useSearch } from '@wordpress/route';
-import { Tabs } from '@wordpress/ui';
+import { Button, Tabs } from '@wordpress/ui';
 import ErrorBoundary from './error-boundary';
 import { usePodcastSettings } from './hooks/use-podcast-settings';
 import './style.scss';
@@ -175,8 +175,13 @@ const App = () => {
 	const headerActions = isSetUp ? (
 		<Button
 			size="compact"
-			variant="primary"
-			href={ getAdminUrl( 'post-new.php?podcast_episode=1' ) }
+			variant="solid"
+			render={
+				<a
+					className="podcast__header-cta"
+					href={ getAdminUrl( 'post-new.php?podcast_episode=1' ) }
+				/>
+			}
 		>
 			{ __( 'Create episode', 'jetpack-podcast' ) }
 		</Button>
