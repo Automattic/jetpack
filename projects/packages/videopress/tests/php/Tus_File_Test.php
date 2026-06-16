@@ -72,9 +72,31 @@ class Tus_File_Test extends BaseTestCase {
 
 		$input_file  = tempnam( sys_get_temp_dir(), 'videopress-tus-input-' );
 		$output_file = tempnam( sys_get_temp_dir(), 'videopress-tus-output-' );
-		$cache       = new Transient_Store( 1 );
 		$key         = 'test-upload-success';
 		$contents    = 'hello videopress';
+
+		// A cache that counts set() calls, to assert the offset is persisted only once per upload.
+		$cache = new class( 1 ) extends Transient_Store {
+			/**
+			 * Number of times set() was called.
+			 *
+			 * @var int
+			 */
+			public $set_calls = 0;
+
+			/**
+			 * Count and delegate.
+			 *
+			 * @param string      $key   The key.
+			 * @param array|mixed $value The value.
+			 *
+			 * @return bool
+			 */
+			public function set( $key, $value ) {
+				++$this->set_calls;
+				return parent::set( $key, $value );
+			}
+		};
 
 		try {
 			$this->assertNotFalse( $input_file );
@@ -101,6 +123,7 @@ class Tus_File_Test extends BaseTestCase {
 			$cached = $cache->get( $key );
 			$this->assertIsArray( $cached );
 			$this->assertSame( strlen( $contents ), $cached['offset'] );
+			$this->assertSame( 1, $cache->set_calls, 'The offset should be persisted exactly once per upload.' );
 		} finally {
 			Tus_File::set_input_stream( Tus_File::INPUT_STREAM );
 			$cache->delete( $key );

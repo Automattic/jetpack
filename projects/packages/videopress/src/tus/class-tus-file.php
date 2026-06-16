@@ -429,7 +429,7 @@ class Tus_File {
 
 			try {
 				$this->cache->set( $key, array( 'offset' => $this->offset ) );
-			} catch ( \Exception $e ) {
+			} catch ( \Throwable $e ) {
 				Logger::log( 'error', $e );
 			}
 		}

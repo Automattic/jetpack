@@ -1,4 +1,4 @@
 Significance: patch
 Type: changed
 
-VideoPress: reduce memcache writes and read/write syscalls when receiving resumable uploads by buffering 1 MB per iteration and persisting the upload offset once per request instead of every 8 KB.
+VideoPress: Improve performance when receiving resumable video uploads.
