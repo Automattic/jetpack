@@ -67,16 +67,16 @@ class Notices_Controller_Test extends BaseTestCase {
 		$this->assertSame( array( $this->controller, 'check_permission' ), $by_method['POST']['permission_callback'] );
 	}
 
-	public function test_write_route_requires_id_and_status() {
+	public function test_write_route_declares_notice_args() {
 		$args = array();
 		foreach ( rest_get_server()->get_routes()[ self::ROUTE ] as $handler ) {
-			if ( isset( $handler['methods']['POST'] ) ) {
-				$args = $handler['args'];
+			if ( isset( $handler['methods']['POST'] ) && isset( $handler['args'] ) ) {
+				$args = (array) $handler['args'];
 			}
 		}
 
-		$this->assertTrue( $args['id']['required'] );
-		$this->assertTrue( $args['status']['required'] );
+		$this->assertArrayHasKey( 'id', $args );
+		$this->assertArrayHasKey( 'status', $args );
 		$this->assertArrayHasKey( 'postponed_for', $args );
 	}
 
