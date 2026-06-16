@@ -78,6 +78,8 @@ class Notices_Controller_Test extends BaseTestCase {
 		$this->assertArrayHasKey( 'id', $args );
 		$this->assertArrayHasKey( 'status', $args );
 		$this->assertArrayHasKey( 'postponed_for', $args );
+		$this->assertNotEmpty( $args['id']['required'] );
+		$this->assertNotEmpty( $args['status']['required'] );
 	}
 
 	public function test_permission_granted_for_view_stats_capability() {
