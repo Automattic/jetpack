@@ -127,8 +127,9 @@ class Analytics {
 	 * @return void
 	 */
 	public static function ensure_script_data() {
-		if ( is_callable( array( Script_Data::class, 'render_script_data' ) ) ) {
-			Script_Data::render_script_data();
+		$script_data = 'Automattic\Jetpack\Assets\Script_Data';
+		if ( is_callable( array( $script_data, 'render_script_data' ) ) ) {
+			$script_data::render_script_data();
 		}
 	}
 }
