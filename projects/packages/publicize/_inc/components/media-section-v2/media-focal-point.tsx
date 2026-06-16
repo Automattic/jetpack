@@ -36,7 +36,7 @@ export default function MediaFocalPoint( { url, value, onChange }: MediaFocalPoi
 				label={ __( 'Focal point', 'jetpack-publicize-pkg' ) }
 				hideLabelFromVision
 				help={ __(
-					'Drag the point to the most important part of the image.',
+					'Drag the handle to adjust the visible portion of the image.',
 					'jetpack-publicize-pkg'
 				) }
 				url={ url }

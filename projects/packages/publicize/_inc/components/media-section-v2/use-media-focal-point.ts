@@ -8,7 +8,7 @@
 
 import { store as coreStore } from '@wordpress/core-data';
 import { useDispatch, useSelect } from '@wordpress/data';
-import { useCallback, useState } from '@wordpress/element';
+import { useCallback, useMemo, useState } from '@wordpress/element';
 import type { FocalPoint } from '../../utils/types';
 
 /** Attachment meta key — must match ATTACHMENT_IMAGE_FOCAL_POINT in PHP. */
@@ -102,5 +102,5 @@ export function useMediaFocalPoint( attachmentId: number ): UseMediaFocalPoint {
 		[ attachmentId, saveEntityRecord ]
 	);
 
-	return { value, canEdit, setFocalPoint };
+	return useMemo( () => ( { value, canEdit, setFocalPoint } ), [ value, canEdit, setFocalPoint ] );
 }
