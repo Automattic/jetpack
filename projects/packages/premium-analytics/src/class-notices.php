@@ -29,7 +29,9 @@ class Notices {
 	const POSTPONE_OPT_IN_NOTICE_DAYS = 30;
 
 	/**
-	 * How long the WPCOM dismissal state stays cached.
+	 * How long the WPCOM dismissal state stays cached. While stats-admin runs in parallel, both
+	 * surfaces read the same WPCOM resource under separate cache keys, so a dismissal through one
+	 * can leave the other stale for up to this window — acceptable during the migration.
 	 *
 	 * @var int
 	 */
@@ -66,10 +68,13 @@ class Notices {
 	/**
 	 * Return an array of notice IDs as keys and a boolean flagging whether to show them.
 	 *
+	 * @param bool $bypass_cache Refetch the WPCOM dismissal state instead of using the cached copy.
 	 * @return array
 	 */
-	public function get_notices_to_show() {
-		$notices_wpcom = $this->get_notices_from_wpcom();
+	public function get_notices_to_show( bool $bypass_cache = false ) {
+		// Fetch the WPCOM map once and reuse it for every flag, so a force-refresh costs a single
+		// round-trip rather than one per shared-key lookup.
+		$notices_wpcom = $this->get_notices_from_wpcom( $bypass_cache );
 
 		$new_stats_enabled        = Stats_Options::get_option( 'enable_odyssey_stats' );
 		$stats_views              = intval( Stats_Options::get_option( 'views' ) );
@@ -85,21 +90,21 @@ class Notices {
 				// Show Opt-in notice 30 days after the new stats being disabled.
 				self::OPT_IN_NEW_STATS_NOTICE_ID    => ! $new_stats_enabled
 					&& $odyssey_stats_changed_at < time() - self::POSTPONE_OPT_IN_NOTICE_DAYS * DAY_IN_SECONDS
-					&& ! $this->is_notice_hidden( self::OPT_IN_NEW_STATS_NOTICE_ID ),
+					&& ! $this->is_hidden( $notices_wpcom, self::OPT_IN_NEW_STATS_NOTICE_ID ),
 
 				// Show feedback notice after 3 views of the new stats.
 				self::NEW_STATS_FEEDBACK_NOTICE_ID  => $new_stats_enabled
 					&& $stats_views >= self::VIEWS_TO_SHOW_FEEDBACK
-					&& ! $this->is_notice_hidden( self::NEW_STATS_FEEDBACK_NOTICE_ID ),
+					&& ! $this->is_hidden( $notices_wpcom, self::NEW_STATS_FEEDBACK_NOTICE_ID ),
 
 				// Show opt-out notice before 3 views of the new stats, where 3 is included.
 				self::OPT_OUT_NEW_STATS_NOTICE_ID   => $new_stats_enabled
 					&& $stats_views < self::VIEWS_TO_SHOW_FEEDBACK
-					&& ! $this->is_notice_hidden( self::OPT_OUT_NEW_STATS_NOTICE_ID ),
+					&& ! $this->is_hidden( $notices_wpcom, self::OPT_OUT_NEW_STATS_NOTICE_ID ),
 
 				// GDPR cookie consent notice for Complianz users.
 				self::GDPR_COOKIE_CONSENT_NOTICE_ID => class_exists( 'COMPLIANZ' ) && $is_jetpack_blocked_by_complianz
-					&& ! $this->is_notice_hidden( self::GDPR_COOKIE_CONSENT_NOTICE_ID ),
+					&& ! $this->is_hidden( $notices_wpcom, self::GDPR_COOKIE_CONSENT_NOTICE_ID ),
 			)
 		);
 	}
@@ -107,10 +112,11 @@ class Notices {
 	/**
 	 * Get the array of notice dismissal flags stored on WPCOM, cached for {@see CACHE_TTL}.
 	 *
+	 * @param bool $bypass_cache Refetch instead of returning the cached copy.
 	 * @return array
 	 */
-	public function get_notices_from_wpcom() {
-		if ( ! $this->should_bypass_cache() ) {
+	public function get_notices_from_wpcom( bool $bypass_cache = false ) {
+		if ( ! $bypass_cache ) {
 			$cached = get_transient( self::NOTICES_CACHE_KEY );
 			if ( false !== $cached ) {
 				return json_decode( $cached, true );
@@ -128,13 +134,23 @@ class Notices {
 	}
 
 	/**
-	 * Checks if a notice is hidden.
+	 * Checks if a notice is hidden, fetching the WPCOM dismissal state.
 	 *
 	 * @param mixed $id ID of the notice.
 	 * @return bool
 	 */
 	public function is_notice_hidden( $id ) {
-		$notices_wpcom = $this->get_notices_from_wpcom();
+		return $this->is_hidden( $this->get_notices_from_wpcom(), $id );
+	}
+
+	/**
+	 * Whether a notice is hidden in an already-fetched WPCOM dismissal map.
+	 *
+	 * @param array $notices_wpcom The WPCOM dismissal map.
+	 * @param mixed $id            ID of the notice.
+	 * @return bool
+	 */
+	private function is_hidden( array $notices_wpcom, $id ) {
 		return array_key_exists( $id, $notices_wpcom ) && $notices_wpcom[ $id ] === false;
 	}
 
@@ -178,15 +194,5 @@ class Notices {
 		}
 
 		return $decoded;
-	}
-
-	/**
-	 * Whether the caller asked to skip the cached WPCOM dismissal state.
-	 *
-	 * @return bool
-	 */
-	private function should_bypass_cache() {
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		return isset( $_GET['force_refresh'] );
 	}
 }

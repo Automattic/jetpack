@@ -83,7 +83,7 @@ class Notices_Controller {
 						),
 						'postponed_for' => array(
 							'type'        => 'number',
-							'default'     => null,
+							'default'     => 0,
 							'description' => __( 'Postponed for (in seconds).', 'jetpack-premium-analytics' ),
 							'minimum'     => 0,
 						),
@@ -105,10 +105,12 @@ class Notices_Controller {
 	/**
 	 * Get the notices to show, with locally-derived flags merged in.
 	 *
+	 * @param WP_REST_Request $request Request object.
+	 *
 	 * @return array
 	 */
-	public function get_notices(): array {
-		return ( new Notices() )->get_notices_to_show();
+	public function get_notices( WP_REST_Request $request ): array {
+		return ( new Notices() )->get_notices_to_show( null !== $request->get_param( 'force_refresh' ) );
 	}
 
 	/**

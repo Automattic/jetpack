@@ -71,6 +71,14 @@ class Notices_Test extends BaseTestCase {
 		$this->assertSame( array(), $this->notices->get_notices_from_wpcom() );
 	}
 
+	public function test_bypass_cache_still_resolves_the_flags() {
+		set_transient( Notices::NOTICES_CACHE_KEY, wp_json_encode( array( Notices::OPT_OUT_NEW_STATS_NOTICE_ID => false ), JSON_UNESCAPED_SLASHES ), Notices::CACHE_TTL );
+
+		// With the cache bypassed the stored map is ignored; the live fetch fails closed to [] here,
+		// so the opt-out flag is no longer suppressed by the cached dismissal.
+		$this->assertTrue( $this->notices->get_notices_to_show( true )[ Notices::OPT_OUT_NEW_STATS_NOTICE_ID ] );
+	}
+
 	public function test_is_notice_hidden_false_when_no_wpcom_state() {
 		$this->assertFalse( $this->notices->is_notice_hidden( Notices::OPT_OUT_NEW_STATS_NOTICE_ID ) );
 	}
