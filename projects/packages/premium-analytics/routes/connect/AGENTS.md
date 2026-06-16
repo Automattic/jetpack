@@ -22,7 +22,7 @@ We pass `apiNonce`, `apiRoot`, `registrationNonce` from `getScriptData().connect
 
 **Why `skipUserConnection: true`:** we only need the site-level blog token to sync aggregated data. No per-user WP.com identity. The flow ends after site registration (`POST /jetpack/v4/connection/register`).
 
-Today we only render `registrationError`. The hook also exposes `isOfflineMode`, `isRegistered`, and `connectionErrors` — these are the building blocks for the WOOA7S-1327 fix.
+We render `registrationError` in `connect.tsx`. Offline mode is handled separately and earlier, in `stage.tsx`, by reading `connectionStatus.offlineMode.isActive` from script data (no hook needed) — see `components/connect-offline/`. The hook also exposes `isOfflineMode`, `isRegistered`, and `connectionErrors`.
 
 ## Script data
 
@@ -65,5 +65,5 @@ Walk in order, stop at the first red flag:
 
 ## Related
 
-- **WOOA7S-1327** — gate the authorize button on `offlineMode.isActive` so users see an unavailable state instead of a button that always 403s.
+- **WOOA7S-1327** — done. The `/connect` stage gates on `connectionStatus.offlineMode.isActive` and renders `components/connect-offline/` instead of the authorize button when offline mode is active.
 - **WOOA7S-1224** — README troubleshooting for the offline-mode 403 (done in the old standalone project).

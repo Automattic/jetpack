@@ -20,6 +20,10 @@ connect/
 │   │   ├── connect.tsx
 │   │   ├── style.scss
 │   │   └── index.ts
+│   ├── connect-offline/         # Shown when the site is in Jetpack offline mode
+│   │   ├── connect-offline.tsx
+│   │   ├── style.scss
+│   │   └── index.ts
 │   └── connect-unavailable/     # Fallback when connection data is missing
 │       ├── connect-unavailable.tsx
 │       ├── style.scss
@@ -39,6 +43,9 @@ connect/
    has not finished, the dashboard guard forwards them to `/syncing`.
 5. When the sync finishes, `/syncing` redirects to the dashboard.
 6. If the site is already connected, visiting `/connect` redirects to `/`.
+7. If the site is in Jetpack offline/staging mode, `/connect` shows an
+   "unavailable in offline mode" screen with no authorize button (see
+   Troubleshooting below) — the button would always 403 there.
 
 ## Route guards (`beforeLoad`)
 
@@ -89,6 +96,8 @@ Confirm with `wp jetpack status` on the host — if the output starts with
 host that is not in offline mode (e.g. a Jurassic Ninja site), or remove the
 offending constant / filter and reload.
 
-**Related:** `WOOA7S-1327` — the connect UI should detect offline mode via
-`connectionStatus.offlineMode` (and `useConnection().isOfflineMode`) and render
-an unavailable state instead of letting the user click a button that always 403s.
+**Handled in the UI:** the `/connect` stage detects offline mode via
+`connectionStatus.offlineMode.isActive` (read synchronously from script data in
+`stage.tsx`) and renders the `connect-offline/` screen — an informative
+"unavailable in offline mode" state with no authorize button — instead of letting
+the user click a button that always 403s. (`WOOA7S-1327`)
