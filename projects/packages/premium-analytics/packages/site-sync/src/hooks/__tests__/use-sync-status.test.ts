@@ -211,6 +211,41 @@ describe( 'useSyncStatus', () => {
 		expect( result.current.error?.message ).toBe( 'down' );
 	} );
 
+	it( 'keeps polling when a poll reports finished before the milestone, then completes', async () => {
+		// Read gap: the first poll sees `finished` + 100% progress while the
+		// milestone is still 0. It must NOT surface a stall; the next poll exposes
+		// the milestone and the sync completes.
+		mockFetch.mockResolvedValueOnce(
+			rawStatus( {
+				finished: true,
+				progress: { woocommerce_analytics: { sent: 2, total: 2 } },
+				initial_full_sync_finished: 0,
+			} )
+		);
+		mockFetch.mockResolvedValue(
+			rawStatus( {
+				finished: true,
+				progress: { woocommerce_analytics: { sent: 2, total: 2 } },
+				initial_full_sync_finished: 1_700_000_000,
+			} )
+		);
+
+		const { result } = renderHook( () => useSyncStatus() );
+
+		// First poll: finishing — 100% progress, no stall, no error, polling continues.
+		await waitFor( () => expect( result.current.data?.percentage ).toBe( 100 ) );
+		expect( result.current.isStalled ).toBe( false );
+		expect( result.current.error ).toBeNull();
+
+		// Next tick exposes the milestone ⇒ complete.
+		await act( async () => {
+			jest.advanceTimersByTime( POLL_INTERVAL );
+		} );
+		await waitFor( () => expect( result.current.isComplete ).toBe( true ) );
+		expect( result.current.isStalled ).toBe( false );
+		expect( result.current.error ).toBeNull();
+	} );
+
 	it( 'updates the milestone live from the sync-status poll', async () => {
 		// Milestone unset at page load; the backend then exposes it on the poll.
 		mockFetch.mockResolvedValue( rawStatus( { initial_full_sync_finished: 1_700_000_500 } ) );

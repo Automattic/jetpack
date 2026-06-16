@@ -46,9 +46,15 @@ export function isSyncComplete( status: SyncStatus ): boolean {
 /**
  * Stalled = the sync started but is no longer running and hasn't completed. A
  * sync that never started is NOT stalled — it just needs to be triggered.
+ *
+ * 100% progress with the milestone still unset means the sync is *finishing*,
+ * not stalled: a poll read `finished` before the milestone write landed. Keep
+ * polling so it self-heals on the next tick. A genuine stall sits below 100%.
+ *
  * @param status - Normalized sync status.
  * @return Whether the sync has stalled.
  */
 export function isSyncStalled( status: SyncStatus ): boolean {
-	return status.isStarted && ! status.isRunning && ! isSyncComplete( status );
+	const isFinishing = status.percentage >= 100 && status.initialFullSyncFinished === 0;
+	return status.isStarted && ! status.isRunning && ! isSyncComplete( status ) && ! isFinishing;
 }

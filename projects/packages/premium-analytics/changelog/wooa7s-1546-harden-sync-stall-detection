@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Defensively keep polling when a sync-status poll reads finished before the milestone write lands (100% progress, milestone still unset) instead of treating it as a stall. Not reachable on the default full-sync path; guards the legacy queue-based path against a one-poll false "Sync has stalled" error.

@@ -184,4 +184,29 @@ describe( 'isSyncStalled', () => {
 			} )
 		).toBe( false );
 	} );
+
+	it( 'is not stalled while finishing — 100% progress with the milestone write still in flight', () => {
+		// A poll can read `finished: true` before the milestone is persisted; that
+		// surfaces as 100% progress with the milestone unset. The sync is finishing,
+		// not stalled, and resolves on the next poll.
+		expect(
+			isSyncStalled( {
+				isStarted: true,
+				isRunning: false,
+				percentage: 100,
+				initialFullSyncFinished: 0,
+			} )
+		).toBe( false );
+	} );
+
+	it( 'stays stalled when finished below 100% (a genuine stall, not the read gap)', () => {
+		expect(
+			isSyncStalled( {
+				isStarted: true,
+				isRunning: false,
+				percentage: 50,
+				initialFullSyncFinished: 0,
+			} )
+		).toBe( true );
+	} );
 } );
