@@ -116,7 +116,6 @@ class WPCOM_Admin_Bar_Test extends \WorDBless\BaseTestCase {
 		// per-request static cache so the option below is actually read.
 		update_option( Current_Plan::PLAN_OPTION, array( 'product_name_short' => 'Business' ) );
 		$cache = new ReflectionProperty( Current_Plan::class, 'active_plan_cache' );
-		$cache->setAccessible( true );
 		$cache->setValue( null, null );
 
 		$admin_bar = self::make_test_admin_bar();
