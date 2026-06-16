@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Defer JS: add an exclusion list so specific pages can be excluded by URL pattern without disabling the feature site-wide.
