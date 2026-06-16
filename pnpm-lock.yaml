@@ -4,7 +4,7 @@ settings:
   autoInstallPeers: false
   excludeLinksFromLockfile: false
 
-pnpmfileChecksum: sha256-Okdog76WIGetb5e2VvSKcfWMnK8j0MwusiE09qh6vfQ=
+pnpmfileChecksum: sha256-xLV/TdnrjnyaQ3TsRm6j/K3h0MHXnTCqziLosq28Hc0=
 
 patchedDependencies:
   react-autosize-textarea: 5c09e1dee59caaaba3871f9d722f93e56b41169db486b059597e8f8c788aa464
@@ -6669,6 +6669,8 @@ importers:
       yargs:
         specifier: 18.0.0
         version: 18.0.0
+
+  tools/e2e-commons/no-lighthouse: {}
 
   tools/js-tools:
     devDependencies:
@@ -24885,6 +24887,7 @@ snapshots:
       '@types/node': 24.13.1
       change-case: 4.1.2
       get-port: 5.1.1
+      lighthouse: link:tools/e2e-commons/no-lighthouse
       mime: 3.0.0
       web-vitals: 4.2.4
 

@@ -286,7 +286,7 @@ async function fixDeps( pkg ) {
 	// We don't use this in our E2E runs, and it brings in a lot of extraneous deps (and CVE-2026-54285).
 	// (if you bring this back, do it by reverting the pnpmfile changes in commit e90548654eacfa7493388331dd644a6f927d16c5, don't just delete this bit).
 	if ( pkg.name === '@wordpress/e2e-test-utils-playwright' ) {
-		delete pkg.dependencies.lighthouse;
+		pkg.dependencies.lighthouse = 'workspace:@automattic/_jetpack-no-lighthouse@*';
 	}
 
 	return pkg;

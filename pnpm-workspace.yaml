@@ -4,6 +4,7 @@ packages:
   - projects/plugins/*/tests/e2e
   - tools/cli
   - tools/e2e-commons
+  - tools/e2e-commons/no-lighthouse
   - tools/js-tools
   - tools/performance
   - .github/files/coverage-munger
