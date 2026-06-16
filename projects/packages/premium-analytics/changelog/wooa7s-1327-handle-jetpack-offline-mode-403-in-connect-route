@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Connect: show an informative screen on /connect when the site is in Jetpack offline/staging mode, instead of an authorize button that always returns a 403.
