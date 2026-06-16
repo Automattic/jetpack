@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+SEO: add an opt-in banner to the legacy Traffic > SEO settings page so existing self-hosted installs can switch to the new Jetpack SEO dashboard.
