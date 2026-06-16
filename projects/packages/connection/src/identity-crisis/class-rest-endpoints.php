@@ -151,7 +151,7 @@ class REST_Endpoints {
 	 * bust both the individual key and the autoloaded-options cache to keep
 	 * persistent object caches from returning a stale value across requests.
 	 *
-	 * @since $$next-version$$
+	 * @since 8.7.0
 	 *
 	 * @param string $option The prefixed option name (e.g. `jetpack_safe_mode_confirmed`).
 	 */
@@ -164,7 +164,7 @@ class REST_Endpoints {
 	 * Flush any cached copy of the sync_error_idc option so a subsequent read
 	 * reflects the option's true state in the database.
 	 *
-	 * @since $$next-version$$
+	 * @since 8.7.0
 	 */
 	private static function flush_sync_error_idc_cache() {
 		self::flush_jetpack_option_cache( 'jetpack_sync_error_idc' );
