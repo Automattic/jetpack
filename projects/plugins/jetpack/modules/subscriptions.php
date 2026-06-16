@@ -1036,18 +1036,24 @@ class Jetpack_Subscriptions {
 		 * where subscriber management moved and lets them remove the menu item.
 		 *
 		 * This is evaluated first — before the WoA/Simple and connection guards
-		 * below — so the announcement page also reaches WordPress.com Simple and
-		 * WoA sites, where the modernized Newsletter UI it points to lives. Those
-		 * guards only gate the legacy Calypso shortcut further down. This mirrors
-		 * the pre-announcement behavior, where the modernization filter was the
-		 * first check in this method.
+		 * below — and returns, so the legacy Calypso shortcut is never added once
+		 * the filter is on.
+		 *
+		 * The announcement page itself is registered here only on self-hosted
+		 * Jetpack. On WordPress.com (Simple and WoA) jetpack-mu-wpcom's
+		 * wpcom-admin-menu owns the Subscribers entry and registers the
+		 * announcement page there; doing it here as well would duplicate the menu
+		 * (and double the page-view tracking) on Atomic, where both run.
 		 *
 		 * Referenced as a string literal (mirrors Newsletter\Settings::MODERNIZATION_FILTER)
 		 * to keep this bootstrap path safe if the packaged Newsletter Settings class does
 		 * not expose the constant yet.
 		 */
 		if ( apply_filters( 'rsm_jetpack_ui_modernization_newsletter', false ) ) {
-			if ( class_exists( '\Automattic\Jetpack\Newsletter\Subscribers_Announcement' ) ) {
+			if (
+				! ( new Host() )->is_wpcom_platform()
+				&& class_exists( '\Automattic\Jetpack\Newsletter\Subscribers_Announcement' )
+			) {
 				\Automattic\Jetpack\Newsletter\Subscribers_Announcement::add_menu();
 			}
 			return;

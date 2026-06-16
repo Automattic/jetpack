@@ -868,14 +868,10 @@ class Jetpack_Subscriptions_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * The transitional Subscribers announcement page must be registered on
-	 * WordPress.com Simple sites when the Newsletter modernization filter is on.
-	 *
-	 * Regression test for #49496: the wpcom-platform / connection guards were
-	 * hoisted above the modernization branch, so add_subscribers_menu() returned
-	 * early on Simple sites and the announcement menu was never added there.
+	 * On self-hosted Jetpack, the transitional Subscribers announcement page is
+	 * registered by add_subscribers_menu() when the modernization filter is on.
 	 */
-	public function test_announcement_menu_is_added_on_wpcom_simple_when_modernization_filter_on() {
+	public function test_announcement_menu_is_added_on_self_hosted_when_modernization_filter_on() {
 		$announcement_class = 'Automattic\Jetpack\Newsletter\Subscribers_Announcement';
 		if ( ! class_exists( $announcement_class ) ) {
 			$this->markTestSkipped( 'Newsletter Subscribers_Announcement class is not available.' );
@@ -883,9 +879,7 @@ class Jetpack_Subscriptions_Test extends WP_UnitTestCase {
 
 		$load_hook = 'load-jetpack_page_' . $announcement_class::PAGE_SLUG;
 
-		// Simulate a WordPress.com Simple site in the default Calypso interface.
-		\Automattic\Jetpack\Constants::set_constant( 'IS_WPCOM', true );
-		update_option( 'wpcom_admin_interface', 'calypso' );
+		// Self-hosted: not a wpcom platform (IS_WPCOM is not defined).
 		delete_option( $announcement_class::REMOVED_OPTION );
 		add_filter( 'rsm_jetpack_ui_modernization_newsletter', '__return_true' );
 		remove_all_actions( $load_hook );
@@ -894,13 +888,43 @@ class Jetpack_Subscriptions_Test extends WP_UnitTestCase {
 
 		$this->assertNotFalse(
 			has_action( $load_hook ),
-			'The Subscribers announcement menu should be registered on Simple wpcom sites when the modernization filter is on.'
+			'The Subscribers announcement menu should be registered on self-hosted Jetpack when the modernization filter is on.'
+		);
+
+		remove_all_actions( $load_hook );
+		remove_all_filters( 'rsm_jetpack_ui_modernization_newsletter' );
+	}
+
+	/**
+	 * On WordPress.com (Simple and WoA) the announcement page is owned by
+	 * jetpack-mu-wpcom's wpcom-admin-menu, so add_subscribers_menu() must NOT
+	 * register it — otherwise Atomic, where both run, gets a duplicate entry and
+	 * double page-view tracking.
+	 */
+	public function test_announcement_menu_is_not_added_on_wpcom_platform() {
+		$announcement_class = 'Automattic\Jetpack\Newsletter\Subscribers_Announcement';
+		if ( ! class_exists( $announcement_class ) ) {
+			$this->markTestSkipped( 'Newsletter Subscribers_Announcement class is not available.' );
+		}
+
+		$load_hook = 'load-jetpack_page_' . $announcement_class::PAGE_SLUG;
+
+		// Simulate a wpcom platform (Simple/WoA).
+		\Automattic\Jetpack\Constants::set_constant( 'IS_WPCOM', true );
+		delete_option( $announcement_class::REMOVED_OPTION );
+		add_filter( 'rsm_jetpack_ui_modernization_newsletter', '__return_true' );
+		remove_all_actions( $load_hook );
+
+		Jetpack_Subscriptions::init()->add_subscribers_menu();
+
+		$this->assertFalse(
+			has_action( $load_hook ),
+			'On wpcom platforms the announcement menu is owned by jetpack-mu-wpcom; add_subscribers_menu() should not register it.'
 		);
 
 		// Cleanup so the simulated platform does not leak into later tests.
 		remove_all_actions( $load_hook );
 		remove_all_filters( 'rsm_jetpack_ui_modernization_newsletter' );
-		delete_option( 'wpcom_admin_interface' );
 		\Automattic\Jetpack\Constants::clear_single_constant( 'IS_WPCOM' );
 	}
 }
