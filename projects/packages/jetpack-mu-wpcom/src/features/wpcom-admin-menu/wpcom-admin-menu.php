@@ -403,13 +403,15 @@ function wpcom_add_jetpack_submenu() {
 	// package isn't a dependency of jetpack-mu-wpcom and this runs unconditionally
 	// — ahead of the class_exists-guarded Subscribers_Announcement use below — so
 	// the filter name and the cohort math are inlined rather than referenced from
-	// the class.
+	// the class. Keep $rollout_percentage in sync with
+	// Settings::MODERNIZATION_ROLLOUT_PERCENTAGE.
 	//
 	// On WordPress.com (Simple and WoA) this menu is the canonical owner of the
 	// Subscribers entry, so the announcement page is registered here for both
 	// platforms; the standalone plugin's subscriptions module defers to it on
 	// wpcom to avoid a duplicate.
-	$modernization_rollout_default = $is_simple_site && ( (int) $blog_id % 100 ) < 5;
+	$rollout_percentage            = 5;
+	$modernization_rollout_default = $is_simple_site && ( (int) $blog_id % 100 ) < $rollout_percentage;
 	if ( ! apply_filters( 'rsm_jetpack_ui_modernization_newsletter', $modernization_rollout_default ) ) {
 		add_submenu_page(
 			'jetpack',

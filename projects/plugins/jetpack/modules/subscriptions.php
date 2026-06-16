@@ -1035,8 +1035,8 @@ class Jetpack_Subscriptions {
 		 * Delegated to the canonical Newsletter\Settings::is_modernization_rollout_enabled()
 		 * so the cohort math has a single source of truth; guarded with method_exists so
 		 * this bootstrap path stays safe if the packaged Newsletter Settings class is an
-		 * older copy that doesn't expose the helper yet. The Jetpack plugin only runs on
-		 * self-hosted/Atomic sites, so in practice this evaluates to false here.
+		 * older copy that doesn't expose the helper yet. The helper returns true only for
+		 * cohort WordPress.com Simple sites, so it is false in every other context.
 		 */
 		$modernization_rollout_default = method_exists( '\Automattic\Jetpack\Newsletter\Settings', 'is_modernization_rollout_enabled' )
 			&& \Automattic\Jetpack\Newsletter\Settings::is_modernization_rollout_enabled();
@@ -1097,7 +1097,8 @@ class Jetpack_Subscriptions {
 		 *
 		 * @since 9.5.0
 		 *
-		 * @param bool If the new dashboard is enabled. Default false.
+		 * @param bool If the new dashboard is enabled. Defaults to the staged-rollout
+		 *             cohort: true for 5% of WordPress.com Simple sites, false elsewhere.
 		 */
 		if ( apply_filters( 'jetpack_wp_admin_subscriber_management_enabled', $modernization_rollout_default ) ) {
 			return;
