@@ -131,7 +131,7 @@
 		"@automattic/jetpack-base-styles": "workspace:*",
 		"@automattic/jetpack-webpack-config": "workspace:*",
 		"@automattic/remove-asset-webpack-plugin": "workspace:*",
-		"@babel/core": "7.29.0",
+		"@babel/core": "7.29.6",
 		"@babel/plugin-transform-react-jsx": "7.28.6",
 		"@babel/plugin-transform-runtime": "7.29.0",
 		"@babel/preset-env": "7.29.2",

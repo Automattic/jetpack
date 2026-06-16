@@ -100,6 +100,13 @@ class Jetpack_Admin {
 				// Add an Anti-spam menu item for Jetpack. This is handled automatically by the Admin_Menu as long as it has been initialized.
 				Admin_Menu::init();
 			}
+
+			// Render the unified Jetpack header/footer chrome on Akismet's admin pages by
+			// consuming Akismet's `akismet_header` / `akismet_footer` action hooks. This does
+			// not modify the Akismet plugin; it only registers callbacks on its own hooks.
+			require_once JETPACK__PLUGIN_DIR . '_inc/lib/admin-pages/class-akismet-admin-chrome.php';
+			$akismet_admin_chrome = new Akismet_Admin_Chrome();
+			$akismet_admin_chrome->init_hooks();
 		}
 
 		// Ensure an Additional CSS menu item is added to the Appearance menu whenever Jetpack is connected.

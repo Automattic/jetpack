@@ -24,11 +24,11 @@ while IFS= read -r FILE; do
 		fi
 		if ! grep -q --fixed-strings --line-regexp "### Messages" "$SNIFFDOC"; then
 			EXIT=1
-			echo "$SNIFFDOC lacks the expected "Messages" section."
+			echo "$SNIFFDOC lacks the expected \"Messages\" section."
 		fi
 		if ! grep -q --fixed-strings --line-regexp "### Configuration" "$SNIFFDOC"; then
 			EXIT=1
-			echo "$SNIFFDOC lacks the expected "Configuration" section."
+			echo "$SNIFFDOC lacks the expected \"Configuration\" section."
 		fi
 	fi
 done < <( git ls-files './*Sniff.php' )
