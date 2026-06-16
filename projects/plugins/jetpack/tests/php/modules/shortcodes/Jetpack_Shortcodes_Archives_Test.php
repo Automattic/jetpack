@@ -194,8 +194,7 @@ class Jetpack_Shortcodes_Archives_Test extends WP_UnitTestCase {
 	 * @since 3.2
 	 */
 	public function test_shortcodes_archives_limit_one() {
-		self::factory()->post->create( array() );
-		self::factory()->post->create( array() );
+		self::factory()->post->create_many( 2 );
 		$attr = array(
 			'format' => 'html',
 			'limit'  => '1',
@@ -211,8 +210,7 @@ class Jetpack_Shortcodes_Archives_Test extends WP_UnitTestCase {
 	 * @since 3.2
 	 */
 	public function test_shortcodes_archives_limit_zero_is_all() {
-		self::factory()->post->create( array() );
-		self::factory()->post->create( array() );
+		self::factory()->post->create_many( 2 );
 		$attr = array(
 			'format' => 'html',
 			'limit'  => '0',
@@ -235,7 +233,7 @@ class Jetpack_Shortcodes_Archives_Test extends WP_UnitTestCase {
 		);
 		self::factory()->post->create(
 			array(
-				'post_date' => '2014-01-01 01:00:00',
+				'post_date' => '2014-01-02 01:00:00',
 			)
 		);
 		$attr = array(
