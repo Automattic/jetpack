@@ -29,6 +29,10 @@
 		],
 		"build-production": [
 			"pnpm run build-production"
+		],
+		"watch": [
+			"Composer\\Config::disableProcessTimeout",
+			"pnpm run watch"
 		]
 	},
 	"repositories": [
