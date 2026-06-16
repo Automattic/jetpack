@@ -35,10 +35,16 @@ type Story = StoryObj< typeof AverageItemsPerOrderRender >;
 const AVERAGE_ITEMS_RENDER_MODULE = 'storybook/average-items-per-order';
 const DASHBOARD_ROW_HEIGHT = 300;
 const DASHBOARD_GRID_GAP = 24;
-const DASHBOARD_ONE_COLUMN_WIDTH = 256;
-const DASHBOARD_TWO_COLUMN_WIDTH = 448;
+const DASHBOARD_ONE_COLUMN_WIDTH = 381;
+const DASHBOARD_TWO_COLUMN_WIDTH = DASHBOARD_ONE_COLUMN_WIDTH * 2 + DASHBOARD_GRID_GAP;
 const DASHBOARD_SINGLE_COLUMN_WIDTH = 576;
-const DESKTOP_DASHBOARD_WIDTH = `${ DASHBOARD_ONE_COLUMN_WIDTH * 4 + DASHBOARD_GRID_GAP * 3 }px`;
+const DASHBOARD_PAGE_INLINE_PADDING = 48;
+const DESKTOP_DASHBOARD_GRID_WIDTH = `${
+	DASHBOARD_ONE_COLUMN_WIDTH * 4 + DASHBOARD_GRID_GAP * 3
+}px`;
+const DESKTOP_DASHBOARD_PAGE_WIDTH = `${
+	DASHBOARD_ONE_COLUMN_WIDTH * 4 + DASHBOARD_GRID_GAP * 3 + DASHBOARD_PAGE_INLINE_PADDING
+}px`;
 const MOBILE_DASHBOARD_PAGE_WIDTH = '370px';
 const NARROW_DASHBOARD_PAGE_WIDTH = '640px';
 const DASHBOARD_DEFAULT_HEIGHT = `${ DASHBOARD_ROW_HEIGHT * 2 + DASHBOARD_GRID_GAP }px`;
@@ -81,7 +87,7 @@ function ResizableDashboardTileStory() {
 	] );
 
 	return (
-		<div style={ { width: DESKTOP_DASHBOARD_WIDTH, maxWidth: '100%' } }>
+		<div style={ { width: DESKTOP_DASHBOARD_GRID_WIDTH, maxWidth: '100%' } }>
 			<WidgetDashboard
 				layout={ layout }
 				onLayoutChange={ setLayout }
@@ -106,7 +112,7 @@ function MinimumDashboardTileStory() {
 	] );
 
 	return (
-		<div style={ { width: DESKTOP_DASHBOARD_WIDTH, maxWidth: '100%' } }>
+		<div style={ { width: DESKTOP_DASHBOARD_GRID_WIDTH, maxWidth: '100%' } }>
 			<WidgetDashboard
 				layout={ layout }
 				onLayoutChange={ setLayout }
@@ -122,7 +128,7 @@ function MinimumDashboardTileStory() {
 }
 
 function DashboardPageStory( {
-	width = DESKTOP_DASHBOARD_WIDTH,
+	width = DESKTOP_DASHBOARD_PAGE_WIDTH,
 	initialLayout = [ createAverageItemsWidget() ],
 	rowHeight = DASHBOARD_ROW_HEIGHT,
 	initialEditMode = false,

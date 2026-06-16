@@ -40,7 +40,7 @@
 		}
 	}
 
-	@include widget-query( xs, max-width ) {
+	@include widget-query( sm, max-width ) {
 
 		.legend {
 			width: 100%;
