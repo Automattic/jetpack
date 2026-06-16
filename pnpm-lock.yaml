@@ -63,9 +63,6 @@ importers:
       '@babel/core':
         specifier: ^7.29.0
         version: 7.29.7
-      '@babel/preset-typescript':
-        specifier: 7.29.7
-        version: 7.29.7(@babel/core@7.29.7)
       '@octokit/webhooks-types':
         specifier: 7.6.1
         version: 7.6.1
@@ -611,9 +608,6 @@ importers:
       '@babel/core':
         specifier: 7.29.7
         version: 7.29.7
-      '@babel/preset-react':
-        specifier: 7.29.7
-        version: 7.29.7(@babel/core@7.29.7)
       '@jest/globals':
         specifier: 30.4.1
         version: 30.4.1
@@ -741,9 +735,6 @@ importers:
       '@babel/core':
         specifier: 7.29.7
         version: 7.29.7
-      '@babel/preset-react':
-        specifier: 7.29.7
-        version: 7.29.7(@babel/core@7.29.7)
       '@testing-library/dom':
         specifier: 10.4.1
         version: 10.4.1
@@ -788,9 +779,6 @@ importers:
         specifier: 7.29.7
         version: 7.29.7
       '@babel/preset-env':
-        specifier: 7.29.7
-        version: 7.29.7(@babel/core@7.29.7)
-      '@babel/preset-typescript':
         specifier: 7.29.7
         version: 7.29.7(@babel/core@7.29.7)
       '@types/clean-css':
@@ -975,9 +963,6 @@ importers:
       '@babel/core':
         specifier: 7.29.7
         version: 7.29.7
-      '@babel/preset-react':
-        specifier: 7.29.7
-        version: 7.29.7(@babel/core@7.29.7)
       react:
         specifier: 18.3.1
         version: 18.3.1
@@ -1081,9 +1066,6 @@ importers:
       '@babel/core':
         specifier: 7.29.7
         version: 7.29.7
-      '@babel/preset-react':
-        specifier: 7.29.7
-        version: 7.29.7(@babel/core@7.29.7)
       '@babel/runtime':
         specifier: 7.29.7
         version: 7.29.7
@@ -1154,12 +1136,6 @@ importers:
       '@babel/core':
         specifier: 7.29.7
         version: 7.29.7
-      '@babel/plugin-transform-react-jsx':
-        specifier: 7.29.7
-        version: 7.29.7(@babel/core@7.29.7)
-      '@babel/preset-react':
-        specifier: 7.29.7
-        version: 7.29.7(@babel/core@7.29.7)
       '@testing-library/dom':
         specifier: 10.4.1
         version: 10.4.1
@@ -1203,9 +1179,6 @@ importers:
       '@babel/core':
         specifier: 7.29.7
         version: 7.29.7
-      '@babel/preset-react':
-        specifier: 7.29.7
-        version: 7.29.7(@babel/core@7.29.7)
       '@jest/globals':
         specifier: 30.4.1
         version: 30.4.1
@@ -1258,9 +1231,6 @@ importers:
       '@babel/core':
         specifier: 7.29.7
         version: 7.29.7
-      '@babel/preset-react':
-        specifier: 7.29.7
-        version: 7.29.7(@babel/core@7.29.7)
       '@testing-library/dom':
         specifier: 10.4.1
         version: 10.4.1
@@ -1510,12 +1480,6 @@ importers:
       '@babel/core':
         specifier: 7.29.7
         version: 7.29.7
-      '@babel/plugin-transform-react-jsx':
-        specifier: 7.29.7
-        version: 7.29.7(@babel/core@7.29.7)
-      '@babel/preset-react':
-        specifier: 7.29.7
-        version: 7.29.7(@babel/core@7.29.7)
       '@babel/runtime':
         specifier: 7.29.7
         version: 7.29.7
@@ -1746,9 +1710,6 @@ importers:
       '@babel/core':
         specifier: 7.29.7
         version: 7.29.7
-      '@babel/preset-react':
-        specifier: 7.29.7
-        version: 7.29.7(@babel/core@7.29.7)
       '@types/jest':
         specifier: 30.0.0
         version: 30.0.0
@@ -1948,9 +1909,6 @@ importers:
       '@babel/core':
         specifier: 7.29.7
         version: 7.29.7
-      '@babel/preset-env':
-        specifier: 7.29.7
-        version: 7.29.7(@babel/core@7.29.7)
       '@babel/runtime':
         specifier: 7.29.7
         version: 7.29.7
@@ -2020,9 +1978,6 @@ importers:
       '@babel/core':
         specifier: 7.29.7
         version: 7.29.7
-      '@babel/preset-env':
-        specifier: 7.29.7
-        version: 7.29.7(@babel/core@7.29.7)
       '@babel/runtime':
         specifier: 7.29.7
         version: 7.29.7
@@ -2178,9 +2133,6 @@ importers:
       '@babel/core':
         specifier: 7.29.7
         version: 7.29.7
-      '@babel/preset-env':
-        specifier: 7.29.7
-        version: 7.29.7(@babel/core@7.29.7)
       '@babel/runtime':
         specifier: 7.29.7
         version: 7.29.7
@@ -2284,9 +2236,6 @@ importers:
       '@babel/core':
         specifier: 7.29.7
         version: 7.29.7
-      '@babel/preset-env':
-        specifier: 7.29.7
-        version: 7.29.7(@babel/core@7.29.7)
       '@babel/runtime':
         specifier: 7.29.7
         version: 7.29.7
@@ -2375,9 +2324,6 @@ importers:
       '@babel/core':
         specifier: 7.29.7
         version: 7.29.7
-      '@babel/preset-env':
-        specifier: 7.29.7
-        version: 7.29.7(@babel/core@7.29.7)
       '@babel/runtime':
         specifier: 7.29.7
         version: 7.29.7
@@ -2531,12 +2477,6 @@ importers:
       '@babel/core':
         specifier: 7.29.7
         version: 7.29.7
-      '@babel/plugin-transform-react-jsx':
-        specifier: 7.29.7
-        version: 7.29.7(@babel/core@7.29.7)
-      '@babel/preset-react':
-        specifier: 7.29.7
-        version: 7.29.7(@babel/core@7.29.7)
       sass-embedded:
         specifier: 1.97.3
         version: 1.97.3
@@ -2631,12 +2571,6 @@ importers:
       '@babel/core':
         specifier: 7.29.7
         version: 7.29.7
-      '@babel/plugin-transform-react-jsx':
-        specifier: 7.29.7
-        version: 7.29.7(@babel/core@7.29.7)
-      '@babel/preset-react':
-        specifier: 7.29.7
-        version: 7.29.7(@babel/core@7.29.7)
       '@typescript/native-preview':
         specifier: 7.0.0-dev.20260225.1
         version: 7.0.0-dev.20260225.1
@@ -3154,9 +3088,6 @@ importers:
       '@babel/plugin-transform-react-jsx':
         specifier: 7.29.7
         version: 7.29.7(@babel/core@7.29.7)
-      '@babel/preset-react':
-        specifier: 7.29.7
-        version: 7.29.7(@babel/core@7.29.7)
       '@babel/runtime':
         specifier: 7.29.7
         version: 7.29.7
@@ -3402,9 +3333,6 @@ importers:
       '@babel/core':
         specifier: 7.29.7
         version: 7.29.7
-      '@babel/preset-env':
-        specifier: 7.29.7
-        version: 7.29.7(@babel/core@7.29.7)
       '@storybook/addon-docs':
         specifier: 10.3.6
         version: 10.3.6(@types/react@18.3.28)(storybook@10.3.6(@testing-library/dom@10.4.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(webpack@5.107.2)
@@ -3714,9 +3642,6 @@ importers:
       '@babel/core':
         specifier: 7.29.7
         version: 7.29.7
-      '@babel/plugin-transform-react-jsx':
-        specifier: 7.29.7
-        version: 7.29.7(@babel/core@7.29.7)
       '@babel/runtime':
         specifier: 7.29.7
         version: 7.29.7
@@ -4305,15 +4230,6 @@ importers:
       '@babel/core':
         specifier: 7.29.7
         version: 7.29.7
-      '@babel/plugin-transform-react-jsx':
-        specifier: 7.29.7
-        version: 7.29.7(@babel/core@7.29.7)
-      '@babel/preset-env':
-        specifier: 7.29.7
-        version: 7.29.7(@babel/core@7.29.7)
-      '@babel/preset-react':
-        specifier: 7.29.7
-        version: 7.29.7(@babel/core@7.29.7)
       '@babel/runtime':
         specifier: 7.29.7
         version: 7.29.7
@@ -4450,9 +4366,6 @@ importers:
       '@babel/core':
         specifier: 7.29.7
         version: 7.29.7
-      '@babel/preset-react':
-        specifier: 7.29.7
-        version: 7.29.7(@babel/core@7.29.7)
       '@jest/globals':
         specifier: 30.4.1
         version: 30.4.1
@@ -4568,9 +4481,6 @@ importers:
       '@babel/core':
         specifier: 7.29.7
         version: 7.29.7
-      '@babel/preset-env':
-        specifier: 7.29.7
-        version: 7.29.7(@babel/core@7.29.7)
       '@testing-library/dom':
         specifier: 10.4.1
         version: 10.4.1
@@ -4743,18 +4653,6 @@ importers:
       '@babel/core':
         specifier: 7.29.7
         version: 7.29.7
-      '@babel/plugin-transform-react-jsx':
-        specifier: 7.29.7
-        version: 7.29.7(@babel/core@7.29.7)
-      '@babel/preset-env':
-        specifier: 7.29.7
-        version: 7.29.7(@babel/core@7.29.7)
-      '@babel/preset-react':
-        specifier: 7.29.7
-        version: 7.29.7(@babel/core@7.29.7)
-      '@babel/preset-typescript':
-        specifier: 7.29.7
-        version: 7.29.7(@babel/core@7.29.7)
       '@babel/runtime':
         specifier: 7.29.7
         version: 7.29.7
@@ -4788,6 +4686,9 @@ importers:
       babel-jest:
         specifier: 30.4.1
         version: 30.4.1(@babel/core@7.29.7)
+      babel-plugin-polyfill-corejs3:
+        specifier: 0.14.0
+        version: 0.14.0(@babel/core@7.29.7)
       concurrently:
         specifier: 10.0.3
         version: 10.0.3
@@ -4891,9 +4792,6 @@ importers:
       '@babel/core':
         specifier: 7.29.7
         version: 7.29.7
-      '@babel/preset-env':
-        specifier: 7.29.7
-        version: 7.29.7(@babel/core@7.29.7)
       '@jest/globals':
         specifier: 30.4.1
         version: 30.4.1
@@ -5106,9 +5004,6 @@ importers:
       '@babel/core':
         specifier: 7.29.7
         version: 7.29.7
-      '@babel/preset-react':
-        specifier: 7.29.7
-        version: 7.29.7(@babel/core@7.29.7)
       '@csstools/postcss-global-data':
         specifier: 4.0.0
         version: 4.0.0(postcss@8.5.14)
@@ -5318,9 +5213,6 @@ importers:
       '@babel/core':
         specifier: 7.29.7
         version: 7.29.7
-      '@babel/preset-env':
-        specifier: 7.29.7
-        version: 7.29.7(@babel/core@7.29.7)
       '@babel/runtime':
         specifier: 7.29.7
         version: 7.29.7
@@ -5388,9 +5280,6 @@ importers:
       '@babel/core':
         specifier: 7.29.7
         version: 7.29.7
-      '@babel/preset-env':
-        specifier: 7.29.7
-        version: 7.29.7(@babel/core@7.29.7)
       '@babel/runtime':
         specifier: 7.29.7
         version: 7.29.7
@@ -5521,12 +5410,6 @@ importers:
       '@babel/core':
         specifier: 7.29.7
         version: 7.29.7
-      '@babel/preset-env':
-        specifier: 7.29.7
-        version: 7.29.7(@babel/core@7.29.7)
-      '@babel/preset-react':
-        specifier: 7.29.7
-        version: 7.29.7(@babel/core@7.29.7)
       '@storybook/react':
         specifier: 10.3.6
         version: 10.3.6(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(storybook@10.3.6(@testing-library/dom@10.4.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(typescript@5.9.3)
@@ -5660,9 +5543,6 @@ importers:
       '@babel/core':
         specifier: 7.29.7
         version: 7.29.7
-      '@babel/preset-env':
-        specifier: 7.29.7
-        version: 7.29.7(@babel/core@7.29.7)
       '@babel/runtime':
         specifier: 7.29.7
         version: 7.29.7
@@ -5720,12 +5600,12 @@ importers:
 
   projects/plugins/inspect:
     devDependencies:
+      '@automattic/jetpack-webpack-config':
+        specifier: workspace:*
+        version: link:../../js-packages/webpack-config
       '@babel/core':
         specifier: 7.29.7
         version: 7.29.7
-      '@babel/preset-env':
-        specifier: 7.29.7
-        version: 7.29.7(@babel/core@7.29.7)
       '@rollup/plugin-commonjs':
         specifier: 26.0.1
         version: 26.0.1(rollup@3.30.0)
@@ -6054,15 +5934,6 @@ importers:
       '@babel/core':
         specifier: 7.29.7
         version: 7.29.7
-      '@babel/plugin-transform-react-jsx':
-        specifier: 7.29.7
-        version: 7.29.7(@babel/core@7.29.7)
-      '@babel/plugin-transform-runtime':
-        specifier: 7.29.7
-        version: 7.29.7(@babel/core@7.29.7)
-      '@babel/preset-env':
-        specifier: 7.29.7
-        version: 7.29.7(@babel/core@7.29.7)
       '@babel/runtime':
         specifier: 7.29.7
         version: 7.29.7
@@ -6211,9 +6082,6 @@ importers:
       '@babel/core':
         specifier: 7.29.7
         version: 7.29.7
-      '@babel/preset-env':
-        specifier: 7.29.7
-        version: 7.29.7(@babel/core@7.29.7)
       '@babel/runtime':
         specifier: 7.29.7
         version: 7.29.7
@@ -6341,9 +6209,6 @@ importers:
       '@babel/core':
         specifier: 7.29.7
         version: 7.29.7
-      '@babel/preset-env':
-        specifier: 7.29.7
-        version: 7.29.7(@babel/core@7.29.7)
       '@babel/runtime':
         specifier: 7.29.7
         version: 7.29.7
@@ -6491,9 +6356,6 @@ importers:
       '@babel/core':
         specifier: 7.29.7
         version: 7.29.7
-      '@babel/preset-env':
-        specifier: 7.29.7
-        version: 7.29.7(@babel/core@7.29.7)
       '@babel/runtime':
         specifier: 7.29.7
         version: 7.29.7
@@ -6585,9 +6447,6 @@ importers:
       '@babel/core':
         specifier: 7.29.7
         version: 7.29.7
-      '@babel/preset-env':
-        specifier: 7.29.7
-        version: 7.29.7(@babel/core@7.29.7)
       '@babel/runtime':
         specifier: 7.29.7
         version: 7.29.7
@@ -6639,9 +6498,6 @@ importers:
       '@babel/core':
         specifier: ^7.5.5
         version: 7.29.7
-      '@babel/preset-env':
-        specifier: ^7.5.5
-        version: 7.29.7(@babel/core@7.29.7)
       jest:
         specifier: 30.4.2
         version: 30.4.2

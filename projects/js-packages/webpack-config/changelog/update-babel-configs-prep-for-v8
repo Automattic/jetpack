@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Update babel configurations in preparation for v8. The biggest visible change is that consumers should be sure to set `targets` at the top level of their config if not configuring `browserslist` already.
