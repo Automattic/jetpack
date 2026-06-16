@@ -1,5 +1,5 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
-import { isJetpackSelfHostedSite } from '@automattic/jetpack-script-data';
+import { getScriptData } from '@automattic/jetpack-script-data';
 import {
 	FacebookLinkPreview,
 	TwitterLinkPreview,
@@ -172,13 +172,11 @@ export const SEO = withModuleSettingsFormHelpers(
 			this.props.updateFormStateOptionValue( 'advanced_seo_title_formats', newCustomSeoTitles );
 		};
 
-		// TODO(JETPACK-1700): also gate on the rsm_jetpack_seo flag (new SEO product
-		// availability) and !already-opted-in (jetpack_seo_surface_visible). Both
-		// require new initial-state plumbing to reach the client; until then we show
-		// the banner on any self-hosted install and let the opt-in route — which is
-		// idempotent — be the source of truth.
+		// Shown only when the SEO package reports the opt-in is available for this install
+		// (feature flag on, self-hosted, not yet opted in), surfaced on
+		// `window.JetpackScriptData.seo.optin_available` by Initializer::inject_optin_availability().
 		seoOptInBanner = () => {
-			if ( ! isJetpackSelfHostedSite() ) {
+			if ( ! getScriptData()?.seo?.optin_available ) {
 				return null;
 			}
 

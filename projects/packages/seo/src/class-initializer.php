@@ -114,6 +114,11 @@ class Initializer {
 		// Traffic page or My Jetpack (JETPACK-1700). Registered ahead of the cohort gate.
 		add_action( 'rest_api_init', array( __CLASS__, 'register_optin_route' ) );
 
+		// Expose opt-in availability to other admin surfaces (the legacy Traffic-page
+		// banner reads it via `@automattic/jetpack-script-data`). Hooked here — after the
+		// feature flag, before the cohort gate — so a still-hidden install gets the signal.
+		add_filter( 'jetpack_admin_js_script_data', array( __CLASS__, 'inject_optin_availability' ) );
+
 		// Discoverability cohort gate: the SEO surface is auto-discoverable for fresh
 		// installs and all WordPress.com sites; existing self-hosted installs opt in via
 		// the legacy Traffic page or My Jetpack (JETPACK-1700). Until it's visible we
@@ -259,6 +264,25 @@ class Initializer {
 	}
 
 	/**
+	 * Expose whether this install should be offered the SEO opt-in, onto
+	 * `window.JetpackScriptData.seo.optin_available` for other admin surfaces (e.g. the
+	 * legacy Traffic-page banner). Only hooked when the feature flag is on, so the field is
+	 * simply absent otherwise.
+	 *
+	 * @param array $data Script data being injected onto the page.
+	 * @return array
+	 */
+	public static function inject_optin_availability( $data ) {
+		if ( ! is_array( $data ) ) {
+			$data = array();
+		}
+
+		$data[ self::SCRIPT_DATA_KEY ]['optin_available'] = self::is_optin_available();
+
+		return $data;
+	}
+
+	/**
 	 * Fallback render used when the wp-build artifact is missing (unbuilt
 	 * checkout). Renders a bare wrapper so the page loads without the app.
 	 *
@@ -313,6 +337,21 @@ class Initializer {
 		}
 
 		return (bool) get_option( self::VISIBILITY_OPTION, false );
+	}
+
+	/**
+	 * Whether to offer an existing install the chance to opt into the new SEO experience.
+	 *
+	 * The single source of truth for the opt-in surfaces (legacy Traffic-page banner, My
+	 * Jetpack card). True only when the SEO product is available (the {@see self::FEATURE_FILTER}
+	 * flag is on) and the surface isn't visible yet — and since {@see self::is_seo_surface_visible()}
+	 * already returns true for WordPress.com and for self-hosted installs that have opted in,
+	 * "not visible" cleanly means "a self-hosted install that hasn't opted in".
+	 *
+	 * @return bool
+	 */
+	public static function is_optin_available() {
+		return (bool) apply_filters( self::FEATURE_FILTER, false ) && ! self::is_seo_surface_visible();
 	}
 
 	/**

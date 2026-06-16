@@ -32,8 +32,7 @@ export default function useSeoOptIn() {
 			onSuccess: ( { redirect } ) => {
 				recordEvent( 'jetpack_myjetpack_seo_opt_in_card_success', {} );
 
-				const { redirect: fallbackRedirect } =
-					getMyJetpackWindowInitialState( 'seoOptIn' );
+				const { redirect: fallbackRedirect } = getMyJetpackWindowInitialState( 'seoOptIn' );
 				window.location.href = redirect || fallbackRedirect;
 			},
 		},
