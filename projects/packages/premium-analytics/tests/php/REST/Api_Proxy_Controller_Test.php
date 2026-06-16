@@ -308,7 +308,7 @@ class Api_Proxy_Controller_Test extends BaseTestCase {
 		$this->assertInstanceOf( \WP_Error::class, $response );
 		$this->assertSame( 'no_connection', $response->get_error_code() );
 
-		$augmented = json_decode( $request->get_body(), true );
+		$augmented = (array) json_decode( $request->get_body(), true );
 		$this->assertSame( 'hello', $augmented['message'], 'the original body is preserved' );
 		$this->assertSame( 'feedback@example.com', $augmented['user_email'], 'the current user email is injected' );
 	}
