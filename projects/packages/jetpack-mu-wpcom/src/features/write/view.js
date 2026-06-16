@@ -4681,9 +4681,16 @@ const { state } = store( 'wpcom-write', {
 			if ( event.key === 'Tab' ) {
 				const modal = event.currentTarget.querySelector( '.bw-image-modal' );
 				if ( ! modal ) return;
-				const focusable = modal.querySelectorAll(
-					'input:not([hidden]), button, [tabindex]:not([tabindex="-1"])'
-				);
+				// Filter to currently-rendered elements only. The collapsible
+				// library/URL sections live inside the modal but use the
+				// `hidden` attribute on their wrapper — `:not([hidden])` on
+				// the input itself doesn't catch that, so without the
+				// offsetParent check those inputs would land in the trap's
+				// boundaries even though Tab can't actually reach them, and
+				// focus would fall out of the modal.
+				const focusable = Array.from(
+					modal.querySelectorAll( 'input:not([hidden]), button, [tabindex]:not([tabindex="-1"])' )
+				).filter( el => el.offsetParent !== null && ! el.disabled );
 				if ( ! focusable.length ) return;
 				const first = focusable[ 0 ];
 				const last = focusable[ focusable.length - 1 ];
