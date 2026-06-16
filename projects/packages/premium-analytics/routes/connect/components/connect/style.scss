@@ -1,0 +1,23 @@
+.wc-analytics-connect {
+	max-width: 450px;
+	text-align: center;
+}
+
+.wc-analytics-connect__title {
+	font-size: var( --wpds-font-size-xl );
+	font-weight: var( --wpds-font-weight-medium );
+	line-height: var( --wpds-font-line-height-lg );
+}
+
+.wc-analytics-connect__description {
+	color: var( --wpds-color-fg-content-neutral-weak );
+	font-size: var( --wpds-font-size-md );
+	line-height: var( --wpds-font-line-height-sm );
+}
+
+.wc-analytics-connect__legal {
+	color: var( --wpds-color-fg-content-neutral-weak );
+	font-size: var( --wpds-font-size-sm );
+	line-height: var( --wpds-font-line-height-xs );
+	max-width: 300px;
+}
