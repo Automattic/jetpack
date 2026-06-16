@@ -257,6 +257,15 @@ async function fixDeps( pkg ) {
 		pkg.dependencies[ '@xmldom/xmldom' ] = '^0.9';
 	}
 
+	// Outdated, vulnerable dep. Seems to work with the updated version.
+	// https://github.com/istanbuljs/load-nyc-config/issues/26
+	if (
+		pkg.name === '@istanbuljs/load-nyc-config' &&
+		pkg.dependencies?.[ 'js-yaml' ] === '^3.13.1'
+	) {
+		pkg.dependencies[ 'js-yaml' ] = '^4.2.0';
+	}
+
 	// Glob decided to deprecate everything <12, even though tons of stuff still depends on older versions.
 	// On the plus side, the net change from v10 to v13 is deleting the CLI from the package.
 	if ( pkg.dependencies?.glob?.match( /^\^1[0-2](?:\.\d+)*$/ ) ) {
