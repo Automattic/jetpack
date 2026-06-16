@@ -37,7 +37,7 @@ import type {
 } from '../../types';
 import type { ChartComponentWithComposition } from '../private/chart-composition';
 import type { ResponsiveConfig } from '../private/with-responsive';
-import type { PieArcDatum } from '@visx/shape/lib/shapes/Pie';
+import type { PieProvidedProps } from '@visx/shape';
 import type { FC, MouseEvent, ReactNode } from 'react';
 
 /**
@@ -135,7 +135,7 @@ type PieSemiCircleChartResponsiveComponent = ChartComponentWithComposition<
 	PieSemiCircleChartBaseProps & ResponsiveConfig
 >;
 
-export type ArcData = PieArcDatum< DataPointPercentageCalculated >;
+export type ArcData = PieProvidedProps< DataPointPercentageCalculated >[ 'arcs' ][ number ];
 
 /**
  * Validates the semi-circle pie chart data

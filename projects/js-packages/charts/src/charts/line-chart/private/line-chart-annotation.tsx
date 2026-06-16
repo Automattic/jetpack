@@ -15,7 +15,7 @@ import LineChartAnnotationLabelWithPopover, {
 	POPOVER_BUTTON_SIZE,
 } from './line-chart-annotation-label-popover';
 import type { LineChartAnnotationProps } from '../types';
-import type { LabelProps } from '@visx/annotation/lib/components/Label';
+import type { LabelProps } from '@visx/annotation';
 import type { TextProps } from '@visx/text';
 import type { FC } from 'react';
 

@@ -4,8 +4,8 @@ import { ChartStoryArgs, CHART_THEME_MAP, themeArgTypes } from '../../../stories
 import LineChart from '../line-chart';
 import { lineChartMetaArgs, lineChartStoryArgs, glyphTheme } from './config';
 import type { DataPointDate } from '../../../types';
+import type { RenderTooltipParams } from '../../../visx/types';
 import type { Meta, StoryFn, StoryObj, Decorator } from '@storybook/react';
-import type { RenderTooltipParams } from '@visx/xychart/lib/components/Tooltip';
 
 /**
  * Story-specific args that provide convenient Storybook controls.

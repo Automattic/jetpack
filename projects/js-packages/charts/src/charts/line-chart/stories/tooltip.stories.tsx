@@ -1,8 +1,8 @@
-import { RenderTooltipParams } from '@visx/xychart/lib/components/Tooltip';
 import { ChartStoryArgs } from '../../../stories';
 import { DataPointDate } from '../../../types';
 import LineChart from '../line-chart';
 import { lineChartMetaArgs, lineChartStoryArgs } from './config';
+import type { RenderTooltipParams } from '../../../visx/types';
 import type { Meta, StoryFn, StoryObj } from '@storybook/react';
 
 type StoryArgs = ChartStoryArgs< React.ComponentProps< typeof LineChart > >;

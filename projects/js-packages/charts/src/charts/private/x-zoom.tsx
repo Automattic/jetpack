@@ -5,7 +5,7 @@ import styles from './x-zoom.module.scss';
 import type { SingleChartRef } from './single-chart-context';
 import type { AxisScale } from '@visx/axis';
 import type { EventHandlerParams } from '@visx/xychart';
-import type { MutableRefObject, ReactNode } from 'react';
+import type { ReactNode, RefObject } from 'react';
 
 const MIN_DRAG_PIXELS = 6;
 
@@ -37,7 +37,7 @@ export function useXZoom< T extends Date | number = Date >( {
 	userHandlers,
 }: {
 	enabled: boolean;
-	chartRef: MutableRefObject< SingleChartRef | null >;
+	chartRef: RefObject< SingleChartRef | null >;
 	userHandlers?: {
 		onPointerDown?: PointerHandler;
 		onPointerMove?: PointerHandler;

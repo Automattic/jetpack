@@ -51,7 +51,7 @@ const defaultDeltaFormatter = ( value: number ): string => {
 	} );
 };
 
-const BarLabel = ( { label }: { label: string | JSX.Element } ) => (
+const BarLabel = ( { label }: { label: LeaderboardEntry[ 'label' ] } ) => (
 	<>{ typeof label === 'string' ? <Text className={ styles.label }>{ label }</Text> : label }</>
 );
 

@@ -1,4 +1,4 @@
-import type { ItemTransformer, LabelFormatter } from '@visx/legend/lib/types';
+import type { ItemTransformer, LabelFormatter } from '@visx/legend';
 import type { AnyD3Scale, ScaleInput } from '@visx/scale';
 
 /**

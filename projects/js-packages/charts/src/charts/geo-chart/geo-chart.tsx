@@ -5,7 +5,7 @@ import { __ } from '@wordpress/i18n';
 import { Stack } from '@wordpress/ui';
 import clsx from 'clsx';
 import { FC, useContext, useMemo } from 'react';
-import { Chart, type GoogleChartOptions } from 'react-google-charts';
+import { Chart } from 'react-google-charts';
 /**
  * Internal dependencies
  */
@@ -19,6 +19,8 @@ import { GeoChartProps } from './types';
 
 const DEFAULT_FEATURE_FILL_COLOR = '#ffffff';
 const DEFAULT_BACKGROUND_COLOR = '#ffffff';
+
+type GoogleChartOptions = Record< string, unknown >;
 
 /**
  * Renders a geographical chart using Google Charts GeoChart to visualize data.

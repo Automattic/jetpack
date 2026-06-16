@@ -6,8 +6,8 @@ Explore the available charts and their documentation in [Storybook](https://auto
 
 ## Requirements
 
-- **Node.js**: >= 20.10.0 (required by `@wordpress/ui` dependency)
-- **React**: 17.x or 18.x
+- **Node.js**: >= 20.11.0
+- **React**: 18.x or 19.x
 
 ## Quick Start
 
