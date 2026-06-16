@@ -26,7 +26,6 @@
  *   - stubs: (array) Predefined stubs to load. Default is `array( 'wordpress', 'wp-cli' )`.
  *      - akismet: Stubs from .phan/stubs/akismet-stubs.php.
  *      - amp: Stubs from .phan/stubs/amp-stubs.php.
- *      - divi: Stubs from .phan/stubs/divi-stubs.php.
  *      - full-site-editing: Stubs from .phan/stubs/full-site-editing-stubs.php.
  *      - photon-opencv: Stubs from .phan/stubs/photon-opencv-stubs.php.
  *      - woocommerce: Stubs from php-stubs/woocommerce.
@@ -72,9 +71,6 @@ function make_phan_config( $dir, $options = array() ) {
 				break;
 			case 'amp':
 				$stubs[] = "$root/.phan/stubs/amp-stubs.php";
-				break;
-			case 'divi':
-				$stubs[] = "$root/.phan/stubs/divi-stubs.php";
 				break;
 			case 'full-site-editing':
 				$stubs[] = "$root/.phan/stubs/full-site-editing-stubs.php";

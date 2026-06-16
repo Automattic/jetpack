@@ -1,13 +1,13 @@
 <?php
 /**
- * Stubs for the Divi 5 builder framework (`ET\Builder\*`).
+ * Hand-maintained Phan stubs for the Divi 5 builder framework (`ET\Builder\*`).
  *
- * Divi ships these classes at runtime; they are not a Composer dependency of
- * this monorepo, so Phan cannot see them. This file declares signatures-only
- * stubs for the symbols the VideoPress Divi 5 module relies on, so Phan can
- * type-check those call sites instead of having them suppressed via a baseline.
+ * Divi isn't a Composer dependency (commercial product, not on WordPress.org or
+ * GitHub), so it can't use the auto-generated tools/stubs pipeline. These
+ * signatures let Phan type-check the Divi 5 VideoPress module. Update by hand if
+ * the APIs used here change.
  *
- * @package automattic/jetpack
+ * @package automattic/jetpack-videopress
  */
 
 namespace ET\Builder\Framework\DependencyManagement\Interfaces {
