@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\VideoPress\Divi5\Traits;
 
+use Automattic\Jetpack\VideoPress\Divi5\VideoPress_Module;
 use WP_Block_Type_Registry;
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -24,7 +25,7 @@ trait Custom_Css_Trait {
 	 * @return array The custom CSS field definitions.
 	 */
 	public static function custom_css() {
-		$block_type = WP_Block_Type_Registry::get_instance()->get_registered( 'jetpack/videopress' );
+		$block_type = WP_Block_Type_Registry::get_instance()->get_registered( VideoPress_Module::MODULE_NAME );
 
 		// phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase -- Property defined by the Divi 5 framework.
 		return $block_type->customCssFields ?? array();

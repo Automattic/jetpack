@@ -55,6 +55,21 @@ module.exports = [
 						from: 'src/client/block-editor/extensions/index.json',
 						to: './block-editor/extensions/index.json',
 					},
+					/*
+					 * Divi 5 module metadata read by PHP at runtime (module
+					 * registration and the Divi 5 Migrator). Copied into build/
+					 * because src/client is production-excluded from the package.
+					 */
+					{
+						context: 'src/client/divi-5/modules',
+						from: './*/module.json',
+						to: './divi-5/modules/[path]/[name].json',
+					},
+					{
+						context: 'src/client/divi-5/modules',
+						from: './*/conversion-outline.json',
+						to: './divi-5/modules/[path]/[name].json',
+					},
 				],
 			} ),
 		],

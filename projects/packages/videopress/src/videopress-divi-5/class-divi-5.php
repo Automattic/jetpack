@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\VideoPress\Divi5;
 
 use Automattic\Jetpack\VideoPress\Package_Version;
+use ET\Builder\Packages\ModuleLibrary\ModuleRegistration;
 use ET\Builder\VisualBuilder\Assets\PackageBuildManager;
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -30,6 +31,17 @@ class Divi_5 {
 	public static function init() {
 		add_action( 'divi_module_library_modules_dependency_tree', array( __CLASS__, 'register_module' ) );
 		add_action( 'divi_visual_builder_assets_before_enqueue_scripts', array( __CLASS__, 'enqueue_visual_builder_assets' ) );
+
+		/*
+		 * Divi builds its module library during theme bootstrap, which fires the
+		 * dependency-tree action above (once) before this integration loads on
+		 * `init` — so the callback misses it on requests like the Divi 5 Migrator's
+		 * admin-ajax calls. Register directly here too; VideoPress_Module::load()
+		 * is idempotent, so the two paths never double-register.
+		 */
+		if ( class_exists( ModuleRegistration::class ) ) {
+			( new VideoPress_Module() )->load();
+		}
 	}
 
 	/**

@@ -40,43 +40,34 @@ class VideoPress_Module implements DependencyInterface {
 	const VIDEOPRESS_REGEX = '/^(?:(?:http(?:s)?:\/\/)?(?:www\.)?video(?:\.word)?press\.com\/(?:v|embed)\/)?([a-zA-Z\d]+)(?:.*)?/i';
 
 	/**
+	 * The module's block name. Must match the `name` field in `module.json`.
+	 *
+	 * @var string
+	 */
+	const MODULE_NAME = 'jetpack/videopress';
+
+	/**
 	 * Registers the module with the Divi 5 module library.
 	 *
 	 * @return void
 	 */
 	public function load() {
 		/*
-		 * Divi rebuilds its module dependency tree more than once per request
-		 * (front-end render and builder asset enqueue both walk it, each with a
-		 * fresh instance), so guard against registering the module twice. A
-		 * method-static flag is required because the instance differs each time.
+		 * Divi walks its dependency tree more than once per request, and
+		 * Divi_5::init() also calls this directly, so guard on the registry to
+		 * register exactly once. Registering before `init` matches how Divi
+		 * registers its own modules during theme bootstrap.
 		 */
-		static $registered = false;
-		if ( $registered ) {
+		if ( \WP_Block_Type_Registry::get_instance()->is_registered( self::MODULE_NAME ) ) {
 			return;
 		}
-		$registered = true;
 
-		$module_json_folder_path = dirname( __DIR__ ) . '/client/divi-5/modules/videopress';
-
-		$register = function () use ( $module_json_folder_path ) {
-			ModuleRegistration::register_module(
-				$module_json_folder_path,
-				array(
-					'render_callback' => array( self::class, 'render_callback' ),
-				)
-			);
-		};
-
-		/*
-		 * Divi can build its dependency tree once `init` is already underway or
-		 * finished (e.g. during builder asset enqueue), where deferring to `init`
-		 * would never run. Register immediately in that case, otherwise defer.
-		 */
-		if ( did_action( 'init' ) ) {
-			$register();
-		} else {
-			add_action( 'init', $register );
-		}
+		// Read from build/ (shipped) rather than src/client/ (production-excluded).
+		ModuleRegistration::register_module(
+			dirname( __DIR__, 2 ) . '/build/divi-5/modules/videopress',
+			array(
+				'render_callback' => array( self::class, 'render_callback' ),
+			)
+		);
 	}
 }
