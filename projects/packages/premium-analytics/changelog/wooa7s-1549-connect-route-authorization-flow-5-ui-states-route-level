@@ -1,4 +1,4 @@
 Significance: minor
 Type: added
 
-Add /connect and /syncing routes with connection-aware route guards for the Jetpack connection and sync flow.
+Add /connect and /syncing routes with connection-aware route guards for the Jetpack connection and sync flow, and emit window.JetpackScriptData on the boot-rendered admin page so the connection data the routes read is available.
