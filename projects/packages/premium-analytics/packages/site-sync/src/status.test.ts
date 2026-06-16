@@ -45,6 +45,21 @@ describe( 'toSyncStatus', () => {
 		expect( status.initialFullSyncFinished ).toBe( 1_700_000_000 );
 	} );
 
+	it( 'is 100% when the analytics module has no rows to sync (empty store)', () => {
+		// Bucket present but total 0 ⇒ nothing to sync ⇒ done, mirroring upstream —
+		// avoids a progress bar stuck at 0% while the empty sync completes.
+		const status = toSyncStatus(
+			{
+				started: true,
+				finished: false,
+				progress: { woocommerce_analytics: { sent: 0, total: 0 } },
+			},
+			0
+		);
+		expect( status.isStarted ).toBe( true );
+		expect( status.percentage ).toBe( 100 );
+	} );
+
 	it( 'caps percentage at 100', () => {
 		const status = toSyncStatus(
 			{
