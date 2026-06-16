@@ -299,4 +299,28 @@ class InitializerTest extends TestCase {
 			\Automattic\Jetpack\Constants::clear_single_constant( 'IS_WPCOM' );
 		}
 	}
+
+	/**
+	 * The opt-in is offered only when the feature flag is on AND the surface is still
+	 * hidden (a self-hosted install that hasn't opted in).
+	 */
+	public function test_is_optin_available_requires_flag_and_hidden_surface() {
+		delete_option( Initializer::VISIBILITY_OPTION );
+
+		// Flag off → never available.
+		$this->assertFalse( Initializer::is_optin_available() );
+
+		add_filter( Initializer::FEATURE_FILTER, '__return_true' );
+		try {
+			// Flag on + surface hidden → available.
+			$this->assertTrue( Initializer::is_optin_available() );
+
+			// Flag on + surface visible (already opted in) → not available.
+			update_option( Initializer::VISIBILITY_OPTION, '1' );
+			$this->assertFalse( Initializer::is_optin_available() );
+		} finally {
+			remove_filter( Initializer::FEATURE_FILTER, '__return_true' );
+			delete_option( Initializer::VISIBILITY_OPTION );
+		}
+	}
 }

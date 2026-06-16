@@ -472,21 +472,12 @@ class Initializer {
 	 * @return array{showCard: bool, redirect: string}
 	 */
 	public static function get_seo_opt_in_state() {
-		$show_card = false;
-
-		// The SEO package gates its whole surface behind this filter (see
-		// SEO\Initializer::FEATURE_FILTER); mirror it here so the card only appears where the
-		// product is actually available. TODO(JETPACK-1700): replace with a public availability
-		// helper on the SEO package if one is added, to avoid duplicating the filter name.
-		$seo_available = class_exists( 'Automattic\\Jetpack\\SEO\\Initializer' )
-			&& (bool) apply_filters( 'rsm_jetpack_seo', false );
-
-		if ( $seo_available ) {
-			$is_wpcom = ( new Status_Host() )->is_wpcom_platform();
-
-			// @phan-suppress-next-line PhanUndeclaredClassMethod -- guarded by class_exists above.
-			$show_card = ! $is_wpcom && ! \Automattic\Jetpack\SEO\Initializer::is_seo_surface_visible();
-		}
+		// Single source of truth lives on the SEO package's public API. Guarded with
+		// class_exists because both packages ship inside the Jetpack plugin but SEO isn't a
+		// composer dependency here (and the surface is feature-flagged).
+		// @phan-suppress-next-line PhanUndeclaredClassMethod -- guarded by class_exists.
+		$show_card = class_exists( 'Automattic\\Jetpack\\SEO\\Initializer' )
+			&& \Automattic\Jetpack\SEO\Initializer::is_optin_available();
 
 		return array(
 			'showCard' => $show_card,
