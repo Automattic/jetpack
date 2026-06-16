@@ -26,6 +26,8 @@ module.exports = [
 			'block-editor/index': './src/client/block-editor/index.ts',
 			// Divi editor extensions
 			'divi-editor/index': './src/client/divi-editor/index.js',
+			// Divi 5 Visual Builder module
+			'divi-5/index': './src/client/divi-5/index.js',
 		},
 		mode: jetpackWebpackConfig.mode,
 		devtool: jetpackWebpackConfig.devtool,

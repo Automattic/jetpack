@@ -1,0 +1,44 @@
+{
+	"name": "jetpack/videopress",
+	"d4Shortcode": "divi_videopress",
+	"title": "VideoPress",
+	"titles": "VideoPress",
+	"moduleClassName": "et_pb_videopress",
+	"category": "module",
+	"attributes": {
+		"module": {
+			"type": "object",
+			"selector": "{{selector}}",
+			"styleProps": {
+				"sizing": {
+					"propertySelectors": {
+						"desktop": {
+							"value": {
+								"margin-left": "{{selector}}.et_pb_module",
+								"margin-right": "{{selector}}.et_pb_module"
+							}
+						}
+					},
+					"important": {
+						"desktop": {
+							"value": {
+								"margin-left": true,
+								"margin-right": true
+							}
+						}
+					}
+				}
+			}
+		},
+		"guid": {
+			"type": "object",
+			"selector": "{{selector}} .vidi-videopress-wrapper"
+		}
+	},
+	"customCssFields": {
+		"videoPlayer": {
+			"subName": "videoPlayer",
+			"selectorSuffix": " .vidi-videopress-wrapper"
+		}
+	}
+}
