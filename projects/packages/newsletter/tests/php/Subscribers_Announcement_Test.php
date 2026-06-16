@@ -143,10 +143,11 @@ class Subscribers_Announcement_Test extends BaseTestCase {
 	 * (the wpcom path used by jetpack-mu-wpcom on Simple and WoA sites).
 	 */
 	public function test_add_wp_admin_submenu_registers_under_jetpack() {
-		global $menu, $submenu;
-		// WorDBless does not reset the admin menu globals between tests.
-		$menu    = array();
-		$submenu = array();
+		// WorDBless does not reset the admin menu globals between tests. Read and
+		// write them via $GLOBALS so Phan does not narrow the local to an empty
+		// array shape (it can't see add_submenu_page() mutate the global).
+		$GLOBALS['menu']    = array();
+		$GLOBALS['submenu'] = array();
 		// add_submenu_page() checks the current user's capability.
 		$this->login_as_admin();
 		// Provide the Jetpack parent menu that wpcom-admin-menu would have created.
@@ -154,7 +155,7 @@ class Subscribers_Announcement_Test extends BaseTestCase {
 
 		Subscribers_Announcement::add_wp_admin_submenu();
 
-		$slugs = wp_list_pluck( $submenu['jetpack'] ?? array(), 2 );
+		$slugs = wp_list_pluck( (array) ( $GLOBALS['submenu']['jetpack'] ?? array() ), 2 );
 		$this->assertContains(
 			Subscribers_Announcement::PAGE_SLUG,
 			$slugs,
@@ -174,17 +175,17 @@ class Subscribers_Announcement_Test extends BaseTestCase {
 	 * sidebar when the user removed the menu item.
 	 */
 	public function test_add_wp_admin_submenu_hides_from_sidebar_when_removed() {
-		global $menu, $submenu;
-		// WorDBless does not reset the admin menu globals between tests.
-		$menu    = array();
-		$submenu = array();
+		// See note in test_add_wp_admin_submenu_registers_under_jetpack() on why
+		// the admin menu globals are accessed via $GLOBALS.
+		$GLOBALS['menu']    = array();
+		$GLOBALS['submenu'] = array();
 		$this->login_as_admin();
 		add_menu_page( 'Jetpack', 'Jetpack', 'manage_options', 'jetpack', '__return_null' );
 		update_option( Subscribers_Announcement::REMOVED_OPTION, 1 );
 
 		Subscribers_Announcement::add_wp_admin_submenu();
 
-		$slugs = wp_list_pluck( $submenu['jetpack'] ?? array(), 2 );
+		$slugs = wp_list_pluck( (array) ( $GLOBALS['submenu']['jetpack'] ?? array() ), 2 );
 		$this->assertNotContains(
 			Subscribers_Announcement::PAGE_SLUG,
 			$slugs,
