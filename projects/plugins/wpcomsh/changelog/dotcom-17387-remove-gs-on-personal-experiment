@@ -1,0 +1,3 @@
+Significance: patch
+Type: changed
+Comment: Global Styles on Personal cleanup: add the Personal plan to the GLOBAL_STYLES feature mapping and simplify the Atomic custom CSS check now that the experiment has fully rolled out. No user-facing change.

@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add Google site auto-verification to the Settings tab: connected sites can verify with Google through a WordPress.com keyring popup (with manual meta-tag entry as a fallback), replacing the legacy Traffic-page UI.
