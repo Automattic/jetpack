@@ -166,14 +166,44 @@ class Settings_Test extends BaseTestCase {
 	/**
 	 * `is_modernized()` is the canonical gate used by `maybe_load_wp_build`,
 	 * `add_wp_admin_menu`, and `load_admin_scripts`. Its default — the value
-	 * `apply_filters` receives — must be true now that the modernized
-	 * Newsletter dashboard is the shipped experience.
+	 * `apply_filters` receives — is the staged-rollout cohort. Outside a
+	 * WordPress.com Simple site (the test environment) the cohort is empty, so
+	 * the default must be false.
 	 */
-	public function test_is_modernized_defaults_to_true() {
-		$this->assertTrue(
+	public function test_is_modernized_defaults_to_false_outside_rollout() {
+		$this->assertFalse(
 			self::call_private_static_is_modernized(),
-			'Modernization gate must default to true now that the dashboard has shipped.'
+			'Modernization gate must default to false when the site is not in the rollout cohort.'
 		);
+	}
+
+	/**
+	 * The rollout cohort is limited to genuine WordPress.com Simple sites. A
+	 * non-Simple site (no `IS_WPCOM`) — including shadow Jetpack sites — must
+	 * never be enrolled regardless of its blog ID.
+	 */
+	public function test_rollout_disabled_on_non_wpcom_simple_site() {
+		$this->assertFalse(
+			Settings::is_modernization_rollout_enabled(),
+			'Only WordPress.com Simple sites may enter the modernization rollout cohort.'
+		);
+	}
+
+	/**
+	 * A WordPress.com Simple site whose blog ID falls in the rollout bucket
+	 * (id % 100 < 5) is enrolled. WorDBless reports blog ID 1, which is in-bucket.
+	 */
+	public function test_rollout_enabled_for_in_bucket_wpcom_simple_site() {
+		\Automattic\Jetpack\Constants::set_constant( 'IS_WPCOM', true );
+
+		try {
+			$this->assertTrue(
+				Settings::is_modernization_rollout_enabled(),
+				'An in-bucket WordPress.com Simple site must be enrolled in the rollout cohort.'
+			);
+		} finally {
+			\Automattic\Jetpack\Constants::clear_single_constant( 'IS_WPCOM' );
+		}
 	}
 
 	/**

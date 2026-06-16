@@ -390,21 +390,27 @@ function wpcom_add_jetpack_submenu() {
 	// Jetpack > Subscribers. Always hide the auto-added Calypso redirect link.
 	wpcom_hide_submenu_page( 'jetpack', esc_url( Redirect::get_url( 'jetpack-menu-jetpack-manage-subscribers', array( 'site' => $blog_id ) ) ) );
 
-	// With the Newsletter modernization filter on (the default), the unified
-	// Newsletter page owns the Subscribers tab and the legacy Calypso "Subscribers"
-	// submenu is retired, replaced by a transitional announcement page that points
-	// there. Hosts that opt out of the filter keep the legacy Calypso submenu.
-	// (The wp-admin subscriber-management variant was removed with the
-	// subscribers-dashboard package and isn't restored.)
+	// When the Newsletter modernization filter is on, the unified Newsletter page
+	// owns the Subscribers tab and the legacy Calypso "Subscribers" submenu is
+	// retired, replaced by a transitional announcement page that points there;
+	// otherwise we keep the legacy Calypso submenu. (The wp-admin
+	// subscriber-management variant was removed with the subscribers-dashboard
+	// package and isn't restored.)
+	//
+	// The filter default is the staged-rollout cohort: on for 5% of WordPress.com
+	// Simple sites, bucketed by blog ID. This mirrors the canonical
+	// Newsletter\Settings::is_modernization_rollout_enabled(); the newsletter
+	// package isn't a dependency of jetpack-mu-wpcom and this runs unconditionally
+	// — ahead of the class_exists-guarded Subscribers_Announcement use below — so
+	// the filter name and the cohort math are inlined rather than referenced from
+	// the class.
 	//
 	// On WordPress.com (Simple and WoA) this menu is the canonical owner of the
 	// Subscribers entry, so the announcement page is registered here for both
 	// platforms; the standalone plugin's subscriptions module defers to it on
-	// wpcom to avoid a duplicate. Referenced as a string literal (mirrors
-	// Newsletter\Settings::MODERNIZATION_FILTER): the newsletter package isn't a
-	// dependency of jetpack-mu-wpcom, and the filter runs unconditionally — ahead
-	// of the class_exists-guarded Subscribers_Announcement use.
-	if ( ! apply_filters( 'rsm_jetpack_ui_modernization_newsletter', true ) ) {
+	// wpcom to avoid a duplicate.
+	$modernization_rollout_default = $is_simple_site && ( (int) $blog_id % 100 ) < 5;
+	if ( ! apply_filters( 'rsm_jetpack_ui_modernization_newsletter', $modernization_rollout_default ) ) {
 		add_submenu_page(
 			'jetpack',
 			__( 'Subscribers', 'jetpack-mu-wpcom' ),

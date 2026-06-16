@@ -34,6 +34,15 @@ class Settings {
 	const MODERNIZATION_FILTER = 'rsm_jetpack_ui_modernization_newsletter';
 
 	/**
+	 * Percentage of WordPress.com Simple sites the modernized Newsletter
+	 * experience defaults on for during the staged rollout.
+	 *
+	 * Sites are bucketed deterministically by their wpcom blog ID, so every
+	 * gate that reads this lands on the same answer for a given site.
+	 */
+	const MODERNIZATION_ROLLOUT_PERCENTAGE = 5;
+
+	/**
 	 * Whether the class has been initialized
 	 *
 	 * @var boolean
@@ -269,7 +278,7 @@ class Settings {
 		$is_block_theme         = wp_is_block_theme();
 		$setup_payment_plan_url = ( $is_wpcom ? 'https://wordpress.com/earn/payments/' : 'https://cloud.jetpack.com/monetize/payments/' ) . $site_suffix;
 
-		$wp_admin_subscriber_management_enabled = apply_filters( 'jetpack_wp_admin_subscriber_management_enabled', true );
+		$wp_admin_subscriber_management_enabled = apply_filters( 'jetpack_wp_admin_subscriber_management_enabled', self::is_modernization_rollout_enabled() );
 
 		// Populate blog_id which is needed for API calls on Simple sites.
 		$data['site']['wpcom']['blog_id'] = $blog_id;
@@ -489,16 +498,44 @@ class Settings {
 	}
 
 	/**
+	 * Whether the modernized Newsletter experience should default on for this site.
+	 *
+	 * The release is staged: the modernized dashboard, wp-admin subscriber
+	 * management, and the retired Calypso Subscribers submenu all default on for a
+	 * deterministic 5% slice of WordPress.com Simple sites, keyed on the wpcom blog
+	 * ID. Only genuine Simple sites qualify — shadow Jetpack sites (self-hosted
+	 * installs paired with a wpcom shadow blog) run where `IS_WPCOM` is undefined,
+	 * so `is_wpcom_simple()` is false and they are excluded.
+	 *
+	 * This is only the filter *default*: hosts can still force the experience on or
+	 * off with the `rsm_jetpack_ui_modernization_newsletter` /
+	 * `jetpack_wp_admin_subscriber_management_enabled` filters.
+	 *
+	 * @return bool
+	 */
+	public static function is_modernization_rollout_enabled() {
+		$host = new Host();
+		if ( ! $host->is_wpcom_simple() ) {
+			return false;
+		}
+
+		$blog_id = (int) $host->get_wpcom_site_id();
+
+		return ( $blog_id % 100 ) < self::MODERNIZATION_ROLLOUT_PERCENTAGE;
+	}
+
+	/**
 	 * Returns true when the wp-build modernization filter is enabled.
 	 *
-	 * Defaults to `true`: the modernized Newsletter dashboard is the shipped
-	 * experience. Hosts can opt out with
-	 * `add_filter( self::MODERNIZATION_FILTER, '__return_false' );`.
+	 * Defaults to the staged-rollout cohort (see
+	 * `is_modernization_rollout_enabled()`): on for 5% of WordPress.com Simple
+	 * sites, off everywhere else. Hosts can opt in or out explicitly with
+	 * `add_filter( self::MODERNIZATION_FILTER, '__return_true' / '__return_false' );`.
 	 *
 	 * @return bool
 	 */
 	private static function is_modernized() {
-		return (bool) apply_filters( self::MODERNIZATION_FILTER, true );
+		return (bool) apply_filters( self::MODERNIZATION_FILTER, self::is_modernization_rollout_enabled() );
 	}
 
 	/**

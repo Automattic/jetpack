@@ -246,8 +246,18 @@ class Jetpack_Redux_State_Helper {
 			'isSubscriptionSiteEnabled'            => apply_filters( 'jetpack_subscription_site_enabled', false ),
 			'newsletterDateExample'                => gmdate( get_option( 'date_format' ), time() ),
 			'subscriptionSiteEditSupported'        => $current_theme->is_block_theme(),
-			/* This filter is already documented in jetpack/modules/subscriptions.php */
-			'isWpAdminSubscriberManagementEnabled' => apply_filters( 'jetpack_wp_admin_subscriber_management_enabled', true ),
+
+			/*
+			 * This filter is already documented in jetpack/modules/subscriptions.php.
+			 * Default is the staged rollout (5% of WordPress.com Simple sites, by blog
+			 * ID), delegated to the canonical Newsletter\Settings helper and guarded so
+			 * an older packaged copy can't fatal.
+			 */
+			'isWpAdminSubscriberManagementEnabled' => apply_filters(
+				'jetpack_wp_admin_subscriber_management_enabled',
+				method_exists( '\Automattic\Jetpack\Newsletter\Settings', 'is_modernization_rollout_enabled' )
+					&& \Automattic\Jetpack\Newsletter\Settings::is_modernization_rollout_enabled()
+			),
 		);
 	}
 
