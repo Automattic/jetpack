@@ -19,6 +19,10 @@ import { LayoutSettings } from '../layout-settings';
 import { MoreActionsDropdown } from '../more-actions-dropdown';
 import type { MoreActionsDropdownItem } from '../more-actions-dropdown';
 
+interface ViewportSelectors {
+	isViewportMatch: ( query: string ) => boolean;
+}
+
 /**
  * Header chrome for the dashboard. Customize mode surfaces an edit
  * toolbar with Add widget, Layout settings (when grid settings are
@@ -78,7 +82,7 @@ export function Actions(): React.ReactNode {
 	// @TODO: switch to using Admin UI declaratively for mobile viewport support once available.
 	// https://github.com/WordPress/gutenberg/issues/77628
 	const isMobileViewport = useSelect(
-		select => select( viewportStore ).isViewportMatch( '< small' ),
+		select => ( select( viewportStore ) as ViewportSelectors ).isViewportMatch( '< small' ),
 		[]
 	);
 

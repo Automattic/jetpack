@@ -13,6 +13,14 @@ import type { DashboardWidget } from '../../widget-dashboard';
 const SCOPE = 'core/dashboard';
 const KEY = 'dashboardLayout';
 
+interface PreferencesSelectors {
+	get: ( scope: string, key: string ) => unknown;
+}
+
+interface PreferencesActions {
+	set: ( scope: string, key: string, value: unknown ) => unknown;
+}
+
 /**
  * Identifier of a dashboard, structured as `<plugin>_<page>` to mirror
  * the underscore form produced by the wp-build pipeline (see
@@ -37,11 +45,13 @@ export function useDashboardLayout(
 ): [ DashboardWidget[], ( layout: DashboardWidget[] ) => void, () => Promise< void > ] {
 	const layout = useSelect(
 		select =>
-			( select( preferencesStore ).get( SCOPE, KEY ) as DashboardWidget[] | undefined ) ?? [],
+			( ( select( preferencesStore ) as PreferencesSelectors ).get( SCOPE, KEY ) as
+				| DashboardWidget[]
+				| undefined ) ?? [],
 		[]
 	);
 
-	const { set } = useDispatch( preferencesStore );
+	const { set } = useDispatch( preferencesStore ) as PreferencesActions;
 
 	/**
 	 *

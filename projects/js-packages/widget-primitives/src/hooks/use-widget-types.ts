@@ -11,6 +11,24 @@ import { __ } from '@wordpress/i18n';
  */
 import type { WidgetName, WidgetType, WidgetTypeMetadata } from '../types';
 
+interface WidgetModuleEntityConfig {
+	name: string;
+	kind: string;
+	key: string;
+	baseURL: string;
+	plural: string;
+	label: string;
+	supportsPagination: boolean;
+}
+
+interface CoreDataActions {
+	addEntities: ( entities: WidgetModuleEntityConfig[] ) => unknown;
+}
+
+interface CoreDataSelectors {
+	getEntityRecords: ( kind: string, name: string ) => unknown;
+}
+
 /**
  * Registers the `widgetModule` core-data entity at module load.
  *
@@ -18,7 +36,7 @@ import type { WidgetName, WidgetType, WidgetTypeMetadata } from '../types';
  * the static `rootEntitiesConfig` array, so WP installs that never load
  * the dashboard widgets package never see it.
  */
-dispatch( coreStore ).addEntities( [
+( dispatch( coreStore ) as CoreDataActions ).addEntities( [
 	{
 		name: 'widgetModule',
 		kind: 'root',
@@ -65,7 +83,9 @@ export type UseWidgetTypesResult = readonly [ WidgetType[], boolean ];
 export function useWidgetTypes(): UseWidgetTypesResult {
 	const records = useSelect(
 		select =>
-			select( coreStore ).getEntityRecords( 'root', 'widgetModule' ) as WidgetModuleRecord[] | null,
+			( select( coreStore ) as CoreDataSelectors ).getEntityRecords( 'root', 'widgetModule' ) as
+				| WidgetModuleRecord[]
+				| null,
 		[]
 	);
 

@@ -20,6 +20,14 @@ import { DEFAULT_ROW_HEIGHT } from '../../widget-dashboard/utils/row-height-pres
 const SCOPE = 'core/dashboard';
 const KEY = 'dashboardGridSettings';
 
+interface PreferencesSelectors {
+	get: ( scope: string, key: string ) => unknown;
+}
+
+interface PreferencesActions {
+	set: ( scope: string, key: string, value: unknown ) => unknown;
+}
+
 /**
  * Default grid settings applied when the preferences store has no
  * entry yet, and the value `resetGridSettings` writes back when the
@@ -51,11 +59,13 @@ export function useDashboardGridSettings(): [
 	() => void,
 ] {
 	const settings = useSelect( select => {
-		const stored = select( preferencesStore ).get( SCOPE, KEY ) as WidgetGridSettings | undefined;
+		const stored = ( select( preferencesStore ) as PreferencesSelectors ).get( SCOPE, KEY ) as
+			| WidgetGridSettings
+			| undefined;
 		return normalizeGridSettings( stored ?? DEFAULT_GRID_SETTINGS, DEFAULT_ROW_HEIGHT );
 	}, [] );
 
-	const { set } = useDispatch( preferencesStore );
+	const { set } = useDispatch( preferencesStore ) as PreferencesActions;
 
 	/**
 	 *
