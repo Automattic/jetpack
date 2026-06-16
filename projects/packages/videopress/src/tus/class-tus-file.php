@@ -20,7 +20,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * @package VideoPressUploader
  */
 class Tus_File {
-	const CHUNK_SIZE    = 8192; // 8 kilobytes.
+	const CHUNK_SIZE    = MB_IN_BYTES;
 	const INPUT_STREAM  = 'php://input';
 	const READ_BINARY   = 'rb';
 	const APPEND_BINARY = 'ab';
@@ -415,8 +415,6 @@ class Tus_File {
 
 				$this->offset += $bytes;
 
-				$this->cache->set( $key, array( 'offset' => $this->offset ) );
-
 				if ( $this->offset > $total_bytes ) {
 					throw new \Out_Of_Range_Exception( 'The uploaded file is corrupt.' );
 				}
@@ -428,6 +426,12 @@ class Tus_File {
 		} finally {
 			$this->close( $input );
 			$this->close( $output );
+
+			try {
+				$this->cache->set( $key, array( 'offset' => $this->offset ) );
+			} catch ( \Exception $e ) {
+				Logger::log( 'error', $e );
+			}
 		}
 
 		return $this->offset;
