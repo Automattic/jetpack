@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Move Custom CSS to use Device Detection lib
