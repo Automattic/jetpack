@@ -647,6 +647,10 @@ interface Window {
 		isDevVersion: boolean;
 		userIsAdmin: string;
 		isWelcomeTourActive: boolean;
+		seoOptIn: {
+			showCard: boolean;
+			redirect: string;
+		};
 	};
 	myJetpackRest?: {
 		apiRoot: string;
