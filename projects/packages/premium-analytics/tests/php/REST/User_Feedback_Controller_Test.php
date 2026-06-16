@@ -101,7 +101,7 @@ class User_Feedback_Controller_Test extends BaseTestCase {
 		$request = new WP_REST_Request( 'POST', '/jetpack-premium-analytics/v1/jetpack-stats/user-feedback' );
 		$request->set_body( wp_json_encode( array( 'message' => 'hello' ), JSON_UNESCAPED_SLASHES ) );
 
-		$body = $this->augment_body( $request );
+		$body = $this->invoke_augment_body( $request );
 
 		$this->assertSame( 'hello', $body['message'], 'the original body is preserved' );
 		$this->assertSame( 'feedback@example.com', $body['user_email'], 'the current user email is injected' );
@@ -121,7 +121,7 @@ class User_Feedback_Controller_Test extends BaseTestCase {
 		$request = new WP_REST_Request( 'POST', '/jetpack-premium-analytics/v1/jetpack-stats/user-feedback' );
 		$request->set_body( wp_json_encode( array( 'user_email' => 'spoofed@example.com' ), JSON_UNESCAPED_SLASHES ) );
 
-		$body = $this->augment_body( $request );
+		$body = $this->invoke_augment_body( $request );
 
 		$this->assertSame( 'real@example.com', $body['user_email'], 'a client-supplied email cannot win' );
 	}
@@ -139,7 +139,7 @@ class User_Feedback_Controller_Test extends BaseTestCase {
 
 		$request = new WP_REST_Request( 'POST', '/jetpack-premium-analytics/v1/jetpack-stats/user-feedback' );
 
-		$this->assertSame( array( 'user_email' => 'empty@example.com' ), $this->augment_body( $request ) );
+		$this->assertSame( array( 'user_email' => 'empty@example.com' ), $this->invoke_augment_body( $request ) );
 	}
 
 	/**
@@ -149,7 +149,7 @@ class User_Feedback_Controller_Test extends BaseTestCase {
 	 *
 	 * @return array<string, mixed>
 	 */
-	private function augment_body( WP_REST_Request $request ): array {
+	private function invoke_augment_body( WP_REST_Request $request ): array {
 		$accessor = function ( WP_REST_Request $req ) {
 			// @phan-suppress-next-line PhanUndeclaredMethod -- rebound to the controller via Closure::call() below.
 			return $this->augment_body( $req );
