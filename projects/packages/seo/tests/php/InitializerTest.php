@@ -267,4 +267,36 @@ class InitializerTest extends TestCase {
 		delete_option( Initializer::SITEMAP_ENABLED_OPTION );
 		delete_option( Initializer::CANONICAL_ENABLED_OPTION );
 	}
+
+	/**
+	 * On self-hosted sites, discoverability is driven by the durable cohort option:
+	 * hidden when absent (the non-disruptive default) or empty, visible when set.
+	 */
+	public function test_is_seo_surface_visible_reads_cohort_option_on_self_hosted() {
+		delete_option( Initializer::VISIBILITY_OPTION );
+		$this->assertFalse( Initializer::is_seo_surface_visible() );
+
+		update_option( Initializer::VISIBILITY_OPTION, '1' );
+		$this->assertTrue( Initializer::is_seo_surface_visible() );
+
+		update_option( Initializer::VISIBILITY_OPTION, '' );
+		$this->assertFalse( Initializer::is_seo_surface_visible() );
+
+		delete_option( Initializer::VISIBILITY_OPTION );
+	}
+
+	/**
+	 * WordPress.com sites (here: Simple, via the IS_WPCOM constant) are always
+	 * discoverable, bypassing the cohort option entirely.
+	 */
+	public function test_is_seo_surface_visible_always_true_on_wpcom() {
+		delete_option( Initializer::VISIBILITY_OPTION ); // Hidden for self-hosted...
+		\Automattic\Jetpack\Constants::set_constant( 'IS_WPCOM', true );
+
+		try {
+			$this->assertTrue( Initializer::is_seo_surface_visible() );
+		} finally {
+			\Automattic\Jetpack\Constants::clear_single_constant( 'IS_WPCOM' );
+		}
+	}
 }
