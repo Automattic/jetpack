@@ -68,7 +68,7 @@ class Notices_Controller_Test extends BaseTestCase {
 	}
 
 	public function test_write_route_requires_id_and_status() {
-		$args = null;
+		$args = array();
 		foreach ( rest_get_server()->get_routes()[ self::ROUTE ] as $handler ) {
 			if ( isset( $handler['methods']['POST'] ) ) {
 				$args = $handler['args'];

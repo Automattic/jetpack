@@ -188,11 +188,12 @@ class Notices {
 		if ( null !== $error_code || 200 !== $response_code ) {
 			return new WP_Error(
 				$error_code,
-				$decoded['message'] ?? 'unknown remote error',
+				is_array( $decoded ) ? ( $decoded['message'] ?? 'unknown remote error' ) : 'unknown remote error',
 				array( 'status' => $response_code )
 			);
 		}
 
-		return $decoded;
+		// The notices endpoint always returns a JSON object; coerce anything else to an empty map.
+		return is_array( $decoded ) ? $decoded : array();
 	}
 }
