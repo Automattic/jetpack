@@ -158,13 +158,18 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 	 * GC never reaches the rarely re-read, param-keyed entries). The coupling is loose: the filter
 	 * is just a hook name, so if the stats package isn't loaded it never fires and nothing breaks.
 	 *
+	 * Appends only when handed a valid array; a non-array (from a misbehaving upstream filter) is
+	 * returned untouched so the stats consumer's own fall-back-to-defaults normalization still runs
+	 * instead of being masked into dropping the default stats prefix.
+	 *
 	 * @param mixed $prefixes Transient prefixes the stats cleanup cron will sweep.
 	 *
-	 * @return array
+	 * @return mixed
 	 */
-	public function register_transient_cleanup_prefix( $prefixes ): array {
-		$prefixes   = is_array( $prefixes ) ? $prefixes : array();
-		$prefixes[] = self::CACHE_PREFIX;
+	public function register_transient_cleanup_prefix( $prefixes ) {
+		if ( is_array( $prefixes ) ) {
+			$prefixes[] = self::CACHE_PREFIX;
+		}
 
 		return $prefixes;
 	}

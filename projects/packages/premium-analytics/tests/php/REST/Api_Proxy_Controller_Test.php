@@ -657,14 +657,16 @@ class Api_Proxy_Controller_Test extends BaseTestCase {
 		$this->assertStringStartsWith( 'jetpack-premium-analytics_proxy_', $real_key );
 	}
 
-	public function test_register_transient_cleanup_prefix_preserves_existing_and_tolerates_non_array() {
+	public function test_register_transient_cleanup_prefix_preserves_existing_and_passes_non_array_through() {
 		$this->assertSame(
 			array( 'other_prefix_', 'jetpack-premium-analytics_proxy_' ),
 			$this->controller->register_transient_cleanup_prefix( array( 'other_prefix_' ) )
 		);
 
+		// A non-array (from a misbehaving upstream filter) is returned untouched, so the stats
+		// consumer's own fall-back-to-defaults normalization runs instead of being masked.
 		$this->assertSame(
-			array( 'jetpack-premium-analytics_proxy_' ),
+			'not-an-array',
 			$this->controller->register_transient_cleanup_prefix( 'not-an-array' )
 		);
 	}
