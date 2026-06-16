@@ -1,33 +1,32 @@
 /**
  * External dependencies
  */
-import { useState, useEffect, useRef, useCallback } from 'react';
-import { Stack, Button } from '@wordpress/ui';
+import { useSyncStatus } from '@jetpack-premium-analytics/site-sync';
 import { ProgressBar } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { useSyncStatus } from '@jetpack-premium-analytics/site-sync';
-
+import { Stack, Button } from '@wordpress/ui';
+import { useState, useEffect, useRef, useCallback } from 'react';
 /**
  * Internal dependencies
  */
 import { Connection } from '../../../connect/images';
 import './style.scss';
 
+/**
+ * Syncing screen: polls sync status and shows progress until the initial
+ * sync completes, with a retry action when the sync errors or stalls.
+ *
+ * @return The syncing screen.
+ */
 export function Syncing() {
-	const { data, error, isLoading, isComplete, isStalled, triggerSync } =
-		useSyncStatus();
+	const { data, error, isLoading, isComplete, isStalled, triggerSync } = useSyncStatus();
 
 	const [ isTriggering, setIsTriggering ] = useState( false );
 	const didAutoTrigger = useRef( false );
 
 	// Auto-trigger sync when it hasn't started yet.
 	useEffect( () => {
-		if (
-			data &&
-			! data.isStarted &&
-			! data.isRunning &&
-			! didAutoTrigger.current
-		) {
+		if ( data && ! data.isStarted && ! data.isRunning && ! didAutoTrigger.current ) {
 			didAutoTrigger.current = true;
 			void triggerSync();
 		}
@@ -69,20 +68,13 @@ export function Syncing() {
 	const percentage = data?.percentage ?? 0;
 
 	return (
-		<Stack
-			direction="column"
-			gap="xl"
-			align="center"
-			className="jetpack-premium-analytics-syncing"
-		>
+		<Stack direction="column" gap="xl" align="center" className="jetpack-premium-analytics-syncing">
 			<Connection />
 
 			<Stack direction="column" gap="sm" align="center">
 				<span className="jetpack-premium-analytics-syncing__title">{ title }</span>
 
-				<span className="jetpack-premium-analytics-syncing__description">
-					{ description }
-				</span>
+				<span className="jetpack-premium-analytics-syncing__description">{ description }</span>
 			</Stack>
 
 			{ ! error && (
@@ -94,9 +86,7 @@ export function Syncing() {
 				>
 					<ProgressBar value={ percentage } />
 					{ ! isLoading && (
-						<span className="jetpack-premium-analytics-syncing__percentage">
-							{ percentage }%
-						</span>
+						<span className="jetpack-premium-analytics-syncing__percentage">{ percentage }%</span>
 					) }
 				</Stack>
 			) }

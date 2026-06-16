@@ -1,17 +1,16 @@
 /**
  * External dependencies
  */
-import { Stack, Button } from '@wordpress/ui';
-import { ExternalLink } from '@wordpress/components';
-import { __ } from '@wordpress/i18n';
-import { createInterpolateElement, useEffect } from '@wordpress/element';
 import useConnection from '@automattic/jetpack-connection/use-connection';
+import { ExternalLink } from '@wordpress/components';
+import { createInterpolateElement, useEffect } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
+import { Stack, Button } from '@wordpress/ui';
+import { Connection, ConnectionError } from '../../images';
 import type { JetpackScriptData } from '@automattic/jetpack-script-data';
-
 /**
  * Internal dependencies
  */
-import { Connection, ConnectionError } from '../../images';
 import './style.scss';
 
 // Narrowed from `getScriptData().connection` so the shape tracks upstream.
@@ -20,20 +19,23 @@ type ConnectionData = Pick<
 	'apiNonce' | 'apiRoot' | 'registrationNonce'
 >;
 
+/**
+ * Connect screen: authorize button + ToS, with connecting and error states.
+ *
+ * @param props      - Component props.
+ * @param props.data - Jetpack connection data (nonces) for `useConnection`.
+ * @return The connect screen.
+ */
 export function Connect( { data }: { data: ConnectionData } ) {
-	const {
-		handleRegisterSite,
-		siteIsRegistering,
-		userIsConnecting,
-		registrationError,
-	} = useConnection( {
-		apiNonce: data.apiNonce,
-		apiRoot: data.apiRoot,
-		registrationNonce: data.registrationNonce,
-		redirectUri: 'admin.php?page=jetpack-premium-analytics&p=/',
-		from: 'jetpack-premium-analytics',
-		skipUserConnection: true,
-	} );
+	const { handleRegisterSite, siteIsRegistering, userIsConnecting, registrationError } =
+		useConnection( {
+			apiNonce: data.apiNonce,
+			apiRoot: data.apiRoot,
+			registrationNonce: data.registrationNonce,
+			redirectUri: 'admin.php?page=jetpack-premium-analytics&p=/',
+			from: 'jetpack-premium-analytics',
+			skipUserConnection: true,
+		} );
 
 	const isBusy = siteIsRegistering || userIsConnecting;
 	const isError = !! registrationError;
@@ -66,20 +68,13 @@ export function Connect( { data }: { data: ConnectionData } ) {
 		: __( 'Authorize and sync data', 'jetpack-premium-analytics' );
 
 	return (
-		<Stack
-			direction="column"
-			gap="xl"
-			align="center"
-			className="jetpack-premium-analytics-connect"
-		>
+		<Stack direction="column" gap="xl" align="center" className="jetpack-premium-analytics-connect">
 			{ isError ? <ConnectionError /> : <Connection /> }
 
 			<Stack direction="column" gap="sm" align="center">
 				<span className="jetpack-premium-analytics-connect__title">{ title }</span>
 
-				<span className="jetpack-premium-analytics-connect__description">
-					{ description }
-				</span>
+				<span className="jetpack-premium-analytics-connect__description">{ description }</span>
 			</Stack>
 
 			<Stack direction="column" gap="md" align="center">
@@ -89,9 +84,7 @@ export function Connect( { data }: { data: ConnectionData } ) {
 					disabled={ isBusy }
 					loading={ isBusy }
 				>
-					{ isBusy
-						? __( 'Connecting…', 'jetpack-premium-analytics' )
-						: buttonText }
+					{ isBusy ? __( 'Connecting…', 'jetpack-premium-analytics' ) : buttonText }
 				</Button>
 
 				{ ! isError && (
@@ -102,11 +95,7 @@ export function Connect( { data }: { data: ConnectionData } ) {
 								'jetpack-premium-analytics'
 							),
 							{
-								tos: (
-									<ExternalLink href="https://wordpress.com/tos/">
-										tos
-									</ExternalLink>
-								),
+								tos: <ExternalLink href="https://wordpress.com/tos/">tos</ExternalLink>,
 								sync: (
 									<ExternalLink href="https://woocommerce.com/woocommerce-analytics-data-syncing/">
 										sync

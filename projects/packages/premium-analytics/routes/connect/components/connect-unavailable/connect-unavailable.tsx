@@ -1,15 +1,19 @@
 /**
  * External dependencies
  */
-import { Stack } from '@wordpress/ui';
 import { __ } from '@wordpress/i18n';
-
+import { Stack } from '@wordpress/ui';
 /**
  * Internal dependencies
  */
 import { ConnectionError } from '../../images';
 import './style.scss';
 
+/**
+ * Fallback shown when Jetpack connection data is unavailable.
+ *
+ * @return The connection-unavailable screen.
+ */
 export function ConnectUnavailable() {
 	return (
 		<Stack

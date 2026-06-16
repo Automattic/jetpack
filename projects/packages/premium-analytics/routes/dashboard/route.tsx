@@ -1,8 +1,8 @@
 /**
  * External dependencies
  */
-import { redirect } from '@wordpress/route';
 import { getScriptData } from '@automattic/jetpack-script-data';
+import { redirect } from '@wordpress/route';
 
 /**
  * Route guard for the dashboard.

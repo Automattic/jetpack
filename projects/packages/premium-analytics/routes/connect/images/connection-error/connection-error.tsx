@@ -1,12 +1,11 @@
+/**
+ * Connection-error illustration.
+ *
+ * @return The connection-error illustration SVG.
+ */
 export function ConnectionError() {
 	return (
-		<svg
-			width="68"
-			height="67"
-			viewBox="0 0 68 67"
-			fill="none"
-			xmlns="http://www.w3.org/2000/svg"
-		>
+		<svg width="68" height="67" viewBox="0 0 68 67" fill="none" xmlns="http://www.w3.org/2000/svg">
 			<path
 				d="M33.9998 66.9996C52.401 66.9996 67.318 52.0826 67.318 33.6815C67.318 15.2803 52.401 0.363281 33.9998 0.363281C15.5987 0.363281 0.681641 15.2803 0.681641 33.6815C0.681641 52.0826 15.5987 66.9996 33.9998 66.9996Z"
 				fill="#D1C1FF"
