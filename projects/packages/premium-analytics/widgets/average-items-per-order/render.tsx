@@ -1,14 +1,12 @@
-/**
- * External dependencies
- */
-import type { WidgetRenderProps } from '@automattic/jetpack-widget-primitives';
 import {
 	OrderMetricWidget,
 	WidgetRoot,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 
-type AverageItemsPerOrderRenderProps = WidgetRenderProps< Partial< ReportParamsFieldAttributes > >;
+type AverageItemsPerOrderRenderProps = {
+	attributes?: Partial< ReportParamsFieldAttributes >;
+};
 
 /**
  * Average items per order widget.
@@ -20,10 +18,9 @@ type AverageItemsPerOrderRenderProps = WidgetRenderProps< Partial< ReportParamsF
  */
 export default function AverageItemsPerOrderRender( {
 	attributes,
-	setError,
 }: AverageItemsPerOrderRenderProps ) {
 	return (
-		<WidgetRoot attributes={ attributes } setError={ setError } options={ { from: '/' } }>
+		<WidgetRoot attributes={ attributes } options={ { from: '/' } }>
 			<OrderMetricWidget metricKey="avg_items" />
 		</WidgetRoot>
 	);

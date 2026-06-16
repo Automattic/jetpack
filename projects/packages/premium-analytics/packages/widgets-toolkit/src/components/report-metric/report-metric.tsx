@@ -110,7 +110,7 @@ export function ReportMetricWidget( { metricKey, data, dataFormat }: ReportMetri
 
 	const hasError = useWidgetError( isError, error, refetch );
 	if ( hasError ) {
-		return null; // Dashboard chrome shows the recoverable error UI.
+		return null; // Dashboard shows error UI via WidgetErrorBoundary
 	}
 
 	// No data and not loading = nothing to show

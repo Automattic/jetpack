@@ -63,9 +63,12 @@ export type DataFormat = {
 };
 
 /**
- * Mirrors the dashboard's widget error contract: a message plus an optional
- * action (e.g. a retry button). Kept local so the toolkit can stay independent
- * from a specific dashboard host package.
+ * Local stand-in for the `WidgetErrorConfig` type from `@automattic/dashboard`
+ * (CIAB Admin), which is not published to npm. Mirrors the documented shape of
+ * the dashboard's widget error contract: a message plus an optional action
+ * (e.g. a retry button).
+ *
+ * TODO: Replace with the `@automattic/dashboard` type once it is available.
  */
 export type WidgetErrorConfig = {
 	message: string;
