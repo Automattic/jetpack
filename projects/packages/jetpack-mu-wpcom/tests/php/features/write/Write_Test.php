@@ -166,6 +166,32 @@ class Write_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * Test that the image modal renders the media library section alongside
+	 * the existing upload zone and URL paste — the three sources Write supports
+	 * after RSM-594.
+	 */
+	public function test_template_includes_media_library_section() {
+		wp_set_current_user( $this->admin_id );
+
+		$output = $this->render_template();
+
+		// Search input + horizontal strip container.
+		$this->assertStringContainsString( 'id="bw-library-search"', $output );
+		$this->assertStringContainsString( 'id="bw-library-grid"', $output );
+		$this->assertStringContainsString( 'actions.searchLibrary', $output );
+		$this->assertStringContainsString( 'actions.selectLibraryImage', $output );
+		// Collapsed-by-default expanders for library + URL.
+		$this->assertStringContainsString( 'actions.toggleLibraryPicker', $output );
+		$this->assertStringContainsString( 'actions.toggleUrlInput', $output );
+		// Existing upload + URL paste paths still present.
+		$this->assertStringContainsString( 'id="bw-upload-zone"', $output );
+		$this->assertStringContainsString( 'actions.insertImageFromUrl', $output );
+		// Grid is keyboard- and screen-reader-labelled.
+		$this->assertStringContainsString( 'aria-label="Your media library"', $output );
+		$this->assertStringContainsString( 'aria-live="polite"', $output );
+	}
+
+	/**
 	 * Test that the Interactivity API state includes required fields.
 	 */
 	public function test_interactivity_state_is_seeded() {
