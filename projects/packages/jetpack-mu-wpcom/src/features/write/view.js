@@ -2130,7 +2130,6 @@ async function fetchLibrary() {
 	const myToken = ++libraryFetchToken;
 	const search = state.librarySearch.trim();
 
-	state.libraryLoading = true;
 	state.libraryStatus = strings.libraryLoading || 'Loading…';
 
 	try {
@@ -2143,8 +2142,6 @@ async function fetchLibrary() {
 		if ( myToken !== libraryFetchToken ) return;
 
 		libraryItems = items;
-		state.libraryHasItems = libraryItems.length > 0;
-		state.libraryLoading = false;
 
 		if ( libraryItems.length === 0 ) {
 			state.libraryStatus = search
@@ -2157,7 +2154,6 @@ async function fetchLibrary() {
 		renderLibraryGrid();
 	} catch {
 		if ( myToken !== libraryFetchToken ) return;
-		state.libraryLoading = false;
 		state.libraryStatus = strings.libraryLoadFailed || "Couldn't load your library.";
 	}
 }
@@ -4590,6 +4586,13 @@ const { state } = store( 'wpcom-write', {
 			state.uploadedMediaId = item.id;
 			mediaSizesCache.set( item.id, item.media_details?.sizes || null );
 			showUploadPreview( item.source_url );
+
+			// Announce the selection through the modal's aria-live region so
+			// screen-reader users get audible confirmation that the click
+			// registered (the preview itself is purely visual).
+			const label = item.alt_text || item.title?.rendered || '';
+			const template = window.wpcomWriteStrings?.librarySelected || 'Selected %s';
+			state.libraryStatus = template.replace( '%s', label );
 		},
 
 		editImage( figure, triggerEl ) {
@@ -4929,21 +4932,14 @@ const { state } = store( 'wpcom-write', {
 		},
 
 		insertImage() {
-			// Slash-menu image insert: close any open edit panel first so
-			// the in-progress edit session is committed as a discrete undo
-			// entry before the insert overlay takes over.
-			endEditSession();
+			// Slash-menu image insert: clean up the slash UI, then delegate
+			// to openImageModal so the modal opens in the same reset state as
+			// the toolbar entry (collapsed expanders + scroll lock).
 			flushUndoDebounce();
 			clearSlashText();
 			clearSlashActive();
 			state.showSlashMenu = false;
-			saveSelection();
-			state.imageUrl = '';
-			state.imageAlt = '';
-			resetImageModalInputs();
-			resetUploadZone();
-			state.showImageModal = true;
-			focusModalInput();
+			store( 'wpcom-write' ).actions.openImageModal();
 		},
 
 		insertBulletedList() {

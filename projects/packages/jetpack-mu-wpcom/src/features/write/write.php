@@ -133,6 +133,8 @@ add_action(
 			'libraryEmpty'         => __( 'No images in your library yet.', 'jetpack-mu-wpcom' ),
 			'libraryNoResults'     => __( 'No matching images.', 'jetpack-mu-wpcom' ),
 			'libraryLoadFailed'    => __( "Couldn't load your library.", 'jetpack-mu-wpcom' ),
+			// translators: %s is the alt text or filename of the selected library image.
+			'librarySelected'      => __( 'Selected %s', 'jetpack-mu-wpcom' ),
 			'invalidVideoUrl'      => __( 'Please paste a valid YouTube or Vimeo URL', 'jetpack-mu-wpcom' ),
 			'pleaseAddTitle'       => __( 'Please add a title', 'jetpack-mu-wpcom' ),
 			'pleaseWriteSomething' => __( 'Please write something', 'jetpack-mu-wpcom' ),
@@ -850,8 +852,6 @@ function wpcom_write_render_admin_page() {
 			'showLibraryPicker'      => false,
 			'showUrlInput'           => false,
 			'librarySearch'          => '',
-			'libraryLoading'         => false,
-			'libraryHasItems'        => false,
 			'libraryStatus'          => '',
 			'categories'             => $categories_data,
 			'catLabel'               => $cat_label,
