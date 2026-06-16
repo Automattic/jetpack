@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+RTC: add a jetpack_rtc_connection_error Tracks event recorded on a genuine (non-limit) sync connection error; the per-room-limit case is skipped to avoid double-counting with jetpack_rtc_blocked.

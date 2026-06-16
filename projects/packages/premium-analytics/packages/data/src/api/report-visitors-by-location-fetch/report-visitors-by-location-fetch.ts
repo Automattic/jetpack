@@ -36,7 +36,7 @@ export type RequestReportVisitorsByLocationParams = BaseReportParams & {
 /**
  * Fetch visitors grouped by location (country or region) for the selected period.
  *
- * This endpoint is proxied through `/jetpack-premium-analytics/v1/proxy/reports/...`
+ * This endpoint is proxied through `/jetpack-premium-analytics/v1/proxy/v2/analytics/reports/...`
  * and ultimately served by wpcom analytics.
  */
 export async function fetchReportVisitorsByLocation( {

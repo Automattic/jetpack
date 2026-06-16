@@ -10,6 +10,7 @@ const makeSettings = ( overrides: Partial< SettingsResponse > = {} ): SettingsRe
 	verification: { google: '', bing: '', pinterest: '', yandex: '', facebook: '' },
 	search_engines_visible: true,
 	sitemap_active: false,
+	canonical_active: false,
 	...overrides,
 } );
 
@@ -23,6 +24,12 @@ describe( 'buildJetpackPayload', () => {
 		const baseline = makeSettings( { sitemap_active: false } );
 		const local = makeSettings( { sitemap_active: true } );
 		expect( buildJetpackPayload( baseline, local ) ).toEqual( { sitemaps: true } );
+	} );
+
+	it( 'includes only the canonical-urls key when the canonical toggle changed', () => {
+		const baseline = makeSettings( { canonical_active: false } );
+		const local = makeSettings( { canonical_active: true } );
+		expect( buildJetpackPayload( baseline, local ) ).toEqual( { 'canonical-urls': true } );
 	} );
 
 	it( 'maps a front-page description change to advanced_seo_front_page_description', () => {

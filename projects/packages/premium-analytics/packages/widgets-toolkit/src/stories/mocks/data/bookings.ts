@@ -1,7 +1,7 @@
 /**
  * Mock data generator for bookings endpoint
  *
- * API endpoint: /wc/v3/woocommerce-analytics/proxy/reports/bookings/by-date
+ * API endpoint: /jetpack-premium-analytics/v1/proxy/v2/analytics/reports/bookings/by-date
  *
  * This module provides dynamic fixture generation based on request parameters.
  */

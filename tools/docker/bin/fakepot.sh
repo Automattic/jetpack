@@ -49,7 +49,8 @@ function docopy {
 	local SRC="$1"
 	local DEST="${2%/}"
 
-	local OLDDIR="$(pwd)";
+	local OLDDIR
+	OLDDIR="$(pwd)"
 	cd "$SRC"
 	mkdir "$DEST"
 	{
@@ -73,7 +74,7 @@ docopy "$PLUGIN_DIR" "$TMPDIR/plugin"
 
 info "Creating POT file"
 mkdir "$TMPDIR/pot"
-php -d memory_limit=2G $(command -v wp) --debug i18n make-pot --slug="$DOMAIN" --ignore-domain "$TMPDIR/plugin/" "$TMPDIR/pot/$DOMAIN.pot"
+php -d memory_limit=2G "$(command -v wp)" --debug i18n make-pot --slug="$DOMAIN" --ignore-domain "$TMPDIR/plugin/" "$TMPDIR/pot/$DOMAIN.pot"
 
 info "Making translations"
 cat <<EOF > "$TMPDIR/pot/en_piglatin.po"
