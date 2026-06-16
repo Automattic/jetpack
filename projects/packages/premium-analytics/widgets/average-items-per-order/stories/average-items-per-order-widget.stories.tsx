@@ -5,7 +5,7 @@ import {
 	queryClient,
 } from '@jetpack-premium-analytics/data';
 import { Page } from '@wordpress/admin-ui';
-import { useEffect, useRef, useState, type ComponentType, type ReactNode } from 'react';
+import { useEffect, useState, type ComponentType, type ReactNode } from 'react';
 import { registerReportMocks } from '../../../packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
 import AverageItemsPerOrderRender from '../render';
 import widgetDefinition from '../widget';
@@ -37,7 +37,7 @@ export default meta;
 type Story = StoryObj< typeof AverageItemsPerOrderRender >;
 
 const AVERAGE_ITEMS_RENDER_MODULE = 'storybook/average-items-per-order';
-const REPORT_ERROR_PATHS = [ '/orders/by-date' ];
+const AVERAGE_ITEMS_ERROR_RENDER_MODULE = 'storybook/average-items-per-order-error';
 const DASHBOARD_ROW_HEIGHT = 300;
 const DASHBOARD_GRID_GAP = 24;
 const DASHBOARD_ONE_COLUMN_WIDTH = 256;
@@ -56,11 +56,15 @@ type ReportMockErrorConfig = {
 	paths?: string[];
 };
 
+const DISABLED_REPORT_MOCK_ERROR_CONFIG: ReportMockErrorConfig = { enabled: false };
+
 declare global {
 	interface Window {
 		__STORYBOOK_REPORT_MOCK_ERROR__?: ReportMockErrorConfig;
 	}
 }
+
+let appliedReportMockErrorConfigKey: string | null = null;
 
 const averageItemsWidgetType = {
 	...widgetDefinition,
@@ -68,14 +72,25 @@ const averageItemsWidgetType = {
 	renderModule: AVERAGE_ITEMS_RENDER_MODULE,
 } as WidgetType;
 
+const averageItemsErrorWidgetType = {
+	...averageItemsWidgetType,
+	renderModule: AVERAGE_ITEMS_ERROR_RENDER_MODULE,
+} as WidgetType;
+
 const resolveAverageItemsWidgetModule: ResolveWidgetModule = async moduleId => {
-	if ( moduleId !== AVERAGE_ITEMS_RENDER_MODULE ) {
-		throw new Error( `Unknown widget render module: ${ moduleId }` );
+	if ( moduleId === AVERAGE_ITEMS_RENDER_MODULE ) {
+		return {
+			default: AverageItemsPerOrderRender as ComponentType< WidgetRenderProps< unknown > >,
+		};
 	}
 
-	return {
-		default: AverageItemsPerOrderRender as ComponentType< WidgetRenderProps< unknown > >,
-	};
+	if ( moduleId === AVERAGE_ITEMS_ERROR_RENDER_MODULE ) {
+		return {
+			default: AverageItemsErrorRender as ComponentType< WidgetRenderProps< unknown > >,
+		};
+	}
+
+	throw new Error( `Unknown widget render module: ${ moduleId }` );
 };
 
 const createAverageItemsWidget = (
@@ -93,6 +108,32 @@ const createAverageItemsWidget = (
 	placement,
 } );
 
+function getReportMockErrorConfigKey( config: ReportMockErrorConfig ): string {
+	return JSON.stringify( {
+		enabled: Boolean( config.enabled ),
+		message: config.message,
+		status: config.status,
+		paths: config.paths ?? [],
+	} );
+}
+
+function applyReportMockErrorConfig( config: ReportMockErrorConfig ) {
+	if ( typeof window === 'undefined' ) {
+		return;
+	}
+
+	const configKey = getReportMockErrorConfigKey( config );
+
+	if ( appliedReportMockErrorConfigKey === configKey ) {
+		return;
+	}
+
+	window.__STORYBOOK_REPORT_MOCK_ERROR__ = config.enabled ? config : undefined;
+	queryClient.clear();
+	globalErrorManager.clearError();
+	appliedReportMockErrorConfigKey = configKey;
+}
+
 function ReportMockErrorScope( {
 	children,
 	config,
@@ -100,45 +141,24 @@ function ReportMockErrorScope( {
 	children: ReactNode;
 	config: ReportMockErrorConfig;
 } ) {
-	const previousConfig = useRef< ReportMockErrorConfig | undefined >( undefined );
-	const initialized = useRef( false );
-
-	if ( typeof window !== 'undefined' && ! initialized.current ) {
-		previousConfig.current = window.__STORYBOOK_REPORT_MOCK_ERROR__;
-		window.__STORYBOOK_REPORT_MOCK_ERROR__ = config;
-		queryClient.clear();
-		globalErrorManager.clearError();
-		initialized.current = true;
-	}
-
-	useEffect( () => {
-		return () => {
-			if ( typeof window !== 'undefined' ) {
-				window.__STORYBOOK_REPORT_MOCK_ERROR__ = previousConfig.current;
-			}
-
-			queryClient.clear();
-			globalErrorManager.clearError();
-		};
-	}, [] );
-
+	applyReportMockErrorConfig( config );
 	return children;
 }
 
-function DashboardPageErrorStory( {
-	errorConfig,
-	initialEditMode = false,
-	width = DESKTOP_DASHBOARD_WIDTH,
-}: {
-	errorConfig: ReportMockErrorConfig;
-	initialEditMode?: boolean;
-	width?: string;
-} ) {
-	return (
-		<ReportMockErrorScope config={ errorConfig }>
-			<DashboardPageStory width={ width } initialEditMode={ initialEditMode } />
-		</ReportMockErrorScope>
-	);
+function AverageItemsErrorRender( { setError }: WidgetRenderProps< unknown > ) {
+	useEffect( () => {
+		setError?.( {
+			message: "We couldn't load this data. Please try again in a moment.",
+			action: {
+				label: 'Retry',
+				onClick: () => setError?.( null ),
+			},
+		} );
+
+		return () => setError?.( null );
+	}, [ setError ] );
+
+	return null;
 }
 
 function ResizableDashboardTileStory() {
@@ -147,18 +167,20 @@ function ResizableDashboardTileStory() {
 	] );
 
 	return (
-		<div style={ { width: DESKTOP_DASHBOARD_WIDTH, maxWidth: '100%' } }>
-			<WidgetDashboard
-				layout={ layout }
-				onLayoutChange={ setLayout }
-				widgetTypes={ [ averageItemsWidgetType ] }
-				resolveWidgetModule={ resolveAverageItemsWidgetModule }
-				editMode={ true }
-				gridSettings={ { model: 'grid', rowHeight: DASHBOARD_ROW_HEIGHT } }
-			>
-				<WidgetDashboard.Widgets />
-			</WidgetDashboard>
-		</div>
+		<ReportMockErrorScope config={ DISABLED_REPORT_MOCK_ERROR_CONFIG }>
+			<div style={ { width: DESKTOP_DASHBOARD_WIDTH, maxWidth: '100%' } }>
+				<WidgetDashboard
+					layout={ layout }
+					onLayoutChange={ setLayout }
+					widgetTypes={ [ averageItemsWidgetType ] }
+					resolveWidgetModule={ resolveAverageItemsWidgetModule }
+					editMode={ true }
+					gridSettings={ { model: 'grid', rowHeight: DASHBOARD_ROW_HEIGHT } }
+				>
+					<WidgetDashboard.Widgets />
+				</WidgetDashboard>
+			</div>
+		</ReportMockErrorScope>
 	);
 }
 
@@ -172,18 +194,20 @@ function MinimumDashboardTileStory() {
 	] );
 
 	return (
-		<div style={ { width: DESKTOP_DASHBOARD_WIDTH, maxWidth: '100%' } }>
-			<WidgetDashboard
-				layout={ layout }
-				onLayoutChange={ setLayout }
-				widgetTypes={ [ averageItemsWidgetType ] }
-				resolveWidgetModule={ resolveAverageItemsWidgetModule }
-				editMode={ true }
-				gridSettings={ { model: 'grid', rowHeight: 200 } }
-			>
-				<WidgetDashboard.Widgets />
-			</WidgetDashboard>
-		</div>
+		<ReportMockErrorScope config={ DISABLED_REPORT_MOCK_ERROR_CONFIG }>
+			<div style={ { width: DESKTOP_DASHBOARD_WIDTH, maxWidth: '100%' } }>
+				<WidgetDashboard
+					layout={ layout }
+					onLayoutChange={ setLayout }
+					widgetTypes={ [ averageItemsWidgetType ] }
+					resolveWidgetModule={ resolveAverageItemsWidgetModule }
+					editMode={ true }
+					gridSettings={ { model: 'grid', rowHeight: 200 } }
+				>
+					<WidgetDashboard.Widgets />
+				</WidgetDashboard>
+			</div>
+		</ReportMockErrorScope>
 	);
 }
 
@@ -192,39 +216,45 @@ function DashboardPageStory( {
 	initialLayout = [ createAverageItemsWidget() ],
 	rowHeight = DASHBOARD_ROW_HEIGHT,
 	initialEditMode = false,
+	widgetTypes = [ averageItemsWidgetType ],
 }: {
 	width?: string;
 	initialLayout?: DashboardWidget[];
 	rowHeight?: number;
 	initialEditMode?: boolean;
+	widgetTypes?: WidgetType[];
 } ) {
 	const [ layout, setLayout ] = useState< DashboardWidget[] >( () => initialLayout );
 	const [ editMode, setEditMode ] = useState( initialEditMode );
 
 	return (
-		<div style={ { width, maxWidth: '100%' } }>
-			<WidgetDashboard
-				layout={ layout }
-				onLayoutChange={ setLayout }
-				widgetTypes={ [ averageItemsWidgetType ] }
-				resolveWidgetModule={ resolveAverageItemsWidgetModule }
-				gridSettings={ { model: 'grid', rowHeight } }
-				editMode={ editMode }
-				onEditChange={ setEditMode }
-			>
-				<Page title="Analytics" actions={ <WidgetDashboard.Actions /> } hasPadding>
-					<WidgetDashboard.NoWidgetsState />
-					<WidgetDashboard.Widgets />
-				</Page>
-			</WidgetDashboard>
-		</div>
+		<ReportMockErrorScope config={ DISABLED_REPORT_MOCK_ERROR_CONFIG }>
+			<div style={ { width, maxWidth: '100%' } }>
+				<WidgetDashboard
+					layout={ layout }
+					onLayoutChange={ setLayout }
+					widgetTypes={ widgetTypes }
+					resolveWidgetModule={ resolveAverageItemsWidgetModule }
+					gridSettings={ { model: 'grid', rowHeight } }
+					editMode={ editMode }
+					onEditChange={ setEditMode }
+				>
+					<Page title="Analytics" actions={ <WidgetDashboard.Actions /> } hasPadding>
+						<WidgetDashboard.NoWidgetsState />
+						<WidgetDashboard.Widgets />
+					</Page>
+				</WidgetDashboard>
+			</div>
+		</ReportMockErrorScope>
 	);
 }
 
 const widgetCanvasDecorator: Decorator = Story => (
-	<div style={ { width: '100%', height: '300px' } }>
-		<Story />
-	</div>
+	<ReportMockErrorScope config={ DISABLED_REPORT_MOCK_ERROR_CONFIG }>
+		<div style={ { width: '100%', height: '300px' } }>
+			<Story />
+		</div>
+	</ReportMockErrorScope>
 );
 
 export const Default: Story = {
@@ -250,21 +280,23 @@ const createDashboardSizeDecorator = (
 	height = DASHBOARD_DEFAULT_HEIGHT
 ): Decorator => {
 	return Story => (
-		<div
-			style={ {
-				width,
-				height,
-				boxSizing: 'border-box',
-				border: '1px dashed #ccc',
-				borderRadius: '8px',
-				padding: '16px',
-				background: '#fafafa',
-				containerType: 'inline-size',
-				containerName: 'widget',
-			} }
-		>
-			<Story />
-		</div>
+		<ReportMockErrorScope config={ DISABLED_REPORT_MOCK_ERROR_CONFIG }>
+			<div
+				style={ {
+					width,
+					height,
+					boxSizing: 'border-box',
+					border: '1px dashed #ccc',
+					borderRadius: '8px',
+					padding: '16px',
+					background: '#fafafa',
+					containerType: 'inline-size',
+					containerName: 'widget',
+				} }
+			>
+				<Story />
+			</div>
+		</ReportMockErrorScope>
 	);
 };
 
@@ -364,15 +396,7 @@ export const DashboardPageMinimumTileEditMode: Story = {
 };
 
 export const DashboardPageWidgetError: Story = {
-	render: () => (
-		<DashboardPageErrorStory
-			errorConfig={ {
-				enabled: true,
-				message: 'Storybook forced the orders report to fail.',
-				paths: REPORT_ERROR_PATHS,
-			} }
-		/>
-	),
+	render: () => <DashboardPageStory widgetTypes={ [ averageItemsErrorWidgetType ] } />,
 	parameters: {
 		docs: {
 			description: {
@@ -385,13 +409,6 @@ export const DashboardPageWidgetError: Story = {
 
 export const DashboardPageWidgetErrorEditMode: Story = {
 	render: () => (
-		<DashboardPageErrorStory
-			errorConfig={ {
-				enabled: true,
-				message: 'Storybook forced the orders report to fail.',
-				paths: REPORT_ERROR_PATHS,
-			} }
-			initialEditMode
-		/>
+		<DashboardPageStory initialEditMode widgetTypes={ [ averageItemsErrorWidgetType ] } />
 	),
 };
