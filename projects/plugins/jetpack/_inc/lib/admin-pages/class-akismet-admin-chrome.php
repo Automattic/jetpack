@@ -54,8 +54,20 @@ class Akismet_Admin_Chrome {
 	 *
 	 * Safe to call unconditionally: the header/footer callbacks are only ever fired by
 	 * Akismet's own admin views, and the inline stylesheet is printed alongside the header.
+	 *
+	 * Idempotent: this can be wired from more than one place depending on the platform —
+	 * `Jetpack_Admin` on Atomic/self-hosted, and `Akismet_Admin_WPCOM` on WordPress.com
+	 * Simple sites (the two run under different load orders). The static guard ensures the
+	 * `akismet_header` / `akismet_footer` callbacks are only ever registered once, so the
+	 * chrome can never render twice regardless of how many call sites fire.
 	 */
 	public function init_hooks() {
+		static $registered = false;
+		if ( $registered ) {
+			return;
+		}
+		$registered = true;
+
 		add_action( 'akismet_header', array( $this, 'render_header' ) );
 		add_action( 'akismet_footer', array( $this, 'render_footer' ) );
 	}
