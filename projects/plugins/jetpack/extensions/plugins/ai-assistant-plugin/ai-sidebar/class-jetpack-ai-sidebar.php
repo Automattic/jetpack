@@ -59,7 +59,7 @@ class Jetpack_AI_Sidebar {
 		// Priority 20 so Jetpack loads AFTER Image Studio (priority 10).
 		add_filter( 'agents_manager_agent_providers', array( __CLASS__, 'register_provider' ), 20 );
 
-		add_filter( 'jetpack_ai_sidebar_agents_manager_data', array( __CLASS__, 'add_agents_manager_data' ), 10, 1 );
+		add_filter( 'jetpack_ai_sidebar_agents_manager_data', array( __CLASS__, 'add_agents_manager_data' ), 20, 1 );
 
 		// Allow jetpack-mu-wpcom's bundled Agents Manager to mount in the
 		// post editor on WordPress.com and Atomic sites.
@@ -515,16 +515,12 @@ class Jetpack_AI_Sidebar {
 	 *
 	 * Server-side permission checks still gate execution. This site-side flag
 	 * controls whether the Jetpack AI Sidebar exposes the Generate Feedback
-	 * suggestion, matching the temporary dev-mode gate used during the AI
-	 * Editorial Review rollout.
+	 * suggestion. It follows Image Studio's internal rollout pattern.
 	 *
 	 * @return bool
 	 */
 	private static function is_generate_feedback_enabled(): bool {
-		return (bool) apply_filters(
-			'jetpack_ai_generate_feedback_enabled',
-			self::is_dev_mode()
-		);
+		return self::is_dev_mode();
 	}
 
 	/**
@@ -643,8 +639,9 @@ class Jetpack_AI_Sidebar {
 	 * Gives Atomic parity with Jurassic Ninja without depending on a wpcomsh
 	 * redeploy.
 	 *
-	 * Skipped on WordPress.com Simple — wpcom's data extension owns the predicate
-	 * there, including any WordPress.com-specific kill-switch override.
+	 * Skipped on WordPress.com Simple — the bundled Jetpack AI Sidebar data
+	 * filter owns the predicate there, including any WordPress.com-specific
+	 * kill-switch override.
 	 *
 	 * @return void
 	 */
