@@ -11,6 +11,7 @@ return [
     // # Issue statistics:
     // PhanUndeclaredMethod : 10+ occurrences
     // PhanUndeclaredClassReference : 3 occurrences
+    // UnusedPluginSuppression : 3 occurrences
     // PhanUndeclaredClassMethod : 2 occurrences
     // PhanUndeclaredClassConstant : 1 occurrence
 
@@ -20,13 +21,15 @@ return [
     // (e.g. get_report_customer_id, is_returning_customer, get_item_shipping_amount, get_taxes),
     // and internal classes absent from the stubs (FulfillmentUtils, FeaturesController,
     // OrderInternalStatus). All are guarded behind a WooCommerce-active check at runtime.
-    // The older WooCommerce stubs used by the "previous WP version and old Woo" Phan job also
-    // lack the OrderAttributionMeta trait and the OrderStatsDataStore::has_fulfillment_status_column /
-    // OrderUtil::uses_new_full_refund_data static methods, which surface as PhanUndeclaredTrait and
-    // PhanUndeclaredStaticMethod; both are likewise guarded at runtime.
+    // The OrderAttributionMeta trait and the OrderStatsDataStore::has_fulfillment_status_column /
+    // OrderUtil::uses_new_full_refund_data static methods exist in current WooCommerce stubs but
+    // are absent from the older stubs used by the "previous WP version and old Woo" Phan job. They
+    // are suppressed inline in the source (@phan-suppress-next-line) rather than here, because that
+    // pass cannot baseline them; the resulting UnusedPluginSuppression under current stubs is what
+    // this baseline records instead.
     // Currently, file_suppressions and directory_suppressions are the only supported suppressions
     'file_suppressions' => [
-        'src/Sync/class-woocommerce-analytics-module.php' => ['PhanUndeclaredClassConstant', 'PhanUndeclaredClassMethod', 'PhanUndeclaredClassReference', 'PhanUndeclaredMethod', 'PhanUndeclaredStaticMethod', 'PhanUndeclaredTrait'],
+        'src/Sync/class-woocommerce-analytics-module.php' => ['PhanUndeclaredClassConstant', 'PhanUndeclaredClassMethod', 'PhanUndeclaredClassReference', 'PhanUndeclaredMethod', 'UnusedPluginSuppression'],
         'src/Sync/trait-utilities.php' => ['PhanUndeclaredClassMethod', 'PhanUndeclaredClassReference'],
     ],
     // 'directory_suppressions' => ['src/directory_name' => ['PhanIssueName1', 'PhanIssueName2']] can be manually added if needed.

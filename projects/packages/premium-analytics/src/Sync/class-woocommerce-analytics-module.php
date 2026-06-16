@@ -40,6 +40,7 @@ defined( 'ABSPATH' ) || exit;
 class WooCommerce_Analytics_Module extends JetpackSyncModule {
 
 	use Utilities;
+	// @phan-suppress-next-line PhanUndeclaredTrait -- Provided by WooCommerce at runtime; absent from the older WooCommerce stubs used by the "old Woo" Phan job.
 	use OrderAttributionMeta;
 
 	/**
@@ -585,6 +586,7 @@ class WooCommerce_Analytics_Module extends JetpackSyncModule {
 		}
 
 		$order_fulfillment_status = null;
+		// @phan-suppress-next-line PhanUndeclaredStaticMethod -- Guarded by is_callable(); absent from the older WooCommerce stubs used by the "old Woo" Phan job.
 		if ( is_callable( array( OrderStatsDataStore::class, 'has_fulfillment_status_column' ) ) && OrderStatsDataStore::has_fulfillment_status_column() ) {
 			$order_stats_item         = $this->get_order_stats_item( $order->get_id() );
 			$order_fulfillment_status = $order_stats_item['fulfillment_status'] ?? null;
@@ -621,6 +623,7 @@ class WooCommerce_Analytics_Module extends JetpackSyncModule {
 				$order_stats_data['parent_id'] = $parent_order->get_id();
 
 				$refund_type = $order->get_meta( '_refund_type' );
+				// @phan-suppress-next-line PhanUndeclaredStaticMethod -- Absent from the older WooCommerce stubs used by the "old Woo" Phan job.
 				if ( 'full' === $refund_type && OrderUtil::uses_new_full_refund_data() ) {
 					$order_stats_data['tax_total']      = -1 * $parent_order->get_total_tax();
 					$order_stats_data['num_items_sold'] = -1 * self::get_num_items_sold( $parent_order );
