@@ -6,8 +6,9 @@ import { addSubscribers } from './api';
 import type { AddSubscribersResponse } from './types';
 
 /**
- * Add-subscribers mutation. POSTs `emails` to the proxy, then invalidates the subscribers list
- * cache so the table reflects the new follower invitations.
+ * Add-subscribers mutation. POSTs `emails` to the proxy, which starts an async WP.com import
+ * job, then invalidates the subscribers list cache. Fast imports show up on the refetch; larger
+ * ones land once WP.com finishes the job and sends its "Subscriber import completed" email.
  *
  * @return React-Query mutation handle.
  */
@@ -22,8 +23,13 @@ export function useAddSubscribersMutation() {
 
 			createSuccessNotice(
 				sprintf(
-					// translators: %d: number of email invitations sent.
-					_n( 'Sent %d invitation.', 'Sent %d invitations.', emails.length, 'jetpack-newsletter' ),
+					// translators: %d: number of email addresses being imported.
+					_n(
+						'Importing %d subscriber. This may take a few minutes.',
+						'Importing %d subscribers. This may take a few minutes.',
+						emails.length,
+						'jetpack-newsletter'
+					),
 					emails.length
 				),
 				{ type: 'snackbar' }

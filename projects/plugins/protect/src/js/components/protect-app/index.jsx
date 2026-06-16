@@ -101,8 +101,13 @@ const ProtectApp = () => {
 						<Tabs.Tab value="settings">{ __( 'Settings', 'jetpack-protect' ) }</Tabs.Tab>
 					</Tabs.List>
 				</div>
-				{ /* @wordpress/ui Tabs.Panel unmounts inactive panels by default, so only the
-				     active panel's <Outlet /> mounts and the matched route renders once. */ }
+				{ /* Each tab panel renders the shared react-router <Outlet />. @wordpress/ui
+				     Tabs.Panel (via @base-ui/react) defaults to keepMounted=false, but the
+				     outgoing panel stays mounted until its close transition completes — so
+				     during a tab/route transition two panels are briefly mounted and the
+				     matched route's content is duplicated transiently in the DOM. The
+				     duplicate lives in the inactive panel, which is `hidden` + `inert`.
+				     E2E assertions on this page therefore scope to the active panel by name. */ }
 				<Tabs.Panel value="scan">
 					<Outlet />
 				</Tabs.Panel>

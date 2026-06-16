@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Shortcode embeds: ensure the SoundCloud player iFrame is always correctly escaped.

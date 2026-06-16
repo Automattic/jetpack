@@ -32,6 +32,10 @@ class Jetpack_Mu_Wpcom {
 		require_once __DIR__ . '/common/fatal-error-signature.php';
 		require_once __DIR__ . '/utils.php';
 
+		// PCG confirmation probe wires its `pre_option_active_plugins`
+		// filter at mu-plugin time, before WP loads active plugins.
+		require_once __DIR__ . '/features/plugin-conflicts-guardian/probe-confirm-bootstrap.php';
+
 		// Load features that don't need any special loading considerations.
 		add_action( 'plugins_loaded', array( __CLASS__, 'load_features' ) );
 
@@ -299,6 +303,7 @@ class Jetpack_Mu_Wpcom {
 		require_once __DIR__ . '/features/logo-tool/logo-tool.php';
 		require_once __DIR__ . '/features/marketplace-products-updater/class-marketplace-products-updater.php';
 		require_once __DIR__ . '/features/media/heif-support.php';
+		require_once __DIR__ . '/features/plugin-conflicts-guardian/plugin-conflicts-guardian.php';
 		require_once __DIR__ . '/features/post-categories/quick-actions.php';
 		require_once __DIR__ . '/features/post-like-from-email/post-like-from-email.php';
 		require_once __DIR__ . '/features/site-editor-dashboard-link/site-editor-dashboard-link.php';
@@ -307,7 +312,6 @@ class Jetpack_Mu_Wpcom {
 		require_once __DIR__ . '/features/wpcom-block-editor/class-jetpack-wpcom-block-editor.php';
 		require_once __DIR__ . '/features/wpcom-block-editor/functions.editor-type.php';
 		require_once __DIR__ . '/features/wpcom-dashboard/class-wpcom-dashboard.php';
-		require_once __DIR__ . '/features/wpcom-hotfixes/wpcom-hotfixes.php';
 		require_once __DIR__ . '/features/wpcom-logout/wpcom-logout.php';
 		require_once __DIR__ . '/features/wpcom-themes/wpcom-theme-fixes.php';
 		require_once __DIR__ . '/features/wpcom-post-list/wpcom-post-types-tracking.php';
@@ -403,6 +407,14 @@ class Jetpack_Mu_Wpcom {
 			\Automattic\Jetpack\Newsletter\Settings::init();
 		}
 
+		// Register the Daily Writing Prompt dashboard widget, which now lives in
+		// the jetpack-newsletter package. Guarded with class_exists for the same
+		// reason as Settings above: mu-wpcom doesn't composer-require the package.
+		if ( class_exists( '\Automattic\Jetpack\Newsletter\Writing_Prompt_Widget' ) ) {
+			// @phan-suppress-next-line PhanUndeclaredClassMethod -- class_exists guarded above; provided by sibling autoloader.
+			\Automattic\Jetpack\Newsletter\Writing_Prompt_Widget::init();
+		}
+
 		// Only load the Masterbar features on WoA sites.
 		if ( class_exists( '\Automattic\Jetpack\Status\Host' ) && ( new \Automattic\Jetpack\Status\Host() )->is_woa_site() ) {
 			// This is temporary. After we cleanup Masterbar on WPCOM we should load Masterbar for Simple sites too.
@@ -428,9 +440,7 @@ class Jetpack_Mu_Wpcom {
 		// Initialize the Podcast package here (rather than in
 		// load_wpcom_user_features) so feed-customization hooks register
 		// for anonymous requests too — Apple Podcasts / Spotify crawlers
-		// aren't logged in. Podcast::init() gates itself on host
-		// (Simple/WoA) and `jetpack_podcast_untangle`, so the legacy
-		// podcasting code keeps running until the flag flips.
+		// aren't logged in. Podcast::init() gates itself on host (Simple/WoA).
 		\Automattic\Jetpack\Podcast\Podcast::init();
 	}
 
@@ -859,7 +869,7 @@ class Jetpack_Mu_Wpcom {
 						require_once $log2logstash_path;
 					}
 				}
-			} catch ( \Throwable $e ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch -- require_once can still throw (parse error / top-level fatal in the included file); fall through to the HTTP dispatch.
+			} catch ( \Throwable $e ) { // require_once can still throw (parse error / top-level fatal in the included file); fall through to the HTTP dispatch.
 				unset( $e );
 			}
 			$dispatch = function_exists( 'log2logstash' ) ? 'native' : 'http';
@@ -886,7 +896,7 @@ class Jetpack_Mu_Wpcom {
 			// POST guarantees delivery without adding latency to the
 			// user-visible response.
 			self::queue_logstash_http( $payload );
-		} catch ( \Throwable $e ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch -- best-effort: a logging failure must never escalate into a fatal for the caller.
+		} catch ( \Throwable $e ) { // best-effort: a logging failure must never escalate into a fatal for the caller.
 			unset( $e );
 		}
 	}
@@ -940,7 +950,7 @@ class Jetpack_Mu_Wpcom {
 									'timeout' => 5,
 								)
 							);
-						} catch ( \Throwable $e ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch -- best-effort: a logging failure must never escalate into a fatal at shutdown.
+						} catch ( \Throwable $e ) { // best-effort: a logging failure must never escalate into a fatal at shutdown.
 							unset( $e );
 						}
 					}

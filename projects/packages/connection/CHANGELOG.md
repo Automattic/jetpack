@@ -5,6 +5,49 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [8.7.0] - 2026-06-15
+### Added
+- Connectors: Surface Jetpack Safe Mode (Identity Crisis) state and resolution options in the connector card. [#49486]
+
+### Changed
+- Update package dependencies. [#49631]
+
+### Fixed
+- Connectors: Add cache-busting version to the connector card script module so updated assets are served after changes. [#49486]
+- Identity Crisis: Fix confirming Safe Mode again after clearing it from the admin bar, which could silently fail when the safe_mode_confirmed option was stale in a persistent object cache. [#49486]
+- Identity Crisis: Prevent the migrate (Update address) action from failing with a false "Could not delete sync error option" error when the sync_error_idc option is stale in cache. [#49486]
+
+## [8.6.1] - 2026-06-15
+### Changed
+- Internal updates.
+
+## [8.6.0] - 2026-06-09
+### Added
+- SSO: Validate user tokens during SSO login to detect and replace stale tokens after database migration. [#47567]
+
+### Changed
+- Update package dependencies. [#49273]
+
+## [8.5.6] - 2026-06-08
+### Changed
+- Update dependencies. [#48834]
+
+## [8.5.5] - 2026-06-08
+### Changed
+- Internal updates.
+
+## [8.5.4] - 2026-06-05
+### Changed
+- Internal updates.
+
+## [8.5.3] - 2026-06-03
+### Changed
+- Internal updates.
+
+## [8.5.2] - 2026-06-02
+### Changed
+- Update dependencies. [#48834]
+
 ## [8.5.1] - 2026-06-01
 ### Changed
 - Connectors: Disable the ability to connect/disconnect from the Connectors card while the site is in offline mode. [#49305]
@@ -1865,6 +1908,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Separate the connection library into its own package.
 
+[8.7.0]: https://github.com/Automattic/jetpack-connection/compare/v8.6.1...v8.7.0
+[8.6.1]: https://github.com/Automattic/jetpack-connection/compare/v8.6.0...v8.6.1
+[8.6.0]: https://github.com/Automattic/jetpack-connection/compare/v8.5.6...v8.6.0
+[8.5.6]: https://github.com/Automattic/jetpack-connection/compare/v8.5.5...v8.5.6
+[8.5.5]: https://github.com/Automattic/jetpack-connection/compare/v8.5.4...v8.5.5
+[8.5.4]: https://github.com/Automattic/jetpack-connection/compare/v8.5.3...v8.5.4
+[8.5.3]: https://github.com/Automattic/jetpack-connection/compare/v8.5.2...v8.5.3
+[8.5.2]: https://github.com/Automattic/jetpack-connection/compare/v8.5.1...v8.5.2
 [8.5.1]: https://github.com/Automattic/jetpack-connection/compare/v8.5.0...v8.5.1
 [8.5.0]: https://github.com/Automattic/jetpack-connection/compare/v8.4.0...v8.5.0
 [8.4.0]: https://github.com/Automattic/jetpack-connection/compare/v8.3.7...v8.4.0

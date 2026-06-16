@@ -5,10 +5,11 @@ import useConnection from '@automattic/jetpack-connection/use-connection';
 import { isSimpleSite } from '@automattic/jetpack-script-data';
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import requestExternalAccess from '@automattic/request-external-access';
-import { Button, Path, Spinner, SVG } from '@wordpress/components';
+import { Button, Spinner } from '@wordpress/components';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { useCallback, useRef, useState } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
+import { Path, SVG } from '@wordpress/primitives';
 import clsx from 'clsx';
 /**
  * Internal dependencies

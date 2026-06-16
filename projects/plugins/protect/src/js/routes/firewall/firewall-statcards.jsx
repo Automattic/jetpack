@@ -19,9 +19,8 @@ const FirewallStatCards = () => {
 	const isSupportedWafFeatureEnabled = wafSupported
 		? isWafModuleEnabled
 		: isBruteForceModuleEnabled;
-	const { currentDay: currentDayBlockCount, thirtyDays: thirtyDayBlockCounts } = stats
-		? stats.blockedRequests
-		: { currentDay: 0, thirtyDays: 0 };
+	const { currentDay: currentDayBlockCount, thirtyDays: thirtyDayBlockCounts } =
+		stats?.blockedRequests || { currentDay: 0, thirtyDays: 0 };
 	const isFeatureDisabled = ! isSupportedWafFeatureEnabled || ! hasPlan;
 
 	const defaultArgs = useMemo(

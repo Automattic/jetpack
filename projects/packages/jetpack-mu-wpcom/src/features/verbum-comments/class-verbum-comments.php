@@ -577,7 +577,7 @@ HTML;
 
 			case 'wordpress': // phpcs:ignore WordPress.WP.CapitalPDangit.MisspelledInText
 				if ( 'wpcom' === wpcom_blog_site_id_label() ) {
-					do_action( 'highlander_wpcom_post_comment_bump_stat', $comment_id ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound
+					do_action( 'highlander_wpcom_post_comment_bump_stat', $comment_id );
 				}
 				bump_stats_extras( 'verbum-comment-posted', 'wordpress' ); // phpcs:ignore WordPress.WP.CapitalPDangit.MisspelledInText
 				break;

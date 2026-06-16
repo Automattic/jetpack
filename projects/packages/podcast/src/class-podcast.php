@@ -12,13 +12,10 @@ use Automattic\Jetpack\Podcast\Feed\Customize_Feed;
 use Automattic\Jetpack\Status\Host;
 
 /**
- * Loads Jetpack Podcast on Simple and Atomic sites, gated behind the
- * `jetpack_podcast_untangle` feature filter.
- *
- * Until the filter returns true, `init()` is a no-op so the legacy podcasting
- * code (`Automattic_Podcasting` from the wpcom mu-plugin and the
- * at-pressable-podcasting bridge plugin) keeps running unchanged. Subsequent
- * PRs in the untangle train fill this in.
+ * Loads Jetpack Podcast on Simple and Atomic sites. The package owns the
+ * podcasting experience outright now that the legacy stack — the wpcom
+ * mu-plugin `Automattic_Podcasting` code and the Atomic-side
+ * at-pressable-podcasting bridge — has been removed.
  */
 class Podcast {
 
@@ -34,8 +31,7 @@ class Podcast {
 	/**
 	 * Initialize the package.
 	 *
-	 * Bails on hosts other than Simple and Atomic, and again unless the
-	 * `jetpack_podcast_untangle` filter returns true.
+	 * Bails on hosts other than Simple and Atomic.
 	 */
 	public static function init() {
 		if ( self::$initialized ) {
@@ -48,9 +44,6 @@ class Podcast {
 			return;
 		}
 
-		// Wire the Podcast Episode block actions before the filter check below:
-		// each callback re-checks `jetpack_podcast_untangle` at hook time so a
-		// late-registered filter callback still takes effect.
 		Podcast_Episode_Block::register_hooks();
 
 		// Register the local REST routes before request-local rollout gates.
@@ -60,10 +53,6 @@ class Podcast {
 		Posts_To_Podcast_Endpoint::init();
 		Podcast_Stats_Endpoint::init();
 		Podcast_Distribution_Endpoint::init();
-
-		if ( ! self::is_enabled() ) {
-			return;
-		}
 
 		// Register the `podcasting_*` option schema so the SPA can read/write
 		// via `/wp/v2/settings`. On Simple, the legacy WPCOM site-settings
@@ -86,7 +75,7 @@ class Podcast {
 		}
 
 		// Posts to Podcast lives behind its own filter so the Create AI
-		// Podcast page can ship independently of the broader untangle.
+		// Podcast page can ship independently of the rest of the package.
 		//
 		// Note: no `is_admin()` guard here. The submenu must also register when
 		// Calypso builds its nav via the `wpcom/v2/admin-menu` REST endpoint,
@@ -103,9 +92,8 @@ class Podcast {
 	 * Whether the Posts to Podcast feature (Create AI Podcast page + REST
 	 * proxy) is enabled for the current request.
 	 *
-	 * Mirrors the `jetpack_podcast_untangle` pattern: defaults to true for
-	 * connected WordPress.com users, and can be flipped globally via the
-	 * `jetpack_posts_to_podcast` filter.
+	 * Defaults to true for connected WordPress.com users, and can be flipped
+	 * globally via the `jetpack_posts_to_podcast` filter.
 	 */
 	public static function is_posts_to_podcast_enabled() {
 		/**
@@ -132,23 +120,5 @@ class Podcast {
 		}
 
 		return ( new Connection_Manager( 'jetpack' ) )->is_user_connected( $user_id );
-	}
-
-	/**
-	 * Whether the Podcast untangle is enabled for the current request.
-	 *
-	 * Defaults to true — the new package owns the experience on Simple
-	 * and Atomic. The filter remains as an escape hatch for forcing the
-	 * legacy stack back on (rollback, test fixtures, per-site overrides).
-	 */
-	public static function is_enabled() {
-		/**
-		 * Master switch for the Podcast untangle.
-		 *
-		 * @since 0.1.0
-		 *
-		 * @param bool $enabled Whether to enable the new Podcast package.
-		 */
-		return (bool) apply_filters( 'jetpack_podcast_untangle', true );
 	}
 }

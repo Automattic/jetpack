@@ -2079,7 +2079,7 @@ class Contact_Form_Test extends BaseTestCase {
 
 				// Try to get input from inside label (new markup)
 				// @phan-suppress-next-line PhanUndeclaredMethod -- getElementsByTagName is available on DOMElement, which label elements are.
-				$input = $real_label->getElementsByTagName( 'input' )->item( 0 ); //phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+				$input = $real_label->getElementsByTagName( 'input' )->item( 0 );
 
 				// If input is not inside label, get it from parent (old markup)
 				// In old markup, each <p> has one input and one label, so always use item(0)
@@ -4054,6 +4054,223 @@ class Contact_Form_Test extends BaseTestCase {
 		$this->assertFalse( \Automattic\Jetpack\Forms\Jetpack_Forms::is_webhooks_enabled() );
 
 		remove_filter( 'jetpack_forms_webhooks_enabled', '__return_false' );
+	}
+
+	/**
+	 * Create a user with the given role and a published post authored by them.
+	 *
+	 * @param string $role Role to assign to the post author.
+	 * @return int The created post ID.
+	 */
+	private function create_post_for_role( $role ) {
+		$author_id = wp_insert_user(
+			array(
+				'user_email' => $role . '-webhook-author@example.com',
+				'user_login' => 'webhook_' . $role . '_author',
+				'user_pass'  => 'abc123',
+				'role'       => $role,
+			)
+		);
+
+		return wp_insert_post(
+			array(
+				'post_title'  => ucfirst( $role ) . ' authored form',
+				'post_status' => 'publish',
+				'post_author' => $author_id,
+			),
+			true
+		);
+	}
+
+	/**
+	 * Build a Contact_Form whose source resolves to the given post id.
+	 *
+	 * @param array $attributes Form attributes.
+	 * @param int   $source_id  Source (post) id the form should report.
+	 * @return Contact_Form
+	 */
+	private function make_form_with_source( $attributes, $source_id ) {
+		$source = Feedback_Source::from_serialized(
+			array(
+				'source_id' => $source_id,
+				'title'     => 'Test Post',
+			)
+		);
+
+		return new class( $attributes, $source ) extends Contact_Form {
+			/**
+			 * Source to report from get_source().
+			 *
+			 * @var Feedback_Source
+			 */
+			private $test_source;
+
+			/**
+			 * Constructor that sets attributes and source directly, skipping parsing.
+			 *
+			 * @param array           $attributes Form attributes.
+			 * @param Feedback_Source $source     Source to report from get_source().
+			 */
+			public function __construct( $attributes, $source ) {
+				$this->attributes  = $attributes;
+				$this->fields      = array();
+				$this->test_source = $source;
+			}
+
+			/**
+			 * Return the test source instead of resolving it from the request.
+			 *
+			 * @return Feedback_Source
+			 */
+			public function get_source() {
+				return $this->test_source;
+			}
+		};
+	}
+
+	/**
+	 * Invoke the private reconcile_content_destinations() method on the plugin singleton.
+	 *
+	 * @param Contact_Form $form Form to reconcile.
+	 */
+	private function invoke_reconcile_content_destinations( $form ) {
+		$method = new \ReflectionMethod( Contact_Form_Plugin::class, 'reconcile_content_destinations' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true );
+		}
+		$method->invoke( Contact_Form_Plugin::init(), $form );
+	}
+
+	/**
+	 * Test should_honor_content_destinations returns true when the source author can manage options.
+	 */
+	public function test_should_honor_content_destinations_for_capable_author() {
+		$post_id = $this->create_post_for_role( 'administrator' );
+
+		// WorDBless can clear role/option state between tests, so grant the
+		// capability via the user_has_cap filter rather than relying on the role.
+		$grant = function ( $allcaps ) {
+			$allcaps['manage_options'] = true;
+			return $allcaps;
+		};
+		add_filter( 'user_has_cap', $grant );
+
+		$this->assertTrue( \Automattic\Jetpack\Forms\Jetpack_Forms::should_honor_content_destinations( $post_id ) );
+
+		remove_filter( 'user_has_cap', $grant );
+	}
+
+	/**
+	 * Test should_honor_content_destinations denies an author-role author.
+	 */
+	public function test_should_not_honor_content_destinations_for_author_role() {
+		$this->assertFalse(
+			\Automattic\Jetpack\Forms\Jetpack_Forms::should_honor_content_destinations( $this->create_post_for_role( 'author' ) )
+		);
+	}
+
+	/**
+	 * Test should_honor_content_destinations denies a contributor-role author.
+	 */
+	public function test_should_not_honor_content_destinations_for_contributor_role() {
+		$this->assertFalse(
+			\Automattic\Jetpack\Forms\Jetpack_Forms::should_honor_content_destinations( $this->create_post_for_role( 'contributor' ) )
+		);
+	}
+
+	/**
+	 * Test should_honor_content_destinations returns false when the source cannot be resolved.
+	 */
+	public function test_should_honor_content_destinations_returns_false_for_missing_post() {
+		$this->assertFalse( \Automattic\Jetpack\Forms\Jetpack_Forms::should_honor_content_destinations( 0 ) );
+		$this->assertFalse( \Automattic\Jetpack\Forms\Jetpack_Forms::should_honor_content_destinations( 999999 ) );
+	}
+
+	/**
+	 * Test reconcile_content_destinations drops every content-configured destination
+	 * when the source post author may not configure them.
+	 */
+	public function test_reconcile_content_destinations_drops_destinations_for_unauthorized_author() {
+		$form = $this->make_form_with_source(
+			array(
+				'webhooks'       => array(
+					array(
+						'webhook_id' => 'w',
+						'url'        => 'https://example.com/hook',
+						'enabled'    => true,
+						'format'     => 'json',
+						'method'     => 'POST',
+					),
+				),
+				'postToUrl'      => array(
+					'url'     => 'https://example.com/post',
+					'enabled' => true,
+				),
+				'salesforceData' => array( 'organizationId' => '12345' ),
+			),
+			$this->create_post_for_role( 'author' )
+		);
+
+		$this->invoke_reconcile_content_destinations( $form );
+
+		$this->assertSame( array(), $form->attributes['webhooks'], 'Webhooks should be dropped.' );
+		$this->assertSame( array(), $form->attributes['postToUrl'], 'postToUrl should be dropped.' );
+		$this->assertNull( $form->attributes['salesforceData'], 'salesforceData should be dropped.' );
+	}
+
+	/**
+	 * Test reconcile_content_destinations drops a Salesforce-only configuration for an
+	 * unauthorized author, confirming the early return does not skip salesforce-only forms.
+	 */
+	public function test_reconcile_content_destinations_drops_salesforce_only_for_unauthorized_author() {
+		$form = $this->make_form_with_source(
+			array( 'salesforceData' => array( 'organizationId' => '12345' ) ),
+			$this->create_post_for_role( 'author' )
+		);
+
+		$this->invoke_reconcile_content_destinations( $form );
+
+		$this->assertNull( $form->attributes['salesforceData'], 'salesforceData should be dropped for a Salesforce-only form.' );
+	}
+
+	/**
+	 * Test reconcile_content_destinations keeps destinations and migrates postToUrl
+	 * when the source post author may configure them.
+	 */
+	public function test_reconcile_content_destinations_keeps_destinations_for_capable_author() {
+		$form = $this->make_form_with_source(
+			array(
+				'webhooks'       => array(
+					array(
+						'webhook_id' => 'w',
+						'url'        => 'https://example.com/hook',
+						'enabled'    => true,
+						'format'     => 'json',
+						'method'     => 'POST',
+					),
+				),
+				'postToUrl'      => array(
+					'url'     => 'https://example.com/post',
+					'enabled' => true,
+				),
+				'salesforceData' => array( 'organizationId' => '12345' ),
+			),
+			$this->create_post_for_role( 'administrator' )
+		);
+
+		$grant = function ( $allcaps ) {
+			$allcaps['manage_options'] = true;
+			return $allcaps;
+		};
+		add_filter( 'user_has_cap', $grant );
+
+		$this->invoke_reconcile_content_destinations( $form );
+
+		remove_filter( 'user_has_cap', $grant );
+
+		// postToUrl is migrated into the webhooks collection, so both entries survive.
+		$this->assertCount( 2, $form->attributes['webhooks'], 'Configured webhook and migrated postToUrl should remain.' );
+		$this->assertSame( array( 'organizationId' => '12345' ), $form->attributes['salesforceData'], 'salesforceData should be preserved.' );
 	}
 
 	/**

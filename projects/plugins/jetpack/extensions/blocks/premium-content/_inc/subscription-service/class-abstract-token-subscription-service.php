@@ -77,6 +77,133 @@ abstract class Abstract_Token_Subscription_Service implements Subscription_Servi
 	}
 
 	/**
+	 * Attempt to refresh the current token against the WordPress.com refresh endpoint
+	 * and, on success, persist the fresh token in the cookie and return the decoded
+	 * payload.
+	 *
+	 * This is called when a subscriber has a JWT token whose subscription data is
+	 * stale (e.g. the cookie contains an old end_date from before a Stripe renewal).
+	 * The refresh endpoint accepts the existing token, re-queries billing, and
+	 * returns a fresh token reflecting current subscription state.
+	 *
+	 * @return array|null Decoded fresh payload on success, null on any failure.
+	 */
+	public function refresh_token_payload() {
+		$current_token = $this->get_and_set_token_from_request();
+		if ( empty( $current_token ) ) {
+			return null;
+		}
+
+		$fresh_token = $this->fetch_refreshed_token( $current_token );
+		if ( empty( $fresh_token ) ) {
+			return null;
+		}
+
+		$fresh_payload = $this->decode_token( $fresh_token );
+		if ( empty( $fresh_payload ) ) {
+			return null;
+		}
+
+		$this->set_token_cookie( $fresh_token );
+		return $fresh_payload;
+	}
+
+	/**
+	 * POST the current token to the WordPress.com memberships token-refresh endpoint
+	 * and return a fresh JWT string, or null on any failure.
+	 *
+	 * Endpoint contract (POST /sites/<site_id>/memberships/token/refresh):
+	 *  - 200 + { success: true,  jwt_token: "<jwt>" } → fresh token; return it.
+	 *  - 200 + { success: false, ... }                → wpcom refused the refresh
+	 *    (token no longer eligible, or signature/site/user check failed).
+	 *    Deterministic; clear the cookie so the visitor is routed through the normal
+	 *    auth flow on the next page load.
+	 *  - Anything else (non-200, WP_Error, network timeout, malformed body) → transient;
+	 *    leave the cookie alone so a temporary outage does not mass-log-out subscribers.
+	 *
+	 * @param string $current_token The token to present for refresh.
+	 * @return string|null Fresh token string, or null on failure.
+	 */
+	protected function fetch_refreshed_token( $current_token ) {
+		$site_id = (int) $this->get_site_id();
+		if ( $site_id <= 0 ) {
+			return null;
+		}
+
+		$response = wp_remote_post(
+			sprintf(
+				'https://public-api.wordpress.com/rest/v1.1/sites/%d/memberships/token/refresh',
+				$site_id
+			),
+			array(
+				'timeout' => 5,
+				'headers' => array( 'Content-Type' => 'application/json' ),
+				'body'    => wp_json_encode(
+					array( 'jwt_token' => $current_token ),
+					JSON_UNESCAPED_SLASHES
+				),
+			)
+		);
+
+		if ( is_wp_error( $response ) ) {
+			return null;
+		}
+
+		if ( 200 !== (int) wp_remote_retrieve_response_code( $response ) ) {
+			return null;
+		}
+
+		$body = json_decode( wp_remote_retrieve_body( $response ), true );
+		if ( ! is_array( $body ) || ! isset( $body['success'] ) ) {
+			return null;
+		}
+
+		if ( true === $body['success'] ) {
+			if ( ! empty( $body['jwt_token'] ) && is_string( $body['jwt_token'] ) ) {
+				return $body['jwt_token'];
+			}
+			// Malformed 200: success: true but no usable jwt_token. Treat as transient —
+			// leave the cookie alone rather than logging the visitor out over a response
+			// shape problem.
+			return null;
+		}
+
+		// success === false → deterministic auth failure. Clear cookie.
+		self::clear_token_cookie();
+		return null;
+	}
+
+	/**
+	 * Whether the token already carries a subscription whose product_id matches one of
+	 * the required plans. Used to gate the refresh path: combined with `validate_subscriptions`
+	 * having returned false, a match here implies the matching subscription's end_date is
+	 * in the past — the only case the refresh endpoint can help with.
+	 *
+	 * @param int[] $valid_plan_ids      Plan IDs required by the post.
+	 * @param array $token_subscriptions Subscriptions from the current token (keyed by product_id).
+	 * @return bool
+	 */
+	public function token_has_matching_product( array $valid_plan_ids, array $token_subscriptions ) {
+		if ( empty( $token_subscriptions ) ) {
+			return false;
+		}
+		foreach ( $valid_plan_ids as $plan_id ) {
+			$product_id = (int) get_post_meta( $plan_id, 'jetpack_memberships_product_id', true );
+			if ( $product_id > 0 && isset( $token_subscriptions[ $product_id ] ) ) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * Get the site ID for the current site.
+	 *
+	 * @return int
+	 */
+	abstract public function get_site_id();
+
+	/**
 	 * Get the token payload .
 	 *
 	 * @return array
@@ -156,6 +283,25 @@ abstract class Abstract_Token_Subscription_Service implements Subscription_Servi
 			);
 			$subscriptions      = (array) $payload['subscriptions'];
 			$is_paid_subscriber = static::validate_subscriptions( $valid_plan_ids, $subscriptions );
+
+			// Only attempt a refresh in the specific stale-end_date case: the token already carries a
+			// subscription whose product_id matches one of the required plans, but validation failed
+			// (which, given the match, can only be because end_date is in the past). This excludes
+			// free subscribers, tier mismatches, and cancellations from triggering an HTTP call on
+			// every render.
+			if (
+				! $is_paid_subscriber
+				&& ! empty( $valid_plan_ids )
+				&& $this->token_has_matching_product( $valid_plan_ids, $subscriptions )
+			) {
+				$fresh_payload = $this->refresh_token_payload();
+				if ( ! empty( $fresh_payload ) ) {
+					$payload            = $fresh_payload;
+					$is_blog_subscriber = isset( $payload['blog_sub'] ) && self::BLOG_SUB_ACTIVE === $payload['blog_sub'];
+					$subscriptions      = isset( $payload['subscriptions'] ) ? (array) $payload['subscriptions'] : array();
+					$is_paid_subscriber = static::validate_subscriptions( $valid_plan_ids, $subscriptions );
+				}
+			}
 		}
 
 		$has_access = $this->user_has_access( $access_level, $is_blog_subscriber, $is_paid_subscriber, get_the_ID(), $subscriptions );
@@ -556,33 +702,44 @@ abstract class Abstract_Token_Subscription_Service implements Subscription_Servi
 	/**
 	 * Store the auth cookie.
 	 *
+	 * Updates `$_COOKIE` in memory so subsequent code in the same request (e.g. another
+	 * Premium Content block on the same post) reads the new value and doesn't re-trigger
+	 * a refresh against a now-stale value. The Set-Cookie header is emitted via the
+	 * standard `setcookie()` — on Atomic / wpcom the response is output-buffered so this
+	 * still works during `the_content`; on stricter self-hosted setups the header may
+	 * silently be dropped after output starts, in which case the browser keeps the prior
+	 * cookie value and the refresh fires again on the next visit (correct degradation).
+	 *
 	 * @param  string $token Auth token.
 	 * @return void
 	 */
 	private function set_token_cookie( $token ) {
+		if ( empty( $token ) ) {
+			return;
+		}
+
+		$_COOKIE[ self::JWT_AUTH_TOKEN_COOKIE_NAME ] = $token;
+
 		if ( defined( 'TESTING_IN_JETPACK' ) && TESTING_IN_JETPACK ) {
 			return;
 		}
 
-		if ( ! empty( $token ) && ! headers_sent() ) {
+		if ( ! headers_sent() ) {
 			// phpcs:ignore Jetpack.Functions.SetCookie.FoundNonHTTPOnlyFalse
 			setcookie( self::JWT_AUTH_TOKEN_COOKIE_NAME, $token, strtotime( '+1 month' ), '/', '', is_ssl(), false );
 		}
 	}
 
 	/**
-	 * Clear the auth cookie.
+	 * Clear the auth cookie. Mirrors set_token_cookie(): updates `$_COOKIE` for
+	 * in-request consistency, then emits a clearing Set-Cookie header.
 	 */
 	public static function clear_token_cookie() {
+		unset( $_COOKIE[ self::JWT_AUTH_TOKEN_COOKIE_NAME ] );
+
 		if ( defined( 'TESTING_IN_JETPACK' ) && TESTING_IN_JETPACK ) {
 			return;
 		}
-
-		if ( ! self::has_token_from_cookie() ) {
-			return;
-		}
-
-		unset( $_COOKIE[ self::JWT_AUTH_TOKEN_COOKIE_NAME ] );
 
 		if ( ! headers_sent() ) {
 			// phpcs:ignore Jetpack.Functions.SetCookie.FoundNonHTTPOnlyFalse

@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-react-data-sync-client",
-	"version": "0.1.31",
+	"version": "0.1.33",
 	"private": true,
 	"description": "DataSync client for React",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/react-data-sync-client/#readme",
@@ -34,7 +34,6 @@
 	"devDependencies": {
 		"@automattic/jetpack-webpack-config": "workspace:*",
 		"@tanstack/react-query": "5.90.8",
-		"@tanstack/react-query-devtools": "5.90.2",
 		"@typescript/native-preview": "7.0.0-dev.20260225.1",
 		"jest": "30.4.2",
 		"react": "18.3.1",

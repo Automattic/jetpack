@@ -627,7 +627,7 @@ class Search_Widget extends \WP_Widget {
 	 * @return array Settings to save.
 	 * @since 5.0.0
 	 */
-	public function update( $new_instance, $old_instance ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+	public function update( $new_instance, $old_instance ) {
 		$new_instance = $this->maybe_reformat_widget( $new_instance );
 		$instance     = array();
 

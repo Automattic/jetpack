@@ -566,7 +566,7 @@ class Feedback_Field {
 	 * @return string HTML with clickable link.
 	 */
 	private function render_email_url() {
-		if ( empty( $this->value ) ) {
+		if ( ! is_string( $this->value ) || empty( $this->value ) ) {
 			return $this->render_empty_value_html();
 		}
 

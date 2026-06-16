@@ -114,7 +114,6 @@ class Admin {
 	 * Action for `load-{$hook}`.
 	 */
 	public static function admin_page_load() {
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		$plugin_name = isset( $_GET['plugin'] ) ? filter_var( wp_unslash( $_GET['plugin'] ) ) : null;
 		$plugin      = null;
 

@@ -71,21 +71,6 @@ export function hasConnections( state: SocialStoreState ) {
 }
 
 /**
- * Returns the failed Publicize connections.
- *
- * @param state - State object.
- * @return List of connections.
- */
-export const getFailedConnections = createSelector(
-	( state: SocialStoreState ) => {
-		const connections = getConnections( state );
-
-		return connections.filter( connection => 'broken' === connection.status );
-	},
-	( state: SocialStoreState ) => [ state.connectionData?.connections ]
-);
-
-/**
  * Returns a list of Publicize connection service names that require reauthentication from users.
  * For example, when LinkedIn switched its API from v1 to v2.
  *

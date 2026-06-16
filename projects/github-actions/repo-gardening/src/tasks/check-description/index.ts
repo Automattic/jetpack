@@ -111,7 +111,7 @@ async function getMilestoneDates(
 		// Spaces between words.
 		.join( ' ' );
 
-	let pluginMessage = '';
+	let pluginMessage;
 	if ( ! releaseDate ) {
 		pluginMessage = `No scheduled milestone found for this plugin.`;
 	} else if ( plugin === 'jetpack' ) {
@@ -529,6 +529,11 @@ async function checkDescription(
 		( author === 'matticbot' || author === 'github-actions[bot]' )
 	) {
 		debug( `check-description: Automated stub update, skipping` );
+		return;
+	}
+
+	if ( ref === 'update/pnpm_and_composer_lock_files' && author === 'matticbot' ) {
+		debug( `check-description: Automated lock file update, skipping` );
 		return;
 	}
 

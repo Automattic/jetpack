@@ -923,6 +923,20 @@ class Feedback_Field_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Regression test: URL field with array value must not trigger preg_match TypeError.
+	 *
+	 * @see https://linear.app/a8c/issue/FORMS-687
+	 */
+	public function test_url_field_with_array_value_renders_safely_in_email_html_context() {
+		$field  = new Feedback_Field( 'url_key', 'Website', array( 'https://example.com' ), 'url' );
+		$result = $field->get_render_value( 'email_html' );
+
+		$this->assertIsString( $result );
+		$this->assertStringContainsString( '&mdash;', $result );
+		$this->assertStringNotContainsString( 'href=', $result );
+	}
+
+	/**
 	 * Test get_admin_theme_color returns a hex color.
 	 */
 	public function test_get_admin_theme_color() {

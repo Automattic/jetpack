@@ -173,7 +173,7 @@ class Keyring_Helper {
 			$service_name = null;
 
 			if ( isset( $_GET['service'] ) ) {
-				$service_name = filter_var( wp_unslash( $_GET['service'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- We verify below.
+				$service_name = filter_var( wp_unslash( $_GET['service'] ) );
 			}
 
 			switch ( $_GET['action'] ) {

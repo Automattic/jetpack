@@ -329,7 +329,7 @@ class Twitter_Cards_Test extends BaseTestCase {
 		);
 
 		global $post;
-		$post = get_post( $post_id ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+		$post = get_post( $post_id );
 		$this->assertInstanceOf( 'WP_Post', $post );
 
 		$og_tags = array( 'og:title' => 'Test' );
@@ -405,11 +405,11 @@ class Twitter_Cards_Test extends BaseTestCase {
 		);
 
 		global $post, $wp_query;
-		$post = get_post( $post_id ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+		$post = get_post( $post_id );
 		$this->assertInstanceOf( 'WP_Post', $post );
 
 		// Simulate a singular query.
-		$wp_query              = new WP_Query(); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+		$wp_query              = new WP_Query();
 		$wp_query->is_singular = true;
 		$wp_query->is_single   = true;
 
@@ -436,11 +436,11 @@ class Twitter_Cards_Test extends BaseTestCase {
 		);
 
 		global $post, $wp_query;
-		$post = get_post( $post_id ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+		$post = get_post( $post_id );
 		$this->assertInstanceOf( 'WP_Post', $post );
 
 		// Simulate a singular query.
-		$wp_query              = new WP_Query(); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+		$wp_query              = new WP_Query();
 		$wp_query->is_singular = true;
 		$wp_query->is_single   = true;
 

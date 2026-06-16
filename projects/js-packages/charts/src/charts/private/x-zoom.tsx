@@ -5,7 +5,7 @@ import styles from './x-zoom.module.scss';
 import type { SingleChartRef } from './single-chart-context';
 import type { AxisScale } from '@visx/axis';
 import type { EventHandlerParams } from '@visx/xychart';
-import type { MutableRefObject } from 'react';
+import type { MutableRefObject, ReactNode } from 'react';
 
 const MIN_DRAG_PIXELS = 6;
 
@@ -119,6 +119,53 @@ export function ZoomSelectionRect( { drag }: { drag: Drag | null } ) {
 			height={ innerHeight ?? 0 }
 			data-testid="chart-zoom-selection"
 		/>
+	);
+}
+
+/**
+ * Wraps a chart's series in a group that is clipped to the inner plot rectangle
+ * while `active`. Reads the plot geometry from visx's `DataContext` (the same
+ * source as `ZoomSelectionRect`), so the host charts don't compute any margins.
+ * The group is always rendered (only its `clip-path` toggles) so toggling zoom
+ * never remounts or re-animates the series.
+ *
+ * @param props          - Props.
+ * @param props.active   - Whether to clip (e.g. `zoomable`, or `zoomable && zoomed`).
+ * @param props.chartId  - Chart id; used to build a unique clip-path id.
+ * @param props.children - The series to clip.
+ * @return JSX element.
+ */
+export function ZoomClip( {
+	active,
+	chartId,
+	children,
+}: {
+	active: boolean;
+	chartId?: string;
+	children: ReactNode;
+} ) {
+	const { margin, innerWidth, innerHeight } = useContext( DataContext );
+	// Sanitise the chart id to a valid SVG/CSS id, and keep it unique per chart.
+	const id = `chart-zoom-clip-${ String( chartId ?? '' ).replace( /[^A-Za-z0-9_-]/g, '' ) }`;
+	const clip = active && ( innerWidth ?? 0 ) > 0 && ( innerHeight ?? 0 ) > 0;
+	return (
+		<>
+			{ clip && (
+				<defs>
+					<clipPath id={ id } data-testid="chart-zoom-clip">
+						<rect
+							x={ margin?.left ?? 0 }
+							y={ margin?.top ?? 0 }
+							width={ innerWidth }
+							height={ innerHeight }
+						/>
+					</clipPath>
+				</defs>
+			) }
+			<g clipPath={ clip ? `url(#${ id })` : undefined } data-testid="chart-series-clip-group">
+				{ children }
+			</g>
+		</>
 	);
 }
 

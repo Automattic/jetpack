@@ -150,7 +150,6 @@ class Odyssey_Config_Data {
 	 * Page base for the Calypso admin page.
 	 */
 	protected function get_admin_path() {
-		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 		if ( ! isset( $_SERVER['PHP_SELF'] ) || ! isset( $_SERVER['QUERY_STRING'] ) ) {
 			$parsed = wp_parse_url( admin_url( 'admin.php?page=stats' ) );
 			return $parsed['path'] . '?' . $parsed['query'];

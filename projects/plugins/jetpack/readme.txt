@@ -1,7 +1,7 @@
 === Jetpack - WP Security, Backup, Speed, & Growth ===
 Contributors: automattic, adamkheckler, adrianmoldovanwp, aduth, akirk, allendav, alternatekev, andy, annamcphee, annezazu, apeatling, arcangelini, arsihasi, azaozz, barry, batmoo, beaulebens, bindlegirl, biskobe, bjorsch, blobaugh, brbrr, brileyhooper, cainm, cena, cfinke, cgastrell, chaselivingston, chellycat, clickysteve, csonnek, danielbachhuber, daniloercoli, davoraltman, delawski, designsimply, dkmyta, dllh, dlocc, drawmyface, dsmart, dun2mis, dzver, ebinnion, egregor, eliorivero, enej, eoigal, erania-pinnera, ethitter, fgiannar, gcorne, georgestephanis, gibrown, goldsounds, hew, hugobaeta, hypertextranch, iammattthomas, iandunn, joen, jblz, jeffgolenski, jeherve, jennywp, jenia, jessefriedman, jgs, jkudish, jmdodd, joanrho, johnjamesjacoby, jshreve, kbrownkd, keoshi, koke, kraftbj, lancewillett, leogermani, lhkowalski, lschuyler, macmanx, martinremy, matt, mattwiebe, matveb, maverick3x6, mcsf, mdawaffe, mdbitz, MichaelArestad, migueluy, miguelxavierpenha, mikeyarce, mkaz, nancythanki, nickmomrik, njweller, nunyvega, obenland, oskosk, pento, professor44, rachelsquirrel, rdcoll, renatoagds, retrofox, richardmtl, richardmuscat, robertbpugh, roccotripaldi, ryanc413, samhotchkiss, samiff, scarstocea, scottsweb, sdixon194, sdquirk, sermitr, simison, stephdau, thehenridev, tmoorewp, tyxla, Viper007Bond, westi, williamvianas, wpkaren, yoavf, zinigor
 Tags: Security, backup, malware, scan, performance
-Stable tag: 15.9-a.7
+Stable tag: 16.0-a.1
 Requires at least: 6.9
 Requires PHP: 7.2
 Tested up to: 7.0
@@ -326,15 +326,14 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 15.9-a.7 - 2026-06-01
-#### Major Enhancements
-- General: Update minimum WordPress version to 6.9.
-
+### 16.0-a.1 - 2026-06-15
 #### Enhancements
-- Search: Register the AI Agents Access opt-in setting for regular site owners.
+- Daily Writing Prompt: Load the Dashboard widget on connected self-hosted Jetpack sites.
+- Subscriptions Block: Customize the Subscribe modal heading site-wide via a new Newsletter setting.
 
 #### Bug fixes
-- VideoPress: Fix the post-connection redirect so the modernized dashboard returns users to the VideoPress page instead of a 404.
+- Daily Writing Prompt: Defer the connection-readiness check to Dashboard setup to avoid a fatal error on Atomic sites.
+- Paid Content Block: Prevent lockout after a subscription renewal.
 
 --------
 

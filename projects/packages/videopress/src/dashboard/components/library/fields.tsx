@@ -3,12 +3,49 @@ import { __, sprintf } from '@wordpress/i18n';
 import { Badge, Stack, Text } from '@wordpress/ui';
 import { formatBytes, formatDuration } from '../../utils/format';
 import ThumbnailField from './thumbnail-field';
+import { useUploadActions } from './upload-actions-context';
 import type { LibraryItem } from '../../types/library';
 import type { Field, Operator } from '@wordpress/dataviews';
 
 const dateSettings = getDateSettings();
 
 type BadgeIntent = React.ComponentProps< typeof Badge >[ 'intent' ];
+
+/**
+ * Render a video's title. For idle VideoPress videos it's a link-styled button
+ * that opens the video's Details (mirroring Core); for every other state it's a
+ * plain span so uploading/failed/local rows stay non-navigable.
+ *
+ * @param props      - Component props.
+ * @param props.item - The library item rendered by this cell.
+ * @return The title element.
+ */
+const TitleText = ( { item }: { item: LibraryItem } ) => {
+	const { openVideoDetails } = useUploadActions();
+	const { type, upload, title, id } = item;
+
+	// `title` attributes expose the full text on hover; the elements
+	// themselves truncate with an ellipsis (see &__title-link /
+	// &__title-text in style.scss).
+	if ( type === 'videopress' && upload.status === 'idle' ) {
+		return (
+			<button
+				type="button"
+				className="vp-library__title-link"
+				title={ title }
+				onClick={ () => openVideoDetails( id ) }
+			>
+				{ title }
+			</button>
+		);
+	}
+
+	return (
+		<span className="vp-library__title-text" title={ title }>
+			{ title }
+		</span>
+	);
+};
 
 const privacyLabel = ( privacy: LibraryItem[ 'privacy' ] ): string => {
 	switch ( privacy ) {
@@ -22,7 +59,7 @@ const privacyLabel = ( privacy: LibraryItem[ 'privacy' ] ): string => {
 };
 
 const TitleCell = ( { item }: { item: LibraryItem } ) => {
-	const { upload, type, title, isProcessing } = item;
+	const { upload, type, isProcessing } = item;
 	let pill: { intent: BadgeIntent; label: string } | null = null;
 	if ( upload.status === 'uploading' ) {
 		pill = {
@@ -37,6 +74,11 @@ const TitleCell = ( { item }: { item: LibraryItem } ) => {
 		pill = {
 			intent: 'informational',
 			label: __( 'Uploading…', 'jetpack-videopress-pkg' ),
+		};
+	} else if ( upload.status === 'deleting' ) {
+		pill = {
+			intent: 'informational',
+			label: __( 'Deleting…', 'jetpack-videopress-pkg' ),
 		};
 	} else if ( upload.status === 'failed' ) {
 		pill = {
@@ -56,11 +98,11 @@ const TitleCell = ( { item }: { item: LibraryItem } ) => {
 	}
 
 	if ( ! pill ) {
-		return <>{ title }</>;
+		return <TitleText item={ item } />;
 	}
 	return (
 		<Stack direction="row" gap="sm" align="center" className="vp-library__title-cell">
-			<span>{ title }</span>
+			<TitleText item={ item } />
 			<Badge intent={ pill.intent }>{ pill.label }</Badge>
 		</Stack>
 	);
@@ -87,7 +129,7 @@ export const libraryFields: Field< LibraryItem >[] = [
 		label: __( 'Filename', 'jetpack-videopress-pkg' ),
 		getValue: ( { item } ) => item.filename,
 		render: ( { item } ) => (
-			<Text variant="body-sm" className="vp-library__filename">
+			<Text variant="body-sm" className="vp-library__filename" title={ item.filename }>
 				{ item.filename }
 			</Text>
 		),
