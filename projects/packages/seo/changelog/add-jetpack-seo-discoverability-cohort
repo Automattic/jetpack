@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Gate the Jetpack SEO admin menu on a discoverability cohort: WordPress.com sites and fresh self-hosted installs see it automatically, existing self-hosted installs opt in. Adds the `jetpack_seo_surface_visible` option and `Initializer::is_seo_surface_visible()`.

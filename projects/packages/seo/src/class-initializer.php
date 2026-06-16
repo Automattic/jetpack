@@ -13,6 +13,7 @@ namespace Automattic\Jetpack\SEO;
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Modules;
+use Automattic\Jetpack\Status\Host;
 use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills;
 use Jetpack_SEO_Titles;
 use Jetpack_SEO_Utils;
@@ -81,6 +82,20 @@ class Initializer {
 	const META_SCHEMA_TYPE = 'jetpack_seo_schema_type';
 
 	/**
+	 * Option recording whether the Jetpack SEO surface is discoverable on this site.
+	 *
+	 * Gates whether the SEO admin menu registers on self-hosted sites. Seeded once by the
+	 * Jetpack plugin on install/upgrade: fresh installs default to visible, existing
+	 * installs default to hidden and opt in via the legacy Traffic page or My Jetpack.
+	 * WordPress.com (Simple + Atomic) bypasses this option entirely and is always visible.
+	 * Absent until seeded, in which case self-hosted defaults to hidden (the non-disruptive
+	 * default). See {@see self::is_seo_surface_visible()}.
+	 *
+	 * @var string
+	 */
+	const VISIBILITY_OPTION = 'jetpack_seo_surface_visible';
+
+	/**
 	 * Whether the package has been initialized.
 	 *
 	 * @var bool
@@ -102,6 +117,14 @@ class Initializer {
 
 		// Gate the entire SEO surface behind the feature flag.
 		if ( ! (bool) apply_filters( self::FEATURE_FILTER, false ) ) {
+			return;
+		}
+
+		// Discoverability cohort gate: the SEO surface is auto-discoverable for fresh
+		// installs and all WordPress.com sites; existing self-hosted installs opt in via
+		// the legacy Traffic page or My Jetpack (JETPACK-1700). Until it's visible we
+		// register nothing here and let those opt-in surfaces drive discovery.
+		if ( ! self::is_seo_surface_visible() ) {
 			return;
 		}
 
@@ -279,6 +302,26 @@ class Initializer {
 			return false;
 		}
 		return ( new Modules() )->is_active( 'seo-tools' );
+	}
+
+	/**
+	 * Whether the Jetpack SEO surface should be discoverable (admin menu registered).
+	 *
+	 * WordPress.com sites (Simple + Atomic) are always discoverable — how SEO presents
+	 * there is a Dotcom decision, independent of the self-hosted rollout. On self-hosted
+	 * sites the durable {@see self::VISIBILITY_OPTION} cohort flag decides: fresh installs
+	 * are seeded visible, existing installs stay hidden until they opt in. Defaults to
+	 * hidden when the option is absent (e.g. before the plugin's seed has run), so an
+	 * existing site is never surprised by the new surface before its cohort is recorded.
+	 *
+	 * @return bool
+	 */
+	public static function is_seo_surface_visible() {
+		if ( class_exists( 'Automattic\\Jetpack\\Status\\Host' ) && ( new Host() )->is_wpcom_platform() ) {
+			return true;
+		}
+
+		return (bool) get_option( self::VISIBILITY_OPTION, false );
 	}
 
 	/**
