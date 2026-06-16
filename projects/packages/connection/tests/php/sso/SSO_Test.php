@@ -48,6 +48,7 @@ class SSO_Test extends BaseTestCase {
 			$GLOBALS['action']
 		);
 		wp_set_current_user( 0 );
+		$this->set_sso_user_for_2fa( null );
 		parent::tear_down();
 	}
 
@@ -83,6 +84,20 @@ class SSO_Test extends BaseTestCase {
 			$method->setAccessible( true );
 		}
 		return $method->invokeArgs( null, $parameters );
+	}
+
+	/**
+	 * Set the private static $sso_user_for_2fa property via reflection.
+	 *
+	 * @param object|null $user The user object (or null) to store.
+	 */
+	private function set_sso_user_for_2fa( $user ) {
+		$reflection = new \ReflectionClass( SSO::class );
+		$property   = $reflection->getProperty( 'sso_user_for_2fa' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$property->setAccessible( true );
+		}
+		$property->setValue( null, $user );
 	}
 
 	// ──────────────────────────────────────────────
@@ -940,5 +955,57 @@ class SSO_Test extends BaseTestCase {
 		$this->assertSame( 0, $result['local_user_id'] );
 
 		wp_delete_user( $user_id );
+	}
+
+	// ──────────────────────────────────────────────
+	// add_two_factor_session_meta
+	// ──────────────────────────────────────────────
+
+	/**
+	 * Test that the session is tagged when the stored SSO user matches.
+	 */
+	public function test_add_two_factor_session_meta_tags_matching_user() {
+		$this->set_sso_user_for_2fa( (object) array( 'ID' => 42 ) );
+
+		$session = SSO::add_two_factor_session_meta( array(), 42 );
+
+		$this->assertArrayHasKey( 'two-factor-login', $session );
+		$this->assertIsInt( $session['two-factor-login'] );
+	}
+
+	/**
+	 * Test that the session is left untouched for a non-matching user.
+	 */
+	public function test_add_two_factor_session_meta_skips_non_matching_user() {
+		$this->set_sso_user_for_2fa( (object) array( 'ID' => 42 ) );
+
+		$session = SSO::add_two_factor_session_meta( array(), 99 );
+
+		$this->assertArrayNotHasKey( 'two-factor-login', $session );
+	}
+
+	/**
+	 * Test that the session is untouched when no SSO user is stored.
+	 */
+	public function test_add_two_factor_session_meta_no_op_without_stored_user() {
+		$this->set_sso_user_for_2fa( null );
+
+		$session = SSO::add_two_factor_session_meta( array( 'existing' => 'value' ), 42 );
+
+		$this->assertSame( array( 'existing' => 'value' ), $session );
+	}
+
+	/**
+	 * Test that the stored user is cleared after a successful tag, so a
+	 * second session for the same user is not tagged again.
+	 */
+	public function test_add_two_factor_session_meta_clears_stored_user_after_use() {
+		$this->set_sso_user_for_2fa( (object) array( 'ID' => 42 ) );
+
+		$first  = SSO::add_two_factor_session_meta( array(), 42 );
+		$second = SSO::add_two_factor_session_meta( array(), 42 );
+
+		$this->assertArrayHasKey( 'two-factor-login', $first );
+		$this->assertArrayNotHasKey( 'two-factor-login', $second );
 	}
 }

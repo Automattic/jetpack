@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Google Fonts: stop force-activating the module on every request, and stop hiding it from the classic Jetpack modules screen, so it is no longer auto-enabled by default and can be toggled off and back on.

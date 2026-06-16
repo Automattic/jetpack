@@ -17,7 +17,7 @@
 	"scripts": {
 		"build": "pnpm run clean && webpack",
 		"build-production": "NODE_ENV=production BABEL_ENV=production pnpm run build && pnpm run validate",
-		"clean": "rm -rf build/ .cache/",
+		"clean": "rm -rf build/",
 		"validate": "pnpm exec validate-es --no-error-on-unmatched-pattern build/",
 		"watch": "pnpm run build && pnpm webpack watch"
 	},
