@@ -198,7 +198,7 @@ class Blaze {
 
 			// Temporary entry at the old Tools location; remove ~1 month after the move ships.
 			if ( 'tools.php' !== $parent_slug ) {
-				self::add_migration_notice_menu( $menu_label );
+				self::add_migration_notice_menu();
 			}
 		}
 	}
@@ -247,10 +247,12 @@ class Blaze {
 	/**
 	 * Register a temporary "moved" notice page at the old Tools menu location.
 	 *
-	 * @param string $menu_label The menu label.
+	 * The menu keeps its old "Advertising" label so users who knew it by that
+	 * name still recognize it; the page itself explains the move to Blaze Ads.
+	 *
 	 * @return void
 	 */
-	public static function add_migration_notice_menu( $menu_label ) {
+	public static function add_migration_notice_menu() {
 		/**
 		 * Filter whether to show the temporary migration notice at the old
 		 * Tools > Advertising location.
@@ -265,8 +267,8 @@ class Blaze {
 
 		add_submenu_page(
 			'tools.php',
-			esc_attr( $menu_label ),
-			$menu_label,
+			esc_attr__( 'Advertising', 'jetpack-blaze' ),
+			__( 'Advertising', 'jetpack-blaze' ),
 			'manage_options',
 			'advertising-moved',
 			array( __CLASS__, 'render_migration_notice' ),

@@ -813,15 +813,20 @@ class Blaze_Test extends BaseTestCase {
 		Blaze::enable_blaze_menu();
 
 		$found_notice = false;
+		$notice_label = null;
 		if ( isset( $submenu['tools.php'] ) ) {
 			foreach ( $submenu['tools.php'] as $item ) {
 				if ( 'advertising-moved' === $item[2] ) {
 					$found_notice = true;
+					$notice_label = $item[0];
 					break;
 				}
 			}
 		}
 		$this->assertTrue( $found_notice, 'Expected a migration notice entry under Tools when the menu moves.' );
+		// The temporary entry keeps the old "Advertising" label so users still
+		// recognize it; it must not be renamed to "Blaze Ads".
+		$this->assertSame( 'Advertising', $notice_label );
 
 		Constants::clear_single_constant( 'IS_WPCOM' );
 		add_filter( 'jetpack_blaze_enabled', '__return_false' );
