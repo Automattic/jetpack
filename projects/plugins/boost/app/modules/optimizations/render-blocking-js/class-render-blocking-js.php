@@ -489,6 +489,13 @@ class Render_Blocking_JS implements Feature, Changes_Output_On_Activation, Chang
 	 */
 	private static function normalize_url_path( $url ) {
 		$path = (string) wp_parse_url( $url, PHP_URL_PATH );
+
+		// Decode percent-encoding so a pattern typed as it appears in the address
+		// bar (e.g. `foo bar`, or a non-ASCII slug) matches the encoded request
+		// path (`/foo%20bar`). Both the pattern and the request pass through here,
+		// so the two sides stay symmetric.
+		$path = rawurldecode( $path );
+
 		$path = '/' . ltrim( $path, '/' );
 
 		if ( '/' !== $path ) {
@@ -542,6 +549,16 @@ class Render_Blocking_JS implements Feature, Changes_Output_On_Activation, Chang
 
 		$pattern = trim( $pattern );
 		if ( '' === $pattern ) {
+			return null;
+		}
+
+		/*
+		 * Reject malformed URL patterns. A typo like `http://[::1` parses to a
+		 * scheme and host with no path; without this guard it would collapse to
+		 * `/` and silently exclude only the homepage.
+		 */
+		$parsed = wp_parse_url( $pattern );
+		if ( false === $parsed || ( isset( $parsed['scheme'] ) && empty( $parsed['path'] ) ) ) {
 			return null;
 		}
 
