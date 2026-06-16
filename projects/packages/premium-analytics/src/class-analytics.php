@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\PremiumAnalytics;
 
 use Automattic\Jetpack\PremiumAnalytics\REST\Api_Proxy_Controller;
 use Automattic\Jetpack\PremiumAnalytics\REST\Notices_Controller;
+use Automattic\Jetpack\PremiumAnalytics\Sync\Configuration as Sync_Configuration;
 use Automattic\Jetpack\PremiumAnalytics\Sync\Sync_Status_Tracker;
 
 /**
@@ -61,6 +62,9 @@ class Analytics {
 		}
 
 		Sync_Status_Tracker::configure();
+		// TEMPORARY (WOOA7S-1550): register the interim woocommerce_analytics sync module so
+		// Sync_Status_Tracker has a full sync to observe. Remove when the shared sync-modules package lands.
+		Sync_Configuration::register();
 		Api_Proxy_Controller::register();
 		Notices_Controller::register();
 
