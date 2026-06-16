@@ -47,7 +47,7 @@ class Single_Post_Controller_Test extends BaseTestCase {
 
 		$this->assertArrayHasKey( 'GET', $handler['methods'] );
 		$this->assertArrayNotHasKey( 'POST', $handler['methods'] );
-		$this->assertSame( array( $this->controller, 'get_item' ), $handler['callback'] );
+		$this->assertSame( array( $this->controller, 'get_single_post' ), $handler['callback'] );
 		$this->assertSame( array( $this->controller, 'check_permission' ), $handler['permission_callback'] );
 	}
 
@@ -85,7 +85,7 @@ class Single_Post_Controller_Test extends BaseTestCase {
 		$this->assertFalse( $this->controller->check_permission() );
 	}
 
-	public function test_get_item_returns_the_mapped_post_shape() {
+	public function test_get_single_post_returns_the_mapped_post_shape() {
 		$post_id = wp_insert_post(
 			array(
 				'post_title'   => 'Hello Analytics',
@@ -95,7 +95,7 @@ class Single_Post_Controller_Test extends BaseTestCase {
 			)
 		);
 
-		$response = $this->controller->get_item( $this->build_request( $post_id ) );
+		$response = $this->controller->get_single_post( $this->build_request( $post_id ) );
 
 		$this->assertSame( $post_id, $response['ID'] );
 		$this->assertSame( (int) \Jetpack_Options::get_option( 'id' ), $response['site_ID'] );
@@ -108,8 +108,34 @@ class Single_Post_Controller_Test extends BaseTestCase {
 		$this->assertArrayNotHasKey( 'like_count', $response );
 	}
 
-	public function test_get_item_returns_404_for_a_missing_post() {
-		$response = $this->controller->get_item( $this->build_request( 999999 ) );
+	public function test_get_single_post_serves_payload_to_view_stats_user() {
+		$user_id = wp_insert_user(
+			array(
+				'user_login' => 'jpa_post_stats_viewer',
+				'user_pass'  => 'password',
+				'role'       => 'subscriber',
+			)
+		);
+		$user    = new \WP_User( $user_id );
+		$user->add_cap( 'view_stats' );
+		wp_set_current_user( $user_id );
+
+		$post_id = wp_insert_post(
+			array(
+				'post_title'  => 'Viewer Post',
+				'post_status' => 'publish',
+			)
+		);
+
+		$this->assertTrue( $this->controller->check_permission() );
+
+		$response = $this->controller->get_single_post( $this->build_request( $post_id ) );
+		$this->assertSame( $post_id, $response['ID'] );
+		$this->assertSame( 'Viewer Post', $response['title'] );
+	}
+
+	public function test_get_single_post_returns_404_for_a_missing_post() {
+		$response = $this->controller->get_single_post( $this->build_request( 999999 ) );
 
 		$this->assertInstanceOf( \WP_Error::class, $response );
 		$this->assertSame( 'post_not_found', $response->get_error_code() );

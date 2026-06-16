@@ -51,7 +51,7 @@ class Single_Post_Controller extends WP_REST_Controller {
 			'/posts/(?P<resource_id>[\d]+)',
 			array(
 				'methods'             => WP_REST_Server::READABLE,
-				'callback'            => array( $this, 'get_item' ),
+				'callback'            => array( $this, 'get_single_post' ),
 				'permission_callback' => array( $this, 'check_permission' ),
 			)
 		);
@@ -73,7 +73,10 @@ class Single_Post_Controller extends WP_REST_Controller {
 	 *
 	 * @return array<string, mixed>|WP_Error
 	 */
-	public function get_item( $request ) {
+	public function get_single_post( WP_REST_Request $request ) {
+		// No per-post `read` capability check, matching the stats-admin source: the analytics
+		// dashboard reports on every post, so any stats viewer may read a post's metadata by ID
+		// (including drafts/private). Only the limited display fields below are exposed.
 		$post = get_post( (int) $request->get_param( 'resource_id' ), OBJECT, 'display' );
 
 		if ( empty( $post ) ) {
@@ -84,7 +87,8 @@ class Single_Post_Controller extends WP_REST_Controller {
 			);
 		}
 
-		// `like_count` is intentionally omitted — it's served by the post-likes endpoint.
+		// `like_count` is intentionally omitted — likes are fetched separately from the
+		// WordPress.com public API.
 		return array(
 			'ID'             => $post->ID,
 			'site_ID'        => (int) Jetpack_Options::get_option( 'id' ),
