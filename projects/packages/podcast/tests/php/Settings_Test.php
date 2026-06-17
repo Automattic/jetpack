@@ -50,6 +50,22 @@ class Settings_Test extends BaseTestCase {
 		delete_option( 'podcasting_show_urls' );
 	}
 
+	public function test_rest_schema_properties_types_every_option() {
+		$schema = Settings::rest_schema_properties();
+
+		foreach ( Settings::OPTION_NAMES as $name ) {
+			$this->assertArrayHasKey( $name, $schema, "$name should have an update arg schema" );
+			$this->assertArrayHasKey( 'type', $schema[ $name ], "$name schema should declare a type" );
+		}
+
+		$this->assertSame( 'integer', $schema['podcasting_category_id']['type'] );
+		$this->assertSame( 'integer', $schema['podcasting_image_id']['type'] );
+		$this->assertSame( 'object', $schema['podcasting_show_urls']['type'] );
+		$this->assertSame( 'object', $schema['podcasting_show_states']['type'] );
+		// Explicit accepts the stored boolean or the stringy form the SPA may send.
+		$this->assertSame( array( 'boolean', 'string' ), $schema['podcasting_explicit']['type'] );
+	}
+
 	public function test_register_adds_options_to_jetpack_sync_whitelist() {
 		Settings::register();
 
