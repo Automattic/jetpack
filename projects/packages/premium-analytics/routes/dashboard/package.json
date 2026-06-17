@@ -6,7 +6,6 @@
 		"page": "jetpack-premium-analytics"
 	},
 	"dependencies": {
-		"@jetpack-premium-analytics/routing": "workspace:*",
 		"@jetpack-premium-analytics/site-sync": "workspace:*",
 		"@wordpress/data": "10.48.0",
 		"@wordpress/i18n": "^6.9.0",
