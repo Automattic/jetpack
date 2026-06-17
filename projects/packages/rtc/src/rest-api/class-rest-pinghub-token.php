@@ -45,14 +45,14 @@ class REST_Pinghub_Token extends WP_REST_Controller {
 	}
 
 	/**
-	 * Permission check: current user must be a member of the blog.
+	 * Permission check: current user must be a member of the blog and able to edit posts.
 	 *
 	 * @param WP_REST_Request $request Full details about the request.
 	 * @return true|WP_Error
 	 */
 	public function create_item_permissions_check( $request ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		$providers = RTC::get_providers();
-		if ( ! in_array( 'pinghub', $providers, true ) || ! is_user_member_of_blog() ) {
+		if ( ! in_array( 'pinghub', $providers, true ) || ! is_user_member_of_blog() || ! current_user_can( 'edit_posts' ) ) {
 			return new WP_Error(
 				'rest_forbidden',
 				__( 'You are not allowed to access this endpoint.', 'jetpack-rtc' ),

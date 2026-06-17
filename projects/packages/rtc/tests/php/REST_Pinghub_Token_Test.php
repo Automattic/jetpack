@@ -43,6 +43,7 @@ class REST_Pinghub_Token_Test extends \WorDBless\BaseTestCase {
 
 		// Enable RTC and pinghub so the permissions check passes when needed.
 		add_filter( 'jetpack_rtc_enabled', '__return_true' );
+		update_option( 'wp_collaboration_enabled', true );
 	}
 
 	/**
@@ -50,8 +51,44 @@ class REST_Pinghub_Token_Test extends \WorDBless\BaseTestCase {
 	 */
 	public function tear_down(): void {
 		delete_option( 'wpcom_blog_id_stub' );
+		delete_option( 'wp_collaboration_enabled' );
 		remove_all_filters( 'jetpack_rtc_enabled' );
 		parent::tear_down();
+	}
+
+	// -------------------------------------------------------------------------
+	// create_item_permissions_check
+	// -------------------------------------------------------------------------
+
+	/**
+	 * Allows users who are members of the blog and can edit posts.
+	 */
+	public function test_create_item_permissions_check_allows_user_who_can_edit_posts(): void {
+		$user_id = wp_create_user( 'rtc_author', 'password', 'rtc-author@test.example' );
+		$user    = new WP_User( $user_id );
+		$user->set_role( 'author' );
+		wp_set_current_user( $user_id );
+
+		$request = new WP_REST_Request( 'POST', '/wpcom/v2/rtc/pinghub-token' );
+
+		$this->assertTrue( $this->endpoint->create_item_permissions_check( $request ) );
+	}
+
+	/**
+	 * Rejects users who are members of the blog but cannot edit posts.
+	 */
+	public function test_create_item_permissions_check_rejects_user_without_edit_posts_capability(): void {
+		$user_id = wp_create_user( 'rtc_subscriber', 'password', 'rtc-subscriber@test.example' );
+		$user    = new WP_User( $user_id );
+		$user->set_role( 'subscriber' );
+		wp_set_current_user( $user_id );
+
+		$request = new WP_REST_Request( 'POST', '/wpcom/v2/rtc/pinghub-token' );
+		$result  = $this->endpoint->create_item_permissions_check( $request );
+
+		$this->assertInstanceOf( WP_Error::class, $result );
+		$this->assertSame( 'rest_forbidden', $result->get_error_code() );
+		$this->assertSame( 403, $result->get_error_data()['status'] );
 	}
 
 	// -------------------------------------------------------------------------
