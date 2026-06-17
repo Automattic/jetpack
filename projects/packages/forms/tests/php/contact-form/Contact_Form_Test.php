@@ -4299,6 +4299,25 @@ class Contact_Form_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Test submit button block detection when the block class is not first.
+	 */
+	public function test_prepend_before_first_submit_button_block_matches_button_class_in_any_position() {
+		$reflection = new \ReflectionClass( Contact_Form::class );
+		$method     = $reflection->getMethod( 'prepend_before_first_submit_button_block' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true );
+		}
+
+		$content = '<div class="aligncenter wp-block-button is-style-outline"><button type="submit">Submit</button></div>';
+		$result  = $method->invoke( null, $content, '<span class="captcha"></span>' );
+
+		$this->assertSame(
+			'<span class="captcha"></span><div class="aligncenter wp-block-button is-style-outline"><button type="submit">Submit</button></div>',
+			$result
+		);
+	}
+
+	/**
 	 * Data provider for prepare_submit_button tests.
 	 */
 	public static function data_provider_prepare_submit_button() {

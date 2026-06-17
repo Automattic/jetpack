@@ -1474,9 +1474,23 @@ class Contact_Form extends Contact_Form_Shortcode {
 			}
 			$r .= "<input type='hidden' name='jetpack_contact_form_jwt' value='" . esc_attr( $form->get_jwt() ) . "' />\n";
 			$r .= $form->body;
+			$has_manual_hcaptcha  = false;
+			if ( class_exists( HCaptcha::class ) ) {
+				$updated_form_body    = HCaptcha::replace_manual_widget( $r, $form->hash );
+				$has_manual_hcaptcha  = $updated_form_body !== $r;
+				$r                    = $updated_form_body;
+			}
+			$hcaptcha             = ( class_exists( HCaptcha::class ) && ! $has_manual_hcaptcha ) ? HCaptcha::render_widget( $form->hash ) : '';
+			$submit_error_wrapper = self::render_error_wrapper();
+			$before_submit_button = $submit_error_wrapper . $hcaptcha . ' ';
 
 			if ( $is_multistep ) {
-				$r = preg_replace( '/<div class="wp-block-jetpack-form-step-navigation__wrapper/', self::render_error_wrapper() . ' <div class="wp-block-jetpack-form-step-navigation__wrapper', $r, 1 );
+				$r = preg_replace(
+					'/<div class="wp-block-jetpack-form-step-navigation__wrapper/',
+					$before_submit_button . '<div class="wp-block-jetpack-form-step-navigation__wrapper',
+					$r,
+					1
+				);
 			} elseif ( $has_submit_button_block ) {
 				$r = self::prepare_submit_button( $r );
 				// Place the error wrapper before the FIRST button block only to avoid duplicates (e.g., navigation buttons in multistep forms).
@@ -1485,14 +1499,10 @@ class Contact_Form extends Contact_Form_Shortcode {
 				if ( $is_forced_horizontal || $is_single_input_form ) {
 					// When user forced a horizontal layout, place the error wrapper
 					// after the form body.
-					$r .= self::render_error_wrapper( 'is-horizontal' );
+					$r .= $hcaptcha . self::render_error_wrapper( 'is-horizontal' );
 				} else {
 					// Place the error wrapper before the FIRST button block only to avoid duplicates (e.g., navigation buttons in multistep forms).
-					// Replace only the first occurrence.
-					$r = preg_replace( '/<div class="wp-block-jetpack-button/', self::render_error_wrapper() . ' <div class="wp-block-jetpack-button', $r, 1 );
-					if ( str_contains( $r, 'wp-block-button' ) ) {
-						$r = preg_replace( '/<div class="wp-block-button/', self::render_error_wrapper() . ' <div class="wp-block-button', $r, 1 );
-					}
+					$r = self::prepend_before_first_submit_button_block( $r, $before_submit_button );
 				}
 			}
 
@@ -1530,7 +1540,8 @@ class Contact_Form extends Contact_Form_Shortcode {
 					$submit_button_text = $form->get_attribute( 'submit_button_text' );
 				}
 
-				$r .= self::render_error_wrapper();
+				$r .= $submit_error_wrapper;
+				$r .= $hcaptcha;
 				$r .= "\t\t<button type='submit' class='" . esc_attr( $submit_button_class ) . "'";
 				if ( ! empty( $submit_button_styles ) ) {
 					$r .= " style='" . esc_attr( $submit_button_styles ) . "'";
@@ -1600,6 +1611,42 @@ class Contact_Form extends Contact_Form_Shortcode {
 		}
 
 		return $p->get_updated_html();
+	}
+
+	/**
+	 * Prepend markup before the first submit button block.
+	 *
+	 * The block wrapper may contain classes in any order, depending on how the
+	 * button block was produced or migrated.
+	 *
+	 * @param string $content Markup to update.
+	 * @param string $prepend Markup to prepend.
+	 * @return string
+	 */
+	private static function prepend_before_first_submit_button_block( $content, $prepend ) {
+		if ( '' === $prepend ) {
+			return $content;
+		}
+
+		$updated_content = preg_replace(
+			'~<div\b(?=[^>]*\bclass=(["\'])[^"\']*\bwp-block-(?:jetpack-)?button\b[^"\']*\1)~',
+			$prepend . '<div',
+			$content,
+			1
+		);
+
+		if ( null !== $updated_content && $updated_content !== $content ) {
+			return $updated_content;
+		}
+
+		$updated_content = preg_replace(
+			'~<button\b(?=[^>]*(?:\btype=(["\'])submit\1|\bclass=(["\'])[^"\']*\b(?:is-submit|form-button-submit)\b[^"\']*\2))~',
+			$prepend . '<button',
+			$content,
+			1
+		);
+
+		return null === $updated_content ? $content : $updated_content;
 	}
 
 	/**

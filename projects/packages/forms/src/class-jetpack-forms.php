@@ -20,7 +20,10 @@ class Jetpack_Forms {
 	 * Load the contact form module.
 	 */
 	public static function load_contact_form() {
+		require_once __DIR__ . '/contact-form/class-hcaptcha.php';
+
 		Util::init();
+		ContactForm\HCaptcha::init();
 
 		if ( self::is_feedback_dashboard_enabled() ) {
 			$dashboard = new Dashboard();
