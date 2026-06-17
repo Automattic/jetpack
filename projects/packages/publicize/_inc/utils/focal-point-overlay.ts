@@ -72,5 +72,7 @@ function subscribe( listener: () => void ): () => void {
  * @return {FocalPoint | undefined} The point to show live, or undefined.
  */
 export function useFocalPointOverlay( attachmentId: number ): FocalPoint | undefined {
-	return useSyncExternalStore( subscribe, () => getFocalPointOverlay( attachmentId ) );
+	const getSnapshot = () => getFocalPointOverlay( attachmentId );
+
+	return useSyncExternalStore( subscribe, getSnapshot, getSnapshot );
 }
