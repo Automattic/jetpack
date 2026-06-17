@@ -111,6 +111,14 @@ class WooCommerce extends Module {
 	private $deleted_user_ids = array();
 
 	/**
+	 * Order IDs whose total we've already emitted this request, so an order's total is emitted once
+	 * even if both woocommerce_new_order and woocommerce_order_status_changed observe it.
+	 *
+	 * @var array
+	 */
+	private $synced_order_total_keys = array();
+
+	/**
 	 * The table name.
 	 *
 	 * @access public
@@ -176,6 +184,10 @@ class WooCommerce extends Module {
 
 		add_filter( 'jetpack_sync_before_enqueue_woocommerce_new_order_item', array( $this, 'filter_order_item' ) );
 		add_filter( 'jetpack_sync_before_enqueue_jetpack_updated_woo_customer_meta', array( $this, 'filter_customer_updated_meta' ) );
+
+		// Append an order's total to these actions when it reaches a paid status.
+		add_filter( 'jetpack_sync_before_enqueue_woocommerce_new_order', array( $this, 'add_order_total_to_new_order' ) );
+		add_filter( 'jetpack_sync_before_enqueue_woocommerce_order_status_changed', array( $this, 'add_order_total_to_status_changed' ) );
 		add_filter( 'jetpack_sync_whitelisted_comment_types', array( $this, 'add_review_comment_types' ) );
 
 		// Blacklist Action Scheduler comment types.
@@ -209,7 +221,9 @@ class WooCommerce extends Module {
 		add_action( 'woocommerce_attribute_updated', $callable, 10, 3 );
 		add_action( 'woocommerce_attribute_deleted', $callable, 10, 3 );
 
-		// Orders.
+		// Orders. When an order reaches a paid status we append its total to these actions (via the
+		// jetpack_sync_before_enqueue_* filters in the constructor) so the Activity Log can aggregate
+		// revenue without a dedicated action.
 		add_action( 'woocommerce_new_order', $callable, 10, 1 );
 		add_action( 'woocommerce_order_status_changed', $callable, 10, 3 );
 		add_action( 'woocommerce_payment_complete', $callable, 10, 1 );
@@ -296,6 +310,141 @@ class WooCommerce extends Module {
 		// Make sure we always have all the data - prior to WooCommerce 3.0 we only have the user supplied data in the second argument and not the full details.
 		$args[1] = $this->build_order_item( $args[0] );
 		return $args;
+	}
+
+	/**
+	 * Append an order's total to the synced woocommerce_new_order args when it is paid.
+	 *
+	 * A brand new order can be created already in a paid status, in which case no status transition
+	 * fires and only woocommerce_new_order observes the payment. When the order is paid we append a
+	 * trailing order-total payload (total, currency, occurred_at) that the Activity Log aggregates into
+	 * revenue; otherwise the args are returned unchanged (the action still syncs for other purposes).
+	 *
+	 * @param array $args Hook args: [ order_id ].
+	 * @return array The args, with a trailing order-total payload appended when the order is paid.
+	 */
+	public function add_order_total_to_new_order( $args ) {
+		// woocommerce_new_order carries only the order ID, so we load the order to read its status.
+		// This fires right after the order is saved, so wc_get_order() is served from WooCommerce's
+		// in-request order cache rather than a fresh query.
+		$order = $this->get_order_for_total( isset( $args[0] ) ? $args[0] : null );
+		if ( $order && $this->is_paid_order_status( $order->get_status() ) && $this->claim_order_total_emission( $order ) ) {
+			$args[] = $this->build_order_total_payload( $order );
+		}
+
+		return $args;
+	}
+
+	/**
+	 * Append an order's total to the synced woocommerce_order_status_changed args on payment.
+	 *
+	 * We emit on the transition *into* a paid status from a non-paid one — the payment moment — and
+	 * skip paid -> paid steps (e.g. processing -> completed) so a fulfillment doesn't re-emit. When
+	 * emitted we append a trailing order-total payload (total, currency, occurred_at) the Activity Log
+	 * reads; otherwise the args are unchanged (the action still syncs for other purposes).
+	 *
+	 * @param array $args Hook args: [ order_id, status_from, status_to ].
+	 * @return array The args, with a trailing order-total payload appended on the paid transition.
+	 */
+	public function add_order_total_to_status_changed( $args ) {
+		$status_from = isset( $args[1] ) ? $args[1] : '';
+		$status_to   = isset( $args[2] ) ? $args[2] : '';
+
+		if ( $this->is_paid_order_status( $status_to ) && ! $this->is_paid_order_status( $status_from ) ) {
+			$order = $this->get_order_for_total( isset( $args[0] ) ? $args[0] : null );
+			if ( $order && $this->claim_order_total_emission( $order ) ) {
+				$args[] = $this->build_order_total_payload( $order );
+			}
+		}
+
+		return $args;
+	}
+
+	/**
+	 * Load an order so its total can be inspected.
+	 *
+	 * @param int|null $order_id Order ID.
+	 * @return WC_Order|null The order, or null when unavailable.
+	 */
+	private function get_order_for_total( $order_id ) {
+		if ( ! $order_id || ! function_exists( 'wc_get_order' ) ) {
+			return null;
+		}
+
+		$order = wc_get_order( $order_id );
+		return $order instanceof WC_Order ? $order : null;
+	}
+
+	/**
+	 * Claim the once-per-request emission slot for an order's total.
+	 *
+	 * Test-and-set: returns true (and records the claim) the first time it's called for an order this
+	 * request, false thereafter — so the woocommerce_new_order and woocommerce_order_status_changed
+	 * hooks don't both emit a freshly created paid order. Callers must confirm the order is paid first.
+	 *
+	 * @param WC_Order $order Order object.
+	 * @return bool True when the caller obtained the claim and should emit.
+	 */
+	private function claim_order_total_emission( $order ) {
+		$key = $order->get_id();
+		if ( isset( $this->synced_order_total_keys[ $key ] ) ) {
+			return false;
+		}
+		$this->synced_order_total_keys[ $key ] = true;
+
+		return true;
+	}
+
+	/**
+	 * Build the trailing order-total payload appended to a paid order's synced action args.
+	 *
+	 * Intentionally minimal and scalar-only so it is safe to store and index on WPcom (Activity Log,
+	 * Elasticsearch, MCP integrations).
+	 *
+	 * @param WC_Order $order Order object.
+	 * @return array {
+	 *     @type string   $total       Order total as a numeric string.
+	 *     @type string   $currency    Order currency code (e.g. 'USD').
+	 *     @type int|null $occurred_at Unix timestamp (seconds) to attribute the total to (see get_order_total_timestamp).
+	 * }
+	 */
+	private function build_order_total_payload( $order ) {
+		return array(
+			'total'       => $order->get_total(),
+			'currency'    => $order->get_currency(),
+			'occurred_at' => $this->get_order_total_timestamp( $order ),
+		);
+	}
+
+	/**
+	 * Resolve the timestamp to attribute an order's total to, as a Unix timestamp in seconds.
+	 *
+	 * @param WC_Order $order Order object.
+	 * @return int|null Unix timestamp in seconds, or null when no date is available.
+	 */
+	private function get_order_total_timestamp( $order ) {
+		foreach ( array( $order->get_date_paid(), $order->get_date_completed(), $order->get_date_created() ) as $date ) {
+			if ( $date instanceof \WC_DateTime ) {
+				return $date->getTimestamp();
+			}
+		}
+
+		return null;
+	}
+
+	/**
+	 * Whether an order status is one WooCommerce considers paid (and whose total we therefore sync).
+	 *
+	 * Uses WooCommerce's canonical, filterable list (wc_get_is_paid_statuses(), default 'processing'
+	 * and 'completed', un-prefixed) so stores that register custom paid statuses are covered.
+	 *
+	 * @param string $status Order status without the `wc-` prefix (e.g. 'processing').
+	 * @return bool True when WooCommerce treats the status as paid.
+	 */
+	private function is_paid_order_status( $status ) {
+		return is_string( $status )
+			&& function_exists( 'wc_get_is_paid_statuses' )
+			&& in_array( $status, wc_get_is_paid_statuses(), true );
 	}
 
 	/**
