@@ -713,7 +713,7 @@ class VideoPress_Player {
 			}
 
 			$cover  = $videopress_options['cover'] ? ' data-resize-to-parent="true"' : '';
-			$js_url = 'https://s0.wp.com/wp-content/plugins/video/assets/js/next/videopress-iframe.js';
+			$js_url = 'https://videopress.com/videopress-iframe.js';
 
 			wp_enqueue_script( 'videopress-iframe', $js_url, array(), JETPACK__VERSION, true );
 
