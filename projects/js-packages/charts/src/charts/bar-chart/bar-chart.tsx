@@ -397,6 +397,8 @@ const BarChartInternal: FC< BarChartProps > = ( {
 					{
 						[ styles[ `bar-chart--animated${ horizontal ? '-horizontal' : '' }` ] ]:
 							animation && ! prefersReducedMotion,
+						[ styles[ `bar-chart--comparison${ horizontal ? '-horizontal' : '' }` ] ]:
+							comparisonEntries.length > 0,
 					},
 					className
 				) }
