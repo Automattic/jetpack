@@ -9,31 +9,10 @@
 import { store as coreStore } from '@wordpress/core-data';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useCallback, useMemo, useState } from '@wordpress/element';
+import { FOCAL_POINT_META_KEY, readFocalPointMeta } from '../../utils/focal-point';
 import type { FocalPoint } from '../../utils/types';
 
-/** Attachment meta key — must match ATTACHMENT_IMAGE_FOCAL_POINT in PHP. */
-export const FOCAL_POINT_META_KEY = '_jetpack_social_image_focal_point';
-
 const DEFAULT_FOCAL_POINT: FocalPoint = { x: 0.5, y: 0.5 };
-
-const isValidFocalPoint = ( value: unknown ): value is FocalPoint => {
-	if ( ! value || typeof value !== 'object' || Array.isArray( value ) ) {
-		return false;
-	}
-
-	const point = value as Partial< Record< keyof FocalPoint, unknown > >;
-
-	return (
-		typeof point.x === 'number' &&
-		Number.isFinite( point.x ) &&
-		point.x >= 0 &&
-		point.x <= 1 &&
-		typeof point.y === 'number' &&
-		Number.isFinite( point.y ) &&
-		point.y >= 0 &&
-		point.y <= 1
-	);
-};
 
 export type UseMediaFocalPoint = {
 	/** The point to display: the optimistic value while saving, else the stored one. */
@@ -57,13 +36,12 @@ export function useMediaFocalPoint( attachmentId: number ): UseMediaFocalPoint {
 				return { storedValue: DEFAULT_FOCAL_POINT, canEdit: false };
 			}
 			const core = select( coreStore );
-			const record = core.getEntityRecord( 'postType', 'attachment', attachmentId ) as
-				| { meta?: { [ FOCAL_POINT_META_KEY ]?: unknown } }
-				| undefined;
-			const focalPoint = record?.meta?.[ FOCAL_POINT_META_KEY ];
+			const storedFocalPoint = readFocalPointMeta(
+				core.getEntityRecord( 'postType', 'attachment', attachmentId )
+			);
 
 			return {
-				storedValue: isValidFocalPoint( focalPoint ) ? focalPoint : DEFAULT_FOCAL_POINT,
+				storedValue: storedFocalPoint ?? DEFAULT_FOCAL_POINT,
 				canEdit: core.canUser( 'update', 'media', attachmentId ),
 			};
 		},

@@ -1,5 +1,6 @@
 import { act, renderHook, waitFor } from '@testing-library/react';
-import { FOCAL_POINT_META_KEY, useMediaFocalPoint } from '../use-media-focal-point';
+import { FOCAL_POINT_META_KEY } from '../../../utils/focal-point';
+import { useMediaFocalPoint } from '../use-media-focal-point';
 
 const mockGetEntityRecord = jest.fn();
 const mockCanUser = jest.fn();

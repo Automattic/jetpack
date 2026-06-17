@@ -5,6 +5,7 @@ import { decodeEntities } from '@wordpress/html-entities';
 import { __ } from '@wordpress/i18n';
 import { useMemo } from 'react';
 import { getSigImageUrl } from '../../hooks/use-sig-preview/utils';
+import { readFocalPointMeta } from '../../utils/focal-point';
 import { LinkPreviewData } from './types';
 import { getMediaSourceUrl, getPostImageUrl } from './utils';
 
@@ -26,17 +27,23 @@ export function useLinkPreviewPostData(): LinkPreviewData {
 		).trim();
 	}, [] );
 
-	const image = useSelect( select => {
+	const { image, imageFocalPoint } = useSelect( select => {
 		const meta = select( editorStore ).getEditedPostAttribute( 'meta' );
 
 		const { getEntityRecord } = select( coreStore );
 
 		const featuredImageId = select( editorStore ).getEditedPostAttribute( 'featured_media' );
 
+		const featuredImageRecord = featuredImageId
+			? getEntityRecord( 'postType', 'attachment', featuredImageId )
+			: undefined;
+
 		// Use the featured image by default, if it's available.
-		let imageUrl = featuredImageId
-			? getMediaSourceUrl( getEntityRecord( 'postType', 'attachment', featuredImageId ) )
-			: '';
+		let imageUrl = featuredImageId ? getMediaSourceUrl( featuredImageRecord ) : '';
+
+		// The focal point belongs to the featured image; clear it if another
+		// source (SIG, post content) ends up providing the preview image.
+		let focalPoint = readFocalPointMeta( featuredImageRecord );
 
 		const sigImageUrl = meta.jetpack_social_options?.image_generator_settings?.enabled
 			? getSigImageUrl( meta.jetpack_social_options.image_generator_settings.token )
@@ -45,6 +52,7 @@ export function useLinkPreviewPostData(): LinkPreviewData {
 		// If we have a SIG image, use it to generate the image URL.
 		if ( sigImageUrl ) {
 			imageUrl = sigImageUrl;
+			focalPoint = undefined;
 		}
 
 		// If we still don't have an image, try to get it from the post content.
@@ -53,10 +61,11 @@ export function useLinkPreviewPostData(): LinkPreviewData {
 
 			if ( postImageUrl ) {
 				imageUrl = postImageUrl;
+				focalPoint = undefined;
 			}
 		}
 
-		return imageUrl;
+		return { image: imageUrl, imageFocalPoint: focalPoint };
 	}, [] );
 
 	const { siteTitle, siteIcon } = useSelect( select => {
@@ -87,10 +96,11 @@ export function useLinkPreviewPostData(): LinkPreviewData {
 		return {
 			description: decodeEntities( description ),
 			image,
+			imageFocalPoint,
 			siteIcon,
 			siteTitle: decodeEntities( siteTitle ),
 			title: decodeEntities( title ),
 			url,
 		};
-	}, [ description, image, siteIcon, siteTitle, title, url ] );
+	}, [ description, image, imageFocalPoint, siteIcon, siteTitle, title, url ] );
 }
