@@ -1,9 +1,4 @@
 /**
- * External dependencies
- */
-import { getDefaultQueryParams } from '@jetpack-premium-analytics/data';
-import { ReportParamsField } from '@jetpack-premium-analytics/fields';
-/**
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
@@ -15,10 +10,10 @@ import { chartBar } from '@wordpress/icons';
  * Ported from `woocommerce-analytics/average-order-value-over-time` in
  * woocommerce/woocommerce-analytics (next-woocommerce-analytics).
  *
- * Added on this experimental branch as the second data-driven widget
- * type: it fetches the same orders report as average-items-per-order, so
- * with the data package externalized as a shared script module, both
- * widget types should be served by a single pair of report requests.
+ * Report params intentionally come from the analytics dashboard's global
+ * date-range state for now. Adding widget-level overrides needs a host-level
+ * control registry so analytics dashboards can hide the field while other
+ * dashboards can opt in.
  */
 export default {
 	name: 'jpa/average-order-value',
@@ -28,16 +23,4 @@ export default {
 		'jetpack-premium-analytics'
 	),
 	icon: chartBar,
-	attributes: [
-		{
-			id: 'reportParams',
-			label: __( 'Range', 'jetpack-premium-analytics' ),
-			Edit: ReportParamsField,
-		},
-	],
-	example: {
-		attributes: {
-			reportParams: getDefaultQueryParams( true ),
-		},
-	},
 };

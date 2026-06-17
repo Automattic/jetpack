@@ -9,6 +9,7 @@ import {
 
 type AverageOrderValueRenderProps = {
 	attributes?: Partial< ReportParamsFieldAttributes >;
+	setError?: Parameters< typeof WidgetRoot >[ 0 ][ 'setError' ];
 };
 
 /**
@@ -19,9 +20,9 @@ type AverageOrderValueRenderProps = {
  * the orders report and renders the average_order_value metric with a
  * comparison delta and sparkline.
  */
-export default function AverageOrderValueRender( { attributes }: AverageOrderValueRenderProps ) {
+export default function AverageOrderValueRender( { attributes, setError }: AverageOrderValueRenderProps ) {
 	return (
-		<WidgetRoot attributes={ attributes }>
+		<WidgetRoot attributes={ attributes } setError={ setError } options={ { from: '/' } }>
 			<OrderMetricWidget metricKey="average_order_value" />
 		</WidgetRoot>
 	);
