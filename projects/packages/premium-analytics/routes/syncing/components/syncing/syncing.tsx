@@ -45,10 +45,17 @@ export function Syncing() {
 
 	// When the initial sync finishes, hand off to the dashboard via the router.
 	// `useSyncStatus` has already advanced the site-sync store milestone, so the
-	// dashboard guard passes — no full-page reload needed.
+	// dashboard guard passes — no full-page reload needed. Log (rather than
+	// silently drop) a navigation failure so a stuck transition is traceable.
 	useEffect( () => {
 		if ( isComplete ) {
-			navigate( { to: '/' } );
+			navigate( { to: '/' } ).catch( navigationError => {
+				// eslint-disable-next-line no-console
+				console.error(
+					'Premium Analytics: navigation to the dashboard failed after sync completed:',
+					navigationError
+				);
+			} );
 		}
 	}, [ isComplete, navigate ] );
 

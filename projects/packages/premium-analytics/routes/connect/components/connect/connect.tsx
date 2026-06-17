@@ -45,13 +45,26 @@ export function Connect( { data }: { data: ConnectionData } ) {
 	// `redirectUri` from `useConnection` so it performs no `window.location`
 	// navigation of its own (with `skipUserConnection` and no `redirectUri`,
 	// its user-connect step is a no-op) — the router owns the transition, so
-	// connect → syncing is instant instead of a full-page reload. On failure we
-	// stay put; the error surfaces via `registrationError` below.
+	// connect → syncing is instant instead of a full-page reload.
+	//
+	// The two failure domains are handled separately so neither is swallowed:
+	// a registration failure stays put and surfaces via `registrationError`
+	// below (the retry UI), while a post-registration navigation failure is
+	// logged rather than silently dropped.
 	const handleAuthorize = useCallback( () => {
 		handleRegisterSite()
-			.then( () => navigate( { to: '/syncing' } ) )
-			.catch( () => {
-				/* Registration failed; `registrationError` drives the retry UI. */
+			.then(
+				() => navigate( { to: '/syncing' } ),
+				() => {
+					/* Registration failed; `registrationError` drives the retry UI. */
+				}
+			)
+			.catch( navigationError => {
+				// eslint-disable-next-line no-console
+				console.error(
+					'Premium Analytics: navigation to /syncing failed after registration:',
+					navigationError
+				);
 			} );
 	}, [ handleRegisterSite, navigate ] );
 
