@@ -104,10 +104,11 @@ module.exports = [
 	},
 
 	// The Divi 5 Visual Builder module ships as a Divi extension, so it must bind
-	// to the runtime instances Divi vendors rather than the standard WordPress
-	// globals. In particular Divi fires its module-registration action on its own
-	// `@wordpress/hooks` instance (`window.vendor.wp.hooks`); externalizing
-	// `@wordpress/hooks` there is what lets our `registerModule()` callback run.
+	// to the `@wordpress/*` instances Divi vendors (`window.vendor.wp.*`) rather
+	// than the standard WordPress globals, which aren't reliably loaded in the
+	// builder. In particular Divi fires its module-registration action on its own
+	// `@wordpress/hooks` instance, so externalizing `@wordpress/hooks` there is
+	// what lets our `registerModule()` callback run.
 	{
 		...baseConfig,
 		entry: {
@@ -120,6 +121,10 @@ module.exports = [
 						'@wordpress/hooks': {
 							external: [ 'vendor', 'wp', 'hooks' ],
 							handle: 'divi-vendor-wp-hooks',
+						},
+						'@wordpress/i18n': {
+							external: [ 'vendor', 'wp', 'i18n' ],
+							handle: 'divi-vendor-wp-i18n',
 						},
 					},
 				},

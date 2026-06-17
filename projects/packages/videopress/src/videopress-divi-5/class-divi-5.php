@@ -70,17 +70,17 @@ class Divi_5 {
 
 					/*
 					 * The handles emitted in build/divi-5/index.asset.php
-					 * (divi-vendor-wp-hooks, react, react-jsx-runtime, wp-i18n),
-					 * plus the Divi builder handles that must be enqueued for the
-					 * window.divi.* globals to be present.
+					 * (divi-vendor-wp-hooks, divi-vendor-wp-i18n, react,
+					 * react-jsx-runtime), plus the Divi builder handles that must be
+					 * enqueued for the window.divi.* globals to be present.
 					 */
 					'deps'               => array(
 						'divi-module-library',
 						'divi-rest',
 						'divi-vendor-wp-hooks',
+						'divi-vendor-wp-i18n',
 						'react',
 						'react-jsx-runtime',
-						'wp-i18n',
 					),
 					'enqueue_top_window' => false,
 					'enqueue_app_window' => true,
