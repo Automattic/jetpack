@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Comments/tests: update residual proxy/reports path references in Storybook mock docs and a REST test literal to the versioned agnostic proxy route. No functional change.

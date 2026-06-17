@@ -11,8 +11,9 @@ use Automattic\Jetpack\Sync\Modules;
 
 /**
  * Listens for the end of an analytics-relevant Jetpack full sync, persists a
- * one-time milestone option, and exposes that milestone to the frontend via
- * `JetpackScriptData.premium_analytics`.
+ * one-time milestone option, and exposes that milestone to the frontend both at
+ * page load (via `JetpackScriptData.premium_analytics`) and live on Jetpack's
+ * `/jetpack/v4/sync/status` REST response.
  *
  * Why this exists: the extracted dashboard needs to distinguish "first-time
  * sync, please wait" from "we have data, render it." Jetpack's existing
@@ -51,7 +52,13 @@ class Sync_Status_Tracker {
 	const MILESTONE_ACTION = 'jetpack_premium_analytics_initial_full_sync_finished';
 
 	/**
-	 * Wire up the listener and the script-data filter.
+	 * Jetpack core's sync-status REST route. We enrich this existing response with
+	 * the milestone rather than registering a dedicated endpoint.
+	 */
+	const SYNC_STATUS_ROUTE = '/jetpack/v4/sync/status';
+
+	/**
+	 * Wire up the listener, the script-data filter, and the sync-status enricher.
 	 *
 	 * Idempotent: safe to call more than once.
 	 *
@@ -60,6 +67,38 @@ class Sync_Status_Tracker {
 	public static function configure() {
 		add_action( 'jetpack_sync_processed_actions', array( self::class, 'on_sync_processed_actions' ) );
 		add_filter( 'jetpack_admin_js_script_data', array( self::class, 'inject_script_data' ) );
+		add_filter( 'rest_post_dispatch', array( self::class, 'enrich_sync_status_response' ), 10, 3 );
+	}
+
+	/**
+	 * Append the milestone to Jetpack core's GET /jetpack/v4/sync/status response
+	 * so the dashboard can read it on every poll, not just at page load.
+	 *
+	 * Page-load script-data ({@see inject_script_data()}) is a one-time snapshot;
+	 * reading the milestone here keeps it live for in-session completion without a
+	 * dedicated endpoint. Only the already-authorized, successful status payload is
+	 * touched — other routes and error responses pass through untouched.
+	 *
+	 * @param mixed $response Result to send to the client. Usually a WP_REST_Response.
+	 * @param mixed $server   The REST server instance (unused).
+	 * @param mixed $request  The request used to generate the response.
+	 * @return mixed
+	 */
+	public static function enrich_sync_status_response( $response, $server, $request ) {
+		if ( ! $request instanceof \WP_REST_Request
+			|| self::SYNC_STATUS_ROUTE !== $request->get_route()
+			|| ! $response instanceof \WP_REST_Response
+			|| $response->is_error() ) {
+			return $response;
+		}
+
+		$data = $response->get_data();
+		if ( is_array( $data ) ) {
+			$data['initial_full_sync_finished'] = (int) get_option( self::INITIAL_FULL_SYNC_OPTION, 0 );
+			$response->set_data( $data );
+		}
+
+		return $response;
 	}
 
 	/**

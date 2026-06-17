@@ -2068,6 +2068,96 @@ async function uploadFileToMedia( file ) {
 	}
 }
 
+// Media library browser state. Kept in module scope so list rendering can
+// look up the chosen media item by id when a thumbnail is clicked, without
+// re-fetching. Refreshed on every modal open so newly-uploaded images appear.
+// The strip is a single horizontally-scrolling row; we fetch one page and
+// rely on search for older items rather than offering Load more.
+let libraryItems = [];
+let librarySearchTimer = 0;
+let libraryFetchToken = 0;
+const LIBRARY_PER_PAGE = 24;
+
+/**
+ * Pick the smallest reasonable thumbnail URL for the grid. Falls back to the
+ * full-size source_url for images without registered sizes (e.g. uploads that
+ * pre-date a media setting change).
+ *
+ * @param {object} media - Media item from /wp/v2/media.
+ * @return {string} The thumbnail URL to render.
+ */
+function libraryThumbUrl( media ) {
+	const sizes = media.media_details?.sizes;
+	return sizes?.thumbnail?.source_url || sizes?.medium?.source_url || media.source_url || '';
+}
+
+/**
+ * Render the library strip into #bw-library-grid. Always replaces — the strip
+ * holds the most recent items (or current search results) only.  Thumbnails
+ * are <button>s; the container has aria-label, so individual items use plain
+ * `aria-label` with the media's alt or filename.
+ */
+function renderLibraryGrid() {
+	const grid = document.getElementById( 'bw-library-grid' );
+	if ( ! grid ) return;
+	grid.textContent = '';
+
+	for ( const item of libraryItems ) {
+		const btn = document.createElement( 'button' );
+		btn.type = 'button';
+		btn.className = 'bw-library-thumb';
+		btn.dataset.mediaId = String( item.id );
+		const label = item.alt_text || item.title?.rendered || '';
+		if ( label ) btn.setAttribute( 'aria-label', label );
+		const img = document.createElement( 'img' );
+		img.src = libraryThumbUrl( item );
+		img.alt = '';
+		img.loading = 'lazy';
+		btn.appendChild( img );
+		grid.appendChild( btn );
+	}
+}
+
+/**
+ * Fetch the most recent (or search-filtered) page of the user's media library
+ * and render it as a single-row strip.
+ *
+ * Concurrent requests are coalesced via a monotonically increasing token —
+ * only the most recent fetch's result is applied to state.
+ */
+async function fetchLibrary() {
+	const strings = window.wpcomWriteStrings || {};
+	const myToken = ++libraryFetchToken;
+	const search = state.librarySearch.trim();
+
+	state.libraryStatus = strings.libraryLoading || 'Loading…';
+
+	try {
+		const path =
+			`${ state.mediaPath }?media_type=image&per_page=${ LIBRARY_PER_PAGE }` +
+			`&orderby=date&order=desc` +
+			( search ? `&search=${ encodeURIComponent( search ) }` : '' );
+		const items = await window.wp.apiFetch( { path } );
+		// A newer fetch superseded this one — drop the result silently.
+		if ( myToken !== libraryFetchToken ) return;
+
+		libraryItems = items;
+
+		if ( libraryItems.length === 0 ) {
+			state.libraryStatus = search
+				? strings.libraryNoResults || 'No matching images.'
+				: strings.libraryEmpty || 'No images in your library yet.';
+		} else {
+			state.libraryStatus = '';
+		}
+
+		renderLibraryGrid();
+	} catch {
+		if ( myToken !== libraryFetchToken ) return;
+		state.libraryStatus = strings.libraryLoadFailed || "Couldn't load your library.";
+	}
+}
+
 /**
  * Show a preview image in the upload zone.
  *
@@ -4431,7 +4521,78 @@ const { state } = store( 'wpcom-write', {
 			state.uploadedMediaId = 0;
 			resetUploadZone();
 			state.showImageModal = true;
+			// Every open starts from the upload-default state; library/URL
+			// expanders collapse and search resets so the next open looks
+			// identical to the first.
+			state.showLibraryPicker = false;
+			state.showUrlInput = false;
+			state.librarySearch = '';
+			// Lock the page behind the modal so the editor can't scroll under
+			// the dimmed backdrop. The non-modal edit panel (editImage) does
+			// not lock — it docks bottom-right and the editor stays usable.
+			document.body.classList.add( 'bw-modal-open' );
 			focusModalInput();
+		},
+
+		toggleLibraryPicker() {
+			state.showLibraryPicker = ! state.showLibraryPicker;
+			// Lazy-fetch the library on first expand, and refresh on every
+			// reopen so a just-uploaded image appears at the top.
+			if ( state.showLibraryPicker ) {
+				state.librarySearch = '';
+				fetchLibrary();
+			}
+		},
+
+		toggleUrlInput() {
+			state.showUrlInput = ! state.showUrlInput;
+			// When opening, focus the URL field for immediate typing.
+			if ( state.showUrlInput ) {
+				requestAnimationFrame( () => {
+					document.querySelector( '.bw-url-section input[type="url"]' )?.focus();
+				} );
+			}
+		},
+
+		searchLibrary() {
+			const el = getElement();
+			state.librarySearch = el.ref.value;
+			clearTimeout( librarySearchTimer );
+			// 250ms debounce keeps us under the WP REST rate even while typing
+			// quickly without feeling laggy on a fast network.
+			librarySearchTimer = setTimeout( fetchLibrary, 250 );
+		},
+
+		selectLibraryImage( event ) {
+			// Delegated handler on the grid container — find the actual
+			// thumbnail button regardless of whether the click landed on the
+			// button, its inner <img>, or some descendant.
+			const btn = event.target.closest( '.bw-library-thumb' );
+			if ( ! btn ) return;
+			const id = parseInt( btn.dataset.mediaId, 10 );
+			if ( ! id ) return;
+			const item = libraryItems.find( m => m.id === id );
+			if ( ! item ) return;
+
+			// Match the upload-success path: populate the URL/alt fields and
+			// stamp the media id so insertImageFromUrl tags the figure with
+			// wp-image-<id> and applies the Large size preset.  Alt only
+			// overwrites a blank field so a user who already typed alt for a
+			// different image they were considering doesn't lose their work.
+			state.imageUrl = item.source_url;
+			if ( ! state.imageAlt && item.alt_text ) {
+				state.imageAlt = item.alt_text;
+			}
+			state.uploadedMediaId = item.id;
+			mediaSizesCache.set( item.id, item.media_details?.sizes || null );
+			showUploadPreview( item.source_url );
+
+			// Announce the selection through the modal's aria-live region so
+			// screen-reader users get audible confirmation that the click
+			// registered (the preview itself is purely visual).
+			const label = item.alt_text || item.title?.rendered || '';
+			const template = window.wpcomWriteStrings?.librarySelected || 'Selected %s';
+			state.libraryStatus = template.replace( '%s', label );
 		},
 
 		editImage( figure, triggerEl ) {
@@ -4501,6 +4662,7 @@ const { state } = store( 'wpcom-write', {
 			state.imageAlt = '';
 			state.setAsFeatured = false;
 			state.uploadedMediaId = 0;
+			document.body.classList.remove( 'bw-modal-open' );
 			resetUploadZone();
 			restoreSelection();
 			if ( triggerToRefocus && document.contains( triggerToRefocus ) ) {
@@ -4519,9 +4681,16 @@ const { state } = store( 'wpcom-write', {
 			if ( event.key === 'Tab' ) {
 				const modal = event.currentTarget.querySelector( '.bw-image-modal' );
 				if ( ! modal ) return;
-				const focusable = modal.querySelectorAll(
-					'input:not([hidden]), button, [tabindex]:not([tabindex="-1"])'
-				);
+				// Filter to currently-rendered elements only. The collapsible
+				// library/URL sections live inside the modal but use the
+				// `hidden` attribute on their wrapper — `:not([hidden])` on
+				// the input itself doesn't catch that, so without the
+				// offsetParent check those inputs would land in the trap's
+				// boundaries even though Tab can't actually reach them, and
+				// focus would fall out of the modal.
+				const focusable = Array.from(
+					modal.querySelectorAll( 'input:not([hidden]), button, [tabindex]:not([tabindex="-1"])' )
+				).filter( el => el.offsetParent !== null && ! el.disabled );
 				if ( ! focusable.length ) return;
 				const first = focusable[ 0 ];
 				const last = focusable[ focusable.length - 1 ];
@@ -4600,6 +4769,7 @@ const { state } = store( 'wpcom-write', {
 			}
 
 			state.showImageModal = false;
+			document.body.classList.remove( 'bw-modal-open' );
 			resetUploadZone();
 			pushToUndoHistory();
 		},
@@ -4769,21 +4939,14 @@ const { state } = store( 'wpcom-write', {
 		},
 
 		insertImage() {
-			// Slash-menu image insert: close any open edit panel first so
-			// the in-progress edit session is committed as a discrete undo
-			// entry before the insert overlay takes over.
-			endEditSession();
+			// Slash-menu image insert: clean up the slash UI, then delegate
+			// to openImageModal so the modal opens in the same reset state as
+			// the toolbar entry (collapsed expanders + scroll lock).
 			flushUndoDebounce();
 			clearSlashText();
 			clearSlashActive();
 			state.showSlashMenu = false;
-			saveSelection();
-			state.imageUrl = '';
-			state.imageAlt = '';
-			resetImageModalInputs();
-			resetUploadZone();
-			state.showImageModal = true;
-			focusModalInput();
+			store( 'wpcom-write' ).actions.openImageModal();
 		},
 
 		insertBulletedList() {

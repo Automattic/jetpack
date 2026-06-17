@@ -91,6 +91,32 @@ const watchOptions = {
 	ignored: [ '**/node_modules', '**/dist', '**/vendor' ],
 };
 
+/**
+ * Generate filesystem cache configuration.
+ *
+ * @param {string} configFile - Config file being processed, for proper invalidation.
+ *                            Generally, you'll pass `__filename` or `import.meta.filename`.
+ * @return {object|undefined} Cache configuration. Returns undefined in CI.
+ */
+const cache = configFile => {
+	if ( process.env.CI ) {
+		return undefined;
+	}
+	return {
+		type: 'filesystem',
+		cacheDirectory: path.resolve(
+			process.cwd(),
+			'.cache/webpack',
+			// Split cache on config filename to avoid collisions with parallel builds (e.g. plugins/jetpack).
+			path.basename( configFile, path.extname( configFile ) )
+		),
+		store: 'pack',
+		buildDependencies: {
+			config: [ configFile ],
+		},
+	};
+};
+
 /****** Plugins ******/
 
 const DefinePlugin = defines => [
@@ -288,6 +314,7 @@ module.exports = {
 	CssMinimizerPlugin,
 	resolve,
 	watchOptions,
+	cache,
 	DevServer,
 	// Plugins.
 	StandardPlugins,
