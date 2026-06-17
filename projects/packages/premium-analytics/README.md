@@ -61,15 +61,14 @@ jetpack build packages/premium-analytics   # via Jetpack CLI
 
 ## Known issues
 
-### Boot asset shim (`shims/boot-asset.php`)
+### Boot asset shim
 
 `@wordpress/build` 0.10+ stopped bundling `@wordpress/boot` locally
 (expects Core 7.0+ or Gutenberg), but the generated `page.php`
 template still looks for `modules/boot/index.min.asset.php` to
 resolve classic script prerequisites. Without it the page is blank.
 
-The shim provides the dependency list. Remove it when `@wordpress/build`
-fixes the template or the minimum WordPress version is 7.0+.
+Package `automattic/jetpack-wp-build-polyfills` provides a fixed version.
 
 ### Init module (`packages/init/`)
 
