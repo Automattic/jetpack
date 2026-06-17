@@ -1,5 +1,5 @@
 import { useDispatch, useSelect } from '@wordpress/data';
-import { useCallback } from '@wordpress/element';
+import { useCallback, useEffect, useState } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
 import { Link } from '@wordpress/ui';
 import { store as socialStore } from '../../social-store';
@@ -20,45 +20,77 @@ export type ReconnectProps = {
  * @return {import('react').ReactNode} - React element
  */
 export function Reconnect( { connection, service }: ReconnectProps ) {
-	const { deleteConnectionById, fetchKeyringResult, openConnectionsModal, setReconnectingAccount } =
-		useDispatch( socialStore );
+	const {
+		fetchKeyringResult,
+		setKeyringResult,
+		openConnectionsModal,
+		setReconnectingAccount,
+		completeReconnect,
+	} = useDispatch( socialStore );
 
-	const { isDisconnecting, canManageConnection } = useSelect(
+	const { canManageConnection, isReconnectingThis } = useSelect(
 		select => {
-			const { getDeletingConnections, canUserManageConnection } = select( socialStore );
+			const { canUserManageConnection, getReconnectingAccount } = select( socialStore );
 
 			return {
-				isDisconnecting: getDeletingConnections().includes( connection.connection_id ),
 				canManageConnection: canUserManageConnection( connection ),
+				isReconnectingThis: getReconnectingAccount()?.connection_id === connection.connection_id,
 			};
 		},
 		[ connection ]
 	);
 
+	// Local busy state for the button. Kept separate from the store's reconnecting account so
+	// that resetting it (e.g. on an abandoned popup) can never disrupt the actual reconnect.
+	const [ isReconnecting, setIsReconnecting ] = useState( false );
+
+	// The flow has left this connection (completed in place, or the modal closed) — stop showing
+	// the busy state.
+	useEffect( () => {
+		if ( ! isReconnectingThis ) {
+			setIsReconnecting( false );
+		}
+	}, [ isReconnectingThis ] );
+
 	const onConfirm = useCallback(
 		async ( requestId: string ) => {
 			const result = await fetchKeyringResult( requestId );
 
-			if ( result?.ID ) {
+			if ( ! result?.ID ) {
+				return;
+			}
+
+			/*
+			 * Same account re-authed: keyring refreshed the token under the existing connection,
+			 * so it's valid again. A different account falls through to the confirmation modal,
+			 * where it shows up as a new account to add.
+			 */
+			const handled = await completeReconnect( result );
+
+			if ( ! handled ) {
+				// Different account — surface the result so the modal shows the confirmation view.
+				setKeyringResult( result );
 				openConnectionsModal();
 			}
 		},
-		[ openConnectionsModal, fetchKeyringResult ]
+		[ completeReconnect, fetchKeyringResult, openConnectionsModal, setKeyringResult ]
 	);
 
 	const requestAccess = useRequestAccess( { service, onConfirm } );
 
 	const onClickReconnect = useCallback( async () => {
-		const success = await deleteConnectionById( {
-			connectionId: connection.connection_id,
-			showSuccessNotice: false,
-		} );
+		setIsReconnecting( true );
+		await setReconnectingAccount( connection );
 
-		if ( ! success ) {
+		/*
+		 * Bluesky needs a fresh app password, so it reconnects through the modal's credential
+		 * form. Mastodon and the OAuth services re-auth the known account directly in a popup,
+		 * refreshing the token in place (no delete, no duplicate).
+		 */
+		if ( service.id === 'bluesky' ) {
+			openConnectionsModal();
 			return;
 		}
-
-		await setReconnectingAccount( connection );
 
 		const formData = new FormData();
 
@@ -66,28 +98,27 @@ export function Reconnect( { connection, service }: ReconnectProps ) {
 			formData.set( 'instance', connection.external_handle );
 		}
 
-		if ( service.id === 'bluesky' ) {
-			openConnectionsModal();
-		} else {
-			requestAccess( formData );
+		const opened = await requestAccess( formData, {
+			refresh: true,
+			// The user closed/dismissed the popup — drop the busy label (the reconnect itself
+			// is untouched, so a late result can still complete it).
+			onAbort: () => setIsReconnecting( false ),
+		} );
+
+		if ( ! opened ) {
+			setIsReconnecting( false );
+			setReconnectingAccount( undefined );
 		}
-	}, [
-		connection,
-		deleteConnectionById,
-		openConnectionsModal,
-		requestAccess,
-		service.id,
-		setReconnectingAccount,
-	] );
+	}, [ connection, openConnectionsModal, requestAccess, service.id, setReconnectingAccount ] );
 
 	const onClick = useCallback(
 		( event: React.MouseEvent ) => {
 			event.preventDefault();
-			if ( ! isDisconnecting ) {
+			if ( ! isReconnecting ) {
 				onClickReconnect();
 			}
 		},
-		[ isDisconnecting, onClickReconnect ]
+		[ isReconnecting, onClickReconnect ]
 	);
 
 	if ( ! canManageConnection ) {
@@ -96,13 +127,13 @@ export function Reconnect( { connection, service }: ReconnectProps ) {
 
 	return (
 		<Link
-			variant="default"
+			variant={ isReconnecting ? 'unstyled' : 'default' }
 			href="#"
-			aria-disabled={ isDisconnecting || undefined }
+			aria-disabled={ isReconnecting || undefined }
 			onClick={ onClick }
 		>
-			{ isDisconnecting
-				? __( 'Disconnecting…', 'jetpack-publicize-pkg' )
+			{ isReconnecting
+				? __( 'Reconnecting…', 'jetpack-publicize-pkg' )
 				: _x( 'Reconnect', 'Reconnect a social media account', 'jetpack-publicize-pkg' ) }
 		</Link>
 	);

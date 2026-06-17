@@ -53,6 +53,13 @@ export function ServiceItem( {
 		[ brokenConnections ]
 	);
 
+	// While reconnecting a credential-based service (e.g. Bluesky), show its input form even
+	// though it has a broken connection, so the user can re-enter credentials in place.
+	const isReconnectingThisService = useSelect(
+		select => select( socialStore ).getReconnectingAccount()?.service_name === service.id,
+		[ service.id ]
+	);
+
 	const hideInitialConnectForm =
 		// For services with custom inputs, the initial Connect button opens the panel,
 		// so we don't want to show it if the panel is already open
@@ -113,9 +120,11 @@ export function ServiceItem( {
 				<PanelBody opened={ isPanelOpen } onToggle={ togglePanel }>
 					<ServiceItemDetails service={ service } serviceConnections={ serviceConnections } />
 					{
-						// Connect form for services that need custom inputs
-						// should be shown only if there are no broken connections
-						service.needsCustomInputs && ! hasOwnBrokenConnections ? (
+						// Connect form for services that need custom inputs. Normally hidden when a
+						// connection is broken (the "Fix connection" flow handles those), but shown
+						// while reconnecting this service so its credentials can be re-entered.
+						service.needsCustomInputs &&
+						( ! hasOwnBrokenConnections || isReconnectingThisService ) ? (
 							<div className={ styles[ 'connect-form-wrapper' ] }>
 								<ConnectForm
 									service={ service }
