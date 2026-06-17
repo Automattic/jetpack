@@ -1,0 +1,3 @@
+Significance: patch
+Type: changed
+Comment: Internal tooling only — retired the @automattic/charts CSS-import eslint-disable-line operational rule in AGENTS.md after RSM-3726 dogfood showed the directive is unnecessary (import/no-unresolved doesn't fire on CSS subpath imports). No user-facing package change.

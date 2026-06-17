@@ -1,0 +1,3 @@
+Significance: patch
+Type: changed
+Comment: Internal tooling only — dashboard-pie-chart task spec now includes the `withTooltips` prop required by the hover acceptance check; no user-facing package change.

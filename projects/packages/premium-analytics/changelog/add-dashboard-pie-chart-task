@@ -1,0 +1,3 @@
+Significance: patch
+Type: changed
+Comment: Internal tooling only — added dashboard-pie-chart task spec consumed by the premium-analytics-implement-task skill; no user-facing package change.

@@ -1,0 +1,3 @@
+Significance: patch
+Type: changed
+Comment: Internal tooling only — added a PR review cycle workflow section to AGENTS.md naming `/jetpack-pr-review-cycle` as the post-`gh pr create` handoff. No user-facing package change.
