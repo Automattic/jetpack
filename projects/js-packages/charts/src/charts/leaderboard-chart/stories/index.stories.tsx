@@ -180,6 +180,25 @@ export const Loading: Story = {
 	},
 };
 
+export const Interactive: Story = {
+	args: {
+		data: sampleData.map( entry => ( {
+			...entry,
+			// eslint-disable-next-line no-console
+			onClick: () => console.log( `Clicked: ${ entry.id }` ),
+		} ) ),
+		withComparison: true,
+	},
+	parameters: {
+		docs: {
+			description: {
+				story:
+					'Rows with an `onClick` become interactive: the whole row is clickable and keyboard-focusable (Enter/Space), with a chevron revealed on hover/focus. The consuming widget supplies the action (e.g. drill-down).',
+			},
+		},
+	},
+};
+
 export const Animation: Story = {
 	args: {
 		...Default.args,
