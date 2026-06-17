@@ -1,0 +1,57 @@
+# Jetpack Feature Flags
+
+Shared utilities for registering and checking lightweight feature flags in Jetpack packages and plugins.
+
+This package intentionally does not store flag state. Consumers register flags with defaults, then external code can control them through the `jetpack_feature_flag_enabled` filter.
+
+## Usage
+
+```php
+use Automattic\Jetpack\Feature_Flags\Feature_Flags;
+
+Feature_Flags::register(
+	'my-product-new-flow',
+	array(
+		'default'     => false,
+		'description' => 'Enable the new product flow.',
+		'owner'       => 'my-product',
+	)
+);
+
+if ( Feature_Flags::is_enabled( 'my-product-new-flow' ) ) {
+	// Load the feature.
+}
+```
+
+## Controlling Flags
+
+Feature flag state is resolved through a single filter:
+
+```php
+add_filter(
+	'jetpack_feature_flag_enabled',
+	static function ( bool $enabled, string $flag_name, array $definition ): bool {
+		if ( 'my-product-new-flow' === $flag_name ) {
+			return true;
+		}
+
+		return $enabled;
+	},
+	10,
+	3
+);
+```
+
+The registered default is passed as the first argument. Unknown flags default to `false`, but still pass through the same filter.
+
+## Using This Package In Your WordPress Plugin
+
+If you plan on using this package in your WordPress plugin, we recommend using [Jetpack Autoloader](https://packagist.org/packages/automattic/jetpack-autoloader) as your autoloader for maximum interoperability with other plugins that use this package.
+
+## Security
+
+Need to report a security vulnerability? Go to [https://automattic.com/security/](https://automattic.com/security/) or directly to our security bug bounty site [https://hackerone.com/automattic](https://hackerone.com/automattic).
+
+## License
+
+Jetpack Feature Flags is licensed under [GNU General Public License v2 (or later)](./LICENSE.txt).
