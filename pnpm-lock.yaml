@@ -4754,12 +4754,21 @@ importers:
       '@wordpress/components':
         specifier: 35.0.1
         version: 35.0.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@wordpress/core-data':
+        specifier: 7.48.1
+        version: 7.48.1(@types/react-dom@18.3.7(@types/react@18.3.28))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/data':
         specifier: 10.48.1
         version: 10.48.1(react@18.3.1)
+      '@wordpress/dataviews':
+        specifier: 14.3.0
+        version: 14.3.0(@types/react@18.3.28)(react@18.3.1)
       '@wordpress/element':
         specifier: 8.0.1
         version: 8.0.1
+      '@wordpress/html-entities':
+        specifier: 4.48.1
+        version: 4.48.1
       '@wordpress/i18n':
         specifier: 6.21.1
         version: 6.21.1
