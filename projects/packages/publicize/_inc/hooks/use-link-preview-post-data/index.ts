@@ -6,6 +6,7 @@ import { __ } from '@wordpress/i18n';
 import { useMemo } from 'react';
 import { getSigImageUrl } from '../../hooks/use-sig-preview/utils';
 import { readFocalPointMeta } from '../../utils/focal-point';
+import { useFocalPointOverlay } from '../../utils/focal-point-overlay';
 import { LinkPreviewData } from './types';
 import { getMediaSourceUrl, getPostImageUrl } from './utils';
 
@@ -27,23 +28,24 @@ export function useLinkPreviewPostData(): LinkPreviewData {
 		).trim();
 	}, [] );
 
-	const { image, imageFocalPoint } = useSelect( select => {
+	const { image, persistedFocalPoint, featuredImageId, isFeaturedImage } = useSelect( select => {
 		const meta = select( editorStore ).getEditedPostAttribute( 'meta' );
 
 		const { getEntityRecord } = select( coreStore );
 
-		const featuredImageId = select( editorStore ).getEditedPostAttribute( 'featured_media' );
+		const featuredId = select( editorStore ).getEditedPostAttribute( 'featured_media' );
 
-		const featuredImageRecord = featuredImageId
-			? getEntityRecord( 'postType', 'attachment', featuredImageId )
+		const featuredImageRecord = featuredId
+			? getEntityRecord( 'postType', 'attachment', featuredId )
 			: undefined;
 
 		// Use the featured image by default, if it's available.
-		let imageUrl = featuredImageId ? getMediaSourceUrl( featuredImageRecord ) : '';
+		let imageUrl = featuredId ? getMediaSourceUrl( featuredImageRecord ) : '';
 
-		// The focal point belongs to the featured image; clear it if another
-		// source (SIG, post content) ends up providing the preview image.
-		let focalPoint = readFocalPointMeta( featuredImageRecord );
+		// The focal point belongs to the featured image; it only applies while the
+		// featured image is the one being shown (SIG / post-content images clear it).
+		let showingFeaturedImage = !! imageUrl;
+		const persisted = readFocalPointMeta( featuredImageRecord );
 
 		const sigImageUrl = meta.jetpack_social_options?.image_generator_settings?.enabled
 			? getSigImageUrl( meta.jetpack_social_options.image_generator_settings.token )
@@ -52,7 +54,7 @@ export function useLinkPreviewPostData(): LinkPreviewData {
 		// If we have a SIG image, use it to generate the image URL.
 		if ( sigImageUrl ) {
 			imageUrl = sigImageUrl;
-			focalPoint = undefined;
+			showingFeaturedImage = false;
 		}
 
 		// If we still don't have an image, try to get it from the post content.
@@ -61,12 +63,22 @@ export function useLinkPreviewPostData(): LinkPreviewData {
 
 			if ( postImageUrl ) {
 				imageUrl = postImageUrl;
-				focalPoint = undefined;
+				showingFeaturedImage = false;
 			}
 		}
 
-		return { image: imageUrl, imageFocalPoint: focalPoint };
+		return {
+			image: imageUrl,
+			persistedFocalPoint: persisted,
+			featuredImageId: featuredId,
+			isFeaturedImage: showingFeaturedImage,
+		};
 	}, [] );
+
+	// The live drag point wins over the saved point, but only while the
+	// featured image is the one being previewed.
+	const overlayPoint = useFocalPointOverlay( featuredImageId );
+	const imageFocalPoint = isFeaturedImage ? overlayPoint ?? persistedFocalPoint : undefined;
 
 	const { siteTitle, siteIcon } = useSelect( select => {
 		const { getUnstableBase } = select( coreStore );

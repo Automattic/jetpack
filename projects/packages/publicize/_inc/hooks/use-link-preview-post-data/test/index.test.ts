@@ -1,7 +1,8 @@
-import { renderHook } from '@testing-library/react';
+import { act, renderHook } from '@testing-library/react';
 import { useSelect } from '@wordpress/data';
 import { useLinkPreviewPostData } from '../';
 import { FOCAL_POINT_META_KEY } from '../../../utils/focal-point';
+import { clearFocalPointOverlay, setFocalPointOverlay } from '../../../utils/focal-point-overlay';
 import { getSigImageUrl } from '../../use-sig-preview/utils';
 import { getMediaSourceUrl, getPostImageUrl } from '../utils';
 
@@ -300,5 +301,69 @@ describe( 'useLinkPreviewPostData', () => {
 
 		expect( result.current.image ).toBe( 'https://example.com/sig-generated.jpg' );
 		expect( result.current.imageFocalPoint ).toBeUndefined();
+	} );
+
+	it( 'should prefer the live overlay point over the stored one for the featured image', () => {
+		mockGetMediaSourceUrl.mockReturnValue( 'https://example.com/featured.jpg' );
+
+		setupMocks( {
+			attributes: {
+				...getDefaultAttributes(),
+				featured_media: 456,
+			},
+			featuredMediaRecord: {
+				id: 456,
+				meta: { [ FOCAL_POINT_META_KEY ]: { x: 0.25, y: 0.75 } },
+			},
+		} );
+
+		// Simulate the picker dragging a new point (not yet persisted).
+		setFocalPointOverlay( 456, { x: 0.1, y: 0.9 } );
+
+		try {
+			const { result } = renderHook( () => useLinkPreviewPostData() );
+
+			expect( result.current.imageFocalPoint ).toEqual( { x: 0.1, y: 0.9 } );
+		} finally {
+			act( () => {
+				clearFocalPointOverlay( 456 );
+			} );
+		}
+	} );
+
+	it( 'should not apply the overlay when a SIG image is shown instead of the featured image', () => {
+		mockGetSigImageUrl.mockReturnValue( 'https://example.com/sig-generated.jpg' );
+		mockGetMediaSourceUrl.mockReturnValue( 'https://example.com/featured.jpg' );
+
+		setupMocks( {
+			attributes: {
+				...getDefaultAttributes(),
+				featured_media: 456,
+				meta: {
+					jetpack_social_options: {
+						image_generator_settings: { enabled: true, token: 'test-token' },
+					},
+				},
+			},
+			featuredMediaRecord: {
+				id: 456,
+				meta: { [ FOCAL_POINT_META_KEY ]: { x: 0.25, y: 0.75 } },
+			},
+		} );
+
+		// Even with a live overlay on the featured image, the SIG image is the one
+		// being shown, so no focal point should leak through.
+		setFocalPointOverlay( 456, { x: 0.1, y: 0.9 } );
+
+		try {
+			const { result } = renderHook( () => useLinkPreviewPostData() );
+
+			expect( result.current.image ).toBe( 'https://example.com/sig-generated.jpg' );
+			expect( result.current.imageFocalPoint ).toBeUndefined();
+		} finally {
+			act( () => {
+				clearFocalPointOverlay( 456 );
+			} );
+		}
 	} );
 } );
