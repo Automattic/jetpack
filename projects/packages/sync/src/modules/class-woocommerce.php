@@ -399,7 +399,8 @@ class WooCommerce extends Module {
 	 * Build the trailing order-total payload appended to a paid order's synced action args.
 	 *
 	 * Intentionally minimal and scalar-only so it is safe to store and index on WPcom (Activity Log,
-	 * Elasticsearch, MCP integrations).
+	 * Elasticsearch, MCP integrations). get_total() and get_currency() are filterable, so we normalize
+	 * the total to a numeric string and cast the currency rather than trust whatever a filter returns.
 	 *
 	 * @param WC_Order $order Order object.
 	 * @return array {
@@ -409,9 +410,11 @@ class WooCommerce extends Module {
 	 * }
 	 */
 	private function build_order_total_payload( $order ) {
+		$total = $order->get_total();
+
 		return array(
-			'total'       => $order->get_total(),
-			'currency'    => $order->get_currency(),
+			'total'       => function_exists( 'wc_format_decimal' ) ? wc_format_decimal( $total ) : (string) $total,
+			'currency'    => (string) $order->get_currency(),
 			'occurred_at' => $this->get_order_total_timestamp( $order ),
 		);
 	}
@@ -442,9 +445,12 @@ class WooCommerce extends Module {
 	 * @return bool True when WooCommerce treats the status as paid.
 	 */
 	private function is_paid_order_status( $status ) {
-		return is_string( $status )
-			&& function_exists( 'wc_get_is_paid_statuses' )
-			&& in_array( $status, wc_get_is_paid_statuses(), true );
+		// Fail fast on empty/invalid input (e.g. a missing status arg) before the WooCommerce lookup.
+		if ( ! is_string( $status ) || '' === $status || ! function_exists( 'wc_get_is_paid_statuses' ) ) {
+			return false;
+		}
+
+		return in_array( $status, wc_get_is_paid_statuses(), true );
 	}
 
 	/**
