@@ -256,32 +256,40 @@ class Get_Modules_Test extends WP_UnitTestCase {
 	}
 
 	public function test_connection_required_module_cannot_activate_in_offline_mode_by_default() {
+		$module = 'comments';
+
 		StatusCache::clear();
 		add_filter( 'jetpack_offline_mode', '__return_true' );
+		add_filter( 'jetpack_is_connection_ready', '__return_false', 1000 );
 		remove_filter( 'jetpack_offline_mode_allow_module_activation', array( 'Jetpack_Offline_Mode_Features', 'allow_partial_module_in_offline_mode' ), 10 );
 
 		try {
-			$this->assertFalse( Jetpack::activate_module( 'stats', false, false ) );
-			$this->assertFalse( Jetpack::is_module_active( 'stats' ) );
+			$this->assertFalse( Jetpack::activate_module( $module, false, false ) );
+			$this->assertFalse( Jetpack::is_module_active( $module ) );
 		} finally {
 			Jetpack::update_active_modules( array() );
 			add_filter( 'jetpack_offline_mode_allow_module_activation', array( 'Jetpack_Offline_Mode_Features', 'allow_partial_module_in_offline_mode' ), 10, 3 );
+			remove_filter( 'jetpack_is_connection_ready', '__return_false', 1000 );
 			remove_filter( 'jetpack_offline_mode', '__return_true' );
 			StatusCache::clear();
 		}
 	}
 
 	public function test_connection_required_module_can_activate_in_offline_mode_when_allowed_by_filter() {
+		$module = 'comments';
+
 		StatusCache::clear();
 		add_filter( 'jetpack_offline_mode', '__return_true' );
+		add_filter( 'jetpack_is_connection_ready', '__return_false', 1000 );
 		add_filter( 'jetpack_offline_mode_allow_module_activation', '__return_true' );
 
 		try {
-			$this->assertTrue( Jetpack::activate_module( 'stats', false, false ) );
-			$this->assertTrue( Jetpack::is_module_active( 'stats' ) );
+			$this->assertTrue( Jetpack::activate_module( $module, false, false ) );
+			$this->assertTrue( Jetpack::is_module_active( $module ) );
 		} finally {
 			Jetpack::update_active_modules( array() );
 			remove_filter( 'jetpack_offline_mode_allow_module_activation', '__return_true' );
+			remove_filter( 'jetpack_is_connection_ready', '__return_false', 1000 );
 			remove_filter( 'jetpack_offline_mode', '__return_true' );
 			StatusCache::clear();
 		}

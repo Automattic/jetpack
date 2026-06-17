@@ -1,5 +1,5 @@
 import { Component } from 'react';
-import ReactDOM from 'react-dom';
+import * as ReactDOM from 'react-dom';
 
 // Portal entry point loaded in the footer.
 const portalSidecar = document.getElementById( 'jetpack-plugin-portal-sidecar' );

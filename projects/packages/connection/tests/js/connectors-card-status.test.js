@@ -12,6 +12,13 @@ const CARD_SCRIPT_SOURCE = readFileSync( CARD_SCRIPT_PATH, 'utf8' ).replace(
 
 let importIndex = 0;
 
+/**
+ * Minimal sprintf implementation for the connector card test harness.
+ *
+ * @param {string}    template - Translation string template.
+ * @param {...string} args     - Replacement values.
+ * @return {string} Formatted string.
+ */
 function sprintf( template, ...args ) {
 	let index = 0;
 	return args.reduce( ( result, arg, argIndex ) => {
@@ -24,6 +31,12 @@ function sprintf( template, ...args ) {
 	}, template );
 }
 
+/**
+ * Loads the connector card module with mocked WordPress globals.
+ *
+ * @param {object} data - Connector card data.
+ * @return {Promise<object>} Registered connector configuration.
+ */
 async function loadConnectorCard( data ) {
 	const createElement = ( type, props, ...children ) => ( {
 		type,
@@ -73,20 +86,32 @@ async function loadConnectorCard( data ) {
 	};
 
 	await import(
-		`data:text/javascript;base64,${ Buffer.from( CARD_SCRIPT_SOURCE ).toString( 'base64' ) }#${
-			importIndex++
-		}`
+		`data:text/javascript;base64,${ Buffer.from( CARD_SCRIPT_SOURCE ).toString(
+			'base64'
+		) }#${ importIndex++ }`
 	);
 
 	return globalThis.__jetpackConnectorTestRegistration;
 }
 
+/**
+ * Translation passthrough for tests.
+ *
+ * @param {string} text - Text to translate.
+ * @return {string} The untranslated text.
+ */
 function __( text ) {
 	return text;
 }
 
+/**
+ * Gets the summary badge props from the rendered connector item.
+ *
+ * @param {object} registration - Registered connector configuration.
+ * @return {object} Summary badge props.
+ */
 function getSummaryBadgeProps( registration ) {
-	const rendered = registration.render( {
+	const view = registration.render( {
 		description: 'Enhanced functionality for Jetpack and WooCommerce with WordPress.com.',
 		icon: null,
 		label: 'Jetpack Connection',
@@ -94,7 +119,7 @@ function getSummaryBadgeProps( registration ) {
 		name: 'Jetpack Connection',
 	} );
 
-	return rendered.props.actionArea.children[ 0 ].props;
+	return view.props.actionArea.children[ 0 ].props;
 }
 
 describe( 'Jetpack connector status badge', () => {
