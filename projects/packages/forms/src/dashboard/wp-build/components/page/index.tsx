@@ -38,7 +38,7 @@ export default function FormsPage( {
 	...pageProps
 }: FormsPageProps ): JSX.Element {
 	return (
-		<div className="jp-admin-page">
+		<div className="jp-admin-page jp-forms-admin-page">
 			<Page className="jp-admin-page__page" { ...pageProps }>
 				{ children }
 				{ showFooter && <JetpackFooter /> }

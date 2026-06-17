@@ -110,3 +110,4 @@ function jetpack_offline_mode_register_jetpack_offline_mode_page_wp_admin_page_r
 	jetpack_offline_mode_register_page_routes( $jetpack_offline_mode_jetpack_offline_mode_page_routes_data, 'jetpack_offline_mode_register_jetpack_offline_mode_page_wp_admin_route' );
 }
 add_action( 'jetpack-offline-mode-page-wp-admin_init', 'jetpack_offline_mode_register_jetpack_offline_mode_page_wp_admin_page_routes' );
+

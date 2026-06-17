@@ -49,6 +49,19 @@ class Dashboard {
 			require_once $wp_build_index;
 		}
 
+		// WP_Build_Polyfills owns these shared handles; the generated hook
+		// overwrites Core/Gutenberg's wp-private-apis registration.
+		remove_action( 'wp_default_scripts', 'jetpack_forms_register_package_scripts' );
+
+		// Register polyfills for WP < 7.0 (must run before enqueue).
+		WP_Build_Polyfills::register(
+			'jetpack-forms',
+			array_merge(
+				WP_Build_Polyfills::SCRIPT_HANDLES,
+				WP_Build_Polyfills::MODULE_IDS
+			)
+		);
+
 		// The remaining setup only applies to the standalone Forms page.
 		if ( self::get_admin_query_page() !== self::FORMS_WPBUILD_ADMIN_SLUG ) {
 			return;
@@ -66,15 +79,6 @@ class Dashboard {
 
 			exit;
 		}
-
-		// Register polyfills for WP < 7.0 (must run before enqueue).
-		WP_Build_Polyfills::register(
-			'jetpack-forms',
-			array_merge(
-				WP_Build_Polyfills::SCRIPT_HANDLES,
-				WP_Build_Polyfills::MODULE_IDS
-			)
-		);
 	}
 
 	/**
@@ -277,6 +281,10 @@ class Dashboard {
 	 */
 	public function load_admin_scripts() {
 		if ( ! self::is_jetpack_forms_admin_page() ) {
+			return;
+		}
+
+		if ( self::is_jetpack_forms_wp_build_admin_page() ) {
 			return;
 		}
 
@@ -677,6 +685,25 @@ class Dashboard {
 		);
 
 		return in_array( $screen->id, $forms_admin_screens, true );
+	}
+
+	/**
+	 * Returns true if the current screen is the wp-build Jetpack Forms admin page.
+	 *
+	 * @return boolean
+	 */
+	private static function is_jetpack_forms_wp_build_admin_page() {
+		if ( self::get_admin_query_page() === self::FORMS_WPBUILD_ADMIN_SLUG ) {
+			return true;
+		}
+
+		if ( ! function_exists( 'get_current_screen' ) ) {
+			return false;
+		}
+
+		$screen = get_current_screen();
+
+		return $screen && isset( $screen->id ) && 'jetpack_page_' . self::FORMS_WPBUILD_ADMIN_SLUG === $screen->id;
 	}
 
 	/**
