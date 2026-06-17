@@ -8,7 +8,7 @@ import type { ScaleInput, ScaleType } from '@visx/scale';
 import type { TextProps } from '@visx/text/lib/Text';
 import type { EventHandlerParams, GlyphProps, GridStyles, LineStyles } from '@visx/xychart';
 import type { GapSize } from '@wordpress/theme';
-import type { CSSProperties, PointerEvent, ReactNode } from 'react';
+import type { CSSProperties, MouseEvent, PointerEvent, ReactNode } from 'react';
 import type { GoogleDataTableColumn, GoogleDataTableRow } from 'react-google-charts';
 
 type ValueOf< T > = T[ keyof T ];
@@ -132,6 +132,15 @@ export type LeaderboardEntry = {
 	 * Optional color for the entry's image/icon
 	 */
 	imageColor?: string;
+
+	/**
+	 * Optional click handler. When provided, the entire row becomes an
+	 * interactive button: clickable and keyboard-focusable (Enter/Space),
+	 * with a chevron affordance revealed on hover/focus. The consuming widget
+	 * decides what the action does (e.g. drill-down). Rows without onClick are
+	 * inert and render unchanged.
+	 */
+	onClick?: ( event: MouseEvent< HTMLButtonElement > ) => void;
 };
 
 export type GradientStop = {

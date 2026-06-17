@@ -26,6 +26,22 @@ import type { LeaderboardChartProps } from './types';
 import type { LeaderboardEntry } from '../../types';
 
 /**
+ * Build an accessible name for an interactive leaderboard row. The label may be
+ * JSX (image/markup), so fall back to the formatted value when it is not a string.
+ *
+ * @param entry          - The leaderboard entry.
+ * @param valueFormatter - Formatter for the entry's current value.
+ * @return Accessible label string for the row button.
+ */
+const getEntryAccessibleLabel = (
+	entry: LeaderboardEntry,
+	valueFormatter: ( value: number ) => string
+): string =>
+	typeof entry.label === 'string'
+		? `${ entry.label }: ${ valueFormatter( entry.currentValue ) }`
+		: valueFormatter( entry.currentValue );
+
+/**
  * Default value formatter using formatMetricValue
  *
  * @param value - The numeric value to format
@@ -324,8 +340,8 @@ const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 								const colorIndex = Math.sign( entry.delta ) + 1;
 								const deltaColor = deltaColors[ colorIndex ];
 
-								return (
-									<Fragment key={ entry.id }>
+								const rowCells = (
+									<>
 										<Stack direction="column" gap={ labelSpacing }>
 											<BarWithLabel
 												entry={ entry }
@@ -354,8 +370,24 @@ const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 												</Text>
 											) }
 										</Stack>
-									</Fragment>
+									</>
 								);
+
+								if ( entry.onClick ) {
+									return (
+										<button
+											key={ entry.id }
+											type="button"
+											className={ styles.interactiveRow }
+											onClick={ entry.onClick }
+											aria-label={ getEntryAccessibleLabel( entry, valueFormatter ) }
+										>
+											{ rowCells }
+										</button>
+									);
+								}
+
+								return <Fragment key={ entry.id }>{ rowCells }</Fragment>;
 							} ) }
 						</Grid>
 					) }

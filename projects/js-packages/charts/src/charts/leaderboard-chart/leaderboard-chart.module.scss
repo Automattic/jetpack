@@ -80,3 +80,24 @@
 	font-size: var(--wpds-typography-font-size-md, 13px);
 	font-style: italic;
 }
+
+.interactiveRow {
+	// Span the whole row and inherit the parent grid's two tracks so the
+	// label/bar and value columns stay aligned with non-interactive rows.
+	display: grid;
+	grid-column: 1 / -1;
+	grid-template-columns: subgrid;
+	align-items: center;
+
+	// Native button reset.
+	appearance: none;
+	width: 100%;
+	margin: 0;
+	padding: 0;
+	border: 0;
+	background: none;
+	color: inherit;
+	font: inherit;
+	text-align: inherit;
+	cursor: pointer;
+}
