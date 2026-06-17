@@ -13,7 +13,7 @@ import QueryClientWrapper from '../../src/dashboard/components/query-client-wrap
 import { DeleteVideosError, useDeleteVideo } from '../../src/dashboard/hooks/use-delete-video';
 import { useFreeTier } from '../../src/dashboard/hooks/use-free-tier';
 import { useLibrary } from '../../src/dashboard/hooks/use-library';
-import { useUpdateVideoMeta } from '../../src/dashboard/hooks/use-update-video-meta';
+import { useSetPrivacy } from '../../src/dashboard/hooks/use-set-privacy';
 import { useUpload } from '../../src/dashboard/hooks/use-upload';
 import { useUploadFromLibrary } from '../../src/dashboard/hooks/use-upload-from-library';
 import { useVideoPressUpgrade } from '../../src/dashboard/hooks/use-videopress-upgrade';
@@ -73,7 +73,7 @@ const StageInner = () => {
 	const { items, isLoading, paginationInfo } = useLibrary( view );
 	const { uploadQueue, startUpload, retryUpload } = useUpload();
 	const { mutateAsync: deleteVideo } = useDeleteVideo();
-	const { mutate: updateMeta } = useUpdateVideoMeta();
+	const { mutateAsync: setPrivacyAsync } = useSetPrivacy();
 	const { mutate: uploadFromLibrary } = useUploadFromLibrary();
 	const { isAtLimit, isFree, isUnlimited, videoCount, limit } = useFreeTier();
 	const runUpgrade = useVideoPressUpgrade();
@@ -288,31 +288,63 @@ const StageInner = () => {
 					const requested = new Set( ids );
 					setSelection( prev => prev.filter( id => ! requested.has( id ) || failedIds.has( id ) ) );
 				},
-				setPrivacy: ( id: string, privacy: LibraryItemPrivacy ) => {
-					updateMeta(
-						{ id, patch: { privacy } },
-						{
-							onSuccess: () => {
+				setPrivacy: ( ids: string[], privacy: LibraryItemPrivacy ) => {
+					// Batch through useSetPrivacy: each id is POSTed individually so one
+					// failure doesn't abort the rest, and the result reports which ids
+					// succeeded vs. failed so we can surface an accurate notice.
+					setPrivacyAsync( { ids, privacy } )
+						.then( ( { succeeded, failed } ) => {
+							if ( failed.length === 0 ) {
 								createSuccessNotice(
 									sprintf(
-										/* translators: %s: new privacy label. */
-										__( 'Privacy updated to %s.', 'jetpack-videopress-pkg' ),
+										/* translators: 1: number of videos updated. 2: new privacy label, e.g. "Public". */
+										_n(
+											'%1$d video set to %2$s.',
+											'%1$d videos set to %2$s.',
+											succeeded.length,
+											'jetpack-videopress-pkg'
+										),
+										succeeded.length,
 										PRIVACY_LABELS[ privacy ]
 									)
 								);
-							},
-							onError: () => {
-								createErrorNotice( __( 'Failed to update privacy.', 'jetpack-videopress-pkg' ) );
-							},
-						}
-					);
+								return;
+							}
+
+							if ( succeeded.length === 0 ) {
+								createErrorNotice(
+									_n(
+										'Failed to update privacy.',
+										'Failed to update privacy for the selected videos.',
+										failed.length,
+										'jetpack-videopress-pkg'
+									)
+								);
+								return;
+							}
+
+							createErrorNotice(
+								sprintf(
+									/* translators: 1: number of videos updated. 2: number of videos that could not be updated. */
+									__(
+										'Privacy updated for %1$d video; %2$d could not be updated.',
+										'jetpack-videopress-pkg'
+									),
+									succeeded.length,
+									failed.length
+								)
+							);
+						} )
+						.catch( () => {
+							createErrorNotice( __( 'Failed to update privacy.', 'jetpack-videopress-pkg' ) );
+						} );
 				},
 			} ),
 		[
 			promoteLocal,
 			retryUpload,
 			deleteVideo,
-			updateMeta,
+			setPrivacyAsync,
 			openVideoDetails,
 			createSuccessNotice,
 			createErrorNotice,

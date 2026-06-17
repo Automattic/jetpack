@@ -15,11 +15,21 @@ class Jetpack_SEO_Posts {
 	const DESCRIPTION_META_KEY = 'advanced_seo_description';
 	const HTML_TITLE_META_KEY  = 'jetpack_seo_html_title';
 	const NOINDEX_META_KEY     = 'jetpack_seo_noindex';
+	const SCHEMA_TYPE_META_KEY = 'jetpack_seo_schema_type';
 	const POST_META_KEYS_ARRAY = array(
 		self::DESCRIPTION_META_KEY,
 		self::HTML_TITLE_META_KEY,
 		self::NOINDEX_META_KEY,
+		self::SCHEMA_TYPE_META_KEY,
 	);
+
+	/**
+	 * Allowed Schema.org types that can be stored in the per-post schema-type
+	 * meta. Empty string means "no override" — Schema_Builder picks a sensible
+	 * default for the post. Single source of truth for the meta enum, the
+	 * block-editor panel options, and Schema_Builder.
+	 */
+	const ALLOWED_SCHEMA_TYPES = array( '', 'article', 'faq' );
 
 	/**
 	 * Build meta description for post SEO.
@@ -140,9 +150,11 @@ class Jetpack_SEO_Posts {
 	}
 
 	/**
-	 * Registers the following meta keys for use in the REST API:
+	 * Registers the SEO post meta keys for use in the REST API:
 	 *   - self::DESCRIPTION_META_KEY
 	 *   - self::HTML_TITLE_META_KEY
+	 *   - self::NOINDEX_META_KEY
+	 *   - self::SCHEMA_TYPE_META_KEY
 	 */
 	public static function register_post_meta() {
 		$description_args = array(
@@ -175,8 +187,83 @@ class Jetpack_SEO_Posts {
 			),
 		);
 
+		$schema_type_args = array(
+			'type'              => 'string',
+			'description'       => __( 'Schema.org type to emit as JSON-LD for this post.', 'jetpack' ),
+			'single'            => true,
+			'default'           => '',
+			'sanitize_callback' => array( __CLASS__, 'sanitize_schema_type' ),
+			'show_in_rest'      => array(
+				'name'   => self::SCHEMA_TYPE_META_KEY,
+				// Enum so core REST rejects an unknown schema type with a proper
+				// rest_invalid_param error; the sanitize_callback is the
+				// defense-in-depth fallback for non-REST writes.
+				'schema' => array(
+					'type' => 'string',
+					'enum' => self::ALLOWED_SCHEMA_TYPES,
+				),
+			),
+		);
+
 		register_meta( 'post', self::DESCRIPTION_META_KEY, $description_args );
 		register_meta( 'post', self::HTML_TITLE_META_KEY, $html_title_args );
 		register_meta( 'post', self::NOINDEX_META_KEY, $noindex_args );
+		register_meta( 'post', self::SCHEMA_TYPE_META_KEY, $schema_type_args );
+	}
+
+	/**
+	 * Sanitize a schema type to the allowed list. Unknown values become ''
+	 * (no override) rather than erroring, so a non-REST write can't store junk.
+	 *
+	 * @param string $value The submitted value.
+	 * @return string A value from self::ALLOWED_SCHEMA_TYPES.
+	 */
+	public static function sanitize_schema_type( $value ) {
+		$value = is_string( $value ) ? sanitize_key( $value ) : '';
+		return in_array( $value, self::ALLOWED_SCHEMA_TYPES, true ) ? $value : '';
+	}
+
+	/**
+	 * Get the per-post schema-type override, if any.
+	 *
+	 * @param WP_Post|int|null $post Post or post ID.
+	 * @return string A value from self::ALLOWED_SCHEMA_TYPES ('' = no override).
+	 */
+	public static function get_post_schema_type( $post = null ) {
+		$post = get_post( $post );
+		if ( ! ( $post instanceof WP_Post ) ) {
+			return '';
+		}
+		return self::sanitize_schema_type( (string) get_post_meta( $post->ID, self::SCHEMA_TYPE_META_KEY, true ) );
+	}
+
+	/**
+	 * Factual per-post SEO field coverage — presence/state only, never a score.
+	 *
+	 * Single source of truth shared by the Content tab, the edit.php columns,
+	 * and the Overview coverage card so the three never drift. Reports whether
+	 * each field has been *set*, independent of whether SEO tools are currently
+	 * active (this is an authoring/audit view, not front-end emission).
+	 *
+	 * @param WP_Post|int|null $post Post or post ID.
+	 * @return array{has_custom_title:bool,has_description:bool,has_schema_type:bool,noindex:bool}
+	 */
+	public static function get_post_seo_coverage( $post = null ) {
+		$post = get_post( $post );
+		if ( ! ( $post instanceof WP_Post ) ) {
+			return array(
+				'has_custom_title' => false,
+				'has_description'  => false,
+				'has_schema_type'  => false,
+				'noindex'          => false,
+			);
+		}
+
+		return array(
+			'has_custom_title' => '' !== (string) get_post_meta( $post->ID, self::HTML_TITLE_META_KEY, true ),
+			'has_description'  => '' !== (string) get_post_meta( $post->ID, self::DESCRIPTION_META_KEY, true ),
+			'has_schema_type'  => '' !== self::get_post_schema_type( $post ),
+			'noindex'          => (bool) get_post_meta( $post->ID, self::NOINDEX_META_KEY, true ),
+		);
 	}
 }

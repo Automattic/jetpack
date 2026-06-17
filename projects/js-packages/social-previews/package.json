@@ -40,14 +40,14 @@
 		"typecheck": "tsgo --noEmit"
 	},
 	"dependencies": {
-		"@wordpress/components": "35.0.0",
-		"@wordpress/element": "8.0.0",
-		"@wordpress/i18n": "6.21.0",
+		"@wordpress/components": "35.0.1",
+		"@wordpress/element": "8.0.1",
+		"@wordpress/i18n": "6.21.1",
 		"clsx": "2.1.1"
 	},
 	"devDependencies": {
 		"@automattic/jetpack-webpack-config": "workspace:*",
-		"@babel/core": "7.29.0",
+		"@babel/core": "7.29.6",
 		"@testing-library/dom": "10.4.1",
 		"@testing-library/jest-dom": "6.9.1",
 		"@testing-library/react": "16.3.2",

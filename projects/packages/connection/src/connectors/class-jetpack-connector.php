@@ -200,7 +200,7 @@ class Jetpack_Connector {
 	 * mode) in the expanded details. Mirrors the data assembled by
 	 * \Automattic\Jetpack\IdentityCrisis\UI::get_initial_state_data().
 	 *
-	 * @since $$next-version$$
+	 * @since 8.7.0
 	 *
 	 * @param array $data Script module data passed by reference.
 	 */
