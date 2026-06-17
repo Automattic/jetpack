@@ -6,3 +6,4 @@ export {
 
 export { deriveComparisonRange } from './search/comparison';
 export { useStagedSearch } from './hooks';
+export { isSiteRegistered } from './is-site-registered';

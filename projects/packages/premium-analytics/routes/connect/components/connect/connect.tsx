@@ -3,8 +3,9 @@
  */
 import useConnection from '@automattic/jetpack-connection/use-connection';
 import { ExternalLink } from '@wordpress/components';
-import { createInterpolateElement, useEffect } from '@wordpress/element';
+import { createInterpolateElement, useCallback, useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { useNavigate } from '@wordpress/route';
 import { Stack, Button } from '@wordpress/ui';
 import { Connection, ConnectionError } from '../../images';
 import type { JetpackScriptData } from '@automattic/jetpack-script-data';
@@ -27,18 +28,32 @@ type ConnectionData = Pick<
  * @return The connect screen.
  */
 export function Connect( { data }: { data: ConnectionData } ) {
+	const navigate = useNavigate();
 	const { handleRegisterSite, siteIsRegistering, userIsConnecting, registrationError } =
 		useConnection( {
 			apiNonce: data.apiNonce,
 			apiRoot: data.apiRoot,
 			registrationNonce: data.registrationNonce,
-			redirectUri: 'admin.php?page=jetpack-premium-analytics&p=/',
 			from: 'jetpack-premium-analytics',
 			skipUserConnection: true,
 		} );
 
 	const isBusy = siteIsRegistering || userIsConnecting;
 	const isError = !! registrationError;
+
+	// Register the site, then hand off to /syncing via the router. We omit
+	// `redirectUri` from `useConnection` so it performs no `window.location`
+	// navigation of its own (with `skipUserConnection` and no `redirectUri`,
+	// its user-connect step is a no-op) — the router owns the transition, so
+	// connect → syncing is instant instead of a full-page reload. On failure we
+	// stay put; the error surfaces via `registrationError` below.
+	const handleAuthorize = useCallback( () => {
+		handleRegisterSite()
+			.then( () => navigate( { to: '/syncing' } ) )
+			.catch( () => {
+				/* Registration failed; `registrationError` drives the retry UI. */
+			} );
+	}, [ handleRegisterSite, navigate ] );
 
 	// Log the underlying failure (incl. error code) for support; per-code user
 	// messaging is tracked in WOOA7S-1327.
@@ -78,12 +93,7 @@ export function Connect( { data }: { data: ConnectionData } ) {
 			</Stack>
 
 			<Stack direction="column" gap="md" align="center">
-				<Button
-					variant="solid"
-					onClick={ handleRegisterSite }
-					disabled={ isBusy }
-					loading={ isBusy }
-				>
+				<Button variant="solid" onClick={ handleAuthorize } disabled={ isBusy } loading={ isBusy }>
 					{ isBusy ? __( 'Connecting…', 'jetpack-premium-analytics' ) : buttonText }
 				</Button>
 

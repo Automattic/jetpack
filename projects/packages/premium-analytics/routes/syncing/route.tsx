@@ -1,24 +1,26 @@
 /**
  * External dependencies
  */
-import { getScriptData } from '@automattic/jetpack-script-data';
+import { isSiteRegistered } from '@jetpack-premium-analytics/routing';
+import { siteSyncStore } from '@jetpack-premium-analytics/site-sync';
+import { select } from '@wordpress/data';
 import { redirect } from '@wordpress/route';
 
 /**
  * Route guard for /syncing.
  * - Not connected → /connect
  * - Sync already finished → / (dashboard)
+ *
+ * Both facts are read from live stores, so the guard routes correctly after a
+ * client-side registration or sync completion without a full-page reload.
  */
 export const route = {
 	beforeLoad: () => {
-		const connectionStatus = getScriptData()?.connection?.connectionStatus;
-
-		if ( ! connectionStatus?.isRegistered ) {
+		if ( ! isSiteRegistered() ) {
 			throw redirect( { to: '/connect' } );
 		}
 
-		const syncFinished = getScriptData()?.premium_analytics?.initial_full_sync_finished ?? 0;
-		if ( syncFinished > 0 ) {
+		if ( select( siteSyncStore ).isInitialSyncFinished() ) {
 			throw redirect( { to: '/' } );
 		}
 	},

@@ -4,6 +4,7 @@
 import { useSyncStatus } from '@jetpack-premium-analytics/site-sync';
 import { ProgressBar } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
+import { useNavigate } from '@wordpress/route';
 import { Stack, Button } from '@wordpress/ui';
 import { useState, useEffect, useRef, useCallback } from 'react';
 /**
@@ -19,6 +20,7 @@ import './style.scss';
  * @return The syncing screen.
  */
 export function Syncing() {
+	const navigate = useNavigate();
 	const { data, error, isLoading, isComplete, isStalled, triggerSync } = useSyncStatus();
 
 	const [ isTriggering, setIsTriggering ] = useState( false );
@@ -41,11 +43,14 @@ export function Syncing() {
 		}
 	}, [ triggerSync ] );
 
+	// When the initial sync finishes, hand off to the dashboard via the router.
+	// `useSyncStatus` has already advanced the site-sync store milestone, so the
+	// dashboard guard passes — no full-page reload needed.
 	useEffect( () => {
 		if ( isComplete ) {
-			window.location.reload();
+			navigate( { to: '/' } );
 		}
-	}, [ isComplete ] );
+	}, [ isComplete, navigate ] );
 
 	if ( isComplete ) {
 		return null;

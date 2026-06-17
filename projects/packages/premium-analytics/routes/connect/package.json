@@ -8,6 +8,7 @@
 	"dependencies": {
 		"@automattic/jetpack-connection": "workspace:*",
 		"@automattic/jetpack-script-data": "workspace:*",
+		"@jetpack-premium-analytics/routing": "workspace:*",
 		"@wordpress/components": "35.0.0",
 		"@wordpress/element": "8.0.0",
 		"@wordpress/i18n": "^6.9.0",

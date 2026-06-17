@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { getScriptData } from '@automattic/jetpack-script-data';
+import { select, dispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { useState, useEffect, useRef, useCallback } from 'react';
 /**
@@ -11,18 +11,8 @@ import { fetchSyncStatus } from '../api/fetch-sync-status';
 import { triggerFullSync } from '../api/trigger-full-sync';
 import { POLL_INTERVAL, MAX_POLL_FAILURES } from '../constants';
 import { toSyncStatus, isSyncComplete, isSyncStalled } from '../status';
+import { siteSyncStore } from '../store';
 import type { SyncStatus, UseSyncStatusReturn } from '../types';
-
-/**
- * Read the page-load milestone injected by the backend Sync_Status_Tracker.
- * Used as the initial seed at mount; thereafter the milestone is refreshed live
- * from each /sync/status poll (see `poll`), so it can flip mid-session.
- *
- * @return The initial full-sync milestone (unix ts), or 0 if never finished.
- */
-function readMilestone(): number {
-	return getScriptData()?.premium_analytics?.initial_full_sync_finished ?? 0;
-}
 
 /**
  * Polls Jetpack's sync status and returns analytics-scoped progress.
@@ -37,7 +27,6 @@ function readMilestone(): number {
  * @return The current sync state plus a `triggerSync` action.
  */
 export function useSyncStatus(): UseSyncStatusReturn {
-	const milestoneRef = useRef< number >( readMilestone() );
 	const [ data, setData ] = useState< SyncStatus >();
 	const [ error, setError ] = useState< Error | null >( null );
 	const [ isStalled, setIsStalled ] = useState( false );
@@ -63,13 +52,16 @@ export function useSyncStatus(): UseSyncStatusReturn {
 			.then( raw => {
 				// Refresh the milestone live: the backend exposes the persisted
 				// value on every /sync/status response, so it can flip mid-session
-				// even though the script-data seed was captured once at mount.
+				// even though the store's script-data seed was captured once at
+				// boot. Advancing the store here is what lets the route guards see
+				// the finished state without a full-page reload.
 				const live = raw.initial_full_sync_finished ?? 0;
-				if ( live > milestoneRef.current ) {
-					milestoneRef.current = live;
+				const milestone = Math.max( select( siteSyncStore ).getMilestone(), live );
+				if ( milestone > 0 ) {
+					dispatch( siteSyncStore ).setMilestone( milestone );
 				}
 
-				const status = toSyncStatus( raw, milestoneRef.current );
+				const status = toSyncStatus( raw, milestone );
 				failureCountRef.current = 0;
 				setData( status );
 				setError( null );
@@ -131,8 +123,9 @@ export function useSyncStatus(): UseSyncStatusReturn {
 
 	useEffect( () => {
 		// Already finished before this page load — gate open, no polling needed.
-		if ( milestoneRef.current > 0 ) {
-			setData( toSyncStatus( {}, milestoneRef.current ) );
+		const milestone = select( siteSyncStore ).getMilestone();
+		if ( milestone > 0 ) {
+			setData( toSyncStatus( {}, milestone ) );
 			return;
 		}
 

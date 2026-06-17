@@ -3,12 +3,14 @@
  */
 import { getScriptData } from '@automattic/jetpack-script-data';
 import { renderHook, act, waitFor } from '@testing-library/react';
+import { dispatch } from '@wordpress/data';
 /**
  * Internal dependencies
  */
 import { fetchSyncStatus } from '../../api/fetch-sync-status';
 import { triggerFullSync } from '../../api/trigger-full-sync';
 import { POLL_INTERVAL, MAX_POLL_FAILURES } from '../../constants';
+import { siteSyncStore } from '../../store';
 import { useSyncStatus } from '../use-sync-status';
 import type { SyncStatusApiResponse } from '../../types';
 
@@ -37,7 +39,9 @@ function rawStatus( overrides: Partial< SyncStatusApiResponse > = {} ): SyncStat
 
 beforeEach( () => {
 	jest.useFakeTimers();
-	// Default: milestone not set.
+	// The milestone now lives in the site-sync store (a module singleton), so
+	// reset it between tests for isolation. Default: not finished.
+	dispatch( siteSyncStore ).setMilestone( 0 );
 	mockScriptData.mockReturnValue( {
 		premium_analytics: { initial_full_sync_finished: 0 },
 	} as ReturnType< typeof getScriptData > );
@@ -110,9 +114,8 @@ describe( 'useSyncStatus', () => {
 	} );
 
 	it( 'starts complete and skips polling when the milestone is set', async () => {
-		mockScriptData.mockReturnValue( {
-			premium_analytics: { initial_full_sync_finished: 1_700_000_000 },
-		} as ReturnType< typeof getScriptData > );
+		// Milestone already finished at page load: seeded into the store.
+		dispatch( siteSyncStore ).setMilestone( 1_700_000_000 );
 
 		const { result } = renderHook( () => useSyncStatus() );
 

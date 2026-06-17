@@ -6,9 +6,13 @@
 	"wpScript": true,
 	"module": "build-module/index.mjs",
 	"wpScriptModuleExports": "./build-module/index.mjs",
+	"sideEffects": [
+		"./src/store.ts"
+	],
 	"dependencies": {
 		"@automattic/jetpack-script-data": "workspace:*",
 		"@wordpress/api-fetch": "7.48.0",
+		"@wordpress/data": "10.48.0",
 		"@wordpress/i18n": "^6.9.0",
 		"react": "18.3.1"
 	},
