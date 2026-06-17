@@ -23,7 +23,6 @@ import type {
 // and save state for free — the same on self-hosted Jetpack as on WPCOM,
 // independent of core /wp/v2/settings. Mirrors Publicize's jetpack/v4 settings
 // entity.
-const SETTINGS_PATH = '/jetpack/v4/podcast/settings';
 const ENTITY_KIND = 'jetpack/v4';
 const ENTITY_NAME = 'podcast/settings';
 
@@ -39,7 +38,7 @@ if (
 		{
 			kind: ENTITY_KIND,
 			name: ENTITY_NAME,
-			baseURL: SETTINGS_PATH,
+			baseURL: `/${ ENTITY_KIND }/${ ENTITY_NAME }`,
 			label: __( 'Podcast settings', 'jetpack-podcast' ),
 		},
 	] );
