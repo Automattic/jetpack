@@ -1,6 +1,11 @@
-import apiFetch from '@wordpress/api-fetch';
-import { useDispatch } from '@wordpress/data';
-import { useCallback, useEffect, useState, useSyncExternalStore } from '@wordpress/element';
+import { store as coreStore } from '@wordpress/core-data';
+import {
+	dispatch as dataDispatch,
+	select as dataSelect,
+	useDispatch,
+	useSelect,
+} from '@wordpress/data';
+import { useCallback, useMemo } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
 import { __ } from '@wordpress/i18n';
 import { store as noticesStore } from '@wordpress/notices';
@@ -13,9 +18,32 @@ import type {
 	PodcatcherId,
 } from '../types';
 
-// Package-owned endpoint, so the dashboard reads/writes the same way on
-// self-hosted Jetpack as on WPCOM, independent of core /wp/v2/settings.
+// Package-owned endpoint registered as a core-data entity, so the dashboard and
+// the block editor read/write through the standard store — with caching, dedup,
+// and save state for free — the same on self-hosted Jetpack as on WPCOM,
+// independent of core /wp/v2/settings. Mirrors Publicize's jetpack/v4 settings
+// entity.
 const SETTINGS_PATH = '/jetpack/v4/podcast/settings';
+const ENTITY_KIND = 'jetpack/v4';
+const ENTITY_NAME = 'podcast/settings';
+
+// Register at module load: the getEntityRecord resolver bails if the entity is
+// unknown when it first runs, so this can't wait for an effect. Singleton record
+// (no id) — reads, writes, and saving state all key off the entity name alone.
+if (
+	! dataSelect( coreStore )
+		.getEntitiesConfig( ENTITY_KIND )
+		.some( ( { name } ) => name === ENTITY_NAME )
+) {
+	dataDispatch( coreStore ).addEntities( [
+		{
+			kind: ENTITY_KIND,
+			name: ENTITY_NAME,
+			baseURL: SETTINGS_PATH,
+			label: __( 'Podcast settings', 'jetpack-podcast' ),
+		},
+	] );
+}
 
 const PODCAST_KEYS: Array< keyof PodcastSettings > = [
 	'podcasting_category_id',
@@ -110,48 +138,11 @@ const pickPodcastFields = ( raw: Record< string, unknown > ): PodcastSettings =>
 	return out as unknown as PodcastSettings;
 };
 
-// Shared store so every reader fetches once and a save updates them together.
-interface SettingsState {
-	data: PodcastSettings | undefined;
-	isLoading: boolean;
-}
-
-let state: SettingsState = { data: undefined, isLoading: true };
-let hasFetched = false;
-const listeners = new Set< () => void >();
-
-const getState = (): SettingsState => state;
-
-const subscribe = ( listener: () => void ): ( () => void ) => {
-	listeners.add( listener );
-	return () => {
-		listeners.delete( listener );
-	};
+// Refresh after an out-of-band write (e.g. the Pocket Casts relay): drop the
+// cached resolution so mounted readers re-fetch. Imperative, so it can't use a hook.
+export const refreshPodcastSettings = (): void => {
+	dataDispatch( coreStore ).invalidateResolution( 'getEntityRecord', [ ENTITY_KIND, ENTITY_NAME ] );
 };
-
-const setState = ( next: SettingsState ): void => {
-	state = next;
-	listeners.forEach( listener => listener() );
-};
-
-// A non-admin (e.g. opening the episode block) gets a 403; leave the data empty.
-const fetchSettings = (): Promise< void > =>
-	apiFetch( { path: SETTINGS_PATH } )
-		.then( raw =>
-			setState( { data: pickPodcastFields( raw as Record< string, unknown > ), isLoading: false } )
-		)
-		.catch( () => setState( { data: state.data, isLoading: false } ) );
-
-const ensureFetched = (): void => {
-	if ( hasFetched ) {
-		return;
-	}
-	hasFetched = true;
-	fetchSettings();
-};
-
-// Refresh after an out-of-band write (e.g. the Pocket Casts relay).
-export const refreshPodcastSettings = (): Promise< void > => fetchSettings();
 
 interface MutateCallbacks {
 	onSuccess?: ( result: PodcastSettings ) => void;
@@ -162,18 +153,35 @@ interface MutateCallbacks {
 }
 
 /**
- * Read the settings from the shared store, fetching once on first use.
+ * Read the settings off the core-data entity, resolving (fetching) on first use.
+ *
+ * A non-admin (e.g. opening the episode block) gets a 403, so `data` stays
+ * undefined and the cover resolves empty.
  *
  * @return `{ data, isLoading }`.
  */
-export function usePodcastSettings(): SettingsState {
-	useEffect( ensureFetched, [] );
-	return useSyncExternalStore( subscribe, getState );
+export function usePodcastSettings(): { data: PodcastSettings | undefined; isLoading: boolean } {
+	const record = useSelect(
+		select =>
+			select( coreStore ).getEntityRecord< Record< string, unknown > >( ENTITY_KIND, ENTITY_NAME ),
+		[]
+	);
+	const hasResolved = useSelect(
+		select =>
+			select( coreStore ).hasFinishedResolution( 'getEntityRecord', [ ENTITY_KIND, ENTITY_NAME ] ),
+		[]
+	);
+	// Memoised on the record identity so derived `data` is stable across renders;
+	// without it every render rebuilds `data`, breaking downstream reference checks
+	// (Settings' isDirty stayed permanently true on `podcasting_show_urls`).
+	const data = useMemo( () => ( record ? pickPodcastFields( record ) : undefined ), [ record ] );
+	return { data, isLoading: ! hasResolved };
 }
 
 /**
- * Save a partial update; the server returns the full record and updates the
- * shared store. Snackbars dispatch here unless `silent`.
+ * Save a partial update through the entity. The server merges the patch and
+ * returns the full record, which core-data caches so every reader refreshes.
+ * Snackbars dispatch here unless `silent`.
  *
  * @return `{ mutate, mutateAsync, isPending }`.
  */
@@ -185,29 +193,35 @@ export function useUpdatePodcastSettings(): {
 	) => Promise< PodcastSettings >;
 	isPending: boolean;
 } {
+	const { saveEntityRecord } = useDispatch( coreStore );
 	const { createSuccessNotice, createErrorNotice } = useDispatch( noticesStore );
-	const [ isPending, setIsPending ] = useState( false );
+	const isPending = useSelect(
+		select => !! select( coreStore ).isSavingEntityRecord( ENTITY_KIND, ENTITY_NAME, undefined ),
+		[]
+	);
 
 	const mutateAsync = useCallback(
 		async (
 			updates: PodcastSettingsUpdate,
 			{ silent = false }: { silent?: boolean } = {}
 		): Promise< PodcastSettings > => {
-			setIsPending( true );
 			try {
-				const raw = await apiFetch( {
-					path: SETTINGS_PATH,
-					method: 'PUT',
-					data: updates as Record< string, unknown >,
-				} );
-				const saved = pickPodcastFields( raw as Record< string, unknown > );
-				setState( { data: saved, isLoading: false } );
+				// Singleton record (no id), so this POSTs the partial patch to the
+				// entity baseURL; the server merges and returns the full record.
+				const record = await saveEntityRecord(
+					ENTITY_KIND,
+					ENTITY_NAME,
+					updates as Record< string, unknown >
+				);
+				if ( ! record ) {
+					throw new Error( 'save returned no record' );
+				}
 				if ( ! silent ) {
 					createSuccessNotice( __( 'Settings saved.', 'jetpack-podcast' ), {
 						type: 'snackbar',
 					} );
 				}
-				return saved;
+				return pickPodcastFields( record as Record< string, unknown > );
 			} catch ( error ) {
 				if ( ! silent ) {
 					createErrorNotice(
@@ -216,11 +230,9 @@ export function useUpdatePodcastSettings(): {
 					);
 				}
 				throw error;
-			} finally {
-				setIsPending( false );
 			}
 		},
-		[ createSuccessNotice, createErrorNotice ]
+		[ saveEntityRecord, createSuccessNotice, createErrorNotice ]
 	);
 
 	const mutate = useCallback(
