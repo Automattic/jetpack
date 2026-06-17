@@ -54,34 +54,20 @@ export const requestExternalAccess = ( url, cb ) => {
 	if ( requestId && typeof BroadcastChannel !== 'undefined' ) {
 		const channel = new BroadcastChannel( KEYRING_BROADCAST_CHANNEL );
 
-		let settled = false;
-
-		const finish = () => {
-			if ( settled ) {
-				return;
-			}
-			settled = true;
-			channel.close();
-			cb();
-		};
-
 		channel.addEventListener( 'message', event => {
 			if ( event.data?.type === 'keyring-result' && event.data?.requestId === requestId ) {
-				finish();
+				clearTimeout( cleanupTimer );
+				channel.close();
+				cb();
 			}
 		} );
 
-		// Safety net: stop listening if the channel is never used (e.g. the user abandons the flow).
-		popupMonitor.once( 'close', () => {
-			// The close event is unreliable under COOP (it can fire before auth completes),
-			// so it is only used to release the channel after a grace period — never as success.
-			setTimeout( () => {
-				if ( ! settled ) {
-					settled = true;
-					channel.close();
-				}
-			}, 5000 );
-		} );
+		// Give up after the server transient's TTL; we don't watch the popup 'close' event
+		// because COOP makes it fire at the login screen, before auth completes.
+		const cleanupTimer = setTimeout(
+			() => channel.close(),
+			5 * 60 * 1000 // 5 minutes
+		);
 
 		return true;
 	}
