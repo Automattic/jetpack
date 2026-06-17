@@ -1,4 +1,4 @@
 Significance: patch
-Type: other
+Type: changed
 
 Proof of concept (not for merge): demonstrates migrating ProductDetailCard Text to @wordpress/ui Text.
