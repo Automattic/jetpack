@@ -17,5 +17,11 @@ return make_phan_config(
 		'exclude_file_regex' => array(
 			'build/',
 		),
+		'parse_file_list'    => array(
+			// DO NOT add references to files in other packages like this. This is the
+			// Jetpack plugin core-api loader, referenced only so Phan knows the
+			// `wpcom_rest_api_v2_load_plugin()` function — same as publicize/videopress.
+			__DIR__ . '/../../../plugins/jetpack/_inc/lib/core-api/load-wpcom-endpoints.php', // function wpcom_rest_api_v2_load_plugin
+		),
 	)
 );

@@ -45,6 +45,7 @@ class Podcast_Settings_Endpoint_Test extends BaseTestCase {
 		$wp_rest_server = new \WP_REST_Server();
 		// The constructor wires register_routes onto rest_api_init; WorDBless resets
 		// hooks between tests, so instantiate a fresh endpoint each setUp.
+		// @phan-suppress-next-line PhanNoopNew -- constructor self-registers on rest_api_init.
 		new Podcast_Settings_Endpoint();
 		do_action( 'rest_api_init' );
 

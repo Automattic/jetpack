@@ -33,16 +33,15 @@ class Podcast_Settings_Endpoint extends WP_REST_Controller {
 	}
 
 	/**
-	 * Register the endpoint through the WPCOM REST API v2 framework when present
-	 * (Simple/WoA/Jetpack plugin), falling back to a bare instance otherwise so the
-	 * package degrades gracefully if the core-api loader isn't loaded.
+	 * Register the endpoint through the WPCOM REST API v2 framework. The loader
+	 * ships with the Jetpack plugin core-api, present in every context Podcast runs
+	 * in (Simple/WoA today, the Jetpack plugin once Podcast moves there); guarded so
+	 * the package no-ops rather than fatals if it's somehow absent.
 	 */
 	public static function init() {
 		if ( function_exists( 'wpcom_rest_api_v2_load_plugin' ) ) {
 			wpcom_rest_api_v2_load_plugin( self::class );
-			return;
 		}
-		new self();
 	}
 
 	/**
