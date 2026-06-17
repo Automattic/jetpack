@@ -3316,7 +3316,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/seo",
-                "reference": "0ed54c11e62b2bd90470902e72590a74764d41e7"
+                "reference": "11481f4f6228efcac64bbb4dd2630dba0a7b473b"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
@@ -3373,7 +3373,7 @@
                     "pnpm run build"
                 ],
                 "build-production": [
-                    "NODE_ENV=production pnpm run build"
+                    "pnpm run build-production"
                 ],
                 "watch": [
                     "Composer\\Config::disableProcessTimeout",
