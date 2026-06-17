@@ -163,6 +163,23 @@ class Podcast_Settings_Endpoint_Test extends BaseTestCase {
 		$this->assertSame( 1, $fired );
 	}
 
+	public function test_put_skips_action_when_value_unchanged() {
+		update_option( 'podcasting_title', 'Same' );
+
+		$fired = 0;
+		add_action(
+			'jetpack_podcast_settings_saved',
+			static function () use ( &$fired ) {
+				++$fired;
+			}
+		);
+
+		$response = $this->put_settings( array( 'podcasting_title' => 'Same' ) );
+
+		$this->assertSame( 200, $response->get_status() );
+		$this->assertSame( 0, $fired );
+	}
+
 	public function test_put_skips_action_when_no_recognized_option_present() {
 		$fired = 0;
 		add_action(
