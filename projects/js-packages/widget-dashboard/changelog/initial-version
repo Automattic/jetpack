@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Initial version: private port of WordPress core's dashboard widget engine (the stateless WidgetDashboard rendering engine and dashboard preference hooks).
