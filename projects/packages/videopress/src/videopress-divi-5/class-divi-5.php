@@ -67,13 +67,20 @@ class Divi_5 {
 				'version' => Package_Version::PACKAGE_VERSION,
 				'script'  => array(
 					'src'                => plugins_url( '../../build/divi-5/index.js', __FILE__ ),
+
+					/*
+					 * The handles emitted in build/divi-5/index.asset.php
+					 * (divi-vendor-wp-hooks, react, react-jsx-runtime, wp-i18n),
+					 * plus the Divi builder handles that must be enqueued for the
+					 * window.divi.* globals to be present.
+					 */
 					'deps'               => array(
 						'divi-module-library',
+						'divi-rest',
 						'divi-vendor-wp-hooks',
 						'react',
-						'jquery-core',
-						'divi-rest',
-						'wp-hooks',
+						'react-jsx-runtime',
+						'wp-i18n',
 					),
 					'enqueue_top_window' => false,
 					'enqueue_app_window' => true,

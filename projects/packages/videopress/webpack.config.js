@@ -2,8 +2,66 @@ const path = require( 'path' );
 const jetpackWebpackConfig = require( '@automattic/jetpack-webpack-config/webpack' );
 const CopyWebpackPlugin = require( 'copy-webpack-plugin' );
 
+// Configuration shared by every build in this package.
+const baseConfig = {
+	mode: jetpackWebpackConfig.mode,
+	devtool: jetpackWebpackConfig.devtool,
+	output: {
+		...jetpackWebpackConfig.output,
+		path: path.resolve( './build' ),
+	},
+	optimization: {
+		...jetpackWebpackConfig.optimization,
+	},
+	resolve: {
+		...jetpackWebpackConfig.resolve,
+	},
+	node: false,
+	module: {
+		strictExportPresence: true,
+		rules: [
+			// Transpile JavaScript
+			jetpackWebpackConfig.TranspileRule( {
+				exclude: /node_modules\//,
+			} ),
+
+			// Transpile @automattic/jetpack-* in node_modules too.
+			jetpackWebpackConfig.TranspileRule( {
+				includeNodeModules: [ '@automattic/jetpack-' ],
+			} ),
+
+			// Workarounds for non-extracted `@wordpress/*` packages.
+			...jetpackWebpackConfig.BundledWpPkgsTranspileRules(),
+
+			// Handle CSS.
+			jetpackWebpackConfig.CssRule( {
+				extensions: [ 'css', 'sass', 'scss' ],
+				extraLoaders: [
+					{
+						loader: 'postcss-loader',
+						options: {
+							postcssOptions: { config: path.join( __dirname, 'postcss.config.js' ) },
+						},
+					},
+					{ loader: 'sass-loader', options: { api: 'modern-compiler' } },
+				],
+			} ),
+
+			// Handle images.
+			jetpackWebpackConfig.FileRule(),
+		],
+	},
+	externals: {
+		...jetpackWebpackConfig.externals,
+		jetpackConfig: JSON.stringify( {
+			consumer_slug: 'jetpack-videopress',
+		} ),
+	},
+};
+
 module.exports = [
 	{
+		...baseConfig,
 		entry: {
 			// Video block
 			'block-editor/blocks/video/index': './src/client/block-editor/blocks/video/index.ts',
@@ -26,22 +84,7 @@ module.exports = [
 			'block-editor/index': './src/client/block-editor/index.ts',
 			// Divi editor extensions
 			'divi-editor/index': './src/client/divi-editor/index.js',
-			// Divi 5 Visual Builder module
-			'divi-5/index': './src/client/divi-5/index.js',
 		},
-		mode: jetpackWebpackConfig.mode,
-		devtool: jetpackWebpackConfig.devtool,
-		output: {
-			...jetpackWebpackConfig.output,
-			path: path.resolve( './build' ),
-		},
-		optimization: {
-			...jetpackWebpackConfig.optimization,
-		},
-		resolve: {
-			...jetpackWebpackConfig.resolve,
-		},
-		node: false,
 		plugins: [
 			...jetpackWebpackConfig.StandardPlugins(),
 			new CopyWebpackPlugin( {
@@ -55,6 +98,34 @@ module.exports = [
 						from: 'src/client/block-editor/extensions/index.json',
 						to: './block-editor/extensions/index.json',
 					},
+				],
+			} ),
+		],
+	},
+
+	// The Divi 5 Visual Builder module ships as a Divi extension, so it must bind
+	// to the runtime instances Divi vendors rather than the standard WordPress
+	// globals. In particular Divi fires its module-registration action on its own
+	// `@wordpress/hooks` instance (`window.vendor.wp.hooks`); externalizing
+	// `@wordpress/hooks` there is what lets our `registerModule()` callback run.
+	{
+		...baseConfig,
+		entry: {
+			'divi-5/index': './src/client/divi-5/index.js',
+		},
+		plugins: [
+			...jetpackWebpackConfig.StandardPlugins( {
+				DependencyExtractionPlugin: {
+					requestMap: {
+						'@wordpress/hooks': {
+							external: [ 'vendor', 'wp', 'hooks' ],
+							handle: 'divi-vendor-wp-hooks',
+						},
+					},
+				},
+			} ),
+			new CopyWebpackPlugin( {
+				patterns: [
 					/*
 					 * Divi 5 module metadata read by PHP at runtime (module
 					 * registration and the Divi 5 Migrator). Copied into build/
@@ -73,45 +144,5 @@ module.exports = [
 				],
 			} ),
 		],
-		module: {
-			strictExportPresence: true,
-			rules: [
-				// Transpile JavaScript
-				jetpackWebpackConfig.TranspileRule( {
-					exclude: /node_modules\//,
-				} ),
-
-				// Transpile @automattic/jetpack-* in node_modules too.
-				jetpackWebpackConfig.TranspileRule( {
-					includeNodeModules: [ '@automattic/jetpack-' ],
-				} ),
-
-				// Workarounds for non-extracted `@wordpress/*` packages.
-				...jetpackWebpackConfig.BundledWpPkgsTranspileRules(),
-
-				// Handle CSS.
-				jetpackWebpackConfig.CssRule( {
-					extensions: [ 'css', 'sass', 'scss' ],
-					extraLoaders: [
-						{
-							loader: 'postcss-loader',
-							options: {
-								postcssOptions: { config: path.join( __dirname, 'postcss.config.js' ) },
-							},
-						},
-						{ loader: 'sass-loader', options: { api: 'modern-compiler' } },
-					],
-				} ),
-
-				// Handle images.
-				jetpackWebpackConfig.FileRule(),
-			],
-		},
-		externals: {
-			...jetpackWebpackConfig.externals,
-			jetpackConfig: JSON.stringify( {
-				consumer_slug: 'jetpack-videopress',
-			} ),
-		},
 	},
 ];

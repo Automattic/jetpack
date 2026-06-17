@@ -1,10 +1,21 @@
 /**
  * Registers all Divi 5 modules with the module library.
  */
-import { addAction } from '@wordpress/hooks';
+import { addAction, didAction } from '@wordpress/hooks';
 import { videoPressMetadata, videoPressModule } from './videopress';
 
-addAction( 'divi.moduleLibrary.registerModuleLibraryStore.after', 'jetpack-videopress', () => {
+const STORE_READY = 'divi.moduleLibrary.registerModuleLibraryStore.after';
+
+let warnTimeout;
+
+/**
+ * Registers the VideoPress module once the Divi 5 builder runtime is ready.
+ *
+ * @return {void}
+ */
+function register() {
+	clearTimeout( warnTimeout );
+
 	const { registerModule } = window?.divi?.moduleLibrary ?? {};
 
 	// The renderers and settings panels consume window.divi.module and
@@ -24,4 +35,26 @@ addAction( 'divi.moduleLibrary.registerModuleLibraryStore.after', 'jetpack-video
 	}
 
 	registerModule( videoPressMetadata, videoPressModule );
-} );
+}
+
+/*
+ * `@wordpress/hooks` is externalized to Divi's vendored instance (see
+ * webpack.config.js), so this listens on the same instance Divi fires the action
+ * on. Register immediately if it already fired, otherwise on the action — and
+ * warn if it never fires (e.g. Divi renamed the action), which would otherwise
+ * be an invisible no-op.
+ */
+if ( didAction( STORE_READY ) ) {
+	register();
+} else {
+	addAction( STORE_READY, 'jetpack-videopress', register );
+
+	warnTimeout = setTimeout( () => {
+		if ( ! didAction( STORE_READY ) ) {
+			// eslint-disable-next-line no-console
+			console.error(
+				`Jetpack VideoPress: Divi never fired "${ STORE_READY }"; the VideoPress module was not registered.`
+			);
+		}
+	}, 10000 );
+}
