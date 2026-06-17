@@ -1,3 +1,4 @@
 Significance: minor
 Type: changed
-Comment: The podcast settings screen now loads and saves through the Podcast package's own REST endpoint instead of WordPress core's general settings API. This keeps podcast options out of the shared core settings response and makes saving work the same way on self-hosted sites.
+
+The podcast settings screen now loads and saves through the Podcast package's own REST endpoint instead of WordPress core's general settings API. This keeps podcast options out of the shared core settings response and makes saving work the same way on self-hosted sites.
