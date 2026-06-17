@@ -33,7 +33,6 @@
 		"@automattic/calypso-color-schemes": "4.0.0",
 		"@automattic/color-studio": "4.1.0",
 		"@automattic/i18n-utils": "1.2.3",
-		"@automattic/jetpack-ai-client": "workspace:*",
 		"@automattic/jetpack-base-styles": "workspace:*",
 		"@automattic/jetpack-components": "workspace:*",
 		"@automattic/jetpack-explat": "workspace:*",

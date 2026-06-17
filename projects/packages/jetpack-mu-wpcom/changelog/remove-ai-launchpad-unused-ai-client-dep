@@ -1,0 +1,4 @@
+Significance: patch
+Type: removed
+
+AI Launchpad: drop the unused @automattic/jetpack-ai-client dependency (requestJwt is inlined in js/lib/jwt.ts).
