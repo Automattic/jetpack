@@ -1,7 +1,6 @@
 import '@testing-library/jest-dom';
 import { jest } from '@jest/globals';
-import { render, screen } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import { fireEvent, render, screen } from '@testing-library/react';
 
 // `--experimental-vm-modules` (true ESM): mock with `jest.unstable_mockModule`
 // and import the component under test dynamically after the mock is registered.
@@ -26,10 +25,11 @@ describe( 'DisableSeoTools', () => {
 		expect( screen.getByText( 'Using a different SEO solution?' ) ).toBeInTheDocument();
 	} );
 
-	it( 'calls setActive( false ) when the disable link is clicked', async () => {
+	it( 'calls setActive( false ) when the disable link is clicked', () => {
 		render( <DisableSeoTools /> );
 
-		await userEvent.click( screen.getByRole( 'button', { name: 'Disable Jetpack SEO tools' } ) );
+		// eslint-disable-next-line testing-library/prefer-user-event -- fireEvent keeps this off the @testing-library/user-event devDep (avoids lockfile churn) for a single click.
+		fireEvent.click( screen.getByRole( 'button', { name: 'Disable Jetpack SEO tools' } ) );
 
 		expect( setActive ).toHaveBeenCalledWith( false );
 	} );
