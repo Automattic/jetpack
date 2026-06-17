@@ -327,7 +327,7 @@ class WooCommerce extends Module {
 		// woocommerce_new_order carries only the order ID, so we load the order to read its status.
 		// This fires right after the order is saved, so wc_get_order() is served from WooCommerce's
 		// in-request order cache rather than a fresh query.
-		$order = $this->get_order_for_total( isset( $args[0] ) ? $args[0] : null );
+		$order = $this->get_order_for_total( $args[0] ?? null );
 		if ( $order && $this->is_paid_order_status( $order->get_status() ) && $this->claim_order_total_emission( $order ) ) {
 			$args[] = $this->build_order_total_payload( $order );
 		}
@@ -347,11 +347,11 @@ class WooCommerce extends Module {
 	 * @return array The args, with a trailing order-total payload appended on the paid transition.
 	 */
 	public function add_order_total_to_status_changed( $args ) {
-		$status_from = isset( $args[1] ) ? $args[1] : '';
-		$status_to   = isset( $args[2] ) ? $args[2] : '';
+		$status_from = $args[1] ?? '';
+		$status_to   = $args[2] ?? '';
 
 		if ( $this->is_paid_order_status( $status_to ) && ! $this->is_paid_order_status( $status_from ) ) {
-			$order = $this->get_order_for_total( isset( $args[0] ) ? $args[0] : null );
+			$order = $this->get_order_for_total( $args[0] ?? null );
 			if ( $order && $this->claim_order_total_emission( $order ) ) {
 				$args[] = $this->build_order_total_payload( $order );
 			}
