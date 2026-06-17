@@ -1,4 +1,6 @@
-import { getRedirectUrl, ToggleControl } from '@automattic/jetpack-components';
+import { getRedirectUrl } from '@automattic/jetpack-components';
+import { ToggleControl } from '@wordpress/components';
+import clsx from 'clsx';
 import { useEffect } from 'react';
 import { useSingleModuleState } from './lib/stores';
 import styles from './module.module.scss';
@@ -107,11 +109,11 @@ const Module = ( {
 			<div className={ styles.toggle }>
 				{ toggle && (
 					<ToggleControl
-						className={ `jb-feature-toggle-${ slug }` }
-						size="small"
+						className={ clsx( `jb-feature-toggle-${ slug }`, styles.small ) }
 						checked={ isModuleActive || isFakeActive }
 						disabled={ ! isModuleAvailable }
 						onChange={ handleToggle }
+						__nextHasNoMarginBottom={ true }
 					/>
 				) }
 			</div>
