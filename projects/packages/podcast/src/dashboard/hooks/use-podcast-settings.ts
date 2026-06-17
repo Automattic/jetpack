@@ -134,9 +134,7 @@ const setState = ( next: SettingsState ): void => {
 	listeners.forEach( listener => listener() );
 };
 
-// Fetch the settings and hand them to every reader. A non-admin (e.g. opening
-// the episode block) gets a 403; we just stop loading and leave the data empty
-// rather than spin forever.
+// A non-admin (e.g. opening the episode block) gets a 403; leave the data empty.
 const fetchSettings = (): Promise< void > =>
 	apiFetch( { path: SETTINGS_PATH } )
 		.then( raw =>
@@ -144,8 +142,6 @@ const fetchSettings = (): Promise< void > =>
 		)
 		.catch( () => setState( { data: state.data, isLoading: false } ) );
 
-// Run the one-time initial fetch on the first mount; later mounts reuse the
-// result already in the store.
 const ensureFetched = (): void => {
 	if ( hasFetched ) {
 		return;
@@ -154,12 +150,7 @@ const ensureFetched = (): void => {
 	fetchSettings();
 };
 
-/**
- * Re-fetch the settings after an out-of-band server write (e.g. the Pocket Casts
- * relay persisting `podcasting_show_states`). Updates every mounted reader.
- *
- * @return Resolves once the shared store has been refreshed.
- */
+// Refresh after an out-of-band write (e.g. the Pocket Casts relay).
 export const refreshPodcastSettings = (): Promise< void > => fetchSettings();
 
 interface MutateCallbacks {
@@ -171,8 +162,7 @@ interface MutateCallbacks {
 }
 
 /**
- * Read the current `podcasting_*` settings from the shared store, fetching them
- * once on first use.
+ * Read the settings from the shared store, fetching once on first use.
  *
  * @return `{ data, isLoading }`.
  */
@@ -182,11 +172,8 @@ export function usePodcastSettings(): SettingsState {
 }
 
 /**
- * Save a partial settings update through the package's REST endpoint.
- *
- * The server merges the patch into the stored settings and returns the full
- * record, which updates the shared store. Snackbars are dispatched here so
- * callers don't have to wire them up.
+ * Save a partial update; the server returns the full record and updates the
+ * shared store. Snackbars dispatch here unless `silent`.
  *
  * @return `{ mutate, mutateAsync, isPending }`.
  */
