@@ -1,3 +1,4 @@
+import { recordBlocked } from '../tracking/track-blocked';
 import type { ProviderCreator, ProviderCreatorResult } from '@wordpress/sync';
 
 /*
@@ -140,6 +141,7 @@ export function withRoomLimit(
 
 			const overflow = sorted.slice( maxPeersPerRoom );
 			if ( overflow.some( c => c.clientId === awareness.clientID ) ) {
+				recordBlocked( awareness );
 				destroyAll();
 			}
 		}

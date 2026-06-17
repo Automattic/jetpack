@@ -1,4 +1,4 @@
-import { TextareaControl } from '@wordpress/components';
+import { DropZone, TextareaControl } from '@wordpress/components';
 import {
 	createInterpolateElement,
 	useCallback,
@@ -7,12 +7,14 @@ import {
 	useState,
 } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
+import { check, cloudUpload, Icon } from '@wordpress/icons';
 import { Button, Dialog, Notice, Stack, Tabs, Text } from '@wordpress/ui';
 import { useAddSubscribersMutation } from '../../data/use-add-subscribers-mutation';
 import { isJobInProgress, isJobStale, useImportJobs } from '../../data/use-import-jobs';
 import { useResetImportMutation } from '../../data/use-reset-import-mutation';
 import { extractEmailsFromCsv } from '../../lib/csv-parse';
 import { recordTracksEvent } from '../../lib/tracks';
+import './add-subscribers-modal.scss';
 import type { ImportJob } from '../../data/types';
 
 type Props = {
@@ -33,6 +35,31 @@ const PLATFORM_EXPORT_URLS = {
 	patreon:
 		'https://support.patreon.com/hc/en-gb/articles/360004385971-How-do-I-manage-my-members#h_01EQGYDNF2J3XR12ABBMTZPSQM',
 };
+
+// Text formats the importer accepts. The picker's `accept` attribute and the drag-and-drop
+// validation both derive from this single list, so click-to-upload and drop enforce the same set.
+const ACCEPTED_CSV_EXTENSIONS = [ 'csv', 'txt', 'tsv' ];
+const ACCEPTED_CSV_ACCEPT_ATTR = [
+	...ACCEPTED_CSV_EXTENSIONS.map( extension => `.${ extension }` ),
+	'text/csv',
+	'text/plain',
+].join( ',' );
+
+/**
+ * Whether a file is one of the accepted text exports, by extension. Extension-based because CSV
+ * MIME types are unreliable (often empty or `application/vnd.ms-excel`), and this matches the
+ * `accept` attribute the file picker already advertises — so a dropped file is held to the same
+ * rule the picker enforces.
+ *
+ * @param file - Candidate file.
+ * @return True when the extension is one we parse.
+ */
+function isAcceptedCsvFile( file: File ): boolean {
+	const name = file.name.toLowerCase();
+	const dot = name.lastIndexOf( '.' );
+	const extension = dot === -1 ? '' : name.slice( dot + 1 );
+	return ACCEPTED_CSV_EXTENSIONS.includes( extension );
+}
 
 type TabValue = 'manual' | 'upload' | 'substack';
 
@@ -74,7 +101,11 @@ function ImportConsentNotice(): JSX.Element {
  * @return Absolute URL.
  */
 function getSubstackImportUrl( hostname: string ): string {
-	return `https://wordpress.com/import/newsletter/substack/${ encodeURIComponent( hostname ) }`;
+	const params = new URLSearchParams( {
+		ref: 'wp-admin-newsletter-ui',
+		siteSlug: hostname,
+	} );
+	return `https://wordpress.com/setup/site-setup/importerSubstack?${ params.toString() }`;
 }
 
 /**
@@ -333,6 +364,94 @@ function ManualTab( { mutation, importInProgress, onClose }: AddTabProps ): JSX.
 	);
 }
 
+type CsvDropzoneProps = {
+	// Name of the currently selected file, or null before one is chosen.
+	fileName: string | null;
+	// Whether selection is blocked (an import is already in flight).
+	disabled: boolean;
+	// Called with the picked or dropped file.
+	onFile: ( file: File ) => void;
+	// Ref to the hidden <input>, shared with UploadTab so it can reset the value after a submit.
+	inputRef: React.RefObject< HTMLInputElement >;
+};
+
+/**
+ * Clickable + drag-and-drop CSV drop area. Visually replaces the bare file input: the real
+ * `<input>` stays in the DOM but hidden and is driven through `inputRef`, so a click anywhere in the
+ * box — or a keyboard activation — opens the native picker. Core's `<DropZone>` (the same primitive
+ * the modernized VideoPress Library uses) overlays the box and handles the drag-and-drop, showing
+ * its accent-colored "drop to upload" overlay while a file is dragged over. The inactive DropZone is
+ * `visibility: hidden`, so it never blocks the click target underneath.
+ *
+ * @param props          - Component props.
+ * @param props.fileName - Name of the selected file, or null.
+ * @param props.disabled - Whether selection is blocked.
+ * @param props.onFile   - Picked/dropped file handler.
+ * @param props.inputRef - Ref to the hidden file input.
+ * @return Drop area element.
+ */
+function CsvDropzone( { fileName, disabled, onFile, inputRef }: CsvDropzoneProps ): JSX.Element {
+	const openPicker = useCallback( () => {
+		if ( ! disabled ) {
+			inputRef.current?.click();
+		}
+	}, [ disabled, inputRef ] );
+
+	const handleInputChange = useCallback(
+		( event: React.ChangeEvent< HTMLInputElement > ) => {
+			const file = event.target.files?.[ 0 ];
+			if ( file ) {
+				onFile( file );
+			}
+		},
+		[ onFile ]
+	);
+
+	const handleFilesDrop = useCallback(
+		( files: File[] ) => {
+			const file = files?.[ 0 ];
+			if ( file ) {
+				onFile( file );
+			}
+		},
+		[ onFile ]
+	);
+
+	const className = [ 'jetpack-newsletter__csv-dropzone', fileName && 'has-file' ]
+		.filter( Boolean )
+		.join( ' ' );
+
+	return (
+		<div className="jetpack-newsletter__csv-dropzone-wrap">
+			<button type="button" className={ className } onClick={ openPicker } disabled={ disabled }>
+				<Icon
+					className="jetpack-newsletter__csv-dropzone-icon"
+					icon={ fileName ? check : cloudUpload }
+					size={ 32 }
+				/>
+				<Text variant="body-md">
+					{ fileName ?? __( 'Drag a file here, or click to upload a file', 'jetpack-newsletter' ) }
+				</Text>
+			</button>
+			{ ! disabled && (
+				<DropZone
+					icon={ cloudUpload }
+					label={ __( 'Drop your CSV file to upload', 'jetpack-newsletter' ) }
+					onFilesDrop={ handleFilesDrop }
+				/>
+			) }
+			<input
+				ref={ inputRef }
+				type="file"
+				accept={ ACCEPTED_CSV_ACCEPT_ATTR }
+				className="jetpack-newsletter__csv-dropzone-input"
+				onChange={ handleInputChange }
+				disabled={ disabled }
+			/>
+		</div>
+	);
+}
+
 /**
  * CSV upload tab. We don't have multipart pass-through against WPCOM yet, so the file is parsed
  * client-side and the resulting emails are POSTed to the existing `/subscribers/add` proxy. The
@@ -351,9 +470,18 @@ function UploadTab( { mutation, importInProgress, onClose }: AddTabProps ): JSX.
 	const [ emails, setEmails ] = useState< string[] >( [] );
 	const [ readError, setReadError ] = useState< string | null >( null );
 
-	const handleFileChange = useCallback( ( event: React.ChangeEvent< HTMLInputElement > ) => {
-		const file = event.target.files?.[ 0 ];
-		if ( ! file ) {
+	const handleFile = useCallback( ( file: File ) => {
+		// Drag-and-drop can deliver any file type, so enforce the same allow-list the picker
+		// advertises rather than reading an arbitrary file as text.
+		if ( ! isAcceptedCsvFile( file ) ) {
+			setFileName( null );
+			setEmails( [] );
+			setReadError(
+				__(
+					'That file type isn’t supported. Please upload a CSV file (.csv, .txt, or .tsv).',
+					'jetpack-newsletter'
+				)
+			);
 			return;
 		}
 		setFileName( file.name );
@@ -407,12 +535,11 @@ function UploadTab( { mutation, importInProgress, onClose }: AddTabProps ): JSX.
 					}
 				) }
 			</Text>
-			<input
-				ref={ fileInputRef }
-				type="file"
-				accept=".csv,.txt,.tsv,text/csv,text/plain"
-				onChange={ handleFileChange }
+			<CsvDropzone
+				fileName={ fileName }
 				disabled={ mutation.isPending }
+				onFile={ handleFile }
+				inputRef={ fileInputRef }
 			/>
 			<ImportConsentNotice />
 			{ readError ? (
@@ -459,7 +586,7 @@ function SubstackTab(): JSX.Element {
 	const importUrl = getSubstackImportUrl( hostname );
 
 	const handleOpen = useCallback( () => {
-		window.open( importUrl, '_blank', 'noopener,noreferrer' );
+		window.location.href = importUrl;
 	}, [ importUrl ] );
 
 	return (

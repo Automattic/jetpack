@@ -1,19 +1,10 @@
 import { jest } from '@jest/globals';
 
 const mockRecordEvent = jest.fn();
-const mockGetCurrentPostId = jest.fn( (): number | undefined => 42 );
-const mockGetCurrentPostType = jest.fn( (): string | undefined => 'post' );
 
 jest.unstable_mockModule( '@automattic/jetpack-analytics', () => ( {
 	__esModule: true,
 	default: { tracks: { recordEvent: mockRecordEvent } },
-} ) );
-
-jest.unstable_mockModule( '@wordpress/data', () => ( {
-	select: () => ( {
-		getCurrentPostId: mockGetCurrentPostId,
-		getCurrentPostType: mockGetCurrentPostType,
-	} ),
 } ) );
 
 const { getTransport, recordRtcEvent } = await import( '../tracks' );
@@ -44,13 +35,19 @@ describe( 'recordRtcEvent', () => {
 	beforeEach( () => {
 		recordEvent.mockClear();
 		( window as Record< string, unknown > ).jetpackRTC = { providers: [ 'pinghub' ] };
+		( window as Record< string, unknown > ).jetpackRtcNotices = {
+			postId: 42,
+			postType: 'post',
+			userId: 99,
+		};
 	} );
 
 	afterEach( () => {
 		delete ( window as Record< string, unknown > ).jetpackRTC;
+		delete ( window as Record< string, unknown > ).jetpackRtcNotices;
 	} );
 
-	it( 'merges transport and editor post context into the event properties', () => {
+	it( 'merges transport, post context, and user id from the server config', () => {
 		recordRtcEvent( 'jetpack_rtc_join', { contributor_count: 2 } );
 
 		expect( recordEvent ).toHaveBeenCalledTimes( 1 );
@@ -58,11 +55,12 @@ describe( 'recordRtcEvent', () => {
 			transport: 'pinghub',
 			post_id: 42,
 			post_type: 'post',
+			wp_user_id: 99,
 			contributor_count: 2,
 		} );
 	} );
 
-	it( 'reads post context from the editor store on http-polling (no window.jetpackRTC)', () => {
+	it( 'still resolves post/user context on http-polling (no window.jetpackRTC)', () => {
 		delete ( window as Record< string, unknown > ).jetpackRTC;
 
 		recordRtcEvent( 'jetpack_rtc_join', { contributor_count: 1 } );
@@ -71,8 +69,19 @@ describe( 'recordRtcEvent', () => {
 			transport: 'http-polling',
 			post_id: 42,
 			post_type: 'post',
+			wp_user_id: 99,
 			contributor_count: 1,
 		} );
+	} );
+
+	it( 'omits context fields that are not set, rather than sending null/undefined', () => {
+		( window as Record< string, unknown > ).jetpackRtcNotices = { postId: 42, userId: 99 };
+
+		recordRtcEvent( 'jetpack_rtc_join' );
+
+		const props = recordEvent.mock.calls[ 0 ][ 1 ];
+		expect( props ).not.toHaveProperty( 'post_type' );
+		expect( props ).toMatchObject( { post_id: 42, wp_user_id: 99 } );
 	} );
 
 	it( 'does not set blog_id (left to jpTracksContext)', () => {

@@ -1,9 +1,6 @@
-import { useExperimentWithAuth } from '@automattic/jetpack-explat';
 import { __ } from '@wordpress/i18n';
 import { addQueryArgs } from '@wordpress/url';
-import { useState } from 'react';
-import CelebrateLaunchModal from '../../common/celebrate-launch/celebrate-launch-modal';
-import { useLaunchSiteMutation } from '../../common/hooks';
+import { useSiteLaunchGatingVariant } from '../../common/hooks';
 import { wpcomTrackEvent } from '../../common/tracks';
 
 const icon = (
@@ -28,69 +25,33 @@ const launchButtonData = typeof window === 'object' ? window.JETPACK_LAUNCH_BUTT
 
 /**
  * The LaunchButton component.
- * @param {object}   props                         - Props
- * @param {Function} props.onCelebrationModalClose - Callback on celebration modal close.
  * @return {React.ReactNode} The LaunchButton component.
  */
-export function LaunchButton( { onCelebrationModalClose } ) {
-	const [ , data ] = useExperimentWithAuth( 'calypso_standardized_site_launch_gating_202603_v1' );
-	const [ showCelebrateLaunchModal, setShowCelebrateLaunchModal ] = useState( false );
+export function LaunchButton() {
+	const [ , variant ] = useSiteLaunchGatingVariant();
 
-	const {
-		mutate: launchSite,
-		isPending,
-		isSuccess,
-	} = useLaunchSiteMutation( launchButtonData.blogId, () => setShowCelebrateLaunchModal( true ) );
+	// Site launch gating: 'semi_gated_site_launch' is the shipped default. The other
+	// branches are scaffolding for future experiments; see useSiteLaunchGatingVariant.
+	switch ( variant ) {
+		case 'semi_gated_site_launch':
+		case null:
+		default: {
+			// Markup should match what's coming from the back-end.
+			const launchUrl = addQueryArgs( 'https://wordpress.com/start/launch-site', {
+				siteSlug: launchButtonData.siteDomain,
+				ref: 'wp-admin',
+			} );
 
-	// Default experience. Markup should match what's coming from the back-end.
-	if ( ! data || data.variationName !== 'ungated_site_launch' ) {
-		// Maybe this data can come from the server.
-		const launchUrl = addQueryArgs( 'https://wordpress.com/start/launch-site', {
-			siteSlug: launchButtonData.siteDomain,
-			ref: 'wp-admin',
-		} );
-
-		return (
-			<a
-				className="ab-item"
-				role="menuitem"
-				href={ launchUrl }
-				onClick={ () => wpcomTrackEvent( 'wpcom_adminbar_launch_site' ) }
-			>
-				<Content />
-			</a>
-		);
-	}
-
-	const handleLaunchClick = e => {
-		e.preventDefault();
-		if ( isPending ) return;
-		wpcomTrackEvent( 'wpcom_adminbar_launch_site' );
-		launchSite();
-	};
-
-	return (
-		<>
-			{ ! isSuccess && (
+			return (
 				<a
-					className={ `ab-item${ isPending ? ' is-busy' : '' }` }
+					className="ab-item"
 					role="menuitem"
-					href="#"
-					onClick={ handleLaunchClick }
-					aria-disabled={ isPending }
+					href={ launchUrl }
+					onClick={ () => wpcomTrackEvent( 'wpcom_adminbar_launch_site' ) }
 				>
 					<Content />
 				</a>
-			) }
-			{ showCelebrateLaunchModal && (
-				<CelebrateLaunchModal
-					{ ...launchButtonData }
-					onRequestClose={ () => {
-						setShowCelebrateLaunchModal( false );
-						onCelebrationModalClose();
-					} }
-				/>
-			) }
-		</>
-	);
+			);
+		}
+	}
 }

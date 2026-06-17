@@ -204,6 +204,17 @@ export function getKeyringResult( state: SocialStoreState ) {
 }
 
 /**
+ * Whether the keyring result for a completed connect request is being fetched.
+ *
+ * @param state - State object.
+ *
+ * @return Whether the keyring result is being fetched.
+ */
+export function isFetchingKeyringResult( state: SocialStoreState ) {
+	return Boolean( state.connectionData?.fetchingKeyringResult );
+}
+
+/**
  * Whether the connections modal is open.
  * @param state - State object.
  *
