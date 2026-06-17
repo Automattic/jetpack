@@ -379,14 +379,15 @@ class WPCOM_JSON_API_Site_Settings_V1_4_Endpoint_Test extends WP_UnitTestCase {
 	 */
 	public static function setting_default_key_values() {
 		return array(
-			'woocommerce_store_address'      => array( 'woocommerce_store_address', '' ),
-			'woocommerce_store_address_2'    => array( 'woocommerce_store_address_2', '' ),
-			'woocommerce_store_city'         => array( 'woocommerce_store_city', '' ),
-			'woocommerce_default_country'    => array( 'woocommerce_default_country', '' ),
-			'woocommerce_store_postcode'     => array( 'woocommerce_store_postcode', '' ),
-			'woocommerce_onboarding_profile' => array( 'woocommerce_onboarding_profile', array() ),
+			'woocommerce_store_address'        => array( 'woocommerce_store_address', '' ),
+			'woocommerce_store_address_2'      => array( 'woocommerce_store_address_2', '' ),
+			'woocommerce_store_city'           => array( 'woocommerce_store_city', '' ),
+			'woocommerce_default_country'      => array( 'woocommerce_default_country', '' ),
+			'woocommerce_store_postcode'       => array( 'woocommerce_store_postcode', '' ),
+			'woocommerce_onboarding_profile'   => array( 'woocommerce_onboarding_profile', array() ),
+			'supports_free_tier_customization' => array( 'supports_free_tier_customization', true ),
 			// Add MCP settings default
-			'mcp_abilities'                  => array(
+			'mcp_abilities'                    => array(
 				'mcp_abilities',
 				array(
 					'wpcom-mcp/posts-search' => array(
