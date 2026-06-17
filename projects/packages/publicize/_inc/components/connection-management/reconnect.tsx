@@ -3,7 +3,7 @@ import { useCallback } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
 import { Link } from '@wordpress/ui';
 import { store as socialStore } from '../../social-store';
-import { Connection, KeyringResult } from '../../social-store/types';
+import { Connection } from '../../social-store/types';
 import { SupportedService } from '../services/types';
 import { useRequestAccess } from '../services/use-request-access';
 
@@ -20,7 +20,7 @@ export type ReconnectProps = {
  * @return {import('react').ReactNode} - React element
  */
 export function Reconnect( { connection, service }: ReconnectProps ) {
-	const { deleteConnectionById, setKeyringResult, openConnectionsModal, setReconnectingAccount } =
+	const { deleteConnectionById, fetchKeyringResult, openConnectionsModal, setReconnectingAccount } =
 		useDispatch( socialStore );
 
 	const { isDisconnecting, canManageConnection } = useSelect(
@@ -36,14 +36,14 @@ export function Reconnect( { connection, service }: ReconnectProps ) {
 	);
 
 	const onConfirm = useCallback(
-		( result: KeyringResult ) => {
-			setKeyringResult( result );
+		async ( requestId: string ) => {
+			const result = await fetchKeyringResult( requestId );
 
 			if ( result?.ID ) {
 				openConnectionsModal();
 			}
 		},
-		[ openConnectionsModal, setKeyringResult ]
+		[ openConnectionsModal, fetchKeyringResult ]
 	);
 
 	const requestAccess = useRequestAccess( { service, onConfirm } );

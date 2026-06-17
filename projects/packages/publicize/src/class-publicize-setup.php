@@ -87,6 +87,12 @@ class Publicize_Setup {
 		 */
 		Social_Admin_Page::init();
 
+		/**
+		 * The connect popup (auth_flow=v2) is redirected back to a same-origin admin-post
+		 * endpoint that broadcasts the result to the opener, so it must always be available.
+		 */
+		Keyring_Result_Handler::init();
+
 		if ( ! $is_wpcom_simple ) {
 			/**
 			 * We need this only on Jetpack sites for Google Site auto-verification.
@@ -135,6 +141,7 @@ class Publicize_Setup {
 		$rest_controllers = array(
 			REST_API\Connections_Controller::class,
 			REST_API\Connections_Post_Field::class,
+			REST_API\Keyring_Result_Controller::class,
 			REST_API\Scheduled_Actions_Controller::class,
 			REST_API\Services_Controller::class,
 			REST_API\Share_Post_Controller::class,
