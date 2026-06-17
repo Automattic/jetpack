@@ -8,6 +8,17 @@ import type { ReactNode } from 'react';
 interface Props {
 	/** The tab for the currently rendered route (drives the active nav state). */
 	active: SeoTab;
+	/**
+	 * Whether to render the Jetpack footer. DataViews tabs own their own scroll
+	 * area and pinned pagination, so they hide it. Defaults to `true`.
+	 */
+	showFooter?: boolean;
+	/**
+	 * Render the content flush, with no page padding. Full-bleed DataViews tabs
+	 * supply their own spacing, so they opt out of the shared content padding.
+	 * Defaults to `false`.
+	 */
+	flush?: boolean;
 	children: ReactNode;
 }
 
@@ -19,12 +30,14 @@ interface Props {
  * each route's stage, so it re-renders on navigation rather than persisting
  * beneath a swapped panel.
  *
- * @param props          - Component props.
- * @param props.active   - The active tab for the current route.
- * @param props.children - The route's screen content.
+ * @param props            - Component props.
+ * @param props.active     - The active tab for the current route.
+ * @param props.showFooter - Whether to render the Jetpack footer (default true).
+ * @param props.flush      - Render content with no page padding (default false).
+ * @param props.children   - The route's screen content.
  * @return The SEO dashboard page chrome.
  */
-const DashboardPage = ( { active, children }: Props ) => (
+const DashboardPage = ( { active, showFooter = true, flush = false, children }: Props ) => (
 	<ThemeProvider>
 		<AdminPage
 			title="SEO"
@@ -32,10 +45,14 @@ const DashboardPage = ( { active, children }: Props ) => (
 				'Visibility tools for your site — sitemaps, search-engine settings, and more, in one place.',
 				'jetpack-seo'
 			) }
-			showFooter
+			showFooter={ showFooter }
 		>
 			<DashboardNav active={ active } />
-			<div className="jetpack-seo-page-content">{ children }</div>
+			<div
+				className={ `jetpack-seo-page-content${ flush ? ' jetpack-seo-page-content--flush' : '' }` }
+			>
+				{ children }
+			</div>
 		</AdminPage>
 	</ThemeProvider>
 );
