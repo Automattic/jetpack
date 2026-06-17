@@ -8,6 +8,14 @@ describe( 'getValueScaleBaseline', () => {
 		// scale(0) = 200 - (-10/90)*200 ≈ 222 -> clamped to 200
 		expect( getValueScaleBaseline( scale ) ).toBe( 200 );
 	} );
+
+	it( 'clamps to the end (range max) when 0 is outside an ascending range scale', () => {
+		// horizontal linear scale: range [0, 200], domain [-100, -10] (zero excluded)
+		const scale = ( ( v: number ) => ( ( v + 100 ) / 90 ) * 200 ) as never;
+		( scale as { range: () => number[] } ).range = () => [ 0, 200 ];
+		// scale(0) = (100/90)*200 ≈ 222 -> clamped to 200
+		expect( getValueScaleBaseline( scale ) ).toBe( 200 );
+	} );
 } );
 
 describe( 'computeComparisonRect', () => {

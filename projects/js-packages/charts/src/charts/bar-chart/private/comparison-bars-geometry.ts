@@ -20,7 +20,9 @@ export function getValueScaleBaseline( scale: ValueScale ): number {
 			? Math.min( Math.max( minOutput, maybeZero ), maxOutput )
 			: maxOutput;
 	}
-	return Number.isFinite( maybeZero ) ? Math.max( maybeZero, minOutput ) : minOutput;
+	return Number.isFinite( maybeZero )
+		? Math.min( Math.max( maybeZero, minOutput ), maxOutput )
+		: minOutput;
 }
 
 /**
