@@ -214,10 +214,9 @@ export default function PodcastEpisodeEdit( { attributes, setAttributes, context
 		postId
 	);
 
-	// Source the show-level cover from the same REST surface the dashboard
-	// reads: the package's `jetpack/v4/podcast/settings` endpoint. Requires
+	// Show-level cover from the package settings endpoint. It requires
 	// `manage_options`, so for non-admin editors the fetch 403s and the cover
-	// resolves empty — identical to the prior `/wp/v2/settings` behavior.
+	// resolves empty.
 	const { data: podcastSettings } = usePodcastSettings();
 	const showCoverUrl = podcastSettings?.podcasting_image || '';
 

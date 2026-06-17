@@ -198,7 +198,7 @@ class Settings {
 	 * @return array<string, mixed>
 	 */
 	public static function get_all(): array {
-		$empty_map   = self::empty_podcatcher_map();
+		$empty_map   = array_fill_keys( array_keys( self::SHOW_URL_HOSTS ), '' );
 		$show_urls   = (array) get_option( 'podcasting_show_urls', array() );
 		$show_states = (array) get_option( 'podcasting_show_states', array() );
 
@@ -244,16 +244,6 @@ class Settings {
 			'podcasting_show_urls'   => array( 'type' => 'object' ),
 			'podcasting_show_states' => array( 'type' => 'object' ),
 		);
-	}
-
-	/**
-	 * Map of every podcatcher key => '' — the padding baseline for the show URL
-	 * and show state objects.
-	 *
-	 * @return array<string, string>
-	 */
-	public static function empty_podcatcher_map(): array {
-		return array_fill_keys( array_keys( self::SHOW_URL_HOSTS ), '' );
 	}
 
 	/**

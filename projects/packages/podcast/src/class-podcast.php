@@ -53,10 +53,8 @@ class Podcast {
 		Podcast_Distribution_Endpoint::init();
 		Podcast_Settings_Endpoint::init();
 
-		// Register the `podcasting_*` option schema (defaults + sanitizers) and
-		// opt them into Jetpack Sync. The SPA reads/writes them through the
-		// package's own `jetpack/v4/podcast/settings` endpoint — deliberately
-		// not core `/wp/v2/settings` — so this works the same on self-hosted.
+		// Register the `podcasting_*` options. The SPA reads/writes them through
+		// Podcast_Settings_Endpoint, deliberately not core `/wp/v2/settings`.
 		Settings::register();
 
 		// Wire the RSS feed customizations (`<itunes:*>` + `<podcast:*>` tags,

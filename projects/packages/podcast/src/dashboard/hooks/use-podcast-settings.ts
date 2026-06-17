@@ -110,9 +110,8 @@ const pickPodcastFields = ( raw: Record< string, unknown > ): PodcastSettings =>
 	return out as unknown as PodcastSettings;
 };
 
-// Module-level cache + subscriber set so every mounted consumer shares one
-// fetch and one source of truth. A save updates the cache and notifies all
-// subscribers, mirroring the cross-component refresh core-data gave us before.
+// Module-level cache + subscribers so every mounted consumer shares one fetch.
+// A save updates the cache and notifies all consumers, keeping them in sync.
 let cache: PodcastSettings | undefined;
 let inflight: Promise< PodcastSettings > | undefined;
 const subscribers = new Set< ( next: PodcastSettings ) => void >();
@@ -148,7 +147,7 @@ interface MutateCallbacks {
  * Backed by a shared module-level cache so multiple consumers issue a single
  * request and stay in sync after a save.
  *
- * @return `{ data, isLoading }` matching the prior TanStack-shaped contract.
+ * @return `{ data, isLoading }`.
  */
 export function usePodcastSettings(): { data: PodcastSettings | undefined; isLoading: boolean } {
 	const [ data, setData ] = useState< PodcastSettings | undefined >( cache );
@@ -193,7 +192,7 @@ export function usePodcastSettings(): { data: PodcastSettings | undefined; isLoa
  * record, which refreshes the shared cache. Snackbars are dispatched here so
  * callers don't have to wire them up.
  *
- * @return `{ mutate, mutateAsync, isPending }` matching the prior TanStack-shaped contract.
+ * @return `{ mutate, mutateAsync, isPending }`.
  */
 export function useUpdatePodcastSettings(): {
 	mutate: ( updates: PodcastSettingsUpdate, callbacks?: MutateCallbacks ) => void;

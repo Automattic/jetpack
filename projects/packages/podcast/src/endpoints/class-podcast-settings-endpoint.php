@@ -14,19 +14,11 @@ use WP_REST_Response;
 use WP_REST_Server;
 
 /**
- * Package-owned REST surface for the `podcasting_*` options the dashboard SPA
- * reads and writes. Replaces the previous reliance on core `/wp/v2/settings`
- * (and, on Simple, the legacy WPCOM v1.x site-settings filters): the schema and
- * sanitizers live entirely in {@see Settings}, so this works unchanged on
- * self-hosted Jetpack — it's pure option read/write with no wpcom backend.
- *
- * Storage stays as `wp_options`; each `register_setting()` sanitizer fires on
- * write because {@see update_option()} runs the `sanitize_option_{$name}` filter.
+ * Reads and writes the `podcasting_*` options for the dashboard SPA over its own
+ * `jetpack/v4/podcast/settings` route. Schema and sanitizers live in {@see Settings},
+ * so it works the same on self-hosted Jetpack with no wpcom backend.
  */
 class Podcast_Settings_Endpoint extends WP_REST_Controller {
-
-	const REST_NAMESPACE = 'jetpack/v4';
-	const REST_BASE      = 'podcast/settings';
 
 	/**
 	 * Whether `init()` has wired its hooks.
@@ -51,18 +43,13 @@ class Podcast_Settings_Endpoint extends WP_REST_Controller {
 	/**
 	 * Register the GET (full record) + writable (partial patch) routes.
 	 *
-	 * Update args are top-level type coercion only — the registered
-	 * `sanitize_callback`s do the real validation when {@see update_option()}
-	 * fires `sanitize_option_{$name}`. Strict per-field schema validation here
-	 * would 400 a whole patch on one bad field; the SPA relies on silent-drop.
+	 * Update args only coerce top-level types — the registered `sanitize_callback`s
+	 * do the real validation on write, so one bad field can't 400 the whole patch.
 	 */
 	public function register_routes() {
-		$this->namespace = self::REST_NAMESPACE;
-		$this->rest_base = self::REST_BASE;
-
 		register_rest_route(
-			$this->namespace,
-			$this->rest_base,
+			'jetpack/v4',
+			'podcast/settings',
 			array(
 				array(
 					'methods'             => WP_REST_Server::READABLE,
@@ -129,11 +116,7 @@ class Podcast_Settings_Endpoint extends WP_REST_Controller {
 
 		if ( $touched ) {
 			/**
-			 * Fires after a podcast settings write through the REST endpoint.
-			 *
-			 * Transport-agnostic replacement for the old `/wp/v2/settings`
-			 * response hook; {@see Tracks} listens here to emit the aggregate
-			 * `wpcom_podcasting_settings_saved` event.
+			 * Fires after a podcast settings write touches at least one option.
 			 *
 			 * @since $$next-version$$
 			 */

@@ -64,15 +64,6 @@ class Settings_Test extends BaseTestCase {
 		delete_option( 'podcasting_show_urls' );
 	}
 
-	public function test_empty_podcatcher_map_covers_all_directories_with_empty_strings() {
-		$map = Settings::empty_podcatcher_map();
-
-		$this->assertSame( array_keys( Settings::SHOW_URL_HOSTS ), array_keys( $map ) );
-		foreach ( $map as $value ) {
-			$this->assertSame( '', $value );
-		}
-	}
-
 	public function test_register_adds_options_to_jetpack_sync_whitelist() {
 		Settings::register();
 
