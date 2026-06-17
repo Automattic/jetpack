@@ -475,9 +475,9 @@ class Initializer {
 		// Single source of truth lives on the SEO package's public API. Guarded with
 		// class_exists because both packages ship inside the Jetpack plugin but SEO isn't a
 		// composer dependency here (and the surface is feature-flagged).
-		// @phan-suppress-next-line PhanUndeclaredClassMethod -- guarded by class_exists.
-		$show_card = class_exists( 'Automattic\\Jetpack\\SEO\\Initializer' )
-			&& \Automattic\Jetpack\SEO\Initializer::is_optin_available();
+		$seo_loaded = class_exists( 'Automattic\\Jetpack\\SEO\\Initializer' );
+		// @phan-suppress-next-line PhanUndeclaredClassMethod -- guarded by the $seo_loaded check.
+		$show_card = $seo_loaded && \Automattic\Jetpack\SEO\Initializer::is_optin_available();
 
 		return array(
 			'showCard' => $show_card,
