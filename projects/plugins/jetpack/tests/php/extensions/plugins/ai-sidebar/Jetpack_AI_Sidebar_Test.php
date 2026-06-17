@@ -202,12 +202,18 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Invoke the private preview-gate predicate.
+	 * Whether the preview gate is open, observed through a public surface.
+	 *
+	 * Uses enable_agents_manager_in_post_editor(), which returns the preview gate
+	 * ANDed with the post-editor and AI-features checks — both satisfied by the
+	 * gate tests (set_up connects an owner; this sets the post editor screen) —
+	 * so it reflects is_jetpack_ai_sidebar_preview_enabled() without reflection.
 	 *
 	 * @return bool
 	 */
-	private function preview_enabled(): bool {
-		return (bool) ( new ReflectionMethod( Jetpack_AI_Sidebar::class, 'is_jetpack_ai_sidebar_preview_enabled' ) )->invoke( null );
+	private function gate_open(): bool {
+		$this->set_block_editor_screen();
+		return Jetpack_AI_Sidebar::enable_agents_manager_in_post_editor( false );
 	}
 
 	/**
@@ -379,7 +385,7 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 		remove_all_filters( 'jetpack_ai_sidebar_enabled' );
 		$this->simulate_wpcom_simple();
 
-		$this->assertFalse( $this->preview_enabled() );
+		$this->assertFalse( $this->gate_open() );
 	}
 
 	/**
@@ -391,7 +397,7 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 		$this->simulate_big_sky_class();
 		update_option( 'big_sky_enable', '1' );
 
-		$this->assertFalse( $this->preview_enabled() );
+		$this->assertFalse( $this->gate_open() );
 	}
 
 	/**
@@ -404,7 +410,7 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 		delete_option( 'big_sky_enable' );
 		// big_sky_enable absent -> defaults to '1' on Simple.
 
-		$this->assertTrue( $this->preview_enabled() );
+		$this->assertTrue( $this->gate_open() );
 	}
 
 	/**
@@ -417,7 +423,7 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 		delete_option( 'big_sky_enable' );
 		// big_sky_enable absent -> defaults to '0' on WoA/Atomic.
 
-		$this->assertFalse( $this->preview_enabled() );
+		$this->assertFalse( $this->gate_open() );
 	}
 
 	/**
@@ -429,7 +435,7 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 		$this->simulate_big_sky_class();
 		update_option( 'big_sky_enable', '0' );
 
-		$this->assertFalse( $this->preview_enabled() );
+		$this->assertFalse( $this->gate_open() );
 	}
 
 	/**
@@ -440,14 +446,14 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 		remove_all_filters( 'jetpack_ai_sidebar_enabled' );
 		$this->simulate_self_hosted();
 		add_filter( 'jetpack_ai_sidebar_enabled', '__return_true' );
-		$this->assertTrue( $this->preview_enabled() );
+		$this->assertTrue( $this->gate_open() );
 
 		// Gate is open on Simple + Big Sky; the filter forces it off.
 		remove_all_filters( 'jetpack_ai_sidebar_enabled' );
 		$this->simulate_wpcom_simple();
 		$this->simulate_big_sky_class();
 		add_filter( 'jetpack_ai_sidebar_enabled', '__return_false' );
-		$this->assertFalse( $this->preview_enabled() );
+		$this->assertFalse( $this->gate_open() );
 	}
 
 	// ──────────────────────────────────────────────────
