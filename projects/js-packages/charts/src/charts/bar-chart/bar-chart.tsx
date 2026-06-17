@@ -129,8 +129,12 @@ const BarChartInternal: FC< BarChartProps > = ( {
 	const [ selectedIndex, setSelectedIndex ] = useState< number | undefined >( undefined );
 	const [ isNavigating, setIsNavigating ] = useState( false );
 
+	// Comparison series have no .visx-bar elements; count only primary series so
+	// keyboard navigation doesn't cycle phantom indices into comparison-only slots.
+	const primarySeriesForNav = dataWithVisibleZeros.filter( s => s.options?.type !== 'comparison' );
 	const totalPoints =
-		Math.max( 0, ...data.map( series => series.data?.length || 0 ) ) * data.length;
+		Math.max( 0, ...primarySeriesForNav.map( s => s.data?.length || 0 ) ) *
+		primarySeriesForNav.length;
 
 	// Use the keyboard navigation hook
 	const { tooltipRef, onChartFocus, onChartBlur, onChartKeyDown } = useKeyboardNavigation( {
@@ -289,19 +293,21 @@ const BarChartInternal: FC< BarChartProps > = ( {
 	const createKeyboardHighlightStyle = useCallback( () => {
 		if ( selectedIndex === undefined ) return '';
 
-		// Calculate which bar should be highlighted based on selectedIndex
+		// Use only primary entries — comparison series have no .visx-bar elements so
+		// their indices must not appear in the nth-child selector.
 		// Pattern: [series1[0], series2[0], series3[0], series1[1], series2[1], series3[1], ...]
-		const maxDataPoints = Math.max( ...data.map( s => s.data.length ) );
-		const dataPointIndex = Math.floor( selectedIndex / data.length );
-		const seriesIndex = selectedIndex % data.length;
+		const primaryCount = primaryEntries.length;
+		const maxDataPoints = Math.max( ...primaryEntries.map( e => e.series.data.length ) );
+		const dataPointIndex = Math.floor( selectedIndex / primaryCount );
+		const seriesIndex = selectedIndex % primaryCount;
 
 		// Only highlight if we're within valid bounds
-		if ( dataPointIndex >= maxDataPoints || seriesIndex >= data.length ) {
+		if ( dataPointIndex >= maxDataPoints || seriesIndex >= primaryCount ) {
 			return '';
 		}
 
-		const seriesData = data[ seriesIndex ];
-		if ( dataPointIndex >= seriesData.data.length ) {
+		const seriesData = primaryEntries[ seriesIndex ]?.series;
+		if ( ! seriesData || dataPointIndex >= seriesData.data.length ) {
 			return '';
 		}
 
@@ -322,7 +328,7 @@ const BarChartInternal: FC< BarChartProps > = ( {
 		`;
 
 		return generatedStyles;
-	}, [ selectedIndex, data, chartId ] );
+	}, [ selectedIndex, primaryEntries, chartId ] );
 
 	// Validate data first
 	const error = validateData( dataSorted );
