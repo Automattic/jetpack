@@ -260,4 +260,26 @@ class InitializerTest extends TestCase {
 			delete_option( Initializer::VISIBILITY_OPTION );
 		}
 	}
+
+	/**
+	 * The script-data injector surfaces opt-in availability under the `seo.optin_available`
+	 * key (read by the legacy Traffic-page banner), and tolerates non-array input.
+	 */
+	public function test_inject_optin_availability_surfaces_flag_state() {
+		delete_option( Initializer::VISIBILITY_OPTION );
+
+		// Flag off → false, and non-array input is normalized to an array.
+		$data = Initializer::inject_optin_availability( null );
+		$this->assertFalse( $data[ Initializer::SCRIPT_DATA_KEY ]['optin_available'] );
+
+		// Flag on + surface hidden → true; existing keys are preserved.
+		add_filter( Initializer::FEATURE_FILTER, '__return_true' );
+		try {
+			$data = Initializer::inject_optin_availability( array( 'keep' => 1 ) );
+			$this->assertTrue( $data[ Initializer::SCRIPT_DATA_KEY ]['optin_available'] );
+			$this->assertSame( 1, $data['keep'] );
+		} finally {
+			remove_filter( Initializer::FEATURE_FILTER, '__return_true' );
+		}
+	}
 }
