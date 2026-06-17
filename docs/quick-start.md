@@ -73,6 +73,7 @@ To setup Docker:
 - Open `tools/docker/.env` and make any modifications you'd like.	
 	- It's strongly recommend you at least change `WP_ADMIN_PASSWORD` to something more secure.
 - Start the Docker container using `jetpack docker up -d` (this may take some time for the first setup)
+	- If this fails with an error like `failed to bind host port 0.0.0.0:80/tcp: address already in use`, another service is using that port. Change `PORT_WORDPRESS` in `tools/docker/.env` to a free port (e.g. `8080`) and try again.
 - Install WordPress in your Docker container using `jetpack docker install` 
 - Open up http://localhost to see your site!
 
