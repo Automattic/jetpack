@@ -3,6 +3,7 @@ import { getScriptData, isWoASite } from '@automattic/jetpack-script-data';
 import { __ } from '@wordpress/i18n';
 import { Component } from 'react';
 import { connect } from 'react-redux';
+import Button from 'components/button';
 import QuerySite from 'components/data/query-site';
 import SimpleNotice from 'components/notice';
 import {
@@ -101,9 +102,19 @@ export class Traffic extends Component {
 					/>
 				) }
 				{ seoMovedToDashboard && ( foundSeo || foundCanonicalUrls ) && (
-					<SimpleNotice showDismiss={ false } status="is-info">
-						{ __( 'Jetpack SEO now has its own dashboard.', 'jetpack' ) }{ ' ' }
-						<a href="admin.php?page=jetpack-seo">{ __( 'Open the SEO dashboard', 'jetpack' ) }</a>
+					<SimpleNotice status="is-info" showDismiss={ false } className="jp-seo-moved-banner">
+						<div className="jp-seo-moved-banner__content">
+							<strong>{ __( 'Jetpack SEO has its own dashboard', 'jetpack' ) }</strong>
+							<p>
+								{ __(
+									'Manage your search engine optimization settings from the redesigned SEO dashboard.',
+									'jetpack'
+								) }
+							</p>
+							<Button primary rna compact href="admin.php?page=jetpack-seo">
+								{ __( 'Open the SEO dashboard', 'jetpack' ) }
+							</Button>
+						</div>
 					</SimpleNotice>
 				) }
 				{ foundStats && <SiteStats { ...commonProps } /> }
@@ -113,7 +124,9 @@ export class Traffic extends Component {
 				{ foundBlaze && <Blaze { ...commonProps } /> }
 				{ foundShortlinks && <Shortlinks { ...commonProps } /> }
 				{ ! seoMovedToDashboard && foundSitemaps && <Sitemaps { ...commonProps } /> }
-				{ foundVerification && <VerificationServices { ...commonProps } /> }
+				{ ! seoMovedToDashboard && foundVerification && (
+					<VerificationServices { ...commonProps } />
+				) }
 			</div>
 		);
 	}
