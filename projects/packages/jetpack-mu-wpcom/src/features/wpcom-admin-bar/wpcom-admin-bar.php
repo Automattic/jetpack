@@ -440,17 +440,22 @@ function wpcom_add_site_badges_and_plan( $wp_admin_bar ) {
 		$plan_name = $current_plan['product_name_short'] ?? '';
 
 		if ( $plan_name ) {
-			// Prefer the Calypso site slug, but fall back to the site suffix so the link
-			// also works on Atomic sites where \WPCOM_Masterbar is absent, or when it
-			// returns an empty slug.
+			// Resolve a Calypso site slug. On Atomic (no \WPCOM_Masterbar),
+			// Status::get_site_suffix() derives it from the site domain instead.
 			$site_slug = method_exists( '\WPCOM_Masterbar', 'get_calypso_site_slug' )
-				? WPCOM_Masterbar::get_calypso_site_slug( $blog_id )
+				? (string) WPCOM_Masterbar::get_calypso_site_slug( $blog_id )
 				: '';
-			if ( ! $site_slug ) {
-				$site_slug = $status->get_site_suffix();
+			if ( '' === $site_slug ) {
+				$site_slug = (string) $status->get_site_suffix();
 			}
 
-			$plan_text = '<a class="wp-admin-bar__site-info" href="https://wordpress.com/plans/' . esc_attr( $site_slug ) . '">
+			// Link to the per-site plans page when we have a slug, otherwise fall
+			// back to the generic plans page so we never emit an empty .../plans/ URL.
+			$plans_url = '' !== $site_slug
+				? 'https://wordpress.com/plans/' . $site_slug
+				: 'https://wordpress.com/plans';
+
+			$plan_text = '<a class="wp-admin-bar__site-info" href="' . esc_url( $plans_url ) . '">
 							<span class="wp-admin-bar__site-info-label">' . __( 'Plan', 'jetpack-mu-wpcom' ) . '</span>
 							<span class="wp-admin-bar__info-badges">' . esc_html( $plan_name ) . '</span>
 						</a>';
