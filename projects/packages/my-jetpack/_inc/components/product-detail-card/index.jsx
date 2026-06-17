@@ -340,6 +340,17 @@ const ProductDetailCard = ( {
 				<ProductIcon slug={ slug } />
 
 				<H3>{ productMoniker }</H3>
+				{ /* WPText parity — jetpack H3 = Text variant="headline-small" (36/700/40, <h2>) + mb=3 (24px). */ }
+				<WPText
+					variant="heading-2xl"
+					style={ {
+						fontSize: '36px',
+						fontWeight: 700,
+						lineHeight: '40px',
+						margin: '0 0 24px',
+					} }
+					render={ <h2>{ productMoniker }</h2> }
+				></WPText>
 				{ isProductLoading ? (
 					<LoadingBlock width="100%" height="75px" spaceBelow />
 				) : (
@@ -423,7 +434,22 @@ const ProductDetailCard = ( {
 					</>
 				) }
 
-				{ isFree && <H3>{ __( 'Free', 'jetpack-my-jetpack' ) }</H3> }
+				{ isFree && (
+					<>
+						<H3>{ __( 'Free', 'jetpack-my-jetpack' ) }</H3>
+						{ /* WPText parity — jetpack H3 = headline-small (36/700/40, <h2>) + mb=3 (24px). */ }
+						<WPText
+							variant="heading-2xl"
+							style={ {
+								fontSize: '36px',
+								fontWeight: 700,
+								lineHeight: '40px',
+								margin: '0 0 24px',
+							} }
+							render={ <h2>{ __( 'Free', 'jetpack-my-jetpack' ) }</h2> }
+						></WPText>
+					</>
+				) }
 
 				{ cantInstallPlugin && (
 					<Notice status="warning" isDismissible={ false }>
