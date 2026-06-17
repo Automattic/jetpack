@@ -56,8 +56,11 @@ export function useSyncStatus(): UseSyncStatusReturn {
 				// boot. Advancing the store here is what lets the route guards see
 				// the finished state without a full-page reload.
 				const live = raw.initial_full_sync_finished ?? 0;
-				const milestone = Math.max( select( siteSyncStore ).getMilestone(), live );
-				if ( milestone > 0 ) {
+				const stored = select( siteSyncStore ).getMilestone();
+				const milestone = Math.max( stored, live );
+				// Only dispatch when the milestone actually advances, so a steady
+				// non-zero value mid-sync doesn't churn the store every poll.
+				if ( milestone > stored ) {
 					dispatch( siteSyncStore ).setMilestone( milestone );
 				}
 

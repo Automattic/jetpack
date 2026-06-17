@@ -3,7 +3,7 @@
  */
 import { getScriptData } from '@automattic/jetpack-script-data';
 import { renderHook, act, waitFor } from '@testing-library/react';
-import { dispatch } from '@wordpress/data';
+import { dispatch, select, subscribe } from '@wordpress/data';
 /**
  * Internal dependencies
  */
@@ -226,5 +226,26 @@ describe( 'useSyncStatus', () => {
 		// Milestone is live, but analytics progress is only 50% ⇒ not complete (AND).
 		expect( result.current.isComplete ).toBe( false );
 		expect( result.current.data?.percentage ).toBe( 50 );
+	} );
+
+	it( 'does not re-dispatch the milestone once it is steady mid-sync', async () => {
+		// Backend reports a non-zero milestone while analytics is still at 50%.
+		mockFetch.mockResolvedValue( rawStatus( { initial_full_sync_finished: 1_700_000_500 } ) );
+		renderHook( () => useSyncStatus() );
+
+		await waitFor( () => expect( select( siteSyncStore ).getMilestone() ).toBe( 1_700_000_500 ) );
+
+		// Further polls carry the same milestone, so the store must not churn.
+		let storeUpdates = 0;
+		const unsubscribe = subscribe( () => {
+			storeUpdates++;
+		}, siteSyncStore );
+
+		await act( async () => {
+			jest.advanceTimersByTime( POLL_INTERVAL * 3 );
+		} );
+		unsubscribe();
+
+		expect( storeUpdates ).toBe( 0 );
 	} );
 } );
