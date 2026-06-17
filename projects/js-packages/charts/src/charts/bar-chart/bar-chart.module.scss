@@ -32,20 +32,22 @@
 		}
 	}
 
-	// Comparison mode: narrow primary bars to 60% of slot width, centered.
-	// Uses `scale` (not `transform: scaleX`) so it composes with the
-	// `transform`-based rise/stretch animation rather than overriding it.
-	// `transform-box: fill-box` is inherited from animation rules, but
-	// re-declared here for specificity clarity and to be safe when animation
-	// is disabled. Only targets .visx-bar-group bars, not the comparison
-	// shadow rects which live in .bar-chart__comparison-bars.
-	&--comparison .visx-bar-group .visx-bar {
+	// Comparison mode: narrow primary bars to 60% of slot width, centered, so
+	// the standard-width comparison shadow peeks on each side.
+	// `.visx-bar-group`/`.visx-bar` are global visx classes, so they MUST be
+	// wrapped in `:global()` — this is a CSS module, which would otherwise
+	// scope (hash) them and the selector would never match the rendered bars.
+	// Uses the `scale` property (not `transform: scaleX`) so it composes with
+	// the `transform`-based rise/stretch animation rather than overriding it.
+	// Only targets bars inside .visx-bar-group, not the comparison shadow
+	// rects which live in .bar-chart__comparison-bars.
+	&--comparison :global(.visx-bar-group .visx-bar) {
 		scale: 0.6 1;
 		transform-box: fill-box;
 		transform-origin: center;
 	}
 
-	&--comparison-horizontal .visx-bar-group .visx-bar {
+	&--comparison-horizontal :global(.visx-bar-group .visx-bar) {
 		scale: 1 0.6;
 		transform-box: fill-box;
 		transform-origin: center;
