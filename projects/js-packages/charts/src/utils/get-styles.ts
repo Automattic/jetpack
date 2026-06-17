@@ -1,4 +1,4 @@
-import type { ChartTheme, LegendShape, SeriesData } from '../types';
+import type { BarStyles, ChartTheme, LegendShape, SeriesData } from '../types';
 import type { LineStyles } from '@visx/xychart';
 
 /**
@@ -26,6 +26,25 @@ export function getSeriesLineStyles(
 	return (
 		seriesData.options?.seriesLineStyle ?? themeSemanticLineStyle ?? themeSeriesLineStyle ?? {}
 	);
+}
+
+/**
+ * Utility to get consolidated bar styles for a series by semantic type.
+ * Mirrors getSeriesLineStyles: a series with `options.type` (e.g. 'comparison')
+ * resolves to `theme.barChart.barStyles[ type ]`.
+ *
+ * @param {SeriesData} seriesData    - The series data containing styling options
+ * @param {number}     index         - The index of the series in the data array
+ * @param {ChartTheme} providerTheme - The chart theme configuration
+ * @return {BarStyles} The consolidated bar styles for the series
+ */
+export function getSeriesBarStyles(
+	seriesData: SeriesData,
+	index: number,
+	providerTheme: ChartTheme
+): BarStyles {
+	const type = seriesData.options?.type;
+	return ( type && providerTheme?.barChart?.barStyles?.[ type ] ) ?? {};
 }
 
 /**

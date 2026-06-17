@@ -1,5 +1,10 @@
 import { ChartTheme } from '../../types';
-import { getSeriesLineStyles, getSeriesStroke, getItemShapeStyles } from '../get-styles';
+import {
+	getSeriesBarStyles,
+	getSeriesLineStyles,
+	getSeriesStroke,
+	getItemShapeStyles,
+} from '../get-styles';
 
 describe( 'Series styling utility functions', () => {
 	const mockSeriesData = {
@@ -328,6 +333,25 @@ describe( 'Series styling utility functions', () => {
 				strokeLinecap: 'square',
 				strokeWidth: 1.5,
 			} );
+		} );
+	} );
+
+	describe( 'getSeriesBarStyles', () => {
+		const themeWithBar = {
+			...mockTheme,
+			barChart: { barStyles: { comparison: { widthFactor: 1.5, opacity: 0.5 } } },
+		} as ChartTheme;
+
+		it( 'returns comparison bar styles when type is comparison', () => {
+			const comparisonSeries = { ...mockSeriesData, options: { type: 'comparison' as const } };
+			expect( getSeriesBarStyles( comparisonSeries, 0, themeWithBar ) ).toEqual( {
+				widthFactor: 1.5,
+				opacity: 0.5,
+			} );
+		} );
+
+		it( 'returns empty styles for a series with no type', () => {
+			expect( getSeriesBarStyles( mockSeriesData, 0, themeWithBar ) ).toEqual( {} );
 		} );
 	} );
 } );

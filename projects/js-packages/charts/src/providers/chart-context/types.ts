@@ -1,6 +1,7 @@
 import { CSSProperties, ReactNode } from 'react';
 import type { BaseLegendItem } from '../../components/legend';
 import type {
+	BarStyles,
 	ChartType,
 	CompleteChartTheme,
 	DataPointPercentage,
@@ -25,6 +26,7 @@ export type GetElementStylesParams = {
 export type ElementStyles = {
 	color: string;
 	lineStyles: LineStyles;
+	barStyles: BarStyles;
 	glyph: < Datum extends object >( props: GlyphProps< Datum > ) => ReactNode;
 	shapeStyles: CSSProperties & LineStyles;
 };
