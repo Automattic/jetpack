@@ -27,17 +27,28 @@ export const KEYRING_BROADCAST_CHANNEL = 'jetpack-social-keyring';
  *
  * @param {string}          url - The URL to be loaded in the newly opened window.
  * @param {requestCallback} cb  - The callback that handles the response.
+ *
+ * @return {boolean} `true` if the popup opened, `false` if it was blocked by the browser.
  */
 export const requestExternalAccess = ( url, cb ) => {
 	const popupMonitor = new PopupMonitor();
-
-	const requestId = new URL( url ).searchParams.get( 'request_id' );
 
 	popupMonitor.open(
 		url,
 		null,
 		'toolbar=0,location=0,status=0,menubar=0,' + popupMonitor.getScreenCenterSpecs( 780, 700 )
 	);
+
+	/*
+	 * When the browser blocks the popup, window.open returns null (or, in some browsers, a window
+	 * that is immediately closed). Bail out so the caller can let the user know what happened.
+	 */
+	const popup = popupMonitor.windowInstance;
+	if ( ! popup || popup.closed || typeof popup.closed === 'undefined' ) {
+		return false;
+	}
+
+	const requestId = new URL( url ).searchParams.get( 'request_id' );
 
 	// auth_flow=v2: wait for the same-origin completion page to broadcast the request_id.
 	if ( requestId && typeof BroadcastChannel !== 'undefined' ) {
@@ -72,7 +83,7 @@ export const requestExternalAccess = ( url, cb ) => {
 			}, 5000 );
 		} );
 
-		return;
+		return true;
 	}
 
 	// Legacy flow: the popup posts the keyring result back via window.opener.postMessage.
@@ -85,4 +96,6 @@ export const requestExternalAccess = ( url, cb ) => {
 	popupMonitor.on( 'message', message => {
 		lastMessage = message?.data;
 	} );
+
+	return true;
 };
