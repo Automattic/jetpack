@@ -308,4 +308,12 @@ class Tracks_Test extends BaseTestCase {
 		$this->assertArrayNotHasKey( 'podcasting_email', $events[0]['properties'] );
 		$this->assertArrayNotHasKey( 'podcasting_talent_name', $events[0]['properties'] );
 	}
+
+	public function test_init_wires_settings_saved_recorder() {
+		Tracks::init();
+
+		$this->assertNotFalse(
+			has_action( 'jetpack_podcast_settings_saved', array( Tracks::class, 'record_settings_saved' ) )
+		);
+	}
 }
