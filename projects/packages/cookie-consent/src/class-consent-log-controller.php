@@ -407,9 +407,10 @@ class Consent_Log_Controller extends WP_REST_Controller {
 			$values[] = gmdate( 'Y-m-d H:i:s', strtotime( $request->get_param( 'before' ) ) );
 		}
 
-		// Pagination.
-		$page     = $request->get_param( 'page' );
-		$per_page = min( $request->get_param( 'per_page' ), 100 ); // Max 100 per page.
+		// Pagination. Clamp to safe lower bounds so per_page=0 can't divide by zero
+		// and page=0 can't produce a negative OFFSET.
+		$page     = max( 1, (int) $request->get_param( 'page' ) );
+		$per_page = max( 1, min( (int) $request->get_param( 'per_page' ), 100 ) ); // 1-100 per page.
 		$offset   = ( $page - 1 ) * $per_page;
 
 		// Count total.
