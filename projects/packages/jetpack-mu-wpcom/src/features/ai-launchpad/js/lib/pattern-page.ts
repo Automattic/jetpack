@@ -114,7 +114,19 @@ export function pickPattern(
 export async function createPatternPage(
 	inferred: TailoredInferred
 ): Promise< { page_id: number; edit_url: string } > {
-	const patterns = ( await ( await fetch( PTK_ENDPOINT ) ).json() ) as PtkPattern[];
+	let patterns: PtkPattern[] = [];
+	try {
+		const response = await fetch( PTK_ENDPOINT );
+		if ( response.ok ) {
+			const body = await response.json();
+			if ( Array.isArray( body ) ) {
+				patterns = body as PtkPattern[];
+			}
+		}
+	} catch {
+		// Network/parse failure: fall through with no patterns so the page is still
+		// created (with empty content) instead of throwing and stranding the CTA.
+	}
 	const pattern = pickPattern( patterns, inferred );
 
 	const page = ( await apiFetch( {

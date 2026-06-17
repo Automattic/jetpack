@@ -48,6 +48,21 @@ export async function requestJwt(): Promise< TokenData > {
 	}
 
 	const isSimple = isSimpleSite();
+
+	// Fail fast with a clear message rather than forming a bad request
+	// (`/sites/undefined/…` → 404, or `X-WP-Nonce: undefined` → 403) that would
+	// only surface downstream as "the AI never works".
+	if ( isSimple && ! siteId ) {
+		throw new Error(
+			'[AI Launchpad] cannot mint a JWT: missing site id (JP_CONNECTION_INITIAL_STATE.siteSuffix).'
+		);
+	}
+	if ( ! isSimple && ! apiNonce ) {
+		throw new Error(
+			'[AI Launchpad] cannot mint a JWT: missing API nonce (JP_CONNECTION_INITIAL_STATE.apiNonce).'
+		);
+	}
+
 	const data = ( await apiFetch( {
 		path: isSimple
 			? '/wpcom/v2/sites/' + siteId + '/jetpack-openai-query/jwt'

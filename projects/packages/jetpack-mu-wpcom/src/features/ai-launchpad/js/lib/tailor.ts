@@ -47,23 +47,19 @@ async function fetchAiOutput( input: WizardInput ): Promise< TailoredOutput | nu
 		} );
 
 		if ( ! response.ok ) {
-			// eslint-disable-next-line no-console
-			console.warn( '[AI Launchpad] jetpack-ai-query returned HTTP ' + response.status );
 			return null;
 		}
 
 		const body = ( await response.json() ) as AiQueryResponse;
 		const content = body.choices?.[ 0 ]?.message?.content;
 		if ( ! content ) {
-			// eslint-disable-next-line no-console
-			console.warn( '[AI Launchpad] jetpack-ai-query response had no content' );
 			return null;
 		}
 
 		return parseAgentResponse( content );
-	} catch ( error ) {
-		// eslint-disable-next-line no-console
-		console.warn( '[AI Launchpad] jetpack-ai-query request failed', error );
+	} catch {
+		// Network, timeout, auth, or quota failure: fall back to the deterministic
+		// picker. The AI call itself is logged server-side by the AI Proxy.
 		return null;
 	} finally {
 		clearTimeout( timeout );
@@ -108,14 +104,20 @@ export async function tailor( input: WizardInput ): Promise< TailorResult > {
 				source: 'ai',
 			} );
 			return { source: 'ai', output: aiOutput };
-		} catch ( error ) {
-			// eslint-disable-next-line no-console
-			console.warn( '[AI Launchpad] PUT /tailored rejected AI output; using fallback', error );
+		} catch {
+			// PUT rejected the AI output (e.g. 422 / per-site catalog filtering);
+			// fall through to the deterministic fallback below.
 		}
 	}
 
 	const fallbackOutput = selectFallback( input );
-	await persist( fallbackOutput, 'fallback' );
+	try {
+		await persist( fallbackOutput, 'fallback' );
+	} catch {
+		// The deterministic fallback is meant to be guaranteed. Even if the write
+		// fails, still return it so the consumer renders the local list instead of
+		// an empty launchpad.
+	}
 	trackAiResponseReceived( {
 		duration_ms: Math.round( performance.now() - start ),
 		source: 'fallback',

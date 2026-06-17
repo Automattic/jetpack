@@ -13,7 +13,7 @@ import {
 } from './model.ts';
 import { TailoredListSkeleton } from './skeleton.tsx';
 import { TaskCard } from './task-card.tsx';
-import type { TailoredOutput } from '../lib/types.ts';
+import type { TailoredOutput, TailorResult } from '../lib/types.ts';
 
 import './style.scss';
 
@@ -33,9 +33,10 @@ interface Props {
 	// is still in flight and its PUT /tailored has not necessarily landed. The
 	// host passes the tailor promise so the list waits for it to settle before
 	// reading GET /ai-launchpad — otherwise the GET races the PUT and returns an
-	// empty task list. While awaiting, the skeleton shows. Omitted for returning
-	// users, where the output is already persisted.
-	pendingTailor?: Promise< unknown >;
+	// empty task list. While awaiting, the skeleton shows. Its resolved result is
+	// also used as a local fallback when the read yields nothing (e.g. the
+	// fallback PUT failed). Omitted for returning users, where output is persisted.
+	pendingTailor?: Promise< TailorResult >;
 }
 
 /**
@@ -71,19 +72,36 @@ export function TailoredList( { pendingTailor }: Props = {} ) {
 		// When arriving from the wizard, wait for the tailor call to settle so the
 		// PUT /tailored has persisted before we read it back; otherwise fetch now.
 		Promise.resolve( pendingTailor )
-			.then( () => apiFetch< LaunchpadData >( { path: '/wpcom/v2/ai-launchpad' } ) )
-			.then( data => {
+			.then( async result => {
+				try {
+					const data = await apiFetch< LaunchpadData >( { path: '/wpcom/v2/ai-launchpad' } );
+					if ( cancelled ) {
+						return;
+					}
+					if ( data.tasks.length > 0 ) {
+						setTasks( data.tasks );
+						setOutput( data.ai_output?.payload ?? null );
+						return;
+					}
+				} catch {
+					// Read failed; fall through to the in-memory fallback below.
+				}
 				if ( cancelled ) {
 					return;
 				}
-				setTasks( data.tasks );
-				setOutput( data.ai_output?.payload ?? null );
+				// The read failed or returned nothing. If we just tailored, render the
+				// in-memory result so the user still gets the deterministic list
+				// (titles humanized, no deeplinks) instead of an empty screen.
+				if ( result?.output ) {
+					setOutput( result.output );
+					setTasks( tasksFromFixture( result.output ) );
+				} else {
+					setTasks( [] );
+				}
 			} )
-			.catch( error => {
-				// Don't leave the component stuck on the skeleton (or surface an
-				// unhandled rejection) if the tailor call or the read fails.
-				// eslint-disable-next-line no-console
-				console.warn( '[AI Launchpad] failed to load tailored list', error );
+			.catch( () => {
+				// Final safety net: a failed load never surfaces as an unhandled
+				// rejection or leaves the component stuck on the skeleton.
 				if ( ! cancelled ) {
 					setTasks( [] );
 				}
@@ -118,16 +136,21 @@ export function TailoredList( { pendingTailor }: Props = {} ) {
 
 	const handleGetStarted = async ( task: EnrichedTask ) => {
 		setBusyId( task.id );
-		const url = await resolveCtaUrl( task, output, {
-			trackTaskClicked,
-			createFirstPostDraft,
-			createPatternPage,
-		} );
-		if ( url ) {
-			navigate( url );
-			return;
+		try {
+			const url = await resolveCtaUrl( task, output, {
+				trackTaskClicked,
+				createFirstPostDraft,
+				createPatternPage,
+			} );
+			if ( url ) {
+				navigate( url );
+			}
+		} catch {
+			// Swallow: the finally clears busy so a thrown CTA (e.g. a failed
+			// pattern fetch) can't leave the card permanently disabled.
+		} finally {
+			setBusyId( null );
 		}
-		setBusyId( null );
 	};
 
 	const handleSkip = ( task: EnrichedTask ) => {

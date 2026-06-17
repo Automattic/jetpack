@@ -45,12 +45,4 @@ export interface TailorResult {
 	output: TailoredOutput;
 }
 
-export interface TaskCard {
-	id: string;
-	title: string;
-	subtitle: string;
-	completed: boolean;
-	cta_url: string | null;
-}
-
 export type TrackEventProps = Record< string, string | number | boolean >;

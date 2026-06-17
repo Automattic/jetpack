@@ -10,13 +10,15 @@ namespace Automattic\Jetpack\Jetpack_Mu_Wpcom;
 use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills;
 
-// The REST controller and completion listeners self-register on their own
-// hooks (rest_api_init / init) at load time, and must run on every request
-// regardless of which admin page is showing.
+// helpers.php defines the shared option reader the listeners depend on, so it
+// loads first. The REST controller and completion listeners self-register on
+// their own hooks (rest_api_init / init) at load time, and must run on every
+// request regardless of which admin page is showing.
+require_once __DIR__ . '/helpers.php';
+require_once __DIR__ . '/eligibility.php';
 require_once __DIR__ . '/class-ai-launchpad-rest.php';
 require_once __DIR__ . '/class-ai-launchpad-listeners.php';
 require_once __DIR__ . '/class-ai-launchpad-theme-listener.php';
-require_once __DIR__ . '/eligibility.php';
 
 /**
  * Registers the AI Launchpad admin page and its wp-build assets.
@@ -74,9 +76,19 @@ class AI_Launchpad {
 	 * @return bool
 	 */
 	public static function is_eligible() {
-		return self::has_paid_plan()
-			&& ! self::was_ai_onboarded()
-			&& self::is_enabled_for_site();
+		static $eligible = null;
+
+		if ( null === $eligible ) {
+			// Cheapest gate first: the per-site option disqualifies the vast
+			// majority of sites with a single option read, before the more
+			// expensive purchases lookup in has_paid_plan() runs on every admin
+			// page. Memoized since the result is stable for the request.
+			$eligible = self::is_enabled_for_site()
+				&& ! self::was_ai_onboarded()
+				&& self::has_paid_plan();
+		}
+
+		return $eligible;
 	}
 
 	/**

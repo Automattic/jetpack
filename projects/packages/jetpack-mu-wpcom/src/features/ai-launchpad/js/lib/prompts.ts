@@ -2,9 +2,9 @@ import type { WizardInput } from './types.ts';
 
 /**
  * Allowed task IDs the model may pick from. Snake_case catalog IDs drawn from
- * launchpad-task-definitions.php (verified 2026-06-02). Kept in lockstep with
- * the TASK_MENU constant in docs/bin/eval-ai-launchpad.mjs so the eval runner
- * exercises the same menu the production prompt does.
+ * launchpad-task-definitions.php (verified 2026-06-02). A PHP test
+ * (AI_Launchpad_Task_Menu_Test) guards this list against catalog drift; making
+ * the catalog the single source is tracked in DOTOBRD-472.
  */
 export const TASK_MENU: readonly string[] = [
 	'first_post_published',

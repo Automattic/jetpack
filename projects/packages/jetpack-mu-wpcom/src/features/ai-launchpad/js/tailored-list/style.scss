@@ -21,7 +21,7 @@
 		gap: 8px;
 		width: 100%;
 		height: auto;
-		text-align: left;
+		text-align: start;
 
 		// The collapsed header is a Button; strip its chrome so it reads as a row.
 		&.components-button {
@@ -46,7 +46,7 @@
 
 	&__icon {
 		flex-shrink: 0;
-		margin-right: 8px;
+		margin-inline-end: 8px;
 
 		&.is-done {
 			fill: #757575;

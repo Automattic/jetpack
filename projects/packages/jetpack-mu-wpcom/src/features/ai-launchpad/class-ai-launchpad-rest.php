@@ -326,6 +326,10 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 		$built       = array();
 
 		foreach ( $tasks as $task ) {
+			if ( ! is_array( $task ) || ! isset( $task['id'] ) || ! isset( $task['subtitle'] ) ) {
+				continue;
+			}
+
 			if ( ! isset( $definitions[ $task['id'] ] ) ) {
 				continue;
 			}
@@ -365,7 +369,34 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 
 		$path = call_user_func( $task['get_calypso_path'], $task, null, $data );
 
-		return is_string( $path ) && '' !== $path ? $path : null;
+		if ( ! is_string( $path ) || '' === $path || ! $this->is_valid_calypso_path( $path ) ) {
+			return null;
+		}
+
+		return $path;
+	}
+
+	/**
+	 * Validates a task's CTA path before it reaches the client. Mirrors
+	 * Launchpad_Task_Lists::is_valid_admin_url_or_absolute_path() (private there),
+	 * so protocol-relative or otherwise malformed paths are rejected here too.
+	 *
+	 * @param string $path The candidate path.
+	 * @return bool
+	 */
+	private function is_valid_calypso_path( $path ) {
+		// Stripe connection URLs for the set_up_payments task.
+		if ( str_starts_with( $path, 'https://connect.stripe.com' ) ) {
+			return true;
+		}
+
+		// Absolute admin URLs.
+		if ( str_starts_with( $path, admin_url() ) ) {
+			return true;
+		}
+
+		// Absolute paths, but not protocol-relative (`//…`) URLs.
+		return str_starts_with( $path, '/' ) && ! str_starts_with( $path, '//' );
 	}
 
 	/**

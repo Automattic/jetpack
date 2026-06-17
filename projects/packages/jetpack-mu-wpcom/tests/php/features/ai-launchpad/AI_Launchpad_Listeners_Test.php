@@ -7,6 +7,7 @@
 
 use PHPUnit\Framework\Attributes\CoversClass;
 
+require_once __DIR__ . '/../../../../src/features/ai-launchpad/helpers.php';
 require_once __DIR__ . '/../../../../src/features/ai-launchpad/class-ai-launchpad-listeners.php';
 
 /**

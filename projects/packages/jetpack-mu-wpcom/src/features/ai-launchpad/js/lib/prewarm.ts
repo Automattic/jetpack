@@ -65,14 +65,22 @@ function startPrewarm( input: WizardInput ): void {
 export function usePrewarm( state: Partial< WizardInput > ): void {
 	const timer = useRef< ReturnType< typeof setTimeout > >();
 
+	// Depend on the stable cache key, not the `state` object: the call site passes
+	// a fresh object every render, so keying on identity would clear and re-arm the
+	// debounce on every unrelated re-render, eroding the head start it exists for.
+	const input = isComplete( state ) ? state : null;
+	const key = input ? cacheKey( input ) : '';
+
 	useEffect( () => {
-		if ( ! isComplete( state ) ) {
+		if ( ! input ) {
 			return;
 		}
-		const input = state;
 		timer.current = setTimeout( () => startPrewarm( input ), PREWARM_DELAY_MS );
 		return () => clearTimeout( timer.current );
-	}, [ state ] );
+		// `key` is the stable identity of `input`; depending on `input` itself
+		// would defeat the point.
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [ key ] );
 }
 
 /**
