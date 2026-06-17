@@ -11,7 +11,7 @@ namespace Automattic\Jetpack\Podcast;
  * Registers the `podcasting_*` options with their `sanitize_callback`s and
  * `show_in_rest` so they keep appearing in core `/wp/v2/settings`. The dashboard
  * now reads and writes them through the dedicated {@see Podcast_Settings_Endpoint}
- * (`jetpack/v4/podcast/settings`); the core exposure stays for now and is removed
+ * (`wpcom/v2/podcast/settings`); the core exposure stays for now and is removed
  * in a follow-up once WPCOM's settings-controller test is decoupled.
  *
  * Array-shaped options merge against stored values on sanitize, not replace —

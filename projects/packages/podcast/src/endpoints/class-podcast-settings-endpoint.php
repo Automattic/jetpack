@@ -15,16 +15,34 @@ use WP_REST_Server;
 
 /**
  * Reads and writes the `podcasting_*` options for the dashboard SPA over its own
- * `jetpack/v4/podcast/settings` route. Schema and sanitizers live in {@see Settings},
- * so it works the same on self-hosted Jetpack with no wpcom backend.
+ * `wpcom/v2/podcast/settings` route. Schema and sanitizers live in {@see Settings}.
+ *
+ * Registered through the WPCOM REST API v2 plugin framework
+ * ({@see wpcom_rest_api_v2_load_plugin()}), so a single definition is reachable on
+ * Simple and WoA via the `public-api.wordpress.com` proxy and, once Podcast ships in
+ * the Jetpack plugin, same-origin on self-hosted sites — no per-platform relay.
  */
 class Podcast_Settings_Endpoint extends WP_REST_Controller {
 
 	/**
-	 * Register the REST routes on `rest_api_init`.
+	 * Wire the routes onto `rest_api_init`. The framework instantiates this once.
+	 */
+	public function __construct() {
+		$this->namespace = 'wpcom/v2';
+		add_action( 'rest_api_init', array( $this, 'register_routes' ) );
+	}
+
+	/**
+	 * Register the endpoint through the WPCOM REST API v2 framework when present
+	 * (Simple/WoA/Jetpack plugin), falling back to a bare instance otherwise so the
+	 * package degrades gracefully if the core-api loader isn't loaded.
 	 */
 	public static function init() {
-		add_action( 'rest_api_init', array( new self(), 'register_routes' ) );
+		if ( function_exists( 'wpcom_rest_api_v2_load_plugin' ) ) {
+			wpcom_rest_api_v2_load_plugin( self::class );
+			return;
+		}
+		new self();
 	}
 
 	/**
@@ -35,7 +53,7 @@ class Podcast_Settings_Endpoint extends WP_REST_Controller {
 	 */
 	public function register_routes() {
 		register_rest_route(
-			'jetpack/v4',
+			$this->namespace,
 			'podcast/settings',
 			array(
 				array(

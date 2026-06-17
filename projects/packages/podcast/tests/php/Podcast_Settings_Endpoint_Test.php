@@ -22,7 +22,7 @@ use WP_REST_Response;
 #[UsesClass( Settings::class )]
 class Podcast_Settings_Endpoint_Test extends BaseTestCase {
 
-	const ROUTE = '/jetpack/v4/podcast/settings';
+	const ROUTE = '/wpcom/v2/podcast/settings';
 
 	/**
 	 * Admin user id (passes `manage_options`).
@@ -43,9 +43,9 @@ class Podcast_Settings_Endpoint_Test extends BaseTestCase {
 
 		global $wp_rest_server;
 		$wp_rest_server = new \WP_REST_Server();
-		// Register on rest_api_init so register_rest_route isn't called "incorrectly";
-		// WorDBless resets hooks between tests, so wire a fresh instance each setUp.
-		add_action( 'rest_api_init', array( new Podcast_Settings_Endpoint(), 'register_routes' ) );
+		// The constructor wires register_routes onto rest_api_init; WorDBless resets
+		// hooks between tests, so instantiate a fresh endpoint each setUp.
+		new Podcast_Settings_Endpoint();
 		do_action( 'rest_api_init' );
 
 		// Wire the option sanitizers (sanitize_option_* filters) so update_option()

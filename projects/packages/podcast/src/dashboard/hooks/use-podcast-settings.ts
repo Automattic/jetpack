@@ -18,9 +18,10 @@ import type {
 	PodcatcherId,
 } from '../types';
 
-// The package endpoint as a core-data entity (à la Publicize's jetpack/v4
-// settings), so the dashboard and block editor share one store.
-const ENTITY_KIND = 'jetpack/v4';
+// The package endpoint as a core-data entity (à la Publicize's wpcom/v2
+// entities), so the dashboard and block editor share one store. wpcom/v2 is the
+// namespace the public-api proxy forwards on Simple/WoA; jetpack/v4 is not.
+const ENTITY_KIND = 'wpcom/v2';
 const ENTITY_NAME = 'podcast/settings';
 
 // Register at module load — the getEntityRecord resolver bails if the entity is
