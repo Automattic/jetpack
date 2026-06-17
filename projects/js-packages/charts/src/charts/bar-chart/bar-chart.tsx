@@ -27,7 +27,8 @@ import { SingleChartContext } from '../private/single-chart-context';
 import { SvgEmptyState } from '../private/svg-empty-state';
 import { withResponsive } from '../private/with-responsive';
 import styles from './bar-chart.module.scss';
-import { useBarChartOptions } from './private';
+import { useBarChartOptions, ComparisonBars } from './private';
+import type { ComparisonSeriesEntry } from './private';
 import type { BaseChartProps, DataPointDate, SeriesData, Optional } from '../../types';
 import type { RenderTooltipParams } from '../../visx/types';
 import type { ResponsiveConfig } from '../private/with-responsive';
@@ -163,6 +164,41 @@ const BarChartInternal: FC< BarChartProps > = ( {
 	const allSeriesHidden = useMemo( () => {
 		return seriesWithVisibility.every( ( { isVisible } ) => ! isVisible );
 	}, [ seriesWithVisibility ] );
+
+	// Derive primary vs comparison entries for comparison mode support.
+	const primaryEntries = useMemo(
+		() =>
+			seriesWithVisibility.filter(
+				( { isVisible, series } ) => isVisible && series.options?.type !== 'comparison'
+			),
+		[ seriesWithVisibility ]
+	);
+
+	const primaryKeys = useMemo(
+		() => primaryEntries.map( ( { series } ) => series.label ),
+		[ primaryEntries ]
+	);
+
+	const comparisonEntries = useMemo( () => {
+		const groupByPrimary = new Map< string | undefined, string >(
+			primaryEntries.map( ( { series } ) => [ series.group, series.label ] )
+		);
+
+		const entries: ComparisonSeriesEntry[] = [];
+		seriesWithVisibility.forEach( ( { series, index, isVisible } ) => {
+			if ( ! isVisible || series.options?.type !== 'comparison' ) {
+				return;
+			}
+			const primaryKey =
+				groupByPrimary.get( series.group ) ??
+				( primaryKeys.length === 1 ? primaryKeys[ 0 ] : undefined );
+			if ( primaryKey === undefined || ! primaryKeys.includes( primaryKey ) ) {
+				return;
+			}
+			entries.push( { series, index, primaryKey } );
+		} );
+		return entries;
+	}, [ seriesWithVisibility, primaryEntries, primaryKeys ] );
 
 	const getBarBackground = useCallback(
 		( index: number ) => () =>
@@ -434,24 +470,31 @@ const BarChartInternal: FC< BarChartProps > = ( {
 											</SvgEmptyState>
 										) : null }
 
-										<BarGroup padding={ chartOptions.barGroup.padding }>
-											{ seriesWithVisibility.map( ( { series: seriesData, index, isVisible } ) => {
-												// Skip rendering invisible series
-												if ( ! isVisible ) {
-													return null;
-												}
+										<ComparisonBars
+											comparisonEntries={ comparisonEntries }
+											primaryKeys={ primaryKeys }
+											groupPadding={ chartOptions.barGroup.padding }
+											horizontal={ horizontal }
+											xAccessor={ chartOptions.accessors.xAccessor }
+											yAccessor={
+												chartOptions.accessors.yAccessor as (
+													d: DataPointDate
+												) => number | undefined
+											}
+											getElementStyles={ getElementStyles }
+										/>
 
-												return (
-													<BarSeries
-														key={ seriesData?.label }
-														dataKey={ seriesData?.label }
-														data={ seriesData.data as DataPointDate[] }
-														yAccessor={ chartOptions.accessors.yAccessor }
-														xAccessor={ chartOptions.accessors.xAccessor }
-														colorAccessor={ getBarBackground( index ) }
-													/>
-												);
-											} ) }
+										<BarGroup padding={ chartOptions.barGroup.padding }>
+											{ primaryEntries.map( ( { series: seriesData, index } ) => (
+												<BarSeries
+													key={ seriesData?.label }
+													dataKey={ seriesData?.label }
+													data={ seriesData.data as DataPointDate[] }
+													yAccessor={ chartOptions.accessors.yAccessor }
+													xAccessor={ chartOptions.accessors.xAccessor }
+													colorAccessor={ getBarBackground( index ) }
+												/>
+											) ) }
 										</BarGroup>
 
 										<Axis { ...chartOptions.axis.x } />

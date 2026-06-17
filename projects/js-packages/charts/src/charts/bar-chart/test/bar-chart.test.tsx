@@ -754,6 +754,42 @@ describe( 'BarChart', () => {
 		} );
 	} );
 
+	describe( 'Comparison Series', () => {
+		it( 'renders a translucent shadow behind the primary bar for a comparison series', () => {
+			const data = [
+				{
+					label: 'This year',
+					group: 'views',
+					data: [
+						{ label: 'Jan', value: 100 },
+						{ label: 'Feb', value: 120 },
+					],
+				},
+				{
+					label: 'Last year',
+					group: 'views',
+					options: { type: 'comparison' as const },
+					data: [
+						{ label: 'Jan', value: 80 },
+						{ label: 'Feb', value: 140 },
+					],
+				},
+			];
+			render( <BarChart data={ data } width={ 400 } height={ 300 } /> );
+
+			// two comparison shadow rects (one per data point)
+			// Match individual rect testids like bar-chart-comparison-1-0 (not the group wrapper)
+			const shadows = screen.getAllByTestId( /^bar-chart-comparison-\d+-\d+$/ );
+			expect( shadows ).toHaveLength( 2 );
+			expect( shadows[ 0 ] ).toHaveAttribute( 'opacity', '0.5' );
+
+			// primary bars still render for the single primary series (visx .visx-bar)
+			// eslint-disable-next-line testing-library/no-node-access
+			const bars = document.querySelectorAll( '.visx-bar' );
+			expect( bars.length ).toBeGreaterThanOrEqual( 2 );
+		} );
+	} );
+
 	describe( 'Interactive Legend', () => {
 		it( 'filters series when interactive legend is enabled and series is toggled', async () => {
 			const user = userEvent.setup();
