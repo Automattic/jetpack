@@ -1,7 +1,8 @@
-import { render, screen } from '@testing-library/react';
+import { render, renderHook, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { GlobalChartsProvider } from '../../../providers';
 import BarChart from '../bar-chart';
+import { useBarChartOptions } from '../private';
 
 // Mock useElementSize to return non-zero dimensions in jsdom so charts render
 const mockRefCallback = jest.fn();
@@ -787,6 +788,89 @@ describe( 'BarChart', () => {
 			// eslint-disable-next-line testing-library/no-node-access
 			const bars = document.querySelectorAll( '.visx-bar' );
 			expect( bars.length ).toBeGreaterThanOrEqual( 2 );
+		} );
+
+		it( 'expands value-axis domain to include comparison values exceeding the primary max', () => {
+			// Comparison value 150 exceeds primary max 100.
+			// Without domain expansion the value-axis scale config has no explicit domain,
+			// so visx derives it from primary BarSeries only (max=100).
+			// With the fix, an explicit domain [min,150] is set on the value-axis scale config.
+			const data = [
+				{
+					label: 'This year',
+					group: 'views',
+					data: [ { label: 'Jan', value: 100 } ],
+				},
+				{
+					label: 'Last year',
+					group: 'views',
+					options: { type: 'comparison' as const },
+					data: [ { label: 'Jan', value: 150 } ],
+				},
+			];
+
+			const { result } = renderHook( () => useBarChartOptions( data, false, {} ) );
+			const yScale = result.current.yScale as { domain?: number[] };
+			// domain must be set explicitly and its max must be >= 150
+			expect( yScale.domain ).toBeDefined();
+			expect( ( yScale.domain as number[] )[ 1 ] ).toBeGreaterThanOrEqual( 150 );
+		} );
+
+		it( 'counts only primary series for keyboard navigation when a comparison series is present', async () => {
+			const user = userEvent.setup();
+			// 2 primary + 1 comparison. totalPoints should be 2*2=4, not 3*2=6.
+			// If comparison is counted, the 5th ArrowRight would reference a phantom series
+			// and could throw or show an undefined tooltip key.
+			const data = [
+				{
+					label: 'Series A',
+					group: 'g',
+					data: [
+						{ label: 'Jan', value: 10 },
+						{ label: 'Feb', value: 20 },
+					],
+				},
+				{
+					label: 'Series B',
+					group: 'g2',
+					data: [
+						{ label: 'Jan', value: 15 },
+						{ label: 'Feb', value: 25 },
+					],
+				},
+				{
+					label: 'Last year',
+					group: 'g',
+					options: { type: 'comparison' as const },
+					data: [
+						{ label: 'Jan', value: 8 },
+						{ label: 'Feb', value: 18 },
+					],
+				},
+			];
+			render(
+				<GlobalChartsProvider>
+					<BarChart data={ data } width={ 400 } height={ 300 } withTooltips />
+				</GlobalChartsProvider>
+			);
+
+			const chart = screen.getByRole( 'grid', { name: /bar chart/i } );
+			chart.focus();
+
+			// Navigate through all 4 primary slots (2 series × 2 data points)
+			for ( let i = 0; i < 4; i++ ) {
+				await user.keyboard( '{ArrowRight}' );
+			}
+
+			// If totalPoints was 6 (counted comparison), tooltip 4 would still show.
+			// With correct totalPoints=4, navigation wraps and tooltip 0 is shown again,
+			// not phantom slot 4 (which would reference data[2], a comparison series).
+			// Either way, there must be no crash and navigation must stay in bounds.
+			const tooltips = screen.queryAllByTestId( /^chart-tooltip-/ );
+			expect( tooltips ).toHaveLength( 1 );
+			// The visible tooltip must belong to a primary series
+			const tooltipText = tooltips[ 0 ].textContent ?? '';
+			expect( [ 'Series A', 'Series B' ].some( k => tooltipText.includes( k ) ) ).toBe( true );
 		} );
 	} );
 
