@@ -110,12 +110,7 @@ const pickPodcastFields = ( raw: Record< string, unknown > ): PodcastSettings =>
 	return out as unknown as PodcastSettings;
 };
 
-// One shared copy of the settings for the whole dashboard. The settings screen,
-// the episode block, and the validation checks all read from here, so the data
-// is fetched once and a save (or refresh) updates every reader at the same time.
-// `useSyncExternalStore` is React's built-in way to subscribe a component to a
-// plain module value like this — and because it needs no Context provider, the
-// episode block (which renders outside the dashboard's React tree) can share it.
+// Shared store so every reader fetches once and a save updates them together.
 interface SettingsState {
 	data: PodcastSettings | undefined;
 	isLoading: boolean;
