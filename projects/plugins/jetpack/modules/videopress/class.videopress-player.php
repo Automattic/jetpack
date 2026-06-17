@@ -736,10 +736,6 @@ class VideoPress_Player {
 			$videopress_options = wp_json_encode( $videopress_options, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP );
 			$js_url             = 'https://s0.wp.com/wp-content/plugins/video/assets/js/videojs/videopress.js';
 
-			/*
-			 * Enqueue the player script once and attach each video's initialization
-			 * as an inline script so the loader is not duplicated per block.
-			 */
 			wp_enqueue_script( 'videopress-videojs', $js_url, array(), JETPACK__VERSION, true );
 			wp_add_inline_script(
 				'videopress-videojs',
