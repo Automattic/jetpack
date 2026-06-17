@@ -712,10 +712,9 @@ class VideoPress_Player {
 				}
 			}
 
-			$cover  = $videopress_options['cover'] ? ' data-resize-to-parent="true"' : '';
-			$js_url = 'https://videopress.com/videopress-iframe.js';
+			$cover = $videopress_options['cover'] ? ' data-resize-to-parent="true"' : '';
 
-			wp_enqueue_script( 'videopress-iframe', $js_url, array(), JETPACK__VERSION, true );
+			wp_enqueue_script( 'videopress-iframe', 'https://videopress.com/videopress-iframe.js', array(), JETPACK__VERSION, true );
 
 			return "<iframe title='" . __( 'VideoPress Video Player', 'jetpack' )
 				. "' aria-label='" . __( 'VideoPress Video Player', 'jetpack' )
