@@ -91,9 +91,40 @@ class VideoPress_Player_Test extends WP_UnitTestCase {
 	 */
 	public function test_iframe_script_enqueued_once_for_multiple_players() {
 		( new VideoPress_Player( 'testguid', 0, array( 'cover' => true ) ) )->html5_dynamic_next();
-		( new VideoPress_Player( 'testguid', 0, array( 'cover' => true ) ) )->html5_dynamic_next();
+		( new VideoPress_Player( 'otherguid', 0, array( 'cover' => true ) ) )->html5_dynamic_next();
 
 		$enqueued = array_keys( wp_scripts()->queue, 'videopress-iframe', true );
 		$this->assertCount( 1, $enqueued, 'videopress-iframe should be enqueued exactly once.' );
+	}
+
+	/**
+	 * With the iframe embed disabled, the VideoJS player script should be
+	 * enqueued only once while each video still attaches its own inline
+	 * initialization. See #35926.
+	 */
+	public function test_non_iframe_path_enqueues_videojs_once_with_per_video_init() {
+		$use_iframe = '__return_false';
+		add_filter( 'jetpack_videopress_player_use_iframe', $use_iframe );
+
+		( new VideoPress_Player( 'testguid', 0, array( 'cover' => true ) ) )->html5_dynamic_next();
+		( new VideoPress_Player( 'otherguid', 0, array( 'cover' => true ) ) )->html5_dynamic_next();
+
+		remove_filter( 'jetpack_videopress_player_use_iframe', $use_iframe );
+
+		$enqueued = array_keys( wp_scripts()->queue, 'videopress-videojs', true );
+		$this->assertCount( 1, $enqueued, 'videopress-videojs should be enqueued exactly once.' );
+
+		$inline = wp_scripts()->get_data( 'videopress-videojs', 'after' );
+		$inline = is_array( $inline ) ? implode( "\n", $inline ) : (string) $inline;
+		$this->assertStringContainsString(
+			'videopress("testguid", document.querySelector("#v-testguid")',
+			$inline,
+			'The first video should get its own inline initialization.'
+		);
+		$this->assertStringContainsString(
+			'videopress("otherguid", document.querySelector("#v-otherguid")',
+			$inline,
+			'The second video should get its own inline initialization.'
+		);
 	}
 }

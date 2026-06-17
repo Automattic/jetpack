@@ -28,7 +28,7 @@ test.describe( 'VideoPress player script loading', () => {
 			'--porcelain',
 		] );
 
-		postId = ( output.match( /\d+/ ) || [] )[ 0 ];
+		postId = output.match( /\d+/ )?.[ 0 ] ?? '';
 		logger.debug( `Created VideoPress test post: ${ postId }` );
 		expect( postId, 'wp-cli returned a post ID' ).toBeTruthy();
 	} );
