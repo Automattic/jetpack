@@ -13,8 +13,8 @@ import type {
 	PodcatcherId,
 } from '../types';
 
-// Package-owned endpoint — deliberately not core /wp/v2/settings, which is
-// shape-guarded on WPCOM and would re-bloat the core settings response.
+// Package-owned endpoint, so the dashboard reads/writes the same way on
+// self-hosted Jetpack as on WPCOM, independent of core /wp/v2/settings.
 const SETTINGS_PATH = '/jetpack/v4/podcast/settings';
 
 const PODCAST_KEYS: Array< keyof PodcastSettings > = [

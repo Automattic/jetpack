@@ -15,28 +15,14 @@ use WorDBless\BaseTestCase;
 #[CoversClass( Settings::class )]
 class Settings_Test extends BaseTestCase {
 
-	public function test_register_settings_registers_every_option() {
+	public function test_register_settings_exposes_every_option_to_rest() {
 		Settings::register_settings();
 
 		$registered = get_registered_settings();
 
 		foreach ( Settings::OPTION_NAMES as $name ) {
 			$this->assertArrayHasKey( $name, $registered, "$name should be registered" );
-		}
-	}
-
-	/**
-	 * The options must NOT leak into core `/wp/v2/settings`; REST exposure lives
-	 * on the dedicated Podcast_Settings_Endpoint instead. This is what ends the
-	 * wpcom core settings-controller test churn.
-	 */
-	public function test_register_settings_keeps_options_out_of_core_rest() {
-		Settings::register_settings();
-
-		$registered = get_registered_settings();
-
-		foreach ( Settings::OPTION_NAMES as $name ) {
-			$this->assertEmpty( $registered[ $name ]['show_in_rest'], "$name must not set show_in_rest" );
+			$this->assertNotEmpty( $registered[ $name ]['show_in_rest'], "$name should declare show_in_rest" );
 		}
 	}
 

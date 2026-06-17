@@ -54,7 +54,8 @@ class Podcast {
 		Podcast_Settings_Endpoint::init();
 
 		// Register the `podcasting_*` options. The SPA reads/writes them through
-		// Podcast_Settings_Endpoint, deliberately not core `/wp/v2/settings`.
+		// Podcast_Settings_Endpoint; they also stay in core `/wp/v2/settings` via
+		// `show_in_rest` for now, removed in a follow-up.
 		Settings::register();
 
 		// Wire the RSS feed customizations (`<itunes:*>` + `<podcast:*>` tags,

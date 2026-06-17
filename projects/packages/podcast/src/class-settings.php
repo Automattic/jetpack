@@ -8,10 +8,11 @@
 namespace Automattic\Jetpack\Podcast;
 
 /**
- * Registers the `podcasting_*` options so each `sanitize_callback` runs on
- * {@see update_option()} writes. REST exposure lives on the dedicated
- * {@see Podcast_Settings_Endpoint} (`jetpack/v4/podcast/settings`); these keys
- * are deliberately kept out of core `/wp/v2/settings`.
+ * Registers the `podcasting_*` options with their `sanitize_callback`s and
+ * `show_in_rest` so they keep appearing in core `/wp/v2/settings`. The dashboard
+ * now reads and writes them through the dedicated {@see Podcast_Settings_Endpoint}
+ * (`jetpack/v4/podcast/settings`); the core exposure stays for now and is removed
+ * in a follow-up once WPCOM's settings-controller test is decoupled.
  *
  * Array-shaped options merge against stored values on sanitize, not replace —
  * the SPA can PATCH partial entries without losing the rest.
@@ -125,6 +126,7 @@ class Settings {
 					'type'              => $type,
 					'default'           => $default,
 					'sanitize_callback' => $sanitize,
+					'show_in_rest'      => true,
 				)
 			);
 		}
@@ -136,6 +138,13 @@ class Settings {
 				'type'              => 'string',
 				'default'           => '',
 				'sanitize_callback' => 'esc_url_raw',
+				'show_in_rest'      => array(
+					'schema' => array(
+						'type'    => 'string',
+						'default' => '',
+						'format'  => 'uri',
+					),
+				),
 			)
 		);
 
@@ -146,6 +155,7 @@ class Settings {
 				'type'              => 'boolean',
 				'default'           => false,
 				'sanitize_callback' => array( __CLASS__, 'sanitize_explicit' ),
+				'show_in_rest'      => true,
 			)
 		);
 
@@ -156,6 +166,7 @@ class Settings {
 				'type'              => 'string',
 				'default'           => '',
 				'sanitize_callback' => 'sanitize_email',
+				'show_in_rest'      => true,
 			)
 		);
 
@@ -166,8 +177,12 @@ class Settings {
 				'type'              => 'integer',
 				'default'           => 0,
 				'sanitize_callback' => 'absint',
+				'show_in_rest'      => true,
 			)
 		);
+
+		$podcatcher_keys = array_keys( self::SHOW_URL_HOSTS );
+		$empty_map       = array_fill_keys( $podcatcher_keys, '' );
 
 		register_setting(
 			self::OPTIONS_GROUP,
@@ -176,6 +191,20 @@ class Settings {
 				'type'              => 'object',
 				'default'           => array(),
 				'sanitize_callback' => array( __CLASS__, 'sanitize_show_urls' ),
+				'show_in_rest'      => array(
+					'schema' => array(
+						'type'       => 'object',
+						'default'    => $empty_map,
+						'properties' => array_fill_keys(
+							$podcatcher_keys,
+							array(
+								'type'      => 'string',
+								'format'    => 'uri',
+								'maxLength' => self::SHOW_URL_MAX_LENGTH,
+							)
+						),
+					),
+				),
 			)
 		);
 
@@ -186,6 +215,19 @@ class Settings {
 				'type'              => 'object',
 				'default'           => array(),
 				'sanitize_callback' => array( __CLASS__, 'sanitize_show_states' ),
+				'show_in_rest'      => array(
+					'schema' => array(
+						'type'       => 'object',
+						'default'    => $empty_map,
+						'properties' => array_fill_keys(
+							$podcatcher_keys,
+							array(
+								'type' => 'string',
+								'enum' => array( '', 'pending', 'active' ),
+							)
+						),
+					),
+				),
 			)
 		);
 	}
