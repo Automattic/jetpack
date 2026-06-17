@@ -1,4 +1,4 @@
-import { AdminPage, AdminSection, Col, Container } from '@automattic/jetpack-components';
+import { Page } from '@wordpress/admin-ui';
 import apiFetch from '@wordpress/api-fetch';
 import {
 	Button,
@@ -69,6 +69,23 @@ const getFeatureActiveState = ( feature, activeOverrides ) => {
 
 	return feature.active;
 };
+
+const JetpackHeaderIcon = () => (
+	<svg
+		aria-hidden="true"
+		className="jp-offline-mode__header-icon"
+		focusable="false"
+		height="20"
+		viewBox="0 0 32 32"
+		width="20"
+		xmlns="http://www.w3.org/2000/svg"
+	>
+		<path
+			d="M16,0C7.2,0,0,7.2,0,16s7.2,16,16,16s16-7.2,16-16S24.8,0,16,0z M15,19H7l8-16V19z M17,29V13h8L17,29z"
+			fill="#069e08"
+		/>
+	</svg>
+);
 
 const FeatureStatusBadge = ( { active, isUpdating } ) => {
 	if ( isUpdating ) {
@@ -295,41 +312,32 @@ EnableRecommendedButton.propTypes = {
 	onEnableRecommended: PropTypes.func.isRequired,
 };
 
-const OfflineModePage = ( { actions = null, apiNonce = '', apiRoot = '', children } ) => (
-	<AdminPage
-		actions={ actions }
-		apiNonce={ apiNonce }
-		apiRoot={ apiRoot }
-		subTitle={ __(
-			'Build and test Jetpack features without a WordPress.com connection.',
-			'jetpack'
-		) }
-		title={ __( 'Offline Mode', 'jetpack' ) }
-	>
-		<AdminSection>
-			<Container className="jp-offline-mode__container" horizontalSpacing={ 6 } horizontalGap={ 3 }>
-				<Col sm={ 4 } md={ 8 } lg={ 12 }>
-					<div className="jp-offline-mode">{ children }</div>
-				</Col>
-			</Container>
-		</AdminSection>
-	</AdminPage>
+const OfflineModePage = ( { actions = null, children } ) => (
+	<div className="jp-admin-page jp-offline-mode__admin-page">
+		<Page
+			actions={ actions }
+			className="jp-admin-page__page"
+			showSidebarToggle={ false }
+			subTitle={ __(
+				'Build and test Jetpack features without a WordPress.com connection.',
+				'jetpack'
+			) }
+			title={ __( 'Offline Mode', 'jetpack' ) }
+			visual={ <JetpackHeaderIcon /> }
+		>
+			<div className="jp-offline-mode__container">
+				<div className="jp-offline-mode">{ children }</div>
+			</div>
+		</Page>
+	</div>
 );
 
 OfflineModePage.propTypes = {
 	actions: PropTypes.node,
-	apiNonce: PropTypes.string,
-	apiRoot: PropTypes.string,
 	children: PropTypes.node.isRequired,
 };
 
-export const OfflineMode = ( {
-	activateModule,
-	apiNonce = '',
-	apiRoot = '',
-	deactivateModule,
-	fetchModules,
-} ) => {
+export const OfflineMode = ( { activateModule, deactivateModule, fetchModules } ) => {
 	const [ dashboardData, setDashboardData ] = useState( null );
 	const [ isLoading, setIsLoading ] = useState( true );
 	const [ error, setError ] = useState( null );
@@ -490,7 +498,7 @@ export const OfflineMode = ( {
 
 	if ( isLoading ) {
 		return (
-			<OfflineModePage apiNonce={ apiNonce } apiRoot={ apiRoot }>
+			<OfflineModePage>
 				<HStack
 					alignment="center"
 					className="jp-offline-mode--loading"
@@ -506,7 +514,7 @@ export const OfflineMode = ( {
 
 	if ( error ) {
 		return (
-			<OfflineModePage apiNonce={ apiNonce } apiRoot={ apiRoot }>
+			<OfflineModePage>
 				<Notice isDismissible={ false } status="error">
 					{ error }
 				</Notice>
@@ -524,8 +532,6 @@ export const OfflineMode = ( {
 						onEnableRecommended={ handleActivateRecommended }
 					/>
 				}
-				apiNonce={ apiNonce }
-				apiRoot={ apiRoot }
 			>
 				<VStack as="main" className="jp-offline-mode__content" spacing={ 6 }>
 					<Notice isDismissible={ false } status="info">
@@ -546,8 +552,6 @@ export const OfflineMode = ( {
 					onEnableRecommended={ handleActivateRecommended }
 				/>
 			}
-			apiNonce={ apiNonce }
-			apiRoot={ apiRoot }
 		>
 			<VStack as="main" className="jp-offline-mode__content" spacing={ 6 }>
 				<VStack spacing={ 6 }>
@@ -569,8 +573,6 @@ export const OfflineMode = ( {
 
 OfflineMode.propTypes = {
 	activateModule: PropTypes.func.isRequired,
-	apiNonce: PropTypes.string,
-	apiRoot: PropTypes.string,
 	deactivateModule: PropTypes.func.isRequired,
 	fetchModules: PropTypes.func.isRequired,
 };

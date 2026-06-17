@@ -93,7 +93,9 @@ describe( 'JetpackFooter', () => {
 			window.JetpackScriptData = {
 				site: {
 					admin_url: '/wp-admin/',
+					icon: '',
 					is_wpcom_platform: false,
+					title: 'Test Site',
 				},
 				user: {
 					current_user: {

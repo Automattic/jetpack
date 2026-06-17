@@ -18,10 +18,16 @@ body.jetpack-offline-mode-page {
 	min-block-size: 0;
 	min-inline-size: 0;
 	overflow-y: auto;
+	padding-block-end: 0;
+	padding-inline: 24px;
 }
 
 .jp-offline-mode {
 	inline-size: 100%;
+}
+
+.jp-offline-mode__header-icon {
+	display: block;
 }
 
 .jp-offline-mode--loading {

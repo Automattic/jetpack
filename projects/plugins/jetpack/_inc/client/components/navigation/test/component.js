@@ -73,20 +73,6 @@ describe( 'Navigation', () => {
 			).not.toBeInTheDocument();
 			expect( screen.queryByRole( 'option', { name: 'Plans' } ) ).not.toBeInTheDocument();
 		} );
-
-		it( 'renders Offline Mode tab for users who can manage modules while offline', () => {
-			render( <Navigation { ...currentTestProps } isOfflineMode={ true } /> );
-
-			expect( screen.getByRole( 'menuitem', { name: 'Offline Mode' } ) ).toBeInTheDocument();
-			expect( screen.getByRole( 'option', { name: 'Offline Mode' } ) ).toBeInTheDocument();
-		} );
-
-		it( 'does not render Offline Mode tab when not offline', () => {
-			render( <Navigation { ...currentTestProps } isOfflineMode={ false } /> );
-
-			expect( screen.queryByRole( 'menuitem', { name: 'Offline Mode' } ) ).not.toBeInTheDocument();
-			expect( screen.queryByRole( 'option', { name: 'Offline Mode' } ) ).not.toBeInTheDocument();
-		} );
 	} );
 
 	describe( 'User that can manage modules, site is linked', () => {

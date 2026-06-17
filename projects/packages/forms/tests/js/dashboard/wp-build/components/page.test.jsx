@@ -22,14 +22,18 @@ const { default: FormsPage } = await import(
 
 describe( 'FormsPage', () => {
 	it( 'adds a stable Forms shell class for scoped wp-admin styling', () => {
-		const { container } = render(
+		render(
 			<FormsPage title="Forms">
 				<div>Responses</div>
 			</FormsPage>
 		);
 
-		expect( container.firstElementChild ).toHaveClass( 'jp-admin-page' );
-		expect( container.firstElementChild ).toHaveClass( 'jp-forms-admin-page' );
-		expect( screen.getByTestId( 'page' ) ).toHaveClass( 'jp-admin-page__page' );
+		const page = screen.getByTestId( 'page' );
+		// eslint-disable-next-line testing-library/no-node-access -- The wrapper class is the behavior under test.
+		const shell = page.parentElement;
+
+		expect( shell ).toHaveClass( 'jp-admin-page' );
+		expect( shell ).toHaveClass( 'jp-forms-admin-page' );
+		expect( page ).toHaveClass( 'jp-admin-page__page' );
 	} );
 } );

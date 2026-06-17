@@ -261,8 +261,8 @@ class Get_Modules_Test extends WP_UnitTestCase {
 		remove_filter( 'jetpack_offline_mode_allow_module_activation', array( 'Jetpack_Offline_Mode_Features', 'allow_partial_module_in_offline_mode' ), 10 );
 
 		try {
-			$this->assertFalse( Jetpack::activate_module( 'subscriptions', false, false ) );
-			$this->assertFalse( Jetpack::is_module_active( 'subscriptions' ) );
+			$this->assertFalse( Jetpack::activate_module( 'stats', false, false ) );
+			$this->assertFalse( Jetpack::is_module_active( 'stats' ) );
 		} finally {
 			Jetpack::update_active_modules( array() );
 			add_filter( 'jetpack_offline_mode_allow_module_activation', array( 'Jetpack_Offline_Mode_Features', 'allow_partial_module_in_offline_mode' ), 10, 3 );
@@ -277,8 +277,8 @@ class Get_Modules_Test extends WP_UnitTestCase {
 		add_filter( 'jetpack_offline_mode_allow_module_activation', '__return_true' );
 
 		try {
-			$this->assertTrue( Jetpack::activate_module( 'subscriptions', false, false ) );
-			$this->assertTrue( Jetpack::is_module_active( 'subscriptions' ) );
+			$this->assertTrue( Jetpack::activate_module( 'stats', false, false ) );
+			$this->assertTrue( Jetpack::is_module_active( 'stats' ) );
 		} finally {
 			Jetpack::update_active_modules( array() );
 			remove_filter( 'jetpack_offline_mode_allow_module_activation', '__return_true' );

@@ -15,6 +15,16 @@ require_once JETPACK__PLUGIN_DIR . '_inc/lib/class-jetpack-offline-mode-features
 class Jetpack_Offline_Mode_Features_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 
+	/**
+	 * Indexes feature data by slug.
+	 *
+	 * @param array $features Feature data.
+	 * @return array
+	 */
+	private function index_features_by_slug( $features ) {
+		return array_combine( wp_list_pluck( $features, 'slug' ), $features );
+	}
+
 	public function tear_down() {
 		remove_all_filters( 'jetpack_offline_mode' );
 		Jetpack::update_active_modules( array() );
@@ -54,6 +64,7 @@ class Jetpack_Offline_Mode_Features_Test extends WP_UnitTestCase {
 
 	public function test_get_partial_features_contains_boost_when_plugin_is_active() {
 		$active_plugins = get_option( 'active_plugins', array() );
+		$partials       = array();
 
 		update_option( 'active_plugins', array( 'boost/jetpack-boost.php' ) );
 
@@ -107,7 +118,7 @@ class Jetpack_Offline_Mode_Features_Test extends WP_UnitTestCase {
 
 	public function test_get_dashboard_data_marks_mixed_offline_modules_as_partial() {
 		$data     = Jetpack_Offline_Mode_Features::get_dashboard_data();
-		$features = array_combine( wp_list_pluck( $data['features'], 'slug' ), $data['features'] );
+		$features = $this->index_features_by_slug( $data['features'] );
 
 		foreach ( array( 'blocks', 'shortcodes', 'widgets' ) as $slug ) {
 			$this->assertArrayHasKey( $slug, $features );
@@ -119,7 +130,7 @@ class Jetpack_Offline_Mode_Features_Test extends WP_UnitTestCase {
 
 	public function test_get_dashboard_data_includes_always_available_theme_tools() {
 		$data     = Jetpack_Offline_Mode_Features::get_dashboard_data();
-		$features = array_combine( wp_list_pluck( $data['features'], 'slug' ), $data['features'] );
+		$features = $this->index_features_by_slug( $data['features'] );
 
 		$this->assertArrayHasKey( 'theme-tools', $features );
 		$this->assertSame( 'always_available', $features['theme-tools']['type'] );
@@ -130,7 +141,7 @@ class Jetpack_Offline_Mode_Features_Test extends WP_UnitTestCase {
 
 	public function test_get_dashboard_data_assigns_offline_features_to_product_groups() {
 		$data     = Jetpack_Offline_Mode_Features::get_dashboard_data();
-		$features = array_combine( wp_list_pluck( $data['features'], 'slug' ), $data['features'] );
+		$features = $this->index_features_by_slug( $data['features'] );
 
 		$this->assertSame( 'forms', $features['contact-form']['group'] );
 		$this->assertSame( 'writing', $features['blocks']['group'] );
@@ -144,7 +155,7 @@ class Jetpack_Offline_Mode_Features_Test extends WP_UnitTestCase {
 	public function test_get_dashboard_data_lists_connection_required_modules_outside_toggleable_features() {
 		$data                    = Jetpack_Offline_Mode_Features::get_dashboard_data();
 		$feature_slugs           = wp_list_pluck( $data['features'], 'slug' );
-		$requires_connection     = array_combine( wp_list_pluck( $data['requires_connection'], 'slug' ), $data['requires_connection'] );
+		$requires_connection     = $this->index_features_by_slug( $data['requires_connection'] );
 		$partial_module_features = wp_list_pluck( Jetpack_Offline_Mode_Features::get_partial_features(), 'module' );
 
 		foreach ( Jetpack::get_available_modules( false, false, true, null ) as $module ) {
@@ -170,7 +181,7 @@ class Jetpack_Offline_Mode_Features_Test extends WP_UnitTestCase {
 
 	public function test_get_dashboard_data_assigns_connection_required_features_to_product_groups() {
 		$data                = Jetpack_Offline_Mode_Features::get_dashboard_data();
-		$requires_connection = array_combine( wp_list_pluck( $data['requires_connection'], 'slug' ), $data['requires_connection'] );
+		$requires_connection = $this->index_features_by_slug( $data['requires_connection'] );
 
 		$this->assertSame( 'protect', $requires_connection['scan']['group'] );
 		$this->assertSame( 'protect', $requires_connection['activity-log']['group'] );
@@ -183,7 +194,7 @@ class Jetpack_Offline_Mode_Features_Test extends WP_UnitTestCase {
 
 	public function test_get_dashboard_data_labels_enhanced_comments_clearly() {
 		$data                = Jetpack_Offline_Mode_Features::get_dashboard_data();
-		$requires_connection = array_combine( wp_list_pluck( $data['requires_connection'], 'slug' ), $data['requires_connection'] );
+		$requires_connection = $this->index_features_by_slug( $data['requires_connection'] );
 
 		$this->assertArrayHasKey( 'comments', $requires_connection );
 		$this->assertSame( 'Jetpack Comments', $requires_connection['comments']['name'] );
@@ -191,7 +202,7 @@ class Jetpack_Offline_Mode_Features_Test extends WP_UnitTestCase {
 
 	public function test_get_dashboard_data_includes_documentation_redirect_urls() {
 		$data     = Jetpack_Offline_Mode_Features::get_dashboard_data();
-		$features = array_combine( wp_list_pluck( $data['features'], 'slug' ), $data['features'] );
+		$features = $this->index_features_by_slug( $data['features'] );
 
 		$this->assertArrayHasKey( 'contact-form', $features );
 		$this->assertArrayHasKey( 'newsletter', $features );
