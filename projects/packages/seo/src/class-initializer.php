@@ -70,6 +70,17 @@ class Initializer {
 	const SCRIPT_DATA_KEY = 'seo';
 
 	/**
+	 * Post-meta keys mirrored from `Jetpack_SEO_Posts` (in plugins/jetpack).
+	 * Duplicated here as literals on purpose: that plugin class is NOT reliably
+	 * loaded in this package's admin context (the `Jetpack_SEO_Utils`
+	 * `class_exists` guard in `get_overview_data()` is there for the same
+	 * reason), so referencing its constants would fatal. Content-coverage
+	 * counting only needs the key strings, which are stable.
+	 */
+	const META_DESCRIPTION = 'advanced_seo_description';
+	const META_SCHEMA_TYPE = 'jetpack_seo_schema_type';
+
+	/**
 	 * Whether the package has been initialized.
 	 *
 	 * @var bool
@@ -101,6 +112,10 @@ class Initializer {
 		if ( ! self::is_seo_tools_module_active() ) {
 			return;
 		}
+
+		// Front-end JSON-LD schema (Article / FAQ). Self-hooks `wp_head`, so it
+		// only emits on front-end requests.
+		Schema_Builder::init();
 
 		// Priority 1: load the wp-build bundle (and define its render function)
 		// before `add_menu_item()` runs at the default priority and needs it.
@@ -299,10 +314,71 @@ class Initializer {
 				'yandex'    => ! empty( $codes['yandex'] ),
 				'facebook'  => ! empty( $codes['facebook'] ),
 			),
+			'content_coverage'  => self::get_content_coverage(),
 			'plan'              => array(
 				'seo_enabled_for_site' => $seo_enabled,
 			),
 		);
+	}
+
+	/**
+	 * Factual content-coverage counts for the Overview card: how many published
+	 * posts/pages have each SEO field set. State, not a score — the card shows
+	 * proportions + raw counts and lets the admin decide what matters.
+	 *
+	 * @return array{total:int,with_description:int,with_schema:int}
+	 */
+	private static function get_content_coverage() {
+		$post_types = array( 'post', 'page' );
+
+		$total = 0;
+		foreach ( $post_types as $post_type ) {
+			$counts = wp_count_posts( $post_type );
+			$total += isset( $counts->publish ) ? (int) $counts->publish : 0;
+		}
+
+		return array(
+			'total'            => $total,
+			'with_description' => self::count_published_with_meta( $post_types, self::META_DESCRIPTION ),
+			'with_schema'      => self::count_published_with_meta( $post_types, self::META_SCHEMA_TYPE ),
+		);
+	}
+
+	/**
+	 * Count published posts/pages whose meta is set. With no `$value`, counts a
+	 * non-empty string meta; with a `$value`, counts an exact match.
+	 *
+	 * @param string[]    $post_types Post types to count across.
+	 * @param string      $meta_key   Meta key to test.
+	 * @param string|null $value      Exact value to match, or null for "non-empty".
+	 * @return int
+	 */
+	private static function count_published_with_meta( $post_types, $meta_key, $value = null ) {
+		$clause = null === $value
+			? array(
+				'key'     => $meta_key,
+				'value'   => '',
+				'compare' => '!=',
+			)
+			: array(
+				'key'   => $meta_key,
+				'value' => $value,
+			);
+
+		$query = new \WP_Query(
+			array(
+				'post_type'              => $post_types,
+				'post_status'            => 'publish',
+				'posts_per_page'         => 1,
+				'fields'                 => 'ids',
+				'update_post_meta_cache' => false,
+				'update_post_term_cache' => false,
+				// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- Overview snapshot; one count query per metric on the SEO page only.
+				'meta_query'             => array( $clause ),
+			)
+		);
+
+		return (int) $query->found_posts;
 	}
 
 	/**
