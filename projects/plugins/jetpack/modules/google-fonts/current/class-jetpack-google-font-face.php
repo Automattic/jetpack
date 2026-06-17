@@ -90,6 +90,30 @@ class Jetpack_Google_Font_Face {
 	}
 
 	/**
+	 * Get the slugs of the fonts referenced by the site's saved global styles.
+	 *
+	 * Unlike print_font_faces(), this ignores block-level usage (which lives in
+	 * post content and isn't enumerable globally) and is safe to call outside the
+	 * front-end render — e.g. when preserving in-use fonts as the module retires.
+	 *
+	 * @return string[] Formatted, alias-resolved font slugs that are in use.
+	 */
+	public function get_global_styles_fonts_in_use() {
+		$this->fonts_in_use = array();
+		$this->collect_global_styles_fonts();
+
+		$font_slug_aliases = $this->get_font_slug_aliases();
+		$fonts_in_use      = array_map(
+			function ( $font_slug ) use ( $font_slug_aliases ) {
+				return $font_slug_aliases[ $font_slug ] ?? $font_slug;
+			},
+			$this->fonts_in_use
+		);
+
+		return array_values( array_unique( $fonts_in_use, SORT_STRING ) );
+	}
+
+	/**
 	 * Collect fonts used for global styles settings.
 	 */
 	public function collect_global_styles_fonts() {
