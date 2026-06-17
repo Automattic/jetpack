@@ -187,7 +187,7 @@ export function useRequestAccess( { service, onConfirm }: RequestAccessOptions )
 			if ( ! opened ) {
 				createErrorNotice(
 					__(
-						'The reconnection window could not be opened. Please allow pop-ups for this site then try again.',
+						'The connection window could not be opened. Please allow pop-ups for this site and try again.',
 						'jetpack-publicize-pkg'
 					)
 				);
