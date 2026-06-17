@@ -148,7 +148,7 @@ export function useRequestAccess( { service, onConfirm }: RequestAccessOptions )
 			if ( ! opened ) {
 				createErrorNotice(
 					__(
-						'Could not open the connection window. Please allow pop-ups for this site and try again.',
+						'The connection window could not be opened. Please allow pop-ups for this site then try connecting the account again.',
 						'jetpack-publicize-pkg'
 					)
 				);
