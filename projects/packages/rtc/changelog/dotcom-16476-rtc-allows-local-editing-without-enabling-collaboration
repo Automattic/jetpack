@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-PingHub: return 403 user_not_connected instead of 500 when the current user is not connected to WP.com, and stop reconnection attempts in that case
+PingHub: allow local (unconnected) users to obtain a token via the site blog token, requesting the /wpcom/v2/ signing endpoint with the correct API base
