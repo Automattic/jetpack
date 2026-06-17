@@ -10,9 +10,9 @@ import { getCurrencyObject } from '@automattic/number-formatters';
 import { Notice } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
 import { Icon, check, plus, starFilled } from '@wordpress/icons';
-import { Link } from '@wordpress/ui';
+import { Link, Text as WPText } from '@wordpress/ui';
 import clsx from 'clsx';
-import { useCallback, useState, useEffect } from 'react';
+import { Fragment, useCallback, useState, useEffect } from 'react';
 import useProduct from '../../data/products/use-product';
 import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
 import useAnalytics from '../../hooks/use-analytics';
@@ -41,16 +41,45 @@ function Price( { value, currency, isOld } ) {
 		[ styles[ 'is-old' ] ]: isOld,
 	} );
 
-	return (
-		<Text className={ classNames } variant="headline-medium" component="p">
-			<Text component="sup" variant="title-medium">
-				{ priceObject.symbol }
-			</Text>
+	const SupSymbol = <sup>{ priceObject.symbol }</sup>;
+	const SupFraction = <sup>{ priceObject.fraction }</sup>;
+	const PriceTag = (
+		<p>
+			<WPText
+				render={ SupSymbol }
+				variant="heading-xl"
+				style={ { fontSize: '24px', fontWeight: '500', lineHeight: '32px' } }
+			></WPText>
 			{ priceObject.integer }
-			<Text component="sup" variant="title-medium">
-				{ priceObject.fraction }
-			</Text>
-		</Text>
+			<WPText
+				render={ SupFraction }
+				variant="heading-xl"
+				style={ { fontSize: '24px', fontWeight: '500', lineHeight: '32px' } }
+			></WPText>
+		</p>
+	);
+	return (
+		<>
+			<>
+				<Text className={ classNames } variant="headline-medium" component="p">
+					<Text component="sup" variant="title-medium">
+						{ priceObject.symbol }
+					</Text>
+					{ priceObject.integer }
+					<Text component="sup" variant="title-medium">
+						{ priceObject.fraction }
+					</Text>
+				</Text>
+			</>
+			<>
+				<WPText
+					className={ classNames }
+					style={ { fontSize: '48px', fontWeight: '700', lineHeight: '52px' } }
+					variant="heading-2xl"
+					render={ PriceTag }
+				></WPText>
+			</>
+		</>
 	);
 }
 
@@ -298,6 +327,12 @@ const ProductDetailCard = ( {
 				<div className={ styles[ 'card-header' ] }>
 					<Icon icon={ starFilled } className={ styles[ 'product-bundle-icon' ] } size={ 16 } />
 					<Text variant="label">{ __( 'Popular upgrade', 'jetpack-my-jetpack' ) }</Text>
+					{ /* WPText parity — jetpack "label": 12px/600/16px, renders <p> (reset margin). */ }
+					<WPText
+						variant="body-sm"
+						style={ { fontSize: '12px', fontWeight: 600, lineHeight: '16px', margin: 0 } }
+						render={ <p>{ __( 'Popular upgrade', 'jetpack-my-jetpack' ) }</p> }
+					></WPText>
 				</div>
 			) }
 			<div className={ styles.container }>
@@ -308,7 +343,21 @@ const ProductDetailCard = ( {
 				{ isProductLoading ? (
 					<LoadingBlock width="100%" height="75px" spaceBelow />
 				) : (
-					<Text mb={ 3 }>{ longDescription }</Text>
+					<>
+						<Text mb={ 3 }>{ longDescription }</Text>
+						{ /* WPText parity — jetpack default "body": 16px/400/24px, <p>, mb=3 → 24px bottom. */ }
+						<WPText
+							variant="body-md"
+							style={ {
+								fontSize: '16px',
+								fontWeight: 400,
+								lineHeight: '24px',
+								margin: 0,
+								marginBottom: '24px',
+							} }
+							render={ <p>{ longDescription }</p> }
+						></WPText>
+					</>
 				) }
 
 				{ isProductLoading ? (
@@ -320,10 +369,30 @@ const ProductDetailCard = ( {
 						} ) }
 					>
 						{ features.map( ( feature, id ) => (
-							<Text component="li" key={ `feature-${ id }` } variant="body">
-								<Icon icon={ check } size={ 24 } />
-								{ feature }
-							</Text>
+							<Fragment key={ `feature-${ id }` }>
+								<Text component="li" variant="body">
+									<Icon icon={ check } size={ 24 } />
+									{ feature }
+								</Text>
+								{ /* WPText parity — jetpack "body" as <li>: 16px/400/24px. NOTE: keep the
+							     consumer `.features li { margin-bottom: 8px }` row gap — inline style beats
+							     the class, so a blanket `margin: 0` would collapse it. Pin `0 0 8px`. */ }
+								<WPText
+									variant="body-md"
+									style={ {
+										fontSize: '16px',
+										fontWeight: 400,
+										lineHeight: '24px',
+										margin: '0 0 8px',
+									} }
+									render={
+										<li>
+											<Icon icon={ check } size={ 24 } />
+											{ feature }
+										</li>
+									}
+								></WPText>
+							</Fragment>
 						) ) }
 					</ul>
 				) }
@@ -339,6 +408,18 @@ const ProductDetailCard = ( {
 							) }
 						</div>
 						<Text className={ styles[ 'price-description' ] }>{ priceDescription }</Text>
+						{ /* WPText parity — jetpack default "body" + className: 16px/400/24px, <p>. */ }
+						<WPText
+							className={ styles[ 'price-description' ] }
+							variant="body-md"
+							style={ {
+								fontSize: '16px',
+								fontWeight: 400,
+								lineHeight: '24px',
+								margin: '0 0 calc(var(--spacing-base) * 3)',
+							} }
+							render={ <p>{ priceDescription }</p> }
+						></WPText>
 					</>
 				) }
 
@@ -360,6 +441,27 @@ const ProductDetailCard = ( {
 								{ __( 'Get plugin', 'jetpack-my-jetpack' ) }
 							</Link>
 						</Text>
+						{ /* WPText parity — jetpack default "body": 16px/400/24px, <p> (keeps inline Link child). */ }
+						<WPText
+							variant="body-md"
+							style={ { fontSize: '16px', fontWeight: 400, lineHeight: '24px', margin: 0 } }
+							render={
+								<p>
+									{ sprintf(
+										// translators: %s is the plugin name.
+										__(
+											"Due to your server settings, we can't automatically install the plugin for you. Please manually install the %s plugin.",
+											'jetpack-my-jetpack'
+										),
+										productMoniker
+									) }
+									&nbsp;
+									<Link openInNewTab href={ `https://wordpress.org/plugins/${ pluginSlug }` }>
+										{ __( 'Get plugin', 'jetpack-my-jetpack' ) }
+									</Link>
+								</p>
+							}
+						></WPText>
 					</Notice>
 				) }
 
@@ -412,8 +514,8 @@ const ProductDetailCard = ( {
 						{ disclaimers.map( ( disclaimer, id ) => {
 							const { text, link_text = null, url = null } = disclaimer;
 
-							return (
-								<Text key={ `disclaimer-${ id }` } component="p" variant="body-small">
+							const disclaimerBody = (
+								<>
 									{ `${ text } ` }
 									{ url && link_text && (
 										<Link
@@ -428,7 +530,26 @@ const ProductDetailCard = ( {
 											{ link_text }
 										</Link>
 									) }
-								</Text>
+								</>
+							);
+
+							return (
+								<Fragment key={ `disclaimer-${ id }` }>
+									<Text component="p" variant="body-small">
+										{ disclaimerBody }
+									</Text>
+									{ /* WPText parity — jetpack "body-small": 14px/400/24px, <p>. */ }
+									<WPText
+										variant="body-sm"
+										style={ {
+											fontSize: '14px',
+											fontWeight: 400,
+											lineHeight: '24px',
+											margin: 0,
+										} }
+										render={ <p>{ disclaimerBody }</p> }
+									></WPText>
+								</Fragment>
 							);
 						} ) }
 					</div>
@@ -438,13 +559,28 @@ const ProductDetailCard = ( {
 					<div className={ styles[ 'product-has-required-plan' ] }>
 						<CheckmarkIcon size={ 36 } />
 						<Text>{ __( 'Active on your site', 'jetpack-my-jetpack' ) }</Text>
+						{ /* WPText parity — jetpack default "body": 16px/400/24px, <p>. */ }
+						<WPText
+							variant="body-md"
+							style={ { fontSize: '16px', fontWeight: 400, lineHeight: '24px', margin: 0 } }
+							render={ <p>{ __( 'Active on your site', 'jetpack-my-jetpack' ) }</p> }
+						></WPText>
 					</div>
 				) }
 
 				{ supportingInfo && (
-					<Text className={ styles[ 'supporting-info' ] } variant="body-extra-small">
-						{ supportingInfo }
-					</Text>
+					<>
+						<Text className={ styles[ 'supporting-info' ] } variant="body-extra-small">
+							{ supportingInfo }
+						</Text>
+						{ /* WPText parity — jetpack "body-extra-small": 12px/400/20px, <p>. */ }
+						<WPText
+							className={ styles[ 'supporting-info' ] }
+							variant="body-sm"
+							style={ { fontSize: '12px', fontWeight: 400, lineHeight: '20px', margin: 0 } }
+							render={ <p>{ supportingInfo }</p> }
+						></WPText>
+					</>
 				) }
 			</div>
 		</div>
@@ -484,6 +620,12 @@ const ProductDetailCardButton = ( {
 		onClick();
 	};
 
+	// NOTE: intentionally NOT migrated to @wordpress/ui Text. This is not a
+	// typography use — Text is overloaded here as a render-passthrough that
+	// forwards button props (onClick, isLoading, disabled, isPrimary) to the
+	// `component` (ProductDetailButton). @wordpress/ui Text's `render` prop
+	// does not forward arbitrary props to the rendered element, so this site
+	// belongs to the Button migration track, not the Text one.
 	return (
 		<Text
 			component={ component }
