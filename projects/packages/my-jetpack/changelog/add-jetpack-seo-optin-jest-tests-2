@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Add Jest unit tests for the SEO opt-in hook and card; route the opt-in redirect through the assignLocation wrapper so navigation is testable.
