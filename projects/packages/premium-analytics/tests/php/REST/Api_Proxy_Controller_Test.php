@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\PremiumAnalytics\REST;
 
+use Automattic\Jetpack\PremiumAnalytics\REST\Formatters\Formatter_Registry;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use WorDBless\BaseTestCase;
@@ -172,6 +173,84 @@ class Api_Proxy_Controller_Test extends BaseTestCase {
 
 		$this->assertInstanceOf( WP_REST_Response::class, $response );
 		$this->assertSame( 200, $response->get_status() );
+	}
+
+	public function test_stats_endpoint_returns_the_formatted_leaderboard_shape() {
+		$request   = $this->build_data_request(
+			'GET',
+			'stats/top-posts',
+			array(
+				'period' => 'day',
+				'date'   => '2026-06-15',
+			)
+		);
+		$formatter = Formatter_Registry::for_endpoint( 'stats/top-posts' );
+
+		$response = $this->cache_and_build_response(
+			array(
+				'response' => array( 'code' => 200 ),
+				'body'     => (string) wp_json_encode(
+					array(
+						'summary' => array(
+							'postviews'   => array(
+								array(
+									'id'    => '7',
+									'title' => 'Hello',
+									'views' => 12,
+									'type'  => 'post',
+									'href'  => 'https://ex.test/hello',
+								),
+							),
+							'total_views' => 12,
+						),
+					),
+					JSON_UNESCAPED_SLASHES
+				),
+				'headers'  => array(),
+			),
+			$this->cache_key( $request ),
+			$request,
+			$formatter
+		);
+
+		$this->assertInstanceOf( WP_REST_Response::class, $response );
+		$data = $response->get_data();
+		$this->assertArrayHasKey( 'data', $data );
+		$this->assertArrayHasKey( 'meta', $data );
+		$this->assertSame( '7', $data['data'][0]['id'] );
+		$this->assertSame( 12, $data['data'][0]['value'] );
+		$this->assertSame( 1, $data['meta']['count'] );
+
+		// The cached payload is the formatted body, not the raw upstream shape.
+		$cached = get_transient( $this->cache_key( $request ) );
+		$this->assertSame( $data, $cached['data'] );
+	}
+
+	public function test_stats_endpoint_injects_summarize_into_the_upstream_url() {
+		$request   = $this->build_data_request( 'GET', 'stats/top-posts', array( 'period' => 'day' ) );
+		$formatter = Formatter_Registry::for_endpoint( 'stats/top-posts' );
+
+		$url = $this->append_forwarded_params( $request, '/sites/1/stats/top-posts', $formatter );
+		$this->assertStringContainsString( 'summarize=1', $url );
+	}
+
+	public function test_unregistered_area_passes_the_body_through_unchanged() {
+		$this->assertNull( Formatter_Registry::for_endpoint( 'reports/totals' ) );
+
+		$request  = $this->build_data_request( 'GET', 'reports/totals' );
+		$response = $this->cache_and_build_response(
+			array(
+				'response' => array( 'code' => 200 ),
+				'body'     => '{"orders":42}',
+				'headers'  => array(),
+			),
+			$this->cache_key( $request ),
+			$request,
+			null
+		);
+
+		$this->assertInstanceOf( WP_REST_Response::class, $response );
+		$this->assertSame( array( 'orders' => 42 ), $response->get_data() );
 	}
 
 	public function test_registers_data_route_with_read_and_write_methods() {
@@ -857,16 +936,36 @@ class Api_Proxy_Controller_Test extends BaseTestCase {
 	/**
 	 * Invoke the controller's private cache_and_build_response().
 	 *
-	 * @param array       $http_response Raw HTTP response array.
-	 * @param string|null $cache_key     Transient key, or null to skip caching.
+	 * @param array                $http_response Raw HTTP response array.
+	 * @param string|null          $cache_key     Transient key, or null to skip caching.
+	 * @param WP_REST_Request|null $request       Request, when a formatter is exercised.
+	 * @param mixed                $formatter     Formatter for the endpoint, or null.
 	 *
 	 * @return WP_REST_Response|\WP_Error
 	 */
-	private function cache_and_build_response( array $http_response, ?string $cache_key ) {
-		$accessor = function ( array $resp, ?string $key ) {
-			return $this->cache_and_build_response( $resp, $key );
+	private function cache_and_build_response( array $http_response, ?string $cache_key, $request = null, $formatter = null ) {
+		$accessor = function ( array $resp, ?string $key, $req, $fmt ) {
+			return $this->cache_and_build_response( $resp, $key, $req, $fmt );
 		};
 
-		return $accessor->call( $this->controller, $http_response, $cache_key );
+		return $accessor->call( $this->controller, $http_response, $cache_key, $request, $formatter );
+	}
+
+	/**
+	 * Invoke the controller's private append_forwarded_params() with an optional formatter, so a
+	 * formatter's upstream defaults (e.g. stats `summarize`) can be asserted on the built path.
+	 *
+	 * @param WP_REST_Request $request    Request object.
+	 * @param string          $wpcom_path WPCOM path the params are appended to.
+	 * @param mixed           $formatter  Formatter for the endpoint, or null.
+	 *
+	 * @return string
+	 */
+	private function append_forwarded_params( WP_REST_Request $request, string $wpcom_path, $formatter = null ): string {
+		$accessor = function ( WP_REST_Request $req, string $path, $fmt ) {
+			return $this->append_forwarded_params( $req, $path, $fmt );
+		};
+
+		return $accessor->call( $this->controller, $request, $wpcom_path, $formatter );
 	}
 }

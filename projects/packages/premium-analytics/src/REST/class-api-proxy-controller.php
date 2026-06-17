@@ -9,6 +9,8 @@ namespace Automattic\Jetpack\PremiumAnalytics\REST;
 
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager;
+use Automattic\Jetpack\PremiumAnalytics\REST\Formatters\Formatter_Registry;
+use Automattic\Jetpack\PremiumAnalytics\REST\Formatters\Widget_Formatter;
 use Jetpack_Options;
 use WP_Error;
 use WP_REST_Controller;
@@ -451,6 +453,10 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 			);
 		}
 
+		// Only reads are reshaped: a formatter would otherwise rewrite a write's response (e.g. a
+		// POST to a `stats/…` write endpoint, whose area still resolves to a formatter).
+		$formatter = $is_read ? Formatter_Registry::for_endpoint( (string) $request->get_param( 'endpoint' ) ) : null;
+
 		$args = array(
 			'method'  => $method,
 			'timeout' => self::API_TIMEOUT,
@@ -463,7 +469,7 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 
 		try {
 			$response = Client::wpcom_json_api_request_as_blog(
-				$this->append_forwarded_params( $request, $wpcom_path ),
+				$this->append_forwarded_params( $request, $wpcom_path, $formatter ),
 				$version,
 				$args,
 				$body,
@@ -487,7 +493,7 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 
 		$this->maybe_bust_read_cache( $response, ! $is_read, $opts, $wpcom_path, $version, $base );
 
-		return $this->cache_and_build_response( $response, $cache_key );
+		return $this->cache_and_build_response( $response, $cache_key, $request, $formatter );
 	}
 
 	/**
@@ -523,14 +529,19 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 	/**
 	 * Cache a successful (200) response when a cache key is given, and return it to the caller.
 	 *
-	 * @param array       $http_response Raw response from the Jetpack client.
-	 * @param string|null $cache_key     Transient key, or null to skip caching.
+	 * When a read has a formatter, the decoded body is reshaped before it is cached, so the
+	 * cached payload is the already-formatted one.
+	 *
+	 * @param array                 $http_response Raw response from the Jetpack client.
+	 * @param string|null           $cache_key     Transient key, or null to skip caching.
+	 * @param WP_REST_Request|null  $request       Request, needed to run the formatter.
+	 * @param Widget_Formatter|null $formatter     Formatter for this endpoint, if any.
 	 *
 	 * @return WP_REST_Response|WP_Error
 	 */
-	private function cache_and_build_response( array $http_response, ?string $cache_key ) {
+	private function cache_and_build_response( array $http_response, ?string $cache_key, ?WP_REST_Request $request = null, ?Widget_Formatter $formatter = null ) {
 		$status = (int) wp_remote_retrieve_response_code( $http_response );
-		$data   = json_decode( wp_remote_retrieve_body( $http_response ), false );
+		$data   = json_decode( wp_remote_retrieve_body( $http_response ), true );
 
 		// A 200 with an undecodable body means the upstream is degraded; don't cache garbage.
 		if ( 200 === $status && null === $data && JSON_ERROR_NONE !== json_last_error() ) {
@@ -539,6 +550,11 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 				__( 'The data service returned an unreadable response.', 'jetpack-premium-analytics' ),
 				array( 'status' => 502 )
 			);
+		}
+
+		// Reshape the body before caching, so the cached payload is the formatted one.
+		if ( 200 === $status && null !== $formatter && null !== $request && is_array( $data ) ) {
+			$data = $formatter->format( $data, $request );
 		}
 
 		$payload = array(
@@ -595,13 +611,20 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 	/**
 	 * Append the forwarded query params to a WPCOM path, choosing the right separator.
 	 *
-	 * @param WP_REST_Request $request    Request object.
-	 * @param string          $wpcom_path WPCOM path that may already carry a query string.
+	 * When a formatter applies, its upstream defaults are merged in first so that any
+	 * caller-supplied query param of the same name still wins.
+	 *
+	 * @param WP_REST_Request       $request    Request object.
+	 * @param string                $wpcom_path WPCOM path that may already carry a query string.
+	 * @param Widget_Formatter|null $formatter  Formatter for this endpoint, if any.
 	 *
 	 * @return string
 	 */
-	private function append_forwarded_params( WP_REST_Request $request, string $wpcom_path ): string {
+	private function append_forwarded_params( WP_REST_Request $request, string $wpcom_path, ?Widget_Formatter $formatter = null ): string {
 		$params = $this->get_forwarded_params( $request );
+		if ( null !== $formatter ) {
+			$params = array_merge( $formatter->upstream_params( $request ), $params );
+		}
 		if ( empty( $params ) ) {
 			return $wpcom_path;
 		}

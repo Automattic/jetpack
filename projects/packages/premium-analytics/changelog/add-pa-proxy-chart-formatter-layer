@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+REST: Add a server-side formatter layer to the analytics proxy that reshapes stats/top-posts into a consistent leaderboard contract.
