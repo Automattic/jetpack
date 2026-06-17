@@ -1,6 +1,6 @@
 import apiFetch from '@wordpress/api-fetch';
 import { useDispatch } from '@wordpress/data';
-import { useCallback, useEffect, useState } from '@wordpress/element';
+import { useCallback, useEffect, useState, useSyncExternalStore } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
 import { __ } from '@wordpress/i18n';
 import { store as noticesStore } from '@wordpress/notices';
@@ -110,41 +110,62 @@ const pickPodcastFields = ( raw: Record< string, unknown > ): PodcastSettings =>
 	return out as unknown as PodcastSettings;
 };
 
-// Module-level cache + subscribers so every mounted consumer shares one fetch.
-// A save updates the cache and notifies all consumers, keeping them in sync.
-let cache: PodcastSettings | undefined;
-let inflight: Promise< PodcastSettings > | undefined;
-const subscribers = new Set< ( next: PodcastSettings ) => void >();
+// One shared copy of the settings for the whole dashboard. The settings screen,
+// the episode block, and the validation checks all read from here, so the data
+// is fetched once and a save (or refresh) updates every reader at the same time.
+// `useSyncExternalStore` is React's built-in way to subscribe a component to a
+// plain module value like this — and because it needs no Context provider, the
+// episode block (which renders outside the dashboard's React tree) can share it.
+interface SettingsState {
+	data: PodcastSettings | undefined;
+	isLoading: boolean;
+}
 
-const publish = ( next: PodcastSettings ): PodcastSettings => {
-	cache = next;
-	subscribers.forEach( notify => notify( next ) );
-	return next;
+let state: SettingsState = { data: undefined, isLoading: true };
+let hasFetched = false;
+const listeners = new Set< () => void >();
+
+const getState = (): SettingsState => state;
+
+const subscribe = ( listener: () => void ): ( () => void ) => {
+	listeners.add( listener );
+	return () => {
+		listeners.delete( listener );
+	};
 };
 
-const loadSettings = (): Promise< PodcastSettings > => {
-	if ( ! inflight ) {
-		inflight = apiFetch( { path: SETTINGS_PATH } )
-			.then( raw => publish( pickPodcastFields( raw as Record< string, unknown > ) ) )
-			.finally( () => {
-				inflight = undefined;
-			} );
+const setState = ( next: SettingsState ): void => {
+	state = next;
+	listeners.forEach( listener => listener() );
+};
+
+// Fetch the settings and hand them to every reader. A non-admin (e.g. opening
+// the episode block) gets a 403; we just stop loading and leave the data empty
+// rather than spin forever.
+const fetchSettings = (): Promise< void > =>
+	apiFetch( { path: SETTINGS_PATH } )
+		.then( raw =>
+			setState( { data: pickPodcastFields( raw as Record< string, unknown > ), isLoading: false } )
+		)
+		.catch( () => setState( { data: state.data, isLoading: false } ) );
+
+// Run the one-time initial fetch on the first mount; later mounts reuse the
+// result already in the store.
+const ensureFetched = (): void => {
+	if ( hasFetched ) {
+		return;
 	}
-	return inflight;
+	hasFetched = true;
+	fetchSettings();
 };
 
 /**
- * Re-fetch settings and refresh the shared cache after an out-of-band server
- * write (e.g. the Pocket Casts relay persisting `podcasting_show_states`).
+ * Re-fetch the settings after an out-of-band server write (e.g. the Pocket Casts
+ * relay persisting `podcasting_show_states`). Updates every mounted reader.
  *
- * @return Resolves once the shared cache has been refreshed.
+ * @return Resolves once the shared store has been refreshed.
  */
-export const refreshPodcastSettings = (): Promise< void > =>
-	apiFetch( { path: SETTINGS_PATH } )
-		.then( raw => {
-			publish( pickPodcastFields( raw as Record< string, unknown > ) );
-		} )
-		.catch( () => {} );
+export const refreshPodcastSettings = (): Promise< void > => fetchSettings();
 
 interface MutateCallbacks {
 	onSuccess?: ( result: PodcastSettings ) => void;
@@ -155,54 +176,21 @@ interface MutateCallbacks {
 }
 
 /**
- * Read the current `podcasting_*` settings from the package's REST endpoint.
- *
- * Backed by a shared module-level cache so multiple consumers issue a single
- * request and stay in sync after a save.
+ * Read the current `podcasting_*` settings from the shared store, fetching them
+ * once on first use.
  *
  * @return `{ data, isLoading }`.
  */
-export function usePodcastSettings(): { data: PodcastSettings | undefined; isLoading: boolean } {
-	const [ data, setData ] = useState< PodcastSettings | undefined >( cache );
-	const [ isLoading, setIsLoading ] = useState( cache === undefined );
-
-	useEffect( () => {
-		let active = true;
-		const notify = ( next: PodcastSettings ) => {
-			if ( active ) {
-				setData( next );
-			}
-		};
-		subscribers.add( notify );
-
-		if ( cache === undefined ) {
-			// Settle loading on both paths — a 403 (e.g. a non-admin opening the
-			// episode block) must not leave the consumer spinning forever.
-			const settle = () => {
-				if ( active ) {
-					setIsLoading( false );
-				}
-			};
-			loadSettings().then( settle, settle );
-		} else {
-			setData( cache );
-			setIsLoading( false );
-		}
-
-		return () => {
-			active = false;
-			subscribers.delete( notify );
-		};
-	}, [] );
-
-	return { data, isLoading };
+export function usePodcastSettings(): SettingsState {
+	useEffect( ensureFetched, [] );
+	return useSyncExternalStore( subscribe, getState );
 }
 
 /**
  * Save a partial settings update through the package's REST endpoint.
  *
  * The server merges the patch into the stored settings and returns the full
- * record, which refreshes the shared cache. Snackbars are dispatched here so
+ * record, which updates the shared store. Snackbars are dispatched here so
  * callers don't have to wire them up.
  *
  * @return `{ mutate, mutateAsync, isPending }`.
@@ -230,13 +218,14 @@ export function useUpdatePodcastSettings(): {
 					method: 'PUT',
 					data: updates as Record< string, unknown >,
 				} );
-				const record = publish( pickPodcastFields( raw as Record< string, unknown > ) );
+				const saved = pickPodcastFields( raw as Record< string, unknown > );
+				setState( { data: saved, isLoading: false } );
 				if ( ! silent ) {
 					createSuccessNotice( __( 'Settings saved.', 'jetpack-podcast' ), {
 						type: 'snackbar',
 					} );
 				}
-				return record;
+				return saved;
 			} catch ( error ) {
 				if ( ! silent ) {
 					createErrorNotice(
