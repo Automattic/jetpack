@@ -2858,7 +2858,7 @@ p {
 	 *
 	 * Extracted from file scope so the wiring is unit-testable (file-scope `add_action()`
 	 * calls run during bootstrap and can't be exercised by a test). Removed alongside the
-	 * modules in the #5b cleanup.
+	 * modules in the deferred post-convergence follow-up that absorbs them into Jetpack SEO.
 	 */
 	public static function register_seo_module_migration_hooks() {
 		add_action( 'updating_jetpack_version', array( 'Jetpack', 'migrate_sitemaps_module_to_seo_option' ) );
