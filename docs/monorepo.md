@@ -513,7 +513,7 @@ Within a single project, changelogger’s `version next` command can tell you th
 ## New Projects
 
 To begin,
-* For Automatticians, drop us a line in #jetpack-monorepo to discuss your needs, just to be sure we don't have something already. For others, it would probably be best to open an issue to discuss it.
+* For Automatticians, drop us a line in #jetpack-developers to discuss your needs, just to be sure we don't have something already. For others, it would probably be best to open an issue to discuss it.
 * Use the `jetpack generate` command to create a skeleton project.
 * Create your project based on the skeleton and submit a PR as usual.
 
