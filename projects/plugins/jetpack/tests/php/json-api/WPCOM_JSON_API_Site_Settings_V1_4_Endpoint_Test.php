@@ -494,6 +494,45 @@ class WPCOM_JSON_API_Site_Settings_V1_4_Endpoint_Test extends WP_UnitTestCase {
 					'hide_free_tier' => false,
 				),
 			),
+			// Stringy booleans must be parsed by value via is_truthy(), not by
+			// truthiness — otherwise the non-empty string "false" would be stored
+			// as `true`. These guard the WPCOM JSON API write path against regressions.
+			'subscription_options hide free tier string true' => array(
+				'subscription_options',
+				array(
+					'hide_free_tier' => 'true',
+				),
+				array(
+					'hide_free_tier' => true,
+				),
+			),
+			'subscription_options hide free tier string false' => array(
+				'subscription_options',
+				array(
+					'hide_free_tier' => 'false',
+				),
+				array(
+					'hide_free_tier' => false,
+				),
+			),
+			'subscription_options hide free tier string one' => array(
+				'subscription_options',
+				array(
+					'hide_free_tier' => '1',
+				),
+				array(
+					'hide_free_tier' => true,
+				),
+			),
+			'subscription_options hide free tier string zero' => array(
+				'subscription_options',
+				array(
+					'hide_free_tier' => '0',
+				),
+				array(
+					'hide_free_tier' => false,
+				),
+			),
 			// Add MCP settings POST tests
 			'mcp_abilities valid'                       => array(
 				'mcp_abilities',
