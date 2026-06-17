@@ -715,12 +715,6 @@ class VideoPress_Player {
 			$cover  = $videopress_options['cover'] ? ' data-resize-to-parent="true"' : '';
 			$js_url = 'https://s0.wp.com/wp-content/plugins/video/assets/js/next/videopress-iframe.js';
 
-			/*
-			 * Enqueue the iframe API script rather than printing it inline so that
-			 * it is only loaded once when several VideoPress blocks are on the page.
-			 * The 'videopress-iframe' handle is shared with the VideoPress package's
-			 * block render so both paths de-duplicate against each other.
-			 */
 			wp_enqueue_script( 'videopress-iframe', $js_url, array(), JETPACK__VERSION, true );
 
 			return "<iframe title='" . __( 'VideoPress Video Player', 'jetpack' )
