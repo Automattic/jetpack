@@ -5,6 +5,7 @@
  * @package automattic/jetpack
  */
 
+use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Extensions\AiAssistantPlugin;
 use Automattic\Jetpack\Extensions\AiAssistantPlugin\Jetpack_AI_Sidebar;
 use Automattic\Jetpack\Status\Cache as Status_Cache;
@@ -62,6 +63,11 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 		$this->saved_screen          = $GLOBALS['current_screen'] ?? null;
 		$this->saved_current_user_id = get_current_user_id();
 		$this->simulate_connected_owner();
+		// Enable the sidebar by default via the override filter so the behaviour
+		// tests exercise the downstream wiring. has_ai_features() stays on the
+		// self-hosted connection path. The wpcom/Big Sky gating itself is covered
+		// by the preview-gate tests, which remove this override.
+		add_filter( 'jetpack_ai_sidebar_enabled', '__return_true' );
 	}
 
 	/**
@@ -77,6 +83,12 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 		unset( $_SERVER['A8C_PROXIED_REQUEST'] );
 		( new \Automattic\Jetpack\Connection\Manager( 'jetpack' ) )->reset_connection_status();
 		delete_option( 'jetpack_offline_mode' );
+		delete_option( 'big_sky_enable' );
+		Constants::clear_single_constant( 'IS_WPCOM' );
+		Constants::clear_single_constant( 'ATOMIC_SITE_ID' );
+		Constants::clear_single_constant( 'ATOMIC_CLIENT_ID' );
+		Constants::clear_single_constant( 'WPCOMSH__PLUGIN_FILE' );
+		Status_Cache::clear();
 		wp_set_current_user( $this->saved_current_user_id );
 		$GLOBALS['current_screen'] = $this->saved_screen;
 		$GLOBALS['wp_scripts']     = $this->saved_wp_scripts;
@@ -143,6 +155,59 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	 */
 	private function enable_sidebar() {
 		add_filter( 'jetpack_ai_sidebar_enabled', '__return_true' );
+	}
+
+	/**
+	 * Simulate a WordPress.com platform (WoA/Atomic) site so Host::is_wpcom_platform()
+	 * is true while is_wpcom_simple() stays false — keeping has_ai_features() on the
+	 * connection path.
+	 */
+	private function simulate_wpcom_platform() {
+		Constants::set_constant( 'IS_WPCOM', false );
+		Constants::set_constant( 'ATOMIC_SITE_ID', 123456789 );
+		Constants::set_constant( 'ATOMIC_CLIENT_ID', '2' );
+		Constants::set_constant( 'WPCOMSH__PLUGIN_FILE', '/wpcomsh/wpcomsh.php' );
+		Status_Cache::clear();
+	}
+
+	/**
+	 * Simulate a WordPress.com Simple site so Host::is_wpcom_simple() is true.
+	 */
+	private function simulate_wpcom_simple() {
+		Constants::set_constant( 'IS_WPCOM', true );
+		Constants::set_constant( 'ATOMIC_SITE_ID', false );
+		Constants::set_constant( 'ATOMIC_CLIENT_ID', false );
+		Constants::set_constant( 'WPCOMSH__PLUGIN_FILE', false );
+		Status_Cache::clear();
+	}
+
+	/**
+	 * Simulate a self-hosted site so Host::is_wpcom_platform() is false.
+	 */
+	private function simulate_self_hosted() {
+		Constants::set_constant( 'IS_WPCOM', false );
+		Constants::set_constant( 'ATOMIC_SITE_ID', false );
+		Constants::set_constant( 'ATOMIC_CLIENT_ID', false );
+		Constants::set_constant( 'WPCOMSH__PLUGIN_FILE', false );
+		Status_Cache::clear();
+	}
+
+	/**
+	 * Simulate the Big_Sky class existing, as it does when the Big Sky plugin is present.
+	 */
+	private function simulate_big_sky_class() {
+		if ( ! class_exists( 'Big_Sky' ) ) {
+			eval( 'class Big_Sky {}' ); // @codingStandardsIgnoreLine — minimal stub for unit test isolation.
+		}
+	}
+
+	/**
+	 * Invoke the private preview-gate predicate.
+	 *
+	 * @return bool
+	 */
+	private function preview_enabled(): bool {
+		return (bool) ( new ReflectionMethod( Jetpack_AI_Sidebar::class, 'is_jetpack_ai_sidebar_preview_enabled' ) )->invoke( null );
 	}
 
 	/**
@@ -234,19 +299,20 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test that init() does nothing when the preview gate is disabled.
+	 * Test that init() does nothing on a self-hosted site (off the wpcom platform).
 	 */
-	public function test_init_does_nothing_when_preview_gate_is_false() {
-		add_filter( 'jetpack_ai_sidebar_preview_enabled', '__return_false' );
+	public function test_init_does_nothing_on_self_hosted() {
+		remove_all_filters( 'jetpack_ai_sidebar_enabled' );
+		$this->simulate_self_hosted();
 		Jetpack_AI_Sidebar::init();
 
 		$this->assertFalse(
 			has_filter( 'agents_manager_agent_providers', array( Jetpack_AI_Sidebar::class, 'register_provider' ) ),
-			'register_provider should not be hooked when the preview gate is false.'
+			'register_provider should not be hooked on a self-hosted site.'
 		);
 		$this->assertFalse(
 			has_filter( 'agents_manager_enabled_in_block_editor', array( Jetpack_AI_Sidebar::class, 'enable_agents_manager_in_post_editor' ) ),
-			'enable_agents_manager_in_post_editor should not be hooked when the preview gate is false.'
+			'enable_agents_manager_in_post_editor should not be hooked on a self-hosted site.'
 		);
 	}
 
@@ -255,7 +321,6 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	 */
 	public function test_init_registers_hooks_when_preview_is_enabled_without_ai_editorial_review() {
 		add_filter( 'jetpack_ai_editorial_review_enabled', '__return_false' );
-		add_filter( 'jetpack_ai_sidebar_preview_enabled', '__return_true' );
 		Jetpack_AI_Sidebar::init();
 
 		$this->assertNotFalse(
@@ -298,6 +363,94 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	}
 
 	// ──────────────────────────────────────────────────
+	// is_jetpack_ai_sidebar_preview_enabled() gate tests
+	// ──────────────────────────────────────────────────
+
+	/**
+	 * The preview gate is closed on the wpcom platform when Big Sky is absent.
+	 *
+	 * Declared first in this section so it runs before any test that declares the
+	 * Big_Sky stub (a class cannot be undeclared once it exists).
+	 */
+	public function test_preview_disabled_without_big_sky() {
+		if ( class_exists( 'Big_Sky' ) ) {
+			$this->markTestSkipped( 'Big_Sky was declared by an earlier test in this process and cannot be undeclared.' );
+		}
+		remove_all_filters( 'jetpack_ai_sidebar_enabled' );
+		$this->simulate_wpcom_simple();
+
+		$this->assertFalse( $this->preview_enabled() );
+	}
+
+	/**
+	 * The preview gate is closed off the WordPress.com platform, even with Big Sky present.
+	 */
+	public function test_preview_disabled_on_self_hosted() {
+		remove_all_filters( 'jetpack_ai_sidebar_enabled' );
+		$this->simulate_self_hosted();
+		$this->simulate_big_sky_class();
+		update_option( 'big_sky_enable', '1' );
+
+		$this->assertFalse( $this->preview_enabled() );
+	}
+
+	/**
+	 * The preview gate is open on WordPress.com Simple with Big Sky present (defaults on).
+	 */
+	public function test_preview_enabled_on_wpcom_simple_with_big_sky() {
+		remove_all_filters( 'jetpack_ai_sidebar_enabled' );
+		$this->simulate_wpcom_simple();
+		$this->simulate_big_sky_class();
+		delete_option( 'big_sky_enable' );
+		// big_sky_enable absent -> defaults to '1' on Simple.
+
+		$this->assertTrue( $this->preview_enabled() );
+	}
+
+	/**
+	 * The preview gate defaults closed on WoA/Atomic when big_sky_enable is absent.
+	 */
+	public function test_preview_disabled_on_atomic_when_setting_absent() {
+		remove_all_filters( 'jetpack_ai_sidebar_enabled' );
+		$this->simulate_wpcom_platform();
+		$this->simulate_big_sky_class();
+		delete_option( 'big_sky_enable' );
+		// big_sky_enable absent -> defaults to '0' on WoA/Atomic.
+
+		$this->assertFalse( $this->preview_enabled() );
+	}
+
+	/**
+	 * The preview gate is closed when Big Sky is explicitly turned off.
+	 */
+	public function test_preview_disabled_when_big_sky_option_off() {
+		remove_all_filters( 'jetpack_ai_sidebar_enabled' );
+		$this->simulate_wpcom_simple();
+		$this->simulate_big_sky_class();
+		update_option( 'big_sky_enable', '0' );
+
+		$this->assertFalse( $this->preview_enabled() );
+	}
+
+	/**
+	 * The jetpack_ai_sidebar_enabled filter overrides the gate in both directions.
+	 */
+	public function test_preview_filter_overrides_gate() {
+		// Gate is closed off-platform; the filter forces it on.
+		remove_all_filters( 'jetpack_ai_sidebar_enabled' );
+		$this->simulate_self_hosted();
+		add_filter( 'jetpack_ai_sidebar_enabled', '__return_true' );
+		$this->assertTrue( $this->preview_enabled() );
+
+		// Gate is open on Simple + Big Sky; the filter forces it off.
+		remove_all_filters( 'jetpack_ai_sidebar_enabled' );
+		$this->simulate_wpcom_simple();
+		$this->simulate_big_sky_class();
+		add_filter( 'jetpack_ai_sidebar_enabled', '__return_false' );
+		$this->assertFalse( $this->preview_enabled() );
+	}
+
+	// ──────────────────────────────────────────────────
 	// agents_manager_enabled_in_block_editor() tests
 	// ──────────────────────────────────────────────────
 
@@ -330,21 +483,13 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test that the AI Editorial Review kill switch closes this Agents Manager entrypoint.
+	 * The AI Editorial Review filter is decoupled from this Agents Manager entrypoint.
+	 *
+	 * The preview gate is wpcom/Big Sky-based, so turning AI Editorial Review off
+	 * does not close the gate (AI Editorial Review only affects the exposed data).
 	 */
-	public function test_enable_agents_manager_in_post_editor_respects_ai_editorial_review_filter() {
+	public function test_enable_agents_manager_in_post_editor_ignores_ai_editorial_review_filter() {
 		add_filter( 'jetpack_ai_editorial_review_enabled', '__return_false' );
-		$this->set_block_editor_screen();
-
-		$this->assertFalse( Jetpack_AI_Sidebar::enable_agents_manager_in_post_editor( false ) );
-	}
-
-	/**
-	 * Test that the preview surface can open independently of AI Editorial Review.
-	 */
-	public function test_enable_agents_manager_in_post_editor_respects_preview_filter() {
-		add_filter( 'jetpack_ai_editorial_review_enabled', '__return_false' );
-		add_filter( 'jetpack_ai_sidebar_preview_enabled', '__return_true' );
 		$this->set_block_editor_screen();
 
 		$this->assertTrue( Jetpack_AI_Sidebar::enable_agents_manager_in_post_editor( false ) );
@@ -415,7 +560,6 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	public function test_add_agents_manager_data_allows_preview_without_ai_editorial_review() {
 		$this->set_block_editor_screen();
 		add_filter( 'jetpack_ai_editorial_review_enabled', '__return_false' );
-		add_filter( 'jetpack_ai_sidebar_preview_enabled', '__return_true' );
 
 		$data = Jetpack_AI_Sidebar::add_agents_manager_data( array( 'sectionName' => 'gutenberg' ) );
 
@@ -533,7 +677,7 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	 */
 	public function test_patch_jetpack_ai_sidebar_preview_data_skips_when_preview_disabled() {
 		$this->set_block_editor_screen();
-		add_filter( 'jetpack_ai_sidebar_preview_enabled', '__return_false' );
+		add_filter( 'jetpack_ai_sidebar_enabled', '__return_false' );
 		wp_enqueue_script( 'agents-manager', 'https://example.com/am.js', array(), '1.0', true );
 		wp_add_inline_script( 'agents-manager', 'const agentsManagerData = { sectionName: "gutenberg" };', 'before' );
 
@@ -587,7 +731,7 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	public function test_abilities_script_skips_when_preview_disabled() {
 		$this->set_block_editor_screen();
 		$this->cache_sidebar_asset_data();
-		add_filter( 'jetpack_ai_sidebar_preview_enabled', '__return_false' );
+		add_filter( 'jetpack_ai_sidebar_enabled', '__return_false' );
 
 		Jetpack_AI_Sidebar::maybe_enqueue_abilities_script();
 
@@ -697,7 +841,7 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	public function test_register_provider_skips_when_preview_disabled() {
 		$this->set_block_editor_screen();
 		$this->cache_sidebar_asset_data();
-		add_filter( 'jetpack_ai_sidebar_preview_enabled', '__return_false' );
+		add_filter( 'jetpack_ai_sidebar_enabled', '__return_false' );
 
 		$existing  = array( 'https://example.com/provider-a.mjs' );
 		$providers = Jetpack_AI_Sidebar::register_provider( $existing );

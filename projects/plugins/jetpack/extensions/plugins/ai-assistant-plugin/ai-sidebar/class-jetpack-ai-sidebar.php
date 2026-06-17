@@ -38,15 +38,9 @@ class Jetpack_AI_Sidebar {
 	 * @return void
 	 */
 	public static function init(): void {
-		/**
-		 * Filter to enable or disable the Jetpack AI sidebar feature.
-		 *
-		 * Defaults to the Jetpack AI Sidebar Preview gate. Use this filter as
-		 * a host-level kill switch for the whole sidebar entrypoint.
-		 *
-		 * @param bool $enabled Whether the AI sidebar is enabled.
-		 */
-		if ( ! apply_filters( 'jetpack_ai_sidebar_enabled', self::is_jetpack_ai_sidebar_preview_enabled() ) ) {
+		// Gate the whole sidebar entrypoint on the preview surface, which is
+		// itself overridable via the jetpack_ai_sidebar_enabled filter.
+		if ( ! self::is_jetpack_ai_sidebar_preview_enabled() ) {
 			return;
 		}
 
@@ -296,17 +290,34 @@ class Jetpack_AI_Sidebar {
 	/**
 	 * UI feature flag for the public Jetpack AI Sidebar Preview surface.
 	 *
-	 * AI Editorial Review remains a feature inside the preview. Hosts can open
-	 * the preview independently in the future while keeping AI Editorial Review
-	 * behind its own feature-specific gate.
+	 * Defaults to enabled only on WordPress.com platform sites (Simple or WoA)
+	 * that have the Big Sky plugin present and enabled. Big Sky defaults on for
+	 * Simple sites and off on WoA/Atomic. The jetpack_ai_sidebar_enabled filter
+	 * is a host-level override of that default, respected by init() and every
+	 * sidebar surface that gates on this method.
 	 *
 	 * @return bool
 	 */
 	private static function is_jetpack_ai_sidebar_preview_enabled(): bool {
-		return (bool) apply_filters(
-			'jetpack_ai_sidebar_preview_enabled',
-			self::is_ai_editorial_review_enabled()
-		);
+		$host = new Host();
+
+		$enabled = false;
+		if ( $host->is_wpcom_platform() && class_exists( 'Big_Sky' ) ) {
+			$default = $host->is_wpcom_simple() ? '1' : '0';
+			$enabled = (bool) get_option( 'big_sky_enable', $default );
+		}
+
+		/**
+		 * Filter to enable or disable the Jetpack AI sidebar feature.
+		 *
+		 * Defaults to true only on WordPress.com platform sites with Big Sky
+		 * present and enabled. Acts as a host-level override that can force the
+		 * sidebar on (e.g. for local development) or off, and is respected by
+		 * init() and every sidebar surface.
+		 *
+		 * @param bool $enabled Whether the Jetpack AI sidebar is enabled.
+		 */
+		return (bool) apply_filters( 'jetpack_ai_sidebar_enabled', $enabled );
 	}
 
 	/**
