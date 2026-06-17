@@ -39,6 +39,8 @@ class Keyring_Result_Handler {
 
 	/**
 	 * Output a minimal page that broadcasts the request_id to the opener and closes the popup.
+	 *
+	 * @return never
 	 */
 	public static function handle() {
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only: the request_id is an opaque token reflected back to a same-origin BroadcastChannel; nothing is mutated.
