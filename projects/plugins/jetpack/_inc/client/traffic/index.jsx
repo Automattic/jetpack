@@ -1,9 +1,10 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
-import { isWoASite } from '@automattic/jetpack-script-data';
+import { getScriptData, isWoASite } from '@automattic/jetpack-script-data';
 import { __ } from '@wordpress/i18n';
 import { Component } from 'react';
 import { connect } from 'react-redux';
 import QuerySite from 'components/data/query-site';
+import SimpleNotice from 'components/notice';
 import {
 	isSiteConnected,
 	isOfflineMode,
@@ -57,6 +58,12 @@ export class Traffic extends Component {
 			foundAnalytics = isWoASite(),
 			foundBlaze = this.props.isModuleFound( 'blaze' );
 
+		// Once the site is on the new SEO experience (fresh install / opted-in /
+		// WordPress.com), SEO + Sitemaps live in the dedicated SEO dashboard, so hide
+		// those legacy sections here and point to the new page. Existing self-hosted
+		// installs that haven't opted in keep the legacy sections (JETPACK-1682).
+		const seoMovedToDashboard = getScriptData()?.seo?.surface_visible === true;
+
 		if (
 			! foundSeo &&
 			! foundCanonicalUrls &&
@@ -84,7 +91,7 @@ export class Traffic extends Component {
 						  ) }
 				</h2>
 				{ foundRelated && <RelatedPosts { ...commonProps } /> }
-				{ ( foundSeo || foundCanonicalUrls ) && (
+				{ ! seoMovedToDashboard && ( foundSeo || foundCanonicalUrls ) && (
 					<SEO
 						{ ...commonProps }
 						configureUrl={ getRedirectUrl( 'calypso-marketing-traffic', {
@@ -93,13 +100,19 @@ export class Traffic extends Component {
 						} ) }
 					/>
 				) }
+				{ seoMovedToDashboard && ( foundSeo || foundCanonicalUrls ) && (
+					<SimpleNotice showDismiss={ false } status="is-info">
+						{ __( 'Jetpack SEO now has its own dashboard.', 'jetpack' ) }{ ' ' }
+						<a href="admin.php?page=jetpack-seo">{ __( 'Open the SEO dashboard', 'jetpack' ) }</a>
+					</SimpleNotice>
+				) }
 				{ foundStats && <SiteStats { ...commonProps } /> }
 				{ foundAnalytics && (
 					<GoogleAnalytics { ...commonProps } site={ this.props.blogID ?? this.props.siteRawUrl } />
 				) }
 				{ foundBlaze && <Blaze { ...commonProps } /> }
 				{ foundShortlinks && <Shortlinks { ...commonProps } /> }
-				{ foundSitemaps && <Sitemaps { ...commonProps } /> }
+				{ ! seoMovedToDashboard && foundSitemaps && <Sitemaps { ...commonProps } /> }
 				{ foundVerification && <VerificationServices { ...commonProps } /> }
 			</div>
 		);

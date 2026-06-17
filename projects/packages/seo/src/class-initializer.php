@@ -321,6 +321,11 @@ class Initializer {
 		}
 
 		$data[ self::SCRIPT_DATA_KEY ]['optin_available'] = self::is_optin_available();
+		// Read by the legacy Traffic page to hide its SEO / Sitemaps sections once the
+		// site is on the new experience (fresh install / opted-in / WordPress.com), so the
+		// two surfaces never show at once. The legacy sections stay for self-hosted installs
+		// that haven't opted in.
+		$data[ self::SCRIPT_DATA_KEY ]['surface_visible'] = self::is_seo_surface_visible();
 
 		return $data;
 	}
