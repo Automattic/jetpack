@@ -1078,11 +1078,11 @@ importers:
         specifier: workspace:*
         version: link:../script-data
       '@wordpress/api-fetch':
-        specifier: 7.48.0
-        version: 7.48.0
+        specifier: 7.48.1
+        version: 7.48.1
       '@wordpress/data':
-        specifier: 10.48.0
-        version: 10.48.0(react@18.3.1)
+        specifier: 10.48.1
+        version: 10.48.1(react@18.3.1)
     devDependencies:
       '@automattic/jetpack-webpack-config':
         specifier: workspace:*
@@ -10842,10 +10842,6 @@ packages:
     peerDependencies:
       react: ^18.0.0
 
-  '@wordpress/api-fetch@7.48.0':
-    resolution: {integrity: sha512-WYoIikKQPdRqrbLB9b9diM80q4g80NqqMPwVYZY9c7vbhJvj5c0hkA5zAlwba/iRbwqDjpRiZMKp8XntYLzMWw==}
-    engines: {node: '>=18.12.0', npm: '>=8.19.2'}
-
   '@wordpress/api-fetch@7.48.1':
     resolution: {integrity: sha512-RyEEY5C1XGLxJnluYFGVz4xFiw0jFjwL9Oiu4rDZjCGcxyu0sD6HPBcG6sIRpFKv062cwLccwpCeD8rc8U6Ctg==}
     engines: {node: '>=18.12.0', npm: '>=8.19.2'}
@@ -10976,12 +10972,6 @@ packages:
 
   '@wordpress/data-controls@4.48.1':
     resolution: {integrity: sha512-ctlZpxxhnNM87JkvQaZ8f4Qx8W+Jv3fHHmRQpK0VYmLDk4fkgMD8ZDFyK8bqRowbLu0GyPkthcZohoHhKYTwQw==}
-    engines: {node: '>=18.12.0', npm: '>=8.19.2'}
-    peerDependencies:
-      react: ^18.0.0
-
-  '@wordpress/data@10.48.0':
-    resolution: {integrity: sha512-6SjfTBlXu5fuJWmmlHlwV2wcrcsWL+M5O227AoEvrPSLo96UuMj2kAx3cKLtP3xyOMDyd38koQSf6+SS522bTA==}
     engines: {node: '>=18.12.0', npm: '>=8.19.2'}
     peerDependencies:
       react: ^18.0.0
@@ -23231,12 +23221,6 @@ snapshots:
       react: 18.3.1
       uuid: 14.0.0
 
-  '@wordpress/api-fetch@7.48.0':
-    dependencies:
-      '@wordpress/i18n': 6.21.1
-      '@wordpress/private-apis': 1.48.1
-      '@wordpress/url': 4.48.1
-
   '@wordpress/api-fetch@7.48.1':
     dependencies:
       '@wordpress/i18n': 6.21.1
@@ -24459,24 +24443,6 @@ snapshots:
       '@wordpress/data': 10.48.1(react@18.3.1)
       '@wordpress/deprecated': 4.48.1
       react: 18.3.1
-
-  '@wordpress/data@10.48.0(react@18.3.1)':
-    dependencies:
-      '@wordpress/compose': 8.1.1(react@18.3.1)
-      '@wordpress/deprecated': 4.48.1
-      '@wordpress/element': 8.0.1
-      '@wordpress/is-shallow-equal': 5.48.1
-      '@wordpress/priority-queue': 3.48.1
-      '@wordpress/private-apis': 1.48.1
-      '@wordpress/redux-routine': 5.48.1(redux@5.0.1)
-      deepmerge: 4.3.1
-      equivalent-key-map: 0.2.2
-      is-plain-object: 5.0.0
-      is-promise: 4.0.0
-      react: 18.3.1
-      redux: 5.0.1
-      rememo: 4.0.2
-      use-memo-one: 1.1.3(react@18.3.1)
 
   '@wordpress/data@10.48.1(react@18.3.1)':
     dependencies:
