@@ -18,17 +18,13 @@ import type {
 	PodcatcherId,
 } from '../types';
 
-// Package-owned endpoint registered as a core-data entity, so the dashboard and
-// the block editor read/write through the standard store — with caching, dedup,
-// and save state for free — the same on self-hosted Jetpack as on WPCOM,
-// independent of core /wp/v2/settings. Mirrors Publicize's jetpack/v4 settings
-// entity.
+// The package endpoint as a core-data entity (à la Publicize's jetpack/v4
+// settings), so the dashboard and block editor share one store.
 const ENTITY_KIND = 'jetpack/v4';
 const ENTITY_NAME = 'podcast/settings';
 
-// Register at module load: the getEntityRecord resolver bails if the entity is
-// unknown when it first runs, so this can't wait for an effect. Singleton record
-// (no id) — reads, writes, and saving state all key off the entity name alone.
+// Register at module load — the getEntityRecord resolver bails if the entity is
+// unknown on first read, so it can't wait for an effect.
 if (
 	! dataSelect( coreStore )
 		.getEntitiesConfig( ENTITY_KIND )
@@ -137,8 +133,7 @@ const pickPodcastFields = ( raw: Record< string, unknown > ): PodcastSettings =>
 	return out as unknown as PodcastSettings;
 };
 
-// Refresh after an out-of-band write (e.g. the Pocket Casts relay): drop the
-// cached resolution so mounted readers re-fetch. Imperative, so it can't use a hook.
+// Invalidate after an out-of-band write (e.g. the Pocket Casts relay) so readers re-fetch.
 export const refreshPodcastSettings = (): void => {
 	dataDispatch( coreStore ).invalidateResolution( 'getEntityRecord', [ ENTITY_KIND, ENTITY_NAME ] );
 };
@@ -146,16 +141,12 @@ export const refreshPodcastSettings = (): void => {
 interface MutateCallbacks {
 	onSuccess?: ( result: PodcastSettings ) => void;
 	onError?: ( error: unknown ) => void;
-	// Suppress the hook's built-in success/error snackbars when the caller
-	// owns its own user-visible feedback (e.g. a modal with an inline Notice).
+	// Suppress the built-in snackbars when the caller shows its own feedback.
 	silent?: boolean;
 }
 
 /**
- * Read the settings off the core-data entity, resolving (fetching) on first use.
- *
- * A non-admin (e.g. opening the episode block) gets a 403, so `data` stays
- * undefined and the cover resolves empty.
+ * Read the settings off the core-data entity, resolving on first use.
  *
  * @return `{ data, isLoading }`.
  */
@@ -170,17 +161,15 @@ export function usePodcastSettings(): { data: PodcastSettings | undefined; isLoa
 			select( coreStore ).hasFinishedResolution( 'getEntityRecord', [ ENTITY_KIND, ENTITY_NAME ] ),
 		[]
 	);
-	// Memoised on the record identity so derived `data` is stable across renders;
-	// without it every render rebuilds `data`, breaking downstream reference checks
-	// (Settings' isDirty stayed permanently true on `podcasting_show_urls`).
+	// Memoise on record identity to keep `data` referentially stable; otherwise
+	// downstream reference checks break (Settings' isDirty stuck on show_urls).
 	const data = useMemo( () => ( record ? pickPodcastFields( record ) : undefined ), [ record ] );
 	return { data, isLoading: ! hasResolved };
 }
 
 /**
- * Save a partial update through the entity. The server merges the patch and
- * returns the full record, which core-data caches so every reader refreshes.
- * Snackbars dispatch here unless `silent`.
+ * Save a partial update through the entity; the server returns the full merged
+ * record. Snackbars dispatch here unless `silent`.
  *
  * @return `{ mutate, mutateAsync, isPending }`.
  */
@@ -205,8 +194,6 @@ export function useUpdatePodcastSettings(): {
 			{ silent = false }: { silent?: boolean } = {}
 		): Promise< PodcastSettings > => {
 			try {
-				// Singleton record (no id), so this POSTs the partial patch to the
-				// entity baseURL; the server merges and returns the full record.
 				const record = await saveEntityRecord(
 					ENTITY_KIND,
 					ENTITY_NAME,
@@ -239,7 +226,7 @@ export function useUpdatePodcastSettings(): {
 			updates: PodcastSettingsUpdate,
 			{ onSuccess, onError, silent = false }: MutateCallbacks = {}
 		) => {
-			// Default no-op keeps the rejection from going uncaught when no `onError` is passed.
+			// No-op onError keeps the rejection from going uncaught.
 			mutateAsync( updates, { silent } ).then( onSuccess, onError ?? ( () => {} ) );
 		},
 		[ mutateAsync ]
