@@ -2,6 +2,7 @@
 import { __experimentalGrid as Grid } from '@wordpress/components';
 import { Fragment } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { Icon, chevronRight } from '@wordpress/icons';
 import { Stack, Text } from '@wordpress/ui';
 import clsx from 'clsx';
 import { useContext, useMemo, type FC } from 'react';
@@ -383,6 +384,7 @@ const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 											aria-label={ getEntryAccessibleLabel( entry, valueFormatter ) }
 										>
 											{ rowCells }
+											<Icon className={ styles.chevron } icon={ chevronRight } size={ 24 } />
 										</button>
 									);
 								}

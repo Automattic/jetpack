@@ -82,12 +82,11 @@
 }
 
 .interactiveRow {
-	// Span the whole row and inherit the parent grid's two tracks so the
-	// label/bar and value columns stay aligned with non-interactive rows.
 	display: grid;
 	grid-column: 1 / -1;
 	grid-template-columns: subgrid;
 	align-items: center;
+	position: relative;
 
 	// Native button reset.
 	appearance: none;
@@ -100,4 +99,67 @@
 	font: inherit;
 	text-align: inherit;
 	cursor: pointer;
+
+	// Full-row rounded highlight that bleeds slightly past the content edges,
+	// drawn behind the content so it never shifts the grid tracks.
+	&::before {
+		content: "";
+		position: absolute;
+		inset: 0 calc(-1 * var(--wpds-dimension-padding-sm, 8px));
+		border-radius: var(--wpds-border-radius-md, 4px);
+		background-color: transparent;
+		transition: background-color 0.15s ease;
+		pointer-events: none;
+		z-index: -1;
+	}
+
+	// The value/delta block slides left on hover to open room for the chevron.
+	.valueContainer {
+		transition: transform 0.15s ease;
+	}
+
+	&:hover,
+	&:focus-visible {
+
+		&::before {
+			background-color: var(--wpds-color-bg-interactive-neutral-weak-active, #ededed);
+		}
+
+		.valueContainer {
+			transform: translateX(-20px);
+		}
+
+		.chevron {
+			opacity: 1;
+			transform: translateY(-50%) translateX(0);
+		}
+	}
+
+	&:focus-visible {
+		outline: 2px solid var(--wpds-color-fg-interactive-brand);
+		outline-offset: -2px;
+	}
+}
+
+.chevron {
+	position: absolute;
+	right: var(--wpds-dimension-padding-xs, 4px);
+	top: 50%;
+	transform: translateY(-50%) translateX(4px);
+	opacity: 0;
+	color: var(--wpds-color-fg-content-neutral-weak, #6d6d6d);
+	transition: opacity 0.15s ease, transform 0.15s ease;
+	pointer-events: none;
+}
+
+@media ( prefers-reduced-motion: reduce ) {
+
+	.interactiveRow {
+
+		&::before,
+		.valueContainer,
+		.chevron {
+			transition: none;
+		}
+	}
 }
