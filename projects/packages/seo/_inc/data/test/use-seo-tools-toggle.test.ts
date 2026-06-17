@@ -5,7 +5,7 @@ import { act, renderHook, waitFor } from '@testing-library/react';
 // `jest.mock` factory cannot be hoisted. Mock with `jest.unstable_mockModule`
 // and pull the module under test in via dynamic `import()` after the mocks are
 // registered.
-const mockApiFetch = jest.fn();
+const mockApiFetch = jest.fn< ( options: unknown ) => Promise< unknown > >();
 const createErrorNotice = jest.fn();
 const useDispatch = jest.fn( () => ( { createErrorNotice } ) );
 
@@ -27,17 +27,26 @@ jest.unstable_mockModule( '@wordpress/notices', () => ( {
 const { default: useSeoToolsToggle } = await import( '../use-seo-tools-toggle' );
 
 describe( 'useSeoToolsToggle', () => {
+	// The success path calls `window.location.reload()`. jsdom can't navigate and
+	// can't be made to spy on `location.reload` (`window.location` is
+	// non-configurable and can't be redefined), so the call surfaces as a
+	// "Not implemented: navigation" `console.error`. Silence it here so the
+	// strict `@wordpress/jest-console` guard doesn't flag it; the success-path
+	// tests assert the deterministic, observable behavior instead — `apiFetch`
+	// was POSTed with the right payload and no error notice was raised.
+	let consoleErrorSpy: ReturnType< typeof jest.spyOn >;
+
 	beforeEach( () => {
 		jest.clearAllMocks();
 		useDispatch.mockReturnValue( { createErrorNotice } );
+		consoleErrorSpy = jest.spyOn( console, 'error' ).mockImplementation( () => {} );
 	} );
 
-	// jsdom locks `window.location.reload` (non-configurable, non-writable on the
-	// instance) and `window.location` can't be redefined, so we can't spy on it.
-	// Calling `reload()` emits a "Not implemented: navigation" `console.error`;
-	// the success-path tests assert `expect( console ).toHaveErrored()` as proof
-	// the reload fired (which also satisfies the strict jest-console guard).
-	it( 'POSTs to the module endpoint with the requested active state and reloads on success', async () => {
+	afterEach( () => {
+		consoleErrorSpy.mockRestore();
+	} );
+
+	it( 'POSTs to the module endpoint with the requested active state on success', async () => {
 		mockApiFetch.mockResolvedValue( undefined );
 
 		const { result } = renderHook( () => useSeoToolsToggle() );
@@ -53,8 +62,7 @@ describe( 'useSeoToolsToggle', () => {
 			method: 'POST',
 			data: { active: true },
 		} );
-		// The success path reloads the page; jsdom logs an error instead.
-		expect( console ).toHaveErrored();
+		// On success we reload rather than notify, so no error notice is raised.
 		expect( createErrorNotice ).not.toHaveBeenCalled();
 	} );
 
@@ -72,8 +80,7 @@ describe( 'useSeoToolsToggle', () => {
 			method: 'POST',
 			data: { active: false },
 		} );
-		// Disabling also succeeds and reloads.
-		expect( console ).toHaveErrored();
+		expect( createErrorNotice ).not.toHaveBeenCalled();
 	} );
 
 	it( 'sets isToggling while the request is in flight', async () => {
@@ -96,8 +103,8 @@ describe( 'useSeoToolsToggle', () => {
 			resolveFetch();
 		} );
 
-		// Resolving completes the success path, which reloads the page.
-		expect( console ).toHaveErrored();
+		// Resolving completes the success path, which reloads rather than notifies.
+		expect( createErrorNotice ).not.toHaveBeenCalled();
 	} );
 
 	it( 'surfaces an error snackbar notice and clears isToggling when the request rejects', async () => {

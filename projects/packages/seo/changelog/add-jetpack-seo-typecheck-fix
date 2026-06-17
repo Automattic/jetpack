@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Fix typecheck errors in the SEO tools toggle and Overview card Jest tests: declare @jest/globals as a devDependency and stop relying on the untyped toHaveErrored matcher.
