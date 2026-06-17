@@ -7,12 +7,13 @@
  */
 
 use Automattic\Jetpack\SEO\Initializer as Jetpack_SEO_Initializer;
-use PHPUnit\Framework\Attributes\CoversClass;
 
 /**
- * @covers \Automattic\Jetpack\SEO\Initializer
+ * Integration test: exercises the SEO package's opt-in REST route + handler from the
+ * plugin's WP_UnitTestCase environment. No coverage annotation — Initializer lives in
+ * the seo package, which is outside this suite's coverage scope, and the package's own
+ * unit tests measure its coverage.
  */
-#[CoversClass( Jetpack_SEO_Initializer::class )]
 class SEO_Optin_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 
