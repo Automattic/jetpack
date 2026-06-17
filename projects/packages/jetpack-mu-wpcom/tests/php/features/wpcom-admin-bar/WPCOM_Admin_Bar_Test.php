@@ -115,8 +115,7 @@ class WPCOM_Admin_Bar_Test extends \WorDBless\BaseTestCase {
 		// Drive a known plan name through Current_Plan::get() and reset its
 		// per-request static cache so the option below is actually read.
 		update_option( Current_Plan::PLAN_OPTION, array( 'product_name_short' => 'Business' ) );
-		$cache = new ReflectionProperty( Current_Plan::class, 'active_plan_cache' );
-		$cache->setValue( null, null );
+		self::reset_active_plan_cache();
 
 		$admin_bar = self::make_test_admin_bar();
 		$badge     = $admin_bar->get_node( 'site-plan-badge' );
@@ -128,6 +127,19 @@ class WPCOM_Admin_Bar_Test extends \WorDBless\BaseTestCase {
 		$this->assertStringNotContainsString( '<div class="wp-admin-bar__site-info"', $badge->title );
 
 		delete_option( Current_Plan::PLAN_OPTION );
-		$cache->setValue( null, null );
+		self::reset_active_plan_cache();
+	}
+
+	/**
+	 * Reset Current_Plan's per-request static cache so option writes in tests
+	 * are actually read back by Current_Plan::get().
+	 */
+	private static function reset_active_plan_cache(): void {
+		$property = ( new \ReflectionClass( Current_Plan::class ) )->getProperty( 'active_plan_cache' );
+		// @todo Remove once we drop PHP < 8.1 support.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$property->setAccessible( true );
+		}
+		$property->setValue( null, null );
 	}
 }
