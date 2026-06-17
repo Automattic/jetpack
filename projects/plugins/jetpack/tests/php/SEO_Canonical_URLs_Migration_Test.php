@@ -10,11 +10,13 @@ use Automattic\Jetpack\SEO\Initializer as Jetpack_SEO_Initializer;
 use PHPUnit\Framework\Attributes\CoversClass;
 
 /**
+ * Covers only \Jetpack here: the migration is seeded/synced from the plugin, while the
+ * seo package's Initializer (whose option getters this test also exercises) lives outside
+ * this suite's coverage scope and is measured by the package's own unit tests.
+ *
  * @covers \Jetpack
- * @covers \Automattic\Jetpack\SEO\Initializer
  */
 #[CoversClass( Jetpack::class )]
-#[CoversClass( Jetpack_SEO_Initializer::class )]
 class SEO_Canonical_URLs_Migration_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 
