@@ -1,4 +1,4 @@
 Significance: minor
 Type: changed
 
-Make the connect, syncing and dashboard route transitions client-side, removing the full-page reloads between them.
+Make the connect, syncing, and dashboard route transitions client-side, removing the full-page reloads between them.
