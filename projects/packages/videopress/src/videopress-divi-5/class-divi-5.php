@@ -61,26 +61,25 @@ class Divi_5 {
 	 * @return void
 	 */
 	public static function enqueue_visual_builder_assets() {
+		$asset_file = dirname( __DIR__, 2 ) . '/build/divi-5/index.asset.php';
+		$asset      = file_exists( $asset_file ) ? require $asset_file : array();
+
 		PackageBuildManager::register_package_build(
 			array(
 				'name'    => 'jetpack-videopress-divi5-visual-builder',
-				'version' => Package_Version::PACKAGE_VERSION,
+				// The build content hash, so each build busts the browser cache.
+				'version' => $asset['version'] ?? Package_Version::PACKAGE_VERSION,
 				'script'  => array(
 					'src'                => plugins_url( '../../build/divi-5/index.js', __FILE__ ),
 
 					/*
-					 * The handles emitted in build/divi-5/index.asset.php
-					 * (divi-vendor-wp-hooks, divi-vendor-wp-i18n, react,
-					 * react-jsx-runtime), plus the Divi builder handles that must be
-					 * enqueued for the window.divi.* globals to be present.
+					 * The handles the build emits (react, react-jsx-runtime and the
+					 * Divi-vendored @wordpress/* instances), plus the Divi builder
+					 * handles that provide the window.divi.* globals.
 					 */
-					'deps'               => array(
-						'divi-module-library',
-						'divi-rest',
-						'divi-vendor-wp-hooks',
-						'divi-vendor-wp-i18n',
-						'react',
-						'react-jsx-runtime',
+					'deps'               => array_merge(
+						array( 'divi-module-library', 'divi-rest' ),
+						$asset['dependencies'] ?? array()
 					),
 					'enqueue_top_window' => false,
 					'enqueue_app_window' => true,
