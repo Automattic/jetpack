@@ -3,11 +3,20 @@ import type { TailoredInferred } from './types.ts';
 
 const PTK_ENDPOINT = 'https://public-api.wordpress.com/rest/v1/ptk/patterns/en';
 
-interface PtkPattern {
+interface PtkTaxonomyTerm {
+	title?: string;
+	slug?: string;
+}
+
+// PTK returns categories/tags as a slug-keyed map of terms; an empty taxonomy
+// can come back as `[]` rather than `{}`, so both shapes must be handled.
+type PtkTaxonomy = Record< string, PtkTaxonomyTerm > | PtkTaxonomyTerm[];
+
+export interface PtkPattern {
 	title?: string;
 	html?: string;
-	categories?: Record< string, unknown >;
-	tags?: Record< string, unknown >;
+	categories?: PtkTaxonomy;
+	tags?: PtkTaxonomy;
 }
 
 interface CreatedPage {
@@ -15,13 +24,15 @@ interface CreatedPage {
 }
 
 /**
- * Tokenize the inferred niche/goal/vibe/audience into lowercase match words.
+ * Tokenize the inferred niche/vibe/audience into lowercase match words. The
+ * goal is intentionally excluded: it describes intent (e.g. "sell", "publish")
+ * rather than topic, so it adds noise to a topical pattern match.
  *
  * @param inferred - The AI-inferred site details.
  * @return The match words.
  */
 function nicheWords( inferred: TailoredInferred ): string[] {
-	return [ inferred.niche, inferred.goal, inferred.vibe, inferred.audience ]
+	return [ inferred.niche, inferred.vibe, inferred.audience ]
 		.filter( ( value ): value is string => typeof value === 'string' && value.length > 0 )
 		.join( ' ' )
 		.toLowerCase()
@@ -30,7 +41,23 @@ function nicheWords( inferred: TailoredInferred ): string[] {
 }
 
 /**
- * Count how many match words appear in a pattern's title, categories, or tags.
+ * Extract the human-readable term titles from a PTK taxonomy, which may arrive
+ * as a slug-keyed map or (when empty) as an array.
+ *
+ * @param taxonomy - The categories or tags collection.
+ * @return The term titles.
+ */
+function termTitles( taxonomy: PtkTaxonomy | undefined ): string[] {
+	const terms = Array.isArray( taxonomy ) ? taxonomy : Object.values( taxonomy ?? {} );
+	return terms
+		.map( term => term.title )
+		.filter( ( title ): title is string => typeof title === 'string' && title.length > 0 );
+}
+
+/**
+ * Count how many match words appear in a pattern's title, category titles, or
+ * tag titles. Categories/tags are keyed by slug, so the matchable text is the
+ * term titles, not the keys.
  *
  * @param pattern - The candidate pattern.
  * @param words   - The niche match words.
@@ -39,8 +66,8 @@ function nicheWords( inferred: TailoredInferred ): string[] {
 function score( pattern: PtkPattern, words: string[] ): number {
 	const haystack = [
 		pattern.title ?? '',
-		...Object.keys( pattern.categories ?? {} ),
-		...Object.keys( pattern.tags ?? {} ),
+		...termTitles( pattern.categories ),
+		...termTitles( pattern.tags ),
 	]
 		.join( ' ' )
 		.toLowerCase();
@@ -55,7 +82,10 @@ function score( pattern: PtkPattern, words: string[] ): number {
  * @param inferred - The AI-inferred site details.
  * @return The chosen pattern, or null when none have HTML.
  */
-function pickPattern( patterns: PtkPattern[], inferred: TailoredInferred ): PtkPattern | null {
+export function pickPattern(
+	patterns: PtkPattern[],
+	inferred: TailoredInferred
+): PtkPattern | null {
 	const usable = patterns.filter( pattern => typeof pattern.html === 'string' && pattern.html );
 	if ( usable.length === 0 ) {
 		return null;
