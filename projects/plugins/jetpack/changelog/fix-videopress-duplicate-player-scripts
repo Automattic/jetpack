@@ -1,4 +1,4 @@
 Significance: patch
 Type: bugfix
 
-VideoPress: enqueue the player scripts instead of printing them inline so they load only once when a page contains multiple videos
+VideoPress: Enqueue the player scripts instead of printing them inline so they load only once when a page contains multiple videos.

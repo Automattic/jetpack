@@ -729,14 +729,16 @@ class VideoPress_Player {
 		} else {
 			$videopress_options = wp_json_encode( $videopress_options, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP );
 			$js_url             = 'https://s0.wp.com/wp-content/plugins/video/assets/js/videojs/videopress.js';
+			$guid_js            = wp_json_encode( (string) $this->video->guid, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP );
+			$selector_js        = wp_json_encode( '#' . $video_container_id, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP );
 
 			wp_enqueue_script( 'videopress-videojs', $js_url, array(), JETPACK__VERSION, true );
 			wp_add_inline_script(
 				'videopress-videojs',
-				"videopress('{$this->video->guid}', document.querySelector('#{$video_container_id}'), {$videopress_options});"
+				"videopress({$guid_js}, document.querySelector({$selector_js}), {$videopress_options});"
 			);
 
-			return "<div id='{$video_container_id}'></div>";
+			return "<div id='" . esc_attr( $video_container_id ) . "'></div>";
 		}
 	}
 
