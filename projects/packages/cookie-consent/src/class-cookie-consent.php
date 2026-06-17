@@ -243,7 +243,7 @@ class Cookie_Consent {
 		}
 
 		// Only hook in footer template parts.
-		if ( ! is_array( $context ) || ! str_contains( $context['slug'], '/footer' ) ) {
+		if ( ! is_array( $context ) || ! isset( $context['slug'] ) || ! str_contains( $context['slug'], '/footer' ) ) {
 			return $hooked_block_types;
 		}
 
