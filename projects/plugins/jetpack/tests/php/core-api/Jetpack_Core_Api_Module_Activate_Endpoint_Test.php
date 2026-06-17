@@ -388,6 +388,7 @@ class Jetpack_Core_Api_Module_Activate_Endpoint_Test extends Jetpack_REST_TestCa
 			'integer zero' => array( 0, false ),
 			'string true'  => array( 'true', true ),
 			'string false' => array( 'false', false ),
+			'string one'   => array( '1', true ),
 			'string zero'  => array( '0', false ),
 		);
 	}
