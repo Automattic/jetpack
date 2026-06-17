@@ -120,6 +120,41 @@ describe( 'ComparisonBars', () => {
 		expect( g ).toHaveAttribute( 'pointer-events', 'none' );
 	} );
 
+	it( 'shadow rect is horizontally centered on the primary bar slot and 150% of its width', () => {
+		render(
+			<svg>
+				<DataContext.Provider value={ dataContextValue }>
+					<ComparisonBars
+						comparisonEntries={ comparisonEntries }
+						primaryKeys={ primaryKeys }
+						groupPadding={ groupPadding }
+						horizontal={ false }
+						xAccessor={ xAccessor }
+						yAccessor={ yAccessor }
+						getElementStyles={ getElementStyles }
+					/>
+				</DataContext.Provider>
+			</svg>
+		);
+
+		const rects = screen.getAllByTestId( /^bar-chart-comparison-0-/ );
+		const rect = rects[ 0 ]; // 'Jan' datum
+
+		const slotThickness = groupScale.bandwidth();
+		const expectedWidth = 1.5 * slotThickness;
+		// Shadow x = bandStart + slotOffset + slotThickness/2 - shadowWidth/2
+		const bandStart = Number( xScale( 'Jan' ) );
+		const slotOffset = Number( groupScale( 'current' ) );
+		const expectedX = bandStart + slotOffset + slotThickness / 2 - expectedWidth / 2;
+		const expectedCenterX = expectedX + expectedWidth / 2;
+		const primarySlotCenterX = bandStart + slotOffset + slotThickness / 2;
+
+		expect( Number( rect.getAttribute( 'width' ) ) ).toBeCloseTo( expectedWidth );
+		expect( Number( rect.getAttribute( 'x' ) ) ).toBeCloseTo( expectedX );
+		// Center of shadow matches center of primary slot
+		expect( expectedCenterX ).toBeCloseTo( primarySlotCenterX );
+	} );
+
 	it( 'renders nothing when primaryKeys is empty', () => {
 		render(
 			<svg>

@@ -15,6 +15,10 @@ type AnyScale = ( ( input: unknown ) => number ) & {
 	range: () => unknown[];
 };
 
+// Renders translucent "shadow" bars for comparison series behind their paired primary bars.
+// IMPORTANT: each comparison datum's category key (label or date) must exactly match a key
+// used by the primary series — if it doesn't, bandScale() returns undefined and the shadow
+// is silently skipped. Ensure comparison data reuses the same label/date values as primary.
 export const ComparisonBars: FC< {
 	comparisonEntries: ComparisonSeriesEntry[];
 	primaryKeys: string[];
@@ -71,14 +75,23 @@ export const ComparisonBars: FC< {
 		}
 
 		const { color, barStyles } = getElementStyles( { data: series, index } );
-		const widthFactor = barStyles?.widthFactor ?? 1.5;
-		const opacity = barStyles?.opacity ?? 0.5;
+		const widthFactor = barStyles?.widthFactor ?? 1.5; // safety net; CompleteChartTheme guarantees this value
+		const opacity = barStyles?.opacity ?? 0.5; // safety net; CompleteChartTheme guarantees this value
 
 		( series.data as DataPointDate[] ).forEach( ( datum, i ) => {
 			const bandPosition = Number( bandScale( bandAccessor( datum ) as never ) );
 			const valuePosition = Number( valueScale( Number( valueAccessor( datum ) ) as never ) );
 
 			if ( ! Number.isFinite( bandPosition ) || ! Number.isFinite( valuePosition ) ) {
+				if ( process.env.NODE_ENV !== 'production' && ! Number.isFinite( bandPosition ) ) {
+					// eslint-disable-next-line no-console
+					console.warn(
+						`[Charts] ComparisonBars: datum key "${ String(
+							bandAccessor( datum )
+						) }" did not match any primary category. Shadow will not be rendered. ` +
+							'Ensure comparison series data uses the same label/date keys as the primary series.'
+					);
+				}
 				return;
 			}
 
