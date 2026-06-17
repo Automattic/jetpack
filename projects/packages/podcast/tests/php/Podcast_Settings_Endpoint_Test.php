@@ -8,6 +8,7 @@ namespace Automattic\Jetpack\Podcast\Tests;
 use Automattic\Jetpack\Podcast\Podcast_Settings_Endpoint;
 use Automattic\Jetpack\Podcast\Settings;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\UsesClass;
 use WorDBless\BaseTestCase;
 use WorDBless\Users as WorDBless_Users;
 use WP_REST_Request;
@@ -15,8 +16,10 @@ use WP_REST_Response;
 
 /**
  * @covers \Automattic\Jetpack\Podcast\Podcast_Settings_Endpoint
+ * @uses \Automattic\Jetpack\Podcast\Settings
  */
 #[CoversClass( Podcast_Settings_Endpoint::class )]
+#[UsesClass( Settings::class )]
 class Podcast_Settings_Endpoint_Test extends BaseTestCase {
 
 	const ROUTE = '/jetpack/v4/podcast/settings';
