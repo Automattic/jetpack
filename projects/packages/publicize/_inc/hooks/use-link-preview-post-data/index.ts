@@ -1,4 +1,4 @@
-import { store as coreStore } from '@wordpress/core-data';
+import { store as coreStore, type Attachment } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { decodeEntities } from '@wordpress/html-entities';
@@ -36,11 +36,11 @@ export function useLinkPreviewPostData(): LinkPreviewData {
 		const featuredId = select( editorStore ).getEditedPostAttribute( 'featured_media' );
 
 		const featuredImageRecord = featuredId
-			? getEntityRecord( 'postType', 'attachment', featuredId )
+			? getEntityRecord< Attachment >( 'postType', 'attachment', featuredId )
 			: undefined;
 
 		// Use the featured image by default, if it's available.
-		let imageUrl = featuredId ? getMediaSourceUrl( featuredImageRecord ) : '';
+		let imageUrl = featuredId ? getMediaSourceUrl( featuredImageRecord ?? null ) : '';
 
 		// The focal point belongs to the featured image; it only applies while the
 		// featured image is the one being shown (SIG / post-content images clear it).
