@@ -6,6 +6,7 @@ import { createPatternPage } from '../lib/pattern-page.ts';
 import { trackTaskClicked } from '../lib/tracks.ts';
 import {
 	firstIncompleteIndex,
+	isTaskActionable,
 	resolveCtaUrl,
 	tasksFromFixture,
 	type EnrichedTask,
@@ -37,6 +38,11 @@ interface Props {
 	// also used as a local fallback when the read yields nothing (e.g. the
 	// fallback PUT failed). Omitted for returning users, where output is persisted.
 	pendingTailor?: Promise< TailorResult >;
+
+	// Returning users: the host already fetched the composite read to decide the
+	// view, so it hands the data down here to avoid fetching the same expensive
+	// endpoint a second time. Omitted on the wizard→list path.
+	initialData?: LaunchpadData;
 }
 
 /**
@@ -51,9 +57,10 @@ interface Props {
  *
  * @param props               - Component props.
  * @param props.pendingTailor - In-flight tailor call to await before fetching.
+ * @param props.initialData   - Composite read supplied by the host (returning users).
  * @return The tailored-list element.
  */
-export function TailoredList( { pendingTailor }: Props = {} ) {
+export function TailoredList( { pendingTailor, initialData }: Props = {} ) {
 	const [ tasks, setTasks ] = useState< EnrichedTask[] | null >( null );
 	const [ output, setOutput ] = useState< TailoredOutput | null >( null );
 	const [ expandedId, setExpandedId ] = useState< string | null >( null );
@@ -68,59 +75,47 @@ export function TailoredList( { pendingTailor }: Props = {} ) {
 			return;
 		}
 
+		// Returning users: render from the data the host already fetched, so the
+		// expensive composite read isn't run a second time.
+		if ( initialData ) {
+			setTasks( initialData.tasks );
+			setOutput( initialData.ai_output?.payload ?? null );
+			return;
+		}
+
 		let cancelled = false;
-		// When arriving from the wizard, wait for the tailor call to settle so the
-		// PUT /tailored has persisted before we read it back; otherwise fetch now.
-		Promise.resolve( pendingTailor )
-			.then( async result => {
-				try {
-					const data = await apiFetch< LaunchpadData >( { path: '/wpcom/v2/ai-launchpad' } );
-					if ( cancelled ) {
-						return;
-					}
-					if ( data.tasks.length > 0 ) {
-						setTasks( data.tasks );
-						setOutput( data.ai_output?.payload ?? null );
-						return;
-					}
-				} catch {
-					// Read failed; fall through to the in-memory fallback below.
-				}
-				if ( cancelled ) {
-					return;
-				}
-				// The read failed or returned nothing. If we just tailored, render the
-				// in-memory result so the user still gets the deterministic list
-				// (titles humanized, no deeplinks) instead of an empty screen.
-				if ( result?.output ) {
-					setOutput( result.output );
-					setTasks( tasksFromFixture( result.output ) );
-				} else {
-					setTasks( [] );
-				}
-			} )
-			.catch( () => {
-				// Final safety net: a failed load never surfaces as an unhandled
-				// rejection or leaves the component stuck on the skeleton.
-				if ( ! cancelled ) {
-					setTasks( [] );
-				}
-			} );
+		( async () => {
+			// When arriving from the wizard, wait for the tailor call to settle so
+			// the PUT /tailored has persisted before we read it back. A rejected
+			// tailor still gives us its in-memory output as a local fallback.
+			const result = await Promise.resolve( pendingTailor ).catch( () => undefined );
+
+			let data: LaunchpadData | null = null;
+			try {
+				data = await apiFetch< LaunchpadData >( { path: '/wpcom/v2/ai-launchpad' } );
+			} catch {
+				// Read failed; fall back to the in-memory result below.
+			}
+			if ( cancelled ) {
+				return;
+			}
+
+			if ( data && data.tasks.length > 0 ) {
+				setTasks( data.tasks );
+				setOutput( data.ai_output?.payload ?? null );
+			} else if ( result?.output ) {
+				// Read returned nothing (e.g. the fallback PUT failed): render the
+				// in-memory result so the user still gets the deterministic list.
+				setOutput( result.output );
+				setTasks( tasksFromFixture( result.output ) );
+			} else {
+				setTasks( [] );
+			}
+		} )();
 		return () => {
 			cancelled = true;
 		};
-	}, [ pendingTailor ] );
-
-	useEffect( () => {
-		if ( ! tasks || expandedId !== null ) {
-			return;
-		}
-		const index = firstIncompleteIndex( tasks );
-		const first = index === -1 ? undefined : tasks[ index ];
-		if ( first ) {
-			setExpandedId( first.id );
-		}
-	}, [ tasks, expandedId ] );
+	}, [ pendingTailor, initialData ] );
 
 	const visibleTasks = useMemo(
 		() =>
@@ -129,6 +124,19 @@ export function TailoredList( { pendingTailor }: Props = {} ) {
 			),
 		[ tasks, skippedIds ]
 	);
+
+	useEffect( () => {
+		if ( ! tasks || expandedId !== null ) {
+			return;
+		}
+		// Scan visibleTasks (skipped→completed) so skipping the last actionable
+		// task doesn't re-select it and bounce the just-dismissed card open.
+		const index = firstIncompleteIndex( visibleTasks );
+		const first = index === -1 ? undefined : visibleTasks[ index ];
+		if ( first ) {
+			setExpandedId( first.id );
+		}
+	}, [ tasks, visibleTasks, expandedId ] );
 
 	if ( ! tasks ) {
 		return <TailoredListSkeleton />;
@@ -171,6 +179,7 @@ export function TailoredList( { pendingTailor }: Props = {} ) {
 					task={ task }
 					isExpanded={ expandedId === task.id }
 					isBusy={ busyId === task.id }
+					canStart={ isTaskActionable( task, output ) }
 					onToggle={ () => setExpandedId( expandedId === task.id ? null : task.id ) }
 					onGetStarted={ () => handleGetStarted( task ) }
 					onSkip={ () => handleSkip( task ) }

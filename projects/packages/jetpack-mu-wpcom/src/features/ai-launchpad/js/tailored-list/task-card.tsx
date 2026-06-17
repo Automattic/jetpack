@@ -8,6 +8,7 @@ interface Props {
 	task: EnrichedTask;
 	isExpanded: boolean;
 	isBusy: boolean;
+	canStart: boolean;
 	onToggle: () => void;
 	onGetStarted: () => void;
 	onSkip: () => void;
@@ -23,12 +24,21 @@ interface Props {
  * @param props.task         - The enriched task to render.
  * @param props.isExpanded   - Whether this card is expanded.
  * @param props.isBusy       - Whether the "Get started" action is in flight.
+ * @param props.canStart     - Whether the task has an actionable CTA destination.
  * @param props.onToggle     - Called when the collapsed header is clicked.
  * @param props.onGetStarted - Called when "Get started" is clicked.
  * @param props.onSkip       - Called when "Skip" is clicked.
  * @return The task card element.
  */
-export function TaskCard( { task, isExpanded, isBusy, onToggle, onGetStarted, onSkip }: Props ) {
+export function TaskCard( {
+	task,
+	isExpanded,
+	isBusy,
+	canStart,
+	onToggle,
+	onGetStarted,
+	onSkip,
+}: Props ) {
 	if ( task.completed ) {
 		return (
 			<Card className="ai-launchpad-tailored-list__card is-completed">
@@ -57,14 +67,16 @@ export function TaskCard( { task, isExpanded, isBusy, onToggle, onGetStarted, on
 					<div className="ai-launchpad-tailored-list__body">
 						<p className="ai-launchpad-tailored-list__subtitle">{ task.subtitle }</p>
 						<div className="ai-launchpad-tailored-list__actions">
-							<Button
-								variant="primary"
-								onClick={ onGetStarted }
-								isBusy={ isBusy }
-								disabled={ isBusy }
-							>
-								{ __( 'Get started', 'jetpack-mu-wpcom' ) }
-							</Button>
+							{ canStart && (
+								<Button
+									variant="primary"
+									onClick={ onGetStarted }
+									isBusy={ isBusy }
+									disabled={ isBusy }
+								>
+									{ __( 'Get started', 'jetpack-mu-wpcom' ) }
+								</Button>
+							) }
 							<Button variant="tertiary" onClick={ onSkip }>
 								{ __( 'Skip', 'jetpack-mu-wpcom' ) }
 							</Button>

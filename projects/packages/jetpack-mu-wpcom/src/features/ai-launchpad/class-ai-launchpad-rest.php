@@ -342,61 +342,11 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 				'subtitle'     => $task['subtitle'],
 				'title'        => isset( $definition['get_title'] ) ? $definition['get_title']() : '',
 				'completed'    => wpcom_launchpad_checklists()->is_task_complete( $definition ),
-				'calypso_path' => $this->load_calypso_path( $definition ),
+				'calypso_path' => wpcom_launchpad_checklists()->load_calypso_path( $definition ),
 			);
 		}
 
 		return $built;
-	}
-
-	/**
-	 * Loads the CTA path for a task from its `get_calypso_path` callback.
-	 *
-	 * @param array $task The task definition, including its `id`.
-	 * @return string|null
-	 */
-	private function load_calypso_path( $task ) {
-		if ( ! isset( $task['get_calypso_path'] ) || ! is_callable( $task['get_calypso_path'] ) ) {
-			return null;
-		}
-
-		$site_slug = wpcom_get_site_slug();
-		$data      = array(
-			'site_slug'         => $site_slug,
-			'site_slug_encoded' => rawurlencode( $site_slug ),
-			'launchpad_context' => null,
-		);
-
-		$path = call_user_func( $task['get_calypso_path'], $task, null, $data );
-
-		if ( ! is_string( $path ) || '' === $path || ! $this->is_valid_calypso_path( $path ) ) {
-			return null;
-		}
-
-		return $path;
-	}
-
-	/**
-	 * Validates a task's CTA path before it reaches the client. Mirrors
-	 * Launchpad_Task_Lists::is_valid_admin_url_or_absolute_path() (private there),
-	 * so protocol-relative or otherwise malformed paths are rejected here too.
-	 *
-	 * @param string $path The candidate path.
-	 * @return bool
-	 */
-	private function is_valid_calypso_path( $path ) {
-		// Stripe connection URLs for the set_up_payments task.
-		if ( str_starts_with( $path, 'https://connect.stripe.com' ) ) {
-			return true;
-		}
-
-		// Absolute admin URLs.
-		if ( str_starts_with( $path, admin_url() ) ) {
-			return true;
-		}
-
-		// Absolute paths, but not protocol-relative (`//…`) URLs.
-		return str_starts_with( $path, '/' ) && ! str_starts_with( $path, '//' );
 	}
 
 	/**

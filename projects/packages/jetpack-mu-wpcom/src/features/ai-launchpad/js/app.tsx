@@ -1,9 +1,10 @@
 import apiFetch from '@wordpress/api-fetch';
 import { useEffect, useState } from '@wordpress/element';
-import { decideInitialView, type OrchestrationData, type View } from './lib/orchestration.ts';
+import { decideInitialView, type View } from './lib/orchestration.ts';
 import { TailoredList } from './tailored-list/tailored-list.tsx';
 import { Wizard } from './wizard/wizard.tsx';
 import type { TailorResult } from './lib/types.ts';
+import type { LaunchpadData } from './tailored-list/model.ts';
 
 const IS_DEV = process.env.NODE_ENV !== 'production';
 
@@ -26,6 +27,9 @@ export function App() {
 	// list both decide their own loading UI once a view is chosen.
 	const [ view, setView ] = useState< View | null >( IS_DEV ? 'wizard' : null );
 	const [ pendingTailor, setPendingTailor ] = useState< Promise< TailorResult > | undefined >();
+	// The composite read used to decide the view; handed to the list so a
+	// returning user doesn't fetch the same expensive endpoint twice.
+	const [ initialData, setInitialData ] = useState< LaunchpadData | undefined >();
 
 	useEffect( () => {
 		// In dev there is no server; start on the wizard so the whole flow is
@@ -35,10 +39,11 @@ export function App() {
 		}
 
 		let cancelled = false;
-		apiFetch< OrchestrationData >( { path: '/wpcom/v2/ai-launchpad' } ).then( data => {
+		apiFetch< LaunchpadData >( { path: '/wpcom/v2/ai-launchpad' } ).then( data => {
 			if ( cancelled ) {
 				return;
 			}
+			setInitialData( data );
 			setView( decideInitialView( data ) );
 		} );
 		return () => {
@@ -61,5 +66,12 @@ export function App() {
 		);
 	}
 
-	return <TailoredList pendingTailor={ pendingTailor } />;
+	// After the wizard, the list runs the fresh tailor flow (initialData would be
+	// the pre-wizard read); returning users render straight from initialData.
+	return (
+		<TailoredList
+			pendingTailor={ pendingTailor }
+			initialData={ pendingTailor ? undefined : initialData }
+		/>
+	);
 }

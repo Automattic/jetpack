@@ -95,6 +95,25 @@ export async function resolveCtaUrl(
 }
 
 /**
+ * Whether a task's "Get started" CTA has a destination — i.e. whether
+ * {@link resolveCtaUrl} would resolve to a non-null URL. Create-content tasks
+ * (first post / pattern page) are actionable when the AI output is present;
+ * every other task is actionable only when it has a deeplink path. Used to hide
+ * the CTA for tasks that would otherwise be a silent no-op.
+ *
+ * @param task   - The task.
+ * @param output - The AI output, or null.
+ * @return True when "Get started" would navigate somewhere.
+ */
+export function isTaskActionable( task: EnrichedTask, output: TailoredOutput | null ): boolean {
+	const kind = ctaKind( task.id );
+	if ( ( kind === 'first_post' || kind === 'pattern_page' ) && output ) {
+		return true;
+	}
+	return task.calypso_path !== null;
+}
+
+/**
  * The index of the first incomplete task, or -1 when every task is complete.
  * Drives which card auto-expands on first render.
  *

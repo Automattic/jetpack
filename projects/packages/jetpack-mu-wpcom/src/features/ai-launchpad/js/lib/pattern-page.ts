@@ -103,6 +103,11 @@ export function pickPattern(
 	return best;
 }
 
+// The full PTK library is stable within a session, so cache the parsed list in
+// module scope: repeated "Get started" clicks reuse it instead of re-downloading
+// and re-scoring it. Stays null on a failed fetch so a later click can retry.
+let cachedPatterns: PtkPattern[] | null = null;
+
 /**
  * Fetch the English pattern library, pick a pattern matching the inferred
  * niche, and create a draft page from it. Returns the new page id and its
@@ -114,20 +119,22 @@ export function pickPattern(
 export async function createPatternPage(
 	inferred: TailoredInferred
 ): Promise< { page_id: number; edit_url: string } > {
-	let patterns: PtkPattern[] = [];
-	try {
-		const response = await fetch( PTK_ENDPOINT );
-		if ( response.ok ) {
-			const body = await response.json();
-			if ( Array.isArray( body ) ) {
-				patterns = body as PtkPattern[];
+	if ( cachedPatterns === null ) {
+		try {
+			const response = await fetch( PTK_ENDPOINT );
+			if ( response.ok ) {
+				const body = await response.json();
+				if ( Array.isArray( body ) ) {
+					cachedPatterns = body as PtkPattern[];
+				}
 			}
+		} catch {
+			// Network/parse failure: leave the cache unset so a later click retries.
+			// The page is still created below (with empty content) rather than
+			// throwing and stranding the CTA.
 		}
-	} catch {
-		// Network/parse failure: fall through with no patterns so the page is still
-		// created (with empty content) instead of throwing and stranding the CTA.
 	}
-	const pattern = pickPattern( patterns, inferred );
+	const pattern = pickPattern( cachedPatterns ?? [], inferred );
 
 	const page = ( await apiFetch( {
 		path: '/wp/v2/pages',

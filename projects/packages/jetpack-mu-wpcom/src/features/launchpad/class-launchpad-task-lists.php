@@ -548,11 +548,15 @@ class Launchpad_Task_Lists {
 	/**
 	 * Helper function to load the Calypso path for a task.
 	 *
+	 * Public so other features (e.g. the AI Launchpad REST controller) can resolve
+	 * a task's CTA path through the same builder + validation rather than copying
+	 * it, and reuse this instance's cached site slug.
+	 *
 	 * @param Task        $task A task definition.
 	 * @param string|null $launchpad_context Optional. Screen where Launchpad is loading.
 	 * @return string|null
 	 */
-	private function load_calypso_path( $task, $launchpad_context = null ) {
+	public function load_calypso_path( $task, $launchpad_context = null ) {
 		if ( null === $this->site_slug ) {
 			$this->site_slug = wpcom_get_site_slug();
 		}
