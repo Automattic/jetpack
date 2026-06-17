@@ -522,7 +522,7 @@ class Jetpack_AI_Sidebar {
 		$features = array(
 			'aiEditorialReview'       => self::is_ai_editorial_review_enabled(),
 			'blockTransformations'    => true,
-			'optimizeTitleSuggestion' => false,
+			'optimizeTitleSuggestion' => true,
 			'chatHistory'             => false,
 			'supportGuides'           => false,
 		);
