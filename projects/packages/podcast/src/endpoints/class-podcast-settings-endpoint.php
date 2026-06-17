@@ -21,23 +21,10 @@ use WP_REST_Server;
 class Podcast_Settings_Endpoint extends WP_REST_Controller {
 
 	/**
-	 * Whether `init()` has wired its hooks.
-	 *
-	 * @var bool
-	 */
-	private static $initialized = false;
-
-	/**
-	 * Wire up routes. Idempotent.
+	 * Register the REST routes on `rest_api_init`.
 	 */
 	public static function init() {
-		if ( self::$initialized ) {
-			return;
-		}
-		self::$initialized = true;
-
-		$instance = new self();
-		add_action( 'rest_api_init', array( $instance, 'register_routes' ) );
+		add_action( 'rest_api_init', array( new self(), 'register_routes' ) );
 	}
 
 	/**
@@ -103,7 +90,7 @@ class Podcast_Settings_Endpoint extends WP_REST_Controller {
 	 * @return WP_REST_Response
 	 */
 	public function update_item( $request ) {
-		$touched = false;
+		$saved = false;
 
 		foreach ( Settings::OPTION_NAMES as $name ) {
 			$value = $request->get_param( $name );
@@ -111,12 +98,12 @@ class Podcast_Settings_Endpoint extends WP_REST_Controller {
 				continue;
 			}
 			update_option( $name, $value );
-			$touched = true;
+			$saved = true;
 		}
 
-		if ( $touched ) {
+		if ( $saved ) {
 			/**
-			 * Fires after a podcast settings write touches at least one option.
+			 * Fires after a podcast settings write saves at least one option.
 			 *
 			 * @since $$next-version$$
 			 */

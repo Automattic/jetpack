@@ -40,9 +40,8 @@ class Podcast_Settings_Endpoint_Test extends BaseTestCase {
 
 		global $wp_rest_server;
 		$wp_rest_server = new \WP_REST_Server();
-		// Register on rest_api_init (not directly) so register_rest_route isn't
-		// called "incorrectly". WorDBless resets hooks between tests, so add the
-		// callback fresh each setUp rather than relying on the static init() guard.
+		// Register on rest_api_init so register_rest_route isn't called "incorrectly";
+		// WorDBless resets hooks between tests, so wire a fresh instance each setUp.
 		add_action( 'rest_api_init', array( new Podcast_Settings_Endpoint(), 'register_routes' ) );
 		do_action( 'rest_api_init' );
 
@@ -147,7 +146,7 @@ class Podcast_Settings_Endpoint_Test extends BaseTestCase {
 		$this->assertSame( 'active', $data['podcasting_show_states']['apple'] );
 	}
 
-	public function test_put_fires_settings_saved_action_when_an_option_is_touched() {
+	public function test_put_fires_settings_saved_action_when_an_option_is_saved() {
 		$fired = 0;
 		add_action(
 			'jetpack_podcast_settings_saved',

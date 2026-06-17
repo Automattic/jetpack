@@ -133,6 +133,19 @@ const loadSettings = (): Promise< PodcastSettings > => {
 	return inflight;
 };
 
+/**
+ * Re-fetch settings and refresh the shared cache after an out-of-band server
+ * write (e.g. the Pocket Casts relay persisting `podcasting_show_states`).
+ *
+ * @return Resolves once the shared cache has been refreshed.
+ */
+export const refreshPodcastSettings = (): Promise< void > =>
+	apiFetch( { path: SETTINGS_PATH } )
+		.then( raw => {
+			publish( pickPodcastFields( raw as Record< string, unknown > ) );
+		} )
+		.catch( () => {} );
+
 interface MutateCallbacks {
 	onSuccess?: ( result: PodcastSettings ) => void;
 	onError?: ( error: unknown ) => void;

@@ -264,7 +264,7 @@ class Tracks {
 	 *
 	 * Fired off the `jetpack_podcast_settings_saved` action that
 	 * {@see Podcast_Settings_Endpoint::update_item()} triggers, so it's agnostic
-	 * to the REST transport — the endpoint already gates on a touched option.
+	 * to the REST transport — the endpoint already gates on a saved option.
 	 */
 	public static function record_settings_saved(): void {
 		try {
