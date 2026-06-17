@@ -66,10 +66,15 @@ export function Wizard( { initialSiteName = '', locale = 'en', onComplete }: Pro
 			return;
 		}
 		const payload = buildWizardPayload( goal, state );
+		// Persist in the background; the flow advances on the tailoring promise
+		// below, so a failed save must not surface as an unhandled rejection.
 		apiFetch( {
 			path: '/wpcom/v2/ai-launchpad/wizard',
 			method: 'PUT',
 			data: payload,
+		} ).catch( error => {
+			// eslint-disable-next-line no-console
+			console.warn( '[AI Launchpad] PUT /wizard failed', error );
 		} );
 		const tailoring = getPrewarmedTailor( payload );
 		trackWizardCompleted();

@@ -78,6 +78,15 @@ export function TailoredList( { pendingTailor }: Props = {} ) {
 				}
 				setTasks( data.tasks );
 				setOutput( data.ai_output?.payload ?? null );
+			} )
+			.catch( error => {
+				// Don't leave the component stuck on the skeleton (or surface an
+				// unhandled rejection) if the tailor call or the read fails.
+				// eslint-disable-next-line no-console
+				console.warn( '[AI Launchpad] failed to load tailored list', error );
+				if ( ! cancelled ) {
+					setTasks( [] );
+				}
 			} );
 		return () => {
 			cancelled = true;

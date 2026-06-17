@@ -6,6 +6,18 @@ interface CreatedPost {
 }
 
 /**
+ * Escape HTML-significant characters in plain text. The AI-drafted paragraphs
+ * are plain prose, so escaping keeps untrusted output from injecting markup
+ * (stored XSS) or breaking the surrounding block delimiters.
+ *
+ * @param text - The plain text to escape.
+ * @return The escaped text, safe to embed in HTML.
+ */
+function escapeHtml( text: string ): string {
+	return text.replace( /&/g, '&amp;' ).replace( /</g, '&lt;' ).replace( />/g, '&gt;' );
+}
+
+/**
  * Wrap each paragraph in a Gutenberg paragraph block.
  *
  * @param paragraphs - The paragraph strings.
@@ -13,7 +25,7 @@ interface CreatedPost {
  */
 function toBlocks( paragraphs: string[] ): string {
 	return paragraphs
-		.map( text => '<!-- wp:paragraph --><p>' + text + '</p><!-- /wp:paragraph -->' )
+		.map( text => '<!-- wp:paragraph --><p>' + escapeHtml( text ) + '</p><!-- /wp:paragraph -->' )
 		.join( '\n\n' );
 }
 

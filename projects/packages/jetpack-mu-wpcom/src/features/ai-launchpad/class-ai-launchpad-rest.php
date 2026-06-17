@@ -143,7 +143,9 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 	 * @return true|WP_Error
 	 */
 	private function check_eligibility() {
-		if ( function_exists( 'wpcom_ai_launchpad_is_eligible' ) && ! wpcom_ai_launchpad_is_eligible() ) {
+		// Fail closed: if the gate is unavailable for any reason, treat the site
+		// as not eligible rather than exposing the endpoint to every capable user.
+		if ( ! function_exists( 'wpcom_ai_launchpad_is_eligible' ) || ! wpcom_ai_launchpad_is_eligible() ) {
 			return new WP_Error(
 				'ai_launchpad_not_eligible',
 				__( 'This site is not eligible for the AI Launchpad.', 'jetpack-mu-wpcom' ),
@@ -163,10 +165,17 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 		$wizard    = get_option( self::OPTION_WIZARD );
 		$ai_output = get_option( self::OPTION_AI_OUTPUT );
 
+		// Guard the nested payload: partial/legacy/failed writes may leave the
+		// option as an array without payload.tasks, which would warn and break.
+		$tasks = array();
+		if ( is_array( $ai_output ) && isset( $ai_output['payload']['tasks'] ) && is_array( $ai_output['payload']['tasks'] ) ) {
+			$tasks = $this->build_tasks( $ai_output['payload']['tasks'] );
+		}
+
 		return array(
 			'wizard'             => is_array( $wizard ) ? $wizard : null,
 			'ai_output'          => is_array( $ai_output ) ? $ai_output : null,
-			'tasks'              => is_array( $ai_output ) ? $this->build_tasks( $ai_output['payload']['tasks'] ) : array(),
+			'tasks'              => $tasks,
 			'checklist_statuses' => (array) get_option( 'launchpad_checklist_tasks_statuses', array() ),
 			'dismissed'          => (bool) get_option( self::OPTION_DISMISSED, false ),
 			'is_eligible'        => true,

@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { describe, it } from 'node:test';
 import { fileURLToPath } from 'node:url';
@@ -34,13 +34,20 @@ describe( 'buildTailorPrompt', () => {
 		assert.ok( /return only a json object/i.test( prompt ) );
 	} );
 
-	it( 'matches the eval runner TASK_MENU exactly', () => {
-		const evalSource = readFileSync(
-			resolve( __dirname, '../../docs/bin/eval-ai-launchpad.mjs' ),
-			'utf8'
-		);
-		for ( const id of TASK_MENU ) {
-			assert.ok( evalSource.includes( `'${ id }'` ), `eval runner missing menu ID "${ id }"` );
+	// The eval runner lives under the gitignored docs/ tree, so it's only present
+	// in the main checkout — skip this cross-artifact check where it's absent
+	// (CI, fresh clones, worktrees) rather than throwing ENOENT.
+	const evalRunnerPath = resolve( __dirname, '../../docs/bin/eval-ai-launchpad.mjs' );
+	it(
+		'matches the eval runner TASK_MENU exactly',
+		{
+			skip: existsSync( evalRunnerPath ) ? false : 'eval runner not present (docs/ is gitignored)',
+		},
+		() => {
+			const evalSource = readFileSync( evalRunnerPath, 'utf8' );
+			for ( const id of TASK_MENU ) {
+				assert.ok( evalSource.includes( `'${ id }'` ), `eval runner missing menu ID "${ id }"` );
+			}
 		}
-	} );
+	);
 } );

@@ -1,4 +1,4 @@
 Significance: patch
 Type: added
 
-AI Launchpad: add the two-step onboarding wizard (goal cards + site details with rotating placeholders), persisting the input via PUT /wizard
+AI Launchpad: add the two-step onboarding wizard (goal cards + site details with rotating placeholders), persisting the input via PUT /wizard.
