@@ -4,7 +4,7 @@ settings:
   autoInstallPeers: false
   excludeLinksFromLockfile: false
 
-pnpmfileChecksum: sha256-xLV/TdnrjnyaQ3TsRm6j/K3h0MHXnTCqziLosq28Hc0=
+pnpmfileChecksum: sha256-EFRgZN12YuNb6707IVSTJ4GE2YzSTX23dDqzFXBhxw8=
 
 patchedDependencies:
   react-autosize-textarea: 5c09e1dee59caaaba3871f9d722f93e56b41169db486b059597e8f8c788aa464
@@ -4146,7 +4146,7 @@ importers:
         version: 13.1.0(react@18.3.1)
       '@wordpress/interface':
         specifier: 9.31.0
-        version: 9.31.0(@types/react@18.3.28)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        version: 9.31.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/media-utils':
         specifier: 5.48.1
         version: 5.48.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -25276,10 +25276,10 @@ snapshots:
       '@preact/signals': 1.3.4(preact@10.29.2)
       preact: 10.29.2
 
-  '@wordpress/interface@9.31.0(@types/react@18.3.28)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+  '@wordpress/interface@9.31.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
       '@wordpress/a11y': 4.48.1
-      '@wordpress/admin-ui': 2.1.0(@types/react@18.3.28)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@wordpress/admin-ui': 2.3.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/base-styles': 8.0.0
       '@wordpress/components': 33.1.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/compose': 7.46.0(react@18.3.1)
@@ -25297,7 +25297,6 @@ snapshots:
     transitivePeerDependencies:
       - '@date-fns/tz'
       - '@emotion/is-prop-valid'
-      - '@types/react'
       - date-fns
       - stylelint
       - supports-color
