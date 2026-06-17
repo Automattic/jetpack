@@ -1,5 +1,6 @@
 import { __ } from '@wordpress/i18n';
 import useAnalytics from '../hooks/use-analytics';
+import { assignLocation } from '../hooks/use-notification-watcher/assignLocation';
 import { REST_API_SEO_OPT_IN_ENDPOINT, QUERY_SEO_OPT_IN_KEY } from './constants';
 import useSimpleMutation from './use-simple-mutation';
 import { getMyJetpackWindowInitialState } from './utils/get-my-jetpack-window-state';
@@ -33,7 +34,9 @@ export default function useSeoOptIn() {
 				recordEvent( 'jetpack_myjetpack_seo_opt_in_card_success', {} );
 
 				const { redirect: fallbackRedirect } = getMyJetpackWindowInitialState( 'seoOptIn' );
-				window.location.href = redirect || fallbackRedirect;
+				// Navigate via the wrapper so the redirect is mockable in tests
+				// (window.location can't be stubbed under jsdom).
+				assignLocation( redirect || fallbackRedirect );
 			},
 		},
 		errorMessage: __(
