@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Charts: add comparison mode to the Bar Chart — a translucent shadow bar (150% width, 50% opacity) rendered behind each primary bar, paired by group.
