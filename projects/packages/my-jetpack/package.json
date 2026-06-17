@@ -44,6 +44,7 @@
 		"@automattic/jetpack-licensing": "workspace:*",
 		"@automattic/jetpack-script-data": "workspace:*",
 		"@automattic/jetpack-shared-extension-utils": "workspace:*",
+		"@automattic/jetpack-shared-stores": "workspace:*",
 		"@automattic/number-formatters": "workspace:*",
 		"@tanstack/react-query": "5.90.8",
 		"@wordpress/api-fetch": "7.48.1",

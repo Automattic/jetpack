@@ -3323,6 +3323,9 @@ importers:
       '@automattic/jetpack-shared-extension-utils':
         specifier: workspace:*
         version: link:../../js-packages/shared-extension-utils
+      '@automattic/jetpack-shared-stores':
+        specifier: workspace:*
+        version: link:../../js-packages/jetpack-shared-stores
       '@automattic/number-formatters':
         specifier: workspace:*
         version: link:../../js-packages/number-formatters
