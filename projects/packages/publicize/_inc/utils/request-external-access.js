@@ -27,11 +27,11 @@ export const KEYRING_BROADCAST_CHANNEL = 'jetpack-social-keyring';
  *
  * @param {string}          url - The URL to be loaded in the newly opened window.
  * @param {requestCallback} cb  - The callback that handles the response.
+ *
+ * @return {boolean} `true` if the popup opened, `false` if it was blocked by the browser.
  */
 export const requestExternalAccess = ( url, cb ) => {
 	const popupMonitor = new PopupMonitor();
-
-	const requestId = new URL( url ).searchParams.get( 'request_id' );
 
 	popupMonitor.open(
 		url,
@@ -39,40 +39,37 @@ export const requestExternalAccess = ( url, cb ) => {
 		'toolbar=0,location=0,status=0,menubar=0,' + popupMonitor.getScreenCenterSpecs( 780, 700 )
 	);
 
+	/*
+	 * When the browser blocks the popup, window.open returns null (or, in some browsers, a window
+	 * that is immediately closed). Bail out so the caller can let the user know what happened.
+	 */
+	const popup = popupMonitor.windowInstance;
+	if ( ! popup || popup.closed || typeof popup.closed === 'undefined' ) {
+		return false;
+	}
+
+	const requestId = new URL( url ).searchParams.get( 'request_id' );
+
 	// auth_flow=v2: wait for the same-origin completion page to broadcast the request_id.
 	if ( requestId && typeof BroadcastChannel !== 'undefined' ) {
 		const channel = new BroadcastChannel( KEYRING_BROADCAST_CHANNEL );
 
-		let settled = false;
-
-		const finish = () => {
-			if ( settled ) {
-				return;
-			}
-			settled = true;
-			channel.close();
-			cb();
-		};
-
 		channel.addEventListener( 'message', event => {
 			if ( event.data?.type === 'keyring-result' && event.data?.requestId === requestId ) {
-				finish();
+				clearTimeout( cleanupTimer );
+				channel.close();
+				cb();
 			}
 		} );
 
-		// Safety net: stop listening if the channel is never used (e.g. the user abandons the flow).
-		popupMonitor.once( 'close', () => {
-			// The close event is unreliable under COOP (it can fire before auth completes),
-			// so it is only used to release the channel after a grace period — never as success.
-			setTimeout( () => {
-				if ( ! settled ) {
-					settled = true;
-					channel.close();
-				}
-			}, 5000 );
-		} );
+		// Give up after the server transient's TTL; we don't watch the popup 'close' event
+		// because COOP makes it fire at the login screen, before auth completes.
+		const cleanupTimer = setTimeout(
+			() => channel.close(),
+			5 * 60 * 1000 // 5 minutes
+		);
 
-		return;
+		return true;
 	}
 
 	// Legacy flow: the popup posts the keyring result back via window.opener.postMessage.
@@ -85,4 +82,6 @@ export const requestExternalAccess = ( url, cb ) => {
 	popupMonitor.on( 'message', message => {
 		lastMessage = message?.data;
 	} );
+
+	return true;
 };

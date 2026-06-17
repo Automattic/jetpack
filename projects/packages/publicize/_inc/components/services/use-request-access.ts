@@ -143,7 +143,16 @@ export function useRequestAccess( { service, onConfirm }: RequestAccessOptions )
 				getAdminUrl( 'admin-post.php?action=jetpack_social_keyring_done' )
 			);
 
-			requestExternalAccess( url.toString(), () => onConfirm( requestId ) );
+			const opened = requestExternalAccess( url.toString(), () => onConfirm( requestId ) );
+
+			if ( ! opened ) {
+				createErrorNotice(
+					__(
+						'The connection window could not be opened. Please allow pop-ups for this site then try connecting the account again.',
+						'jetpack-publicize-pkg'
+					)
+				);
+			}
 		},
 		[
 			createErrorNotice,
