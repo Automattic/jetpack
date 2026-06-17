@@ -784,7 +784,6 @@ class Jetpack {
 				'sync',
 				'account_protection',
 				'waf',
-				'videopress',
 				'stats',
 				'stats_admin',
 				'import',
@@ -793,6 +792,13 @@ class Jetpack {
 		) {
 			$config->ensure( $feature );
 		}
+
+		// Enable the VideoPress admin UI (the "Jetpack > VideoPress" dashboard) inside the
+		// Jetpack plugin, mirroring the standalone Jetpack VideoPress plugin. The page only
+		// renders when the VideoPress module is active (Status::is_active()), and respects the
+		// rsm_jetpack_ui_modernization_videopress filter to switch between the legacy React app
+		// and the modernized wp-build dashboard.
+		$config->ensure( 'videopress', array( 'admin_ui' => true ) );
 
 		$config->ensure(
 			'connection',
