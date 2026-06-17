@@ -302,6 +302,32 @@ class Jetpack_Core_Api_Module_Activate_Endpoint_Test extends Jetpack_REST_TestCa
 		$this->assertSame( 'alert(1)Just the **markdown** text', $stored['free_tier_description'] );
 	}
 
+	/**
+	 * A non-scalar `free_tier_description` (e.g. an array from a malformed JSON
+	 * payload) must be dropped rather than passed to wp_kses()/mb_substr(), which
+	 * would fatal on PHP 8+.
+	 *
+	 * @return void
+	 */
+	public function test_update_data_subscription_options_free_tier_description_ignores_non_scalar() {
+		$this->seed_subscription_options();
+
+		$request = new WP_REST_Request();
+		$request->set_body_params(
+			array(
+				'subscription_options' => array(
+					'free_tier_description' => array( 'unexpected', 'array' ),
+				),
+			)
+		);
+
+		$result = ( new Jetpack_Core_API_Data() )->update_data( $request );
+
+		$this->assertSame( 200, $result->get_status() );
+		$stored = get_option( 'subscription_options' );
+		$this->assertArrayNotHasKey( 'free_tier_description', $stored );
+	}
+
 	public function test_update_data_subscription_options_free_tier_description_is_length_capped() {
 		$this->seed_subscription_options();
 

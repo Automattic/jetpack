@@ -184,6 +184,28 @@ class WPCOM_JSON_API_Site_Settings_V1_4_Endpoint_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * A non-scalar `free_tier_description` (e.g. an array from a malformed JSON
+	 * payload) must be dropped rather than passed to wp_kses()/mb_substr(), which
+	 * would fatal on PHP 8+. A sibling valid key is included so the update still
+	 * proceeds and the dropped key can be asserted.
+	 */
+	public function test_post_free_tier_description_ignores_non_scalar() {
+		$setting  = wp_json_encode(
+			array(
+				'subscription_options' => array(
+					'free_tier_description'   => array( 'unexpected', 'array' ),
+					'subscribe_modal_heading' => 'Still saved',
+				),
+			),
+			JSON_UNESCAPED_SLASHES
+		);
+		$response = $this->make_post_request( $setting );
+		$updated  = $response['updated'];
+		$this->assertSame( 'Still saved', $updated['subscription_options']['subscribe_modal_heading'] );
+		$this->assertArrayNotHasKey( 'free_tier_description', $updated['subscription_options'] );
+	}
+
+	/**
 	 * Returns the response of a successful GET request to `sites/%s/settings`.
 	 */
 	public function make_get_request() {

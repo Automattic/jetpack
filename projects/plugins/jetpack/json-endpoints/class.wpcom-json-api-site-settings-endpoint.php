@@ -1012,8 +1012,14 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					// all HTML and cap its length to match the paid-tier description field.
 					// WordPress core guarantees mb_substr() (polyfilled in wp-includes/compat.php
 					// when the mbstring extension is unavailable), so it's safe to use directly.
+					// A JSON payload could supply a non-scalar (array/object) for this field,
+					// which would fatal in wp_kses()/mb_substr() on PHP 8+, so drop invalid values.
 					if ( isset( $filtered_value['free_tier_description'] ) ) {
-						$filtered_value['free_tier_description'] = mb_substr( wp_kses( $filtered_value['free_tier_description'], array() ), 0, 500 );
+						if ( is_scalar( $filtered_value['free_tier_description'] ) ) {
+							$filtered_value['free_tier_description'] = mb_substr( wp_kses( (string) $filtered_value['free_tier_description'], array() ), 0, 500 );
+						} else {
+							unset( $filtered_value['free_tier_description'] );
+						}
 					}
 
 					if ( $has_hide_free_tier ) {
