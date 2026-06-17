@@ -2539,7 +2539,7 @@ describe( 'ChartContext', () => {
 	describe( 'defaultTheme', () => {
 		it( 'exposes default barChart comparison styles', () => {
 			expect( defaultTheme.barChart.barStyles.comparison ).toEqual( {
-				widthFactor: 1.5,
+				widthFactor: 1.0,
 				opacity: 0.5,
 			} );
 		} );
