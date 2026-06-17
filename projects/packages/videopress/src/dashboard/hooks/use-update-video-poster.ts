@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import apiFetch from '@wordpress/api-fetch';
-import { LIBRARY_QUERY_KEY } from './use-library';
+import { LIBRARY_ITEM_QUERY_SEGMENT, LIBRARY_QUERY_KEY } from './use-library';
 import type { LibraryItem } from '../types/library';
 
 export type UpdatePosterVars =
@@ -93,7 +93,7 @@ export function useUpdateVideoPoster() {
 		onSuccess: ( { poster }, vars ) => {
 			if ( poster ) {
 				client.setQueryData(
-					[ LIBRARY_QUERY_KEY, 'item', String( vars.id ) ],
+					[ LIBRARY_QUERY_KEY, LIBRARY_ITEM_QUERY_SEGMENT, String( vars.id ) ],
 					( old: LibraryItem | undefined ) => ( old ? { ...old, thumbnailUrl: poster } : old )
 				);
 			}

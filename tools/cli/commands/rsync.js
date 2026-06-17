@@ -187,6 +187,18 @@ export async function rsyncInit( argv ) {
 					disableGlobbing: true,
 					ignoreInitial: true,
 					depth: 0,
+					/*
+					 * On macOS, chokidar 4 (which no longer bundles fsevents) opens one fs.watch
+					 * kqueue descriptor per watched path. With the thousands of paths we watch, that
+					 * makes later child_process spawns fail with EBADF, which crashes the watch.
+					 * See https://github.com/paulmillr/chokidar/issues/1452. Polling avoids the
+					 * per-path descriptors; it's more expensive, so only use it where it's needed.
+					 */
+					...( process.platform === 'darwin' && {
+						usePolling: true,
+						interval: 500,
+						binaryInterval: 1000,
+					} ),
 				} );
 
 				// Always watch the plugin base dir.
@@ -445,7 +457,8 @@ async function addVendorFilesToPathSet( source, paths ) {
  * @return {object} As from `tmp.fileSync()`.
  */
 async function createFilterFile( paths ) {
-	const tmpFile = tmp.fileSync();
+	// Set `detachDescriptor` to let the WriteStream close the FD.
+	const tmpFile = tmp.fileSync( { detachDescriptor: true } );
 
 	// Wrap the tmpFile fd in a stream.
 	const tmpStream = createWriteStream( null, { fd: tmpFile.fd } );

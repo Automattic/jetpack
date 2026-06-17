@@ -26,7 +26,7 @@ class Feed_Detection_Test extends BaseTestCase {
 	 * regression net for the opawg sync (Amazon's spaced bot UA, the
 	 * broadened `PodcastIndex` substring, etc.).
 	 */
-	public function test_recognizes_each_tracked_directory() {
+	public function test_promotes_pending_state_for_each_tracked_directory() {
 		$cases = array(
 			'AppleCoreMedia/1.0.0.20F71 (iPhone; U; CPU OS 16_5_1)' => 'apple',
 			'Spotify/8.7.0 iOS/16.4'       => 'spotify',
@@ -37,7 +37,7 @@ class Feed_Detection_Test extends BaseTestCase {
 		);
 
 		foreach ( $cases as $ua => $expected_slug ) {
-			delete_option( 'podcasting_show_states' );
+			update_option( 'podcasting_show_states', array( $expected_slug => 'pending' ) );
 			$_SERVER['HTTP_USER_AGENT'] = $ua;
 
 			Feed_Detection::detect_and_record();
@@ -55,6 +55,41 @@ class Feed_Detection_Test extends BaseTestCase {
 
 		$states = get_option( 'podcasting_show_states', array() );
 		$this->assertSame( 'active', $states['apple'] );
+	}
+
+	public function test_does_not_create_state_for_recognized_directory_without_existing_state() {
+		$_SERVER['HTTP_USER_AGENT'] = 'AppleCoreMedia/1.0.0.20F71';
+
+		Feed_Detection::detect_and_record();
+
+		$this->assertFalse( get_option( 'podcasting_show_states', false ) );
+	}
+
+	public function test_does_not_create_state_for_recognized_directory_with_empty_states_array() {
+		update_option( 'podcasting_show_states', array() );
+		$_SERVER['HTTP_USER_AGENT'] = 'AppleCoreMedia/1.0.0.20F71';
+
+		Feed_Detection::detect_and_record();
+
+		$this->assertSame( array(), get_option( 'podcasting_show_states', array() ) );
+	}
+
+	public function test_does_not_create_state_for_recognized_directory_missing_from_existing_states() {
+		update_option( 'podcasting_show_states', array( 'spotify' => 'pending' ) );
+		$_SERVER['HTTP_USER_AGENT'] = 'AppleCoreMedia/1.0.0.20F71';
+
+		Feed_Detection::detect_and_record();
+
+		$this->assertSame( array( 'spotify' => 'pending' ), get_option( 'podcasting_show_states', array() ) );
+	}
+
+	public function test_does_not_promote_empty_state_value() {
+		update_option( 'podcasting_show_states', array( 'apple' => '' ) );
+		$_SERVER['HTTP_USER_AGENT'] = 'AppleCoreMedia/1.0.0.20F71';
+
+		Feed_Detection::detect_and_record();
+
+		$this->assertSame( array( 'apple' => '' ), get_option( 'podcasting_show_states', array() ) );
 	}
 
 	public function test_does_not_rewrite_when_already_active() {

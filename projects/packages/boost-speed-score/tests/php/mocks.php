@@ -1,4 +1,4 @@
-<?php //phpcs:ignore Squiz.Commenting.FileComment.Missing
+<?php
 
 use Brain\Monkey\Functions;
 

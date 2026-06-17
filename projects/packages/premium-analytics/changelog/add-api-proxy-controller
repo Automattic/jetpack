@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+REST: Add the analytics API proxy controller that forwards dashboard requests to WPCOM and briefly caches the response.

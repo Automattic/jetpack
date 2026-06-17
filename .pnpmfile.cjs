@@ -84,6 +84,11 @@ async function fixDeps( pkg ) {
 		pkg.peerDependencies.react = '^18';
 	}
 
+	// Unnecessary dep. Probably waiting on https://github.com/WordPress/gutenberg/pull/78747 to resolve it.
+	if ( pkg.name === '@wordpress/components' && pkg.dependencies?.[ '@emotion/native' ] ) {
+		delete pkg.dependencies?.[ '@emotion/native' ];
+	}
+
 	// We need to add the missing deps for `@wordpress/dataviews` because
 	// the build fails when using pnpm with hoisting.
 	// @see https://github.com/WordPress/gutenberg/issues/67864
@@ -134,7 +139,7 @@ async function fixDeps( pkg ) {
 	}
 
 	// Unnecessarily explicit deps. I don't think we really even need @wordpress/babel-preset-default at all.
-	if ( pkg.name === '@wordpress/babel-preset-default' || pkg.name === '@wordpress/eslint-plugin' ) {
+	if ( pkg.name === '@wordpress/babel-preset-default' ) {
 		for ( const [ dep, ver ] of Object.entries( pkg.dependencies ) ) {
 			if ( dep.startsWith( '@babel/' ) && ! ver.startsWith( '^' ) && ! ver.startsWith( '>' ) ) {
 				pkg.dependencies[ dep ] = '^' + ver;
@@ -252,14 +257,13 @@ async function fixDeps( pkg ) {
 		pkg.dependencies[ '@xmldom/xmldom' ] = '^0.9';
 	}
 
-	// Dependency on "latest" makes for many spurious updates. Leave it for the lockfile maintenance PRs.
-	// No upstream evident to report bugs to.
-	if ( pkg.name === '@paulirish/trace_engine' ) {
-		for ( const k of Object.keys( pkg.dependencies ) ) {
-			if ( pkg.dependencies[ k ] === 'latest' ) {
-				pkg.dependencies[ k ] = '*';
-			}
-		}
+	// Outdated, vulnerable dep. Seems to work with the updated version.
+	// https://github.com/istanbuljs/load-nyc-config/issues/26
+	if (
+		pkg.name === '@istanbuljs/load-nyc-config' &&
+		pkg.dependencies?.[ 'js-yaml' ] === '^3.13.1'
+	) {
+		pkg.dependencies[ 'js-yaml' ] = '^4.2.0';
 	}
 
 	// Glob decided to deprecate everything <12, even though tons of stuff still depends on older versions.
@@ -271,20 +275,18 @@ async function fixDeps( pkg ) {
 		pkg.dependencies.glob = '^13';
 	}
 
-	// `@base-ui/react` added a peer dependency on `date-fns`, but `@wordpress/ui` doesn't satisfy it.
-	// https://github.com/WordPress/gutenberg/issues/77395
+	// Temporarily outdated deps. Storybook is already updated upstream.
 	if (
-		( pkg.name === '@wordpress/ui' || pkg.name === '@wordpress/dataviews' ) &&
-		( ! pkg.dependencies?.[ 'date-fns' ] || ! pkg.dependencies?.[ '@date-fns/tz' ] )
+		pkg.dependencies?.esbuild?.match( /\^0\.27/ ) &&
+		! pkg.dependencies?.esbuild?.match( /\^0\.28/ )
 	) {
-		pkg.dependencies[ 'date-fns' ] ??= '^4.0.0';
-		pkg.dependencies[ '@date-fns/tz' ] ??= '^1.2.0';
+		pkg.dependencies.esbuild += ' || ^0.28';
 	}
 
-	// Temporary override. Seems to work fine with 24.14, and bumping the min version is more disruptive.
-	// We'll plan to remove this hack and bump the version along with pnpm 11 and/or composer 2.10 soon.
-	if ( pkg.name === 'eslint-plugin-package-json' ) {
-		delete pkg.engines;
+	// We don't use this in our E2E runs, and it brings in a lot of extraneous deps (and CVE-2026-54285).
+	// (if you bring this back, do it by reverting the pnpmfile changes in commit e90548654eacfa7493388331dd644a6f927d16c5, don't just delete this bit).
+	if ( pkg.name === '@wordpress/e2e-test-utils-playwright' ) {
+		pkg.dependencies.lighthouse = 'workspace:@automattic/_jetpack-no-lighthouse@*';
 	}
 
 	return pkg;
@@ -357,13 +359,20 @@ function fixPeerDeps( pkg ) {
 		pkg.peerDependenciesMeta[ '@size-limit/file' ] = { optional: true };
 	}
 
-	// Override @automattic/launchpad peer dependency to use @wordpress/i18n v6 if it's on v5.
-	if (
-		pkg.name === '@automattic/launchpad' &&
-		pkg.peerDependencies?.[ '@wordpress/i18n' ] &&
-		pkg.peerDependencies?.[ '@wordpress/i18n' ].startsWith( '^5.' )
-	) {
-		pkg.peerDependencies[ '@wordpress/i18n' ] = '^6';
+	// Override @automattic/launchpad outdated peer dependencies.
+	if ( pkg.name === '@automattic/launchpad' ) {
+		if (
+			pkg.peerDependencies?.[ '@wordpress/element' ] &&
+			pkg.peerDependencies?.[ '@wordpress/element' ].startsWith( '^6.' )
+		) {
+			pkg.peerDependencies[ '@wordpress/element' ] = '^8';
+		}
+		if (
+			pkg.peerDependencies?.[ '@wordpress/i18n' ] &&
+			pkg.peerDependencies?.[ '@wordpress/i18n' ].startsWith( '^5.' )
+		) {
+			pkg.peerDependencies[ '@wordpress/i18n' ] = '^6';
+		}
 	}
 
 	// Outdated peer dependency because Gutenberg is still on node 20.
@@ -399,15 +408,6 @@ function fixPeerDeps( pkg ) {
 		pkg.peerDependencies?.stylelint?.startsWith( '^16.' )
 	) {
 		pkg.peerDependencies.stylelint = '^17';
-	}
-
-	// 0.x versions treat `^` like `~`. Replace with `>=`.
-	if ( pkg.name === '@wordpress/build' && pkg.peerDependencies ) {
-		for ( const [ dep, ver ] of Object.entries( pkg.peerDependencies ) ) {
-			if ( ver.startsWith( '^0.' ) ) {
-				pkg.peerDependencies[ dep ] = '>=' + ver.substring( 1 );
-			}
-		}
 	}
 
 	return pkg;

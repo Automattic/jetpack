@@ -2,6 +2,26 @@
 
 ### This is a list detailing changes for the Jetpack RNA Connection Component releases.
 
+## [1.4.61] - 2026-06-15
+### Changed
+- Update package dependencies. [#49631]
+
+## [1.4.60] - 2026-06-15
+### Changed
+- Internal updates.
+
+## [1.4.59] - 2026-06-09
+### Changed
+- Update package dependencies. [#49273]
+
+## [1.4.58] - 2026-06-08
+### Changed
+- Update dependencies.
+
+## [1.4.57] - 2026-06-08
+### Changed
+- Internal updates.
+
 ## [1.4.56] - 2026-06-03
 ### Changed
 - Internal updates.
@@ -12,7 +32,7 @@
 
 ## [1.4.54] - 2026-06-01
 ### Changed
-- Connection: Migrate ActionButton, Button, and Text consumers off @automattic/jetpack-components to @wordpress/ui equivalents; brings the package to zero migration-relevant jetpack-components imports. [#49099]
+- Connection: Migrate ActionButton, Button, and Text consumers off @automattic/jetpack-components to @wordpress/ui equivalents. [#49099]
 - Update package dependencies. [#48404]
 
 ## [1.4.53] - 2026-05-25
@@ -1365,6 +1385,11 @@
 - `Main` and `ConnectUser` components added.
 - `JetpackRestApiClient` API client added.
 
+[1.4.61]: https://github.com/Automattic/jetpack-connection-js/compare/v1.4.60...v1.4.61
+[1.4.60]: https://github.com/Automattic/jetpack-connection-js/compare/v1.4.59...v1.4.60
+[1.4.59]: https://github.com/Automattic/jetpack-connection-js/compare/v1.4.58...v1.4.59
+[1.4.58]: https://github.com/Automattic/jetpack-connection-js/compare/v1.4.57...v1.4.58
+[1.4.57]: https://github.com/Automattic/jetpack-connection-js/compare/v1.4.56...v1.4.57
 [1.4.56]: https://github.com/Automattic/jetpack-connection-js/compare/v1.4.55...v1.4.56
 [1.4.55]: https://github.com/Automattic/jetpack-connection-js/compare/v1.4.54...v1.4.55
 [1.4.54]: https://github.com/Automattic/jetpack-connection-js/compare/v1.4.53...v1.4.54
