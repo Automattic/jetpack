@@ -1,10 +1,10 @@
 # Connect Route — Agent Guide
 
-Companion to `README.md`. Focuses on the mental model and debugging playbook for Jetpack connectivity issues. When something breaks, always ask: _is it our wiring or the upstream package?_
+Companion to `README.md`. Focuses on the mental model and debugging playbook for Jetpack connectivity issues. When something breaks, always ask: _is it our wiring or the connection package?_
 
-## Upstream (source of truth)
+## Connection package (source of truth)
 
-The connection machinery is not ours — we consume `@automattic/jetpack-connection`. Read the real code before theorizing:
+The connection machinery lives in `@automattic/jetpack-connection`, a sibling package in this monorepo — we consume it rather than reimplement it. Read the real code before theorizing (all paths are in this repo):
 
 | What                                                         | Where                                                                                                                                                                            |
 | ------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -66,4 +66,4 @@ Walk in order, stop at the first red flag:
 ## Related
 
 - **WOOA7S-1327** — gate the authorize button on `offlineMode.isActive` so users see an unavailable state instead of a button that always 403s.
-- **WOOA7S-1224** — README troubleshooting for the offline-mode 403 (done in the old standalone project).
+- **WOOA7S-1224** — README troubleshooting for the offline-mode 403.
