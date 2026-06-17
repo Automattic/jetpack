@@ -125,16 +125,18 @@ export function Reconnect( { connection, service }: ReconnectProps ) {
 		return null;
 	}
 
+	if ( isReconnecting ) {
+		// Make it non-interactive
+		return (
+			<Link href="#" variant={ 'unstyled' } aria-disabled>
+				{ __( 'Reconnecting…', 'jetpack-publicize-pkg' ) }
+			</Link>
+		);
+	}
+
 	return (
-		<Link
-			variant={ isReconnecting ? 'unstyled' : 'default' }
-			href="#"
-			aria-disabled={ isReconnecting || undefined }
-			onClick={ onClick }
-		>
-			{ isReconnecting
-				? __( 'Reconnecting…', 'jetpack-publicize-pkg' )
-				: _x( 'Reconnect', 'Reconnect a social media account', 'jetpack-publicize-pkg' ) }
+		<Link href="#" onClick={ onClick }>
+			{ _x( 'Reconnect', 'Reconnect a social media account', 'jetpack-publicize-pkg' ) }
 		</Link>
 	);
 }
