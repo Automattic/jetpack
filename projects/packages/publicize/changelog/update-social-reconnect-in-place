@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Social: Reconnect accounts in place instead of disconnecting and recreating them, retaining connection settings.
