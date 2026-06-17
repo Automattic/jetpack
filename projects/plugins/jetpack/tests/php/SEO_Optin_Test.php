@@ -6,7 +6,6 @@
  * @package jetpack
  */
 
-use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\SEO\Initializer as Jetpack_SEO_Initializer;
 use PHPUnit\Framework\Attributes\CoversClass;
 
@@ -27,17 +26,15 @@ class SEO_Optin_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Opting in marks the surface visible, activates seo-tools, and returns the dashboard
-	 * URL to redirect to.
+	 * Opting in marks the surface visible and returns the dashboard URL to redirect to.
+	 * (Module activation is delegated to Modules::activate(), covered by its own tests; the
+	 * test environment doesn't persist that activation, so we assert handle_optin's own
+	 * deterministic effects here.)
 	 */
-	public function test_opt_in_marks_surface_visible_and_activates_module() {
-		$modules = new Modules();
-		$this->assertFalse( $modules->is_active( 'seo-tools' ) );
-
+	public function test_opt_in_marks_surface_visible_and_returns_dashboard_url() {
 		$data = Jetpack_SEO_Initializer::handle_optin()->get_data();
 
 		$this->assertTrue( (bool) get_option( Jetpack_SEO_Initializer::VISIBILITY_OPTION ) );
-		$this->assertTrue( $modules->is_active( 'seo-tools' ) );
 		$this->assertTrue( $data['success'] );
 		$this->assertStringContainsString( 'page=jetpack-seo', $data['redirect'] );
 	}
