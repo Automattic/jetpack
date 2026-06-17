@@ -4,6 +4,7 @@ import { GlobalChartsProvider } from '../global-charts-provider';
 import { useChartId } from '../hooks/use-chart-id';
 import { useChartRegistration } from '../hooks/use-chart-registration';
 import { useGlobalChartsContext } from '../hooks/use-global-charts-context';
+import { defaultTheme } from '../themes';
 import type { BaseLegendItem } from '../../../components/legend';
 import type { ChartTheme, SeriesData } from '../../../types';
 import type { GlobalChartsContextValue } from '../types';
@@ -2531,6 +2532,15 @@ describe( 'ChartContext', () => {
 				// Colors should remain stable
 				expect( afterRerenderColor ).toBe( initialColor );
 				expect( afterRerenderColor ).toBe( '#ff0000' );
+			} );
+		} );
+	} );
+
+	describe( 'defaultTheme', () => {
+		it( 'exposes default barChart comparison styles', () => {
+			expect( defaultTheme.barChart.barStyles.comparison ).toEqual( {
+				widthFactor: 1.5,
+				opacity: 0.5,
 			} );
 		} );
 	} );
