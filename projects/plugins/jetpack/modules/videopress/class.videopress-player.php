@@ -714,7 +714,15 @@ class VideoPress_Player {
 
 			$cover  = $videopress_options['cover'] ? ' data-resize-to-parent="true"' : '';
 			$js_url = 'https://s0.wp.com/wp-content/plugins/video/assets/js/next/videopress-iframe.js';
-			// phpcs:disable WordPress.WP.EnqueuedResources.NonEnqueuedScript
+
+			/*
+			 * Enqueue the iframe API script rather than printing it inline so that
+			 * it is only loaded once when several VideoPress blocks are on the page.
+			 * The 'videopress-iframe' handle is shared with the VideoPress package's
+			 * block render so both paths de-duplicate against each other.
+			 */
+			wp_enqueue_script( 'videopress-iframe', $js_url, array(), JETPACK__VERSION, true );
+
 			return "<iframe title='" . __( 'VideoPress Video Player', 'jetpack' )
 				. "' aria-label='" . __( 'VideoPress Video Player', 'jetpack' )
 				. "' width='" . esc_attr( $videopress_options['width'] )
@@ -722,19 +730,23 @@ class VideoPress_Player {
 				. "' src='" . esc_attr( $iframe_url )
 				. "' frameborder='0' allowfullscreen"
 				. $cover
-				. " allow='clipboard-write'></iframe>"
-				. "<script src='" . esc_attr( $js_url ) . "'></script>";
+				. " allow='clipboard-write'></iframe>";
 
 		} else {
 			$videopress_options = wp_json_encode( $videopress_options, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP );
 			$js_url             = 'https://s0.wp.com/wp-content/plugins/video/assets/js/videojs/videopress.js';
 
-			return "<div id='{$video_container_id}'></div>
-				<script src='{$js_url}'></script>
-				<script>
-					videopress('{$this->video->guid}', document.querySelector('#{$video_container_id}'), {$videopress_options});
-				</script>";
-			// phpcs:enable WordPress.WP.EnqueuedResources.NonEnqueuedScript
+			/*
+			 * Enqueue the player script once and attach each video's initialization
+			 * as an inline script so the loader is not duplicated per block.
+			 */
+			wp_enqueue_script( 'videopress-videojs', $js_url, array(), JETPACK__VERSION, true );
+			wp_add_inline_script(
+				'videopress-videojs',
+				"videopress('{$this->video->guid}', document.querySelector('#{$video_container_id}'), {$videopress_options});"
+			);
+
+			return "<div id='{$video_container_id}'></div>";
 		}
 	}
 
