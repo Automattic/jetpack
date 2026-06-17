@@ -273,6 +273,10 @@ const blockInfoMapping: { [ key: string ]: { link: string; postId: number } } = 
 		link: 'https://wordpress.com/support/wordpress-editor/blocks/opentable-block/',
 		postId: 162208,
 	},
+	'jetpack/markdown': {
+		link: 'https://wordpress.com/support/wordpress-editor/blocks/markdown-block/',
+		postId: 149871,
+	},
 	'jetpack/map': {
 		link: 'https://wordpress.com/support/wordpress-editor/blocks/map-block/',
 		postId: 149684,
