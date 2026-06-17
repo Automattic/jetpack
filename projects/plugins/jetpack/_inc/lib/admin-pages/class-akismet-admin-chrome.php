@@ -54,8 +54,20 @@ class Akismet_Admin_Chrome {
 	 *
 	 * Safe to call unconditionally: the header/footer callbacks are only ever fired by
 	 * Akismet's own admin views, and the inline stylesheet is printed alongside the header.
+	 *
+	 * Idempotent: this can be wired from more than one place depending on the platform —
+	 * `Jetpack_Admin` on Atomic/self-hosted, and `Akismet_Admin_WPCOM` on WordPress.com
+	 * Simple sites (the two run under different load orders). The static guard ensures the
+	 * `akismet_header` / `akismet_footer` callbacks are only ever registered once, so the
+	 * chrome can never render twice regardless of how many call sites fire.
 	 */
 	public function init_hooks() {
+		static $registered = false;
+		if ( $registered ) {
+			return;
+		}
+		$registered = true;
+
 		add_action( 'akismet_header', array( $this, 'render_header' ) );
 		add_action( 'akismet_footer', array( $this, 'render_footer' ) );
 	}
@@ -191,6 +203,19 @@ class Akismet_Admin_Chrome {
 				padding-inline-start: 0;
 			}
 			body[class*="_page_akismet-key-config"] #wpfooter {
+				display: none;
+			}
+			/* `#screen-meta-links` (the Screen Options / Help tabs container) is always
+				emitted by core's admin header even when empty, and core gives it
+				`margin: 0 10px 20px 0`. On wp.com Simple sites its contents are hidden
+				but the element — and its 20px bottom margin — remain, reserving a blank
+				slot at the very top of the page above the Jetpack header. The
+				`jetpack-admin-page-layout` mixin hides it for the same reason; do it here
+				too. Left UNSCOPED (not under `_page_akismet-key-config`) on purpose: the
+				inline stylesheet is only ever printed on Akismet admin views, and Simple
+				renders its stats UI under a different slug (`dashboard_page_akismet-stats`),
+				so an unscoped rule covers every page this chrome appears on. */
+			#screen-meta-links {
 				display: none;
 			}
 			body[class*="_page_akismet-key-config"] #wpbody-content {
