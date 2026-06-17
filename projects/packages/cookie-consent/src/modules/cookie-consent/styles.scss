@@ -1,0 +1,548 @@
+/* ==========================================================================
+   Cookie Consent Styles
+   Aligned with WooCommerce Bookings modal pattern for UI consistency.
+   Uses :where() selectors for low specificity (theme-friendly).
+   Modal uses hard-coded spacing (like Bookings), banner uses theme variables.
+   ========================================================================== */
+
+/* Banner - Uses theme variables for spacing */
+.jetpack-cookie-consent__banner {
+	display: none; /* Hidden by default */
+	position: fixed;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	z-index: 999999;
+	pointer-events: auto;
+	align-items: flex-end;
+}
+
+.jetpack-cookie-consent__banner--visible {
+	display: flex;
+	pointer-events: auto;
+}
+
+.jetpack-cookie-consent__banner-inner {
+	display: flex;
+	align-items: center;
+	margin: 0;
+	padding: var(--wp--preset--spacing--20, 16px);
+	width: 100%;
+	box-shadow: 0 -4px 16px 0 rgba(0, 0, 0, 0.08);
+	background: var(--wp--preset--color--base, #fff);
+	gap: var(--wp--preset--spacing--20, 16px);
+}
+
+.jetpack-cookie-consent__banner-content {
+	flex: 1;
+}
+
+.jetpack-cookie-consent__banner-title {
+	margin: 0 0 calc(var(--wp--preset--spacing--20, 10px) * 0.8) 0;
+	font-size: 16px;
+	font-weight: 600;
+	line-height: 1.5;
+	color: var(--wp--preset--color--contrast, #1e1e1e);
+}
+
+.jetpack-cookie-consent__banner-description {
+	margin: 0;
+	font-size: 14px;
+	line-height: 1.71;
+	color: var(--wp--preset--color--contrast-2, #686868);
+}
+
+.jetpack-cookie-consent__banner-actions {
+	display: flex;
+	gap: var(--wp--preset--spacing--20, 16px);
+	flex-shrink: 0;
+	align-items: center;
+}
+
+/* Buttons */
+.jetpack-cookie-consent__button {
+	padding: 12px 20px;
+	font-size: var(--wp--preset--font-size--normal, 16px);
+	font-weight: 400;
+	line-height: 1;
+	border: 1px solid transparent;
+	cursor: pointer;
+	transition: all 0.2s ease;
+	white-space: nowrap;
+}
+
+.jetpack-cookie-consent__button:focus-visible {
+	outline: 2px solid var(--wp--preset--color--contrast, #243dc8);
+	outline-offset: 2px;
+}
+
+.jetpack-cookie-consent__button--secondary {
+	background: var(--wp--preset--color--base, #fff);
+	color: var(--wp--preset--color--contrast, #1e1e1e);
+	border-color: var(--wp--preset--color--contrast, #1e1e1e);
+}
+
+.jetpack-cookie-consent__button--secondary:hover {
+	opacity: 0.9;
+}
+
+.jetpack-cookie-consent__button--tertiary {
+	background: transparent;
+	color: var(--wp--preset--color--contrast, #1e1e1e);
+	border-color: var(--wp--preset--color--contrast-3, #dcdcde);
+}
+
+.jetpack-cookie-consent__button--tertiary:hover {
+	background: var(--wp--preset--color--contrast-3, #f0f0f0);
+}
+
+/* Modal Overlay - Aligned with WooCommerce Bookings modal pattern */
+:where(.jetpack-cookie-consent__modal-overlay) {
+	background-color: rgba(95, 95, 95, 0.35);
+	bottom: 0;
+	box-sizing: border-box;
+	left: 0;
+	opacity: 1;
+	position: fixed;
+	right: 0;
+	top: 0;
+	transition: opacity 0.3s;
+	z-index: 999999;
+}
+
+:where(.jetpack-cookie-consent__modal-overlay[hidden]) {
+	display: block;
+	left: -10000px;
+	opacity: 0;
+	overflow: hidden;
+	pointer-events: none;
+	transition:
+		opacity 0.3s,
+		display 0s 0.3s;
+}
+
+:where(.jetpack-cookie-consent__modal-overlay--visible) {
+	opacity: 1;
+}
+
+/* Modal - Aligned with WooCommerce Bookings modal pattern */
+:where(.jetpack-cookie-consent__modal) {
+	background-color: var(--wp--preset--color--base, #fff);
+	border: 0;
+	bottom: 0;
+	box-sizing: border-box;
+	color: var(--wp--preset--color--contrast, #1e1e1e);
+	display: block;
+	left: 0;
+	right: 0;
+	opacity: 0;
+	padding: 0;
+	pointer-events: none;
+	position: fixed;
+	transform: translateY(50px);
+	width: 100%;
+	z-index: 1000000;
+}
+
+:where(.jetpack-cookie-consent__modal[hidden]) {
+	display: block;
+	opacity: 0;
+	pointer-events: none;
+}
+
+:where(.jetpack-cookie-consent__modal--visible) {
+	opacity: 1;
+	pointer-events: auto;
+	transform: translateY(0);
+	transition: all 0.3s;
+}
+
+.jetpack-cookie-consent__modal:focus {
+	outline-width: 0;
+}
+
+:where(.jetpack-cookie-consent__modal-header) {
+	display: flex;
+	flex-direction: row;
+	justify-content: space-between;
+	align-items: center;
+	padding: 25px 25px 0 25px;
+}
+
+:where(.jetpack-cookie-consent__modal-title) {
+	margin: 0;
+	font-size: 22px;
+	font-weight: 500;
+	line-height: 1.18;
+	color: var(--wp--preset--color--contrast, #1e1e1e);
+}
+
+:where(.jetpack-cookie-consent__modal-close) {
+	background: none;
+	border: none;
+	cursor: pointer;
+	padding: 5px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+
+	svg {
+		fill: var(--wp--preset--color--contrast, #1e1e1e);
+	}
+}
+
+:where(.jetpack-cookie-consent__modal-close:hover) svg {
+	opacity: 0.66;
+}
+
+.jetpack-cookie-consent__modal-close:focus-visible {
+	outline: 2px solid var(--wp--preset--color--accent-1, #243dc8);
+	outline-offset: 2px;
+}
+
+:where(.jetpack-cookie-consent__modal-body) {
+	display: flex;
+	gap: 25px;
+	flex-direction: column;
+	padding: 25px;
+	flex: 1;
+}
+
+:where(.jetpack-cookie-consent__modal-content) {
+	max-height: 60vh;
+	overflow-y: auto;
+	overflow-x: hidden;
+
+	// Work-around so if a focused element inside the container shows an outline,
+	// is fully visible.
+	margin: 0 -2px;
+	padding: 0 2px;
+
+	// Hide the scrollbar.
+	&::-webkit-scrollbar {
+		display: none;
+	}
+}
+
+/* Desktop: Center modal like WooCommerce Bookings */
+@media ( min-width: 782px ) {
+
+	:where(.jetpack-cookie-consent__modal) {
+		bottom: auto;
+		height: auto;
+		left: 50%;
+		max-width: 745px;
+		right: auto;
+		top: 50%;
+		transform: translate(-50%, calc(-50% + 50px));
+		width: 100%;
+	}
+
+	:where(.jetpack-cookie-consent__modal--visible) {
+		transform: translate(-50%, -50%);
+	}
+
+	:where(.jetpack-cookie-consent__modal-content) {
+		max-height: 630px;
+	}
+}
+
+.jetpack-cookie-consent__modal-description {
+	margin: 0;
+	font-size: 14px;
+	font-style: normal;
+	font-weight: 400;
+	line-height: 1.71;
+	color: var(--wp--preset--color--contrast-2, #686868);
+}
+
+.jetpack-cookie-consent__link {
+	color: var(--wp--preset--color--contrast, #1e1e1e);
+	text-decoration: underline;
+}
+
+.jetpack-cookie-consent__link:hover {
+	text-decoration: none;
+}
+
+/* Category Sections */
+.jetpack-cookie-consent__category {
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+}
+
+.jetpack-cookie-consent__category-header {
+	display: flex;
+	align-items: center;
+}
+
+.jetpack-cookie-consent__category-controls {
+	position: relative;
+	display: flex;
+	flex-direction: column;
+	gap: 25px;
+}
+
+.jetpack-cookie-consent__description-toggle {
+	right: 0;
+	top: 0;
+	position: absolute;
+	background: none;
+	border: none;
+	cursor: pointer;
+	padding: 0;
+	margin-left: auto;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	color: var(--wp--preset--color--contrast, #1e1e1e);
+	transition: transform 0.2s ease;
+}
+
+.jetpack-cookie-consent__description-toggle--expanded {
+	transform: rotate(180deg);
+}
+
+.jetpack-cookie-consent__description-toggle svg {
+	transition: transform 0.2s ease;
+}
+
+.jetpack-cookie-consent__category-content {
+	flex: 1;
+}
+
+.jetpack-cookie-consent__category-label-text {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	font-size: 14px;
+	font-weight: 400;
+	line-height: 1.71;
+	color: var(--wp--preset--color--contrast, #1e1e1e);
+}
+
+.jetpack-cookie-consent__category-badge {
+	display: inline-block;
+	padding: 0 8px;
+	font-size: 14px;
+	background: #ebebeb;
+	color: #686868;
+}
+
+.jetpack-cookie-consent__category-text {
+	margin: 0;
+	font-size: 14px;
+	line-height: 1.71;
+	color: var(--wp--preset--color--contrast-2, #686868);
+}
+
+/* Checkbox - uses regular selectors for higher specificity */
+.jetpack-cookie-consent__category-checkbox {
+	position: relative;
+	flex-shrink: 0;
+}
+
+.jetpack-cookie-consent__category-checkbox input[type="checkbox"] {
+	position: absolute;
+	opacity: 0;
+	width: 0;
+	height: 0;
+}
+
+.jetpack-cookie-consent__category-checkbox label {
+	margin: 0;
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	cursor: pointer;
+}
+
+.jetpack-cookie-consent__category-checkbox-icon {
+	display: block;
+	border-radius: 1px;
+	width: 16.8px;
+	height: 16.8px;
+	background: #e2e2e2;
+	position: relative;
+	flex-shrink: 0;
+	transition: all 0.2s ease;
+}
+
+.jetpack-cookie-consent__category-checkbox-icon::after {
+	content: "";
+	position: absolute;
+	display: none;
+	left: 6px;
+	top: 3px;
+	width: 4px;
+	height: 7px;
+	border: solid var(--wp--preset--color--contrast, #1e1e1e);
+	border-width: 0 2px 2px 0;
+	transform: rotate(45deg);
+}
+
+.jetpack-cookie-consent__category-checkbox
+input[type="checkbox"]:checked + label
+.jetpack-cookie-consent__category-checkbox-icon::after {
+	display: block;
+}
+
+.jetpack-cookie-consent__category-checkbox
+input[type="checkbox"]:focus-visible + label
+.jetpack-cookie-consent__category-checkbox-icon {
+	outline: 2px solid var(--wp--preset--color--contrast, #1e1e1e);
+	outline-offset: 2px;
+}
+
+.jetpack-cookie-consent__category-checkbox--disabled {
+	opacity: 0.66;
+}
+
+.jetpack-cookie-consent__category-checkbox--disabled label {
+	cursor: not-allowed;
+}
+
+.jetpack-cookie-consent__category-checkbox--disabled
+.jetpack-cookie-consent__category-checkbox-icon::after {
+	border-color: #686868;
+}
+
+/* Modal Footer */
+.jetpack-cookie-consent__modal-footer {
+	display: flex;
+	align-items: flex-start;
+	padding: 25px;
+	gap: 10px;
+	flex-wrap: wrap;
+}
+
+/* Responsive Design */
+@media ( max-width: 781px ) {
+
+	/* Banner - mobile adjustments */
+	.jetpack-cookie-consent__banner-inner {
+		flex-direction: column;
+		align-items: stretch;
+		padding: 20px;
+	}
+
+	.jetpack-cookie-consent__banner-title {
+		font-size: var(--wp--preset--font-size--normal, 16px);
+	}
+
+	.jetpack-cookie-consent__banner-actions {
+		flex-direction: column;
+		gap: var(--wp--preset--spacing--20, 10px);
+	}
+
+	.jetpack-cookie-consent__banner-actions .jetpack-cookie-consent__button {
+		width: 100%;
+	}
+
+	/* Modal - mobile adjustments (hard-coded like Bookings) */
+	:where(.jetpack-cookie-consent__modal) {
+		display: flex;
+		flex-direction: column;
+		max-height: 95vh;
+		top: 5vh;
+	}
+
+	:where(.jetpack-cookie-consent__modal-content) {
+		flex: 1;
+		max-height: none;
+		overflow-y: auto;
+	}
+
+	:where(.jetpack-cookie-consent__modal-header) {
+		padding: 20px 20px 0 20px;
+	}
+
+	:where(.jetpack-cookie-consent__modal-body) {
+		padding: 20px;
+	}
+
+	:where(.jetpack-cookie-consent__modal-footer) {
+		flex-direction: column;
+		align-items: stretch;
+		padding: 20px;
+	}
+
+	.jetpack-cookie-consent__modal-footer .jetpack-cookie-consent__button {
+		width: 100%;
+	}
+}
+
+/* Print */
+@media print {
+
+	.jetpack-cookie-consent {
+		display: none;
+	}
+}
+
+/* Reduced Motion */
+@media ( prefers-reduced-motion: reduce ) {
+
+	.jetpack-cookie-consent__banner,
+	.jetpack-cookie-consent__modal-overlay,
+	.jetpack-cookie-consent__modal,
+	.jetpack-cookie-consent__button,
+	.jetpack-cookie-consent__category-checkbox label,
+	.jetpack-cookie-consent__description-toggle,
+	.jetpack-cookie-consent__description-toggle svg {
+		transition: none;
+		animation: none;
+	}
+}
+
+/* ==========================================================================
+   CCPA Styles
+   ========================================================================== */
+
+/* Snackbar container */
+.jetpack-cookie-consent-ccpa-snackbar {
+	position: fixed;
+	bottom: 20px;
+	left: 20px;
+	z-index: 999999;
+	max-width: calc(100% - 100px);
+}
+
+/* Snackbar content */
+.jetpack-cookie-consent-ccpa-snackbar__content {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	background-color: #f1f9f3;
+	color: var(--wp--preset--color--contrast, #1e1e1e);
+	padding: 16px;
+	border-radius: 4px;
+	border: 1px solid #c3e8cd;
+	font-size: 16px;
+}
+
+.jetpack-cookie-consent-ccpa-snackbar__dismiss {
+	background: none;
+	border: none;
+	cursor: pointer;
+	width: 24px;
+	height: 24px;
+	padding-top: 2px; /* Align with the text */
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-size: 16px;
+}
+
+.jetpack-cookie-consent-ccpa-privacy-link-hidden {
+	display: none !important;
+}
+
+.jetpack-cookie-consent-gdpr-manage-link-hidden {
+	display: none !important;
+}
+
+.jetpack-cookie-consent-scroll-lock {
+	overflow: hidden !important;
+}

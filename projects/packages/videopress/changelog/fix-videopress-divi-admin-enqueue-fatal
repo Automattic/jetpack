@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix a wp-admin fatal error when using the VideoPress Divi extension with Divi Builder on PHP 8+.

@@ -4,6 +4,7 @@ packages:
   - projects/plugins/*/tests/e2e
   - tools/cli
   - tools/e2e-commons
+  - tools/e2e-commons/no-lighthouse
   - tools/js-tools
   - tools/performance
   - .github/files/coverage-munger
@@ -33,8 +34,10 @@ minimumReleaseAgeExclude:
   - '@automattic/*'
   - '@woocommerce/*'
   - '@wordpress/*'
-  # Renovate security update: esbuild@0.28.1
-  - esbuild@0.28.1
+  # Renovate security update: dompurify@3.4.9
+  - dompurify@3.4.9
+  # Renovate security update: markdown-it@14.2.0
+  - markdown-it@14.2.0
 trustPolicy: no-downgrade
 trustPolicyExclude:
   # https://github.com/paulmillr/chokidar/issues/1440

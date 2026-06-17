@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-CLBASE=$(cd "$(dirname "$BASH_SOURCE[0]")/../.." && pwd)
+CLBASE=$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)
 
 source "$CLBASE/tools/includes/chalk-lite.sh"
 
@@ -42,7 +42,8 @@ function changelogger_add {
 	local ARGS=( add --no-interaction --significance=patch --filename-auto-suffix --entry="$1" --comment="$2" )
 	shift 2
 
-	local CLTYPE="$(jq -r '.extra["changelogger-default-type"] // "changed"' composer.json)"
+	local CLTYPE
+	CLTYPE="$(jq -r '.extra["changelogger-default-type"] // "changed"' composer.json)"
 	if [[ -n "$CLTYPE" ]]; then
 		ARGS+=( "--type=$CLTYPE" )
 	fi

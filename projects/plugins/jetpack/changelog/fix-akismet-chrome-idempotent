@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Akismet: make the admin header/footer chrome registration idempotent so it can't render twice if wired from more than one entry point.

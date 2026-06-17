@@ -17,7 +17,7 @@
 	"scripts": {
 		"build": "pnpm run clean && webpack",
 		"build-production": "NODE_ENV=production BABEL_ENV=production pnpm run build && pnpm run validate",
-		"clean": "rm -rf build/ .cache/",
+		"clean": "rm -rf build/",
 		"validate": "pnpm exec validate-es --no-error-on-unmatched-pattern build/",
 		"watch": "pnpm run build && pnpm webpack watch"
 	},
@@ -43,7 +43,7 @@
 	},
 	"devDependencies": {
 		"@automattic/jetpack-webpack-config": "workspace:*",
-		"@babel/core": "7.29.0",
+		"@babel/core": "7.29.6",
 		"@babel/preset-env": "7.29.2",
 		"@babel/runtime": "7.29.2",
 		"@wordpress/browserslist-config": "6.48.0",

@@ -253,7 +253,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/agents-manager",
-                "reference": "6d7594f8cdecefc57a78d02efcb83565db903341"
+                "reference": "a95c9103c938904a50375cf96ddd919bad379053"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
@@ -275,7 +275,7 @@
                 "autorelease": true,
                 "autotagger": true,
                 "branch-alias": {
-                    "dev-trunk": "0.4.x-dev"
+                    "dev-trunk": "0.5.x-dev"
                 },
                 "changelogger": {
                     "link-template": "https://github.com/Automattic/jetpack-agents-manager/compare/v${old}...v${new}"
@@ -831,7 +831,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/connection",
-                "reference": "eebe307b66ea009bea1ebd421a53ba8be8b4060c"
+                "reference": "74e1711653df3561aadf672c5228cb2a2479d0d4"
             },
             "require": {
                 "automattic/jetpack-a8c-mc-stats": "@dev",
@@ -867,7 +867,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-connection/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "8.6.x-dev"
+                    "dev-trunk": "8.7.x-dev"
                 },
                 "dependencies": {
                     "test-only": [
@@ -1495,7 +1495,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/jetpack-mu-wpcom",
-                "reference": "17cf4ffb6db2e468d015f3840acf680595023045"
+                "reference": "5959e9f55b6d22be3da4631ecb1a45764ace8533"
             },
             "require": {
                 "automattic/block-delimiter": "@dev",
@@ -1505,6 +1505,7 @@
                 "automattic/jetpack-classic-theme-helper": "@dev",
                 "automattic/jetpack-compat": "@dev",
                 "automattic/jetpack-connection": "@dev",
+                "automattic/jetpack-device-detection": "@dev",
                 "automattic/jetpack-explat": "@dev",
                 "automattic/jetpack-google-analytics": "@dev",
                 "automattic/jetpack-masterbar": "@dev",
