@@ -4,6 +4,7 @@ import { selectFallback } from './fallback.ts';
 import { requestJwt } from './jwt.ts';
 import { buildTailorPrompt } from './prompts.ts';
 import { parseAgentResponse } from './schema-validator.ts';
+import { trackAiResponseReceived } from './tracks.ts';
 import type { TailoredOutput, TailorResult, TailorSource, WizardInput } from './types.ts';
 
 const AI_QUERY_ENDPOINT = 'https://public-api.wordpress.com/wpcom/v2/jetpack-ai-query';
@@ -96,11 +97,16 @@ async function persist( output: TailoredOutput, source: TailorSource ): Promise<
  * @return The tailored result, tagged with whether it came from AI or fallback.
  */
 export async function tailor( input: WizardInput ): Promise< TailorResult > {
+	const start = performance.now();
 	const aiOutput = await fetchAiOutput( input );
 
 	if ( aiOutput ) {
 		try {
 			await persist( aiOutput, 'ai' );
+			trackAiResponseReceived( {
+				duration_ms: Math.round( performance.now() - start ),
+				source: 'ai',
+			} );
 			return { source: 'ai', output: aiOutput };
 		} catch ( error ) {
 			// eslint-disable-next-line no-console
@@ -110,5 +116,9 @@ export async function tailor( input: WizardInput ): Promise< TailorResult > {
 
 	const fallbackOutput = selectFallback( input );
 	await persist( fallbackOutput, 'fallback' );
+	trackAiResponseReceived( {
+		duration_ms: Math.round( performance.now() - start ),
+		source: 'fallback',
+	} );
 	return { source: 'fallback', output: fallbackOutput };
 }

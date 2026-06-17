@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+AI Launchpad: emit the ai_response_received Tracks event after tailoring (duration + source); it was defined but never fired.

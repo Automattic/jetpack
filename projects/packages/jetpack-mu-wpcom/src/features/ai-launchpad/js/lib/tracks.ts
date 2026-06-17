@@ -54,7 +54,15 @@ export function trackTaskClicked( props: { task_id: string } ): void {
 	record( 'jetpack_ai_launchpad_task_clicked', props );
 }
 
-/** Records the launched event. */
+/**
+ * Records the launched event (the project's headline "% of new users who
+ * launch" KPI).
+ *
+ * Intentionally unwired in the MVP: site launch completes server-side via the
+ * Launchpad listeners — often while this page isn't open — so there is no
+ * reliable client-side trigger here. Launch attribution is wired by the
+ * product-analytics funnel instrumentation (DOTOBRD-473).
+ */
 export function trackLaunched(): void {
 	record( 'jetpack_ai_launchpad_launched' );
 }
