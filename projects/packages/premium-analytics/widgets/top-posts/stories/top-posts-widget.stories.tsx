@@ -1,7 +1,7 @@
 /**
  * Internal dependencies
  */
-import { withChartTheme } from '../../../widgets-toolkit/src/stories/with-chart-theme';
+import { withChartTheme } from '../../../packages/widgets-toolkit/src/stories/with-chart-theme';
 import { TopPostsWidget } from '../top-posts-widget';
 import type { TopPostRow } from '../types';
 import type { Meta, StoryObj, Decorator } from '@storybook/react';

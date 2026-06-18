@@ -9,5 +9,5 @@
 			"@jetpack-premium-analytics/*": [ "./packages/*/src" ]
 		}
 	},
-	"include": [ "routes/**/*", "packages/**/*", "types/**/*" ]
+	"include": [ "routes/**/*", "packages/**/*", "types/**/*", "widgets/**/*" ]
 }
