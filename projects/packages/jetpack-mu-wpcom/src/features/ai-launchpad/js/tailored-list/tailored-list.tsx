@@ -1,6 +1,5 @@
 import apiFetch from '@wordpress/api-fetch';
 import { useEffect, useMemo, useState } from '@wordpress/element';
-import devFixture from '../fixtures/dev-tailored-list.json';
 import { createFirstPostDraft } from '../lib/first-post.ts';
 import { createPatternPage } from '../lib/pattern-page.ts';
 import { trackTaskClicked } from '../lib/tracks.ts';
@@ -17,8 +16,6 @@ import { TaskCard } from './task-card.tsx';
 import type { TailoredOutput, TailorResult } from '../lib/types.ts';
 
 import './style.scss';
-
-const IS_DEV = process.env.NODE_ENV !== 'production';
 
 /**
  * Navigate the browser to a task's deeplink (a Calypso path or wp-admin URL).
@@ -68,13 +65,6 @@ export function TailoredList( { pendingTailor, initialData }: Props = {} ) {
 	const [ busyId, setBusyId ] = useState< string | null >( null );
 
 	useEffect( () => {
-		if ( IS_DEV ) {
-			const fixture = devFixture as TailoredOutput;
-			setOutput( fixture );
-			setTasks( tasksFromFixture( fixture ) );
-			return;
-		}
-
 		// Returning users: render from the data the host already fetched, so the
 		// expensive composite read isn't run a second time.
 		if ( initialData ) {
