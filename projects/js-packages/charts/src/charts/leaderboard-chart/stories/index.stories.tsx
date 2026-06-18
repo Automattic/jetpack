@@ -1,4 +1,5 @@
 import { Stack } from '@wordpress/ui';
+import { action } from 'storybook/actions';
 import { defaultTheme, useGlobalChartsContext } from '../../../providers';
 import {
 	chartDecorator,
@@ -180,12 +181,13 @@ export const Loading: Story = {
 	},
 };
 
+const onLeaderboardItemClick = action( 'leaderboard-item-click' );
+
 export const Interactive: Story = {
 	args: {
 		data: sampleData.map( entry => ( {
 			...entry,
-			// eslint-disable-next-line no-console
-			onClick: () => console.log( `Clicked: ${ entry.id }` ),
+			onClick: () => onLeaderboardItemClick( entry.id ),
 		} ) ),
 		withComparison: true,
 	},
