@@ -5657,9 +5657,18 @@ const { state } = store( 'wpcom-write', {
 
 		async publish() {
 			if ( isAnon() ) {
+				// Flush the latest draft snapshot before navigating — autosave is
+				// on a 30s tick, and a fast typer-then-clicker would otherwise
+				// hand off stale (or no) content to the signup flow.
+				const contentEl = document.querySelector( '.bw-content' );
+				saveDraftToLocalStorage( state.title, contentEl ? contentEl.innerHTML : '' );
+
+				// Suppress the dirty-state leave prompt the way every other
+				// internal navigation in this file does (cf. openInBlockEditor).
+				allowLeave = true;
+
 				// Anon visitors hand off to the signup flow, which reads the draft
-				// from localStorage and publishes after signup completes. The
-				// draft persists across the navigation.
+				// from localStorage and publishes after signup completes.
 				window.location.assign( 'https://wordpress.com/setup/write-on' );
 				return;
 			}

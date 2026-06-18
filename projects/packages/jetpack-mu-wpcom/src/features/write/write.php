@@ -98,9 +98,9 @@ function wpcom_write_get_editor_strings() {
 		'postNotFound'         => __( 'Post not found. Check the URL or ID and try again.', 'jetpack-mu-wpcom' ),
 		'postNoPermission'     => __( 'You don\'t have permission to edit this post.', 'jetpack-mu-wpcom' ),
 		// Labels used only when the editor is rendered for a logged-out
-		// visitor (window.wpcomWriteIsAnon). Brand text is intentionally
-		// rendered as the WordPress.com product mark with the feature name.
-		'anonBrand'            => __( 'WordPress.com · Write', 'jetpack-mu-wpcom' ),
+		// visitor (window.wpcomWriteIsAnon). "WordPress.com" is a product
+		// mark and stays untranslated; only the feature name is localised.
+		'anonBrand'            => 'WordPress.com · ' . _x( 'Write', 'editor name in the anonymous brand label', 'jetpack-mu-wpcom' ),
 		'anonStatus'           => __( 'Not signed in', 'jetpack-mu-wpcom' ),
 	);
 }
