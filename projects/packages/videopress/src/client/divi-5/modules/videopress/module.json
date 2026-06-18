@@ -3,6 +3,7 @@
 	"d4Shortcode": "divi_videopress",
 	"title": "VideoPress",
 	"titles": "VideoPress",
+	"moduleIcon": "jetpack/videopress-logo",
 	"moduleClassName": "et_pb_videopress",
 	"moduleOrderClassName": "et_pb_videopress",
 	"category": "module",
