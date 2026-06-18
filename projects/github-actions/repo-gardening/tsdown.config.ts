@@ -1,3 +1,4 @@
+import license from 'rollup-plugin-license';
 import { defineConfig } from 'tsdown';
 
 export default defineConfig( {
@@ -13,4 +14,5 @@ export default defineConfig( {
 	deps: {
 		alwaysBundle: [ /.*/ ],
 	},
+	plugins: [ license( { thirdParty: { output: 'dist/licenses.txt' } } ) ],
 } );
