@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Threads preview: stop appending the post URL to the caption so the preview matches what is actually shared

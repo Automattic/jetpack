@@ -232,10 +232,6 @@ export function PostPreview( { connection, previewData }: PostPreviewProps ) {
 				caption = getCombinedText( title, excerpt );
 			}
 
-			if ( url && ! caption.includes( url ) ) {
-				caption += `\n\n${ url }`;
-			}
-
 			return (
 				<ThreadsPostPreview
 					{ ...commonProps }
