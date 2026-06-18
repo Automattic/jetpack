@@ -4,7 +4,13 @@ import { dirname, resolve } from 'node:path';
 import { describe, it } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import { validateAgainstSchema } from '../lib/schema-validator.ts';
-import { ctaKind, firstIncompleteIndex, resolveCtaUrl, tasksFromFixture } from './model.ts';
+import {
+	ctaKind,
+	firstIncompleteIndex,
+	resolveCtaUrl,
+	tasksFromFixture,
+	toNavigableUrl,
+} from './model.ts';
 import type { EnrichedTask } from './model.ts';
 import type { TailoredOutput } from '../lib/types.ts';
 
@@ -83,6 +89,38 @@ describe( 'ctaKind', () => {
 	} );
 } );
 
+describe( 'toNavigableUrl', () => {
+	it( 'pins Calypso router paths to wordpress.com', () => {
+		assert.equal(
+			toNavigableUrl( '/me#complete-your-profile' ),
+			'https://wordpress.com/me#complete-your-profile'
+		);
+		assert.equal(
+			toNavigableUrl( '/marketing/connections/example.com' ),
+			'https://wordpress.com/marketing/connections/example.com'
+		);
+	} );
+
+	it( 'leaves site-relative wp-admin paths untouched', () => {
+		assert.equal( toNavigableUrl( '/wp-admin/post.php?post=1' ), '/wp-admin/post.php?post=1' );
+		// The root wp-admin path, with or without a query/hash, is still site-relative.
+		assert.equal( toNavigableUrl( '/wp-admin' ), '/wp-admin' );
+		assert.equal( toNavigableUrl( '/wp-admin/' ), '/wp-admin/' );
+		assert.equal( toNavigableUrl( '/wp-admin?foo=bar' ), '/wp-admin?foo=bar' );
+	} );
+
+	it( 'leaves absolute URLs untouched', () => {
+		assert.equal(
+			toNavigableUrl( 'https://example.com/wp-admin/admin.php?page=wc-admin' ),
+			'https://example.com/wp-admin/admin.php?page=wc-admin'
+		);
+		assert.equal(
+			toNavigableUrl( 'https://connect.stripe.com/x' ),
+			'https://connect.stripe.com/x'
+		);
+	} );
+} );
+
 describe( 'resolveCtaUrl', () => {
 	/**
 	 * Build CtaHandlers that record the clicked task IDs and return marker URLs.
@@ -108,8 +146,34 @@ describe( 'resolveCtaUrl', () => {
 			null,
 			handlers
 		);
-		assert.equal( url, '/themes/x' );
+		// A Calypso router path is pinned to wordpress.com (it must not resolve
+		// against the site host where the launchpad runs).
+		assert.equal( url, 'https://wordpress.com/themes/x' );
 		assert.deepEqual( clicked, [ 'site_theme_selected' ] );
+	} );
+
+	it( 'passes absolute deeplinks (admin_url / Stripe / launch) through unchanged', async () => {
+		const { handlers } = stubHandlers();
+		const stripe = await resolveCtaUrl(
+			task( { id: 'stripe_connected', calypso_path: 'https://connect.stripe.com/setup/x' } ),
+			null,
+			handlers
+		);
+		assert.equal( stripe, 'https://connect.stripe.com/setup/x' );
+
+		const launch = await resolveCtaUrl(
+			task( {
+				id: 'site_launched',
+				calypso_path:
+					'https://wordpress.com/start/launch-site?siteSlug=x.wordpress.com&ref=wp-admin',
+			} ),
+			null,
+			handlers
+		);
+		assert.equal(
+			launch,
+			'https://wordpress.com/start/launch-site?siteSlug=x.wordpress.com&ref=wp-admin'
+		);
 	} );
 
 	it( 'drafts a post and returns its editor URL for first-creation tasks', async () => {
