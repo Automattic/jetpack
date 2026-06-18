@@ -43,14 +43,10 @@ class Podcast_Settings_Endpoint_Test extends BaseTestCase {
 
 		global $wp_rest_server;
 		$wp_rest_server = new \WP_REST_Server();
-		// The constructor wires register_routes onto rest_api_init; WorDBless resets
-		// hooks between tests, so instantiate a fresh endpoint each setUp.
 		// @phan-suppress-next-line PhanNoopNew -- constructor self-registers on rest_api_init.
 		new Podcast_Settings_Endpoint();
 		do_action( 'rest_api_init' );
 
-		// Wire the option sanitizers (sanitize_option_* filters) so update_option()
-		// merges array patches and enforces the show-state downgrade guard.
 		Settings::register_settings();
 
 		self::$admin_id      = wp_insert_user(
@@ -124,7 +120,6 @@ class Podcast_Settings_Endpoint_Test extends BaseTestCase {
 		$this->assertSame( 200, $response->get_status() );
 
 		$data = $response->get_data();
-		// Sibling preserved, new entry merged in.
 		$this->assertSame( 'https://podcasts.apple.com/show/1', $data['podcasting_show_urls']['apple'] );
 		$this->assertSame( 'https://open.spotify.com/show/abc', $data['podcasting_show_urls']['spotify'] );
 	}
@@ -208,7 +203,6 @@ class Podcast_Settings_Endpoint_Test extends BaseTestCase {
 		$response = $this->put_settings( array( 'podcasting_title' => 'Nope' ) );
 
 		$this->assertSame( 403, $response->get_status() );
-		// The write never ran.
 		$this->assertSame( '', get_option( 'podcasting_title', '' ) );
 	}
 }

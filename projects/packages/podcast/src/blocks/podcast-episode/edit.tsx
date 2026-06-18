@@ -214,9 +214,6 @@ export default function PodcastEpisodeEdit( { attributes, setAttributes, context
 		postId
 	);
 
-	// Show-level cover from the package settings endpoint. It requires
-	// `manage_options`, so for non-admin editors the fetch 403s and the cover
-	// resolves empty.
 	const { data: podcastSettings } = usePodcastSettings();
 	const showCoverUrl = podcastSettings?.podcasting_image || '';
 

@@ -39,7 +39,6 @@ class Settings_Test extends BaseTestCase {
 		$this->assertSame( 'My Show', $all['podcasting_title'] );
 		$this->assertIsBool( $all['podcasting_explicit'] );
 
-		// Both podcatcher maps are padded to every known directory.
 		$expected_keys = array_keys( Settings::SHOW_URL_HOSTS );
 		$this->assertSame( $expected_keys, array_keys( $all['podcasting_show_urls'] ) );
 		$this->assertSame( $expected_keys, array_keys( $all['podcasting_show_states'] ) );
@@ -62,7 +61,6 @@ class Settings_Test extends BaseTestCase {
 		$this->assertSame( 'integer', $schema['podcasting_image_id']['type'] );
 		$this->assertSame( 'object', $schema['podcasting_show_urls']['type'] );
 		$this->assertSame( 'object', $schema['podcasting_show_states']['type'] );
-		// Explicit accepts the stored boolean or the stringy form the SPA may send.
 		$this->assertSame( array( 'boolean', 'string' ), $schema['podcasting_explicit']['type'] );
 	}
 

@@ -297,8 +297,6 @@ class Tracks_Test extends BaseTestCase {
 		update_option( 'podcasting_email', 'host@example.com' );
 		update_option( 'podcasting_talent_name', 'Jane Host' );
 
-		// No-arg recorder, fired off the `jetpack_podcast_settings_saved` action
-		// that Podcast_Settings_Endpoint::update_item() triggers.
 		Tracks::record_settings_saved();
 
 		$events = $this->events_named( 'wpcom_podcasting_settings_saved' );

@@ -114,9 +114,6 @@ class Podcast_Settings_Endpoint extends WP_REST_Controller {
 			if ( null === $value ) {
 				continue;
 			}
-			// Only count a write that actually changed the stored value, so the
-			// action (and its Tracks event) skips no-ops and failed writes,
-			// matching WordPress's own `update_option_*` semantics.
 			if ( update_option( $name, $value ) ) {
 				$saved = true;
 			}

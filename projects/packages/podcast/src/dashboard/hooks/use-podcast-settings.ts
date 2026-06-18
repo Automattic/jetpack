@@ -18,14 +18,9 @@ import type {
 	PodcatcherId,
 } from '../types';
 
-// The package endpoint as a core-data entity (à la Publicize's wpcom/v2
-// entities), so the dashboard and block editor share one store. wpcom/v2 is the
-// namespace the public-api proxy forwards on Simple/WoA; jetpack/v4 is not.
 const ENTITY_KIND = 'wpcom/v2';
 const ENTITY_NAME = 'podcast/settings';
 
-// Register at module load — the getEntityRecord resolver bails if the entity is
-// unknown on first read, so it can't wait for an effect.
 if (
 	! dataSelect( coreStore )
 		.getEntitiesConfig( ENTITY_KIND )
@@ -134,7 +129,6 @@ const pickPodcastFields = ( raw: Record< string, unknown > ): PodcastSettings =>
 	return out as unknown as PodcastSettings;
 };
 
-// Invalidate after an out-of-band write (e.g. the Pocket Casts relay) so readers re-fetch.
 export const refreshPodcastSettings = (): void => {
 	dataDispatch( coreStore ).invalidateResolution( 'getEntityRecord', [ ENTITY_KIND, ENTITY_NAME ] );
 };
@@ -142,7 +136,8 @@ export const refreshPodcastSettings = (): void => {
 interface MutateCallbacks {
 	onSuccess?: ( result: PodcastSettings ) => void;
 	onError?: ( error: unknown ) => void;
-	// Suppress the built-in snackbars when the caller shows its own feedback.
+	// Suppress the hook's built-in success/error snackbars when the caller
+	// owns its own user-visible feedback (e.g. a modal with an inline Notice).
 	silent?: boolean;
 }
 
@@ -162,8 +157,9 @@ export function usePodcastSettings(): { data: PodcastSettings | undefined; isLoa
 			select( coreStore ).hasFinishedResolution( 'getEntityRecord', [ ENTITY_KIND, ENTITY_NAME ] ),
 		[]
 	);
-	// Memoise on record identity to keep `data` referentially stable; otherwise
-	// downstream reference checks break (Settings' isDirty stuck on show_urls).
+	// Memoised so the derived object identity is stable across renders. Without
+	// this, every render builds a new `data` object, breaking reference checks
+	// downstream (Settings' isDirty was permanently true on `podcasting_show_urls`).
 	const data = useMemo( () => ( record ? pickPodcastFields( record ) : undefined ), [ record ] );
 	return { data, isLoading: ! hasResolved };
 }
@@ -227,7 +223,7 @@ export function useUpdatePodcastSettings(): {
 			updates: PodcastSettingsUpdate,
 			{ onSuccess, onError, silent = false }: MutateCallbacks = {}
 		) => {
-			// No-op onError keeps the rejection from going uncaught.
+			// Default no-op keeps the rejection from going uncaught when no `onError` is passed.
 			mutateAsync( updates, { silent } ).then( onSuccess, onError ?? ( () => {} ) );
 		},
 		[ mutateAsync ]
