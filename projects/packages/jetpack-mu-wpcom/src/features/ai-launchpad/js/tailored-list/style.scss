@@ -2,10 +2,19 @@
 
 	// The centered content column shared by the loaded list and its loading
 	// state: heading + progress line, then a two-column grid (tasks | preview).
+	// A responsive, generous top pad pushes the content off the admin chrome
+	// without relying on a fixed-height container to vertically center.
 	&__layout {
 		max-width: 960px;
 		margin: 0 auto;
-		padding-block-start: 16px;
+		padding: clamp(24px, 8vh, 96px) 24px 48px;
+	}
+
+	@media (max-width: 782px) {
+
+		&__layout {
+			padding: 24px 16px 32px;
+		}
 	}
 
 	&__heading {
@@ -34,7 +43,7 @@
 		// Reserve the preview track only when there's a preview to show, so a
 		// missing site URL doesn't leave an empty gutter squeezing the tasks.
 		&.has-preview {
-			grid-template-columns: minmax(0, 1fr) 320px;
+			grid-template-columns: minmax(0, 1fr) 300px;
 		}
 	}
 
@@ -47,10 +56,15 @@
 		}
 	}
 
-	// The task column itself: a vertical stack of cards (and skeleton bars).
+	// The task column itself: a vertical stack of cards (and skeleton bars),
+	// wrapped in a padded grey container so the white cards read as a grouped
+	// checklist. The padding matches the inter-card gap.
 	display: flex;
 	flex-direction: column;
 	gap: 8px;
+	padding: 8px;
+	background: #f6f7f7;
+	border-radius: 8px;
 
 	&__card {
 
@@ -136,32 +150,48 @@
 		gap: 8px;
 	}
 
-	// The site-preview card in the right column: mShots thumbnail + name + link.
+	// The site-preview card in the right column: a live scaled site preview +
+	// name + link.
 	&__preview {
 		display: flex;
 		flex-direction: column;
 	}
 
+	// A square frame holding a desktop-width iframe scaled down to fit, mirroring
+	// the wp-admin dashboard site-management widget (renders immediately, no
+	// mShots wait). The iframe is 4× the frame and scaled 0.25, so the frame
+	// shows a ~1200px-wide front-end view regardless of the frame's actual size.
 	&__preview-frame {
+		position: relative;
+		width: 100%;
+		max-width: 300px;
+		aspect-ratio: 1 / 1;
 		overflow: hidden;
 		border: 1px solid #e0e0e0;
 		border-radius: 8px;
 		background: #f6f7f7;
-		aspect-ratio: 4 / 5;
 	}
 
-	&__preview-image {
-		display: block;
-		width: 100%;
-		height: 100%;
-		object-fit: cover;
-		object-position: top;
+	&__preview-iframe {
+		position: absolute;
+		top: 0;
+		left: 0;
+		width: 400%;
+		min-height: 440%;
+		border: 0;
+		transform: scale(0.25);
+		transform-origin: top left;
+		// Nudge the scaled view up to crop the logged-in admin bar (~32px at the
+		// 1200px render width → ~8px at scale 0.25), mirroring the dashboard widget.
+		translate: 0 -8px;
+		// Purely a thumbnail — the link below is the interactive affordance.
+		pointer-events: none;
 	}
 
 	&__preview-title {
 		margin: 12px 0 2px;
 		font-weight: 600;
-		font-size: 14px;
+		font-size: 15px;
 	}
 
 	&__preview-link {

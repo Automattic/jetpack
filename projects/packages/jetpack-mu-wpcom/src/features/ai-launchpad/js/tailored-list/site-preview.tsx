@@ -9,21 +9,11 @@ interface Props {
 }
 
 /**
- * Build the mShots thumbnail URL for a site's front end. mShots renders the
- * live page server-side and caches it; the first hit may return a "generating"
- * placeholder that resolves on a later load — acceptable for this preview (the
- * legacy launchpad widget relies on the same endpoint).
- *
- * @param siteUrl - The site's front-end URL.
- * @return The mShots image URL (rendered at 2x the displayed width for retina).
- */
-function mshotsUrl( siteUrl: string ): string {
-	return `https://s0.wp.com/mshots/v1/${ encodeURIComponent( siteUrl ) }?w=700`;
-}
-
-/**
- * The site-preview card shown to the right of the tailored list: an mShots
- * thumbnail of the site's front end, the site name, and a link to the site.
+ * The site-preview card shown to the right of the tailored list: a live,
+ * scaled-down preview of the site's front end, the site name, and a link to the
+ * site. The preview is a non-interactive iframe of the front end with the
+ * banners/overlay hidden, mirroring the wp-admin dashboard's site-management
+ * widget — it renders immediately rather than waiting on an mShots screenshot.
  * Rendered in both the loading and loaded states so the layout is stable across
  * the wizard→tailoring→list transition. Returns nothing when the site URL is
  * unknown (e.g. dev fixtures), so the list still renders without it.
@@ -48,11 +38,12 @@ export function SitePreview( { siteUrl, siteTitle }: Props ) {
 	return (
 		<aside className="ai-launchpad-tailored-list__preview">
 			<div className="ai-launchpad-tailored-list__preview-frame">
-				<img
-					className="ai-launchpad-tailored-list__preview-image"
-					src={ mshotsUrl( siteUrl ) }
-					alt=""
-					loading="lazy"
+				<iframe
+					className="ai-launchpad-tailored-list__preview-iframe"
+					title={ siteTitle || domain }
+					src={ `${ siteUrl }/?hide_banners=true&preview_overlay=true&preview=true` }
+					inert="true"
+					tabIndex={ -1 }
 				/>
 			</div>
 			<p className="ai-launchpad-tailored-list__preview-title">{ siteTitle || domain }</p>
