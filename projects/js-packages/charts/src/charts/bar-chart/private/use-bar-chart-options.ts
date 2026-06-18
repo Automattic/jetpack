@@ -5,6 +5,11 @@ import type { EnhancedDataPoint } from '../../../hooks/use-zero-value-display';
 import type { DataPointDate, BaseChartProps, SeriesData } from '../../../types';
 import type { TickFormatter } from '@visx/axis';
 
+/** Outer padding of the category band scale (space at the chart edges). */
+export const BASE_BAND_PADDING = 0.2;
+/** Inner padding of the category band scale (the base gap between ticks). */
+export const BASE_BAND_PADDING_INNER = 0.1;
+
 const formatDateTick = ( timestamp: number ) => {
 	const date = new Date( timestamp );
 	return date.toLocaleDateString( undefined, {
@@ -39,8 +44,8 @@ export function useBarChartOptions(
 	const defaultOptions = useMemo( () => {
 		const bandScale = {
 			type: 'band' as const,
-			padding: 0.2,
-			paddingInner: 0.1,
+			padding: BASE_BAND_PADDING,
+			paddingInner: BASE_BAND_PADDING_INNER,
 		};
 		const linearScale = {
 			type: 'linear' as const,

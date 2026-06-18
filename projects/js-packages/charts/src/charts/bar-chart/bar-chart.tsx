@@ -27,7 +27,15 @@ import { SingleChartContext } from '../private/single-chart-context';
 import { SvgEmptyState } from '../private/svg-empty-state';
 import { withResponsive } from '../private/with-responsive';
 import styles from './bar-chart.module.scss';
-import { useBarChartOptions, ComparisonBars } from './private';
+import {
+	useBarChartOptions,
+	ComparisonBars,
+	DEFAULT_COMPARISON_WIDTH_FACTOR,
+	COMPARISON_INNER_GAP,
+	MAX_GROUP_PADDING,
+	COMPARISON_TICK_GAP_FACTOR,
+	BASE_BAND_PADDING_INNER,
+} from './private';
 import type { ComparisonSeriesEntry } from './private';
 import type { BaseChartProps, DataPointDate, SeriesData, Optional } from '../../types';
 import type { RenderTooltipParams } from '../../visx/types';
@@ -217,7 +225,7 @@ const BarChartInternal: FC< BarChartProps > = ( {
 			getElementStyles( {
 				data: comparisonEntries[ 0 ].series,
 				index: comparisonEntries[ 0 ].index,
-			} ).barStyles?.widthFactor ?? 1.5
+			} ).barStyles?.widthFactor ?? DEFAULT_COMPARISON_WIDTH_FACTOR
 		);
 	}, [ comparisonEntries, getElementStyles ] );
 
@@ -233,13 +241,12 @@ const BarChartInternal: FC< BarChartProps > = ( {
 		if ( ! comparisonWidthFactor || comparisonWidthFactor <= 1 ) {
 			return basePadding;
 		}
-		const innerGap = 0.1; // fraction of each per-series step left as a gap between bars in a tick
-		const p = 1 - ( 1 - innerGap ) / comparisonWidthFactor;
-		return Math.min( Math.max( p, basePadding ), 0.9 );
+		const p = 1 - ( 1 - COMPARISON_INNER_GAP ) / comparisonWidthFactor;
+		return Math.min( Math.max( p, basePadding ), MAX_GROUP_PADDING );
 	}, [ chartOptions.barGroup.padding, comparisonWidthFactor ] );
 
 	// In comparison mode, tighten the gap between ticks by reducing the category band's inner
-	// padding (the value axis is left untouched). 0.75 = a 25% reduction of the tick gap padding.
+	// padding (the value axis is left untouched). COMPARISON_TICK_GAP_FACTOR is the multiplier.
 	const { xScale, yScale } = useMemo( () => {
 		if ( comparisonEntries.length === 0 ) {
 			return { xScale: chartOptions.xScale, yScale: chartOptions.yScale };
@@ -247,7 +254,9 @@ const BarChartInternal: FC< BarChartProps > = ( {
 		const tighten = < T extends object >( scale: T ): T =>
 			( {
 				...scale,
-				paddingInner: ( ( scale as { paddingInner?: number } ).paddingInner ?? 0.1 ) * 0.75,
+				paddingInner:
+					( ( scale as { paddingInner?: number } ).paddingInner ?? BASE_BAND_PADDING_INNER ) *
+					COMPARISON_TICK_GAP_FACTOR,
 			} ) as T;
 		return horizontal
 			? { xScale: chartOptions.xScale, yScale: tighten( chartOptions.yScale ) }

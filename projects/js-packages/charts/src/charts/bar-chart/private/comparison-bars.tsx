@@ -2,6 +2,10 @@ import { scaleBand } from '@visx/scale';
 import { DataContext } from '@visx/xychart';
 import { useContext } from 'react';
 import { computeComparisonRect, getValueScaleBaseline } from './comparison-bars-geometry';
+import {
+	DEFAULT_COMPARISON_OPACITY,
+	DEFAULT_COMPARISON_WIDTH_FACTOR,
+} from './comparison-constants';
 import type { ElementStyles, GetElementStylesParams } from '../../../providers';
 import type { DataPointDate, SeriesData } from '../../../types';
 import type { FC, ReactNode } from 'react';
@@ -85,8 +89,8 @@ export const ComparisonBars: FC< {
 		}
 
 		const { barStyles } = getElementStyles( { data: series, index } );
-		const opacity = barStyles?.opacity ?? 0.5; // safety net; CompleteChartTheme guarantees this value
-		const widthFactor = barStyles?.widthFactor ?? 1.5;
+		const opacity = barStyles?.opacity ?? DEFAULT_COMPARISON_OPACITY; // safety net; CompleteChartTheme guarantees this value
+		const widthFactor = barStyles?.widthFactor ?? DEFAULT_COMPARISON_WIDTH_FACTOR;
 		// Fill is the paired primary's pattern (when patterns are on) or its resolved color.
 		const fill = resolveFill( entry );
 		// The shadow is `widthFactor` × the (narrowed) primary slot. bar-chart.tsx narrows the
