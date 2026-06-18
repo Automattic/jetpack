@@ -72,7 +72,7 @@ const defaultTheme: CompleteChartTheme = {
 	barChart: {
 		barStyles: {
 			comparison: {
-				widthFactor: 1.0,
+				widthFactor: 1.5,
 				opacity: 0.5,
 			},
 		},

@@ -32,7 +32,7 @@ import type { ComparisonSeriesEntry } from './private';
 import type { BaseChartProps, DataPointDate, SeriesData, Optional } from '../../types';
 import type { RenderTooltipParams } from '../../visx/types';
 import type { ResponsiveConfig } from '../private/with-responsive';
-import type { FC, ReactNode, ComponentType } from 'react';
+import type { CSSProperties, FC, ReactNode, ComponentType } from 'react';
 
 export interface BarChartProps extends BaseChartProps< SeriesData[] > {
 	renderTooltip?: ( params: RenderTooltipParams< DataPointDate > ) => ReactNode;
@@ -203,6 +203,19 @@ const BarChartInternal: FC< BarChartProps > = ( {
 		} );
 		return entries;
 	}, [ seriesWithVisibility, primaryEntries, primaryKeys ] );
+
+	// Derive the primary bar scale factor from the comparison widthFactor theme value.
+	// When comparison series are present, this is passed as --comparison-primary-scale
+	// so SCSS can narrow primary bars to slot/widthFactor without a hardcoded value.
+	const comparisonPrimaryScale = useMemo( () => {
+		if ( comparisonEntries.length === 0 ) return undefined;
+		const wf =
+			getElementStyles( {
+				data: comparisonEntries[ 0 ].series,
+				index: comparisonEntries[ 0 ].index,
+			} ).barStyles?.widthFactor ?? 1.5;
+		return 1 / wf;
+	}, [ comparisonEntries, getElementStyles ] );
 
 	const getBarBackground = useCallback(
 		( index: number ) => () =>
@@ -402,7 +415,15 @@ const BarChartInternal: FC< BarChartProps > = ( {
 					},
 					className
 				) }
-				style={ { width, height } }
+				style={
+					{
+						width,
+						height,
+						...( comparisonPrimaryScale !== undefined && {
+							'--comparison-primary-scale': comparisonPrimaryScale,
+						} ),
+					} as CSSProperties
+				}
 				data-testid="bar-chart"
 				data-chart-id={ `bar-chart-${ chartId }` }
 				trailingContent={ nonLegendChildren }
