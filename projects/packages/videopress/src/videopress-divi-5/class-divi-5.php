@@ -41,7 +41,7 @@ class Divi_5 {
 		 * admin-ajax calls. Register directly here too; VideoPress_Module::load()
 		 * is idempotent, so the two paths never double-register.
 		 */
-		if ( class_exists( ModuleRegistration::class ) ) {
+		if ( class_exists( ModuleRegistration::class, false ) ) {
 			( new VideoPress_Module() )->load();
 		}
 	}
