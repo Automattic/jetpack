@@ -28,19 +28,22 @@ import type { LeaderboardEntry } from '../../types';
 
 /**
  * Build an accessible name for an interactive leaderboard row. The label may be
- * JSX (image/markup), so fall back to the formatted value when it is not a string.
+ * JSX (image/markup). For a string label we build an explicit name; for a JSX
+ * label we return undefined so the button derives its accessible name from its
+ * rendered content (label markup/alt text plus the value), rather than an
+ * aria-label that would override and hide that content.
  *
  * @param entry          - The leaderboard entry.
  * @param valueFormatter - Formatter for the entry's current value.
- * @return Accessible label string for the row button.
+ * @return Accessible label string for a string label, or undefined for JSX.
  */
 const getEntryAccessibleLabel = (
 	entry: LeaderboardEntry,
 	valueFormatter: ( value: number ) => string
-): string =>
+): string | undefined =>
 	typeof entry.label === 'string'
 		? `${ entry.label }: ${ valueFormatter( entry.currentValue ) }`
-		: valueFormatter( entry.currentValue );
+		: undefined;
 
 /**
  * Default value formatter using formatMetricValue
