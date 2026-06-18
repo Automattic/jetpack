@@ -378,6 +378,33 @@ function wpcom_edit_site_menu_override( $wp_admin_bar ) {
 add_action( 'admin_bar_menu', 'wpcom_edit_site_menu_override', 41 );
 
 /**
+ * Adds a Dashboard link to the site-name menu in wp-admin.
+ *
+ * Core only adds a Dashboard link to this menu on the front end (in wp-admin it
+ * shows "Visit Site" instead), so add one in wp-admin to match Calypso and the
+ * multi-site dashboard. The priority is below core's site menu (30) so the node
+ * is the first child of the menu.
+ *
+ * @param WP_Admin_Bar $wp_admin_bar The WP_Admin_Bar core object.
+ */
+function wpcom_add_dashboard_to_site_menu( $wp_admin_bar ) {
+	// Core already provides a Dashboard link on the front end.
+	if ( ! is_admin() ) {
+		return;
+	}
+
+	$wp_admin_bar->add_node(
+		array(
+			'parent' => 'site-name',
+			'id'     => 'wpcom-dashboard',
+			'title'  => __( 'Dashboard', 'jetpack-mu-wpcom' ),
+			'href'   => admin_url(),
+		)
+	);
+}
+add_action( 'admin_bar_menu', 'wpcom_add_dashboard_to_site_menu', 29 );
+
+/**
  * Adds site badges and plan information to the site title dropdown menu.
  *
  * @param WP_Admin_Bar $wp_admin_bar The WP_Admin_Bar core object.
