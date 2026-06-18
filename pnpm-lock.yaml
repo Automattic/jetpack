@@ -1074,6 +1074,9 @@ importers:
 
   projects/js-packages/jetpack-shared-stores:
     dependencies:
+      '@automattic/jetpack-api':
+        specifier: workspace:*
+        version: link:../api
       '@automattic/jetpack-script-data':
         specifier: workspace:*
         version: link:../script-data
