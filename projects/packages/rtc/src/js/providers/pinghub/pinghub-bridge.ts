@@ -450,11 +450,11 @@ export class PingHubBridge {
 			pixel( 'pinghub.rtc.jwt_fetch', Date.now() - start, 'ms' );
 			return this.cachedJwt;
 		} catch {
+			const elapsed = Date.now() - start;
+			pixel( 'pinghub.rtc.jwt_fetch_error', elapsed, 'ms' );
 			this.jwtFetchFailures++;
 			this.jwtBackoffUntil = Date.now() + this.jwtBackoffDelay;
 			this.jwtBackoffDelay = Math.min( this.jwtBackoffDelay * 2, JWT_BACKOFF_MAX_MS );
-			const elapsed = Date.now() - start;
-			pixel( 'pinghub.rtc.jwt_fetch_error', elapsed, 'ms' );
 			logConnectionEvent( 'jwt_fetch_error', {
 				duration_ms: elapsed,
 				failure_count: this.jwtFetchFailures,
@@ -473,14 +473,11 @@ export class PingHubBridge {
 		this.wsState = 'connecting';
 
 		const jwt = await this.fetchPinghubJwt();
-		if ( ! jwt ) {
-			this.wsState = 'idle';
-			const err = new Error( 'PingHub JWT fetch failed' );
-			this.connectingWaiters.splice( 0 ).forEach( ( { reject } ) => reject( err ) );
-			return;
+		let wsUrl = this.channelPath();
+		if ( jwt ) {
+			wsUrl += '?jwt=' + encodeURIComponent( jwt );
 		}
 
-		const wsUrl = this.channelPath() + '?jwt=' + encodeURIComponent( jwt );
 		const ws = new WebSocket( wsUrl );
 		ws.binaryType = 'arraybuffer';
 		this.ws = ws;

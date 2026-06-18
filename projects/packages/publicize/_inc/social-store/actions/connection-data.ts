@@ -3,13 +3,15 @@ import apiFetch from '@wordpress/api-fetch';
 import { dispatch as coreDispatch } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { __, sprintf } from '@wordpress/i18n';
+import { addQueryArgs } from '@wordpress/url';
 import { getSocialScriptData } from '../../utils/script-data';
 import { CUSTOMIZE_PER_NETWORK_KEY } from '../constants';
-import { Connection, EditorConnection, KeyringResult } from '../types';
+import { Connection, EditorConnection, KeyringResponse, KeyringResult } from '../types';
 import {
 	ADD_CONNECTION,
 	DELETE_CONNECTION,
 	DELETING_CONNECTION,
+	FETCHING_KEYRING_RESULT,
 	SET_RECONNECTING_ACCOUNT,
 	SET_CONNECTIONS,
 	SET_KEYRING_RESULT,
@@ -54,6 +56,54 @@ export function setKeyringResult( keyringResult?: KeyringResult ) {
 	return {
 		type: SET_KEYRING_RESULT,
 		keyringResult,
+	};
+}
+
+/**
+ * Set whether the keyring result is being fetched.
+ *
+ * @param fetching - Whether the request is in progress.
+ *
+ * @return An action object.
+ */
+export function setFetchingKeyringResult( fetching: boolean ) {
+	return {
+		type: FETCHING_KEYRING_RESULT,
+		fetching,
+	};
+}
+
+/**
+ * Fetch the keyring result for a completed connect request (auth_flow=v2).
+ *
+ * In the v2 flow the connect popup returns no data through window.opener; instead the
+ * same-origin completion page broadcasts the request_id and we fetch the verified keyring
+ * connection item once from the server. The shape matches what the popup used to post, so
+ * the confirmation UI is unchanged.
+ *
+ * @param requestId - The connect request ID.
+ *
+ * @return A thunk resolving to the keyring result, if any.
+ */
+export function fetchKeyringResult( requestId: string ) {
+	return async function ( { dispatch } ) {
+		dispatch( setFetchingKeyringResult( true ) );
+
+		try {
+			const response = await apiFetch< KeyringResponse >( {
+				path: addQueryArgs( '/wpcom/v2/publicize/keyring-result', { request_id: requestId } ),
+			} );
+
+			if ( response?.code === 'success' && response.data ) {
+				dispatch( setKeyringResult( response.data ) );
+
+				return response.data;
+			}
+		} catch {
+			// Swallow the error: an absent result is surfaced to the user as "no accounts found".
+		} finally {
+			dispatch( setFetchingKeyringResult( false ) );
+		}
 	};
 }
 

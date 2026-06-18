@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Podcast: add a dedicated wpcom/v2 REST endpoint for site settings and load/save them through it from the dashboard, reachable on Simple, WoA, and self-hosted from a single definition.

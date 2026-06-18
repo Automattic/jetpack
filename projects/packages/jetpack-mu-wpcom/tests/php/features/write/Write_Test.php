@@ -166,6 +166,79 @@ class Write_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * Test that the admin_enqueue_scripts callback emits the JS i18n strings
+	 * Write relies on, including the media-library strings added in RSM-594.
+	 * Other tests render the template directly, which bypasses this callback —
+	 * covering it here keeps the strings in lockstep with the JS.
+	 *
+	 * Invokes the registered closure directly instead of do_action() so
+	 * unrelated WordPress callbacks (site-health, etc.) don't pollute the
+	 * test with their own warnings.
+	 */
+	public function test_admin_enqueue_emits_library_strings() {
+		global $wp_filter;
+
+		wp_set_current_user( $this->admin_id );
+
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$_GET['page'] = 'write';
+
+		$output = '';
+		$hooks  = $wp_filter['admin_enqueue_scripts']->callbacks ?? array();
+		foreach ( $hooks as $callbacks ) {
+			foreach ( $callbacks as $cb ) {
+				if ( ! ( $cb['function'] instanceof \Closure ) ) {
+					continue;
+				}
+				$ref = new \ReflectionFunction( $cb['function'] );
+				if ( false === strpos( $ref->getFileName(), 'features/write/write.php' ) ) {
+					continue;
+				}
+				ob_start();
+				( $cb['function'] )();
+				$output .= ob_get_clean();
+			}
+		}
+
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		unset( $_GET['page'] );
+
+		// The four media-library strings added in RSM-594 must be in the
+		// inline script tag so view.js can reach them via window.wpcomWriteStrings.
+		$this->assertStringContainsString( 'libraryLoading', $output );
+		$this->assertStringContainsString( 'libraryEmpty', $output );
+		$this->assertStringContainsString( 'libraryNoResults', $output );
+		$this->assertStringContainsString( 'libraryLoadFailed', $output );
+		$this->assertStringContainsString( 'window.wpcomWriteStrings', $output );
+	}
+
+	/**
+	 * Test that the image modal renders the media library section alongside
+	 * the existing upload zone and URL paste — the three sources Write supports
+	 * after RSM-594.
+	 */
+	public function test_template_includes_media_library_section() {
+		wp_set_current_user( $this->admin_id );
+
+		$output = $this->render_template();
+
+		// Search input + horizontal strip container.
+		$this->assertStringContainsString( 'id="bw-library-search"', $output );
+		$this->assertStringContainsString( 'id="bw-library-grid"', $output );
+		$this->assertStringContainsString( 'actions.searchLibrary', $output );
+		$this->assertStringContainsString( 'actions.selectLibraryImage', $output );
+		// Collapsed-by-default expanders for library + URL.
+		$this->assertStringContainsString( 'actions.toggleLibraryPicker', $output );
+		$this->assertStringContainsString( 'actions.toggleUrlInput', $output );
+		// Existing upload + URL paste paths still present.
+		$this->assertStringContainsString( 'id="bw-upload-zone"', $output );
+		$this->assertStringContainsString( 'actions.insertImageFromUrl', $output );
+		// Grid is keyboard- and screen-reader-labelled.
+		$this->assertStringContainsString( 'aria-label="Your media library"', $output );
+		$this->assertStringContainsString( 'aria-live="polite"', $output );
+	}
+
+	/**
 	 * Test that the Interactivity API state includes required fields.
 	 */
 	public function test_interactivity_state_is_seeded() {

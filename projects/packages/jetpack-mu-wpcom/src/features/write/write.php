@@ -129,6 +129,12 @@ add_action(
 			'writeCaption'         => __( 'Write a caption...', 'jetpack-mu-wpcom' ),
 			// translators: %s is the error message from the upload failure.
 			'uploadFailed'         => __( 'Upload failed: %s', 'jetpack-mu-wpcom' ),
+			'libraryLoading'       => __( 'Loading your library…', 'jetpack-mu-wpcom' ),
+			'libraryEmpty'         => __( 'No images in your library yet.', 'jetpack-mu-wpcom' ),
+			'libraryNoResults'     => __( 'No matching images.', 'jetpack-mu-wpcom' ),
+			'libraryLoadFailed'    => __( "Couldn't load your library.", 'jetpack-mu-wpcom' ),
+			// translators: %s is the alt text or filename of the selected library image.
+			'librarySelected'      => __( 'Selected %s', 'jetpack-mu-wpcom' ),
 			'invalidVideoUrl'      => __( 'Please paste a valid YouTube or Vimeo URL', 'jetpack-mu-wpcom' ),
 			'pleaseAddTitle'       => __( 'Please add a title', 'jetpack-mu-wpcom' ),
 			'pleaseWriteSomething' => __( 'Please write something', 'jetpack-mu-wpcom' ),
@@ -843,6 +849,10 @@ function wpcom_write_render_admin_page() {
 			'editingImageSize'       => '',
 			'editingImageHasMediaId' => false,
 			'isUploading'            => false,
+			'showLibraryPicker'      => false,
+			'showUrlInput'           => false,
+			'librarySearch'          => '',
+			'libraryStatus'          => '',
 			'categories'             => $categories_data,
 			'catLabel'               => $cat_label,
 			'existingTagIds'         => $existing_tag_ids,
@@ -1182,27 +1192,76 @@ function wpcom_write_template( $edit_title = '', $edit_content = '', $edit_post_
 				<span class="bw-upload-saving" style="display:none;"><?php echo esc_html__( 'Uploading...', 'jetpack-mu-wpcom' ); ?></span>
 				<input type="file" accept="image/*" data-wp-on--change="actions.uploadImage" class="bw-visually-hidden" />
 			</label>
-			<div class="bw-image-divider"><span><?php echo esc_html__( 'or', 'jetpack-mu-wpcom' ); ?></span></div>
-			<input
-				type="url"
-				class="bw-image-url-input"
-				placeholder="<?php echo esc_attr__( 'Paste an image URL...', 'jetpack-mu-wpcom' ); ?>"
-				data-wp-on--input="actions.updateImageUrl"
-				data-wp-bind--value="state.imageUrl"
-			/>
 			<input
 				type="text"
-				class="bw-image-url-input"
+				class="bw-image-url-input bw-image-alt-input"
 				placeholder="<?php echo esc_attr__( 'Alt text (describe the image)...', 'jetpack-mu-wpcom' ); ?>"
 				data-wp-on--input="actions.updateImageAlt"
 				data-wp-bind--value="state.imageAlt"
-				style="margin-top:12px;"
 			/>
 			<label class="bw-featured-toggle">
 				<input type="checkbox" data-wp-on--change="actions.toggleFeaturedImage" data-wp-bind--checked="state.setAsFeatured" />
 				<span><?php echo esc_html__( 'Set as featured image', 'jetpack-mu-wpcom' ); ?></span>
 			</label>
-			<button class="bw-btn bw-btn-publish" data-wp-on--click="actions.insertImageFromUrl" style="width:100%;margin-top:12px;"><?php echo esc_html__( 'Insert image', 'jetpack-mu-wpcom' ); ?></button>
+			<button class="bw-btn bw-btn-publish bw-insert-image-btn" data-wp-on--click="actions.insertImageFromUrl"><?php echo esc_html__( 'Insert image', 'jetpack-mu-wpcom' ); ?></button>
+
+			<!-- Secondary sources: collapsed by default. -->
+			<div class="bw-source-expanders">
+				<div class="bw-source-expander">
+					<button
+						type="button"
+						class="bw-source-trigger"
+						aria-controls="bw-library-section"
+						data-wp-bind--aria-expanded="state.showLibraryPicker"
+						data-wp-on--click="actions.toggleLibraryPicker"
+					>
+						<span class="bw-source-chevron" aria-hidden="true"></span>
+						<?php echo esc_html__( 'From your library', 'jetpack-mu-wpcom' ); ?>
+					</button>
+					<div id="bw-library-section" class="bw-library-section" hidden data-wp-bind--hidden="!state.showLibraryPicker">
+						<label class="bw-visually-hidden" for="bw-library-search"><?php echo esc_html__( 'Search your media library', 'jetpack-mu-wpcom' ); ?></label>
+						<input
+							id="bw-library-search"
+							type="search"
+							class="bw-library-search"
+							placeholder="<?php echo esc_attr__( 'Search your library…', 'jetpack-mu-wpcom' ); ?>"
+							autocomplete="off"
+							data-wp-on--input="actions.searchLibrary"
+							data-wp-bind--value="state.librarySearch"
+						/>
+						<div
+							id="bw-library-grid"
+							class="bw-library-strip"
+							role="group"
+							aria-label="<?php echo esc_attr__( 'Your media library', 'jetpack-mu-wpcom' ); ?>"
+							data-wp-on--click="actions.selectLibraryImage"
+						></div>
+						<div class="bw-library-status" role="status" aria-live="polite" data-wp-text="state.libraryStatus"></div>
+					</div>
+				</div>
+				<div class="bw-source-expander">
+					<button
+						type="button"
+						class="bw-source-trigger"
+						aria-controls="bw-url-section"
+						data-wp-bind--aria-expanded="state.showUrlInput"
+						data-wp-on--click="actions.toggleUrlInput"
+					>
+						<span class="bw-source-chevron" aria-hidden="true"></span>
+						<?php echo esc_html__( 'Paste an image URL', 'jetpack-mu-wpcom' ); ?>
+					</button>
+					<div id="bw-url-section" class="bw-url-section" hidden data-wp-bind--hidden="!state.showUrlInput">
+						<input
+							type="url"
+							class="bw-image-url-input"
+							placeholder="<?php echo esc_attr__( 'https://…', 'jetpack-mu-wpcom' ); ?>"
+							data-wp-on--input="actions.updateImageUrl"
+							data-wp-bind--value="state.imageUrl"
+						/>
+					</div>
+				</div>
+			</div>
+
 		</div>
 	</div>
 

@@ -84,11 +84,6 @@ async function fixDeps( pkg ) {
 		pkg.peerDependencies.react = '^18';
 	}
 
-	// Unnecessary dep. Probably waiting on https://github.com/WordPress/gutenberg/pull/78747 to resolve it.
-	if ( pkg.name === '@wordpress/components' && pkg.dependencies?.[ '@emotion/native' ] ) {
-		delete pkg.dependencies?.[ '@emotion/native' ];
-	}
-
 	// We need to add the missing deps for `@wordpress/dataviews` because
 	// the build fails when using pnpm with hoisting.
 	// @see https://github.com/WordPress/gutenberg/issues/67864
