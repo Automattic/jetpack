@@ -17,7 +17,7 @@ use Automattic\Jetpack\Status\Host;
  */
 class Podcast {
 
-	const PACKAGE_VERSION = '1.0.2';
+	const PACKAGE_VERSION = '1.0.3';
 
 	/**
 	 * Whether the class has been initialized.
