@@ -1,31 +1,26 @@
 /**
  * External dependencies
  */
-import { getScriptData } from '@automattic/jetpack-script-data';
 import { Stack } from '@wordpress/ui';
 /**
  * Internal dependencies
  */
-import { Connect } from './components/connect';
-import { ConnectUnavailable } from './components/connect-unavailable';
+import { SiteNotConnected } from './components/site-not-connected';
 import './style.scss';
 
 /**
  * Connect route stage component.
- * If connected, the route guard in route.tsx redirects to dashboard.
+ *
+ * Reached only when the site is not connected — the route guard in `route.tsx`
+ * redirects to the dashboard once the site is registered. The actual connection
+ * flow is owned by the consumer, so this just surfaces the not-connected state.
  *
  * @return The connect stage.
  */
 export const stage = () => {
-	const connectionData = getScriptData()?.connection;
-
-	if ( ! connectionData ) {
-		return <ConnectUnavailable />;
-	}
-
 	return (
 		<Stack align="center" justify="center" className="jetpack-premium-analytics-connect-stage">
-			<Connect data={ connectionData } />
+			<SiteNotConnected />
 		</Stack>
 	);
 };

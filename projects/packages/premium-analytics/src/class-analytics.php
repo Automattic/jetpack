@@ -119,8 +119,8 @@ class Analytics {
 	 * reproduces wp-admin/admin-header.php but does not fire the
 	 * `admin_print_scripts` action. The jetpack-assets Script_Data class hooks
 	 * that action to print `window.JetpackScriptData` — which carries the
-	 * connection data the /connect route reads — so without help the global is
-	 * never emitted and the route renders "Connection unavailable".
+	 * connection data the route guards read — so without help the global is
+	 * never emitted and the guards cannot tell whether the site is connected.
 	 *
 	 * Hooked on the page's own init action, this runs only for this page, in
 	 * time for the footer scripts to print. Script_Data guards against rendering
