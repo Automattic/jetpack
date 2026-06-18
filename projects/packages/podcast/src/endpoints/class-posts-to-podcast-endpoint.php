@@ -23,30 +23,11 @@ class Posts_To_Podcast_Endpoint extends WP_REST_Controller {
 
 	use Relay_Response;
 
-	const SUPPORTED_LENGTHS                     = array( 'short', 'medium', 'long' );
-	const SUPPORTED_VOICE_PRESETS               = array( 'witty', 'earnest', 'professional' );
-	const REST_NAMESPACE                        = 'wpcom/v2';
-	const REST_BASE                             = 'posts-to-podcast';
-	const POST_PUBLISH_PROMO_DISMISS_REST_ROUTE = 'post-publish-promo/dismiss';
-
 	/**
-	 * Whether `init()` has wired its hooks.
-	 *
-	 * @var bool
-	 */
-	private static $initialized = false;
-
-	/**
-	 * Wire up routes. Idempotent.
+	 * Wire up routes.
 	 */
 	public static function init() {
-		if ( self::$initialized ) {
-			return;
-		}
-		self::$initialized = true;
-
-		$instance = new self();
-		add_action( 'rest_api_init', array( $instance, 'register_routes' ) );
+		add_action( 'rest_api_init', array( new self(), 'register_routes' ) );
 	}
 
 	/**
@@ -55,15 +36,15 @@ class Posts_To_Podcast_Endpoint extends WP_REST_Controller {
 	 * @return string
 	 */
 	public static function get_post_publish_promo_dismiss_rest_path() {
-		return '/' . self::REST_NAMESPACE . '/' . self::REST_BASE . '/' . self::POST_PUBLISH_PROMO_DISMISS_REST_ROUTE;
+		return '/wpcom/v2/posts-to-podcast/post-publish-promo/dismiss';
 	}
 
 	/**
 	 * Register feature info, enqueue, job-status, and promo dismissal routes.
 	 */
 	public function register_routes() {
-		$this->namespace = self::REST_NAMESPACE;
-		$this->rest_base = self::REST_BASE;
+		$this->namespace = 'wpcom/v2';
+		$this->rest_base = 'posts-to-podcast';
 
 		register_rest_route(
 			$this->namespace,
@@ -94,13 +75,13 @@ class Posts_To_Podcast_Endpoint extends WP_REST_Controller {
 						'length'      => array(
 							'type'        => 'string',
 							'required'    => true,
-							'enum'        => self::SUPPORTED_LENGTHS,
+							'enum'        => array( 'short', 'medium', 'long' ),
 							'description' => __( 'Length preset id.', 'jetpack-podcast' ),
 						),
 						'voicePreset' => array(
 							'type'        => 'string',
 							'required'    => true,
-							'enum'        => self::SUPPORTED_VOICE_PRESETS,
+							'enum'        => array( 'witty', 'earnest', 'professional' ),
 							'description' => __( 'Voice preset id.', 'jetpack-podcast' ),
 						),
 						'prompt'      => array(
@@ -158,7 +139,7 @@ class Posts_To_Podcast_Endpoint extends WP_REST_Controller {
 
 		register_rest_route(
 			$this->namespace,
-			$this->rest_base . '/' . self::POST_PUBLISH_PROMO_DISMISS_REST_ROUTE,
+			$this->rest_base . '/post-publish-promo/dismiss',
 			array(
 				'methods'             => WP_REST_Server::CREATABLE,
 				'callback'            => array( $this, 'dismiss_post_publish_promo' ),

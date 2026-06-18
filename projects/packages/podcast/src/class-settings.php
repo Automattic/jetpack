@@ -17,12 +17,6 @@ namespace Automattic\Jetpack\Podcast;
  */
 class Settings {
 
-	/** Matches WPCOM's `register_setting('media', ...)` so the legacy Media Settings form keeps accepting these. */
-	const MEDIA_GROUP = 'media';
-
-	/** WPCOM doesn't register these with the Settings API; they're plain options exposed REST-only. */
-	const OPTIONS_GROUP = 'options';
-
 	/**
 	 * Per-podcatcher hostname allowlist for `podcasting_show_urls`. `www.` is
 	 * stripped before comparison.
@@ -48,9 +42,6 @@ class Settings {
 	);
 
 	const SHOW_URL_MAX_LENGTH = 2048;
-
-	/** Allowed `podcasting_show_states` values. Empty string clears. */
-	const SHOW_STATES = array( 'pending', 'active' );
 
 	/**
 	 * Drives `register_settings()` and the sync whitelist.
@@ -116,9 +107,11 @@ class Settings {
 			array( 'podcasting_category_3', 'string', '', 'sanitize_text_field' ),
 		);
 
+		// Registered under WP core's `media` group to match WPCOM's legacy Media
+		// Settings form, so it keeps accepting these.
 		foreach ( $media_settings as list( $name, $type, $default, $sanitize ) ) {
 			register_setting(
-				self::MEDIA_GROUP,
+				'media',
 				$name,
 				array(
 					'type'              => $type,
@@ -130,7 +123,7 @@ class Settings {
 		}
 
 		register_setting(
-			self::MEDIA_GROUP,
+			'media',
 			'podcasting_image',
 			array(
 				'type'              => 'string',
@@ -147,7 +140,7 @@ class Settings {
 		);
 
 		register_setting(
-			self::MEDIA_GROUP,
+			'media',
 			'podcasting_explicit',
 			array(
 				'type'              => 'boolean',
@@ -157,8 +150,10 @@ class Settings {
 			)
 		);
 
+		// Registered under WP core's `options` group: REST-only settings that
+		// WPCOM never wired into the Settings API.
 		register_setting(
-			self::OPTIONS_GROUP,
+			'options',
 			'podcasting_email',
 			array(
 				'type'              => 'string',
@@ -169,7 +164,7 @@ class Settings {
 		);
 
 		register_setting(
-			self::OPTIONS_GROUP,
+			'options',
 			'podcasting_image_id',
 			array(
 				'type'              => 'integer',
@@ -183,7 +178,7 @@ class Settings {
 		$empty_map       = array_fill_keys( $podcatcher_keys, '' );
 
 		register_setting(
-			self::OPTIONS_GROUP,
+			'options',
 			'podcasting_show_urls',
 			array(
 				'type'              => 'object',
@@ -207,7 +202,7 @@ class Settings {
 		);
 
 		register_setting(
-			self::OPTIONS_GROUP,
+			'options',
 			'podcasting_show_states',
 			array(
 				'type'              => 'object',
@@ -302,7 +297,8 @@ class Settings {
 
 	/**
 	 * Merge a partial show-states patch into the stored value. Values outside
-	 * SHOW_STATES are dropped; empty string clears. `'active'` → `'pending'` is
+	 * the allowed `'pending'`/`'active'` set are dropped; empty string clears a
+	 * stored entry. `'active'` → `'pending'` is
 	 * refused so a stale SPA cache can't downgrade a state that `Feed_Detection`
 	 * promoted via real UA evidence (explicit `''` clears still work).
 	 *
@@ -329,7 +325,7 @@ class Settings {
 				continue;
 			}
 
-			if ( ! in_array( $value, self::SHOW_STATES, true ) ) {
+			if ( ! in_array( $value, array( 'pending', 'active' ), true ) ) {
 				continue;
 			}
 
