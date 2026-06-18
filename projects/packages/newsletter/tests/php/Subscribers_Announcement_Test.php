@@ -139,6 +139,68 @@ class Subscribers_Announcement_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Confirms add_wp_admin_submenu() registers the page under the Jetpack menu
+	 * (the wpcom path used by jetpack-mu-wpcom on Simple and WoA sites).
+	 */
+	public function test_add_wp_admin_submenu_registers_under_jetpack() {
+		// WorDBless does not reset the admin menu globals between tests. Read and
+		// write them via $GLOBALS so Phan does not narrow the local to an empty
+		// array shape (it can't see add_submenu_page() mutate the global).
+		$GLOBALS['menu']    = array();
+		$GLOBALS['submenu'] = array();
+		// add_submenu_page() checks the current user's capability.
+		$this->login_as_admin();
+		// Provide the Jetpack parent menu that wpcom-admin-menu would have created.
+		add_menu_page( 'Jetpack', 'Jetpack', 'manage_options', 'jetpack', '__return_null' );
+
+		Subscribers_Announcement::add_wp_admin_submenu();
+
+		$slugs = wp_list_pluck( (array) ( $GLOBALS['submenu']['jetpack'] ?? array() ), 2 );
+		$this->assertContains(
+			Subscribers_Announcement::PAGE_SLUG,
+			$slugs,
+			'add_wp_admin_submenu() should register the announcement page under the Jetpack menu'
+		);
+		$this->assertNotFalse(
+			has_action(
+				'load-jetpack_page_' . Subscribers_Announcement::PAGE_SLUG,
+				array( Subscribers_Announcement::class, 'on_page_load' )
+			),
+			'The page load callback should be registered'
+		);
+	}
+
+	/**
+	 * Confirms add_wp_admin_submenu() keeps the page reachable but out of the
+	 * sidebar when the user removed the menu item.
+	 */
+	public function test_add_wp_admin_submenu_hides_from_sidebar_when_removed() {
+		// See note in test_add_wp_admin_submenu_registers_under_jetpack() on why
+		// the admin menu globals are accessed via $GLOBALS.
+		$GLOBALS['menu']    = array();
+		$GLOBALS['submenu'] = array();
+		$this->login_as_admin();
+		add_menu_page( 'Jetpack', 'Jetpack', 'manage_options', 'jetpack', '__return_null' );
+		update_option( Subscribers_Announcement::REMOVED_OPTION, 1 );
+
+		Subscribers_Announcement::add_wp_admin_submenu();
+
+		$slugs = wp_list_pluck( (array) ( $GLOBALS['submenu']['jetpack'] ?? array() ), 2 );
+		$this->assertNotContains(
+			Subscribers_Announcement::PAGE_SLUG,
+			$slugs,
+			'The removed page should not appear under the Jetpack sidebar menu'
+		);
+		$this->assertNotFalse(
+			has_action(
+				'load-admin_page_' . Subscribers_Announcement::PAGE_SLUG,
+				array( Subscribers_Announcement::class, 'on_page_load' )
+			),
+			'The page should remain reachable (hidden) when the menu item is removed'
+		);
+	}
+
+	/**
 	 * Confirms maybe_load_wp_build() does nothing when the feature is disabled.
 	 */
 	public function test_maybe_load_wp_build_noop_when_disabled() {
