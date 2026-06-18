@@ -104,11 +104,47 @@ function clearAnonDraft() {
 }
 
 // Mark the page as anonymous so style.css can hide UI that has no anon
-// equivalent (back button, "Open in block editor", preview, post picker,
-// media upload, media library, featured image). Set as early as the module
-// loads so the initial render doesn't flash the hidden surfaces.
+// equivalent (back button, more-menu, the standalone Save-draft button,
+// unsupported-content "Open in editor" buttons). Set as early as the
+// module loads so the initial render doesn't flash the hidden surfaces.
 if ( isAnon() && typeof document !== 'undefined' && document.documentElement ) {
 	document.documentElement.classList.add( 'bw-anon' );
+}
+
+/**
+ * Inject the brand label on the left of the top bar and the "Not signed in"
+ * indicator before the Publish button. Both are anon-only; the strings come
+ * from window.wpcomWriteStrings (with English fallbacks) so translations land
+ * via the same path as the rest of the editor UI.
+ */
+function injectAnonTopbarLabels() {
+	const topbar = document.querySelector( '.bw-topbar' );
+	if ( ! topbar || topbar.querySelector( '.bw-anon-brand' ) ) {
+		return;
+	}
+
+	const brand = document.createElement( 'span' );
+	brand.className = 'bw-anon-brand';
+	brand.textContent = i18n.anonBrand || 'WordPress.com · Write';
+	topbar.prepend( brand );
+
+	const status = document.createElement( 'span' );
+	status.className = 'bw-anon-status';
+	status.textContent = i18n.anonStatus || 'Not signed in';
+	const publishBtn = topbar.querySelector( '.bw-btn-publish' );
+	if ( publishBtn && publishBtn.parentNode ) {
+		publishBtn.parentNode.insertBefore( status, publishBtn );
+	} else {
+		topbar.appendChild( status );
+	}
+}
+
+if ( isAnon() && typeof document !== 'undefined' ) {
+	if ( document.readyState === 'loading' ) {
+		document.addEventListener( 'DOMContentLoaded', injectAnonTopbarLabels );
+	} else {
+		injectAnonTopbarLabels();
+	}
 }
 
 // Autosave state — tracked outside the store to avoid triggering reactivity.
@@ -5621,10 +5657,10 @@ const { state } = store( 'wpcom-write', {
 
 		async publish() {
 			if ( isAnon() ) {
-				// Anon visitors hand off to the signup flow at /setup/write-on,
-				// which reads the draft from localStorage and publishes after
-				// signup completes. The draft persists across the navigation.
-				window.location.assign( '/setup/write-on' );
+				// Anon visitors hand off to the signup flow, which reads the draft
+				// from localStorage and publishes after signup completes. The
+				// draft persists across the navigation.
+				window.location.assign( 'https://wordpress.com/setup/write-on' );
 				return;
 			}
 			await savePost( 'publish' );

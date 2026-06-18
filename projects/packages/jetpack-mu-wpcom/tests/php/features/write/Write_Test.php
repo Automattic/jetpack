@@ -1669,6 +1669,8 @@ class Write_Test extends \WorDBless\BaseTestCase {
 			'draftAutosaved',
 			'error',
 			'untitled',
+			'anonBrand',
+			'anonStatus',
 		);
 		foreach ( $expected as $key ) {
 			$this->assertArrayHasKey( $key, $strings, "Missing editor string: $key" );
