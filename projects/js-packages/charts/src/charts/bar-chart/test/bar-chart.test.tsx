@@ -234,6 +234,37 @@ describe( 'BarChart', () => {
 			// Check that no pattern definitions container is present
 			expect( screen.queryByTestId( 'bar-chart-patterns' ) ).not.toBeInTheDocument();
 		} );
+
+		test( 'comparison shadow reuses the primary bar pattern when patterns are enabled', () => {
+			renderWithTheme( {
+				withPatterns: true,
+				data: [
+					{
+						label: 'This period',
+						group: 'views',
+						data: [
+							{ label: 'Mon', value: 10 },
+							{ label: 'Tue', value: 20 },
+						],
+					},
+					{
+						label: 'Previous period',
+						group: 'views',
+						options: { type: 'comparison' as const },
+						data: [
+							{ label: 'Mon', value: 15 },
+							{ label: 'Tue', value: 25 },
+						],
+					},
+				],
+			} );
+
+			const shadow = screen.getAllByTestId( /^bar-chart-comparison-\d+-\d+$/ )[ 0 ];
+			const shadowFill = shadow.getAttribute( 'fill' );
+			// Shadow is filled with a pattern, not a solid color, and it references the PRIMARY
+			// series' pattern (index 0) rather than the comparison series' own index.
+			expect( shadowFill ).toMatch( /^url\(#bar-pattern-.+-0\)$/ );
+		} );
 	} );
 
 	describe( 'Keyboard Navigation Accessibility', () => {

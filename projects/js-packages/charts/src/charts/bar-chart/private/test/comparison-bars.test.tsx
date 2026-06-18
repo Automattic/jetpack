@@ -56,7 +56,7 @@ const seriesData: SeriesData = {
 };
 
 const comparisonEntries: ComparisonSeriesEntry[] = [
-	{ series: seriesData, index: 0, primaryKey: 'current' },
+	{ series: seriesData, index: 0, primaryKey: 'current', primaryIndex: 0 },
 ];
 
 const getElementStyles = () => ( {
@@ -66,6 +66,8 @@ const getElementStyles = () => ( {
 	glyph: undefined as never,
 	shapeStyles: {} as never,
 } );
+
+const resolveFill = () => '#f00';
 
 const xAccessor = ( d: DataPointDate ) => d.label;
 const yAccessor = ( d: DataPointDate ) => d.value ?? undefined;
@@ -83,6 +85,7 @@ describe( 'ComparisonBars', () => {
 						xAccessor={ xAccessor }
 						yAccessor={ yAccessor }
 						getElementStyles={ getElementStyles }
+						resolveFill={ resolveFill }
 					/>
 				</DataContext.Provider>
 			</svg>
@@ -110,6 +113,7 @@ describe( 'ComparisonBars', () => {
 						xAccessor={ xAccessor }
 						yAccessor={ yAccessor }
 						getElementStyles={ getElementStyles }
+						resolveFill={ resolveFill }
 					/>
 				</DataContext.Provider>
 			</svg>
@@ -132,6 +136,7 @@ describe( 'ComparisonBars', () => {
 						xAccessor={ xAccessor }
 						yAccessor={ yAccessor }
 						getElementStyles={ getElementStyles }
+						resolveFill={ resolveFill }
 					/>
 				</DataContext.Provider>
 			</svg>
@@ -167,6 +172,7 @@ describe( 'ComparisonBars', () => {
 						xAccessor={ xAccessor }
 						yAccessor={ yAccessor }
 						getElementStyles={ getElementStyles }
+						resolveFill={ resolveFill }
 					/>
 				</DataContext.Provider>
 			</svg>

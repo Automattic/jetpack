@@ -184,8 +184,11 @@ const BarChartInternal: FC< BarChartProps > = ( {
 	);
 
 	const comparisonEntries = useMemo( () => {
-		const groupByPrimary = new Map< string | undefined, string >(
-			primaryEntries.map( ( { series } ) => [ series.group, series.label ] )
+		const primaryByGroup = new Map< string | undefined, { label: string; index: number } >(
+			primaryEntries.map( ( { series, index } ) => [
+				series.group,
+				{ label: series.label, index },
+			] )
 		);
 
 		const entries: ComparisonSeriesEntry[] = [];
@@ -193,13 +196,15 @@ const BarChartInternal: FC< BarChartProps > = ( {
 			if ( ! isVisible || series.options?.type !== 'comparison' ) {
 				return;
 			}
-			const primaryKey =
-				groupByPrimary.get( series.group ) ??
-				( primaryKeys.length === 1 ? primaryKeys[ 0 ] : undefined );
-			if ( primaryKey === undefined || ! primaryKeys.includes( primaryKey ) ) {
+			const primary =
+				primaryByGroup.get( series.group ) ??
+				( primaryEntries.length === 1
+					? { label: primaryEntries[ 0 ].series.label, index: primaryEntries[ 0 ].index }
+					: undefined );
+			if ( ! primary || ! primaryKeys.includes( primary.label ) ) {
 				return;
 			}
-			entries.push( { series, index, primaryKey } );
+			entries.push( { series, index, primaryKey: primary.label, primaryIndex: primary.index } );
 		} );
 		return entries;
 	}, [ seriesWithVisibility, primaryEntries, primaryKeys ] );
@@ -223,6 +228,16 @@ const BarChartInternal: FC< BarChartProps > = ( {
 				? `url(#${ getPatternId( chartId, index ) })`
 				: getElementStyles( { data: dataSorted[ index ], index } ).color,
 		[ withPatterns, getElementStyles, dataSorted, chartId ]
+	);
+
+	// Comparison shadow fill: when patterns are on, reuse the paired primary's pattern so the
+	// shadow reads as the same series; otherwise use the comparison series' resolved color.
+	const resolveComparisonFill = useCallback(
+		( entry: ComparisonSeriesEntry ) =>
+			withPatterns
+				? `url(#${ getPatternId( chartId, entry.primaryIndex ) })`
+				: getElementStyles( { data: entry.series, index: entry.index } ).color,
+		[ withPatterns, chartId, getElementStyles ]
 	);
 
 	const renderDefaultTooltip = useCallback(
@@ -325,8 +340,11 @@ const BarChartInternal: FC< BarChartProps > = ( {
 	const createPatternBorderStyle = useCallback(
 		( index: number, color: string ) => {
 			const patternId = getPatternId( chartId, index );
+			// Border the primary bars and any comparison shadow reusing the same pattern,
+			// so a patterned shadow gets the same outline as its primary bar.
 			return `
-			.visx-bar[fill="url(#${ patternId })"] {
+			.visx-bar[fill="url(#${ patternId })"],
+			.bar-chart__comparison-bars rect[fill="url(#${ patternId })"] {
 				stroke: ${ color };
 				stroke-width: 1;
 				}
@@ -543,6 +561,7 @@ const BarChartInternal: FC< BarChartProps > = ( {
 												) => number | undefined
 											}
 											getElementStyles={ getElementStyles }
+											resolveFill={ resolveComparisonFill }
 										/>
 
 										<BarGroup padding={ chartOptions.barGroup.padding }>

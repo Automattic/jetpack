@@ -6,7 +6,13 @@ import type { ElementStyles, GetElementStylesParams } from '../../../providers';
 import type { DataPointDate, SeriesData } from '../../../types';
 import type { FC, ReactNode } from 'react';
 
-export type ComparisonSeriesEntry = { series: SeriesData; index: number; primaryKey: string };
+export type ComparisonSeriesEntry = {
+	series: SeriesData;
+	index: number;
+	primaryKey: string;
+	/** dataSorted index of the paired primary series (used to share its pattern fill). */
+	primaryIndex: number;
+};
 
 // Minimal shape we need from visx scales — avoids spreading `any` while
 // remaining compatible with both band and continuous scale return types.
@@ -27,6 +33,8 @@ export const ComparisonBars: FC< {
 	xAccessor: ( d: DataPointDate ) => string | number | Date | undefined;
 	yAccessor: ( d: DataPointDate ) => number | undefined;
 	getElementStyles: ( params: GetElementStylesParams ) => ElementStyles;
+	/** Resolves the shadow fill — the paired primary's pattern when patterns are on, else a color. */
+	resolveFill: ( entry: ComparisonSeriesEntry ) => string;
 } > = ( {
 	comparisonEntries,
 	primaryKeys,
@@ -35,6 +43,7 @@ export const ComparisonBars: FC< {
 	xAccessor,
 	yAccessor,
 	getElementStyles,
+	resolveFill,
 } ) => {
 	const context = useContext( DataContext );
 	const xScale = context?.xScale as AnyScale | undefined;
@@ -68,14 +77,17 @@ export const ComparisonBars: FC< {
 
 	const rects: ReactNode[] = [];
 
-	comparisonEntries.forEach( ( { series, index, primaryKey } ) => {
+	comparisonEntries.forEach( entry => {
+		const { series, index, primaryKey } = entry;
 		const slotOffset = groupScale( primaryKey );
 		if ( slotOffset == null || ! Number.isFinite( slotOffset ) ) {
 			return;
 		}
 
-		const { color, barStyles } = getElementStyles( { data: series, index } );
+		const { barStyles } = getElementStyles( { data: series, index } );
 		const opacity = barStyles?.opacity ?? 0.5; // safety net; CompleteChartTheme guarantees this value
+		// Fill is the paired primary's pattern (when patterns are on) or its resolved color.
+		const fill = resolveFill( entry );
 		// Note: barStyles.widthFactor governs PRIMARY bar narrowing, not shadow width.
 		// It is read in bar-chart.tsx and applied via --comparison-primary-scale.
 
@@ -116,7 +128,7 @@ export const ComparisonBars: FC< {
 					y={ rect.y }
 					width={ rect.width }
 					height={ rect.height }
-					fill={ color }
+					fill={ fill }
 					opacity={ opacity }
 					rx={ barStyles?.rx }
 				/>
