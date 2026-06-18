@@ -175,8 +175,9 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 		$this->assertSame( array( 'first_post_published' => true ), $data['checklist_statuses'] );
 		$this->assertFalse( $data['dismissed'] );
 		$this->assertTrue( $data['is_eligible'] );
-		// Site context for the client (launch CTA slug + preview).
+		// Site context for the client (launch CTA slug + preview thumbnail/label).
 		$this->assertSame( home_url(), $data['site']['url'] );
+		$this->assertSame( get_bloginfo( 'name' ), $data['site']['title'] );
 
 		$this->assertCount( 6, $data['tasks'] );
 
