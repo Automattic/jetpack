@@ -5765,6 +5765,12 @@ const { state } = store( 'wpcom-write', {
 					if ( contentEl ) {
 						contentEl.innerHTML = snapshot.content;
 					}
+					// The CSS placeholder is driven by `bw-is-empty` on the outer
+					// `.bw-content`, normally removed by the first input event.
+					// Programmatic hydration fires no input, so clear it directly.
+					if ( snapshot.content ) {
+						document.querySelector( '.bw-content' )?.classList.remove( 'bw-is-empty' );
+					}
 					lastSavedSnapshot = getContentSnapshot();
 				}
 				state.showRecoveryBanner = false;
