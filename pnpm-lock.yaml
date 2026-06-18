@@ -3911,6 +3911,9 @@ importers:
       '@automattic/charts':
         specifier: workspace:*
         version: link:../../js-packages/charts
+      '@automattic/jetpack-connection':
+        specifier: workspace:*
+        version: link:../../js-packages/connection
       '@automattic/jetpack-script-data':
         specifier: workspace:*
         version: link:../../js-packages/script-data
@@ -3938,6 +3941,9 @@ importers:
       '@jetpack-premium-analytics/routing':
         specifier: link:packages/routing
         version: link:packages/routing
+      '@jetpack-premium-analytics/site-sync':
+        specifier: link:packages/site-sync
+        version: link:packages/site-sync
       '@jetpack-premium-analytics/ui':
         specifier: link:packages/ui
         version: link:packages/ui
@@ -3965,6 +3971,9 @@ importers:
       '@wordpress/dataviews':
         specifier: 14.3.0
         version: 14.3.0(@date-fns/tz@1.4.1)(react@18.3.1)
+      '@wordpress/element':
+        specifier: 8.0.1
+        version: 8.0.1
       '@wordpress/i18n':
         specifier: ^6.9.0
         version: 6.21.1

@@ -70,6 +70,7 @@ class Analytics {
 
 		add_action( 'admin_menu', array( static::class, 'register_admin_menu' ) );
 		add_action( 'jetpack-premium-analytics_init', array( static::class, 'register_sidebar_items' ) );
+		add_action( 'jetpack-premium-analytics_init', array( static::class, 'ensure_script_data' ) );
 	}
 
 	/**
@@ -109,5 +110,28 @@ class Analytics {
 			__( 'Dashboard', 'jetpack-premium-analytics' ),
 			'/'
 		);
+	}
+
+	/**
+	 * Emit window.JetpackScriptData on the boot-rendered admin page.
+	 *
+	 * The wp-build interceptor that renders this page (its page.php template)
+	 * reproduces wp-admin/admin-header.php but does not fire the
+	 * `admin_print_scripts` action. The jetpack-assets Script_Data class hooks
+	 * that action to print `window.JetpackScriptData` — which carries the
+	 * connection data the route guards read — so without help the global is
+	 * never emitted and the guards cannot tell whether the site is connected.
+	 *
+	 * Hooked on the page's own init action, this runs only for this page, in
+	 * time for the footer scripts to print. Script_Data guards against rendering
+	 * twice, so it is a no-op wherever `admin_print_scripts` fires normally.
+	 *
+	 * @return void
+	 */
+	public static function ensure_script_data() {
+		$script_data = 'Automattic\Jetpack\Assets\Script_Data';
+		if ( is_callable( array( $script_data, 'render_script_data' ) ) ) {
+			$script_data::render_script_data();
+		}
 	}
 }
