@@ -104,10 +104,19 @@ class Jetpack_Forms_Product_Test extends TestCase {
 	}
 
 	/**
-	 * Tests the manage URL points to the Forms admin page.
+	 * Tests the manage URL: falls back to the legacy slug when the Forms package is
+	 * absent, and defers to its canonical helper when present.
 	 */
 	public function test_manage_url() {
+		// The Forms package isn't a my-jetpack dependency, so it's absent here first.
 		$this->assertSame( admin_url( 'admin.php?page=jetpack-forms-admin' ), Jetpack_Forms::get_manage_url() );
+
+		// Once the Forms Dashboard is available, defer to its canonical URL helper.
+		require_once __DIR__ . '/stubs/class-jetpack-forms-dashboard-stub.php';
+		$this->assertSame(
+			'https://example.org/wp-admin/admin.php?page=jetpack-forms-responses-wp-admin',
+			Jetpack_Forms::get_manage_url()
+		);
 	}
 
 	/**

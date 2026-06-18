@@ -170,6 +170,13 @@ class Jetpack_Forms extends Module_Product {
 	 * @return ?string
 	 */
 	public static function get_manage_url() {
+		// Defer to the Forms package for the canonical admin URL when it's available
+		// (it accounts for the responses dashboard variant and the admin URL filter).
+		$dashboard = 'Automattic\Jetpack\Forms\Dashboard\Dashboard';
+		if ( method_exists( $dashboard, 'get_forms_admin_url' ) ) {
+			return $dashboard::get_forms_admin_url();
+		}
+
 		return admin_url( 'admin.php?page=jetpack-forms-admin' );
 	}
 
