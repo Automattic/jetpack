@@ -52,7 +52,7 @@
 		"@wordpress/core-data": "7.48.1",
 		"@wordpress/data": "10.48.1",
 		"@wordpress/dataviews": "14.3.0",
-		"@wordpress/element": "8.0.0",
+		"@wordpress/element": "8.0.1",
 		"@wordpress/i18n": "^6.9.0",
 		"@wordpress/icons": "^13.0.0",
 		"@wordpress/primitives": "4.48.1",
