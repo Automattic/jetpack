@@ -149,10 +149,6 @@ class REST_Pinghub_Token extends WP_REST_Controller {
 				'2',
 				array( 'method' => 'POST' ),
 				array( 'local_user_id' => get_current_user_id() ),
-				// wpcom_json_api_request_as_blog() defaults base_api_path to 'rest'
-				// (unlike _as_user(), which defaults to 'wpcom'). This endpoint
-				// lives under /wpcom/v2/, so the base must be set explicitly or
-				// the request 404s on /rest/v2/.
 				'wpcom'
 			);
 		}
