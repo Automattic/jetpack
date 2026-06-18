@@ -33,6 +33,28 @@
 		"guid": {
 			"type": "object",
 			"selector": "{{selector}} .vidi-videopress-wrapper"
+		},
+		"autoplay": {
+			"type": "object"
+		},
+		"loop": {
+			"type": "object"
+		},
+		"muted": {
+			"type": "object"
+		},
+		"controls": {
+			"type": "object",
+			"default": {
+				"innerContent": {
+					"desktop": {
+						"value": "on"
+					}
+				}
+			}
+		},
+		"playsinline": {
+			"type": "object"
 		}
 	},
 	"customCssFields": {

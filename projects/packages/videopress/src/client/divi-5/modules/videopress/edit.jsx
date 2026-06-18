@@ -5,7 +5,7 @@ import { sprintf, __ } from '@wordpress/i18n';
 import { moduleClassnames } from './module-classnames';
 import { ModuleScriptData } from './module-script-data';
 import { ModuleStyles } from './module-styles';
-import { getVideoPressGuid, getEmbedUrl } from './utils';
+import { getVideoPressGuid, getEmbedUrl, getPlayerOptions } from './utils';
 
 const { ModuleContainer } = window?.divi?.module ?? {};
 
@@ -21,6 +21,7 @@ const { ModuleContainer } = window?.divi?.module ?? {};
  */
 export const VideoPressEdit = ( { attrs, elements, id, name } ) => {
 	const guid = getVideoPressGuid( attrs?.guid?.innerContent?.desktop?.value );
+	const playerOptions = getPlayerOptions( attrs );
 
 	return (
 		<ModuleContainer
@@ -51,7 +52,7 @@ export const VideoPressEdit = ( { attrs, elements, id, name } ) => {
 							__( 'Video player for %s', 'jetpack-videopress-pkg' ),
 							guid
 						) }
-						src={ getEmbedUrl( guid ) }
+						src={ getEmbedUrl( guid, playerOptions ) }
 						style={ {
 							position: 'absolute',
 							top: 0,

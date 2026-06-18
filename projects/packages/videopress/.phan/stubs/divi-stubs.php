@@ -7,8 +7,15 @@
  * signatures let Phan type-check the Divi 5 VideoPress module. Update by hand if
  * the APIs used here change.
  *
+ * Phan picks this up automatically: it lives under `.phan/stubs/`, which the base
+ * config parses (declaring these `ET\Builder\*` symbols) while excluding from
+ * analysis. There is no named `divi` stub to add to `+stubs` in `config.php` —
+ * the base config's `make_phan_config()` has no `divi` case and would throw on one.
+ *
  * @package automattic/jetpack-videopress
  */
+
+declare( strict_types = 1 );
 
 namespace ET\Builder\Framework\DependencyManagement\Interfaces {
 	/**

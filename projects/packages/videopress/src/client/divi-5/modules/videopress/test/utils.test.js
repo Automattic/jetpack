@@ -1,4 +1,4 @@
-import { getVideoPressGuid, getEmbedUrl } from '../utils';
+import { getVideoPressGuid, getEmbedUrl, getPlayerOptions } from '../utils';
 
 describe( 'getVideoPressGuid', () => {
 	it( 'returns a bare GUID unchanged', () => {
@@ -37,9 +37,86 @@ describe( 'getVideoPressGuid', () => {
 } );
 
 describe( 'getEmbedUrl', () => {
-	it( 'builds the embed URL with the divi-builder embedder params', () => {
+	it( 'omits player options at their defaults, keeping only the embedder', () => {
 		expect( getEmbedUrl( 'kUJmAcSf' ) ).toBe(
-			'https://videopress.com/embed/kUJmAcSf?autoPlay=0&permalink=0&loop=0&embedder=divi-builder'
+			'https://videopress.com/embed/kUJmAcSf?embedder=divi-builder'
 		);
+	} );
+
+	it( 'adds only the options that differ from the player defaults', () => {
+		expect( getEmbedUrl( 'kUJmAcSf', { autoplay: true } ) ).toBe(
+			'https://videopress.com/embed/kUJmAcSf?autoPlay=1&embedder=divi-builder'
+		);
+		expect( getEmbedUrl( 'kUJmAcSf', { loop: true } ) ).toBe(
+			'https://videopress.com/embed/kUJmAcSf?loop=1&embedder=divi-builder'
+		);
+		expect( getEmbedUrl( 'kUJmAcSf', { playsinline: true } ) ).toBe(
+			'https://videopress.com/embed/kUJmAcSf?playsinline=1&embedder=divi-builder'
+		);
+	} );
+
+	it( 'mutes by disabling persistVolume, matching the VideoPress block', () => {
+		expect( getEmbedUrl( 'kUJmAcSf', { muted: true } ) ).toBe(
+			'https://videopress.com/embed/kUJmAcSf?muted=1&persistVolume=0&embedder=divi-builder'
+		);
+	} );
+
+	it( 'emits controls=0 only when controls are turned off', () => {
+		expect( getEmbedUrl( 'kUJmAcSf', { controls: true } ) ).toBe(
+			'https://videopress.com/embed/kUJmAcSf?embedder=divi-builder'
+		);
+		expect( getEmbedUrl( 'kUJmAcSf', { controls: false } ) ).toBe(
+			'https://videopress.com/embed/kUJmAcSf?controls=0&embedder=divi-builder'
+		);
+	} );
+
+	it( 'combines all non-default options in a stable order', () => {
+		expect(
+			getEmbedUrl( 'kUJmAcSf', {
+				autoplay: true,
+				loop: true,
+				muted: true,
+				controls: false,
+				playsinline: true,
+			} )
+		).toBe(
+			'https://videopress.com/embed/kUJmAcSf?autoPlay=1&loop=1&muted=1&persistVolume=0&controls=0&playsinline=1&embedder=divi-builder'
+		);
+	} );
+} );
+
+describe( 'getPlayerOptions', () => {
+	const toggle = value => ( { innerContent: { desktop: { value } } } );
+
+	it( 'falls back to the player defaults when attributes are unset', () => {
+		expect( getPlayerOptions( {} ) ).toEqual( {
+			autoplay: false,
+			loop: false,
+			muted: false,
+			controls: true,
+			playsinline: false,
+		} );
+		expect( getPlayerOptions( undefined ) ).toEqual( {
+			autoplay: false,
+			loop: false,
+			muted: false,
+			controls: true,
+			playsinline: false,
+		} );
+	} );
+
+	it( 'reads on/off toggle values from attributes', () => {
+		expect(
+			getPlayerOptions( {
+				autoplay: toggle( 'on' ),
+				controls: toggle( 'off' ),
+			} )
+		).toEqual( {
+			autoplay: true,
+			loop: false,
+			muted: false,
+			controls: false,
+			playsinline: false,
+		} );
 	} );
 } );

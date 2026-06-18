@@ -5,6 +5,8 @@
  * @package automattic/jetpack-videopress
  */
 
+declare( strict_types = 1 );
+
 namespace Automattic\Jetpack\VideoPress\Divi5\Traits;
 
 use ET\Builder\Packages\Module\Options\Element\ElementClassnames;

@@ -5,6 +5,8 @@
  * @package automattic/jetpack-videopress
  */
 
+declare( strict_types = 1 );
+
 namespace Automattic\Jetpack\VideoPress\Divi5\Traits;
 
 use ET\Builder\FrontEnd\Module\Style;
@@ -35,10 +37,10 @@ trait Module_Styles_Trait {
 
 		Style::add(
 			array(
-				'id'            => $args['id'],
-				'name'          => $args['name'],
-				'orderIndex'    => $args['orderIndex'],
-				'storeInstance' => $args['storeInstance'],
+				'id'            => $args['id'] ?? '',
+				'name'          => $args['name'] ?? '',
+				'orderIndex'    => $args['orderIndex'] ?? 0,
+				'storeInstance' => $args['storeInstance'] ?? null,
 				'styles'        => array(
 					$elements->style(
 						array(
