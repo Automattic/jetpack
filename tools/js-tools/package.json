@@ -13,9 +13,9 @@
 	"devDependencies": {
 		"@automattic/eslint-changed": "workspace:*",
 		"@automattic/eslint-config-target-es": "workspace:*",
-		"@babel/core": "7.29.6",
-		"@babel/preset-react": "7.28.5",
-		"@babel/preset-typescript": "7.28.5",
+		"@babel/core": "7.29.7",
+		"@babel/preset-react": "7.29.7",
+		"@babel/preset-typescript": "7.29.7",
 		"@eslint/compat": "2.1.0",
 		"@eslint/js": "10.0.1",
 		"@eslint/json": "2.0.0",
