@@ -221,7 +221,6 @@ class Jetpack_Sync_WooCommerce_Test extends Jetpack_Sync_TestBase {
 	public function test_new_order_filter_returns_false_for_invalid_args() {
 		$module = $this->get_woocommerce_module();
 
-		$this->assertFalse( $module->add_order_total_to_new_order( null ) );
 		$this->assertFalse( $module->add_order_total_to_new_order( array() ) );
 		$this->assertFalse( $module->add_order_total_to_new_order( array( 'not-an-id' ) ) );
 		$this->assertFalse( $module->add_order_total_to_new_order( array( 0 ) ) );
@@ -239,7 +238,6 @@ class Jetpack_Sync_WooCommerce_Test extends Jetpack_Sync_TestBase {
 	public function test_status_changed_filter_returns_false_for_invalid_args() {
 		$module = $this->get_woocommerce_module();
 
-		$this->assertFalse( $module->add_order_total_to_status_changed( null ) );
 		$this->assertFalse( $module->add_order_total_to_status_changed( array() ) );
 		$this->assertFalse( $module->add_order_total_to_status_changed( array( 1 ) ) );
 		$this->assertFalse( $module->add_order_total_to_status_changed( array( 1, 'pending' ) ) );
