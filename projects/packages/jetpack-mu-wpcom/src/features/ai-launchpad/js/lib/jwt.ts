@@ -4,11 +4,11 @@ import apiFetch from '@wordpress/api-fetch';
 /**
  * Jetpack AI JWT, minted from the site and cached in localStorage.
  *
- * Ported from `@automattic/jetpack-ai-client`'s `requestJwt`: that package
- * cannot currently be bundled by wp-build (its build output is misconfigured -
- * see js/lib/README context in the PR), and we only need this one function, so
- * we inline it against `@wordpress/api-fetch` rather than pull the whole package
- * into the bundle.
+ * Ported from `@automattic/jetpack-ai-client`'s `requestJwt`: that package can't
+ * currently be bundled by wp-build — its build output is misconfigured (tsgo
+ * emits to `build/src/` instead of the `build/` that `package.json` `main`
+ * points at, and skips asset files), so consumers can't resolve it. We only need
+ * this one function, so we inline it against `@wordpress/api-fetch`.
  */
 
 interface TokenData {
