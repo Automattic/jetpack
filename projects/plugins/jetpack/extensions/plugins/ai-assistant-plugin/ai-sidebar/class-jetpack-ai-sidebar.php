@@ -41,7 +41,7 @@ class Jetpack_AI_Sidebar {
 		 *
 		 * @param bool $enabled Whether the AI sidebar is enabled.
 		 */
-		if ( ! self::is_jetpack_ai_sidebar_preview_enabled() || ! apply_filters( 'jetpack_ai_sidebar_enabled', true ) ) {
+		if ( ! self::is_ai_assistant_setting_enabled() || ! apply_filters( 'jetpack_ai_sidebar_enabled', true ) ) {
 			return;
 		}
 
@@ -81,7 +81,7 @@ class Jetpack_AI_Sidebar {
 	 * @return void
 	 */
 	public static function maybe_enqueue_abilities_script(): void {
-		if ( ! self::is_jetpack_ai_sidebar_preview_enabled() || ! self::is_post_editor() || ! self::has_ai_features() ) {
+		if ( ! self::should_expose_sidebar() ) {
 			return;
 		}
 
@@ -204,7 +204,7 @@ class Jetpack_AI_Sidebar {
 		// The provider IIFE is only enqueued in the post editor. Avoid registering
 		// the ESM wrapper on other block-editor surfaces, where AM may import it
 		// before window.__JetpackAIProvider exists.
-		if ( ! self::is_jetpack_ai_sidebar_preview_enabled() || ! self::is_post_editor() || ! self::has_ai_features() ) {
+		if ( ! self::should_expose_sidebar() ) {
 			return $providers;
 		}
 
@@ -291,15 +291,15 @@ class Jetpack_AI_Sidebar {
 	}
 
 	/**
-	 * UI feature flag for the public Jetpack AI Sidebar Preview surface.
+	 * Whether the WordPress.com AI Assistant site setting allows the sidebar surface.
 	 *
-	 * Self-hosted sites do not expose the WordPress.com AI Assistant setting, so
-	 * this surface stays closed there. On WordPress.com, the Big Sky class plus
-	 * option mirror the site-level AI Assistant toggle.
+	 * Self-hosted sites do not expose the AI Assistant setting, so the surface stays
+	 * closed there. On WordPress.com, the Big Sky class plus option mirror the
+	 * site-level AI Assistant toggle.
 	 *
 	 * @return bool
 	 */
-	private static function is_jetpack_ai_sidebar_preview_enabled(): bool {
+	private static function is_ai_assistant_setting_enabled(): bool {
 		$host = new Host();
 		if ( ! $host->is_wpcom_platform() || ! class_exists( 'Big_Sky' ) ) {
 			return false;
@@ -314,11 +314,21 @@ class Jetpack_AI_Sidebar {
 	}
 
 	/**
-	 * Preview configuration consumed by the Agents Manager and Jetpack AI provider bundles.
+	 * Whether the sidebar surface should be exposed for this request: the AI Assistant
+	 * setting allows it, we are in the post editor, and AI features are available.
 	 *
-	 * @return array Preview mode and feature availability.
+	 * @return bool
 	 */
-	private static function get_jetpack_ai_sidebar_preview_config(): array {
+	private static function should_expose_sidebar(): bool {
+		return self::is_ai_assistant_setting_enabled() && self::is_post_editor() && self::has_ai_features();
+	}
+
+	/**
+	 * Sidebar configuration consumed by the Agents Manager and Jetpack AI provider bundles.
+	 *
+	 * @return array Enabled state and feature availability.
+	 */
+	private static function get_sidebar_config(): array {
 		$features = array(
 			'aiEditorialReview'       => self::is_ai_editorial_review_enabled(),
 			'blockTransformations'    => true,
@@ -336,7 +346,7 @@ class Jetpack_AI_Sidebar {
 		$features          = is_array( $filtered_features ) ? array_merge( $features, $filtered_features ) : $features;
 
 		return array(
-			'enabled'  => self::is_jetpack_ai_sidebar_preview_enabled(),
+			'enabled'  => self::is_ai_assistant_setting_enabled(),
 			'features' => $features,
 		);
 	}
@@ -352,16 +362,31 @@ class Jetpack_AI_Sidebar {
 			return $data;
 		}
 
-		if ( ! self::is_jetpack_ai_sidebar_preview_enabled() || ! self::is_post_editor() || ! self::has_ai_features() ) {
+		if ( ! self::should_expose_sidebar() ) {
 			return $data;
 		}
 
-		// Preserve existing providers so the client-side preview gate can remove
-		// Jetpack AI Sidebar while keeping fallback providers such as Big Sky.
-		$data['agentId']                  = AI_SIDEBAR_AGENT_ID;
-		$data['aiEditorialReviewEnabled'] = self::is_ai_editorial_review_enabled();
-		$data['jetpackAiSidebarPreview']  = self::get_jetpack_ai_sidebar_preview_config();
+		// Set our fields in place, preserving the rest of $data (incl. agentProviders)
+		// so the client-side gate can drop Jetpack AI Sidebar while keeping fallbacks
+		// such as Big Sky.
+		foreach ( self::get_sidebar_am_fields() as $key => $value ) {
+			$data[ $key ] = $value;
+		}
 		return $data;
+	}
+
+	/**
+	 * Fields Jetpack contributes to `agentsManagerData`. Single source shared by the
+	 * data filter and the external-AM inline fallback so the two cannot drift.
+	 *
+	 * @return array
+	 */
+	private static function get_sidebar_am_fields(): array {
+		return array(
+			'agentId'                  => AI_SIDEBAR_AGENT_ID,
+			'aiEditorialReviewEnabled' => self::is_ai_editorial_review_enabled(),
+			'jetpackAiSidebarPreview'  => self::get_sidebar_config(),
+		);
 	}
 
 	/**
@@ -375,7 +400,7 @@ class Jetpack_AI_Sidebar {
 			return true;
 		}
 
-		return self::is_jetpack_ai_sidebar_preview_enabled() && self::is_post_editor() && self::has_ai_features();
+		return self::should_expose_sidebar();
 	}
 
 	/**
@@ -399,7 +424,7 @@ class Jetpack_AI_Sidebar {
 		if ( ( new Host() )->is_wpcom_simple() ) {
 			return;
 		}
-		if ( ! self::is_jetpack_ai_sidebar_preview_enabled() || ! self::is_post_editor() || ! self::has_ai_features() ) {
+		if ( ! self::should_expose_sidebar() ) {
 			return;
 		}
 		// 'registered' rather than 'enqueued': wp_add_inline_script attaches to any
@@ -409,26 +434,15 @@ class Jetpack_AI_Sidebar {
 			return;
 		}
 
-		$ai_editorial_review_payload = wp_json_encode(
-			self::is_ai_editorial_review_enabled(),
-			JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP
-		);
-		$preview_payload             = wp_json_encode(
-			self::get_jetpack_ai_sidebar_preview_config(),
-			JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP
-		);
-		$agent_id_payload            = wp_json_encode(
-			AI_SIDEBAR_AGENT_ID,
-			JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP
-		);
+		$assignments = '';
+		foreach ( self::get_sidebar_am_fields() as $key => $value ) {
+			$assignments .= ' agentsManagerData.' . $key . ' = '
+				. wp_json_encode( $value, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ) . ';';
+		}
 
 		wp_add_inline_script(
 			'agents-manager',
-			'if ( typeof agentsManagerData === "object" && agentsManagerData !== null ) {'
-				. ' agentsManagerData.agentId = ' . $agent_id_payload . ';'
-				. ' agentsManagerData.aiEditorialReviewEnabled = ' . $ai_editorial_review_payload . ';'
-				. ' agentsManagerData.jetpackAiSidebarPreview = ' . $preview_payload . ';'
-				. ' }',
+			'if ( typeof agentsManagerData === "object" && agentsManagerData !== null ) {' . $assignments . ' }',
 			'before'
 		);
 	}
