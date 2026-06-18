@@ -100,22 +100,14 @@
 	text-align: inherit;
 	cursor: pointer;
 
-	// Full-row rounded highlight, drawn behind the content so it never shifts
-	// the grid tracks. Inset 0 (no horizontal bleed): the row button spans the
-	// full content width, so any negative inset would overflow the
-	// `overflow: auto` content container and add a horizontal scrollbar.
-	&::before {
-		content: "";
-		position: absolute;
-		inset: 0;
-		border-radius: var(--wpds-border-radius-md, 4px);
-		background-color: transparent;
-		transition: background-color 0.15s ease;
-		pointer-events: none;
-		z-index: -1;
+	// On hover/focus the bars dim and scale back (toward their left origin) and
+	// the value/delta slides left, clearing room for the chevron revealed at the
+	// right edge. No row background — the bars themselves carry the hover state.
+	.bar {
+		transform-origin: left center;
+		transition: opacity 0.15s ease, transform 0.15s ease;
 	}
 
-	// The value/delta block slides left on hover to open room for the chevron.
 	.valueContainer {
 		transition: transform 0.15s ease;
 	}
@@ -123,12 +115,13 @@
 	&:hover,
 	&:focus-visible {
 
-		&::before {
-			background-color: var(--wpds-color-bg-interactive-neutral-weak-active, #ededed);
+		.bar {
+			opacity: 0.5;
+			transform: scaleX(0.9);
 		}
 
 		.valueContainer {
-			transform: translateX(-20px);
+			transform: translateX(-40px);
 		}
 
 		.chevron {
@@ -145,9 +138,9 @@
 
 .chevron {
 	position: absolute;
-	right: var(--wpds-dimension-padding-xs, 4px);
+	right: var(--wpds-dimension-padding-sm, 8px);
 	top: 50%;
-	transform: translateY(-50%) translateX(4px);
+	transform: translateY(-50%) translateX(8px);
 	opacity: 0;
 	color: var(--wpds-color-fg-content-neutral-weak, #707070);
 	transition: opacity 0.15s ease, transform 0.15s ease;
@@ -158,7 +151,7 @@
 
 	.interactiveRow {
 
-		&::before,
+		.bar,
 		.valueContainer,
 		.chevron {
 			transition: none;
