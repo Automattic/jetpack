@@ -93,19 +93,21 @@ $cg-diff-removed: #f8d7da;
 	position: absolute;
 	border-radius: 50%;
 	pointer-events: none;
-	width: 236px;
-	height: 236px;
+	width: 180px;
+	height: 180px;
 	background: linear-gradient(to right, #04c, #48ff50);
 
+	// Both orbs share the same inset-inline-end so the top glow and the
+	// bottom sphere line up on the same vertical axis.
 	&--top {
-		inset-block-start: -134px;
-		inset-inline-end: -30px;
+		inset-block-start: -96px;
+		inset-inline-end: 56px;
 		filter: blur(25px);
 	}
 
 	&--bottom {
-		inset-block-end: -120px;
-		inset-inline-end: 70px;
+		inset-block-end: -96px;
+		inset-inline-end: 56px;
 	}
 }
 
