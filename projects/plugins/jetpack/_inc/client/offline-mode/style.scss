@@ -30,6 +30,19 @@ body.jetpack-offline-mode-page {
 	display: block;
 }
 
+.jp-offline-mode__recommended-button {
+	align-items: center;
+	display: inline-flex;
+	gap: 4px;
+}
+
+.jp-offline-mode__recommended-button-icon {
+	block-size: 16px;
+	display: block;
+	flex: 0 0 auto;
+	inline-size: 16px;
+}
+
 .jp-offline-mode--loading {
 	min-block-size: 160px;
 }

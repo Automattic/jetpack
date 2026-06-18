@@ -255,6 +255,33 @@ describe( 'OfflineMode', () => {
 		expect( activateModule ).toHaveBeenCalledWith( 'blocks' );
 	} );
 
+	it( 'explains when recommended features are already enabled', async () => {
+		apiFetch.mockResolvedValue( {
+			...offlineFeaturesResponse,
+			features: offlineFeaturesResponse.features.map( feature =>
+				feature.recommended ? { ...feature, active: true } : feature
+			),
+		} );
+
+		render(
+			<OfflineMode
+				activateModule={ jest.fn() }
+				deactivateModule={ jest.fn() }
+				fetchModules={ jest.fn() }
+			/>
+		);
+
+		const recommendedButton = await screen.findByRole( 'button', {
+			name: 'Recommended enabled',
+		} );
+
+		expect( recommendedButton ).toBeDisabled();
+		expect( recommendedButton ).toHaveClass( 'jp-offline-mode__recommended-button--with-icon' );
+		expect(
+			screen.queryByRole( 'button', { name: 'Enable recommended' } )
+		).not.toBeInTheDocument();
+	} );
+
 	it( 'refreshes after recommended activations settle when one activation fails', async () => {
 		const fetchModules = jest.fn().mockResolvedValue();
 		let resolveBlocksActivation;

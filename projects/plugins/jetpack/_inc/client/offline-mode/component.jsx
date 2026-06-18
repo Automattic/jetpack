@@ -15,6 +15,7 @@ import {
 	__experimentalVStack as VStack, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
+import { Icon, published } from '@wordpress/icons';
 import { Badge } from '@wordpress/ui';
 import PropTypes from 'prop-types';
 import { Fragment, useCallback, useEffect, useMemo, useState } from 'react';
@@ -30,11 +31,13 @@ const hasOwn = ( object, property ) => Object.prototype.hasOwnProperty.call( obj
 
 const getFeatureModule = feature => feature.underlying_module || feature.module || feature.slug;
 
-const getRecommendedInactiveFeatures = features =>
+const getRecommendedFeatures = features =>
 	features.filter(
-		feature =>
-			feature.recommended && feature.available && false !== feature.toggleable && ! feature.active
+		feature => feature.recommended && feature.available && false !== feature.toggleable
 	);
+
+const getRecommendedInactiveFeatures = features =>
+	getRecommendedFeatures( features ).filter( feature => ! feature.active );
 
 const settlePromise = promise =>
 	promise.then(
@@ -295,19 +298,37 @@ RequiresConnectionSection.propTypes = {
 	).isRequired,
 };
 
-const EnableRecommendedButton = ( { canEnableRecommended, isSaving, onEnableRecommended } ) => (
-	<Button
-		disabled={ ! canEnableRecommended || isSaving }
-		onClick={ onEnableRecommended }
-		variant="secondary"
-		__next40pxDefaultSize
-	>
-		{ __( 'Enable recommended', 'jetpack' ) }
-	</Button>
-);
+const EnableRecommendedButton = ( {
+	canEnableRecommended,
+	hasRecommendedFeatures,
+	isSaving,
+	onEnableRecommended,
+} ) => {
+	let label = __( 'Enable recommended', 'jetpack' );
+
+	if ( ! canEnableRecommended ) {
+		label = hasRecommendedFeatures
+			? __( 'Recommended enabled', 'jetpack' )
+			: __( 'No recommended features', 'jetpack' );
+	}
+
+	return (
+		<Button
+			className="jp-offline-mode__recommended-button jp-offline-mode__recommended-button--with-icon"
+			disabled={ ! canEnableRecommended || isSaving }
+			onClick={ onEnableRecommended }
+			size="compact"
+			variant="secondary"
+		>
+			<Icon className="jp-offline-mode__recommended-button-icon" icon={ published } size={ 16 } />
+			{ label }
+		</Button>
+	);
+};
 
 EnableRecommendedButton.propTypes = {
 	canEnableRecommended: PropTypes.bool.isRequired,
+	hasRecommendedFeatures: PropTypes.bool.isRequired,
 	isSaving: PropTypes.bool.isRequired,
 	onEnableRecommended: PropTypes.func.isRequired,
 };
@@ -394,6 +415,10 @@ export const OfflineMode = ( { activateModule, deactivateModule, fetchModules } 
 	const groupedFeatures = useMemo(
 		() => getGroupedFeatures( featuresWithOptimisticState, groups ),
 		[ featuresWithOptimisticState, groups ]
+	);
+	const recommendedFeatures = useMemo(
+		() => getRecommendedFeatures( featuresWithOptimisticState ),
+		[ featuresWithOptimisticState ]
 	);
 	const recommendedInactiveFeatures = useMemo(
 		() => getRecommendedInactiveFeatures( featuresWithOptimisticState ),
@@ -528,6 +553,7 @@ export const OfflineMode = ( { activateModule, deactivateModule, fetchModules } 
 				actions={
 					<EnableRecommendedButton
 						canEnableRecommended={ false }
+						hasRecommendedFeatures={ false }
 						isSaving={ false }
 						onEnableRecommended={ handleActivateRecommended }
 					/>
@@ -548,6 +574,7 @@ export const OfflineMode = ( { activateModule, deactivateModule, fetchModules } 
 			actions={
 				<EnableRecommendedButton
 					canEnableRecommended={ recommendedInactiveFeatures.length > 0 }
+					hasRecommendedFeatures={ recommendedFeatures.length > 0 }
 					isSaving={ isAnyFeatureUpdating }
 					onEnableRecommended={ handleActivateRecommended }
 				/>
