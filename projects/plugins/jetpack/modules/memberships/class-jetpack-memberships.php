@@ -1085,7 +1085,8 @@ class Jetpack_Memberships {
 	 * new tab (descriptions are shown inside the subscribe modal's iframe), and
 	 * finally sanitizes the output to a small tag allowlist.
 	 *
-	 * @param string $description Raw tier description (markdown text).
+	 * @param mixed $description Raw tier description (markdown text). Non-scalar
+	 *                          values are treated as empty.
 	 * @return string Sanitized HTML, or an empty string for an empty description.
 	 */
 	public static function render_tier_description_html( $description ) {
