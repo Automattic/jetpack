@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Write editor: add a media library browser to the image insert modal so users can pick existing images alongside upload and paste-URL.

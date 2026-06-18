@@ -64,8 +64,8 @@ type Search = {
 };
 
 export function DashboardHeader() {
-	const { effective, stage, commit } = useStagedSearch< Search, '/wc-analytics/dashboard' >( {
-		from: '/wc-analytics/dashboard',
+	const { effective, stage, commit } = useStagedSearch< Search, '/' >( {
+		from: '/',
 		// autoCommitDebounceMs: 250,
 	} );
 
@@ -116,7 +116,7 @@ export function DashboardHeader() {
 
 ```ts
 const { effective, isSyncing } = useStagedSearch< Search >( {
-	from: '/wc-analytics/dashboard',
+	from: '/',
 } );
 
 const query = useQuery( {

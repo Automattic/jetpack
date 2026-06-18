@@ -5,7 +5,6 @@ import { Button } from '@wordpress/ui';
 import clsx from 'clsx';
 import { useIsModernized } from '../../hooks/use-is-modernized';
 import { store } from '../../social-store';
-import { KeyringResult } from '../../social-store/types';
 import { CustomInputs } from './custom-inputs';
 import { ModernCustomInputs } from './custom-inputs-modern';
 import styles from './style.module.scss';
@@ -41,7 +40,7 @@ export function ConnectForm( {
 	compact,
 }: ConnectFormProps ) {
 	const isModernized = useIsModernized();
-	const { setKeyringResult } = useDispatch( store );
+	const { fetchKeyringResult } = useDispatch( store );
 
 	// In the modernized chassis the submit button sits flush in a compact
 	// disclosure row unless it accompanies the custom-input fields. Legacy
@@ -60,14 +59,19 @@ export function ConnectForm( {
 		[]
 	);
 
+	const isFetchingKeyringResult = useSelect(
+		select => select( store ).isFetchingKeyringResult(),
+		[]
+	);
+
 	const onConfirm = useCallback(
-		( result: KeyringResult ) => {
-			// Set the keyring result only if the modal is open
+		( requestId: string ) => {
+			// Fetch the keyring result only if the modal is open.
 			if ( isConnectionsModalOpen() ) {
-				setKeyringResult( result );
+				fetchKeyringResult( requestId );
 			}
 		},
-		[ setKeyringResult, isConnectionsModalOpen ]
+		[ fetchKeyringResult, isConnectionsModalOpen ]
 	);
 
 	const requestAccess = useRequestAccess( {
@@ -114,14 +118,14 @@ export function ConnectForm( {
 					variant={ hasConnections ? 'outline' : 'solid' }
 					size={ buttonSize }
 					type="submit"
-					disabled={ isFetchingServicesList }
+					disabled={ isFetchingServicesList || isFetchingKeyringResult }
 				>
 					{ ( label => {
 						if ( label ) {
 							return label;
 						}
 
-						if ( isFetchingServicesList && isConnecting ) {
+						if ( ( isFetchingServicesList || isFetchingKeyringResult ) && isConnecting ) {
 							return __( 'Connecting…', 'jetpack-publicize-pkg' );
 						}
 
