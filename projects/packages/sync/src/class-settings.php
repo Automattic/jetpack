@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Sync;
 
 use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Sync\Modules\Search;
 use Automattic\Jetpack\Sync\Queue\Queue_Storage_Table;
 
 /**
@@ -186,6 +187,10 @@ class Settings {
 			} else {
 				$value = $default_array_value;
 			}
+		}
+
+		if ( 'post_meta_whitelist' === $setting ) {
+			$value = Search::remove_postmeta_denylist( $value );
 		}
 
 		return $value;

@@ -38,7 +38,23 @@ class Search_Module_Test extends BaseTestCase {
 	 */
 	protected function tearDown(): void {
 		remove_filter( 'jetpack_search_ai_answers_enabled', '__return_true' );
+		remove_filter( 'jetpack_sync_post_meta_whitelist', array( $this, 'add_denied_post_meta' ), 20 );
+		remove_filter( 'jetpack_sync_post_meta_whitelist', array( $this->search_module, 'add_search_post_meta_whitelist' ), 10 );
+		remove_filter( 'jetpack_sync_post_meta_whitelist', array( Modules\Search::class, 'remove_postmeta_denylist' ), PHP_INT_MAX );
+		remove_filter( 'jetpack_sync_options_whitelist', array( $this->search_module, 'add_search_options_whitelist' ), 10 );
+		remove_filter( 'jetpack_sync_post_types_whitelist', array( $this->search_module, 'add_ai_answer_post_types' ), 10 );
 		parent::tearDown();
+	}
+
+	/**
+	 * Denied post meta should be removed from filtered whitelist values.
+	 */
+	public function test_denied_search_post_meta_removed_from_whitelist() {
+		add_filter( 'jetpack_sync_post_meta_whitelist', array( $this, 'add_denied_post_meta' ), 20 );
+
+		$list = apply_filters( 'jetpack_sync_post_meta_whitelist', array() );
+
+		$this->assertNotContains( '_fl_builder_history_state_0', $list );
 	}
 
 	/**
@@ -70,5 +86,16 @@ class Search_Module_Test extends BaseTestCase {
 		delete_option( 'jetpack_search_ai_answers_enabled' );
 		$this->assertContains( 'wp_guideline', $list );
 		$this->assertNotContains( 'jetpack_search_topic', $list );
+	}
+
+	/**
+	 * Adds denied post meta to the post meta whitelist.
+	 *
+	 * @param array $list Post meta whitelist.
+	 * @return array Updated post meta whitelist.
+	 */
+	public function add_denied_post_meta( $list ) {
+		$list[] = '_fl_builder_history_state_0';
+		return $list;
 	}
 }

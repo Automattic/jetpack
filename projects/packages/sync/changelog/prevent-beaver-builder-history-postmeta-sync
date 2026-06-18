@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Sync: Prevent Beaver Builder undo history post meta from syncing.

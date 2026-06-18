@@ -49,6 +49,7 @@ class Search extends Module {
 	public function __construct() {
 		// Post meta whitelists.
 		add_filter( 'jetpack_sync_post_meta_whitelist', array( $this, 'add_search_post_meta_whitelist' ), 10 );
+		add_filter( 'jetpack_sync_post_meta_whitelist', array( __CLASS__, 'remove_postmeta_denylist' ), PHP_INT_MAX );
 		// Add options
 		add_filter( 'jetpack_sync_options_whitelist', array( $this, 'add_search_options_whitelist' ), 10 );
 		// AI Answers CPTs and post meta (gated by feature flag).
@@ -450,6 +451,17 @@ class Search extends Module {
 		'wccom_product_compatibility'                => array( 'searchable_in_all_content' => true ),
 
 	); // end indexed post meta.
+
+	/**
+	 * Postmeta that should never be synced.
+	 *
+	 * @static
+	 * @access private
+	 * @var array
+	 */
+	private static $postmeta_denylist = array(
+		'_fl_builder_history_state_0', // Beaver Builder undo history.
+	);
 
 	/**
 	 * Postmeta being considered for indexing
@@ -1804,6 +1816,20 @@ class Search extends Module {
 	 */
 	public function add_search_post_meta_whitelist( $list ) {
 		return array_merge( $list, static::get_all_postmeta_keys() );
+	}
+
+	/**
+	 * Remove denied post meta from the post meta whitelist.
+	 *
+	 * @param array|mixed $list Existing post meta whitelist.
+	 * @return array|mixed Updated post meta whitelist.
+	 */
+	public static function remove_postmeta_denylist( $list ) {
+		if ( ! is_array( $list ) ) {
+			return $list;
+		}
+
+		return array_values( array_diff( $list, self::$postmeta_denylist ) );
 	}
 
 	/**
