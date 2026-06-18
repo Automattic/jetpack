@@ -2451,3 +2451,16 @@ body.bw-modal-open {
 		flex: 1;
 	}
 }
+
+/*
+ * Anonymous (logged-out) Write editor: hide UI surfaces that have no working
+ * counterpart for a visitor without an authenticated session. The `bw-anon`
+ * class is added to <html> by view.js when window.wpcomWriteIsAnon is true.
+ * Hides pair with early-returns in view.js actions — CSS hides the affordance,
+ * JS guards programmatic call paths (e.g. slash menu) and any URL-bar reach.
+ */
+html.bw-anon .bw-back,
+html.bw-anon .bw-more-menu .bw-more-menu-item:not(.bw-more-save-draft),
+html.bw-anon .bw-unsupported-open-editor {
+	display: none !important;
+}
