@@ -1089,15 +1089,14 @@ class Jetpack_Memberships {
 	 * @return string Sanitized HTML, or an empty string for an empty description.
 	 */
 	public static function render_tier_description_html( $description ) {
+		if ( ! is_scalar( $description ) ) {
+			return '';
+		}
 		$description = (string) $description;
 		if ( '' === trim( $description ) ) {
 			return '';
 		}
 
-		// The markdown module class isn't loaded unless the Markdown feature is
-		// active, so pull it in directly (the parser library it needs is bundled
-		// in the plugin). transform() itself doesn't register global content
-		// filters -- those are only added by the module's load() on init.
 		if ( ! class_exists( 'WPCom_Markdown' ) ) {
 			require_once JETPACK__PLUGIN_DIR . 'modules/markdown/easy-markdown.php';
 		}

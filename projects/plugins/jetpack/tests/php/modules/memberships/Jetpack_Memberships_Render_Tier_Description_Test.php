@@ -27,6 +27,18 @@ class Jetpack_Memberships_Render_Tier_Description_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * A non-scalar value (e.g. a malformed stored option) renders to an empty
+	 * string rather than emitting a warning or fatally failing on the cast.
+	 *
+	 * @return void
+	 */
+	public function test_non_scalar_description_renders_empty_string() {
+		$this->assertSame( '', Jetpack_Memberships::render_tier_description_html( array( 'unexpected' ) ) );
+		$this->assertSame( '', Jetpack_Memberships::render_tier_description_html( (object) array( 'a' => 'b' ) ) );
+		$this->assertSame( '', Jetpack_Memberships::render_tier_description_html( null ) );
+	}
+
+	/**
 	 * Basic markdown (bold/italic) is converted to HTML.
 	 *
 	 * @return void
