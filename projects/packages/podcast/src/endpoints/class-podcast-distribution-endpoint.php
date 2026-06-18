@@ -32,9 +32,7 @@ class Podcast_Distribution_Endpoint extends WP_REST_Controller {
 	}
 
 	/**
-	 * Register the Pocket Casts submit proxy route. Submitting a feed mutates the
-	 * site's distribution state, so require the same edit permission the dashboard
-	 * SPA itself uses.
+	 * Register the Pocket Casts submit proxy route.
 	 */
 	public function register_routes() {
 		$this->namespace = 'wpcom/v2';
@@ -46,18 +44,26 @@ class Podcast_Distribution_Endpoint extends WP_REST_Controller {
 			array(
 				'methods'             => WP_REST_Server::CREATABLE,
 				'callback'            => array( $this, 'submit_pocket_casts' ),
-				'permission_callback' => function () {
-					if ( ! current_user_can( 'edit_posts' ) ) {
-						return new WP_Error(
-							'rest_forbidden',
-							__( 'Sorry, you are not allowed to submit podcasts for this site.', 'jetpack-podcast' ),
-							array( 'status' => rest_authorization_required_code() )
-						);
-					}
-					return true;
-				},
+				'permission_callback' => array( $this, 'permission_check' ),
 			)
 		);
+	}
+
+	/**
+	 * Permission callback. Submitting a feed mutates the site's distribution
+	 * state, so require the same edit permission the dashboard SPA itself uses.
+	 *
+	 * @return true|WP_Error
+	 */
+	public function permission_check() {
+		if ( ! current_user_can( 'edit_posts' ) ) {
+			return new WP_Error(
+				'rest_forbidden',
+				__( 'Sorry, you are not allowed to submit podcasts for this site.', 'jetpack-podcast' ),
+				array( 'status' => rest_authorization_required_code() )
+			);
+		}
+		return true;
 	}
 
 	/**
