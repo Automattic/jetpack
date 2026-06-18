@@ -548,57 +548,25 @@ class Customize_Feed_Test extends BaseTestCase {
 		$this->assertStringContainsString( 'type="application/json+chapters"', $output );
 	}
 
-	public function test_filter_excerpt_to_manual_only_returns_manual_excerpt() {
-		global $post;
-		$post = new WP_Post(
-			(object) array(
-				'ID'           => 101,
-				'post_excerpt' => 'A manually written episode summary.',
-				'post_content' => '<p>Body content that should be ignored.</p>',
-			)
-		);
-
-		$this->assertSame(
-			'A manually written episode summary.',
-			Customize_Feed::filter_excerpt_to_manual_only()
-		);
-	}
-
-	public function test_filter_excerpt_to_manual_only_returns_empty_when_no_manual_excerpt() {
-		global $post;
-		$post = new WP_Post(
-			(object) array(
-				'ID'           => 102,
-				'post_excerpt' => '',
-				'post_content' => '<p>Body paragraph that should NOT leak into description.</p><h2>A heading</h2>',
-			)
-		);
-
-		$this->assertSame( '', Customize_Feed::filter_excerpt_to_manual_only() );
-	}
-
-	public function test_filter_excerpt_to_manual_only_handles_missing_post() {
-		global $post;
-		$post = null;
-
-		$this->assertSame( '', Customize_Feed::filter_excerpt_to_manual_only() );
-	}
-
 	public function test_output_item_tags_uses_manual_excerpt_for_itunes_summary() {
-		global $post;
-		$post = new WP_Post(
-			(object) array(
-				'ID'           => 103,
-				'post_type'    => 'post',
+		$post_id = wp_insert_post(
+			array(
 				'post_title'   => 'Episode with Excerpt',
+				'post_status'  => 'publish',
 				'post_excerpt' => 'Authored summary for this episode.',
 				'post_content' => '<!-- wp:jetpack/podcast-episode {"mediaUrl":"https://example.com/ep.mp3"} /-->',
 			)
 		);
 
+		global $post;
+		$post = get_post( $post_id );
+		setup_postdata( $post );
+
 		ob_start();
 		Customize_Feed::output_item_tags();
 		$output = (string) ob_get_clean();
+
+		wp_reset_postdata();
 
 		$this->assertStringContainsString(
 			'<itunes:summary>Authored summary for this episode.</itunes:summary>',
@@ -606,23 +574,32 @@ class Customize_Feed_Test extends BaseTestCase {
 		);
 	}
 
-	public function test_output_item_tags_omits_itunes_summary_when_no_manual_excerpt() {
-		global $post;
-		$post = new WP_Post(
-			(object) array(
-				'ID'           => 104,
-				'post_type'    => 'post',
-				'post_title'   => 'Episode without Excerpt',
+	/**
+	 * No manual excerpt → `<itunes:summary>` mirrors WP's auto excerpt, which drops the player block and keeps only prose.
+	 */
+	public function test_output_item_tags_uses_auto_excerpt_when_no_manual_excerpt() {
+		$post_id = wp_insert_post(
+			array(
+				'post_title'   => 'Episode without Show notes',
+				'post_status'  => 'publish',
 				'post_excerpt' => '',
-				'post_content' => '<!-- wp:jetpack/podcast-episode {"mediaUrl":"https://example.com/ep.mp3"} /--><p>Body content.</p>',
+				'post_content' => '<!-- wp:jetpack/podcast-episode {"mediaUrl":"https://example.com/ep.mp3"} /--><p>Body prose that listeners should see.</p>',
 			)
 		);
+
+		global $post;
+		$post = get_post( $post_id );
+		setup_postdata( $post );
 
 		ob_start();
 		Customize_Feed::output_item_tags();
 		$output = (string) ob_get_clean();
 
-		$this->assertStringNotContainsString( '<itunes:summary>', $output );
-		$this->assertStringNotContainsString( 'Body content', $output );
+		wp_reset_postdata();
+
+		$this->assertStringContainsString( '<itunes:summary>', $output );
+		$this->assertStringContainsString( 'Body prose that listeners should see.', $output );
+		$this->assertStringNotContainsString( 'mediaUrl', $output );
+		$this->assertStringNotContainsString( 'example.com/ep.mp3', $output );
 	}
 }

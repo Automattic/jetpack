@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+REST: Expose the dashboard notices under `jetpack-premium-analytics/v1/notices` (GET + POST), backed by a Notices class ported from stats-admin that merges the WordPress.com dismissal state with locally-derived opt-in/opt-out/feedback/GDPR flags.

@@ -28,7 +28,7 @@ class Initializer {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '0.1.0';
+	const PACKAGE_VERSION = '0.1.1';
 
 	/**
 	 * Filter name that gates the entire Jetpack SEO surface.
@@ -70,6 +70,17 @@ class Initializer {
 	const SCRIPT_DATA_KEY = 'seo';
 
 	/**
+	 * Post-meta keys mirrored from `Jetpack_SEO_Posts` (in plugins/jetpack).
+	 * Duplicated here as literals on purpose: that plugin class is NOT reliably
+	 * loaded in this package's admin context (the `Jetpack_SEO_Utils`
+	 * `class_exists` guard in `get_overview_data()` is there for the same
+	 * reason), so referencing its constants would fatal. Content-coverage
+	 * counting only needs the key strings, which are stable.
+	 */
+	const META_DESCRIPTION = 'advanced_seo_description';
+	const META_SCHEMA_TYPE = 'jetpack_seo_schema_type';
+
+	/**
 	 * Whether the package has been initialized.
 	 *
 	 * @var bool
@@ -101,6 +112,10 @@ class Initializer {
 		if ( ! self::is_seo_tools_module_active() ) {
 			return;
 		}
+
+		// Front-end JSON-LD schema (Article / FAQ). Self-hooks `wp_head`, so it
+		// only emits on front-end requests.
+		Schema_Builder::init();
 
 		// Priority 1: load the wp-build bundle (and define its render function)
 		// before `add_menu_item()` runs at the default priority and needs it.
@@ -220,8 +235,11 @@ class Initializer {
 			$data = array();
 		}
 
-		$data[ self::SCRIPT_DATA_KEY ]['overview'] = self::get_overview_data();
-		$data[ self::SCRIPT_DATA_KEY ]['settings'] = self::get_settings_data();
+		$data[ self::SCRIPT_DATA_KEY ]['overview']      = self::get_overview_data();
+		$data[ self::SCRIPT_DATA_KEY ]['settings']      = self::get_settings_data();
+		$data[ self::SCRIPT_DATA_KEY ]['google_verify'] = self::get_google_verify_data();
+		$data[ self::SCRIPT_DATA_KEY ]['ai']            = self::get_ai_data();
+		$data[ self::SCRIPT_DATA_KEY ]['site']          = self::get_site_data();
 
 		return $data;
 	}
@@ -296,9 +314,92 @@ class Initializer {
 				'yandex'    => ! empty( $codes['yandex'] ),
 				'facebook'  => ! empty( $codes['facebook'] ),
 			),
+			'content_coverage'  => self::get_content_coverage(),
 			'plan'              => array(
 				'seo_enabled_for_site' => $seo_enabled,
 			),
+		);
+	}
+
+	/**
+	 * Factual content-coverage counts for the Overview card: how many published
+	 * posts/pages have each SEO field set. State, not a score — the card shows
+	 * proportions + raw counts and lets the admin decide what matters.
+	 *
+	 * @return array{total:int,with_description:int,with_schema:int}
+	 */
+	private static function get_content_coverage() {
+		$post_types = array( 'post', 'page' );
+
+		$total = 0;
+		foreach ( $post_types as $post_type ) {
+			$counts = wp_count_posts( $post_type );
+			$total += isset( $counts->publish ) ? (int) $counts->publish : 0;
+		}
+
+		return array(
+			'total'            => $total,
+			'with_description' => self::count_published_with_meta( $post_types, self::META_DESCRIPTION ),
+			'with_schema'      => self::count_published_with_meta( $post_types, self::META_SCHEMA_TYPE ),
+		);
+	}
+
+	/**
+	 * Count published posts/pages whose meta is set. With no `$value`, counts a
+	 * non-empty string meta; with a `$value`, counts an exact match.
+	 *
+	 * @param string[]    $post_types Post types to count across.
+	 * @param string      $meta_key   Meta key to test.
+	 * @param string|null $value      Exact value to match, or null for "non-empty".
+	 * @return int
+	 */
+	private static function count_published_with_meta( $post_types, $meta_key, $value = null ) {
+		$clause = null === $value
+			? array(
+				'key'     => $meta_key,
+				'value'   => '',
+				'compare' => '!=',
+			)
+			: array(
+				'key'   => $meta_key,
+				'value' => $value,
+			);
+
+		$query = new \WP_Query(
+			array(
+				'post_type'              => $post_types,
+				'post_status'            => 'publish',
+				'posts_per_page'         => 1,
+				'fields'                 => 'ids',
+				'update_post_meta_cache' => false,
+				'update_post_term_cache' => false,
+				// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- Overview snapshot; one count query per metric on the SEO page only.
+				'meta_query'             => array( $clause ),
+			)
+		);
+
+		return (int) $query->found_posts;
+	}
+
+	/**
+	 * Site identity used to render the homepage search/social previews on the
+	 * Settings tab: title, URL, and representative images. The front-page
+	 * description that completes the preview is read from the Settings form
+	 * (it's editable there), not bootstrapped here.
+	 *
+	 * @return array
+	 */
+	public static function get_site_data() {
+		$icon_url = (string) get_site_icon_url();
+
+		$logo_id  = (int) get_theme_mod( 'custom_logo' );
+		$logo_url = $logo_id ? (string) wp_get_attachment_image_url( $logo_id, 'full' ) : '';
+
+		return array(
+			'title' => (string) get_bloginfo( 'name' ),
+			'url'   => (string) home_url(),
+			'icon'  => $icon_url,
+			'image' => $logo_url ? $logo_url : $icon_url,
 		);
 	}
 
@@ -353,6 +454,8 @@ class Initializer {
 			// The real `sitemaps` module is the source of truth (not a bespoke
 			// option). The Settings toggle drives it via `/jetpack/v4/settings`.
 			'sitemap_active'         => $modules->is_active( 'sitemaps' ),
+			// Canonical URLs is its own module, toggled the same way as sitemaps.
+			'canonical_active'       => $modules->is_active( 'canonical-urls' ),
 			// Cast to object so an empty format set serializes as `{}`, not `[]`.
 			'title_formats'          => (object) $title_formats,
 			'front_page_description' => (string) $front_page_desc,
@@ -362,6 +465,71 @@ class Initializer {
 				'pinterest' => isset( $codes['pinterest'] ) ? (string) $codes['pinterest'] : '',
 				'yandex'    => isset( $codes['yandex'] ) ? (string) $codes['yandex'] : '',
 				'facebook'  => isset( $codes['facebook'] ) ? (string) $codes['facebook'] : '',
+			),
+		);
+	}
+
+	/**
+	 * Build the Google site-verification state for the Settings tab.
+	 *
+	 * The Settings verification card lets a connected user verify with Google via a
+	 * WordPress.com keyring OAuth popup (in addition to pasting a meta-tag code). This
+	 * bootstraps the keyring connect URL and whether the current user is connected —
+	 * the live verified status is fetched client-side from `/jetpack/v4/verify-site/google`
+	 * (a wpcom round-trip we don't want to make on every page load).
+	 *
+	 * Both `Keyring_Helper` (Publicize package) and the connection `Manager` are provided
+	 * by the host Jetpack plugin, so they're guarded with `class_exists` like the
+	 * `Jetpack_SEO_*` helpers. On a disconnected self-hosted site `is_connected` is false
+	 * and the UI falls back to manual code entry only.
+	 *
+	 * @return array
+	 */
+	public static function get_google_verify_data() {
+		$connect_url = '';
+		if ( class_exists( 'Automattic\\Jetpack\\Publicize\\Keyring_Helper' ) ) {
+			// @phan-suppress-next-line PhanUndeclaredClassMethod -- guarded; Publicize package is provided by the host plugin.
+			$connect_url = (string) \Automattic\Jetpack\Publicize\Keyring_Helper::connect_url( 'google_site_verification', 'other' );
+		}
+
+		$is_connected = false;
+		if ( class_exists( 'Automattic\\Jetpack\\Connection\\Manager' ) ) {
+			// @phan-suppress-next-line PhanUndeclaredClassMethod -- guarded; Connection package is provided by the host plugin.
+			$is_connected = ( new \Automattic\Jetpack\Connection\Manager() )->is_user_connected();
+		}
+
+		return array(
+			'connect_url'  => $connect_url,
+			'is_connected' => (bool) $is_connected,
+		);
+	}
+
+	/**
+	 * Build the AI tab's initial state.
+	 *
+	 * The AI SEO Enhancer auto-generates SEO titles/descriptions/alt-text in the
+	 * editor (the generation itself is wpcom/AI-Assistant side); this exposes only
+	 * its persisted on/off toggle and whether it's available. Availability mirrors
+	 * the legacy Traffic page: the `ai_seo_enhancer_enabled` feature filter must be
+	 * on (it still depends on AI being available) AND the site's plan must support
+	 * the `ai-seo-enhancer` feature. The toggle writes through the existing
+	 * `/jetpack/v4/settings` endpoint (`ai_seo_enhancer_enabled`).
+	 *
+	 * @return array
+	 */
+	public static function get_ai_data() {
+		$filter_on = (bool) apply_filters( 'ai_seo_enhancer_enabled', true );
+
+		// Current_Plan is provided by the host Jetpack plugin, not a package
+		// dependency — guard like the Jetpack_SEO_* helpers above.
+		$plan_supports = class_exists( 'Automattic\\Jetpack\\Current_Plan' )
+			// @phan-suppress-next-line PhanUndeclaredClassMethod -- guarded by class_exists; host plugin provides the class.
+			&& \Automattic\Jetpack\Current_Plan::supports( 'ai-seo-enhancer' );
+
+		return array(
+			'enhancer' => array(
+				'available' => $filter_on && $plan_supports,
+				'enabled'   => (bool) get_option( 'ai_seo_enhancer_enabled', false ),
 			),
 		);
 	}

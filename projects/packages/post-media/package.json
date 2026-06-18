@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-post-media",
-	"version": "0.1.5",
+	"version": "0.1.6",
 	"private": true,
 	"description": "Tools to extract useful information and meta data from WordPress posts.",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/packages/post-media/#readme",

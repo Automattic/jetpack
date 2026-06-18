@@ -10,7 +10,7 @@
  * Auto Activate: No
  * Module Tags: Social, Appearance
  * Feature: Traffic
- * Additional Search Queries: search engine optimization, social preview, meta description, custom title format
+ * Additional Search Queries: search engine optimization, social preview, meta description, custom title format, seo, sitemap, open graph, search engine, title tag
  *
  * @package automattic/jetpack
  */
@@ -49,4 +49,7 @@ foreach ( $jetpack_seo_conflicting_plugins as $seo_plugin ) {
 if ( ! apply_filters( 'jetpack_disable_seo_tools', false ) ) {
 	require_once __DIR__ . '/seo-tools/class-jetpack-seo.php';
 	new Jetpack_SEO();
+
+	require_once __DIR__ . '/seo-tools/class-jetpack-seo-admin-columns.php';
+	Jetpack_SEO_Admin_Columns::init();
 }

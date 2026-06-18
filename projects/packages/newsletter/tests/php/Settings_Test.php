@@ -57,6 +57,8 @@ class Settings_Test extends BaseTestCase {
 
 		unset( $_GET['page'] );
 		remove_all_filters( Settings::MODERNIZATION_FILTER );
+		remove_all_filters( 'site_url' );
+		remove_all_filters( 'home_url' );
 
 		// Dequeue any scripts that may have leaked into globals during the test.
 		wp_dequeue_script( 'jp-tracks' );
@@ -185,6 +187,49 @@ class Settings_Test extends BaseTestCase {
 			self::call_private_static_is_modernized(),
 			'A consumer filter returning false must take precedence over the modernization default.'
 		);
+	}
+
+	/**
+	 * Regression test for NL-695: on a WordPress install living in a subdirectory,
+	 * `site_url` includes the subdirectory path (e.g. `example.com/pages`) while
+	 * `home_url` is the bare host (e.g. `example.com`). The "Add plans" URL must be
+	 * built from the home host so Calypso receives a valid site slug, not the
+	 * subdirectory path.
+	 */
+	public function test_add_script_data_payment_url_uses_home_host_on_subdirectory_install() {
+		add_filter( 'site_url', array( $this, 'mock_subdirectory_site_url' ) );
+		add_filter( 'home_url', array( $this, 'mock_subdirectory_home_url' ) );
+
+		$data = ( new Settings() )->add_script_data( array() );
+
+		$this->assertSame(
+			'https://cloud.jetpack.com/monetize/payments/example.com',
+			$data['newsletter']['setupPaymentPlansUrl'],
+			'Add plans URL must use the home host, not the site_url subdirectory path.'
+		);
+		$this->assertStringNotContainsString(
+			'pages',
+			$data['newsletter']['setupPaymentPlansUrl'],
+			'Add plans URL must not leak the site_url subdirectory segment.'
+		);
+	}
+
+	/**
+	 * Mock `site_url` for a subdirectory install (WordPress lives in `/pages`).
+	 *
+	 * @return string
+	 */
+	public function mock_subdirectory_site_url() {
+		return 'https://example.com/pages';
+	}
+
+	/**
+	 * Mock `home_url` for a subdirectory install (the site is served from the root).
+	 *
+	 * @return string
+	 */
+	public function mock_subdirectory_home_url() {
+		return 'https://example.com';
 	}
 
 	/**

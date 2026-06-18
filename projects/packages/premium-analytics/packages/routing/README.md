@@ -1,7 +1,7 @@
 # @automattic/jetpack-premium-analytics-routing
 
 Utilities for handling **routing and URL search parameters** in
-WooCommerce Analytics with TypeScript integration.
+Jetpack Premium Analytics with TypeScript integration.
 
 This package centralizes logic for encoding and decoding route params so
 that date ranges, filters, comparison parameters, and other query
@@ -36,7 +36,7 @@ function DateRangeSelector() {
 	const handleRangeChange = nextRange => {
 		writeDateRangeToSearch( {
 			navigate,
-			to: '/wc-analytics/dashboard',
+			to: '/',
 			range: nextRange,
 			search: { interval: 'day' }, // Preserve other params
 		} );
@@ -55,7 +55,7 @@ function ComparisonSelector() {
 	const handleComparisonChange = ( range, presetId ) => {
 		writeComparisonToSearch( {
 			navigate,
-			to: '/wc-analytics/dashboard',
+			to: '/',
 			range,
 			presetId,
 			enabled: !! range,
@@ -73,7 +73,7 @@ Writes a `DateRange` to the URL using the provided `navigate` function.
 **Parameters:**
 
 - **`navigate`** – Navigation function from `useNavigate()` (`@wordpress/route`)
-- **`to`** – Destination path (e.g., `'/wc-analytics/dashboard'`)
+- **`to`** – Destination path (e.g., `'/'`)
 - **`range`** – `{ from: Date | undefined; to?: Date | undefined }`
 - **`timezone?`** _(optional)_ – Override timezone for date conversion
 - **`search?`** _(optional)_ – Additional search params to preserve/set
@@ -120,7 +120,7 @@ Low-level function to convert a Date to an ISO string with timezone.
 ### URL Parameter Structure
 
 ```
-/wc-analytics/dashboard?
+/?
   from=2025-01-01T00:00:00-08:00&        # Primary date range
   to=2025-01-31T23:59:59-08:00&
   interval=day&                          # Data granularity

@@ -190,6 +190,137 @@ class WPCOM_REST_API_V2_Endpoint_Subscribers_List_Test extends Jetpack_REST_Test
 	}
 
 	/**
+	 * `/subscribers/add` forwards to the async wpcom `/sites/{blog_id}/subscribers/import` (v2)
+	 * endpoint — the same import job Calypso's Add Subscribers modal starts, which imports the
+	 * addresses directly instead of sending invitation emails — and returns its `{ upload_id }`
+	 * body verbatim.
+	 */
+	public function test_add_forwards_to_import_endpoint_and_returns_body() {
+		$captured = array(
+			'url'  => '',
+			'body' => '',
+		);
+		$filter   = function ( $preempt, $parsed_args, $url ) use ( &$captured ) {
+			$captured['url']  = $url;
+			$captured['body'] = $parsed_args['body'] ?? null;
+
+			return array(
+				'headers'  => array(),
+				'body'     => wp_json_encode( array( 'upload_id' => 4242 ), JSON_UNESCAPED_SLASHES ),
+				'response' => array(
+					'code'    => 200,
+					'message' => 'OK',
+				),
+				'cookies'  => array(),
+				'filename' => null,
+			);
+		};
+		add_filter( 'pre_http_request', $filter, 10, 3 );
+
+		$request = new WP_REST_Request( Requests::POST, '/wpcom/v2/subscribers/add' );
+		$request->set_header( 'content_type', 'application/json' );
+		$request->set_body(
+			wp_json_encode(
+				array( 'emails' => array( 'reader@example.com', 'not-an-email', 'second@example.com' ) ),
+				JSON_UNESCAPED_SLASHES
+			)
+		);
+
+		$response = $this->server->dispatch( $request );
+
+		remove_filter( 'pre_http_request', $filter, 10 );
+
+		$this->assertSame( 200, $response->get_status() );
+		$this->assertSame( array( 'upload_id' => 4242 ), $response->get_data() );
+
+		$this->assertStringContainsString(
+			'/wpcom/v2/sites/' . static::$blog_id . '/subscribers/import',
+			$captured['url']
+		);
+
+		// JSON body (form encoding would fail the Jetpack body-hash signature check WP.com-side):
+		// only the valid emails survive sanitization, and `parse_only` is false so WP.com runs
+		// the import instead of a dry run.
+		$sent = (array) json_decode( (string) $captured['body'], true );
+		$this->assertSame( array( 'reader@example.com', 'second@example.com' ), $sent['emails'] );
+		$this->assertFalse( $sent['parse_only'] );
+	}
+
+	/**
+	 * The import endpoint can report a failure inside a 2xx response (e.g. a subscriber limit);
+	 * any body without an `upload_id` maps to a WP_Error carrying the upstream message.
+	 */
+	public function test_add_maps_missing_upload_id_to_wp_error() {
+		$filter = function () {
+			return array(
+				'headers'  => array(),
+				'body'     => wp_json_encode(
+					array(
+						'code'    => 'subscriber_import_limit_reached',
+						'message' => 'Import limit reached.',
+					),
+					JSON_UNESCAPED_SLASHES
+				),
+				'response' => array(
+					'code'    => 200,
+					'message' => 'OK',
+				),
+				'cookies'  => array(),
+				'filename' => null,
+			);
+		};
+		add_filter( 'pre_http_request', $filter );
+
+		$request = new WP_REST_Request( Requests::POST, '/wpcom/v2/subscribers/add' );
+		$request->set_header( 'content_type', 'application/json' );
+		$request->set_body( wp_json_encode( array( 'emails' => array( 'reader@example.com' ) ), JSON_UNESCAPED_SLASHES ) );
+
+		$response = $this->server->dispatch( $request );
+
+		remove_filter( 'pre_http_request', $filter );
+
+		$this->assertSame( 400, $response->get_status() );
+		$this->assertSame( 'subscribers_add_failed', $response->get_data()['code'] );
+		$this->assertSame( 'Import limit reached.', $response->get_data()['message'] );
+	}
+
+	/**
+	 * `/subscribers/import/reset-state` forwards to the wpcom
+	 * `/sites/{blog_id}/subscribers/import/reset_state` (v2) endpoint — Calypso's stale-import
+	 * "Cancel import" action — and returns its `{ reset_count }` body verbatim.
+	 */
+	public function test_reset_import_state_forwards_and_returns_body() {
+		$captured_url = '';
+		$filter       = function ( $preempt, $parsed_args, $url ) use ( &$captured_url ) {
+			$captured_url = $url;
+
+			return array(
+				'headers'  => array(),
+				'body'     => wp_json_encode( array( 'reset_count' => 1 ), JSON_UNESCAPED_SLASHES ),
+				'response' => array(
+					'code'    => 200,
+					'message' => 'OK',
+				),
+				'cookies'  => array(),
+				'filename' => null,
+			);
+		};
+		add_filter( 'pre_http_request', $filter, 10, 3 );
+
+		$request  = new WP_REST_Request( Requests::POST, '/wpcom/v2/subscribers/import/reset-state' );
+		$response = $this->server->dispatch( $request );
+
+		remove_filter( 'pre_http_request', $filter, 10 );
+
+		$this->assertSame( 200, $response->get_status() );
+		$this->assertSame( array( 'reset_count' => 1 ), $response->get_data() );
+		$this->assertStringContainsString(
+			'/wpcom/v2/sites/' . static::$blog_id . '/subscribers/import/reset_state',
+			$captured_url
+		);
+	}
+
+	/**
 	 * `/subscribers/remove` rejects payloads with no identifiers at all — protects WP.com from
 	 * receiving a no-op cascade.
 	 */
