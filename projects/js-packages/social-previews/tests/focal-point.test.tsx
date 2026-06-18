@@ -218,10 +218,12 @@ const platforms: PlatformCase[] = [
 	},
 	{
 		name: 'mastodon',
+		// The card renders only when the custom text contains the post URL.
 		render: imageFocalPoint => (
 			<MastodonPostPreview
 				url={ POST_URL }
 				title={ POST_TITLE }
+				customText={ POST_URL }
 				image={ IMAGE_SRC }
 				imageFocalPoint={ imageFocalPoint }
 			/>
