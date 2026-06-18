@@ -71,15 +71,6 @@ export function NextdoorPostPreview( {
 										}
 									</ExpandableText>
 								</span>
-								{ ! hasMedia && url && ! description.includes( url ) && (
-									<>
-										<br />
-										<br />
-										<a href={ url } rel="nofollow noopener noreferrer" target="_blank">
-											{ url }
-										</a>
-									</>
-								) }
 							</div>
 						) : null }
 						{ hasMedia ? (
