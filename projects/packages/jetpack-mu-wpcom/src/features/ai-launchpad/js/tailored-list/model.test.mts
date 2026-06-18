@@ -137,6 +137,11 @@ describe( 'launchSiteUrl', () => {
 			'https://wordpress.com/start/launch-site?siteSlug=example.wpcomstaging.com&ref=wp-admin'
 		);
 	} );
+
+	it( 'returns null for a malformed site URL instead of throwing', () => {
+		assert.equal( launchSiteUrl( 'not-a-url' ), null );
+		assert.equal( launchSiteUrl( '' ), null );
+	} );
 } );
 
 describe( 'isTaskActionable', () => {
@@ -144,6 +149,10 @@ describe( 'isTaskActionable', () => {
 		const launch = task( { id: 'site_launched', calypso_path: null } );
 		assert.equal( isTaskActionable( launch, null, 'https://example.com' ), true );
 		assert.equal( isTaskActionable( launch, null, null ), false );
+		// An empty or malformed URL can't build a launch URL, so it must not be
+		// actionable (stays in lockstep with resolveCtaUrl).
+		assert.equal( isTaskActionable( launch, null, '' ), false );
+		assert.equal( isTaskActionable( launch, null, 'not-a-url' ), false );
 	} );
 } );
 

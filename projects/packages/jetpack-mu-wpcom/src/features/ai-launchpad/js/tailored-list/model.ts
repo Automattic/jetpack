@@ -15,7 +15,9 @@ export interface EnrichedTask {
 
 /** The site context the list needs (front-end URL for the launch CTA + preview). */
 export interface SiteData {
-	url: string;
+	// Optional: the field comes from an un-validated REST response, so consumers
+	// must tolerate it being absent (coalesce to null) rather than trust the type.
+	url?: string;
 }
 
 /**
@@ -73,10 +75,18 @@ export function ctaKind( taskId: string ): CtaKind {
  * `/start/launch-site` keyed by the site slug (the host of the site's home URL).
  *
  * @param siteUrl - The site's front-end URL (from the composite read).
- * @return The launch-flow URL.
+ * @return The launch-flow URL, or null if the site URL can't be parsed.
  */
-export function launchSiteUrl( siteUrl: string ): string {
-	const slug = new URL( siteUrl ).host;
+export function launchSiteUrl( siteUrl: string ): string | null {
+	let slug: string;
+	try {
+		slug = new URL( siteUrl ).host;
+	} catch {
+		// A malformed/relative home URL (e.g. a broken `home_url` filter) can't
+		// produce a launch slug; return null so the CTA is hidden rather than
+		// throwing on click.
+		return null;
+	}
 	return `https://wordpress.com/start/launch-site?siteSlug=${ encodeURIComponent(
 		slug
 	) }&ref=wp-admin`;
@@ -191,7 +201,9 @@ export function isTaskActionable(
 		return true;
 	}
 	if ( kind === 'launch' ) {
-		return siteUrl !== null;
+		// Only actionable when a launch URL can actually be built — keeps this in
+		// lockstep with resolveCtaUrl (no CTA shown for a missing/malformed URL).
+		return !! siteUrl && launchSiteUrl( siteUrl ) !== null;
 	}
 	return task.calypso_path !== null;
 }

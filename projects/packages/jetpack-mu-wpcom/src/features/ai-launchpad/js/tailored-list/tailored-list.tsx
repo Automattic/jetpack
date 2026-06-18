@@ -94,7 +94,7 @@ export function TailoredList( { pendingTailor, initialData }: Props = {} ) {
 			}
 
 			if ( data?.site ) {
-				setSiteUrl( data.site.url );
+				setSiteUrl( data.site.url ?? null );
 			}
 
 			if ( data && data.tasks.length > 0 ) {
