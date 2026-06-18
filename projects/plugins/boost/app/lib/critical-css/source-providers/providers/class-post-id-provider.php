@@ -28,7 +28,6 @@ class Post_ID_Provider extends Provider {
 	 */
 	protected static $name = 'post_id';
 
-	// phpcs:ignore Generic.Commenting.DocComment.MissingShort
 	/** @inheritdoc */
 	public static function get_critical_source_urls( $context_posts = array() ) {
 		$results          = array();
@@ -51,7 +50,6 @@ class Post_ID_Provider extends Provider {
 		return $results;
 	}
 
-	// phpcs:ignore Generic.Commenting.DocComment.MissingShort
 	/** @inheritdoc */
 	public static function get_current_storage_keys() {
 		if ( ! is_singular() ) {
@@ -62,9 +60,8 @@ class Post_ID_Provider extends Provider {
 		return array( self::$name . '_' . get_the_ID() );
 	}
 
-	// phpcs:ignore
 	/** @inheritdoc */
-	public static function describe_key( $provider_key ) { // phpcs:ignore Generic.Commenting.DocComment.MissingShort
+	public static function describe_key( $provider_key ) {
 		$post_id = (int) substr( $provider_key, strlen( self::$name ) + 1 );
 
 		$post = get_post( $post_id );
@@ -76,9 +73,8 @@ class Post_ID_Provider extends Provider {
 		return $post->post_title;
 	}
 
-	// phpcs:ignore Generic.Commenting.DocComment.MissingShort
 	/** @inheritdoc */
-	public static function get_edit_url( $provider_key ) { // phpcs:ignore Generic.Commenting.DocComment.MissingShort
+	public static function get_edit_url( $provider_key ) {
 		$post_id = (int) substr( $provider_key, strlen( self::$name ) + 1 );
 
 		return get_edit_post_link( $post_id, 'link' );
@@ -128,7 +124,6 @@ class Post_ID_Provider extends Provider {
 		return update_option( self::STORAGE_KEY, $post_ids );
 	}
 
-	// phpcs:ignore Generic.Commenting.DocComment.MissingShort
 	/** @inheritdoc */
 	public static function get_keys() {
 		return self::get_post_ids();
@@ -149,7 +144,7 @@ class Post_ID_Provider extends Provider {
 		return new \WP_Query(
 			array(
 				'post__in'               => $ids,
-				'posts_per_page'         => count( $ids ), // phpcs:disable WordPress.WP.PostsPerPage.posts_per_page_posts_per_page
+				'posts_per_page'         => count( $ids ),
 				'post_status'            => array( 'publish' ),
 				'post_type'              => 'any',
 				'no_found_rows'          => true,
@@ -160,7 +155,6 @@ class Post_ID_Provider extends Provider {
 		);
 	}
 
-	// phpcs:ignore Generic.Commenting.DocComment.MissingShort
 	/** @inheritdoc */
 	public static function get_success_ratio() {
 		return 1;

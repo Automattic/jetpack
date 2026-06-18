@@ -1,4 +1,4 @@
-<?php //phpcs:ignoreFile
+<?php
 /**
  * Empty file.
  */

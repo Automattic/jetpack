@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+Comment: Add AGENTS.md / CLAUDE.md documenting the package architecture and REST API for coding agents (dev-only, excluded from production builds).
+

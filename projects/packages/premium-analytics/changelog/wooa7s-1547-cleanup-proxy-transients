@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+REST: Register the API proxy's transient cache prefix with the stats package's transient cleanup cron, so expired proxy response caches are garbage-collected on sites without a persistent object cache instead of accumulating in wp_options.

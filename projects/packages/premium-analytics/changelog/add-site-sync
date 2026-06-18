@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add site-sync package (useSyncStatus hook) and configure apiFetch auth in init.

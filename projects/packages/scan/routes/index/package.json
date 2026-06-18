@@ -1,5 +1,4 @@
 {
-	"name": "_@jetpack-scan/index-route",
 	"version": "1.0.0",
 	"private": true,
 	"dependencies": {
@@ -11,17 +10,17 @@
 		"@tanstack/react-query": "5.90.8",
 		"@types/react": "18.3.28",
 		"@wordpress/admin-ui": "2.1.0",
-		"@wordpress/api-fetch": "7.46.0",
-		"@wordpress/components": "33.1.0",
-		"@wordpress/data": "10.46.0",
+		"@wordpress/api-fetch": "7.48.1",
+		"@wordpress/components": "35.0.1",
+		"@wordpress/data": "10.48.1",
 		"@wordpress/dataviews": "14.3.0",
-		"@wordpress/date": "5.46.0",
-		"@wordpress/element": "6.46.0",
-		"@wordpress/i18n": "6.19.0",
+		"@wordpress/date": "5.48.1",
+		"@wordpress/element": "8.0.1",
+		"@wordpress/i18n": "6.21.1",
 		"@wordpress/icons": "13.1.0",
-		"@wordpress/notices": "5.46.0",
-		"@wordpress/route": "0.12.0",
-		"@wordpress/theme": "0.13.0",
+		"@wordpress/notices": "5.48.1",
+		"@wordpress/route": "0.14.1",
+		"@wordpress/theme": "0.15.1",
 		"@wordpress/ui": "0.13.0"
 	},
 	"route": {

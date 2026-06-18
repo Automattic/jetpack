@@ -1,5 +1,5 @@
-import logger from '_jetpack-e2e-commons/logger';
-import { executeWpCommand } from '_jetpack-e2e-commons/utils/cli';
+import logger from '@automattic/_jetpack-e2e-commons/logger';
+import { executeWpCommand } from '@automattic/_jetpack-e2e-commons/utils/cli';
 
 /**
  * Enable sync
@@ -26,6 +26,18 @@ export async function disableSync(): Promise< string > {
 export async function resetSync(): Promise< string > {
 	logger.debug( 'Resetting sync' );
 	return executeWpCommand( 'jetpack sync reset' );
+}
+
+/**
+ * Reset sync locks
+ * @return {string} wp-cli command output
+ */
+export async function resetSyncLocks(): Promise< string > {
+	logger.debug( 'Resetting sync locks' );
+	return executeWpCommand( [
+		'eval',
+		'\\Automattic\\Jetpack\\Sync\\Actions::reset_sync_locks();',
+	] );
 }
 
 /**
@@ -63,7 +75,7 @@ export async function isSyncQueueEmpty(): Promise< boolean > {
 	try {
 		const status = await getSyncStatus();
 		logger.debug( status );
-		return status.includes( 'queue_size' ) && status.includes( 'queue_size	0' );
+		return /(^|\n)queue_size\s+0(\n|$)/.test( status );
 	} catch ( e ) {
 		logger.error( `isSyncQueueEmpty: ${ e }` );
 		return false;

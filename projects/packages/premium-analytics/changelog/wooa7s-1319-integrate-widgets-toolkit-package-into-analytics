@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Port the widgets-toolkit package (dashboard widgets, chart components, fields, and helpers) from next-woocommerce-analytics as an internal package.

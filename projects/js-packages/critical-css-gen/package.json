@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-critical-css-gen",
-	"version": "2.0.0",
+	"version": "2.0.2",
 	"description": "A flexible Critical CSS Generator that supports multiple URLs and viewports, with both server-side and client-side generation capabilities.",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/critical-css-gen/#readme",
 	"bugs": {
@@ -42,7 +42,7 @@
 	},
 	"devDependencies": {
 		"@automattic/jetpack-webpack-config": "workspace:*",
-		"@babel/core": "7.29.0",
+		"@babel/core": "7.29.6",
 		"@babel/preset-env": "7.29.2",
 		"@babel/preset-typescript": "7.28.5",
 		"@types/clean-css": "4.2.11",

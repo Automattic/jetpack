@@ -125,7 +125,7 @@ Available fixtures include:
 
 Import the test fixture in your specs:
 ```javascript
-import { test } from '_jetpack-e2e-commons/fixtures/base-test';
+import { test } from '@automattic/_jetpack-e2e-commons/fixtures/base-test';
 ```
 
 ### Pages

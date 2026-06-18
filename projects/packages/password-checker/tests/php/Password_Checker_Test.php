@@ -67,7 +67,7 @@ class Password_Checker_Test extends BaseTestCase {
 	 * @param string $output_message  The output message.
 	 */
 	#[DataProvider( 'rule_provider' )]
-	public function test_password( $section, $rule, $password, $expected_result, $output_message ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+	public function test_password( $section, $rule, $password, $expected_result, $output_message ) {
 		$this->password_checker->common_passwords = array( 'password' );
 
 		$tests = $this->password_checker->get_tests( $section );

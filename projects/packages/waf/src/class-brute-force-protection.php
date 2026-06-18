@@ -149,7 +149,7 @@ class Brute_Force_Protection {
 		add_action( 'jp_purge_transients_cron', array( '\Automattic\Jetpack\Waf\Brute_Force_Protection\Brute_Force_Protection_Transient_Cleanup', 'jp_purge_transients' ) );
 
 		// Load math fallback after math page form submission.
-		if ( isset( $_POST['jetpack_protect_process_math_form'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing -- POST request just determines if we need to use Math for Authentication.
+		if ( isset( $_POST['jetpack_protect_process_math_form'] ) ) {
 
 			new Brute_Force_Protection_Math_Authenticate();
 		}
@@ -260,7 +260,7 @@ class Brute_Force_Protection {
 		$updated_recently = $this->get_transient( 'jpp_headers_updated_recently' );
 
 		if ( ! $force ) {
-			if ( isset( $_GET['protect_update_headers'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- this doesn't change anything, just forces the once-a-day check to run via force if set.
+			if ( isset( $_GET['protect_update_headers'] ) ) {
 				$force = true;
 			}
 		}
@@ -908,7 +908,7 @@ class Brute_Force_Protection {
 			// translators: variable is the IP address that was flagged.
 			$die_string = sprintf( __( 'Your IP (%1$s) has been flagged for potential security violations.', 'jetpack-waf' ), str_replace( 'http://', '', esc_url( 'http://' . $ip ) ) );
 			wp_die(
-				$die_string, // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- esc_url used when forming string.
+				$die_string,
 				esc_html__( 'Login Blocked by Jetpack', 'jetpack-waf' ),
 				array( 'response' => 403 )
 			);

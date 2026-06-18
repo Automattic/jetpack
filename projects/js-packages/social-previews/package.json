@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/social-previews",
-	"version": "3.2.3",
+	"version": "3.2.5",
 	"description": "A suite of components to generate previews for a post for both social and search engines.",
 	"keywords": [
 		"wordpress",
@@ -40,14 +40,14 @@
 		"typecheck": "tsgo --noEmit"
 	},
 	"dependencies": {
-		"@wordpress/components": "33.1.0",
-		"@wordpress/element": "6.46.0",
-		"@wordpress/i18n": "6.19.0",
+		"@wordpress/components": "35.0.1",
+		"@wordpress/element": "8.0.1",
+		"@wordpress/i18n": "6.21.1",
 		"clsx": "2.1.1"
 	},
 	"devDependencies": {
 		"@automattic/jetpack-webpack-config": "workspace:*",
-		"@babel/core": "7.29.0",
+		"@babel/core": "7.29.6",
 		"@testing-library/dom": "10.4.1",
 		"@testing-library/jest-dom": "6.9.1",
 		"@testing-library/react": "16.3.2",
@@ -56,7 +56,7 @@
 		"@types/react-dom": "18.3.7",
 		"@typescript/native-preview": "7.0.0-dev.20260225.1",
 		"babel-jest": "30.4.1",
-		"esbuild": "0.27.4",
+		"esbuild": "0.28.1",
 		"esbuild-sass-plugin": "3.3.1",
 		"jest": "30.4.2",
 		"react": "18.3.1",
