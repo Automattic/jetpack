@@ -195,7 +195,7 @@ It composes with grouped bars: pair each primary series with its own `type: 'com
 - A comparison series pairs with the primary series that shares its `group` (when there is a single primary series, `group` can be omitted on both).
 - Comparison values are included in the value-axis domain, so a previous period taller than the current one is never clipped.
 - Comparison series must reuse the primary series' category keys (the `label`/`date` of each point) so each shadow lines up with its primary bar.
-- Shadows are decorative: they are excluded from tooltips and keyboard navigation.
+- The comparison shadow isn't a separate hover/keyboard target (the primary bar drives interaction), but the tooltip shows both the current and previous period values for the hovered category.
 - Styling comes from the theme at `barChart.barStyles.comparison`. `widthFactor` (default `1.5`) controls how much wider the comparison bar is than the primary — the primary is narrowed to `1 / widthFactor` of the slot — and `opacity` (default `0.5`) sets the shadow translucency.
 
 ## Visual Features

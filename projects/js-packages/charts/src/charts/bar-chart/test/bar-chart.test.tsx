@@ -347,6 +347,45 @@ describe( 'BarChart', () => {
 			} );
 		} );
 
+		describe( 'Comparison tooltip', () => {
+			test( 'tooltip shows both the primary and comparison values', async () => {
+				const user = userEvent.setup();
+				renderWithTheme( {
+					withTooltips: true,
+					data: [
+						{
+							label: 'This period',
+							group: 'views',
+							data: [
+								{ date: new Date( '2024-01-01' ), value: 10, label: 'Jan 1' },
+								{ date: new Date( '2024-01-02' ), value: 20, label: 'Jan 2' },
+							],
+						},
+						{
+							label: 'Previous period',
+							group: 'views',
+							options: { type: 'comparison' as const },
+							data: [
+								{ date: new Date( '2024-01-01' ), value: 15, label: 'Jan 1' },
+								{ date: new Date( '2024-01-02' ), value: 25, label: 'Jan 2' },
+							],
+						},
+					],
+				} );
+
+				const chart = screen.getByRole( 'grid', { name: /bar chart/i } );
+				chart.focus();
+
+				await user.keyboard( '{ArrowRight}' );
+				const tooltip = screen.getByTestId( 'chart-tooltip-0' );
+				// Both the current and previous period values are shown.
+				expect( tooltip ).toHaveTextContent( 'This period' );
+				expect( tooltip ).toHaveTextContent( '10' );
+				expect( tooltip ).toHaveTextContent( 'Previous period' );
+				expect( tooltip ).toHaveTextContent( '15' );
+			} );
+		} );
+
 		describe( 'Tab Key Navigation', () => {
 			test( 'tab key exits navigation when reaching end of data points', async () => {
 				const user = userEvent.setup();

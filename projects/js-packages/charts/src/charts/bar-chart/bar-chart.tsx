@@ -230,20 +230,52 @@ const BarChartInternal: FC< BarChartProps > = ( {
 			const nearestDatum = tooltipData?.nearestDatum?.datum;
 			if ( ! nearestDatum ) return null;
 
+			const primaryKey = tooltipData?.nearestDatum?.key;
+			const categoryLabel = chartOptions.tooltip.labelFormatter(
+				nearestDatum.label || ( nearestDatum.date ? nearestDatum.date.getTime() : 0 ),
+				0,
+				[]
+			);
+
+			// Find the comparison value paired with the hovered primary series (same group)
+			// at the same category, so the tooltip can show both periods at once.
+			const comparisonEntry = comparisonEntries.find( entry => entry.primaryKey === primaryKey );
+			const comparisonDatum = comparisonEntry?.series.data.find( point => {
+				const p = point as DataPointDate;
+				return nearestDatum.label != null
+					? p.label === nearestDatum.label
+					: !! nearestDatum.date && !! p.date && p.date.getTime() === nearestDatum.date.getTime();
+			} ) as DataPointDate | undefined;
+
+			// With a paired comparison value, show the category as the header and one row
+			// per period (primary + comparison).
+			if ( comparisonEntry && comparisonDatum && comparisonDatum.value != null ) {
+				return (
+					<div className={ styles[ 'bar-chart__tooltip' ] }>
+						<div className={ styles[ 'bar-chart__tooltip-header' ] }>{ categoryLabel }</div>
+						<div className={ styles[ 'bar-chart__tooltip-row' ] }>
+							<span className={ styles[ 'bar-chart__tooltip-label' ] }>{ primaryKey }:</span>
+							<span className={ styles[ 'bar-chart__tooltip-value' ] }>
+								{ formatNumber( nearestDatum.value as number ) }
+							</span>
+						</div>
+						<div className={ styles[ 'bar-chart__tooltip-row' ] }>
+							<span className={ styles[ 'bar-chart__tooltip-label' ] }>
+								{ comparisonEntry.series.label }:
+							</span>
+							<span className={ styles[ 'bar-chart__tooltip-value' ] }>
+								{ formatNumber( comparisonDatum.value as number ) }
+							</span>
+						</div>
+					</div>
+				);
+			}
+
 			return (
 				<div className={ styles[ 'bar-chart__tooltip' ] }>
-					<div className={ styles[ 'bar-chart__tooltip-header' ] }>
-						{ tooltipData?.nearestDatum?.key }
-					</div>
+					<div className={ styles[ 'bar-chart__tooltip-header' ] }>{ primaryKey }</div>
 					<div className={ styles[ 'bar-chart__tooltip-row' ] }>
-						<span className={ styles[ 'bar-chart__tooltip-label' ] }>
-							{ chartOptions.tooltip.labelFormatter(
-								nearestDatum.label || ( nearestDatum.date ? nearestDatum.date.getTime() : 0 ),
-								0,
-								[]
-							) }
-							:
-						</span>
+						<span className={ styles[ 'bar-chart__tooltip-label' ] }>{ categoryLabel }:</span>
 						<span className={ styles[ 'bar-chart__tooltip-value' ] }>
 							{ formatNumber( nearestDatum.value as number ) }
 						</span>
@@ -251,7 +283,7 @@ const BarChartInternal: FC< BarChartProps > = ( {
 				</div>
 			);
 		},
-		[ chartOptions.tooltip ]
+		[ chartOptions.tooltip, comparisonEntries ]
 	);
 
 	const renderPattern = useCallback(
