@@ -61,7 +61,7 @@ const comparisonEntries: ComparisonSeriesEntry[] = [
 
 const getElementStyles = () => ( {
 	color: '#f00',
-	barStyles: { widthFactor: 1.0, opacity: 0.5 },
+	barStyles: { widthFactor: 1.5, opacity: 0.5 },
 	lineStyles: {} as never,
 	glyph: undefined as never,
 	shapeStyles: {} as never,
@@ -95,9 +95,9 @@ describe( 'ComparisonBars', () => {
 		expect( rects ).toHaveLength( 2 );
 		expect( rects[ 0 ] ).toHaveAttribute( 'fill', '#f00' );
 		expect( rects[ 0 ] ).toHaveAttribute( 'opacity', '0.5' );
-		// width == 1.0 * groupScale.bandwidth() (shadow = standard slot width)
+		// width == widthFactor (1.5) * groupScale.bandwidth()
 		expect( Number( rects[ 0 ].getAttribute( 'width' ) ) ).toBeCloseTo(
-			1.0 * groupScale.bandwidth()
+			1.5 * groupScale.bandwidth()
 		);
 	} );
 
@@ -124,7 +124,7 @@ describe( 'ComparisonBars', () => {
 		expect( g ).toHaveAttribute( 'pointer-events', 'none' );
 	} );
 
-	it( 'shadow rect is horizontally centered on the primary bar slot and equals its standard slot width', () => {
+	it( 'shadow rect is horizontally centered on the primary bar slot at widthFactor × slot width', () => {
 		render(
 			<svg>
 				<DataContext.Provider value={ dataContextValue }>
@@ -146,7 +146,7 @@ describe( 'ComparisonBars', () => {
 		const rect = rects[ 0 ]; // 'Jan' datum
 
 		const slotThickness = groupScale.bandwidth();
-		const expectedWidth = 1.0 * slotThickness; // shadow = standard slot width
+		const expectedWidth = 1.5 * slotThickness; // shadow = widthFactor × slot width
 		// Shadow x = bandStart + slotOffset + slotThickness/2 - shadowWidth/2
 		const bandStart = Number( xScale( 'Jan' ) );
 		const slotOffset = Number( groupScale( 'current' ) );

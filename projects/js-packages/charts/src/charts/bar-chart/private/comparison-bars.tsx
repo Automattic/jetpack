@@ -86,10 +86,11 @@ export const ComparisonBars: FC< {
 
 		const { barStyles } = getElementStyles( { data: series, index } );
 		const opacity = barStyles?.opacity ?? 0.5; // safety net; CompleteChartTheme guarantees this value
+		const widthFactor = barStyles?.widthFactor ?? 1.5;
 		// Fill is the paired primary's pattern (when patterns are on) or its resolved color.
 		const fill = resolveFill( entry );
-		// Note: barStyles.widthFactor governs PRIMARY bar narrowing, not shadow width.
-		// It is read in bar-chart.tsx and applied via --comparison-primary-scale.
+		// The shadow is `widthFactor` × the (narrowed) primary slot. bar-chart.tsx narrows the
+		// primary bars by widening the group padding so this ratio holds with real geometry.
 
 		( series.data as DataPointDate[] ).forEach( ( datum, i ) => {
 			const bandPosition = Number( bandScale( bandAccessor( datum ) as never ) );
@@ -108,8 +109,6 @@ export const ComparisonBars: FC< {
 				return;
 			}
 
-			// Comparison shadow is the standard slot width; the theme `widthFactor` governs the PRIMARY bar
-			// narrowing instead (applied in bar-chart.tsx via the --comparison-primary-scale CSS variable).
 			const rect = computeComparisonRect( {
 				horizontal,
 				bandPosition,
@@ -117,7 +116,7 @@ export const ComparisonBars: FC< {
 				slotThickness,
 				valuePosition,
 				baseline,
-				widthFactor: 1,
+				widthFactor,
 			} );
 
 			rects.push(

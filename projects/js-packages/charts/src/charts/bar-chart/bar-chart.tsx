@@ -32,7 +32,7 @@ import type { ComparisonSeriesEntry } from './private';
 import type { BaseChartProps, DataPointDate, SeriesData, Optional } from '../../types';
 import type { RenderTooltipParams } from '../../visx/types';
 import type { ResponsiveConfig } from '../private/with-responsive';
-import type { CSSProperties, FC, ReactNode, ComponentType } from 'react';
+import type { FC, ReactNode, ComponentType } from 'react';
 
 export interface BarChartProps extends BaseChartProps< SeriesData[] > {
 	renderTooltip?: ( params: RenderTooltipParams< DataPointDate > ) => ReactNode;
@@ -209,18 +209,33 @@ const BarChartInternal: FC< BarChartProps > = ( {
 		return entries;
 	}, [ seriesWithVisibility, primaryEntries, primaryKeys ] );
 
-	// Derive the primary bar scale factor from the comparison widthFactor theme value.
-	// When comparison series are present, this is passed as --comparison-primary-scale
-	// so SCSS can narrow primary bars to slot/widthFactor without a hardcoded value.
-	const comparisonPrimaryScale = useMemo( () => {
+	// Comparison widthFactor (how much wider the shadow is than the primary) drives both the
+	// shadow width (in ComparisonBars) and the primary narrowing.
+	const comparisonWidthFactor = useMemo( () => {
 		if ( comparisonEntries.length === 0 ) return undefined;
-		const wf =
+		return (
 			getElementStyles( {
 				data: comparisonEntries[ 0 ].series,
 				index: comparisonEntries[ 0 ].index,
-			} ).barStyles?.widthFactor ?? 1.5;
-		return 1 / wf;
+			} ).barStyles?.widthFactor ?? 1.5
+		);
 	}, [ comparisonEntries, getElementStyles ] );
+
+	// Narrow the primary bars by widening the visx group padding — a real geometry change, so
+	// pattern fills and borders are not distorted (unlike a CSS transform/scale). Solve for the
+	// padding where groupBandwidth(p) = groupBandwidth(basePadding) / widthFactor, so the shadow
+	// (drawn at slot × widthFactor) equals the default bar width and primary = 1/widthFactor of it.
+	// d3 band: groupBandwidth(p) = R(1-p)/(n+p) with padding applied to inner & outer.
+	const groupPadding = useMemo( () => {
+		const basePadding = chartOptions.barGroup.padding;
+		if ( ! comparisonWidthFactor || comparisonWidthFactor <= 1 ) {
+			return basePadding;
+		}
+		const n = Math.max( 1, primaryKeys.length );
+		const c = ( 1 - basePadding ) / ( n + basePadding ) / comparisonWidthFactor;
+		const p = ( 1 - c * n ) / ( 1 + c );
+		return Math.min( Math.max( p, basePadding ), 0.9 );
+	}, [ chartOptions.barGroup.padding, comparisonWidthFactor, primaryKeys.length ] );
 
 	const getBarBackground = useCallback(
 		( index: number ) => () =>
@@ -460,20 +475,10 @@ const BarChartInternal: FC< BarChartProps > = ( {
 					{
 						[ styles[ `bar-chart--animated${ horizontal ? '-horizontal' : '' }` ] ]:
 							animation && ! prefersReducedMotion,
-						[ styles[ `bar-chart--comparison${ horizontal ? '-horizontal' : '' }` ] ]:
-							comparisonEntries.length > 0,
 					},
 					className
 				) }
-				style={
-					{
-						width,
-						height,
-						...( comparisonPrimaryScale !== undefined && {
-							'--comparison-primary-scale': comparisonPrimaryScale,
-						} ),
-					} as CSSProperties
-				}
+				style={ { width, height } }
 				data-testid="bar-chart"
 				data-chart-id={ `bar-chart-${ chartId }` }
 				trailingContent={ nonLegendChildren }
@@ -552,7 +557,7 @@ const BarChartInternal: FC< BarChartProps > = ( {
 										<ComparisonBars
 											comparisonEntries={ comparisonEntries }
 											primaryKeys={ primaryKeys }
-											groupPadding={ chartOptions.barGroup.padding }
+											groupPadding={ groupPadding }
 											horizontal={ horizontal }
 											xAccessor={ chartOptions.accessors.xAccessor }
 											yAccessor={
@@ -564,7 +569,7 @@ const BarChartInternal: FC< BarChartProps > = ( {
 											resolveFill={ resolveComparisonFill }
 										/>
 
-										<BarGroup padding={ chartOptions.barGroup.padding }>
+										<BarGroup padding={ groupPadding }>
 											{ primaryEntries.map( ( { series: seriesData, index } ) => (
 												<BarSeries
 													key={ seriesData?.label }

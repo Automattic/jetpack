@@ -31,27 +31,4 @@
 			transform: scaleX(1);
 		}
 	}
-
-	// Comparison mode: narrow primary bars so the standard-width comparison shadow
-	// peeks on each side. The narrowing factor is 1/widthFactor (theme default
-	// 1.5 → ~0.667), supplied at runtime via `--comparison-primary-scale` set by
-	// bar-chart.tsx; 0.667 is the fallback.
-	// `.visx-bar-group`/`.visx-bar` are global visx classes, so they MUST be
-	// wrapped in `:global()` — this is a CSS module, which would otherwise
-	// scope (hash) them and the selector would never match the rendered bars.
-	// Uses the `scale` property (not `transform: scaleX`) so it composes with
-	// the `transform`-based rise/stretch animation rather than overriding it.
-	// Only targets bars inside .visx-bar-group, not the comparison shadow
-	// rects which live in .bar-chart__comparison-bars.
-	&--comparison :global(.visx-bar-group .visx-bar) {
-		scale: var(--comparison-primary-scale, 0.667) 1;
-		transform-box: fill-box;
-		transform-origin: center;
-	}
-
-	&--comparison-horizontal :global(.visx-bar-group .visx-bar) {
-		scale: 1 var(--comparison-primary-scale, 0.667);
-		transform-box: fill-box;
-		transform-origin: center;
-	}
 }

@@ -886,59 +886,6 @@ describe( 'BarChart', () => {
 			expect( ( yScale.domain as number[] )[ 1 ] ).toBeGreaterThanOrEqual( 150 );
 		} );
 
-		it( 'adds bar-chart--comparison modifier class when a comparison series is present', () => {
-			const data = [
-				{
-					label: 'This year',
-					group: 'views',
-					data: [ { label: 'Jan', value: 100 } ],
-				},
-				{
-					label: 'Last year',
-					group: 'views',
-					options: { type: 'comparison' as const },
-					data: [ { label: 'Jan', value: 80 } ],
-				},
-			];
-			render( <BarChart data={ data } width={ 400 } height={ 300 } /> );
-			const chart = screen.getByTestId( 'bar-chart' );
-			expect( chart.className ).toMatch( /bar-chart--comparison/ );
-		} );
-
-		it( 'exposes --comparison-primary-scale CSS custom property when comparison series is present', () => {
-			const data = [
-				{
-					label: 'This year',
-					group: 'views',
-					data: [ { label: 'Jan', value: 100 } ],
-				},
-				{
-					label: 'Last year',
-					group: 'views',
-					options: { type: 'comparison' as const },
-					data: [ { label: 'Jan', value: 80 } ],
-				},
-			];
-			render( <BarChart data={ data } width={ 400 } height={ 300 } /> );
-			const chart = screen.getByTestId( 'bar-chart' );
-			const scale = ( chart as HTMLElement ).style.getPropertyValue( '--comparison-primary-scale' );
-			// widthFactor defaults to 1.5 → primaryScale = 1/1.5 ≈ 0.6667
-			expect( Number( scale ) ).toBeCloseTo( 1 / 1.5, 5 );
-		} );
-
-		it( 'does not add bar-chart--comparison modifier class when no comparison series is present', () => {
-			const data = [
-				{
-					label: 'This year',
-					group: 'views',
-					data: [ { label: 'Jan', value: 100 } ],
-				},
-			];
-			render( <BarChart data={ data } width={ 400 } height={ 300 } /> );
-			const chart = screen.getByTestId( 'bar-chart' );
-			expect( chart.className ).not.toMatch( /bar-chart--comparison/ );
-		} );
-
 		it( 'counts only primary series for keyboard navigation when a comparison series is present', async () => {
 			const user = userEvent.setup();
 			// 2 primary + 1 comparison. totalPoints should be 2*2=4, not 3*2=6.
