@@ -44,11 +44,6 @@ class Podcast {
 
 		Podcast_Episode_Block::register_hooks();
 
-		// Register the local REST routes before request-local rollout gates.
-		// Requests from public-api.wordpress.com may not satisfy those gates,
-		// but the wpcom/v2 routes still need to exist so permission and
-		// callback checks can handle the request.
-		Posts_To_Podcast_Endpoint::init();
 		Podcast_Stats_Endpoint::init();
 		Podcast_Distribution_Endpoint::init();
 		Podcast_Settings_Endpoint::init();
@@ -69,17 +64,25 @@ class Podcast {
 			New_Episode_Prefill::init();
 		}
 
-		// Posts to Podcast lives behind its own filter so the Create AI
-		// Podcast page can ship independently of the rest of the package.
-		//
-		// Note: no `is_admin()` guard here. The submenu must also register when
-		// Calypso builds its nav via the `wpcom/v2/admin-menu` REST endpoint,
-		// which fires `admin_menu` by loading `wp-admin/menu.php` but runs as a
-		// REST request where `is_admin()` is false. The hooks `init()` wires
-		// (`admin_menu`, `enqueue_block_editor_assets`) self-gate, so this is a
-		// no-op on non-admin/non-editor requests.
-		if ( self::is_posts_to_podcast_enabled() ) {
-			Create_AI_Podcast_Page::init();
+		if ( $host->is_wpcom_simple() || $host->is_woa_site() ) {
+			// Register the local REST routes before request-local rollout gates.
+			// Requests from public-api.wordpress.com may not satisfy those gates,
+			// but the wpcom/v2 routes still need to exist so permission and
+			// callback checks can handle the request.
+			Posts_To_Podcast_Endpoint::init();
+
+			// Posts to Podcast lives behind its own filter so the Create AI
+			// Podcast page can ship independently of the rest of the package.
+			//
+			// Note: no `is_admin()` guard here. The submenu must also register when
+			// Calypso builds its nav via the `wpcom/v2/admin-menu` REST endpoint,
+			// which fires `admin_menu` by loading `wp-admin/menu.php` but runs as a
+			// REST request where `is_admin()` is false. The hooks `init()` wires
+			// (`admin_menu`, `enqueue_block_editor_assets`) self-gate, so this is a
+			// no-op on non-admin/non-editor requests.
+			if ( self::is_posts_to_podcast_enabled() ) {
+				Create_AI_Podcast_Page::init();
+			}
 		}
 	}
 
