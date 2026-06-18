@@ -1,4 +1,4 @@
 Significance: minor
 Type: added
 
-Charts: add comparison mode to the Bar Chart — a translucent shadow bar (standard slot width, 50% opacity) rendered behind each primary bar (narrowed to 60% of slot width, centered), paired by group.
+Charts: add comparison mode to the Bar Chart — a translucent shadow bar (standard slot width, 50% opacity) rendered behind each primary bar, paired by group. Primary bars are narrowed to 1/widthFactor of the slot (default widthFactor 1.5 → ~67% width, centered), with widthFactor as the single control.

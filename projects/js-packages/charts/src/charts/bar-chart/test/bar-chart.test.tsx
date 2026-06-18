@@ -835,6 +835,27 @@ describe( 'BarChart', () => {
 			expect( chart.className ).toMatch( /bar-chart--comparison/ );
 		} );
 
+		it( 'exposes --comparison-primary-scale CSS custom property when comparison series is present', () => {
+			const data = [
+				{
+					label: 'This year',
+					group: 'views',
+					data: [ { label: 'Jan', value: 100 } ],
+				},
+				{
+					label: 'Last year',
+					group: 'views',
+					options: { type: 'comparison' as const },
+					data: [ { label: 'Jan', value: 80 } ],
+				},
+			];
+			render( <BarChart data={ data } width={ 400 } height={ 300 } /> );
+			const chart = screen.getByTestId( 'bar-chart' );
+			const scale = ( chart as HTMLElement ).style.getPropertyValue( '--comparison-primary-scale' );
+			// widthFactor defaults to 1.5 → primaryScale = 1/1.5 ≈ 0.6667
+			expect( Number( scale ) ).toBeCloseTo( 1 / 1.5, 5 );
+		} );
+
 		it( 'does not add bar-chart--comparison modifier class when no comparison series is present', () => {
 			const data = [
 				{
