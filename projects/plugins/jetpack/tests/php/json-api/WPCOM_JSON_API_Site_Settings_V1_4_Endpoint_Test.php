@@ -150,6 +150,21 @@ class WPCOM_JSON_API_Site_Settings_V1_4_Endpoint_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * The GET response exposes a read-only `free_tier_description_rendered`
+	 * derived from the stored markdown source, rendered to safe HTML.
+	 */
+	public function test_get_settings_renders_free_tier_description() {
+		update_option( 'subscription_options', array( 'free_tier_description' => 'Hello **world**' ) );
+
+		$response = $this->make_get_request();
+		$settings = $response['settings'];
+
+		$this->assertStringContainsString( '<strong>world</strong>', $settings['free_tier_description_rendered'] );
+		// The rendered field is derived only; it must not leak into the writable option bag.
+		$this->assertArrayNotHasKey( 'free_tier_description_rendered', $settings['subscription_options'] );
+	}
+
+	/**
 	 * Test POST `sites/%s/settings` sets the correct value.
 	 *
 	 * @dataProvider setting_value_pairs_post_request
@@ -386,6 +401,8 @@ class WPCOM_JSON_API_Site_Settings_V1_4_Endpoint_Test extends WP_UnitTestCase {
 			'woocommerce_store_postcode'       => array( 'woocommerce_store_postcode', '' ),
 			'woocommerce_onboarding_profile'   => array( 'woocommerce_onboarding_profile', array() ),
 			'supports_free_tier_customization' => array( 'supports_free_tier_customization', true ),
+			// With no free tier description set, the rendered value is an empty string.
+			'free_tier_description_rendered'   => array( 'free_tier_description_rendered', '' ),
 			// Add MCP settings default
 			'mcp_abilities'                    => array(
 				'mcp_abilities',

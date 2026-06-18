@@ -528,6 +528,13 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					require_once JETPACK__PLUGIN_DIR . '/modules/memberships/class-jetpack-memberships.php';
 					if ( class_exists( 'Jetpack_Memberships' ) ) {
 						$response[ $key ]['newsletter_has_active_plan'] = count( Jetpack_Memberships::get_all_newsletter_plan_ids( false ) ) > 0;
+						// Read-only/derived: the free tier's markdown description rendered to
+						// safe HTML, colocated with subscription_options so it's
+						// read-after-write consistent. Not part of the writable
+						// subscription_options bag (which would round-trip and persist it).
+						$response[ $key ]['free_tier_description_rendered'] = Jetpack_Memberships::render_tier_description_html(
+							( (array) get_option( 'subscription_options' ) )['free_tier_description'] ?? ''
+						);
 					}
 
 					if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
