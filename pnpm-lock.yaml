@@ -4,7 +4,7 @@ settings:
   autoInstallPeers: false
   excludeLinksFromLockfile: false
 
-pnpmfileChecksum: sha256-MbU6pE8RVK/d5uvNdgSaz7MKlyB7CzV4Lu8y/65NF78=
+pnpmfileChecksum: sha256-StGoRnLCfsZZOOUl7LQZLevCglBPYIvSbFh/K6aujs8=
 
 patchedDependencies:
   react-autosize-textarea: 5c09e1dee59caaaba3871f9d722f93e56b41169db486b059597e8f8c788aa464
@@ -16472,6 +16472,11 @@ packages:
   rollup-plugin-license@3.7.1:
     resolution: {integrity: sha512-FcGXUbAmPvRSLxjVdjp/r/MUtKBlttVQd+ApUyvKfREnsoAfAZA6Ic2fE1Tz4RL0f9XqEQU9UIRNUMdtQtliDw==}
     engines: {node: '>=14.0.0'}
+    peerDependencies:
+      rollup: ^1.0.0 || ^2.0.0 || ^3.0.0 || ^4.0.0
+    peerDependenciesMeta:
+      rollup:
+        optional: true
 
   rollup-plugin-livereload@2.0.5:
     resolution: {integrity: sha512-vqQZ/UQowTW7VoiKEM5ouNW90wE5/GZLfdWuR0ELxyKOJUIaj+uismPZZaICU4DnWPVjnpCDDxEqwU7pcKY/PA==}
@@ -18776,7 +18781,7 @@ snapshots:
 
   '@babel/generator@8.0.0-rc.6':
     dependencies:
-      '@babel/parser': 8.0.0-rc.6
+      '@babel/parser': 8.0.0
       '@babel/types': 8.0.0
       '@jridgewell/gen-mapping': 0.3.13
       '@jridgewell/trace-mapping': 0.3.31

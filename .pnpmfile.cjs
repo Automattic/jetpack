@@ -284,9 +284,10 @@ async function fixDeps( pkg ) {
 		pkg.dependencies.lighthouse = 'workspace:@automattic/_jetpack-no-lighthouse@*';
 	}
 
-	// We use this under tsdown (Rolldown), not Rollup, so its `rollup` peer doesn't apply.
+	// We use this under tsdown (Rolldown), not Rollup. The `rollup` peer is only used for one TypeScript type.
 	if ( pkg.name === 'rollup-plugin-license' ) {
-		delete pkg.peerDependencies?.rollup;
+		pkg.peerDependenciesMeta ??= {};
+		pkg.peerDependenciesMeta.rollup = { optional: true };
 	}
 
 	return pkg;
