@@ -728,9 +728,12 @@ class VideoPress_Player {
 		} else {
 			$videopress_options = wp_json_encode( $videopress_options, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP );
 			$js_url             = 'https://s0.wp.com/wp-content/plugins/video/assets/js/videojs/videopress.js';
+			$css_url            = 'https://s0.wp.com/wp-content/plugins/video/assets/js/videojs/videopress.css';
 			$guid_js            = wp_json_encode( (string) $this->video->guid, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP );
 			$selector_js        = wp_json_encode( '#' . $video_container_id, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP );
 
+			// Without the player styles the <video> renders at its native size and overflows the page.
+			wp_enqueue_style( 'videopress-videojs', $css_url, array(), JETPACK__VERSION );
 			wp_enqueue_script( 'videopress-videojs', $js_url, array(), JETPACK__VERSION, true );
 			wp_add_inline_script(
 				'videopress-videojs',

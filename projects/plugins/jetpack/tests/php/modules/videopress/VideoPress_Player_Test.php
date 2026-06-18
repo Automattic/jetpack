@@ -114,6 +114,9 @@ class VideoPress_Player_Test extends WP_UnitTestCase {
 		$enqueued = array_keys( wp_scripts()->queue, 'videopress-videojs', true );
 		$this->assertCount( 1, $enqueued, 'videopress-videojs should be enqueued exactly once.' );
 
+		$styles = array_keys( wp_styles()->queue, 'videopress-videojs', true );
+		$this->assertCount( 1, $styles, 'The videopress-videojs stylesheet should be enqueued exactly once.' );
+
 		$inline = wp_scripts()->get_data( 'videopress-videojs', 'after' );
 		$inline = is_array( $inline ) ? implode( "\n", $inline ) : (string) $inline;
 		$this->assertStringContainsString(
