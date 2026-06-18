@@ -233,10 +233,26 @@ const BarChartInternal: FC< BarChartProps > = ( {
 		if ( ! comparisonWidthFactor || comparisonWidthFactor <= 1 ) {
 			return basePadding;
 		}
-		const innerGap = 0.15; // fraction of each per-series step left as a gap between bars in a tick
+		const innerGap = 0.1; // fraction of each per-series step left as a gap between bars in a tick
 		const p = 1 - ( 1 - innerGap ) / comparisonWidthFactor;
 		return Math.min( Math.max( p, basePadding ), 0.9 );
 	}, [ chartOptions.barGroup.padding, comparisonWidthFactor ] );
+
+	// In comparison mode, tighten the gap between ticks by reducing the category band's inner
+	// padding (the value axis is left untouched). 0.75 = a 25% reduction of the tick gap padding.
+	const { xScale, yScale } = useMemo( () => {
+		if ( comparisonEntries.length === 0 ) {
+			return { xScale: chartOptions.xScale, yScale: chartOptions.yScale };
+		}
+		const tighten = < T extends object >( scale: T ): T =>
+			( {
+				...scale,
+				paddingInner: ( ( scale as { paddingInner?: number } ).paddingInner ?? 0.1 ) * 0.75,
+			} ) as T;
+		return horizontal
+			? { xScale: chartOptions.xScale, yScale: tighten( chartOptions.yScale ) }
+			: { xScale: tighten( chartOptions.xScale ), yScale: chartOptions.yScale };
+	}, [ comparisonEntries.length, chartOptions.xScale, chartOptions.yScale, horizontal ] );
 
 	const getBarBackground = useCallback(
 		( index: number ) => () =>
@@ -507,8 +523,8 @@ const BarChartInternal: FC< BarChartProps > = ( {
 											...defaultMargin,
 											...margin,
 										} }
-										xScale={ chartOptions.xScale }
-										yScale={ chartOptions.yScale }
+										xScale={ xScale }
+										yScale={ yScale }
 										horizontal={ horizontal }
 										pointerEventsDataKey="nearest"
 									>
