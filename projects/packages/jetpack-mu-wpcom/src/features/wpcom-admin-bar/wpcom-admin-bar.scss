@@ -128,10 +128,9 @@
 	padding: 0;
 }
 
-// Pad the wrapper instead, pushing Visit Site down to match Calypso.
+// Pad the wrapper top instead, pushing Visit Site down to match Calypso.
 #wpadminbar #wp-admin-bar-site-name .ab-sub-wrapper {
 	padding-top: 6px;
-	padding-bottom: 6px;
 }
 
 #wp-admin-bar-site-plan,
