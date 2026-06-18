@@ -6,21 +6,21 @@
 // and the Visual Builder uses the same data for in-builder conversion.
 import conversionOutline from './conversion-outline.json';
 import { VideoPressEdit } from './edit';
+import defaultRenderAttributes from './module-default-render-attributes.json';
 import metadata from './module.json';
-import { SettingsAdvanced } from './settings-advanced';
-import { SettingsContent } from './settings-content';
-import { SettingsDesign } from './settings-design';
 
 export const videoPressMetadata = metadata;
 
+/*
+ * The settings panels are generated automatically by Divi from the field and
+ * group declarations in module.json (`settings: { content/design/advanced: "auto" }`),
+ * so no custom panel components are registered here. `defaultAttrs` seeds the
+ * builder's initial attribute values (e.g. controls on).
+ */
 export const videoPressModule = {
 	renderers: {
 		edit: VideoPressEdit,
 	},
-	settings: {
-		content: SettingsContent,
-		design: SettingsDesign,
-		advanced: SettingsAdvanced,
-	},
+	defaultAttrs: defaultRenderAttributes,
 	conversionOutline,
 };
