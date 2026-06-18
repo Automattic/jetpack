@@ -65,10 +65,46 @@ export interface CtaHandlers {
 }
 
 /**
+ * Make a resolved CTA destination safe to navigate to from wp-admin.
+ *
+ * Catalog deeplinks arrive in three shapes: absolute URLs (`admin_url()`-based
+ * wp-admin links, Stripe connect URLs, the synthesized launch URL), site-relative
+ * wp-admin paths (e.g. the editor URL of a freshly created draft), and Calypso
+ * router paths (e.g. `/me`, `/marketing/connections/{slug}`) that are relative
+ * to wordpress.com. The launchpad runs in wp-admin, so a Calypso path navigated
+ * via `window.location` would resolve against the *site* host and 404; only those
+ * must be pinned to wordpress.com.
+ *
+ * This mirrors the legacy launchpad dashboard widget, which rebases relative task
+ * links with `new URL( href, 'https://wordpress.com' )` (see
+ * `wpcom-dashboard-widgets/wpcom-launchpad-widget`). The one difference: that
+ * widget's task admin links are already absolute, whereas our created-content
+ * CTAs return site-relative `/wp-admin/…` editor URLs, so those are excluded from
+ * the rebase. Absolute URLs don't start with `/` and pass through unchanged.
+ *
+ * @param url - The resolved destination URL or path.
+ * @return The navigable URL.
+ */
+export function toNavigableUrl( url: string ): string {
+	// Site-relative wp-admin paths must resolve against the current site.
+	if ( url.startsWith( '/wp-admin/' ) ) {
+		return url;
+	}
+	// Calypso router paths are relative to wordpress.com; absolute URLs (Stripe,
+	// admin_url(), the launch URL) don't start with `/` and fall through unchanged.
+	if ( url.startsWith( '/' ) ) {
+		return new URL( url, 'https://wordpress.com' ).href;
+	}
+	return url;
+}
+
+/**
  * Fire the Tracks event and resolve the destination URL for a "Get started"
  * click. First-creation tasks draft a post; page-creating tasks build a pattern
- * page; everything else uses the catalog deeplink. Returns the URL to navigate
- * to, or null when the task has no actionable destination.
+ * page; everything else uses the catalog deeplink. The resolved URL is run
+ * through {@link toNavigableUrl} so Calypso paths point at wordpress.com rather
+ * than the site host. Returns the URL to navigate to, or null when the task has
+ * no actionable destination.
  *
  * @param task     - The clicked task.
  * @param output   - The AI output (post draft + inferred details), or null.
@@ -83,15 +119,16 @@ export async function resolveCtaUrl(
 	handlers.trackTaskClicked( { task_id: task.id } );
 
 	const kind = ctaKind( task.id );
+	let url: string | null;
 	if ( kind === 'first_post' && output ) {
-		const { edit_url } = await handlers.createFirstPostDraft( output.first_post_draft );
-		return edit_url;
+		url = ( await handlers.createFirstPostDraft( output.first_post_draft ) ).edit_url;
+	} else if ( kind === 'pattern_page' && output ) {
+		url = ( await handlers.createPatternPage( output.inferred ) ).edit_url;
+	} else {
+		url = task.calypso_path;
 	}
-	if ( kind === 'pattern_page' && output ) {
-		const { edit_url } = await handlers.createPatternPage( output.inferred );
-		return edit_url;
-	}
-	return task.calypso_path;
+
+	return url === null ? null : toNavigableUrl( url );
 }
 
 /**
