@@ -1,37 +1,10 @@
 /**
- * External dependencies
- */
-import { GlobalChartsProvider } from '@automattic/charts';
-import { useChartTheme } from '@jetpack-premium-analytics/widgets-toolkit';
-/**
  * Internal dependencies
  */
+import { withChartTheme } from '../../../widgets-toolkit/src/stories/with-chart-theme';
 import { TopPostsWidget } from '../top-posts-widget';
 import type { TopPostRow } from '../types';
 import type { Meta, StoryObj, Decorator } from '@storybook/react';
-import type { ReactNode } from 'react';
-
-/**
- * Seeds a `GlobalChartsProvider` with the Woo chart theme. In the app this
- * provider lives at the top of the widget tree (inside `WidgetRoot`); stories
- * render outside of it, so the leaderboard chart would otherwise throw
- * "useGlobalChartsContext must be used within a GlobalChartsProvider".
- *
- * @param props          - Component props.
- * @param props.children - The subtree to render inside the provider.
- * @return The themed chart provider wrapping `children`.
- */
-const ChartThemeProvider = ( { children }: { children: ReactNode } ) => {
-	const theme = useChartTheme();
-
-	return <GlobalChartsProvider theme={ theme }>{ children }</GlobalChartsProvider>;
-};
-
-const withChartTheme: Decorator = Story => (
-	<ChartThemeProvider>
-		<Story />
-	</ChartThemeProvider>
-);
 
 const meta: Meta< typeof TopPostsWidget > = {
 	title: 'Packages/Premium Analytics/Widgets/TopPosts',
