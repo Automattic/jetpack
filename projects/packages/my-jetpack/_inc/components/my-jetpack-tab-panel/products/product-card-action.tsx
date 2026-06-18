@@ -12,6 +12,7 @@ import { useInterstitialsState } from '../../../hooks/use-interstitials-state';
 import { MyJetpackModule } from '../../../types';
 import { PRODUCT_STATUSES } from '../../product-card';
 import { useProductFiltersContext } from './products-tracking-context';
+import { reloadPage } from './reload-page';
 
 export type ProductCardActionProps = {
 	product: ProductCamelCase;
@@ -58,7 +59,12 @@ function ActivationToggle( {
 	product,
 	active = true,
 	disabled = false,
-}: ProductCardActionProps & { active?: boolean; disabled?: boolean } ) {
+	reloadOnToggle = false,
+}: ProductCardActionProps & {
+	active?: boolean;
+	disabled?: boolean;
+	reloadOnToggle?: boolean;
+} ) {
 	const { deactivate, isPending: isDeactivating } = useDeactivatePlugins( product.slug );
 	const { activate, isPending: isActivating } = useActivatePlugins( product.slug );
 	const { trackProductAction } = useProductFiltersContext();
@@ -74,8 +80,11 @@ function ActivationToggle( {
 			productStatus: product.status,
 			productData: product,
 		} );
-		active ? deactivate() : activate();
-	}, [ deactivate, activate, active, product, trackProductAction ] );
+		// Some products register wp-admin menu items (e.g. Forms). Reload after the
+		// toggle so server-rendered UI such as the admin sidebar reflects the change.
+		const mutateOptions = reloadOnToggle ? { onSuccess: reloadPage } : undefined;
+		active ? deactivate( undefined, mutateOptions ) : activate( undefined, mutateOptions );
+	}, [ deactivate, activate, active, product, trackProductAction, reloadOnToggle ] );
 
 	return (
 		<Flex gap={ 4 }>
@@ -120,6 +129,7 @@ export function ProductCardAction( { product, module: $module }: ProductCardActi
 				product={ product }
 				active={ product.status === PRODUCT_STATUSES.ACTIVE }
 				disabled={ ! $module?.available }
+				reloadOnToggle
 			/>
 		);
 	}
