@@ -106,13 +106,13 @@ class WPCOM_Admin_Bar_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * In wp-admin, a Dashboard link should be added as the first child of the
-	 * site-name menu and point to wp-admin.
+	 * In wp-admin, a Dashboard link should be added to the site-name menu after
+	 * the "Visit Site" link and point to wp-admin.
 	 */
-	public function test_dashboard_link_added_first_in_wp_admin() {
+	public function test_dashboard_link_added_after_visit_site_in_wp_admin() {
 		set_current_screen( 'dashboard' ); // is_admin() === true.
 
-		// Simulate core's site menu, added at priority 30 (after our priority-29 node).
+		// Simulate core's site menu, added at priority 30 (before our priority-31 node).
 		$core_site_menu = static function ( $bar ) {
 			$bar->add_node(
 				array(
@@ -143,7 +143,11 @@ class WPCOM_Admin_Bar_Test extends \WorDBless\BaseTestCase {
 		$this->assertSame( admin_url(), $dashboard->href );
 
 		$children = array_keys( self::get_all_admin_bar_nodes( $admin_bar, 'site-name' ) );
-		$this->assertSame( 'wpcom-dashboard', $children[0] ?? null, 'The Dashboard link should be first.' );
+		$view_pos = array_search( 'view-site', $children, true );
+		$dash_pos = array_search( 'wpcom-dashboard', $children, true );
+		$this->assertNotFalse( $view_pos );
+		$this->assertNotFalse( $dash_pos );
+		$this->assertGreaterThan( $view_pos, $dash_pos, 'The Dashboard link should come after Visit Site.' );
 	}
 
 	/**
