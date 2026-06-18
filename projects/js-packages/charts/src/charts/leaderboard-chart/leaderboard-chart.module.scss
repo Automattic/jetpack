@@ -100,12 +100,14 @@
 	text-align: inherit;
 	cursor: pointer;
 
-	// Full-row rounded highlight that bleeds slightly past the content edges,
-	// drawn behind the content so it never shifts the grid tracks.
+	// Full-row rounded highlight, drawn behind the content so it never shifts
+	// the grid tracks. Inset 0 (no horizontal bleed): the row button spans the
+	// full content width, so any negative inset would overflow the
+	// `overflow: auto` content container and add a horizontal scrollbar.
 	&::before {
 		content: "";
 		position: absolute;
-		inset: 0 calc(-1 * var(--wpds-dimension-padding-sm, 8px));
+		inset: 0;
 		border-radius: var(--wpds-border-radius-md, 4px);
 		background-color: transparent;
 		transition: background-color 0.15s ease;
