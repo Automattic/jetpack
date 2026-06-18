@@ -80,11 +80,18 @@ export function getItemShapeStyles(
 ): Record< string, unknown > {
 	const seriesShapeStyles = series.options?.legendShapeStyle ?? {};
 	const lineStyles = legendShape === 'line' ? getSeriesLineStyles( series, index, theme ) : {};
+	// For non-line legends (e.g. bar 'rect'), reflect the comparison bar's opacity on the
+	// swatch so the legend marker matches the translucent comparison bar. Line-type legends
+	// convey comparison via the dashed stroke (lineStyles) instead.
+	const barOpacity =
+		legendShape !== 'line' ? getSeriesBarStyles( series, index, theme ).opacity : undefined;
+	const barShapeStyles = barOpacity !== undefined ? { opacity: barOpacity } : {};
 	const themeShapeStyles = theme.legend?.shapeStyles?.[ index ];
 
 	const itemShapeStyles = {
 		...seriesShapeStyles,
 		...lineStyles,
+		...barShapeStyles,
 	};
 
 	// Return item shape styles if they are not empty
