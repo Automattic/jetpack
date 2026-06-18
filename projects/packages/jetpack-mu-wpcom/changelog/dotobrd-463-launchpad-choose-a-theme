@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Launchpad: replace the "Edit site design" task with the existing "Choose a theme" task (which links to the theme showcase) across the build, free, assembler-first, ai-assembler, and readymade-template checklists, and move it above the "Choose a domain" task.
