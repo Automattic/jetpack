@@ -64,12 +64,9 @@ const BLOCK_ICONS = {
 	'jetpack-search/filters-product': store,
 	'jetpack-search/active-filters': pin,
 	'jetpack-search/clear-filters': reset,
-	// The "Powered by Jetpack Search" block advertises Jetpack ownership in
-	// the post footer — the Jetpack logo is the right glyph here, even
-	// though every other Search block uses a neutral @wordpress/icons glyph.
-	// The logo SVG has hardcoded brand colours and is included verbatim so
-	// the glyph keeps its native green / white treatment.
-	'jetpack-search/powered-by': <JetpackLogo showText={ false } height={ 24 } width={ 24 } />,
+	'jetpack-search/powered-by': (
+		<JetpackLogo showText={ false } height={ 24 } width={ 24 } logoColor="currentColor" />
+	),
 };
 
 /**

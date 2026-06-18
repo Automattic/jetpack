@@ -1,3 +1,4 @@
+import JetpackLogo from '@automattic/jetpack-components/jetpack-logo';
 import BLOCK_ICONS, {
 	FILTER_CHECKBOX_VARIATION_ICONS,
 } from '../../../src/search-blocks/editor/icons';
@@ -14,13 +15,17 @@ describe( 'Search block editor icons', () => {
 			),
 		};
 
-		for ( const [ name, icon ] of Object.entries( icons ) ) {
-			if ( name === 'jetpack-search/powered-by' ) {
-				continue;
-			}
-
+		for ( const icon of Object.values( icons ) ) {
 			expect( icon ).not.toHaveProperty( 'foreground' );
 			expect( icon ).not.toHaveProperty( 'background' );
 		}
+	} );
+
+	it( 'keeps the Powered by Jetpack logo shape while using the current icon color', () => {
+		const icon = BLOCK_ICONS[ 'jetpack-search/powered-by' ];
+
+		expect( icon.type ).toBe( JetpackLogo );
+		expect( icon ).toHaveProperty( 'props.logoColor', 'currentColor' );
+		expect( icon ).toHaveProperty( 'props.showText', false );
 	} );
 } );
