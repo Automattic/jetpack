@@ -1,0 +1,3 @@
+Significance: patch
+Type: other
+Comment: AI Sidebar: internal refactor — share the sidebar availability gate and Agents Manager payload builder across call sites, and rename stale private methods. No behaviour or emitted-data change.
