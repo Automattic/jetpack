@@ -162,7 +162,7 @@ The component handles large numbers of series gracefully with automatic color cy
 
 ## Comparison Mode
 
-Add a comparison series — for example "this period vs. previous period" — by giving a series `options.type: 'comparison'`. It renders as a translucent "shadow" bar centered **behind** the primary series that shares its `group`. The shadow spans the standard slot width while the primary bar is narrowed (so the shadow peeks on each side and above), and gaps between bar groups are preserved.
+Add a comparison series — for example "this period vs. previous period" — by giving a series `options.type: 'comparison'`. It renders as a translucent "shadow" bar centered **behind** the primary series that shares its `group`. The shadow is wider than the primary bar (the primary is narrowed) so it peeks on each side and above, while a small gap is kept between series and a larger gap between ticks.
 
 <Canvas of={ BarChartStories.Comparison } />
 

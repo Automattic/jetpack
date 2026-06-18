@@ -1166,10 +1166,12 @@ describe( 'ChartContext', () => {
 				legendShape: 'rect',
 			} );
 
-			// Should get theme legend shape styles, not line styles
+			// Should get theme legend shape styles (not line styles), with the comparison bar
+			// opacity layered on so the swatch matches the translucent comparison bar.
 			expect( styles.shapeStyles ).toEqual( {
 				fill: '#LEGEND1',
 				stroke: '#BORDER1',
+				opacity: 0.5,
 			} );
 		} );
 	} );

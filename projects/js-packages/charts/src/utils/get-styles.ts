@@ -88,21 +88,18 @@ export function getItemShapeStyles(
 	const barShapeStyles = barOpacity !== undefined ? { opacity: barOpacity } : {};
 	const themeShapeStyles = theme.legend?.shapeStyles?.[ index ];
 
-	const itemShapeStyles = {
+	// Series-level styles (custom shape style + line styles) take precedence; otherwise fall
+	// back to the per-index theme shape styles.
+	const explicitStyles = {
 		...seriesShapeStyles,
 		...lineStyles,
-		...barShapeStyles,
 	};
+	const hasExplicitStyles = Object.values( explicitStyles ).some(
+		value => value !== undefined && value !== null && value !== ''
+	);
+	const baseShapeStyles = hasExplicitStyles ? explicitStyles : themeShapeStyles ?? {};
 
-	// Return item shape styles if they are not empty
-	if (
-		Object.values( itemShapeStyles ).some(
-			value => value !== undefined && value !== null && value !== ''
-		)
-	) {
-		return itemShapeStyles;
-	}
-
-	// Fallback to theme shape styles if defined
-	return themeShapeStyles ?? {};
+	// Layer the comparison bar opacity on top so the swatch matches the translucent bar
+	// without discarding the base (custom or theme) shape styles.
+	return { ...baseShapeStyles, ...barShapeStyles };
 }

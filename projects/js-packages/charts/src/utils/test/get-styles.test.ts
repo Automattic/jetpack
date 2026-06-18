@@ -166,6 +166,8 @@ describe( 'Series styling utility functions', () => {
 			const themeWithBar = {
 				...mockTheme,
 				barChart: { barStyles: { comparison: { widthFactor: 1.5, opacity: 0.5 } } },
+				// No per-index legend shape styles, so the swatch reflects only the comparison opacity.
+				legend: { shapeStyles: [] },
 			} as ChartTheme;
 			const comparisonSeries = {
 				...mockSeriesData,
