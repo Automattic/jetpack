@@ -6,10 +6,7 @@ const pkg = JSON.parse( readFileSync( new URL( './package.json', import.meta.url
 	exports: Record< string, string | Record< string, string > >;
 };
 
-/*
- * Extract JS/TS entries from package exports. Non-JS source paths (e.g. the
- * `./style.css` placeholder) are skipped so tsdown doesn't try to bundle them.
- */
+// JS/TS entries from package exports; skip non-JS paths like `./style.css`.
 const entry = Object.values( pkg.exports )
 	.map( $export => ( typeof $export === 'object' ? $export[ 'jetpack:src' ] : '' ) )
 	.filter( ( path ): path is string => Boolean( path ) && /\.[cm]?[jt]sx?$/.test( path ) );
@@ -22,18 +19,9 @@ export default defineConfig( {
 	format: [ 'esm', 'cjs' ],
 	outDir: 'dist',
 	platform: 'browser',
-	/*
-	 * `platform: 'browser'` otherwise treats `process` as undefined and folds
-	 * `process.env.NODE_ENV` checks (e.g. emotion's dev labels/sourcemaps) to their
-	 * dev branch. Define it to itself so the reference is preserved for the consumer's
-	 * bundler to replace — keeping those dev-only artifacts out of production builds.
-	 */
+	// Preserve the reference so 'browser' doesn't fold it to the dev branch.
 	define: { 'process.env.NODE_ENV': 'process.env.NODE_ENV' },
-	/*
-	 * Keep tsup's extension scheme: this package is ESM (`"type": "module"`), so
-	 * ESM output is `.js` and CJS output is `.cjs`, matching `exports`, `main`,
-	 * `module`, and the `.d.ts` paths in `typesVersions`.
-	 */
+	// ESM `.js` + CJS `.cjs`, matching `exports`/`typesVersions`.
 	fixedExtension: false,
 	loader: {
 		'.jpg': 'asset',
@@ -42,7 +30,7 @@ export default defineConfig( {
 		'.png': 'asset',
 	},
 	deps: {
-		alwaysBundle: [ '@wordpress/ui' ],
+		alwaysBundle: [ '@wordpress/ui', /^fast-deep-equal/ ],
 	},
 	css: {
 		fileName: 'index.css',

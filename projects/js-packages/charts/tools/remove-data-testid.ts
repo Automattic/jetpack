@@ -1,3 +1,4 @@
+import MagicString from 'magic-string';
 import { type TsdownPlugin } from 'tsdown';
 
 type AstNode = {
@@ -10,13 +11,9 @@ type AstNode = {
 };
 
 /**
- * Strip `data-testid` attributes from production output. tsdown compiles TS/JSX
- * natively via Oxc, so this runs as a pre-transform on the JSX source: it parses
- * each `.tsx` file with Rolldown's bundled Oxc parser (`this.parse`) and splices
- * out JSX attributes named `data-testid`, leaving non-JSX-attribute usages (e.g.
- * forwarded props or object keys) untouched.
+ * Removes `data-testid` JSX attributes from production output.
  *
- * @return {TsdownPlugin} A tsdown plugin that removes `data-testid` JSX attributes.
+ * @return {TsdownPlugin} The tsdown plugin.
  */
 export function removeDataTestId(): TsdownPlugin {
 	return {
@@ -25,7 +22,8 @@ export function removeDataTestId(): TsdownPlugin {
 			if ( ! id.endsWith( '.tsx' ) || ! code.includes( 'data-testid' ) ) {
 				return null;
 			}
-			const ranges: Array< [ number, number ] > = [];
+			const magicString = new MagicString( code );
+			let changed = false;
 			const visit = ( node: unknown ): void => {
 				if ( ! node || typeof node !== 'object' ) {
 					return;
@@ -37,19 +35,16 @@ export function removeDataTestId(): TsdownPlugin {
 					typeof start === 'number' &&
 					typeof end === 'number'
 				) {
-					ranges.push( [ start, end ] );
+					magicString.remove( start, end );
+					changed = true;
 				}
 				Object.values( node ).forEach( visit );
 			};
 			visit( this.parse( code, { lang: 'tsx' } ) );
-			if ( ! ranges.length ) {
+			if ( ! changed ) {
 				return null;
 			}
-			// Splice from the end so earlier offsets stay valid as we remove ranges.
-			const stripped = ranges
-				.sort( ( a, b ) => b[ 0 ] - a[ 0 ] )
-				.reduce( ( acc, [ start, end ] ) => acc.slice( 0, start ) + acc.slice( end ), code );
-			return { code: stripped };
+			return { code: magicString.toString(), map: magicString.generateMap( { hires: true } ) };
 		},
 	};
 }
