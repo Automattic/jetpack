@@ -160,6 +160,44 @@ The component handles large numbers of series gracefully with automatic color cy
 	/>` }
 />
 
+## Comparison Mode
+
+Add a comparison series — for example "this period vs. previous period" — by giving a series `options.type: 'comparison'`. It renders as a translucent "shadow" bar centered **behind** the primary series that shares its `group`. The shadow spans the standard slot width while the primary bar is narrowed (so the shadow peeks on each side and above), and gaps between bar groups are preserved.
+
+<Canvas of={ BarChartStories.Comparison } />
+
+<Source
+	language="jsx"
+	code={ `<BarChart
+		data={[
+			{
+				label: 'This period',
+				group: 'views',
+				data: thisPeriod,
+			},
+			{
+				label: 'Previous period',
+				group: 'views',
+				options: { type: 'comparison' },
+				data: previousPeriod,
+			},
+		]}
+		showLegend={true}
+	/>` }
+/>
+
+It composes with grouped bars: pair each primary series with its own `type: 'comparison'` series of the same `group`, and the groups render side by side, each with its own shadow.
+
+<Canvas of={ BarChartStories.ComparisonGroups } />
+
+**Notes:**
+
+- A comparison series pairs with the primary series that shares its `group` (when there is a single primary series, `group` can be omitted on both).
+- Comparison values are included in the value-axis domain, so a previous period taller than the current one is never clipped.
+- Comparison series must reuse the primary series' category keys (the `label`/`date` of each point) so each shadow lines up with its primary bar.
+- Shadows are decorative: they are excluded from tooltips and keyboard navigation.
+- Styling comes from the theme at `barChart.barStyles.comparison`. `widthFactor` (default `1.5`) controls how much wider the comparison bar is than the primary — the primary is narrowed to `1 / widthFactor` of the slot — and `opacity` (default `0.5`) sets the shadow translucency.
+
 ## Visual Features
 
 ### Pattern Fills
