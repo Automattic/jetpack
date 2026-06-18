@@ -5036,6 +5036,9 @@ importers:
       '@wordpress/notices':
         specifier: 5.48.1
         version: 5.48.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@wordpress/preferences':
+        specifier: 4.48.1
+        version: 4.48.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/route':
         specifier: 0.14.1
         version: 0.14.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
