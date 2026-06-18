@@ -1,5 +1,5 @@
 import { useGlobalNotices } from '@automattic/jetpack-components';
-import { store as modulesStore } from '@automattic/jetpack-shared-extension-utils';
+import { store as modulesStore } from '@automattic/jetpack-shared-stores';
 import { FormToggle } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { __, sprintf } from '@wordpress/i18n';

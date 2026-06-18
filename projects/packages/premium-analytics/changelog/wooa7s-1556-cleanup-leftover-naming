@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Clean up leftover WooCommerce/standalone naming in comments, docs, and the search route key.

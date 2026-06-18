@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Podcast: simplify REST endpoint and settings internals by dropping singleton init guards and single-use constants. No functional change.

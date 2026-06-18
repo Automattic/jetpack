@@ -20,3 +20,9 @@ body.toplevel_page_jetpack-seo {
 .jetpack-seo-page-content {
 	padding: var(--wpds-dimension-padding-2xl);
 }
+
+// Full-bleed DataViews tabs (e.g. Content) own their own spacing and pinned
+// pagination, so they drop the shared content padding.
+.jetpack-seo-page-content--flush {
+	padding: 0;
+}
