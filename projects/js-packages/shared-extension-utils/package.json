@@ -33,6 +33,7 @@
 		"@automattic/jetpack-components": "workspace:*",
 		"@automattic/jetpack-connection": "workspace:*",
 		"@automattic/jetpack-script-data": "workspace:*",
+		"@automattic/jetpack-shared-stores": "workspace:*",
 		"@types/jest": "30.0.0",
 		"@wordpress/api-fetch": "7.48.1",
 		"@wordpress/block-editor": "15.21.1",

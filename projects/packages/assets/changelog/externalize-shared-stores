@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Register the jetpack-shared-stores asset bundle so dependent scripts can declare it as a dependency.

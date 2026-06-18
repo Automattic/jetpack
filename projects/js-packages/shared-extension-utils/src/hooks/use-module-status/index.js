@@ -1,6 +1,6 @@
+import { JETPACK_MODULES_STORE_ID } from '@automattic/jetpack-shared-stores';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useMemo, useCallback } from '@wordpress/element';
-import { JETPACK_MODULES_STORE_ID } from '../../modules-state';
 
 /**
  * @typedef {object} ModuleStatus
