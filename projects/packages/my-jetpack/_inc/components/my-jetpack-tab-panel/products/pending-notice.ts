@@ -1,5 +1,5 @@
 import { useGlobalNotices } from '@automattic/jetpack-components';
-import { useEffect, useRef } from 'react';
+import { useEffect } from 'react';
 
 /**
  * Helpers to carry a success notice across a page reload.
@@ -47,17 +47,15 @@ export function consumePendingSuccessNotice(): string | null {
  */
 export function useReplayPendingNotice(): void {
 	const { createSuccessNotice } = useGlobalNotices();
-	// Keep the latest notice creator without re-running the effect: it must consume the
-	// stored notice exactly once on mount. Re-running on every render would let an
-	// unrelated re-render (e.g. a product refetch) consume the notice on the page that
-	// set it, before the reload, so it would never reach the freshly-loaded page.
-	const createSuccessNoticeRef = useRef( createSuccessNotice );
-	createSuccessNoticeRef.current = createSuccessNotice;
 
+	// Consume the stored notice exactly once on mount. It must not re-run on later
+	// re-renders (e.g. a product refetch), or it would consume the notice on the page
+	// that set it — before the reload — so it would never reach the freshly-loaded page.
 	useEffect( () => {
 		const message = consumePendingSuccessNotice();
 		if ( message ) {
-			createSuccessNoticeRef.current( message );
+			createSuccessNotice( message );
 		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps -- run once on mount.
 	}, [] );
 }
