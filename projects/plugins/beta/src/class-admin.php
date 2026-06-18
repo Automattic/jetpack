@@ -215,8 +215,10 @@ class Admin {
 
 		// Bust the asset cache whenever the file changes (e.g. between dev/alpha
 		// builds that share a JPBETA_VERSION) by appending the file mtime.
-		$css_ver = JPBETA_VERSION . '-' . ( @filemtime( __DIR__ . '/admin/admin.css' ) ?: '0' ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
-		$js_ver  = JPBETA_VERSION . '-' . ( @filemtime( __DIR__ . '/admin/admin.js' ) ?: '0' ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+		$css_mtime = filemtime( __DIR__ . '/admin/admin.css' );
+		$js_mtime  = filemtime( __DIR__ . '/admin/admin.js' );
+		$css_ver   = JPBETA_VERSION . '-' . ( false !== $css_mtime ? $css_mtime : '0' );
+		$js_ver    = JPBETA_VERSION . '-' . ( false !== $js_mtime ? $js_mtime : '0' );
 
 		wp_enqueue_style( 'jetpack-beta-admin', plugins_url( 'admin/admin.css', __FILE__ ), array(), $css_ver );
 		wp_enqueue_script( 'jetpack-admin-js', plugins_url( 'admin/admin.js', __FILE__ ), array(), $js_ver, true );

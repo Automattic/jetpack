@@ -55,6 +55,7 @@
 .jetpack-beta-app {
 	display: flex;
 	flex-direction: column;
+
 	/* Fill the viewport below the admin bar so the footer pins to the bottom. */
 	min-height: calc(100vh - 32px);
 	box-sizing: border-box;
@@ -592,7 +593,7 @@ a.jetpack-beta-list-row:focus {
 	overflow: auto;
 }
 
-/* The "Currently Running" summary cell shows an Active badge via data-active. */
+/* "Currently Running" summary cell: Active badge via data-active. */
 .dops-foldable-card__summary {
 	font-size: 13px;
 	color: var(--jpbeta-color-text-muted);

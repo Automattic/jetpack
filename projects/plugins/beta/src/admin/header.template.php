@@ -11,6 +11,8 @@
  * @package automattic/jetpack-beta
  */
 
+// phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable -- $plugin is provided by the including template (plugin-select/plugin-manage).
+
 use Automattic\JetpackBeta\Plugin;
 use Automattic\JetpackBeta\Utils;
 
