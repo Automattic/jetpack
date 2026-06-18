@@ -35,6 +35,7 @@
 		"@automattic/jetpack-components": "workspace:*",
 		"@automattic/jetpack-config": "workspace:*",
 		"@automattic/jetpack-script-data": "workspace:*",
+		"@automattic/jetpack-shared-stores": "workspace:*",
 		"@wordpress/base-styles": "10.0.1",
 		"@wordpress/browserslist-config": "6.48.1",
 		"@wordpress/components": "35.0.1",
