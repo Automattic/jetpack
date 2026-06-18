@@ -1,15 +1,34 @@
 import { useMemo } from 'react';
-import useProducts from '../../../data/products/use-products';
-import { JetpackProductWithCard } from '../../../types';
+import { useAllProducts } from '../../../data/products/use-all-products';
 import { CATEGORY_CARDS_AND_MODULES, PRODUCT_MODULES } from './mappings';
 import { ProductFilter } from './types';
 import { useAllJetpackModules } from './use-all-jetpack-modules';
-import { filterAndSortModules, filterSections, getSectionTitle } from './utils';
+import { buildCards, filterAndSortModules, getSectionTitle, searchAndRankItems } from './utils';
+
+const ALL_CATEGORIES = Object.entries( CATEGORY_CARDS_AND_MODULES );
 
 export type UseFilteredProductsOptions = {
 	selectedFilter: ProductFilter | undefined;
 	search: string | undefined;
 };
+
+/**
+ * Record that an item (by slug) belongs to a category label.
+ *
+ * @param {Map<string, string[]>} map   - The slug-to-category-labels map to update.
+ * @param {string}                slug  - The item slug.
+ * @param {string | undefined}    label - The category label.
+ */
+function addCategory( map: Map< string, string[] >, slug: string, label: string | undefined ) {
+	if ( ! label ) {
+		return;
+	}
+	const labels = map.get( slug ) ?? [];
+	if ( ! labels.includes( label ) ) {
+		labels.push( label );
+		map.set( slug, labels );
+	}
+}
 
 /**
  * Custom hook to filter products based on search term and selected filter.
@@ -19,67 +38,63 @@ export type UseFilteredProductsOptions = {
  * @return An array of sections and the corresponding cards and modules
  */
 export function useFilteredProducts( { search, selectedFilter }: UseFilteredProductsOptions ) {
-	// Let us default to all the sections by default.
-	let sections = Object.entries( CATEGORY_CARDS_AND_MODULES );
-
-	// If a known filter is selected, we filter the sections accordingly, which means that we show the section/products based on the selected filter/category.
-	if ( CATEGORY_CARDS_AND_MODULES[ selectedFilter ] ) {
-		sections = sections.filter( ( [ category ] ) => category === selectedFilter );
-	} else {
-		// Since were defaulting to all categories, we can filter out the 'recommended' category.
-		sections = sections.filter( ( [ category ] ) => category !== 'recommended' );
-	}
-
-	// Let us extract the product slugs from the sections, based on the cards in the section, because we want to display product cards accordingly.
-	const productSlugs = sections.reduce< Array< JetpackProductWithCard > >(
-		( acc, [ , { cards } ] ) => {
-			return [ ...acc, ...cards ];
-		},
-		[]
-	);
-
-	const { products } = useProducts( productSlugs );
+	const { data: allProducts } = useAllProducts();
 	const { modules: allModules, isLoading: isLoadingModules } = useAllJetpackModules();
 
-	// Let us create a mapping of products by their slug for easy access.
-	const productsBySlug = products.reduce(
-		( acc, product ) => {
-			return {
-				...acc,
-				[ product.slug ]: product,
-			};
-		},
-		{} as Record< JetpackProductWithCard, ( typeof products )[ number ] >
+	// Build every category's cards and modules up front so search can always scan every
+	// product/module regardless of the selected category filter.
+	const allSections = useMemo(
+		() =>
+			ALL_CATEGORIES.map( ( [ category, { cards, modules } ] ) => ( {
+				id: category,
+				title: getSectionTitle( category ),
+				cards: buildCards( cards, allProducts, allModules, PRODUCT_MODULES ),
+				modules: filterAndSortModules( modules.map( slug => allModules[ slug ] ) ),
+			} ) ),
+		[ allProducts, allModules ]
 	);
 
-	const $sections = filterSections(
-		sections.map( ( [ category, { cards, modules } ] ) => ( {
-			id: category,
-			title: getSectionTitle( category ),
-			cards: cards
-				.map( slug => {
-					const product = productsBySlug[ slug ];
-					if ( ! product ) {
-						return null;
-					}
-					const moduleSlug = PRODUCT_MODULES[ slug ] || slug;
+	// The browse view honors the selected category filter; the default 'all' view hides the
+	// 'recommended' category (it is reachable via its own filter and would duplicate cards).
+	const sections = useMemo(
+		() =>
+			allSections.filter( ( { id } ) =>
+				CATEGORY_CARDS_AND_MODULES[ selectedFilter ] ? id === selectedFilter : id !== 'recommended'
+			),
+		[ allSections, selectedFilter ]
+	);
 
-					return {
-						product,
-						module: allModules[ moduleSlug ],
-					};
-				} )
-				.filter( Boolean ),
-			modules: filterAndSortModules( modules.map( slug => allModules[ slug ] ) ),
-		} ) ),
-		{ search }
+	// Map each card/module to the category labels it belongs to, so searching a category name
+	// (e.g. "security", "growth", "performance") surfaces every item in that category.
+	const { cardCategories, moduleCategories } = useMemo( () => {
+		const cards = new Map< string, string[] >();
+		const modules = new Map< string, string[] >();
+		allSections.forEach( section => {
+			section.cards.forEach( ( { product } ) => addCategory( cards, product.slug, section.title ) );
+			section.modules.forEach( module => addCategory( modules, module.module, section.title ) );
+		} );
+		return { cardCategories: cards, moduleCategories: modules };
+	}, [ allSections ] );
+
+	// Search always scans every category and ranks results into a single uniform list; browse
+	// (no search term) keeps the category grouping above.
+	const searchResults = useMemo(
+		() =>
+			searchAndRankItems(
+				allSections.flatMap( section => section.cards ),
+				allSections.flatMap( section => section.modules ),
+				search,
+				{ cardCategories, moduleCategories }
+			),
+		[ allSections, cardCategories, moduleCategories, search ]
 	);
 
 	return useMemo(
 		() => ( {
-			sections: $sections,
+			sections,
+			searchResults,
 			isLoading: isLoadingModules,
 		} ),
-		[ $sections, isLoadingModules ]
+		[ sections, searchResults, isLoadingModules ]
 	);
 }

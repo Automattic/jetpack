@@ -145,6 +145,8 @@
 	.card-description {
 
 		@include gb.body-medium;
+		// Avoid a single word wrapping alone onto the last line (typographic orphan).
+		text-wrap: pretty;
 	}
 }
 

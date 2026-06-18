@@ -1,10 +1,11 @@
-/* eslint-disable @wordpress/no-unsafe-wp-apis */
-import { Flex, __experimentalText as Text } from '@wordpress/components';
+import { Flex } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { useEffect } from 'react';
 import { ProductSection } from './product-section';
 import { useProductFiltersContext } from './products-tracking-context';
+import { SearchResultsList } from './search-results-list';
 import { Skeleton } from './skeleton';
+import styles from './styles.module.scss';
 import { useFilteredProducts, UseFilteredProductsOptions } from './use-filtered-products';
 
 export type FilteredProductsProps = UseFilteredProductsOptions;
@@ -17,11 +18,14 @@ export type FilteredProductsProps = UseFilteredProductsOptions;
  * @return The rendered component.
  */
 export function FilteredProducts( { search, selectedFilter }: FilteredProductsProps ) {
-	const { sections, isLoading } = useFilteredProducts( { search, selectedFilter } );
+	const { sections, searchResults, isLoading } = useFilteredProducts( { search, selectedFilter } );
 	const { trackEmptyResults } = useProductFiltersContext();
 
+	const isSearching = Boolean( search?.trim() );
+	const hasResults = isSearching ? searchResults.length > 0 : sections.length > 0;
+
 	useEffect( () => {
-		if ( ! sections.length && ! isLoading ) {
+		if ( ! hasResults && ! isLoading ) {
 			let emptyStateType: 'search' | 'filter' | 'combined';
 
 			if ( search && selectedFilter && selectedFilter !== 'all' ) {
@@ -38,14 +42,47 @@ export function FilteredProducts( { search, selectedFilter }: FilteredProductsPr
 				activeFilter: selectedFilter || 'all',
 			} );
 		}
-	}, [ sections.length, isLoading, search, selectedFilter, trackEmptyResults ] );
+	}, [ hasResults, isLoading, search, selectedFilter, trackEmptyResults ] );
 
 	if ( isLoading ) {
 		return <Skeleton />;
 	}
 
-	if ( ! sections.length ) {
-		return <Text size={ 20 }>{ __( 'No results found.', 'jetpack-my-jetpack' ) }</Text>;
+	// The `.product-section` class is what scopes the `.section-heading` style, so the
+	// empty-state and search-results headings are wrapped in it to match the category headings.
+	if ( ! hasResults ) {
+		return (
+			<Flex
+				as="section"
+				className={ styles[ 'product-section' ] }
+				direction="column"
+				expanded={ false }
+			>
+				<h2 className={ styles[ 'section-heading' ] } role="status">
+					{ __( 'No results found.', 'jetpack-my-jetpack' ) }
+				</h2>
+			</Flex>
+		);
+	}
+
+	// When searching, show a single relevance-ranked list of uniform rows instead of the
+	// category-grouped product cards.
+	if ( isSearching ) {
+		return (
+			<Flex
+				as="section"
+				className={ styles[ 'product-section' ] }
+				direction="column"
+				justify="start"
+				gap={ 6 }
+				expanded={ false }
+			>
+				<h2 className={ styles[ 'section-heading' ] } role="status">
+					{ __( 'Search results', 'jetpack-my-jetpack' ) }
+				</h2>
+				<SearchResultsList items={ searchResults } />
+			</Flex>
+		);
 	}
 
 	return (
