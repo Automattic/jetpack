@@ -222,20 +222,21 @@ const BarChartInternal: FC< BarChartProps > = ( {
 	}, [ comparisonEntries, getElementStyles ] );
 
 	// Narrow the primary bars by widening the visx group padding — a real geometry change, so
-	// pattern fills and borders are not distorted (unlike a CSS transform/scale). Solve for the
-	// padding where groupBandwidth(p) = groupBandwidth(basePadding) / widthFactor, so the shadow
-	// (drawn at slot × widthFactor) equals the default bar width and primary = 1/widthFactor of it.
-	// d3 band: groupBandwidth(p) = R(1-p)/(n+p) with padding applied to inner & outer.
+	// pattern fills and borders are not distorted (unlike a CSS transform/scale). The padding is
+	// set so the comparison shadow (drawn at slot × widthFactor) fills all but a small gap of each
+	// per-series step, leaving a small gap between series within a tick (the larger gap between
+	// ticks comes from the category band's own padding). Because shadow = step × (1 - p) ×
+	// widthFactor, choosing p = 1 - (1 - innerGap)/widthFactor makes the shadow span (1 - innerGap)
+	// of the step; the primary stays 1/widthFactor of the shadow.
 	const groupPadding = useMemo( () => {
 		const basePadding = chartOptions.barGroup.padding;
 		if ( ! comparisonWidthFactor || comparisonWidthFactor <= 1 ) {
 			return basePadding;
 		}
-		const n = Math.max( 1, primaryKeys.length );
-		const c = ( 1 - basePadding ) / ( n + basePadding ) / comparisonWidthFactor;
-		const p = ( 1 - c * n ) / ( 1 + c );
+		const innerGap = 0.15; // fraction of each per-series step left as a gap between bars in a tick
+		const p = 1 - ( 1 - innerGap ) / comparisonWidthFactor;
 		return Math.min( Math.max( p, basePadding ), 0.9 );
-	}, [ chartOptions.barGroup.padding, comparisonWidthFactor, primaryKeys.length ] );
+	}, [ chartOptions.barGroup.padding, comparisonWidthFactor ] );
 
 	const getBarBackground = useCallback(
 		( index: number ) => () =>
