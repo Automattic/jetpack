@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Create AI Podcast: Register the Media submenu without an is_admin() guard so it appears in the Calypso nav, not just wp-admin.
