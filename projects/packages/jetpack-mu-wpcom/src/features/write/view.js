@@ -44,7 +44,7 @@ function isAnon() {
  * surfaced as a Tracks event so silent draft loss doesn't read as abandonment.
  *
  * @param {string} title   - Current post title.
- * @param {string} content - Current post content (raw editable HTML).
+ * @param {string} content - Current post content (block-formatted markup).
  */
 function saveDraftToLocalStorage( title, content ) {
 	try {
@@ -90,6 +90,19 @@ function readAnonDraft() {
 	} catch {
 		return null;
 	}
+}
+
+/**
+ * Capture the current editor content as a block-formatted snapshot and persist
+ * it to localStorage. Reads from `.bw-content-inner` (the editable wrapper) so
+ * the outer `.bw-content` element's chrome attributes don't leak in, and runs
+ * the inner HTML through `convertToBlocks` so the signup-flow handoff lands a
+ * clean block draft instead of raw contenteditable markup.
+ */
+function captureAnonSnapshot() {
+	const contentEl = getContent();
+	const html = contentEl ? contentEl.innerHTML : '';
+	saveDraftToLocalStorage( state.title, html ? convertToBlocks( html ) : '' );
 }
 
 /**
@@ -5660,8 +5673,7 @@ const { state } = store( 'wpcom-write', {
 				// Flush the latest draft snapshot before navigating — autosave is
 				// on a 30s tick, and a fast typer-then-clicker would otherwise
 				// hand off stale (or no) content to the signup flow.
-				const contentEl = document.querySelector( '.bw-content' );
-				saveDraftToLocalStorage( state.title, contentEl ? contentEl.innerHTML : '' );
+				captureAnonSnapshot();
 
 				// Suppress the dirty-state leave prompt the way every other
 				// internal navigation in this file does (cf. openInBlockEditor).
@@ -5679,8 +5691,7 @@ const { state } = store( 'wpcom-write', {
 			if ( isAnon() ) {
 				// Anon persists to localStorage on every autosave tick; an
 				// explicit "save draft" maps to the same operation.
-				const contentEl = document.querySelector( '.bw-content' );
-				saveDraftToLocalStorage( state.title, contentEl ? contentEl.innerHTML : '' );
+				captureAnonSnapshot();
 				lastSavedSnapshot = getContentSnapshot();
 				return;
 			}
@@ -5690,8 +5701,7 @@ const { state } = store( 'wpcom-write', {
 		async saveDraftFromMenu() {
 			state.showMoreMenu = false;
 			if ( isAnon() ) {
-				const contentEl = document.querySelector( '.bw-content' );
-				saveDraftToLocalStorage( state.title, contentEl ? contentEl.innerHTML : '' );
+				captureAnonSnapshot();
 				lastSavedSnapshot = getContentSnapshot();
 				return;
 			}
@@ -5715,7 +5725,7 @@ const { state } = store( 'wpcom-write', {
 			}
 
 			// Require at least a title or content before autosaving.
-			const contentEl = document.querySelector( '.bw-content' );
+			const contentEl = getContent();
 			const hasContent = state.title.trim() || ( contentEl && contentEl.textContent.trim() );
 			if ( ! hasContent ) {
 				return;
@@ -5724,7 +5734,7 @@ const { state } = store( 'wpcom-write', {
 			if ( isAnon() ) {
 				// Anon visitors have no server post; snapshot the editable HTML
 				// to localStorage so a refresh can rehydrate via the recovery banner.
-				saveDraftToLocalStorage( state.title, contentEl ? contentEl.innerHTML : '' );
+				captureAnonSnapshot();
 				lastSavedSnapshot = getContentSnapshot();
 				return;
 			}
@@ -5742,11 +5752,20 @@ const { state } = store( 'wpcom-write', {
 				const snapshot = readAnonDraft();
 				if ( snapshot ) {
 					state.title = snapshot.title;
-					const contentEl = document.querySelector( '.bw-content' );
+					// The title <textarea> binds input → state.title one-way; mutating
+					// state alone does not update the field, so set the DOM value too
+					// (matching applyUndoSnapshot's pattern).
+					const titleEl = document.querySelector( '.bw-title' );
+					if ( titleEl ) {
+						titleEl.value = snapshot.title;
+						titleEl.style.height = 'auto';
+						titleEl.style.height = titleEl.scrollHeight + 'px';
+					}
+					const contentEl = getContent();
 					if ( contentEl ) {
 						contentEl.innerHTML = snapshot.content;
 					}
-					lastSavedSnapshot = { title: snapshot.title, content: snapshot.content };
+					lastSavedSnapshot = getContentSnapshot();
 				}
 				state.showRecoveryBanner = false;
 				return;
