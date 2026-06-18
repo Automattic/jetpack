@@ -121,7 +121,7 @@ class Sync_Status_Tracker {
 		}
 		'@phan-var \Automattic\Jetpack\Sync\Modules\Full_Sync_Immediately|\Automattic\Jetpack\Sync\Modules\Full_Sync $module';
 
-		self::maybe_set_milestone( $module->get_status(), $actions );
+		self::maybe_set_milestone( $module->get_status(), $actions, Configuration::is_woocommerce_active() );
 	}
 
 	/**
@@ -142,17 +142,25 @@ class Sync_Status_Tracker {
 
 	/**
 	 * Pure-logic counterpart to on_sync_processed_actions(): decide whether the
-	 * supplied full-sync status + actions list represents the analytics-relevant
-	 * sync ending, and flip the milestone if so.
+	 * supplied full-sync status + actions list represents the sync that gates the
+	 * dashboard ending, and flip the milestone if so.
+	 *
+	 * With an analytics backend (WooCommerce) present, only a full sync whose
+	 * config includes an analytics module counts — the dashboard waits for the
+	 * store data. Without one, there is nothing store-specific to sync, so
+	 * Jetpack's generic initial full sync gates the dashboard and any full sync
+	 * ending flips the milestone.
 	 *
 	 * Split out so unit tests can exercise the decision without standing up the
-	 * Jetpack sync module registry.
+	 * Jetpack sync module registry (the caller resolves `$has_store_data` live).
 	 *
-	 * @param array $full_status Result of Full_Sync_Immediately::get_status().
-	 * @param array $actions     Processed sync actions.
+	 * @param array $full_status    Result of Full_Sync_Immediately::get_status().
+	 * @param array $actions        Processed sync actions.
+	 * @param bool  $has_store_data Whether the site has store data to sync (WooCommerce
+	 *                              active). Defaults to true: require the analytics module.
 	 * @return void
 	 */
-	public static function maybe_set_milestone( array $full_status, array $actions ): void {
+	public static function maybe_set_milestone( array $full_status, array $actions, bool $has_store_data = true ): void {
 		if ( self::milestone_reached() ) {
 			return;
 		}
@@ -164,7 +172,10 @@ class Sync_Status_Tracker {
 				return ! empty( $config[ $module_name ] );
 			}
 		);
-		if ( ! $active ) {
+		// Wait for the analytics module only when there is store data. Without it
+		// there is nothing store-specific to sync, so any initial full sync ending
+		// gates the dashboard.
+		if ( ! $active && $has_store_data ) {
 			return;
 		}
 
@@ -195,8 +206,13 @@ class Sync_Status_Tracker {
 	}
 
 	/**
-	 * Inject the milestone value into JetpackScriptData so the dashboard can
-	 * read it at page load without an extra HTTP roundtrip.
+	 * Inject the milestone and store-data flag into JetpackScriptData so the
+	 * dashboard can read them at page load without an extra HTTP roundtrip.
+	 *
+	 * `has_store_data` tells the frontend which sync gates the dashboard: the
+	 * analytics module when WooCommerce is active, or Jetpack's generic initial
+	 * full sync when it is not. Computed live so activating WooCommerce later is
+	 * picked up on the next page load.
 	 *
 	 * @param array $data The script data passed by the assets package.
 	 * @return array
@@ -204,6 +220,7 @@ class Sync_Status_Tracker {
 	public static function inject_script_data( array $data ): array {
 		$data['premium_analytics'] = array(
 			'initial_full_sync_finished' => (int) get_option( self::INITIAL_FULL_SYNC_OPTION, 0 ),
+			'has_store_data'             => Configuration::is_woocommerce_active(),
 		);
 
 		return $data;

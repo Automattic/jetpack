@@ -25,6 +25,17 @@ function readMilestone(): number {
 }
 
 /**
+ * Read whether the site has store data to sync (WooCommerce active). When false
+ * the status is derived from Jetpack's generic initial full sync. Read once at
+ * mount; WooCommerce activation only changes between page loads.
+ *
+ * @return Whether the site has store data. Defaults to true.
+ */
+function readHasStoreData(): boolean {
+	return getScriptData()?.premium_analytics?.has_store_data ?? true;
+}
+
+/**
  * Polls Jetpack's sync status and returns analytics-scoped progress.
  *
  * Polling auto-stops when the sync completes or stalls, or after
@@ -38,6 +49,7 @@ function readMilestone(): number {
  */
 export function useSyncStatus(): UseSyncStatusReturn {
 	const milestoneRef = useRef< number >( readMilestone() );
+	const hasStoreDataRef = useRef< boolean >( readHasStoreData() );
 	const [ data, setData ] = useState< SyncStatus >();
 	const [ error, setError ] = useState< Error | null >( null );
 	const [ isStalled, setIsStalled ] = useState( false );
@@ -69,7 +81,7 @@ export function useSyncStatus(): UseSyncStatusReturn {
 					milestoneRef.current = live;
 				}
 
-				const status = toSyncStatus( raw, milestoneRef.current );
+				const status = toSyncStatus( raw, milestoneRef.current, hasStoreDataRef.current );
 				failureCountRef.current = 0;
 				setData( status );
 				setError( null );
@@ -132,7 +144,7 @@ export function useSyncStatus(): UseSyncStatusReturn {
 	useEffect( () => {
 		// Already finished before this page load — gate open, no polling needed.
 		if ( milestoneRef.current > 0 ) {
-			setData( toSyncStatus( {}, milestoneRef.current ) );
+			setData( toSyncStatus( {}, milestoneRef.current, hasStoreDataRef.current ) );
 			return;
 		}
 

@@ -78,6 +78,18 @@ class Sync_Status_Tracker_Test extends TestCase {
 		$this->assertSame( 0, (int) get_option( Sync_Status_Tracker::INITIAL_FULL_SYNC_OPTION, 0 ) );
 	}
 
+	public function test_milestone_flips_on_generic_full_sync_without_store_data() {
+		// No store data (WooCommerce inactive): there is no analytics module to wait
+		// for, so any initial full sync ending gates the dashboard.
+		Sync_Status_Tracker::maybe_set_milestone(
+			array( 'config' => array( 'posts' => true ) ),
+			array( array( 'jetpack_full_sync_end', array(), 0, 1730000123 ) ),
+			false
+		);
+
+		$this->assertSame( 1730000123, (int) get_option( Sync_Status_Tracker::INITIAL_FULL_SYNC_OPTION ) );
+	}
+
 	public function test_milestone_noop_without_end_action() {
 		Sync_Status_Tracker::maybe_set_milestone(
 			self::FULL_STATUS_WITH_ANALYTICS,
@@ -162,6 +174,14 @@ class Sync_Status_Tracker_Test extends TestCase {
 		$this->assertArrayHasKey( 'premium_analytics', $data );
 		$this->assertSame( 0, $data['premium_analytics']['initial_full_sync_finished'] );
 		$this->assertArrayHasKey( 'site', $data, 'preserves existing keys' );
+	}
+
+	public function test_script_data_includes_has_store_data_flag() {
+		$data = Sync_Status_Tracker::inject_script_data( array() );
+
+		$this->assertArrayHasKey( 'has_store_data', $data['premium_analytics'] );
+		// WooCommerce is not loaded in the test environment.
+		$this->assertFalse( $data['premium_analytics']['has_store_data'] );
 	}
 
 	public function test_script_data_reports_timestamp_after_milestone() {
