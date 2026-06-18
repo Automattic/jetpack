@@ -1,0 +1,94 @@
+.ai-launchpad-tailored-list {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+
+	&__card {
+
+		.components-card__body {
+			padding: 16px 20px;
+		}
+
+		&.is-expanded .components-card__body {
+			padding-bottom: 20px;
+		}
+	}
+
+	&__header {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 8px;
+		width: 100%;
+		height: auto;
+		text-align: start;
+
+		// The collapsed header is a Button; strip its chrome so it reads as a row.
+		&.components-button {
+			padding: 0;
+			color: inherit;
+
+			&:hover:not(:disabled) {
+				color: inherit;
+			}
+		}
+	}
+
+	&__title {
+		font-weight: 500;
+		font-size: 14px;
+
+		&.is-done {
+			text-decoration: line-through;
+			color: #757575;
+		}
+	}
+
+	&__icon {
+		flex-shrink: 0;
+		margin-inline-end: 8px;
+
+		&.is-done {
+			fill: #757575;
+		}
+	}
+
+	&__body {
+		margin-top: 12px;
+		display: flex;
+		flex-direction: column;
+		gap: 16px;
+	}
+
+	&__subtitle {
+		margin: 0;
+		color: #757575;
+	}
+
+	&__actions {
+		display: flex;
+		align-items: center;
+		gap: 8px;
+	}
+
+	&__skeleton-line {
+		display: block;
+		height: 16px;
+		width: 60%;
+		border-radius: 2px;
+		background: linear-gradient(90deg, #f0f0f0 25%, #e6e6e6 37%, #f0f0f0 63%);
+		background-size: 400% 100%;
+		animation: ai-launchpad-shimmer 1.4s ease infinite;
+	}
+}
+
+@keyframes ai-launchpad-shimmer {
+
+	0% {
+		background-position: 100% 0;
+	}
+
+	100% {
+		background-position: 0 0;
+	}
+}
