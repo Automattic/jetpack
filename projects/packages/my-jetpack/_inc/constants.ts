@@ -53,6 +53,7 @@ export const JETPACK_PRODUCTS_WITH_CARD = [
 	'boost',
 	'crm',
 	'jetpack-ai',
+	'jetpack-forms',
 	'protect',
 	'search',
 	'social',
