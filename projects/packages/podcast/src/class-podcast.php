@@ -64,45 +64,26 @@ class Podcast {
 			New_Episode_Prefill::init();
 		}
 
-		// Posts to Podcast is a WordPress.com-only sub-feature: its REST proxy
-		// relays generation requests to a wpcom-side endpoint as the current
-		// user. The rest of the package now loads on self-hosted Jetpack too,
-		// but this sub-feature must not — keep it gated to Simple/WoA hosts
-		// regardless of how the package was loaded.
-		if ( self::is_posts_to_podcast_supported_host() ) {
-			// Register the local REST routes before request-local rollout
-			// gates. Requests from public-api.wordpress.com may not satisfy
-			// those gates, but the wpcom/v2 routes still need to exist so
-			// permission and callback checks can handle the request.
+		if ( $host->is_wpcom_simple() || $host->is_woa_site() ) {
+			// Register the local REST routes before request-local rollout gates.
+			// Requests from public-api.wordpress.com may not satisfy those gates,
+			// but the wpcom/v2 routes still need to exist so permission and
+			// callback checks can handle the request.
 			Posts_To_Podcast_Endpoint::init();
 
-			// Create AI Podcast page lives behind its own filter so it can ship
-			// independently of the rest of the package.
+			// Posts to Podcast lives behind its own filter so the Create AI
+			// Podcast page can ship independently of the rest of the package.
 			//
-			// Note: no `is_admin()` guard here. The submenu must also register
-			// when Calypso builds its nav via the `wpcom/v2/admin-menu` REST
-			// endpoint, which fires `admin_menu` by loading `wp-admin/menu.php`
-			// but runs as a REST request where `is_admin()` is false. The hooks
-			// `init()` wires (`admin_menu`, `enqueue_block_editor_assets`)
-			// self-gate, so this is a no-op on non-admin/non-editor requests.
+			// Note: no `is_admin()` guard here. The submenu must also register when
+			// Calypso builds its nav via the `wpcom/v2/admin-menu` REST endpoint,
+			// which fires `admin_menu` by loading `wp-admin/menu.php` but runs as a
+			// REST request where `is_admin()` is false. The hooks `init()` wires
+			// (`admin_menu`, `enqueue_block_editor_assets`) self-gate, so this is a
+			// no-op on non-admin/non-editor requests.
 			if ( self::is_posts_to_podcast_enabled() ) {
 				Create_AI_Podcast_Page::init();
 			}
 		}
-	}
-
-	/**
-	 * Whether the current host may run Posts to Podcast.
-	 *
-	 * The feature relays to a wpcom-side endpoint, so it is offered only on
-	 * WordPress.com Simple and WoA (Atomic) sites — never on self-hosted
-	 * Jetpack, even now that the rest of the podcast package loads there.
-	 *
-	 * @return bool
-	 */
-	private static function is_posts_to_podcast_supported_host() {
-		$host = new Host();
-		return $host->is_wpcom_simple() || $host->is_woa_site();
 	}
 
 	/**
