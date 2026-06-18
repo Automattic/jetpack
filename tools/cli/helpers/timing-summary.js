@@ -39,8 +39,15 @@ function aggregate( timings ) {
 	for ( const row of rows.values() ) {
 		const task = row.task || 0;
 		sumOfTotals += task;
-		// "Other" is whatever wasn't explicitly timed as install/build (changelog, mirroring, overhead).
-		row.other = Math.max( 0, task - ( row.install || 0 ) - ( row.build || 0 ) );
+		// Shared tasks (pnpm/changelogger install) have no install/build phase of their own; their
+		// whole total is install work, so surface it in the Install column rather than "Other".
+		if ( row.shared ) {
+			row.install = task;
+			row.other = null;
+		} else {
+			// "Other" is whatever wasn't explicitly timed as install/build (changelog, mirroring, overhead).
+			row.other = Math.max( 0, task - ( row.install || 0 ) - ( row.build || 0 ) );
+		}
 	}
 
 	return { rows, sumOfTotals };
@@ -115,6 +122,10 @@ export function printTimingSummary( ctx, argv ) {
 
 /**
  * Build a machine-readable timing report suitable for JSON serialization.
+ *
+ * The `projects` and `shared` maps are aggregated views derived from `raw`, which is the
+ * unaggregated list of phase entries. Consumers wanting per-phase totals should read
+ * `projects`/`shared`; `raw` is for ad-hoc analysis of the individual timings.
  *
  * @param {object} ctx  - Build context. Uses `ctx.timings`.
  * @param {object} argv - Command line arguments.

@@ -447,9 +447,13 @@ function createBuildTask( project, argv, title, build ) {
 					// Build!
 					const t0 = Date.now();
 					buildStarted = true;
+					let taskOk = true;
 					try {
 						await build( t );
 					} catch ( e ) {
+						// Record the failure so the `_task` total below (and the JSON `ok` field) reflect it,
+						// even when the failure happens outside a `t.time()`-wrapped phase (e.g. mirroring).
+						taskOk = false;
 						await t.output( `\nBuild failed: ${ e.stack }\n` );
 						throw e;
 					} finally {
@@ -462,7 +466,7 @@ function createBuildTask( project, argv, title, build ) {
 								start: t0,
 								end: t0 + dur,
 								duration: dur,
-								ok: true,
+								ok: taskOk,
 							} );
 						}
 						await t.setStatus( argv.timing ? formatDuration( dur ) + 's' : 'complete' );
