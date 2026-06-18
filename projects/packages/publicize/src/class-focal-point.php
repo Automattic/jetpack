@@ -411,6 +411,7 @@ class Focal_Point {
 	 * @return bool Whether the focal point key is stored on the attachment.
 	 */
 	private static function has_stored_focal_point_meta( $attachment_id ) {
+		// metadata_exists() applies metadata filters, so registered defaults can look stored.
 		$stored_meta_keys = get_post_custom_keys( $attachment_id );
 
 		return is_array( $stored_meta_keys )

@@ -153,7 +153,12 @@ class Focal_Point_Test extends BaseTestCase {
 		$args          = $this->get_query_args( $url );
 
 		$this->assertStringStartsWith( 'https://i0.wp.com/example.com/uploads/source.jpg?', $url );
-		$this->assertLessThan( strpos( $url, 'resize=' ), strpos( $url, 'crop=' ) );
+		$crop_position   = strpos( $url, 'crop=' );
+		$resize_position = strpos( $url, 'resize=' );
+
+		$this->assertNotFalse( $crop_position );
+		$this->assertNotFalse( $resize_position );
+		$this->assertGreaterThan( $crop_position, $resize_position );
 		$this->assertSame( '500px,0px,2000px,1050px', $args['crop'] );
 		$this->assertSame( '1200,630', $args['resize'] );
 	}
