@@ -440,15 +440,11 @@ function wpcom_add_site_badges_and_plan( $wp_admin_bar ) {
 		$plan_name = $current_plan['product_name_short'] ?? '';
 
 		if ( $plan_name ) {
+			// On Atomic, \WPCOM_Masterbar is absent, so fall back to the site suffix
+			// (derived from the domain) so the link still renders.
 			$site_slug = method_exists( '\WPCOM_Masterbar', 'get_calypso_site_slug' )
 				? WPCOM_Masterbar::get_calypso_site_slug( get_current_blog_id() )
-				: '';
-
-			// On Atomic, \WPCOM_Masterbar is absent so the slug is empty; fall back to
-			// the site suffix (derived from the domain) so the link still renders.
-			if ( '' === $site_slug ) {
-				$site_slug = (string) $status->get_site_suffix();
-			}
+				: (string) $status->get_site_suffix();
 
 			if ( $site_slug ) {
 				$plan_text = '<a class="wp-admin-bar__site-info" href="https://wordpress.com/plans/' . esc_attr( $site_slug ) . '">
