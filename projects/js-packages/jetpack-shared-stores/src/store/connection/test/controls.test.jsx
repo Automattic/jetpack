@@ -1,15 +1,11 @@
 import restApi from '@automattic/jetpack-api';
-import { jest } from '@jest/globals';
+import { assignLocation as stubAssign } from '../assignLocation';
+import controls from '../controls';
 
-jest.unstable_mockModule( '../assignLocation', () => {
-	return {
-		__esModule: true,
-		assignLocation: jest.fn(),
-	};
-} );
-
-const { default: controls } = await import( '../controls' );
-const { assignLocation: stubAssign } = await import( '../assignLocation' );
+jest.mock( '../assignLocation', () => ( {
+	__esModule: true,
+	assignLocation: jest.fn(),
+} ) );
 
 const {
 	REGISTER_SITE: registerSite,
@@ -87,13 +83,11 @@ describe( 'controls', () => {
 				authorizeUrlWithParamAndFrom,
 			} = generateUrls();
 
-			// url without param
 			getAuthorizationUrl.mockResolvedValue( authorizeUrl );
 			const noParam = await connectUser( { resolveSelect } )( { from: 'jetpack' } );
 			expect( stubAssign ).toHaveBeenCalledWith( authorizeUrlWithFrom );
 			expect( noParam ).toEqual( authorizeUrlWithFrom );
 
-			// url with param
 			getAuthorizationUrl.mockResolvedValue( authorizeUrlWithParam );
 			const param = await connectUser( { resolveSelect } )( { from: 'jetpack' } );
 			expect( stubAssign ).toHaveBeenCalledWith( authorizeUrlWithParamAndFrom );

@@ -6,7 +6,13 @@
  * present on the package root. These assertions lock that public surface and
  * the store ids (which are a string contract used across 25+ consumers).
  */
-import { store, JETPACK_MODULES_STORE_ID, wordpressPlansStore, selectors } from '../../index.js';
+import {
+	store,
+	JETPACK_MODULES_STORE_ID,
+	wordpressPlansStore,
+	selectors,
+	CONNECTION_STORE_ID,
+} from '../../index.js';
 
 describe( 'package barrel exports', () => {
 	it( 'exposes the jetpack-modules store and its id', () => {
@@ -20,5 +26,9 @@ describe( 'package barrel exports', () => {
 		expect( wordpressPlansStore.name ).toBe( 'wordpress-com/plans' );
 		expect( typeof selectors.getPlan ).toBe( 'function' );
 		expect( typeof selectors.getAiAssistantFeature ).toBe( 'function' );
+	} );
+
+	it( 'exposes the connection store id', () => {
+		expect( CONNECTION_STORE_ID ).toBe( 'jetpack-connection' );
 	} );
 } );
