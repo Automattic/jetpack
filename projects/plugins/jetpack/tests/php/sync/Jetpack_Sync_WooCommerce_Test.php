@@ -218,6 +218,44 @@ class Jetpack_Sync_WooCommerce_Test extends Jetpack_Sync_TestBase {
 		$this->assertEquals( (float) $order->get_total(), (float) $payload['total'] );
 	}
 
+	public function test_new_order_filter_returns_false_for_invalid_args() {
+		$module = $this->get_woocommerce_module();
+
+		$this->assertFalse( $module->add_order_total_to_new_order( null ) );
+		$this->assertFalse( $module->add_order_total_to_new_order( array() ) );
+		$this->assertFalse( $module->add_order_total_to_new_order( array( 'not-an-id' ) ) );
+		$this->assertFalse( $module->add_order_total_to_new_order( array( 0 ) ) );
+	}
+
+	public function test_new_order_filter_without_order_object_syncs_id_only() {
+		$order  = $this->createOrderWithItem();
+		$module = $this->get_woocommerce_module();
+
+		$filtered = $module->add_order_total_to_new_order( array( $order->get_id() ) );
+
+		$this->assertSame( array( $order->get_id() ), $filtered );
+	}
+
+	public function test_status_changed_filter_returns_false_for_invalid_args() {
+		$module = $this->get_woocommerce_module();
+
+		$this->assertFalse( $module->add_order_total_to_status_changed( null ) );
+		$this->assertFalse( $module->add_order_total_to_status_changed( array() ) );
+		$this->assertFalse( $module->add_order_total_to_status_changed( array( 1 ) ) );
+		$this->assertFalse( $module->add_order_total_to_status_changed( array( 1, 'pending' ) ) );
+		$this->assertFalse( $module->add_order_total_to_status_changed( array( 'not-an-id', 'pending', 'processing' ) ) );
+		$this->assertFalse( $module->add_order_total_to_status_changed( array( 1, null, 'processing' ) ) );
+	}
+
+	public function test_status_changed_filter_without_order_object_syncs_without_total() {
+		$order  = $this->createOrderWithItem();
+		$module = $this->get_woocommerce_module();
+
+		$filtered = $module->add_order_total_to_status_changed( array( $order->get_id(), 'pending', 'processing' ) );
+
+		$this->assertSame( array( $order->get_id(), 'pending', 'processing' ), $filtered );
+	}
+
 	public function test_order_status_payment_complete_is_synced() {
 		$order = $this->createOrderWithItem();
 
