@@ -40,6 +40,8 @@ minimumReleaseAgeExclude:
   - markdown-it@14.2.0
   # Renovate security update: webpack-dev-server@5.2.5
   - webpack-dev-server@5.2.5
+  # Renovate security update: undici@7.28.0
+  - undici@7.28.0
 trustPolicy: no-downgrade
 trustPolicyExclude:
   # https://github.com/paulmillr/chokidar/issues/1440
