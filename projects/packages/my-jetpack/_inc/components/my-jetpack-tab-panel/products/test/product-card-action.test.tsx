@@ -2,6 +2,7 @@ import '@testing-library/jest-dom';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { ProductCamelCase } from '../../../../data/types';
 import { MyJetpackModule } from '../../../../types';
+import { setPendingSuccessNotice } from '../pending-notice';
 import { ProductCardAction } from '../product-card-action';
 import { reloadPage } from '../reload-page';
 
@@ -30,6 +31,7 @@ jest.mock( '../products-tracking-context', () => ( {
 } ) );
 // window.location can't be mocked directly, so reloadPage is its own mockable wrapper.
 jest.mock( '../reload-page' );
+jest.mock( '../pending-notice' );
 
 const buildProduct = ( overrides = {} ) =>
 	( {
@@ -74,6 +76,10 @@ describe( 'ProductCardAction', () => {
 		fireEvent.click( screen.getByRole( 'checkbox' ) );
 
 		expect( mockDeactivate ).toHaveBeenCalled();
+		// Persists a notice so it survives the reload, then reloads.
+		expect( setPendingSuccessNotice ).toHaveBeenCalledWith(
+			expect.stringContaining( 'deactivated' )
+		);
 		expect( reloadPage ).toHaveBeenCalled();
 	} );
 
@@ -88,6 +94,9 @@ describe( 'ProductCardAction', () => {
 		fireEvent.click( screen.getByRole( 'checkbox' ) );
 
 		expect( mockActivate ).toHaveBeenCalled();
+		expect( setPendingSuccessNotice ).toHaveBeenCalledWith(
+			expect.stringContaining( 'activated' )
+		);
 		expect( reloadPage ).toHaveBeenCalled();
 	} );
 } );

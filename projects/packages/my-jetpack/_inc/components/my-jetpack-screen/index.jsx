@@ -33,6 +33,7 @@ import EvaluationRecommendations from '../evaluation-recommendations';
 import IDCModal from '../idc-modal';
 import { MyJetpackTabPanel } from '../my-jetpack-tab-panel';
 import { MY_JETPACK_SECTION_OVERVIEW } from '../my-jetpack-tab-panel/constants';
+import { useReplayPendingNotice } from '../my-jetpack-tab-panel/products/pending-notice';
 import { isValidMyJetpackSection } from '../my-jetpack-tab-panel/utils';
 import OnboardingTour from '../onboarding-tour';
 import buildOptionalMenuItems from './build-optional-menu-items';
@@ -77,6 +78,8 @@ const GlobalNotice = ( { message, title, options } ) => {
  */
 export default function MyJetpackScreen() {
 	useNotificationWatcher();
+	// Replay a success notice persisted before a product toggle reloaded the page.
+	useReplayPendingNotice();
 	const {
 		// no prettier please
 		adminUrl,
