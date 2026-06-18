@@ -63,6 +63,8 @@ export function TailoredList( { pendingTailor, initialData }: Props = {} ) {
 	const [ expandedId, setExpandedId ] = useState< string | null >( null );
 	const [ skippedIds, setSkippedIds ] = useState< Set< string > >( () => new Set() );
 	const [ busyId, setBusyId ] = useState< string | null >( null );
+	// The site's front-end URL, used to build the launch CTA. From the composite read.
+	const [ siteUrl, setSiteUrl ] = useState< string | null >( null );
 
 	useEffect( () => {
 		// Returning users: render from the data the host already fetched, so the
@@ -70,6 +72,7 @@ export function TailoredList( { pendingTailor, initialData }: Props = {} ) {
 		if ( initialData ) {
 			setTasks( initialData.tasks );
 			setOutput( initialData.ai_output?.payload ?? null );
+			setSiteUrl( initialData.site?.url ?? null );
 			return;
 		}
 
@@ -88,6 +91,10 @@ export function TailoredList( { pendingTailor, initialData }: Props = {} ) {
 			}
 			if ( cancelled ) {
 				return;
+			}
+
+			if ( data?.site ) {
+				setSiteUrl( data.site.url );
 			}
 
 			if ( data && data.tasks.length > 0 ) {
@@ -135,11 +142,16 @@ export function TailoredList( { pendingTailor, initialData }: Props = {} ) {
 	const handleGetStarted = async ( task: EnrichedTask ) => {
 		setBusyId( task.id );
 		try {
-			const url = await resolveCtaUrl( task, output, {
-				trackTaskClicked,
-				createFirstPostDraft,
-				createPatternPage,
-			} );
+			const url = await resolveCtaUrl(
+				task,
+				output,
+				{
+					trackTaskClicked,
+					createFirstPostDraft,
+					createPatternPage,
+				},
+				siteUrl
+			);
 			if ( url ) {
 				navigate( url );
 			}
@@ -169,7 +181,7 @@ export function TailoredList( { pendingTailor, initialData }: Props = {} ) {
 					task={ task }
 					isExpanded={ expandedId === task.id }
 					isBusy={ busyId === task.id }
-					canStart={ isTaskActionable( task, output ) }
+					canStart={ isTaskActionable( task, output, siteUrl ) }
 					onToggle={ () => setExpandedId( expandedId === task.id ? null : task.id ) }
 					onGetStarted={ () => handleGetStarted( task ) }
 					onSkip={ () => handleSkip( task ) }

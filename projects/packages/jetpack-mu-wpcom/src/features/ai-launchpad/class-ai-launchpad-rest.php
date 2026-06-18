@@ -179,6 +179,11 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 			'checklist_statuses' => (array) get_option( 'launchpad_checklist_tasks_statuses', array() ),
 			'dismissed'          => (bool) get_option( self::OPTION_DISMISSED, false ),
 			'is_eligible'        => true,
+			// Site context the client needs: the front-end URL drives the launch-task
+			// CTA (its host is the launch-flow site slug) and the tailored-list preview.
+			'site'               => array(
+				'url' => home_url(),
+			),
 		);
 	}
 

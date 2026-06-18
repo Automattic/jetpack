@@ -13,6 +13,11 @@ export interface EnrichedTask {
 	calypso_path: string | null;
 }
 
+/** The site context the list needs (front-end URL for the launch CTA + preview). */
+export interface SiteData {
+	url: string;
+}
+
 /**
  * The relevant slice of Stream B's `GET /ai-launchpad/` response. Only the
  * fields the tailored list renders from are typed here.
@@ -22,19 +27,29 @@ export interface LaunchpadData {
 	ai_output: {
 		payload: TailoredOutput;
 	} | null;
+	site?: SiteData;
 }
 
 /** How a task's "Get started" CTA behaves when clicked. */
-export type CtaKind = 'first_post' | 'pattern_page' | 'deeplink';
+export type CtaKind = 'first_post' | 'pattern_page' | 'launch' | 'deeplink';
 
 const FIRST_POST_TASK_IDS = [ 'first_post_published', 'first_post_published_newsletter' ];
 const PATTERN_PAGE_TASK_IDS = [ 'add_about_page' ];
+// Launch tasks that have no catalog deeplink: they send the user to the
+// wordpress.com launch flow. woo_launch_site is excluded — it has its own
+// wc-admin deeplink and is handled as a plain deeplink.
+const LAUNCH_TASK_IDS = [
+	'site_launched',
+	'blog_launched',
+	'link_in_bio_launched',
+	'videopress_launched',
+];
 
 /**
  * Resolve how a task's "Get started" CTA behaves. First-creation tasks draft a
  * real post via Stream F's `createFirstPostDraft`; page-creating tasks build a
- * pattern page via `createPatternPage`; everything else deeplinks to the
- * catalog's `calypso_path`.
+ * pattern page via `createPatternPage`; launch tasks open the wordpress.com
+ * launch flow; everything else deeplinks to the catalog's `calypso_path`.
  *
  * @param taskId - The catalog task ID.
  * @return The CTA kind.
@@ -46,7 +61,25 @@ export function ctaKind( taskId: string ): CtaKind {
 	if ( PATTERN_PAGE_TASK_IDS.includes( taskId ) ) {
 		return 'pattern_page';
 	}
+	if ( LAUNCH_TASK_IDS.includes( taskId ) ) {
+		return 'launch';
+	}
 	return 'deeplink';
+}
+
+/**
+ * Build the wordpress.com launch-flow URL for a launch task. Launch tasks have
+ * no catalog deeplink; the legacy launchpad widget routes them to
+ * `/start/launch-site` keyed by the site slug (the host of the site's home URL).
+ *
+ * @param siteUrl - The site's front-end URL (from the composite read).
+ * @return The launch-flow URL.
+ */
+export function launchSiteUrl( siteUrl: string ): string {
+	const slug = new URL( siteUrl ).host;
+	return `https://wordpress.com/start/launch-site?siteSlug=${ encodeURIComponent(
+		slug
+	) }&ref=wp-admin`;
 }
 
 /**
@@ -110,12 +143,14 @@ export function toNavigableUrl( url: string ): string {
  * @param task     - The clicked task.
  * @param output   - The AI output (post draft + inferred details), or null.
  * @param handlers - The CTA side effects.
+ * @param siteUrl  - The site's front-end URL, used to build the launch CTA.
  * @return The destination URL, or null.
  */
 export async function resolveCtaUrl(
 	task: EnrichedTask,
 	output: TailoredOutput | null,
-	handlers: CtaHandlers
+	handlers: CtaHandlers,
+	siteUrl: string | null = null
 ): Promise< string | null > {
 	handlers.trackTaskClicked( { task_id: task.id } );
 
@@ -125,6 +160,8 @@ export async function resolveCtaUrl(
 		url = ( await handlers.createFirstPostDraft( output.first_post_draft ) ).edit_url;
 	} else if ( kind === 'pattern_page' && output ) {
 		url = ( await handlers.createPatternPage( output.inferred ) ).edit_url;
+	} else if ( kind === 'launch' ) {
+		url = siteUrl ? launchSiteUrl( siteUrl ) : null;
 	} else {
 		url = task.calypso_path;
 	}
@@ -139,14 +176,22 @@ export async function resolveCtaUrl(
  * every other task is actionable only when it has a deeplink path. Used to hide
  * the CTA for tasks that would otherwise be a silent no-op.
  *
- * @param task   - The task.
- * @param output - The AI output, or null.
+ * @param task    - The task.
+ * @param output  - The AI output, or null.
+ * @param siteUrl - The site's front-end URL, used to build the launch CTA.
  * @return True when "Get started" would navigate somewhere.
  */
-export function isTaskActionable( task: EnrichedTask, output: TailoredOutput | null ): boolean {
+export function isTaskActionable(
+	task: EnrichedTask,
+	output: TailoredOutput | null,
+	siteUrl: string | null = null
+): boolean {
 	const kind = ctaKind( task.id );
 	if ( ( kind === 'first_post' || kind === 'pattern_page' ) && output ) {
 		return true;
+	}
+	if ( kind === 'launch' ) {
+		return siteUrl !== null;
 	}
 	return task.calypso_path !== null;
 }
