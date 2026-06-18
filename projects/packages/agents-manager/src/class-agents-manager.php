@@ -198,9 +198,12 @@ class Agents_Manager {
 		$use_disconnected = str_contains( $variant, 'disconnected' );
 		$is_gutenberg     = $this->is_block_editor();
 
-		// In Gutenberg, dequeue Help Center so we don't end up with two buttons.
+		// In Gutenberg, dequeue Help Center so we don't end up with two buttons — but only
+		// in the full unified experience, where Agents Manager takes over the Help Center.
+		// In block-editor-only mode (e.g. ?flags=unified-big-sky) Agents Manager replaces
+		// Big Sky's native UI and Help Center should remain available.
 		// Agents Manager fires at priority 101, after Help Center at 100, so HC is already enqueued.
-		if ( $is_gutenberg ) {
+		if ( $is_gutenberg && apply_filters( 'agents_manager_use_unified_experience', false ) ) {
 			wp_dequeue_script( 'help-center' );
 			wp_dequeue_style( 'help-center-style' );
 		}
