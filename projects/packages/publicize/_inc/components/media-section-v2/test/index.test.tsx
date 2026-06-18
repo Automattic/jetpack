@@ -14,11 +14,14 @@ const mockOpenUnifiedModal = jest.fn();
 const mockApplyFilters = jest.fn();
 const mockSiteHasFeature = jest.fn< boolean, [ string ] >( () => true );
 const mockSetFocalPoint = jest.fn();
-const mockUseMediaFocalPoint = jest.fn( () => ( {
+const mockSetPreviewFocalPoint = jest.fn();
+const getMockMediaFocalPoint = ( canEdit: boolean | undefined = true ) => ( {
 	value: { x: 0.5, y: 0.5 },
-	canEdit: true as boolean | undefined,
+	canEdit,
+	setPreviewFocalPoint: mockSetPreviewFocalPoint,
 	setFocalPoint: mockSetFocalPoint,
-} ) );
+} );
+const mockUseMediaFocalPoint = jest.fn( () => getMockMediaFocalPoint() );
 
 jest.mock( '@automattic/jetpack-script-data', () => {
 	const actual = jest.requireActual( '@automattic/jetpack-script-data' );
@@ -429,11 +432,7 @@ describe( 'MediaSectionV2', () => {
 
 		afterEach( () => {
 			mockSiteHasFeature.mockReturnValue( true );
-			mockUseMediaFocalPoint.mockReturnValue( {
-				value: { x: 0.5, y: 0.5 },
-				canEdit: true,
-				setFocalPoint: mockSetFocalPoint,
-			} );
+			mockUseMediaFocalPoint.mockReturnValue( getMockMediaFocalPoint() );
 			( usePostMeta as jest.Mock ).mockReturnValue( {
 				attachedMedia: [],
 				imageGeneratorSettings: { enabled: false },
@@ -471,11 +470,7 @@ describe( 'MediaSectionV2', () => {
 		} );
 
 		it( 'should hide the picker when the user cannot edit the image', () => {
-			mockUseMediaFocalPoint.mockReturnValue( {
-				value: { x: 0.5, y: 0.5 },
-				canEdit: false,
-				setFocalPoint: mockSetFocalPoint,
-			} );
+			mockUseMediaFocalPoint.mockReturnValue( getMockMediaFocalPoint( false ) );
 
 			render( <MediaSectionV2 /> );
 

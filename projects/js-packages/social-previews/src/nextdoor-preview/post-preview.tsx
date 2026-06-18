@@ -8,6 +8,7 @@ import {
 	preparePreviewText,
 } from '../helpers';
 import { ExpandableText } from '../shared/expandable-text';
+import { MediaImage } from '../shared/media-image';
 import { FEED_TEXT_MAX_LENGTH } from './constants';
 import { FooterActions } from './footer-actions';
 import { ChevronIcon } from './icons/chevron-icon';
@@ -24,6 +25,7 @@ import './style.scss';
  */
 export function NextdoorPostPreview( {
 	image,
+	imageFocalPoint,
 	name,
 	profileImage,
 	description,
@@ -107,7 +109,12 @@ export function NextdoorPostPreview( {
 							} ) }
 						>
 							{ image ? (
-								<img className="nextdoor-preview__image" src={ image } alt="" />
+								<MediaImage
+									className="nextdoor-preview__image"
+									src={ image }
+									alt=""
+									focalPoint={ imageFocalPoint }
+								/>
 							) : (
 								<DefaultImage />
 							) }
