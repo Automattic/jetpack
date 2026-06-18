@@ -223,9 +223,12 @@ class WooCommerce extends Module {
 
 		// Orders. When an order reaches a paid status we append its total to these actions (via the
 		// jetpack_sync_before_enqueue_* filters in the constructor) so the Activity Log can aggregate
-		// revenue without a dedicated action.
-		add_action( 'woocommerce_new_order', $callable, 10, 1 );
-		add_action( 'woocommerce_order_status_changed', $callable, 10, 3 );
+		// revenue without a dedicated action. We register the extra accepted args so those filters
+		// receive the order object WooCommerce already passes (2nd arg here, 4th for the status change)
+		// and can avoid reloading it on this hot path; the filters strip the object back out before the
+		// action is enqueued, so it is never serialized or sent to WPcom.
+		add_action( 'woocommerce_new_order', $callable, 10, 2 );
+		add_action( 'woocommerce_order_status_changed', $callable, 10, 4 );
 		add_action( 'woocommerce_payment_complete', $callable, 10, 1 );
 
 		// Order items.
@@ -318,16 +321,22 @@ class WooCommerce extends Module {
 	 * A brand new order can be created already in a paid status, in which case no status transition
 	 * fires and only woocommerce_new_order observes the payment. When the order is paid we append a
 	 * trailing order-total payload (total, currency, occurred_at) that the Activity Log aggregates into
-	 * revenue; otherwise the args are returned unchanged (the action still syncs for other purposes).
+	 * revenue; otherwise only the order ID is synced (the action still syncs for other purposes).
 	 *
-	 * @param array $args Hook args: [ order_id ].
-	 * @return array The args, with a trailing order-total payload appended when the order is paid.
+	 * @param array $args Hook args: [ order_id, WC_Order ]. The order object is WooCommerce's 2nd arg.
+	 * @return array The args ( [ order_id ] ), with a trailing order-total payload appended when paid.
 	 */
 	public function add_order_total_to_new_order( $args ) {
-		// woocommerce_new_order carries only the order ID, so we load the order to read its status.
-		// This fires right after the order is saved, so wc_get_order() is served from WooCommerce's
-		// in-request order cache rather than a fresh query.
-		$order = $this->get_order_for_total( $args[0] ?? null );
+		$order_id = $args[0] ?? null;
+		// Prefer the order object WooCommerce passes as the 2nd arg over reloading it.
+		$order = $args[1] ?? null;
+		if ( ! $order instanceof WC_Order ) {
+			$order = $this->get_order_for_total( $order_id );
+		}
+
+		// Rebuild the scalar arg shape WPcom expects. This also drops the WC_Order object the listener now
+		// receives so it is never enqueued or serialized into the sync queue.
+		$args = array( $order_id );
 		if ( $order && $this->is_paid_order_status( $order->get_status() ) && $this->claim_order_total_emission( $order ) ) {
 			$args[] = $this->build_order_total_payload( $order );
 		}
@@ -341,17 +350,27 @@ class WooCommerce extends Module {
 	 * We emit on the transition *into* a paid status from a non-paid one — the payment moment — and
 	 * skip paid -> paid steps (e.g. processing -> completed) so a fulfillment doesn't re-emit. When
 	 * emitted we append a trailing order-total payload (total, currency, occurred_at) the Activity Log
-	 * reads; otherwise the args are unchanged (the action still syncs for other purposes).
+	 * reads; otherwise only [ order_id, status_from, status_to ] is synced (the action still syncs for
+	 * other purposes).
 	 *
-	 * @param array $args Hook args: [ order_id, status_from, status_to ].
-	 * @return array The args, with a trailing order-total payload appended on the paid transition.
+	 * @param array $args Hook args: [ order_id, status_from, status_to, WC_Order ]. The order is the 4th arg.
+	 * @return array The args ( [ order_id, status_from, status_to ] ), with a trailing payload on the paid transition.
 	 */
 	public function add_order_total_to_status_changed( $args ) {
+		$order_id    = $args[0] ?? null;
 		$status_from = $args[1] ?? '';
 		$status_to   = $args[2] ?? '';
+		// Prefer the order object WooCommerce passes as the 4th arg over reloading it (see add_order_total_to_new_order).
+		$order = $args[3] ?? null;
+
+		// Rebuild the scalar arg shape WPcom expects. This also drops the WC_Order object the listener now
+		// receives so it is never enqueued or serialized into the sync queue.
+		$args = array( $order_id, $status_from, $status_to );
 
 		if ( $this->is_paid_order_status( $status_to ) && ! $this->is_paid_order_status( $status_from ) ) {
-			$order = $this->get_order_for_total( $args[0] ?? null );
+			if ( ! $order instanceof WC_Order ) {
+				$order = $this->get_order_for_total( $order_id );
+			}
 			if ( $order && $this->claim_order_total_emission( $order ) ) {
 				$args[] = $this->build_order_total_payload( $order );
 			}

@@ -182,6 +182,42 @@ class Jetpack_Sync_WooCommerce_Test extends Jetpack_Sync_TestBase {
 		$this->assertEquals( (float) $order->get_total(), (float) $with_total[0]['total'] );
 	}
 
+	public function test_new_order_filter_uses_passed_order_and_strips_object() {
+		$order = $this->createOrderWithItem();
+		$order->set_status( 'completed' ); // In-memory only: no save, so the emission isn't claimed yet.
+
+		$module   = $this->get_woocommerce_module();
+		$filtered = $module->add_order_total_to_new_order( array( $order->get_id(), $order ) );
+
+		// The WC_Order passed as the 2nd hook arg must never survive into the enqueued args.
+		foreach ( $filtered as $arg ) {
+			$this->assertNotInstanceOf( WC_Order::class, $arg );
+		}
+		$this->assertSame( $order->get_id(), $filtered[0] );
+
+		// The passed object was used to build the payload (the order is paid and unclaimed).
+		$payload = end( $filtered );
+		$this->assertIsArray( $payload );
+		$this->assertEquals( (float) $order->get_total(), (float) $payload['total'] );
+	}
+
+	public function test_status_changed_filter_uses_passed_order_and_strips_object() {
+		$order = $this->createOrderWithItem();
+		$order->calculate_totals();
+
+		$module   = $this->get_woocommerce_module();
+		$filtered = $module->add_order_total_to_status_changed( array( $order->get_id(), 'pending', 'processing', $order ) );
+
+		foreach ( $filtered as $arg ) {
+			$this->assertNotInstanceOf( WC_Order::class, $arg );
+		}
+		$this->assertSame( array( $order->get_id(), 'pending', 'processing' ), array_slice( $filtered, 0, 3 ) );
+
+		$payload = end( $filtered );
+		$this->assertIsArray( $payload );
+		$this->assertEquals( (float) $order->get_total(), (float) $payload['total'] );
+	}
+
 	public function test_order_status_payment_complete_is_synced() {
 		$order = $this->createOrderWithItem();
 
