@@ -112,7 +112,7 @@ class Jetpack_Forms_Product_Test extends TestCase {
 		$this->assertSame( admin_url( 'admin.php?page=jetpack-forms-admin' ), Jetpack_Forms::get_manage_url() );
 
 		// Once the Forms Dashboard is available, defer to its canonical URL helper.
-		require_once __DIR__ . '/stubs/class-jetpack-forms-dashboard-stub.php';
+		require_once __DIR__ . '/stubs/class-dashboard.php';
 		$this->assertSame(
 			'https://example.org/wp-admin/admin.php?page=jetpack-forms-responses-wp-admin',
 			Jetpack_Forms::get_manage_url()
