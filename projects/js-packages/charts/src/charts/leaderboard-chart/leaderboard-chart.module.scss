@@ -136,7 +136,7 @@
 	}
 
 	&:focus-visible {
-		outline: 2px solid var(--wpds-color-fg-interactive-brand);
+		outline: 2px solid var(--wpds-color-fg-interactive-brand, var(--wp-admin-theme-color, #3858e9));
 		outline-offset: -2px;
 	}
 }
@@ -147,7 +147,7 @@
 	top: 50%;
 	transform: translateY(-50%) translateX(4px);
 	opacity: 0;
-	color: var(--wpds-color-fg-content-neutral-weak, #6d6d6d);
+	color: var(--wpds-color-fg-content-neutral-weak, #707070);
 	transition: opacity 0.15s ease, transform 0.15s ease;
 	pointer-events: none;
 }
