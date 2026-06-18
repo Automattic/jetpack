@@ -1,4 +1,0 @@
-Significance: patch
-Type: added
-
-AI Launchpad: tailor the launchpad from the wizard input via jetpack-ai-query, with a deterministic schema-valid fallback, first-post and pattern-page creation, and a debounced prewarm.

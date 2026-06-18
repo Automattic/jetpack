@@ -1,4 +1,0 @@
-Significance: patch
-Type: added
-
-AI Launchpad: add wp-build scaffold and admin screen (menu, eligibility gate, JWT initial state, JS stubs).

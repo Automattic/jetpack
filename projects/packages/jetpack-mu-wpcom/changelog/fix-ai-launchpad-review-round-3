@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-AI Launchpad: third code-review pass — stop the auto-expand from re-opening a just-skipped task, hide the CTA for tasks with no actionable destination, reuse the canonical Launchpad path builder/validator instead of a copy, fetch the composite read once for returning users, cache the pattern library, and simplify the list load effect.

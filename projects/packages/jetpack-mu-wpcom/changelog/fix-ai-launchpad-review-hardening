@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-AI Launchpad: address code-review feedback — escape AI-drafted post content, fail closed in the REST eligibility gate, guard the tailored read against partial option data, and handle background-request rejections in the wizard and tailored list.

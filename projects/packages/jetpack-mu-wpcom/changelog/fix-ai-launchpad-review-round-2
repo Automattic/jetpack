@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-AI Launchpad: second code-review pass — always render the deterministic fallback list even when its write fails, guard the pattern fetch and clear busy state on CTA errors, stabilize the prewarm debounce, fail fast on missing JWT config, validate task CTA paths, harden the REST reads, run the cheap eligibility gate first, dedupe the AI-task-id reader, and fix RTL CSS.

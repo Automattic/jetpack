@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-AI Launchpad: fix the pattern-page picker to score against PTK term titles instead of slug keys, and exclude the goal token from niche matching.
