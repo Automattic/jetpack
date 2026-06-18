@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add a native Divi 5 VideoPress module alongside the existing Divi 4 module, with configurable player settings and a conversion outline to support migrating layouts built with the legacy module.
