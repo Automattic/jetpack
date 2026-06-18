@@ -123,6 +123,11 @@
 /**
  * Site badge and plan info in the dropdown
  */
+// Drop core's .ab-submenu padding here to match Calypso.
+#wpadminbar #wp-admin-bar-site-name-default {
+	padding: 0;
+}
+
 #wp-admin-bar-site-plan,
 #wp-admin-bar-site-status {
 	display: flex;
