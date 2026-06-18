@@ -1,5 +1,6 @@
 import '@testing-library/jest-dom';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { ProductCamelCase } from '../../../../data/types';
 import { MyJetpackModule } from '../../../../types';
 import { setPendingSuccessNotice } from '../pending-notice';
@@ -70,10 +71,10 @@ describe( 'ProductCardAction', () => {
 		expect( screen.getByRole( 'checkbox' ) ).toBeDisabled();
 	} );
 
-	it( 'reloads the page after deactivating Forms so the admin sidebar updates', () => {
+	it( 'reloads the page after deactivating Forms so the admin sidebar updates', async () => {
 		render( <ProductCardAction product={ buildProduct() } module={ formsModule } /> );
 
-		fireEvent.click( screen.getByRole( 'checkbox' ) );
+		await userEvent.click( screen.getByRole( 'checkbox' ) );
 
 		expect( mockDeactivate ).toHaveBeenCalled();
 		// Persists a notice so it survives the reload, then reloads.
@@ -83,7 +84,7 @@ describe( 'ProductCardAction', () => {
 		expect( reloadPage ).toHaveBeenCalled();
 	} );
 
-	it( 'reloads the page after activating Forms so the admin sidebar updates', () => {
+	it( 'reloads the page after activating Forms so the admin sidebar updates', async () => {
 		render(
 			<ProductCardAction
 				product={ buildProduct( { status: 'inactive' } ) }
@@ -91,7 +92,7 @@ describe( 'ProductCardAction', () => {
 			/>
 		);
 
-		fireEvent.click( screen.getByRole( 'checkbox' ) );
+		await userEvent.click( screen.getByRole( 'checkbox' ) );
 
 		expect( mockActivate ).toHaveBeenCalled();
 		expect( setPendingSuccessNotice ).toHaveBeenCalledWith(
