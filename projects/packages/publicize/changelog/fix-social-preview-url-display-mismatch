@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Social previews: use the caption/custom text as the source of truth instead of appending the post URL, so the preview matches what is actually shared

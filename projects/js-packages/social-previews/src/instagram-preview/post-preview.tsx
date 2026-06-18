@@ -24,7 +24,6 @@ export function InstagramPostPreview( {
 	name,
 	profileImage,
 	caption,
-	url,
 }: InstagramPreviewProps ) {
 	const username = name || 'username';
 
@@ -83,13 +82,6 @@ export function InstagramPostPreview( {
 										} )
 									}
 								</ExpandableText>
-								{ media && url && ! caption.includes( url ) && (
-									<>
-										<br />
-										<br />
-										{ url }
-									</>
-								) }
 							</div>
 						) : null }
 					</div>
