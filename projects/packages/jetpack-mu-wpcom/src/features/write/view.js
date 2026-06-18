@@ -6124,8 +6124,14 @@ const autosaveReady = setInterval( () => {
 		actions.autosave();
 	}, AUTOSAVE_INTERVAL_MS );
 
-	// Show the beta disclaimer unless previously dismissed.
-	if ( ! localStorage.getItem( DISCLAIMER_STORAGE_KEY ) ) {
+	// Show the beta disclaimer unless previously dismissed. Anon visitors
+	// skip this entirely — not just because the banner is irrelevant, but
+	// because the layout's sibling selectors (`.bw-disclaimer-banner:not(
+	// [hidden]) ~ .bw-toolbar`) push the toolbar down based on the `hidden`
+	// attribute, which the Interactivity API only sets when the state is
+	// false. Leaving state true would shift the toolbar down by 44px even
+	// though our anon CSS hides the banner itself.
+	if ( ! isAnon() && ! localStorage.getItem( DISCLAIMER_STORAGE_KEY ) ) {
 		state.showDisclaimer = true;
 	}
 

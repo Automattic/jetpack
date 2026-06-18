@@ -1158,12 +1158,16 @@
 }
 
 /* Content area */
+.bw-content,
+.bw-content-inner {
+	outline: none;
+}
+
 .bw-content {
 	min-height: 60vh;
 	font-size: 1.125rem;
 	line-height: 1.8;
 	color: #333;
-	outline: none;
 	overflow-wrap: break-word;
 	word-break: normal;
 	text-wrap: stable;
