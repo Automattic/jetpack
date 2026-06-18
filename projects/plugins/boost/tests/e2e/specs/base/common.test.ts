@@ -40,6 +40,7 @@ test.describe( 'Common tests', () => {
 
 	test( 'Deactivating the plugin should clear Critical CSS and Dismissed Recommendation notice option', async ( {
 		boostUtils,
+		jetpackBoostPage,
 		admin,
 		page,
 	} ) => {
@@ -57,10 +58,11 @@ test.describe( 'Common tests', () => {
 				page.locator( '.jb-critical-css-progress' ),
 				'Critical CSS generation progress indicator should be visible'
 			).toBeVisible();
+			await jetpackBoostPage.waitForCriticalCssGeneration( 120000 );
 			await expect(
 				page.getByTestId( 'critical-css-meta' ),
 				'Critical CSS meta information should be visible'
-			).toBeVisible( { timeout: 240000 } );
+			).toBeVisible();
 		} );
 
 		await test.step( 'Deactivate Jetpack Boost plugin', async () => {

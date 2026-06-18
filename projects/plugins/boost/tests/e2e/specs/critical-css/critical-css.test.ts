@@ -58,12 +58,13 @@ test.describe.serial( 'Critical CSS module', () => {
 		await boostUtils.executeWpCommand(
 			'plugin activate e2e-external-css-enqueue/e2e-external-css-enqueue.php'
 		);
+		const criticalCssGenerated = jetpackBoostPage.waitForCriticalCssGeneration();
 		await jetpackBoostPage.visit();
-
+		await criticalCssGenerated;
 		await expect(
 			page.getByTestId( 'critical-css-meta' ),
 			'Critical CSS meta information should be visible'
-		).toBeVisible( { timeout: 60000 } );
+		).toBeVisible();
 	} );
 
 	test( 'Critical CSS meta information should show on the admin when the module is re-activated', async ( {
@@ -73,11 +74,13 @@ test.describe.serial( 'Critical CSS module', () => {
 	} ) => {
 		await boostUtils.deactivateBoostModule( 'critical_css' );
 		await boostUtils.activateBoostModule( 'critical_css' );
+		const criticalCssGenerated = jetpackBoostPage.waitForCriticalCssGeneration();
 		await jetpackBoostPage.visit();
+		await criticalCssGenerated;
 		await expect(
 			page.getByTestId( 'critical-css-meta' ),
 			'Critical CSS meta information should be visible'
-		).toBeVisible( { timeout: 60000 } );
+		).toBeVisible();
 	} );
 
 	test( 'Critical CSS should be available on the frontend when the module is active', async ( {
@@ -90,6 +93,7 @@ test.describe.serial( 'Critical CSS module', () => {
 
 	test( 'Critical CSS Admin message should show when the theme is changed', async ( {
 		boostUtils,
+		jetpackBoostPage,
 		page,
 		admin,
 	} ) => {
@@ -105,12 +109,13 @@ test.describe.serial( 'Critical CSS module', () => {
 			'Action Required message should be visible'
 		).toBeVisible();
 
+		const criticalCssGenerated = jetpackBoostPage.waitForCriticalCssGeneration();
 		await page.getByRole( 'link', { name: 'Go to Jetpack Boost' } ).click();
-
+		await criticalCssGenerated;
 		await expect(
 			page.getByTestId( 'critical-css-meta' ),
 			'Critical CSS meta information should be visible'
-		).toBeVisible( { timeout: 60000 } );
+		).toBeVisible();
 	} );
 
 	test( 'User can access the Critical advanced recommendations and go back to settings page', async ( {
@@ -122,12 +127,13 @@ test.describe.serial( 'Critical CSS module', () => {
 
 		await jetpackBoostPage.visit();
 
+		const criticalCssGenerated = jetpackBoostPage.waitForCriticalCssGeneration();
 		await page.getByRole( 'button', { name: 'Regenerate' } ).click();
-
+		await criticalCssGenerated;
 		await expect(
 			page.getByTestId( 'critical-css-meta' ),
 			'Critical CSS meta information should be visible'
-		).toBeVisible( { timeout: 60000 } );
+		).toBeVisible();
 
 		await page.getByText( 'Advanced Recommendations' ).click();
 		await expect(
@@ -139,6 +145,6 @@ test.describe.serial( 'Critical CSS module', () => {
 		await expect(
 			page.getByTestId( 'critical-css-meta' ),
 			'Critical CSS meta information should be visible'
-		).toBeVisible( { timeout: 60000 } );
+		).toBeVisible();
 	} );
 } );
