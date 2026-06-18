@@ -328,6 +328,17 @@ class Plugin {
 	}
 
 	/**
+	 * Whether the plugin is published to the WordPress.org Plugin Repository.
+	 *
+	 * Used to decide whether a wordpress.org plugin icon is available for it.
+	 *
+	 * @return bool
+	 */
+	public function is_unpublished() {
+		return $this->unpublished;
+	}
+
+	/**
 	 * Get the plugin file name.
 	 *
 	 * @return string
