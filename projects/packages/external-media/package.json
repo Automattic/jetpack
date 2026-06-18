@@ -50,9 +50,9 @@
 	},
 	"devDependencies": {
 		"@automattic/jetpack-webpack-config": "workspace:*",
-		"@babel/core": "7.29.6",
-		"@babel/plugin-transform-react-jsx": "7.28.6",
-		"@babel/preset-react": "7.28.5",
+		"@babel/core": "7.29.7",
+		"@babel/plugin-transform-react-jsx": "7.29.7",
+		"@babel/preset-react": "7.29.7",
 		"@typescript/native-preview": "7.0.0-dev.20260225.1",
 		"jetpack-js-tools": "workspace:*",
 		"sass-embedded": "1.97.3",

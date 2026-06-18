@@ -668,9 +668,10 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/premium-analytics",
-                "reference": "d5a6dd97276af48fcf46746f0ba48355bbc02838"
+                "reference": "12ccdcdbfa9e7c81d5a1b72d5b0ce714d8939df0"
             },
             "require": {
+                "automattic/jetpack-assets": "@dev",
                 "automattic/jetpack-config": "@dev",
                 "automattic/jetpack-connection": "@dev",
                 "automattic/jetpack-stats": "@dev",

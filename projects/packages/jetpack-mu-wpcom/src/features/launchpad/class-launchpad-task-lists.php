@@ -548,11 +548,15 @@ class Launchpad_Task_Lists {
 	/**
 	 * Helper function to load the Calypso path for a task.
 	 *
+	 * Public so other features (e.g. the AI Launchpad REST controller) can resolve
+	 * a task's CTA path through the same builder + validation rather than copying
+	 * it, and reuse this instance's cached site slug.
+	 *
 	 * @param Task        $task A task definition.
 	 * @param string|null $launchpad_context Optional. Screen where Launchpad is loading.
 	 * @return string|null
 	 */
-	private function load_calypso_path( $task, $launchpad_context = null ) {
+	public function load_calypso_path( $task, $launchpad_context = null ) {
 		if ( null === $this->site_slug ) {
 			$this->site_slug = wpcom_get_site_slug();
 		}
@@ -832,7 +836,21 @@ class Launchpad_Task_Lists {
 	public function mark_task_complete_if_active( $task_id ) {
 		// Ensure that the task is an active one
 		$active_tasks_by_task_id = wp_list_filter( $this->get_active_tasks(), array( 'id' => $task_id ) );
-		if ( empty( $active_tasks_by_task_id ) ) {
+		$is_active               = ! empty( $active_tasks_by_task_id );
+
+		/**
+		 * Filters whether a task counts as active for completion.
+		 *
+		 * `get_active_tasks()` only knows about the site's `site_intent` task list.
+		 * Features that select their own task set outside that list (the AI
+		 * Launchpad) hook this to let their tasks complete.
+		 *
+		 * @param bool   $is_active Whether the task is active per the site_intent task list.
+		 * @param string $task_id   The task being completed.
+		 */
+		$is_active = apply_filters( 'wpcom_launchpad_is_task_active_for_completion', $is_active, $task_id );
+
+		if ( ! $is_active ) {
 			return false;
 		}
 
