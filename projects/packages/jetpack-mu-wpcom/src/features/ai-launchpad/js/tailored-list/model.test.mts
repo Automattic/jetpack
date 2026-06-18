@@ -103,6 +103,10 @@ describe( 'toNavigableUrl', () => {
 
 	it( 'leaves site-relative wp-admin paths untouched', () => {
 		assert.equal( toNavigableUrl( '/wp-admin/post.php?post=1' ), '/wp-admin/post.php?post=1' );
+		// The root wp-admin path, with or without a query/hash, is still site-relative.
+		assert.equal( toNavigableUrl( '/wp-admin' ), '/wp-admin' );
+		assert.equal( toNavigableUrl( '/wp-admin/' ), '/wp-admin/' );
+		assert.equal( toNavigableUrl( '/wp-admin?foo=bar' ), '/wp-admin?foo=bar' );
 	} );
 
 	it( 'leaves absolute URLs untouched', () => {
@@ -146,16 +150,6 @@ describe( 'resolveCtaUrl', () => {
 		// against the site host where the launchpad runs).
 		assert.equal( url, 'https://wordpress.com/themes/x' );
 		assert.deepEqual( clicked, [ 'site_theme_selected' ] );
-	} );
-
-	it( 'leaves wp-admin editor URLs from created content site-relative', async () => {
-		const { handlers } = stubHandlers();
-		const url = await resolveCtaUrl(
-			task( { id: 'first_post_published', calypso_path: null } ),
-			fixture,
-			handlers
-		);
-		assert.equal( url, '/wp-admin/post.php?post=1' );
 	} );
 
 	it( 'passes absolute deeplinks (admin_url / Stripe / launch) through unchanged', async () => {

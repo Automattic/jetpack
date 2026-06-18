@@ -86,8 +86,9 @@ export interface CtaHandlers {
  * @return The navigable URL.
  */
 export function toNavigableUrl( url: string ): string {
-	// Site-relative wp-admin paths must resolve against the current site.
-	if ( url.startsWith( '/wp-admin/' ) ) {
+	// Site-relative wp-admin paths must resolve against the current site. Match the
+	// root path too (`/wp-admin`, `/wp-admin?…`, `/wp-admin#…`), not just `/wp-admin/`.
+	if ( /^\/wp-admin(\/|\?|#|$)/.test( url ) ) {
 		return url;
 	}
 	// Calypso router paths are relative to wordpress.com; absolute URLs (Stripe,
