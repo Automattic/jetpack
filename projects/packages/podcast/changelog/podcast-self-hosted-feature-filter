@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Podcast: allow the package to load on self-hosted Jetpack sites behind the default-off `jetpack_podcast_for_the_world` filter.
