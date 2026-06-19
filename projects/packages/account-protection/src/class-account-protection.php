@@ -42,21 +42,21 @@ class Account_Protection {
 	/**
 	 * Password detection instance.
 	 *
-	 * @var Password_Detection
+	 * @var Password_Detection|null
 	 */
 	private $password_detection;
 
 	/**
 	 * Password manager instance
 	 *
-	 * @var Password_Manager
+	 * @var Password_Manager|null
 	 */
 	private $password_manager;
 
 	/**
 	 * Password strength meter instance
 	 *
-	 * @var Password_Strength_Meter
+	 * @var Password_Strength_Meter|null
 	 */
 	private $password_strength_meter;
 
