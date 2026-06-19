@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Donations: stop the first-time modal and editor-only side effects from running in the block inserter preview, which caused a strobe/flicker when hovering the Donations Form and Tips blocks

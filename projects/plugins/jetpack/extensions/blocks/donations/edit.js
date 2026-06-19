@@ -1,5 +1,5 @@
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
-import { useBlockProps } from '@wordpress/block-editor';
+import { useBlockProps, store as blockEditorStore } from '@wordpress/block-editor';
 import { Icon, Spinner } from '@wordpress/components';
 import { useInstanceId } from '@wordpress/compose';
 import { useDispatch, useSelect } from '@wordpress/data';
@@ -57,6 +57,16 @@ const Edit = props => {
 		}
 	}, [ className, setAttributes ] );
 
+	// True when this block is rendered as a static preview (e.g. the live
+	// preview shown when hovering the block in the inserter). In that context
+	// the block must not run editor-only side effects or pop the first-time
+	// modal — doing so causes a strobe/flicker loop as the modal overlay fights
+	// the inserter hover state. See JETPACK-1737.
+	const isPreviewMode = useSelect(
+		select => !! select( blockEditorStore ).getSettings().isPreviewMode,
+		[]
+	);
+
 	const instanceId = useInstanceId( Edit, 'jp-donations' );
 	const customStyles = buildCustomStyles( attributes, `.${ instanceId }` );
 
@@ -101,7 +111,9 @@ const Edit = props => {
 	// stripeDefaultCurrency populated) or the user is not Jetpack-connected,
 	// so the stripe_connected snapshot is accurate.
 	useEffect( () => {
-		if ( ! clientId || blockLoadedFiredClientIds.has( clientId ) ) {
+		// Don't record block_loaded for inserter previews — they would inflate
+		// the funnel with impressions the user never intentionally created.
+		if ( isPreviewMode || ! clientId || blockLoadedFiredClientIds.has( clientId ) ) {
 			return;
 		}
 		const stripeStateResolved = !! stripeConnectUrl || !! stripeDefaultCurrency;
@@ -115,7 +127,14 @@ const Edit = props => {
 			is_user_connected: !! isUserConnected,
 			stripe_connected: isUserConnected ? ! stripeConnectUrl : null,
 		} );
-	}, [ clientId, isUserConnected, stripeConnectUrl, stripeDefaultCurrency, tracks ] );
+	}, [
+		isPreviewMode,
+		clientId,
+		isUserConnected,
+		stripeConnectUrl,
+		stripeDefaultCurrency,
+		tracks,
+	] );
 
 	useEffect( () => {
 		if ( ! currency && stripeDefaultCurrency && ! isPostSavingLocked ) {
@@ -161,14 +180,23 @@ const Edit = props => {
 	const hasDismissedDonationWarning =
 		currentUser?.meta?.jetpack_donation_warning_dismissed || false;
 
-	// Show the modal if the user has not dismissed the warning
+	// Show the modal if the user has not dismissed the warning. Never in preview
+	// mode: the inserter renders a live preview on hover, and popping a full-editor
+	// modal there triggers a strobe/flicker loop (JETPACK-1737).
 	useEffect( () => {
-		if ( currentUser?.id && hasDismissedDonationWarning === false ) {
+		if ( ! isPreviewMode && currentUser?.id && hasDismissedDonationWarning === false ) {
 			setShowFirstTimeModal( true );
 		}
-	}, [ currentUser, hasDismissedDonationWarning ] );
+	}, [ isPreviewMode, currentUser, hasDismissedDonationWarning ] );
 
 	useEffect( () => {
+		// Inserter previews share the real editor's core/editor store, so locking
+		// post saving (and the products fetch) from a hover preview would block the
+		// actual post and fire a network request per hover. Skip in preview mode.
+		if ( isPreviewMode ) {
+			return;
+		}
+
 		lockPostSaving( 'donations' );
 
 		const filterProducts = productList =>
@@ -223,6 +251,7 @@ const Edit = props => {
 			unlockPostSaving( 'donations' );
 		}, apiError );
 	}, [
+		isPreviewMode,
 		lockPostSaving,
 		currency,
 		post.id,
@@ -298,7 +327,7 @@ const Edit = props => {
 			<StyleControls attributes={ attributes } setAttributes={ setAttributes } />
 			{ customStyles && <style>{ customStyles }</style> }
 			{ content }
-			{ showFirstTimeModal && <FirstTimeModal onClose={ handleModalClose } /> }
+			{ ! isPreviewMode && showFirstTimeModal && <FirstTimeModal onClose={ handleModalClose } /> }
 		</div>
 	);
 };
