@@ -320,7 +320,7 @@ class WooCommerce extends Module {
 	 *
 	 * A brand new order can be created already in a paid status, in which case no status transition
 	 * fires and only woocommerce_new_order observes the payment. When the order is paid we append a
-	 * trailing order-total payload (total, currency, occurred_at) that the Activity Log aggregates into
+	 * trailing order-total payload (total, currency) that the Activity Log aggregates into
 	 * revenue; otherwise only the order ID is synced (the action still syncs for other purposes).
 	 *
 	 * @param array $args Hook args: [ order_id, WC_Order ]. The order object is WooCommerce's 2nd arg.
@@ -351,7 +351,7 @@ class WooCommerce extends Module {
 	 *
 	 * We emit on the transition *into* a paid status from a non-paid one — the payment moment — and
 	 * skip paid -> paid steps (e.g. processing -> completed) so a fulfillment doesn't re-emit. When
-	 * emitted we append a trailing order-total payload (total, currency, occurred_at) the Activity Log
+	 * emitted we append a trailing order-total payload (total, currency) the Activity Log
 	 * reads; otherwise only [ order_id, status_from, status_to ] is synced (the action still syncs for
 	 * other purposes).
 	 *
@@ -418,33 +418,15 @@ class WooCommerce extends Module {
 	 * @return array {
 	 *     @type string   $total       Order total as a numeric string.
 	 *     @type string   $currency    Order currency code (e.g. 'USD').
-	 *     @type int|null $occurred_at Unix timestamp (seconds) to attribute the total to (see get_order_total_timestamp).
 	 * }
 	 */
 	private function build_order_total_payload( $order ) {
 		$total = $order->get_total();
 
 		return array(
-			'total'       => function_exists( 'wc_format_decimal' ) ? wc_format_decimal( $total ) : (string) $total,
-			'currency'    => (string) $order->get_currency(),
-			'occurred_at' => $this->get_order_total_timestamp( $order ),
+			'total'    => function_exists( 'wc_format_decimal' ) ? wc_format_decimal( $total ) : (string) $total,
+			'currency' => (string) $order->get_currency(),
 		);
-	}
-
-	/**
-	 * Resolve the timestamp to attribute an order's total to, as a Unix timestamp in seconds.
-	 *
-	 * @param WC_Order $order Order object.
-	 * @return int|null Unix timestamp in seconds, or null when no date is available.
-	 */
-	private function get_order_total_timestamp( $order ) {
-		foreach ( array( $order->get_date_paid(), $order->get_date_completed(), $order->get_date_created() ) as $date ) {
-			if ( $date instanceof \WC_DateTime ) {
-				return $date->getTimestamp();
-			}
-		}
-
-		return null;
 	}
 
 	/**

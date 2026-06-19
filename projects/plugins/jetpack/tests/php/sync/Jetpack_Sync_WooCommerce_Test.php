@@ -74,7 +74,7 @@ class Jetpack_Sync_WooCommerce_Test extends Jetpack_Sync_TestBase {
 	 * Extract the trailing order-total payload appended to a synced order action, if present.
 	 *
 	 * @param object|false $event Synced event, or false when none.
-	 * @return array|null The order-total payload ( total, currency, occurred_at ), or null when absent.
+	 * @return array|null The order-total payload ( total, currency), or null when absent.
 	 */
 	private function order_total_from_event( $event ) {
 		if ( ! $event ) {
@@ -98,8 +98,6 @@ class Jetpack_Sync_WooCommerce_Test extends Jetpack_Sync_TestBase {
 		$this->assertIsArray( $order_total );
 		$this->assertEquals( (float) $order->get_total(), (float) $order_total['total'] );
 		$this->assertEquals( $order->get_currency(), $order_total['currency'] );
-		// occurred_at is a Unix timestamp in seconds (WPcom converts to its ES epoch_millis mapping).
-		$this->assertSame( $order->get_date_paid()->getTimestamp(), $order_total['occurred_at'] );
 		$this->assertArrayNotHasKey( 'kind', $order_total );
 	}
 
