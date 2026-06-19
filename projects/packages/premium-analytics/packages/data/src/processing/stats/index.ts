@@ -283,27 +283,28 @@ export function sanitizeStatsLocationsResponse(
 		? asArray< AnyRecord >( payload.summary?.views )
 		: asArray< AnyRecord >( bucket.views );
 	const countryInfo = asRecord( payload[ 'country-info' ] ?? payload.countryInfo );
+	const filteredViews = views.filter(
+		item => ! [ 'A1', 'A2', 'ZZ' ].includes( item.country_code )
+	);
 
 	return {
 		summary: numericSummary( {
-			total: views.reduce( ( total, item ) => total + safeParseFloat( item.views ), 0 ),
+			total: filteredViews.reduce( ( total, item ) => total + safeParseFloat( item.views ), 0 ),
 		} ),
-		data: views
-			.filter( item => ! [ 'A1', 'A2', 'ZZ' ].includes( item.country_code ) )
-			.map( item => {
-				const country = asRecord( countryInfo[ item.country_code ] );
-				const label = item.location ?? country.country_full ?? item.country_code ?? '';
+		data: filteredViews.map( item => {
+			const country = asRecord( countryInfo[ item.country_code ] );
+			const label = item.location ?? country.country_full ?? item.country_code ?? '';
 
-				return {
-					label: typeof label === 'string' ? label.replace( /’/g, "'" ) : label,
-					value: safeParseFloat( item.views ),
-					countryCode: item.country_code,
-					countryFull: country.country_full,
-					region: country.map_region,
-					coordinates: item.coordinates,
-					children: null,
-				};
-			} ),
+			return {
+				label: typeof label === 'string' ? label.replace( /’/g, "'" ) : label,
+				value: safeParseFloat( item.views ),
+				countryCode: item.country_code,
+				countryFull: country.country_full,
+				region: country.map_region,
+				coordinates: item.coordinates,
+				children: null,
+			};
+		} ),
 	};
 }
 

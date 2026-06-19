@@ -53,6 +53,10 @@ export const locationsFixture = {
 					views: '7',
 					location: 'Côte d’Ivoire’s',
 				},
+				{
+					country_code: 'A1',
+					views: '3',
+				},
 			],
 		},
 	},
