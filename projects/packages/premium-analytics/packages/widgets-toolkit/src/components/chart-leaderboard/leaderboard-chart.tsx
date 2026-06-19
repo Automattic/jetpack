@@ -5,7 +5,8 @@ import {
 	LeaderboardChartUnresponsive as BaseLeaderboardChart,
 	useGlobalChartsContext,
 	Legend,
-	hexToRgba,
+	lightenHexColor,
+	normalizeColorToHex,
 } from '@automattic/charts';
 import { formatMetricValue } from '@jetpack-premium-analytics/formatters';
 import { Icon, Stack } from '@wordpress/ui';
@@ -136,16 +137,21 @@ export function LeaderboardChart( {
 	);
 
 	/**
-	 * Get chart colors for legend
+	 * Bar color for overlay-label mode.
+	 *
+	 * The label sits on top of the bar, so the bar needs to read as a faint
+	 * tint of the primary color. We can't pass a translucent color through the
+	 * chart's `primaryColor` prop — it resolves the value via getElementStyles,
+	 * which strips the alpha channel. Instead we pre-blend the primary with
+	 * white to produce the opaque equivalent of an 8% alpha fill.
 	 */
-	const chartColors = useMemo( () => {
-		const { color: primaryColor } = getElementStyles( { index: 0 } );
-		if ( ! withComparison ) {
-			return { primaryColor };
+	const barColor = useMemo( () => {
+		if ( ! withOverlayLabel ) {
+			return undefined;
 		}
-		const { color: secondaryColor } = getElementStyles( { index: 1 } );
-		return { primaryColor, secondaryColor };
-	}, [ withComparison, getElementStyles ] );
+		const { color: primaryColor } = getElementStyles( { index: 0 } );
+		return lightenHexColor( normalizeColorToHex( primaryColor ), 0.92 );
+	}, [ withOverlayLabel, getElementStyles ] );
 
 	/**
 	 * Merge theme bar border radius with style prop.
@@ -183,7 +189,7 @@ export function LeaderboardChart( {
 				withComparison={ withComparison }
 				valueFormatter={ valueFormatter }
 				legendLabels={ legendLabels }
-				primaryColor={ withOverlayLabel ? hexToRgba( chartColors.primaryColor, 0.08 ) : undefined }
+				primaryColor={ barColor }
 				withOverlayLabel={ withOverlayLabel }
 				showLegend={ false }
 				style={ chartStyle }
