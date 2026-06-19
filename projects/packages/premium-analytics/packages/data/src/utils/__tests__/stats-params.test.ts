@@ -35,8 +35,20 @@ describe( 'reportParamsToStatsQueryParams', () => {
 				date: '2026-06-07',
 				start_date: '2026-06-01',
 				days: 7,
-				num: 1,
-				max: 10,
+			} )
+		);
+	} );
+
+	it( 'preserves explicit Stats result limit params', () => {
+		expect(
+			reportParamsToStatsQueryParams( {
+				num: 3,
+				max: 25,
+			} )
+		).toEqual(
+			expect.objectContaining( {
+				num: 3,
+				max: 25,
 			} )
 		);
 	} );

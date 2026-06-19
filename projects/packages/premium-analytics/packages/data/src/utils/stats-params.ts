@@ -94,8 +94,8 @@ export function reportParamsToStatsQueryParams(
 		...( date ? { date } : {} ),
 		...( startDate ? { start_date: startDate } : {} ),
 		...( days ? { days } : {} ),
-		num: params.num ?? 1,
-		max: params.max ?? 10,
+		...( params.num !== undefined ? { num: params.num } : {} ),
+		...( params.max !== undefined ? { max: params.max } : {} ),
 	};
 }
 

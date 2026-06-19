@@ -8,7 +8,7 @@ import { addQueryArgs } from '@wordpress/url';
  */
 import { statsProxyPath } from './constants';
 
-export type StatsProxyVersion = '1.1' | '1.2' | '2' | ( string & {} );
+export type StatsProxyVersion = '1.1' | '1.2' | '2';
 
 export type StatsProxyMethod = 'GET' | 'POST';
 
