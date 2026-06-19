@@ -167,7 +167,13 @@ class Publicize_Setup {
 
 		// Things that should not happen on WPCOM.
 		if ( ! $is_wpcom_simple ) {
-			add_action( 'rest_api_init', array( new REST_Controller(), 'register_rest_routes' ) );
+			// Instantiate lazily so the controller only loads on REST requests.
+			add_action(
+				'rest_api_init',
+				function () {
+					( new REST_Controller() )->register_rest_routes();
+				}
+			);
 		}
 	}
 

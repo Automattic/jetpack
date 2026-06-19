@@ -13,6 +13,12 @@ OdysseyStats::init();
  * Load the Odyssey stats widget in the Dashboard.
  */
 if ( defined( 'JETPACK_PLUGIN_LOADER_PATH' ) ) {
-	require_once JETPACK_PLUGIN_LOADER_PATH . '/class-jetpack-stats-dashboard-widget.php';
-	add_action( 'wp_dashboard_setup', array( new Jetpack_Stats_Dashboard_Widget(), 'init' ) );
+	// Load and instantiate lazily so the widget only loads when the dashboard is assembled.
+	add_action(
+		'wp_dashboard_setup',
+		function () {
+			require_once JETPACK_PLUGIN_LOADER_PATH . '/class-jetpack-stats-dashboard-widget.php';
+			( new Jetpack_Stats_Dashboard_Widget() )->init();
+		}
+	);
 }

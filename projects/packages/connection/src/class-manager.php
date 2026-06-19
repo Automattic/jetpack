@@ -143,7 +143,12 @@ class Manager {
 
 		if ( $manager->is_connected() ) {
 			add_filter( 'xmlrpc_methods', array( $manager, 'public_xmlrpc_methods' ) );
-			add_filter( 'shutdown', array( new Package_Version_Tracker(), 'maybe_update_package_versions' ) );
+			add_filter(
+				'shutdown',
+				function () {
+					( new Package_Version_Tracker() )->maybe_update_package_versions();
+				}
+			);
 		}
 
 		// This runs on priority 11 - at least one api method in the connection package is set to override a previously

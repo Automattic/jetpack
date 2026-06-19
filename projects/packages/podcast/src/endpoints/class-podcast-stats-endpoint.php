@@ -31,7 +31,13 @@ class Podcast_Stats_Endpoint extends WP_REST_Controller {
 	 * Wire up routes.
 	 */
 	public static function init() {
-		add_action( 'rest_api_init', array( new self(), 'register_routes' ) );
+		// Instantiate lazily so the endpoint only loads on REST requests.
+		add_action(
+			'rest_api_init',
+			function () {
+				( new self() )->register_routes();
+			}
+		);
 	}
 
 	/**

@@ -130,8 +130,14 @@ class Initializer {
 	 * Init functionality required for connection.
 	 */
 	protected static function init_before_connection() {
-		// Set up Search API endpoints.
-		add_action( 'rest_api_init', array( new REST_Controller(), 'register_rest_routes' ) );
+		// Set up Search API endpoints. Instantiate lazily so the controller only
+		// loads on REST requests, not on every page load.
+		add_action(
+			'rest_api_init',
+			function () {
+				( new REST_Controller() )->register_rest_routes();
+			}
+		);
 		// The dashboard has to be initialized before connection.
 		( new Dashboard() )->init_hooks();
 		( new AI_Answers() )->init();
