@@ -2,13 +2,17 @@
  * Internal dependencies
  */
 import {
+	sanitizeStatsDevicesResponse,
 	sanitizeStatsFileDownloadsResponse,
+	sanitizeStatsGenericListResponse,
 	sanitizeStatsReferrersResponse,
 	sanitizeStatsTopPostsResponse,
 	sanitizeStatsUtmResponse,
 } from '..';
 import {
+	devicesFixture,
 	fileDownloadsFixture,
+	genericListFixture,
 	referrersFixture,
 	topPostsFixture,
 	utmFixture,
@@ -63,5 +67,25 @@ describe( 'Stats normalizers', () => {
 			expect.objectContaining( { label: 'google', value: 10 } ),
 			expect.objectContaining( { label: 'google > cpc', value: 6 } ),
 		] );
+	} );
+
+	it( 'keeps parsed device values when the raw payload value is a string', () => {
+		expect( sanitizeStatsDevicesResponse( devicesFixture ).data[ 0 ] ).toEqual(
+			expect.objectContaining( {
+				label: 'Desktop',
+				value: 42,
+			} )
+		);
+	} );
+
+	it( 'keeps parsed generic list values when the raw payload has a value field', () => {
+		expect(
+			sanitizeStatsGenericListResponse( genericListFixture, 'views', 'name' ).data[ 0 ]
+		).toEqual(
+			expect.objectContaining( {
+				label: 'Example tag',
+				value: 18,
+			} )
+		);
 	} );
 } );

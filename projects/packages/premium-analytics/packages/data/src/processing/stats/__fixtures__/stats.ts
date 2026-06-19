@@ -51,3 +51,18 @@ export const utmFixture = [
 		children: [ { label: 'cpc', value: 6 } ],
 	},
 ];
+
+export const devicesFixture = [
+	{
+		label: 'Desktop',
+		value: '42',
+	},
+];
+
+export const genericListFixture = [
+	{
+		name: 'Example tag',
+		views: '18',
+		value: 'raw-value',
+	},
+];

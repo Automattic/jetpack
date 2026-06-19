@@ -54,4 +54,18 @@ describe( 'reportParamsToStatsQueryParams', () => {
 		expect( params ).not.toHaveProperty( 'compare_from' );
 		expect( params ).not.toHaveProperty( 'date_type' );
 	} );
+
+	it( 'does not forward path-only Stats options to endpoint query params', () => {
+		const params = reportParamsToStatsQueryParams( {
+			from: '2026-06-01',
+			to: '2026-06-01',
+			geoMode: 'city',
+			utmParams: 'utm_source,utm_campaign',
+			deviceProperty: 'browser',
+		} );
+
+		expect( params ).not.toHaveProperty( 'geoMode' );
+		expect( params ).not.toHaveProperty( 'utmParams' );
+		expect( params ).not.toHaveProperty( 'deviceProperty' );
+	} );
 } );

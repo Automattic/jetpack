@@ -35,15 +35,40 @@ import type { ReportParams } from '../utils/search';
 import type { UseQueryOptions } from '@tanstack/react-query';
 
 export type StatsReportParams = ReportParams & StatsQueryParams;
+type StatsSanitizer< TData = unknown > = ( response: unknown, params?: StatsQueryParams ) => TData;
 
-export type StatsQueryConfig< TData = unknown > = {
+const statsSanitizers = {
+	passthrough: sanitizeStatsPassthroughResponse,
+	site: sanitizeStatsSiteResponse,
+	topPosts: sanitizeStatsTopPostsResponse,
+	referrers: sanitizeStatsReferrersResponse,
+	clicks: sanitizeStatsClicksResponse,
+	searchTerms: sanitizeStatsSearchTermsResponse,
+	fileDownloads: sanitizeStatsFileDownloadsResponse,
+	topAuthors: sanitizeStatsTopAuthorsResponse,
+	locations: sanitizeStatsLocationsResponse,
+	videoPlays: sanitizeStatsVideoPlaysResponse,
+	visits: sanitizeStatsVisitsResponse,
+	utm: sanitizeStatsUtmResponse,
+	devices: sanitizeStatsDevicesResponse,
+	archives: response => sanitizeStatsGenericListResponse( response ),
+	publicize: response => sanitizeStatsGenericListResponse( response, 'followers', 'label' ),
+	followers: response => sanitizeStatsGenericListResponse( response, 'total', 'label' ),
+	tags: response => sanitizeStatsGenericListResponse( response, 'views', 'name' ),
+	comments: response => sanitizeStatsGenericListResponse( response, 'comments', 'name' ),
+	commentFollowers: response => sanitizeStatsGenericListResponse( response, 'followers', 'title' ),
+} satisfies Record< string, StatsSanitizer >;
+
+type StatsSanitizerKey = keyof typeof statsSanitizers;
+
+export type StatsQueryConfig = {
 	name: string;
 	version: StatsProxyVersion;
 	endpoint: string;
 	params?: StatsQueryParams;
 	method?: StatsProxyMethod;
 	body?: unknown;
-	sanitize?: ( response: unknown, params?: StatsQueryParams ) => TData;
+	sanitizer?: StatsSanitizerKey;
 	enabled?: boolean;
 };
 
@@ -54,9 +79,9 @@ export function statsProxyQuery< TData = unknown >( {
 	params,
 	method = 'GET',
 	body,
-	sanitize = sanitizeStatsPassthroughResponse as ( response: unknown ) => TData,
+	sanitizer = 'passthrough',
 	enabled = true,
-}: StatsQueryConfig< TData > ): UseQueryOptions< TData > {
+}: StatsQueryConfig ): UseQueryOptions< TData > {
 	return {
 		queryKey: [
 			'stats',
@@ -66,11 +91,11 @@ export function statsProxyQuery< TData = unknown >( {
 			method,
 			statsQueryKeyPart( params ),
 			body ?? null,
-			sanitize,
+			sanitizer,
 		],
 		queryFn: async () => {
 			const response = await fetchStatsProxy( { version, endpoint, params, method, body } );
-			return sanitize( response, params );
+			return statsSanitizers[ sanitizer ]( response, params ) as TData;
 		},
 		enabled,
 		placeholderData: previousData => previousData,
@@ -81,7 +106,7 @@ function statsReportQuery< TData = StatsNormalizedReport >(
 	name: string,
 	endpoint: string,
 	params: StatsReportParams,
-	sanitize: ( response: unknown, params?: StatsQueryParams ) => TData,
+	sanitizer: StatsSanitizerKey,
 	version: StatsProxyVersion = '1.1'
 ): UseQueryOptions< TData > {
 	const statsParams = reportParamsToStatsQueryParams( params );
@@ -91,7 +116,7 @@ function statsReportQuery< TData = StatsNormalizedReport >(
 		version,
 		endpoint,
 		params: statsParams,
-		sanitize,
+		sanitizer,
 		enabled: !! ( statsParams.date || statsParams.start_date || params.from || params.to ),
 	} );
 }
@@ -102,36 +127,26 @@ export const statsSiteQuery = ( params: StatsQueryParams = {} ) =>
 		version: '1.1',
 		endpoint: 'stats',
 		params,
-		sanitize: sanitizeStatsSiteResponse,
+		sanitizer: 'site',
 	} );
 
 export const statsTopPostsQuery = ( params: StatsReportParams ) =>
-	statsReportQuery( 'top-posts', 'stats/top-posts', params, sanitizeStatsTopPostsResponse );
+	statsReportQuery( 'top-posts', 'stats/top-posts', params, 'topPosts' );
 
 export const statsReferrersQuery = ( params: StatsReportParams ) =>
-	statsReportQuery( 'referrers', 'stats/referrers', params, sanitizeStatsReferrersResponse );
+	statsReportQuery( 'referrers', 'stats/referrers', params, 'referrers' );
 
 export const statsClicksQuery = ( params: StatsReportParams ) =>
-	statsReportQuery( 'clicks', 'stats/clicks', params, sanitizeStatsClicksResponse );
+	statsReportQuery( 'clicks', 'stats/clicks', params, 'clicks' );
 
 export const statsSearchTermsQuery = ( params: StatsReportParams ) =>
-	statsReportQuery(
-		'search-terms',
-		'stats/search-terms',
-		params,
-		sanitizeStatsSearchTermsResponse
-	);
+	statsReportQuery( 'search-terms', 'stats/search-terms', params, 'searchTerms' );
 
 export const statsFileDownloadsQuery = ( params: StatsReportParams ) =>
-	statsReportQuery(
-		'file-downloads',
-		'stats/file-downloads',
-		params,
-		sanitizeStatsFileDownloadsResponse
-	);
+	statsReportQuery( 'file-downloads', 'stats/file-downloads', params, 'fileDownloads' );
 
 export const statsTopAuthorsQuery = ( params: StatsReportParams ) =>
-	statsReportQuery( 'top-authors', 'stats/top-authors', params, sanitizeStatsTopAuthorsResponse );
+	statsReportQuery( 'top-authors', 'stats/top-authors', params, 'topAuthors' );
 
 export const statsLocationsQuery = (
 	params: StatsReportParams & { geoMode?: 'country' | 'region' | 'city' }
@@ -141,30 +156,25 @@ export const statsLocationsQuery = (
 		`locations-${ geoMode }`,
 		`stats/location-views/${ geoMode }`,
 		params,
-		sanitizeStatsLocationsResponse
+		'locations'
 	);
 };
 
 export const statsCountryViewsQuery = ( params: StatsReportParams ) =>
-	statsReportQuery(
-		'country-views',
-		'stats/country-views',
-		params,
-		sanitizeStatsLocationsResponse
-	);
+	statsReportQuery( 'country-views', 'stats/country-views', params, 'locations' );
 
 export const statsVideoPlaysQuery = ( params: StatsReportParams ) =>
-	statsReportQuery( 'video-plays', 'stats/video-plays', params, sanitizeStatsVideoPlaysResponse );
+	statsReportQuery( 'video-plays', 'stats/video-plays', params, 'videoPlays' );
 
 export const statsVisitsQuery = ( params: StatsReportParams ) =>
-	statsReportQuery( 'visits', 'stats/visits', params, sanitizeStatsVisitsResponse );
+	statsReportQuery( 'visits', 'stats/visits', params, 'visits' );
 
 export const statsUtmQuery = ( params: StatsReportParams & { utmParams?: string } ) =>
 	statsReportQuery(
 		'utm',
 		`stats/utm/${ params.utmParams ?? 'utm_source,utm_medium' }`,
 		params,
-		sanitizeStatsUtmResponse
+		'utm'
 	);
 
 export const statsDevicesQuery = ( params: StatsReportParams & { deviceProperty?: string } ) =>
@@ -172,38 +182,26 @@ export const statsDevicesQuery = ( params: StatsReportParams & { deviceProperty?
 		'devices',
 		`stats/devices/${ params.deviceProperty ?? 'screensize' }`,
 		params,
-		sanitizeStatsDevicesResponse
+		'devices'
 	);
 
 export const statsArchivesQuery = ( params: StatsReportParams ) =>
-	statsReportQuery( 'archives', 'stats/archives', params, response =>
-		sanitizeStatsGenericListResponse( response )
-	);
+	statsReportQuery( 'archives', 'stats/archives', params, 'archives' );
 
 export const statsPublicizeQuery = ( params: StatsReportParams ) =>
-	statsReportQuery( 'publicize', 'stats/publicize', params, response =>
-		sanitizeStatsGenericListResponse( response, 'followers', 'label' )
-	);
+	statsReportQuery( 'publicize', 'stats/publicize', params, 'publicize' );
 
 export const statsFollowersQuery = ( params: StatsReportParams ) =>
-	statsReportQuery( 'followers', 'stats/followers', params, response =>
-		sanitizeStatsGenericListResponse( response, 'total', 'label' )
-	);
+	statsReportQuery( 'followers', 'stats/followers', params, 'followers' );
 
 export const statsTagsQuery = ( params: StatsReportParams ) =>
-	statsReportQuery( 'tags', 'stats/tags', params, response =>
-		sanitizeStatsGenericListResponse( response, 'views', 'name' )
-	);
+	statsReportQuery( 'tags', 'stats/tags', params, 'tags' );
 
 export const statsCommentsQuery = ( params: StatsReportParams ) =>
-	statsReportQuery( 'comments', 'stats/comments', params, response =>
-		sanitizeStatsGenericListResponse( response, 'comments', 'name' )
-	);
+	statsReportQuery( 'comments', 'stats/comments', params, 'comments' );
 
 export const statsCommentFollowersQuery = ( params: StatsReportParams ) =>
-	statsReportQuery( 'comment-followers', 'stats/comment-followers', params, response =>
-		sanitizeStatsGenericListResponse( response, 'followers', 'title' )
-	);
+	statsReportQuery( 'comment-followers', 'stats/comment-followers', params, 'commentFollowers' );
 
 export const statsStreakQuery = ( params: StatsQueryParams = {} ) =>
 	statsProxyQuery( { name: 'streak', version: '1.1', endpoint: 'stats/streak', params } );

@@ -76,6 +76,9 @@ export function reportParamsToStatsQueryParams(
 	delete statsParams.section;
 	delete statsParams.date_type;
 	delete statsParams.view;
+	delete statsParams.geoMode;
+	delete statsParams.utmParams;
+	delete statsParams.deviceProperty;
 
 	const from = datePart( params.from );
 	const to = datePart( params.to );

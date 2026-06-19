@@ -37,15 +37,17 @@ export type StatsNormalizedReport = {
 
 type AnyRecord = Record< string, any >;
 
-const EMPTY_REPORT: StatsNormalizedReport = {
-	summary: {},
-	data: [],
-};
-
 function asRecord( value: unknown ): AnyRecord {
 	return value && typeof value === 'object' && ! Array.isArray( value )
 		? ( value as AnyRecord )
 		: {};
+}
+
+function emptyReport(): StatsNormalizedReport {
+	return {
+		summary: {},
+		data: [],
+	};
 }
 
 function asArray< T = AnyRecord >( value: unknown ): T[] {
@@ -77,7 +79,7 @@ function getStatsBucket( response: unknown, query: StatsQueryParams = {} ) {
 	}
 
 	const days = asRecord( payload.days );
-	const requested = query.start_date ?? query.date;
+	const requested = query.date ?? query.start_date;
 
 	if ( requested && days[ requested ] ) {
 		return asRecord( days[ requested ] );
@@ -407,11 +409,15 @@ export function sanitizeStatsDevicesResponse( response: unknown ): StatsNormaliz
 					0
 				),
 			} ),
-			data: response.map( item => ( {
-				label: asRecord( item ).label ?? asRecord( item ).name ?? '',
-				value: safeParseFloat( asRecord( item ).value ?? asRecord( item ).views ),
-				...asRecord( item ),
-			} ) ),
+			data: response.map( item => {
+				const record = asRecord( item );
+
+				return {
+					...record,
+					label: record.label ?? record.name ?? '',
+					value: safeParseFloat( record.value ?? record.views ),
+				};
+			} ),
 		};
 	}
 
@@ -440,14 +446,14 @@ export function sanitizeStatsGenericListResponse(
 				),
 			} ),
 			data: items.map( item => ( {
+				...item,
 				label: item[ labelKey ] ?? item.name ?? item.title ?? item.term ?? '',
 				value: safeParseFloat( item[ valueKey ] ?? item.value ),
-				...item,
 			} ) ),
 		};
 	}
 
-	return EMPTY_REPORT;
+	return emptyReport();
 }
 
 export function sanitizeStatsPassthroughResponse< T >( response: T ): T {
