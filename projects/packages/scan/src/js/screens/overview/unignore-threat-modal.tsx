@@ -8,6 +8,10 @@ import { useUnignoreThreatMutation } from '../../data/use-threat-mutations';
 import { useTrackEvent } from '../../data/use-track-event';
 import type { RenderModalProps } from '@wordpress/dataviews';
 
+// `@wordpress/ui`'s `Text` has no muted/weight props, so the de-emphasized
+// caption color is applied via `style` using the design-system token.
+const mutedTextStyle = { color: 'var(--wpds-color-fg-content-neutral-weak, #50575e)' };
+
 /**
  * Single-threat unignore-confirmation modal — wired into
  * `ThreatsDataViews`' row "Unignore" action via the `RenderUnignoreModal`
@@ -66,17 +70,17 @@ export function UnignoreThreatModal( {
 
 	return (
 		<Stack gap="lg" direction="column">
-			<Text variant="muted">
+			<Text style={ mutedTextStyle }>
 				{ __( 'Jetpack will be unignoring the following threat:', 'jetpack-scan-page' ) }
 			</Text>
 			<Stack gap="xs" direction="column">
 				<Stack gap="sm" direction="row" align="center" wrap="wrap">
-					<Text weight={ 500 }>{ threat.title }</Text>
+					<Text style={ { fontWeight: 500 } }>{ threat.title }</Text>
 					{ !! threat.severity && <ThreatSeverityBadge severity={ threat.severity } /> }
 				</Stack>
-				{ threat.description && <Text variant="muted">{ threat.description }</Text> }
+				{ threat.description && <Text style={ mutedTextStyle }>{ threat.description }</Text> }
 			</Stack>
-			<Notice.Root variant="warning">
+			<Notice.Root intent="warning">
 				<Notice.Description>
 					{ __(
 						'By unignoring this threat you confirm that you have reviewed the detected code and assume the risks of treating a potentially malicious file as an active threat again.',

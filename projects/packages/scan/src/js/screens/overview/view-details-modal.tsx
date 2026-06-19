@@ -71,13 +71,11 @@ export function ViewDetailsModal( { items }: RenderModalProps< Threat > ): JSX.E
 		<Stack gap="lg" direction="column">
 			<Stack gap="xs" direction="column">
 				<Stack gap="sm" direction="row" align="center" wrap="wrap">
-					<Text weight={ 500 } size="large">
-						{ threat.title }
-					</Text>
+					<Text style={ { fontWeight: 500, fontSize: 16 } }>{ threat.title }</Text>
 					{ !! threat.severity && <ThreatSeverityBadge severity={ threat.severity } /> }
 				</Stack>
 				{ threat.signature && (
-					<Text variant="muted" style={ { fontFamily: 'monospace', fontSize: 12 } }>
+					<Text style={ { ...labelStyle, fontFamily: 'monospace', fontSize: 12 } }>
 						{ threat.signature }
 					</Text>
 				) }
@@ -87,25 +85,21 @@ export function ViewDetailsModal( { items }: RenderModalProps< Threat > ): JSX.E
 
 			{ threat.firstDetected && (
 				<Stack gap="xs" direction="column">
-					<Text variant="muted" style={ labelStyle }>
-						{ __( 'First detected', 'jetpack-scan-page' ) }
-					</Text>
+					<Text style={ labelStyle }>{ __( 'First detected', 'jetpack-scan-page' ) }</Text>
 					<Text>{ dateI18n( 'F j, Y', threat.firstDetected, false ) }</Text>
 				</Stack>
 			) }
 
 			{ threat.fixedOn && (
 				<Stack gap="xs" direction="column">
-					<Text variant="muted" style={ labelStyle }>
-						{ __( 'Fixed on', 'jetpack-scan-page' ) }
-					</Text>
+					<Text style={ labelStyle }>{ __( 'Fixed on', 'jetpack-scan-page' ) }</Text>
 					<Text>{ dateI18n( 'F j, Y', threat.fixedOn, false ) }</Text>
 				</Stack>
 			) }
 
 			{ threat.extension && (
 				<Stack gap="xs" direction="column">
-					<Text variant="muted" style={ labelStyle }>
+					<Text style={ labelStyle }>
 						{ threat.extension.type === 'themes'
 							? __( 'Theme', 'jetpack-scan-page' )
 							: __( 'Plugin', 'jetpack-scan-page' ) }
@@ -119,24 +113,20 @@ export function ViewDetailsModal( { items }: RenderModalProps< Threat > ): JSX.E
 
 			{ threat.filename && (
 				<Stack gap="xs" direction="column">
-					<Text variant="muted" style={ labelStyle }>
-						{ __( 'File', 'jetpack-scan-page' ) }
-					</Text>
+					<Text style={ labelStyle }>{ __( 'File', 'jetpack-scan-page' ) }</Text>
 					<pre style={ codeBlockStyle }>{ threat.filename }</pre>
 				</Stack>
 			) }
 
 			{ fileContext && (
 				<Stack gap="xs" direction="column">
-					<Text variant="muted" style={ labelStyle }>
-						{ __( 'Context', 'jetpack-scan-page' ) }
-					</Text>
+					<Text style={ labelStyle }>{ __( 'Context', 'jetpack-scan-page' ) }</Text>
 					<pre style={ codeBlockStyle }>{ fileContext }</pre>
 				</Stack>
 			) }
 
 			<Stack gap="xs" direction="column">
-				<Text variant="muted" style={ labelStyle }>
+				<Text style={ labelStyle }>
 					{ threat.status === 'fixed'
 						? __( 'How was it fixed?', 'jetpack-scan-page' )
 						: __( 'How will it be fixed?', 'jetpack-scan-page' ) }
