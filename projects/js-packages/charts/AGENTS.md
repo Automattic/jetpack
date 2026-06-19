@@ -48,7 +48,7 @@ The package is migrating to WordPress UI and Theme as its defaults. When adding 
 
 ## Common Pitfalls
 
-- Claiming Rollup is used for builds (it's tsup).
+- Misstating the build tool: builds use `tsdown` (powered by Rolldown), not tsup or plain Rollup/webpack.
 - Documenting props or behavior not present in stories and implementation.
 - Refactoring core composition/provider patterns as if they are accidental complexity.
 - Defining new chart prop interfaces that diverge from established base chart contracts (for example, not aligning with `BaseChartProps` when appropriate).
