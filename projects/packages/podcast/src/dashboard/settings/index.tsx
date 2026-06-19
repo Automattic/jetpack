@@ -233,7 +233,10 @@ const SettingsTab = ( { onAfterDisable }: SettingsTabProps = {} ) => {
 		[ draftTopics, draft, commit ]
 	);
 
-	const issues = useMemo( () => getValidationIssues( draft ?? settings ), [ draft, settings ] );
+	const issues = useMemo(
+		() => getValidationIssues( settings ?? draft ?? undefined ),
+		[ settings, draft ]
+	);
 
 	const openConfirmDisable = useCallback( () => setConfirmDisable( true ), [] );
 	const closeConfirmDisable = useCallback( () => setConfirmDisable( false ), [] );
