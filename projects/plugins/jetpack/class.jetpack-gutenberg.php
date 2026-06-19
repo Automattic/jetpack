@@ -934,9 +934,7 @@ class Jetpack_Gutenberg {
 			foreach ( $extensions_to_load as $extension_to_load ) {
 				$extensions_folder = glob( JETPACK__PLUGIN_DIR . 'extensions/' . $extension_to_load . '/*' );
 
-				$frontend_allow_list = isset( self::$frontend_editor_extensions[ $extension_to_load ] )
-					? self::$frontend_editor_extensions[ $extension_to_load ]
-					: array();
+				$frontend_allow_list = self::$frontend_editor_extensions[ $extension_to_load ] ?? array();
 
 				// Require each of the extension files, in case it exists.
 				foreach ( $extensions_folder as $extension_folder ) {
