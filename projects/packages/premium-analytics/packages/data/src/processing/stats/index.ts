@@ -295,7 +295,7 @@ export function sanitizeStatsLocationsResponse(
 				const label = item.location ?? country.country_full ?? item.country_code ?? '';
 
 				return {
-					label: typeof label === 'string' ? label.replace( /’/, "'" ) : label,
+					label: typeof label === 'string' ? label.replace( /’/g, "'" ) : label,
 					value: safeParseFloat( item.views ),
 					countryCode: item.country_code,
 					countryFull: country.country_full,

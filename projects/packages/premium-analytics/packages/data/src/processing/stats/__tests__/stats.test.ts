@@ -3,10 +3,16 @@
  */
 import {
 	sanitizeStatsFileDownloadsResponse,
+	sanitizeStatsLocationsResponse,
 	sanitizeStatsReferrersResponse,
 	sanitizeStatsTopPostsResponse,
 } from '..';
-import { fileDownloadsFixture, referrersFixture, topPostsFixture } from '../__fixtures__/stats';
+import {
+	fileDownloadsFixture,
+	locationsFixture,
+	referrersFixture,
+	topPostsFixture,
+} from '../__fixtures__/stats';
 
 describe( 'Stats normalizers', () => {
 	it( 'normalizes top posts into report data', () => {
@@ -48,6 +54,20 @@ describe( 'Stats normalizers', () => {
 				label: '/download.pdf',
 				shortLabel: 'download.pdf',
 				value: 5,
+			} )
+		);
+	} );
+
+	it( 'normalizes location labels with multiple apostrophes', () => {
+		expect(
+			sanitizeStatsLocationsResponse( locationsFixture, {
+				period: 'day',
+				date: '2026-06-16',
+			} ).data[ 0 ]
+		).toEqual(
+			expect.objectContaining( {
+				label: "Côte d'Ivoire's",
+				value: 7,
 			} )
 		);
 	} );

@@ -43,3 +43,17 @@ export const fileDownloadsFixture = {
 		},
 	},
 };
+
+export const locationsFixture = {
+	days: {
+		'2026-06-16': {
+			views: [
+				{
+					country_code: 'CI',
+					views: '7',
+					location: 'Côte d’Ivoire’s',
+				},
+			],
+		},
+	},
+};
