@@ -14,7 +14,7 @@ export type StatsProxyMethod = 'GET' | 'POST';
 
 export type StatsProxyParams = Record<
 	string,
-	string | number | boolean | null | undefined | Array< string | number | boolean >
+	string | number | boolean | undefined | Array< string | number | boolean >
 >;
 
 export type StatsProxyFetchParams< TBody = unknown > = {
@@ -29,14 +29,27 @@ function normalizeEndpoint( endpoint: string ) {
 	return endpoint.replace( /^\/+/, '' );
 }
 
+function cleanQueryParams( params?: StatsProxyParams ) {
+	if ( ! params ) {
+		return undefined;
+	}
+
+	const cleaned = Object.fromEntries(
+		Object.entries( params ).filter( ( [ , value ] ) => value !== undefined && value !== null )
+	) as StatsProxyParams;
+
+	return Object.keys( cleaned ).length ? cleaned : undefined;
+}
+
 export function getStatsProxyPath( {
 	version,
 	endpoint,
 	params,
 }: Pick< StatsProxyFetchParams, 'version' | 'endpoint' | 'params' > ) {
 	const path = `${ statsProxyPath }/v${ version }/${ normalizeEndpoint( endpoint ) }`;
+	const queryParams = cleanQueryParams( params );
 
-	return params ? addQueryArgs( path, params ) : path;
+	return queryParams ? addQueryArgs( path, queryParams ) : path;
 }
 
 export async function fetchStatsProxy< TResponse = unknown, TBody = unknown >( {
@@ -55,4 +68,4 @@ export async function fetchStatsProxy< TResponse = unknown, TBody = unknown >( {
 	} );
 }
 
-export type StatsProxyQueryParams = StatsProxyFetchParams;
+export type StatsProxyQueryParams = StatsProxyParams;

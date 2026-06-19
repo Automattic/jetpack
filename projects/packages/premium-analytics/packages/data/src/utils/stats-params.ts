@@ -37,6 +37,7 @@ function daysBetweenInclusive( from: string, to: string ) {
 	const diff = toDate.getTime() - fromDate.getTime();
 
 	if ( Number.isNaN( diff ) || diff < 0 ) {
+		// Keep the Stats API request bounded even when callers pass an invalid range.
 		return 1;
 	}
 
@@ -64,21 +65,27 @@ export function reportParamsToStatsQueryParams(
 	params: StatsQueryParamInput = {}
 ): StatsQueryParams {
 	const statsParams = { ...params };
-	delete statsParams.from;
-	delete statsParams.to;
-	delete statsParams.interval;
-	delete statsParams.preset;
-	delete statsParams.compare_from;
-	delete statsParams.compare_to;
-	delete statsParams.compare_preset;
-	delete statsParams.comp;
-	delete statsParams.filters;
-	delete statsParams.section;
-	delete statsParams.date_type;
-	delete statsParams.view;
-	delete statsParams.geoMode;
-	delete statsParams.utmParams;
-	delete statsParams.deviceProperty;
+	const reportOnlyKeys = [
+		'from',
+		'to',
+		'interval',
+		'preset',
+		'compare_from',
+		'compare_to',
+		'compare_preset',
+		'comp',
+		'filters',
+		'section',
+		'date_type',
+		'view',
+		'geoMode',
+		'utmParams',
+		'deviceProperty',
+	] as const;
+
+	reportOnlyKeys.forEach( key => {
+		delete statsParams[ key ];
+	} );
 
 	const from = datePart( params.from );
 	const to = datePart( params.to );
@@ -94,8 +101,6 @@ export function reportParamsToStatsQueryParams(
 		...( date ? { date } : {} ),
 		...( startDate ? { start_date: startDate } : {} ),
 		...( days ? { days } : {} ),
-		...( params.num !== undefined ? { num: params.num } : {} ),
-		...( params.max !== undefined ? { max: params.max } : {} ),
 	};
 }
 
