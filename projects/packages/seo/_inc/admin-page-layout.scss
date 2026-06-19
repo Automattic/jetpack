@@ -1,0 +1,28 @@
+@use "@automattic/jetpack-base-styles/admin-page-layout" as *;
+
+// Apply the shared Jetpack admin-page layout so `<AdminPage>` owns the page
+// chrome: fixed header, scrollable middle, pinned footer. We use the
+// `-wp-build` variant because this is a wp-build dashboard: it's a superset
+// of the base mixin that adds `<Breadcrumbs>` resets — a no-op until a tab
+// renders breadcrumbs, so it's forward-compatible for the follow-up tabs.
+// Both menu placements are targeted because Admin_Menu may register the page as
+// a top-level menu or as a Jetpack submenu depending on the environment.
+body.jetpack_page_jetpack-seo,
+body.toplevel_page_jetpack-seo {
+
+	@include jetpack-admin-page-layout-wp-build;
+}
+
+// `<AdminPage>` renders content with `horizontalSpacing={0}` and no
+// `hasPadding`, so the content area gets no padding from admin-ui or the layout
+// mixin — only the header does (at `padding-inline: 2xl`). Pad our content to
+// align with the header and clear it (the consumer-side job Scan/Podcast own).
+.jetpack-seo-page-content {
+	padding: var(--wpds-dimension-padding-2xl);
+}
+
+// Full-bleed DataViews tabs (e.g. Content) own their own spacing and pinned
+// pagination, so they drop the shared content padding.
+.jetpack-seo-page-content--flush {
+	padding: 0;
+}

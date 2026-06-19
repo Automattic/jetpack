@@ -6,7 +6,7 @@
 	"type": "module",
 	"main": "index.js",
 	"scripts": {
-		"build": "ncc build src/main.js -o dist --source-map --license licenses.txt",
+		"build": "tsdown",
 		"test": "NODE_OPTIONS=--experimental-vm-modules jest --config=tests/jest.config.js --verbose",
 		"test-coverage": "pnpm run test --coverage"
 	},
@@ -14,11 +14,12 @@
 		"@actions/core": "3.0.0",
 		"@actions/github": "9.0.0",
 		"error": "10.4.0",
-		"js-yaml": "4.1.1",
+		"js-yaml": "4.2.0",
 		"picomatch": "4.0.4"
 	},
 	"devDependencies": {
-		"@vercel/ncc": "0.36.1",
-		"jest": "30.4.2"
+		"jest": "30.4.2",
+		"rollup-plugin-license": "3.7.1",
+		"tsdown": "0.22.2"
 	}
 }

@@ -35,7 +35,7 @@ import { SingleChartContext, type SingleChartRef } from '../private/single-chart
 import { SvgEmptyState } from '../private/svg-empty-state';
 import { getCurveType, getFormatter, guessOptimalNumTicks } from '../private/time-axis';
 import { withResponsive } from '../private/with-responsive';
-import { useXZoom, ZoomResetButton, ZoomSelectionRect } from '../private/x-zoom';
+import { useXZoom, ZoomResetButton, ZoomSelectionRect, ZoomClip } from '../private/x-zoom';
 import styles from './area-chart.module.scss';
 import { AreaChartScalesRef, HoverGlyphs, validateData } from './private';
 import type { AreaChartProps } from './types';
@@ -423,17 +423,21 @@ const AreaChartInternal = forwardRef< SingleChartRef, AreaChartProps >(
 												</SvgEmptyState>
 											) : null }
 
-											{ ! allSeriesHidden && stacked && (
-												<AnimatedAreaStack
-													curve={ curve }
-													offset={ stackOffset }
-													renderLine={ resolvedWithStroke }
-												>
-													{ seriesWithVisibility.map( renderSeries ) }
-												</AnimatedAreaStack>
-											) }
-
-											{ ! allSeriesHidden && ! stacked && seriesWithVisibility.map( renderSeries ) }
+											{ /* Area is animated, so clip the whole time it is zoomable to keep the zoom-out animation in bounds. */ }
+											<ZoomClip active={ zoomable } chartId={ chartId }>
+												{ ! allSeriesHidden && stacked && (
+													<AnimatedAreaStack
+														curve={ curve }
+														offset={ stackOffset }
+														renderLine={ resolvedWithStroke }
+													>
+														{ seriesWithVisibility.map( renderSeries ) }
+													</AnimatedAreaStack>
+												) }
+												{ ! allSeriesHidden &&
+													! stacked &&
+													seriesWithVisibility.map( renderSeries ) }
+											</ZoomClip>
 
 											{ withTooltips && (
 												<>

@@ -1,4 +1,4 @@
-import { isSimpleSite } from '@automattic/jetpack-script-data';
+import { getAdminUrl, isSimpleSite } from '@automattic/jetpack-script-data';
 import { useModuleStatus } from '@automattic/jetpack-shared-extension-utils';
 import { formatNumberCompact } from '@automattic/number-formatters';
 import {
@@ -13,6 +13,7 @@ import {
 	RangeControl,
 	TextareaControl,
 	CheckboxControl,
+	ExternalLink,
 } from '@wordpress/components';
 import { createInterpolateElement, useEffect } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
@@ -63,6 +64,7 @@ export default function SubscriptionControls( {
 	subscriberCount,
 	textColor,
 	buttonWidth,
+	isButtonOnlyStyle,
 	subscribePlaceholder = DEFAULT_SUBSCRIBE_PLACEHOLDER,
 	successMessage = DEFAULT_SUCCESS_MESSAGE,
 } ) {
@@ -332,6 +334,19 @@ export default function SubscriptionControls( {
 					help={ __( 'Edit the placeholder text of the email address input.', 'jetpack' ) }
 					onChange={ placeholder => setAttributes( { subscribePlaceholder: placeholder } ) }
 				/>
+				{ isButtonOnlyStyle && (
+					<p className="jetpack-subscriptions__inspector-help">
+						{ createInterpolateElement(
+							__(
+								'To update the message shown in the subscribe pop-up, please visit the <link>Newsletter settings page</link>.',
+								'jetpack'
+							),
+							{
+								link: <ExternalLink href={ getAdminUrl( 'admin.php?page=jetpack-newsletter' ) } />,
+							}
+						) }
+					</p>
+				) }
 				{ ! isSimpleSite() && (
 					<TextareaControl
 						__nextHasNoMarginBottom={ true }

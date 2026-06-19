@@ -144,6 +144,23 @@ This is an object suitable for spreading some defaults into Webpack's `resolve` 
 
 * `ignored`: `[ '**/node_modules', '**/dist', '**/vendor' ]`.
 
+#### `cache( configFile )`
+
+`cache` is a function returning an object suitable for use as Webpack's [`cache`](https://webpack.js.org/configuration/cache/) setting, enabling Webpack's filesystem cache scoped per consumer project.
+
+```js
+cache: jetpackWebpackConfig.cache( __filename ), // or `import.meta.filename` in ESM
+```
+
+It returns:
+
+* `type`: `'filesystem'`.
+* `cacheDirectory`: `path.resolve( process.cwd(), '.cache/webpack', <configFile basename> )` — namespaced by the config file so a project's multiple configs (some built concurrently) don't share, and clobber, a single cache pack.
+* `store`: `'pack'`.
+* `buildDependencies.config`: `[ configFile ]` — so the cache invalidates when your config file changes.
+
+The cache also invalidates on Webpack version change. It is disabled (returns `undefined`) when `process.env.CI` is set, since CI runs don't preserve the cache between builds. To force-invalidate manually, delete the project's `.cache/webpack/` directory.
+
 #### `DevServer( options )`
 
 Creates a webpack `devServer` configuration for Hot Module Replacement (HMR). Returns `undefined` when not running `webpack serve`, so you can use it directly without conditional checks. Requires `webpack-dev-server` as a dev dependency.
@@ -203,6 +220,7 @@ This provides an instance of [@wordpress/dependency-extraction-webpack-plugin](h
 By default, the following additional dependencies are extracted:
 - `@automattic/jetpack-script-data`: Handle `jetpack-script-data` provided by PHP package [automattic/jetpack-assets](https://packagist.org/packages/automattic/jetpack-assets).
 - `@automattic/jetpack-connection`: Handle `jetpack-connection` provided by PHP package [automattic/jetpack-connection](https://packagist.org/packages/automattic/jetpack-connection).
+- `@automattic/jetpack-shared-stores`: Handle `jetpack-shared-stores` provided by PHP package [automattic/jetpack-assets](https://packagist.org/packages/automattic/jetpack-assets). The shared data stores resolve to one externalized bundle so they register only once.
 
 One additional option is recognized:
 

@@ -34,6 +34,7 @@ use Automattic\Jetpack\Plugin\Deprecate;
 use Automattic\Jetpack\Plugin\Tracking as Plugin_Tracking;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Scan_Page\Jetpack_Scan as Scan_Page_Init;
+use Automattic\Jetpack\SEO\Initializer as Jetpack_SEO_Initializer;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
 use Automattic\Jetpack\Status\Visitor;
@@ -883,6 +884,7 @@ class Jetpack {
 		My_Jetpack_Initializer::init();
 		Activity_Log_Init::initialize();
 		Scan_Page_Init::initialize();
+		Jetpack_SEO_Initializer::init();
 
 		// Initialize Boost Speed Score
 		new Speed_Score( array(), 'jetpack-dashboard' );

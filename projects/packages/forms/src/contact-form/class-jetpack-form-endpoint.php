@@ -276,7 +276,6 @@ class Jetpack_Form_Endpoint extends \WP_REST_Posts_Controller {
 		$feedback_type = Feedback::POST_TYPE;
 		$operator      = $this->has_responses_filter ? 'EXISTS' : 'NOT EXISTS';
 
-		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 		$subquery = $wpdb->prepare(
 			"SELECT 1 FROM {$wpdb->posts} AS feedback
 			WHERE feedback.post_parent = {$wpdb->posts}.ID

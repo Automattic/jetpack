@@ -99,8 +99,19 @@ export type RemoveSubscriberResponse = {
 };
 
 export type AddSubscribersResponse = {
-	sent?: string[];
-	errors?: Record< string, string >;
+	// Async import job id returned by `/sites/{id}/subscribers/import`.
+	upload_id?: number;
+	[ key: string ]: unknown;
+};
+
+export type ImportJobStatus = 'pending' | 'importing' | 'imported' | 'failed' | 'cancelled';
+
+export type ImportJob = {
+	id: number;
+	status: ImportJobStatus;
+	// WP.com sends counts as numeric strings (e.g. `"1"`).
+	email_count?: number | string;
+	scheduled_at?: string;
 	[ key: string ]: unknown;
 };
 

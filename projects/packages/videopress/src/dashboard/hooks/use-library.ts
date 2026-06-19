@@ -244,3 +244,9 @@ export function useLibrary( view: View ) {
 }
 
 export const LIBRARY_QUERY_KEY = 'jetpack-videopress-library' as const;
+
+// Second tuple segment of item-detail query keys
+// ([ LIBRARY_QUERY_KEY, LIBRARY_ITEM_QUERY_SEGMENT, id ] — see use-video.ts).
+// Shared so cache invalidation can address list vs item queries without
+// re-encoding the key shape at each site.
+export const LIBRARY_ITEM_QUERY_SEGMENT = 'item' as const;

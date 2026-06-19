@@ -42,6 +42,7 @@ type JetpackModule =
 	| 'site-accelerator'
 	| 'newsletter'
 	| 'related-posts'
+	| 'jetpack-forms'
 	| 'brute-force';
 
 type JetpackModuleWithCard =

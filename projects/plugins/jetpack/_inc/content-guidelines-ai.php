@@ -8,7 +8,9 @@
  * @package automattic/jetpack
  */
 
+use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Status\Visitor;
+use Automattic\Jetpack\Tracking;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit( 0 );
@@ -23,12 +25,6 @@ if ( ! defined( 'ABSPATH' ) ) {
  * @return bool
  */
 function jetpack_content_guidelines_ai_is_automattician() {
-	// Allow access via query parameter.
-	// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-	if ( isset( $_GET['enable_ai_generation'] ) && 'true' === $_GET['enable_ai_generation'] ) {
-		return true;
-	}
-
 	// Simple sites.
 	if ( function_exists( 'wpcom_is_proxied_request' )
 		&& wpcom_is_proxied_request()
@@ -59,18 +55,31 @@ function jetpack_content_guidelines_ai_enqueue_scripts( $hook_suffix ) {
 		return;
 	}
 
-	$asset_file = JETPACK__PLUGIN_DIR . '_inc/build/content-guidelines-ai.min.asset.php';
-	$asset      = file_exists( $asset_file ) ? require $asset_file : array(
-		'dependencies' => array( 'wp-api-fetch', 'wp-components', 'wp-data', 'wp-element', 'wp-i18n', 'wp-notices', 'wp-ui' ),
-		'version'      => JETPACK__VERSION,
-	);
+	// Bail when build artifacts are missing rather than enqueueing a script
+	// with guessed (and likely wrong) dependencies.
+	if ( ! file_exists( JETPACK__PLUGIN_DIR . '_inc/build/content-guidelines-ai.min.asset.php' ) ) {
+		return;
+	}
 
-	wp_enqueue_script(
+	// The bundle records Tracks events via @automattic/jetpack-analytics,
+	// which only queues into window._tkq. Enqueue the Tracks client (w.js)
+	// so events send without relying on whichever platform widgets happen
+	// to load it.
+	Tracking::register_tracks_functions_scripts( true );
+
+	// Handles dependencies/version from the asset file, JS translations for
+	// the text domain, the CSS (including the .rtl.css variant), and style
+	// dependencies derived from the script's.
+	Assets::register_script(
 		'jetpack-content-guidelines-ai',
-		plugins_url( '_inc/build/content-guidelines-ai.min.js', JETPACK__PLUGIN_FILE ),
-		$asset['dependencies'],
-		$asset['version'],
-		true
+		'_inc/build/content-guidelines-ai.min.js',
+		JETPACK__PLUGIN_FILE,
+		array(
+			'in_footer'  => true,
+			'textdomain' => 'jetpack',
+			'css_path'   => '_inc/build/content-guidelines-ai.css',
+			'enqueue'    => true,
+		)
 	);
 
 	// Preload the per-user "banner dismissed" flag so the empty-state banner
@@ -86,13 +95,6 @@ function jetpack_content_guidelines_ai_enqueue_scripts( $hook_suffix ) {
 			JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT
 		) . ';',
 		'before'
-	);
-
-	wp_enqueue_style(
-		'jetpack-content-guidelines-ai',
-		plugins_url( '_inc/build/content-guidelines-ai.css', JETPACK__PLUGIN_FILE ),
-		array( 'wp-components' ),
-		$asset['version']
 	);
 }
 

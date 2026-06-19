@@ -1,4 +1,4 @@
-import { SVG, Line, Circle } from '@wordpress/components';
+import { Circle, Line, SVG } from '@wordpress/primitives';
 
 /**
  * RangeIcon - A horizontal line with a dot in the middle, for use as a range field icon.

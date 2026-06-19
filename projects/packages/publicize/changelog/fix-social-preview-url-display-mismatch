@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Social previews: Remove the misleading URL from captions when it is not a part of it.

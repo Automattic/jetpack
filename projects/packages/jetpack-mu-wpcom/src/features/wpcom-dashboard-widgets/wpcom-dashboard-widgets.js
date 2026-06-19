@@ -1,7 +1,6 @@
 import '../../common/public-path';
 import { createRoot } from 'react-dom/client';
 import CelebrateLaunchModal from '../../common/celebrate-launch/celebrate-launch-modal';
-import WpcomDailyWritingPrompt from './wpcom-daily-writing-prompt';
 import WpcomGeneralTasksWidget from './wpcom-general-tasks-widget';
 import WpcomLaunchpadWidget from './wpcom-launchpad-widget';
 import WpcomSiteManagementWidget from './wpcom-site-management-widget';
@@ -11,10 +10,6 @@ const widgets = [
 	{
 		id: 'wpcom_launchpad_widget_main',
 		Widget: WpcomLaunchpadWidget,
-	},
-	{
-		id: 'wpcom_daily_writing_prompt_main',
-		Widget: WpcomDailyWritingPrompt,
 	},
 	{
 		id: 'wpcom_site_preview_widget_main',

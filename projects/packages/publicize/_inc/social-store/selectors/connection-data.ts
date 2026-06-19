@@ -71,21 +71,6 @@ export function hasConnections( state: SocialStoreState ) {
 }
 
 /**
- * Returns the failed Publicize connections.
- *
- * @param state - State object.
- * @return List of connections.
- */
-export const getFailedConnections = createSelector(
-	( state: SocialStoreState ) => {
-		const connections = getConnections( state );
-
-		return connections.filter( connection => 'broken' === connection.status );
-	},
-	( state: SocialStoreState ) => [ state.connectionData?.connections ]
-);
-
-/**
  * Returns a list of Publicize connection service names that require reauthentication from users.
  * For example, when LinkedIn switched its API from v1 to v2.
  *
@@ -216,6 +201,17 @@ export function isBlueskyAccountAlreadyConnected( state: SocialStoreState, handl
  */
 export function getKeyringResult( state: SocialStoreState ) {
 	return state.connectionData?.keyringResult;
+}
+
+/**
+ * Whether the keyring result for a completed connect request is being fetched.
+ *
+ * @param state - State object.
+ *
+ * @return Whether the keyring result is being fetched.
+ */
+export function isFetchingKeyringResult( state: SocialStoreState ) {
+	return Boolean( state.connectionData?.fetchingKeyringResult );
 }
 
 /**

@@ -104,9 +104,10 @@ The `$$next-version$$` placeholder is automatically replaced with the correct ve
 ## Testing
 
 ```bash
-jp test php <project> -v    # PHPUnit tests (verbose)
-jp test js <project>        # Jest tests
-jp test coverage <project>  # Generate coverage report
+jp test php <project> -v          # PHPUnit tests (verbose)
+jp test js <project>              # Jest tests
+jp test php-coverage <project>    # Generate PHP coverage report
+jp test js-coverage <project>     # Generate JS coverage report
 ```
 
 ### Testing Prerequisites
@@ -127,7 +128,6 @@ After modifying a project, run its tests and static analysis:
 jp test php <project>           # PHP tests
 jp test js <project>            # JS tests (skipped if not defined)
 jp phan <project>               # Static analysis
-jp test coverage <project>      # Generate coverage report (optional)
 ```
 
 ### PHP Testing

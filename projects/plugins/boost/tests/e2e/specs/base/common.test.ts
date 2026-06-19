@@ -1,4 +1,4 @@
-import { executeWpDbQuery } from '_jetpack-e2e-commons/utils/cli';
+import { executeWpDbQuery } from '@automattic/_jetpack-e2e-commons/utils/cli';
 import { test, expect } from '../../lib/fixtures/test';
 
 test.describe( 'Common tests', () => {

@@ -68,6 +68,8 @@ if ( is_admin() ) {
 	// Initialize Newsletter Settings (always-loaded so the settings page URL works even when module is inactive).
 	\Automattic\Jetpack\Newsletter\Settings::init();
 
+	\Automattic\Jetpack\Newsletter\Writing_Prompt_Widget::init();
+
 	\Automattic\Jetpack\Plugin\Jetpack_Script_Data::configure();
 }
 

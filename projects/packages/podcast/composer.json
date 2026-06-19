@@ -37,6 +37,9 @@
 		],
 		"test-php": [
 			"@composer phpunit"
+		],
+		"test-php-coverage": [
+			"php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\""
 		]
 	},
 	"repositories": [
@@ -55,7 +58,7 @@
 		"autotagger": true,
 		"mirror-repo": "Automattic/jetpack-podcast",
 		"branch-alias": {
-			"dev-trunk": "1.0.x-dev"
+			"dev-trunk": "1.1.x-dev"
 		},
 		"textdomain": "jetpack-podcast",
 		"version-constants": {

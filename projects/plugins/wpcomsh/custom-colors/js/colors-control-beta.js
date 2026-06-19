@@ -994,9 +994,7 @@
 				$( '#less-patterns' ).hide();
 			}
 
-			if ( this.patterns.length === 0 ) {
-				patternIndex = 0;
-			} else {
+			if ( this.patterns.length !== 0 ) {
 				this.patternIndex = patternIndex + pageSize;
 			}
 		},

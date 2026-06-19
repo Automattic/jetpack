@@ -45,12 +45,14 @@ export default function useGenerateAll() {
 
 			const response = await suggestGuidelines( VALID_SECTIONS, existingContent );
 			const suggestions = response?.suggestions || {};
+			const appliedSlugs = VALID_SECTIONS.filter( slug => suggestions[ slug ] );
 
-			for ( const slug of VALID_SECTIONS ) {
-				if ( suggestions[ slug ] ) {
-					setSuggestion( slug, suggestions[ slug ] );
-				}
+			// No usable suggestions came back — surface it like any other failure.
+			if ( appliedSlugs.length === 0 ) {
+				throw new Error( 'No suggestions returned.' );
 			}
+
+			appliedSlugs.forEach( slug => setSuggestion( slug, suggestions[ slug ] ) );
 		} catch {
 			createErrorNotice( __( 'Failed to generate guidelines. Please try again.', 'jetpack' ), {
 				type: 'snackbar',

@@ -5,6 +5,7 @@
 
 import { GeneralPurposeImage } from '@automattic/jetpack-ai-client';
 import { getRedirectUrl, ThemeProvider } from '@automattic/jetpack-components';
+import { siteHasFeature } from '@automattic/jetpack-script-data';
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { MediaUpload } from '@wordpress/block-editor';
 import { BaseControl, Button } from '@wordpress/components';
@@ -18,11 +19,14 @@ import useMediaDetails from '../../hooks/use-media-details';
 import { SELECTABLE_MEDIA_TYPES } from '../../hooks/use-media-restrictions/restrictions';
 import { usePostMeta } from '../../hooks/use-post-meta';
 import useSigPreview from '../../hooks/use-sig-preview';
+import { features } from '../../utils';
 import CustomMediaToggle from './custom-media-toggle';
+import MediaFocalPoint from './media-focal-point';
 import MediaPreview from './media-preview';
 import MediaSourceMenu from './media-source-menu';
 import styles from './styles.module.scss';
 import { MediaPreviewData, MediaSectionV2Props, MediaSourceType, WPMediaObject } from './types';
+import { useMediaFocalPoint } from './use-media-focal-point';
 import { detectMediaSource } from './utils/detect-media-source';
 import { getMediaSourceDescription } from './utils/media-source-options';
 
@@ -187,6 +191,27 @@ export default function MediaSectionV2( {
 
 	// Preview will render the SIG image whenever SIG is the explicit source or the OG fallback in Default mode.
 	const isPreviewingSig = currentSource === 'sig' || ( ! currentSource && sigEnabled );
+
+	// The focal point lives on the image (attachment meta), so it's the same point in
+	// every mode and every post that uses the image.
+	const {
+		value: focalPointValue,
+		canEdit: canEditImage,
+		setPreviewFocalPoint,
+		setFocalPoint,
+	} = useMediaFocalPoint( previewData?.id ?? 0 );
+
+	/*
+	 * The focal point can only be set against a real image attachment the user can edit:
+	 * hidden for SIG (attachment id 0), video, and images the user can't edit (v1: no
+	 * fallback — the static preview shows instead). Gated on the wpcom-controlled rollout
+	 * flag until the cropping consumers ship.
+	 */
+	const showFocalPointPicker =
+		siteHasFeature( features.IMAGE_FOCAL_POINT ) &&
+		previewData?.type === 'image' &&
+		previewData.id > 0 &&
+		canEditImage === true;
 
 	// Handle media source selection from dropdown
 	const handleSourceSelect = useCallback(
@@ -428,7 +453,16 @@ export default function MediaSectionV2( {
 					{ /* Show preview + dropdown when there's media */ }
 					{ previewData && (
 						<>
-							<MediaPreview media={ previewData } isLoading={ isPreviewingSig && sigIsLoading } />
+							{ showFocalPointPicker ? (
+								<MediaFocalPoint
+									url={ previewData.url }
+									value={ focalPointValue }
+									onChange={ setFocalPoint }
+									onDrag={ setPreviewFocalPoint }
+								/>
+							) : (
+								<MediaPreview media={ previewData } isLoading={ isPreviewingSig && sigIsLoading } />
+							) }
 							<div className={ styles.actions }>
 								<MediaSourceMenu
 									currentSource={ currentSource }
