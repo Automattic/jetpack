@@ -13,8 +13,8 @@
 		"@wordpress/element": "6.46.0",
 		"@wordpress/i18n": "^6.9.0",
 		"@wordpress/preferences": "4.46.0",
-		"@wordpress/widget-dashboard": "link:../../../../../../gutenberg-midnight/packages/widget-dashboard",
-		"@wordpress/widget-primitives": "link:../../../../../../gutenberg-midnight/packages/widget-primitives",
+		"@wordpress/widget-dashboard": "next",
+		"@wordpress/widget-primitives": "next",
 		"fast-deep-equal": "^3.1.3"
 	}
 }
