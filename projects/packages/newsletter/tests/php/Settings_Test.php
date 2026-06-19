@@ -26,6 +26,9 @@ class Settings_Test extends BaseTestCase {
 	public function set_up() {
 		parent::set_up();
 
+		// Reset the in-process Host platform cache so per-test constants take effect.
+		\Automattic\Jetpack\Status\Cache::clear();
+
 		// Reset the static initialized flag between tests.
 		$reflection = new \ReflectionClass( Settings::class );
 		$property   = $reflection->getProperty( 'initialized' );
@@ -179,15 +182,96 @@ class Settings_Test extends BaseTestCase {
 	}
 
 	/**
-	 * The rollout cohort is limited to genuine WordPress.com Simple sites. A
-	 * non-Simple site (no `IS_WPCOM`) — including shadow Jetpack sites — must
-	 * never be enrolled regardless of its blog ID.
+	 * The rollout cohort is limited to genuine WordPress.com sites (Simple or WoA).
+	 * A non-wpcom site (no `IS_WPCOM`, not Atomic) — including shadow/self-hosted
+	 * Jetpack sites — must never be enrolled regardless of its blog ID.
 	 */
-	public function test_rollout_disabled_on_non_wpcom_simple_site() {
+	public function test_rollout_disabled_on_non_wpcom_site() {
 		$this->assertFalse(
 			Settings::is_modernization_rollout_enabled(),
-			'Only WordPress.com Simple sites may enter the modernization rollout cohort.'
+			'Only WordPress.com sites (Simple or WoA) may enter the modernization rollout cohort.'
 		);
+	}
+
+	/**
+	 * Simple sites can be upgraded to Atomic (WoA). The cohort keys on the wpcom
+	 * blog ID, which is preserved across the transfer, so an in-bucket site that had
+	 * the modernized experience on Simple keeps it on WoA — it must not silently
+	 * revert to the legacy dashboard on upgrade.
+	 */
+	public function test_rollout_enabled_for_in_bucket_woa_site() {
+		$this->set_woa_constants();
+		\Jetpack_Options::update_option( 'id', 200 ); // 200 % 100 = 0, in bucket.
+
+		try {
+			$this->assertTrue(
+				Settings::is_modernization_rollout_enabled(),
+				'An in-bucket WoA site (post Simple→Atomic transfer) must stay enrolled in the rollout.'
+			);
+		} finally {
+			$this->clear_woa_constants();
+		}
+	}
+
+	/**
+	 * Including WoA in the cohort must not enroll every Atomic site — only the same
+	 * deterministic blog-ID slice. An out-of-bucket WoA site stays on the legacy
+	 * experience.
+	 */
+	public function test_rollout_disabled_for_out_of_bucket_woa_site() {
+		$this->set_woa_constants();
+		\Jetpack_Options::update_option( 'id', 150 ); // 150 % 100 = 50, out of bucket.
+
+		try {
+			$this->assertFalse(
+				Settings::is_modernization_rollout_enabled(),
+				'An out-of-bucket WoA site must not be enrolled in the rollout.'
+			);
+		} finally {
+			$this->clear_woa_constants();
+		}
+	}
+
+	/**
+	 * On a wpcom site where the wpcom blog ID can't be resolved (e.g. a freshly
+	 * transferred WoA site before its connection settles), the site must not be
+	 * bucketed as blog ID 0 (`0 % 100 < 5`) and enrolled by accident.
+	 */
+	public function test_rollout_disabled_when_wpcom_blog_id_unavailable() {
+		$this->set_woa_constants();
+		\Jetpack_Options::delete_option( 'id' );
+
+		try {
+			$this->assertFalse(
+				Settings::is_modernization_rollout_enabled(),
+				'A wpcom site with no resolvable wpcom blog ID must not be enrolled.'
+			);
+		} finally {
+			$this->clear_woa_constants();
+		}
+	}
+
+	/**
+	 * Mark the environment as a WordPress.com on Atomic (WoA) site: Atomic platform
+	 * constants plus the wpcomsh marker `Host::is_woa_site()` keys on. Clears the
+	 * Host cache so the freshly-set constants are observed.
+	 */
+	private function set_woa_constants() {
+		\Automattic\Jetpack\Constants::set_constant( 'ATOMIC_SITE_ID', 12345 );
+		\Automattic\Jetpack\Constants::set_constant( 'ATOMIC_CLIENT_ID', 70 );
+		\Automattic\Jetpack\Constants::set_constant( 'WPCOMSH__PLUGIN_FILE', '/wpcomsh/wpcomsh.php' );
+		\Automattic\Jetpack\Status\Cache::clear();
+	}
+
+	/**
+	 * Undo `set_woa_constants()` and any wpcom blog ID stored for the WoA scenario.
+	 */
+	private function clear_woa_constants() {
+		\Automattic\Jetpack\Constants::clear_single_constant( 'ATOMIC_SITE_ID' );
+		\Automattic\Jetpack\Constants::clear_single_constant( 'ATOMIC_CLIENT_ID' );
+		\Automattic\Jetpack\Constants::clear_single_constant( 'WPCOMSH__PLUGIN_FILE' );
+		\Automattic\Jetpack\Status\Cache::clear();
+		\Jetpack_Options::delete_option( 'id' );
 	}
 
 	/**

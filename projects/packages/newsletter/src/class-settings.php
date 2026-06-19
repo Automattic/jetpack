@@ -502,10 +502,16 @@ class Settings {
 	 *
 	 * The release is staged: the modernized dashboard, wp-admin subscriber
 	 * management, and the retired Calypso Subscribers submenu all default on for a
-	 * deterministic 5% slice of WordPress.com Simple sites, keyed on the wpcom blog
-	 * ID. Only genuine Simple sites qualify — shadow Jetpack sites (self-hosted
-	 * installs paired with a wpcom shadow blog) run where `IS_WPCOM` is undefined,
-	 * so `is_wpcom_simple()` is false and they are excluded.
+	 * deterministic 5% slice of WordPress.com sites, keyed on the wpcom blog ID.
+	 *
+	 * The cohort spans both Simple and WoA (Atomic) and is bucketed on the *wpcom*
+	 * blog ID (`get_current_blog_id()` on Simple, `jetpack_options['id']` on WoA),
+	 * which is preserved when a Simple site is upgraded to Atomic. Keying on the
+	 * wpcom platform + wpcom blog ID — rather than the transient `IS_WPCOM`
+	 * constant — means a site keeps its cohort decision across the transfer and does
+	 * not lose the modernized experience on upgrade. Self-hosted/shadow Jetpack
+	 * sites are still excluded: they are neither Simple nor WoA, so
+	 * `is_wpcom_platform()` is false.
 	 *
 	 * Automatticians get the modernized experience by default regardless of the
 	 * percentage cohort, so a12s can dogfood it and test fixes ahead of the wider
@@ -525,11 +531,24 @@ class Settings {
 		}
 
 		$host = new Host();
-		if ( ! $host->is_wpcom_simple() ) {
+		if ( ! $host->is_wpcom_platform() ) {
 			return false;
 		}
 
-		$blog_id = (int) $host->get_wpcom_site_id();
+		// Bucket on the wpcom blog ID, which is stable across a Simple→Atomic
+		// transfer: the current blog ID on Simple, the stored wpcom ID on WoA. We
+		// read the WoA ID from Jetpack options directly rather than via
+		// `Host::get_wpcom_site_id()`, which additionally requires the Jetpack
+		// connection to be "ready" — that would drop a freshly transferred site out
+		// of the cohort until its connection settles. Guard against an unresolvable
+		// ID so a site without one isn't bucketed as blog ID 0 (`0 % 100 < 5`) and
+		// enrolled by accident.
+		$blog_id = $host->is_wpcom_simple()
+			? (int) get_current_blog_id()
+			: (int) \Jetpack_Options::get_option( 'id' );
+		if ( $blog_id <= 0 ) {
+			return false;
+		}
 
 		return ( $blog_id % 100 ) < self::MODERNIZATION_ROLLOUT_PERCENTAGE;
 	}
