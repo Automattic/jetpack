@@ -1,7 +1,7 @@
 /* eslint-disable @wordpress/no-unsafe-wp-apis */
 import { __experimentalGrid as Grid } from '@wordpress/components';
 import { Fragment } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import { Icon, chevronRight } from '@wordpress/icons';
 import { Stack, Text } from '@wordpress/ui';
 import clsx from 'clsx';
@@ -42,7 +42,12 @@ const getEntryAccessibleLabel = (
 	valueFormatter: ( value: number ) => string
 ): string | undefined =>
 	typeof entry.label === 'string'
-		? `${ entry.label }: ${ valueFormatter( entry.currentValue ) }`
+		? sprintf(
+				/* translators: 1: Leaderboard item label. 2: The item's formatted value. */
+				__( '%1$s: %2$s', 'jetpack-charts' ),
+				entry.label,
+				valueFormatter( entry.currentValue )
+		  )
 		: undefined;
 
 /**
