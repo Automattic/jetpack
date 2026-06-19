@@ -59,11 +59,14 @@ export function App() {
 	}
 
 	// After the wizard, the list runs the fresh tailor flow (initialData would be
-	// the pre-wizard read); returning users render straight from initialData.
+	// the pre-wizard read); returning users render straight from initialData. The
+	// site context is path-independent, so it's passed either way — that lets the
+	// loading skeleton show the site preview before the tailored read lands.
 	return (
 		<TailoredList
 			pendingTailor={ pendingTailor }
 			initialData={ pendingTailor ? undefined : initialData }
+			site={ initialData?.site }
 		/>
 	);
 }
