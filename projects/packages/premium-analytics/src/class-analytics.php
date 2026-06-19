@@ -56,9 +56,16 @@ class Analytics {
 			require_once $build_entry;
 		}
 
+		// Hydrate the widget type registry from the build manifest at init.
+		require_once __DIR__ . '/widget-types.php';
+
 		// Expose dashboard widget modules over REST and wire them into the
 		// page import map for dynamic import() on the client.
 		require_once __DIR__ . '/widget-modules.php';
+
+		// Register the dashboard's default layout: the first-load preference
+		// injection and the REST route the "reset to default" action reads.
+		require_once __DIR__ . '/dashboard-layout.php';
 
 		add_action( 'admin_menu', array( static::class, 'register_admin_menu' ) );
 		add_action( 'jetpack-premium-analytics_init', array( static::class, 'register_sidebar_items' ) );

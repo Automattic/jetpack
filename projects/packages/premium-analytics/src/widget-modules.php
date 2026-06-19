@@ -2,13 +2,12 @@
 /**
  * Dashboard widget modules: REST exposure + import-map wiring.
  *
- * The wp-build-generated `build/widgets.php` registers each widget's render and
- * metadata as script modules and exposes `jpa_get_registered_widget_modules()`.
- * This file exposes that registry to the client through the
- * `/jetpack/v4/widget-modules` REST endpoint (read by the `widgetModule` core-data
- * entity in @automattic/jetpack-widget-primitives), and adds the modules to the
- * dashboard page's import map so the client can dynamically `import()` them on
- * demand.
+ * Reads the widget types from Widget_Type_Registry (hydrated from the build
+ * manifest in widget-types.php) and exposes them to the client through the
+ * `/jetpack/v4/widget-modules` REST endpoint, plus adds each widget's render
+ * and metadata modules to the dashboard page's import map so the client can
+ * dynamically `import()` them on demand. The host feeds the REST records to
+ * `useWidgetTypes()` in @wordpress/widget-primitives.
  *
  * @package automattic/jetpack-premium-analytics
  */
@@ -43,18 +42,13 @@ add_action( 'rest_api_init', __NAMESPACE__ . '\\register_widget_modules_rest_rou
 function get_widget_modules_response() {
 	$records = array();
 
-	if ( function_exists( 'jpa_get_registered_widget_modules' ) ) {
-		foreach ( jpa_get_registered_widget_modules() as $widget ) {
-			if ( empty( $widget['name'] ) ) {
-				continue;
-			}
-			$records[] = array(
-				'name'          => $widget['name'],
-				'render_module' => $widget['render_module'] ?? null,
-				'widget_module' => $widget['widget_module'] ?? null,
-				'presentation'  => $widget['presentation'] ?? null,
-			);
-		}
+	foreach ( get_registered_widget_types() as $widget_type ) {
+		$records[] = array(
+			'name'          => $widget_type->name,
+			'render_module' => $widget_type->render_module,
+			'widget_module' => $widget_type->widget_module,
+			'presentation'  => $widget_type->presentation,
+		);
 	}
 
 	return rest_ensure_response( $records );
@@ -68,21 +62,17 @@ function get_widget_modules_response() {
  * @return array Updated boot dependencies.
  */
 function add_widget_modules_to_boot_deps( $boot_dependencies ) {
-	if ( ! function_exists( 'jpa_get_registered_widget_modules' ) ) {
-		return $boot_dependencies;
-	}
-
-	foreach ( jpa_get_registered_widget_modules() as $widget ) {
-		if ( ! empty( $widget['render_module'] ) ) {
+	foreach ( get_registered_widget_types() as $widget_type ) {
+		if ( ! empty( $widget_type->render_module ) ) {
 			$boot_dependencies[] = array(
 				'import' => 'dynamic',
-				'id'     => $widget['render_module'],
+				'id'     => $widget_type->render_module,
 			);
 		}
-		if ( ! empty( $widget['widget_module'] ) ) {
+		if ( ! empty( $widget_type->widget_module ) ) {
 			$boot_dependencies[] = array(
 				'import' => 'dynamic',
-				'id'     => $widget['widget_module'],
+				'id'     => $widget_type->widget_module,
 			);
 		}
 	}
