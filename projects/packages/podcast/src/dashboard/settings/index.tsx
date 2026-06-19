@@ -40,10 +40,16 @@ const EXPLICIT_OPTIONS: Array< { label: string; value: string } > = [
 const TOPIC_SUGGESTIONS: string[] = [];
 const TOPIC_STORAGE_BY_DISPLAY = new Map< string, string >();
 const TOPIC_DISPLAY_BY_STORAGE = new Map< string, string >();
+// Parent labels that offer subcategories — used to nudge users who pick a
+// broad category but no subcategory (valid for Apple, but worse for placement).
+const PARENTS_WITH_SUBTOPICS = new Set< string >();
 for ( const topic of TOPICS ) {
 	TOPIC_SUGGESTIONS.push( topic.label );
 	TOPIC_STORAGE_BY_DISPLAY.set( topic.label, topic.key );
 	TOPIC_DISPLAY_BY_STORAGE.set( topic.key, topic.label );
+	if ( topic.subtopics.length > 0 ) {
+		PARENTS_WITH_SUBTOPICS.add( topic.label );
+	}
 	for ( const sub of topic.subtopics ) {
 		const display = `${ topic.label } » ${ sub.label }`;
 		const storage = `${ topic.key },${ sub.key }`;
@@ -52,6 +58,27 @@ for ( const topic of TOPICS ) {
 		TOPIC_DISPLAY_BY_STORAGE.set( storage, display );
 	}
 }
+
+// Reject free-typed tokens that aren't in the catalog. Without this,
+// `FormTokenField` accepts arbitrary text that then maps to '' at save time and
+// silently disappears — better to refuse it as the user types.
+const isKnownTopic = ( input: string ): boolean => TOPIC_SUGGESTIONS.includes( input );
+
+// Drop a broad parent token when a more specific subcategory of it is also
+// selected: the subcategory already implies the parent in `<itunes:category>`,
+// so keeping both emits overlapping tags. Labels never contain the ` » `
+// separator, so a token without it is a parent-only selection.
+const dropRedundantParents = ( displays: string[] ): string[] => {
+	const hasSelectedChild = ( parent: string ): boolean =>
+		displays.some( other => other.startsWith( `${ parent } » ` ) );
+	return displays.filter( d => d.includes( ' » ' ) || ! hasSelectedChild( d ) );
+};
+
+// Broad selections that have subcategories available but none chosen. Apple
+// accepts a parent-only category, but recommends a subcategory: it's shown in
+// place of the parent, is less crowded, and unlocks subcategory chart spots.
+const parentsMissingSubtopic = ( displays: string[] ): string[] =>
+	displays.filter( d => ! d.includes( ' » ' ) && PARENTS_WITH_SUBTOPICS.has( d ) );
 
 // String-valued setting keys (the ones used by text/textarea/email controls).
 type StringFieldKey =
@@ -186,9 +213,12 @@ const SettingsTab = ( { onAfterDisable }: SettingsTabProps = {} ) => {
 		setDraftTopics( topicValue );
 	}, [ topicValue ] );
 
+	// Advisory only — broad categories the user could refine with a subcategory.
+	const subtopicHints = useMemo( () => parentsMissingSubtopic( draftTopics ), [ draftTopics ] );
+
 	const handleTopicsChange = useCallback( ( values: ( string | { value: string } )[] ) => {
-		const next = values.slice( 0, 3 ).map( v => ( typeof v === 'string' ? v : v.value ) );
-		setDraftTopics( next );
+		const displays = values.map( v => ( typeof v === 'string' ? v : v.value ) );
+		setDraftTopics( dropRedundantParents( displays ).slice( 0, 3 ) );
 	}, [] );
 
 	const handleTopicsBlur = useCallback(
@@ -326,6 +356,7 @@ const SettingsTab = ( { onAfterDisable }: SettingsTabProps = {} ) => {
 									__next40pxDefaultSize
 									__nextHasNoMarginBottom
 									__experimentalExpandOnFocus
+									__experimentalValidateInput={ isKnownTopic }
 									label={ __( 'Podcast topics', 'jetpack-podcast' ) }
 									value={ draftTopics }
 									suggestions={ TOPIC_SUGGESTIONS }
@@ -339,6 +370,19 @@ const SettingsTab = ( { onAfterDisable }: SettingsTabProps = {} ) => {
 									'jetpack-podcast'
 								) }
 							</Text>
+							{ subtopicHints.length > 0 && (
+								<Notice status="warning" isDismissible={ false }>
+									{ __(
+										'These categories have subcategories. Picking one helps Apple Podcasts and other directories place your show accurately:',
+										'jetpack-podcast'
+									) }
+									<ul className="podcast__settings-issues">
+										{ subtopicHints.map( name => (
+											<li key={ name }>{ name }</li>
+										) ) }
+									</ul>
+								</Notice>
+							) }
 						</VStack>
 						<SelectControl
 							__next40pxDefaultSize
