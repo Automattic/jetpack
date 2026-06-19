@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Protect: Retry key generation after transient activation failures.
