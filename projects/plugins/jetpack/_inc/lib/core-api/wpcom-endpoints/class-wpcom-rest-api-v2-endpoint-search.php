@@ -29,17 +29,22 @@ class WPCOM_REST_API_V2_Endpoint_Search extends WP_REST_Controller {
 	 * Constructor.
 	 */
 	public function __construct() {
-		$this->namespace  = 'wpcom/v2';
-		$this->rest_base  = 'search';
-		$this->controller = new REST_Controller( defined( 'IS_WPCOM' ) && IS_WPCOM );
+		$this->namespace = 'wpcom/v2';
+		$this->rest_base = 'search';
 
 		add_action( 'rest_api_init', array( $this, 'register_routes' ) );
 	}
 
 	/**
 	 * Called automatically on `rest_api_init()`.
+	 *
+	 * The Search package controller is instantiated here rather than in the
+	 * constructor so that the package class is only loaded when the REST API is
+	 * actually in use, not on every front-end, cron, or login request.
 	 */
 	public function register_routes() {
+		$this->controller = new REST_Controller( defined( 'IS_WPCOM' ) && IS_WPCOM );
+
 		register_rest_route(
 			$this->namespace,
 			$this->rest_base,
