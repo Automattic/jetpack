@@ -199,6 +199,18 @@ function seed_default_dashboard_layout( $dashboard_layout, $dashboard_name = '' 
 		);
 	}
 
+	if ( ! in_array( 'default-average-items-per-order-widget-instance', $uuids, true ) ) {
+		$dashboard_layout[] = array(
+			'uuid'      => 'default-average-items-per-order-widget-instance',
+			'type'      => 'jpa/average-items-per-order',
+			'placement' => array(
+				'width'  => 4,
+				'height' => 3,
+				'order'  => 1,
+			),
+		);
+	}
+
 	return $dashboard_layout;
 }
 add_filter( DASHBOARD_DEFAULT_LAYOUT_FILTER, __NAMESPACE__ . '\\seed_default_dashboard_layout', 10, 2 );
