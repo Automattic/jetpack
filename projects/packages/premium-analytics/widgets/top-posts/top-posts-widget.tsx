@@ -5,6 +5,7 @@ import { __ } from '@wordpress/i18n';
 import { Text } from '@wordpress/ui';
 import {
 	LeaderboardChart,
+	WidgetLoadingOverlay,
 	calculateDelta,
 	type LeaderboardChartData,
 	type LegendLabels,
@@ -22,7 +23,7 @@ export type TopPostsWidgetProps = {
 	 */
 	rows?: TopPostRow[];
 	/**
-	 * When `true`, the chart renders its loading overlay instead of data.
+	 * When `true`, a loading overlay is rendered instead of data.
 	 */
 	isLoading?: boolean;
 	/**
@@ -127,8 +128,8 @@ export const TopPostsWidget = ( {
 		return <Text>{ __( 'Unable to load top posts.', 'jetpack-premium-analytics' ) }</Text>;
 	}
 
-	if ( ! isLoading && rows.length === 0 ) {
-		return <Text>{ __( 'No views in this period.', 'jetpack-premium-analytics' ) }</Text>;
+	if ( isLoading && ( ! rows || rows.length === 0 ) ) {
+		return <WidgetLoadingOverlay />;
 	}
 
 	return (
@@ -139,6 +140,7 @@ export const TopPostsWidget = ( {
 			withOverlayLabel
 			showLegend={ showLegend }
 			legendLabels={ legendLabels }
+			emptyStateText={ __( 'No views in this period.', 'jetpack-premium-analytics' ) }
 			dataFormat={ { type: 'number', options: { useMultipliers: true, decimals: 0 } } }
 		/>
 	);
