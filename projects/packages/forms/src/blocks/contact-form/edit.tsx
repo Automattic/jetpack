@@ -62,6 +62,7 @@ import { useSyncedFormLoader } from './hooks/use-synced-form-loader.ts';
 import { useSyncedForm } from './hooks/use-synced-form.ts';
 import useFormBlockDefaults from './shared/hooks/use-form-block-defaults.js';
 import { getEditorContext } from './util/get-editor-context.ts';
+import { isCollectingResponses } from './util/is-collecting-responses.ts';
 import VariationPicker from './variation-picker.js';
 
 import './util/form-styles.js';
@@ -1097,6 +1098,20 @@ function JetpackContactFormEdit( {
 					{ variationName === 'multistep' && <StepControls formClientId={ clientId } /> }
 				</BlockControls>
 				<InspectorControls>
+					{ ! isCollectingResponses( attributes ) && (
+						<Notice
+							status="warning"
+							isDismissible={ false }
+							className="jetpack-contact-form__not-collecting-notice"
+						>
+							<strong>{ __( 'This form isn’t collecting responses', 'jetpack-forms' ) }</strong>
+							<br />
+							{ __(
+								'With email and saving both off, nothing is stored. Turn on either one to start collecting.',
+								'jetpack-forms'
+							) }
+						</Notice>
+					) }
 					<PanelBody
 						title={ __( 'Action after submit', 'jetpack-forms' ) }
 						initialOpen={ false }

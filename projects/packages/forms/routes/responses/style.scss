@@ -11,3 +11,9 @@
 	padding-inline: variables.$grid-unit * 2.5;
 	padding-block: variables.$grid-unit * 1.5;
 }
+
+// Persistent warning shown on a single form's responses view when the form
+// isn't collecting responses anywhere.
+.jetpack-forms__not-collecting-banner.components-notice {
+	margin: 16px;
+}

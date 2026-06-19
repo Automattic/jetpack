@@ -7,8 +7,10 @@ import { formatNumber } from '@automattic/number-formatters';
  * WordPress dependencies
  */
 import {
+	Notice,
 	__experimentalText as Text, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 } from '@wordpress/components';
+import { store as coreStore } from '@wordpress/core-data';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { DataViews } from '@wordpress/dataviews';
 import { dateI18n, getSettings as getDateSettings } from '@wordpress/date';
@@ -669,6 +671,24 @@ function StageInner() {
 		onOpenIntegrations: handleIntegrations,
 	} );
 
+	// On a single-form view, surface a persistent warning when the form isn't
+	// collecting its responses anywhere (email + saving off, no integration).
+	const isFormNotCollecting = useSelect(
+		select => {
+			if ( ! isSingleFormView ) {
+				return false;
+			}
+			const form = select( coreStore ).getEntityRecord(
+				'postType',
+				'jetpack_form',
+				sourceIdNumber,
+				{ context: 'edit' }
+			) as { is_collecting_responses?: boolean } | undefined;
+			return form ? form.is_collecting_responses === false : false;
+		},
+		[ isSingleFormView, sourceIdNumber ]
+	);
+
 	// Check if read_status filter is applied
 	const readStatusFilter = view.filters?.find( filter => filter.field === 'read_status' )?.value;
 
@@ -691,6 +711,18 @@ function StageInner() {
 			hasPadding={ false }
 			showFooter={ false }
 		>
+			{ isFormNotCollecting && (
+				<Notice
+					status="warning"
+					isDismissible={ false }
+					className="jetpack-forms__not-collecting-banner"
+				>
+					{ __(
+						'This form isn’t collecting responses. Turn on email or saving in the form’s settings to start.',
+						'jetpack-forms'
+					) }
+				</Notice>
+			) }
 			<DataViews
 				empty={
 					<EmptyResponses

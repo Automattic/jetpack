@@ -346,6 +346,106 @@ class Contact_Form extends Contact_Form_Shortcode {
 	}
 
 	/**
+	 * Determine whether a form is configured to collect its responses anywhere.
+	 *
+	 * A form "collects responses" when submissions are delivered to at least one
+	 * destination: emailed to a recipient, saved to the responses dashboard, or
+	 * routed to an active data integration. When all three are off, submissions
+	 * are silently dropped.
+	 *
+	 * This must run on the RAW block attributes (as authored), not the values
+	 * merged with Contact_Form's runtime defaults — e.g. `jetpackCRM` defaults to
+	 * `true` at render time but is only "on" when explicitly enabled on the form.
+	 *
+	 * Keep this in sync with the JS helper `isCollectingResponses()` in
+	 * blocks/contact-form/util/is-collecting-responses.ts.
+	 *
+	 * @param array $attributes Raw contact-form block attributes.
+	 * @return bool True when the form has at least one response destination.
+	 */
+	public static function is_collecting_responses( $attributes ) {
+		if ( ! is_array( $attributes ) ) {
+			return true;
+		}
+
+		// Email destination: on by default, and needs a recipient to be a real sink.
+		$email_on      = self::attribute_is_truthy( $attributes, 'emailNotifications', true );
+		$has_recipient = ! array_key_exists( 'to', $attributes ) || '' !== trim( (string) $attributes['to'] );
+		$email_active  = $email_on && $has_recipient;
+
+		// Saving to the responses dashboard: on by default.
+		$saving_active = self::attribute_is_truthy( $attributes, 'saveResponses', true );
+
+		// Integrations that actually persist or route the submission. Akismet
+		// (spam filtering) and Google Drive (exports already-saved responses) are
+		// intentionally excluded — neither is an independent destination.
+		$integration_active = self::attribute_is_truthy( $attributes, 'jetpackCRM', false )
+			|| ! empty( $attributes['mailpoet']['enabledForForm'] )
+			|| ! empty( $attributes['hostingerReach']['enabledForForm'] )
+			|| (
+				! empty( $attributes['salesforceData']['sendToSalesforce'] )
+				&& ! empty( $attributes['salesforceData']['organizationId'] )
+			);
+
+		return $email_active || $saving_active || $integration_active;
+	}
+
+	/**
+	 * Normalize a possibly-boolean-or-string block attribute to a boolean.
+	 *
+	 * Toggle attributes arrive as JS booleans from the editor but are persisted
+	 * as `'yes'`/`'no'` strings in some contexts, so both forms must be handled.
+	 *
+	 * @param array  $attributes Block attributes.
+	 * @param string $key        Attribute name.
+	 * @param bool   $default    Value to use when the attribute is absent.
+	 * @return bool
+	 */
+	private static function attribute_is_truthy( $attributes, $key, $default ) {
+		if ( ! array_key_exists( $key, $attributes ) ) {
+			return $default;
+		}
+
+		$value = $attributes[ $key ];
+
+		if ( is_bool( $value ) ) {
+			return $value;
+		}
+
+		if ( is_string( $value ) ) {
+			return ! in_array( strtolower( trim( $value ) ), array( '', 'no', 'false', '0' ), true );
+		}
+
+		return (bool) $value;
+	}
+
+	/**
+	 * Render an admin-only notice when a form isn't collecting responses.
+	 *
+	 * Shown on the live front-end form and in form previews, but only to users
+	 * who can manage forms (`edit_pages`) — never to visitors.
+	 *
+	 * @param array $attributes Raw contact-form block attributes.
+	 * @return string Notice HTML, or an empty string.
+	 */
+	private static function render_not_collecting_notice( $attributes ) {
+		if ( ! current_user_can( 'edit_pages' ) ) {
+			return '';
+		}
+
+		if ( self::is_collecting_responses( $attributes ) ) {
+			return '';
+		}
+
+		wp_enqueue_style( 'jetpack-form-status-notice' );
+
+		return sprintf(
+			'<div class="jetpack-form-status-notice jetpack-form-status-notice--warning jetpack-form-not-collecting-notice"><p>%s</p></div>',
+			esc_html__( 'Only you can see this. This form isn’t collecting responses. Turn on email or saving to start.', 'jetpack-forms' )
+		);
+	}
+
+	/**
 	 * Construction function.
 	 *
 	 * @param array  $attributes - the attributes.
@@ -1561,6 +1661,9 @@ class Contact_Form extends Contact_Form_Shortcode {
 		}
 
 		$r .= '</div>';
+
+		// Surface an admin-only warning above the form when nothing will capture its responses.
+		$r = self::render_not_collecting_notice( $attributes ) . $r;
 
 		/**
 		 * Filter the contact form, allowing plugins to modify the HTML.

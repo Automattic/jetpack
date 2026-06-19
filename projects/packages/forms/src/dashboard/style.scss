@@ -42,3 +42,14 @@ body.jetpack_page_jetpack-forms-admin {
 	padding-left: 24px;
 	padding-right: 24px;
 }
+
+// Warning icon next to a form that isn't collecting responses.
+.jetpack-forms__not-collecting-icon {
+	display: inline-flex;
+	align-items: center;
+	color: #b32d2e;
+
+	svg {
+		fill: currentColor;
+	}
+}

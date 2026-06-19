@@ -7,12 +7,15 @@ import {
 	Button,
 	__experimentalConfirmDialog as ConfirmDialog, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 	__experimentalHStack as HStack, // eslint-disable-line @wordpress/no-unsafe-wp-apis
+	Icon,
+	Tooltip,
 } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { DataViews } from '@wordpress/dataviews';
 import { dateI18n, getSettings as getDateSettings } from '@wordpress/date';
 import { useEffect, useMemo, useState, useCallback } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
+import { caution } from '@wordpress/icons';
 import { useSearch, useNavigate } from '@wordpress/route';
 import { Badge, EmptyState } from '@wordpress/ui';
 /**
@@ -205,8 +208,31 @@ function StageInner() {
 				id: 'title',
 				label: __( 'Form name', 'jetpack-forms' ),
 				getValue: ( { item }: { item: FormListItem } ) => item.title,
-				render: ( { item }: { item: FormListItem } ) =>
-					item.title || __( '(no title)', 'jetpack-forms' ),
+				render: ( { item }: { item: FormListItem } ) => {
+					const title = item.title || __( '(no title)', 'jetpack-forms' );
+					if ( item.isCollectingResponses ) {
+						return title;
+					}
+					return (
+						<HStack spacing={ 1 } justify="flex-start" expanded={ false }>
+							<span>{ title }</span>
+							<Tooltip
+								delay={ 0 }
+								text={ __(
+									'This form isn’t collecting responses. Turn on email or saving to start.',
+									'jetpack-forms'
+								) }
+							>
+								<span
+									className="jetpack-forms__not-collecting-icon"
+									aria-label={ __( 'This form isn’t collecting responses', 'jetpack-forms' ) }
+								>
+									<Icon icon={ caution } size={ 20 } />
+								</span>
+							</Tooltip>
+						</HStack>
+					);
+				},
 				enableSorting: false,
 				enableHiding: false,
 			},

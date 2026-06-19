@@ -1,1 +1,12 @@
 @use "../shared";
+
+// Warning icon next to a form that isn't collecting responses.
+.jetpack-forms__not-collecting-icon {
+	display: inline-flex;
+	align-items: center;
+	color: #b32d2e;
+
+	svg {
+		fill: currentColor;
+	}
+}
