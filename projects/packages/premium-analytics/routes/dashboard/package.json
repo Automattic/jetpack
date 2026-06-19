@@ -6,10 +6,14 @@
 		"page": "jetpack-premium-analytics"
 	},
 	"dependencies": {
-		"@automattic/jetpack-widget-dashboard": "workspace:*",
-		"@automattic/jetpack-widget-primitives": "workspace:*",
 		"@wordpress/admin-ui": "2.1.0",
+		"@wordpress/api-fetch": "7.46.0",
+		"@wordpress/data": "10.46.0",
 		"@wordpress/element": "6.46.0",
-		"@wordpress/i18n": "^6.9.0"
+		"@wordpress/i18n": "^6.9.0",
+		"@wordpress/preferences": "4.46.0",
+		"@wordpress/widget-dashboard": "link:../../../../../../gutenberg/packages/widget-dashboard",
+		"@wordpress/widget-primitives": "link:../../../../../../gutenberg/packages/widget-primitives",
+		"fast-deep-equal": "^3.1.3"
 	}
 }

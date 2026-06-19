@@ -1,24 +1,24 @@
 /**
  * External dependencies
  */
-import {
-	WidgetDashboard,
-	useDashboardLayout,
-	useDashboardGridSettings,
-} from '@automattic/jetpack-widget-dashboard';
-import { useWidgetTypes } from '@automattic/jetpack-widget-primitives';
+import { WidgetDashboard } from '@wordpress/widget-dashboard';
+import { useWidgetTypes } from '@wordpress/widget-primitives';
 /**
  * WordPress dependencies
  */
 import { Page } from '@wordpress/admin-ui';
 import { useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+/**
+ * Internal dependencies
+ */
+import { DASHBOARD_NAME, useDashboardLayout, useDashboardGridSettings } from './hooks';
 
 /**
  * Premium Analytics dashboard route.
  */
 function Dashboard() {
-	const [ layout, setLayout ] = useDashboardLayout( 'jetpack-premium-analytics_dashboard' );
+	const [ layout, setLayout ] = useDashboardLayout( DASHBOARD_NAME );
 	const [ gridSettings, setGridSettings ] = useDashboardGridSettings();
 	const [ widgetTypes, isResolvingWidgetTypes ] = useWidgetTypes();
 	const [ editMode, setEditMode ] = useState( false );
