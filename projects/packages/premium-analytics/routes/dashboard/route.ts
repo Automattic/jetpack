@@ -4,7 +4,6 @@
 import { store as coreStore } from '@wordpress/core-data';
 import { dispatch, select } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
-
 /**
  * Internal dependencies
  */
@@ -30,6 +29,7 @@ export const route = {
 		const coreDispatch = dispatch( coreStore ) as unknown as {
 			addEntities: ( entities: object[] ) => void;
 		};
+
 		coreDispatch.addEntities( [
 			{
 				name: 'widgetModule',
