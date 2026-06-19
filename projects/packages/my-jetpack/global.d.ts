@@ -43,6 +43,7 @@ type JetpackModule =
 	| 'newsletter'
 	| 'related-posts'
 	| 'jetpack-forms'
+	| 'podcast'
 	| 'brute-force';
 
 type JetpackModuleWithCard =
@@ -55,7 +56,8 @@ type JetpackModuleWithCard =
 	| 'search'
 	| 'social'
 	| 'stats'
-	| 'videopress';
+	| 'videopress'
+	| 'podcast';
 
 type ThreatItem = {
 	// Protect API properties (free plan)

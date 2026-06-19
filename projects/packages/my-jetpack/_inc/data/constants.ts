@@ -67,6 +67,7 @@ export const PRODUCT_SLUGS = {
 	JETPACK_AI: 'jetpack-ai',
 	JETPACK_FORMS: 'jetpack-forms',
 	NEWSLETTER: 'newsletter',
+	PODCAST: 'podcast',
 	PROTECT: 'protect',
 	RELATED_POSTS: 'related-posts',
 	SCAN: 'scan',

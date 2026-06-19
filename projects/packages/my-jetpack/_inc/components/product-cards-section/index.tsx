@@ -9,6 +9,7 @@ import AntiSpamCard from './anti-spam-card';
 import BackupCard from './backup-card';
 import BoostCard from './boost-card';
 import CrmCard from './crm-card';
+import PodcastCard from './podcast-card';
 import ProtectCard from './protect-card';
 import SearchCard from './search-card';
 import SocialCard from './social-card';
@@ -47,6 +48,7 @@ const DisplayItems: FC< DisplayItemsProps > = ( { slugs, isLoading } ) => {
 		crm: CrmCard,
 		social: SocialCard,
 		'jetpack-ai': AiCard,
+		podcast: PodcastCard,
 	};
 
 	const filteredSlugs = slugs.filter( slug => {
