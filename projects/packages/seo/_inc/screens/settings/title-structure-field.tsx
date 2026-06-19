@@ -76,7 +76,7 @@ const TitleStructureRow: FC< RowProps > = ( { pageTypeId, label, tokens, onChang
 
 	return (
 		<div className="jetpack-seo-settings__title-row">
-			<Stack direction="row" gap="xs" wrap>
+			<Stack direction="row" gap="xs" wrap="wrap">
 				{ PAGE_TYPE_SUGGESTIONS[ pageTypeId ].map( tokenId => (
 					<Button
 						key={ tokenId }
