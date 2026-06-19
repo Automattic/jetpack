@@ -9,11 +9,7 @@ interface PodcastCardProps {
 
 const PodcastCard: FC< PodcastCardProps > = ( { admin, recommendation } ) => {
 	return (
-		<ProductCard
-			slug={ PRODUCT_SLUGS.PODCAST }
-			admin={ admin }
-			recommendation={ recommendation }
-		/>
+		<ProductCard slug={ PRODUCT_SLUGS.PODCAST } admin={ admin } recommendation={ recommendation } />
 	);
 };
 
