@@ -15,12 +15,6 @@ import { ToggleWithEditorLink } from '../components/toggle-with-link';
 import { getNewsletterScriptData } from '../script-data';
 import type { NewsletterSettings } from '../types';
 
-interface FieldRenderProps {
-	data: NewsletterSettings;
-	field: Field< Record< string, unknown > >;
-	onChange: ( updates: Partial< NewsletterSettings > ) => void;
-}
-
 interface LegacySubscriptionsSectionProps {
 	data: NewsletterSettings;
 	onChange: ( updates: Partial< NewsletterSettings > ) => void;
@@ -75,7 +69,7 @@ export function LegacySubscriptionsSection( {
 			label: __( 'Add the Subscribe Block at the end of each post', 'jetpack-newsletter' ),
 			type: 'boolean' as const,
 			Edit: canShowSubscriptionEditorLinks
-				? ( { data: formData, field, onChange: fieldOnChange }: FieldRenderProps ) => (
+				? ( { data: formData, field, onChange: fieldOnChange } ) => (
 						<ToggleWithEditorLink
 							data={ formData }
 							field={ field }
@@ -93,7 +87,7 @@ export function LegacySubscriptionsSection( {
 			label: __( 'Show subscription pop-up when scrolling a post', 'jetpack-newsletter' ),
 			type: 'boolean' as const,
 			Edit: canShowBlockThemeEditorLinks
-				? ( { data: formData, field, onChange: fieldOnChange }: FieldRenderProps ) => (
+				? ( { data: formData, field, onChange: fieldOnChange } ) => (
 						<ToggleWithEditorLink
 							data={ formData }
 							field={ field }
@@ -111,7 +105,7 @@ export function LegacySubscriptionsSection( {
 			label: __( 'Subscription overlay on homepage', 'jetpack-newsletter' ),
 			type: 'boolean' as const,
 			Edit: canShowBlockThemeEditorLinks
-				? ( { data: formData, field, onChange: fieldOnChange }: FieldRenderProps ) => (
+				? ( { data: formData, field, onChange: fieldOnChange } ) => (
 						<ToggleWithEditorLink
 							data={ formData }
 							field={ field }
@@ -129,7 +123,7 @@ export function LegacySubscriptionsSection( {
 			label: __( "Floating subscribe button on site's bottom corner", 'jetpack-newsletter' ),
 			type: 'boolean' as const,
 			Edit: canShowBlockThemeEditorLinks
-				? ( { data: formData, field, onChange: fieldOnChange }: FieldRenderProps ) => (
+				? ( { data: formData, field, onChange: fieldOnChange } ) => (
 						<ToggleWithEditorLink
 							data={ formData }
 							field={ field }
@@ -147,7 +141,7 @@ export function LegacySubscriptionsSection( {
 			label: __( 'Add the Subscribe Block to the navigation', 'jetpack-newsletter' ),
 			type: 'boolean' as const,
 			Edit: canShowSubscriptionEditorLinks
-				? ( { data: formData, field, onChange: fieldOnChange }: FieldRenderProps ) => (
+				? ( { data: formData, field, onChange: fieldOnChange } ) => (
 						<ToggleWithEditorLink
 							data={ formData }
 							field={ field }
@@ -165,7 +159,7 @@ export function LegacySubscriptionsSection( {
 			label: __( 'Add the Subscriber Login Block to the navigation', 'jetpack-newsletter' ),
 			type: 'boolean' as const,
 			Edit: canShowSubscriptionEditorLinks
-				? ( { data: formData, field, onChange: fieldOnChange }: FieldRenderProps ) => (
+				? ( { data: formData, field, onChange: fieldOnChange } ) => (
 						<ToggleWithEditorLink
 							data={ formData }
 							field={ field }

@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Align the settings DataForm field `Edit` controls, the import-subscribers notice `ActionLink`, and the dashboard tab panels with the `@wordpress/dataviews` 16 and `@wordpress/ui` 0.15 type APIs.
