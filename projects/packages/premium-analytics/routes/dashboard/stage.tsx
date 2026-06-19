@@ -2,11 +2,13 @@
  * External dependencies
  */
 import { WidgetDashboard } from '@wordpress/widget-dashboard';
-import { useWidgetTypes } from '@wordpress/widget-primitives';
+import { useWidgetTypes, type WidgetModuleRecord } from '@wordpress/widget-primitives';
 /**
  * WordPress dependencies
  */
 import { Page } from '@wordpress/admin-ui';
+import { store as coreStore } from '@wordpress/core-data';
+import { useSelect } from '@wordpress/data';
 import { useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 /**
@@ -20,7 +22,19 @@ import { DASHBOARD_NAME, useDashboardLayout, useDashboardGridSettings } from './
 function Dashboard() {
 	const [ layout, setLayout ] = useDashboardLayout( DASHBOARD_NAME );
 	const [ gridSettings, setGridSettings ] = useDashboardGridSettings();
-	const [ widgetTypes, isResolvingWidgetTypes ] = useWidgetTypes();
+
+	const widgetModules = useSelect(
+		select =>
+			(
+				select( coreStore ) as unknown as {
+					getEntityRecords: ( kind: string, name: string ) => WidgetModuleRecord[] | null;
+				}
+			 ).getEntityRecords( 'root', 'widgetModule' ),
+		[]
+	);
+
+	const [ widgetTypes, isResolvingWidgetTypes ] = useWidgetTypes( widgetModules );
+
 	const [ editMode, setEditMode ] = useState( false );
 
 	return (
