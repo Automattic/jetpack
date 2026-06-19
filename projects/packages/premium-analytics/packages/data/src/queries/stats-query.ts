@@ -21,6 +21,7 @@ import {
 } from '../processing/stats';
 import {
 	reportParamsToStatsQueryParams,
+	statsQueryParamsToApiParams,
 	statsQueryKeyPart,
 	type StatsQueryParams,
 } from '../utils/stats-params';
@@ -43,7 +44,7 @@ const statsSanitizers = {
 	videoPlays: sanitizeStatsVideoPlaysResponse,
 } satisfies Record< string, StatsSanitizer >;
 
-type StatsSanitizerKey = keyof typeof statsSanitizers;
+export type StatsSanitizerKey = keyof typeof statsSanitizers;
 
 export type StatsQueryConfig = {
 	name: string;
@@ -66,6 +67,8 @@ export function statsProxyQuery< TData = unknown >( {
 	sanitizer = 'passthrough',
 	enabled = true,
 }: StatsQueryConfig ): UseQueryOptions< TData > {
+	const apiParams = statsQueryParamsToApiParams( params );
+
 	return {
 		queryKey: [
 			'stats',
@@ -73,20 +76,26 @@ export function statsProxyQuery< TData = unknown >( {
 			version,
 			endpoint,
 			method,
-			statsQueryKeyPart( params ),
+			statsQueryKeyPart( apiParams ),
 			statsQueryKeyPart( body ),
 			sanitizer,
 		],
 		queryFn: async () => {
-			const response = await fetchStatsProxy( { version, endpoint, params, method, body } );
-			return statsSanitizers[ sanitizer ]( response, params ) as TData;
+			const response = await fetchStatsProxy( {
+				version,
+				endpoint,
+				params: apiParams,
+				method,
+				body,
+			} );
+			return statsSanitizers[ sanitizer ]( response, apiParams ) as TData;
 		},
 		enabled,
 		placeholderData: previousData => previousData,
 	};
 }
 
-function statsReportQuery< TData = StatsNormalizedReport >(
+export function statsReportQuery< TData = StatsNormalizedReport >(
 	name: string,
 	endpoint: string,
 	params: StatsReportParams,
@@ -101,52 +110,6 @@ function statsReportQuery< TData = StatsNormalizedReport >(
 		endpoint,
 		params: statsParams,
 		sanitizer,
-		enabled: !! ( statsParams.date || statsParams.start_date || params.from || params.to ),
+		enabled: !! ( statsParams.end_date || statsParams.date || statsParams.start_date ),
 	} );
 }
-
-export const statsSiteQuery = ( params: StatsQueryParams = {} ) =>
-	statsProxyQuery( {
-		name: 'site',
-		version: '1.1',
-		endpoint: 'stats',
-		params,
-		sanitizer: 'site',
-	} );
-
-export const statsTopPostsQuery = ( params: StatsReportParams ) =>
-	statsReportQuery( 'top-posts', 'stats/top-posts', params, 'topPosts' );
-
-export const statsReferrersQuery = ( params: StatsReportParams ) =>
-	statsReportQuery( 'referrers', 'stats/referrers', params, 'referrers' );
-
-export const statsClicksQuery = ( params: StatsReportParams ) =>
-	statsReportQuery( 'clicks', 'stats/clicks', params, 'clicks' );
-
-export const statsSearchTermsQuery = ( params: StatsReportParams ) =>
-	statsReportQuery( 'search-terms', 'stats/search-terms', params, 'searchTerms' );
-
-export const statsFileDownloadsQuery = ( params: StatsReportParams ) =>
-	statsReportQuery( 'file-downloads', 'stats/file-downloads', params, 'fileDownloads' );
-
-export const statsTopAuthorsQuery = ( params: StatsReportParams ) =>
-	statsReportQuery( 'top-authors', 'stats/top-authors', params, 'topAuthors' );
-
-export const statsLocationsQuery = (
-	params: StatsReportParams & { geoMode?: 'country' | 'region' | 'city' }
-) => {
-	const geoMode = params.geoMode ?? 'country';
-
-	return statsReportQuery(
-		`locations-${ geoMode }`,
-		`stats/location-views/${ geoMode }`,
-		params,
-		'locations'
-	);
-};
-
-export const statsCountryViewsQuery = ( params: StatsReportParams ) =>
-	statsReportQuery( 'country-views', 'stats/country-views', params, 'locations' );
-
-export const statsVideoPlaysQuery = ( params: StatsReportParams ) =>
-	statsReportQuery( 'video-plays', 'stats/video-plays', params, 'videoPlays' );
