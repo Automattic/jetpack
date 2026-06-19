@@ -344,6 +344,7 @@ const SettingsTab = ( { onAfterDisable }: SettingsTabProps = {} ) => {
 									__nextHasNoMarginBottom
 									__experimentalExpandOnFocus
 									__experimentalValidateInput={ isKnownTopic }
+									__experimentalShowHowTo={ false }
 									label={ __( 'Podcast topics', 'jetpack-podcast' ) }
 									value={ draftTopics }
 									suggestions={ TOPIC_SUGGESTIONS }
