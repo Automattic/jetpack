@@ -1,0 +1,79 @@
+<?php
+/**
+ * Image Compare block render implementation.
+ *
+ * Loaded lazily from image-compare.php only when the block is rendered, to keep
+ * the render body out of the eager front-end PHP/opcache footprint.
+ *
+ * @package automattic/jetpack
+ */
+
+namespace Automattic\Jetpack\Extensions\ImageCompare;
+
+use Automattic\Jetpack\Blocks;
+use Jetpack_Gutenberg;
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
+/**
+ * Dynamic rendering of the block.
+ *
+ * @param array  $attr    Array containing the image-compare block attributes.
+ * @param string $content String containing the image-compare block content.
+ *
+ * @return string
+ */
+function render_implementation( $attr, $content ) {
+	Jetpack_Gutenberg::load_assets_as_required( __DIR__ );
+	wp_localize_script(
+		'jetpack-block-' . sanitize_title_with_dashes( Blocks::get_block_feature( __DIR__ ) ),
+		'imageCompareHandle',
+		array(
+			'msg' => __( 'Slide to compare images', 'jetpack' ),
+		)
+	);
+	if ( Blocks::is_amp_request() ) {
+		$content = preg_replace(
+			'#<div class="juxtapose".+?</div>#s',
+			render_amp( $attr ),
+			$content
+		);
+	}
+
+	return $content;
+}
+
+/**
+ * Render image compare block for AMP
+ *
+ * @param array $attr Array containing the image-compare block attributes.
+ *
+ * @return string Markup for amp-image-slider.
+ */
+function render_amp( $attr ) {
+	$img_before = $attr['imageBefore'];
+	$img_after  = $attr['imageAfter'];
+
+	$width  = ! empty( $img_before['width'] ) ? absint( $img_before['width'] ) : 0;
+	$height = ! empty( $img_before['height'] ) ? absint( $img_before['height'] ) : 0;
+
+	// As fallback, give 1:1 aspect ratio.
+	if ( ! $width || ! $height ) {
+		$width  = 1;
+		$height = 1;
+	}
+
+	return sprintf(
+		'<amp-image-slider layout="responsive" width="%1$s" height="%2$s"> <amp-img id="%3$d" src="%4$s" alt="%5$s" layout="fill"></amp-img> <amp-img id="%6$d" src="%7$s" alt="%8$s" layout="fill"></amp-img></amp-image-slider>',
+		esc_attr( $width ),
+		esc_attr( $height ),
+		absint( $img_before['id'] ?? 0 ),
+		esc_url( $img_before['url'] ?? '' ),
+		esc_attr( $img_before['alt'] ?? '' ),
+		absint( $img_after['id'] ?? 0 ),
+		esc_url( $img_after['url'] ?? '' ),
+		esc_attr( $img_after['alt'] ?? '' )
+	);
+}

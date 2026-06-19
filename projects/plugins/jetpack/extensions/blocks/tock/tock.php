@@ -10,7 +10,6 @@
 namespace Automattic\Jetpack\Extensions\Tock;
 
 use Automattic\Jetpack\Blocks;
-use Jetpack_Gutenberg;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit( 0 );
@@ -32,38 +31,12 @@ add_action( 'init', __NAMESPACE__ . '\register_block' );
 /**
  * Render the widget and associated JS
  *
+ * The render implementation lives in render.php and is only loaded when the
+ * block is actually rendered, keeping it out of the eager front-end path.
+ *
  * @param array $attr    The block attributes.
  */
 function render_block( $attr ) {
-	$content = '<div id="Tock_widget_container" data-tock-display-mode="Button" data-tock-color-mode="Blue" data-tock-locale="en-us" data-tock-timezone="America/New_York"></div>';
-	if ( empty( $attr['url'] ) ) {
-		if ( ! current_user_can( 'edit_posts' ) ) {
-			return;
-		}
-
-		return Jetpack_Gutenberg::notice(
-			__( 'The block will not be shown to your site visitors until a Tock business name is set.', 'jetpack' ),
-			'warning',
-			Blocks::classes( Blocks::get_block_feature( __DIR__ ), $attr )
-		);
-	}
-
-	wp_enqueue_script( 'tock-widget', 'https://www.exploretock.com/tock.js', array(), JETPACK__VERSION, true );
-
-	// Add CSS to hide direct link.
-	Jetpack_Gutenberg::load_assets_as_required( __DIR__ );
-
-	wp_add_inline_script(
-		'tock-widget',
-		"!function(t,o){if(!t.tock){var e=t.tock=function(){e.callMethod?
-		  e.callMethod.apply(e,arguments):e.queue.push(arguments)};t._tock||(t._tock=e),
-		  e.push=e,e.loaded=!0,e.version='1.0',e.queue=[];}}(window,document);
-			tock('init', " . wp_json_encode( $attr['url'], JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ) . ');',
-		'before'
-	);
-	return sprintf(
-		'<div class="%1$s">%2$s</div>',
-		esc_attr( Blocks::classes( Blocks::get_block_feature( __DIR__ ), $attr ) ),
-		$content
-	);
+	require_once __DIR__ . '/render.php';
+	return render_block_implementation( $attr );
 }
