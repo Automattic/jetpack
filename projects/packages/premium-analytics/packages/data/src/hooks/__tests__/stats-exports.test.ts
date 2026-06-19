@@ -8,6 +8,8 @@ describe( 'Stats public hook names', () => {
 		expect( dataPackage ).toHaveProperty( 'useStatsEmailSummary' );
 		expect( dataPackage ).toHaveProperty( 'useStatsEmailOpensBreakdown' );
 		expect( dataPackage ).toHaveProperty( 'useStatsEmailClicksBreakdown' );
+		expect( dataPackage ).toHaveProperty( 'useStatsSubscribersCounts' );
+		expect( dataPackage ).toHaveProperty( 'useStatsWordAdsEarnings' );
 		expect( dataPackage ).toHaveProperty( 'useStatsWordAdsStats' );
 		expect( dataPackage ).toHaveProperty( 'useStatsUtm' );
 	} );
@@ -22,7 +24,6 @@ describe( 'Stats public hook names', () => {
 		expect( dataPackage ).toHaveProperty( 'useStatsAppPurchases' );
 		expect( dataPackage ).toHaveProperty( 'useStatsAppNotices' );
 		expect( dataPackage ).toHaveProperty( 'useStatsAppNoticeMutation' );
-		expect( dataPackage ).toHaveProperty( 'useStatsAppWordAdsEarnings' );
 		expect( dataPackage ).toHaveProperty( 'useStatsAppCommercialClassificationMutation' );
 	} );
 } );

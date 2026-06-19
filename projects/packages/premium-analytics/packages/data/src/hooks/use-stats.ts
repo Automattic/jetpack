@@ -29,12 +29,14 @@ import {
 	statsSingleVideoQuery,
 	statsSiteQuery,
 	statsStreakQuery,
+	statsSubscribersCountsQuery,
 	statsSubscribersQuery,
 	statsTagsQuery,
 	statsTopAuthorsQuery,
 	statsTopPostsQuery,
 	statsUtmQuery,
 	statsVideoPlaysQuery,
+	statsWordAdsEarningsQuery,
 	statsVisitsQuery,
 	statsWordAdsStatsQuery,
 	type StatsReportParams,
@@ -253,6 +255,13 @@ export function useStatsSubscribers( params?: StatsQueryParams, options?: UseSta
 	return useQuery( { ...statsSubscribersQuery( params ), enabled: options?.enabled ?? true } );
 }
 
+export function useStatsSubscribersCounts( params?: StatsQueryParams, options?: UseStatsOptions ) {
+	return useQuery( {
+		...statsSubscribersCountsQuery( params ),
+		enabled: options?.enabled ?? true,
+	} );
+}
+
 export function useStatsSinglePost(
 	postId: number,
 	params?: StatsQueryParams,
@@ -327,4 +336,8 @@ export function useStatsEmailClicksTimeSeries(
 
 export function useStatsWordAdsStats( params?: StatsQueryParams, options?: UseStatsOptions ) {
 	return useQuery( { ...statsWordAdsStatsQuery( params ), enabled: options?.enabled ?? true } );
+}
+
+export function useStatsWordAdsEarnings( params?: StatsQueryParams, options?: UseStatsOptions ) {
+	return useQuery( { ...statsWordAdsEarningsQuery( params ), enabled: options?.enabled ?? true } );
 }

@@ -15,8 +15,6 @@ import {
 	statsAppPurchasesQuery,
 	statsAppReferrersSpamQuery,
 	statsAppSiteHasNeverPublishedPostQuery,
-	statsAppSubscribersCountsQuery,
-	statsAppWordAdsEarningsQuery,
 	updateStatsAppNotice,
 	type StatsAppNoticeMutationParams,
 } from '../queries/stats-app-queries';
@@ -29,16 +27,6 @@ type UseStatsAppOptions = {
 export function useStatsAppReferrersSpam( options?: UseStatsAppOptions ) {
 	return useQuery( {
 		...statsAppReferrersSpamQuery(),
-		enabled: options?.enabled ?? true,
-	} );
-}
-
-export function useStatsAppSubscribersCounts(
-	params?: StatsQueryParams,
-	options?: UseStatsAppOptions
-) {
-	return useQuery( {
-		...statsAppSubscribersCountsQuery( params ),
 		enabled: options?.enabled ?? true,
 	} );
 }
@@ -76,16 +64,6 @@ export function useStatsAppDashboardModuleSettings(
 ) {
 	return useQuery( {
 		...statsAppDashboardModuleSettingsQuery( params ),
-		enabled: options?.enabled ?? true,
-	} );
-}
-
-export function useStatsAppWordAdsEarnings(
-	params?: StatsQueryParams,
-	options?: UseStatsAppOptions
-) {
-	return useQuery( {
-		...statsAppWordAdsEarningsQuery( params ),
 		enabled: options?.enabled ?? true,
 	} );
 }

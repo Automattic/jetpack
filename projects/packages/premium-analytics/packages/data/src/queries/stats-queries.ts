@@ -234,6 +234,14 @@ export const statsSubscribersQuery = ( params: StatsQueryParams = {} ) =>
 		sanitizer: 'timeSeries',
 	} );
 
+export const statsSubscribersCountsQuery = ( params: StatsQueryParams = {} ) =>
+	statsProxyQuery( {
+		name: 'subscribers-counts',
+		version: '2',
+		endpoint: 'subscribers/counts',
+		params,
+	} );
+
 export const statsSinglePostQuery = ( postId: number, params: StatsQueryParams = {} ) =>
 	statsProxyQuery( {
 		name: 'single-post',
@@ -311,4 +319,12 @@ export const statsWordAdsStatsQuery = ( params: StatsQueryParams = {} ) =>
 		endpoint: 'wordads/stats',
 		params,
 		sanitizer: 'timeSeries',
+	} );
+
+export const statsWordAdsEarningsQuery = ( params: StatsQueryParams = {} ) =>
+	statsProxyQuery( {
+		name: 'wordads-earnings',
+		version: '1.1',
+		endpoint: 'wordads/earnings',
+		params,
 	} );

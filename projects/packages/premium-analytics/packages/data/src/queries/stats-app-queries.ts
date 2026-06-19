@@ -58,14 +58,6 @@ export const statsAppReferrersSpamQuery = () =>
 		endpoint: 'stats/referrers/spam',
 	} );
 
-export const statsAppSubscribersCountsQuery = ( params: StatsQueryParams = {} ) =>
-	statsAppProxyQuery( {
-		name: 'subscribers-counts',
-		version: '2',
-		endpoint: 'subscribers/counts',
-		params,
-	} );
-
 export const statsAppSiteHasNeverPublishedPostQuery = ( params: StatsQueryParams = {} ) =>
 	statsAppProxyQuery( {
 		name: 'site-has-never-published-post',
@@ -95,14 +87,6 @@ export const statsAppDashboardModuleSettingsQuery = ( params: StatsQueryParams =
 		name: 'dashboard-module-settings',
 		version: '2',
 		endpoint: 'jetpack-stats-dashboard/module-settings',
-		params,
-	} );
-
-export const statsAppWordAdsEarningsQuery = ( params: StatsQueryParams = {} ) =>
-	statsAppProxyQuery( {
-		name: 'wordads-earnings',
-		version: '1.1',
-		endpoint: 'wordads/earnings',
 		params,
 	} );
 
