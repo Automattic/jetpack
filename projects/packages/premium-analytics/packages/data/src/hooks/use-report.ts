@@ -47,35 +47,29 @@ type QueryFactory< TData > = (
  * );
  * ```
  */
-export function useReport< TData >(
+export function useReport< TData, TParams extends ReportParams = ReportParams >(
 	queryFactory: QueryFactory< TData >,
-	params: ReportParams,
+	params: TParams,
 	options?: UseReportOptions
 ) {
 	const queryEnabled = options?.enabled ?? true;
 	const comparisonEnabled = hasComparisonEnabled( params );
+	const primaryParams = { ...params };
+	delete primaryParams.compare_from;
+	delete primaryParams.compare_to;
+	delete primaryParams.compare_preset;
+	delete primaryParams.comp;
 
 	// Create primary query
-	const primaryQueryOptions = queryFactory(
-		{
-			from: params.from,
-			to: params.to,
-			interval: params.interval,
-			filters: params.filters,
-			date_type: params.date_type,
-		},
-		'primary'
-	);
+	const primaryQueryOptions = queryFactory( primaryParams, 'primary' );
 
 	// Create comparison query if comparison is enabled
 	const comparisonQueryOptions = comparisonEnabled
 		? queryFactory(
 				{
+					...primaryParams,
 					from: params.compare_from,
 					to: params.compare_to,
-					interval: params.interval,
-					filters: params.filters,
-					date_type: params.date_type,
 				},
 				'comparison'
 		  )
