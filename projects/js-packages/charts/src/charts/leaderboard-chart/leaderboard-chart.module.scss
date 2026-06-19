@@ -100,12 +100,13 @@
 	text-align: inherit;
 	cursor: pointer;
 
-	// On hover/focus the bars dim and scale back (toward their left origin) and
-	// the value/delta slides left, clearing room for the chevron revealed at the
-	// right edge. No row background — the bars themselves carry the hover state.
+	// On hover/focus the bar dims and its right edge pulls back by a fixed amount
+	// while the value/delta slides left by the same amount, clearing room for the
+	// chevron revealed at the right edge. Because both move by the same fixed
+	// pixels (not a percentage scale), the bar↔value gap stays identical at rest
+	// and on hover for every row. No row background — the bar carries the state.
 	.bar {
-		transform-origin: left center;
-		transition: opacity 0.15s ease, transform 0.15s ease;
+		transition: opacity 0.15s ease, width 0.15s ease;
 	}
 
 	.valueContainer {
@@ -115,18 +116,20 @@
 	&:hover,
 	&:focus-visible {
 
+		// Fixed pixel reserve for the chevron — shared by the bar width inset
+		// (see leaderboard-chart.tsx) and the value slide so their gap is constant.
+		--a8c--charts--leaderboard--bar--hover-inset: 32px;
+
 		.bar {
 			opacity: 0.5;
-			transform: scaleX(0.9);
 		}
 
 		.valueContainer {
-			transform: translateX(-40px);
+			transform: translateX(calc(-1 * var(--a8c--charts--leaderboard--bar--hover-inset)));
 		}
 
 		.chevron {
 			opacity: 1;
-			transform: translateY(-50%) translateX(0);
 		}
 	}
 
@@ -138,12 +141,13 @@
 
 .chevron {
 	position: absolute;
-	right: var(--wpds-dimension-padding-sm, 8px);
-	top: 50%;
-	transform: translateY(-50%) translateX(8px);
+	right: var(--wpds-dimension-padding-xs, 4px);
+	top: 0;
+	bottom: 0;
+	margin-block: auto;
 	opacity: 0;
 	color: var(--wpds-color-fg-content-neutral-weak, #707070);
-	transition: opacity 0.15s ease, transform 0.15s ease;
+	transition: opacity 0.15s ease;
 	pointer-events: none;
 }
 

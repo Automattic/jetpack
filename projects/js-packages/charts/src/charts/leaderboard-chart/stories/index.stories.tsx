@@ -187,10 +187,28 @@ export const Interactive: Story = {
 	args: {
 		data: sampleData.map( entry => ( {
 			...entry,
+			label: (
+				<span
+					style={ {
+						display: 'flex',
+						alignItems: 'center',
+						minHeight: '40px',
+						padding: '0 6px',
+						fontSize: '13px',
+					} }
+				>
+					{ entry.label }
+				</span>
+			),
 			onClick: () => onLeaderboardItemClick( entry.id ),
 		} ) ),
 		withComparison: true,
+		withOverlayLabel: true,
+		style: {
+			'--a8c--charts--leaderboard--bar--border-radius': '4px',
+		},
 	},
+	render: args => <LeaderboardChartWithOverlayLabelImage { ...args } />,
 	parameters: {
 		docs: {
 			description: {

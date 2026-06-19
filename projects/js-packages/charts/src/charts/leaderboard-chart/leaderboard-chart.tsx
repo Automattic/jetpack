@@ -71,6 +71,17 @@ const defaultDeltaFormatter = ( value: number ): string => {
 	} );
 };
 
+/**
+ * Build a bar's width. A hover-inset CSS variable (0 by default) is subtracted
+ * so interactive rows can pull the bar's right edge back by a fixed pixel amount
+ * on hover — instead of a percentage scale — keeping the bar↔value gap constant.
+ *
+ * @param share - The bar's share of the row width, as a percentage.
+ * @return A CSS width value.
+ */
+const getBarWidth = ( share: number ): string =>
+	`calc(${ share }% - var(--a8c--charts--leaderboard--bar--hover-inset, 0px))`;
+
 const BarLabel = ( { label }: { label: string | JSX.Element } ) => (
 	<>{ typeof label === 'string' ? <Text className={ styles.label }>{ label }</Text> : label }</>
 );
@@ -107,7 +118,7 @@ const BarWithLabel = ( {
 					[ styles[ 'bar--animated' ] ]: animation,
 				} ) }
 				style={ {
-					width: entry.currentShare + '%',
+					width: getBarWidth( entry.currentShare ),
 					backgroundColor: primaryColor,
 				} }
 			></div>
@@ -119,7 +130,7 @@ const BarWithLabel = ( {
 					[ styles[ 'bar--animated' ] ]: animation,
 				} ) }
 				style={ {
-					width: entry.previousShare + '%',
+					width: getBarWidth( entry.previousShare ),
 					backgroundColor: secondaryColor,
 				} }
 			></div>
