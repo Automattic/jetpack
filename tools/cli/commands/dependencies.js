@@ -51,6 +51,10 @@ infrastructureFileSets.e2e = {
 	},
 };
 
+// The set of files whose change invalidates every project's build (reused by the build cache to
+// derive a "tool version": editing build infrastructure busts all cached builds).
+export const infrastructureBuildFiles = infrastructureFileSets.build;
+
 // Files to ignore for --git-changed.
 const ignoreFiles = [ '**/*.md', '**/*.txt' ];
 
