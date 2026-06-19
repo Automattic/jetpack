@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add the externalized Jetpack connection data store on a /connection subpath.
