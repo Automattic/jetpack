@@ -78,6 +78,14 @@ test.describe( 'Jetpack Protect Plugin', () => {
 			await expect(
 				firewallPanel.getByRole( 'heading', { name: 'Firewall is on', exact: true } )
 			).toBeVisible();
+
+			// The active route renders into exactly one tab panel. Each panel shares the
+			// same <Outlet />, so a regression that rendered inactive panels' content
+			// (e.g. flipping Tabs.Panel to keepMounted) would duplicate this heading
+			// page-wide. Assert page scope, not the panel, to catch that.
+			await expect(
+				page.getByRole( 'heading', { name: 'Firewall is on', exact: true } )
+			).toHaveCount( 1 );
 		} );
 
 		await test.step( 'Test the brute force protection setting', async () => {
