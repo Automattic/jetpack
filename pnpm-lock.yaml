@@ -4861,6 +4861,9 @@ importers:
       '@babel/preset-env':
         specifier: 7.29.7
         version: 7.29.7(@babel/core@7.29.7)
+      '@jest/globals':
+        specifier: 30.4.1
+        version: 30.4.1
       '@testing-library/dom':
         specifier: 10.4.1
         version: 10.4.1

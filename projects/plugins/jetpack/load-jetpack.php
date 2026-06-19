@@ -90,6 +90,7 @@ add_action( 'updating_jetpack_version', array( 'Jetpack', 'activate_subscription
 // Sitemaps / Canonical URLs modules still exist. Removed in the deferred post-convergence
 // follow-up that absorbs those modules into Jetpack SEO.
 Jetpack::register_seo_module_migration_hooks();
+add_action( 'updating_jetpack_version', array( 'Jetpack', 'seed_seo_visibility_cohort' ), 10, 2 );
 add_filter( 'is_jetpack_site', '__return_true' );
 
 require_once JETPACK__PLUGIN_DIR . '3rd-party/3rd-party.php';

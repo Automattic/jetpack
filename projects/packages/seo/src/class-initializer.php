@@ -13,6 +13,7 @@ namespace Automattic\Jetpack\SEO;
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Modules;
+use Automattic\Jetpack\Status\Host;
 use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills;
 use Jetpack_SEO_Titles;
 use Jetpack_SEO_Utils;
@@ -109,6 +110,20 @@ class Initializer {
 	const CANONICAL_ENABLED_OPTION = 'jetpack_seo_canonical_urls_enabled';
 
 	/**
+	 * Option recording whether the Jetpack SEO surface is discoverable on this site.
+	 *
+	 * Gates whether the SEO admin menu registers on self-hosted sites. Seeded once by the
+	 * Jetpack plugin on install/upgrade: fresh installs default to visible, existing
+	 * installs default to hidden and opt in via the legacy Traffic page or My Jetpack.
+	 * WordPress.com (Simple + Atomic) bypasses this option entirely and is always visible.
+	 * Absent until seeded, in which case self-hosted defaults to hidden (the non-disruptive
+	 * default). See {@see self::is_seo_surface_visible()}.
+	 *
+	 * @var string
+	 */
+	const VISIBILITY_OPTION = 'jetpack_seo_surface_visible';
+
+	/**
 	 * Whether the package has been initialized.
 	 *
 	 * @var bool
@@ -133,28 +148,46 @@ class Initializer {
 			return;
 		}
 
-		// Gate the entire SEO surface on the `seo-tools` module being active,
-		// the same way other Jetpack modules do. When the module is off we
-		// register nothing — no admin menu, no assets — rather than registering
-		// everything and hiding the menu downstream.
-		if ( ! self::is_seo_tools_module_active() ) {
+		// The opt-in endpoint must be reachable even before the surface is visible, so
+		// existing self-hosted installs can switch to the new experience from the legacy
+		// Traffic page or My Jetpack (JETPACK-1700). Registered ahead of the cohort gate.
+		add_action( 'rest_api_init', array( __CLASS__, 'register_optin_route' ) );
+
+		// Expose opt-in availability to other admin surfaces (the legacy Traffic-page
+		// banner reads it via `@automattic/jetpack-script-data`). Hooked here — after the
+		// feature flag, before the cohort gate — so a still-hidden install gets the signal.
+		add_filter( 'jetpack_admin_js_script_data', array( __CLASS__, 'inject_optin_availability' ) );
+
+		// Discoverability cohort gate: the SEO surface is auto-discoverable for fresh
+		// installs and all WordPress.com sites; existing self-hosted installs opt in via
+		// the legacy Traffic page or My Jetpack (JETPACK-1700). Until it's visible we
+		// register nothing else here and let those opt-in surfaces drive discovery.
+		if ( ! self::is_seo_surface_visible() ) {
 			return;
 		}
 
-		// Front-end JSON-LD schema (Article / FAQ). Self-hooks `wp_head`, so it
-		// only emits on front-end requests.
-		Schema_Builder::init();
-
+		// The admin menu and app shell register whenever the surface is visible, even
+		// when the `seo-tools` module is inactive, so SEO stays discoverable and can be
+		// turned on from within the page itself (JETPACK-1700). When the module is off,
+		// the Overview renders only its "enable SEO tools" affordance.
+		//
 		// Priority 1: load the wp-build bundle (and define its render function)
 		// before `add_menu_item()` runs at the default priority and needs it.
 		add_action( 'admin_menu', array( __CLASS__, 'maybe_load_wp_build' ), 1 );
 		add_action( 'admin_menu', array( __CLASS__, 'add_menu_item' ), 10 );
 
-		// Expose the core `blog_public` option to the REST settings endpoint so
-		// the Settings tab can save search-engine visibility via `/wp/v2/settings`.
-		// (The Jetpack settings endpoint only accepts Jetpack options.) Writes
-		// are still capability-gated by the core settings controller.
-		add_action( 'rest_api_init', array( __CLASS__, 'register_rest_settings' ) );
+		// The settings surface only comes online once SEO tools are active — there's
+		// nothing to configure while the module is off, so we don't register its REST
+		// endpoints until then. Expose the core `blog_public` option to the REST settings
+		// endpoint so the Settings tab can save search-engine visibility via
+		// `/wp/v2/settings` (the Jetpack settings endpoint only accepts Jetpack options).
+		// Writes are still capability-gated by the core settings controller.
+		if ( self::is_seo_tools_module_active() ) {
+			// Front-end JSON-LD schema (Article / FAQ). Self-hooks `wp_head`, so it only
+			// emits on front-end requests.
+			Schema_Builder::init();
+			add_action( 'rest_api_init', array( __CLASS__, 'register_rest_settings' ) );
+		}
 
 		/**
 		 * Fires after the Jetpack SEO package is initialized.
@@ -273,6 +306,25 @@ class Initializer {
 	}
 
 	/**
+	 * Expose whether this install should be offered the SEO opt-in, onto
+	 * `window.JetpackScriptData.seo.optin_available` for other admin surfaces (e.g. the
+	 * legacy Traffic-page banner). Only hooked when the feature flag is on, so the field is
+	 * simply absent otherwise.
+	 *
+	 * @param array $data Script data being injected onto the page.
+	 * @return array
+	 */
+	public static function inject_optin_availability( $data ) {
+		if ( ! is_array( $data ) ) {
+			$data = array();
+		}
+
+		$data[ self::SCRIPT_DATA_KEY ]['optin_available'] = self::is_optin_available();
+
+		return $data;
+	}
+
+	/**
 	 * Fallback render used when the wp-build artifact is missing (unbuilt
 	 * checkout). Renders a bare wrapper so the page loads without the app.
 	 *
@@ -355,6 +407,41 @@ class Initializer {
 		}
 
 		return (bool) $enabled;
+	}
+
+	/**
+	 * Whether the Jetpack SEO surface should be discoverable (admin menu registered).
+	 *
+	 * WordPress.com sites (Simple + Atomic) are always discoverable — how SEO presents
+	 * there is a Dotcom decision, independent of the self-hosted rollout. On self-hosted
+	 * sites the durable {@see self::VISIBILITY_OPTION} cohort flag decides: fresh installs
+	 * are seeded visible, existing installs stay hidden until they opt in. Defaults to
+	 * hidden when the option is absent (e.g. before the plugin's seed has run), so an
+	 * existing site is never surprised by the new surface before its cohort is recorded.
+	 *
+	 * @return bool
+	 */
+	public static function is_seo_surface_visible() {
+		if ( class_exists( 'Automattic\\Jetpack\\Status\\Host' ) && ( new Host() )->is_wpcom_platform() ) {
+			return true;
+		}
+
+		return (bool) get_option( self::VISIBILITY_OPTION, false );
+	}
+
+	/**
+	 * Whether to offer an existing install the chance to opt into the new SEO experience.
+	 *
+	 * The single source of truth for the opt-in surfaces (legacy Traffic-page banner, My
+	 * Jetpack card). True only when the SEO product is available (the {@see self::FEATURE_FILTER}
+	 * flag is on) and the surface isn't visible yet — and since {@see self::is_seo_surface_visible()}
+	 * already returns true for WordPress.com and for self-hosted installs that have opted in,
+	 * "not visible" cleanly means "a self-hosted install that hasn't opted in".
+	 *
+	 * @return bool
+	 */
+	public static function is_optin_available() {
+		return (bool) apply_filters( self::FEATURE_FILTER, false ) && ! self::is_seo_surface_visible();
 	}
 
 	/**
@@ -497,6 +584,55 @@ class Initializer {
 				'show_in_rest' => true,
 				'type'         => 'integer',
 				'default'      => 1,
+			)
+		);
+	}
+
+	/**
+	 * Register the opt-in REST route that switches an existing self-hosted install over to
+	 * the new SEO experience.
+	 *
+	 * Lives on the `jetpack/v4` namespace and is registered ahead of the cohort gate, so a
+	 * site whose SEO surface is still hidden can reach it from the legacy Traffic page or
+	 * My Jetpack. See {@see self::handle_optin()}.
+	 *
+	 * @return void
+	 */
+	public static function register_optin_route() {
+		register_rest_route(
+			'jetpack/v4',
+			'/seo/opt-in',
+			array(
+				'methods'             => \WP_REST_Server::CREATABLE,
+				'callback'            => array( __CLASS__, 'handle_optin' ),
+				'permission_callback' => function () {
+					return current_user_can( 'manage_options' );
+				},
+			)
+		);
+	}
+
+	/**
+	 * Opt an existing install into the new SEO experience: mark the surface visible and
+	 * activate the `seo-tools` module, then hand back the dashboard URL to redirect to.
+	 *
+	 * Idempotent — re-opting-in is harmless. `Modules::activate()` is called with
+	 * `$exit = false, $redirect = false`; the defaults would `exit()` and send a 302,
+	 * which break a REST response.
+	 *
+	 * @return \WP_REST_Response
+	 */
+	public static function handle_optin() {
+		update_option( self::VISIBILITY_OPTION, true );
+
+		if ( class_exists( 'Automattic\\Jetpack\\Modules' ) ) {
+			( new Modules() )->activate( 'seo-tools', false, false );
+		}
+
+		return rest_ensure_response(
+			array(
+				'success'  => true,
+				'redirect' => admin_url( 'admin.php?page=' . self::MENU_SLUG ),
 			)
 		);
 	}

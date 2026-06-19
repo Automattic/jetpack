@@ -103,11 +103,11 @@ class InitializerTest extends TestCase {
 	}
 
 	/**
-	 * With the feature flag on and the `seo-tools` module active, `init()`
-	 * registers the front-end JSON-LD schema and the admin/REST hooks. We drive
-	 * module state through the `jetpack_active_modules` filter (the package test
-	 * context has no on-disk modules) and reset the one-shot `$initialized` guard
-	 * so the body runs.
+	 * With the feature flag on, the surface discoverable, and the `seo-tools` module
+	 * active, `init()` registers the front-end JSON-LD schema and the admin/REST hooks.
+	 * We drive module state through the `jetpack_active_modules` filter (the package test
+	 * context has no on-disk modules), mark the cohort surface visible so init() passes
+	 * its discoverability gate, and reset the one-shot `$initialized` guard so the body runs.
 	 */
 	public function test_init_registers_schema_and_hooks_when_enabled() {
 		$initialized = new \ReflectionProperty( Initializer::class, 'initialized' );
@@ -121,6 +121,8 @@ class InitializerTest extends TestCase {
 		};
 		add_filter( 'rsm_jetpack_seo', '__return_true' );
 		add_filter( 'jetpack_active_modules', $enable_module );
+		// Past the discoverability cohort gate (self-hosted opted-in / fresh install).
+		update_option( Initializer::VISIBILITY_OPTION, '1' );
 
 		try {
 			Initializer::init();
@@ -139,6 +141,7 @@ class InitializerTest extends TestCase {
 		} finally {
 			remove_filter( 'rsm_jetpack_seo', '__return_true' );
 			remove_filter( 'jetpack_active_modules', $enable_module );
+			delete_option( Initializer::VISIBILITY_OPTION );
 			$initialized->setValue( null, false );
 		}
 	}
@@ -266,5 +269,83 @@ class InitializerTest extends TestCase {
 
 		delete_option( Initializer::SITEMAP_ENABLED_OPTION );
 		delete_option( Initializer::CANONICAL_ENABLED_OPTION );
+	}
+
+	/**
+	 * On self-hosted sites, discoverability is driven by the durable cohort option:
+	 * hidden when absent (the non-disruptive default) or empty, visible when set.
+	 */
+	public function test_is_seo_surface_visible_reads_cohort_option_on_self_hosted() {
+		delete_option( Initializer::VISIBILITY_OPTION );
+		$this->assertFalse( Initializer::is_seo_surface_visible() );
+
+		update_option( Initializer::VISIBILITY_OPTION, '1' );
+		$this->assertTrue( Initializer::is_seo_surface_visible() );
+
+		update_option( Initializer::VISIBILITY_OPTION, '' );
+		$this->assertFalse( Initializer::is_seo_surface_visible() );
+
+		delete_option( Initializer::VISIBILITY_OPTION );
+	}
+
+	/**
+	 * WordPress.com sites (here: Simple, via the IS_WPCOM constant) are always
+	 * discoverable, bypassing the cohort option entirely.
+	 */
+	public function test_is_seo_surface_visible_always_true_on_wpcom() {
+		delete_option( Initializer::VISIBILITY_OPTION ); // Hidden for self-hosted...
+		\Automattic\Jetpack\Constants::set_constant( 'IS_WPCOM', true );
+
+		try {
+			$this->assertTrue( Initializer::is_seo_surface_visible() );
+		} finally {
+			\Automattic\Jetpack\Constants::clear_single_constant( 'IS_WPCOM' );
+		}
+	}
+
+	/**
+	 * The opt-in is offered only when the feature flag is on AND the surface is still
+	 * hidden (a self-hosted install that hasn't opted in).
+	 */
+	public function test_is_optin_available_requires_flag_and_hidden_surface() {
+		delete_option( Initializer::VISIBILITY_OPTION );
+
+		// Flag off → never available.
+		$this->assertFalse( Initializer::is_optin_available() );
+
+		add_filter( Initializer::FEATURE_FILTER, '__return_true' );
+		try {
+			// Flag on + surface hidden → available.
+			$this->assertTrue( Initializer::is_optin_available() );
+
+			// Flag on + surface visible (already opted in) → not available.
+			update_option( Initializer::VISIBILITY_OPTION, '1' );
+			$this->assertFalse( Initializer::is_optin_available() );
+		} finally {
+			remove_filter( Initializer::FEATURE_FILTER, '__return_true' );
+			delete_option( Initializer::VISIBILITY_OPTION );
+		}
+	}
+
+	/**
+	 * The script-data injector surfaces opt-in availability under the `seo.optin_available`
+	 * key (read by the legacy Traffic-page banner), and tolerates non-array input.
+	 */
+	public function test_inject_optin_availability_surfaces_flag_state() {
+		delete_option( Initializer::VISIBILITY_OPTION );
+
+		// Flag off → false, and non-array input is normalized to an array.
+		$data = Initializer::inject_optin_availability( null );
+		$this->assertFalse( $data[ Initializer::SCRIPT_DATA_KEY ]['optin_available'] );
+
+		// Flag on + surface hidden → true; existing keys are preserved.
+		add_filter( Initializer::FEATURE_FILTER, '__return_true' );
+		try {
+			$data = Initializer::inject_optin_availability( array( 'keep' => 1 ) );
+			$this->assertTrue( $data[ Initializer::SCRIPT_DATA_KEY ]['optin_available'] );
+			$this->assertSame( 1, $data['keep'] );
+		} finally {
+			remove_filter( Initializer::FEATURE_FILTER, '__return_true' );
+		}
 	}
 }
