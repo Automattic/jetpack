@@ -1,0 +1,40 @@
+/**
+ * Standalone single response page (wp-build route) styles.
+ */
+
+.jp-forms__single-response {
+	max-width: 768px;
+	margin-inline: auto;
+	padding-block: 24px;
+	padding-inline: 16px;
+}
+
+.jp-forms__single-response-card {
+	background-color: #fff;
+	border: 1px solid #e0e0e0;
+	border-radius: 8px;
+	padding-block: 24px;
+
+	.jp-forms__inbox-response-meta,
+	.jp-forms__inbox-response-data {
+		padding-inline: 24px;
+	}
+}
+
+.jp-forms__single-response-id {
+	padding-block-start: 16px;
+	padding-inline: 24px;
+	margin-block-start: 8px;
+	border-block-start: 1px solid #e0e0e0;
+
+	.jp-forms__single-response-id-label {
+		font-size: 13px;
+		color: #757575;
+		margin-block-end: 4px;
+	}
+
+	.jp-forms__single-response-id-value {
+		font-size: 14px;
+		color: #1e1e1e;
+	}
+}
