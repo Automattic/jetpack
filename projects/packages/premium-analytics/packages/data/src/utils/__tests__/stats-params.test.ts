@@ -1,0 +1,57 @@
+/**
+ * Internal dependencies
+ */
+import { getStatsPeriodFromInterval, reportParamsToStatsQueryParams } from '../stats-params';
+
+describe( 'getStatsPeriodFromInterval', () => {
+	it.each( [
+		[ 'hour', 'hour' ],
+		[ 'day', 'day' ],
+		[ 'week', 'week' ],
+		[ 'month', 'month' ],
+		[ 'quarter', 'month' ],
+		[ 'year', 'year' ],
+		[ undefined, 'day' ],
+	] )( 'maps %s to %s', ( interval, period ) => {
+		expect( getStatsPeriodFromInterval( interval ) ).toBe( period );
+	} );
+} );
+
+describe( 'reportParamsToStatsQueryParams', () => {
+	it( 'converts report dates into stats date range params', () => {
+		expect(
+			reportParamsToStatsQueryParams( {
+				from: '2026-06-01T00:00:00',
+				to: '2026-06-07T23:59:59',
+				interval: 'day',
+			} )
+		).toEqual(
+			expect.objectContaining( {
+				period: 'day',
+				date: '2026-06-07',
+				start_date: '2026-06-01',
+				days: 7,
+				num: 1,
+				max: 10,
+			} )
+		);
+	} );
+
+	it( 'does not forward Woo report-only params to Stats endpoints', () => {
+		const params = reportParamsToStatsQueryParams( {
+			from: '2026-06-01',
+			to: '2026-06-01',
+			interval: 'day',
+			comp: '1',
+			compare_from: '2026-05-01',
+			compare_to: '2026-05-01',
+			filters: [ { key: 'product_type', value: [ 'simple' ], compare: 'IN' } ],
+			date_type: 'created',
+		} );
+
+		expect( params ).not.toHaveProperty( 'filters' );
+		expect( params ).not.toHaveProperty( 'comp' );
+		expect( params ).not.toHaveProperty( 'compare_from' );
+		expect( params ).not.toHaveProperty( 'date_type' );
+	} );
+} );

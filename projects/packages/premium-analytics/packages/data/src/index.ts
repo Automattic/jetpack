@@ -14,6 +14,7 @@ export { useReportVisitors } from './hooks/use-report-visitors';
 export { useReportVisitorsByLocation } from './hooks/use-report-visitors-by-location';
 export { useReportBookings } from './hooks/use-report-bookings';
 export { useReportSessionsByDevice } from './hooks/use-report-sessions-by-device';
+export * from './hooks/use-stats';
 export { prefetchReport } from './prefetch';
 export {
 	normalizeReportParams,
@@ -37,5 +38,22 @@ export type { ProductType } from './types/product-type';
 export { ORDER_ATTRIBUTION_VIEWS } from './api/report-order-attribution-summary-fetch';
 export { getDefaultIntervalForPeriod, getDateFormatFromInterval } from './utils/interval';
 export { getDefaultPreset, getDefaultQueryParams } from './defaults';
-export { exportReport } from './api';
-export type { ExportReportParams, ExportReportResponse } from './api';
+export { exportReport, fetchStatsProxy, getStatsProxyPath } from './api';
+export type {
+	ExportReportParams,
+	ExportReportResponse,
+	StatsProxyFetchParams,
+	StatsProxyMethod,
+	StatsProxyParams,
+	StatsProxyQueryParams,
+	StatsProxyVersion,
+} from './api';
+export type { StatsNormalizedItem, StatsNormalizedReport } from './processing/stats';
+export {
+	getStatsPeriodFromInterval,
+	reportParamsToStatsQueryParams,
+	statsQueryKeyPart,
+	type StatsPeriod,
+	type StatsQueryParams,
+} from './utils/stats-params';
+export type { StatsReportParams } from './queries/stats-queries';

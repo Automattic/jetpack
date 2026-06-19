@@ -4,6 +4,7 @@ export * from './customers';
 export * from './products';
 export * from './visitors';
 export * from './visitors-by-location';
+export * from './stats';
 
 // TODO: Add coupons processing functions
 // export * from './coupons';
