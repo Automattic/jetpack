@@ -10,3 +10,4 @@ export { reportVisitorsQuery } from './report-visitors-query';
 export { reportVisitorsByLocationQuery } from './report-visitors-by-location-query';
 export { reportSessionsByDeviceQuery } from './report-sessions-by-device-query';
 export { reportBookingsQuery } from './report-bookings-query';
+export * from './stats-queries';
