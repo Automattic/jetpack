@@ -180,9 +180,11 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 			'dismissed'          => (bool) get_option( self::OPTION_DISMISSED, false ),
 			'is_eligible'        => true,
 			// Site context the client needs: the front-end URL drives the launch-task
-			// CTA (its host is the launch-flow site slug) and the tailored-list preview.
+			// CTA (its host is the launch-flow site slug) and the tailored-list
+			// preview thumbnail; the title labels that preview.
 			'site'               => array(
-				'url' => home_url(),
+				'url'   => home_url(),
+				'title' => get_bloginfo( 'name' ),
 			),
 		);
 	}

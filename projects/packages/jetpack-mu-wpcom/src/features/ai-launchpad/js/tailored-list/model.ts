@@ -15,9 +15,11 @@ export interface EnrichedTask {
 
 /** The site context the list needs (front-end URL for the launch CTA + preview). */
 export interface SiteData {
-	// Optional: the field comes from an un-validated REST response, so consumers
-	// must tolerate it being absent (coalesce to null) rather than trust the type.
+	// Optional: the fields come from an un-validated REST response, so consumers
+	// must tolerate them being absent (coalesce to null) rather than trust the type.
 	url?: string;
+	// The site name, used to label the preview card.
+	title?: string;
 }
 
 /**
