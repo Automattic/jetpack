@@ -213,7 +213,7 @@ export const Interactive: Story = {
 		docs: {
 			description: {
 				story:
-					'Rows with an `onClick` become interactive: the whole row is clickable and keyboard-focusable (Enter/Space), with a chevron revealed on hover/focus. The consuming widget supplies the action (e.g. drill-down).',
+					'Rows with an `onClick` become interactive: the whole row is clickable and keyboard-focusable (Enter/Space), with a chevron revealed on hover/focus. The consumer supplies the action (e.g. drill-down).',
 			},
 		},
 	},

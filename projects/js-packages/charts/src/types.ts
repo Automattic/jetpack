@@ -136,7 +136,7 @@ export type LeaderboardEntry = {
 	/**
 	 * Optional click handler. When provided, the entire row becomes an
 	 * interactive button: clickable and keyboard-focusable (Enter/Space),
-	 * with a chevron affordance revealed on hover/focus. The consuming widget
+	 * with a chevron affordance revealed on hover/focus. The consumer
 	 * decides what the action does (e.g. drill-down). Rows without onClick are
 	 * inert and render unchanged.
 	 */
