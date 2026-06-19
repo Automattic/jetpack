@@ -20,7 +20,7 @@ export const DASHBOARD_NAME = 'jetpack-premium-analytics_dashboard';
  * are stored. Mirrors the scope the server-side default injection writes
  * to.
  */
-export const DASHBOARD_PREFERENCES_SCOPE = 'core/dashboard';
+export const DASHBOARD_PREFERENCES_SCOPE = 'jetpack-premium-analytics/dashboard';
 
 /** Preferences key holding the dashboard layout array. */
 export const DASHBOARD_LAYOUT_KEY = 'dashboardLayout';

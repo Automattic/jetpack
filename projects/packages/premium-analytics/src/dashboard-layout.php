@@ -23,7 +23,7 @@ namespace Automattic\Jetpack\PremiumAnalytics;
  * Preferences scope under which the dashboard layout is stored. Mirrors the
  * scope read by the dashboard's JS hooks.
  */
-const DASHBOARD_LAYOUT_SCOPE = 'core/dashboard';
+const DASHBOARD_LAYOUT_SCOPE = 'jetpack-premium-analytics/dashboard';
 
 /**
  * Preferences key under DASHBOARD_LAYOUT_SCOPE that holds the layout array.
@@ -192,8 +192,8 @@ function seed_default_dashboard_layout( $dashboard_layout, $dashboard_name = '' 
 			'uuid'      => 'default-hello-world-widget-instance',
 			'type'      => 'jpa/hello-world',
 			'placement' => array(
-				'width'  => 'full',
-				'height' => 3,
+				'width'  => 1,
+				'height' => 1,
 				'order'  => 0,
 			),
 		);
@@ -204,8 +204,8 @@ function seed_default_dashboard_layout( $dashboard_layout, $dashboard_name = '' 
 			'uuid'      => 'default-average-items-per-order-widget-instance',
 			'type'      => 'jpa/average-items-per-order',
 			'placement' => array(
-				'width'  => 4,
-				'height' => 3,
+				'width'  => 2,
+				'height' => 2,
 				'order'  => 1,
 			),
 		);
