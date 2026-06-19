@@ -7,11 +7,11 @@ default:
     tools/docker/wordpress: /var/www/html
     .: /usr/local/src/jetpack-monorepo
     tools/docker/mu-plugins: /var/www/html/wp-content/mu-plugins
-    ## Local Gutenberg checkout (~/lab/gutenberg-midnight, trunk). Required at
+    ## Local Gutenberg checkout (~/lab/gutenberg). Required at
     ## runtime: the dashboard externalizes @wordpress/private-apis et al. to the
     ## wp.* globals, and only the Gutenberg plugin ships a private-apis whose
     ## allowlist includes @wordpress/widget-dashboard. Activate the plugin.
-    ../gutenberg-midnight: /var/www/html/wp-content/plugins/gutenberg
+    ../gutenberg: /var/www/html/wp-content/plugins/gutenberg
 
   # Extra configuration (none by default). Anything set under this key will be written out as
   # an extra Docker compose configuration file.
