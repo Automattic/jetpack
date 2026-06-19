@@ -61,6 +61,17 @@ class Analytics {
 			require_once $build_entry;
 		}
 
+		// Hydrate the widget type registry from the build manifest at init.
+		require_once __DIR__ . '/widget-types.php';
+
+		// Expose dashboard widget modules over REST and wire them into the
+		// page import map for dynamic import() on the client.
+		require_once __DIR__ . '/widget-modules.php';
+
+		// Register the dashboard's default layout: the first-load preference
+		// injection and the REST route the "reset to default" action reads.
+		require_once __DIR__ . '/dashboard-layout.php';
+
 		Sync_Status_Tracker::configure();
 		// TEMPORARY (WOOA7S-1550): register the interim woocommerce_analytics sync module so
 		// Sync_Status_Tracker has a full sync to observe. Remove when the shared sync-modules package lands.
