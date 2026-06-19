@@ -28,7 +28,7 @@ type StatsQueryParamInput = Partial< ReportParams > & {
 };
 
 function datePart( value?: string ) {
-	return value?.split( 'T' )[ 0 ] ?? '';
+	return value?.split( 'T' )[ 0 ];
 }
 
 function daysBetweenInclusive( from: string, to: string ) {
@@ -91,22 +91,35 @@ export function reportParamsToStatsQueryParams(
 	return {
 		...( statsParams as StatsQueryParams ),
 		period,
-		date,
-		start_date: startDate,
+		...( date ? { date } : {} ),
+		...( startDate ? { start_date: startDate } : {} ),
 		...( days ? { days } : {} ),
 		num: params.num ?? 1,
 		max: params.max ?? 10,
 	};
 }
 
-export function statsQueryKeyPart( params?: StatsProxyParams ) {
-	if ( ! params ) {
+function normalizeQueryKeyValue( value: unknown ): unknown {
+	if ( Array.isArray( value ) ) {
+		return value.map( normalizeQueryKeyValue );
+	}
+
+	if ( value && typeof value === 'object' ) {
+		return Object.fromEntries(
+			Object.entries( value )
+				.filter( ( [ , item ] ) => item !== undefined && item !== null )
+				.sort( ( [ a ], [ b ] ) => a.localeCompare( b ) )
+				.map( ( [ key, item ] ) => [ key, normalizeQueryKeyValue( item ) ] )
+		);
+	}
+
+	return value;
+}
+
+export function statsQueryKeyPart( params?: unknown ) {
+	if ( params === undefined || params === null ) {
 		return '';
 	}
 
-	const normalized = Object.entries( params )
-		.filter( ( [ , value ] ) => value !== undefined && value !== null )
-		.sort( ( [ a ], [ b ] ) => a.localeCompare( b ) );
-
-	return JSON.stringify( normalized );
+	return JSON.stringify( normalizeQueryKeyValue( params ) );
 }

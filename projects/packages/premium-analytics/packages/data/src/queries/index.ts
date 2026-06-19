@@ -11,3 +11,4 @@ export { reportVisitorsByLocationQuery } from './report-visitors-by-location-que
 export { reportSessionsByDeviceQuery } from './report-sessions-by-device-query';
 export { reportBookingsQuery } from './report-bookings-query';
 export * from './stats-queries';
+export * from './stats-app-queries';

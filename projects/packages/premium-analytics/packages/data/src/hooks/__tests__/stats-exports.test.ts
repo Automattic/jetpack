@@ -8,12 +8,21 @@ describe( 'Stats public hook names', () => {
 		expect( dataPackage ).toHaveProperty( 'useStatsEmailSummary' );
 		expect( dataPackage ).toHaveProperty( 'useStatsEmailOpensBreakdown' );
 		expect( dataPackage ).toHaveProperty( 'useStatsEmailClicksBreakdown' );
-		expect( dataPackage ).toHaveProperty( 'useStatsReferrersSpam' );
-		expect( dataPackage ).toHaveProperty( 'useStatsReferrersMarkSpamMutation' );
-		expect( dataPackage ).toHaveProperty( 'useStatsDashboardModules' );
-		expect( dataPackage ).toHaveProperty( 'useStatsDashboardModulesMutation' );
-		expect( dataPackage ).toHaveProperty( 'useStatsWordAdsEarnings' );
 		expect( dataPackage ).toHaveProperty( 'useStatsWordAdsStats' );
 		expect( dataPackage ).toHaveProperty( 'useStatsUtm' );
+	} );
+
+	it( 'exports Stats app/admin resource hooks separately from report hooks', () => {
+		expect( dataPackage ).toHaveProperty( 'useStatsAppReferrersSpam' );
+		expect( dataPackage ).toHaveProperty( 'useStatsAppReferrersMarkSpamMutation' );
+		expect( dataPackage ).toHaveProperty( 'useStatsAppDashboardModules' );
+		expect( dataPackage ).toHaveProperty( 'useStatsAppDashboardModulesMutation' );
+		expect( dataPackage ).toHaveProperty( 'useStatsAppDashboardModuleSettings' );
+		expect( dataPackage ).toHaveProperty( 'useStatsAppPlanUsage' );
+		expect( dataPackage ).toHaveProperty( 'useStatsAppPurchases' );
+		expect( dataPackage ).toHaveProperty( 'useStatsAppNotices' );
+		expect( dataPackage ).toHaveProperty( 'useStatsAppNoticeMutation' );
+		expect( dataPackage ).toHaveProperty( 'useStatsAppWordAdsEarnings' );
+		expect( dataPackage ).toHaveProperty( 'useStatsAppCommercialClassificationMutation' );
 	} );
 } );

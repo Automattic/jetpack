@@ -15,6 +15,7 @@ export { useReportVisitorsByLocation } from './hooks/use-report-visitors-by-loca
 export { useReportBookings } from './hooks/use-report-bookings';
 export { useReportSessionsByDevice } from './hooks/use-report-sessions-by-device';
 export * from './hooks/use-stats';
+export * from './hooks/use-stats-app';
 export { prefetchReport } from './prefetch';
 export {
 	normalizeReportParams,

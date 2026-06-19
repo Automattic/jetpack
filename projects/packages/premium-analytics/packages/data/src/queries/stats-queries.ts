@@ -11,16 +11,25 @@ import {
 } from '../api/stats-proxy-fetch';
 import {
 	sanitizeStatsClicksResponse,
+	sanitizeStatsArchivesResponse,
+	sanitizeStatsCommentFollowersResponse,
+	sanitizeStatsCommentsResponse,
 	sanitizeStatsDevicesResponse,
+	sanitizeStatsEmailBreakdownResponse,
+	sanitizeStatsEmailSummaryResponse,
 	sanitizeStatsFileDownloadsResponse,
+	sanitizeStatsFollowersResponse,
 	sanitizeStatsGenericListResponse,
 	sanitizeStatsLocationsResponse,
 	sanitizeStatsPassthroughResponse,
+	sanitizeStatsPublicizeResponse,
 	sanitizeStatsReferrersResponse,
 	sanitizeStatsSearchTermsResponse,
 	sanitizeStatsSiteResponse,
+	sanitizeStatsTagsResponse,
 	sanitizeStatsTopAuthorsResponse,
 	sanitizeStatsTopPostsResponse,
+	sanitizeStatsTimeSeriesResponse,
 	sanitizeStatsUtmResponse,
 	sanitizeStatsVideoPlaysResponse,
 	sanitizeStatsVisitsResponse,
@@ -49,14 +58,18 @@ const statsSanitizers = {
 	locations: sanitizeStatsLocationsResponse,
 	videoPlays: sanitizeStatsVideoPlaysResponse,
 	visits: sanitizeStatsVisitsResponse,
+	timeSeries: sanitizeStatsTimeSeriesResponse,
 	utm: sanitizeStatsUtmResponse,
 	devices: sanitizeStatsDevicesResponse,
-	archives: response => sanitizeStatsGenericListResponse( response ),
-	publicize: response => sanitizeStatsGenericListResponse( response, 'followers', 'label' ),
-	followers: response => sanitizeStatsGenericListResponse( response, 'total', 'label' ),
-	tags: response => sanitizeStatsGenericListResponse( response, 'views', 'name' ),
-	comments: response => sanitizeStatsGenericListResponse( response, 'comments', 'name' ),
-	commentFollowers: response => sanitizeStatsGenericListResponse( response, 'followers', 'title' ),
+	archives: sanitizeStatsArchivesResponse,
+	publicize: sanitizeStatsPublicizeResponse,
+	followers: sanitizeStatsFollowersResponse,
+	tags: sanitizeStatsTagsResponse,
+	comments: sanitizeStatsCommentsResponse,
+	commentFollowers: sanitizeStatsCommentFollowersResponse,
+	emailSummary: sanitizeStatsEmailSummaryResponse,
+	emailBreakdown: sanitizeStatsEmailBreakdownResponse,
+	genericList: response => sanitizeStatsGenericListResponse( response ),
 } satisfies Record< string, StatsSanitizer >;
 
 type StatsSanitizerKey = keyof typeof statsSanitizers;
@@ -90,7 +103,7 @@ export function statsProxyQuery< TData = unknown >( {
 			endpoint,
 			method,
 			statsQueryKeyPart( params ),
-			body ?? null,
+			statsQueryKeyPart( body ),
 			sanitizer,
 		],
 		queryFn: async () => {
@@ -213,7 +226,13 @@ export const statsHighlightsQuery = ( params: StatsQueryParams = {} ) =>
 	statsProxyQuery( { name: 'highlights', version: '1.1', endpoint: 'stats/highlights', params } );
 
 export const statsSubscribersQuery = ( params: StatsQueryParams = {} ) =>
-	statsProxyQuery( { name: 'subscribers', version: '1.1', endpoint: 'stats/subscribers', params } );
+	statsProxyQuery( {
+		name: 'subscribers',
+		version: '1.1',
+		endpoint: 'stats/subscribers',
+		params,
+		sanitizer: 'timeSeries',
+	} );
 
 export const statsSinglePostQuery = ( postId: number, params: StatsQueryParams = {} ) =>
 	statsProxyQuery( {
@@ -221,6 +240,7 @@ export const statsSinglePostQuery = ( postId: number, params: StatsQueryParams =
 		version: '1.1',
 		endpoint: `stats/post/${ postId }`,
 		params,
+		sanitizer: 'timeSeries',
 	} );
 
 export const statsSingleVideoQuery = ( videoId: number, params: StatsQueryParams = {} ) =>
@@ -237,6 +257,7 @@ export const statsEmailSummaryQuery = ( params: StatsQueryParams = {} ) =>
 		version: '1.1',
 		endpoint: 'stats/emails/summary',
 		params,
+		sanitizer: 'emailSummary',
 	} );
 
 export const statsEmailOpensBreakdownQuery = (
@@ -249,6 +270,7 @@ export const statsEmailOpensBreakdownQuery = (
 		version: '1.1',
 		endpoint: `stats/opens/emails/${ postId }/${ breakdown }`,
 		params,
+		sanitizer: 'emailBreakdown',
 	} );
 
 export const statsEmailClicksBreakdownQuery = (
@@ -261,6 +283,7 @@ export const statsEmailClicksBreakdownQuery = (
 		version: '1.1',
 		endpoint: `stats/clicks/emails/${ postId }/${ breakdown }`,
 		params,
+		sanitizer: 'emailBreakdown',
 	} );
 
 export const statsEmailOpensTimeSeriesQuery = ( postId: number, params: StatsQueryParams = {} ) =>
@@ -269,6 +292,7 @@ export const statsEmailOpensTimeSeriesQuery = ( postId: number, params: StatsQue
 		version: '1.1',
 		endpoint: `stats/opens/emails/${ postId }`,
 		params,
+		sanitizer: 'timeSeries',
 	} );
 
 export const statsEmailClicksTimeSeriesQuery = ( postId: number, params: StatsQueryParams = {} ) =>
@@ -277,60 +301,14 @@ export const statsEmailClicksTimeSeriesQuery = ( postId: number, params: StatsQu
 		version: '1.1',
 		endpoint: `stats/clicks/emails/${ postId }`,
 		params,
-	} );
-
-export const statsReferrersSpamQuery = () =>
-	statsProxyQuery( {
-		name: 'referrers-spam',
-		version: '1.1',
-		endpoint: 'stats/referrers/spam',
-	} );
-
-export const statsSubscribersCountsQuery = ( params: StatsQueryParams = {} ) =>
-	statsProxyQuery( {
-		name: 'subscribers-counts',
-		version: '2',
-		endpoint: 'subscribers/counts',
-		params,
-	} );
-
-export const statsSiteHasNeverPublishedPostQuery = ( params: StatsQueryParams = {} ) =>
-	statsProxyQuery( {
-		name: 'site-has-never-published-post',
-		version: '2',
-		endpoint: 'site-has-never-published-post',
-		params,
-	} );
-
-export const statsPlanUsageQuery = ( params: StatsQueryParams = {} ) =>
-	statsProxyQuery( { name: 'plan-usage', version: '2', endpoint: 'jetpack-stats/usage', params } );
-
-export const statsDashboardModulesQuery = ( params: StatsQueryParams = {} ) =>
-	statsProxyQuery( {
-		name: 'dashboard-modules',
-		version: '2',
-		endpoint: 'jetpack-stats-dashboard/modules',
-		params,
-	} );
-
-export const statsDashboardModuleSettingsQuery = ( params: StatsQueryParams = {} ) =>
-	statsProxyQuery( {
-		name: 'dashboard-module-settings',
-		version: '2',
-		endpoint: 'jetpack-stats-dashboard/module-settings',
-		params,
-	} );
-
-export const statsWordAdsEarningsQuery = ( params: StatsQueryParams = {} ) =>
-	statsProxyQuery( {
-		name: 'wordads-earnings',
-		version: '1.1',
-		endpoint: 'wordads/earnings',
-		params,
+		sanitizer: 'timeSeries',
 	} );
 
 export const statsWordAdsStatsQuery = ( params: StatsQueryParams = {} ) =>
-	statsProxyQuery( { name: 'wordads-stats', version: '1.1', endpoint: 'wordads/stats', params } );
-
-export const statsPurchasesQuery = ( params: StatsQueryParams = {} ) =>
-	statsProxyQuery( { name: 'purchases', version: '1.2', endpoint: 'upgrades', params } );
+	statsProxyQuery( {
+		name: 'wordads-stats',
+		version: '1.1',
+		endpoint: 'wordads/stats',
+		params,
+		sanitizer: 'timeSeries',
+	} );

@@ -1,7 +1,11 @@
 /**
  * Internal dependencies
  */
-import { getStatsPeriodFromInterval, reportParamsToStatsQueryParams } from '../stats-params';
+import {
+	getStatsPeriodFromInterval,
+	reportParamsToStatsQueryParams,
+	statsQueryKeyPart,
+} from '../stats-params';
 
 describe( 'getStatsPeriodFromInterval', () => {
 	it.each( [
@@ -67,5 +71,34 @@ describe( 'reportParamsToStatsQueryParams', () => {
 		expect( params ).not.toHaveProperty( 'geoMode' );
 		expect( params ).not.toHaveProperty( 'utmParams' );
 		expect( params ).not.toHaveProperty( 'deviceProperty' );
+	} );
+
+	it( 'omits empty date params when no dates are provided', () => {
+		const params = reportParamsToStatsQueryParams();
+
+		expect( params ).not.toHaveProperty( 'date' );
+		expect( params ).not.toHaveProperty( 'start_date' );
+	} );
+} );
+
+describe( 'statsQueryKeyPart', () => {
+	it( 'serializes object keys in a stable order', () => {
+		expect(
+			statsQueryKeyPart( {
+				b: 2,
+				a: {
+					d: 4,
+					c: 3,
+				},
+			} )
+		).toBe(
+			statsQueryKeyPart( {
+				a: {
+					c: 3,
+					d: 4,
+				},
+				b: 2,
+			} )
+		);
 	} );
 } );

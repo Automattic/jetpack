@@ -6,6 +6,7 @@ export { useReportCustomers } from './use-report-customers';
 export { useReportConversionRate } from './use-report-conversion-rate';
 export { useReportBookings } from './use-report-bookings';
 export * from './use-stats';
+export * from './use-stats-app';
 
 /**
  * @deprecated Use individual hooks instead: useReportOrders, useReportOrderAttribution, useReportCoupons

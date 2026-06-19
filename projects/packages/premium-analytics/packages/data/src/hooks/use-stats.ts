@@ -1,20 +1,16 @@
 /**
  * External dependencies
  */
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 /**
  * Internal dependencies
  */
-import { fetchStatsProxy } from '../api/stats-proxy-fetch';
-import { queryClient } from '../providers';
 import {
 	statsArchivesQuery,
 	statsClicksQuery,
 	statsCommentFollowersQuery,
 	statsCommentsQuery,
 	statsCountryViewsQuery,
-	statsDashboardModulesQuery,
-	statsDashboardModuleSettingsQuery,
 	statsDevicesQuery,
 	statsEmailClicksBreakdownQuery,
 	statsEmailClicksTimeSeriesQuery,
@@ -26,18 +22,13 @@ import {
 	statsHighlightsQuery,
 	statsInsightsQuery,
 	statsLocationsQuery,
-	statsPlanUsageQuery,
 	statsPublicizeQuery,
-	statsPurchasesQuery,
 	statsReferrersQuery,
-	statsReferrersSpamQuery,
 	statsSearchTermsQuery,
 	statsSinglePostQuery,
 	statsSingleVideoQuery,
-	statsSiteHasNeverPublishedPostQuery,
 	statsSiteQuery,
 	statsStreakQuery,
-	statsSubscribersCountsQuery,
 	statsSubscribersQuery,
 	statsTagsQuery,
 	statsTopAuthorsQuery,
@@ -45,7 +36,6 @@ import {
 	statsUtmQuery,
 	statsVideoPlaysQuery,
 	statsVisitsQuery,
-	statsWordAdsEarningsQuery,
 	statsWordAdsStatsQuery,
 	type StatsReportParams,
 } from '../queries/stats-queries';
@@ -335,127 +325,6 @@ export function useStatsEmailClicksTimeSeries(
 	} );
 }
 
-export function useStatsReferrersSpam( options?: UseStatsOptions ) {
-	return useQuery( { ...statsReferrersSpamQuery(), enabled: options?.enabled ?? true } );
-}
-
-export function useStatsSubscribersCounts( params?: StatsQueryParams, options?: UseStatsOptions ) {
-	return useQuery( {
-		...statsSubscribersCountsQuery( params ),
-		enabled: options?.enabled ?? true,
-	} );
-}
-
-export function useStatsSiteHasNeverPublishedPost(
-	params?: StatsQueryParams,
-	options?: UseStatsOptions
-) {
-	return useQuery( {
-		...statsSiteHasNeverPublishedPostQuery( params ),
-		enabled: options?.enabled ?? true,
-	} );
-}
-
-export function useStatsPlanUsage( params?: StatsQueryParams, options?: UseStatsOptions ) {
-	return useQuery( { ...statsPlanUsageQuery( params ), enabled: options?.enabled ?? true } );
-}
-
-export function useStatsDashboardModules( params?: StatsQueryParams, options?: UseStatsOptions ) {
-	return useQuery( { ...statsDashboardModulesQuery( params ), enabled: options?.enabled ?? true } );
-}
-
-export function useStatsDashboardModuleSettings(
-	params?: StatsQueryParams,
-	options?: UseStatsOptions
-) {
-	return useQuery( {
-		...statsDashboardModuleSettingsQuery( params ),
-		enabled: options?.enabled ?? true,
-	} );
-}
-
-export function useStatsWordAdsEarnings( params?: StatsQueryParams, options?: UseStatsOptions ) {
-	return useQuery( { ...statsWordAdsEarningsQuery( params ), enabled: options?.enabled ?? true } );
-}
-
 export function useStatsWordAdsStats( params?: StatsQueryParams, options?: UseStatsOptions ) {
 	return useQuery( { ...statsWordAdsStatsQuery( params ), enabled: options?.enabled ?? true } );
-}
-
-export function useStatsPurchases( params?: StatsQueryParams, options?: UseStatsOptions ) {
-	return useQuery( { ...statsPurchasesQuery( params ), enabled: options?.enabled ?? true } );
-}
-
-export function useStatsReferrersMarkSpamMutation() {
-	return useMutation( {
-		mutationFn: ( domain: string ) =>
-			fetchStatsProxy( {
-				version: '1.1',
-				endpoint: 'stats/referrers/spam/new',
-				method: 'POST',
-				params: { domain },
-			} ),
-		onSuccess: () => {
-			queryClient.invalidateQueries( { queryKey: [ 'stats', 'referrers' ] } );
-			queryClient.invalidateQueries( { queryKey: [ 'stats', 'referrers-spam' ] } );
-		},
-	} );
-}
-
-export function useStatsReferrersUnmarkSpamMutation() {
-	return useMutation( {
-		mutationFn: ( domain: string ) =>
-			fetchStatsProxy( {
-				version: '1.1',
-				endpoint: 'stats/referrers/spam/delete',
-				method: 'POST',
-				params: { domain },
-			} ),
-		onSuccess: () => {
-			queryClient.invalidateQueries( { queryKey: [ 'stats', 'referrers' ] } );
-			queryClient.invalidateQueries( { queryKey: [ 'stats', 'referrers-spam' ] } );
-		},
-	} );
-}
-
-export function useStatsDashboardModulesMutation() {
-	return useMutation( {
-		mutationFn: ( body: unknown ) =>
-			fetchStatsProxy( {
-				version: '2',
-				endpoint: 'jetpack-stats-dashboard/modules',
-				method: 'POST',
-				body,
-			} ),
-		onSuccess: () => {
-			queryClient.invalidateQueries( { queryKey: [ 'stats', 'dashboard-modules' ] } );
-		},
-	} );
-}
-
-export function useStatsDashboardModuleSettingsMutation() {
-	return useMutation( {
-		mutationFn: ( body: unknown ) =>
-			fetchStatsProxy( {
-				version: '2',
-				endpoint: 'jetpack-stats-dashboard/module-settings',
-				method: 'POST',
-				body,
-			} ),
-		onSuccess: () => {
-			queryClient.invalidateQueries( { queryKey: [ 'stats', 'dashboard-module-settings' ] } );
-		},
-	} );
-}
-
-export function useStatsCommercialClassificationMutation() {
-	return useMutation( {
-		mutationFn: ( params?: StatsQueryParams ) =>
-			fetchStatsProxy( {
-				version: '2',
-				endpoint: 'commercial-classification',
-				method: 'POST',
-				params,
-			} ),
-	} );
 }
