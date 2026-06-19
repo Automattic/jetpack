@@ -152,14 +152,6 @@ class Products {
 			'jetpack-forms'    => Products\Jetpack_Forms::class,
 		);
 
-		// Podcast ships behind the `jetpack_podcast_for_the_world` master switch.
-		// Only surface it in My Jetpack when that filter is on, so there is no
-		// trace of it otherwise.
-		/** This filter is documented in projects/packages/podcast/src/class-podcast.php */
-		if ( apply_filters( 'jetpack_podcast_for_the_world', false ) ) {
-			$classes['podcast'] = Products\Podcast::class;
-		}
-
 		/**
 		 * This filter allows plugin to override the Product class of a given product. The new class must be a child class of the default one declared in My Jetpack
 		 *
@@ -216,7 +208,6 @@ class Products {
 		'protect',
 		'videopress',
 		'stats',
-		'podcast',
 	);
 
 	/**

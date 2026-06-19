@@ -56,8 +56,7 @@ type JetpackModuleWithCard =
 	| 'search'
 	| 'social'
 	| 'stats'
-	| 'videopress'
-	| 'podcast';
+	| 'videopress';
 
 type ThreatItem = {
 	// Protect API properties (free plan)

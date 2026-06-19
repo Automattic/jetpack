@@ -5,7 +5,6 @@ import BoostIcon from '../../products-table-view/icons/boost';
 import CrmIcon from '../../products-table-view/icons/crm';
 import FormsIcon from '../../products-table-view/icons/forms';
 import JetpackAiIcon from '../../products-table-view/icons/jetpack-ai';
-import PodcastIcon from '../../products-table-view/icons/podcast';
 import ProtectIcon from '../../products-table-view/icons/protect';
 import SearchIcon from '../../products-table-view/icons/search';
 import SocialIcon from '../../products-table-view/icons/social';
@@ -33,7 +32,7 @@ export const CATEGORY_CARDS_AND_MODULES: {
 		],
 	},
 	growth: {
-		cards: [ 'stats', 'social', 'jetpack-ai', 'jetpack-forms', 'crm', 'podcast' ],
+		cards: [ 'stats', 'social', 'jetpack-ai', 'jetpack-forms', 'crm' ],
 		modules: [
 			'blaze',
 			'canonical-urls',
@@ -41,6 +40,7 @@ export const CATEGORY_CARDS_AND_MODULES: {
 			'comments',
 			'copy-post',
 			'likes',
+			'podcast',
 			'related-posts',
 			'seo-tools',
 			'sharedaddy',
@@ -96,7 +96,6 @@ export const PRODUCT_ICONS: {
 	boost: BoostIcon,
 	'jetpack-ai': JetpackAiIcon,
 	'jetpack-forms': FormsIcon,
-	podcast: PodcastIcon,
 	crm: CrmIcon,
 	protect: ProtectIcon,
 	search: SearchIcon,

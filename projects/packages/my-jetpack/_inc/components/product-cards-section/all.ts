@@ -6,7 +6,6 @@ import CompleteCard from './complete-card';
 import CrmCard from './crm-card';
 import GrowthCard from './growth-card';
 import NewsletterCard from './newsletter-card';
-import PodcastCard from './podcast-card';
 import ProtectCard from './protect-card';
 import RelatedPostsCard from './related-posts-card';
 import SearchCard from './search-card';
@@ -43,7 +42,8 @@ export const JetpackModuleToProductCard: {
 	'jetpack-forms': null,
 	// Features:
 	newsletter: NewsletterCard,
-	podcast: PodcastCard,
 	'related-posts': RelatedPostsCard,
+	// Shown only as a module row under Growth; no product card.
+	podcast: null,
 	'site-accelerator': SiteAcceleratorCard,
 };

@@ -1,4 +1,4 @@
 Significance: minor
 Type: added
 
-Podcast: surface the Podcast module as a product card, gated behind the default-off `jetpack_podcast_for_the_world` filter.
+Podcast: list the Podcast module under the Growth section in My Jetpack, gated behind the default-off `jetpack_podcast_for_the_world` filter.

@@ -54,7 +54,6 @@ export const JETPACK_PRODUCTS_WITH_CARD = [
 	'crm',
 	'jetpack-ai',
 	'jetpack-forms',
-	'podcast',
 	'protect',
 	'search',
 	'social',
