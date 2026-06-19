@@ -13,6 +13,9 @@ require __DIR__ . '/../../../../.phan/config.base.php';
 return make_phan_config(
 	dirname( __DIR__ ),
 	array(
+		// The Divi 5 `ET\Builder\*` signatures come from `.phan/stubs/divi-stubs.php`,
+		// which is parsed automatically (it lives under `.phan/stubs/`); it is not a
+		// named stub and must not be added to `+stubs`. See that file's header.
 		'+stubs'                          => array( 'wpcom' ),
 		'parse_file_list'                 => array(
 			// Reference files to handle code checking for stuff from Jetpack-the-plugin or other in-monorepo plugins.

@@ -866,4 +866,65 @@ class Jetpack_Subscriptions_Test extends WP_UnitTestCase {
 			remove_filter( 'jetpack_is_connection_ready', '__return_true', 1000 );
 		}
 	}
+
+	/**
+	 * On self-hosted Jetpack, the transitional Subscribers announcement page is
+	 * registered by add_subscribers_menu() when the modernization filter is on.
+	 */
+	public function test_announcement_menu_is_added_on_self_hosted_when_modernization_filter_on() {
+		$announcement_class = 'Automattic\Jetpack\Newsletter\Subscribers_Announcement';
+		if ( ! class_exists( $announcement_class ) ) {
+			$this->markTestSkipped( 'Newsletter Subscribers_Announcement class is not available.' );
+		}
+
+		$load_hook = 'load-jetpack_page_' . $announcement_class::PAGE_SLUG;
+
+		// Self-hosted: not a wpcom platform (IS_WPCOM is not defined).
+		delete_option( $announcement_class::REMOVED_OPTION );
+		add_filter( 'rsm_jetpack_ui_modernization_newsletter', '__return_true' );
+		remove_all_actions( $load_hook );
+
+		Jetpack_Subscriptions::init()->add_subscribers_menu();
+
+		$this->assertNotFalse(
+			has_action( $load_hook ),
+			'The Subscribers announcement menu should be registered on self-hosted Jetpack when the modernization filter is on.'
+		);
+
+		remove_all_actions( $load_hook );
+		remove_all_filters( 'rsm_jetpack_ui_modernization_newsletter' );
+	}
+
+	/**
+	 * On WordPress.com (Simple and WoA) the announcement page is owned by
+	 * jetpack-mu-wpcom's wpcom-admin-menu, so add_subscribers_menu() must NOT
+	 * register it — otherwise Atomic, where both run, gets a duplicate entry and
+	 * double page-view tracking.
+	 */
+	public function test_announcement_menu_is_not_added_on_wpcom_platform() {
+		$announcement_class = 'Automattic\Jetpack\Newsletter\Subscribers_Announcement';
+		if ( ! class_exists( $announcement_class ) ) {
+			$this->markTestSkipped( 'Newsletter Subscribers_Announcement class is not available.' );
+		}
+
+		$load_hook = 'load-jetpack_page_' . $announcement_class::PAGE_SLUG;
+
+		// Simulate a wpcom platform (Simple/WoA).
+		\Automattic\Jetpack\Constants::set_constant( 'IS_WPCOM', true );
+		delete_option( $announcement_class::REMOVED_OPTION );
+		add_filter( 'rsm_jetpack_ui_modernization_newsletter', '__return_true' );
+		remove_all_actions( $load_hook );
+
+		Jetpack_Subscriptions::init()->add_subscribers_menu();
+
+		$this->assertFalse(
+			has_action( $load_hook ),
+			'On wpcom platforms the announcement menu is owned by jetpack-mu-wpcom; add_subscribers_menu() should not register it.'
+		);
+
+		// Cleanup so the simulated platform does not leak into later tests.
+		remove_all_actions( $load_hook );
+		remove_all_filters( 'rsm_jetpack_ui_modernization_newsletter' );
+		\Automattic\Jetpack\Constants::clear_single_constant( 'IS_WPCOM' );
+	}
 }

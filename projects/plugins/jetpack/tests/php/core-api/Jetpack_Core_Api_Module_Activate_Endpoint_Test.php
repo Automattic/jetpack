@@ -7,8 +7,10 @@ require_once JETPACK__PLUGIN_DIR . '/tests/php/lib/Jetpack_REST_TestCase.php';
 
 /**
  * @covers \Jetpack_Core_Json_Api_Endpoints
+ * @covers \Jetpack_Core_API_Data
  */
 #[CoversClass( Jetpack_Core_Json_Api_Endpoints::class )]
+#[CoversClass( Jetpack_Core_API_Data::class )]
 class Jetpack_Core_Api_Module_Activate_Endpoint_Test extends Jetpack_REST_TestCase {
 	/**
 	 * @author zinigor
@@ -274,5 +276,120 @@ class Jetpack_Core_Api_Module_Activate_Endpoint_Test extends Jetpack_REST_TestCa
 		$stored = get_option( 'subscription_options' );
 		$this->assertStringNotContainsString( '<iframe', $stored['subscribe_modal_heading'] );
 		$this->assertSame( 'Subscribe today', $stored['subscribe_modal_heading'] );
+	}
+
+	public function test_update_data_subscription_options_free_tier_description_strips_html() {
+		$this->seed_subscription_options();
+
+		$request = new WP_REST_Request();
+		$request->set_body_params(
+			array(
+				'subscription_options' => array(
+					// The free tier description stores plain markdown source, so all
+					// HTML tags are stripped via `wp_kses( ..., array() )`. kses removes
+					// the tags themselves but keeps their text content, so the `<script>`
+					// wrapper is gone while the inner `alert(1)` text remains.
+					'free_tier_description' => '<script>alert(1)</script>Just the **markdown** text',
+				),
+			)
+		);
+
+		$result = ( new Jetpack_Core_API_Data() )->update_data( $request );
+
+		$this->assertSame( 200, $result->get_status() );
+		$stored = get_option( 'subscription_options' );
+		$this->assertStringNotContainsString( '<script', $stored['free_tier_description'] );
+		$this->assertSame( 'alert(1)Just the **markdown** text', $stored['free_tier_description'] );
+	}
+
+	/**
+	 * A non-scalar `free_tier_description` (e.g. an array from a malformed JSON
+	 * payload) must be dropped rather than passed to wp_kses()/mb_substr(), which
+	 * would fatal on PHP 8+.
+	 *
+	 * @return void
+	 */
+	public function test_update_data_subscription_options_free_tier_description_ignores_non_scalar() {
+		$this->seed_subscription_options();
+
+		$request = new WP_REST_Request();
+		$request->set_body_params(
+			array(
+				'subscription_options' => array(
+					'free_tier_description' => array( 'unexpected', 'array' ),
+				),
+			)
+		);
+
+		$result = ( new Jetpack_Core_API_Data() )->update_data( $request );
+
+		$this->assertSame( 200, $result->get_status() );
+		$stored = get_option( 'subscription_options' );
+		$this->assertArrayNotHasKey( 'free_tier_description', $stored );
+	}
+
+	public function test_update_data_subscription_options_free_tier_description_is_length_capped() {
+		$this->seed_subscription_options();
+
+		$request = new WP_REST_Request();
+		$request->set_body_params(
+			array(
+				'subscription_options' => array(
+					'free_tier_description' => str_repeat( 'a', 600 ),
+				),
+			)
+		);
+
+		$result = ( new Jetpack_Core_API_Data() )->update_data( $request );
+
+		$this->assertSame( 200, $result->get_status() );
+		$stored = get_option( 'subscription_options' );
+		$this->assertSame( 500, strlen( $stored['free_tier_description'] ) );
+	}
+
+	/**
+	 * @dataProvider provider_hide_free_tier_values
+	 *
+	 * @param mixed $input    The raw `hide_free_tier` value sent in the request.
+	 * @param bool  $expected The boolean value expected to be stored.
+	 */
+	#[DataProvider( 'provider_hide_free_tier_values' )]
+	public function test_update_data_subscription_options_hide_free_tier_is_boolean( $input, $expected ) {
+		$this->seed_subscription_options();
+
+		$request = new WP_REST_Request();
+		$request->set_body_params(
+			array(
+				'subscription_options' => array(
+					'hide_free_tier' => $input,
+				),
+			)
+		);
+
+		$result = ( new Jetpack_Core_API_Data() )->update_data( $request );
+
+		$this->assertSame( 200, $result->get_status() );
+		$stored = get_option( 'subscription_options' );
+		$this->assertSame( $expected, $stored['hide_free_tier'] );
+	}
+
+	/**
+	 * Stringy booleans (e.g. "false", "0") must be interpreted by value, not by
+	 * truthiness — `rest_sanitize_boolean()` handles this. A plain `! empty()`
+	 * would incorrectly treat "false"/"0" as `true`.
+	 *
+	 * @return array[]
+	 */
+	public static function provider_hide_free_tier_values() {
+		return array(
+			'real true'    => array( true, true ),
+			'real false'   => array( false, false ),
+			'integer one'  => array( 1, true ),
+			'integer zero' => array( 0, false ),
+			'string true'  => array( 'true', true ),
+			'string false' => array( 'false', false ),
+			'string one'   => array( '1', true ),
+			'string zero'  => array( '0', false ),
+		);
 	}
 }

@@ -1,4 +1,0 @@
-Significance: patch
-Type: removed
-
-Podcast: remove the jetpack_podcast_untangle gate now that the legacy podcasting stack and at-pressable-podcasting bridge are gone; the package owns the experience unconditionally.

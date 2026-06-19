@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Add a persistent "Create episode" button to the /podcast page header and a server-side prefill that assigns the configured category (and, on Premium, inserts the Podcast Episode block) when `post-new.php?podcast_episode=1` is opened.

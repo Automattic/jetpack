@@ -1158,12 +1158,16 @@
 }
 
 /* Content area */
+.bw-content,
+.bw-content-inner {
+	outline: none;
+}
+
 .bw-content {
 	min-height: 60vh;
 	font-size: 1.125rem;
 	line-height: 1.8;
 	color: #333;
-	outline: none;
 	overflow-wrap: break-word;
 	word-break: normal;
 	text-wrap: stable;
@@ -2450,4 +2454,43 @@ body.bw-modal-open {
 		width: 100%;
 		flex: 1;
 	}
+}
+
+/*
+ * Anonymous (logged-out) Write editor: hide UI surfaces that have no working
+ * counterpart for a visitor without an authenticated session. The `bw-anon`
+ * class is added to <html> by view.js when window.wpcomWriteIsAnon is true.
+ * Hides pair with early-returns in view.js actions — CSS hides the affordance,
+ * JS guards programmatic call paths (e.g. slash menu) and any URL-bar reach.
+ */
+html.bw-anon .bw-back,
+html.bw-anon .bw-help-wrap,
+html.bw-anon .bw-more-wrap,
+html.bw-anon .bw-btn-draft,
+html.bw-anon .bw-disclaimer-banner,
+html.bw-anon .bw-toolbar [data-wp-on--click="actions.openImageModal"],
+html.bw-anon #bw-slash-opt-image,
+html.bw-anon .bw-unsupported-open-editor {
+	display: none !important;
+}
+
+/*
+ * Brand text on the left, "Not signed in" indicator before Publish. Both are
+ * injected by view.js when window.wpcomWriteIsAnon is true so they participate
+ * in the same i18n string table the editor already uses.
+ */
+.bw-anon-brand {
+	font-size: 13px;
+	font-weight: 500;
+	color: #1d2327;
+	white-space: nowrap;
+	margin-right: 8px;
+}
+
+.bw-anon-status {
+	font-size: 13px;
+	color: #757575;
+	white-space: nowrap;
+	align-self: center;
+	margin-right: 4px;
 }

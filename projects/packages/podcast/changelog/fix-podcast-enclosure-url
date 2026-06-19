@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Podcast: resolve the blog ID via Connection_Manager::get_site_id() for feed enclosure URLs and tracks events so Atomic sites use the correct WPCOM site ID instead of 1.

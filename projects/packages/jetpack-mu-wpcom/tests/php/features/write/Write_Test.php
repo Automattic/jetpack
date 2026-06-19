@@ -1623,6 +1623,62 @@ class Write_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * Logged-out callers must never receive drafts. The early-return guards
+	 * against a query running with author=0 (which would otherwise match every
+	 * orphaned draft on a multisite blog).
+	 */
+	public function test_recent_drafts_returns_empty_for_logged_out_user() {
+		wp_set_current_user( 0 );
+
+		$drafts = wpcom_write_get_recent_drafts();
+
+		$this->assertSame( array(), $drafts );
+	}
+
+	/**
+	 * Logged-out callers must also get an empty result when passing an exclude
+	 * id — verifies the guard sits in front of the exclude branch.
+	 */
+	public function test_recent_drafts_returns_empty_for_logged_out_user_with_exclude() {
+		wp_set_current_user( 0 );
+
+		$drafts = wpcom_write_get_recent_drafts( 123 );
+
+		$this->assertSame( array(), $drafts );
+	}
+
+	/**
+	 * The editor-strings helper is the contract the inline script tag
+	 * (and any other caller rendering the editor outside the wp-admin page
+	 * lifecycle) relies on. Validate the returned shape so a silently-dropped
+	 * key in a future edit is caught here rather than at runtime in view.js.
+	 */
+	public function test_editor_strings_returns_expected_keys() {
+		$strings = wpcom_write_get_editor_strings();
+
+		$this->assertIsArray( $strings );
+
+		// Spot-check the keys view.js reads as `i18n.<key>`. Not exhaustive —
+		// adding a new string should not require updating this test — but a
+		// removal of any of these keys would break the JS at runtime.
+		$expected = array(
+			'pleaseAddTitle',
+			'pleaseWriteSomething',
+			'savingDraft',
+			'publishing',
+			'draftAutosaved',
+			'error',
+			'untitled',
+			'anonBrand',
+			'anonStatus',
+		);
+		foreach ( $expected as $key ) {
+			$this->assertArrayHasKey( $key, $strings, "Missing editor string: $key" );
+			$this->assertNotEmpty( $strings[ $key ], "Editor string $key should not be empty" );
+		}
+	}
+
+	/**
 	 * Test that openPostError is seeded as empty string by default.
 	 */
 	public function test_interactivity_state_includes_open_post_error() {

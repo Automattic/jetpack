@@ -1,3 +1,5 @@
+import type { FocalPoint } from '../../utils/types';
+
 export type LinkPreviewData = {
 	/**
 	 * The URL of the resource to preview.
@@ -28,6 +30,12 @@ export type LinkPreviewData = {
 	 * The URL of the image to use in the resource preview.
 	 */
 	image?: string;
+
+	/**
+	 * The focal point of the preview image, when it resolves to an attachment
+	 * with a stored point. Undefined → centered.
+	 */
+	imageFocalPoint?: FocalPoint;
 };
 
 export type LinkPreviewPlatform =

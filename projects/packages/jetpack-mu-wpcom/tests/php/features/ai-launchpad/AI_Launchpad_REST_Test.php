@@ -175,6 +175,11 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 		$this->assertSame( array( 'first_post_published' => true ), $data['checklist_statuses'] );
 		$this->assertFalse( $data['dismissed'] );
 		$this->assertTrue( $data['is_eligible'] );
+		// Site context for the client (launch CTA slug + preview thumbnail/label
+		// + wizard Name/Brief-description pre-fill).
+		$this->assertSame( home_url(), $data['site']['url'] );
+		$this->assertSame( get_bloginfo( 'name' ), $data['site']['title'] );
+		$this->assertSame( get_bloginfo( 'description' ), $data['site']['description'] );
 
 		$this->assertCount( 6, $data['tasks'] );
 
@@ -241,6 +246,58 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 		$this->assertSame( 'Personal blog about long-distance hiking in the Alps.', $option['description'] );
 		$this->assertSame( 'en', $option['locale'] );
 		$this->assertIsInt( $option['generated_at'] );
+
+		// The entered Name and Brief description are written back to the site's
+		// identity options so the wizard reflects and updates the real site.
+		$this->assertSame( 'Alpine Notes', get_option( 'blogname' ) );
+		$this->assertSame( 'Personal blog about long-distance hiking in the Alps.', get_option( 'blogdescription' ) );
+	}
+
+	/**
+	 * Test that PUT /wizard does not blank an existing site title/tagline when the
+	 * Name and Brief description come through empty.
+	 */
+	public function test_put_wizard_keeps_site_identity_when_fields_empty() {
+		wp_set_current_user( $this->admin_id );
+
+		update_option( 'blogname', 'Existing Title' );
+		update_option( 'blogdescription', 'Existing Tagline' );
+
+		$result = $this->call_api(
+			'PUT',
+			'/wizard',
+			array(
+				'goal'        => 'write',
+				'site_name'   => '',
+				'description' => '',
+				'locale'      => 'en',
+			)
+		);
+
+		$this->assertSame( 200, $result->get_status() );
+		$this->assertSame( 'Existing Title', get_option( 'blogname' ) );
+		$this->assertSame( 'Existing Tagline', get_option( 'blogdescription' ) );
+	}
+
+	/**
+	 * Test that a multi-line Brief description is collapsed to a single-line tagline.
+	 */
+	public function test_put_wizard_collapses_multiline_description_for_tagline() {
+		wp_set_current_user( $this->admin_id );
+
+		$result = $this->call_api(
+			'PUT',
+			'/wizard',
+			array(
+				'goal'        => 'write',
+				'site_name'   => 'Alpine Notes',
+				'description' => "Line one.\nLine two.",
+				'locale'      => 'en',
+			)
+		);
+
+		$this->assertSame( 200, $result->get_status() );
+		$this->assertSame( 'Line one. Line two.', get_option( 'blogdescription' ) );
 	}
 
 	/**

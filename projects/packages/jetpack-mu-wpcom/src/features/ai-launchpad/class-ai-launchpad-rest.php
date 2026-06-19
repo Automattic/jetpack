@@ -179,11 +179,26 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 			'checklist_statuses' => (array) get_option( 'launchpad_checklist_tasks_statuses', array() ),
 			'dismissed'          => (bool) get_option( self::OPTION_DISMISSED, false ),
 			'is_eligible'        => true,
+			// Site context the client needs: the front-end URL drives the launch-task
+			// CTA (its host is the launch-flow site slug) and the tailored-list
+			// preview thumbnail; the title labels that preview. Title and
+			// description also pre-fill the wizard's Name and Brief description
+			// fields so they reflect the site's current identity.
+			'site'               => array(
+				'url'         => home_url(),
+				'title'       => get_bloginfo( 'name' ),
+				'description' => get_bloginfo( 'description' ),
+			),
 		);
 	}
 
 	/**
-	 * Persists the wizard input to the wizard option.
+	 * Persists the wizard input to the wizard option and, on completion, writes
+	 * the entered Name and Brief description back to the site's identity options
+	 * (blogname / blogdescription) so the wizard reflects and updates the real
+	 * site title and tagline. Empty values are skipped so the wizard never blanks
+	 * an existing title or tagline. Values are already sanitized by the route's
+	 * sanitize_callbacks; update_option re-runs core's option sanitizers too.
 	 *
 	 * @param WP_REST_Request $request Request object.
 	 * @return array
@@ -199,6 +214,15 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 		);
 
 		update_option( self::OPTION_WIZARD, $wizard, false );
+
+		if ( '' !== trim( (string) $request['site_name'] ) ) {
+			update_option( 'blogname', $request['site_name'] );
+		}
+		if ( '' !== trim( (string) $request['description'] ) ) {
+			// The tagline is rendered inline by themes, so collapse the textarea
+			// brief's newlines to keep blogdescription single-line.
+			update_option( 'blogdescription', sanitize_text_field( $request['description'] ) );
+		}
 
 		return array( 'wizard' => $wizard );
 	}
