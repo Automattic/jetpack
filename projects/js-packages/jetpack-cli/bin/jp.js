@@ -613,7 +613,6 @@ const main = async () => {
 						[ 'pnpm', 'jetpack', 'docker', 'config' ],
 						{
 							stdio: 'inherit',
-							shell: true,
 							cwd: monorepoRoot,
 						}
 					);
@@ -730,7 +729,6 @@ const main = async () => {
 
 				const result = spawnSync( 'docker', composeArgs, {
 					stdio: 'inherit',
-					shell: true,
 					cwd: resolve( monorepoRoot, 'tools/docker' ),
 					env: envVars,
 				} );
