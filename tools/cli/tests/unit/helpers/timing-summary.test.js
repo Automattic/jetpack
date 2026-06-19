@@ -4,7 +4,7 @@ import { printTimingSummary, buildTimingJson } from '../../../helpers/timing-sum
 /**
  * Build a `ctx.timings`-shaped object from a list of phase entries.
  *
- * @param {Array}  entries    - Timing entries.
+ * @param {Array}  entries     - Timing entries.
  * @param {object} [overrides] - Overrides for overallStart/buildOrder.
  * @return {object} A `ctx` with a `timings` property.
  */
@@ -66,10 +66,12 @@ describe( 'buildTimingJson', () => {
 	} );
 
 	test( 'serializes infinite concurrency as "unlimited" and finite as a number', () => {
-		expect( buildTimingJson( makeCtx( SAMPLE_ENTRIES ), { concurrency: Infinity } ).concurrency ).toBe(
-			'unlimited'
+		expect(
+			buildTimingJson( makeCtx( SAMPLE_ENTRIES ), { concurrency: Infinity } ).concurrency
+		).toBe( 'unlimited' );
+		expect( buildTimingJson( makeCtx( SAMPLE_ENTRIES ), { concurrency: 4 } ).concurrency ).toBe(
+			4
 		);
-		expect( buildTimingJson( makeCtx( SAMPLE_ENTRIES ), { concurrency: 4 } ).concurrency ).toBe( 4 );
 	} );
 
 	test( 'passes the raw entries through untouched', () => {
