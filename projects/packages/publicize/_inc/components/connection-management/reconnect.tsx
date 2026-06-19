@@ -1,3 +1,4 @@
+import { useGlobalNotices } from '@automattic/jetpack-components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useCallback, useEffect, useState } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
@@ -28,6 +29,8 @@ export function Reconnect( { connection, service }: ReconnectProps ) {
 		completeReconnect,
 	} = useDispatch( socialStore );
 
+	const { createErrorNotice } = useGlobalNotices();
+
 	const { canManageConnection, isReconnectingThis } = useSelect(
 		select => {
 			const { canUserManageConnection, getReconnectingAccount } = select( socialStore );
@@ -57,6 +60,19 @@ export function Reconnect( { connection, service }: ReconnectProps ) {
 			const result = await fetchKeyringResult( requestId );
 
 			if ( ! result?.ID ) {
+				/*
+				 * The popup completed (so the connect-window abort cleanup won't run) but returned
+				 * no usable result. Clear the busy state here so the row doesn't stay stuck, and let
+				 * the user retry.
+				 */
+				setIsReconnecting( false );
+				setReconnectingAccount( undefined );
+				createErrorNotice(
+					__(
+						'The reconnection could not be completed. Please try again.',
+						'jetpack-publicize-pkg'
+					)
+				);
 				return;
 			}
 
@@ -73,7 +89,14 @@ export function Reconnect( { connection, service }: ReconnectProps ) {
 				openConnectionsModal();
 			}
 		},
-		[ completeReconnect, fetchKeyringResult, openConnectionsModal, setKeyringResult ]
+		[
+			completeReconnect,
+			createErrorNotice,
+			fetchKeyringResult,
+			openConnectionsModal,
+			setKeyringResult,
+			setReconnectingAccount,
+		]
 	);
 
 	const requestAccess = useRequestAccess( { service, onConfirm } );

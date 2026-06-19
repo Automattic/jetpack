@@ -555,14 +555,28 @@ export function completeReconnect( keyringResult?: KeyringResult ) {
 
 		await dispatch( refreshConnectionTestResults() );
 
+		// The account matched, but confirm the refreshed connection actually recovered before
+		// reporting success — re-authing doesn't guarantee the token now passes the test.
+		const recovered =
+			select.getConnectionById( reconnectingAccount.connection_id )?.status === 'ok';
+
 		// Clear the reconnecting account only after the refresh, so the busy state stays until
 		// the connection list reflects the reconnection.
 		dispatch( setReconnectingAccount( undefined ) );
 
-		coreDispatch( globalNoticesStore ).createSuccessNotice(
-			__( 'Account reconnected successfully.', 'jetpack-publicize-pkg' ),
-			{ type: 'snackbar', isDismissible: true }
-		);
+		const { createSuccessNotice, createErrorNotice } = coreDispatch( globalNoticesStore );
+
+		if ( recovered ) {
+			createSuccessNotice( __( 'Account reconnected successfully.', 'jetpack-publicize-pkg' ), {
+				type: 'snackbar',
+				isDismissible: true,
+			} );
+		} else {
+			createErrorNotice(
+				__( 'The account could not be reconnected. Please try again.', 'jetpack-publicize-pkg' ),
+				{ type: 'snackbar', isDismissible: true }
+			);
+		}
 
 		return true;
 	};
