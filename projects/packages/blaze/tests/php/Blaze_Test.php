@@ -602,6 +602,172 @@ class Blaze_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Test that no Blaze Ads menu is registered when the standalone Blaze Ads plugin
+	 * is active and still uses the default 'advertising' slug (legacy behavior), so the
+	 * two plugins do not produce a duplicate menu entry.
+	 */
+	public function test_no_menu_when_standalone_active_and_default_slug() {
+		global $submenu;
+
+		wp_set_current_user( $this->admin_id );
+		add_filter( 'jetpack_blaze_enabled', '__return_true' );
+		add_filter( 'jetpack_blaze_standalone_active', '__return_true' );
+
+		Blaze::enable_blaze_menu();
+
+		$parent_slug   = Blaze::get_menu_parent();
+		$found_default = false;
+		if ( isset( $submenu[ $parent_slug ] ) ) {
+			foreach ( $submenu[ $parent_slug ] as $item ) {
+				if ( 'advertising' === $item[2] ) {
+					$found_default = true;
+					break;
+				}
+			}
+		}
+		$this->assertFalse( $found_default, 'This package must not register its own menu when the standalone plugin owns it.' );
+
+		remove_all_filters( 'jetpack_blaze_standalone_active' );
+		add_filter( 'jetpack_blaze_enabled', '__return_false' );
+	}
+
+	/**
+	 * Test that when the standalone Blaze Ads plugin delegates registration to this
+	 * package by filtering the slug (e.g. to 'wp-blaze'), this package DOES register the
+	 * menu (it is the only registrant) instead of bailing out.
+	 */
+	public function test_menu_registered_when_standalone_delegates_via_slug() {
+		global $submenu;
+
+		wp_set_current_user( $this->admin_id );
+		add_filter( 'jetpack_blaze_enabled', '__return_true' );
+		add_filter( 'jetpack_blaze_standalone_active', '__return_true' );
+		add_filter(
+			'jetpack_blaze_menu_slug',
+			function () {
+				return 'wp-blaze';
+			}
+		);
+
+		Blaze::enable_blaze_menu();
+
+		$parent_slug     = Blaze::get_menu_parent();
+		$found_delegated = false;
+		if ( isset( $submenu[ $parent_slug ] ) ) {
+			foreach ( $submenu[ $parent_slug ] as $item ) {
+				if ( 'wp-blaze' === $item[2] ) {
+					$found_delegated = true;
+					break;
+				}
+			}
+		}
+		$this->assertTrue( $found_delegated, 'When the standalone delegates via the slug filter, this package must register the menu.' );
+
+		remove_all_filters( 'jetpack_blaze_menu_slug' );
+		remove_all_filters( 'jetpack_blaze_standalone_active' );
+		add_filter( 'jetpack_blaze_enabled', '__return_false' );
+	}
+
+	/**
+	 * Test that no temporary migration notice is registered under Tools when the
+	 * standalone plugin owns the menu (we bail before registering anything).
+	 */
+	public function test_no_migration_notice_when_standalone_active() {
+		global $submenu;
+
+		wp_set_current_user( $this->admin_id );
+		add_filter( 'jetpack_blaze_enabled', '__return_true' );
+		add_filter( 'jetpack_blaze_standalone_active', '__return_true' );
+		Constants::set_constant( 'IS_WPCOM', true );
+
+		Blaze::enable_blaze_menu();
+
+		$found_notice = false;
+		if ( isset( $submenu['tools.php'] ) ) {
+			foreach ( $submenu['tools.php'] as $item ) {
+				if ( 'advertising-moved' === $item[2] ) {
+					$found_notice = true;
+					break;
+				}
+			}
+		}
+		$this->assertFalse( $found_notice, 'No migration notice should be registered when the standalone plugin owns the menu.' );
+
+		Constants::clear_single_constant( 'IS_WPCOM' );
+		remove_all_filters( 'jetpack_blaze_standalone_active' );
+		add_filter( 'jetpack_blaze_enabled', '__return_false' );
+	}
+
+	/**
+	 * Test that when the standalone plugin is active, BOTH the admin.php and the tools.php
+	 * page=advertising entry points are forwarded to the standalone's wp-blaze page. This
+	 * package handles both itself rather than depending on the standalone shipping its own
+	 * redirect, so the matrix works against any standalone release.
+	 */
+	public function test_redirect_target_forwards_both_entrypoints_to_standalone() {
+		global $pagenow;
+		wp_set_current_user( $this->admin_id );
+		add_filter( 'jetpack_blaze_enabled', '__return_true' );
+		add_filter( 'jetpack_blaze_standalone_active', '__return_true' );
+		$_GET['page'] = 'advertising';
+
+		$pagenow = 'admin.php';
+		$this->assertStringContainsString(
+			'admin.php?page=wp-blaze',
+			(string) Blaze::get_legacy_advertising_redirect_target()
+		);
+
+		$pagenow = 'tools.php';
+		$this->assertStringContainsString(
+			'admin.php?page=wp-blaze',
+			(string) Blaze::get_legacy_advertising_redirect_target()
+		);
+
+		unset( $_GET['page'] );
+		remove_all_filters( 'jetpack_blaze_standalone_active' );
+		add_filter( 'jetpack_blaze_enabled', '__return_false' );
+	}
+
+	/**
+	 * Test that without the standalone, tools.php?page=advertising redirects to
+	 * admin.php?page=advertising once the menu has moved off Tools (WPCOM platform here).
+	 */
+	public function test_redirect_target_standard_move_to_admin_php() {
+		global $pagenow;
+		wp_set_current_user( $this->admin_id );
+		$pagenow      = 'tools.php';
+		$_GET['page'] = 'advertising';
+		add_filter( 'jetpack_blaze_enabled', '__return_true' );
+		Constants::set_constant( 'IS_WPCOM', true );
+
+		$this->assertStringContainsString(
+			'admin.php?page=advertising',
+			(string) Blaze::get_legacy_advertising_redirect_target()
+		);
+
+		Constants::clear_single_constant( 'IS_WPCOM' );
+		add_filter( 'jetpack_blaze_enabled', '__return_false' );
+		unset( $_GET['page'] );
+	}
+
+	/**
+	 * Test that no redirect happens when the menu is still under Tools (fallback context).
+	 */
+	public function test_redirect_target_null_when_menu_under_tools() {
+		global $pagenow;
+		wp_set_current_user( $this->admin_id );
+		$pagenow      = 'tools.php';
+		$_GET['page'] = 'advertising';
+		add_filter( 'jetpack_blaze_enabled', '__return_true' );
+
+		// Test env: no Woo / WPCOM / connection => parent is tools.php => no redirect.
+		$this->assertNull( Blaze::get_legacy_advertising_redirect_target() );
+
+		add_filter( 'jetpack_blaze_enabled', '__return_false' );
+		unset( $_GET['page'] );
+	}
+
+	/**
 	 * Test that get_menu_parent() returns 'tools.php' when neither WooCommerce
 	 * nor a Jetpack connection is present.
 	 */
@@ -752,6 +918,25 @@ class Blaze_Test extends BaseTestCase {
 		$this->assertStringNotContainsString( 'page=advertising', $url_data['link'] );
 
 		remove_all_filters( 'jetpack_blaze_menu_slug' );
+	}
+
+	/**
+	 * Test that campaign/promote links point directly at the standalone Blaze Ads page
+	 * (both the ?page= slug and the #! route prefix) when the standalone plugin owns the
+	 * menu, so the deep-link fragment is preserved instead of being dropped by the
+	 * admin.php?page=advertising redirect.
+	 */
+	public function test_campaign_management_url_targets_standalone_when_active() {
+		add_filter( 'jetpack_blaze_standalone_active', '__return_true' );
+
+		$url_data = Blaze::get_campaign_management_url( 42 );
+
+		$this->assertStringContainsString( 'admin.php?page=wp-blaze', $url_data['link'] );
+		$this->assertStringContainsString( '#!/wp-blaze/posts/promote/post-42/', $url_data['link'] );
+		$this->assertStringNotContainsString( 'page=advertising', $url_data['link'] );
+		$this->assertStringNotContainsString( '#!/advertising/', $url_data['link'] );
+
+		remove_all_filters( 'jetpack_blaze_standalone_active' );
 	}
 
 	/**
