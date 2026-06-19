@@ -493,11 +493,17 @@ class Connection_Health_Tests extends Connection_Health_Test_Base {
 		if ( isset( $result->error_code ) && 'xmlrpc_request_blocked' === $result->error_code ) {
 			return $this->blocked_request_failing_test(
 				$name,
-				isset( $result->site_http_status ) ? (int) $result->site_http_status : 0
+				(int) ( $result->site_http_status ?? 0 )
 			);
 		}
 
-		$message = ( $result->message ?? '' ) . ': ' . $status_code;
+		$message = isset( $result->message ) && '' !== $result->message
+			? $result->message . ': ' . $status_code
+			: sprintf(
+				/* translators: %s is the HTTP status code returned by WordPress.com. */
+				__( 'Connection test failed (status code: %s).', 'jetpack-connection' ),
+				$status_code
+			);
 
 		return self::connection_failing_test( $name, $message );
 	}
@@ -523,7 +529,7 @@ class Connection_Health_Tests extends Connection_Health_Test_Base {
 			)
 			: __( 'WordPress.com reached your site but the request was blocked. This is usually caused by a firewall, security plugin, or server rule rejecting requests from WordPress.com.', 'jetpack-connection' );
 
-		$recommendation = __( 'Ask your host or security provider to allow requests from WordPress.com to your site\'s xmlrpc.php. Reconnecting will not resolve this.', 'jetpack-connection' );
+		$recommendation = __( 'Ask your host or security provider to allow requests from WordPress.com to your site\'s xmlrpc.php file. Reconnecting will not resolve this. If you need further help, contact Jetpack support.', 'jetpack-connection' );
 
 		return self::failing_test(
 			array(

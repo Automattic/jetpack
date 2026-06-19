@@ -626,6 +626,19 @@ class Connection_Health_Tests_Test extends TestCase {
 		$this->assertSame( 'https://example.com/reconnect', $result['action'] );
 	}
 
+	/**
+	 * Test wpcom_connection_test produces a readable message when WP.com returns
+	 * no message alongside a non-connected response.
+	 */
+	public function test_wpcom_connection_test_handles_missing_message() {
+		$result = $this->evaluate_response( array( 'connected' => false ), 500 );
+
+		$this->assertFalse( $result['pass'] );
+		// The message should not start with a stray colon when no message is present.
+		$this->assertStringStartsNotWith( ':', $result['short_description'] );
+		$this->assertStringContainsString( '500', $result['short_description'] );
+	}
+
 	// -------------------------------------------------------------------------
 	// test__server_port_value
 	// -------------------------------------------------------------------------
