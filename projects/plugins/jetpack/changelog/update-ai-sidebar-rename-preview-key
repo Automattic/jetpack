@@ -1,0 +1,3 @@
+Significance: patch
+Type: other
+Comment: AI Sidebar: rename the emitted agentsManagerData key from jetpackAiSidebarPreview to jetpackAiSidebar; the old key becomes a legacy marker for the paired Calypso reader/gate update.
