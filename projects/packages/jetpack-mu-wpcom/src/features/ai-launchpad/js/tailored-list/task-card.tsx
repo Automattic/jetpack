@@ -1,15 +1,50 @@
-import { Card, CardBody, Button, Icon } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { chevronDown, chevronUp, published } from '@wordpress/icons';
-import clsx from 'clsx';
+import { Button, Card, CollapsibleCard } from '@wordpress/ui';
 import { ctaKind, type EnrichedTask } from './model.ts';
+
+// WPDS doesn't ship a "todo / dashed-circle" or "check-in-circle" icon yet (only
+// `check`), so we inline both. Sized at 24px to line up with each other;
+// `currentColor` lets us tone them via CSS.
+const taskActiveIcon = (
+	<svg
+		className="ai-launchpad-tailored-list__icon is-todo"
+		width={ 24 }
+		height={ 24 }
+		viewBox="0 0 24 24"
+		fill="none"
+		xmlns="http://www.w3.org/2000/svg"
+		aria-hidden="true"
+	>
+		<circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="1.5" strokeDasharray="3 2.5" />
+	</svg>
+);
+
+const taskDoneIcon = (
+	<svg
+		className="ai-launchpad-tailored-list__icon is-done"
+		width={ 24 }
+		height={ 24 }
+		viewBox="0 0 24 24"
+		fill="none"
+		xmlns="http://www.w3.org/2000/svg"
+		aria-hidden="true"
+	>
+		<circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="1.5" />
+		<path
+			d="M8 12.5L11 15.5L16 9.5"
+			stroke="currentColor"
+			strokeWidth="1.5"
+			strokeLinecap="round"
+			strokeLinejoin="round"
+		/>
+	</svg>
+);
 
 interface Props {
 	task: EnrichedTask;
-	isExpanded: boolean;
 	isBusy: boolean;
 	canStart: boolean;
-	onToggle: () => void;
+	defaultOpen: boolean;
 	onGetStarted: () => void;
 	onSkip: () => void;
 }
@@ -61,79 +96,57 @@ function getCtaLabel( taskId: string ): string {
 }
 
 /**
- * A single task in the tailored list, rendered as a card. Completed tasks show
- * a struck-through title with a check-in-circle icon and aren't expandable.
- * Incomplete tasks show a dashed-circle icon, title, and chevron when collapsed;
- * expanding reveals the AI subtitle and the action-specific CTA / "Skip" actions.
+ * A single task in the tailored list. Completed tasks render as a plain card
+ * with a struck-through title and a check-in-circle icon, and aren't expandable.
+ * Incomplete tasks render as a `CollapsibleCard` (dashed-circle icon + title in
+ * the always-visible header, which is the toggle trigger); expanding reveals the
+ * AI subtitle and the action-specific CTA / "Skip" actions.
  *
  * @param props              - The component props.
  * @param props.task         - The enriched task to render.
- * @param props.isExpanded   - Whether this card is expanded.
  * @param props.isBusy       - Whether the primary action is in flight.
  * @param props.canStart     - Whether the task has an actionable CTA destination.
- * @param props.onToggle     - Called when the collapsed header is clicked.
+ * @param props.defaultOpen  - Whether the card starts expanded (uncontrolled, so
+ *                           the user can then collapse it without it reopening).
  * @param props.onGetStarted - Called when the primary CTA is clicked.
  * @param props.onSkip       - Called when "Skip" is clicked.
  * @return The task card element.
  */
-export function TaskCard( {
-	task,
-	isExpanded,
-	isBusy,
-	canStart,
-	onToggle,
-	onGetStarted,
-	onSkip,
-}: Props ) {
+export function TaskCard( { task, isBusy, canStart, defaultOpen, onGetStarted, onSkip }: Props ) {
 	if ( task.completed ) {
 		return (
-			<Card className="ai-launchpad-tailored-list__card is-completed">
-				<CardBody>
-					<div className="ai-launchpad-tailored-list__header">
-						<Icon icon={ published } className="ai-launchpad-tailored-list__icon is-done" />
+			<Card.Root className="ai-launchpad-tailored-list__card is-completed">
+				<Card.Header>
+					<span className="ai-launchpad-tailored-list__header-inner">
+						{ taskDoneIcon }
 						<span className="ai-launchpad-tailored-list__title is-done">{ task.title }</span>
-					</div>
-				</CardBody>
-			</Card>
+					</span>
+				</Card.Header>
+			</Card.Root>
 		);
 	}
 
 	return (
-		<Card className={ clsx( 'ai-launchpad-tailored-list__card', { 'is-expanded': isExpanded } ) }>
-			<CardBody>
-				<Button
-					className="ai-launchpad-tailored-list__header"
-					onClick={ onToggle }
-					aria-expanded={ isExpanded }
-				>
-					<span className="ai-launchpad-tailored-list__icon is-todo" aria-hidden="true" />
+		<CollapsibleCard.Root className="ai-launchpad-tailored-list__card" defaultOpen={ defaultOpen }>
+			<CollapsibleCard.Header>
+				<span className="ai-launchpad-tailored-list__header-inner">
+					{ taskActiveIcon }
 					<span className="ai-launchpad-tailored-list__title">{ task.title }</span>
-					<Icon
-						className="ai-launchpad-tailored-list__chevron"
-						icon={ isExpanded ? chevronUp : chevronDown }
-					/>
-				</Button>
-				{ isExpanded && (
-					<div className="ai-launchpad-tailored-list__body">
-						<p className="ai-launchpad-tailored-list__subtitle">{ task.subtitle }</p>
-						<div className="ai-launchpad-tailored-list__actions">
-							{ canStart && (
-								<Button
-									variant="primary"
-									onClick={ onGetStarted }
-									isBusy={ isBusy }
-									disabled={ isBusy }
-								>
-									{ getCtaLabel( task.id ) }
-								</Button>
-							) }
-							<Button variant="tertiary" onClick={ onSkip }>
-								{ __( 'Skip', 'jetpack-mu-wpcom' ) }
-							</Button>
-						</div>
-					</div>
-				) }
-			</CardBody>
-		</Card>
+				</span>
+			</CollapsibleCard.Header>
+			<CollapsibleCard.Content>
+				<p className="ai-launchpad-tailored-list__subtitle">{ task.subtitle }</p>
+				<div className="ai-launchpad-tailored-list__actions">
+					{ canStart && (
+						<Button variant="solid" onClick={ onGetStarted } loading={ isBusy } disabled={ isBusy }>
+							{ getCtaLabel( task.id ) }
+						</Button>
+					) }
+					<Button variant="minimal" tone="neutral" onClick={ onSkip }>
+						{ __( 'Skip', 'jetpack-mu-wpcom' ) }
+					</Button>
+				</div>
+			</CollapsibleCard.Content>
+		</CollapsibleCard.Root>
 	);
 }

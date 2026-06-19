@@ -66,38 +66,25 @@
 	background: #f6f7f7;
 	border-radius: 8px;
 
+	// Tighten the @wordpress/ui Card padding so the cards read as compact
+	// checklist rows rather than full content cards. Zero the header→content
+	// margin (it otherwise leaves a gap below the header even when collapsed);
+	// the expanded gap is re-added on the subtitle, inside the clipped panel.
 	&__card {
-
-		.components-card__body {
-			padding: 16px 20px;
-		}
-
-		&.is-expanded .components-card__body {
-			padding-bottom: 20px;
-		}
+		--wp-ui-card-padding: 16px;
+		--wp-ui-card-header-content-margin: 0;
 	}
 
-	&__header {
+	// The icon + title row placed inside the (clickable) card header. The
+	// CollapsibleCard supplies the chevron trigger beside it.
+	&__header-inner {
 		display: flex;
 		align-items: center;
 		gap: 8px;
-		width: 100%;
-		height: auto;
-		text-align: start;
-
-		// The collapsed header is a Button; strip its chrome so it reads as a row.
-		&.components-button {
-			padding: 0;
-			color: inherit;
-
-			&:hover:not(:disabled) {
-				color: inherit;
-			}
-		}
+		min-width: 0;
 	}
 
 	&__title {
-		flex: 1;
 		font-weight: 500;
 		font-size: 14px;
 
@@ -107,40 +94,26 @@
 		}
 	}
 
+	// The inline SVG task icons use `currentColor`, so tone them via `color`.
 	&__icon {
 		flex-shrink: 0;
 
-		// Incomplete tasks: a dashed ring (no equivalent in @wordpress/icons), sized
-		// to match the 24px completed-state icon so titles align across rows.
+		// Incomplete tasks: a light dashed ring.
 		&.is-todo {
-			width: 24px;
-			height: 24px;
-			border: 1.5px dashed #c3c4c7;
-			border-radius: 50%;
-			box-sizing: border-box;
+			color: #c3c4c7;
 		}
 
-		// Completed tasks: the @wordpress/icons "published" check-in-circle, greyed
-		// to sit alongside the struck-through title.
+		// Completed tasks: a check-in-circle, greyed to sit alongside the
+		// struck-through title.
 		&.is-done {
-			fill: #757575;
+			color: #757575;
 		}
 	}
 
-	&__chevron {
-		flex-shrink: 0;
-		fill: #757575;
-	}
-
-	&__body {
-		margin-top: 12px;
-		display: flex;
-		flex-direction: column;
-		gap: 16px;
-	}
-
+	// 8px top re-creates the header→content gap (the card's own margin is zeroed
+	// above); being inside the panel, it's clipped when the card is collapsed.
 	&__subtitle {
-		margin: 0;
+		margin: 8px 0 16px;
 		color: #757575;
 	}
 
@@ -165,7 +138,7 @@
 		position: relative;
 		width: 100%;
 		max-width: 300px;
-		aspect-ratio: 1 / 1;
+		aspect-ratio: 4 / 3;
 		overflow: hidden;
 		border: 1px solid #e0e0e0;
 		border-radius: 8px;
@@ -196,6 +169,15 @@
 
 	&__preview-link {
 		font-size: 13px;
+	}
+
+	// Stacked under the tasks on mobile, the preview spans the full column width.
+	// Declared after the base rule above so it wins at the mobile breakpoint.
+	@media (max-width: 782px) {
+
+		&__preview-frame {
+			max-width: none;
+		}
 	}
 
 	// Loading placeholders: solid shimmering bars standing in for the task cards.

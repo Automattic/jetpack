@@ -77,7 +77,6 @@ export function TailoredList( { pendingTailor, initialData, site }: Props = {} )
 	const [ output, setOutput ] = useState< TailoredOutput | null >(
 		() => initialData?.ai_output?.payload ?? null
 	);
-	const [ expandedId, setExpandedId ] = useState< string | null >( null );
 	const [ skippedIds, setSkippedIds ] = useState< Set< string > >( () => new Set() );
 	const [ busyId, setBusyId ] = useState< string | null >( null );
 	// The site's front-end URL, used to build the launch CTA and the preview
@@ -151,19 +150,6 @@ export function TailoredList( { pendingTailor, initialData, site }: Props = {} )
 		[ tasks, skippedIds ]
 	);
 
-	useEffect( () => {
-		if ( ! tasks || expandedId !== null ) {
-			return;
-		}
-		// Scan visibleTasks (skipped→completed) so skipping the last actionable
-		// task doesn't re-select it and bounce the just-dismissed card open.
-		const index = firstIncompleteIndex( visibleTasks );
-		const first = index === -1 ? undefined : visibleTasks[ index ];
-		if ( first ) {
-			setExpandedId( first.id );
-		}
-	}, [ tasks, visibleTasks, expandedId ] );
-
 	if ( ! tasks ) {
 		return (
 			<Layout
@@ -210,25 +196,23 @@ export function TailoredList( { pendingTailor, initialData, site }: Props = {} )
 
 	const handleSkip = ( task: EnrichedTask ) => {
 		setSkippedIds( prev => new Set( prev ).add( task.id ) );
-		if ( expandedId === task.id ) {
-			const next = visibleTasks.find(
-				candidate => candidate.id !== task.id && ! candidate.completed
-			);
-			setExpandedId( next ? next.id : null );
-		}
 	};
+
+	// The first incomplete task opens on mount; because the cards are uncontrolled
+	// (defaultOpen), the user can then collapse it — or all of them — without it
+	// reopening. Computed from the initial render (skippedIds is empty then).
+	const firstOpenIndex = firstIncompleteIndex( visibleTasks );
 
 	return (
 		<Layout progressLabel={ progressLabel } siteUrl={ siteUrl } siteTitle={ siteTitle }>
 			<div className="ai-launchpad-tailored-list">
-				{ visibleTasks.map( task => (
+				{ visibleTasks.map( ( task, index ) => (
 					<TaskCard
 						key={ task.id }
 						task={ task }
-						isExpanded={ expandedId === task.id }
 						isBusy={ busyId === task.id }
 						canStart={ isTaskActionable( task, output, siteUrl ) }
-						onToggle={ () => setExpandedId( expandedId === task.id ? null : task.id ) }
+						defaultOpen={ index === firstOpenIndex }
 						onGetStarted={ () => handleGetStarted( task ) }
 						onSkip={ () => handleSkip( task ) }
 					/>
