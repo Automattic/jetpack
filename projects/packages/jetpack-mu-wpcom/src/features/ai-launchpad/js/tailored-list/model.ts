@@ -18,8 +18,10 @@ export interface SiteData {
 	// Optional: the fields come from an un-validated REST response, so consumers
 	// must tolerate them being absent (coalesce to null) rather than trust the type.
 	url?: string;
-	// The site name, used to label the preview card.
+	// The site name, used to label the preview card and pre-fill the wizard Name.
 	title?: string;
+	// The site tagline (blogdescription), used to pre-fill the wizard description.
+	description?: string;
 }
 
 /**

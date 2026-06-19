@@ -50,6 +50,8 @@ export function App() {
 	if ( view === 'wizard' ) {
 		return (
 			<Wizard
+				initialSiteName={ initialData?.site?.title }
+				initialIntent={ initialData?.site?.description }
 				onComplete={ ( _input, tailoring ) => {
 					setPendingTailor( () => tailoring );
 					setView( 'list' );
