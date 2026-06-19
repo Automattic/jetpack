@@ -1137,7 +1137,6 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 			$menu    = array();
 			$submenu = array();
 		}
-		remove_filter( 'jetpack_forms_alpha', '__return_false' );
 		delete_option( 'jetpack_feedback_unread_count' );
 		wp_set_current_user( 0 );
 		parent::tearDown();
@@ -1159,13 +1158,10 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 		$menu[2] = array( $jetpack_title, 'jetpack_admin_page', 'jetpack', 'Jetpack', 'menu-top' );
 
 		// Forms submenu entry.
-		$admin_slug             = Dashboard::ADMIN_SLUG;
+		$admin_slug             = Dashboard::FORMS_WPBUILD_ADMIN_SLUG;
 		$submenu['jetpack']     = array();
 		$submenu['jetpack'][0]  = array( 'Dashboard', 'manage_options', 'jetpack' );
 		$submenu['jetpack'][10] = array( 'Form Responses', 'edit_pages', $admin_slug );
-
-		// Ensure the alpha filter returns false so ADMIN_SLUG is used.
-		add_filter( 'jetpack_forms_alpha', '__return_false' );
 
 		return array(
 			'menu_index'    => 2,
@@ -1340,7 +1336,6 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 
 		// Set up only the main menu, no submenu.
 		$menu[2] = array( 'Jetpack', 'jetpack_admin_page', 'jetpack', 'Jetpack', 'menu-top' );
-		add_filter( 'jetpack_forms_alpha', '__return_false' );
 
 		update_option( 'jetpack_feedback_unread_count', 3 );
 

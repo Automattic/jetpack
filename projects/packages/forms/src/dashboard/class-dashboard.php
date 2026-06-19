@@ -8,10 +8,10 @@
 namespace Automattic\Jetpack\Forms\Dashboard;
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
-use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Forms\ContactForm\Contact_Form;
 use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin;
+use Automattic\Jetpack\Forms\Jetpack_Forms;
 use Automattic\Jetpack\Tracking;
 use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills;
 
@@ -138,12 +138,17 @@ class Dashboard {
 	}
 
 	/**
-	 * Script handle for the JS file we enqueue in the Feedback admin page.
+	 * Handle for the data-only script that carries the dashboard bootstrap
+	 * (Connection initial state, Tracks, and REST API preloading).
 	 *
 	 * @var string
 	 */
 	const SCRIPT_HANDLE = 'jp-forms-dashboard';
 
+	/**
+	 * Retired legacy dashboard slug. Kept so links in older notification emails can be
+	 * redirected to the current wp-build dashboard. See redirect_legacy_dashboard_url().
+	 */
 	const ADMIN_SLUG = 'jetpack-forms-admin';
 
 	/**
@@ -168,98 +173,32 @@ class Dashboard {
 	 */
 	public function init() {
 		add_action( 'admin_menu', array( $this, 'add_admin_submenu' ), self::MENU_PRIORITY );
-		add_action( 'admin_menu', array( __CLASS__, 'redirect_dashboard_url_cross_variant' ), 1 );
+		add_action( 'admin_menu', array( __CLASS__, 'redirect_legacy_dashboard_url' ), 1 );
 
-		/**
-		 * Filter to enable or disable the wp-build-based Forms dashboard.
-		 *
-		 * Enabled by default since Central Forms Management is now available for all sites.
-		 * Can be disabled by returning false from this filter.
-		 *
-		 * @since 7.18.0
-		 *
-		 * @param bool $enabled Whether the wp-build dashboard is enabled. Default true.
-		 */
-		$is_wp_build_enabled = apply_filters( 'jetpack_forms_alpha', true );
-
-		if ( $is_wp_build_enabled ) {
-			self::load_wp_build();
-			self::fix_boot_import_map_ordering();
-		}
+		self::load_wp_build();
+		self::fix_boot_import_map_ordering();
 
 		add_action( 'admin_enqueue_scripts', array( $this, 'load_admin_scripts' ) );
-
-		// Removed all admin notices on the Jetpack Forms admin page.
-		if ( self::get_admin_query_page() === self::ADMIN_SLUG ) {
-			remove_all_actions( 'admin_notices' );
-		}
 	}
 
 	/**
-	 * Redirect dashboard URLs when the wp-build flag has changed since the link was generated.
+	 * Redirect legacy dashboard URLs to the wp-build Forms dashboard.
 	 *
-	 * Email links may point to the legacy or wp-build dashboard. If the flag has toggled,
-	 * the requested page may not exist. This redirects to the correct variant.
+	 * Older notification emails and some block-editor links still reference the retired legacy
+	 * dashboard slug. The legacy hash route is never sent to the server, so we land on the
+	 * responses inbox and let the client-side router resolve the correct status in its
+	 * beforeLoad hook.
 	 */
-	public static function redirect_dashboard_url_cross_variant() {
+	public static function redirect_legacy_dashboard_url() {
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		$page = isset( $_GET['page'] ) ? sanitize_text_field( wp_unslash( $_GET['page'] ) ) : '';
 
-		if ( $page !== self::ADMIN_SLUG && $page !== self::FORMS_WPBUILD_ADMIN_SLUG ) {
+		if ( $page !== self::ADMIN_SLUG ) {
 			return;
 		}
 
-		/** This filter is documented in class-dashboard.php::init */
-		$is_wp_build_enabled = apply_filters( 'jetpack_forms_alpha', true );
-
-		// Legacy URL requested but wp-build is now active → redirect to wp-build.
-		if ( $page === self::ADMIN_SLUG && $is_wp_build_enabled ) {
-			// The hash is never sent to the server. "inbox" used as default tab so we end up specifically in the responses
-			// route, where the client-side router will handle the redirect to the correct status in its beforeLoad hook.
-			$redirect = self::get_forms_admin_url( 'inbox' );
-			wp_safe_redirect( $redirect );
-			exit;
-		}
-
-		// WP-Build URL requested but legacy is now active → redirect to legacy.
-		if ( $page === self::FORMS_WPBUILD_ADMIN_SLUG && ! $is_wp_build_enabled ) {
-			// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-			$p                = isset( $_GET['p'] ) ? rawurldecode( sanitize_text_field( wp_unslash( $_GET['p'] ) ) ) : '';
-			$tab              = 'inbox';
-			$post_id          = null;
-			$has_mark_as_spam = false;
-
-			// Check if mark_as_spam is a separate query parameter (old email format).
-			// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-			if ( isset( $_GET['mark_as_spam'] ) ) {
-				$has_mark_as_spam = true;
-			}
-
-			if ( $p !== '' ) {
-				// Parse path like /responses/inbox?responseIds=["2879"] or /responses/inbox?responseIds=["2879"]&mark_as_spam or /forms.
-				if ( preg_match( '#^/responses/(inbox|spam|trash)(?:\?responseIds=\["(\d+)"\])?(.*)$#', $p, $m ) ) {
-					$tab     = $m[1];
-					$post_id = ! empty( $m[2] ) ? absint( $m[2] ) : null;
-
-					// Check if mark_as_spam parameter is present inside the path.
-					if ( ! empty( $m[3] ) && strpos( $m[3], 'mark_as_spam' ) !== false ) {
-						$has_mark_as_spam = true;
-					}
-				} elseif ( preg_match( '#^/forms#', $p ) ) {
-					$tab = 'forms';
-				}
-			}
-
-			$redirect = self::get_forms_admin_url( $tab, $post_id );
-
-			// Add mark_as_spam parameter if it was present in the original URL (either format).
-			if ( $has_mark_as_spam ) {
-				$redirect .= '&mark_as_spam';
-			}
-
-			wp_safe_redirect( $redirect );
-			exit;
-		}
+		wp_safe_redirect( self::get_forms_admin_url( 'inbox' ) );
+		exit;
 	}
 
 	/**
@@ -280,16 +219,12 @@ class Dashboard {
 			return;
 		}
 
-		Assets::register_script(
-			self::SCRIPT_HANDLE,
-			'../../dist/dashboard/jetpack-forms-dashboard.js',
-			__FILE__,
-			array(
-				'in_footer'  => true,
-				'textdomain' => 'jetpack-forms',
-				'enqueue'    => true,
-			)
-		);
+		// Data-only handle that carries the dashboard bootstrap: Connection initial state,
+		// Tracks, and the REST API preloading middleware. It has no source of its own and
+		// depends on wp-api-fetch so the preloading middleware can attach to wp.apiFetch
+		// before the wp-build dashboard issues its first request.
+		wp_register_script( self::SCRIPT_HANDLE, false, array( 'wp-api-fetch' ), Jetpack_Forms::PACKAGE_VERSION, true );
+		wp_enqueue_script( self::SCRIPT_HANDLE );
 
 		if ( Contact_Form_Plugin::can_use_analytics() ) {
 			Tracking::register_tracks_functions_scripts( true );
@@ -377,41 +312,24 @@ class Dashboard {
 	 * Register the dashboard admin submenu Forms under Jetpack menu.
 	 */
 	public function add_admin_submenu() {
-
-		/** This filter is documented in class-dashboard.php::init */
-		if ( apply_filters( 'jetpack_forms_alpha', true ) ) {
-
-			// `jetpack_forms_jetpack_forms_responses_wp_admin_render_page` is the callback generated by WP build script.
-			$callback = function_exists( 'jetpack_forms_jetpack_forms_responses_wp_admin_render_page' )
-				? 'jetpack_forms_jetpack_forms_responses_wp_admin_render_page'
-				: array( $this, 'render_dashboard' );
-
-			Admin_Menu::add_menu(
-				/** "Jetpack Forms" and "Forms" are product names, do not translate. */
-				'Jetpack Forms',
-				'Forms',
-				'edit_pages',
-				self::FORMS_WPBUILD_ADMIN_SLUG,
-				$callback,
-				10
-			);
-
-			return;
-		}
+		// `jetpack_forms_jetpack_forms_responses_wp_admin_render_page` is the callback generated by the WP build script.
+		$callback = function_exists( 'jetpack_forms_jetpack_forms_responses_wp_admin_render_page' )
+			? 'jetpack_forms_jetpack_forms_responses_wp_admin_render_page'
+			: array( $this, 'render_dashboard' );
 
 		Admin_Menu::add_menu(
-			/** "Jetpack Forms" and "Forms" are Product names, do not translate. */
+			/** "Jetpack Forms" and "Forms" are product names, do not translate. */
 			'Jetpack Forms',
 			'Forms',
 			'edit_pages',
-			self::ADMIN_SLUG,
-			array( $this, 'render_dashboard' ),
+			self::FORMS_WPBUILD_ADMIN_SLUG,
+			$callback,
 			10
 		);
 	}
 
 	/**
-	 * Render the dashboard.
+	 * Fallback render callback used only if the wp-build page registration is unavailable.
 	 */
 	public function render_dashboard() {
 		?>
@@ -564,24 +482,9 @@ class Dashboard {
 	 * @return string
 	 */
 	public static function get_forms_admin_url( $tab = null, $post_id = null ) {
-		/** This filter is documented in class-dashboard.php::init */
-		$is_wp_build_enabled = apply_filters( 'jetpack_forms_alpha', true );
-		$url                 = admin_url( 'admin.php' );
-
-		$url .= $is_wp_build_enabled
-			? '?page=' . self::FORMS_WPBUILD_ADMIN_SLUG
-			: '?page=' . self::ADMIN_SLUG;
-
-		if ( $is_wp_build_enabled ) {
-			$path = self::get_forms_admin_path_wp_build( $tab, $post_id );
-			$url .= '&p=' . rawurlencode( $path );
-		} else {
-			$suffix = self::get_forms_admin_suffix_legacy( $tab, $post_id );
-
-			if ( $suffix !== '' ) {
-				$url .= $suffix;
-			}
-		}
+		$url  = admin_url( 'admin.php' );
+		$url .= '?page=' . self::FORMS_WPBUILD_ADMIN_SLUG;
+		$url .= '&p=' . rawurlencode( self::get_forms_admin_path_wp_build( $tab, $post_id ) );
 
 		/**
 		 * Filters the Forms admin page URL.
@@ -629,33 +532,6 @@ class Dashboard {
 	}
 
 	/**
-	 * Legacy (hash-based) URL suffix for the forms admin page.
-	 *
-	 * @param string|null $tab    Tab to open.
-	 * @param int|null    $post_id Post ID of response.
-	 * @return string URL suffix (e.g. '#/responses?status=inbox&r=123', or '#/forms').
-	 */
-	private static function get_forms_admin_suffix_legacy( $tab, $post_id ) {
-		$post_id    = ! empty( $post_id ) ? absint( $post_id ) : null;
-		$valid_tabs = array( 'spam', 'inbox', 'trash' );
-		$r_param    = ! empty( $post_id ) ? '&r=' . $post_id : '';
-
-		if ( in_array( $tab, $valid_tabs, true ) ) {
-			return '#/responses?status=' . $tab . $r_param;
-		}
-
-		if ( $tab === 'forms' ) {
-			return '#/forms';
-		}
-
-		if ( ! empty( $post_id ) ) {
-			return '#/responses?status=inbox' . $r_param;
-		}
-
-		return '';
-	}
-
-	/**
 	 * Returns true if the current screen is the Jetpack Forms admin page.
 	 *
 	 * @return boolean
@@ -671,12 +547,7 @@ class Dashboard {
 			return false;
 		}
 
-		$forms_admin_screens = array(
-			'jetpack_page_' . self::ADMIN_SLUG,
-			'jetpack_page_' . self::FORMS_WPBUILD_ADMIN_SLUG,
-		);
-
-		return in_array( $screen->id, $forms_admin_screens, true );
+		return $screen->id === 'jetpack_page_' . self::FORMS_WPBUILD_ADMIN_SLUG;
 	}
 
 	/**

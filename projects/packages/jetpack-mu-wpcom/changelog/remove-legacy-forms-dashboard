@@ -1,0 +1,4 @@
+Significance: patch
+Type: removed
+
+Comment: Remove the jetpack_forms_alpha override now that the legacy Forms dashboard is retired and the wp-build dashboard is always used.

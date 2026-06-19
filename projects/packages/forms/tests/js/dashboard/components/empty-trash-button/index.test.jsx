@@ -5,11 +5,6 @@ import { beforeEach, describe, expect, it, jest } from '@jest/globals';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
-// Mock React Router
-await jest.unstable_mockModule( 'react-router', () => ( {
-	useSearchParams: () => [ new URLSearchParams(), jest.fn() ],
-} ) );
-
 // Mock WordPress dependencies
 await jest.unstable_mockModule( '@wordpress/components', () => ( {
 	Button: props => {

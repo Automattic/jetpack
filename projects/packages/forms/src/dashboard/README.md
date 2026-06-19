@@ -16,8 +16,7 @@ This is the React-app implementation for the new Jetpack Forms dashboard.
 ├── hooks/                          - Custom React hooks.
 ├── store/                          - Redux store for app state.
 ├── index.tsx                       - App entrypoint.
-├── class-dashboard.php             - Jetpack Forms WP Admin setup.
-└── class-dashboard-view-switch.php - Feedback view toggle implementation (deprecated, unused).
+└── class-dashboard.php             - Jetpack Forms WP Admin setup.
 ```
 
 ## Usage
