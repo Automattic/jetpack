@@ -95,8 +95,6 @@ export function fetchKeyringResult( requestId: string ) {
 			} );
 
 			if ( response?.code === 'success' && response.data ) {
-				dispatch( setKeyringResult( response.data ) );
-
 				return response.data;
 			}
 		} catch {
@@ -526,6 +524,61 @@ export function setReconnectingAccount( reconnectingAccount: Connection ) {
 	return {
 		type: SET_RECONNECTING_ACCOUNT,
 		reconnectingAccount,
+	};
+}
+
+/**
+ * Completes an in-place reconnect when the connect result matches the account being reconnected.
+ *
+ * @param keyringResult - The keyring result from the completed connect request.
+ *
+ * @return A thunk resolving to true if it handled an in-place reconnect, false otherwise.
+ */
+export function completeReconnect( keyringResult?: KeyringResult ) {
+	return async function ( { dispatch, select } ) {
+		const reconnectingAccount = select.getReconnectingAccount();
+
+		if ( ! reconnectingAccount || ! keyringResult?.ID ) {
+			return false;
+		}
+
+		const reconnectedIds = [
+			keyringResult.external_ID,
+			...( keyringResult.additional_external_users?.map( user => user.external_ID ) ?? [] ),
+		]
+			.filter( Boolean )
+			.map( String );
+
+		if ( ! reconnectedIds.includes( reconnectingAccount.external_id ) ) {
+			return false;
+		}
+
+		await dispatch( refreshConnectionTestResults() );
+
+		// The account matched, but confirm the refreshed connection actually recovered before
+		// reporting success — re-authing doesn't guarantee the token now passes the test.
+		const recovered =
+			select.getConnectionById( reconnectingAccount.connection_id )?.status === 'ok';
+
+		// Clear the reconnecting account only after the refresh, so the busy state stays until
+		// the connection list reflects the reconnection.
+		dispatch( setReconnectingAccount( undefined ) );
+
+		const { createSuccessNotice, createErrorNotice } = coreDispatch( globalNoticesStore );
+
+		if ( recovered ) {
+			createSuccessNotice( __( 'Account reconnected successfully.', 'jetpack-publicize-pkg' ), {
+				type: 'snackbar',
+				isDismissible: true,
+			} );
+		} else {
+			createErrorNotice(
+				__( 'The account could not be reconnected. Please try again.', 'jetpack-publicize-pkg' ),
+				{ type: 'snackbar', isDismissible: true }
+			);
+		}
+
+		return true;
 	};
 }
 
