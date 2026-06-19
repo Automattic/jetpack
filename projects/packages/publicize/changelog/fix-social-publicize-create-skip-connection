@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Honor a disabled connection when publishing a brand new post via the REST API, not only when updating an existing post.
