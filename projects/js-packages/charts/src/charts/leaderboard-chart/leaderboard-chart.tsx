@@ -1,7 +1,7 @@
 /* eslint-disable @wordpress/no-unsafe-wp-apis */
 import { __experimentalGrid as Grid } from '@wordpress/components';
 import { Fragment } from '@wordpress/element';
-import { __, sprintf } from '@wordpress/i18n';
+import { __ } from '@wordpress/i18n';
 import { Icon, chevronRight } from '@wordpress/icons';
 import { Stack, Text } from '@wordpress/ui';
 import clsx from 'clsx';
@@ -25,30 +25,6 @@ import { useLeaderboardLegendItems } from './hooks';
 import styles from './leaderboard-chart.module.scss';
 import type { LeaderboardChartProps } from './types';
 import type { LeaderboardEntry } from '../../types';
-
-/**
- * Build an accessible name for an interactive leaderboard row. The label may be
- * JSX (image/markup). For a string label we build an explicit name; for a JSX
- * label we return undefined so the button derives its accessible name from its
- * rendered content (label markup/alt text plus the value), rather than an
- * aria-label that would override and hide that content.
- *
- * @param entry          - The leaderboard entry.
- * @param valueFormatter - Formatter for the entry's current value.
- * @return Accessible label string for a string label, or undefined for JSX.
- */
-const getEntryAccessibleLabel = (
-	entry: LeaderboardEntry,
-	valueFormatter: ( value: number ) => string
-): string | undefined =>
-	typeof entry.label === 'string'
-		? sprintf(
-				/* translators: 1: Leaderboard item label. 2: The item's formatted value. */
-				__( '%1$s: %2$s', 'jetpack-charts' ),
-				entry.label,
-				valueFormatter( entry.currentValue )
-		  )
-		: undefined;
 
 /**
  * Default value formatter using formatMetricValue
@@ -400,7 +376,6 @@ const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 											type="button"
 											className={ styles.interactiveRow }
 											onClick={ entry.onClick }
-											aria-label={ getEntryAccessibleLabel( entry, valueFormatter ) }
 										>
 											{ rowCells }
 											<Icon className={ styles.chevron } icon={ chevronRight } size={ 24 } />
