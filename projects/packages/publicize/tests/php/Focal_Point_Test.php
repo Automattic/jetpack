@@ -180,6 +180,7 @@ class Focal_Point_Test extends BaseTestCase {
 
 		$image = Focal_Point::get_cropped_image( $attachment_id );
 
+		$this->assertIsArray( $image );
 		$this->assertSame( 'https://example.com/uploads/small.jpg', $image['url'] );
 		$this->assertSame( 800, $image['width'] );
 		$this->assertSame( 420, $image['height'] );
@@ -201,7 +202,9 @@ class Focal_Point_Test extends BaseTestCase {
 		);
 
 		$image = Focal_Point::get_cropped_image( $attachment_id );
-		$args  = $this->get_query_args( $image['url'] );
+
+		$this->assertIsArray( $image );
+		$args = $this->get_query_args( $image['url'] );
 
 		$this->assertSame( 800, $image['width'] );
 		$this->assertSame( 420, $image['height'] );
