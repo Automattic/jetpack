@@ -55,6 +55,23 @@ describe( 'OfflineMode', () => {
 		).toBeGreaterThan( 0 );
 	} );
 
+	it( 'renders the shared Jetpack admin footer in the fixed layout', async () => {
+		render(
+			<OfflineMode
+				activateModule={ jest.fn() }
+				deactivateModule={ jest.fn() }
+				fetchModules={ jest.fn() }
+			/>
+		);
+
+		await expect(
+			screen.findByRole( 'heading', { name: 'Offline Mode' } )
+		).resolves.toBeInTheDocument();
+		expect( screen.getByRole( 'contentinfo', { name: 'Jetpack' } ) ).toHaveClass(
+			'jetpack-footer'
+		);
+	} );
+
 	it( 'renders documentation links for offline features', async () => {
 		render(
 			<OfflineMode
@@ -101,6 +118,7 @@ describe( 'OfflineMode', () => {
 		const offlineModeStyles = readFileSync( `${ __dirname }/../style.scss`, 'utf8' );
 
 		expect( offlineModeStyles ).toContain( '@include jetpack-admin-page-layout-wp-build;' );
+		expect( offlineModeStyles ).toContain( 'padding-block-start: 24px;' );
 		expect( offlineModeStyles ).not.toContain( 'boot-layout' );
 		expect( offlineModeStyles ).not.toContain( '#wpwrap' );
 	} );

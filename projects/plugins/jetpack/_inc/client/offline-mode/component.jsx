@@ -1,4 +1,4 @@
-import { Page } from '@wordpress/admin-ui';
+import AdminPage from '@automattic/jetpack-components/admin-page';
 import apiFetch from '@wordpress/api-fetch';
 import {
 	Button,
@@ -333,32 +333,40 @@ EnableRecommendedButton.propTypes = {
 	onEnableRecommended: PropTypes.func.isRequired,
 };
 
-const OfflineModePage = ( { actions = null, children } ) => (
-	<div className="jp-admin-page jp-offline-mode__admin-page">
-		<Page
-			actions={ actions }
-			className="jp-admin-page__page"
-			showSidebarToggle={ false }
-			subTitle={ __(
-				'Build and test Jetpack features without a WordPress.com connection.',
-				'jetpack'
-			) }
-			title={ __( 'Offline Mode', 'jetpack' ) }
-			visual={ <JetpackHeaderIcon /> }
-		>
-			<div className="jp-offline-mode__container">
-				<div className="jp-offline-mode">{ children }</div>
-			</div>
-		</Page>
-	</div>
+const OfflineModePage = ( { actions = null, apiNonce = '', apiRoot = '', children } ) => (
+	<AdminPage
+		actions={ actions }
+		apiNonce={ apiNonce }
+		apiRoot={ apiRoot }
+		className="jp-offline-mode__admin-page"
+		logo={ <JetpackHeaderIcon /> }
+		subTitle={ __(
+			'Build and test Jetpack features without a WordPress.com connection.',
+			'jetpack'
+		) }
+		title={ __( 'Offline Mode', 'jetpack' ) }
+		unwrapped
+	>
+		<div className="jp-offline-mode__container">
+			<div className="jp-offline-mode">{ children }</div>
+		</div>
+	</AdminPage>
 );
 
 OfflineModePage.propTypes = {
 	actions: PropTypes.node,
+	apiNonce: PropTypes.string,
+	apiRoot: PropTypes.string,
 	children: PropTypes.node.isRequired,
 };
 
-export const OfflineMode = ( { activateModule, deactivateModule, fetchModules } ) => {
+export const OfflineMode = ( {
+	activateModule,
+	apiNonce = '',
+	apiRoot = '',
+	deactivateModule,
+	fetchModules,
+} ) => {
 	const [ dashboardData, setDashboardData ] = useState( null );
 	const [ isLoading, setIsLoading ] = useState( true );
 	const [ error, setError ] = useState( null );
@@ -523,7 +531,7 @@ export const OfflineMode = ( { activateModule, deactivateModule, fetchModules } 
 
 	if ( isLoading ) {
 		return (
-			<OfflineModePage>
+			<OfflineModePage apiNonce={ apiNonce } apiRoot={ apiRoot }>
 				<HStack
 					alignment="center"
 					className="jp-offline-mode--loading"
@@ -539,7 +547,7 @@ export const OfflineMode = ( { activateModule, deactivateModule, fetchModules } 
 
 	if ( error ) {
 		return (
-			<OfflineModePage>
+			<OfflineModePage apiNonce={ apiNonce } apiRoot={ apiRoot }>
 				<Notice isDismissible={ false } status="error">
 					{ error }
 				</Notice>
@@ -558,6 +566,8 @@ export const OfflineMode = ( { activateModule, deactivateModule, fetchModules } 
 						onEnableRecommended={ handleActivateRecommended }
 					/>
 				}
+				apiNonce={ apiNonce }
+				apiRoot={ apiRoot }
 			>
 				<VStack as="main" className="jp-offline-mode__content" spacing={ 6 }>
 					<Notice isDismissible={ false } status="info">
@@ -579,6 +589,8 @@ export const OfflineMode = ( { activateModule, deactivateModule, fetchModules } 
 					onEnableRecommended={ handleActivateRecommended }
 				/>
 			}
+			apiNonce={ apiNonce }
+			apiRoot={ apiRoot }
 		>
 			<VStack as="main" className="jp-offline-mode__content" spacing={ 6 }>
 				<VStack spacing={ 6 }>
@@ -600,6 +612,8 @@ export const OfflineMode = ( { activateModule, deactivateModule, fetchModules } 
 
 OfflineMode.propTypes = {
 	activateModule: PropTypes.func.isRequired,
+	apiNonce: PropTypes.string,
+	apiRoot: PropTypes.string,
 	deactivateModule: PropTypes.func.isRequired,
 	fetchModules: PropTypes.func.isRequired,
 };
