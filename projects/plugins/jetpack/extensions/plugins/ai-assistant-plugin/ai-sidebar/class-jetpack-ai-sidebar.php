@@ -17,14 +17,13 @@ use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
 
-const AM_ASSET_BASE_PATH          = 'widgets.wp.com/agents-manager/';
-const AI_SIDEBAR_ASSET_TRANSIENT  = 'jetpack_ai_sidebar_asset';
-const AI_SIDEBAR_JS_URL           = 'https://' . AM_ASSET_BASE_PATH . 'jetpack-ai-sidebar.min.js';
-const AI_SIDEBAR_CSS_URL          = 'https://' . AM_ASSET_BASE_PATH . 'jetpack-ai-sidebar.css';
-const AI_SIDEBAR_RTL_CSS_URL      = 'https://' . AM_ASSET_BASE_PATH . 'jetpack-ai-sidebar.rtl.css';
-const AI_SIDEBAR_PROVIDER_URL     = 'https://' . AM_ASSET_BASE_PATH . 'jetpack-ai-sidebar.provider.mjs';
-const AI_SIDEBAR_AGENT_ID         = 'wp-orchestrator';
-const BIG_SKY_AGENT_PROVIDER_PATH = '/big-sky-plugin/build/calypso-agent-provider/';
+const AM_ASSET_BASE_PATH         = 'widgets.wp.com/agents-manager/';
+const AI_SIDEBAR_ASSET_TRANSIENT = 'jetpack_ai_sidebar_asset';
+const AI_SIDEBAR_JS_URL          = 'https://' . AM_ASSET_BASE_PATH . 'jetpack-ai-sidebar.min.js';
+const AI_SIDEBAR_CSS_URL         = 'https://' . AM_ASSET_BASE_PATH . 'jetpack-ai-sidebar.css';
+const AI_SIDEBAR_RTL_CSS_URL     = 'https://' . AM_ASSET_BASE_PATH . 'jetpack-ai-sidebar.rtl.css';
+const AI_SIDEBAR_PROVIDER_URL    = 'https://' . AM_ASSET_BASE_PATH . 'jetpack-ai-sidebar.provider.mjs';
+const AI_SIDEBAR_AGENT_ID        = 'wp-orchestrator';
 
 /**
  * Initializes the Agents Manager package and registers the Jetpack AI
@@ -87,7 +86,7 @@ class Jetpack_AI_Sidebar {
 	 * @return void
 	 */
 	public static function maybe_enqueue_abilities_script(): void {
-		if ( ! self::is_jetpack_ai_sidebar_preview_enabled() || ! self::is_post_editor() || ! self::has_ai_features() ) {
+		if ( ! self::should_expose_sidebar() ) {
 			return;
 		}
 
@@ -206,7 +205,7 @@ class Jetpack_AI_Sidebar {
 		// The provider IIFE is only enqueued in the post editor. Avoid registering
 		// the ESM wrapper on other block-editor surfaces, where AM may import it
 		// before window.__JetpackAIProvider exists.
-		if ( ! self::is_jetpack_ai_sidebar_preview_enabled() || ! self::is_post_editor() || ! self::has_ai_features() ) {
+		if ( ! self::should_expose_sidebar() ) {
 			return $providers;
 		}
 
@@ -321,6 +320,16 @@ class Jetpack_AI_Sidebar {
 	}
 
 	/**
+	 * Whether the sidebar surface should be exposed for this request: the sidebar
+	 * gate is open, we are in the post editor, and AI features are available.
+	 *
+	 * @return bool
+	 */
+	private static function should_expose_sidebar(): bool {
+		return self::is_jetpack_ai_sidebar_preview_enabled() && self::is_post_editor() && self::has_ai_features();
+	}
+
+	/**
 	 * Preview configuration consumed by the Agents Manager and Jetpack AI provider bundles.
 	 *
 	 * @return array Preview mode and feature availability.
@@ -359,35 +368,37 @@ class Jetpack_AI_Sidebar {
 			return $data;
 		}
 
-		if ( ! self::is_jetpack_ai_sidebar_preview_enabled() || ! self::is_post_editor() || ! self::has_ai_features() ) {
+		if ( ! self::should_expose_sidebar() ) {
 			return $data;
 		}
 
-		// Set Jetpack's defaults for externally emitted payloads. Hosts that need
-		// intentional overrides should use the AI Editorial Review and preview filters.
-		if ( isset( $data['agentProviders'] ) && is_array( $data['agentProviders'] ) ) {
-			$data['agentProviders'] = self::filter_agent_providers_for_jetpack_ai_sidebar( $data['agentProviders'] );
+		// Set our fields in place, leaving the rest of $data (including agentProviders)
+		// untouched so the client-side gate can drop Jetpack AI Sidebar while keeping
+		// fallbacks such as the Big Sky provider. Hosts that need intentional overrides
+		// should use the AI Editorial Review and preview filters.
+		foreach ( self::get_sidebar_am_fields() as $key => $value ) {
+			$data[ $key ] = $value;
 		}
-		$data['agentId']                  = AI_SIDEBAR_AGENT_ID;
-		$data['aiEditorialReviewEnabled'] = self::is_ai_editorial_review_enabled();
-		$data['jetpackAiSidebarPreview']  = self::get_jetpack_ai_sidebar_preview_config();
 		return $data;
 	}
 
 	/**
-	 * Remove providers that should not participate in the Jetpack AI Sidebar surface.
+	 * Fields Jetpack contributes to `agentsManagerData`. Single source shared by the
+	 * data filter and the external-AM inline fallback so the two cannot drift.
 	 *
-	 * @param array $providers Provider URLs.
-	 * @return array Filtered provider URLs.
+	 * The jetpackAiSidebar key is the current one; jetpackAiSidebarPreview is the legacy
+	 * alias emitted alongside it until the Calypso reader switches over, after which it can be removed.
+	 *
+	 * @return array
 	 */
-	private static function filter_agent_providers_for_jetpack_ai_sidebar( array $providers ): array {
-		return array_values(
-			array_filter(
-				$providers,
-				static function ( $provider ): bool {
-					return ! is_string( $provider ) || ! str_contains( $provider, BIG_SKY_AGENT_PROVIDER_PATH );
-				}
-			)
+	private static function get_sidebar_am_fields(): array {
+		$config = self::get_jetpack_ai_sidebar_preview_config();
+
+		return array(
+			'agentId'                  => AI_SIDEBAR_AGENT_ID,
+			'aiEditorialReviewEnabled' => self::is_ai_editorial_review_enabled(),
+			'jetpackAiSidebar'         => $config,
+			'jetpackAiSidebarPreview'  => $config,
 		);
 	}
 
@@ -402,7 +413,7 @@ class Jetpack_AI_Sidebar {
 			return true;
 		}
 
-		return self::is_jetpack_ai_sidebar_preview_enabled() && self::is_post_editor() && self::has_ai_features();
+		return self::should_expose_sidebar();
 	}
 
 	/**
@@ -426,7 +437,7 @@ class Jetpack_AI_Sidebar {
 		if ( ( new Host() )->is_wpcom_simple() ) {
 			return;
 		}
-		if ( ! self::is_jetpack_ai_sidebar_preview_enabled() || ! self::is_post_editor() || ! self::has_ai_features() ) {
+		if ( ! self::should_expose_sidebar() ) {
 			return;
 		}
 		// 'registered' rather than 'enqueued': wp_add_inline_script attaches to any
@@ -436,31 +447,19 @@ class Jetpack_AI_Sidebar {
 			return;
 		}
 
-		$ai_editorial_review_payload = wp_json_encode(
-			self::is_ai_editorial_review_enabled(),
-			JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP
-		);
-		$preview_payload             = wp_json_encode(
-			self::get_jetpack_ai_sidebar_preview_config(),
-			JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP
-		);
-		$agent_id_payload            = wp_json_encode(
-			AI_SIDEBAR_AGENT_ID,
-			JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP
-		);
-		$big_sky_provider_payload    = wp_json_encode(
-			BIG_SKY_AGENT_PROVIDER_PATH,
-			JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP
-		);
+		// Build the assignments from the same field source as the data filter so the
+		// two emit paths cannot drift. agentProviders is left untouched so client-side
+		// gating can fall back to other providers (such as Big Sky) when Jetpack AI
+		// Sidebar is unavailable.
+		$assignments = '';
+		foreach ( self::get_sidebar_am_fields() as $key => $value ) {
+			$assignments .= ' agentsManagerData.' . $key . ' = '
+				. wp_json_encode( $value, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ) . ';';
+		}
 
 		wp_add_inline_script(
 			'agents-manager',
-			'if ( typeof agentsManagerData === "object" && agentsManagerData !== null ) {'
-				. ' if ( Array.isArray( agentsManagerData.agentProviders ) ) { agentsManagerData.agentProviders = agentsManagerData.agentProviders.filter( function( provider ) { return typeof provider !== "string" || provider.indexOf( ' . $big_sky_provider_payload . ' ) === -1; } ); }'
-				. ' agentsManagerData.agentId = ' . $agent_id_payload . ';'
-				. ' agentsManagerData.aiEditorialReviewEnabled = ' . $ai_editorial_review_payload . ';'
-				. ' agentsManagerData.jetpackAiSidebarPreview = ' . $preview_payload . ';'
-				. ' }',
+			'if ( typeof agentsManagerData === "object" && agentsManagerData !== null ) {' . $assignments . ' }',
 			'before'
 		);
 	}

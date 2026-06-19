@@ -532,32 +532,31 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 		$this->assertSame( false, $data['jetpackAiSidebarPreview']['features']['optimizeTitleSuggestion'] );
 		$this->assertSame( false, $data['jetpackAiSidebarPreview']['features']['chatHistory'] );
 		$this->assertSame( false, $data['jetpackAiSidebarPreview']['features']['supportGuides'] );
+		// The new jetpackAiSidebar key carries the same config as the legacy key.
+		$this->assertSame( $data['jetpackAiSidebarPreview'], $data['jetpackAiSidebar'] );
 	}
 
 	/**
-	 * Big Sky's provider should not participate in the Jetpack AI Sidebar surface.
+	 * The Big Sky provider is preserved so the editor can fall back to the Big Sky
+	 * sidebar when Jetpack AI Sidebar is unavailable. agentProviders passes through untouched.
 	 */
-	public function test_add_agents_manager_data_filters_big_sky_provider() {
+	public function test_add_agents_manager_data_preserves_big_sky_provider() {
 		$this->set_block_editor_screen();
+
+		$providers = array(
+			'https://example.com/wp-content/plugins/big-sky-plugin/build/calypso-agent-provider/index.js?ver=123',
+			'https://widgets.wp.com/agents-manager/jetpack-ai-sidebar.provider.mjs',
+			array( 'provider' => 'metadata' ),
+		);
 
 		$data = Jetpack_AI_Sidebar::add_agents_manager_data(
 			array(
 				'sectionName'    => 'gutenberg',
-				'agentProviders' => array(
-					'https://example.com/wp-content/plugins/big-sky-plugin/build/calypso-agent-provider/index.js?ver=123',
-					'https://widgets.wp.com/agents-manager/jetpack-ai-sidebar.provider.mjs',
-					array( 'provider' => 'metadata' ),
-				),
+				'agentProviders' => $providers,
 			)
 		);
 
-		$this->assertSame(
-			array(
-				'https://widgets.wp.com/agents-manager/jetpack-ai-sidebar.provider.mjs',
-				array( 'provider' => 'metadata' ),
-			),
-			$data['agentProviders']
-		);
+		$this->assertSame( $providers, $data['agentProviders'] );
 	}
 
 	/**
@@ -574,6 +573,7 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 		$this->assertSame( true, $data['jetpackAiSidebarPreview']['enabled'] );
 		$this->assertSame( false, $data['jetpackAiSidebarPreview']['features']['aiEditorialReview'] );
 		$this->assertSame( true, $data['jetpackAiSidebarPreview']['features']['blockTransformations'] );
+		$this->assertSame( $data['jetpackAiSidebarPreview'], $data['jetpackAiSidebar'] );
 	}
 
 	/**
@@ -586,6 +586,7 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 
 		$this->assertArrayNotHasKey( 'agentId', $data );
 		$this->assertArrayNotHasKey( 'aiEditorialReviewEnabled', $data );
+		$this->assertArrayNotHasKey( 'jetpackAiSidebar', $data );
 		$this->assertArrayNotHasKey( 'jetpackAiSidebarPreview', $data );
 	}
 
@@ -619,12 +620,9 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 
 		Jetpack_AI_Sidebar::maybe_patch_jetpack_ai_sidebar_preview_data();
 
-		$this->assertStringContainsString(
-			'agentsManagerData.agentProviders = agentsManagerData.agentProviders.filter',
-			$this->get_agents_manager_inline_script()
-		);
-		$this->assertStringContainsString(
-			'/big-sky-plugin/build/calypso-agent-provider/',
+		// agentProviders is left untouched so the Big Sky provider survives as a fallback.
+		$this->assertStringNotContainsString(
+			'agentsManagerData.agentProviders',
 			$this->get_agents_manager_inline_script()
 		);
 		$this->assertStringContainsString(
@@ -633,6 +631,10 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 		);
 		$this->assertStringContainsString(
 			'agentsManagerData.aiEditorialReviewEnabled = true',
+			$this->get_agents_manager_inline_script()
+		);
+		$this->assertStringContainsString(
+			'agentsManagerData.jetpackAiSidebar = {"enabled":true',
 			$this->get_agents_manager_inline_script()
 		);
 		$this->assertStringContainsString(
@@ -673,7 +675,7 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 			$this->get_agents_manager_inline_script()
 		);
 		$this->assertStringNotContainsString(
-			'agentsManagerData.jetpackAiSidebarPreview',
+			'agentsManagerData.jetpackAiSidebar',
 			$this->get_agents_manager_inline_script()
 		);
 	}
@@ -698,7 +700,7 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 			$this->get_agents_manager_inline_script()
 		);
 		$this->assertStringNotContainsString(
-			'agentsManagerData.jetpackAiSidebarPreview',
+			'agentsManagerData.jetpackAiSidebar',
 			$this->get_agents_manager_inline_script()
 		);
 	}
@@ -940,6 +942,7 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 		$this->assertSame( 'wp-orchestrator', $data['agentId'] );
 		$this->assertSame( true, $data['aiEditorialReviewEnabled'] );
 		$this->assertSame( true, $data['jetpackAiSidebarPreview']['enabled'] );
+		$this->assertSame( true, $data['jetpackAiSidebar']['enabled'] );
 	}
 
 	/**
