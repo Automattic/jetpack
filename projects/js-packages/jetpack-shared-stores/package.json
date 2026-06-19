@@ -12,10 +12,10 @@
 	},
 	"license": "GPL-2.0-or-later",
 	"author": "Automattic",
-	"type": "module",
 	"sideEffects": true,
 	"exports": {
-		".": "./index.js"
+		".": "./index.js",
+		"./connection": "./src/store/connection/index.jsx"
 	},
 	"scripts": {
 		"test": "jest",

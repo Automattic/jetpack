@@ -87,8 +87,10 @@ module.exports = [
 			...jetpackWebpackConfig.StandardPlugins( {
 				DependencyExtractionPlugin: {
 					requestMap: {
-						// We don't want to externalize this package, we rather want to bundle it.
+						// We don't want to externalize this package (and its
+						// /connection subpath), we rather want to bundle it.
 						'@automattic/jetpack-shared-stores': {},
+						'@automattic/jetpack-shared-stores/connection': {},
 					},
 				},
 			} ),
