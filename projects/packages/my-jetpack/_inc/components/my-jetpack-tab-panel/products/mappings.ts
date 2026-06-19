@@ -33,7 +33,7 @@ export const CATEGORY_CARDS_AND_MODULES: {
 		],
 	},
 	growth: {
-		cards: [ 'stats', 'social', 'jetpack-ai', 'jetpack-forms', 'crm' ],
+		cards: [ 'stats', 'social', 'jetpack-ai', 'jetpack-forms', 'crm', 'podcast' ],
 		modules: [
 			'blaze',
 			'canonical-urls',
