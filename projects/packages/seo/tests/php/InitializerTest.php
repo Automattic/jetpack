@@ -204,4 +204,67 @@ class InitializerTest extends TestCase {
 		$this->assertIsString( $site['icon'] );
 		$this->assertIsString( $site['image'] );
 	}
+
+	/**
+	 * Reads the durable sitemap option without consulting the live module state
+	 * when the option is present (set or explicitly off).
+	 */
+	public function test_is_sitemap_enabled_reads_durable_option() {
+		$method = new \ReflectionMethod( Initializer::class, 'is_sitemap_enabled' );
+		// Required to invoke a private method on PHP < 8.1 (a no-op from 8.1 on).
+		if ( PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true );
+		}
+		$modules = new \Automattic\Jetpack\Modules();
+
+		update_option( Initializer::SITEMAP_ENABLED_OPTION, '1' );
+		$this->assertTrue( $method->invoke( null, $modules ) );
+
+		// Present-but-off: still read from the option, never the module fallback.
+		update_option( Initializer::SITEMAP_ENABLED_OPTION, '' );
+		$this->assertFalse( $method->invoke( null, $modules ) );
+
+		delete_option( Initializer::SITEMAP_ENABLED_OPTION );
+	}
+
+	/**
+	 * Reads the durable canonical-urls option without consulting the live module state
+	 * when the option is present (set or explicitly off).
+	 */
+	public function test_is_canonical_enabled_reads_durable_option() {
+		$method = new \ReflectionMethod( Initializer::class, 'is_canonical_enabled' );
+		// Required to invoke a private method on PHP < 8.1 (a no-op from 8.1 on).
+		if ( PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true );
+		}
+		$modules = new \Automattic\Jetpack\Modules();
+
+		update_option( Initializer::CANONICAL_ENABLED_OPTION, '1' );
+		$this->assertTrue( $method->invoke( null, $modules ) );
+
+		// Present-but-off: still read from the option, never the module fallback.
+		update_option( Initializer::CANONICAL_ENABLED_OPTION, '' );
+		$this->assertFalse( $method->invoke( null, $modules ) );
+
+		delete_option( Initializer::CANONICAL_ENABLED_OPTION );
+	}
+
+	/**
+	 * The Settings bootstrap sources `sitemap_active` / `canonical_active` from the durable
+	 * options, so the module toggles hydrate correctly without reading live module state.
+	 */
+	public function test_get_settings_data_reads_module_toggles_from_options() {
+		update_option( Initializer::SITEMAP_ENABLED_OPTION, '1' );
+		update_option( Initializer::CANONICAL_ENABLED_OPTION, '' );
+
+		$settings = Initializer::get_settings_data();
+
+		$this->assertArrayHasKey( 'sitemap_active', $settings );
+		$this->assertArrayHasKey( 'canonical_active', $settings );
+		$this->assertTrue( $settings['sitemap_active'] );
+		$this->assertFalse( $settings['canonical_active'] );
+
+		delete_option( Initializer::SITEMAP_ENABLED_OPTION );
+		delete_option( Initializer::CANONICAL_ENABLED_OPTION );
+	}
 }

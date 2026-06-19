@@ -2769,6 +2769,108 @@ p {
 	}
 
 	/**
+	 * Records whether the standalone Sitemaps module is active so the setting survives
+	 * the module's removal.
+	 *
+	 * The Jetpack SEO product reads the {@see Jetpack_SEO_Initializer::SITEMAP_ENABLED_OPTION}
+	 * option instead of the `sitemaps` module's active state. Module-active state is
+	 * filtered against the modules present on disk, so once the standalone module is
+	 * removed it would read as inactive even for sites that had it on. This one-time
+	 * migration captures the raw `active_modules` membership — which persists regardless
+	 * of whether the module file is present — into the durable option.
+	 *
+	 * Deliberately non-destructive: it never touches generated sitemap data
+	 * (`jp_sitemap*` posts), the `jetpack-sitemap-state` option, sitemap settings, or the
+	 * `jp_sitemap_cron_hook` cron, so no regeneration is triggered. `add_option()` only
+	 * seeds when the option is absent, so it is safe to run on every version bump and
+	 * never reverts a value the user has since set.
+	 *
+	 * Hooked on `updating_jetpack_version`; the version arguments are not needed because
+	 * `add_option()` provides the run-once guard.
+	 */
+	public static function migrate_sitemaps_module_to_seo_option() {
+		// $available_only = false reads raw `active_modules` membership, so the value is
+		// correct even when the standalone sitemaps module file has already been removed.
+		$sitemaps_active = ( new Modules() )->is_active( 'sitemaps', false );
+
+		add_option( Jetpack_SEO_Initializer::SITEMAP_ENABLED_OPTION, $sitemaps_active );
+	}
+
+	/**
+	 * Keeps the Jetpack SEO sitemap option in sync with the legacy `sitemaps` module
+	 * while both still exist.
+	 *
+	 * Hooked to the module's activate/deactivate actions, so toggling sitemaps from any
+	 * surface (the legacy Traffic settings, the SEO Settings tab, or WP-CLI) keeps the
+	 * durable {@see Jetpack_SEO_Initializer::SITEMAP_ENABLED_OPTION} option current. The
+	 * actions fire after `active_modules` is updated, so the module state read here
+	 * already reflects the new value. Removed alongside the module itself.
+	 */
+	public static function sync_seo_sitemap_option() {
+		update_option( Jetpack_SEO_Initializer::SITEMAP_ENABLED_OPTION, ( new Modules() )->is_active( 'sitemaps' ) );
+	}
+
+	/**
+	 * Records whether the standalone Canonical URLs module is active so the setting survives
+	 * the module's removal.
+	 *
+	 * The Jetpack SEO product reads the {@see Jetpack_SEO_Initializer::CANONICAL_ENABLED_OPTION}
+	 * option instead of the `canonical-urls` module's active state. Module-active state is
+	 * filtered against the modules present on disk, so once the standalone module is
+	 * removed it would read as inactive even for sites that had it on. This one-time
+	 * migration captures the raw `active_modules` membership — which persists regardless
+	 * of whether the module file is present — into the durable option.
+	 *
+	 * Deliberately non-destructive: `add_option()` only seeds when the option is absent, so
+	 * it is safe to run on every version bump and never reverts a value the user has since
+	 * set.
+	 *
+	 * Hooked on `updating_jetpack_version`; the version arguments are not needed because
+	 * `add_option()` provides the run-once guard.
+	 */
+	public static function migrate_canonical_urls_module_to_seo_option() {
+		// $available_only = false reads raw `active_modules` membership, so the value is
+		// correct even when the standalone canonical-urls module file has already been removed.
+		$canonical_active = ( new Modules() )->is_active( 'canonical-urls', false );
+
+		add_option( Jetpack_SEO_Initializer::CANONICAL_ENABLED_OPTION, $canonical_active );
+	}
+
+	/**
+	 * Keeps the Jetpack SEO canonical-urls option in sync with the legacy `canonical-urls`
+	 * module while both still exist.
+	 *
+	 * Hooked to the module's activate/deactivate actions, so toggling canonical URLs from any
+	 * surface (the legacy Traffic settings, the SEO Settings tab, or WP-CLI) keeps the
+	 * durable {@see Jetpack_SEO_Initializer::CANONICAL_ENABLED_OPTION} option current. The
+	 * actions fire after `active_modules` is updated, so the module state read here
+	 * already reflects the new value. Removed alongside the module itself.
+	 */
+	public static function sync_seo_canonical_urls_option() {
+		update_option( Jetpack_SEO_Initializer::CANONICAL_ENABLED_OPTION, ( new Modules() )->is_active( 'canonical-urls' ) );
+	}
+
+	/**
+	 * Wires up the migration + sync hooks that keep the durable Jetpack SEO module-state
+	 * options ({@see Jetpack_SEO_Initializer::SITEMAP_ENABLED_OPTION} /
+	 * {@see Jetpack_SEO_Initializer::CANONICAL_ENABLED_OPTION}) seeded and in sync with their
+	 * legacy modules. Called once from `load-jetpack.php`.
+	 *
+	 * Extracted from file scope so the wiring is unit-testable (file-scope `add_action()`
+	 * calls run during bootstrap and can't be exercised by a test). Removed alongside the
+	 * modules in the deferred post-convergence follow-up that absorbs them into Jetpack SEO.
+	 */
+	public static function register_seo_module_migration_hooks() {
+		add_action( 'updating_jetpack_version', array( 'Jetpack', 'migrate_sitemaps_module_to_seo_option' ) );
+		add_action( 'jetpack_activate_module_sitemaps', array( 'Jetpack', 'sync_seo_sitemap_option' ) );
+		add_action( 'jetpack_deactivate_module_sitemaps', array( 'Jetpack', 'sync_seo_sitemap_option' ) );
+
+		add_action( 'updating_jetpack_version', array( 'Jetpack', 'migrate_canonical_urls_module_to_seo_option' ) );
+		add_action( 'jetpack_activate_module_canonical-urls', array( 'Jetpack', 'sync_seo_canonical_urls_option' ) );
+		add_action( 'jetpack_deactivate_module_canonical-urls', array( 'Jetpack', 'sync_seo_canonical_urls_option' ) );
+	}
+
+	/**
 	 * Sets the display_update_modal state.
 	 */
 	public static function set_update_modal_display() {
