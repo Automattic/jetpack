@@ -420,19 +420,21 @@ function createBuildTask( project, argv, title, build ) {
 					// Time a named build phase, recording its duration into ctx.timings (if enabled).
 					// Returns the wrapped function's value, and records even when it throws.
 					t.time = async ( phase, fn ) => {
+						// No-op passthrough when timing is disabled, so the normal build path is untouched.
+						if ( ! ctx.timings ) {
+							return fn();
+						}
 						const start = Date.now();
 						const record = ok => {
-							if ( ctx.timings ) {
-								const end = Date.now();
-								ctx.timings.entries.push( {
-									project,
-									phase,
-									start,
-									end,
-									duration: end - start,
-									ok,
-								} );
-							}
+							const end = Date.now();
+							ctx.timings.entries.push( {
+								project,
+								phase,
+								start,
+								end,
+								duration: end - start,
+								ok,
+							} );
 						};
 						try {
 							const result = await fn();
