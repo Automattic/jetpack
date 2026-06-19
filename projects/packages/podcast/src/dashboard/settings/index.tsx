@@ -40,8 +40,6 @@ const EXPLICIT_OPTIONS: Array< { label: string; value: string } > = [
 const TOPIC_SUGGESTIONS: string[] = [];
 const TOPIC_STORAGE_BY_DISPLAY = new Map< string, string >();
 const TOPIC_DISPLAY_BY_STORAGE = new Map< string, string >();
-// Parent labels that offer subcategories — used to nudge users who pick a
-// broad category but no subcategory (valid for Apple, but worse for placement).
 const PARENTS_WITH_SUBTOPICS = new Set< string >();
 for ( const topic of TOPICS ) {
 	TOPIC_SUGGESTIONS.push( topic.label );
@@ -59,24 +57,14 @@ for ( const topic of TOPICS ) {
 	}
 }
 
-// Reject free-typed tokens that aren't in the catalog. Without this,
-// `FormTokenField` accepts arbitrary text that then maps to '' at save time and
-// silently disappears — better to refuse it as the user types.
 const isKnownTopic = ( input: string ): boolean => TOPIC_SUGGESTIONS.includes( input );
 
-// Drop a broad parent token when a more specific subcategory of it is also
-// selected: the subcategory already implies the parent in `<itunes:category>`,
-// so keeping both emits overlapping tags. Labels never contain the ` » `
-// separator, so a token without it is a parent-only selection.
 const dropRedundantParents = ( displays: string[] ): string[] => {
 	const hasSelectedChild = ( parent: string ): boolean =>
 		displays.some( other => other.startsWith( `${ parent } » ` ) );
 	return displays.filter( d => d.includes( ' » ' ) || ! hasSelectedChild( d ) );
 };
 
-// Broad selections that have subcategories available but none chosen. Apple
-// accepts a parent-only category, but recommends a subcategory: it's shown in
-// place of the parent, is less crowded, and unlocks subcategory chart spots.
 const parentsMissingSubtopic = ( displays: string[] ): string[] =>
 	displays.filter( d => ! d.includes( ' » ' ) && PARENTS_WITH_SUBTOPICS.has( d ) );
 
@@ -213,7 +201,6 @@ const SettingsTab = ( { onAfterDisable }: SettingsTabProps = {} ) => {
 		setDraftTopics( topicValue );
 	}, [ topicValue ] );
 
-	// Advisory only — broad categories the user could refine with a subcategory.
 	const subtopicHints = useMemo( () => parentsMissingSubtopic( draftTopics ), [ draftTopics ] );
 
 	const handleTopicsChange = useCallback( ( values: ( string | { value: string } )[] ) => {

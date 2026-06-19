@@ -141,7 +141,6 @@ class Customize_Feed_Test extends BaseTestCase {
 	}
 
 	public function test_category_tag_translates_renamed_sports_subcategories() {
-		// Apple renamed these Sports subcategories; old saved values map forward.
 		$football = Customize_Feed::category_tag( 'Sports,Football' );
 		$this->assertStringContainsString( '<itunes:category text="Sports">', $football );
 		$this->assertStringContainsString( '<itunes:category text="American Football" />', $football );

@@ -466,7 +466,6 @@ class Customize_Feed {
 			'Tech News'                          => 'Technology,Tech News',
 			'Sports &amp; Recreation,Technology' => 'Technology',
 			'Sports &amp; Recreation,Gadgets'    => 'Technology,Gadgets',
-			// Apple renamed two Sports subcategories; map old saved values forward.
 			'Sports,Football'                    => 'Sports,American Football',
 			'Sports,Soccer'                      => 'Sports,Football (Soccer)',
 		);
