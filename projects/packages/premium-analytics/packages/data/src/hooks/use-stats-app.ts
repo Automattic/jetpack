@@ -177,18 +177,6 @@ export function useStatsAppNoticeMutation() {
 	} );
 }
 
-export function useStatsAppUserFeedbackMutation() {
-	return useMutation( {
-		mutationFn: ( body: unknown ) =>
-			fetchStatsProxy( {
-				version: '2',
-				endpoint: 'jetpack-stats/user-feedback',
-				method: 'POST',
-				body,
-			} ),
-	} );
-}
-
 export function useStatsAppCommercialClassificationMutation() {
 	return useMutation( {
 		mutationFn: ( params?: StatsQueryParams ) =>
