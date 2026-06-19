@@ -1,0 +1,10 @@
+.dashboard {
+	min-block-size: 0;
+}
+
+.content {
+	flex: 1 1 auto;
+	min-block-size: 0;
+	overflow-y: auto;
+	padding-block-end: 24px;
+}
