@@ -109,6 +109,21 @@ class WPCOM_REST_API_V2_Endpoint_External_Media_Test extends Jetpack_REST_TestCa
 	}
 
 	/**
+	 * Tests that external media cannot be created with an existing attachment ID.
+	 */
+	public function test_create_item_permissions_check_rejects_existing_post() {
+		$endpoint = new WPCOM_REST_API_V2_Endpoint_External_Media();
+		$request  = new WP_REST_Request( Requests::POST, '/wpcom/v2/external-media/copy/pexels' );
+		$request->set_param( 'id', 123 );
+
+		$result = $endpoint->create_item_permissions_check( $request );
+
+		$this->assertInstanceOf( WP_Error::class, $result );
+		$this->assertSame( 'rest_post_exists', $result->get_error_code() );
+		$this->assertSame( 400, $result->get_error_data()['status'] );
+	}
+
+	/**
 	 * Tests copy response with pexels while not setting metadata.
 	 */
 	public function test_copy_image() {

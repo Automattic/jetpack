@@ -1119,6 +1119,17 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 
 					break;
 
+				case 'jetpack_social_open_graph_settings':
+					if ( class_exists( 'Automattic\Jetpack\Publicize\Jetpack_Social_Settings\Settings' ) ) {
+						$settings = new Automattic\Jetpack\Publicize\Jetpack_Social_Settings\Settings();
+						$updated  = $settings->update_open_graph_settings( $value );
+
+						if ( $updated ) {
+							$response[ $option ] = $settings->get_open_graph_settings();
+						}
+					}
+					break;
+
 				default:
 					// Boolean values are stored as 1 or 0.
 					if ( isset( $options[ $option ]['type'] ) && 'boolean' === $options[ $option ]['type'] ) {

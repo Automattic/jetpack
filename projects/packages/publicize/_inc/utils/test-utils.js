@@ -196,6 +196,7 @@ export function mockScriptData( data = {} ) {
 						config: {},
 					},
 					socialImageGenerator: {},
+					openGraphSettings: {},
 					messageTemplate: '',
 					...data.social?.settings,
 				},

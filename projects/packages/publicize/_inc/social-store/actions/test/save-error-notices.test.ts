@@ -2,7 +2,7 @@ import { store as coreStore } from '@wordpress/core-data';
 import { store as noticesStore } from '@wordpress/notices';
 import { updateSocialImageGeneratorConfig } from '../social-image-generator';
 import { toggleSocialNotes, updateSocialNotesConfig } from '../social-notes';
-import { setMessageTemplate } from '../social-settings';
+import { setMessageTemplate, updateOpenGraphSettings } from '../social-settings';
 import { updateUtmSettings } from '../utm-settings';
 
 // Each save thunk surfaces a snackbar error notice when the most recent
@@ -59,6 +59,7 @@ describe( 'site-save thunks surface an error notice on save failure', () => {
 			() => updateSocialImageGeneratorConfig( { enabled: true } ),
 		],
 		[ 'updateUtmSettings', () => updateUtmSettings( { enabled: true } ) ],
+		[ 'updateOpenGraphSettings', () => updateOpenGraphSettings( { default_image_id: 123 } ) ],
 		[ 'toggleSocialNotes', () => toggleSocialNotes( true ) ],
 		[ 'updateSocialNotesConfig', () => updateSocialNotesConfig( { append_link: false } ) ],
 		[ 'setMessageTemplate', () => setMessageTemplate( 'Hello {title}' ) ],

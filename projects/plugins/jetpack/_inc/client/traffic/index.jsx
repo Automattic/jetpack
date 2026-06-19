@@ -22,6 +22,7 @@ import SEO from './seo';
 import Shortlinks from './shortlinks';
 import { SiteStats } from './site-stats';
 import Sitemaps from './sitemaps';
+import './style.scss';
 import { VerificationServices } from './verification-services';
 
 export class Traffic extends Component {

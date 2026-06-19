@@ -14,6 +14,7 @@ use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authent
 use Automattic\Jetpack\Current_Plan;
 use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\My_Jetpack\Initializer as My_Jetpack_Initializer;
+use Automattic\Jetpack\Publicize\Jetpack_Social_Settings\Settings as Jetpack_Social_Settings;
 use Automattic\Jetpack\Publicize\Social_Admin_Page;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Terms_Of_Service;
@@ -80,6 +81,7 @@ class Jetpack_Social {
 		);
 
 		Social_Admin_Page::init();
+		Jetpack_Social_Settings::register_open_graph_filters();
 
 		add_action( 'init', array( $this, 'do_init' ) );
 

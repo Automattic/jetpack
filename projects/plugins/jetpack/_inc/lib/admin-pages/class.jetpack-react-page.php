@@ -286,6 +286,8 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 			$version             = $asset_manifest['version'];
 		}
 
+		wp_enqueue_media();
+
 		$blog_id_prop = '';
 		if ( ! defined( 'IS_WPCOM' ) || ! IS_WPCOM ) {
 			$blog_id = Connection_Manager::get_site_id( true );

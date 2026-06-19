@@ -212,6 +212,10 @@ export type UtmSettingsConfig = {
 	enabled: boolean;
 };
 
+export type OpenGraphSettingsConfig = {
+	default_image_id?: number;
+};
+
 export type SocialNotesConfig = {
 	append_link: boolean;
 	link_format: 'full_url' | 'shortlink' | 'permashortcitation';
@@ -228,6 +232,7 @@ export type SocialModuleSettings = {
 
 export type SocialSettingsFields = {
 	jetpack_social_image_generator_settings: SocialImageGeneratorConfig;
+	jetpack_social_open_graph_settings: OpenGraphSettingsConfig;
 	jetpack_social_utm_settings: UtmSettingsConfig;
 	[ 'jetpack-social-note' ]: boolean;
 	jetpack_social_notes_config: SocialNotesConfig;

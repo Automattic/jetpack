@@ -158,6 +158,33 @@
 $previews-max-width: 550px;
 $twitter-pofile-image-padding: 17px;
 
+.jp-seo-default-social-image {
+	max-width: $previews-max-width;
+
+	&-preview {
+		border: 1px solid colors.$gray-light;
+		background: colors.$gray-light;
+		margin: 1rem 0;
+		max-width: $previews-max-width;
+		overflow: hidden;
+		width: 100%;
+
+		img {
+			aspect-ratio: 1.91 / 1;
+			display: block;
+			height: auto;
+			object-fit: cover;
+			width: 100%;
+		}
+	}
+
+	&-save-button {
+		display: flex;
+		justify-content: end;
+		margin-top: 0.75rem;
+	}
+}
+
 .jp-seo-social-previews {
 	margin-bottom: 0;
 

@@ -101,6 +101,36 @@ class Jetpack_Core_Api_Module_Activate_Endpoint_Test extends Jetpack_REST_TestCa
 	}
 
 	/**
+	 * Tests updating Jetpack Social Open Graph settings through the Jetpack settings endpoint.
+	 */
+	public function test_update_data_open_graph_settings() {
+		delete_option( 'jetpack_social_open_graph_settings' );
+
+		$request = new WP_REST_Request();
+		$request->set_body_params(
+			array(
+				'jetpack_social_open_graph_settings' => array(
+					'default_image_id' => '123',
+				),
+			)
+		);
+
+		$result = ( new Jetpack_Core_API_Data() )->update_data( $request );
+
+		$this->assertInstanceOf( WP_REST_Response::class, $result );
+		$this->assertSame( 200, $result->get_status() );
+		$this->assertSame( 'success', $result->get_data()['code'] );
+		$this->assertSame(
+			array( 'default_image_id' => 123 ),
+			$result->get_data()['jetpack_social_open_graph_settings']
+		);
+		$this->assertSame(
+			array( 'default_image_id' => 123 ),
+			get_option( 'jetpack_social_open_graph_settings' )
+		);
+	}
+
+	/**
 	 * Tests the update of a comment subscription setting in the Jetpack_Core_API_Data::update_data() method.
 	 *
 	 * @param int         $new_value The new value of the comment subscription setting.
