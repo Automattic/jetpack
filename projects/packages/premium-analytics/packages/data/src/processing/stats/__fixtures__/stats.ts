@@ -244,6 +244,13 @@ export const singlePostFixture = {
 	},
 };
 
+export const scalarDaysTimeSeriesFixture = {
+	days: {
+		'2026-06-16': '7',
+		'2026-06-17': 3,
+	},
+};
+
 export const utmTopValuesFixture = {
 	top_utm_values: {
 		'["google","cpc"]': 11,

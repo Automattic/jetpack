@@ -33,6 +33,7 @@ import {
 	genericListFixture,
 	publicizeFixture,
 	referrersFixture,
+	scalarDaysTimeSeriesFixture,
 	singlePostFixture,
 	subscribersFixture,
 	tagsFixture,
@@ -241,6 +242,32 @@ describe( 'Stats normalizers', () => {
 				value: 19,
 			} )
 		);
+	} );
+
+	it( 'normalizes scalar days maps as time-series values', () => {
+		const result = sanitizeStatsTimeSeriesResponse( scalarDaysTimeSeriesFixture );
+
+		expect( result.summary ).toEqual(
+			expect.objectContaining( {
+				date_start: '2026-06-16',
+				date_end: '2026-06-17',
+				value: 10,
+			} )
+		);
+		expect( result.data ).toEqual( [
+			expect.objectContaining( {
+				time_interval: '2026-06-16',
+				date_start: '2026-06-16',
+				date_end: '2026-06-16',
+				value: 7,
+			} ),
+			expect.objectContaining( {
+				time_interval: '2026-06-17',
+				date_start: '2026-06-17',
+				date_end: '2026-06-17',
+				value: 3,
+			} ),
+		] );
 	} );
 
 	it( 'normalizes email summary rows', () => {

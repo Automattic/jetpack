@@ -255,9 +255,13 @@ function parseTimeSeriesRows( payload: unknown ) {
 		return data.map( numericTimeSeriesRow );
 	}
 
-	return Object.entries( asRecord( response.days ) ).map( ( [ period, value ] ) =>
-		numericTimeSeriesRow( { period, ...asRecord( value ) } )
-	);
+	return Object.entries( asRecord( response.days ) ).map( ( [ period, value ] ) => {
+		if ( typeof value === 'number' || typeof value === 'string' ) {
+			return numericTimeSeriesRow( { period, value } );
+		}
+
+		return numericTimeSeriesRow( { period, ...asRecord( value ) } );
+	} );
 }
 
 function isTimeSeriesPayload( payload: unknown ) {
