@@ -507,13 +507,23 @@ class Settings {
 	 * installs paired with a wpcom shadow blog) run where `IS_WPCOM` is undefined,
 	 * so `is_wpcom_simple()` is false and they are excluded.
 	 *
-	 * This is only the filter *default*: hosts can still force the experience on or
-	 * off with the `rsm_jetpack_ui_modernization_newsletter` /
+	 * Automatticians get the modernized experience by default regardless of the
+	 * percentage cohort, so a12s can dogfood it and test fixes ahead of the wider
+	 * rollout. `is_automattician()` is a WordPress.com global that only exists on
+	 * Simple sites, so the check naturally no-ops on Atomic/self-hosted.
+	 *
+	 * This is only the filter *default*: hosts (and a11ns who want the legacy view
+	 * back) can still force the experience on or off with the
+	 * `rsm_jetpack_ui_modernization_newsletter` /
 	 * `jetpack_wp_admin_subscriber_management_enabled` filters.
 	 *
 	 * @return bool
 	 */
 	public static function is_modernization_rollout_enabled() {
+		if ( function_exists( 'is_automattician' ) && is_automattician() ) {
+			return true;
+		}
+
 		$host = new Host();
 		if ( ! $host->is_wpcom_simple() ) {
 			return false;

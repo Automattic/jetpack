@@ -56,6 +56,7 @@ class Settings_Test extends BaseTestCase {
 		( new Connection_Manager() )->reset_connection_status();
 
 		unset( $_GET['page'] );
+		unset( $GLOBALS['jetpack_newsletter_test_is_automattician'] );
 		remove_all_filters( Settings::MODERNIZATION_FILTER );
 		remove_all_filters( 'site_url' );
 		remove_all_filters( 'home_url' );
@@ -204,6 +205,37 @@ class Settings_Test extends BaseTestCase {
 		} finally {
 			\Automattic\Jetpack\Constants::clear_single_constant( 'IS_WPCOM' );
 		}
+	}
+
+	/**
+	 * Automatticians get the modernized experience by default so they can dogfood
+	 * it outside the percentage cohort. `is_automattician()` only exists on
+	 * WordPress.com Simple sites, so this enrolls a11ns regardless of whether the
+	 * site's blog ID falls in the rollout bucket.
+	 */
+	public function test_rollout_enabled_for_automattician() {
+		$GLOBALS['jetpack_newsletter_test_is_automattician'] = true;
+
+		$this->assertTrue(
+			Settings::is_modernization_rollout_enabled(),
+			'Automatticians must be enrolled in the modernization rollout by default.'
+		);
+	}
+
+	/**
+	 * The a11n enrollment is only the filter *default*: an Automattician who wants
+	 * the legacy view back must still be able to force it with `__return_false`,
+	 * so the check has to live in the default fed to `apply_filters`, never as a
+	 * post-filter override.
+	 */
+	public function test_automattician_default_is_still_overridable_by_filter() {
+		$GLOBALS['jetpack_newsletter_test_is_automattician'] = true;
+		add_filter( Settings::MODERNIZATION_FILTER, '__return_false' );
+
+		$this->assertFalse(
+			self::call_private_static_is_modernized(),
+			'An Automattician must be able to opt back into the legacy view with __return_false.'
+		);
 	}
 
 	/**

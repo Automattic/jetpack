@@ -397,21 +397,24 @@ function wpcom_add_jetpack_submenu() {
 	// subscriber-management variant was removed with the subscribers-dashboard
 	// package and isn't restored.)
 	//
-	// The filter default is the staged-rollout cohort: on for 5% of WordPress.com
-	// Simple sites, bucketed by blog ID. This mirrors the canonical
+	// The filter default is the staged-rollout cohort: on for Automatticians (so
+	// a12s can dogfood and test fixes) and for 5% of WordPress.com Simple sites,
+	// bucketed by blog ID. This mirrors the canonical
 	// Newsletter\Settings::is_modernization_rollout_enabled(); the newsletter
 	// package isn't a dependency of jetpack-mu-wpcom and this runs unconditionally
 	// — ahead of the class_exists-guarded Subscribers_Announcement use below — so
-	// the filter name and the cohort math are inlined rather than referenced from
-	// the class. Keep $rollout_percentage in sync with
-	// Settings::MODERNIZATION_ROLLOUT_PERCENTAGE.
+	// the filter name, the a11n check, and the cohort math are inlined rather than
+	// referenced from the class. Keep $rollout_percentage in sync with
+	// Settings::MODERNIZATION_ROLLOUT_PERCENTAGE. `is_automattician()` is a
+	// WordPress.com global that only exists on Simple sites.
 	//
 	// On WordPress.com (Simple and WoA) this menu is the canonical owner of the
 	// Subscribers entry, so the announcement page is registered here for both
 	// platforms; the standalone plugin's subscriptions module defers to it on
 	// wpcom to avoid a duplicate.
 	$rollout_percentage            = 5;
-	$modernization_rollout_default = $is_simple_site && ( (int) $blog_id % 100 ) < $rollout_percentage;
+	$is_automattician              = function_exists( 'is_automattician' ) && is_automattician();
+	$modernization_rollout_default = $is_automattician || ( $is_simple_site && ( (int) $blog_id % 100 ) < $rollout_percentage );
 	if ( ! apply_filters( 'rsm_jetpack_ui_modernization_newsletter', $modernization_rollout_default ) ) {
 		add_submenu_page(
 			'jetpack',
