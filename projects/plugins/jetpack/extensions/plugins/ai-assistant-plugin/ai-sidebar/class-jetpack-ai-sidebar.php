@@ -498,6 +498,19 @@ class Jetpack_AI_Sidebar {
 	}
 
 	/**
+	 * UI feature flag for Optimize Title suggestions.
+	 *
+	 * Server-side permission checks still gate execution. This site-side flag
+	 * controls whether the sidebar suggestion is exposed, following the
+	 * internal rollout pattern used by Image Studio and Generate Feedback.
+	 *
+	 * @return bool
+	 */
+	private static function is_optimize_title_suggestion_enabled(): bool {
+		return self::is_dev_mode();
+	}
+
+	/**
 	 * UI feature flag for the public Jetpack AI Sidebar Preview surface.
 	 *
 	 * AI Editorial Review remains a feature inside the preview. Hosts can open
@@ -522,7 +535,7 @@ class Jetpack_AI_Sidebar {
 		$features = array(
 			'aiEditorialReview'       => self::is_ai_editorial_review_enabled(),
 			'blockTransformations'    => true,
-			'optimizeTitleSuggestion' => false,
+			'optimizeTitleSuggestion' => self::is_optimize_title_suggestion_enabled(),
 			'chatHistory'             => false,
 			'supportGuides'           => false,
 		);
@@ -532,8 +545,9 @@ class Jetpack_AI_Sidebar {
 		 *
 		 * @param array $features Associative array of preview feature flags.
 		 */
-		$filtered_features = apply_filters( 'jetpack_ai_sidebar_preview_features', $features );
-		$features          = is_array( $filtered_features ) ? array_merge( $features, $filtered_features ) : $features;
+		$filtered_features                   = apply_filters( 'jetpack_ai_sidebar_preview_features', $features );
+		$features                            = is_array( $filtered_features ) ? array_merge( $features, $filtered_features ) : $features;
+		$features['optimizeTitleSuggestion'] = (bool) $features['optimizeTitleSuggestion'] && self::is_optimize_title_suggestion_enabled();
 
 		return array(
 			'enabled'  => self::is_jetpack_ai_sidebar_preview_enabled(),
