@@ -48,4 +48,20 @@ class SEO_Optin_Test extends WP_UnitTestCase {
 
 		$this->assertArrayHasKey( '/jetpack/v4/seo/opt-in', rest_get_server()->get_routes( 'jetpack/v4' ) );
 	}
+
+	/**
+	 * The route is gated on `manage_options`: a user without it is rejected and the request
+	 * has no side effects (the surface stays hidden). Dispatched through the REST server so the
+	 * `permission_callback` actually runs — calling the handler directly would bypass it.
+	 */
+	public function test_opt_in_requires_manage_options() {
+		Jetpack_SEO_Initializer::register_optin_route();
+		wp_set_current_user( self::factory()->user->create( array( 'role' => 'subscriber' ) ) );
+
+		$response = rest_get_server()->dispatch( new WP_REST_Request( 'POST', '/jetpack/v4/seo/opt-in' ) );
+
+		$this->assertSame( 403, $response->get_status() );
+		// The rejected request never reached the handler, so the surface is still hidden.
+		$this->assertFalse( (bool) get_option( Jetpack_SEO_Initializer::VISIBILITY_OPTION ) );
+	}
 }
