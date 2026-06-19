@@ -17,6 +17,9 @@ if ( defined( 'JETPACK_PLUGIN_LOADER_PATH' ) ) {
 	add_action(
 		'wp_dashboard_setup',
 		function () {
+			if ( ! defined( 'JETPACK_PLUGIN_LOADER_PATH' ) ) {
+				return;
+			}
 			require_once JETPACK_PLUGIN_LOADER_PATH . '/class-jetpack-stats-dashboard-widget.php';
 			( new Jetpack_Stats_Dashboard_Widget() )->init();
 		}
