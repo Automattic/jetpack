@@ -28,36 +28,36 @@ class Contact_Form_Is_Collecting_Responses_Test extends BaseTestCase {
 	 */
 	public static function provide_attributes() {
 		return array(
-			'empty attributes default to collecting'      => array( array(), true ),
-			'email and saving both on'                    => array(
+			'empty attributes default to collecting'   => array( array(), true ),
+			'email and saving both on'                 => array(
 				array(
 					'emailNotifications' => true,
 					'saveResponses'      => true,
 				),
 				true,
 			),
-			'email off and saving off, no integration'    => array(
+			'email off and saving off, no integration' => array(
 				array(
 					'emailNotifications' => false,
 					'saveResponses'      => false,
 				),
 				false,
 			),
-			'yes/no strings, both off'                     => array(
+			'yes/no strings, both off'                 => array(
 				array(
 					'emailNotifications' => 'no',
 					'saveResponses'      => 'no',
 				),
 				false,
 			),
-			'only saving on (string yes)'                  => array(
+			'only saving on (string yes)'              => array(
 				array(
 					'emailNotifications' => 'no',
 					'saveResponses'      => 'yes',
 				),
 				true,
 			),
-			'email on but empty recipient'                 => array(
+			'email on but empty recipient'             => array(
 				array(
 					'emailNotifications' => true,
 					'to'                 => '  ',
@@ -65,7 +65,7 @@ class Contact_Form_Is_Collecting_Responses_Test extends BaseTestCase {
 				),
 				false,
 			),
-			'email on with recipient'                      => array(
+			'email on with recipient'                  => array(
 				array(
 					'emailNotifications' => true,
 					'to'                 => 'admin@example.com',
@@ -73,7 +73,7 @@ class Contact_Form_Is_Collecting_Responses_Test extends BaseTestCase {
 				),
 				true,
 			),
-			'jetpackCRM explicitly enabled'                => array(
+			'jetpackCRM explicitly enabled'            => array(
 				array(
 					'emailNotifications' => false,
 					'saveResponses'      => false,
@@ -81,7 +81,7 @@ class Contact_Form_Is_Collecting_Responses_Test extends BaseTestCase {
 				),
 				true,
 			),
-			'mailpoet enabled for form'                    => array(
+			'mailpoet enabled for form'                => array(
 				array(
 					'emailNotifications' => false,
 					'saveResponses'      => false,
@@ -89,7 +89,7 @@ class Contact_Form_Is_Collecting_Responses_Test extends BaseTestCase {
 				),
 				true,
 			),
-			'hostinger reach enabled for form'             => array(
+			'hostinger reach enabled for form'         => array(
 				array(
 					'emailNotifications' => false,
 					'saveResponses'      => false,
@@ -97,7 +97,7 @@ class Contact_Form_Is_Collecting_Responses_Test extends BaseTestCase {
 				),
 				true,
 			),
-			'salesforce with org id'                       => array(
+			'salesforce with org id'                   => array(
 				array(
 					'emailNotifications' => false,
 					'saveResponses'      => false,
@@ -108,7 +108,7 @@ class Contact_Form_Is_Collecting_Responses_Test extends BaseTestCase {
 				),
 				true,
 			),
-			'salesforce without org id is not a sink'      => array(
+			'salesforce without org id is not a sink'  => array(
 				array(
 					'emailNotifications' => false,
 					'saveResponses'      => false,
@@ -123,6 +123,8 @@ class Contact_Form_Is_Collecting_Responses_Test extends BaseTestCase {
 	}
 
 	/**
+	 * @dataProvider provide_attributes
+	 *
 	 * @param array<string,mixed> $attributes Raw block attributes.
 	 * @param bool                $expected   Expected collecting state.
 	 */
@@ -136,5 +138,58 @@ class Contact_Form_Is_Collecting_Responses_Test extends BaseTestCase {
 	 */
 	public function test_non_array_attributes_are_collecting() {
 		$this->assertTrue( Contact_Form::is_collecting_responses( null ) );
+	}
+
+	/**
+	 * The rendered form shows the admin-only notice to users who can manage forms.
+	 */
+	public function test_front_end_notice_visible_to_editors() {
+		$admin_id = wp_insert_user(
+			array(
+				'user_login' => 'cf_notice_admin',
+				'user_pass'  => 'password',
+				'user_email' => 'cf_notice_admin@example.com',
+				'role'       => 'administrator',
+			)
+		);
+		wp_set_current_user( $admin_id );
+
+		$content = '[contact-field type="name" label="Name" required="1" /]';
+
+		$broken = Contact_Form::parse(
+			array(
+				'emailNotifications' => false,
+				'saveResponses'      => false,
+			),
+			$content
+		);
+		$this->assertStringContainsString( 'jetpack-form-not-collecting-notice', $broken, 'Editors should see the not-collecting notice.' );
+
+		$healthy = Contact_Form::parse(
+			array(
+				'emailNotifications' => true,
+				'saveResponses'      => true,
+			),
+			$content
+		);
+		$this->assertStringNotContainsString( 'jetpack-form-not-collecting-notice', $healthy, 'A collecting form should not show the notice.' );
+	}
+
+	/**
+	 * The rendered form never shows the notice to logged-out visitors.
+	 */
+	public function test_front_end_notice_hidden_from_visitors() {
+		wp_set_current_user( 0 );
+
+		$content = '[contact-field type="name" label="Name" required="1" /]';
+		$broken  = Contact_Form::parse(
+			array(
+				'emailNotifications' => false,
+				'saveResponses'      => false,
+			),
+			$content
+		);
+
+		$this->assertStringNotContainsString( 'jetpack-form-not-collecting-notice', $broken, 'Visitors should never see the notice.' );
 	}
 }

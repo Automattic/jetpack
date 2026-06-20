@@ -360,7 +360,8 @@ class Contact_Form extends Contact_Form_Shortcode {
 	 * Keep this in sync with the JS helper `isCollectingResponses()` in
 	 * blocks/contact-form/util/is-collecting-responses.ts.
 	 *
-	 * @param array $attributes Raw contact-form block attributes.
+	 * @param mixed $attributes Raw contact-form block attributes. Non-arrays are
+	 *                          treated as collecting (no warning).
 	 * @return bool True when the form has at least one response destination.
 	 */
 	public static function is_collecting_responses( $attributes ) {
