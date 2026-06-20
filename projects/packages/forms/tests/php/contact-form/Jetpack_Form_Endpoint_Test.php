@@ -283,6 +283,47 @@ class Jetpack_Form_Endpoint_Test extends TestCase {
 	}
 
 	/**
+	 * A contact-form block nested inside another block is still detected.
+	 *
+	 * Covers the recursive innerBlocks branch of find_contact_form_attributes().
+	 */
+	public function test_nested_broken_form_is_not_collecting() {
+		Contact_Form::register_post_type();
+		do_action( 'rest_api_init' );
+
+		$nested = $this->insert_form(
+			'Nested Broken',
+			'<!-- wp:group --><div class="wp-block-group">' . self::BROKEN_FORM_CONTENT . '</div><!-- /wp:group -->'
+		);
+
+		$request = new WP_REST_Request( 'GET', '/wp/v2/jetpack-forms/' . $nested );
+		$request->set_param( 'context', 'edit' );
+		$response = $this->server->dispatch( $request );
+
+		$this->assertFalse( $response->get_data()['is_collecting_responses'] );
+	}
+
+	/**
+	 * A form post with no contact-form block defaults to collecting (no warning).
+	 *
+	 * Covers the "no block found" and empty-content fall-throughs.
+	 */
+	public function test_form_without_contact_block_defaults_to_collecting() {
+		Contact_Form::register_post_type();
+		do_action( 'rest_api_init' );
+
+		$no_block = $this->insert_form( 'No Block', '<!-- wp:paragraph --><p>Just text.</p><!-- /wp:paragraph -->' );
+		$empty    = $this->insert_form( 'Empty', '' );
+
+		foreach ( array( $no_block, $empty ) as $id ) {
+			$request = new WP_REST_Request( 'GET', '/wp/v2/jetpack-forms/' . $id );
+			$request->set_param( 'context', 'edit' );
+			$response = $this->server->dispatch( $request );
+			$this->assertTrue( $response->get_data()['is_collecting_responses'], "Form $id should default to collecting" );
+		}
+	}
+
+	/**
 	 * A healthy single (edit-context) form fetch reports is_collecting_responses=true.
 	 */
 	public function test_single_healthy_form_is_collecting() {
