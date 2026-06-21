@@ -1,12 +1,13 @@
 /**
  * Internal dependencies
  */
+import { getDaysBetweenInclusive } from './interval';
 import type { ReportParams } from './search';
 import type { StatsProxyParams } from '../api/stats-proxy-fetch';
 
 export type StatsPeriod = 'hour' | 'day' | 'week' | 'month' | 'year';
 
-export type StatsQueryParams = StatsProxyParams & {
+type StatsQueryParamFields = {
 	period?: StatsPeriod | string;
 	date?: string;
 	start_date?: string;
@@ -16,32 +17,34 @@ export type StatsQueryParams = StatsProxyParams & {
 	summarize?: number | boolean;
 };
 
+export type StatsQueryParams = StatsProxyParams & StatsQueryParamFields;
+
 type StatsQueryParamInput = Partial< ReportParams > & {
-	period?: StatsPeriod | string;
-	date?: string;
-	start_date?: string;
-	days?: number;
-	num?: number;
-	max?: number;
-	summarize?: number | boolean;
 	[ key: string ]: unknown;
-};
+} & Partial< StatsQueryParamFields >;
+
+type ReportOnlyParam = keyof ReportParams | 'geoMode' | 'utmParams' | 'deviceProperty';
+
+const reportOnlyKeys: ReportOnlyParam[] = [
+	'from',
+	'to',
+	'interval',
+	'preset',
+	'compare_from',
+	'compare_to',
+	'compare_preset',
+	'comp',
+	'filters',
+	'section',
+	'date_type',
+	'view',
+	'geoMode',
+	'utmParams',
+	'deviceProperty',
+];
 
 function datePart( value?: string ) {
 	return value?.split( 'T' )[ 0 ];
-}
-
-function daysBetweenInclusive( from: string, to: string ) {
-	const fromDate = new Date( `${ from }T00:00:00Z` );
-	const toDate = new Date( `${ to }T00:00:00Z` );
-	const diff = toDate.getTime() - fromDate.getTime();
-
-	if ( Number.isNaN( diff ) || diff < 0 ) {
-		// Keep the Stats API request bounded even when callers pass an invalid range.
-		return 1;
-	}
-
-	return Math.floor( diff / 86400000 ) + 1;
 }
 
 export function getStatsPeriodFromInterval( interval?: string ): StatsPeriod {
@@ -65,23 +68,6 @@ export function reportParamsToStatsQueryParams(
 	params: StatsQueryParamInput = {}
 ): StatsQueryParams {
 	const statsParams = { ...params };
-	const reportOnlyKeys = [
-		'from',
-		'to',
-		'interval',
-		'preset',
-		'compare_from',
-		'compare_to',
-		'compare_preset',
-		'comp',
-		'filters',
-		'section',
-		'date_type',
-		'view',
-		'geoMode',
-		'utmParams',
-		'deviceProperty',
-	] as const;
 
 	reportOnlyKeys.forEach( key => {
 		delete statsParams[ key ];
@@ -93,7 +79,7 @@ export function reportParamsToStatsQueryParams(
 	const date = params.date ?? to;
 	const startDate = params.start_date ?? from;
 	const days =
-		params.days ?? ( startDate && date ? daysBetweenInclusive( startDate, date ) : undefined );
+		params.days ?? ( startDate && date ? getDaysBetweenInclusive( startDate, date ) : undefined );
 
 	return {
 		...( statsParams as StatsQueryParams ),

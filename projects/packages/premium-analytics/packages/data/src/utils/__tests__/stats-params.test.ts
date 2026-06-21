@@ -39,6 +39,19 @@ describe( 'reportParamsToStatsQueryParams', () => {
 		);
 	} );
 
+	it( 'falls back to one day for invalid date ranges', () => {
+		expect(
+			reportParamsToStatsQueryParams( {
+				from: '2026-06-07',
+				to: '2026-06-01',
+			} )
+		).toEqual(
+			expect.objectContaining( {
+				days: 1,
+			} )
+		);
+	} );
+
 	it( 'preserves explicit Stats result limit params', () => {
 		expect(
 			reportParamsToStatsQueryParams( {
