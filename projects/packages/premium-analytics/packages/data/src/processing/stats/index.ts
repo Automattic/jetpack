@@ -30,6 +30,7 @@ export type StatsNormalizedItem = {
 	id?: string | number;
 	label: unknown;
 	value: number;
+	values?: Record< string, number >;
 	children?: StatsNormalizedItem[] | null;
 	meta?: StatsNormalizedItemMeta;
 };
@@ -372,12 +373,14 @@ export function sanitizeStatsVideoPlaysResponse(
 			id: item.post_id as string | number | undefined,
 			label: item.title,
 			value: safeParseFloat( item.views ?? item.plays ),
-			children: null,
-			meta: {
-				link: typeof item.url === 'string' ? item.url : null,
+			values: {
 				impressions: safeParseFloat( item.impressions ),
 				watch_time: safeParseFloat( item.watch_time ),
 				retention_rate: safeParseFloat( item.retention_rate ),
+			},
+			children: null,
+			meta: {
+				link: typeof item.url === 'string' ? item.url : null,
 			},
 		} ) ),
 	};

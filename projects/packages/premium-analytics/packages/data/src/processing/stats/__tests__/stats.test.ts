@@ -6,12 +6,14 @@ import {
 	sanitizeStatsLocationsResponse,
 	sanitizeStatsReferrersResponse,
 	sanitizeStatsTopPostsResponse,
+	sanitizeStatsVideoPlaysResponse,
 } from '..';
 import {
 	fileDownloadsFixture,
 	locationsFixture,
 	referrersFixture,
 	topPostsFixture,
+	videoPlaysFixture,
 } from '../__fixtures__/stats';
 
 describe( 'Stats normalizers', () => {
@@ -78,5 +80,28 @@ describe( 'Stats normalizers', () => {
 			} )
 		);
 		expect( result.summary ).toEqual( expect.objectContaining( { total: 7 } ) );
+	} );
+
+	it( 'normalizes secondary video metrics into values', () => {
+		expect(
+			sanitizeStatsVideoPlaysResponse( videoPlaysFixture, {
+				period: 'day',
+				date: '2026-06-16',
+			} ).data[ 0 ]
+		).toEqual(
+			expect.objectContaining( {
+				id: 12,
+				label: 'Launch video',
+				value: 11,
+				values: {
+					impressions: 42,
+					watch_time: 128.5,
+					retention_rate: 61.25,
+				},
+				meta: expect.objectContaining( {
+					link: 'https://example.com/video/',
+				} ),
+			} )
+		);
 	} );
 } );
