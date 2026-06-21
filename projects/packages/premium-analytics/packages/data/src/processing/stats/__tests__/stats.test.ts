@@ -23,6 +23,7 @@ describe( 'Stats normalizers', () => {
 				id: 41,
 				label: 'Hello world',
 				value: 64,
+				children: null,
 				link: 'https://example.com/hello/',
 			} ),
 		] );

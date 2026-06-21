@@ -31,57 +31,82 @@ export type StatsNormalizedItem = {
 };
 
 export type StatsNormalizedReport = {
-	summary: Record< string, unknown >;
+	summary: Record< string, number >;
 	data: StatsNormalizedItem[];
 };
 
-type AnyRecord = Record< string, any >;
+type StatsRecord = Record< string, unknown >;
 
-function asRecord( value: unknown ): AnyRecord {
-	return value && typeof value === 'object' && ! Array.isArray( value )
-		? ( value as AnyRecord )
-		: {};
+function isStatsRecord( value: unknown ): value is StatsRecord {
+	return value && typeof value === 'object' && ! Array.isArray( value ) ? true : false;
 }
 
-function asArray< T = AnyRecord >( value: unknown ): T[] {
+function getStatsRecord( value: unknown ): StatsRecord {
+	return isStatsRecord( value ) ? value : {};
+}
+
+function getStatsArray< T = StatsRecord >( value: unknown ): T[] {
 	return Array.isArray( value ) ? ( value as T[] ) : [];
 }
 
-function numericSummary( value: unknown ): Record< string, unknown > {
+function normalizeNumericSummary( value: StatsRecord ): Record< string, number > {
 	return Object.fromEntries(
-		Object.entries( asRecord( value ) ).map( ( [ key, item ] ) => [
-			key,
-			typeof item === 'number' || typeof item === 'string' ? safeParseFloat( item ) : item,
-		] )
+		Object.entries( value ).map( ( [ key, item ] ) => [ key, safeParseFloat( item ) ] )
 	);
 }
 
-function getFirstDayBucket( response: AnyRecord ) {
-	const days = asRecord( response.days );
+function countTotalByKey( items: StatsRecord[], key: string ): number {
+	return items.reduce( ( total, item ) => total + safeParseFloat( item[ key ] ), 0 );
+}
+
+function countTotalByFirstAvailableKey( items: StatsRecord[], keys: string[] ): number {
+	return items.reduce( ( total, item ) => {
+		const key = keys.find( candidate => item[ candidate ] !== undefined );
+
+		return key ? total + safeParseFloat( item[ key ] ) : total;
+	}, 0 );
+}
+
+function getFirstDayBucket( response: StatsRecord ) {
+	const days = getStatsRecord( response.days );
 	const firstKey = Object.keys( days )[ 0 ];
 
-	return firstKey ? asRecord( days[ firstKey ] ) : {};
+	return firstKey ? getStatsRecord( days[ firstKey ] ) : {};
 }
 
 function getStatsBucket( response: unknown, query: StatsQueryParams = {} ) {
-	const payload = asRecord( response );
-	const summary = asRecord( payload.summary );
+	const payload = getStatsRecord( response );
+	const summary = getStatsRecord( payload.summary );
 
 	if ( query.summarize && Object.keys( summary ).length ) {
 		return summary;
 	}
 
-	const days = asRecord( payload.days );
+	const days = getStatsRecord( payload.days );
 	const requested = query.date ?? query.start_date;
 
 	if ( requested && days[ requested ] ) {
-		return asRecord( days[ requested ] );
+		return getStatsRecord( days[ requested ] );
 	}
 
 	return getFirstDayBucket( payload );
 }
 
-function mapNestedItems( items: AnyRecord[], mapper: ( item: AnyRecord ) => StatsNormalizedItem ) {
+function getStatsItems(
+	response: unknown,
+	query: StatsQueryParams | undefined,
+	bucket: StatsRecord,
+	key: string
+): StatsRecord[] {
+	const source = query?.summarize ? getStatsRecord( getStatsRecord( response ).summary ) : bucket;
+
+	return getStatsArray< StatsRecord >( source[ key ] );
+}
+
+function mapNestedItems(
+	items: StatsRecord[],
+	mapper: ( item: StatsRecord ) => StatsNormalizedItem
+) {
 	return items.map( item => mapper( item ) );
 }
 
@@ -90,11 +115,11 @@ export function sanitizeStatsPassthroughResponse< T >( response: T ): T {
 }
 
 export function sanitizeStatsSiteResponse( response: unknown ) {
-	const payload = asRecord( response );
+	const payload = getStatsRecord( response );
 
 	return {
 		...payload,
-		stats: numericSummary( payload.stats ),
+		stats: normalizeNumericSummary( getStatsRecord( payload.stats ) ),
 	};
 }
 
@@ -103,19 +128,18 @@ export function sanitizeStatsTopPostsResponse(
 	query?: StatsQueryParams
 ): StatsNormalizedReport {
 	const bucket = getStatsBucket( response, query );
-	const items = query?.summarize
-		? asArray< AnyRecord >( asRecord( response ).summary?.postviews )
-		: asArray< AnyRecord >( bucket.postviews );
+	const items = getStatsItems( response, query, bucket, 'postviews' );
 
 	return {
-		summary: numericSummary( {
-			total_views: bucket.total_views ?? asRecord( response ).summary?.total_views,
+		summary: normalizeNumericSummary( {
+			total_views:
+				bucket.total_views ?? getStatsRecord( getStatsRecord( response ).summary ).total_views,
 		} ),
 		data: items.map( item => ( {
-			id: item.id,
+			id: item.id as string | number | undefined,
 			label: item.title,
 			value: safeParseFloat( item.views ),
-			link: item.href ?? null,
+			link: typeof item.href === 'string' ? item.href : null,
 			page: item.id ? `/stats/post/${ item.id }` : null,
 			public: item.public,
 			type: item.type,
@@ -130,27 +154,24 @@ export function sanitizeStatsReferrersResponse(
 	query?: StatsQueryParams
 ): StatsNormalizedReport {
 	const bucket = getStatsBucket( response, query );
-	const groups = query?.summarize
-		? asArray< AnyRecord >( asRecord( response ).summary?.groups )
-		: asArray< AnyRecord >( bucket.groups );
+	const groups = getStatsItems( response, query, bucket, 'groups' );
 
-	const parse = ( item: AnyRecord ): StatsNormalizedItem => ( {
+	const parse = ( item: StatsRecord ): StatsNormalizedItem => ( {
 		label: item.name ?? item.group ?? '',
 		value: safeParseFloat( item.views ?? item.total ),
-		link: item.url ?? null,
-		icon: item.icon,
+		link: typeof item.url === 'string' ? item.url : null,
+		icon: typeof item.icon === 'string' ? item.icon : null,
 		labelIcon: item.results || item.children ? null : 'external',
-		children: mapNestedItems( asArray( item.results ?? item.children ), parse ),
+		children: mapNestedItems( getStatsArray( item.results ?? item.children ), parse ),
 	} );
 
 	return {
-		summary: numericSummary( {
-			total:
-				bucket.total ??
-				groups.reduce( ( total, item ) => total + safeParseFloat( item.total ?? item.views ), 0 ),
+		summary: normalizeNumericSummary( {
+			total: bucket.total ?? countTotalByFirstAvailableKey( groups, [ 'total', 'views' ] ),
 		} ),
 		data: groups.map( item => {
-			const normalized = parse( item.results?.length === 1 ? item.results[ 0 ] : item );
+			const results = getStatsArray< StatsRecord >( item.results );
+			const normalized = parse( results.length === 1 ? results[ 0 ] : item );
 			const domain = item.name ?? item.group;
 			const canSpam = typeof domain === 'string' && domain.includes( '.' );
 
@@ -168,28 +189,29 @@ export function sanitizeStatsClicksResponse(
 	query?: StatsQueryParams
 ): StatsNormalizedReport {
 	const bucket = getStatsBucket( response, query );
-	const clicks = query?.summarize
-		? asArray< AnyRecord >( asRecord( response ).summary?.clicks )
-		: asArray< AnyRecord >( bucket.clicks );
+	const clicks = getStatsItems( response, query, bucket, 'clicks' );
 
-	const parse = ( item: AnyRecord ): StatsNormalizedItem => ( {
+	const parse = ( item: StatsRecord ): StatsNormalizedItem => ( {
 		label: item.name ?? '',
 		value: safeParseFloat( item.views ),
-		link: item.url ?? null,
-		icon: item.icon,
-		labelIcon: item.children?.length ? null : 'external',
-		children: mapNestedItems( asArray( item.children ), child => ( {
-			label: child.name?.replace?.( item.name, '' ) || '/',
+		link: typeof item.url === 'string' ? item.url : null,
+		icon: typeof item.icon === 'string' ? item.icon : null,
+		labelIcon: getStatsArray( item.children ).length ? null : 'external',
+		children: mapNestedItems( getStatsArray( item.children ), child => ( {
+			label:
+				typeof child.name === 'string' && typeof item.name === 'string'
+					? child.name.split( item.name ).join( '' ) || '/'
+					: '/',
 			value: safeParseFloat( child.views ),
-			link: child.url ?? null,
+			link: typeof child.url === 'string' ? child.url : null,
 			labelIcon: 'external',
 			children: null,
 		} ) ),
 	} );
 
 	return {
-		summary: numericSummary( {
-			total: clicks.reduce( ( total, item ) => total + safeParseFloat( item.views ), 0 ),
+		summary: normalizeNumericSummary( {
+			total: countTotalByKey( clicks, 'views' ),
 		} ),
 		data: clicks.map( parse ),
 	};
@@ -200,13 +222,11 @@ export function sanitizeStatsSearchTermsResponse(
 	query?: StatsQueryParams
 ): StatsNormalizedReport {
 	const bucket = getStatsBucket( response, query );
-	const terms = query?.summarize
-		? asArray< AnyRecord >( asRecord( response ).summary?.search_terms )
-		: asArray< AnyRecord >( bucket.search_terms );
+	const terms = getStatsItems( response, query, bucket, 'search_terms' );
 
 	return {
-		summary: numericSummary( {
-			total: terms.reduce( ( total, item ) => total + safeParseFloat( item.views ), 0 ),
+		summary: normalizeNumericSummary( {
+			total: countTotalByKey( terms, 'views' ),
 		} ),
 		data: terms.map( item => ( {
 			label: item.term,
@@ -222,19 +242,17 @@ export function sanitizeStatsFileDownloadsResponse(
 	query?: StatsQueryParams
 ): StatsNormalizedReport {
 	const bucket = getStatsBucket( response, query );
-	const files = query?.summarize
-		? asArray< AnyRecord >( asRecord( response ).summary?.files )
-		: asArray< AnyRecord >( bucket.files );
+	const files = getStatsItems( response, query, bucket, 'files' );
 
 	return {
-		summary: numericSummary( {
-			total: files.reduce( ( total, item ) => total + safeParseFloat( item.downloads ), 0 ),
+		summary: normalizeNumericSummary( {
+			total: countTotalByKey( files, 'downloads' ),
 		} ),
 		data: files.map( item => ( {
 			label: item.relative_url,
-			shortLabel: item.filename,
+			shortLabel: typeof item.filename === 'string' ? item.filename : undefined,
 			value: safeParseFloat( item.downloads ),
-			link: item.download_url,
+			link: typeof item.download_url === 'string' ? item.download_url : undefined,
 			linkTitle: item.relative_url,
 			labelIcon: 'external',
 			children: null,
@@ -247,25 +265,23 @@ export function sanitizeStatsTopAuthorsResponse(
 	query?: StatsQueryParams
 ): StatsNormalizedReport {
 	const bucket = getStatsBucket( response, query );
-	const authors = query?.summarize
-		? asArray< AnyRecord >( asRecord( response ).summary?.authors )
-		: asArray< AnyRecord >( bucket.authors );
+	const authors = getStatsItems( response, query, bucket, 'authors' );
 
 	return {
-		summary: numericSummary( {
-			total: authors.reduce( ( total, item ) => total + safeParseFloat( item.views ), 0 ),
+		summary: normalizeNumericSummary( {
+			total: countTotalByKey( authors, 'views' ),
 		} ),
 		data: authors.map( item => ( {
 			label: item.name || 'Untracked Authors',
 			value: safeParseFloat( item.views ),
-			icon: item.avatar,
+			icon: typeof item.avatar === 'string' ? item.avatar : null,
 			iconClassName: 'avatar-user',
 			className: 'module-content-list-item-large',
-			children: asArray< AnyRecord >( item.posts ).map( post => ( {
-				id: post.id,
+			children: mapNestedItems( getStatsArray( item.posts ), post => ( {
+				id: post.id as string | number | undefined,
 				label: post.title,
 				value: safeParseFloat( post.views ),
-				link: post.url ?? null,
+				link: typeof post.url === 'string' ? post.url : null,
 				page: post.id ? `/stats/post/${ post.id }` : null,
 				children: null,
 			} ) ),
@@ -277,30 +293,31 @@ export function sanitizeStatsLocationsResponse(
 	response: unknown,
 	query?: StatsQueryParams
 ): StatsNormalizedReport {
-	const payload = asRecord( response );
+	const payload = getStatsRecord( response );
 	const bucket = getStatsBucket( response, query );
-	const views = query?.summarize
-		? asArray< AnyRecord >( payload.summary?.views )
-		: asArray< AnyRecord >( bucket.views );
-	const countryInfo = asRecord( payload[ 'country-info' ] ?? payload.countryInfo );
+	const views = getStatsItems( response, query, bucket, 'views' );
+	const countryInfo = getStatsRecord( payload[ 'country-info' ] ?? payload.countryInfo );
 	const filteredViews = views.filter(
-		item => ! [ 'A1', 'A2', 'ZZ' ].includes( item.country_code )
+		item =>
+			typeof item.country_code !== 'string' || ! [ 'A1', 'A2', 'ZZ' ].includes( item.country_code )
 	);
 
 	return {
-		summary: numericSummary( {
-			total: filteredViews.reduce( ( total, item ) => total + safeParseFloat( item.views ), 0 ),
+		summary: normalizeNumericSummary( {
+			total: countTotalByKey( filteredViews, 'views' ),
 		} ),
 		data: filteredViews.map( item => {
-			const country = asRecord( countryInfo[ item.country_code ] );
+			const country = getStatsRecord(
+				typeof item.country_code === 'string' ? countryInfo[ item.country_code ] : undefined
+			);
 			const label = item.location ?? country.country_full ?? item.country_code ?? '';
 
 			return {
 				label: typeof label === 'string' ? label.replace( /’/g, "'" ) : label,
 				value: safeParseFloat( item.views ),
-				countryCode: item.country_code,
-				countryFull: country.country_full,
-				region: country.map_region,
+				countryCode: typeof item.country_code === 'string' ? item.country_code : undefined,
+				countryFull: typeof country.country_full === 'string' ? country.country_full : undefined,
+				region: typeof country.map_region === 'string' ? country.map_region : undefined,
 				coordinates: item.coordinates,
 				children: null,
 			};
@@ -313,23 +330,24 @@ export function sanitizeStatsVideoPlaysResponse(
 	query?: StatsQueryParams
 ): StatsNormalizedReport {
 	const bucket = getStatsBucket( response, query );
-	const payload = asRecord( response );
+	const payload = getStatsRecord( response );
+	const summaryDay = getStatsRecord( getStatsRecord( payload.days ).summary );
 	const videoData = query?.complete_stats
-		? asArray< AnyRecord >( bucket.data ?? payload.days?.summary?.data )
-		: asArray< AnyRecord >( bucket.plays ?? payload.days?.summary?.plays );
+		? getStatsArray< StatsRecord >( bucket.data ?? summaryDay.data )
+		: getStatsArray< StatsRecord >( bucket.plays ?? summaryDay.plays );
 
 	return {
-		summary: numericSummary( {
+		summary: normalizeNumericSummary( {
 			total: videoData.reduce(
 				( total, item ) => total + safeParseFloat( item.views ?? item.plays ),
 				0
 			),
 		} ),
 		data: videoData.map( item => ( {
-			id: item.post_id,
+			id: item.post_id as string | number | undefined,
 			label: item.title,
 			value: safeParseFloat( item.views ?? item.plays ),
-			link: item.url ?? null,
+			link: typeof item.url === 'string' ? item.url : null,
 			impressions: safeParseFloat( item.impressions ),
 			watch_time: safeParseFloat( item.watch_time ),
 			retention_rate: safeParseFloat( item.retention_rate ),
