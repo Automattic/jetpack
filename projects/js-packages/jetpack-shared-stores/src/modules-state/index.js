@@ -24,7 +24,7 @@ const initialData =
 // This is a temporary fix to have store filled properly.
 // TODO: Create a proper solution after fixing initial issue (https://github.com/Automattic/jetpack/issues/34793).
 if ( initialData !== null ) {
-	dispatch( JETPACK_MODULES_STORE_ID ).setJetpackModules( {
+	dispatch( store ).setJetpackModules( {
 		data: { ...initialData },
 	} );
 }

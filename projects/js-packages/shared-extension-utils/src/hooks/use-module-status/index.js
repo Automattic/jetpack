@@ -1,4 +1,4 @@
-import { JETPACK_MODULES_STORE_ID } from '@automattic/jetpack-shared-stores';
+import { store as jetpackModulesStore } from '@automattic/jetpack-shared-stores';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useMemo, useCallback } from '@wordpress/element';
 
@@ -19,7 +19,8 @@ import { useMemo, useCallback } from '@wordpress/element';
 const useModuleStatus = name => {
 	const { isModuleActive, isChangingStatus, isLoadingModules } = useSelect(
 		selectData => {
-			const data = selectData( JETPACK_MODULES_STORE_ID );
+			// String ID hata kar actual store object pass kiya gaya hai
+			const data = selectData( jetpackModulesStore );
 			return {
 				isModuleActive: data.isModuleActive( name ),
 				isChangingStatus: data.isModuleUpdating( name ),
@@ -29,7 +30,8 @@ const useModuleStatus = name => {
 		[ name ]
 	);
 
-	const { updateJetpackModuleStatus } = useDispatch( JETPACK_MODULES_STORE_ID );
+	// Yahan bhi string ID hata kar store object pass kiya gaya hai
+	const { updateJetpackModuleStatus } = useDispatch( jetpackModulesStore );
 
 	const changeStatus = useCallback(
 		value =>
