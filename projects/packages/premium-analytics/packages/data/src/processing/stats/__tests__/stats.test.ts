@@ -24,7 +24,9 @@ describe( 'Stats normalizers', () => {
 				label: 'Hello world',
 				value: 64,
 				children: null,
-				link: 'https://example.com/hello/',
+				meta: expect.objectContaining( {
+					link: 'https://example.com/hello/',
+				} ),
 			} ),
 		] );
 	} );
@@ -39,7 +41,9 @@ describe( 'Stats normalizers', () => {
 			expect.objectContaining( {
 				label: 'example.com/path',
 				value: 12,
-				actionMenu: 1,
+				meta: expect.objectContaining( {
+					actionMenu: 1,
+				} ),
 			} )
 		);
 	} );
@@ -53,8 +57,10 @@ describe( 'Stats normalizers', () => {
 		).toEqual(
 			expect.objectContaining( {
 				label: '/download.pdf',
-				shortLabel: 'download.pdf',
 				value: 5,
+				meta: expect.objectContaining( {
+					shortLabel: 'download.pdf',
+				} ),
 			} )
 		);
 	} );

@@ -9,11 +9,7 @@ export type StatsItemAction = {
 	data: unknown;
 };
 
-export type StatsNormalizedItem = {
-	id?: string | number;
-	label: unknown;
-	value: number;
-	children?: StatsNormalizedItem[] | null;
+export type StatsNormalizedItemMeta = {
 	link?: string | null;
 	page?: string | null;
 	shortLabel?: string;
@@ -28,6 +24,14 @@ export type StatsNormalizedItem = {
 	actions?: StatsItemAction[];
 	actionMenu?: number;
 	[ key: string ]: unknown;
+};
+
+export type StatsNormalizedItem = {
+	id?: string | number;
+	label: unknown;
+	value: number;
+	children?: StatsNormalizedItem[] | null;
+	meta?: StatsNormalizedItemMeta;
 };
 
 export type StatsNormalizedReport = {
@@ -139,12 +143,14 @@ export function sanitizeStatsTopPostsResponse(
 			id: item.id as string | number | undefined,
 			label: item.title,
 			value: safeParseFloat( item.views ),
-			link: typeof item.href === 'string' ? item.href : null,
-			page: item.id ? `/stats/post/${ item.id }` : null,
-			public: item.public,
-			type: item.type,
-			actions: item.href ? [ { type: 'link', data: item.href } ] : [],
 			children: null,
+			meta: {
+				link: typeof item.href === 'string' ? item.href : null,
+				page: item.id ? `/stats/post/${ item.id }` : null,
+				public: item.public,
+				type: item.type,
+				actions: item.href ? [ { type: 'link', data: item.href } ] : [],
+			},
 		} ) ),
 	};
 }
@@ -159,10 +165,12 @@ export function sanitizeStatsReferrersResponse(
 	const parse = ( item: StatsRecord ): StatsNormalizedItem => ( {
 		label: item.name ?? item.group ?? '',
 		value: safeParseFloat( item.views ?? item.total ),
-		link: typeof item.url === 'string' ? item.url : null,
-		icon: typeof item.icon === 'string' ? item.icon : null,
-		labelIcon: item.results || item.children ? null : 'external',
 		children: mapNestedItems( getStatsArray( item.results ?? item.children ), parse ),
+		meta: {
+			link: typeof item.url === 'string' ? item.url : null,
+			icon: typeof item.icon === 'string' ? item.icon : null,
+			labelIcon: item.results || item.children ? null : 'external',
+		},
 	} );
 
 	return {
@@ -177,8 +185,11 @@ export function sanitizeStatsReferrersResponse(
 
 			return {
 				...normalized,
-				actions: canSpam ? [ { type: 'spam', data: { domain } } ] : [],
-				actionMenu: canSpam ? 1 : 0,
+				meta: {
+					...normalized.meta,
+					actions: canSpam ? [ { type: 'spam', data: { domain } } ] : [],
+					actionMenu: canSpam ? 1 : 0,
+				},
 			};
 		} ),
 	};
@@ -194,19 +205,23 @@ export function sanitizeStatsClicksResponse(
 	const parse = ( item: StatsRecord ): StatsNormalizedItem => ( {
 		label: item.name ?? '',
 		value: safeParseFloat( item.views ),
-		link: typeof item.url === 'string' ? item.url : null,
-		icon: typeof item.icon === 'string' ? item.icon : null,
-		labelIcon: getStatsArray( item.children ).length ? null : 'external',
 		children: mapNestedItems( getStatsArray( item.children ), child => ( {
 			label:
 				typeof child.name === 'string' && typeof item.name === 'string'
 					? child.name.split( item.name ).join( '' ) || '/'
 					: '/',
 			value: safeParseFloat( child.views ),
-			link: typeof child.url === 'string' ? child.url : null,
-			labelIcon: 'external',
 			children: null,
+			meta: {
+				link: typeof child.url === 'string' ? child.url : null,
+				labelIcon: 'external',
+			},
 		} ) ),
+		meta: {
+			link: typeof item.url === 'string' ? item.url : null,
+			icon: typeof item.icon === 'string' ? item.icon : null,
+			labelIcon: getStatsArray( item.children ).length ? null : 'external',
+		},
 	} );
 
 	return {
@@ -231,8 +246,10 @@ export function sanitizeStatsSearchTermsResponse(
 		data: terms.map( item => ( {
 			label: item.term,
 			value: safeParseFloat( item.views ),
-			className: 'user-selectable',
 			children: null,
+			meta: {
+				className: 'user-selectable',
+			},
 		} ) ),
 	};
 }
@@ -250,12 +267,14 @@ export function sanitizeStatsFileDownloadsResponse(
 		} ),
 		data: files.map( item => ( {
 			label: item.relative_url,
-			shortLabel: typeof item.filename === 'string' ? item.filename : undefined,
 			value: safeParseFloat( item.downloads ),
-			link: typeof item.download_url === 'string' ? item.download_url : undefined,
-			linkTitle: item.relative_url,
-			labelIcon: 'external',
 			children: null,
+			meta: {
+				shortLabel: typeof item.filename === 'string' ? item.filename : undefined,
+				link: typeof item.download_url === 'string' ? item.download_url : undefined,
+				linkTitle: item.relative_url,
+				labelIcon: 'external',
+			},
 		} ) ),
 	};
 }
@@ -274,17 +293,21 @@ export function sanitizeStatsTopAuthorsResponse(
 		data: authors.map( item => ( {
 			label: item.name || 'Untracked Authors',
 			value: safeParseFloat( item.views ),
-			icon: typeof item.avatar === 'string' ? item.avatar : null,
-			iconClassName: 'avatar-user',
-			className: 'module-content-list-item-large',
 			children: mapNestedItems( getStatsArray( item.posts ), post => ( {
 				id: post.id as string | number | undefined,
 				label: post.title,
 				value: safeParseFloat( post.views ),
-				link: typeof post.url === 'string' ? post.url : null,
-				page: post.id ? `/stats/post/${ post.id }` : null,
 				children: null,
+				meta: {
+					link: typeof post.url === 'string' ? post.url : null,
+					page: post.id ? `/stats/post/${ post.id }` : null,
+				},
 			} ) ),
+			meta: {
+				icon: typeof item.avatar === 'string' ? item.avatar : null,
+				iconClassName: 'avatar-user',
+				className: 'module-content-list-item-large',
+			},
 		} ) ),
 	};
 }
@@ -315,11 +338,13 @@ export function sanitizeStatsLocationsResponse(
 			return {
 				label: typeof label === 'string' ? label.replace( /’/g, "'" ) : label,
 				value: safeParseFloat( item.views ),
-				countryCode: typeof item.country_code === 'string' ? item.country_code : undefined,
-				countryFull: typeof country.country_full === 'string' ? country.country_full : undefined,
-				region: typeof country.map_region === 'string' ? country.map_region : undefined,
-				coordinates: item.coordinates,
 				children: null,
+				meta: {
+					countryCode: typeof item.country_code === 'string' ? item.country_code : undefined,
+					countryFull: typeof country.country_full === 'string' ? country.country_full : undefined,
+					region: typeof country.map_region === 'string' ? country.map_region : undefined,
+					coordinates: item.coordinates,
+				},
 			};
 		} ),
 	};
@@ -347,11 +372,13 @@ export function sanitizeStatsVideoPlaysResponse(
 			id: item.post_id as string | number | undefined,
 			label: item.title,
 			value: safeParseFloat( item.views ?? item.plays ),
-			link: typeof item.url === 'string' ? item.url : null,
-			impressions: safeParseFloat( item.impressions ),
-			watch_time: safeParseFloat( item.watch_time ),
-			retention_rate: safeParseFloat( item.retention_rate ),
 			children: null,
+			meta: {
+				link: typeof item.url === 'string' ? item.url : null,
+				impressions: safeParseFloat( item.impressions ),
+				watch_time: safeParseFloat( item.watch_time ),
+				retention_rate: safeParseFloat( item.retention_rate ),
+			},
 		} ) ),
 	};
 }

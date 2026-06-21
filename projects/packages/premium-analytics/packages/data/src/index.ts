@@ -47,7 +47,11 @@ export type {
 	StatsProxyQueryParams,
 	StatsProxyVersion,
 } from './api';
-export type { StatsNormalizedItem, StatsNormalizedReport } from './processing/stats';
+export type {
+	StatsNormalizedItem,
+	StatsNormalizedItemMeta,
+	StatsNormalizedReport,
+} from './processing/stats';
 export {
 	getStatsPeriodFromInterval,
 	reportParamsToStatsQueryParams,
