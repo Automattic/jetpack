@@ -40,6 +40,7 @@ export const CATEGORY_CARDS_AND_MODULES: {
 			'comments',
 			'copy-post',
 			'likes',
+			'podcast',
 			'related-posts',
 			'seo-tools',
 			'sharedaddy',

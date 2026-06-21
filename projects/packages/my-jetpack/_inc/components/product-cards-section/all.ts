@@ -43,5 +43,7 @@ export const JetpackModuleToProductCard: {
 	// Features:
 	newsletter: NewsletterCard,
 	'related-posts': RelatedPostsCard,
+	// Shown only as a module row under Growth; no product card.
+	podcast: null,
 	'site-accelerator': SiteAcceleratorCard,
 };

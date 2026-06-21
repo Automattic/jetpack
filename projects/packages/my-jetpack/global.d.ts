@@ -43,6 +43,7 @@ type JetpackModule =
 	| 'newsletter'
 	| 'related-posts'
 	| 'jetpack-forms'
+	| 'podcast'
 	| 'brute-force';
 
 type JetpackModuleWithCard =

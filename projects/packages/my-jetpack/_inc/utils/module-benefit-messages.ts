@@ -87,6 +87,10 @@ function getModuleBenefitMessages(): Record< JetpackModuleSlug, string > {
 			'Your site now loads images faster with automatic resizing from our global CDN.',
 			'jetpack-my-jetpack'
 		),
+		podcast: __(
+			'You can now publish, manage, and grow your podcast right from your site.',
+			'jetpack-my-jetpack'
+		),
 		'post-by-email': __(
 			'You can now publish blog posts by sending an email.',
 			'jetpack-my-jetpack'
