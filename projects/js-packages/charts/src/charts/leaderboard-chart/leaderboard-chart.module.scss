@@ -45,6 +45,9 @@
 	.bar {
 		height: 100%;
 		min-height: 6px;
+		// Keeps a sliver of bar visible for tiny shares, and stops the interactive
+		// row's fixed-pixel hover inset from collapsing a narrow bar to nothing.
+		min-width: 2px;
 
 		border-radius: var(--a8c--charts--leaderboard--bar--border-radius, 9999px);
 		z-index: -1; /* places it behind the label */
