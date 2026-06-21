@@ -43,3 +43,12 @@ export { fetchReportBookings } from './report-bookings-fetch';
 export { fetchReportSessionsByDevice } from './report-sessions-by-device-fetch';
 export { exportReport } from './report-export-fetch';
 export type { ExportReportParams, ExportReportResponse } from './report-export-fetch';
+export {
+	fetchStatsProxy,
+	getStatsProxyPath,
+	type StatsProxyFetchParams,
+	type StatsProxyMethod,
+	type StatsProxyParams,
+	type StatsProxyQueryParams,
+	type StatsProxyVersion,
+} from './stats-proxy-fetch';
