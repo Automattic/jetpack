@@ -220,10 +220,7 @@ class Jetpack_Sync_WooCommerce_Test extends Jetpack_Sync_TestBase {
 
 	public function test_new_order_filter_with_zero_total_syncs_id_only() {
 		// An order with no items has a total of 0; even when paid, no order-total payload is appended.
-		$order = new WC_Order();
-		$order->calculate_totals();
-		$order->set_status( 'completed' );
-		$order->save();
+		$order = $this->createOrderWithZeroTotal( 'completed' );
 
 		$this->assertSame( 0.0, (float) $order->get_total() );
 
@@ -254,9 +251,7 @@ class Jetpack_Sync_WooCommerce_Test extends Jetpack_Sync_TestBase {
 
 	public function test_status_changed_filter_with_zero_total_syncs_without_total() {
 		// An order with no items has a total of 0, so the paid transition appends no order-total payload.
-		$order = new WC_Order();
-		$order->calculate_totals();
-		$order->save();
+		$order = $this->createOrderWithZeroTotal();
 
 		$this->assertSame( 0.0, (float) $order->get_total() );
 
@@ -680,6 +675,25 @@ class Jetpack_Sync_WooCommerce_Test extends Jetpack_Sync_TestBase {
 		$product = WC_Helper_Product::create_simple_product();
 		$order   = new WC_Order();
 		$order->add_product( $product, $quantity );
+		$order->calculate_totals();
+		$order->save();
+
+		return $order;
+	}
+
+	/**
+	 * Create an order with no line items, so its total is 0.
+	 *
+	 * The companion to createOrderWithPricedItem() for tests that exercise the zero-total guard.
+	 *
+	 * @param string $status Optional order status to set (e.g. 'completed' to make it paid).
+	 * @return WC_Order Saved order with a total of 0.
+	 */
+	private function createOrderWithZeroTotal( $status = '' ) {
+		$order = new WC_Order();
+		if ( '' !== $status ) {
+			$order->set_status( $status );
+		}
 		$order->calculate_totals();
 		$order->save();
 
