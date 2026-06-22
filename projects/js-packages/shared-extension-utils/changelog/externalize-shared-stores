@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Move the WordPress.com plans and Jetpack modules data stores to the new jetpack-shared-stores package, re-exporting them for backward compatibility.

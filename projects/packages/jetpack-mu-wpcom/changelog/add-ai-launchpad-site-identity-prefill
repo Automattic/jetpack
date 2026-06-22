@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+AI Launchpad: pre-fill the wizard Name and Brief description from the site's title and tagline, and save them back to the site on completion.

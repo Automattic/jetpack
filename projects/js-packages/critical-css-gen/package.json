@@ -42,9 +42,9 @@
 	},
 	"devDependencies": {
 		"@automattic/jetpack-webpack-config": "workspace:*",
-		"@babel/core": "7.29.6",
-		"@babel/preset-env": "7.29.2",
-		"@babel/preset-typescript": "7.28.5",
+		"@babel/core": "7.29.7",
+		"@babel/preset-env": "7.29.7",
+		"@babel/preset-typescript": "7.29.7",
 		"@types/clean-css": "4.2.11",
 		"@types/css-tree": "2.3.11",
 		"@types/node": "^24.12.0",

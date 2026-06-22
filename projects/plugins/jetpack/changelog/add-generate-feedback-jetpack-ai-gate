@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+Jetpack AI Sidebar: Gate the Generate Feedback suggestion behind the preview feature flag.

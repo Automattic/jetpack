@@ -40,7 +40,7 @@ export function useAttributesWithSearchFallback(
 	try {
 		// eslint-disable-next-line react-hooks/rules-of-hooks
 		search = useSearch( {
-			from: '/wc-analytics/dashboard',
+			from: '/',
 		} );
 	} catch {
 		/*

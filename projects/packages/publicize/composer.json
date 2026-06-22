@@ -10,6 +10,7 @@
 		"automattic/jetpack-autoloader": "@dev",
 		"automattic/jetpack-config": "@dev",
 		"automattic/jetpack-assets": "@dev",
+		"automattic/jetpack-image-cdn": "@dev",
 		"automattic/jetpack-redirect": "@dev",
 		"automattic/jetpack-plans": "@dev",
 		"automattic/jetpack-post-media": "@dev",

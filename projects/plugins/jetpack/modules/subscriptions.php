@@ -977,21 +977,21 @@ class Jetpack_Subscriptions {
 	}
 
 	/**
-	 * Checks if the current user can publish posts.
+	 * Checks if the current user can edit posts.
 	 *
 	 * @return bool
 	 */
 	public function first_published_status_meta_auth_callback() {
 		/**
-		 * Filter the capability to view if a post was ever published in the Subscription Module.
+		 * Filter the capability required to edit the "was ever published" post meta.
 		 *
 		 * @module subscriptions
 		 *
 		 * @since 13.4
 		 *
-		 * @param string $capability User capability needed to view if a post was ever published. Default to publish_posts.
+		 * @param string $capability User capability needed to edit the "was ever published" meta. Default to edit_posts.
 		 */
-		$capability = apply_filters( 'jetpack_subscriptions_post_was_ever_published_capability', 'publish_posts' );
+		$capability = apply_filters( 'jetpack_subscriptions_post_was_ever_published_capability', 'edit_posts' );
 		if ( current_user_can( $capability ) ) {
 			return true;
 		}
@@ -1030,6 +1030,36 @@ class Jetpack_Subscriptions {
 	 */
 	public function add_subscribers_menu() {
 		/*
+		 * Once the Newsletter modernization filter is on, the unified Newsletter
+		 * page owns the Subscribers tab and this standalone Calypso shortcut is
+		 * retired. In its place, a transitional announcement page tells people
+		 * where subscriber management moved and lets them remove the menu item.
+		 *
+		 * This is evaluated first — before the WoA/Simple and connection guards
+		 * below — and returns, so the legacy Calypso shortcut is never added once
+		 * the filter is on.
+		 *
+		 * The announcement page itself is registered here only on self-hosted
+		 * Jetpack. On WordPress.com (Simple and WoA) jetpack-mu-wpcom's
+		 * wpcom-admin-menu owns the Subscribers entry and registers the
+		 * announcement page there; doing it here as well would duplicate the menu
+		 * (and double the page-view tracking) on Atomic, where both run.
+		 *
+		 * Referenced as a string literal (mirrors Newsletter\Settings::MODERNIZATION_FILTER)
+		 * to keep this bootstrap path safe if the packaged Newsletter Settings class does
+		 * not expose the constant yet.
+		 */
+		if ( apply_filters( 'rsm_jetpack_ui_modernization_newsletter', false ) ) {
+			if (
+				! ( new Host() )->is_wpcom_platform()
+				&& class_exists( '\Automattic\Jetpack\Newsletter\Subscribers_Announcement' )
+			) {
+				\Automattic\Jetpack\Newsletter\Subscribers_Announcement::add_menu();
+			}
+			return;
+		}
+
+		/*
 		 * Do not display any menu on WoA and WordPress.com Simple sites (unless Classic wp-admin is enabled).
 		 * They already get a menu item under Users via nav-unification.
 		 */
@@ -1047,26 +1077,6 @@ class Jetpack_Subscriptions {
 			$status->is_offline_mode()
 			|| ! ( new Connection_Manager( 'jetpack' ) )->is_user_connected()
 		) {
-			return;
-		}
-
-		/*
-		 * Once the Newsletter modernization filter is on, the unified Newsletter
-		 * page owns the Subscribers tab and this standalone Calypso shortcut is
-		 * retired. In its place, a transitional announcement page tells people
-		 * where subscriber management moved and lets them remove the menu item.
-		 * This takes precedence over the subscriber-management filter below,
-		 * mirroring the pre-announcement behavior where the modernization
-		 * filter was checked first.
-		 *
-		 * Referenced as a string literal (mirrors Newsletter\Settings::MODERNIZATION_FILTER)
-		 * to keep this bootstrap path safe if the packaged Newsletter Settings class does
-		 * not expose the constant yet.
-		 */
-		if ( apply_filters( 'rsm_jetpack_ui_modernization_newsletter', false ) ) {
-			if ( class_exists( '\Automattic\Jetpack\Newsletter\Subscribers_Announcement' ) ) {
-				\Automattic\Jetpack\Newsletter\Subscribers_Announcement::add_menu();
-			}
 			return;
 		}
 

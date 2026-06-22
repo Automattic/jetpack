@@ -74,14 +74,16 @@
 	flex-shrink: 0;
 }
 
-// "Processing" placeholder shown in place of the poster <img> while
-// the VideoPress backend is still transcoding the upload. Shares the
-// .vp-video-details__thumbnail class for size and border-radius, plus
-// this modifier for the centered text + neutral background.
+// "Processing" badge shown in place of the poster <img> while the
+// VideoPress backend is still transcoding the upload. With no poster to
+// size it, the box hugs its label, so it needs its own padding to read as
+// a tidy pill instead of text pressed against the neutral background.
+// (Inherits the 4px border-radius from .vp-video-details__thumbnail.)
 .vp-video-details__thumbnail-processing {
 	display: flex;
 	align-items: center;
 	justify-content: center;
+	padding: 4px 12px;
 	background: #f0f0f0;
 	color: #1e1e1e;
 }

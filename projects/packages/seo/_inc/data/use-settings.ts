@@ -1,34 +1,16 @@
-import { getScriptData } from '@automattic/jetpack-script-data';
 import apiFetch from '@wordpress/api-fetch';
-import { useDispatch } from '@wordpress/data';
+import { select, useDispatch } from '@wordpress/data';
 import { useCallback, useEffect, useMemo, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { store as noticesStore } from '@wordpress/notices';
 import { buildCorePayload, buildJetpackPayload } from './build-payload';
+import { settingsStore } from './settings-store';
 import type { SettingsResponse, VerificationKey } from './settings-types';
 
 // Single snackbar id reused across a save so "Updating settings…" is replaced
 // in place by "Settings saved." (or an error) — mirrors the Jetpack → Settings
 // page's two-stage toast.
 const SAVE_NOTICE_ID = 'jetpack-seo-settings-save';
-
-type SeoScriptData = {
-	seo?: {
-		settings?: SettingsResponse;
-	};
-};
-
-/**
- * Read the editable Settings state bootstrapped onto
- * `window.JetpackScriptData.seo.settings` by the server. Synchronous — present
- * on first paint, no request. Returns `null` if the bootstrap is missing.
- *
- * @return The settings, or `null` when unavailable.
- */
-export function getSettings(): SettingsResponse | null {
-	const scriptData = getScriptData() as SeoScriptData | undefined;
-	return scriptData?.seo?.settings ?? null;
-}
 
 export interface SettingsForm {
 	local: SettingsResponse | null;
@@ -49,15 +31,21 @@ export interface SettingsForm {
  * and the sitemaps module is never re-toggled needlessly), surfacing a single
  * "Updating settings…"→"Settings saved." snackbar.
  *
- * Lives above the tab panels (in the page root) so state survives tab switches.
+ * The Settings tab is its own route, so this controller remounts on every tab
+ * switch. State is seeded from (and written back to) [settings-store] rather
+ * than the one-time page bootstrap, so a save persists across route switches
+ * without a reload.
  *
  * @return The settings form controller.
  */
 export function useSettingsForm(): SettingsForm {
-	const initial = useMemo( () => getSettings(), [] );
+	// Seed from the store (latest-saved snapshot), not the one-time bootstrap, so
+	// returning to the tab after a save shows the saved values.
+	const initial = useMemo( () => select( settingsStore ).getSettings(), [] );
 	const [ local, setLocal ] = useState< SettingsResponse | null >( initial );
 	const [ isSaving, setIsSaving ] = useState( false );
 	const { createInfoNotice, createSuccessNotice, createErrorNotice } = useDispatch( noticesStore );
+	const { setSettings } = useDispatch( settingsStore );
 
 	// Refs so `commit()` reads the freshest values without stale closures and
 	// without re-creating the callback on every keystroke.
@@ -98,6 +86,8 @@ export function useSettingsForm(): SettingsForm {
 			Promise.all( requests )
 				.then( () => {
 					baselineRef.current = values;
+					// Persist the saved snapshot so a return to the tab re-seeds from it.
+					setSettings( values );
 					createSuccessNotice( __( 'Settings saved.', 'jetpack-seo' ), {
 						id: SAVE_NOTICE_ID,
 						type: 'snackbar',
@@ -111,7 +101,7 @@ export function useSettingsForm(): SettingsForm {
 				} )
 				.finally( () => setIsSaving( false ) );
 		},
-		[ createInfoNotice, createSuccessNotice, createErrorNotice ]
+		[ createInfoNotice, createSuccessNotice, createErrorNotice, setSettings ]
 	);
 
 	const setField = useCallback(

@@ -8,7 +8,7 @@
 	"wpScriptModuleExports": "./build-module/index.mjs",
 	"dependencies": {
 		"@automattic/jetpack-script-data": "workspace:*",
-		"@wordpress/api-fetch": "7.48.0",
+		"@wordpress/api-fetch": "7.48.1",
 		"@wordpress/i18n": "^6.9.0",
 		"react": "18.3.1"
 	},

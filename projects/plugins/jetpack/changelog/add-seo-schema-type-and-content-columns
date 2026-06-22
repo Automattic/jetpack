@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+SEO: add a per-post schema type (jetpack_seo_schema_type meta + a block-editor Schema type control) and factual SEO columns (schema, meta description, search visibility) on post-list tables.

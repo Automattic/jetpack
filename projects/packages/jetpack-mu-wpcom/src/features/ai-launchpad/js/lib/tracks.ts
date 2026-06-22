@@ -1,0 +1,68 @@
+import type { TailorSource, TrackEventProps } from './types.ts';
+
+declare global {
+	interface Window {
+		_tkq: Array< [ 'recordEvent', string, TrackEventProps ] >;
+	}
+}
+
+/**
+ * Records a Tracks event with `launchpad_variant: 'ai'` baked in, so call sites
+ * can't forget it. Mirrors the `_tkq` recording pattern already used elsewhere
+ * in jetpack-mu-wpcom (jetpack-global-styles/customizer-fonts), which is what
+ * `@automattic/jetpack-analytics`'s `tracks.recordEvent` pushes under the hood.
+ *
+ * @param eventName - The Tracks event name, already feature-prefixed.
+ * @param props     - Event properties. No PII: task IDs are fine, free text is not.
+ */
+function record( eventName: string, props: TrackEventProps = {} ): void {
+	window._tkq = window._tkq || [];
+	window._tkq.push( [ 'recordEvent', eventName, { ...props, launchpad_variant: 'ai' } ] );
+}
+
+/** Records the page-view event. */
+export function trackViewed(): void {
+	record( 'jetpack_ai_launchpad_viewed' );
+}
+
+/** Records the wizard-completed event. */
+export function trackWizardCompleted(): void {
+	record( 'jetpack_ai_launchpad_wizard_completed' );
+}
+
+/**
+ * Records the AI-response-received event.
+ *
+ * @param props             - The event properties.
+ * @param props.duration_ms - How long the AI response took, in milliseconds.
+ * @param props.source      - Where the tailored output came from.
+ */
+export function trackAiResponseReceived( props: {
+	duration_ms: number;
+	source: TailorSource;
+} ): void {
+	record( 'jetpack_ai_launchpad_ai_response_received', props );
+}
+
+/**
+ * Records the task-clicked event.
+ *
+ * @param props         - The event properties.
+ * @param props.task_id - The id of the clicked task.
+ */
+export function trackTaskClicked( props: { task_id: string } ): void {
+	record( 'jetpack_ai_launchpad_task_clicked', props );
+}
+
+/**
+ * Records the launched event (the project's headline "% of new users who
+ * launch" KPI).
+ *
+ * Intentionally unwired in the MVP: site launch completes server-side via the
+ * Launchpad listeners — often while this page isn't open — so there is no
+ * reliable client-side trigger here. Launch attribution is wired by the
+ * product-analytics funnel instrumentation (DOTOBRD-473).
+ */
+export function trackLaunched(): void {
+	record( 'jetpack_ai_launchpad_launched' );
+}

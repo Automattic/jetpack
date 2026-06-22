@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "9afaab222d7859aedc0fdf26ce8fa966",
+    "content-hash": "26a28963f05fd6563512fc376bb7fced",
     "packages": [
         {
             "name": "automattic/jetpack-a8c-mc-stats",
@@ -550,6 +550,50 @@
             }
         },
         {
+            "name": "automattic/jetpack-cookie-consent",
+            "version": "dev-trunk",
+            "dist": {
+                "type": "path",
+                "url": "../../packages/cookie-consent",
+                "reference": "ce46d635c3d3a1d2fb704440093bd52e6347cf0a"
+            },
+            "require": {
+                "php": ">=7.2"
+            },
+            "type": "jetpack-library",
+            "extra": {
+                "autotagger": true,
+                "mirror-repo": "Automattic/jetpack-cookie-consent",
+                "textdomain": "jetpack-cookie-consent",
+                "changelogger": {
+                    "link-template": "https://github.com/Automattic/jetpack-cookie-consent/compare/${old}...${new}"
+                },
+                "branch-alias": {
+                    "dev-trunk": "0.1.x-dev"
+                }
+            },
+            "autoload": {
+                "classmap": [
+                    "src/"
+                ]
+            },
+            "scripts": {
+                "build-development": [
+                    "pnpm run build"
+                ],
+                "build-production": [
+                    "pnpm run build-production"
+                ]
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "description": "GDPR cookie-consent banner, CCPA opt-out, and consent logging for WordPress.",
+            "transport-options": {
+                "relative": true
+            }
+        },
+        {
             "name": "automattic/jetpack-ip",
             "version": "dev-trunk",
             "dist": {
@@ -668,9 +712,10 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/premium-analytics",
-                "reference": "d5a6dd97276af48fcf46746f0ba48355bbc02838"
+                "reference": "12ccdcdbfa9e7c81d5a1b72d5b0ce714d8939df0"
             },
             "require": {
+                "automattic/jetpack-assets": "@dev",
                 "automattic/jetpack-config": "@dev",
                 "automattic/jetpack-connection": "@dev",
                 "automattic/jetpack-stats": "@dev",
@@ -2915,6 +2960,7 @@
     "stability-flags": {
         "automattic/jetpack-autoloader": 20,
         "automattic/jetpack-composer-plugin": 20,
+        "automattic/jetpack-cookie-consent": 20,
         "automattic/jetpack-premium-analytics": 20,
         "automattic/phpunit-select-config": 20
     },

@@ -7,7 +7,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 type AnyObject = Record< string, unknown >;
 
 export type UseStagedSearchOptions< TFrom extends string > = {
-	from: TFrom; // e.g., '/wc-analytics/dashboard',
+	from: TFrom; // e.g., '/',
 
 	/**
 	 * If provided, stage() will schedule an automatic debounced commit

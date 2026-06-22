@@ -393,6 +393,15 @@ export const trafficSourcesData: LeaderboardEntry[] = [
 		previousShare: 33,
 		delta: 4.2,
 	},
+	{
+		id: 'referral',
+		label: 'Referral',
+		currentValue: 180,
+		previousValue: 150,
+		currentShare: 4,
+		previousShare: 3,
+		delta: 20,
+	},
 ];
 
 /**

@@ -114,7 +114,7 @@ const wcOnlyBlocks = new Set(
 // already carries them — but with no `icon` field. Hooking
 // `blocks.registerBlockType` is the documented place to mutate block
 // settings before they land in the registry; we walk the variations
-// array and stamp the matching branded glyph from
+// array and stamp the matching glyph from
 // `FILTER_CHECKBOX_VARIATION_ICONS`. Variations without a mapped icon
 // (e.g. a forward-compat one added later) fall through and inherit the
 // parent block's `formatListBullets` glyph — the same fallback Gutenberg

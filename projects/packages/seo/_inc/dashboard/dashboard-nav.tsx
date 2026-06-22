@@ -3,13 +3,14 @@ import { __ } from '@wordpress/i18n';
 import { useNavigate } from '@wordpress/route';
 import { Tabs } from '@wordpress/ui';
 
-export type SeoTab = 'overview' | 'settings' | 'ai';
+export type SeoTab = 'overview' | 'settings' | 'content' | 'ai';
 
 // Each tab is its own wp-build route; selecting one navigates there. Overview is
 // the default route, so it lives at the bare page URL (`/`).
 const ROUTE_BY_TAB: Record< SeoTab, string > = {
 	overview: '/',
 	settings: '/settings',
+	content: '/content',
 	ai: '/ai',
 };
 
@@ -28,7 +29,7 @@ const DashboardNav = ( { active }: { active: SeoTab } ) => {
 
 	const onTabChange = useCallback(
 		( next: string | null ) => {
-			if ( next === 'overview' || next === 'settings' || next === 'ai' ) {
+			if ( next === 'overview' || next === 'settings' || next === 'content' || next === 'ai' ) {
 				navigate( { href: ROUTE_BY_TAB[ next ] } );
 			}
 		},
@@ -41,6 +42,7 @@ const DashboardNav = ( { active }: { active: SeoTab } ) => {
 				<Tabs.List variant="minimal">
 					<Tabs.Tab value="overview">{ __( 'Overview', 'jetpack-seo' ) }</Tabs.Tab>
 					<Tabs.Tab value="settings">{ __( 'Settings', 'jetpack-seo' ) }</Tabs.Tab>
+					<Tabs.Tab value="content">{ __( 'Content', 'jetpack-seo' ) }</Tabs.Tab>
 					<Tabs.Tab value="ai">{ __( 'AI', 'jetpack-seo' ) }</Tabs.Tab>
 				</Tabs.List>
 			</div>

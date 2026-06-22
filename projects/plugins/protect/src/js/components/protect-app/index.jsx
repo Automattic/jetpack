@@ -101,22 +101,16 @@ const ProtectApp = () => {
 						<Tabs.Tab value="settings">{ __( 'Settings', 'jetpack-protect' ) }</Tabs.Tab>
 					</Tabs.List>
 				</div>
-				{ /* Each tab panel renders the shared react-router <Outlet />. @wordpress/ui
-				     Tabs.Panel (via @base-ui/react) defaults to keepMounted=false, but the
-				     outgoing panel stays mounted until its close transition completes — so
-				     during a tab/route transition two panels are briefly mounted and the
-				     matched route's content is duplicated transiently in the DOM. The
-				     duplicate lives in the inactive panel, which is `hidden` + `inert`.
-				     E2E assertions on this page therefore scope to the active panel by name. */ }
-				<Tabs.Panel value="scan">
-					<Outlet />
-				</Tabs.Panel>
-				<Tabs.Panel value="firewall">
-					<Outlet />
-				</Tabs.Panel>
-				<Tabs.Panel value="settings">
-					<Outlet />
-				</Tabs.Panel>
+				{ /* Every tab panel shares the same react-router <Outlet />, which always
+				     renders the active route. Tabs.Panel (via @base-ui/react) keeps the
+				     outgoing panel mounted until its close transition completes, so
+				     rendering the Outlet unconditionally would duplicate the active route's
+				     content into any panel still mounted during a tab transition (a
+				     transient, hidden + inert copy — including duplicate element ids). Gate
+				     each Outlet on the active tab so the matched route renders exactly once. */ }
+				<Tabs.Panel value="scan">{ activeTab === 'scan' && <Outlet /> }</Tabs.Panel>
+				<Tabs.Panel value="firewall">{ activeTab === 'firewall' && <Outlet /> }</Tabs.Panel>
+				<Tabs.Panel value="settings">{ activeTab === 'settings' && <Outlet /> }</Tabs.Panel>
 			</Tabs.Root>
 		</JetpackAdminPage>
 	);

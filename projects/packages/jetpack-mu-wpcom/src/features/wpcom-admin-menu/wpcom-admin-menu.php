@@ -391,13 +391,19 @@ function wpcom_add_jetpack_submenu() {
 	wpcom_hide_submenu_page( 'jetpack', esc_url( Redirect::get_url( 'jetpack-menu-jetpack-manage-subscribers', array( 'site' => $blog_id ) ) ) );
 
 	// Once the Newsletter modernization filter is on, the unified Newsletter
-	// page owns the Subscribers tab and this standalone submenu is retired.
-	// While the filter is off (the default) we keep the legacy Calypso
-	// "Subscribers" submenu. (The wp-admin subscriber-management variant was
-	// removed with the subscribers-dashboard package and isn't restored.)
-	// Referenced as a string literal (mirrors Newsletter\Settings::MODERNIZATION_FILTER):
-	// the newsletter package isn't a dependency of jetpack-mu-wpcom, and this runs
-	// unconditionally — ahead of the class_exists-guarded Settings use below.
+	// page owns the Subscribers tab and the legacy Calypso "Subscribers" submenu
+	// is retired, replaced by a transitional announcement page that points there.
+	// While the filter is off (the default) we keep the legacy Calypso submenu.
+	// (The wp-admin subscriber-management variant was removed with the
+	// subscribers-dashboard package and isn't restored.)
+	//
+	// On WordPress.com (Simple and WoA) this menu is the canonical owner of the
+	// Subscribers entry, so the announcement page is registered here for both
+	// platforms; the standalone plugin's subscriptions module defers to it on
+	// wpcom to avoid a duplicate. Referenced as a string literal (mirrors
+	// Newsletter\Settings::MODERNIZATION_FILTER): the newsletter package isn't a
+	// dependency of jetpack-mu-wpcom, and the filter runs unconditionally — ahead
+	// of the class_exists-guarded Subscribers_Announcement use.
 	if ( ! apply_filters( 'rsm_jetpack_ui_modernization_newsletter', false ) ) {
 		add_submenu_page(
 			'jetpack',
@@ -407,6 +413,9 @@ function wpcom_add_jetpack_submenu() {
 			'https://wordpress.com/subscribers/' . $domain,
 			null // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
 		);
+	} elseif ( class_exists( '\Automattic\Jetpack\Newsletter\Subscribers_Announcement' ) ) {
+		// @phan-suppress-next-line PhanUndeclaredClassMethod -- class_exists guarded above; provided by the sibling autoloader (bundled Jetpack on Simple, standalone plugin on Atomic).
+		\Automattic\Jetpack\Newsletter\Subscribers_Announcement::add_wp_admin_submenu();
 	}
 
 	Podcast_Admin_Page::add_wp_admin_submenu();

@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Only dequeue Help Center in the block editor when the full unified experience is active, so Help Center stays available in block-editor-only mode (e.g. ?flags=unified-big-sky)
