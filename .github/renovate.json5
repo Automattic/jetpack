@@ -146,6 +146,22 @@
 			// Teams using Build in their projects
 			additionalReviewers: [
 				'team:zap', // Forms
+				'team:red', // Premium Analytics
+				'team:ventures', // Premium Analytics
+			],
+		},
+
+		{
+			groupName: 'Widgets Dashboard',
+			matchPackageNames: [
+				'@wordpress/widget-dashboard',
+				'@wordpress/widget-primitives',
+				'@wordpress/grid',
+			],
+			separateMajorMinor: false,
+			additionalReviewers: [
+				'team:red', // Premium Analytics
+				'team:ventures', // Premium Analytics
 			],
 		},
 
