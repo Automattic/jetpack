@@ -624,6 +624,9 @@ class Connection_Health_Tests_Test extends TestCase {
 
 		$this->assertFalse( $result['pass'] );
 		$this->assertSame( 'https://example.com/reconnect', $result['action'] );
+		// WP.com's message is preserved and the status code is appended in a labeled form.
+		$this->assertStringContainsString( 'Invalid token.', $result['short_description'] );
+		$this->assertStringContainsString( '(status code: 200)', $result['short_description'] );
 	}
 
 	/**
@@ -636,7 +639,7 @@ class Connection_Health_Tests_Test extends TestCase {
 		$this->assertFalse( $result['pass'] );
 		// The message should not start with a stray colon when no message is present.
 		$this->assertStringStartsNotWith( ':', $result['short_description'] );
-		$this->assertStringContainsString( '500', $result['short_description'] );
+		$this->assertStringContainsString( '(status code: 500)', $result['short_description'] );
 	}
 
 	// -------------------------------------------------------------------------

@@ -498,12 +498,14 @@ class Connection_Health_Tests extends Connection_Health_Test_Base {
 		}
 
 		$message = isset( $result->message ) && '' !== $result->message
-			? $result->message . ': ' . $status_code
-			: sprintf(
-				/* translators: %s is the HTTP status code returned by WordPress.com. */
-				__( 'Connection test failed (status code: %s).', 'jetpack-connection' ),
-				$status_code
-			);
+			? $result->message
+			: __( 'Connection test failed.', 'jetpack-connection' );
+
+		$message .= ' ' . sprintf(
+			/* translators: %s is the HTTP status code returned by WordPress.com. */
+			__( '(status code: %s)', 'jetpack-connection' ),
+			$status_code
+		);
 
 		return self::connection_failing_test( $name, $message );
 	}
