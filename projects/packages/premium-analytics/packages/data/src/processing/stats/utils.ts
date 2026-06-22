@@ -15,7 +15,7 @@ import type {
 import type { StatsQueryParams } from '../../utils/stats-params';
 
 export function isStatsRecord( value: unknown ): value is StatsRecord {
-	return value && typeof value === 'object' && ! Array.isArray( value ) ? true : false;
+	return typeof value === 'object' && value !== null && ! Array.isArray( value );
 }
 
 export function coerceStatsRecord( value: unknown ): StatsRecord {
@@ -24,6 +24,13 @@ export function coerceStatsRecord( value: unknown ): StatsRecord {
 
 export function coerceStatsArray< T = StatsRecord >( value: unknown ): T[] {
 	return Array.isArray( value ) ? ( value as T[] ) : [];
+}
+
+function isStatsNumericSummaryValue( value: unknown ): boolean {
+	return (
+		typeof value === 'number' ||
+		( typeof value === 'string' && value.trim() !== '' && ! Number.isNaN( Number( value ) ) )
+	);
 }
 
 export function normalizeStatsSummary(
@@ -35,7 +42,7 @@ export function normalizeStatsSummary(
 			.filter( ( [ key ] ) => ! excludedKeys.includes( key ) )
 			.map( ( [ key, item ] ) => [
 				key,
-				key === 'date_start' || key === 'date_end' || typeof item === 'object'
+				key === 'date_start' || key === 'date_end' || ! isStatsNumericSummaryValue( item )
 					? item
 					: safeParseFloat( item ),
 			] )
@@ -56,6 +63,13 @@ export function getStatsResponsePeriod( response: unknown ): string | undefined 
 	return typeof period === 'string' ? period : undefined;
 }
 
+function getStatsResponseStartDate( response: unknown ): string | undefined {
+	const days = coerceStatsRecord( coerceStatsRecord( response ).days );
+	const dates = Object.keys( days ).filter( key => /^\d{4}-\d{2}-\d{2}$/.test( key ) );
+
+	return dates.sort()[ 0 ];
+}
+
 export function getStatsIntervalFields( date: string, period?: string ): StatsIntervalFields {
 	const { startDate, endDate } = getDateIntervalDateParts( date, period );
 
@@ -72,7 +86,10 @@ export function getStatsSummaryIntervalFields(
 ): Partial< StatsIntervalFields > {
 	const responseDate = getStatsResponseDate( response );
 	const startDate =
-		getDatePart( query?.start_date ) ?? getStatsEndDateParam( query ) ?? responseDate;
+		getDatePart( query?.start_date ) ??
+		getStatsResponseStartDate( response ) ??
+		getStatsEndDateParam( query ) ??
+		responseDate;
 	const endDate = getStatsEndDateParam( query ) ?? responseDate ?? getDatePart( query?.start_date );
 
 	return {
@@ -235,6 +252,7 @@ export function mapNestedItems< TItem >(
 }
 
 export function sanitizeStatsPassthroughResponse< T >( response: T ): T {
+	// Some stats proxy endpoints already return the shape their consumers need.
 	return response;
 }
 

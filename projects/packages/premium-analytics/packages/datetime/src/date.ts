@@ -39,9 +39,11 @@ export function formatDatePartWithTime(
 }
 
 /**
+ * Normalize period-specific interval labels to an interval start date part.
  *
- * @param date
- * @param period
+ * @param date   - Reporting interval label or date part.
+ * @param period - Reporting period.
+ * @return Interval start date part.
  */
 function getIntervalStartDatePart( date: string, period?: DateIntervalPeriod ): string {
 	const datePart = getDatePart( date ) ?? date;
@@ -58,8 +60,10 @@ function getIntervalStartDatePart( date: string, period?: DateIntervalPeriod ): 
 }
 
 /**
+ * Parse a calendar date part.
  *
- * @param datePart
+ * @param datePart - Date part in `YYYY-MM-DD` format.
+ * @return Parsed date, or null when invalid.
  */
 function parseDatePart( datePart: string ): Date | null {
 	const date = parse( datePart, DATE_PART_FORMAT, new Date( 0 ) );

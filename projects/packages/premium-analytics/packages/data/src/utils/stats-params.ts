@@ -16,6 +16,7 @@ type StatsQueryParamFields = {
 	num?: number;
 	max?: number;
 	summarize?: number | boolean;
+	complete_stats?: number | boolean;
 };
 
 export type StatsQueryParams = StatsProxyParams & StatsQueryParamFields;

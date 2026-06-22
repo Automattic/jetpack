@@ -31,6 +31,7 @@ export function sanitizeStatsVideoPlaysResponse(
 	query?: StatsQueryParams
 ): StatsNormalizedReport< StatsVideoPlaysItem > {
 	const payload = coerceStatsRecord( response );
+	// Complete stats expose richer rows under `data`; default video stats use `plays`.
 	const videoDataKeys = query?.complete_stats ? [ 'data', 'plays' ] : [ 'plays', 'data' ];
 	const parse = ( item: StatsRecord ): StatsVideoPlaysItem => ( {
 		id: item.post_id as string | number | undefined,

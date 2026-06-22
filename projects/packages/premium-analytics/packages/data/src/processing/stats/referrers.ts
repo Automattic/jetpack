@@ -39,6 +39,7 @@ export function sanitizeStatsReferrersResponse(
 		summary: normalizeStatsReportSummary( response, query, [ 'groups' ] ),
 		data: mapStatsReportDataPoints( response, query, [ 'groups' ], item => {
 			const results = coerceStatsArray< StatsRecord >( item.results );
+			// Single-result groups display as the result itself, matching the legacy Stats UI.
 			const normalized = parse( results.length === 1 ? results[ 0 ] : item );
 			const domain = item.name ?? item.group;
 			const canSpam = typeof domain === 'string' && domain.includes( '.' );
