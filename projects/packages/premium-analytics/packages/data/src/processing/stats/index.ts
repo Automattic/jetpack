@@ -14,15 +14,18 @@ export type StatsNormalizedItemBase< TChild = unknown > = {
 	children?: TChild[] | null;
 };
 
-export type StatsTopPostsItem = StatsNormalizedItemBase & {
+export interface StatsTopPostsItem extends StatsNormalizedItemBase< StatsTopPostsItem > {
 	id?: string | number;
 	views: number;
 	link: string | null;
 	page?: string | null;
 	public?: unknown;
 	type?: unknown;
+	date?: unknown;
+	status?: unknown;
+	video_play?: unknown;
 	actions?: StatsItemAction[];
-};
+}
 
 export interface StatsReferrersItem extends StatsNormalizedItemBase< StatsReferrersItem > {
 	views: number;
@@ -128,12 +131,19 @@ function getStatsArray< T = StatsRecord >( value: unknown ): T[] {
 	return Array.isArray( value ) ? ( value as T[] ) : [];
 }
 
-function normalizeStatsSummary( value: StatsRecord ): StatsNormalizedSummary {
+function normalizeStatsSummary(
+	value: StatsRecord,
+	excludedKeys: string[] = []
+): StatsNormalizedSummary {
 	return Object.fromEntries(
-		Object.entries( value ).map( ( [ key, item ] ) => [
-			key,
-			key === 'date_start' || key === 'date_end' ? item : safeParseFloat( item ),
-		] )
+		Object.entries( value )
+			.filter( ( [ key ] ) => ! excludedKeys.includes( key ) )
+			.map( ( [ key, item ] ) => [
+				key,
+				key === 'date_start' || key === 'date_end' || typeof item === 'object'
+					? item
+					: safeParseFloat( item ),
+			] )
 	);
 }
 
@@ -143,6 +153,16 @@ function getDatePart( value: unknown ): string | undefined {
 
 function getStatsEndDateParam( query?: StatsQueryParams ): string | undefined {
 	return getDatePart( query?.end_date ?? query?.date );
+}
+
+function getStatsResponseDate( response: unknown ): string | undefined {
+	return getDatePart( getStatsRecord( response ).date );
+}
+
+function getStatsResponsePeriod( response: unknown ): string | undefined {
+	const period = getStatsRecord( response ).period;
+
+	return typeof period === 'string' ? period : undefined;
 }
 
 function formatNormalizedDateTime( date: string, time: string ): string {
@@ -227,14 +247,34 @@ function getStatsIntervalFields( date: string, period?: string ): StatsIntervalF
 	};
 }
 
-function getStatsSummaryIntervalFields( query?: StatsQueryParams ): Partial< StatsIntervalFields > {
-	const startDate = getDatePart( query?.start_date ?? getStatsEndDateParam( query ) );
-	const endDate = getStatsEndDateParam( query ) ?? getDatePart( query?.start_date );
+function getStatsSummaryIntervalFields(
+	query?: StatsQueryParams,
+	response?: unknown
+): Partial< StatsIntervalFields > {
+	const responseDate = getStatsResponseDate( response );
+	const startDate =
+		getDatePart( query?.start_date ) ?? getStatsEndDateParam( query ) ?? responseDate;
+	const endDate = getStatsEndDateParam( query ) ?? responseDate ?? getDatePart( query?.start_date );
 
 	return {
 		...( startDate ? { date_start: formatNormalizedDateTime( startDate, '00:00:00' ) } : {} ),
 		...( endDate ? { date_end: formatNormalizedDateTime( endDate, '23:59:59' ) } : {} ),
 	};
+}
+
+function getStatsTopLevelDataDate(
+	response: unknown,
+	query?: StatsQueryParams
+): string | undefined {
+	return (
+		getStatsResponseDate( response ) ??
+		getStatsEndDateParam( query ) ??
+		getDatePart( query?.start_date )
+	);
+}
+
+function getStatsTopLevelPeriod( response: unknown, query?: StatsQueryParams ): string | undefined {
+	return query?.period ?? getStatsResponsePeriod( response );
 }
 
 function normalizeStatsReportSummary(
@@ -244,7 +284,7 @@ function normalizeStatsReportSummary(
 	return query?.summarize
 		? {
 				...normalizeStatsSummary( getStatsRecord( getStatsRecord( response ).summary ) ),
-				...getStatsSummaryIntervalFields( query ),
+				...getStatsSummaryIntervalFields( query, response ),
 		  }
 		: {};
 }
@@ -271,11 +311,24 @@ function getStatsBuckets( response: unknown, query: StatsQueryParams = {} ) {
 
 function createStatsDataPoint< TItem extends StatsNormalizedItem >(
 	date: string,
+	period: string | undefined,
+	items: TItem[]
+): StatsNormalizedDataPoint< TItem > {
+	return {
+		...getStatsIntervalFields( date, period ),
+		items,
+	};
+}
+
+function createStatsSummaryDataPoint< TItem extends StatsNormalizedItem >(
+	date: string,
+	response: unknown,
 	query: StatsQueryParams | undefined,
 	items: TItem[]
 ): StatsNormalizedDataPoint< TItem > {
 	return {
-		...getStatsIntervalFields( date, query?.period ),
+		...getStatsIntervalFields( date, getStatsTopLevelPeriod( response, query ) ),
+		...getStatsSummaryIntervalFields( query, response ),
 		items,
 	};
 }
@@ -287,7 +340,11 @@ function mapStatsDataPoints< TItem extends StatsNormalizedItem >(
 	mapper: ( item: StatsRecord ) => TItem
 ): Array< StatsNormalizedDataPoint< TItem > > {
 	return getStatsBuckets( response, query ).map( ( [ date, bucket ] ) =>
-		createStatsDataPoint( date, query, getStatsArray< StatsRecord >( bucket[ key ] ).map( mapper ) )
+		createStatsDataPoint(
+			date,
+			query?.period ?? getStatsResponsePeriod( response ),
+			getStatsArray< StatsRecord >( bucket[ key ] ).map( mapper )
+		)
 	);
 }
 
@@ -311,13 +368,66 @@ export function sanitizeStatsSiteResponse( response: unknown ) {
 }
 
 export function combineStatsNormalizedReports< TItem extends StatsNormalizedItem >(
-	summaryReport?: Pick< StatsNormalizedReport< TItem >, 'summary' >,
+	summaryReport?: Pick< StatsNormalizedReport< TItem >, 'summary' | 'data' >,
 	dataReport?: Pick< StatsNormalizedReport< TItem >, 'data' >
 ): StatsNormalizedReport< TItem > {
 	return {
 		summary: summaryReport?.summary ?? {},
-		data: dataReport?.data ?? [],
+		data: dataReport?.data ?? summaryReport?.data ?? [],
 	};
+}
+
+function getStatsTopPostLink( item: StatsRecord ): string | null {
+	if ( typeof item.href === 'string' ) {
+		return item.href;
+	}
+
+	if ( typeof item.link === 'string' ) {
+		return item.link;
+	}
+
+	return null;
+}
+
+function normalizeStatsTopPostItem( item: StatsRecord ): StatsTopPostsItem {
+	const link = getStatsTopPostLink( item );
+
+	return {
+		id: item.id as string | number | undefined,
+		label: item.title,
+		views: safeParseFloat( item.views ),
+		link,
+		page: item.id ? `/stats/post/${ item.id }` : null,
+		public: item.public,
+		type: item.type,
+		date: item.date,
+		status: item.status,
+		video_play: item.video_play,
+		actions: link ? [ { type: 'link', data: link } ] : [],
+		children: mapNestedItems( getStatsArray( item.children ), normalizeStatsTopPostItem ),
+	};
+}
+
+function normalizeStatsTopPostsData(
+	response: unknown,
+	query?: StatsQueryParams
+): Array< StatsNormalizedDataPoint< StatsTopPostsItem > > {
+	const summary = getStatsRecord( getStatsRecord( response ).summary );
+	const summaryPostviews = getStatsArray< StatsRecord >( summary.postviews );
+	const summaryDate = getStatsTopLevelDataDate( response, query );
+
+	if ( query?.summarize && summaryPostviews.length && summaryDate ) {
+		return [
+			createStatsSummaryDataPoint(
+				summaryDate,
+				response,
+				query,
+				summaryPostviews.map( normalizeStatsTopPostItem )
+			),
+		];
+	}
+
+	return mapStatsDataPoints( response, query, 'postviews', normalizeStatsTopPostItem );
 }
 
 export function sanitizeStatsTopPostsResponse(
@@ -325,18 +435,15 @@ export function sanitizeStatsTopPostsResponse(
 	query?: StatsQueryParams
 ): StatsNormalizedReport< StatsTopPostsItem > {
 	return {
-		summary: normalizeStatsReportSummary( response, query ),
-		data: mapStatsDataPoints( response, query, 'postviews', item => ( {
-			id: item.id as string | number | undefined,
-			label: item.title,
-			views: safeParseFloat( item.views ),
-			link: typeof item.href === 'string' ? item.href : null,
-			page: item.id ? `/stats/post/${ item.id }` : null,
-			public: item.public,
-			type: item.type,
-			actions: item.href ? [ { type: 'link', data: item.href } ] : [],
-			children: null,
-		} ) ),
+		summary: query?.summarize
+			? {
+					...normalizeStatsSummary( getStatsRecord( getStatsRecord( response ).summary ), [
+						'postviews',
+					] ),
+					...getStatsSummaryIntervalFields( query, response ),
+			  }
+			: {},
+		data: normalizeStatsTopPostsData( response, query ),
 	};
 }
 
@@ -474,7 +581,7 @@ export function sanitizeStatsLocationsResponse(
 
 			return createStatsDataPoint(
 				date,
-				query,
+				query?.period ?? getStatsResponsePeriod( response ),
 				filteredViews.map( item => {
 					const country = getStatsRecord(
 						typeof item.country_code === 'string' ? countryInfo[ item.country_code ] : undefined
@@ -510,7 +617,7 @@ export function sanitizeStatsVideoPlaysResponse(
 
 			return createStatsDataPoint(
 				date,
-				query,
+				query?.period ?? getStatsResponsePeriod( response ),
 				videoData.map( item => ( {
 					id: item.post_id as string | number | undefined,
 					label: item.title,

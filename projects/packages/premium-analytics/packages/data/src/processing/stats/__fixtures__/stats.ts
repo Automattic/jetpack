@@ -31,8 +31,43 @@ export const topPostsFixture = {
 };
 
 export const topPostsSummaryFixture = {
+	date: '2026-06-30',
+	period: 'day',
 	summary: {
+		postviews: [
+			{
+				id: 0,
+				href: null,
+				date: null,
+				title: 'Homepage (Latest posts)',
+				type: 'homepage',
+				status: null,
+				public: false,
+				views: 182,
+				children: [
+					{
+						title: 'Homepage child attachment',
+						link: 'https://example.com/attachment/',
+						views: 1,
+						type: 'attachment',
+					},
+				],
+				video_play: false,
+			},
+			{
+				id: 41,
+				href: 'https://example.com/hello/',
+				date: '2026-06-22 13:54:00',
+				title: 'Hello world',
+				type: 'post',
+				status: 'publish',
+				public: true,
+				views: 17,
+				video_play: false,
+			},
+		],
 		total_views: '312',
+		dropped_ids: [],
 	},
 };
 

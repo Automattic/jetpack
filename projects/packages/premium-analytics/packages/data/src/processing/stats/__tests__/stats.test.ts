@@ -19,21 +19,56 @@ import {
 } from '../__fixtures__/stats';
 
 describe( 'Stats normalizers', () => {
-	it( 'normalizes summarized top posts without by-date data', () => {
-		expect(
-			sanitizeStatsTopPostsResponse( topPostsSummaryFixture, {
-				period: 'day',
-				start_date: '2026-06-01',
-				end_date: '2026-06-30',
-				summarize: true,
-			} )
-		).toEqual( {
+	it( 'normalizes summarized top posts into range data', () => {
+		const result = sanitizeStatsTopPostsResponse( topPostsSummaryFixture, {
+			period: 'day',
+			start_date: '2026-06-01',
+			end_date: '2026-06-30',
+			summarize: true,
+		} );
+
+		expect( result ).toEqual( {
 			summary: {
 				total_views: 312,
+				dropped_ids: [],
 				date_start: '2026-06-01T00:00:00+00:00',
 				date_end: '2026-06-30T23:59:59+00:00',
 			},
-			data: [],
+			data: [
+				{
+					time_interval: '2026-06-30',
+					date_start: '2026-06-01T00:00:00+00:00',
+					date_end: '2026-06-30T23:59:59+00:00',
+					items: [
+						expect.objectContaining( {
+							id: 0,
+							label: 'Homepage (Latest posts)',
+							views: 182,
+							link: null,
+							public: false,
+							type: 'homepage',
+							status: null,
+							video_play: false,
+							children: [
+								expect.objectContaining( {
+									label: 'Homepage child attachment',
+									link: 'https://example.com/attachment/',
+									views: 1,
+									type: 'attachment',
+								} ),
+							],
+						} ),
+						expect.objectContaining( {
+							id: 41,
+							label: 'Hello world',
+							views: 17,
+							link: 'https://example.com/hello/',
+							status: 'publish',
+							video_play: false,
+						} ),
+					],
+				},
+			],
 		} );
 	} );
 
