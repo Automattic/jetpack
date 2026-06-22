@@ -85,14 +85,15 @@ class Video_Block_Email_Renderer {
 	 * @return string
 	 */
 	private static function render_core_video( $block_content, $parsed_block, $rendering_context ) {
-		$renderer_class = '\Automattic\WooCommerce\EmailEditor\Integrations\Core\Renderer\Blocks\Video';
-
-		if ( ! class_exists( $renderer_class ) ) {
+		if ( ! class_exists( '\Automattic\WooCommerce\EmailEditor\Integrations\Core\Renderer\Blocks\Video' ) ) {
 			return $block_content;
 		}
 
 		// @phan-suppress-next-line PhanUndeclaredClassMethod -- Optional WooCommerce dependency, checked with class_exists() above.
-		return ( new $renderer_class() )->render( $block_content, $parsed_block, $rendering_context );
+		$woo_video_renderer = new \Automattic\WooCommerce\EmailEditor\Integrations\Core\Renderer\Blocks\Video();
+
+		// @phan-suppress-next-line PhanUndeclaredClassMethod -- Optional WooCommerce dependency, checked with class_exists() above.
+		return $woo_video_renderer->render( $block_content, $parsed_block, $rendering_context );
 	}
 
 	/**
