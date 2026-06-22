@@ -17,6 +17,11 @@ describe( 'caption cue utilities', () => {
 		expect( normalizeCueTimestamp( '00:01:02,500' ) ).toBe( '00:01:02.500' );
 	} );
 
+	it( 'carries rounded milliseconds into the next second', () => {
+		expect( formatSecondsAsTimestamp( 1.9996 ) ).toBe( '00:00:02.000' );
+		expect( formatSecondsAsTimestamp( 3599.9996 ) ).toBe( '01:00:00.000' );
+	} );
+
 	it( 'extracts cues from caption cue blocks', () => {
 		expect(
 			captionBlocksToCues( [
