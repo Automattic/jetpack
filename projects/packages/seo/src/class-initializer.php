@@ -424,8 +424,11 @@ class Initializer {
 			return '';
 		}
 
+		// esc_url_raw (not esc_url): the value is transported via script data and
+		// rendered by React, so it must not be HTML-entity-encoded (e.g. the
+		// plain-permalink `?jetpack-sitemap=` form keeps its raw `&`).
 		// @phan-suppress-next-line PhanUndeclaredFunction -- jetpack_sitemap_uri() lives in plugins/jetpack and is guarded by function_exists.
-		return (string) jetpack_sitemap_uri( 'sitemap.xml' );
+		return esc_url_raw( (string) jetpack_sitemap_uri( 'sitemap.xml' ) );
 	}
 
 	/**
