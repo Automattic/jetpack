@@ -39,7 +39,7 @@ describe( 'Stats normalizers', () => {
 
 		expect( result ).toEqual( {
 			summary: {
-				total_views: 312,
+				total_views: 5411,
 				dropped_ids: [],
 				date_start: '2026-06-01T00:00:00+00:00',
 				date_end: '2026-06-30T23:59:59+00:00',
@@ -51,13 +51,13 @@ describe( 'Stats normalizers', () => {
 					date_end: '2026-06-30T23:59:59+00:00',
 					items: [
 						expect.objectContaining( {
-							id: 0,
-							label: 'Homepage (Latest posts)',
-							views: 182,
-							link: null,
-							public: false,
-							type: 'homepage',
-							status: null,
+							id: 265143,
+							label: 'Homepage',
+							views: 4148,
+							link: 'https://example.com/home-2/',
+							public: true,
+							type: 'page',
+							status: 'publish',
 							video_play: false,
 							children: [
 								expect.objectContaining( {
@@ -69,10 +69,10 @@ describe( 'Stats normalizers', () => {
 							],
 						} ),
 						expect.objectContaining( {
-							id: 41,
-							label: 'Hello world',
-							views: 17,
-							link: 'https://example.com/hello/',
+							id: 242307,
+							label: 'Jetpack Backup',
+							views: 1263,
+							link: 'https://example.com/upgrade/backup/',
 							status: 'publish',
 							video_play: false,
 						} ),
@@ -172,7 +172,7 @@ describe( 'Stats normalizers', () => {
 
 		expect( result ).toEqual( {
 			summary: {
-				total_views: 12,
+				total_views: 4786,
 				other_views: 0,
 				date_start: '2026-06-01T00:00:00+00:00',
 				date_end: '2026-06-30T23:59:59+00:00',
@@ -184,10 +184,46 @@ describe( 'Stats normalizers', () => {
 					date_end: '2026-06-30T23:59:59+00:00',
 					items: [
 						expect.objectContaining( {
-							label: 'example.com/path',
-							views: 12,
-							children: null,
-							actionMenu: 1,
+							label: 'Search Engines',
+							views: 4786,
+							icon: 'https://example.com/search-engine.png',
+							children: [
+								expect.objectContaining( {
+									label: 'Google Search',
+									views: 3924,
+									icon: 'https://example.com/google.png',
+									children: [
+										expect.objectContaining( {
+											label: 'google.com',
+											views: 3908,
+											link: 'http://www.google.com/',
+										} ),
+										expect.objectContaining( {
+											label: 'google.com.hk',
+											views: 5,
+											link: 'http://www.google.com.hk',
+										} ),
+									],
+								} ),
+								expect.objectContaining( {
+									label: 'Bing',
+									views: 542,
+									icon: 'https://example.com/bing.png',
+									children: [
+										expect.objectContaining( {
+											label: 'bing.com',
+											views: 523,
+											link: 'https://www.bing.com/',
+										} ),
+										expect.objectContaining( {
+											label: 'cn.bing.com',
+											views: 2,
+											link: 'https://cn.bing.com/',
+										} ),
+									],
+								} ),
+							],
+							actionMenu: 0,
 						} ),
 					],
 				},
@@ -204,7 +240,7 @@ describe( 'Stats normalizers', () => {
 		} );
 
 		expect( result.summary ).toEqual( {
-			total_clicks: 9,
+			total_clicks: 412,
 			other_clicks: 0,
 			date_start: '2026-06-01T00:00:00+00:00',
 			date_end: '2026-06-30T23:59:59+00:00',
@@ -214,10 +250,22 @@ describe( 'Stats normalizers', () => {
 				time_interval: '2026-06-30',
 				items: [
 					expect.objectContaining( {
-						label: 'example.com',
-						views: 9,
-						link: 'https://example.com/',
-						children: null,
+						label: 'wordpress.org',
+						views: 412,
+						link: null,
+						icon: 'https://example.com/blavatar.png',
+						children: [
+							expect.objectContaining( {
+								label: '/plugins/jetpack-search',
+								views: 100,
+								link: 'https://wordpress.org/plugins/jetpack-search',
+							} ),
+							expect.objectContaining( {
+								label: '/plugins/jetpack-boost/',
+								views: 32,
+								link: 'https://wordpress.org/plugins/jetpack-boost/',
+							} ),
+						],
 					} ),
 				],
 			} )
@@ -234,15 +282,15 @@ describe( 'Stats normalizers', () => {
 
 		expect( result.summary ).toEqual(
 			expect.objectContaining( {
-				total_search_terms: 14,
-				encrypted_search_terms: 0,
-				other_search_terms: 0,
+				total_search_terms: 0,
+				encrypted_search_terms: 30,
+				other_search_terms: -33,
 			} )
 		);
 		expect( result.data[ 0 ].items[ 0 ] ).toEqual(
 			expect.objectContaining( {
-				label: 'jetpack stats',
-				views: 14,
+				label: 'delete revisions for wordpress',
+				views: 1,
 			} )
 		);
 	} );
@@ -281,7 +329,7 @@ describe( 'Stats normalizers', () => {
 				label: '/guide.pdf',
 				downloads: 8,
 				shortLabel: 'guide.pdf',
-				link: '/guide.pdf',
+				link: 'https://example.com/guide.pdf',
 			} )
 		);
 	} );
@@ -296,14 +344,28 @@ describe( 'Stats normalizers', () => {
 
 		expect( result.summary ).toEqual(
 			expect.objectContaining( {
-				total_views: 18,
+				total_views: 4160,
 			} )
 		);
 		expect( result.data[ 0 ].items[ 0 ] ).toEqual(
 			expect.objectContaining( {
-				label: 'Jane Author',
-				views: 18,
-				children: null,
+				label: 'Jetpack Team',
+				views: 4160,
+				icon: 'https://example.com/avatar.png',
+				children: [
+					expect.objectContaining( {
+						id: 265143,
+						label: 'Homepage',
+						views: 4151,
+						link: 'https://example.com/?p=265143',
+					} ),
+					expect.objectContaining( {
+						id: 345724,
+						label: 'What’s new in Jetpack: June 2025 Update',
+						views: 3,
+						link: 'https://example.com/?p=345724',
+					} ),
+				],
 			} )
 		);
 	} );

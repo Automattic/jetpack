@@ -558,13 +558,21 @@ export function sanitizeStatsFileDownloadsResponse(
 	response: unknown,
 	query?: StatsQueryParams
 ): StatsNormalizedReport< StatsFileDownloadsItem > {
+	const getLink = ( item: StatsRecord ): string | undefined => {
+		if ( typeof item.download_url === 'string' ) {
+			return item.download_url;
+		}
+
+		return typeof item.relative_url === 'string' ? item.relative_url : undefined;
+	};
+
 	return {
 		summary: normalizeStatsReportSummary( response, query, [ 'files' ] ),
 		data: mapStatsReportDataPoints( response, query, [ 'files' ], item => ( {
 			label: item.relative_url,
 			downloads: safeParseFloat( item.download_count ?? item.downloads ),
 			shortLabel: typeof item.filename === 'string' ? item.filename : undefined,
-			link: typeof item.relative_url === 'string' ? item.relative_url : undefined,
+			link: getLink( item ),
 			linkTitle: item.relative_url,
 			labelIcon: 'external',
 			children: null,
