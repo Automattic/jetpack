@@ -1755,7 +1755,7 @@ abstract class Publicize_Base {
 
 		$featured_image_id = get_post_thumbnail_id( $post_id );
 
-		if ( $featured_image_id ) {
+		if ( $featured_image_id && Current_Plan::supports( 'social-image-focal-point' ) ) {
 			$featured_image = Focal_Point::get_cropped_image( $featured_image_id );
 
 			if ( $featured_image ) {

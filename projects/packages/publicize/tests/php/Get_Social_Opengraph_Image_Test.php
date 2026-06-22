@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Publicize;
 
+use Automattic\Jetpack\Current_Plan;
 use PHPUnit\Framework\Attributes\CoversMethod;
 use WorDBless\BaseTestCase;
 use function Automattic\Jetpack\Publicize\Social_Image_Generator\get_image_url;
@@ -40,6 +41,8 @@ class Get_Social_Opengraph_Image_Test extends BaseTestCase {
 		add_filter( 'jetpack_photon_development_mode', '__return_false' );
 		add_filter( 'wp_get_attachment_url', array( $this, 'filter_attachment_url' ), 10, 2 );
 		add_filter( 'wp_get_attachment_image_src', array( $this, 'filter_attachment_image_src' ), 10, 2 );
+
+		$this->set_active_plan_features( array( 'social-image-focal-point' ) );
 	}
 
 	/**
@@ -52,6 +55,8 @@ class Get_Social_Opengraph_Image_Test extends BaseTestCase {
 
 		$this->attachment_urls          = array();
 		$this->attachment_image_sources = array();
+
+		self::reset_active_plan_cache();
 
 		parent::tear_down();
 	}
@@ -125,6 +130,21 @@ class Get_Social_Opengraph_Image_Test extends BaseTestCase {
 		$post_id       = $this->create_post();
 		$attachment_id = $this->create_image_attachment( 3000, 1050, 'plain-featured.jpg' );
 
+		update_post_meta( $post_id, '_thumbnail_id', $attachment_id );
+
+		$this->assertSame( array(), ( new Publicize() )->get_social_opengraph_image( $post_id ) );
+	}
+
+	/**
+	 * Test that the focal crop is skipped when the site lacks the feature.
+	 */
+	public function test_featured_image_focal_crop_requires_feature() {
+		$this->set_active_plan_features( array() );
+
+		$post_id       = $this->create_post();
+		$attachment_id = $this->create_image_attachment( 3000, 1050, 'gated-featured.jpg' );
+
+		$this->set_focal_point( $attachment_id, 0.75, 0.5 );
 		update_post_meta( $post_id, '_thumbnail_id', $attachment_id );
 
 		$this->assertSame( array(), ( new Publicize() )->get_social_opengraph_image( $post_id ) );
@@ -225,6 +245,31 @@ class Get_Social_Opengraph_Image_Test extends BaseTestCase {
 				'y' => $y,
 			)
 		);
+	}
+
+	/**
+	 * Set the active plan features.
+	 *
+	 * @param array $features Active plan features.
+	 */
+	private function set_active_plan_features( $features ) {
+		$plan                       = Current_Plan::PLAN_DATA['free'];
+		$plan['features']['active'] = $features;
+		update_option( Current_Plan::PLAN_OPTION, $plan, true );
+		self::reset_active_plan_cache();
+	}
+
+	/**
+	 * Force the next `Current_Plan::get()` to re-read from the option store.
+	 */
+	private static function reset_active_plan_cache() {
+		$reflection = new \ReflectionClass( Current_Plan::class );
+		$property   = $reflection->getProperty( 'active_plan_cache' );
+		// @todo Remove this call once we no longer need to support PHP <8.1.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$property->setAccessible( true );
+		}
+		$property->setValue( null, null );
 	}
 
 	/**
