@@ -3,6 +3,18 @@ export const topPostsFixture = {
 		total_views: '184',
 	},
 	days: {
+		'2026-06-15': {
+			total_views: 128,
+			postviews: [
+				{
+					id: 40,
+					href: 'https://example.com/previous/',
+					title: 'Previous day',
+					type: 'post',
+					views: 32,
+				},
+			],
+		},
 		'2026-06-16': {
 			total_views: 184,
 			postviews: [

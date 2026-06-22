@@ -66,6 +66,7 @@ export type {
 export {
 	getStatsPeriodFromInterval,
 	reportParamsToStatsQueryParams,
+	statsQueryParamsToApiParams,
 	type StatsPeriod,
 	type StatsQueryParams,
 } from './utils/stats-params';

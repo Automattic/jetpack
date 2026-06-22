@@ -141,6 +141,10 @@ function getDatePart( value: unknown ): string | undefined {
 	return typeof value === 'string' ? value.split( 'T' )[ 0 ] : undefined;
 }
 
+function getStatsEndDateParam( query?: StatsQueryParams ): string | undefined {
+	return getDatePart( query?.end_date ?? query?.date );
+}
+
 function formatNormalizedDateTime( date: string, time: string ): string {
 	return `${ date }T${ time }+00:00`;
 }
@@ -224,8 +228,8 @@ function getStatsIntervalFields( date: string, period?: string ): StatsIntervalF
 }
 
 function getStatsSummaryIntervalFields( query?: StatsQueryParams ): Partial< StatsIntervalFields > {
-	const startDate = getDatePart( query?.start_date ?? query?.date );
-	const endDate = getDatePart( query?.date ?? query?.start_date );
+	const startDate = getDatePart( query?.start_date ?? getStatsEndDateParam( query ) );
+	const endDate = getStatsEndDateParam( query ) ?? getDatePart( query?.start_date );
 
 	return {
 		...( startDate ? { date_start: formatNormalizedDateTime( startDate, '00:00:00' ) } : {} ),
@@ -252,10 +256,11 @@ function getStatsBuckets( response: unknown, query: StatsQueryParams = {} ) {
 
 	const payload = getStatsRecord( response );
 	const days = getStatsRecord( payload.days );
-	const requested = query.date ?? query.start_date;
+	const startDate = getDatePart( query.start_date );
+	const endDate = getStatsEndDateParam( query );
 
-	if ( requested && days[ requested ] ) {
-		return [ [ requested, getStatsRecord( days[ requested ] ) ] ] as const;
+	if ( endDate && ! startDate && days[ endDate ] ) {
+		return [ [ endDate, getStatsRecord( days[ endDate ] ) ] ] as const;
 	}
 
 	return Object.entries( days ).map( ( [ key, value ] ) => [

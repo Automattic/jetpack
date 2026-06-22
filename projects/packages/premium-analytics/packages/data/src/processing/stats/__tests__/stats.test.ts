@@ -24,7 +24,7 @@ describe( 'Stats normalizers', () => {
 			sanitizeStatsTopPostsResponse( topPostsSummaryFixture, {
 				period: 'day',
 				start_date: '2026-06-01',
-				date: '2026-06-30',
+				end_date: '2026-06-30',
 				summarize: true,
 			} )
 		).toEqual( {
@@ -40,7 +40,7 @@ describe( 'Stats normalizers', () => {
 	it( 'normalizes top posts into by-date data points', () => {
 		const result = sanitizeStatsTopPostsResponse( topPostsFixture, {
 			period: 'day',
-			date: '2026-06-16',
+			end_date: '2026-06-16',
 		} );
 
 		expect( result.summary ).toEqual( {} );
@@ -66,12 +66,12 @@ describe( 'Stats normalizers', () => {
 		const summaryReport = sanitizeStatsTopPostsResponse( topPostsSummaryFixture, {
 			period: 'day',
 			start_date: '2026-06-01',
-			date: '2026-06-30',
+			end_date: '2026-06-30',
 			summarize: true,
 		} );
 		const dataReport = sanitizeStatsTopPostsResponse( topPostsFixture, {
 			period: 'day',
-			date: '2026-06-16',
+			end_date: '2026-06-16',
 		} );
 
 		expect( combineStatsNormalizedReports( summaryReport, dataReport ) ).toEqual( {
@@ -80,10 +80,24 @@ describe( 'Stats normalizers', () => {
 		} );
 	} );
 
+	it( 'keeps all by-date buckets when the query has a range end date', () => {
+		const result = sanitizeStatsTopPostsResponse( topPostsFixture, {
+			period: 'day',
+			start_date: '2026-06-15',
+			end_date: '2026-06-16',
+		} );
+
+		expect( result.data ).toHaveLength( 2 );
+		expect( result.data.map( item => item.time_interval ) ).toEqual( [
+			'2026-06-15',
+			'2026-06-16',
+		] );
+	} );
+
 	it( 'normalizes nested referrers', () => {
 		const result = sanitizeStatsReferrersResponse( referrersFixture, {
 			period: 'day',
-			date: '2026-06-16',
+			end_date: '2026-06-16',
 		} );
 
 		expect( result.data[ 0 ] ).toEqual(
@@ -107,7 +121,7 @@ describe( 'Stats normalizers', () => {
 		expect(
 			sanitizeStatsFileDownloadsResponse( fileDownloadsFixture, {
 				period: 'day',
-				date: '2026-06-16',
+				end_date: '2026-06-16',
 			} ).data[ 0 ].items[ 0 ]
 		).toEqual(
 			expect.objectContaining( {
@@ -121,7 +135,7 @@ describe( 'Stats normalizers', () => {
 	it( 'normalizes location labels with multiple apostrophes', () => {
 		const result = sanitizeStatsLocationsResponse( locationsFixture, {
 			period: 'day',
-			date: '2026-06-16',
+			end_date: '2026-06-16',
 		} );
 
 		expect( result.data[ 0 ].items[ 0 ] ).toEqual(
@@ -137,7 +151,7 @@ describe( 'Stats normalizers', () => {
 		expect(
 			sanitizeStatsVideoPlaysResponse( videoPlaysFixture, {
 				period: 'day',
-				date: '2026-06-16',
+				end_date: '2026-06-16',
 			} ).data[ 0 ].items[ 0 ]
 		).toEqual(
 			expect.objectContaining( {
