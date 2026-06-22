@@ -38,6 +38,20 @@ export type RequestAccessOptions = {
 };
 
 /**
+ * Per-request options for the function returned by {@link useRequestAccess}.
+ */
+export type RequestAccessArgs = {
+	/**
+	 * Append refresh=1 so keyring re-authorizes and refreshes the token in place.
+	 */
+	refresh?: boolean;
+	/**
+	 * Called when this auth_flow=v2 attempt looks abandoned (the user returned without a result, or the TTL elapsed).
+	 */
+	onAbort?: VoidFunction;
+};
+
+/**
  * Hook to request access to a service.
  *
  * @param {RequestAccessOptions} options - Options
@@ -61,17 +75,26 @@ export function useRequestAccess( { service, onConfirm }: RequestAccessOptions )
 	const { getService } = useSelect( select => select( store ), [] );
 
 	return useCallback(
-		async ( formData: FormData ) => {
+		// Resolves to true when the connect popup opened, false on any early failure.
+		async ( formData: FormData, options: RequestAccessArgs = {} ): Promise< boolean > => {
 			let connectUrl = service.url;
 
 			if ( ! connectUrl ) {
+				// The connect URL is missing; refetch and read it once.
 				await refreshServicesList();
-				// Wait until the services list is refreshed
-				do {
-					await new Promise( resolve => setTimeout( resolve, 100 ) );
 
-					connectUrl = getService( service.id )?.url;
-				} while ( ! connectUrl );
+				connectUrl = getService( service.id )?.url;
+
+				if ( ! connectUrl ) {
+					createErrorNotice(
+						__(
+							'Could not start the connection. Please refresh the page and try again.',
+							'jetpack-publicize-pkg'
+						)
+					);
+
+					return false;
+				}
 			}
 
 			const url = new URL( connectUrl );
@@ -83,15 +106,17 @@ export function useRequestAccess( { service, onConfirm }: RequestAccessOptions )
 					if ( ! isValidMastodonUsername( instance ) ) {
 						createErrorNotice( __( 'Invalid Mastodon username', 'jetpack-publicize-pkg' ) );
 
-						return;
+						return false;
 					}
 
-					if ( isMastodonAlreadyConnected?.( instance ) ) {
+					// A reconnect (refresh) re-auths an existing account in place, so only block
+					// genuine duplicates from a fresh connect.
+					if ( ! options.refresh && isMastodonAlreadyConnected?.( instance ) ) {
 						createErrorNotice(
 							__( 'This Mastodon account is already connected', 'jetpack-publicize-pkg' )
 						);
 
-						return;
+						return false;
 					}
 
 					url.searchParams.set( 'instance', instance );
@@ -105,15 +130,17 @@ export function useRequestAccess( { service, onConfirm }: RequestAccessOptions )
 					if ( ! isValidBlueskyHandle( handle ) ) {
 						createErrorNotice( __( 'Invalid Bluesky handle', 'jetpack-publicize-pkg' ) );
 
-						return;
+						return false;
 					}
 
-					if ( isBlueskyAccountAlreadyConnected?.( handle ) ) {
+					// A reconnect (refresh) re-auths an existing account in place, so only block
+					// genuine duplicates from a fresh connect.
+					if ( ! options.refresh && isBlueskyAccountAlreadyConnected?.( handle ) ) {
 						createErrorNotice(
 							__( 'This Bluesky account is already connected', 'jetpack-publicize-pkg' )
 						);
 
-						return;
+						return false;
 					}
 
 					url.searchParams.set( 'handle', handle );
@@ -143,16 +170,30 @@ export function useRequestAccess( { service, onConfirm }: RequestAccessOptions )
 				getAdminUrl( 'admin-post.php?action=jetpack_social_keyring_done' )
 			);
 
-			const opened = requestExternalAccess( url.toString(), () => onConfirm( requestId ) );
+			/*
+			 * refresh=1 tells keyring to re-authorize the account and refresh the token in
+			 * place (used for reconnect) rather than reuse an existing provider session.
+			 */
+			if ( options.refresh ) {
+				url.searchParams.set( 'refresh', '1' );
+			}
+
+			const opened = requestExternalAccess(
+				url.toString(),
+				() => onConfirm( requestId ),
+				options.onAbort
+			);
 
 			if ( ! opened ) {
 				createErrorNotice(
 					__(
-						'The connection window could not be opened. Please allow pop-ups for this site then try connecting the account again.',
+						'The connection window could not be opened. Please allow pop-ups for this site and try again.',
 						'jetpack-publicize-pkg'
 					)
 				);
 			}
+
+			return opened;
 		},
 		[
 			createErrorNotice,

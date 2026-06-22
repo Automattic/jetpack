@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
 import LeaderboardChart from '../leaderboard-chart';
 import type { LeaderboardEntry } from '../../../types';
 
@@ -365,6 +365,40 @@ describe( 'LeaderboardChart', () => {
 			const chartContainer = screen.getByTestId( 'leaderboard-chart-container' );
 
 			expect( chartContainer ).toHaveStyle( { width: '500px', height: '240px' } );
+		} );
+	} );
+
+	describe( 'Interactive items', () => {
+		it( 'renders a button for an entry with onClick', () => {
+			render( <LeaderboardChart data={ [ { ...mockData[ 0 ], onClick: jest.fn() } ] } /> );
+			expect( screen.getByRole( 'button' ) ).toBeInTheDocument();
+			expect( screen.getByRole( 'button' ).tagName ).toBe( 'BUTTON' );
+		} );
+
+		it( 'calls onClick when the row is clicked', () => {
+			const onClick = jest.fn();
+			render( <LeaderboardChart data={ [ { ...mockData[ 0 ], onClick } ] } /> );
+			// eslint-disable-next-line testing-library/prefer-user-event
+			fireEvent.click( screen.getByRole( 'button' ) );
+			expect( onClick ).toHaveBeenCalledTimes( 1 );
+		} );
+
+		it( 'gives the interactive row an accessible name from the label and value', () => {
+			render( <LeaderboardChart data={ [ { ...mockData[ 0 ], onClick: jest.fn() } ] } /> );
+			// mockData[0] label is 'Direct', currentValue 12500 → '12.5K'
+			expect( screen.getByRole( 'button' ) ).toHaveAccessibleName( /Direct.*12\.5K/ );
+		} );
+
+		it( 'does not render a button for entries without onClick', () => {
+			render( <LeaderboardChart data={ [ mockData[ 0 ] ] } /> );
+			expect( screen.queryByRole( 'button' ) ).not.toBeInTheDocument();
+		} );
+
+		it( 'renders a button only for interactive entries in mixed data', () => {
+			render(
+				<LeaderboardChart data={ [ { ...mockData[ 0 ], onClick: jest.fn() }, mockData[ 1 ] ] } />
+			);
+			expect( screen.getAllByRole( 'button' ) ).toHaveLength( 1 );
 		} );
 	} );
 } );

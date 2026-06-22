@@ -40,7 +40,7 @@ export function ConnectForm( {
 	compact,
 }: ConnectFormProps ) {
 	const isModernized = useIsModernized();
-	const { fetchKeyringResult } = useDispatch( store );
+	const { fetchKeyringResult, setKeyringResult, completeReconnect } = useDispatch( store );
 
 	// In the modernized chassis the submit button sits flush in a compact
 	// disclosure row unless it accompanies the custom-input fields. Legacy
@@ -51,6 +51,8 @@ export function ConnectForm( {
 	}
 
 	const { isConnectionsModalOpen } = useSelect( select => select( store ), [] );
+
+	const reconnectingAccount = useSelect( select => select( store ).getReconnectingAccount(), [] );
 
 	const [ isConnecting, setIsConnecting ] = useState( false );
 
@@ -65,13 +67,23 @@ export function ConnectForm( {
 	);
 
 	const onConfirm = useCallback(
-		( requestId: string ) => {
+		async ( requestId: string ) => {
 			// Fetch the keyring result only if the modal is open.
-			if ( isConnectionsModalOpen() ) {
-				fetchKeyringResult( requestId );
+			if ( ! isConnectionsModalOpen() ) {
+				return;
+			}
+
+			const result = await fetchKeyringResult( requestId );
+
+			// If this completed an in-place reconnect (same account), it's already handled;
+			// otherwise surface the result so it drives the regular confirmation view.
+			const handled = await completeReconnect( result );
+
+			if ( ! handled && result?.ID ) {
+				setKeyringResult( result );
 			}
 		},
-		[ fetchKeyringResult, isConnectionsModalOpen ]
+		[ completeReconnect, fetchKeyringResult, isConnectionsModalOpen, setKeyringResult ]
 	);
 
 	const requestAccess = useRequestAccess( {
@@ -93,9 +105,10 @@ export function ConnectForm( {
 
 			const formData = new FormData( event.target as HTMLFormElement );
 
-			await requestAccess( formData );
+			// Reconnecting re-auths the existing account, so refresh its token in place.
+			await requestAccess( formData, { refresh: Boolean( reconnectingAccount ) } );
 		},
-		[ onSubmit, requestAccess ]
+		[ onSubmit, reconnectingAccount, requestAccess ]
 	);
 
 	return (

@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Private APIs: Keep the private APIs polyfill active through WordPress 7.0 and older Gutenberg versions.

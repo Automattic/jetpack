@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.43.1] - 2026-06-22
+### Added
+- Add WooCommerce countries, shipping, and tax calculation options to the sync whitelist. [#49324]
+
 ## [4.43.0] - 2026-06-15
 ### Added
 - Add options from assorted WooCommerce settings pages to sync whitelist, as part of activity log improvements. [#49520]
@@ -1790,6 +1794,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Packages: Move sync to a classmapped package
 
+[4.43.1]: https://github.com/Automattic/jetpack-sync/compare/v4.43.0...v4.43.1
 [4.43.0]: https://github.com/Automattic/jetpack-sync/compare/v4.42.0...v4.43.0
 [4.42.0]: https://github.com/Automattic/jetpack-sync/compare/v4.41.1...v4.42.0
 [4.41.1]: https://github.com/Automattic/jetpack-sync/compare/v4.41.0...v4.41.1
