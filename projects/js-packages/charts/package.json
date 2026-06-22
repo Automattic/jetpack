@@ -103,6 +103,7 @@
 	},
 	"devDependencies": {
 		"@automattic/jetpack-webpack-config": "workspace:*",
+		"@babel/core": "^7.29.7",
 		"@storybook/addon-docs": "10.3.6",
 		"@storybook/react": "10.3.6",
 		"@testing-library/dom": "^10.0.0",

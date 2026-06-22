@@ -439,6 +439,9 @@ importers:
       '@automattic/jetpack-webpack-config':
         specifier: workspace:*
         version: link:../webpack-config
+      '@babel/core':
+        specifier: ^7.29.7
+        version: 7.29.7
       '@storybook/addon-docs':
         specifier: 10.3.6
         version: 10.3.6(@types/react@18.3.28)(storybook@10.3.6(@testing-library/dom@10.4.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))
@@ -1605,6 +1608,9 @@ importers:
       '@automattic/jetpack-webpack-config':
         specifier: workspace:*
         version: link:../webpack-config
+      '@babel/core':
+        specifier: ^7.29.7
+        version: 7.29.7
       '@testing-library/dom':
         specifier: 10.4.1
         version: 10.4.1
@@ -22350,7 +22356,7 @@ snapshots:
 
   '@types/d3-shape@3.1.7':
     dependencies:
-      '@types/d3-path': 1.0.11
+      '@types/d3-path': 3.1.1
 
   '@types/d3-time-format@2.1.0': {}
 
