@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [4.4.0] - 2026-06-22
 ### Added
-- Register the jetpack-shared-stores asset bundle so dependent scripts can declare it as a dependency. [#49494]
+- Register the `jetpack-shared-stores` asset bundle so dependent scripts can declare it as a dependency. [#49494]
 
 ### Changed
 - Update package dependencies. [#49691]

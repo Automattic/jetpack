@@ -11,9 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Externalize the jetpack-shared-stores package so the shared data stores resolve to a single bundle. [#49494]
 
 ### Changed
-- Update package dependencies. [#49691]
-- Update package dependencies. [#49732]
-- Update package dependencies. [#49757]
+- Update package dependencies. [#49691] [#49732] [#49757]
 
 ## 3.9.4 - 2026-06-15
 ### Changed

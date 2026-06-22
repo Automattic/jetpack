@@ -4,8 +4,7 @@
 
 ## [1.12.9] - 2026-06-22
 ### Changed
-- Update package dependencies. [#49691]
-- Update package dependencies. [#49757]
+- Update package dependencies. [#49691] [#49757]
 
 ## [1.12.8] - 2026-06-15
 ### Changed

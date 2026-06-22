@@ -7,11 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.5.1] - 2026-06-22
 ### Changed
-- Update package dependencies. [#49691]
-- Update package dependencies. [#49757]
+- Update package dependencies. [#49691] [#49757]
 
 ### Fixed
-- Only dequeue Help Center in the block editor when the full unified experience is active, so Help Center stays available in block-editor-only mode (e.g. ?flags=unified-big-sky) [#49750]
+- Dequeue Help Center only in the block editor when the full unified experience is active, so Help Center stays available in block-editor-only mode. [#49750]
 
 ## [0.5.0] - 2026-06-15
 ### Changed

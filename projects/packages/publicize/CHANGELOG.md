@@ -7,21 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.82.0] - 2026-06-22
 ### Added
-- Add focal point data model and picker in the media section [#49580]
+- Add focal point data model and picker in the media section. [#49580]
 - Apply the stored image focal point to the social link previews. [#49687]
 
 ### Changed
 - Social: Reconnect accounts in place instead of disconnecting and recreating them, retaining connection settings. [#49695]
-- Update package dependencies. [#49631]
-- Update package dependencies. [#49691]
-- Update package dependencies. [#49732]
-- Update package dependencies. [#49757]
+- Update package dependencies. [#49631] [#49691] [#49732] [#49757]
 
 ### Fixed
 - Fix connecting Meta accounts (Facebook, Instagram, Threads) by returning the connection result through a same-origin BroadcastChannel instead of window.opener, which Meta severs via COOP [#49615]
 - Honor a disabled connection when publishing a brand new post via the REST API, not only when updating an existing post. [#49784]
 - Social: Detect when the browser blocks the connection popup and notify the user. [#49688]
-- Social previews: Remove the misleading URL from captions when it is not a part of it. [#49745]
+- Social Previews: Remove the misleading URL from captions when it is not a part of it. [#49745]
 
 ## [0.81.4] - 2026-06-15
 ### Changed

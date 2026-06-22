@@ -7,10 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.27.23] - 2026-06-22
 ### Changed
-- Blaze: add active campaign status checks. [#49610]
-- Update package dependencies. [#49631]
-- Update package dependencies. [#49691]
-- Update package dependencies. [#49757]
+- Add active campaign status checks. [#49610]
+- Update package dependencies. [#49631] [#49691] [#49757]
 
 ## [0.27.22] - 2026-06-15
 ### Changed

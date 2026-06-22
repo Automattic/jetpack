@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [4.43.1] - 2026-06-22
 ### Added
-- Sync: Add WooCommerce countries, shipping, and tax calculation options to the sync whitelist. [#49324]
+- Add WooCommerce countries, shipping, and tax calculation options to the sync whitelist. [#49324]
 
 ## [4.43.0] - 2026-06-15
 ### Added

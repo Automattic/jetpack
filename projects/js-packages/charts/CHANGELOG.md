@@ -7,13 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.6.0] - 2026-06-22
 ### Added
-- Charts: Leaderboard items can be made interactive via a per-entry onClick, rendering the row as a keyboard-accessible button with a hover chevron. [#49733]
+- Allow Leaderboard items to be made interactive via a per-entry onClick, rendering the row as a keyboard-accessible button with a hover chevron. [#49733]
 
 ### Changed
-- Update package dependencies. [#49594]
-- Update package dependencies. [#49631]
-- Update package dependencies. [#49691]
-- Update package dependencies. [#49757]
+- Update package dependencies. [#49594] [#49631] [#49691] [#49757]
 
 ## [1.5.3] - 2026-06-10
 ### Changed

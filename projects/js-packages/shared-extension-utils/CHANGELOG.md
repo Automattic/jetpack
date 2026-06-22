@@ -7,10 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [2.0.1] - 2026-06-22
 ### Changed
-- Move the WordPress.com plans and Jetpack modules data stores to the new jetpack-shared-stores package, re-exporting them for backward compatibility. [#49494]
-- Update package dependencies. [#49631]
-- Update package dependencies. [#49691]
-- Update package dependencies. [#49757]
+- Move the WordPress.com plans and Jetpack modules data stores to the new `jetpack-shared-stores` package. [#49494]
+- Update package dependencies. [#49631] [#49691] [#49757]
 
 ## [2.0.0] - 2026-06-15
 ### Removed

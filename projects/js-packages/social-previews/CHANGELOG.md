@@ -10,10 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Render an image focal point in the link previews via object-position. [#49687]
 
 ### Changed
-- Update package dependencies. [#49594]
-- Update package dependencies. [#49631]
-- Update package dependencies. [#49691]
-- Update package dependencies. [#49757]
+- Update package dependencies. [#49594] [#49631] [#49691] [#49757]
 
 ### Fixed
 - Use the caption/custom text as the source of truth for Bluesky, Facebook, Instagram, Mastodon and Nextdoor previews instead of appending the post URL. [#49745]

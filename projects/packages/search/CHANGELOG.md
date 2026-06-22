@@ -7,9 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [7.2.4] - 2026-06-22
 ### Changed
-- Update package dependencies. [#49631]
-- Update package dependencies. [#49691]
-- Update package dependencies. [#49757]
+- Update package dependencies. [#49631] [#49691] [#49757]
 
 ### Fixed
 - Search blocks: Use the default editor color for block icons. [#49756]
