@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Agents Manager: let the host that mounts the Agents Manager own the agent, so a host provider's agent and tools (e.g. Big Sky) are no longer overridden or stripped

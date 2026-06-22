@@ -19,16 +19,15 @@ use function Automattic\Jetpack\Extensions\Shared\determine_iso_639_locale;
 
 require_once __DIR__ . '/../../../shared/cdn-locale.php';
 
-const AM_ASSET_BASE_PATH          = 'widgets.wp.com/agents-manager/';
-const AM_ASSET_TRANSIENT          = 'jetpack_am_gutenberg_asset';
-const AM_ASSET_DC_TRANSIENT       = 'jetpack_am_gutenberg_dc_asset';
-const AI_SIDEBAR_ASSET_TRANSIENT  = 'jetpack_ai_sidebar_asset';
-const AI_SIDEBAR_JS_URL           = 'https://' . AM_ASSET_BASE_PATH . 'jetpack-ai-sidebar.min.js';
-const AI_SIDEBAR_CSS_URL          = 'https://' . AM_ASSET_BASE_PATH . 'jetpack-ai-sidebar.css';
-const AI_SIDEBAR_RTL_CSS_URL      = 'https://' . AM_ASSET_BASE_PATH . 'jetpack-ai-sidebar.rtl.css';
-const AI_SIDEBAR_PROVIDER_URL     = 'https://' . AM_ASSET_BASE_PATH . 'jetpack-ai-sidebar.provider.mjs';
-const AI_SIDEBAR_AGENT_ID         = 'wp-orchestrator';
-const BIG_SKY_AGENT_PROVIDER_PATH = '/big-sky-plugin/build/calypso-agent-provider/';
+const AM_ASSET_BASE_PATH         = 'widgets.wp.com/agents-manager/';
+const AM_ASSET_TRANSIENT         = 'jetpack_am_gutenberg_asset';
+const AM_ASSET_DC_TRANSIENT      = 'jetpack_am_gutenberg_dc_asset';
+const AI_SIDEBAR_ASSET_TRANSIENT = 'jetpack_ai_sidebar_asset';
+const AI_SIDEBAR_JS_URL          = 'https://' . AM_ASSET_BASE_PATH . 'jetpack-ai-sidebar.min.js';
+const AI_SIDEBAR_CSS_URL         = 'https://' . AM_ASSET_BASE_PATH . 'jetpack-ai-sidebar.css';
+const AI_SIDEBAR_RTL_CSS_URL     = 'https://' . AM_ASSET_BASE_PATH . 'jetpack-ai-sidebar.rtl.css';
+const AI_SIDEBAR_PROVIDER_URL    = 'https://' . AM_ASSET_BASE_PATH . 'jetpack-ai-sidebar.provider.mjs';
+const AI_SIDEBAR_AGENT_ID        = 'wp-orchestrator';
 
 /**
  * Handles loading the Agents Manager from CDN and registering the
@@ -585,32 +584,16 @@ class Jetpack_AI_Sidebar {
 			return $data;
 		}
 
-		// Set Jetpack's defaults for externally emitted payloads. Hosts that need
-		// intentional overrides should use the AI Editorial Review and preview filters.
-		if ( isset( $data['agentProviders'] ) && is_array( $data['agentProviders'] ) ) {
-			$data['agentProviders'] = self::filter_agent_providers_for_jetpack_ai_sidebar( $data['agentProviders'] );
+		// Inject Jetpack's additive preview fields. Claim the agent only when no
+		// host or other provider has already set one, so the plugin that mounts
+		// the Agents Manager owns the agent: Big Sky keeps its agent on Big Sky
+		// surfaces, while Jetpack-only surfaces still resolve to wp-orchestrator.
+		if ( empty( $data['agentId'] ) ) {
+			$data['agentId'] = AI_SIDEBAR_AGENT_ID;
 		}
-		$data['agentId']                  = AI_SIDEBAR_AGENT_ID;
 		$data['aiEditorialReviewEnabled'] = self::is_ai_editorial_review_enabled();
 		$data['jetpackAiSidebarPreview']  = self::get_jetpack_ai_sidebar_preview_config();
 		return $data;
-	}
-
-	/**
-	 * Remove providers that should not participate in the Jetpack AI Sidebar surface.
-	 *
-	 * @param array $providers Provider URLs.
-	 * @return array Filtered provider URLs.
-	 */
-	private static function filter_agent_providers_for_jetpack_ai_sidebar( array $providers ): array {
-		return array_values(
-			array_filter(
-				$providers,
-				static function ( $provider ): bool {
-					return ! is_string( $provider ) || ! str_contains( $provider, BIG_SKY_AGENT_PROVIDER_PATH );
-				}
-			)
-		);
 	}
 
 	/**
@@ -671,16 +654,14 @@ class Jetpack_AI_Sidebar {
 			AI_SIDEBAR_AGENT_ID,
 			JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP
 		);
-		$big_sky_provider_payload    = wp_json_encode(
-			BIG_SKY_AGENT_PROVIDER_PATH,
-			JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP
-		);
 
+		// Claim the agent only when nothing else has, so the host that enqueued
+		// the Agents Manager keeps ownership (e.g. Big Sky's agent survives on
+		// Big Sky surfaces). The preview fields are additive and always applied.
 		wp_add_inline_script(
 			'agents-manager',
 			'if ( typeof agentsManagerData === "object" && agentsManagerData !== null ) {'
-				. ' if ( Array.isArray( agentsManagerData.agentProviders ) ) { agentsManagerData.agentProviders = agentsManagerData.agentProviders.filter( function( provider ) { return typeof provider !== "string" || provider.indexOf( ' . $big_sky_provider_payload . ' ) === -1; } ); }'
-				. ' agentsManagerData.agentId = ' . $agent_id_payload . ';'
+				. ' if ( ! agentsManagerData.agentId ) { agentsManagerData.agentId = ' . $agent_id_payload . '; }'
 				. ' agentsManagerData.aiEditorialReviewEnabled = ' . $ai_editorial_review_payload . ';'
 				. ' agentsManagerData.jetpackAiSidebarPreview = ' . $preview_payload . ';'
 				. ' }',

@@ -627,29 +627,42 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Big Sky's provider should not participate in the Jetpack AI Sidebar surface.
+	 * The host that mounts the Agents Manager owns the agent. When another
+	 * provider has already claimed an agent, Jetpack must not override it, and it
+	 * must leave the provider list untouched so the host's tools (e.g. Big Sky's)
+	 * survive the merge.
 	 */
-	public function test_add_agents_manager_data_filters_big_sky_provider() {
+	public function test_add_agents_manager_data_preserves_claimed_agent_and_providers() {
 		$this->set_block_editor_screen();
+
+		$providers = array(
+			'https://example.com/wp-content/plugins/big-sky-plugin/build/calypso-agent-provider/index.js?ver=123',
+			'https://widgets.wp.com/agents-manager/jetpack-ai-sidebar.provider.mjs',
+			array( 'provider' => 'metadata' ),
+		);
 
 		$data = Jetpack_AI_Sidebar::add_agents_manager_data(
 			array(
 				'sectionName'    => 'gutenberg',
-				'agentProviders' => array(
-					'https://example.com/wp-content/plugins/big-sky-plugin/build/calypso-agent-provider/index.js?ver=123',
-					'https://widgets.wp.com/agents-manager/jetpack-ai-sidebar.provider.mjs',
-					array( 'provider' => 'metadata' ),
-				),
+				'agentId'        => 'dolly',
+				'agentProviders' => $providers,
 			)
 		);
 
-		$this->assertSame(
-			array(
-				'https://widgets.wp.com/agents-manager/jetpack-ai-sidebar.provider.mjs',
-				array( 'provider' => 'metadata' ),
-			),
-			$data['agentProviders']
-		);
+		$this->assertSame( 'dolly', $data['agentId'], 'A host-claimed agent must not be overridden.' );
+		$this->assertSame( $providers, $data['agentProviders'], 'Provider list must pass through untouched.' );
+	}
+
+	/**
+	 * When no provider has claimed an agent, Jetpack fills in its default so a
+	 * Jetpack-only surface still resolves to wp-orchestrator.
+	 */
+	public function test_add_agents_manager_data_claims_agent_when_unclaimed() {
+		$this->set_block_editor_screen();
+
+		$data = Jetpack_AI_Sidebar::add_agents_manager_data( array( 'sectionName' => 'gutenberg' ) );
+
+		$this->assertSame( 'wp-orchestrator', $data['agentId'] );
 	}
 
 	/**
@@ -827,16 +840,15 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 
 		Jetpack_AI_Sidebar::maybe_patch_jetpack_ai_sidebar_preview_data();
 
-		$this->assertStringContainsString(
+		// The host that enqueued AM owns the agent and the provider list, so the
+		// patch must not strip providers (Big Sky's tools must survive the merge).
+		$this->assertStringNotContainsString(
 			'agentsManagerData.agentProviders = agentsManagerData.agentProviders.filter',
 			$this->get_agents_manager_inline_script()
 		);
+		// The agent is claimed only when nothing else has set one.
 		$this->assertStringContainsString(
-			'/big-sky-plugin/build/calypso-agent-provider/',
-			$this->get_agents_manager_inline_script()
-		);
-		$this->assertStringContainsString(
-			'agentsManagerData.agentId = "wp-orchestrator"',
+			'if ( ! agentsManagerData.agentId ) { agentsManagerData.agentId = "wp-orchestrator"; }',
 			$this->get_agents_manager_inline_script()
 		);
 		$this->assertStringContainsString(
