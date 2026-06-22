@@ -500,7 +500,7 @@ class Jetpack_Gutenberg_Test extends WP_UnitTestCase {
 	 *
 	 * @return array[]
 	 */
-	public function provider_is_block_editor_context_request_uri() {
+	public static function provider_is_block_editor_context_request_uri() {
 		return array(
 			'rewritten REST request'          => array( '/wp-json/wp/v2/posts', true ),
 			'plain-permalink REST request'    => array( '/index.php?rest_route=/wp/v2/posts', true ),
