@@ -23,6 +23,8 @@ describe( 'Stats normalizers', () => {
 		expect(
 			sanitizeStatsTopPostsResponse( topPostsSummaryFixture, {
 				period: 'day',
+				start_date: '2026-06-01',
+				date: '2026-06-30',
 				summarize: true,
 			} )
 		).toEqual( {
@@ -63,6 +65,8 @@ describe( 'Stats normalizers', () => {
 	it( 'combines separately requested summary and by-date data', () => {
 		const summaryReport = sanitizeStatsTopPostsResponse( topPostsSummaryFixture, {
 			period: 'day',
+			start_date: '2026-06-01',
+			date: '2026-06-30',
 			summarize: true,
 		} );
 		const dataReport = sanitizeStatsTopPostsResponse( topPostsFixture, {

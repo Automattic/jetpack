@@ -111,6 +111,10 @@ export type StatsNormalizedReport< TItem extends StatsNormalizedItem = StatsNorm
 };
 
 type StatsRecord = Record< string, unknown >;
+type StatsIntervalFields = Pick<
+	StatsNormalizedDataPoint,
+	'time_interval' | 'date_start' | 'date_end'
+>;
 
 function isStatsRecord( value: unknown ): value is StatsRecord {
 	return value && typeof value === 'object' && ! Array.isArray( value ) ? true : false;
@@ -133,12 +137,111 @@ function normalizeStatsSummary( value: StatsRecord ): StatsNormalizedSummary {
 	);
 }
 
+function getDatePart( value: unknown ): string | undefined {
+	return typeof value === 'string' ? value.split( 'T' )[ 0 ] : undefined;
+}
+
+function formatNormalizedDateTime( date: string, time: string ): string {
+	return `${ date }T${ time }+00:00`;
+}
+
+function getStartDatePart( date: string, period?: string ): string {
+	const datePart = date.split( 'T' )[ 0 ];
+
+	if ( period === 'year' && /^\d{4}$/.test( datePart ) ) {
+		return `${ datePart }-01-01`;
+	}
+
+	if ( period === 'month' && /^\d{4}-\d{2}$/.test( datePart ) ) {
+		return `${ datePart }-01`;
+	}
+
+	return datePart;
+}
+
+function parseDatePart( date: string ): Date | null {
+	const match = date.match( /^(\d{4})-(\d{2})-(\d{2})$/ );
+
+	if ( ! match ) {
+		return null;
+	}
+
+	return new Date(
+		Date.UTC(
+			Number.parseInt( match[ 1 ], 10 ),
+			Number.parseInt( match[ 2 ], 10 ) - 1,
+			Number.parseInt( match[ 3 ], 10 )
+		)
+	);
+}
+
+function formatDatePart( date: Date ): string {
+	return [
+		date.getUTCFullYear(),
+		String( date.getUTCMonth() + 1 ).padStart( 2, '0' ),
+		String( date.getUTCDate() ).padStart( 2, '0' ),
+	].join( '-' );
+}
+
+function addUtcDays( date: Date, days: number ): Date {
+	const next = new Date( date.getTime() );
+	next.setUTCDate( next.getUTCDate() + days );
+	return next;
+}
+
+function getEndDatePart( startDate: string, period?: string ): string {
+	const parsed = parseDatePart( startDate );
+
+	if ( ! parsed ) {
+		return startDate;
+	}
+
+	switch ( period ) {
+		case 'week':
+			return formatDatePart( addUtcDays( parsed, 6 ) );
+		case 'month':
+			return formatDatePart(
+				new Date( Date.UTC( parsed.getUTCFullYear(), parsed.getUTCMonth() + 1, 0 ) )
+			);
+		case 'year':
+			return `${ parsed.getUTCFullYear() }-12-31`;
+		case 'hour':
+		case 'day':
+		default:
+			return startDate;
+	}
+}
+
+function getStatsIntervalFields( date: string, period?: string ): StatsIntervalFields {
+	const startDate = getStartDatePart( date, period );
+	const endDate = getEndDatePart( startDate, period );
+
+	return {
+		time_interval: date,
+		date_start: formatNormalizedDateTime( startDate, '00:00:00' ),
+		date_end: formatNormalizedDateTime( endDate, '23:59:59' ),
+	};
+}
+
+function getStatsSummaryIntervalFields( query?: StatsQueryParams ): Partial< StatsIntervalFields > {
+	const startDate = getDatePart( query?.start_date ?? query?.date );
+	const endDate = getDatePart( query?.date ?? query?.start_date );
+
+	return {
+		...( startDate ? { date_start: formatNormalizedDateTime( startDate, '00:00:00' ) } : {} ),
+		...( endDate ? { date_end: formatNormalizedDateTime( endDate, '23:59:59' ) } : {} ),
+	};
+}
+
 function normalizeStatsReportSummary(
 	response: unknown,
 	query?: StatsQueryParams
 ): StatsNormalizedSummary {
 	return query?.summarize
-		? normalizeStatsSummary( getStatsRecord( getStatsRecord( response ).summary ) )
+		? {
+				...normalizeStatsSummary( getStatsRecord( getStatsRecord( response ).summary ) ),
+				...getStatsSummaryIntervalFields( query ),
+		  }
 		: {};
 }
 
@@ -161,19 +264,13 @@ function getStatsBuckets( response: unknown, query: StatsQueryParams = {} ) {
 	] ) as Array< readonly [ string, StatsRecord ] >;
 }
 
-function getString( value: unknown, fallback = '' ): string {
-	return typeof value === 'string' ? value : fallback;
-}
-
 function createStatsDataPoint< TItem extends StatsNormalizedItem >(
 	date: string,
-	bucket: StatsRecord,
+	query: StatsQueryParams | undefined,
 	items: TItem[]
 ): StatsNormalizedDataPoint< TItem > {
 	return {
-		time_interval: getString( bucket.time_interval, date ),
-		date_start: getString( bucket.date_start, date ),
-		date_end: getString( bucket.date_end, date ),
+		...getStatsIntervalFields( date, query?.period ),
 		items,
 	};
 }
@@ -185,11 +282,7 @@ function mapStatsDataPoints< TItem extends StatsNormalizedItem >(
 	mapper: ( item: StatsRecord ) => TItem
 ): Array< StatsNormalizedDataPoint< TItem > > {
 	return getStatsBuckets( response, query ).map( ( [ date, bucket ] ) =>
-		createStatsDataPoint(
-			date,
-			bucket,
-			getStatsArray< StatsRecord >( bucket[ key ] ).map( mapper )
-		)
+		createStatsDataPoint( date, query, getStatsArray< StatsRecord >( bucket[ key ] ).map( mapper ) )
 	);
 }
 
@@ -376,7 +469,7 @@ export function sanitizeStatsLocationsResponse(
 
 			return createStatsDataPoint(
 				date,
-				bucket,
+				query,
 				filteredViews.map( item => {
 					const country = getStatsRecord(
 						typeof item.country_code === 'string' ? countryInfo[ item.country_code ] : undefined
@@ -412,7 +505,7 @@ export function sanitizeStatsVideoPlaysResponse(
 
 			return createStatsDataPoint(
 				date,
-				bucket,
+				query,
 				videoData.map( item => ( {
 					id: item.post_id as string | number | undefined,
 					label: item.title,
