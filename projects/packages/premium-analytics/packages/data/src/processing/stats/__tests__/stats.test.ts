@@ -13,6 +13,7 @@ import {
 	sanitizeStatsVideoPlaysResponse,
 } from '..';
 import {
+	clicksFixture,
 	clicksSummaryFixture,
 	fileDownloadsFixture,
 	fileDownloadsSummaryFixture,
@@ -21,7 +22,9 @@ import {
 	locationsSummaryFixture,
 	referrersFixture,
 	referrersSummaryFixture,
+	searchTermsFixture,
 	searchTermsSummaryFixture,
+	topAuthorsFixture,
 	topAuthorsSummaryFixture,
 	topPostsFixture,
 	topPostsSummaryFixture,
@@ -268,6 +271,33 @@ describe( 'Stats normalizers', () => {
 		);
 	} );
 
+	it( 'normalizes clicks into by-date data points', () => {
+		const result = sanitizeStatsClicksResponse( clicksFixture, {
+			end_date: '2026-06-16',
+		} );
+
+		expect( result.summary ).toEqual( {} );
+		expect( result.data[ 0 ] ).toEqual(
+			expect.objectContaining( {
+				time_interval: '2026-06-16',
+				date_start: '2026-06-16T00:00:00+00:00',
+				date_end: '2026-06-16T23:59:59+00:00',
+				items: [
+					expect.objectContaining( {
+						label: 'wordpress.org',
+						views: 12,
+						children: [
+							expect.objectContaining( {
+								label: '/plugins/jetpack-search',
+								views: 8,
+							} ),
+						],
+					} ),
+				],
+			} )
+		);
+	} );
+
 	it( 'normalizes summarized search terms into range data', () => {
 		const result = sanitizeStatsSearchTermsResponse( searchTermsSummaryFixture, {
 			period: 'day',
@@ -287,6 +317,29 @@ describe( 'Stats normalizers', () => {
 			expect.objectContaining( {
 				label: 'delete revisions for wordpress',
 				views: 1,
+			} )
+		);
+	} );
+
+	it( 'normalizes search terms into by-date data points', () => {
+		const result = sanitizeStatsSearchTermsResponse( searchTermsFixture, {
+			end_date: '2026-06-16',
+		} );
+
+		expect( result.summary ).toEqual( {} );
+		expect( result.data[ 0 ] ).toEqual(
+			expect.objectContaining( {
+				time_interval: '2026-06-16',
+				date_start: '2026-06-16T00:00:00+00:00',
+				date_end: '2026-06-16T23:59:59+00:00',
+				items: [
+					expect.objectContaining( {
+						label: 'delete revisions for wordpress',
+						views: 1,
+						className: 'user-selectable',
+						children: null,
+					} ),
+				],
 			} )
 		);
 	} );
@@ -359,6 +412,34 @@ describe( 'Stats normalizers', () => {
 						label: 'What’s new in Jetpack: June 2025 Update',
 						views: 3,
 						link: 'https://example.com/?p=345724',
+					} ),
+				],
+			} )
+		);
+	} );
+
+	it( 'normalizes top authors into by-date data points', () => {
+		const result = sanitizeStatsTopAuthorsResponse( topAuthorsFixture, {
+			end_date: '2026-06-16',
+		} );
+
+		expect( result.summary ).toEqual( {} );
+		expect( result.data[ 0 ] ).toEqual(
+			expect.objectContaining( {
+				time_interval: '2026-06-16',
+				date_start: '2026-06-16T00:00:00+00:00',
+				date_end: '2026-06-16T23:59:59+00:00',
+				items: [
+					expect.objectContaining( {
+						label: 'Jetpack Team',
+						views: 64,
+						children: [
+							expect.objectContaining( {
+								id: 265143,
+								label: 'Homepage',
+								views: 60,
+							} ),
+						],
 					} ),
 				],
 			} )

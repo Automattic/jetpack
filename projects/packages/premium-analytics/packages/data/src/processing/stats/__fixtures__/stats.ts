@@ -1,31 +1,42 @@
 export const topPostsFixture = {
-	summary: {
-		total_views: '184',
-	},
+	date: '2026-06-22',
+	period: 'day',
 	days: {
 		'2026-06-15': {
-			total_views: 128,
 			postviews: [
 				{
 					id: 40,
 					href: 'https://example.com/previous/',
+					date: '2026-06-15 12:00:00',
 					title: 'Previous day',
 					type: 'post',
+					status: 'publish',
+					public: true,
 					views: 32,
+					video_play: false,
 				},
 			],
+			total_views: '128',
+			dropped_ids: [],
+			other_views: 96,
 		},
 		'2026-06-16': {
-			total_views: 184,
 			postviews: [
 				{
 					id: 41,
 					href: 'https://example.com/hello/',
+					date: '2026-06-16 12:00:00',
 					title: 'Hello world',
 					type: 'post',
+					status: 'publish',
+					public: true,
 					views: 64,
+					video_play: false,
 				},
 			],
+			total_views: '184',
+			dropped_ids: [],
+			other_views: 120,
 		},
 	},
 };
@@ -64,15 +75,48 @@ export const topPostsSummaryFixture = {
 };
 
 export const referrersFixture = {
+	date: '2026-06-22',
+	period: 'day',
 	days: {
 		'2026-06-16': {
 			groups: [
 				{
+					group: 'example.com',
 					name: 'example.com',
+					icon: 'https://example.com/blavatar.png',
 					total: 12,
+					follow_data: null,
 					results: [ { name: 'example.com/path', views: 12, url: 'https://example.com/path' } ],
 				},
 			],
+			other_views: 4,
+			total_views: 16,
+		},
+	},
+};
+
+export const clicksFixture = {
+	date: '2026-06-22',
+	period: 'day',
+	days: {
+		'2026-06-16': {
+			clicks: [
+				{
+					icon: 'https://example.com/blavatar.png',
+					url: null,
+					name: 'wordpress.org',
+					views: 12,
+					children: [
+						{
+							url: 'https://wordpress.org/plugins/jetpack-search',
+							name: 'wordpress.org/plugins/jetpack-search',
+							views: 8,
+						},
+					],
+				},
+			],
+			other_clicks: 2,
+			total_clicks: 14,
 		},
 	},
 };
@@ -136,6 +180,8 @@ export const referrersSummaryFixture = {
 };
 
 export const fileDownloadsFixture = {
+	date: '2026-06-22',
+	period: 'day',
 	days: {
 		'2026-06-16': {
 			files: [
@@ -146,6 +192,21 @@ export const fileDownloadsFixture = {
 					downloads: '5',
 				},
 			],
+			other_downloads: 1,
+			total_downloads: 6,
+		},
+	},
+};
+
+export const searchTermsFixture = {
+	date: '2026-06-22',
+	period: 'day',
+	days: {
+		'2026-06-16': {
+			search_terms: [ { term: 'delete revisions for wordpress', views: 1 } ],
+			encrypted_search_terms: 4,
+			other_search_terms: 0,
+			total_search_terms: 5,
 		},
 	},
 };
@@ -272,7 +333,51 @@ export const topAuthorsSummaryFixture = {
 	},
 };
 
+export const topAuthorsFixture = {
+	date: '2026-06-22',
+	period: 'day',
+	days: {
+		'2026-06-16': {
+			authors: [
+				{
+					name: 'Jetpack Team',
+					avatar: 'https://example.com/avatar.png',
+					views: 64,
+					posts: [
+						{
+							id: 265143,
+							title: 'Homepage',
+							url: 'https://example.com/?p=265143',
+							views: 60,
+							video: false,
+						},
+					],
+					follow_data: {
+						params: {
+							'stat-source': 'stats_author',
+							'follow-text': 'Follow',
+							'following-text': 'Following',
+							'following-hover-text': 'Unfollow',
+							blog_domain: 'example.com',
+							blog_url: 'https://example.com',
+							blog_id: 20115252,
+							site_id: 20115252,
+							blog_title: 'Jetpack',
+							is_following: false,
+						},
+						type: 'follow',
+					},
+					author_id: 196411292,
+					other_views: 4,
+				},
+			],
+			other_views: 12,
+		},
+	},
+};
+
 export const locationsFixture = {
+	date: '2026-06-22',
 	days: {
 		'2026-06-16': {
 			views: [
@@ -285,6 +390,8 @@ export const locationsFixture = {
 					views: '3',
 				},
 			],
+			other_views: 4,
+			total_views: 14,
 		},
 	},
 	'country-info': {
@@ -397,6 +504,8 @@ export const locationsCitySummaryFixture = {
 };
 
 export const videoPlaysFixture = {
+	date: '2026-06-22',
+	period: 'day',
 	days: {
 		'2026-06-16': {
 			plays: [
@@ -407,6 +516,8 @@ export const videoPlaysFixture = {
 					plays: '11',
 				},
 			],
+			other_plays: 0,
+			total_plays: 11,
 		},
 	},
 };
