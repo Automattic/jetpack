@@ -3857,6 +3857,38 @@ const { state } = store( 'wpcom-write', {
 				}
 			}
 
+			// Backspace in an empty blockquote: convert it back to a paragraph.
+			// Must run before the first-block Backspace guard below, otherwise the
+			// guard swallows Backspace when the quote is the editor's first block
+			// (e.g. just after the `>` markdown shortcut on a fresh post), leaving
+			// the user with no way to remove the quote.
+			if ( event.key === 'Backspace' ) {
+				const sel = window.getSelection();
+				if ( sel.rangeCount && sel.isCollapsed && ! getActiveCite() ) {
+					const bq = getActiveBlockquote();
+					if ( bq ) {
+						// Ignore the <cite> placeholder when checking for empty body.
+						const probe = bq.cloneNode( true );
+						const probeCite = probe.querySelector( 'cite' );
+						if ( probeCite ) {
+							probeCite.remove();
+						}
+						if ( probe.textContent.trim() === '' ) {
+							event.preventDefault();
+							flushUndoDebounce();
+							const p = document.createElement( 'p' );
+							p.innerHTML = '<br>';
+							bq.after( p );
+							bq.remove();
+							placeCursorAt( p );
+							state.formatQuote = false;
+							pushToUndoHistory();
+							return;
+						}
+					}
+				}
+			}
+
 			// Block Backspace at the very start of the first block. With nothing
 			// to merge into, some browsers respond by unwrapping the structure
 			// — including the .bw-content-inner wrapper that protects user
