@@ -10,9 +10,43 @@
 	color: var(--wpds-color-fg-content-neutral-weak);
 }
 
+.widgetHeader {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+}
+
+.breadcrumb {
+	display: flex;
+	align-items: center;
+	gap: var(--wpds-dimension-gap-xs, 4px);
+}
+
+.breadcrumbLink {
+	appearance: none;
+	background: none;
+	border: none;
+	padding: 0;
+	cursor: pointer;
+	color: var(--wpds-color-fg-interactive-brand, #3858e9);
+	font: inherit;
+}
+
+.breadcrumbLink:hover {
+	text-decoration: underline;
+}
+
+.breadcrumbSeparator {
+	color: var(--wpds-color-fg-content-neutral-weak);
+}
+
+.modeButton {
+	flex-shrink: 0;
+}
+
 .chartArea {
 	display: grid;
-	grid-template-columns: 400fr 280fr;
+	grid-template-columns: 280fr 400fr;
 	gap: var(--wpds-dimension-gap-md, 16px);
 	align-items: start;
 	min-width: 0;
@@ -24,6 +58,11 @@
 
 .leaderboard {
 	min-width: 0;
+}
+
+.leaderboardImage {
+	height: 20px;
+	border-radius: var(--wpds-border-radius-sm, 2px);
 }
 
 .sampleNote {

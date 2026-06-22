@@ -5,10 +5,11 @@ import apiFetch from '@wordpress/api-fetch';
 import { useState, useEffect } from '@wordpress/element';
 
 /**
- * A single normalized country-views row, the shape the widget renders from.
+ * A single normalized location-views row.
  *
- * Mirrors the relevant fields of Calypso's `normalizers.statsCountryViews`
- * output (country branch only).
+ * Mirrors the relevant fields of Calypso's `normalizers.statsCountryViews` output.
+ * In country mode: label is the country name, countryCode is the ISO code.
+ * In region mode: label is the region name, countryCode is still the parent country code.
  */
 export interface LocationView {
 	label: string;
@@ -19,34 +20,25 @@ export interface LocationView {
 }
 
 /**
- * Raw shape of the wpcom `country-views` response, as proxied by stats-admin.
- * Only the fields the country-level normalizer reads are typed.
+ * Raw shape of the wpcom location-views / country-views response,
+ * as proxied by the PA data proxy. Only the summarized branch is used.
  */
-interface RawCountryViews {
+interface RawLocationViews {
 	'country-info'?: Record< string, { country_full?: string; map_region?: string } >;
 	summary?: {
 		views?: Array< { country_code: string; location?: string; views: number } >;
 	};
 }
 
-/**
- * Date-range presets the widget exposes. Each maps to a trailing window of
- * N days, summarized server-side (`period=day` + `num=N` + `summarize`).
- */
-export type RangeKey = 'today' | 'last-7-days' | 'last-30-days' | 'last-year';
+export type GeoMode = 'country' | 'region';
 
-const RANGE_DAYS: Record< RangeKey, number > = {
-	today: 1,
-	'last-7-days': 7,
-	'last-30-days': 30,
-	'last-year': 365,
-};
-
-const DEFAULT_RANGE: RangeKey = 'last-30-days';
+const DEFAULT_NUM = 30;
 
 interface UseLocationViewsArgs {
-	range: RangeKey;
+	num: number;
 	max: number;
+	geoMode?: GeoMode;
+	countryFilter?: string;
 }
 
 interface LocationViewsState {
@@ -54,16 +46,13 @@ interface LocationViewsState {
 	isLoading: boolean;
 	isError: boolean;
 	/**
-	 * True when the data is the bundled placeholder rather than live stats —
-	 * shown when the blog id isn't available (site not connected) or the
-	 * request failed.
+	 * True when showing bundled placeholder data (site not connected or request failed).
 	 */
 	isSample: boolean;
 }
 
 /**
- * Country-level placeholder data, shown when live stats aren't available.
- * Lets the widget render in the dashboard preview without a connected site.
+ * Country-level placeholder data shown when the site isn't connected or the request fails.
  */
 const SAMPLE_LOCATIONS: LocationView[] = [
 	{
@@ -96,35 +85,49 @@ const SAMPLE_LOCATIONS: LocationView[] = [
 	{ label: 'Spain', countryCode: 'ES', countryFull: 'Spain', value: 400, region: '039' },
 ];
 
-// Locations the legacy geoviews table can't resolve; dropped, as in Calypso.
 const UNKNOWN_COUNTRY_CODES = [ 'A1', 'A2', 'ZZ' ];
 
 /**
- * Read the WordPress.com blog id exposed on the page.
+ * Build the PA data-proxy path for a location-views or country-views request.
  *
- * Uses the Odyssey `window.configData.blog_id` convention; the package's
- * `src/stats-config.php` inlines it on the dashboard page. Absent when the
- * site isn't connected.
+ * Uses `/jetpack-premium-analytics/v1/proxy/v1.1/stats/<endpoint>` — the PA proxy
+ * injects the connected blog id server-side so the client never needs to know it.
  *
- * @return The numeric blog id, or undefined when not available.
+ * @param geoMode       - 'country' uses the legacy country-views endpoint;
+ *                      'region' uses location-views/region.
+ * @param num           - Trailing window in days.
+ * @param max           - Maximum rows to return.
+ * @param countryFilter - ISO country code to filter regions by (region mode only).
+ * @return The full apiFetch path.
  */
-function getBlogId(): number | undefined {
-	const configData = ( window as unknown as { configData?: { blog_id?: unknown } } ).configData;
-	const blogId = configData?.blog_id;
-	return typeof blogId === 'number' ? blogId : undefined;
+function buildPath( geoMode: GeoMode, num: number, max: number, countryFilter?: string ): string {
+	const endpoint = geoMode === 'region' ? 'location-views/region' : 'country-views';
+
+	const params = new URLSearchParams( {
+		period: 'day',
+		num: String( num > 0 ? num : DEFAULT_NUM ),
+		summarize: '1',
+		max: String( max ),
+	} );
+
+	if ( geoMode === 'region' && countryFilter ) {
+		params.set( 'filter_by_country', countryFilter );
+	}
+
+	return `/jetpack-premium-analytics/v1/proxy/v1.1/stats/${ endpoint }?${ params.toString() }`;
 }
 
 /**
- * Normalize a raw `country-views` (summarized) response into the rows the
- * widget renders. Port of Calypso's `statsCountryViews` normalizer, summary
- * branch + country mode only.
+ * Normalize a raw location-views / country-views (summarized) response.
  *
- * @param data - Raw response from the stats endpoint.
- * @param max  - Maximum number of rows to keep (0 means all).
- * @return Normalized, ranked country rows.
+ * Port of Calypso's `statsCountryViews` normalizer, summary branch.
+ *
+ * @param data - Raw response from the proxy.
+ * @param max  - Maximum rows to keep (0 = all).
+ * @return Normalized rows, ranked by view count descending.
  */
-export function normalizeCountryViews(
-	data: RawCountryViews | undefined,
+export function normalizeLocationViews(
+	data: RawLocationViews | undefined,
 	max: number
 ): LocationView[] {
 	if ( ! data ) {
@@ -133,8 +136,8 @@ export function normalizeCountryViews(
 
 	const countryInfo = data[ 'country-info' ] ?? {};
 	const views = data.summary?.views ?? [];
-
 	const rows: LocationView[] = [];
+
 	for ( const view of views ) {
 		if ( UNKNOWN_COUNTRY_CODES.includes( view.country_code ) ) {
 			continue;
@@ -146,8 +149,8 @@ export function normalizeCountryViews(
 		}
 
 		rows.push( {
-			// ’ in country names breaks the geo visualization, so normalize it.
-			label: view.location || info.country_full.replace( /’/g, "'" ),
+			// Apostrophes in names break the Google GeoChart visualization.
+			label: view.location || info.country_full.replace( /'/g, "'" ),
 			countryCode: view.country_code,
 			countryFull: info.country_full,
 			value: view.views,
@@ -159,24 +162,24 @@ export function normalizeCountryViews(
 }
 
 /**
- * Fetch country-level location views for the dashboard widget.
+ * Fetch location views for the dashboard widget via the PA data proxy.
  *
- * Calls the stats-admin proxy route
- * `/jetpack/v4/stats-app/sites/{blogId}/stats/country-views`, which forwards to
- * the wpcom `country-views` endpoint. The range preset maps to a trailing
- * window of N days summarized server-side; `date` is intentionally omitted so
- * the endpoint anchors the window to "today" in the site's own timezone.
- * Falls back to bundled sample data when the blog id isn't available or the
- * request fails.
+ * The proxy (`/jetpack-premium-analytics/v1/proxy/v1.1/stats/...`) injects the
+ * connected blog id server-side and forwards to the wpcom stats endpoint. Falls
+ * back to bundled sample data on error (e.g. site not connected → 403).
  *
- * @param args       - Hook arguments.
- * @param args.range - Date-range preset, e.g. `last-30-days`.
- * @param args.max   - Maximum number of countries to return.
+ * @param args               - Hook arguments.
+ * @param args.num           - Trailing window in days (e.g. 30 for last-30-days).
+ * @param args.max           - Maximum rows.
+ * @param args.geoMode       - 'country' (default) or 'region'.
+ * @param args.countryFilter - ISO country code to filter regions by (region mode).
  * @return The current data/loading/error state.
  */
 export default function useLocationViews( {
-	range,
+	num,
 	max,
+	geoMode = 'country',
+	countryFilter,
 }: UseLocationViewsArgs ): LocationViewsState {
 	const [ state, setState ] = useState< LocationViewsState >( {
 		data: [],
@@ -186,38 +189,18 @@ export default function useLocationViews( {
 	} );
 
 	useEffect( () => {
-		const blogId = getBlogId();
-
-		// Without a blog id there's no live data source — render sample data so
-		// the widget is still demoable.
-		if ( ! blogId ) {
-			setState( {
-				data: SAMPLE_LOCATIONS.slice( 0, max ),
-				isLoading: false,
-				isError: false,
-				isSample: true,
-			} );
-			return;
-		}
-
 		let cancelled = false;
 		setState( prev => ( { ...prev, isLoading: true } ) );
 
-		const params = new URLSearchParams( {
-			period: 'day',
-			num: String( RANGE_DAYS[ range ] ?? RANGE_DAYS[ DEFAULT_RANGE ] ),
-			summarize: '1',
-			max: String( max ),
-		} );
-		const path = `/jetpack/v4/stats-app/sites/${ blogId }/stats/country-views?${ params.toString() }`;
+		const path = buildPath( geoMode, num, max, countryFilter );
 
-		apiFetch< RawCountryViews >( { path } )
+		apiFetch< RawLocationViews >( { path } )
 			.then( response => {
 				if ( cancelled ) {
 					return;
 				}
 				setState( {
-					data: normalizeCountryViews( response, max ),
+					data: normalizeLocationViews( response, max ),
 					isLoading: false,
 					isError: false,
 					isSample: false,
@@ -238,7 +221,7 @@ export default function useLocationViews( {
 		return () => {
 			cancelled = true;
 		};
-	}, [ range, max ] );
+	}, [ geoMode, num, max, countryFilter ] );
 
 	return state;
 }

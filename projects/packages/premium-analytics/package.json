@@ -45,6 +45,7 @@
 		"@jetpack-premium-analytics/datetime": "link:packages/datetime",
 		"@jetpack-premium-analytics/fields": "link:packages/fields",
 		"@jetpack-premium-analytics/formatters": "link:packages/formatters",
+		"@jetpack-premium-analytics/icons": "link:packages/icons",
 		"@jetpack-premium-analytics/routing": "link:packages/routing",
 		"@jetpack-premium-analytics/site-sync": "link:packages/site-sync",
 		"@jetpack-premium-analytics/ui": "link:packages/ui",

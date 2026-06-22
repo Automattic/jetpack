@@ -1,20 +1,24 @@
 /**
  * External dependencies
  */
-import { GeoChart, GlobalChartsProvider } from '@automattic/charts';
+import { GeoChart } from '@automattic/charts';
 import {
 	LeaderboardChart,
 	LeaderboardLabel,
+	WidgetRoot,
+	useWidgetRootContext,
 	type LeaderboardChartData,
 } from '@jetpack-premium-analytics/widgets-toolkit';
-import { useMemo } from '@wordpress/element';
+import { useCallback, useMemo, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import { Stack, Text } from '@wordpress/ui';
+import { Icon as WpIcon, chevronDown } from '@wordpress/icons';
+import { Button, Stack, Text } from '@wordpress/ui';
 import clsx from 'clsx';
 /**
  * Internal dependencies
  */
-import useLocationViews, { type RangeKey } from './use-location-views';
+import { reportParamsToStatsDays } from './report-params-adapter';
+import useLocationViews, { type GeoMode } from './use-location-views';
 import styles from './style.module.css';
 /**
  * Types
@@ -22,7 +26,6 @@ import styles from './style.module.css';
 import type { GeoData } from '@automattic/charts';
 
 interface LocationsAttributes {
-	range?: RangeKey;
 	max?: number;
 }
 
@@ -31,10 +34,7 @@ type LocationsRenderProps = {
 };
 
 /**
- * Flag SVG URL for a country code, served from the flag-icons CDN.
- *
- * Local copy of the widgets-toolkit `flagUrl` helper, which isn't exported
- * from the package root yet.
+ * Flag SVG URL from the flag-icons CDN.
  *
  * @param countryCode - Two-letter ISO 3166-1 country code.
  * @return Flag SVG URL, or null for invalid codes.
@@ -43,56 +43,67 @@ function flagUrl( countryCode: string ): string | null {
 	if ( ! countryCode || countryCode.length !== 2 ) {
 		return null;
 	}
-
 	return `https://cdn.jsdelivr.net/npm/flag-icons@7.5.0/flags/4x3/${ countryCode.toLowerCase() }.svg`;
 }
 
 /**
- * Locations widget: visitor views by country, as a world map plus a country
- * leaderboard. Ported from the Jetpack Stats Locations module (country mode),
- * presented like the Woo Analytics visitors-by-location widget.
+ * Locations widget inner component. Reads report params from WidgetRoot context.
  *
  * @param root0            - Render props.
- * @param root0.attributes - Widget attributes (range, max).
+ * @param root0.attributes - Widget attributes (max).
  */
-export default function Locations( { attributes }: LocationsRenderProps ) {
-	const range = attributes?.range ?? 'last-30-days';
+function LocationsInner( { attributes }: LocationsRenderProps ) {
+	const { reportParams } = useWidgetRootContext();
+	const num = reportParamsToStatsDays( reportParams );
 	const max = attributes?.max ?? 10;
 
-	const { data, isLoading, isSample } = useLocationViews( { range, max } );
+	const [ selectedCountry, setSelectedCountry ] = useState< { code: string; name: string } | null >(
+		null
+	);
 
-	// Google Charts format: a header row followed by [ country, views ] rows.
+	const clearSelectedCountry = useCallback( () => setSelectedCountry( null ), [] );
+
+	const geoMode: GeoMode = selectedCountry ? 'region' : 'country';
+
+	const { data, isLoading, isSample } = useLocationViews( {
+		num,
+		max,
+		geoMode,
+		countryFilter: selectedCountry?.code,
+	} );
+
 	const geoData = useMemo(
 		() =>
 			[
 				[
-					__( 'Country', 'jetpack-premium-analytics' ),
+					geoMode === 'region'
+						? __( 'Region', 'jetpack-premium-analytics' )
+						: __( 'Country', 'jetpack-premium-analytics' ),
 					__( 'Views', 'jetpack-premium-analytics' ),
 				],
-				...data.map( location => [ location.countryFull, location.value ] ),
+				...data.map( location => [ location.label, location.value ] ),
 			] as unknown as GeoData,
-		[ data ]
+		[ data, geoMode ]
 	);
 
-	// Leaderboard rows: bar width scales against the top country (= 100%).
-	// No comparison period yet, so the comparison fields stay zeroed.
 	const leaderboardData = useMemo( () => {
-		const maxValue = Math.max( ...data.map( location => location.value ), 0 );
+		const maxValue = Math.max( ...data.map( l => l.value ), 0 );
 
 		return data.map( location => {
 			const imageUrl = flagUrl( location.countryCode );
 
 			return {
-				id: location.countryCode,
+				id: location.countryCode + '_' + location.label,
 				label: (
 					<LeaderboardLabel
 						label={ location.label }
+						imageUrl={ imageUrl ?? undefined }
 						imageAlt={ sprintf(
-							/* translators: %s is the country name */
+							/* translators: %s is the country or region name */
 							__( 'Flag of %s', 'jetpack-premium-analytics' ),
 							location.label
 						) }
-						{ ...( imageUrl ? { imageUrl } : {} ) }
+						imageClassName={ styles.leaderboardImage }
 					/>
 				),
 				currentValue: location.value,
@@ -100,9 +111,15 @@ export default function Locations( { attributes }: LocationsRenderProps ) {
 				currentShare: maxValue > 0 ? ( location.value / maxValue ) * 100 : 0,
 				previousShare: 0,
 				delta: 0,
+				// Country mode: click to drill into regions.
+				// Region mode: rows are not interactive.
+				...( geoMode === 'country' && {
+					onClick: () =>
+						setSelectedCountry( { code: location.countryCode, name: location.countryFull } ),
+				} ),
 			};
 		} ) as LeaderboardChartData;
-	}, [ data ] );
+	}, [ data, geoMode ] );
 
 	if ( isLoading ) {
 		return (
@@ -126,30 +143,70 @@ export default function Locations( { attributes }: LocationsRenderProps ) {
 	}
 
 	return (
-		<GlobalChartsProvider>
-			<Stack className={ styles.root }>
-				<div className={ styles.chartArea }>
-					<div className={ styles.geoChart }>
-						<GeoChart data={ geoData } height={ 280 } />
-					</div>
-					<LeaderboardChart
-						data={ leaderboardData }
-						withOverlayLabel
-						withComparison={ false }
-						showLegend={ false }
-						dataFormat={ {
-							type: 'number',
-							options: { useMultipliers: true, decimals: 0 },
-						} }
-						className={ styles.leaderboard }
+		<Stack className={ styles.root }>
+			<div className={ styles.widgetHeader }>
+				<div className={ styles.breadcrumb }>
+					{ selectedCountry ? (
+						<button className={ styles.breadcrumbLink } onClick={ clearSelectedCountry }>
+							{ __( 'Top Locations', 'jetpack-premium-analytics' ) }
+						</button>
+					) : (
+						<Text>{ __( 'Top Locations', 'jetpack-premium-analytics' ) }</Text>
+					) }
+					{ selectedCountry && (
+						<>
+							<Text className={ styles.breadcrumbSeparator }>/</Text>
+							<Text>{ selectedCountry.name }</Text>
+						</>
+					) }
+				</div>
+				<Button size="compact" variant="outline" className={ styles.modeButton }>
+					{ __( 'Countries', 'jetpack-premium-analytics' ) }
+					<WpIcon icon={ chevronDown } size={ 16 } />
+				</Button>
+			</div>
+			<div className={ styles.chartArea }>
+				<LeaderboardChart
+					data={ leaderboardData }
+					withOverlayLabel
+					withComparison={ false }
+					showLegend={ false }
+					dataFormat={ {
+						type: 'number',
+						options: { useMultipliers: true, decimals: 0 },
+					} }
+					className={ styles.leaderboard }
+				/>
+				<div className={ styles.geoChart }>
+					<GeoChart
+						data={ geoData }
+						height={ 280 }
+						region={ selectedCountry?.code ?? 'world' }
+						resolution={ selectedCountry ? 'provinces' : 'countries' }
 					/>
 				</div>
-				{ isSample && (
-					<Text className={ styles.sampleNote }>
-						{ __( 'Sample data', 'jetpack-premium-analytics' ) }
-					</Text>
-				) }
-			</Stack>
-		</GlobalChartsProvider>
+			</div>
+			{ isSample && (
+				<Text className={ styles.sampleNote }>
+					{ __( 'Sample data', 'jetpack-premium-analytics' ) }
+				</Text>
+			) }
+		</Stack>
+	);
+}
+
+/**
+ * Locations widget: visitor views by country/region, as a world map plus a
+ * leaderboard. Click a country to drill into its regions. Ported from the
+ * Jetpack Stats Locations module.
+ *
+ * @param root0            - Render props.
+ * @param root0.attributes - Widget attributes (max).
+ */
+export default function Locations( { attributes }: LocationsRenderProps ) {
+	return (
+		<WidgetRoot attributes={ attributes }>
+			<LocationsInner attributes={ attributes } />
+		</WidgetRoot>
 	);
 }

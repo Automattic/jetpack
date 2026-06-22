@@ -14,7 +14,7 @@ export default {
 	name: 'jpa/locations',
 	title: 'Locations',
 	icon: mapMarker,
-	presentation: 'framed',
+	presentation: 'full-bleed',
 	attributes: [
 		{
 			id: 'range',
