@@ -119,6 +119,14 @@ class WooCommerce extends Module {
 	private $synced_order_total_keys = array();
 
 	/**
+	 * Cached list of order statuses WooCommerce considers paid, memoized per request to avoid
+	 * re-running wc_get_is_paid_statuses() (and its filters) on every order this request observes.
+	 *
+	 * @var array|null
+	 */
+	private $paid_order_statuses = null;
+
+	/**
 	 * The table name.
 	 *
 	 * @access public
@@ -323,6 +331,8 @@ class WooCommerce extends Module {
 	 * trailing order-total payload (total, currency) that the Activity Log aggregates into
 	 * revenue; otherwise only the order ID is synced (the action still syncs for other purposes).
 	 *
+	 * @since $$next-version$$ Appends a trailing [ 'total', 'currency' ] payload when the new order is paid.
+	 *
 	 * @param array $args Hook args: [ order_id, WC_Order ]. The order object is WooCommerce's 2nd arg.
 	 * @return array|false The args ( [ order_id ] ), with a trailing order-total payload appended when paid, or false when invalid.
 	 */
@@ -339,12 +349,8 @@ class WooCommerce extends Module {
 		// Rebuild the scalar arg shape WPcom expects. This also drops the WC_Order object the listener now
 		// receives so it is never enqueued or serialized into the sync queue.
 		$args = array( $order_id );
-		if ( $order && $this->is_paid_order_status( $order->get_status() ) && $this->claim_order_total_emission( $order ) ) {
-			$payload = $this->build_order_total_payload( $order );
-
-			if ( $payload !== null ) {
-				$args[] = $payload;
-			}
+		if ( $order && $this->is_paid_order_status( $order->get_status() ) ) {
+			$args = $this->maybe_append_order_total( $args, $order );
 		}
 
 		return $args;
@@ -358,6 +364,8 @@ class WooCommerce extends Module {
 	 * emitted we append a trailing order-total payload (total, currency) the Activity Log
 	 * reads; otherwise only [ order_id, status_from, status_to ] is synced (the action still syncs for
 	 * other purposes).
+	 *
+	 * @since $$next-version$$ Appends a trailing [ 'total', 'currency' ] payload on the paid transition.
 	 *
 	 * @param array $args Hook args: [ order_id, status_from, status_to, WC_Order ]. The order is the 4th arg.
 	 * @return array|false The args ( [ order_id, status_from, status_to ] ), with a trailing payload on the paid transition, or false when invalid.
@@ -383,12 +391,25 @@ class WooCommerce extends Module {
 		$args = array( $order_id, $status_from, $status_to );
 
 		if ( $this->is_paid_order_status( $status_to ) && ! $this->is_paid_order_status( $status_from ) ) {
-			if ( $order && $this->claim_order_total_emission( $order ) ) {
-				$payload = $this->build_order_total_payload( $order );
+			$args = $this->maybe_append_order_total( $args, $order );
+		}
 
-				if ( $payload !== null ) {
-					$args[] = $payload;
-				}
+		return $args;
+	}
+
+	/**
+	 * Append the order-total payload to the given args when this is the order's paid moment.
+	 *
+	 * @param array         $args  The scalar args built so far for the action.
+	 * @param WC_Order|null $order Order object, or null when WooCommerce did not pass one.
+	 * @return array The args, with a trailing order-total payload appended when emitted.
+	 */
+	private function maybe_append_order_total( $args, $order ) {
+		if ( $order && $this->claim_order_total_emission( $order ) ) {
+			$payload = $this->build_order_total_payload( $order );
+
+			if ( $payload !== null ) {
+				$args[] = $payload;
 			}
 		}
 
@@ -419,8 +440,9 @@ class WooCommerce extends Module {
 	 * Build the trailing order-total payload appended to a paid order's synced action args.
 	 *
 	 * Intentionally minimal and scalar-only so it is safe to store and index on WPcom (Activity Log,
-	 * Elasticsearch, MCP integrations). get_total() and get_currency() are filterable, so we normalize
-	 * the total to a numeric string and cast the currency rather than trust whatever a filter returns.
+	 * Elasticsearch, MCP integrations). We read with the 'edit' context to get the raw stored values and
+	 * skip the woocommerce_order_get_total / _currency view filters, then still normalize the total to a
+	 * numeric string and cast the currency rather than trust whatever WooCommerce returns.
 	 *
 	 * @param WC_Order $order Order object.
 	 * @return array {
@@ -429,7 +451,7 @@ class WooCommerce extends Module {
 	 * }
 	 */
 	private function build_order_total_payload( $order ) {
-		$total = $order->get_total();
+		$total = $order->get_total( 'edit' );
 
 		if ( $total <= 0 ) {
 			return null;
@@ -437,7 +459,7 @@ class WooCommerce extends Module {
 
 		return array(
 			'total'    => function_exists( 'wc_format_decimal' ) ? wc_format_decimal( $total ) : (string) $total,
-			'currency' => (string) $order->get_currency(),
+			'currency' => (string) $order->get_currency( 'edit' ),
 		);
 	}
 
@@ -456,7 +478,11 @@ class WooCommerce extends Module {
 			return false;
 		}
 
-		return in_array( $status, wc_get_is_paid_statuses(), true );
+		if ( null === $this->paid_order_statuses ) {
+			$this->paid_order_statuses = wc_get_is_paid_statuses();
+		}
+
+		return in_array( $status, $this->paid_order_statuses, true );
 	}
 
 	/**
