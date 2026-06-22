@@ -9,7 +9,6 @@
  * Author URI: https://jetpack.com/
  * License: GPLv2 or later
  * Text Domain: jetpack-premium-analytics
- * Requires Plugins: gutenberg
  *
  * @package automattic/jetpack-premium-analytics-plugin
  */
