@@ -1,6 +1,8 @@
-/**
- * Internal dependencies
- */
+import {
+	formatDatePartWithTime,
+	getDateIntervalDateParts,
+	getDatePart,
+} from '@jetpack-premium-analytics/datetime';
 import { safeParseFloat } from '../../utils/parsing';
 import type { StatsQueryParams } from '../../utils/stats-params';
 
@@ -147,10 +149,6 @@ function normalizeStatsSummary(
 	);
 }
 
-function getDatePart( value: unknown ): string | undefined {
-	return typeof value === 'string' ? value.split( 'T' )[ 0 ] : undefined;
-}
-
 function getStatsEndDateParam( query?: StatsQueryParams ): string | undefined {
 	return getDatePart( query?.end_date ?? query?.date );
 }
@@ -165,85 +163,13 @@ function getStatsResponsePeriod( response: unknown ): string | undefined {
 	return typeof period === 'string' ? period : undefined;
 }
 
-function formatNormalizedDateTime( date: string, time: string ): string {
-	return `${ date }T${ time }+00:00`;
-}
-
-function getStartDatePart( date: string, period?: string ): string {
-	const datePart = date.split( 'T' )[ 0 ];
-
-	if ( period === 'year' && /^\d{4}$/.test( datePart ) ) {
-		return `${ datePart }-01-01`;
-	}
-
-	if ( period === 'month' && /^\d{4}-\d{2}$/.test( datePart ) ) {
-		return `${ datePart }-01`;
-	}
-
-	return datePart;
-}
-
-function parseDatePart( date: string ): Date | null {
-	const match = date.match( /^(\d{4})-(\d{2})-(\d{2})$/ );
-
-	if ( ! match ) {
-		return null;
-	}
-
-	return new Date(
-		Date.UTC(
-			Number.parseInt( match[ 1 ], 10 ),
-			Number.parseInt( match[ 2 ], 10 ) - 1,
-			Number.parseInt( match[ 3 ], 10 )
-		)
-	);
-}
-
-function formatDatePart( date: Date ): string {
-	return [
-		date.getUTCFullYear(),
-		String( date.getUTCMonth() + 1 ).padStart( 2, '0' ),
-		String( date.getUTCDate() ).padStart( 2, '0' ),
-	].join( '-' );
-}
-
-function addUtcDays( date: Date, days: number ): Date {
-	const next = new Date( date.getTime() );
-	next.setUTCDate( next.getUTCDate() + days );
-	return next;
-}
-
-function getEndDatePart( startDate: string, period?: string ): string {
-	const parsed = parseDatePart( startDate );
-
-	if ( ! parsed ) {
-		return startDate;
-	}
-
-	switch ( period ) {
-		case 'week':
-			return formatDatePart( addUtcDays( parsed, 6 ) );
-		case 'month':
-			return formatDatePart(
-				new Date( Date.UTC( parsed.getUTCFullYear(), parsed.getUTCMonth() + 1, 0 ) )
-			);
-		case 'year':
-			return `${ parsed.getUTCFullYear() }-12-31`;
-		case 'hour':
-		case 'day':
-		default:
-			return startDate;
-	}
-}
-
 function getStatsIntervalFields( date: string, period?: string ): StatsIntervalFields {
-	const startDate = getStartDatePart( date, period );
-	const endDate = getEndDatePart( startDate, period );
+	const { startDate, endDate } = getDateIntervalDateParts( date, period );
 
 	return {
 		time_interval: date,
-		date_start: formatNormalizedDateTime( startDate, '00:00:00' ),
-		date_end: formatNormalizedDateTime( endDate, '23:59:59' ),
+		date_start: formatDatePartWithTime( startDate, '00:00:00' ),
+		date_end: formatDatePartWithTime( endDate, '23:59:59' ),
 	};
 }
 
@@ -257,8 +183,8 @@ function getStatsSummaryIntervalFields(
 	const endDate = getStatsEndDateParam( query ) ?? responseDate ?? getDatePart( query?.start_date );
 
 	return {
-		...( startDate ? { date_start: formatNormalizedDateTime( startDate, '00:00:00' ) } : {} ),
-		...( endDate ? { date_end: formatNormalizedDateTime( endDate, '23:59:59' ) } : {} ),
+		...( startDate ? { date_start: formatDatePartWithTime( startDate, '00:00:00' ) } : {} ),
+		...( endDate ? { date_end: formatDatePartWithTime( endDate, '23:59:59' ) } : {} ),
 	};
 }
 
