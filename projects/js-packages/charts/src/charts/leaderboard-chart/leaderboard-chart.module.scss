@@ -85,6 +85,8 @@
 }
 
 .interactiveRow {
+	--focus-ring-width: var(--wpds-border-width-focus, var(--wp-admin-border-width-focus, 2px));
+
 	display: grid;
 	grid-column: 1 / -1;
 	grid-template-columns: subgrid;
@@ -92,10 +94,13 @@
 	position: relative;
 
 	// Native button reset.
+	box-sizing: border-box;
 	appearance: none;
 	width: 100%;
 	margin: 0;
-	padding: 0;
+	// Reserve a ring's worth of space on every edge so the inset focus outline
+	// hugs the row without the bar painting over it (see :focus-visible below).
+	padding: var(--focus-ring-width);
 	border: 0;
 	background: none;
 	color: inherit;
@@ -147,8 +152,15 @@
 	}
 
 	&:focus-visible {
-		outline: 2px solid var(--wpds-color-fg-interactive-brand, var(--wp-admin-theme-color, #3858e9));
-		outline-offset: -2px;
+		border-radius: var(--wpds-border-radius-sm, 2px);
+		outline:
+			var(--focus-ring-width) solid
+			var(--wpds-color-stroke-focus-brand, var(--wp-admin-theme-color, #3858e9));
+		// Inset by its own width so the outer edge hugs the row boundary: the
+		// outline then sits in the row's padding (also a ring width), clear of the
+		// bar, and stays inside the overflow:auto container that would clip an
+		// outset ring.
+		outline-offset: calc(-1 * var(--focus-ring-width));
 	}
 }
 
