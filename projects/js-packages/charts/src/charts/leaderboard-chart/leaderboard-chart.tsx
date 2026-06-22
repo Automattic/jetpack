@@ -63,7 +63,7 @@ const defaultDeltaFormatter = ( value: number ): string => {
 const getBarWidth = ( share: number ): string =>
 	`calc(${ share }% - var(--a8c--charts--leaderboard--bar--hover-inset, 0px))`;
 
-const BarLabel = ( { label }: { label: string | JSX.Element } ) => (
+const BarLabel = ( { label }: { label: LeaderboardEntry[ 'label' ] } ) => (
 	<>{ typeof label === 'string' ? <Text className={ styles.label }>{ label }</Text> : label }</>
 );
 
