@@ -106,7 +106,9 @@ export function FixThreatModal( { items, closeModal }: RenderModalProps< Threat 
 			</Text>
 			<Stack gap="xs" direction="column">
 				<Stack gap="sm" direction="row" align="center" wrap="wrap">
-					<Text style={ { fontWeight: 500 } }>{ threat.title }</Text>
+					<Text style={ { fontWeight: 'var(--wpds-typography-font-weight-medium, 499)' } }>
+						{ threat.title }
+					</Text>
 					{ !! threat.severity && <ThreatSeverityBadge severity={ threat.severity } /> }
 				</Stack>
 				{ threat.description && <Text style={ mutedTextStyle }>{ threat.description }</Text> }
