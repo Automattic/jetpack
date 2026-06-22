@@ -40,7 +40,6 @@ trustPolicyExclude:
   - chokidar@4.0.3
 
   # Packages where newer majors have provenance but we're still on an older one.
-  - reselect@5.1.1
   - rollup@3.30.0
   - rxjs@7.8.2
   - semver@6.3.1
