@@ -26,9 +26,7 @@ describe( 'Stats normalizers', () => {
 				label: 'Hello world',
 				views: 64,
 				children: null,
-				meta: expect.objectContaining( {
-					link: 'https://example.com/hello/',
-				} ),
+				link: 'https://example.com/hello/',
 			} ),
 		] );
 	} );
@@ -43,9 +41,8 @@ describe( 'Stats normalizers', () => {
 			expect.objectContaining( {
 				label: 'example.com/path',
 				views: 12,
-				meta: expect.objectContaining( {
-					actionMenu: 1,
-				} ),
+				children: null,
+				actionMenu: 1,
 			} )
 		);
 	} );
@@ -60,9 +57,7 @@ describe( 'Stats normalizers', () => {
 			expect.objectContaining( {
 				label: '/download.pdf',
 				downloads: 5,
-				meta: expect.objectContaining( {
-					shortLabel: 'download.pdf',
-				} ),
+				shortLabel: 'download.pdf',
 			} )
 		);
 	} );
@@ -96,9 +91,7 @@ describe( 'Stats normalizers', () => {
 				impressions: 42,
 				watch_time: 128.5,
 				retention_rate: 61.25,
-				meta: expect.objectContaining( {
-					link: 'https://example.com/video/',
-				} ),
+				link: 'https://example.com/video/',
 			} )
 		);
 	} );
