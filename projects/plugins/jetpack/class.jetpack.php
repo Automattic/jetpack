@@ -888,8 +888,26 @@ class Jetpack {
 		Scan_Page_Init::initialize();
 		Jetpack_SEO_Initializer::init();
 
-		// Initialize Boost Speed Score
-		new Speed_Score( array(), 'jetpack-dashboard' );
+		/*
+		 * Initialize Boost Speed Score. It only does work on REST requests (the
+		 * dashboard speed-score endpoints) and on a few Jetpack Boost lifecycle
+		 * actions, so defer constructing it — and loading the boost-speed-score
+		 * package classes — until one of those hooks actually fires instead of on
+		 * every request. Priority 0 ensures the object's own callbacks (added in
+		 * its constructor at the default priority) still run for the firing hook.
+		 */
+		$initialize_speed_score = static function () {
+			static $initialized = false;
+			if ( $initialized ) {
+				return;
+			}
+			$initialized = true;
+			new Speed_Score( array(), 'jetpack-dashboard' );
+		};
+		add_action( 'rest_api_init', $initialize_speed_score, 0 );
+		add_action( 'jetpack_boost_deactivate', $initialize_speed_score, 0 );
+		add_action( 'jetpack_boost_environment_changed', $initialize_speed_score, 0 );
+		add_action( 'handle_environment_change', $initialize_speed_score, 0 );
 
 		/**
 		 * Fires when Jetpack is fully loaded and ready. This is the point where it's safe
