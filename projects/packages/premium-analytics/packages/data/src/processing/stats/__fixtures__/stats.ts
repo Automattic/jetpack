@@ -291,26 +291,28 @@ export const locationsFixture = {
 };
 
 export const locationsSummaryFixture = {
-	date: '2026-06-30',
+	date: '2026-06-22',
 	period: 'day',
 	summary: {
 		views: [
 			{
-				country_code: 'CI',
-				views: '7',
+				location: 'Hungary',
+				views: 59,
+				country_code: 'HU',
 			},
 			{
-				country_code: 'A1',
-				views: '3',
+				location: 'Trinidad & Tobago',
+				views: 33,
+				country_code: 'TT',
+			},
+			{
+				location: 'Côte d’Ivoire',
+				views: 2,
+				country_code: 'CI',
 			},
 		],
-		total_views: '10',
-	},
-	'country-info': {
-		CI: {
-			country_full: 'Côte d’Ivoire',
-			map_region: '002',
-		},
+		other_views: 0,
+		total_views: 0,
 	},
 };
 
