@@ -1,5 +1,6 @@
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import apiFetch from '@wordpress/api-fetch';
+import { useCallback } from '@wordpress/element';
 import { flattenVideoTracks } from '../../client/lib/video-tracks';
 import { buildShortcode } from '../utils/format';
 import { LIBRARY_ITEM_QUERY_SEGMENT, LIBRARY_QUERY_KEY, privacyIntToString } from './use-library';
@@ -95,4 +96,22 @@ export function useVideo( id: number | string ) {
 		error: query.error,
 		refetch: query.refetch,
 	};
+}
+
+/**
+ * Returns a callback that invalidates a single video's cached query so the next
+ * read refetches it. Lets any component refresh a video after mutating it
+ * out-of-band (e.g. the caption manager) without threading `refetch` through props.
+ *
+ * @return A function that invalidates the cache for the given media ID.
+ */
+export function useInvalidateVideo() {
+	const client = useQueryClient();
+	return useCallback(
+		( id: number | string ) =>
+			client.invalidateQueries( {
+				queryKey: [ LIBRARY_QUERY_KEY, LIBRARY_ITEM_QUERY_SEGMENT, String( id ) ],
+			} ),
+		[ client ]
+	);
 }
