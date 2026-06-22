@@ -232,6 +232,21 @@ class Jetpack_Sync_WooCommerce_Test extends Jetpack_Sync_TestBase {
 		$this->assertSame( array( $order->get_id() ), $filtered );
 	}
 
+	public function test_new_order_filter_with_zero_total_syncs_id_only() {
+		// An order with no items has a total of 0; even when paid, no order-total payload is appended.
+		$order = new WC_Order();
+		$order->calculate_totals();
+		$order->set_status( 'completed' );
+		$order->save();
+
+		$this->assertSame( 0, (float) $order->get_total() );
+
+		$module   = $this->get_woocommerce_module();
+		$filtered = $module->add_order_total_to_new_order( array( $order->get_id(), $order ) );
+
+		$this->assertSame( array( $order->get_id() ), $filtered );
+	}
+
 	public function test_status_changed_filter_returns_false_for_invalid_args() {
 		$module = $this->get_woocommerce_module();
 
@@ -247,6 +262,20 @@ class Jetpack_Sync_WooCommerce_Test extends Jetpack_Sync_TestBase {
 		$module = $this->get_woocommerce_module();
 
 		$filtered = $module->add_order_total_to_status_changed( array( $order->get_id(), 'pending', 'processing' ) );
+
+		$this->assertSame( array( $order->get_id(), 'pending', 'processing' ), $filtered );
+	}
+
+	public function test_status_changed_filter_with_zero_total_syncs_without_total() {
+		// An order with no items has a total of 0, so the paid transition appends no order-total payload.
+		$order = new WC_Order();
+		$order->calculate_totals();
+		$order->save();
+
+		$this->assertSame( 0, (float) $order->get_total() );
+
+		$module   = $this->get_woocommerce_module();
+		$filtered = $module->add_order_total_to_status_changed( array( $order->get_id(), 'pending', 'processing', $order ) );
 
 		$this->assertSame( array( $order->get_id(), 'pending', 'processing' ), $filtered );
 	}

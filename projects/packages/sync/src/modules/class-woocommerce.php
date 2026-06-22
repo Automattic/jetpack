@@ -340,7 +340,11 @@ class WooCommerce extends Module {
 		// receives so it is never enqueued or serialized into the sync queue.
 		$args = array( $order_id );
 		if ( $order && $this->is_paid_order_status( $order->get_status() ) && $this->claim_order_total_emission( $order ) ) {
-			$args[] = $this->build_order_total_payload( $order );
+			$payload = $this->build_order_total_payload( $order );
+
+			if ( $payload !== null ) {
+				$args[] = $payload;
+			}
 		}
 
 		return $args;
@@ -380,7 +384,11 @@ class WooCommerce extends Module {
 
 		if ( $this->is_paid_order_status( $status_to ) && ! $this->is_paid_order_status( $status_from ) ) {
 			if ( $order && $this->claim_order_total_emission( $order ) ) {
-				$args[] = $this->build_order_total_payload( $order );
+				$payload = $this->build_order_total_payload( $order );
+
+				if ( $payload !== null ) {
+					$args[] = $payload;
+				}
 			}
 		}
 
@@ -422,6 +430,10 @@ class WooCommerce extends Module {
 	 */
 	private function build_order_total_payload( $order ) {
 		$total = $order->get_total();
+
+		if ( $total <= 0 ) {
+			return null;
+		}
 
 		return array(
 			'total'    => function_exists( 'wc_format_decimal' ) ? wc_format_decimal( $total ) : (string) $total,
