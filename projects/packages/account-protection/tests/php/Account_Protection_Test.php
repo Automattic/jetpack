@@ -156,6 +156,23 @@ class Account_Protection_Test extends BaseTestCase {
 	 */
 	public function test_register_password_detection_hooks_lazily_builds_and_wires_wp_authenticate_user(): void {
 		$sut = new Account_Protection();
+
+		$property = ( new \ReflectionClass( Account_Protection::class ) )->getProperty( 'password_detection' );
+		// @todo Remove this call once we no longer need to support PHP <8.1.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$property->setAccessible( true );
+		}
+
+		/*
+		 * The whole point of the deferral is that the constructor does not build the collaborator;
+		 * it is created lazily when the runtime hooks are registered. Assert that here so this test
+		 * fails if the constructor is ever changed to build Password_Detection eagerly.
+		 */
+		$this->assertNull(
+			$property->getValue( $sut ),
+			'Password_Detection should not be constructed before register_password_detection_hooks() runs.'
+		);
+
 		$sut->register_password_detection_hooks();
 
 		$this->assertNotFalse(
@@ -168,6 +185,12 @@ class Account_Protection_Test extends BaseTestCase {
 			Password_Detection::class,
 			$callback,
 			'wp_authenticate_user should be wired to a lazily-built Password_Detection instance.'
+		);
+
+		$this->assertSame(
+			$property->getValue( $sut ),
+			$callback,
+			'wp_authenticate_user should be wired to the same lazily-built Password_Detection instance the object cached.'
 		);
 	}
 

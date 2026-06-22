@@ -50,6 +50,11 @@ class Main_Test extends StatsBaseTestCase {
 
 		unset( $_SERVER['HTTP_DNT'] );
 
+		// Reset the REST server so the lazy-registration test below does not leak its
+		// populated server (with the stats route registered) into later tests in the suite.
+		global $wp_rest_server;
+		$wp_rest_server = null;
+
 		$reflected_class    = new \ReflectionClass( 'Automattic\Jetpack\Stats\Main' );
 		$reflected_property = $reflected_class->getProperty( 'instance' );
 		// @todo Remove this call once we no longer need to support PHP <8.1.
