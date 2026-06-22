@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Enable the `gutenberg-react-19` Gutenberg experiment for sites with the `gutenberg-react-19` blog sticker.
