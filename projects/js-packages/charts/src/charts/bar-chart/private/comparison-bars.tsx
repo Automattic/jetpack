@@ -133,7 +133,6 @@ export const ComparisonBars: FC< {
 					height={ rect.height }
 					fill={ fill }
 					opacity={ opacity }
-					rx={ barStyles?.rx }
 				/>
 			);
 		} );

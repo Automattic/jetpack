@@ -259,13 +259,12 @@ export type SeriesData = {
 
 /**
  * Visual styling for a bar series of a given semantic type (e.g. 'comparison').
- * `widthFactor` is the bar width relative to the primary bar slot (1.5 = 150%).
+ * `widthFactor` is the bar width relative to the primary bar slot (1.5 = 150%);
+ * `opacity` sets the shadow translucency.
  */
 export type BarStyles = {
 	widthFactor?: number;
 	opacity?: number;
-	fill?: string;
-	rx?: number;
 };
 
 export type MultipleDataPointsDate = {
