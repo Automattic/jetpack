@@ -1,4 +1,4 @@
 Significance: patch
 Type: changed
 
-Performance: improve page load by not loading the Search REST API controller on requests that do not use it.
+Performance: Improve page load by not loading the Search REST API controller on requests that do not use it.
