@@ -179,6 +179,26 @@ export function createStatsSummaryDataPoint< TItem extends StatsNormalizedItem >
 	};
 }
 
+export function createStatsListDataPoint< TItem extends StatsNormalizedItem >(
+	response: unknown,
+	query: StatsQueryParams | undefined,
+	items: TItem[]
+): StatsNormalizedDataPoint< TItem > {
+	const date = getStatsTopLevelDataDate( response, query ) ?? '';
+
+	return {
+		...( date
+			? getStatsIntervalFields( date, getStatsTopLevelPeriod( response, query ) )
+			: {
+					time_interval: '',
+					date_start: '',
+					date_end: '',
+			  } ),
+		...getStatsSummaryIntervalFields( query, response ),
+		items,
+	};
+}
+
 export function mapStatsDataPoints< TItem extends StatsNormalizedItem >(
 	response: unknown,
 	query: StatsQueryParams | undefined,
