@@ -1,4 +1,4 @@
-import { getRedirectUrl, useBreakpointMatch } from '@automattic/jetpack-components';
+import { getRedirectUrl } from '@automattic/jetpack-components';
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import apiFetch from '@wordpress/api-fetch';
 import {
@@ -14,6 +14,7 @@ import {
 	__experimentalToggleGroupControlOptionIcon as ToggleGroupControlOptionIcon, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 	Spinner,
 } from '@wordpress/components';
+import { useViewportMatch } from '@wordpress/compose';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { useState, useCallback, useEffect, createInterpolateElement } from '@wordpress/element';
@@ -122,8 +123,12 @@ const previewDevices = [
 ];
 
 const PreviewDeviceSelector = ( { selectedDevice, setSelectedDevice } ) => {
-	const [ isMedium ] = useBreakpointMatch( 'md' );
-	const [ isSmall ] = useBreakpointMatch( 'sm' );
+	// `md` in the old hook was the 600–959px band: at least small (>=600) AND below large (<960).
+	// Both hooks must be called unconditionally (rules-of-hooks), so avoid &&-short-circuiting them.
+	const isAtLeastSmall = useViewportMatch( 'small' );
+	const isBelowLarge = useViewportMatch( 'large', '<' );
+	const isMedium = isAtLeastSmall && isBelowLarge;
+	const isSmall = useViewportMatch( 'small', '<' );
 	const { tracks } = useAnalytics();
 
 	const handleDeviceChange = device => {
@@ -159,7 +164,7 @@ const PreviewDeviceSelector = ( { selectedDevice, setSelectedDevice } ) => {
 };
 
 const PreviewAccessSelector = ( { selectedAccess, setSelectedAccess } ) => {
-	const [ isSmall ] = useBreakpointMatch( 'sm' );
+	const isSmall = useViewportMatch( 'small', '<' );
 	const postType = useSelect( select => select( editorStore ).getCurrentPostType(), [] );
 	const accessLevel = useAccessLevel( postType );
 	const { tracks } = useAnalytics();
@@ -219,7 +224,7 @@ const PreviewControls = ( {
 	selectedDevice,
 	setSelectedDevice,
 } ) => {
-	const [ isSmall ] = useBreakpointMatch( 'sm' );
+	const isSmall = useViewportMatch( 'small', '<' );
 
 	return (
 		<HStack alignment="center" spacing={ isSmall ? 1 : 6 }>

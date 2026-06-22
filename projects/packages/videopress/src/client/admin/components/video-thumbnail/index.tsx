@@ -1,14 +1,9 @@
 /**
  * External dependencies
  */
-import {
-	Text,
-	Button,
-	useBreakpointMatch,
-	LoadingPlaceholder,
-	ThemeProvider,
-} from '@automattic/jetpack-components';
+import { Text, Button, LoadingPlaceholder, ThemeProvider } from '@automattic/jetpack-components';
 import { Dropdown, ProgressBar } from '@wordpress/components';
+import { useViewportMatch } from '@wordpress/compose';
 import { gmdateI18n } from '@wordpress/date';
 import { __, sprintf } from '@wordpress/i18n';
 import {
@@ -190,7 +185,7 @@ const VideoThumbnail = forwardRef< HTMLDivElement, VideoThumbnailProps >(
 		},
 		ref
 	) => {
-		const [ isSmall ] = useBreakpointMatch( 'sm' );
+		const isSmall = useViewportMatch( 'small', '<' );
 		const busy = loading || uploading || deleting || updating;
 
 		// Mapping thumbnail (Ordered by priority)

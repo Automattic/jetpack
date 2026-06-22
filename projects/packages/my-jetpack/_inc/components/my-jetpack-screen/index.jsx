@@ -8,8 +8,8 @@ import {
 	Container,
 	GlobalNotices,
 	Notice,
-	useBreakpointMatch,
 } from '@automattic/jetpack-components';
+import { useViewportMatch } from '@wordpress/compose';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { useContext, useEffect, useLayoutEffect, useRef, useState } from 'react';
@@ -50,7 +50,7 @@ const GlobalNotice = ( { message, title, options } ) => {
 		} );
 	}, [ options.id, recordEvent, options?.tracksArgs ] );
 
-	const [ isBiggerThanMedium ] = useBreakpointMatch( [ 'md' ], [ '>' ] );
+	const isBiggerThanMedium = useViewportMatch( 'large' );
 
 	const actionButtons = options.actions?.map( action => {
 		return (

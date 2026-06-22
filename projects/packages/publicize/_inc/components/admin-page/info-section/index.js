@@ -1,11 +1,12 @@
-import { Container, Text, useBreakpointMatch } from '@automattic/jetpack-components';
+import { Container, Text } from '@automattic/jetpack-components';
+import { useViewportMatch } from '@wordpress/compose';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import styles from './styles.module.scss';
 
 const InfoSection = () => {
-	const [ isLg ] = useBreakpointMatch( 'lg' );
-	const [ isAtLeastMedium ] = useBreakpointMatch( 'md', '>=' );
+	const isLg = useViewportMatch( 'large' );
+	const isAtLeastMedium = useViewportMatch( 'small' );
 
 	const viewportClasses = {
 		[ styles[ 'is-viewport-large' ] ]: isLg,

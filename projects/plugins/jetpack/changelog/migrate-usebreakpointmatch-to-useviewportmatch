@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Replace internal useBreakpointMatch hook with @wordpress/compose useViewportMatch in the subscriptions email preview.
