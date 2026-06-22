@@ -4,6 +4,8 @@ namespace Automattic\Jetpack\WP_Build_Polyfills\Tests;
 use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills;
 use PHPUnit\Framework\Attributes\After;
 use PHPUnit\Framework\Attributes\Before;
+use PHPUnit\Framework\Attributes\PreserveGlobalState;
+use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use WorDBless\BaseTestCase;
 
 /**
@@ -392,6 +394,75 @@ class WP_Build_Polyfills_Test extends BaseTestCase {
 
 		$private_apis = $scripts->query( 'wp-private-apis', 'registered' );
 		$this->assertSame( '1.0.0-core', $private_apis->ver );
+	}
+
+	/**
+	 * Test that old Gutenberg versions do not suppress private-apis replacement.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_register_scripts_force_replaces_wp_private_apis_with_old_gutenberg() {
+		define( 'GUTENBERG_VERSION', '23.0.0' );
+
+		$GLOBALS['wp_version'] = '7.0';
+		$this->create_asset_file( 'scripts/private-apis/index.asset.php', array(), '9.9.9' );
+
+		$scripts = $this->create_clean_scripts();
+		$scripts->add( 'wp-private-apis', 'https://example.com/old-gutenberg-private-apis.js', array(), '1.0.0-gutenberg' );
+
+		$this->invoke_register_scripts( $scripts );
+
+		$private_apis = $scripts->query( 'wp-private-apis', 'registered' );
+		$this->assertSame( '9.9.9', $private_apis->ver );
+	}
+
+	/**
+	 * Test that new enough Gutenberg satisfies the private-apis allowlist.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_register_scripts_does_not_force_replace_wp_private_apis_with_supported_gutenberg() {
+		define( 'GUTENBERG_VERSION', '23.4.0' );
+
+		$GLOBALS['wp_version'] = '7.0';
+		$this->create_asset_file( 'scripts/private-apis/index.asset.php', array(), '9.9.9' );
+
+		$scripts = $this->create_clean_scripts();
+		$scripts->add( 'wp-private-apis', 'https://example.com/new-gutenberg-private-apis.js', array(), '1.0.0-gutenberg' );
+
+		$this->invoke_register_scripts( $scripts );
+
+		$private_apis = $scripts->query( 'wp-private-apis', 'registered' );
+		$this->assertSame( '1.0.0-gutenberg', $private_apis->ver );
+	}
+
+	/**
+	 * Test that packages without a minimum Gutenberg version keep existing Gutenberg registrations.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_register_scripts_does_not_force_replace_wp_notices_with_active_gutenberg() {
+		define( 'GUTENBERG_VERSION', '22.0.0' );
+
+		$GLOBALS['wp_version'] = '6.9';
+		$this->create_asset_file( 'scripts/notices/index.asset.php', array(), '9.9.9' );
+
+		$scripts = $this->create_clean_scripts();
+		$scripts->add( 'wp-notices', 'https://example.com/gutenberg-notices.js', array(), '1.0.0-gutenberg' );
+
+		$this->invoke_register_scripts( $scripts );
+
+		$notices = $scripts->query( 'wp-notices', 'registered' );
+		$this->assertSame( '1.0.0-gutenberg', $notices->ver );
 	}
 
 	/**

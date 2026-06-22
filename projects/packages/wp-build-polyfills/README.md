@@ -18,7 +18,7 @@ This package provides those missing or updated packages so that plugins using `@
 | Handle            | Source package          | Force-replaced? |
 |-------------------|------------------------|-----------------|
 | `wp-notices`      | `@wordpress/notices`    | Yes on WP < 7.0 — missing component exports |
-| `wp-private-apis` | `@wordpress/private-apis` | Yes on WP < 7.1 — incomplete allowlist |
+| `wp-private-apis` | `@wordpress/private-apis` | Yes on WP < 7.1 unless Gutenberg >= 23.4.0 is active — incomplete allowlist |
 | `wp-theme`        | `@wordpress/theme`      | No — only registered if absent |
 | `wp-views`        | `@wordpress/views`      | No — only registered if absent |
 
@@ -36,8 +36,10 @@ Script modules use "first-wins" semantics — if Core or Gutenberg already regis
 
 1. `WP_Build_Polyfills::register()` hooks into `wp_default_scripts` at **priority 20**, after Core (priority 0) and Gutenberg (priority 10) have registered their scripts.
 2. For each polyfill, it checks whether a built asset file exists (`build/scripts/*/index.asset.php` or `build/modules/*/index.asset.php`).
-3. For classic scripts, it checks whether the handle is already registered. Scripts marked as `force` are deregistered and re-registered with the polyfill version. Non-force scripts are skipped if already registered.
+3. For classic scripts, it checks whether the handle is already registered. Scripts marked for force replacement are deregistered and re-registered with the polyfill version when the WordPress version is below the script's threshold and active Gutenberg is not known to provide a compatible implementation. Non-force scripts are skipped if already registered.
 4. For script modules, it calls `wp_register_script_module()`, which silently ignores duplicates.
+
+`wp-private-apis` has an additional Gutenberg-version guard because the dashboard packages require a private-apis allowlist that includes `@wordpress/widget-dashboard`. Gutenberg 23.0 and older do not include that allowlist entry; Gutenberg 23.4.0 is the first verified active-Gutenberg version that matches the current `@next` package build used here.
 
 ## Usage
 
