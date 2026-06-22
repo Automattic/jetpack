@@ -915,8 +915,28 @@ class Jetpack_Gutenberg {
 		if ( '' === $request_uri ) {
 			return false;
 		}
-		$rest_prefix = trailingslashit( rest_get_url_prefix() );
-		return str_contains( $request_uri, '/' . $rest_prefix ) || str_contains( $request_uri, 'rest_route=' );
+
+		/*
+		 * Match the REST prefix in the path only, so a front-end URL that merely
+		 * carries the prefix in a query value (e.g. ?redirect=/wp-json/...) is not
+		 * misread as a REST request.
+		 */
+		$path = (string) wp_parse_url( $request_uri, PHP_URL_PATH );
+		if ( '' !== $path && str_contains( $path, '/' . trailingslashit( rest_get_url_prefix() ) ) ) {
+			return true;
+		}
+
+		// Plain-permalink REST uses a `rest_route` query var; match the exact key
+		// rather than a substring (which would also match e.g. ?not_rest_route=).
+		$query = (string) wp_parse_url( $request_uri, PHP_URL_QUERY );
+		if ( '' !== $query ) {
+			parse_str( $query, $query_vars );
+			if ( ! empty( $query_vars['rest_route'] ) ) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	/**
