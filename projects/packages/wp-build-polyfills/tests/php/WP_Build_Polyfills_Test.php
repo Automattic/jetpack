@@ -405,7 +405,7 @@ class WP_Build_Polyfills_Test extends BaseTestCase {
 	#[RunInSeparateProcess]
 	#[PreserveGlobalState( false )]
 	public function test_register_scripts_force_replaces_wp_private_apis_with_old_gutenberg() {
-		define( 'GUTENBERG_VERSION', '23.0.0' );
+		define( 'GUTENBERG_VERSION', '23.4.0' );
 
 		$GLOBALS['wp_version'] = '7.0';
 		$this->create_asset_file( 'scripts/private-apis/index.asset.php', array(), '9.9.9' );
@@ -428,7 +428,7 @@ class WP_Build_Polyfills_Test extends BaseTestCase {
 	#[RunInSeparateProcess]
 	#[PreserveGlobalState( false )]
 	public function test_register_scripts_does_not_force_replace_wp_private_apis_with_supported_gutenberg() {
-		define( 'GUTENBERG_VERSION', '23.4.0' );
+		define( 'GUTENBERG_VERSION', '23.5.0' );
 
 		$GLOBALS['wp_version'] = '7.0';
 		$this->create_asset_file( 'scripts/private-apis/index.asset.php', array(), '9.9.9' );

@@ -30,7 +30,7 @@ class WP_Build_Polyfills {
 	 * Minimum Gutenberg plugin version known to ship a private-apis allowlist
 	 * that includes the dashboard packages used by this package's current build.
 	 */
-	const GUTENBERG_PRIVATE_APIS_MIN_VERSION = '23.4.0';
+	const GUTENBERG_PRIVATE_APIS_MIN_VERSION = '23.5.0';
 
 	/**
 	 * Tracks which polyfills have been requested and by which consumers.
