@@ -7,6 +7,7 @@ import { useNavigate } from '@wordpress/route';
 import { Notice } from '@wordpress/ui';
 import { coverageStore } from '../../data/coverage-store';
 import getOverview from '../../data/get-overview';
+import { settingsStore } from '../../data/settings-store';
 import ContentCoverageCard from './content-coverage-card';
 import DisableSeoTools from './disable-seo-tools';
 import EnableSeoCard from './enable-seo-card';
@@ -22,6 +23,12 @@ const OverviewScreen: FC = () => {
 	// Coverage comes from the shared store (seeded from the bootstrap) so a save
 	// in the Content route's inspector reflects here on navigation, no reload.
 	const coverage = useSelect( select => select( coverageStore ).getCoverage(), [] );
+
+	// Site-visibility toggles live in the Settings route, so read them from the
+	// settings store (seeded from the bootstrap, updated on each save) rather than
+	// the static Overview bootstrap — otherwise a toggle there wouldn't reflect
+	// here until a full reload. The "View" link itself lives on the Settings tab.
+	const settings = useSelect( select => select( settingsStore ).getSettings(), [] );
 
 	// Deep-link to a Settings section: navigate to the Settings route with
 	// `?focus=`, which the Settings screen reads to scroll the section to top.
@@ -68,7 +75,12 @@ const OverviewScreen: FC = () => {
 			) }
 			<div className="jetpack-seo-overview__grid">
 				<SiteVisibilityCard
-					data={ data.site_visibility }
+					data={ {
+						...data.site_visibility,
+						search_engines_visible:
+							settings?.search_engines_visible ?? data.site_visibility.search_engines_visible,
+						sitemap_active: settings?.sitemap_active ?? data.site_visibility.sitemap_active,
+					} }
 					onManage={ () => goToSection( 'visibility' ) }
 				/>
 				<SiteVerificationCard

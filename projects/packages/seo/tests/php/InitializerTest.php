@@ -348,4 +348,65 @@ class InitializerTest extends TestCase {
 			remove_filter( Initializer::FEATURE_FILTER, '__return_true' );
 		}
 	}
+
+	/**
+	 * The Settings tab only links to the sitemap when it is genuinely reachable.
+	 * The URL helper short-circuits to an empty string when generation is disabled
+	 * or the site is private, and (in the package-only test context, where the
+	 * Jetpack plugin's Sitemaps module is absent) when the librarian/URL helper are
+	 * unavailable — so the non-empty branch is exercised by plugin integration
+	 * tests, not here.
+	 */
+	public function test_get_reachable_sitemap_url_returns_empty_when_not_reachable() {
+		$method = new \ReflectionMethod( Initializer::class, 'get_reachable_sitemap_url' );
+		// Required to invoke a private method on PHP < 8.1 (a no-op from 8.1 on).
+		if ( PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true );
+		}
+
+		// Capture the original so we restore (not delete) it — `blog_public` is a
+		// core option the test bootstrap may already set, and clobbering it would
+		// leak state into other tests.
+		$original_blog_public = get_option( 'blog_public', null );
+
+		try {
+			// Generation disabled: no link regardless of anything else.
+			update_option( 'blog_public', '1' );
+			$this->assertSame( '', $method->invoke( null, false ) );
+
+			// Enabled but the site discourages search engines: Jetpack never serves a
+			// sitemap, so there is nothing to link to.
+			update_option( 'blog_public', '0' );
+			$this->assertSame( '', $method->invoke( null, true ) );
+
+			// Enabled and public, but the Sitemaps module (librarian + URL helper) is
+			// absent in the package context, so still no link.
+			update_option( 'blog_public', '1' );
+			$this->assertSame( '', $method->invoke( null, true ) );
+		} finally {
+			if ( null === $original_blog_public ) {
+				delete_option( 'blog_public' );
+			} else {
+				update_option( 'blog_public', $original_blog_public );
+			}
+		}
+	}
+
+	/**
+	 * The Settings bootstrap exposes `sitemap_url` as a string (empty until the
+	 * sitemap is reachable) alongside the boolean `sitemap_active`, which the
+	 * Settings tab uses to render the "View sitemap" link. The Overview no longer
+	 * carries the URL — it shows the status only.
+	 */
+	public function test_get_settings_data_sitemap_url_is_string() {
+		$settings = Initializer::get_settings_data();
+
+		$this->assertArrayHasKey( 'sitemap_active', $settings );
+		$this->assertIsBool( $settings['sitemap_active'] );
+		$this->assertArrayHasKey( 'sitemap_url', $settings );
+		$this->assertIsString( $settings['sitemap_url'] );
+
+		$overview = Initializer::get_overview_data();
+		$this->assertArrayNotHasKey( 'sitemap_url', $overview['site_visibility'] );
+	}
 }
