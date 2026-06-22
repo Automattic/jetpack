@@ -36,6 +36,7 @@ export function sanitizeStatsVideoPlaysResponse(
 	const parse = ( item: StatsRecord ): StatsVideoPlaysItem => ( {
 		id: item.post_id as string | number | undefined,
 		label: item.title,
+		// Complete-stats summary rows use `views` for the play count.
 		plays: safeParseFloat( item.views ?? item.plays ),
 		impressions: safeParseFloat( item.impressions ),
 		watch_time: safeParseFloat( item.watch_time ),
@@ -50,15 +51,13 @@ export function sanitizeStatsVideoPlaysResponse(
 			? summary
 			: coerceStatsRecord( coerceStatsRecord( payload.days ).summary );
 	};
+	const summarySource = getSummarySource();
 	const mapSummaryData = (): Array< StatsNormalizedDataPoint< StatsVideoPlaysItem > > => {
 		if ( ! query?.summarize ) {
 			return [];
 		}
 
-		const { found, items } = getStatsArrayFromKeys< StatsRecord >(
-			getSummarySource(),
-			videoDataKeys
-		);
+		const { found, items } = getStatsArrayFromKeys< StatsRecord >( summarySource, videoDataKeys );
 		const summaryDate = getStatsTopLevelDataDate( response, query );
 
 		return found && summaryDate
@@ -70,7 +69,7 @@ export function sanitizeStatsVideoPlaysResponse(
 	return {
 		summary: query?.summarize
 			? {
-					...normalizeStatsSummary( getSummarySource(), videoDataKeys ),
+					...normalizeStatsSummary( summarySource, videoDataKeys ),
 					...getStatsSummaryIntervalFields( query, response ),
 			  }
 			: {},

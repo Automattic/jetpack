@@ -85,6 +85,8 @@ export function getStatsSummaryIntervalFields(
 	response?: unknown
 ): Partial< StatsIntervalFields > {
 	const responseDate = getStatsResponseDate( response );
+	// Summarized range requests should include start_date; bucket fallback only covers payloads
+	// that still include a top-level days map.
 	const startDate =
 		getDatePart( query?.start_date ) ??
 		getStatsResponseStartDate( response ) ??
