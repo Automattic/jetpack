@@ -27,6 +27,7 @@ import debugFactory from 'debug';
  * Internal dependencies
  */
 import {
+	CAPTION_FORMAT_MIME_TYPES,
 	deleteTrackForGuid,
 	fetchTrackContentForGuid,
 	fetchTrackListForGuid,
@@ -80,20 +81,6 @@ registerCaptionCueBlock();
 const debug = debugFactory( 'videopress:caption-manager-modal' );
 
 const DEFAULT_KIND: trackKindOptionProps = 'captions';
-
-const ACCEPTED_FILE_TYPES: Record< string, string > = {
-	'.vtt': 'text/vtt',
-	'.srt': 'application/x-subrip',
-	'.sbv': 'text/plain',
-	'.sub': 'text/plain',
-	'.mpsub': 'text/plain',
-	'.lrc': 'text/plain',
-	'.smi': 'application/smil+xml',
-	'.sami': 'application/smil+xml',
-	'.rt': 'text/vnd.rn-realtext',
-	'.ttml': 'application/ttml+xml',
-	'.dfxp': 'application/ttml+xml',
-};
 
 const KIND_LABELS: Record< trackKindOptionProps, string > = {
 	subtitles: __( 'Subtitles', 'jetpack-videopress-pkg' ),
@@ -185,7 +172,7 @@ const getAcceptedFileTypes = ( supportedFormats: string[] ) =>
 	supportedFormats
 		.flatMap( extension => {
 			const normalizedExtension = extension.startsWith( '.' ) ? extension : `.${ extension }`;
-			const mimeType = ACCEPTED_FILE_TYPES[ normalizedExtension ];
+			const mimeType = CAPTION_FORMAT_MIME_TYPES[ normalizedExtension ];
 			return mimeType ? [ normalizedExtension, mimeType ] : [ normalizedExtension ];
 		} )
 		.join( ',' );
@@ -258,6 +245,11 @@ const getTrackStatusLabel = ( track: VideoTextTrack ) => {
 			return '';
 	}
 };
+
+const getLocalCaptionTrackStatusLabel = ( captionTrack: SavedCaptionTrack ) =>
+	captionTrack.status === 'publish'
+		? __( 'Published', 'jetpack-videopress-pkg' )
+		: __( 'Draft', 'jetpack-videopress-pkg' );
 
 const getDownloadFileName = ( track: VideoTextTrack ) =>
 	`${ track.kind }-${ canonicalizeLanguageTag( track.srcLang ) ?? track.srcLang }.vtt`;
@@ -583,7 +575,10 @@ export default function CaptionManagerModal( {
 		[ supportedCaptionFormats ]
 	);
 
-	const supportedCaptionFormatsLabel = supportedCaptionFormats.join( ', ' );
+	const supportedCaptionFormatsLabel = useMemo(
+		() => supportedCaptionFormats.join( ', ' ),
+		[ supportedCaptionFormats ]
+	);
 	const visibleCaptionTracks = useMemo(
 		() => captionTracks.filter( isListableCaptionTrack ),
 		[ captionTracks ]
@@ -1426,10 +1421,6 @@ export default function CaptionManagerModal( {
 		'No caption tracks have been added to this video yet.',
 		'jetpack-videopress-pkg'
 	);
-	const getLocalCaptionTrackStatusLabel = ( captionTrack: SavedCaptionTrack ) =>
-		captionTrack.status === 'publish'
-			? __( 'Published', 'jetpack-videopress-pkg' )
-			: __( 'Draft', 'jetpack-videopress-pkg' );
 	const isEditorView = modalView === 'editor';
 	const manualLanguage = canonicalizeLanguageTag( manualTrack.srcLang ) ?? manualTrack.srcLang;
 	const modalHeaderTitle = manualLanguage

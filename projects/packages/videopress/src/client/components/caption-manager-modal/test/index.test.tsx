@@ -200,6 +200,19 @@ jest.mock( 'debug', () => () => jest.fn() );
 
 jest.mock( '../../../lib/video-tracks', () => ( {
 	TRACK_KIND_OPTIONS: [ 'subtitles', 'captions', 'descriptions', 'chapters', 'metadata' ],
+	CAPTION_FORMAT_MIME_TYPES: {
+		'.vtt': 'text/vtt',
+		'.srt': 'application/x-subrip',
+		'.sbv': 'text/plain',
+		'.sub': 'text/plain',
+		'.mpsub': 'text/plain',
+		'.lrc': 'text/plain',
+		'.smi': 'application/smil+xml',
+		'.sami': 'application/smil+xml',
+		'.rt': 'text/vnd.rn-realtext',
+		'.ttml': 'application/ttml+xml',
+		'.dfxp': 'application/ttml+xml',
+	},
 	SUPPORTED_CAPTION_FORMATS: [
 		'.vtt',
 		'.srt',
