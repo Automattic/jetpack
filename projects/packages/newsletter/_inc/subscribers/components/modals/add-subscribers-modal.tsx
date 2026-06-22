@@ -215,7 +215,6 @@ function ImportStatusNotice( { jobs }: { jobs: ImportJob[] } ): JSX.Element | nu
 					<Notice.ActionLink
 						href="https://jetpack.com/support/newsletter/import-subscribers/"
 						openInNewTab
-						rel="noreferrer"
 					>
 						{ __( 'Learn more', 'jetpack-newsletter' ) }
 					</Notice.ActionLink>
