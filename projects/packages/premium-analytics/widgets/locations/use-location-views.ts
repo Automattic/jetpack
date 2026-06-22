@@ -155,11 +155,12 @@ export function normalizeLocationViews(
 			continue;
 		}
 
+		// Typographic apostrophes (U+2019) in country names break Google GeoChart.
+		const countryFull = info.country_full.replace( /’/g, "'" );
 		rows.push( {
-			// Apostrophes in names break the Google GeoChart visualization.
-			label: view.location || info.country_full.replace( /'/g, "'" ),
+			label: ( view.location || countryFull ).replace( /’/g, "'" ),
 			countryCode: view.country_code,
-			countryFull: info.country_full,
+			countryFull,
 			value: view.views,
 			region: info.map_region ?? '',
 		} );
@@ -218,7 +219,7 @@ export default function useLocationViews( {
 					return;
 				}
 				setState( {
-					data: SAMPLE_LOCATIONS.slice( 0, max ),
+					data: max ? SAMPLE_LOCATIONS.slice( 0, max ) : SAMPLE_LOCATIONS,
 					isLoading: false,
 					isError: true,
 					isSample: true,

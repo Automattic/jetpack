@@ -36,9 +36,14 @@ export function reportParamsToStatsDays( params: ReportParams ): number {
 	}
 
 	if ( params.from && params.to ) {
-		const from = new Date( params.from );
-		const to = new Date( params.to );
-		const days = Math.round( ( to.getTime() - from.getTime() ) / ( 1000 * 60 * 60 * 24 ) ) + 1;
+		// Parse date strings as UTC midnight to avoid timezone/DST off-by-one errors.
+		const fromMs = Date.UTC(
+			...( params.from.slice( 0, 10 ).split( '-' ).map( Number ) as [ number, number, number ] )
+		);
+		const toMs = Date.UTC(
+			...( params.to.slice( 0, 10 ).split( '-' ).map( Number ) as [ number, number, number ] )
+		);
+		const days = Math.round( ( toMs - fromMs ) / ( 1000 * 60 * 60 * 24 ) ) + 1;
 		if ( days > 0 ) {
 			return days;
 		}

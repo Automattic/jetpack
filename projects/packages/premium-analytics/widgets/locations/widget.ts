@@ -17,25 +17,13 @@ export default {
 	presentation: 'full-bleed',
 	attributes: [
 		{
-			id: 'range',
-			label: 'Date range',
-			type: 'text',
-			elements: [
-				{ label: 'Today', value: 'today' },
-				{ label: 'Last 7 days', value: 'last-7-days' },
-				{ label: 'Last 30 days', value: 'last-30-days' },
-				{ label: 'Last year', value: 'last-year' },
-			],
-		},
-		{
 			id: 'max',
-			label: 'Number of countries',
+			label: 'Number of results',
 			type: 'integer',
 		},
 	],
 	example: {
 		attributes: {
-			range: 'last-30-days',
 			max: 10,
 		},
 	},

@@ -81,7 +81,8 @@
 	overflow: hidden;
 }
 
-/* 不夠寬（< 480px）：隱藏地圖，leaderboard 單欄 */
+/* Narrow container (< 480px): hide the map and collapse to a
+ * single leaderboard column. */
 @container (max-width: 479px) {
 
 	.geoChart {
