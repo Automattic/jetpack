@@ -378,7 +378,7 @@ class Jetpack_Premium_Content_Test extends WP_UnitTestCase {
 		);
 		$abbreviated = \Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\WPCOM_Online_Subscription_Service::abbreviate_subscriptions( $raw );
 
-		$token = maybe_renew_session_cookie( $paywall, 999999, $raw, $abbreviated );
+		$token = maybe_renew_session_cookie( $paywall, 999999, $abbreviated );
 
 		$this->assertIsString( $token );
 		$payload = $paywall->decode_token( $token );
@@ -397,7 +397,7 @@ class Jetpack_Premium_Content_Test extends WP_UnitTestCase {
 	public function test_maybe_renew_session_cookie_returns_null_when_no_subscriptions() {
 		unset( $_COOKIE['wp-jp-premium-content-session'] );
 		$paywall = subscription_service();
-		$this->assertNull( maybe_renew_session_cookie( $paywall, 999999, array(), array() ) );
+		$this->assertNull( maybe_renew_session_cookie( $paywall, 999999, array() ) );
 	}
 
 	/**
@@ -420,7 +420,7 @@ class Jetpack_Premium_Content_Test extends WP_UnitTestCase {
 		);
 		$abbreviated = \Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\WPCOM_Online_Subscription_Service::abbreviate_subscriptions( $raw );
 
-		$this->assertNull( maybe_renew_session_cookie( $paywall, 999999, $raw, $abbreviated ) );
+		$this->assertNull( maybe_renew_session_cookie( $paywall, 999999, $abbreviated ) );
 
 		unset( $_COOKIE['wp-jp-premium-content-session'] );
 	}
@@ -444,7 +444,7 @@ class Jetpack_Premium_Content_Test extends WP_UnitTestCase {
 		);
 		$abbreviated = \Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\WPCOM_Online_Subscription_Service::abbreviate_subscriptions( $raw );
 
-		$token = maybe_renew_session_cookie( $paywall, 999999, $raw, $abbreviated );
+		$token = maybe_renew_session_cookie( $paywall, 999999, $abbreviated );
 
 		$this->assertIsString( $token );
 		$payload = $paywall->decode_token( $token );
@@ -481,7 +481,7 @@ class Jetpack_Premium_Content_Test extends WP_UnitTestCase {
 		);
 		$abbreviated         = \Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\WPCOM_Online_Subscription_Service::abbreviate_subscriptions( $raw );
 
-		$token = maybe_renew_session_cookie( $paywall, 999999, $raw, $abbreviated );
+		$token = maybe_renew_session_cookie( $paywall, 999999, $abbreviated );
 
 		$this->assertIsString( $token );
 		$payload       = $paywall->decode_token( $token );
@@ -512,7 +512,7 @@ class Jetpack_Premium_Content_Test extends WP_UnitTestCase {
 		);
 		$abbreviated = \Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\WPCOM_Online_Subscription_Service::abbreviate_subscriptions( $raw );
 
-		$token = maybe_renew_session_cookie( $paywall, 999999, $raw, $abbreviated );
+		$token = maybe_renew_session_cookie( $paywall, 999999, $abbreviated );
 
 		$this->assertSame( $token, $_COOKIE['wp-jp-premium-content-session'] );
 
@@ -545,7 +545,7 @@ class Jetpack_Premium_Content_Test extends WP_UnitTestCase {
 		);
 		$abbreviated = \Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\WPCOM_Online_Subscription_Service::abbreviate_subscriptions( $raw );
 
-		$this->assertNull( maybe_renew_session_cookie( $keyless_paywall, 999999, $raw, $abbreviated ) );
+		$this->assertNull( maybe_renew_session_cookie( $keyless_paywall, 999999, $abbreviated ) );
 		$this->assertArrayNotHasKey( 'wp-jp-premium-content-session', $_COOKIE );
 	}
 
@@ -731,6 +731,43 @@ class Jetpack_Premium_Content_Test extends WP_UnitTestCase {
 		$this->assertSame( 0, $filter_calls, 'Pre-warm must not query the filter when a valid cookie already exists.' );
 
 		unset( $_COOKIE['wp-jp-premium-content-session'] );
+	}
+
+	/**
+	 * The pre-warm hook does nothing for users who can edit the post — they already bypass
+	 * gating in current_visitor_can_access(), so there is no cookie to mint and we must not
+	 * pay the Memberships filter round-trip.
+	 *
+	 * @return void
+	 */
+	public function test_prewarm_noop_for_editors() {
+		unset( $_COOKIE['wp-jp-premium-content-session'] );
+		unset( $_GET['token'] );
+
+		$post_id = $this->factory->post->create(
+			array( 'post_content' => '<!-- wp:premium-content/container --><!-- /wp:premium-content/container -->' )
+		);
+
+		$editor_id = $this->factory->user->create( array( 'role' => 'administrator' ) );
+
+		$filter_calls = 0;
+		add_filter(
+			'earn_get_user_subscriptions_for_site_id',
+			static function ( $subs ) use ( &$filter_calls ) {
+				++$filter_calls;
+				return $subs;
+			},
+			10,
+			1
+		);
+
+		$this->go_to( get_permalink( $post_id ) );
+		wp_set_current_user( $editor_id );
+
+		prewarm_premium_content_session_cookie();
+
+		$this->assertSame( 0, $filter_calls, 'Pre-warm must not query the filter for users who can edit the post.' );
+		$this->assertArrayNotHasKey( 'wp-jp-premium-content-session', $_COOKIE );
 	}
 
 	/**

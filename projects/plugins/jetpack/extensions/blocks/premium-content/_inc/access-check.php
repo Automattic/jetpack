@@ -77,13 +77,12 @@ function current_user_can_edit() {
  * signing key is unavailable. The cookie itself is set on a best-effort basis: if headers
  * have already been sent, the token is still returned so the caller can decide what to do.
  *
- * @param object $paywall                  Subscription service (provides the signing key).
- * @param int    $user_id                  WordPress.com user id the subscriptions belong to.
- * @param array  $raw_subscriptions        Subscriptions as returned by the filter.
+ * @param object $paywall                   Subscription service (provides the signing key).
+ * @param int    $user_id                   User id the subscriptions belong to (WPCOM id when available, otherwise local).
  * @param array  $abbreviated_subscriptions Subscriptions after `abbreviate_subscriptions()`.
  * @return string|null The encoded JWT, or null when no cookie was minted.
  */
-function maybe_renew_session_cookie( $paywall, $user_id, $raw_subscriptions, $abbreviated_subscriptions ) {
+function maybe_renew_session_cookie( $paywall, $user_id, $abbreviated_subscriptions ) {
 	if ( empty( $abbreviated_subscriptions ) ) {
 		return null;
 	}
@@ -148,7 +147,7 @@ function maybe_renew_session_cookie( $paywall, $user_id, $raw_subscriptions, $ab
  * on Atomic/WoA). Shared by the access decision and the cookie self-heal.
  *
  * @param object $paywall Subscription service (provides the WordPress.com blog id).
- * @return array{0:int,1:array,2:array} [ wpcom_user_id, raw_subscriptions, abbreviated_subscriptions ].
+ * @return array{0:int,1:array,2:array} [ user_id (WPCOM id when available, otherwise local), raw_subscriptions, abbreviated_subscriptions ].
  */
 function get_subscriptions_for_logged_in_user( $paywall ) {
 	$local_user_id = wp_get_current_user()->ID;
@@ -199,6 +198,12 @@ function prewarm_premium_content_session_cookie() {
 		return;
 	}
 
+	// Editors/authors of this post already bypass gating in current_visitor_can_access(), so
+	// there is no cookie to pre-warm for them — skip the Memberships filter round-trip.
+	if ( current_user_can( 'edit_post', $queried->ID ) ) {
+		return;
+	}
+
 	$paywall = subscription_service();
 
 	// Already have a valid cached session? Nothing to heal — and don't query the filter.
@@ -207,8 +212,8 @@ function prewarm_premium_content_session_cookie() {
 		return;
 	}
 
-	list( $user_id, $raw_subscriptions, $abbreviated_subscriptions ) = get_subscriptions_for_logged_in_user( $paywall );
-	maybe_renew_session_cookie( $paywall, $user_id, $raw_subscriptions, $abbreviated_subscriptions );
+	list( $user_id, , $abbreviated_subscriptions ) = get_subscriptions_for_logged_in_user( $paywall );
+	maybe_renew_session_cookie( $paywall, $user_id, $abbreviated_subscriptions );
 }
 
 /**
