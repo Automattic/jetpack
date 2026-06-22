@@ -2,12 +2,12 @@
 /**
  * Tests for /wpcom/v2/jetpack-ai endpoints.
  *
- * Focused on the deferral introduced in JETPACK-1747: route registration (and
- * the Jetpack_AI_Helper gate checks) moved out of the constructor into
- * maybe_register_routes() on rest_api_init. These tests lock in that the routes
- * still register on rest_api_init and that the feature gate is evaluated at
- * that point — so a `jetpack_ai_enabled` filter added before rest_api_init
- * reaches route registration.
+ * Focused on the deferral introduced in JETPACK-1747: the constructor no longer
+ * loads Jetpack_AI_Helper or evaluates the AI feature gate — that work moved
+ * into maybe_register_routes() on rest_api_init. The load-bearing test here is
+ * the gate-timing one: because the gate is evaluated at rest_api_init rather
+ * than at construction, a `jetpack_ai_enabled` filter added after the endpoint
+ * is constructed but before rest_api_init fires now reaches route registration.
  *
  * @package automattic/jetpack
  */
@@ -37,48 +37,51 @@ class WPCOM_REST_API_V2_Endpoint_AI_Test extends Jetpack_REST_TestCase {
 	}
 
 	/**
-	 * Replace the global REST server with a fresh spy so a test can observe the
-	 * route table both before and after rest_api_init fires.
+	 * Swap in a fresh spy REST server and fire rest_api_init, returning the
+	 * resulting route table. The endpoint object is constructed once at
+	 * plugins_loaded (test bootstrap) and stays hooked on rest_api_init, so
+	 * re-firing against a clean server re-runs maybe_register_routes().
 	 *
-	 * @return WP_REST_Server The fresh server, also assigned to $this->server.
+	 * @return array The registered routes, keyed by path.
 	 */
-	private function reset_rest_server() {
+	private function register_routes_on_fresh_server() {
 		global $wp_rest_server;
 		$wp_rest_server = new JPTest_Spy_REST_Server();
 		$this->server   = $wp_rest_server;
 
-		return $wp_rest_server;
+		do_action( 'rest_api_init' );
+
+		return $wp_rest_server->get_routes();
 	}
 
-	public function test_basic_route_registers_only_after_rest_api_init() {
-		$server = $this->reset_rest_server();
-
-		// Deferred: the constructor no longer registers routes, so the route is
-		// absent until rest_api_init fires maybe_register_routes().
-		$this->assertArrayNotHasKey(
-			self::BASIC_ROUTE,
-			$server->get_routes(),
-			'The jetpack-ai route must not register before rest_api_init fires.'
-		);
-
-		do_action( 'rest_api_init' );
+	public function test_ungated_route_registers_on_rest_api_init() {
+		/*
+		 * register_basic_routes() is ungated, so the route registers whenever
+		 * maybe_register_routes() runs on rest_api_init.
+		 */
+		$routes = $this->register_routes_on_fresh_server();
 
 		$this->assertArrayHasKey(
 			self::BASIC_ROUTE,
-			$server->get_routes(),
+			$routes,
 			'The ungated jetpack-ai route must register on rest_api_init.'
 		);
 	}
 
 	public function test_gated_routes_stay_unregistered_when_ai_disabled() {
-		$server = $this->reset_rest_server();
+		/*
+		 * Force the gate off so the result is independent of the host — on
+		 * WPCOM/WoA is_enabled() would otherwise default to true.
+		 */
+		add_filter( 'jetpack_ai_enabled', '__return_false' );
 
-		// No `jetpack_ai_enabled` filter and not on WPCOM/WoA, so Jetpack AI is
-		// disabled: the gated routes must not register, but the basic one still does.
-		do_action( 'rest_api_init' );
+		$routes = $this->register_routes_on_fresh_server();
 
-		$routes = $server->get_routes();
-		$this->assertArrayHasKey( self::BASIC_ROUTE, $routes, 'The ungated route registers regardless of the AI gate.' );
+		$this->assertArrayHasKey(
+			self::BASIC_ROUTE,
+			$routes,
+			'The ungated route registers regardless of the AI gate.'
+		);
 		$this->assertArrayNotHasKey(
 			self::GATED_ROUTE,
 			$routes,
@@ -86,22 +89,23 @@ class WPCOM_REST_API_V2_Endpoint_AI_Test extends Jetpack_REST_TestCase {
 		);
 	}
 
-	public function test_jetpack_ai_enabled_filter_added_before_rest_api_init_registers_gated_routes() {
-		$server = $this->reset_rest_server();
-
+	public function test_jetpack_ai_enabled_filter_before_rest_api_init_registers_gated_routes() {
 		/*
-		 * The gate (Jetpack_AI_Helper::is_enabled()) is now evaluated inside the
+		 * The gate (Jetpack_AI_Helper::is_enabled()) is evaluated inside the
 		 * rest_api_init callback rather than in the constructor, so a filter
-		 * added before rest_api_init fires reaches route registration. This is
-		 * the behavior contract for the deferral.
+		 * added after the endpoint is constructed but before rest_api_init fires
+		 * still reaches route registration. Were the gate evaluated in the
+		 * constructor (the pre-deferral behavior), this filter would be too late
+		 * and the gated route would not register — so this is the deferral's
+		 * regression guard.
 		 */
 		add_filter( 'jetpack_ai_enabled', '__return_true' );
 
-		do_action( 'rest_api_init' );
+		$routes = $this->register_routes_on_fresh_server();
 
 		$this->assertArrayHasKey(
 			self::GATED_ROUTE,
-			$server->get_routes(),
+			$routes,
 			'AI-gated routes must register when jetpack_ai_enabled is filtered true before rest_api_init.'
 		);
 	}
