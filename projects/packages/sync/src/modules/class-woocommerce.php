@@ -441,11 +441,12 @@ class WooCommerce extends Module {
 	 *
 	 * Intentionally minimal and scalar-only so it is safe to store and index on WPcom (Activity Log,
 	 * Elasticsearch, MCP integrations). We read with the 'edit' context to get the raw stored values and
-	 * skip the woocommerce_order_get_total / _currency view filters, then still normalize the total to a
-	 * numeric string and cast the currency rather than trust whatever WooCommerce returns.
+	 * skip the woocommerce_order_get_total / _currency view filters (e.g. multi-currency display
+	 * conversion), then still normalize the total to a numeric string and cast the currency rather than
+	 * trust whatever WooCommerce returns.
 	 *
 	 * @param WC_Order $order Order object.
-	 * @return array {
+	 * @return null|array {
 	 *     @type string   $total       Order total as a numeric string.
 	 *     @type string   $currency    Order currency code (e.g. 'USD').
 	 * }

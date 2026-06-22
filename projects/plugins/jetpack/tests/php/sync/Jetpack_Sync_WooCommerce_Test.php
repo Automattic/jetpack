@@ -86,8 +86,7 @@ class Jetpack_Sync_WooCommerce_Test extends Jetpack_Sync_TestBase {
 	}
 
 	public function test_paid_order_appends_total_to_order_status_changed() {
-		$order = $this->createOrderWithItem();
-		$order->calculate_totals();
+		$order = $this->createOrderWithPricedItem();
 		$order->payment_complete();
 
 		$this->sender->do_sync();
@@ -101,17 +100,7 @@ class Jetpack_Sync_WooCommerce_Test extends Jetpack_Sync_TestBase {
 	}
 
 	public function test_new_order_created_in_paid_status_appends_total() {
-		$product = WC_Helper_Product::create_simple_product();
-		$order   = new WC_Order();
-		$order->add_item(
-			new WC_Order_Item_Product(
-				array(
-					'product'  => $product,
-					'quantity' => 2,
-				)
-			)
-		);
-		$order->calculate_totals();
+		$order = $this->createOrderWithPricedItem( 2 );
 		$order->set_status( 'completed' );
 		$order->save();
 
@@ -144,8 +133,7 @@ class Jetpack_Sync_WooCommerce_Test extends Jetpack_Sync_TestBase {
 	}
 
 	public function test_paid_to_paid_transition_does_not_re_emit() {
-		$order = $this->createOrderWithItem();
-		$order->calculate_totals();
+		$order = $this->createOrderWithPricedItem();
 		$order->update_status( 'processing' ); // pending -> processing (paid): the payment is emitted.
 
 		$this->sender->do_sync();
@@ -164,8 +152,7 @@ class Jetpack_Sync_WooCommerce_Test extends Jetpack_Sync_TestBase {
 	}
 
 	public function test_manual_processing_then_completed_records_total_once() {
-		$order = $this->createOrderWithItem();
-		$order->calculate_totals();
+		$order = $this->createOrderWithPricedItem();
 
 		$order->update_status( 'processing' ); // Manual: physical order, date_paid stamped here.
 		$order->update_status( 'completed' );  // Manual fulfillment; same payment, must not re-record.
@@ -180,7 +167,7 @@ class Jetpack_Sync_WooCommerce_Test extends Jetpack_Sync_TestBase {
 	}
 
 	public function test_new_order_filter_uses_passed_order_and_strips_object() {
-		$order = $this->createOrderWithItem();
+		$order = $this->createOrderWithPricedItem();
 		$order->set_status( 'completed' ); // In-memory only: no save, so the emission isn't claimed yet.
 
 		$module   = $this->get_woocommerce_module();
@@ -199,8 +186,7 @@ class Jetpack_Sync_WooCommerce_Test extends Jetpack_Sync_TestBase {
 	}
 
 	public function test_status_changed_filter_uses_passed_order_and_strips_object() {
-		$order = $this->createOrderWithItem();
-		$order->calculate_totals();
+		$order = $this->createOrderWithPricedItem();
 
 		$module   = $this->get_woocommerce_module();
 		$filtered = $module->add_order_total_to_status_changed( array( $order->get_id(), 'pending', 'processing', $order ) );
@@ -239,7 +225,7 @@ class Jetpack_Sync_WooCommerce_Test extends Jetpack_Sync_TestBase {
 		$order->set_status( 'completed' );
 		$order->save();
 
-		$this->assertSame( 0, (float) $order->get_total() );
+		$this->assertSame( 0.0, (float) $order->get_total() );
 
 		$module   = $this->get_woocommerce_module();
 		$filtered = $module->add_order_total_to_new_order( array( $order->get_id(), $order ) );
@@ -272,7 +258,7 @@ class Jetpack_Sync_WooCommerce_Test extends Jetpack_Sync_TestBase {
 		$order->calculate_totals();
 		$order->save();
 
-		$this->assertSame( 0, (float) $order->get_total() );
+		$this->assertSame( 0.0, (float) $order->get_total() );
 
 		$module   = $this->get_woocommerce_module();
 		$filtered = $module->add_order_total_to_status_changed( array( $order->get_id(), 'pending', 'processing', $order ) );
@@ -675,6 +661,26 @@ class Jetpack_Sync_WooCommerce_Test extends Jetpack_Sync_TestBase {
 		);
 
 		$order->add_item( $item );
+		$order->save();
+
+		return $order;
+	}
+
+	/**
+	 * Create an order whose line item is priced, so the order has a non-zero total.
+	 *
+	 * Unlike createOrderWithItem(), this uses WC_Order::add_product(), which sets the line item
+	 * subtotal/total from the product price (a manually constructed WC_Order_Item_Product does not),
+	 * then calculates the order totals. Use this for tests that assert on the order total.
+	 *
+	 * @param int $quantity Quantity of the product to add.
+	 * @return WC_Order Saved order with a non-zero total.
+	 */
+	private function createOrderWithPricedItem( $quantity = 4 ) {
+		$product = WC_Helper_Product::create_simple_product();
+		$order   = new WC_Order();
+		$order->add_product( $product, $quantity );
+		$order->calculate_totals();
 		$order->save();
 
 		return $order;
