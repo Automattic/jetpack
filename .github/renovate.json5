@@ -133,6 +133,8 @@
 				'team:triforce', // Monorepo overall, Publicize, My Jetpack
 				'team:loop', // Newsletter dashboard & subscriber management
 				'team:zap', // Forms, much of the recent componentry work.
+				'team:red', // Premium Analytics
+				'team:ventures', // Premium Analytics
 			],
 		},
 
