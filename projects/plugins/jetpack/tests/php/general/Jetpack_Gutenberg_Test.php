@@ -477,8 +477,11 @@ class Jetpack_Gutenberg_Test extends WP_UnitTestCase {
 	#[DataProvider( 'provider_is_block_editor_context_request_uri' )]
 	public function test_is_block_editor_context_detects_rest_from_request_uri( $request_uri, $expected ) {
 		$method = new ReflectionMethod( Jetpack_Gutenberg::class, 'is_block_editor_context' );
-		// @todo Remove setAccessible() once we no longer need to support PHP < 8.1.
-		$method->setAccessible( true );
+		// setAccessible() is a no-op (and deprecated) since PHP 8.1; only needed for older versions.
+		// @todo Remove this guard once we no longer need to support PHP < 8.1.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true );
+		}
 
 		$had_uri  = isset( $_SERVER['REQUEST_URI'] );
 		$original = $had_uri ? $_SERVER['REQUEST_URI'] : null;
