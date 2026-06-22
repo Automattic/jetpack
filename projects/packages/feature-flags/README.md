@@ -4,6 +4,32 @@ Shared utilities for registering and checking lightweight feature flags in Jetpa
 
 This package intentionally does not store flag state. Consumers register flags with defaults, then external code can control them through the `jetpack_feature_flag_enabled` filter.
 
+## When To Use a Feature Flag
+
+A feature flag is for **temporary** branching where you need to change behaviour without changing code:
+
+- **Gating unreleased work** — merge and ship in-progress code disabled by default, then turn it on when it is ready.
+- **Gradual rollout** — let a policy layer hook the filter to enable a flag for a percentage of sites, a cohort, or staff only.
+- **Kill switch** — ship a risky feature behind a flag so it can be disabled in production without a deploy.
+
+Reach for something else when the toggle is **permanent**: site configuration, a user-facing setting/preference, or a plain constant. If a flag would live forever, it is really config and should graduate to a real setting.
+
+## When To Register
+
+Register flags **unconditionally, as early as your code loads** — at package init or plugin bootstrap, before anything calls `is_enabled()`. Registration is cheap and stores no state, so there is no reason to defer or guard it. Registering every flag up front (rather than lazily, deep inside a request branch) means the full set is always discoverable through `Feature_Flags::all()` for tooling, debugging, and admin listings.
+
+The controlling filter, by contrast, can be added at any time — it is read when `is_enabled()` runs, not when the flag is registered.
+
+## Naming and Ownership
+
+- **Name** — must match `/^[a-z0-9][a-z0-9_-]*$/` (lint-enforced; see [Usage](#usage)). Prefix it with the owning product or area so flags read clearly and don't collide, e.g. `newsletter-new-subscribe-form`.
+- **`owner`** — the package, plugin, or product area responsible for the flag, so others know who to ask before flipping it.
+- **`description`** — a short, human-readable explanation of what the flag gates.
+
+## Retiring a Flag
+
+Flags are temporary. Once a feature is fully shipped (or fully abandoned), remove the flag promptly: delete the `register()` call, collapse the `is_enabled()` branches down to the winning path, and drop any filter overrides that referenced it. Leaving stale flags behind turns them into permanent, undocumented config and makes the codebase harder to reason about.
+
 ## Usage
 
 ```php
