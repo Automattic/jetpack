@@ -1,0 +1,4 @@
+Significance: minor
+Type: other
+
+Sync: Append an order's total (total, currency) to the synced woocommerce_new_order and woocommerce_order_status_changed actions when the order reaches a paid status, so WPcom can aggregate revenue.

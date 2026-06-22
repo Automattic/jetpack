@@ -693,6 +693,8 @@ class Jetpack {
 		add_filter( 'jetpack_get_default_modules', array( $this, 'filter_default_modules' ) );
 		add_filter( 'jetpack_get_default_modules', array( $this, 'handle_deprecated_modules' ), 99 );
 
+		add_filter( 'jetpack_get_available_modules', array( $this, 'filter_available_modules_podcast' ) );
+
 		add_action(
 			'plugins_loaded',
 			function () {
@@ -2175,6 +2177,27 @@ class Jetpack {
 	}
 
 	/**
+	 * Hides the Podcast module unless it has been explicitly opted in for the
+	 * whole world via the `jetpack_podcast_for_the_world` filter.
+	 *
+	 * Keeps the module out of the available list (and therefore out of the
+	 * default/auto-activate list and My Jetpack) until it is ready to ship,
+	 * so there is no trace of it when the filter is false.
+	 *
+	 * @uses jetpack_get_available_modules filter
+	 * @param array $modules Array of available Jetpack modules, keyed by slug.
+	 * @return array
+	 */
+	public function filter_available_modules_podcast( $modules ) {
+		/** This filter is documented in projects/packages/podcast/src/class-podcast.php */
+		if ( ! apply_filters( 'jetpack_podcast_for_the_world', false ) ) {
+			unset( $modules['podcast'] );
+		}
+
+		return $modules;
+	}
+
+	/**
 	 * Extract a module's slug from its full path.
 	 *
 	 * @param string $file Full path to a file.
@@ -2868,6 +2891,26 @@ p {
 		add_action( 'updating_jetpack_version', array( 'Jetpack', 'migrate_canonical_urls_module_to_seo_option' ) );
 		add_action( 'jetpack_activate_module_canonical-urls', array( 'Jetpack', 'sync_seo_canonical_urls_option' ) );
 		add_action( 'jetpack_deactivate_module_canonical-urls', array( 'Jetpack', 'sync_seo_canonical_urls_option' ) );
+	}
+
+	/**
+	 * Seeds the Jetpack SEO discoverability cohort once, so the new SEO surface is
+	 * auto-discoverable on fresh installs but opt-in on existing ones (JETPACK-1700).
+	 *
+	 * Hooked on `updating_jetpack_version`, which fires on every install including the
+	 * first — with `$old_version === false` on a brand-new site (the same signal
+	 * {@see self::activate_subscriptions_module_for_existing_sites()} keys off). Fresh
+	 * installs are seeded visible; existing installs are seeded hidden and opt in later
+	 * via the legacy Traffic page or My Jetpack. `add_option()` makes this seed-once: it
+	 * never overrides a value a later opt-in (or opt-out) has set. WordPress.com sites
+	 * ignore this option entirely (always visible) — see
+	 * {@see \Automattic\Jetpack\SEO\Initializer::is_seo_surface_visible()}.
+	 *
+	 * @param string       $version     The new Jetpack version (unused).
+	 * @param string|false $old_version The previous version, or false on a fresh install.
+	 */
+	public static function seed_seo_visibility_cohort( $version, $old_version ) {
+		add_option( Jetpack_SEO_Initializer::VISIBILITY_OPTION, ! $old_version );
 	}
 
 	/**
