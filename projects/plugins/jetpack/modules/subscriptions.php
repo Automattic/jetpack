@@ -977,21 +977,21 @@ class Jetpack_Subscriptions {
 	}
 
 	/**
-	 * Checks if the current user can publish posts.
+	 * Checks if the current user can edit posts.
 	 *
 	 * @return bool
 	 */
 	public function first_published_status_meta_auth_callback() {
 		/**
-		 * Filter the capability to view if a post was ever published in the Subscription Module.
+		 * Filter the capability required to edit the "was ever published" post meta.
 		 *
 		 * @module subscriptions
 		 *
 		 * @since 13.4
 		 *
-		 * @param string $capability User capability needed to view if a post was ever published. Default to publish_posts.
+		 * @param string $capability User capability needed to edit the "was ever published" meta. Default to edit_posts.
 		 */
-		$capability = apply_filters( 'jetpack_subscriptions_post_was_ever_published_capability', 'publish_posts' );
+		$capability = apply_filters( 'jetpack_subscriptions_post_was_ever_published_capability', 'edit_posts' );
 		if ( current_user_can( $capability ) ) {
 			return true;
 		}
