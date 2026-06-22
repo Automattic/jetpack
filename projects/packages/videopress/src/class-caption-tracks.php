@@ -69,21 +69,18 @@ class Caption_Tracks {
 				'publicly_queryable'  => false,
 				'show_ui'             => false,
 				'show_in_menu'        => false,
-				'show_in_rest'        => true,
-				'rest_base'           => 'videopress-caption-tracks',
+				'show_in_rest'        => false,
 				'supports'            => array( 'title', 'editor' ),
-				'capabilities'        => array(
-					'edit_post'          => 'manage_options',
-					'read_post'          => 'manage_options',
-					'delete_post'        => 'manage_options',
-					'edit_posts'         => 'manage_options',
-					'edit_others_posts'  => 'manage_options',
-					'delete_posts'       => 'manage_options',
-					'publish_posts'      => 'manage_options',
-					'read_private_posts' => 'manage_options',
-					'create_posts'       => 'manage_options',
-				),
-				'map_meta_cap'        => false,
+
+				/*
+				 * Caption tracks are an internal store reached only through the
+				 * /jetpack/v4/videopress/caption-tracks routes, which authorize
+				 * each request against the video it targets. The post type itself
+				 * is not exposed (no REST, no admin UI), so standard post
+				 * capabilities are sufficient.
+				 */
+				'capability_type'     => 'post',
+				'map_meta_cap'        => true,
 			)
 		);
 	}
@@ -120,12 +117,68 @@ class Caption_Tracks {
 	}
 
 	/**
-	 * Permission helper for caption track REST access.
+	 * Authorize REST meta access for a caption track.
 	 *
+	 * Used as the `auth_callback` when registering caption track meta. Access is
+	 * tied to the video the track belongs to, so the GUID is resolved from the
+	 * track post being read or written.
+	 *
+	 * @param bool   $allowed   Whether the user can access the meta. Unused.
+	 * @param string $meta_key  Meta key being accessed. Unused.
+	 * @param int    $object_id Caption track post ID.
 	 * @return bool
 	 */
-	public static function can_manage_caption_tracks() {
-		return current_user_can( 'manage_options' );
+	public static function can_manage_caption_tracks( $allowed = false, $meta_key = '', $object_id = 0 ) {
+		$guid = $object_id ? (string) get_post_meta( $object_id, self::META_GUID, true ) : '';
+		return self::current_user_can_edit_video( $guid );
+	}
+
+	/**
+	 * REST permission callback for the caption track routes.
+	 *
+	 * Authorizes against the video the request targets: an existing track is
+	 * authorized against the video it already belongs to, while a new track is
+	 * authorized against the GUID supplied in the request.
+	 *
+	 * @param WP_REST_Request $request Incoming request.
+	 * @return bool
+	 */
+	public static function rest_permission_check( WP_REST_Request $request ) {
+		$track_id = absint( $request->get_param( 'id' ) );
+		if ( $track_id ) {
+			$existing_guid = (string) get_post_meta( $track_id, self::META_GUID, true );
+			if ( '' !== $existing_guid ) {
+				return self::current_user_can_edit_video( $existing_guid );
+			}
+		}
+
+		$meta = (array) $request->get_param( 'meta' );
+		$guid = isset( $meta[ self::META_GUID ] ) ? (string) $meta[ self::META_GUID ] : (string) $request->get_param( 'guid' );
+
+		return self::current_user_can_edit_video( $guid );
+	}
+
+	/**
+	 * Whether the current user may manage caption tracks for a VideoPress GUID.
+	 *
+	 * Editing a video's captions requires the ability to edit that video. When
+	 * the GUID can't be resolved to a local attachment (e.g. on WordPress.com or
+	 * before the attachment exists) fall back to the VideoPress upload capability.
+	 *
+	 * @param string $guid VideoPress GUID.
+	 * @return bool
+	 */
+	private static function current_user_can_edit_video( $guid ) {
+		$guid = self::sanitize_guid( $guid );
+
+		if ( '' !== $guid && function_exists( 'videopress_get_post_by_guid' ) ) {
+			$attachment = videopress_get_post_by_guid( $guid );
+			if ( $attachment instanceof WP_Post ) {
+				return current_user_can( 'edit_post', $attachment->ID );
+			}
+		}
+
+		return current_user_can( 'upload_files' );
 	}
 
 	/**
