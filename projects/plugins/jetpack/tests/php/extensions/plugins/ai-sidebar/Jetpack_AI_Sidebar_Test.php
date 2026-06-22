@@ -497,6 +497,7 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 		$this->assertStringContainsString( '"jetpackAiSidebarPreview":{"enabled":true', $this->get_agents_manager_inline_script() );
 		$this->assertStringContainsString( '"aiEditorialReview":true', $this->get_agents_manager_inline_script() );
 		$this->assertStringContainsString( '"generateFeedback":false', $this->get_agents_manager_inline_script() );
+		$this->assertStringContainsString( '"proofreadContent":false', $this->get_agents_manager_inline_script() );
 		$this->assertStringContainsString( '"blockTransformations":true', $this->get_agents_manager_inline_script() );
 		$this->assertStringContainsString( '"optimizeTitleSuggestion":false', $this->get_agents_manager_inline_script() );
 		$this->assertStringContainsString( '"chatHistory":false', $this->get_agents_manager_inline_script() );
@@ -539,6 +540,25 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 		Jetpack_AI_Sidebar::maybe_enqueue_am();
 
 		$this->assertStringContainsString( '"generateFeedback":false', $this->get_agents_manager_inline_script() );
+	}
+
+	/**
+	 * The generic preview features filter cannot bypass the Proofreader gate.
+	 */
+	public function test_maybe_enqueue_am_prevents_preview_features_filter_from_enabling_proofread_content() {
+		$this->set_block_editor_screen();
+		$this->cache_am_asset_data();
+		add_filter(
+			'jetpack_ai_sidebar_preview_features',
+			function ( $features ) {
+				$features['proofreadContent'] = true;
+				return $features;
+			}
+		);
+
+		Jetpack_AI_Sidebar::maybe_enqueue_am();
+
+		$this->assertStringContainsString( '"proofreadContent":false', $this->get_agents_manager_inline_script() );
 	}
 
 	/**
