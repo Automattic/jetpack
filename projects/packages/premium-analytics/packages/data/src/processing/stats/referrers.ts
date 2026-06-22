@@ -1,6 +1,6 @@
 import { safeParseFloat } from '../../utils/parsing';
 import {
-	getStatsArray,
+	coerceStatsArray,
 	mapNestedItems,
 	mapStatsReportDataPoints,
 	normalizeStatsReportSummary,
@@ -32,13 +32,13 @@ export function sanitizeStatsReferrersResponse(
 		link: typeof item.url === 'string' ? item.url : null,
 		icon: typeof item.icon === 'string' ? item.icon : null,
 		labelIcon: item.results || item.children ? null : 'external',
-		children: mapNestedItems( getStatsArray( item.results ?? item.children ), parse ),
+		children: mapNestedItems( coerceStatsArray( item.results ?? item.children ), parse ),
 	} );
 
 	return {
 		summary: normalizeStatsReportSummary( response, query, [ 'groups' ] ),
 		data: mapStatsReportDataPoints( response, query, [ 'groups' ], item => {
-			const results = getStatsArray< StatsRecord >( item.results );
+			const results = coerceStatsArray< StatsRecord >( item.results );
 			const normalized = parse( results.length === 1 ? results[ 0 ] : item );
 			const domain = item.name ?? item.group;
 			const canSpam = typeof domain === 'string' && domain.includes( '.' );

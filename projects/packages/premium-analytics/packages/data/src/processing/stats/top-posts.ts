@@ -1,6 +1,6 @@
 import { safeParseFloat } from '../../utils/parsing';
 import {
-	getStatsArray,
+	coerceStatsArray,
 	mapNestedItems,
 	mapStatsReportDataPoints,
 	normalizeStatsReportSummary,
@@ -54,7 +54,7 @@ function normalizeStatsTopPostItem( item: StatsRecord ): StatsTopPostsItem {
 		status: item.status,
 		video_play: item.video_play,
 		actions: link ? [ { type: 'link', data: link } ] : [],
-		children: mapNestedItems( getStatsArray( item.children ), normalizeStatsTopPostItem ),
+		children: mapNestedItems( coerceStatsArray( item.children ), normalizeStatsTopPostItem ),
 	};
 }
 

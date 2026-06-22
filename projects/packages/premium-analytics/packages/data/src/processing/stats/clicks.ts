@@ -1,6 +1,6 @@
 import { safeParseFloat } from '../../utils/parsing';
 import {
-	getStatsArray,
+	coerceStatsArray,
 	mapNestedItems,
 	mapStatsReportDataPoints,
 	normalizeStatsReportSummary,
@@ -24,8 +24,8 @@ export function sanitizeStatsClicksResponse(
 		views: safeParseFloat( item.views ),
 		link: typeof item.url === 'string' ? item.url : null,
 		icon: typeof item.icon === 'string' ? item.icon : null,
-		labelIcon: getStatsArray( item.children ).length ? null : 'external',
-		children: mapNestedItems( getStatsArray( item.children ), child => ( {
+		labelIcon: coerceStatsArray( item.children ).length ? null : 'external',
+		children: mapNestedItems( coerceStatsArray( item.children ), child => ( {
 			label:
 				typeof child.name === 'string' && typeof item.name === 'string'
 					? child.name.split( item.name ).join( '' ) || '/'

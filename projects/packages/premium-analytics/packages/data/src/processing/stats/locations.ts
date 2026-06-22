@@ -2,10 +2,10 @@ import { safeParseFloat } from '../../utils/parsing';
 import {
 	createStatsDataPoint,
 	createStatsSummaryDataPoint,
-	getStatsArray,
+	coerceStatsArray,
 	getStatsArrayFromKeys,
 	getStatsBuckets,
-	getStatsRecord,
+	coerceStatsRecord,
 	getStatsResponsePeriod,
 	getStatsTopLevelDataDate,
 	normalizeStatsReportSummary,
@@ -26,10 +26,10 @@ export function sanitizeStatsLocationsResponse(
 	response: unknown,
 	query?: StatsQueryParams
 ): StatsNormalizedReport< StatsLocationsItem > {
-	const payload = getStatsRecord( response );
-	const countryInfo = getStatsRecord( payload[ 'country-info' ] ?? payload.countryInfo );
+	const payload = coerceStatsRecord( response );
+	const countryInfo = coerceStatsRecord( payload[ 'country-info' ] ?? payload.countryInfo );
 	const parse = ( item: StatsRecord ): StatsLocationsItem => {
-		const country = getStatsRecord(
+		const country = coerceStatsRecord(
 			typeof item.country_code === 'string' ? countryInfo[ item.country_code ] : undefined
 		);
 		const label = item.location ?? country.country_full ?? item.country_code ?? '';
@@ -52,7 +52,7 @@ export function sanitizeStatsLocationsResponse(
 				! [ 'A1', 'A2', 'ZZ' ].includes( item.country_code )
 		);
 	const mapItems = ( items: StatsRecord[] ) => filterLocations( items ).map( parse );
-	const summary = getStatsRecord( payload.summary );
+	const summary = coerceStatsRecord( payload.summary );
 	const summaryViews = getStatsArrayFromKeys< StatsRecord >( summary, [ 'views' ] );
 	const summaryDate = getStatsTopLevelDataDate( response, query );
 	const summaryData =
@@ -75,7 +75,7 @@ export function sanitizeStatsLocationsResponse(
 					createStatsDataPoint(
 						date,
 						query?.period ?? getStatsResponsePeriod( response ),
-						mapItems( getStatsArray( bucket.views ) )
+						mapItems( coerceStatsArray( bucket.views ) )
 					)
 			  ),
 	};

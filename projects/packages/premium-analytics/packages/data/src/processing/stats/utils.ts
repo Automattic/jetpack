@@ -18,11 +18,11 @@ export function isStatsRecord( value: unknown ): value is StatsRecord {
 	return value && typeof value === 'object' && ! Array.isArray( value ) ? true : false;
 }
 
-export function getStatsRecord( value: unknown ): StatsRecord {
+export function coerceStatsRecord( value: unknown ): StatsRecord {
 	return isStatsRecord( value ) ? value : {};
 }
 
-export function getStatsArray< T = StatsRecord >( value: unknown ): T[] {
+export function coerceStatsArray< T = StatsRecord >( value: unknown ): T[] {
 	return Array.isArray( value ) ? ( value as T[] ) : [];
 }
 
@@ -47,11 +47,11 @@ export function getStatsEndDateParam( query?: StatsQueryParams ): string | undef
 }
 
 export function getStatsResponseDate( response: unknown ): string | undefined {
-	return getDatePart( getStatsRecord( response ).date );
+	return getDatePart( coerceStatsRecord( response ).date );
 }
 
 export function getStatsResponsePeriod( response: unknown ): string | undefined {
-	const period = getStatsRecord( response ).period;
+	const period = coerceStatsRecord( response ).period;
 
 	return typeof period === 'string' ? period : undefined;
 }
@@ -107,7 +107,7 @@ export function normalizeStatsReportSummary(
 	return query?.summarize
 		? {
 				...normalizeStatsSummary(
-					getStatsRecord( getStatsRecord( response ).summary ),
+					coerceStatsRecord( coerceStatsRecord( response ).summary ),
 					excludedKeys
 				),
 				...getStatsSummaryIntervalFields( query, response ),
@@ -120,18 +120,18 @@ export function getStatsBuckets( response: unknown, query: StatsQueryParams = {}
 		return [];
 	}
 
-	const payload = getStatsRecord( response );
-	const days = getStatsRecord( payload.days );
+	const payload = coerceStatsRecord( response );
+	const days = coerceStatsRecord( payload.days );
 	const startDate = getDatePart( query.start_date );
 	const endDate = getStatsEndDateParam( query );
 
 	if ( endDate && ! startDate && days[ endDate ] ) {
-		return [ [ endDate, getStatsRecord( days[ endDate ] ) ] ] as const;
+		return [ [ endDate, coerceStatsRecord( days[ endDate ] ) ] ] as const;
 	}
 
 	return Object.entries( days ).map( ( [ key, value ] ) => [
 		key,
-		getStatsRecord( value ),
+		coerceStatsRecord( value ),
 	] ) as Array< readonly [ string, StatsRecord ] >;
 }
 
@@ -169,7 +169,7 @@ export function mapStatsDataPoints< TItem extends StatsNormalizedItem >(
 		createStatsDataPoint(
 			date,
 			query?.period ?? getStatsResponsePeriod( response ),
-			getStatsArray< StatsRecord >( bucket[ key ] ).map( mapper )
+			coerceStatsArray< StatsRecord >( bucket[ key ] ).map( mapper )
 		)
 	);
 }
@@ -182,7 +182,7 @@ export function getStatsArrayFromKeys< T = StatsRecord >(
 		if ( Array.isArray( source[ key ] ) ) {
 			return {
 				found: true,
-				items: getStatsArray< T >( source[ key ] ),
+				items: coerceStatsArray< T >( source[ key ] ),
 			};
 		}
 	}
@@ -203,7 +203,7 @@ export function mapStatsSummaryDataPoint< TItem extends StatsNormalizedItem >(
 		return [];
 	}
 
-	const summary = getStatsRecord( getStatsRecord( response ).summary );
+	const summary = coerceStatsRecord( coerceStatsRecord( response ).summary );
 	const { found, items } = getStatsArrayFromKeys< StatsRecord >( summary, keys );
 	const summaryDate = getStatsTopLevelDataDate( response, query );
 
@@ -239,11 +239,11 @@ export function sanitizeStatsPassthroughResponse< T >( response: T ): T {
 }
 
 export function sanitizeStatsSiteResponse( response: unknown ) {
-	const payload = getStatsRecord( response );
+	const payload = coerceStatsRecord( response );
 
 	return {
 		...payload,
-		stats: normalizeStatsSummary( getStatsRecord( payload.stats ) ),
+		stats: normalizeStatsSummary( coerceStatsRecord( payload.stats ) ),
 	};
 }
 

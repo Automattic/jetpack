@@ -2,7 +2,7 @@ import { safeParseFloat } from '../../utils/parsing';
 import {
 	createStatsSummaryDataPoint,
 	getStatsArrayFromKeys,
-	getStatsRecord,
+	coerceStatsRecord,
 	getStatsSummaryIntervalFields,
 	getStatsTopLevelDataDate,
 	mapStatsReportDataPoints,
@@ -30,7 +30,7 @@ export function sanitizeStatsVideoPlaysResponse(
 	response: unknown,
 	query?: StatsQueryParams
 ): StatsNormalizedReport< StatsVideoPlaysItem > {
-	const payload = getStatsRecord( response );
+	const payload = coerceStatsRecord( response );
 	const videoDataKeys = query?.complete_stats ? [ 'data', 'plays' ] : [ 'plays', 'data' ];
 	const parse = ( item: StatsRecord ): StatsVideoPlaysItem => ( {
 		id: item.post_id as string | number | undefined,
@@ -43,11 +43,11 @@ export function sanitizeStatsVideoPlaysResponse(
 		children: null,
 	} );
 	const getSummarySource = () => {
-		const summary = getStatsRecord( payload.summary );
+		const summary = coerceStatsRecord( payload.summary );
 
 		return Object.keys( summary ).length
 			? summary
-			: getStatsRecord( getStatsRecord( payload.days ).summary );
+			: coerceStatsRecord( coerceStatsRecord( payload.days ).summary );
 	};
 	const mapSummaryData = (): Array< StatsNormalizedDataPoint< StatsVideoPlaysItem > > => {
 		if ( ! query?.summarize ) {

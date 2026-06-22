@@ -1,6 +1,6 @@
 import { safeParseFloat } from '../../utils/parsing';
 import {
-	getStatsArray,
+	coerceStatsArray,
 	mapNestedItems,
 	mapStatsReportDataPoints,
 	normalizeStatsReportSummary,
@@ -28,7 +28,7 @@ export function sanitizeStatsTopAuthorsResponse(
 			icon: typeof item.avatar === 'string' ? item.avatar : null,
 			iconClassName: 'avatar-user',
 			className: 'module-content-list-item-large',
-			children: mapNestedItems( getStatsArray( item.posts ), post => ( {
+			children: mapNestedItems( coerceStatsArray( item.posts ), post => ( {
 				id: post.id as string | number | undefined,
 				label: post.title,
 				views: safeParseFloat( post.views ),
