@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Podcast Episode block: save a real static player (audio/video with cover art and duration) instead of a bare media link, so the episode renders in the Reader, RSS, email, and other non-front-end contexts instead of relying on the dynamic render callback. Existing posts migrate via a block deprecation.
