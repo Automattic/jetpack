@@ -151,6 +151,7 @@
 			],
 		},
 
+		// Widgets Dashboard packages are still experimental/development-focused, so group them for targeted review.
 		{
 			groupName: 'Widgets Dashboard',
 			matchPackageNames: [
