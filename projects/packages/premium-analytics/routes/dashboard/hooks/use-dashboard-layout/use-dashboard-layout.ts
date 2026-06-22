@@ -4,15 +4,15 @@
 import apiFetch from '@wordpress/api-fetch';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { store as preferencesStore } from '@wordpress/preferences';
-import type { DashboardWidget } from '@wordpress/widget-dashboard';
-/**
- * Internal dependencies
- */
 import {
 	DASHBOARD_LAYOUT_KEY,
 	DASHBOARD_PREFERENCES_SCOPE,
 	DASHBOARD_REST_NAMESPACE,
 } from '../constants';
+import type { DashboardWidget } from '@wordpress/widget-dashboard';
+/**
+ * Internal dependencies
+ */
 
 /**
  * Identifier of a dashboard, structured as `<plugin>_<page>` to mirror
@@ -50,15 +50,16 @@ export function useDashboardLayout(
 	};
 
 	/**
+	 * Persists the dashboard widget layout to user preferences.
 	 *
-	 * @param newLayout
+	 * @param newLayout - Widget layout to persist.
 	 */
 	function setLayout( newLayout: DashboardWidget[] ) {
 		void set( DASHBOARD_PREFERENCES_SCOPE, DASHBOARD_LAYOUT_KEY, newLayout );
 	}
 
 	/**
-	 *
+	 * Resets the layout to the server-provided default for this dashboard.
 	 */
 	async function resetLayout() {
 		const fresh = ( await apiFetch( {

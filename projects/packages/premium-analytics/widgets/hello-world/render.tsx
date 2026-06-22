@@ -3,11 +3,6 @@
  */
 import { Stack, Text } from '@wordpress/ui';
 import clsx from 'clsx';
-
-/**
- * WordPress dependencies
- */
-
 /**
  * Internal dependencies
  */
@@ -22,9 +17,11 @@ type HelloWorldRenderProps = {
 };
 
 /**
+ * Renders the Hello World widget.
  *
- * @param root0
- * @param root0.attributes
+ * @param root0            - Component props.
+ * @param root0.attributes - Widget attributes.
+ * @return The rendered widget.
  */
 export default function HelloWorld( { attributes }: HelloWorldRenderProps ) {
 	return (

@@ -1,7 +1,6 @@
 /**
  * External dependencies
  */
-import fastDeepEqual from 'fast-deep-equal/es6/index.js';
 
 /**
  * WordPress dependencies
@@ -13,11 +12,12 @@ import {
 	DEFAULT_ROW_HEIGHT,
 	normalizeGridSettings,
 } from '@wordpress/widget-dashboard';
+import fastDeepEqual from 'fast-deep-equal/es6/index.js';
+import { DASHBOARD_GRID_SETTINGS_KEY, DASHBOARD_PREFERENCES_SCOPE } from '../constants';
 import type { WidgetGridSettings } from '@wordpress/widget-dashboard';
 /**
  * Internal dependencies
  */
-import { DASHBOARD_GRID_SETTINGS_KEY, DASHBOARD_PREFERENCES_SCOPE } from '../constants';
 
 /**
  * Hook for managing dashboard grid-settings preferences.
@@ -50,8 +50,10 @@ export function useDashboardGridSettings(): [
 	};
 
 	/**
+	 * Persists the grid settings, clearing the stored preference when the value
+	 * matches the code default so the dashboard keeps tracking that default.
 	 *
-	 * @param next
+	 * @param next - Grid settings to persist.
 	 */
 	function setSettings( next: WidgetGridSettings ) {
 		// Persist "back to default" as a cleared preference rather than a stored
@@ -67,7 +69,7 @@ export function useDashboardGridSettings(): [
 	}
 
 	/**
-	 *
+	 * Clears the stored grid settings preference, reverting to the code default.
 	 */
 	function resetSettings() {
 		void set( DASHBOARD_PREFERENCES_SCOPE, DASHBOARD_GRID_SETTINGS_KEY, null );

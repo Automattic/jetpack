@@ -6,7 +6,6 @@ import { store as coreStore } from '@wordpress/core-data';
 import { dispatch, select } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { redirect } from '@wordpress/route';
-
 /**
  * Internal dependencies
  */
@@ -33,8 +32,7 @@ export const route = {
 			throw redirect( { to: '/connect' } );
 		}
 
-		const syncFinished =
-			getScriptData()?.premium_analytics?.initial_full_sync_finished ?? 0;
+		const syncFinished = getScriptData()?.premium_analytics?.initial_full_sync_finished ?? 0;
 		if ( ! syncFinished ) {
 			throw redirect( { to: '/syncing' } );
 		}
