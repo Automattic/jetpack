@@ -5967,11 +5967,22 @@ async function savePost( postStatus, isAutosave = false ) {
 
 	// Extract #tags from lines that contain only hashtag tokens (e.g. "#travel #food").
 	// Those paragraphs are metadata, not body text — strip them from the saved content.
+	// Each # starts a new tag whose name runs until the next # (or end of line), so a
+	// tag may contain spaces ("#New York"). The char right after # must be non-whitespace
+	// so a line like "# Heading" stays body text rather than becoming one giant tag.
 	const tagNames = [];
 	clone.querySelectorAll( ':scope > p' ).forEach( p => {
 		const text = p.textContent.trim();
-		if ( /^(#[\w-]+\s*)+$/.test( text ) ) {
-			text.match( /#([\w-]+)/g ).forEach( t => tagNames.push( t.slice( 1 ) ) );
+		if ( /^(#\S[^#]*)+$/.test( text ) ) {
+			text
+				.split( '#' )
+				.slice( 1 )
+				.forEach( name => {
+					const trimmed = name.trim();
+					if ( trimmed ) {
+						tagNames.push( trimmed );
+					}
+				} );
 			p.remove();
 		}
 	} );
