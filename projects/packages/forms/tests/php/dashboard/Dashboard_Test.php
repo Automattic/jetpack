@@ -24,6 +24,7 @@ class Dashboard_Test extends BaseTestCase {
 	 */
 	public function tear_down() {
 		$this->reset_wp_build_polyfills();
+		remove_all_filters( 'wp_redirect' );
 		unset( $_GET['page'], $_GET['p'] );
 		parent::tear_down();
 	}
@@ -78,6 +79,51 @@ class Dashboard_Test extends BaseTestCase {
 		$url_feedback = Dashboard::get_forms_admin_url( 'inbox' );
 		$this->assertStringContainsString( 'admin.php?page=' . Dashboard::FORMS_WPBUILD_ADMIN_SLUG, $url_feedback );
 		$this->assertStringContainsString( '&p=%2Fresponses%2Finbox', $url_feedback );
+	}
+
+	/**
+	 * Test redirect_legacy_dashboard_url redirects the retired legacy slug to the wp-build dashboard.
+	 */
+	public function test_redirect_legacy_dashboard_url_redirects_legacy_slug() {
+		$_GET['page'] = Dashboard::ADMIN_SLUG;
+
+		$captured = null;
+		add_filter(
+			'wp_redirect',
+			function ( $location ) use ( &$captured ) {
+				$captured = $location;
+				throw new \RuntimeException( 'redirect' );
+			}
+		);
+
+		try {
+			Dashboard::redirect_legacy_dashboard_url();
+			$this->fail( 'Expected a redirect to the wp-build dashboard.' );
+		} catch ( \RuntimeException $e ) {
+			$this->assertSame( 'redirect', $e->getMessage() );
+		}
+
+		$this->assertStringContainsString( 'page=' . Dashboard::FORMS_WPBUILD_ADMIN_SLUG, (string) $captured );
+		$this->assertStringContainsString( '%2Fresponses%2Finbox', (string) $captured );
+	}
+
+	/**
+	 * Test redirect_legacy_dashboard_url does nothing for non-legacy pages.
+	 */
+	public function test_redirect_legacy_dashboard_url_ignores_other_pages() {
+		$_GET['page'] = Dashboard::FORMS_WPBUILD_ADMIN_SLUG;
+
+		add_filter(
+			'wp_redirect',
+			function () {
+				throw new \RuntimeException( 'should not redirect' );
+			}
+		);
+
+		// Should return without redirecting; if it redirects, the filter throws and fails the test.
+		Dashboard::redirect_legacy_dashboard_url();
+
+		$this->expectNotToPerformAssertions();
 	}
 
 	/**

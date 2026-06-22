@@ -1,4 +1,4 @@
-Significance: patch
+Significance: minor
 Type: removed
 
-Comment: Retire the legacy hash-router Forms responses dashboard that is no longer loaded. The wp-build dashboard is now always used; the jetpack_forms_alpha gate and the legacy React app have been removed.
+Remove the `jetpack_forms_alpha` filter and retire the legacy hash-router Forms responses dashboard. The wp-build (DataViews) dashboard is now always used.

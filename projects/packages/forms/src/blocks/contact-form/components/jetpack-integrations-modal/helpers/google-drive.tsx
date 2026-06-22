@@ -15,7 +15,8 @@ export function buildGoogleDriveCard( {
 	const isConnected = !! integration.isConnected;
 	const settingsUrl = integration.settingsUrl as string | undefined;
 
-	const defaultResponsesUrl = '/wp-admin/admin.php?page=jetpack-forms-admin';
+	const defaultResponsesUrl =
+		'/wp-admin/admin.php?page=jetpack-forms-responses-wp-admin&p=/responses/inbox';
 	const responsesUrl =
 		( window as unknown as { jpFormsBlocks?: { defaults?: { formsResponsesUrl?: string } } } )
 			.jpFormsBlocks?.defaults?.formsResponsesUrl || defaultResponsesUrl;

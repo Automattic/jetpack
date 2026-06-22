@@ -202,6 +202,16 @@ class Dashboard {
 	}
 
 	/**
+	 * Redirect dashboard URLs across the legacy/wp-build variants.
+	 *
+	 * @deprecated $$next-version$$ Use Dashboard::redirect_legacy_dashboard_url() instead.
+	 */
+	public static function redirect_dashboard_url_cross_variant() {
+		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', __CLASS__ . '::redirect_legacy_dashboard_url' );
+		self::redirect_legacy_dashboard_url();
+	}
+
+	/**
 	 * Get the current query 'page' parameter.
 	 *
 	 * @return string
@@ -329,11 +339,19 @@ class Dashboard {
 	}
 
 	/**
-	 * Fallback render callback used only if the wp-build page registration is unavailable.
+	 * Fallback render callback used only if the wp-build page registration is unavailable
+	 * (e.g. the Forms package build assets are missing). The interactive dashboard is
+	 * rendered by the wp-build page callback; this only surfaces a build-error state.
 	 */
 	public function render_dashboard() {
 		?>
-		<div id="jp-forms-dashboard"></div>
+		<div class="wrap">
+			<div class="notice notice-error">
+				<p>
+					<?php esc_html_e( 'The Jetpack Forms dashboard could not be loaded because its assets are missing. Please rebuild the Forms package or reinstall Jetpack.', 'jetpack-forms' ); ?>
+				</p>
+			</div>
+		</div>
 		<?php
 	}
 
