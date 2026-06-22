@@ -204,6 +204,12 @@
 	}
 }
 
+// Render the smaller toggle variant (previously the jetpack-components
+// `size="small"` prop, which set `--base-width: 6px` on the form toggle).
+.share-data-toggle {
+	--base-width: 6px;
+}
+
 .icon-tooltip {
 	max-height: 20px;
 	margin-left: calc(var(--spacing-base) / 2); // 4px

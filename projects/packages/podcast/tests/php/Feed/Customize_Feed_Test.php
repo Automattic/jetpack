@@ -140,6 +140,16 @@ class Customize_Feed_Test extends BaseTestCase {
 		$this->assertStringContainsString( '<itunes:category text="Tech News" />', $xml );
 	}
 
+	public function test_category_tag_translates_renamed_sports_subcategories() {
+		$football = Customize_Feed::category_tag( 'Sports,Football' );
+		$this->assertStringContainsString( '<itunes:category text="Sports">', $football );
+		$this->assertStringContainsString( '<itunes:category text="American Football" />', $football );
+
+		$soccer = Customize_Feed::category_tag( 'Sports,Soccer' );
+		$this->assertStringContainsString( '<itunes:category text="Sports">', $soccer );
+		$this->assertStringContainsString( '<itunes:category text="Football (Soccer)" />', $soccer );
+	}
+
 	public function test_resolve_category_id_returns_zero_when_nothing_configured() {
 		$this->assertSame( 0, Customize_Feed::resolve_category_id() );
 	}

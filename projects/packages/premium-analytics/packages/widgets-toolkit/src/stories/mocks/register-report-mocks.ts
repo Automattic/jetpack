@@ -2,13 +2,13 @@
  * Storybook report-data mocking via a `@wordpress/api-fetch` middleware.
  *
  * The shared Jetpack Storybook config cannot be modified, and there is no
- * analytics backend in Storybook. Upstream (woocommerce-analytics) solves this
- * with MSW handlers that intercept its report REST paths.
+ * analytics backend in Storybook, so report requests have nothing to resolve
+ * against.
  *
- * Here we achieve the same effect by registering an `apiFetch` middleware that
- * intercepts the proxy report paths and returns generated mock data. The data
- * package fetches every report through `apiFetch( { path } )` using the same
- * base path (`reportsPath`), so a single middleware covers all widget stories.
+ * To mock report data we register an `apiFetch` middleware that intercepts the
+ * proxy report paths and returns generated mock data. The data package fetches
+ * every report through `apiFetch( { path } )` using the same base path
+ * (`reportsPath`), so a single middleware covers all widget stories.
  *
  * The middleware is registered exactly once (guarded by a module-level flag) and
  * is triggered automatically when `with-widget-root.tsx` is imported.

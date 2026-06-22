@@ -7,10 +7,10 @@ Form control for editing a widget's date-range parameters
 
 This field depends on two external data providers:
 
-| Provider             | Package                                                            | Purpose                                               |
-| -------------------- | ------------------------------------------------------------------ | ----------------------------------------------------- |
-| `getStoreInfo()`     | `helpers/store-info` (local stand-in for `@woocommerce-next/data`) | Reads `launchedDate` from the store profile           |
-| `getDefaultPreset()` | `@jetpack-premium-analytics/data`                                  | Resolves a smart date-range preset based on store age |
+| Provider             | Package                               | Purpose                                               |
+| -------------------- | ------------------------------------- | ----------------------------------------------------- |
+| `getStoreInfo()`     | `helpers/store-info` (local stand-in) | Reads `launchedDate` from the store profile           |
+| `getDefaultPreset()` | `@jetpack-premium-analytics/data`     | Resolves a smart date-range preset based on store age |
 
 ### Why the coupling exists
 

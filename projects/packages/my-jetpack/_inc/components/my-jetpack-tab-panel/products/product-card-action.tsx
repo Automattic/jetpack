@@ -11,7 +11,9 @@ import { ProductCamelCase } from '../../../data/types';
 import { useInterstitialsState } from '../../../hooks/use-interstitials-state';
 import { MyJetpackModule } from '../../../types';
 import { PRODUCT_STATUSES } from '../../product-card';
+import { setPendingSuccessNotice } from './pending-notice';
 import { useProductFiltersContext } from './products-tracking-context';
+import { reloadPage } from './reload-page';
 
 export type ProductCardActionProps = {
 	product: ProductCamelCase;
@@ -58,7 +60,12 @@ function ActivationToggle( {
 	product,
 	active = true,
 	disabled = false,
-}: ProductCardActionProps & { active?: boolean; disabled?: boolean } ) {
+	reloadOnToggle = false,
+}: ProductCardActionProps & {
+	active?: boolean;
+	disabled?: boolean;
+	reloadOnToggle?: boolean;
+} ) {
 	const { deactivate, isPending: isDeactivating } = useDeactivatePlugins( product.slug );
 	const { activate, isPending: isActivating } = useActivatePlugins( product.slug );
 	const { trackProductAction } = useProductFiltersContext();
@@ -74,8 +81,28 @@ function ActivationToggle( {
 			productStatus: product.status,
 			productData: product,
 		} );
-		active ? deactivate() : activate();
-	}, [ deactivate, activate, active, product, trackProductAction ] );
+		// Some products register wp-admin menu items (e.g. Forms). Reload after the
+		// toggle so server-rendered UI such as the admin sidebar reflects the change,
+		// persisting the success notice so it survives the reload.
+		const onReloadSuccess = () => {
+			setPendingSuccessNotice(
+				active
+					? sprintf(
+							/* translators: %s is the product name */
+							__( '%s deactivated successfully!', 'jetpack-my-jetpack' ),
+							product.name
+					  )
+					: sprintf(
+							/* translators: %s is the product name */
+							__( '%s activated successfully!', 'jetpack-my-jetpack' ),
+							product.name
+					  )
+			);
+			reloadPage();
+		};
+		const mutateOptions = reloadOnToggle ? { onSuccess: onReloadSuccess } : undefined;
+		active ? deactivate( undefined, mutateOptions ) : activate( undefined, mutateOptions );
+	}, [ deactivate, activate, active, product, trackProductAction, reloadOnToggle ] );
 
 	return (
 		<Flex gap={ 4 }>
@@ -111,6 +138,19 @@ function ActivationToggle( {
  */
 export function ProductCardAction( { product, module: $module }: ProductCardActionProps ) {
 	const { data: interstitials } = useInterstitialsState();
+
+	// Forms is a free module feature with no interstitial yet — show the activation
+	// toggle directly instead of a "Learn more" link. (An interstitial may be added later.)
+	if ( product.slug === 'jetpack-forms' ) {
+		return (
+			<ActivationToggle
+				product={ product }
+				active={ product.status === PRODUCT_STATUSES.ACTIVE }
+				disabled={ ! $module?.available }
+				reloadOnToggle
+			/>
+		);
+	}
 
 	if ( ! product.hasPaidPlanForProduct && ! interstitials?.[ product.slug ] ) {
 		return <UpgradeAction product={ product } />;

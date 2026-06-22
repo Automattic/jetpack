@@ -1,5 +1,5 @@
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
-import { useBlockProps } from '@wordpress/block-editor';
+import { store as blockEditorStore, useBlockProps } from '@wordpress/block-editor';
 import { Icon, Spinner } from '@wordpress/components';
 import { useInstanceId } from '@wordpress/compose';
 import { useDispatch, useSelect } from '@wordpress/data';
@@ -74,6 +74,17 @@ const Edit = props => {
 	const [ showFirstTimeModal, setShowFirstTimeModal ] = useState( false );
 	const isUserConnected = useIsUserConnected();
 
+	// When the inserter renders this block as an example/preview (it declares
+	// `"example": {}` in block.json), Gutenberg mounts this Edit component inside
+	// a BlockPreview with `isPreviewMode` set. We use this flag to skip all editor
+	// side effects (Stripe status fetch, post-saving lock, first-time modal,
+	// analytics) so hovering the block in the inserter doesn't flicker the screen,
+	// lock post saving, or fire tracking events. Mirrors the `map` block.
+	const isPreviewMode = useSelect(
+		select => select( blockEditorStore ).getSettings().isPreviewMode,
+		[]
+	);
+
 	const { lockPostSaving, unlockPostSaving } = useDispatch( 'core/editor' );
 	const { getEntityRecord, getCurrentUser } = useSelect( 'core' );
 	const { editEntityRecord, saveEditedEntityRecord } = useDispatch( 'core' );
@@ -101,7 +112,7 @@ const Edit = props => {
 	// stripeDefaultCurrency populated) or the user is not Jetpack-connected,
 	// so the stripe_connected snapshot is accurate.
 	useEffect( () => {
-		if ( ! clientId || blockLoadedFiredClientIds.has( clientId ) ) {
+		if ( isPreviewMode || ! clientId || blockLoadedFiredClientIds.has( clientId ) ) {
 			return;
 		}
 		const stripeStateResolved = !! stripeConnectUrl || !! stripeDefaultCurrency;
@@ -115,7 +126,14 @@ const Edit = props => {
 			is_user_connected: !! isUserConnected,
 			stripe_connected: isUserConnected ? ! stripeConnectUrl : null,
 		} );
-	}, [ clientId, isUserConnected, stripeConnectUrl, stripeDefaultCurrency, tracks ] );
+	}, [
+		clientId,
+		isUserConnected,
+		stripeConnectUrl,
+		stripeDefaultCurrency,
+		tracks,
+		isPreviewMode,
+	] );
 
 	useEffect( () => {
 		if ( ! currency && stripeDefaultCurrency && ! isPostSavingLocked ) {
@@ -163,12 +181,19 @@ const Edit = props => {
 
 	// Show the modal if the user has not dismissed the warning
 	useEffect( () => {
+		if ( isPreviewMode ) {
+			return;
+		}
 		if ( currentUser?.id && hasDismissedDonationWarning === false ) {
 			setShowFirstTimeModal( true );
 		}
-	}, [ currentUser, hasDismissedDonationWarning ] );
+	}, [ currentUser, hasDismissedDonationWarning, isPreviewMode ] );
 
 	useEffect( () => {
+		if ( isPreviewMode ) {
+			return;
+		}
+
 		lockPostSaving( 'donations' );
 
 		const filterProducts = productList =>
@@ -229,23 +254,34 @@ const Edit = props => {
 		setConnectUrl,
 		setConnectedAccountDefaultCurrency,
 		unlockPostSaving,
+		isPreviewMode,
 	] );
+
+	// In preview/example mode the Stripe status fetch is skipped, so fall back to
+	// placeholder products and a valid currency to render a representative form
+	// rather than a perpetual spinner or a "connect Stripe" nudge.
+	const previewProducts = { 'one-time': -1, '1 month': -1, '1 year': -1 };
+	const effectiveProducts = isPreviewMode ? previewProducts : products;
+	const effectiveProps =
+		isPreviewMode && ! currency
+			? { ...props, attributes: { ...attributes, currency: 'USD' } }
+			: props;
 
 	let content;
 
-	if ( ! isUserConnected ) {
+	if ( ! isPreviewMode && ! isUserConnected ) {
 		content = (
 			<ConnectBanner
 				block="Donations Form"
 				explanation={ __( 'Connect your WordPress.com account to enable donations.', 'jetpack' ) }
 			/>
 		);
-	} else if ( loadingError ) {
+	} else if ( ! isPreviewMode && loadingError ) {
 		content = <LoadingError error={ loadingError } />;
-	} else if ( stripeConnectUrl ) {
+	} else if ( ! isPreviewMode && stripeConnectUrl ) {
 		// Need to connect Stripe first
 		content = <StripeNudge blockName="donations" />;
-	} else if ( ! currency ) {
+	} else if ( ! isPreviewMode && ! currency ) {
 		// Memberships settings are still loading
 		content = <Spinner />;
 	} else if ( displayMode === 'modal' ) {
@@ -267,7 +303,7 @@ const Edit = props => {
 			</>
 		);
 	} else {
-		content = <Tabs { ...props } products={ products } />;
+		content = <Tabs { ...effectiveProps } products={ effectiveProducts } />;
 	}
 
 	// When the first time modal is closed, update the user meta to mark the donation warning as dismissed

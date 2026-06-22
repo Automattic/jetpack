@@ -34,10 +34,6 @@ minimumReleaseAgeExclude:
   - '@automattic/*'
   - '@woocommerce/*'
   - '@wordpress/*'
-  # Renovate security update: dompurify@3.4.9
-  - dompurify@3.4.9
-  # Renovate security update: markdown-it@14.2.0
-  - markdown-it@14.2.0
 trustPolicy: no-downgrade
 trustPolicyExclude:
   # https://github.com/paulmillr/chokidar/issues/1440

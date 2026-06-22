@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Show the transitional Subscribers announcement page under Jetpack → Subscribers on WordPress.com when the Newsletter modernization filter is enabled, instead of removing the entry entirely.

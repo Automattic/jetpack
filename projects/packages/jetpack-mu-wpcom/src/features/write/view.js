@@ -22,7 +22,143 @@ let activeBlockquote = null;
 const AUTOSAVE_INTERVAL_MS = 30000; // 30 seconds.
 const AUTOSAVE_MESSAGE_DURATION_MS = 2000;
 const AUTOSAVE_STORAGE_KEY = 'wpcom-write-autosave-draft';
+const ANON_DRAFT_STORAGE_KEY = 'wpcom-write-anon-draft';
 const DISCLAIMER_STORAGE_KEY = 'wpcom-write-disclaimer-dismissed';
+
+/**
+ * Whether the editor is running on a logged-out page that opts into the
+ * anonymous flow by setting `window.wpcomWriteIsAnon = true` before the module
+ * loads. All anon branches in this file are gated on this — when the flag is
+ * absent, every code path below behaves exactly as it did before.
+ *
+ * @return {boolean} True if the host page set the anon flag.
+ */
+function isAnon() {
+	return typeof window !== 'undefined' && window.wpcomWriteIsAnon === true;
+}
+
+/**
+ * Persist the current draft snapshot to localStorage under the anon key.
+ *
+ * Failures (quota, blocked storage, undefined `localStorage`) are caught and
+ * surfaced as a Tracks event so silent draft loss doesn't read as abandonment.
+ *
+ * @param {string} title   - Current post title.
+ * @param {string} content - Current post content (block-formatted markup).
+ */
+function saveDraftToLocalStorage( title, content ) {
+	try {
+		window.localStorage.setItem(
+			ANON_DRAFT_STORAGE_KEY,
+			JSON.stringify( { title, content, ts: Date.now() } )
+		);
+	} catch ( err ) {
+		const errorName = ( err && err.name ) || 'UnknownError';
+		try {
+			window._tkq = window._tkq || [];
+			window._tkq.push( [
+				'recordEvent',
+				'wpcom_write_editor_anon_draft_persist_failed',
+				{ error_name: errorName },
+			] );
+		} catch {
+			// Tracks failed too — nothing useful to do here; swallow.
+		}
+	}
+}
+
+/**
+ * Read the persisted anon draft snapshot, or `null` if missing/unreadable.
+ *
+ * @return {{title: string, content: string, ts: number} | null} Snapshot or null.
+ */
+function readAnonDraft() {
+	try {
+		const raw = window.localStorage.getItem( ANON_DRAFT_STORAGE_KEY );
+		if ( ! raw ) {
+			return null;
+		}
+		const parsed = JSON.parse( raw );
+		if ( ! parsed || typeof parsed !== 'object' ) {
+			return null;
+		}
+		return {
+			title: typeof parsed.title === 'string' ? parsed.title : '',
+			content: typeof parsed.content === 'string' ? parsed.content : '',
+			ts: typeof parsed.ts === 'number' ? parsed.ts : 0,
+		};
+	} catch {
+		return null;
+	}
+}
+
+/**
+ * Capture the current editor content as a block-formatted snapshot and persist
+ * it to localStorage. Reads from `.bw-content-inner` (the editable wrapper) so
+ * the outer `.bw-content` element's chrome attributes don't leak in, and runs
+ * the inner HTML through `convertToBlocks` so the signup-flow handoff lands a
+ * clean block draft instead of raw contenteditable markup.
+ */
+function captureAnonSnapshot() {
+	const contentEl = getContent();
+	const html = contentEl ? contentEl.innerHTML : '';
+	saveDraftToLocalStorage( state.title, html ? convertToBlocks( html ) : '' );
+}
+
+/**
+ * Discard the persisted anon draft snapshot. Safe to call when absent.
+ */
+function clearAnonDraft() {
+	try {
+		window.localStorage.removeItem( ANON_DRAFT_STORAGE_KEY );
+	} catch {
+		// No-op: if we can't clear it, the worst case is a stale recovery banner next visit.
+	}
+}
+
+// Mark the page as anonymous so style.css can hide UI that has no anon
+// equivalent (back button, more-menu, the standalone Save-draft button,
+// unsupported-content "Open in editor" buttons). Set as early as the
+// module loads so the initial render doesn't flash the hidden surfaces.
+if ( isAnon() && typeof document !== 'undefined' && document.documentElement ) {
+	document.documentElement.classList.add( 'bw-anon' );
+}
+
+/**
+ * Inject the brand label on the left of the top bar and the "Not signed in"
+ * indicator before the Publish button. Both are anon-only; the strings come
+ * from window.wpcomWriteStrings (with English fallbacks) so translations land
+ * via the same path as the rest of the editor UI.
+ */
+function injectAnonTopbarLabels() {
+	const topbar = document.querySelector( '.bw-topbar' );
+	if ( ! topbar || topbar.querySelector( '.bw-anon-brand' ) ) {
+		return;
+	}
+
+	const brand = document.createElement( 'span' );
+	brand.className = 'bw-anon-brand';
+	brand.textContent = i18n.anonBrand || 'WordPress.com · Write';
+	topbar.prepend( brand );
+
+	const status = document.createElement( 'span' );
+	status.className = 'bw-anon-status';
+	status.textContent = i18n.anonStatus || 'Not signed in';
+	const publishBtn = topbar.querySelector( '.bw-btn-publish' );
+	if ( publishBtn && publishBtn.parentNode ) {
+		publishBtn.parentNode.insertBefore( status, publishBtn );
+	} else {
+		topbar.appendChild( status );
+	}
+}
+
+if ( isAnon() && typeof document !== 'undefined' ) {
+	if ( document.readyState === 'loading' ) {
+		document.addEventListener( 'DOMContentLoaded', injectAnonTopbarLabels );
+	} else {
+		injectAnonTopbarLabels();
+	}
+}
 
 // Autosave state — tracked outside the store to avoid triggering reactivity.
 let lastSavedSnapshot = { title: '', content: '' };
@@ -2065,6 +2201,96 @@ async function uploadFileToMedia( file ) {
 		setTimeout( () => {
 			state.message = '';
 		}, 3000 );
+	}
+}
+
+// Media library browser state. Kept in module scope so list rendering can
+// look up the chosen media item by id when a thumbnail is clicked, without
+// re-fetching. Refreshed on every modal open so newly-uploaded images appear.
+// The strip is a single horizontally-scrolling row; we fetch one page and
+// rely on search for older items rather than offering Load more.
+let libraryItems = [];
+let librarySearchTimer = 0;
+let libraryFetchToken = 0;
+const LIBRARY_PER_PAGE = 24;
+
+/**
+ * Pick the smallest reasonable thumbnail URL for the grid. Falls back to the
+ * full-size source_url for images without registered sizes (e.g. uploads that
+ * pre-date a media setting change).
+ *
+ * @param {object} media - Media item from /wp/v2/media.
+ * @return {string} The thumbnail URL to render.
+ */
+function libraryThumbUrl( media ) {
+	const sizes = media.media_details?.sizes;
+	return sizes?.thumbnail?.source_url || sizes?.medium?.source_url || media.source_url || '';
+}
+
+/**
+ * Render the library strip into #bw-library-grid. Always replaces — the strip
+ * holds the most recent items (or current search results) only.  Thumbnails
+ * are <button>s; the container has aria-label, so individual items use plain
+ * `aria-label` with the media's alt or filename.
+ */
+function renderLibraryGrid() {
+	const grid = document.getElementById( 'bw-library-grid' );
+	if ( ! grid ) return;
+	grid.textContent = '';
+
+	for ( const item of libraryItems ) {
+		const btn = document.createElement( 'button' );
+		btn.type = 'button';
+		btn.className = 'bw-library-thumb';
+		btn.dataset.mediaId = String( item.id );
+		const label = item.alt_text || item.title?.rendered || '';
+		if ( label ) btn.setAttribute( 'aria-label', label );
+		const img = document.createElement( 'img' );
+		img.src = libraryThumbUrl( item );
+		img.alt = '';
+		img.loading = 'lazy';
+		btn.appendChild( img );
+		grid.appendChild( btn );
+	}
+}
+
+/**
+ * Fetch the most recent (or search-filtered) page of the user's media library
+ * and render it as a single-row strip.
+ *
+ * Concurrent requests are coalesced via a monotonically increasing token —
+ * only the most recent fetch's result is applied to state.
+ */
+async function fetchLibrary() {
+	const strings = window.wpcomWriteStrings || {};
+	const myToken = ++libraryFetchToken;
+	const search = state.librarySearch.trim();
+
+	state.libraryStatus = strings.libraryLoading || 'Loading…';
+
+	try {
+		const path =
+			`${ state.mediaPath }?media_type=image&per_page=${ LIBRARY_PER_PAGE }` +
+			`&orderby=date&order=desc` +
+			( search ? `&search=${ encodeURIComponent( search ) }` : '' );
+		const items = await window.wp.apiFetch( { path } );
+		// A newer fetch superseded this one — drop the result silently.
+		if ( myToken !== libraryFetchToken ) return;
+
+		libraryItems = items;
+
+		if ( libraryItems.length === 0 ) {
+			state.libraryStatus = search
+				? strings.libraryNoResults || 'No matching images.'
+				: strings.libraryEmpty || 'No images in your library yet.';
+		} else {
+			state.libraryStatus = '';
+		}
+
+		renderLibraryGrid();
+	} catch {
+		if ( myToken !== libraryFetchToken ) return;
+		state.libraryStatus = strings.libraryLoadFailed || "Couldn't load your library.";
 	}
 }
 
@@ -4419,6 +4645,12 @@ const { state } = store( 'wpcom-write', {
 		},
 
 		openImageModal() {
+			// Image insertion needs an upload endpoint and a media library; neither
+			// is available without auth, and CSS hides the entry point. The guard
+			// here covers programmatic callers (slash menu, etc.).
+			if ( isAnon() ) {
+				return;
+			}
 			// If the edit panel is open for an existing image, end that
 			// session first so the user's changes land as a discrete undo
 			// entry before the insert overlay replaces the panel.
@@ -4431,7 +4663,81 @@ const { state } = store( 'wpcom-write', {
 			state.uploadedMediaId = 0;
 			resetUploadZone();
 			state.showImageModal = true;
+			// Every open starts from the upload-default state; library/URL
+			// expanders collapse and search resets so the next open looks
+			// identical to the first.
+			state.showLibraryPicker = false;
+			state.showUrlInput = false;
+			state.librarySearch = '';
+			// Lock the page behind the modal so the editor can't scroll under
+			// the dimmed backdrop. The non-modal edit panel (editImage) does
+			// not lock — it docks bottom-right and the editor stays usable.
+			document.body.classList.add( 'bw-modal-open' );
 			focusModalInput();
+		},
+
+		toggleLibraryPicker() {
+			if ( isAnon() ) {
+				return;
+			}
+			state.showLibraryPicker = ! state.showLibraryPicker;
+			// Lazy-fetch the library on first expand, and refresh on every
+			// reopen so a just-uploaded image appears at the top.
+			if ( state.showLibraryPicker ) {
+				state.librarySearch = '';
+				fetchLibrary();
+			}
+		},
+
+		toggleUrlInput() {
+			state.showUrlInput = ! state.showUrlInput;
+			// When opening, focus the URL field for immediate typing.
+			if ( state.showUrlInput ) {
+				requestAnimationFrame( () => {
+					document.querySelector( '.bw-url-section input[type="url"]' )?.focus();
+				} );
+			}
+		},
+
+		searchLibrary() {
+			const el = getElement();
+			state.librarySearch = el.ref.value;
+			clearTimeout( librarySearchTimer );
+			// 250ms debounce keeps us under the WP REST rate even while typing
+			// quickly without feeling laggy on a fast network.
+			librarySearchTimer = setTimeout( fetchLibrary, 250 );
+		},
+
+		selectLibraryImage( event ) {
+			// Delegated handler on the grid container — find the actual
+			// thumbnail button regardless of whether the click landed on the
+			// button, its inner <img>, or some descendant.
+			const btn = event.target.closest( '.bw-library-thumb' );
+			if ( ! btn ) return;
+			const id = parseInt( btn.dataset.mediaId, 10 );
+			if ( ! id ) return;
+			const item = libraryItems.find( m => m.id === id );
+			if ( ! item ) return;
+
+			// Match the upload-success path: populate the URL/alt fields and
+			// stamp the media id so insertImageFromUrl tags the figure with
+			// wp-image-<id> and applies the Large size preset.  Alt only
+			// overwrites a blank field so a user who already typed alt for a
+			// different image they were considering doesn't lose their work.
+			state.imageUrl = item.source_url;
+			if ( ! state.imageAlt && item.alt_text ) {
+				state.imageAlt = item.alt_text;
+			}
+			state.uploadedMediaId = item.id;
+			mediaSizesCache.set( item.id, item.media_details?.sizes || null );
+			showUploadPreview( item.source_url );
+
+			// Announce the selection through the modal's aria-live region so
+			// screen-reader users get audible confirmation that the click
+			// registered (the preview itself is purely visual).
+			const label = item.alt_text || item.title?.rendered || '';
+			const template = window.wpcomWriteStrings?.librarySelected || 'Selected %s';
+			state.libraryStatus = template.replace( '%s', label );
 		},
 
 		editImage( figure, triggerEl ) {
@@ -4501,6 +4807,7 @@ const { state } = store( 'wpcom-write', {
 			state.imageAlt = '';
 			state.setAsFeatured = false;
 			state.uploadedMediaId = 0;
+			document.body.classList.remove( 'bw-modal-open' );
 			resetUploadZone();
 			restoreSelection();
 			if ( triggerToRefocus && document.contains( triggerToRefocus ) ) {
@@ -4519,9 +4826,16 @@ const { state } = store( 'wpcom-write', {
 			if ( event.key === 'Tab' ) {
 				const modal = event.currentTarget.querySelector( '.bw-image-modal' );
 				if ( ! modal ) return;
-				const focusable = modal.querySelectorAll(
-					'input:not([hidden]), button, [tabindex]:not([tabindex="-1"])'
-				);
+				// Filter to currently-rendered elements only. The collapsible
+				// library/URL sections live inside the modal but use the
+				// `hidden` attribute on their wrapper — `:not([hidden])` on
+				// the input itself doesn't catch that, so without the
+				// offsetParent check those inputs would land in the trap's
+				// boundaries even though Tab can't actually reach them, and
+				// focus would fall out of the modal.
+				const focusable = Array.from(
+					modal.querySelectorAll( 'input:not([hidden]), button, [tabindex]:not([tabindex="-1"])' )
+				).filter( el => el.offsetParent !== null && ! el.disabled );
 				if ( ! focusable.length ) return;
 				const first = focusable[ 0 ];
 				const last = focusable[ focusable.length - 1 ];
@@ -4600,6 +4914,7 @@ const { state } = store( 'wpcom-write', {
 			}
 
 			state.showImageModal = false;
+			document.body.classList.remove( 'bw-modal-open' );
 			resetUploadZone();
 			pushToUndoHistory();
 		},
@@ -4732,6 +5047,10 @@ const { state } = store( 'wpcom-write', {
 			event.preventDefault();
 			clearDropIndicator();
 
+			if ( isAnon() ) {
+				return;
+			}
+
 			const images = Array.from( event.dataTransfer.files || [] ).filter( f =>
 				f.type.startsWith( 'image/' )
 			);
@@ -4769,21 +5088,14 @@ const { state } = store( 'wpcom-write', {
 		},
 
 		insertImage() {
-			// Slash-menu image insert: close any open edit panel first so
-			// the in-progress edit session is committed as a discrete undo
-			// entry before the insert overlay takes over.
-			endEditSession();
+			// Slash-menu image insert: clean up the slash UI, then delegate
+			// to openImageModal so the modal opens in the same reset state as
+			// the toolbar entry (collapsed expanders + scroll lock).
 			flushUndoDebounce();
 			clearSlashText();
 			clearSlashActive();
 			state.showSlashMenu = false;
-			saveSelection();
-			state.imageUrl = '';
-			state.imageAlt = '';
-			resetImageModalInputs();
-			resetUploadZone();
-			state.showImageModal = true;
-			focusModalInput();
+			store( 'wpcom-write' ).actions.openImageModal();
 		},
 
 		insertBulletedList() {
@@ -5034,6 +5346,9 @@ const { state } = store( 'wpcom-write', {
 
 		async openInBlockEditor() {
 			state.showMoreMenu = false;
+			if ( isAnon() ) {
+				return;
+			}
 
 			// New posts need a save to create the underlying post before we
 			// have a URL to navigate to. Surface the same "Please write
@@ -5074,6 +5389,9 @@ const { state } = store( 'wpcom-write', {
 
 		async previewPost() {
 			state.showMoreMenu = false;
+			if ( isAnon() ) {
+				return;
+			}
 
 			if ( ! state.editPostId && ! hasWritableContent() ) {
 				state.message = i18n.pleaseWriteSomething || 'Please write something';
@@ -5105,6 +5423,9 @@ const { state } = store( 'wpcom-write', {
 
 		openPostPicker() {
 			state.showMoreMenu = false;
+			if ( isAnon() ) {
+				return;
+			}
 
 			if ( isDirty() ) {
 				state.pendingOpenPost = true;
@@ -5348,15 +5669,42 @@ const { state } = store( 'wpcom-write', {
 		},
 
 		async publish() {
+			if ( isAnon() ) {
+				// Flush the latest draft snapshot before navigating — autosave is
+				// on a 30s tick, and a fast typer-then-clicker would otherwise
+				// hand off stale (or no) content to the signup flow.
+				captureAnonSnapshot();
+
+				// Suppress the dirty-state leave prompt the way every other
+				// internal navigation in this file does (cf. openInBlockEditor).
+				allowLeave = true;
+
+				// Anon visitors hand off to the signup flow, which reads the draft
+				// from localStorage and publishes after signup completes.
+				window.location.assign( 'https://wordpress.com/setup/write-on' );
+				return;
+			}
 			await savePost( 'publish' );
 		},
 
 		async saveDraft() {
+			if ( isAnon() ) {
+				// Anon persists to localStorage on every autosave tick; an
+				// explicit "save draft" maps to the same operation.
+				captureAnonSnapshot();
+				lastSavedSnapshot = getContentSnapshot();
+				return;
+			}
 			await savePost( 'draft' );
 		},
 
 		async saveDraftFromMenu() {
 			state.showMoreMenu = false;
+			if ( isAnon() ) {
+				captureAnonSnapshot();
+				lastSavedSnapshot = getContentSnapshot();
+				return;
+			}
 			await savePost( 'draft' );
 		},
 
@@ -5377,9 +5725,17 @@ const { state } = store( 'wpcom-write', {
 			}
 
 			// Require at least a title or content before autosaving.
-			const contentEl = document.querySelector( '.bw-content' );
+			const contentEl = getContent();
 			const hasContent = state.title.trim() || ( contentEl && contentEl.textContent.trim() );
 			if ( ! hasContent ) {
+				return;
+			}
+
+			if ( isAnon() ) {
+				// Anon visitors have no server post; snapshot the editable HTML
+				// to localStorage so a refresh can rehydrate via the recovery banner.
+				captureAnonSnapshot();
+				lastSavedSnapshot = getContentSnapshot();
 				return;
 			}
 
@@ -5390,6 +5746,36 @@ const { state } = store( 'wpcom-write', {
 		 * Resume editing an autosaved draft.
 		 */
 		resumeDraft() {
+			if ( isAnon() ) {
+				// Anon snapshot is a JSON blob, not a server post id — hydrate the
+				// editor in place rather than navigating.
+				const snapshot = readAnonDraft();
+				if ( snapshot ) {
+					state.title = snapshot.title;
+					// The title <textarea> binds input → state.title one-way; mutating
+					// state alone does not update the field, so set the DOM value too
+					// (matching applyUndoSnapshot's pattern).
+					const titleEl = document.querySelector( '.bw-title' );
+					if ( titleEl ) {
+						titleEl.value = snapshot.title;
+						titleEl.style.height = 'auto';
+						titleEl.style.height = titleEl.scrollHeight + 'px';
+					}
+					const contentEl = getContent();
+					if ( contentEl ) {
+						contentEl.innerHTML = snapshot.content;
+					}
+					// The CSS placeholder is driven by `bw-is-empty` on the outer
+					// `.bw-content`, normally removed by the first input event.
+					// Programmatic hydration fires no input, so clear it directly.
+					if ( snapshot.content ) {
+						document.querySelector( '.bw-content' )?.classList.remove( 'bw-is-empty' );
+					}
+					lastSavedSnapshot = getContentSnapshot();
+				}
+				state.showRecoveryBanner = false;
+				return;
+			}
 			const draftId = localStorage.getItem( AUTOSAVE_STORAGE_KEY );
 			if ( draftId && /^\d+$/.test( draftId ) ) {
 				localStorage.removeItem( AUTOSAVE_STORAGE_KEY );
@@ -5401,7 +5787,11 @@ const { state } = store( 'wpcom-write', {
 		 * Dismiss the recovery banner and discard the autosaved draft reference.
 		 */
 		dismissRecovery() {
-			localStorage.removeItem( AUTOSAVE_STORAGE_KEY );
+			if ( isAnon() ) {
+				clearAnonDraft();
+			} else {
+				localStorage.removeItem( AUTOSAVE_STORAGE_KEY );
+			}
 			state.showRecoveryBanner = false;
 		},
 
@@ -5734,13 +6124,27 @@ const autosaveReady = setInterval( () => {
 		actions.autosave();
 	}, AUTOSAVE_INTERVAL_MS );
 
-	// Show the beta disclaimer unless previously dismissed.
-	if ( ! localStorage.getItem( DISCLAIMER_STORAGE_KEY ) ) {
+	// Show the beta disclaimer unless previously dismissed. Anon visitors
+	// skip this entirely — not just because the banner is irrelevant, but
+	// because the layout's sibling selectors (`.bw-disclaimer-banner:not(
+	// [hidden]) ~ .bw-toolbar`) push the toolbar down based on the `hidden`
+	// attribute, which the Interactivity API only sets when the state is
+	// false. Leaving state true would shift the toolbar down by 44px even
+	// though our anon CSS hides the banner itself.
+	if ( ! isAnon() && ! localStorage.getItem( DISCLAIMER_STORAGE_KEY ) ) {
 		state.showDisclaimer = true;
 	}
 
 	// Check for a recoverable autosaved draft (only for new posts).
-	if ( ! state.editPostId ) {
+	if ( isAnon() ) {
+		// Anon recovery reads a JSON snapshot rather than a post id. Show the
+		// banner only when the snapshot has any actual content to restore — an
+		// empty record is no better than starting fresh.
+		const snapshot = readAnonDraft();
+		if ( snapshot && ( snapshot.title || snapshot.content ) ) {
+			state.showRecoveryBanner = true;
+		}
+	} else if ( ! state.editPostId ) {
 		const draftId = localStorage.getItem( AUTOSAVE_STORAGE_KEY );
 		if ( draftId ) {
 			state.showRecoveryBanner = true;
@@ -5856,6 +6260,12 @@ window.addEventListener( 'dragover', event => {
 
 window.addEventListener( 'drop', event => {
 	if ( ! event.dataTransfer?.types?.includes( 'Files' ) ) return;
+	if ( isAnon() ) {
+		// No upload endpoint for anon — prevent the default file-open behavior
+		// (matching the rest of this handler) but skip the upload path.
+		event.preventDefault();
+		return;
+	}
 	// The editor (.bw-content) and the image-modal overlay each have
 	// their own data-wp-on--drop handlers; those fire on the inner
 	// target first and bubble up to here. Check via composedPath rather

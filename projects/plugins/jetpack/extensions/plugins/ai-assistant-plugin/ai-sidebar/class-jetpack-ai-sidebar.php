@@ -287,6 +287,28 @@ class Jetpack_AI_Sidebar {
 	}
 
 	/**
+	 * UI feature flag for the Generate Feedback suggestion.
+	 *
+	 * Exposed only in internal testing environments while the feature is in development.
+	 *
+	 * @return bool
+	 */
+	private static function is_generate_feedback_enabled(): bool {
+		return jetpack_is_internal_testing_environment();
+	}
+
+	/**
+	 * UI feature flag for the Optimize Title suggestion.
+	 *
+	 * Exposed only in internal testing environments while the feature is in development.
+	 *
+	 * @return bool
+	 */
+	private static function is_optimize_title_suggestion_enabled(): bool {
+		return jetpack_is_internal_testing_environment();
+	}
+
+	/**
 	 * UI feature flag for the public Jetpack AI Sidebar Preview surface.
 	 *
 	 * Defaults to enabled only on WordPress.com platform sites (Simple or WoA)
@@ -337,8 +359,9 @@ class Jetpack_AI_Sidebar {
 	private static function get_jetpack_ai_sidebar_preview_config(): array {
 		$features = array(
 			'aiEditorialReview'       => self::is_ai_editorial_review_enabled(),
+			'generateFeedback'        => self::is_generate_feedback_enabled(),
 			'blockTransformations'    => true,
-			'optimizeTitleSuggestion' => false,
+			'optimizeTitleSuggestion' => self::is_optimize_title_suggestion_enabled(),
 			'chatHistory'             => false,
 			'supportGuides'           => false,
 		);
@@ -350,6 +373,11 @@ class Jetpack_AI_Sidebar {
 		 */
 		$filtered_features = apply_filters( 'jetpack_ai_sidebar_preview_features', $features );
 		$features          = is_array( $filtered_features ) ? array_merge( $features, $filtered_features ) : $features;
+
+		// Re-assert the testing-environment gates so the generic features filter cannot
+		// expose in-development suggestions outside internal testing environments.
+		$features['generateFeedback']        = self::is_generate_feedback_enabled();
+		$features['optimizeTitleSuggestion'] = (bool) $features['optimizeTitleSuggestion'] && self::is_optimize_title_suggestion_enabled();
 
 		return array(
 			'enabled'  => self::is_jetpack_ai_sidebar_preview_enabled(),

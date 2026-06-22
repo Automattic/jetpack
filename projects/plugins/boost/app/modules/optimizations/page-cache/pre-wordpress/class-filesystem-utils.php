@@ -76,6 +76,102 @@ class Filesystem_Utils {
 		return $count;
 	}
 
+	/**
+	 * Recursively delete a directory and everything in it, including cache files,
+	 * index.html placeholder files, subdirectories and the directory itself.
+	 *
+	 * Unlike iterate_directory() with a Simple_Delete action, this does not keep
+	 * index.html placeholder files, does not log each deletion, and removes each
+	 * entry as the iterator visits it instead of building a file list in memory,
+	 * so it stays time- and memory-efficient even for very large caches. Used to
+	 * completely remove the boost-cache directory when the plugin is uninstalled.
+	 *
+	 * @param string $path - The directory to delete.
+	 * @return bool|Boost_Cache_Error - True on success (or if the directory is already gone), Boost_Cache_Error on failure.
+	 */
+	public static function delete_directory( $path ) {
+		clearstatcache();
+
+		// Strip a trailing slash so the is_link() guard below sees the link itself.
+		// is_link( 'foo/' ) is false on POSIX, which would let a trailing-slash path
+		// slip past the symlink-root check; rtrim() closes that for this public,
+		// destructive primitive even though the current caller passes no slash.
+		$path = rtrim( $path, '/' );
+
+		// Refuse to follow a symlinked cache root. realpath() resolves a symlink
+		// to its target, so a boost-cache symlink pointing outside wp-content would
+		// resolve identically to $cache_root below and pass the containment check,
+		// causing the target tree to be deleted. Boost never creates boost-cache as
+		// a symlink, so a symlinked root is unexpected and we refuse it outright.
+		// This is checked on the literal $path, not the resolved target, and only
+		// guards the root itself; symlinks encountered inside the tree are unlinked
+		// (never followed) by the deletion loop below.
+		if ( is_link( $path ) ) {
+			return new Boost_Cache_Error( 'invalid-directory', 'Refusing to delete a symlinked directory: ' . $path );
+		}
+
+		$resolved = realpath( $path );
+		if ( false === $resolved ) {
+			// Nothing to delete if the directory is already gone.
+			return true;
+		}
+
+		// Strict containment check. is_boost_cache_directory() only does a substring
+		// match, which would also accept sibling paths like boost-cache-old; since
+		// this helper deletes whole trees during uninstall, only the cache root
+		// itself or paths inside it are accepted, compared on resolved paths.
+		$cache_root = realpath( WP_CONTENT_DIR . '/boost-cache' );
+		if ( false === $cache_root || ( $resolved !== $cache_root && strpos( $resolved, $cache_root . '/' ) !== 0 ) ) {
+			return new Boost_Cache_Error( 'invalid-directory', 'Invalid directory ' . $path );
+		}
+
+		if ( ! is_dir( $resolved ) ) {
+			return new Boost_Cache_Error( 'not-a-directory', 'Not a directory' );
+		}
+
+		// Deleting a large cache can take a while; try not to time out half-way through.
+		if ( function_exists( 'set_time_limit' ) ) {
+			@set_time_limit( 0 ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+		}
+
+		try {
+			// CATCH_GET_CHILD keeps the walk best-effort: an unreadable subdirectory
+			// is skipped instead of throwing and aborting the whole cleanup, so the
+			// rest of the tree is still deleted. Anything left behind is reported by
+			// the final is_dir() re-check below.
+			$iterator = new \RecursiveIteratorIterator(
+				new \RecursiveDirectoryIterator( $resolved, \RecursiveDirectoryIterator::SKIP_DOTS ),
+				\RecursiveIteratorIterator::CHILD_FIRST,
+				\RecursiveIteratorIterator::CATCH_GET_CHILD
+			);
+
+			// Errors for individual entries are suppressed so a single failure doesn't abort the cleanup.
+			foreach ( $iterator as $file ) {
+				if ( $file->isDir() && ! $file->isLink() ) {
+					@rmdir( $file->getPathname() ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_rmdir, WordPress.PHP.NoSilencedErrors.Discouraged
+				} else {
+					@unlink( $file->getPathname() ); // phpcs:ignore WordPress.WP.AlternativeFunctions.unlink_unlink, WordPress.PHP.NoSilencedErrors.Discouraged
+				}
+			}
+		} catch ( \Throwable $e ) {
+			// The iterator itself can throw (e.g. an unreadable subdirectory).
+			// Uninstall cleanup must fail with a controlled error, not an
+			// uncaught exception.
+			return new Boost_Cache_Error( 'could-not-delete-directory', 'Could not completely delete directory: ' . $e->getMessage() );
+		}
+
+		@rmdir( $resolved ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_rmdir, WordPress.PHP.NoSilencedErrors.Discouraged
+
+		// Re-check against the filesystem, not a stale stat cache, so a successful
+		// removal is not misreported as a failure.
+		clearstatcache();
+		if ( is_dir( $resolved ) ) {
+			return new Boost_Cache_Error( 'could-not-delete-directory', 'Could not completely delete directory: ' . $path );
+		}
+
+		return true;
+	}
+
 	private static function validate_path( $path ) {
 		$path = realpath( $path );
 		if ( ! $path ) {

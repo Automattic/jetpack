@@ -84,11 +84,6 @@ async function fixDeps( pkg ) {
 		pkg.peerDependencies.react = '^18';
 	}
 
-	// Unnecessary dep. Probably waiting on https://github.com/WordPress/gutenberg/pull/78747 to resolve it.
-	if ( pkg.name === '@wordpress/components' && pkg.dependencies?.[ '@emotion/native' ] ) {
-		delete pkg.dependencies?.[ '@emotion/native' ];
-	}
-
 	// We need to add the missing deps for `@wordpress/dataviews` because
 	// the build fails when using pnpm with hoisting.
 	// @see https://github.com/WordPress/gutenberg/issues/67864
@@ -301,6 +296,13 @@ async function fixDeps( pkg ) {
  * @return {object} Modified pkg.
  */
 function fixPeerDeps( pkg ) {
+	// We use this under tsdown (Rolldown), not Rollup. The `rollup` peer is only used for one TypeScript type, and it being missing apparently makes no difference in our usage.
+	// @see https://github.com/mjeanroy/rollup-plugin-license/issues/2110
+	if ( pkg.name === 'rollup-plugin-license' ) {
+		pkg.peerDependenciesMeta ??= {};
+		pkg.peerDependenciesMeta.rollup = { optional: true };
+	}
+
 	// Indirect deps that still depend on React <18.
 	const reactOldPkgs = new Set( [
 		// Still on 16.

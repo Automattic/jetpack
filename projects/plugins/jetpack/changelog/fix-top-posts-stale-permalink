@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Top Posts & Pages: Use the live post permalink so links reflect the current site URL instead of a stale stored URL.

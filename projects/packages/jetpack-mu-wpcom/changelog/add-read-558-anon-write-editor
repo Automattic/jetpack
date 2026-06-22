@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Write: enable a logged-out variant of the Write editor when the host page sets `window.wpcomWriteIsAnon = true` — drafts persist to localStorage, broken UI is hidden, and Publish hands off to /setup/write-on. No effect on the existing authenticated path.
