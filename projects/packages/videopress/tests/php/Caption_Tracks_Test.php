@@ -33,6 +33,20 @@ class Caption_Tracks_Test extends BaseTestCase {
 	private $admin_id;
 
 	/**
+	 * Author user ID. Owns the video the caption track belongs to.
+	 *
+	 * @var int
+	 */
+	private $author_id;
+
+	/**
+	 * A second author who does not own the video.
+	 *
+	 * @var int
+	 */
+	private $other_author_id;
+
+	/**
 	 * Subscriber user ID.
 	 *
 	 * @var int
@@ -45,10 +59,13 @@ class Caption_Tracks_Test extends BaseTestCase {
 	public function set_up() {
 		parent::set_up();
 
+		require_once __DIR__ . '/../../src/utility-functions.php';
+
 		global $wp_rest_server;
 		$wp_rest_server = new WP_REST_Server();
 		$this->server   = $wp_rest_server;
 
+		Caption_Tracks::init();
 		Caption_Tracks::register_post_type();
 		Caption_Tracks::register_meta();
 		Rest_Controller::init();
@@ -59,6 +76,22 @@ class Caption_Tracks_Test extends BaseTestCase {
 				'user_login' => 'caption_admin',
 				'user_pass'  => 'password',
 				'role'       => 'administrator',
+			)
+		);
+
+		$this->author_id = wp_insert_user(
+			array(
+				'user_login' => 'caption_author',
+				'user_pass'  => 'password',
+				'role'       => 'author',
+			)
+		);
+
+		$this->other_author_id = wp_insert_user(
+			array(
+				'user_login' => 'caption_other_author',
+				'user_pass'  => 'password',
+				'role'       => 'author',
 			)
 		);
 
@@ -86,16 +119,18 @@ class Caption_Tracks_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Tests that the caption track post type is private and REST enabled.
+	 * Tests that the caption track post type is private and not exposed via core REST.
+	 *
+	 * Caption tracks are reached only through the custom REST routes, which
+	 * authorize each request against the video it targets.
 	 */
-	public function test_post_type_is_private_and_rest_enabled() {
+	public function test_post_type_is_private_and_not_rest_exposed() {
 		$post_type = get_post_type_object( Caption_Tracks::POST_TYPE );
 
 		$this->assertNotFalse( $post_type );
 		$this->assertFalse( $post_type->public );
 		$this->assertFalse( $post_type->show_ui );
-		$this->assertTrue( $post_type->show_in_rest );
-		$this->assertSame( 'videopress-caption-tracks', $post_type->rest_base );
+		$this->assertFalse( $post_type->show_in_rest );
 	}
 
 	/**
@@ -114,13 +149,51 @@ class Caption_Tracks_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Tests that non-admin users cannot save caption tracks.
+	 * Tests that users without video access cannot save caption tracks.
 	 */
-	public function test_caption_track_save_requires_manage_options() {
+	public function test_caption_track_save_denied_without_video_access() {
 		wp_set_current_user( $this->subscriber_id );
 
 		$request = new WP_REST_Request( 'POST', '/jetpack/v4/videopress/caption-tracks' );
 		$request->set_body_params( $this->track_payload() );
+
+		$response = $this->server->dispatch( $request );
+
+		$this->assertSame( 403, $response->get_status() );
+	}
+
+	/**
+	 * Tests that a user who can edit the video can save its caption tracks.
+	 */
+	public function test_caption_track_save_authorized_by_video_edit_access() {
+		$guid = 'vid01234';
+		$this->create_videopress_attachment( $guid, $this->author_id );
+
+		wp_set_current_user( $this->author_id );
+
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/videopress/caption-tracks' );
+		$request->set_body_params( $this->track_payload_for_guid( $guid ) );
+
+		$response = $this->server->dispatch( $request );
+
+		$this->assertSame( 200, $response->get_status() );
+		$this->assertSame( $guid, get_post_meta( $response->get_data()['id'], Caption_Tracks::META_GUID, true ) );
+	}
+
+	/**
+	 * Tests that holding `upload_files` is not enough to edit another user's video captions.
+	 *
+	 * The second author can upload videos, but cannot edit a video owned by the
+	 * first author, so saving its caption tracks must be denied.
+	 */
+	public function test_caption_track_save_denied_for_user_without_video_edit_access() {
+		$guid = 'vid05678';
+		$this->create_videopress_attachment( $guid, $this->author_id );
+
+		wp_set_current_user( $this->other_author_id );
+
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/videopress/caption-tracks' );
+		$request->set_body_params( $this->track_payload_for_guid( $guid ) );
 
 		$response = $this->server->dispatch( $request );
 
@@ -197,6 +270,49 @@ class Caption_Tracks_Test extends BaseTestCase {
 		$this->assertSame( 200, $response->get_status() );
 		$this->assertSame( 'publish', get_post_status( $created['id'] ) );
 		$this->assertStringContainsString( 'Updated', $data['content'] );
+	}
+
+	/**
+	 * Create a VideoPress attachment for a GUID, owned by a given user.
+	 *
+	 * @param string $guid      VideoPress GUID.
+	 * @param int    $author_id Attachment author.
+	 * @return int Attachment ID.
+	 */
+	private function create_videopress_attachment( $guid, $author_id ) {
+		$attachment_id = wp_insert_post(
+			array(
+				'post_type'      => 'attachment',
+				'post_status'    => 'inherit',
+				'post_mime_type' => 'video/videopress',
+				'post_title'     => 'Test video',
+				'post_author'    => $author_id,
+			)
+		);
+
+		update_post_meta( $attachment_id, 'videopress_guid', $guid );
+
+		/*
+		 * videopress_get_post_by_guid() resolves the GUID with a WP_Query that the
+		 * WorDBless test database does not support, so prime its cache directly to
+		 * keep the permission check deterministic.
+		 */
+		wp_cache_set( 'get_post_by_guid_' . $guid, get_post( $attachment_id ), 'videopress' );
+
+		return $attachment_id;
+	}
+
+	/**
+	 * Caption track payload targeting a specific GUID.
+	 *
+	 * @param string $guid VideoPress GUID.
+	 * @return array
+	 */
+	private function track_payload_for_guid( $guid ) {
+		$payload                                      = $this->track_payload();
+		$payload['meta'][ Caption_Tracks::META_GUID ] = $guid;
+
+		return $payload;
 	}
 
 	/**

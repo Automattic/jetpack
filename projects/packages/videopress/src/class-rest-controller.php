@@ -64,7 +64,7 @@ class Rest_Controller {
 				array(
 					'methods'             => WP_REST_Server::READABLE,
 					'callback'            => array( Caption_Tracks::class, 'rest_list_tracks' ),
-					'permission_callback' => array( __CLASS__, 'permissions_callback' ),
+					'permission_callback' => array( Caption_Tracks::class, 'rest_permission_check' ),
 					'args'                => array(
 						'guid' => array(
 							'description' => __( 'VideoPress GUID.', 'jetpack-videopress-pkg' ),
@@ -76,7 +76,7 @@ class Rest_Controller {
 				array(
 					'methods'             => WP_REST_Server::CREATABLE,
 					'callback'            => array( Caption_Tracks::class, 'rest_save_track' ),
-					'permission_callback' => array( __CLASS__, 'permissions_callback' ),
+					'permission_callback' => array( Caption_Tracks::class, 'rest_permission_check' ),
 				),
 			)
 		);
@@ -87,7 +87,7 @@ class Rest_Controller {
 			array(
 				'methods'             => WP_REST_Server::EDITABLE,
 				'callback'            => array( Caption_Tracks::class, 'rest_save_track' ),
-				'permission_callback' => array( __CLASS__, 'permissions_callback' ),
+				'permission_callback' => array( Caption_Tracks::class, 'rest_permission_check' ),
 				'args'                => array(
 					'id' => array(
 						'description' => __( 'Caption track ID.', 'jetpack-videopress-pkg' ),
