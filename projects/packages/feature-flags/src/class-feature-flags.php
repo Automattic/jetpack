@@ -29,16 +29,13 @@ class Feature_Flags {
 	 * - description: string Human-readable description.
 	 * - owner: string Owning package, plugin, or product area.
 	 *
-	 * @param string $name Flag name.
+	 * @param string $name Flag name. Must match /^[a-z0-9][a-z0-9_-]*$/.
 	 * @param array  $definition Flag definition.
+	 * @throws \InvalidArgumentException When the flag name is invalid.
 	 * @return void
 	 */
 	public static function register( $name, array $definition = array() ) {
-		$name = self::normalize_name( $name );
-
-		if ( '' === $name ) {
-			return;
-		}
+		self::validate_name( $name );
 
 		self::$flags[ $name ] = array_merge(
 			array(
@@ -60,9 +57,7 @@ class Feature_Flags {
 	 * @return array|null Flag definition, or null when the flag is unknown.
 	 */
 	public static function get( $name ) {
-		$name = self::normalize_name( $name );
-
-		return self::$flags[ $name ] ?? null;
+		return is_string( $name ) ? ( self::$flags[ $name ] ?? null ) : null;
 	}
 
 	/**
@@ -85,7 +80,6 @@ class Feature_Flags {
 	 * @return bool Whether the flag is enabled.
 	 */
 	public static function is_enabled( $name ) {
-		$name       = self::normalize_name( $name );
 		$definition = self::get( $name );
 
 		if ( null === $definition ) {
@@ -102,7 +96,7 @@ class Feature_Flags {
 		/**
 		 * Filters whether a Jetpack feature flag is enabled.
 		 *
-		 * @since 0.1.0
+		 * @since $$next-version$$
 		 *
 		 * @param bool   $enabled    Whether the flag is enabled. Defaults to the registered default.
 		 * @param string $flag_name  Feature flag name.
@@ -123,19 +117,17 @@ class Feature_Flags {
 	}
 
 	/**
-	 * Normalize a flag name.
+	 * Validate a flag name.
 	 *
 	 * @param string $name Flag name.
-	 * @return string Normalized flag name, or empty string for invalid input.
+	 * @throws \InvalidArgumentException When the flag name is invalid.
+	 * @return void
 	 */
-	private static function normalize_name( $name ) {
-		if ( ! is_string( $name ) ) {
-			return '';
+	private static function validate_name( $name ) {
+		if ( ! is_string( $name ) || ! preg_match( '/^[a-z0-9][a-z0-9_-]*$/', $name ) ) {
+			throw new \InvalidArgumentException(
+				'Feature flag names must match /^[a-z0-9][a-z0-9_-]*$/.'
+			);
 		}
-
-		$name = strtolower( $name );
-		$name = preg_replace( '/[^a-z0-9_-]/', '', $name );
-
-		return preg_match( '/^[a-z0-9][a-z0-9_-]*$/', $name ) ? $name : '';
 	}
 }

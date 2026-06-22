@@ -65,6 +65,15 @@ class Feature_Flags_Test extends TestCase {
 	}
 
 	/**
+	 * Tests registering an invalid flag name throws.
+	 */
+	public function test_register_rejects_invalid_name() {
+		$this->expectException( \InvalidArgumentException::class );
+
+		Feature_Flags::register( 'Not A Valid Name!' );
+	}
+
+	/**
 	 * Tests defaults are used for missing definition fields.
 	 */
 	public function test_register_uses_definition_defaults() {

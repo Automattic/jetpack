@@ -23,6 +23,8 @@ if ( Feature_Flags::is_enabled( 'my-product-new-flow' ) ) {
 }
 ```
 
+Flag names must match `/^[a-z0-9][a-z0-9_-]*$/`. `register()` throws an `InvalidArgumentException` for invalid names; normalize any user-supplied input before registering.
+
 ## Controlling Flags
 
 Feature flag state is resolved through a single filter:
