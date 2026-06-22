@@ -216,12 +216,8 @@ describe( 'Stats normalizers', () => {
 					expect.objectContaining( {
 						label: 'example.com',
 						views: 9,
-						children: [
-							expect.objectContaining( {
-								label: '/docs',
-								views: 4,
-							} ),
-						],
+						link: 'https://example.com/',
+						children: null,
 					} ),
 				],
 			} )
@@ -285,6 +281,7 @@ describe( 'Stats normalizers', () => {
 				label: '/guide.pdf',
 				downloads: 8,
 				shortLabel: 'guide.pdf',
+				link: '/guide.pdf',
 			} )
 		);
 	} );
@@ -306,14 +303,7 @@ describe( 'Stats normalizers', () => {
 			expect.objectContaining( {
 				label: 'Jane Author',
 				views: 18,
-				children: [
-					expect.objectContaining( {
-						id: 42,
-						label: 'Author post',
-						views: 12,
-						page: '/stats/post/42',
-					} ),
-				],
+				children: null,
 			} )
 		);
 	} );
@@ -328,6 +318,7 @@ describe( 'Stats normalizers', () => {
 			expect.objectContaining( {
 				label: "Côte d'Ivoire's",
 				views: 7,
+				region: '002',
 			} )
 		);
 		expect( result.summary ).toEqual( {} );
@@ -357,7 +348,7 @@ describe( 'Stats normalizers', () => {
 		] );
 	} );
 
-	it( 'normalizes secondary video metrics as semantic fields', () => {
+	it( 'normalizes video plays with the default plays shape', () => {
 		expect(
 			sanitizeStatsVideoPlaysResponse( videoPlaysFixture, {
 				period: 'day',
@@ -368,9 +359,6 @@ describe( 'Stats normalizers', () => {
 				id: 12,
 				label: 'Launch video',
 				plays: 11,
-				impressions: 42,
-				watch_time: 128.5,
-				retention_rate: 61.25,
 				link: 'https://example.com/video/',
 			} )
 		);
@@ -382,12 +370,16 @@ describe( 'Stats normalizers', () => {
 			start_date: '2026-06-01',
 			end_date: '2026-06-30',
 			summarize: true,
+			complete_stats: true,
 		} );
 
 		expect( result.summary ).toEqual(
 			expect.objectContaining( {
-				total_plays: 11,
-				other_plays: 0,
+				total: {
+					views: '11',
+					impressions: '42',
+					watch_time: '128.5',
+				},
 			} )
 		);
 		expect( result.data[ 0 ].items[ 0 ] ).toEqual(

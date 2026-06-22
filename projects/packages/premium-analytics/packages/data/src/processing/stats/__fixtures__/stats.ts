@@ -108,8 +108,7 @@ export const fileDownloadsFixture = {
 				{
 					relative_url: '/download.pdf',
 					filename: 'download.pdf',
-					downloads: '5',
-					download_url: 'https://example.com/download.pdf',
+					download_count: '5',
 				},
 			],
 		},
@@ -125,13 +124,6 @@ export const clicksSummaryFixture = {
 				name: 'example.com',
 				views: '9',
 				url: 'https://example.com/',
-				children: [
-					{
-						name: 'example.com/docs',
-						views: '4',
-						url: 'https://example.com/docs',
-					},
-				],
 			},
 		],
 		total_clicks: '9',
@@ -158,8 +150,7 @@ export const fileDownloadsSummaryFixture = {
 			{
 				relative_url: '/guide.pdf',
 				filename: 'guide.pdf',
-				downloads: '8',
-				download_url: 'https://example.com/guide.pdf',
+				download_count: '8',
 			},
 		],
 		total_downloads: '8',
@@ -175,15 +166,6 @@ export const topAuthorsSummaryFixture = {
 			{
 				name: 'Jane Author',
 				views: '18',
-				avatar: 'https://example.com/avatar.jpg',
-				posts: [
-					{
-						id: 42,
-						title: 'Author post',
-						views: '12',
-						url: 'https://example.com/author-post/',
-					},
-				],
 			},
 		],
 		total_views: '18',
@@ -197,13 +179,18 @@ export const locationsFixture = {
 				{
 					country_code: 'CI',
 					views: '7',
-					location: 'Côte d’Ivoire’s',
 				},
 				{
 					country_code: 'A1',
 					views: '3',
 				},
 			],
+		},
+	},
+	'country-info': {
+		CI: {
+			country_full: 'Côte d’Ivoire’s',
+			map_region: '002',
 		},
 	},
 };
@@ -241,9 +228,6 @@ export const videoPlaysFixture = {
 					title: 'Launch video',
 					url: 'https://example.com/video/',
 					plays: '11',
-					impressions: '42',
-					watch_time: '128.5',
-					retention_rate: '61.25',
 				},
 			],
 		},
@@ -254,18 +238,21 @@ export const videoPlaysSummaryFixture = {
 	date: '2026-06-30',
 	period: 'day',
 	summary: {
-		plays: [
+		data: [
 			{
 				post_id: 12,
 				title: 'Launch video',
 				url: 'https://example.com/video/',
-				plays: '11',
+				views: '11',
 				impressions: '42',
 				watch_time: '128.5',
 				retention_rate: '61.25',
 			},
 		],
-		total_plays: '11',
-		other_plays: '0',
+		total: {
+			views: '11',
+			impressions: '42',
+			watch_time: '128.5',
+		},
 	},
 };

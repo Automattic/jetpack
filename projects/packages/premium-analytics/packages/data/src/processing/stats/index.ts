@@ -562,9 +562,9 @@ export function sanitizeStatsFileDownloadsResponse(
 		summary: normalizeStatsReportSummary( response, query, [ 'files' ] ),
 		data: mapStatsReportDataPoints( response, query, [ 'files' ], item => ( {
 			label: item.relative_url,
-			downloads: safeParseFloat( item.downloads ),
+			downloads: safeParseFloat( item.download_count ?? item.downloads ),
 			shortLabel: typeof item.filename === 'string' ? item.filename : undefined,
-			link: typeof item.download_url === 'string' ? item.download_url : undefined,
+			link: typeof item.relative_url === 'string' ? item.relative_url : undefined,
 			linkTitle: item.relative_url,
 			labelIcon: 'external',
 			children: null,
