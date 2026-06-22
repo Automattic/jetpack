@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Modules list: fix rounded corners so row dividers no longer poke past the border

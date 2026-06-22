@@ -170,9 +170,15 @@ export interface MediaFocalPointProps {
 	value: FocalPoint;
 
 	/**
-	 * Called with the rounded focal point when the user finishes dragging.
+	 * Called with the rounded focal point when the user commits it (release,
+	 * click, or keyboard).
 	 */
 	onChange: ( point: FocalPoint ) => void;
+
+	/**
+	 * Called with the rounded focal point while dragging, before it is committed.
+	 */
+	onDrag?: ( point: FocalPoint ) => void;
 }
 
 /**

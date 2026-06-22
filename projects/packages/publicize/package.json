@@ -94,11 +94,11 @@
 		"@automattic/jetpack-base-styles": "workspace:*",
 		"@automattic/jetpack-webpack-config": "workspace:*",
 		"@automattic/jetpack-wp-build-polyfills": "workspace:*",
-		"@babel/core": "7.29.6",
-		"@babel/plugin-transform-react-jsx": "7.28.6",
-		"@babel/preset-env": "7.29.2",
-		"@babel/preset-react": "7.28.5",
-		"@babel/runtime": "7.29.2",
+		"@babel/core": "7.29.7",
+		"@babel/plugin-transform-react-jsx": "7.29.7",
+		"@babel/preset-env": "7.29.7",
+		"@babel/preset-react": "7.29.7",
+		"@babel/runtime": "7.29.7",
 		"@csstools/postcss-global-data": "4.0.0",
 		"@storybook/react": "10.3.6",
 		"@testing-library/dom": "10.4.1",
@@ -126,7 +126,7 @@
 		"typescript": "5.9.3",
 		"webpack": "5.105.2",
 		"webpack-cli": "6.0.1",
-		"webpack-dev-server": "5.2.4"
+		"webpack-dev-server": "5.2.5"
 	},
 	"wpPlugin": {
 		"name": "jetpack_social",

@@ -1,6 +1,7 @@
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { baseDomain, getTitleFromDescription, stripHtmlTags } from '../../../helpers';
+import { MediaImage } from '../../../shared/media-image';
 import { mastodonTitle } from '../../helpers';
 import { MastodonPreviewProps } from '../../types';
 
@@ -13,14 +14,16 @@ const MastodonPostCard: React.FC< MastodonPreviewProps > = ( {
 	url,
 	image,
 	customImage,
+	imageFocalPoint,
 } ) => {
 	return (
 		<div className={ clsx( 'mastodon-preview__card', { 'has-image': image } ) }>
 			<div className="mastodon-preview__card-img">
 				{ image || customImage ? (
-					<img
+					<MediaImage
 						src={ image || customImage }
 						alt={ __( 'Mastodon preview thumbnail', 'social-previews' ) }
+						focalPoint={ imageFocalPoint }
 					/>
 				) : (
 					<div className="mastodon-preview__card-img--fallback">

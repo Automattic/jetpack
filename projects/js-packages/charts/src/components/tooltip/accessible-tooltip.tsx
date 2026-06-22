@@ -1,10 +1,7 @@
 import { Tooltip, TooltipContext } from '@visx/xychart';
 import { useContext, useEffect, useCallback, useMemo } from 'react';
 import type { SeriesData, DataPointDate } from '../../types';
-import type {
-	TooltipProps as BaseTooltipProps,
-	RenderTooltipParams,
-} from '@visx/xychart/lib/components/Tooltip';
+import type { RenderTooltipParams, XyChartTooltipProps } from '../../visx/types';
 import type { ReactNode } from 'react';
 
 // Type for flattened tooltip data used in individual mode
@@ -17,7 +14,7 @@ export type FlattenedTooltipData = {
 
 // Enhanced tooltip with keyboard navigation and accessibility
 interface AccessibleTooltipProps
-	extends Omit< BaseTooltipProps< DataPointDate >, 'renderTooltip' > {
+	extends Omit< XyChartTooltipProps< DataPointDate >, 'renderTooltip' > {
 	renderTooltip?: ( params: RenderTooltipParams< DataPointDate > ) => ReactNode;
 	selectedIndex?: number | undefined;
 	tooltipRef?: ( element: HTMLDivElement | null ) => void;
@@ -242,4 +239,3 @@ export const useKeyboardNavigation = ( {
 
 // Re-export the base Tooltip for backwards compatibility
 export { Tooltip };
-export type { BaseTooltipProps };

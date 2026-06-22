@@ -4,7 +4,7 @@
  * `bin/teamcity-builds/jetpack-stubs/stub-defs.php` and regenerate the stubs
  * by triggering the Jetpack Staging → Update WPCOM Stubs job in TeamCity.
  *
- * Stubs automatically generated from WordPress.com commit abce5241d2b3e07298df870ccd27a7516b592e74.
+ * Stubs automatically generated from WordPress.com commit bc5daa9ec5b95802d7bc550508c73dfd2badefcd.
  */
 
 namespace {
@@ -278,6 +278,12 @@ namespace {
         static function init()
         {
         }
+        /**
+         * @param int $keyring_token_id
+         * @param bool $force_external_users_refetch
+         * @param bool $force_connection_test
+         * @return array|false
+         */
         public function get_keyring_connection_item($keyring_token_id, $force_external_users_refetch = \false, $force_connection_test = \false)
         {
         }
@@ -289,10 +295,21 @@ namespace {
         public function get_external_services_list($type = \false, $blog_id = \false)
         {
         }
+        /**
+         * @param string $service
+         * @return array|false
+         */
         public function get_external_service_item($service)
         {
         }
         public function delete_keyring_connection($keyring_connection_id)
+        {
+        }
+        /**
+         * @param int $keyring_token_id
+         * @return bool
+         */
+        public function has_failing_cached_connection_test($keyring_token_id)
         {
         }
         /**
@@ -307,6 +324,11 @@ namespace {
     }
     abstract class ExternalMediaService
     {
+        /**
+         * @param string $service_name
+         * @param int $user_id
+         * @return Keyring_Access_Token|string|false
+         */
         public static function get_service_token($service_name, $user_id)
         {
         }
@@ -1026,6 +1048,7 @@ namespace {
     {
         var $name = \false;
         var $meta = array();
+        var $unique_id = \false;
         /**
          * @param int $window
          * @return bool

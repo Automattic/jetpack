@@ -133,6 +133,8 @@
 				'team:triforce', // Monorepo overall, Publicize, My Jetpack
 				'team:loop', // Newsletter dashboard & subscriber management
 				'team:zap', // Forms, much of the recent componentry work.
+				'team:red', // Premium Analytics
+				'team:ventures', // Premium Analytics
 			],
 		},
 
@@ -144,6 +146,23 @@
 			// Teams using Build in their projects
 			additionalReviewers: [
 				'team:zap', // Forms
+				'team:red', // Premium Analytics
+				'team:ventures', // Premium Analytics
+			],
+		},
+
+		// Widgets Dashboard packages are still experimental/development-focused, so group them for targeted review.
+		{
+			groupName: 'Widgets Dashboard',
+			matchPackageNames: [
+				'@wordpress/widget-dashboard',
+				'@wordpress/widget-primitives',
+				'@wordpress/grid',
+			],
+			separateMajorMinor: false,
+			additionalReviewers: [
+				'team:red', // Premium Analytics
+				'team:ventures', // Premium Analytics
 			],
 		},
 

@@ -18,16 +18,23 @@ export function toSyncStatus( raw: SyncStatusApiResponse, milestone: number ): S
 	const total = bucket?.total ?? 0;
 	const sent = bucket?.sent ?? 0;
 
+	// "Started" means the analytics module is in the sync progress — not Jetpack's
+	// generic `raw.started`, which its connection-time initial_sync also sets, making
+	// the screen show "Sync interrupted" instead of auto-triggering the analytics sync.
+	const analyticsStarted = bucket !== undefined;
+
 	let percentage = 0;
 	if ( total > 0 ) {
 		percentage = Math.min( 100, Math.floor( ( sent / total ) * 100 ) );
-	} else if ( milestone > 0 ) {
-		// No analytics bucket this batch, but the milestone is set: initial sync done.
+	} else if ( analyticsStarted || milestone > 0 ) {
+		// Either the analytics module ran with no rows to sync (empty store), or the
+		// milestone is already set: nothing to count ⇒ done. Mirrors upstream, which
+		// reports 100% when the analytics bucket's total is 0.
 		percentage = 100;
 	}
 
 	return {
-		isStarted: started,
+		isStarted: analyticsStarted,
 		isRunning: started && ! finished,
 		percentage,
 		initialFullSyncFinished: milestone,

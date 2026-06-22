@@ -14,8 +14,6 @@ use Automattic\Jetpack\Podcast\Feed\Customize_Feed;
 use Throwable;
 use WP_Post;
 use WP_Query;
-use WP_REST_Request;
-use WP_REST_Response;
 use WP_User;
 
 /**
@@ -43,7 +41,7 @@ class Tracks {
 		add_action( 'add_option_podcasting_show_urls', array( __CLASS__, 'record_show_url_added' ), 10, 2 );
 		add_action( 'update_option_podcasting_show_urls', array( __CLASS__, 'record_show_url_updated' ), 10, 3 );
 
-		add_filter( 'rest_request_after_callbacks', array( __CLASS__, 'record_settings_saved' ), 10, 3 );
+		add_action( 'jetpack_podcast_settings_saved', array( __CLASS__, 'record_settings_saved' ) );
 	}
 
 	/**
@@ -262,34 +260,14 @@ class Tracks {
 	}
 
 	/**
-	 * Emit `wpcom_podcasting_settings_saved` when a `/wp/v2/settings` write
-	 * touches any podcasting option. Pass-through filter on the response.
+	 * Emit `wpcom_podcasting_settings_saved` after a podcast settings write.
 	 *
-	 * @param mixed                 $response Pass-through.
-	 * @param array                 $handler  Route handler.
-	 * @param WP_REST_Request|mixed $request  Request object.
-	 * @return mixed
+	 * Fired off the `jetpack_podcast_settings_saved` action that
+	 * {@see Podcast_Settings_Endpoint::update_item()} triggers, so it's agnostic
+	 * to the REST transport — the endpoint already gates on a saved option.
 	 */
-	public static function record_settings_saved( $response, $handler, $request ) {
-		unset( $handler );
-
+	public static function record_settings_saved(): void {
 		try {
-			if ( ! $request instanceof WP_REST_Request || '/wp/v2/settings' !== $request->get_route() ) {
-				return $response;
-			}
-			if ( ! in_array( $request->get_method(), array( 'POST', 'PUT', 'PATCH' ), true ) ) {
-				return $response;
-			}
-
-			$params = (array) $request->get_params();
-			if ( empty( array_intersect_key( $params, array_flip( Settings::OPTION_NAMES ) ) ) ) {
-				return $response;
-			}
-
-			if ( $response instanceof WP_REST_Response && $response->is_error() ) {
-				return $response;
-			}
-
 			// Skip user-supplied free-text fields — keep PII out of tracks.
 			$pii   = array( 'podcasting_email', 'podcasting_talent_name' );
 			$state = array();
@@ -303,8 +281,6 @@ class Tracks {
 		} catch ( Throwable $e ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch
 			// Tracks is best-effort.
 		}
-
-		return $response;
 	}
 
 	/**

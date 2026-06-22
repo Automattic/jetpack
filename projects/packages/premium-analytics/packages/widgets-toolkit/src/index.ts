@@ -20,6 +20,7 @@ export {
 	type BarChartProps,
 	type BarChartData,
 	type BarChartStyle,
+	WidgetLoadingOverlay,
 } from './components';
 
 /**

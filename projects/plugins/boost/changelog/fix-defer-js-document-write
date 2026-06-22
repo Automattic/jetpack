@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Defer JS: keep position-dependent inline scripts (document.write) in place instead of moving them after the footer.

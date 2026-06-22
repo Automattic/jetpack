@@ -1,6 +1,6 @@
 # Widgets
 
-Dashboard widget components for WooCommerce Analytics.
+Dashboard widget components for Jetpack Premium Analytics.
 
 ## Available Widgets
 

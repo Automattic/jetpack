@@ -41,7 +41,7 @@
 	},
 	"devDependencies": {
 		"@automattic/jetpack-webpack-config": "workspace:*",
-		"@babel/core": "7.29.6",
+		"@babel/core": "7.29.7",
 		"@types/node": "^24.12.0",
 		"@typescript/native-preview": "7.0.0-dev.20260225.1",
 		"concurrently": "10.0.3",

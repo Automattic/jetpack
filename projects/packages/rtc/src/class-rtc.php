@@ -106,12 +106,14 @@ class RTC {
 
 		$allowed_providers = array( 'http-polling', 'pinghub' );
 
+		$default_providers = array( 'pinghub' );
+
 		/**
 		 * Filter the list of RTC providers.
 		 *
 		 * @param string[] $providers List of provider identifiers.
 		 */
-		$providers = apply_filters( 'jetpack_rtc_providers', array( 'pinghub' ) );
+		$providers = apply_filters( 'jetpack_rtc_providers', $default_providers );
 		if ( ! is_array( $providers ) ) {
 			return array();
 		}
