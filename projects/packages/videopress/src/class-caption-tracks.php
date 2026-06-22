@@ -1,6 +1,6 @@
 <?php
 /**
- * VideoPress caption draft post type and helpers.
+ * VideoPress caption track post type and helpers.
  *
  * @package automattic/jetpack-videopress
  */
@@ -12,11 +12,11 @@ use WP_Post;
 use WP_REST_Request;
 
 /**
- * Stores manually edited caption tracks as private block-editor drafts.
+ * Stores editable caption track documents as private WordPress posts.
  */
-class Caption_Drafts {
+class Caption_Tracks {
 
-	const POST_TYPE = 'vp_caption_draft';
+	const POST_TYPE = 'vp_caption_track';
 
 	const META_GUID                  = '_videopress_guid';
 	const META_KIND                  = '_videopress_caption_kind';
@@ -42,7 +42,7 @@ class Caption_Drafts {
 	);
 
 	/**
-	 * Initialize the draft post type.
+	 * Initialize the caption track post type.
 	 *
 	 * @return void
 	 */
@@ -52,7 +52,7 @@ class Caption_Drafts {
 	}
 
 	/**
-	 * Register the private caption draft post type.
+	 * Register the private caption track post type.
 	 *
 	 * @return void
 	 */
@@ -61,8 +61,8 @@ class Caption_Drafts {
 			self::POST_TYPE,
 			array(
 				'labels'              => array(
-					'name'          => __( 'VideoPress caption drafts', 'jetpack-videopress-pkg' ),
-					'singular_name' => __( 'VideoPress caption draft', 'jetpack-videopress-pkg' ),
+					'name'          => __( 'VideoPress caption tracks', 'jetpack-videopress-pkg' ),
+					'singular_name' => __( 'VideoPress caption track', 'jetpack-videopress-pkg' ),
 				),
 				'public'              => false,
 				'exclude_from_search' => true,
@@ -70,7 +70,7 @@ class Caption_Drafts {
 				'show_ui'             => false,
 				'show_in_menu'        => false,
 				'show_in_rest'        => true,
-				'rest_base'           => 'videopress-caption-drafts',
+				'rest_base'           => 'videopress-caption-tracks',
 				'supports'            => array( 'title', 'editor' ),
 				'capabilities'        => array(
 					'edit_post'          => 'manage_options',
@@ -89,7 +89,7 @@ class Caption_Drafts {
 	}
 
 	/**
-	 * Register draft metadata for REST reads and writes.
+	 * Register caption track metadata for REST reads and writes.
 	 *
 	 * @return void
 	 */
@@ -113,18 +113,18 @@ class Caption_Drafts {
 					'single'            => true,
 					'show_in_rest'      => true,
 					'sanitize_callback' => $sanitize_callback,
-					'auth_callback'     => array( __CLASS__, 'can_manage_caption_drafts' ),
+					'auth_callback'     => array( __CLASS__, 'can_manage_caption_tracks' ),
 				)
 			);
 		}
 	}
 
 	/**
-	 * Permission helper for caption draft REST access.
+	 * Permission helper for caption track REST access.
 	 *
 	 * @return bool
 	 */
-	public static function can_manage_caption_drafts() {
+	public static function can_manage_caption_tracks() {
 		return current_user_can( 'manage_options' );
 	}
 
@@ -188,16 +188,16 @@ class Caption_Drafts {
 	}
 
 	/**
-	 * List caption drafts for a VideoPress GUID.
+	 * List caption tracks for a VideoPress GUID.
 	 *
 	 * @param WP_REST_Request $request Incoming request.
 	 * @return \WP_REST_Response|WP_Error
 	 */
-	public static function rest_list_drafts( WP_REST_Request $request ) {
+	public static function rest_list_tracks( WP_REST_Request $request ) {
 		$guid = self::sanitize_guid( $request->get_param( 'guid' ) );
 		if ( empty( $guid ) ) {
 			return new WP_Error(
-				'videopress_caption_draft_invalid_guid',
+				'videopress_caption_track_invalid_guid',
 				esc_html__( 'A valid VideoPress GUID is required.', 'jetpack-videopress-pkg' ),
 				array( 'status' => 400 )
 			);
@@ -219,24 +219,24 @@ class Caption_Drafts {
 				return $guid === (string) get_post_meta( $post->ID, self::META_GUID, true );
 			}
 		);
-		$drafts         = array_map( array( __CLASS__, 'prepare_draft_response' ), array_values( $matching_posts ) );
-		return rest_ensure_response( $drafts );
+		$tracks         = array_map( array( __CLASS__, 'prepare_track_response' ), array_values( $matching_posts ) );
+		return rest_ensure_response( $tracks );
 	}
 
 	/**
-	 * Create or update a caption draft.
+	 * Create or update a caption track.
 	 *
 	 * @param WP_REST_Request $request Incoming request.
 	 * @return \WP_REST_Response|WP_Error
 	 */
-	public static function rest_save_draft( WP_REST_Request $request ) {
-		$draft_id = absint( $request->get_param( 'id' ) );
+	public static function rest_save_track( WP_REST_Request $request ) {
+		$track_id = absint( $request->get_param( 'id' ) );
 		$meta     = (array) $request->get_param( 'meta' );
 		$guid     = self::sanitize_guid( $meta[ self::META_GUID ] ?? $request->get_param( 'guid' ) );
 
 		if ( empty( $guid ) ) {
 			return new WP_Error(
-				'videopress_caption_draft_invalid_guid',
+				'videopress_caption_track_invalid_guid',
 				esc_html__( 'A valid VideoPress GUID is required.', 'jetpack-videopress-pkg' ),
 				array( 'status' => 400 )
 			);
@@ -245,7 +245,7 @@ class Caption_Drafts {
 		$src_lang = self::sanitize_manual_language( $meta[ self::META_SRC_LANG ] ?? '' );
 		if ( empty( $src_lang ) ) {
 			return new WP_Error(
-				'videopress_caption_draft_invalid_language',
+				'videopress_caption_track_invalid_language',
 				esc_html__( 'A valid BCP-47 language tag is required.', 'jetpack-videopress-pkg' ),
 				array( 'status' => 400 )
 			);
@@ -258,16 +258,16 @@ class Caption_Drafts {
 			'post_status'  => 'publish' === $request->get_param( 'status' ) ? 'publish' : 'draft',
 		);
 
-		if ( $draft_id ) {
-			$existing = get_post( $draft_id );
+		if ( $track_id ) {
+			$existing = get_post( $track_id );
 			if ( ! $existing || self::POST_TYPE !== $existing->post_type ) {
 				return new WP_Error(
-					'videopress_caption_draft_not_found',
-					esc_html__( 'Caption draft not found.', 'jetpack-videopress-pkg' ),
+					'videopress_caption_track_not_found',
+					esc_html__( 'Caption track not found.', 'jetpack-videopress-pkg' ),
 					array( 'status' => 404 )
 				);
 			}
-			$postarr['ID'] = $draft_id;
+			$postarr['ID'] = $track_id;
 			$result        = wp_update_post( wp_slash( $postarr ), true );
 		} else {
 			$result = wp_insert_post( wp_slash( $postarr ), true );
@@ -287,16 +287,16 @@ class Caption_Drafts {
 			}
 		}
 
-		return rest_ensure_response( self::prepare_draft_response( get_post( $post_id ) ) );
+		return rest_ensure_response( self::prepare_track_response( get_post( $post_id ) ) );
 	}
 
 	/**
-	 * Prepare a caption draft REST response.
+	 * Prepare a caption track REST response.
 	 *
-	 * @param WP_Post $post Draft post.
+	 * @param WP_Post $post Caption track post.
 	 * @return array
 	 */
-	public static function prepare_draft_response( WP_Post $post ) {
+	public static function prepare_track_response( WP_Post $post ) {
 		$meta = array();
 		foreach ( self::$meta_keys as $key ) {
 			$meta[ $key ] = (string) get_post_meta( $post->ID, $key, true );

@@ -38,11 +38,11 @@ import {
 	uploadTrackForGuid,
 } from '../../lib/video-tracks';
 import {
-	CAPTION_DRAFT_META,
-	fetchCaptionDrafts,
+	CAPTION_TRACK_META,
+	fetchCaptionTracks,
 	getSourceTrackMeta,
-	saveCaptionDraft,
-} from '../../lib/video-tracks/caption-drafts';
+	saveCaptionTrack,
+} from '../../lib/video-tracks/caption-tracks';
 import {
 	CAPTION_CUE_BLOCK_NAME,
 	captionBlocksToCues,
@@ -65,7 +65,7 @@ import './style.scss';
  * Types
  */
 import type { CaptionManagerModalProps } from './types';
-import type { SavedCaptionDraft } from '../../lib/video-tracks/caption-drafts';
+import type { SavedCaptionTrack } from '../../lib/video-tracks/caption-tracks';
 import type { CaptionCueValidationError } from '../../lib/video-tracks/cues';
 import type {
 	trackKindOptionProps,
@@ -137,9 +137,9 @@ const UPLOAD_FORM_ACTION_LABELS: Record< UploadFormMode, string > = {
 	replace: __( 'Replace track', 'jetpack-videopress-pkg' ),
 };
 
-const DRAFT_NOTICE_LABELS: Record< 'draft' | 'publish', string > = {
-	draft: __( 'Caption draft saved.', 'jetpack-videopress-pkg' ),
-	publish: __( 'Caption draft saved for publishing.', 'jetpack-videopress-pkg' ),
+const CAPTION_TRACK_NOTICE_LABELS: Record< 'draft' | 'publish', string > = {
+	draft: __( 'Caption track draft saved.', 'jetpack-videopress-pkg' ),
+	publish: __( 'Caption track published.', 'jetpack-videopress-pkg' ),
 };
 
 const PREVIEW_RESUME_DELAY_MS = 1200;
@@ -166,17 +166,19 @@ const getTrackKey = (
 		Partial< Pick< VideoTextTrack, 'id' | 'source' > >
 ) => `${ getTrackLanguageKey( track ) }:${ track.id ?? track.source ?? '' }`;
 
-const getDraftSourceKey = ( draft: SavedCaptionDraft ) =>
-	`${ draft.meta[ CAPTION_DRAFT_META.sourceTrackKind ] ?? '' }:${
-		draft.meta[ CAPTION_DRAFT_META.sourceTrackSrcLang ] ?? ''
+const getCaptionTrackSourceKey = ( captionTrack: SavedCaptionTrack ) =>
+	`${ captionTrack.meta[ CAPTION_TRACK_META.sourceTrackKind ] ?? '' }:${
+		captionTrack.meta[ CAPTION_TRACK_META.sourceTrackSrcLang ] ?? ''
 	}`;
 
-const getDraftTrackKey = ( draft: SavedCaptionDraft ) =>
-	`${ draft.meta[ CAPTION_DRAFT_META.kind ] }:${ draft.meta[ CAPTION_DRAFT_META.srcLang ] }`;
+const getStoredCaptionTrackKey = ( captionTrack: SavedCaptionTrack ) =>
+	`${ captionTrack.meta[ CAPTION_TRACK_META.kind ] }:${
+		captionTrack.meta[ CAPTION_TRACK_META.srcLang ]
+	}`;
 
-const isListableCaptionDraft = ( draft: SavedCaptionDraft ) =>
-	TRACK_KIND_OPTIONS.includes( draft.meta[ CAPTION_DRAFT_META.kind ] ) &&
-	!! draft.meta[ CAPTION_DRAFT_META.srcLang ];
+const isListableCaptionTrack = ( captionTrack: SavedCaptionTrack ) =>
+	TRACK_KIND_OPTIONS.includes( captionTrack.meta[ CAPTION_TRACK_META.kind ] ) &&
+	!! captionTrack.meta[ CAPTION_TRACK_META.srcLang ];
 
 const getAcceptedFileTypes = ( supportedFormats: string[] ) =>
 	supportedFormats
@@ -333,25 +335,25 @@ const createCueBlocksFromTrackText = ( trackText: string ) => {
 	return cues.length ? cues.map( createCueBlock ) : createEmptyCueBlocks();
 };
 
-const createCueBlocksFromDraft = ( draft: SavedCaptionDraft ) => {
-	const blocks = parse( draft.content ) as CaptionCueBlock[];
+const createCueBlocksFromCaptionTrack = ( captionTrack: SavedCaptionTrack ) => {
+	const blocks = parse( captionTrack.content ) as CaptionCueBlock[];
 	const cueBlocks = blocks.filter( block => block.name === CAPTION_CUE_BLOCK_NAME );
 	return cueBlocks.length ? cueBlocks : createEmptyCueBlocks();
 };
 
-const getManualTrackFromDraft = ( draft: SavedCaptionDraft ): ManualTrack => ( {
-	kind: draft.meta[ CAPTION_DRAFT_META.kind ],
-	srcLang: draft.meta[ CAPTION_DRAFT_META.srcLang ],
-	label: draft.meta[ CAPTION_DRAFT_META.label ] || draft.title,
+const getManualTrackFromCaptionTrack = ( captionTrack: SavedCaptionTrack ): ManualTrack => ( {
+	kind: captionTrack.meta[ CAPTION_TRACK_META.kind ],
+	srcLang: captionTrack.meta[ CAPTION_TRACK_META.srcLang ],
+	label: captionTrack.meta[ CAPTION_TRACK_META.label ] || captionTrack.title,
 } );
 
-const getSourceTrackFromDraft = (
-	draft: SavedCaptionDraft,
+const getSourceTrackFromCaptionTrack = (
+	captionTrack: SavedCaptionTrack,
 	tracks: VideoTextTrack[]
 ): VideoTextTrack | null => {
-	const sourceKind = draft.meta[ CAPTION_DRAFT_META.sourceTrackKind ];
-	const sourceSrcLang = draft.meta[ CAPTION_DRAFT_META.sourceTrackSrcLang ];
-	const sourceSrc = draft.meta[ CAPTION_DRAFT_META.sourceTrackSrc ];
+	const sourceKind = captionTrack.meta[ CAPTION_TRACK_META.sourceTrackKind ];
+	const sourceSrcLang = captionTrack.meta[ CAPTION_TRACK_META.sourceTrackSrcLang ];
+	const sourceSrc = captionTrack.meta[ CAPTION_TRACK_META.sourceTrackSrc ];
 
 	if (
 		! sourceKind ||
@@ -437,13 +439,13 @@ export default function CaptionManagerModal( {
 	const [ supportedCaptionFormats, setSupportedCaptionFormats ] =
 		useState< string[] >( SUPPORTED_CAPTION_FORMATS );
 	const [ cueBlocks, setCueBlocks ] = useState< CaptionCueBlock[] >( createEmptyCueBlocks );
-	const [ drafts, setDrafts ] = useState< SavedCaptionDraft[] >( [] );
-	const [ draftId, setDraftId ] = useState< number | undefined >();
+	const [ captionTracks, setCaptionTracks ] = useState< SavedCaptionTrack[] >( [] );
+	const [ captionTrackId, setCaptionTrackId ] = useState< number | undefined >();
 	const [ notice, setNotice ] = useState< NoticeState >( null );
 	const [ isSavingUpload, setIsSavingUpload ] = useState( false );
-	const [ isSavingDraft, setIsSavingDraft ] = useState( false );
+	const [ isSavingCaptionTrack, setIsSavingCaptionTrack ] = useState( false );
 	const [ isPublishing, setIsPublishing ] = useState( false );
-	const [ isLoadingDrafts, setIsLoadingDrafts ] = useState( false );
+	const [ isLoadingCaptionTracks, setIsLoadingCaptionTracks ] = useState( false );
 	const [ isLoadingTrackText, setIsLoadingTrackText ] = useState( false );
 	const [ deletingTrackKey, setDeletingTrackKey ] = useState< string | null >( null );
 	const [ downloadingTrackKey, setDownloadingTrackKey ] = useState< string | null >( null );
@@ -507,7 +509,7 @@ export default function CaptionManagerModal( {
 		setManualTrack( emptyManualTrack() );
 		setManualSourceTrack( null );
 		setCueBlocks( createEmptyCueBlocks() );
-		setDraftId( undefined );
+		setCaptionTrackId( undefined );
 		setIsLoadingTrackText( false );
 		setIsTextImportOpen( false );
 		setCaptionTextInput( '' );
@@ -542,22 +544,22 @@ export default function CaptionManagerModal( {
 		}
 
 		let isMounted = true;
-		setIsLoadingDrafts( true );
-		fetchCaptionDrafts( guid )
-			.then( loadedDrafts => {
+		setIsLoadingCaptionTracks( true );
+		fetchCaptionTracks( guid )
+			.then( loadedCaptionTracks => {
 				if ( isMounted ) {
-					setDrafts( loadedDrafts );
+					setCaptionTracks( loadedCaptionTracks );
 				}
 			} )
 			.catch( error => {
-				debug( 'fetch caption drafts error', error );
+				debug( 'fetch caption tracks error', error );
 				if ( isMounted ) {
-					setDrafts( [] );
+					setCaptionTracks( [] );
 				}
 			} )
 			.finally( () => {
 				if ( isMounted ) {
-					setIsLoadingDrafts( false );
+					setIsLoadingCaptionTracks( false );
 				}
 			} );
 
@@ -581,7 +583,10 @@ export default function CaptionManagerModal( {
 	);
 
 	const supportedCaptionFormatsLabel = supportedCaptionFormats.join( ', ' );
-	const visibleDrafts = useMemo( () => drafts.filter( isListableCaptionDraft ), [ drafts ] );
+	const visibleCaptionTracks = useMemo(
+		() => captionTracks.filter( isListableCaptionTrack ),
+		[ captionTracks ]
+	);
 
 	const activeCue = useMemo( () => {
 		return captionBlocksToCues( cueBlocks ).find( cue => {
@@ -641,42 +646,44 @@ export default function CaptionManagerModal( {
 		setManualTrack( emptyManualTrack() );
 		setManualSourceTrack( null );
 		setCueBlocks( createEmptyCueBlocks() );
-		setDraftId( undefined );
+		setCaptionTrackId( undefined );
 		setIsLoadingTrackText( false );
 		setIsTextImportOpen( false );
 		setCaptionTextInput( '' );
 		setNotice( null );
 	}, [ clearPreviewResumeTimer ] );
 
-	const findDraftForManualTrack = useCallback(
+	const findCaptionTrackForManualTrack = useCallback(
 		( track: ManualTrack, sourceTrack: VideoTextTrack | null ) => {
 			if ( sourceTrack ) {
 				const sourceKey = getTrackLanguageKey( sourceTrack );
-				const sourceDraft = drafts.find( draft => getDraftSourceKey( draft ) === sourceKey );
-				if ( sourceDraft ) {
-					return sourceDraft;
+				const sourceCaptionTrack = captionTracks.find(
+					captionTrack => getCaptionTrackSourceKey( captionTrack ) === sourceKey
+				);
+				if ( sourceCaptionTrack ) {
+					return sourceCaptionTrack;
 				}
 			}
 
 			const manualKey = getTrackLanguageKey( track );
-			return drafts.find(
-				draft =>
-					`${ draft.meta[ CAPTION_DRAFT_META.kind ] }:${
-						draft.meta[ CAPTION_DRAFT_META.srcLang ]
+			return captionTracks.find(
+				captionTrack =>
+					`${ captionTrack.meta[ CAPTION_TRACK_META.kind ] }:${
+						captionTrack.meta[ CAPTION_TRACK_META.srcLang ]
 					}` === manualKey
 			);
 		},
-		[ drafts ]
+		[ captionTracks ]
 	);
 
-	const startManualDraft = useCallback(
-		( draft: SavedCaptionDraft ) => {
+	const startStoredCaptionTrack = useCallback(
+		( captionTrack: SavedCaptionTrack ) => {
 			setModalView( 'editor' );
 			setWorkspaceMode( 'manual' );
-			setManualTrack( getManualTrackFromDraft( draft ) );
-			setManualSourceTrack( getSourceTrackFromDraft( draft, managedTracks ) );
-			setDraftId( draft.id );
-			setCueBlocks( createCueBlocksFromDraft( draft ) );
+			setManualTrack( getManualTrackFromCaptionTrack( captionTrack ) );
+			setManualSourceTrack( getSourceTrackFromCaptionTrack( captionTrack, managedTracks ) );
+			setCaptionTrackId( captionTrack.id );
+			setCueBlocks( createCueBlocksFromCaptionTrack( captionTrack ) );
 			setIsLoadingTrackText( false );
 			setIsTextImportOpen( false );
 			setCaptionTextInput( '' );
@@ -705,20 +712,20 @@ export default function CaptionManagerModal( {
 						label: sourceTrack.label || formatLanguageTagForDisplay( sourceTrack.srcLang ),
 				  }
 				: emptyManualTrack();
-			const matchingDraft = findDraftForManualTrack( nextManualTrack, sourceTrack );
+			const matchingCaptionTrack = findCaptionTrackForManualTrack( nextManualTrack, sourceTrack );
 
 			setModalView( 'editor' );
 			setWorkspaceMode( 'manual' );
 			setManualTrack( nextManualTrack );
 			setManualSourceTrack( sourceTrack );
-			setDraftId( matchingDraft?.id );
+			setCaptionTrackId( matchingCaptionTrack?.id );
 			setIsTextImportOpen( false );
 			setCaptionTextInput( '' );
 			setIsLoadingTrackText( false );
 			setNotice( null );
 
-			if ( matchingDraft ) {
-				setCueBlocks( createCueBlocksFromDraft( matchingDraft ) );
+			if ( matchingCaptionTrack ) {
+				setCueBlocks( createCueBlocksFromCaptionTrack( matchingCaptionTrack ) );
 				return;
 			}
 
@@ -736,7 +743,7 @@ export default function CaptionManagerModal( {
 				setNotice( {
 					status: 'error',
 					message: __(
-						'Unable to load caption content. You can try again from the track list or start from an empty draft.',
+						'Unable to load caption content. You can try again from the track list or start from an empty caption track.',
 						'jetpack-videopress-pkg'
 					),
 				} );
@@ -744,7 +751,7 @@ export default function CaptionManagerModal( {
 				setIsLoadingTrackText( false );
 			}
 		},
-		[ findDraftForManualTrack, loadTrackText ]
+		[ findCaptionTrackForManualTrack, loadTrackText ]
 	);
 
 	const startUploadTrack = useCallback( ( sourceTrack: VideoTextTrack | null = null ) => {
@@ -775,7 +782,7 @@ export default function CaptionManagerModal( {
 		setWorkspaceMode( 'manual' );
 		setManualTrack( emptyManualTrack() );
 		setManualSourceTrack( null );
-		setDraftId( undefined );
+		setCaptionTrackId( undefined );
 		setCueBlocks( createEmptyCueBlocks() );
 		setIsLoadingTrackText( false );
 		setIsTextImportOpen( true );
@@ -1044,7 +1051,7 @@ export default function CaptionManagerModal( {
 		supportedCaptionFormatsLabel,
 	] );
 
-	const buildDraftPayload = useCallback(
+	const buildCaptionTrackPayload = useCallback(
 		( status: 'draft' | 'publish' ) => {
 			const canonicalSrcLang = canonicalizeLanguageTag( manualTrack.srcLang );
 			if ( ! canonicalSrcLang ) {
@@ -1057,67 +1064,69 @@ export default function CaptionManagerModal( {
 
 			const cueContent = serialize( cueBlocks );
 			return {
-				id: draftId,
+				id: captionTrackId,
 				title:
 					manualTrack.label.trim() ||
 					sprintf(
 						/* translators: %s: caption track language tag. */
-						__( 'Caption draft %s', 'jetpack-videopress-pkg' ),
+						__( 'Caption track %s', 'jetpack-videopress-pkg' ),
 						canonicalSrcLang
 					),
 				content: cueContent,
 				status,
 				meta: {
-					[ CAPTION_DRAFT_META.guid ]: guid,
-					[ CAPTION_DRAFT_META.kind ]: manualTrack.kind,
-					[ CAPTION_DRAFT_META.srcLang ]: canonicalSrcLang,
-					[ CAPTION_DRAFT_META.label ]: manualTrack.label.trim(),
+					[ CAPTION_TRACK_META.guid ]: guid,
+					[ CAPTION_TRACK_META.kind ]: manualTrack.kind,
+					[ CAPTION_TRACK_META.srcLang ]: canonicalSrcLang,
+					[ CAPTION_TRACK_META.label ]: manualTrack.label.trim(),
 					...getSourceTrackMeta( manualSourceTrack ),
 				},
 			};
 		},
-		[ cueBlocks, draftId, guid, manualSourceTrack, manualTrack ]
+		[ cueBlocks, captionTrackId, guid, manualSourceTrack, manualTrack ]
 	);
 
-	const saveManualDraft = useCallback(
+	const saveManualCaptionTrack = useCallback(
 		async ( status: 'draft' | 'publish' = 'draft' ) => {
-			const payload = buildDraftPayload( status );
+			const payload = buildCaptionTrackPayload( status );
 			if ( ! payload ) {
 				return null;
 			}
 
-			setIsSavingDraft( true );
+			setIsSavingCaptionTrack( true );
 			setNotice( null );
 
 			try {
-				const savedDraft = await saveCaptionDraft( payload );
-				setDraftId( savedDraft.id );
-				setDrafts( current => {
-					const existingIndex = current.findIndex( draft => draft.id === savedDraft.id );
+				const savedCaptionTrack = await saveCaptionTrack( payload );
+				setCaptionTrackId( savedCaptionTrack.id );
+				setCaptionTracks( current => {
+					const existingIndex = current.findIndex(
+						captionTrack => captionTrack.id === savedCaptionTrack.id
+					);
 					if ( existingIndex === -1 ) {
-						return [ savedDraft, ...current ];
+						return [ savedCaptionTrack, ...current ];
 					}
 					const next = [ ...current ];
-					next[ existingIndex ] = savedDraft;
+					next[ existingIndex ] = savedCaptionTrack;
 					return next;
 				} );
 				setNotice( {
 					status: 'success',
-					message: DRAFT_NOTICE_LABELS[ status ],
+					message: CAPTION_TRACK_NOTICE_LABELS[ status ],
 				} );
-				return savedDraft;
+				return savedCaptionTrack;
 			} catch ( error ) {
-				debug( 'save caption draft error', error );
+				debug( 'save caption track error', error );
 				setNotice( {
 					status: 'error',
-					message: __( 'Unable to save caption draft.', 'jetpack-videopress-pkg' ),
+					message: __( 'Unable to save caption track.', 'jetpack-videopress-pkg' ),
 				} );
 				return null;
 			} finally {
-				setIsSavingDraft( false );
+				setIsSavingCaptionTrack( false );
 			}
 		},
-		[ buildDraftPayload ]
+		[ buildCaptionTrackPayload ]
 	);
 
 	const publishManualTrack = useCallback( async () => {
@@ -1152,11 +1161,6 @@ export default function CaptionManagerModal( {
 		setNotice( null );
 
 		try {
-			const savedDraft = await saveManualDraft( 'publish' );
-			if ( ! savedDraft ) {
-				return;
-			}
-
 			const vtt = serializeCuesToWebVtt( cues );
 			const filename = `${ canonicalSrcLang }-${ manualTrack.kind }.vtt`.replace(
 				/[^a-z0-9._-]/gi,
@@ -1234,6 +1238,11 @@ export default function CaptionManagerModal( {
 				return;
 			}
 
+			const savedCaptionTrack = await saveManualCaptionTrack( 'publish' );
+			if ( ! savedCaptionTrack ) {
+				return;
+			}
+
 			const uploadedTrack = normalizeVideoTextTrackResponse( src, {
 				...trackToUpdate,
 				kind: trackToUpload.kind,
@@ -1271,7 +1280,7 @@ export default function CaptionManagerModal( {
 		manualSourceTrack,
 		manualTrack,
 		returnToTrackList,
-		saveManualDraft,
+		saveManualCaptionTrack,
 	] );
 
 	const addCue = useCallback( () => {
@@ -1467,6 +1476,10 @@ export default function CaptionManagerModal( {
 		'No caption tracks have been added to this video yet.',
 		'jetpack-videopress-pkg'
 	);
+	const getLocalCaptionTrackStatusLabel = ( captionTrack: SavedCaptionTrack ) =>
+		captionTrack.status === 'publish'
+			? __( 'Published', 'jetpack-videopress-pkg' )
+			: __( 'Draft', 'jetpack-videopress-pkg' );
 	const isEditorView = modalView === 'editor';
 	const manualLanguage = canonicalizeLanguageTag( manualTrack.srcLang ) ?? manualTrack.srcLang;
 	const modalHeaderTitle = manualLanguage
@@ -1487,8 +1500,8 @@ export default function CaptionManagerModal( {
 				<div className="videopress-caption-manager__header">
 					<div>
 						<h2>{ title || __( 'VideoPress video', 'jetpack-videopress-pkg' ) }</h2>
-						{ isLoadingDrafts && (
-							<p>{ __( 'Loading caption drafts…', 'jetpack-videopress-pkg' ) }</p>
+						{ isLoadingCaptionTracks && (
+							<p>{ __( 'Loading caption tracks…', 'jetpack-videopress-pkg' ) }</p>
 						) }
 						{ isLoadingTrackText && (
 							<p>{ __( 'Loading caption content…', 'jetpack-videopress-pkg' ) }</p>
@@ -1507,9 +1520,9 @@ export default function CaptionManagerModal( {
 							<>
 								<Button
 									variant="secondary"
-									onClick={ () => void saveManualDraft( 'draft' ) }
-									isBusy={ isSavingDraft }
-									disabled={ isSavingDraft || isPublishing || isLoadingTrackText }
+									onClick={ () => void saveManualCaptionTrack( 'draft' ) }
+									isBusy={ isSavingCaptionTrack }
+									disabled={ isSavingCaptionTrack || isPublishing || isLoadingTrackText }
 								>
 									{ __( 'Save Draft', 'jetpack-videopress-pkg' ) }
 								</Button>
@@ -1517,7 +1530,7 @@ export default function CaptionManagerModal( {
 									variant="primary"
 									onClick={ publishManualTrack }
 									isBusy={ isPublishing }
-									disabled={ isSavingDraft || isPublishing || isLoadingTrackText }
+									disabled={ isSavingCaptionTrack || isPublishing || isLoadingTrackText }
 								>
 									{ __( 'Publish', 'jetpack-videopress-pkg' ) }
 								</Button>
@@ -1567,7 +1580,7 @@ export default function CaptionManagerModal( {
 										const isDownloading = downloadingTrackKey === key;
 										const sourceLabel = getTrackSourceLabel( track );
 										const statusLabel = getTrackStatusLabel( track );
-										const matchingDraft = findDraftForManualTrack(
+										const matchingCaptionTrack = findCaptionTrackForManualTrack(
 											{
 												kind: track.kind,
 												srcLang: getManualLanguageTagFromTrackKey( track.srcLang ),
@@ -1575,12 +1588,18 @@ export default function CaptionManagerModal( {
 											},
 											track
 										);
+										const localStatusLabel = matchingCaptionTrack
+											? getLocalCaptionTrackStatusLabel( matchingCaptionTrack )
+											: '';
+										const trackLocalStateLabel = track.isDraft
+											? __( 'Draft', 'jetpack-videopress-pkg' )
+											: localStatusLabel;
 										const metaLabels = [
 											KIND_LABELS[ track.kind ],
 											language,
 											sourceLabel,
 											statusLabel,
-											track.isDraft || matchingDraft ? __( 'Draft', 'jetpack-videopress-pkg' ) : '',
+											trackLocalStateLabel,
 										].filter( Boolean );
 										const isGenerated = isAutoGeneratedTrack( track );
 										const isReady = isTrackReady( track );
@@ -1648,35 +1667,35 @@ export default function CaptionManagerModal( {
 								</div>
 							) : null }
 
-							{ visibleDrafts.length ? (
-								<div className="videopress-caption-manager__drafts">
-									<h4>{ __( 'Caption drafts', 'jetpack-videopress-pkg' ) }</h4>
+							{ visibleCaptionTracks.length ? (
+								<div className="videopress-caption-manager__local-tracks">
+									<h4>{ __( 'Local caption tracks', 'jetpack-videopress-pkg' ) }</h4>
 									<div className="videopress-caption-manager__track-list">
-										{ visibleDrafts.map( draft => {
-											const draftTrack = getManualTrackFromDraft( draft );
-											const language = formatLanguageTagForDisplay( draftTrack.srcLang );
-											const draftLabel = draftTrack.label || language;
+										{ visibleCaptionTracks.map( captionTrack => {
+											const localTrack = getManualTrackFromCaptionTrack( captionTrack );
+											const language = formatLanguageTagForDisplay( localTrack.srcLang );
+											const trackLabel = localTrack.label || language;
 											const metaLabels = [
-												KIND_LABELS[ draftTrack.kind ],
+												KIND_LABELS[ localTrack.kind ],
 												language,
-												draft.status === 'publish'
-													? __( 'Ready to publish', 'jetpack-videopress-pkg' )
-													: __( 'Draft', 'jetpack-videopress-pkg' ),
+												getLocalCaptionTrackStatusLabel( captionTrack ),
 											].filter( Boolean );
 
 											return (
 												<div
 													className="videopress-caption-manager__track"
-													key={ `draft-${ draft.id }-${ getDraftTrackKey( draft ) }` }
+													key={ `caption-track-${ captionTrack.id }-${ getStoredCaptionTrackKey(
+														captionTrack
+													) }` }
 												>
 													<div className="videopress-caption-manager__track-meta">
-														<strong>{ draftLabel }</strong>
+														<strong>{ trackLabel }</strong>
 														<span>{ metaLabels.join( ' · ' ) }</span>
 													</div>
 													<div className="videopress-caption-manager__track-actions">
 														<Button
 															variant="secondary"
-															onClick={ () => startManualDraft( draft ) }
+															onClick={ () => startStoredCaptionTrack( captionTrack ) }
 															disabled={
 																isSavingUpload ||
 																isPublishing ||
@@ -1684,7 +1703,7 @@ export default function CaptionManagerModal( {
 																!! deletingTrackKey
 															}
 														>
-															{ __( 'Resume draft', 'jetpack-videopress-pkg' ) }
+															{ __( 'Edit saved track', 'jetpack-videopress-pkg' ) }
 														</Button>
 													</div>
 												</div>
@@ -1694,7 +1713,7 @@ export default function CaptionManagerModal( {
 								</div>
 							) : null }
 
-							{ ! managedTracks.length && ! visibleDrafts.length ? (
+							{ ! managedTracks.length && ! visibleCaptionTracks.length ? (
 								<div className="videopress-caption-manager__empty">{ emptyMessage }</div>
 							) : null }
 						</section>
