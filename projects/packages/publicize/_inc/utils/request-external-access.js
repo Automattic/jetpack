@@ -25,12 +25,15 @@ export const KEYRING_BROADCAST_CHANNEL = 'jetpack-social-keyring';
  * The legacy `window.opener.postMessage` path is kept as a fallback for URLs without a
  * `request_id`.
  *
- * @param {string}          url - The URL to be loaded in the newly opened window.
- * @param {requestCallback} cb  - The callback that handles the response.
+ * @param {string}          url       - The URL to be loaded in the newly opened window.
+ * @param {requestCallback} cb        - The callback that handles the response.
+ * @param {Function}        [onAbort] - Called for the auth_flow=v2 flow when the attempt looks
+ *                                    abandoned (the user returned to this window without a
+ *                                    result, or the TTL elapsed).
  *
  * @return {boolean} `true` if the popup opened, `false` if it was blocked by the browser.
  */
-export const requestExternalAccess = ( url, cb ) => {
+export const requestExternalAccess = ( url, cb, onAbort ) => {
 	const popupMonitor = new PopupMonitor();
 
 	popupMonitor.open(
@@ -54,18 +57,50 @@ export const requestExternalAccess = ( url, cb ) => {
 	if ( requestId && typeof BroadcastChannel !== 'undefined' ) {
 		const channel = new BroadcastChannel( KEYRING_BROADCAST_CHANNEL );
 
+		let resultReceived = false;
+
+		/*
+		 * Detect an abandoned attempt without watching the popup's 'close' event.
+		 */
+		const onWindowRefocused = () => {
+			// Grace period so a result delivered as the popup closes still wins the race.
+			setTimeout( () => {
+				if ( ! resultReceived ) {
+					onAbort?.();
+				}
+			}, 1000 );
+		};
+
+		const onPopupFocused = () => {
+			window.addEventListener( 'focus', onWindowRefocused, { once: true } );
+		};
+
+		const stopWatching = () => {
+			window.removeEventListener( 'blur', onPopupFocused );
+			window.removeEventListener( 'focus', onWindowRefocused );
+		};
+
 		channel.addEventListener( 'message', event => {
 			if ( event.data?.type === 'keyring-result' && event.data?.requestId === requestId ) {
+				resultReceived = true;
 				clearTimeout( cleanupTimer );
+				stopWatching();
 				channel.close();
 				cb();
 			}
 		} );
 
-		// Give up after the server transient's TTL; we don't watch the popup 'close' event
-		// because COOP makes it fire at the login screen, before auth completes.
+		window.addEventListener( 'blur', onPopupFocused, { once: true } );
+
+		// Backstop: give up after the server transient's TTL.
 		const cleanupTimer = setTimeout(
-			() => channel.close(),
+			() => {
+				stopWatching();
+				channel.close();
+				if ( ! resultReceived ) {
+					onAbort?.();
+				}
+			},
 			5 * 60 * 1000 // 5 minutes
 		);
 

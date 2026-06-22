@@ -440,9 +440,10 @@ function wpcom_add_site_badges_and_plan( $wp_admin_bar ) {
 		$plan_name = $current_plan['product_name_short'] ?? '';
 
 		if ( $plan_name ) {
-			$site_slug = method_exists( '\WPCOM_Masterbar', 'get_calypso_site_slug' )
-				? WPCOM_Masterbar::get_calypso_site_slug( get_current_blog_id() )
-				: '';
+			// wpcom_get_site_slug() resolves the Calypso slug on both Simple and
+			// Atomic (where \WPCOM_Masterbar is absent), falling back to the site
+			// URL so the link still renders.
+			$site_slug = wpcom_get_site_slug();
 
 			if ( $site_slug ) {
 				$plan_text = '<a class="wp-admin-bar__site-info" href="https://wordpress.com/plans/' . esc_attr( $site_slug ) . '">

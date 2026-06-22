@@ -17,7 +17,7 @@ use Automattic\Jetpack\Status\Host;
  */
 class Podcast {
 
-	const PACKAGE_VERSION = '1.0.2';
+	const PACKAGE_VERSION = '1.1.0';
 
 	/**
 	 * Whether the class has been initialized.
@@ -29,7 +29,8 @@ class Podcast {
 	/**
 	 * Initialize the package.
 	 *
-	 * Bails on hosts other than Simple and Atomic.
+	 * Always loads on Simple and WoA. On self-hosted Jetpack it stays dormant
+	 * unless opted in via the `jetpack_podcast_for_the_world` filter.
 	 */
 	public static function init() {
 		if ( self::$initialized ) {
@@ -38,7 +39,17 @@ class Podcast {
 		self::$initialized = true;
 
 		$host = new Host();
-		if ( ! $host->is_wpcom_simple() && ! $host->is_woa_site() ) {
+
+		/**
+		 * Allow the Podcast package to load on self-hosted Jetpack sites.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param bool $enabled Whether to load the package on self-hosted. Default false.
+		 */
+		$for_the_world = (bool) apply_filters( 'jetpack_podcast_for_the_world', false );
+
+		if ( ! $host->is_wpcom_simple() && ! $host->is_woa_site() && ! $for_the_world ) {
 			return;
 		}
 

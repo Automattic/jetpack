@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Read the sitemap enabled-state from the durable `jetpack_seo_sitemap_enabled` option (falling back to the live module state when unset) so it survives the standalone Sitemaps module's eventual removal.

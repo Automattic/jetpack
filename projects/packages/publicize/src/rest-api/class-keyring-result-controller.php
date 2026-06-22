@@ -118,7 +118,10 @@ class Keyring_Result_Controller extends Base_Controller {
 			return rest_ensure_response( $response );
 		}
 
-		$item = $external_connections->get_keyring_connection_item( $token_id );
+		// On reconnect of a broken connection, re-test so the cached failure is overwritten.
+		$force_connection_test = $external_connections->has_failing_cached_connection_test( $token_id );
+
+		$item = $external_connections->get_keyring_connection_item( $token_id, false, $force_connection_test );
 
 		if ( ! $item ) {
 			$response['code'] = 'token_not_found';

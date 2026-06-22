@@ -5,6 +5,6 @@
 		"target": "es2022"
 	},
 	"files": [],
-	"include": [ "src/**/*" ],
+	"include": [ "src", "tsdown.config.ts" ],
 	"exclude": [ "node_modules", "dist" ]
 }

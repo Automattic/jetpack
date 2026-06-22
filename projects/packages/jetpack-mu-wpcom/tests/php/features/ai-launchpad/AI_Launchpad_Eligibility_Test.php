@@ -1,0 +1,83 @@
+<?php
+/**
+ * Tests for the AI Launchpad eligibility gate.
+ *
+ * @package automattic/jetpack-mu-wpcom
+ */
+
+namespace Automattic\Jetpack\Jetpack_Mu_Wpcom;
+
+use Automattic\Jetpack\Jetpack_Mu_Wpcom;
+use Brain\Monkey\Functions;
+use PHPUnit\Framework\Attributes\CoversMethod;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\PreserveGlobalState;
+use PHPUnit\Framework\Attributes\RunInSeparateProcess;
+
+/**
+ * @covers \Automattic\Jetpack\Jetpack_Mu_Wpcom\AI_Launchpad::is_eligible
+ */
+#[CoversMethod( AI_Launchpad::class, 'is_eligible' )]
+class AI_Launchpad_Eligibility_Test extends \WorDBless\BaseTestCase {
+	/**
+	 * Set up.
+	 */
+	public function set_up() {
+		parent::set_up();
+		\Brain\Monkey\setUp();
+		require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/ai-launchpad/ai-launchpad.php';
+	}
+
+	/**
+	 * Tear down.
+	 */
+	public function tear_down() {
+		\Brain\Monkey\tearDown();
+		parent::tear_down();
+	}
+
+	/**
+	 * Assert that is_eligible() returns the expected boolean for each combination
+	 * of the gate's inputs.
+	 *
+	 * @dataProvider provide_eligibility_inputs
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 *
+	 * @param bool $has_paid_plan    Whether the site owns a bundle purchase.
+	 * @param bool $was_ai_onboarded Whether the site already went through AI onboarding.
+	 * @param bool $enabled          Whether the site has the wpcom_ai_launchpad_enabled option set.
+	 * @param bool $expected         Expected eligibility result.
+	 */
+	#[DataProvider( 'provide_eligibility_inputs' )]
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_is_eligible( $has_paid_plan, $was_ai_onboarded, $enabled, $expected ) {
+		Functions\when( 'wpcom_get_site_purchases' )->justReturn(
+			$has_paid_plan ? array( (object) array( 'product_type' => 'bundle' ) ) : array()
+		);
+
+		if ( $was_ai_onboarded ) {
+			update_option( 'site_intent', 'ai-assembler' );
+		}
+		if ( $enabled ) {
+			update_option( 'wpcom_ai_launchpad_enabled', true );
+		}
+
+		$this->assertSame( $expected, AI_Launchpad::is_eligible() );
+	}
+
+	/**
+	 * Data provider for test_is_eligible.
+	 *
+	 * @return array
+	 */
+	public static function provide_eligibility_inputs() {
+		return array(
+			'paid + enabled'       => array( true, false, true, true ),
+			'paid + not enabled'   => array( true, false, false, false ),
+			'enabled but not paid' => array( false, false, true, false ),
+			'onboarded blocks'     => array( true, true, true, false ),
+		);
+	}
+}

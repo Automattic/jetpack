@@ -195,7 +195,9 @@ class Jetpack_Notifications {
 
 		$third_party_cookie_check_iframe = '<span style="display:none;"><iframe class="jetpack-notes-cookie-check" src="https://widgets.wp.com/3rd-party-cookie-check/index.html"></iframe></span>';
 
-		$panel_id = 'wpnt-notes-panel3';
+		// Opt into the v3 notifications panel/iframe via the `notifications=v3` query parameter.
+		$notifications_version = sanitize_key( wp_unslash( $_GET['notifications'] ?? '' ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$panel_id              = 'v3' === $notifications_version ? 'wpnt-notes-panel3' : 'wpnt-notes-panel2';
 
 		$title = self::get_notes_markup();
 

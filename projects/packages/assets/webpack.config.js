@@ -61,4 +61,37 @@ module.exports = [
 			} ),
 		],
 	},
+	{
+		...sharedConfig,
+		entry: {
+			'jetpack-shared-stores': {
+				import: './src/js/shared-stores.js',
+				library: {
+					name: 'JetpackSharedStores',
+					type: 'umd',
+				},
+			},
+		},
+		// Transpile the bundled @automattic/jetpack-shared-stores source (it ships as
+		// untranspiled TS/JS), in addition to the default node_modules-excluding rule.
+		module: {
+			strictExportPresence: true,
+			rules: [
+				jetpackWebpackConfig.TranspileRule(),
+				jetpackWebpackConfig.TranspileRule( {
+					includeNodeModules: [ '@automattic/jetpack-' ],
+				} ),
+			],
+		},
+		plugins: [
+			...jetpackWebpackConfig.StandardPlugins( {
+				DependencyExtractionPlugin: {
+					requestMap: {
+						// We don't want to externalize this package, we rather want to bundle it.
+						'@automattic/jetpack-shared-stores': {},
+					},
+				},
+			} ),
+		],
+	},
 ];

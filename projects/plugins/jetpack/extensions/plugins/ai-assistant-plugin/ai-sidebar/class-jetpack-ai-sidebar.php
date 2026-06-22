@@ -291,6 +291,32 @@ class Jetpack_AI_Sidebar {
 	}
 
 	/**
+	 * UI feature flag for Optimize Title suggestions.
+	 *
+	 * Server-side permission checks still gate execution. This site-side flag
+	 * controls whether the sidebar suggestion is exposed, following the
+	 * internal rollout pattern used by Image Studio and Generate Feedback.
+	 *
+	 * @return bool
+	 */
+	private static function is_optimize_title_suggestion_enabled(): bool {
+		return self::is_dev_mode();
+	}
+
+	/**
+	 * UI feature flag for Generate Feedback.
+	 *
+	 * Server-side permission checks still gate execution. This site-side flag
+	 * controls whether the Jetpack AI Sidebar exposes the Generate Feedback
+	 * suggestion. It follows Image Studio's internal rollout pattern.
+	 *
+	 * @return bool
+	 */
+	private static function is_generate_feedback_enabled(): bool {
+		return self::is_dev_mode();
+	}
+
+	/**
 	 * Whether the WordPress.com AI Assistant site setting allows the sidebar surface.
 	 *
 	 * Self-hosted sites do not expose the AI Assistant setting, so the surface stays
@@ -331,8 +357,9 @@ class Jetpack_AI_Sidebar {
 	private static function get_sidebar_config(): array {
 		$features = array(
 			'aiEditorialReview'       => self::is_ai_editorial_review_enabled(),
+			'generateFeedback'        => self::is_generate_feedback_enabled(),
 			'blockTransformations'    => true,
-			'optimizeTitleSuggestion' => false,
+			'optimizeTitleSuggestion' => self::is_optimize_title_suggestion_enabled(),
 			'chatHistory'             => false,
 			'supportGuides'           => false,
 		);
@@ -342,8 +369,10 @@ class Jetpack_AI_Sidebar {
 		 *
 		 * @param array $features Associative array of preview feature flags.
 		 */
-		$filtered_features = apply_filters( 'jetpack_ai_sidebar_preview_features', $features );
-		$features          = is_array( $filtered_features ) ? array_merge( $features, $filtered_features ) : $features;
+		$filtered_features                   = apply_filters( 'jetpack_ai_sidebar_preview_features', $features );
+		$features                            = is_array( $filtered_features ) ? array_merge( $features, $filtered_features ) : $features;
+		$features['generateFeedback']        = self::is_generate_feedback_enabled();
+		$features['optimizeTitleSuggestion'] = (bool) $features['optimizeTitleSuggestion'] && self::is_optimize_title_suggestion_enabled();
 
 		return array(
 			'enabled'  => self::is_ai_assistant_setting_enabled(),

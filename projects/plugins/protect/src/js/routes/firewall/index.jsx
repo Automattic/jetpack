@@ -1,12 +1,5 @@
-import {
-	Button,
-	Col,
-	Container,
-	Text,
-	ToggleControl,
-	useBreakpointMatch,
-} from '@automattic/jetpack-components';
-import { Popover } from '@wordpress/components';
+import { Button, Col, Container, Text, useBreakpointMatch } from '@automattic/jetpack-components';
+import { Popover, ToggleControl } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { Icon, closeSmall } from '@wordpress/icons';
@@ -251,6 +244,7 @@ const FirewallPage = () => {
 						checked={ canToggleAutomaticRules ? jetpackWafAutomaticRules : false }
 						onChange={ handleAutomaticRulesChange }
 						disabled={ ! canEditFirewallSettings || ! canToggleAutomaticRules || isUpdating }
+						__nextHasNoMarginBottom={ true }
 					/>
 					{ hasPlan && upgradeIsSeen === false && (
 						<Popover noArrow={ false } offset={ 8 } position={ 'top right' } inline={ true }>
@@ -385,6 +379,7 @@ const FirewallPage = () => {
 					onChange={ toggleBruteForceProtection }
 					disabled={ isUpdating }
 					aria-label={ __( 'Brute force protection', 'jetpack-protect' ) }
+					__nextHasNoMarginBottom={ true }
 				/>
 			</div>
 			<div className={ styles[ 'toggle-section__content' ] }>
@@ -413,6 +408,7 @@ const FirewallPage = () => {
 					onChange={ toggleIpBlockList }
 					disabled={ ! canEditFirewallSettings }
 					aria-label={ __( 'Block IP addresses', 'jetpack-protect' ) }
+					__nextHasNoMarginBottom={ true }
 				/>
 			</div>
 			<div className={ styles[ 'toggle-section__content' ] }>
@@ -469,6 +465,7 @@ const FirewallPage = () => {
 						onChange={ toggleIpAllowList }
 						disabled={ isUpdating }
 						aria-label={ __( 'Trusted IP addresses', 'jetpack-protect' ) }
+						__nextHasNoMarginBottom={ true }
 					/>
 				</div>
 				<div className={ styles[ 'toggle-section__content' ] }>

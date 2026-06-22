@@ -523,6 +523,124 @@ class Connections_Post_Field_Test extends TestCase {
 	}
 
 	/**
+	 * A brand new published post must honor `enabled: false` and skip the
+	 * disabled connection. Regression test for the create-time drop where the
+	 * skip meta was only memoized, never persisted, for new posts.
+	 */
+	public function test_create_published_post_skips_disabled_connection() {
+		// get_filtered_connection_data() reads connections from the transient.
+		set_transient(
+			Connections::CONNECTIONS_TRANSIENT,
+			array(
+				array(
+					'service_name'  => 'facebook',
+					'id'            => '456',
+					'connection_id' => '4560',
+					'external_id'   => 'external-456',
+					'shared'        => true,
+					'wpcom_user_id' => 0,
+					'status'        => 'ok',
+				),
+				array(
+					'service_name'  => 'tumblr',
+					'id'            => '123',
+					'connection_id' => '1230',
+					'external_id'   => 'external-123',
+					'shared'        => true,
+					'wpcom_user_id' => 0,
+					'status'        => 'ok',
+				),
+			),
+			HOUR_IN_SECONDS
+		);
+
+		$request = new WP_REST_Request( 'POST', '/wp/v2/posts' );
+		$request->set_body_params(
+			array(
+				'title'                         => 'publicize create-drop repro',
+				'status'                        => 'publish',
+				'jetpack_publicize_connections' => array(
+					array(
+						'connection_id' => '4560',
+						'enabled'       => false,
+					),
+				),
+			)
+		);
+
+		$response = $this->server->dispatch( $request );
+		$post_id  = $response->get_data()['id'];
+
+		$this->assertSame( 'publish', get_post_status( $post_id ) );
+
+		// The disabled connection must be flagged to skip.
+		$this->assertNotEmpty(
+			get_post_meta( $post_id, $this->publicize->POST_SKIP_PUBLICIZE . '4560', true )
+		);
+
+		// The connection left enabled must not be skipped.
+		$this->assertEmpty(
+			get_post_meta( $post_id, $this->publicize->POST_SKIP_PUBLICIZE . '1230', true )
+		);
+	}
+
+	/**
+	 * A brand new published post with no disabled connections must share to all
+	 * of them (no skip meta written).
+	 *
+	 * Guards against resolving the connection defaults against the already
+	 * published post: the built-in `publicize_checkbox_default` filter returns
+	 * false for published posts, which would mark every connection to skip and
+	 * stop new posts from sharing at all.
+	 */
+	public function test_create_published_post_shares_to_all_connections_by_default() {
+		set_transient(
+			Connections::CONNECTIONS_TRANSIENT,
+			array(
+				array(
+					'service_name'  => 'facebook',
+					'id'            => '456',
+					'connection_id' => '4560',
+					'external_id'   => 'external-456',
+					'shared'        => true,
+					'wpcom_user_id' => 0,
+					'status'        => 'ok',
+				),
+				array(
+					'service_name'  => 'tumblr',
+					'id'            => '123',
+					'connection_id' => '1230',
+					'external_id'   => 'external-123',
+					'shared'        => true,
+					'wpcom_user_id' => 0,
+					'status'        => 'ok',
+				),
+			),
+			HOUR_IN_SECONDS
+		);
+
+		$request = new WP_REST_Request( 'POST', '/wp/v2/posts' );
+		$request->set_body_params(
+			array(
+				'title'  => 'publicize create shares all',
+				'status' => 'publish',
+			)
+		);
+
+		$post_id = $this->server->dispatch( $request )->get_data()['id'];
+
+		$this->assertSame( 'publish', get_post_status( $post_id ) );
+
+		// Nothing was disabled, so neither connection may be skipped.
+		$this->assertEmpty(
+			get_post_meta( $post_id, $this->publicize->POST_SKIP_PUBLICIZE . '4560', true )
+		);
+		$this->assertEmpty(
+			get_post_meta( $post_id, $this->publicize->POST_SKIP_PUBLICIZE . '1230', true )
+		);
+	}
+
+	/**
 	 * Test that connections are enabled when the publicize_checkbox_default filter isn't used.
 	 */
 	public function test_default_checkbox_filter() {

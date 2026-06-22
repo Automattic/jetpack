@@ -439,19 +439,14 @@ export class PingHubBridge {
 			return null;
 		}
 		const start = Date.now();
+		let response: { token: string } | undefined;
 		try {
-			const response = await apiFetch< { token: string } >( {
+			response = await apiFetch< { token: string } >( {
 				path: '/wpcom/v2/rtc/pinghub-token',
 				method: 'POST',
 			} );
-			this.cachedJwt = response?.token ?? null;
-			this.cachedJwtTimestamp = Date.now();
-			this.resetJwtState();
-			pixel( 'pinghub.rtc.jwt_fetch', Date.now() - start, 'ms' );
-			return this.cachedJwt;
 		} catch {
 			const elapsed = Date.now() - start;
-			pixel( 'pinghub.rtc.jwt_fetch_error', elapsed, 'ms' );
 			this.jwtFetchFailures++;
 			this.jwtBackoffUntil = Date.now() + this.jwtBackoffDelay;
 			this.jwtBackoffDelay = Math.min( this.jwtBackoffDelay * 2, JWT_BACKOFF_MAX_MS );
@@ -461,6 +456,10 @@ export class PingHubBridge {
 			} );
 			return null;
 		}
+		this.cachedJwt = response?.token ?? null;
+		this.cachedJwtTimestamp = Date.now();
+		this.resetJwtState();
+		return this.cachedJwt;
 	}
 
 	/**
@@ -487,7 +486,6 @@ export class PingHubBridge {
 			const elapsed = Date.now() - this.wsConnectStart;
 			this.wsState = 'open';
 			pixel( 'pinghub.conn_open', elapsed, 'ms' );
-			pixel( 'pinghub.rtc.conn_open', elapsed, 'ms' );
 			logConnectionEvent( 'connected', {
 				time_to_connect_ms: elapsed,
 				active_rooms: this.registeredRooms.size,
@@ -502,7 +500,6 @@ export class PingHubBridge {
 		ws.addEventListener( 'close', event => {
 			const elapsed = Date.now() - this.wsConnectStart;
 			pixel( 'pinghub.conn_close_code.' + event.code, elapsed, 'ms' );
-			pixel( 'pinghub.rtc.conn_close_code.' + event.code, elapsed, 'ms' );
 			logConnectionEvent( 'disconnected', {
 				close_code: event.code,
 				close_reason: event.reason,
@@ -525,7 +522,6 @@ export class PingHubBridge {
 
 		ws.addEventListener( 'error', () => {
 			pixel( 'pinghub.conn_err', Date.now() - this.wsConnectStart, 'ms' );
-			pixel( 'pinghub.rtc.conn_err', Date.now() - this.wsConnectStart, 'ms' );
 		} );
 
 		ws.addEventListener( 'message', event => {
@@ -629,7 +625,6 @@ export class PingHubBridge {
 	 */
 	send( room: string, data: Uint8Array ): void {
 		if ( ! this.ws || this.ws.readyState !== WebSocket.OPEN ) {
-			pixel( 'pinghub.rtc.send_drop', 1, 'c' );
 			return;
 		}
 
