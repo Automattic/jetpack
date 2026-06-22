@@ -882,7 +882,8 @@ class Jetpack_Gutenberg {
 	 *
 	 * @since $$next-version$$
 	 *
-	 * @return bool True if the request is admin or a REST request (i.e. an editor context).
+	 * @return bool False only for plain front-end web requests. Admin, REST, cron,
+	 *              WP-CLI and XML-RPC contexts all return true so editor extensions load.
 	 */
 	private static function is_block_editor_context() {
 		if ( is_admin() ) {
@@ -890,14 +891,32 @@ class Jetpack_Gutenberg {
 		}
 
 		/*
+		 * Load the editor extensions for any non-front-end execution context. These
+		 * are not the front-end hot path this gate optimizes, and some of them still
+		 * render block content (e.g. cron-generated subscription emails), which can
+		 * depend on an editor extension's registrations.
+		 */
+		if (
+			( defined( 'DOING_CRON' ) && DOING_CRON )
+			|| ( defined( 'WP_CLI' ) && WP_CLI )
+			|| ( defined( 'XMLRPC_REQUEST' ) && XMLRPC_REQUEST )
+		) {
+			return true;
+		}
+
+		/*
 		 * This runs at module-load time (around plugins_loaded), before core
 		 * defines REST_REQUEST during parse_request, so REST requests can't be
-		 * detected via that constant here. Fall back to matching the REST prefix
-		 * in the request URL.
+		 * detected via that constant here. Detect them from the request URL
+		 * instead: both the rewritten `/wp-json/` form and the plain-permalink
+		 * `?rest_route=` form.
 		 */
-		$rest_prefix = trailingslashit( rest_get_url_prefix() );
 		$request_uri = isset( $_SERVER['REQUEST_URI'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : '';
-		return '' !== $request_uri && str_contains( $request_uri, '/' . $rest_prefix );
+		if ( '' === $request_uri ) {
+			return false;
+		}
+		$rest_prefix = trailingslashit( rest_get_url_prefix() );
+		return str_contains( $request_uri, '/' . $rest_prefix ) || str_contains( $request_uri, 'rest_route=' );
 	}
 
 	/**
@@ -924,6 +943,9 @@ class Jetpack_Gutenberg {
 		'extended-blocks' => array(
 			// Registers the videopress/video block on `init`, required to render it on the front end.
 			'videopress-video',
+			// Registers the `premium-content/container` plan availability that the Premium Content
+			// block's front-end render reads via required_plan_checks(); skipping it breaks the paywall.
+			'premium-content-container',
 		),
 	);
 
