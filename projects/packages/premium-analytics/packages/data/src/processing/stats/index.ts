@@ -279,11 +279,15 @@ function getStatsTopLevelPeriod( response: unknown, query?: StatsQueryParams ): 
 
 function normalizeStatsReportSummary(
 	response: unknown,
-	query?: StatsQueryParams
+	query?: StatsQueryParams,
+	excludedKeys: string[] = []
 ): StatsNormalizedSummary {
 	return query?.summarize
 		? {
-				...normalizeStatsSummary( getStatsRecord( getStatsRecord( response ).summary ) ),
+				...normalizeStatsSummary(
+					getStatsRecord( getStatsRecord( response ).summary ),
+					excludedKeys
+				),
 				...getStatsSummaryIntervalFields( query, response ),
 		  }
 		: {};
@@ -346,6 +350,57 @@ function mapStatsDataPoints< TItem extends StatsNormalizedItem >(
 			getStatsArray< StatsRecord >( bucket[ key ] ).map( mapper )
 		)
 	);
+}
+
+function getStatsArrayFromKeys< T = StatsRecord >(
+	source: StatsRecord,
+	keys: string[]
+): { found: boolean; items: T[] } {
+	for ( const key of keys ) {
+		if ( Array.isArray( source[ key ] ) ) {
+			return {
+				found: true,
+				items: getStatsArray< T >( source[ key ] ),
+			};
+		}
+	}
+
+	return {
+		found: false,
+		items: [],
+	};
+}
+
+function mapStatsSummaryDataPoint< TItem extends StatsNormalizedItem >(
+	response: unknown,
+	query: StatsQueryParams | undefined,
+	keys: string[],
+	mapper: ( item: StatsRecord ) => TItem
+): Array< StatsNormalizedDataPoint< TItem > > {
+	if ( ! query?.summarize ) {
+		return [];
+	}
+
+	const summary = getStatsRecord( getStatsRecord( response ).summary );
+	const { found, items } = getStatsArrayFromKeys< StatsRecord >( summary, keys );
+	const summaryDate = getStatsTopLevelDataDate( response, query );
+
+	return found && summaryDate
+		? [ createStatsSummaryDataPoint( summaryDate, response, query, items.map( mapper ) ) ]
+		: [];
+}
+
+function mapStatsReportDataPoints< TItem extends StatsNormalizedItem >(
+	response: unknown,
+	query: StatsQueryParams | undefined,
+	keys: string[],
+	mapper: ( item: StatsRecord ) => TItem
+): Array< StatsNormalizedDataPoint< TItem > > {
+	const summaryData = mapStatsSummaryDataPoint( response, query, keys, mapper );
+
+	return summaryData.length
+		? summaryData
+		: mapStatsDataPoints( response, query, keys[ 0 ], mapper );
 }
 
 function mapNestedItems< TItem >( items: StatsRecord[], mapper: ( item: StatsRecord ) => TItem ) {
@@ -412,22 +467,7 @@ function normalizeStatsTopPostsData(
 	response: unknown,
 	query?: StatsQueryParams
 ): Array< StatsNormalizedDataPoint< StatsTopPostsItem > > {
-	const summary = getStatsRecord( getStatsRecord( response ).summary );
-	const summaryPostviews = getStatsArray< StatsRecord >( summary.postviews );
-	const summaryDate = getStatsTopLevelDataDate( response, query );
-
-	if ( query?.summarize && summaryPostviews.length && summaryDate ) {
-		return [
-			createStatsSummaryDataPoint(
-				summaryDate,
-				response,
-				query,
-				summaryPostviews.map( normalizeStatsTopPostItem )
-			),
-		];
-	}
-
-	return mapStatsDataPoints( response, query, 'postviews', normalizeStatsTopPostItem );
+	return mapStatsReportDataPoints( response, query, [ 'postviews' ], normalizeStatsTopPostItem );
 }
 
 export function sanitizeStatsTopPostsResponse(
@@ -435,14 +475,7 @@ export function sanitizeStatsTopPostsResponse(
 	query?: StatsQueryParams
 ): StatsNormalizedReport< StatsTopPostsItem > {
 	return {
-		summary: query?.summarize
-			? {
-					...normalizeStatsSummary( getStatsRecord( getStatsRecord( response ).summary ), [
-						'postviews',
-					] ),
-					...getStatsSummaryIntervalFields( query, response ),
-			  }
-			: {},
+		summary: normalizeStatsReportSummary( response, query, [ 'postviews' ] ),
 		data: normalizeStatsTopPostsData( response, query ),
 	};
 }
@@ -461,8 +494,8 @@ export function sanitizeStatsReferrersResponse(
 	} );
 
 	return {
-		summary: normalizeStatsReportSummary( response, query ),
-		data: mapStatsDataPoints( response, query, 'groups', item => {
+		summary: normalizeStatsReportSummary( response, query, [ 'groups' ] ),
+		data: mapStatsReportDataPoints( response, query, [ 'groups' ], item => {
 			const results = getStatsArray< StatsRecord >( item.results );
 			const normalized = parse( results.length === 1 ? results[ 0 ] : item );
 			const domain = item.name ?? item.group;
@@ -501,8 +534,8 @@ export function sanitizeStatsClicksResponse(
 	} );
 
 	return {
-		summary: normalizeStatsReportSummary( response, query ),
-		data: mapStatsDataPoints( response, query, 'clicks', parse ),
+		summary: normalizeStatsReportSummary( response, query, [ 'clicks' ] ),
+		data: mapStatsReportDataPoints( response, query, [ 'clicks' ], parse ),
 	};
 }
 
@@ -511,8 +544,8 @@ export function sanitizeStatsSearchTermsResponse(
 	query?: StatsQueryParams
 ): StatsNormalizedReport< StatsSearchTermsItem > {
 	return {
-		summary: normalizeStatsReportSummary( response, query ),
-		data: mapStatsDataPoints( response, query, 'search_terms', item => ( {
+		summary: normalizeStatsReportSummary( response, query, [ 'search_terms' ] ),
+		data: mapStatsReportDataPoints( response, query, [ 'search_terms' ], item => ( {
 			label: item.term,
 			views: safeParseFloat( item.views ),
 			className: 'user-selectable',
@@ -526,8 +559,8 @@ export function sanitizeStatsFileDownloadsResponse(
 	query?: StatsQueryParams
 ): StatsNormalizedReport< StatsFileDownloadsItem > {
 	return {
-		summary: normalizeStatsReportSummary( response, query ),
-		data: mapStatsDataPoints( response, query, 'files', item => ( {
+		summary: normalizeStatsReportSummary( response, query, [ 'files' ] ),
+		data: mapStatsReportDataPoints( response, query, [ 'files' ], item => ( {
 			label: item.relative_url,
 			downloads: safeParseFloat( item.downloads ),
 			shortLabel: typeof item.filename === 'string' ? item.filename : undefined,
@@ -544,8 +577,8 @@ export function sanitizeStatsTopAuthorsResponse(
 	query?: StatsQueryParams
 ): StatsNormalizedReport< StatsTopAuthorsItem > {
 	return {
-		summary: normalizeStatsReportSummary( response, query ),
-		data: mapStatsDataPoints( response, query, 'authors', item => ( {
+		summary: normalizeStatsReportSummary( response, query, [ 'authors' ] ),
+		data: mapStatsReportDataPoints( response, query, [ 'authors' ], item => ( {
 			label: item.name || 'Untracked Authors',
 			views: safeParseFloat( item.views ),
 			icon: typeof item.avatar === 'string' ? item.avatar : null,
@@ -608,27 +641,20 @@ export function sanitizeStatsVideoPlaysResponse(
 	response: unknown,
 	query?: StatsQueryParams
 ): StatsNormalizedReport< StatsVideoPlaysItem > {
-	return {
-		summary: normalizeStatsReportSummary( response, query ),
-		data: getStatsBuckets( response, query ).map( ( [ date, bucket ] ) => {
-			const videoData = query?.complete_stats
-				? getStatsArray< StatsRecord >( bucket.data )
-				: getStatsArray< StatsRecord >( bucket.plays );
+	const videoDataKeys = query?.complete_stats ? [ 'data', 'plays' ] : [ 'plays', 'data' ];
+	const parse = ( item: StatsRecord ): StatsVideoPlaysItem => ( {
+		id: item.post_id as string | number | undefined,
+		label: item.title,
+		plays: safeParseFloat( item.views ?? item.plays ),
+		impressions: safeParseFloat( item.impressions ),
+		watch_time: safeParseFloat( item.watch_time ),
+		retention_rate: safeParseFloat( item.retention_rate ),
+		link: typeof item.url === 'string' ? item.url : null,
+		children: null,
+	} );
 
-			return createStatsDataPoint(
-				date,
-				query?.period ?? getStatsResponsePeriod( response ),
-				videoData.map( item => ( {
-					id: item.post_id as string | number | undefined,
-					label: item.title,
-					plays: safeParseFloat( item.views ?? item.plays ),
-					impressions: safeParseFloat( item.impressions ),
-					watch_time: safeParseFloat( item.watch_time ),
-					retention_rate: safeParseFloat( item.retention_rate ),
-					link: typeof item.url === 'string' ? item.url : null,
-					children: null,
-				} ) )
-			);
-		} ),
+	return {
+		summary: normalizeStatsReportSummary( response, query, videoDataKeys ),
+		data: mapStatsReportDataPoints( response, query, videoDataKeys, parse ),
 	};
 }

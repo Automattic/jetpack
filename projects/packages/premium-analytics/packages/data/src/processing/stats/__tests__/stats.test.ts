@@ -13,6 +13,7 @@ import {
 	fileDownloadsFixture,
 	locationsFixture,
 	referrersFixture,
+	referrersSummaryFixture,
 	topPostsFixture,
 	topPostsSummaryFixture,
 	videoPlaysFixture,
@@ -150,6 +151,39 @@ describe( 'Stats normalizers', () => {
 				],
 			} )
 		);
+	} );
+
+	it( 'normalizes summarized referrers into range data', () => {
+		const result = sanitizeStatsReferrersResponse( referrersSummaryFixture, {
+			period: 'day',
+			start_date: '2026-06-01',
+			end_date: '2026-06-30',
+			summarize: true,
+		} );
+
+		expect( result ).toEqual( {
+			summary: {
+				total_views: 12,
+				other_views: 0,
+				date_start: '2026-06-01T00:00:00+00:00',
+				date_end: '2026-06-30T23:59:59+00:00',
+			},
+			data: [
+				{
+					time_interval: '2026-06-30',
+					date_start: '2026-06-01T00:00:00+00:00',
+					date_end: '2026-06-30T23:59:59+00:00',
+					items: [
+						expect.objectContaining( {
+							label: 'example.com/path',
+							views: 12,
+							children: null,
+							actionMenu: 1,
+						} ),
+					],
+				},
+			],
+		} );
 	} );
 
 	it( 'normalizes file downloads with numeric values', () => {

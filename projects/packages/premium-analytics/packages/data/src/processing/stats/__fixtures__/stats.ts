@@ -85,6 +85,22 @@ export const referrersFixture = {
 	},
 };
 
+export const referrersSummaryFixture = {
+	date: '2026-06-30',
+	period: 'day',
+	summary: {
+		groups: [
+			{
+				name: 'example.com',
+				total: 12,
+				results: [ { name: 'example.com/path', views: 12, url: 'https://example.com/path' } ],
+			},
+		],
+		total_views: '12',
+		other_views: '0',
+	},
+};
+
 export const fileDownloadsFixture = {
 	days: {
 		'2026-06-16': {
