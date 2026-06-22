@@ -51,6 +51,7 @@
 
 .videopress-caption-manager__header-actions,
 .videopress-caption-manager__tracks-header,
+.videopress-caption-manager__tracks-header-actions,
 .videopress-caption-manager__track-actions,
 .videopress-caption-manager__form-actions,
 .videopress-caption-manager__mode-tabs,
@@ -61,6 +62,11 @@
 }
 
 .videopress-caption-manager__header-actions {
+	flex-wrap: wrap;
+	justify-content: flex-end;
+}
+
+.videopress-caption-manager__tracks-header-actions {
 	flex-wrap: wrap;
 	justify-content: flex-end;
 }
@@ -136,6 +142,19 @@
 .videopress-caption-manager__track-actions {
 	align-items: flex-start;
 	flex-wrap: wrap;
+}
+
+.videopress-caption-manager__drafts {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+	min-block-size: 0;
+
+	h4 {
+		margin: 4px 0 0;
+		font-size: 13px;
+		line-height: 1.4;
+	}
 }
 
 .videopress-caption-manager__empty {
@@ -243,6 +262,68 @@
 	flex-shrink: 0;
 }
 
+.videopress-caption-manager__text-import {
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+	flex-shrink: 0;
+	padding: 12px;
+	border: 1px solid #dcdcde;
+	border-radius: 4px;
+	background: #fff;
+}
+
+.videopress-caption-manager__text-import-actions {
+	display: flex;
+	justify-content: flex-end;
+	gap: 8px;
+}
+
+.videopress-caption-manager__cue-order {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+	flex-shrink: 0;
+	max-block-size: 188px;
+	overflow-y: auto;
+}
+
+.videopress-caption-manager__cue-order-row {
+	display: grid;
+	grid-template-columns: minmax(0, 1fr) auto;
+	gap: 10px;
+	align-items: center;
+	padding: 8px 10px;
+	border: 1px solid #dcdcde;
+	border-radius: 4px;
+	background: #fff;
+}
+
+.videopress-caption-manager__cue-order-meta {
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+	min-width: 0;
+
+	strong,
+	span {
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+
+	span {
+		color: #646970;
+		font-size: 12px;
+	}
+}
+
+.videopress-caption-manager__cue-order-actions {
+	display: flex;
+	align-items: center;
+	gap: 4px;
+}
+
 .videopress-caption-manager__cue-editor {
 	flex: 1;
 	min-block-size: 0;
@@ -345,8 +426,18 @@
 	.videopress-caption-manager__header,
 	.videopress-caption-manager__manual-panel,
 	.videopress-caption-manager__manual-meta,
+	.videopress-caption-manager__cue-order-row,
 	.videopress-caption-cue {
 		grid-template-columns: 1fr;
+	}
+
+	.videopress-caption-manager__cue-order-actions {
+		flex-wrap: wrap;
+	}
+
+	.videopress-caption-manager__text-import-actions {
+		justify-content: flex-start;
+		flex-wrap: wrap;
 	}
 
 	.videopress-caption-manager__header {
