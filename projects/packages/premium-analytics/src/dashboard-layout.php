@@ -82,9 +82,7 @@ function inject_dashboard_default_layout( $value, $user_id, $meta_key ) {
 		$base = array();
 	}
 
-	$committed = isset( $base[ DASHBOARD_LAYOUT_SCOPE ][ DASHBOARD_LAYOUT_KEY ] )
-		? $base[ DASHBOARD_LAYOUT_SCOPE ][ DASHBOARD_LAYOUT_KEY ]
-		: array();
+	$committed = $base[ DASHBOARD_LAYOUT_SCOPE ][ DASHBOARD_LAYOUT_KEY ] ?? array();
 
 	if ( ! empty( $committed ) ) {
 		return $value;

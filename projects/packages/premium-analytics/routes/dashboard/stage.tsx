@@ -18,7 +18,7 @@ import { DASHBOARD_NAME, useDashboardLayout, useDashboardGridSettings } from './
  *
  * @return {JSX.Element} The Premium Analytics dashboard.
  */
-function Dashboard() {
+function Dashboard(): JSX.Element {
 	const [ layout, setLayout, resetLayout ] = useDashboardLayout( DASHBOARD_NAME );
 	const [ gridSettings, setGridSettings ] = useDashboardGridSettings();
 
