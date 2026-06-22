@@ -386,9 +386,6 @@ class Jetpack_AI_Sidebar {
 	 * Fields Jetpack contributes to `agentsManagerData`. Single source shared by the
 	 * data filter and the external-AM inline fallback so the two cannot drift.
 	 *
-	 * The jetpackAiSidebar key is the current one; jetpackAiSidebarPreview is the legacy
-	 * alias emitted alongside it until the Calypso reader switches over, after which it can be removed.
-	 *
 	 * @return array
 	 */
 	private static function get_sidebar_am_fields(): array {
@@ -398,7 +395,6 @@ class Jetpack_AI_Sidebar {
 			'agentId'                  => AI_SIDEBAR_AGENT_ID,
 			'aiEditorialReviewEnabled' => self::is_ai_editorial_review_enabled(),
 			'jetpackAiSidebar'         => $config,
-			'jetpackAiSidebarPreview'  => $config,
 		);
 	}
 

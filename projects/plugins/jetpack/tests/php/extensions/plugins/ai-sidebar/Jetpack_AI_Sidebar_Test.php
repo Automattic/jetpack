@@ -526,14 +526,12 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 
 		$this->assertSame( 'wp-orchestrator', $data['agentId'] );
 		$this->assertSame( true, $data['aiEditorialReviewEnabled'] );
-		$this->assertSame( true, $data['jetpackAiSidebarPreview']['enabled'] );
-		$this->assertSame( true, $data['jetpackAiSidebarPreview']['features']['aiEditorialReview'] );
-		$this->assertSame( true, $data['jetpackAiSidebarPreview']['features']['blockTransformations'] );
-		$this->assertSame( false, $data['jetpackAiSidebarPreview']['features']['optimizeTitleSuggestion'] );
-		$this->assertSame( false, $data['jetpackAiSidebarPreview']['features']['chatHistory'] );
-		$this->assertSame( false, $data['jetpackAiSidebarPreview']['features']['supportGuides'] );
-		// The new jetpackAiSidebar key carries the same config as the legacy key.
-		$this->assertSame( $data['jetpackAiSidebarPreview'], $data['jetpackAiSidebar'] );
+		$this->assertSame( true, $data['jetpackAiSidebar']['enabled'] );
+		$this->assertSame( true, $data['jetpackAiSidebar']['features']['aiEditorialReview'] );
+		$this->assertSame( true, $data['jetpackAiSidebar']['features']['blockTransformations'] );
+		$this->assertSame( false, $data['jetpackAiSidebar']['features']['optimizeTitleSuggestion'] );
+		$this->assertSame( false, $data['jetpackAiSidebar']['features']['chatHistory'] );
+		$this->assertSame( false, $data['jetpackAiSidebar']['features']['supportGuides'] );
 	}
 
 	/**
@@ -570,10 +568,9 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 
 		$this->assertSame( 'wp-orchestrator', $data['agentId'] );
 		$this->assertSame( false, $data['aiEditorialReviewEnabled'] );
-		$this->assertSame( true, $data['jetpackAiSidebarPreview']['enabled'] );
-		$this->assertSame( false, $data['jetpackAiSidebarPreview']['features']['aiEditorialReview'] );
-		$this->assertSame( true, $data['jetpackAiSidebarPreview']['features']['blockTransformations'] );
-		$this->assertSame( $data['jetpackAiSidebarPreview'], $data['jetpackAiSidebar'] );
+		$this->assertSame( true, $data['jetpackAiSidebar']['enabled'] );
+		$this->assertSame( false, $data['jetpackAiSidebar']['features']['aiEditorialReview'] );
+		$this->assertSame( true, $data['jetpackAiSidebar']['features']['blockTransformations'] );
 	}
 
 	/**
@@ -587,7 +584,6 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 		$this->assertArrayNotHasKey( 'agentId', $data );
 		$this->assertArrayNotHasKey( 'aiEditorialReviewEnabled', $data );
 		$this->assertArrayNotHasKey( 'jetpackAiSidebar', $data );
-		$this->assertArrayNotHasKey( 'jetpackAiSidebarPreview', $data );
 	}
 
 	/**
@@ -635,10 +631,6 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 		);
 		$this->assertStringContainsString(
 			'agentsManagerData.jetpackAiSidebar = {"enabled":true',
-			$this->get_agents_manager_inline_script()
-		);
-		$this->assertStringContainsString(
-			'agentsManagerData.jetpackAiSidebarPreview = {"enabled":true',
 			$this->get_agents_manager_inline_script()
 		);
 	}
@@ -941,7 +933,6 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 
 		$this->assertSame( 'wp-orchestrator', $data['agentId'] );
 		$this->assertSame( true, $data['aiEditorialReviewEnabled'] );
-		$this->assertSame( true, $data['jetpackAiSidebarPreview']['enabled'] );
 		$this->assertSame( true, $data['jetpackAiSidebar']['enabled'] );
 	}
 
