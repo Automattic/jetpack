@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Fix the Jetpack Social admin page rendering blank on WordPress 6.9.x by bundling @wordpress/theme and @wordpress/private-apis inline for the standalone admin page.
+Fix Jetpack Social admin page rendering blank on WordPress 6.9.x.
