@@ -424,13 +424,12 @@ class Initializer {
 			return '';
 		}
 
-		// @phan-suppress-next-line PhanUndeclaredFunction,PhanUndeclaredConstant -- guarded above; symbols live in plugins/jetpack.
-		$master_filename = jp_sitemap_filename( JP_MASTER_SITEMAP_TYPE );
-
 		// The master sitemap is stored as a post once the cron generation run
 		// completes; until then there is nothing to link to.
-		// @phan-suppress-next-line PhanUndeclaredClassMethod,PhanUndeclaredConstant -- guarded above; symbols live in plugins/jetpack.
-		$master = ( new Jetpack_Sitemap_Librarian() )->read_sitemap_data( $master_filename, JP_MASTER_SITEMAP_TYPE );
+		// `jp_sitemap_filename( JP_MASTER_SITEMAP_TYPE )` is the master file name
+		// ('sitemap.xml'); inlined so this stays one (untestable-in-package) line.
+		// @phan-suppress-next-line PhanUndeclaredFunction,PhanUndeclaredClassMethod -- guarded above; symbols live in plugins/jetpack.
+		$master = ( new Jetpack_Sitemap_Librarian() )->read_sitemap_data( jp_sitemap_filename( JP_MASTER_SITEMAP_TYPE ), JP_MASTER_SITEMAP_TYPE );
 		if ( null === $master ) {
 			return '';
 		}
@@ -438,8 +437,8 @@ class Initializer {
 		// esc_url_raw (not esc_url): the value is transported via script data and
 		// rendered by React, so it must not be HTML-entity-encoded (e.g. the
 		// plain-permalink `?jetpack-sitemap=` form keeps its raw `&`).
-		// @phan-suppress-next-line PhanUndeclaredFunction -- jetpack_sitemap_uri() lives in plugins/jetpack and is guarded by function_exists.
-		return esc_url_raw( (string) jetpack_sitemap_uri( $master_filename ) );
+		// @phan-suppress-next-line PhanUndeclaredFunction -- jp_sitemap_filename()/jetpack_sitemap_uri() live in plugins/jetpack, guarded by function_exists.
+		return esc_url_raw( (string) jetpack_sitemap_uri( jp_sitemap_filename( JP_MASTER_SITEMAP_TYPE ) ) );
 	}
 
 	/**
