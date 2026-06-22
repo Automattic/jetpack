@@ -52,6 +52,7 @@ class Main {
 	 */
 	private function __construct() {
 		add_action( 'rest_api_init', array( new REST_Controller(), 'register_rest_routes' ) );
+		add_action( 'rest_api_init', array( new REST_Ask_Stats_Odie_Controller(), 'register_rest_routes' ) );
 		// Disable JITM assets on the Stats page.
 		// JITM is handled separately by Stats: https://github.com/Automattic/wp-calypso/pull/95273.
 		add_filter(
@@ -78,6 +79,7 @@ class Main {
 	 */
 	public function register_transient_cleanup_prefix( $prefixes ) {
 		$prefixes[] = WPCOM_Client::CACHE_TRANSIENT_PREFIX;
+		$prefixes[] = REST_Ask_Stats_Odie_Controller::RATE_LIMIT_TRANSIENT_PREFIX;
 		return $prefixes;
 	}
 

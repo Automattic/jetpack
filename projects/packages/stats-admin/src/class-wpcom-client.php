@@ -97,6 +97,41 @@ class WPCOM_Client {
 	}
 
 	/**
+	 * Query the WordPress.com REST API using the current user's token.
+	 *
+	 * @param String            $path The API endpoint relative path.
+	 * @param String            $version The API version.
+	 * @param array             $args Request arguments.
+	 * @param String|array|null $body Request body.
+	 * @param String            $base_api_path (optional) the API base path override, defaults to 'wpcom'.
+	 * @return array|WP_Error $response Data.
+	 */
+	public static function request_as_user( $path, $version = '2', $args = array(), $body = null, $base_api_path = 'wpcom' ) {
+		$response = Client::wpcom_json_api_request_as_user(
+			$path,
+			$version,
+			$args,
+			$body,
+			$base_api_path
+		);
+
+		if ( is_wp_error( $response ) ) {
+			return $response;
+		}
+
+		$response_code         = wp_remote_retrieve_response_code( $response );
+		$response_body_content = wp_remote_retrieve_body( $response );
+		$response_body         = json_decode( $response_body_content, true );
+
+		$error = static::get_wp_error( $response_body, (int) $response_code );
+		if ( is_wp_error( $error ) ) {
+			return $error;
+		}
+
+		return $response_body;
+	}
+
+	/**
 	 * Build error object from remote response body and status code.
 	 *
 	 * @param array $response_body Remote response body.

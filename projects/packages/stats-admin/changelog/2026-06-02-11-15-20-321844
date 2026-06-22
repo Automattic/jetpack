@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Ask Stats: Add REST endpoint for forwarding chat messages to Odie.

@@ -18,6 +18,7 @@ src/
 ├── class-odyssey-assets.php          # Odyssey dashboard asset loading
 ├── class-odyssey-config-data.php     # Config data for Odyssey React app
 ├── class-rest-controller.php         # REST API endpoints
+├── class-rest-ask-stats-odie-controller.php # Ask Stats Odie REST API endpoints
 ├── class-wpcom-client.php            # General-purpose WPCOM API client with caching
 ├── class-notices.php                 # Admin notices handling
 ├── class-admin-post-list-column.php  # Post list view count column
@@ -53,6 +54,7 @@ This package depends on several Jetpack packages:
 
 - **Odyssey Dashboard**: The main stats dashboard uses the Odyssey React app built in Calypso (wp-calypso repo) and loaded via the CDN at `https://widgets.wp.com/odyssey-stats/`. This package provides the PHP wrapper and config data.
 - **REST API**: The `REST_Controller` proxies requests to WordPress.com stats APIs using two collaborators: `WPCOM_Stats` from the `jetpack-stats` package and this package’s `WPCOM_Client`. Calls routed through `WPCOM_Stats` are cached in transients with the `jetpack_restapi_stats_cache_` prefix, while calls made via `WPCOM_Client` use transients with the `STATS_REST_RESP_` prefix. Which client is used depends on the specific endpoint, not solely on the wpcom API version.
+- **Ask Stats Odie**: `REST_Ask_Stats_Odie_Controller` forwards Ask Stats chat via `WPCOM_Client::request_as_user()` (user token; not cached). It is off by default (`jetpack_stats_ask_stats_enabled`) and includes a local transient guard scoped to site and user.
 - **Relationship with `stats` package**: This package provides the WordPress admin UI infrastructure (PHP wrapper and integration for the Odyssey dashboard), while the `stats` package handles backend tracking and data fetching. They are separate but related.
 
 ## Common Pitfalls
