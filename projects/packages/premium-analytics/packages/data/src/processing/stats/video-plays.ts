@@ -51,9 +51,9 @@ export function sanitizeStatsVideoPlaysResponse(
 			? summary
 			: coerceStatsRecord( coerceStatsRecord( payload.days ).summary );
 	};
-	const summarySource = getSummarySource();
+	const summarySource = query?.summarize ? getSummarySource() : undefined;
 	const mapSummaryData = (): Array< StatsNormalizedDataPoint< StatsVideoPlaysItem > > => {
-		if ( ! query?.summarize ) {
+		if ( ! summarySource ) {
 			return [];
 		}
 
@@ -67,7 +67,7 @@ export function sanitizeStatsVideoPlaysResponse(
 	const summaryData = mapSummaryData();
 
 	return {
-		summary: query?.summarize
+		summary: summarySource
 			? {
 					...normalizeStatsSummary( summarySource, videoDataKeys ),
 					...getStatsSummaryIntervalFields( query, response ),

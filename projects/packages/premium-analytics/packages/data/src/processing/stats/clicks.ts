@@ -27,7 +27,7 @@ export function sanitizeStatsClicksResponse(
 		labelIcon: coerceStatsArray( item.children ).length ? null : 'external',
 		children: mapNestedItems( coerceStatsArray( item.children ), child => ( {
 			label:
-				typeof child.name === 'string' && typeof item.name === 'string'
+				typeof child.name === 'string' && typeof item.name === 'string' && item.name
 					? child.name.split( item.name ).join( '' ) || '/'
 					: '/',
 			views: safeParseFloat( child.views ),

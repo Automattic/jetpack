@@ -88,4 +88,27 @@ describe( 'Stats top posts normalizer', () => {
 			'2026-06-16',
 		] );
 	} );
+
+	it( 'limits by-date buckets to the requested date range', () => {
+		const result = sanitizeStatsTopPostsResponse(
+			{
+				...topPostsFixture,
+				days: {
+					'2026-06-14': topPostsFixture.days[ '2026-06-15' ],
+					...topPostsFixture.days,
+					'2026-06-17': topPostsFixture.days[ '2026-06-16' ],
+				},
+			},
+			{
+				period: 'day',
+				start_date: '2026-06-15',
+				end_date: '2026-06-16',
+			}
+		);
+
+		expect( result.data.map( item => item.time_interval ) ).toEqual( [
+			'2026-06-15',
+			'2026-06-16',
+		] );
+	} );
 } );

@@ -69,4 +69,38 @@ describe( 'Stats clicks normalizer', () => {
 			} )
 		);
 	} );
+
+	it( 'uses fallback child label when click parent name is empty', () => {
+		const result = sanitizeStatsClicksResponse(
+			{
+				date: '2026-06-22',
+				days: {
+					'2026-06-16': {
+						clicks: [
+							{
+								name: '',
+								views: 1,
+								children: [
+									{
+										name: 'https://example.com/path',
+										views: 1,
+									},
+								],
+							},
+						],
+					},
+				},
+			},
+			{
+				end_date: '2026-06-16',
+			}
+		);
+
+		expect( result.data[ 0 ].items[ 0 ].children?.[ 0 ] ).toEqual(
+			expect.objectContaining( {
+				label: '/',
+				views: 1,
+			} )
+		);
+	} );
 } );

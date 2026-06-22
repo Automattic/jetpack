@@ -148,10 +148,11 @@ export function getStatsBuckets( response: unknown, query: StatsQueryParams = {}
 		return [ [ endDate, coerceStatsRecord( days[ endDate ] ) ] ] as const;
 	}
 
-	return Object.entries( days ).map( ( [ key, value ] ) => [
-		key,
-		coerceStatsRecord( value ),
-	] ) as Array< readonly [ string, StatsRecord ] >;
+	return Object.entries( days )
+		.filter( ( [ key ] ) => ( ! startDate || key >= startDate ) && ( ! endDate || key <= endDate ) )
+		.map( ( [ key, value ] ) => [ key, coerceStatsRecord( value ) ] ) as Array<
+		readonly [ string, StatsRecord ]
+	>;
 }
 
 export function createStatsDataPoint< TItem extends StatsNormalizedItem >(
