@@ -60,6 +60,15 @@ class AI_Launchpad_Dev_Enable {
 	);
 
 	/**
+	 * Redirect targets returned by handle(): nothing to do, the AI Launchpad page,
+	 * or the wp-admin dashboard. Kept as abstract tokens (not URLs) so handle() can
+	 * be unit-tested without loading the AI Launchpad page bootstrap.
+	 */
+	const REDIRECT_NONE      = '';
+	const REDIRECT_PAGE      = 'page';
+	const REDIRECT_DASHBOARD = 'dashboard';
+
+	/**
 	 * Register the admin-request handler.
 	 *
 	 * @return void
@@ -69,29 +78,37 @@ class AI_Launchpad_Dev_Enable {
 	}
 
 	/**
-	 * Acts on the test-enable / reset query params, then redirects to the clean
-	 * AI Launchpad page URL so a refresh does not re-fire the action.
+	 * Acts on the test-enable / reset query params, then redirects so a refresh
+	 * does not re-fire the action. Disabling lands on the dashboard (the gated
+	 * page is gone); everything else lands on the AI Launchpad page, where the
+	 * fresh request re-registers the now-eligible menu.
 	 *
 	 * @return void
 	 */
 	public static function maybe_handle_request() {
-		$redirect = self::handle();
+		$target = self::handle();
 
-		if ( '' === $redirect ) {
+		if ( self::REDIRECT_NONE === $target ) {
 			return;
 		}
 
-		wp_safe_redirect( $redirect );
+		$url = self::REDIRECT_DASHBOARD === $target
+			? admin_url()
+			: admin_url( 'admin.php?page=' . \Automattic\Jetpack\Jetpack_Mu_Wpcom\AI_Launchpad::MENU_SLUG );
+
+		wp_safe_redirect( $url );
 		exit;
 	}
 
 	/**
-	 * Applies the requested option changes and returns where to send the user.
-	 * Split from the redirect/exit so it can be unit-tested. No-op (and cheap) on
-	 * the overwhelming majority of admin requests, which carry neither param.
+	 * Applies the requested option changes and returns where to send the user, as
+	 * one of the REDIRECT_* tokens. Split from the redirect/exit — and kept free of
+	 * the AI Launchpad page bootstrap — so it can be unit-tested in isolation. No-op
+	 * (and cheap) on the overwhelming majority of admin requests, which carry
+	 * neither param.
 	 *
-	 * @return string The URL to redirect to, or '' when there is nothing to do
-	 *                (no recognized param, or the user lacks the capability).
+	 * @return string One of the REDIRECT_* constants (REDIRECT_NONE when there is
+	 *                nothing to do: no recognized param, or no capability).
 	 */
 	public static function handle() {
 		// phpcs:disable WordPress.Security.NonceVerification.Recommended -- Intentional no-nonce toggle, see file docblock; cap-gated below.
@@ -99,11 +116,11 @@ class AI_Launchpad_Dev_Enable {
 		$reset  = isset( $_GET['reset-ai-launchpad'] );
 
 		if ( ! $enable && ! $reset ) {
-			return '';
+			return self::REDIRECT_NONE;
 		}
 
 		if ( ! current_user_can( 'manage_options' ) ) {
-			return '';
+			return self::REDIRECT_NONE;
 		}
 
 		$disabling = false;
@@ -130,11 +147,7 @@ class AI_Launchpad_Dev_Enable {
 		// launchpad: the redirect starts a fresh request where the menu
 		// re-registers. (On a site without a paid plan the page stays gated, but
 		// that is out of scope — the feature requires a paid plan.)
-		if ( $disabling ) {
-			return admin_url();
-		}
-
-		return admin_url( 'admin.php?page=' . \Automattic\Jetpack\Jetpack_Mu_Wpcom\AI_Launchpad::MENU_SLUG );
+		return $disabling ? self::REDIRECT_DASHBOARD : self::REDIRECT_PAGE;
 	}
 }
 
