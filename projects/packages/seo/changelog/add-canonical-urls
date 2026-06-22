@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Add a Canonical URLs toggle to the Settings tab (ports the legacy Traffic-page feature), controlling the canonical-urls module that adds rel="canonical" tags to archive pages.

@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.1] - 2026-06-22
+### Changed
+- Update the Apple Podcasts category list to match the current taxonomy, validate topic input, and recommend a subcategory when a broad category is selected. [#49789]
+
 ## [1.1.0] - 2026-06-18
 ### Added
 - Add a persistent "Create episode" button to the /podcast page header and a server-side prefill that assigns the configured category (and, on Premium, inserts the Podcast Episode block) when `post-new.php?podcast_episode=1` is opened.
@@ -124,6 +128,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Dashboard: Replace the wp-build placeholder with page chrome and tab navigation. [#48559]
 - Dashboard: Slim down wp-build wiring to the Backup pattern. [#48600]
 
+[1.1.1]: https://github.com/Automattic/jetpack-podcast/compare/v1.1.0...v1.1.1
 [1.1.0]: https://github.com/Automattic/jetpack-podcast/compare/v1.0.2...v1.1.0
 [1.0.2]: https://github.com/Automattic/jetpack-podcast/compare/v1.0.1...v1.0.2
 [1.0.1]: https://github.com/Automattic/jetpack-podcast/compare/v1.0.0...v1.0.1

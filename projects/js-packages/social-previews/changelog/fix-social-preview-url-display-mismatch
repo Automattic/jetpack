@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Use the caption/custom text as the source of truth for Bluesky, Facebook, Instagram, Mastodon and Nextdoor previews instead of appending the post URL.

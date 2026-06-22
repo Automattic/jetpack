@@ -2,6 +2,41 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 16.0-a.3 - 2026-06-22
+### Enhancements
+- Add AI-powered "Generate/Improve with Jetpack" buttons to the Content Guidelines admin page for guideline suggestions. [#47959]
+- AI Sidebar: Enable Optimize Title suggestions. [#49722]
+- Jetpack AI Sidebar: Gate the Generate Feedback suggestion behind the preview feature flag. [#49437]
+- Newsletter: Allow setting a custom description for the free tier and hiding it from the subscriber plan selector. [#49585]
+- Render the unified Jetpack admin header and footer on Akismet's admin pages. [#49593]
+- SEO: add a per-post schema type (jetpack_seo_schema_type meta + a block-editor Schema type control) and factual SEO columns (schema, meta description, search visibility) on post-list tables. [#49351]
+- SEO: seed a durable `jetpack_seo_surface_visible` cohort flag on install/upgrade so the new SEO surface is auto-discoverable on fresh installs but opt-in on existing ones, and add an opt-in banner to the legacy Traffic > SEO settings page. [#49672]
+- SEO: Surface SEO Tools as a Plugin Search Hint when users search the plugin directory for SEO-related terms. [#49586]
+- Subscriptions: replace the Subscribers menu link with a transitional announcement page when the Newsletter modernization filter is enabled. [#49496]
+
+### Bug fixes
+- Akismet: hide the empty #screen-meta-links container so it no longer reserves a blank slot above the Jetpack header (notably on WordPress.com Simple sites). [#49658]
+- Blaze: warn users with active campaigns before disabling the Blaze module. [#49610]
+- Content Guidelines AI: update DOM selectors and the data store name (core/guidelines) to match the latest Gutenberg Guidelines markup and store so the AI UI injects correctly. [#47959]
+- Donations Form: don't render the first-time modal, lock post saving, or fetch Stripe status when the block is shown as an inserter preview, which caused the editor to flicker on hover. [#49792]
+- Newsletter: when prompting the user to set up paid subscriptions, only ask for the steps that are actually missing (Stripe connection and/or a newsletter tier). [#49673]
+- Subscriptions: register the transitional Subscribers announcement page on self-hosted Jetpack only; on WordPress.com it is owned by jetpack-mu-wpcom, avoiding a duplicate menu entry on Atomic. [#49675]
+- Top Posts & Pages: Use the live post permalink so links reflect the current site URL instead of a stale stored URL. [#49802]
+- VideoPress: Enqueue the player scripts instead of printing them inline so they load only once when a page contains multiple videos, and enqueue the VideoJS player stylesheet on the non-iframe path so the player is sized correctly instead of overflowing the page. [#49716]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Akismet: make the admin header/footer chrome registration idempotent so it can't render twice if wired from more than one entry point. [#49658]
+- Editor: Load the shared data stores through the externalized jetpack-shared-stores bundle to avoid duplicate store registration warnings. [#49494]
+- Podcast: add a Jetpack module that loads the Podcast package, gated behind the default-off `jetpack_podcast_for_the_world` filter. [#49790]
+- SEO: seed and keep in sync a durable `jetpack_seo_canonical_urls_enabled` option from the Canonical URLs module's active state, so the setting is preserved when the standalone module is later absorbed into Jetpack SEO. Non-destructive: no settings are changed or removed. [#49407]
+- SEO: seed and keep in sync a durable `jetpack_seo_sitemap_enabled` option from the Sitemaps module's active state, so the setting is preserved when the standalone module is later absorbed into Jetpack SEO. Non-destructive: no sitemap data is regenerated or removed. [#49407]
+- Updated WooCommerce Analytics package to version 0.16.6. [#49686]
+- Update package dependencies. [#49631]
+- Update package dependencies. [#49638]
+- Update package dependencies. [#49639]
+- Update package dependencies. [#49691]
+- Update package dependencies. [#49757]
+
 ## 16.0-a.1 - 2026-06-15
 ### Enhancements
 - Daily Writing Prompt: Load the Dashboard widget on connected self-hosted Jetpack sites. [#49491]

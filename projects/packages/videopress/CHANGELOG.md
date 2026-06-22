@@ -5,6 +5,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.38.0] - 2026-06-22
+### Added
+- Add a native Divi 5 VideoPress module alongside the existing Divi 4 module, with configurable player settings and a conversion outline to support migrating layouts built with the legacy module. [#49669]
+- VideoPress: Allow changing privacy (public, private, site default) on multiple videos at once from the new Library, skipping items that can't accept the change and reporting any partial failures. [#49474]
+- VideoPress dashboard: show a Deleting progress state on library rows and the video details page while media is being deleted, and run bulk deletions in parallel. [#49558]
+
+### Changed
+- Update package dependencies. [#49631]
+- Update package dependencies. [#49638]
+- Update package dependencies. [#49691]
+- Update package dependencies. [#49757]
+- VideoPress: Persist Library view settings (layout, columns, sort, per-page) per-user across reloads. [#49475]
+
+### Fixed
+- Fix a wp-admin fatal error when using the VideoPress Divi extension with Divi Builder on PHP 8+. [#49668]
+- Prevent PHP warnings when building the VideoPress dashboard state and resolving video metadata for videos with incomplete data. [#49621]
+- VideoPress dashboard: add padding to the "Processing" badge in the video details view so its label is no longer flush against the badge background. [#49693]
+- VideoPress dashboard: truncate long video titles and filenames with an ellipsis in the library grid and table, and clamp long titles in the video details breadcrumb. [#49561]
+
 ## [0.37.0] - 2026-06-15
 ### Added
 - Add drag-and-drop video upload to the new library, with upload progress and a notice when the single-video plan limit is reached. [#49358]
@@ -2015,6 +2034,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created empty package [#24952]
 
+[0.38.0]: https://github.com/Automattic/jetpack-videopress/compare/v0.37.0...v0.38.0
 [0.37.0]: https://github.com/Automattic/jetpack-videopress/compare/v0.36.13...v0.37.0
 [0.36.13]: https://github.com/Automattic/jetpack-videopress/compare/v0.36.12...v0.36.13
 [0.36.12]: https://github.com/Automattic/jetpack-videopress/compare/v0.36.11...v0.36.12

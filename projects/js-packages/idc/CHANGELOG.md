@@ -2,6 +2,11 @@
 
 ### This is a list detailing changes for the Jetpack RNA IDC package releases.
 
+## 1.0.77 - 2026-06-22
+### Changed
+- Update package dependencies. [#49691]
+- Update package dependencies. [#49757]
+
 ## 1.0.76 - 2026-06-15
 ### Changed
 - Update package dependencies. [#49631]

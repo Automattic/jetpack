@@ -123,7 +123,7 @@ class Podcast_Settings_Endpoint extends WP_REST_Controller {
 			/**
 			 * Fires after a podcast settings write changes at least one option.
 			 *
-			 * @since $$next-version$$
+			 * @since 1.1.1
 			 */
 			do_action( 'jetpack_podcast_settings_saved' );
 		}

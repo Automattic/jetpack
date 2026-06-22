@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Externalize the jetpack-shared-stores package so the shared data stores resolve to a single bundle.

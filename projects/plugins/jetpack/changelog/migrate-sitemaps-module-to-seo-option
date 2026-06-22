@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-SEO: seed and keep in sync a durable `jetpack_seo_sitemap_enabled` option from the Sitemaps module's active state, so the setting is preserved when the standalone module is later absorbed into Jetpack SEO. Non-destructive: no sitemap data is regenerated or removed.

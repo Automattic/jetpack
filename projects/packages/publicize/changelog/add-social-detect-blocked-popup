@@ -1,4 +1,0 @@
-Significance: minor
-Type: fixed
-
-Social: Detect when the browser blocks the connection popup and notify the user.

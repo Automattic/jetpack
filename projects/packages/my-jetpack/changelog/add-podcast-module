@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Podcast: list the Podcast module under the Growth section in My Jetpack, gated behind the default-off `jetpack_podcast_for_the_world` filter.

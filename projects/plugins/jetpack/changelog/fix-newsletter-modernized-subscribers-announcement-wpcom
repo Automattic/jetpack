@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Subscriptions: register the transitional Subscribers announcement page on self-hosted Jetpack only; on WordPress.com it is owned by jetpack-mu-wpcom, avoiding a duplicate menu entry on Atomic.

@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Add dedicated package for the externalized `jetpack-modules` and `wordpress-com/plans` data stores.

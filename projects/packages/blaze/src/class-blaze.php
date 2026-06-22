@@ -249,7 +249,7 @@ class Blaze {
 		/**
 		 * Filter the campaign statuses that should trigger the active campaign warning.
 		 *
-		 * @since $$next-version$$
+		 * @since 0.27.23
 		 *
 		 * @param string[] $statuses Campaign statuses to check.
 		 * @param int      $blog_id  The blog ID being checked.

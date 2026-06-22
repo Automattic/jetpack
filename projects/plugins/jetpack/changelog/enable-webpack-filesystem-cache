@@ -1,3 +1,0 @@
-Significance: patch
-Type: other
-Comment: Build: enable webpack's filesystem cache for the main, extensions, and widget-visibility bundles to speed up local incremental rebuilds. Internal-only; no effect on production output.

@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Newsletter: when prompting the user to set up paid subscriptions, only ask for the steps that are actually missing (Stripe connection and/or a newsletter tier).
