@@ -70,11 +70,11 @@ export function parseTimestampToSeconds( value: string ): number | null {
  * @return WebVTT timestamp.
  */
 export function formatSecondsAsTimestamp( seconds: number ): string {
-	const safeSeconds = Math.max( 0, seconds );
-	const hours = Math.floor( safeSeconds / 3600 );
-	const minutes = Math.floor( ( safeSeconds % 3600 ) / 60 );
-	const wholeSeconds = Math.floor( safeSeconds % 60 );
-	const milliseconds = Math.round( ( safeSeconds - Math.floor( safeSeconds ) ) * 1000 );
+	const totalMilliseconds = Math.round( Math.max( 0, seconds ) * 1000 );
+	const hours = Math.floor( totalMilliseconds / 3600000 );
+	const minutes = Math.floor( ( totalMilliseconds % 3600000 ) / 60000 );
+	const wholeSeconds = Math.floor( ( totalMilliseconds % 60000 ) / 1000 );
+	const milliseconds = totalMilliseconds % 1000;
 
 	return (
 		[
