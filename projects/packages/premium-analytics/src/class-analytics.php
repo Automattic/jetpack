@@ -56,13 +56,21 @@ class Analytics {
 			self::$menu_title = $options['menu_title'];
 		}
 
-		WP_Build_Polyfills::register(
-			'jetpack-premium-analytics',
-			array_merge(
-				WP_Build_Polyfills::SCRIPT_HANDLES,
-				WP_Build_Polyfills::MODULE_IDS
-			)
-		);
+		// Only register the wp-build polyfills when actually serving a Premium
+		// Analytics dashboard page. The polyfills force-replace core script
+		// handles (notably wp-private-apis) on wp_default_scripts; doing that
+		// globally would swap core's private-apis on every admin page — including
+		// the block editor — risking site-wide breakage. Scoping it to this
+		// page's own requests keeps the blast radius to the dashboard.
+		if ( self::is_dashboard_request() ) {
+			WP_Build_Polyfills::register(
+				'jetpack-premium-analytics',
+				array_merge(
+					WP_Build_Polyfills::SCRIPT_HANDLES,
+					WP_Build_Polyfills::MODULE_IDS
+				)
+			);
+		}
 
 		// Load wp-build output (interceptor, modules, routes, page render).
 		$build_entry = __DIR__ . '/../build/build.php';
@@ -91,6 +99,35 @@ class Analytics {
 		add_action( 'admin_menu', array( static::class, 'register_admin_menu' ) );
 		add_action( 'jetpack-premium-analytics_init', array( static::class, 'register_sidebar_items' ) );
 		add_action( 'jetpack-premium-analytics_init', array( static::class, 'ensure_script_data' ) );
+	}
+
+	/**
+	 * Admin page slugs that render the Premium Analytics dashboard.
+	 *
+	 * Mirrors the slugs the wp-build interceptor renders (full-page and the
+	 * wp-admin integrated variant).
+	 */
+	const DASHBOARD_PAGE_SLUGS = array( 'jetpack-premium-analytics', 'jetpack-premium-analytics-wp-admin' );
+
+	/**
+	 * Whether the current request is rendering a Premium Analytics dashboard page.
+	 *
+	 * Used to scope the wp-build polyfill registration (which force-replaces core
+	 * script handles) to this dashboard, so it never affects other admin pages.
+	 * Must be cheap and safe to call at plugin-load time, before current_screen
+	 * exists, so it reads the menu page slug directly like the build interceptor does.
+	 *
+	 * @return bool True when serving a dashboard page in wp-admin.
+	 */
+	public static function is_dashboard_request() {
+		if ( ! is_admin() ) {
+			return false;
+		}
+
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Reading the menu page slug to scope asset loading; no state is changed.
+		$page = isset( $_GET['page'] ) ? sanitize_key( wp_unslash( $_GET['page'] ) ) : '';
+
+		return in_array( $page, self::DASHBOARD_PAGE_SLUGS, true );
 	}
 
 	/**

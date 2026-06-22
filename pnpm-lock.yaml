@@ -5234,7 +5234,7 @@ importers:
         specifier: ^5.40.0
         version: 5.48.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/private-apis':
-        specifier: next
+        specifier: 1.48.2-next.v.202606191442.0
         version: 1.48.2-next.v.202606191442.0
       '@wordpress/route':
         specifier: ^0.14.0
