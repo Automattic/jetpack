@@ -32,9 +32,13 @@ class Video_Block_Email_Renderer {
 		// Get the VideoPress URL from the guid attribute.
 		$videopress_url = self::get_videopress_url( $attributes );
 
-		// No guid: a plain uploaded video. Let the core video renderer handle it.
+		// No guid: a core/video block is a plain uploaded video, so let the core video renderer
+		// handle it. Other blocks (e.g. a malformed videopress/video) keep returning empty.
 		if ( empty( $videopress_url ) ) {
-			return self::render_core_video( $block_content, $parsed_block, $rendering_context );
+			if ( isset( $parsed_block['blockName'] ) && 'core/video' === $parsed_block['blockName'] ) {
+				return self::render_core_video( $block_content, $parsed_block, $rendering_context );
+			}
+			return '';
 		}
 
 		// For private videos, render a simple link to the post since the video isn't accessible on VideoPress.

@@ -428,4 +428,18 @@ class Video_Block_Email_Renderer_Test extends BaseTestCase {
 		// Should not take the VideoPress embed path.
 		$this->assertStringNotContainsString( 'email-embed-video', $result );
 	}
+
+	/**
+	 * Test render does not delegate non core/video blocks (e.g. a malformed videopress/video
+	 * block with no guid) to the core video renderer; it returns empty as before.
+	 */
+	public function test_render_email_non_core_video_without_guid_returns_empty() {
+		$parsed_block              = $this->create_parsed_block( array( 'poster' => 'https://example.com/poster.jpg' ) );
+		$parsed_block['blockName'] = 'videopress/video';
+		$mock_context              = $this->create_rendering_context_mock();
+
+		$result = Video_Block_Email_Renderer::render( '', $parsed_block, $mock_context );
+
+		$this->assertSame( '', $result );
+	}
 }
