@@ -144,7 +144,7 @@
 	flex-wrap: wrap;
 }
 
-.videopress-caption-manager__drafts {
+.videopress-caption-manager__local-tracks {
 	display: flex;
 	flex-direction: column;
 	gap: 8px;
@@ -416,7 +416,7 @@
 	width: min(520px, calc(100vw - 32px));
 }
 
-@media (max-width: 960px) {
+@media ( max-width: 960px ) {
 
 	.videopress-caption-manager.components-modal__frame {
 		width: calc(100vw - 24px);

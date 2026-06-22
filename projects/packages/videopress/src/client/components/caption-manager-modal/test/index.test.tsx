@@ -9,7 +9,7 @@ import {
 	updateTrackForGuid,
 	uploadTrackForGuid,
 } from '../../../lib/video-tracks';
-import { fetchCaptionDrafts, saveCaptionDraft } from '../../../lib/video-tracks/caption-drafts';
+import { fetchCaptionTracks, saveCaptionTrack } from '../../../lib/video-tracks/caption-tracks';
 
 let mockBlockEditorState: {
 	blocks: Array< { name: string; attributes: Record< string, string >; clientId: string } >;
@@ -226,8 +226,8 @@ jest.mock( '../../../lib/video-tracks', () => ( {
 	uploadTrackForGuid: jest.fn(),
 } ) );
 
-jest.mock( '../../../lib/video-tracks/caption-drafts', () => ( {
-	CAPTION_DRAFT_META: {
+jest.mock( '../../../lib/video-tracks/caption-tracks', () => ( {
+	CAPTION_TRACK_META: {
 		guid: '_videopress_guid',
 		kind: '_videopress_caption_kind',
 		srcLang: '_videopress_caption_src_lang',
@@ -236,7 +236,7 @@ jest.mock( '../../../lib/video-tracks/caption-drafts', () => ( {
 		sourceTrackSrcLang: '_videopress_source_track_src_lang',
 		sourceTrackSrc: '_videopress_source_track_src',
 	},
-	fetchCaptionDrafts: jest.fn().mockResolvedValue( [] ),
+	fetchCaptionTracks: jest.fn().mockResolvedValue( [] ),
 	getSourceTrackMeta: track =>
 		track
 			? {
@@ -245,7 +245,7 @@ jest.mock( '../../../lib/video-tracks/caption-drafts', () => ( {
 					_videopress_source_track_src: track.src,
 			  }
 			: {},
-	saveCaptionDraft: jest.fn(),
+	saveCaptionTrack: jest.fn(),
 } ) );
 
 const tracks = [
@@ -287,7 +287,7 @@ describe( 'CaptionManagerModal', () => {
 		( fetchTrackListForGuid as jest.Mock ).mockRejectedValue( new Error( 'Use prop tracks.' ) );
 		( updateTrackContentForGuid as jest.Mock ).mockResolvedValue( {} );
 		( updateTrackForGuid as jest.Mock ).mockResolvedValue( {} );
-		( saveCaptionDraft as jest.Mock ).mockResolvedValue( {
+		( saveCaptionTrack as jest.Mock ).mockResolvedValue( {
 			id: 77,
 			title: 'English captions',
 			content: '',
@@ -344,7 +344,7 @@ describe( 'CaptionManagerModal', () => {
 		expect( screen.getByText( 'English' ) ).toBeInTheDocument();
 		expect( screen.getByText( 'English auto-generated' ) ).toBeInTheDocument();
 		expect( screen.getByText( /auto_en/ ) ).toBeInTheDocument();
-		await waitFor( () => expect( fetchCaptionDrafts ).toHaveBeenCalledWith( 'abc123' ) );
+		await waitFor( () => expect( fetchCaptionTracks ).toHaveBeenCalledWith( 'abc123' ) );
 	} );
 
 	it( 'surfaces wpcom/v2 track metadata and disables read-only or processing actions', async () => {
@@ -397,7 +397,7 @@ describe( 'CaptionManagerModal', () => {
 		expect( replaceButtons[ 2 ] ).toBeDisabled();
 		expect( downloadButtons[ 2 ] ).toBeDisabled();
 		await waitFor( () =>
-			expect( screen.queryByText( /Loading caption drafts/ ) ).not.toBeInTheDocument()
+			expect( screen.queryByText( /Loading caption tracks/ ) ).not.toBeInTheDocument()
 		);
 	} );
 
@@ -415,9 +415,9 @@ describe( 'CaptionManagerModal', () => {
 		expect( screen.getByLabelText( 'Cue text' ) ).toBeInTheDocument();
 	} );
 
-	it( 'lists saved caption drafts and resumes their editor content', async () => {
+	it( 'lists saved caption tracks and resumes their editor content', async () => {
 		const user = userEvent.setup();
-		( fetchCaptionDrafts as jest.Mock ).mockResolvedValueOnce( [
+		( fetchCaptionTracks as jest.Mock ).mockResolvedValueOnce( [
 			{
 				id: 101,
 				title: 'Portuguese captions',
@@ -435,11 +435,11 @@ describe( 'CaptionManagerModal', () => {
 
 		render( <CaptionManagerModal { ...defaultProps } tracks={ [] } /> );
 
-		await expect( screen.findByText( 'Caption drafts' ) ).resolves.toBeInTheDocument();
+		await expect( screen.findByText( 'Local caption tracks' ) ).resolves.toBeInTheDocument();
 		expect( screen.getByText( 'Portuguese' ) ).toBeInTheDocument();
 		expect( screen.getByText( 'Captions · pt-BR · Draft' ) ).toBeInTheDocument();
 
-		await user.click( screen.getByRole( 'button', { name: 'Resume draft' } ) );
+		await user.click( screen.getByRole( 'button', { name: 'Edit saved track' } ) );
 
 		expect( screen.getByLabelText( 'Language' ) ).toHaveValue( 'pt-BR' );
 		expect( screen.getByLabelText( 'Label' ) ).toHaveValue( 'Portuguese' );
@@ -485,7 +485,7 @@ describe( 'CaptionManagerModal', () => {
 		await user.click( screen.getAllByText( 'Edit manually' )[ 0 ] );
 
 		await expect( screen.findByRole( 'alert' ) ).resolves.toHaveTextContent(
-			'Unable to load caption content. You can try again from the track list or start from an empty draft.'
+			'Unable to load caption content. You can try again from the track list or start from an empty caption track.'
 		);
 	} );
 
@@ -916,7 +916,7 @@ describe( 'CaptionManagerModal', () => {
 		}
 	} );
 
-	it( 'saves a manual caption draft with cue blocks', async () => {
+	it( 'saves a manual caption track with cue blocks', async () => {
 		const user = userEvent.setup();
 		render( <CaptionManagerModal { ...defaultProps } tracks={ [] } /> );
 
@@ -926,10 +926,11 @@ describe( 'CaptionManagerModal', () => {
 		await user.type( screen.getByLabelText( 'Cue text' ), 'Trail closed.' );
 		await user.click( screen.getByText( 'Save Draft' ) );
 
-		await waitFor( () => expect( saveCaptionDraft ).toHaveBeenCalled() );
-		expect( saveCaptionDraft ).toHaveBeenCalledWith(
+		await waitFor( () => expect( saveCaptionTrack ).toHaveBeenCalled() );
+		expect( saveCaptionTrack ).toHaveBeenCalledWith(
 			expect.objectContaining( {
 				content: expect.stringContaining( 'wp:videopress/caption-cue' ),
+				status: 'draft',
 				meta: expect.objectContaining( {
 					_videopress_guid: 'abc123',
 					_videopress_caption_kind: 'captions',
@@ -954,6 +955,7 @@ describe( 'CaptionManagerModal', () => {
 		await user.click( screen.getByText( 'Publish' ) );
 
 		await waitFor( () => expect( uploadTrackForGuid ).toHaveBeenCalled() );
+		await waitFor( () => expect( saveCaptionTrack ).toHaveBeenCalled() );
 		const uploadedTrack = ( uploadTrackForGuid as jest.Mock ).mock.calls[ 0 ][ 0 ];
 		expect( uploadedTrack ).toEqual(
 			expect.objectContaining( {
@@ -964,6 +966,17 @@ describe( 'CaptionManagerModal', () => {
 		);
 		await expect( readFile( uploadedTrack.tmpFile ) ).resolves.toContain( 'WEBVTT' );
 		await expect( readFile( uploadedTrack.tmpFile ) ).resolves.toContain( 'Trail closed.' );
+		expect( saveCaptionTrack ).toHaveBeenCalledWith(
+			expect.objectContaining( {
+				status: 'publish',
+				meta: expect.objectContaining( {
+					_videopress_caption_src_lang: 'en',
+				} ),
+			} )
+		);
+		expect( ( uploadTrackForGuid as jest.Mock ).mock.invocationCallOrder[ 0 ] ).toBeLessThan(
+			( saveCaptionTrack as jest.Mock ).mock.invocationCallOrder[ 0 ]
+		);
 		expect( onTracksChange ).toHaveBeenCalledWith( [
 			expect.objectContaining( {
 				kind: 'captions',
@@ -990,7 +1003,7 @@ describe( 'CaptionManagerModal', () => {
 		expect( screen.getByRole( 'alert' ) ).toHaveTextContent(
 			'Caption 1 must end after it starts.'
 		);
-		expect( saveCaptionDraft ).not.toHaveBeenCalled();
+		expect( saveCaptionTrack ).not.toHaveBeenCalled();
 		expect( uploadTrackForGuid ).not.toHaveBeenCalled();
 	} );
 
@@ -1020,11 +1033,45 @@ describe( 'CaptionManagerModal', () => {
 		await user.click( screen.getByText( 'Publish' ) );
 
 		expect( screen.getByRole( 'alert' ) ).toHaveTextContent( 'Caption 2 overlaps caption 1.' );
-		expect( saveCaptionDraft ).not.toHaveBeenCalled();
+		expect( saveCaptionTrack ).not.toHaveBeenCalled();
 		expect( uploadTrackForGuid ).not.toHaveBeenCalled();
 	} );
 
-	it( 'duplicates generated captions into a manual draft instead of overwriting auto tracks', async () => {
+	it( 'keeps local caption tracks as draft when VideoPress publishing fails', async () => {
+		const user = userEvent.setup();
+		( fetchCaptionTracks as jest.Mock ).mockResolvedValueOnce( [
+			{
+				id: 101,
+				title: 'Portuguese captions',
+				content:
+					'<!-- wp:videopress/caption-cue {"startTime":"00:00:03.000","endTime":"00:00:05.000","text":"Draft text."} /-->',
+				status: 'draft',
+				meta: {
+					_videopress_guid: 'abc123',
+					_videopress_caption_kind: 'captions',
+					_videopress_caption_src_lang: 'pt-BR',
+					_videopress_caption_label: 'Portuguese',
+				},
+			},
+		] );
+		( uploadTrackForGuid as jest.Mock ).mockResolvedValueOnce( {
+			code: 'publish_failed',
+			message: 'VideoPress rejected the caption file.',
+		} );
+
+		render( <CaptionManagerModal { ...defaultProps } tracks={ [] } /> );
+
+		await user.click( await screen.findByRole( 'button', { name: 'Edit saved track' } ) );
+		await user.click( screen.getByText( 'Publish' ) );
+
+		await waitFor( () => expect( uploadTrackForGuid ).toHaveBeenCalled() );
+		expect( saveCaptionTrack ).not.toHaveBeenCalled();
+		expect( screen.getByRole( 'alert' ) ).toHaveTextContent(
+			'Track error: VideoPress rejected the caption file.'
+		);
+	} );
+
+	it( 'duplicates generated captions into a manual caption track instead of overwriting auto tracks', async () => {
 		const user = userEvent.setup();
 		const onTracksChange = jest.fn();
 		render( <CaptionManagerModal { ...defaultProps } onTracksChange={ onTracksChange } /> );
@@ -1037,8 +1084,10 @@ describe( 'CaptionManagerModal', () => {
 		await user.click( screen.getByText( 'Publish' ) );
 
 		await waitFor( () => expect( uploadTrackForGuid ).toHaveBeenCalled() );
-		expect( saveCaptionDraft ).toHaveBeenCalledWith(
+		await waitFor( () => expect( saveCaptionTrack ).toHaveBeenCalled() );
+		expect( saveCaptionTrack ).toHaveBeenCalledWith(
 			expect.objectContaining( {
+				status: 'publish',
 				meta: expect.objectContaining( {
 					_videopress_caption_src_lang: 'en',
 					_videopress_source_track_src_lang: 'auto_en',

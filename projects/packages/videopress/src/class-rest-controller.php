@@ -59,11 +59,11 @@ class Rest_Controller {
 
 		register_rest_route(
 			self::REST_NAMESPACE,
-			'/caption-drafts',
+			'/caption-tracks',
 			array(
 				array(
 					'methods'             => WP_REST_Server::READABLE,
-					'callback'            => array( Caption_Drafts::class, 'rest_list_drafts' ),
+					'callback'            => array( Caption_Tracks::class, 'rest_list_tracks' ),
 					'permission_callback' => array( __CLASS__, 'permissions_callback' ),
 					'args'                => array(
 						'guid' => array(
@@ -75,7 +75,7 @@ class Rest_Controller {
 				),
 				array(
 					'methods'             => WP_REST_Server::CREATABLE,
-					'callback'            => array( Caption_Drafts::class, 'rest_save_draft' ),
+					'callback'            => array( Caption_Tracks::class, 'rest_save_track' ),
 					'permission_callback' => array( __CLASS__, 'permissions_callback' ),
 				),
 			)
@@ -83,14 +83,14 @@ class Rest_Controller {
 
 		register_rest_route(
 			self::REST_NAMESPACE,
-			'/caption-drafts/(?P<id>\d+)',
+			'/caption-tracks/(?P<id>\d+)',
 			array(
 				'methods'             => WP_REST_Server::EDITABLE,
-				'callback'            => array( Caption_Drafts::class, 'rest_save_draft' ),
+				'callback'            => array( Caption_Tracks::class, 'rest_save_track' ),
 				'permission_callback' => array( __CLASS__, 'permissions_callback' ),
 				'args'                => array(
 					'id' => array(
-						'description' => __( 'Caption draft ID.', 'jetpack-videopress-pkg' ),
+						'description' => __( 'Caption track ID.', 'jetpack-videopress-pkg' ),
 						'type'        => 'integer',
 						'required'    => true,
 					),
