@@ -86,6 +86,11 @@ if ( is_admin() ) {
 
 add_action( 'updating_jetpack_version', array( 'Jetpack', 'do_version_bump' ), 10, 2 );
 add_action( 'updating_jetpack_version', array( 'Jetpack', 'activate_subscriptions_module_for_existing_sites' ), 10, 2 );
+// Seed + keep in sync the durable Jetpack SEO module-state options while the legacy
+// Sitemaps / Canonical URLs modules still exist. Removed in the deferred post-convergence
+// follow-up that absorbs those modules into Jetpack SEO.
+Jetpack::register_seo_module_migration_hooks();
+add_action( 'updating_jetpack_version', array( 'Jetpack', 'seed_seo_visibility_cohort' ), 10, 2 );
 add_filter( 'is_jetpack_site', '__return_true' );
 
 require_once JETPACK__PLUGIN_DIR . '3rd-party/3rd-party.php';

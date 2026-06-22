@@ -31,5 +31,15 @@ if ( ! class_exists( 'Jetpack_SEO_Utils' ) ) {
 		public static function is_enabled_jetpack_seo() {
 			return self::$enabled;
 		}
+
+		/**
+		 * Stub for the host plugin's front-page meta description getter, read by
+		 * Initializer::get_settings_data().
+		 *
+		 * @return string
+		 */
+		public static function get_front_page_meta_description() {
+			return '';
+		}
 	}
 }

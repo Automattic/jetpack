@@ -22,6 +22,8 @@ import './style.scss';
 interface Props {
 	// Existing site title. Pre-fills the Name input so users don't retype it.
 	initialSiteName?: string;
+	// Existing site tagline (blogdescription). Pre-fills the Brief description.
+	initialIntent?: string;
 	// User locale, forwarded to the wizard payload and the AI call.
 	locale?: string;
 	// Fired once Finish completes, so the host can swap the wizard for the
@@ -37,15 +39,21 @@ interface Props {
  *
  * @param props                 - Component props.
  * @param props.initialSiteName - Existing site title used to pre-fill Name.
+ * @param props.initialIntent   - Existing site tagline used to pre-fill the description.
  * @param props.locale          - User locale forwarded to the payload.
  * @param props.onComplete      - Called with the input and tailor promise on Finish.
  * @return The wizard element.
  */
-export function Wizard( { initialSiteName = '', locale = 'en', onComplete }: Props ) {
+export function Wizard( {
+	initialSiteName = '',
+	initialIntent = '',
+	locale = 'en',
+	onComplete,
+}: Props ) {
 	const [ step, setStep ] = useState< WizardStep >( 0 );
 	const [ goal, setGoal ] = useState< GoalSlug | null >( null );
 	const [ siteName, setSiteName ] = useState< string >( initialSiteName );
-	const [ intent, setIntent ] = useState< string >( '' );
+	const [ intent, setIntent ] = useState< string >( initialIntent );
 
 	const state: WizardState = { goal, siteName, intent, locale };
 
