@@ -54,6 +54,7 @@
 /projects/github-actions/repo-gardening/ @jeherve
 
 # Packages
+/projects/packages/premium-analytics @Automattic/red @Automattic/ventures
 /projects/packages/search/src/wpes @Automattic/prometheus
 /projects/packages/connection/src @Automattic/jetpack-vulcan
 /projects/packages/connection/legacy @Automattic/jetpack-vulcan
@@ -62,6 +63,8 @@
 /projects/packages/sync/src/class-package-version.php
 
 # Plugins
+
+/projects/plugins/premium-analytics @Automattic/red @Automattic/ventures
 
 # Functionality that is important to our partners
 /projects/plugins/jetpack/class.jetpack-cli.php @Automattic/jetpack-infinity
