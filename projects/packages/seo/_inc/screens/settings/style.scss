@@ -15,6 +15,19 @@
 	scroll-margin-top: 64px;
 }
 
+// Groups the "Generate an XML sitemap" toggle with its "View sitemap" link (or
+// "Generating…" hint), shown beneath the toggle once it's effectively on.
+.jetpack-seo-settings__sitemap-field {
+	display: flex;
+	flex-direction: column;
+	gap: var(--wpds-dimension-gap-xs, 4px);
+}
+
+.jetpack-seo-settings__sitemap-hint {
+	color: var(--wpds-color-fg-content-neutral-weak, #787c82);
+	font-size: 12px;
+}
+
 // Live preview under the title-structure token editor.
 .jetpack-seo-settings__preview {
 	margin-top: var(--wpds-dimension-gap-md, 12px);
