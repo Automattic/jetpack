@@ -47,7 +47,7 @@
 		min-height: 6px;
 		// Keeps a sliver of bar visible for tiny shares, and stops the interactive
 		// row's fixed-pixel hover inset from collapsing a narrow bar to nothing.
-		min-width: 2px;
+		min-width: var(--wpds-dimension-size-5xs, 4px);
 
 		border-radius: var(--a8c--charts--leaderboard--bar--border-radius, 9999px);
 		z-index: -1; /* places it behind the label */
@@ -119,9 +119,9 @@
 	&:hover,
 	&:focus-visible {
 
-		// Fixed pixel reserve for the chevron — shared by the bar width inset
+		// Fixed reserve for the chevron — shared by the bar width inset
 		// (see leaderboard-chart.tsx) and the value slide so their gap is constant.
-		--a8c--charts--leaderboard--bar--hover-inset: 32px;
+		--a8c--charts--leaderboard--bar--hover-inset: var(--wpds-dimension-gap-2xl, 32px);
 
 		.bar {
 			opacity: 0.5;
