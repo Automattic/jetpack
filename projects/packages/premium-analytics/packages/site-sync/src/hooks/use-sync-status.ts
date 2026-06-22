@@ -29,13 +29,14 @@ function readMilestone(): number {
  * status is derived from Jetpack's generic initial full sync. Read once at mount;
  * WooCommerce activation only changes between page loads.
  *
- * Defaults to true when the flag is absent, preserving the legacy analytics-module
- * behaviour for backends that predate it (the current backend always injects it).
+ * Defaults to false when the flag is absent (an abnormal boot — the backend always
+ * injects it). "Site data" is the neutral, never-wrong framing: every site has it,
+ * only some have a store, so guessing a store is the riskier miss.
  *
  * @return Whether the site has store data.
  */
 function hasStoreData(): boolean {
-	return getScriptData()?.premium_analytics?.has_store_data ?? true;
+	return getScriptData()?.premium_analytics?.has_store_data ?? false;
 }
 
 /**

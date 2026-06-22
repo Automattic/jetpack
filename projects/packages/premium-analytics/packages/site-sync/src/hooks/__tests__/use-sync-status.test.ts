@@ -37,9 +37,9 @@ function rawStatus( overrides: Partial< SyncStatusApiResponse > = {} ): SyncStat
 
 beforeEach( () => {
 	jest.useFakeTimers();
-	// Default: milestone not set.
+	// Default: store site (WooCommerce active), milestone not set.
 	mockScriptData.mockReturnValue( {
-		premium_analytics: { initial_full_sync_finished: 0 },
+		premium_analytics: { initial_full_sync_finished: 0, has_store_data: true },
 	} as ReturnType< typeof getScriptData > );
 	mockFetch.mockResolvedValue( rawStatus() );
 	mockTrigger.mockResolvedValue( undefined );
@@ -111,7 +111,7 @@ describe( 'useSyncStatus', () => {
 
 	it( 'starts complete and skips polling when the milestone is set', async () => {
 		mockScriptData.mockReturnValue( {
-			premium_analytics: { initial_full_sync_finished: 1_700_000_000 },
+			premium_analytics: { initial_full_sync_finished: 1_700_000_000, has_store_data: true },
 		} as ReturnType< typeof getScriptData > );
 
 		const { result } = renderHook( () => useSyncStatus() );
