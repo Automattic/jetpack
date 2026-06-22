@@ -10,6 +10,7 @@ import { useState, useEffect, useRef, useCallback } from 'react';
  * Internal dependencies
  */
 import { Connection } from '../../../connect/images';
+import { describeSync } from './copy';
 import './style.scss';
 
 /**
@@ -51,36 +52,10 @@ export function Syncing() {
 		return null;
 	}
 
-	// Without store data (WooCommerce inactive) there is nothing store-specific to
-	// sync — we wait on Jetpack's generic initial sync, so the copy drops "store".
-	const hasStoreData = data?.hasStoreData ?? true;
-
-	const title = error
-		? __( 'Sync interrupted', 'jetpack-premium-analytics' )
-		: __( "We're preparing your data", 'jetpack-premium-analytics' );
-
-	let description;
-	if ( error ) {
-		description = hasStoreData
-			? __(
-					'Something went wrong while syncing your store data. Please try again.',
-					'jetpack-premium-analytics'
-			  )
-			: __(
-					'Something went wrong while syncing your site data. Please try again.',
-					'jetpack-premium-analytics'
-			  );
-	} else {
-		description = hasStoreData
-			? __(
-					'Your store data is being synced. This may take a few minutes depending on the size of your store.',
-					'jetpack-premium-analytics'
-			  )
-			: __(
-					'Your site data is being synced. This may take a few minutes.',
-					'jetpack-premium-analytics'
-			  );
-	}
+	const { title, description } = describeSync( {
+		hasError: Boolean( error ),
+		hasStoreData: data?.hasStoreData ?? true,
+	} );
 
 	const percentage = data?.percentage ?? 0;
 

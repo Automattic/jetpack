@@ -56,8 +56,9 @@ class Sync_Status_Tracker {
 	const ANALYTICS_SYNC_MODULES = array( 'woocommerce_analytics' );
 
 	/**
-	 * Action hook fired once when the milestone flips. Consumer plugins use this
-	 * to fire one-time side-effects (emails, tracking events, etc.).
+	 * Action hook fired once when the analytics milestone flips (not the storeless
+	 * site milestone). Consumer plugins use this to fire one-time side-effects keyed
+	 * to store data (emails, tracking events, etc.).
 	 *
 	 * @var string
 	 */
