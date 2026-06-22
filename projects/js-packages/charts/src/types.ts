@@ -135,10 +135,15 @@ export type LeaderboardEntry = {
 
 	/**
 	 * Optional click handler. When provided, the entire row becomes an
-	 * interactive button: clickable and keyboard-focusable (Enter/Space),
+	 * interactive `<button>`: clickable and keyboard-focusable (Enter/Space),
 	 * with a chevron affordance revealed on hover/focus. The consumer
 	 * decides what the action does (e.g. drill-down). Rows without onClick are
 	 * inert and render unchanged.
+	 *
+	 * For links or other interactive affordances (external-link icons, info
+	 * tooltips), put them in the `label` render prop instead of using onClick —
+	 * a row is either a button (onClick) or carries interactive label content,
+	 * never both, since interactive elements cannot be nested in HTML.
 	 */
 	onClick?: ( event: MouseEvent< HTMLButtonElement > ) => void;
 };
