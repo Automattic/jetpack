@@ -19,7 +19,7 @@ class Agents_Manager {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '0.5.0';
+	const PACKAGE_VERSION = '0.5.1';
 
 	/**
 	 * Help Center URL for disconnected variants.

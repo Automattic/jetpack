@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+JSON API: Require Jetpack 15.9 or later to dispatch the posts, users, site, and plugins endpoints over REST.

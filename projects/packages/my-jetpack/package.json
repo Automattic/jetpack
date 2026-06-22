@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-my-jetpack",
-	"version": "5.38.4",
+	"version": "5.39.0",
 	"private": true,
 	"description": "WP Admin page with information and configuration shared among all Jetpack stand-alone plugins",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/packages/my-jetpack/#readme",
@@ -88,7 +88,7 @@
 		"sass-loader": "16.0.5",
 		"storybook": "10.3.6",
 		"typescript": "5.9.3",
-		"webpack": "5.105.2",
+		"webpack": "5.107.2",
 		"webpack-cli": "6.0.1",
 		"webpack-dev-server": "5.2.5"
 	}

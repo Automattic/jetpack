@@ -15,6 +15,27 @@
 	scroll-margin-top: 64px;
 }
 
+// Groups the "Generate an XML sitemap" toggle with its "View sitemap" link (or
+// "Generating…" hint), shown beneath the toggle once it's effectively on.
+.jetpack-seo-settings__sitemap-field {
+	display: flex;
+	flex-direction: column;
+	gap: var(--wpds-dimension-gap-xs, 4px);
+}
+
+// Align the link/hint with the toggle's label text (and its help text) rather
+// than the switch. 40px matches @wordpress/components ToggleControl's help
+// `margin-inline-start` (≈ 36px switch + gap).
+.jetpack-seo-settings__sitemap-link,
+.jetpack-seo-settings__sitemap-hint {
+	margin-inline-start: 40px;
+}
+
+.jetpack-seo-settings__sitemap-hint {
+	color: var(--wpds-color-fg-content-neutral-weak, #787c82);
+	font-size: 12px;
+}
+
 // Live preview under the title-structure token editor.
 .jetpack-seo-settings__preview {
 	margin-top: var(--wpds-dimension-gap-md, 12px);
