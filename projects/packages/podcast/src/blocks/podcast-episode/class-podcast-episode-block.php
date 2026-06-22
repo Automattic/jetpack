@@ -26,8 +26,12 @@ class Podcast_Episode_Block {
 	/**
 	 * Front-end + editor shared style handle. Side-loaded by
 	 * `Assets::register_script` from the sibling `style.css` bundle.
+	 *
+	 * Named `jetpack-<block>` to match the convention WPCOM's block-style
+	 * inliner keys on (`jetpack-%BLOCK_NAME%` / `jetpack-block-%BLOCK_NAME%`),
+	 * so the block is styled in the Reader, email, and notification contexts.
 	 */
-	const STYLE_HANDLE = 'jetpack-podcast-episode-style';
+	const STYLE_HANDLE = 'jetpack-podcast-episode';
 
 	/**
 	 * Front-end view script handle. Enqueued from the render callback

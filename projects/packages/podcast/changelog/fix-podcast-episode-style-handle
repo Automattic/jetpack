@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Podcast Episode block: register the block stylesheet under the conventional jetpack-podcast-episode handle so WPCOM inlines its CSS in the Reader, email, and notification contexts instead of rendering the block unstyled.
