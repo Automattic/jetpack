@@ -20,6 +20,11 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit( 0 );
 }
 
+const EMBED_SIZE        = array( 360, 640 ); // twice as many pixels for retina displays.
+const CROP_UP_TO        = 0.2;
+const MAX_BULLETS       = 7;
+const IMAGE_BREAKPOINTS = '(max-width: 460px) 576w, (max-width: 614px) 768w, 120vw'; // 120vw to match the 20% CROP_UP_TO ratio
+
 /**
  * Compare 2 urls and return true if they likely correspond to the same resource.
  * Ignore scheme, ports, query params and hashes and only compare hostname and pathname.

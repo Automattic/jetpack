@@ -55,8 +55,6 @@ function render( $attr, $content ) {
 /**
  * Render slideshow block for email.
  *
- * @since 15.0
- *
  * @param string $block_content     The original block HTML content.
  * @param array  $parsed_block      The parsed block data including attributes.
  * @param object $rendering_context Email rendering context.

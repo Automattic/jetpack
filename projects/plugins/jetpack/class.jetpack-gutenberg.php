@@ -880,12 +880,24 @@ class Jetpack_Gutenberg {
 	 * allow-list of extensions that genuinely have front-end side effects keeps loading
 	 * unconditionally (see self::$frontend_editor_extensions).
 	 *
-	 * @since 15.10
+	 * @since $$next-version$$
 	 *
 	 * @return bool True if the request is admin or a REST request (i.e. an editor context).
 	 */
 	private static function is_block_editor_context() {
-		return is_admin() || ( defined( 'REST_REQUEST' ) && REST_REQUEST );
+		if ( is_admin() ) {
+			return true;
+		}
+
+		/*
+		 * This runs at module-load time (around plugins_loaded), before core
+		 * defines REST_REQUEST during parse_request, so REST requests can't be
+		 * detected via that constant here. Fall back to matching the REST prefix
+		 * in the request URL.
+		 */
+		$rest_prefix = trailingslashit( rest_get_url_prefix() );
+		$request_uri = isset( $_SERVER['REQUEST_URI'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : '';
+		return '' !== $request_uri && str_contains( $request_uri, '/' . $rest_prefix );
 	}
 
 	/**
@@ -894,7 +906,7 @@ class Jetpack_Gutenberg {
 	 *
 	 * Keyed by directory ('plugins' / 'extended-blocks') for an exact, intentional match.
 	 *
-	 * @since 15.10
+	 * @since $$next-version$$
 	 *
 	 * @var array
 	 */

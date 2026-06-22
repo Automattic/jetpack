@@ -15,11 +15,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit( 0 );
 }
 
-const EMBED_SIZE        = array( 360, 640 ); // twice as many pixels for retina displays.
-const CROP_UP_TO        = 0.2;
-const MAX_BULLETS       = 7;
-const IMAGE_BREAKPOINTS = '(max-width: 460px) 576w, (max-width: 614px) 768w, 120vw'; // 120vw to match the 20% CROP_UP_TO ratio
-
 /**
  * Registers the block for use in Gutenberg
  * This is done via an action so that we can disable

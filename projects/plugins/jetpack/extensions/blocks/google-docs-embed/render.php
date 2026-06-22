@@ -17,6 +17,15 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit( 0 );
 }
 
+/*
+ * map_gsuite_url() lives in google-docs-embed.php (a WPCOM v2 endpoint calls it
+ * directly). It is normally loaded before this file via the render wrapper, but
+ * guard against this file being required on its own so it never fatals.
+ */
+if ( ! function_exists( __NAMESPACE__ . '\\map_gsuite_url' ) ) {
+	require_once __DIR__ . '/google-docs-embed.php';
+}
+
 /**
  * The block rendering implementation.
  *
