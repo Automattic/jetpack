@@ -10,8 +10,6 @@ namespace Automattic\Jetpack\Newsletter\Tests;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Newsletter\Settings;
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\Attributes\PreserveGlobalState;
-use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use WorDBless\BaseTestCase;
 
 /**
@@ -295,6 +293,15 @@ class Settings_Test extends BaseTestCase {
 	 * global, which enrolls a11ns regardless of whether the site's blog ID falls in
 	 * the percentage bucket — the only path that enrolls anyone while the percentage
 	 * is held at 0%.
+	 *
+	 * The Atomic half of the carve-out — `Visitor::is_automattician_feature_flags_only()`,
+	 * driven by `AT_PROXIED_REQUEST` — is intentionally not given a dedicated test: its
+	 * *true* path is `Visitor`'s own contract (covered in the jetpack-status package), and
+	 * setting `AT_PROXIED_REQUEST` requires an irreversible `define()` that would need
+	 * `@runInSeparateProcess` (which trips a PHP 7.x WP-core bootstrap warning under
+	 * `failOnWarning`). Its *false* path — that the `Visitor` call is wired in and doesn't
+	 * fatal — is already exercised by every non-a11n cohort test below, where the `||`
+	 * does not short-circuit and so evaluates the `Visitor` branch.
 	 */
 	public function test_rollout_enabled_for_automattician() {
 		$GLOBALS['jetpack_newsletter_test_is_automattician'] = true;
@@ -302,28 +309,6 @@ class Settings_Test extends BaseTestCase {
 		$this->assertTrue(
 			Settings::is_modernization_rollout_enabled(),
 			'Automatticians must be enrolled in the modernization rollout by default.'
-		);
-	}
-
-	/**
-	 * On Atomic (WoA) the `is_automattician()` global does not exist, so the a12s
-	 * carve-out falls back to `Visitor::is_automattician_feature_flags_only()`
-	 * (`AT_PROXIED_REQUEST`). A proxied a8c request must therefore be enrolled even
-	 * though no Simple a11n global is present and the percentage is 0%. Runs in a
-	 * separate process because `AT_PROXIED_REQUEST` can only be set with a real
-	 * `define()`, which would otherwise leak into every later test.
-	 *
-	 * @runInSeparateProcess
-	 * @preserveGlobalState disabled
-	 */
-	#[RunInSeparateProcess]
-	#[PreserveGlobalState( false )]
-	public function test_rollout_enabled_for_atomic_proxied_automattician() {
-		define( 'AT_PROXIED_REQUEST', true );
-
-		$this->assertTrue(
-			Settings::is_modernization_rollout_enabled(),
-			'A proxied Automattician request on Atomic must be enrolled via the Visitor fallback.'
 		);
 	}
 
