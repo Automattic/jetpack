@@ -3999,6 +3999,9 @@ importers:
       '@jetpack-premium-analytics/formatters':
         specifier: link:packages/formatters
         version: link:packages/formatters
+      '@jetpack-premium-analytics/icons':
+        specifier: link:packages/icons
+        version: link:packages/icons
       '@jetpack-premium-analytics/routing':
         specifier: link:packages/routing
         version: link:packages/routing
@@ -4008,6 +4011,9 @@ importers:
       '@jetpack-premium-analytics/ui':
         specifier: link:packages/ui
         version: link:packages/ui
+      '@jetpack-premium-analytics/widgets-toolkit':
+        specifier: link:packages/widgets-toolkit
+        version: link:packages/widgets-toolkit
       '@tanstack/react-query':
         specifier: 5.90.8
         version: 5.90.8(react@18.3.1)
