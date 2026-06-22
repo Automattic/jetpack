@@ -20,7 +20,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * @package VideoPressUploader
  */
 class Tus_File {
-	const CHUNK_SIZE    = MB_IN_BYTES;
+	const CHUNK_SIZE    = 8192; // 8 kilobytes.
 	const INPUT_STREAM  = 'php://input';
 	const READ_BINARY   = 'rb';
 	const APPEND_BINARY = 'ab';
