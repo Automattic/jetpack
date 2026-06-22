@@ -602,38 +602,56 @@ export function sanitizeStatsLocationsResponse(
 ): StatsNormalizedReport< StatsLocationsItem > {
 	const payload = getStatsRecord( response );
 	const countryInfo = getStatsRecord( payload[ 'country-info' ] ?? payload.countryInfo );
+	const parse = ( item: StatsRecord ): StatsLocationsItem => {
+		const country = getStatsRecord(
+			typeof item.country_code === 'string' ? countryInfo[ item.country_code ] : undefined
+		);
+		const label = item.location ?? country.country_full ?? item.country_code ?? '';
+
+		return {
+			label: typeof label === 'string' ? label.replace( /’/g, "'" ) : label,
+			views: safeParseFloat( item.views ),
+			countryCode: typeof item.country_code === 'string' ? item.country_code : undefined,
+			countryFull: typeof country.country_full === 'string' ? country.country_full : undefined,
+			region: typeof country.map_region === 'string' ? country.map_region : undefined,
+			coordinates: item.coordinates,
+			children: null,
+		};
+	};
+
+	const filterLocations = ( items: StatsRecord[] ) =>
+		items.filter(
+			item =>
+				typeof item.country_code !== 'string' ||
+				! [ 'A1', 'A2', 'ZZ' ].includes( item.country_code )
+		);
+	const mapItems = ( items: StatsRecord[] ) => filterLocations( items ).map( parse );
+	const summary = getStatsRecord( payload.summary );
+	const summaryViews = getStatsArrayFromKeys< StatsRecord >( summary, [ 'views' ] );
+	const summaryDate = getStatsTopLevelDataDate( response, query );
+	const summaryData =
+		query?.summarize && summaryViews.found && summaryDate
+			? [
+					createStatsSummaryDataPoint(
+						summaryDate,
+						response,
+						query,
+						mapItems( summaryViews.items )
+					),
+			  ]
+			: [];
 
 	return {
-		summary: normalizeStatsReportSummary( response, query ),
-		data: getStatsBuckets( response, query ).map( ( [ date, bucket ] ) => {
-			const filteredViews = getStatsArray< StatsRecord >( bucket.views ).filter(
-				item =>
-					typeof item.country_code !== 'string' ||
-					! [ 'A1', 'A2', 'ZZ' ].includes( item.country_code )
-			);
-
-			return createStatsDataPoint(
-				date,
-				query?.period ?? getStatsResponsePeriod( response ),
-				filteredViews.map( item => {
-					const country = getStatsRecord(
-						typeof item.country_code === 'string' ? countryInfo[ item.country_code ] : undefined
-					);
-					const label = item.location ?? country.country_full ?? item.country_code ?? '';
-
-					return {
-						label: typeof label === 'string' ? label.replace( /’/g, "'" ) : label,
-						views: safeParseFloat( item.views ),
-						countryCode: typeof item.country_code === 'string' ? item.country_code : undefined,
-						countryFull:
-							typeof country.country_full === 'string' ? country.country_full : undefined,
-						region: typeof country.map_region === 'string' ? country.map_region : undefined,
-						coordinates: item.coordinates,
-						children: null,
-					};
-				} )
-			);
-		} ),
+		summary: normalizeStatsReportSummary( response, query, [ 'views' ] ),
+		data: summaryData.length
+			? summaryData
+			: getStatsBuckets( response, query ).map( ( [ date, bucket ] ) =>
+					createStatsDataPoint(
+						date,
+						query?.period ?? getStatsResponsePeriod( response ),
+						mapItems( getStatsArray( bucket.views ) )
+					)
+			  ),
 	};
 }
 

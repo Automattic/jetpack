@@ -116,6 +116,80 @@ export const fileDownloadsFixture = {
 	},
 };
 
+export const clicksSummaryFixture = {
+	date: '2026-06-30',
+	period: 'day',
+	summary: {
+		clicks: [
+			{
+				name: 'example.com',
+				views: '9',
+				url: 'https://example.com/',
+				children: [
+					{
+						name: 'example.com/docs',
+						views: '4',
+						url: 'https://example.com/docs',
+					},
+				],
+			},
+		],
+		total_clicks: '9',
+		other_clicks: '0',
+	},
+};
+
+export const searchTermsSummaryFixture = {
+	date: '2026-06-30',
+	period: 'day',
+	summary: {
+		search_terms: [ { term: 'jetpack stats', views: '14' } ],
+		total_search_terms: '14',
+		encrypted_search_terms: '0',
+		other_search_terms: '0',
+	},
+};
+
+export const fileDownloadsSummaryFixture = {
+	date: '2026-06-30',
+	period: 'day',
+	summary: {
+		files: [
+			{
+				relative_url: '/guide.pdf',
+				filename: 'guide.pdf',
+				downloads: '8',
+				download_url: 'https://example.com/guide.pdf',
+			},
+		],
+		total_downloads: '8',
+		other_downloads: '0',
+	},
+};
+
+export const topAuthorsSummaryFixture = {
+	date: '2026-06-30',
+	period: 'day',
+	summary: {
+		authors: [
+			{
+				name: 'Jane Author',
+				views: '18',
+				avatar: 'https://example.com/avatar.jpg',
+				posts: [
+					{
+						id: 42,
+						title: 'Author post',
+						views: '12',
+						url: 'https://example.com/author-post/',
+					},
+				],
+			},
+		],
+		total_views: '18',
+	},
+};
+
 export const locationsFixture = {
 	days: {
 		'2026-06-16': {
@@ -130,6 +204,30 @@ export const locationsFixture = {
 					views: '3',
 				},
 			],
+		},
+	},
+};
+
+export const locationsSummaryFixture = {
+	date: '2026-06-30',
+	period: 'day',
+	summary: {
+		views: [
+			{
+				country_code: 'CI',
+				views: '7',
+			},
+			{
+				country_code: 'A1',
+				views: '3',
+			},
+		],
+		total_views: '10',
+	},
+	'country-info': {
+		CI: {
+			country_full: 'Côte d’Ivoire',
+			map_region: '002',
 		},
 	},
 };
@@ -149,5 +247,25 @@ export const videoPlaysFixture = {
 				},
 			],
 		},
+	},
+};
+
+export const videoPlaysSummaryFixture = {
+	date: '2026-06-30',
+	period: 'day',
+	summary: {
+		plays: [
+			{
+				post_id: 12,
+				title: 'Launch video',
+				url: 'https://example.com/video/',
+				plays: '11',
+				impressions: '42',
+				watch_time: '128.5',
+				retention_rate: '61.25',
+			},
+		],
+		total_plays: '11',
+		other_plays: '0',
 	},
 };

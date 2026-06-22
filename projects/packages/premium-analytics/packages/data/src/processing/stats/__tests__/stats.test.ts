@@ -3,20 +3,29 @@
  */
 import {
 	combineStatsNormalizedReports,
+	sanitizeStatsClicksResponse,
 	sanitizeStatsFileDownloadsResponse,
 	sanitizeStatsLocationsResponse,
 	sanitizeStatsReferrersResponse,
+	sanitizeStatsSearchTermsResponse,
+	sanitizeStatsTopAuthorsResponse,
 	sanitizeStatsTopPostsResponse,
 	sanitizeStatsVideoPlaysResponse,
 } from '..';
 import {
+	clicksSummaryFixture,
 	fileDownloadsFixture,
+	fileDownloadsSummaryFixture,
 	locationsFixture,
+	locationsSummaryFixture,
 	referrersFixture,
 	referrersSummaryFixture,
+	searchTermsSummaryFixture,
+	topAuthorsSummaryFixture,
 	topPostsFixture,
 	topPostsSummaryFixture,
 	videoPlaysFixture,
+	videoPlaysSummaryFixture,
 } from '../__fixtures__/stats';
 
 describe( 'Stats normalizers', () => {
@@ -186,6 +195,62 @@ describe( 'Stats normalizers', () => {
 		} );
 	} );
 
+	it( 'normalizes summarized clicks into range data', () => {
+		const result = sanitizeStatsClicksResponse( clicksSummaryFixture, {
+			period: 'day',
+			start_date: '2026-06-01',
+			end_date: '2026-06-30',
+			summarize: true,
+		} );
+
+		expect( result.summary ).toEqual( {
+			total_clicks: 9,
+			other_clicks: 0,
+			date_start: '2026-06-01T00:00:00+00:00',
+			date_end: '2026-06-30T23:59:59+00:00',
+		} );
+		expect( result.data[ 0 ] ).toEqual(
+			expect.objectContaining( {
+				time_interval: '2026-06-30',
+				items: [
+					expect.objectContaining( {
+						label: 'example.com',
+						views: 9,
+						children: [
+							expect.objectContaining( {
+								label: '/docs',
+								views: 4,
+							} ),
+						],
+					} ),
+				],
+			} )
+		);
+	} );
+
+	it( 'normalizes summarized search terms into range data', () => {
+		const result = sanitizeStatsSearchTermsResponse( searchTermsSummaryFixture, {
+			period: 'day',
+			start_date: '2026-06-01',
+			end_date: '2026-06-30',
+			summarize: true,
+		} );
+
+		expect( result.summary ).toEqual(
+			expect.objectContaining( {
+				total_search_terms: 14,
+				encrypted_search_terms: 0,
+				other_search_terms: 0,
+			} )
+		);
+		expect( result.data[ 0 ].items[ 0 ] ).toEqual(
+			expect.objectContaining( {
+				label: 'jetpack stats',
+				views: 14,
+			} )
+		);
+	} );
+
 	it( 'normalizes file downloads with numeric values', () => {
 		expect(
 			sanitizeStatsFileDownloadsResponse( fileDownloadsFixture, {
@@ -197,6 +262,58 @@ describe( 'Stats normalizers', () => {
 				label: '/download.pdf',
 				downloads: 5,
 				shortLabel: 'download.pdf',
+			} )
+		);
+	} );
+
+	it( 'normalizes summarized file downloads into range data', () => {
+		const result = sanitizeStatsFileDownloadsResponse( fileDownloadsSummaryFixture, {
+			period: 'day',
+			start_date: '2026-06-01',
+			end_date: '2026-06-30',
+			summarize: true,
+		} );
+
+		expect( result.summary ).toEqual(
+			expect.objectContaining( {
+				total_downloads: 8,
+				other_downloads: 0,
+			} )
+		);
+		expect( result.data[ 0 ].items[ 0 ] ).toEqual(
+			expect.objectContaining( {
+				label: '/guide.pdf',
+				downloads: 8,
+				shortLabel: 'guide.pdf',
+			} )
+		);
+	} );
+
+	it( 'normalizes summarized top authors into range data', () => {
+		const result = sanitizeStatsTopAuthorsResponse( topAuthorsSummaryFixture, {
+			period: 'day',
+			start_date: '2026-06-01',
+			end_date: '2026-06-30',
+			summarize: true,
+		} );
+
+		expect( result.summary ).toEqual(
+			expect.objectContaining( {
+				total_views: 18,
+			} )
+		);
+		expect( result.data[ 0 ].items[ 0 ] ).toEqual(
+			expect.objectContaining( {
+				label: 'Jane Author',
+				views: 18,
+				children: [
+					expect.objectContaining( {
+						id: 42,
+						label: 'Author post',
+						views: 12,
+						page: '/stats/post/42',
+					} ),
+				],
 			} )
 		);
 	} );
@@ -216,6 +333,30 @@ describe( 'Stats normalizers', () => {
 		expect( result.summary ).toEqual( {} );
 	} );
 
+	it( 'normalizes summarized locations into range data', () => {
+		const result = sanitizeStatsLocationsResponse( locationsSummaryFixture, {
+			period: 'day',
+			start_date: '2026-06-01',
+			end_date: '2026-06-30',
+			summarize: true,
+		} );
+
+		expect( result.summary ).toEqual( {
+			total_views: 10,
+			date_start: '2026-06-01T00:00:00+00:00',
+			date_end: '2026-06-30T23:59:59+00:00',
+		} );
+		expect( result.data[ 0 ].items ).toEqual( [
+			expect.objectContaining( {
+				label: "Côte d'Ivoire",
+				views: 7,
+				countryCode: 'CI',
+				countryFull: 'Côte d’Ivoire',
+				region: '002',
+			} ),
+		] );
+	} );
+
 	it( 'normalizes secondary video metrics as semantic fields', () => {
 		expect(
 			sanitizeStatsVideoPlaysResponse( videoPlaysFixture, {
@@ -231,6 +372,32 @@ describe( 'Stats normalizers', () => {
 				watch_time: 128.5,
 				retention_rate: 61.25,
 				link: 'https://example.com/video/',
+			} )
+		);
+	} );
+
+	it( 'normalizes summarized video plays into range data', () => {
+		const result = sanitizeStatsVideoPlaysResponse( videoPlaysSummaryFixture, {
+			period: 'day',
+			start_date: '2026-06-01',
+			end_date: '2026-06-30',
+			summarize: true,
+		} );
+
+		expect( result.summary ).toEqual(
+			expect.objectContaining( {
+				total_plays: 11,
+				other_plays: 0,
+			} )
+		);
+		expect( result.data[ 0 ].items[ 0 ] ).toEqual(
+			expect.objectContaining( {
+				id: 12,
+				label: 'Launch video',
+				plays: 11,
+				impressions: 42,
+				watch_time: 128.5,
+				retention_rate: 61.25,
 			} )
 		);
 	} );
