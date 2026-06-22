@@ -1,4 +1,4 @@
 Significance: minor
 Type: fixed
 
-Settings: disable the "Generate an XML sitemap" toggle (shown off) while search engines are blocked, since a sitemap can't be served then; and add a "View sitemap" link beneath the toggle once the sitemap is actually reachable (permalink-aware URL), with a "Generating…" hint while Jetpack's cron builds it. Overview reflects the effective sitemap state live without a reload.
+SEO Settings: add a "View sitemap" link once the sitemap is generated, and disable the sitemap toggle while search engines are blocked.

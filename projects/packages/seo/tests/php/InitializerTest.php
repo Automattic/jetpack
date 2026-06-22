@@ -364,21 +364,32 @@ class InitializerTest extends TestCase {
 			$method->setAccessible( true );
 		}
 
-		// Generation disabled: no link regardless of anything else.
-		update_option( 'blog_public', '1' );
-		$this->assertSame( '', $method->invoke( null, false ) );
+		// Capture the original so we restore (not delete) it — `blog_public` is a
+		// core option the test bootstrap may already set, and clobbering it would
+		// leak state into other tests.
+		$original_blog_public = get_option( 'blog_public', null );
 
-		// Enabled but the site discourages search engines: Jetpack never serves a
-		// sitemap, so there is nothing to link to.
-		update_option( 'blog_public', '0' );
-		$this->assertSame( '', $method->invoke( null, true ) );
+		try {
+			// Generation disabled: no link regardless of anything else.
+			update_option( 'blog_public', '1' );
+			$this->assertSame( '', $method->invoke( null, false ) );
 
-		// Enabled and public, but the Sitemaps module (librarian + URL helper) is
-		// absent in the package context, so still no link.
-		update_option( 'blog_public', '1' );
-		$this->assertSame( '', $method->invoke( null, true ) );
+			// Enabled but the site discourages search engines: Jetpack never serves a
+			// sitemap, so there is nothing to link to.
+			update_option( 'blog_public', '0' );
+			$this->assertSame( '', $method->invoke( null, true ) );
 
-		delete_option( 'blog_public' );
+			// Enabled and public, but the Sitemaps module (librarian + URL helper) is
+			// absent in the package context, so still no link.
+			update_option( 'blog_public', '1' );
+			$this->assertSame( '', $method->invoke( null, true ) );
+		} finally {
+			if ( null === $original_blog_public ) {
+				delete_option( 'blog_public' );
+			} else {
+				update_option( 'blog_public', $original_blog_public );
+			}
+		}
 	}
 
 	/**
