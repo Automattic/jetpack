@@ -304,8 +304,7 @@ class Initializer_Test extends Search_TestCase {
 		/*
 		 * This is the callback init_before_connection() hooks onto
 		 * rest_api_init instead of building the controller eagerly, so the
-		 * REST_Controller (and the Plan it constructs) only loads on REST
-		 * requests.
+		 * REST_Controller only loads on REST requests.
 		 */
 		$callback = array( Initializer::class, 'register_rest_controller_routes' );
 		add_action( 'rest_api_init', $callback );
@@ -333,10 +332,9 @@ class Initializer_Test extends Search_TestCase {
 		/*
 		 * The deferral hinges on wiring a STATIC callback. The pre-fix code
 		 * registered array( new REST_Controller(), ... ), which builds the
-		 * controller — and the Plan its constructor creates — eagerly when the
-		 * hook is added, on every request. Asserting the static callback is the
-		 * registered handler guards against reverting to an instance (or a
-		 * closure) without having to fire rest_api_init.
+		 * controller eagerly when the hook is added, on every request. Asserting
+		 * the static callback is the registered handler guards against reverting
+		 * to an instance (or a closure) without having to fire rest_api_init.
 		 */
 		$this->assertSame(
 			10,
