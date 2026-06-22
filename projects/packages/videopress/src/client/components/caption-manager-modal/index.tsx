@@ -494,10 +494,6 @@ export default function CaptionManagerModal( {
 	}, [ clearPreviewResumeTimer, pauseWhileTyping ] );
 
 	useEffect( () => {
-		setManagedTracks( tracks );
-	}, [ tracks ] );
-
-	useEffect( () => {
 		if ( ! shouldScrollCueEditorToEndRef.current ) {
 			return;
 		}

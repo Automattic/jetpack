@@ -349,6 +349,19 @@ describe( 'CaptionManagerModal', () => {
 		await waitFor( () => expect( fetchCaptionTracks ).toHaveBeenCalledWith( 'abc123' ) );
 	} );
 
+	it( 'keeps the track list when the parent re-renders with empty tracks after a refetch', async () => {
+		const { rerender } = render( <CaptionManagerModal { ...defaultProps } /> );
+
+		await waitFor( () => expect( fetchCaptionTracks ).toHaveBeenCalledWith( 'abc123' ) );
+		expect( screen.getByText( 'English' ) ).toBeInTheDocument();
+
+		// The video-details refetch hands back an empty `tracks` prop (the media
+		// REST field carries no tracks); the modal's own list must stay put.
+		rerender( <CaptionManagerModal { ...defaultProps } tracks={ [] } /> );
+
+		expect( screen.getByText( 'English' ) ).toBeInTheDocument();
+	} );
+
 	it( 'surfaces wpcom/v2 track metadata and disables read-only or processing actions', async () => {
 		render(
 			<CaptionManagerModal
