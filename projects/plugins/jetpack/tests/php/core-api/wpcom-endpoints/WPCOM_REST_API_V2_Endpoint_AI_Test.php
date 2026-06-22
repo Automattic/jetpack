@@ -29,9 +29,14 @@ class WPCOM_REST_API_V2_Endpoint_AI_Test extends Jetpack_REST_TestCase {
 
 	/**
 	 * Reset the environment to its original state after the test.
+	 *
+	 * Only the filters this test adds are removed — not remove_all_filters(),
+	 * which would also drop a `jetpack_ai_enabled` filter the platform may have
+	 * registered (e.g. on WordPress.com) and leak that into later tests.
 	 */
 	public function tear_down() {
-		remove_all_filters( 'jetpack_ai_enabled' );
+		remove_filter( 'jetpack_ai_enabled', '__return_false' );
+		remove_filter( 'jetpack_ai_enabled', '__return_true' );
 
 		parent::tear_down();
 	}
