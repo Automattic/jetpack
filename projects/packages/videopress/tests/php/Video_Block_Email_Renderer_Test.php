@@ -10,6 +10,7 @@ namespace Automattic\Jetpack\VideoPress;
 // Include mock classes for WooCommerce Email Editor helpers FIRST.
 // This ensures the mock class is available when Video_Block_Email_Renderer checks for it.
 require_once __DIR__ . '/mocks/class-mock-woocommerce-embed-renderer.php';
+require_once __DIR__ . '/mocks/class-mock-woocommerce-video-renderer.php';
 
 use PHPUnit\Framework\Attributes\CoversMethod;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -393,5 +394,38 @@ class Video_Block_Email_Renderer_Test extends BaseTestCase {
 
 		// Should return empty string when no post URL available.
 		$this->assertSame( '', $result );
+	}
+
+	/**
+	 * Test render routes a VideoPress core/video block (guid present) through the embed path,
+	 * the same as a videopress/video block.
+	 */
+	public function test_render_email_core_video_with_guid_renders_embed() {
+		$parsed_block              = $this->create_parsed_block( array( 'guid' => 'nfbj0J36' ) );
+		$parsed_block['blockName'] = 'core/video';
+		$mock_context              = $this->create_rendering_context_mock();
+
+		$result = Video_Block_Email_Renderer::render( '', $parsed_block, $mock_context );
+
+		$this->assertStringContainsString( 'email-embed-video', $result );
+		$this->assertStringContainsString( 'https://videopress.com/v/nfbj0J36', $result );
+	}
+
+	/**
+	 * Test render delegates a non-VideoPress core/video block (no guid) to WooCommerce's core
+	 * video renderer, preserving its poster handling instead of blanking the block.
+	 */
+	public function test_render_email_plain_core_video_delegates_to_core_renderer() {
+		$parsed_block              = $this->create_parsed_block( array( 'poster' => 'https://example.com/poster.jpg' ) );
+		$parsed_block['blockName'] = 'core/video';
+		$mock_context              = $this->create_rendering_context_mock();
+
+		$result = Video_Block_Email_Renderer::render( '<figure class="wp-block-video"></figure>', $parsed_block, $mock_context );
+
+		// Delegated to the (mock) core video renderer, which renders the poster.
+		$this->assertStringContainsString( 'email-core-video', $result );
+		$this->assertStringContainsString( 'https://example.com/poster.jpg', $result );
+		// Should not take the VideoPress embed path.
+		$this->assertStringNotContainsString( 'email-embed-video', $result );
 	}
 }

@@ -33,8 +33,9 @@ class Video_Block_Email_Renderer {
 		// Get the VideoPress URL from the guid attribute.
 		$videopress_url = self::get_videopress_url( $attributes );
 
+		// No guid: a plain uploaded video. Let the core video renderer handle it.
 		if ( empty( $videopress_url ) ) {
-			return '';
+			return self::render_core_video( $block_content, $parsed_block, $rendering_context );
 		}
 
 		// For private videos, render a simple link to the post since the video isn't accessible on VideoPress.
@@ -68,6 +69,26 @@ class Video_Block_Email_Renderer {
 
 		// @phan-suppress-next-line PhanUndeclaredClassMethod -- Optional WooCommerce dependency, checked with class_exists() above.
 		return $woo_embed_renderer->render( $mock_embed_block['innerHTML'], $mock_embed_block, $rendering_context );
+	}
+
+	/**
+	 * Render a non-VideoPress core/video block using the email editor's core video renderer.
+	 *
+	 * @param string $block_content     The original block HTML content.
+	 * @param array  $parsed_block      The parsed block data including attributes.
+	 * @param object $rendering_context Email rendering context.
+	 *
+	 * @return string
+	 */
+	private static function render_core_video( $block_content, $parsed_block, $rendering_context ) {
+		$renderer_class = '\Automattic\WooCommerce\EmailEditor\Integrations\Core\Renderer\Blocks\Video';
+
+		if ( ! class_exists( $renderer_class ) ) {
+			return $block_content;
+		}
+
+		// @phan-suppress-next-line PhanUndeclaredClassMethod -- Optional WooCommerce dependency, checked with class_exists() above.
+		return ( new $renderer_class() )->render( $block_content, $parsed_block, $rendering_context );
 	}
 
 	/**

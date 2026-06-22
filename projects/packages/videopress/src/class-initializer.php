@@ -170,6 +170,23 @@ class Initializer {
 		}
 
 		Divi::init();
+
+		// Priority 20 to override the email editor's own core/video renderer (priority 10).
+		add_filter( 'block_type_metadata_settings', array( __CLASS__, 'add_core_video_email_renderer' ), 20 );
+	}
+
+	/**
+	 * Attach the VideoPress email renderer to the core/video block.
+	 *
+	 * @param array $settings The block type registration settings.
+	 * @return array The settings, with the email renderer attached for core/video.
+	 */
+	public static function add_core_video_email_renderer( $settings ) {
+		if ( isset( $settings['name'] ) && 'core/video' === $settings['name'] ) {
+			$settings['render_email_callback'] = array( Video_Block_Email_Renderer::class, 'render' );
+		}
+
+		return $settings;
 	}
 
 	/**

@@ -242,4 +242,21 @@ class Initializer_Test extends BaseTestCase {
 			'Active-module VideoPress route should register on rest_api_init via the active_initialization deferral block.'
 		);
 	}
+
+	/** The core/video block should get the VideoPress email renderer attached. */
+	public function test_add_core_video_email_renderer_targets_core_video() {
+		$settings = VideoPress_Initializer::add_core_video_email_renderer( array( 'name' => 'core/video' ) );
+
+		$this->assertSame(
+			array( \Automattic\Jetpack\VideoPress\Video_Block_Email_Renderer::class, 'render' ),
+			$settings['render_email_callback']
+		);
+	}
+
+	/** Other block types should be left untouched. */
+	public function test_add_core_video_email_renderer_ignores_other_blocks() {
+		$settings = VideoPress_Initializer::add_core_video_email_renderer( array( 'name' => 'core/paragraph' ) );
+
+		$this->assertArrayNotHasKey( 'render_email_callback', $settings );
+	}
 }
