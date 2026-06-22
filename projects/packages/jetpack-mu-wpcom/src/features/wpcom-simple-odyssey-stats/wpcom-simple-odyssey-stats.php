@@ -9,19 +9,21 @@
 use Automattic\Jetpack\Stats_Admin\Dashboard as OdysseyStats;
 OdysseyStats::init();
 
+add_action( 'wp_dashboard_setup', 'wpcom_simple_odyssey_stats_load_dashboard_widget' );
+
 /**
- * Load the Odyssey stats widget in the Dashboard.
+ * Load the Odyssey stats widget when the WordPress dashboard is assembled.
+ *
+ * Loaded lazily so the widget class is not required on requests that never build
+ * the dashboard, and named so the callback can be unregistered. `init()` is a
+ * static, idempotent entry point, so no instance is needed.
+ *
+ * @return void
  */
-if ( defined( 'JETPACK_PLUGIN_LOADER_PATH' ) ) {
-	// Load and instantiate lazily so the widget only loads when the dashboard is assembled.
-	add_action(
-		'wp_dashboard_setup',
-		function () {
-			if ( ! defined( 'JETPACK_PLUGIN_LOADER_PATH' ) ) {
-				return;
-			}
-			require_once JETPACK_PLUGIN_LOADER_PATH . '/class-jetpack-stats-dashboard-widget.php';
-			( new Jetpack_Stats_Dashboard_Widget() )->init();
-		}
-	);
+function wpcom_simple_odyssey_stats_load_dashboard_widget() {
+	if ( ! defined( 'JETPACK_PLUGIN_LOADER_PATH' ) ) {
+		return;
+	}
+	require_once JETPACK_PLUGIN_LOADER_PATH . '/class-jetpack-stats-dashboard-widget.php';
+	Jetpack_Stats_Dashboard_Widget::init();
 }

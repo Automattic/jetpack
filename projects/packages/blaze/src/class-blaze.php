@@ -83,21 +83,10 @@ class Blaze {
 		add_action( 'enqueue_block_editor_assets', array( __CLASS__, 'enqueue_block_editor_assets' ) );
 		// Add a Blaze Menu.
 		add_action( 'admin_menu', array( __CLASS__, 'enable_blaze_menu' ), 999 );
-		// Add Blaze dashboard app REST API endpoints. Instantiate lazily so the
-		// controller only loads on REST requests, not on every page load.
-		add_action(
-			'rest_api_init',
-			function () {
-				( new Blaze_Dashboard_REST_Controller() )->register_rest_routes();
-			}
-		);
+		// Add Blaze dashboard app REST API endpoints.
+		add_action( 'rest_api_init', array( Blaze_Dashboard_REST_Controller::class, 'register' ) );
 		// Add general Blaze REST API endpoints.
-		add_action(
-			'rest_api_init',
-			function () {
-				( new REST_Controller() )->register_rest_routes();
-			}
-		);
+		add_action( 'rest_api_init', array( REST_Controller::class, 'register' ) );
 	}
 
 	/**

@@ -36,13 +36,7 @@ class ExPlat {
 		// Set up the REST authentication hooks.
 		Rest_Authentication::init();
 
-		// Instantiate lazily so the controller only loads on REST requests.
-		add_action(
-			'rest_api_init',
-			function () {
-				( new REST_Controller() )->register_rest_routes();
-			}
-		);
+		add_action( 'rest_api_init', array( REST_Controller::class, 'register' ) );
 
 		// Runs right after the Jetpack ExPlat package is initialized.
 		do_action( 'jetpack_explat_initialized' );

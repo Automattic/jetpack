@@ -51,13 +51,7 @@ class Main {
 	 * @return void
 	 */
 	private function __construct() {
-		// Instantiate lazily so the controller only loads on REST requests.
-		add_action(
-			'rest_api_init',
-			function () {
-				( new REST_Controller() )->register_rest_routes();
-			}
-		);
+		add_action( 'rest_api_init', array( REST_Controller::class, 'register' ) );
 		// Disable JITM assets on the Stats page.
 		// JITM is handled separately by Stats: https://github.com/Automattic/wp-calypso/pull/95273.
 		add_filter(

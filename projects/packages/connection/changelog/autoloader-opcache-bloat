@@ -1,4 +1,4 @@
 Significance: patch
 Type: changed
 
-Defer Package_Version_Tracker instantiation to the shutdown callback instead of constructing it on every request.
+Reduce per-request memory footprint on connected sites by deferring package version tracking to request shutdown.
