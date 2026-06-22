@@ -89,8 +89,10 @@ class Video_Block_Email_Renderer {
 	 * @return string
 	 */
 	private static function render_core_video( $block_content, $parsed_block, $rendering_context ) {
+		// Match the rest of this class: render nothing when the required renderer is unavailable,
+		// rather than passing raw block markup (e.g. a <video> tag) through to the email.
 		if ( ! class_exists( '\Automattic\WooCommerce\EmailEditor\Integrations\Core\Renderer\Blocks\Video' ) ) {
-			return $block_content;
+			return '';
 		}
 
 		// @phan-suppress-next-line PhanUndeclaredClassMethod -- Optional WooCommerce dependency, checked with class_exists() above.
