@@ -28,8 +28,9 @@ discovered at build time from `package.json` metadata.
 ## Requirements
 
 - **PHP** >= 7.2
-- **Gutenberg plugin** — provides `@wordpress/boot` and `@wordpress/route`
-  as script modules. Required until WordPress 7.0+ ships these natively.
+- WordPress core or Jetpack's wp-build polyfills provide the WordPress
+  script handles/modules used by the dashboard. The Gutenberg plugin is not
+  required.
 
 ## Development
 
@@ -63,13 +64,13 @@ jetpack build packages/premium-analytics   # via Jetpack CLI
 
 ### Boot asset shim (`shims/boot-asset.php`)
 
-`@wordpress/build` 0.10+ stopped bundling `@wordpress/boot` locally
-(expects Core 7.0+ or Gutenberg), but the generated `page.php`
-template still looks for `modules/boot/index.min.asset.php` to
-resolve classic script prerequisites. Without it the page is blank.
+`@wordpress/build` 0.10+ stopped bundling `@wordpress/boot` locally,
+but the generated `page.php` template still looks for
+`modules/boot/index.min.asset.php` to resolve classic script
+prerequisites. Without it the page is blank.
 
 The shim provides the dependency list. Remove it when `@wordpress/build`
-fixes the template or the minimum WordPress version is 7.0+.
+fixes the template.
 
 ### Init module (`packages/init/`)
 

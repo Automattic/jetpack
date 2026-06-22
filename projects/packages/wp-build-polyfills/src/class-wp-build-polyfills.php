@@ -1,6 +1,6 @@
 <?php
 /**
- * Polyfill registration for Core packages not available in WordPress < 7.0.
+ * Polyfill registration for Core packages not available or incomplete in older WordPress versions.
  *
  * Conditionally registers wp-notices, wp-private-apis, wp-theme (classic scripts) and
  * `@wordpress/boot`, `@wordpress/route`, `@wordpress/a11y` (script modules)
@@ -133,30 +133,28 @@ class WP_Build_Polyfills {
 	 * @param string      $wp_version_threshold  WP version below which force-replacements apply.
 	 */
 	private static function register_scripts( $scripts, $build_dir, $base_file, $wp_version_threshold ) {
-		// Force-replace only when Core's bundled scripts are incomplete (WP < 7.0)
+		// Force-replace only when Core's bundled scripts are incomplete
 		// AND Gutenberg is not active. When Gutenberg is present, its script
 		// registrations (priority 10) are always self-consistent — replacing them
 		// with our polyfills can break packages that Gutenberg adds in the future while
 		// our polyfill's allowlist doesn't cover them yet.
 		$gutenberg_active = defined( 'GUTENBERG_VERSION' );
-		$force_replace    = ! $gutenberg_active
-			&& version_compare( $GLOBALS['wp_version'] ?? '0', $wp_version_threshold, '<' );
 
 		$polyfills = array(
 			'wp-notices'      => array(
-				'path'  => 'notices',
+				'path'            => 'notices',
+				'force_threshold' => '7.0',
 				// Only force-replace on older WP without Gutenberg: older Core
 				// versions ship notices without SnackbarNotices and InlineNotices
 				// component exports that @wordpress/boot depends on.
-				'force' => $force_replace,
 			),
 			'wp-private-apis' => array(
-				'path'  => 'private-apis',
-				// Only force-replace on older WP without Gutenberg: older Core
+				'path'            => 'private-apis',
+				'force_threshold' => '7.1',
+				// Only force-replace on older WP without Gutenberg: WP 7.0 and older
 				// versions ship private-apis with an incomplete allowlist that
-				// rejects @wordpress/theme and @wordpress/route.
+				// rejects @wordpress/theme, @wordpress/route, and newer dashboard packages.
 				// Our version is a strict superset (same API, larger allowlist).
-				'force' => $force_replace,
 			),
 			'wp-theme'        => array(
 				'path' => 'theme',
@@ -177,7 +175,14 @@ class WP_Build_Polyfills {
 				continue;
 			}
 
-			$force = ! empty( $data['force'] );
+			$force_threshold = $data['force_threshold'] ?? null;
+			if ( null !== $force_threshold && version_compare( $wp_version_threshold, $force_threshold, '>' ) ) {
+				$force_threshold = $wp_version_threshold;
+			}
+
+			$force = null !== $force_threshold
+				&& ! $gutenberg_active
+				&& version_compare( $GLOBALS['wp_version'] ?? '0', $force_threshold, '<' );
 
 			if ( ! $force && $scripts->query( $handle, 'registered' ) ) {
 				continue;

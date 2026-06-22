@@ -2,10 +2,10 @@
 /**
  * Boot module asset shim.
  *
- * Wp-build 0.10.0+ no longer bundles @wordpress/boot (expects Core 7.0+ or Gutenberg).
+ * Wp-build 0.10.0+ no longer bundles @wordpress/boot.
  * The generated page.php template still looks for this file to determine classic script
  * prerequisites. This shim provides those dependencies so the template works correctly
- * while Gutenberg provides the actual boot script module at runtime.
+ * while Core or jetpack-wp-build-polyfills provides the actual boot script module at runtime.
  *
  * @package automattic/jetpack-premium-analytics
  */

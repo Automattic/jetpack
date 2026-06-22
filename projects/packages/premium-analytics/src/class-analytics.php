@@ -11,6 +11,7 @@ use Automattic\Jetpack\PremiumAnalytics\REST\Api_Proxy_Controller;
 use Automattic\Jetpack\PremiumAnalytics\REST\Notices_Controller;
 use Automattic\Jetpack\PremiumAnalytics\Sync\Configuration as Sync_Configuration;
 use Automattic\Jetpack\PremiumAnalytics\Sync\Sync_Status_Tracker;
+use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills;
 
 /**
  * Main Analytics class.
@@ -54,6 +55,14 @@ class Analytics {
 		if ( ! empty( $options['menu_title'] ) ) {
 			self::$menu_title = $options['menu_title'];
 		}
+
+		WP_Build_Polyfills::register(
+			'jetpack-premium-analytics',
+			array_merge(
+				WP_Build_Polyfills::SCRIPT_HANDLES,
+				WP_Build_Polyfills::MODULE_IDS
+			)
+		);
 
 		// Load wp-build output (interceptor, modules, routes, page render).
 		$build_entry = __DIR__ . '/../build/build.php';

@@ -1,24 +1,24 @@
 # Jetpack WP Build Polyfills
 
-Polyfills for WordPress Core packages not yet available in WordPress < 7.0.
+Polyfills for WordPress Core packages not yet available or complete in older WordPress versions.
 
 This package conditionally registers `@wordpress/*` packages as both classic scripts (IIFE) and script modules (ESM) when they are not already provided by Core or Gutenberg.
-It is intended to be used until WordPress 7.1 is released, at which point versions of WordPress < 7.0 will no longer be supported and this package will no longer be needed.
+It is intended to be used while Jetpack supports WordPress versions whose bundled packages are missing or incomplete. Revisit this package once Jetpack's minimum supported WordPress version reaches 7.1.
 
 ## Problem
 
-WordPress 7.0 introduces several new packages (`@wordpress/boot`, `@wordpress/route`, `@wordpress/theme`, etc.) that plugins built with [`@wordpress/build`](https://github.com/WordPress/gutenberg/tree/trunk/packages/wp-build) depend on. On older WordPress versions, these packages are missing or ship incomplete implementations — for example, `wp-private-apis` has an allowlist that rejects `@wordpress/theme` and `@wordpress/route`, and `wp-notices` lacks component exports that `@wordpress/boot` requires.
+WordPress 7.0 introduces several new packages (`@wordpress/boot`, `@wordpress/route`, `@wordpress/theme`, etc.) that plugins built with [`@wordpress/build`](https://github.com/WordPress/gutenberg/tree/trunk/packages/wp-build) depend on. On older WordPress versions, these packages are missing or ship incomplete implementations — for example, `wp-private-apis` has an allowlist that rejects `@wordpress/theme`, `@wordpress/route`, and newer dashboard packages, and `wp-notices` lacks component exports that `@wordpress/boot` requires.
 
-This package provides those missing packages so that plugins using `@wordpress/build` can work on WordPress versions before 7.0.
+This package provides those missing or updated packages so that plugins using `@wordpress/build` can work across Jetpack's supported WordPress versions.
 
 ## What it polyfills
 
 ### Classic scripts (IIFE)
 
-| Handle            | Source package          | Force-replaced on WP < 7.0? |
-|-------------------|------------------------|------------------------------|
-| `wp-notices`      | `@wordpress/notices`    | Yes — missing component exports |
-| `wp-private-apis` | `@wordpress/private-apis` | Yes — incomplete allowlist |
+| Handle            | Source package          | Force-replaced? |
+|-------------------|------------------------|-----------------|
+| `wp-notices`      | `@wordpress/notices`    | Yes on WP < 7.0 — missing component exports |
+| `wp-private-apis` | `@wordpress/private-apis` | Yes on WP < 7.1 — incomplete allowlist |
 | `wp-theme`        | `@wordpress/theme`      | No — only registered if absent |
 | `wp-views`        | `@wordpress/views`      | No — only registered if absent |
 

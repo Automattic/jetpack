@@ -171,16 +171,17 @@ class WP_Build_Polyfills_Test extends BaseTestCase {
 	/**
 	 * Invoke the private register_scripts method.
 	 *
-	 * @param \WP_Scripts $scripts WP_Scripts instance.
+	 * @param \WP_Scripts $scripts              WP_Scripts instance.
+	 * @param string      $wp_version_threshold WP version below which force-replacements apply.
 	 */
-	private function invoke_register_scripts( $scripts ) {
+	private function invoke_register_scripts( $scripts, $wp_version_threshold = '7.0' ) {
 		$this->request_polyfills( WP_Build_Polyfills::SCRIPT_HANDLES );
 
 		$method = new \ReflectionMethod( WP_Build_Polyfills::class, 'register_scripts' );
 		if ( PHP_VERSION_ID < 80100 ) {
 			$method->setAccessible( true );
 		}
-		$method->invoke( null, $scripts, $this->build_dir, __FILE__, '7.0' );
+		$method->invoke( null, $scripts, $this->build_dir, __FILE__, $wp_version_threshold );
 	}
 
 	/**
@@ -329,7 +330,7 @@ class WP_Build_Polyfills_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Test that wp-private-apis is force-replaced on WP < 7.0.
+	 * Test that wp-private-apis is force-replaced on older WP versions.
 	 */
 	public function test_register_scripts_force_replaces_wp_private_apis_on_old_wp() {
 		$GLOBALS['wp_version'] = '6.9';
@@ -346,24 +347,67 @@ class WP_Build_Polyfills_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Test that neither wp-notices nor wp-private-apis is force-replaced on WP >= 7.0.
+	 * Test that wp-notices is not force-replaced on WP >= 7.0.
 	 */
-	public function test_register_scripts_does_not_force_replace_on_wp_7() {
+	public function test_register_scripts_does_not_force_replace_wp_notices_on_wp_7() {
 		$GLOBALS['wp_version'] = '7.0';
 		$this->create_asset_file( 'scripts/notices/index.asset.php', array(), '9.9.9' );
-		$this->create_asset_file( 'scripts/private-apis/index.asset.php', array(), '9.9.9' );
 
 		$scripts = $this->create_clean_scripts();
 		$scripts->add( 'wp-notices', 'https://example.com/core-notices.js', array(), '1.0.0-core' );
-		$scripts->add( 'wp-private-apis', 'https://example.com/core-private-apis.js', array(), '1.0.0-core' );
 
 		$this->invoke_register_scripts( $scripts );
 
 		$notices = $scripts->query( 'wp-notices', 'registered' );
 		$this->assertSame( '1.0.0-core', $notices->ver );
+	}
+
+	/**
+	 * Test that wp-private-apis is still force-replaced on WP 7.0.
+	 */
+	public function test_register_scripts_force_replaces_wp_private_apis_on_wp_7() {
+		$GLOBALS['wp_version'] = '7.0';
+		$this->create_asset_file( 'scripts/private-apis/index.asset.php', array(), '9.9.9' );
+
+		$scripts = $this->create_clean_scripts();
+		$scripts->add( 'wp-private-apis', 'https://example.com/core-private-apis.js', array(), '1.0.0-core' );
+
+		$this->invoke_register_scripts( $scripts );
+
+		$private_apis = $scripts->query( 'wp-private-apis', 'registered' );
+		$this->assertSame( '9.9.9', $private_apis->ver );
+	}
+
+	/**
+	 * Test that wp-private-apis is not force-replaced on WP >= 7.1.
+	 */
+	public function test_register_scripts_does_not_force_replace_wp_private_apis_on_wp_7_1() {
+		$GLOBALS['wp_version'] = '7.1';
+		$this->create_asset_file( 'scripts/private-apis/index.asset.php', array(), '9.9.9' );
+
+		$scripts = $this->create_clean_scripts();
+		$scripts->add( 'wp-private-apis', 'https://example.com/core-private-apis.js', array(), '1.0.0-core' );
+
+		$this->invoke_register_scripts( $scripts );
 
 		$private_apis = $scripts->query( 'wp-private-apis', 'registered' );
 		$this->assertSame( '1.0.0-core', $private_apis->ver );
+	}
+
+	/**
+	 * Test that an explicit higher threshold still applies to all force-replaced scripts.
+	 */
+	public function test_register_scripts_honors_higher_consumer_force_threshold() {
+		$GLOBALS['wp_version'] = '7.0';
+		$this->create_asset_file( 'scripts/notices/index.asset.php', array(), '9.9.9' );
+
+		$scripts = $this->create_clean_scripts();
+		$scripts->add( 'wp-notices', 'https://example.com/core-notices.js', array(), '1.0.0-core' );
+
+		$this->invoke_register_scripts( $scripts, '7.1' );
+
+		$notices = $scripts->query( 'wp-notices', 'registered' );
+		$this->assertSame( '9.9.9', $notices->ver );
 	}
 
 	/**
