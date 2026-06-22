@@ -30,6 +30,7 @@ import {
 	deleteTrackForGuid,
 	fetchTrackContentForGuid,
 	fetchTrackListForGuid,
+	hasTrackId,
 	normalizeVideoTextTrackResponse,
 	SUPPORTED_CAPTION_FORMATS,
 	TRACK_KIND_OPTIONS,
@@ -462,6 +463,22 @@ export default function CaptionManagerModal( {
 		}
 	}, [] );
 
+	const resetEditorToTrackList = useCallback( () => {
+		setWorkspaceMode( 'manual' );
+		setModalView( 'tracks' );
+		setUploadForm( emptyUploadForm() );
+		setUploadFormMode( 'add' );
+		setReplacingTrack( null );
+		setManualTrack( emptyManualTrack() );
+		setManualSourceTrack( null );
+		setCueBlocks( createEmptyCueBlocks() );
+		setCaptionTrackId( undefined );
+		setIsLoadingTrackText( false );
+		setIsTextImportOpen( false );
+		setCaptionTextInput( '' );
+		setNotice( null );
+	}, [] );
+
 	useEffect( () => clearPreviewResumeTimer, [ clearPreviewResumeTimer ] );
 
 	useEffect( () => {
@@ -501,20 +518,8 @@ export default function CaptionManagerModal( {
 			return;
 		}
 
-		setWorkspaceMode( 'manual' );
-		setModalView( 'tracks' );
-		setUploadForm( emptyUploadForm() );
-		setUploadFormMode( 'add' );
-		setReplacingTrack( null );
-		setManualTrack( emptyManualTrack() );
-		setManualSourceTrack( null );
-		setCueBlocks( createEmptyCueBlocks() );
-		setCaptionTrackId( undefined );
-		setIsLoadingTrackText( false );
-		setIsTextImportOpen( false );
-		setCaptionTextInput( '' );
-		setNotice( null );
-	}, [ isOpen ] );
+		resetEditorToTrackList();
+	}, [ isOpen, resetEditorToTrackList ] );
 
 	useEffect( () => {
 		if ( ! isOpen || ! guid ) {
@@ -588,23 +593,25 @@ export default function CaptionManagerModal( {
 		[ captionTracks ]
 	);
 
+	const editorCues = useMemo( () => captionBlocksToCues( cueBlocks ), [ cueBlocks ] );
+
 	const activeCue = useMemo( () => {
-		return captionBlocksToCues( cueBlocks ).find( cue => {
+		return editorCues.find( cue => {
 			const startTime = parseTimestampToSeconds( cue.startTime );
 			const endTime = parseTimestampToSeconds( cue.endTime );
 			return (
 				startTime !== null && endTime !== null && currentTime >= startTime && currentTime <= endTime
 			);
 		} );
-	}, [ cueBlocks, currentTime ] );
+	}, [ editorCues, currentTime ] );
 
 	const cueStartTimes = useMemo(
 		() =>
-			captionBlocksToCues( cueBlocks )
+			editorCues
 				.map( cue => parseTimestampToSeconds( cue.startTime ) )
 				.filter( ( startTime ): startTime is number => startTime !== null )
 				.sort( ( a, b ) => a - b ),
-		[ cueBlocks ]
+		[ editorCues ]
 	);
 
 	const updateUploadForm = useCallback(
@@ -638,20 +645,8 @@ export default function CaptionManagerModal( {
 	const returnToTrackList = useCallback( () => {
 		clearPreviewResumeTimer();
 		shouldResumePreviewAfterTypingRef.current = false;
-		setModalView( 'tracks' );
-		setWorkspaceMode( 'manual' );
-		setUploadForm( emptyUploadForm() );
-		setUploadFormMode( 'add' );
-		setReplacingTrack( null );
-		setManualTrack( emptyManualTrack() );
-		setManualSourceTrack( null );
-		setCueBlocks( createEmptyCueBlocks() );
-		setCaptionTrackId( undefined );
-		setIsLoadingTrackText( false );
-		setIsTextImportOpen( false );
-		setCaptionTextInput( '' );
-		setNotice( null );
-	}, [ clearPreviewResumeTimer ] );
+		resetEditorToTrackList();
+	}, [ clearPreviewResumeTimer, resetEditorToTrackList ] );
 
 	const findCaptionTrackForManualTrack = useCallback(
 		( track: ManualTrack, sourceTrack: VideoTextTrack | null ) => {
@@ -667,10 +662,7 @@ export default function CaptionManagerModal( {
 
 			const manualKey = getTrackLanguageKey( track );
 			return captionTracks.find(
-				captionTrack =>
-					`${ captionTrack.meta[ CAPTION_TRACK_META.kind ] }:${
-						captionTrack.meta[ CAPTION_TRACK_META.srcLang ]
-					}` === manualKey
+				captionTrack => getStoredCaptionTrackKey( captionTrack ) === manualKey
 			);
 		},
 		[ captionTracks ]
@@ -951,32 +943,18 @@ export default function CaptionManagerModal( {
 
 		try {
 			const shouldUpdateExistingTrack =
-				uploadFormMode === 'replace' &&
-				replacingTrack?.id !== undefined &&
-				replacingTrack.id !== null &&
-				String( replacingTrack.id ) !== '';
+				uploadFormMode === 'replace' && hasTrackId( replacingTrack?.id );
+			const trackUpdatePayload = {
+				...replacingTrack,
+				kind: trackToUpload.kind,
+				srcLang: trackToUpload.srcLang,
+				label: trackToUpload.label,
+			};
 			let src;
 
 			if ( shouldUpdateExistingTrack ) {
-				await updateTrackForGuid(
-					{
-						...replacingTrack,
-						kind: trackToUpload.kind,
-						srcLang: trackToUpload.srcLang,
-						label: trackToUpload.label,
-					},
-					guid
-				);
-				src = await updateTrackContentForGuid(
-					{
-						...replacingTrack,
-						kind: trackToUpload.kind,
-						srcLang: trackToUpload.srcLang,
-						label: trackToUpload.label,
-					},
-					guid,
-					trackToUpload.tmpFile
-				);
+				await updateTrackForGuid( trackUpdatePayload, guid );
+				src = await updateTrackContentForGuid( trackUpdatePayload, guid, trackToUpload.tmpFile );
 			} else {
 				src = await uploadTrackForGuid( trackToUpload, guid );
 			}
@@ -996,12 +974,7 @@ export default function CaptionManagerModal( {
 				return;
 			}
 
-			const uploadedTrack = normalizeVideoTextTrackResponse( src, {
-				...replacingTrack,
-				kind: trackToUpload.kind,
-				srcLang: trackToUpload.srcLang,
-				label: trackToUpload.label,
-			} );
+			const uploadedTrack = normalizeVideoTextTrackResponse( src, trackUpdatePayload );
 
 			const updatedTracks = [ ...managedTracks ];
 			const updatedTrackIndex =
@@ -1188,36 +1161,22 @@ export default function CaptionManagerModal( {
 			const trackToUpdate =
 				( sourceTrackIndex > -1 ? managedTracks[ sourceTrackIndex ] : null ) ||
 				( manualTrackIndex > -1 ? managedTracks[ manualTrackIndex ] : null );
-			const shouldUpdateExistingTrack =
-				trackToUpdate?.id !== undefined &&
-				trackToUpdate.id !== null &&
-				String( trackToUpdate.id ) !== '';
+			const shouldUpdateExistingTrack = hasTrackId( trackToUpdate?.id );
+			const trackUpdatePayload = {
+				...trackToUpdate,
+				kind: trackToUpload.kind,
+				srcLang: trackToUpload.srcLang,
+				label: trackToUpload.label,
+			};
 			let src;
 
 			if ( shouldUpdateExistingTrack ) {
-				const metadataResponse = await updateTrackForGuid(
-					{
-						...trackToUpdate,
-						kind: trackToUpload.kind,
-						srcLang: trackToUpload.srcLang,
-						label: trackToUpload.label,
-					},
-					guid
-				);
+				const metadataResponse = await updateTrackForGuid( trackUpdatePayload, guid );
 
 				if ( hasTrackApiError( metadataResponse ) ) {
 					src = metadataResponse;
 				} else {
-					src = await updateTrackContentForGuid(
-						{
-							...trackToUpdate,
-							kind: trackToUpload.kind,
-							srcLang: trackToUpload.srcLang,
-							label: trackToUpload.label,
-						},
-						guid,
-						vtt
-					);
+					src = await updateTrackContentForGuid( trackUpdatePayload, guid, vtt );
 				}
 			} else {
 				src = await uploadTrackForGuid( trackToUpload, guid );
@@ -1243,12 +1202,7 @@ export default function CaptionManagerModal( {
 				return;
 			}
 
-			const uploadedTrack = normalizeVideoTextTrackResponse( src, {
-				...trackToUpdate,
-				kind: trackToUpload.kind,
-				srcLang: trackToUpload.srcLang,
-				label: trackToUpload.label,
-			} );
+			const uploadedTrack = normalizeVideoTextTrackResponse( src, trackUpdatePayload );
 			const updatedIndex = sourceTrackIndex > -1 ? sourceTrackIndex : manualTrackIndex;
 			const updatedTracks = [ ...managedTracks ];
 			if ( updatedIndex > -1 ) {
