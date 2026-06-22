@@ -41,4 +41,20 @@ describe( 'Stats public hook names', () => {
 		expect( dataPackage ).toHaveProperty( 'useStatsWordAdsStats' );
 		expect( dataPackage ).toHaveProperty( 'useStatsWordAdsEarnings' );
 	} );
+
+	it( 'exports discoverable family-prefixed Stats app hooks', () => {
+		expect( dataPackage ).toHaveProperty( 'useStatsAppReferrersSpam' );
+		expect( dataPackage ).toHaveProperty( 'useStatsAppSiteHasNeverPublishedPost' );
+		expect( dataPackage ).toHaveProperty( 'useStatsAppPlanUsage' );
+		expect( dataPackage ).toHaveProperty( 'useStatsAppDashboardModules' );
+		expect( dataPackage ).toHaveProperty( 'useStatsAppDashboardModuleSettings' );
+		expect( dataPackage ).toHaveProperty( 'useStatsAppPurchases' );
+		expect( dataPackage ).toHaveProperty( 'useStatsAppNotices' );
+		expect( dataPackage ).toHaveProperty( 'useStatsAppReferrersMarkSpamMutation' );
+		expect( dataPackage ).toHaveProperty( 'useStatsAppReferrersUnmarkSpamMutation' );
+		expect( dataPackage ).toHaveProperty( 'useStatsAppDashboardModulesMutation' );
+		expect( dataPackage ).toHaveProperty( 'useStatsAppDashboardModuleSettingsMutation' );
+		expect( dataPackage ).toHaveProperty( 'useStatsAppNoticeMutation' );
+		expect( dataPackage ).toHaveProperty( 'useStatsAppCommercialClassificationMutation' );
+	} );
 } );
