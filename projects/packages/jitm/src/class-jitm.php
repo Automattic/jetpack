@@ -86,12 +86,7 @@ class JITM {
 			99
 		);
 
-		/**
-		 * Fires when the JITMs are registered. This action is used to ensure that
-		 * JITMs are registered only once.
-		 *
-		 * @since 1.16.0
-		 */
+		/** This action is documented in projects/packages/jitm/src/class-jitm.php */
 		do_action( 'jetpack_registered_jitms' );
 	}
 

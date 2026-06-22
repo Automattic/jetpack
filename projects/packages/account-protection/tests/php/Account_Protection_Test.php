@@ -146,4 +146,73 @@ class Account_Protection_Test extends BaseTestCase {
 
 		$this->assertNotContains( Account_Protection::ACCOUNT_PROTECTION_MODULE_NAME, $all_modules, 'The module should have removed itself.' );
 	}
+
+	/**
+	 * The password collaborators are now built lazily, so `register_password_detection_hooks()`
+	 * has to construct a `Password_Detection` itself before wiring the login hooks. Guard that
+	 * the lazy build still happens and that `wp_authenticate_user` ends up bound to it. Without
+	 * this, a regression in the lazy build would silently stop the login-time leaked-password
+	 * check from registering while the rest of the suite stayed green.
+	 */
+	public function test_register_password_detection_hooks_lazily_builds_and_wires_wp_authenticate_user(): void {
+		$sut = new Account_Protection();
+		$sut->register_password_detection_hooks();
+
+		$this->assertNotFalse(
+			has_action( 'wp_authenticate_user' ),
+			'wp_authenticate_user should have a callback registered after register_password_detection_hooks().'
+		);
+
+		$callback = $this->get_hook_callback_object( 'wp_authenticate_user', 'login_form_password_detection' );
+		$this->assertInstanceOf(
+			Password_Detection::class,
+			$callback,
+			'wp_authenticate_user should be wired to a lazily-built Password_Detection instance.'
+		);
+	}
+
+	/**
+	 * When an instance is injected (as tests do), the lazy build is skipped and the injected
+	 * instance is the one wired to the login hook.
+	 */
+	public function test_register_password_detection_hooks_wires_injected_instance(): void {
+		$password_detection = new Password_Detection();
+
+		$sut = new Account_Protection( null, $password_detection );
+		$sut->register_password_detection_hooks();
+
+		$this->assertSame(
+			10,
+			has_action( 'wp_authenticate_user', array( $password_detection, 'login_form_password_detection' ) ),
+			'wp_authenticate_user should be wired to the injected Password_Detection at priority 10.'
+		);
+	}
+
+	/**
+	 * Find the object bound to the first callback registered for $hook whose method name is
+	 * $method, regardless of priority. Returns null when no such callback exists.
+	 *
+	 * @param string $hook   Hook name.
+	 * @param string $method Method name on the callback object.
+	 * @return object|null
+	 */
+	private function get_hook_callback_object( string $hook, string $method ) {
+		global $wp_filter;
+
+		if ( empty( $wp_filter[ $hook ] ) ) {
+			return null;
+		}
+
+		foreach ( $wp_filter[ $hook ]->callbacks as $callbacks ) {
+			foreach ( $callbacks as $callback ) {
+				if ( is_array( $callback['function'] )
+					&& is_object( $callback['function'][0] )
+					&& $callback['function'][1] === $method ) {
+					return $callback['function'][0];
+				}
+			}
+		}
+
+		return null;
+	}
 }

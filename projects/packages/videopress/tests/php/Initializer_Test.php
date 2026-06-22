@@ -9,6 +9,8 @@ namespace Automattic\Jetpack;
 
 use Automattic\Jetpack\VideoPress\Initializer as VideoPress_Initializer;
 use Automattic\Jetpack\VideoPress\Utils;
+use PHPUnit\Framework\Attributes\PreserveGlobalState;
+use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use WorDBless\BaseTestCase;
 
 /**
@@ -180,5 +182,42 @@ class Initializer_Test extends BaseTestCase {
 		$html = $this->render();
 
 		$this->assertStringContainsString( '<iframe', $html );
+	}
+
+	/**
+	 * The WPCOM REST API v2 endpoints are no longer constructed at init time; their construction
+	 * is deferred to a priority-0 `rest_api_init` callback. Guard that firing the hook still
+	 * registers the routes — the priority-0 callback constructs the endpoints, whose base class
+	 * adds the default-priority callback that registers the routes within the same firing. A
+	 * regression to that re-entrancy would silently drop the routes on REST requests.
+	 *
+	 * Runs in a separate process: driving the real Initializer autoloads VideoPress classes
+	 * (e.g. Jwt_Token_Bridge) that other tests in this suite replace with alias mocks, which
+	 * require the class to be unloaded.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_wpcom_v2_endpoints_register_lazily_on_rest_api_init() {
+		global $wp_rest_server;
+		$wp_rest_server = new \WP_REST_Server();
+
+		VideoPress_Initializer::init();
+
+		$this->assertArrayNotHasKey(
+			'/wpcom/v2/videopress/meta',
+			$wp_rest_server->get_routes(),
+			'WPCOM v2 VideoPress route should not register before rest_api_init fires.'
+		);
+
+		do_action( 'rest_api_init' );
+
+		$this->assertArrayHasKey(
+			'/wpcom/v2/videopress/meta',
+			$wp_rest_server->get_routes(),
+			'WPCOM v2 VideoPress route should register on rest_api_init via the deferred Initializer load.'
+		);
 	}
 }
