@@ -6,9 +6,13 @@ import {
 	type ElementStyles,
 } from '../../../providers';
 import { formatPercentage } from '../../../utils';
-import type { SeriesData, DataPointDate, DataPointPercentageCalculated } from '../../../types';
+import type {
+	SeriesData,
+	DataPointDate,
+	DataPointPercentageCalculated,
+	LegendShape,
+} from '../../../types';
 import type { BaseLegendItem } from '../types';
-import type { LegendShape } from '@visx/legend/lib/types';
 import type { GlyphProps } from '@visx/xychart';
 import type { ReactNode } from 'react';
 
