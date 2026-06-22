@@ -190,6 +190,9 @@ describe( 'toSyncStatus without an analytics backend (hasStoreData = false)', ()
 		);
 		expect( status.isStarted ).toBe( false );
 		expect( status.isRunning ).toBe( false );
+		// Percentage stays 0: the milestone is unset and the sync is not in flight, so
+		// the stale 100% progress of the connection-time sync must not flash a full bar.
+		expect( status.percentage ).toBe( 0 );
 		expect( isSyncStalled( status ) ).toBe( false );
 		expect( isSyncComplete( status ) ).toBe( false );
 	} );

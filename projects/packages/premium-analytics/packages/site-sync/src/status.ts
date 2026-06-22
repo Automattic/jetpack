@@ -38,13 +38,22 @@ export function toSyncStatus(
 			total += moduleProgress?.total ?? 0;
 		}
 
+		// Completion is gated on the milestone alone, never on the raw `finished`
+		// flag: the connection-time initial_sync reports finished (with its modules
+		// already at 100%) before our gating sync runs, so trusting it — or the stale
+		// 100% progress it leaves behind — would flash a full bar right before the
+		// screen auto-triggers a fresh sync. Only count progress while in flight.
 		let percentage = 0;
-		if ( milestone > 0 || finished ) {
+		if ( milestone > 0 ) {
 			percentage = 100;
-		} else if ( total > 0 ) {
+		} else if ( isRunning && total > 0 ) {
 			percentage = Math.min( 100, Math.floor( ( sent / total ) * 100 ) );
 		}
 
+		// No persistent "started" signal exists storeless (isStarted mirrors
+		// isRunning), so isSyncStalled() can never fire here. A sync that ends without
+		// setting the milestone is recovered via the screen's auto-trigger, not the
+		// stalled path.
 		return {
 			isStarted: isRunning,
 			isRunning,
