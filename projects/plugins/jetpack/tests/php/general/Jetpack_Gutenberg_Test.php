@@ -502,10 +502,12 @@ class Jetpack_Gutenberg_Test extends WP_UnitTestCase {
 	 */
 	public function provider_is_block_editor_context_request_uri() {
 		return array(
-			'rewritten REST request'       => array( '/wp-json/wp/v2/posts', true ),
-			'plain-permalink REST request' => array( '/index.php?rest_route=/wp/v2/posts', true ),
-			'front-end single post'        => array( '/2026/06/22/hello-world/', false ),
-			'front-end home'               => array( '/', false ),
+			'rewritten REST request'          => array( '/wp-json/wp/v2/posts', true ),
+			'plain-permalink REST request'    => array( '/index.php?rest_route=/wp/v2/posts', true ),
+			'front-end single post'           => array( '/2026/06/22/hello-world/', false ),
+			'front-end home'                  => array( '/', false ),
+			'prefix only in a query value'    => array( '/some-page/?redirect=/wp-json/foo', false ),
+			'prefix as a deeper path segment' => array( '/docs/wp-json/example/', false ),
 		);
 	}
 }

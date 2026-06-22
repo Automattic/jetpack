@@ -917,13 +917,18 @@ class Jetpack_Gutenberg {
 		}
 
 		/*
-		 * Match the REST prefix in the path only, so a front-end URL that merely
-		 * carries the prefix in a query value (e.g. ?redirect=/wp-json/...) is not
-		 * misread as a REST request.
+		 * Anchor the REST root (home path + prefix) at the start of the request
+		 * path, so a front-end URL that merely carries the prefix in a query value
+		 * (e.g. ?redirect=/wp-json/...) or as a deeper path segment (e.g.
+		 * /docs/wp-json/...) is not misread as a REST request. home_url() is used
+		 * rather than rest_url() so detection does not depend on permalink structure.
 		 */
 		$path = (string) wp_parse_url( $request_uri, PHP_URL_PATH );
-		if ( '' !== $path && str_contains( $path, '/' . trailingslashit( rest_get_url_prefix() ) ) ) {
-			return true;
+		if ( '' !== $path ) {
+			$rest_root = trailingslashit( (string) wp_parse_url( home_url(), PHP_URL_PATH ) ) . trailingslashit( rest_get_url_prefix() );
+			if ( str_starts_with( trailingslashit( $path ), $rest_root ) ) {
+				return true;
+			}
 		}
 
 		// Plain-permalink REST uses a `rest_route` query var; match the exact key
