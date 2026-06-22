@@ -103,14 +103,15 @@
 	text-align: inherit;
 	cursor: pointer;
 
-	// On hover/focus the bar dims and its inline-end edge pulls back by a fixed
-	// amount while the value/delta slides toward the inline start by the same
-	// amount, clearing room for the chevron revealed at the inline-end edge.
-	// Because both move by the same fixed pixels (not a percentage scale), the
-	// bar↔value gap stays identical at rest and on hover for every row. The bar
-	// width (set in leaderboard-chart.tsx) is a grid item aligned to the inline
-	// start, so its inset mirrors automatically in RTL; the value slide is given
-	// an RTL override below. No row background — the bar carries the state.
+	// On hover/focus the bar dims and its inline-end edge pulls back while the
+	// value/delta slides toward the inline start to clear room for the chevron
+	// revealed at the inline-end edge. The value always slides the full inset
+	// (it must clear the chevron), but the bar pulls back in proportion to its
+	// length (see getBarWidth in leaderboard-chart.tsx): the full-length bar —
+	// the one that reaches the value — pulls back the whole inset to keep its
+	// gap, while shorter bars move proportionally less, down to ~0. The bar is
+	// a grid item aligned to the inline start, so its inset mirrors in RTL; the
+	// value slide is given an RTL override below. No row background.
 	.bar {
 		transition: opacity 0.15s ease, width 0.15s ease;
 	}
@@ -122,8 +123,8 @@
 	&:hover,
 	&:focus-visible {
 
-		// Fixed reserve for the chevron — shared by the bar width inset
-		// (see leaderboard-chart.tsx) and the value slide so their gap is constant.
+		// Fixed reserve for the chevron — the value slides by it in full, and the
+		// bar width inset (see leaderboard-chart.tsx) scales it by the bar's share.
 		--a8c--charts--leaderboard--bar--hover-inset: var(--wpds-dimension-gap-2xl, 32px);
 
 		.bar {
