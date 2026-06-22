@@ -411,15 +411,26 @@ class Initializer {
 			return '';
 		}
 
-		if ( ! class_exists( 'Jetpack_Sitemap_Librarian' ) || ! function_exists( 'jetpack_sitemap_uri' ) ) {
+		// The Sitemaps module (the librarian class, the `JP_MASTER_SITEMAP_TYPE`
+		// constant, and the `jp_sitemap_filename()` / `jetpack_sitemap_uri()`
+		// helpers) all live together in plugins/jetpack and load as a unit, so this
+		// single guard covers every symbol used below.
+		if (
+			! class_exists( 'Jetpack_Sitemap_Librarian' )
+			|| ! defined( 'JP_MASTER_SITEMAP_TYPE' )
+			|| ! function_exists( 'jp_sitemap_filename' )
+			|| ! function_exists( 'jetpack_sitemap_uri' )
+		) {
 			return '';
 		}
 
-		// The master sitemap (`sitemap.xml`) is stored as a `jp_sitemap_master`
-		// post once the cron generation run completes; until then there is nothing
-		// to link to.
-		// @phan-suppress-next-line PhanUndeclaredClassMethod -- Jetpack_Sitemap_Librarian lives in plugins/jetpack and is guarded by class_exists.
-		$master = ( new Jetpack_Sitemap_Librarian() )->read_sitemap_data( 'sitemap.xml', 'jp_sitemap_master' );
+		// @phan-suppress-next-line PhanUndeclaredFunction,PhanUndeclaredConstant -- guarded above; symbols live in plugins/jetpack.
+		$master_filename = jp_sitemap_filename( JP_MASTER_SITEMAP_TYPE );
+
+		// The master sitemap is stored as a post once the cron generation run
+		// completes; until then there is nothing to link to.
+		// @phan-suppress-next-line PhanUndeclaredClassMethod,PhanUndeclaredConstant -- guarded above; symbols live in plugins/jetpack.
+		$master = ( new Jetpack_Sitemap_Librarian() )->read_sitemap_data( $master_filename, JP_MASTER_SITEMAP_TYPE );
 		if ( null === $master ) {
 			return '';
 		}
@@ -428,7 +439,7 @@ class Initializer {
 		// rendered by React, so it must not be HTML-entity-encoded (e.g. the
 		// plain-permalink `?jetpack-sitemap=` form keeps its raw `&`).
 		// @phan-suppress-next-line PhanUndeclaredFunction -- jetpack_sitemap_uri() lives in plugins/jetpack and is guarded by function_exists.
-		return esc_url_raw( (string) jetpack_sitemap_uri( 'sitemap.xml' ) );
+		return esc_url_raw( (string) jetpack_sitemap_uri( $master_filename ) );
 	}
 
 	/**
