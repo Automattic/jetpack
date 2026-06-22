@@ -355,7 +355,7 @@ export type ChartTheme = {
 		/** Gap between columns in the leaderboard grid */
 		columnGap?: number;
 		/** Spacing between label and progress bars */
-		labelSpacing?: number;
+		labelSpacing?: GapSize;
 		/** Primary color for current period bars */
 		primaryColor?: string;
 		/** Secondary color for comparison period bars */
