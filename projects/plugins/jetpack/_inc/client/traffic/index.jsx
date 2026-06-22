@@ -60,10 +60,16 @@ export class Traffic extends Component {
 			foundBlaze = this.props.isModuleFound( 'blaze' );
 
 		// Once the site is on the new SEO experience (fresh install / opted-in /
-		// WordPress.com), SEO + Sitemaps live in the dedicated SEO dashboard, so hide
-		// those legacy sections here and point to the new page. Existing self-hosted
-		// installs that haven't opted in keep the legacy sections (JETPACK-1682).
+		// WordPress.com), the SEO, Sitemaps, and Verification sections live in the
+		// dedicated SEO dashboard, so hide those legacy sections here and point to the
+		// new page. Existing self-hosted installs that haven't opted in keep them
+		// (JETPACK-1682).
 		const seoMovedToDashboard = getScriptData()?.seo?.surface_visible === true;
+		// The pointer notice stands in for every section we hide, so show it whenever
+		// any of them would have rendered — including a settings search for "sitemap"
+		// or "verification" that matches even when the SEO section itself does not.
+		const foundMovedToDashboard =
+			foundSeo || foundCanonicalUrls || foundSitemaps || foundVerification;
 
 		if (
 			! foundSeo &&
@@ -101,7 +107,7 @@ export class Traffic extends Component {
 						} ) }
 					/>
 				) }
-				{ seoMovedToDashboard && ( foundSeo || foundCanonicalUrls ) && (
+				{ seoMovedToDashboard && foundMovedToDashboard && (
 					<SimpleNotice status="is-info" showDismiss={ false } className="jp-seo-moved-banner">
 						<div className="jp-seo-moved-banner__content">
 							<strong>{ __( 'Jetpack SEO has its own dashboard', 'jetpack' ) }</strong>
@@ -111,7 +117,12 @@ export class Traffic extends Component {
 									'jetpack'
 								) }
 							</p>
-							<Button primary rna compact href="admin.php?page=jetpack-seo">
+							<Button
+								primary
+								rna
+								compact
+								href={ `${ this.props.siteAdminUrl }admin.php?page=jetpack-seo` }
+							>
 								{ __( 'Open the SEO dashboard', 'jetpack' ) }
 							</Button>
 						</div>
