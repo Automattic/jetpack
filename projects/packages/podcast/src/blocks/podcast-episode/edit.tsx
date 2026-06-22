@@ -27,6 +27,7 @@ import { useMemo, useState } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
 import { __, _x, sprintf } from '@wordpress/i18n';
 import clsx from 'clsx';
+import { usePodcastSettings } from '../../dashboard/hooks/use-podcast-settings';
 import metadata from './block.json';
 import { microphone } from './icons';
 import { getValidatedAttributes } from './util/get-validated-attributes';
@@ -213,11 +214,8 @@ export default function PodcastEpisodeEdit( { attributes, setAttributes, context
 		postId
 	);
 
-	// Source the show-level cover from the same REST surface the dashboard
-	// reads: /wp/v2/settings exposes `podcasting_image` (registered in
-	// class-settings.php). No more localized window globals.
-	const [ siteShowCover ] = useEntityProp< string >( 'root', 'site', 'podcasting_image' );
-	const showCoverUrl = siteShowCover || '';
+	const { data: podcastSettings } = usePodcastSettings();
+	const showCoverUrl = podcastSettings?.podcasting_image || '';
 
 	const postAuthor = useSelect(
 		select => {

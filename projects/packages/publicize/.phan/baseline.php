@@ -12,7 +12,6 @@ return [
     // PhanPluginMixedKeyNoKey : 7 occurrences
     // PhanPluginUnreachableCode : 4 occurrences
     // PhanTypeMismatchArgument : 3 occurrences
-    // PhanTypeMismatchDimFetch : 3 occurrences
     // PhanUndeclaredClassMethod : 3 occurrences
     // PhanTypeMismatchArgumentNullable : 2 occurrences
     // PhanTypeMismatchReturnProbablyReal : 2 occurrences
@@ -23,6 +22,7 @@ return [
     // PhanTypeMismatchArgumentNullableInternal : 1 occurrence
     // PhanTypeMismatchArgumentProbablyReal : 1 occurrence
     // PhanTypeMismatchDefault : 1 occurrence
+    // PhanTypeMismatchDimFetch : 1 occurrence
     // PhanTypeSuspiciousNonTraversableForeach : 1 occurrence
     // PhanUndeclaredMethod : 1 occurrence
 

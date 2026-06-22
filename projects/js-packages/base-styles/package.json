@@ -26,6 +26,6 @@
 		"./style": "./style.scss"
 	},
 	"devDependencies": {
-		"@wordpress/base-styles": "9.1.0"
+		"@wordpress/base-styles": "10.0.1"
 	}
 }

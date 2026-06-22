@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Editor: Load the shared data stores through the externalized jetpack-shared-stores bundle to avoid duplicate store registration warnings.

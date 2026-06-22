@@ -25,7 +25,8 @@ function check_underscores {
 # Based on Automattic/pre-receive-hooks/blob/a8ad6e0c/main-pre-receive-hooks.sh (120_stop_invalid_characters)
 function check_invalid_chars {
 	local FILE="$1"
-	local Z=$( LC_ALL=C grep -aP '[^a-zA-Z._0-9/@\-,]' <<<"$FILE" || true )
+	local Z
+	Z=$( LC_ALL=C grep -aP '[^a-zA-Z._0-9/@\-,]' <<<"$FILE" || true )
 	if [[ -n "$Z" ]]; then
 		echo '  ❌ Filename contains disallowed characters!'
 		failed "$SLUG: Filename \`$FILE\` contains disallowed characters. "'Only a-z, A-Z, 0-9, `.`, `_`, `/`, `@`, `-`, and `,` are allowed.'
@@ -35,9 +36,10 @@ function check_invalid_chars {
 # Based on Automattic/pre-receive-hooks/blob/b3ca8ab/main-pre-receive-hooks.sh (130_stop_executables)
 function check_executable {
 	local FILE="$1"
-	local line=$( git diff --cached --raw "${FILE}" )
-	local old_mode="$(echo "$line" | cut -d' ' -f1 | cut -c2-)"
-	local new_mode="$(echo "$line" | cut -d' ' -f2)"
+	local line old_mode new_mode
+	line=$( git diff --cached --raw "${FILE}" )
+	old_mode="$(echo "$line" | cut -d' ' -f1 | cut -c2-)"
+	new_mode="$(echo "$line" | cut -d' ' -f2)"
 	if [[ "100755" == "$new_mode" && "100755" != "$old_mode" ]]; then
 		echo '  ❌ File cannot be executable!'
 		failed "$SLUG: File \`$FILE\` may not be executable"
@@ -126,7 +128,7 @@ function get_upstream_sha {
 	return 1
 }
 
-while IFS=$'\t' read -r SRC MIRROR SLUG; do
+while IFS=$'\t' read -r _ MIRROR SLUG; do
 	if [[ "$SLUG" == jetpack ]]; then
 		PREFIX=wp-content/mu-plugins/jetpack-plugin/sun
 	elif [[ "$SLUG" == jetpack-mu-wpcom-plugin ]]; then

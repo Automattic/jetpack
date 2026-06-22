@@ -19,6 +19,7 @@ export interface SettingsResponse {
 	};
 	search_engines_visible: boolean;
 	sitemap_active: boolean;
+	canonical_active: boolean;
 }
 
 export type VerificationKey = keyof SettingsResponse[ 'verification' ];

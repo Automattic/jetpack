@@ -1,7 +1,7 @@
 import apiFetch from '@wordpress/api-fetch';
 import { createHigherOrderComponent } from '@wordpress/compose';
 import { addFilter } from '@wordpress/hooks';
-import '@automattic/jetpack-shared-extension-utils/store/wordpress-com';
+import '@automattic/jetpack-shared-stores';
 import './shared/public-path';
 import './shared/block-category';
 import './shared/plan-upgrade-notification';

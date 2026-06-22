@@ -6,8 +6,7 @@ type StoreInfo = {
 };
 
 /**
- * Local stand-in for `getStoreInfo` from `@woocommerce-next/data` (next-admin),
- * which is not published to npm. Only `launchedDate` is consumed by this
+ * Local stand-in for `getStoreInfo`. Only `launchedDate` is consumed by this
  * package, where it feeds `getDefaultPreset( launchedDate )` — that helper
  * falls back to its default preset when `launchedDate` is undefined, so
  * returning an empty object keeps the behavior correct until real store info

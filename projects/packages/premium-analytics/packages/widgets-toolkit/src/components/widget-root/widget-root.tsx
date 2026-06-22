@@ -43,13 +43,13 @@ type WidgetRootProps = {
 	options?: {
 		/**
 		 * The source of the search params.
-		 * @default '/wc-analytics/dashboard'
+		 * @default '/'
 		 */
 		from?: string;
 	};
 };
 
-const DEFAULT_SEARCH_FROM = '/wc-analytics/dashboard';
+const DEFAULT_SEARCH_FROM = '/';
 
 /**
  * Hook that resolves widget attributes:

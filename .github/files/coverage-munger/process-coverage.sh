@@ -2,7 +2,7 @@
 
 set -eo pipefail
 
-BASE=$(cd $(dirname "${BASH_SOURCE[0]}") && pwd)
+BASE=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 
 [[ -d coverage ]] && find coverage -type d -empty -delete
 if [[ ! -d coverage ]]; then

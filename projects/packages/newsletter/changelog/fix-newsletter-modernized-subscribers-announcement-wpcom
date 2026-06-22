@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Add Subscribers_Announcement::add_wp_admin_submenu() to register the transitional Subscribers announcement page directly under the Jetpack menu (used on WordPress.com sites).

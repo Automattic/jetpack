@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+RTC: Disable real-time collaboration by default while keeping the existing opt-in setting.

@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+VideoPress dashboard: add padding to the "Processing" badge in the video details view so its label is no longer flush against the badge background.

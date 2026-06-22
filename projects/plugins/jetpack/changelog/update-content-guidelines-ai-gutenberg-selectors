@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Content Guidelines AI: update DOM selectors and the data store name (core/guidelines) to match the latest Gutenberg Guidelines markup and store so the AI UI injects correctly.

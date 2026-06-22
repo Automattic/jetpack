@@ -65,6 +65,13 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 	private $original_next_admin_init_count;
 
 	/**
+	 * Original jetpack_agents_manager_initialized action count to restore after tests.
+	 *
+	 * @var int
+	 */
+	private $original_agents_manager_initialized_count;
+
+	/**
 	 * Set up test fixtures.
 	 */
 	public function set_up() {
@@ -84,7 +91,7 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 			}
 		);
 
-		$this->agents_manager = new Agents_Manager();
+		$this->agents_manager = Agents_Manager::init();
 
 		// Save original superglobal values that tests may modify.
 		$this->original_get_preview = $_GET['preview'] ?? null;
@@ -100,6 +107,9 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 		// Save original next_admin_init action count (CIAB detection).
 		global $wp_actions;
 		$this->original_next_admin_init_count = $wp_actions['next_admin_init'] ?? 0;
+
+		// Save original init guard action count; did_action() accumulates per-process.
+		$this->original_agents_manager_initialized_count = $wp_actions['jetpack_agents_manager_initialized'] ?? 0;
 	}
 
 	/**
@@ -152,6 +162,13 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 			unset( $wp_actions['next_admin_init'] );
 		} else {
 			$wp_actions['next_admin_init'] = $this->original_next_admin_init_count;
+		}
+
+		// Restore init guard action count.
+		if ( $this->original_agents_manager_initialized_count === 0 ) {
+			unset( $wp_actions['jetpack_agents_manager_initialized'] );
+		} else {
+			$wp_actions['jetpack_agents_manager_initialized'] = $this->original_agents_manager_initialized_count;
 		}
 
 		// Clear the status cache and constants.
@@ -348,33 +365,39 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Tests that the init method creates a singleton instance.
+	 * Tests that init() bootstraps the Agents Manager exactly once, even when
+	 * called by multiple plugin copies.
+	 *
+	 * The guard is the 'jetpack_agents_manager_initialized' action rather than a
+	 * class static: did_action() reads the process-global $wp_actions table, so
+	 * the dedup holds across the separate copies of this package that different
+	 * plugins (e.g. jetpack-mu-wpcom and WooCommerce AI) each load and init.
 	 */
-	public function test_init_creates_singleton_instance() {
-		// Reset the static instance for testing
-		$reflection = new \ReflectionClass( Agents_Manager::class );
-		$property   = $reflection->getProperty( 'instance' );
-		if ( PHP_VERSION_ID < 80100 ) {
-			$property->setAccessible( true );
-		}
+	public function test_init_bootstraps_only_once() {
+		// Start from a clean count regardless of test ordering; tear_down restores it.
+		global $wp_actions;
+		unset( $wp_actions['jetpack_agents_manager_initialized'] );
 
-		// Use an instance for Phan compatibility when accessing static property.
-		$dummy = $this->agents_manager;
+		$fired = 0;
+		add_action(
+			'jetpack_agents_manager_initialized',
+			static function () use ( &$fired ) {
+				++$fired;
+			}
+		);
 
-		$property->setValue( $dummy, null );
-
+		// Simulate multiple bootstrappers each calling init() independently.
+		Agents_Manager::init();
+		// @phan-suppress-next-line PhanPluginDuplicateAdjacentStatement -- Intentionally calling twice to ensure duplicates are not registered.
+		Agents_Manager::init();
+		// @phan-suppress-next-line PhanPluginDuplicateAdjacentStatement -- Intentionally calling twice to ensure duplicates are not registered.
 		Agents_Manager::init();
 
-		$instance1 = $property->getValue( $dummy );
-		$this->assertInstanceOf( Agents_Manager::class, $instance1 );
+		// The action - and therefore the constructor - runs exactly once.
+		$this->assertSame( 1, $fired, 'Agents Manager must bootstrap exactly once across init() calls.' );
+		$this->assertSame( 1, did_action( 'jetpack_agents_manager_initialized' ) );
 
-		Agents_Manager::init();
-
-		$instance2 = $property->getValue( $dummy );
-		$this->assertSame( $instance1, $instance2 );
-
-		// Reset back to null for other tests
-		$property->setValue( $dummy, null );
+		remove_all_actions( 'jetpack_agents_manager_initialized' );
 	}
 
 	/**
@@ -494,6 +517,79 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 
 		// Clean up the filter.
 		remove_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
+	}
+
+	/**
+	 * Tests that Help Center is dequeued in the block editor when the unified experience
+	 * (Help Center takeover) is active — Agents Manager becomes the single help affordance.
+	 */
+	public function test_help_center_dequeued_in_block_editor_when_unified() {
+		require_once ABSPATH . 'wp-admin/includes/screen.php';
+		set_current_screen( 'post' );
+		$screen     = get_current_screen();
+		$reflection = new \ReflectionClass( $screen );
+		$property   = $reflection->getProperty( 'is_block_editor' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$property->setAccessible( true );
+		}
+		$property->setValue( $screen, true );
+
+		// Reset registries for isolation.
+		global $wp_scripts, $wp_styles;
+		$wp_scripts = null;
+		$wp_styles  = null;
+
+		wp_register_script( 'agents-manager', 'https://example.com/agents-manager.js', array(), '1.0', true );
+
+		// Help Center enqueues before Agents Manager (priority 100 vs 101), so it is already queued.
+		wp_enqueue_script( 'help-center', 'https://example.com/help-center.js', array(), '1.0', true );
+		wp_enqueue_style( 'help-center-style', 'https://example.com/help-center.css', array(), '1.0' );
+
+		// Full unified experience: Agents Manager takes over the Help Center.
+		add_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
+
+		$this->agents_manager->enqueue_scripts();
+
+		$this->assertFalse( wp_script_is( 'help-center', 'enqueued' ), 'Help Center script should be dequeued in the unified experience.' );
+		$this->assertFalse( wp_style_is( 'help-center-style', 'enqueued' ), 'Help Center style should be dequeued in the unified experience.' );
+
+		remove_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
+	}
+
+	/**
+	 * Tests that Help Center remains enqueued in block-editor-only mode, where Agents Manager
+	 * replaces Big Sky's native UI but does not take over the Help Center. Regression test for AI-1013.
+	 */
+	public function test_help_center_not_dequeued_in_block_editor_only_mode() {
+		require_once ABSPATH . 'wp-admin/includes/screen.php';
+		set_current_screen( 'post' );
+		$screen     = get_current_screen();
+		$reflection = new \ReflectionClass( $screen );
+		$property   = $reflection->getProperty( 'is_block_editor' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$property->setAccessible( true );
+		}
+		$property->setValue( $screen, true );
+
+		// Reset registries for isolation.
+		global $wp_scripts, $wp_styles;
+		$wp_scripts = null;
+		$wp_styles  = null;
+
+		wp_register_script( 'agents-manager', 'https://example.com/agents-manager.js', array(), '1.0', true );
+
+		wp_enqueue_script( 'help-center', 'https://example.com/help-center.js', array(), '1.0', true );
+		wp_enqueue_style( 'help-center-style', 'https://example.com/help-center.css', array(), '1.0' );
+
+		// Block-editor-only enablement, without the unified (Help Center takeover) experience.
+		add_filter( 'agents_manager_enabled_in_block_editor', '__return_true' );
+
+		$this->agents_manager->enqueue_scripts();
+
+		$this->assertTrue( wp_script_is( 'help-center', 'enqueued' ), 'Help Center script should remain enqueued in block-editor-only mode.' );
+		$this->assertTrue( wp_style_is( 'help-center-style', 'enqueued' ), 'Help Center style should remain enqueued in block-editor-only mode.' );
+
+		remove_filter( 'agents_manager_enabled_in_block_editor', '__return_true' );
 	}
 
 	/**

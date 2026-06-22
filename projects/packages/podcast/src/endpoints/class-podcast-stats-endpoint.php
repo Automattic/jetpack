@@ -27,35 +27,19 @@ class Podcast_Stats_Endpoint extends WP_REST_Controller {
 
 	use Relay_Response;
 
-	const REST_NAMESPACE = 'wpcom/v2';
-	const REST_BASE      = 'podcast-stats';
-
 	/**
-	 * Whether `init()` has wired its hooks.
-	 *
-	 * @var bool
-	 */
-	private static $initialized = false;
-
-	/**
-	 * Wire up routes. Idempotent.
+	 * Wire up routes.
 	 */
 	public static function init() {
-		if ( self::$initialized ) {
-			return;
-		}
-		self::$initialized = true;
-
-		$instance = new self();
-		add_action( 'rest_api_init', array( $instance, 'register_routes' ) );
+		add_action( 'rest_api_init', array( new self(), 'register_routes' ) );
 	}
 
 	/**
 	 * Register the four stats proxy routes the dashboard SPA consumes.
 	 */
 	public function register_routes() {
-		$this->namespace = self::REST_NAMESPACE;
-		$this->rest_base = self::REST_BASE;
+		$this->namespace = 'wpcom/v2';
+		$this->rest_base = 'podcast-stats';
 
 		// Period summary (top apps/countries/episodes for a date range).
 		register_rest_route(

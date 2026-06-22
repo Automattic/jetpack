@@ -21,7 +21,7 @@ use Jetpack_Tracks_Client;
  */
 class Settings {
 
-	const PACKAGE_VERSION = '0.9.0';
+	const PACKAGE_VERSION = '0.9.1';
 
 	const ADMIN_PAGE_SLUG = 'jetpack-newsletter';
 
@@ -83,6 +83,13 @@ class Settings {
 	 * Subscribe to necessary hooks.
 	 */
 	public function init_hooks() {
+		// Transitional Subscribers announcement page (active only while the
+		// modernization filter is on): registers its AJAX/admin-post handlers
+		// and wp-build loading here so they exist on admin-ajax.php and
+		// admin-post.php requests. The menu itself is added by the Jetpack
+		// plugin's subscriptions module, which owns the Subscribers placement.
+		Subscribers_Announcement::init();
+
 		// Add the Reading settings notice as long as subscriptions are active.
 		if ( $this->is_subscriptions_active() ) {
 			add_action( 'admin_init', array( $this, 'add_reading_page_notice' ) );

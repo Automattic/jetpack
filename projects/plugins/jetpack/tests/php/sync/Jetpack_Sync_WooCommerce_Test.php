@@ -1,6 +1,7 @@
 <?php
 
 use Automattic\Jetpack\Sync\Modules;
+use Automattic\Jetpack\Sync\Modules\WooCommerce as WooCommerce_Module;
 use PHPUnit\Framework\Attributes\Group;
 
 require_once __DIR__ . '/Jetpack_Sync_TestBase.php';
@@ -150,6 +151,147 @@ class Jetpack_Sync_WooCommerce_Test extends Jetpack_Sync_TestBase {
 		);
 
 		$this->assertEmpty( $foo_events );
+	}
+
+	public function test_customer_meta_updates_are_synced_without_customer_data() {
+		$user_id = $this->create_test_customer_user( 'test_customer', 'customer@example.com' );
+
+		update_user_meta( $user_id, 'billing_email', 'updated@example.com' );
+		update_user_meta( $user_id, 'billing_city', 'San Francisco' );
+		update_user_meta( $user_id, 'paying_customer', '1' );
+
+		$this->flush_customer_meta_updates();
+		$this->sender->do_sync();
+
+		$customer_updated_event = $this->server_event_storage->get_most_recent_event( 'jetpack_updated_woo_customer_meta' );
+
+		$this->assertTrue( (bool) $customer_updated_event );
+		$this->assertIsObject( $customer_updated_event->args[0] );
+		$this->assertNotInstanceOf( 'WC_Customer', $customer_updated_event->args[0] );
+		$this->assertEquals( $user_id, $customer_updated_event->args[0]->ID );
+		$this->assertEquals( $user_id, $customer_updated_event->args[0]->data->ID );
+		$this->assertEquals( 'test_customer', $customer_updated_event->args[0]->data->user_login );
+		$this->assertEquals( 'customer@example.com', $customer_updated_event->args[0]->data->user_email );
+		$this->assertContains( 'billing_email', $customer_updated_event->args[1] );
+		$this->assertContains( 'billing_city', $customer_updated_event->args[1] );
+		$this->assertContains( 'is_paying_customer', $customer_updated_event->args[1] );
+		$this->assertNotContains( 'paying_customer', $customer_updated_event->args[1] );
+
+		$encoded_event_args = wp_json_encode( $customer_updated_event->args, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT );
+		$this->assertStringNotContainsString( 'updated@example.com', $encoded_event_args );
+		$this->assertStringNotContainsString( 'San Francisco', $encoded_event_args );
+	}
+
+	public function test_non_customer_meta_updates_are_not_synced_as_customer_details() {
+		$user_id = $this->create_test_customer_user( 'test_customer_untracked_meta', 'untracked-customer@example.com' );
+
+		update_user_meta( $user_id, 'session_tokens', 'secret' );
+		update_user_meta( $user_id, 'first_name', 'Ada' );
+		update_user_meta( $user_id, 'last_name', 'Lovelace' );
+
+		$this->flush_customer_meta_updates();
+		$this->sender->do_sync();
+
+		$this->assertFalse( (bool) $this->server_event_storage->get_most_recent_event( 'jetpack_updated_woo_customer_meta' ) );
+	}
+
+	public function test_customer_meta_deletes_from_user_deletion_are_not_synced_as_customer_details() {
+		$user_id = $this->create_test_customer_user( 'test_customer_deleted', 'deleted-customer@example.com' );
+
+		update_user_meta( $user_id, 'billing_email', 'deleted-customer@example.com' );
+
+		$this->flush_customer_meta_updates();
+		$this->sender->do_sync();
+		$this->server_event_storage->reset();
+
+		wp_delete_user( $user_id );
+
+		$this->flush_customer_meta_updates();
+		$this->sender->do_sync();
+
+		$this->assertFalse( (bool) $this->server_event_storage->get_most_recent_event( 'jetpack_updated_woo_customer_meta' ) );
+	}
+
+	public function test_customer_meta_filter_rebuilds_minimal_customer_object() {
+		$user_id            = $this->create_test_customer_user( 'test_customer_extra_data', 'extra-customer@example.com' );
+		$woocommerce_module = $this->get_woocommerce_module();
+
+		$filtered_args = $woocommerce_module->filter_customer_updated_meta(
+			array(
+				(object) array(
+					'ID'              => $user_id,
+					'extra_top_level' => 'secret',
+					'data'            => (object) array(
+						'ID'                => $user_id,
+						'user_login'        => 'injected_login',
+						'user_email'        => 'injected@example.com',
+						'billing_address_1' => '123 Secret St',
+					),
+				),
+				array( 'billing_email' ),
+			)
+		);
+
+		if ( ! is_array( $filtered_args ) ) {
+			$this->fail( 'Customer meta filter returned an invalid payload.' );
+		}
+
+		$customer = $filtered_args[0];
+		if ( ! is_object( $customer ) || ! isset( $customer->data ) || ! is_object( $customer->data ) ) {
+			$this->fail( 'Customer meta filter did not return a minimal customer object.' );
+		}
+
+		$this->assertEquals( $user_id, $customer->ID );
+		$this->assertEquals( $user_id, $customer->data->ID );
+		$this->assertEquals( 'test_customer_extra_data', $customer->data->user_login );
+		$this->assertEquals( 'extra-customer@example.com', $customer->data->user_email );
+		$this->assertObjectNotHasProperty( 'extra_top_level', $customer );
+		$this->assertObjectNotHasProperty( 'billing_address_1', $customer->data );
+		$this->assertSame( array( 'billing_email' ), $filtered_args[1] );
+	}
+
+	/**
+	 * Create a customer user for WooCommerce sync tests.
+	 *
+	 * @param string $user_login User login.
+	 * @param string $user_email User email.
+	 * @return int User ID.
+	 */
+	private function create_test_customer_user( $user_login, $user_email ) {
+		$user_id = wp_insert_user(
+			array(
+				'user_login' => $user_login,
+				'user_email' => $user_email,
+				'user_pass'  => 'test',
+			)
+		);
+
+		if ( is_wp_error( $user_id ) ) {
+			$this->fail( $user_id->get_error_message() );
+		}
+
+		return (int) $user_id;
+	}
+
+	/**
+	 * Retrieve the WooCommerce sync module.
+	 *
+	 * @return WooCommerce_Module WooCommerce sync module.
+	 */
+	private function get_woocommerce_module() {
+		$woocommerce_module = Modules::get_module( 'woocommerce' );
+		if ( ! $woocommerce_module instanceof WooCommerce_Module ) {
+			$this->fail( 'WooCommerce sync module is not available.' );
+		}
+
+		return $woocommerce_module;
+	}
+
+	/**
+	 * Flush pending customer meta updates.
+	 */
+	private function flush_customer_meta_updates() {
+		$this->get_woocommerce_module()->action_customer_meta_updates();
 	}
 
 	public function test_approving_a_review_is_synced() {

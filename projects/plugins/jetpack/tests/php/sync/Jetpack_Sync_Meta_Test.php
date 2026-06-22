@@ -372,6 +372,7 @@ class Jetpack_Sync_Meta_Test extends Jetpack_Sync_TestBase {
 	 */
 	public function test_get_object_by_id_will_return_null_for_non_existing_meta() {
 		$module = Modules::get_module( 'meta' );
+		'@phan-var \Automattic\Jetpack\Sync\Modules\Meta $module';
 		$this->assertNull( $module->get_object_by_id( 'post', $this->post_id, 'does_not_exist' ) );
 	}
 
@@ -382,6 +383,7 @@ class Jetpack_Sync_Meta_Test extends Jetpack_Sync_TestBase {
 		$meta_id = add_post_meta( $this->post_id, $this->whitelisted_post_meta, 'bar' );
 		$module  = Modules::get_module( 'meta' );
 
+		'@phan-var \Automattic\Jetpack\Sync\Modules\Meta $module';
 		$metas    = $module->get_object_by_id( 'post', $this->post_id, $this->whitelisted_post_meta );
 		$expected = array(
 			array(

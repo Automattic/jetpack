@@ -13,7 +13,7 @@
 	"type": "module",
 	"main": "src/index.ts",
 	"scripts": {
-		"build": "ncc build src/index.ts -o dist --source-map --license licenses.txt -t",
+		"build": "tsdown",
 		"test": "NODE_OPTIONS=--experimental-vm-modules jest --config=tests/jest.config.cjs --verbose",
 		"test-coverage": "pnpm run test --coverage",
 		"typecheck": "tsgo --noEmit"
@@ -31,13 +31,14 @@
 	},
 	"devDependencies": {
 		"@babel/core": "^7.29.0",
-		"@babel/preset-typescript": "7.28.5",
+		"@babel/preset-typescript": "7.29.7",
 		"@octokit/webhooks-types": "7.6.1",
 		"@types/node": "^24.12.0",
 		"@typescript/native-preview": "7.0.0-dev.20260225.1",
-		"@vercel/ncc": "0.36.1",
 		"babel-jest": "30.4.1",
 		"jest": "30.4.2",
+		"rollup-plugin-license": "3.7.1",
+		"tsdown": "0.22.2",
 		"typescript": "5.9.3"
 	}
 }

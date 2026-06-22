@@ -2,7 +2,7 @@
  * Mock data for order attribution endpoint
  * Used by: SalesByDeviceWidget
  *
- * API format: /wc/v3/woocommerce-analytics/proxy/reports/order-attribution/:view/summary
+ * API format: /jetpack-premium-analytics/v1/proxy/v2/analytics/reports/order-attribution/:view/summary
  * Values are strings (the sanitizer converts them to numbers)
  */
 import type { fetchReportOrderAttributionSummary } from '../../../../../data/src/api/report-order-attribution-summary-fetch/report-order-attribution-summary-fetch';

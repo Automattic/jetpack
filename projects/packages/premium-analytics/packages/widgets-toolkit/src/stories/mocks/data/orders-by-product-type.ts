@@ -2,7 +2,7 @@
  * Mock data generator for orders-by-product-type endpoint
  * Used by: BookingOrderMetricWidget, future product-filtered widgets
  *
- * API endpoint: /wc/v3/woocommerce-analytics/proxy/reports/orders-by-product-type/by-date
+ * API endpoint: /jetpack-premium-analytics/v1/proxy/v2/analytics/reports/orders-by-product-type/by-date
  * Called when: Product type filters are present (bookings, simple products, etc.)
  *
  * This module provides dynamic fixture generation based on request parameters.

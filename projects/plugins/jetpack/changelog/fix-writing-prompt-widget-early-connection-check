@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Daily Writing Prompt: defer the connection-readiness check to dashboard setup, avoiding a fatal error on Atomic sites when the check ran before Core's pluggable functions were loaded.

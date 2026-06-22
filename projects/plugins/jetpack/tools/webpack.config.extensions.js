@@ -107,6 +107,7 @@ const editorNoPostEditorScript = [
 const sharedWebpackConfig = {
 	mode: jetpackWebpackConfig.mode,
 	devtool: jetpackWebpackConfig.devtool,
+	cache: jetpackWebpackConfig.cache( __filename ),
 	output: {
 		...jetpackWebpackConfig.output,
 		path: path.join( __dirname, '../_inc/blocks' ),

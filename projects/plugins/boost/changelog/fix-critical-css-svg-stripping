@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Critical CSS: stop stripping inline SVG markup and double quotes from valid CSS values while still preventing style-tag breakout.

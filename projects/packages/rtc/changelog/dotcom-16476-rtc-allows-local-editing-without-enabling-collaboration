@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+PingHub: allow local (unconnected) users to obtain a token via the site blog token, requesting the /wpcom/v2/ signing endpoint with the correct API base

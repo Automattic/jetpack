@@ -10,8 +10,6 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use WorDBless\BaseTestCase;
 use WorDBless\Posts as WorDBless_Posts;
 use WorDBless\Users as WorDBless_Users;
-use WP_REST_Request;
-use WP_REST_Response;
 use WP_Term;
 
 /**
@@ -294,15 +292,12 @@ class Tracks_Test extends BaseTestCase {
 		$this->assertCount( 1, $this->events_named( 'wpcom_podcasting_show_url_saved' ) );
 	}
 
-	public function test_settings_saved_emits_after_settings_rest_write() {
+	public function test_settings_saved_emits_snapshot_with_pii_redacted() {
 		update_option( 'podcasting_title', 'New Title' );
 		update_option( 'podcasting_email', 'host@example.com' );
 		update_option( 'podcasting_talent_name', 'Jane Host' );
 
-		$request = new WP_REST_Request( 'POST', '/wp/v2/settings' );
-		$request->set_param( 'podcasting_title', 'New Title' );
-
-		Tracks::record_settings_saved( new WP_REST_Response( array(), 200 ), array(), $request );
+		Tracks::record_settings_saved();
 
 		$events = $this->events_named( 'wpcom_podcasting_settings_saved' );
 		$this->assertCount( 1, $events );
@@ -312,25 +307,11 @@ class Tracks_Test extends BaseTestCase {
 		$this->assertArrayNotHasKey( 'podcasting_talent_name', $events[0]['properties'] );
 	}
 
-	public function test_settings_saved_skips_settings_writes_without_podcasting_fields() {
-		$request = new WP_REST_Request( 'POST', '/wp/v2/settings' );
-		$request->set_param( 'title', 'New Site Title' );
+	public function test_init_wires_settings_saved_recorder() {
+		Tracks::init();
 
-		Tracks::record_settings_saved( new WP_REST_Response(), array(), $request );
-
-		$this->assertEmpty( $this->events_named( 'wpcom_podcasting_settings_saved' ) );
-	}
-
-	public function test_settings_saved_suppressed_when_response_is_an_error() {
-		$request = new WP_REST_Request( 'POST', '/wp/v2/settings' );
-		$request->set_param( 'podcasting_title', 'New Title' );
-
-		Tracks::record_settings_saved(
-			new WP_REST_Response( array( 'code' => 'rest_forbidden' ), 403 ),
-			array(),
-			$request
+		$this->assertNotFalse(
+			has_action( 'jetpack_podcast_settings_saved', array( Tracks::class, 'record_settings_saved' ) )
 		);
-
-		$this->assertEmpty( $this->events_named( 'wpcom_podcasting_settings_saved' ) );
 	}
 }

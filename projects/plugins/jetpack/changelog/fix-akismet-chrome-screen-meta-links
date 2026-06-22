@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Akismet: hide the empty #screen-meta-links container so it no longer reserves a blank slot above the Jetpack header (notably on WordPress.com Simple sites).

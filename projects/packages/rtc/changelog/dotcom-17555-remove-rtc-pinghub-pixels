@@ -1,0 +1,4 @@
+Significance: patch
+Type: removed
+
+RTC: remove the pinghub.rtc.* analytics pixels (room_peers, conn_open, conn_close_code, conn_err, jwt_fetch, jwt_fetch_error, send_drop), now superseded by the jetpack_rtc_* Tracks events. The generic pinghub.* pixels and the logConnectionEvent() logging are unchanged.

@@ -1,4 +1,0 @@
-Significance: minor
-Type: enhancement
-
-Notifications: support a notifications=v3 query parameter to opt into the v3 notifications panel.

@@ -205,7 +205,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/agents-manager",
-                "reference": "1110ac76c0e1331af6e87ee79239531e83359d10"
+                "reference": "a95c9103c938904a50375cf96ddd919bad379053"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
@@ -227,7 +227,7 @@
                 "autorelease": true,
                 "autotagger": true,
                 "branch-alias": {
-                    "dev-trunk": "0.3.x-dev"
+                    "dev-trunk": "0.5.x-dev"
                 },
                 "changelogger": {
                     "link-template": "https://github.com/Automattic/jetpack-agents-manager/compare/v${old}...v${new}"
@@ -644,7 +644,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/connection",
-                "reference": "eebe307b66ea009bea1ebd421a53ba8be8b4060c"
+                "reference": "74e1711653df3561aadf672c5228cb2a2479d0d4"
             },
             "require": {
                 "automattic/jetpack-a8c-mc-stats": "@dev",
@@ -680,7 +680,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-connection/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "8.6.x-dev"
+                    "dev-trunk": "8.7.x-dev"
                 },
                 "dependencies": {
                     "test-only": [
@@ -1308,7 +1308,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/jetpack-mu-wpcom",
-                "reference": "17cf4ffb6db2e468d015f3840acf680595023045"
+                "reference": "ca1d73cfbf0fac87c62e8b11d3528fe9f605b6ed"
             },
             "require": {
                 "automattic/block-delimiter": "@dev",
@@ -1318,6 +1318,7 @@
                 "automattic/jetpack-classic-theme-helper": "@dev",
                 "automattic/jetpack-compat": "@dev",
                 "automattic/jetpack-connection": "@dev",
+                "automattic/jetpack-device-detection": "@dev",
                 "automattic/jetpack-explat": "@dev",
                 "automattic/jetpack-google-analytics": "@dev",
                 "automattic/jetpack-masterbar": "@dev",
@@ -1326,6 +1327,7 @@
                 "automattic/jetpack-rtc": "@dev",
                 "automattic/jetpack-stats-admin": "@dev",
                 "automattic/jetpack-status": "@dev",
+                "automattic/jetpack-wp-build-polyfills": "@dev",
                 "automattic/scheduled-updates": "@dev",
                 "php": ">=8.1",
                 "scssphp/scssphp": "2.1.0",
@@ -1518,7 +1520,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/podcast",
-                "reference": "d4a89b99f139d8d4f746af1d512d064c48eb7560"
+                "reference": "7ece8afde05a2c7aee25181ce7c7a8045565039c"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
@@ -1543,7 +1545,7 @@
                 "autotagger": true,
                 "mirror-repo": "Automattic/jetpack-podcast",
                 "branch-alias": {
-                    "dev-trunk": "1.0.x-dev"
+                    "dev-trunk": "1.1.x-dev"
                 },
                 "textdomain": "jetpack-podcast",
                 "version-constants": {
@@ -2034,7 +2036,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/sync",
-                "reference": "6254b8706cb045c8ece15843d6fc8cc13fbaa328"
+                "reference": "e4dea39ce815f1d6673b2600c917c5c82bd825b7"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
@@ -2067,7 +2069,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-sync/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "4.42.x-dev"
+                    "dev-trunk": "4.43.x-dev"
                 },
                 "dependencies": {
                     "test-only": [

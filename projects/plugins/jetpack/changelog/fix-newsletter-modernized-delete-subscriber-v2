@@ -1,5 +1,0 @@
-Significance: patch
-Type: other
-Comment: Subscribers (Newsletter modernization, behind a feature flag): fix removing a subscriber by proxying to the consolidated wpcom /sites/{id}/subscribers/remove (v2) endpoint as the current user, instead of the granular v1.1 follower/email-follower/paid-cancel endpoints which authenticated no user.
-
-

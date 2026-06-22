@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+SEO: seed a durable `jetpack_seo_surface_visible` cohort flag on install/upgrade so the new SEO surface is auto-discoverable on fresh installs but opt-in on existing ones, and add an opt-in banner to the legacy Traffic > SEO settings page.

@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add a transitional Subscribers announcement page (wp-build) shown in place of the legacy Subscribers menu link when the Newsletter modernization filter is enabled.

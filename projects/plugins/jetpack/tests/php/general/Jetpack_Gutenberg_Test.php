@@ -95,6 +95,7 @@ class Jetpack_Gutenberg_Test extends WP_UnitTestCase {
 	public function test_does_calling_get_availability_twice_result_in_notice() {
 		add_action( 'jetpack_register_gutenberg_extensions', array( $this, 'register_block' ) );
 		Jetpack_Gutenberg::get_availability();
+		// @phan-suppress-next-line PhanPluginDuplicateAdjacentStatement -- Calling this twice is precisely the purpose of the test.
 		Jetpack_Gutenberg::get_availability();
 		$result = remove_action( 'jetpack_register_gutenberg_extensions', array( $this, 'register_block' ) );
 		$this->assertTrue( $result );

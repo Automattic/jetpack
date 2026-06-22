@@ -32,6 +32,29 @@
 	}
 }
 
+// Scoping hook only — display: contents removes the wrapper's box from
+// layout, so the breadcrumb list flows in the header exactly as before.
+// The current-item crumb is targeted structurally (li:last-child h1)
+// because @wordpress/admin-ui's Breadcrumbs uses hashed CSS-module class
+// names. Long video titles are clamped so they can't crowd the header's
+// Save button; the full title remains visible in the Title field below.
+// Upstream defect this works around: Breadcrumbs ships its own
+// `li:last-child { flex-shrink: 1; min-width: 0 }` intending exactly this
+// truncation, but it never engages — the nav and the header's inner Stack
+// are flex items left at `min-width: auto`, so no width constraint ever
+// reaches the list. If that's fixed upstream, this block can shrink to
+// just the max-width cap (or go away entirely).
+.vp-video-details__breadcrumbs {
+	display: contents;
+
+	li:last-child h1 {
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+		max-width: min(60ch, 45vw);
+	}
+}
+
 .vp-video-details__not-found {
 	padding: 48px 24px;
 	text-align: center;
@@ -51,14 +74,16 @@
 	flex-shrink: 0;
 }
 
-// "Processing" placeholder shown in place of the poster <img> while
-// the VideoPress backend is still transcoding the upload. Shares the
-// .vp-video-details__thumbnail class for size and border-radius, plus
-// this modifier for the centered text + neutral background.
+// "Processing" badge shown in place of the poster <img> while the
+// VideoPress backend is still transcoding the upload. With no poster to
+// size it, the box hugs its label, so it needs its own padding to read as
+// a tidy pill instead of text pressed against the neutral background.
+// (Inherits the 4px border-radius from .vp-video-details__thumbnail.)
 .vp-video-details__thumbnail-processing {
 	display: flex;
 	align-items: center;
 	justify-content: center;
+	padding: 4px 12px;
 	background: #f0f0f0;
 	color: #1e1e1e;
 }

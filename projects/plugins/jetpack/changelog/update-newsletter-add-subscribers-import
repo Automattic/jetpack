@@ -1,3 +1,0 @@
-Significance: patch
-Type: other
-Comment: Subscribers (Newsletter modernization, behind a feature flag): proxy the add-subscribers action to the async wpcom /sites/{id}/subscribers/import (v2) endpoint instead of /invites/new, matching Calypso's import flow, and add import-jobs / reset-state proxy routes for the modal's in-progress and stale-import notices.

@@ -2,6 +2,7 @@ import { jest } from '@jest/globals';
 
 const recordRtcEventMock = jest.fn();
 const addFilterMock = jest.fn();
+const isRoomLimitBreachedMock = jest.fn( () => false );
 
 jest.unstable_mockModule( '../tracks', () => ( {
 	recordRtcEvent: recordRtcEventMock,
@@ -9,6 +10,10 @@ jest.unstable_mockModule( '../tracks', () => ( {
 
 jest.unstable_mockModule( '@wordpress/hooks', () => ( {
 	addFilter: addFilterMock,
+} ) );
+
+jest.unstable_mockModule( '../../notices/room-limit', () => ( {
+	isRoomLimitBreached: isRoomLimitBreachedMock,
 } ) );
 
 const { withJoinTracking, registerJoinTracking } = await import( '../track-join' );
@@ -61,6 +66,7 @@ const SETTLE_DELAY_MS = 3000;
 describe( 'withJoinTracking', () => {
 	beforeEach( () => {
 		recordRtcEventMock.mockClear();
+		isRoomLimitBreachedMock.mockReturnValue( false );
 		jest.useFakeTimers();
 	} );
 
@@ -81,7 +87,6 @@ describe( 'withJoinTracking', () => {
 
 		expect( recordRtcEventMock ).toHaveBeenCalledTimes( 1 );
 		expect( recordRtcEventMock ).toHaveBeenCalledWith( 'jetpack_rtc_join', {
-			wp_user_id: 7,
 			contributor_count: 3,
 			contributors: [ 7, 7, 9 ],
 		} );
@@ -101,7 +106,6 @@ describe( 'withJoinTracking', () => {
 
 		expect( recordRtcEventMock ).toHaveBeenCalledTimes( 1 );
 		expect( recordRtcEventMock ).toHaveBeenCalledWith( 'jetpack_rtc_join', {
-			wp_user_id: 7,
 			contributor_count: 2,
 			contributors: [ 7, 9 ],
 		} );
@@ -127,10 +131,22 @@ describe( 'withJoinTracking', () => {
 		jest.advanceTimersByTime( SETTLE_DELAY_MS );
 		expect( recordRtcEventMock ).toHaveBeenCalledTimes( 1 );
 		expect( recordRtcEventMock ).toHaveBeenCalledWith( 'jetpack_rtc_join', {
-			wp_user_id: 7,
 			contributor_count: 1,
 			contributors: [ 7 ],
 		} );
+	} );
+
+	it( 'does not record the join if the room limit was breached during the delay', async () => {
+		const creator = jest.fn().mockResolvedValue( makeProvider() );
+		const wrapped = withJoinTracking( creator as never );
+
+		await wrapped( entityRoom( fakeAwareness( { states: { 1: 7 }, clientID: 1 } ) ) );
+
+		// The client is turned away (room-limit block) before the settle fires.
+		isRoomLimitBreachedMock.mockReturnValue( true );
+		jest.advanceTimersByTime( SETTLE_DELAY_MS );
+
+		expect( recordRtcEventMock ).not.toHaveBeenCalled();
 	} );
 
 	it( 'records only once even if awareness changes again', async () => {
@@ -186,7 +202,6 @@ describe( 'withJoinTracking', () => {
 		jest.advanceTimersByTime( SETTLE_DELAY_MS );
 
 		expect( recordRtcEventMock ).toHaveBeenCalledWith( 'jetpack_rtc_join', {
-			wp_user_id: 7,
 			contributor_count: 2,
 			contributors: [ 7, 9 ],
 		} );

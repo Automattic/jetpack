@@ -33,27 +33,27 @@ describe( 'Reconnect', () => {
 		expect( screen.getByRole( 'link' ) ).toHaveTextContent( 'Reconnect' );
 	} );
 
-	test( 'disables the link when isDisconnecting is true', () => {
-		setup( { getDeletingConnections: [ mockConnection.connection_id ] } );
+	test( 'shows a non-interactive Reconnecting… label while a reconnect is in progress', async () => {
+		// A resolved-true requestAccess means the popup opened, so the busy state sticks.
+		useRequestAccess.mockReturnValue( jest.fn().mockResolvedValue( true ) );
 		render( <Reconnect connection={ mockConnection } service={ mockService } /> );
 
-		const link = screen.getByRole( 'link' );
-		expect( link ).toHaveAttribute( 'aria-disabled', 'true' );
-		expect( link ).toHaveTextContent( 'Disconnecting…' );
+		await userEvent.click( screen.getByRole( 'link' ) );
+
+		await expect( screen.findByText( 'Reconnecting…' ) ).resolves.toBeInTheDocument();
+		expect( screen.getByRole( 'link' ) ).toHaveAttribute( 'aria-disabled', 'true' );
 	} );
 
-	test( 'calls deleteConnectionById and requestAccess on link click', async () => {
+	test( 'reconnects in place without disconnecting first', async () => {
+		const requestAccess = jest.fn().mockResolvedValue( true );
+		useRequestAccess.mockReturnValue( requestAccess );
 		const { stubDeleteConnectionById } = setup();
 		render( <Reconnect connection={ mockConnection } service={ mockService } /> );
 
 		await userEvent.click( screen.getByRole( 'link' ) );
 
-		expect( stubDeleteConnectionById ).toHaveBeenCalledWith( {
-			connectionId: mockConnection.connection_id,
-			showSuccessNotice: false,
-		} );
-
-		expect( useRequestAccess ).toHaveBeenCalled();
+		expect( stubDeleteConnectionById ).not.toHaveBeenCalled();
+		expect( requestAccess ).toHaveBeenCalled();
 	} );
 
 	test( 'does not render the link if connection cannot be disconnected', () => {

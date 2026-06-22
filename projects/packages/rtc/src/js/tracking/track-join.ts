@@ -1,4 +1,6 @@
 import { addFilter } from '@wordpress/hooks';
+import { isRoomLimitBreached } from '../notices/room-limit';
+import { getContributorIds, getLocalUserId } from './awareness';
 import { recordRtcEvent } from './tracks';
 import type { Awareness, ProviderCreator } from '@wordpress/sync';
 
@@ -11,53 +13,6 @@ const JOIN_EVENT = 'jetpack_rtc_join';
  * roster stays best-effort there — see the limitation note on `getContributorIds`.
  */
 const SETTLE_DELAY_MS = 3000;
-
-interface CollaboratorAwarenessState {
-	collaboratorInfo?: { id?: number };
-}
-
-/**
- * Build the contributor user-ID list from the current awareness states.
- *
- * A user editing in multiple tabs appears multiple times (same id); distinct
- * users appear as distinct ids. States with no collaborator id are skipped.
- *
- * The ids come from awareness `collaboratorInfo.id`, i.e. the WordPress user id.
- * On Simple sites that is the WordPress.com user id, but on Atomic/Jetpack sites
- * it is the *site-local* WP user id (not the wpcom id used by Tracks' `_ui`), so
- * `contributors` is only meaningful scoped to a single `blog_id`.
- *
- * Limitation: this roster is best-effort. A client records only the peers it has
- * synced when the snapshot fires. On HTTP-polling, awareness arrives on a poll
- * cycle (up to 25s for a backgrounded tab), so a joiner can record a self-only
- * roster even when others are editing. Derive simultaneous-editor and multi-tab
- * counts by correlating join events (distinct/repeated `wp_user_id` on the same
- * `post_id` within a time window), not from a single event's `contributors`.
- *
- * @param awareness - The Yjs awareness instance for the room.
- * @return The WP user IDs currently present in the room.
- */
-function getContributorIds( awareness: Awareness ): number[] {
-	return Array.from( awareness.getStates().values() )
-		.map( state => ( state as CollaboratorAwarenessState )?.collaboratorInfo?.id )
-		.filter( ( id ): id is number => typeof id === 'number' );
-}
-
-/**
- * The local client's WordPress user id, read from the local awareness state's
- * `collaboratorInfo.id` (same id-space as `contributors` — see
- * `getContributorIds`). Undefined until core-data populates it, shortly after
- * the provider is created.
- *
- * @param awareness - The Yjs awareness instance for the room.
- * @return The local client's WP user id, or undefined when not yet present.
- */
-function getLocalUserId( awareness: Awareness ): number | undefined {
-	const localState = awareness.getStates().get( awareness.clientID ) as
-		| CollaboratorAwarenessState
-		| undefined;
-	return localState?.collaboratorInfo?.id;
-}
 
 /**
  * Whether the local client's presence has been established in awareness.
@@ -72,16 +27,14 @@ function isLocalClientPresent( awareness: Awareness ): boolean {
 /**
  * Record the join event with a snapshot of the contributors currently present.
  *
- * `wp_user_id` is read from awareness here (guaranteed present once
- * `isLocalClientPresent` is true) rather than from the resolver-backed
- * `core` store, so it is always populated.
+ * `transport`, `post_id`, `post_type`, and `wp_user_id` are added by
+ * `recordRtcEvent`; this only supplies the room roster.
  *
  * @param awareness - The Yjs awareness instance for the room.
  */
 function recordJoin( awareness: Awareness ): void {
 	const contributors = getContributorIds( awareness );
 	recordRtcEvent( JOIN_EVENT, {
-		wp_user_id: getLocalUserId( awareness ),
 		contributor_count: contributors.length,
 		contributors,
 	} );
@@ -102,7 +55,14 @@ function recordJoinAfterSettle( awareness: Awareness ): void {
 		}
 		scheduled = true;
 		awareness.off( 'change', scheduleSnapshot );
-		setTimeout( () => recordJoin( awareness ), SETTLE_DELAY_MS );
+		setTimeout( () => {
+			// A client turned away by the room limit emits jetpack_rtc_blocked,
+			// not a join, so skip the snapshot if the limit was breached while we
+			// were waiting (its provider has also been torn down by then).
+			if ( ! isRoomLimitBreached() ) {
+				recordJoin( awareness );
+			}
+		}, SETTLE_DELAY_MS );
 	};
 
 	awareness.on( 'change', scheduleSnapshot );

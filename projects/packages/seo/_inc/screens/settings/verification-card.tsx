@@ -4,6 +4,7 @@ import { TextControl } from '@wordpress/components';
 import { __, sprintf, _n } from '@wordpress/i18n';
 import { Badge, Card, CollapsibleCard, Stack } from '@wordpress/ui';
 import { VERIFICATION_SERVICES } from '../../data/verification-services';
+import GoogleVerificationField from './google-verification-field';
 import './style.scss';
 import type { SettingsResponse, VerificationKey } from '../../data/settings-types';
 import type { FC } from 'react';
@@ -65,21 +66,32 @@ const VerificationCard: FC< Props > = ( {
 				</Stack>
 			</CollapsibleCard.Header>
 			<CollapsibleCard.Content>
-				<div className="jetpack-seo-settings__verification-grid">
-					{ VERIFICATION_SERVICES.map( ( { key, label } ) => (
-						<TextControl
-							key={ key }
-							label={ label }
-							value={ value[ key ] }
-							onChange={ next => onChange( key, next ) }
-							onBlur={ onCommit }
-							help={ HINTS[ key ] }
-							disabled={ disabled }
-							__next40pxDefaultSize
-							__nextHasNoMarginBottom
-						/>
-					) ) }
-				</div>
+				<Stack direction="column" gap="lg">
+					{ /* Google gets the keyring auto-verify flow; the rest are simple code fields. */ }
+					<GoogleVerificationField
+						value={ value.google }
+						onChange={ next => onChange( 'google', next ) }
+						onCommit={ onCommit }
+						disabled={ disabled }
+					/>
+					<div className="jetpack-seo-settings__verification-grid">
+						{ VERIFICATION_SERVICES.filter( ( { key } ) => key !== 'google' ).map(
+							( { key, label } ) => (
+								<TextControl
+									key={ key }
+									label={ label }
+									value={ value[ key ] }
+									onChange={ next => onChange( key, next ) }
+									onBlur={ onCommit }
+									help={ HINTS[ key ] }
+									disabled={ disabled }
+									__next40pxDefaultSize
+									__nextHasNoMarginBottom
+								/>
+							)
+						) }
+					</div>
+				</Stack>
 			</CollapsibleCard.Content>
 		</CollapsibleCard.Root>
 	);

@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Newsletter: fix the "Add plans" link for WordPress installs in a subdirectory by deriving the site slug from home_url instead of site_url.

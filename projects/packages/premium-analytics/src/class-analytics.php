@@ -8,6 +8,8 @@
 namespace Automattic\Jetpack\PremiumAnalytics;
 
 use Automattic\Jetpack\PremiumAnalytics\REST\Api_Proxy_Controller;
+use Automattic\Jetpack\PremiumAnalytics\REST\Notices_Controller;
+use Automattic\Jetpack\PremiumAnalytics\Sync\Configuration as Sync_Configuration;
 use Automattic\Jetpack\PremiumAnalytics\Sync\Sync_Status_Tracker;
 
 /**
@@ -60,10 +62,15 @@ class Analytics {
 		}
 
 		Sync_Status_Tracker::configure();
+		// TEMPORARY (WOOA7S-1550): register the interim woocommerce_analytics sync module so
+		// Sync_Status_Tracker has a full sync to observe. Remove when the shared sync-modules package lands.
+		Sync_Configuration::register();
 		Api_Proxy_Controller::register();
+		Notices_Controller::register();
 
 		add_action( 'admin_menu', array( static::class, 'register_admin_menu' ) );
 		add_action( 'jetpack-premium-analytics_init', array( static::class, 'register_sidebar_items' ) );
+		add_action( 'jetpack-premium-analytics_init', array( static::class, 'ensure_script_data' ) );
 	}
 
 	/**
@@ -103,5 +110,28 @@ class Analytics {
 			__( 'Dashboard', 'jetpack-premium-analytics' ),
 			'/'
 		);
+	}
+
+	/**
+	 * Emit window.JetpackScriptData on the boot-rendered admin page.
+	 *
+	 * The wp-build interceptor that renders this page (its page.php template)
+	 * reproduces wp-admin/admin-header.php but does not fire the
+	 * `admin_print_scripts` action. The jetpack-assets Script_Data class hooks
+	 * that action to print `window.JetpackScriptData` — which carries the
+	 * connection data the route guards read — so without help the global is
+	 * never emitted and the guards cannot tell whether the site is connected.
+	 *
+	 * Hooked on the page's own init action, this runs only for this page, in
+	 * time for the footer scripts to print. Script_Data guards against rendering
+	 * twice, so it is a no-op wherever `admin_print_scripts` fires normally.
+	 *
+	 * @return void
+	 */
+	public static function ensure_script_data() {
+		$script_data = 'Automattic\Jetpack\Assets\Script_Data';
+		if ( is_callable( array( $script_data, 'render_script_data' ) ) ) {
+			$script_data::render_script_data();
+		}
 	}
 }

@@ -87,7 +87,7 @@ class Writing_Prompt_Widget {
 	 * the connection check happens after Core's pluggable functions are loaded.
 	 * Checking the connection any earlier triggers a fatal error on Atomic.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.9.1
 	 *
 	 * @return bool
 	 */
@@ -157,7 +157,7 @@ class Writing_Prompt_Widget {
 	 * settings page so the widget can reuse the same `getNewsletterScriptData()`
 	 * helper and `analytics.initialize()` flow.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.9.1
 	 *
 	 * @param array $data The script data.
 	 * @return array The filtered script data.

@@ -29,3 +29,116 @@
 	grid-template-columns: 1fr;
 	gap: var(--wpds-dimension-gap-md, 12px);
 }
+
+// Intro copy above the preview list.
+.jetpack-seo-settings__preview-intro {
+	margin: 0 0 var(--wpds-dimension-gap-xl, 24px);
+}
+
+// Each preview + its heading grouped inside a bordered, padded box so it reads
+// as one unit, with generous separation between groups.
+.jetpack-seo-settings__preview-group {
+	padding: 16px;
+	border: 1px solid var(--wpds-color-stroke-surface-neutral-weak, #dadde1);
+	border-radius: var(--wpds-border-radius-md, 4px);
+}
+
+.jetpack-seo-settings__preview-group + .jetpack-seo-settings__preview-group {
+	margin-block-start: var(--wpds-dimension-gap-2xl, 32px);
+}
+
+// Platform label above each preview: brand icon + name, prominent enough to
+// scan, with clear space before the card it describes.
+.jetpack-seo-settings__preview-label {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	margin: 0 0 var(--wpds-dimension-gap-md, 12px);
+	font-size: 15px;
+	font-weight: 600;
+}
+
+.jetpack-seo-preview__platform-icon {
+	inline-size: 18px;
+	block-size: 18px;
+	flex-shrink: 0;
+}
+
+// In-house search/social preview cards (no third-party library). Approximate
+// the look of each platform with plain markup.
+.jetpack-seo-preview {
+	max-inline-size: 500px;
+	font-size: 14px;
+	line-height: 1.4;
+}
+
+.jetpack-seo-preview__desc {
+	color: var(--wpds-color-fg-content-neutral-weak, #757575);
+}
+
+// Google search result.
+.jetpack-seo-preview--google {
+
+	.jetpack-seo-preview__google-site {
+		display: flex;
+		align-items: center;
+		gap: 8px;
+	}
+
+	.jetpack-seo-preview__favicon {
+		inline-size: 26px;
+		block-size: 26px;
+		border-radius: 50%;
+		border: 1px solid var(--wpds-color-stroke-surface-neutral-weak, #e0e0e0);
+		object-fit: cover;
+	}
+
+	.jetpack-seo-preview__google-url {
+		font-size: 12px;
+		color: #4d5156;
+	}
+
+	.jetpack-seo-preview__google-title {
+		margin-block-start: 4px;
+		font-size: 20px;
+		color: #1a0dab;
+	}
+
+	.jetpack-seo-preview__desc {
+		margin-block-start: 4px;
+	}
+}
+
+// Facebook / X shared link card.
+.jetpack-seo-preview--card {
+	overflow: hidden;
+	border: 1px solid var(--wpds-color-stroke-surface-neutral-weak, #dadde1);
+	border-radius: var(--wpds-border-radius-md, 4px);
+
+	.jetpack-seo-preview__image {
+		block-size: 240px;
+		background-color: var(--wpds-color-bg-surface-neutral, #f0f2f5);
+		background-position: center;
+		background-size: cover;
+	}
+
+	.jetpack-seo-preview__card-body {
+		padding: var(--wpds-dimension-padding-md, 12px);
+		background: var(--wpds-color-bg-surface-neutral, #f2f3f5);
+	}
+
+	.jetpack-seo-preview__card-domain {
+		font-size: 12px;
+		text-transform: uppercase;
+		color: var(--wpds-color-fg-content-neutral-weak, #757575);
+	}
+
+	.jetpack-seo-preview__card-title {
+		margin-block-start: 2px;
+		font-weight: 600;
+	}
+
+	.jetpack-seo-preview__desc {
+		margin-block-start: 2px;
+	}
+}

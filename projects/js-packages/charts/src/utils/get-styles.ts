@@ -1,5 +1,4 @@
-import type { ChartTheme, SeriesData } from '../types';
-import type { LegendShape } from '@visx/legend/lib/types';
+import type { ChartTheme, LegendShape, SeriesData } from '../types';
 import type { LineStyles } from '@visx/xychart';
 
 /**

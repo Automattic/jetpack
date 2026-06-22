@@ -26,6 +26,10 @@ export function buildJetpackPayload(
 	if ( local.sitemap_active !== baseline.sitemap_active ) {
 		payload.sitemaps = local.sitemap_active;
 	}
+	if ( local.canonical_active !== baseline.canonical_active ) {
+		// The payload key is the module slug; `/jetpack/v4/settings` toggles the module.
+		payload[ 'canonical-urls' ] = local.canonical_active;
+	}
 	if ( JSON.stringify( local.title_formats ) !== JSON.stringify( baseline.title_formats ) ) {
 		payload.advanced_seo_title_formats = local.title_formats;
 	}

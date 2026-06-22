@@ -183,8 +183,63 @@ class Sync_Status_Tracker_Test extends TestCase {
 			has_filter( 'jetpack_admin_js_script_data', array( Sync_Status_Tracker::class, 'inject_script_data' ) ),
 			'tracker should filter jetpack_admin_js_script_data'
 		);
+		$this->assertNotFalse(
+			has_filter( 'rest_post_dispatch', array( Sync_Status_Tracker::class, 'enrich_sync_status_response' ) ),
+			'tracker should filter rest_post_dispatch to enrich sync status'
+		);
 
 		remove_action( 'jetpack_sync_processed_actions', array( Sync_Status_Tracker::class, 'on_sync_processed_actions' ) );
 		remove_filter( 'jetpack_admin_js_script_data', array( Sync_Status_Tracker::class, 'inject_script_data' ) );
+		remove_filter( 'rest_post_dispatch', array( Sync_Status_Tracker::class, 'enrich_sync_status_response' ) );
+	}
+
+	public function test_enrich_adds_milestone_to_sync_status_response() {
+		update_option( Sync_Status_Tracker::INITIAL_FULL_SYNC_OPTION, 1730000123 );
+		$request  = new \WP_REST_Request( 'GET', Sync_Status_Tracker::SYNC_STATUS_ROUTE );
+		$response = new \WP_REST_Response( array( 'started' => true ) );
+
+		$result = Sync_Status_Tracker::enrich_sync_status_response( $response, null, $request );
+
+		$data = $result->get_data();
+		$this->assertSame( 1730000123, $data['initial_full_sync_finished'] );
+		$this->assertTrue( $data['started'], 'preserves existing fields' );
+	}
+
+	public function test_enrich_reports_zero_when_milestone_unset() {
+		$request  = new \WP_REST_Request( 'GET', Sync_Status_Tracker::SYNC_STATUS_ROUTE );
+		$response = new \WP_REST_Response( array() );
+
+		$result = Sync_Status_Tracker::enrich_sync_status_response( $response, null, $request );
+
+		$this->assertSame( 0, $result->get_data()['initial_full_sync_finished'] );
+	}
+
+	public function test_enrich_ignores_other_routes() {
+		update_option( Sync_Status_Tracker::INITIAL_FULL_SYNC_OPTION, 1730000123 );
+		$request  = new \WP_REST_Request( 'POST', '/jetpack/v4/sync/full-sync' );
+		$response = new \WP_REST_Response( array( 'scheduled' => true ) );
+
+		$result = Sync_Status_Tracker::enrich_sync_status_response( $response, null, $request );
+
+		$this->assertArrayNotHasKey( 'initial_full_sync_finished', $result->get_data() );
+	}
+
+	public function test_enrich_skips_error_responses() {
+		update_option( Sync_Status_Tracker::INITIAL_FULL_SYNC_OPTION, 1730000123 );
+		$request  = new \WP_REST_Request( 'GET', Sync_Status_Tracker::SYNC_STATUS_ROUTE );
+		$response = new \WP_REST_Response( array( 'code' => 'forbidden' ), 403 );
+
+		$result = Sync_Status_Tracker::enrich_sync_status_response( $response, null, $request );
+
+		$this->assertArrayNotHasKey( 'initial_full_sync_finished', $result->get_data() );
+	}
+
+	public function test_enrich_passes_through_non_rest_response() {
+		$request     = new \WP_REST_Request( 'GET', Sync_Status_Tracker::SYNC_STATUS_ROUTE );
+		$passthrough = new \WP_Error( 'boom' );
+
+		$result = Sync_Status_Tracker::enrich_sync_status_response( $passthrough, null, $request );
+
+		$this->assertSame( $passthrough, $result );
 	}
 }

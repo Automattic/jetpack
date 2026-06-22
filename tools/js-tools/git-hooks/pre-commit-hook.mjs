@@ -127,6 +127,17 @@ function filterCssFiles( file ) {
 }
 
 /**
+ * Provides filter to determine which files are shell scripts to run through shellcheck.
+ *
+ * @param {string} file - Name of file that was modified.
+ * @return {boolean} Whether the file should be linted.
+ */
+function filterShellFiles( file ) {
+	// Keeping it simple.
+	return file.endsWith( '.sh' );
+}
+
+/**
  * Logging function that is used when check is failed
  *
  * @param {string} before - Text before "no-verify" block
@@ -156,6 +167,7 @@ const phpFiles = gitFiles.filter(
 const phpcsFiles = phpFiles.filter( phpcsFilesToFilter );
 const phpcsChangedFiles = phpFiles.filter( file => ! phpcsFilesToFilter( file ) );
 const cssFiles = gitFiles.filter( filterCssFiles );
+const shellFiles = gitFiles.filter( filterShellFiles );
 
 /**
  * Filters out unstaged changes so we do not add an entire file without intention.
@@ -475,7 +487,36 @@ function runCssLint( cssFilesToLint ) {
 	}
 
 	if ( cssLintResult && cssLintResult.status && ! isJetpackDraftMode() ) {
-		checkFailed( 'CSS linting found issues that cannot be automatically fixed!\n' );
+		checkFailed( 'Stylelint found issues that cannot be automatically fixed!\n' );
+	}
+}
+
+/**
+ * Run shellcheck on shell scripts.
+ *
+ * @param {Array} shellFilesToLint - List of shell scripts to lint.
+ */
+function runShellcheck( shellFilesToLint ) {
+	if ( ! shellFilesToLint.length ) {
+		return;
+	}
+
+	const shellcheckResult = spawnSync( 'shellcheck', [ '--severity=warning', ...shellFilesToLint ], {
+		stdio: 'inherit',
+	} );
+
+	if ( shellcheckResult.error?.code === 'ENOENT' ) {
+		console.log(
+			chalk.yellow(
+				'Skipping shellcheck: not installed. See https://github.com/koalaman/shellcheck#installing for installation instructions'
+			)
+		);
+		return;
+	}
+
+	// Down the road we could consider implementing auto-fix with `-f diff`, but for now just report.
+	if ( shellcheckResult && shellcheckResult.status && ! isJetpackDraftMode() ) {
+		checkFailed( 'ShellCheck reported some problems.\n' );
 	}
 }
 
@@ -552,6 +593,11 @@ if ( phpcsChangedFiles.length > 0 ) {
 // Run CSS linting
 if ( cssFiles.length > 0 ) {
 	runCssLint( cssFiles );
+}
+
+// Run shellcheck
+if ( shellFiles.length > 0 ) {
+	runShellcheck( shellFiles );
 }
 
 // Check pnpm-lock.yaml for pnpm trying to manage the package manager, even though we don't want it to.

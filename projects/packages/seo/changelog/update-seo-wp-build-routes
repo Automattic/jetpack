@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Split the SEO dashboard into per-route wp-build stages (Overview, Settings, AI) with route-based navigation, replacing the single-route tab app. No user-facing change.

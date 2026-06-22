@@ -7,8 +7,10 @@
 	"module": "build-module/index.mjs",
 	"wpScriptModuleExports": "./build-module/index.mjs",
 	"dependencies": {
-		"@wordpress/boot": "0.14.1",
-		"@wordpress/data": "10.48.0",
+		"@automattic/jetpack-script-data": "workspace:*",
+		"@wordpress/api-fetch": "7.48.1",
+		"@wordpress/boot": "0.15.1",
+		"@wordpress/data": "10.48.1",
 		"@wordpress/icons": "^13.0.0"
 	}
 }
