@@ -228,7 +228,12 @@ class Jetpack_Subscriptions_Test extends WP_UnitTestCase {
 		$contributor_id = $this->factory->user->create( array( 'role' => 'contributor' ) );
 		wp_set_current_user( $contributor_id );
 
-		add_filter( 'jetpack_subscriptions_post_was_ever_published_capability', fn() => 'publish_posts' );
+		add_filter(
+			'jetpack_subscriptions_post_was_ever_published_capability',
+			function () {
+				return 'publish_posts';
+			}
+		);
 		$this->assertFalse(
 			$subscriptions->first_published_status_meta_auth_callback(),
 			'The capability filter should still be able to restrict access.'
