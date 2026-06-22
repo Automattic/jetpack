@@ -53,7 +53,8 @@ export function Syncing() {
 
 	// Without store data (WooCommerce inactive) there is nothing store-specific to
 	// sync — we wait on Jetpack's generic initial sync, so the copy drops "store".
-	const hasStoreData = data?.hasStoreData ?? true;
+	// Default to false so copy is never incorrect if `data` is still undefined.
+	const hasStoreData = data?.hasStoreData ?? false;
 
 	const title = error
 		? __( 'Sync interrupted', 'jetpack-premium-analytics' )
