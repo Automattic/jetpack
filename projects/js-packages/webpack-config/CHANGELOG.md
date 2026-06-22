@@ -8,7 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## 3.10.0 - 2026-06-22
 ### Added
 - Add webpack cache setup function. [#49174]
-- Externalize the jetpack-shared-stores package so the shared data stores resolve to a single bundle. [#49494]
+- Externalize the `jetpack-shared-stores` package so the shared data stores resolve to a single bundle. [#49494]
 
 ### Changed
 - Update package dependencies. [#49691] [#49732] [#49757]

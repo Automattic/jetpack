@@ -326,14 +326,26 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 16.0-a.1 - 2026-06-15
+### 16.0-a.3 - 2026-06-22
 #### Enhancements
-- Daily Writing Prompt: Load the Dashboard widget on connected self-hosted Jetpack sites.
-- Subscriptions Block: Customize the Subscribe modal heading site-wide via a new Newsletter setting.
+- Add AI-powered "Generate/Improve with Jetpack" buttons to the Content Guidelines admin page.
+- AI Sidebar: Enable Optimize Title suggestions.
+- Newsletter: Allow setting a custom description for the free tier and hiding it from the subscriber plan selector.
+- Render the unified Jetpack admin header and footer on Akismet's admin pages.
+- SEO: Add a per-post schema type control and SEO columns (schema, meta description, search visibility) to post-list tables.
+- SEO: Auto-discover the new SEO surface on fresh installs (opt-in on existing sites), and add an opt-in banner to the legacy Traffic > SEO settings page.
+- SEO: Surface SEO Tools as a Plugin Search Hint when users search the plugin directory for SEO-related terms.
+- Subscriptions: Replace the Subscribers menu link with a transitional announcement page when the Newsletter modernization filter is enabled.
 
 #### Bug fixes
-- Daily Writing Prompt: Defer the connection-readiness check to Dashboard setup to avoid a fatal error on Atomic sites.
-- Paid Content Block: Prevent lockout after a subscription renewal.
+- Akismet: Hide the empty `#screen-meta-links` container so it no longer reserves a blank slot above the Jetpack header (notably on WordPress.com Simple sites).
+- Blaze: Warn users with active campaigns before disabling the Blaze module.
+- Donations Form: Prevent the editor from flickering when hovering the block as an inserter preview.
+- Newsletter: When setting up paid subscriptions, only prompt for the steps that are actually missing (Stripe connection and/or a newsletter tier).
+- Subscriptions: Prevent a duplicate Subscribers menu entry on WordPress.com (Atomic) sites.
+- Top Posts & Pages: Use the live post permalink so links reflect the current site URL.
+- VideoPress: Load player scripts only once when a page contains multiple videos.
+- VideoPress: Fix the player overflowing the page on the non-iframe embed path.
 
 --------
 

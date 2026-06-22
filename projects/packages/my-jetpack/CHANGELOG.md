@@ -12,11 +12,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Podcast: List the Podcast module under the Growth section. [#49790]
 
 ### Changed
-- Import the Jetpack modules data store from the new jetpack-shared-stores package. [#49494]
+- Import the Jetpack modules data store from the new `jetpack-shared-stores` package. [#49494]
 - Update package dependencies. [#49631] [#49638] [#49691] [#49732] [#49757]
 
 ### Fixed
-- Modules list: fix rounded corners so row dividers no longer poke past the border [#49763]
+- Modules list: Fix rounded corners so row dividers no longer poke past the border. [#49763]
 
 ## [5.38.4] - 2026-06-15
 ### Changed
