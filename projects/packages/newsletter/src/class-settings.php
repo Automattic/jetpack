@@ -14,6 +14,7 @@ use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
+use Automattic\Jetpack\Status\Visitor;
 use Jetpack_Tracks_Client;
 
 /**
@@ -34,13 +35,20 @@ class Settings {
 	const MODERNIZATION_FILTER = 'rsm_jetpack_ui_modernization_newsletter';
 
 	/**
-	 * Percentage of WordPress.com Simple sites the modernized Newsletter
-	 * experience defaults on for during the staged rollout.
+	 * Percentage of sites the modernized Newsletter experience defaults on for
+	 * during the staged rollout.
 	 *
-	 * Sites are bucketed deterministically by their wpcom blog ID, so every
-	 * gate that reads this lands on the same answer for a given site.
+	 * Currently 0: the Simple-site rollout is driven from the WordPress.com backend
+	 * instead (a server-side feature-flag value that can be rolled back instantly),
+	 * so the Jetpack-side cohort is held at zero. The cohort code stays in place for
+	 * Atomic (WoA) and self-hosted Jetpack sites; bumping this single number is the
+	 * one-line change that widens the rollout once the Simple cohort is validated.
+	 * Automatticians get the experience regardless of this percentage.
+	 *
+	 * Sites are bucketed deterministically by their wpcom blog ID, so every gate
+	 * that reads this lands on the same answer for a given site.
 	 */
-	const MODERNIZATION_ROLLOUT_PERCENTAGE = 5;
+	const MODERNIZATION_ROLLOUT_PERCENTAGE = 0;
 
 	/**
 	 * Whether the class has been initialized
@@ -502,21 +510,26 @@ class Settings {
 	 *
 	 * The release is staged: the modernized dashboard, wp-admin subscriber
 	 * management, and the retired Calypso Subscribers submenu all default on for a
-	 * deterministic 5% slice of WordPress.com sites, keyed on the wpcom blog ID.
+	 * deterministic slice of sites, keyed on the wpcom blog ID, plus all
+	 * Automatticians.
 	 *
-	 * The cohort spans both Simple and WoA (Atomic) and is bucketed on the *wpcom*
-	 * blog ID (`get_current_blog_id()` on Simple, `jetpack_options['id']` on WoA),
-	 * which is preserved when a Simple site is upgraded to Atomic. Keying on the
-	 * wpcom platform + wpcom blog ID — rather than the transient `IS_WPCOM`
-	 * constant — means a site keeps its cohort decision across the transfer and does
-	 * not lose the modernized experience on upgrade. Self-hosted/shadow Jetpack
-	 * sites are still excluded: they are neither Simple nor WoA, so
-	 * `is_wpcom_platform()` is false.
+	 * The percentage cohort (see `MODERNIZATION_ROLLOUT_PERCENTAGE`) spans *all*
+	 * sites — Simple, WoA (Atomic) and self-hosted Jetpack — and is bucketed on the
+	 * wpcom blog ID (`get_current_blog_id()` on Simple, `jetpack_options['id']`
+	 * elsewhere), which is preserved when a Simple site is upgraded to Atomic. Keying
+	 * on the wpcom blog ID rather than the transient `IS_WPCOM` constant means a site
+	 * keeps its cohort decision across the transfer. The percentage is currently 0:
+	 * the Simple-site rollout is driven from the WordPress.com backend instead, and
+	 * this gate stays at zero until the wider rollout is opened by bumping the
+	 * constant. A site with no resolvable wpcom blog ID (e.g. a self-hosted Jetpack
+	 * site that isn't connected) is never bucketed in.
 	 *
 	 * Automatticians get the modernized experience by default regardless of the
 	 * percentage cohort, so a12s can dogfood it and test fixes ahead of the wider
-	 * rollout. `is_automattician()` is a WordPress.com global that only exists on
-	 * Simple sites, so the check naturally no-ops on Atomic/self-hosted.
+	 * rollout. This is a dogfooding gate, not an authorization check, so the Simple
+	 * `is_automattician()` global is used without the usual proxied-request pairing;
+	 * Atomic has no non-proxied a12s signal, so it falls back to
+	 * `Visitor::is_automattician_feature_flags_only()` (true for proxied a8c requests).
 	 *
 	 * This is only the filter *default*: hosts (and a11ns who want the legacy view
 	 * back) can still force the experience on or off with the
@@ -526,23 +539,27 @@ class Settings {
 	 * @return bool
 	 */
 	public static function is_modernization_rollout_enabled() {
-		if ( function_exists( 'is_automattician' ) && is_automattician() ) {
+		// Automatticians are enrolled regardless of the percentage cohort so they
+		// can dogfood ahead of the wider rollout. Simple exposes the
+		// `is_automattician()` global; Atomic has no non-proxied a12s signal, so we
+		// fall back to the proxied-request check. (Dogfooding gate, so no
+		// `wpcom_is_proxied_request()` pairing on the Simple branch.)
+		if (
+			( function_exists( 'is_automattician' ) && is_automattician() )
+			|| ( new Visitor() )->is_automattician_feature_flags_only()
+		) {
 			return true;
 		}
 
-		$host = new Host();
-		if ( ! $host->is_wpcom_platform() ) {
-			return false;
-		}
-
 		// Bucket on the wpcom blog ID, which is stable across a Simple→Atomic
-		// transfer: the current blog ID on Simple, the stored wpcom ID on WoA. We
-		// read the WoA ID from Jetpack options directly rather than via
+		// transfer: the current blog ID on Simple, the stored wpcom ID elsewhere. We
+		// read the WoA/Jetpack ID from Jetpack options directly rather than via
 		// `Host::get_wpcom_site_id()`, which additionally requires the Jetpack
 		// connection to be "ready" — that would drop a freshly transferred site out
 		// of the cohort until its connection settles. Guard against an unresolvable
-		// ID so a site without one isn't bucketed as blog ID 0 (`0 % 100 < 5`) and
-		// enrolled by accident.
+		// ID so a site without one isn't bucketed as blog ID 0 and enrolled by
+		// accident once the percentage is non-zero.
+		$host    = new Host();
 		$blog_id = $host->is_wpcom_simple()
 			? (int) get_current_blog_id()
 			: (int) \Jetpack_Options::get_option( 'id' );
@@ -557,8 +574,9 @@ class Settings {
 	 * Returns true when the wp-build modernization filter is enabled.
 	 *
 	 * Defaults to the staged-rollout cohort (see
-	 * `is_modernization_rollout_enabled()`): on for 5% of WordPress.com Simple
-	 * sites, off everywhere else. Hosts can opt in or out explicitly with
+	 * `is_modernization_rollout_enabled()`): on for Automatticians and for the
+	 * percentage cohort (currently 0%), off everywhere else. Hosts can opt in or out
+	 * explicitly with
 	 * `add_filter( self::MODERNIZATION_FILTER, '__return_true' / '__return_false' );`.
 	 *
 	 * @return bool

@@ -42,9 +42,9 @@ class WPCOM_REST_API_V2_Endpoint_Subscribers_List extends WP_REST_Controller {
 	 * (mirrors `Automattic\Jetpack\Newsletter\Settings::MODERNIZATION_FILTER`). Checked here, on
 	 * `rest_api_init`, so theme-added filters have a chance to land before the gate evaluates.
 	 *
-	 * The filter default is the staged rollout (5% of WordPress.com Simple sites, by blog ID),
-	 * delegated to the canonical Newsletter\Settings helper and guarded so an older packaged copy
-	 * can't fatal.
+	 * The filter default is the staged rollout (Automatticians plus the percentage cohort,
+	 * currently 0%, bucketed by the stable wpcom blog ID), delegated to the canonical
+	 * Newsletter\Settings helper and guarded so an older packaged copy can't fatal.
 	 */
 	public function register_routes() {
 		$modernization_rollout_default = method_exists( '\Automattic\Jetpack\Newsletter\Settings', 'is_modernization_rollout_enabled' )

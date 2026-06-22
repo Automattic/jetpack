@@ -10,6 +10,8 @@ namespace Automattic\Jetpack\Newsletter\Tests;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Newsletter\Settings;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\PreserveGlobalState;
+use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use WorDBless\BaseTestCase;
 
 /**
@@ -170,9 +172,9 @@ class Settings_Test extends BaseTestCase {
 	/**
 	 * `is_modernized()` is the canonical gate used by `maybe_load_wp_build`,
 	 * `add_wp_admin_menu`, and `load_admin_scripts`. Its default — the value
-	 * `apply_filters` receives — is the staged-rollout cohort. Outside a
-	 * WordPress.com Simple site (the test environment) the cohort is empty, so
-	 * the default must be false.
+	 * `apply_filters` receives — is the staged-rollout cohort. With the percentage
+	 * cohort held at 0% and no Automattician in the test environment, the default
+	 * must be false.
 	 */
 	public function test_is_modernized_defaults_to_false_outside_rollout() {
 		$this->assertFalse(
@@ -182,31 +184,42 @@ class Settings_Test extends BaseTestCase {
 	}
 
 	/**
-	 * The rollout cohort is limited to genuine WordPress.com sites (Simple or WoA).
-	 * A non-wpcom site (no `IS_WPCOM`, not Atomic) — including shadow/self-hosted
-	 * Jetpack sites — must never be enrolled regardless of its blog ID.
+	 * The rollout now spans *all* sites: removing the old wpcom-platform gate means a
+	 * self-hosted (non-wpcom) Jetpack site with a resolvable wpcom blog ID enters the
+	 * percentage cohort just like Simple/WoA, bucketed on its stored wpcom ID. At the
+	 * current 0% it is not enrolled; once the percentage is raised it would be, which
+	 * is exactly the "all sites" behavior this asserts against the live constant.
 	 */
-	public function test_rollout_disabled_on_non_wpcom_site() {
-		$this->assertFalse(
-			Settings::is_modernization_rollout_enabled(),
-			'Only WordPress.com sites (Simple or WoA) may enter the modernization rollout cohort.'
-		);
+	public function test_self_hosted_connected_site_bucketed_on_wpcom_id() {
+		\Jetpack_Options::update_option( 'id', 200 ); // Non-wpcom site, but a connected wpcom blog ID.
+
+		try {
+			$this->assertSame(
+				( 200 % 100 ) < Settings::MODERNIZATION_ROLLOUT_PERCENTAGE,
+				Settings::is_modernization_rollout_enabled(),
+				'A self-hosted connected Jetpack site must be bucketed on its wpcom blog ID against the rollout percentage.'
+			);
+		} finally {
+			\Jetpack_Options::delete_option( 'id' );
+		}
 	}
 
 	/**
-	 * Simple sites can be upgraded to Atomic (WoA). The cohort keys on the wpcom
-	 * blog ID, which is preserved across the transfer, so an in-bucket site that had
-	 * the modernized experience on Simple keeps it on WoA — it must not silently
-	 * revert to the legacy dashboard on upgrade.
+	 * Simple sites can be upgraded to Atomic (WoA). The cohort keys on the wpcom blog
+	 * ID, which is preserved across the transfer (read from `jetpack_options['id']` on
+	 * WoA, not the current blog ID), so a site's enrollment decision is identical
+	 * before and after the upgrade — it never silently flips on transfer. Asserted
+	 * against the live percentage so it holds at 0% and after a bump alike.
 	 */
-	public function test_rollout_enabled_for_in_bucket_woa_site() {
+	public function test_woa_site_bucketed_on_stable_wpcom_blog_id() {
 		$this->set_woa_constants();
-		\Jetpack_Options::update_option( 'id', 200 ); // 200 % 100 = 0, in bucket.
+		\Jetpack_Options::update_option( 'id', 200 ); // 200 % 100 = 0.
 
 		try {
-			$this->assertTrue(
+			$this->assertSame(
+				( 200 % 100 ) < Settings::MODERNIZATION_ROLLOUT_PERCENTAGE,
 				Settings::is_modernization_rollout_enabled(),
-				'An in-bucket WoA site (post Simple→Atomic transfer) must stay enrolled in the rollout.'
+				'A WoA site must be bucketed on its stable wpcom blog ID against the rollout percentage.'
 			);
 		} finally {
 			$this->clear_woa_constants();
@@ -214,28 +227,10 @@ class Settings_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Including WoA in the cohort must not enroll every Atomic site — only the same
-	 * deterministic blog-ID slice. An out-of-bucket WoA site stays on the legacy
-	 * experience.
-	 */
-	public function test_rollout_disabled_for_out_of_bucket_woa_site() {
-		$this->set_woa_constants();
-		\Jetpack_Options::update_option( 'id', 150 ); // 150 % 100 = 50, out of bucket.
-
-		try {
-			$this->assertFalse(
-				Settings::is_modernization_rollout_enabled(),
-				'An out-of-bucket WoA site must not be enrolled in the rollout.'
-			);
-		} finally {
-			$this->clear_woa_constants();
-		}
-	}
-
-	/**
-	 * On a wpcom site where the wpcom blog ID can't be resolved (e.g. a freshly
-	 * transferred WoA site before its connection settles), the site must not be
-	 * bucketed as blog ID 0 (`0 % 100 < 5`) and enrolled by accident.
+	 * On a site where the wpcom blog ID can't be resolved (e.g. a freshly transferred
+	 * WoA site before its connection settles, or a disconnected self-hosted site), the
+	 * site must not be bucketed as blog ID 0 and enrolled by accident once the
+	 * percentage is non-zero. This holds regardless of the percentage.
 	 */
 	public function test_rollout_disabled_when_wpcom_blog_id_unavailable() {
 		$this->set_woa_constants();
@@ -244,7 +239,7 @@ class Settings_Test extends BaseTestCase {
 		try {
 			$this->assertFalse(
 				Settings::is_modernization_rollout_enabled(),
-				'A wpcom site with no resolvable wpcom blog ID must not be enrolled.'
+				'A site with no resolvable wpcom blog ID must not be enrolled.'
 			);
 		} finally {
 			$this->clear_woa_constants();
@@ -275,16 +270,19 @@ class Settings_Test extends BaseTestCase {
 	}
 
 	/**
-	 * A WordPress.com Simple site whose blog ID falls in the rollout bucket
-	 * (id % 100 < 5) is enrolled. WorDBless reports blog ID 1, which is in-bucket.
+	 * A WordPress.com Simple site is bucketed on its current blog ID (not the stored
+	 * `jetpack_options['id']`). WorDBless reports blog ID 1, so this verifies the
+	 * Simple branch feeds the right ID into the bucket math. Asserted against the live
+	 * percentage so it holds at 0% and after a bump alike.
 	 */
-	public function test_rollout_enabled_for_in_bucket_wpcom_simple_site() {
+	public function test_wpcom_simple_site_bucketed_on_current_blog_id() {
 		\Automattic\Jetpack\Constants::set_constant( 'IS_WPCOM', true );
 
 		try {
-			$this->assertTrue(
+			$this->assertSame(
+				( (int) get_current_blog_id() % 100 ) < Settings::MODERNIZATION_ROLLOUT_PERCENTAGE,
 				Settings::is_modernization_rollout_enabled(),
-				'An in-bucket WordPress.com Simple site must be enrolled in the rollout cohort.'
+				'A WordPress.com Simple site must be bucketed on its current blog ID against the rollout percentage.'
 			);
 		} finally {
 			\Automattic\Jetpack\Constants::clear_single_constant( 'IS_WPCOM' );
@@ -292,10 +290,11 @@ class Settings_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Automatticians get the modernized experience by default so they can dogfood
-	 * it outside the percentage cohort. `is_automattician()` only exists on
-	 * WordPress.com Simple sites, so this enrolls a11ns regardless of whether the
-	 * site's blog ID falls in the rollout bucket.
+	 * Automatticians get the modernized experience by default so they can dogfood it
+	 * outside the percentage cohort. On Simple this rides the `is_automattician()`
+	 * global, which enrolls a11ns regardless of whether the site's blog ID falls in
+	 * the percentage bucket — the only path that enrolls anyone while the percentage
+	 * is held at 0%.
 	 */
 	public function test_rollout_enabled_for_automattician() {
 		$GLOBALS['jetpack_newsletter_test_is_automattician'] = true;
@@ -303,6 +302,28 @@ class Settings_Test extends BaseTestCase {
 		$this->assertTrue(
 			Settings::is_modernization_rollout_enabled(),
 			'Automatticians must be enrolled in the modernization rollout by default.'
+		);
+	}
+
+	/**
+	 * On Atomic (WoA) the `is_automattician()` global does not exist, so the a12s
+	 * carve-out falls back to `Visitor::is_automattician_feature_flags_only()`
+	 * (`AT_PROXIED_REQUEST`). A proxied a8c request must therefore be enrolled even
+	 * though no Simple a11n global is present and the percentage is 0%. Runs in a
+	 * separate process because `AT_PROXIED_REQUEST` can only be set with a real
+	 * `define()`, which would otherwise leak into every later test.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_rollout_enabled_for_atomic_proxied_automattician() {
+		define( 'AT_PROXIED_REQUEST', true );
+
+		$this->assertTrue(
+			Settings::is_modernization_rollout_enabled(),
+			'A proxied Automattician request on Atomic must be enrolled via the Visitor fallback.'
 		);
 	}
 

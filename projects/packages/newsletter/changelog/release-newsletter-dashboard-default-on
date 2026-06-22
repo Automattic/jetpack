@@ -1,4 +1,4 @@
 Significance: minor
 Type: changed
 
-Start the modernized Newsletter dashboard rollout: default the rsm_jetpack_ui_modernization_newsletter and jetpack_wp_admin_subscriber_management_enabled filters on for Automatticians and for 5% of WordPress.com sites (Simple and WoA), bucketed by the stable wpcom blog ID so the cohort persists across a Simple→Atomic transfer.
+Stage the modernized Newsletter dashboard rollout: default the rsm_jetpack_ui_modernization_newsletter and jetpack_wp_admin_subscriber_management_enabled filters on for Automatticians and for a percentage cohort of all sites (currently 0%), bucketed by the stable wpcom blog ID so the cohort persists across a Simple→Atomic transfer. The Simple-site rollout is driven separately from the WordPress.com backend.

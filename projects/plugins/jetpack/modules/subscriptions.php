@@ -1030,13 +1030,13 @@ class Jetpack_Subscriptions {
 	 */
 	public function add_subscribers_menu() {
 		/*
-		 * Staged-rollout default for both modernization filters: on for 5% of
-		 * WordPress.com Simple sites (bucketed by blog ID), off everywhere else.
-		 * Delegated to the canonical Newsletter\Settings::is_modernization_rollout_enabled()
-		 * so the cohort math has a single source of truth; guarded with method_exists so
-		 * this bootstrap path stays safe if the packaged Newsletter Settings class is an
-		 * older copy that doesn't expose the helper yet. The helper returns true only for
-		 * cohort WordPress.com Simple sites, so it is false in every other context.
+		 * Staged-rollout default for both modernization filters: on for
+		 * Automatticians and for the percentage cohort (currently 0%, bucketed by
+		 * the stable wpcom blog ID), off everywhere else. Delegated to the canonical
+		 * Newsletter\Settings::is_modernization_rollout_enabled() so the cohort math
+		 * has a single source of truth; guarded with method_exists so this bootstrap
+		 * path stays safe if the packaged Newsletter Settings class is an older copy
+		 * that doesn't expose the helper yet.
 		 */
 		$modernization_rollout_default = method_exists( '\Automattic\Jetpack\Newsletter\Settings', 'is_modernization_rollout_enabled' )
 			&& \Automattic\Jetpack\Newsletter\Settings::is_modernization_rollout_enabled();
@@ -1098,7 +1098,8 @@ class Jetpack_Subscriptions {
 		 * @since 9.5.0
 		 *
 		 * @param bool If the new dashboard is enabled. Defaults to the staged-rollout
-		 *             cohort: true for 5% of WordPress.com Simple sites, false elsewhere.
+		 *             cohort: true for Automatticians and the percentage cohort
+		 *             (currently 0%), false elsewhere.
 		 */
 		if ( apply_filters( 'jetpack_wp_admin_subscriber_management_enabled', $modernization_rollout_default ) ) {
 			return;

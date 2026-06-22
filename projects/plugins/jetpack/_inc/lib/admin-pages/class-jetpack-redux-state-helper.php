@@ -249,9 +249,10 @@ class Jetpack_Redux_State_Helper {
 
 			/*
 			 * This filter is already documented in jetpack/modules/subscriptions.php.
-			 * Default is the staged rollout (5% of WordPress.com Simple sites, by blog
-			 * ID), delegated to the canonical Newsletter\Settings helper and guarded so
-			 * an older packaged copy can't fatal.
+			 * Default is the staged rollout (Automatticians plus the percentage cohort,
+			 * currently 0%, bucketed by the stable wpcom blog ID), delegated to the
+			 * canonical Newsletter\Settings helper and guarded so an older packaged copy
+			 * can't fatal.
 			 */
 			'isWpAdminSubscriberManagementEnabled' => apply_filters(
 				'jetpack_wp_admin_subscriber_management_enabled',
