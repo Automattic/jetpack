@@ -1,11 +1,11 @@
-import { WidgetDashboard, type DashboardWidget } from '@automattic/jetpack-widget-dashboard';
 import { Page } from '@wordpress/admin-ui';
+import { WidgetDashboard, type DashboardWidget } from '@wordpress/widget-dashboard';
 import { useEffect, useMemo, useState, type ComponentType, type ReactNode } from 'react';
 import type {
 	ResolveWidgetModule,
 	WidgetRenderProps,
 	WidgetType,
-} from '@automattic/jetpack-widget-primitives';
+} from '@wordpress/widget-primitives';
 
 const DASHBOARD_ROW_HEIGHT = 300;
 const DASHBOARD_GRID_GAP = 24;

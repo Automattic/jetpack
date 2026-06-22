@@ -9,7 +9,7 @@ import { registerReportMocks } from '../../../packages/widgets-toolkit/src/stori
 import AverageItemsPerOrderRender from '../render';
 import widgetDefinition from '../widget';
 import type { Meta, StoryObj } from '@storybook/react';
-import type { WidgetRenderProps } from '@automattic/jetpack-widget-primitives';
+import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 import type { ComponentType } from 'react';
 
 registerReportMocks();
