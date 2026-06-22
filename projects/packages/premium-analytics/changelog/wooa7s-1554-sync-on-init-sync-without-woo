@@ -1,4 +1,4 @@
 Significance: patch
 Type: changed
 
-Syncing: when WooCommerce is not active, gate the dashboard on Jetpack's generic initial full sync instead of the woocommerce_analytics module, so the syncing screen completes instead of spinning forever. Expose a has_store_data flag for the frontend to pick the right sync, and tailor the syncing copy when there is no store data.
+Syncing: when WooCommerce is inactive, gate the dashboard on Jetpack's generic initial full sync so the syncing screen completes instead of spinning forever.
