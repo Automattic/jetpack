@@ -43,6 +43,7 @@ interface LeaderboardEntry {
 	previousShare: number;       // Previous bar width (0-100)
 	delta: number;               // Percentage change
 	imageColor?: string;         // Optional color for the entry's image/icon
+	onClick?: ( event: MouseEvent ) => void; // Optional. Makes the whole row an interactive button (click + keyboard); the consumer supplies the action.
 }
 ```
 

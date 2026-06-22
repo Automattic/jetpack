@@ -45,6 +45,9 @@
 	.bar {
 		height: 100%;
 		min-height: 6px;
+		// Keeps a sliver of bar visible for tiny shares, and stops the interactive
+		// row's fixed-pixel hover inset from collapsing a narrow bar to nothing.
+		min-width: var(--wpds-dimension-size-5xs, 4px);
 
 		border-radius: var(--a8c--charts--leaderboard--bar--border-radius, 9999px);
 		z-index: -1; /* places it behind the label */
@@ -79,4 +82,100 @@
 	color: #666;
 	font-size: var(--wpds-typography-font-size-md, 13px);
 	font-style: italic;
+}
+
+.interactiveRow {
+	display: grid;
+	grid-column: 1 / -1;
+	grid-template-columns: subgrid;
+	align-items: center;
+	position: relative;
+
+	// Native button reset.
+	appearance: none;
+	width: 100%;
+	margin: 0;
+	padding: 0;
+	border: 0;
+	background: none;
+	color: inherit;
+	font: inherit;
+	text-align: inherit;
+	cursor: pointer;
+
+	// On hover/focus the bar dims and its inline-end edge pulls back by a fixed
+	// amount while the value/delta slides toward the inline start by the same
+	// amount, clearing room for the chevron revealed at the inline-end edge.
+	// Because both move by the same fixed pixels (not a percentage scale), the
+	// bar↔value gap stays identical at rest and on hover for every row. The bar
+	// width (set in leaderboard-chart.tsx) is a grid item aligned to the inline
+	// start, so its inset mirrors automatically in RTL; the value slide is given
+	// an RTL override below. No row background — the bar carries the state.
+	.bar {
+		transition: opacity 0.15s ease, width 0.15s ease;
+	}
+
+	.valueContainer {
+		transition: transform 0.15s ease;
+	}
+
+	&:hover,
+	&:focus-visible {
+
+		// Fixed reserve for the chevron — shared by the bar width inset
+		// (see leaderboard-chart.tsx) and the value slide so their gap is constant.
+		--a8c--charts--leaderboard--bar--hover-inset: var(--wpds-dimension-gap-2xl, 32px);
+
+		.bar {
+			opacity: 0.5;
+		}
+
+		.valueContainer {
+			transform: translateX(calc(var(--a8c--charts--leaderboard--bar--hover-inset) * -1));
+		}
+
+		.chevron {
+			opacity: 1;
+		}
+	}
+
+	// In RTL the value slides toward the inline start the other way (rightward).
+	[dir="rtl"] &:hover .valueContainer,
+	[dir="rtl"] &:focus-visible .valueContainer {
+		transform: translateX(var(--a8c--charts--leaderboard--bar--hover-inset));
+	}
+
+	&:focus-visible {
+		outline: 2px solid var(--wpds-color-fg-interactive-brand, var(--wp-admin-theme-color, #3858e9));
+		outline-offset: -2px;
+	}
+}
+
+.chevron {
+	position: absolute;
+	inset-inline-end: var(--wpds-dimension-padding-xs, 4px);
+	top: 0;
+	bottom: 0;
+	margin-block: auto;
+	opacity: 0;
+	color: var(--wpds-color-fg-content-neutral-weak, #707070);
+	transition: opacity 0.15s ease;
+	pointer-events: none;
+
+	// The glyph points toward the inline end, so flip it to point left in RTL.
+	[dir="rtl"] & {
+		transform: scaleX(-1);
+	}
+}
+
+@media ( prefers-reduced-motion: reduce ) {
+
+	.interactiveRow {
+
+		.bar,
+		.valueContainer,
+		.chevron {
+			transition: none;
+		}
+	}
 }
