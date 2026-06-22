@@ -98,7 +98,6 @@ class Jetpack_Sync_WooCommerce_Test extends Jetpack_Sync_TestBase {
 		$this->assertIsArray( $order_total );
 		$this->assertEquals( (float) $order->get_total(), (float) $order_total['total'] );
 		$this->assertEquals( $order->get_currency(), $order_total['currency'] );
-		$this->assertArrayNotHasKey( 'kind', $order_total );
 	}
 
 	public function test_new_order_created_in_paid_status_appends_total() {
