@@ -9,35 +9,105 @@ export type StatsItemAction = {
 	data: unknown;
 };
 
-export type StatsNormalizedItem = {
-	id?: string | number;
+export type StatsNormalizedItemBase< TChild = unknown > = {
 	label: unknown;
-	views?: number;
-	downloads?: number;
-	plays?: number;
-	impressions?: number;
-	watch_time?: number;
-	retention_rate?: number;
-	children?: StatsNormalizedItem[] | null;
-	link?: string | null;
+	children?: TChild[] | null;
+};
+
+export type StatsTopPostsItem = StatsNormalizedItemBase & {
+	id?: string | number;
+	views: number;
+	link: string | null;
 	page?: string | null;
+	public?: unknown;
+	type?: unknown;
+	actions?: StatsItemAction[];
+};
+
+export interface StatsReferrersItem extends StatsNormalizedItemBase< StatsReferrersItem > {
+	views: number;
+	link: string | null;
+	icon: string | null;
+	labelIcon: string | null;
+	actions?: StatsItemAction[];
+	actionMenu?: number;
+}
+
+export interface StatsClicksItem extends StatsNormalizedItemBase< StatsClicksItem > {
+	views: number;
+	link: string | null;
+	icon: string | null;
+	labelIcon: string | null;
+}
+
+export type StatsSearchTermsItem = StatsNormalizedItemBase & {
+	views: number;
+	className: string;
+	children: null;
+};
+
+export type StatsFileDownloadsItem = StatsNormalizedItemBase & {
+	downloads: number;
 	shortLabel?: string;
-	labelIcon?: string | null;
-	icon?: string | null;
+	link?: string;
+	linkTitle: unknown;
+	labelIcon: string;
+	children: null;
+};
+
+export type StatsTopAuthorsItem = StatsNormalizedItemBase< StatsTopPostsItem > & {
+	views: number;
+	icon: string | null;
 	iconClassName?: string;
 	className?: string | null;
+};
+
+export type StatsLocationsItem = StatsNormalizedItemBase & {
+	views: number;
 	countryCode?: string;
 	countryFull?: string;
 	region?: string;
 	coordinates?: unknown;
-	actions?: StatsItemAction[];
-	actionMenu?: number;
+	children: null;
+};
+
+export type StatsVideoPlaysItem = StatsNormalizedItemBase & {
+	id?: string | number;
+	plays: number;
+	impressions: number;
+	watch_time: number;
+	retention_rate: number;
+	link: string | null;
+	children: null;
+};
+
+export type StatsNormalizedItem =
+	| StatsTopPostsItem
+	| StatsReferrersItem
+	| StatsClicksItem
+	| StatsSearchTermsItem
+	| StatsFileDownloadsItem
+	| StatsTopAuthorsItem
+	| StatsLocationsItem
+	| StatsVideoPlaysItem;
+
+export type StatsNormalizedDataPoint< TItem extends StatsNormalizedItem = StatsNormalizedItem > = {
+	time_interval: string;
+	date_start: string;
+	date_end: string;
+	items: TItem[];
 	[ key: string ]: unknown;
 };
 
-export type StatsNormalizedReport = {
-	summary: Record< string, number >;
-	data: StatsNormalizedItem[];
+export type StatsNormalizedSummary = {
+	date_start?: string;
+	date_end?: string;
+	[ key: string ]: unknown;
+};
+
+export type StatsNormalizedReport< TItem extends StatsNormalizedItem = StatsNormalizedItem > = {
+	summary: StatsNormalizedSummary;
+	data: Array< StatsNormalizedDataPoint< TItem > >;
 };
 
 type StatsRecord = Record< string, unknown >;
@@ -54,64 +124,76 @@ function getStatsArray< T = StatsRecord >( value: unknown ): T[] {
 	return Array.isArray( value ) ? ( value as T[] ) : [];
 }
 
-function normalizeNumericSummary( value: StatsRecord ): Record< string, number > {
+function normalizeStatsSummary( value: StatsRecord ): StatsNormalizedSummary {
 	return Object.fromEntries(
-		Object.entries( value ).map( ( [ key, item ] ) => [ key, safeParseFloat( item ) ] )
+		Object.entries( value ).map( ( [ key, item ] ) => [
+			key,
+			key === 'date_start' || key === 'date_end' ? item : safeParseFloat( item ),
+		] )
 	);
 }
 
-function countTotalByKey( items: StatsRecord[], key: string ): number {
-	return items.reduce( ( total, item ) => total + safeParseFloat( item[ key ] ), 0 );
+function normalizeStatsReportSummary(
+	response: unknown,
+	query?: StatsQueryParams
+): StatsNormalizedSummary {
+	return query?.summarize
+		? normalizeStatsSummary( getStatsRecord( getStatsRecord( response ).summary ) )
+		: {};
 }
 
-function countTotalByFirstAvailableKey( items: StatsRecord[], keys: string[] ): number {
-	return items.reduce( ( total, item ) => {
-		const key = keys.find( candidate => item[ candidate ] !== undefined );
-
-		return key ? total + safeParseFloat( item[ key ] ) : total;
-	}, 0 );
-}
-
-function getFirstDayBucket( response: StatsRecord ) {
-	const days = getStatsRecord( response.days );
-	const firstKey = Object.keys( days )[ 0 ];
-
-	return firstKey ? getStatsRecord( days[ firstKey ] ) : {};
-}
-
-function getStatsBucket( response: unknown, query: StatsQueryParams = {} ) {
-	const payload = getStatsRecord( response );
-	const summary = getStatsRecord( payload.summary );
-
-	if ( query.summarize && Object.keys( summary ).length ) {
-		return summary;
+function getStatsBuckets( response: unknown, query: StatsQueryParams = {} ) {
+	if ( query.summarize ) {
+		return [];
 	}
 
+	const payload = getStatsRecord( response );
 	const days = getStatsRecord( payload.days );
 	const requested = query.date ?? query.start_date;
 
 	if ( requested && days[ requested ] ) {
-		return getStatsRecord( days[ requested ] );
+		return [ [ requested, getStatsRecord( days[ requested ] ) ] ] as const;
 	}
 
-	return getFirstDayBucket( payload );
+	return Object.entries( days ).map( ( [ key, value ] ) => [
+		key,
+		getStatsRecord( value ),
+	] ) as Array< readonly [ string, StatsRecord ] >;
 }
 
-function getStatsItems(
+function getString( value: unknown, fallback = '' ): string {
+	return typeof value === 'string' ? value : fallback;
+}
+
+function createStatsDataPoint< TItem extends StatsNormalizedItem >(
+	date: string,
+	bucket: StatsRecord,
+	items: TItem[]
+): StatsNormalizedDataPoint< TItem > {
+	return {
+		time_interval: getString( bucket.time_interval, date ),
+		date_start: getString( bucket.date_start, date ),
+		date_end: getString( bucket.date_end, date ),
+		items,
+	};
+}
+
+function mapStatsDataPoints< TItem extends StatsNormalizedItem >(
 	response: unknown,
 	query: StatsQueryParams | undefined,
-	bucket: StatsRecord,
-	key: string
-): StatsRecord[] {
-	const source = query?.summarize ? getStatsRecord( getStatsRecord( response ).summary ) : bucket;
-
-	return getStatsArray< StatsRecord >( source[ key ] );
+	key: string,
+	mapper: ( item: StatsRecord ) => TItem
+): Array< StatsNormalizedDataPoint< TItem > > {
+	return getStatsBuckets( response, query ).map( ( [ date, bucket ] ) =>
+		createStatsDataPoint(
+			date,
+			bucket,
+			getStatsArray< StatsRecord >( bucket[ key ] ).map( mapper )
+		)
+	);
 }
 
-function mapNestedItems(
-	items: StatsRecord[],
-	mapper: ( item: StatsRecord ) => StatsNormalizedItem
-) {
+function mapNestedItems< TItem >( items: StatsRecord[], mapper: ( item: StatsRecord ) => TItem ) {
 	const children = items.map( item => mapper( item ) );
 
 	return children.length ? children : null;
@@ -126,23 +208,27 @@ export function sanitizeStatsSiteResponse( response: unknown ) {
 
 	return {
 		...payload,
-		stats: normalizeNumericSummary( getStatsRecord( payload.stats ) ),
+		stats: normalizeStatsSummary( getStatsRecord( payload.stats ) ),
+	};
+}
+
+export function combineStatsNormalizedReports< TItem extends StatsNormalizedItem >(
+	summaryReport?: Pick< StatsNormalizedReport< TItem >, 'summary' >,
+	dataReport?: Pick< StatsNormalizedReport< TItem >, 'data' >
+): StatsNormalizedReport< TItem > {
+	return {
+		summary: summaryReport?.summary ?? {},
+		data: dataReport?.data ?? [],
 	};
 }
 
 export function sanitizeStatsTopPostsResponse(
 	response: unknown,
 	query?: StatsQueryParams
-): StatsNormalizedReport {
-	const bucket = getStatsBucket( response, query );
-	const items = getStatsItems( response, query, bucket, 'postviews' );
-
+): StatsNormalizedReport< StatsTopPostsItem > {
 	return {
-		summary: normalizeNumericSummary( {
-			total_views:
-				bucket.total_views ?? getStatsRecord( getStatsRecord( response ).summary ).total_views,
-		} ),
-		data: items.map( item => ( {
+		summary: normalizeStatsReportSummary( response, query ),
+		data: mapStatsDataPoints( response, query, 'postviews', item => ( {
 			id: item.id as string | number | undefined,
 			label: item.title,
 			views: safeParseFloat( item.views ),
@@ -159,11 +245,8 @@ export function sanitizeStatsTopPostsResponse(
 export function sanitizeStatsReferrersResponse(
 	response: unknown,
 	query?: StatsQueryParams
-): StatsNormalizedReport {
-	const bucket = getStatsBucket( response, query );
-	const groups = getStatsItems( response, query, bucket, 'groups' );
-
-	const parse = ( item: StatsRecord ): StatsNormalizedItem => ( {
+): StatsNormalizedReport< StatsReferrersItem > {
+	const parse = ( item: StatsRecord ): StatsReferrersItem => ( {
 		label: item.name ?? item.group ?? '',
 		views: safeParseFloat( item.views ?? item.total ),
 		link: typeof item.url === 'string' ? item.url : null,
@@ -173,10 +256,8 @@ export function sanitizeStatsReferrersResponse(
 	} );
 
 	return {
-		summary: normalizeNumericSummary( {
-			total: bucket.total ?? countTotalByFirstAvailableKey( groups, [ 'total', 'views' ] ),
-		} ),
-		data: groups.map( item => {
+		summary: normalizeStatsReportSummary( response, query ),
+		data: mapStatsDataPoints( response, query, 'groups', item => {
 			const results = getStatsArray< StatsRecord >( item.results );
 			const normalized = parse( results.length === 1 ? results[ 0 ] : item );
 			const domain = item.name ?? item.group;
@@ -194,11 +275,8 @@ export function sanitizeStatsReferrersResponse(
 export function sanitizeStatsClicksResponse(
 	response: unknown,
 	query?: StatsQueryParams
-): StatsNormalizedReport {
-	const bucket = getStatsBucket( response, query );
-	const clicks = getStatsItems( response, query, bucket, 'clicks' );
-
-	const parse = ( item: StatsRecord ): StatsNormalizedItem => ( {
+): StatsNormalizedReport< StatsClicksItem > {
+	const parse = ( item: StatsRecord ): StatsClicksItem => ( {
 		label: item.name ?? '',
 		views: safeParseFloat( item.views ),
 		link: typeof item.url === 'string' ? item.url : null,
@@ -211,31 +289,25 @@ export function sanitizeStatsClicksResponse(
 					: '/',
 			views: safeParseFloat( child.views ),
 			link: typeof child.url === 'string' ? child.url : null,
+			icon: null,
 			labelIcon: 'external',
 			children: null,
 		} ) ),
 	} );
 
 	return {
-		summary: normalizeNumericSummary( {
-			total: countTotalByKey( clicks, 'views' ),
-		} ),
-		data: clicks.map( parse ),
+		summary: normalizeStatsReportSummary( response, query ),
+		data: mapStatsDataPoints( response, query, 'clicks', parse ),
 	};
 }
 
 export function sanitizeStatsSearchTermsResponse(
 	response: unknown,
 	query?: StatsQueryParams
-): StatsNormalizedReport {
-	const bucket = getStatsBucket( response, query );
-	const terms = getStatsItems( response, query, bucket, 'search_terms' );
-
+): StatsNormalizedReport< StatsSearchTermsItem > {
 	return {
-		summary: normalizeNumericSummary( {
-			total: countTotalByKey( terms, 'views' ),
-		} ),
-		data: terms.map( item => ( {
+		summary: normalizeStatsReportSummary( response, query ),
+		data: mapStatsDataPoints( response, query, 'search_terms', item => ( {
 			label: item.term,
 			views: safeParseFloat( item.views ),
 			className: 'user-selectable',
@@ -247,15 +319,10 @@ export function sanitizeStatsSearchTermsResponse(
 export function sanitizeStatsFileDownloadsResponse(
 	response: unknown,
 	query?: StatsQueryParams
-): StatsNormalizedReport {
-	const bucket = getStatsBucket( response, query );
-	const files = getStatsItems( response, query, bucket, 'files' );
-
+): StatsNormalizedReport< StatsFileDownloadsItem > {
 	return {
-		summary: normalizeNumericSummary( {
-			total: countTotalByKey( files, 'downloads' ),
-		} ),
-		data: files.map( item => ( {
+		summary: normalizeStatsReportSummary( response, query ),
+		data: mapStatsDataPoints( response, query, 'files', item => ( {
 			label: item.relative_url,
 			downloads: safeParseFloat( item.downloads ),
 			shortLabel: typeof item.filename === 'string' ? item.filename : undefined,
@@ -270,15 +337,10 @@ export function sanitizeStatsFileDownloadsResponse(
 export function sanitizeStatsTopAuthorsResponse(
 	response: unknown,
 	query?: StatsQueryParams
-): StatsNormalizedReport {
-	const bucket = getStatsBucket( response, query );
-	const authors = getStatsItems( response, query, bucket, 'authors' );
-
+): StatsNormalizedReport< StatsTopAuthorsItem > {
 	return {
-		summary: normalizeNumericSummary( {
-			total: countTotalByKey( authors, 'views' ),
-		} ),
-		data: authors.map( item => ( {
+		summary: normalizeStatsReportSummary( response, query ),
+		data: mapStatsDataPoints( response, query, 'authors', item => ( {
 			label: item.name || 'Untracked Authors',
 			views: safeParseFloat( item.views ),
 			icon: typeof item.avatar === 'string' ? item.avatar : null,
@@ -299,35 +361,40 @@ export function sanitizeStatsTopAuthorsResponse(
 export function sanitizeStatsLocationsResponse(
 	response: unknown,
 	query?: StatsQueryParams
-): StatsNormalizedReport {
+): StatsNormalizedReport< StatsLocationsItem > {
 	const payload = getStatsRecord( response );
-	const bucket = getStatsBucket( response, query );
-	const views = getStatsItems( response, query, bucket, 'views' );
 	const countryInfo = getStatsRecord( payload[ 'country-info' ] ?? payload.countryInfo );
-	const filteredViews = views.filter(
-		item =>
-			typeof item.country_code !== 'string' || ! [ 'A1', 'A2', 'ZZ' ].includes( item.country_code )
-	);
 
 	return {
-		summary: normalizeNumericSummary( {
-			total: countTotalByKey( filteredViews, 'views' ),
-		} ),
-		data: filteredViews.map( item => {
-			const country = getStatsRecord(
-				typeof item.country_code === 'string' ? countryInfo[ item.country_code ] : undefined
+		summary: normalizeStatsReportSummary( response, query ),
+		data: getStatsBuckets( response, query ).map( ( [ date, bucket ] ) => {
+			const filteredViews = getStatsArray< StatsRecord >( bucket.views ).filter(
+				item =>
+					typeof item.country_code !== 'string' ||
+					! [ 'A1', 'A2', 'ZZ' ].includes( item.country_code )
 			);
-			const label = item.location ?? country.country_full ?? item.country_code ?? '';
 
-			return {
-				label: typeof label === 'string' ? label.replace( /’/g, "'" ) : label,
-				views: safeParseFloat( item.views ),
-				countryCode: typeof item.country_code === 'string' ? item.country_code : undefined,
-				countryFull: typeof country.country_full === 'string' ? country.country_full : undefined,
-				region: typeof country.map_region === 'string' ? country.map_region : undefined,
-				coordinates: item.coordinates,
-				children: null,
-			};
+			return createStatsDataPoint(
+				date,
+				bucket,
+				filteredViews.map( item => {
+					const country = getStatsRecord(
+						typeof item.country_code === 'string' ? countryInfo[ item.country_code ] : undefined
+					);
+					const label = item.location ?? country.country_full ?? item.country_code ?? '';
+
+					return {
+						label: typeof label === 'string' ? label.replace( /’/g, "'" ) : label,
+						views: safeParseFloat( item.views ),
+						countryCode: typeof item.country_code === 'string' ? item.country_code : undefined,
+						countryFull:
+							typeof country.country_full === 'string' ? country.country_full : undefined,
+						region: typeof country.map_region === 'string' ? country.map_region : undefined,
+						coordinates: item.coordinates,
+						children: null,
+					};
+				} )
+			);
 		} ),
 	};
 }
@@ -335,30 +402,28 @@ export function sanitizeStatsLocationsResponse(
 export function sanitizeStatsVideoPlaysResponse(
 	response: unknown,
 	query?: StatsQueryParams
-): StatsNormalizedReport {
-	const bucket = getStatsBucket( response, query );
-	const payload = getStatsRecord( response );
-	const summaryDay = getStatsRecord( getStatsRecord( payload.days ).summary );
-	const videoData = query?.complete_stats
-		? getStatsArray< StatsRecord >( bucket.data ?? summaryDay.data )
-		: getStatsArray< StatsRecord >( bucket.plays ?? summaryDay.plays );
-
+): StatsNormalizedReport< StatsVideoPlaysItem > {
 	return {
-		summary: normalizeNumericSummary( {
-			total: videoData.reduce(
-				( total, item ) => total + safeParseFloat( item.views ?? item.plays ),
-				0
-			),
+		summary: normalizeStatsReportSummary( response, query ),
+		data: getStatsBuckets( response, query ).map( ( [ date, bucket ] ) => {
+			const videoData = query?.complete_stats
+				? getStatsArray< StatsRecord >( bucket.data )
+				: getStatsArray< StatsRecord >( bucket.plays );
+
+			return createStatsDataPoint(
+				date,
+				bucket,
+				videoData.map( item => ( {
+					id: item.post_id as string | number | undefined,
+					label: item.title,
+					plays: safeParseFloat( item.views ?? item.plays ),
+					impressions: safeParseFloat( item.impressions ),
+					watch_time: safeParseFloat( item.watch_time ),
+					retention_rate: safeParseFloat( item.retention_rate ),
+					link: typeof item.url === 'string' ? item.url : null,
+					children: null,
+				} ) )
+			);
 		} ),
-		data: videoData.map( item => ( {
-			id: item.post_id as string | number | undefined,
-			label: item.title,
-			plays: safeParseFloat( item.views ?? item.plays ),
-			impressions: safeParseFloat( item.impressions ),
-			watch_time: safeParseFloat( item.watch_time ),
-			retention_rate: safeParseFloat( item.retention_rate ),
-			link: typeof item.url === 'string' ? item.url : null,
-			children: null,
-		} ) ),
 	};
 }

@@ -2,6 +2,7 @@
  * Internal dependencies
  */
 import {
+	combineStatsNormalizedReports,
 	sanitizeStatsFileDownloadsResponse,
 	sanitizeStatsLocationsResponse,
 	sanitizeStatsReferrersResponse,
@@ -13,22 +14,66 @@ import {
 	locationsFixture,
 	referrersFixture,
 	topPostsFixture,
+	topPostsSummaryFixture,
 	videoPlaysFixture,
 } from '../__fixtures__/stats';
 
 describe( 'Stats normalizers', () => {
-	it( 'normalizes top posts into report data', () => {
+	it( 'normalizes summarized top posts without by-date data', () => {
 		expect(
-			sanitizeStatsTopPostsResponse( topPostsFixture, { period: 'day', date: '2026-06-16' } ).data
-		).toEqual( [
-			expect.objectContaining( {
-				id: 41,
-				label: 'Hello world',
-				views: 64,
-				children: null,
-				link: 'https://example.com/hello/',
-			} ),
+			sanitizeStatsTopPostsResponse( topPostsSummaryFixture, {
+				period: 'day',
+				summarize: true,
+			} )
+		).toEqual( {
+			summary: {
+				total_views: 312,
+				date_start: '2026-06-01T00:00:00+00:00',
+				date_end: '2026-06-30T23:59:59+00:00',
+			},
+			data: [],
+		} );
+	} );
+
+	it( 'normalizes top posts into by-date data points', () => {
+		const result = sanitizeStatsTopPostsResponse( topPostsFixture, {
+			period: 'day',
+			date: '2026-06-16',
+		} );
+
+		expect( result.summary ).toEqual( {} );
+		expect( result.data ).toEqual( [
+			{
+				time_interval: '2026-06-16',
+				date_start: '2026-06-16T00:00:00+00:00',
+				date_end: '2026-06-16T23:59:59+00:00',
+				items: [
+					expect.objectContaining( {
+						id: 41,
+						label: 'Hello world',
+						views: 64,
+						children: null,
+						link: 'https://example.com/hello/',
+					} ),
+				],
+			},
 		] );
+	} );
+
+	it( 'combines separately requested summary and by-date data', () => {
+		const summaryReport = sanitizeStatsTopPostsResponse( topPostsSummaryFixture, {
+			period: 'day',
+			summarize: true,
+		} );
+		const dataReport = sanitizeStatsTopPostsResponse( topPostsFixture, {
+			period: 'day',
+			date: '2026-06-16',
+		} );
+
+		expect( combineStatsNormalizedReports( summaryReport, dataReport ) ).toEqual( {
+			summary: summaryReport.summary,
+			data: dataReport.data,
+		} );
 	} );
 
 	it( 'normalizes nested referrers', () => {
@@ -39,10 +84,17 @@ describe( 'Stats normalizers', () => {
 
 		expect( result.data[ 0 ] ).toEqual(
 			expect.objectContaining( {
-				label: 'example.com/path',
-				views: 12,
-				children: null,
-				actionMenu: 1,
+				time_interval: '2026-06-16',
+				date_start: '2026-06-16T00:00:00+00:00',
+				date_end: '2026-06-16T23:59:59+00:00',
+				items: [
+					expect.objectContaining( {
+						label: 'example.com/path',
+						views: 12,
+						children: null,
+						actionMenu: 1,
+					} ),
+				],
 			} )
 		);
 	} );
@@ -52,7 +104,7 @@ describe( 'Stats normalizers', () => {
 			sanitizeStatsFileDownloadsResponse( fileDownloadsFixture, {
 				period: 'day',
 				date: '2026-06-16',
-			} ).data[ 0 ]
+			} ).data[ 0 ].items[ 0 ]
 		).toEqual(
 			expect.objectContaining( {
 				label: '/download.pdf',
@@ -68,13 +120,13 @@ describe( 'Stats normalizers', () => {
 			date: '2026-06-16',
 		} );
 
-		expect( result.data[ 0 ] ).toEqual(
+		expect( result.data[ 0 ].items[ 0 ] ).toEqual(
 			expect.objectContaining( {
 				label: "Côte d'Ivoire's",
 				views: 7,
 			} )
 		);
-		expect( result.summary ).toEqual( expect.objectContaining( { total: 7 } ) );
+		expect( result.summary ).toEqual( {} );
 	} );
 
 	it( 'normalizes secondary video metrics as semantic fields', () => {
@@ -82,7 +134,7 @@ describe( 'Stats normalizers', () => {
 			sanitizeStatsVideoPlaysResponse( videoPlaysFixture, {
 				period: 'day',
 				date: '2026-06-16',
-			} ).data[ 0 ]
+			} ).data[ 0 ].items[ 0 ]
 		).toEqual(
 			expect.objectContaining( {
 				id: 12,

@@ -1,6 +1,14 @@
 export const topPostsFixture = {
+	summary: {
+		total_views: '184',
+		date_start: '2026-06-16T00:00:00+00:00',
+		date_end: '2026-06-16T23:59:59+00:00',
+	},
 	days: {
 		'2026-06-16': {
+			time_interval: '2026-06-16',
+			date_start: '2026-06-16T00:00:00+00:00',
+			date_end: '2026-06-16T23:59:59+00:00',
 			total_views: 184,
 			postviews: [
 				{
@@ -15,9 +23,20 @@ export const topPostsFixture = {
 	},
 };
 
+export const topPostsSummaryFixture = {
+	summary: {
+		total_views: '312',
+		date_start: '2026-06-01T00:00:00+00:00',
+		date_end: '2026-06-30T23:59:59+00:00',
+	},
+};
+
 export const referrersFixture = {
 	days: {
 		'2026-06-16': {
+			time_interval: '2026-06-16',
+			date_start: '2026-06-16T00:00:00+00:00',
+			date_end: '2026-06-16T23:59:59+00:00',
 			groups: [
 				{
 					name: 'example.com',
@@ -32,6 +51,9 @@ export const referrersFixture = {
 export const fileDownloadsFixture = {
 	days: {
 		'2026-06-16': {
+			time_interval: '2026-06-16',
+			date_start: '2026-06-16T00:00:00+00:00',
+			date_end: '2026-06-16T23:59:59+00:00',
 			files: [
 				{
 					relative_url: '/download.pdf',
@@ -47,6 +69,9 @@ export const fileDownloadsFixture = {
 export const locationsFixture = {
 	days: {
 		'2026-06-16': {
+			time_interval: '2026-06-16',
+			date_start: '2026-06-16T00:00:00+00:00',
+			date_end: '2026-06-16T23:59:59+00:00',
 			views: [
 				{
 					country_code: 'CI',
@@ -65,6 +90,9 @@ export const locationsFixture = {
 export const videoPlaysFixture = {
 	days: {
 		'2026-06-16': {
+			time_interval: '2026-06-16',
+			date_start: '2026-06-16T00:00:00+00:00',
+			date_end: '2026-06-16T23:59:59+00:00',
 			plays: [
 				{
 					post_id: 12,
