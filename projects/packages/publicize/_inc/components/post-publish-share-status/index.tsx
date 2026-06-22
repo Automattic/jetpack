@@ -5,6 +5,7 @@ import { usePostMeta } from '../../hooks/use-post-meta';
 import { usePostPrePublishValue } from '../../hooks/use-post-pre-publish-value';
 import { usePostJustPublished } from '../../hooks/use-saving-post';
 import { store as socialStore } from '../../social-store';
+import ErrorBoundary from '../error-boundary';
 import { ShareStatus } from './share-status';
 
 /**
@@ -50,7 +51,9 @@ export function PostPublishShareStatus() {
 
 	return (
 		<PluginPostPublishPanel>
-			<ShareStatus />
+			<ErrorBoundary>
+				<ShareStatus />
+			</ErrorBoundary>
 		</PluginPostPublishPanel>
 	);
 }
