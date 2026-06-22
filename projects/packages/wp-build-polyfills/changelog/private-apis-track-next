@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Private APIs: Track the @next private-apis release so the bundled allowlist covers newer dashboard packages such as @wordpress/widget-dashboard.
