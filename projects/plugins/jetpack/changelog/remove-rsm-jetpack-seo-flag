@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+SEO: make the redesigned SEO dashboard generally available, gated by the install-cohort rollout (the `rsm_jetpack_seo` feature flag is removed). The plugin-search hint for SEO Tools now follows the dashboard's per-site availability.
