@@ -21,6 +21,11 @@ use PHPCSUtils\Utils\TextStrings;
  * `/^[a-z0-9][a-z0-9_-]*$/`. Rather than validating at runtime, this sniff
  * catches invalid string literals at lint time. Dynamic names (variables,
  * concatenation, function calls) cannot be checked statically and are skipped.
+ *
+ * Class matching is purely lexical: it keys off the unqualified literal
+ * `Feature_Flags`, so an aliased import (`use … as FF; FF::register()`) is not
+ * matched, and an unrelated class that happens to be named `Feature_Flags`
+ * would be. This is an accepted trade-off for a lint-time convenience check.
  */
 class FeatureFlagNameSniff implements Sniff {
 

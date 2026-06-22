@@ -82,6 +82,48 @@ class Feature_Flags_Test extends TestCase {
 	}
 
 	/**
+	 * Tests a non-boolean default is cast to a boolean.
+	 */
+	public function test_register_casts_default_to_bool() {
+		Feature_Flags::register( 'my-feature', array( 'default' => 1 ) );
+
+		$this->assertSame(
+			array(
+				'default'     => true,
+				'description' => '',
+				'owner'       => '',
+				'name'        => 'my-feature',
+			),
+			Feature_Flags::get( 'my-feature' )
+		);
+	}
+
+	/**
+	 * Tests get() returns null for an unknown flag.
+	 */
+	public function test_get_returns_null_for_unknown_flag() {
+		$this->assertNull( Feature_Flags::get( 'unknown-feature' ) );
+	}
+
+	/**
+	 * Tests re-registering a flag overwrites the previous definition.
+	 */
+	public function test_register_overwrites_existing_flag() {
+		Feature_Flags::register( 'my-feature', array( 'description' => 'First.' ) );
+		Feature_Flags::register( 'my-feature', array( 'description' => 'Second.' ) );
+
+		$this->assertSame(
+			array(
+				'default'     => false,
+				'description' => 'Second.',
+				'owner'       => '',
+				'name'        => 'my-feature',
+			),
+			Feature_Flags::get( 'my-feature' )
+		);
+	}
+
+	/**
 	 * Tests all registered flags are returned by name.
 	 */
 	public function test_all_returns_registered_flags_sorted_by_name() {
@@ -156,5 +198,27 @@ class Feature_Flags_Test extends TestCase {
 			->andReturn( true );
 
 		$this->assertTrue( Feature_Flags::is_enabled( 'unknown-feature' ) );
+	}
+
+	/**
+	 * Tests the dynamic per-flag filter can override flag state.
+	 */
+	public function test_is_enabled_applies_dynamic_filter() {
+		Feature_Flags::register( 'my-feature', array( 'default' => false ) );
+
+		Filters\expectApplied( 'jetpack_feature_flag_enabled_my-feature' )
+			->once()
+			->with(
+				false,
+				array(
+					'default'     => false,
+					'description' => '',
+					'owner'       => '',
+					'name'        => 'my-feature',
+				)
+			)
+			->andReturn( true );
+
+		$this->assertTrue( Feature_Flags::is_enabled( 'my-feature' ) );
 	}
 }

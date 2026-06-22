@@ -38,17 +38,11 @@ class Feature_Flags {
 	 * @return void
 	 */
 	public static function register( $name, array $definition = array() ) {
-		self::$flags[ $name ] = array_merge(
-			array(
-				'default'     => false,
-				'description' => '',
-				'owner'       => '',
-			),
-			$definition
-		);
+		$definition            = array_merge( self::default_definition( $name ), $definition );
+		$definition['default'] = (bool) $definition['default'];
+		$definition['name']    = $name;
 
-		self::$flags[ $name ]['default'] = (bool) self::$flags[ $name ]['default'];
-		self::$flags[ $name ]['name']    = $name;
+		self::$flags[ $name ] = $definition;
 	}
 
 	/**
@@ -67,9 +61,10 @@ class Feature_Flags {
 	 * @return array<string, array>
 	 */
 	public static function all() {
-		ksort( self::$flags );
+		$flags = self::$flags;
+		ksort( $flags );
 
-		return self::$flags;
+		return $flags;
 	}
 
 	/**
@@ -84,12 +79,7 @@ class Feature_Flags {
 		$definition = self::get( $name );
 
 		if ( null === $definition ) {
-			$definition = array(
-				'default'     => false,
-				'description' => '',
-				'owner'       => '',
-				'name'        => $name,
-			);
+			$definition = self::default_definition( $name );
 		}
 
 		$default = (bool) $definition['default'];
@@ -103,7 +93,21 @@ class Feature_Flags {
 		 * @param string $flag_name  Feature flag name.
 		 * @param array  $definition Registered feature flag definition.
 		 */
-		return (bool) apply_filters( 'jetpack_feature_flag_enabled', $default, $name, $definition );
+		$enabled = (bool) apply_filters( 'jetpack_feature_flag_enabled', $default, $name, $definition );
+
+		/**
+		 * Filters whether a specific Jetpack feature flag is enabled.
+		 *
+		 * The dynamic portion of the hook name, `$name`, refers to the feature flag name.
+		 * This mirrors the WordPress `option_{$option}` convention so a single flag can be
+		 * toggled with a `__return_true`/`__return_false` one-liner.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param bool  $enabled    Whether the flag is enabled.
+		 * @param array $definition Registered feature flag definition.
+		 */
+		return (bool) apply_filters( "jetpack_feature_flag_enabled_{$name}", $enabled, $definition );
 	}
 
 	/**
@@ -115,5 +119,20 @@ class Feature_Flags {
 	 */
 	public static function reset() {
 		self::$flags = array();
+	}
+
+	/**
+	 * Build the default definition for a flag.
+	 *
+	 * @param string $name Flag name.
+	 * @return array Default flag definition.
+	 */
+	private static function default_definition( $name ) {
+		return array(
+			'default'     => false,
+			'description' => '',
+			'owner'       => '',
+			'name'        => $name,
+		);
 	}
 }

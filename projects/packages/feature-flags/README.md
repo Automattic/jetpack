@@ -46,6 +46,12 @@ add_filter(
 
 The registered default is passed as the first argument. Unknown flags default to `false`, but still pass through the same filter.
 
+A dynamic per-flag variant, `jetpack_feature_flag_enabled_{$flag_name}`, runs after the generic filter. It mirrors WordPress's `option_{$option}` convention, so a single flag can be toggled with a one-liner:
+
+```php
+add_filter( 'jetpack_feature_flag_enabled_my-product-new-flow', '__return_true' );
+```
+
 ## Using This Package In Your WordPress Plugin
 
 If you plan on using this package in your WordPress plugin, we recommend using [Jetpack Autoloader](https://packagist.org/packages/automattic/jetpack-autoloader) as your autoloader for maximum interoperability with other plugins that use this package.
