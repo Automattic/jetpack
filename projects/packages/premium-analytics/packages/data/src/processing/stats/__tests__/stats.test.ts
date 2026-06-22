@@ -24,7 +24,7 @@ describe( 'Stats normalizers', () => {
 			expect.objectContaining( {
 				id: 41,
 				label: 'Hello world',
-				value: 64,
+				views: 64,
 				children: null,
 				meta: expect.objectContaining( {
 					link: 'https://example.com/hello/',
@@ -42,7 +42,7 @@ describe( 'Stats normalizers', () => {
 		expect( result.data[ 0 ] ).toEqual(
 			expect.objectContaining( {
 				label: 'example.com/path',
-				value: 12,
+				views: 12,
 				meta: expect.objectContaining( {
 					actionMenu: 1,
 				} ),
@@ -59,7 +59,7 @@ describe( 'Stats normalizers', () => {
 		).toEqual(
 			expect.objectContaining( {
 				label: '/download.pdf',
-				value: 5,
+				downloads: 5,
 				meta: expect.objectContaining( {
 					shortLabel: 'download.pdf',
 				} ),
@@ -76,13 +76,13 @@ describe( 'Stats normalizers', () => {
 		expect( result.data[ 0 ] ).toEqual(
 			expect.objectContaining( {
 				label: "Côte d'Ivoire's",
-				value: 7,
+				views: 7,
 			} )
 		);
 		expect( result.summary ).toEqual( expect.objectContaining( { total: 7 } ) );
 	} );
 
-	it( 'normalizes secondary video metrics into values', () => {
+	it( 'normalizes secondary video metrics as semantic fields', () => {
 		expect(
 			sanitizeStatsVideoPlaysResponse( videoPlaysFixture, {
 				period: 'day',
@@ -92,12 +92,10 @@ describe( 'Stats normalizers', () => {
 			expect.objectContaining( {
 				id: 12,
 				label: 'Launch video',
-				value: 11,
-				values: {
-					impressions: 42,
-					watch_time: 128.5,
-					retention_rate: 61.25,
-				},
+				plays: 11,
+				impressions: 42,
+				watch_time: 128.5,
+				retention_rate: 61.25,
 				meta: expect.objectContaining( {
 					link: 'https://example.com/video/',
 				} ),

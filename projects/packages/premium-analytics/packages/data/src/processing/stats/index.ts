@@ -29,8 +29,12 @@ export type StatsNormalizedItemMeta = {
 export type StatsNormalizedItem = {
 	id?: string | number;
 	label: unknown;
-	value: number;
-	values?: Record< string, number >;
+	views?: number;
+	downloads?: number;
+	plays?: number;
+	impressions?: number;
+	watch_time?: number;
+	retention_rate?: number;
 	children?: StatsNormalizedItem[] | null;
 	meta?: StatsNormalizedItemMeta;
 };
@@ -143,7 +147,7 @@ export function sanitizeStatsTopPostsResponse(
 		data: items.map( item => ( {
 			id: item.id as string | number | undefined,
 			label: item.title,
-			value: safeParseFloat( item.views ),
+			views: safeParseFloat( item.views ),
 			children: null,
 			meta: {
 				link: typeof item.href === 'string' ? item.href : null,
@@ -165,7 +169,7 @@ export function sanitizeStatsReferrersResponse(
 
 	const parse = ( item: StatsRecord ): StatsNormalizedItem => ( {
 		label: item.name ?? item.group ?? '',
-		value: safeParseFloat( item.views ?? item.total ),
+		views: safeParseFloat( item.views ?? item.total ),
 		children: mapNestedItems( getStatsArray( item.results ?? item.children ), parse ),
 		meta: {
 			link: typeof item.url === 'string' ? item.url : null,
@@ -205,13 +209,13 @@ export function sanitizeStatsClicksResponse(
 
 	const parse = ( item: StatsRecord ): StatsNormalizedItem => ( {
 		label: item.name ?? '',
-		value: safeParseFloat( item.views ),
+		views: safeParseFloat( item.views ),
 		children: mapNestedItems( getStatsArray( item.children ), child => ( {
 			label:
 				typeof child.name === 'string' && typeof item.name === 'string'
 					? child.name.split( item.name ).join( '' ) || '/'
 					: '/',
-			value: safeParseFloat( child.views ),
+			views: safeParseFloat( child.views ),
 			children: null,
 			meta: {
 				link: typeof child.url === 'string' ? child.url : null,
@@ -246,7 +250,7 @@ export function sanitizeStatsSearchTermsResponse(
 		} ),
 		data: terms.map( item => ( {
 			label: item.term,
-			value: safeParseFloat( item.views ),
+			views: safeParseFloat( item.views ),
 			children: null,
 			meta: {
 				className: 'user-selectable',
@@ -268,7 +272,7 @@ export function sanitizeStatsFileDownloadsResponse(
 		} ),
 		data: files.map( item => ( {
 			label: item.relative_url,
-			value: safeParseFloat( item.downloads ),
+			downloads: safeParseFloat( item.downloads ),
 			children: null,
 			meta: {
 				shortLabel: typeof item.filename === 'string' ? item.filename : undefined,
@@ -293,11 +297,11 @@ export function sanitizeStatsTopAuthorsResponse(
 		} ),
 		data: authors.map( item => ( {
 			label: item.name || 'Untracked Authors',
-			value: safeParseFloat( item.views ),
+			views: safeParseFloat( item.views ),
 			children: mapNestedItems( getStatsArray( item.posts ), post => ( {
 				id: post.id as string | number | undefined,
 				label: post.title,
-				value: safeParseFloat( post.views ),
+				views: safeParseFloat( post.views ),
 				children: null,
 				meta: {
 					link: typeof post.url === 'string' ? post.url : null,
@@ -338,7 +342,7 @@ export function sanitizeStatsLocationsResponse(
 
 			return {
 				label: typeof label === 'string' ? label.replace( /’/g, "'" ) : label,
-				value: safeParseFloat( item.views ),
+				views: safeParseFloat( item.views ),
 				children: null,
 				meta: {
 					countryCode: typeof item.country_code === 'string' ? item.country_code : undefined,
@@ -372,12 +376,10 @@ export function sanitizeStatsVideoPlaysResponse(
 		data: videoData.map( item => ( {
 			id: item.post_id as string | number | undefined,
 			label: item.title,
-			value: safeParseFloat( item.views ?? item.plays ),
-			values: {
-				impressions: safeParseFloat( item.impressions ),
-				watch_time: safeParseFloat( item.watch_time ),
-				retention_rate: safeParseFloat( item.retention_rate ),
-			},
+			plays: safeParseFloat( item.views ?? item.plays ),
+			impressions: safeParseFloat( item.impressions ),
+			watch_time: safeParseFloat( item.watch_time ),
+			retention_rate: safeParseFloat( item.retention_rate ),
 			children: null,
 			meta: {
 				link: typeof item.url === 'string' ? item.url : null,
