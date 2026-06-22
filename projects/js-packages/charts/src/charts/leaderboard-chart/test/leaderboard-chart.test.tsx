@@ -1,4 +1,5 @@
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import LeaderboardChart from '../leaderboard-chart';
 import type { LeaderboardEntry } from '../../../types';
 
@@ -375,12 +376,25 @@ describe( 'LeaderboardChart', () => {
 			expect( screen.getByRole( 'button' ).tagName ).toBe( 'BUTTON' );
 		} );
 
-		it( 'calls onClick when the row is clicked', () => {
+		it( 'calls onClick when the row is clicked', async () => {
+			const user = userEvent.setup();
 			const onClick = jest.fn();
 			render( <LeaderboardChart data={ [ { ...mockData[ 0 ], onClick } ] } /> );
-			// eslint-disable-next-line testing-library/prefer-user-event
-			fireEvent.click( screen.getByRole( 'button' ) );
+			await user.click( screen.getByRole( 'button' ) );
 			expect( onClick ).toHaveBeenCalledTimes( 1 );
+		} );
+
+		it( 'activates onClick via the keyboard (Enter and Space)', async () => {
+			const user = userEvent.setup();
+			const onClick = jest.fn();
+			render( <LeaderboardChart data={ [ { ...mockData[ 0 ], onClick } ] } /> );
+
+			await user.tab();
+			expect( screen.getByRole( 'button' ) ).toHaveFocus();
+
+			await user.keyboard( '{Enter}' );
+			await user.keyboard( '{ }' );
+			expect( onClick ).toHaveBeenCalledTimes( 2 );
 		} );
 
 		it( 'gives the interactive row an accessible name from the label and value', () => {
