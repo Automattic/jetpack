@@ -393,7 +393,7 @@ describe( 'LeaderboardChart', () => {
 			expect( screen.getByRole( 'button' ) ).toHaveFocus();
 
 			await user.keyboard( '{Enter}' );
-			await user.keyboard( '{ }' );
+			await user.keyboard( '{Space}' );
 			expect( onClick ).toHaveBeenCalledTimes( 2 );
 		} );
 

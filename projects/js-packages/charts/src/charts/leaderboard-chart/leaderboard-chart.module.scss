@@ -31,7 +31,7 @@
 	&.is-overlay {
 		grid-template: "overlap" 1fr / 1fr;
 
-		/* contains a single cell callded 'overlap' */
+		/* contains a single cell called 'overlap' */
 
 		>* {
 			grid-area: overlap;
