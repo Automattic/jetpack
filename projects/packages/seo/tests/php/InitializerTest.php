@@ -334,18 +334,28 @@ class InitializerTest extends TestCase {
 	public function test_inject_optin_availability_surfaces_flag_state() {
 		delete_option( Initializer::VISIBILITY_OPTION );
 
-		// Flag off → false, and non-array input is normalized to an array.
+		// Flag off → false, and non-array input is normalized to an array. Surface is also
+		// hidden (no cohort option set on this self-hosted test site).
 		$data = Initializer::inject_optin_availability( null );
 		$this->assertFalse( $data[ Initializer::SCRIPT_DATA_KEY ]['optin_available'] );
+		$this->assertFalse( $data[ Initializer::SCRIPT_DATA_KEY ]['surface_visible'] );
 
-		// Flag on + surface hidden → true; existing keys are preserved.
+		// Flag on + surface hidden → opt-in offered, surface not yet visible; existing keys preserved.
 		add_filter( Initializer::FEATURE_FILTER, '__return_true' );
 		try {
 			$data = Initializer::inject_optin_availability( array( 'keep' => 1 ) );
 			$this->assertTrue( $data[ Initializer::SCRIPT_DATA_KEY ]['optin_available'] );
+			$this->assertFalse( $data[ Initializer::SCRIPT_DATA_KEY ]['surface_visible'] );
 			$this->assertSame( 1, $data['keep'] );
+
+			// Opted in → surface visible, opt-in no longer offered.
+			update_option( Initializer::VISIBILITY_OPTION, '1' );
+			$data = Initializer::inject_optin_availability( array() );
+			$this->assertTrue( $data[ Initializer::SCRIPT_DATA_KEY ]['surface_visible'] );
+			$this->assertFalse( $data[ Initializer::SCRIPT_DATA_KEY ]['optin_available'] );
 		} finally {
 			remove_filter( Initializer::FEATURE_FILTER, '__return_true' );
+			delete_option( Initializer::VISIBILITY_OPTION );
 		}
 	}
 
