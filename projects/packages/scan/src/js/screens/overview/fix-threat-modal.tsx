@@ -4,14 +4,11 @@ import { __ } from '@wordpress/i18n';
 import { store as noticesStore } from '@wordpress/notices';
 import { Button, Stack, Text } from '@wordpress/ui';
 import { useCallback, useEffect, useState } from 'react';
+import MutedText from '../../components/muted-text';
 import { isFixComplete, useFixThreatsStatusQuery } from '../../data/use-fix-threats-status';
 import { useFixThreatsMutation } from '../../data/use-threat-mutations';
 import { useTrackEvent } from '../../data/use-track-event';
 import type { RenderModalProps } from '@wordpress/dataviews';
-
-// `@wordpress/ui`'s `Text` has no muted/weight props, so the de-emphasized
-// caption color is applied via `style` using the design-system token.
-const mutedTextStyle = { color: 'var(--wpds-color-fg-content-neutral-weak, #50575e)' };
 
 /**
  * Single-threat fix-confirmation modal — wired into `ThreatsDataViews`'
@@ -101,9 +98,9 @@ export function FixThreatModal( { items, closeModal }: RenderModalProps< Threat 
 
 	return (
 		<Stack gap="lg" direction="column">
-			<Text style={ mutedTextStyle }>
+			<MutedText>
 				{ __( 'Jetpack will be fixing the following threat:', 'jetpack-scan-page' ) }
-			</Text>
+			</MutedText>
 			<Stack gap="xs" direction="column">
 				<Stack gap="sm" direction="row" align="center" wrap="wrap">
 					<Text style={ { fontWeight: 'var(--wpds-typography-font-weight-medium, 499)' } }>
@@ -111,7 +108,7 @@ export function FixThreatModal( { items, closeModal }: RenderModalProps< Threat 
 					</Text>
 					{ !! threat.severity && <ThreatSeverityBadge severity={ threat.severity } /> }
 				</Stack>
-				{ threat.description && <Text style={ mutedTextStyle }>{ threat.description }</Text> }
+				{ threat.description && <MutedText>{ threat.description }</MutedText> }
 			</Stack>
 			<Stack gap="sm" direction="row" justify="flex-end">
 				<Button variant="outline" onClick={ closeModal } disabled={ isFixing }>

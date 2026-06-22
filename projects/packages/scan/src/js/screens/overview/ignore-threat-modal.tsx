@@ -4,13 +4,10 @@ import { __ } from '@wordpress/i18n';
 import { store as noticesStore } from '@wordpress/notices';
 import { Button, Notice, Stack, Text } from '@wordpress/ui';
 import { useCallback, useEffect } from 'react';
+import MutedText from '../../components/muted-text';
 import { useIgnoreThreatMutation } from '../../data/use-threat-mutations';
 import { useTrackEvent } from '../../data/use-track-event';
 import type { RenderModalProps } from '@wordpress/dataviews';
-
-// `@wordpress/ui`'s `Text` has no muted/weight props, so the de-emphasized
-// caption color is applied via `style` using the design-system token.
-const mutedTextStyle = { color: 'var(--wpds-color-fg-content-neutral-weak, #50575e)' };
 
 /**
  * Single-threat ignore-confirmation modal — wired into `ThreatsDataViews`'
@@ -68,9 +65,9 @@ export function IgnoreThreatModal( {
 
 	return (
 		<Stack gap="lg" direction="column">
-			<Text style={ mutedTextStyle }>
+			<MutedText>
 				{ __( 'Jetpack will be ignoring the following threat:', 'jetpack-scan-page' ) }
-			</Text>
+			</MutedText>
 			<Stack gap="xs" direction="column">
 				<Stack gap="sm" direction="row" align="center" wrap="wrap">
 					<Text style={ { fontWeight: 'var(--wpds-typography-font-weight-medium, 499)' } }>
@@ -78,7 +75,7 @@ export function IgnoreThreatModal( {
 					</Text>
 					{ !! threat.severity && <ThreatSeverityBadge severity={ threat.severity } /> }
 				</Stack>
-				{ threat.description && <Text style={ mutedTextStyle }>{ threat.description }</Text> }
+				{ threat.description && <MutedText>{ threat.description }</MutedText> }
 			</Stack>
 			<Notice.Root intent="error">
 				<Notice.Description>
