@@ -22,9 +22,8 @@ class Video_Block_Email_Renderer {
 	 * @return string
 	 */
 	public static function render( $block_content, $parsed_block, $rendering_context ) {
-		// Validate input parameters and required dependencies.
-		if ( ! isset( $parsed_block['attrs'] ) || ! is_array( $parsed_block['attrs'] ) ||
-			! class_exists( '\Automattic\WooCommerce\EmailEditor\Integrations\Core\Renderer\Blocks\Embed' ) ) {
+		// Validate input parameters.
+		if ( ! isset( $parsed_block['attrs'] ) || ! is_array( $parsed_block['attrs'] ) ) {
 			return '';
 		}
 
@@ -42,6 +41,11 @@ class Video_Block_Email_Renderer {
 		// The isPrivate attribute is pre-computed by the block editor based on video and site settings.
 		if ( isset( $attributes['isPrivate'] ) && true === $attributes['isPrivate'] ) {
 			return self::render_link( $parsed_block );
+		}
+
+		// The VideoPress embed path needs WooCommerce's Embed renderer.
+		if ( ! class_exists( '\Automattic\WooCommerce\EmailEditor\Integrations\Core\Renderer\Blocks\Embed' ) ) {
+			return '';
 		}
 
 		// Create a mock embed block structure that WooCommerce's embed renderer can handle.
