@@ -23,7 +23,7 @@ if ( Feature_Flags::is_enabled( 'my-product-new-flow' ) ) {
 }
 ```
 
-Flag names must match `/^[a-z0-9][a-z0-9_-]*$/`. `register()` throws an `InvalidArgumentException` for invalid names; normalize any user-supplied input before registering.
+Flag names must match `/^[a-z0-9][a-z0-9_-]*$/`. This is enforced at lint time by the `Jetpack.FeatureFlags.FeatureFlagName` PHPCS sniff (so there is no runtime cost); normalize any dynamic or user-supplied input before registering.
 
 ## Controlling Flags
 

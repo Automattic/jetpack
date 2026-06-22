@@ -29,14 +29,15 @@ class Feature_Flags {
 	 * - description: string Human-readable description.
 	 * - owner: string Owning package, plugin, or product area.
 	 *
-	 * @param string $name Flag name. Must match /^[a-z0-9][a-z0-9_-]*$/.
+	 * Flag names must match /^[a-z0-9][a-z0-9_-]*$/. This is enforced at lint
+	 * time by the `Jetpack.FeatureFlags.FeatureFlagName` PHPCS sniff rather than
+	 * at runtime, so registration stays allocation-free on the hot path.
+	 *
+	 * @param string $name Flag name.
 	 * @param array  $definition Flag definition.
-	 * @throws \InvalidArgumentException When the flag name is invalid.
 	 * @return void
 	 */
 	public static function register( $name, array $definition = array() ) {
-		self::validate_name( $name );
-
 		self::$flags[ $name ] = array_merge(
 			array(
 				'default'     => false,
@@ -57,7 +58,7 @@ class Feature_Flags {
 	 * @return array|null Flag definition, or null when the flag is unknown.
 	 */
 	public static function get( $name ) {
-		return is_string( $name ) ? ( self::$flags[ $name ] ?? null ) : null;
+		return self::$flags[ $name ] ?? null;
 	}
 
 	/**
@@ -114,20 +115,5 @@ class Feature_Flags {
 	 */
 	public static function reset() {
 		self::$flags = array();
-	}
-
-	/**
-	 * Validate a flag name.
-	 *
-	 * @param string $name Flag name.
-	 * @throws \InvalidArgumentException When the flag name is invalid.
-	 * @return void
-	 */
-	private static function validate_name( $name ) {
-		if ( ! is_string( $name ) || ! preg_match( '/^[a-z0-9][a-z0-9_-]*$/', $name ) ) {
-			throw new \InvalidArgumentException(
-				'Feature flag names must match /^[a-z0-9][a-z0-9_-]*$/.'
-			);
-		}
 	}
 }

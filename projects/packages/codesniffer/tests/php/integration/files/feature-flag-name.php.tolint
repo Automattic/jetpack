@@ -1,0 +1,13 @@
+<?php
+/**
+ * A dummy file to test the Jetpack.FeatureFlags.FeatureFlagName sniff.
+ *
+ * @package automattic/jetpack-codesniffer
+ */
+
+Feature_Flags::register( 'valid-flag' );
+Feature_Flags::register( 'valid_flag_2', array( 'default' => true ) );
+Feature_Flags::register( 'Invalid Flag!' );
+Feature_Flags::register( '-bad-leading-dash' );
+Feature_Flags::register( SOME_DYNAMIC_NAME );
+Other_Class::register( 'Not Checked Here' );
