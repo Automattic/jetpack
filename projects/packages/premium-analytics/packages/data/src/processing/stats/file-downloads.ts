@@ -1,7 +1,16 @@
 import { safeParseFloat } from '../../utils/parsing';
-import { mapStatsReportDataPoints, normalizeStatsReportSummary } from './foundation';
-import type { StatsFileDownloadsItem, StatsNormalizedReport, StatsRecord } from './types';
+import { mapStatsReportDataPoints, normalizeStatsReportSummary } from './utils';
+import type { StatsNormalizedItemBase, StatsNormalizedReport, StatsRecord } from './types';
 import type { StatsQueryParams } from '../../utils/stats-params';
+
+export type StatsFileDownloadsItem = StatsNormalizedItemBase & {
+	downloads: number;
+	shortLabel?: string;
+	link?: string;
+	linkTitle: unknown;
+	labelIcon: string;
+	children: null;
+};
 
 export function sanitizeStatsFileDownloadsResponse(
 	response: unknown,

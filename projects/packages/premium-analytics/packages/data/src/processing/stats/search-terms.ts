@@ -1,7 +1,13 @@
 import { safeParseFloat } from '../../utils/parsing';
-import { mapStatsReportDataPoints, normalizeStatsReportSummary } from './foundation';
-import type { StatsNormalizedReport, StatsSearchTermsItem } from './types';
+import { mapStatsReportDataPoints, normalizeStatsReportSummary } from './utils';
+import type { StatsNormalizedItemBase, StatsNormalizedReport } from './types';
 import type { StatsQueryParams } from '../../utils/stats-params';
+
+export type StatsSearchTermsItem = StatsNormalizedItemBase & {
+	views: number;
+	className: string;
+	children: null;
+};
 
 export function sanitizeStatsSearchTermsResponse(
 	response: unknown,

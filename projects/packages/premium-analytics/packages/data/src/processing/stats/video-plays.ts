@@ -7,14 +7,24 @@ import {
 	getStatsTopLevelDataDate,
 	mapStatsReportDataPoints,
 	normalizeStatsSummary,
-} from './foundation';
+} from './utils';
 import type {
 	StatsNormalizedDataPoint,
+	StatsNormalizedItemBase,
 	StatsNormalizedReport,
 	StatsRecord,
-	StatsVideoPlaysItem,
 } from './types';
 import type { StatsQueryParams } from '../../utils/stats-params';
+
+export type StatsVideoPlaysItem = StatsNormalizedItemBase & {
+	id?: string | number;
+	plays: number;
+	impressions: number;
+	watch_time: number;
+	retention_rate: number;
+	link: string | null;
+	children: null;
+};
 
 export function sanitizeStatsVideoPlaysResponse(
 	response: unknown,

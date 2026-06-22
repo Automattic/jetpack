@@ -4,14 +4,28 @@ import {
 	mapNestedItems,
 	mapStatsReportDataPoints,
 	normalizeStatsReportSummary,
-} from './foundation';
+} from './utils';
 import type {
+	StatsItemAction,
+	StatsNormalizedItemBase,
 	StatsNormalizedDataPoint,
 	StatsNormalizedReport,
 	StatsRecord,
-	StatsTopPostsItem,
 } from './types';
 import type { StatsQueryParams } from '../../utils/stats-params';
+
+export interface StatsTopPostsItem extends StatsNormalizedItemBase< StatsTopPostsItem > {
+	id?: string | number;
+	views: number;
+	link: string | null;
+	page?: string | null;
+	public?: unknown;
+	type?: unknown;
+	date?: unknown;
+	status?: unknown;
+	video_play?: unknown;
+	actions?: StatsItemAction[];
+}
 
 function getStatsTopPostLink( item: StatsRecord ): string | null {
 	if ( typeof item.href === 'string' ) {

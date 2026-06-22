@@ -4,9 +4,23 @@ import {
 	mapNestedItems,
 	mapStatsReportDataPoints,
 	normalizeStatsReportSummary,
-} from './foundation';
-import type { StatsNormalizedReport, StatsRecord, StatsReferrersItem } from './types';
+} from './utils';
+import type {
+	StatsItemAction,
+	StatsNormalizedItemBase,
+	StatsNormalizedReport,
+	StatsRecord,
+} from './types';
 import type { StatsQueryParams } from '../../utils/stats-params';
+
+export interface StatsReferrersItem extends StatsNormalizedItemBase< StatsReferrersItem > {
+	views: number;
+	link: string | null;
+	icon: string | null;
+	labelIcon: string | null;
+	actions?: StatsItemAction[];
+	actionMenu?: number;
+}
 
 export function sanitizeStatsReferrersResponse(
 	response: unknown,

@@ -2,7 +2,7 @@ export {
 	combineStatsNormalizedReports,
 	sanitizeStatsPassthroughResponse,
 	sanitizeStatsSiteResponse,
-} from './foundation';
+} from './utils';
 export { sanitizeStatsTopPostsResponse } from './top-posts';
 export { sanitizeStatsReferrersResponse } from './referrers';
 export { sanitizeStatsClicksResponse } from './clicks';
@@ -11,19 +11,19 @@ export { sanitizeStatsFileDownloadsResponse } from './file-downloads';
 export { sanitizeStatsTopAuthorsResponse } from './top-authors';
 export { sanitizeStatsLocationsResponse } from './locations';
 export { sanitizeStatsVideoPlaysResponse } from './video-plays';
+export type { StatsTopPostsItem } from './top-posts';
+export type { StatsReferrersItem } from './referrers';
+export type { StatsClicksItem } from './clicks';
+export type { StatsSearchTermsItem } from './search-terms';
+export type { StatsFileDownloadsItem } from './file-downloads';
+export type { StatsTopAuthorsItem } from './top-authors';
+export type { StatsLocationsItem } from './locations';
+export type { StatsVideoPlaysItem } from './video-plays';
 export type {
-	StatsClicksItem,
-	StatsFileDownloadsItem,
 	StatsItemAction,
-	StatsLocationsItem,
 	StatsNormalizedDataPoint,
 	StatsNormalizedItem,
 	StatsNormalizedItemBase,
 	StatsNormalizedReport,
 	StatsNormalizedSummary,
-	StatsReferrersItem,
-	StatsSearchTermsItem,
-	StatsTopAuthorsItem,
-	StatsTopPostsItem,
-	StatsVideoPlaysItem,
 } from './types';

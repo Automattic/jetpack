@@ -9,9 +9,18 @@ import {
 	getStatsResponsePeriod,
 	getStatsTopLevelDataDate,
 	normalizeStatsReportSummary,
-} from './foundation';
-import type { StatsLocationsItem, StatsNormalizedReport, StatsRecord } from './types';
+} from './utils';
+import type { StatsNormalizedItemBase, StatsNormalizedReport, StatsRecord } from './types';
 import type { StatsQueryParams } from '../../utils/stats-params';
+
+export type StatsLocationsItem = StatsNormalizedItemBase & {
+	views: number;
+	countryCode?: string;
+	countryFull?: string;
+	region?: string;
+	coordinates?: unknown;
+	children: null;
+};
 
 export function sanitizeStatsLocationsResponse(
 	response: unknown,

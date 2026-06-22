@@ -4,9 +4,16 @@ import {
 	mapNestedItems,
 	mapStatsReportDataPoints,
 	normalizeStatsReportSummary,
-} from './foundation';
-import type { StatsClicksItem, StatsNormalizedReport, StatsRecord } from './types';
+} from './utils';
+import type { StatsNormalizedItemBase, StatsNormalizedReport, StatsRecord } from './types';
 import type { StatsQueryParams } from '../../utils/stats-params';
+
+export interface StatsClicksItem extends StatsNormalizedItemBase< StatsClicksItem > {
+	views: number;
+	link: string | null;
+	icon: string | null;
+	labelIcon: string | null;
+}
 
 export function sanitizeStatsClicksResponse(
 	response: unknown,

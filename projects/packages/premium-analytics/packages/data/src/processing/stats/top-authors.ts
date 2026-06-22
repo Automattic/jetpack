@@ -4,9 +4,17 @@ import {
 	mapNestedItems,
 	mapStatsReportDataPoints,
 	normalizeStatsReportSummary,
-} from './foundation';
-import type { StatsNormalizedReport, StatsTopAuthorsItem } from './types';
+} from './utils';
+import type { StatsTopPostsItem } from './top-posts';
+import type { StatsNormalizedItemBase, StatsNormalizedReport } from './types';
 import type { StatsQueryParams } from '../../utils/stats-params';
+
+export type StatsTopAuthorsItem = StatsNormalizedItemBase< StatsTopPostsItem > & {
+	views: number;
+	icon: string | null;
+	iconClassName?: string;
+	className?: string | null;
+};
 
 export function sanitizeStatsTopAuthorsResponse(
 	response: unknown,
