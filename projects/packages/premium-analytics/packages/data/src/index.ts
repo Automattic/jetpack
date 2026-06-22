@@ -37,5 +37,19 @@ export type { ProductType } from './types/product-type';
 export { ORDER_ATTRIBUTION_VIEWS } from './api/report-order-attribution-summary-fetch';
 export { getDefaultIntervalForPeriod, getDateFormatFromInterval } from './utils/interval';
 export { getDefaultPreset, getDefaultQueryParams } from './defaults';
-export { exportReport } from './api';
-export type { ExportReportParams, ExportReportResponse } from './api';
+export { exportReport, fetchStatsProxy, getStatsProxyPath } from './api';
+export type {
+	ExportReportParams,
+	ExportReportResponse,
+	StatsProxyFetchParams,
+	StatsProxyMethod,
+	StatsProxyParams,
+	StatsProxyQueryParams,
+	StatsProxyVersion,
+} from './api';
+export {
+	getStatsPeriodFromInterval,
+	reportParamsToStatsQueryParams,
+	type StatsPeriod,
+	type StatsQueryParams,
+} from './utils/stats-params';

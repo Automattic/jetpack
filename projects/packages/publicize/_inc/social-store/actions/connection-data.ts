@@ -3,13 +3,15 @@ import apiFetch from '@wordpress/api-fetch';
 import { dispatch as coreDispatch } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { __, sprintf } from '@wordpress/i18n';
+import { addQueryArgs } from '@wordpress/url';
 import { getSocialScriptData } from '../../utils/script-data';
 import { CUSTOMIZE_PER_NETWORK_KEY } from '../constants';
-import { Connection, EditorConnection, KeyringResult } from '../types';
+import { Connection, EditorConnection, KeyringResponse, KeyringResult } from '../types';
 import {
 	ADD_CONNECTION,
 	DELETE_CONNECTION,
 	DELETING_CONNECTION,
+	FETCHING_KEYRING_RESULT,
 	SET_RECONNECTING_ACCOUNT,
 	SET_CONNECTIONS,
 	SET_KEYRING_RESULT,
@@ -54,6 +56,52 @@ export function setKeyringResult( keyringResult?: KeyringResult ) {
 	return {
 		type: SET_KEYRING_RESULT,
 		keyringResult,
+	};
+}
+
+/**
+ * Set whether the keyring result is being fetched.
+ *
+ * @param fetching - Whether the request is in progress.
+ *
+ * @return An action object.
+ */
+export function setFetchingKeyringResult( fetching: boolean ) {
+	return {
+		type: FETCHING_KEYRING_RESULT,
+		fetching,
+	};
+}
+
+/**
+ * Fetch the keyring result for a completed connect request (auth_flow=v2).
+ *
+ * In the v2 flow the connect popup returns no data through window.opener; instead the
+ * same-origin completion page broadcasts the request_id and we fetch the verified keyring
+ * connection item once from the server. The shape matches what the popup used to post, so
+ * the confirmation UI is unchanged.
+ *
+ * @param requestId - The connect request ID.
+ *
+ * @return A thunk resolving to the keyring result, if any.
+ */
+export function fetchKeyringResult( requestId: string ) {
+	return async function ( { dispatch } ) {
+		dispatch( setFetchingKeyringResult( true ) );
+
+		try {
+			const response = await apiFetch< KeyringResponse >( {
+				path: addQueryArgs( '/wpcom/v2/publicize/keyring-result', { request_id: requestId } ),
+			} );
+
+			if ( response?.code === 'success' && response.data ) {
+				return response.data;
+			}
+		} catch {
+			// Swallow the error: an absent result is surfaced to the user as "no accounts found".
+		} finally {
+			dispatch( setFetchingKeyringResult( false ) );
+		}
 	};
 }
 
@@ -476,6 +524,61 @@ export function setReconnectingAccount( reconnectingAccount: Connection ) {
 	return {
 		type: SET_RECONNECTING_ACCOUNT,
 		reconnectingAccount,
+	};
+}
+
+/**
+ * Completes an in-place reconnect when the connect result matches the account being reconnected.
+ *
+ * @param keyringResult - The keyring result from the completed connect request.
+ *
+ * @return A thunk resolving to true if it handled an in-place reconnect, false otherwise.
+ */
+export function completeReconnect( keyringResult?: KeyringResult ) {
+	return async function ( { dispatch, select } ) {
+		const reconnectingAccount = select.getReconnectingAccount();
+
+		if ( ! reconnectingAccount || ! keyringResult?.ID ) {
+			return false;
+		}
+
+		const reconnectedIds = [
+			keyringResult.external_ID,
+			...( keyringResult.additional_external_users?.map( user => user.external_ID ) ?? [] ),
+		]
+			.filter( Boolean )
+			.map( String );
+
+		if ( ! reconnectedIds.includes( reconnectingAccount.external_id ) ) {
+			return false;
+		}
+
+		await dispatch( refreshConnectionTestResults() );
+
+		// The account matched, but confirm the refreshed connection actually recovered before
+		// reporting success — re-authing doesn't guarantee the token now passes the test.
+		const recovered =
+			select.getConnectionById( reconnectingAccount.connection_id )?.status === 'ok';
+
+		// Clear the reconnecting account only after the refresh, so the busy state stays until
+		// the connection list reflects the reconnection.
+		dispatch( setReconnectingAccount( undefined ) );
+
+		const { createSuccessNotice, createErrorNotice } = coreDispatch( globalNoticesStore );
+
+		if ( recovered ) {
+			createSuccessNotice( __( 'Account reconnected successfully.', 'jetpack-publicize-pkg' ), {
+				type: 'snackbar',
+				isDismissible: true,
+			} );
+		} else {
+			createErrorNotice(
+				__( 'The account could not be reconnected. Please try again.', 'jetpack-publicize-pkg' ),
+				{ type: 'snackbar', isDismissible: true }
+			);
+		}
+
+		return true;
 	};
 }
 

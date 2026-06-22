@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Charts: Leaderboard items can be made interactive via a per-entry onClick, rendering the row as a keyboard-accessible button with a hover chevron.

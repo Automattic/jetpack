@@ -1,12 +1,25 @@
 /**
  * External dependencies
  */
-import { differenceInHours } from 'date-fns';
+import { differenceInCalendarDays, differenceInHours } from 'date-fns';
 /**
  * Internal dependencies
  */
 import { localTZDate } from './date';
 import type { IntervalType } from './search';
+
+export function getDaysBetweenInclusive( from: string, to: string ): number {
+	const fromDate = new Date( `${ from }T00:00:00Z` );
+	const toDate = new Date( `${ to }T00:00:00Z` );
+	const days = differenceInCalendarDays( toDate, fromDate );
+
+	if ( Number.isNaN( days ) || days < 0 ) {
+		// Keep range-based requests bounded even when callers pass an invalid range.
+		return 1;
+	}
+
+	return days + 1;
+}
 
 function getAllowedIntervalsByRange( from: string, to: string ): IntervalType[] {
 	// Use hours instead of days to handle ranges that are 1 second short of a full day.

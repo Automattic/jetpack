@@ -466,6 +466,8 @@ class Customize_Feed {
 			'Tech News'                          => 'Technology,Tech News',
 			'Sports &amp; Recreation,Technology' => 'Technology',
 			'Sports &amp; Recreation,Gadgets'    => 'Technology,Gadgets',
+			'Sports,Football'                    => 'Sports,American Football',
+			'Sports,Soccer'                      => 'Sports,Football (Soccer)',
 		);
 		$category              = $legacy_aliases[ $stored ] ?? $stored;
 

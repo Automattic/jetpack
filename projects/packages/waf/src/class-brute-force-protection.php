@@ -242,7 +242,11 @@ class Brute_Force_Protection {
 	public function maybe_get_protect_key() {
 		if ( get_site_option( 'jetpack_protect_activating', false ) && ! get_site_option( 'jetpack_protect_key', false ) ) {
 			$key = $this->get_protect_key();
-			delete_site_option( 'jetpack_protect_activating' );
+
+			if ( ! empty( $key ) ) {
+				delete_site_option( 'jetpack_protect_activating' );
+			}
+
 			return $key;
 		}
 

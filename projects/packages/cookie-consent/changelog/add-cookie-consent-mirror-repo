@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Set up mirror repository and autotagger for package publishing.

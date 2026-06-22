@@ -1,32 +1,14 @@
-import { getScriptData } from '@automattic/jetpack-script-data';
 import apiFetch from '@wordpress/api-fetch';
-import { useDispatch } from '@wordpress/data';
+import { select, useDispatch } from '@wordpress/data';
 import { useCallback, useMemo, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { store as noticesStore } from '@wordpress/notices';
+import { aiStore } from './ai-store';
 import type { AiState } from './ai-types';
 
 // Single snackbar id reused across a save so "Updating settings…" is replaced
 // in place by "Settings saved." (or an error) — matches the Settings tab.
 const SAVE_NOTICE_ID = 'jetpack-seo-ai-save';
-
-type SeoScriptData = {
-	seo?: {
-		ai?: AiState;
-	};
-};
-
-/**
- * Read the AI tab state bootstrapped onto `window.JetpackScriptData.seo.ai` by
- * the server. Synchronous — present on first paint, no request. Returns `null`
- * if the bootstrap is missing.
- *
- * @return The AI state, or `null` when unavailable.
- */
-export function getAi(): AiState | null {
-	const scriptData = getScriptData() as SeoScriptData | undefined;
-	return scriptData?.seo?.ai ?? null;
-}
 
 export interface AiForm {
 	enhancer: AiState[ 'enhancer' ] | null;
@@ -42,18 +24,20 @@ export interface AiForm {
  * button — the toggle saves on change, surfacing the shared
  * "Updating settings…"→"Settings saved." snackbar.
  *
- * Lives above the tab panels (in the page root) so the value survives tab
- * switches — the script-data bootstrap is the initial load only.
+ * The AI tab is its own route, so this controller remounts on every tab switch.
+ * The enhancer is seeded from (and written back to) [ai-store] rather than the
+ * one-time bootstrap, so a saved toggle persists across route switches without
+ * a reload.
  *
  * @return The AI form controller.
  */
 export function useAiForm(): AiForm {
-	const initial = useMemo( () => getAi(), [] );
-	const [ enhancer, setEnhancer ] = useState< AiState[ 'enhancer' ] | null >(
-		initial?.enhancer ?? null
-	);
+	// Seed from the store (latest-saved snapshot), not the one-time bootstrap.
+	const initial = useMemo( () => select( aiStore ).getEnhancer(), [] );
+	const [ enhancer, setEnhancer ] = useState< AiState[ 'enhancer' ] | null >( initial );
 	const [ isSaving, setIsSaving ] = useState( false );
 	const { createInfoNotice, createSuccessNotice, createErrorNotice } = useDispatch( noticesStore );
+	const { setEnhancer: persistEnhancer } = useDispatch( aiStore );
 
 	const setEnhancerEnabled = useCallback(
 		( next: boolean ) => {
@@ -70,6 +54,10 @@ export function useAiForm(): AiForm {
 				data: { ai_seo_enhancer_enabled: next },
 			} )
 				.then( () => {
+					// Persist the saved value so a return to the tab re-seeds from it.
+					if ( initial ) {
+						persistEnhancer( { ...initial, enabled: next } );
+					}
 					createSuccessNotice( __( 'Settings saved.', 'jetpack-seo' ), {
 						id: SAVE_NOTICE_ID,
 						type: 'snackbar',
@@ -85,7 +73,7 @@ export function useAiForm(): AiForm {
 				} )
 				.finally( () => setIsSaving( false ) );
 		},
-		[ createInfoNotice, createSuccessNotice, createErrorNotice ]
+		[ createInfoNotice, createSuccessNotice, createErrorNotice, persistEnhancer, initial ]
 	);
 
 	return { enhancer, isSaving, setEnhancerEnabled };

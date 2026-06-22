@@ -56,7 +56,7 @@ export function MyWidget() {
 | -------------- | -------------------------------------- | --------------------------------------------------------------- |
 | `attributes`   | `Partial<ReportParamsFieldAttributes>` | Widget attributes, may include `reportParams`                   |
 | `children`     | `ReactNode`                            | Child components (widgets)                                      |
-| `options.from` | `string`                               | Router path for URL params (default: `/wc-analytics/dashboard`) |
+| `options.from` | `string`                               | Router path for URL params (default: `/`)                       |
 
 ### useWidgetRootContext
 

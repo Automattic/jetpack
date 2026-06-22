@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Add the cookie-consent frontend Interactivity module (banner, modal, CCPA opt-out, consent logger, Tracks).

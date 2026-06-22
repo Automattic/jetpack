@@ -1,0 +1,203 @@
+.ai-launchpad-tailored-list {
+
+	// The centered content column shared by the loaded list and its loading
+	// state: heading + progress line, then a two-column grid (tasks | preview).
+	// A responsive, generous top pad pushes the content off the admin chrome
+	// without relying on a fixed-height container to vertically center.
+	&__layout {
+		max-width: 960px;
+		margin: 0 auto;
+		padding: clamp(24px, 8vh, 96px) 24px 48px;
+	}
+
+	@media (max-width: 782px) {
+
+		&__layout {
+			padding: 24px 16px 32px;
+		}
+	}
+
+	&__heading {
+		margin-bottom: 24px;
+	}
+
+	&__title-heading {
+		margin: 0;
+		font-size: 32px;
+		line-height: 1.2;
+		font-weight: 500;
+	}
+
+	&__progress {
+		margin: 8px 0 0;
+		color: #757575;
+		font-size: 14px;
+	}
+
+	&__columns {
+		display: grid;
+		grid-template-columns: minmax(0, 1fr);
+		gap: 32px;
+		align-items: start;
+
+		// Reserve the preview track only when there's a preview to show, so a
+		// missing site URL doesn't leave an empty gutter squeezing the tasks.
+		&.has-preview {
+			grid-template-columns: minmax(0, 1fr) 300px;
+		}
+	}
+
+	// Stack the preview under the tasks on narrow screens (WP admin's mobile
+	// breakpoint), so neither column gets squeezed.
+	@media (max-width: 782px) {
+
+		&__columns.has-preview {
+			grid-template-columns: 1fr;
+		}
+	}
+
+	// The task column itself: a vertical stack of cards (and skeleton bars),
+	// wrapped in a padded grey container so the white cards read as a grouped
+	// checklist. The padding matches the inter-card gap.
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+	padding: 8px;
+	background: #f6f7f7;
+	border-radius: 8px;
+
+	// Tighten the @wordpress/ui Card padding so the cards read as compact
+	// checklist rows rather than full content cards. Zero the header→content
+	// margin (it otherwise leaves a gap below the header even when collapsed);
+	// the expanded gap is re-added on the subtitle, inside the clipped panel.
+	&__card {
+		--wp-ui-card-padding: 16px;
+		--wp-ui-card-header-content-margin: 0;
+	}
+
+	// The icon + title row placed inside the (clickable) card header. The
+	// CollapsibleCard supplies the chevron trigger beside it.
+	&__header-inner {
+		display: flex;
+		align-items: center;
+		gap: 8px;
+		min-width: 0;
+	}
+
+	&__title {
+		font-weight: 500;
+		font-size: 14px;
+
+		&.is-done {
+			text-decoration: line-through;
+			color: #757575;
+		}
+	}
+
+	// The inline SVG task icons use `currentColor`, so tone them via `color`.
+	&__icon {
+		flex-shrink: 0;
+
+		// Incomplete tasks: a light dashed ring.
+		&.is-todo {
+			color: #c3c4c7;
+		}
+
+		// Completed tasks: a check-in-circle, greyed to sit alongside the
+		// struck-through title.
+		&.is-done {
+			color: #757575;
+		}
+	}
+
+	// 8px top re-creates the header→content gap (the card's own margin is zeroed
+	// above); being inside the panel, it's clipped when the card is collapsed.
+	&__subtitle {
+		margin: 8px 0 16px;
+		color: #757575;
+	}
+
+	&__actions {
+		display: flex;
+		align-items: center;
+		gap: 8px;
+	}
+
+	// The site-preview card in the right column: a live scaled site preview +
+	// name + link.
+	&__preview {
+		display: flex;
+		flex-direction: column;
+	}
+
+	// A square frame holding a desktop-width iframe scaled down to fit, mirroring
+	// the wp-admin dashboard site-management widget (renders immediately, no
+	// mShots wait). The iframe is 4× the frame and scaled 0.25, so the frame
+	// shows a ~1200px-wide front-end view regardless of the frame's actual size.
+	&__preview-frame {
+		position: relative;
+		width: 100%;
+		max-width: 300px;
+		aspect-ratio: 4 / 3;
+		overflow: hidden;
+		border: 1px solid #e0e0e0;
+		border-radius: 8px;
+		background: #f6f7f7;
+	}
+
+	&__preview-iframe {
+		position: absolute;
+		top: 0;
+		left: 0;
+		width: 400%;
+		min-height: 440%;
+		border: 0;
+		transform: scale(0.25);
+		transform-origin: top left;
+		// Nudge the scaled view up to crop the logged-in admin bar (~32px at the
+		// 1200px render width → ~8px at scale 0.25), mirroring the dashboard widget.
+		translate: 0 -8px;
+		// Purely a thumbnail — the link below is the interactive affordance.
+		pointer-events: none;
+	}
+
+	&__preview-title {
+		margin: 12px 0 2px;
+		font-weight: 600;
+		font-size: 15px;
+	}
+
+	&__preview-link {
+		font-size: 13px;
+	}
+
+	// Stacked under the tasks on mobile, the preview spans the full column width.
+	// Declared after the base rule above so it wins at the mobile breakpoint.
+	@media (max-width: 782px) {
+
+		&__preview-frame {
+			max-width: none;
+		}
+	}
+
+	// Loading placeholders: solid shimmering bars standing in for the task cards.
+	&__skeleton-bar {
+		display: block;
+		height: 56px;
+		border-radius: 4px;
+		background: linear-gradient(90deg, #f0f0f0 25%, #e6e6e6 37%, #f0f0f0 63%);
+		background-size: 400% 100%;
+		animation: ai-launchpad-shimmer 1.4s ease infinite;
+	}
+}
+
+@keyframes ai-launchpad-shimmer {
+
+	0% {
+		background-position: 100% 0;
+	}
+
+	100% {
+		background-position: 0 0;
+	}
+}

@@ -40,6 +40,16 @@ class BruteForceProtectionTest extends WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * Clean up each test.
+	 */
+	public function tearDown(): void {
+		delete_site_option( 'jetpack_protect_activating' );
+		delete_site_option( 'jetpack_protect_key' );
+
+		parent::tearDown();
+	}
+
+	/**
 	 * Test that log_successful_login still calls protect_call when get_user_by returns false.
 	 */
 	public function test_log_successful_login_handles_unknown_user() {
@@ -100,6 +110,65 @@ class BruteForceProtectionTest extends WorDBless\BaseTestCase {
 			->with( 'failed_attempt' );
 
 		$this->instance->log_failed_attempt( 'username', $error );
+	}
+
+	/**
+	 * Test that maybe_get_protect_key keeps the activation flag when key generation fails.
+	 */
+	public function test_maybe_get_protect_key_keeps_activating_flag_after_failure() {
+		update_site_option( 'jetpack_protect_activating', 'activating' );
+		delete_site_option( 'jetpack_protect_key' );
+
+		$instance = $this->getMockBuilder( Brute_Force_Protection::class )
+			->disableOriginalConstructor()
+			->onlyMethods( array( 'get_protect_key' ) )
+			->getMock();
+
+		$instance->expects( $this->once() )
+			->method( 'get_protect_key' )
+			->willReturn( false );
+
+		$this->assertFalse( $instance->maybe_get_protect_key() );
+		$this->assertSame( 'activating', get_site_option( 'jetpack_protect_activating' ) );
+	}
+
+	/**
+	 * Test that maybe_get_protect_key clears the activation flag after successful key generation.
+	 */
+	public function test_maybe_get_protect_key_clears_activating_flag_after_success() {
+		update_site_option( 'jetpack_protect_activating', 'activating' );
+		delete_site_option( 'jetpack_protect_key' );
+
+		$instance = $this->getMockBuilder( Brute_Force_Protection::class )
+			->disableOriginalConstructor()
+			->onlyMethods( array( 'get_protect_key' ) )
+			->getMock();
+
+		$instance->expects( $this->once() )
+			->method( 'get_protect_key' )
+			->willReturn( 'generated-protect-key' );
+
+		$this->assertSame( 'generated-protect-key', $instance->maybe_get_protect_key() );
+		$this->assertFalse( get_site_option( 'jetpack_protect_activating', false ) );
+	}
+
+	/**
+	 * Test that maybe_get_protect_key returns an existing key without requesting a new one.
+	 */
+	public function test_maybe_get_protect_key_returns_existing_key_without_retrying() {
+		update_site_option( 'jetpack_protect_activating', 'activating' );
+		update_site_option( 'jetpack_protect_key', 'existing-protect-key' );
+
+		$instance = $this->getMockBuilder( Brute_Force_Protection::class )
+			->disableOriginalConstructor()
+			->onlyMethods( array( 'get_protect_key' ) )
+			->getMock();
+
+		$instance->expects( $this->never() )
+			->method( 'get_protect_key' );
+
+		$this->assertSame( 'existing-protect-key', $instance->maybe_get_protect_key() );
+		$this->assertSame( 'activating', get_site_option( 'jetpack_protect_activating' ) );
 	}
 
 	/**

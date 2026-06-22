@@ -1,0 +1,22 @@
+.labelLink {
+	display: block;
+
+	/* Vertical padding sets the overlay bar height — the bar fills the row,
+	   whose height is driven by this label (there is no image to size it). */
+	padding-block: var(--wpds-dimension-padding-md, 12px);
+
+	/* Inset the text from the bar's rounded left edge. The chart applies this to
+	   its default `.label` in overlay mode (`.is-overlay .label`), but a custom
+	   label element bypasses that rule, so we mirror it here. */
+	padding-inline-start: var(--wpds-dimension-padding-sm, 8px);
+	overflow: hidden;
+	color: inherit;
+	text-decoration: none;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.labelLink:hover,
+.labelLink:focus {
+	text-decoration: underline;
+}

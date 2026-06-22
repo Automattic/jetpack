@@ -56,7 +56,7 @@ class Agents_Manager {
 	 * @return bool True if the menu panel should be displayed.
 	 */
 	public function should_display_menu_panel() {
-		return apply_filters( 'agents_manager_use_unified_experience', false );
+		return self::is_unified_experience();
 	}
 
 	/**
@@ -198,9 +198,12 @@ class Agents_Manager {
 		$use_disconnected = str_contains( $variant, 'disconnected' );
 		$is_gutenberg     = $this->is_block_editor();
 
-		// In Gutenberg, dequeue Help Center so we don't end up with two buttons.
+		// In Gutenberg, dequeue Help Center so we don't end up with two buttons — but only
+		// in the full unified experience, where Agents Manager takes over the Help Center.
+		// In block-editor-only mode (e.g. ?flags=unified-big-sky) Agents Manager replaces
+		// Big Sky's native UI and Help Center should remain available.
 		// Agents Manager fires at priority 101, after Help Center at 100, so HC is already enqueued.
-		if ( $is_gutenberg ) {
+		if ( $is_gutenberg && self::is_unified_experience() ) {
 			wp_dequeue_script( 'help-center' );
 			wp_dequeue_style( 'help-center-style' );
 		}
@@ -254,7 +257,7 @@ class Agents_Manager {
 			}
 
 			// Standalone AI chat button, shown only in the unified experience.
-			if ( ! $use_disconnected && apply_filters( 'agents_manager_use_unified_experience', false ) ) {
+			if ( ! $use_disconnected && self::is_unified_experience() ) {
 				add_action( 'admin_bar_menu', array( $this, 'add_ai_chat_button' ), 100 );
 			}
 		}
@@ -270,15 +273,7 @@ class Agents_Manager {
 		 */
 		$agent_providers = apply_filters( 'agents_manager_agent_providers', array() );
 
-		/**
-		 * Filter to determine if user should see the unified chat experience.
-		 *
-		 * When true, Help Center will render UnifiedAIAgent instead of traditional UI.
-		 * The filter is hooked by should_use_unified_experience() in this class.
-		 *
-		 * @param bool $use_unified_experience Whether to use unified experience. Default false.
-		 */
-		$use_unified_experience = apply_filters( 'agents_manager_use_unified_experience', false );
+		$use_unified_experience = self::is_unified_experience();
 
 		/**
 		 * Filter the default agent ID for the Agents Manager.
@@ -387,6 +382,28 @@ class Agents_Manager {
 	}
 
 	/**
+	 * Whether the unified experience — the Help Center takeover — is active.
+	 *
+	 * "Unified" here means Agents Manager takes over the Help Center, unifying Odie and
+	 * Dolly (the orchestrator) into a single chat experience. This is distinct from
+	 * block-editor-only enablement, which replaces Big Sky's native UI without taking
+	 * over the Help Center.
+	 *
+	 * @return bool
+	 */
+	public static function is_unified_experience() {
+		/**
+		 * Filter to determine if the user should see the unified chat experience.
+		 *
+		 * When true, Help Center will render UnifiedAIAgent instead of traditional UI.
+		 * The filter is hooked by should_use_unified_experience() in this class.
+		 *
+		 * @param bool $use_unified_experience Whether to use unified experience. Default false.
+		 */
+		return (bool) apply_filters( 'agents_manager_use_unified_experience', false );
+	}
+
+	/**
 	 * Returns true if the Agents Manager should be loaded in the current context.
 	 *
 	 * @return bool
@@ -404,7 +421,7 @@ class Agents_Manager {
 		}
 
 		// Full unified experience: Agents Manager with support guides, Help Center takeover, etc.
-		if ( apply_filters( 'agents_manager_use_unified_experience', false ) ) {
+		if ( self::is_unified_experience() ) {
 			return true;
 		}
 
