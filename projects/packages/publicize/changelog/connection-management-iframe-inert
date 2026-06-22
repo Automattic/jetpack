@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Connection management: mark the `inert` attribute on the wrapper for the upcoming React 19 migration.
