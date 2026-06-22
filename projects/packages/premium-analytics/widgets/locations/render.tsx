@@ -9,10 +9,10 @@ import {
 	useWidgetRootContext,
 	type LeaderboardChartData,
 } from '@jetpack-premium-analytics/widgets-toolkit';
+import { SelectControl } from '@wordpress/components';
 import { useCallback, useMemo, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import { Icon as WpIcon, chevronDown } from '@wordpress/icons';
-import { Button, Stack, Text } from '@wordpress/ui';
+import { Stack, Text } from '@wordpress/ui';
 import clsx from 'clsx';
 /**
  * Internal dependencies
@@ -57,13 +57,20 @@ function LocationsInner( { attributes }: LocationsRenderProps ) {
 	const num = reportParamsToStatsDays( reportParams );
 	const max = attributes?.max ?? 10;
 
+	const [ topMode, setTopMode ] = useState< 'country' | 'city' >( 'country' );
 	const [ selectedCountry, setSelectedCountry ] = useState< { code: string; name: string } | null >(
 		null
 	);
 
 	const clearSelectedCountry = useCallback( () => setSelectedCountry( null ), [] );
 
-	const geoMode: GeoMode = selectedCountry ? 'region' : 'country';
+	const handleModeChange = useCallback( ( value: string ) => {
+		setTopMode( value as 'country' | 'city' );
+		setSelectedCountry( null );
+	}, [] );
+
+	// Drill-down (region) takes priority over topMode; city mode disables drill-down.
+	const geoMode: GeoMode = selectedCountry ? 'region' : topMode;
 
 	const { data, isLoading, isSample } = useLocationViews( {
 		num,
@@ -76,8 +83,8 @@ function LocationsInner( { attributes }: LocationsRenderProps ) {
 		() =>
 			[
 				[
-					geoMode === 'region'
-						? __( 'Region', 'jetpack-premium-analytics' )
+					geoMode === 'region' || geoMode === 'city'
+						? __( 'Location', 'jetpack-premium-analytics' )
 						: __( 'Country', 'jetpack-premium-analytics' ),
 					__( 'Views', 'jetpack-premium-analytics' ),
 				],
@@ -112,11 +119,12 @@ function LocationsInner( { attributes }: LocationsRenderProps ) {
 				previousShare: 0,
 				delta: 0,
 				// Country mode: click to drill into regions.
-				// Region mode: rows are not interactive.
-				...( geoMode === 'country' && {
-					onClick: () =>
-						setSelectedCountry( { code: location.countryCode, name: location.countryFull } ),
-				} ),
+				// Region/city mode: rows are not interactive.
+				...( geoMode === 'country' &&
+					location.countryCode && {
+						onClick: () =>
+							setSelectedCountry( { code: location.countryCode, name: location.countryFull } ),
+					} ),
 			};
 		} ) as LeaderboardChartData;
 	}, [ data, geoMode ] );
@@ -160,37 +168,45 @@ function LocationsInner( { attributes }: LocationsRenderProps ) {
 						</>
 					) }
 				</div>
-				<Button size="compact" variant="outline" className={ styles.modeButton }>
-					{ __( 'Countries', 'jetpack-premium-analytics' ) }
-					<WpIcon icon={ chevronDown } size={ 16 } />
-				</Button>
-			</div>
-			<div className={ styles.chartArea }>
-				<LeaderboardChart
-					data={ leaderboardData }
-					withOverlayLabel
-					withComparison={ false }
-					showLegend={ false }
-					dataFormat={ {
-						type: 'number',
-						options: { useMultipliers: true, decimals: 0 },
-					} }
-					className={ styles.leaderboard }
+				<SelectControl
+					__nextHasNoMarginBottom
+					value={ topMode }
+					options={ [
+						{ label: __( 'Countries', 'jetpack-premium-analytics' ), value: 'country' },
+						{ label: __( 'Cities', 'jetpack-premium-analytics' ), value: 'city' },
+					] }
+					onChange={ handleModeChange }
+					className={ styles.modeSelect }
 				/>
-				<div className={ styles.geoChart }>
-					<GeoChart
-						data={ geoData }
-						height={ 280 }
-						region={ selectedCountry?.code ?? 'world' }
-						resolution={ selectedCountry ? 'provinces' : 'countries' }
-					/>
-				</div>
 			</div>
-			{ isSample && (
-				<Text className={ styles.sampleNote }>
-					{ __( 'Sample data', 'jetpack-premium-analytics' ) }
-				</Text>
-			) }
+			<div className={ styles.content }>
+				<div className={ styles.chartArea }>
+					<LeaderboardChart
+						data={ leaderboardData }
+						withOverlayLabel
+						withComparison={ false }
+						showLegend={ false }
+						dataFormat={ {
+							type: 'number',
+							options: { useMultipliers: true, decimals: 0 },
+						} }
+						className={ styles.leaderboard }
+					/>
+					<div className={ styles.geoChart }>
+						<GeoChart
+							data={ geoData }
+							resizeDebounceTime={ 100 }
+							region={ selectedCountry?.code ?? 'world' }
+							resolution={ selectedCountry ? 'provinces' : 'countries' }
+						/>
+					</div>
+				</div>
+				{ isSample && (
+					<Text className={ styles.sampleNote }>
+						{ __( 'Sample data', 'jetpack-premium-analytics' ) }
+					</Text>
+				) }
+			</div>
 		</Stack>
 	);
 }

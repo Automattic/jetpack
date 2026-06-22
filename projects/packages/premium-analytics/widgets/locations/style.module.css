@@ -1,8 +1,9 @@
 .root {
+	container-type: inline-size;
 	display: flex;
 	flex-direction: column;
-	gap: var(--wpds-dimension-gap-md, 16px);
 	height: 100%;
+	overflow: hidden;
 }
 
 .placeholder {
@@ -14,6 +15,7 @@
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
+	padding: 12px 16px;
 }
 
 .breadcrumb {
@@ -40,24 +42,55 @@
 	color: var(--wpds-color-fg-content-neutral-weak);
 }
 
-.modeButton {
+.modeSelect {
 	flex-shrink: 0;
+	margin-bottom: 0 !important;
+}
+
+.content {
+	display: flex;
+	flex-direction: column;
+	padding: 16px;
+	flex: 1 1 0;
+	min-height: 0;
 }
 
 .chartArea {
 	display: grid;
 	grid-template-columns: 280fr 400fr;
-	gap: var(--wpds-dimension-gap-md, 16px);
-	align-items: start;
+	grid-template-rows: minmax(0, 1fr);
+	column-gap: 16px;
+	align-items: stretch;
 	min-width: 0;
+	flex: 1 1 0;
+	min-height: 0;
+}
+
+.leaderboard {
+	align-self: start;
+	min-width: 0;
+	min-height: 0;
+	overflow: hidden;
 }
 
 .geoChart {
 	min-width: 0;
+	height: 100%;
+	display: flex;
+	align-items: center;
+	overflow: hidden;
 }
 
-.leaderboard {
-	min-width: 0;
+/* 不夠寬（< 480px）：隱藏地圖，leaderboard 單欄 */
+@container (max-width: 479px) {
+
+	.geoChart {
+		display: none;
+	}
+
+	.chartArea {
+		grid-template-columns: 1fr;
+	}
 }
 
 .leaderboardImage {

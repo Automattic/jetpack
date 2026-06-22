@@ -30,7 +30,7 @@ interface RawLocationViews {
 	};
 }
 
-export type GeoMode = 'country' | 'region';
+export type GeoMode = 'country' | 'region' | 'city';
 
 const DEFAULT_NUM = 30;
 
@@ -101,7 +101,14 @@ const UNKNOWN_COUNTRY_CODES = [ 'A1', 'A2', 'ZZ' ];
  * @return The full apiFetch path.
  */
 function buildPath( geoMode: GeoMode, num: number, max: number, countryFilter?: string ): string {
-	const endpoint = geoMode === 'region' ? 'location-views/region' : 'country-views';
+	let endpoint: string;
+	if ( geoMode === 'region' ) {
+		endpoint = 'location-views/region';
+	} else if ( geoMode === 'city' ) {
+		endpoint = 'location-views/city';
+	} else {
+		endpoint = 'country-views';
+	}
 
 	const params = new URLSearchParams( {
 		period: 'day',
@@ -110,7 +117,7 @@ function buildPath( geoMode: GeoMode, num: number, max: number, countryFilter?: 
 		max: String( max ),
 	} );
 
-	if ( geoMode === 'region' && countryFilter ) {
+	if ( ( geoMode === 'region' || geoMode === 'city' ) && countryFilter ) {
 		params.set( 'filter_by_country', countryFilter );
 	}
 
