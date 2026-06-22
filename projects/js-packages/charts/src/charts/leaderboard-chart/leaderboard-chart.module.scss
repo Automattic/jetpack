@@ -103,11 +103,14 @@
 	text-align: inherit;
 	cursor: pointer;
 
-	// On hover/focus the bar dims and its right edge pulls back by a fixed amount
-	// while the value/delta slides left by the same amount, clearing room for the
-	// chevron revealed at the right edge. Because both move by the same fixed
-	// pixels (not a percentage scale), the bar↔value gap stays identical at rest
-	// and on hover for every row. No row background — the bar carries the state.
+	// On hover/focus the bar dims and its inline-end edge pulls back by a fixed
+	// amount while the value/delta slides toward the inline start by the same
+	// amount, clearing room for the chevron revealed at the inline-end edge.
+	// Because both move by the same fixed pixels (not a percentage scale), the
+	// bar↔value gap stays identical at rest and on hover for every row. The bar
+	// width (set in leaderboard-chart.tsx) is a grid item aligned to the inline
+	// start, so its inset mirrors automatically in RTL; the value slide is given
+	// an RTL override below. No row background — the bar carries the state.
 	.bar {
 		transition: opacity 0.15s ease, width 0.15s ease;
 	}
@@ -128,12 +131,18 @@
 		}
 
 		.valueContainer {
-			transform: translateX(calc(-1 * var(--a8c--charts--leaderboard--bar--hover-inset)));
+			transform: translateX(calc(var(--a8c--charts--leaderboard--bar--hover-inset) * -1));
 		}
 
 		.chevron {
 			opacity: 1;
 		}
+	}
+
+	// In RTL the value slides toward the inline start the other way (rightward).
+	[dir="rtl"] &:hover .valueContainer,
+	[dir="rtl"] &:focus-visible .valueContainer {
+		transform: translateX(var(--a8c--charts--leaderboard--bar--hover-inset));
 	}
 
 	&:focus-visible {
@@ -144,7 +153,7 @@
 
 .chevron {
 	position: absolute;
-	right: var(--wpds-dimension-padding-xs, 4px);
+	inset-inline-end: var(--wpds-dimension-padding-xs, 4px);
 	top: 0;
 	bottom: 0;
 	margin-block: auto;
@@ -152,6 +161,11 @@
 	color: var(--wpds-color-fg-content-neutral-weak, #707070);
 	transition: opacity 0.15s ease;
 	pointer-events: none;
+
+	// The glyph points toward the inline end, so flip it to point left in RTL.
+	[dir="rtl"] & {
+		transform: scaleX(-1);
+	}
 }
 
 @media ( prefers-reduced-motion: reduce ) {
