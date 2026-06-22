@@ -22,6 +22,25 @@ export const videoPlaysSummaryFixture = {
 	period: 'day',
 	days: {
 		summary: {
+			plays: [
+				{
+					post_id: 12,
+					title: 'Launch video',
+					url: 'https://example.com/video/',
+					plays: 11,
+				},
+			],
+			total_plays: 11,
+			other_plays: 0,
+		},
+	},
+};
+
+export const videoPlaysCompleteStatsSummaryFixture = {
+	date: '2026-06-22',
+	period: 'day',
+	days: {
+		summary: {
 			data: [
 				{
 					post_id: 12,
