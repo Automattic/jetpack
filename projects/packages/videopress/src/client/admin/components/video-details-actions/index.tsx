@@ -4,15 +4,17 @@
 import { ThemeProvider } from '@automattic/jetpack-components';
 import { Button, Dropdown } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { moreVertical, media, trash, download } from '@wordpress/icons';
+import { moreVertical, media, trash, download, formatListBullets } from '@wordpress/icons';
 import { addQueryArgs } from '@wordpress/url';
 import { useCallback, useState } from 'react';
 /**
  * Internal dependencies
  */
+import CaptionManagerModal from '../../../components/caption-manager-modal';
 import useVideo from '../../hooks/use-video';
 import DeleteVideoConfirmationModal from '../delete-video-confirmation-modal';
 import styles from './style.module.scss';
+import type { VideoTextTrack } from '../../../lib/video-tracks/types';
 
 const VideoDetailsActions = ( {
 	disabled = false,
@@ -24,9 +26,11 @@ const VideoDetailsActions = ( {
 	onDelete: () => void;
 } ) => {
 	const [ showDeleteModal, setShowDeleteModal ] = useState( false );
+	const [ showCaptionManagerModal, setShowCaptionManagerModal ] = useState( false );
+	const [ captionTracks, setCaptionTracks ] = useState< VideoTextTrack[] >( [] );
 
 	const {
-		data: { guid, url },
+		data: { guid, poster, posterImage, thumbnail, title, url },
 		deleteVideo,
 	} = useVideo( videoId );
 
@@ -79,6 +83,17 @@ const VideoDetailsActions = ( {
 							>
 								{ __( 'Download file', 'jetpack-videopress-pkg' ) }
 							</Button>
+							<Button
+								variant="tertiary"
+								icon={ formatListBullets }
+								disabled={ disabled || ! guid }
+								onClick={ () => {
+									setShowCaptionManagerModal( true );
+									onClose();
+								} }
+							>
+								{ __( 'Manage captions', 'jetpack-videopress-pkg' ) }
+							</Button>
 							<hr className={ styles.separator } />
 							<Button
 								variant="tertiary"
@@ -100,6 +115,18 @@ const VideoDetailsActions = ( {
 				<DeleteVideoConfirmationModal
 					onClose={ () => setShowDeleteModal( false ) }
 					onDelete={ handleDelete }
+				/>
+			) }
+			{ showCaptionManagerModal && guid && (
+				<CaptionManagerModal
+					isOpen
+					guid={ guid }
+					title={ title }
+					videoSrc={ url }
+					poster={ posterImage ?? thumbnail ?? poster?.src ?? null }
+					tracks={ captionTracks }
+					onClose={ () => setShowCaptionManagerModal( false ) }
+					onTracksChange={ setCaptionTracks }
 				/>
 			) }
 		</>

@@ -6,6 +6,19 @@ export type CaptionCue = {
 	text: string;
 };
 
+export type CaptionCueValidationErrorCode =
+	| 'missing_text'
+	| 'missing_time'
+	| 'invalid_time'
+	| 'end_before_start'
+	| 'overlap';
+
+export type CaptionCueValidationError = {
+	code: CaptionCueValidationErrorCode;
+	cueNumber: number;
+	previousCueNumber?: number;
+};
+
 type CaptionCueBlock = {
 	name: string;
 	attributes?: Partial< CaptionCue >;
@@ -13,6 +26,7 @@ type CaptionCueBlock = {
 
 const TIME_LINE_PATTERN =
 	/^\s*(?:(?:\d+\s*)?\n)?(?<start>\d{1,2}:\d{2}(?::\d{2})?[.,]\d{3}|\d{1,2}:\d{2}:\d{2})\s+-->\s+(?<end>\d{1,2}:\d{2}(?::\d{2})?[.,]\d{3}|\d{1,2}:\d{2}:\d{2})/m;
+const TRANSCRIPT_CUE_DURATION_SECONDS = 4;
 
 const sanitizeCueText = ( text: string ): string =>
 	text.trim().replace( /\r\n?/g, '\n' ).split( '--!>' ).join( '->' ).split( '-->' ).join( '->' );
@@ -100,6 +114,72 @@ export function captionBlocksToCues( blocks: CaptionCueBlock[] ): CaptionCue[] {
 }
 
 /**
+ * Validate caption cue blocks before publishing.
+ *
+ * @param blocks - Parsed WordPress blocks.
+ * @return Validation errors.
+ */
+export function getCaptionCueValidationErrors(
+	blocks: CaptionCueBlock[]
+): CaptionCueValidationError[] {
+	const errors: CaptionCueValidationError[] = [];
+	const timedCues: Array< { cueNumber: number; start: number; end: number } > = [];
+
+	blocks
+		.filter( block => block.name === CAPTION_CUE_BLOCK_NAME )
+		.forEach( ( block, index ) => {
+			const cueNumber = index + 1;
+			const text = String( block.attributes?.text ?? '' ).trim();
+			const rawStartTime = String( block.attributes?.startTime ?? '' ).trim();
+			const rawEndTime = String( block.attributes?.endTime ?? '' ).trim();
+
+			if ( ! text ) {
+				errors.push( { code: 'missing_text', cueNumber } );
+			}
+
+			if ( ! rawStartTime || ! rawEndTime ) {
+				errors.push( { code: 'missing_time', cueNumber } );
+				return;
+			}
+
+			const start = parseTimestampToSeconds( rawStartTime );
+			const end = parseTimestampToSeconds( rawEndTime );
+
+			if ( start === null || end === null ) {
+				errors.push( { code: 'invalid_time', cueNumber } );
+				return;
+			}
+
+			if ( end <= start ) {
+				errors.push( { code: 'end_before_start', cueNumber } );
+				return;
+			}
+
+			timedCues.push( { cueNumber, start, end } );
+		} );
+
+	timedCues
+		.sort( ( a, b ) => a.start - b.start )
+		.reduce< { cueNumber: number; end: number } | null >( ( previousCue, cue ) => {
+			if ( previousCue && cue.start < previousCue.end ) {
+				errors.push( {
+					code: 'overlap',
+					cueNumber: cue.cueNumber,
+					previousCueNumber: previousCue.cueNumber,
+				} );
+			}
+
+			if ( ! previousCue || cue.end > previousCue.end ) {
+				return { cueNumber: cue.cueNumber, end: cue.end };
+			}
+
+			return previousCue;
+		}, null );
+
+	return errors;
+}
+
+/**
  * Serialize caption cues to valid WebVTT.
  *
  * @param cues - Caption cues.
@@ -148,4 +228,46 @@ export function parseCaptionTextTrack( content: string ): CaptionCue[] {
 			};
 		} )
 		.filter( ( cue ): cue is CaptionCue => !! cue?.startTime && !! cue.endTime && !! cue.text );
+}
+
+/**
+ * Convert transcript-like text into evenly-spaced editable cue placeholders.
+ *
+ * @param content            - Plain transcript text.
+ * @param startAtSeconds     - First cue start time.
+ * @param cueDurationSeconds - Duration for each generated cue.
+ * @return Caption cues.
+ */
+export function parseCaptionTranscript(
+	content: string,
+	startAtSeconds = 0,
+	cueDurationSeconds = TRANSCRIPT_CUE_DURATION_SECONDS
+): CaptionCue[] {
+	const safeDuration = Math.max( 1, cueDurationSeconds );
+
+	return content
+		.replace( /^\uFEFF/, '' )
+		.split( /\n+/ )
+		.map( line => line.trim() )
+		.filter( line => line && ! /^WEBVTT$/i.test( line ) && ! /^\d+$/.test( line ) )
+		.map( ( text, index ) => {
+			const start = startAtSeconds + index * safeDuration;
+			return {
+				startTime: formatSecondsAsTimestamp( start ),
+				endTime: formatSecondsAsTimestamp( start + safeDuration ),
+				text,
+			};
+		} );
+}
+
+/**
+ * Parse pasted caption text, preferring timed caption cues before falling back
+ * to transcript-like lines.
+ *
+ * @param content - Pasted caption or transcript text.
+ * @return Caption cues.
+ */
+export function parseCaptionTextInput( content: string ): CaptionCue[] {
+	const timedCues = parseCaptionTextTrack( content );
+	return timedCues.length ? timedCues : parseCaptionTranscript( content );
 }
