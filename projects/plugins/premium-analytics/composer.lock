@@ -555,13 +555,15 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/cookie-consent",
-                "reference": "97b443665fb0bee85076e0805bfe812a5a80e526"
+                "reference": "ce46d635c3d3a1d2fb704440093bd52e6347cf0a"
             },
             "require": {
                 "php": ">=7.2"
             },
             "type": "jetpack-library",
             "extra": {
+                "autotagger": true,
+                "mirror-repo": "Automattic/jetpack-cookie-consent",
                 "textdomain": "jetpack-cookie-consent",
                 "changelogger": {
                     "link-template": "https://github.com/Automattic/jetpack-cookie-consent/compare/${old}...${new}"
