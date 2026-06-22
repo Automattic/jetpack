@@ -20,8 +20,8 @@ reports: orders, products, customers, coupons, order attribution).
 interceptor for `?page=jetpack-premium-analytics`. The interceptor takes over the request
 before WordPress renders the admin chrome; `@wordpress/boot` provides the SPA shell and
 routing; each route under `routes/<name>/` is a lazy-loaded ES module discovered at build time
-from its `package.json`. Requires the Gutenberg plugin (for `@wordpress/boot` / `@wordpress/route`)
-until WordPress 7.0+ ships them natively.
+from its `package.json`. WordPress core or Jetpack's wp-build polyfills provide the WordPress
+script handles/modules used by the dashboard, so the Gutenberg plugin is not required.
 
 ## Structure
 

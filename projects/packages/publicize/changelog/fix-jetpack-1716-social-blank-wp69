@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix Jetpack Social admin page rendering blank on WordPress 6.9.x.

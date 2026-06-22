@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Connection: Do not offer to reconnect when the site is blocking WordPress.com's connection test (e.g. firewall/WAF).

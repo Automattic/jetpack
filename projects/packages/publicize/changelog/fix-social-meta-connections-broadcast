@@ -1,4 +1,0 @@
-Significance: minor
-Type: fixed
-
-Fix connecting Meta accounts (Facebook, Instagram, Threads) by returning the connection result through a same-origin BroadcastChannel instead of window.opener, which Meta severs via COOP

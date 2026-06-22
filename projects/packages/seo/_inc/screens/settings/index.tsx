@@ -4,7 +4,7 @@ import { TextareaControl, ToggleControl } from '@wordpress/components';
 import { useEffect, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { useSearch } from '@wordpress/route';
-import { Badge, Card, CollapsibleCard, Notice, Stack } from '@wordpress/ui';
+import { Badge, Card, CollapsibleCard, Link, Notice, Stack } from '@wordpress/ui';
 import SocialPreviewsCard from './social-previews-card';
 import TitleStructureField from './title-structure-field';
 import VerificationCard from './verification-card';
@@ -18,6 +18,20 @@ const setLabel = __( 'Set', 'jetpack-seo' );
 const notSetLabel = __( 'Not set', 'jetpack-seo' );
 const enabledLabel = __( 'Enabled', 'jetpack-seo' );
 const disabledLabel = __( 'Disabled', 'jetpack-seo' );
+const sitemapHelp = __(
+	"Publishes an XML sitemap that search engines crawl to discover your content, generated automatically from your site's published posts, pages, and custom post types.",
+	'jetpack-seo'
+);
+// Shown when indexing is blocked: a sitemap can't be generated or served while
+// search engines are discouraged, so the toggle is disabled until that's lifted.
+const sitemapBlockedHelp = __(
+	'Allow search engines to index this site to generate a sitemap.',
+	'jetpack-seo'
+);
+const sitemapViewLabel = __( 'View sitemap', 'jetpack-seo' );
+// Shown while the sitemap is enabled but Jetpack's cron hasn't built the file
+// yet, so there's no reachable URL to link to (avoids a 404 link).
+const sitemapGeneratingLabel = __( 'Generating…', 'jetpack-seo' );
 
 interface Props {
 	form: SettingsForm;
@@ -74,8 +88,11 @@ const SettingsScreen: FC< Props > = ( { form } ) => {
 		);
 	}
 
+	// A sitemap only works when search engines are allowed, so its effective
+	// state (and the toggle below) is gated on `search_engines_visible`.
+	const sitemapEffectivelyOn = local.search_engines_visible && local.sitemap_active;
 	const visibilityEnabledCount =
-		( local.search_engines_visible ? 1 : 0 ) + ( local.sitemap_active ? 1 : 0 );
+		( local.search_engines_visible ? 1 : 0 ) + ( sitemapEffectivelyOn ? 1 : 0 );
 
 	return (
 		<div className="jetpack-seo-settings">
@@ -107,17 +124,34 @@ const SettingsScreen: FC< Props > = ( { form } ) => {
 								disabled={ isSaving }
 								__nextHasNoMarginBottom
 							/>
-							<ToggleControl
-								label={ __( 'Generate an XML sitemap', 'jetpack-seo' ) }
-								help={ __(
-									"Publishes an XML sitemap that search engines crawl to discover your content, generated automatically from your site's published posts, pages, and custom post types.",
-									'jetpack-seo'
-								) }
-								checked={ local.sitemap_active }
-								onChange={ next => commit( { sitemap_active: next } ) }
-								disabled={ isSaving }
-								__nextHasNoMarginBottom
-							/>
+							<div className="jetpack-seo-settings__sitemap-field">
+								<ToggleControl
+									label={ __( 'Generate an XML sitemap', 'jetpack-seo' ) }
+									help={ local.search_engines_visible ? sitemapHelp : sitemapBlockedHelp }
+									// Reflect the effective state: a sitemap can't be generated while
+									// indexing is blocked, so show it off (the stored preference is kept
+									// and restored when indexing is re-enabled).
+									checked={ sitemapEffectivelyOn }
+									onChange={ next => commit( { sitemap_active: next } ) }
+									disabled={ isSaving || ! local.search_engines_visible }
+									__nextHasNoMarginBottom
+								/>
+								{ sitemapEffectivelyOn &&
+									( local.sitemap_url ? (
+										<Link
+											className="jetpack-seo-settings__sitemap-link"
+											href={ local.sitemap_url }
+											openInNewTab
+											rel="noopener noreferrer"
+										>
+											{ sitemapViewLabel }
+										</Link>
+									) : (
+										<span className="jetpack-seo-settings__sitemap-hint">
+											{ sitemapGeneratingLabel }
+										</span>
+									) ) }
+							</div>
 						</Stack>
 					</CollapsibleCard.Content>
 				</CollapsibleCard.Root>

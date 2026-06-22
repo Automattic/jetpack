@@ -467,15 +467,81 @@ class Connection_Health_Tests extends Connection_Health_Test_Base {
 			);
 		}
 
-		$result       = json_decode( $body );
-		$is_connected = ! empty( $result->connected );
-		$message      = $result->message . ': ' . wp_remote_retrieve_response_code( $response );
+		return $this->evaluate_wpcom_connection_result( $name, json_decode( $body ), wp_remote_retrieve_response_code( $response ) );
+	}
 
-		if ( $is_connected ) {
+	/**
+	 * Turns a decoded WP.com test-connection response into a test result.
+	 *
+	 * Split out from test__wpcom_connection_test() so the decision logic can be
+	 * exercised without performing a signed remote request.
+	 *
+	 * @param string     $name        The test name.
+	 * @param object     $result      The JSON-decoded response body.
+	 * @param int|string $status_code The HTTP status code of the WP.com response.
+	 *
+	 * @return array Test results.
+	 */
+	public function evaluate_wpcom_connection_result( $name, $result, $status_code ) {
+		if ( ! empty( $result->connected ) ) {
 			return self::passing_test( array( 'name' => $name ) );
 		}
 
+		// The site itself rejected WordPress.com's request (firewall, WAF, security
+		// plugin, or server rule). The connection token could be valid, but reconnecting would
+		// be rejected the same way - surface the real cause and don't offer a reconnect.
+		if ( isset( $result->error_code ) && 'xmlrpc_request_blocked' === $result->error_code ) {
+			return $this->blocked_request_failing_test(
+				$name,
+				(int) ( $result->site_http_status ?? 0 )
+			);
+		}
+
+		$message = isset( $result->message ) && '' !== $result->message
+			? $result->message
+			: __( 'Connection test failed.', 'jetpack-connection' );
+
+		$message .= ' ' . sprintf(
+			/* translators: %s is the HTTP status code returned by WordPress.com. */
+			__( '(status code: %s)', 'jetpack-connection' ),
+			$status_code
+		);
+
 		return self::connection_failing_test( $name, $message );
+	}
+
+	/**
+	 * Builds a failing result for the case where the site is blocking WordPress.com's
+	 * connection test (e.g. firewall/WAF/security plugin).
+	 *
+	 * No reconnect action is offered because the connection token could be valid but
+	 * reconnecting would be rejected the same way.
+	 *
+	 * @param string $name             The test name.
+	 * @param int    $site_http_status The HTTP status the site returned, or 0 if unknown.
+	 *
+	 * @return array Test results.
+	 */
+	protected function blocked_request_failing_test( $name, $site_http_status = 0 ) {
+		$connection_error = $site_http_status
+			? sprintf(
+				/* translators: %d is the HTTP status code (e.g. 403) the site returned. */
+				__( 'WordPress.com reached your site but the request was blocked (HTTP %d). This is usually caused by a firewall, security plugin, or server rule rejecting requests from WordPress.com.', 'jetpack-connection' ),
+				$site_http_status
+			)
+			: __( 'WordPress.com reached your site but the request was blocked. This is usually caused by a firewall, security plugin, or server rule rejecting requests from WordPress.com.', 'jetpack-connection' );
+
+		$recommendation = __( 'Ask your host or security provider to allow requests from WordPress.com to your site\'s xmlrpc.php file. Reconnecting will not resolve this. If you need further help, contact Jetpack support.', 'jetpack-connection' );
+
+		return self::failing_test(
+			array(
+				'name'              => $name,
+				'short_description' => $connection_error,
+				'long_description'  => self::helper_get_reconnect_long_description( $connection_error, $recommendation ),
+				'action_label'      => $this->helper_get_support_text(),
+				'action'            => $this->helper_get_support_url(),
+			)
+		);
 	}
 
 	/**

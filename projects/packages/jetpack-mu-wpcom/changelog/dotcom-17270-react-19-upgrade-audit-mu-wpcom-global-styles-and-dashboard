@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Global Styles: migrate the limited-styles notice mount to React 18 createRoot for React 19 compatibility.

@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Prevent PHP warnings when building the VideoPress dashboard state and resolving video metadata for videos with incomplete data.
