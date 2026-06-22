@@ -205,21 +205,19 @@ class Caption_Tracks {
 
 		$query = new \WP_Query(
 			array(
-				'post_type'      => self::POST_TYPE,
-				'post_status'    => 'any',
-				'posts_per_page' => 100,
-				'orderby'        => 'modified',
-				'order'          => 'DESC',
+				'post_type'              => self::POST_TYPE,
+				'post_status'            => 'any',
+				'posts_per_page'         => 100,
+				'orderby'                => 'modified',
+				'order'                  => 'DESC',
+				'meta_key'               => self::META_GUID, // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key
+				'meta_value'             => $guid, // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value
+				'no_found_rows'          => true,
+				'update_post_term_cache' => false,
 			)
 		);
 
-		$matching_posts = array_filter(
-			$query->posts,
-			function ( WP_Post $post ) use ( $guid ) {
-				return $guid === (string) get_post_meta( $post->ID, self::META_GUID, true );
-			}
-		);
-		$tracks         = array_map( array( __CLASS__, 'prepare_track_response' ), array_values( $matching_posts ) );
+		$tracks = array_map( array( __CLASS__, 'prepare_track_response' ), $query->posts );
 		return rest_ensure_response( $tracks );
 	}
 

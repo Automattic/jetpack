@@ -166,7 +166,9 @@ const withoutUndefinedValues = ( value: Record< string, unknown > ) => {
 const getTrackId = ( track?: Partial< VideoTextTrack | VideoTrackResponseBodyProps > ) =>
 	track?.id ?? ( track as VideoTrackResponseBodyProps | undefined )?.track_id;
 
-const hasTrackId = ( trackId: string | number | undefined | null ): trackId is string | number =>
+export const hasTrackId = (
+	trackId: string | number | undefined | null
+): trackId is string | number =>
 	trackId !== undefined && trackId !== null && String( trackId ) !== '';
 
 const getTrackSrcLang = (
@@ -580,7 +582,7 @@ export const fetchTrackListForGuid = async ( guid: string ): Promise< VideoTrack
 	};
 };
 
-export const fetchTracksForGuid = async ( guid: string ): Promise< VideoTextTrack[] > =>
+const fetchTracksForGuid = async ( guid: string ): Promise< VideoTextTrack[] > =>
 	( await fetchTrackListForGuid( guid ) ).tracks;
 
 const findTrackByKindLanguageForGuid = async (

@@ -216,6 +216,8 @@ jest.mock( '../../../lib/video-tracks', () => ( {
 	deleteTrackForGuid: jest.fn(),
 	fetchTrackContentForGuid: jest.fn(),
 	fetchTrackListForGuid: jest.fn(),
+	hasTrackId: ( trackId: unknown ) =>
+		trackId !== undefined && trackId !== null && String( trackId ) !== '',
 	normalizeVideoTextTrackResponse: jest.fn( ( response, fallback ) => ( {
 		...fallback,
 		...( typeof response === 'object' && response !== null ? response : {} ),

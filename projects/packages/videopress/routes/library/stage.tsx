@@ -411,13 +411,9 @@ const StageInner = () => {
 
 	const getItemId = useCallback( ( item: LibraryItem ) => item.id, [] );
 
-	const onCaptionTracksChange = useCallback(
-		( updatedTracks: LibraryItem[ 'tracks' ] ) => {
-			setCaptionVideo( current => ( current ? { ...current, tracks: updatedTracks } : current ) );
-			void refetch();
-		},
-		[ refetch ]
-	);
+	const onCaptionTracksChange = useCallback( () => {
+		void refetch();
+	}, [ refetch ] );
 
 	return (
 		<DashboardLayout
