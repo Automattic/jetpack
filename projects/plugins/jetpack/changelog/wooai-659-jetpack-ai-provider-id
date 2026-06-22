@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+AI Assistant: Include provider identity when registering the Agents Manager provider.

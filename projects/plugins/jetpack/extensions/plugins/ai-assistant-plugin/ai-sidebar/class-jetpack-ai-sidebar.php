@@ -27,6 +27,7 @@ const AI_SIDEBAR_JS_URL           = 'https://' . AM_ASSET_BASE_PATH . 'jetpack-a
 const AI_SIDEBAR_CSS_URL          = 'https://' . AM_ASSET_BASE_PATH . 'jetpack-ai-sidebar.css';
 const AI_SIDEBAR_RTL_CSS_URL      = 'https://' . AM_ASSET_BASE_PATH . 'jetpack-ai-sidebar.rtl.css';
 const AI_SIDEBAR_PROVIDER_URL     = 'https://' . AM_ASSET_BASE_PATH . 'jetpack-ai-sidebar.provider.mjs';
+const AI_SIDEBAR_PROVIDER_ID      = 'jetpack-ai-sidebar';
 const AI_SIDEBAR_AGENT_ID         = 'wp-orchestrator';
 const BIG_SKY_AGENT_PROVIDER_PATH = '/big-sky-plugin/build/calypso-agent-provider/';
 
@@ -394,11 +395,11 @@ class Jetpack_AI_Sidebar {
 	/**
 	 * Register Jetpack AI as an Agents Manager provider.
 	 *
-	 * Appends the CDN-hosted ESM wrapper URL to the providers list so AM
-	 * can dynamically import it. Asset enqueueing is handled separately by
-	 * maybe_enqueue_abilities_script.
+	 * Appends the CDN-hosted ESM wrapper URL to the providers list so AM can
+	 * dynamically import it, with a stable provider ID for request context.
+	 * Asset enqueueing is handled separately by maybe_enqueue_abilities_script.
 	 *
-	 * @param array $providers Existing provider URLs.
+	 * @param array $providers Existing provider entries.
 	 * @return array Updated providers.
 	 */
 	public static function register_provider( array $providers ): array {
@@ -426,7 +427,10 @@ class Jetpack_AI_Sidebar {
 		// AM dynamically imports this module to merge tools, suggestions, and components.
 		// No ?ver= needed — the wrapper re-exports from window.__JetpackAIProvider
 		// at import time, so its behavior always matches the loaded IIFE bundle.
-		$providers[] = AI_SIDEBAR_PROVIDER_URL;
+		$providers[] = array(
+			'providerId' => AI_SIDEBAR_PROVIDER_ID,
+			'url'        => AI_SIDEBAR_PROVIDER_URL,
+		);
 
 		return $providers;
 	}
@@ -570,18 +574,37 @@ class Jetpack_AI_Sidebar {
 	/**
 	 * Remove providers that should not participate in the Jetpack AI Sidebar surface.
 	 *
-	 * @param array $providers Provider URLs.
-	 * @return array Filtered provider URLs.
+	 * @param array $providers Provider entries.
+	 * @return array Filtered provider entries.
 	 */
 	private static function filter_agent_providers_for_jetpack_ai_sidebar( array $providers ): array {
 		return array_values(
 			array_filter(
 				$providers,
 				static function ( $provider ): bool {
-					return ! is_string( $provider ) || ! str_contains( $provider, BIG_SKY_AGENT_PROVIDER_PATH );
+					$provider_url = self::get_agent_provider_url_from_entry( $provider );
+					return ! $provider_url || ! str_contains( $provider_url, BIG_SKY_AGENT_PROVIDER_PATH );
 				}
 			)
 		);
+	}
+
+	/**
+	 * Get a provider URL from either legacy string entries or metadata entries.
+	 *
+	 * @param mixed $provider Provider entry.
+	 * @return string|null Provider URL when present.
+	 */
+	private static function get_agent_provider_url_from_entry( $provider ): ?string {
+		if ( is_string( $provider ) ) {
+			return $provider;
+		}
+
+		if ( is_array( $provider ) && isset( $provider['url'] ) && is_string( $provider['url'] ) ) {
+			return $provider['url'];
+		}
+
+		return null;
 	}
 
 	/**
@@ -649,7 +672,7 @@ class Jetpack_AI_Sidebar {
 		wp_add_inline_script(
 			'agents-manager',
 			'if ( typeof agentsManagerData === "object" && agentsManagerData !== null ) {'
-				. ' if ( Array.isArray( agentsManagerData.agentProviders ) ) { agentsManagerData.agentProviders = agentsManagerData.agentProviders.filter( function( provider ) { return typeof provider !== "string" || provider.indexOf( ' . $big_sky_provider_payload . ' ) === -1; } ); }'
+				. ' if ( Array.isArray( agentsManagerData.agentProviders ) ) { agentsManagerData.agentProviders = agentsManagerData.agentProviders.filter( function( provider ) { var providerUrl = typeof provider === "string" ? provider : provider && typeof provider.url === "string" ? provider.url : ""; return providerUrl.indexOf( ' . $big_sky_provider_payload . ' ) === -1; } ); }'
 				. ' agentsManagerData.agentId = ' . $agent_id_payload . ';'
 				. ' agentsManagerData.aiEditorialReviewEnabled = ' . $ai_editorial_review_payload . ';'
 				. ' agentsManagerData.jetpackAiSidebarPreview = ' . $preview_payload . ';'
