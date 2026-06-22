@@ -59,6 +59,9 @@ export function sanitizeStatsDevicesResponse(
 	}
 
 	return isStatsTimeSeriesPayload( response )
-		? sanitizeStatsTimeSeriesResponse( response, query )
-		: emptyStatsReport();
+		? ( sanitizeStatsTimeSeriesResponse(
+				response,
+				query
+		  ) as StatsNormalizedReport< StatsDevicesItem > )
+		: emptyStatsReport< StatsDevicesItem >();
 }

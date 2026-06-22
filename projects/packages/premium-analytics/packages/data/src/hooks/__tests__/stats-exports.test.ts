@@ -16,4 +16,29 @@ describe( 'Stats public hook names', () => {
 		expect( dataPackage ).toHaveProperty( 'useStatsCountryViews' );
 		expect( dataPackage ).toHaveProperty( 'useStatsVideoPlays' );
 	} );
+
+	it( 'exports discoverable family-prefixed remaining Stats hooks', () => {
+		expect( dataPackage ).toHaveProperty( 'useStatsVisits' );
+		expect( dataPackage ).toHaveProperty( 'useStatsDevices' );
+		expect( dataPackage ).toHaveProperty( 'useStatsArchives' );
+		expect( dataPackage ).toHaveProperty( 'useStatsPublicize' );
+		expect( dataPackage ).toHaveProperty( 'useStatsFollowers' );
+		expect( dataPackage ).toHaveProperty( 'useStatsTags' );
+		expect( dataPackage ).toHaveProperty( 'useStatsComments' );
+		expect( dataPackage ).toHaveProperty( 'useStatsCommentFollowers' );
+		expect( dataPackage ).toHaveProperty( 'useStatsStreak' );
+		expect( dataPackage ).toHaveProperty( 'useStatsInsights' );
+		expect( dataPackage ).toHaveProperty( 'useStatsHighlights' );
+		expect( dataPackage ).toHaveProperty( 'useStatsSubscribers' );
+		expect( dataPackage ).toHaveProperty( 'useStatsSubscribersCounts' );
+		expect( dataPackage ).toHaveProperty( 'useStatsSinglePost' );
+		expect( dataPackage ).toHaveProperty( 'useStatsSingleVideo' );
+		expect( dataPackage ).toHaveProperty( 'useStatsEmailSummary' );
+		expect( dataPackage ).toHaveProperty( 'useStatsEmailOpensBreakdown' );
+		expect( dataPackage ).toHaveProperty( 'useStatsEmailClicksBreakdown' );
+		expect( dataPackage ).toHaveProperty( 'useStatsEmailOpensTimeSeries' );
+		expect( dataPackage ).toHaveProperty( 'useStatsEmailClicksTimeSeries' );
+		expect( dataPackage ).toHaveProperty( 'useStatsWordAdsStats' );
+		expect( dataPackage ).toHaveProperty( 'useStatsWordAdsEarnings' );
+	} );
 } );

@@ -22,3 +22,29 @@ export { statsTopAuthorsQuery } from './stats-top-authors-query';
 export { statsLocationsQuery } from './stats-locations-query';
 export { statsCountryViewsQuery } from './stats-country-views-query';
 export { statsVideoPlaysQuery } from './stats-video-plays-query';
+export { statsVisitsQuery } from './stats-visits-query';
+export { statsDevicesQuery } from './stats-devices-query';
+export { statsArchivesQuery } from './stats-archives-query';
+export { statsPublicizeQuery } from './stats-publicize-query';
+export { statsFollowersQuery } from './stats-followers-query';
+export { statsTagsQuery } from './stats-tags-query';
+export { statsCommentsQuery } from './stats-comments-query';
+export { statsCommentFollowersQuery } from './stats-comment-followers-query';
+export { statsStreakQuery } from './stats-streak-query';
+export { statsInsightsQuery } from './stats-insights-query';
+export { statsHighlightsQuery } from './stats-highlights-query';
+export { statsSubscribersQuery, statsSubscribersCountsQuery } from './stats-subscribers-query';
+export { statsSinglePostQuery } from './stats-single-post-query';
+export { statsSingleVideoQuery } from './stats-single-video-query';
+export { statsEmailSummaryQuery } from './stats-email-summary-query';
+export {
+	statsEmailOpensBreakdownQuery,
+	statsEmailClicksBreakdownQuery,
+	type StatsEmailClicksBreakdown,
+	type StatsEmailOpensBreakdown,
+} from './stats-email-breakdown-query';
+export {
+	statsEmailOpensTimeSeriesQuery,
+	statsEmailClicksTimeSeriesQuery,
+} from './stats-email-time-series-query';
+export { statsWordAdsStatsQuery, statsWordAdsEarningsQuery } from './stats-wordads-query';
