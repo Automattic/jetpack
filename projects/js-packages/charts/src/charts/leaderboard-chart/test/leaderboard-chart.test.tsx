@@ -403,6 +403,39 @@ describe( 'LeaderboardChart', () => {
 			expect( screen.getByRole( 'button' ) ).toHaveAccessibleName( /Direct.*12\.5K/ );
 		} );
 
+		it( 'derives the accessible name from an image label via its alt text', () => {
+			render(
+				<LeaderboardChart
+					data={ [
+						{
+							...mockData[ 0 ],
+							label: <img src="https://example.com/flag.svg" alt="United States" />,
+							onClick: jest.fn(),
+						},
+					] }
+				/>
+			);
+			expect( screen.getByRole( 'button' ) ).toHaveAccessibleName( /United States.*12\.5K/ );
+		} );
+
+		it( 'uses ariaLabel as the accessible name when provided', () => {
+			render(
+				<LeaderboardChart
+					data={ [
+						{
+							...mockData[ 0 ],
+							label: <img src="https://example.com/flag.svg" alt="" />,
+							ariaLabel: 'United States: 12.5K visitors',
+							onClick: jest.fn(),
+						},
+					] }
+				/>
+			);
+			expect( screen.getByRole( 'button' ) ).toHaveAccessibleName(
+				'United States: 12.5K visitors'
+			);
+		} );
+
 		it( 'does not render a button for entries without onClick', () => {
 			render( <LeaderboardChart data={ [ mockData[ 0 ] ] } /> );
 			expect( screen.queryByRole( 'button' ) ).not.toBeInTheDocument();

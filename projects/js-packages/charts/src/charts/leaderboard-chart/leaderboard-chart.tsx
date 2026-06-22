@@ -378,6 +378,7 @@ const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 											type="button"
 											className={ styles.interactiveRow }
 											onClick={ entry.onClick }
+											aria-label={ entry.ariaLabel }
 										>
 											{ rowCells }
 											<Icon className={ styles.chevron } icon={ chevronRight } size={ 24 } />
