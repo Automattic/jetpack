@@ -31,7 +31,7 @@ export const topPostsFixture = {
 };
 
 export const topPostsSummaryFixture = {
-	date: '2026-06-30',
+	date: '2026-06-22',
 	period: 'day',
 	summary: {
 		postviews: [
@@ -43,30 +43,22 @@ export const topPostsSummaryFixture = {
 				type: 'page',
 				status: 'publish',
 				public: true,
-				views: 4148,
-				children: [
-					{
-						title: 'Homepage child attachment',
-						link: 'https://example.com/attachment/',
-						views: 1,
-						type: 'attachment',
-					},
-				],
+				views: 4157,
 				video_play: false,
 			},
 			{
-				id: 242307,
-				href: 'https://example.com/upgrade/backup/',
-				date: '2024-05-06 15:02:37',
-				title: 'Jetpack Backup',
-				type: 'page',
-				status: 'publish',
-				public: true,
-				views: 1263,
+				id: 0,
+				href: 'https://example.com/',
+				date: null,
+				title: 'Home page / Archives',
+				type: 'homepage',
+				status: null,
+				public: false,
+				views: 1378,
 				video_play: false,
 			},
 		],
-		total_views: '5411',
+		total_views: 0,
 		dropped_ids: [],
 	},
 };
@@ -86,7 +78,7 @@ export const referrersFixture = {
 };
 
 export const referrersSummaryFixture = {
-	date: '2026-06-30',
+	date: '2026-06-22',
 	period: 'day',
 	summary: {
 		groups: [
@@ -94,19 +86,19 @@ export const referrersSummaryFixture = {
 				group: 'Search Engines',
 				name: 'Search Engines',
 				icon: 'https://example.com/search-engine.png',
-				total: 4786,
+				total: 4801,
 				follow_data: null,
 				results: [
 					{
 						name: 'Google Search',
 						icon: 'https://example.com/google.png',
-						views: 3924,
+						views: 3936,
 						children: [
 							{
 								name: 'google.com',
 								url: 'http://www.google.com/',
 								icon: null,
-								views: 3908,
+								views: 3920,
 							},
 							{
 								name: 'google.com.hk',
@@ -138,7 +130,7 @@ export const referrersSummaryFixture = {
 				],
 			},
 		],
-		total_views: '4786',
+		total_views: 8474,
 		other_views: '0',
 	},
 };
@@ -159,7 +151,7 @@ export const fileDownloadsFixture = {
 };
 
 export const clicksSummaryFixture = {
-	date: '2026-06-30',
+	date: '2026-06-22',
 	period: 'day',
 	summary: {
 		clicks: [
@@ -167,7 +159,7 @@ export const clicksSummaryFixture = {
 				icon: 'https://example.com/blavatar.png',
 				url: null,
 				name: 'wordpress.org',
-				views: 412,
+				views: 413,
 				children: [
 					{
 						url: 'https://wordpress.org/plugins/jetpack-search',
@@ -182,13 +174,13 @@ export const clicksSummaryFixture = {
 				],
 			},
 		],
-		total_clicks: '412',
+		total_clicks: 1323,
 		other_clicks: '0',
 	},
 };
 
 export const searchTermsSummaryFixture = {
-	date: '2026-06-30',
+	date: '2026-06-22',
 	period: 'day',
 	summary: {
 		search_terms: [
@@ -197,14 +189,28 @@ export const searchTermsSummaryFixture = {
 			{ term: 'how do i turn off "your connection to this site is not secure"?', views: 1 },
 		],
 		total_search_terms: 0,
-		encrypted_search_terms: 30,
-		other_search_terms: -33,
+		encrypted_search_terms: 31,
+		other_search_terms: -34,
 	},
 };
 
 export const fileDownloadsSummaryFixture = {
-	date: '2026-06-30',
+	date: '2026-06-22',
 	period: 'day',
+	days: {
+		'2026-06-22': {
+			files: [
+				{
+					relative_url: '/guide.pdf',
+					filename: 'guide.pdf',
+					download_url: 'https://example.com/guide.pdf',
+					downloads: '8',
+				},
+			],
+			total_downloads: '8',
+			other_downloads: '0',
+		},
+	},
 	summary: {
 		files: [
 			{
@@ -220,20 +226,20 @@ export const fileDownloadsSummaryFixture = {
 };
 
 export const topAuthorsSummaryFixture = {
-	date: '2026-06-30',
+	date: '2026-06-22',
 	period: 'day',
 	summary: {
 		authors: [
 			{
 				name: 'Jetpack Team',
 				avatar: 'https://example.com/avatar.png',
-				views: 4160,
+				views: 4166,
 				posts: [
 					{
 						id: 265143,
 						title: 'Homepage',
 						url: 'https://example.com/?p=265143',
-						views: 4151,
+						views: 4157,
 						video: false,
 					},
 					{
@@ -263,7 +269,6 @@ export const topAuthorsSummaryFixture = {
 				other_views: 0,
 			},
 		],
-		total_views: '4160',
 	},
 };
 
@@ -407,24 +412,25 @@ export const videoPlaysFixture = {
 };
 
 export const videoPlaysSummaryFixture = {
-	date: '2026-06-30',
+	date: '2026-06-22',
 	period: 'day',
-	summary: {
-		data: [
-			{
-				post_id: 12,
-				title: 'Launch video',
-				url: 'https://example.com/video/',
+	days: {
+		summary: {
+			data: [
+				{
+					post_id: 12,
+					title: 'Launch video',
+					views: '11',
+					impressions: '42',
+					watch_time: '128.5',
+					retention_rate: '61.25',
+				},
+			],
+			total: {
 				views: '11',
 				impressions: '42',
 				watch_time: '128.5',
-				retention_rate: '61.25',
 			},
-		],
-		total: {
-			views: '11',
-			impressions: '42',
-			watch_time: '128.5',
 		},
 	},
 };

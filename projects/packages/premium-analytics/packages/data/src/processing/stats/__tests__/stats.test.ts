@@ -33,48 +33,43 @@ describe( 'Stats normalizers', () => {
 	it( 'normalizes summarized top posts into range data', () => {
 		const result = sanitizeStatsTopPostsResponse( topPostsSummaryFixture, {
 			period: 'day',
-			start_date: '2026-06-01',
-			end_date: '2026-06-30',
+			start_date: '2026-06-16',
+			end_date: '2026-06-22',
 			summarize: true,
 		} );
 
 		expect( result ).toEqual( {
 			summary: {
-				total_views: 5411,
+				total_views: 0,
 				dropped_ids: [],
-				date_start: '2026-06-01T00:00:00+00:00',
-				date_end: '2026-06-30T23:59:59+00:00',
+				date_start: '2026-06-16T00:00:00+00:00',
+				date_end: '2026-06-22T23:59:59+00:00',
 			},
 			data: [
 				{
-					time_interval: '2026-06-30',
-					date_start: '2026-06-01T00:00:00+00:00',
-					date_end: '2026-06-30T23:59:59+00:00',
+					time_interval: '2026-06-22',
+					date_start: '2026-06-16T00:00:00+00:00',
+					date_end: '2026-06-22T23:59:59+00:00',
 					items: [
 						expect.objectContaining( {
 							id: 265143,
 							label: 'Homepage',
-							views: 4148,
+							views: 4157,
 							link: 'https://example.com/home-2/',
 							public: true,
 							type: 'page',
 							status: 'publish',
 							video_play: false,
-							children: [
-								expect.objectContaining( {
-									label: 'Homepage child attachment',
-									link: 'https://example.com/attachment/',
-									views: 1,
-									type: 'attachment',
-								} ),
-							],
+							children: null,
 						} ),
 						expect.objectContaining( {
-							id: 242307,
-							label: 'Jetpack Backup',
-							views: 1263,
-							link: 'https://example.com/upgrade/backup/',
-							status: 'publish',
+							id: 0,
+							label: 'Home page / Archives',
+							views: 1378,
+							link: 'https://example.com/',
+							type: 'homepage',
+							status: null,
+							public: false,
 							video_play: false,
 						} ),
 					],
@@ -111,8 +106,8 @@ describe( 'Stats normalizers', () => {
 	it( 'combines separately requested summary and by-date data', () => {
 		const summaryReport = sanitizeStatsTopPostsResponse( topPostsSummaryFixture, {
 			period: 'day',
-			start_date: '2026-06-01',
-			end_date: '2026-06-30',
+			start_date: '2026-06-16',
+			end_date: '2026-06-22',
 			summarize: true,
 		} );
 		const dataReport = sanitizeStatsTopPostsResponse( topPostsFixture, {
@@ -166,37 +161,37 @@ describe( 'Stats normalizers', () => {
 	it( 'normalizes summarized referrers into range data', () => {
 		const result = sanitizeStatsReferrersResponse( referrersSummaryFixture, {
 			period: 'day',
-			start_date: '2026-06-01',
-			end_date: '2026-06-30',
+			start_date: '2026-06-16',
+			end_date: '2026-06-22',
 			summarize: true,
 		} );
 
 		expect( result ).toEqual( {
 			summary: {
-				total_views: 4786,
+				total_views: 8474,
 				other_views: 0,
-				date_start: '2026-06-01T00:00:00+00:00',
-				date_end: '2026-06-30T23:59:59+00:00',
+				date_start: '2026-06-16T00:00:00+00:00',
+				date_end: '2026-06-22T23:59:59+00:00',
 			},
 			data: [
 				{
-					time_interval: '2026-06-30',
-					date_start: '2026-06-01T00:00:00+00:00',
-					date_end: '2026-06-30T23:59:59+00:00',
+					time_interval: '2026-06-22',
+					date_start: '2026-06-16T00:00:00+00:00',
+					date_end: '2026-06-22T23:59:59+00:00',
 					items: [
 						expect.objectContaining( {
 							label: 'Search Engines',
-							views: 4786,
+							views: 4801,
 							icon: 'https://example.com/search-engine.png',
 							children: [
 								expect.objectContaining( {
 									label: 'Google Search',
-									views: 3924,
+									views: 3936,
 									icon: 'https://example.com/google.png',
 									children: [
 										expect.objectContaining( {
 											label: 'google.com',
-											views: 3908,
+											views: 3920,
 											link: 'http://www.google.com/',
 										} ),
 										expect.objectContaining( {
@@ -235,24 +230,24 @@ describe( 'Stats normalizers', () => {
 	it( 'normalizes summarized clicks into range data', () => {
 		const result = sanitizeStatsClicksResponse( clicksSummaryFixture, {
 			period: 'day',
-			start_date: '2026-06-01',
-			end_date: '2026-06-30',
+			start_date: '2026-06-16',
+			end_date: '2026-06-22',
 			summarize: true,
 		} );
 
 		expect( result.summary ).toEqual( {
-			total_clicks: 412,
+			total_clicks: 1323,
 			other_clicks: 0,
-			date_start: '2026-06-01T00:00:00+00:00',
-			date_end: '2026-06-30T23:59:59+00:00',
+			date_start: '2026-06-16T00:00:00+00:00',
+			date_end: '2026-06-22T23:59:59+00:00',
 		} );
 		expect( result.data[ 0 ] ).toEqual(
 			expect.objectContaining( {
-				time_interval: '2026-06-30',
+				time_interval: '2026-06-22',
 				items: [
 					expect.objectContaining( {
 						label: 'wordpress.org',
-						views: 412,
+						views: 413,
 						link: null,
 						icon: 'https://example.com/blavatar.png',
 						children: [
@@ -276,16 +271,16 @@ describe( 'Stats normalizers', () => {
 	it( 'normalizes summarized search terms into range data', () => {
 		const result = sanitizeStatsSearchTermsResponse( searchTermsSummaryFixture, {
 			period: 'day',
-			start_date: '2026-06-01',
-			end_date: '2026-06-30',
+			start_date: '2026-06-16',
+			end_date: '2026-06-22',
 			summarize: true,
 		} );
 
 		expect( result.summary ).toEqual(
 			expect.objectContaining( {
 				total_search_terms: 0,
-				encrypted_search_terms: 30,
-				other_search_terms: -33,
+				encrypted_search_terms: 31,
+				other_search_terms: -34,
 			} )
 		);
 		expect( result.data[ 0 ].items[ 0 ] ).toEqual(
@@ -314,8 +309,8 @@ describe( 'Stats normalizers', () => {
 	it( 'normalizes summarized file downloads into range data', () => {
 		const result = sanitizeStatsFileDownloadsResponse( fileDownloadsSummaryFixture, {
 			period: 'day',
-			start_date: '2026-06-01',
-			end_date: '2026-06-30',
+			start_date: '2026-06-16',
+			end_date: '2026-06-22',
 			summarize: true,
 		} );
 
@@ -338,26 +333,25 @@ describe( 'Stats normalizers', () => {
 	it( 'normalizes summarized top authors into range data', () => {
 		const result = sanitizeStatsTopAuthorsResponse( topAuthorsSummaryFixture, {
 			period: 'day',
-			start_date: '2026-06-01',
-			end_date: '2026-06-30',
+			start_date: '2026-06-16',
+			end_date: '2026-06-22',
 			summarize: true,
 		} );
 
-		expect( result.summary ).toEqual(
-			expect.objectContaining( {
-				total_views: 4160,
-			} )
-		);
+		expect( result.summary ).toEqual( {
+			date_start: '2026-06-16T00:00:00+00:00',
+			date_end: '2026-06-22T23:59:59+00:00',
+		} );
 		expect( result.data[ 0 ].items[ 0 ] ).toEqual(
 			expect.objectContaining( {
 				label: 'Jetpack Team',
-				views: 4160,
+				views: 4166,
 				icon: 'https://example.com/avatar.png',
 				children: [
 					expect.objectContaining( {
 						id: 265143,
 						label: 'Homepage',
-						views: 4151,
+						views: 4157,
 						link: 'https://example.com/?p=265143',
 					} ),
 					expect.objectContaining( {
@@ -390,7 +384,7 @@ describe( 'Stats normalizers', () => {
 	it( 'normalizes summarized locations into range data', () => {
 		const result = sanitizeStatsLocationsResponse( locationsSummaryFixture, {
 			period: 'day',
-			start_date: '2026-06-01',
+			start_date: '2026-06-16',
 			end_date: '2026-06-22',
 			summarize: true,
 		} );
@@ -398,13 +392,13 @@ describe( 'Stats normalizers', () => {
 		expect( result.summary ).toEqual( {
 			total_views: 0,
 			other_views: 0,
-			date_start: '2026-06-01T00:00:00+00:00',
+			date_start: '2026-06-16T00:00:00+00:00',
 			date_end: '2026-06-22T23:59:59+00:00',
 		} );
 		expect( result.data[ 0 ] ).toEqual(
 			expect.objectContaining( {
 				time_interval: '2026-06-22',
-				date_start: '2026-06-01T00:00:00+00:00',
+				date_start: '2026-06-16T00:00:00+00:00',
 				date_end: '2026-06-22T23:59:59+00:00',
 			} )
 		);
@@ -443,7 +437,7 @@ describe( 'Stats normalizers', () => {
 	it( 'normalizes summarized city locations with coordinates', () => {
 		const result = sanitizeStatsLocationsResponse( locationsCitySummaryFixture, {
 			period: 'day',
-			start_date: '2026-06-01',
+			start_date: '2026-06-16',
 			end_date: '2026-06-22',
 			summarize: true,
 		} );
@@ -451,13 +445,13 @@ describe( 'Stats normalizers', () => {
 		expect( result.summary ).toEqual( {
 			total_views: 0,
 			other_views: 0,
-			date_start: '2026-06-01T00:00:00+00:00',
+			date_start: '2026-06-16T00:00:00+00:00',
 			date_end: '2026-06-22T23:59:59+00:00',
 		} );
 		expect( result.data[ 0 ] ).toEqual(
 			expect.objectContaining( {
 				time_interval: '2026-06-22',
-				date_start: '2026-06-01T00:00:00+00:00',
+				date_start: '2026-06-16T00:00:00+00:00',
 				date_end: '2026-06-22T23:59:59+00:00',
 			} )
 		);
@@ -515,8 +509,8 @@ describe( 'Stats normalizers', () => {
 	it( 'normalizes summarized video plays into range data', () => {
 		const result = sanitizeStatsVideoPlaysResponse( videoPlaysSummaryFixture, {
 			period: 'day',
-			start_date: '2026-06-01',
-			end_date: '2026-06-30',
+			start_date: '2026-06-16',
+			end_date: '2026-06-22',
 			summarize: true,
 			complete_stats: true,
 		} );

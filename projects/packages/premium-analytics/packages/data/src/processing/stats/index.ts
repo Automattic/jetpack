@@ -667,6 +667,7 @@ export function sanitizeStatsVideoPlaysResponse(
 	response: unknown,
 	query?: StatsQueryParams
 ): StatsNormalizedReport< StatsVideoPlaysItem > {
+	const payload = getStatsRecord( response );
 	const videoDataKeys = query?.complete_stats ? [ 'data', 'plays' ] : [ 'plays', 'data' ];
 	const parse = ( item: StatsRecord ): StatsVideoPlaysItem => ( {
 		id: item.post_id as string | number | undefined,
@@ -678,9 +679,39 @@ export function sanitizeStatsVideoPlaysResponse(
 		link: typeof item.url === 'string' ? item.url : null,
 		children: null,
 	} );
+	const getSummarySource = () => {
+		const summary = getStatsRecord( payload.summary );
+
+		return Object.keys( summary ).length
+			? summary
+			: getStatsRecord( getStatsRecord( payload.days ).summary );
+	};
+	const mapSummaryData = (): Array< StatsNormalizedDataPoint< StatsVideoPlaysItem > > => {
+		if ( ! query?.summarize ) {
+			return [];
+		}
+
+		const { found, items } = getStatsArrayFromKeys< StatsRecord >(
+			getSummarySource(),
+			videoDataKeys
+		);
+		const summaryDate = getStatsTopLevelDataDate( response, query );
+
+		return found && summaryDate
+			? [ createStatsSummaryDataPoint( summaryDate, response, query, items.map( parse ) ) ]
+			: [];
+	};
+	const summaryData = mapSummaryData();
 
 	return {
-		summary: normalizeStatsReportSummary( response, query, videoDataKeys ),
-		data: mapStatsReportDataPoints( response, query, videoDataKeys, parse ),
+		summary: query?.summarize
+			? {
+					...normalizeStatsSummary( getSummarySource(), videoDataKeys ),
+					...getStatsSummaryIntervalFields( query, response ),
+			  }
+			: {},
+		data: summaryData.length
+			? summaryData
+			: mapStatsReportDataPoints( response, query, videoDataKeys, parse ),
 	};
 }
