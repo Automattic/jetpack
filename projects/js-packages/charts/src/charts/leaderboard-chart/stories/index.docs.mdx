@@ -208,6 +208,8 @@ Handle different value ranges with conditional formatting:
 
 Any entry with an `onClick` field becomes a clickable, keyboard-accessible row. The row renders as a `<button>` (activatable with Enter or Space) and reveals a chevron on hover or focus. Rows without `onClick` remain inert.
 
+By default the button's accessible name is derived from its rendered content (the label plus the formatted value). For an image-only JSX label whose text content doesn't yield a clean name, set the optional `ariaLabel` field on the entry to give assistive tech a deterministic name.
+
 Configuring what happens on click — for example, drilling down into a sub-view — is the consumer's responsibility, not the chart's:
 
 <Canvas of={ LeaderboardChartStories.Interactive } />
@@ -563,6 +565,7 @@ The Leaderboard Chart component supports an optional entry animation that create
 - Interactive legends are keyboard accessible when `legend.interactive` is enabled.
 - Legend items can be toggled via keyboard using standard button interaction.
 - Rows with `onClick` render as native `<button>` elements and are activatable with Enter or Space.
+- An interactive row's accessible name comes from its content (label + value); set the entry's `ariaLabel` to override it for image-only labels.
 
 ### Screen Reader Support
 

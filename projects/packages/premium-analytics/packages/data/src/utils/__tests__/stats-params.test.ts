@@ -1,7 +1,11 @@
 /**
  * Internal dependencies
  */
-import { getStatsPeriodFromInterval, reportParamsToStatsQueryParams } from '../stats-params';
+import {
+	getStatsPeriodFromInterval,
+	reportParamsToStatsQueryParams,
+	statsQueryParamsToApiParams,
+} from '../stats-params';
 
 describe( 'getStatsPeriodFromInterval', () => {
 	it.each( [
@@ -24,6 +28,24 @@ describe( 'reportParamsToStatsQueryParams', () => {
 				from: '2026-06-01T00:00:00',
 				to: '2026-06-07T23:59:59',
 				interval: 'day',
+			} )
+		).toEqual(
+			expect.objectContaining( {
+				period: 'day',
+				end_date: '2026-06-07',
+				start_date: '2026-06-01',
+				days: 7,
+			} )
+		);
+	} );
+
+	it( 'maps the semantic end date to the Stats API date param', () => {
+		expect(
+			statsQueryParamsToApiParams( {
+				period: 'day',
+				start_date: '2026-06-01',
+				end_date: '2026-06-07',
+				days: 7,
 			} )
 		).toEqual(
 			expect.objectContaining( {
@@ -94,10 +116,21 @@ describe( 'reportParamsToStatsQueryParams', () => {
 		expect( params ).not.toHaveProperty( 'deviceProperty' );
 	} );
 
+	it( 'does not forward unknown params to Stats endpoints', () => {
+		const params = reportParamsToStatsQueryParams( {
+			from: '2026-06-01',
+			to: '2026-06-01',
+			unknown_param: 'leak',
+		} );
+
+		expect( params ).not.toHaveProperty( 'unknown_param' );
+	} );
+
 	it( 'omits empty date params when no dates are provided', () => {
 		const params = reportParamsToStatsQueryParams();
 
 		expect( params ).not.toHaveProperty( 'date' );
+		expect( params ).not.toHaveProperty( 'end_date' );
 		expect( params ).not.toHaveProperty( 'start_date' );
 	} );
 } );

@@ -66,7 +66,8 @@
 }
 
 .jetpack-seo-overview__coverage-label {
-	color: var(--wpds-color-fg-content-neutral-weak, #787c82);
+	// Inherit the card's text color rather than the muted `-neutral-weak` variant,
+	// so the metric labels match the rest of the text on the page.
 	font-size: 12px;
 }
 

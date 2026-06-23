@@ -54,14 +54,16 @@ const defaultDeltaFormatter = ( value: number ): string => {
 
 /**
  * Build a bar's width. A hover-inset CSS variable (0 by default) is subtracted
- * so interactive rows can pull the bar's right edge back by a fixed pixel amount
- * on hover — instead of a percentage scale — keeping the bar↔value gap constant.
+ * on hover, scaled by the bar's share so the pull-back is proportional to its
+ * length: the full-length (100%) bar — the one that reaches the value — pulls
+ * back the whole inset to keep its gap with the value, while shorter bars pull
+ * back proportionally less, down to ~0 for a very short bar.
  *
  * @param share - The bar's share of the row width, as a percentage.
  * @return A CSS width value.
  */
 const getBarWidth = ( share: number ): string =>
-	`calc(${ share }% - var(--a8c--charts--leaderboard--bar--hover-inset, 0px))`;
+	`calc(${ share }% - var(--a8c--charts--leaderboard--bar--hover-inset, 0px) * ${ share } / 100)`;
 
 const BarLabel = ( { label }: { label: LeaderboardEntry[ 'label' ] } ) => (
 	<>{ typeof label === 'string' ? <Text className={ styles.label }>{ label }</Text> : label }</>
@@ -376,6 +378,7 @@ const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 											type="button"
 											className={ styles.interactiveRow }
 											onClick={ entry.onClick }
+											aria-label={ entry.ariaLabel }
 										>
 											{ rowCells }
 											<Icon className={ styles.chevron } icon={ chevronRight } size={ 24 } />
