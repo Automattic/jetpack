@@ -15,6 +15,10 @@ type StoreConversionRateBookingsRenderProps = {
  * client, chart theme, and resolved report params; BookingConversionRateWidget
  * fetches the conversion-rate report with bookings filters and renders the
  * funnel.
+ *
+ * @param root0            - Render props.
+ * @param root0.attributes - Widget attributes supplied by the dashboard.
+ * @return Store conversion rate bookings widget element.
  */
 export default function StoreConversionRateBookingsRender( {
 	attributes,

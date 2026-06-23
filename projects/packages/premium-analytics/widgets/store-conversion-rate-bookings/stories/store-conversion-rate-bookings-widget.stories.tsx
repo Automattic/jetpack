@@ -1,16 +1,16 @@
-import apiFetch from '@wordpress/api-fetch';
 import { getDefaultQueryParams } from '@jetpack-premium-analytics/data';
+import apiFetch from '@wordpress/api-fetch';
+import { registerReportMocks } from '../../../packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
 import {
 	DEFAULT_WIDGET_DASHBOARD_STORY_ARGS,
 	WidgetDashboardWithWidget as WidgetDashboardWithWidgetStory,
 	widgetDashboardWithWidgetArgTypes,
 	type WidgetDashboardWithWidgetControls,
 } from '../../stories/widget-dashboard-with-widget';
-import { registerReportMocks } from '../../../packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
 import StoreConversionRateBookingsRender from '../render';
 import widgetDefinition from '../widget';
-import type { APIFetchMiddleware } from '@wordpress/api-fetch';
 import type { Meta, StoryObj } from '@storybook/react';
+import type { APIFetchMiddleware } from '@wordpress/api-fetch';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 import type { ComponentType } from 'react';
 
@@ -20,6 +20,12 @@ const CONVERSION_RATE_PATH = `${ API_BASE }/sessions/by-conversion-rate`;
 let conversionRateMocksRegistered = false;
 let conversionRateRequestCount = 0;
 
+/**
+ * Builds a mock conversion-rate report response.
+ *
+ * @param isComparison - Whether the response is for the comparison range.
+ * @return Mock conversion-rate report response.
+ */
 function buildConversionRateMockResponse( isComparison: boolean ) {
 	const activeSessions = isComparison ? 4860 : 5480;
 	const visitors = isComparison ? 3920 : 4410;
@@ -43,6 +49,9 @@ function buildConversionRateMockResponse( isComparison: boolean ) {
 	};
 }
 
+/**
+ * Registers the conversion-rate report mock once for the story.
+ */
 function registerConversionRateMocks(): void {
 	if ( conversionRateMocksRegistered ) {
 		return;
@@ -75,6 +84,13 @@ interface StoreConversionRateBookingsDashboardStoryProps extends WidgetDashboard
 	withComparison: boolean;
 }
 
+/**
+ * Renders the store conversion rate bookings widget inside the dashboard story shell.
+ *
+ * @param root0                - Story controls.
+ * @param root0.withComparison - Whether to include comparison report params.
+ * @return Store conversion rate bookings dashboard story element.
+ */
 function StoreConversionRateBookingsDashboardStory( {
 	withComparison,
 	...dashboardStoryArgs
