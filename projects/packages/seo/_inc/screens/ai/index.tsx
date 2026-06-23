@@ -54,9 +54,10 @@ const CrawlerToggle: FC< CrawlerToggleProps > = ( { crawler, blocked, disabled, 
 
 /**
  * AI tab. Hosts three sections: the plan-gated AI SEO Enhancer, plus the free
- * llms.txt and AI-crawler controls, laid out in two columns — Enhancer + llms.txt
- * on the left, the taller AI-crawler list on the right — collapsing to a single
- * column on narrow screens. State + auto-save live in the `form` controller
+ * llms.txt and AI-crawler controls, laid out in two columns ordered broad →
+ * specific: AI-crawler access on the left, then llms.txt and the AI SEO Enhancer
+ * on the right — collapsing to a single column on narrow screens. State +
+ * auto-save live in the `form` controller
  * (passed from the page root so it survives tab switches); this component is the
  * presentation.
  *
@@ -92,30 +93,42 @@ const AiScreen: FC< Props > = ( { form } ) => {
 	return (
 		<div className="jetpack-seo-ai">
 			<div className="jetpack-seo-ai__grid">
-				{ /* Left column: the Enhancer (plan-gated — hidden when the plan
-				     doesn't support it, parity with the legacy Traffic page) and the
-				     free llms.txt controls. */ }
+				{ /* Left column: AI crawler access — the broadest control (whether AI
+				     crawlers may reach the site at all). */ }
 				<div className="jetpack-seo-ai__column">
-					{ enhancer.available && (
+					{ crawlers && (
 						<CollapsibleCard.Root defaultOpen>
 							<CollapsibleCard.Header>
-								<Card.Title>{ __( 'AI SEO Enhancer', 'jetpack-seo' ) }</Card.Title>
+								<Card.Title>{ __( 'AI crawler access', 'jetpack-seo' ) }</Card.Title>
 							</CollapsibleCard.Header>
 							<CollapsibleCard.Content>
-								<ToggleControl
-									label={ __(
-										'Automatically generate SEO title, SEO description, and image alt text for new posts',
-										'jetpack-seo'
-									) }
-									checked={ enhancer.enabled }
-									onChange={ setEnhancerEnabled }
-									disabled={ isSaving }
-									__nextHasNoMarginBottom
-								/>
+								<Stack direction="column" gap="md">
+									<p className="jetpack-seo-ai__crawlers-intro">
+										{ __(
+											'Choose which AI crawlers may access your site. Blocked crawlers are disallowed in your robots.txt.',
+											'jetpack-seo'
+										) }
+									</p>
+									{ crawlers.catalog.map( crawler => (
+										<CrawlerToggle
+											key={ crawler.slug }
+											crawler={ crawler }
+											blocked={ crawlers.blocked.includes( crawler.slug ) }
+											disabled={ isSaving }
+											onToggle={ setCrawlerBlocked }
+										/>
+									) ) }
+								</Stack>
 							</CollapsibleCard.Content>
 						</CollapsibleCard.Root>
 					) }
+				</div>
 
+				{ /* Right column, broad → specific: llms.txt (hand AI a formatted
+				     content map), then the AI SEO Enhancer (AI fine-tuning of specific
+				     metadata). The Enhancer is plan-gated — hidden when the plan
+				     doesn't support it (parity with the legacy Traffic page). */ }
+				<div className="jetpack-seo-ai__column">
 					{ llmsTxt && (
 						<CollapsibleCard.Root defaultOpen>
 							<CollapsibleCard.Header>
@@ -143,33 +156,23 @@ const AiScreen: FC< Props > = ( { form } ) => {
 							</CollapsibleCard.Content>
 						</CollapsibleCard.Root>
 					) }
-				</div>
 
-				{ /* Right column: the taller AI-crawler list. */ }
-				<div className="jetpack-seo-ai__column">
-					{ crawlers && (
+					{ enhancer.available && (
 						<CollapsibleCard.Root defaultOpen>
 							<CollapsibleCard.Header>
-								<Card.Title>{ __( 'AI crawler access', 'jetpack-seo' ) }</Card.Title>
+								<Card.Title>{ __( 'AI SEO Enhancer', 'jetpack-seo' ) }</Card.Title>
 							</CollapsibleCard.Header>
 							<CollapsibleCard.Content>
-								<Stack direction="column" gap="md">
-									<p className="jetpack-seo-ai__crawlers-intro">
-										{ __(
-											'Choose which AI crawlers may access your site. Blocked crawlers are disallowed in your robots.txt.',
-											'jetpack-seo'
-										) }
-									</p>
-									{ crawlers.catalog.map( crawler => (
-										<CrawlerToggle
-											key={ crawler.slug }
-											crawler={ crawler }
-											blocked={ crawlers.blocked.includes( crawler.slug ) }
-											disabled={ isSaving }
-											onToggle={ setCrawlerBlocked }
-										/>
-									) ) }
-								</Stack>
+								<ToggleControl
+									label={ __(
+										'Automatically generate SEO title, SEO description, and image alt text for new posts',
+										'jetpack-seo'
+									) }
+									checked={ enhancer.enabled }
+									onChange={ setEnhancerEnabled }
+									disabled={ isSaving }
+									__nextHasNoMarginBottom
+								/>
 							</CollapsibleCard.Content>
 						</CollapsibleCard.Root>
 					) }
