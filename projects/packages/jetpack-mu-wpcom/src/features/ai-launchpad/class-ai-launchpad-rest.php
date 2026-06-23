@@ -20,6 +20,25 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 	const LAUNCH_TASK_IDS = array( 'site_launched', 'blog_launched', 'woo_launch_site', 'link_in_bio_launched', 'videopress_launched' );
 
 	/**
+	 * Acknowledgment tasks that have no completion signal when the launchpad runs
+	 * in wp-admin: in the legacy launchpad they complete on click / page-visit in
+	 * Calypso, which writes the status to Calypso's *selected* site — never from
+	 * the wp-admin context. The AI Launchpad runs in wp-admin (on both Simple and
+	 * Atomic), so it has no way to tick them; it marks them complete locally when
+	 * the user clicks their CTA. Server-side allowlist so the complete-task route
+	 * can only tick these ids, never arbitrary catalog tasks. Mirrored client-side
+	 * in model.ts (COMPLETE_ON_CLICK_TASK_IDS).
+	 */
+	const COMPLETE_ON_CLICK_TASK_IDS = array(
+		'complete_profile',
+		'manage_subscribers',
+		'manage_paid_newsletter_plan',
+		'earn_money',
+		'start_building_your_audience',
+		'site_monitoring_page',
+	);
+
+	/**
 	 * Class constructor.
 	 */
 	public function __construct() {
@@ -82,6 +101,26 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 							'type'              => 'string',
 							'default'           => 'en',
 							'sanitize_callback' => 'sanitize_text_field',
+						),
+					),
+				),
+			)
+		);
+
+		register_rest_route(
+			$this->namespace,
+			$this->rest_base . '/complete-task',
+			array(
+				array(
+					'methods'             => 'POST',
+					'callback'            => array( $this, 'complete_task' ),
+					'permission_callback' => array( $this, 'can_write' ),
+					'args'                => array(
+						'task_id' => array(
+							'description'       => 'The acknowledgment task to mark complete.',
+							'type'              => 'string',
+							'required'          => true,
+							'sanitize_callback' => 'sanitize_key',
 						),
 					),
 				),
@@ -289,6 +328,46 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 		update_option( self::OPTION_AI_OUTPUT, $ai_output, false );
 
 		return array( 'ai_output' => $ai_output );
+	}
+
+	/**
+	 * Marks an acknowledgment task complete. These tasks have no completion signal
+	 * in wp-admin — in Calypso they complete on click/page-visit, written to
+	 * Calypso's selected site — so the client calls this when the user clicks the
+	 * task's CTA. Restricted to the COMPLETE_ON_CLICK_TASK_IDS allowlist and to
+	 * tasks actually on the site's AI-selected list, so the route can't tick
+	 * arbitrary catalog tasks.
+	 *
+	 * @param WP_REST_Request $request Request object.
+	 * @return array|WP_Error
+	 */
+	public function complete_task( $request ) {
+		$task_id = $request['task_id'];
+
+		if ( ! in_array( $task_id, self::COMPLETE_ON_CLICK_TASK_IDS, true ) ) {
+			return new WP_Error(
+				'ai_launchpad_task_not_completable',
+				__( 'This task cannot be completed this way.', 'jetpack-mu-wpcom' ),
+				array( 'status' => 400 )
+			);
+		}
+
+		// Only tasks the AI actually put on this site's list may be completed, so a
+		// capable user can't tick a task that isn't on their launchpad.
+		if ( ! in_array( $task_id, wpcom_ai_launchpad_get_ai_task_ids(), true ) ) {
+			return new WP_Error(
+				'ai_launchpad_task_not_selected',
+				__( 'This task is not on the tailored list.', 'jetpack-mu-wpcom' ),
+				array( 'status' => 404 )
+			);
+		}
+
+		wpcom_mark_launchpad_task_complete( $task_id );
+
+		return array(
+			'completed' => true,
+			'task_id'   => $task_id,
+		);
 	}
 
 	/**

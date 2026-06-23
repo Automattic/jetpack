@@ -7,6 +7,7 @@ import { trackTaskClicked } from '../lib/tracks.ts';
 import { Layout } from './layout.tsx';
 import {
 	firstIncompleteIndex,
+	isCompleteOnClickTask,
 	isTaskActionable,
 	resolveCtaUrl,
 	tasksFromFixture,
@@ -183,6 +184,18 @@ export function TailoredList( { pendingTailor, initialData, site }: Props = {} )
 				},
 				siteUrl
 			);
+			// Acknowledgment tasks have no completion signal in wp-admin (they
+			// complete only in Calypso), so clicking the CTA is the completion.
+			// Persist it before navigating away (same-tab nav unloads the page,
+			// cancelling an un-awaited request), best-effort so a failed write never
+			// blocks the navigation.
+			if ( isCompleteOnClickTask( task.id ) ) {
+				await apiFetch( {
+					path: '/wpcom/v2/ai-launchpad/complete-task',
+					method: 'POST',
+					data: { task_id: task.id },
+				} ).catch( () => {} );
+			}
 			if ( url ) {
 				navigate( url );
 			}

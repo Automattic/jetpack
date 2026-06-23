@@ -74,6 +74,34 @@ export function ctaKind( taskId: string ): CtaKind {
 }
 
 /**
+ * Acknowledgment tasks with no completion signal in wp-admin: in Calypso they
+ * complete on click / page-visit, which writes the status to Calypso's selected
+ * site — never from the wp-admin context where the AI Launchpad runs (on both
+ * Simple and Atomic). The AI Launchpad marks them complete locally when the user
+ * clicks their CTA. Mirrors COMPLETE_ON_CLICK_TASK_IDS in
+ * class-ai-launchpad-rest.php.
+ */
+const COMPLETE_ON_CLICK_TASK_IDS = [
+	'complete_profile',
+	'manage_subscribers',
+	'manage_paid_newsletter_plan',
+	'earn_money',
+	'start_building_your_audience',
+	'site_monitoring_page',
+];
+
+/**
+ * Whether a task should be marked complete client-side when its CTA is clicked,
+ * because it has no completion signal on Atomic (an acknowledgment task).
+ *
+ * @param taskId - The catalog task ID.
+ * @return True for acknowledgment tasks.
+ */
+export function isCompleteOnClickTask( taskId: string ): boolean {
+	return COMPLETE_ON_CLICK_TASK_IDS.includes( taskId );
+}
+
+/**
  * Build the wordpress.com launch-flow URL for a launch task. Launch tasks have
  * no catalog deeplink; the legacy launchpad widget routes them to
  * `/start/launch-site` keyed by the site slug (the host of the site's home URL).

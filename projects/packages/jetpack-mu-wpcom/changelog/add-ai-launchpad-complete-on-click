@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+AI Launchpad: mark acknowledgment tasks (e.g. Complete your profile) done when their CTA is clicked, since they have no completion signal on Atomic.

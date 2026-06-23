@@ -8,6 +8,8 @@
 //phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.NotAbsolutePath
 require_once \Automattic\Jetpack\Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/launchpad/launchpad.php';
 //phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.NotAbsolutePath
+require_once \Automattic\Jetpack\Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/ai-launchpad/helpers.php';
+//phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.NotAbsolutePath
 require_once \Automattic\Jetpack\Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/ai-launchpad/class-ai-launchpad-rest.php';
 
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -562,6 +564,9 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 		$result = $this->call_api( 'PUT', '/tailored', self::valid_payload() );
 		$this->assertSame( 403, $result->get_status() );
 
+		$result = $this->call_api( 'POST', '/complete-task', array( 'task_id' => 'complete_profile' ) );
+		$this->assertSame( 403, $result->get_status() );
+
 		$result = $this->call_api( Requests::DELETE );
 		$this->assertSame( 403, $result->get_status() );
 
@@ -570,6 +575,69 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 
 		$this->assertFalse( get_option( 'wpcom_ai_launchpad_wizard' ) );
 		$this->assertFalse( get_option( 'wpcom_ai_launchpad_ai_output' ) );
+	}
+
+	/**
+	 * Seeds the AI output option with the given task IDs (launch task last) so
+	 * wpcom_ai_launchpad_get_ai_task_ids() reports them as on the site's list.
+	 *
+	 * @param string[] $task_ids The task IDs to seed.
+	 */
+	private function seed_ai_output_with_tasks( array $task_ids ) {
+		$tasks = array();
+		foreach ( $task_ids as $id ) {
+			$tasks[] = array(
+				'id'       => $id,
+				'subtitle' => 'Subtitle for ' . $id . '.',
+			);
+		}
+		update_option(
+			'wpcom_ai_launchpad_ai_output',
+			array(
+				'version'      => 1,
+				'source'       => 'ai',
+				'generated_at' => 1717000000,
+				'payload'      => array( 'tasks' => $tasks ),
+			),
+			false
+		);
+	}
+
+	/**
+	 * Test that POST /complete-task marks an allowlisted acknowledgment task complete.
+	 */
+	public function test_complete_task_marks_acknowledgment_task() {
+		wp_set_current_user( $this->admin_id );
+		$this->seed_ai_output_with_tasks( array( 'complete_profile', 'site_launched' ) );
+
+		$result = $this->call_api( 'POST', '/complete-task', array( 'task_id' => 'complete_profile' ) );
+
+		$this->assertSame( 200, $result->get_status() );
+		$this->assertTrue( $result->get_data()['completed'] );
+		$statuses = get_option( 'launchpad_checklist_tasks_statuses' );
+		$this->assertTrue( ! empty( $statuses['complete_profile'] ) );
+	}
+
+	/**
+	 * Test that POST /complete-task rejects ids that are not completable this way:
+	 * a non-allowlisted task (even if on the list) and an allowlisted task that is
+	 * not on the site's AI-selected list.
+	 */
+	public function test_complete_task_rejects_invalid_tasks() {
+		wp_set_current_user( $this->admin_id );
+		$this->seed_ai_output_with_tasks( array( 'first_post_published', 'complete_profile', 'site_launched' ) );
+
+		// On the list, but not an acknowledgment task.
+		$not_allowlisted = $this->call_api( 'POST', '/complete-task', array( 'task_id' => 'first_post_published' ) );
+		$this->assertSame( 400, $not_allowlisted->get_status() );
+		$this->assertSame( 'ai_launchpad_task_not_completable', $not_allowlisted->get_data()['code'] );
+
+		// Allowlisted, but not on this site's list.
+		$not_selected = $this->call_api( 'POST', '/complete-task', array( 'task_id' => 'earn_money' ) );
+		$this->assertSame( 404, $not_selected->get_status() );
+		$this->assertSame( 'ai_launchpad_task_not_selected', $not_selected->get_data()['code'] );
+
+		$this->assertFalse( get_option( 'launchpad_checklist_tasks_statuses' ) );
 	}
 
 	/**
