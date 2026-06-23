@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Defer loading the JITM and Import packages on front-end GET requests where they do no work, keeping their PHP out of opcache.

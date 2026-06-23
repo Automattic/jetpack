@@ -782,18 +782,56 @@ class Jetpack {
 
 		foreach (
 			array(
-				'jitm',
 				'sync',
 				'account_protection',
 				'waf',
 				'videopress',
 				'stats',
 				'stats_admin',
-				'import',
 			)
 			as $feature
 		) {
 			$config->ensure( $feature );
+		}
+
+		/*
+		 * JITM and the Import package are only needed on admin, cron, POST,
+		 * WP-CLI, and REST requests — never on a plain front-end GET page view.
+		 * JITMs surface as admin notices (the `current_screen` hook) and a
+		 * `jetpack/v4/jitm` REST endpoint, and the Import package only registers
+		 * `jetpack/v4/import` REST routes; neither does any work when rendering
+		 * a front-end page. Gating their `ensure()` keeps their PHP out of
+		 * opcache on the front-end GET hot path while loading them unchanged on
+		 * every request type where they actually do something.
+		 *
+		 * A REST request can't be identified yet at `plugins_loaded` (this runs
+		 * before `Config::on_plugins_loaded`, and `rest_api_init` fires later),
+		 * so for the front-end/REST branch the packages are initialized directly
+		 * when `rest_api_init` fires. A plain page view never fires
+		 * `rest_api_init`, so they stay unloaded there.
+		 */
+		$is_post_request = isset( $_SERVER['REQUEST_METHOD'] ) && 'POST' === strtoupper( sanitize_text_field( wp_unslash( $_SERVER['REQUEST_METHOD'] ) ) );
+		$is_wp_cli       = defined( 'WP_CLI' ) && WP_CLI;
+
+		if ( is_admin() || wp_doing_cron() || $is_post_request || $is_wp_cli ) {
+			$config->ensure( 'jitm' );
+			$config->ensure( 'import' );
+		} else {
+			add_action(
+				'rest_api_init',
+				static function () {
+					// The namespace changed in jetpack-jitm v1.6; support both.
+					if ( class_exists( 'Automattic\\Jetpack\\JITMS\\JITM' ) ) {
+						\Automattic\Jetpack\JITMS\JITM::configure();
+					} elseif ( class_exists( 'Automattic\\Jetpack\\JITM' ) ) {
+						\Automattic\Jetpack\JITM::configure();
+					}
+					if ( class_exists( 'Automattic\\Jetpack\\Import\\Main' ) ) {
+						\Automattic\Jetpack\Import\Main::configure();
+					}
+				},
+				0
+			);
 		}
 
 		$config->ensure(
