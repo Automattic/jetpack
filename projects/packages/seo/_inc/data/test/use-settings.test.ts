@@ -65,8 +65,8 @@ describe( 'useSettingsForm', () => {
 			} );
 		} );
 
-		// ...but save only the title structure.
-		act( () => result.current.commitFields( [ 'title_formats' ] ) );
+		// ...but save only the front-page description.
+		act( () => result.current.commitFields( [ 'front_page_description' ] ) );
 
 		await waitFor( () => expect( mockApiFetch ).toHaveBeenCalledTimes( 1 ) );
 		const call = mockApiFetch.mock.calls[ 0 ][ 0 ] as {
@@ -74,22 +74,51 @@ describe( 'useSettingsForm', () => {
 			data: Record< string, unknown >;
 		};
 		expect( call.path ).toBe( '/jetpack/v4/settings' );
-		expect( call.data ).toHaveProperty( 'advanced_seo_title_formats' );
-		// The front-page edit was NOT part of this section's save.
-		expect( call.data ).not.toHaveProperty( 'advanced_seo_front_page_description' );
+		expect( call.data ).toHaveProperty( 'advanced_seo_front_page_description' );
+		// The title-structure edit was NOT part of this section's save.
+		expect( call.data ).not.toHaveProperty( 'advanced_seo_title_formats' );
 
-		// The front-page section is still pending.
-		await waitFor( () =>
-			expect( result.current.isDirty( [ 'front_page_description' ] ) ).toBe( true )
-		);
-		// The saved section is now clean.
-		expect( result.current.isDirty( [ 'title_formats' ] ) ).toBe( false );
+		// The title-structure edit is still pending; the saved section is clean.
+		await waitFor( () => expect( result.current.isTitleFormatDirty( 'posts' ) ).toBe( true ) );
+		expect( result.current.isDirty( [ 'front_page_description' ] ) ).toBe( false );
 	} );
 
-	it( 'commitFields is a no-op when the section is unchanged', () => {
+	it( 'commitTitleFormat saves only that page type, leaving other rows pending', async () => {
+		const { result } = renderHook( () => useSettingsForm() );
+
+		// Edit two page types' title formats locally.
+		act( () =>
+			result.current.setField( {
+				title_formats: {
+					posts: [ { type: 'string', value: 'Hello' } ],
+					pages: [ { type: 'token', value: 'site_name' } ],
+				},
+			} )
+		);
+
+		expect( result.current.isTitleFormatDirty( 'posts' ) ).toBe( true );
+		expect( result.current.isTitleFormatDirty( 'pages' ) ).toBe( true );
+
+		// Save only the Posts row.
+		act( () => result.current.commitTitleFormat( 'posts' ) );
+
+		await waitFor( () => expect( mockApiFetch ).toHaveBeenCalledTimes( 1 ) );
+		const call = mockApiFetch.mock.calls[ 0 ][ 0 ] as { data: Record< string, unknown > };
+		const saved = call.data.advanced_seo_title_formats as Record< string, unknown >;
+		expect( saved.posts ).toEqual( [ { type: 'string', value: 'Hello' } ] );
+		// The Pages edit was not persisted in this row's save.
+		expect( saved ).not.toHaveProperty( 'pages' );
+
+		// Posts is now clean; Pages is still pending.
+		await waitFor( () => expect( result.current.isTitleFormatDirty( 'posts' ) ).toBe( false ) );
+		expect( result.current.isTitleFormatDirty( 'pages' ) ).toBe( true );
+	} );
+
+	it( 'per-section saves are no-ops when nothing changed', () => {
 		const { result } = renderHook( () => useSettingsForm() );
 
 		act( () => result.current.commitFields( [ 'front_page_description' ] ) );
+		act( () => result.current.commitTitleFormat( 'posts' ) );
 
 		expect( mockApiFetch ).not.toHaveBeenCalled();
 	} );

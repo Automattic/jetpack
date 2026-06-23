@@ -52,7 +52,17 @@ type SettingsSearch = Record< string, unknown > & { focus?: string };
  * @return The Settings tab content.
  */
 const SettingsScreen: FC< Props > = ( { form } ) => {
-	const { local, isSaving, setField, setVerification, commit, commitFields, isDirty } = form;
+	const {
+		local,
+		isSaving,
+		setField,
+		setVerification,
+		commit,
+		commitFields,
+		isDirty,
+		commitTitleFormat,
+		isTitleFormatDirty,
+	} = form;
 
 	// Overview deep links (`?focus=visibility|verification`) scroll the matching
 	// section to its top. `scroll-margin-top` on the section (style.scss) clears
@@ -199,8 +209,8 @@ const SettingsScreen: FC< Props > = ( { form } ) => {
 				onChange={ ( pageType, next ) =>
 					setField( { title_formats: { ...local.title_formats, [ pageType ]: next } } )
 				}
-				onSave={ () => commitFields( [ 'title_formats' ] ) }
-				canSave={ isDirty( [ 'title_formats' ] ) }
+				onSaveFormat={ pageType => commitTitleFormat( pageType ) }
+				isFormatDirty={ pageType => isTitleFormatDirty( pageType ) }
 				disabled={ isSaving }
 			/>
 

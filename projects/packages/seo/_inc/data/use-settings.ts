@@ -23,23 +23,32 @@ export interface SettingsForm {
 	commit: ( patch?: Partial< SettingsResponse > ) => void;
 	/**
 	 * Save only the named fields — a per-section Save for text-heavy sections
-	 * (title structure, front-page description) that edit local state while typing
-	 * and persist on an explicit button. Other pending edits stay local.
+	 * (e.g. the front-page description) that edit local state while typing and
+	 * persist on an explicit button. Other pending edits stay local.
 	 */
 	commitFields: ( fields: Array< keyof SettingsResponse > ) => void;
 	/** Whether any of the named fields differ from the last-saved baseline. */
 	isDirty: ( fields: Array< keyof SettingsResponse > ) => boolean;
+	/**
+	 * Save one page type's title format — a per-row Save for the title-structure
+	 * editor. Persists only that page type, leaving unsaved edits in other rows
+	 * local (the back-end stores all formats in one option, so this writes the
+	 * whole map with just this page type advanced past the baseline).
+	 */
+	commitTitleFormat: ( pageType: string ) => void;
+	/** Whether one page type's title format differs from the last-saved baseline. */
+	isTitleFormatDirty: ( pageType: string ) => boolean;
 }
 
 /**
  * Owns the Settings form: seeds local state from the page bootstrap and saves
  * on a hybrid model. Toggle sections (Site visibility, Canonical) `commit()` on
- * change; the text-heavy sections (title structure, front-page description)
- * `setField()` while typing and persist on an explicit per-section Save button
- * via `commitFields()`. Saves diff against the last-saved baseline (so an
- * unchanged save is a no-op and the sitemaps module is never re-toggled
- * needlessly), surfacing a single "Updating settings…"→"Settings saved."
- * snackbar.
+ * change; the front-page description `setField()`s while typing and persists on
+ * an explicit Save (`commitFields()`); the title-structure editor saves
+ * per page-type row (`commitTitleFormat()`). Saves diff against the last-saved
+ * baseline (so an unchanged save is a no-op and the sitemaps module is never
+ * re-toggled needlessly), surfacing a single "Updating settings…"→"Settings
+ * saved." snackbar.
  *
  * The Settings tab is its own route, so this controller remounts on every tab
  * switch. State is seeded from (and written back to) [settings-store] rather
@@ -177,5 +186,51 @@ export function useSettingsForm(): SettingsForm {
 		[ local ]
 	);
 
-	return { local, isSaving, setField, setVerification, commit, commitFields, isDirty };
+	const commitTitleFormat = useCallback(
+		( pageType: string ) => {
+			const current = localRef.current;
+			const baseline = baselineRef.current;
+			if ( ! current || ! baseline ) {
+				return;
+			}
+			// Persist only this page type's format: write the whole title-formats map
+			// but advance just this page type past the baseline, so an unsaved edit in
+			// another row stays pending until that row is saved.
+			const values: SettingsResponse = {
+				...baseline,
+				title_formats: {
+					...baseline.title_formats,
+					[ pageType ]: current.title_formats[ pageType ] ?? [],
+				},
+			};
+			saveValues( values );
+		},
+		[ saveValues ]
+	);
+
+	const isTitleFormatDirty = useCallback(
+		( pageType: string ) => {
+			const baseline = baselineRef.current;
+			if ( ! local || ! baseline ) {
+				return false;
+			}
+			return (
+				JSON.stringify( local.title_formats[ pageType ] ?? [] ) !==
+				JSON.stringify( baseline.title_formats[ pageType ] ?? [] )
+			);
+		},
+		[ local ]
+	);
+
+	return {
+		local,
+		isSaving,
+		setField,
+		setVerification,
+		commit,
+		commitFields,
+		isDirty,
+		commitTitleFormat,
+		isTitleFormatDirty,
+	};
 }
