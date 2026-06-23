@@ -150,6 +150,13 @@ const { actions } = store( 'jetpack/cookie-consent', {
 			const context = getContext< CcpaContext >();
 			return context.showSnackbar;
 		},
+		// Classic-theme fallback control: only surface it when there's a
+		// region-specific required link to show (CCPA opt-out or GDPR manage
+		// preferences). The Privacy Policy link just rides along when shown.
+		get showFallbackControl() {
+			const context = getContext< FooterLinksFallbackContext >();
+			return context.isCcpaRegion || context.isGdprManageLink;
+		},
 	},
 	actions: {
 		/**

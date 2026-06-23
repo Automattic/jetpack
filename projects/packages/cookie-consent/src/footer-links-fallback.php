@@ -8,6 +8,11 @@
  * navigation). Provides a fixed-corner floating control holding the Privacy
  * Policy, CCPA opt-out, and "Manage Privacy Preferences" links.
  *
+ * The control renders hidden and is revealed client-side only when there is a
+ * region-specific required link to show (CCPA opt-out or GDPR manage
+ * preferences); see state.showFallbackControl in view.ts. This keeps the server
+ * HTML geo-independent (cache-safe) and avoids a persistent global control.
+ *
  * Variables provided by the caller:
  *
  * @var string $privacy_policy_url Privacy Policy permalink, or '' when none.
@@ -34,6 +39,8 @@ $ccpa_label = isset( $ccpa_label ) ? (string) $ccpa_label : '';
 	data-wp-context='{"fallbackExpanded": false, "isCcpaRegion": false, "isGdprManageLink": false}'
 	data-wp-init="callbacks.init"
 	data-wp-on--keydown="actions.onFallbackKeyDown"
+	hidden
+	data-wp-bind--hidden="!state.showFallbackControl"
 >
 	<button
 		type="button"
