@@ -37,6 +37,7 @@ const statsSanitizers = {
 
 export type StatsSanitizerKey = keyof typeof statsSanitizers;
 type StatsSanitizerData = ReturnType< ( typeof statsSanitizers )[ StatsSanitizerKey ] >;
+export type StatsReportQueryOptions = UseQueryOptions< StatsSanitizerData >;
 
 export type StatsQueryConfig = {
 	name: string;
@@ -49,7 +50,7 @@ export type StatsQueryConfig = {
 	enabled?: boolean;
 };
 
-export function statsProxyQuery( config: StatsQueryConfig ): UseQueryOptions< StatsSanitizerData > {
+export function statsProxyQuery( config: StatsQueryConfig ): StatsReportQueryOptions {
 	const { name, version, endpoint, params, method = 'GET', body, enabled = true } = config;
 	const sanitizer = config.sanitizer ?? 'passthrough';
 	const apiParams = statsQueryParamsToApiParams( params );
@@ -77,7 +78,7 @@ export function statsReportQuery(
 	params: StatsReportParams,
 	sanitizer: StatsSanitizerKey,
 	version: StatsProxyVersion = '1.1'
-): UseQueryOptions< StatsSanitizerData > {
+): StatsReportQueryOptions {
 	const statsParams = reportParamsToStatsQueryParams( params );
 	const reportParams = {
 		...statsParams,

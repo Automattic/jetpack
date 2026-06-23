@@ -14,6 +14,17 @@ export { useReportVisitors } from './hooks/use-report-visitors';
 export { useReportVisitorsByLocation } from './hooks/use-report-visitors-by-location';
 export { useReportBookings } from './hooks/use-report-bookings';
 export { useReportSessionsByDevice } from './hooks/use-report-sessions-by-device';
+export { useStatsSite } from './hooks/use-stats-site';
+export { useStatsTopPosts } from './hooks/use-stats-top-posts';
+export { useStatsReferrers } from './hooks/use-stats-referrers';
+export { useStatsClicks } from './hooks/use-stats-clicks';
+export { useStatsSearchTerms } from './hooks/use-stats-search-terms';
+export { useStatsFileDownloads } from './hooks/use-stats-file-downloads';
+export { useStatsTopAuthors } from './hooks/use-stats-top-authors';
+export { useStatsLocations } from './hooks/use-stats-locations';
+export { useStatsCountryViews } from './hooks/use-stats-country-views';
+export { useStatsVideoPlays } from './hooks/use-stats-video-plays';
+export type { UseStatsOptions } from './hooks/use-stats-report';
 export { prefetchReport } from './prefetch';
 export {
 	normalizeReportParams,
@@ -62,6 +73,7 @@ export type {
 	StatsTopPostsItem,
 	StatsVideoPlaysItem,
 } from './processing/stats';
+export type { StatsReportParams } from './queries/stats-query';
 export {
 	getStatsPeriodFromInterval,
 	reportParamsToStatsQueryParams,
