@@ -19,8 +19,18 @@ class Consent_Log_Controller_Rest_Test extends TestCase {
 	 * The user_id request param filters rows to the matching user only.
 	 */
 	public function test_get_consent_logs_filters_by_user_id() {
-		$this->insert_consent_row( array( 'user_id' => 11 ) );
-		$this->insert_consent_row( array( 'user_id' => 11 ) );
+		$this->insert_consent_row(
+			array(
+				'user_id'    => 11,
+				'event_type' => 'accept_all',
+			)
+		);
+		$this->insert_consent_row(
+			array(
+				'user_id'    => 11,
+				'event_type' => 'reject_all',
+			)
+		);
 		$this->insert_consent_row( array( 'user_id' => 22 ) );
 
 		$request = new WP_REST_Request();
