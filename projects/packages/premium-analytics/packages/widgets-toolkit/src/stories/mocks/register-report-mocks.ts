@@ -22,6 +22,8 @@ import apiFetch from '@wordpress/api-fetch';
  */
 import {
 	mockOrderAttributionDeviceData,
+	mockOrderAttributionByProductDeviceData,
+	mockOrderAttributionByProductDeviceComparisonData,
 	mockOrderAttributionChannelData,
 	mockOrderAttributionSourceData,
 	mockOrderAttributionCampaignData,
@@ -408,6 +410,26 @@ function buildVisitorsByLocation( query: URLSearchParams ) {
  * @return The mock response body, or `null` if no specific handler matched.
  */
 function routeReport( subPath: string, query: URLSearchParams ): unknown {
+	// Product-filtered order attribution: /order-attribution-by-product/{view}/summary
+	const attributionByProductMatch = subPath.match(
+		/^\/order-attribution-by-product\/([^/]+)\/summary$/
+	);
+	if ( attributionByProductMatch ) {
+		const view = attributionByProductMatch[ 1 ];
+
+		if ( view === 'device' ) {
+			return nextIsComparison( 'order-attribution-by-product/device' )
+				? mockOrderAttributionByProductDeviceComparisonData
+				: mockOrderAttributionByProductDeviceData;
+		}
+
+		return {
+			view,
+			order_by: 'net_sales',
+			data: [],
+		};
+	}
+
 	// Order attribution: /order-attribution/{view}/summary
 	const attributionMatch = subPath.match( /^\/order-attribution\/([^/]+)\/summary$/ );
 	if ( attributionMatch ) {
