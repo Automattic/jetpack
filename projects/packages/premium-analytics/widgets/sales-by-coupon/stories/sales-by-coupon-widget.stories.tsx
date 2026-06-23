@@ -1,15 +1,15 @@
 import { getDefaultQueryParams } from '@jetpack-premium-analytics/data';
+import { registerReportMocks } from '../../../packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
 import {
 	DEFAULT_WIDGET_DASHBOARD_STORY_ARGS,
 	WidgetDashboardWithWidget as WidgetDashboardWithWidgetStory,
 	widgetDashboardWithWidgetArgTypes,
 	type WidgetDashboardWithWidgetControls,
 } from '../../stories/widget-dashboard-with-widget';
-import { registerReportMocks } from '../../../packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
 import SalesByCouponRender from '../render';
 import widgetDefinition from '../widget';
 import type { Meta, StoryObj } from '@storybook/react';
-import type { WidgetRenderProps } from '@automattic/jetpack-widget-primitives';
+import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 import type { ComponentType } from 'react';
 
 registerReportMocks();
@@ -20,6 +20,13 @@ interface SalesByCouponDashboardStoryProps extends WidgetDashboardWithWidgetCont
 	withComparison: boolean;
 }
 
+/**
+ * Storybook dashboard wrapper for the Sales by coupon widget.
+ *
+ * @param root0                - Story controls.
+ * @param root0.withComparison - Whether comparison report params are enabled.
+ * @return The dashboard story surface with the widget rendered inside it.
+ */
 function SalesByCouponDashboardStory( {
 	withComparison,
 	...dashboardStoryArgs

@@ -1,12 +1,10 @@
-import {
-	SalesByCouponWidget,
-	WidgetRoot,
-	type ReportParamsFieldAttributes,
-} from '@jetpack-premium-analytics/widgets-toolkit';
+import { SalesByCouponWidget, WidgetRoot } from '@jetpack-premium-analytics/widgets-toolkit';
+import type { ComponentProps } from 'react';
 
-type SalesByCouponRenderProps = {
-	attributes?: Partial< ReportParamsFieldAttributes >;
-};
+type SalesByCouponRenderProps = Pick<
+	ComponentProps< typeof WidgetRoot >,
+	'attributes' | 'setError'
+>;
 
 /**
  * Sales by coupon widget.
@@ -14,10 +12,15 @@ type SalesByCouponRenderProps = {
  * Thin composition over the widgets-toolkit: WidgetRoot provides the query
  * client, chart theme, and resolved report params; SalesByCouponWidget fetches
  * the coupons report and renders the coupon revenue breakdown.
+ *
+ * @param root0            - Widget render props.
+ * @param root0.attributes - Dashboard-provided widget attributes.
+ * @param root0.setError   - Dashboard error-state setter.
+ * @return The rendered Sales by coupon widget.
  */
-export default function SalesByCouponRender( { attributes }: SalesByCouponRenderProps ) {
+export default function SalesByCouponRender( { attributes, setError }: SalesByCouponRenderProps ) {
 	return (
-		<WidgetRoot attributes={ attributes } options={ { from: '/' } }>
+		<WidgetRoot attributes={ attributes } setError={ setError } options={ { from: '/' } }>
 			<SalesByCouponWidget />
 		</WidgetRoot>
 	);
