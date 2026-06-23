@@ -45,6 +45,8 @@ abstract class TestCase extends PHPUnit_TestCase {
 	protected function create_consent_table() {
 		delete_option( 'jetpack_cookie_consent_consent_log_db_version' );
 		Consent_Log_Controller::init()->maybe_create_table();
+		global $wpdb;
+		$wpdb->query( 'DELETE FROM ' . Consent_Log_Controller::get_table_name() ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared
 	}
 
 	/**

@@ -103,6 +103,8 @@ class Consent_Log_Controller extends WP_REST_Controller {
 		add_action( 'rest_api_init', array( $instance, 'register_routes' ) );
 		add_action( self::CLEANUP_HOOK, array( $instance, 'cleanup_expired_logs' ) );
 
+		Consent_Log_Privacy::init();
+
 		return $instance;
 	}
 
