@@ -54,7 +54,7 @@ class Consent_Log_Controller extends WP_REST_Controller {
 	 *
 	 * @var string
 	 */
-	private const DB_VERSION = '0.0.1';
+	private const DB_VERSION = '0.0.2';
 
 	/**
 	 * Default retention period in days.
@@ -111,7 +111,7 @@ class Consent_Log_Controller extends WP_REST_Controller {
 	 *
 	 * @return string
 	 */
-	private function get_table_name() {
+	public static function get_table_name() {
 		global $wpdb;
 		return $wpdb->prefix . self::TABLE_NAME;
 	}
@@ -123,6 +123,7 @@ class Consent_Log_Controller extends WP_REST_Controller {
 		$installed_version = get_option( self::DB_VERSION_OPTION, '0' );
 
 		if ( version_compare( $installed_version, self::DB_VERSION, '<' ) ) {
+			$this->migrate_customer_id_to_user_id();
 			$this->create_table();
 			update_option( self::DB_VERSION_OPTION, self::DB_VERSION );
 		}
@@ -133,14 +134,14 @@ class Consent_Log_Controller extends WP_REST_Controller {
 	 */
 	private function create_table() {
 		global $wpdb;
-		$table_name      = $this->get_table_name();
+		$table_name      = self::get_table_name();
 		$charset_collate = $wpdb->get_charset_collate();
 
 		$sql = "CREATE TABLE {$table_name} (
 			id bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT,
 			consent_id varchar(36) DEFAULT NULL,
 			event_type varchar(50) NOT NULL,
-			customer_id bigint(20) UNSIGNED NOT NULL DEFAULT 0,
+			user_id bigint(20) UNSIGNED NOT NULL DEFAULT 0,
 			ip_address varchar(45) DEFAULT NULL,
 			url text DEFAULT NULL,
 			consent_types longtext DEFAULT NULL,
@@ -148,13 +149,36 @@ class Consent_Log_Controller extends WP_REST_Controller {
 			date_created_gmt datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
 			PRIMARY KEY (id),
 			KEY consent_id (consent_id),
-			KEY customer_id (customer_id),
+			KEY user_id (user_id),
 			KEY event_type (event_type),
 			KEY date_created_gmt (date_created_gmt)
 		) {$charset_collate};";
 
 		require_once ABSPATH . 'wp-admin/includes/upgrade.php';
 		dbDelta( $sql );
+	}
+
+	/**
+	 * Rename the legacy customer_id column to user_id on existing installs.
+	 * No-op on fresh installs or once already renamed. dbDelta cannot rename
+	 * columns, so this runs an explicit ALTER first.
+	 */
+	private function migrate_customer_id_to_user_id() {
+		global $wpdb;
+		$table = self::get_table_name();
+
+		// Skip if the table doesn't exist yet (fresh install).
+		$exists = $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table ) ); // phpcs:ignore WordPress.DB
+		if ( $exists !== $table ) {
+			return;
+		}
+
+		$columns = $wpdb->get_col( "DESCRIBE {$table}" ); // phpcs:ignore WordPress.DB
+		if ( in_array( 'user_id', $columns, true ) || ! in_array( 'customer_id', $columns, true ) ) {
+			return;
+		}
+
+		$wpdb->query( "ALTER TABLE {$table} CHANGE customer_id user_id bigint(20) UNSIGNED NOT NULL DEFAULT 0" ); // phpcs:ignore WordPress.DB
 	}
 
 	/**
@@ -215,34 +239,34 @@ class Consent_Log_Controller extends WP_REST_Controller {
 					'callback'            => array( $this, 'get_consent_logs' ),
 					'permission_callback' => array( $this, 'check_read_permission' ),
 					'args'                => array(
-						'customer_id' => array(
+						'user_id'  => array(
 							'type'              => 'integer',
 							'description'       => __( 'Filter by WordPress user ID.', 'jetpack-cookie-consent' ),
 							'validate_callback' => 'rest_validate_request_arg',
 							'sanitize_callback' => 'absint',
 						),
-						'before'      => array(
+						'before'   => array(
 							'type'              => 'string',
 							'format'            => 'date-time',
 							'description'       => __( 'Filter logs created before this date (ISO 8601 format).', 'jetpack-cookie-consent' ),
 							'validate_callback' => 'rest_validate_request_arg',
 							'sanitize_callback' => 'sanitize_text_field',
 						),
-						'after'       => array(
+						'after'    => array(
 							'type'              => 'string',
 							'format'            => 'date-time',
 							'description'       => __( 'Filter logs created after this date (ISO 8601 format).', 'jetpack-cookie-consent' ),
 							'validate_callback' => 'rest_validate_request_arg',
 							'sanitize_callback' => 'sanitize_text_field',
 						),
-						'page'        => array(
+						'page'     => array(
 							'type'              => 'integer',
 							'description'       => __( 'Current page of the collection.', 'jetpack-cookie-consent' ),
 							'default'           => 1,
 							'validate_callback' => 'rest_validate_request_arg',
 							'sanitize_callback' => 'absint',
 						),
-						'per_page'    => array(
+						'per_page' => array(
 							'type'              => 'integer',
 							'description'       => __( 'Maximum number of items to return (max 100).', 'jetpack-cookie-consent' ),
 							'default'           => 50,
@@ -353,7 +377,7 @@ class Consent_Log_Controller extends WP_REST_Controller {
 		$data = array(
 			'consent_id'       => $consent_id,
 			'event_type'       => $request->get_param( 'event_type' ),
-			'customer_id'      => get_current_user_id(),
+			'user_id'          => get_current_user_id(),
 			'ip_address'       => $this->get_client_ip(),
 			'url'              => $request->get_param( 'url' ),
 			'consent_types'    => $consent_json,
@@ -362,7 +386,7 @@ class Consent_Log_Controller extends WP_REST_Controller {
 		);
 
 		$result = $wpdb->insert( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
-			$this->get_table_name(),
+			self::get_table_name(),
 			$data,
 			array( '%s', '%s', '%d', '%s', '%s', '%s', '%s', '%s' )
 		);
@@ -386,15 +410,15 @@ class Consent_Log_Controller extends WP_REST_Controller {
 	 */
 	public function get_consent_logs( WP_REST_Request $request ) {
 		global $wpdb;
-		$table_name = $this->get_table_name();
+		$table_name = self::get_table_name();
 
 		// Build WHERE clause.
 		$where  = array( '1=1' );
 		$values = array();
 
-		if ( $request->get_param( 'customer_id' ) ) {
-			$where[]  = 'customer_id = %d';
-			$values[] = $request->get_param( 'customer_id' );
+		if ( $request->get_param( 'user_id' ) ) {
+			$where[]  = 'user_id = %d';
+			$values[] = $request->get_param( 'user_id' );
 		}
 
 		if ( $request->get_param( 'after' ) ) {
@@ -517,7 +541,7 @@ class Consent_Log_Controller extends WP_REST_Controller {
 						'context'     => array( 'view' ),
 						'readonly'    => true,
 					),
-					'customer_id'      => array(
+					'user_id'          => array(
 						'description' => __( 'The WordPress user ID.', 'jetpack-cookie-consent' ),
 						'type'        => 'integer',
 						'context'     => array( 'view' ),
@@ -584,7 +608,7 @@ class Consent_Log_Controller extends WP_REST_Controller {
 		$cutoff_timestamp = time() - ( $retention_days * DAY_IN_SECONDS );
 		$cutoff_date      = gmdate( 'Y-m-d H:i:s', $cutoff_timestamp );
 
-		$table_name = $this->get_table_name();
+		$table_name = self::get_table_name();
 		$batch_size = 1000;
 
 		// Delete in batches until all expired records are removed.
