@@ -309,6 +309,21 @@ class Jetpack_AI_Sidebar {
 	}
 
 	/**
+	 * Whether the Big Sky plugin is enabled.
+	 *
+	 * @return bool
+	 */
+	private static function is_big_sky_enabled(): bool {
+		$host = new Host();
+		if ( $host->is_wpcom_platform() && class_exists( 'Big_Sky' ) ) {
+			$default = $host->is_wpcom_simple() ? '1' : '0';
+			return (bool) get_option( 'big_sky_enable', $default );
+		}
+
+		return false;
+	}
+
+	/**
 	 * UI feature flag for the public Jetpack AI Sidebar Preview surface.
 	 *
 	 * Defaults to enabled only on WordPress.com platform sites (Simple or WoA)
@@ -320,13 +335,7 @@ class Jetpack_AI_Sidebar {
 	 * @return bool
 	 */
 	private static function is_jetpack_ai_sidebar_preview_enabled(): bool {
-		$host = new Host();
-
-		$enabled = false;
-		if ( $host->is_wpcom_platform() && class_exists( 'Big_Sky' ) ) {
-			$default = $host->is_wpcom_simple() ? '1' : '0';
-			$enabled = (bool) get_option( 'big_sky_enable', $default );
-		}
+		$enabled = self::is_big_sky_enabled();
 
 		/**
 		 * Filter to enable or disable the Jetpack AI sidebar feature.
@@ -521,16 +530,17 @@ class Jetpack_AI_Sidebar {
 	/**
 	 * Check whether AI features are available.
 	 *
-	 * - wpcom simple: always available.
-	 * - Atomic/self-hosted: requires a connected owner with AI not disabled.
+	 * - wpcom platform (Simple or Atomic/WoA): available only when Big Sky is active.
+	 * - self-hosted: requires a connected owner with AI not disabled.
 	 *
 	 * @return bool
 	 */
 	private static function has_ai_features(): bool {
 		$host = new Host();
 
-		if ( $host->is_wpcom_simple() ) {
-			return true;
+		// On Simple and Atomic, AI features are only available when Big Sky is active.
+		if ( $host->is_wpcom_platform() ) {
+			return self::is_big_sky_enabled();
 		}
 
 		return ( new Connection_Manager( 'jetpack' ) )->has_connected_owner()

@@ -457,6 +457,58 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	}
 
 	// ──────────────────────────────────────────────────
+	// has_ai_features() gate tests
+	//
+	// The preview filter overrides is_jetpack_ai_sidebar_preview_enabled() but not
+	// has_ai_features(). Forcing the filter on while Big Sky is off isolates
+	// has_ai_features() as the sole reason the gate stays closed, which is the only
+	// way to observe that branch on the WordPress.com platform (where the preview
+	// gate keys off the same Big Sky check).
+	// ──────────────────────────────────────────────────
+
+	/**
+	 * On WordPress.com Simple, AI features require Big Sky even when the preview
+	 * filter forces the gate open.
+	 */
+	public function test_ai_features_require_big_sky_on_wpcom_simple() {
+		remove_all_filters( 'jetpack_ai_sidebar_enabled' );
+		$this->simulate_wpcom_simple();
+		$this->simulate_big_sky_class();
+		update_option( 'big_sky_enable', '0' );
+		add_filter( 'jetpack_ai_sidebar_enabled', '__return_true' );
+
+		$this->assertFalse( $this->gate_open() );
+	}
+
+	/**
+	 * On WoA/Atomic, AI features require Big Sky even when the preview filter
+	 * forces the gate open. Previously Atomic used the connection-owner path;
+	 * now it is gated on Big Sky like Simple.
+	 */
+	public function test_ai_features_require_big_sky_on_atomic() {
+		remove_all_filters( 'jetpack_ai_sidebar_enabled' );
+		$this->simulate_wpcom_platform();
+		$this->simulate_big_sky_class();
+		update_option( 'big_sky_enable', '0' );
+		add_filter( 'jetpack_ai_sidebar_enabled', '__return_true' );
+
+		$this->assertFalse( $this->gate_open() );
+	}
+
+	/**
+	 * On WoA/Atomic, AI features are available when Big Sky is enabled, so the
+	 * sidebar is exposed without forcing the preview filter.
+	 */
+	public function test_ai_features_available_on_atomic_with_big_sky_enabled() {
+		remove_all_filters( 'jetpack_ai_sidebar_enabled' );
+		$this->simulate_wpcom_platform();
+		$this->simulate_big_sky_class();
+		update_option( 'big_sky_enable', '1' );
+
+		$this->assertTrue( $this->gate_open() );
+	}
+
+	// ──────────────────────────────────────────────────
 	// agents_manager_enabled_in_block_editor() tests
 	// ──────────────────────────────────────────────────
 
