@@ -5,11 +5,9 @@ import {
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import type { ComponentProps } from 'react';
 
-type SalesByUtmSourceRenderProps = Pick<
-	ComponentProps< typeof WidgetRoot >,
-	'attributes' | 'setError'
-> & {
+type SalesByUtmSourceRenderProps = {
 	attributes?: Partial< ReportParamsFieldAttributes >;
+	setError?: ComponentProps< typeof WidgetRoot >[ 'setError' ];
 };
 
 /**
