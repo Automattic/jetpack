@@ -19,6 +19,16 @@ class Unauth_File_Upload_Test extends WP_UnitTestCase {
 	public function set_up() {
 		parent::set_up();
 		require_once JETPACK__PLUGIN_DIR . 'unauth-file-upload.php';
+		// Download links are signed with the Jetpack blog token; provide a deterministic one.
+		\Jetpack_Options::update_option( 'blog_token', 'asdasd.123123' );
+	}
+
+	/**
+	 * Clean up after tests.
+	 */
+	public function tear_down() {
+		\Jetpack_Options::delete_option( 'blog_token' );
+		parent::tear_down();
 	}
 
 	/**
@@ -124,6 +134,20 @@ class Unauth_File_Upload_Test extends WP_UnitTestCase {
 		$this->assertFalse( \Automattic\Jetpack\UnauthFileUpload\verify_download_token( $file_id, $expires + 1, $token ) );
 		// Empty token.
 		$this->assertFalse( \Automattic\Jetpack\UnauthFileUpload\verify_download_token( $file_id, $expires, '' ) );
+		// Token signed under a different scheme version does not verify under the current one.
+		$other = \Automattic\Jetpack\UnauthFileUpload\generate_download_token( $file_id, $expires, 'v0' );
+		$this->assertFalse( \Automattic\Jetpack\UnauthFileUpload\verify_download_token( $file_id, $expires, $other ) );
+	}
+
+	/**
+	 * The token changes when the scheme version (type) changes.
+	 */
+	public function test_generate_download_token_varies_by_type() {
+		$expires = time() + DAY_IN_SECONDS;
+		$this->assertNotSame(
+			\Automattic\Jetpack\UnauthFileUpload\generate_download_token( 123, $expires, 'v1' ),
+			\Automattic\Jetpack\UnauthFileUpload\generate_download_token( 123, $expires, 'v2' )
+		);
 	}
 
 	/**
@@ -139,14 +163,15 @@ class Unauth_File_Upload_Test extends WP_UnitTestCase {
 
 		$this->assertSame( 'jetpack_unauth_file_download', $args['action'] );
 		$this->assertSame( (string) $file_id, (string) $args['file_id'] );
+		$this->assertSame( \Automattic\Jetpack\UnauthFileUpload\DOWNLOAD_TOKEN_TYPE, $args['token_type'] );
 
 		// Expiry is roughly 7 days out.
 		$this->assertGreaterThanOrEqual( $before + 7 * DAY_IN_SECONDS, (int) $args['expires'] );
 		$this->assertLessThanOrEqual( time() + 7 * DAY_IN_SECONDS, (int) $args['expires'] );
 
-		// The token in the URL validates for the file ID and expiry it was issued with.
+		// The token in the URL validates for the file ID, expiry, and type it was issued with.
 		$this->assertTrue(
-			\Automattic\Jetpack\UnauthFileUpload\verify_download_token( $file_id, (int) $args['expires'], $args['token'] )
+			\Automattic\Jetpack\UnauthFileUpload\verify_download_token( $file_id, (int) $args['expires'], $args['token'], $args['token_type'] )
 		);
 	}
 }
