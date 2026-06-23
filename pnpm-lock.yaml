@@ -4005,6 +4005,9 @@ importers:
       '@jetpack-premium-analytics/icons':
         specifier: link:packages/icons
         version: link:packages/icons
+      '@jetpack-premium-analytics/init':
+        specifier: link:packages/init
+        version: link:packages/init
       '@jetpack-premium-analytics/routing':
         specifier: link:packages/routing
         version: link:packages/routing
