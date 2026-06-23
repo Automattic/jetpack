@@ -1002,10 +1002,11 @@ class Jetpack_Gutenberg {
 	 * @since $$next-version$$
 	 *
 	 * @param array $parsed_block A parsed block (with optional `innerBlocks`).
+	 * @param array $seen_refs    Reusable-block IDs already visited, to guard against cycles.
 	 *
 	 * @return void
 	 */
-	private static function register_deferred_blocks_in_subtree( $parsed_block ) {
+	private static function register_deferred_blocks_in_subtree( $parsed_block, &$seen_refs = array() ) {
 		if ( empty( self::$deferred_blocks ) ) {
 			return;
 		}
@@ -1024,9 +1025,28 @@ class Jetpack_Gutenberg {
 			}
 		}
 
+		/*
+		 * A synced pattern / reusable block (core/block) keeps its content in a separate
+		 * wp_block post that core only parses at render time (render_block_core_block),
+		 * so it is absent from this parsed tree. Resolve the reference and recurse so a
+		 * deferred block inside the pattern is registered before core builds its WP_Block.
+		 */
+		if ( 'core/block' === $block_name && ! empty( $parsed_block['attrs']['ref'] ) ) {
+			$ref = (int) $parsed_block['attrs']['ref'];
+			if ( ! isset( $seen_refs[ $ref ] ) ) {
+				$seen_refs[ $ref ] = true;
+				$reusable_block    = get_post( $ref );
+				if ( $reusable_block instanceof \WP_Post && 'wp_block' === $reusable_block->post_type ) {
+					foreach ( parse_blocks( $reusable_block->post_content ) as $inner_block ) {
+						self::register_deferred_blocks_in_subtree( $inner_block, $seen_refs );
+					}
+				}
+			}
+		}
+
 		if ( ! empty( $parsed_block['innerBlocks'] ) ) {
 			foreach ( $parsed_block['innerBlocks'] as $inner_block ) {
-				self::register_deferred_blocks_in_subtree( $inner_block );
+				self::register_deferred_blocks_in_subtree( $inner_block, $seen_refs );
 			}
 		}
 	}

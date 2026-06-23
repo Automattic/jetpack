@@ -629,6 +629,30 @@ class Jetpack_Gutenberg_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * A deferred block inside a synced pattern (core/block) is reached by resolving the
+	 * reusable-block reference, since core only parses that content at render time.
+	 */
+	public function test_lazy_register_resolves_synced_pattern_reference() {
+		$ref_id = self::factory()->post->create(
+			array(
+				'post_type'    => 'wp_block',
+				'post_status'  => 'publish',
+				'post_content' => '<!-- wp:jetpack/does-not-exist /-->',
+			)
+		);
+		$this->set_deferred_blocks( array( 'does-not-exist' => true ) );
+		$parsed = array(
+			'blockName'   => 'core/block',
+			'attrs'       => array( 'ref' => $ref_id ),
+			'innerBlocks' => array(),
+		);
+		$result = Jetpack_Gutenberg::lazy_register_deferred_block( null, $parsed );
+		$this->assertNull( $result );
+		$this->assertArrayNotHasKey( 'does-not-exist', $this->get_deferred_blocks(), 'Deferred block inside a synced pattern should be reached via its ref.' );
+		wp_delete_post( $ref_id, true );
+	}
+
+	/**
 	 * Inner-block invocations (non-null parent) are ignored; the top-level walk owns the tree.
 	 */
 	public function test_lazy_register_ignores_inner_block_invocations() {
