@@ -38,6 +38,11 @@ describe( 'createColorScale', () => {
 		const scale = createColorScale( [ 7, 7 ], '#cce4ef', '#006dab' );
 		expect( scale( 7 ).toLowerCase() ).toBe( '#006dab' );
 	} );
+
+	test( 'returns a hex string for an interpolated value', () => {
+		const scale = createColorScale( [ 0, 20 ], '#ffffff', '#000000' );
+		expect( scale( 10 ).toLowerCase() ).toMatch( /^#[0-9a-f]{6}$/ );
+	} );
 } );
 
 describe( 'getNormalizedValue', () => {

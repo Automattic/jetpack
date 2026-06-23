@@ -72,7 +72,7 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 } ) => {
 	const chartId = useChartId( providedChartId );
 	const { getElementStyles } = useGlobalChartsContext();
-	const { legendChildren, nonLegendChildren } = useChartChildren( children, 'HeatmapChart' );
+	const { nonLegendChildren } = useChartChildren( children, 'HeatmapChart' );
 
 	const chartRef = useRef< HTMLDivElement >( null );
 	const [ selectedIndex, setSelectedIndex ] = useState< number | undefined >();
@@ -195,7 +195,8 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 			<SingleChartContext.Provider value={ { chartId, chartWidth: width, chartHeight: height } }>
 				<ChartLayout
 					legendPosition="bottom"
-					legendChildren={ legendChildren }
+					// HeatmapLegend renders via trailingContent (useChartChildren doesn't classify it as a slot legend).
+					legendChildren={ [] }
 					trailingContent={ nonLegendChildren }
 					gap={ gap }
 					className={ clsx( 'heatmap-chart', styles[ 'heatmap-chart' ], className ) }

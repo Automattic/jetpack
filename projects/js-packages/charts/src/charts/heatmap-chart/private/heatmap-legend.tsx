@@ -24,7 +24,7 @@ export const HeatmapLegend: FC< HeatmapLegendProps > = ( { steps = 5, lessLabel,
 			<Text variant="body-sm">{ lessLabel ?? __( 'Less', 'jetpack-charts' ) }</Text>
 			<Stack direction="row" gap="xs">
 				{ Array.from( { length: steps }, ( _, index ) => {
-					const value = min + ( index / ( steps - 1 ) ) * ( max - min );
+					const value = steps <= 1 ? max : min + ( index / ( steps - 1 ) ) * ( max - min );
 					return (
 						<span
 							key={ index }
