@@ -13,9 +13,9 @@ const EnableJetpackSearchPrompt = () => {
 	const { autosaveAndRedirect, isRedirecting } = useAutosaveAndRedirect( checkoutUrl );
 
 	// Jetpack AI only needs the Search module to be active so the site is indexed —
-	// any front-end experience (Overlay / Theme / Inline / Embedded) works. Older
-	// PHP versions of this block only exposed `instant_search_enabled`, so we fall
-	// back to it to stay correct against an unbuilt/cached editor bundle.
+	// any front-end experience (Overlay / Theme / Inline / Embedded) works. Fall back
+	// to the legacy `instant_search_enabled` field so this newer editor bundle stays
+	// correct when paired with an older PHP build that doesn't yet emit `module_active`.
 	const jetpackSettings = window?.Jetpack_AIChatBlock?.jetpackSettings;
 	const searchEnabled = jetpackSettings?.module_active ?? jetpackSettings?.instant_search_enabled;
 	if ( searchEnabled ) {
