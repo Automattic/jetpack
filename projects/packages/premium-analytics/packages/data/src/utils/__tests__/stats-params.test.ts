@@ -116,6 +116,16 @@ describe( 'reportParamsToStatsQueryParams', () => {
 		expect( params ).not.toHaveProperty( 'deviceProperty' );
 	} );
 
+	it( 'does not forward unknown params to Stats endpoints', () => {
+		const params = reportParamsToStatsQueryParams( {
+			from: '2026-06-01',
+			to: '2026-06-01',
+			unknown_param: 'leak',
+		} );
+
+		expect( params ).not.toHaveProperty( 'unknown_param' );
+	} );
+
 	it( 'omits empty date params when no dates are provided', () => {
 		const params = reportParamsToStatsQueryParams();
 

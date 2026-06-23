@@ -44,7 +44,6 @@ export type {
 	StatsProxyFetchParams,
 	StatsProxyMethod,
 	StatsProxyParams,
-	StatsProxyQueryParams,
 	StatsProxyVersion,
 } from './api';
 export type {

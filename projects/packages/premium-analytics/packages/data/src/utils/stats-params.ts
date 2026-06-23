@@ -25,25 +25,17 @@ type StatsQueryParamInput = Partial< ReportParams > & {
 	[ key: string ]: unknown;
 } & Partial< StatsQueryParamFields >;
 
-type ReportOnlyParam = keyof ReportParams | 'geoMode' | 'utmParams' | 'deviceProperty';
-
-const reportOnlyKeys: ReportOnlyParam[] = [
-	'from',
-	'to',
-	'interval',
-	'preset',
-	'compare_from',
-	'compare_to',
-	'compare_preset',
-	'comp',
-	'filters',
-	'section',
-	'date_type',
-	'view',
-	'geoMode',
-	'utmParams',
-	'deviceProperty',
-];
+const statsParamKeys = [
+	'period',
+	'end_date',
+	'date',
+	'start_date',
+	'days',
+	'num',
+	'max',
+	'summarize',
+	'complete_stats',
+] as const satisfies Array< keyof StatsQueryParamFields >;
 
 function datePart( value?: string ) {
 	return value?.split( 'T' )[ 0 ];
@@ -69,11 +61,11 @@ export function getStatsPeriodFromInterval( interval?: string ): StatsPeriod {
 export function reportParamsToStatsQueryParams(
 	params: StatsQueryParamInput = {}
 ): StatsQueryParams {
-	const statsParams = { ...params };
-
-	reportOnlyKeys.forEach( key => {
-		delete statsParams[ key ];
-	} );
+	const statsParams = Object.fromEntries(
+		statsParamKeys
+			.filter( key => params[ key ] !== undefined && params[ key ] !== null )
+			.map( key => [ key, params[ key ] ] )
+	) as StatsQueryParams;
 
 	const from = datePart( params.from );
 	const to = datePart( params.to );
@@ -85,7 +77,7 @@ export function reportParamsToStatsQueryParams(
 		( startDate && endDate ? getDaysBetweenInclusive( startDate, endDate ) : undefined );
 
 	return {
-		...( statsParams as StatsQueryParams ),
+		...statsParams,
 		period,
 		...( endDate ? { end_date: endDate } : {} ),
 		...( startDate ? { start_date: startDate } : {} ),
