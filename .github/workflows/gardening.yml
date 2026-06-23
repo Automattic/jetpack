@@ -59,14 +59,13 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.ref }}
           repository: ${{ github.event.pull_request.head.repo.full_name }}
-          allow-unsafe-pr-checkout: true
           # DO NOT run any code in this checkout. Not even an `npm install`.
-          path: ${{ runner.temp }}/pr-checkout/
+          path: ./pr-checkout
 
       - name: "Run the action (assign, manage milestones, for PRs)"
         uses: ./projects/github-actions/repo-gardening
         env:
-          PR_WORKSPACE: ${{ case( github.event_name == 'pull_request_target', join( runner.temp, '/pr-checkout' ), github.workspace ) }}
+          PR_WORKSPACE: ${{ github.workspace }}${{ case( github.event_name == 'pull_request_target', '/pr-checkout', '' ) }}
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           slack_token: ${{ secrets.SLACK_TOKEN }}
