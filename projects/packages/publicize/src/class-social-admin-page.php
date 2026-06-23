@@ -185,6 +185,8 @@ class Social_Admin_Page {
 			return;
 		}
 
+		Publicize_Assets::register_wp_build_polyfills();
+
 		// Dequeue the old Social assets.
 		wp_dequeue_script( 'jetpack-social' );
 		wp_dequeue_style( 'jetpack-social' );
@@ -218,17 +220,7 @@ class Social_Admin_Page {
 
 		require_once $build_index;
 
-		if ( ! class_exists( '\Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills' ) ) {
-			return;
-		}
-
-		\Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills::register(
-			'jetpack-social',
-			array_merge(
-				\Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills::SCRIPT_HANDLES,
-				\Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills::MODULE_IDS
-			)
-		);
+		Publicize_Assets::register_wp_build_polyfills();
 	}
 
 	/**
