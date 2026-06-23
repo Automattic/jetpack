@@ -1,4 +1,5 @@
 import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { GlobalChartsProvider } from '../../../providers';
 import HeatmapChart from '../heatmap-chart';
 import type { HeatmapColumn } from '../types';
@@ -56,4 +57,20 @@ describe( 'HeatmapChart', () => {
 		);
 		expect( screen.queryByText( '3' ) ).not.toBeInTheDocument();
 	} );
+
+	/* eslint-disable testing-library/no-node-access */
+	test( 'renders an accessible title per cell for screen readers', () => {
+		renderChart( { rowLabels: [ 'Mon', 'Tue', 'Wed' ] } );
+		const grid = screen.getByRole( 'grid', { name: /heatmap/i } );
+		const titles = Array.from( grid.querySelectorAll( 'title' ) ).map( t => t.textContent );
+		expect( titles.some( t => t?.includes( 'W1' ) && t?.includes( 'Mon' ) ) ).toBe( true );
+	} );
+
+	test( 'shows a tooltip on cell hover when withTooltips is set', async () => {
+		renderChart( { withTooltips: true, rowLabels: [ 'Mon', 'Tue', 'Wed' ] } );
+		const cell = screen.getAllByTestId( 'heatmap-cell' )[ 0 ];
+		await userEvent.setup().hover( cell );
+		await expect( screen.findByRole( 'tooltip' ) ).resolves.toBeInTheDocument();
+	} );
+	/* eslint-enable testing-library/no-node-access */
 } );
