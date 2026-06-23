@@ -54,6 +54,7 @@ interface GdprManageLinkContext {
 interface FooterLinksFallbackContext {
 	fallbackExpanded: boolean;
 	isCcpaRegion: boolean;
+	isGdprManageLink: boolean;
 }
 
 interface StoreConfig {

@@ -31,7 +31,7 @@ $ccpa_label = isset( $ccpa_label ) ? (string) $ccpa_label : '';
 <div
 	class="jetpack-cookie-consent-footer-links"
 	data-wp-interactive="jetpack/cookie-consent"
-	data-wp-context='{"fallbackExpanded": false, "isCcpaRegion": false}'
+	data-wp-context='{"fallbackExpanded": false, "isCcpaRegion": false, "isGdprManageLink": false}'
 	data-wp-init="callbacks.init"
 	data-wp-on--keydown="actions.onFallbackKeyDown"
 >
@@ -83,7 +83,10 @@ $ccpa_label = isset( $ccpa_label ) ? (string) $ccpa_label : '';
 				</li>
 			<?php endif; ?>
 
-			<li class="jetpack-cookie-consent-footer-links__item">
+			<li
+				class="jetpack-cookie-consent-footer-links__item jetpack-cookie-consent-gdpr-manage-link-hidden"
+				data-wp-class--jetpack-cookie-consent-gdpr-manage-link-hidden="!context.isGdprManageLink"
+			>
 				<a
 					class="jetpack-cookie-consent-footer-links__link"
 					href="#manage-preferences"
