@@ -36,26 +36,30 @@ export type DashboardSection = {
 };
 
 /**
+ * Canonical section definitions with lazy label getters, in display order.
+ *
+ * Labels are defined once here, as getters resolved at call time, so translations
+ * are applied after the i18n locale data has loaded. Mirrors the datetime
+ * package's `PRESET_DEFINITIONS`.
+ */
+const SECTION_DEFINITIONS: ReadonlyArray< {
+	id: DashboardSectionId;
+	getLabel: () => string;
+} > = [
+	{ id: 'traffic', getLabel: () => __( 'Traffic', 'jetpack-premium-analytics' ) },
+	{ id: 'insights', getLabel: () => __( 'Insights', 'jetpack-premium-analytics' ) },
+	{ id: 'subscribers', getLabel: () => __( 'Subscribers', 'jetpack-premium-analytics' ) },
+	{ id: 'store', getLabel: () => __( 'Store', 'jetpack-premium-analytics' ) },
+];
+
+/**
  * Get the translated display label for a section.
  *
  * @param id - The section identifier.
  * @return Translated label for the section.
  */
 export function getSectionLabel( id: DashboardSectionId ): string {
-	switch ( id ) {
-		case 'traffic':
-			return __( 'Traffic', 'jetpack-premium-analytics' );
-		case 'insights':
-			return __( 'Insights', 'jetpack-premium-analytics' );
-		case 'subscribers':
-			return __( 'Subscribers', 'jetpack-premium-analytics' );
-		case 'store':
-			return __( 'Store', 'jetpack-premium-analytics' );
-		default: {
-			const exhaustiveCheck: never = id;
-			throw new Error( `Unknown section ID: ${ exhaustiveCheck }` );
-		}
-	}
+	return SECTION_DEFINITIONS.find( section => section.id === id )?.getLabel() ?? id;
 }
 
 /**
@@ -67,7 +71,7 @@ export function getSectionLabel( id: DashboardSectionId ): string {
  * @return Ordered list of section definitions.
  */
 export function getDashboardSections(): DashboardSection[] {
-	return DASHBOARD_SECTION_IDS.map( id => ( { id, label: getSectionLabel( id ) } ) );
+	return SECTION_DEFINITIONS.map( ( { id, getLabel } ) => ( { id, label: getLabel() } ) );
 }
 
 /**
