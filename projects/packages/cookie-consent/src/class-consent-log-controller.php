@@ -170,7 +170,7 @@ class Consent_Log_Controller extends WP_REST_Controller {
 		$table = self::get_table_name();
 
 		// Skip if the table doesn't exist yet (fresh install).
-		$exists = $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table ) ); // phpcs:ignore WordPress.DB
+		$exists = $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $wpdb->esc_like( $table ) ) ); // phpcs:ignore WordPress.DB
 		if ( $exists !== $table ) {
 			return;
 		}

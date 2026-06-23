@@ -168,7 +168,7 @@ class Consent_Log_Privacy {
 	 * @param int    $page  Page number (1-based).
 	 * @return array { items_removed: bool, items_retained: bool, messages: array, done: bool }
 	 */
-	public static function erase( $email, $page = 1 ) {
+	public static function erase( $email, $page = 1 ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- $page is required by the WP eraser callback signature; we intentionally always fetch offset 0.
 		$response = array(
 			'items_removed'  => false,
 			'items_retained' => false,
@@ -181,7 +181,12 @@ class Consent_Log_Privacy {
 			return $response;
 		}
 
-		$rows = self::get_rows( $user_id, $page );
+		// Always fetch from offset 0 (page 1), ignoring the $page argument.
+		// Each pass anonymizes/deletes the rows it touches, removing them from
+		// the "WHERE user_id = N" result set. The next core-driven pass therefore
+		// sees the next unprocessed batch at offset 0. When fewer than PER_PAGE
+		// rows remain, done = true and iteration converges.
+		$rows = self::get_rows( $user_id, 1 );
 		if ( empty( $rows ) ) {
 			return $response;
 		}

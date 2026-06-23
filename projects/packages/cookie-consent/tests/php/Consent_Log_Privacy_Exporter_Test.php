@@ -69,8 +69,12 @@ class Consent_Log_Privacy_Exporter_Test extends TestCase {
 		$this->assertSame( 'Cookie Consent Log', $item['group_label'] );
 		$this->assertStringStartsWith( 'consent-log-', $item['item_id'] );
 		$names = wp_list_pluck( $item['data'], 'name' );
+		$this->assertContains( 'Consent ID', $names );
 		$this->assertContains( 'Event', $names );
 		$this->assertContains( 'IP Address', $names );
+		$this->assertContains( 'URL', $names );
+		$this->assertContains( 'Consent Types', $names );
+		$this->assertContains( 'Date (GMT)', $names );
 	}
 
 	/**
