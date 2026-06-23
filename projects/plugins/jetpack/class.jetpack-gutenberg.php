@@ -100,7 +100,12 @@ class Jetpack_Gutenberg {
 	 *   - another runtime code path calls a function defined in its block file
 	 *     (e.g. button defines Button\render_email(), called by subscriptions and
 	 *     memberships for WooCommerce e-mail rendering). Deferring the file would leave
-	 *     that function undefined when the dependent path runs.
+	 *     that function undefined when the dependent path runs; or
+	 *   - it registers a `render_email_callback`. That callback is read off the
+	 *     registered block type by the WooCommerce e-mail editor — an out-of-band
+	 *     renderer that does not go through `pre_render_block`/`do_blocks` — so the block
+	 *     must already be registered when an e-mail containing it is rendered, which can
+	 *     happen on a front-end request (e.g. a transactional e-mail sent during checkout).
 	 *
 	 * When in doubt, leave it out: omitted blocks simply keep their current eager
 	 * behavior.
@@ -123,12 +128,10 @@ class Jetpack_Gutenberg {
 		'nextdoor',
 		'payments-intro',
 		'pinterest',
-		'podcast-player',
 		'related-posts',
 		'repeat-visitor',
 		'sharing-buttons',
 		'story',
-		'tiled-gallery',
 		'tock',
 		'top-posts',
 		'voice-to-content',
