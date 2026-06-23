@@ -505,7 +505,11 @@ class Jetpack_Gutenberg_Test extends WP_UnitTestCase {
 	 */
 	private function invoke_is_block_editor_context() {
 		$method = new ReflectionMethod( Jetpack_Gutenberg::class, 'is_block_editor_context' );
-		$method->setAccessible( true );
+		// setAccessible() is a no-op (and deprecated) since PHP 8.1; only needed for older versions.
+		// @todo Remove this guard once we no longer need to support PHP < 8.1.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true );
+		}
 		return (bool) $method->invoke( null );
 	}
 
@@ -516,7 +520,11 @@ class Jetpack_Gutenberg_Test extends WP_UnitTestCase {
 	 */
 	private function set_deferred_blocks( $value ) {
 		$prop = new ReflectionProperty( Jetpack_Gutenberg::class, 'deferred_blocks' );
-		$prop->setAccessible( true );
+		// setAccessible() is a no-op (and deprecated) since PHP 8.1; only needed for older versions.
+		// @todo Remove this guard once we no longer need to support PHP < 8.1.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$prop->setAccessible( true );
+		}
 		$prop->setValue( null, $value );
 	}
 
@@ -527,7 +535,11 @@ class Jetpack_Gutenberg_Test extends WP_UnitTestCase {
 	 */
 	private function get_deferred_blocks() {
 		$prop = new ReflectionProperty( Jetpack_Gutenberg::class, 'deferred_blocks' );
-		$prop->setAccessible( true );
+		// setAccessible() is a no-op (and deprecated) since PHP 8.1; only needed for older versions.
+		// @todo Remove this guard once we no longer need to support PHP < 8.1.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$prop->setAccessible( true );
+		}
 		return (array) $prop->getValue();
 	}
 
@@ -719,7 +731,8 @@ class Jetpack_Gutenberg_Test extends WP_UnitTestCase {
 	 */
 	public function test_lazy_register_ignores_inner_block_invocations() {
 		$this->set_deferred_blocks( array( 'does-not-exist' => true ) );
-		$result = Jetpack_Gutenberg::lazy_register_deferred_block( null, array( 'blockName' => 'jetpack/does-not-exist' ), (object) array() );
+		$parent = new WP_Block( array( 'blockName' => 'core/group' ) );
+		$result = Jetpack_Gutenberg::lazy_register_deferred_block( null, array( 'blockName' => 'jetpack/does-not-exist' ), $parent );
 		$this->assertNull( $result );
 		$this->assertArrayHasKey( 'does-not-exist', $this->get_deferred_blocks(), 'Inner-block invocation should not consume the deferred block.' );
 	}
