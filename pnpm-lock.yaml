@@ -4097,27 +4097,6 @@ importers:
         specifier: 5.9.3
         version: 5.9.3
 
-  projects/packages/premium-analytics/widgets/top-performing-products:
-    dependencies:
-      '@jetpack-premium-analytics/data':
-        specifier: link:../../packages/data
-        version: link:../../packages/data
-      '@jetpack-premium-analytics/widgets-toolkit':
-        specifier: link:../../packages/widgets-toolkit
-        version: link:../../packages/widgets-toolkit
-      '@wordpress/i18n':
-        specifier: ^6.9.0
-        version: 6.21.1
-      '@wordpress/icons':
-        specifier: ^13.0.0
-        version: 13.1.0(react@18.3.1)
-      '@wordpress/ui':
-        specifier: 0.13.0
-        version: 0.13.0(@date-fns/tz@1.4.1)(date-fns@4.1.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      react:
-        specifier: 18.3.1
-        version: 18.3.1
-
   projects/packages/protect-models: {}
 
   projects/packages/protect-status: {}
