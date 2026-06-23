@@ -53,6 +53,27 @@ function wpcom_write_url() {
 }
 
 /**
+ * Resolve the editor's back/close destination from the source the user arrived from.
+ *
+ * Maps a short allowlist of known source tokens to known internal destinations.
+ * Anything not in the allowlist (including an empty or inferred source) falls back
+ * to the default destination — the site dashboard — so behavior is unchanged.
+ *
+ * This is the single lookup point for back-button destinations: never echo an
+ * arbitrary return URL from the query string, only map to vetted destinations.
+ *
+ * @param string $source Sanitized source token (see wpcom_write_render_admin_page()).
+ * @return string The destination URL for the back/close button.
+ */
+function wpcom_write_resolve_back_url( $source ) {
+	$destinations = array(
+		'reader' => 'https://wordpress.com/read',
+	);
+
+	return isset( $destinations[ $source ] ) ? $destinations[ $source ] : admin_url();
+}
+
+/**
  * Translated UI strings consumed by view.js as `window.wpcomWriteStrings`.
  *
  * Exposed as a helper so callers that render the Write editor outside the
@@ -781,6 +802,9 @@ function wpcom_write_render_admin_page() {
 		}
 	}
 
+	// Resolve where the back/close button should return the user, based on source.
+	$back_url = wpcom_write_resolve_back_url( $source );
+
 	if ( function_exists( '\Automattic\Jetpack\Jetpack_Mu_Wpcom\Common\wpcom_record_tracks_event' ) ) {
 		$event_props = array(
 			'is_new_post' => (int) ( 0 === $edit_post_id ),
@@ -851,6 +875,7 @@ function wpcom_write_render_admin_page() {
 			'mediaPath'              => '/wp/v2/media',
 			'homeUrl'                => home_url( '/' ),
 			'adminUrl'               => admin_url(),
+			'backUrl'                => $back_url,
 			'writeUrl'               => wpcom_write_url(),
 			'editPostId'             => $edit_post_id,
 			'postStatus'             => $post_status,
@@ -912,7 +937,7 @@ function wpcom_write_render_admin_page() {
 	);
 
 	// Output the editor UI inside wp-admin's wrapper.
-	wpcom_write_template( $edit_title, $edit_content, $edit_post_id, $categories_data, $post_status, $video_placeholders, $show_cat_row, $cat_label, $recent_drafts, $open_post_error );
+	wpcom_write_template( $edit_title, $edit_content, $edit_post_id, $categories_data, $post_status, $video_placeholders, $show_cat_row, $cat_label, $recent_drafts, $open_post_error, $back_url );
 }
 
 /**
@@ -931,14 +956,18 @@ function wpcom_write_render_admin_page() {
  * @param string $cat_label           Full "Writing in X, Y" label text; empty string if none selected.
  * @param array  $recent_drafts       Array of recent draft objects for the post picker.
  * @param string $open_post_error     Error message for post picker, empty if no error.
+ * @param string $back_url            Destination for the back/close button; defaults to the dashboard.
  */
-function wpcom_write_template( $edit_title = '', $edit_content = '', $edit_post_id = 0, $categories_data = array(), $post_status = 'new', $video_placeholders = array(), $show_cat_row = false, $cat_label = '', $recent_drafts = array(), $open_post_error = '' ) {
+function wpcom_write_template( $edit_title = '', $edit_content = '', $edit_post_id = 0, $categories_data = array(), $post_status = 'new', $video_placeholders = array(), $show_cat_row = false, $cat_label = '', $recent_drafts = array(), $open_post_error = '', $back_url = '' ) {
+	if ( '' === $back_url ) {
+		$back_url = admin_url();
+	}
 	?>
 <div data-wp-interactive="wpcom-write" class="bw-app">
 
 	<!-- Top bar -->
 	<header class="bw-topbar">
-		<a href="<?php echo esc_url( admin_url() ); ?>" class="bw-back" title="<?php echo esc_attr__( 'Back to dashboard', 'jetpack-mu-wpcom' ); ?>" aria-label="<?php echo esc_attr__( 'Back to dashboard', 'jetpack-mu-wpcom' ); ?>" data-wp-on--click="actions.handleBack">&larr;</a>
+		<a href="<?php echo esc_url( $back_url ); ?>" class="bw-back" title="<?php echo esc_attr__( 'Back', 'jetpack-mu-wpcom' ); ?>" aria-label="<?php echo esc_attr__( 'Back', 'jetpack-mu-wpcom' ); ?>" data-wp-on--click="actions.handleBack">&larr;</a>
 		<div class="bw-help-wrap" data-wp-on--keydown="actions.handleHelpKeyDown" data-wp-on--focusout="actions.handleHelpFocusOut">
 		<button class="bw-help-toggle" data-wp-on--click="actions.toggleHelp" title="<?php echo esc_attr__( 'Tips', 'jetpack-mu-wpcom' ); ?>" aria-label="<?php echo esc_attr__( 'Tips', 'jetpack-mu-wpcom' ); ?>"><span class="bw-help-i" aria-hidden="true">i</span></button>
 		<div class="bw-help-popover" hidden data-wp-bind--hidden="!state.showHelp">
