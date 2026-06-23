@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+AI Launchpad: complete the About-page tasks from wp-admin by tagging the AI-created About page and completing add_about_page / update_about_page when it is published or edited.

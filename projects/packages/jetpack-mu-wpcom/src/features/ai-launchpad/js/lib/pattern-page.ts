@@ -143,6 +143,10 @@ export async function createPatternPage(
 			title: pattern?.title ?? inferred.brand_name ?? 'New page',
 			content: pattern?.html ?? '',
 			status: 'draft',
+			// Tag this as the AI Launchpad About page so the server-side listener
+			// can complete add_about_page / update_about_page when it is published
+			// or edited, independent of the catalog's layout-category meta.
+			meta: { _wpcom_ai_launchpad_about_page: true },
 		},
 	} ) ) as CreatedPage;
 
