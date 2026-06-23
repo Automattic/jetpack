@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-seo",
-	"version": "0.1.1",
+	"version": "0.2.0",
 	"private": true,
 	"description": "Jetpack SEO — the visibility command center for WordPress sites in the agentic web.",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/packages/seo/#readme",
@@ -59,6 +59,7 @@
 	"devDependencies": {
 		"@babel/core": "7.29.7",
 		"@babel/preset-env": "7.29.7",
+		"@jest/globals": "30.4.1",
 		"@testing-library/dom": "10.4.1",
 		"@testing-library/jest-dom": "6.9.1",
 		"@testing-library/react": "16.3.2",

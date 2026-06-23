@@ -34,15 +34,19 @@ Main chart component for displaying ranked data with optional comparison values.
 ## LeaderboardEntry Type
 
 ```typescript
+import type { ReactElement } from 'react';
+
 interface LeaderboardEntry {
 	id: string;                  // Unique identifier
-	label: string | JSX.Element; // Display name or React component
+	label: string | ReactElement; // Display name or React component
 	currentValue: number;        // Current period value
 	previousValue: number;       // Previous period value
 	currentShare: number;        // Current bar width (0-100)
 	previousShare: number;       // Previous bar width (0-100)
 	delta: number;               // Percentage change
 	imageColor?: string;         // Optional color for the entry's image/icon
+	onClick?: ( event: MouseEvent ) => void; // Optional. Makes the whole row an interactive button (click + keyboard); the consumer supplies the action.
+	ariaLabel?: string;          // Optional. Accessible name for the row button when onClick is set; use for image-only JSX labels.
 }
 ```
 
@@ -69,4 +73,3 @@ type ChartLegendConfig = {
 	shapeStyles?: LegendShapeStyles;
 };
 ```
-

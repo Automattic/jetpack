@@ -1,0 +1,4 @@
+Significance: minor
+Type: fixed
+
+SEO Settings: add a "View sitemap" link once the sitemap is generated, and disable the sitemap toggle while search engines are blocked.

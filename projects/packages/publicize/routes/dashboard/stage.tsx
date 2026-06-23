@@ -87,10 +87,10 @@ const Stage = () => {
 	return (
 		<QueryClientProvider client={ queryClient }>
 			<SocialPage activeTab={ activeTab } actions={ actions }>
-				<Tabs.Panel value="overview" focusable={ false }>
+				<Tabs.Panel value="overview">
 					{ activeTab === 'overview' ? <OverviewTab /> : null }
 				</Tabs.Panel>
-				<Tabs.Panel value="settings" focusable={ false }>
+				<Tabs.Panel value="settings">
 					{ activeTab === 'settings' ? <SettingsTab /> : null }
 				</Tabs.Panel>
 			</SocialPage>

@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Defer Stats Admin REST controller instantiation so the controller class only loads on REST API requests.

@@ -192,6 +192,56 @@ class Jetpack_Subscriptions_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Contributors can submit a post for review without the "was ever published" meta
+	 * blocking the save. Regression test for NL-706 / CM-232: the meta is included in
+	 * the editor save payload, and its auth_callback previously required publish_posts,
+	 * which Contributors lack — failing the first "Submit for Review" save.
+	 */
+	public function test_first_published_status_meta_auth_callback_allows_contributor() {
+		$subscriptions  = Jetpack_Subscriptions::init();
+		$contributor_id = $this->factory->user->create( array( 'role' => 'contributor' ) );
+
+		wp_set_current_user( $contributor_id );
+		$this->assertFalse(
+			current_user_can( 'publish_posts' ),
+			'Contributors should not be able to publish posts (test precondition).'
+		);
+		$this->assertTrue(
+			$subscriptions->first_published_status_meta_auth_callback(),
+			'Contributors must be authorized to save the "was ever published" meta.'
+		);
+	}
+
+	/**
+	 * A logged-out visitor cannot edit the "was ever published" meta, and the
+	 * jetpack_subscriptions_post_was_ever_published_capability filter is still honored.
+	 */
+	public function test_first_published_status_meta_auth_callback_respects_filter_and_denies_anonymous() {
+		$subscriptions = Jetpack_Subscriptions::init();
+
+		wp_set_current_user( 0 );
+		$this->assertFalse(
+			$subscriptions->first_published_status_meta_auth_callback(),
+			'Logged-out users must not be authorized to edit the meta.'
+		);
+
+		$contributor_id = $this->factory->user->create( array( 'role' => 'contributor' ) );
+		wp_set_current_user( $contributor_id );
+
+		add_filter(
+			'jetpack_subscriptions_post_was_ever_published_capability',
+			function () {
+				return 'publish_posts';
+			}
+		);
+		$this->assertFalse(
+			$subscriptions->first_published_status_meta_auth_callback(),
+			'The capability filter should still be able to restrict access.'
+		);
+		remove_all_filters( 'jetpack_subscriptions_post_was_ever_published_capability' );
+	}
+
+	/**
 	 * Test that wpcom_newsletter_send_default option defaults to true.
 	 */
 	public function test_newsletter_send_default_option_defaults_to_true() {

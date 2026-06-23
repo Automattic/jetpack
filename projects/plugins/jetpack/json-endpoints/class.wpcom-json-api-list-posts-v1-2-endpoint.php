@@ -22,7 +22,7 @@ new WPCOM_JSON_API_List_Posts_v1_2_Endpoint(
 			'$site' => '(int|string) Site ID or domain',
 		),
 		'rest_route'                           => '/posts',
-		'rest_min_jp_version'                  => '14.5-a.2',
+		'rest_min_jp_version'                  => '15.9',
 
 		'allow_fallback_to_jetpack_blog_token' => true,
 

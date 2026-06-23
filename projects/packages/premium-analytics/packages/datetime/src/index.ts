@@ -15,6 +15,14 @@ export {
 } from './tz';
 
 export {
+	formatDatePartWithTime,
+	getDateIntervalDateParts,
+	getDatePart,
+	type DateIntervalDateParts,
+	type DateIntervalPeriod,
+} from './date';
+
+export {
 	// Constants
 	SELECTABLE_PRESETS,
 	PRESET_TODAY,
