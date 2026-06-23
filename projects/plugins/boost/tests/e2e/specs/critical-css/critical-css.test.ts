@@ -128,15 +128,27 @@ test.describe.serial( 'Critical CSS module', () => {
 		await jetpackBoostPage.visit();
 
 		/*
-		 * The settings page already shows previously-generated CSS, so a poll could
-		 * report `generated` at any point before regeneration starts. Attach the wait
-		 * before clicking Regenerate and require a fresh `pending` -> `generated`
-		 * transition so it cannot resolve on that stale `generated` state.
+		 * The settings page already shows previously-generated CSS, so waiting for a
+		 * `generated` poll directly could resolve on that stale state. Clicking
+		 * Regenerate POSTs the `request-regenerate` action, which flips the server
+		 * state to `pending` (see `Regenerate::start()`). Wait for that POST first —
+		 * it is guaranteed to fire once and be observable — so that by the time the
+		 * generation wait is attached the server is already `pending` and the next
+		 * `generated` poll can only reflect the fresh regeneration. Use the 240s
+		 * ceiling since this runs the full generator, like the cold-generation case.
 		 */
-		const criticalCssGenerated = jetpackBoostPage.waitForCriticalCssGeneration( {
-			requireRegeneration: true,
-		} );
+		const regenerationRequested = page.waitForResponse(
+			response =>
+				response
+					.url()
+					.includes( '/jetpack-boost-ds/critical-css-state/action/request-regenerate' ) &&
+				response.request().method() === 'POST' &&
+				response.ok()
+		);
 		await page.getByRole( 'button', { name: 'Regenerate' } ).click();
+		await regenerationRequested;
+
+		const criticalCssGenerated = jetpackBoostPage.waitForCriticalCssGeneration( 240000 );
 		await expect(
 			page.locator( '.jb-critical-css-progress' ),
 			'Critical CSS generation progress indicator should be visible'

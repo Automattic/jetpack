@@ -142,22 +142,20 @@ export default class JetpackBoostPage {
 	 * the per-provider saves that generation fans out into.
 	 *
 	 * `page.waitForResponse()` only matches responses that arrive after it is called,
-	 * so create this promise *before* the action that triggers generation. For flows
-	 * that regenerate while the page already shows previously-generated CSS, pass
-	 * `requireRegeneration: true` so a stale `generated` poll is ignored and the wait
-	 * only resolves after a fresh `pending` -> terminal transition.
+	 * so create this promise *before* the action that triggers generation. For a
+	 * Regenerate flow where the page already shows previously-generated CSS, gate on
+	 * the `request-regenerate` action first (it flips the server state to `pending`,
+	 * see `Regenerate::start()`) so this wait cannot resolve on the stale `generated`
+	 * poll.
 	 *
-	 * The status literals (`pending`/`generated`/`error`) and the route are kept in
-	 * sync with `Critical_CSS_State` and the DataSync registry.
+	 * The status literals (`generated`/`error`) and the route are kept in sync with
+	 * `Critical_CSS_State` and the DataSync registry.
 	 *
-	 * @param {object}  [options]                           - Wait options.
-	 * @param {number}  [options.timeout=60000]             - Maximum time to wait in milliseconds.
-	 * @param {boolean} [options.requireRegeneration=false] - Require a fresh `pending` poll before accepting a terminal state.
+	 * @param {number} timeout - Maximum time to wait in milliseconds.
 	 * @return {Promise<void>} Resolves once generation reaches `generated`.
 	 */
-	async waitForCriticalCssGeneration( { timeout = 60000, requireRegeneration = false } = {} ) {
+	async waitForCriticalCssGeneration( timeout = 60000 ) {
 		let terminalStatus: string | undefined;
-		let seenPending = ! requireRegeneration;
 
 		await this.page.waitForResponse(
 			async response => {
@@ -176,14 +174,7 @@ export default class JetpackBoostPage {
 					 */
 					const body = ( await response.json() ) as { JSON?: { status?: string } };
 					const status = body?.JSON?.status;
-					if ( ! status ) {
-						return false;
-					}
-					if ( status === 'pending' ) {
-						seenPending = true;
-						return false;
-					}
-					if ( seenPending && ( status === 'generated' || status === 'error' ) ) {
+					if ( status === 'generated' || status === 'error' ) {
 						terminalStatus = status;
 						return true;
 					}

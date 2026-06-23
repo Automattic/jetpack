@@ -61,9 +61,7 @@ test.describe( 'Common tests', () => {
 			 * wait still resolves as soon as the terminal state arrives — the ceiling
 			 * only guards against flakiness on slow CI runners.
 			 */
-			const criticalCssGenerated = jetpackBoostPage.waitForCriticalCssGeneration( {
-				timeout: 240000,
-			} );
+			const criticalCssGenerated = jetpackBoostPage.waitForCriticalCssGeneration( 240000 );
 			await admin.visitAdminPage( 'admin.php', 'page=jetpack-boost' );
 			await expect(
 				page.locator( '.jb-critical-css-progress' ),
