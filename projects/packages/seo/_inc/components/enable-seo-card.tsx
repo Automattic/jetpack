@@ -3,7 +3,7 @@
 import { Button } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { Card, Stack } from '@wordpress/ui';
-import useSeoToolsToggle from '../../data/use-seo-tools-toggle';
+import useSeoToolsToggle from '../data/use-seo-tools-toggle';
 import type { FC } from 'react';
 
 /**
