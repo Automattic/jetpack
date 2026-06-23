@@ -88,7 +88,9 @@ class Consent_Log_Privacy {
 		$table  = Consent_Log_Controller::get_table_name();
 		$offset = ( max( 1, $page ) - 1 ) * self::PER_PAGE;
 		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-		return $wpdb->get_results(
+		// Cast to array: get_results() returns null on a DB error, which would fatal
+		// on the count()/foreach in export().
+		return (array) $wpdb->get_results(
 			$wpdb->prepare(
 				"SELECT * FROM {$table} WHERE user_id = %d ORDER BY id LIMIT %d OFFSET %d",
 				$user_id,
