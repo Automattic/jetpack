@@ -81,6 +81,8 @@ class Initializer {
 	 */
 	const META_DESCRIPTION = 'advanced_seo_description';
 	const META_SCHEMA_TYPE = 'jetpack_seo_schema_type';
+	const META_TITLE       = 'jetpack_seo_html_title';
+	const META_NOINDEX     = 'jetpack_seo_noindex';
 
 	/**
 	 * Option recording whether sitemap generation is enabled.
@@ -550,7 +552,7 @@ class Initializer {
 	 * posts/pages have each SEO field set. State, not a score — the card shows
 	 * proportions + raw counts and lets the admin decide what matters.
 	 *
-	 * @return array{total:int,with_description:int,with_schema:int}
+	 * @return array{total:int,with_schema:int,with_title:int,with_description:int,with_search_visible:int}
 	 */
 	private static function get_content_coverage() {
 		$post_types = array( 'post', 'page' );
@@ -561,10 +563,17 @@ class Initializer {
 			$total += isset( $counts->publish ) ? (int) $counts->publish : 0;
 		}
 
+		// Search-engine visibility is the inverse of the per-post noindex meta: a
+		// post is visible unless it's explicitly set to noindex (stored as '1'), so
+		// most posts (no meta row) count as visible.
+		$noindexed = self::count_published_with_meta( $post_types, self::META_NOINDEX, '1' );
+
 		return array(
-			'total'            => $total,
-			'with_description' => self::count_published_with_meta( $post_types, self::META_DESCRIPTION ),
-			'with_schema'      => self::count_published_with_meta( $post_types, self::META_SCHEMA_TYPE ),
+			'total'               => $total,
+			'with_schema'         => self::count_published_with_meta( $post_types, self::META_SCHEMA_TYPE ),
+			'with_title'          => self::count_published_with_meta( $post_types, self::META_TITLE ),
+			'with_description'    => self::count_published_with_meta( $post_types, self::META_DESCRIPTION ),
+			'with_search_visible' => max( 0, $total - $noindexed ),
 		);
 	}
 

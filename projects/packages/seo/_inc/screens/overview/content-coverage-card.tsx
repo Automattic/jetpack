@@ -55,7 +55,7 @@ const CoverageRing: FC< RingProps > = ( { label, segment, total } ) => (
 );
 
 const ContentCoverageCard: FC< Props > = ( { data, onManage } ) => {
-	const { total, with_description, with_schema } = data;
+	const { total, with_schema, with_title, with_description, with_search_visible } = data;
 
 	return (
 		<Card.Root>
@@ -68,13 +68,23 @@ const ContentCoverageCard: FC< Props > = ( { data, onManage } ) => {
 				) : (
 					<div className="jetpack-seo-overview__coverage-rings">
 						<CoverageRing
+							label={ __( 'Schema', 'jetpack-seo' ) }
+							segment={ with_schema }
+							total={ total }
+						/>
+						<CoverageRing
+							label={ __( 'SEO title', 'jetpack-seo' ) }
+							segment={ with_title }
+							total={ total }
+						/>
+						<CoverageRing
 							label={ __( 'Meta description', 'jetpack-seo' ) }
 							segment={ with_description }
 							total={ total }
 						/>
 						<CoverageRing
-							label={ __( 'Schema type', 'jetpack-seo' ) }
-							segment={ with_schema }
+							label={ __( 'Search engine visibility', 'jetpack-seo' ) }
+							segment={ with_search_visible }
 							total={ total }
 						/>
 					</div>
