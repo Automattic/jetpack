@@ -96,7 +96,11 @@ class Jetpack_Gutenberg {
 	 *     (e.g. slideshow is included by modules/shortcodes/slideshow.php). The lazy
 	 *     loader registers a block by running the `init` callback its include adds; if
 	 *     the file was already included elsewhere, the include is a no-op and the
-	 *     callback would never run, so the block would silently fail to register.
+	 *     callback would never run, so the block would silently fail to register; or
+	 *   - another runtime code path calls a function defined in its block file
+	 *     (e.g. button defines Button\render_email(), called by subscriptions and
+	 *     memberships for WooCommerce e-mail rendering). Deferring the file would leave
+	 *     that function undefined when the dependent path runs.
 	 *
 	 * When in doubt, leave it out: omitted blocks simply keep their current eager
 	 * behavior.
@@ -108,7 +112,6 @@ class Jetpack_Gutenberg {
 		'blog-stats',
 		'blogging-prompt',
 		'business-hours',
-		'button',
 		'eventbrite',
 		'gif',
 		'goodreads',
@@ -1030,6 +1033,12 @@ class Jetpack_Gutenberg {
 		 * wp_block post that core only parses at render time (render_block_core_block),
 		 * so it is absent from this parsed tree. Resolve the reference and recurse so a
 		 * deferred block inside the pattern is registered before core builds its WP_Block.
+		 *
+		 * core/navigation has the same ref-based hidden-content shape (a wp_navigation
+		 * post) but is intentionally not handled: none of the deferred blocks can be
+		 * inserted into a navigation menu through the editor, and resolving the ref would
+		 * add a get_post()/parse_blocks() on essentially every front-end page (menus are
+		 * near-ubiquitous) for a case that cannot occur without hand-authored markup.
 		 */
 		if ( 'core/block' === $block_name && ! empty( $parsed_block['attrs']['ref'] ) ) {
 			$ref = (int) $parsed_block['attrs']['ref'];
