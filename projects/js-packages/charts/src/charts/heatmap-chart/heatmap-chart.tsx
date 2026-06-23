@@ -14,6 +14,7 @@ import {
 import { attachSubComponents } from '../../utils';
 import { lightenHexColor, normalizeColorToHex, isValidHexColor } from '../../utils/color-utils';
 import { resolveCssVariable } from '../../utils/resolve-css-var';
+import { Center } from '../private/center';
 import { useChartChildren } from '../private/chart-composition';
 import { ChartLayout } from '../private/chart-layout';
 import { SingleChartContext } from '../private/single-chart-context';
@@ -220,11 +221,15 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 
 	if ( ! columns || ! rows ) {
 		return (
-			<div className={ clsx( 'heatmap-chart', styles[ 'heatmap-chart' ], className ) }>
-				<div className={ styles[ 'heatmap-chart__empty' ] }>
+			<Center
+				className={ clsx( 'heatmap-chart', styles[ 'heatmap-chart' ], className ) }
+				style={ { width, height } }
+				data-testid="heatmap-chart"
+			>
+				<span className={ styles[ 'heatmap-chart__empty' ] }>
 					{ __( 'No data available', 'jetpack-charts' ) }
-				</div>
-			</div>
+				</span>
+			</Center>
 		);
 	}
 
