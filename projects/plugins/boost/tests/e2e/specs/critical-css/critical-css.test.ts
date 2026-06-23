@@ -127,16 +127,21 @@ test.describe.serial( 'Critical CSS module', () => {
 
 		await jetpackBoostPage.visit();
 
+		/*
+		 * The settings page already shows previously-generated CSS, so a poll could
+		 * report `generated` at any point before regeneration starts. Attach the wait
+		 * before clicking Regenerate and require a fresh `pending` -> `generated`
+		 * transition so it cannot resolve on that stale `generated` state.
+		 */
+		const criticalCssGenerated = jetpackBoostPage.waitForCriticalCssGeneration( {
+			requireRegeneration: true,
+		} );
 		await page.getByRole( 'button', { name: 'Regenerate' } ).click();
-		// The settings page already shows previously-generated CSS, so the first
-		// DataSync poll after load returns `generated`. Confirm regeneration has
-		// actually started (progress indicator) before listening for the terminal
-		// state, otherwise the wait could resolve on that stale `generated` response.
 		await expect(
 			page.locator( '.jb-critical-css-progress' ),
 			'Critical CSS generation progress indicator should be visible'
 		).toBeVisible();
-		await jetpackBoostPage.waitForCriticalCssGeneration();
+		await criticalCssGenerated;
 		await expect(
 			page.getByTestId( 'critical-css-meta' ),
 			'Critical CSS meta information should be visible'

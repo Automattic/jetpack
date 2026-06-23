@@ -128,20 +128,37 @@ export default class JetpackBoostPage {
 	}
 
 	/**
-	 * Waits for Critical CSS generation to complete by intercepting the DataSync
-	 * polling response for `critical_css_state`. Resolves once the status reaches a
-	 * terminal state — `generated` or `error` — which is the same signal the UI uses
-	 * to render the critical-css-meta element.
+	 * Waits for Critical CSS generation to reach a terminal state by intercepting the
+	 * DataSync poll for `critical_css_state` (exposed at the hyphenated REST route
+	 * `/jetpack-boost-ds/critical-css-state`). Resolves once the aggregate status
+	 * becomes `generated`, and throws if it becomes `error` — an `error` state renders
+	 * the show-stopper UI rather than the `critical-css-meta` element callers assert
+	 * on, so surfacing it as an explicit failure beats a downstream "element not
+	 * visible" timeout.
 	 *
 	 * The backend only flips the aggregate status away from `pending` once every
 	 * provider has finished (see `Critical_CSS_State::maybe_set_generated()`), so a
 	 * single matching response is a safe completion signal — there is no need to count
 	 * the per-provider saves that generation fans out into.
 	 *
-	 * @param {number} timeout - Maximum time to wait in milliseconds.
-	 * @return {Promise<void>} Resolves once generation reaches a terminal state.
+	 * `page.waitForResponse()` only matches responses that arrive after it is called,
+	 * so create this promise *before* the action that triggers generation. For flows
+	 * that regenerate while the page already shows previously-generated CSS, pass
+	 * `requireRegeneration: true` so a stale `generated` poll is ignored and the wait
+	 * only resolves after a fresh `pending` -> terminal transition.
+	 *
+	 * The status literals (`pending`/`generated`/`error`) and the route are kept in
+	 * sync with `Critical_CSS_State` and the DataSync registry.
+	 *
+	 * @param {object}  [options]                           - Wait options.
+	 * @param {number}  [options.timeout=60000]             - Maximum time to wait in milliseconds.
+	 * @param {boolean} [options.requireRegeneration=false] - Require a fresh `pending` poll before accepting a terminal state.
+	 * @return {Promise<void>} Resolves once generation reaches `generated`.
 	 */
-	async waitForCriticalCssGeneration( timeout = 60000 ) {
+	async waitForCriticalCssGeneration( { timeout = 60000, requireRegeneration = false } = {} ) {
+		let terminalStatus: string | undefined;
+		let seenPending = ! requireRegeneration;
+
 		await this.page.waitForResponse(
 			async response => {
 				if (
@@ -152,21 +169,40 @@ export default class JetpackBoostPage {
 					return false;
 				}
 				try {
-					const body = await response.json();
-					// DataSync wraps the value in a { status: 'success', JSON: <state> }
-					// envelope, so the real Critical CSS status lives at body.JSON.status,
-					// not the top-level body.status (which is always 'success').
-					const state = body?.JSON;
-					if ( ! state ) {
+					/*
+					 * DataSync wraps the value in a { status: 'success', JSON: <state> }
+					 * envelope, so the real Critical CSS status lives at body.JSON.status,
+					 * not the top-level body.status (which is always 'success').
+					 */
+					const body = ( await response.json() ) as { JSON?: { status?: string } };
+					const status = body?.JSON?.status;
+					if ( ! status ) {
 						return false;
 					}
-					return state.status === 'generated' || state.status === 'error';
-				} catch {
+					if ( status === 'pending' ) {
+						seenPending = true;
+						return false;
+					}
+					if ( seenPending && ( status === 'generated' || status === 'error' ) ) {
+						terminalStatus = status;
+						return true;
+					}
+					return false;
+				} catch ( error ) {
+					logger.error(
+						`waitForCriticalCssGeneration: failed to parse critical-css-state response: ${ error }`
+					);
 					return false;
 				}
 			},
 			{ timeout }
 		);
+
+		if ( terminalStatus === 'error' ) {
+			throw new Error(
+				'Critical CSS generation reached the terminal "error" state instead of "generated".'
+			);
+		}
 	}
 
 	/**
