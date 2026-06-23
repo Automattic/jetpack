@@ -1,5 +1,6 @@
 import { HeatmapRect } from '@visx/heatmap';
 import { scaleLinear } from '@visx/scale';
+import { Text } from '@visx/text';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { createContext, useContext, useMemo } from 'react';
@@ -17,7 +18,7 @@ import { ChartLayout } from '../private/chart-layout';
 import { SingleChartContext } from '../private/single-chart-context';
 import { withResponsive } from '../private/with-responsive';
 import styles from './heatmap-chart.module.scss';
-import { getValueExtent, createColorScale, EMPTY_CELL_COLOR } from './private';
+import { getValueExtent, createColorScale, getNormalizedValue, EMPTY_CELL_COLOR } from './private';
 import type { HeatmapChartProps, HeatmapColumn, HeatmapCell } from './types';
 import type { ResponsiveConfig } from '../private/with-responsive';
 import type { FC, ComponentType, ReactNode } from 'react';
@@ -53,6 +54,7 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 	margin,
 	compact = false,
 	showValues,
+	rowLabels = [],
 	cellGap,
 	cellRadius = 2,
 	gap = 'md',
@@ -86,7 +88,7 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 	const columns = data.length;
 	const rows = Math.max( 0, ...data.map( column => column.data.length ) );
 	const effectiveGap = cellGap ?? ( compact ? COMPACT_GAP : DEFAULT_GAP );
-	void ( showValues ?? ! compact );
+	const drawValues = showValues ?? ! compact;
 
 	if ( ! columns || ! rows ) {
 		return (
@@ -142,6 +144,44 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 								{ width > 0 && height > 0 && (
 									<svg width={ width } height={ height }>
 										<g transform={ `translate(${ defaultMargin.left }, ${ defaultMargin.top })` }>
+											{ data.map( ( column, columnIndex ) => {
+												const visible = ! compact || columnIndex % 2 === 0;
+												if ( ! column.label || ! visible ) {
+													return null;
+												}
+												return (
+													<Text
+														key={ `col-${ columnIndex }` }
+														className={ styles[ 'heatmap-chart__axis-label' ] }
+														x={ xScale( columnIndex ) }
+														y={ -6 }
+														verticalAnchor="end"
+														textAnchor="start"
+													>
+														{ column.label }
+													</Text>
+												);
+											} ) }
+
+											{ rowLabels.map( ( label, rowIndex ) => {
+												const visible = ! compact || rowIndex % 2 === 0;
+												if ( ! label || ! visible ) {
+													return null;
+												}
+												return (
+													<Text
+														key={ `row-${ rowIndex }` }
+														className={ styles[ 'heatmap-chart__axis-label' ] }
+														x={ -8 }
+														y={ yScale( rowIndex ) + binHeight / 2 }
+														verticalAnchor="middle"
+														textAnchor="end"
+													>
+														{ label }
+													</Text>
+												);
+											} ) }
+
 											<HeatmapRect
 												data={ data }
 												xScale={ xScale }
@@ -158,16 +198,33 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 															const value = ( cell.bin as { value: number | null } ).value;
 															const present = isPresent( value );
 															return (
-																<rect
-																	key={ `${ cell.column }-${ cell.row }` }
-																	data-testid="heatmap-cell"
-																	x={ cell.x }
-																	y={ cell.y }
-																	width={ cell.width }
-																	height={ cell.height }
-																	rx={ cellRadius }
-																	fill={ present ? colorFor( value as number ) : emptyColorHex }
-																/>
+																<g key={ `${ cell.column }-${ cell.row }` }>
+																	<rect
+																		data-testid="heatmap-cell"
+																		x={ cell.x }
+																		y={ cell.y }
+																		width={ cell.width }
+																		height={ cell.height }
+																		rx={ cellRadius }
+																		fill={ present ? colorFor( value as number ) : emptyColorHex }
+																	/>
+																	{ drawValues && present && (
+																		<Text
+																			x={ cell.x + cell.width / 2 }
+																			y={ cell.y + cell.height / 2 }
+																			textAnchor="middle"
+																			verticalAnchor="middle"
+																			fill={
+																				getNormalizedValue( value as number, extent ) > 0.5
+																					? '#ffffff'
+																					: 'var(--jp-gray-80, #2c3338)'
+																			}
+																			fontSize={ 11 }
+																		>
+																			{ String( value ) }
+																		</Text>
+																	) }
+																</g>
 															);
 														} )
 													)

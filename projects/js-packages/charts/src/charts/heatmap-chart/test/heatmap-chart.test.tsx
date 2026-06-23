@@ -36,4 +36,24 @@ describe( 'HeatmapChart', () => {
 		renderChart( { data: [] } );
 		expect( screen.getByText( /no data available/i ) ).toBeInTheDocument();
 	} );
+
+	test( 'renders column and row labels', () => {
+		renderChart( { rowLabels: [ 'Mon', '', 'Wed' ] } );
+		expect( screen.getAllByText( 'W1' ).length ).toBeGreaterThan( 0 );
+		expect( screen.getAllByText( 'Mon' ).length ).toBeGreaterThan( 0 );
+		expect( screen.getAllByText( 'Wed' ).length ).toBeGreaterThan( 0 );
+	} );
+
+	test( 'shows in-cell values by default and hides them in compact mode', () => {
+		const { rerender } = renderChart();
+		// value 3 appears in a cell
+		expect( screen.getAllByText( '3' ).length ).toBeGreaterThan( 0 );
+
+		rerender(
+			<GlobalChartsProvider>
+				<HeatmapChart width={ 500 } height={ 300 } data={ data } compact />
+			</GlobalChartsProvider>
+		);
+		expect( screen.queryByText( '3' ) ).not.toBeInTheDocument();
+	} );
 } );
