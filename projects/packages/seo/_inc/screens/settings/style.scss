@@ -111,9 +111,9 @@
 	margin: 0 0 var(--wpds-dimension-gap-xl, 24px);
 }
 
-// The previews stack with generous separation between them. No bordered group
-// wrapper — only the Google result is bordered (below), so the section avoids a
-// box-in-box look.
+// The previews stack with generous separation between them. Each preview is
+// bordered individually (below); there's no bordered group wrapping a heading
+// together with its preview, which avoids the box-in-box look.
 .jetpack-seo-settings__preview-list {
 	display: flex;
 	flex-direction: column;
@@ -149,8 +149,8 @@
 	color: var(--wpds-color-fg-content-neutral-weak, #757575);
 }
 
-// Google search result — the one bordered preview, so it's set off as a result
-// without needing a heading.
+// Google search result — bordered around the preview itself (it has none
+// otherwise), set off as a result beneath its heading.
 .jetpack-seo-preview--google {
 	padding: var(--wpds-dimension-padding-md, 12px);
 	border: 1px solid var(--wpds-color-stroke-surface-neutral-weak, #dadde1);
@@ -186,10 +186,12 @@
 	}
 }
 
-// Facebook / X shared link card. Borderless (only Google is bordered); the
-// filled card body + image still read as a shared-link card.
+// Facebook / X shared link card — bordered around the preview itself (matching
+// how the platforms render a shared link), but not wrapped in a group box with
+// its heading.
 .jetpack-seo-preview--card {
 	overflow: hidden;
+	border: 1px solid var(--wpds-color-stroke-surface-neutral-weak, #dadde1);
 	border-radius: var(--wpds-border-radius-md, 4px);
 
 	.jetpack-seo-preview__image {
