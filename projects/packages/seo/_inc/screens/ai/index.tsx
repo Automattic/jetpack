@@ -53,13 +53,11 @@ const CrawlerToggle: FC< CrawlerToggleProps > = ( { crawler, blocked, disabled, 
 };
 
 /**
- * AI tab. Hosts three sections: the plan-gated AI SEO Enhancer, plus the free
- * llms.txt and AI-crawler controls, laid out in two columns ordered broad →
- * specific: AI-crawler access on the left, then llms.txt and the AI SEO Enhancer
- * on the right — collapsing to a single column on narrow screens. State +
- * auto-save live in the `form` controller
- * (passed from the page root so it survives tab switches); this component is the
- * presentation.
+ * AI tab. Hosts three sections stacked in a single centered column (matching the
+ * Settings tab's width), ordered broad → specific: AI-crawler access, then
+ * llms.txt, then the plan-gated AI SEO Enhancer. State + auto-save live in the
+ * `form` controller (passed from the page root so it survives tab switches);
+ * this component is the presentation.
  *
  * The tab itself is always shown. Only the Enhancer card is plan-gated; the free
  * sections render regardless, so the tab is a home for AI settings whether or not
@@ -92,92 +90,83 @@ const AiScreen: FC< Props > = ( { form } ) => {
 
 	return (
 		<div className="jetpack-seo-ai">
-			<div className="jetpack-seo-ai__grid">
-				{ /* Left column: AI crawler access — the broadest control (whether AI
-				     crawlers may reach the site at all). */ }
-				<div className="jetpack-seo-ai__column">
-					{ crawlers && (
-						<CollapsibleCard.Root defaultOpen>
-							<CollapsibleCard.Header>
-								<Card.Title>{ __( 'AI crawler access', 'jetpack-seo' ) }</Card.Title>
-							</CollapsibleCard.Header>
-							<CollapsibleCard.Content>
-								<Stack direction="column" gap="md">
-									<p className="jetpack-seo-ai__crawlers-intro">
-										{ __(
-											'Choose which AI crawlers may access your site. Blocked crawlers are disallowed in your robots.txt.',
-											'jetpack-seo'
-										) }
-									</p>
-									{ crawlers.catalog.map( crawler => (
-										<CrawlerToggle
-											key={ crawler.slug }
-											crawler={ crawler }
-											blocked={ crawlers.blocked.includes( crawler.slug ) }
-											disabled={ isSaving }
-											onToggle={ setCrawlerBlocked }
-										/>
-									) ) }
-								</Stack>
-							</CollapsibleCard.Content>
-						</CollapsibleCard.Root>
-					) }
-				</div>
-
-				{ /* Right column, broad → specific: llms.txt (hand AI a formatted
-				     content map), then the AI SEO Enhancer (AI fine-tuning of specific
-				     metadata). The Enhancer is plan-gated — hidden when the plan
-				     doesn't support it (parity with the legacy Traffic page). */ }
-				<div className="jetpack-seo-ai__column">
-					{ llmsTxt && (
-						<CollapsibleCard.Root defaultOpen>
-							<CollapsibleCard.Header>
-								<Card.Title>{ __( 'llms.txt', 'jetpack-seo' ) }</Card.Title>
-							</CollapsibleCard.Header>
-							<CollapsibleCard.Content>
-								<Stack direction="column" gap="md">
-									<ToggleControl
-										label={ __( 'Generate an llms.txt file', 'jetpack-seo' ) }
-										help={ __(
-											'Publishes a curated, AI-readable map of your content at /llms.txt to help AI assistants find and understand your pages and posts.',
-											'jetpack-seo'
-										) }
-										checked={ llmsTxt.enabled }
-										onChange={ setLlmsTxtEnabled }
-										disabled={ isSaving }
-										__nextHasNoMarginBottom
-									/>
-									{ llmsTxt.enabled && (
-										<Link href={ llmsTxt.url } openInNewTab rel="noopener noreferrer">
-											{ __( 'View your llms.txt', 'jetpack-seo' ) }
-										</Link>
-									) }
-								</Stack>
-							</CollapsibleCard.Content>
-						</CollapsibleCard.Root>
-					) }
-
-					{ enhancer.available && (
-						<CollapsibleCard.Root defaultOpen>
-							<CollapsibleCard.Header>
-								<Card.Title>{ __( 'AI SEO Enhancer', 'jetpack-seo' ) }</Card.Title>
-							</CollapsibleCard.Header>
-							<CollapsibleCard.Content>
-								<ToggleControl
-									label={ __(
-										'Automatically generate SEO title, SEO description, and image alt text for new posts',
-										'jetpack-seo'
-									) }
-									checked={ enhancer.enabled }
-									onChange={ setEnhancerEnabled }
+			{ /* Broad → specific: whether AI crawlers may reach the site, then the
+			     content map exposed to them, then AI fine-tuning of specific
+			     metadata. */ }
+			{ crawlers && (
+				<CollapsibleCard.Root defaultOpen>
+					<CollapsibleCard.Header>
+						<Card.Title>{ __( 'AI crawler access', 'jetpack-seo' ) }</Card.Title>
+					</CollapsibleCard.Header>
+					<CollapsibleCard.Content>
+						<Stack direction="column" gap="md">
+							<p className="jetpack-seo-ai__crawlers-intro">
+								{ __(
+									'Choose which AI crawlers may access your site. Blocked crawlers are disallowed in your robots.txt.',
+									'jetpack-seo'
+								) }
+							</p>
+							{ crawlers.catalog.map( crawler => (
+								<CrawlerToggle
+									key={ crawler.slug }
+									crawler={ crawler }
+									blocked={ crawlers.blocked.includes( crawler.slug ) }
 									disabled={ isSaving }
-									__nextHasNoMarginBottom
+									onToggle={ setCrawlerBlocked }
 								/>
-							</CollapsibleCard.Content>
-						</CollapsibleCard.Root>
-					) }
-				</div>
-			</div>
+							) ) }
+						</Stack>
+					</CollapsibleCard.Content>
+				</CollapsibleCard.Root>
+			) }
+
+			{ llmsTxt && (
+				<CollapsibleCard.Root defaultOpen>
+					<CollapsibleCard.Header>
+						<Card.Title>{ __( 'llms.txt', 'jetpack-seo' ) }</Card.Title>
+					</CollapsibleCard.Header>
+					<CollapsibleCard.Content>
+						<Stack direction="column" gap="md">
+							<ToggleControl
+								label={ __( 'Generate an llms.txt file', 'jetpack-seo' ) }
+								help={ __(
+									'Publishes a curated, AI-readable map of your content at /llms.txt to help AI assistants find and understand your pages and posts.',
+									'jetpack-seo'
+								) }
+								checked={ llmsTxt.enabled }
+								onChange={ setLlmsTxtEnabled }
+								disabled={ isSaving }
+								__nextHasNoMarginBottom
+							/>
+							{ llmsTxt.enabled && (
+								<Link href={ llmsTxt.url } openInNewTab rel="noopener noreferrer">
+									{ __( 'View your llms.txt', 'jetpack-seo' ) }
+								</Link>
+							) }
+						</Stack>
+					</CollapsibleCard.Content>
+				</CollapsibleCard.Root>
+			) }
+
+			{ enhancer.available && (
+				<CollapsibleCard.Root defaultOpen>
+					<CollapsibleCard.Header>
+						<Card.Title>{ __( 'AI SEO Enhancer', 'jetpack-seo' ) }</Card.Title>
+					</CollapsibleCard.Header>
+					<CollapsibleCard.Content>
+						<ToggleControl
+							label={ __(
+								'Automatically generate SEO title, SEO description, and image alt text for new posts',
+								'jetpack-seo'
+							) }
+							checked={ enhancer.enabled }
+							onChange={ setEnhancerEnabled }
+							disabled={ isSaving }
+							__nextHasNoMarginBottom
+						/>
+					</CollapsibleCard.Content>
+				</CollapsibleCard.Root>
+			) }
 		</div>
 	);
 };

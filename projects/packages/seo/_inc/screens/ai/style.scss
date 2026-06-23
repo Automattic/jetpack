@@ -1,29 +1,12 @@
-// AI tab layout. The settings read awkwardly full-width, so they sit in a
-// two-column grid: the Enhancer + llms.txt in the left column, and the taller
-// AI-crawler list in the right. Columns top-align (so the short left cards
-// don't stretch), and the grid collapses to a single column on narrow screens.
-.jetpack-seo-ai__grid {
-	display: grid;
-	grid-template-columns: repeat(2, minmax(0, 1fr));
-	gap: var(--wpds-dimension-gap-lg, 16px);
-	align-items: start;
-}
-
-.jetpack-seo-ai__column {
+// AI tab layout. A single, centered fixed-width column matching the Settings
+// tab's treatment — 660px is the established Jetpack settings-page width (see
+// settings/style.scss). The cards stack with a consistent gap.
+.jetpack-seo-ai {
 	display: flex;
 	flex-direction: column;
 	gap: var(--wpds-dimension-gap-lg, 16px);
-	// Let cards shrink within their track instead of forcing the column wider.
-	min-inline-size: 0;
-}
-
-// Stack to a single column on narrow viewports (WordPress admin's small-screen
-// breakpoint).
-@media (max-width: 781px) {
-
-	.jetpack-seo-ai__grid {
-		grid-template-columns: minmax(0, 1fr);
-	}
+	max-inline-size: 660px;
+	margin-inline: auto;
 }
 
 // Muted intro line above the per-crawler toggles; reset the default paragraph
