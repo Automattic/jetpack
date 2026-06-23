@@ -693,6 +693,8 @@ class Jetpack {
 		add_filter( 'jetpack_get_default_modules', array( $this, 'filter_default_modules' ) );
 		add_filter( 'jetpack_get_default_modules', array( $this, 'handle_deprecated_modules' ), 99 );
 
+		add_filter( 'jetpack_get_available_modules', array( $this, 'filter_available_modules_podcast' ) );
+
 		add_action(
 			'plugins_loaded',
 			function () {
@@ -886,8 +888,26 @@ class Jetpack {
 		Scan_Page_Init::initialize();
 		Jetpack_SEO_Initializer::init();
 
-		// Initialize Boost Speed Score
-		new Speed_Score( array(), 'jetpack-dashboard' );
+		/*
+		 * Initialize Boost Speed Score. It only does work on REST requests (the
+		 * dashboard speed-score endpoints) and on a few Jetpack Boost lifecycle
+		 * actions, so defer constructing it — and loading the boost-speed-score
+		 * package classes — until one of those hooks actually fires instead of on
+		 * every request. Priority 0 ensures the object's own callbacks (added in
+		 * its constructor at the default priority) still run for the firing hook.
+		 */
+		$initialize_speed_score = static function () {
+			static $initialized = false;
+			if ( $initialized ) {
+				return;
+			}
+			$initialized = true;
+			new Speed_Score( array(), 'jetpack-dashboard' );
+		};
+		add_action( 'rest_api_init', $initialize_speed_score, 0 );
+		add_action( 'jetpack_boost_deactivate', $initialize_speed_score, 0 );
+		add_action( 'jetpack_boost_environment_changed', $initialize_speed_score, 0 );
+		add_action( 'handle_environment_change', $initialize_speed_score, 0 );
 
 		/**
 		 * Fires when Jetpack is fully loaded and ready. This is the point where it's safe
@@ -2169,6 +2189,27 @@ class Jetpack {
 			if ( $block_option ) {
 				unset( $modules[ $block_key ] );
 			}
+		}
+
+		return $modules;
+	}
+
+	/**
+	 * Hides the Podcast module unless it has been explicitly opted in for the
+	 * whole world via the `jetpack_podcast_for_the_world` filter.
+	 *
+	 * Keeps the module out of the available list (and therefore out of the
+	 * default/auto-activate list and My Jetpack) until it is ready to ship,
+	 * so there is no trace of it when the filter is false.
+	 *
+	 * @uses jetpack_get_available_modules filter
+	 * @param array $modules Array of available Jetpack modules, keyed by slug.
+	 * @return array
+	 */
+	public function filter_available_modules_podcast( $modules ) {
+		/** This filter is documented in projects/packages/podcast/src/class-podcast.php */
+		if ( ! apply_filters( 'jetpack_podcast_for_the_world', false ) ) {
+			unset( $modules['podcast'] );
 		}
 
 		return $modules;

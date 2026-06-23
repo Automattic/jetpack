@@ -19,6 +19,7 @@ require_once __DIR__ . '/eligibility.php';
 require_once __DIR__ . '/class-ai-launchpad-rest.php';
 require_once __DIR__ . '/class-ai-launchpad-listeners.php';
 require_once __DIR__ . '/class-ai-launchpad-theme-listener.php';
+require_once __DIR__ . '/class-ai-launchpad-dev-enable.php';
 
 /**
  * Registers the AI Launchpad admin page and its wp-build assets.

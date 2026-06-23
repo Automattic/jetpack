@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 3.10.1 - 2026-06-23
+### Changed
+- Update package dependencies. [#49831]
+
+## 3.10.0 - 2026-06-22
+### Added
+- Add webpack cache setup function. [#49174]
+- Externalize the `jetpack-shared-stores` package so the shared data stores resolve to a single bundle. [#49494]
+
+### Changed
+- Update package dependencies. [#49691] [#49732] [#49757]
+
 ## 3.9.4 - 2026-06-15
 ### Changed
 - Update package dependencies. [#49631]

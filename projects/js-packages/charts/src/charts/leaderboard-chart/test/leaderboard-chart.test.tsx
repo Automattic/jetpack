@@ -1,4 +1,5 @@
 import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import LeaderboardChart from '../leaderboard-chart';
 import type { LeaderboardEntry } from '../../../types';
 
@@ -365,6 +366,86 @@ describe( 'LeaderboardChart', () => {
 			const chartContainer = screen.getByTestId( 'leaderboard-chart-container' );
 
 			expect( chartContainer ).toHaveStyle( { width: '500px', height: '240px' } );
+		} );
+	} );
+
+	describe( 'Interactive items', () => {
+		it( 'renders a button for an entry with onClick', () => {
+			render( <LeaderboardChart data={ [ { ...mockData[ 0 ], onClick: jest.fn() } ] } /> );
+			expect( screen.getByRole( 'button' ) ).toBeInTheDocument();
+			expect( screen.getByRole( 'button' ).tagName ).toBe( 'BUTTON' );
+		} );
+
+		it( 'calls onClick when the row is clicked', async () => {
+			const user = userEvent.setup();
+			const onClick = jest.fn();
+			render( <LeaderboardChart data={ [ { ...mockData[ 0 ], onClick } ] } /> );
+			await user.click( screen.getByRole( 'button' ) );
+			expect( onClick ).toHaveBeenCalledTimes( 1 );
+		} );
+
+		it( 'activates onClick via the keyboard (Enter and Space)', async () => {
+			const user = userEvent.setup();
+			const onClick = jest.fn();
+			render( <LeaderboardChart data={ [ { ...mockData[ 0 ], onClick } ] } /> );
+
+			await user.tab();
+			expect( screen.getByRole( 'button' ) ).toHaveFocus();
+
+			await user.keyboard( '[Enter]' );
+			await user.keyboard( '[Space]' );
+			expect( onClick ).toHaveBeenCalledTimes( 2 );
+		} );
+
+		it( 'gives the interactive row an accessible name from the label and value', () => {
+			render( <LeaderboardChart data={ [ { ...mockData[ 0 ], onClick: jest.fn() } ] } /> );
+			// mockData[0] label is 'Direct', currentValue 12500 → '12.5K'
+			expect( screen.getByRole( 'button' ) ).toHaveAccessibleName( /Direct.*12\.5K/ );
+		} );
+
+		it( 'derives the accessible name from an image label via its alt text', () => {
+			render(
+				<LeaderboardChart
+					data={ [
+						{
+							...mockData[ 0 ],
+							label: <img src="https://example.com/flag.svg" alt="United States" />,
+							onClick: jest.fn(),
+						},
+					] }
+				/>
+			);
+			expect( screen.getByRole( 'button' ) ).toHaveAccessibleName( /United States.*12\.5K/ );
+		} );
+
+		it( 'uses ariaLabel as the accessible name when provided', () => {
+			render(
+				<LeaderboardChart
+					data={ [
+						{
+							...mockData[ 0 ],
+							label: <img src="https://example.com/flag.svg" alt="" />,
+							ariaLabel: 'United States: 12.5K visitors',
+							onClick: jest.fn(),
+						},
+					] }
+				/>
+			);
+			expect( screen.getByRole( 'button' ) ).toHaveAccessibleName(
+				'United States: 12.5K visitors'
+			);
+		} );
+
+		it( 'does not render a button for entries without onClick', () => {
+			render( <LeaderboardChart data={ [ mockData[ 0 ] ] } /> );
+			expect( screen.queryByRole( 'button' ) ).not.toBeInTheDocument();
+		} );
+
+		it( 'renders a button only for interactive entries in mixed data', () => {
+			render(
+				<LeaderboardChart data={ [ { ...mockData[ 0 ], onClick: jest.fn() }, mockData[ 1 ] ] } />
+			);
+			expect( screen.getAllByRole( 'button' ) ).toHaveLength( 1 );
 		} );
 	} );
 } );

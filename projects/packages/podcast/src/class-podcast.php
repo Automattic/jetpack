@@ -17,7 +17,7 @@ use Automattic\Jetpack\Status\Host;
  */
 class Podcast {
 
-	const PACKAGE_VERSION = '1.1.0';
+	const PACKAGE_VERSION = '1.1.1';
 
 	/**
 	 * Whether the class has been initialized.
@@ -43,7 +43,7 @@ class Podcast {
 		/**
 		 * Allow the Podcast package to load on self-hosted Jetpack sites.
 		 *
-		 * @since $$next-version$$
+		 * @since 1.1.1
 		 *
 		 * @param bool $enabled Whether to load the package on self-hosted. Default false.
 		 */

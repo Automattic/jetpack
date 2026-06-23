@@ -26,6 +26,9 @@ class Settings_Test extends BaseTestCase {
 	public function set_up() {
 		parent::set_up();
 
+		// Reset the in-process Host platform cache so per-test constants take effect.
+		\Automattic\Jetpack\Status\Cache::clear();
+
 		// Reset the static initialized flag between tests.
 		$reflection = new \ReflectionClass( Settings::class );
 		$property   = $reflection->getProperty( 'initialized' );
@@ -56,6 +59,7 @@ class Settings_Test extends BaseTestCase {
 		( new Connection_Manager() )->reset_connection_status();
 
 		unset( $_GET['page'] );
+		unset( $GLOBALS['jetpack_newsletter_test_is_automattician'] );
 		remove_all_filters( Settings::MODERNIZATION_FILTER );
 		remove_all_filters( 'site_url' );
 		remove_all_filters( 'home_url' );
@@ -166,13 +170,161 @@ class Settings_Test extends BaseTestCase {
 	/**
 	 * `is_modernized()` is the canonical gate used by `maybe_load_wp_build`,
 	 * `add_wp_admin_menu`, and `load_admin_scripts`. Its default — the value
-	 * `apply_filters` receives — must be false; the feature switch lands in a
-	 * separate PR that flips the default on.
+	 * `apply_filters` receives — is the staged-rollout cohort. With the percentage
+	 * cohort held at 0% and no Automattician in the test environment, the default
+	 * must be false.
 	 */
-	public function test_is_modernized_defaults_to_false() {
+	public function test_is_modernized_defaults_to_false_outside_rollout() {
 		$this->assertFalse(
 			self::call_private_static_is_modernized(),
-			'Modernization gate must default to false until the flag-flip PR lands.'
+			'Modernization gate must default to false when the site is not in the rollout cohort.'
+		);
+	}
+
+	/**
+	 * The rollout now spans *all* sites: removing the old wpcom-platform gate means a
+	 * self-hosted (non-wpcom) Jetpack site with a resolvable wpcom blog ID enters the
+	 * percentage cohort just like Simple/WoA, bucketed on its stored wpcom ID. At the
+	 * current 0% it is not enrolled; once the percentage is raised it would be, which
+	 * is exactly the "all sites" behavior this asserts against the live constant.
+	 */
+	public function test_self_hosted_connected_site_bucketed_on_wpcom_id() {
+		\Jetpack_Options::update_option( 'id', 200 ); // Non-wpcom site, but a connected wpcom blog ID.
+
+		try {
+			$this->assertSame(
+				( 200 % 100 ) < Settings::MODERNIZATION_ROLLOUT_PERCENTAGE,
+				Settings::is_modernization_rollout_enabled(),
+				'A self-hosted connected Jetpack site must be bucketed on its wpcom blog ID against the rollout percentage.'
+			);
+		} finally {
+			\Jetpack_Options::delete_option( 'id' );
+		}
+	}
+
+	/**
+	 * Simple sites can be upgraded to Atomic (WoA). The cohort keys on the wpcom blog
+	 * ID, which is preserved across the transfer (read from `jetpack_options['id']` on
+	 * WoA, not the current blog ID), so a site's enrollment decision is identical
+	 * before and after the upgrade — it never silently flips on transfer. Asserted
+	 * against the live percentage so it holds at 0% and after a bump alike.
+	 */
+	public function test_woa_site_bucketed_on_stable_wpcom_blog_id() {
+		$this->set_woa_constants();
+		\Jetpack_Options::update_option( 'id', 200 ); // 200 % 100 = 0.
+
+		try {
+			$this->assertSame(
+				( 200 % 100 ) < Settings::MODERNIZATION_ROLLOUT_PERCENTAGE,
+				Settings::is_modernization_rollout_enabled(),
+				'A WoA site must be bucketed on its stable wpcom blog ID against the rollout percentage.'
+			);
+		} finally {
+			$this->clear_woa_constants();
+		}
+	}
+
+	/**
+	 * On a site where the wpcom blog ID can't be resolved (e.g. a freshly transferred
+	 * WoA site before its connection settles, or a disconnected self-hosted site), the
+	 * site must not be bucketed as blog ID 0 and enrolled by accident once the
+	 * percentage is non-zero. This holds regardless of the percentage.
+	 */
+	public function test_rollout_disabled_when_wpcom_blog_id_unavailable() {
+		$this->set_woa_constants();
+		\Jetpack_Options::delete_option( 'id' );
+
+		try {
+			$this->assertFalse(
+				Settings::is_modernization_rollout_enabled(),
+				'A site with no resolvable wpcom blog ID must not be enrolled.'
+			);
+		} finally {
+			$this->clear_woa_constants();
+		}
+	}
+
+	/**
+	 * Mark the environment as a WordPress.com on Atomic (WoA) site: Atomic platform
+	 * constants plus the wpcomsh marker `Host::is_woa_site()` keys on. Clears the
+	 * Host cache so the freshly-set constants are observed.
+	 */
+	private function set_woa_constants() {
+		\Automattic\Jetpack\Constants::set_constant( 'ATOMIC_SITE_ID', 12345 );
+		\Automattic\Jetpack\Constants::set_constant( 'ATOMIC_CLIENT_ID', 70 );
+		\Automattic\Jetpack\Constants::set_constant( 'WPCOMSH__PLUGIN_FILE', '/wpcomsh/wpcomsh.php' );
+		\Automattic\Jetpack\Status\Cache::clear();
+	}
+
+	/**
+	 * Undo `set_woa_constants()` and any wpcom blog ID stored for the WoA scenario.
+	 */
+	private function clear_woa_constants() {
+		\Automattic\Jetpack\Constants::clear_single_constant( 'ATOMIC_SITE_ID' );
+		\Automattic\Jetpack\Constants::clear_single_constant( 'ATOMIC_CLIENT_ID' );
+		\Automattic\Jetpack\Constants::clear_single_constant( 'WPCOMSH__PLUGIN_FILE' );
+		\Automattic\Jetpack\Status\Cache::clear();
+		\Jetpack_Options::delete_option( 'id' );
+	}
+
+	/**
+	 * A WordPress.com Simple site is bucketed on its current blog ID (not the stored
+	 * `jetpack_options['id']`). WorDBless reports blog ID 1, so this verifies the
+	 * Simple branch feeds the right ID into the bucket math. Asserted against the live
+	 * percentage so it holds at 0% and after a bump alike.
+	 */
+	public function test_wpcom_simple_site_bucketed_on_current_blog_id() {
+		\Automattic\Jetpack\Constants::set_constant( 'IS_WPCOM', true );
+
+		try {
+			$this->assertSame(
+				( (int) get_current_blog_id() % 100 ) < Settings::MODERNIZATION_ROLLOUT_PERCENTAGE,
+				Settings::is_modernization_rollout_enabled(),
+				'A WordPress.com Simple site must be bucketed on its current blog ID against the rollout percentage.'
+			);
+		} finally {
+			\Automattic\Jetpack\Constants::clear_single_constant( 'IS_WPCOM' );
+		}
+	}
+
+	/**
+	 * Automatticians get the modernized experience by default so they can dogfood it
+	 * outside the percentage cohort. On Simple this rides the `is_automattician()`
+	 * global, which enrolls a11ns regardless of whether the site's blog ID falls in
+	 * the percentage bucket — the only path that enrolls anyone while the percentage
+	 * is held at 0%.
+	 *
+	 * The Atomic half of the carve-out — `Visitor::is_automattician_feature_flags_only()`,
+	 * driven by `AT_PROXIED_REQUEST` — is intentionally not given a dedicated test: its
+	 * *true* path is `Visitor`'s own contract (covered in the jetpack-status package), and
+	 * setting `AT_PROXIED_REQUEST` requires an irreversible `define()` that would need
+	 * `@runInSeparateProcess` (which trips a PHP 7.x WP-core bootstrap warning under
+	 * `failOnWarning`). Its *false* path — that the `Visitor` call is wired in and doesn't
+	 * fatal — is already exercised by every non-a11n cohort test below, where the `||`
+	 * does not short-circuit and so evaluates the `Visitor` branch.
+	 */
+	public function test_rollout_enabled_for_automattician() {
+		$GLOBALS['jetpack_newsletter_test_is_automattician'] = true;
+
+		$this->assertTrue(
+			Settings::is_modernization_rollout_enabled(),
+			'Automatticians must be enrolled in the modernization rollout by default.'
+		);
+	}
+
+	/**
+	 * The a11n enrollment is only the filter *default*: an Automattician who wants
+	 * the legacy view back must still be able to force it with `__return_false`,
+	 * so the check has to live in the default fed to `apply_filters`, never as a
+	 * post-filter override.
+	 */
+	public function test_automattician_default_is_still_overridable_by_filter() {
+		$GLOBALS['jetpack_newsletter_test_is_automattician'] = true;
+		add_filter( Settings::MODERNIZATION_FILTER, '__return_false' );
+
+		$this->assertFalse(
+			self::call_private_static_is_modernized(),
+			'An Automattician must be able to opt back into the legacy view with __return_false.'
 		);
 	}
 

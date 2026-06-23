@@ -1,19 +1,101 @@
-import type { CircleSubjectProps } from '@visx/annotation/lib/components/CircleSubject';
-import type { ConnectorProps } from '@visx/annotation/lib/components/Connector';
-import type { LabelProps } from '@visx/annotation/lib/components/Label';
-import type { LineSubjectProps } from '@visx/annotation/lib/components/LineSubject';
+import type {
+	CircleSubjectProps,
+	ConnectorProps,
+	LabelProps,
+	LineSubjectProps,
+} from '@visx/annotation';
 import type { AxisScale, Orientation, TickFormatter, AxisRendererProps } from '@visx/axis';
-import type { LegendShape } from '@visx/legend/lib/types';
 import type { ScaleInput, ScaleType } from '@visx/scale';
-import type { TextProps } from '@visx/text/lib/Text';
+import type { TextProps } from '@visx/text';
 import type { EventHandlerParams, GlyphProps, GridStyles, LineStyles } from '@visx/xychart';
-import type { GapSize } from '@wordpress/theme';
-import type { CSSProperties, PointerEvent, ReactNode } from 'react';
-import type { GoogleDataTableColumn, GoogleDataTableRow } from 'react-google-charts';
+import type {
+	ComponentClass,
+	CSSProperties,
+	FC,
+	MouseEvent,
+	PointerEvent,
+	ReactElement,
+	ReactNode,
+} from 'react';
 
 type ValueOf< T > = T[ keyof T ];
 
 export type Optional< T, K extends keyof T > = Pick< Partial< T >, K > & Omit< T, K >;
+
+/**
+ * Mirrors the WordPress Design System gap token scale used by the WordPress UI Stack.
+ */
+export type GapSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl';
+
+export type LegendShapeLabel< Data, Output, ExtraAttributes = object > = {
+	datum: Data;
+	index: number;
+	text: string;
+	value?: Output;
+} & ExtraAttributes;
+
+export type LegendShapeRenderProps< Data, Output > = {
+	width?: string | number;
+	height?: string | number;
+	label: LegendShapeLabel< Data, Output >;
+	item: Data;
+	itemIndex: number;
+	fill?: string;
+	size?: string | number;
+	style?: CSSProperties;
+};
+
+export type LegendShape< Data, Output > =
+	| 'rect'
+	| 'circle'
+	| 'line'
+	| FC< LegendShapeRenderProps< Data, Output > >
+	| ComponentClass< LegendShapeRenderProps< Data, Output > >;
+
+export type GoogleDataTableColumnType =
+	| 'string'
+	| 'number'
+	| 'boolean'
+	| 'date'
+	| 'datetime'
+	| 'timeofday';
+
+export enum GoogleDataTableColumnRoleType {
+	annotation = 'annotation',
+	annotationText = 'annotationText',
+	certainty = 'certainty',
+	emphasis = 'emphasis',
+	interval = 'interval',
+	scope = 'scope',
+	style = 'style',
+	tooltip = 'tooltip',
+	domain = 'domain',
+}
+
+export type GoogleDataTableColumn =
+	| {
+			type: GoogleDataTableColumnType;
+			label?: string;
+			role?: GoogleDataTableColumnRoleType;
+			pattern?: string;
+			p?: Record< string, unknown >;
+			id?: string;
+	  }
+	| string;
+
+export type GoogleDataTableCell =
+	| {
+			v?: unknown;
+			f?: string;
+			p?: Record< string, unknown >;
+	  }
+	| string
+	| number
+	| boolean
+	| Date
+	| null;
+
+export type GoogleDataTableRow = GoogleDataTableCell[];
 
 export type ChartType =
 	| 'area'
@@ -101,7 +183,7 @@ export type LeaderboardEntry = {
 	/**
 	 * Human-readable name (e.g., 'Direct') or a JSX element (e.g., <h4>Direct</h4>)
 	 */
-	label: string | JSX.Element;
+	label: string | ReactElement;
 
 	/**
 	 * Value of the entry
@@ -132,6 +214,31 @@ export type LeaderboardEntry = {
 	 * Optional color for the entry's image/icon
 	 */
 	imageColor?: string;
+
+	/**
+	 * Optional click handler. When provided, the entire row becomes an
+	 * interactive `<button>`: clickable and keyboard-focusable (Enter/Space),
+	 * with a chevron affordance revealed on hover/focus. The consumer
+	 * decides what the action does (e.g. drill-down). Rows without onClick are
+	 * inert and render unchanged.
+	 *
+	 * For links or other interactive affordances (external-link icons, info
+	 * tooltips), put them in the `label` render prop instead of using onClick —
+	 * a row is either a button (onClick) or carries interactive label content,
+	 * never both, since interactive elements cannot be nested in HTML.
+	 */
+	onClick?: ( event: MouseEvent< HTMLButtonElement > ) => void;
+
+	/**
+	 * Optional accessible name for the interactive row's `<button>`. Only applies
+	 * when `onClick` is set — without it the row renders as a Fragment with no
+	 * element to receive `aria-label`. By default the button derives its name from
+	 * its rendered content (label text plus the formatted value), which is the
+	 * right outcome for plain-text labels. Set this when the `label` is JSX whose
+	 * text content does not yield a clean name on its own — e.g. an image-only
+	 * label — to give assistive tech a deterministic, human-readable name.
+	 */
+	ariaLabel?: string;
 };
 
 export type GradientStop = {
@@ -259,7 +366,7 @@ export type ChartTheme = {
 		/** Gap between columns in the leaderboard grid */
 		columnGap?: number;
 		/** Spacing between label and progress bars */
-		labelSpacing?: number;
+		labelSpacing?: GapSize;
 		/** Primary color for current period bars */
 		primaryColor?: string;
 		/** Secondary color for comparison period bars */

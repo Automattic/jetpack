@@ -490,7 +490,7 @@ function StageInner() {
 								useHovercard={ false }
 							/>
 							{ styleUnreadValue(
-								<Stack direction="column" gap="2xs">
+								<Stack direction="column" gap="xs">
 									<Stack direction="row" align="center" gap="xs">
 										<Text ellipsizeMode="tail" limit={ 50 } truncate>
 											{ displayName }

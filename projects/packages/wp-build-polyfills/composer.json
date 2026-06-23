@@ -1,6 +1,6 @@
 {
 	"name": "automattic/jetpack-wp-build-polyfills",
-	"description": "Polyfills for WordPress Core packages not available in WP < 7.0",
+	"description": "Polyfills for WordPress Core packages not available or incomplete in older WP versions",
 	"type": "jetpack-library",
 	"license": "GPL-2.0-or-later",
 	"require": {

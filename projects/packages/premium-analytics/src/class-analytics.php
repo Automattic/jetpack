@@ -11,6 +11,7 @@ use Automattic\Jetpack\PremiumAnalytics\REST\Api_Proxy_Controller;
 use Automattic\Jetpack\PremiumAnalytics\REST\Notices_Controller;
 use Automattic\Jetpack\PremiumAnalytics\Sync\Configuration as Sync_Configuration;
 use Automattic\Jetpack\PremiumAnalytics\Sync\Sync_Status_Tracker;
+use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills;
 
 /**
  * Main Analytics class.
@@ -55,11 +56,30 @@ class Analytics {
 			self::$menu_title = $options['menu_title'];
 		}
 
+		WP_Build_Polyfills::register(
+			'jetpack-premium-analytics',
+			array_merge(
+				WP_Build_Polyfills::SCRIPT_HANDLES,
+				WP_Build_Polyfills::MODULE_IDS
+			)
+		);
+
 		// Load wp-build output (interceptor, modules, routes, page render).
 		$build_entry = __DIR__ . '/../build/build.php';
 		if ( file_exists( $build_entry ) ) {
 			require_once $build_entry;
 		}
+
+		// Hydrate the widget type registry from the build manifest at init.
+		require_once __DIR__ . '/widget-types.php';
+
+		// Expose dashboard widget modules over REST and wire them into the
+		// page import map for dynamic import() on the client.
+		require_once __DIR__ . '/widget-modules.php';
+
+		// Register the dashboard's default layout: the first-load preference
+		// injection and the REST route the "reset to default" action reads.
+		require_once __DIR__ . '/dashboard-layout.php';
 
 		Sync_Status_Tracker::configure();
 		// TEMPORARY (WOOA7S-1550): register the interim woocommerce_analytics sync module so

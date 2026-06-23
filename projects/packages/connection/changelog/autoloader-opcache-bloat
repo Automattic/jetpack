@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Reduce per-request memory footprint on connected sites by deferring package version tracking to request shutdown.
