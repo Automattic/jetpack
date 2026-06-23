@@ -14,6 +14,7 @@ use PHPUnit\Framework\TestCase;
  * The nonce handler tests.
  */
 class Connection_Notice_Test extends TestCase {
+	use \Yoast\PHPUnitPolyfills\Polyfills\AssertionRenames;
 
 	/**
 	 * Database query filter.
