@@ -67,15 +67,23 @@ class Jetpack_Gutenberg {
 	);
 
 	/**
-	 * Display-only blocks whose registration PHP can be deferred until the block
-	 * actually appears on a front-end page.
+	 * Blocks whose registration PHP can be deferred until the block actually appears
+	 * on a front-end page.
 	 *
-	 * Every block listed here has been verified to be "pure": the callback it hooks
-	 * to `init` does nothing but call Blocks::jetpack_register_block() (plus trivial
-	 * connection/module guards). It registers exactly one block type named
-	 * `jetpack/<dir>` (matching its directory), and any front-end hooks it adds (asset
-	 * enqueues, wp_footer, filters, …) live inside its render callback, so they only
-	 * run when the block is rendered.
+	 * Every block listed here registers exactly one block type named `jetpack/<dir>`
+	 * (matching its directory) from its `init` callback and adds nothing at `init` time
+	 * that affects the front end: any front-end hooks it needs (asset enqueues,
+	 * wp_footer, filters, …) live inside its render callback, so they only run when the
+	 * block is rendered. Most are fully "pure" — their `init` callback does nothing but
+	 * call Blocks::jetpack_register_block() (plus trivial connection/module guards).
+	 *
+	 * A few additionally do editor/admin-only setup at `init` and are still safe to
+	 * defer, because that setup has no front-end effect and these blocks keep loading
+	 * eagerly on every admin/REST/editor request (see self::is_block_editor_context()).
+	 * For example, instagram-gallery and mailchimp register an external-connections
+	 * settings panel via External_Connections::add_settings_for_service(), which only
+	 * adds `admin_init`/`wp_ajax_*` hooks (plus, for mailchimp, a `load-options.php`
+	 * handler and an admin script handle) — none of which run on a front-end render.
 	 *
 	 * On plain front-end requests these blocks are NOT loaded on `init`. Instead they
 	 * are registered just-in-time the first time the block (or a block whose subtree
@@ -85,8 +93,11 @@ class Jetpack_Gutenberg {
 	 * rendering are unaffected.
 	 *
 	 * A block must NOT be added here if:
-	 *   - its `init` callback registers any other hook, post meta, REST route,
-	 *     shortcode, block pattern or hooked-block;
+	 *   - its `init` callback registers anything with a front-end effect — a hook that
+	 *     fires on front-end requests, post meta, a REST route, a shortcode, a block
+	 *     pattern or a hooked-block. (Editor/admin-only registrations, e.g. an
+	 *     `admin_init`/`wp_ajax_*` settings panel, are fine: the deferral only applies to
+	 *     front-end requests, where they never run.)
 	 *   - it registers more than one block type, or a block name that differs from its
 	 *     directory name (e.g. videopress registers `jetpack/videopress-block`); or
 	 *   - it uses `plan_check` (its availability is computed from the init-time
@@ -123,7 +134,9 @@ class Jetpack_Gutenberg {
 		'google-calendar',
 		'google-docs-embed',
 		'image-compare',
+		'instagram-gallery',
 		'like',
+		'mailchimp',
 		'markdown',
 		'nextdoor',
 		'payments-intro',
