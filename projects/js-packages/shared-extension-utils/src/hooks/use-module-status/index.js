@@ -19,7 +19,6 @@ import { useMemo, useCallback } from '@wordpress/element';
 const useModuleStatus = name => {
 	const { isModuleActive, isChangingStatus, isLoadingModules } = useSelect(
 		selectData => {
-			// Replaced string ID with the actual store object
 			const data = selectData( jetpackModulesStore );
 			return {
 				isModuleActive: data.isModuleActive( name ),
