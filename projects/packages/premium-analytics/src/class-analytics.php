@@ -56,12 +56,35 @@ class Analytics {
 			self::$menu_title = $options['menu_title'];
 		}
 
-		// Only register the wp-build polyfills when actually serving a Premium
-		// Analytics dashboard page. The polyfills force-replace core script
-		// handles (notably wp-private-apis) on wp_default_scripts; doing that
-		// globally would swap core's private-apis on every admin page — including
-		// the block editor — risking site-wide breakage. Scoping it to this
-		// page's own requests keeps the blast radius to the dashboard.
+		// Always on: sync runs in cron; REST routes + registry serve REST requests
+		// (is_admin() false). REST_REQUEST isn't defined this early, so they
+		// self-gate on their own rest_api_init / init hooks.
+		Sync_Status_Tracker::configure();
+
+		// TEMPORARY (WOOA7S-1550): register the interim woocommerce_analytics sync module so
+		// Sync_Status_Tracker has a full sync to observe. Remove when the shared sync-modules package lands.
+		Sync_Configuration::register();
+		Api_Proxy_Controller::register();
+		Notices_Controller::register();
+
+		// Hydrate the widget type registry from the build manifest at init.
+		require_once __DIR__ . '/widget-types.php';
+
+		// Expose dashboard widget modules over REST and wire them into the
+		// page import map for dynamic import() on the client.
+		require_once __DIR__ . '/widget-modules.php';
+
+		// Register the dashboard's default layout: the first-load preference
+		// injection and the REST route the "reset to default" action reads.
+		require_once __DIR__ . '/dashboard-layout.php';
+
+		// Below: admin-only render path (interceptor, assets, menu).
+		if ( ! is_admin() ) {
+			return;
+		}
+
+		// Polyfills force-replace core handles (wp-private-apis) on wp_default_scripts;
+		// scope to the dashboard page so no other admin page (e.g. block editor) is hit.
 		if ( self::is_dashboard_request() ) {
 			WP_Build_Polyfills::register(
 				'jetpack-premium-analytics',
@@ -77,24 +100,6 @@ class Analytics {
 		if ( file_exists( $build_entry ) ) {
 			require_once $build_entry;
 		}
-
-		// Hydrate the widget type registry from the build manifest at init.
-		require_once __DIR__ . '/widget-types.php';
-
-		// Expose dashboard widget modules over REST and wire them into the
-		// page import map for dynamic import() on the client.
-		require_once __DIR__ . '/widget-modules.php';
-
-		// Register the dashboard's default layout: the first-load preference
-		// injection and the REST route the "reset to default" action reads.
-		require_once __DIR__ . '/dashboard-layout.php';
-
-		Sync_Status_Tracker::configure();
-		// TEMPORARY (WOOA7S-1550): register the interim woocommerce_analytics sync module so
-		// Sync_Status_Tracker has a full sync to observe. Remove when the shared sync-modules package lands.
-		Sync_Configuration::register();
-		Api_Proxy_Controller::register();
-		Notices_Controller::register();
 
 		add_action( 'admin_menu', array( static::class, 'register_admin_menu' ) );
 		add_action( 'jetpack-premium-analytics_init', array( static::class, 'register_sidebar_items' ) );
