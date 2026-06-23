@@ -162,9 +162,11 @@ class Cookie_Consent {
 	 * @return array Patterns with the geolocation cookies appended.
 	 */
 	public static function ignore_geo_cookies_in_page_cache( $cookies ) {
-		$config    = self::get_config();
-		$cookies[] = preg_quote( $config['country_code_cookie'], '/' );
-		$cookies[] = preg_quote( $config['region_cookie'], '/' );
+		$config       = self::get_config();
+		$country_code = $config['country_code_cookie'] ?? 'country_code';
+		$region       = $config['region_cookie'] ?? 'region';
+		$cookies[]    = preg_quote( $country_code, '/' );
+		$cookies[]    = preg_quote( $region, '/' );
 
 		return $cookies;
 	}
