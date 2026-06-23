@@ -144,8 +144,10 @@ export function getStatsBuckets( response: unknown, query: StatsQueryParams = {}
 	const startDate = getDatePart( query.start_date );
 	const endDate = getStatsEndDateParam( query );
 
-	if ( endDate && ! startDate && days[ endDate ] ) {
-		return [ [ endDate, coerceStatsRecord( days[ endDate ] ) ] ] as const;
+	if ( endDate && ! startDate ) {
+		return days[ endDate ]
+			? ( [ [ endDate, coerceStatsRecord( days[ endDate ] ) ] ] as const )
+			: [];
 	}
 
 	return Object.entries( days )

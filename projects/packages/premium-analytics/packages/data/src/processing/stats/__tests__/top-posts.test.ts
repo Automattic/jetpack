@@ -75,6 +75,15 @@ describe( 'Stats top posts normalizer', () => {
 		] );
 	} );
 
+	it( 'returns no by-date data when the requested date bucket is missing', () => {
+		const result = sanitizeStatsTopPostsResponse( topPostsFixture, {
+			period: 'day',
+			end_date: '2026-06-17',
+		} );
+
+		expect( result.data ).toEqual( [] );
+	} );
+
 	it( 'keeps all by-date buckets when the query has a range end date', () => {
 		const result = sanitizeStatsTopPostsResponse( topPostsFixture, {
 			period: 'day',

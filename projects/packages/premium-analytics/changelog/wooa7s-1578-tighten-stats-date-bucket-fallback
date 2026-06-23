@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Stats: Fix single-day reports to return no data when the requested date bucket is missing.
