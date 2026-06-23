@@ -49,6 +49,16 @@ import type { APIFetchMiddleware, APIFetchOptions } from '@wordpress/api-fetch';
  * package (`@jetpack-premium-analytics/data`).
  */
 const API_BASE = '/jetpack-premium-analytics/v1/proxy/v2/analytics/reports';
+const WP_SETTINGS_PATH = '/wp/v2/settings';
+
+const coreSettingsMock = {
+	timezone: 'UTC',
+	gmt_offset: 0,
+	date_format: 'F j, Y',
+	time_format: 'g:i a',
+	start_of_week: 1,
+	title: 'Storybook',
+};
 
 /**
  * Days of mock data to generate (covering past requests).
@@ -360,6 +370,10 @@ function routeReport( subPath: string, query: URLSearchParams ): unknown {
 
 const reportMocksMiddleware: APIFetchMiddleware = async ( options: APIFetchOptions, next ) => {
 	const requestPath = options.path ?? options.url ?? '';
+
+	if ( requestPath.startsWith( WP_SETTINGS_PATH ) ) {
+		return coreSettingsMock;
+	}
 
 	if ( ! requestPath.startsWith( API_BASE ) ) {
 		return next( options );
