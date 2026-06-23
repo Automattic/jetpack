@@ -3,17 +3,24 @@
  */
 import * as dataPackage from '../../index';
 
+const statsHookNames = [
+	'useStatsSite',
+	'useStatsTopPosts',
+	'useStatsReferrers',
+	'useStatsClicks',
+	'useStatsSearchTerms',
+	'useStatsFileDownloads',
+	'useStatsTopAuthors',
+	'useStatsLocations',
+	'useStatsCountryViews',
+	'useStatsVideoPlays',
+] as const satisfies ReadonlyArray< keyof typeof dataPackage >;
+
 describe( 'Stats public hook names', () => {
-	it( 'exports discoverable family-prefixed traffic hooks', () => {
-		expect( dataPackage ).toHaveProperty( 'useStatsSite' );
-		expect( dataPackage ).toHaveProperty( 'useStatsTopPosts' );
-		expect( dataPackage ).toHaveProperty( 'useStatsReferrers' );
-		expect( dataPackage ).toHaveProperty( 'useStatsClicks' );
-		expect( dataPackage ).toHaveProperty( 'useStatsSearchTerms' );
-		expect( dataPackage ).toHaveProperty( 'useStatsFileDownloads' );
-		expect( dataPackage ).toHaveProperty( 'useStatsTopAuthors' );
-		expect( dataPackage ).toHaveProperty( 'useStatsLocations' );
-		expect( dataPackage ).toHaveProperty( 'useStatsCountryViews' );
-		expect( dataPackage ).toHaveProperty( 'useStatsVideoPlays' );
-	} );
+	it.each( statsHookNames )(
+		'exports %s as a discoverable family-prefixed traffic hook',
+		hookName => {
+			expect( dataPackage[ hookName ] ).toEqual( expect.any( Function ) );
+		}
+	);
 } );
