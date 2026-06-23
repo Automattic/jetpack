@@ -1,0 +1,4 @@
+Significance: patch
+Type: removed
+
+Remove deprecated Spinner component. Use Spinner from @wordpress/components instead.
