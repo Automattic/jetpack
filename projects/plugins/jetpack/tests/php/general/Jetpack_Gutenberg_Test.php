@@ -462,4 +462,134 @@ class Jetpack_Gutenberg_Test extends WP_UnitTestCase {
 			$retrieved_strategy
 		);
 	}
+
+	/**
+	 * Invoke the private static Jetpack_Gutenberg::is_block_editor_context().
+	 *
+	 * @return bool
+	 */
+	private function invoke_is_block_editor_context() {
+		$method = new ReflectionMethod( Jetpack_Gutenberg::class, 'is_block_editor_context' );
+		$method->setAccessible( true );
+		return (bool) $method->invoke( null );
+	}
+
+	/**
+	 * Set the private static Jetpack_Gutenberg::$deferred_blocks map.
+	 *
+	 * @param array $value Value to set.
+	 */
+	private function set_deferred_blocks( $value ) {
+		$prop = new ReflectionProperty( Jetpack_Gutenberg::class, 'deferred_blocks' );
+		$prop->setAccessible( true );
+		$prop->setValue( null, $value );
+	}
+
+	/**
+	 * Read the private static Jetpack_Gutenberg::$deferred_blocks map.
+	 *
+	 * @return array
+	 */
+	private function get_deferred_blocks() {
+		$prop = new ReflectionProperty( Jetpack_Gutenberg::class, 'deferred_blocks' );
+		$prop->setAccessible( true );
+		return (array) $prop->getValue();
+	}
+
+	/**
+	 * Non-web contexts (empty REQUEST_URI: WP-CLI, test runs) load blocks eagerly.
+	 */
+	public function test_is_block_editor_context_is_true_without_request_uri() {
+		$saved = $_SERVER['REQUEST_URI'] ?? null;
+		unset( $_SERVER['REQUEST_URI'] );
+		$this->assertTrue( $this->invoke_is_block_editor_context() );
+		if ( null !== $saved ) {
+			$_SERVER['REQUEST_URI'] = $saved;
+		}
+	}
+
+	/**
+	 * A plain front-end page request is not a block-editor context.
+	 */
+	public function test_is_block_editor_context_is_false_for_frontend_request() {
+		$saved                  = $_SERVER['REQUEST_URI'] ?? null;
+		$_SERVER['REQUEST_URI'] = '/sample-page/';
+		$this->assertFalse( $this->invoke_is_block_editor_context() );
+		$_SERVER['REQUEST_URI'] = $saved;
+	}
+
+	/**
+	 * A pretty-permalink REST request is detected from the URL path.
+	 */
+	public function test_is_block_editor_context_is_true_for_rest_url() {
+		$saved                  = $_SERVER['REQUEST_URI'] ?? null;
+		$_SERVER['REQUEST_URI'] = '/' . rest_get_url_prefix() . '/wp/v2/block-types';
+		$this->assertTrue( $this->invoke_is_block_editor_context() );
+		$_SERVER['REQUEST_URI'] = $saved;
+	}
+
+	/**
+	 * A plain-permalink REST request is detected from the rest_route query var.
+	 */
+	public function test_is_block_editor_context_is_true_for_rest_route_query() {
+		$saved                  = $_SERVER['REQUEST_URI'] ?? null;
+		$_SERVER['REQUEST_URI'] = '/?rest_route=/wp/v2/block-types';
+		$this->assertTrue( $this->invoke_is_block_editor_context() );
+		$_SERVER['REQUEST_URI'] = $saved;
+	}
+
+	/**
+	 * A front-end URL that merely carries the REST prefix in a query value is NOT a
+	 * REST request.
+	 */
+	public function test_is_block_editor_context_is_false_when_prefix_only_in_query() {
+		$saved                  = $_SERVER['REQUEST_URI'] ?? null;
+		$_SERVER['REQUEST_URI'] = '/?redirect=/' . rest_get_url_prefix() . '/wp/v2/posts';
+		$this->assertFalse( $this->invoke_is_block_editor_context() );
+		$_SERVER['REQUEST_URI'] = $saved;
+	}
+
+	/**
+	 * A non-null pre-render value is left untouched and no registration is attempted.
+	 */
+	public function test_lazy_register_respects_existing_pre_render() {
+		$this->set_deferred_blocks( array( 'business-hours' => true ) );
+		$result = Jetpack_Gutenberg::lazy_register_deferred_block( 'already-rendered', array( 'blockName' => 'jetpack/business-hours' ) );
+		$this->assertSame( 'already-rendered', $result );
+		// The block was not consumed because we short-circuited before touching it.
+		$this->assertArrayHasKey( 'business-hours', $this->get_deferred_blocks() );
+	}
+
+	/**
+	 * Blocks outside the jetpack namespace are ignored.
+	 */
+	public function test_lazy_register_ignores_non_jetpack_blocks() {
+		$this->set_deferred_blocks( array( 'business-hours' => true ) );
+		$result = Jetpack_Gutenberg::lazy_register_deferred_block( null, array( 'blockName' => 'core/paragraph' ) );
+		$this->assertNull( $result );
+		$this->assertArrayHasKey( 'business-hours', $this->get_deferred_blocks() );
+	}
+
+	/**
+	 * Jetpack blocks that were not deferred are ignored.
+	 */
+	public function test_lazy_register_ignores_non_deferred_jetpack_blocks() {
+		$this->set_deferred_blocks( array( 'business-hours' => true ) );
+		$result = Jetpack_Gutenberg::lazy_register_deferred_block( null, array( 'blockName' => 'jetpack/contact-form' ) );
+		$this->assertNull( $result );
+		$this->assertArrayHasKey( 'business-hours', $this->get_deferred_blocks() );
+	}
+
+	/**
+	 * A deferred block is only attempted once, even if its file is missing, so a
+	 * repeated block on the page does not re-run the include/registration logic.
+	 */
+	public function test_lazy_register_attempts_a_deferred_block_only_once() {
+		// Use a feature name with no matching block file so registration is a no-op
+		// and the test stays hermetic (no real block gets registered).
+		$this->set_deferred_blocks( array( 'does-not-exist' => true ) );
+		$result = Jetpack_Gutenberg::lazy_register_deferred_block( null, array( 'blockName' => 'jetpack/does-not-exist' ) );
+		$this->assertNull( $result );
+		$this->assertArrayNotHasKey( 'does-not-exist', $this->get_deferred_blocks(), 'Deferred block should be removed after a single attempt.' );
+	}
 }

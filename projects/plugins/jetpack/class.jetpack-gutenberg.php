@@ -67,6 +67,73 @@ class Jetpack_Gutenberg {
 	);
 
 	/**
+	 * Display-only blocks whose registration PHP can be deferred until the block
+	 * actually appears on a front-end page.
+	 *
+	 * Every block listed here has been verified to be "pure": the callback it hooks
+	 * to `init` does nothing but call Blocks::jetpack_register_block() (plus trivial
+	 * connection/module guards). It registers exactly one block type named
+	 * `jetpack/<dir>`, and any front-end hooks it adds (asset enqueues, wp_footer,
+	 * filters, …) live inside its render callback, so they only run when the block
+	 * is rendered.
+	 *
+	 * On plain front-end requests these blocks are NOT loaded on `init`. Instead they
+	 * are registered just-in-time the first time the block is encountered while
+	 * rendering, via self::lazy_register_deferred_block() on `pre_render_block`. On
+	 * admin/REST/cron/CLI/XML-RPC (block-editor) requests they keep loading eagerly so
+	 * the editor, the block-types REST endpoint and server-side rendering are unaffected.
+	 *
+	 * A block must NOT be added here if its `init` callback registers any other hook,
+	 * post meta, REST route, shortcode, block pattern or hooked-block, or if it
+	 * registers more than one block type / a name that differs from its directory.
+	 * When in doubt, leave it out: omitted blocks simply keep their current eager
+	 * behavior.
+	 *
+	 * @since $$next-version$$
+	 * @var string[] Block feature names (directory names, without the `jetpack/` prefix).
+	 */
+	private static $lazy_blocks = array(
+		'blog-stats',
+		'blogging-prompt',
+		'business-hours',
+		'button',
+		'calendly',
+		'eventbrite',
+		'gif',
+		'goodreads',
+		'google-calendar',
+		'google-docs-embed',
+		'image-compare',
+		'like',
+		'markdown',
+		'nextdoor',
+		'opentable',
+		'payments-intro',
+		'pinterest',
+		'podcast-player',
+		'related-posts',
+		'repeat-visitor',
+		'send-a-message',
+		'sharing-buttons',
+		'slideshow',
+		'story',
+		'tiled-gallery',
+		'tock',
+		'top-posts',
+		'videopress',
+		'voice-to-content',
+	);
+
+	/**
+	 * Blocks that were deferred on the current request and still need to be
+	 * registered just-in-time when first rendered. Keyed by block feature name.
+	 *
+	 * @since $$next-version$$
+	 * @var array<string,bool>
+	 */
+	private static $deferred_blocks = array();
+
+	/**
 	 * Fallback minimum plan requirements for WordPress.com/Atomic sites.
 	 *
 	 * Used when features have conditional availability (e.g., sticker-based gating)
@@ -262,6 +329,7 @@ class Jetpack_Gutenberg {
 		self::$availability                = array();
 		self::$cached_availability         = null;
 		self::$block_js_loading_strategies = array();
+		self::$deferred_blocks             = array();
 	}
 
 	/**
@@ -846,6 +914,7 @@ class Jetpack_Gutenberg {
 	 * We will look for such modules in the extensions/ directory.
 	 *
 	 * @since 7.1.0
+	 * @since $$next-version$$ Pure display blocks are deferred on front-end requests and registered on first render.
 	 * @see wp_common_block_scripts_and_styles()
 	 */
 	public static function load_independent_blocks() {
@@ -856,7 +925,21 @@ class Jetpack_Gutenberg {
 			 */
 			$directories = array( 'blocks', 'plugins', 'extended-blocks' );
 
+			/*
+			 * On plain front-end requests, defer the registration PHP of pure display
+			 * blocks (see self::$lazy_blocks) until the block is actually encountered
+			 * while rendering. The block editor, the block-types REST endpoint and
+			 * server-side rendering all run in a "block-editor context" and keep loading
+			 * every block eagerly, so their behavior is unchanged.
+			 */
+			$defer = ! self::is_block_editor_context();
+
 			foreach ( static::get_extensions() as $extension ) {
+				if ( $defer && in_array( $extension, self::$lazy_blocks, true ) ) {
+					self::$deferred_blocks[ $extension ] = true;
+					continue;
+				}
+
 				foreach ( $directories as $dirname ) {
 					$path = JETPACK__PLUGIN_DIR . "extensions/{$dirname}/{$extension}/{$extension}.php";
 
@@ -866,7 +949,167 @@ class Jetpack_Gutenberg {
 					}
 				}
 			}
+
+			if ( ! empty( self::$deferred_blocks ) ) {
+				add_filter( 'pre_render_block', array( __CLASS__, 'lazy_register_deferred_block' ), 10, 2 );
+			}
 		}
+	}
+
+	/**
+	 * Register a deferred block the first time it is encountered while rendering.
+	 *
+	 * Hooked to `pre_render_block`, which fires for every block (including inner
+	 * blocks) before its WP_Block object is built, so a block registered here is
+	 * picked up by core's renderer for the very block that triggered it. Returns the
+	 * incoming `$pre_render` value untouched so normal rendering proceeds.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param string|null $pre_render   The pre-rendered content. Default null.
+	 * @param array       $parsed_block The parsed block being rendered.
+	 *
+	 * @return string|null Unchanged $pre_render.
+	 */
+	public static function lazy_register_deferred_block( $pre_render, $parsed_block ) {
+		// Respect any earlier short-circuit and ignore blocks without a name.
+		if ( null !== $pre_render || empty( $parsed_block['blockName'] ) ) {
+			return $pre_render;
+		}
+
+		$block_name = $parsed_block['blockName'];
+		if ( ! str_starts_with( $block_name, 'jetpack/' ) ) {
+			return $pre_render;
+		}
+
+		$feature = substr( $block_name, strlen( 'jetpack/' ) );
+		if ( empty( self::$deferred_blocks[ $feature ] ) ) {
+			return $pre_render;
+		}
+
+		// Only attempt registration once per block, whether or not it succeeds
+		// (a block guarded by a connection/module check may intentionally not register).
+		unset( self::$deferred_blocks[ $feature ] );
+
+		if ( self::is_registered( $block_name ) ) {
+			return $pre_render;
+		}
+
+		self::load_and_register_deferred_block( $feature );
+
+		return $pre_render;
+	}
+
+	/**
+	 * Include a deferred block's registration PHP and run the `init` callback it
+	 * adds, immediately.
+	 *
+	 * The block files register themselves with `add_action( 'init', … )`. By render
+	 * time `init` has long since fired, so including the file is not enough on its
+	 * own: we capture the callback(s) the include adds to `init` and invoke them now.
+	 * Only blocks in self::$lazy_blocks reach this path, and each adds exactly its
+	 * own registration callback to `init`, so this runs that single registration.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param string $feature Block feature name (directory name without the `jetpack/` prefix).
+	 *
+	 * @return void
+	 */
+	private static function load_and_register_deferred_block( $feature ) {
+		$path = JETPACK__PLUGIN_DIR . "extensions/blocks/{$feature}/{$feature}.php";
+		if ( ! file_exists( $path ) ) {
+			return;
+		}
+
+		global $wp_filter;
+
+		$before = isset( $wp_filter['init'] ) ? $wp_filter['init']->callbacks : array();
+
+		include_once $path;
+
+		if ( ! isset( $wp_filter['init'] ) ) {
+			return;
+		}
+
+		// Run (and then detach) any callback the include just added to `init`.
+		foreach ( $wp_filter['init']->callbacks as $priority => $callbacks ) {
+			foreach ( $callbacks as $id => $callback ) {
+				if ( isset( $before[ $priority ][ $id ] ) ) {
+					continue;
+				}
+				if ( is_callable( $callback['function'] ) ) {
+					call_user_func( $callback['function'] );
+				}
+				remove_action( 'init', $callback['function'], $priority );
+			}
+		}
+	}
+
+	/**
+	 * Determine whether the current request is a block-editor context that needs
+	 * every Jetpack block loaded eagerly on `init`.
+	 *
+	 * Returns true for admin, REST, cron, WP-CLI and XML-RPC requests so the editor,
+	 * the `/wp/v2/block-types` endpoint and server-side rendering keep seeing the full
+	 * set of blocks. Returns false only for plain front-end web requests, where pure
+	 * display blocks are registered just-in-time as they render.
+	 *
+	 * This runs at module-load time (around after_setup_theme), before core defines
+	 * REST_REQUEST during parse_request, so REST requests are detected from the
+	 * request URL instead of the constant.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return bool True for block-editor (non-front-end) contexts, false for plain front-end requests.
+	 */
+	private static function is_block_editor_context() {
+		if ( is_admin() ) {
+			return true;
+		}
+
+		if (
+			( defined( 'DOING_CRON' ) && DOING_CRON )
+			|| ( defined( 'WP_CLI' ) && WP_CLI )
+			|| ( defined( 'XMLRPC_REQUEST' ) && XMLRPC_REQUEST )
+		) {
+			return true;
+		}
+
+		/*
+		 * No request URI means a non-web execution context (WP-CLI without it, test
+		 * suites, etc.). A genuine front-end page request always carries one, so it
+		 * costs nothing on the hot path to treat the empty case as "load eagerly".
+		 */
+		$request_uri = isset( $_SERVER['REQUEST_URI'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : '';
+		if ( '' === $request_uri ) {
+			return true;
+		}
+
+		/*
+		 * Anchor the REST root (home path + prefix) at the start of the request path,
+		 * so a front-end URL that merely carries the prefix in a query value or a
+		 * deeper path segment is not misread as a REST request. home_url() is used
+		 * rather than rest_url() so detection does not depend on permalink structure.
+		 */
+		$path = (string) wp_parse_url( $request_uri, PHP_URL_PATH );
+		if ( '' !== $path ) {
+			$rest_root = trailingslashit( (string) wp_parse_url( home_url(), PHP_URL_PATH ) ) . trailingslashit( rest_get_url_prefix() );
+			if ( str_starts_with( trailingslashit( $path ), $rest_root ) ) {
+				return true;
+			}
+		}
+
+		// Plain-permalink REST uses a `rest_route` query var; match the exact key.
+		$query = (string) wp_parse_url( $request_uri, PHP_URL_QUERY );
+		if ( '' !== $query ) {
+			parse_str( $query, $query_vars );
+			if ( ! empty( $query_vars['rest_route'] ) ) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	/**
