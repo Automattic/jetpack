@@ -1,12 +1,10 @@
-import {
-	OrderMetricWidget,
-	WidgetRoot,
-	type ReportParamsFieldAttributes,
-} from '@jetpack-premium-analytics/widgets-toolkit';
+import { OrderMetricWidget, WidgetRoot } from '@jetpack-premium-analytics/widgets-toolkit';
+import type { ComponentProps } from 'react';
 
-type GrossSalesOverTimeRenderProps = {
-	attributes?: Partial< ReportParamsFieldAttributes >;
-};
+type GrossSalesOverTimeRenderProps = Pick<
+	ComponentProps< typeof WidgetRoot >,
+	'attributes' | 'setError'
+>;
 
 /**
  * Gross sales over time widget.
@@ -15,9 +13,12 @@ type GrossSalesOverTimeRenderProps = {
  * client, chart theme, and resolved report params; OrderMetricWidget fetches
  * the orders report and renders the gross sales metric over time.
  */
-export default function GrossSalesOverTimeRender( { attributes }: GrossSalesOverTimeRenderProps ) {
+export default function GrossSalesOverTimeRender( {
+	attributes,
+	setError,
+}: GrossSalesOverTimeRenderProps ) {
 	return (
-		<WidgetRoot attributes={ attributes } options={ { from: '/' } }>
+		<WidgetRoot attributes={ attributes } setError={ setError } options={ { from: '/' } }>
 			<OrderMetricWidget metricKey="orders_value_gross" />
 		</WidgetRoot>
 	);
