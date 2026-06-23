@@ -774,6 +774,28 @@ class Jetpack {
 	}
 
 	/**
+	 * Whether to eagerly load packages whose surfaces are only ever used on
+	 * admin, REST, cron, POST, or WP-CLI requests — never on a plain front-end
+	 * GET page view.
+	 *
+	 * Returns true for admin, cron, POST, and WP-CLI requests. It returns false
+	 * for a plain front-end GET *and* for a REST request, because the two can't
+	 * be told apart this early (REST runs at `plugins_loaded`, before
+	 * `rest_api_init`). Callers handle the REST case by initializing the package
+	 * directly on `rest_api_init`; a plain page view never fires that hook, so
+	 * the package stays unloaded there. This keeps admin/REST-only PHP out of
+	 * opcache on the front-end hot path with no change in behavior.
+	 *
+	 * @return bool
+	 */
+	private static function should_load_admin_rest_only_packages() {
+		$is_post_request = isset( $_SERVER['REQUEST_METHOD'] ) && 'POST' === strtoupper( sanitize_text_field( wp_unslash( $_SERVER['REQUEST_METHOD'] ) ) );
+		$is_wp_cli       = defined( 'WP_CLI' ) && WP_CLI;
+
+		return is_admin() || wp_doing_cron() || $is_post_request || $is_wp_cli;
+	}
+
+	/**
 	 * Before everything else starts getting initalized, we need to initialize Jetpack using the
 	 * Config object.
 	 */
@@ -810,10 +832,7 @@ class Jetpack {
 		 * when `rest_api_init` fires. A plain page view never fires
 		 * `rest_api_init`, so they stay unloaded there.
 		 */
-		$is_post_request = isset( $_SERVER['REQUEST_METHOD'] ) && 'POST' === strtoupper( sanitize_text_field( wp_unslash( $_SERVER['REQUEST_METHOD'] ) ) );
-		$is_wp_cli       = defined( 'WP_CLI' ) && WP_CLI;
-
-		if ( is_admin() || wp_doing_cron() || $is_post_request || $is_wp_cli ) {
+		if ( self::should_load_admin_rest_only_packages() ) {
 			$config->ensure( 'jitm' );
 			$config->ensure( 'import' );
 		} else {
@@ -921,7 +940,27 @@ class Jetpack {
 	 */
 	public function late_initialization() {
 		add_action( 'after_setup_theme', array( 'Jetpack', 'load_modules' ), -2 );
-		My_Jetpack_Initializer::init();
+
+		/*
+		 * My Jetpack is a wp-admin dashboard. Its Initializer::init() only wires
+		 * up admin-menu, admin_init, and rest_api_init surfaces — and eagerly
+		 * loads every product class (backup, boost, protect, …) just to register
+		 * admin plugin-action links — so none of it is needed on a plain
+		 * front-end GET page view. (The pieces that do immediate work, e.g.
+		 * Connection REST authentication and Licensing, are already initialized
+		 * unconditionally in Jetpack's constructor, so they are unaffected here.)
+		 *
+		 * Gate the call to the request types where My Jetpack actually does work.
+		 * REST can't be detected yet at plugins_loaded, so initialize on
+		 * rest_api_init for that branch; a plain page view never fires it, so My
+		 * Jetpack (and the JITM package its init loads) stays unloaded there.
+		 */
+		if ( self::should_load_admin_rest_only_packages() ) {
+			My_Jetpack_Initializer::init();
+		} else {
+			add_action( 'rest_api_init', array( My_Jetpack_Initializer::class, 'init' ), 0 );
+		}
+
 		Activity_Log_Init::initialize();
 		Scan_Page_Init::initialize();
 		Jetpack_SEO_Initializer::init();
