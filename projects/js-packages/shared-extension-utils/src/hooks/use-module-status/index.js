@@ -29,7 +29,6 @@ const useModuleStatus = name => {
 		[ name ]
 	);
 
-	// Replaced string ID with the actual store object here as well
 	const { updateJetpackModuleStatus } = useDispatch( jetpackModulesStore );
 
 	const changeStatus = useCallback(
