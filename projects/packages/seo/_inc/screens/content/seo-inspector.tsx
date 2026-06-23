@@ -123,15 +123,24 @@ const SeoInspector: FC< Props > = ( { postId, postType, onClose } ) => {
 				type: 'snackbar',
 			} );
 			// Reflect the edit on the Overview coverage card without a reload,
-			// baselining the delta against the live pre-save record's meta.
+			// baselining the delta against the live pre-save record's meta. Search
+			// visibility is the inverse of noindex, so a post counts as "visible"
+			// when noindex is off.
 			const priorHasDescription = ( recordMeta?.advanced_seo_description ?? '' ) !== '';
 			const priorHasSchema =
 				recordMeta?.jetpack_seo_schema_type === 'article' ||
 				recordMeta?.jetpack_seo_schema_type === 'faq';
+			const priorHasTitle = ( recordMeta?.jetpack_seo_html_title ?? '' ) !== '';
+			// Coerce noindex to a boolean (matching how local state is seeded above) so
+			// visibility is computed consistently.
+			const priorNoindex = !! recordMeta?.jetpack_seo_noindex;
+			const priorVisible = ! priorNoindex;
 			applyCoverageDelta( {
+				schema: Number( local.jetpack_seo_schema_type !== '' ) - Number( priorHasSchema ),
+				title: Number( local.jetpack_seo_html_title !== '' ) - Number( priorHasTitle ),
 				description:
 					Number( local.advanced_seo_description !== '' ) - Number( priorHasDescription ),
-				schema: Number( local.jetpack_seo_schema_type !== '' ) - Number( priorHasSchema ),
+				search_visible: Number( ! local.jetpack_seo_noindex ) - Number( priorVisible ),
 			} );
 			onClose();
 		} catch ( error ) {

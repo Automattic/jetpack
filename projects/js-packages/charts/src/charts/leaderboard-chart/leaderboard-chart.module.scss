@@ -31,7 +31,7 @@
 	&.is-overlay {
 		grid-template: "overlap" 1fr / 1fr;
 
-		/* contains a single cell callded 'overlap' */
+		/* contains a single cell called 'overlap' */
 
 		>* {
 			grid-area: overlap;
@@ -85,6 +85,8 @@
 }
 
 .interactiveRow {
+	--focus-ring-width: var(--wpds-border-width-focus, var(--wp-admin-border-width-focus, 2px));
+
 	display: grid;
 	grid-column: 1 / -1;
 	grid-template-columns: subgrid;
@@ -92,10 +94,13 @@
 	position: relative;
 
 	// Native button reset.
+	box-sizing: border-box;
 	appearance: none;
 	width: 100%;
 	margin: 0;
-	padding: 0;
+	// Reserve a ring's worth of space on every edge so the inset focus outline
+	// hugs the row without the bar painting over it (see :focus-visible below).
+	padding: var(--focus-ring-width);
 	border: 0;
 	background: none;
 	color: inherit;
@@ -103,14 +108,15 @@
 	text-align: inherit;
 	cursor: pointer;
 
-	// On hover/focus the bar dims and its inline-end edge pulls back by a fixed
-	// amount while the value/delta slides toward the inline start by the same
-	// amount, clearing room for the chevron revealed at the inline-end edge.
-	// Because both move by the same fixed pixels (not a percentage scale), the
-	// bar↔value gap stays identical at rest and on hover for every row. The bar
-	// width (set in leaderboard-chart.tsx) is a grid item aligned to the inline
-	// start, so its inset mirrors automatically in RTL; the value slide is given
-	// an RTL override below. No row background — the bar carries the state.
+	// On hover/focus the bar dims and its inline-end edge pulls back while the
+	// value/delta slides toward the inline start to clear room for the chevron
+	// revealed at the inline-end edge. The value always slides the full inset
+	// (it must clear the chevron), but the bar pulls back in proportion to its
+	// length (see getBarWidth in leaderboard-chart.tsx): the full-length bar —
+	// the one that reaches the value — pulls back the whole inset to keep its
+	// gap, while shorter bars move proportionally less, down to ~0. The bar is
+	// a grid item aligned to the inline start, so its inset mirrors in RTL; the
+	// value slide is given an RTL override below. No row background.
 	.bar {
 		transition: opacity 0.15s ease, width 0.15s ease;
 	}
@@ -122,8 +128,8 @@
 	&:hover,
 	&:focus-visible {
 
-		// Fixed reserve for the chevron — shared by the bar width inset
-		// (see leaderboard-chart.tsx) and the value slide so their gap is constant.
+		// Fixed reserve for the chevron — the value slides by it in full, and the
+		// bar width inset (see leaderboard-chart.tsx) scales it by the bar's share.
 		--a8c--charts--leaderboard--bar--hover-inset: var(--wpds-dimension-gap-2xl, 32px);
 
 		.bar {
@@ -146,8 +152,15 @@
 	}
 
 	&:focus-visible {
-		outline: 2px solid var(--wpds-color-fg-interactive-brand, var(--wp-admin-theme-color, #3858e9));
-		outline-offset: -2px;
+		border-radius: var(--wpds-border-radius-sm, 2px);
+		outline:
+			var(--focus-ring-width) solid
+			var(--wpds-color-stroke-focus-brand, var(--wp-admin-theme-color, #3858e9));
+		// Inset by its own width so the outer edge hugs the row boundary: the
+		// outline then sits in the row's padding (also a ring width), clear of the
+		// bar, and stays inside the overflow:auto container that would clip an
+		// outset ring.
+		outline-offset: calc(-1 * var(--focus-ring-width));
 	}
 }
 
