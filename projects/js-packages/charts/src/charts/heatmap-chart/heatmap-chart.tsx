@@ -229,7 +229,8 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 	}
 
 	const defaultMargin = {
-		top: compact ? 14 : 20,
+		// Top band must fit the 12px column label (rendered at y=-6) — same in compact.
+		top: 20,
 		right: 0,
 		bottom: 0,
 		left: 36,
