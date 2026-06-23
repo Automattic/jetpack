@@ -19,12 +19,12 @@ version-upgrade prompt, and analytics event tracking.
 All data is fetched through the Premium Analytics data proxy — the connected blog id
 is injected server-side, so the client never needs to know it:
 
-- **Country view**: `GET /jetpack-premium-analytics/v1/proxy/v1.1/stats/country-views`
+- **Country view**: `GET /jetpack-premium-analytics/v1/proxy/v1.1/stats/location-views/country`
 - **Region drill-down**: `GET /jetpack-premium-analytics/v1/proxy/v1.1/stats/location-views/region?filter_by_country={code}`
 - **City view**: `GET /jetpack-premium-analytics/v1/proxy/v1.1/stats/location-views/city`
 
 Date range comes from `WidgetRoot`'s `reportParams` (the dashboard's shared date picker),
-converted to a trailing-day window by `report-params-adapter.ts`.
+resolved from URL search params and normalized by the data layer.
 
 When the site is not connected or a request fails, the widget falls back to bundled
 **sample data** so it remains demoable without a live connection.
@@ -41,5 +41,4 @@ When the site is not connected or a request fails, the widget falls back to bund
 - `widget.json` / `widget.ts` — widget metadata + type definition.
 - `render.tsx` — the map + ranked list UI (mode switcher, breadcrumb, drill-down).
 - `use-location-views.ts` — data hook (country/region/city), normalizer, sample-data fallback.
-- `report-params-adapter.ts` — converts `ReportParams` (preset/from/to) to Stats API `num` days.
 - `style.module.css` — scoped styles (responsive container query, flex/grid layout).

@@ -19,7 +19,7 @@
 	min-height: 32px;
 	font-size: 13px;
 	font-weight: 499;
-	color: var(--text);
+	color: inherit;
 }
 
 .breadcrumb * {
