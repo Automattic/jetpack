@@ -37,13 +37,14 @@ export function reportParamsToStatsDays( params: ReportParams ): number {
 
 	if ( params.from && params.to ) {
 		// Parse date strings as UTC midnight to avoid timezone/DST off-by-one errors.
-		const fromMs = Date.UTC(
-			...( params.from.slice( 0, 10 ).split( '-' ).map( Number ) as [ number, number, number ] )
-		);
-		const toMs = Date.UTC(
-			...( params.to.slice( 0, 10 ).split( '-' ).map( Number ) as [ number, number, number ] )
-		);
-		const days = Math.round( ( toMs - fromMs ) / ( 1000 * 60 * 60 * 24 ) ) + 1;
+		// Date.UTC expects a 0-based month (0=Jan), so subtract 1 from the parsed MM.
+		const parseUtc = ( iso: string ) => {
+			const [ y, m, d ] = iso.slice( 0, 10 ).split( '-' ).map( Number );
+			return Date.UTC( y, m - 1, d );
+		};
+		const days =
+			Math.round( ( parseUtc( params.to ) - parseUtc( params.from ) ) / ( 1000 * 60 * 60 * 24 ) ) +
+			1;
 		if ( days > 0 ) {
 			return days;
 		}

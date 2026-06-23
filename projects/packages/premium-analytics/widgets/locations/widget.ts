@@ -6,9 +6,9 @@ import { mapMarker } from '@wordpress/icons';
 /**
  * Widget type definition.
  *
- * Ported from the Jetpack Stats "Locations" module. v1 is country-level only;
- * the region/city tabs and the country filter from the source module are a
- * follow-up (they require the `location-views/{geoMode}` endpoint — see README).
+ * Ported from the Jetpack Stats "Locations" module. v1 ships Countries mode
+ * (with region drill-down) and Cities mode via the `location-views/{geoMode}`
+ * endpoint — see README for details and known limitations.
  */
 export default {
 	name: 'jpa/locations',
