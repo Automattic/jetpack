@@ -117,15 +117,17 @@ const TitleStructureRow: FC< RowProps > = ( {
 					) ) }
 				</Stack>
 			</div>
-			{ tokens.length > 0 && (
-				<div className="jetpack-seo-settings__preview">
-					<strong>{ previewLabel }:</strong> { preview }
+			<div className="jetpack-seo-settings__title-footer">
+				{ tokens.length > 0 && (
+					<div className="jetpack-seo-settings__preview">
+						<strong>{ previewLabel }:</strong> { preview }
+					</div>
+				) }
+				<div className="jetpack-seo-settings__save">
+					<Button variant="primary" onClick={ onSave } disabled={ disabled || ! canSave }>
+						{ saveLabel }
+					</Button>
 				</div>
-			) }
-			<div className="jetpack-seo-settings__save">
-				<Button variant="primary" onClick={ onSave } disabled={ disabled || ! canSave }>
-					{ saveLabel }
-				</Button>
 			</div>
 		</div>
 	);
