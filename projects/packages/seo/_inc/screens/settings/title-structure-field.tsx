@@ -38,12 +38,12 @@ interface RowProps {
 }
 
 /**
- * One page type's title-structure editor, grouped as a single bordered unit so
- * it's clear which label, field, buttons and preview belong together: the
- * labelled text input (holding the format as an editable string — bracketed
- * placeholders like `[Site name]` with literal text, including separators like
- * ` | `, typed between), then a labelled row of buttons that insert a
- * placeholder at the caret, a live preview, and this row's own Save button.
+ * One page type's title-structure editor as a single row (rows are separated by
+ * a hairline divider, not boxed): the labelled text input (holding the format as
+ * an editable string — bracketed placeholders like `[Site name]` with literal
+ * text, including separators like ` | `, typed between), then a labelled row of
+ * buttons that insert a placeholder at the caret, and a footer pairing the live
+ * preview with this row's own Save button.
  *
  * This mirrors the legacy Jetpack SEO title editor (a text field + insert-token
  * buttons) rather than a token/chip field, so separators and repeated separators
@@ -145,8 +145,9 @@ interface Props {
 
 /**
  * Title structure editor covering every page type (front page, posts, pages,
- * tags, archives), one bordered row per type. The back-end stores a format per
- * page type under `advanced_seo_title_formats`; each type accepts its own token
+ * tags, archives), one row per type (separated by a divider). The back-end
+ * stores a format per page type under `advanced_seo_title_formats`; each type
+ * accepts its own token
  * subset (see `PAGE_TYPE_TOKENS`). Each row edits local state while typing and
  * saves on its own button — the list is long enough to scroll, so a single
  * section Save would be out of reach from the lower rows.
