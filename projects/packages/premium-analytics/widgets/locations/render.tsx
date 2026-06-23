@@ -6,6 +6,7 @@ import {
 	LeaderboardChart,
 	LeaderboardLabel,
 	WidgetRoot,
+	flagUrl,
 	useWidgetRootContext,
 	type LeaderboardChartData,
 } from '@jetpack-premium-analytics/widgets-toolkit';
@@ -31,19 +32,6 @@ interface LocationsAttributes {
 type LocationsRenderProps = {
 	attributes?: LocationsAttributes;
 };
-
-/**
- * Flag SVG URL from the flag-icons CDN.
- *
- * @param countryCode - Two-letter ISO 3166-1 country code.
- * @return The flag SVG URL, or null for invalid codes.
- */
-function flagUrl( countryCode: string ): string | null {
-	if ( ! countryCode || countryCode.length !== 2 ) {
-		return null;
-	}
-	return `https://cdn.jsdelivr.net/npm/flag-icons@7.5.0/flags/4x3/${ countryCode.toLowerCase() }.svg`;
-}
 
 /**
  * Locations widget inner component. Reads report params from WidgetRoot context.
@@ -105,9 +93,9 @@ function LocationsInner( { attributes }: LocationsRenderProps ) {
 						label={ location.label }
 						imageUrl={ imageUrl ?? undefined }
 						imageAlt={ sprintf(
-							/* translators: %s is the country or region name */
+							/* translators: %s is the country name */
 							__( 'Flag of %s', 'jetpack-premium-analytics' ),
-							location.label
+							location.countryFull
 						) }
 						imageClassName={ styles.leaderboardImage }
 					/>

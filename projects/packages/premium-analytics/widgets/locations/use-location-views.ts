@@ -127,7 +127,7 @@ export default function useLocationViews( {
 		.filter( ( v ): v is LocationView => v !== null )
 		.slice( 0, max || undefined );
 
-	if ( ! isLoading && ! isError && items.length === 0 ) {
+	if ( ! isLoading && ( isError || items.length === 0 ) ) {
 		return {
 			data: max ? SAMPLE_LOCATIONS.slice( 0, max ) : SAMPLE_LOCATIONS,
 			isLoading: false,
