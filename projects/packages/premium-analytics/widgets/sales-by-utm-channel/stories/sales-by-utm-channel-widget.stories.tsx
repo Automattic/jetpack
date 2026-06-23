@@ -1,11 +1,11 @@
 import { getDefaultQueryParams } from '@jetpack-premium-analytics/data';
+import { registerReportMocks } from '../../../packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
 import {
 	DEFAULT_WIDGET_DASHBOARD_STORY_ARGS,
 	WidgetDashboardWithWidget as WidgetDashboardWithWidgetStory,
 	widgetDashboardWithWidgetArgTypes,
 	type WidgetDashboardWithWidgetControls,
 } from '../../stories/widget-dashboard-with-widget';
-import { registerReportMocks } from '../../../packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
 import SalesByUtmChannelRender from '../render';
 import widgetDefinition from '../widget';
 import type { Meta, StoryObj } from '@storybook/react';
@@ -20,6 +20,13 @@ interface SalesByUtmChannelDashboardStoryProps extends WidgetDashboardWithWidget
 	withComparison: boolean;
 }
 
+/**
+ * Renders the Sales by UTM channel widget inside the dashboard story frame.
+ *
+ * @param root0                - Story args.
+ * @param root0.withComparison - Whether to use comparison report params.
+ * @return The rendered dashboard story.
+ */
 function SalesByUtmChannelDashboardStory( {
 	withComparison,
 	...dashboardStoryArgs
