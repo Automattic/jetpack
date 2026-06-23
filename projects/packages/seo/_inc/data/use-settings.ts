@@ -15,12 +15,16 @@ const SAVE_NOTICE_ID = 'jetpack-seo-settings-save';
 export interface SettingsForm {
 	local: SettingsResponse | null;
 	isSaving: boolean;
-	/** Update local state only — for controlled typing; pair with `commit()` on blur. */
+	/** Update local state only — for controlled typing; persisted by a per-section save. */
 	setField: ( patch: Partial< SettingsResponse > ) => void;
-	/** Update a verification code locally — pair with `commit()` on blur. */
+	/** Update a verification code locally — persisted via `commitFields(['verification'])` on blur. */
 	setVerification: ( key: VerificationKey, value: string ) => void;
-	/** Apply an optional patch and immediately save the changed fields. */
-	commit: ( patch?: Partial< SettingsResponse > ) => void;
+	/**
+	 * Save a toggle change immediately. Persists only the patched field(s) — not
+	 * the rest of local — so unsaved edits in the text-heavy sections stay local
+	 * until their own Save (per-section isolation).
+	 */
+	commit: ( patch: Partial< SettingsResponse > ) => void;
 	/**
 	 * Save only the named fields — a per-section Save for text-heavy sections
 	 * (e.g. the front-page description) that edit local state while typing and
@@ -138,17 +142,20 @@ export function useSettingsForm(): SettingsForm {
 	);
 
 	const commit = useCallback(
-		( patch?: Partial< SettingsResponse > ) => {
+		( patch: Partial< SettingsResponse > ) => {
 			const current = localRef.current;
-			if ( ! current ) {
+			const baseline = baselineRef.current;
+			if ( ! current || ! baseline ) {
 				return;
 			}
-			const next = patch ? { ...current, ...patch } : current;
-			if ( patch ) {
-				localRef.current = next;
-				setLocal( next );
-			}
-			saveValues( next );
+			// Update local for immediate UI feedback...
+			const next = { ...current, ...patch };
+			localRef.current = next;
+			setLocal( next );
+			// ...but persist only the patched field(s): start from the last-saved
+			// baseline and apply just this patch, so unsaved edits in the text-heavy
+			// sections aren't dragged in by a toggle save (per-section isolation).
+			saveValues( { ...baseline, ...patch } );
 		},
 		[ saveValues ]
 	);

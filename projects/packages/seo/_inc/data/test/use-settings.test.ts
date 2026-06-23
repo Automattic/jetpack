@@ -78,9 +78,30 @@ describe( 'useSettingsForm', () => {
 		// The title-structure edit was NOT part of this section's save.
 		expect( call.data ).not.toHaveProperty( 'advanced_seo_title_formats' );
 
-		// The title-structure edit is still pending; the saved section is clean.
-		await waitFor( () => expect( result.current.isTitleFormatDirty( 'posts' ) ).toBe( true ) );
-		expect( result.current.isDirty( [ 'front_page_description' ] ) ).toBe( false );
+		// Once the save settles the front-page section is clean (baseline updates
+		// asynchronously), and the untouched title-structure edit stayed pending.
+		await waitFor( () =>
+			expect( result.current.isDirty( [ 'front_page_description' ] ) ).toBe( false )
+		);
+		expect( result.current.isTitleFormatDirty( 'posts' ) ).toBe( true );
+	} );
+
+	it( 'commit (toggle save) persists only the toggled field, not pending text edits', async () => {
+		const { result } = renderHook( () => useSettingsForm() );
+
+		// Unsaved edit in a text-heavy section...
+		act( () => result.current.setField( { front_page_description: 'New description.' } ) );
+
+		// ...then flip a toggle, which saves immediately.
+		act( () => result.current.commit( { canonical_active: true } ) );
+
+		await waitFor( () => expect( mockApiFetch ).toHaveBeenCalledTimes( 1 ) );
+		const call = mockApiFetch.mock.calls[ 0 ][ 0 ] as { data: Record< string, unknown > };
+		expect( call.data ).toHaveProperty( 'canonical-urls', true );
+		// The unsaved front-page edit must NOT be dragged into the toggle's save.
+		expect( call.data ).not.toHaveProperty( 'advanced_seo_front_page_description' );
+		// It stays pending until its own Save.
+		expect( result.current.isDirty( [ 'front_page_description' ] ) ).toBe( true );
 	} );
 
 	it( 'commitTitleFormat saves only that page type, leaving other rows pending', async () => {

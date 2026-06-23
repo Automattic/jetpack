@@ -173,7 +173,7 @@ const SettingsScreen: FC< Props > = ( { form } ) => {
 				<VerificationCard
 					value={ local.verification }
 					onChange={ setVerification }
-					onCommit={ () => commit() }
+					onCommit={ () => commitFields( [ 'verification' ] ) }
 					disabled={ isSaving }
 					open={ verificationOpen }
 					onOpenChange={ setVerificationOpen }
