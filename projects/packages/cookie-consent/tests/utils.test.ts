@@ -86,4 +86,24 @@ describe( 'getCookie', () => {
 
 		expect( getCookie( 'missing' ) ).toBeNull();
 	} );
+
+	it( 'does not match a name that is only a substring of another cookie', () => {
+		stubCookies( 'wp_consent_functional=allow' );
+
+		expect( getCookie( 'consent' ) ).toBeNull();
+	} );
+
+	it( 'preserves "=" characters inside the value', () => {
+		stubCookies( 'token=a=b=c; x=1' );
+
+		expect( getCookie( 'token' ) ).toBe( 'a=b=c' );
+	} );
+
+	it( 'treats an explicitly empty cookie value as null', () => {
+		// Current behavior: the `|| null` fallback collapses an empty string to null, so an
+		// explicitly-empty cookie is indistinguishable from an absent one.
+		stubCookies( 'wp_consent_functional=; x=1' );
+
+		expect( getCookie( 'wp_consent_functional' ) ).toBeNull();
+	} );
 } );
