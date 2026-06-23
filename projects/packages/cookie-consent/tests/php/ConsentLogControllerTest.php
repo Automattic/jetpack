@@ -276,6 +276,48 @@ final class ConsentLogControllerTest extends PHPUnit\Framework\TestCase {
 	}
 
 	/**
+	 * A failed insert returns a 500 and does NOT advance the rate-limit counter.
+	 *
+	 * The counter tracks stored rows, so a server-side DB failure must not consume a
+	 * legitimate client's budget.
+	 */
+	public function test_create_consent_log_skips_record_on_failed_insert() {
+		global $wpdb;
+		$wpdb = new class() {
+			/**
+			 * Table prefix.
+			 *
+			 * @var string
+			 */
+			public $prefix = 'wp_';
+
+			/**
+			 * Pretend insert that always fails.
+			 *
+			 * @return false
+			 */
+			public function insert() {
+				return false;
+			}
+		};
+
+		Functions\when( 'wp_date' )->justReturn( '2026-01-01 00:00:00' );
+		Functions\when( 'get_current_user_id' )->justReturn( 0 );
+		Functions\when( 'get_transient' )->justReturn( 5 );
+		// A failed write must not touch the counter.
+		Functions\expect( 'set_transient' )->never();
+
+		$request = new WP_REST_Request();
+		$request->set_param( 'consent_id', 'fixed-id' );
+
+		$result = $this->controller->create_consent_log( $request );
+
+		$this->assertInstanceOf( WP_Error::class, $result );
+		$this->assertSame( 'database_error', $result->get_error_code() );
+		$this->assertSame( 500, $result->get_error_data()['status'] );
+	}
+
+	/**
 	 * A missing IP collapses to a single shared "unknown" bucket so it can't be flooded.
 	 */
 	public function test_missing_ip_uses_shared_unknown_bucket() {

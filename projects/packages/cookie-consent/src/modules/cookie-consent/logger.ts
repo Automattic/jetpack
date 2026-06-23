@@ -60,7 +60,7 @@ async function logConsentEvent(
 	const nonceUrl = window.jetpackCookieConsentConfig?.nonceUrl;
 	if ( ! apiUrl || ! nonceUrl ) {
 		// eslint-disable-next-line no-console
-		console.error( 'Consent logger: API URL not configured' );
+		console.error( 'Consent logger: API or nonce URL not configured' );
 		return;
 	}
 

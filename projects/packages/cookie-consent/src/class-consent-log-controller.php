@@ -550,10 +550,8 @@ class Consent_Log_Controller extends WP_REST_Controller {
 		$current_time_gmt   = gmdate( 'Y-m-d H:i:s' );
 		$current_time_local = wp_date( 'Y-m-d H:i:s' );
 
-		// Advance the per-IP rate-limit counter here (not in the permission check,
-		// which can run more than once per request) so each accepted write counts once.
+		// Resolve the client IP once, for both storage and the rate-limit counter.
 		$ip = $this->get_client_ip();
-		$this->record_request( $ip );
 
 		// Get consent types and encode as JSON.
 		$consent_types = $request->get_param( 'consent_types' );
@@ -583,6 +581,11 @@ class Consent_Log_Controller extends WP_REST_Controller {
 				array( 'status' => 500 )
 			);
 		}
+
+		// Advance the per-IP rate-limit counter only for an accepted write (here, not in
+		// the permission check, which can run more than once per request) so each stored
+		// row counts once — a failed insert doesn't consume a client's budget.
+		$this->record_request( $ip );
 
 		return rest_ensure_response( array( 'consent_id' => $consent_id ) );
 	}

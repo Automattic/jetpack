@@ -1,4 +1,4 @@
 Significance: minor
 Type: security
 
-Cookie Consent: harden the public consent-log write endpoint with a REST nonce, per-IP rate limiting, URL/consent-type validation, and spoof-resistant IP detection.
+Secure the public consent-log write endpoint with a REST nonce, per-IP rate limiting, URL/consent-type validation, and spoof-resistant IP detection.
