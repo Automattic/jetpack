@@ -16,7 +16,7 @@ export const HeatmapLegend: FC< HeatmapLegendProps > = ( { steps = 5, lessLabel,
 	if ( ! context ) {
 		return null;
 	}
-	const { extent, emptyColorHex, colorFor } = context;
+	const { extent, colorFor } = context;
 	const [ min, max ] = extent;
 
 	return (
@@ -33,7 +33,7 @@ export const HeatmapLegend: FC< HeatmapLegendProps > = ( { steps = 5, lessLabel,
 								width: 'var(--wpds-dimension-size-3xs, 12px)',
 								height: 'var(--wpds-dimension-size-3xs, 12px)',
 								borderRadius: 'var(--wpds-border-radius-sm, 2px)',
-								backgroundColor: index === 0 ? emptyColorHex : colorFor( value ),
+								backgroundColor: colorFor( value ),
 							} }
 						/>
 					);

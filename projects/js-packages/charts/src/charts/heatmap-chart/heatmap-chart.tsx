@@ -4,7 +4,7 @@ import { Text } from '@visx/text';
 import { useTooltip, useTooltipInPortal } from '@visx/tooltip';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
-import { createContext, useCallback, useContext, useMemo, useRef, useState } from 'react';
+import { createContext, useCallback, useContext, useMemo, useState } from 'react';
 import {
 	GlobalChartsProvider,
 	useChartId,
@@ -72,7 +72,6 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 	const { getElementStyles } = useGlobalChartsContext();
 	const { nonLegendChildren } = useChartChildren( children, 'HeatmapChart' );
 
-	const chartRef = useRef< HTMLDivElement >( null );
 	const [ selectedIndex, setSelectedIndex ] = useState< number | undefined >();
 	const { tooltipOpen, tooltipLeft, tooltipTop, tooltipData, showTooltip, hideTooltip } =
 		useTooltip< HeatmapTooltipData >();
@@ -133,9 +132,13 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 
 			event.preventDefault();
 
-			const currentIndex = selectedIndex ?? 0;
-			let col = Math.floor( currentIndex / rows );
-			let row = currentIndex % rows;
+			if ( selectedIndex === undefined ) {
+				setSelectedIndex( 0 );
+				return;
+			}
+
+			let col = Math.floor( selectedIndex / rows );
+			let row = selectedIndex % rows;
 
 			if ( event.key === 'ArrowRight' ) {
 				col = Math.min( col + 1, columns - 1 );
@@ -269,7 +272,6 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 
 						return (
 							<div
-								ref={ chartRef }
 								role="grid"
 								aria-label={ __( 'Heatmap chart', 'jetpack-charts' ) }
 								aria-rowcount={ rows }
@@ -342,6 +344,9 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 														<g role="row" key={ `row-${ r }` } aria-rowindex={ r + 1 }>
 															{ Array.from( { length: numCols } ).map( ( _w, c ) => {
 																const cell = heatmap[ c ][ r ];
+																if ( ! cell ) {
+																	return null;
+																}
 																const value = ( cell.bin as HeatmapCell ).value;
 																const present = isPresent( value );
 																const cellFlatIndex = cell.column * rows + cell.row;

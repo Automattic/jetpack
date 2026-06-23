@@ -91,15 +91,22 @@ describe( 'HeatmapChart', () => {
 		const grid = screen.getByRole( 'grid', { name: /heatmap/i } );
 		const user = userEvent.setup();
 
-		// Focus the grid then arrow down (moves row 0→1 in col 0, index 0→1)
+		// First ArrowDown lands on cell (0,0)
 		grid.focus();
+		await user.keyboard( '{ArrowDown}' );
+		expect( grid ).toHaveAttribute(
+			'aria-activedescendant',
+			expect.stringMatching( /-cell-0-0$/ )
+		);
+
+		// Second ArrowDown moves row 0→1 in col 0
 		await user.keyboard( '{ArrowDown}' );
 		expect( grid ).toHaveAttribute(
 			'aria-activedescendant',
 			expect.stringMatching( /-cell-0-1$/ )
 		);
 
-		// ArrowRight moves to next column, same row (col 0→1, row 1, index = 1*3+1 = 4)
+		// ArrowRight moves to next column, same row (col 0→1, row 1)
 		await user.keyboard( '{ArrowRight}' );
 		expect( grid ).toHaveAttribute(
 			'aria-activedescendant',
@@ -113,8 +120,9 @@ describe( 'HeatmapChart', () => {
 		const user = userEvent.setup();
 
 		// Navigate to col 1, row 2 (bottom-right of a 2-col × 3-row grid)
+		// First ArrowDown lands on (0,0); subsequent presses move from there.
 		grid.focus();
-		await user.keyboard( '{ArrowDown}{ArrowDown}{ArrowRight}' );
+		await user.keyboard( '{ArrowDown}{ArrowDown}{ArrowDown}{ArrowRight}' );
 		expect( grid ).toHaveAttribute(
 			'aria-activedescendant',
 			expect.stringMatching( /-cell-1-2$/ )
