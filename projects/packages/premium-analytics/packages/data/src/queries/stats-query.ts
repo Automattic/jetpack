@@ -1,10 +1,3 @@
-/**
- * External dependencies
- */
-
-/**
- * Internal dependencies
- */
 import { fetchStatsProxy, type StatsProxyMethod, type StatsProxyVersion } from '../api';
 import {
 	sanitizeStatsClicksResponse,
@@ -17,12 +10,10 @@ import {
 	sanitizeStatsTopAuthorsResponse,
 	sanitizeStatsTopPostsResponse,
 	sanitizeStatsVideoPlaysResponse,
-	type StatsNormalizedReport,
 } from '../processing/stats';
 import {
 	reportParamsToStatsQueryParams,
 	statsQueryParamsToApiParams,
-	statsQueryKeyPart,
 	type StatsQueryParams,
 } from '../utils/stats-params';
 import type { ReportParams } from '../utils/search';
@@ -45,6 +36,7 @@ const statsSanitizers = {
 } satisfies Record< string, StatsSanitizer >;
 
 export type StatsSanitizerKey = keyof typeof statsSanitizers;
+type StatsSanitizerData = ReturnType< ( typeof statsSanitizers )[ StatsSanitizerKey ] >;
 
 export type StatsQueryConfig = {
 	name: string;
@@ -57,29 +49,13 @@ export type StatsQueryConfig = {
 	enabled?: boolean;
 };
 
-export function statsProxyQuery< TData = unknown >( {
-	name,
-	version,
-	endpoint,
-	params,
-	method = 'GET',
-	body,
-	sanitizer = 'passthrough',
-	enabled = true,
-}: StatsQueryConfig ): UseQueryOptions< TData > {
+export function statsProxyQuery( config: StatsQueryConfig ): UseQueryOptions< StatsSanitizerData > {
+	const { name, version, endpoint, params, method = 'GET', body, enabled = true } = config;
+	const sanitizer = config.sanitizer ?? 'passthrough';
 	const apiParams = statsQueryParamsToApiParams( params );
 
 	return {
-		queryKey: [
-			'stats',
-			name,
-			version,
-			endpoint,
-			method,
-			statsQueryKeyPart( apiParams ),
-			statsQueryKeyPart( body ),
-			sanitizer,
-		],
+		queryKey: [ 'stats', name, version, endpoint, method, apiParams, body, sanitizer ],
 		queryFn: async () => {
 			const response = await fetchStatsProxy( {
 				version,
@@ -88,28 +64,36 @@ export function statsProxyQuery< TData = unknown >( {
 				method,
 				body,
 			} );
-			return statsSanitizers[ sanitizer ]( response, apiParams ) as TData;
+			return statsSanitizers[ sanitizer ]( response, apiParams );
 		},
 		enabled,
 		placeholderData: previousData => previousData,
 	};
 }
 
-export function statsReportQuery< TData = StatsNormalizedReport >(
+export function statsReportQuery(
 	name: string,
 	endpoint: string,
 	params: StatsReportParams,
 	sanitizer: StatsSanitizerKey,
 	version: StatsProxyVersion = '1.1'
-): UseQueryOptions< TData > {
+): UseQueryOptions< StatsSanitizerData > {
 	const statsParams = reportParamsToStatsQueryParams( params );
+	const reportParams = {
+		...statsParams,
+		...( statsParams.summarize === undefined &&
+		typeof statsParams.days === 'number' &&
+		statsParams.days > 1
+			? { summarize: 1 }
+			: {} ),
+	};
 
 	return statsProxyQuery( {
 		name,
 		version,
 		endpoint,
-		params: statsParams,
+		params: reportParams,
 		sanitizer,
-		enabled: !! ( statsParams.end_date || statsParams.date || statsParams.start_date ),
+		enabled: !! ( reportParams.end_date || reportParams.date || reportParams.start_date ),
 	} );
 }

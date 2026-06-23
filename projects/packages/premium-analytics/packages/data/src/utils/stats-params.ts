@@ -93,28 +93,3 @@ export function statsQueryParamsToApiParams( params: StatsQueryParams = {} ): St
 		...( endDate ? { date: endDate } : {} ),
 	};
 }
-
-function normalizeQueryKeyValue( value: unknown ): unknown {
-	if ( Array.isArray( value ) ) {
-		return value.map( normalizeQueryKeyValue );
-	}
-
-	if ( value && typeof value === 'object' ) {
-		return Object.fromEntries(
-			Object.entries( value )
-				.filter( ( [ , item ] ) => item !== undefined && item !== null )
-				.sort( ( [ a ], [ b ] ) => a.localeCompare( b ) )
-				.map( ( [ key, item ] ) => [ key, normalizeQueryKeyValue( item ) ] )
-		);
-	}
-
-	return value;
-}
-
-export function statsQueryKeyPart( params?: unknown ) {
-	if ( params === undefined || params === null ) {
-		return '';
-	}
-
-	return JSON.stringify( normalizeQueryKeyValue( params ) );
-}
