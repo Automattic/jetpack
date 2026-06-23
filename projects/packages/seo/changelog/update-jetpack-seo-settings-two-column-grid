@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Lay out the SEO Settings tab in a two-column grid, mirroring the Overview tab, so the cards use the available width instead of a single column.

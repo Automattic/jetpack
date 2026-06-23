@@ -127,7 +127,7 @@ const SocialPreviewsCard: FC< Props > = ( { description } ) => {
 	}
 
 	return (
-		<CollapsibleCard.Root defaultOpen={ false }>
+		<CollapsibleCard.Root defaultOpen>
 			<CollapsibleCard.Header>
 				<Card.Title>{ __( 'Search & social previews', 'jetpack-seo' ) }</Card.Title>
 			</CollapsibleCard.Header>

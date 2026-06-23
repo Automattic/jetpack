@@ -1,12 +1,30 @@
-// Centered fixed-width column. 660px is the established Jetpack settings-page
-// width (see Newsletter's settings/style.scss: "MSD and future JP settings
-// pages are 660px wide"); there is no design token for it.
+// Centered content column. Wider than a single settings form (660px) because
+// the Settings tab now lays its cards out in two columns — matches the Overview
+// tab's content width.
 .jetpack-seo-settings {
+	max-inline-size: 1128px;
+	margin-inline: auto;
+}
+
+// Two-column card grid, mirroring the Overview tab's grid technique: an
+// auto-fit grid that gives two columns when there's room and collapses to one
+// as the screen narrows. `align-items: start` so the two columns sit at the top
+// independently — they hold different cards and aren't equal height.
+.jetpack-seo-settings__grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+	gap: var(--wpds-dimension-gap-lg, 16px);
+	align-items: start;
+}
+
+// Each column stacks its cards vertically with the same gap as the grid.
+// `min-width: 0` lets long content (e.g. the title preview) wrap inside the
+// column instead of forcing the track wider.
+.jetpack-seo-settings__column {
 	display: flex;
 	flex-direction: column;
 	gap: var(--wpds-dimension-gap-lg, 16px);
-	max-inline-size: 660px;
-	margin-inline: auto;
+	min-width: 0;
 }
 
 // Deep-link target wrapper. `scroll-margin-top` clears the fixed header +

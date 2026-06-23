@@ -108,145 +108,151 @@ const SettingsScreen: FC< Props > = ( { form } ) => {
 
 	return (
 		<div className="jetpack-seo-settings">
-			<div id="visibility" className="jetpack-seo-settings__section">
-				<CollapsibleCard.Root defaultOpen>
-					<CollapsibleCard.Header>
-						<Stack direction="row" justify="space-between" align="center" gap="sm">
-							<Card.Title>{ __( 'Site visibility', 'jetpack-seo' ) }</Card.Title>
-							<Badge intent={ visibilityEnabledCount === 2 ? 'stable' : 'draft' }>
-								{ sprintf(
-									/* translators: %1$d: number of enabled visibility settings, %2$d: total. */
-									__( '%1$d of %2$d enabled', 'jetpack-seo' ),
-									visibilityEnabledCount,
-									2
-								) }
-							</Badge>
-						</Stack>
-					</CollapsibleCard.Header>
-					<CollapsibleCard.Content>
-						<Stack direction="column" gap="lg">
+			<div className="jetpack-seo-settings__grid">
+				<div className="jetpack-seo-settings__column">
+					<div id="visibility" className="jetpack-seo-settings__section">
+						<CollapsibleCard.Root defaultOpen>
+							<CollapsibleCard.Header>
+								<Stack direction="row" justify="space-between" align="center" gap="sm">
+									<Card.Title>{ __( 'Site visibility', 'jetpack-seo' ) }</Card.Title>
+									<Badge intent={ visibilityEnabledCount === 2 ? 'stable' : 'draft' }>
+										{ sprintf(
+											/* translators: %1$d: number of enabled visibility settings, %2$d: total. */
+											__( '%1$d of %2$d enabled', 'jetpack-seo' ),
+											visibilityEnabledCount,
+											2
+										) }
+									</Badge>
+								</Stack>
+							</CollapsibleCard.Header>
+							<CollapsibleCard.Content>
+								<Stack direction="column" gap="lg">
+									<ToggleControl
+										label={ __( 'Allow search engines to index this site', 'jetpack-seo' ) }
+										help={ __(
+											'Mirrors Settings → Reading → "Discourage search engines from indexing this site". Turning this off asks search engines to stop indexing your site; honored by Google and Bing, ignored by others. Use only for staging or pre-launch sites.',
+											'jetpack-seo'
+										) }
+										checked={ local.search_engines_visible }
+										onChange={ next => commit( { search_engines_visible: next } ) }
+										disabled={ isSaving }
+										__nextHasNoMarginBottom
+									/>
+									<div className="jetpack-seo-settings__sitemap-field">
+										<ToggleControl
+											label={ __( 'Generate an XML sitemap', 'jetpack-seo' ) }
+											help={ local.search_engines_visible ? sitemapHelp : sitemapBlockedHelp }
+											// Reflect the effective state: a sitemap can't be generated while
+											// indexing is blocked, so show it off (the stored preference is kept
+											// and restored when indexing is re-enabled).
+											checked={ sitemapEffectivelyOn }
+											onChange={ next => commit( { sitemap_active: next } ) }
+											disabled={ isSaving || ! local.search_engines_visible }
+											__nextHasNoMarginBottom
+										/>
+										{ sitemapEffectivelyOn &&
+											( local.sitemap_url ? (
+												<Link
+													className="jetpack-seo-settings__sitemap-link"
+													href={ local.sitemap_url }
+													openInNewTab
+													rel="noopener noreferrer"
+												>
+													{ sitemapViewLabel }
+												</Link>
+											) : (
+												<span className="jetpack-seo-settings__sitemap-hint">
+													{ sitemapGeneratingLabel }
+												</span>
+											) ) }
+									</div>
+								</Stack>
+							</CollapsibleCard.Content>
+						</CollapsibleCard.Root>
+					</div>
+
+					<div id="verification" className="jetpack-seo-settings__section">
+						<VerificationCard
+							value={ local.verification }
+							onChange={ setVerification }
+							onCommit={ () => commitFields( [ 'verification' ] ) }
+							disabled={ isSaving }
+							open={ verificationOpen }
+							onOpenChange={ setVerificationOpen }
+						/>
+					</div>
+
+					<CollapsibleCard.Root defaultOpen={ false }>
+						<CollapsibleCard.Header>
+							<Stack direction="row" justify="space-between" align="center" gap="sm">
+								<Card.Title>{ __( 'Canonical URLs', 'jetpack-seo' ) }</Card.Title>
+								<Badge intent={ local.canonical_active ? 'stable' : 'draft' }>
+									{ local.canonical_active ? enabledLabel : disabledLabel }
+								</Badge>
+							</Stack>
+						</CollapsibleCard.Header>
+						<CollapsibleCard.Content>
 							<ToggleControl
-								label={ __( 'Allow search engines to index this site', 'jetpack-seo' ) }
+								label={ __( 'Add canonical URLs to archive pages', 'jetpack-seo' ) }
 								help={ __(
-									'Mirrors Settings → Reading → "Discourage search engines from indexing this site". Turning this off asks search engines to stop indexing your site; honored by Google and Bing, ignored by others. Use only for staging or pre-launch sites.',
+									'Adds a rel="canonical" link to archive pages, helping search engines identify the preferred URL and avoid indexing duplicate content.',
 									'jetpack-seo'
 								) }
-								checked={ local.search_engines_visible }
-								onChange={ next => commit( { search_engines_visible: next } ) }
+								checked={ local.canonical_active }
+								onChange={ next => commit( { canonical_active: next } ) }
 								disabled={ isSaving }
 								__nextHasNoMarginBottom
 							/>
-							<div className="jetpack-seo-settings__sitemap-field">
-								<ToggleControl
-									label={ __( 'Generate an XML sitemap', 'jetpack-seo' ) }
-									help={ local.search_engines_visible ? sitemapHelp : sitemapBlockedHelp }
-									// Reflect the effective state: a sitemap can't be generated while
-									// indexing is blocked, so show it off (the stored preference is kept
-									// and restored when indexing is re-enabled).
-									checked={ sitemapEffectivelyOn }
-									onChange={ next => commit( { sitemap_active: next } ) }
-									disabled={ isSaving || ! local.search_engines_visible }
+						</CollapsibleCard.Content>
+					</CollapsibleCard.Root>
+
+					<TitleStructureField
+						formats={ local.title_formats }
+						onChange={ ( pageType, next ) =>
+							setField( { title_formats: { ...local.title_formats, [ pageType ]: next } } )
+						}
+						onSaveFormat={ pageType => commitTitleFormat( pageType ) }
+						isFormatDirty={ pageType => isTitleFormatDirty( pageType ) }
+						disabled={ isSaving }
+					/>
+				</div>
+
+				<div className="jetpack-seo-settings__column">
+					<CollapsibleCard.Root defaultOpen={ false }>
+						<CollapsibleCard.Header>
+							<Stack direction="row" justify="space-between" align="center" gap="sm">
+								<Card.Title>{ __( 'Front-page description', 'jetpack-seo' ) }</Card.Title>
+								<Badge intent={ local.front_page_description ? 'stable' : 'draft' }>
+									{ local.front_page_description ? setLabel : notSetLabel }
+								</Badge>
+							</Stack>
+						</CollapsibleCard.Header>
+						<CollapsibleCard.Content>
+							<Stack direction="column" gap="md">
+								<TextareaControl
+									label={ __( 'Meta description shown on the home page', 'jetpack-seo' ) }
+									value={ local.front_page_description }
+									onChange={ next => setField( { front_page_description: next } ) }
+									rows={ 3 }
+									disabled={ isSaving }
 									__nextHasNoMarginBottom
 								/>
-								{ sitemapEffectivelyOn &&
-									( local.sitemap_url ? (
-										<Link
-											className="jetpack-seo-settings__sitemap-link"
-											href={ local.sitemap_url }
-											openInNewTab
-											rel="noopener noreferrer"
-										>
-											{ sitemapViewLabel }
-										</Link>
-									) : (
-										<span className="jetpack-seo-settings__sitemap-hint">
-											{ sitemapGeneratingLabel }
-										</span>
-									) ) }
-							</div>
-						</Stack>
-					</CollapsibleCard.Content>
-				</CollapsibleCard.Root>
+								<div className="jetpack-seo-settings__save">
+									<Button
+										variant="primary"
+										onClick={ () => commitFields( [ 'front_page_description' ] ) }
+										disabled={ isSaving || ! isDirty( [ 'front_page_description' ] ) }
+									>
+										{ saveLabel }
+									</Button>
+								</div>
+							</Stack>
+						</CollapsibleCard.Content>
+					</CollapsibleCard.Root>
+
+					<SocialPreviewsCard description={ local.front_page_description } />
+				</div>
 			</div>
-
-			<div id="verification" className="jetpack-seo-settings__section">
-				<VerificationCard
-					value={ local.verification }
-					onChange={ setVerification }
-					onCommit={ () => commitFields( [ 'verification' ] ) }
-					disabled={ isSaving }
-					open={ verificationOpen }
-					onOpenChange={ setVerificationOpen }
-				/>
-			</div>
-
-			<CollapsibleCard.Root defaultOpen={ false }>
-				<CollapsibleCard.Header>
-					<Stack direction="row" justify="space-between" align="center" gap="sm">
-						<Card.Title>{ __( 'Canonical URLs', 'jetpack-seo' ) }</Card.Title>
-						<Badge intent={ local.canonical_active ? 'stable' : 'draft' }>
-							{ local.canonical_active ? enabledLabel : disabledLabel }
-						</Badge>
-					</Stack>
-				</CollapsibleCard.Header>
-				<CollapsibleCard.Content>
-					<ToggleControl
-						label={ __( 'Add canonical URLs to archive pages', 'jetpack-seo' ) }
-						help={ __(
-							'Adds a rel="canonical" link to archive pages, helping search engines identify the preferred URL and avoid indexing duplicate content.',
-							'jetpack-seo'
-						) }
-						checked={ local.canonical_active }
-						onChange={ next => commit( { canonical_active: next } ) }
-						disabled={ isSaving }
-						__nextHasNoMarginBottom
-					/>
-				</CollapsibleCard.Content>
-			</CollapsibleCard.Root>
-
-			<TitleStructureField
-				formats={ local.title_formats }
-				onChange={ ( pageType, next ) =>
-					setField( { title_formats: { ...local.title_formats, [ pageType ]: next } } )
-				}
-				onSaveFormat={ pageType => commitTitleFormat( pageType ) }
-				isFormatDirty={ pageType => isTitleFormatDirty( pageType ) }
-				disabled={ isSaving }
-			/>
-
-			<CollapsibleCard.Root defaultOpen={ false }>
-				<CollapsibleCard.Header>
-					<Stack direction="row" justify="space-between" align="center" gap="sm">
-						<Card.Title>{ __( 'Front-page description', 'jetpack-seo' ) }</Card.Title>
-						<Badge intent={ local.front_page_description ? 'stable' : 'draft' }>
-							{ local.front_page_description ? setLabel : notSetLabel }
-						</Badge>
-					</Stack>
-				</CollapsibleCard.Header>
-				<CollapsibleCard.Content>
-					<Stack direction="column" gap="md">
-						<TextareaControl
-							label={ __( 'Meta description shown on the home page', 'jetpack-seo' ) }
-							value={ local.front_page_description }
-							onChange={ next => setField( { front_page_description: next } ) }
-							rows={ 3 }
-							disabled={ isSaving }
-							__nextHasNoMarginBottom
-						/>
-						<div className="jetpack-seo-settings__save">
-							<Button
-								variant="primary"
-								onClick={ () => commitFields( [ 'front_page_description' ] ) }
-								disabled={ isSaving || ! isDirty( [ 'front_page_description' ] ) }
-							>
-								{ saveLabel }
-							</Button>
-						</div>
-					</Stack>
-				</CollapsibleCard.Content>
-			</CollapsibleCard.Root>
-
-			<SocialPreviewsCard description={ local.front_page_description } />
 		</div>
 	);
 };
