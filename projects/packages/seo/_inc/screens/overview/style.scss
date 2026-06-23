@@ -46,9 +46,9 @@
 }
 
 // Content SEO card: factual coverage rings. An auto-fit grid (matching the
-// Overview card grid above) so the rings wrap from four columns down to two,
-// then one, as the screen narrows — rather than shrinking to share a single
-// row at every width.
+// Overview card grid above) so the rings flow into as many columns as fit
+// (up to four) and stack down to a single column as the screen narrows —
+// rather than shrinking to share a single row at every width.
 .jetpack-seo-overview__coverage-rings {
 	display: grid;
 	grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
