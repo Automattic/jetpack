@@ -12,7 +12,13 @@ const EnableJetpackSearchPrompt = () => {
 	const checkoutUrl = `${ wpAdminUrl }admin.php?page=jetpack-search`;
 	const { autosaveAndRedirect, isRedirecting } = useAutosaveAndRedirect( checkoutUrl );
 
-	if ( window?.Jetpack_AIChatBlock?.jetpackSettings?.instant_search_enabled ) {
+	// Jetpack AI only needs the Search module to be active so the site is indexed —
+	// any front-end experience (Overlay / Theme / Inline / Embedded) works. Older
+	// PHP versions of this block only exposed `instant_search_enabled`, so we fall
+	// back to it to stay correct against an unbuilt/cached editor bundle.
+	const jetpackSettings = window?.Jetpack_AIChatBlock?.jetpackSettings;
+	const searchEnabled = jetpackSettings?.module_active ?? jetpackSettings?.instant_search_enabled;
+	if ( searchEnabled ) {
 		return null;
 	}
 
