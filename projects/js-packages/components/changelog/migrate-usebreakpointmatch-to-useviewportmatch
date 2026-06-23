@@ -1,4 +1,5 @@
 Significance: patch
 Type: changed
+Comment: No user-facing change; internal refactor from useBreakpointMatch to useViewportMatch.
 
-Replace internal useBreakpointMatch hook with @wordpress/compose useViewportMatch.
+
