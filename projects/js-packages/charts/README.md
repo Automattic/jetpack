@@ -26,7 +26,7 @@ yarn add @automattic/charts
 Import chart components from the main entry point:
 
 ```javascript
-import { LineChart, BarChart, PieChart } from '@automattic/charts';
+import { LineChart, BarChart, PieChart, HeatmapChart } from '@automattic/charts';
 import '@automattic/charts/style.css';
 ```
 
