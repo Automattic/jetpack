@@ -59,6 +59,7 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.ref }}
           repository: ${{ github.event.pull_request.head.repo.full_name }}
+          allow-unsafe-pr-checkout: true
           # DO NOT run any code in this checkout. Not even an `npm install`.
           path: ./pr-checkout
 
