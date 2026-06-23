@@ -111,16 +111,13 @@
 	margin: 0 0 var(--wpds-dimension-gap-xl, 24px);
 }
 
-// Each preview + its heading grouped inside a bordered, padded box so it reads
-// as one unit, with generous separation between groups.
-.jetpack-seo-settings__preview-group {
-	padding: 16px;
-	border: 1px solid var(--wpds-color-stroke-surface-neutral-weak, #dadde1);
-	border-radius: var(--wpds-border-radius-md, 4px);
-}
-
-.jetpack-seo-settings__preview-group + .jetpack-seo-settings__preview-group {
-	margin-block-start: var(--wpds-dimension-gap-2xl, 32px);
+// The previews stack with generous separation between them. Each preview is
+// bordered individually (below); there's no bordered group wrapping a heading
+// together with its preview, which avoids the box-in-box look.
+.jetpack-seo-settings__preview-list {
+	display: flex;
+	flex-direction: column;
+	gap: var(--wpds-dimension-gap-2xl, 32px);
 }
 
 // Platform label above each preview: brand icon + name, prominent enough to
@@ -152,8 +149,12 @@
 	color: var(--wpds-color-fg-content-neutral-weak, #757575);
 }
 
-// Google search result.
+// Google search result — bordered around the preview itself (it has none
+// otherwise), set off as a result beneath its heading.
 .jetpack-seo-preview--google {
+	padding: var(--wpds-dimension-padding-md, 12px);
+	border: 1px solid var(--wpds-color-stroke-surface-neutral-weak, #dadde1);
+	border-radius: var(--wpds-border-radius-md, 4px);
 
 	.jetpack-seo-preview__google-site {
 		display: flex;
@@ -185,7 +186,9 @@
 	}
 }
 
-// Facebook / X shared link card.
+// Facebook / X shared link card — bordered around the preview itself (matching
+// how the platforms render a shared link), but not wrapped in a group box with
+// its heading.
 .jetpack-seo-preview--card {
 	overflow: hidden;
 	border: 1px solid var(--wpds-color-stroke-surface-neutral-weak, #dadde1);
