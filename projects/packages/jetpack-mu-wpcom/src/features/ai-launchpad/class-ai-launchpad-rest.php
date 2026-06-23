@@ -39,6 +39,19 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 	);
 
 	/**
+	 * Tasks whose catalog `is_visible_callback` encodes an `IS_WPCOM`-only platform
+	 * assumption that the AI Launchpad overrides because it retrieves the same data
+	 * cross-platform. `add_10_email_subscribers` is gated by
+	 * `wpcom_launchpad_are_newsletter_subscriber_counts_available` (false off
+	 * WordPress.com), but AI_Launchpad_Subscribers_Listener reads the count on
+	 * Atomic via `/sites/{id}/subscribers/stats`, so the task must still render and
+	 * its visibility gate is skipped here.
+	 */
+	const FORCE_VISIBLE_TASK_IDS = array(
+		'add_10_email_subscribers',
+	);
+
+	/**
 	 * Class constructor.
 	 */
 	public function __construct() {
@@ -457,7 +470,10 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 			// rejecting on write) keeps the deterministic fallback usable: its fixed
 			// per-goal lists also contain conditionally-visible tasks, so gating the
 			// write path could strand a goal with too few surviving tasks.
-			if ( ! wpcom_launchpad_checklists()->is_visible( $definition ) ) {
+			if (
+				! in_array( $task['id'], self::FORCE_VISIBLE_TASK_IDS, true )
+				&& ! wpcom_launchpad_checklists()->is_visible( $definition )
+			) {
 				continue;
 			}
 

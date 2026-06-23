@@ -245,6 +245,46 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * Test that GET keeps add_10_email_subscribers even though its catalog
+	 * visibility callback (wpcom_launchpad_are_newsletter_subscriber_counts_available)
+	 * is false off WordPress.com: the AI Launchpad retrieves the subscriber count
+	 * on Atomic via the subscribers/stats endpoint, so the legacy IS_WPCOM-only
+	 * visibility gate must not hide the task there.
+	 */
+	public function test_get_keeps_subscriber_count_task_despite_wpcom_only_visibility() {
+		wp_set_current_user( $this->admin_id );
+
+		// Sanity check: the catalog visibility gate is indeed false in this
+		// (non-WordPress.com) environment, so the assertion below proves the override.
+		$this->assertFalse( wpcom_launchpad_are_newsletter_subscriber_counts_available() );
+
+		$payload          = self::valid_payload();
+		$payload['tasks'] = array(
+			array(
+				'id'       => 'add_10_email_subscribers',
+				'subtitle' => 'Grow your list to ten subscribers.',
+			),
+		);
+
+		update_option(
+			'wpcom_ai_launchpad_ai_output',
+			array(
+				'version'      => 1,
+				'source'       => 'ai',
+				'generated_at' => 1717000000,
+				'payload'      => $payload,
+			),
+			false
+		);
+
+		$result = $this->call_api( Requests::GET );
+
+		$this->assertSame( 200, $result->get_status() );
+		$ids = array_column( $result->get_data()['tasks'], 'id' );
+		$this->assertContains( 'add_10_email_subscribers', $ids );
+	}
+
+	/**
 	 * Test that GET requires authentication.
 	 */
 	public function test_get_requires_authentication() {

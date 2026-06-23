@@ -20,6 +20,7 @@ require_once __DIR__ . '/class-ai-launchpad-rest.php';
 require_once __DIR__ . '/class-ai-launchpad-listeners.php';
 require_once __DIR__ . '/class-ai-launchpad-theme-listener.php';
 require_once __DIR__ . '/class-ai-launchpad-social-listener.php';
+require_once __DIR__ . '/class-ai-launchpad-subscribers-listener.php';
 require_once __DIR__ . '/class-ai-launchpad-about-page-listener.php';
 require_once __DIR__ . '/class-ai-launchpad-dev-enable.php';
 
