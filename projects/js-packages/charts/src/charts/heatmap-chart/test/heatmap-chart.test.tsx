@@ -107,6 +107,75 @@ describe( 'HeatmapChart', () => {
 		);
 	} );
 
+	test( 'ArrowUp and ArrowLeft move focus in the opposite direction', async () => {
+		renderChart( { rowLabels: [ 'Mon', 'Tue', 'Wed' ] } );
+		const grid = screen.getByRole( 'grid', { name: /heatmap/i } );
+		const user = userEvent.setup();
+
+		// Navigate to col 1, row 2 (bottom-right of a 2-col × 3-row grid)
+		grid.focus();
+		await user.keyboard( '{ArrowDown}{ArrowDown}{ArrowRight}' );
+		expect( grid ).toHaveAttribute(
+			'aria-activedescendant',
+			expect.stringMatching( /-cell-1-2$/ )
+		);
+
+		// ArrowUp moves row 2→1 within col 1
+		await user.keyboard( '{ArrowUp}' );
+		expect( grid ).toHaveAttribute(
+			'aria-activedescendant',
+			expect.stringMatching( /-cell-1-1$/ )
+		);
+
+		// ArrowLeft moves col 1→0, same row
+		await user.keyboard( '{ArrowLeft}' );
+		expect( grid ).toHaveAttribute(
+			'aria-activedescendant',
+			expect.stringMatching( /-cell-0-1$/ )
+		);
+	} );
+
+	test( 'ArrowLeft at column 0 and ArrowUp at row 0 clamp (no wrap)', async () => {
+		renderChart( { rowLabels: [ 'Mon', 'Tue', 'Wed' ] } );
+		const grid = screen.getByRole( 'grid', { name: /heatmap/i } );
+		const user = userEvent.setup();
+
+		// Start at col 0, row 0 (first ArrowDown sets index to row 1; press ArrowUp back to row 0)
+		grid.focus();
+		await user.keyboard( '{ArrowDown}{ArrowUp}' );
+		expect( grid ).toHaveAttribute(
+			'aria-activedescendant',
+			expect.stringMatching( /-cell-0-0$/ )
+		);
+
+		// ArrowUp at row 0 stays at row 0
+		await user.keyboard( '{ArrowUp}' );
+		expect( grid ).toHaveAttribute(
+			'aria-activedescendant',
+			expect.stringMatching( /-cell-0-0$/ )
+		);
+
+		// ArrowLeft at col 0 stays at col 0
+		await user.keyboard( '{ArrowLeft}' );
+		expect( grid ).toHaveAttribute(
+			'aria-activedescendant',
+			expect.stringMatching( /-cell-0-0$/ )
+		);
+	} );
+
+	test( 'Escape clears the selection (aria-activedescendant removed)', async () => {
+		renderChart( { rowLabels: [ 'Mon', 'Tue', 'Wed' ] } );
+		const grid = screen.getByRole( 'grid', { name: /heatmap/i } );
+		const user = userEvent.setup();
+
+		grid.focus();
+		await user.keyboard( '{ArrowDown}' );
+		expect( grid ).toHaveAttribute( 'aria-activedescendant' );
+
+		await user.keyboard( '{Escape}' );
+		expect( grid ).not.toHaveAttribute( 'aria-activedescendant' );
+	} );
+
 	/* eslint-disable testing-library/no-node-access */
 	test( 'rows contain gridcell children in the ARIA hierarchy', () => {
 		renderChart();

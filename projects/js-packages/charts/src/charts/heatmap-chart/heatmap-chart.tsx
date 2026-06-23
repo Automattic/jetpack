@@ -74,7 +74,6 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 
 	const chartRef = useRef< HTMLDivElement >( null );
 	const [ selectedIndex, setSelectedIndex ] = useState< number | undefined >();
-	const [ , setIsNavigating ] = useState( false );
 	const { tooltipOpen, tooltipLeft, tooltipTop, tooltipData, showTooltip, hideTooltip } =
 		useTooltip< HeatmapTooltipData >();
 	const { containerRef, TooltipInPortal } = useTooltipInPortal( {
@@ -108,13 +107,9 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 	const effectiveGap = cellGap ?? ( compact ? COMPACT_GAP : DEFAULT_GAP );
 	const drawValues = showValues ?? ! compact;
 
-	const onChartFocus = useCallback( () => {
-		// leave selectedIndex undefined until first arrow key press
-	}, [] );
-
 	const onChartBlur = useCallback( () => {
-		setIsNavigating( false );
-	}, [ setIsNavigating ] );
+		setSelectedIndex( undefined );
+	}, [ setSelectedIndex ] );
 
 	const onChartKeyDown = useCallback(
 		( event: React.KeyboardEvent< HTMLDivElement > ) => {
@@ -128,13 +123,11 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 
 			if ( event.key === 'Tab' ) {
 				setSelectedIndex( undefined );
-				setIsNavigating( false );
 				return;
 			}
 
 			if ( event.key === 'Escape' ) {
 				setSelectedIndex( undefined );
-				setIsNavigating( false );
 				return;
 			}
 
@@ -155,9 +148,8 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 			}
 
 			setSelectedIndex( col * rows + row );
-			setIsNavigating( true );
 		},
-		[ rows, columns, selectedIndex, setSelectedIndex, setIsNavigating ]
+		[ rows, columns, selectedIndex, setSelectedIndex ]
 	);
 
 	const buildTooltipData = useCallback(
@@ -290,7 +282,6 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 										: undefined
 								}
 								tabIndex={ 0 }
-								onFocus={ onChartFocus }
 								onBlur={ onChartBlur }
 								onKeyDown={ onChartKeyDown }
 							>
