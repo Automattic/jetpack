@@ -20,7 +20,10 @@ type AverageOrderValueRenderProps = {
  * the orders report and renders the average_order_value metric with a
  * comparison delta and sparkline.
  */
-export default function AverageOrderValueRender( { attributes, setError }: AverageOrderValueRenderProps ) {
+export default function AverageOrderValueRender( {
+	attributes,
+	setError,
+}: AverageOrderValueRenderProps ) {
 	return (
 		<WidgetRoot attributes={ attributes } setError={ setError } options={ { from: '/' } }>
 			<OrderMetricWidget metricKey="average_order_value" />
