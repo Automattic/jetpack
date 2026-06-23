@@ -54,7 +54,7 @@ class Consent_Log_Controller extends WP_REST_Controller {
 	 *
 	 * @var string
 	 */
-	private const DB_VERSION = '0.0.2';
+	private const DB_VERSION = '0.0.1';
 
 	/**
 	 * Default retention period in days.
@@ -125,7 +125,6 @@ class Consent_Log_Controller extends WP_REST_Controller {
 		$installed_version = get_option( self::DB_VERSION_OPTION, '0' );
 
 		if ( version_compare( $installed_version, self::DB_VERSION, '<' ) ) {
-			$this->migrate_customer_id_to_user_id();
 			$this->create_table();
 			update_option( self::DB_VERSION_OPTION, self::DB_VERSION );
 		}
@@ -158,29 +157,6 @@ class Consent_Log_Controller extends WP_REST_Controller {
 
 		require_once ABSPATH . 'wp-admin/includes/upgrade.php';
 		dbDelta( $sql );
-	}
-
-	/**
-	 * Rename the legacy customer_id column to user_id on existing installs.
-	 * No-op on fresh installs or once already renamed. dbDelta cannot rename
-	 * columns, so this runs an explicit ALTER first.
-	 */
-	private function migrate_customer_id_to_user_id() {
-		global $wpdb;
-		$table = self::get_table_name();
-
-		// Skip if the table doesn't exist yet (fresh install).
-		$exists = $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $wpdb->esc_like( $table ) ) ); // phpcs:ignore WordPress.DB
-		if ( $exists !== $table ) {
-			return;
-		}
-
-		$columns = $wpdb->get_col( "DESCRIBE {$table}" ); // phpcs:ignore WordPress.DB
-		if ( in_array( 'user_id', $columns, true ) || ! in_array( 'customer_id', $columns, true ) ) {
-			return;
-		}
-
-		$wpdb->query( "ALTER TABLE {$table} CHANGE customer_id user_id bigint(20) UNSIGNED NOT NULL DEFAULT 0" ); // phpcs:ignore WordPress.DB
 	}
 
 	/**
