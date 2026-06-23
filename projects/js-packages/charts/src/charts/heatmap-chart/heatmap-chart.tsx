@@ -20,10 +20,16 @@ import { ChartLayout } from '../private/chart-layout';
 import { SingleChartContext } from '../private/single-chart-context';
 import { withResponsive } from '../private/with-responsive';
 import styles from './heatmap-chart.module.scss';
-import { getValueExtent, createColorScale, getNormalizedValue, EMPTY_CELL_COLOR } from './private';
+import {
+	getValueExtent,
+	createColorScale,
+	getNormalizedValue,
+	EMPTY_CELL_COLOR,
+	HeatmapLegend,
+} from './private';
 import type { HeatmapChartProps, HeatmapColumn, HeatmapCell, HeatmapTooltipData } from './types';
 import type { ResponsiveConfig } from '../private/with-responsive';
-import type { FC, ComponentType, ReactNode } from 'react';
+import type { FC } from 'react';
 
 const DEFAULT_PRIMARY_HEX = '#006dab';
 const DEFAULT_EMPTY_HEX = '#f6f7f7';
@@ -363,18 +369,16 @@ const HeatmapChartWithProvider: FC< HeatmapChartProps > = props => {
 HeatmapChartWithProvider.displayName = 'HeatmapChart';
 
 interface HeatmapChartSubComponents {
-	Legend: ComponentType< { children?: ReactNode } >;
+	Legend: typeof HeatmapLegend;
 }
 
-const PlaceholderLegend: ComponentType< { children?: ReactNode } > = () => null;
-
 const HeatmapChart = attachSubComponents( HeatmapChartWithProvider, {
-	Legend: PlaceholderLegend,
+	Legend: HeatmapLegend,
 } ) as FC< HeatmapChartProps > & HeatmapChartSubComponents;
 
 const HeatmapChartResponsive = attachSubComponents(
 	withResponsive< HeatmapChartProps >( HeatmapChartWithProvider ),
-	{ Legend: PlaceholderLegend }
+	{ Legend: HeatmapLegend }
 ) as FC< HeatmapChartProps & ResponsiveConfig > & HeatmapChartSubComponents;
 
 export { HeatmapChartResponsive as default, HeatmapChart as HeatmapChartUnresponsive };

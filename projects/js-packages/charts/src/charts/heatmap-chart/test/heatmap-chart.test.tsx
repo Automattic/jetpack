@@ -73,4 +73,16 @@ describe( 'HeatmapChart', () => {
 		await expect( screen.findByRole( 'tooltip' ) ).resolves.toBeInTheDocument();
 	} );
 	/* eslint-enable testing-library/no-node-access */
+
+	test( 'renders a composition legend with Less/More labels', () => {
+		render(
+			<GlobalChartsProvider>
+				<HeatmapChart width={ 500 } height={ 300 } data={ data }>
+					<HeatmapChart.Legend />
+				</HeatmapChart>
+			</GlobalChartsProvider>
+		);
+		expect( screen.getByText( /less/i ) ).toBeInTheDocument();
+		expect( screen.getByText( /more/i ) ).toBeInTheDocument();
+	} );
 } );
