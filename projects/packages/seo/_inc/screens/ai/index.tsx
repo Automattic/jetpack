@@ -93,8 +93,11 @@ const AiScreen: FC< Props > = ( { form } ) => {
 			{ /* Broad → specific: whether AI crawlers may reach the site, then the
 			     content map exposed to them, then AI fine-tuning of specific
 			     metadata. */ }
+			{ /* Collapsed by default: it's the longest section and the one most
+			     people won't need to touch, so it doesn't bury llms.txt and the
+			     Enhancer below it. */ }
 			{ crawlers && (
-				<CollapsibleCard.Root defaultOpen>
+				<CollapsibleCard.Root>
 					<CollapsibleCard.Header>
 						<Card.Title>{ __( 'AI crawler access', 'jetpack-seo' ) }</Card.Title>
 					</CollapsibleCard.Header>
