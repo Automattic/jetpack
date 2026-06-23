@@ -12,7 +12,7 @@ import {
 import { SelectControl } from '@wordpress/components';
 import { useCallback, useMemo, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import { Stack, Text } from '@wordpress/ui';
+import { Button, Stack, Text } from '@wordpress/ui';
 import clsx from 'clsx';
 /**
  * Internal dependencies
@@ -151,12 +151,17 @@ function LocationsInner( { attributes }: LocationsRenderProps ) {
 
 	return (
 		<Stack className={ styles.root }>
-			<div className={ styles.widgetHeader }>
-				<div className={ styles.breadcrumb }>
+			<Stack
+				direction="row"
+				justify="space-between"
+				align="center"
+				className={ styles.widgetHeader }
+			>
+				<Stack direction="row" align="center" gap="xs" className={ styles.breadcrumb }>
 					{ selectedCountry ? (
-						<button className={ styles.breadcrumbLink } onClick={ clearSelectedCountry }>
+						<Button onClick={ clearSelectedCountry } className={ styles.breadcrumbLink }>
 							{ __( 'Top Locations', 'jetpack-premium-analytics' ) }
-						</button>
+						</Button>
 					) : (
 						<Text>{ __( 'Top Locations', 'jetpack-premium-analytics' ) }</Text>
 					) }
@@ -166,7 +171,7 @@ function LocationsInner( { attributes }: LocationsRenderProps ) {
 							<Text>{ selectedCountry.name }</Text>
 						</>
 					) }
-				</div>
+				</Stack>
 				<SelectControl
 					__nextHasNoMarginBottom
 					value={ topMode }
@@ -177,7 +182,7 @@ function LocationsInner( { attributes }: LocationsRenderProps ) {
 					onChange={ handleModeChange }
 					className={ styles.modeSelect }
 				/>
-			</div>
+			</Stack>
 			<div className={ styles.content }>
 				<div className={ styles.chartArea }>
 					<LeaderboardChart
