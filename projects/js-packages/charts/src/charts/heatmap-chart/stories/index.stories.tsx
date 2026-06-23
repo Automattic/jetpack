@@ -83,7 +83,7 @@ export const WithCompositionLegend: Story = {
 			<HeatmapChart.Legend />
 		</HeatmapChart>
 	),
-	args: { ...Default.args },
+	args: { ...Default.args, containerHeight: '320px' },
 };
 
 export const FixedDimensions: Story = {

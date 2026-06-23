@@ -172,6 +172,16 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 		}
 	}, [ withTooltips, hideTooltip ] );
 
+	// Size the SVG to the measured content slot (which flexes to leave room for a
+	// trailing legend), rather than the full container height. Mirrors bar-chart.
+	const [ measuredChartHeight, setMeasuredChartHeight ] = useState< number | undefined >();
+	const handleContentHeightChange = useCallback(
+		( contentHeight: number ) => {
+			setMeasuredChartHeight( contentHeight > 0 ? contentHeight : height );
+		},
+		[ height ]
+	);
+
 	if ( ! columns || ! rows ) {
 		return (
 			<div className={ clsx( 'heatmap-chart', styles[ 'heatmap-chart' ], className ) }>
@@ -192,21 +202,28 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 
 	return (
 		<HeatmapContext.Provider value={ heatmapContext }>
-			<SingleChartContext.Provider value={ { chartId, chartWidth: width, chartHeight: height } }>
+			<SingleChartContext.Provider
+				value={ { chartId, chartWidth: width, chartHeight: measuredChartHeight || 0 } }
+			>
 				<ChartLayout
 					legendPosition="bottom"
 					// HeatmapLegend renders via trailingContent (useChartChildren doesn't classify it as a slot legend).
 					legendChildren={ [] }
 					trailingContent={ nonLegendChildren }
+					onContentHeightChange={ handleContentHeightChange }
 					gap={ gap }
 					className={ clsx( 'heatmap-chart', styles[ 'heatmap-chart' ], className ) }
 					style={ { width, height } }
 					data-testid="heatmap-chart"
 					data-chart-id={ `heatmap-chart-${ chartId }` }
 				>
-					{ () => {
+					{ ( { contentHeight } ) => {
+						const chartHeight = contentHeight > 0 ? contentHeight : height;
 						const innerWidth = Math.max( 0, width - defaultMargin.left - defaultMargin.right );
-						const innerHeight = Math.max( 0, height - defaultMargin.top - defaultMargin.bottom );
+						const innerHeight = Math.max(
+							0,
+							chartHeight - defaultMargin.top - defaultMargin.bottom
+						);
 						const binWidth = innerWidth / columns;
 						const binHeight = innerHeight / rows;
 						const xScale = scaleLinear< number >( {
@@ -228,8 +245,8 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 								onBlur={ onChartBlur }
 								onKeyDown={ onChartKeyDown }
 							>
-								{ width > 0 && height > 0 && (
-									<svg ref={ containerRef } width={ width } height={ height }>
+								{ width > 0 && chartHeight > 0 && (
+									<svg ref={ containerRef } width={ width } height={ chartHeight }>
 										<g transform={ `translate(${ defaultMargin.left }, ${ defaultMargin.top })` }>
 											{ data.map( ( column, columnIndex ) => {
 												const visible = ! compact || columnIndex % 2 === 0;
