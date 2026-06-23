@@ -165,9 +165,9 @@ class Unauth_File_Upload_Test extends WP_UnitTestCase {
 		$this->assertSame( (string) $file_id, (string) $args['file_id'] );
 		$this->assertSame( \Automattic\Jetpack\UnauthFileUpload\DOWNLOAD_TOKEN_TYPE, $args['token_type'] );
 
-		// Expiry is roughly 7 days out.
-		$this->assertGreaterThanOrEqual( $before + 7 * DAY_IN_SECONDS, (int) $args['expires'] );
-		$this->assertLessThanOrEqual( time() + 7 * DAY_IN_SECONDS, (int) $args['expires'] );
+		// Expiry is one lifetime out.
+		$this->assertGreaterThanOrEqual( $before + \Automattic\Jetpack\UnauthFileUpload\DOWNLOAD_LINK_LIFETIME, (int) $args['expires'] );
+		$this->assertLessThanOrEqual( time() + \Automattic\Jetpack\UnauthFileUpload\DOWNLOAD_LINK_LIFETIME, (int) $args['expires'] );
 
 		// The token in the URL validates for the file ID, expiry, and type it was issued with.
 		$this->assertTrue(

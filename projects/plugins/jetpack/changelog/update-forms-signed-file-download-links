@@ -1,4 +1,4 @@
 Significance: patch
 Type: bugfix
 
-Forms: file download links now work for any logged-in editor and use a signed, expiring token instead of a per-user nonce.
+Forms: sign file download links with an expiring token instead of a per-user nonce, so they work for any logged-in editor.
