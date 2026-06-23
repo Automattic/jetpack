@@ -676,6 +676,93 @@ class Jetpack_Gutenberg_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * A deferred block file is included and the `init` callback it registers runs,
+	 * even though `init` has already fired by the time the block renders.
+	 *
+	 * Uses a throwaway fixture block (unique name, never pre-included) so the
+	 * include + $wp_filter['init'] capture/run path is exercised end-to-end.
+	 */
+	public function test_load_and_register_runs_deferred_block_init_callback() {
+		$feature = 'zz-lazy-fixture';
+		$dir     = JETPACK__PLUGIN_DIR . 'extensions/blocks/' . $feature;
+		$file    = $dir . '/' . $feature . '.php';
+		wp_mkdir_p( $dir );
+		file_put_contents(
+			$file,
+			"<?php add_action( 'init', function () { register_block_type( 'jetpack/zz-lazy-fixture' ); } );\n"
+		);
+
+		try {
+			$this->assertFalse( Blocks::is_registered( 'jetpack/zz-lazy-fixture' ), 'Fixture block should start unregistered.' );
+
+			$method = new ReflectionMethod( Jetpack_Gutenberg::class, 'load_and_register_deferred_block' );
+			// setAccessible() is a no-op (and deprecated) since PHP 8.1; only needed for older versions.
+			// @todo Remove this guard once we no longer need to support PHP < 8.1.
+			if ( PHP_VERSION_ID < 80100 ) {
+				$method->setAccessible( true );
+			}
+			$method->invoke( null, $feature );
+
+			$this->assertTrue(
+				Blocks::is_registered( 'jetpack/zz-lazy-fixture' ),
+				'The deferred block file should be included and its init callback run.'
+			);
+		} finally {
+			if ( Blocks::is_registered( 'jetpack/zz-lazy-fixture' ) ) {
+				unregister_block_type( 'jetpack/zz-lazy-fixture' );
+			}
+			if ( file_exists( $file ) ) {
+				unlink( $file );
+			}
+			if ( is_dir( $dir ) ) {
+				rmdir( $dir );
+			}
+		}
+	}
+
+	/**
+	 * On a plain front-end request, load_independent_blocks() defers a lazy block
+	 * instead of loading it, and registers the just-in-time pre_render_block handler.
+	 */
+	public function test_load_independent_blocks_defers_lazy_blocks_on_frontend() {
+		$saved_uri              = $_SERVER['REQUEST_URI'] ?? null;
+		$_SERVER['REQUEST_URI'] = '/sample-page/';
+
+		$lazy_filter = static function () {
+			return array( 'business-hours' );
+		};
+		add_filter( 'jetpack_offline_mode', '__return_true' );
+		add_filter( 'jetpack_gutenberg', '__return_true' );
+		add_filter( 'jetpack_set_available_extensions', $lazy_filter, 99 );
+		Jetpack_Gutenberg::reset();
+
+		try {
+			Jetpack_Gutenberg::load_independent_blocks();
+
+			$this->assertArrayHasKey(
+				'business-hours',
+				$this->get_deferred_blocks(),
+				'A lazy block should be deferred on a front-end request.'
+			);
+			$this->assertNotFalse(
+				has_filter( 'pre_render_block', array( 'Jetpack_Gutenberg', 'lazy_register_deferred_block' ) ),
+				'The just-in-time registration filter should be added when blocks are deferred.'
+			);
+		} finally {
+			remove_filter( 'pre_render_block', array( 'Jetpack_Gutenberg', 'lazy_register_deferred_block' ), 10 );
+			remove_filter( 'jetpack_set_available_extensions', $lazy_filter, 99 );
+			remove_filter( 'jetpack_offline_mode', '__return_true' );
+			remove_filter( 'jetpack_gutenberg', '__return_true' );
+			Jetpack_Gutenberg::reset();
+			if ( null !== $saved_uri ) {
+				$_SERVER['REQUEST_URI'] = $saved_uri;
+			} else {
+				unset( $_SERVER['REQUEST_URI'] );
+			}
+		}
+	}
+
+	/**
 	 * The front-end editor-extension gate must treat REST requests (both the
 	 * rewritten /wp-json/ form and the plain-permalink ?rest_route= form) as
 	 * editor context, and plain front-end page views as not. A regression here
