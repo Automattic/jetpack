@@ -174,4 +174,42 @@ class Unauth_File_Upload_Test extends WP_UnitTestCase {
 			\Automattic\Jetpack\UnauthFileUpload\verify_download_token( $file_id, (int) $args['expires'], $args['token'], $args['token_type'] )
 		);
 	}
+
+	/**
+	 * The signing key can be overridden via filter (e.g. for environments without a blog token).
+	 */
+	public function test_signing_key_filter_overrides_default() {
+		$expires      = time() + DAY_IN_SECONDS;
+		$with_default = \Automattic\Jetpack\UnauthFileUpload\generate_download_token( 123, $expires );
+
+		$callback = static function () {
+			return 'a-completely-different-secret';
+		};
+
+		add_filter( 'jetpack_unauth_file_download_signing_key', $callback );
+		$with_filter = \Automattic\Jetpack\UnauthFileUpload\generate_download_token( 123, $expires );
+
+		$this->assertNotSame( $with_default, $with_filter );
+		// A token signed with the filtered key verifies while the filter is active.
+		$this->assertTrue( \Automattic\Jetpack\UnauthFileUpload\verify_download_token( 123, $expires, $with_filter ) );
+
+		remove_filter( 'jetpack_unauth_file_download_signing_key', $callback );
+	}
+
+	/**
+	 * With no signing key available, token generation and verification fail closed.
+	 */
+	public function test_empty_signing_key_fails_closed() {
+		$callback = static function () {
+			return '';
+		};
+
+		add_filter( 'jetpack_unauth_file_download_signing_key', $callback );
+
+		$expires = time() + DAY_IN_SECONDS;
+		$this->assertSame( '', \Automattic\Jetpack\UnauthFileUpload\generate_download_token( 123, $expires ) );
+		$this->assertFalse( \Automattic\Jetpack\UnauthFileUpload\verify_download_token( 123, $expires, 'anything' ) );
+
+		remove_filter( 'jetpack_unauth_file_download_signing_key', $callback );
+	}
 }
