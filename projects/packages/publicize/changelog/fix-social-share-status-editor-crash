@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Social: contain errors in the post-publish sharing status panel so they no longer crash the editor.
