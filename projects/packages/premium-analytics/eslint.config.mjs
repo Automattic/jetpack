@@ -83,7 +83,6 @@ export default defineConfig(
 		// Same as the ui package: soften JSDoc rules for the widgets-toolkit
 		// port and allow the upstream inline-handler JSX style. Temporary —
 		// tighten these up in a follow-up alongside the other ports.
-		// Bundled widgets keep the same upstream style while they are ported.
 		// The port also keeps a few upstream patterns as-is:
 		// - intentional `any` escapes in test fixtures and the router search
 		//   record (see use-attributes-with-search-fallback.ts)
@@ -92,7 +91,7 @@ export default defineConfig(
 		// - CIAB design-system tokens not yet in the local token inventory,
 		//   plus raw/dynamic token names required by the `@automattic/charts`
 		//   theme contract (see use-chart-theme.ts, metric-value.tsx)
-		files: [ 'packages/widgets-toolkit/**', 'widgets/**' ],
+		files: [ 'packages/widgets-toolkit/**' ],
 		rules: {
 			'jsdoc/require-jsdoc': 'off',
 			'jsdoc/require-description': 'off',

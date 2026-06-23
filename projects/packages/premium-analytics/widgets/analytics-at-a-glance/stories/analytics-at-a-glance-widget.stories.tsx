@@ -1,31 +1,100 @@
 import { getDefaultQueryParams } from '@jetpack-premium-analytics/data';
+import { SELECTABLE_PRESETS, type SelectablePresetId } from '@jetpack-premium-analytics/datetime';
 import { DEFAULT_METRICS } from '@jetpack-premium-analytics/widgets-toolkit';
+import LineChart from '../../../../../js-packages/charts/src/charts/line-chart/line-chart';
+import { registerReportMocks } from '../../../packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
 import {
 	DEFAULT_WIDGET_DASHBOARD_STORY_ARGS,
 	WidgetDashboardWithWidget as WidgetDashboardWithWidgetStory,
 	widgetDashboardWithWidgetArgTypes,
 	type WidgetDashboardWithWidgetControls,
 } from '../../stories/widget-dashboard-with-widget';
-import LineChart from '../../../../../js-packages/charts/src/charts/line-chart/line-chart';
-import { registerReportMocks } from '../../../packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
 import StorePerformanceRender from '../render';
 import widgetDefinition from '../widget';
-import type { Meta, StoryObj } from '@storybook/react';
+import type { Decorator, Meta, StoryObj } from '@storybook/react';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
-import type { ComponentType } from 'react';
+import type { ComponentProps, ComponentType } from 'react';
 
 registerReportMocks();
 
 const STORE_PERFORMANCE_RENDER_MODULE = 'storybook/store-performance';
+const DEFAULT_PRESET = 'last-30-days' satisfies SelectablePresetId;
+const PRESET_OPTIONS = SELECTABLE_PRESETS;
 // Static Storybook builds need this source import before ComparativeLineChart reads LineChart.Legend.
 const ensureLineChartComposition = () => LineChart.Legend;
 
-interface StorePerformanceDashboardStoryProps extends WidgetDashboardWithWidgetControls {
+type StorePerformanceRenderProps = ComponentProps< typeof StorePerformanceRender >;
+
+interface StorePerformanceStoryControls {
 	withComparison: boolean;
+	preset: SelectablePresetId;
+}
+
+type StorePerformanceStoryProps = StorePerformanceRenderProps & StorePerformanceStoryControls;
+
+interface StorePerformanceDashboardStoryProps
+	extends WidgetDashboardWithWidgetControls,
+		StorePerformanceStoryControls {}
+
+const withWidgetCanvas: Decorator = Story => (
+	<div style={ { width: '100%', minHeight: '420px' } }>
+		<Story />
+	</div>
+);
+
+function getStorePerformanceAttributes(
+	withComparison = false,
+	preset: SelectablePresetId = DEFAULT_PRESET
+): StorePerformanceRenderProps[ 'attributes' ] {
+	return {
+		reportParams: getDefaultQueryParams( withComparison, preset ),
+		metrics: DEFAULT_METRICS,
+	};
+}
+
+function getDefaultQueryParamsSource( {
+	withComparison,
+	preset,
+}: Partial< StorePerformanceStoryControls > ) {
+	const hasComparison = Boolean( withComparison );
+	const storyPreset = preset ?? DEFAULT_PRESET;
+
+	if ( ! hasComparison && storyPreset === DEFAULT_PRESET ) {
+		return 'getDefaultQueryParams()';
+	}
+
+	if ( hasComparison && storyPreset === DEFAULT_PRESET ) {
+		return 'getDefaultQueryParams( true )';
+	}
+
+	return `getDefaultQueryParams( ${ hasComparison ? 'true' : 'false' }, '${ storyPreset }' )`;
+}
+
+function getStorePerformanceSource( args: Partial< StorePerformanceStoryControls > ) {
+	return `import { getDefaultQueryParams } from '@jetpack-premium-analytics/data';
+import { DEFAULT_METRICS } from '@jetpack-premium-analytics/widgets-toolkit';
+
+<StorePerformanceRender
+\tattributes={ {
+\t\treportParams: ${ getDefaultQueryParamsSource( args ) },
+\t\tmetrics: DEFAULT_METRICS,
+\t} }
+/>`;
+}
+
+function renderStorePerformance( { withComparison, preset }: StorePerformanceStoryControls ) {
+	ensureLineChartComposition();
+
+	return (
+		<StorePerformanceRender
+			attributes={ getStorePerformanceAttributes( withComparison, preset ) }
+		/>
+	);
 }
 
 function StorePerformanceDashboardStory( {
 	withComparison,
+	preset,
 	...dashboardStoryArgs
 }: StorePerformanceDashboardStoryProps ) {
 	ensureLineChartComposition();
@@ -36,26 +105,24 @@ function StorePerformanceDashboardStory( {
 			widgetType={ widgetDefinition }
 			renderModule={ STORE_PERFORMANCE_RENDER_MODULE }
 			renderComponent={ StorePerformanceRender as ComponentType< WidgetRenderProps< unknown > > }
-			attributes={ {
-				reportParams: getDefaultQueryParams( withComparison ),
-				metrics: DEFAULT_METRICS,
-			} }
+			attributes={ getStorePerformanceAttributes( withComparison, preset ) }
 		/>
 	);
 }
 
 const meta = {
 	title: 'Packages/Premium Analytics/Widgets/StorePerformance',
-	component: StorePerformanceDashboardStory,
+	component: StorePerformanceRender,
 	tags: [ 'autodocs' ],
-	args: {
-		...DEFAULT_WIDGET_DASHBOARD_STORY_ARGS,
-		withComparison: true,
-	},
 	argTypes: {
-		...widgetDashboardWithWidgetArgTypes,
+		preset: {
+			control: 'select',
+			options: PRESET_OPTIONS,
+			description: 'Date-range preset used to generate the widget report params.',
+		},
 		withComparison: {
 			control: 'boolean',
+			description: 'Include previous-period comparison report params.',
 		},
 	},
 	parameters: {
@@ -65,10 +132,95 @@ const meta = {
 			},
 		},
 	},
-} satisfies Meta< typeof StorePerformanceDashboardStory >;
+} satisfies Meta< StorePerformanceStoryProps >;
 
 export default meta;
 
 type Story = StoryObj< typeof meta >;
+type DashboardStory = StoryObj< StorePerformanceDashboardStoryProps >;
 
-export const WidgetDashboardWithWidget: Story = {};
+/**
+ * Default state for the current report period.
+ */
+export const Default: Story = {
+	render: renderStorePerformance,
+	args: {
+		preset: DEFAULT_PRESET,
+		withComparison: false,
+	},
+	decorators: [ withWidgetCanvas ],
+	parameters: {
+		docs: {
+			source: {
+				transform: (
+					_source: string,
+					storyContext: { args: Partial< StorePerformanceStoryControls > }
+				) => getStorePerformanceSource( storyContext.args ),
+			},
+		},
+	},
+};
+
+/**
+ * Comparison period enabled, showing period-over-period changes and chart data.
+ */
+export const WithComparison: Story = {
+	render: renderStorePerformance,
+	args: {
+		preset: DEFAULT_PRESET,
+		withComparison: true,
+	},
+	decorators: [ withWidgetCanvas ],
+	parameters: {
+		docs: {
+			source: {
+				transform: (
+					_source: string,
+					storyContext: { args: Partial< StorePerformanceStoryControls > }
+				) => getStorePerformanceSource( storyContext.args ),
+			},
+		},
+	},
+};
+
+/**
+ * Renders the widget through the shared dashboard harness.
+ */
+export const WidgetDashboardWithWidget: DashboardStory = {
+	render: args => <StorePerformanceDashboardStory { ...args } />,
+	args: {
+		...DEFAULT_WIDGET_DASHBOARD_STORY_ARGS,
+		preset: DEFAULT_PRESET,
+		withComparison: true,
+	},
+	argTypes: {
+		...widgetDashboardWithWidgetArgTypes,
+		preset: {
+			control: 'select',
+			options: PRESET_OPTIONS,
+			description: 'Date-range preset used to generate the widget report params.',
+		},
+		withComparison: {
+			control: 'boolean',
+			description: 'Include previous-period comparison report params.',
+		},
+	},
+	parameters: {
+		docs: {
+			source: {
+				code: `import { getDefaultQueryParams } from '@jetpack-premium-analytics/data';
+import { DEFAULT_METRICS } from '@jetpack-premium-analytics/widgets-toolkit';
+
+<WidgetDashboardWithWidget
+\twidgetType={ widgetDefinition }
+\trenderModule="storybook/store-performance"
+\trenderComponent={ StorePerformanceRender }
+\tattributes={ {
+\t\treportParams: getDefaultQueryParams( true ),
+\t\tmetrics: DEFAULT_METRICS,
+\t} }
+/>`,
+			},
+		},
+	},
+};

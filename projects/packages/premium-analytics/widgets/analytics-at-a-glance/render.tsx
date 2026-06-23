@@ -292,10 +292,15 @@ function StorePerformanceContent( {
 				metricTypes.has( 'conversion' ) ? conversionReport : null,
 				metricTypes.has( 'customers' ) ? customersReport : null,
 			].filter( report => report !== null ),
-		[ metricTypes, generalReport, bookingsReport, visitorsReport, conversionReport, customersReport ]
+		[
+			metricTypes,
+			generalReport,
+			bookingsReport,
+			visitorsReport,
+			conversionReport,
+			customersReport,
+		]
 	);
-	const isInitialLoading = activeReports.some( report => report.isLoading && ! report.hasData );
-	const isRefetching = activeReports.some( report => report.isFetching && report.hasData );
 	const isError = activeReports.some( report => report.isError );
 	const refetch = useCallback(
 		() => Promise.all( activeReports.map( report => report.refetch() ) ),
@@ -407,9 +412,13 @@ function StorePerformanceContent( {
 		return null;
 	}
 
+	const isInitialLoading = activeReports.some( report => report.isLoading && ! report.hasData );
+
 	if ( isInitialLoading ) {
 		return <WidgetLoadingOverlay />;
 	}
+
+	const isRefetching = activeReports.some( report => report.isFetching && report.hasData );
 
 	return (
 		<Tabs.Root
