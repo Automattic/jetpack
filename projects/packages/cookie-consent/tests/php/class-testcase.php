@@ -12,8 +12,8 @@ use WorDBless\Options as WorDBless_Options;
 use WorDBless\Users as WorDBless_Users;
 
 /**
- * Base TestCase: resets WorDBless state between tests. Consent-table helpers
- * are added in Task 2 once the schema and the static get_table_name() exist.
+ * Base TestCase: resets WorDBless state between tests and provides consent-log
+ * table/row helpers (create_consent_table, insert_consent_row).
  */
 abstract class TestCase extends PHPUnit_TestCase {
 

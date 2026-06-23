@@ -201,10 +201,19 @@ class Consent_Log_Privacy {
 		 */
 		$mode = apply_filters( 'jetpack_cookie_consent_erase_mode', 'anonymize', $user_id );
 
-		if ( 'delete' === $mode ) {
-			self::delete_rows( $ids );
-		} else {
-			self::anonymize_rows( $ids );
+		$written = 'delete' === $mode
+			? self::delete_rows( $ids )
+			: self::anonymize_rows( $ids );
+
+		if ( false === $written ) {
+			// The UPDATE/DELETE failed. Report honestly (nothing removed) and stop
+			// iterating: leaving done = true terminates core's erasure loop instead
+			// of re-requesting the same un-erased rows (get_rows always reads offset 0).
+			$response['messages'][] = __( 'Cookie consent records could not be erased due to a database error.', 'jetpack-cookie-consent' );
+			return $response;
+		}
+
+		if ( 'delete' !== $mode ) {
 			$response['items_retained'] = true;
 			$response['messages'][]     = __( 'Cookie consent records were anonymized and retained for consent accountability.', 'jetpack-cookie-consent' );
 		}
@@ -219,13 +228,14 @@ class Consent_Log_Privacy {
 	 * Anonymize rows: clear the IP and detach the user.
 	 *
 	 * @param int[] $ids Row ids.
+	 * @return int|false Rows affected, or false on error.
 	 */
 	private static function anonymize_rows( $ids ) {
 		global $wpdb;
 		$table        = Consent_Log_Controller::get_table_name();
 		$placeholders = implode( ',', array_fill( 0, count( $ids ), '%d' ) );
 		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare
-		$wpdb->query(
+		return $wpdb->query(
 			$wpdb->prepare(
 				"UPDATE {$table} SET ip_address = NULL, user_id = 0 WHERE id IN ({$placeholders})",
 				...array_map( 'intval', $ids )
@@ -238,13 +248,14 @@ class Consent_Log_Privacy {
 	 * Hard-delete rows.
 	 *
 	 * @param int[] $ids Row ids.
+	 * @return int|false Rows affected, or false on error.
 	 */
 	private static function delete_rows( $ids ) {
 		global $wpdb;
 		$table        = Consent_Log_Controller::get_table_name();
 		$placeholders = implode( ',', array_fill( 0, count( $ids ), '%d' ) );
 		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare
-		$wpdb->query(
+		return $wpdb->query(
 			$wpdb->prepare(
 				"DELETE FROM {$table} WHERE id IN ({$placeholders})",
 				...array_map( 'intval', $ids )

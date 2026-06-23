@@ -179,4 +179,67 @@ class Consent_Log_Privacy_Eraser_Test extends TestCase {
 		$this->assertTrue( $result['items_removed'] );
 		$this->assertTrue( $result['items_retained'], 'items_retained must be true for anonymize path.' );
 	}
+
+	/**
+	 * Delete mode also converges for subjects with more than PER_PAGE (100) rows.
+	 *
+	 * Delete drains the WHERE user_id = N set by physically removing rows, a
+	 * different mechanism from anonymize (which zeroes user_id), so it needs its
+	 * own convergence guard.
+	 */
+	public function test_erase_delete_mode_converges_for_more_than_100_rows() {
+		list( $user_id, $email ) = $this->make_user();
+
+		for ( $i = 0; $i < 150; $i++ ) {
+			$this->insert_consent_row( array( 'user_id' => $user_id ) );
+		}
+
+		$cb = static function () {
+			return 'delete';
+		};
+		add_filter( 'jetpack_cookie_consent_erase_mode', $cb );
+
+		$page      = 1;
+		$max_pages = 10;
+		$done      = false;
+		while ( ! $done && $page <= $max_pages ) {
+			$result = Consent_Log_Privacy::erase( $email, $page );
+			$done   = $result['done'];
+			++$page;
+		}
+
+		remove_filter( 'jetpack_cookie_consent_erase_mode', $cb );
+
+		$this->assertTrue( $done, 'Delete-mode eraser did not converge within 10 passes — possible infinite loop.' );
+		$this->assertSame( 3, $page, 'Expected convergence in 2 passes (page increments to 3 after done).' );
+
+		global $wpdb;
+		$table = Consent_Log_Controller::get_table_name();
+		$total = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$table}" ); // phpcs:ignore WordPress.DB
+		$this->assertSame( 0, $total, 'All matched rows must be deleted.' );
+	}
+
+	/**
+	 * Erase never touches guest rows (user_id = 0): an email request for one
+	 * subject must leave guest rows untouched.
+	 */
+	public function test_erase_leaves_guest_rows_untouched() {
+		global $wpdb;
+		list( $user_id, $email ) = $this->make_user();
+
+		$guest_id = $this->insert_consent_row(
+			array(
+				'user_id'    => 0,
+				'ip_address' => '198.51.100.7',
+			)
+		);
+		$this->insert_consent_row( array( 'user_id' => $user_id ) );
+
+		$result = Consent_Log_Privacy::erase( $email, 1 );
+		$this->assertTrue( $result['items_removed'] );
+
+		$table    = Consent_Log_Controller::get_table_name();
+		$guest_ip = $wpdb->get_var( $wpdb->prepare( "SELECT ip_address FROM {$table} WHERE id = %d", $guest_id ) ); // phpcs:ignore WordPress.DB
+		$this->assertSame( '198.51.100.7', $guest_ip, 'Guest row IP must be preserved.' );
+	}
 }
