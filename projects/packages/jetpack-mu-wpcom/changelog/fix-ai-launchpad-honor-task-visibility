@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+AI Launchpad: only surface tasks the catalog would make visible on the site (honor is_visible_callback), so plugin- or goal-gated tasks no longer appear where they can't be completed.

@@ -198,6 +198,51 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * Test that GET drops tasks the catalog would hide on this site (is_visible_callback),
+	 * while keeping the visible ones. WooCommerce tasks are gated to WoA sites with
+	 * WooCommerce active, so woo_products is not visible in the test environment.
+	 */
+	public function test_get_excludes_non_visible_tasks() {
+		wp_set_current_user( $this->admin_id );
+
+		$payload          = self::valid_payload();
+		$payload['tasks'] = array(
+			array(
+				'id'       => 'first_post_published',
+				'subtitle' => 'Share your first trail story.',
+			),
+			array(
+				'id'       => 'woo_products',
+				'subtitle' => 'Add your first product.',
+			),
+			array(
+				'id'       => 'site_launched',
+				'subtitle' => 'Go live and share your journey.',
+			),
+		);
+
+		update_option(
+			'wpcom_ai_launchpad_ai_output',
+			array(
+				'version'      => 1,
+				'source'       => 'ai',
+				'generated_at' => 1717000000,
+				'payload'      => $payload,
+			),
+			false
+		);
+
+		$result = $this->call_api( Requests::GET );
+
+		$this->assertSame( 200, $result->get_status() );
+
+		$ids = array_column( $result->get_data()['tasks'], 'id' );
+		$this->assertContains( 'first_post_published', $ids );
+		$this->assertContains( 'site_launched', $ids );
+		$this->assertNotContains( 'woo_products', $ids );
+	}
+
+	/**
 	 * Test that GET requires authentication.
 	 */
 	public function test_get_requires_authentication() {

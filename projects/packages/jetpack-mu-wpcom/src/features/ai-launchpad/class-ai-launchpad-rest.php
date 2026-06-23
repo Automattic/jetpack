@@ -349,6 +349,14 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 		$definitions = wpcom_launchpad_get_task_definitions();
 		$built       = array();
 
+		// Some catalog visibility callbacks call is_plugin_active() (e.g. the
+		// WooCommerce tasks), which lives in wp-admin/includes/plugin.php and is not
+		// loaded during a REST request. Load it once so the is_visible() gate below
+		// can't fatal on those callbacks.
+		if ( ! function_exists( 'is_plugin_active' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/plugin.php';
+		}
+
 		foreach ( $tasks as $task ) {
 			if ( ! is_array( $task ) || ! isset( $task['id'] ) || ! isset( $task['subtitle'] ) ) {
 				continue;
@@ -360,6 +368,19 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 
 			$definition       = $definitions[ $task['id'] ];
 			$definition['id'] = $task['id'];
+
+			// Honor the catalog's own visibility gate, mirroring the legacy
+			// Launchpad_Task_Lists::build(): drop any task the catalog would hide
+			// on this site (e.g. WooCommerce tasks with no WooCommerce, or
+			// goal-gated tasks). The AI can select from the full menu, but a task
+			// it picks that is not applicable here must not render — the CTA would
+			// 404 and the task could never complete. Filtering on read (rather than
+			// rejecting on write) keeps the deterministic fallback usable: its fixed
+			// per-goal lists also contain conditionally-visible tasks, so gating the
+			// write path could strand a goal with too few surviving tasks.
+			if ( ! wpcom_launchpad_checklists()->is_visible( $definition ) ) {
+				continue;
+			}
 
 			$built[] = array(
 				'id'           => $task['id'],
