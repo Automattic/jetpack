@@ -66,8 +66,7 @@ function add_origin_admin_bar_to_url( $url ) {
  * environment, so enrollment is currently driven solely by the explicit preference.
  *
  * On Simple sites the preference is read locally; on Atomic/self-hosted sites it
- * is fetched from `/me/preferences`. The result is cached per user to avoid a
- * remote request on every admin bar render.
+ * is fetched from `/me/preferences`.
  *
  * @return bool
  */
@@ -86,12 +85,6 @@ function wpcom_admin_bar_is_hosting_dashboard_enrolled() {
 	$user_id = get_current_user_id();
 	if ( ! $user_id ) {
 		return false;
-	}
-
-	$cache_key = 'wpcom-hosting-dashboard-enrolled-' . $user_id;
-	$cached    = get_transient( $cache_key );
-	if ( false !== $cached ) {
-		return (bool) $cached;
 	}
 
 	$opt_in_value = null;
@@ -116,11 +109,7 @@ function wpcom_admin_bar_is_hosting_dashboard_enrolled() {
 		}
 	}
 
-	$enrolled = in_array( $opt_in_value, array( 'opt-in', 'forced-opt-in' ), true );
-
-	set_transient( $cache_key, $enrolled ? 1 : 0, HOUR_IN_SECONDS );
-
-	return $enrolled;
+	return in_array( $opt_in_value, array( 'opt-in', 'forced-opt-in' ), true );
 }
 
 /**
