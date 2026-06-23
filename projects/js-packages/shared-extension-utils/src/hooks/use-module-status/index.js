@@ -19,7 +19,7 @@ import { useMemo, useCallback } from '@wordpress/element';
 const useModuleStatus = name => {
 	const { isModuleActive, isChangingStatus, isLoadingModules } = useSelect(
 		selectData => {
-			// String ID hata kar actual store object pass kiya gaya hai
+			// Replaced string ID with the actual store object
 			const data = selectData( jetpackModulesStore );
 			return {
 				isModuleActive: data.isModuleActive( name ),
@@ -30,7 +30,7 @@ const useModuleStatus = name => {
 		[ name ]
 	);
 
-	// Yahan bhi string ID hata kar store object pass kiya gaya hai
+	// Replaced string ID with the actual store object here as well
 	const { updateJetpackModuleStatus } = useDispatch( jetpackModulesStore );
 
 	const changeStatus = useCallback(
