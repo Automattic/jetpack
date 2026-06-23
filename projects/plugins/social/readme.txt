@@ -104,26 +104,18 @@ The easiest way is to use the Custom Message option in the publishing options bo
 6. Managing Social media accounts in the post editor
 
 == Changelog ==
-### 9.0.0 - 2026-06-01
-#### Added
-- Google Search Preview: Fix site icon not being shown on some sites.
-
+### 9.0.1 - 2026-06-23
 #### Changed
-- General: Update minimum WordPress version to 6.9.
-- Remove header border-bottom from the admin page for a cleaner unified header appearance.
-- Remove unneeded development and documentation files from the published plugin.
-- Tested up to WordPress 7.0.
-- Update design of the sidebar upsell.
-- Update package dependencies.
-
-#### Removed
-- Remove post publish review prompt.
+- Reconnect accounts in place instead of disconnecting and recreating them, retaining connection settings.
+- Updated package dependencies.
 
 #### Fixed
-- Admin Page: Restore border on header component.
-- Fall back to the site-wide social message template when no per-post share message is set.
-- Fix Threads social preview for posts with gallery.
-- Fix useSelect warning for notesConfig on Social admin page.
+- Fix PHP warnings on the front end of posts shared with the no link sharing option.
+- Contain errors in the post-publish sharing status panel so they no longer crash the editor.
+- Detect when the browser blocks the connection popup and notify the user.
+- Social Previews: Remove the misleading URL from captions when it is not a part of it.
+- Fix Jetpack Social admin page rendering blank on WordPress 6.9.x.
+
 
 == Upgrade Notice ==
 
