@@ -1,7 +1,4 @@
-import {
-	VisitorMetricWidget,
-	WidgetRoot,
-} from '@jetpack-premium-analytics/widgets-toolkit';
+import { VisitorMetricWidget, WidgetRoot } from '@jetpack-premium-analytics/widgets-toolkit';
 import type { ComponentProps } from 'react';
 
 type RenderProps = Pick< ComponentProps< typeof WidgetRoot >, 'attributes' | 'setError' >;
