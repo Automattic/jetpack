@@ -410,9 +410,11 @@ const { actions } = store( 'jetpack/cookie-consent', {
 				return geoState;
 			}
 
-			// If there is not country_code or region cookie set, fetch geolocation
+			// If there is not country_code or region cookie set, fetch geolocation.
+			// `no-store` keeps this visitor-specific response out of any shared/intermediary
+			// cache, so one visitor's geo can never be served to another.
 			try {
-				const response = ( yield fetch( config.geoApiUrl ) ) as Response;
+				const response = ( yield fetch( config.geoApiUrl, { cache: 'no-store' } ) ) as Response;
 				if ( ! response.ok ) {
 					throw new Error( 'Geolocation request failed' );
 				}

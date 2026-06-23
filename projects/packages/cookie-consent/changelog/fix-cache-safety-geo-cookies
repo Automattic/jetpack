@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Cache safety: keep the geolocation cookies out of Jetpack Boost's page-cache key, fetch geolocation with no-store, and document that the banner render must stay geo/consent independent.
