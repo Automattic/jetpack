@@ -134,6 +134,26 @@ export function normalizeStatsReportSummary(
 		: {};
 }
 
+function getStatsSingleBucketDate(
+	days: StatsRecord,
+	endDate: string,
+	period?: string
+): string | undefined {
+	if ( days[ endDate ] ) {
+		return endDate;
+	}
+
+	const startDate = getDateIntervalDateParts( endDate, period ).startDate;
+
+	if ( days[ startDate ] ) {
+		return startDate;
+	}
+
+	return Object.keys( days ).find(
+		key => getDateIntervalDateParts( key, period ).endDate === endDate
+	);
+}
+
 export function getStatsBuckets( response: unknown, query: StatsQueryParams = {} ) {
 	if ( query.summarize ) {
 		return [];
@@ -144,8 +164,12 @@ export function getStatsBuckets( response: unknown, query: StatsQueryParams = {}
 	const startDate = getDatePart( query.start_date );
 	const endDate = getStatsEndDateParam( query );
 
-	if ( endDate && ! startDate && days[ endDate ] ) {
-		return [ [ endDate, coerceStatsRecord( days[ endDate ] ) ] ] as const;
+	if ( endDate && ! startDate ) {
+		const bucketDate = getStatsSingleBucketDate( days, endDate, query.period );
+
+		if ( bucketDate ) {
+			return [ [ bucketDate, coerceStatsRecord( days[ bucketDate ] ) ] ] as const;
+		}
 	}
 
 	return Object.entries( days )
