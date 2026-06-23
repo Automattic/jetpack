@@ -33,14 +33,38 @@ class Filesystem_Utils {
 			return $validation_error;
 		}
 
-		$iterator = new \RecursiveIteratorIterator(
-			new \RecursiveDirectoryIterator( $path, \RecursiveDirectoryIterator::SKIP_DOTS ),
-			\RecursiveIteratorIterator::CHILD_FIRST
-		);
-
 		$count = 0;
-		foreach ( $iterator as $file ) {
-			$count += $action->apply_to_path( new SplFileInfo( $file ) );
+
+		try {
+			// CATCH_GET_CHILD keeps the walk best-effort. A subdirectory can
+			// disappear or become unreadable between the moment its parent is
+			// listed and the moment the iterator descends into it - for example
+			// when a concurrent invalidation or garbage-collection pass (or this
+			// walk's own empty-directory cleanup) removes it first. Without this
+			// flag that surfaces as an uncaught UnexpectedValueException from
+			// RecursiveDirectoryIterator::__construct() ("Failed to open
+			// directory"), which aborts the triggering request - e.g. "Updating
+			// failed" when saving a template. With it, the missing entry is
+			// skipped and the rest of the tree is still processed.
+			$iterator = new \RecursiveIteratorIterator(
+				new \RecursiveDirectoryIterator( $path, \RecursiveDirectoryIterator::SKIP_DOTS ),
+				\RecursiveIteratorIterator::CHILD_FIRST,
+				\RecursiveIteratorIterator::CATCH_GET_CHILD
+			);
+
+			foreach ( $iterator as $file ) {
+				$count += $action->apply_to_path( new SplFileInfo( $file ) );
+			}
+		} catch ( \Throwable $e ) {
+			// CATCH_GET_CHILD already makes descending into children best-effort, so
+			// this catch is the backstop for the rest of the walk: the root iterator
+			// throwing if $path is removed between validation and construction, plus
+			// anything an action throws from inside the loop. Either way, fail with a
+			// controlled, logged error rather than a fatal so cache invalidation never
+			// breaks the request that triggered it. The log line keeps an otherwise
+			// silent partial walk diagnosable, since most callers discard the return.
+			Logger::debug( 'iterate_directory failed for ' . $path . ': ' . $e->getMessage() );
+			return new Boost_Cache_Error( 'could-not-iterate-directory', 'Could not iterate over directory: ' . $e->getMessage() );
 		}
 
 		$count += $action->apply_to_path( new SplFileInfo( $path ) );
@@ -66,7 +90,16 @@ class Filesystem_Utils {
 
 		$path = Boost_Cache_Utils::trailingslashit( $path );
 		// Files to delete are all files in the given directory, except index.html. index.html is used to prevent directory listing.
-		$files = array_diff( scandir( $path ), array( '.', '..', 'index.html' ) );
+		// scandir() returns false (and emits a warning) if the directory was removed
+		// between validation and this call - e.g. by a concurrent invalidation. Guard
+		// against it so we return a controlled error instead of a TypeError from
+		// array_diff( false, ... ).
+		$entries = @scandir( $path ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+		if ( false === $entries ) {
+			Logger::debug( 'iterate_files could not read directory: ' . $path );
+			return new Boost_Cache_Error( 'could-not-read-directory', 'Could not read directory: ' . $path );
+		}
+		$files = array_diff( $entries, array( '.', '..', 'index.html' ) );
 		$count = 0;
 		foreach ( $files as $file ) {
 			$fileinfo = new SplFileInfo( $path . $file );
