@@ -473,10 +473,109 @@ input[type="checkbox"]:focus-visible + label
 	}
 }
 
+/* ==========================================================================
+   Classic-theme fallback for required legal links
+   Fixed-corner floating control rendered on wp_footer when the Block Hooks
+   footer-nav injection did not run (classic themes / footer-nav-less templates).
+   ========================================================================== */
+
+.jetpack-cookie-consent-footer-links {
+	position: fixed;
+	bottom: 20px;
+	left: 20px;
+	z-index: 50000;
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 8px;
+}
+
+.jetpack-cookie-consent-footer-links__toggle {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	margin: 0;
+	padding: 8px 14px;
+	font-size: 14px;
+	line-height: 1.4;
+	cursor: pointer;
+	color: var(--wp--preset--color--contrast, #1e1e1e);
+	background: var(--wp--preset--color--base, #fff);
+	border: 1px solid var(--wp--preset--color--contrast-3, #dcdcde);
+	border-radius: 4px;
+	box-shadow: 0 2px 8px 0 rgba(0, 0, 0, 0.12);
+}
+
+.jetpack-cookie-consent-footer-links__toggle:hover {
+	background: var(--wp--preset--color--contrast-3, #f0f0f0);
+}
+
+.jetpack-cookie-consent-footer-links__toggle:focus-visible {
+	outline: 2px solid var(--wp--preset--color--accent-1, #243dc8);
+	outline-offset: 2px;
+}
+
+.jetpack-cookie-consent-footer-links__toggle-icon {
+	display: inline-flex;
+	align-items: center;
+
+	svg {
+		fill: currentColor;
+	}
+}
+
+.jetpack-cookie-consent-footer-links__panel {
+	min-width: 220px;
+	max-width: calc(100vw - 40px);
+	padding: 8px 0;
+	background: var(--wp--preset--color--base, #fff);
+	border: 1px solid var(--wp--preset--color--contrast-3, #dcdcde);
+	border-radius: 4px;
+	box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.16);
+}
+
+.jetpack-cookie-consent-footer-links__list {
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+.jetpack-cookie-consent-footer-links__item {
+	margin: 0;
+}
+
+.jetpack-cookie-consent-footer-links__link {
+	display: block;
+	padding: 8px 16px;
+	font-size: 14px;
+	line-height: 1.5;
+	text-decoration: none;
+	color: var(--wp--preset--color--contrast, #1e1e1e);
+}
+
+.jetpack-cookie-consent-footer-links__link:hover {
+	text-decoration: underline;
+	background: var(--wp--preset--color--contrast-3, #f0f0f0);
+}
+
+.jetpack-cookie-consent-footer-links__link:focus-visible {
+	outline: 2px solid var(--wp--preset--color--accent-1, #243dc8);
+	outline-offset: -2px;
+}
+
+/* Reduced Motion */
+@media ( prefers-reduced-motion: reduce ) {
+
+	.jetpack-cookie-consent-footer-links__toggle {
+		transition: none;
+	}
+}
+
 /* Print */
 @media print {
 
-	.jetpack-cookie-consent {
+	.jetpack-cookie-consent,
+	.jetpack-cookie-consent-footer-links {
 		display: none;
 	}
 }
