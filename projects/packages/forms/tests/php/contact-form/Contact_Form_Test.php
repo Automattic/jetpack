@@ -4085,15 +4085,17 @@ class Contact_Form_Test extends BaseTestCase {
 	/**
 	 * Build a Contact_Form whose source resolves to the given post id.
 	 *
-	 * @param array $attributes Form attributes.
-	 * @param int   $source_id  Source (post) id the form should report.
+	 * @param array  $attributes  Form attributes.
+	 * @param int    $source_id   Source (post) id the form should report.
+	 * @param string $source_type Source type (single, widget, block_template, block_template_part).
 	 * @return Contact_Form
 	 */
-	private function make_form_with_source( $attributes, $source_id ) {
+	private function make_form_with_source( $attributes, $source_id, $source_type = 'single' ) {
 		$source = Feedback_Source::from_serialized(
 			array(
-				'source_id' => $source_id,
-				'title'     => 'Test Post',
+				'source_id'   => $source_id,
+				'title'       => 'Test Post',
+				'source_type' => $source_type,
 			)
 		);
 
@@ -4187,6 +4189,46 @@ class Contact_Form_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Test should_honor_content_destinations honors block-template, template-part and widget
+	 * sources, whose (non-numeric) ids have no post author but require an administrator-tier
+	 * `edit_theme_options` capability to author.
+	 *
+	 * @dataProvider data_admin_tier_source_types
+	 *
+	 * @param string $source_type The source type to honor.
+	 */
+	#[DataProvider( 'data_admin_tier_source_types' )]
+	public function test_should_honor_content_destinations_for_admin_tier_sources( $source_type ) {
+		$this->assertTrue(
+			\Automattic\Jetpack\Forms\Jetpack_Forms::should_honor_content_destinations( 'mytheme//page', $source_type ),
+			"Destinations should be honored for $source_type sources."
+		);
+	}
+
+	/**
+	 * Source types that can only be authored with an administrator-tier capability.
+	 *
+	 * @return array
+	 */
+	public static function data_admin_tier_source_types() {
+		return array(
+			'block template'      => array( 'block_template' ),
+			'block template part' => array( 'block_template_part' ),
+			'widget'              => array( 'widget' ),
+		);
+	}
+
+	/**
+	 * Test should_honor_content_destinations still denies an unresolved non-numeric source whose
+	 * type is not an admin-tier authoring surface (the conservative catch-all).
+	 */
+	public function test_should_not_honor_content_destinations_for_unknown_non_numeric_source() {
+		$this->assertFalse(
+			\Automattic\Jetpack\Forms\Jetpack_Forms::should_honor_content_destinations( 'mytheme//page', 'single' )
+		);
+	}
+
+	/**
 	 * Test reconcile_content_destinations drops every content-configured destination
 	 * when the source post author may not configure them.
 	 */
@@ -4271,6 +4313,42 @@ class Contact_Form_Test extends BaseTestCase {
 		// postToUrl is migrated into the webhooks collection, so both entries survive.
 		$this->assertCount( 2, $form->attributes['webhooks'], 'Configured webhook and migrated postToUrl should remain.' );
 		$this->assertSame( array( 'organizationId' => '12345' ), $form->attributes['salesforceData'], 'salesforceData should be preserved.' );
+	}
+
+	/**
+	 * Test reconcile_content_destinations keeps destinations for a block-template source whose
+	 * (non-numeric) id has no post author but requires an admin-tier capability to author.
+	 *
+	 * Regression test for forms placed in FSE block templates, template parts and widgets whose
+	 * webhooks/postToUrl/Salesforce destinations were silently dropped from Jetpack 15.9.
+	 */
+	public function test_reconcile_content_destinations_keeps_destinations_for_block_template_source() {
+		$form = $this->make_form_with_source(
+			array(
+				'webhooks'       => array(
+					array(
+						'webhook_id' => 'w',
+						'url'        => 'https://example.com/hook',
+						'enabled'    => true,
+						'format'     => 'json',
+						'method'     => 'POST',
+					),
+				),
+				'postToUrl'      => array(
+					'url'     => 'https://example.com/post',
+					'enabled' => true,
+				),
+				'salesforceData' => array( 'organizationId' => '12345' ),
+			),
+			'mytheme//page',
+			'block_template'
+		);
+
+		$this->invoke_reconcile_content_destinations( $form );
+
+		// postToUrl is migrated into the webhooks collection, so both entries survive.
+		$this->assertCount( 2, $form->attributes['webhooks'], 'Configured webhook and migrated postToUrl should remain for a block-template form.' );
+		$this->assertSame( array( 'organizationId' => '12345' ), $form->attributes['salesforceData'], 'salesforceData should be preserved for a block-template form.' );
 	}
 
 	/**

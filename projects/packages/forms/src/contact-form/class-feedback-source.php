@@ -299,6 +299,17 @@ class Feedback_Source {
 	}
 
 	/**
+	 * Get the source type of the feedback entry.
+	 *
+	 * Possible values: single, widget, block_template, block_template_part.
+	 *
+	 * @return string The source type.
+	 */
+	public function get_source_type() {
+		return $this->source_type;
+	}
+
+	/**
 	 * Whether this feedback was submitted from a form preview (test submission).
 	 *
 	 * @return bool
