@@ -1,4 +1,4 @@
 Significance: minor
 Type: enhancement
 
-Newsletter: Roll out the modernized Newsletter dashboard and wp-admin subscriber management to Automatticians and to a percentage cohort of all sites (currently 0%), bucketed by the stable wpcom blog ID.
+Newsletter: Begin a staged rollout of the modernized Newsletter dashboard and wp-admin subscriber management, off by default during the initial rollout. Hosts can opt in or out with the rsm_jetpack_ui_modernization_newsletter and jetpack_wp_admin_subscriber_management_enabled filters.
