@@ -62,6 +62,13 @@
 	color: var(--wpds-color-fg-content-neutral-weak, #787c82);
 }
 
+// Right-align the per-section / per-row Save buttons, matching the Newsletter
+// settings card-footer convention.
+.jetpack-seo-settings__save {
+	display: flex;
+	justify-content: flex-end;
+}
+
 // Live preview under the title-structure token editor. Spacing comes from the
 // row's flex `gap`, so it carries no own margin (avoids doubling it).
 .jetpack-seo-settings__preview {

@@ -122,7 +122,7 @@ const TitleStructureRow: FC< RowProps > = ( {
 					<strong>{ previewLabel }:</strong> { preview }
 				</div>
 			) }
-			<div>
+			<div className="jetpack-seo-settings__save">
 				<Button variant="primary" onClick={ onSave } disabled={ disabled || ! canSave }>
 					{ saveLabel }
 				</Button>

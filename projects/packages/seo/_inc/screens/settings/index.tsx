@@ -233,7 +233,7 @@ const SettingsScreen: FC< Props > = ( { form } ) => {
 							disabled={ isSaving }
 							__nextHasNoMarginBottom
 						/>
-						<div>
+						<div className="jetpack-seo-settings__save">
 							<Button
 								variant="primary"
 								onClick={ () => commitFields( [ 'front_page_description' ] ) }
