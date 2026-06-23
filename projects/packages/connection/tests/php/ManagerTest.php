@@ -12,6 +12,8 @@ use Automattic\Jetpack\Status\Cache as StatusCache;
 use Jetpack_Options;
 use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\PreserveGlobalState;
+use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use PHPUnit\Framework\TestCase;
 use WorDBless\Options as WorDBless_Options;
 use WorDBless\Users as WorDBless_Users;
@@ -129,6 +131,68 @@ class ManagerTest extends TestCase {
 			->willReturn( false );
 
 		$this->assertFalse( $this->manager->is_active() );
+	}
+
+	/**
+	 * `Manager::configure()` registers the package version tracker on `shutdown` when the site is connected.
+	 *
+	 * This intentionally invokes the full `configure()` because it builds its own
+	 * `new self()` internally, so the connection state must be driven through the
+	 * real `is_connected()` path rather than the test's mock. `configure()` registers
+	 * many hooks and schedules cron events as side effects, so the test runs in a
+	 * separate process to avoid polluting global state for sibling tests.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_configure_registers_package_version_shutdown_callback_when_connected() {
+		Jetpack_Options::update_option( 'blog_token', 'asdasd.123123' );
+		Jetpack_Options::update_option( 'id', 1234 );
+		( new Manager() )->reset_connection_status();
+		$this->assertTrue( ( new Manager() )->is_connected(), 'Test setup failed: site should be connected.' );
+
+		remove_all_filters( 'shutdown' );
+
+		Manager::configure();
+
+		$this->assertSame(
+			10,
+			has_filter( 'shutdown', array( Package_Version_Tracker::class, 'update_on_shutdown' ) ),
+			'configure() should register the package version tracker on shutdown when connected.'
+		);
+
+		remove_all_filters( 'shutdown' );
+		( new Manager() )->reset_connection_status();
+	}
+
+	/**
+	 * `Manager::configure()` does not register the package version tracker on `shutdown` when disconnected.
+	 *
+	 * Runs in a separate process for the same reason as the connected case: `configure()`
+	 * registers many hooks and schedules cron events as side effects.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_configure_does_not_register_package_version_shutdown_callback_when_disconnected() {
+		Jetpack_Options::delete_option( 'blog_token' );
+		( new Manager() )->reset_connection_status();
+		$this->assertFalse( ( new Manager() )->is_connected(), 'Test setup failed: site should be disconnected.' );
+
+		remove_all_filters( 'shutdown' );
+
+		Manager::configure();
+
+		$this->assertFalse(
+			has_filter( 'shutdown', array( Package_Version_Tracker::class, 'update_on_shutdown' ) ),
+			'configure() should not register the package version tracker on shutdown when disconnected.'
+		);
+
+		remove_all_filters( 'shutdown' );
 	}
 
 	/**

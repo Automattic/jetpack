@@ -1,4 +1,0 @@
-Significance: minor
-Type: other
-
-Podcast: add a Jetpack module that loads the Podcast package, gated behind the default-off `jetpack_podcast_for_the_world` filter.

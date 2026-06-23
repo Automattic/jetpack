@@ -45,20 +45,25 @@
 	padding-top: var(--wpds-dimension-gap-md, 12px);
 }
 
-// Content SEO card: factual coverage rings, side by side.
+// Content SEO card: factual coverage rings. An auto-fit grid (matching the
+// Overview card grid above) so the rings flow into as many columns as fit
+// (up to four) and stack down to a single column as the screen narrows —
+// rather than shrinking to share a single row at every width.
 .jetpack-seo-overview__coverage-rings {
-	display: flex;
-	flex-wrap: wrap;
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
 	gap: var(--wpds-dimension-gap-lg, 16px);
 }
 
 .jetpack-seo-overview__coverage-ring {
 	display: flex;
-	flex: 1 1 0;
 	flex-direction: column;
 	align-items: center;
 	text-align: center;
 	gap: var(--wpds-dimension-gap-xs, 4px);
+	// Let the cell shrink below its content width so long labels wrap inside
+	// the grid track instead of forcing the column wider.
+	min-width: 0;
 }
 
 .jetpack-seo-overview__coverage-count {
@@ -66,7 +71,8 @@
 }
 
 .jetpack-seo-overview__coverage-label {
-	color: var(--wpds-color-fg-content-neutral-weak, #787c82);
+	// Inherit the card's text color rather than the muted `-neutral-weak` variant,
+	// so the metric labels match the rest of the text on the page.
 	font-size: 12px;
 }
 

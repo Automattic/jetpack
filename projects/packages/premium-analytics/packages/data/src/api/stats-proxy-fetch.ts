@@ -67,5 +67,3 @@ export async function fetchStatsProxy< TResponse = unknown, TBody = unknown >( {
 		...( method === 'POST' ? { data: body } : {} ),
 	} );
 }
-
-export type StatsProxyQueryParams = StatsProxyParams;
