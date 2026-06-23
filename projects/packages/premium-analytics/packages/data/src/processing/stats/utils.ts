@@ -139,13 +139,13 @@ function getStatsSingleBucketDate(
 	endDate: string,
 	period?: string
 ): string | undefined {
-	if ( days[ endDate ] ) {
+	if ( Object.prototype.hasOwnProperty.call( days, endDate ) ) {
 		return endDate;
 	}
 
 	const startDate = getDateIntervalDateParts( endDate, period ).startDate;
 
-	if ( days[ startDate ] ) {
+	if ( Object.prototype.hasOwnProperty.call( days, startDate ) ) {
 		return startDate;
 	}
 

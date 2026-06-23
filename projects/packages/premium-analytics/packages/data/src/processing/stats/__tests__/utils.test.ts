@@ -79,4 +79,45 @@ describe( 'Stats report utilities', () => {
 			)
 		).toEqual( [ [ '2026-06-16', { total_views: 24 } ] ] );
 	} );
+
+	it( 'falls through to the range filter when no single raw bucket matches', () => {
+		expect(
+			getStatsBuckets(
+				{
+					date: '2026-06-23',
+					period: 'week',
+					days: {
+						'2026-06-09': { total_views: 12 },
+						'2026-06-16': { total_views: 24 },
+					},
+				},
+				{
+					period: 'week',
+					end_date: '2026-06-23',
+				}
+			)
+		).toEqual( [
+			[ '2026-06-09', { total_views: 12 } ],
+			[ '2026-06-16', { total_views: 24 } ],
+		] );
+	} );
+
+	it( 'resolves month raw buckets by normalized period start date', () => {
+		expect(
+			getStatsBuckets(
+				{
+					date: '2026-06',
+					period: 'month',
+					days: {
+						'2026-05-01': { total_views: 31 },
+						'2026-06-01': { total_views: 62 },
+					},
+				},
+				{
+					period: 'month',
+					end_date: '2026-06',
+				}
+			)
+		).toEqual( [ [ '2026-06-01', { total_views: 62 } ] ] );
+	} );
 } );
