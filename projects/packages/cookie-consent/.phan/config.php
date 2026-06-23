@@ -16,5 +16,9 @@ return make_phan_config(
 		'exclude_file_regex' => array(
 			'build/',
 		),
+		'exclude_file_list'  => array(
+			// Mocks of core classes.
+			'tests/php/ConsentLogControllerTest.php',
+		),
 	)
 );
