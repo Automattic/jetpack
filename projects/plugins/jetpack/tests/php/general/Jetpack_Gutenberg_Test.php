@@ -532,6 +532,17 @@ class Jetpack_Gutenberg_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Read the private static Jetpack_Gutenberg::$lazy_blocks list.
+	 *
+	 * @return string[]
+	 */
+	private function get_lazy_blocks() {
+		$prop = new ReflectionProperty( Jetpack_Gutenberg::class, 'lazy_blocks' );
+		$prop->setAccessible( true );
+		return (array) $prop->getValue();
+	}
+
+	/**
 	 * Non-web contexts (empty REQUEST_URI: WP-CLI, test runs) load blocks eagerly.
 	 */
 	public function test_is_block_editor_context_is_true_without_request_uri() {
@@ -711,5 +722,43 @@ class Jetpack_Gutenberg_Test extends WP_UnitTestCase {
 		$result = Jetpack_Gutenberg::lazy_register_deferred_block( null, array( 'blockName' => 'jetpack/does-not-exist' ), (object) array() );
 		$this->assertNull( $result );
 		$this->assertArrayHasKey( 'does-not-exist', $this->get_deferred_blocks(), 'Inner-block invocation should not consume the deferred block.' );
+	}
+
+	/**
+	 * The dynamic (render_callback) blocks added to the lazy set in JETPACK-1747 must
+	 * stay in it. They are only safe to defer because each registers a single block
+	 * type named after its directory and does no front-end work at `init` time; a
+	 * refactor that breaks those invariants must remove the block from the list (and
+	 * fail this guard) rather than silently leave it deferring incorrectly.
+	 *
+	 * @dataProvider provider_newly_deferred_dynamic_blocks
+	 *
+	 * @param string $feature Block feature (directory) name expected in the lazy set.
+	 */
+	#[DataProvider( 'provider_newly_deferred_dynamic_blocks' )]
+	public function test_lazy_set_includes_newly_deferred_dynamic_blocks( $feature ) {
+		$this->assertContains(
+			$feature,
+			$this->get_lazy_blocks(),
+			"$feature should be deferred to first front-end render."
+		);
+
+		// The block file must exist for the lazy loader to include it on render.
+		$this->assertFileExists(
+			JETPACK__PLUGIN_DIR . "extensions/blocks/{$feature}/{$feature}.php",
+			"$feature block file must exist at the path the lazy loader includes."
+		);
+	}
+
+	/**
+	 * Data provider listing the dynamic blocks JETPACK-1747 added to the lazy set.
+	 *
+	 * @return array[]
+	 */
+	public static function provider_newly_deferred_dynamic_blocks() {
+		return array(
+			'instagram-gallery' => array( 'instagram-gallery' ),
+			'mailchimp'         => array( 'mailchimp' ),
+		);
 	}
 }
