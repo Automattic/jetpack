@@ -5,7 +5,6 @@ import { useTooltip, useTooltipInPortal } from '@visx/tooltip';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { createContext, useCallback, useContext, useMemo, useRef, useState } from 'react';
-import { useKeyboardNavigation } from '../../components/tooltip';
 import {
 	GlobalChartsProvider,
 	useChartId,
@@ -26,6 +25,7 @@ import {
 	getNormalizedValue,
 	EMPTY_CELL_COLOR,
 	HeatmapLegend,
+	isPresent,
 } from './private';
 import type { HeatmapChartProps, HeatmapColumn, HeatmapCell, HeatmapTooltipData } from './types';
 import type { ResponsiveConfig } from '../private/with-responsive';
@@ -46,8 +46,6 @@ export const HeatmapContext = createContext< HeatmapContextValue | null >( null 
 
 const DEFAULT_GAP = 4;
 const COMPACT_GAP = 2;
-const isPresent = ( v: number | null | undefined ): v is number =>
-	v !== null && v !== undefined && ! isNaN( v );
 
 const getBins = ( column: HeatmapColumn ): HeatmapCell[] => column.data;
 const getCount = ( cell: HeatmapCell ): number =>
@@ -76,7 +74,7 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 
 	const chartRef = useRef< HTMLDivElement >( null );
 	const [ selectedIndex, setSelectedIndex ] = useState< number | undefined >();
-	const [ isNavigating, setIsNavigating ] = useState( false );
+	const [ , setIsNavigating ] = useState( false );
 	const { tooltipOpen, tooltipLeft, tooltipTop, tooltipData, showTooltip, hideTooltip } =
 		useTooltip< HeatmapTooltipData >();
 	const { containerRef, TooltipInPortal } = useTooltipInPortal( {
@@ -110,15 +108,57 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 	const effectiveGap = cellGap ?? ( compact ? COMPACT_GAP : DEFAULT_GAP );
 	const drawValues = showValues ?? ! compact;
 
-	const totalPoints = columns * rows;
-	const { tooltipRef, onChartFocus, onChartBlur, onChartKeyDown } = useKeyboardNavigation( {
-		selectedIndex,
-		setSelectedIndex,
-		isNavigating,
-		setIsNavigating,
-		chartRef,
-		totalPoints,
-	} );
+	const onChartFocus = useCallback( () => {
+		// leave selectedIndex undefined until first arrow key press
+	}, [] );
+
+	const onChartBlur = useCallback( () => {
+		setIsNavigating( false );
+	}, [ setIsNavigating ] );
+
+	const onChartKeyDown = useCallback(
+		( event: React.KeyboardEvent< HTMLDivElement > ) => {
+			if (
+				! [ 'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Escape', 'Tab' ].includes(
+					event.key
+				)
+			) {
+				return;
+			}
+
+			if ( event.key === 'Tab' ) {
+				setSelectedIndex( undefined );
+				setIsNavigating( false );
+				return;
+			}
+
+			if ( event.key === 'Escape' ) {
+				setSelectedIndex( undefined );
+				setIsNavigating( false );
+				return;
+			}
+
+			event.preventDefault();
+
+			const currentIndex = selectedIndex ?? 0;
+			let col = Math.floor( currentIndex / rows );
+			let row = currentIndex % rows;
+
+			if ( event.key === 'ArrowRight' ) {
+				col = Math.min( col + 1, columns - 1 );
+			} else if ( event.key === 'ArrowLeft' ) {
+				col = Math.max( col - 1, 0 );
+			} else if ( event.key === 'ArrowDown' ) {
+				row = Math.min( row + 1, rows - 1 );
+			} else if ( event.key === 'ArrowUp' ) {
+				row = Math.max( row - 1, 0 );
+			}
+
+			setSelectedIndex( col * rows + row );
+			setIsNavigating( true );
+		},
+		[ rows, columns, selectedIndex, setSelectedIndex, setIsNavigating ]
+	);
 
 	const buildTooltipData = useCallback(
 		( columnIndex: number, rowIndex: number ): HeatmapTooltipData => {
@@ -240,6 +280,15 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 								ref={ chartRef }
 								role="grid"
 								aria-label={ __( 'Heatmap chart', 'jetpack-charts' ) }
+								aria-rowcount={ rows }
+								aria-colcount={ columns }
+								aria-activedescendant={
+									selectedIndex !== undefined
+										? `${ chartId }-cell-${ Math.floor( selectedIndex / rows ) }-${
+												selectedIndex % rows
+										  }`
+										: undefined
+								}
 								tabIndex={ 0 }
 								onFocus={ onChartFocus }
 								onBlur={ onChartBlur }
@@ -249,8 +298,7 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 									<svg ref={ containerRef } width={ width } height={ chartHeight }>
 										<g transform={ `translate(${ defaultMargin.left }, ${ defaultMargin.top })` }>
 											{ data.map( ( column, columnIndex ) => {
-												const visible = ! compact || columnIndex % 2 === 0;
-												if ( ! column.label || ! visible ) {
+												if ( ! column.label ) {
 													return null;
 												}
 												return (
@@ -296,69 +344,80 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 												bins={ getBins }
 												count={ getCount }
 											>
-												{ heatmap =>
-													heatmap.map( columnCells =>
-														columnCells.map( cell => {
-															const value = ( cell.bin as { value: number | null } ).value;
-															const present = isPresent( value );
-															const cellFlatIndex = cell.column * rows + cell.row;
-															const info = buildTooltipData( cell.column, cell.row );
-															const accessibleName =
-																info.cellLabel ||
-																`${ info.columnLabel ?? '' } ${ info.rowLabel ?? '' }`.trim();
-															const titleText = `${ accessibleName }: ${
-																info.value === null ? __( 'No data', 'jetpack-charts' ) : info.value
-															}`;
+												{ heatmap => {
+													const numCols = heatmap.length;
+													const numRows = heatmap[ 0 ]?.length ?? 0;
+													return Array.from( { length: numRows } ).map( ( _v, r ) => (
+														<g role="row" key={ `row-${ r }` } aria-rowindex={ r + 1 }>
+															{ Array.from( { length: numCols } ).map( ( _w, c ) => {
+																const cell = heatmap[ c ][ r ];
+																const value = ( cell.bin as HeatmapCell ).value;
+																const present = isPresent( value );
+																const cellFlatIndex = cell.column * rows + cell.row;
+																const info = buildTooltipData( cell.column, cell.row );
+																const accessibleName =
+																	info.cellLabel ||
+																	`${ info.columnLabel ?? '' } ${ info.rowLabel ?? '' }`.trim();
+																const titleText = `${ accessibleName }: ${
+																	info.value === null
+																		? __( 'No data', 'jetpack-charts' )
+																		: info.value
+																}`;
 
-															return (
-																<g
-																	key={ `${ cell.column }-${ cell.row }` }
-																	role="gridcell"
-																	data-column={ cell.column }
-																	data-row={ cell.row }
-																	onMouseMove={ handleCellMouseMove }
-																	onMouseLeave={ handleCellMouseLeave }
-																>
-																	<title>{ titleText }</title>
-																	<rect
-																		data-testid="heatmap-cell"
-																		x={ cell.x }
-																		y={ cell.y }
-																		width={ cell.width }
-																		height={ cell.height }
-																		rx={ cellRadius }
-																		fill={ present ? colorFor( value as number ) : emptyColorHex }
-																		stroke={ selectedIndex === cellFlatIndex ? '#005fcc' : 'none' }
-																		strokeWidth={ 2 }
-																	/>
-																	{ drawValues && present && (
-																		<Text
-																			x={ cell.x + cell.width / 2 }
-																			y={ cell.y + cell.height / 2 }
-																			textAnchor="middle"
-																			verticalAnchor="middle"
-																			fill={
-																				getNormalizedValue( value as number, extent ) > 0.5
-																					? '#ffffff'
-																					: 'var(--jp-gray-80, #2c3338)'
+																return (
+																	<g
+																		key={ `${ c }-${ r }` }
+																		id={ `${ chartId }-cell-${ c }-${ r }` }
+																		role="gridcell"
+																		aria-colindex={ c + 1 }
+																		data-column={ cell.column }
+																		data-row={ cell.row }
+																		onMouseMove={ handleCellMouseMove }
+																		onMouseLeave={ handleCellMouseLeave }
+																	>
+																		<title>{ titleText }</title>
+																		<rect
+																			data-testid="heatmap-cell"
+																			x={ cell.x }
+																			y={ cell.y }
+																			width={ cell.width }
+																			height={ cell.height }
+																			rx={ cellRadius }
+																			fill={ present ? colorFor( value as number ) : emptyColorHex }
+																			stroke={
+																				selectedIndex === cellFlatIndex ? '#005fcc' : 'none'
 																			}
-																			fontSize={ 11 }
-																		>
-																			{ String( value ) }
-																		</Text>
-																	) }
-																</g>
-															);
-														} )
-													)
-												}
+																			strokeWidth={ 2 }
+																		/>
+																		{ drawValues && present && (
+																			<Text
+																				x={ cell.x + cell.width / 2 }
+																				y={ cell.y + cell.height / 2 }
+																				textAnchor="middle"
+																				verticalAnchor="middle"
+																				fill={
+																					getNormalizedValue( value as number, extent ) > 0.5
+																						? '#ffffff'
+																						: 'var(--jp-gray-80, #2c3338)'
+																				}
+																				fontSize={ 11 }
+																			>
+																				{ String( value ) }
+																			</Text>
+																		) }
+																	</g>
+																);
+															} ) }
+														</g>
+													) );
+												} }
 											</HeatmapRect>
 										</g>
 									</svg>
 								) }
 								{ withTooltips && tooltipOpen && tooltipData && (
 									<TooltipInPortal top={ tooltipTop } left={ tooltipLeft }>
-										<div role="tooltip" ref={ tooltipRef } tabIndex={ -1 }>
+										<div role="tooltip" tabIndex={ -1 }>
 											{ ( renderTooltip ?? defaultRenderTooltip )( tooltipData ) }
 										</div>
 									</TooltipInPortal>

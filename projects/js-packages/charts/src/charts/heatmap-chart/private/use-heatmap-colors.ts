@@ -4,7 +4,7 @@ import type { HeatmapColumn } from '../types';
 /** Grey used for empty cells. Mirrors geo-chart's `featureFillColor`. */
 export const EMPTY_CELL_COLOR = 'var(--jp-gray-0, #f6f7f7)';
 
-const isPresent = ( value: number | null | undefined ): value is number =>
+export const isPresent = ( value: number | null | undefined ): value is number =>
 	value !== null && value !== undefined && ! isNaN( value );
 
 /**

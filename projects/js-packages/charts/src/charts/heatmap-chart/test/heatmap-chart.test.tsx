@@ -85,4 +85,37 @@ describe( 'HeatmapChart', () => {
 		expect( screen.getByText( /less/i ) ).toBeInTheDocument();
 		expect( screen.getByText( /more/i ) ).toBeInTheDocument();
 	} );
+
+	test( 'ArrowDown moves focus within a column, ArrowRight moves to next column', async () => {
+		renderChart( { rowLabels: [ 'Mon', 'Tue', 'Wed' ] } );
+		const grid = screen.getByRole( 'grid', { name: /heatmap/i } );
+		const user = userEvent.setup();
+
+		// Focus the grid then arrow down (moves row 0→1 in col 0, index 0→1)
+		grid.focus();
+		await user.keyboard( '{ArrowDown}' );
+		expect( grid ).toHaveAttribute(
+			'aria-activedescendant',
+			expect.stringMatching( /-cell-0-1$/ )
+		);
+
+		// ArrowRight moves to next column, same row (col 0→1, row 1, index = 1*3+1 = 4)
+		await user.keyboard( '{ArrowRight}' );
+		expect( grid ).toHaveAttribute(
+			'aria-activedescendant',
+			expect.stringMatching( /-cell-1-1$/ )
+		);
+	} );
+
+	/* eslint-disable testing-library/no-node-access */
+	test( 'rows contain gridcell children in the ARIA hierarchy', () => {
+		renderChart();
+		const rows = screen.getAllByRole( 'row' );
+		expect( rows.length ).toBeGreaterThan( 0 );
+		rows.forEach( row => {
+			const cells = Array.from( row.querySelectorAll( '[role="gridcell"]' ) );
+			expect( cells.length ).toBeGreaterThan( 0 );
+		} );
+	} );
+	/* eslint-enable testing-library/no-node-access */
 } );
