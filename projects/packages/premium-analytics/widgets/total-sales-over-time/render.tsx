@@ -1,11 +1,9 @@
-import {
-	OrderMetricWidget,
-	WidgetRoot,
-	type ReportParamsFieldAttributes,
-} from '@jetpack-premium-analytics/widgets-toolkit';
+import { OrderMetricWidget, WidgetRoot } from '@jetpack-premium-analytics/widgets-toolkit';
+import type { ComponentProps } from 'react';
 
-type TotalSalesOverTimeRenderProps = {
-	attributes?: Partial< ReportParamsFieldAttributes >;
+type WidgetRootProps = ComponentProps< typeof WidgetRoot >;
+type RenderProps = Pick< WidgetRootProps, 'attributes' > & {
+	setError?: WidgetRootProps[ 'setError' ];
 };
 
 /**
@@ -15,9 +13,9 @@ type TotalSalesOverTimeRenderProps = {
  * client, chart theme, and resolved report params; OrderMetricWidget fetches
  * the orders report and renders total sales over time.
  */
-export default function TotalSalesOverTimeRender( { attributes }: TotalSalesOverTimeRenderProps ) {
+export default function TotalSalesOverTimeRender( { attributes, setError }: RenderProps ) {
 	return (
-		<WidgetRoot attributes={ attributes } options={ { from: '/' } }>
+		<WidgetRoot attributes={ attributes } setError={ setError } options={ { from: '/' } }>
 			<OrderMetricWidget metricKey="total_sales" />
 		</WidgetRoot>
 	);
