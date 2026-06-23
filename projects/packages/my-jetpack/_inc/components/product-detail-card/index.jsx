@@ -45,17 +45,9 @@ function Price( { value, currency, isOld } ) {
 	const SupFraction = <sup>{ priceObject.fraction }</sup>;
 	const PriceTag = (
 		<p>
-			<WPText
-				render={ SupSymbol }
-				variant="heading-xl"
-				style={ { fontSize: '24px', fontWeight: '500', lineHeight: '32px' } }
-			></WPText>
+			<WPText render={ SupSymbol } variant="heading-xl"></WPText>
 			{ priceObject.integer }
-			<WPText
-				render={ SupFraction }
-				variant="heading-xl"
-				style={ { fontSize: '24px', fontWeight: '500', lineHeight: '32px' } }
-			></WPText>
+			<WPText render={ SupFraction } variant="heading-xl"></WPText>
 		</p>
 	);
 	return (
@@ -72,12 +64,7 @@ function Price( { value, currency, isOld } ) {
 				</Text>
 			</>
 			<>
-				<WPText
-					className={ classNames }
-					style={ { fontSize: '48px', fontWeight: '700', lineHeight: '52px' } }
-					variant="heading-2xl"
-					render={ PriceTag }
-				></WPText>
+				<WPText className={ classNames } variant="heading-2xl" render={ PriceTag }></WPText>
 			</>
 		</>
 	);
@@ -330,7 +317,7 @@ const ProductDetailCard = ( {
 					{ /* WPText parity — jetpack "label": 12px/600/16px, renders <p> (reset margin). */ }
 					<WPText
 						variant="body-sm"
-						style={ { fontSize: '12px', fontWeight: 600, lineHeight: '16px', margin: 0 } }
+						style={ { margin: 0 } }
 						render={ <p>{ __( 'Popular upgrade', 'jetpack-my-jetpack' ) }</p> }
 					></WPText>
 				</div>
@@ -344,10 +331,7 @@ const ProductDetailCard = ( {
 				<WPText
 					variant="heading-2xl"
 					style={ {
-						fontSize: '36px',
-						fontWeight: 700,
-						lineHeight: '40px',
-						margin: '0 0 24px',
+						margin: '0 0 var(--wpds-dimension-gap-xl, 24px)',
 					} }
 					render={ <h2>{ productMoniker }</h2> }
 				></WPText>
@@ -358,13 +342,10 @@ const ProductDetailCard = ( {
 						<Text mb={ 3 }>{ longDescription }</Text>
 						{ /* WPText parity — jetpack default "body": 16px/400/24px, <p>, mb=3 → 24px bottom. */ }
 						<WPText
-							variant="body-md"
+							variant="body-lg"
 							style={ {
-								fontSize: '16px',
-								fontWeight: 400,
-								lineHeight: '24px',
 								margin: 0,
-								marginBottom: '24px',
+								marginBottom: 'var(--wpds-dimension-gap-xl, 24px)',
 							} }
 							render={ <p>{ longDescription }</p> }
 						></WPText>
@@ -389,12 +370,9 @@ const ProductDetailCard = ( {
 							     consumer `.features li { margin-bottom: 8px }` row gap — inline style beats
 							     the class, so a blanket `margin: 0` would collapse it. Pin `0 0 8px`. */ }
 								<WPText
-									variant="body-md"
+									variant="body-lg"
 									style={ {
-										fontSize: '16px',
-										fontWeight: 400,
-										lineHeight: '24px',
-										margin: '0 0 8px',
+										margin: '0 0 var(--wpds-dimension-gap-sm, 8px)',
 									} }
 									render={
 										<li>
@@ -422,12 +400,9 @@ const ProductDetailCard = ( {
 						{ /* WPText parity — jetpack default "body" + className: 16px/400/24px, <p>. */ }
 						<WPText
 							className={ styles[ 'price-description' ] }
-							variant="body-md"
+							variant="body-lg"
 							style={ {
-								fontSize: '16px',
-								fontWeight: 400,
-								lineHeight: '24px',
-								margin: '0 0 calc(var(--spacing-base) * 3)',
+								margin: '0 0 var(--wpds-dimension-gap-xl, 24px)',
 							} }
 							render={ <p>{ priceDescription }</p> }
 						></WPText>
@@ -441,10 +416,7 @@ const ProductDetailCard = ( {
 						<WPText
 							variant="heading-2xl"
 							style={ {
-								fontSize: '36px',
-								fontWeight: 700,
-								lineHeight: '40px',
-								margin: '0 0 24px',
+								margin: '0 0 var(--wpds-dimension-gap-xl, 24px)',
 							} }
 							render={ <h2>{ __( 'Free', 'jetpack-my-jetpack' ) }</h2> }
 						></WPText>
@@ -469,8 +441,8 @@ const ProductDetailCard = ( {
 						</Text>
 						{ /* WPText parity — jetpack default "body": 16px/400/24px, <p> (keeps inline Link child). */ }
 						<WPText
-							variant="body-md"
-							style={ { fontSize: '16px', fontWeight: 400, lineHeight: '24px', margin: 0 } }
+							variant="body-lg"
+							style={ { margin: 0 } }
 							render={
 								<p>
 									{ sprintf(
@@ -568,9 +540,6 @@ const ProductDetailCard = ( {
 									<WPText
 										variant="body-sm"
 										style={ {
-											fontSize: '14px',
-											fontWeight: 400,
-											lineHeight: '24px',
 											margin: 0,
 										} }
 										render={ <p>{ disclaimerBody }</p> }
@@ -587,8 +556,8 @@ const ProductDetailCard = ( {
 						<Text>{ __( 'Active on your site', 'jetpack-my-jetpack' ) }</Text>
 						{ /* WPText parity — jetpack default "body": 16px/400/24px, <p>. */ }
 						<WPText
-							variant="body-md"
-							style={ { fontSize: '16px', fontWeight: 400, lineHeight: '24px', margin: 0 } }
+							variant="body-lg"
+							style={ { margin: 0 } }
 							render={ <p>{ __( 'Active on your site', 'jetpack-my-jetpack' ) }</p> }
 						></WPText>
 					</div>
@@ -603,7 +572,7 @@ const ProductDetailCard = ( {
 						<WPText
 							className={ styles[ 'supporting-info' ] }
 							variant="body-sm"
-							style={ { fontSize: '12px', fontWeight: 400, lineHeight: '20px', margin: 0 } }
+							style={ { margin: 0 } }
 							render={ <p>{ supportingInfo }</p> }
 						></WPText>
 					</>
