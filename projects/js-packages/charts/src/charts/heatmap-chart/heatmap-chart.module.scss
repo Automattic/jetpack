@@ -1,0 +1,14 @@
+.heatmap-chart {
+	width: 100%;
+	font-size: var(--wpds-typography-font-size-sm, 12px);
+}
+
+.heatmap-chart__empty {
+	padding: var(--wpds-dimension-padding-lg, 16px);
+	color: var(--jp-gray-80, #2c3338);
+}
+
+.heatmap-chart__axis-label {
+	fill: var(--jp-gray-80, #2c3338);
+	font-size: var(--wpds-typography-font-size-sm, 12px);
+}

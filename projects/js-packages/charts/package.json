@@ -80,6 +80,7 @@
 		"@visx/gradient": "^4.0.0",
 		"@visx/grid": "^4.0.0",
 		"@visx/group": "^4.0.0",
+		"@visx/heatmap": "^4.0.0",
 		"@visx/legend": "^4.0.0",
 		"@visx/pattern": "^4.0.0",
 		"@visx/responsive": "^4.0.0",
