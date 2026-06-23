@@ -34,9 +34,15 @@ const CrawlerToggle: FC< CrawlerToggleProps > = ( { crawler, blocked, disabled, 
 		[ crawler.slug, onToggle ]
 	);
 
+	// Named variables (not `cond ? __() : __()`) so the production minifier can't
+	// fold the ternary into `__( cond ? … )`, which breaks i18n string extraction.
+	const allowedLabel = __( 'Allowed', 'jetpack-seo' );
+	const blockedLabel = __( 'Blocked', 'jetpack-seo' );
+
 	return (
 		<ToggleControl
 			label={ crawler.label }
+			help={ blocked ? blockedLabel : allowedLabel }
 			checked={ ! blocked }
 			onChange={ handleChange }
 			disabled={ disabled }
