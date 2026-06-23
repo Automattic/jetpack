@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+SEO: hide the legacy Traffic-page SEO and Sitemaps sections once a site is on the new SEO dashboard (fresh install, opted-in, or WordPress.com), pointing to the new page; existing self-hosted installs that haven't opted in keep the legacy sections.

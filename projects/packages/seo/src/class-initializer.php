@@ -17,6 +17,7 @@ use Automattic\Jetpack\Status\Host;
 use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills;
 use Jetpack_SEO_Titles;
 use Jetpack_SEO_Utils;
+use Jetpack_Sitemap_Librarian;
 
 /**
  * The main Initializer class. Registers the admin menu and loads the wp-build
@@ -29,7 +30,7 @@ class Initializer {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '0.1.1';
+	const PACKAGE_VERSION = '0.2.0';
 
 	/**
 	 * Filter name that gates the entire Jetpack SEO surface.
@@ -320,6 +321,11 @@ class Initializer {
 		}
 
 		$data[ self::SCRIPT_DATA_KEY ]['optin_available'] = self::is_optin_available();
+		// Read by the legacy Traffic page to hide its SEO / Sitemaps sections once the
+		// site is on the new experience (fresh install / opted-in / WordPress.com), so the
+		// two surfaces never show at once. The legacy sections stay for self-hosted installs
+		// that haven't opted in.
+		$data[ self::SCRIPT_DATA_KEY ]['surface_visible'] = self::is_seo_surface_visible();
 
 		return $data;
 	}
@@ -383,6 +389,61 @@ class Initializer {
 		}
 
 		return (bool) $enabled;
+	}
+
+	/**
+	 * The public URL of the generated XML sitemap, or an empty string when none
+	 * is currently reachable.
+	 *
+	 * A sitemap is only reachable when generation is enabled, the site is public
+	 * (Jetpack does not load the Sitemaps module on sites that discourage search
+	 * engines), and the master sitemap has actually been generated — the Jetpack
+	 * plugin builds it via cron 1–15 minutes after activation, so the URL 404s
+	 * until then. Callers treat an empty string as "not yet reachable" and skip
+	 * linking to it.
+	 *
+	 * {@see Jetpack_Sitemap_Librarian} and jetpack_sitemap_uri() live in the
+	 * Jetpack plugin's Sitemaps module (loaded only for an active module on a
+	 * public site), so both are guarded; in the package-only context they are
+	 * absent and the sitemap is reported as not reachable.
+	 *
+	 * @param bool $sitemap_active Whether sitemap generation is enabled.
+	 * @return string The sitemap URL, or '' when not reachable.
+	 */
+	private static function get_reachable_sitemap_url( $sitemap_active ) {
+		// Jetpack only serves sitemaps when generation is on and the site is public.
+		if ( ! $sitemap_active || (int) get_option( 'blog_public', 1 ) !== 1 ) {
+			return '';
+		}
+
+		// The Sitemaps module (the librarian class, the `JP_MASTER_SITEMAP_TYPE`
+		// constant, and the `jp_sitemap_filename()` / `jetpack_sitemap_uri()`
+		// helpers) all live together in plugins/jetpack and load as a unit, so this
+		// single guard covers every symbol used below.
+		if (
+			! class_exists( 'Jetpack_Sitemap_Librarian' )
+			|| ! defined( 'JP_MASTER_SITEMAP_TYPE' )
+			|| ! function_exists( 'jp_sitemap_filename' )
+			|| ! function_exists( 'jetpack_sitemap_uri' )
+		) {
+			return '';
+		}
+
+		// The master sitemap is stored as a post once the cron generation run
+		// completes; until then there is nothing to link to.
+		// `jp_sitemap_filename( JP_MASTER_SITEMAP_TYPE )` is the master file name
+		// ('sitemap.xml'); inlined so this stays one (untestable-in-package) line.
+		// @phan-suppress-next-line PhanUndeclaredFunction,PhanUndeclaredClassMethod -- guarded above; symbols live in plugins/jetpack.
+		$master = ( new Jetpack_Sitemap_Librarian() )->read_sitemap_data( jp_sitemap_filename( JP_MASTER_SITEMAP_TYPE ), JP_MASTER_SITEMAP_TYPE );
+		if ( null === $master ) {
+			return '';
+		}
+
+		// esc_url_raw (not esc_url): the value is transported via script data and
+		// rendered by React, so it must not be HTML-entity-encoded (e.g. the
+		// plain-permalink `?jetpack-sitemap=` form keeps its raw `&`).
+		// @phan-suppress-next-line PhanUndeclaredFunction -- jp_sitemap_filename()/jetpack_sitemap_uri() live in plugins/jetpack, guarded by function_exists.
+		return esc_url_raw( (string) jetpack_sitemap_uri( jp_sitemap_filename( JP_MASTER_SITEMAP_TYPE ) ) );
 	}
 
 	/**
@@ -463,9 +524,9 @@ class Initializer {
 			'site_visibility'   => array(
 				'search_engines_visible' => (int) get_option( 'blog_public', 1 ) === 1,
 				// Read the durable SEO option (seeded/synced from the `sitemaps` module
-				// by the Jetpack plugin) so the state survives the module's removal.
+				// by the Jetpack plugin) so the state survives the module's removal. The
+				// reachable sitemap URL + "View" link live on the Settings tab.
 				'sitemap_active'         => self::is_sitemap_enabled( $modules ),
-				'sitemap_url'            => home_url( '/sitemap.xml' ),
 				'seo_tools_active'       => $modules->is_active( 'seo-tools' ),
 			),
 			// Per-service booleans (a code is set or not) for the Overview's
@@ -661,11 +722,16 @@ class Initializer {
 			$codes = array();
 		}
 
+		$sitemap_active = self::is_sitemap_enabled( $modules );
+
 		return array(
 			'search_engines_visible' => (int) get_option( 'blog_public', 1 ) === 1,
 			// Read the durable SEO option (seeded/synced from the `sitemaps` module
 			// by the Jetpack plugin) so the state survives the module's removal.
-			'sitemap_active'         => self::is_sitemap_enabled( $modules ),
+			'sitemap_active'         => $sitemap_active,
+			// Empty until the sitemap is genuinely reachable, so the Settings tab can
+			// link to it only once it won't 404 (it's built by cron after activation).
+			'sitemap_url'            => self::get_reachable_sitemap_url( $sitemap_active ),
 			// Read the durable SEO option (seeded/synced from the `canonical-urls` module
 			// by the Jetpack plugin) so the state survives the module's removal.
 			'canonical_active'       => self::is_canonical_enabled( $modules ),
