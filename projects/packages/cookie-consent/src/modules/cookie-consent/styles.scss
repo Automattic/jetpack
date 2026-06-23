@@ -476,7 +476,7 @@ input[type="checkbox"]:focus-visible + label
 /* ==========================================================================
    Classic-theme fallback for required legal links
    Fixed-corner floating control rendered on wp_footer when the Block Hooks
-   footer-nav injection did not run (classic themes / footer-nav-less templates).
+   footer-nav injection did not run (classic themes / no footer nav).
    ========================================================================== */
 
 .jetpack-cookie-consent-footer-links {
