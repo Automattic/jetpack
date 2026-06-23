@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+SEO Settings: the Title structure and Front-page description sections now save with an explicit per-section Save button instead of auto-saving on blur, clearer when composing text. Toggle sections still save on change.

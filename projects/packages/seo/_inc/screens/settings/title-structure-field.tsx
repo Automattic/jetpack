@@ -110,6 +110,10 @@ const TitleStructureRow: FC< RowProps > = ( { pageTypeId, label, tokens, onChang
 interface Props {
 	formats: Record< string, TitleFormatToken[] >;
 	onChange: ( pageType: string, next: TitleFormatToken[] ) => void;
+	/** Persist the edited formats (the card edits local state until Save). */
+	onSave: () => void;
+	/** Whether there are unsaved format edits (enables the Save button). */
+	canSave: boolean;
 	disabled?: boolean;
 }
 
@@ -119,7 +123,7 @@ interface Props {
  * per page type under `advanced_seo_title_formats`; each type accepts its own
  * token subset (see `PAGE_TYPE_TOKENS`).
  */
-const TitleStructureField: FC< Props > = ( { formats, onChange, disabled } ) => {
+const TitleStructureField: FC< Props > = ( { formats, onChange, onSave, canSave, disabled } ) => {
 	const customizedCount = PAGE_TYPES.filter( pt => ( formats[ pt.id ]?.length ?? 0 ) > 0 ).length;
 
 	return (
@@ -151,6 +155,11 @@ const TitleStructureField: FC< Props > = ( { formats, onChange, disabled } ) => 
 							disabled={ disabled }
 						/>
 					) ) }
+					<div>
+						<Button variant="primary" onClick={ onSave } disabled={ disabled || ! canSave }>
+							{ __( 'Save', 'jetpack-seo' ) }
+						</Button>
+					</div>
 				</Stack>
 			</CollapsibleCard.Content>
 		</CollapsibleCard.Root>

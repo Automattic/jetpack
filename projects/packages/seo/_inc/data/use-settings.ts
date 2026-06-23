@@ -21,15 +21,25 @@ export interface SettingsForm {
 	setVerification: ( key: VerificationKey, value: string ) => void;
 	/** Apply an optional patch and immediately save the changed fields. */
 	commit: ( patch?: Partial< SettingsResponse > ) => void;
+	/**
+	 * Save only the named fields — a per-section Save for text-heavy sections
+	 * (title structure, front-page description) that edit local state while typing
+	 * and persist on an explicit button. Other pending edits stay local.
+	 */
+	commitFields: ( fields: Array< keyof SettingsResponse > ) => void;
+	/** Whether any of the named fields differ from the last-saved baseline. */
+	isDirty: ( fields: Array< keyof SettingsResponse > ) => boolean;
 }
 
 /**
- * Owns the Settings form: seeds local state from the page bootstrap and
- * auto-saves changes — there's no explicit Save button. Toggles `commit()` on
- * change; text/token fields `setField()` while editing and `commit()` on blur.
- * Saves diff against the last-saved baseline (so an unchanged save is a no-op
- * and the sitemaps module is never re-toggled needlessly), surfacing a single
- * "Updating settings…"→"Settings saved." snackbar.
+ * Owns the Settings form: seeds local state from the page bootstrap and saves
+ * on a hybrid model. Toggle sections (Site visibility, Canonical) `commit()` on
+ * change; the text-heavy sections (title structure, front-page description)
+ * `setField()` while typing and persist on an explicit per-section Save button
+ * via `commitFields()`. Saves diff against the last-saved baseline (so an
+ * unchanged save is a no-op and the sitemaps module is never re-toggled
+ * needlessly), surfacing a single "Updating settings…"→"Settings saved."
+ * snackbar.
  *
  * The Settings tab is its own route, so this controller remounts on every tab
  * switch. State is seeded from (and written back to) [settings-store] rather
@@ -134,5 +144,38 @@ export function useSettingsForm(): SettingsForm {
 		[ saveValues ]
 	);
 
-	return { local, isSaving, setField, setVerification, commit };
+	const commitFields = useCallback(
+		( fields: Array< keyof SettingsResponse > ) => {
+			const current = localRef.current;
+			const baseline = baselineRef.current;
+			if ( ! current || ! baseline ) {
+				return;
+			}
+			// Save only the named section: start from the baseline and override just
+			// those fields from local, so the diff — and the snapshot saved back as
+			// the new baseline — is limited to this section, leaving any other
+			// pending (unsaved) edits local until the user saves their own section.
+			const values: SettingsResponse = { ...baseline };
+			fields.forEach( field => {
+				( values as unknown as Record< string, unknown > )[ field ] = current[ field ];
+			} );
+			saveValues( values );
+		},
+		[ saveValues ]
+	);
+
+	const isDirty = useCallback(
+		( fields: Array< keyof SettingsResponse > ) => {
+			const baseline = baselineRef.current;
+			if ( ! local || ! baseline ) {
+				return false;
+			}
+			return fields.some(
+				field => JSON.stringify( local[ field ] ) !== JSON.stringify( baseline[ field ] )
+			);
+		},
+		[ local ]
+	);
+
+	return { local, isSaving, setField, setVerification, commit, commitFields, isDirty };
 }
