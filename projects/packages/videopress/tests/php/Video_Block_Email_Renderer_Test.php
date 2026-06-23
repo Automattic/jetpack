@@ -20,10 +20,12 @@ use WorDBless\BaseTestCase;
  * Tests for VideoPress video block email renderer.
  *
  * @covers \Automattic\Jetpack\VideoPress\Video_Block_Email_Renderer::render
+ * @covers \Automattic\Jetpack\VideoPress\Video_Block_Email_Renderer::render_core_video
  * @covers \Automattic\Jetpack\VideoPress\Video_Block_Email_Renderer::get_videopress_url
  * @covers \Automattic\Jetpack\VideoPress\Video_Block_Email_Renderer::render_link
  */
 #[CoversMethod( Video_Block_Email_Renderer::class, 'render' )]
+#[CoversMethod( Video_Block_Email_Renderer::class, 'render_core_video' )]
 #[CoversMethod( Video_Block_Email_Renderer::class, 'get_videopress_url' )]
 #[CoversMethod( Video_Block_Email_Renderer::class, 'render_link' )]
 class Video_Block_Email_Renderer_Test extends BaseTestCase {
