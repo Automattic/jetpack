@@ -41,8 +41,8 @@ export function EmailBylineSection( {
 			Edit: newsletterScriptData?.email
 				? ( { data: fieldData, field, onChange: fieldOnChange } ) => (
 						<ToggleWithLink
-							data={ fieldData as Record< string, unknown > }
-							field={ field as Field< Record< string, unknown > > }
+							data={ fieldData }
+							field={ field }
 							onChange={ fieldOnChange }
 							url="https://gravatar.com/profile/avatars"
 							linkText={ __( 'Update your Gravatar', 'jetpack-newsletter' ) }
@@ -66,8 +66,8 @@ export function EmailBylineSection( {
 			type: 'boolean' as const,
 			Edit: ( { data: fieldData, field, onChange: fieldOnChange } ) => (
 				<ToggleWithLink
-					data={ fieldData as Record< string, unknown > }
-					field={ field as Field< Record< string, unknown > > }
+					data={ fieldData }
+					field={ field }
 					onChange={ fieldOnChange }
 					url={ getAdminUrl( 'options-general.php' ) }
 					linkText={ __( 'Customize date format', 'jetpack-newsletter' ) }

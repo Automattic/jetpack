@@ -1,4 +1,5 @@
 import { Stack } from '@wordpress/ui';
+import { action } from 'storybook/actions';
 import { defaultTheme, useGlobalChartsContext } from '../../../providers';
 import {
 	chartDecorator,
@@ -177,6 +178,44 @@ export const Loading: Story = {
 		data: sampleData,
 		withComparison: true,
 		loading: true,
+	},
+};
+
+const onLeaderboardItemClick = action( 'leaderboard-item-click' );
+
+export const Interactive: Story = {
+	args: {
+		data: sampleData.map( entry => ( {
+			...entry,
+			label: (
+				<span
+					style={ {
+						display: 'flex',
+						alignItems: 'center',
+						minHeight: '40px',
+						padding: '0 6px',
+						fontSize: '13px',
+					} }
+				>
+					{ entry.label }
+				</span>
+			),
+			onClick: () => onLeaderboardItemClick( entry.id ),
+		} ) ),
+		withComparison: true,
+		withOverlayLabel: true,
+		style: {
+			'--a8c--charts--leaderboard--bar--border-radius': '4px',
+		},
+	},
+	render: args => <LeaderboardChartWithOverlayLabelImage { ...args } />,
+	parameters: {
+		docs: {
+			description: {
+				story:
+					'Rows with an `onClick` become interactive: the whole row is clickable and keyboard-focusable (Enter/Space), with a chevron revealed on hover/focus. The consumer supplies the action (e.g. drill-down).',
+			},
+		},
 	},
 };
 

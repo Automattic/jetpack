@@ -37,9 +37,9 @@
 	},
 	"devDependencies": {
 		"@babel/core": "^7.0.0",
-		"@babel/preset-env": "7.29.2",
-		"@babel/preset-react": "7.28.5",
-		"@babel/preset-typescript": "7.28.5",
+		"@babel/preset-env": "7.29.7",
+		"@babel/preset-react": "7.29.7",
+		"@babel/preset-typescript": "7.29.7",
 		"@rollup/plugin-babel": "6.0.4",
 		"@rollup/plugin-commonjs": "26.0.1",
 		"@rollup/plugin-json": "6.1.0",
@@ -59,7 +59,7 @@
 		"svelte-preprocess": "6.0.2",
 		"tslib": "2.8.1",
 		"typescript": "5.9.3",
-		"webpack": "5.105.2",
+		"webpack": "5.107.2",
 		"webpack-cli": "6.0.1"
 	}
 }

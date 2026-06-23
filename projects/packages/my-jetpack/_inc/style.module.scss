@@ -27,6 +27,16 @@
 	body.jetpack_page_my-jetpack:not(.jetpack-admin-full-screen) {
 
 		@include jetpack-admin-page-layout;
+
+		// Reserve space for the scrollable middle's vertical scrollbar so toggling
+		// between search results and category browse — which changes the content
+		// height, and thus whether the scrollbar is present — doesn't shift the
+		// layout sideways. Most noticeable on Firefox / platforms with classic
+		// (space-consuming) scrollbars; a no-op where unsupported. The selector
+		// mirrors the "scrollable middle" defined by jetpack-admin-page-layout.
+		.jp-admin-page__page > :not(:first-child):not(.jetpack-footer) {
+			scrollbar-gutter: stable;
+		}
 	}
 
 	// Defend @wordpress/ui Button against wp-admin's unlayered anchor styles

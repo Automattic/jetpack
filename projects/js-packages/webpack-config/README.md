@@ -220,6 +220,7 @@ This provides an instance of [@wordpress/dependency-extraction-webpack-plugin](h
 By default, the following additional dependencies are extracted:
 - `@automattic/jetpack-script-data`: Handle `jetpack-script-data` provided by PHP package [automattic/jetpack-assets](https://packagist.org/packages/automattic/jetpack-assets).
 - `@automattic/jetpack-connection`: Handle `jetpack-connection` provided by PHP package [automattic/jetpack-connection](https://packagist.org/packages/automattic/jetpack-connection).
+- `@automattic/jetpack-shared-stores`: Handle `jetpack-shared-stores` provided by PHP package [automattic/jetpack-assets](https://packagist.org/packages/automattic/jetpack-assets). The shared data stores resolve to one externalized bundle so they register only once.
 
 One additional option is recognized:
 

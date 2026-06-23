@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-newsletter",
-	"version": "0.9.1",
+	"version": "0.10.0",
 	"private": true,
 	"description": "Jetpack Newsletter functionality",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/packages/newsletter/#readme",
@@ -69,8 +69,8 @@
 		"@automattic/babel-plugin-replace-textdomain": "workspace:*",
 		"@automattic/jetpack-webpack-config": "workspace:*",
 		"@automattic/jetpack-wp-build-polyfills": "workspace:*",
-		"@babel/core": "7.29.6",
-		"@babel/runtime": "7.29.2",
+		"@babel/core": "7.29.7",
+		"@babel/runtime": "7.29.7",
 		"@testing-library/dom": "10.4.1",
 		"@testing-library/react": "16.3.2",
 		"@types/react": "18.3.28",
@@ -83,7 +83,7 @@
 		"jest": "30.4.2",
 		"sass-embedded": "1.97.3",
 		"sass-loader": "16.0.5",
-		"webpack": "5.105.2",
+		"webpack": "5.107.2",
 		"webpack-cli": "6.0.1"
 	},
 	"optionalDependencies": {

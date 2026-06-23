@@ -149,6 +149,7 @@ class Products {
 			'newsletter'       => Products\Newsletter::class,
 			'site-accelerator' => Products\Site_Accelerator::class,
 			'related-posts'    => Products\Related_Posts::class,
+			'jetpack-forms'    => Products\Jetpack_Forms::class,
 		);
 
 		/**

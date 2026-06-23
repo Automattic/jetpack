@@ -13,6 +13,7 @@ import QueryClientWrapper from '../../src/dashboard/components/query-client-wrap
 import { DeleteVideosError, useDeleteVideo } from '../../src/dashboard/hooks/use-delete-video';
 import { useFreeTier } from '../../src/dashboard/hooks/use-free-tier';
 import { useLibrary } from '../../src/dashboard/hooks/use-library';
+import { usePersistedView } from '../../src/dashboard/hooks/use-persisted-view';
 import { useSetPrivacy } from '../../src/dashboard/hooks/use-set-privacy';
 import { useUpload } from '../../src/dashboard/hooks/use-upload';
 import { useUploadFromLibrary } from '../../src/dashboard/hooks/use-upload-from-library';
@@ -59,7 +60,8 @@ const defaultLayouts: SupportedLayouts = {
 };
 
 const StageInner = () => {
-	const [ view, setView ] = useState< View >( DEFAULT_VIEW );
+	const [ initialView, persistView ] = usePersistedView( DEFAULT_VIEW );
+	const [ view, setView ] = useState< View >( initialView );
 	const [ selection, setSelection ] = useState< string[] >( [] );
 	// Local IDs currently being promoted from local-storage to VideoPress.
 	// The upload-from-library endpoint doesn't report progress, so we just
@@ -78,17 +80,22 @@ const StageInner = () => {
 	const { isAtLimit, isFree, isUnlimited, videoCount, limit } = useFreeTier();
 	const runUpgrade = useVideoPressUpgrade();
 
-	const onChangeView = useCallback( ( next: View ) => {
-		setView( current => {
-			if ( next.type === current.type ) {
-				return next;
-			}
-			return {
-				...next,
-				fields: next.type === 'table' ? TABLE_VISIBLE_FIELDS : GRID_VISIBLE_FIELDS,
-			};
-		} );
-	}, [] );
+	const onChangeView = useCallback(
+		( next: View ) => {
+			setView( current => {
+				const resolved =
+					next.type === current.type
+						? next
+						: {
+								...next,
+								fields: next.type === 'table' ? TABLE_VISIBLE_FIELDS : GRID_VISIBLE_FIELDS,
+						  };
+				persistView( resolved );
+				return resolved;
+			} );
+		},
+		[ persistView ]
+	);
 
 	const filePickerRef = useRef< HTMLInputElement >( null );
 	const onClickHeaderUpload = useCallback( () => {

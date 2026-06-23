@@ -296,6 +296,13 @@ async function fixDeps( pkg ) {
  * @return {object} Modified pkg.
  */
 function fixPeerDeps( pkg ) {
+	// We use this under tsdown (Rolldown), not Rollup. The `rollup` peer is only used for one TypeScript type, and it being missing apparently makes no difference in our usage.
+	// @see https://github.com/mjeanroy/rollup-plugin-license/issues/2110
+	if ( pkg.name === 'rollup-plugin-license' ) {
+		pkg.peerDependenciesMeta ??= {};
+		pkg.peerDependenciesMeta.rollup = { optional: true };
+	}
+
 	// Indirect deps that still depend on React <18.
 	const reactOldPkgs = new Set( [
 		// Still on 16.

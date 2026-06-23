@@ -42,8 +42,8 @@
 	},
 	"devDependencies": {
 		"@automattic/jetpack-webpack-config": "workspace:*",
-		"@babel/core": "7.29.6",
-		"@babel/preset-react": "7.28.5",
+		"@babel/core": "7.29.7",
+		"@babel/preset-react": "7.29.7",
 		"@jest/globals": "30.4.1",
 		"@types/jest": "30.0.0",
 		"@wordpress/base-styles": "10.0.1",
@@ -52,7 +52,7 @@
 		"jetpack-js-tools": "workspace:*",
 		"sass-embedded": "1.97.3",
 		"sass-loader": "16.0.5",
-		"webpack": "5.105.2",
+		"webpack": "5.107.2",
 		"webpack-cli": "6.0.1"
 	}
 }

@@ -62,8 +62,8 @@
 		"@wordpress/url": "4.48.1"
 	},
 	"devDependencies": {
-		"@babel/core": "7.29.6",
-		"@babel/preset-env": "7.29.2",
+		"@babel/core": "7.29.7",
+		"@babel/preset-env": "7.29.7",
 		"@testing-library/dom": "10.4.1",
 		"@testing-library/react": "16.3.2",
 		"@types/jest": "30.0.0",

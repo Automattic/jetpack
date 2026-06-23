@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+Comment: Fix test that was broken in PHP 7.2.
+
+

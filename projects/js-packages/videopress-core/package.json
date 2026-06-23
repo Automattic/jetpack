@@ -27,13 +27,13 @@
 	},
 	"devDependencies": {
 		"@automattic/jetpack-webpack-config": "workspace:*",
-		"@babel/core": "7.29.6",
-		"@babel/preset-react": "7.28.5",
+		"@babel/core": "7.29.7",
+		"@babel/preset-react": "7.29.7",
 		"@types/jest": "30.0.0",
 		"@typescript/native-preview": "7.0.0-dev.20260225.1",
 		"jest": "30.4.2",
 		"tslib": "2.8.1",
-		"webpack": "5.105.2",
+		"webpack": "5.107.2",
 		"webpack-cli": "6.0.1"
 	}
 }

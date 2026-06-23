@@ -24,35 +24,19 @@ class Podcast_Distribution_Endpoint extends WP_REST_Controller {
 
 	use Relay_Response;
 
-	const REST_NAMESPACE = 'wpcom/v2';
-	const REST_BASE      = 'podcast-distribution';
-
 	/**
-	 * Whether `init()` has wired its hooks.
-	 *
-	 * @var bool
-	 */
-	private static $initialized = false;
-
-	/**
-	 * Wire up routes. Idempotent.
+	 * Wire up routes.
 	 */
 	public static function init() {
-		if ( self::$initialized ) {
-			return;
-		}
-		self::$initialized = true;
-
-		$instance = new self();
-		add_action( 'rest_api_init', array( $instance, 'register_routes' ) );
+		add_action( 'rest_api_init', array( new self(), 'register_routes' ) );
 	}
 
 	/**
 	 * Register the Pocket Casts submit proxy route.
 	 */
 	public function register_routes() {
-		$this->namespace = self::REST_NAMESPACE;
-		$this->rest_base = self::REST_BASE;
+		$this->namespace = 'wpcom/v2';
+		$this->rest_base = 'podcast-distribution';
 
 		register_rest_route(
 			$this->namespace,

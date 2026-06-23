@@ -520,6 +520,79 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * Tests that Help Center is dequeued in the block editor when the unified experience
+	 * (Help Center takeover) is active — Agents Manager becomes the single help affordance.
+	 */
+	public function test_help_center_dequeued_in_block_editor_when_unified() {
+		require_once ABSPATH . 'wp-admin/includes/screen.php';
+		set_current_screen( 'post' );
+		$screen     = get_current_screen();
+		$reflection = new \ReflectionClass( $screen );
+		$property   = $reflection->getProperty( 'is_block_editor' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$property->setAccessible( true );
+		}
+		$property->setValue( $screen, true );
+
+		// Reset registries for isolation.
+		global $wp_scripts, $wp_styles;
+		$wp_scripts = null;
+		$wp_styles  = null;
+
+		wp_register_script( 'agents-manager', 'https://example.com/agents-manager.js', array(), '1.0', true );
+
+		// Help Center enqueues before Agents Manager (priority 100 vs 101), so it is already queued.
+		wp_enqueue_script( 'help-center', 'https://example.com/help-center.js', array(), '1.0', true );
+		wp_enqueue_style( 'help-center-style', 'https://example.com/help-center.css', array(), '1.0' );
+
+		// Full unified experience: Agents Manager takes over the Help Center.
+		add_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
+
+		$this->agents_manager->enqueue_scripts();
+
+		$this->assertFalse( wp_script_is( 'help-center', 'enqueued' ), 'Help Center script should be dequeued in the unified experience.' );
+		$this->assertFalse( wp_style_is( 'help-center-style', 'enqueued' ), 'Help Center style should be dequeued in the unified experience.' );
+
+		remove_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
+	}
+
+	/**
+	 * Tests that Help Center remains enqueued in block-editor-only mode, where Agents Manager
+	 * replaces Big Sky's native UI but does not take over the Help Center. Regression test for AI-1013.
+	 */
+	public function test_help_center_not_dequeued_in_block_editor_only_mode() {
+		require_once ABSPATH . 'wp-admin/includes/screen.php';
+		set_current_screen( 'post' );
+		$screen     = get_current_screen();
+		$reflection = new \ReflectionClass( $screen );
+		$property   = $reflection->getProperty( 'is_block_editor' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$property->setAccessible( true );
+		}
+		$property->setValue( $screen, true );
+
+		// Reset registries for isolation.
+		global $wp_scripts, $wp_styles;
+		$wp_scripts = null;
+		$wp_styles  = null;
+
+		wp_register_script( 'agents-manager', 'https://example.com/agents-manager.js', array(), '1.0', true );
+
+		wp_enqueue_script( 'help-center', 'https://example.com/help-center.js', array(), '1.0', true );
+		wp_enqueue_style( 'help-center-style', 'https://example.com/help-center.css', array(), '1.0' );
+
+		// Block-editor-only enablement, without the unified (Help Center takeover) experience.
+		add_filter( 'agents_manager_enabled_in_block_editor', '__return_true' );
+
+		$this->agents_manager->enqueue_scripts();
+
+		$this->assertTrue( wp_script_is( 'help-center', 'enqueued' ), 'Help Center script should remain enqueued in block-editor-only mode.' );
+		$this->assertTrue( wp_style_is( 'help-center-style', 'enqueued' ), 'Help Center style should remain enqueued in block-editor-only mode.' );
+
+		remove_filter( 'agents_manager_enabled_in_block_editor', '__return_true' );
+	}
+
+	/**
 	 * Tests that the standalone AI chat button is added to the admin bar when the
 	 * unified experience is enabled.
 	 */

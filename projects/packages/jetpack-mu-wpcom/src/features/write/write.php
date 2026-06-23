@@ -53,6 +53,59 @@ function wpcom_write_url() {
 }
 
 /**
+ * Translated UI strings consumed by view.js as `window.wpcomWriteStrings`.
+ *
+ * Exposed as a helper so callers that render the Write editor outside the
+ * wp-admin page lifecycle (and therefore never hit the admin_enqueue_scripts
+ * hook below) can print the same strings without duplicating the list.
+ *
+ * @return array<string, string> Map of i18n key -> translated string.
+ */
+function wpcom_write_get_editor_strings() {
+	return array(
+		'caption'              => __( 'Caption', 'jetpack-mu-wpcom' ),
+		'editImage'            => __( 'Edit image', 'jetpack-mu-wpcom' ),
+		'writeCaption'         => __( 'Write a caption...', 'jetpack-mu-wpcom' ),
+		// translators: %s is the error message from the upload failure.
+		'uploadFailed'         => __( 'Upload failed: %s', 'jetpack-mu-wpcom' ),
+		'libraryLoading'       => __( 'Loading your library…', 'jetpack-mu-wpcom' ),
+		'libraryEmpty'         => __( 'No images in your library yet.', 'jetpack-mu-wpcom' ),
+		'libraryNoResults'     => __( 'No matching images.', 'jetpack-mu-wpcom' ),
+		'libraryLoadFailed'    => __( "Couldn't load your library.", 'jetpack-mu-wpcom' ),
+		// translators: %s is the alt text or filename of the selected library image.
+		'librarySelected'      => __( 'Selected %s', 'jetpack-mu-wpcom' ),
+		'invalidVideoUrl'      => __( 'Please paste a valid YouTube or Vimeo URL', 'jetpack-mu-wpcom' ),
+		'pleaseAddTitle'       => __( 'Please add a title', 'jetpack-mu-wpcom' ),
+		'pleaseWriteSomething' => __( 'Please write something', 'jetpack-mu-wpcom' ),
+		'savingDraft'          => __( 'Saving draft...', 'jetpack-mu-wpcom' ),
+		'updating'             => __( 'Updating...', 'jetpack-mu-wpcom' ),
+		'publishing'           => __( 'Publishing...', 'jetpack-mu-wpcom' ),
+		'updated'              => __( 'Updated!', 'jetpack-mu-wpcom' ),
+		'published'            => __( 'Published!', 'jetpack-mu-wpcom' ),
+		'draftSaved'           => __( 'Draft saved', 'jetpack-mu-wpcom' ),
+		'draftAutosaved'       => __( 'Draft saved', 'jetpack-mu-wpcom' ),
+		// translators: %s is the error message.
+		'error'                => __( 'Error: %s', 'jetpack-mu-wpcom' ),
+		'normal'               => __( 'Normal', 'jetpack-mu-wpcom' ),
+		'heading2'             => __( 'Heading 2', 'jetpack-mu-wpcom' ),
+		'heading3'             => __( 'Heading 3', 'jetpack-mu-wpcom' ),
+		'preview'              => __( 'Preview', 'jetpack-mu-wpcom' ),
+		// translators: %s is a comma-separated list of category names, e.g. "Travel, Food".
+		'writingIn'            => __( 'Writing in %s', 'jetpack-mu-wpcom' ),
+		'untitled'             => __( 'Untitled', 'jetpack-mu-wpcom' ),
+		'addCitation'          => __( 'Add citation…', 'jetpack-mu-wpcom' ),
+		'citation'             => __( 'Citation', 'jetpack-mu-wpcom' ),
+		'postNotFound'         => __( 'Post not found. Check the URL or ID and try again.', 'jetpack-mu-wpcom' ),
+		'postNoPermission'     => __( 'You don\'t have permission to edit this post.', 'jetpack-mu-wpcom' ),
+		// Labels used only when the editor is rendered for a logged-out
+		// visitor (window.wpcomWriteIsAnon). "WordPress.com" is a product
+		// mark and stays untranslated; only the feature name is localised.
+		'anonBrand'            => 'WordPress.com · ' . _x( 'Write', 'editor name in the anonymous brand label', 'jetpack-mu-wpcom' ),
+		'anonStatus'           => __( 'Not signed in', 'jetpack-mu-wpcom' ),
+	);
+}
+
+/**
  * Register the script module on init.
  */
 add_action(
@@ -123,44 +176,8 @@ add_action(
 		wp_enqueue_script_module( 'wpcom-write/view' );
 
 		// Pass translated strings to JavaScript for dynamic messages.
-		$write_strings = array(
-			'caption'              => __( 'Caption', 'jetpack-mu-wpcom' ),
-			'editImage'            => __( 'Edit image', 'jetpack-mu-wpcom' ),
-			'writeCaption'         => __( 'Write a caption...', 'jetpack-mu-wpcom' ),
-			// translators: %s is the error message from the upload failure.
-			'uploadFailed'         => __( 'Upload failed: %s', 'jetpack-mu-wpcom' ),
-			'libraryLoading'       => __( 'Loading your library…', 'jetpack-mu-wpcom' ),
-			'libraryEmpty'         => __( 'No images in your library yet.', 'jetpack-mu-wpcom' ),
-			'libraryNoResults'     => __( 'No matching images.', 'jetpack-mu-wpcom' ),
-			'libraryLoadFailed'    => __( "Couldn't load your library.", 'jetpack-mu-wpcom' ),
-			// translators: %s is the alt text or filename of the selected library image.
-			'librarySelected'      => __( 'Selected %s', 'jetpack-mu-wpcom' ),
-			'invalidVideoUrl'      => __( 'Please paste a valid YouTube or Vimeo URL', 'jetpack-mu-wpcom' ),
-			'pleaseAddTitle'       => __( 'Please add a title', 'jetpack-mu-wpcom' ),
-			'pleaseWriteSomething' => __( 'Please write something', 'jetpack-mu-wpcom' ),
-			'savingDraft'          => __( 'Saving draft...', 'jetpack-mu-wpcom' ),
-			'updating'             => __( 'Updating...', 'jetpack-mu-wpcom' ),
-			'publishing'           => __( 'Publishing...', 'jetpack-mu-wpcom' ),
-			'updated'              => __( 'Updated!', 'jetpack-mu-wpcom' ),
-			'published'            => __( 'Published!', 'jetpack-mu-wpcom' ),
-			'draftSaved'           => __( 'Draft saved', 'jetpack-mu-wpcom' ),
-			'draftAutosaved'       => __( 'Draft saved', 'jetpack-mu-wpcom' ),
-			// translators: %s is the error message.
-			'error'                => __( 'Error: %s', 'jetpack-mu-wpcom' ),
-			'normal'               => __( 'Normal', 'jetpack-mu-wpcom' ),
-			'heading2'             => __( 'Heading 2', 'jetpack-mu-wpcom' ),
-			'heading3'             => __( 'Heading 3', 'jetpack-mu-wpcom' ),
-			'preview'              => __( 'Preview', 'jetpack-mu-wpcom' ),
-			// translators: %s is a comma-separated list of category names, e.g. "Travel, Food".
-			'writingIn'            => __( 'Writing in %s', 'jetpack-mu-wpcom' ),
-			'untitled'             => __( 'Untitled', 'jetpack-mu-wpcom' ),
-			'addCitation'          => __( 'Add citation…', 'jetpack-mu-wpcom' ),
-			'citation'             => __( 'Citation', 'jetpack-mu-wpcom' ),
-			'postNotFound'         => __( 'Post not found. Check the URL or ID and try again.', 'jetpack-mu-wpcom' ),
-			'postNoPermission'     => __( 'You don\'t have permission to edit this post.', 'jetpack-mu-wpcom' ),
-		);
 		wp_print_inline_script_tag(
-			'window.wpcomWriteStrings = ' . wp_json_encode( $write_strings, JSON_HEX_TAG | JSON_HEX_AMP ) . ';'
+			'window.wpcomWriteStrings = ' . wp_json_encode( wpcom_write_get_editor_strings(), JSON_HEX_TAG | JSON_HEX_AMP ) . ';'
 		);
 
 		wp_enqueue_style(
@@ -574,6 +591,12 @@ function wpcom_write_inline_color_marks_to_spans( $html ) {
  * @return array Array of { id: int, title: string, modified: string } objects.
  */
 function wpcom_write_get_recent_drafts( $exclude_post_id = 0 ) {
+	// Drafts always belong to the current user; without one there is nothing to
+	// return, and querying with author=0 would otherwise match orphaned drafts.
+	if ( ! is_user_logged_in() ) {
+		return array();
+	}
+
 	$args = array(
 		'post_type'      => 'post',
 		'post_status'    => 'draft',

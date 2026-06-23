@@ -1,6 +1,7 @@
 import { __ } from '@wordpress/i18n';
 import { TYPE_ARTICLE, PORTRAIT_MODE } from '../constants';
 import { baseDomain } from '../helpers';
+import { MediaImage } from '../shared/media-image';
 import CustomText from './custom-text';
 import { facebookTitle, facebookDescription } from './helpers';
 import useImage from './hooks/use-image-hook';
@@ -20,6 +21,7 @@ export const FacebookLinkPreview: React.FC< FacebookLinkPreviewProps > = ( {
 	title,
 	description,
 	image,
+	imageFocalPoint,
 	user,
 	customText,
 	type,
@@ -45,8 +47,9 @@ export const FacebookLinkPreview: React.FC< FacebookLinkPreviewProps > = ( {
 						<div
 							className={ `facebook-preview__image ${ image ? '' : 'is-empty' } ${ modeClass }` }
 						>
-							{ /* eslint-disable jsx-a11y/alt-text */ }
-							{ image && <img src={ image } { ...imgProps } /> }
+							{ image && (
+								<MediaImage src={ image } focalPoint={ imageFocalPoint } { ...imgProps } />
+							) }
 						</div>
 					) }
 					<div className="facebook-preview__text">

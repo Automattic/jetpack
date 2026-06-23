@@ -781,6 +781,7 @@ class Defaults {
 		'_wpas_customize_per_network',
 		'_wpas_mess',
 		'_wpas_options',
+		'_jetpack_social_image_focal_point', // Publicize_Base::ATTACHMENT_IMAGE_FOCAL_POINT.
 		'advanced_seo_description', // Jetpack_SEO_Posts::DESCRIPTION_META_KEY.
 		'content_width',
 		'custom_css_add',
