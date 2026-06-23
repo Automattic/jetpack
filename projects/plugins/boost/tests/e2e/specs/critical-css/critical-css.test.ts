@@ -142,11 +142,19 @@ test.describe.serial( 'Critical CSS module', () => {
 				response
 					.url()
 					.includes( '/jetpack-boost-ds/critical-css-state/action/request-regenerate' ) &&
-				response.request().method() === 'POST' &&
-				response.ok()
+				response.request().method() === 'POST'
 		);
 		await page.getByRole( 'button', { name: 'Regenerate' } ).click();
-		await regenerationRequested;
+		/*
+		 * Assert the action succeeded rather than matching only ok() responses, so a
+		 * failed request (e.g. nonce/permission) fails fast with its status instead of
+		 * timing out the generation wait below.
+		 */
+		const regenerationResponse = await regenerationRequested;
+		expect(
+			regenerationResponse.ok(),
+			`Regenerate request should succeed (got HTTP ${ regenerationResponse.status() })`
+		).toBeTruthy();
 
 		const criticalCssGenerated = jetpackBoostPage.waitForCriticalCssGeneration( 240000 );
 		await expect(
