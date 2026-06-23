@@ -27,23 +27,6 @@ class Initializer_Test extends Search_TestCase {
 		delete_option( Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY );
 		$this->reset_block_search_active();
 		$this->remove_search_blocks_hooks();
-
-		/*
-		 * The deferral tests wire rest_api_init, build a REST server in the
-		 * global, and (via init_before_connection -> new Dashboard()) register
-		 * Dashboard's admin_menu/current_screen hooks and its static
-		 * `$initialized` guard, plus Plan::init_hooks()'s jetpack_heartbeat hook
-		 * and its static `$update_plan_hook_initialized` guard. Reset all of it
-		 * so nothing leaks into later tests — the base TestCase and WorDBless
-		 * reset none of it.
-		 */
-		remove_all_actions( 'rest_api_init' );
-		remove_all_actions( 'admin_menu' );
-		remove_all_actions( 'current_screen' );
-		remove_all_actions( 'jetpack_heartbeat' );
-		$this->reset_dashboard_initialized();
-		$this->reset_plan_hook_initialized();
-		$GLOBALS['wp_rest_server'] = null;
 		parent::tearDown();
 	}
 
@@ -295,91 +278,6 @@ class Initializer_Test extends Search_TestCase {
 		$this->assertFalse( $property->getValue(), 'block_search_active must stay false for Theme search.' );
 
 		( new \Automattic\Jetpack\Modules() )->deactivate( Module_Control::JETPACK_SEARCH_MODULE_SLUG );
-	}
-
-	public function test_register_rest_controller_routes_defers_search_routes_to_rest_api_init() {
-		global $wp_rest_server;
-		$wp_rest_server = new \WP_REST_Server();
-
-		/*
-		 * This is the callback init_before_connection() hooks onto
-		 * rest_api_init instead of building the controller eagerly, so the
-		 * REST_Controller only loads on REST requests.
-		 */
-		$callback = array( Initializer::class, 'register_rest_controller_routes' );
-		add_action( 'rest_api_init', $callback );
-
-		// Deferred: wiring up the hook must not register the routes yet.
-		$this->assertArrayNotHasKey(
-			'/jetpack/v4/search/plan',
-			$wp_rest_server->get_routes(),
-			'Search REST routes must not register before rest_api_init fires.'
-		);
-
-		do_action( 'rest_api_init' );
-
-		// Firing rest_api_init constructs the controller and registers the routes.
-		$this->assertArrayHasKey(
-			'/jetpack/v4/search/plan',
-			$wp_rest_server->get_routes(),
-			'register_rest_controller_routes() must construct the REST_Controller and register the Search routes on rest_api_init.'
-		);
-	}
-
-	public function test_init_before_connection_defers_controller_via_static_callback() {
-		$this->invoke_init_before_connection();
-
-		/*
-		 * The deferral hinges on wiring a STATIC callback. The pre-fix code
-		 * registered array( new REST_Controller(), ... ), which builds the
-		 * controller eagerly when the hook is added, on every request. Asserting
-		 * the static callback is the registered handler guards against reverting
-		 * to an instance (or a closure) without having to fire rest_api_init.
-		 */
-		$this->assertSame(
-			10,
-			has_action( 'rest_api_init', array( Initializer::class, 'register_rest_controller_routes' ) ),
-			'init_before_connection() must defer the Search controller via a static callback, not an eagerly-constructed instance.'
-		);
-	}
-
-	/**
-	 * Invoke the protected `init_before_connection()` directly. Its Dashboard /
-	 * AI_Answers / rest_api_init hooks are torn down in tearDown() so they don't
-	 * leak across the suite via the global `$wp_filter`.
-	 */
-	private function invoke_init_before_connection(): void {
-		$method = new ReflectionMethod( Initializer::class, 'init_before_connection' );
-		if ( PHP_VERSION_ID < 80100 ) {
-			$method->setAccessible( true );
-		}
-		$method->invoke( null );
-	}
-
-	/**
-	 * Reset Dashboard's private static `$initialized` guard so init_hooks() can
-	 * re-run cleanly in later tests after `init_before_connection()` flips it.
-	 */
-	private function reset_dashboard_initialized(): void {
-		$property = new \ReflectionProperty( Dashboard::class, 'initialized' );
-		if ( PHP_VERSION_ID < 80100 ) {
-			$property->setAccessible( true );
-		}
-		$property->setValue( null, false );
-	}
-
-	/**
-	 * Reset Plan's protected static `$update_plan_hook_initialized` guard, which
-	 * Plan::init_hooks() (reached via the Dashboard constructor in
-	 * `init_before_connection()`) flips to true. Left set, it would suppress
-	 * jetpack_heartbeat registration in later tests that re-run init_hooks().
-	 */
-	private function reset_plan_hook_initialized(): void {
-		$property = new \ReflectionProperty( Plan::class, 'update_plan_hook_initialized' );
-		if ( PHP_VERSION_ID < 80100 ) {
-			$property->setAccessible( true );
-		}
-		$property->setValue( null, false );
 	}
 
 	/**

@@ -130,27 +130,11 @@ class Initializer {
 	 * Init functionality required for connection.
 	 */
 	protected static function init_before_connection() {
-		/*
-		 * Set up Search API endpoints. The controller is built inside the
-		 * callback (see register_rest_controller_routes()) rather than when the
-		 * hook is added, so the REST_Controller only loads when the REST API is
-		 * actually in use, not on every front-end, cron, or login request.
-		 */
-		add_action( 'rest_api_init', array( self::class, 'register_rest_controller_routes' ) );
+		// Set up Search API endpoints.
+		add_action( 'rest_api_init', array( REST_Controller::class, 'register' ) );
 		// The dashboard has to be initialized before connection.
 		( new Dashboard() )->init_hooks();
 		( new AI_Answers() )->init();
-	}
-
-	/**
-	 * Instantiate the Search REST controller and register its routes.
-	 *
-	 * Deferred to `rest_api_init` by init_before_connection() so the
-	 * REST_Controller is only loaded on REST requests, not on every front-end,
-	 * cron, or login request.
-	 */
-	public static function register_rest_controller_routes() {
-		( new REST_Controller() )->register_rest_routes();
 	}
 
 	/**
