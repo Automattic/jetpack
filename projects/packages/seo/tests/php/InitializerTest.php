@@ -50,12 +50,13 @@ class InitializerTest extends TestCase {
 		}
 		$coverage = $method->invoke( null );
 
-		$this->assertArrayHasKey( 'total', $coverage );
-		$this->assertArrayHasKey( 'with_description', $coverage );
-		$this->assertArrayHasKey( 'with_schema', $coverage );
-		$this->assertIsInt( $coverage['total'] );
-		$this->assertIsInt( $coverage['with_description'] );
-		$this->assertIsInt( $coverage['with_schema'] );
+		foreach ( array( 'total', 'with_schema', 'with_title', 'with_description', 'with_search_visible' ) as $key ) {
+			$this->assertArrayHasKey( $key, $coverage );
+			$this->assertIsInt( $coverage[ $key ] );
+		}
+
+		// Search-visible can never exceed the total (it's total minus noindexed).
+		$this->assertLessThanOrEqual( $coverage['total'], $coverage['with_search_visible'] );
 	}
 
 	/**

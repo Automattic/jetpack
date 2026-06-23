@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Gate the Settings, Content, and AI tabs behind the enable-SEO-tools card when the SEO Tools module is off, matching the Overview, instead of rendering controls that can't save.

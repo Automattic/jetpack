@@ -1131,6 +1131,11 @@ class Jetpack_Gutenberg {
 			return true;
 		}
 
+		/*
+		 * Treat any non-front-end execution context as block-editor. These are not the
+		 * front-end hot path this gate optimizes, and some still render block content
+		 * (e.g. cron-generated subscription e-mails) that depends on full registration.
+		 */
 		if (
 			( defined( 'DOING_CRON' ) && DOING_CRON )
 			|| ( defined( 'WP_CLI' ) && WP_CLI )
@@ -1186,6 +1191,36 @@ class Jetpack_Gutenberg {
 	}
 
 	/**
+	 * Editor-oriented extensions that nonetheless have front-end side effects and must
+	 * therefore keep loading on every request, even outside the block editor.
+	 *
+	 * Keyed by directory ('plugins' / 'extended-blocks') for an exact, intentional match.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @var array
+	 */
+	private static $frontend_editor_extensions = array(
+		'plugins'         => array(
+			// Mounts the Reader Chat widget on the front end (wp_enqueue_scripts) and
+			// wires the AI sidebar/provider registration AI Assistant depends on.
+			'ai-assistant-plugin',
+			// Signals Big Sky via the jetpack_image_studio_enabled filter on `init`,
+			// which can run on the front end.
+			'image-studio',
+			// Filters get_avatar_data on the front end to customize AI-authored note avatars.
+			'block-notes',
+		),
+		'extended-blocks' => array(
+			// Registers the videopress/video block on `init`, required to render it on the front end.
+			'videopress-video',
+			// Registers the `premium-content/container` plan availability that the Premium Content
+			// block's front-end render reads via required_plan_checks(); skipping it breaks the paywall.
+			'premium-content-container',
+		),
+	);
+
+	/**
 	 * Loads PHP components of block editor extensions.
 	 *
 	 * @since 8.9.0
@@ -1198,13 +1233,28 @@ class Jetpack_Gutenberg {
 				'plugins',
 			);
 
+			$is_editor_context = self::is_block_editor_context();
+
 			// Collect the extension paths.
 			foreach ( $extensions_to_load as $extension_to_load ) {
 				$extensions_folder = glob( JETPACK__PLUGIN_DIR . 'extensions/' . $extension_to_load . '/*' );
 
+				$frontend_allow_list = self::$frontend_editor_extensions[ $extension_to_load ] ?? array();
+
 				// Require each of the extension files, in case it exists.
 				foreach ( $extensions_folder as $extension_folder ) {
-					$name                = basename( $extension_folder );
+					$name = basename( $extension_folder );
+
+					/*
+					 * On plain front-end requests, only load extensions that have known
+					 * front-end side effects. Editor-only extensions are skipped here and
+					 * loaded on admin/REST (block-editor) requests instead, reducing the
+					 * per-front-end-request PHP/opcache footprint.
+					 */
+					if ( ! $is_editor_context && ! in_array( $name, $frontend_allow_list, true ) ) {
+						continue;
+					}
+
 					$extension_file_path = JETPACK__PLUGIN_DIR . 'extensions/' . $extension_to_load . '/' . $name . '/' . $name . '.php';
 
 					if ( file_exists( $extension_file_path ) ) {

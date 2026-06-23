@@ -228,6 +228,17 @@ export type LeaderboardEntry = {
 	 * never both, since interactive elements cannot be nested in HTML.
 	 */
 	onClick?: ( event: MouseEvent< HTMLButtonElement > ) => void;
+
+	/**
+	 * Optional accessible name for the interactive row's `<button>`. Only applies
+	 * when `onClick` is set — without it the row renders as a Fragment with no
+	 * element to receive `aria-label`. By default the button derives its name from
+	 * its rendered content (label text plus the formatted value), which is the
+	 * right outcome for plain-text labels. Set this when the `label` is JSX whose
+	 * text content does not yield a clean name on its own — e.g. an image-only
+	 * label — to give assistive tech a deterministic, human-readable name.
+	 */
+	ariaLabel?: string;
 };
 
 export type GradientStop = {

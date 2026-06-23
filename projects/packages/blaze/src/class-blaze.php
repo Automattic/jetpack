@@ -84,9 +84,9 @@ class Blaze {
 		// Add a Blaze Menu.
 		add_action( 'admin_menu', array( __CLASS__, 'enable_blaze_menu' ), 999 );
 		// Add Blaze dashboard app REST API endpoints.
-		add_action( 'rest_api_init', array( new Blaze_Dashboard_REST_Controller(), 'register_rest_routes' ) );
+		add_action( 'rest_api_init', array( Blaze_Dashboard_REST_Controller::class, 'register' ) );
 		// Add general Blaze REST API endpoints.
-		add_action( 'rest_api_init', array( new REST_Controller(), 'register_rest_routes' ) );
+		add_action( 'rest_api_init', array( REST_Controller::class, 'register' ) );
 	}
 
 	/**

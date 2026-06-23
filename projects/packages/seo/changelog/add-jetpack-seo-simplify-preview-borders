@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Simplify the search/social preview cards on the SEO Settings tab: drop the group border that boxed each platform heading together with its preview. Each preview keeps its own border (the Google result gains one; Facebook/X keep their card border) with the platform heading above it, removing the box-in-box look.

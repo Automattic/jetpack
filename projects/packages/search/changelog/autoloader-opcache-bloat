@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Defer Search REST controller instantiation so it is only built when its REST routes are requested.
