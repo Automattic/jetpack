@@ -70,7 +70,7 @@ function wpcom_write_resolve_back_url( $source ) {
 		'reader' => 'https://wordpress.com/read',
 	);
 
-	return isset( $destinations[ $source ] ) ? $destinations[ $source ] : admin_url();
+	return $destinations[ $source ] ?? admin_url();
 }
 
 /**
