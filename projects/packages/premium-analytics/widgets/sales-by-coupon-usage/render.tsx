@@ -1,13 +1,12 @@
-import {
-	SalesByCouponWidget,
-	WidgetRoot,
-} from '@jetpack-premium-analytics/widgets-toolkit';
+import { SalesByCouponWidget, WidgetRoot } from '@jetpack-premium-analytics/widgets-toolkit';
 import type { ComponentProps } from 'react';
 
-type SalesByCouponUsageRenderProps = Pick<
-	ComponentProps< typeof WidgetRoot >,
-	'attributes' | 'setError'
->;
+type WidgetRootProps = ComponentProps< typeof WidgetRoot >;
+
+type SalesByCouponUsageRenderProps = {
+	attributes?: WidgetRootProps[ 'attributes' ];
+	setError?: WidgetRootProps[ 'setError' ];
+};
 
 /**
  * Sales by coupon usage widget.
