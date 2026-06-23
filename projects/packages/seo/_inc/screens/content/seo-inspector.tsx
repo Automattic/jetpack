@@ -131,6 +131,8 @@ const SeoInspector: FC< Props > = ( { postId, postType, onClose } ) => {
 				recordMeta?.jetpack_seo_schema_type === 'article' ||
 				recordMeta?.jetpack_seo_schema_type === 'faq';
 			const priorHasTitle = ( recordMeta?.jetpack_seo_html_title ?? '' ) !== '';
+			// Normalize noindex to a boolean first (matching how local state is seeded
+			// above) so visibility is computed consistently regardless of the raw shape.
 			const priorVisible = ! recordMeta?.jetpack_seo_noindex;
 			applyCoverageDelta( {
 				schema: Number( local.jetpack_seo_schema_type !== '' ) - Number( priorHasSchema ),
