@@ -59,11 +59,15 @@ describe( 'HeatmapChart', () => {
 	} );
 
 	/* eslint-disable testing-library/no-node-access */
-	test( 'renders an accessible title per cell for screen readers', () => {
+	test( 'gives each cell an accessible name for screen readers (no native title tooltip)', () => {
 		renderChart( { rowLabels: [ 'Mon', 'Tue', 'Wed' ] } );
 		const grid = screen.getByRole( 'grid', { name: /heatmap/i } );
-		const titles = Array.from( grid.querySelectorAll( 'title' ) ).map( t => t.textContent );
-		expect( titles.some( t => t?.includes( 'W1' ) && t?.includes( 'Mon' ) ) ).toBe( true );
+		// aria-label (not <title>) provides the accessible name so no native browser tooltip shows.
+		expect( grid.querySelectorAll( 'title' ) ).toHaveLength( 0 );
+		const labels = Array.from( grid.querySelectorAll( '[role="gridcell"]' ) ).map( c =>
+			c.getAttribute( 'aria-label' )
+		);
+		expect( labels.some( l => l?.includes( 'W1' ) && l?.includes( 'Mon' ) ) ).toBe( true );
 	} );
 
 	test( 'shows a tooltip on cell hover when withTooltips is set', async () => {

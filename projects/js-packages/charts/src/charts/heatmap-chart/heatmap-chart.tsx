@@ -75,7 +75,7 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 	const [ selectedIndex, setSelectedIndex ] = useState< number | undefined >();
 	const { tooltipOpen, tooltipLeft, tooltipTop, tooltipData, showTooltip, hideTooltip } =
 		useTooltip< HeatmapTooltipData >();
-	const { containerRef, TooltipInPortal } = useTooltipInPortal( {
+	const { containerRef, containerBounds, TooltipInPortal } = useTooltipInPortal( {
 		detectBounds: true,
 		scroll: true,
 	} );
@@ -192,13 +192,14 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 			const target = event.currentTarget as SVGGElement;
 			const columnIndex = Number( target.dataset.column );
 			const rowIndex = Number( target.dataset.row );
+			// TooltipInPortal re-adds containerBounds, so subtract it to land at the cursor.
 			showTooltip( {
-				tooltipLeft: event.clientX,
-				tooltipTop: event.clientY,
+				tooltipLeft: event.clientX - containerBounds.left,
+				tooltipTop: event.clientY - containerBounds.top,
 				tooltipData: buildTooltipData( columnIndex, rowIndex ),
 			} );
 		},
-		[ withTooltips, showTooltip, buildTooltipData ]
+		[ withTooltips, showTooltip, buildTooltipData, containerBounds ]
 	);
 
 	const handleCellMouseLeave = useCallback( () => {
@@ -373,12 +374,12 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 																		id={ `${ chartId }-cell-${ c }-${ r }` }
 																		role="gridcell"
 																		aria-colindex={ c + 1 }
+																		aria-label={ titleText }
 																		data-column={ cell.column }
 																		data-row={ cell.row }
 																		onMouseMove={ handleCellMouseMove }
 																		onMouseLeave={ handleCellMouseLeave }
 																	>
-																		<title>{ titleText }</title>
 																		<rect
 																			data-testid="heatmap-cell"
 																			x={ cell.x }
