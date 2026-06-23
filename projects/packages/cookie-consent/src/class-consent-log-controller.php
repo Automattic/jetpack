@@ -93,13 +93,6 @@ class Consent_Log_Controller extends WP_REST_Controller {
 	private const MAX_URL_LENGTH = 1024;
 
 	/**
-	 * Maximum number of consent-type keys accepted in a single request.
-	 *
-	 * @var int
-	 */
-	private const MAX_CONSENT_TYPES = 20;
-
-	/**
 	 * Cleanup cron hook name.
 	 *
 	 * @var string
@@ -448,7 +441,20 @@ class Consent_Log_Controller extends WP_REST_Controller {
 			return true;
 		}
 
-		if ( ! is_string( $value ) || strlen( $value ) > self::MAX_URL_LENGTH || ! wp_http_validate_url( $value ) ) {
+		// The URL is the visitor's own page address, stored only for the audit log and
+		// never fetched server-side, so validate it cheaply: a string within the length
+		// cap that parses as an http(s) URL with a host. wp_http_validate_url() is avoided
+		// on purpose — it's an SSRF guard for outbound requests and would run a DNS lookup
+		// and reject legitimate same-site URLs (mapped domains, private-IP dev/staging
+		// hosts, non-standard ports) on this high-frequency public endpoint.
+		$scheme = is_string( $value ) ? wp_parse_url( $value, PHP_URL_SCHEME ) : null;
+		$host   = is_string( $value ) ? wp_parse_url( $value, PHP_URL_HOST ) : null;
+		if (
+			! is_string( $value )
+			|| strlen( $value ) > self::MAX_URL_LENGTH
+			|| ! in_array( strtolower( (string) $scheme ), array( 'http', 'https' ), true )
+			|| empty( $host )
+		) {
 			return new WP_Error(
 				'rest_invalid_param',
 				sprintf(
@@ -502,11 +508,6 @@ class Consent_Log_Controller extends WP_REST_Controller {
 	public function sanitize_consent_types( $value ) {
 		if ( ! is_array( $value ) ) {
 			return null;
-		}
-
-		// Cap the number of keys so an oversized object can't be used to bloat storage.
-		if ( count( $value ) > self::MAX_CONSENT_TYPES ) {
-			$value = array_slice( $value, 0, self::MAX_CONSENT_TYPES, true );
 		}
 
 		/**
