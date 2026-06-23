@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Simplify the search/social preview card borders on the SEO Settings tab: drop the box-in-box grouping so only the Google search result is bordered (with its redundant heading removed); the Facebook/X cards render borderless.
