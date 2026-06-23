@@ -4075,10 +4075,10 @@ importers:
         specifier: 4.48.1
         version: 4.48.1
       '@wordpress/widget-dashboard':
-        specifier: next
+        specifier: 0.1.1-next.v.202606191442.0
         version: 0.1.1-next.v.202606191442.0(@date-fns/tz@1.4.1)(date-fns@4.1.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/widget-primitives':
-        specifier: next
+        specifier: 0.1.1-next.v.202606191442.0
         version: 0.1.1-next.v.202606191442.0(@date-fns/tz@1.4.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       clsx:
         specifier: 2.1.1
