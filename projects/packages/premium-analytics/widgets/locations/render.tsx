@@ -17,9 +17,8 @@ import clsx from 'clsx';
 /**
  * Internal dependencies
  */
-import { reportParamsToStatsDays } from './report-params-adapter';
-import useLocationViews, { type GeoMode } from './use-location-views';
 import styles from './style.module.css';
+import useLocationViews, { type GeoMode } from './use-location-views';
 /**
  * Types
  */
@@ -37,7 +36,7 @@ type LocationsRenderProps = {
  * Flag SVG URL from the flag-icons CDN.
  *
  * @param countryCode - Two-letter ISO 3166-1 country code.
- * @return Flag SVG URL, or null for invalid codes.
+ * @return The flag SVG URL, or null for invalid codes.
  */
 function flagUrl( countryCode: string ): string | null {
 	if ( ! countryCode || countryCode.length !== 2 ) {
@@ -51,10 +50,10 @@ function flagUrl( countryCode: string ): string | null {
  *
  * @param root0            - Render props.
  * @param root0.attributes - Widget attributes (max).
+ * @return The rendered widget content.
  */
 function LocationsInner( { attributes }: LocationsRenderProps ) {
 	const { reportParams } = useWidgetRootContext();
-	const num = reportParamsToStatsDays( reportParams );
 	const max = attributes?.max ?? 10;
 
 	const [ topMode, setTopMode ] = useState< 'country' | 'city' >( 'country' );
@@ -73,7 +72,7 @@ function LocationsInner( { attributes }: LocationsRenderProps ) {
 	const geoMode: GeoMode = selectedCountry ? 'region' : topMode;
 
 	const { data, isLoading, isSample } = useLocationViews( {
-		num,
+		reportParams,
 		max,
 		geoMode,
 		countryFilter: selectedCountry?.code,
@@ -218,10 +217,11 @@ function LocationsInner( { attributes }: LocationsRenderProps ) {
  *
  * @param root0            - Render props.
  * @param root0.attributes - Widget attributes (max).
+ * @return The rendered Locations widget.
  */
 export default function Locations( { attributes }: LocationsRenderProps ) {
 	return (
-		<WidgetRoot attributes={ attributes }>
+		<WidgetRoot>
 			<LocationsInner attributes={ attributes } />
 		</WidgetRoot>
 	);

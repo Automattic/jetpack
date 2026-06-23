@@ -1,15 +1,17 @@
 /**
- * WordPress dependencies
+ * Internal dependencies
  */
-import apiFetch from '@wordpress/api-fetch';
-import { useState, useEffect } from '@wordpress/element';
+import { useStatsLocations } from '@jetpack-premium-analytics/data';
+import type {
+	ReportParams,
+	StatsLocationsItem,
+	StatsNormalizedReport,
+} from '@jetpack-premium-analytics/data';
+
+export type GeoMode = 'country' | 'region' | 'city';
 
 /**
- * A single normalized location-views row.
- *
- * Mirrors the relevant fields of Calypso's `normalizers.statsCountryViews` output.
- * In country mode: label is the country name, countryCode is the ISO code.
- * In region mode: label is the region name, countryCode is still the parent country code.
+ * A single normalized location-views row for the widget.
  */
 export interface LocationView {
 	label: string;
@@ -19,23 +21,8 @@ export interface LocationView {
 	region: string;
 }
 
-/**
- * Raw shape of the wpcom location-views / country-views response,
- * as proxied by the PA data proxy. Only the summarized branch is used.
- */
-interface RawLocationViews {
-	'country-info'?: Record< string, { country_full?: string; map_region?: string } >;
-	summary?: {
-		views?: Array< { country_code: string; location?: string; views: number } >;
-	};
-}
-
-export type GeoMode = 'country' | 'region' | 'city';
-
-const DEFAULT_NUM = 30;
-
 interface UseLocationViewsArgs {
-	num: number;
+	reportParams: ReportParams;
 	max: number;
 	geoMode?: GeoMode;
 	countryFilter?: string;
@@ -51,9 +38,7 @@ interface LocationViewsState {
 	isSample: boolean;
 }
 
-/**
- * Country-level placeholder data shown when the site isn't connected or the request fails.
- */
+/** Country-level placeholder data shown when the site isn't connected or the request fails. */
 const SAMPLE_LOCATIONS: LocationView[] = [
 	{
 		label: 'United States',
@@ -85,151 +70,76 @@ const SAMPLE_LOCATIONS: LocationView[] = [
 	{ label: 'Spain', countryCode: 'ES', countryFull: 'Spain', value: 400, region: '039' },
 ];
 
-const UNKNOWN_COUNTRY_CODES = [ 'A1', 'A2', 'ZZ' ];
-
 /**
- * Build the PA data-proxy path for a location-views or country-views request.
+ * Map a `StatsLocationsItem` from the data layer to the widget's `LocationView` shape.
  *
- * Uses `/jetpack-premium-analytics/v1/proxy/v1.1/stats/<endpoint>` — the PA proxy
- * injects the connected blog id server-side so the client never needs to know it.
- *
- * @param geoMode       - 'country' uses the legacy country-views endpoint;
- *                      'region' uses location-views/region.
- * @param num           - Trailing window in days.
- * @param max           - Maximum rows to return.
- * @param countryFilter - ISO country code to filter regions by (region mode only).
- * @return The full apiFetch path.
+ * @param item - Normalized location item from the data layer.
+ * @return A `LocationView` for the widget, or null if the item has no country code.
  */
-function buildPath( geoMode: GeoMode, num: number, max: number, countryFilter?: string ): string {
-	let endpoint: string;
-	if ( geoMode === 'region' ) {
-		endpoint = 'location-views/region';
-	} else if ( geoMode === 'city' ) {
-		endpoint = 'location-views/city';
-	} else {
-		endpoint = 'country-views';
+function toLocationView( item: StatsLocationsItem ): LocationView | null {
+	if ( ! item.countryCode ) {
+		return null;
 	}
-
-	const params = new URLSearchParams( {
-		period: 'day',
-		num: String( num > 0 ? num : DEFAULT_NUM ),
-		summarize: '1',
-		max: String( max ),
-	} );
-
-	if ( ( geoMode === 'region' || geoMode === 'city' ) && countryFilter ) {
-		params.set( 'filter_by_country', countryFilter );
-	}
-
-	return `/jetpack-premium-analytics/v1/proxy/v1.1/stats/${ endpoint }?${ params.toString() }`;
+	return {
+		label: typeof item.label === 'string' ? item.label : String( item.label ),
+		countryCode: item.countryCode,
+		countryFull: item.countryFull ?? item.countryCode,
+		value: item.views,
+		region: item.region ?? '',
+	};
 }
 
 /**
- * Normalize a raw location-views / country-views (summarized) response.
+ * Fetch location views for the Locations widget via the shared Stats data layer.
  *
- * Port of Calypso's `statsCountryViews` normalizer, summary branch.
- *
- * @param data - Raw response from the proxy.
- * @param max  - Maximum rows to keep (0 = all).
- * @return Normalized rows, ranked by view count descending.
- */
-export function normalizeLocationViews(
-	data: RawLocationViews | undefined,
-	max: number
-): LocationView[] {
-	if ( ! data ) {
-		return [];
-	}
-
-	const countryInfo = data[ 'country-info' ] ?? {};
-	const views = data.summary?.views ?? [];
-	const rows: LocationView[] = [];
-
-	for ( const view of views ) {
-		if ( UNKNOWN_COUNTRY_CODES.includes( view.country_code ) ) {
-			continue;
-		}
-
-		const info = countryInfo[ view.country_code ];
-		if ( ! info || ! info.country_full ) {
-			continue;
-		}
-
-		// Typographic apostrophes (U+2019) in country names break Google GeoChart.
-		const countryFull = info.country_full.replace( /’/g, "'" );
-		rows.push( {
-			label: ( view.location || countryFull ).replace( /’/g, "'" ),
-			countryCode: view.country_code,
-			countryFull,
-			value: view.views,
-			region: info.map_region ?? '',
-		} );
-	}
-
-	return max ? rows.slice( 0, max ) : rows;
-}
-
-/**
- * Fetch location views for the dashboard widget via the PA data proxy.
- *
- * The proxy (`/jetpack-premium-analytics/v1/proxy/v1.1/stats/...`) injects the
- * connected blog id server-side and forwards to the wpcom stats endpoint. Falls
- * back to bundled sample data on error (e.g. site not connected → 403).
+ * Delegates fetching, caching, and normalization to `useStatsLocations` from
+ * `@jetpack-premium-analytics/data`. Falls back to bundled sample data when the
+ * query has no data (e.g. site not connected → disabled query).
  *
  * @param args               - Hook arguments.
- * @param args.num           - Trailing window in days (e.g. 30 for last-30-days).
- * @param args.max           - Maximum rows.
- * @param args.geoMode       - 'country' (default) or 'region'.
+ * @param args.reportParams  - PA ReportParams from WidgetRoot context.
+ * @param args.max           - Maximum rows to display.
+ * @param args.geoMode       - 'country' (default), 'region', or 'city'.
  * @param args.countryFilter - ISO country code to filter regions by (region mode).
- * @return The current data/loading/error state.
+ * @return The current data/loading/error/sample state.
  */
 export default function useLocationViews( {
-	num,
+	reportParams,
 	max,
 	geoMode = 'country',
 	countryFilter,
 }: UseLocationViewsArgs ): LocationViewsState {
-	const [ state, setState ] = useState< LocationViewsState >( {
-		data: [],
-		isLoading: true,
-		isError: false,
-		isSample: false,
-	} );
+	const statsParams = {
+		...reportParams,
+		geoMode,
+		max,
+		...( countryFilter ? { filter_by_country: countryFilter } : {} ),
+	} as Parameters< typeof useStatsLocations >[ 0 ];
 
-	useEffect( () => {
-		let cancelled = false;
-		setState( prev => ( { ...prev, isLoading: true } ) );
+	const { primary } = useStatsLocations( statsParams );
 
-		const path = buildPath( geoMode, num, max, countryFilter );
+	const isLoading = primary.isLoading || primary.isFetching;
+	const isError = primary.isError;
+	const report = primary.data as StatsNormalizedReport< StatsLocationsItem > | undefined;
+	const rawItems = report?.data?.[ 0 ]?.items ?? [];
+	const items = rawItems
+		.map( toLocationView )
+		.filter( ( v ): v is LocationView => v !== null )
+		.slice( 0, max || undefined );
 
-		apiFetch< RawLocationViews >( { path } )
-			.then( response => {
-				if ( cancelled ) {
-					return;
-				}
-				setState( {
-					data: normalizeLocationViews( response, max ),
-					isLoading: false,
-					isError: false,
-					isSample: false,
-				} );
-			} )
-			.catch( () => {
-				if ( cancelled ) {
-					return;
-				}
-				setState( {
-					data: max ? SAMPLE_LOCATIONS.slice( 0, max ) : SAMPLE_LOCATIONS,
-					isLoading: false,
-					isError: true,
-					isSample: true,
-				} );
-			} );
-
-		return () => {
-			cancelled = true;
+	if ( ! isLoading && ! isError && items.length === 0 ) {
+		return {
+			data: max ? SAMPLE_LOCATIONS.slice( 0, max ) : SAMPLE_LOCATIONS,
+			isLoading: false,
+			isError: false,
+			isSample: true,
 		};
-	}, [ geoMode, num, max, countryFilter ] );
+	}
 
-	return state;
+	return {
+		data: items,
+		isLoading,
+		isError,
+		isSample: false,
+	};
 }
