@@ -4,7 +4,6 @@ import { __ } from '@wordpress/i18n';
 import { store as noticesStore } from '@wordpress/notices';
 import { Button, Stack, Text } from '@wordpress/ui';
 import { useCallback, useEffect, useState } from 'react';
-import MutedText from '../../components/muted-text';
 import { isFixComplete, useFixThreatsStatusQuery } from '../../data/use-fix-threats-status';
 import { useFixThreatsMutation } from '../../data/use-threat-mutations';
 import { useTrackEvent } from '../../data/use-track-event';
@@ -98,9 +97,9 @@ export function FixThreatModal( { items, closeModal }: RenderModalProps< Threat 
 
 	return (
 		<Stack gap="lg" direction="column">
-			<MutedText>
+			<Text className="jp-scan-text-muted">
 				{ __( 'Jetpack will be fixing the following threat:', 'jetpack-scan-page' ) }
-			</MutedText>
+			</Text>
 			<Stack gap="xs" direction="column">
 				<Stack gap="sm" direction="row" align="center" wrap="wrap">
 					<Text style={ { fontWeight: 'var(--wpds-typography-font-weight-medium, 499)' } }>
@@ -108,7 +107,7 @@ export function FixThreatModal( { items, closeModal }: RenderModalProps< Threat 
 					</Text>
 					{ !! threat.severity && <ThreatSeverityBadge severity={ threat.severity } /> }
 				</Stack>
-				{ threat.description && <MutedText>{ threat.description }</MutedText> }
+				{ threat.description && <Text className="jp-scan-text-muted">{ threat.description }</Text> }
 			</Stack>
 			<Stack gap="sm" direction="row" justify="flex-end">
 				<Button variant="outline" onClick={ closeModal } disabled={ isFixing }>

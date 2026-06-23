@@ -4,7 +4,6 @@ import { __ } from '@wordpress/i18n';
 import { store as noticesStore } from '@wordpress/notices';
 import { Button, Notice, Stack, Text } from '@wordpress/ui';
 import { useCallback, useEffect } from 'react';
-import MutedText from '../../components/muted-text';
 import { useUnignoreThreatMutation } from '../../data/use-threat-mutations';
 import { useTrackEvent } from '../../data/use-track-event';
 import type { RenderModalProps } from '@wordpress/dataviews';
@@ -67,9 +66,9 @@ export function UnignoreThreatModal( {
 
 	return (
 		<Stack gap="lg" direction="column">
-			<MutedText>
+			<Text className="jp-scan-text-muted">
 				{ __( 'Jetpack will be unignoring the following threat:', 'jetpack-scan-page' ) }
-			</MutedText>
+			</Text>
 			<Stack gap="xs" direction="column">
 				<Stack gap="sm" direction="row" align="center" wrap="wrap">
 					<Text style={ { fontWeight: 'var(--wpds-typography-font-weight-medium, 499)' } }>
@@ -77,7 +76,7 @@ export function UnignoreThreatModal( {
 					</Text>
 					{ !! threat.severity && <ThreatSeverityBadge severity={ threat.severity } /> }
 				</Stack>
-				{ threat.description && <MutedText>{ threat.description }</MutedText> }
+				{ threat.description && <Text className="jp-scan-text-muted">{ threat.description }</Text> }
 			</Stack>
 			<Notice.Root intent="warning">
 				<Notice.Description>

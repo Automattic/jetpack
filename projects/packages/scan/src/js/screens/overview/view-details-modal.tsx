@@ -3,7 +3,6 @@ import { dateI18n } from '@wordpress/date';
 import { __ } from '@wordpress/i18n';
 import { Stack, Text } from '@wordpress/ui';
 import { useEffect } from 'react';
-import MutedText from '../../components/muted-text';
 import { useTrackEvent } from '../../data/use-track-event';
 import type { RenderModalProps } from '@wordpress/dataviews';
 
@@ -76,9 +75,9 @@ export function ViewDetailsModal( { items }: RenderModalProps< Threat > ): JSX.E
 					{ !! threat.severity && <ThreatSeverityBadge severity={ threat.severity } /> }
 				</Stack>
 				{ threat.signature && (
-					<MutedText style={ { fontFamily: 'monospace', fontSize: 12 } }>
+					<Text className="jp-scan-text-muted" style={ { fontFamily: 'monospace', fontSize: 12 } }>
 						{ threat.signature }
-					</MutedText>
+					</Text>
 				) }
 			</Stack>
 
@@ -86,25 +85,27 @@ export function ViewDetailsModal( { items }: RenderModalProps< Threat > ): JSX.E
 
 			{ threat.firstDetected && (
 				<Stack gap="xs" direction="column">
-					<MutedText>{ __( 'First detected', 'jetpack-scan-page' ) }</MutedText>
+					<Text className="jp-scan-text-muted">
+						{ __( 'First detected', 'jetpack-scan-page' ) }
+					</Text>
 					<Text>{ dateI18n( 'F j, Y', threat.firstDetected, false ) }</Text>
 				</Stack>
 			) }
 
 			{ threat.fixedOn && (
 				<Stack gap="xs" direction="column">
-					<MutedText>{ __( 'Fixed on', 'jetpack-scan-page' ) }</MutedText>
+					<Text className="jp-scan-text-muted">{ __( 'Fixed on', 'jetpack-scan-page' ) }</Text>
 					<Text>{ dateI18n( 'F j, Y', threat.fixedOn, false ) }</Text>
 				</Stack>
 			) }
 
 			{ threat.extension && (
 				<Stack gap="xs" direction="column">
-					<MutedText>
+					<Text className="jp-scan-text-muted">
 						{ threat.extension.type === 'themes'
 							? __( 'Theme', 'jetpack-scan-page' )
 							: __( 'Plugin', 'jetpack-scan-page' ) }
-					</MutedText>
+					</Text>
 					<Text>
 						{ threat.extension.name } { threat.extension.version }
 						{ threat.fixedIn && ` → ${ threat.fixedIn }` }
@@ -114,24 +115,24 @@ export function ViewDetailsModal( { items }: RenderModalProps< Threat > ): JSX.E
 
 			{ threat.filename && (
 				<Stack gap="xs" direction="column">
-					<MutedText>{ __( 'File', 'jetpack-scan-page' ) }</MutedText>
+					<Text className="jp-scan-text-muted">{ __( 'File', 'jetpack-scan-page' ) }</Text>
 					<pre style={ codeBlockStyle }>{ threat.filename }</pre>
 				</Stack>
 			) }
 
 			{ fileContext && (
 				<Stack gap="xs" direction="column">
-					<MutedText>{ __( 'Context', 'jetpack-scan-page' ) }</MutedText>
+					<Text className="jp-scan-text-muted">{ __( 'Context', 'jetpack-scan-page' ) }</Text>
 					<pre style={ codeBlockStyle }>{ fileContext }</pre>
 				</Stack>
 			) }
 
 			<Stack gap="xs" direction="column">
-				<MutedText>
+				<Text className="jp-scan-text-muted">
 					{ threat.status === 'fixed'
 						? __( 'How was it fixed?', 'jetpack-scan-page' )
 						: __( 'How will it be fixed?', 'jetpack-scan-page' ) }
-				</MutedText>
+				</Text>
 				<Text>{ fixDescription }</Text>
 			</Stack>
 		</Stack>
