@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Defer REST controller instantiation so the controller classes only load on REST API requests.

@@ -10,7 +10,6 @@
 namespace Automattic\Jetpack\Extensions\Goodreads;
 
 use Automattic\Jetpack\Blocks;
-use Jetpack_Gutenberg;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit( 0 );
@@ -32,34 +31,14 @@ add_action( 'init', __NAMESPACE__ . '\register_block' );
 /**
  * Goodreads block registration/dependency declaration.
  *
+ * The render implementation lives in render.php and is only loaded when the
+ * block is actually rendered, keeping it out of the eager front-end path.
+ *
  * @param array $attr    Array containing the Goodreads block attributes.
  *
  * @return string
  */
 function load_assets( $attr ) {
-	Jetpack_Gutenberg::load_assets_as_required( __DIR__ );
-
-	if ( isset( $attr['id'] ) ) {
-		if ( isset( $attr['link'] ) ) {
-			wp_enqueue_script(
-				'jetpack-goodreads-' . esc_attr( $attr['id'] ),
-				esc_url_raw( $attr['link'] ),
-				array(),
-				JETPACK__VERSION,
-				true
-			);
-		}
-
-		$id = esc_attr( $attr['id'] );
-	} else {
-		$id = '';
-	}
-
-	$classes = esc_attr( Blocks::classes( Blocks::get_block_feature( __DIR__ ), $attr ) );
-
-	return sprintf(
-		'<div id="%1$s" class="%2$s"></div>',
-		$id,
-		$classes
-	);
+	require_once __DIR__ . '/render.php';
+	return render_implementation( $attr );
 }

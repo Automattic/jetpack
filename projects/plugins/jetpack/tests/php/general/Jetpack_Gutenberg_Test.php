@@ -462,4 +462,55 @@ class Jetpack_Gutenberg_Test extends WP_UnitTestCase {
 			$retrieved_strategy
 		);
 	}
+
+	/**
+	 * The front-end editor-extension gate must treat REST requests (both the
+	 * rewritten /wp-json/ form and the plain-permalink ?rest_route= form) as
+	 * editor context, and plain front-end page views as not. A regression here
+	 * silently changes which extension PHP loads on the front end.
+	 *
+	 * @dataProvider provider_is_block_editor_context_request_uri
+	 *
+	 * @param string $request_uri The REQUEST_URI to simulate.
+	 * @param bool   $expected    Expected is_block_editor_context() result.
+	 */
+	#[DataProvider( 'provider_is_block_editor_context_request_uri' )]
+	public function test_is_block_editor_context_detects_rest_from_request_uri( $request_uri, $expected ) {
+		$method = new ReflectionMethod( Jetpack_Gutenberg::class, 'is_block_editor_context' );
+		// setAccessible() is a no-op (and deprecated) since PHP 8.1; only needed for older versions.
+		// @todo Remove this guard once we no longer need to support PHP < 8.1.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true );
+		}
+
+		$had_uri  = isset( $_SERVER['REQUEST_URI'] );
+		$original = $had_uri ? $_SERVER['REQUEST_URI'] : null;
+
+		$_SERVER['REQUEST_URI'] = $request_uri;
+		try {
+			$this->assertSame( $expected, $method->invoke( null ) );
+		} finally {
+			if ( $had_uri ) {
+				$_SERVER['REQUEST_URI'] = $original;
+			} else {
+				unset( $_SERVER['REQUEST_URI'] );
+			}
+		}
+	}
+
+	/**
+	 * Data provider for test_is_block_editor_context_detects_rest_from_request_uri.
+	 *
+	 * @return array[]
+	 */
+	public static function provider_is_block_editor_context_request_uri() {
+		return array(
+			'rewritten REST request'          => array( '/wp-json/wp/v2/posts', true ),
+			'plain-permalink REST request'    => array( '/index.php?rest_route=/wp/v2/posts', true ),
+			'front-end single post'           => array( '/2026/06/22/hello-world/', false ),
+			'front-end home'                  => array( '/', false ),
+			'prefix only in a query value'    => array( '/some-page/?redirect=/wp-json/foo', false ),
+			'prefix as a deeper path segment' => array( '/docs/wp-json/example/', false ),
+		);
+	}
 }
