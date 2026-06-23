@@ -18,23 +18,23 @@ describe( 'ErrorBoundary', () => {
 		expect( screen.getByText( 'ok' ) ).toBeInTheDocument();
 	} );
 
-	it( 'shows the default fallback instead of crashing', () => {
-		render(
+	it( 'renders nothing by default when a child throws', () => {
+		const { container } = render(
 			<ErrorBoundary>
 				<Boom />
 			</ErrorBoundary>
 		);
-		expect( screen.getAllByText( 'Unable to load the sharing status.' )[ 0 ] ).toBeInTheDocument();
+		expect( container ).toBeEmptyDOMElement();
 		expect( console ).toHaveErrored();
 	} );
 
-	it( 'renders a custom fallback when provided', () => {
+	it( 'renders the provided fallback when a child throws', () => {
 		render(
-			<ErrorBoundary fallback={ <span>custom fallback</span> }>
+			<ErrorBoundary fallback={ <span>fallback notice</span> }>
 				<Boom />
 			</ErrorBoundary>
 		);
-		expect( screen.getByText( 'custom fallback' ) ).toBeInTheDocument();
+		expect( screen.getByText( 'fallback notice' ) ).toBeInTheDocument();
 		expect( console ).toHaveErrored();
 	} );
 } );

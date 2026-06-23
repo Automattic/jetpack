@@ -1,5 +1,7 @@
+import { Notice } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { store as editorStore, PluginPostPublishPanel } from '@wordpress/editor';
+import { __ } from '@wordpress/i18n';
 import { useIsSharingPossible } from '../../hooks/use-is-sharing-possible';
 import { usePostMeta } from '../../hooks/use-post-meta';
 import { usePostPrePublishValue } from '../../hooks/use-post-pre-publish-value';
@@ -51,7 +53,13 @@ export function PostPublishShareStatus() {
 
 	return (
 		<PluginPostPublishPanel>
-			<ErrorBoundary>
+			<ErrorBoundary
+				fallback={
+					<Notice status="error" isDismissible={ false }>
+						{ __( 'Unable to load the sharing status.', 'jetpack-publicize-pkg' ) }
+					</Notice>
+				}
+			>
 				<ShareStatus />
 			</ErrorBoundary>
 		</PluginPostPublishPanel>
