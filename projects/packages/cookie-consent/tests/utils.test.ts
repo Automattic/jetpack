@@ -1,4 +1,4 @@
-/**
+/*
  * Unit tests for cookie-consent utils.
  *
  * @jest-environment-options {"url": "https://shop.example.co.uk/"}
