@@ -30,10 +30,10 @@ class Jetpack_SEO_Admin_Columns {
 	 * Hide the SEO columns by default in Screen Options.
 	 *
 	 * Three extra always-on columns squeeze the title column unreadably narrow,
-	 * so we default them to hidden — the same way core hides Categories and Tags.
-	 * The `default_hidden_columns` filter only applies to users who have never
-	 * customized Screen Options for the screen, so anyone who explicitly enabled
-	 * the columns keeps them.
+	 * so we default them to hidden using core's `default_hidden_columns` filter —
+	 * the standard mechanism for choosing which columns start hidden in Screen
+	 * Options. It only applies to users who have never customized Screen Options
+	 * for the screen, so anyone who explicitly enabled the columns keeps them.
 	 *
 	 * @param string[]  $hidden Column IDs hidden by default.
 	 * @param WP_Screen $screen Current screen.
