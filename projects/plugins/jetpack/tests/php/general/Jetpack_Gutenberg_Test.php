@@ -592,4 +592,39 @@ class Jetpack_Gutenberg_Test extends WP_UnitTestCase {
 		$this->assertNull( $result );
 		$this->assertArrayNotHasKey( 'does-not-exist', $this->get_deferred_blocks(), 'Deferred block should be removed after a single attempt.' );
 	}
+
+	/**
+	 * A deferred block nested inside a (non-Jetpack) parent is registered from the
+	 * top-level subtree walk, before the inner WP_Block would be constructed.
+	 */
+	public function test_lazy_register_walks_inner_blocks() {
+		$this->set_deferred_blocks( array( 'does-not-exist' => true ) );
+		$parsed = array(
+			'blockName'   => 'core/group',
+			'innerBlocks' => array(
+				array(
+					'blockName'   => 'core/columns',
+					'innerBlocks' => array(
+						array(
+							'blockName'   => 'jetpack/does-not-exist',
+							'innerBlocks' => array(),
+						),
+					),
+				),
+			),
+		);
+		$result = Jetpack_Gutenberg::lazy_register_deferred_block( null, $parsed );
+		$this->assertNull( $result );
+		$this->assertArrayNotHasKey( 'does-not-exist', $this->get_deferred_blocks(), 'Nested deferred block should be reached by the subtree walk.' );
+	}
+
+	/**
+	 * Inner-block invocations (non-null parent) are ignored; the top-level walk owns the tree.
+	 */
+	public function test_lazy_register_ignores_inner_block_invocations() {
+		$this->set_deferred_blocks( array( 'does-not-exist' => true ) );
+		$result = Jetpack_Gutenberg::lazy_register_deferred_block( null, array( 'blockName' => 'jetpack/does-not-exist' ), (object) array() );
+		$this->assertNull( $result );
+		$this->assertArrayHasKey( 'does-not-exist', $this->get_deferred_blocks(), 'Inner-block invocation should not consume the deferred block.' );
+	}
 }

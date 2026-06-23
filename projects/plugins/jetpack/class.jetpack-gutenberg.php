@@ -73,19 +73,26 @@ class Jetpack_Gutenberg {
 	 * Every block listed here has been verified to be "pure": the callback it hooks
 	 * to `init` does nothing but call Blocks::jetpack_register_block() (plus trivial
 	 * connection/module guards). It registers exactly one block type named
-	 * `jetpack/<dir>`, and any front-end hooks it adds (asset enqueues, wp_footer,
-	 * filters, …) live inside its render callback, so they only run when the block
-	 * is rendered.
+	 * `jetpack/<dir>` (matching its directory), and any front-end hooks it adds (asset
+	 * enqueues, wp_footer, filters, …) live inside its render callback, so they only
+	 * run when the block is rendered.
 	 *
 	 * On plain front-end requests these blocks are NOT loaded on `init`. Instead they
-	 * are registered just-in-time the first time the block is encountered while
-	 * rendering, via self::lazy_register_deferred_block() on `pre_render_block`. On
-	 * admin/REST/cron/CLI/XML-RPC (block-editor) requests they keep loading eagerly so
-	 * the editor, the block-types REST endpoint and server-side rendering are unaffected.
+	 * are registered just-in-time the first time the block (or a block whose subtree
+	 * contains it) is encountered while rendering, via self::lazy_register_deferred_block()
+	 * on `pre_render_block`. On admin/REST/cron/CLI/XML-RPC (block-editor) requests they
+	 * keep loading eagerly so the editor, the block-types REST endpoint and server-side
+	 * rendering are unaffected.
 	 *
-	 * A block must NOT be added here if its `init` callback registers any other hook,
-	 * post meta, REST route, shortcode, block pattern or hooked-block, or if it
-	 * registers more than one block type / a name that differs from its directory.
+	 * A block must NOT be added here if:
+	 *   - its `init` callback registers any other hook, post meta, REST route,
+	 *     shortcode, block pattern or hooked-block;
+	 *   - it registers more than one block type, or a block name that differs from its
+	 *     directory name (e.g. videopress registers `jetpack/videopress-block`); or
+	 *   - it uses `plan_check` (its availability is computed from the init-time
+	 *     `jetpack_register_gutenberg_extensions` hook, which lazy registration bypasses,
+	 *     so the front-end availability nudge/render could read a stale value).
+	 *
 	 * When in doubt, leave it out: omitted blocks simply keep their current eager
 	 * behavior.
 	 *
@@ -97,7 +104,6 @@ class Jetpack_Gutenberg {
 		'blogging-prompt',
 		'business-hours',
 		'button',
-		'calendly',
 		'eventbrite',
 		'gif',
 		'goodreads',
@@ -107,20 +113,17 @@ class Jetpack_Gutenberg {
 		'like',
 		'markdown',
 		'nextdoor',
-		'opentable',
 		'payments-intro',
 		'pinterest',
 		'podcast-player',
 		'related-posts',
 		'repeat-visitor',
-		'send-a-message',
 		'sharing-buttons',
 		'slideshow',
 		'story',
 		'tiled-gallery',
 		'tock',
 		'top-posts',
-		'videopress',
 		'voice-to-content',
 	);
 
@@ -951,53 +954,77 @@ class Jetpack_Gutenberg {
 			}
 
 			if ( ! empty( self::$deferred_blocks ) ) {
-				add_filter( 'pre_render_block', array( __CLASS__, 'lazy_register_deferred_block' ), 10, 2 );
+				add_filter( 'pre_render_block', array( __CLASS__, 'lazy_register_deferred_block' ), 10, 3 );
 			}
 		}
 	}
 
 	/**
-	 * Register a deferred block the first time it is encountered while rendering.
+	 * Register deferred blocks present in a top-level block's subtree before it renders.
 	 *
-	 * Hooked to `pre_render_block`, which fires for every block (including inner
-	 * blocks) before its WP_Block object is built, so a block registered here is
-	 * picked up by core's renderer for the very block that triggered it. Returns the
-	 * incoming `$pre_render` value untouched so normal rendering proceeds.
+	 * Hooked to `pre_render_block`. For a top-level block ($parent_block is null) the
+	 * filter fires before core builds the block's WP_Block object, so we walk the whole
+	 * parsed subtree and register every deferred Jetpack block it contains. This must
+	 * happen at the top level: core resolves an inner block's `block_type` when it
+	 * constructs that inner WP_Block, which is *before* the inner block's own
+	 * `pre_render_block` fires — so registering a deferred dynamic block only when its
+	 * own inner filter fires would be too late and its render_callback would be skipped.
+	 * Inner-block invocations (non-null $parent_block) are ignored because the top-level
+	 * walk has already handled the whole tree. Returns $pre_render untouched.
 	 *
 	 * @since $$next-version$$
 	 *
-	 * @param string|null $pre_render   The pre-rendered content. Default null.
-	 * @param array       $parsed_block The parsed block being rendered.
+	 * @param string|null    $pre_render   The pre-rendered content. Default null.
+	 * @param array          $parsed_block The parsed block being rendered.
+	 * @param \WP_Block|null $parent_block Parent block, or null for a top-level block.
 	 *
 	 * @return string|null Unchanged $pre_render.
 	 */
-	public static function lazy_register_deferred_block( $pre_render, $parsed_block ) {
-		// Respect any earlier short-circuit and ignore blocks without a name.
-		if ( null !== $pre_render || empty( $parsed_block['blockName'] ) ) {
+	public static function lazy_register_deferred_block( $pre_render, $parsed_block, $parent_block = null ) {
+		// Respect any earlier short-circuit, only act on top-level blocks, and stop
+		// once every deferred block on the page has been registered.
+		if ( null !== $pre_render || null !== $parent_block || empty( self::$deferred_blocks ) ) {
 			return $pre_render;
 		}
 
-		$block_name = $parsed_block['blockName'];
-		if ( ! str_starts_with( $block_name, 'jetpack/' ) ) {
-			return $pre_render;
-		}
-
-		$feature = substr( $block_name, strlen( 'jetpack/' ) );
-		if ( empty( self::$deferred_blocks[ $feature ] ) ) {
-			return $pre_render;
-		}
-
-		// Only attempt registration once per block, whether or not it succeeds
-		// (a block guarded by a connection/module check may intentionally not register).
-		unset( self::$deferred_blocks[ $feature ] );
-
-		if ( self::is_registered( $block_name ) ) {
-			return $pre_render;
-		}
-
-		self::load_and_register_deferred_block( $feature );
+		self::register_deferred_blocks_in_subtree( $parsed_block );
 
 		return $pre_render;
+	}
+
+	/**
+	 * Recursively register any deferred Jetpack blocks found in a parsed block subtree.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param array $parsed_block A parsed block (with optional `innerBlocks`).
+	 *
+	 * @return void
+	 */
+	private static function register_deferred_blocks_in_subtree( $parsed_block ) {
+		if ( empty( self::$deferred_blocks ) ) {
+			return;
+		}
+
+		$block_name = $parsed_block['blockName'] ?? '';
+		if ( '' !== $block_name && str_starts_with( $block_name, 'jetpack/' ) ) {
+			$feature = substr( $block_name, strlen( 'jetpack/' ) );
+			if ( ! empty( self::$deferred_blocks[ $feature ] ) ) {
+				// Only attempt registration once per block, whether or not it succeeds
+				// (a block guarded by a connection/module check may intentionally not register).
+				unset( self::$deferred_blocks[ $feature ] );
+
+				if ( ! self::is_registered( $block_name ) ) {
+					self::load_and_register_deferred_block( $feature );
+				}
+			}
+		}
+
+		if ( ! empty( $parsed_block['innerBlocks'] ) ) {
+			foreach ( $parsed_block['innerBlocks'] as $inner_block ) {
+				self::register_deferred_blocks_in_subtree( $inner_block );
+			}
+		}
 	}
 
 	/**
