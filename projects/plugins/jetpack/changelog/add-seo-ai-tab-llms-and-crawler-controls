@@ -1,4 +1,4 @@
 Significance: minor
-Type: added
+Type: enhancement
 
 Register llms.txt and AI crawler settings in the Jetpack settings REST endpoint so the new SEO AI tab can persist them.
