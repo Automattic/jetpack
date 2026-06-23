@@ -7,7 +7,7 @@ import { fireEvent, render, screen } from '@testing-library/react';
 const setActive = jest.fn();
 const useSeoToolsToggle = jest.fn( () => ( { isToggling: false, setActive } ) );
 
-jest.unstable_mockModule( '../../../data/use-seo-tools-toggle', () => ( {
+jest.unstable_mockModule( '../../data/use-seo-tools-toggle', () => ( {
 	default: useSeoToolsToggle,
 } ) );
 
