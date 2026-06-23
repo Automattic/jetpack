@@ -32,6 +32,14 @@ export const SEEDED_SETTINGS: SettingsResponse = {
 
 export const SEEDED_AI: AiState = {
 	enhancer: { available: true, enabled: false },
+	llmsTxt: { enabled: false, url: 'https://example.com/llms.txt' },
+	crawlers: {
+		catalog: [
+			{ slug: 'gptbot', label: 'ChatGPT (OpenAI)' },
+			{ slug: 'claudebot', label: 'Claude (Anthropic)' },
+		],
+		blocked: [ 'gptbot' ],
+	},
 };
 
 ( window as unknown as { JetpackScriptData: unknown } ).JetpackScriptData = {

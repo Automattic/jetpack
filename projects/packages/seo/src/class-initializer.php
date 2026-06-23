@@ -196,6 +196,11 @@ class Initializer {
 			// Front-end JSON-LD schema (Article / FAQ). Self-hooks `wp_head`, so it only
 			// emits on front-end requests.
 			Schema_Builder::init();
+			// AI tab front-end behavior: robots directives for blocked AI crawlers and
+			// the /llms.txt handler. Each self-hooks a front-end filter/action, so they
+			// no-op off the front end and stay behind the same gates as the schema above.
+			Ai_Crawlers::init();
+			Llms_Txt::init();
 			add_action( 'rest_api_init', array( __CLASS__, 'register_rest_settings' ) );
 		}
 
@@ -898,10 +903,28 @@ class Initializer {
 			// @phan-suppress-next-line PhanUndeclaredClassMethod -- guarded by class_exists; host plugin provides the class.
 			&& \Automattic\Jetpack\Current_Plan::supports( 'ai-seo-enhancer' );
 
+		// Expose the AI crawler catalog (slug + label only; the user-agent token
+		// stays server-side) so the AI tab can render a toggle per known crawler.
+		$crawler_catalog = array();
+		foreach ( Ai_Crawlers::get_catalog() as $slug => $info ) {
+			$crawler_catalog[] = array(
+				'slug'  => $slug,
+				'label' => $info['label'],
+			);
+		}
+
 		return array(
 			'enhancer' => array(
 				'available' => $filter_on && $plan_supports,
 				'enabled'   => (bool) get_option( 'ai_seo_enhancer_enabled', false ),
+			),
+			'llmsTxt'  => array(
+				'enabled' => Llms_Txt::is_enabled(),
+				'url'     => home_url( '/llms.txt' ),
+			),
+			'crawlers' => array(
+				'catalog' => $crawler_catalog,
+				'blocked' => Ai_Crawlers::get_blocked_slugs(),
 			),
 		);
 	}

@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add AI tab controls for llms.txt generation and per-crawler AI bot access, with robots.txt directives and a generated /llms.txt on the front end.

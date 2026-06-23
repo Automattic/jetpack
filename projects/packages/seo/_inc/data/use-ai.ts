@@ -12,60 +12,69 @@ const SAVE_NOTICE_ID = 'jetpack-seo-ai-save';
 
 export interface AiForm {
 	enhancer: AiState[ 'enhancer' ] | null;
+	llmsTxt: AiState[ 'llmsTxt' ] | null;
+	crawlers: AiState[ 'crawlers' ] | null;
 	isSaving: boolean;
 	/** Toggle the AI SEO Enhancer and save immediately. */
 	setEnhancerEnabled: ( next: boolean ) => void;
+	/** Toggle llms.txt generation and save immediately. */
+	setLlmsTxtEnabled: ( next: boolean ) => void;
+	/** Block or unblock a single AI crawler and save immediately. */
+	setCrawlerBlocked: ( slug: string, blocked: boolean ) => void;
 }
 
 /**
- * Owns the AI tab's form state: seeds from the page bootstrap and auto-saves the
- * AI SEO Enhancer toggle through `/jetpack/v4/settings` (the same endpoint the
- * legacy Traffic page used). On failure the local value reverts. There's no Save
- * button — the toggle saves on change, surfacing the shared
- * "Updating settings…"→"Settings saved." snackbar.
+ * Owns the AI tab's form state: seeds from the page bootstrap and auto-saves each
+ * toggle through `/jetpack/v4/settings` (the same endpoint the legacy Traffic
+ * page used). There's no Save button — toggles save on change, surfacing the
+ * shared "Updating settings…"→"Settings saved." snackbar. On failure the local
+ * value reverts.
  *
  * The AI tab is its own route, so this controller remounts on every tab switch.
- * The enhancer is seeded from (and written back to) [ai-store] rather than the
- * one-time bootstrap, so a saved toggle persists across route switches without
- * a reload.
+ * Each slice is seeded from (and written back to) [ai-store] rather than the
+ * one-time bootstrap, so a saved toggle persists across route switches without a
+ * reload.
  *
  * @return The AI form controller.
  */
 export function useAiForm(): AiForm {
 	// Seed from the store (latest-saved snapshot), not the one-time bootstrap.
-	const initial = useMemo( () => select( aiStore ).getEnhancer(), [] );
-	const [ enhancer, setEnhancer ] = useState< AiState[ 'enhancer' ] | null >( initial );
-	const [ isSaving, setIsSaving ] = useState( false );
-	const { createInfoNotice, createSuccessNotice, createErrorNotice } = useDispatch( noticesStore );
-	const { setEnhancer: persistEnhancer } = useDispatch( aiStore );
+	const initialEnhancer = useMemo( () => select( aiStore ).getEnhancer(), [] );
+	const initialLlmsTxt = useMemo( () => select( aiStore ).getLlmsTxt(), [] );
+	const initialCrawlers = useMemo( () => select( aiStore ).getCrawlers(), [] );
 
-	const setEnhancerEnabled = useCallback(
-		( next: boolean ) => {
-			setEnhancer( prev => ( prev ? { ...prev, enabled: next } : prev ) );
+	const [ enhancer, setEnhancer ] = useState< AiState[ 'enhancer' ] | null >( initialEnhancer );
+	const [ llmsTxt, setLlmsTxt ] = useState< AiState[ 'llmsTxt' ] | null >( initialLlmsTxt );
+	const [ crawlers, setCrawlers ] = useState< AiState[ 'crawlers' ] | null >( initialCrawlers );
+	const [ isSaving, setIsSaving ] = useState( false );
+
+	const { createInfoNotice, createSuccessNotice, createErrorNotice } = useDispatch( noticesStore );
+	const {
+		setEnhancer: persistEnhancer,
+		setLlmsTxt: persistLlmsTxt,
+		setCrawlers: persistCrawlers,
+	} = useDispatch( aiStore );
+
+	// Shared save lifecycle: optimistic snackbar, POST, then `onSuccess` (persist
+	// the saved value to the store) or `onError` (revert the optimistic update).
+	const runSave = useCallback(
+		( data: Record< string, unknown >, onSuccess: () => void, onError: () => void ) => {
 			setIsSaving( true );
 			createInfoNotice( __( 'Updating settings…', 'jetpack-seo' ), {
 				id: SAVE_NOTICE_ID,
 				type: 'snackbar',
 				isDismissible: false,
 			} );
-			apiFetch( {
-				path: '/jetpack/v4/settings',
-				method: 'POST',
-				data: { ai_seo_enhancer_enabled: next },
-			} )
+			apiFetch( { path: '/jetpack/v4/settings', method: 'POST', data } )
 				.then( () => {
-					// Persist the saved value so a return to the tab re-seeds from it.
-					if ( initial ) {
-						persistEnhancer( { ...initial, enabled: next } );
-					}
+					onSuccess();
 					createSuccessNotice( __( 'Settings saved.', 'jetpack-seo' ), {
 						id: SAVE_NOTICE_ID,
 						type: 'snackbar',
 					} );
 				} )
 				.catch( ( error: { message?: string } ) => {
-					// Revert the optimistic toggle so the UI reflects the persisted value.
-					setEnhancer( prev => ( prev ? { ...prev, enabled: ! next } : prev ) );
+					onError();
 					createErrorNotice(
 						error?.message ?? __( 'Could not save settings. Please try again.', 'jetpack-seo' ),
 						{ id: SAVE_NOTICE_ID, type: 'snackbar' }
@@ -73,8 +82,77 @@ export function useAiForm(): AiForm {
 				} )
 				.finally( () => setIsSaving( false ) );
 		},
-		[ createInfoNotice, createSuccessNotice, createErrorNotice, persistEnhancer, initial ]
+		[ createInfoNotice, createSuccessNotice, createErrorNotice ]
 	);
 
-	return { enhancer, isSaving, setEnhancerEnabled };
+	const setEnhancerEnabled = useCallback(
+		( next: boolean ) => {
+			setEnhancer( prev => ( prev ? { ...prev, enabled: next } : prev ) );
+			runSave(
+				{ ai_seo_enhancer_enabled: next },
+				() => {
+					if ( initialEnhancer ) {
+						persistEnhancer( { ...initialEnhancer, enabled: next } );
+					}
+				},
+				() => setEnhancer( prev => ( prev ? { ...prev, enabled: ! next } : prev ) )
+			);
+		},
+		[ runSave, persistEnhancer, initialEnhancer ]
+	);
+
+	const setLlmsTxtEnabled = useCallback(
+		( next: boolean ) => {
+			setLlmsTxt( prev => ( prev ? { ...prev, enabled: next } : prev ) );
+			runSave(
+				{ jetpack_seo_llms_txt_enabled: next },
+				() => {
+					if ( initialLlmsTxt ) {
+						persistLlmsTxt( { ...initialLlmsTxt, enabled: next } );
+					}
+				},
+				() => setLlmsTxt( prev => ( prev ? { ...prev, enabled: ! next } : prev ) )
+			);
+		},
+		[ runSave, persistLlmsTxt, initialLlmsTxt ]
+	);
+
+	const setCrawlerBlocked = useCallback(
+		( slug: string, blocked: boolean ) => {
+			if ( ! crawlers ) {
+				return;
+			}
+			// Snapshot the pre-change list so a failed save can revert to it.
+			const previous = crawlers;
+			const set = new Set( crawlers.blocked );
+			if ( blocked ) {
+				set.add( slug );
+			} else {
+				set.delete( slug );
+			}
+			const nextBlocked = Array.from( set );
+
+			setCrawlers( { ...crawlers, blocked: nextBlocked } );
+			runSave(
+				{ jetpack_seo_blocked_ai_crawlers: nextBlocked },
+				() => {
+					if ( initialCrawlers ) {
+						persistCrawlers( { ...initialCrawlers, blocked: nextBlocked } );
+					}
+				},
+				() => setCrawlers( previous )
+			);
+		},
+		[ crawlers, runSave, persistCrawlers, initialCrawlers ]
+	);
+
+	return {
+		enhancer,
+		llmsTxt,
+		crawlers,
+		isSaving,
+		setEnhancerEnabled,
+		setLlmsTxtEnabled,
+		setCrawlerBlocked,
+	};
 }

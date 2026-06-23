@@ -2950,6 +2950,27 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'sanitize_callback' => 'Jetpack_SEO_Titles::sanitize_title_formats',
 			),
 
+			// AI tab (Jetpack > SEO). Plain options the SEO package reads to emit
+			// robots directives for AI crawlers and to serve /llms.txt. The
+			// front-end behavior is gated inside the package; these only round-trip
+			// the persisted state alongside the other seo-tools settings.
+			'jetpack_seo_blocked_ai_crawlers'           => array(
+				'description'       => esc_html__( 'AI crawlers blocked from accessing this site.', 'jetpack' ),
+				'type'              => 'array',
+				'items'             => array( 'type' => 'string' ),
+				'default'           => array(),
+				'sanitize_callback' => __CLASS__ . '::sanitize_ai_crawler_slugs',
+				'jp_group'          => 'seo-tools',
+			),
+
+			'jetpack_seo_llms_txt_enabled'              => array(
+				'description'       => esc_html__( 'Generate an llms.txt file to guide AI assistants around your content.', 'jetpack' ),
+				'type'              => 'boolean',
+				'default'           => 0,
+				'validate_callback' => __CLASS__ . '::validate_boolean',
+				'jp_group'          => 'seo-tools',
+			),
+
 			// VideoPress.
 			'videopress_private_enabled_for_site'       => array(
 				'description'       => esc_html__( 'Video Privacy: Restrict views to members of this site', 'jetpack' ),
@@ -3645,6 +3666,26 @@ class Jetpack_Core_Json_Api_Endpoints {
 			return array( 'administrator' );
 		}
 		return $value;
+	}
+
+	/**
+	 * Sanitize the list of AI crawler slugs blocked from the site.
+	 *
+	 * Accepts the slugs the SEO AI tab sends (see the catalog in
+	 * `Automattic\Jetpack\SEO\Ai_Crawlers`) and reduces them to a clean,
+	 * de-duplicated list of key-safe strings. The SEO package treats its own
+	 * catalog as the source of truth when emitting robots directives, so any
+	 * unknown slug stored here is simply inert.
+	 *
+	 * @param mixed $value Raw value from the request.
+	 * @return string[] Sanitized slug list.
+	 */
+	public static function sanitize_ai_crawler_slugs( $value ) {
+		if ( ! is_array( $value ) ) {
+			return array();
+		}
+		$slugs = array_map( 'sanitize_key', $value );
+		return array_values( array_unique( array_filter( $slugs ) ) );
 	}
 
 	/**
