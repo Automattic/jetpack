@@ -787,13 +787,47 @@ class Jetpack {
 				'account_protection',
 				'waf',
 				'videopress',
-				'stats',
-				'stats_admin',
 				'import',
 			)
 			as $feature
 		) {
 			$config->ensure( $feature );
+		}
+
+		/*
+		 * The Stats package only does work when the Stats module is active: the
+		 * front-end tracking pixel (`should_track()`), the XML-RPC/REST stats
+		 * providers, and the transient-cleanup cron all short-circuit on
+		 * `is_module_active( 'stats' )` internally. Loading the package on every
+		 * request therefore fills opcache with code that never runs while Stats
+		 * is off, so only ensure it when the module is active. The Stats admin
+		 * page and the WPCOM-facing `jetpack/v4/stats/blog` route only exist /
+		 * matter when the module is active too. See JETPACK-1747.
+		 */
+		if ( self::is_module_active( 'stats' ) ) {
+			$config->ensure( 'stats' );
+		}
+
+		/*
+		 * The Stats Admin package only has work to do in wp-admin (the Stats
+		 * dashboard page) and on REST requests (the Odyssey stats endpoints,
+		 * which the block editor also calls for email-open rates). It registers
+		 * nothing for front-end page views or cron, so defer loading it to
+		 * `rest_api_init` for those requests instead of loading it — and eagerly
+		 * constructing its REST controller — on every request. Priority 0
+		 * ensures the package's own `rest_api_init` route-registration callback
+		 * still fires within the same dispatch. See JETPACK-1747.
+		 */
+		if ( is_admin() || self::is_module_active( 'stats' ) ) {
+			$config->ensure( 'stats_admin' );
+		} else {
+			add_action(
+				'rest_api_init',
+				static function () use ( $config ) {
+					$config->ensure( 'stats_admin' );
+				},
+				0
+			);
 		}
 
 		$config->ensure(

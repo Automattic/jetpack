@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Performance: only load the Stats and Stats Admin packages when they have work to do (Stats module active, or in wp-admin / on REST requests) instead of on every request, reducing the per-request PHP footprint.
