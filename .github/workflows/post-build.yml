@@ -348,6 +348,11 @@ jobs:
         with:
           ref: ${{ github.event.workflow_run.head_commit.id }}
           path: commit
+          allow-unsafe-pr-checkout: true
+          # .github/files/test-plugin-update/prepare-zips.sh needs just this one file.
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            ${{ env.PLUGIN_SRC }}/composer.json
 
       - name: Download build artifact
         uses: actions/download-artifact@v8
@@ -418,6 +423,13 @@ jobs:
         with:
           ref: ${{ github.event.workflow_run.head_commit.id }}
           path: commit
+          allow-unsafe-pr-checkout: true
+          # We don't need any files for this check, just the tree. A non-cone sparse checkout with a custom filter does the trick.
+          sparse-checkout-cone-mode: false
+          sparse-checkout: .
+          filter: 'tree:0'
+          # We do need all the commits, but `fetch-depth: 0` wants to fetch all branches and tags rather than just the one we want, sigh.
+          fetch-depth: 2147483647
 
       - name: Get token
         id: get_token
