@@ -147,7 +147,11 @@ function LocationsInner( { attributes }: LocationsRenderProps ) {
 			>
 				<Stack direction="row" align="center" gap="xs" className={ styles.breadcrumb }>
 					{ selectedCountry ? (
-						<Button onClick={ clearSelectedCountry } className={ styles.breadcrumbLink }>
+						<Button
+							type="button"
+							onClick={ clearSelectedCountry }
+							className={ styles.breadcrumbLink }
+						>
 							{ __( 'Top Locations', 'jetpack-premium-analytics' ) }
 						</Button>
 					) : (
