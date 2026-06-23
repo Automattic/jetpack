@@ -529,6 +529,16 @@ class Jetpack_Gutenberg_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * An index-permalink REST request (/index.php/wp-json/...) is detected.
+	 */
+	public function test_is_block_editor_context_is_true_for_index_permalink_rest_url() {
+		$saved                  = $_SERVER['REQUEST_URI'] ?? null;
+		$_SERVER['REQUEST_URI'] = '/index.php/' . rest_get_url_prefix() . '/wp/v2/block-types';
+		$this->assertTrue( $this->invoke_is_block_editor_context() );
+		$_SERVER['REQUEST_URI'] = $saved;
+	}
+
+	/**
 	 * A plain-permalink REST request is detected from the rest_route query var.
 	 */
 	public function test_is_block_editor_context_is_true_for_rest_route_query() {

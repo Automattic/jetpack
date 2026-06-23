@@ -91,7 +91,12 @@ class Jetpack_Gutenberg {
 	 *     directory name (e.g. videopress registers `jetpack/videopress-block`); or
 	 *   - it uses `plan_check` (its availability is computed from the init-time
 	 *     `jetpack_register_gutenberg_extensions` hook, which lazy registration bypasses,
-	 *     so the front-end availability nudge/render could read a stale value).
+	 *     so the front-end availability nudge/render could read a stale value); or
+	 *   - its block file can be `require`d by another runtime code path after `init`
+	 *     (e.g. slideshow is included by modules/shortcodes/slideshow.php). The lazy
+	 *     loader registers a block by running the `init` callback its include adds; if
+	 *     the file was already included elsewhere, the include is a no-op and the
+	 *     callback would never run, so the block would silently fail to register.
 	 *
 	 * When in doubt, leave it out: omitted blocks simply keep their current eager
 	 * behavior.
@@ -119,7 +124,6 @@ class Jetpack_Gutenberg {
 		'related-posts',
 		'repeat-visitor',
 		'sharing-buttons',
-		'slideshow',
 		'story',
 		'tiled-gallery',
 		'tock',
@@ -1118,12 +1122,22 @@ class Jetpack_Gutenberg {
 		 * so a front-end URL that merely carries the prefix in a query value or a
 		 * deeper path segment is not misread as a REST request. home_url() is used
 		 * rather than rest_url() so detection does not depend on permalink structure.
+		 * Both the rewritten `/wp-json/` form and the index-permalink
+		 * `/index.php/wp-json/` form (used when the site lacks pretty permalinks) are
+		 * matched.
 		 */
 		$path = (string) wp_parse_url( $request_uri, PHP_URL_PATH );
 		if ( '' !== $path ) {
-			$rest_root = trailingslashit( (string) wp_parse_url( home_url(), PHP_URL_PATH ) ) . trailingslashit( rest_get_url_prefix() );
-			if ( str_starts_with( trailingslashit( $path ), $rest_root ) ) {
-				return true;
+			$home_path   = trailingslashit( (string) wp_parse_url( home_url(), PHP_URL_PATH ) );
+			$rest_prefix = trailingslashit( rest_get_url_prefix() );
+			$rest_roots  = array(
+				$home_path . $rest_prefix,
+				$home_path . 'index.php/' . $rest_prefix,
+			);
+			foreach ( $rest_roots as $rest_root ) {
+				if ( str_starts_with( trailingslashit( $path ), $rest_root ) ) {
+					return true;
+				}
 			}
 		}
 
