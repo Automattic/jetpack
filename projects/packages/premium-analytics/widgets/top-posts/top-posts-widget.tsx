@@ -1,8 +1,6 @@
 /**
  * External dependencies
  */
-import { __ } from '@wordpress/i18n';
-import { Text } from '@wordpress/ui';
 import {
 	LeaderboardChart,
 	WidgetLoadingOverlay,
@@ -10,6 +8,8 @@ import {
 	type LeaderboardChartData,
 	type LegendLabels,
 } from '@jetpack-premium-analytics/widgets-toolkit';
+import { __ } from '@wordpress/i18n';
+import { Text } from '@wordpress/ui';
 /**
  * Internal dependencies
  */

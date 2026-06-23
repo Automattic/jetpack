@@ -51,7 +51,9 @@ function toTopPostRows(
 	const items = report?.data.flatMap( point => point.items ) ?? [];
 
 	return items
-		.filter( ( item ): item is StatsTopPostsItem & { link: string } => typeof item.link === 'string' )
+		.filter(
+			( item ): item is StatsTopPostsItem & { link: string } => typeof item.link === 'string'
+		)
 		.map( item => ( {
 			label: String( item.label ?? '' ),
 			value: item.views,
