@@ -1,4 +1,4 @@
-import { getDefaultQueryParams } from '@jetpack-premium-analytics/data';
+import { getDefaultQueryParams, type PresetType } from '@jetpack-premium-analytics/data';
 import {
 	DEFAULT_WIDGET_DASHBOARD_STORY_ARGS,
 	WidgetDashboardWithWidget as WidgetDashboardWithWidgetStory,
@@ -8,20 +8,97 @@ import {
 import { registerReportMocks } from '../../../packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
 import AverageItemsPerOrderRender from '../render';
 import widgetDefinition from '../widget';
-import type { Meta, StoryObj } from '@storybook/react';
+import type { Decorator, Meta, StoryObj } from '@storybook/react';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
-import type { ComponentType } from 'react';
+import type { ComponentProps, ComponentType } from 'react';
 
 registerReportMocks();
 
 const AVERAGE_ITEMS_RENDER_MODULE = 'storybook/average-items-per-order';
+const DEFAULT_PRESET = 'last-30-days' satisfies PresetType;
+const PRESET_OPTIONS: PresetType[] = [
+	'today',
+	'yesterday',
+	'last-7-days',
+	'last-30-days',
+	'last-90-days',
+	'last-365-days',
+	'last-month',
+	'last-12-months',
+	'last-year',
+];
 
-interface AverageItemsPerOrderDashboardStoryProps extends WidgetDashboardWithWidgetControls {
+type AverageItemsPerOrderRenderProps = ComponentProps< typeof AverageItemsPerOrderRender >;
+
+interface AverageItemsPerOrderStoryControls {
 	withComparison: boolean;
+	preset: PresetType;
+}
+
+type AverageItemsPerOrderStoryProps = AverageItemsPerOrderRenderProps &
+	AverageItemsPerOrderStoryControls;
+
+interface AverageItemsPerOrderDashboardStoryProps
+	extends WidgetDashboardWithWidgetControls,
+		AverageItemsPerOrderStoryControls {}
+
+const withWidgetCanvas: Decorator = Story => (
+	<div style={ { width: '100%', height: '300px' } }>
+		<Story />
+	</div>
+);
+
+function getAverageItemsPerOrderAttributes(
+	withComparison = false,
+	preset: PresetType = DEFAULT_PRESET
+): AverageItemsPerOrderRenderProps[ 'attributes' ] {
+	return {
+		reportParams: getDefaultQueryParams( withComparison, preset ),
+	};
+}
+
+function getDefaultQueryParamsSource( {
+	withComparison,
+	preset,
+}: Partial< AverageItemsPerOrderStoryControls > ) {
+	const hasComparison = Boolean( withComparison );
+	const storyPreset = preset ?? DEFAULT_PRESET;
+
+	if ( ! hasComparison && storyPreset === DEFAULT_PRESET ) {
+		return 'getDefaultQueryParams()';
+	}
+
+	if ( hasComparison && storyPreset === DEFAULT_PRESET ) {
+		return 'getDefaultQueryParams( true )';
+	}
+
+	return `getDefaultQueryParams( ${ hasComparison ? 'true' : 'false' }, '${ storyPreset }' )`;
+}
+
+function getAverageItemsPerOrderSource( args: Partial< AverageItemsPerOrderStoryControls > ) {
+	return `import { getDefaultQueryParams } from '@jetpack-premium-analytics/data';
+
+<AverageItemsPerOrderRender
+\tattributes={ {
+\t\treportParams: ${ getDefaultQueryParamsSource( args ) },
+\t} }
+/>`;
+}
+
+function renderAverageItemsPerOrder( {
+	withComparison,
+	preset,
+}: AverageItemsPerOrderStoryControls ) {
+	return (
+		<AverageItemsPerOrderRender
+			attributes={ getAverageItemsPerOrderAttributes( withComparison, preset ) }
+		/>
+	);
 }
 
 function AverageItemsPerOrderDashboardStory( {
 	withComparison,
+	preset,
 	...dashboardStoryArgs
 }: AverageItemsPerOrderDashboardStoryProps ) {
 	return (
@@ -32,39 +109,121 @@ function AverageItemsPerOrderDashboardStory( {
 			renderComponent={
 				AverageItemsPerOrderRender as ComponentType< WidgetRenderProps< unknown > >
 			}
-			attributes={ {
-				reportParams: getDefaultQueryParams( withComparison ),
-			} }
+			attributes={ getAverageItemsPerOrderAttributes( withComparison, preset ) }
 		/>
 	);
 }
 
 const meta = {
 	title: 'Packages/Premium Analytics/Widgets/AverageItemsPerOrder',
-	component: AverageItemsPerOrderDashboardStory,
+	component: AverageItemsPerOrderRender,
 	tags: [ 'autodocs' ],
-	args: {
-		...DEFAULT_WIDGET_DASHBOARD_STORY_ARGS,
-		withComparison: true,
-	},
 	argTypes: {
-		...widgetDashboardWithWidgetArgTypes,
+		preset: {
+			control: 'select',
+			options: PRESET_OPTIONS,
+			description: 'Date-range preset used to generate the widget report params.',
+		},
 		withComparison: {
 			control: 'boolean',
+			description: 'Include previous-period comparison report params.',
 		},
 	},
 	parameters: {
 		docs: {
 			description: {
 				component:
-					'Dashboard widget that displays the average number of items per order with an optional comparison period and sparkline.',
+					'The "Average items per order" widget. Fetches the orders report and displays the average number of items per order with optional period-over-period comparison and a sparkline.',
 			},
 		},
 	},
-} satisfies Meta< typeof AverageItemsPerOrderDashboardStory >;
+} satisfies Meta< AverageItemsPerOrderStoryProps >;
 
 export default meta;
 
 type Story = StoryObj< typeof meta >;
+type DashboardStory = StoryObj< AverageItemsPerOrderDashboardStoryProps >;
 
-export const WidgetDashboardWithWidget: Story = {};
+/**
+ * Default state for the current report period.
+ */
+export const Default: Story = {
+	render: renderAverageItemsPerOrder,
+	args: {
+		preset: DEFAULT_PRESET,
+		withComparison: false,
+	},
+	decorators: [ withWidgetCanvas ],
+	parameters: {
+		docs: {
+			source: {
+				transform: (
+					_source: string,
+					storyContext: { args: Partial< AverageItemsPerOrderStoryControls > }
+				) => getAverageItemsPerOrderSource( storyContext.args ),
+			},
+		},
+	},
+};
+
+/**
+ * Comparison period enabled, showing period-over-period change and sparkline data.
+ */
+export const WithComparison: Story = {
+	render: renderAverageItemsPerOrder,
+	args: {
+		preset: DEFAULT_PRESET,
+		withComparison: true,
+	},
+	decorators: [ withWidgetCanvas ],
+	parameters: {
+		docs: {
+			source: {
+				transform: (
+					_source: string,
+					storyContext: { args: Partial< AverageItemsPerOrderStoryControls > }
+				) => getAverageItemsPerOrderSource( storyContext.args ),
+			},
+		},
+	},
+};
+
+/**
+ * Renders the widget through the shared dashboard harness.
+ */
+export const WidgetDashboardWithWidget: DashboardStory = {
+	render: args => <AverageItemsPerOrderDashboardStory { ...args } />,
+	args: {
+		...DEFAULT_WIDGET_DASHBOARD_STORY_ARGS,
+		preset: DEFAULT_PRESET,
+		withComparison: true,
+	},
+	argTypes: {
+		...widgetDashboardWithWidgetArgTypes,
+		preset: {
+			control: 'select',
+			options: PRESET_OPTIONS,
+			description: 'Date-range preset used to generate the widget report params.',
+		},
+		withComparison: {
+			control: 'boolean',
+			description: 'Include previous-period comparison report params.',
+		},
+	},
+	parameters: {
+		docs: {
+			source: {
+				code: `import { getDefaultQueryParams } from '@jetpack-premium-analytics/data';
+
+<WidgetDashboardWithWidget
+\twidgetType={ widgetDefinition }
+\trenderModule="storybook/average-items-per-order"
+\trenderComponent={ AverageItemsPerOrderRender }
+\tattributes={ {
+\t\treportParams: getDefaultQueryParams( true ),
+\t} }
+/>`,
+			},
+		},
+	},
+};
