@@ -6,12 +6,21 @@
 	"require": {
 		"php": ">=7.2"
 	},
+	"require-dev": {
+		"yoast/phpunit-polyfills": "^4.0.0",
+		"automattic/jetpack-test-environment": "@dev",
+		"automattic/phpunit-select-config": "@dev"
+	},
 	"autoload": {
 		"classmap": [
 			"src/"
 		]
 	},
 	"scripts": {
+		"phpunit": [
+			"phpunit-select-config phpunit.#.xml.dist --colors=always"
+		],
+		"test-php": "@composer phpunit",
 		"build-development": [
 			"pnpm run build"
 		],
