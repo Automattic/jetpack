@@ -259,15 +259,22 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 							0,
 							chartHeight - defaultMargin.top - defaultMargin.bottom
 						);
-						const binWidth = innerWidth / columns;
-						const binHeight = innerHeight / rows;
+						// Non-compact fills the area (rectangular cells). Compact uses square
+						// cells sized to fit both axes, matching the contribution-graph design.
+						let binWidth = innerWidth / columns;
+						let binHeight = innerHeight / rows;
+						if ( compact ) {
+							const cellSize = Math.min( binWidth, binHeight );
+							binWidth = cellSize;
+							binHeight = cellSize;
+						}
 						const xScale = scaleLinear< number >( {
 							domain: [ 0, columns ],
-							range: [ 0, innerWidth ],
+							range: [ 0, binWidth * columns ],
 						} );
 						const yScale = scaleLinear< number >( {
 							domain: [ 0, rows ],
-							range: [ 0, innerHeight ],
+							range: [ 0, binHeight * rows ],
 						} );
 
 						return (
