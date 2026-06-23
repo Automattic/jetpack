@@ -555,10 +555,15 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/cookie-consent",
-                "reference": "ce46d635c3d3a1d2fb704440093bd52e6347cf0a"
+                "reference": "06a277d3f9e1f0f7642e6d1889448760119c748a"
             },
             "require": {
                 "php": ">=7.2"
+            },
+            "require-dev": {
+                "automattic/jetpack-test-environment": "@dev",
+                "automattic/phpunit-select-config": "@dev",
+                "yoast/phpunit-polyfills": "^4.0.0"
             },
             "type": "jetpack-library",
             "extra": {
@@ -578,6 +583,12 @@
                 ]
             },
             "scripts": {
+                "phpunit": [
+                    "phpunit-select-config phpunit.#.xml.dist --colors=always"
+                ],
+                "test-php": [
+                    "@composer phpunit"
+                ],
                 "build-development": [
                     "pnpm run build"
                 ],
