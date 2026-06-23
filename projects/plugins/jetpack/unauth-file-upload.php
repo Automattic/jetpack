@@ -141,6 +141,36 @@ function filter_get_download_url( $url, $file_id ) {
 }
 
 /**
+ * Reject a download request with the generic invalid-link error and a debug code, then exit.
+ *
+ * The message is intentionally generic so it leaks nothing to the requester, but the appended
+ * code identifies which check failed, so a user-reported screenshot is enough to locate the
+ * cause:
+ *
+ *   1 - Missing or unrecognized token_type.
+ *   2 - Token signature did not verify.
+ *   3 - Legacy nonce did not verify.
+ *   4 - No token and no legacy nonce supplied.
+ *
+ * @since $$next-version$$
+ *
+ * @param int $code Number identifying the failing check.
+ *
+ * @return never
+ */
+function invalid_download_link( $code ) {
+	wp_die(
+		esc_html(
+			sprintf(
+				/* translators: %d: error code used for debugging. */
+				__( 'Invalid download link. (%d)', 'jetpack' ),
+				(int) $code
+			)
+		)
+	);
+}
+
+/**
  * Handle file download requests from the admin page.
  *
  * @return never This method never returns as it exits directly
@@ -163,7 +193,7 @@ function handle_file_download() {
 		$token_type = isset( $_GET['token_type'] ) ? sanitize_text_field( wp_unslash( $_GET['token_type'] ) ) : '';
 
 		if ( DOWNLOAD_TOKEN_TYPE !== $token_type ) {
-			wp_die( esc_html__( 'Invalid download link.', 'jetpack' ) );
+			invalid_download_link( 1 );
 		}
 
 		$expires = isset( $_GET['expires'] ) ? absint( wp_unslash( $_GET['expires'] ) ) : 0;
@@ -175,7 +205,7 @@ function handle_file_download() {
 		// $token_type was asserted equal to DOWNLOAD_TOKEN_TYPE above; pass the constant so a
 		// future multi-version branch can't accidentally feed the request value back in.
 		if ( ! verify_download_token( $file_id, $expires, $token, DOWNLOAD_TOKEN_TYPE ) ) {
-			wp_die( esc_html__( 'Invalid download link.', 'jetpack' ) );
+			invalid_download_link( 2 );
 		}
 	} elseif ( isset( $_GET['_wpnonce'] ) ) {
 		/*
@@ -187,10 +217,10 @@ function handle_file_download() {
 		 *       longer be valid.
 		 */
 		if ( ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_GET['_wpnonce'] ) ), 'jetpack_unauth_file_download_nonce_' . $file_id ) ) {
-			wp_die( esc_html__( 'Invalid download link.', 'jetpack' ) );
+			invalid_download_link( 3 );
 		}
 	} else {
-		wp_die( esc_html__( 'Invalid download link.', 'jetpack' ) );
+		invalid_download_link( 4 );
 	}
 
 	/**
