@@ -942,16 +942,22 @@ class Jetpack_Gutenberg_Test extends WP_UnitTestCase {
 	public function test_do_blocks_lazy_registers_related_posts_priority_9_callback() {
 		$feature       = 'related-posts';
 		$original_lazy = $this->get_lazy_blocks();
+		$saved_user_id = get_current_user_id();
 		$saved_uri     = $_SERVER['REQUEST_URI'] ?? null;
 
 		$lazy_filter = static function () use ( $feature ) {
 			return array( $feature );
 		};
+		$activate_modules_filter = static function ( $allcaps ) {
+			$allcaps['jetpack_activate_modules'] = true;
+			return $allcaps;
+		};
 
+		wp_set_current_user( $this->master_user_id );
+		add_filter( 'user_has_cap', $activate_modules_filter );
 		add_filter( 'jetpack_offline_mode', '__return_false', 1000 );
 		add_filter( 'jetpack_gutenberg', '__return_true' );
 		add_filter( 'jetpack_set_available_extensions', $lazy_filter, 99 );
-		Jetpack::activate_module( 'related-posts', false, false );
 		$this->set_lazy_blocks( array( $feature ) );
 		$_SERVER['REQUEST_URI'] = '/sample-page/';
 		Jetpack_Gutenberg::reset();
@@ -968,11 +974,13 @@ class Jetpack_Gutenberg_Test extends WP_UnitTestCase {
 			remove_filter( 'jetpack_set_available_extensions', $lazy_filter, 99 );
 			remove_filter( 'jetpack_offline_mode', '__return_false', 1000 );
 			remove_filter( 'jetpack_gutenberg', '__return_true' );
+			remove_filter( 'user_has_cap', $activate_modules_filter );
 			if ( Blocks::is_registered( 'jetpack/related-posts' ) ) {
 				unregister_block_type( 'jetpack/related-posts' );
 			}
 			$this->set_lazy_blocks( $original_lazy );
 			Jetpack_Gutenberg::reset();
+			wp_set_current_user( $saved_user_id );
 			if ( null !== $saved_uri ) {
 				$_SERVER['REQUEST_URI'] = $saved_uri;
 			} else {

@@ -1144,7 +1144,7 @@ class Jetpack_Gutenberg {
 				esc_html( $feature ),
 				esc_html( $reason )
 			),
-			'$$next-version$$'
+			'16.0'
 		);
 	}
 
