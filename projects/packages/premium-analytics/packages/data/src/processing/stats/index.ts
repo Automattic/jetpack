@@ -22,6 +22,7 @@ export { sanitizeStatsEmailBreakdownResponse } from './email-breakdown';
 export { sanitizeStatsArchivesResponse } from './archives';
 export { sanitizeStatsCommentsResponse } from './comments';
 export { sanitizeStatsStreakResponse } from './streak';
+export { sanitizeStatsTagsResponse } from './tags';
 export type { StatsTopPostsItem } from './top-posts';
 export type {
 	StatsPostMonthValues,
@@ -68,6 +69,14 @@ export type {
 } from './comments';
 export type { StatsStreakRawResponse, StatsStreakResponse } from './streak';
 export type { StatsTimeSeriesDataPoint, StatsTimeSeriesReport } from './time-series';
+export type {
+	StatsTagsChildItem,
+	StatsTagsItem,
+	StatsTagsLabel,
+	StatsTagsRawItem,
+	StatsTagsRawResponse,
+	StatsTagsRawTag,
+} from './tags';
 export type {
 	StatsItemAction,
 	StatsNormalizedDataPoint,
