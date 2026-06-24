@@ -9,6 +9,7 @@ export { sanitizeStatsClicksResponse } from './clicks';
 export { sanitizeStatsSearchTermsResponse } from './search-terms';
 export { sanitizeStatsFileDownloadsResponse } from './file-downloads';
 export { sanitizeStatsTopAuthorsResponse } from './top-authors';
+export { sanitizeStatsHighlightsResponse } from './highlights';
 export { sanitizeStatsLocationsResponse } from './locations';
 export { sanitizeStatsVideoPlaysResponse } from './video-plays';
 export { isStatsTimeSeriesPayload, sanitizeStatsTimeSeriesResponse } from './time-series';
@@ -25,6 +26,7 @@ export type { StatsClicksItem } from './clicks';
 export type { StatsSearchTermsItem } from './search-terms';
 export type { StatsFileDownloadsItem } from './file-downloads';
 export type { StatsTopAuthorsItem } from './top-authors';
+export type { StatsHighlightsResponse } from './highlights';
 export type { StatsLocationsItem } from './locations';
 export type { StatsVideoPlaysItem } from './video-plays';
 export type {
