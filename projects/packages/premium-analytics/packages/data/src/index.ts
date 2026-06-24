@@ -47,6 +47,7 @@ export {
 	type StatsCommentsParams,
 	type StatsCommentsResponse,
 } from './hooks/use-stats-comments';
+export { useStatsSubscribers, useStatsSubscribersCounts } from './hooks/use-stats-subscribers';
 export {
 	useStatsStreak,
 	type StatsStreakParams,
