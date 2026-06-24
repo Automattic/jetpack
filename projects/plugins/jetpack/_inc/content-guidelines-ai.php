@@ -55,6 +55,17 @@ function jetpack_content_guidelines_ai_enqueue_scripts( $hook_suffix ) {
 		return;
 	}
 
+	// Only load on WordPress.com Simple and Atomic sites; self-hosted sites do
+	// not enqueue at all. Free-tier Simple/Atomic sites still load the bundle so
+	// the upgrade path can be shown — the paid-plan requirement is enforced by
+	// the suggest-guidelines API.
+	if ( ! class_exists( 'Jetpack_AI_Helper' ) ) {
+		require_once JETPACK__PLUGIN_DIR . '_inc/lib/class-jetpack-ai-helper.php';
+	}
+	if ( ! Jetpack_AI_Helper::is_enabled() ) {
+		return;
+	}
+
 	// Bail when build artifacts are missing rather than enqueueing a script
 	// with guessed (and likely wrong) dependencies.
 	if ( ! file_exists( JETPACK__PLUGIN_DIR . '_inc/build/content-guidelines-ai.min.asset.php' ) ) {
