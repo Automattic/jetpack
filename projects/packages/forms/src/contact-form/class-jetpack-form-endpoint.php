@@ -113,7 +113,7 @@ class Jetpack_Form_Endpoint extends \WP_REST_Posts_Controller {
 	/**
 	 * Count forms authored by a specific user, grouped by post status.
 	 *
-	 * wp_count_posts() cannot be scoped by author (its second argument is a
+	 * The wp_count_posts() function cannot be scoped by author (its second argument is a
 	 * permission level, not query args), so a direct query is used to mirror its
 	 * shape while restricting results to a single author. The result is
 	 * user-scoped and computed by a single grouped aggregate run once per request
