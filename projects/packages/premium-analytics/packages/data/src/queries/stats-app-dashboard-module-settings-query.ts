@@ -9,8 +9,10 @@ export const STATS_APP_DASHBOARD_MODULE_SETTINGS_VERSION = '2';
 export const STATS_APP_DASHBOARD_MODULE_SETTINGS_ENDPOINT =
 	'jetpack-stats-dashboard/module-settings';
 
-export const statsAppDashboardModuleSettingsQuery = ( params: StatsQueryParams = {} ) =>
-	statsAppProxyQuery( {
+export const statsAppDashboardModuleSettingsQuery = < TData = unknown >(
+	params: StatsQueryParams = {}
+) =>
+	statsAppProxyQuery< TData >( {
 		name: STATS_APP_DASHBOARD_MODULE_SETTINGS_NAME,
 		version: STATS_APP_DASHBOARD_MODULE_SETTINGS_VERSION,
 		endpoint: STATS_APP_DASHBOARD_MODULE_SETTINGS_ENDPOINT,

@@ -9,19 +9,39 @@ import {
 import { useStatsAppQuery, type UseStatsAppOptions } from './use-stats-app-query';
 import type { StatsQueryParams } from '../utils/stats-params';
 
+export type StatsAppDashboardModuleSettings = {
+	traffic?: {
+		highlights?: {
+			period_in_days?: 7 | 30;
+		};
+		chart?: null;
+		'posts-pages'?: null;
+		referrers?: null;
+		countries?: null;
+		authors?: null;
+		'search-terms'?: null;
+		clicks?: null;
+		videos?: null;
+		'app-promo'?: null;
+	};
+};
+
 export function useStatsAppDashboardModuleSettings(
 	params?: StatsQueryParams,
 	options?: UseStatsAppOptions
 ) {
-	return useStatsAppQuery( statsAppDashboardModuleSettingsQuery( params ), options );
+	return useStatsAppQuery< StatsAppDashboardModuleSettings >(
+		statsAppDashboardModuleSettingsQuery< StatsAppDashboardModuleSettings >( params ),
+		options
+	);
 }
 
 export function useStatsAppDashboardModuleSettingsMutation() {
 	const queryClient = useQueryClient();
 
 	return useMutation( {
-		mutationFn: ( body: unknown ) =>
-			fetchStatsProxy( {
+		mutationFn: ( body: StatsAppDashboardModuleSettings ) =>
+			fetchStatsProxy< StatsAppDashboardModuleSettings, StatsAppDashboardModuleSettings >( {
 				version: STATS_APP_DASHBOARD_MODULE_SETTINGS_VERSION,
 				endpoint: STATS_APP_DASHBOARD_MODULE_SETTINGS_ENDPOINT,
 				method: 'POST',
