@@ -7,6 +7,8 @@
 
 namespace Automattic\Jetpack\Podcast;
 
+use Automattic\Jetpack\Admin_UI\Admin_Menu;
+use Automattic\Jetpack\Status\Host;
 use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills;
 
 /**
@@ -15,6 +17,14 @@ use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills;
 class Admin_Page {
 
 	const ADMIN_PAGE_SLUG = 'jetpack-podcast';
+
+	/**
+	 * Where the Podcast item sits in the Jetpack submenu on self-hosted.
+	 *
+	 * Placed after Subscribers (15) and Newsletter (10) to mirror the order
+	 * `wpcom-admin-menu.php` uses on Simple/Atomic.
+	 */
+	const MENU_POSITION = 16;
 
 	/**
 	 * Slug emitted by `@wordpress/build`. wp-build's auto-generated enqueue
@@ -40,34 +50,32 @@ class Admin_Page {
 		self::$initialized = true;
 
 		add_action( 'admin_menu', array( __CLASS__, 'maybe_load_wp_build' ), 1 );
-		add_action( 'admin_menu', array( __CLASS__, 'add_wp_admin_submenu' ), 999999 );
-	}
 
-	/**
-	 * Register the Podcast submenu under the Jetpack menu.
-	 *
-	 * Simple/Atomic also call this from `wpcom-admin-menu.php` at the same
-	 * priority, so bail when the submenu is already registered to avoid a
-	 * duplicate entry.
-	 */
-	public static function add_wp_admin_submenu() {
-		if ( self::is_submenu_registered() ) {
+		// On Simple/Atomic the Jetpack menu is owned by wpcom-admin-menu.php,
+		// which calls add_wp_admin_submenu() directly (and positions it). Only
+		// self-hosted registers its own item, via the shared Admin_Menu sorter.
+		$host = new Host();
+		if ( $host->is_wpcom_simple() || $host->is_woa_site() ) {
 			return;
 		}
 
-		$wp_build_render = 'jetpack_podcast_jetpack_podcast_dashboard_wp_admin_render_page';
-		$callback        = function_exists( $wp_build_render )
-			? $wp_build_render
-			: array( __CLASS__, 'render' );
+		// Priority 999 queues the item before Admin_Menu's priority-1000 callback.
+		add_action( 'admin_menu', array( __CLASS__, 'add_wp_admin_menu' ), 999 );
+	}
 
-		$page_suffix = add_submenu_page(
-			'jetpack',
+	/**
+	 * Register the Podcast submenu on self-hosted via the shared Jetpack
+	 * Admin_Menu, which sorts items by position instead of appending them last.
+	 */
+	public static function add_wp_admin_menu() {
+		$page_suffix = Admin_Menu::add_menu(
 			/** "Podcast" is a product name, do not translate. */
 			'Podcast',
 			'Podcast',
 			'manage_options',
 			self::ADMIN_PAGE_SLUG,
-			$callback
+			self::get_render_callback(),
+			self::MENU_POSITION
 		);
 
 		if ( $page_suffix ) {
@@ -76,22 +84,39 @@ class Admin_Page {
 	}
 
 	/**
-	 * Whether the Podcast submenu is already registered under the Jetpack menu.
+	 * Register the Podcast submenu directly under the Jetpack menu.
+	 *
+	 * Called from `wpcom-admin-menu.php` at priority 999999 on Simple/Atomic,
+	 * where that file owns the Jetpack menu and reorders the submenu itself.
 	 */
-	private static function is_submenu_registered() {
-		global $submenu;
+	public static function add_wp_admin_submenu() {
+		$page_suffix = add_submenu_page(
+			'jetpack',
+			/** "Podcast" is a product name, do not translate. */
+			'Podcast',
+			'Podcast',
+			'manage_options',
+			self::ADMIN_PAGE_SLUG,
+			self::get_render_callback()
+		);
 
-		if ( empty( $submenu['jetpack'] ) ) {
-			return false;
+		if ( $page_suffix ) {
+			add_action( 'load-' . $page_suffix, array( __CLASS__, 'admin_init' ) );
 		}
+	}
 
-		foreach ( $submenu['jetpack'] as $item ) {
-			if ( isset( $item[2] ) && self::ADMIN_PAGE_SLUG === $item[2] ) {
-				return true;
-			}
-		}
+	/**
+	 * Resolve the page callback, preferring the wp-build render function once
+	 * it has been defined (by `maybe_load_wp_build()` at admin_menu priority 1).
+	 *
+	 * @return callable
+	 */
+	private static function get_render_callback() {
+		$wp_build_render = 'jetpack_podcast_jetpack_podcast_dashboard_wp_admin_render_page';
 
-		return false;
+		return function_exists( $wp_build_render )
+			? $wp_build_render
+			: array( __CLASS__, 'render' );
 	}
 
 	/**

@@ -20,6 +20,40 @@ class Admin_Page_Test extends BaseTestCase {
 	protected function setUp(): void {
 		parent::setUp();
 
+		// WorDBless does not reset the admin menu globals between tests.
+		$GLOBALS['menu']    = array();
+		$GLOBALS['submenu'] = array();
+		remove_all_actions( 'load-jetpack_page_' . Admin_Page::ADMIN_PAGE_SLUG );
+	}
+
+	protected function tearDown(): void {
+		remove_all_actions( 'load-jetpack_page_' . Admin_Page::ADMIN_PAGE_SLUG );
+		unset( $GLOBALS['menu'], $GLOBALS['submenu'] );
+		wp_set_current_user( 0 );
+		parent::tearDown();
+	}
+
+	/**
+	 * Self-hosted: the page registers through the shared Admin_Menu, which sorts
+	 * items by position. We assert the page-load callback Admin_Menu wires for us.
+	 */
+	public function test_add_wp_admin_menu_registers_via_admin_menu() {
+		Admin_Page::add_wp_admin_menu();
+
+		$this->assertNotFalse(
+			has_action(
+				'load-jetpack_page_' . Admin_Page::ADMIN_PAGE_SLUG,
+				array( Admin_Page::class, 'admin_init' )
+			),
+			'add_wp_admin_menu() should register the page through Admin_Menu'
+		);
+	}
+
+	/**
+	 * WPCOM path: registers directly under the Jetpack menu, as wpcom-admin-menu.php does.
+	 */
+	public function test_add_wp_admin_submenu_registers_under_jetpack() {
+		// add_submenu_page() checks the current user's capability.
 		$user_id = wp_insert_user(
 			array(
 				'user_login' => 'podcast_admin',
@@ -29,44 +63,16 @@ class Admin_Page_Test extends BaseTestCase {
 		);
 		wp_set_current_user( $user_id );
 
-		unset( $GLOBALS['submenu']['jetpack'] );
-	}
-
-	protected function tearDown(): void {
-		unset( $GLOBALS['submenu']['jetpack'] );
-		wp_set_current_user( 0 );
-		parent::tearDown();
-	}
-
-	/**
-	 * Count Podcast entries under the Jetpack menu.
-	 */
-	private function count_podcast_submenus(): int {
-		if ( empty( $GLOBALS['submenu']['jetpack'] ) ) {
-			return 0;
-		}
-
-		$slugs = array_column( $GLOBALS['submenu']['jetpack'], 2 );
-		return count( array_keys( $slugs, Admin_Page::ADMIN_PAGE_SLUG, true ) );
-	}
-
-	/**
-	 * The submenu is added when nothing else has registered it.
-	 */
-	public function test_registers_podcast_submenu() {
-		Admin_Page::add_wp_admin_submenu();
-
-		$this->assertSame( 1, $this->count_podcast_submenus() );
-	}
-
-	/**
-	 * A second call (e.g. from wpcom-admin-menu.php) must not duplicate the entry.
-	 */
-	public function test_does_not_duplicate_existing_submenu() {
-		Admin_Page::add_wp_admin_submenu();
-		$this->assertSame( 1, $this->count_podcast_submenus() );
+		// Provide the Jetpack parent menu wpcom-admin-menu.php would have created.
+		add_menu_page( 'Jetpack', 'Jetpack', 'manage_options', 'jetpack', '__return_null' );
 
 		Admin_Page::add_wp_admin_submenu();
-		$this->assertSame( 1, $this->count_podcast_submenus() );
+
+		$slugs = wp_list_pluck( (array) ( $GLOBALS['submenu']['jetpack'] ?? array() ), 2 );
+		$this->assertContains(
+			Admin_Page::ADMIN_PAGE_SLUG,
+			$slugs,
+			'add_wp_admin_submenu() should register the Podcast page under the Jetpack menu'
+		);
 	}
 }
