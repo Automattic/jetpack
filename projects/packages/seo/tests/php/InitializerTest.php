@@ -185,6 +185,20 @@ class InitializerTest extends TestCase {
 			$this->assertIsBool( $ai['enhancer']['enabled'] );
 			// With the feature filter forced off, the enhancer is never available.
 			$this->assertFalse( $ai['enhancer']['available'] );
+
+			// Crawler bootstrap: catalog (each with slug/label/type) plus the
+			// availability signals the AI tab gates on.
+			$this->assertArrayHasKey( 'crawlers', $ai );
+			$this->assertArrayHasKey( 'blocked', $ai['crawlers'] );
+			$this->assertIsBool( $ai['crawlers']['searchEnginesVisible'] );
+			$this->assertIsBool( $ai['crawlers']['restrictedSubdomain'] );
+			$this->assertIsBool( $ai['crawlers']['staticRobotsTxt'] );
+			$this->assertNotEmpty( $ai['crawlers']['catalog'] );
+			foreach ( $ai['crawlers']['catalog'] as $entry ) {
+				$this->assertArrayHasKey( 'slug', $entry );
+				$this->assertArrayHasKey( 'label', $entry );
+				$this->assertContains( $entry['type'], array( 'answer', 'training' ) );
+			}
 		} finally {
 			remove_filter( 'ai_seo_enhancer_enabled', '__return_false' );
 		}

@@ -38,7 +38,7 @@ describe( 'ai-store', () => {
 
 	it( 'replaces the crawler state on setCrawlers without touching other slices', () => {
 		const registry = makeRegistry();
-		const next = { catalog: SEEDED_AI.crawlers.catalog, blocked: [] };
+		const next = { ...SEEDED_AI.crawlers, blocked: [] };
 		registry.dispatch( aiStore ).setCrawlers( next );
 		expect( registry.select( aiStore ).getCrawlers() ).toEqual( next );
 		expect( registry.select( aiStore ).getEnhancer() ).toEqual( SEEDED_AI.enhancer );

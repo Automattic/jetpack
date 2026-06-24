@@ -11,6 +11,12 @@ export interface AiCrawler {
 	slug: string;
 	/** Human-facing crawler name (e.g. "ChatGPT (OpenAI)"). */
 	label: string;
+	/**
+	 * `answer` = fetches pages to cite in live AI answers (allowed by default);
+	 * `training` = collects content to train models (blocked by default). Drives
+	 * the two AI-crawler sections.
+	 */
+	type: 'answer' | 'training';
 }
 
 export interface AiState {
@@ -31,5 +37,11 @@ export interface AiState {
 		catalog: AiCrawler[];
 		/** Slugs currently blocked from the site. */
 		blocked: string[];
+		/** Whether the site allows search-engine indexing (`blog_public`). */
+		searchEnginesVisible: boolean;
+		/** Whether the site is on a `*.wpcomstaging.com` subdomain that blocks crawling. */
+		restrictedSubdomain: boolean;
+		/** Whether a physical robots.txt at the web root overrides our directives. */
+		staticRobotsTxt: boolean;
 	};
 }

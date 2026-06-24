@@ -1,6 +1,7 @@
-import { ToggleControl } from '@wordpress/components';
+import { Button, ToggleControl } from '@wordpress/components';
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { useNavigate } from '@wordpress/route';
 import { Card, CollapsibleCard, Link, Notice, Stack } from '@wordpress/ui';
 import './style.scss';
 import type { AiCrawler } from '../../data/ai-types';
@@ -52,16 +53,70 @@ const CrawlerToggle: FC< CrawlerToggleProps > = ( { crawler, blocked, disabled, 
 	);
 };
 
+interface CrawlerSectionProps {
+	title: string;
+	intro: string;
+	crawlers: AiCrawler[];
+	blocked: string[];
+	disabled: boolean;
+	onToggle: ( slug: string, blocked: boolean ) => void;
+}
+
 /**
- * AI tab. Hosts three sections stacked in a single centered column (matching the
- * Settings tab's width): llms.txt, then the plan-gated AI SEO enhancer, then
- * AI-crawler access last — the longest, least-used section, collapsed by
- * default. State + auto-save live in the `form` controller (passed from the page
- * root so it survives tab switches); this component is the presentation.
+ * A collapsible card listing one group of crawler toggles (answer engines or
+ * training crawlers) with a one-line explanation of what the group does.
+ * Collapsed by default — the AI-crawler controls sit at the bottom of the tab and
+ * most people won't need to open them.
  *
- * The tab itself is always shown. Only the Enhancer card is plan-gated; the free
- * sections render regardless, so the tab is a home for AI settings whether or not
- * the site's plan includes the Enhancer.
+ * @param props          - Component props.
+ * @param props.title    - Section title.
+ * @param props.intro    - One-line description of the group's purpose.
+ * @param props.crawlers - The crawlers in this group.
+ * @param props.blocked  - The full blocked-slug list.
+ * @param props.disabled - Whether toggles are disabled (mid-save).
+ * @param props.onToggle - Called with `(slug, blocked)` on change.
+ * @return The section card.
+ */
+const CrawlerSection: FC< CrawlerSectionProps > = ( {
+	title,
+	intro,
+	crawlers,
+	blocked,
+	disabled,
+	onToggle,
+} ) => (
+	<CollapsibleCard.Root>
+		<CollapsibleCard.Header>
+			<Card.Title>{ title }</Card.Title>
+		</CollapsibleCard.Header>
+		<CollapsibleCard.Content>
+			<Stack direction="column" gap="md">
+				<p className="jetpack-seo-ai__crawlers-intro">{ intro }</p>
+				{ crawlers.map( crawler => (
+					<CrawlerToggle
+						key={ crawler.slug }
+						crawler={ crawler }
+						blocked={ blocked.includes( crawler.slug ) }
+						disabled={ disabled }
+						onToggle={ onToggle }
+					/>
+				) ) }
+			</Stack>
+		</CollapsibleCard.Content>
+	</CollapsibleCard.Root>
+);
+
+/**
+ * AI tab. Stacks (in a single centered column matching the Settings tab's width):
+ * llms.txt, the plan-gated AI SEO enhancer, then the AI-crawler controls — split
+ * into "Answer engines" (allowed by default, so the site stays citable in AI
+ * answers) and "Training crawlers" (blocked by default). When the site can't be
+ * crawled at all — search-engine indexing off, or a `*.wpcomstaging.com` staging
+ * address — the crawler controls are replaced by an explanation instead of
+ * toggles that can't take effect.
+ *
+ * State + auto-save live in the `form` controller (passed from the page root so
+ * it survives tab switches); this component is the presentation.
  *
  * @param props      - Component props.
  * @param props.form - The AI form controller from `useAiForm`.
@@ -78,6 +133,12 @@ const AiScreen: FC< Props > = ( { form } ) => {
 		setCrawlerBlocked,
 	} = form;
 
+	const navigate = useNavigate();
+	const goToVisibility = useCallback(
+		() => navigate( { href: '/settings?focus=visibility' } ),
+		[ navigate ]
+	);
+
 	if ( ! enhancer ) {
 		return (
 			<Notice.Root intent="error">
@@ -87,6 +148,107 @@ const AiScreen: FC< Props > = ( { form } ) => {
 			</Notice.Root>
 		);
 	}
+
+	/**
+	 * The AI-crawler portion of the tab: either the two control sections, or — when
+	 * the site can't be crawled — a single card explaining why.
+	 *
+	 * @return The crawler cards, or null when there's no crawler bootstrap.
+	 */
+	const renderCrawlers = () => {
+		if ( ! crawlers ) {
+			return null;
+		}
+
+		// Staging subdomain blocks all crawling at the platform level, so even an
+		// indexable site can't apply these — explain and stop.
+		if ( crawlers.restrictedSubdomain ) {
+			return (
+				<CollapsibleCard.Root defaultOpen>
+					<CollapsibleCard.Header>
+						<Card.Title>{ __( 'AI crawler access', 'jetpack-seo' ) }</Card.Title>
+					</CollapsibleCard.Header>
+					<CollapsibleCard.Content>
+						<Notice.Root intent="info">
+							<Notice.Description>
+								{ __(
+									'This site uses a temporary staging address (a .wpcomstaging.com subdomain), where search engines and AI crawlers are blocked. These settings will take effect once the site is on its own domain.',
+									'jetpack-seo'
+								) }
+							</Notice.Description>
+						</Notice.Root>
+					</CollapsibleCard.Content>
+				</CollapsibleCard.Root>
+			);
+		}
+
+		// Search engines (and therefore AI crawlers) are blocked site-wide — point
+		// the user at the setting that turns indexing back on.
+		if ( ! crawlers.searchEnginesVisible ) {
+			return (
+				<CollapsibleCard.Root defaultOpen>
+					<CollapsibleCard.Header>
+						<Card.Title>{ __( 'AI crawler access', 'jetpack-seo' ) }</Card.Title>
+					</CollapsibleCard.Header>
+					<CollapsibleCard.Content>
+						<Stack direction="column" gap="md">
+							<Notice.Root intent="info">
+								<Notice.Description>
+									{ __(
+										"Search engines and AI crawlers are all blocked because this site isn't set to be indexed. To choose which AI crawlers can access your site, allow search engines to index it first.",
+										'jetpack-seo'
+									) }
+								</Notice.Description>
+							</Notice.Root>
+							<Button variant="link" onClick={ goToVisibility }>
+								{ __( 'Open site visibility settings', 'jetpack-seo' ) }
+							</Button>
+						</Stack>
+					</CollapsibleCard.Content>
+				</CollapsibleCard.Root>
+			);
+		}
+
+		const answerCrawlers = crawlers.catalog.filter( crawler => crawler.type === 'answer' );
+		const trainingCrawlers = crawlers.catalog.filter( crawler => crawler.type === 'training' );
+
+		return (
+			<>
+				{ crawlers.staticRobotsTxt && (
+					<Notice.Root intent="warning">
+						<Notice.Description>
+							{ __(
+								"A robots.txt file was found at this site's root, so these settings may not take effect until it's removed. This is common on local, sandbox, and staging sites.",
+								'jetpack-seo'
+							) }
+						</Notice.Description>
+					</Notice.Root>
+				) }
+				<CrawlerSection
+					title={ __( 'Answer engines', 'jetpack-seo' ) }
+					intro={ __(
+						'These crawlers fetch your pages so AI assistants can cite you in their answers. Keep them allowed to stay visible in tools like ChatGPT, Perplexity, and Claude.',
+						'jetpack-seo'
+					) }
+					crawlers={ answerCrawlers }
+					blocked={ crawlers.blocked }
+					disabled={ isSaving }
+					onToggle={ setCrawlerBlocked }
+				/>
+				<CrawlerSection
+					title={ __( 'Training crawlers', 'jetpack-seo' ) }
+					intro={ __(
+						"These crawlers collect your content to train AI models. Blocking them protects your content and doesn't affect whether you appear in AI answers.",
+						'jetpack-seo'
+					) }
+					crawlers={ trainingCrawlers }
+					blocked={ crawlers.blocked }
+					disabled={ isSaving }
+					onToggle={ setCrawlerBlocked }
+				/>
+			</>
+		);
+	};
 
 	return (
 		<div className="jetpack-seo-ai">
@@ -143,34 +305,7 @@ const AiScreen: FC< Props > = ( { form } ) => {
 				</CollapsibleCard.Root>
 			) }
 
-			{ /* Last and collapsed by default: the longest section and the one most
-			     people won't need to touch. */ }
-			{ crawlers && (
-				<CollapsibleCard.Root>
-					<CollapsibleCard.Header>
-						<Card.Title>{ __( 'AI crawler access', 'jetpack-seo' ) }</Card.Title>
-					</CollapsibleCard.Header>
-					<CollapsibleCard.Content>
-						<Stack direction="column" gap="md">
-							<p className="jetpack-seo-ai__crawlers-intro">
-								{ __(
-									'Choose which AI crawlers may access your site. Blocked crawlers are disallowed in your robots.txt.',
-									'jetpack-seo'
-								) }
-							</p>
-							{ crawlers.catalog.map( crawler => (
-								<CrawlerToggle
-									key={ crawler.slug }
-									crawler={ crawler }
-									blocked={ crawlers.blocked.includes( crawler.slug ) }
-									disabled={ isSaving }
-									onToggle={ setCrawlerBlocked }
-								/>
-							) ) }
-						</Stack>
-					</CollapsibleCard.Content>
-				</CollapsibleCard.Root>
-			) }
+			{ renderCrawlers() }
 		</div>
 	);
 };

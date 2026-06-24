@@ -903,13 +903,15 @@ class Initializer {
 			// @phan-suppress-next-line PhanUndeclaredClassMethod -- guarded by class_exists; host plugin provides the class.
 			&& \Automattic\Jetpack\Current_Plan::supports( 'ai-seo-enhancer' );
 
-		// Expose the AI crawler catalog (slug + label only; the user-agent token
-		// stays server-side) so the AI tab can render a toggle per known crawler.
+		// Expose the AI crawler catalog (slug + label + type; the user-agent token
+		// stays server-side) so the AI tab can render a toggle per known crawler,
+		// grouped into its answer-engine and training sections.
 		$crawler_catalog = array();
 		foreach ( Ai_Crawlers::get_catalog() as $slug => $info ) {
 			$crawler_catalog[] = array(
 				'slug'  => $slug,
 				'label' => $info['label'],
+				'type'  => $info['type'],
 			);
 		}
 
@@ -923,8 +925,13 @@ class Initializer {
 				'url'     => home_url( '/llms.txt' ),
 			),
 			'crawlers' => array(
-				'catalog' => $crawler_catalog,
-				'blocked' => Ai_Crawlers::get_blocked_slugs(),
+				'catalog'              => $crawler_catalog,
+				'blocked'              => Ai_Crawlers::get_blocked_slugs(),
+				// Availability signals: when the site can't be crawled, the AI tab
+				// explains why instead of showing toggles that can't take effect.
+				'searchEnginesVisible' => Ai_Crawlers::search_engines_allowed(),
+				'restrictedSubdomain'  => Ai_Crawlers::is_crawl_restricted_subdomain(),
+				'staticRobotsTxt'      => Ai_Crawlers::has_static_robots_txt(),
 			),
 		);
 	}

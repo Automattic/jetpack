@@ -47,52 +47,73 @@ class Ai_Crawlers {
 	 *
 	 * `slug` is the stable key persisted in the option and sent by the AI tab;
 	 * `user_agent` is the token written to the `User-agent:` robots line;
-	 * `label` is the human name shown in the UI. Kept deliberately small and
-	 * recognizable — the better-known training and answer-engine crawlers.
+	 * `label` is the human name shown in the UI; `type` is `answer` (fetches to
+	 * cite in live AI answers) or `training` (collects to train models), which
+	 * drives the AI tab's two sections and the per-type default. Kept deliberately
+	 * small and recognizable — the better-known crawlers.
 	 *
-	 * @return array<string, array{label: string, user_agent: string}>
+	 * @return array<string, array{label: string, user_agent: string, type: string}>
 	 */
 	public static function get_catalog() {
 		return array(
-			'gptbot'             => array(
-				'label'      => __( 'ChatGPT (OpenAI)', 'jetpack-seo' ),
-				'user_agent' => 'GPTBot',
-			),
+			// Answer-engine crawlers fetch pages so AI assistants can cite them in
+			// live answers. Allowed by default — blocking them costs AI visibility.
 			'oai-searchbot'      => array(
 				'label'      => __( 'ChatGPT Search (OpenAI)', 'jetpack-seo' ),
 				'user_agent' => 'OAI-SearchBot',
+				'type'       => 'answer',
 			),
-			'claudebot'          => array(
-				'label'      => __( 'Claude (Anthropic)', 'jetpack-seo' ),
-				'user_agent' => 'ClaudeBot',
+			'claude-searchbot'   => array(
+				'label'      => __( 'Claude Search (Anthropic)', 'jetpack-seo' ),
+				'user_agent' => 'Claude-SearchBot',
+				'type'       => 'answer',
 			),
 			'perplexitybot'      => array(
 				'label'      => __( 'Perplexity', 'jetpack-seo' ),
 				'user_agent' => 'PerplexityBot',
+				'type'       => 'answer',
+			),
+			'amazonbot'          => array(
+				'label'      => __( 'Amazon (Alexa)', 'jetpack-seo' ),
+				'user_agent' => 'Amazonbot',
+				'type'       => 'answer',
+			),
+			// Training crawlers collect content to train AI models. Blocked by
+			// default — blocking protects content with no AI-visibility downside.
+			'gptbot'             => array(
+				'label'      => __( 'ChatGPT (OpenAI)', 'jetpack-seo' ),
+				'user_agent' => 'GPTBot',
+				'type'       => 'training',
+			),
+			'claudebot'          => array(
+				'label'      => __( 'Claude (Anthropic)', 'jetpack-seo' ),
+				'user_agent' => 'ClaudeBot',
+				'type'       => 'training',
 			),
 			'google-extended'    => array(
 				'label'      => __( 'Google AI (Gemini)', 'jetpack-seo' ),
 				'user_agent' => 'Google-Extended',
+				'type'       => 'training',
 			),
 			'applebot-extended'  => array(
 				'label'      => __( 'Apple Intelligence', 'jetpack-seo' ),
 				'user_agent' => 'Applebot-Extended',
+				'type'       => 'training',
 			),
 			'meta-externalagent' => array(
 				'label'      => __( 'Meta AI', 'jetpack-seo' ),
 				'user_agent' => 'meta-externalagent',
-			),
-			'amazonbot'          => array(
-				'label'      => __( 'Amazon', 'jetpack-seo' ),
-				'user_agent' => 'Amazonbot',
+				'type'       => 'training',
 			),
 			'bytespider'         => array(
-				'label'      => __( 'ByteDance (Bytespider)', 'jetpack-seo' ),
+				'label'      => __( 'ByteDance', 'jetpack-seo' ),
 				'user_agent' => 'Bytespider',
+				'type'       => 'training',
 			),
 			'ccbot'              => array(
 				'label'      => __( 'Common Crawl', 'jetpack-seo' ),
 				'user_agent' => 'CCBot',
+				'type'       => 'training',
 			),
 		);
 	}
@@ -104,11 +125,72 @@ class Ai_Crawlers {
 	 * @return string[]
 	 */
 	public static function get_blocked_slugs() {
-		$stored = get_option( self::OPTION, array() );
+		$stored = get_option( self::OPTION, null );
+		// Unconfigured (option never saved): fall back to the privacy-protective
+		// default — training crawlers blocked, answer engines allowed.
+		if ( null === $stored ) {
+			return self::default_blocked_slugs();
+		}
 		if ( ! is_array( $stored ) ) {
 			return array();
 		}
 		return array_values( array_intersect( $stored, array_keys( self::get_catalog() ) ) );
+	}
+
+	/**
+	 * The slugs blocked by default before the owner has configured anything: every
+	 * training crawler. Answer-engine crawlers stay allowed so the site can still
+	 * be cited in AI answers.
+	 *
+	 * @return string[]
+	 */
+	public static function default_blocked_slugs() {
+		$blocked = array();
+		foreach ( self::get_catalog() as $slug => $info ) {
+			if ( 'training' === $info['type'] ) {
+				$blocked[] = $slug;
+			}
+		}
+		return $blocked;
+	}
+
+	/**
+	 * Whether the site allows search-engine (and therefore AI-crawler) indexing.
+	 *
+	 * When `blog_public` is off, WordPress disallows everything in robots.txt, so
+	 * per-crawler controls are moot — the AI tab surfaces this instead of showing
+	 * toggles that can't take effect.
+	 *
+	 * @return bool
+	 */
+	public static function search_engines_allowed() {
+		return (int) get_option( 'blog_public', 1 ) === 1;
+	}
+
+	/**
+	 * Whether the site is served from a WordPress.com staging subdomain
+	 * (`*.wpcomstaging.com`) where the platform blocks all crawling regardless of
+	 * the site's own settings — so AI-crawler controls can't take effect.
+	 *
+	 * @return bool
+	 */
+	public static function is_crawl_restricted_subdomain() {
+		$host   = (string) wp_parse_url( home_url(), PHP_URL_HOST );
+		$suffix = '.wpcomstaging.com';
+		return strlen( $host ) > strlen( $suffix )
+			&& substr( $host, -strlen( $suffix ) ) === $suffix;
+	}
+
+	/**
+	 * Whether a physical `robots.txt` exists at the web root. The web server
+	 * serves that file directly, bypassing WordPress's virtual robots.txt — so our
+	 * `robots_txt` filter (and therefore these settings) never run. Common on
+	 * local, sandbox, and staging sites.
+	 *
+	 * @return bool
+	 */
+	public static function has_static_robots_txt() {
+		return file_exists( ABSPATH . 'robots.txt' );
 	}
 
 	/**
