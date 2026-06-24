@@ -158,6 +158,7 @@ class Manager {
 
 		Heartbeat::init();
 		add_filter( 'jetpack_heartbeat_stats_array', array( $manager, 'add_stats_to_heartbeat' ) );
+		add_action( 'jetpack_verify_signature_error', array( $manager, 'track_xmlrpc_error' ) );
 
 		Webhooks::init( $manager );
 
@@ -2810,6 +2811,34 @@ class Manager {
 		}
 
 		return $stats;
+	}
+
+	/**
+	 * Records a failed XML-RPC signature verification so it can be reported in the heartbeat.
+	 *
+	 * We don't want to expose a detailed error message about why a request failed
+	 * signature verification, as doing so could leak information. Instead, we track
+	 * that the error occurred via a Jetpack option and send that data back in the
+	 * heartbeat. All this does is record the error code, but it's enough to find trends.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param \WP_Error $xmlrpc_error The error produced during signature validation.
+	 * @return void
+	 */
+	public function track_xmlrpc_error( $xmlrpc_error ) {
+		$code = is_wp_error( $xmlrpc_error )
+			? $xmlrpc_error->get_error_code()
+			: 'should-not-happen';
+
+		$xmlrpc_errors = \Jetpack_Options::get_option( 'xmlrpc_errors', array() );
+		if ( isset( $xmlrpc_errors[ $code ] ) && $xmlrpc_errors[ $code ] ) {
+			// No need to update the option if we already have this code stored.
+			return;
+		}
+		$xmlrpc_errors[ $code ] = true;
+
+		\Jetpack_Options::update_option( 'xmlrpc_errors', $xmlrpc_errors, false );
 	}
 
 	/**

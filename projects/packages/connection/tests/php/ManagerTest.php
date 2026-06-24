@@ -196,6 +196,80 @@ class ManagerTest extends TestCase {
 	}
 
 	/**
+	 * `add_stats_to_heartbeat()` reports the missing connection owner stat when connected.
+	 */
+	public function test_add_stats_to_heartbeat_reports_missing_owner() {
+		$manager = $this->getMockBuilder( Manager::class )
+			->onlyMethods( array( 'is_connected', 'is_missing_connection_owner' ) )
+			->getMock();
+		$manager->method( 'is_connected' )->willReturn( true );
+		$manager->method( 'is_missing_connection_owner' )->willReturn( true );
+
+		// `add_stats_to_heartbeat()` reads the connected plugins list, which requires Plugin_Storage to be configured.
+		Plugin_Storage::configure();
+
+		$stats = $manager->add_stats_to_heartbeat( array() );
+
+		$this->assertArrayHasKey( 'missing-owner', $stats );
+		$this->assertTrue( $stats['missing-owner'] );
+	}
+
+	/**
+	 * `add_stats_to_heartbeat()` does not add any stats when the site is not connected.
+	 */
+	public function test_add_stats_to_heartbeat_skips_when_not_connected() {
+		$manager = $this->getMockBuilder( Manager::class )
+			->onlyMethods( array( 'is_connected' ) )
+			->getMock();
+		$manager->method( 'is_connected' )->willReturn( false );
+
+		$this->assertSame( array(), $manager->add_stats_to_heartbeat( array() ) );
+	}
+
+	/**
+	 * `add_stats_to_heartbeat()` reports the stored XML-RPC errors and clears the option afterwards.
+	 */
+	public function test_add_stats_to_heartbeat_reports_and_clears_xmlrpc_errors() {
+		$manager = $this->getMockBuilder( Manager::class )
+			->onlyMethods( array( 'is_connected', 'is_missing_connection_owner' ) )
+			->getMock();
+		$manager->method( 'is_connected' )->willReturn( true );
+		$manager->method( 'is_missing_connection_owner' )->willReturn( false );
+
+		// `add_stats_to_heartbeat()` reads the connected plugins list, which requires Plugin_Storage to be configured.
+		Plugin_Storage::configure();
+
+		Jetpack_Options::update_option( 'xmlrpc_errors', array( 'malformed_token' => true ) );
+
+		$stats = $manager->add_stats_to_heartbeat( array() );
+
+		$this->assertSame( 'malformed_token', $stats['xmlrpc-errors'] );
+		$this->assertFalse( Jetpack_Options::get_option( 'xmlrpc_errors' ), 'The xmlrpc_errors option should be cleared after reporting.' );
+	}
+
+	/**
+	 * `track_xmlrpc_error()` stores the error code in the `xmlrpc_errors` option.
+	 */
+	public function test_track_xmlrpc_error_records_error_code() {
+		Jetpack_Options::delete_option( 'xmlrpc_errors' );
+
+		$this->manager->track_xmlrpc_error( new WP_Error( 'malformed_token', 'Malformed token.' ) );
+
+		$this->assertSame( array( 'malformed_token' => true ), Jetpack_Options::get_option( 'xmlrpc_errors' ) );
+	}
+
+	/**
+	 * `track_xmlrpc_error()` does not duplicate an already-recorded error code.
+	 */
+	public function test_track_xmlrpc_error_does_not_duplicate_existing_code() {
+		Jetpack_Options::update_option( 'xmlrpc_errors', array( 'malformed_token' => true ) );
+
+		$this->manager->track_xmlrpc_error( new WP_Error( 'malformed_token', 'Malformed token.' ) );
+
+		$this->assertSame( array( 'malformed_token' => true ), Jetpack_Options::get_option( 'xmlrpc_errors' ) );
+	}
+
+	/**
 	 * Test the `has_connected_owner` functionality when connected.
 	 */
 	public function test_has_connected_owner_when_connected() {

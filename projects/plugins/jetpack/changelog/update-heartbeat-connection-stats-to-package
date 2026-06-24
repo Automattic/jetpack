@@ -1,4 +1,4 @@
 Significance: patch
 Type: other
 
-Move connection-related heartbeat stats to the Connection package.
+Heartbeat: Connection owner and XML-RPC error stats are now provided by the Connection package.
