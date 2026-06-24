@@ -3524,7 +3524,7 @@ const { state } = store( 'wpcom-write', {
 				return;
 			}
 			allowLeave = true;
-			window.location.href = state.adminUrl;
+			window.location.href = state.backUrl;
 		},
 
 		async saveAndLeave() {
@@ -3550,7 +3550,7 @@ const { state } = store( 'wpcom-write', {
 				return;
 			}
 			allowLeave = true;
-			window.location.href = state.adminUrl;
+			window.location.href = state.backUrl;
 		},
 
 		checkFormatting() {
