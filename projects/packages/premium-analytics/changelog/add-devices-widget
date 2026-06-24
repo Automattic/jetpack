@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add jpa/devices widget — leaderboard breakdown of visitor counts by device type (screen size or browser)

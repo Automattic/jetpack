@@ -105,12 +105,7 @@ export type { StatsUtmParams, StatsUtmResponse } from './hooks/use-stats-utm';
 export { useStatsHighlights } from './hooks/use-stats-highlights';
 export type { StatsHighlightsParams, StatsHighlightsResponse } from './hooks/use-stats-highlights';
 export { useStatsTags, type StatsTagsParams, type StatsTagsResponse } from './hooks/use-stats-tags';
-export {
-	useStatsDevices,
-	type StatsDevices,
-	type StatsDevicesDeviceParam,
-	type StatsDevicesParams,
-} from './hooks/use-stats-devices';
+export { useStatsDevices } from './hooks/use-stats-devices';
 export {
 	useStatsAppSiteHasNeverPublishedPost,
 	type StatsAppSiteHasNeverPublishedPostParams,
@@ -242,9 +237,6 @@ export type {
 	StatsItemAction,
 	StatsLocationsItem,
 	StatsDevicesItem,
-	StatsDevicesResponse,
-	StatsDevicesResponseItem,
-	StatsDevicesTopValues,
 	StatsNormalizedDataPoint,
 	StatsNormalizedItem,
 	StatsNormalizedItemBase,

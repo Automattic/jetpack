@@ -1,22 +1,14 @@
 /**
  * Internal dependencies
  */
-import { statsDevicesQuery } from '../queries/stats-devices-query';
+import { statsDevicesQuery, type StatsDeviceProperty } from '../queries/stats-devices-query';
 import { useStatsReport } from './use-stats-report';
 import type { UseStatsOptions } from './use-stats-report';
-import type {
-	StatsDevices,
-	StatsDevicesDeviceParam,
-	StatsDevicesParams,
-} from '../queries/stats-devices-query';
+import type { StatsReportParams } from '../queries/stats-query';
 
-export function useStatsDevices( params: StatsDevicesParams, options?: UseStatsOptions ) {
-	return useStatsReport(
-		statsDevicesQuery,
-		params,
-		[ 'stats', 'devices', '__comparison__', 'disabled' ],
-		options
-	);
+export function useStatsDevices(
+	params: StatsReportParams & { deviceProperty?: StatsDeviceProperty },
+	options?: UseStatsOptions
+) {
+	return useStatsReport( statsDevicesQuery, params, 'devices', options );
 }
-
-export type { StatsDevices, StatsDevicesDeviceParam, StatsDevicesParams };

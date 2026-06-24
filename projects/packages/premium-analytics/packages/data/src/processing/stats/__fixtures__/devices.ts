@@ -1,36 +1,27 @@
-import type { StatsDevicesResponse } from '../devices';
-
-export const devicesScreenSizeFixture = {
-	top_values: {
-		mobile: 9,
-		desktop: 4,
-		tablet: 2,
+export const devicesFixture = {
+	date: '2026-06-22',
+	period: 'day',
+	days: {
+		'2026-06-16': {
+			views: {
+				desktop: 1000,
+				mobile: 800,
+				tablet: 90,
+			},
+			other_views: 0,
+		},
 	},
-} satisfies StatsDevicesResponse;
+};
 
-export const devicesBrowserFixture = {
-	top_values: {
-		chrome: 9,
-		safari: 4,
-		ie: 1,
+export const devicesSummaryFixture = {
+	date: '2026-06-22',
+	period: 'day',
+	summary: {
+		views: {
+			desktop: 5000,
+			mobile: 3200,
+			tablet: 450,
+		},
+		other_views: 12,
 	},
-} satisfies StatsDevicesResponse;
-
-export const devicesPlatformFixture = {
-	top_values: {
-		ios: 9,
-		android: 4,
-		ipad: 1,
-	},
-} satisfies StatsDevicesResponse;
-
-export const devicesEmptyFixture = {
-	top_values: [],
-} satisfies StatsDevicesResponse;
-
-export const devicesZeroValueFixture = {
-	top_values: {
-		mobile: 0,
-		desktop: 4,
-	},
-} satisfies StatsDevicesResponse;
+};
