@@ -1,0 +1,7 @@
+{
+	"name": "jpa/stats-top-posts",
+	"title": "Top Posts & Pages",
+	"description": "Displays the most-viewed posts and pages for the selected period.",
+	"category": "stats",
+	"presentation": "full-bleed"
+}
