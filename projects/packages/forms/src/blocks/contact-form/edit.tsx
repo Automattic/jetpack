@@ -365,6 +365,29 @@ function JetpackContactFormEdit( {
 
 	const wrapperRef = useRef();
 	const innerRef = useRef();
+
+	// Defer the style-variable probe until after mount so that stylesheets have
+	// been applied. This fixes incorrect styles in block style previews and after
+	// canvas resizes, where the synchronous probe fires before styles are ready.
+	// A ResizeObserver re-runs the probe whenever the canvas dimensions change.
+	const [ formStyle, setFormStyle ] = useState< Record< string, string > | undefined >( undefined );
+	useEffect( () => {
+		const node = innerRef.current;
+		if ( ! node ) {
+			return;
+		}
+		const update = () => {
+			const styles = window.jetpackForms.generateStyleVariables( innerRef.current );
+			if ( styles ) {
+				setFormStyle( styles );
+			}
+		};
+		update();
+		const observer = new ResizeObserver( update );
+		observer.observe( node );
+		return () => observer.disconnect();
+	}, [] );
+
 	const blockProps = useBlockProps( {
 		ref: wrapperRef,
 		className: clsx( className, {
@@ -383,7 +406,7 @@ function JetpackContactFormEdit( {
 		{
 			ref: innerRef,
 			className: formClassnames,
-			style: window.jetpackForms.generateStyleVariables( innerRef.current ),
+			style: formStyle,
 		},
 		{
 			allowedBlocks:

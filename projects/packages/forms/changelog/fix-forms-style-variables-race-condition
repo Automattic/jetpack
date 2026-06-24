@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fixed textarea and dropdown field styles in block style previews and after canvas resizes in Jetpack Forms.
