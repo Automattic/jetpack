@@ -94,3 +94,4 @@ export {
 	statsEmailOpensTimeSeriesQuery,
 	statsEmailClicksTimeSeriesQuery,
 } from './stats-email-time-series-query';
+export { statsAppDashboardModulesQuery } from './stats-app-dashboard-modules-query';

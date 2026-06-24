@@ -171,6 +171,10 @@ export {
 	type StatsEmailTimeSeriesDataPoint,
 	type StatsEmailTimeSeriesSummary,
 } from './hooks/use-stats-email-time-series';
+export {
+	useStatsAppDashboardModules,
+	useStatsAppDashboardModulesMutation,
+} from './hooks/use-stats-app-dashboard-modules';
 export type { UseStatsOptions } from './hooks/use-stats-report';
 export { prefetchReport } from './prefetch';
 export {

@@ -166,6 +166,10 @@ export {
 	type StatsEmailTimeSeriesDataPoint,
 	type StatsEmailTimeSeriesSummary,
 } from './use-stats-email-time-series';
+export {
+	useStatsAppDashboardModules,
+	useStatsAppDashboardModulesMutation,
+} from './use-stats-app-dashboard-modules';
 export type { UseStatsOptions } from './use-stats-report';
 
 /**
