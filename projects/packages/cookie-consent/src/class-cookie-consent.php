@@ -368,6 +368,14 @@ class Cookie_Consent {
 			return $block_content;
 		}
 
+		// If the CCPA page no longer exists (e.g. the owner deleted it), suppress
+		// the link instead of rendering a dead 404. This covers persisted hooked
+		// links that bypass the injection-time existence gate.
+		$ccpa_page_id = get_option( 'jetpack_cookie_consent_ccpa_page_id' );
+		if ( ! $ccpa_page_id || ! get_post( $ccpa_page_id ) ) {
+			return '';
+		}
+
 		// Use WP_HTML_Tag_Processor to safely add Interactivity API directives.
 		$tags = new WP_HTML_Tag_Processor( $block_content );
 
