@@ -77,6 +77,10 @@
 	overflow: hidden;
 }
 
+.noMap {
+	grid-template-columns: 1fr;
+}
+
 .geoChart {
 	min-width: 0;
 	height: 100%;

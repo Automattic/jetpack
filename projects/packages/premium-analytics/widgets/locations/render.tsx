@@ -176,7 +176,7 @@ function LocationsInner( { attributes }: LocationsRenderProps ) {
 				/>
 			</Stack>
 			<div className={ styles.content }>
-				<div className={ styles.chartArea }>
+				<div className={ clsx( styles.chartArea, geoMode === 'city' && styles.noMap ) }>
 					<LeaderboardChart
 						data={ leaderboardData }
 						withOverlayLabel
@@ -188,14 +188,16 @@ function LocationsInner( { attributes }: LocationsRenderProps ) {
 						} }
 						className={ styles.leaderboard }
 					/>
-					<div className={ styles.geoChart }>
-						<GeoChart
-							data={ geoData }
-							resizeDebounceTime={ 100 }
-							region={ selectedCountry?.code ?? 'world' }
-							resolution={ selectedCountry ? 'provinces' : 'countries' }
-						/>
-					</div>
+					{ geoMode !== 'city' && (
+						<div className={ styles.geoChart }>
+							<GeoChart
+								data={ geoData }
+								resizeDebounceTime={ 100 }
+								region={ selectedCountry?.code ?? 'world' }
+								resolution={ selectedCountry ? 'provinces' : 'countries' }
+							/>
+						</div>
+					) }
 				</div>
 				{ isSample && (
 					<Text className={ styles.sampleNote }>
