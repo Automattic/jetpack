@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-components",
-	"version": "1.12.8",
+	"version": "1.12.11",
 	"description": "Jetpack Components Package",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/components/#readme",
 	"bugs": {
@@ -132,7 +132,7 @@
 		"storybook": "10.3.6",
 		"ts-dedent": "2.2.0",
 		"typescript": "5.9.3",
-		"webpack": "5.105.2",
+		"webpack": "5.107.2",
 		"webpack-cli": "6.0.1"
 	},
 	"peerDependencies": {

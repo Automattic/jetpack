@@ -30,7 +30,7 @@ use Automattic\Jetpack\Tracking;
  * placement (the Jetpack plugin's subscriptions module) via add_menu();
  * this class self-registers only request handlers and wp-build loading.
  *
- * @since $$next-version$$
+ * @since 0.10.0
  */
 class Subscribers_Announcement {
 

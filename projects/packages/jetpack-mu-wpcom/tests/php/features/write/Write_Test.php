@@ -82,6 +82,50 @@ class Write_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * Test that a known source token resolves to its mapped back destination.
+	 */
+	public function test_resolve_back_url_maps_known_source() {
+		$this->assertSame(
+			'https://wordpress.com/reader',
+			wpcom_write_resolve_back_url( 'reader' )
+		);
+	}
+
+	/**
+	 * Test that an unknown or empty source falls back to the dashboard (default behavior).
+	 */
+	public function test_resolve_back_url_falls_back_to_dashboard() {
+		$this->assertSame( admin_url(), wpcom_write_resolve_back_url( '' ) );
+		$this->assertSame( admin_url(), wpcom_write_resolve_back_url( 'something_unknown' ) );
+		// Inferred analytics sources should not change the back destination.
+		$this->assertSame( admin_url(), wpcom_write_resolve_back_url( 'dashboard' ) );
+		$this->assertSame( admin_url(), wpcom_write_resolve_back_url( 'direct' ) );
+	}
+
+	/**
+	 * Test that the back button href reflects the resolved destination, defaulting to the dashboard.
+	 */
+	public function test_template_back_button_defaults_to_dashboard() {
+		ob_start();
+		wpcom_write_template();
+		$html = ob_get_clean();
+
+		$this->assertStringContainsString( 'class="bw-back"', $html );
+		$this->assertStringContainsString( 'href="' . esc_url( admin_url() ) . '"', $html );
+	}
+
+	/**
+	 * Test that a resolved back URL is rendered into the back button href.
+	 */
+	public function test_template_back_button_uses_resolved_url() {
+		ob_start();
+		wpcom_write_template( '', '', 0, array(), 'new', array(), false, '', array(), '', 'https://wordpress.com/reader' );
+		$html = ob_get_clean();
+
+		$this->assertStringContainsString( 'href="' . esc_url( 'https://wordpress.com/reader' ) . '"', $html );
+	}
+
+	/**
 	 * Test that the wpcom-write script module is registered after init.
 	 */
 	public function test_script_module_is_registered() {
@@ -1620,6 +1664,62 @@ class Write_Test extends \WorDBless\BaseTestCase {
 
 		// In dbless mode the result is empty, confirming no cross-user leakage.
 		$this->assertIsArray( $drafts );
+	}
+
+	/**
+	 * Logged-out callers must never receive drafts. The early-return guards
+	 * against a query running with author=0 (which would otherwise match every
+	 * orphaned draft on a multisite blog).
+	 */
+	public function test_recent_drafts_returns_empty_for_logged_out_user() {
+		wp_set_current_user( 0 );
+
+		$drafts = wpcom_write_get_recent_drafts();
+
+		$this->assertSame( array(), $drafts );
+	}
+
+	/**
+	 * Logged-out callers must also get an empty result when passing an exclude
+	 * id — verifies the guard sits in front of the exclude branch.
+	 */
+	public function test_recent_drafts_returns_empty_for_logged_out_user_with_exclude() {
+		wp_set_current_user( 0 );
+
+		$drafts = wpcom_write_get_recent_drafts( 123 );
+
+		$this->assertSame( array(), $drafts );
+	}
+
+	/**
+	 * The editor-strings helper is the contract the inline script tag
+	 * (and any other caller rendering the editor outside the wp-admin page
+	 * lifecycle) relies on. Validate the returned shape so a silently-dropped
+	 * key in a future edit is caught here rather than at runtime in view.js.
+	 */
+	public function test_editor_strings_returns_expected_keys() {
+		$strings = wpcom_write_get_editor_strings();
+
+		$this->assertIsArray( $strings );
+
+		// Spot-check the keys view.js reads as `i18n.<key>`. Not exhaustive —
+		// adding a new string should not require updating this test — but a
+		// removal of any of these keys would break the JS at runtime.
+		$expected = array(
+			'pleaseAddTitle',
+			'pleaseWriteSomething',
+			'savingDraft',
+			'publishing',
+			'draftAutosaved',
+			'error',
+			'untitled',
+			'anonBrand',
+			'anonStatus',
+		);
+		foreach ( $expected as $key ) {
+			$this->assertArrayHasKey( $key, $strings, "Missing editor string: $key" );
+			$this->assertNotEmpty( $strings[ $key ], "Editor string $key should not be empty" );
+		}
 	}
 
 	/**

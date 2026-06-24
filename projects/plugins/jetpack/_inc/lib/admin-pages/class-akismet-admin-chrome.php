@@ -50,6 +50,17 @@ class Akismet_Admin_Chrome {
 	}
 
 	/**
+	 * The Akismet logo mark — the green rounded square with the white "A", taken from
+	 * Akismet's own `akismet-refresh-logo.svg`. Sized via the `height` attribute by callers.
+	 *
+	 * @param int $height Pixel height of the logo.
+	 * @return string SVG markup.
+	 */
+	private function akismet_logo( $height ) {
+		return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 44 44" height="' . (int) $height . '" class="jp-akismet-mark" aria-hidden="true"><rect width="44" height="44" fill="#357B49" rx="6"/><path fill="#fff" fill-rule="evenodd" d="m29.746 28.31-6.392-16.797c-.152-.397-.305-.672-.789-.675-.673 0-1.408.611-1.746 1.316l-7.378 16.154c-.072.16-.143.311-.214.454-.5.995-1.045 1.546-2.357 1.626a.399.399 0 0 0-.16.033l-.01.004a.399.399 0 0 0-.23.392v.01c0 .054.01.106.03.155l.004.01a.416.416 0 0 0 .394.252h6.212a.417.417 0 0 0 .307-.12.416.416 0 0 0 .124-.305.398.398 0 0 0-.105-.302.399.399 0 0 0-.294-.127c-.757 0-2.197-.062-2.197-1.164.02-.318.103-.63.245-.916l1.399-3.152c.52-1.163 1.654-1.163 2.572-1.163h5.843c.023 0 .044 0 .062.003.13.014.16.081.214.242l1.534 4.07a2.857 2.857 0 0 1 .216 1.04c0 .054-.003.104-.01.153-.09.726-.831.887-1.49.887a.4.4 0 0 0-.294.127l-.007.008-.007.008a.401.401 0 0 0-.092.286v.01c0 .054.01.106.03.155l.005.01a.42.42 0 0 0 .395.252h7.011a.413.413 0 0 0 .279-.13.412.412 0 0 0 .11-.297.387.387 0 0 0-.09-.294.388.388 0 0 0-.277-.135c-1.448-.122-2.295-.643-2.847-2.08Zm-11.985-5.844 2.847-6.304c.361-.728.659-1.486.889-2.265 0-.06.03-.092.06-.092s.061.032.061.091c.02.122.045.247.073.374.197.888.584 1.878.914 2.723l.176.453 1.684 4.529a.927.927 0 0 1 .092.4.473.473 0 0 1-.009.094c-.041.202-.228.272-.602.272h-6.063c-.122 0-.184-.03-.184-.092a.36.36 0 0 1 .062-.183Zm17.107-.721c0 .786-.446 1.231-1.25 1.231-.806 0-1.125-.409-1.125-1.034 0-.786.465-1.231 1.25-1.231.785 0 1.125.427 1.125 1.034ZM9.629 23.002c.803 0 1.25-.447 1.25-1.231 0-.607-.343-1.036-1.128-1.036-.785 0-1.25.447-1.25 1.231 0 .625.325 1.036 1.128 1.036Z" clip-rule="evenodd"/></svg>';
+	}
+
+	/**
 	 * Register the hooks that drive the chrome.
 	 *
 	 * Safe to call unconditionally: the header/footer callbacks are only ever fired by
@@ -296,14 +307,14 @@ class Akismet_Admin_Chrome {
 	}
 
 	/**
-	 * Render the Jetpack-branded admin-ui-style header that replaces Akismet's default masthead.
+	 * Render the admin-ui-style header (Akismet logo + title) that replaces Akismet's default masthead.
 	 */
 	public function render_header() {
 		$this->print_styles();
 		?>
 		<header class="jp-akismet-header">
 			<div class="jp-akismet-header__title">
-				<span class="jp-akismet-header__visual" aria-hidden="true"><?php echo $this->jetpack_logo( 20 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG. ?></span>
+				<span class="jp-akismet-header__visual" aria-hidden="true"><?php echo $this->akismet_logo( 20 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG. ?></span>
 				<h1><?php esc_html_e( 'Akismet Anti-spam', 'jetpack' ); ?></h1>
 			</div>
 		</header>

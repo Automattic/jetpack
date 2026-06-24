@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix `@wordpress/ui` 0.15 type error: use a valid Stack `gap` token (`xs`) in the responses dashboard.

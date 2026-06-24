@@ -1,7 +1,7 @@
+import { useViewportMatch } from '@wordpress/compose';
 import Text from '../../text/index.tsx';
 import Col from '../col/index.tsx';
 import Container from '../container/index.tsx';
-import useBreakpointMatch from '../use-breakpoint-match/index.ts';
 import styles from './styles.module.scss';
 
 const Layout = ( { items, fluid, horizontalGap, horizontalSpacing } ) => {
@@ -88,11 +88,19 @@ Default.args = {
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export const BreakpointMatch = args => {
-	const [ isSm, isGtSm, isMd, isLtOrMd, isLtMd, isGtOrMd, isGtMd, isLessThanLg, isLg ] =
-		useBreakpointMatch(
-			[ 'sm', 'sm', 'md', 'md', 'md', 'md', 'md', 'lg', 'lg' ],
-			[ null, '>', null, '<=', '<', '>=', '>', '<', null ]
-		);
+	// Mapped from the old jetpack breakpoints/operators to @wordpress/compose
+	// thresholds (small=600, large=960). `<=`/`>` translate to the adjacent threshold.
+	const isSm = useViewportMatch( 'small', '<' ); // raw sm (< 600)
+	const isGtSm = useViewportMatch( 'small' ); // > sm => >= 600
+	const isAtLeastSmall = useViewportMatch( 'small' );
+	const isLessThanLarge = useViewportMatch( 'large', '<' );
+	const isMd = isAtLeastSmall && isLessThanLarge; // band 600–959
+	const isLtOrMd = useViewportMatch( 'large', '<' ); // <= md => < lg (< 960)
+	const isLtMd = useViewportMatch( 'small', '<' ); // < md => < 600
+	const isGtOrMd = useViewportMatch( 'small' ); // >= md => >= 600
+	const isGtMd = useViewportMatch( 'large' ); // > md => >= lg (>= 960)
+	const isLessThanLg = useViewportMatch( 'large', '<' ); // < lg (< 960)
+	const isLg = useViewportMatch( 'large' ); // >= 960
 
 	return (
 		<Container>

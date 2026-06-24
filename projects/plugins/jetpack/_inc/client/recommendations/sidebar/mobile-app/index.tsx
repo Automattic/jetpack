@@ -84,8 +84,6 @@ const MobileApp: FC< Props > = ( { slug, underside = false } ) => {
 							<Link
 								openInNewTab
 								href={ getRedirectUrl( 'jetpack-plugin-recommendations-mobile-app-component' ) }
-								rel="noopener noreferrer"
-								target="_blank"
 								onClick={ onJpcomAppClick }
 								children={ null }
 							/>

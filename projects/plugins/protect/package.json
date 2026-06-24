@@ -34,6 +34,7 @@
 		"@tanstack/react-query": "5.90.8",
 		"@wordpress/api-fetch": "7.48.1",
 		"@wordpress/components": "35.0.1",
+		"@wordpress/compose": "8.1.1",
 		"@wordpress/data": "10.48.1",
 		"@wordpress/date": "5.48.1",
 		"@wordpress/element": "8.0.1",
@@ -60,7 +61,7 @@
 		"concurrently": "10.0.3",
 		"sass-embedded": "1.97.3",
 		"sass-loader": "16.0.5",
-		"webpack": "5.105.2",
+		"webpack": "5.107.2",
 		"webpack-cli": "6.0.1"
 	}
 }

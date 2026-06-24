@@ -78,7 +78,6 @@ function failed {
 # Adapted from projects/github-actions/push-to-mirrors/push-to-mirrors.sh
 echo "::group::Fetching commits for Upstream-Ref matching"
 cd "$GITHUB_WORKSPACE/commit"
-git -c protocol.version=2 fetch --unshallow --filter=tree:0 --no-tags --progress --no-recurse-submodules origin HEAD
 # GitHub may not have an up-to-date git
 UPSTREAM_REF_SINCE=2024-04-10
 ARGS=()

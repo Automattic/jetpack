@@ -14,6 +14,17 @@ export { useReportVisitors } from './hooks/use-report-visitors';
 export { useReportVisitorsByLocation } from './hooks/use-report-visitors-by-location';
 export { useReportBookings } from './hooks/use-report-bookings';
 export { useReportSessionsByDevice } from './hooks/use-report-sessions-by-device';
+export { useStatsSite } from './hooks/use-stats-site';
+export { useStatsTopPosts } from './hooks/use-stats-top-posts';
+export { useStatsReferrers } from './hooks/use-stats-referrers';
+export { useStatsClicks } from './hooks/use-stats-clicks';
+export { useStatsSearchTerms } from './hooks/use-stats-search-terms';
+export { useStatsFileDownloads } from './hooks/use-stats-file-downloads';
+export { useStatsTopAuthors } from './hooks/use-stats-top-authors';
+export { useStatsLocations } from './hooks/use-stats-locations';
+export { useStatsCountryViews } from './hooks/use-stats-country-views';
+export { useStatsVideoPlays } from './hooks/use-stats-video-plays';
+export type { UseStatsOptions } from './hooks/use-stats-report';
 export { prefetchReport } from './prefetch';
 export {
 	normalizeReportParams,
@@ -37,5 +48,36 @@ export type { ProductType } from './types/product-type';
 export { ORDER_ATTRIBUTION_VIEWS } from './api/report-order-attribution-summary-fetch';
 export { getDefaultIntervalForPeriod, getDateFormatFromInterval } from './utils/interval';
 export { getDefaultPreset, getDefaultQueryParams } from './defaults';
-export { exportReport } from './api';
-export type { ExportReportParams, ExportReportResponse } from './api';
+export { exportReport, fetchStatsProxy, getStatsProxyPath } from './api';
+export type {
+	ExportReportParams,
+	ExportReportResponse,
+	StatsProxyFetchParams,
+	StatsProxyMethod,
+	StatsProxyParams,
+	StatsProxyVersion,
+} from './api';
+export type {
+	StatsClicksItem,
+	StatsFileDownloadsItem,
+	StatsItemAction,
+	StatsLocationsItem,
+	StatsNormalizedDataPoint,
+	StatsNormalizedItem,
+	StatsNormalizedItemBase,
+	StatsNormalizedReport,
+	StatsNormalizedSummary,
+	StatsReferrersItem,
+	StatsSearchTermsItem,
+	StatsTopAuthorsItem,
+	StatsTopPostsItem,
+	StatsVideoPlaysItem,
+} from './processing/stats';
+export type { StatsReportParams } from './queries/stats-query';
+export {
+	getStatsPeriodFromInterval,
+	reportParamsToStatsQueryParams,
+	statsQueryParamsToApiParams,
+	type StatsPeriod,
+	type StatsQueryParams,
+} from './utils/stats-params';

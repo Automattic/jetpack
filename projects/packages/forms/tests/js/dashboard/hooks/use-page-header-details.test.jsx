@@ -6,9 +6,9 @@ import { act, renderHook, waitFor } from '@testing-library/react';
 
 // ── Mock external dependencies ──────────────────────────────────────────────
 
-const mockUseBreakpointMatch = jest.fn( () => [ false ] );
-await jest.unstable_mockModule( '@automattic/jetpack-components', () => ( {
-	useBreakpointMatch: mockUseBreakpointMatch,
+const mockUseViewportMatch = jest.fn( () => false );
+await jest.unstable_mockModule( '@wordpress/compose', () => ( {
+	useViewportMatch: mockUseViewportMatch,
 } ) );
 await jest.unstable_mockModule( '@automattic/jetpack-components/jetpack-logo', () => ( {
 	default: () => null,
@@ -265,7 +265,7 @@ describe( 'usePageHeaderDetails', () => {
 	beforeEach( () => {
 		jest.clearAllMocks();
 		mockFormRecord = { title: { rendered: 'My Form' }, status: 'publish' };
-		mockUseBreakpointMatch.mockReturnValue( [ false ] ); // Desktop
+		mockUseViewportMatch.mockReturnValue( false ); // Desktop
 	} );
 
 	describe( 'return shape', () => {

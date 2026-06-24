@@ -18,3 +18,4 @@ export {
 } from './chart-leaderboard';
 export { BarChart, type BarChartProps, type BarChartData, type BarChartStyle } from './chart-bar';
 export { ChartEmptyState, type ChartEmptyStateProps } from './chart-empty-state';
+export { WidgetLoadingOverlay } from './widget-loading-overlay';

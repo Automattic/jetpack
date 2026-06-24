@@ -15,14 +15,22 @@ interface AiQueryResponse {
 }
 
 /**
- * Call jetpack-ai-query with the combined prompt and return validated output,
- * or null on any failure (network, timeout, auth, quota, malformed or
- * schema-invalid response).
+ * Outcome of a single jetpack-ai-query attempt. `retryable` distinguishes
+ * transient failures worth a second attempt (5xx/429, empty content, or
+ * malformed/schema-invalid JSON that a re-roll often fixes) from failures where
+ * a retry would not help or would only add latency (auth/quota 4xx, network
+ * errors, and timeouts).
+ */
+type FetchOutcome = { ok: true; output: TailoredOutput } | { ok: false; retryable: boolean };
+
+/**
+ * Call jetpack-ai-query once with the combined prompt and return the validated
+ * output, or a failure outcome tagging whether the failure is worth retrying.
  *
  * @param input - The collected wizard input.
- * @return The validated output, or null.
+ * @return The attempt outcome.
  */
-async function fetchAiOutput( input: WizardInput ): Promise< TailoredOutput | null > {
+async function fetchAiOutput( input: WizardInput ): Promise< FetchOutcome > {
 	const controller = new AbortController();
 	// eslint-disable-next-line @wordpress/no-unused-vars-before-return -- the timeout must arm before the awaited request and is cleared in finally.
 	const timeout = setTimeout( () => controller.abort(), AI_QUERY_TIMEOUT_MS );
@@ -39,7 +47,7 @@ async function fetchAiOutput( input: WizardInput ): Promise< TailoredOutput | nu
 				messages: [ { role: 'user', content: buildTailorPrompt( input ) } ],
 				feature: 'ai-launchpad',
 				model: 'gpt-4o',
-				max_tokens: 1500,
+				max_tokens: 1800,
 				response_format: 'json_object',
 				stream: false,
 			} ),
@@ -47,23 +55,48 @@ async function fetchAiOutput( input: WizardInput ): Promise< TailoredOutput | nu
 		} );
 
 		if ( ! response.ok ) {
-			return null;
+			// 5xx and 429 are transient; 4xx (auth/quota) will not change on retry.
+			return { ok: false, retryable: response.status === 429 || response.status >= 500 };
 		}
 
 		const body = ( await response.json() ) as AiQueryResponse;
 		const content = body.choices?.[ 0 ]?.message?.content;
 		if ( ! content ) {
-			return null;
+			return { ok: false, retryable: true };
 		}
 
-		return parseAgentResponse( content );
+		const output = parseAgentResponse( content );
+		if ( ! output ) {
+			// Malformed or schema-invalid JSON: a re-roll often returns valid output.
+			return { ok: false, retryable: true };
+		}
+
+		return { ok: true, output };
 	} catch {
-		// Network, timeout, auth, or quota failure: fall back to the deterministic
-		// picker. The AI call itself is logged server-side by the AI Proxy.
-		return null;
+		// Network error or timeout (abort): fall back to the deterministic picker.
+		// Not retried - a timeout retry only doubles the wait before the fallback.
+		// The AI call itself is logged server-side by the AI Proxy.
+		return { ok: false, retryable: false };
 	} finally {
 		clearTimeout( timeout );
 	}
+}
+
+/**
+ * Call jetpack-ai-query, retrying once on a transient/validation failure, and
+ * return the validated output or null. The retry hardens the happy path against
+ * the occasional malformed JSON or transient proxy error without unbounded
+ * latency: timeouts and auth/quota failures are not retried.
+ *
+ * @param input - The collected wizard input.
+ * @return The validated output, or null.
+ */
+async function fetchAiOutputWithRetry( input: WizardInput ): Promise< TailoredOutput | null > {
+	let outcome = await fetchAiOutput( input );
+	if ( ! outcome.ok && outcome.retryable ) {
+		outcome = await fetchAiOutput( input );
+	}
+	return outcome.ok ? outcome.output : null;
 }
 
 /**
@@ -83,9 +116,10 @@ async function persist( output: TailoredOutput, source: TailorSource ): Promise<
 
 /**
  * Tailor the launchpad from the wizard input: call jetpack-ai-query with the
- * combined prompt, validate the response against the agent output schema, and
- * fall back to the deterministic picker on any failure (network, auth, quota,
- * malformed or schema-invalid output). The result is persisted via Stream B's
+ * combined prompt (retrying once on a transient/validation failure), validate
+ * the response against the agent output schema, and fall back to the
+ * deterministic picker on any failure (network, timeout, auth, quota, malformed
+ * or schema-invalid output). The result is persisted via Stream B's
  * PUT /tailored, tagged with its source. If the AI output is rejected by the
  * server (422), retry the persist with the deterministic fallback.
  *
@@ -94,7 +128,7 @@ async function persist( output: TailoredOutput, source: TailorSource ): Promise<
  */
 export async function tailor( input: WizardInput ): Promise< TailorResult > {
 	const start = performance.now();
-	const aiOutput = await fetchAiOutput( input );
+	const aiOutput = await fetchAiOutputWithRetry( input );
 
 	if ( aiOutput ) {
 		try {

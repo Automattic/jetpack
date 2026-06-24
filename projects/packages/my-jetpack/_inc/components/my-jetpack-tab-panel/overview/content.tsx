@@ -1,5 +1,6 @@
 import { currentUserCan } from '@automattic/jetpack-script-data';
 import ProductCardsSection from '../../product-cards-section';
+import SeoOptInCard from '../../seo-opt-in-card';
 import { A4AUpsell } from './a4a-upsell';
 import styles from './styles.module.scss';
 
@@ -18,9 +19,14 @@ export function OverviewContent() {
 			</div>
 
 			{ currentUserCan( 'manage_options' ) ? (
-				<div className={ styles[ 'jetpack-manage-upsell' ] }>
-					<A4AUpsell />
-				</div>
+				<>
+					<div className={ styles[ 'jetpack-manage-upsell' ] }>
+						<SeoOptInCard />
+					</div>
+					<div className={ styles[ 'jetpack-manage-upsell' ] }>
+						<A4AUpsell />
+					</div>
+				</>
 			) : null }
 		</div>
 	);

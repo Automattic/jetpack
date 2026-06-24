@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+AI Launchpad: add an internal helper for enabling and resetting the feature during testing.

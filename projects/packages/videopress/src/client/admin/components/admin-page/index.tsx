@@ -9,7 +9,6 @@ import {
 	Container,
 	Button,
 	Col,
-	useBreakpointMatch,
 } from '@automattic/jetpack-components';
 import {
 	useProductCheckoutWorkflow,
@@ -17,6 +16,7 @@ import {
 	ConnectionError,
 } from '@automattic/jetpack-connection';
 import { FormFileUpload } from '@wordpress/components';
+import { useViewportMatch } from '@wordpress/compose';
 import { __ } from '@wordpress/i18n';
 import { Notice } from '@wordpress/ui';
 import clsx from 'clsx';
@@ -58,7 +58,7 @@ const Admin = () => {
 
 	const [ showPricingSection, setShowPricingSection ] = useState( ! isRegistered );
 
-	const [ isSm ] = useBreakpointMatch( 'sm' );
+	const isSm = useViewportMatch( 'small', '<' );
 
 	const canUpload = ( hasVideoPressPurchase || ! hasVideos ) && canPerformAction;
 

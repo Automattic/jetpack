@@ -2,8 +2,8 @@
  * External dependencies
  */
 import jetpackAnalytics from '@automattic/jetpack-analytics';
-import { useBreakpointMatch } from '@automattic/jetpack-components';
 import { formatNumberCompact } from '@automattic/number-formatters';
+import { useViewportMatch } from '@wordpress/compose';
 import { __, _x } from '@wordpress/i18n';
 import { Badge, Tabs } from '@wordpress/ui';
 import { useCallback } from 'react';
@@ -42,7 +42,7 @@ type InboxStatusToggleProps = {
 export default function InboxStatusToggle( { onChange }: InboxStatusToggleProps ): JSX.Element {
 	const [ searchParams, setSearchParams ] = useDashboardSearchParams();
 	const status = searchParams.get( 'status' ) || 'inbox';
-	const [ isSm ] = useBreakpointMatch( 'sm' );
+	const isSm = useViewportMatch( 'small', '<' );
 
 	const { totalItemsInbox, totalItemsSpam, totalItemsTrash, setSelectedResponses } = useInboxData();
 

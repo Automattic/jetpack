@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Icon tooltip: type `iconCode` as `ReactElement` so it matches the `@wordpress/icons` Icon and `@wordpress/ui` 0.15 type definitions.

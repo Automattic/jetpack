@@ -3,7 +3,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { store as blockEditorStore } from '@wordpress/block-editor';
 import { Notice } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
-import { render, useCallback, useEffect, useState } from '@wordpress/element';
+import { createRoot, useCallback, useEffect } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { wpcomTrackEvent } from '../../common/tracks';
 import { useCanvas } from './use-canvas';
@@ -64,20 +64,10 @@ function GlobalStylesWarningNotice() {
  */
 function GlobalStylesViewNotice() {
 	const { canvas } = useCanvas();
-	const [ isRendered, setIsRendered ] = useState( false );
 	const { globalStylesInUse } = useGlobalStylesConfig();
 
 	useEffect( () => {
-		if ( ! globalStylesInUse ) {
-			document.querySelector( `.${ GLOBAL_STYLES_VIEW_NOTICE_SELECTOR }` )?.remove();
-			setIsRendered( false );
-			return;
-		}
-
-		if ( isRendered ) {
-			return;
-		}
-		if ( canvas !== 'view' ) {
+		if ( ! globalStylesInUse || canvas !== 'view' ) {
 			return;
 		}
 
@@ -88,15 +78,18 @@ function GlobalStylesViewNotice() {
 
 		// Insert the notice as a sibling of the save hub instead of as a child,
 		// to prevent our notice from breaking the flex styles of the hub.
-		const container = saveHub.parentNode;
 		const noticeContainer = document.createElement( 'div' );
 		noticeContainer.classList.add( GLOBAL_STYLES_VIEW_NOTICE_SELECTOR );
-		container.insertBefore( noticeContainer, saveHub );
+		saveHub.parentNode.insertBefore( noticeContainer, saveHub );
 
-		render( <GlobalStylesWarningNotice />, noticeContainer );
+		const root = createRoot( noticeContainer );
+		root.render( <GlobalStylesWarningNotice /> );
 
-		setIsRendered( true );
-	}, [ isRendered, canvas, globalStylesInUse ] );
+		return () => {
+			root.unmount();
+			noticeContainer.remove();
+		};
+	}, [ canvas, globalStylesInUse ] );
 
 	return null;
 }
