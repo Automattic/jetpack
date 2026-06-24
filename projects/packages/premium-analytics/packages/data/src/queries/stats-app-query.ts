@@ -16,6 +16,8 @@ type StatsAppQueryConfig = {
 	body?: unknown;
 };
 
+// App/admin resources use the Stats proxy transport but do not use report param
+// coercion or response sanitizers, so they keep a separate query-key namespace.
 export function statsAppProxyQuery< TData = unknown >( {
 	name,
 	version,

@@ -1,8 +1,8 @@
 import { useQuery, type UseQueryOptions } from '@tanstack/react-query';
+import { getStatsQueryEnabled } from './use-stats-query';
+import type { UseStatsOptions } from './use-stats-report';
 
-export type UseStatsAppOptions = {
-	enabled?: boolean;
-};
+export type UseStatsAppOptions = UseStatsOptions;
 
 export function useStatsAppQuery< TData = unknown >(
 	queryOptions: UseQueryOptions< TData >,
@@ -10,6 +10,6 @@ export function useStatsAppQuery< TData = unknown >(
 ) {
 	return useQuery( {
 		...queryOptions,
-		enabled: options?.enabled ?? true,
+		enabled: getStatsQueryEnabled( queryOptions, options ),
 	} );
 }
