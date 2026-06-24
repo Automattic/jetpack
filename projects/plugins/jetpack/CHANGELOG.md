@@ -2,6 +2,10 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 15.9.1 - 2026-06-24
+### Bug fixes
+- Fix the Social admin page rendering blank, and restore the editor sharing panel, on WordPress 6.9. [#49859]
+
 ## 15.9 - 2026-06-09
 ### Major Enhancements
 - General: Update minimum WordPress version to 6.9. [#49021]
