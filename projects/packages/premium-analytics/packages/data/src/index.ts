@@ -40,6 +40,7 @@ export type {
 	StatsAppPlanUsage,
 } from './hooks/use-stats-app-plan-usage';
 export { useStatsArchives, type StatsArchivesResponse } from './hooks/use-stats-archives';
+export { useStatsComments, type StatsCommentsResponse } from './hooks/use-stats-comments';
 export {
 	useStatsStreak,
 	type StatsStreakParams,
@@ -98,6 +99,7 @@ export type {
 export type {
 	StatsArchivesItem,
 	StatsClicksItem,
+	StatsCommentsItem,
 	StatsFileDownloadsItem,
 	StatsItemAction,
 	StatsLocationsItem,

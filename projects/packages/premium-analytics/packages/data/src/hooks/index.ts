@@ -31,6 +31,7 @@ export type {
 	StatsAppPlanUsage,
 } from './use-stats-app-plan-usage';
 export { useStatsArchives, type StatsArchivesResponse } from './use-stats-archives';
+export { useStatsComments, type StatsCommentsResponse } from './use-stats-comments';
 export {
 	useStatsStreak,
 	type StatsStreakParams,
