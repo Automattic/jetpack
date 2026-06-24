@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Cookie Consent: make the auto-created "Your Privacy Choices" page removable. It is now created only once, is no longer locked from deletion, and its footer link is hidden if the page is deleted.
+CCPA: Make the auto-created "Your Privacy Choices" page removable. It is now created only once, is no longer locked from deletion, and its footer link is hidden if the page is deleted.
