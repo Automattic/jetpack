@@ -64,7 +64,10 @@ class Admin_Page {
 	 * Register the Podcast submenu under the Jetpack menu.
 	 */
 	public static function add_wp_admin_submenu() {
-		$callback = self::get_render_callback();
+		// Prefer the wp-build render function once it's defined (by
+		// maybe_load_wp_build() at admin_menu priority 1); fall back otherwise.
+		$wp_build_render = 'jetpack_podcast_jetpack_podcast_dashboard_wp_admin_render_page';
+		$callback        = function_exists( $wp_build_render ) ? $wp_build_render : array( __CLASS__, 'render' );
 
 		if ( ( new Host() )->is_wpcom_platform() ) {
 			$page_suffix = add_submenu_page(
@@ -91,20 +94,6 @@ class Admin_Page {
 		if ( $page_suffix ) {
 			add_action( 'load-' . $page_suffix, array( __CLASS__, 'admin_init' ) );
 		}
-	}
-
-	/**
-	 * Resolve the page callback, preferring the wp-build render function once
-	 * it has been defined (by `maybe_load_wp_build()` at admin_menu priority 1).
-	 *
-	 * @return callable
-	 */
-	private static function get_render_callback() {
-		$wp_build_render = 'jetpack_podcast_jetpack_podcast_dashboard_wp_admin_render_page';
-
-		return function_exists( $wp_build_render )
-			? $wp_build_render
-			: array( __CLASS__, 'render' );
 	}
 
 	/**
