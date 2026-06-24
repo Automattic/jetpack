@@ -822,6 +822,11 @@ class Contact_Form_Plugin {
 					$atts['fieldwrapperclasses'] .= $block_style_classes['fieldwrapperclasses'];
 					// Return the rest of the classes without the block style classes.
 					$atts['class'] = $block_style_classes['classes'];
+					// Also apply remaining custom classes (e.g. device visibility classes) directly
+					// to the field wrapper so they take effect on the outermost wrapper element.
+					if ( ! empty( $atts['class'] ) ) {
+						$atts['fieldwrapperclasses'] .= ' ' . $atts['class'];
+					}
 				}
 			}
 		}

@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Forms: Fix device visibility CSS classes not being applied to form field wrapper elements on the frontend.

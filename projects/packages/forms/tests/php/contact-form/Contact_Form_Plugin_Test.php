@@ -490,7 +490,7 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 					'label'                        => 'Label multiple options',
 					'type'                         => 'checkbox-multiple',
 					'requiredText'                 => 'Do it again',
-					'fieldwrapperclasses'          => 'wp-block-jetpack-field-checkbox-multiple is-style-button  is-style-button-wrap',
+					'fieldwrapperclasses'          => 'wp-block-jetpack-field-checkbox-multiple is-style-button  is-style-button-wrap some-custom-class',
 					'optionsclasses'               => 'wp-block-jetpack-options has-background',
 					'optionsstyles'                => 'background-color:green-tonight; border-top-width:2px;border-top-color:terrible-red;border-top-style:solid;',
 					'stylevariationclasses'        => ' has-background',
@@ -583,6 +583,46 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 					),
 				),
 				'type'         => 'checkbox-multiple',
+			),
+			'device visibility class on wrapper' => array(
+				'expected'     => array(
+					'class'                        => 'wp-hide-on-desktop',
+					'labelclasses'                 => 'wp-block-jetpack-label',
+					'labelstyles'                  => null,
+					'labelhiddenbyblockvisibility' => '',
+					'inputclasses'                 => 'wp-block-jetpack-input',
+					'inputstyles'                  => null,
+					'label'                        => 'Field Label',
+					'requiredText'                 => null,
+					'placeholder'                  => '',
+					'min'                          => '',
+					'max'                          => '',
+					'type'                         => 'text',
+					'fieldwrapperclasses'          => 'wp-block-jetpack-field-text wp-hide-on-desktop',
+					'stylevariationattributes'     => '',
+					'stylevariationclasses'        => '',
+					'stylevariationstyles'         => '',
+				),
+				'atts'         => array(
+					'className' => 'wp-hide-on-desktop',
+				),
+				'inner_blocks' => array(
+					array(
+						'blockName' => 'jetpack/label',
+						'attrs'     => array(
+							'label' => 'Field Label',
+						),
+					),
+					array(
+						'blockName' => 'jetpack/input',
+						'attrs'     => array(
+							'placeholder' => '',
+							'min'         => '',
+							'max'         => '',
+							'type'        => 'text',
+						),
+					),
+				),
 			),
 		);
 	}
