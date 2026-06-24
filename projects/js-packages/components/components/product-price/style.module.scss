@@ -56,7 +56,7 @@
 	color: var(--jp-gray-40);
 	font-size: var(--font-body-small);
 	line-height: 20px;
-	min-height: 20px;
+	min-height: 20px; // Reserve a line of height even when the legend is empty
 }
 
 .promo-label {
