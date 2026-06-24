@@ -23,7 +23,7 @@ import useLocationViews, { type GeoMode } from './use-location-views';
 /**
  * Types
  */
-import type { GeoData } from '@automattic/charts';
+import type { GeoData, GoogleDataTableColumn, GoogleDataTableRow } from '@automattic/charts';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 
 interface LocationsAttributes {
@@ -63,19 +63,16 @@ function LocationsInner( { attributes }: WidgetRenderProps< LocationsAttributes 
 		countryFilter: selectedCountry?.code,
 	} );
 
-	const geoData = useMemo(
-		() =>
-			[
-				[
-					geoMode === 'region' || geoMode === 'city'
-						? __( 'Location', 'jetpack-premium-analytics' )
-						: __( 'Country', 'jetpack-premium-analytics' ),
-					__( 'Views', 'jetpack-premium-analytics' ),
-				],
-				...data.map( location => [ location.label, location.value ] ),
-			] as unknown as GeoData,
-		[ data, geoMode ]
-	);
+	const geoData = useMemo( (): GeoData => {
+		const header: GoogleDataTableColumn[] = [
+			geoMode === 'region' || geoMode === 'city'
+				? __( 'Location', 'jetpack-premium-analytics' )
+				: __( 'Country', 'jetpack-premium-analytics' ),
+			__( 'Views', 'jetpack-premium-analytics' ),
+		];
+		const rows: GoogleDataTableRow[] = data.map( location => [ location.label, location.value ] );
+		return [ header, ...rows ];
+	}, [ data, geoMode ] );
 
 	const leaderboardData = useMemo( () => {
 		const maxValue = Math.max( ...data.map( l => l.value ), 0 );
