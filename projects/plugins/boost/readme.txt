@@ -5,7 +5,7 @@ Tags: performance, speed, web vitals, critical css, cache
 Requires at least: 6.9
 Tested up to: 7.0
 Requires PHP: 7.2
-Stable tag: 4.6.1-beta
+Stable tag: 4.6.2-beta
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
