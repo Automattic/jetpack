@@ -2,9 +2,12 @@
  * Internal dependencies
  */
 import { statsProxyQuery } from './stats-query';
+import type { StatsReportQueryOptions } from './stats-query';
 import type { StatsQueryParams } from '../utils/stats-params';
 
-export const statsSubscribersQuery = ( params: StatsQueryParams = {} ) =>
+export const statsSubscribersQuery = (
+	params: StatsQueryParams = {}
+): StatsReportQueryOptions< 'timeSeries' > =>
 	statsProxyQuery( {
 		name: 'subscribers',
 		version: '1.1',

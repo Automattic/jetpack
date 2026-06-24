@@ -42,7 +42,13 @@ export {
 	type StatsCommentsParams,
 	type StatsCommentsResponse,
 } from './use-stats-comments';
-export { useStatsSubscribers, useStatsSubscribersCounts } from './use-stats-subscribers';
+export {
+	useStatsSubscribers,
+	useStatsSubscribersCounts,
+	type StatsSubscribersCounts,
+	type StatsSubscribersCountsResponse,
+	type StatsSubscribersResponse,
+} from './use-stats-subscribers';
 export {
 	useStatsStreak,
 	type StatsStreakParams,
