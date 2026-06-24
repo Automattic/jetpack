@@ -4,10 +4,14 @@
 import { statsAppProxyQuery } from './stats-app-query';
 import type { StatsQueryParams } from '../utils/stats-params';
 
+export const STATS_APP_DASHBOARD_MODULES_NAME = 'dashboard-modules';
+export const STATS_APP_DASHBOARD_MODULES_VERSION = '2';
+export const STATS_APP_DASHBOARD_MODULES_ENDPOINT = 'jetpack-stats-dashboard/modules';
+
 export const statsAppDashboardModulesQuery = ( params: StatsQueryParams = {} ) =>
 	statsAppProxyQuery( {
-		name: 'dashboard-modules',
-		version: '2',
-		endpoint: 'jetpack-stats-dashboard/modules',
+		name: STATS_APP_DASHBOARD_MODULES_NAME,
+		version: STATS_APP_DASHBOARD_MODULES_VERSION,
+		endpoint: STATS_APP_DASHBOARD_MODULES_ENDPOINT,
 		params,
 	} );
