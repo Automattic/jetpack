@@ -25,6 +25,7 @@ import { useMemo } from 'react';
  * Internal dependencies
  */
 import styles from './top-posts.module.css';
+import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 
 /**
  * A single normalized top-posts row, flattened from the designated
@@ -286,11 +287,11 @@ function TopPostsReport( { attributes }: TopPostsProps ) {
  * analytics query client, keeping the leaderboard prop-driven (and
  * Storybook-friendly).
  *
- * @param props            - Render props.
+ * @param props            - Render props supplied by the widget host.
  * @param props.attributes - Widget attributes.
  * @return The rendered widget.
  */
-export default function TopPosts( { attributes }: TopPostsProps ) {
+export default function TopPosts( { attributes }: WidgetRenderProps< TopPostsAttributes > ) {
 	return (
 		<WidgetRoot>
 			<TopPostsReport attributes={ attributes } />
