@@ -2,7 +2,6 @@
  * External dependencies
  */
 import { useStatsTopAuthors } from '@jetpack-premium-analytics/data';
-import { customer } from '@jetpack-premium-analytics/icons';
 import { __ } from '@wordpress/i18n';
 import { useMemo } from 'react';
 /**
