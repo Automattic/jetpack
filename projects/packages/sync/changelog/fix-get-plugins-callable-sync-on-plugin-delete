@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Refresh the synced get_plugins callable when a plugin is deleted, so removed plugins no longer linger in cached plugin lists.
