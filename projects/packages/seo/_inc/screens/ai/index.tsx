@@ -109,7 +109,12 @@ const AiScreen: FC< Props > = ( { form } ) => {
 								__nextHasNoMarginBottom
 							/>
 							{ llmsTxt.enabled && (
-								<Link href={ llmsTxt.url } openInNewTab rel="noopener noreferrer">
+								<Link
+									className="jetpack-seo-ai__llms-link"
+									href={ llmsTxt.url }
+									openInNewTab
+									rel="noopener noreferrer"
+								>
 									{ __( 'View your llms.txt', 'jetpack-seo' ) }
 								</Link>
 							) }

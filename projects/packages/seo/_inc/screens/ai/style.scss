@@ -15,3 +15,11 @@
 	margin: 0;
 	color: var(--wpds-color-fg-content-neutral-weak, #787c82);
 }
+
+// Align the "View your llms.txt" link with the toggle's label/help text rather
+// than the switch. 40px matches @wordpress/components ToggleControl's help
+// margin-inline-start (≈ 36px switch + gap) — same treatment as the Settings
+// tab's sitemap link.
+.jetpack-seo-ai__llms-link {
+	margin-inline-start: 40px;
+}
