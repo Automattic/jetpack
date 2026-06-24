@@ -39,3 +39,4 @@ export { statsInsightsQuery } from './stats-insights-query';
 export { statsUtmQuery } from './stats-utm-query';
 export { statsHighlightsQuery } from './stats-highlights-query';
 export { statsTagsQuery } from './stats-tags-query';
+export { statsDevicesQuery } from './stats-devices-query';

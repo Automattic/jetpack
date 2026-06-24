@@ -73,6 +73,7 @@ export { useStatsUtm, type StatsUtmParams, type StatsUtmResponse } from './use-s
 export { useStatsHighlights } from './use-stats-highlights';
 export type { StatsHighlightsParams, StatsHighlightsResponse } from './use-stats-highlights';
 export { useStatsTags, type StatsTagsParams, type StatsTagsResponse } from './use-stats-tags';
+export { useStatsDevices, type StatsDevicesParams } from './use-stats-devices';
 export type { UseStatsOptions } from './use-stats-report';
 
 /**
