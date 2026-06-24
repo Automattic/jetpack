@@ -24,6 +24,7 @@ export {
 	useStatsAppDashboardModuleSettingsMutation,
 } from './use-stats-app-dashboard-module-settings';
 export type { StatsAppDashboardModuleSettings } from './use-stats-app-dashboard-module-settings';
+export { useStatsAppPlanUsage } from './use-stats-app-plan-usage';
 export { useStatsArchives, type StatsArchivesResponse } from './use-stats-archives';
 export {
 	useStatsStreak,
