@@ -1,8 +1,12 @@
 /**
  * Internal dependencies
  */
-import { fetchStatsProxy, type StatsProxyMethod, type StatsProxyVersion } from '../api';
-import type { StatsQueryParams } from '../utils/stats-params';
+import {
+	fetchStatsProxy,
+	type StatsProxyMethod,
+	type StatsProxyParams,
+	type StatsProxyVersion,
+} from '../api';
 import type { UseQueryOptions } from '@tanstack/react-query';
 
 export const statsAppQueryKeyPart = ( value: unknown ) => value ?? {};
@@ -11,7 +15,7 @@ type StatsAppQueryConfig = {
 	name: string;
 	version: StatsProxyVersion;
 	endpoint: string;
-	params?: StatsQueryParams;
+	params?: StatsProxyParams;
 	method?: StatsProxyMethod;
 	body?: unknown;
 };

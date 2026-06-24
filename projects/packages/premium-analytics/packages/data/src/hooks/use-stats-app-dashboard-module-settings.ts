@@ -7,7 +7,6 @@ import {
 	statsAppDashboardModuleSettingsQuery,
 } from '../queries/stats-app-dashboard-module-settings-query';
 import { useStatsAppQuery, type UseStatsAppOptions } from './use-stats-app-query';
-import type { StatsQueryParams } from '../utils/stats-params';
 
 export type StatsAppDashboardModuleSettings = {
 	traffic?: {
@@ -26,12 +25,9 @@ export type StatsAppDashboardModuleSettings = {
 	};
 };
 
-export function useStatsAppDashboardModuleSettings(
-	params?: StatsQueryParams,
-	options?: UseStatsAppOptions
-) {
+export function useStatsAppDashboardModuleSettings( options?: UseStatsAppOptions ) {
 	return useStatsAppQuery< StatsAppDashboardModuleSettings >(
-		statsAppDashboardModuleSettingsQuery< StatsAppDashboardModuleSettings >( params ),
+		statsAppDashboardModuleSettingsQuery< StatsAppDashboardModuleSettings >(),
 		options
 	);
 }
