@@ -73,9 +73,9 @@ class Ai_Crawlers {
 				'user_agent' => 'PerplexityBot',
 				'type'       => 'answer',
 			),
-			'amazonbot'          => array(
+			'amzn-searchbot'     => array(
 				'label'      => __( 'Amazon (Alexa)', 'jetpack-seo' ),
-				'user_agent' => 'Amazonbot',
+				'user_agent' => 'Amzn-SearchBot',
 				'type'       => 'answer',
 			),
 			// Training crawlers collect content to train AI models. Blocked by
@@ -113,6 +113,13 @@ class Ai_Crawlers {
 			'ccbot'              => array(
 				'label'      => __( 'Common Crawl', 'jetpack-seo' ),
 				'user_agent' => 'CCBot',
+				'type'       => 'training',
+			),
+			'amazonbot'          => array(
+				// Amazon's own docs: Amazonbot "may be used to train Amazon AI
+				// models" (Amzn-SearchBot is the answer-engine bot above).
+				'label'      => __( 'Amazon', 'jetpack-seo' ),
+				'user_agent' => 'Amazonbot',
 				'type'       => 'training',
 			),
 		);
