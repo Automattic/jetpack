@@ -15,6 +15,7 @@ export { useStatsTopAuthors } from './use-stats-top-authors';
 export { useStatsLocations } from './use-stats-locations';
 export { useStatsCountryViews } from './use-stats-country-views';
 export { useStatsVideoPlays } from './use-stats-video-plays';
+export { useStatsAppCommercialClassificationMutation } from './use-stats-app-commercial-classification';
 export type { UseStatsOptions } from './use-stats-report';
 
 /**

@@ -24,6 +24,7 @@ export { useStatsTopAuthors } from './hooks/use-stats-top-authors';
 export { useStatsLocations } from './hooks/use-stats-locations';
 export { useStatsCountryViews } from './hooks/use-stats-country-views';
 export { useStatsVideoPlays } from './hooks/use-stats-video-plays';
+export { useStatsAppCommercialClassificationMutation } from './hooks/use-stats-app-commercial-classification';
 export type { UseStatsOptions } from './hooks/use-stats-report';
 export { prefetchReport } from './prefetch';
 export {
