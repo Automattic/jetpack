@@ -239,7 +239,7 @@ function authorize_file_download() {
 		 * expire on their own shortly after the signed-token scheme ships.
 		 *
 		 * @todo Remove this legacy nonce fallback in Jetpack 16.3 or later; links signed under
-		 *       the old scheme self-expire within ~24h of $$next-version$$ shipping.
+		 *       the old scheme self-expire within ~24h of the signed-token scheme shipping.
 		 */
 		if ( ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_GET['_wpnonce'] ) ), 'jetpack_unauth_file_download_nonce_' . $file_id ) ) {
 			invalid_download_link( 3 );
@@ -280,6 +280,7 @@ function handle_file_download() {
 	$file['type']    = $file['type'] ?? 'application/octet-stream';
 	$file['name']    = $file['name'] ?? '';
 
+	// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- The request is already authorized in authorize_file_download() before reaching here.
 	$is_preview = isset( $_GET['preview'] ) && 'true' === $_GET['preview'] && is_file_type_previewable( $file['type'] );
 
 	// Clean output buffer

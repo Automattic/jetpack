@@ -219,7 +219,7 @@ class Unauth_File_Upload_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * filter_get_download_url() returns the passthrough URL when there is no signing key.
+	 * The filter_get_download_url() callback returns the passthrough URL when there is no signing key.
 	 */
 	public function test_filter_get_download_url_passthrough_without_key() {
 		$callback = static function () {
