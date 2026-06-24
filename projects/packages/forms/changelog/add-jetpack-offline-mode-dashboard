@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Dashboard: Fix wp-build Forms admin page loading and header spacing in Offline Mode.
+Dashboard: Support Forms wp-build admin pages in Offline Mode.

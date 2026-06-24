@@ -55,8 +55,7 @@ body.jetpack-offline-mode-page {
 	padding-block-end: 24px;
 }
 
-.jp-offline-mode__feature-group,
-.jp-offline-mode__requires-connection {
+.jp-offline-mode__feature-group {
 	box-shadow: none;
 }
 
@@ -123,10 +122,32 @@ body.jetpack-offline-mode-page {
 	}
 }
 
+.jp-offline-mode__status-badge {
+	align-items: center;
+	display: inline-flex;
+	gap: 4px;
+}
+
+.jp-offline-mode__status-badge-icon {
+	block-size: 12px;
+	display: block;
+	flex: 0 0 auto;
+	inline-size: 12px;
+}
+
+.jp-offline-mode__connection-required-badge {
+	justify-self: end;
+	white-space: nowrap;
+}
+
 @media ( max-width: 782px ) {
 
 	.jp-offline-mode__feature-row {
 		grid-template-columns: 1fr;
+	}
+
+	.jp-offline-mode__connection-required-badge {
+		justify-self: start;
 	}
 
 	.jp-offline-mode__limitation {

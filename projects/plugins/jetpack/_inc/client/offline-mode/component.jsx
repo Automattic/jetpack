@@ -25,11 +25,74 @@ import './style.scss';
 const OFFLINE_MODE_FEATURES_PATH = '/jetpack/v4/offline-mode/features';
 const EMPTY_FEATURES = [];
 const EMPTY_REQUIRES_CONNECTION_FEATURES = [];
-const EMPTY_GROUPS = {};
+const PRODUCT_GROUP_ORDER = [ 'growth', 'performance', 'security', 'other' ];
+const FEATURE_PRODUCT_GROUPS = {
+	'activity-log': 'security',
+	'contact-form': 'growth',
+	'jetpack-ai': 'growth',
+	'account-protection': 'security',
+	comments: 'growth',
+	'comment-likes': 'growth',
+	monitor: 'security',
+	newsletter: 'growth',
+	notes: 'security',
+	payments: 'growth',
+	photon: 'performance',
+	'photon-cdn': 'performance',
+	publicize: 'growth',
+	protect: 'security',
+	'related-posts': 'growth',
+	scan: 'security',
+	search: 'performance',
+	sharedaddy: 'growth',
+	sso: 'security',
+	stats: 'growth',
+	subscriptions: 'growth',
+	vaultpress: 'security',
+	videopress: 'performance',
+	waf: 'security',
+	'woocommerce-analytics': 'growth',
+	wordads: 'growth',
+};
+const FEATURE_GROUP_PRODUCT_GROUPS = {
+	boost: 'performance',
+	design: 'other',
+	forms: 'growth',
+	media: 'performance',
+	newsletter: 'growth',
+	other: 'other',
+	protect: 'security',
+	search: 'growth',
+	social: 'growth',
+	'vaultpress-backups': 'security',
+	writing: 'other',
+};
 
 const hasOwn = ( object, property ) => Object.prototype.hasOwnProperty.call( object, property );
 
 const getFeatureModule = feature => feature.underlying_module || feature.module || feature.slug;
+
+const getProductGroupName = groupSlug => {
+	const groupNames = {
+		growth: __( 'Grow your audience', 'jetpack' ),
+		performance: __( 'Speed up your site', 'jetpack' ),
+		security: __( 'Protect your site', 'jetpack' ),
+		other: __( 'Other features', 'jetpack' ),
+	};
+
+	return groupNames[ groupSlug ] || groupNames.other;
+};
+
+const getProductGroupSlug = feature => {
+	const featureModule = getFeatureModule( feature );
+
+	return (
+		FEATURE_PRODUCT_GROUPS[ feature.slug ] ||
+		FEATURE_PRODUCT_GROUPS[ featureModule ] ||
+		FEATURE_GROUP_PRODUCT_GROUPS[ feature.group ] ||
+		'other'
+	);
+};
 
 const getRecommendedFeatures = features =>
 	features.filter(
@@ -45,10 +108,10 @@ const settlePromise = promise =>
 		reason => ( { status: 'rejected', reason } )
 	);
 
-const getGroupedFeatures = ( features, groups ) => {
-	return features.reduce( ( grouped, feature ) => {
-		const groupSlug = feature.group || 'other';
-		const groupName = groups[ groupSlug ] || __( 'Other features', 'jetpack' );
+const getGroupedFeatures = features => {
+	const groupedFeatures = features.reduce( ( grouped, feature ) => {
+		const groupSlug = getProductGroupSlug( feature );
+		const groupName = getProductGroupName( groupSlug );
 
 		if ( ! grouped[ groupSlug ] ) {
 			grouped[ groupSlug ] = {
@@ -61,6 +124,14 @@ const getGroupedFeatures = ( features, groups ) => {
 
 		return grouped;
 	}, {} );
+
+	return PRODUCT_GROUP_ORDER.reduce( ( orderedGroups, groupSlug ) => {
+		if ( groupedFeatures[ groupSlug ] ) {
+			orderedGroups[ groupSlug ] = groupedFeatures[ groupSlug ];
+		}
+
+		return orderedGroups;
+	}, {} );
 };
 
 const getFeatureActiveState = ( feature, activeOverrides ) => {
@@ -72,6 +143,9 @@ const getFeatureActiveState = ( feature, activeOverrides ) => {
 
 	return feature.active;
 };
+
+const isConnectionRequiredFeature = feature =>
+	'requires_connection' === feature.type || ! feature.available;
 
 const JetpackHeaderIcon = () => (
 	<svg
@@ -96,7 +170,15 @@ const FeatureStatusBadge = ( { active, isUpdating } ) => {
 	}
 
 	if ( active ) {
-		return <Badge intent="stable">{ __( 'Active', 'jetpack' ) }</Badge>;
+		return (
+			<Badge
+				className="jp-offline-mode__status-badge jp-offline-mode__status-badge--active"
+				intent="stable"
+			>
+				<Icon className="jp-offline-mode__status-badge-icon" icon={ published } size={ 12 } />
+				{ __( 'Active', 'jetpack' ) }
+			</Badge>
+		);
 	}
 
 	return <Badge intent="draft">{ __( 'Inactive', 'jetpack' ) }</Badge>;
@@ -117,10 +199,11 @@ const FeatureRow = ( { feature, isUpdating, onActivate, onDeactivate } ) => {
 	const handleToggle = useCallback( () => {
 		return feature.active ? onDeactivate( module ) : onActivate( module );
 	}, [ feature.active, module, onActivate, onDeactivate ] );
-	const isToggleable = false !== feature.toggleable;
+	const isConnectionRequired = isConnectionRequiredFeature( feature );
+	const isToggleable = ! isConnectionRequired && false !== feature.toggleable;
 
 	return (
-		<div className="jp-offline-mode__feature-row">
+		<div aria-label={ feature.name } className="jp-offline-mode__feature-row" role="group">
 			{ isToggleable ? (
 				<ToggleControl
 					checked={ feature.active }
@@ -157,16 +240,25 @@ const FeatureRow = ( { feature, isUpdating, onActivate, onDeactivate } ) => {
 				spacing={ 2 }
 				wrap
 			>
-				{ feature.recommended && <Badge intent="draft">{ __( 'Recommended', 'jetpack' ) }</Badge> }
-				{ 'partial' === feature.type && (
+				{ feature.recommended && ! isConnectionRequired && (
+					<Badge intent="draft">{ __( 'Recommended', 'jetpack' ) }</Badge>
+				) }
+				{ 'partial' === feature.type && ! isConnectionRequired && (
 					<Badge intent="informational">{ __( 'Partial support', 'jetpack' ) }</Badge>
 				) }
-				{ ! isToggleable && <Badge intent="stable">{ __( 'Always available', 'jetpack' ) }</Badge> }
+				{ ! isToggleable && ! isConnectionRequired && (
+					<Badge intent="stable">{ __( 'Always available', 'jetpack' ) }</Badge>
+				) }
 				{ isToggleable && (
 					<FeatureStatusBadge active={ feature.active } isUpdating={ isUpdating } />
 				) }
+				{ isConnectionRequired && (
+					<Badge className="jp-offline-mode__connection-required-badge" intent="medium">
+						{ __( 'Connection required', 'jetpack' ) }
+					</Badge>
+				) }
 			</HStack>
-			{ feature.limitation && (
+			{ feature.limitation && ! isConnectionRequired && (
 				<div
 					aria-label={ sprintf(
 						/* translators: %s: Offline Mode feature name. */
@@ -244,58 +336,6 @@ FeatureGroup.propTypes = {
 	onActivate: PropTypes.func.isRequired,
 	onDeactivate: PropTypes.func.isRequired,
 	updatingModules: PropTypes.arrayOf( PropTypes.string ).isRequired,
-};
-
-const RequiresConnectionSection = ( { features } ) => {
-	if ( 0 === features.length ) {
-		return null;
-	}
-
-	return (
-		<Card className="jp-offline-mode__requires-connection" isBorderless={ false } size="small">
-			<CardHeader className="jp-offline-mode__feature-group-header">
-				<VStack spacing={ 1 }>
-					<Text as="h2" size={ 14 } weight={ 600 }>
-						{ __( 'Requires connection', 'jetpack' ) }
-					</Text>
-					<Text as="p" size={ 13 } variant="muted">
-						{ __(
-							'These Jetpack features are shown for planning purposes and are unavailable while the site is offline.',
-							'jetpack'
-						) }
-					</Text>
-				</VStack>
-			</CardHeader>
-			{ features.map( ( feature, index ) => (
-				<Fragment key={ feature.slug || feature.name }>
-					{ index > 0 && <CardDivider /> }
-					<CardBody>
-						<HStack alignment="flex-start" justify="space-between" spacing={ 4 } wrap>
-							<VStack spacing={ 1 }>
-								<Text as="h3" size={ 14 } weight={ 500 }>
-									{ feature.name }
-								</Text>
-								<Text as="p" size={ 13 } variant="muted">
-									{ feature.description }
-								</Text>
-							</VStack>
-							<Badge intent="medium">{ __( 'Connection required', 'jetpack' ) }</Badge>
-						</HStack>
-					</CardBody>
-				</Fragment>
-			) ) }
-		</Card>
-	);
-};
-
-RequiresConnectionSection.propTypes = {
-	features: PropTypes.arrayOf(
-		PropTypes.shape( {
-			description: PropTypes.string.isRequired,
-			name: PropTypes.string.isRequired,
-			slug: PropTypes.string,
-		} )
-	).isRequired,
 };
 
 const EnableRecommendedButton = ( {
@@ -411,7 +451,6 @@ export const OfflineMode = ( {
 	const features = dashboardData?.features || EMPTY_FEATURES;
 	const requiresConnectionFeatures =
 		dashboardData?.requires_connection || EMPTY_REQUIRES_CONNECTION_FEATURES;
-	const groups = dashboardData?.groups || EMPTY_GROUPS;
 	const featuresWithOptimisticState = useMemo(
 		() =>
 			features.map( feature => ( {
@@ -420,9 +459,13 @@ export const OfflineMode = ( {
 			} ) ),
 		[ activeOverrides, features ]
 	);
+	const productFeatures = useMemo(
+		() => [ ...featuresWithOptimisticState, ...requiresConnectionFeatures ],
+		[ featuresWithOptimisticState, requiresConnectionFeatures ]
+	);
 	const groupedFeatures = useMemo(
-		() => getGroupedFeatures( featuresWithOptimisticState, groups ),
-		[ featuresWithOptimisticState, groups ]
+		() => getGroupedFeatures( productFeatures ),
+		[ productFeatures ]
 	);
 	const recommendedFeatures = useMemo(
 		() => getRecommendedFeatures( featuresWithOptimisticState ),
@@ -555,7 +598,7 @@ export const OfflineMode = ( {
 		);
 	}
 
-	if ( 0 === featuresWithOptimisticState.length ) {
+	if ( 0 === productFeatures.length ) {
 		return (
 			<OfflineModePage
 				actions={
@@ -573,7 +616,6 @@ export const OfflineMode = ( {
 					<Notice isDismissible={ false } status="info">
 						{ __( 'No offline-safe features are available for this site.', 'jetpack' ) }
 					</Notice>
-					<RequiresConnectionSection features={ requiresConnectionFeatures } />
 				</VStack>
 			</OfflineModePage>
 		);
@@ -604,7 +646,6 @@ export const OfflineMode = ( {
 						/>
 					) ) }
 				</VStack>
-				<RequiresConnectionSection features={ requiresConnectionFeatures } />
 			</VStack>
 		</OfflineModePage>
 	);

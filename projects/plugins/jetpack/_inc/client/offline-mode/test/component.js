@@ -1,7 +1,7 @@
 import { readFileSync } from 'fs';
 import userEvent from '@testing-library/user-event';
 import apiFetch from '@wordpress/api-fetch';
-import { act, render, screen, waitFor } from 'test/test-utils';
+import { act, render, screen, waitFor, within } from 'test/test-utils';
 import { OfflineMode } from '../index';
 import { offlineFeaturesResponse } from './fixtures';
 jest.mock( '@wordpress/api-fetch', () => jest.fn() );
@@ -15,6 +15,8 @@ describe( 'OfflineMode', () => {
 	it( 'renders a focused Offline Mode screen with grouped feature toggles', async () => {
 		render(
 			<OfflineMode
+				apiNonce="test-nonce"
+				apiRoot="https://example.com/wp-json/"
 				activateModule={ jest.fn() }
 				deactivateModule={ jest.fn() }
 				fetchModules={ jest.fn() }
@@ -28,20 +30,33 @@ describe( 'OfflineMode', () => {
 		expect(
 			screen.queryByRole( 'heading', { name: 'Content and editor' } )
 		).not.toBeInTheDocument();
-		expect( screen.getByRole( 'heading', { level: 2, name: 'Forms' } ) ).toBeInTheDocument();
+		expect(
+			screen.getByRole( 'heading', { level: 2, name: 'Grow your audience' } )
+		).toBeInTheDocument();
 		expect( screen.getByRole( 'checkbox', { name: 'Forms' } ) ).toBeChecked();
-		expect( screen.getByRole( 'heading', { level: 2, name: 'Writing' } ) ).toBeInTheDocument();
+		expect( screen.queryByRole( 'heading', { level: 2, name: 'Forms' } ) ).not.toBeInTheDocument();
 		expect( screen.getByRole( 'checkbox', { name: 'Blocks' } ) ).not.toBeChecked();
-		expect( screen.getByRole( 'heading', { level: 2, name: 'Newsletter' } ) ).toBeInTheDocument();
 		expect( screen.getByRole( 'checkbox', { name: 'Newsletter' } ) ).not.toBeChecked();
 		expect( screen.queryByRole( 'heading', { name: 'Performance' } ) ).not.toBeInTheDocument();
-		expect( screen.getByRole( 'heading', { level: 2, name: 'Boost' } ) ).toBeInTheDocument();
+		expect(
+			screen.getByRole( 'heading', { level: 2, name: 'Speed up your site' } )
+		).toBeInTheDocument();
 		expect( screen.getByRole( 'heading', { level: 3, name: 'Boost' } ) ).toBeInTheDocument();
 		expect( screen.queryByRole( 'checkbox', { name: 'Boost' } ) ).not.toBeInTheDocument();
 		expect(
 			screen.queryByRole( 'heading', { name: 'Theme enhancements' } )
 		).not.toBeInTheDocument();
-		expect( screen.getByRole( 'heading', { level: 2, name: 'Design' } ) ).toBeInTheDocument();
+		expect(
+			screen.getByRole( 'heading', { level: 2, name: 'Other features' } )
+		).toBeInTheDocument();
+		expect(
+			screen.getAllByRole( 'heading', { level: 2 } ).map( heading => heading.textContent )
+		).toEqual( [
+			'Grow your audience',
+			'Speed up your site',
+			'Protect your site',
+			'Other features',
+		] );
 		expect( screen.getByRole( 'heading', { level: 3, name: 'Theme tools' } ) ).toBeInTheDocument();
 		expect( screen.queryByRole( 'checkbox', { name: 'Theme tools' } ) ).not.toBeInTheDocument();
 		expect( screen.getAllByText( 'Always available' ) ).toHaveLength( 2 );
@@ -58,6 +73,8 @@ describe( 'OfflineMode', () => {
 	it( 'renders the shared Jetpack admin footer in the fixed layout', async () => {
 		render(
 			<OfflineMode
+				apiNonce="test-nonce"
+				apiRoot="https://example.com/wp-json/"
 				activateModule={ jest.fn() }
 				deactivateModule={ jest.fn() }
 				fetchModules={ jest.fn() }
@@ -70,6 +87,32 @@ describe( 'OfflineMode', () => {
 		expect( screen.getByRole( 'contentinfo', { name: 'Jetpack' } ) ).toHaveClass(
 			'jetpack-footer'
 		);
+	} );
+
+	it( 'uses the product page icon treatment for active badges', async () => {
+		render(
+			<OfflineMode
+				activateModule={ jest.fn() }
+				deactivateModule={ jest.fn() }
+				fetchModules={ jest.fn() }
+			/>
+		);
+
+		await expect( screen.findByRole( 'checkbox', { name: 'Forms' } ) ).resolves.toBeChecked();
+
+		const activeBadge = screen.getAllByText( 'Active', {
+			selector: '.jp-offline-mode__status-badge',
+		} )[ 0 ];
+
+		expect( activeBadge ).toBeInTheDocument();
+		expect( activeBadge ).toHaveTextContent( 'Active' );
+
+		const componentSource = readFileSync( `${ __dirname }/../component.jsx`, 'utf8' );
+
+		expect( componentSource ).toContain( "import { Icon, published } from '@wordpress/icons';" );
+		expect( componentSource ).toContain( 'icon={ published }' );
+		expect( componentSource ).toContain( 'jp-offline-mode__status-badge-icon' );
+		expect( componentSource ).not.toContain( "import Gridicon from 'components/gridicon';" );
 	} );
 
 	it( 'renders documentation links for offline features', async () => {
@@ -130,7 +173,7 @@ describe( 'OfflineMode', () => {
 		expect( mainSource ).not.toContain( '<OfflineMode' );
 	} );
 
-	it( 'renders a separate informational list for features that require a connection', async () => {
+	it( 'renders connection-required features in product groups', async () => {
 		render(
 			<OfflineMode
 				activateModule={ jest.fn() }
@@ -140,14 +183,41 @@ describe( 'OfflineMode', () => {
 		);
 
 		await expect(
-			screen.findByRole( 'heading', { name: 'Requires connection' } )
+			screen.findByRole( 'heading', { name: 'Protect your site' } )
 		).resolves.toBeInTheDocument();
+		expect(
+			screen.queryByRole( 'heading', { name: 'Requires connection' } )
+		).not.toBeInTheDocument();
 		expect( screen.getByText( 'Jetpack AI' ) ).toBeInTheDocument();
 		expect( screen.getByText( 'Jetpack Comments' ) ).toBeInTheDocument();
+		expect( screen.getByText( 'Jetpack Scan' ) ).toBeInTheDocument();
 		expect( screen.queryByRole( 'checkbox', { name: 'Jetpack AI' } ) ).not.toBeInTheDocument();
 		expect(
 			screen.queryByRole( 'checkbox', { name: 'Jetpack Comments' } )
 		).not.toBeInTheDocument();
+		expect( screen.queryByRole( 'checkbox', { name: 'Jetpack Scan' } ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'shows connection-required badges on unavailable feature rows', async () => {
+		render(
+			<OfflineMode
+				activateModule={ jest.fn() }
+				deactivateModule={ jest.fn() }
+				fetchModules={ jest.fn() }
+			/>
+		);
+
+		const row = await screen.findByRole( 'group', {
+			name: 'Jetpack Comments',
+		} );
+
+		expect( row ).toHaveClass( 'jp-offline-mode__feature-row' );
+		expect( row ).toHaveTextContent(
+			'Requires a WordPress.com connection for enhanced commenting.'
+		);
+		expect( within( row ).getByText( 'Connection required' ) ).toHaveClass(
+			'jp-offline-mode__connection-required-badge'
+		);
 	} );
 
 	it( 'optimistically activates an inactive feature with its underlying module', async () => {

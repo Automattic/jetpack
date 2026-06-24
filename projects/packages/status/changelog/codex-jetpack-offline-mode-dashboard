@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Modules: Allow curated connection-required modules to activate in Offline Mode when explicitly allowed.
+Modules: Support explicitly allowed Jetpack modules in Offline Mode.
