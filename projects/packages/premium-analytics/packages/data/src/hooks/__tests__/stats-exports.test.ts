@@ -20,6 +20,7 @@ const statsHookNames = [
 	'useStatsAppDashboardModuleSettingsMutation',
 	'useStatsAppPlanUsage',
 	'useStatsArchives',
+	'useStatsCommentFollowers',
 	'useStatsFollowers',
 	'useStatsPublicize',
 	'useStatsComments',
