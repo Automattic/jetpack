@@ -1,4 +1,5 @@
-import { getDefaultQueryParams, type PresetType } from '@jetpack-premium-analytics/data';
+import { getDefaultQueryParams } from '@jetpack-premium-analytics/data';
+import { SELECTABLE_PRESETS, type SelectablePresetId } from '@jetpack-premium-analytics/datetime';
 import {
 	DEFAULT_WIDGET_DASHBOARD_STORY_ARGS,
 	WidgetDashboardWithWidget as WidgetDashboardWithWidgetStory,
@@ -15,24 +16,14 @@ import type { ComponentProps, ComponentType } from 'react';
 registerReportMocks();
 
 const AVERAGE_ITEMS_RENDER_MODULE = 'storybook/average-items-per-order';
-const DEFAULT_PRESET = 'last-30-days' satisfies PresetType;
-const PRESET_OPTIONS: PresetType[] = [
-	'today',
-	'yesterday',
-	'last-7-days',
-	'last-30-days',
-	'last-90-days',
-	'last-365-days',
-	'last-month',
-	'last-12-months',
-	'last-year',
-];
+const DEFAULT_PRESET = 'last-30-days' satisfies SelectablePresetId;
+const PRESET_OPTIONS = SELECTABLE_PRESETS;
 
 type AverageItemsPerOrderRenderProps = ComponentProps< typeof AverageItemsPerOrderRender >;
 
 interface AverageItemsPerOrderStoryControls {
 	withComparison: boolean;
-	preset: PresetType;
+	preset: SelectablePresetId;
 }
 
 type AverageItemsPerOrderStoryProps = AverageItemsPerOrderRenderProps &
@@ -50,7 +41,7 @@ const withWidgetCanvas: Decorator = Story => (
 
 function getAverageItemsPerOrderAttributes(
 	withComparison = false,
-	preset: PresetType = DEFAULT_PRESET
+	preset: SelectablePresetId = DEFAULT_PRESET
 ): AverageItemsPerOrderRenderProps[ 'attributes' ] {
 	return {
 		reportParams: getDefaultQueryParams( withComparison, preset ),
