@@ -103,15 +103,18 @@ function LocationsInner( { attributes }: WidgetRenderProps< LocationsAttributes 
 				previousShare: 0,
 				delta: 0,
 				// Country mode: click to drill into regions.
+				// Disabled while showing sample data — sample rows are country-level
+				// placeholders and have no real region data to drill into.
 				// Region/city mode: rows are not interactive.
 				...( geoMode === 'country' &&
+					! isSample &&
 					location.countryCode && {
 						onClick: () =>
 							setSelectedCountry( { code: location.countryCode, name: location.countryFull } ),
 					} ),
 			};
 		} ) as LeaderboardChartData;
-	}, [ data, geoMode ] );
+	}, [ data, geoMode, isSample ] );
 
 	if ( isLoading ) {
 		return (
