@@ -62,14 +62,6 @@ class Admin_Page {
 
 	/**
 	 * Register the Podcast submenu under the Jetpack menu.
-	 *
-	 * Two callers, two mechanisms:
-	 * - Simple/Atomic: wpcom-admin-menu.php calls this at priority 999999, after
-	 *   it has built the parent menu — so we register directly and let that file
-	 *   position the item.
-	 * - Self-hosted: our own admin_menu hook (priority 999) calls this — so we go
-	 *   through the shared Admin_Menu sorter, which places the item by position
-	 *   instead of appending it last.
 	 */
 	public static function add_wp_admin_submenu() {
 		$callback = self::get_render_callback();
