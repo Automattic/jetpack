@@ -783,8 +783,9 @@ function wpcom_write_render_admin_page() {
 	// 1. Explicit query param (highest priority).
 	// 2. Infer from HTTP referer.
 	// 3. Fall back to 'direct' (bookmarks, typed URLs, stripped referers).
-	// Note: When the /write → wp-admin redirect is implemented, it must forward the source query param.
-	// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only GET parameter used for analytics only.
+	// The /write-editor redirect forwards this param into wp-admin, so an explicit
+	// source (e.g. 'reader') survives the hop and drives the back-button destination.
+	// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only GET parameter, no state change.
 	$source = isset( $_GET['source'] ) ? sanitize_key( $_GET['source'] ) : '';
 	if ( ! $source ) {
 		$referer = wp_get_referer();
