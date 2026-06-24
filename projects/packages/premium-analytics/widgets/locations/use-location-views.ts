@@ -32,43 +32,7 @@ interface LocationViewsState {
 	data: LocationView[];
 	isLoading: boolean;
 	isError: boolean;
-	/**
-	 * True when showing bundled placeholder data (site not connected or request failed).
-	 */
-	isSample: boolean;
 }
-
-/** Country-level placeholder data shown when the site isn't connected or the request fails. */
-const SAMPLE_LOCATIONS: LocationView[] = [
-	{
-		label: 'United States',
-		countryCode: 'US',
-		countryFull: 'United States',
-		value: 2000,
-		region: '021',
-	},
-	{ label: 'India', countryCode: 'IN', countryFull: 'India', value: 1500, region: '034' },
-	{
-		label: 'United Kingdom',
-		countryCode: 'GB',
-		countryFull: 'United Kingdom',
-		value: 1200,
-		region: '154',
-	},
-	{ label: 'Canada', countryCode: 'CA', countryFull: 'Canada', value: 1000, region: '021' },
-	{ label: 'Germany', countryCode: 'DE', countryFull: 'Germany', value: 900, region: '155' },
-	{ label: 'Indonesia', countryCode: 'ID', countryFull: 'Indonesia', value: 800, region: '035' },
-	{ label: 'Japan', countryCode: 'JP', countryFull: 'Japan', value: 700, region: '030' },
-	{ label: 'Brazil', countryCode: 'BR', countryFull: 'Brazil', value: 600, region: '005' },
-	{
-		label: 'Netherlands',
-		countryCode: 'NL',
-		countryFull: 'Netherlands',
-		value: 500,
-		region: '155',
-	},
-	{ label: 'Spain', countryCode: 'ES', countryFull: 'Spain', value: 400, region: '039' },
-];
 
 /**
  * Map a `StatsLocationsItem` from the data layer to the widget's `LocationView` shape.
@@ -93,15 +57,14 @@ function toLocationView( item: StatsLocationsItem ): LocationView | null {
  * Fetch location views for the Locations widget via the shared Stats data layer.
  *
  * Delegates fetching, caching, and normalization to `useStatsLocations` from
- * `@jetpack-premium-analytics/data`. Falls back to bundled sample data when the
- * query has no data (e.g. site not connected → disabled query).
+ * `@jetpack-premium-analytics/data`.
  *
  * @param args               - Hook arguments.
  * @param args.reportParams  - PA ReportParams from WidgetRoot context.
  * @param args.max           - Maximum rows to display.
  * @param args.geoMode       - 'country' (default), 'region', or 'city'.
  * @param args.countryFilter - ISO country code to filter regions by (region mode).
- * @return The current data/loading/error/sample state.
+ * @return The current data/loading/error state.
  */
 export default function useLocationViews( {
 	reportParams,
@@ -124,19 +87,6 @@ export default function useLocationViews( {
 	const isLoading = primary.isLoading;
 	const isError = primary.isError;
 
-	// Only fall back to sample data when the query has never successfully completed
-	// (site not connected → disabled query, or request failed). A successful but
-	// empty response means the site has no views for the period and should show
-	// the empty state, not sample data.
-	if ( ! isLoading && ! primary.isSuccess ) {
-		return {
-			data: max ? SAMPLE_LOCATIONS.slice( 0, max ) : SAMPLE_LOCATIONS,
-			isLoading: false,
-			isError,
-			isSample: true,
-		};
-	}
-
 	const report = primary.data as StatsNormalizedReport< StatsLocationsItem > | undefined;
 	const rawItems = report?.data?.[ 0 ]?.items ?? [];
 	const items = rawItems
@@ -148,6 +98,5 @@ export default function useLocationViews( {
 		data: items,
 		isLoading,
 		isError,
-		isSample: false,
 	};
 }

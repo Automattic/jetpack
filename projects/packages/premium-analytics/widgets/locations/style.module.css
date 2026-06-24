@@ -108,11 +108,6 @@
 	border-radius: var(--wpds-border-radius-sm, 2px);
 }
 
-.sampleNote {
-	align-self: flex-end;
-	color: var(--wpds-color-fg-content-neutral-weak);
-}
-
 /* Constrain the picker preview tile to a 4:3 aspect ratio. The picker's
  * .preview wrapper uses height: 125% of an auto-height parent, so height: 100%
  * on .root also resolves to auto, leaving aspect-ratio with no anchor.

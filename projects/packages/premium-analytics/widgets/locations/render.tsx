@@ -56,7 +56,7 @@ function LocationsInner( { attributes }: WidgetRenderProps< LocationsAttributes 
 	// Drill-down (region) takes priority over topMode; city mode disables drill-down.
 	const geoMode: GeoMode = selectedCountry ? 'region' : topMode;
 
-	const { data, isLoading, isSample } = useLocationViews( {
+	const { data, isLoading } = useLocationViews( {
 		reportParams,
 		max,
 		geoMode,
@@ -100,11 +100,8 @@ function LocationsInner( { attributes }: WidgetRenderProps< LocationsAttributes 
 				previousShare: 0,
 				delta: 0,
 				// Country mode: click to drill into regions.
-				// Disabled while showing sample data — sample rows are country-level
-				// placeholders and have no real region data to drill into.
 				// Region/city mode: rows are not interactive.
 				...( geoMode === 'country' &&
-					! isSample &&
 					location.countryCode && {
 						onClick: () =>
 							setSelectedCountry( { code: location.countryCode, name: location.countryFull } ),
@@ -120,7 +117,7 @@ function LocationsInner( { attributes }: WidgetRenderProps< LocationsAttributes 
 					} ),
 			};
 		} ) as LeaderboardChartData;
-	}, [ data, geoMode, isSample ] );
+	}, [ data, geoMode ] );
 
 	if ( isLoading ) {
 		return (
@@ -207,11 +204,6 @@ function LocationsInner( { attributes }: WidgetRenderProps< LocationsAttributes 
 						</div>
 					) }
 				</div>
-				{ isSample && (
-					<Text className={ styles.sampleNote }>
-						{ __( 'Sample data', 'jetpack-premium-analytics' ) }
-					</Text>
-				) }
 			</div>
 		</Stack>
 	);
