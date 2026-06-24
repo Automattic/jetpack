@@ -2,18 +2,19 @@
  * Internal dependencies
  */
 import { useReport } from './use-report';
-import type { StatsReportParams, StatsReportQueryOptions } from '../queries/stats-query';
+import type { UseQueryOptions } from '@tanstack/react-query';
+import type { StatsReportParams } from '../queries/stats-query';
 
 export type UseStatsOptions = {
 	enabled?: boolean;
 };
 
-type StatsReportQueryFactory< TParams extends StatsReportParams > = (
+type StatsReportQueryFactory< TParams extends StatsReportParams, TData > = (
 	params: TParams
-) => StatsReportQueryOptions;
+) => UseQueryOptions< TData >;
 
-export function useStatsReport< TParams extends StatsReportParams >(
-	queryFactory: StatsReportQueryFactory< TParams >,
+export function useStatsReport< TParams extends StatsReportParams, TData >(
+	queryFactory: StatsReportQueryFactory< TParams, TData >,
 	params: TParams,
 	reportSlugOrDisabledComparisonKey: string | string[],
 	options?: UseStatsOptions

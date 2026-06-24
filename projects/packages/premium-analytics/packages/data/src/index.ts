@@ -33,7 +33,7 @@ export {
 	useStatsAppDashboardModuleSettingsMutation,
 } from './hooks/use-stats-app-dashboard-module-settings';
 export type { StatsAppDashboardModuleSettings } from './hooks/use-stats-app-dashboard-module-settings';
-export { useStatsArchives } from './hooks/use-stats-archives';
+export { useStatsArchives, type StatsArchivesResponse } from './hooks/use-stats-archives';
 export type { UseStatsOptions } from './hooks/use-stats-report';
 export { prefetchReport } from './prefetch';
 export {
@@ -68,6 +68,7 @@ export type {
 	StatsProxyVersion,
 } from './api';
 export type {
+	StatsArchivesItem,
 	StatsClicksItem,
 	StatsFileDownloadsItem,
 	StatsItemAction,
@@ -79,7 +80,6 @@ export type {
 	StatsNormalizedSummary,
 	StatsReferrersItem,
 	StatsSearchTermsItem,
-	StatsArchivesItem,
 	StatsTopAuthorsItem,
 	StatsTopPostsItem,
 	StatsVideoPlaysItem,
