@@ -1,17 +1,20 @@
-/**
- * WordPress dependencies
- */
 import { Page } from '@wordpress/admin-ui';
 import { store as coreStore } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
 import { useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { Tabs } from '@wordpress/ui';
 import { WidgetDashboard } from '@wordpress/widget-dashboard';
 import { useWidgetTypes, type WidgetModuleRecord } from '@wordpress/widget-primitives';
-/**
- * Internal dependencies
- */
-import { DASHBOARD_NAME, useDashboardLayout, useDashboardGridSettings } from './hooks';
+import { DashboardSections } from './components';
+import {
+	DASHBOARD_NAME,
+	useActiveSection,
+	useDashboardGridSettings,
+	useDashboardSectionLayout,
+	useDashboardSections,
+} from './hooks';
+import styles from './stage.module.scss';
 
 /**
  * Premium Analytics dashboard page stage component.
@@ -19,7 +22,12 @@ import { DASHBOARD_NAME, useDashboardLayout, useDashboardGridSettings } from './
  * @return {JSX.Element} The Premium Analytics dashboard.
  */
 function Dashboard(): JSX.Element {
-	const [ layout, setLayout, resetLayout ] = useDashboardLayout( DASHBOARD_NAME );
+	const sections = useDashboardSections();
+	const [ activeSection, setActiveSection ] = useActiveSection();
+	const [ layout, setLayout, resetLayout ] = useDashboardSectionLayout(
+		DASHBOARD_NAME,
+		activeSection
+	);
 	const [ gridSettings, setGridSettings ] = useDashboardGridSettings();
 
 	const widgetModules = useSelect(
@@ -42,19 +50,42 @@ function Dashboard(): JSX.Element {
 			isResolvingWidgetTypes={ isResolvingWidgetTypes }
 			layout={ layout }
 			onLayoutChange={ setLayout }
+			onLayoutReset={ resetLayout }
 			gridSettings={ gridSettings }
 			onGridSettingsChange={ setGridSettings }
 			editMode={ editMode }
 			onEditChange={ setEditMode }
-			onLayoutReset={ resetLayout }
 		>
 			<Page
 				title={ __( 'Analytics', 'jetpack-premium-analytics' ) }
+				subTitle={ __(
+					'Track your site performance and visitor insights.',
+					'jetpack-premium-analytics'
+				) }
 				actions={ <WidgetDashboard.Actions /> }
-				hasPadding
+				className={ styles.dashboard }
 			>
-				<WidgetDashboard.NoWidgetsState />
-				<WidgetDashboard.Widgets />
+				<DashboardSections
+					sections={ sections }
+					value={ activeSection }
+					onChange={ setActiveSection }
+				>
+					{ sections.map( section => (
+						<Tabs.Panel
+							key={ section.id }
+							value={ section.id }
+							focusable={ false }
+							className={ styles.content }
+						>
+							{ activeSection === section.id ? (
+								<>
+									<WidgetDashboard.NoWidgetsState />
+									<WidgetDashboard.Widgets />
+								</>
+							) : null }
+						</Tabs.Panel>
+					) ) }
+				</DashboardSections>
 
 				<WidgetDashboard.Commands />
 			</Page>

@@ -103,4 +103,38 @@ describe( 'Stats clicks normalizer', () => {
 			} )
 		);
 	} );
+
+	it( 'removes only the first parent-name occurrence from child labels', () => {
+		const result = sanitizeStatsClicksResponse(
+			{
+				date: '2026-06-22',
+				days: {
+					'2026-06-16': {
+						clicks: [
+							{
+								name: 'example.com',
+								views: 1,
+								children: [
+									{
+										name: 'example.com/path/example.com',
+										views: 1,
+									},
+								],
+							},
+						],
+					},
+				},
+			},
+			{
+				end_date: '2026-06-16',
+			}
+		);
+
+		expect( result.data[ 0 ].items[ 0 ].children?.[ 0 ] ).toEqual(
+			expect.objectContaining( {
+				label: '/path/example.com',
+				views: 1,
+			} )
+		);
+	} );
 } );

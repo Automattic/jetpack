@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 9.0.2 - 2026-06-24
+### Fixed
+- Fix the Social admin page rendering blank, and restore the editor sharing panel, on WordPress 6.9. [#49859]
+
 ## 9.0.1 - 2026-06-23
 ### Changed
 - Reconnect accounts in place instead of disconnecting and recreating them, retaining connection settings. [#49695]
@@ -16,7 +20,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Detect when the browser blocks the connection popup and notify the user. [#49688]
 - Social Previews: Remove the misleading URL from captions when it is not a part of it. [#49745]
 - Fix Jetpack Social admin page rendering blank on WordPress 6.9.x. [#49654]
-
 
 ## 9.0.0 - 2026-06-01
 ### Added

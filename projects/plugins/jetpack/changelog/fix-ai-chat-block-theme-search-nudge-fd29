@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+AI Chat block: Stop prompting to enable Jetpack Search when the Search module is active in a non-Instant Search experience (Theme, Inline, or Embedded).
