@@ -134,7 +134,11 @@ export {
 	type StatsEmailSummaryParams,
 	type StatsEmailSummarySortField,
 } from './use-stats-email-summary';
-export { useStatsSingleVideo } from './use-stats-single-video';
+export {
+	useStatsSingleVideo,
+	type StatsSingleVideoDataPoint,
+	type StatsSingleVideoResponse,
+} from './use-stats-single-video';
 export type { UseStatsOptions } from './use-stats-report';
 
 /**
