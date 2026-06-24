@@ -51,7 +51,7 @@ const CrawlerToggle: FC< CrawlerToggleProps > = ( { crawler, blocked, disabled, 
 				disabled={ disabled }
 				__nextHasNoMarginBottom
 			/>
-			{ crawler.docUrl && (
+			{ crawler.docUrl ? (
 				<Link
 					className="jetpack-seo-ai__crawler-doc"
 					href={ crawler.docUrl }
@@ -64,6 +64,16 @@ const CrawlerToggle: FC< CrawlerToggleProps > = ( { crawler, blocked, disabled, 
 						crawler.userAgent
 					) }
 				</Link>
+			) : (
+				// No operator documentation exists for this bot (e.g. Bytespider) —
+				// say so explicitly so the missing link doesn't read as a bug.
+				<span className="jetpack-seo-ai__crawler-doc jetpack-seo-ai__crawler-doc--none">
+					{ sprintf(
+						/* translators: %s is an AI crawler's user-agent name, e.g. "Bytespider". */
+						__( 'No documentation available for %s', 'jetpack-seo' ),
+						crawler.userAgent
+					) }
+				</span>
 			) }
 		</div>
 	);

@@ -37,3 +37,8 @@
 	margin-inline-start: 40px;
 	font-size: 12px;
 }
+
+// Muted, non-link caption shown for a bot with no operator documentation.
+.jetpack-seo-ai__crawler-doc--none {
+	color: var(--wpds-color-fg-content-neutral-weak, #787c82);
+}
