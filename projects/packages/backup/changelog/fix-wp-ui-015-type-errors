@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Backup dashboard: align Text, Stack and Button props with the `@wordpress/ui` 0.15 API (valid typographic variants, gap tokens and button variants).
