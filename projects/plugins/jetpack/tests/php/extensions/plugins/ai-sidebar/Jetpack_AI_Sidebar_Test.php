@@ -204,16 +204,20 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	/**
 	 * Whether the preview gate is open, observed through a public surface.
 	 *
-	 * Uses enable_agents_manager_in_post_editor(), which returns the preview gate
-	 * ANDed with the post-editor and AI-features checks — both satisfied by the
-	 * gate tests (set_up connects an owner; this sets the post editor screen) —
-	 * so it reflects is_jetpack_ai_sidebar_preview_enabled() without reflection.
+	 * Observes add_agents_manager_data(), which attaches the `jetpackAiSidebar`
+	 * field only when should_expose_sidebar() is true — the preview gate ANDed
+	 * with the post-editor and AI-features checks, both satisfied by the gate
+	 * tests (set_up connects an owner; this sets the post editor screen). So the
+	 * presence of that field reflects is_jetpack_ai_sidebar_preview_enabled()
+	 * without reflection, and without depending on enable_agents_manager_in_post_editor(),
+	 * which additionally suppresses the dock on the WordPress.com platform.
 	 *
 	 * @return bool
 	 */
 	private function gate_open(): bool {
 		$this->set_block_editor_screen();
-		return Jetpack_AI_Sidebar::enable_agents_manager_in_post_editor( false );
+		$data = Jetpack_AI_Sidebar::add_agents_manager_data( array( 'sectionName' => 'gutenberg' ) );
+		return isset( $data['jetpackAiSidebar'] );
 	}
 
 	/**
@@ -389,6 +393,24 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * With no Big Sky present, nothing else renders an editor dock, so Jetpack
+	 * drives Agents Manager itself for the override-enabled preview — even on the
+	 * WordPress.com platform. Declared in this section (before any test stubs the
+	 * Big_Sky class) because the class cannot be undeclared once it exists.
+	 */
+	public function test_enable_agents_manager_in_post_editor_drives_dock_without_big_sky() {
+		if ( class_exists( 'Big_Sky' ) ) {
+			$this->markTestSkipped( 'Big_Sky was declared by an earlier test in this process and cannot be undeclared.' );
+		}
+		// set_up forces jetpack_ai_sidebar_enabled true, the override path used
+		// when Big Sky is absent (e.g. a Jurassic Ninja test site).
+		$this->simulate_wpcom_platform();
+		$this->set_block_editor_screen();
+
+		$this->assertTrue( Jetpack_AI_Sidebar::enable_agents_manager_in_post_editor( false ) );
+	}
+
+	/**
 	 * The preview gate is closed off the WordPress.com platform, even with Big Sky present.
 	 */
 	public function test_preview_disabled_on_self_hosted() {
@@ -461,12 +483,29 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	// ──────────────────────────────────────────────────
 
 	/**
-	 * Test that the Agents Manager block-editor gate opens in the post editor.
+	 * Jetpack drives the Agents Manager dock itself in the post editor when Big
+	 * Sky will not render one — here Big Sky is disabled, so the preview surface
+	 * still gets a dock.
 	 */
-	public function test_enable_agents_manager_in_post_editor_enables_post_editor() {
+	public function test_enable_agents_manager_in_post_editor_drives_dock_when_big_sky_disabled() {
+		update_option( 'big_sky_enable', '0' );
 		$this->set_block_editor_screen();
 
 		$this->assertTrue( Jetpack_AI_Sidebar::enable_agents_manager_in_post_editor( false ) );
+	}
+
+	/**
+	 * When Big Sky is present and enabled it renders its own dock and decides
+	 * when Agents Manager takes over, so Jetpack must not force Agents Manager on
+	 * here as well — doing so stood up a second dock beside Big Sky's, the
+	 * duplicate-dock regression this fix addresses.
+	 */
+	public function test_enable_agents_manager_in_post_editor_skips_when_big_sky_renders() {
+		$this->simulate_big_sky_class();
+		update_option( 'big_sky_enable', '1' );
+		$this->set_block_editor_screen();
+
+		$this->assertFalse( Jetpack_AI_Sidebar::enable_agents_manager_in_post_editor( false ) );
 	}
 
 	/**
@@ -493,9 +532,11 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	 *
 	 * The preview gate is wpcom/Big Sky-based, so turning AI Editorial Review off
 	 * does not close the gate (AI Editorial Review only affects the exposed data).
+	 * Big Sky is disabled here so Jetpack drives the dock and the result is true.
 	 */
 	public function test_enable_agents_manager_in_post_editor_ignores_ai_editorial_review_filter() {
 		add_filter( 'jetpack_ai_editorial_review_enabled', '__return_false' );
+		update_option( 'big_sky_enable', '0' );
 		$this->set_block_editor_screen();
 
 		$this->assertTrue( Jetpack_AI_Sidebar::enable_agents_manager_in_post_editor( false ) );

@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+AI Sidebar: stop the Agents Manager dock from duplicating Big Sky's own dock in the post editor on WordPress.com platform sites.

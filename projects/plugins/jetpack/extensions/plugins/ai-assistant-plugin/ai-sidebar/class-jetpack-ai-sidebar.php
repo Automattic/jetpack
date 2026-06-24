@@ -429,6 +429,14 @@ class Jetpack_AI_Sidebar {
 	/**
 	 * Enable Agents Manager in the post editor when Jetpack AI Sidebar Preview is available.
 	 *
+	 * When Big Sky is present and enabled it renders its own block-editor dock
+	 * and decides when Agents Manager replaces it, so forcing Agents Manager on
+	 * here as well would stand up a second dock beside it. We only drive Agents
+	 * Manager ourselves when Big Sky will not render one — e.g. the
+	 * override-enabled preview on a site without Big Sky — so that surface still
+	 * gets a dock. The provider, abilities, and `agentsManagerData` are
+	 * contributed either way.
+	 *
 	 * @param mixed $enabled Existing Agents Manager block-editor gate value.
 	 * @return bool
 	 */
@@ -437,7 +445,12 @@ class Jetpack_AI_Sidebar {
 			return true;
 		}
 
-		return self::should_expose_sidebar();
+		if ( ! self::should_expose_sidebar() ) {
+			return false;
+		}
+
+		// Defer to Big Sky's own dock when it is present and enabled.
+		return ! ( class_exists( 'Big_Sky' ) && (bool) get_option( 'big_sky_enable', '1' ) );
 	}
 
 	/**
