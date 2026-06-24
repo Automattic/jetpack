@@ -25,6 +25,7 @@ use Automattic\Jetpack\Device_Detection\User_Agent_Info;
 use Automattic\Jetpack\Errors;
 use Automattic\Jetpack\Files;
 use Automattic\Jetpack\Identity_Crisis;
+use Automattic\Jetpack\Import\Main as Import_Main;
 use Automattic\Jetpack\Licensing;
 use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\My_Jetpack\Initializer as My_Jetpack_Initializer;
@@ -790,9 +791,29 @@ class Jetpack {
 	 */
 	private static function should_eager_load_packages() {
 		$is_post_request = isset( $_SERVER['REQUEST_METHOD'] ) && 'POST' === strtoupper( sanitize_text_field( wp_unslash( $_SERVER['REQUEST_METHOD'] ) ) );
-		$is_wp_cli       = defined( 'WP_CLI' ) && WP_CLI;
+		$is_wp_cli       = Constants::is_true( 'WP_CLI' );
 
 		return is_admin() || wp_doing_cron() || $is_post_request || $is_wp_cli;
+	}
+
+	/**
+	 * Configure the Import package from a deferred hook.
+	 *
+	 * The eager path uses Config::ensure( 'import' ), but the deferred REST path
+	 * runs after Config::on_plugins_loaded() has already processed its feature
+	 * flags, so it needs a hookable bootstrap callback. Preserve Config's
+	 * feature-enabled action for hook consumers.
+	 *
+	 * @return void
+	 */
+	public static function configure_import_package() {
+		if ( class_exists( Import_Main::class ) ) {
+			Import_Main::configure();
+
+			if ( ! did_action( 'jetpack_feature_import_enabled' ) ) {
+				do_action( 'jetpack_feature_import_enabled' );
+			}
+		}
 	}
 
 	/**
@@ -840,11 +861,7 @@ class Jetpack {
 		} else {
 			add_action(
 				'rest_api_init',
-				static function () {
-					if ( class_exists( 'Automattic\\Jetpack\\Import\\Main' ) ) {
-						\Automattic\Jetpack\Import\Main::configure();
-					}
-				},
+				array( __CLASS__, 'configure_import_package' ),
 				0
 			);
 		}
