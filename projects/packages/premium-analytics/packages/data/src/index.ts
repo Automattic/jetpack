@@ -60,6 +60,7 @@ export type {
 } from './hooks/use-stats-insights';
 export { useStatsUtm } from './hooks/use-stats-utm';
 export type { StatsUtmParams, StatsUtmResponse } from './hooks/use-stats-utm';
+export { useStatsHighlights } from './hooks/use-stats-highlights';
 export type { UseStatsOptions } from './hooks/use-stats-report';
 export { prefetchReport } from './prefetch';
 export {
