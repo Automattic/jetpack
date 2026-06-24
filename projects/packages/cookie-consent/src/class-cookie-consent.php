@@ -75,6 +75,9 @@ class Cookie_Consent {
 		// Register the CCPA page id setting for REST access.
 		add_action( 'rest_api_init', array( __CLASS__, 'register_ccpa_page_setting' ) );
 
+		// Keep the geolocation cookies out of Jetpack Boost's page-cache key.
+		add_filter( 'jetpack_boost_ignore_cookies', array( __CLASS__, 'ignore_geo_cookies_in_page_cache' ) );
+
 		// Consent log REST controller: table, cron cleanup, routes.
 		Consent_Log_Controller::init();
 	}
@@ -144,6 +147,28 @@ class Cookie_Consent {
 				'description'  => __( 'CCPA opt-out page ID', 'jetpack-cookie-consent' ),
 			)
 		);
+	}
+
+	/**
+	 * Exclude the geolocation cookies from Jetpack Boost's page-cache key.
+	 *
+	 * Geo is resolved client-side, so the server response is identical for every
+	 * visitor. Boost keys its cache on the full cookie set, so leaving the
+	 * `country_code`/`region` cookies in would spawn a separate cache file per
+	 * region and make returning visitors miss the cache. They never affect the
+	 * server-rendered HTML, so it is safe to ignore them.
+	 *
+	 * @param array $cookies Regex patterns Boost removes from the cache key.
+	 * @return array Patterns with the geolocation cookies appended.
+	 */
+	public static function ignore_geo_cookies_in_page_cache( $cookies ) {
+		$config       = self::get_config();
+		$country_code = $config['country_code_cookie'] ?? 'country_code';
+		$region       = $config['region_cookie'] ?? 'region';
+		$cookies[]    = preg_quote( $country_code, '/' );
+		$cookies[]    = preg_quote( $region, '/' );
+
+		return $cookies;
 	}
 
 	/**
@@ -651,17 +676,6 @@ class Cookie_Consent {
 				'forcePreview'      => $force_preview,
 			)
 		);
-	}
-
-	/**
-	 * Check if consent has been set
-	 *
-	 * @return bool True if consent has been set
-	 */
-	private static function has_consent_set() {
-		// Check if any WP Consent API cookie exists.
-		// If user has made a choice, at least one of these should be set.
-		return isset( $_COOKIE['wp_consent_functional'] );
 	}
 
 	/**
