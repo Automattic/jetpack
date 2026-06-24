@@ -28,6 +28,7 @@ export { statsAppPlanUsageQuery } from './stats-app-plan-usage-query';
 export { statsArchivesQuery } from './stats-archives-query';
 export { statsFollowersQuery } from './stats-followers-query';
 export type { StatsFollowersParams, StatsFollowersResponse } from './stats-followers-query';
+export { statsPublicizeQuery } from './stats-publicize-query';
 export { statsCommentsQuery, type StatsCommentsParams } from './stats-comments-query';
 export {
 	statsSubscribersCountsQuery,
