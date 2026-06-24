@@ -2,14 +2,32 @@
  * Internal dependencies
  */
 import { reportParamsToStatsQueryParams, statsQueryParamsToApiParams } from '../utils/stats-params';
-import { statsProxyQuery, type StatsReportParams } from './stats-query';
+import {
+	statsProxyQuery,
+	type StatsReportParams,
+	type StatsReportQueryOptions,
+} from './stats-query';
 import type { StatsProxyParams } from '../api';
+import type { StatsTimeSeriesReport } from '../processing/stats';
 
-type StatsVisitsParams = StatsReportParams & {
-	stat_fields?: string;
+export type StatsVisitsStatField = 'views' | 'visitors' | 'likes' | 'comments' | 'post_titles';
+
+export type StatsVisitsStatFields =
+	| StatsVisitsStatField
+	| `${ StatsVisitsStatField },${ StatsVisitsStatField }`
+	| `${ StatsVisitsStatField },${ StatsVisitsStatField },${ StatsVisitsStatField }`
+	| `${ StatsVisitsStatField },${ StatsVisitsStatField },${ StatsVisitsStatField },${ StatsVisitsStatField }`
+	| `${ StatsVisitsStatField },${ StatsVisitsStatField },${ StatsVisitsStatField },${ StatsVisitsStatField },${ StatsVisitsStatField }`;
+
+export type StatsVisitsParams = StatsReportParams & {
+	stat_fields?: StatsVisitsStatFields;
 };
 
-export const statsVisitsQuery = ( params: StatsVisitsParams ) => {
+export type StatsVisitsResponse = StatsTimeSeriesReport;
+
+export const statsVisitsQuery = (
+	params: StatsVisitsParams
+): StatsReportQueryOptions< 'visits' > => {
 	const statsParams = reportParamsToStatsQueryParams( params );
 	const apiParams = statsQueryParamsToApiParams( statsParams );
 	const visitsParams: StatsProxyParams = {
