@@ -550,46 +550,38 @@ function recordResultRenders( results ) {
 }
 
 /**
- * Replace an array state slot without swapping its reference. The Interactivity
- * runtime observes `data-wp-each` updates reliably when the initially-bound
- * array is mutated in place.
+ * Replace an array state slot in place. The Interactivity runtime keeps
+ * re-rendering `data-wp-each` only while the initially-bound array is mutated;
+ * swapping the slot's reference silently stops updates. Both slots this touches
+ * (`results`) are declared as arrays on the initial state, so splicing is safe.
  *
  * @param {string} slot - State property name.
  * @param {Array}  next - Next array contents.
  * @return {Array} The live state array.
  */
 function replaceStateArray( slot, next ) {
-	const value = Array.isArray( next ) ? next : [];
-	if ( Array.isArray( state[ slot ] ) ) {
-		state[ slot ].splice( 0, state[ slot ].length, ...value );
-		return state[ slot ];
-	}
-	state[ slot ] = value;
+	state[ slot ].splice( 0, state[ slot ].length, ...next );
 	return state[ slot ];
 }
 
 /**
- * Replace an object state slot without swapping its reference.
+ * Replace an object state slot in place (same reason as replaceStateArray):
+ * drop keys missing from `next`, then assign the rest onto the existing object.
  *
  * @param {string} slot - State property name.
  * @param {object} next - Next object contents.
  * @return {object} The live state object.
  */
 function replaceStateObject( slot, next ) {
-	const value = next && typeof next === 'object' && ! Array.isArray( next ) ? next : {};
 	const current = state[ slot ];
-	if ( current === value ) {
-		return current;
-	}
-	if ( current && typeof current === 'object' && ! Array.isArray( current ) ) {
-		for ( const key of Object.keys( current ) ) {
+	const keep = new Set( Object.keys( next ) );
+	for ( const key of Object.keys( current ) ) {
+		if ( ! keep.has( key ) ) {
 			delete current[ key ];
 		}
-		Object.assign( current, value );
-		return current;
 	}
-	state[ slot ] = { ...value };
-	return state[ slot ];
+	Object.assign( current, next );
+	return current;
 }
 
 const { state, actions } = store( NAMESPACE, {
