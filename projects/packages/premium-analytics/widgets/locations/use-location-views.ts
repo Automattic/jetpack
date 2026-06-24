@@ -120,21 +120,26 @@ export default function useLocationViews( {
 
 	const isLoading = primary.isLoading || primary.isFetching;
 	const isError = primary.isError;
+
+	// Only fall back to sample data when the query has never successfully completed
+	// (site not connected → disabled query, or request failed). A successful but
+	// empty response means the site has no views for the period and should show
+	// the empty state, not sample data.
+	if ( ! isLoading && ! primary.isSuccess ) {
+		return {
+			data: max ? SAMPLE_LOCATIONS.slice( 0, max ) : SAMPLE_LOCATIONS,
+			isLoading: false,
+			isError,
+			isSample: true,
+		};
+	}
+
 	const report = primary.data as StatsNormalizedReport< StatsLocationsItem > | undefined;
 	const rawItems = report?.data?.[ 0 ]?.items ?? [];
 	const items = rawItems
 		.map( toLocationView )
 		.filter( ( v ): v is LocationView => v !== null )
 		.slice( 0, max || undefined );
-
-	if ( ! isLoading && ( isError || items.length === 0 ) ) {
-		return {
-			data: max ? SAMPLE_LOCATIONS.slice( 0, max ) : SAMPLE_LOCATIONS,
-			isLoading: false,
-			isError: false,
-			isSample: true,
-		};
-	}
 
 	return {
 		data: items,
