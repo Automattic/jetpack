@@ -45,7 +45,7 @@
 		"@automattic/jetpack-analytics": "workspace:*",
 		"@automattic/jetpack-components": "workspace:*",
 		"@automattic/jetpack-connection": "workspace:*",
-		"@automattic/ui": "1.0.2",
+		"@automattic/ui": "2.0.0",
 		"@jetpack-activity-log/init": "link:packages/init",
 		"@tanstack/react-query": "^5.90.8",
 		"@wordpress/admin-ui": "2.7.0",

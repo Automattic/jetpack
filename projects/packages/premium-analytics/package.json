@@ -43,7 +43,7 @@
 		"@automattic/jetpack-connection": "workspace:*",
 		"@automattic/jetpack-script-data": "workspace:*",
 		"@automattic/number-formatters": "workspace:*",
-		"@automattic/ui": "1.0.2",
+		"@automattic/ui": "2.0.0",
 		"@date-fns/tz": "1.4.1",
 		"@jetpack-premium-analytics/data": "link:packages/data",
 		"@jetpack-premium-analytics/datetime": "link:packages/datetime",
