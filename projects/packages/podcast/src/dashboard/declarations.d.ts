@@ -5,6 +5,10 @@ declare module '@automattic/jetpack-script-data' {
 			show_url_hosts?: Record< string, readonly string[] >;
 			show_url_max_length?: number;
 			preload?: Record< string, { body: unknown; headers?: Record< string, string > } >;
+			upgrade?: {
+				product_slug?: string;
+				plan_name?: string;
+			};
 		};
 	}
 }

@@ -2,10 +2,10 @@
 // non-language skeleton of the gated content behind a centered upgrade card.
 
 import { getProductCheckoutUrl } from '@automattic/jetpack-components';
-import { getSiteData } from '@automattic/jetpack-script-data';
+import { getScriptData, getSiteData } from '@automattic/jetpack-script-data';
 import { Button } from '@wordpress/components';
 import { useId } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import './style.scss';
 
 export type LockedPreviewVariant = 'episodes' | 'stats';
@@ -18,6 +18,11 @@ const Skeleton = () => <span className="podcast-locked-preview__cell-skeleton" /
 
 const LockedPreview = ( { variant }: LockedPreviewProps ) => {
 	const siteSuffix = getSiteData()?.suffix ?? '';
+	// Self-hosted upsells Growth, WordPress.com Premium; the server picks the
+	// product slug + plan name to match the host.
+	const upgrade = getScriptData()?.podcast?.upgrade;
+	const productSlug = upgrade?.product_slug ?? 'premium';
+	const planName = upgrade?.plan_name ?? 'Premium';
 	const returnUrl = window.location.href;
 	const checkoutUrl = ( () => {
 		if ( ! siteSuffix ) {
@@ -25,7 +30,7 @@ const LockedPreview = ( { variant }: LockedPreviewProps ) => {
 		}
 		// `getProductCheckoutUrl` sets `redirect_to`; the cart's close button
 		// reads `cancel_to`, so both need to point back to the dashboard.
-		const url = new URL( getProductCheckoutUrl( 'premium', siteSuffix, returnUrl, true ) );
+		const url = new URL( getProductCheckoutUrl( productSlug, siteSuffix, returnUrl, true ) );
 		url.searchParams.set( 'cancel_to', returnUrl );
 		return url.toString();
 	} )();
@@ -33,17 +38,33 @@ const LockedPreview = ( { variant }: LockedPreviewProps ) => {
 	const titleId = useId();
 	const title =
 		variant === 'episodes'
-			? __( 'Episode dashboard included with Premium', 'jetpack-podcast' )
-			: __( 'Episode stats included with Premium', 'jetpack-podcast' );
+			? sprintf(
+					/* translators: %s is the plan name, e.g. "Growth" or "Premium". */
+					__( 'Episode dashboard included with %s', 'jetpack-podcast' ),
+					planName
+			  )
+			: sprintf(
+					/* translators: %s is the plan name, e.g. "Growth" or "Premium". */
+					__( 'Episode stats included with %s', 'jetpack-podcast' ),
+					planName
+			  );
 	const description =
 		variant === 'episodes'
-			? __(
-					'Upgrade to Premium to manage your podcast catalog from a unified dashboard.',
-					'jetpack-podcast'
+			? sprintf(
+					/* translators: %s is the plan name, e.g. "Growth" or "Premium". */
+					__(
+						'Upgrade to %s to manage your podcast catalog from a unified dashboard.',
+						'jetpack-podcast'
+					),
+					planName
 			  )
-			: __(
-					'Upgrade to Premium to see downloads by episode, app, and country.',
-					'jetpack-podcast'
+			: sprintf(
+					/* translators: %s is the plan name, e.g. "Growth" or "Premium". */
+					__(
+						'Upgrade to %s to see downloads by episode, app, and country.',
+						'jetpack-podcast'
+					),
+					planName
 			  );
 
 	return (
@@ -132,7 +153,11 @@ const LockedPreview = ( { variant }: LockedPreviewProps ) => {
 						// eslint-disable-next-line jsx-a11y/no-autofocus
 						autoFocus
 					>
-						{ __( 'Upgrade to Premium', 'jetpack-podcast' ) }
+						{ sprintf(
+							/* translators: %s is the plan name, e.g. "Growth" or "Premium". */
+							__( 'Upgrade to %s', 'jetpack-podcast' ),
+							planName
+						) }
 					</Button>
 				</div>
 			</div>

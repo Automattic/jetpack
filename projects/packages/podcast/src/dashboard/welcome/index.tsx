@@ -1,6 +1,6 @@
 import jetpackAnalytics from '@automattic/jetpack-analytics';
 import { getProductCheckoutUrl } from '@automattic/jetpack-components';
-import { getSiteData } from '@automattic/jetpack-script-data';
+import { getScriptData, getSiteData } from '@automattic/jetpack-script-data';
 import {
 	Button,
 	Card,
@@ -13,7 +13,7 @@ import {
 	__experimentalVStack as VStack,
 } from '@wordpress/components';
 import { useCallback } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import { Icon, check, globe, layout, megaphone } from '@wordpress/icons';
 import './style.scss';
 
@@ -23,9 +23,17 @@ interface WelcomeProps {
 
 const CHECKOUT_SOURCE = 'jetpack-podcast-welcome';
 
-const getPremiumCheckoutUrl = (): string => {
+// Self-hosted upsells Growth, WordPress.com Premium; the server injects the
+// matching product slug.
+const getUpgradeProductSlug = (): string =>
+	getScriptData()?.podcast?.upgrade?.product_slug ?? 'premium';
+
+const getUpgradePlanName = (): string => getScriptData()?.podcast?.upgrade?.plan_name ?? 'Premium';
+
+const getUpgradeCheckoutUrl = (): string => {
 	const data = getSiteData();
 	const adminUrl = data?.admin_url ?? '';
+	const productSlug = getUpgradeProductSlug();
 
 	// Prefer `site.suffix` since it preserves the full Calypso site fragment
 	// (e.g. `example.com::path` for mapped subdirectory sites). Fall back to
@@ -40,7 +48,7 @@ const getPremiumCheckoutUrl = (): string => {
 	}
 
 	if ( ! slug ) {
-		return 'https://wordpress.com/checkout/premium';
+		return `https://wordpress.com/checkout/${ productSlug }`;
 	}
 
 	// `tab=settings` bypasses the welcome gate so buyers continue configuring
@@ -48,7 +56,7 @@ const getPremiumCheckoutUrl = (): string => {
 	const returnTo = adminUrl
 		? `${ adminUrl.replace( /\/$/, '' ) }/admin.php?page=jetpack-podcast&tab=settings`
 		: '';
-	const url = new URL( getProductCheckoutUrl( 'premium', slug, returnTo, true ) );
+	const url = new URL( getProductCheckoutUrl( productSlug, slug, returnTo, true ) );
 	// Calypso threads `source` through its downstream Tracks events.
 	url.searchParams.set( 'source', CHECKOUT_SOURCE );
 	return url.toString();
@@ -121,7 +129,8 @@ const STEPS: ReadonlyArray< { number: string; title: string; body: string } > = 
 ];
 
 const Welcome = ( { onEnable }: WelcomeProps ) => {
-	const premiumCheckoutUrl = getPremiumCheckoutUrl();
+	const upgradeCheckoutUrl = getUpgradeCheckoutUrl();
+	const planName = getUpgradePlanName();
 
 	// Fire-and-forget Tracks; the anchor handles navigation so middle/cmd-click
 	// still opens checkout in a new tab and "copy link address" shows the URL.
@@ -195,7 +204,7 @@ const Welcome = ( { onEnable }: WelcomeProps ) => {
 								<VStack spacing={ 2 }>
 									<HStack justify="space-between" alignment="center">
 										<Text size="title" weight={ 500 }>
-											{ __( 'Premium', 'jetpack-podcast' ) }
+											{ planName }
 										</Text>
 										<span className="podcast__welcome-plan-badge">
 											{ __( 'Popular', 'jetpack-podcast' ) }
@@ -208,8 +217,12 @@ const Welcome = ( { onEnable }: WelcomeProps ) => {
 										) }
 									</Text>
 								</VStack>
-								<Button variant="primary" href={ premiumCheckoutUrl } onClick={ onPremiumClick }>
-									{ __( 'Start your premium podcast', 'jetpack-podcast' ) }
+								<Button variant="primary" href={ upgradeCheckoutUrl } onClick={ onPremiumClick }>
+									{ sprintf(
+										/* translators: %s is the plan name, e.g. "Growth" or "Premium". */
+										__( 'Start your %s podcast', 'jetpack-podcast' ),
+										planName
+									) }
 								</Button>
 								<ul className="podcast__welcome-plan-features">
 									{ PREMIUM_FEATURES.map( feature => (
