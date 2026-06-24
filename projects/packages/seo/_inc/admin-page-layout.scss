@@ -10,7 +10,27 @@
 body.jetpack_page_jetpack-seo,
 body.toplevel_page_jetpack-seo {
 
+	// Canvas color for the modernized SEO dashboard. Bound here so the rule
+	// below references a real token (no silent `var(... , #fcfcfc)` fallback)
+	// and future tweaks have one place to land. `#fcfcfc` matches the off-white
+	// canvas adopted by the other modernized pages (Newsletter, Social,
+	// VideoPress) so the product stays consistent.
+	--jetpack-seo-page-bg-canvas: #fcfcfc;
+
 	@include jetpack-admin-page-layout-wp-build;
+
+	// Off-white canvas so the white settings cards stand out against the
+	// background. Three layers paint here: the body (the page outside the
+	// admin-ui chrome), `.jp-admin-page` (AdminPage's outer wrapper, white by
+	// default via `showBackground`), and `.jp-admin-page__page` (the
+	// `@wordpress/admin-ui` `<Page>` shell, which also defaults to white and is
+	// what a color-picker on the page surface reads). All three need overriding
+	// so every SEO tab shares the canvas without each one having to opt out.
+	&,
+	.jp-admin-page,
+	.jp-admin-page__page {
+		background-color: var(--jetpack-seo-page-bg-canvas);
+	}
 }
 
 // `<AdminPage>` renders content with `horizontalSpacing={0}` and no

@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Give the SEO admin pages a slightly off-white (#fcfcfc) canvas so the white settings cards stand out against the background, matching the Newsletter, Social, and VideoPress dashboards. Applies to every tab.
