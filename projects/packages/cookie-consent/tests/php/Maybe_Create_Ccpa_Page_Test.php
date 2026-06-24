@@ -91,4 +91,44 @@ class Maybe_Create_Ccpa_Page_Test extends TestCase {
 		$this->assertSame( 1, get_option( 'jetpack_cookie_consent_ccpa_page_created' ) );
 		$this->assertSame( (int) $page_id, (int) get_option( 'jetpack_cookie_consent_ccpa_page_id' ) );
 	}
+
+	/**
+	 * A stale option id (post gone) with no flag is cleared, then a fresh page is created.
+	 */
+	public function test_clears_stale_id_and_recreates_when_flag_absent() {
+		update_option( 'jetpack_cookie_consent_ccpa_page_id', 99999 ); // Points at nothing.
+		// No created flag — this is NOT the "owner deleted it" case.
+
+		Cookie_Consent::maybe_create_ccpa_page();
+
+		$new_id = (int) get_option( 'jetpack_cookie_consent_ccpa_page_id' );
+		$this->assertNotSame( 99999, $new_id );
+		$this->assertGreaterThan( 0, $new_id );
+		$this->assertNotNull( get_post( $new_id ) );
+		$this->assertSame( 1, (int) get_option( 'jetpack_cookie_consent_ccpa_page_created' ) );
+	}
+
+	/**
+	 * A trashed stored page still latches the created flag (create-once is permanent).
+	 *
+	 * Pins current behavior: the by-ID guard checks existence, not status, so a
+	 * trashed page is never regenerated. The footer link is suppressed separately
+	 * via ccpa_page_is_published().
+	 */
+	public function test_backfill_flag_set_even_when_stored_page_trashed() {
+		$page_id = wp_insert_post(
+			array(
+				'post_title'  => 'Your Privacy Choices',
+				'post_name'   => 'your-privacy-choices',
+				'post_status' => 'trash',
+				'post_type'   => 'page',
+			)
+		);
+		update_option( 'jetpack_cookie_consent_ccpa_page_id', $page_id );
+
+		Cookie_Consent::maybe_create_ccpa_page();
+
+		$this->assertSame( 1, (int) get_option( 'jetpack_cookie_consent_ccpa_page_created' ) );
+		$this->assertSame( (int) $page_id, (int) get_option( 'jetpack_cookie_consent_ccpa_page_id' ) );
+	}
 }

@@ -58,6 +58,7 @@ class Cookie_Consent {
 		add_filter( 'hooked_block_types', array( __CLASS__, 'register_footer_navigation_links' ), 10, 4 );
 		add_filter( 'hooked_block_core/navigation-link', array( __CLASS__, 'set_footer_navigation_link_attributes' ), 10, 4 );
 		add_filter( 'render_block_core/navigation-link', array( __CLASS__, 'add_ccpa_interactivity_directives' ), 10, 2 );
+		add_filter( 'render_block_core/navigation-link', array( __CLASS__, 'maybe_suppress_privacy_policy_link' ), 10, 2 );
 		add_filter( 'render_block_core/navigation-link', array( __CLASS__, 'add_gdpr_manage_preferences_directives' ), 10, 2 );
 
 		// Add Interactivity API directive to CCPA opt-out button.
@@ -116,28 +117,26 @@ class Cookie_Consent {
 		// Build the page content with blocks.
 		$content = self::get_ccpa_page_content();
 
-		// Create the page without content first.
+		// Create the page in a single call so the created-once flag is only set
+		// once the full page (with content) has actually persisted. A two-step
+		// insert-then-update would latch the flag before the content write, and a
+		// failed update would leave a permanently published, empty page.
 		$page_id = wp_insert_post(
 			array(
 				'post_title'     => __( 'Your Privacy Choices', 'jetpack-cookie-consent' ),
 				'post_name'      => $page_slug,
 				'post_status'    => 'publish',
 				'post_type'      => 'page',
+				'post_content'   => $content,
 				'comment_status' => 'closed',
 				'ping_status'    => 'closed',
 			)
 		);
 
-		// Store the page ID, mark as created, and add content for a first revision.
+		// Store the page ID and mark as created.
 		if ( $page_id && ! is_wp_error( $page_id ) ) {
 			update_option( 'jetpack_cookie_consent_ccpa_page_id', $page_id );
 			update_option( 'jetpack_cookie_consent_ccpa_page_created', 1 );
-			wp_update_post(
-				array(
-					'ID'           => $page_id,
-					'post_content' => $content,
-				)
-			);
 		}
 	}
 
@@ -192,6 +191,23 @@ class Cookie_Consent {
 			return false;
 		}
 		$page = get_post( $ccpa_page_id );
+		return $page && 'publish' === $page->post_status;
+	}
+
+	/**
+	 * Whether the site's Privacy Policy page exists and is published.
+	 *
+	 * Mirrors ccpa_page_is_published(): a trashed page still resolves via
+	 * get_post(), so the status must be checked too.
+	 *
+	 * @return bool
+	 */
+	private static function privacy_policy_is_published() {
+		$privacy_policy_page_id = (int) get_option( 'wp_page_for_privacy_policy' );
+		if ( ! $privacy_policy_page_id ) {
+			return false;
+		}
+		$page = get_post( $privacy_policy_page_id );
 		return $page && 'publish' === $page->post_status;
 	}
 
@@ -268,13 +284,9 @@ class Cookie_Consent {
 		$privacy_policy_exists = false;
 		$ccpa_page_exists      = false;
 
-		// Check Privacy Policy page.
-		$privacy_policy_page_id = (int) get_option( 'wp_page_for_privacy_policy' );
-		if ( $privacy_policy_page_id ) {
-			$page = get_post( $privacy_policy_page_id );
-			if ( $page && 'publish' === $page->post_status ) {
-				$privacy_policy_exists = true;
-			}
+		// Check Privacy Policy page (must be published — a trashed page still resolves).
+		if ( self::privacy_policy_is_published() ) {
+			$privacy_policy_exists = true;
 		}
 
 		// Check CCPA page (must be published — a trashed page still resolves).
@@ -320,13 +332,7 @@ class Cookie_Consent {
 
 		// Check which pages exist (same logic as registration).
 		$privacy_policy_page_id = (int) get_option( 'wp_page_for_privacy_policy' );
-		$privacy_policy_exists  = false;
-		if ( $privacy_policy_page_id ) {
-			$page = get_post( $privacy_policy_page_id );
-			if ( $page && 'publish' === $page->post_status ) {
-				$privacy_policy_exists = true;
-			}
-		}
+		$privacy_policy_exists  = self::privacy_policy_is_published();
 
 		$ccpa_page_exists = self::ccpa_page_is_published();
 		$ccpa_page_id     = get_option( 'jetpack_cookie_consent_ccpa_page_id' );
@@ -403,6 +409,31 @@ class Cookie_Consent {
 			$tags->set_attribute( 'data-wp-init', 'callbacks.init' );
 
 			return $tags->get_updated_html();
+		}
+
+		return $block_content;
+	}
+
+	/**
+	 * Suppress the hooked Privacy Policy link when its page is gone or unpublished.
+	 *
+	 * Making the Privacy Policy page deletable (the deletion lock was removed)
+	 * means a persisted, Site-Editor-materialized footer link can outlive the
+	 * page and 404. The injection-time gate only runs for non-persisted hooks, so
+	 * this render-time guard mirrors the CCPA one to avoid a dead link.
+	 *
+	 * @param string $block_content The block content.
+	 * @param array  $block         The full block, including name and attributes.
+	 * @return string Modified block content.
+	 */
+	public static function maybe_suppress_privacy_policy_link( $block_content, $block ) {
+		// Only act on our hooked Privacy Policy link.
+		if ( ! isset( $block['attrs']['metadata']['name'] ) || 'jetpack-cookie-consent-privacy-policy-link' !== $block['attrs']['metadata']['name'] ) {
+			return $block_content;
+		}
+
+		if ( ! self::privacy_policy_is_published() ) {
+			return '';
 		}
 
 		return $block_content;
