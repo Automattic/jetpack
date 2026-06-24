@@ -297,6 +297,7 @@ function wpcom_replace_wp_logo_with_wpcom_logo_menu( $wp_admin_bar ) {
 			'meta'   => array(
 				'target' => '_blank',
 				'rel'    => 'noopener noreferrer',
+				'class'  => 'wpcom-admin-bar-external-link',
 			),
 		)
 	);

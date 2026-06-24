@@ -107,6 +107,19 @@ class WPCOM_Admin_Bar_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * The Themes sub-item opens classic Calypso in a new tab and must carry the
+	 * external-link class so the trailing arrow renders, matching the Calypso masterbar.
+	 */
+	public function test_themes_node_is_an_external_link() {
+		$admin_bar = self::make_test_admin_bar();
+		$themes    = $admin_bar->get_node( 'wpcom-themes' );
+
+		$this->assertNotNull( $themes, 'The wpcom-themes node should exist.' );
+		$this->assertSame( '_blank', $themes->meta['target'] ?? null );
+		$this->assertStringContainsString( 'wpcom-admin-bar-external-link', $themes->meta['class'] ?? '' );
+	}
+
+	/**
 	 * The plan badge must always render a clickable anchor, including on Atomic
 	 * sites where \WPCOM_Masterbar is absent and the slug falls back to the site
 	 * suffix. It must never render the old non-clickable <div>.

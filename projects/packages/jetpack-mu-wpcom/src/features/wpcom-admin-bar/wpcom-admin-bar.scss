@@ -101,6 +101,24 @@
 	}
 }
 
+/**
+ * Trailing arrow on external sub-items (e.g. Themes), per Calypso.
+ */
+#wpadminbar #wp-admin-bar-wp-logo .wpcom-admin-bar-external-link > .ab-item::after {
+	content: "";
+	display: inline-block;
+	width: 16px;
+	height: 16px;
+	margin-inline-start: 4px;
+	vertical-align: middle;
+	opacity: 0.7;
+	background-color: currentColor;
+	mask-image: url(data:image/svg+xml;base64,PHN2ZyBjbGFzcz0iZ3JpZGljb24gZ3JpZGljb25zLWV4dGVybmFsIiBoZWlnaHQ9IjI0IiB3aWR0aD0iMjQiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgdmlld0JveD0iMCAwIDI0IDI0Ij48Zz48cGF0aCBkPSJNMTkgMTN2NmMwIDEuMS0uOSAyLTIgMkg1Yy0xLjEgMC0yLS45LTItMlY3YzAtMS4xLjktMiAyLTJoNnYySDV2MTJoMTJ2LTZoMnpNMTMgM3YyaDQuNTg2bC03Ljc5MyA3Ljc5MyAxLjQxNCAxLjQxNEwxOSA2LjQxNFYxMWgyVjNoLTh6Ii8+PC9nPjwvc3ZnPg==);
+	mask-position: center;
+	mask-repeat: no-repeat;
+	mask-size: contain;
+}
+
 #wpadminbar #wp-admin-bar-site-name {
 
 	&:not(.has-site-icon) > .ab-item::before {
