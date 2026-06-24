@@ -85,7 +85,21 @@ const isOpen = () => ! document.getElementById( OVERLAY_ID ).hasAttribute( 'hidd
 // `expect( console ).toHaveErrored()` as evidence the call fired — that doubles
 // as the declaration that satisfies the jest-console strict guard.
 
+let rafSpy;
+beforeEach( () => {
+	// The initial-load open is deferred to `requestAnimationFrame` (so it lands
+	// after the Interactivity runtime's hydration walk). jsdom's real rAF fires
+	// on a ~16ms timer, which the `setTimeout(0)` flush in `loadBootstrap()`
+	// doesn't await — and a stray late callback would leak into the next test.
+	// Run rAF synchronously so the deferral is deterministic here.
+	rafSpy = jest.spyOn( window, 'requestAnimationFrame' ).mockImplementation( cb => {
+		cb( 0 );
+		return 0;
+	} );
+} );
+
 afterEach( () => {
+	rafSpy.mockRestore();
 	setReadyState( 'complete' );
 	setUrl( '/' );
 	document.body.innerHTML = '';
@@ -120,6 +134,20 @@ describe( 'overlay-bootstrap initial-load URL trigger', () => {
 		await loadBootstrap();
 
 		expect( isOpen() ).toBe( false );
+	} );
+
+	it( 'opens immediately when the document is interactive (DOMContentLoaded already fired)', async () => {
+		// readyState stays `interactive` from DOMContentLoaded until `load`, so a
+		// late-evaluating module can land here after DCL has already fired —
+		// waiting on a fresh DOMContentLoaded would hang. The non-loading branch
+		// must open without depending on another DOMContentLoaded.
+		setReadyState( 'interactive' );
+		renderOverlayShell();
+		setUrl( '/?s=hello' );
+
+		await loadBootstrap();
+
+		expect( isOpen() ).toBe( true );
 	} );
 
 	it( 'waits for DOMContentLoaded when the document is still loading', async () => {

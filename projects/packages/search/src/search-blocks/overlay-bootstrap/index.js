@@ -398,8 +398,8 @@ if ( overlayEl ) {
 function openOverlayFromInitialUrl() {
 	requestAnimationFrame( handlePopState );
 }
-if ( document.readyState === 'complete' ) {
-	openOverlayFromInitialUrl();
-} else {
+if ( document.readyState === 'loading' ) {
 	document.addEventListener( 'DOMContentLoaded', openOverlayFromInitialUrl, { once: true } );
+} else {
+	openOverlayFromInitialUrl();
 }
