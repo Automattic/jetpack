@@ -28,6 +28,7 @@ class Unauth_File_Upload_Test extends WP_UnitTestCase {
 	 */
 	public function tear_down() {
 		\Jetpack_Options::delete_option( 'blog_token' );
+		$_GET = array();
 		parent::tear_down();
 	}
 
@@ -37,7 +38,7 @@ class Unauth_File_Upload_Test extends WP_UnitTestCase {
 	 * @dataProvider provider_is_file_type_previable
 	 */
 	#[DataProvider( 'provider_is_file_type_previable' )]
-	public function is_file_type_previewable( $mime_type, $expected ) {
+	public function test_is_file_type_previewable( $mime_type, $expected ) {
 		$this->assertEquals( $expected, \Automattic\Jetpack\UnauthFileUpload\is_file_type_previewable( $mime_type ) );
 	}
 
@@ -140,9 +141,9 @@ class Unauth_File_Upload_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * The token changes when the scheme version (type) changes.
+	 * The token changes when the scheme version changes.
 	 */
-	public function test_generate_download_token_varies_by_type() {
+	public function test_generate_download_token_varies_by_version() {
 		$expires = time() + DAY_IN_SECONDS;
 		$this->assertNotSame(
 			\Automattic\Jetpack\UnauthFileUpload\generate_download_token( 123, $expires, 'v1' ),
@@ -157,21 +158,22 @@ class Unauth_File_Upload_Test extends WP_UnitTestCase {
 		$file_id = 456;
 		$before  = time();
 		$url     = \Automattic\Jetpack\UnauthFileUpload\filter_get_download_url( '', $file_id );
+		$after   = time();
 
 		$query = wp_parse_url( $url, PHP_URL_QUERY );
 		parse_str( (string) $query, $args );
 
 		$this->assertSame( 'jetpack_unauth_file_download', $args['action'] );
 		$this->assertSame( (string) $file_id, (string) $args['file_id'] );
-		$this->assertSame( \Automattic\Jetpack\UnauthFileUpload\DOWNLOAD_TOKEN_TYPE, $args['token_type'] );
+		$this->assertSame( \Automattic\Jetpack\UnauthFileUpload\DOWNLOAD_TOKEN_VERSION, $args['token_version'] );
 
-		// Expiry is one lifetime out.
+		// Expiry is one lifetime out, measured against the window the URL was built in.
 		$this->assertGreaterThanOrEqual( $before + \Automattic\Jetpack\UnauthFileUpload\DOWNLOAD_LINK_LIFETIME, (int) $args['expires'] );
-		$this->assertLessThanOrEqual( time() + \Automattic\Jetpack\UnauthFileUpload\DOWNLOAD_LINK_LIFETIME, (int) $args['expires'] );
+		$this->assertLessThanOrEqual( $after + \Automattic\Jetpack\UnauthFileUpload\DOWNLOAD_LINK_LIFETIME, (int) $args['expires'] );
 
-		// The token in the URL validates for the file ID, expiry, and type it was issued with.
+		// The token in the URL validates for the file ID, expiry, and version it was issued with.
 		$this->assertTrue(
-			\Automattic\Jetpack\UnauthFileUpload\verify_download_token( $file_id, (int) $args['expires'], $args['token'], $args['token_type'] )
+			\Automattic\Jetpack\UnauthFileUpload\verify_download_token( $file_id, (int) $args['expires'], $args['token'], $args['token_version'] )
 		);
 	}
 
@@ -187,13 +189,15 @@ class Unauth_File_Upload_Test extends WP_UnitTestCase {
 		};
 
 		add_filter( 'jetpack_unauth_file_download_signing_key', $callback );
-		$with_filter = \Automattic\Jetpack\UnauthFileUpload\generate_download_token( 123, $expires );
+		try {
+			$with_filter = \Automattic\Jetpack\UnauthFileUpload\generate_download_token( 123, $expires );
 
-		$this->assertNotSame( $with_default, $with_filter );
-		// A token signed with the filtered key verifies while the filter is active.
-		$this->assertTrue( \Automattic\Jetpack\UnauthFileUpload\verify_download_token( 123, $expires, $with_filter ) );
-
-		remove_filter( 'jetpack_unauth_file_download_signing_key', $callback );
+			$this->assertNotSame( $with_default, $with_filter );
+			// A token signed with the filtered key verifies while the filter is active.
+			$this->assertTrue( \Automattic\Jetpack\UnauthFileUpload\verify_download_token( 123, $expires, $with_filter ) );
+		} finally {
+			remove_filter( 'jetpack_unauth_file_download_signing_key', $callback );
+		}
 	}
 
 	/**
@@ -205,11 +209,202 @@ class Unauth_File_Upload_Test extends WP_UnitTestCase {
 		};
 
 		add_filter( 'jetpack_unauth_file_download_signing_key', $callback );
+		try {
+			$expires = time() + DAY_IN_SECONDS;
+			$this->assertSame( '', \Automattic\Jetpack\UnauthFileUpload\generate_download_token( 123, $expires ) );
+			$this->assertFalse( \Automattic\Jetpack\UnauthFileUpload\verify_download_token( 123, $expires, 'anything' ) );
+		} finally {
+			remove_filter( 'jetpack_unauth_file_download_signing_key', $callback );
+		}
+	}
+
+	/**
+	 * filter_get_download_url() returns the passthrough URL when there is no signing key.
+	 */
+	public function test_filter_get_download_url_passthrough_without_key() {
+		$callback = static function () {
+			return '';
+		};
+
+		add_filter( 'jetpack_unauth_file_download_signing_key', $callback );
+		try {
+			// Passthrough is the URL handed in (callers omit an empty link) rather than a dead link.
+			$this->assertSame( '', \Automattic\Jetpack\UnauthFileUpload\filter_get_download_url( '', 123 ) );
+			$this->assertSame( 'fallback', \Automattic\Jetpack\UnauthFileUpload\filter_get_download_url( 'fallback', 123 ) );
+		} finally {
+			remove_filter( 'jetpack_unauth_file_download_signing_key', $callback );
+		}
+	}
+
+	/**
+	 * Run authorize_file_download() and return the wp_die() message it triggers.
+	 *
+	 * @param int $file_id File ID to authorize.
+	 * @return string The wp_die() message.
+	 */
+	private function authorize_and_catch_die( $file_id ) {
+		try {
+			\Automattic\Jetpack\UnauthFileUpload\authorize_file_download();
+		} catch ( \WPDieException $e ) {
+			return $e->getMessage();
+		}
+		$this->fail( 'Expected authorize_file_download() to call wp_die() for file ' . $file_id . ', but it returned.' );
+	}
+
+	/**
+	 * Build a valid signed-token $_GET for a file and set the current user to an editor.
+	 *
+	 * @param int $file_id File ID.
+	 * @return array The populated $_GET superglobal contents.
+	 */
+	private function signed_get_for( $file_id ) {
+		wp_set_current_user( self::factory()->user->create( array( 'role' => 'editor' ) ) );
 
 		$expires = time() + DAY_IN_SECONDS;
-		$this->assertSame( '', \Automattic\Jetpack\UnauthFileUpload\generate_download_token( 123, $expires ) );
-		$this->assertFalse( \Automattic\Jetpack\UnauthFileUpload\verify_download_token( 123, $expires, 'anything' ) );
 
-		remove_filter( 'jetpack_unauth_file_download_signing_key', $callback );
+		return array(
+			'action'        => 'jetpack_unauth_file_download',
+			'file_id'       => (string) $file_id,
+			'expires'       => (string) $expires,
+			'token_version' => \Automattic\Jetpack\UnauthFileUpload\DOWNLOAD_TOKEN_VERSION,
+			'token'         => \Automattic\Jetpack\UnauthFileUpload\generate_download_token( $file_id, $expires ),
+		);
+	}
+
+	/**
+	 * A valid signed token authorizes the download and returns the file ID.
+	 */
+	public function test_authorize_accepts_valid_signed_token() {
+		$_GET = $this->signed_get_for( 42 );
+		$this->assertSame( 42, \Automattic\Jetpack\UnauthFileUpload\authorize_file_download() );
+	}
+
+	/**
+	 * A request without the edit_pages capability is rejected.
+	 */
+	public function test_authorize_requires_capability() {
+		wp_set_current_user( self::factory()->user->create( array( 'role' => 'subscriber' ) ) );
+		$_GET = array( 'file_id' => '42' );
+
+		$this->assertStringContainsString( 'not allowed', $this->authorize_and_catch_die( 42 ) );
+	}
+
+	/**
+	 * A missing file ID is rejected.
+	 */
+	public function test_authorize_requires_file_id() {
+		wp_set_current_user( self::factory()->user->create( array( 'role' => 'editor' ) ) );
+		$_GET = array();
+
+		$this->assertStringContainsString( 'Invalid file request', $this->authorize_and_catch_die( 0 ) );
+	}
+
+	/**
+	 * A token with the wrong version is rejected with code 1.
+	 */
+	public function test_authorize_rejects_wrong_token_version() {
+		$_GET                  = $this->signed_get_for( 42 );
+		$_GET['token_version'] = 'v0';
+
+		$this->assertStringContainsString( '(1)', $this->authorize_and_catch_die( 42 ) );
+	}
+
+	/**
+	 * An expired token is rejected with the expiry message.
+	 */
+	public function test_authorize_rejects_expired_token() {
+		$file_id = 42;
+		wp_set_current_user( self::factory()->user->create( array( 'role' => 'editor' ) ) );
+
+		$expires = time() - 1;
+		$_GET    = array(
+			'file_id'       => (string) $file_id,
+			'expires'       => (string) $expires,
+			'token_version' => \Automattic\Jetpack\UnauthFileUpload\DOWNLOAD_TOKEN_VERSION,
+			'token'         => \Automattic\Jetpack\UnauthFileUpload\generate_download_token( $file_id, $expires ),
+		);
+
+		$this->assertStringContainsString( 'expired', $this->authorize_and_catch_die( $file_id ) );
+	}
+
+	/**
+	 * A tampered token is rejected with code 2.
+	 */
+	public function test_authorize_rejects_tampered_token() {
+		$_GET           = $this->signed_get_for( 42 );
+		$_GET['token'] .= '0';
+
+		$this->assertStringContainsString( '(2)', $this->authorize_and_catch_die( 42 ) );
+	}
+
+	/**
+	 * A legacy link with a valid nonce is accepted.
+	 */
+	public function test_authorize_accepts_valid_legacy_nonce() {
+		$file_id = 42;
+		wp_set_current_user( self::factory()->user->create( array( 'role' => 'editor' ) ) );
+
+		$_GET = array(
+			'file_id'  => (string) $file_id,
+			'_wpnonce' => wp_create_nonce( 'jetpack_unauth_file_download_nonce_' . $file_id ),
+		);
+
+		$this->assertSame( $file_id, \Automattic\Jetpack\UnauthFileUpload\authorize_file_download() );
+	}
+
+	/**
+	 * A legacy link with a bad nonce is rejected with code 3.
+	 */
+	public function test_authorize_rejects_bad_legacy_nonce() {
+		wp_set_current_user( self::factory()->user->create( array( 'role' => 'editor' ) ) );
+		$_GET = array(
+			'file_id'  => '42',
+			'_wpnonce' => 'not-a-real-nonce',
+		);
+
+		$this->assertStringContainsString( '(3)', $this->authorize_and_catch_die( 42 ) );
+	}
+
+	/**
+	 * A request with neither a token nor a nonce is rejected with code 4.
+	 */
+	public function test_authorize_rejects_missing_credentials() {
+		wp_set_current_user( self::factory()->user->create( array( 'role' => 'editor' ) ) );
+		$_GET = array( 'file_id' => '42' );
+
+		$this->assertStringContainsString( '(4)', $this->authorize_and_catch_die( 42 ) );
+	}
+
+	/**
+	 * The expiry gate accepts a future timestamp and rejects a past one.
+	 *
+	 * The production check is `$expires < time()`, so a link is valid while its expiry is in the
+	 * future and becomes invalid once time passes it. The exact-equality second (`expires ==
+	 * time()`) is intentionally not asserted here, as it cannot be pinned without a flaky
+	 * dependency on the clock not ticking mid-test.
+	 */
+	public function test_authorize_expiry_boundary() {
+		$file_id = 42;
+		wp_set_current_user( self::factory()->user->create( array( 'role' => 'editor' ) ) );
+
+		// One minute in the future: valid (returns the file ID) regardless of a one-second tick.
+		$future = time() + MINUTE_IN_SECONDS;
+		$_GET   = array(
+			'file_id'       => (string) $file_id,
+			'expires'       => (string) $future,
+			'token_version' => \Automattic\Jetpack\UnauthFileUpload\DOWNLOAD_TOKEN_VERSION,
+			'token'         => \Automattic\Jetpack\UnauthFileUpload\generate_download_token( $file_id, $future ),
+		);
+		$this->assertSame( $file_id, \Automattic\Jetpack\UnauthFileUpload\authorize_file_download() );
+
+		// One minute in the past: expired.
+		$past = time() - MINUTE_IN_SECONDS;
+		$_GET = array(
+			'file_id'       => (string) $file_id,
+			'expires'       => (string) $past,
+			'token_version' => \Automattic\Jetpack\UnauthFileUpload\DOWNLOAD_TOKEN_VERSION,
+			'token'         => \Automattic\Jetpack\UnauthFileUpload\generate_download_token( $file_id, $past ),
+		);
+		$this->assertStringContainsString( 'expired', $this->authorize_and_catch_die( $file_id ) );
 	}
 }

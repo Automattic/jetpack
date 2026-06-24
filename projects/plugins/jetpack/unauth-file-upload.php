@@ -26,11 +26,11 @@ const DOWNLOAD_LINK_LIFETIME = 7 * DAY_IN_SECONDS;
 /**
  * The token scheme version carried in download links.
  *
- * Travels in the URL as `token_type` and is bound into the signature, so the signing scheme
- * can be changed in the future (bump this and branch on the value in handle_file_download())
+ * Travels in the URL as `token_version` and is bound into the signature, so the signing scheme
+ * can be changed in the future (bump this and branch on the value in authorize_file_download())
  * without older links being mistaken for the new format.
  */
-const DOWNLOAD_TOKEN_TYPE = 'v1';
+const DOWNLOAD_TOKEN_VERSION = 'v1';
 
 /**
  * Get the secret used to sign download links.
@@ -50,9 +50,13 @@ function get_download_signing_key() {
 	$secret     = '';
 
 	if ( $blog_token && ! is_wp_error( $blog_token ) && ! empty( $blog_token->secret ) ) {
-		// Blog tokens are stored as "key.secret"; sign with the secret part only.
-		$parts  = explode( '.', (string) $blog_token->secret );
-		$secret = $parts[1] ?? '';
+		// Blog tokens are stored as "key.secret"; sign with the secret part only, matching the
+		// rest of the connection stack. Require exactly two non-empty parts so a malformed token
+		// fails closed rather than signing links the fetch path could never honor.
+		$parts = explode( '.', (string) $blog_token->secret, 2 );
+		if ( count( $parts ) === 2 && '' !== $parts[0] && '' !== $parts[1] ) {
+			$secret = $parts[1];
+		}
 	}
 
 	/**
@@ -80,18 +84,18 @@ function get_download_signing_key() {
  *
  * @param int    $file_id The file ID.
  * @param int    $expires Unix timestamp at which the link stops being valid.
- * @param string $type    The token scheme version. Defaults to the current scheme.
+ * @param string $version The token scheme version. Defaults to the current scheme.
  *
  * @return string The hex-encoded HMAC-SHA256 token, or an empty string if there is no signing key.
  */
-function generate_download_token( $file_id, $expires, $type = DOWNLOAD_TOKEN_TYPE ) {
+function generate_download_token( $file_id, $expires, $version = DOWNLOAD_TOKEN_VERSION ) {
 	$key = get_download_signing_key();
 
 	if ( '' === $key ) {
 		return '';
 	}
 
-	$payload = 'jetpack_unauth_file_download|' . $type . '|' . (int) $file_id . '|' . (int) $expires;
+	$payload = 'jetpack_unauth_file_download|' . $version . '|' . (int) $file_id . '|' . (int) $expires;
 	return hash_hmac( 'sha256', $payload, $key );
 }
 
@@ -106,12 +110,12 @@ function generate_download_token( $file_id, $expires, $type = DOWNLOAD_TOKEN_TYP
  * @param int    $file_id The file ID.
  * @param int    $expires Unix timestamp the token was signed with.
  * @param string $token   The token supplied in the request.
- * @param string $type    The token scheme version the token was signed with.
+ * @param string $version The token scheme version the token was signed with.
  *
  * @return bool True if the token matches.
  */
-function verify_download_token( $file_id, $expires, $token, $type = DOWNLOAD_TOKEN_TYPE ) {
-	$expected = generate_download_token( $file_id, $expires, $type );
+function verify_download_token( $file_id, $expires, $token, $version = DOWNLOAD_TOKEN_VERSION ) {
+	$expected = generate_download_token( $file_id, $expires, $version );
 
 	return '' !== $expected
 		&& is_string( $token ) && '' !== $token
@@ -128,13 +132,23 @@ function verify_download_token( $file_id, $expires, $token, $type = DOWNLOAD_TOK
  */
 function filter_get_download_url( $url, $file_id ) {
 	$expires = time() + DOWNLOAD_LINK_LIFETIME;
+	$token   = generate_download_token( $file_id, $expires );
+
+	if ( '' === $token ) {
+		// No signing key (disconnected site, or WP.com Simple without the signing-key filter
+		// wired). Return the passthrough so callers omit the link instead of handing out one
+		// that can never work, and leave a breadcrumb for operators.
+		error_log( 'Jetpack Forms: unable to sign file download link; no signing key available.' ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+		return $url;
+	}
+
 	return add_query_arg(
 		array(
-			'action'     => 'jetpack_unauth_file_download',
-			'file_id'    => $file_id,
-			'expires'    => $expires,
-			'token_type' => DOWNLOAD_TOKEN_TYPE,
-			'token'      => generate_download_token( $file_id, $expires ),
+			'action'        => 'jetpack_unauth_file_download',
+			'file_id'       => $file_id,
+			'expires'       => $expires,
+			'token_version' => DOWNLOAD_TOKEN_VERSION,
+			'token'         => $token,
 		),
 		admin_url( 'admin-ajax.php' )
 	);
@@ -143,11 +157,11 @@ function filter_get_download_url( $url, $file_id ) {
 /**
  * Reject a download request with the generic invalid-link error and a debug code, then exit.
  *
- * The message is intentionally generic so it leaks nothing to the requester, but the appended
- * code identifies which check failed, so a user-reported screenshot is enough to locate the
- * cause:
+ * The message stays generic so it leaks nothing to the requester and stays actionable (a token
+ * can be rejected simply because the blog token rotated on reconnect), while the appended code
+ * identifies which check failed, so a user-reported screenshot is enough to locate the cause:
  *
- *   1 - Missing or unrecognized token_type.
+ *   1 - Missing or unrecognized token_version.
  *   2 - Token signature did not verify.
  *   3 - Legacy nonce did not verify.
  *   4 - No token and no legacy nonce supplied.
@@ -156,57 +170,66 @@ function filter_get_download_url( $url, $file_id ) {
  *
  * @param int $code Number identifying the failing check.
  *
- * @return never
+ * @return void Terminates the request via wp_die().
  */
 function invalid_download_link( $code ) {
 	wp_die(
 		esc_html(
 			sprintf(
 				/* translators: %d: error code used for debugging. */
-				__( 'Invalid download link. (%d)', 'jetpack' ),
+				__( 'This download link is no longer valid. Reload the responses page to get a fresh link. (%d)', 'jetpack' ),
 				(int) $code
 			)
-		)
+		),
+		'',
+		array( 'response' => 403 )
 	);
-
-	exit( 0 );
 }
 
 /**
- * Handle file download requests from the admin page.
+ * Authorize a download request and return the requested file ID.
  *
- * @return never This method never returns as it exits directly
+ * Holds the security-critical gate (capability check, then either the current signed-token
+ * scheme or the legacy nonce fallback). Terminates the request via wp_die() on any failure and
+ * only returns when the caller is allowed to download the file. Kept separate from the
+ * file-serving logic in handle_file_download() so each branch is unit-testable without the
+ * headers/exit of the serving path.
+ *
+ * @since $$next-version$$
+ *
+ * @return int The validated file ID.
  */
-function handle_file_download() {
+function authorize_file_download() {
 	if ( ! current_user_can( 'edit_pages' ) ) {
-		wp_die( esc_html__( 'Sorry, you are not allowed to access this page.', 'jetpack' ) );
+		wp_die( esc_html__( 'Sorry, you are not allowed to access this page.', 'jetpack' ), '', array( 'response' => 403 ) );
 	}
 
 	$file_id = isset( $_GET['file_id'] ) ? absint( wp_unslash( $_GET['file_id'] ) ) : 0;
 
 	if ( ! $file_id ) {
-		wp_die( esc_html__( 'Invalid file request.', 'jetpack' ) );
+		wp_die( esc_html__( 'Invalid file request.', 'jetpack' ), '', array( 'response' => 400 ) );
 	}
 
 	$token = isset( $_GET['token'] ) ? sanitize_text_field( wp_unslash( $_GET['token'] ) ) : '';
 
 	if ( '' !== $token ) {
-		// Current scheme: a site-signed, expiring token. Future schemes can branch on the type.
-		$token_type = isset( $_GET['token_type'] ) ? sanitize_text_field( wp_unslash( $_GET['token_type'] ) ) : '';
+		// Current scheme: a site-signed, expiring token. Future schemes can branch on the version.
+		$token_version = isset( $_GET['token_version'] ) ? sanitize_text_field( wp_unslash( $_GET['token_version'] ) ) : '';
 
-		if ( DOWNLOAD_TOKEN_TYPE !== $token_type ) {
+		if ( DOWNLOAD_TOKEN_VERSION !== $token_version ) {
 			invalid_download_link( 1 );
 		}
 
 		$expires = isset( $_GET['expires'] ) ? absint( wp_unslash( $_GET['expires'] ) ) : 0;
 
+		// A link is valid up to and including its expiry second; expired once time passes it.
 		if ( ! $expires || $expires < time() ) {
-			wp_die( esc_html__( 'This download link has expired. Reload the responses page to get a fresh link.', 'jetpack' ) );
+			wp_die( esc_html__( 'This download link has expired. Reload the responses page to get a fresh link.', 'jetpack' ), '', array( 'response' => 410 ) );
 		}
 
-		// $token_type was asserted equal to DOWNLOAD_TOKEN_TYPE above; pass the constant so a
-		// future multi-version branch can't accidentally feed the request value back in.
-		if ( ! verify_download_token( $file_id, $expires, $token, DOWNLOAD_TOKEN_TYPE ) ) {
+		// $token_version was asserted equal to DOWNLOAD_TOKEN_VERSION above; pass the constant so
+		// a future multi-version branch can't accidentally feed the request value back in.
+		if ( ! verify_download_token( $file_id, $expires, $token, DOWNLOAD_TOKEN_VERSION ) ) {
 			invalid_download_link( 2 );
 		}
 	} elseif ( isset( $_GET['_wpnonce'] ) ) {
@@ -215,8 +238,8 @@ function handle_file_download() {
 		 * in already-sent emails. WordPress nonces are only valid for ~24h, so these links
 		 * expire on their own shortly after the signed-token scheme ships.
 		 *
-		 * @todo Remove this legacy nonce fallback in a future version, once old links can no
-		 *       longer be valid.
+		 * @todo Remove this legacy nonce fallback in Jetpack 16.3 or later; links signed under
+		 *       the old scheme self-expire within ~24h of $$next-version$$ shipping.
 		 */
 		if ( ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_GET['_wpnonce'] ) ), 'jetpack_unauth_file_download_nonce_' . $file_id ) ) {
 			invalid_download_link( 3 );
@@ -224,6 +247,17 @@ function handle_file_download() {
 	} else {
 		invalid_download_link( 4 );
 	}
+
+	return $file_id;
+}
+
+/**
+ * Handle file download requests from the admin page.
+ *
+ * @return never This method never returns as it exits directly
+ */
+function handle_file_download() {
+	$file_id = authorize_file_download();
 
 	/**
 	 * Get the file content that we send to the user to download.
