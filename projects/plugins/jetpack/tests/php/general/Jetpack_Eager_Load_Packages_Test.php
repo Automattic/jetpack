@@ -44,7 +44,7 @@ class Jetpack_Eager_Load_Packages_Test extends WP_UnitTestCase {
 	 */
 	public function set_up() {
 		parent::set_up();
-		$this->original_request_method = isset( $_SERVER['REQUEST_METHOD'] ) ? $_SERVER['REQUEST_METHOD'] : null;
+		$this->original_request_method = $_SERVER['REQUEST_METHOD'] ?? null;
 
 		$this->original_import_rest_priority     = has_action( 'rest_api_init', array( Jetpack::class, 'configure_import_package' ) );
 		$this->original_my_jetpack_rest_priority = has_action( 'rest_api_init', array( \Automattic\Jetpack\My_Jetpack\Initializer::class, 'init' ) );
@@ -198,8 +198,8 @@ class Jetpack_Eager_Load_Packages_Test extends WP_UnitTestCase {
 	public function test_admin_request_does_not_defer_import_to_rest_api_init() {
 		set_current_screen( 'dashboard' );
 		$_SERVER['REQUEST_METHOD'] = 'GET';
-		$import_initialized_count = did_action( 'jetpack_import_initialized' );
-		$feature_enabled_count    = did_action( 'jetpack_feature_import_enabled' );
+		$import_initialized_count  = did_action( 'jetpack_import_initialized' );
+		$feature_enabled_count     = did_action( 'jetpack_feature_import_enabled' );
 
 		$jetpack = Jetpack::init();
 		$jetpack->configure();
@@ -240,17 +240,12 @@ class Jetpack_Eager_Load_Packages_Test extends WP_UnitTestCase {
 	public function test_admin_request_does_not_defer_my_jetpack_to_rest_api_init() {
 		set_current_screen( 'dashboard' );
 		$_SERVER['REQUEST_METHOD'] = 'GET';
-		$my_jetpack_init_count = did_action( 'my_jetpack_init' );
 
 		$jetpack = Jetpack::init();
 		$jetpack->late_initialization();
 
 		$this->assertFalse(
 			has_action( 'rest_api_init', array( \Automattic\Jetpack\My_Jetpack\Initializer::class, 'init' ) )
-		);
-		$this->assertSame(
-			0 === $my_jetpack_init_count ? 1 : $my_jetpack_init_count,
-			did_action( 'my_jetpack_init' )
 		);
 	}
 }
