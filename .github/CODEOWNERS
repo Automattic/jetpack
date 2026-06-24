@@ -61,7 +61,7 @@
 /projects/packages/sync/src @Automattic/jetpack-vulcan
 /projects/packages/connection/src/class-package-version.php
 /projects/packages/sync/src/class-package-version.php
-/projects/packages/videopress @Automattic/VideoPress
+/projects/packages/videopress/src @Automattic/VideoPress
 /projects/packages/videopress/src/class-package-version.php
 
 # Plugins
