@@ -15,7 +15,7 @@ export { useReportVisitorsByLocation } from './hooks/use-report-visitors-by-loca
 export { useReportBookings } from './hooks/use-report-bookings';
 export { useReportSessionsByDevice } from './hooks/use-report-sessions-by-device';
 export { useStatsSite } from './hooks/use-stats-site';
-export { useStatsTopPosts } from './hooks/use-stats-top-posts';
+export { useStatsTopPosts, withStatsTopPostsPrimaryMetric } from './hooks/use-stats-top-posts';
 export { useStatsReferrers } from './hooks/use-stats-referrers';
 export { useStatsClicks } from './hooks/use-stats-clicks';
 export { useStatsSearchTerms } from './hooks/use-stats-search-terms';
@@ -57,6 +57,12 @@ export type {
 	StatsProxyParams,
 	StatsProxyVersion,
 } from './api';
+export type {
+	StatsTopPostsPrimaryMetric,
+	StatsTopPostsPrimaryMetricOptions,
+	StatsTopPostsPrimaryValueItem,
+	UseStatsTopPostsOptions,
+} from './hooks/use-stats-top-posts';
 export type {
 	StatsClicksItem,
 	StatsFileDownloadsItem,

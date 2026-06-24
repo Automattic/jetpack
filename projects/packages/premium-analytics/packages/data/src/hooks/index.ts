@@ -6,7 +6,7 @@ export { useReportCustomers } from './use-report-customers';
 export { useReportConversionRate } from './use-report-conversion-rate';
 export { useReportBookings } from './use-report-bookings';
 export { useStatsSite } from './use-stats-site';
-export { useStatsTopPosts } from './use-stats-top-posts';
+export { useStatsTopPosts, withStatsTopPostsPrimaryMetric } from './use-stats-top-posts';
 export { useStatsReferrers } from './use-stats-referrers';
 export { useStatsClicks } from './use-stats-clicks';
 export { useStatsSearchTerms } from './use-stats-search-terms';
@@ -16,6 +16,12 @@ export { useStatsLocations } from './use-stats-locations';
 export { useStatsCountryViews } from './use-stats-country-views';
 export { useStatsVideoPlays } from './use-stats-video-plays';
 export type { UseStatsOptions } from './use-stats-report';
+export type {
+	StatsTopPostsPrimaryMetric,
+	StatsTopPostsPrimaryMetricOptions,
+	StatsTopPostsPrimaryValueItem,
+	UseStatsTopPostsOptions,
+} from './use-stats-top-posts';
 
 /**
  * @deprecated Use individual hooks instead: useReportOrders, useReportOrderAttribution, useReportCoupons
