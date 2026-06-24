@@ -50,6 +50,29 @@ export {
 	useStatsEmailClicksTimeSeries,
 } from './hooks/use-stats-email-time-series';
 export { useStatsWordAdsStats, useStatsWordAdsEarnings } from './hooks/use-stats-wordads';
+export {
+	useStatsAppReferrersSpam,
+	useStatsAppReferrersMarkSpamMutation,
+	useStatsAppReferrersUnmarkSpamMutation,
+} from './hooks/use-stats-app-referrers-spam';
+export { useStatsAppSiteHasNeverPublishedPost } from './hooks/use-stats-app-site-has-never-published-post';
+export { useStatsAppPlanUsage } from './hooks/use-stats-app-plan-usage';
+export {
+	useStatsAppDashboardModules,
+	useStatsAppDashboardModulesMutation,
+} from './hooks/use-stats-app-dashboard-modules';
+export {
+	useStatsAppDashboardModuleSettings,
+	useStatsAppDashboardModuleSettingsMutation,
+} from './hooks/use-stats-app-dashboard-module-settings';
+export { useStatsAppPurchases } from './hooks/use-stats-app-purchases';
+export {
+	useStatsAppNotices,
+	useStatsAppNoticeMutation,
+	type StatsAppNoticeMutationParams,
+} from './hooks/use-stats-app-notices';
+export { useStatsAppCommercialClassificationMutation } from './hooks/use-stats-app-commercial-classification';
+export type { UseStatsAppOptions } from './hooks/use-stats-app-query';
 export type { UseStatsOptions } from './hooks/use-stats-report';
 export { prefetchReport } from './prefetch';
 export {

@@ -48,3 +48,15 @@ export {
 	statsEmailClicksTimeSeriesQuery,
 } from './stats-email-time-series-query';
 export { statsWordAdsStatsQuery, statsWordAdsEarningsQuery } from './stats-wordads-query';
+export { statsAppProxyQuery } from './stats-app-query';
+export { statsAppReferrersSpamQuery } from './stats-app-referrers-spam-query';
+export { statsAppSiteHasNeverPublishedPostQuery } from './stats-app-site-has-never-published-post-query';
+export { statsAppPlanUsageQuery } from './stats-app-plan-usage-query';
+export { statsAppDashboardModulesQuery } from './stats-app-dashboard-modules-query';
+export { statsAppDashboardModuleSettingsQuery } from './stats-app-dashboard-module-settings-query';
+export { statsAppPurchasesQuery } from './stats-app-purchases-query';
+export {
+	statsAppNoticesQuery,
+	updateStatsAppNotice,
+	type StatsAppNoticeMutationParams,
+} from './stats-app-notices-query';

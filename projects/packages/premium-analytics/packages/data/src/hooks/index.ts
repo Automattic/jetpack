@@ -41,6 +41,29 @@ export {
 	useStatsEmailClicksTimeSeries,
 } from './use-stats-email-time-series';
 export { useStatsWordAdsStats, useStatsWordAdsEarnings } from './use-stats-wordads';
+export {
+	useStatsAppReferrersSpam,
+	useStatsAppReferrersMarkSpamMutation,
+	useStatsAppReferrersUnmarkSpamMutation,
+} from './use-stats-app-referrers-spam';
+export { useStatsAppSiteHasNeverPublishedPost } from './use-stats-app-site-has-never-published-post';
+export { useStatsAppPlanUsage } from './use-stats-app-plan-usage';
+export {
+	useStatsAppDashboardModules,
+	useStatsAppDashboardModulesMutation,
+} from './use-stats-app-dashboard-modules';
+export {
+	useStatsAppDashboardModuleSettings,
+	useStatsAppDashboardModuleSettingsMutation,
+} from './use-stats-app-dashboard-module-settings';
+export { useStatsAppPurchases } from './use-stats-app-purchases';
+export {
+	useStatsAppNotices,
+	useStatsAppNoticeMutation,
+	type StatsAppNoticeMutationParams,
+} from './use-stats-app-notices';
+export { useStatsAppCommercialClassificationMutation } from './use-stats-app-commercial-classification';
+export type { UseStatsAppOptions } from './use-stats-app-query';
 export type { UseStatsOptions } from './use-stats-report';
 
 /**
