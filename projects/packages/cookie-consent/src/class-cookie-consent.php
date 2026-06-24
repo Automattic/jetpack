@@ -83,7 +83,10 @@ class Cookie_Consent {
 	}
 
 	/**
-	 * Create CCPA opt-out page if it doesn't exist
+	 * Create the CCPA opt-out page at most once per site.
+	 *
+	 * Once the created-once flag is set, the page is never recreated — even if
+	 * the site owner later deletes it.
 	 */
 	public static function maybe_create_ccpa_page() {
 		// Create the page at most once per site. Once we have created or adopted

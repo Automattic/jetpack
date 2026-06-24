@@ -10,6 +10,8 @@ namespace Automattic\Jetpack\CookieConsent;
 use PHPUnit\Framework\Attributes\CoversMethod;
 
 /**
+ * Tests for the create-once behavior of the auto-created CCPA page.
+ *
  * @covers \Automattic\Jetpack\CookieConsent\Cookie_Consent::maybe_create_ccpa_page
  */
 #[CoversMethod( Cookie_Consent::class, 'maybe_create_ccpa_page' )]
@@ -38,7 +40,9 @@ class Maybe_Create_Ccpa_Page_Test extends TestCase {
 		Cookie_Consent::maybe_create_ccpa_page();
 		$second_id = (int) get_option( 'jetpack_cookie_consent_ccpa_page_id' );
 
+		// The stored page id must be unchanged and the created-once flag must remain set.
 		$this->assertSame( $first_id, $second_id );
+		$this->assertSame( 1, (int) get_option( 'jetpack_cookie_consent_ccpa_page_created' ) );
 	}
 
 	/**
