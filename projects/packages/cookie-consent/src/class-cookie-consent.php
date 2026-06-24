@@ -179,6 +179,23 @@ class Cookie_Consent {
 	}
 
 	/**
+	 * Whether the auto-created CCPA page exists and is published.
+	 *
+	 * A trashed page still resolves via get_post(), so callers must check the
+	 * status too — otherwise links would point at a trashed page and 404.
+	 *
+	 * @return bool
+	 */
+	private static function ccpa_page_is_published() {
+		$ccpa_page_id = get_option( 'jetpack_cookie_consent_ccpa_page_id' );
+		if ( ! $ccpa_page_id ) {
+			return false;
+		}
+		$page = get_post( $ccpa_page_id );
+		return $page && 'publish' === $page->post_status;
+	}
+
+	/**
 	 * Get CCPA page content in block format
 	 *
 	 * @return string Page content with WordPress blocks
@@ -260,9 +277,8 @@ class Cookie_Consent {
 			}
 		}
 
-		// Check CCPA page.
-		$ccpa_page_id = get_option( 'jetpack_cookie_consent_ccpa_page_id' );
-		if ( $ccpa_page_id && get_post( $ccpa_page_id ) ) {
+		// Check CCPA page (must be published — a trashed page still resolves).
+		if ( self::ccpa_page_is_published() ) {
 			$ccpa_page_exists = true;
 		}
 
@@ -312,8 +328,8 @@ class Cookie_Consent {
 			}
 		}
 
+		$ccpa_page_exists = self::ccpa_page_is_published();
 		$ccpa_page_id     = get_option( 'jetpack_cookie_consent_ccpa_page_id' );
-		$ccpa_page_exists = $ccpa_page_id && get_post( $ccpa_page_id );
 
 		// Process Privacy Policy first (if it exists and hasn't been processed).
 		if ( $privacy_policy_exists && ! $privacy_policy_processed ) {
@@ -368,11 +384,10 @@ class Cookie_Consent {
 			return $block_content;
 		}
 
-		// If the CCPA page no longer exists (e.g. the owner deleted it), suppress
-		// the link instead of rendering a dead 404. This covers persisted hooked
-		// links that bypass the injection-time existence gate.
-		$ccpa_page_id = get_option( 'jetpack_cookie_consent_ccpa_page_id' );
-		if ( ! $ccpa_page_id || ! get_post( $ccpa_page_id ) ) {
+		// If the CCPA page is gone or unpublished (e.g. the owner trashed or
+		// deleted it), suppress the link instead of rendering a dead 404. This
+		// covers persisted hooked links that bypass the injection-time gate.
+		if ( ! self::ccpa_page_is_published() ) {
 			return '';
 		}
 

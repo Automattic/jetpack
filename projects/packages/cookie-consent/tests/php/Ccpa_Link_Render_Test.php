@@ -50,6 +50,21 @@ class Ccpa_Link_Render_Test extends TestCase {
 	}
 
 	/**
+	 * The CCPA link is suppressed when the page is trashed (not yet permanently deleted).
+	 */
+	public function test_suppresses_link_when_page_trashed() {
+		$page_id = wp_insert_post(
+			array(
+				'post_title'  => 'Your Privacy Choices',
+				'post_status' => 'trash',
+				'post_type'   => 'page',
+			)
+		);
+		update_option( 'jetpack_cookie_consent_ccpa_page_id', $page_id );
+		$this->assertSame( '', Cookie_Consent::add_ccpa_interactivity_directives( self::HTML, $this->ccpa_block() ) );
+	}
+
+	/**
 	 * The CCPA link still renders (with directives) when its page exists.
 	 */
 	public function test_renders_link_when_page_exists() {
