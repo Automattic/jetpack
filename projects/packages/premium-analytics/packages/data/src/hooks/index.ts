@@ -124,6 +124,7 @@ export type {
 export {
 	useStatsEmailOpensBreakdown,
 	useStatsEmailClicksBreakdown,
+	type StatsEmailBreakdown,
 	type StatsEmailClicksBreakdown,
 	type StatsEmailOpensBreakdown,
 } from './use-stats-email-breakdown';

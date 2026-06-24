@@ -4,6 +4,7 @@
 import {
 	statsEmailClicksBreakdownQuery,
 	statsEmailOpensBreakdownQuery,
+	type StatsEmailBreakdown,
 	type StatsEmailClicksBreakdown,
 	type StatsEmailOpensBreakdown,
 } from '../queries/stats-email-breakdown-query';
@@ -29,4 +30,4 @@ export function useStatsEmailClicksBreakdown(
 	return useStatsQuery( statsEmailClicksBreakdownQuery( postId, breakdown, params ), options );
 }
 
-export type { StatsEmailClicksBreakdown, StatsEmailOpensBreakdown };
+export type { StatsEmailBreakdown, StatsEmailClicksBreakdown, StatsEmailOpensBreakdown };
