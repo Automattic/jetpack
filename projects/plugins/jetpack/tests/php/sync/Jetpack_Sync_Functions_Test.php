@@ -1115,6 +1115,10 @@ class Jetpack_Sync_Functions_Test extends Jetpack_Sync_TestBase {
 		$synced_value2 = $this->server_replica_storage->get_callable( 'jetpack_foo' );
 		$this->assertEmpty( $synced_value2 );
 
+		// WordPress fires 'delete_plugin' before 'deleted_plugin'; the former
+		// captures the plugin info that the latter reads, so fire both to mirror
+		// real deletion and avoid an "undefined array key" warning.
+		do_action( 'delete_plugin', 'the/the.php' );
 		do_action( 'deleted_plugin', 'the/the.php', true );
 
 		$this->sender->do_sync();
