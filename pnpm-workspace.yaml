@@ -41,7 +41,6 @@ trustPolicyExclude:
 
   # Packages where newer majors have provenance but we're still on an older one.
   - rollup@3.30.0
-  - rxjs@7.8.2
   - semver@6.3.1
 
 # Package compromise avoidance: require dep build script approval.
