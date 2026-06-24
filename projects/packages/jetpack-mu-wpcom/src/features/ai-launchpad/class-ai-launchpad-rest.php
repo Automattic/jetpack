@@ -20,14 +20,22 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 	const LAUNCH_TASK_IDS = array( 'site_launched', 'blog_launched', 'woo_launch_site', 'link_in_bio_launched', 'videopress_launched' );
 
 	/**
-	 * Acknowledgment tasks that have no completion signal when the launchpad runs
-	 * in wp-admin: in the legacy launchpad they complete on click / page-visit in
-	 * Calypso, which writes the status to Calypso's *selected* site — never from
-	 * the wp-admin context. The AI Launchpad runs in wp-admin (on both Simple and
-	 * Atomic), so it has no way to tick them; it marks them complete locally when
-	 * the user clicks their CTA. Server-side allowlist so the complete-task route
-	 * can only tick these ids, never arbitrary catalog tasks. Mirrored client-side
-	 * in model.ts (COMPLETE_ON_CLICK_TASK_IDS).
+	 * Tasks whose completion the AI Launchpad writes when the user clicks their CTA,
+	 * because the real signal is unreachable when the launchpad runs in wp-admin:
+	 *
+	 * - The acknowledgment tasks (complete_profile … site_monitoring_page) complete
+	 *   on click / page-visit in Calypso, which writes the status to Calypso's
+	 *   *selected* site — never from the wp-admin context.
+	 * - setup_ssh's real signal (an SSH user exists) is only readable through the
+	 *   wpcom hosting endpoint, which rejects the launchpad's Atomic context (blog
+	 *   token 401, Jetpack-user token 403). Calypso's own hosting form completes it
+	 *   optimistically when the user creates SFTP credentials; this reuses that
+	 *   strategy, ticking it when the user opens the same hosting page via the CTA.
+	 *
+	 * The AI Launchpad runs in wp-admin (on both Simple and Atomic), so it marks
+	 * these complete locally on CTA click. Server-side allowlist so the complete-task
+	 * route can only tick these ids, never arbitrary catalog tasks. Mirrored
+	 * client-side in model.ts (COMPLETE_ON_CLICK_TASK_IDS).
 	 */
 	const COMPLETE_ON_CLICK_TASK_IDS = array(
 		'complete_profile',
@@ -36,6 +44,7 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 		'earn_money',
 		'start_building_your_audience',
 		'site_monitoring_page',
+		'setup_ssh',
 	);
 
 	/**

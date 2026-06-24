@@ -659,6 +659,24 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * Test that setup_ssh completes via the complete-on-click route, reusing
+	 * Calypso's optimistic completion strategy (its hosting form marks setup_ssh
+	 * complete when the user creates SFTP credentials; the real SSH-user signal is
+	 * unreachable from the launchpad's Atomic context).
+	 */
+	public function test_complete_task_marks_setup_ssh() {
+		wp_set_current_user( $this->admin_id );
+		$this->seed_ai_output_with_tasks( array( 'setup_ssh', 'site_launched' ) );
+
+		$result = $this->call_api( 'POST', '/complete-task', array( 'task_id' => 'setup_ssh' ) );
+
+		$this->assertSame( 200, $result->get_status() );
+		$this->assertTrue( $result->get_data()['completed'] );
+		$statuses = get_option( 'launchpad_checklist_tasks_statuses' );
+		$this->assertTrue( ! empty( $statuses['setup_ssh'] ) );
+	}
+
+	/**
 	 * Test that POST /complete-task rejects ids that are not completable this way:
 	 * a non-allowlisted task (even if on the list) and an allowlisted task that is
 	 * not on the site's AI-selected list.

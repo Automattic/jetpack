@@ -74,11 +74,12 @@ export function ctaKind( taskId: string ): CtaKind {
 }
 
 /**
- * Acknowledgment tasks with no completion signal in wp-admin: in Calypso they
- * complete on click / page-visit, which writes the status to Calypso's selected
- * site — never from the wp-admin context where the AI Launchpad runs (on both
- * Simple and Atomic). The AI Launchpad marks them complete locally when the user
- * clicks their CTA. Mirrors COMPLETE_ON_CLICK_TASK_IDS in
+ * Tasks marked complete client-side when their CTA is clicked, because the real
+ * signal is unreachable in wp-admin where the AI Launchpad runs (on both Simple
+ * and Atomic). The acknowledgment tasks complete on click / page-visit in Calypso
+ * (a write to Calypso's selected site, never from wp-admin); setup_ssh's SSH-user
+ * signal is unreachable from the Atomic context, so this reuses Calypso's
+ * optimistic hosting-form completion. Mirrors COMPLETE_ON_CLICK_TASK_IDS in
  * class-ai-launchpad-rest.php.
  */
 const COMPLETE_ON_CLICK_TASK_IDS = [
@@ -88,14 +89,15 @@ const COMPLETE_ON_CLICK_TASK_IDS = [
 	'earn_money',
 	'start_building_your_audience',
 	'site_monitoring_page',
+	'setup_ssh',
 ];
 
 /**
  * Whether a task should be marked complete client-side when its CTA is clicked,
- * because it has no completion signal on Atomic (an acknowledgment task).
+ * because it has no reachable completion signal on Atomic.
  *
  * @param taskId - The catalog task ID.
- * @return True for acknowledgment tasks.
+ * @return True for complete-on-click tasks.
  */
 export function isCompleteOnClickTask( taskId: string ): boolean {
 	return COMPLETE_ON_CLICK_TASK_IDS.includes( taskId );
