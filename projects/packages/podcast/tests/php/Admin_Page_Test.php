@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Podcast\Tests;
 
+use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Podcast\Admin_Page;
 use PHPUnit\Framework\Attributes\CoversClass;
 use WorDBless\BaseTestCase;
@@ -27,6 +28,7 @@ class Admin_Page_Test extends BaseTestCase {
 	}
 
 	protected function tearDown(): void {
+		Constants::clear_constants();
 		remove_all_actions( 'load-jetpack_page_' . Admin_Page::ADMIN_PAGE_SLUG );
 		unset( $GLOBALS['menu'], $GLOBALS['submenu'] );
 		wp_set_current_user( 0 );
@@ -37,22 +39,25 @@ class Admin_Page_Test extends BaseTestCase {
 	 * Self-hosted: the page registers through the shared Admin_Menu, which sorts
 	 * items by position. We assert the page-load callback Admin_Menu wires for us.
 	 */
-	public function test_add_wp_admin_menu_registers_via_admin_menu() {
-		Admin_Page::add_wp_admin_menu();
+	public function test_registers_via_admin_menu_on_self_hosted() {
+		Admin_Page::add_wp_admin_submenu();
 
 		$this->assertNotFalse(
 			has_action(
 				'load-jetpack_page_' . Admin_Page::ADMIN_PAGE_SLUG,
 				array( Admin_Page::class, 'admin_init' )
 			),
-			'add_wp_admin_menu() should register the page through Admin_Menu'
+			'Self-hosted should register the page through Admin_Menu'
 		);
 	}
 
 	/**
-	 * WPCOM path: registers directly under the Jetpack menu, as wpcom-admin-menu.php does.
+	 * WPCOM (Simple/Atomic): registers directly under the Jetpack menu, where
+	 * wpcom-admin-menu.php has already created the parent.
 	 */
-	public function test_add_wp_admin_submenu_registers_under_jetpack() {
+	public function test_registers_directly_under_jetpack_on_wpcom() {
+		Constants::set_constant( 'IS_WPCOM', true );
+
 		// add_submenu_page() checks the current user's capability.
 		$user_id = wp_insert_user(
 			array(
@@ -72,7 +77,7 @@ class Admin_Page_Test extends BaseTestCase {
 		$this->assertContains(
 			Admin_Page::ADMIN_PAGE_SLUG,
 			$slugs,
-			'add_wp_admin_submenu() should register the Podcast page under the Jetpack menu'
+			'WPCOM should register the Podcast page directly under the Jetpack menu'
 		);
 	}
 }

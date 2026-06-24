@@ -51,54 +51,50 @@ class Admin_Page {
 
 		add_action( 'admin_menu', array( __CLASS__, 'maybe_load_wp_build' ), 1 );
 
-		// On Simple/Atomic the Jetpack menu is owned by wpcom-admin-menu.php,
-		// which calls add_wp_admin_submenu() directly (and positions it). Only
-		// self-hosted registers its own item, via the shared Admin_Menu sorter.
-		$host = new Host();
-		if ( $host->is_wpcom_simple() || $host->is_woa_site() ) {
-			return;
-		}
-
-		// Priority 999 queues the item before Admin_Menu's priority-1000 callback.
-		add_action( 'admin_menu', array( __CLASS__, 'add_wp_admin_menu' ), 999 );
-	}
-
-	/**
-	 * Register the Podcast submenu on self-hosted via the shared Jetpack
-	 * Admin_Menu, which sorts items by position instead of appending them last.
-	 */
-	public static function add_wp_admin_menu() {
-		$page_suffix = Admin_Menu::add_menu(
-			/** "Podcast" is a product name, do not translate. */
-			'Podcast',
-			'Podcast',
-			'manage_options',
-			self::ADMIN_PAGE_SLUG,
-			self::get_render_callback(),
-			self::MENU_POSITION
-		);
-
-		if ( $page_suffix ) {
-			add_action( 'load-' . $page_suffix, array( __CLASS__, 'admin_init' ) );
+		// On Simple/Atomic, wpcom-admin-menu.php builds the Jetpack menu at
+		// priority 999999 and calls add_wp_admin_submenu() itself. Self-hosted
+		// has no such file, so we register our own. Priority 999 queues the item
+		// before Admin_Menu's priority-1000 callback.
+		if ( ! ( new Host() )->is_wpcom_platform() ) {
+			add_action( 'admin_menu', array( __CLASS__, 'add_wp_admin_submenu' ), 999 );
 		}
 	}
 
 	/**
-	 * Register the Podcast submenu directly under the Jetpack menu.
+	 * Register the Podcast submenu under the Jetpack menu.
 	 *
-	 * Called from `wpcom-admin-menu.php` at priority 999999 on Simple/Atomic,
-	 * where that file owns the Jetpack menu and reorders the submenu itself.
+	 * Two callers, two mechanisms:
+	 * - Simple/Atomic: wpcom-admin-menu.php calls this at priority 999999, after
+	 *   it has built the parent menu — so we register directly and let that file
+	 *   position the item.
+	 * - Self-hosted: our own admin_menu hook (priority 999) calls this — so we go
+	 *   through the shared Admin_Menu sorter, which places the item by position
+	 *   instead of appending it last.
 	 */
 	public static function add_wp_admin_submenu() {
-		$page_suffix = add_submenu_page(
-			'jetpack',
-			/** "Podcast" is a product name, do not translate. */
-			'Podcast',
-			'Podcast',
-			'manage_options',
-			self::ADMIN_PAGE_SLUG,
-			self::get_render_callback()
-		);
+		$callback = self::get_render_callback();
+
+		if ( ( new Host() )->is_wpcom_platform() ) {
+			$page_suffix = add_submenu_page(
+				'jetpack',
+				/** "Podcast" is a product name, do not translate. */
+				'Podcast',
+				'Podcast',
+				'manage_options',
+				self::ADMIN_PAGE_SLUG,
+				$callback
+			);
+		} else {
+			$page_suffix = Admin_Menu::add_menu(
+				/** "Podcast" is a product name, do not translate. */
+				'Podcast',
+				'Podcast',
+				'manage_options',
+				self::ADMIN_PAGE_SLUG,
+				$callback,
+				self::MENU_POSITION
+			);
+		}
 
 		if ( $page_suffix ) {
 			add_action( 'load-' . $page_suffix, array( __CLASS__, 'admin_init' ) );
@@ -130,7 +126,8 @@ class Admin_Page {
 	/**
 	 * Hooked at admin_menu priority 1 so polyfills register before
 	 * `wp_default_scripts` fires and the wp-build render function is defined
-	 * before `add_wp_admin_submenu()` runs at priority 999999.
+	 * before `add_wp_admin_submenu()` runs (priority 999 on self-hosted, 999999
+	 * on Simple/Atomic).
 	 */
 	public static function maybe_load_wp_build() {
 		if ( ! self::is_podcast_admin_request() ) {
