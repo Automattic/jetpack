@@ -42,6 +42,14 @@ class Ccpa_Link_Render_Test extends TestCase {
 	}
 
 	/**
+	 * The CCPA link is suppressed when the option points to a deleted page.
+	 */
+	public function test_suppresses_link_when_page_deleted() {
+		update_option( 'jetpack_cookie_consent_ccpa_page_id', 99999 ); // ID that no longer exists.
+		$this->assertSame( '', Cookie_Consent::add_ccpa_interactivity_directives( self::HTML, $this->ccpa_block() ) );
+	}
+
+	/**
 	 * The CCPA link still renders (with directives) when its page exists.
 	 */
 	public function test_renders_link_when_page_exists() {
