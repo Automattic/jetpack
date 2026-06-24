@@ -8,16 +8,22 @@ export type UseStatsOptions = {
 	enabled?: boolean;
 };
 
-type StatsReportQueryFactory = ( params: StatsReportParams ) => StatsReportQueryOptions;
+type StatsReportQueryFactory< TParams extends StatsReportParams > = (
+	params: TParams
+) => StatsReportQueryOptions;
 
-export function useStatsReport(
-	queryFactory: StatsReportQueryFactory,
-	params: StatsReportParams,
-	reportSlug: string,
+export function useStatsReport< TParams extends StatsReportParams >(
+	queryFactory: StatsReportQueryFactory< TParams >,
+	params: TParams,
+	reportSlugOrDisabledComparisonKey: string | string[],
 	options?: UseStatsOptions
 ) {
-	return useReport( p => queryFactory( p as StatsReportParams ), params, {
+	const disabledComparisonKey = Array.isArray( reportSlugOrDisabledComparisonKey )
+		? reportSlugOrDisabledComparisonKey
+		: [ 'stats', reportSlugOrDisabledComparisonKey, '__comparison__', 'disabled' ];
+
+	return useReport( p => queryFactory( p as TParams ), params, {
 		enabled: options?.enabled,
-		disabledComparisonKey: [ 'stats', reportSlug, '__comparison__', 'disabled' ],
+		disabledComparisonKey,
 	} );
 }

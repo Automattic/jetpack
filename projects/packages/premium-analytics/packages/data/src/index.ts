@@ -24,6 +24,13 @@ export { useStatsTopAuthors } from './hooks/use-stats-top-authors';
 export { useStatsLocations } from './hooks/use-stats-locations';
 export { useStatsCountryViews } from './hooks/use-stats-country-views';
 export { useStatsVideoPlays } from './hooks/use-stats-video-plays';
+export { useStatsDevices, type StatsDevicesParams } from './hooks/use-stats-devices';
+export { useStatsArchives } from './hooks/use-stats-archives';
+export { useStatsPublicize } from './hooks/use-stats-publicize';
+export { useStatsFollowers } from './hooks/use-stats-followers';
+export { useStatsTags } from './hooks/use-stats-tags';
+export { useStatsComments } from './hooks/use-stats-comments';
+export { useStatsCommentFollowers } from './hooks/use-stats-comment-followers';
 export type { UseStatsOptions } from './hooks/use-stats-report';
 export { prefetchReport } from './prefetch';
 export {
@@ -59,7 +66,15 @@ export type {
 } from './api';
 export type {
 	StatsClicksItem,
+	StatsArchivesItem,
+	StatsCommentFollowersItem,
+	StatsCommentsItem,
+	StatsDevicesItem,
+	StatsEmailBreakdownItem,
+	StatsEmailSummaryItem,
 	StatsFileDownloadsItem,
+	StatsFollowersItem,
+	StatsGenericListItem,
 	StatsItemAction,
 	StatsLocationsItem,
 	StatsNormalizedDataPoint,
@@ -67,8 +82,10 @@ export type {
 	StatsNormalizedItemBase,
 	StatsNormalizedReport,
 	StatsNormalizedSummary,
+	StatsPublicizeItem,
 	StatsReferrersItem,
 	StatsSearchTermsItem,
+	StatsTagsItem,
 	StatsTopAuthorsItem,
 	StatsTopPostsItem,
 	StatsVideoPlaysItem,

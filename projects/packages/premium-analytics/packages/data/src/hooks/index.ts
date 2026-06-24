@@ -15,6 +15,13 @@ export { useStatsTopAuthors } from './use-stats-top-authors';
 export { useStatsLocations } from './use-stats-locations';
 export { useStatsCountryViews } from './use-stats-country-views';
 export { useStatsVideoPlays } from './use-stats-video-plays';
+export { useStatsDevices, type StatsDevicesParams } from './use-stats-devices';
+export { useStatsArchives } from './use-stats-archives';
+export { useStatsPublicize } from './use-stats-publicize';
+export { useStatsFollowers } from './use-stats-followers';
+export { useStatsTags } from './use-stats-tags';
+export { useStatsComments } from './use-stats-comments';
+export { useStatsCommentFollowers } from './use-stats-comment-followers';
 export type { UseStatsOptions } from './use-stats-report';
 
 /**
