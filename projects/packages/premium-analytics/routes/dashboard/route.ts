@@ -3,6 +3,7 @@
  */
 import { getScriptData } from '@automattic/jetpack-script-data';
 import { getDefaultQueryParams } from '@jetpack-premium-analytics/data';
+import { isPrimaryPreset } from '@jetpack-premium-analytics/datetime';
 import { store as coreStore } from '@wordpress/core-data';
 import { dispatch, select } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
@@ -47,16 +48,29 @@ export const route = {
 
 		const params = ( search ?? {} ) as DashboardSearch;
 		if ( ! params.from || ! params.to || ! params.interval ) {
+			/*
+			 * Derive the seeded range from a supplied preset (when it maps to a
+			 * concrete range) so a `?preset=…` deep-link gets a matching
+			 * `from`/`to`/`interval` instead of the generic last-30-days default.
+			 * `custom` has no computable range, so it falls back to the default.
+			 */
+			const preset =
+				isPrimaryPreset( params.preset ) && params.preset !== 'custom' ? params.preset : undefined;
 			throw redirect( {
 				to: '/',
 				replace: true,
 				/*
+				 * Fill only the missing params: defaults first, then the
+				 * user-supplied values override them, so a partial URL (e.g. a
+				 * custom `from`/`to` without `interval`) keeps its provided
+				 * values instead of being reset to the defaults.
+				 *
 				 * The router is built dynamically, so the '/' route has no
 				 * statically-typed search schema (tanstack widens it to
 				 * `never`). Cast the seeded params the same way the routing
 				 * package does when it writes the URL.
 				 */
-				search: { ...params, ...getDefaultQueryParams( true ) } as unknown as never,
+				search: { ...getDefaultQueryParams( true, preset ), ...params } as unknown as never,
 			} );
 		}
 

@@ -4,7 +4,11 @@ import {
 	localTZDate,
 	type ReportQueryParams,
 } from '@jetpack-premium-analytics/data';
-import { encodeDateToSearchParam, useStagedSearch } from '@jetpack-premium-analytics/routing';
+import {
+	deriveComparisonRange,
+	encodeDateToSearchParam,
+	useStagedSearch,
+} from '@jetpack-premium-analytics/routing';
 import { DateFiltersPanel } from '@jetpack-premium-analytics/ui';
 import { Page } from '@wordpress/admin-ui';
 import { store as coreStore } from '@wordpress/core-data';
@@ -34,7 +38,7 @@ type ReportQuerySearchParams = Partial<
 	ReportQueryParams & {
 		preset?: PrimaryPresetId;
 		compare_preset?: ComparisonPresetId;
-		comp?: string;
+		comp?: '1';
 	}
 >;
 
@@ -99,17 +103,31 @@ function Dashboard(): JSX.Element {
 				 * adjusted to the end of the day, since the date picker core
 				 * component sets the time to 00:00:00.
 				 */
-				stage( {
-					from: encodeDateToSearchParam( nextRange.from ),
-					to: encodeDateToSearchParam( endOfDay( nextRange.to ) ),
-				} );
+				const from = encodeDateToSearchParam( nextRange.from );
+				const to = encodeDateToSearchParam( endOfDay( nextRange.to ) );
+				const patch: ReportQuerySearchParams = { from, to };
+
+				/*
+				 * When comparison is enabled, re-derive the comparison window
+				 * from the new primary range so widgets compare against the
+				 * matching previous period instead of the stale dates.
+				 */
+				if ( effective.comp === '1' ) {
+					const derived = deriveComparisonRange( { ...effective, from, to } );
+					if ( derived ) {
+						patch.compare_from = derived.compare_from;
+						patch.compare_to = derived.compare_to;
+					}
+				}
+
+				stage( patch );
 			}
 
 			if ( nextPresetId ) {
 				stage( { preset: nextPresetId } );
 			}
 		},
-		[ stage ]
+		[ stage, effective ]
 	);
 
 	const comparisonPresetId = useMemo(
