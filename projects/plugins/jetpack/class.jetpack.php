@@ -635,8 +635,6 @@ class Jetpack {
 		add_action( 'mu_plugin_loaded', array( $this, 'add_configure_hook' ), 90 );
 		add_action( 'plugins_loaded', array( $this, 'late_initialization' ), 90 );
 
-		add_action( 'jetpack_verify_signature_error', array( $this, 'track_xmlrpc_error' ) );
-
 		/**
 		 * Prepare Gutenberg Editor functionality
 		 *
@@ -4218,35 +4216,6 @@ p {
 </div>
 			<?php
 endif;
-	}
-
-	/**
-	 * We can't always respond to a signed XML-RPC request with a
-	 * helpful error message. In some circumstances, doing so could
-	 * leak information.
-	 *
-	 * Instead, track that the error occurred via a Jetpack_Option,
-	 * and send that data back in the heartbeat.
-	 * All this does is increment a number, but it's enough to find
-	 * trends.
-	 *
-	 * @param WP_Error $xmlrpc_error The error produced during
-	 *                               signature validation.
-	 */
-	public function track_xmlrpc_error( $xmlrpc_error ) {
-		$code = is_wp_error( $xmlrpc_error )
-			? $xmlrpc_error->get_error_code()
-			: 'should-not-happen';
-
-		$xmlrpc_errors = Jetpack_Options::get_option( 'xmlrpc_errors', array() );
-		if ( isset( $xmlrpc_errors[ $code ] ) && $xmlrpc_errors[ $code ] ) {
-			// No need to update the option if we already have
-			// this code stored.
-			return;
-		}
-		$xmlrpc_errors[ $code ] = true;
-
-		Jetpack_Options::update_option( 'xmlrpc_errors', $xmlrpc_errors, false );
 	}
 
 	/**

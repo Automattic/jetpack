@@ -5,7 +5,6 @@
  * @package automattic/jetpack
  */
 
-use Automattic\Jetpack\Connection\Manager;
 use Automattic\Jetpack\Heartbeat;
 
 /**
@@ -91,16 +90,6 @@ class Jetpack_Heartbeat {
 		}
 
 		$return[ "{$prefix}space-used" ] = $space_used;
-
-		$xmlrpc_errors = Jetpack_Options::get_option( 'xmlrpc_errors', array() );
-		if ( $xmlrpc_errors ) {
-			$return[ "{$prefix}xmlrpc-errors" ] = implode( ',', array_keys( $xmlrpc_errors ) );
-			Jetpack_Options::delete_option( 'xmlrpc_errors' );
-		}
-
-		// Missing the connection owner?
-		$connection_manager                 = new Manager();
-		$return[ "{$prefix}missing-owner" ] = $connection_manager->is_missing_connection_owner();
 
 		// is-multi-network can have three values, `single-site`, `single-network`, and `multi-network`.
 		$return[ "{$prefix}is-multi-network" ] = 'single-site';
