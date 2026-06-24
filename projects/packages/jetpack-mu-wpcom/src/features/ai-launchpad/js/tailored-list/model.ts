@@ -90,6 +90,7 @@ const COMPLETE_ON_CLICK_TASK_IDS = [
 	'start_building_your_audience',
 	'site_monitoring_page',
 	'setup_ssh',
+	'share_site',
 ];
 
 /**

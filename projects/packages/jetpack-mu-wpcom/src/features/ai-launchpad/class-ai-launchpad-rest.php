@@ -31,6 +31,10 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 	 *   token 401, Jetpack-user token 403). Calypso's own hosting form completes it
 	 *   optimistically when the user creates SFTP credentials; this reuses that
 	 *   strategy, ticking it when the user opens the same hosting page via the CTA.
+	 * - share_site has no real signal at all (sharing is a transient client action;
+	 *   even Calypso completes it optimistically when the user copies/shares the URL)
+	 *   and no CTA destination, so the tailored list offers a "Mark as complete"
+	 *   button that hits this route.
 	 *
 	 * The AI Launchpad runs in wp-admin (on both Simple and Atomic), so it marks
 	 * these complete locally on CTA click. Server-side allowlist so the complete-task
@@ -45,6 +49,7 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 		'start_building_your_audience',
 		'site_monitoring_page',
 		'setup_ssh',
+		'share_site',
 	);
 
 	/**

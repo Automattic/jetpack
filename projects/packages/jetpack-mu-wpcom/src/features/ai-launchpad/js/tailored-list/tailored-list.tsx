@@ -207,6 +207,29 @@ export function TailoredList( { pendingTailor, initialData, site }: Props = {} )
 		}
 	};
 
+	// Complete-on-click tasks with no CTA destination (e.g. share_site) can't be
+	// "started", so the card offers "Mark as complete": persist the completion and
+	// flip the card to done in place (no navigation). Only flips on a successful
+	// write so a failed POST doesn't show a completion that reverts on reload.
+	const handleMarkComplete = async ( task: EnrichedTask ) => {
+		setBusyId( task.id );
+		try {
+			trackTaskClicked( { task_id: task.id } );
+			await apiFetch( {
+				path: '/wpcom/v2/ai-launchpad/complete-task',
+				method: 'POST',
+				data: { task_id: task.id },
+			} );
+			setTasks( prev =>
+				prev ? prev.map( t => ( t.id === task.id ? { ...t, completed: true } : t ) ) : prev
+			);
+		} catch {
+			// Leave the task incomplete on failure.
+		} finally {
+			setBusyId( null );
+		}
+	};
+
 	const handleSkip = ( task: EnrichedTask ) => {
 		setSkippedIds( prev => new Set( prev ).add( task.id ) );
 	};
@@ -225,8 +248,12 @@ export function TailoredList( { pendingTailor, initialData, site }: Props = {} )
 						task={ task }
 						isBusy={ busyId === task.id }
 						canStart={ isTaskActionable( task, output, siteUrl ) }
+						canMarkComplete={
+							isCompleteOnClickTask( task.id ) && ! isTaskActionable( task, output, siteUrl )
+						}
 						defaultOpen={ index === firstOpenIndex }
 						onGetStarted={ () => handleGetStarted( task ) }
+						onMarkComplete={ () => handleMarkComplete( task ) }
 						onSkip={ () => handleSkip( task ) }
 					/>
 				) ) }

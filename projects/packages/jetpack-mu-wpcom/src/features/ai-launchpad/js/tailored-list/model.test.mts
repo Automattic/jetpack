@@ -163,6 +163,7 @@ describe( 'isCompleteOnClickTask', () => {
 		assert.equal( isCompleteOnClickTask( 'earn_money' ), true );
 		assert.equal( isCompleteOnClickTask( 'site_monitoring_page' ), true );
 		assert.equal( isCompleteOnClickTask( 'setup_ssh' ), true );
+		assert.equal( isCompleteOnClickTask( 'share_site' ), true );
 	} );
 
 	it( 'is false for tasks that complete via a real signal or listener', () => {

@@ -719,6 +719,23 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * Test that share_site completes via the complete-on-click route. It has no CTA
+	 * destination, so the tailored list offers a "Mark as complete" button that
+	 * hits this route; sharing is a transient client action with no real signal.
+	 */
+	public function test_complete_task_marks_share_site() {
+		wp_set_current_user( $this->admin_id );
+		$this->seed_ai_output_with_tasks( array( 'share_site', 'site_launched' ) );
+
+		$result = $this->call_api( 'POST', '/complete-task', array( 'task_id' => 'share_site' ) );
+
+		$this->assertSame( 200, $result->get_status() );
+		$this->assertTrue( $result->get_data()['completed'] );
+		$statuses = get_option( 'launchpad_checklist_tasks_statuses' );
+		$this->assertTrue( ! empty( $statuses['share_site'] ) );
+	}
+
+	/**
 	 * Test that POST /complete-task rejects ids that are not completable this way:
 	 * a non-allowlisted task (even if on the list) and an allowlisted task that is
 	 * not on the site's AI-selected list.
