@@ -2685,9 +2685,10 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/podcast",
-                "reference": "7ece8afde05a2c7aee25181ce7c7a8045565039c"
+                "reference": "6e99ee67210e9bc15e164c3c2709484a1cb5f830"
             },
             "require": {
+                "automattic/jetpack-admin-ui": "@dev",
                 "automattic/jetpack-assets": "@dev",
                 "automattic/jetpack-blocks": "@dev",
                 "automattic/jetpack-connection": "@dev",
