@@ -159,7 +159,7 @@ function LocationsInner( { attributes }: WidgetRenderProps< LocationsAttributes 
 				<Stack direction="row" align="center" gap="xs" className={ styles.breadcrumb }>
 					{ selectedCountry ? (
 						<Button
-							type="button"
+							variant="unstyled"
 							onClick={ clearSelectedCountry }
 							className={ styles.breadcrumbLink }
 						>
