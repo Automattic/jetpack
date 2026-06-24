@@ -36,7 +36,7 @@ minimumReleaseAgeExclude:
   - '@woocommerce/*'
   - '@wordpress/*'
   - 'gridicons'
-  - 'i18n-calypso'
+  - 'wpcom-proxy-request'
   # Security update: fast-uri@3.1.7
   - fast-uri@3.1.7
   # Renovate security update: sharp@0.35.4

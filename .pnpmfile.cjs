@@ -61,12 +61,9 @@ async function fixDeps( pkg ) {
 	// Deps tend to get outdated due to a slow release cycle.
 	// So change `^` to `>=` to avoid many duplicate packages (most are dependency-extracted in the build anyway), and hope any breaking changes will not really break.
 	if (
-		pkg.name === '@automattic/api-core' ||
-		pkg.name === '@automattic/components' ||
-		pkg.name === '@automattic/data-stores' ||
 		pkg.name === '@automattic/i18n-utils' ||
 		pkg.name === '@automattic/launchpad' ||
-		pkg.name === '@automattic/ui'
+		pkg.name === '@automattic/site-launch-modals'
 	) {
 		for ( const [ dep, ver ] of Object.entries( pkg.dependencies ) ) {
 			if ( dep.startsWith( '@wordpress/' ) ) {
@@ -102,48 +99,6 @@ async function fixDeps( pkg ) {
 				}
 			}
 		}
-	}
-
-	// Unused, vulnerable dep.
-	if (
-		pkg.name === '@automattic/components' &&
-		pkg.dependencies[ 'react-router-dom' ]?.startsWith( '^6' )
-	) {
-		delete pkg.dependencies[ 'react-router-dom' ];
-	}
-
-	// Oddly pinned dep.
-	if (
-		pkg.name === '@automattic/components' &&
-		pkg.dependencies.colord &&
-		! pkg.dependencies.colord.startsWith( '^' )
-	) {
-		pkg.dependencies.colord = '^' + pkg.dependencies.colord;
-	}
-
-	// Breaking change in @wordpress/icons v11.
-	if (
-		pkg.name === '@automattic/components' &&
-		pkg.dependencies[ '@wordpress/icons' ]?.startsWith( '>=10' )
-	) {
-		pkg.dependencies[ '@wordpress/icons' ] += ' <11';
-	}
-
-	// Outdated dependency version causing dependabot warnings.
-	// Once we can drop @wordpress/icons v10 (see above), looks like this can go away.
-	// https://github.com/WordPress/gutenberg/issues/69557
-	if ( pkg.name === '@wordpress/icons' && pkg.dependencies?.[ '@babel/runtime' ] === '7.25.7' ) {
-		pkg.dependencies[ '@babel/runtime' ] = '^7.26.10';
-	}
-
-	// Missing dep or peer dep on react.
-	// https://github.com/WordPress/gutenberg/issues/73257 (fixed in @wordpress/icons v11, but see above)
-	if (
-		pkg.name === '@wordpress/icons' &&
-		! pkg.dependencies?.react &&
-		! pkg.peerDependencies?.react
-	) {
-		pkg.peerDependencies.react = '^18';
 	}
 
 	// We need to add the missing deps for `@wordpress/dataviews` because
@@ -408,22 +363,6 @@ function fixPeerDeps( pkg ) {
 		pkg.peerDependenciesMeta[ '@size-limit/file' ] = { optional: true };
 	}
 
-	// Override @automattic/launchpad outdated peer dependencies.
-	if ( pkg.name === '@automattic/launchpad' ) {
-		if (
-			pkg.peerDependencies?.[ '@wordpress/element' ] &&
-			pkg.peerDependencies?.[ '@wordpress/element' ].startsWith( '^6.' )
-		) {
-			pkg.peerDependencies[ '@wordpress/element' ] = '^8';
-		}
-		if (
-			pkg.peerDependencies?.[ '@wordpress/i18n' ] &&
-			pkg.peerDependencies?.[ '@wordpress/i18n' ].startsWith( '^5.' )
-		) {
-			pkg.peerDependencies[ '@wordpress/i18n' ] = '^6';
-		}
-	}
-
 	// Outdated peer dependency because Gutenberg is still on node 20.
 	if (
 		pkg.name === '@wordpress/e2e-test-utils-playwright' &&
@@ -489,6 +428,13 @@ function afterAllResolved( lockfile, context ) {
 		if ( k.startsWith( '@wordpress/scripts@' ) ) {
 			throw new Error(
 				"Please don't bring in `@wordpress/scripts`. It brings in different versions of a lot of dependencies, and we generally have our own way to do the things that it tries to do.\nFor example, instead of `wp-scripts build`, run `webpack` directly with a config based on our monorepo-internal `@automattic/jetpack-webpack-config` package."
+			);
+		}
+
+		// We want `@wordpress/i18n`, not `i18n-calypso`.
+		if ( k.startsWith( 'i18n-calypso@' ) ) {
+			throw new Error(
+				"Please don't bring in `i18n-calypso`. We use `@wordpress/i18n` for GlotPress compatibility."
 			);
 		}
 
