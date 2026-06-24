@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Sync: add test coverage for refreshing the plugin list callable when a plugin is deleted.
