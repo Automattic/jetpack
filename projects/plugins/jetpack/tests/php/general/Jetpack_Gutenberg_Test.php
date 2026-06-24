@@ -816,7 +816,7 @@ class Jetpack_Gutenberg_Test extends WP_UnitTestCase {
 	public function test_lazy_register_resolves_synced_pattern_reference() {
 		$feature = 'zz-lazy-pattern-fixture';
 		$fixture = $this->create_lazy_fixture_block( $feature );
-		$ref_id = self::factory()->post->create(
+		$ref_id  = self::factory()->post->create(
 			array(
 				'post_type'    => 'wp_block',
 				'post_status'  => 'publish',
@@ -999,6 +999,7 @@ class Jetpack_Gutenberg_Test extends WP_UnitTestCase {
 		add_action( 'doing_it_wrong_run', $listener, 10, 3 );
 		add_filter( 'doing_it_wrong_trigger_error', '__return_false' );
 		try {
+			$this->setExpectedIncorrectUsage( 'Jetpack_Gutenberg::warn_about_deferred_block_registration_failure' );
 			$this->invoke_load_and_register_deferred_block( 'zz-lazy-missing-fixture' );
 			$this->assertIsArray( $captured, 'Expected _doing_it_wrong() to fire for a missing deferred block file.' );
 			$this->assertStringContainsString( 'missing block registration file', $captured['message'] );
