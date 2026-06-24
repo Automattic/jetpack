@@ -2427,6 +2427,9 @@ importers:
       autoprefixer:
         specifier: 10.4.20
         version: 10.4.20(postcss@8.5.14)
+      jest:
+        specifier: 30.4.2
+        version: 30.4.2
       postcss:
         specifier: 8.5.14
         version: 8.5.14

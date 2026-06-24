@@ -13,7 +13,12 @@ export { formatPercentage } from './format-percentage';
 export { getLongestTickWidth } from './get-longest-tick-width';
 
 // Style and theming utilities
-export { getSeriesLineStyles, getSeriesStroke, getItemShapeStyles } from './get-styles';
+export {
+	getSeriesBarStyles,
+	getSeriesLineStyles,
+	getSeriesStroke,
+	getItemShapeStyles,
+} from './get-styles';
 
 // Browser detection utilities
 export { isSafari } from './is-safari';
