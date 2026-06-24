@@ -108,6 +108,15 @@ function LocationsInner( { attributes }: WidgetRenderProps< LocationsAttributes 
 					location.countryCode && {
 						onClick: () =>
 							setSelectedCountry( { code: location.countryCode, name: location.countryFull } ),
+						// Without ariaLabel the button's accessible name is computed from
+						// its children: "Flag of X" (image alt) + "X" (visible label) →
+						// screen readers announce the country name twice. Provide a concise
+						// action label that replaces the computed name.
+						ariaLabel: sprintf(
+							/* translators: %s is the country name */
+							__( 'View regions in %s', 'jetpack-premium-analytics' ),
+							location.countryFull
+						),
 					} ),
 			};
 		} ) as LeaderboardChartData;
