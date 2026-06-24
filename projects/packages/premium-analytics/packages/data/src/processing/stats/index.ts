@@ -31,6 +31,7 @@ export { sanitizeStatsStreakResponse } from './streak';
 export { sanitizeStatsTagsResponse } from './tags';
 export { sanitizeStatsDevicesResponse } from './devices';
 export { sanitizeStatsPublicizeResponse } from './publicize';
+export { sanitizeStatsWordAdsStatsResponse, sanitizeStatsWordAdsEarningsResponse } from './wordads';
 export type { StatsTopPostsItem } from './top-posts';
 export type {
 	StatsPostMonthValues,
@@ -64,6 +65,7 @@ export type { StatsUtmItem, StatsUtmParam, StatsUtmTopPostItem } from './utm';
 export type { StatsEmailSummaryItem } from './email-summary';
 export type { StatsEmailBreakdownItem } from './email-breakdown';
 export type { StatsArchivesItem } from './archives';
+export type { StatsTimeSeriesDataPoint, StatsTimeSeriesReport } from './time-series';
 export type {
 	StatsCommentFollowersItem,
 	StatsCommentFollowersRawPost,
@@ -104,7 +106,6 @@ export type {
 	StatsSubscribersResponse,
 } from './subscribers';
 export type { StatsStreakRawResponse, StatsStreakResponse } from './streak';
-export type { StatsTimeSeriesDataPoint, StatsTimeSeriesReport } from './time-series';
 export type {
 	StatsTagsChildItem,
 	StatsTagsItem,
@@ -113,6 +114,20 @@ export type {
 	StatsTagsRawResponse,
 	StatsTagsRawTag,
 } from './tags';
+export type {
+	StatsWordAdsEarnings,
+	StatsWordAdsEarningsBreakdown,
+	StatsWordAdsEarningsPeriod,
+	StatsWordAdsEarningsRaw,
+	StatsWordAdsEarningsRawBreakdown,
+	StatsWordAdsEarningsRawPeriod,
+	StatsWordAdsEarningsRawResponse,
+	StatsWordAdsEarningsResponse,
+	StatsWordAdsStatsDataPoint,
+	StatsWordAdsStatsRawField,
+	StatsWordAdsStatsRawResponse,
+	StatsWordAdsStatsResponse,
+} from './wordads';
 export type {
 	StatsItemAction,
 	StatsNormalizedDataPoint,
