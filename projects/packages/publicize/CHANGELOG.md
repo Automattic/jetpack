@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.83.1] - 2026-06-24
+### Changed
+- Defer REST controller instantiation so the controller classes only load on REST API requests. [#49803]
+
+### Fixed
+- Fix the Social admin page rendering blank, and restore the editor sharing panel, on WordPress 6.9. [#49859]
+
 ## [0.83.0] - 2026-06-23
 ### Added
 - Crop Open Graph images around the selected image focal point. [#49746]
@@ -1522,6 +1529,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies.
 - Update package.json metadata.
 
+[0.83.1]: https://github.com/Automattic/jetpack-publicize/compare/v0.83.0...v0.83.1
 [0.83.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.82.0...v0.83.0
 [0.82.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.81.4...v0.82.0
 [0.81.4]: https://github.com/Automattic/jetpack-publicize/compare/v0.81.3...v0.81.4
