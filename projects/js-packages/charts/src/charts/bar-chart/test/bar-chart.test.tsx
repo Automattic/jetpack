@@ -1,8 +1,7 @@
-import { render, renderHook, screen } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { GlobalChartsProvider } from '../../../providers';
 import BarChart from '../bar-chart';
-import { useBarChartOptions } from '../private';
 
 // Mock useElementSize to return non-zero dimensions in jsdom so charts render
 const mockRefCallback = jest.fn();
@@ -234,37 +233,6 @@ describe( 'BarChart', () => {
 			// Check that no pattern definitions container is present
 			expect( screen.queryByTestId( 'bar-chart-patterns' ) ).not.toBeInTheDocument();
 		} );
-
-		test( 'comparison shadow reuses the primary bar pattern when patterns are enabled', () => {
-			renderWithTheme( {
-				withPatterns: true,
-				data: [
-					{
-						label: 'This period',
-						group: 'views',
-						data: [
-							{ label: 'Mon', value: 10 },
-							{ label: 'Tue', value: 20 },
-						],
-					},
-					{
-						label: 'Previous period',
-						group: 'views',
-						options: { type: 'comparison' as const },
-						data: [
-							{ label: 'Mon', value: 15 },
-							{ label: 'Tue', value: 25 },
-						],
-					},
-				],
-			} );
-
-			const shadow = screen.getAllByTestId( /^bar-chart-comparison-\d+-\d+$/ )[ 0 ];
-			const shadowFill = shadow.getAttribute( 'fill' );
-			// Shadow is filled with a pattern, not a solid color, and it references the PRIMARY
-			// series' pattern (index 0) rather than the comparison series' own index.
-			expect( shadowFill ).toMatch( /^url\(#bar-pattern-.+-0\)$/ );
-		} );
 	} );
 
 	describe( 'Keyboard Navigation Accessibility', () => {
@@ -375,45 +343,6 @@ describe( 'BarChart', () => {
 				expect( screen.getByTestId( 'chart-tooltip-0' ) ).toHaveFocus();
 				expect( screen.getByTestId( 'chart-tooltip-0' ) ).toHaveTextContent( 'Series A' );
 				expect( screen.queryByTestId( 'chart-tooltip-1' ) ).not.toBeInTheDocument();
-			} );
-		} );
-
-		describe( 'Comparison tooltip', () => {
-			test( 'tooltip shows both the primary and comparison values', async () => {
-				const user = userEvent.setup();
-				renderWithTheme( {
-					withTooltips: true,
-					data: [
-						{
-							label: 'This period',
-							group: 'views',
-							data: [
-								{ date: new Date( '2024-01-01' ), value: 10, label: 'Jan 1' },
-								{ date: new Date( '2024-01-02' ), value: 20, label: 'Jan 2' },
-							],
-						},
-						{
-							label: 'Previous period',
-							group: 'views',
-							options: { type: 'comparison' as const },
-							data: [
-								{ date: new Date( '2024-01-01' ), value: 15, label: 'Jan 1' },
-								{ date: new Date( '2024-01-02' ), value: 25, label: 'Jan 2' },
-							],
-						},
-					],
-				} );
-
-				const chart = screen.getByRole( 'grid', { name: /bar chart/i } );
-				chart.focus();
-
-				await user.keyboard( '{ArrowRight}' );
-				const tooltip = screen.getByTestId( 'chart-tooltip-0' );
-				// Both the current and previous period values are shown.
-				expect( tooltip ).toHaveTextContent( 'This period' );
-				expect( tooltip ).toHaveTextContent( '10' );
-				expect( tooltip ).toHaveTextContent( 'Previous period' );
-				expect( tooltip ).toHaveTextContent( '15' );
 			} );
 		} );
 
@@ -822,125 +751,6 @@ describe( 'BarChart', () => {
 				// SVG text elements don't have textOverflow style
 				expect( label.tagName.toLowerCase() ).not.toBe( 'div' );
 			} );
-		} );
-	} );
-
-	describe( 'Comparison Series', () => {
-		it( 'renders a translucent shadow behind the primary bar for a comparison series', () => {
-			const data = [
-				{
-					label: 'This year',
-					group: 'views',
-					data: [
-						{ label: 'Jan', value: 100 },
-						{ label: 'Feb', value: 120 },
-					],
-				},
-				{
-					label: 'Last year',
-					group: 'views',
-					options: { type: 'comparison' as const },
-					data: [
-						{ label: 'Jan', value: 80 },
-						{ label: 'Feb', value: 140 },
-					],
-				},
-			];
-			render( <BarChart data={ data } width={ 400 } height={ 300 } /> );
-
-			// two comparison shadow rects (one per data point)
-			// Match individual rect testids like bar-chart-comparison-1-0 (not the group wrapper)
-			const shadows = screen.getAllByTestId( /^bar-chart-comparison-\d+-\d+$/ );
-			expect( shadows ).toHaveLength( 2 );
-			expect( shadows[ 0 ] ).toHaveAttribute( 'opacity', '0.5' );
-
-			// primary bars still render for the single primary series (visx .visx-bar)
-			// eslint-disable-next-line testing-library/no-node-access
-			const bars = document.querySelectorAll( '.visx-bar' );
-			expect( bars.length ).toBeGreaterThanOrEqual( 2 );
-		} );
-
-		it( 'expands value-axis domain to include comparison values exceeding the primary max', () => {
-			// Comparison value 150 exceeds primary max 100.
-			// Without domain expansion the value-axis scale config has no explicit domain,
-			// so visx derives it from primary BarSeries only (max=100).
-			// With the fix, an explicit domain [min,150] is set on the value-axis scale config.
-			const data = [
-				{
-					label: 'This year',
-					group: 'views',
-					data: [ { label: 'Jan', value: 100 } ],
-				},
-				{
-					label: 'Last year',
-					group: 'views',
-					options: { type: 'comparison' as const },
-					data: [ { label: 'Jan', value: 150 } ],
-				},
-			];
-
-			const { result } = renderHook( () => useBarChartOptions( data, false, {} ) );
-			const yScale = result.current.yScale as { domain?: number[] };
-			// domain must be set explicitly and its max must be >= 150
-			expect( yScale.domain ).toBeDefined();
-			expect( ( yScale.domain as number[] )[ 1 ] ).toBeGreaterThanOrEqual( 150 );
-		} );
-
-		it( 'counts only primary series for keyboard navigation when a comparison series is present', async () => {
-			const user = userEvent.setup();
-			// 2 primary + 1 comparison. totalPoints should be 2*2=4, not 3*2=6.
-			// If comparison is counted, the 5th ArrowRight would reference a phantom series
-			// and could throw or show an undefined tooltip key.
-			const data = [
-				{
-					label: 'Series A',
-					group: 'g',
-					data: [
-						{ label: 'Jan', value: 10 },
-						{ label: 'Feb', value: 20 },
-					],
-				},
-				{
-					label: 'Series B',
-					group: 'g2',
-					data: [
-						{ label: 'Jan', value: 15 },
-						{ label: 'Feb', value: 25 },
-					],
-				},
-				{
-					label: 'Last year',
-					group: 'g',
-					options: { type: 'comparison' as const },
-					data: [
-						{ label: 'Jan', value: 8 },
-						{ label: 'Feb', value: 18 },
-					],
-				},
-			];
-			render(
-				<GlobalChartsProvider>
-					<BarChart data={ data } width={ 400 } height={ 300 } withTooltips />
-				</GlobalChartsProvider>
-			);
-
-			const chart = screen.getByRole( 'grid', { name: /bar chart/i } );
-			chart.focus();
-
-			// Navigate through all 4 primary slots (2 series × 2 data points)
-			for ( let i = 0; i < 4; i++ ) {
-				await user.keyboard( '{ArrowRight}' );
-			}
-
-			// If totalPoints was 6 (counted comparison), tooltip 4 would still show.
-			// With correct totalPoints=4, navigation wraps and tooltip 0 is shown again,
-			// not phantom slot 4 (which would reference data[2], a comparison series).
-			// Either way, there must be no crash and navigation must stay in bounds.
-			const tooltips = screen.queryAllByTestId( /^chart-tooltip-/ );
-			expect( tooltips ).toHaveLength( 1 );
-			// The visible tooltip must belong to a primary series
-			const tooltipText = tooltips[ 0 ].textContent ?? '';
-			expect( [ 'Series A', 'Series B' ].some( k => tooltipText.includes( k ) ) ).toBe( true );
 		} );
 	} );
 

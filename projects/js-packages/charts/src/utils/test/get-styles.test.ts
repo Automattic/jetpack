@@ -1,10 +1,5 @@
 import { ChartTheme } from '../../types';
-import {
-	getSeriesBarStyles,
-	getSeriesLineStyles,
-	getSeriesStroke,
-	getItemShapeStyles,
-} from '../get-styles';
+import { getSeriesLineStyles, getSeriesStroke, getItemShapeStyles } from '../get-styles';
 
 describe( 'Series styling utility functions', () => {
 	const mockSeriesData = {
@@ -160,28 +155,6 @@ describe( 'Series styling utility functions', () => {
 
 			const result = getItemShapeStyles( comparisonSeries, 0, mockTheme as ChartTheme, 'rect' );
 			expect( result ).toEqual( mockTheme.legend.shapeStyles[ 0 ] );
-		} );
-
-		it( 'applies the comparison bar opacity to the swatch for non-line legends', () => {
-			const themeWithBar = {
-				...mockTheme,
-				barChart: { barStyles: { comparison: { widthFactor: 1.5, opacity: 0.5 } } },
-				// No per-index legend shape styles, so the swatch reflects only the comparison opacity.
-				legend: { shapeStyles: [] },
-			} as ChartTheme;
-			const comparisonSeries = {
-				...mockSeriesData,
-				options: { type: 'comparison' as const },
-			};
-
-			// rect (bar) legend: swatch picks up the comparison opacity to match the bar.
-			const rectResult = getItemShapeStyles( comparisonSeries, 0, themeWithBar, 'rect' );
-			expect( rectResult ).toEqual( { opacity: 0.5 } );
-
-			// line legend: comparison is conveyed via the dashed stroke, not opacity.
-			const lineResult = getItemShapeStyles( comparisonSeries, 0, themeWithBar, 'line' );
-			expect( lineResult.opacity ).toBeUndefined();
-			expect( lineResult ).toMatchObject( { strokeDasharray: '4 4' } );
 		} );
 
 		it( 'merges custom shape styles with line styles for line shape', () => {
@@ -355,25 +328,6 @@ describe( 'Series styling utility functions', () => {
 				strokeLinecap: 'square',
 				strokeWidth: 1.5,
 			} );
-		} );
-	} );
-
-	describe( 'getSeriesBarStyles', () => {
-		const themeWithBar = {
-			...mockTheme,
-			barChart: { barStyles: { comparison: { widthFactor: 1.5, opacity: 0.5 } } },
-		} as ChartTheme;
-
-		it( 'returns comparison bar styles when type is comparison', () => {
-			const comparisonSeries = { ...mockSeriesData, options: { type: 'comparison' as const } };
-			expect( getSeriesBarStyles( comparisonSeries, 0, themeWithBar ) ).toEqual( {
-				widthFactor: 1.5,
-				opacity: 0.5,
-			} );
-		} );
-
-		it( 'returns empty styles for a series with no type', () => {
-			expect( getSeriesBarStyles( mockSeriesData, 0, themeWithBar ) ).toEqual( {} );
 		} );
 	} );
 } );

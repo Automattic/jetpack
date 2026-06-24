@@ -268,16 +268,6 @@ export type SeriesData = {
 	options?: SeriesDataOptions;
 };
 
-/**
- * Visual styling for a bar series of a given semantic type (e.g. 'comparison').
- * `widthFactor` is the bar width relative to the primary bar slot (1.5 = 150%);
- * `opacity` sets the shadow translucency.
- */
-export type BarStyles = {
-	widthFactor?: number;
-	opacity?: number;
-};
-
 export type MultipleDataPointsDate = {
 	label: string;
 	data: DataPointDate[];
@@ -398,9 +388,6 @@ export type ChartTheme = {
 	lineChart?: {
 		lineStyles?: Partial< Record< NonNullable< SeriesDataOptions[ 'type' ] >, LineStyles > >;
 	};
-	barChart?: {
-		barStyles?: Partial< Record< NonNullable< SeriesDataOptions[ 'type' ] >, BarStyles > >;
-	};
 	/** Sparkline specific settings */
 	sparkline?: {
 		/** Margin around the sparkline chart */
@@ -432,9 +419,6 @@ export type CompleteChartTheme = Required< ChartTheme > & {
 		Pick< NonNullable< ChartTheme[ 'conversionFunnelChart' ] >, 'primaryColor' >;
 	lineChart: {
 		lineStyles: Record< NonNullable< SeriesDataOptions[ 'type' ] >, LineStyles >;
-	};
-	barChart: {
-		barStyles: Record< NonNullable< SeriesDataOptions[ 'type' ] >, BarStyles >;
 	};
 	legend: Required< NonNullable< ChartTheme[ 'legend' ] > >;
 	sparkline: Required< NonNullable< ChartTheme[ 'sparkline' ] > > & {

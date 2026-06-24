@@ -10,7 +10,6 @@ import {
 } from 'react';
 import {
 	getItemShapeStyles,
-	getSeriesBarStyles,
 	getSeriesLineStyles,
 	mergeThemes,
 	resolveCssVariable,
@@ -207,7 +206,6 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( { childre
 						( isPointPercentageData && data?.color ),
 				} ),
 				lineStyles: isSeriesData ? getSeriesLineStyles( data, index, providerTheme ) : {},
-				barStyles: isSeriesData ? getSeriesBarStyles( data, index, providerTheme ) : {},
 				glyph: providerTheme.glyphs?.[ index ],
 				shapeStyles: isSeriesData
 					? getItemShapeStyles( data, index, providerTheme, legendShape )
