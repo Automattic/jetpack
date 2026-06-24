@@ -1,4 +1,4 @@
-Significance: patch
-Type: other
+Significance: minor
+Type: enhancement
 
-Content Guidelines AI: only load the feature on WordPress.com Simple and Atomic sites, and require a paid Jetpack AI or Complete plan to generate guidelines.
+Content Guidelines AI: make AI guideline suggestions available on WordPress.com Simple and Atomic sites, with a paid Jetpack AI or Complete plan required to generate guidelines.
