@@ -385,15 +385,10 @@ if ( overlayEl ) {
 }
 
 /**
- * Honor the URL on initial paint: if the page loaded with `?s=`/`?q=`, open the
- * overlay (same as `popstate` on back/forward; matches legacy deep-link and
- * core-search-form behavior).
- *
- * Deferred to a later frame so `ensureHydrated()` clones the overlay regions
- * into the DOM after the Interactivity runtime's DOMContentLoaded hydration
- * walk, not during it. Opening synchronously (this deferred module evaluates
- * pre-DOMContentLoaded) lets the walk and `apis.render()` hydrate the same
- * regions twice, which detaches their `data-wp-each` bindings.
+ * Open the overlay on initial paint when the URL carries `?s=`/`?q=`, deferred
+ * to an animation frame so `ensureHydrated()` clones the regions after the
+ * Interactivity runtime's hydration walk — opening during it double-hydrates
+ * the regions and detaches their `data-wp-each` bindings.
  */
 function openOverlayFromInitialUrl() {
 	requestAnimationFrame( handlePopState );
