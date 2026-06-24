@@ -5,9 +5,7 @@ export function getStatsQueryEnabled< TData = unknown >(
 	queryOptions: UseQueryOptions< TData >,
 	options?: UseStatsOptions
 ) {
-	return options?.enabled === undefined
-		? queryOptions.enabled
-		: options.enabled && queryOptions.enabled !== false;
+	return options?.enabled === false ? false : queryOptions.enabled;
 }
 
 export function useStatsQuery< TData = unknown >(

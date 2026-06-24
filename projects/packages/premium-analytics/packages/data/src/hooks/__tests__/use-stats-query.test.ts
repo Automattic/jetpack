@@ -27,4 +27,16 @@ describe( 'Stats query hook helpers', () => {
 		expect( getStatsQueryEnabled( queryOptions, { enabled: false } ) ).toBe( false );
 		expect( getStatsQueryEnabled( queryOptions, { enabled: true } ) ).toBe( true );
 	} );
+
+	it( 'preserves a function predicate enabled instead of collapsing it to a boolean', () => {
+		const predicate = () => true;
+		const queryOptions = {
+			queryKey: [ 'stats' ],
+			enabled: predicate,
+		} satisfies UseQueryOptions;
+
+		expect( getStatsQueryEnabled( queryOptions ) ).toBe( predicate );
+		expect( getStatsQueryEnabled( queryOptions, { enabled: true } ) ).toBe( predicate );
+		expect( getStatsQueryEnabled( queryOptions, { enabled: false } ) ).toBe( false );
+	} );
 } );
