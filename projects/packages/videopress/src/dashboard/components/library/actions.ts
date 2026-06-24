@@ -76,7 +76,7 @@ export function buildLibraryActions( api: Api ): Action< LibraryItem >[] {
 		},
 		{
 			id: 'manage-captions',
-			label: __( 'Manage captions', 'jetpack-videopress-pkg' ),
+			label: __( 'Manage subtitles', 'jetpack-videopress-pkg' ),
 			supportsBulk: false,
 			isEligible: isVideoPressIdle,
 			callback: items => {

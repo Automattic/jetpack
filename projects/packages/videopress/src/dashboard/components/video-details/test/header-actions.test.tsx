@@ -47,7 +47,7 @@ describe( 'HeaderActions', () => {
 			/>
 		);
 
-		await user.click( screen.getByText( 'Manage captions' ) );
+		await user.click( screen.getByText( 'Manage subtitles' ) );
 
 		expect( onManageCaptions ).toHaveBeenCalledTimes( 1 );
 	} );

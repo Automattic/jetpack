@@ -39,7 +39,7 @@ const CaptionCueEdit = ( {
 		<div className="videopress-caption-cue">
 			<div className="videopress-caption-cue__text">
 				<TextareaControl
-					label={ __( 'Caption', 'jetpack-videopress-pkg' ) }
+					label={ __( 'Subtitle', 'jetpack-videopress-pkg' ) }
 					value={ attributes.text }
 					onChange={ text => setAttributes( { text } ) }
 					__nextHasNoMarginBottom={ true }
@@ -73,6 +73,7 @@ const CaptionCueEdit = ( {
 				<Button
 					icon={ trash }
 					label={ __( 'Delete cue', 'jetpack-videopress-pkg' ) }
+					showTooltip
 					onClick={ () => removeBlock( clientId ) }
 					variant="tertiary"
 					isDestructive
@@ -83,7 +84,7 @@ const CaptionCueEdit = ( {
 };
 
 /**
- * Register the caption cue block used by the embedded caption editor.
+ * Register the subtitle cue block used by the embedded subtitle editor.
  *
  * @return Registered block settings.
  */
@@ -94,8 +95,8 @@ export function registerCaptionCueBlock() {
 
 	return registerBlockType( CAPTION_CUE_BLOCK_NAME, {
 		apiVersion: 3,
-		title: __( 'Caption cue', 'jetpack-videopress-pkg' ),
-		description: __( 'A single VideoPress caption cue.', 'jetpack-videopress-pkg' ),
+		title: __( 'Subtitle cue', 'jetpack-videopress-pkg' ),
+		description: __( 'A single VideoPress subtitle cue.', 'jetpack-videopress-pkg' ),
 		category: 'text',
 		attributes: {
 			startTime: {

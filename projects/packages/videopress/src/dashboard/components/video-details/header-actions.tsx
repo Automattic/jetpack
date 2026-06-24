@@ -22,7 +22,7 @@ type Props = {
  * @param props                  - Component props.
  * @param props.canSave          - Whether the form has unsaved changes.
  * @param props.onSave           - Called when the Save button is activated.
- * @param props.onManageCaptions - Called when "Manage captions" is selected.
+ * @param props.onManageCaptions - Called when "Manage subtitles" is selected.
  * @param props.onDownload       - Called when "Download file" is selected.
  * @param props.onDelete         - Called when "Delete video" is selected.
  * @return The header-actions element.
@@ -52,7 +52,7 @@ export default function HeaderActions( {
 								onClose();
 							} }
 						>
-							{ __( 'Manage captions', 'jetpack-videopress-pkg' ) }
+							{ __( 'Manage subtitles', 'jetpack-videopress-pkg' ) }
 						</MenuItem>
 						<MenuItem
 							icon={ download }

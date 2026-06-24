@@ -2,6 +2,7 @@
 	width: min(1320px, calc(100vw - 40px));
 	height: min(860px, calc(100vh - 40px));
 	max-width: none;
+	max-height: none;
 }
 
 .videopress-caption-manager {
@@ -15,7 +16,7 @@
 	}
 
 	.components-modal__header {
-		padding-inline: 24px;
+		padding: 12px 18px;
 	}
 
 	.components-notice {
@@ -24,32 +25,24 @@
 	}
 }
 
-.videopress-caption-manager__header {
+.videopress-caption-manager__action-bar {
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
-	gap: 20px;
-	padding: 16px 24px;
+	gap: 12px;
+	padding: 10px 18px;
 	border-bottom: 1px solid #dcdcde;
 	background: #fff;
-
-	h2,
-	p {
-		margin: 0;
-	}
-
-	h2 {
-		font-size: 17px;
-		line-height: 1.35;
-	}
-
-	p {
-		margin-top: 3px;
-		color: #646970;
-	}
 }
 
-.videopress-caption-manager__header-actions,
+.videopress-caption-manager__status {
+	min-width: 0;
+	color: #646970;
+	font-size: 12px;
+	line-height: 1.4;
+}
+
+.videopress-caption-manager__action-buttons,
 .videopress-caption-manager__tracks-header,
 .videopress-caption-manager__tracks-header-actions,
 .videopress-caption-manager__track-actions,
@@ -61,7 +54,7 @@
 	gap: 8px;
 }
 
-.videopress-caption-manager__header-actions {
+.videopress-caption-manager__action-buttons {
 	flex-wrap: wrap;
 	justify-content: flex-end;
 }
@@ -116,10 +109,11 @@
 }
 
 .videopress-caption-manager__track {
-	display: flex;
-	flex-direction: column;
-	gap: 12px;
-	padding: 12px;
+	display: grid;
+	grid-template-columns: minmax(0, 1fr) auto;
+	gap: 8px;
+	align-items: center;
+	padding: 10px 12px;
 }
 
 .videopress-caption-manager__track-meta {
@@ -140,8 +134,9 @@
 }
 
 .videopress-caption-manager__track-actions {
-	align-items: flex-start;
+	align-items: center;
 	flex-wrap: wrap;
+	justify-content: flex-end;
 }
 
 .videopress-caption-manager__local-tracks {
@@ -177,6 +172,14 @@
 	padding: 12px 18px;
 	border-bottom: 1px solid #dcdcde;
 	background: #fff;
+}
+
+.videopress-caption-manager__editor-body {
+	display: grid;
+	grid-template-columns: minmax(420px, 1fr) minmax(360px, 0.72fr);
+	min-height: 0;
+	flex: 1;
+	overflow: hidden;
 }
 
 .videopress-caption-manager__upload-panel {
@@ -239,13 +242,6 @@
 	margin-top: auto;
 }
 
-.videopress-caption-manager__manual-panel {
-	display: grid;
-	grid-template-columns: minmax(420px, 1fr) minmax(360px, 0.72fr);
-	min-height: 0;
-	flex: 1;
-}
-
 .videopress-caption-manager__manual-main {
 	display: flex;
 	flex-direction: column;
@@ -254,7 +250,7 @@
 	min-height: 0;
 	padding: 18px;
 	overflow-x: hidden;
-	overflow-y: hidden;
+	overflow-y: auto;
 }
 
 .videopress-caption-manager__cue-toolbar {
@@ -348,7 +344,7 @@
 
 .videopress-caption-cue {
 	display: grid;
-	grid-template-columns: minmax(0, 1fr) 210px;
+	grid-template-columns: minmax(0, 1fr) minmax(180px, 220px);
 	gap: 12px;
 	padding: 12px;
 	border: 1px solid #dcdcde;
@@ -358,9 +354,19 @@
 
 .videopress-caption-cue__times {
 	display: grid;
-	grid-template-columns: 1fr 1fr 32px;
+	grid-template-columns: minmax(0, 1fr) 32px;
 	gap: 8px;
 	align-items: end;
+
+	.components-base-control {
+		grid-column: 1;
+	}
+
+	.components-button {
+		grid-column: 2;
+		grid-row: 1 / span 2;
+		align-self: end;
+	}
 }
 
 .videopress-caption-manager__preview {
@@ -383,10 +389,12 @@
 	border-radius: 4px;
 	overflow: hidden;
 
-	video {
+	video,
+	iframe {
 		display: block;
 		inline-size: 100%;
 		block-size: 100%;
+		border: 0;
 		object-fit: contain;
 	}
 }
@@ -412,10 +420,6 @@
 	line-height: 1.35;
 }
 
-.videopress-caption-manager__shortcuts.components-modal__frame {
-	width: min(520px, calc(100vw - 32px));
-}
-
 @media ( max-width: 960px ) {
 
 	.videopress-caption-manager.components-modal__frame {
@@ -423,9 +427,10 @@
 		height: calc(100vh - 24px);
 	}
 
-	.videopress-caption-manager__header,
-	.videopress-caption-manager__manual-panel,
+	.videopress-caption-manager__action-bar,
+	.videopress-caption-manager__editor-body,
 	.videopress-caption-manager__manual-meta,
+	.videopress-caption-manager__track,
 	.videopress-caption-manager__cue-order-row,
 	.videopress-caption-cue {
 		grid-template-columns: 1fr;
@@ -440,8 +445,8 @@
 		flex-wrap: wrap;
 	}
 
-	.videopress-caption-manager__header {
-		display: grid;
+	.videopress-caption-manager__action-bar {
+		align-items: flex-start;
 	}
 
 	.videopress-caption-manager__workspace {

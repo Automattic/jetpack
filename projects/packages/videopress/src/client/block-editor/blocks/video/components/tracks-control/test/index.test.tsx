@@ -24,7 +24,7 @@ jest.mock( '../../../../../../components/caption-manager-modal', () => ( {
 	__esModule: true,
 	default: ( { isOpen, onTracksChange } ) =>
 		isOpen ? (
-			<div role="dialog" aria-label="Manage captions">
+			<div role="dialog" aria-label="Manage subtitles">
 				<button
 					onClick={ () =>
 						onTracksChange( [
@@ -56,7 +56,7 @@ describe( 'TracksControl', () => {
 		jest.clearAllMocks();
 	} );
 
-	it( 'opens the shared caption manager modal from the block toolbar', async () => {
+	it( 'opens the shared subtitle manager modal from the block toolbar', async () => {
 		const user = userEvent.setup();
 		const setAttributes = jest.fn();
 
@@ -69,8 +69,8 @@ describe( 'TracksControl', () => {
 
 		expect( screen.queryByText( 'Upload track' ) ).not.toBeInTheDocument();
 
-		await user.click( screen.getByText( 'Manage captions' ) );
-		expect( screen.getByRole( 'dialog', { name: 'Manage captions' } ) ).toBeInTheDocument();
+		await user.click( screen.getByText( 'Manage subtitles' ) );
+		expect( screen.getByRole( 'dialog', { name: 'Manage subtitles' } ) ).toBeInTheDocument();
 
 		await user.click( screen.getByText( 'Update tracks' ) );
 

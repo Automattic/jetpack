@@ -29,7 +29,7 @@ export default function TracksControl( {
 	attributes,
 	setAttributes,
 }: VideoControlProps ): ReactElement | null {
-	const { guid, poster, src, title, tracks = [] } = attributes;
+	const { guid, poster, title, tracks = [] } = attributes;
 	const [ isModalOpen, setIsModalOpen ] = useState( false );
 	const invalidateResolution = useDispatch( coreStore ).invalidateResolution;
 	const hasGuid = !! guid;
@@ -51,7 +51,7 @@ export default function TracksControl( {
 		<>
 			<ToolbarButton
 				icon={ tracksIcon }
-				label={ __( 'Manage captions', 'jetpack-videopress-pkg' ) }
+				label={ __( 'Manage subtitles', 'jetpack-videopress-pkg' ) }
 				onClick={ () => setIsModalOpen( true ) }
 				disabled={ ! hasGuid }
 			/>
@@ -60,7 +60,6 @@ export default function TracksControl( {
 					isOpen={ isModalOpen }
 					guid={ guid }
 					title={ title }
-					videoSrc={ src }
 					poster={ poster }
 					tracks={ tracks }
 					onClose={ () => setIsModalOpen( false ) }

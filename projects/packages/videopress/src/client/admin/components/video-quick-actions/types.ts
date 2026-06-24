@@ -56,8 +56,6 @@ export interface VideoQuickActionsProps {
 	onUpdateVideoThumbnail?: ( action: 'default' | 'select-from-video' | 'upload-image' ) => void;
 	onUpdateVideoPrivacy?: ( action: 'site-default' | 'public' | 'private' ) => void;
 	onDeleteVideo?: ( event: MouseEvent< HTMLButtonElement > ) => void;
-	onManageCaptions?: ( event: MouseEvent< HTMLButtonElement > ) => void;
-	canManageCaptions?: boolean;
 }
 
 export interface ConnectVideoQuickActionsProps {

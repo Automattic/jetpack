@@ -15,14 +15,14 @@ const makeApi = () => ( {
 } );
 
 describe( 'buildLibraryActions', () => {
-	it( 'adds a Manage captions action for idle VideoPress items', () => {
+	it( 'adds a Manage subtitles action for idle VideoPress items', () => {
 		const api = makeApi();
 		const actions = buildLibraryActions( api );
 		const videoItem = item( { tracks: [] } );
 		const action = actions.find( candidate => candidate.id === 'manage-captions' );
 
 		expect( action ).toBeDefined();
-		expect( action?.label ).toBe( 'Manage captions' );
+		expect( action?.label ).toBe( 'Manage subtitles' );
 		expect( action?.supportsBulk ).toBe( false );
 		expect( action?.isEligible?.( videoItem ) ).toBe( true );
 		expect( action?.isEligible?.( item( { type: 'local' } ) ) ).toBe( false );

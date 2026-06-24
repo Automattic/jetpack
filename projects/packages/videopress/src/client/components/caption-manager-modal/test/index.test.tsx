@@ -108,9 +108,9 @@ jest.mock( '@wordpress/blocks', () => {
 } );
 
 jest.mock( '@wordpress/components', () => ( {
-	Button: ( { children, onClick, disabled } ) => (
-		<button onClick={ onClick } disabled={ disabled }>
-			{ children }
+	Button: ( { children, onClick, disabled, label } ) => (
+		<button aria-label={ label } onClick={ onClick } disabled={ disabled }>
+			{ children ?? label }
 		</button>
 	),
 	CheckboxControl: ( { checked, label, onChange } ) => (
@@ -136,23 +136,6 @@ jest.mock( '@wordpress/components', () => ( {
 		</div>
 	),
 	Notice: ( { children } ) => <div role="alert">{ children }</div>,
-	SelectControl: ( { disabled, label, onChange, options, value } ) => (
-		<div>
-			<label htmlFor={ label }>{ label }</label>
-			<select
-				id={ label }
-				disabled={ disabled }
-				value={ value }
-				onChange={ event => onChange( event.target.value ) }
-			>
-				{ options.map( option => (
-					<option key={ option.value } value={ option.value }>
-						{ option.label }
-					</option>
-				) ) }
-			</select>
-		</div>
-	),
 	TextareaControl: ( { label, onChange, value } ) => (
 		<label htmlFor={ label }>
 			{ label }
@@ -189,8 +172,10 @@ jest.mock( '@wordpress/i18n', () => ( {
 } ) );
 
 jest.mock( '@wordpress/icons', () => ( {
+	arrowDown: 'arrow-down',
+	arrowUp: 'arrow-up',
+	copy: 'copy',
 	download: 'download',
-	help: 'help',
 	plus: 'plus',
 	trash: 'trash',
 	upload: 'upload',
@@ -338,7 +323,7 @@ describe( 'CaptionManagerModal', () => {
 			reader.readAsText( file );
 		} );
 
-	it( 'registers the caption cue block used by the editor', () => {
+	it( 'registers the subtitle cue block used by the editor', () => {
 		expect(
 			jest.requireMock( '@wordpress/blocks' ).__registry.get( 'videopress/caption-cue' )
 		).toEqual(
@@ -355,7 +340,9 @@ describe( 'CaptionManagerModal', () => {
 	it( 'lists existing tracks and preserves generated language keys for display', async () => {
 		render( <CaptionManagerModal { ...defaultProps } /> );
 
-		expect( screen.getByRole( 'dialog', { name: 'Manage captions' } ) ).toBeInTheDocument();
+		expect(
+			screen.getByRole( 'dialog', { name: 'Manage subtitles for Test video' } )
+		).toBeInTheDocument();
 		expect( screen.getByText( 'English' ) ).toBeInTheDocument();
 		expect( screen.getByText( 'English auto-generated' ) ).toBeInTheDocument();
 		expect( screen.getByText( /auto_en/ ) ).toBeInTheDocument();
@@ -406,6 +393,14 @@ describe( 'CaptionManagerModal', () => {
 						source: 'manual',
 						status: 'syncing',
 					},
+					{
+						kind: 'descriptions',
+						srcLang: 'en',
+						label: 'Audio descriptions',
+						src: 'descriptions.vtt',
+						source: 'manual',
+						status: 'ready',
+					},
 				] }
 			/>
 		);
@@ -413,6 +408,7 @@ describe( 'CaptionManagerModal', () => {
 		expect( screen.getByText( /Manual.*Ready.*Draft/ ) ).toBeInTheDocument();
 		expect( screen.getByText( /Auto-generated.*Ready/ ) ).toBeInTheDocument();
 		expect( screen.getByText( /Manual.*Processing/ ) ).toBeInTheDocument();
+		expect( screen.queryByText( 'Audio descriptions' ) ).not.toBeInTheDocument();
 
 		const editButtons = screen.getAllByRole( 'button', { name: 'Edit manually' } );
 		const replaceButtons = screen.getAllByRole( 'button', { name: 'Replace file' } );
@@ -425,7 +421,7 @@ describe( 'CaptionManagerModal', () => {
 		expect( replaceButtons[ 2 ] ).toBeDisabled();
 		expect( downloadButtons[ 2 ] ).toBeDisabled();
 		await waitFor( () =>
-			expect( screen.queryByText( /Loading caption tracks/ ) ).not.toBeInTheDocument()
+			expect( screen.queryByText( /Loading subtitle tracks/ ) ).not.toBeInTheDocument()
 		);
 	} );
 
@@ -433,7 +429,7 @@ describe( 'CaptionManagerModal', () => {
 		const user = userEvent.setup();
 		render( <CaptionManagerModal { ...defaultProps } /> );
 
-		expect( screen.getByText( 'Caption tracks' ) ).toBeInTheDocument();
+		expect( screen.getByText( 'Subtitle tracks' ) ).toBeInTheDocument();
 		expect( screen.queryByText( 'Upload file' ) ).not.toBeInTheDocument();
 
 		await user.click( screen.getByText( 'Add track' ) );
@@ -443,7 +439,20 @@ describe( 'CaptionManagerModal', () => {
 		expect( screen.getByLabelText( 'Cue text' ) ).toBeInTheDocument();
 	} );
 
-	it( 'lists saved caption tracks and resumes their editor content', async () => {
+	it( 'does not expose track kind selection in the manager forms', async () => {
+		const user = userEvent.setup();
+		render( <CaptionManagerModal { ...defaultProps } /> );
+
+		await user.click( screen.getByText( 'Add track' ) );
+
+		expect( screen.queryByLabelText( 'Kind' ) ).not.toBeInTheDocument();
+
+		await user.click( screen.getByText( 'Upload file' ) );
+
+		expect( screen.queryByLabelText( 'Kind' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'lists saved subtitle tracks and resumes their editor content', async () => {
 		const user = userEvent.setup();
 		( fetchCaptionTracks as jest.Mock ).mockResolvedValueOnce( [
 			{
@@ -463,9 +472,9 @@ describe( 'CaptionManagerModal', () => {
 
 		render( <CaptionManagerModal { ...defaultProps } tracks={ [] } /> );
 
-		await expect( screen.findByText( 'Local caption tracks' ) ).resolves.toBeInTheDocument();
+		await expect( screen.findByText( 'Local subtitle tracks' ) ).resolves.toBeInTheDocument();
 		expect( screen.getByText( 'Portuguese' ) ).toBeInTheDocument();
-		expect( screen.getByText( 'Captions · pt-BR · Draft' ) ).toBeInTheDocument();
+		expect( screen.getByText( 'pt-BR · Draft' ) ).toBeInTheDocument();
 
 		await user.click( screen.getByRole( 'button', { name: 'Edit saved track' } ) );
 
@@ -488,7 +497,7 @@ describe( 'CaptionManagerModal', () => {
 
 		await user.click( screen.getAllByText( 'Edit manually' )[ 0 ] );
 
-		expect( screen.getByText( /Loading caption content/ ) ).toBeInTheDocument();
+		expect( screen.getByText( /Loading subtitle content/ ) ).toBeInTheDocument();
 		expect( screen.getByRole( 'button', { name: 'Save Draft' } ) ).toBeDisabled();
 		expect( screen.getByRole( 'button', { name: 'Publish' } ) ).toBeDisabled();
 
@@ -498,7 +507,7 @@ describe( 'CaptionManagerModal', () => {
 		} );
 
 		await waitFor( () =>
-			expect( screen.queryByText( /Loading caption content/ ) ).not.toBeInTheDocument()
+			expect( screen.queryByText( /Loading subtitle content/ ) ).not.toBeInTheDocument()
 		);
 		expect( screen.getByRole( 'button', { name: 'Save Draft' } ) ).toBeEnabled();
 		expect( screen.getByRole( 'button', { name: 'Publish' } ) ).toBeEnabled();
@@ -513,7 +522,7 @@ describe( 'CaptionManagerModal', () => {
 		await user.click( screen.getAllByText( 'Edit manually' )[ 0 ] );
 
 		await expect( screen.findByRole( 'alert' ) ).resolves.toHaveTextContent(
-			'Unable to load caption content. You can try again from the track list or start from an empty caption track.'
+			'Unable to load subtitle content. You can try again from the track list or start from an empty subtitle track.'
 		);
 	} );
 
@@ -568,7 +577,7 @@ describe( 'CaptionManagerModal', () => {
 		render( <CaptionManagerModal { ...defaultProps } tracks={ [] } /> );
 
 		await user.click( screen.getByText( 'Add track' ) );
-		const workspace = screen.getByRole( 'group', { name: 'Caption editing workspace' } );
+		const workspace = screen.getByRole( 'group', { name: 'Subtitle editing workspace' } );
 		const video = screen.getByLabelText( 'Video preview' ) as HTMLVideoElement;
 		const setPaused = ( paused: boolean ) => {
 			Object.defineProperty( video, 'paused', {
@@ -625,7 +634,7 @@ describe( 'CaptionManagerModal', () => {
 		expect( video.currentTime ).toBe( 1 );
 	} );
 
-	it( 'does not intercept shortcut keys while editing caption text', async () => {
+	it( 'does not intercept shortcut keys while editing subtitle text', async () => {
 		const user = userEvent.setup();
 		render( <CaptionManagerModal { ...defaultProps } tracks={ [] } /> );
 
@@ -640,7 +649,7 @@ describe( 'CaptionManagerModal', () => {
 		expect( video.currentTime ).toBe( 10 );
 	} );
 
-	it( 'reorders and duplicates cue blocks from caption order controls', async () => {
+	it( 'reorders and duplicates cue blocks from subtitle order controls', async () => {
 		const user = userEvent.setup();
 		render( <CaptionManagerModal { ...defaultProps } tracks={ [] } /> );
 
@@ -650,7 +659,7 @@ describe( 'CaptionManagerModal', () => {
 		await user.type( screen.getByLabelText( 'Cue start' ), '00:00:01.000' );
 		await user.clear( screen.getByLabelText( 'Cue end' ) );
 		await user.type( screen.getByLabelText( 'Cue end' ), '00:00:02.000' );
-		await user.click( screen.getByText( 'Caption' ) );
+		await user.click( screen.getByText( 'Subtitle' ) );
 
 		await user.type( screen.getAllByLabelText( 'Cue text' )[ 1 ], 'Second cue.' );
 		await user.clear( screen.getAllByLabelText( 'Cue start' )[ 1 ] );
@@ -671,6 +680,12 @@ describe( 'CaptionManagerModal', () => {
 		expect( screen.getAllByLabelText( 'Cue text' )[ 2 ] ).toHaveValue( 'First cue.' );
 		expect( screen.getAllByLabelText( 'Cue start' )[ 1 ] ).toHaveValue( '00:00:04.000' );
 		expect( screen.getAllByLabelText( 'Cue end' )[ 1 ] ).toHaveValue( '00:00:05.000' );
+
+		await user.click( screen.getAllByRole( 'button', { name: 'Delete subtitle' } )[ 1 ] );
+
+		expect( screen.getAllByLabelText( 'Cue text' ) ).toHaveLength( 2 );
+		expect( screen.getAllByLabelText( 'Cue text' )[ 0 ] ).toHaveValue( 'Second cue.' );
+		expect( screen.getAllByLabelText( 'Cue text' )[ 1 ] ).toHaveValue( 'First cue.' );
 	} );
 
 	it( 'imports pasted transcript text as editable cue blocks', async () => {
@@ -679,10 +694,10 @@ describe( 'CaptionManagerModal', () => {
 
 		await user.click( screen.getByText( 'Add track' ) );
 		await user.click( screen.getByText( 'Paste text' ) );
-		await user.type( screen.getByLabelText( 'Caption text' ), 'Trail closed.\nTrail open.' );
+		await user.type( screen.getByLabelText( 'Subtitle text' ), 'Trail closed.\nTrail open.' );
 		await user.click( screen.getByText( 'Replace cues' ) );
 
-		expect( screen.getByRole( 'alert' ) ).toHaveTextContent( 'Caption text imported.' );
+		expect( screen.getByRole( 'alert' ) ).toHaveTextContent( 'Subtitle text imported.' );
 		expect( screen.getAllByLabelText( 'Cue text' ) ).toHaveLength( 2 );
 		expect( screen.getAllByLabelText( 'Cue text' )[ 0 ] ).toHaveValue( 'Trail closed.' );
 		expect( screen.getAllByLabelText( 'Cue start' )[ 0 ] ).toHaveValue( '00:00:00.000' );
@@ -690,7 +705,7 @@ describe( 'CaptionManagerModal', () => {
 		expect( screen.getAllByLabelText( 'Cue text' )[ 1 ] ).toHaveValue( 'Trail open.' );
 		expect( screen.getAllByLabelText( 'Cue start' )[ 1 ] ).toHaveValue( '00:00:04.000' );
 		expect( screen.getAllByLabelText( 'Cue end' )[ 1 ] ).toHaveValue( '00:00:08.000' );
-		expect( screen.queryByLabelText( 'Caption text' ) ).not.toBeInTheDocument();
+		expect( screen.queryByLabelText( 'Subtitle text' ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'starts transcript import directly from the track list', async () => {
@@ -700,13 +715,13 @@ describe( 'CaptionManagerModal', () => {
 		await user.click( screen.getByText( 'Paste transcript' ) );
 
 		expect( screen.getByText( 'Back to tracks' ) ).toBeInTheDocument();
-		expect( screen.getByLabelText( 'Caption text' ) ).toBeInTheDocument();
+		expect( screen.getByLabelText( 'Subtitle text' ) ).toBeInTheDocument();
 		expect( screen.getByLabelText( 'Language' ) ).toHaveValue( '' );
 
-		await user.type( screen.getByLabelText( 'Caption text' ), 'Trail closed.\nTrail open.' );
+		await user.type( screen.getByLabelText( 'Subtitle text' ), 'Trail closed.\nTrail open.' );
 		await user.click( screen.getByText( 'Replace cues' ) );
 
-		expect( screen.getByRole( 'alert' ) ).toHaveTextContent( 'Caption text imported.' );
+		expect( screen.getByRole( 'alert' ) ).toHaveTextContent( 'Subtitle text imported.' );
 		expect( screen.getAllByLabelText( 'Cue text' ) ).toHaveLength( 2 );
 		expect( screen.getAllByLabelText( 'Cue text' )[ 0 ] ).toHaveValue( 'Trail closed.' );
 		expect( screen.getAllByLabelText( 'Cue text' )[ 1 ] ).toHaveValue( 'Trail open.' );
@@ -759,7 +774,7 @@ describe( 'CaptionManagerModal', () => {
 		await waitFor( () => expect( uploadTrackForGuid ).toHaveBeenCalled() );
 		expect( uploadTrackForGuid ).toHaveBeenCalledWith(
 			expect.objectContaining( {
-				kind: 'captions',
+				kind: 'subtitles',
 				label: 'Portuguese',
 				srcLang: 'pt-BR',
 			} ),
@@ -767,7 +782,7 @@ describe( 'CaptionManagerModal', () => {
 		);
 		expect( onTracksChange ).toHaveBeenCalledWith( [
 			expect.objectContaining( {
-				kind: 'captions',
+				kind: 'subtitles',
 				label: 'Portuguese',
 				srcLang: 'pt-BR',
 				src: 'uploaded.vtt',
@@ -775,16 +790,16 @@ describe( 'CaptionManagerModal', () => {
 		] );
 	} );
 
-	it( 'starts caption file upload directly from the track list', async () => {
+	it( 'starts subtitle file upload directly from the track list', async () => {
 		const user = userEvent.setup();
 		const onTracksChange = jest.fn();
 		render(
 			<CaptionManagerModal { ...defaultProps } onTracksChange={ onTracksChange } tracks={ [] } />
 		);
 
-		await user.click( screen.getByText( 'Upload caption file' ) );
+		await user.click( screen.getByText( 'Upload subtitle file' ) );
 
-		expect( screen.getByText( 'Upload caption track' ) ).toBeInTheDocument();
+		expect( screen.getByText( 'Upload subtitle track' ) ).toBeInTheDocument();
 		expect(
 			screen.getByText(
 				'Allowed formats: .vtt, .srt, .sbv, .sub, .mpsub, .lrc, .smi, .sami, .rt, .ttml, .dfxp'
@@ -802,7 +817,7 @@ describe( 'CaptionManagerModal', () => {
 		await waitFor( () => expect( uploadTrackForGuid ).toHaveBeenCalled() );
 		expect( uploadTrackForGuid ).toHaveBeenCalledWith(
 			expect.objectContaining( {
-				kind: 'captions',
+				kind: 'subtitles',
 				label: 'Portuguese',
 				srcLang: 'pt-BR',
 			} ),
@@ -810,12 +825,38 @@ describe( 'CaptionManagerModal', () => {
 		);
 		expect( onTracksChange ).toHaveBeenCalledWith( [
 			expect.objectContaining( {
-				kind: 'captions',
+				kind: 'subtitles',
 				label: 'Portuguese',
 				srcLang: 'pt-BR',
 				src: 'uploaded.vtt',
 			} ),
 		] );
+	} );
+
+	it( 'keeps the video preview visible when switching to upload mode', async () => {
+		const user = userEvent.setup();
+		render( <CaptionManagerModal { ...defaultProps } /> );
+
+		await user.click( screen.getByText( 'Add track' ) );
+		expect( screen.getByLabelText( 'Video preview' ) ).toBeInTheDocument();
+
+		await user.click( screen.getByText( 'Upload file' ) );
+
+		expect( screen.getByLabelText( 'Video preview' ) ).toBeInTheDocument();
+		expect( screen.getByText( 'Upload subtitle track' ) ).toBeInTheDocument();
+	} );
+
+	it( 'uses a VideoPress player iframe for non-file preview URLs', async () => {
+		const user = userEvent.setup();
+		render(
+			<CaptionManagerModal { ...defaultProps } videoSrc="https://videopress.com/v/abc123" />
+		);
+
+		await user.click( screen.getByText( 'Add track' ) );
+
+		const preview = screen.getByTitle( 'Video preview' ) as HTMLIFrameElement;
+		expect( preview.tagName ).toBe( 'IFRAME' );
+		expect( preview.src ).toContain( 'https://videopress.com/embed/abc123' );
 	} );
 
 	it( 'surfaces backend-provided supported upload formats', async () => {
@@ -904,7 +945,7 @@ describe( 'CaptionManagerModal', () => {
 		await user.click( screen.getAllByText( 'Delete' )[ 0 ] );
 
 		expect( window.confirm ).toHaveBeenCalledWith(
-			'Delete the English caption track? This cannot be undone.'
+			'Delete the English subtitle track? This cannot be undone.'
 		);
 		await waitFor( () =>
 			expect( deleteTrackForGuid ).toHaveBeenCalledWith( tracks[ 0 ], 'abc123' )
@@ -944,7 +985,7 @@ describe( 'CaptionManagerModal', () => {
 		}
 	} );
 
-	it( 'saves a manual caption track with cue blocks', async () => {
+	it( 'saves a manual subtitle track with cue blocks', async () => {
 		const user = userEvent.setup();
 		render( <CaptionManagerModal { ...defaultProps } tracks={ [] } /> );
 
@@ -961,7 +1002,7 @@ describe( 'CaptionManagerModal', () => {
 				status: 'draft',
 				meta: expect.objectContaining( {
 					_videopress_guid: 'abc123',
-					_videopress_caption_kind: 'captions',
+					_videopress_caption_kind: 'subtitles',
 					_videopress_caption_src_lang: 'en',
 					_videopress_caption_label: 'English',
 				} ),
@@ -969,7 +1010,7 @@ describe( 'CaptionManagerModal', () => {
 		);
 	} );
 
-	it( 'publishes manual captions by serializing cues to WebVTT and uploading the track', async () => {
+	it( 'publishes manual subtitles by serializing cues to WebVTT and uploading the track', async () => {
 		const user = userEvent.setup();
 		const onTracksChange = jest.fn();
 		render(
@@ -987,7 +1028,7 @@ describe( 'CaptionManagerModal', () => {
 		const uploadedTrack = ( uploadTrackForGuid as jest.Mock ).mock.calls[ 0 ][ 0 ];
 		expect( uploadedTrack ).toEqual(
 			expect.objectContaining( {
-				kind: 'captions',
+				kind: 'subtitles',
 				label: 'English',
 				srcLang: 'en',
 			} )
@@ -1007,7 +1048,7 @@ describe( 'CaptionManagerModal', () => {
 		);
 		expect( onTracksChange ).toHaveBeenCalledWith( [
 			expect.objectContaining( {
-				kind: 'captions',
+				kind: 'subtitles',
 				srcLang: 'en',
 				src: 'uploaded.vtt',
 			} ),
@@ -1029,13 +1070,13 @@ describe( 'CaptionManagerModal', () => {
 		await user.click( screen.getByText( 'Publish' ) );
 
 		expect( screen.getByRole( 'alert' ) ).toHaveTextContent(
-			'Caption 1 must end after it starts.'
+			'Subtitle 1 must end after it starts.'
 		);
 		expect( saveCaptionTrack ).not.toHaveBeenCalled();
 		expect( uploadTrackForGuid ).not.toHaveBeenCalled();
 	} );
 
-	it( 'blocks publishing when caption cues overlap', async () => {
+	it( 'blocks publishing when subtitle cues overlap', async () => {
 		const user = userEvent.setup();
 		render( <CaptionManagerModal { ...defaultProps } tracks={ [] } /> );
 
@@ -1043,7 +1084,7 @@ describe( 'CaptionManagerModal', () => {
 		await user.type( screen.getByLabelText( 'Label' ), 'English' );
 		await user.type( screen.getByLabelText( 'Language' ), 'en' );
 		await user.type( screen.getByLabelText( 'Cue text' ), 'First cue.' );
-		await user.click( screen.getByText( 'Caption' ) );
+		await user.click( screen.getByText( 'Subtitle' ) );
 
 		const cueTexts = screen.getAllByLabelText( 'Cue text' );
 		const cueStarts = screen.getAllByLabelText( 'Cue start' );
@@ -1060,12 +1101,12 @@ describe( 'CaptionManagerModal', () => {
 		await user.type( cueEnds[ 1 ], '00:00:06.000' );
 		await user.click( screen.getByText( 'Publish' ) );
 
-		expect( screen.getByRole( 'alert' ) ).toHaveTextContent( 'Caption 2 overlaps caption 1.' );
+		expect( screen.getByRole( 'alert' ) ).toHaveTextContent( 'Subtitle 2 overlaps subtitle 1.' );
 		expect( saveCaptionTrack ).not.toHaveBeenCalled();
 		expect( uploadTrackForGuid ).not.toHaveBeenCalled();
 	} );
 
-	it( 'keeps local caption tracks as draft when VideoPress publishing fails', async () => {
+	it( 'keeps local subtitle tracks as draft when VideoPress publishing fails', async () => {
 		const user = userEvent.setup();
 		( fetchCaptionTracks as jest.Mock ).mockResolvedValueOnce( [
 			{
@@ -1084,7 +1125,7 @@ describe( 'CaptionManagerModal', () => {
 		] );
 		( uploadTrackForGuid as jest.Mock ).mockResolvedValueOnce( {
 			code: 'publish_failed',
-			message: 'VideoPress rejected the caption file.',
+			message: 'VideoPress rejected the subtitle file.',
 		} );
 
 		render( <CaptionManagerModal { ...defaultProps } tracks={ [] } /> );
@@ -1095,11 +1136,11 @@ describe( 'CaptionManagerModal', () => {
 		await waitFor( () => expect( uploadTrackForGuid ).toHaveBeenCalled() );
 		expect( saveCaptionTrack ).not.toHaveBeenCalled();
 		expect( screen.getByRole( 'alert' ) ).toHaveTextContent(
-			'Track error: VideoPress rejected the caption file.'
+			'Track error: VideoPress rejected the subtitle file.'
 		);
 	} );
 
-	it( 'duplicates generated captions into a manual caption track instead of overwriting auto tracks', async () => {
+	it( 'duplicates generated captions into a manual subtitle track instead of overwriting auto tracks', async () => {
 		const user = userEvent.setup();
 		const onTracksChange = jest.fn();
 		render( <CaptionManagerModal { ...defaultProps } onTracksChange={ onTracksChange } /> );
@@ -1124,7 +1165,7 @@ describe( 'CaptionManagerModal', () => {
 		);
 		expect( onTracksChange ).toHaveBeenCalledWith( [
 			expect.objectContaining( {
-				kind: 'captions',
+				kind: 'subtitles',
 				srcLang: 'en',
 			} ),
 			tracks[ 1 ],
