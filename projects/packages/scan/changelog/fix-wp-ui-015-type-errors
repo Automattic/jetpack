@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Scan dashboard: align Text, Notice and Tabs.Panel props with the `@wordpress/ui` 0.15 API (express muted text via a CSS class on the closest Text variant, weight via `style`, rename Notice `variant` to `intent`, drop the unsupported `focusable` prop).
+Scan dashboard: align Text, Notice and Tabs.Panel props with the `@wordpress/ui` 0.15 API (adopt the closest typographic Text variants for size/weight, express muted color via a CSS class, rename Notice `variant` to `intent`, drop the unsupported `focusable` prop).

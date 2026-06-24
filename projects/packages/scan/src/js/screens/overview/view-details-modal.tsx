@@ -67,15 +67,15 @@ export function ViewDetailsModal( { items }: RenderModalProps< Threat > ): JSX.E
 		<Stack gap="lg" direction="column">
 			<Stack gap="xs" direction="column">
 				<Stack gap="sm" direction="row" align="center" wrap="wrap">
-					<Text
-						style={ { fontWeight: 'var(--wpds-typography-font-weight-medium, 499)', fontSize: 16 } }
-					>
-						{ threat.title }
-					</Text>
+					<Text variant="heading-lg">{ threat.title }</Text>
 					{ !! threat.severity && <ThreatSeverityBadge severity={ threat.severity } /> }
 				</Stack>
 				{ threat.signature && (
-					<Text className="jp-scan-text-muted" style={ { fontFamily: 'monospace', fontSize: 12 } }>
+					<Text
+						variant="body-sm"
+						className="jp-scan-text-muted"
+						style={ { fontFamily: 'monospace' } }
+					>
 						{ threat.signature }
 					</Text>
 				) }
