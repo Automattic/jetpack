@@ -203,7 +203,11 @@
 
 	.jetpack-seo-preview__card-body {
 		padding: var(--wpds-dimension-padding-md, 12px);
-		background: var(--wpds-color-bg-surface-neutral, #f2f3f5);
+		// Recessed surface (`#f4f4f4`) rather than `bg-surface-neutral` (#fcfcfc):
+		// the latter now matches the page canvas and reads as white on the white
+		// card, so the link-preview body needs the darker step to stand apart from
+		// both the card and the page. The image keeps `bg-surface-neutral`.
+		background: var(--wpds-color-bg-surface-neutral-weak, #f4f4f4);
 	}
 
 	.jetpack-seo-preview__card-domain {

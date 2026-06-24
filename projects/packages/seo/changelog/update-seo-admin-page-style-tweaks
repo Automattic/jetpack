@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Visual polish for the SEO admin pages: a slightly off-white (#fcfcfc) page canvas so the white settings cards stand out (matching the Newsletter, Social, and VideoPress dashboards), and a recessed gray body on the social link-preview card so its content reads apart from the card and the page.
