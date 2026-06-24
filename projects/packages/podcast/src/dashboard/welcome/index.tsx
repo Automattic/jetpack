@@ -1,10 +1,6 @@
 import jetpackAnalytics from '@automattic/jetpack-analytics';
 import { getProductCheckoutUrl } from '@automattic/jetpack-components';
-import {
-	getScriptData,
-	getSiteData,
-	isWpcomPlatformSite,
-} from '@automattic/jetpack-script-data';
+import { getScriptData, getSiteData, isWpcomPlatformSite } from '@automattic/jetpack-script-data';
 import {
 	Button,
 	Card,

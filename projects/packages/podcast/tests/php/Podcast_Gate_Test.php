@@ -52,10 +52,10 @@ class Podcast_Gate_Test extends BaseTestCase {
 	 * @param array $slugs Product slugs to present as current purchases.
 	 */
 	private static function seed_purchases( array $slugs ): void {
-		$purchases = array_map(
-			static fn ( $slug ) => array( 'product_slug' => $slug ),
-			$slugs
-		);
+		$purchases = array();
+		foreach ( $slugs as $slug ) {
+			$purchases[] = array( 'product_slug' => $slug );
+		}
 		set_transient( Podcast_Gate::PURCHASES_TRANSIENT, $purchases );
 		self::reset_purchases_cache();
 	}

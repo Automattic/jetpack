@@ -60,10 +60,7 @@ const LockedPreview = ( { variant }: LockedPreviewProps ) => {
 			  )
 			: sprintf(
 					/* translators: %s is the plan name, e.g. "Growth" or "Premium". */
-					__(
-						'Upgrade to %s to see downloads by episode, app, and country.',
-						'jetpack-podcast'
-					),
+					__( 'Upgrade to %s to see downloads by episode, app, and country.', 'jetpack-podcast' ),
 					planName
 			  );
 
