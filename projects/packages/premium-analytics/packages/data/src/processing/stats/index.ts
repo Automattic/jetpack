@@ -15,6 +15,7 @@ export { isStatsTimeSeriesPayload, sanitizeStatsTimeSeriesResponse } from './tim
 export { sanitizeStatsVisitsResponse } from './visits';
 export { sanitizeStatsEmailSummaryResponse } from './email-summary';
 export { sanitizeStatsEmailBreakdownResponse } from './email-breakdown';
+export { sanitizeStatsArchivesResponse } from './archives';
 export type { StatsTopPostsItem } from './top-posts';
 export type { StatsReferrersItem } from './referrers';
 export type { StatsClicksItem } from './clicks';
@@ -25,6 +26,7 @@ export type { StatsLocationsItem } from './locations';
 export type { StatsVideoPlaysItem } from './video-plays';
 export type { StatsEmailSummaryItem } from './email-summary';
 export type { StatsEmailBreakdownItem } from './email-breakdown';
+export type { StatsArchivesItem } from './archives';
 export type {
 	StatsItemAction,
 	StatsNormalizedDataPoint,

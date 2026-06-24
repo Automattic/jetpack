@@ -8,6 +8,7 @@ import {
 	sanitizeStatsClicksResponse,
 	sanitizeStatsFileDownloadsResponse,
 	sanitizeStatsLocationsResponse,
+	sanitizeStatsArchivesResponse,
 	sanitizeStatsPassthroughResponse,
 	sanitizeStatsReferrersResponse,
 	sanitizeStatsSearchTermsResponse,
@@ -38,6 +39,7 @@ const statsSanitizers = {
 	topAuthors: sanitizeStatsTopAuthorsResponse,
 	locations: sanitizeStatsLocationsResponse,
 	videoPlays: sanitizeStatsVideoPlaysResponse,
+	archives: sanitizeStatsArchivesResponse,
 } satisfies Record< string, StatsSanitizer >;
 
 export type StatsSanitizerKey = keyof typeof statsSanitizers;
