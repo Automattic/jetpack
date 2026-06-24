@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.3.43] - 2026-06-24
+### Changed
+- Performance: Defer loading the connection-specific JITM classes until a JITM hook fires, reducing the per-request PHP/opcache footprint. [#49806]
+
 ## [4.3.42] - 2026-06-23
 ### Changed
 - Update package dependencies. [#49831]
@@ -1135,6 +1139,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Update Jetpack to use new JITM package
 
+[4.3.43]: https://github.com/Automattic/jetpack-jitm/compare/v4.3.42...v4.3.43
 [4.3.42]: https://github.com/Automattic/jetpack-jitm/compare/v4.3.41...v4.3.42
 [4.3.41]: https://github.com/Automattic/jetpack-jitm/compare/v4.3.40...v4.3.41
 [4.3.40]: https://github.com/Automattic/jetpack-jitm/compare/v4.3.39...v4.3.40
