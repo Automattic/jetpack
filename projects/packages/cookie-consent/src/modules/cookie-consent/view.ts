@@ -410,9 +410,10 @@ const { actions } = store( 'jetpack/cookie-consent', {
 				return geoState;
 			}
 
-			// If there is not country_code or region cookie set, fetch geolocation
+			// If either the country_code or region cookie is missing, fetch geolocation.
+			// `no-store` avoids using the browser HTTP cache for this visitor-specific response.
 			try {
-				const response = ( yield fetch( config.geoApiUrl ) ) as Response;
+				const response = ( yield fetch( config.geoApiUrl, { cache: 'no-store' } ) ) as Response;
 				if ( ! response.ok ) {
 					throw new Error( 'Geolocation request failed' );
 				}

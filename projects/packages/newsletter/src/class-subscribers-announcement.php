@@ -30,7 +30,7 @@ use Automattic\Jetpack\Tracking;
  * placement (the Jetpack plugin's subscriptions module) via add_menu();
  * this class self-registers only request handlers and wp-build loading.
  *
- * @since $$next-version$$
+ * @since 0.10.0
  */
 class Subscribers_Announcement {
 
@@ -182,6 +182,41 @@ class Subscribers_Announcement {
 				15
 			);
 		}
+
+		if ( $page_suffix ) {
+			add_action( 'load-' . $page_suffix, array( __CLASS__, 'on_page_load' ) );
+		}
+	}
+
+	/**
+	 * Register the announcement page directly under the Jetpack menu.
+	 *
+	 * Used on WordPress.com (Simple and WoA), where jetpack-mu-wpcom's
+	 * wpcom-admin-menu owns the Jetpack menu and registers submenus with the
+	 * core add_submenu_page() at a late priority — not the standalone plugin's
+	 * Admin_Menu wrapper. Mirrors Settings::add_wp_admin_submenu().
+	 *
+	 * As in add_menu(), an empty parent slug keeps the page reachable at its URL
+	 * (so the "remove from sidebar" choice can be undone) while hiding it from
+	 * the sidebar.
+	 *
+	 * @return void
+	 */
+	public static function add_wp_admin_submenu() {
+		$callback = function_exists( 'jetpack_newsletter_jetpack_subscribers_announcement_wp_admin_render_page' )
+			? 'jetpack_newsletter_jetpack_subscribers_announcement_wp_admin_render_page'
+			: array( __CLASS__, 'render_fallback' );
+
+		$parent_slug = get_option( self::REMOVED_OPTION ) ? '' : 'jetpack';
+
+		$page_suffix = add_submenu_page(
+			$parent_slug,
+			__( 'Subscribers', 'jetpack-newsletter' ),
+			__( 'Subscribers', 'jetpack-newsletter' ),
+			'manage_options',
+			self::PAGE_SLUG,
+			$callback
+		);
 
 		if ( $page_suffix ) {
 			add_action( 'load-' . $page_suffix, array( __CLASS__, 'on_page_load' ) );

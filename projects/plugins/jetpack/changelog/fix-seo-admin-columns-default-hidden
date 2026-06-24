@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+SEO: default the Schema, Meta description, and Search post-list columns to hidden in Screen Options so they no longer crowd out the title column.

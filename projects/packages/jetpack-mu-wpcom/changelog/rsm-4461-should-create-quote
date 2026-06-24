@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Write: typing "> " at the start of an empty line now creates a quote block

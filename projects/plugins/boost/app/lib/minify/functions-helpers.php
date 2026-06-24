@@ -252,7 +252,7 @@ function jetpack_boost_page_optimize_css_exclude_list() {
  * The parameter is intentionally nonce-free so it can be shared as a plain URL,
  * so this stays capability-gated rather than CSRF-gated.
  *
- * @since $$next-version$$
+ * @since 4.6.2
  *
  * @param mixed  $excludes  The saved exclude list; non-array values are treated as an empty list.
  * @param string $param     The GET parameter to read extra handles from.

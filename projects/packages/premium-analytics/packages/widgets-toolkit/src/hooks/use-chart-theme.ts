@@ -11,7 +11,7 @@ import type { ChartTheme } from '@automattic/charts';
  */
 
 /**
- * Extended chart theme with WooCommerce-specific properties.
+ * Extended chart theme with analytics-specific properties.
  * Extends the base ChartTheme from @automattic/charts.
  */
 export type WooChartTheme = ChartTheme & {
@@ -25,7 +25,7 @@ export function useChartTheme(): WooChartTheme {
 
 	return useMemo( () => {
 		// If the user is using a custom color theme, use colors generated from the design system accent
-		// color token, otherwise use the default Woo theme colors.
+		// color token, otherwise use the default analytics theme colors.
 		const colors =
 			preferences.interfaceTheme === 'custom'
 				? [ '--wpds-color-fg-interactive-brand' ]

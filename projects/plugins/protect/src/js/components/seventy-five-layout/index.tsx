@@ -1,4 +1,5 @@
-import { Container, Col, useBreakpointMatch } from '@automattic/jetpack-components';
+import { Container, Col } from '@automattic/jetpack-components';
+import { useViewportMatch } from '@wordpress/compose';
 import type { FC, ReactNode } from 'react';
 
 // Define the props interface for the SeventyFiveLayout component
@@ -42,8 +43,8 @@ const SeventyFiveLayout: FC< SeventyFiveLayoutProps > = ( {
 	preserveSecondaryOnMobile = false,
 	fluid,
 } ) => {
-	// Ensure the correct typing for useBreakpointMatch
-	const [ isSmall, isLarge ] = useBreakpointMatch( [ 'sm', 'lg' ] );
+	const isSmall = useViewportMatch( 'small', '<' );
+	const isLarge = useViewportMatch( 'large' );
 
 	/*
 	 * By convention, secondary section is not shown when:

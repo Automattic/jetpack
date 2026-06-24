@@ -5,7 +5,7 @@ import { Button } from '@wordpress/ui';
 import ConnectScreenLayout from '../layout';
 import type { Props as ConnectScreenProps } from '../basic';
 import type { WithRequired } from '../types';
-import type { FC } from 'react';
+import type { FC, SyntheticEvent } from 'react';
 import './style.scss';
 
 type SharedProps = Pick<
@@ -23,7 +23,7 @@ type OwnProps = {
 	// Whether the connection status is still loading
 	isLoading?: boolean;
 	// Callback to be called on button click
-	handleButtonClick?: ( e: MouseEvent ) => void;
+	handleButtonClick?: ( e?: Event | SyntheticEvent ) => void;
 	// Whether the error message appears or not
 	displayButtonError?: boolean;
 	// The connection error code

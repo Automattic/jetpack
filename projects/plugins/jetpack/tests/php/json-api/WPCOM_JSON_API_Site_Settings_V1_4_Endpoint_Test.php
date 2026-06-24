@@ -150,6 +150,21 @@ class WPCOM_JSON_API_Site_Settings_V1_4_Endpoint_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * The GET response exposes a read-only `free_tier_description_rendered`
+	 * derived from the stored markdown source, rendered to safe HTML.
+	 */
+	public function test_get_settings_renders_free_tier_description() {
+		update_option( 'subscription_options', array( 'free_tier_description' => 'Hello **world**' ) );
+
+		$response = $this->make_get_request();
+		$settings = $response['settings'];
+
+		$this->assertStringContainsString( '<strong>world</strong>', $settings['free_tier_description_rendered'] );
+		// The rendered field is derived only; it must not leak into the writable option bag.
+		$this->assertArrayNotHasKey( 'free_tier_description_rendered', $settings['subscription_options'] );
+	}
+
+	/**
 	 * Test POST `sites/%s/settings` sets the correct value.
 	 *
 	 * @dataProvider setting_value_pairs_post_request
@@ -164,6 +179,45 @@ class WPCOM_JSON_API_Site_Settings_V1_4_Endpoint_Test extends WP_UnitTestCase {
 		$response = $this->make_post_request( $setting );
 		$updated  = $response['updated'];
 		$this->assertSame( $expected_value, $updated[ $setting_name ] );
+	}
+
+	/**
+	 * The free tier description is capped to 500 characters to match the
+	 * paid-tier description field.
+	 */
+	public function test_post_free_tier_description_is_length_capped() {
+		$setting  = wp_json_encode(
+			array( 'subscription_options' => array( 'free_tier_description' => str_repeat( 'a', 600 ) ) ),
+			JSON_UNESCAPED_SLASHES
+		);
+		$response = $this->make_post_request( $setting );
+		$updated  = $response['updated'];
+		$this->assertSame(
+			500,
+			strlen( $updated['subscription_options']['free_tier_description'] )
+		);
+	}
+
+	/**
+	 * A non-scalar `free_tier_description` (e.g. an array from a malformed JSON
+	 * payload) must be dropped rather than passed to wp_kses()/mb_substr(), which
+	 * would fatal on PHP 8+. A sibling valid key is included so the update still
+	 * proceeds and the dropped key can be asserted.
+	 */
+	public function test_post_free_tier_description_ignores_non_scalar() {
+		$setting  = wp_json_encode(
+			array(
+				'subscription_options' => array(
+					'free_tier_description'   => array( 'unexpected', 'array' ),
+					'subscribe_modal_heading' => 'Still saved',
+				),
+			),
+			JSON_UNESCAPED_SLASHES
+		);
+		$response = $this->make_post_request( $setting );
+		$updated  = $response['updated'];
+		$this->assertSame( 'Still saved', $updated['subscription_options']['subscribe_modal_heading'] );
+		$this->assertArrayNotHasKey( 'free_tier_description', $updated['subscription_options'] );
 	}
 
 	/**
@@ -340,14 +394,17 @@ class WPCOM_JSON_API_Site_Settings_V1_4_Endpoint_Test extends WP_UnitTestCase {
 	 */
 	public static function setting_default_key_values() {
 		return array(
-			'woocommerce_store_address'      => array( 'woocommerce_store_address', '' ),
-			'woocommerce_store_address_2'    => array( 'woocommerce_store_address_2', '' ),
-			'woocommerce_store_city'         => array( 'woocommerce_store_city', '' ),
-			'woocommerce_default_country'    => array( 'woocommerce_default_country', '' ),
-			'woocommerce_store_postcode'     => array( 'woocommerce_store_postcode', '' ),
-			'woocommerce_onboarding_profile' => array( 'woocommerce_onboarding_profile', array() ),
+			'woocommerce_store_address'        => array( 'woocommerce_store_address', '' ),
+			'woocommerce_store_address_2'      => array( 'woocommerce_store_address_2', '' ),
+			'woocommerce_store_city'           => array( 'woocommerce_store_city', '' ),
+			'woocommerce_default_country'      => array( 'woocommerce_default_country', '' ),
+			'woocommerce_store_postcode'       => array( 'woocommerce_store_postcode', '' ),
+			'woocommerce_onboarding_profile'   => array( 'woocommerce_onboarding_profile', array() ),
+			'supports_free_tier_customization' => array( 'supports_free_tier_customization', true ),
+			// With no free tier description set, the rendered value is an empty string.
+			'free_tier_description_rendered'   => array( 'free_tier_description_rendered', '' ),
 			// Add MCP settings default
-			'mcp_abilities'                  => array(
+			'mcp_abilities'                    => array(
 				'mcp_abilities',
 				array(
 					'wpcom-mcp/posts-search' => array(
@@ -447,6 +504,73 @@ class WPCOM_JSON_API_Site_Settings_V1_4_Endpoint_Test extends WP_UnitTestCase {
 				),
 				array(
 					'subscribe_modal_heading' => 'Join my newsletter <a href="#">today</a>!',
+				),
+			),
+			'subscription_options free description'     => array(
+				'subscription_options',
+				array(
+					'free_tier_description' => '<strong>Free</strong> taste <a href="#">link</a>',
+				),
+				array(
+					// The free tier description is stored as plain markdown source, so all HTML is stripped.
+					'free_tier_description' => 'Free taste link',
+				),
+			),
+			'subscription_options hide free tier true'  => array(
+				'subscription_options',
+				array(
+					'hide_free_tier' => true,
+				),
+				array(
+					'hide_free_tier' => true,
+				),
+			),
+			'subscription_options hide free tier false' => array(
+				'subscription_options',
+				array(
+					'hide_free_tier' => false,
+				),
+				array(
+					'hide_free_tier' => false,
+				),
+			),
+			// Stringy booleans must be parsed by value via is_truthy(), not by
+			// truthiness — otherwise the non-empty string "false" would be stored
+			// as `true`. These guard the WPCOM JSON API write path against regressions.
+			'subscription_options hide free tier string true' => array(
+				'subscription_options',
+				array(
+					'hide_free_tier' => 'true',
+				),
+				array(
+					'hide_free_tier' => true,
+				),
+			),
+			'subscription_options hide free tier string false' => array(
+				'subscription_options',
+				array(
+					'hide_free_tier' => 'false',
+				),
+				array(
+					'hide_free_tier' => false,
+				),
+			),
+			'subscription_options hide free tier string one' => array(
+				'subscription_options',
+				array(
+					'hide_free_tier' => '1',
+				),
+				array(
+					'hide_free_tier' => true,
+				),
+			),
+			'subscription_options hide free tier string zero' => array(
+				'subscription_options',
+				array(
+					'hide_free_tier' => '0',
+				),
+				array(
+					'hide_free_tier' => false,
 				),
 			),
 			// Add MCP settings POST tests

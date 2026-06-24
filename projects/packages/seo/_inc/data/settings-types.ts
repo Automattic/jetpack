@@ -19,6 +19,9 @@ export interface SettingsResponse {
 	};
 	search_engines_visible: boolean;
 	sitemap_active: boolean;
+	// Read-only: the reachable sitemap URL, or '' until it's been generated and is
+	// serveable. Not editable, so it's never sent back in a save payload.
+	sitemap_url: string;
 	canonical_active: boolean;
 }
 

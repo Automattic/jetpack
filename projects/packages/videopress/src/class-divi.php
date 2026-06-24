@@ -7,6 +7,8 @@
 
 namespace Automattic\Jetpack\VideoPress;
 
+use Automattic\Jetpack\VideoPress\Divi5\Divi_5;
+
 /**
  * Class Divi
  **/
@@ -68,6 +70,10 @@ class Divi {
 		$this->running = true;
 		add_action( 'divi_extensions_init', array( $this, 'initialize_extension' ) );
 		add_action( 'et_fb_framework_loaded', array( $this, 'on_fb_framework_loaded' ) );
+
+		// Divi 5 integration. These hooks only fire under Divi 5; the legacy
+		// extension above continues to serve Divi 4.
+		Divi_5::init();
 
 		return $this;
 	}

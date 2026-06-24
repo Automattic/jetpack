@@ -5,7 +5,9 @@
  * @package automattic/jetpack-mu-wpcom
  */
 
+use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom;
+use Automattic\Jetpack\Status\Cache as Status_Cache;
 
 require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/wpcom-admin-menu/wpcom-admin-menu.php';
 
@@ -57,6 +59,100 @@ class WPCOM_Admin_Menu_Test extends \WorDBless\BaseTestCase {
 		$submenu = array();
 
 		wp_set_current_user( self::$admin_id );
+	}
+
+	/**
+	 * Tear down each test.
+	 *
+	 * Undo the platform constants, Host cache and modernization filter the rollout
+	 * tests set, so they don't leak into the next case. (`jetpack_options['id']` is
+	 * stored in the WorDBless DB, which is reset between tests.)
+	 */
+	public function tear_down() {
+		Constants::clear_single_constant( 'IS_WPCOM' );
+		Status_Cache::clear();
+		remove_all_filters( 'rsm_jetpack_ui_modernization_newsletter' );
+
+		parent::tear_down();
+	}
+
+	/**
+	 * The Jetpack submenu slug for the legacy Calypso "Subscribers" link, or null when
+	 * it isn't present. `wpcom_add_jetpack_submenu()` registers
+	 * `https://wordpress.com/subscribers/<domain>` while the Newsletter modernization
+	 * gate is off, and retires it once the gate is on.
+	 *
+	 * @return string|null
+	 */
+	private function get_legacy_subscribers_submenu_slug() {
+		global $submenu;
+
+		foreach ( $submenu['jetpack'] ?? array() as $item ) {
+			if ( isset( $item[2] ) && str_starts_with( $item[2], 'https://wordpress.com/subscribers/' ) ) {
+				return $item[2];
+			}
+		}
+
+		return null;
+	}
+
+	/**
+	 * By default — outside the staged-rollout cohort (percentage held at 0%, no
+	 * Automattician) — `wpcom_add_jetpack_submenu()` keeps the legacy Calypso
+	 * "Subscribers" submenu. This drives the non-Simple arm of the inlined cohort
+	 * gate: with no `IS_WPCOM`, the site is bucketed on its stored wpcom blog ID
+	 * (`jetpack_options['id']`), and `200 % 100 = 0` is not `< 0`, so it isn't
+	 * enrolled.
+	 */
+	public function test_jetpack_submenu_keeps_legacy_subscribers_link_by_default_on_non_simple_site() {
+		\Jetpack_Options::update_option( 'id', 200 );
+
+		wpcom_add_jetpack_submenu();
+
+		$this->assertSame(
+			'https://wordpress.com/subscribers/' . self::$domain,
+			$this->get_legacy_subscribers_submenu_slug(),
+			'The legacy Subscribers submenu must remain when the site is outside the rollout cohort.'
+		);
+	}
+
+	/**
+	 * The same default on a WordPress.com Simple site, which buckets on the current
+	 * blog ID rather than the stored option — exercising the Simple arm of the cohort
+	 * gate. `Constants::set_constant` flips `Host::is_wpcom_simple()` without an
+	 * irreversible `define()`; the stored option still satisfies the connection's
+	 * site-ID lookup so the function doesn't bail early.
+	 */
+	public function test_jetpack_submenu_keeps_legacy_subscribers_link_by_default_on_simple_site() {
+		Constants::set_constant( 'IS_WPCOM', true );
+		Status_Cache::clear();
+		\Jetpack_Options::update_option( 'id', 200 );
+
+		wpcom_add_jetpack_submenu();
+
+		$this->assertSame(
+			'https://wordpress.com/subscribers/' . self::$domain,
+			$this->get_legacy_subscribers_submenu_slug(),
+			'A Simple site outside the rollout cohort must keep the legacy Subscribers submenu.'
+		);
+	}
+
+	/**
+	 * When the Newsletter modernization gate is forced on, the unified Newsletter page
+	 * owns the Subscribers tab and the legacy Calypso "Subscribers" submenu is retired.
+	 * (The transitional announcement page is registered by the Newsletter package,
+	 * which isn't a dependency of jetpack-mu-wpcom, so here the link is simply absent.)
+	 */
+	public function test_jetpack_submenu_retires_legacy_subscribers_link_when_modernization_filter_on() {
+		\Jetpack_Options::update_option( 'id', 200 );
+		add_filter( 'rsm_jetpack_ui_modernization_newsletter', '__return_true' );
+
+		wpcom_add_jetpack_submenu();
+
+		$this->assertNull(
+			$this->get_legacy_subscribers_submenu_slug(),
+			'The legacy Subscribers submenu must be retired when the modernization gate is on.'
+		);
 	}
 
 	/**

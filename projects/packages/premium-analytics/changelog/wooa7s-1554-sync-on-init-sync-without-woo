@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Syncing: when WooCommerce is inactive, gate the dashboard on Jetpack's generic initial full sync so the syncing screen completes instead of spinning forever.

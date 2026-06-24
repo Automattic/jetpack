@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Newsletter: fix "Sorry, you are not allowed to do this" error for Contributors on the first Submit for Review when the Subscriptions module is active.
