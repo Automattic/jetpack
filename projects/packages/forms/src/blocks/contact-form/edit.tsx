@@ -370,22 +370,40 @@ function JetpackContactFormEdit( {
 	// been applied. This fixes incorrect styles in block style previews and after
 	// canvas resizes, where the synchronous probe fires before styles are ready.
 	// A ResizeObserver re-runs the probe whenever the canvas dimensions change.
+	//
+	// Note: the empty dependency array means global-style/theme-color changes in
+	// the editor won't refresh these CSS vars unless the canvas is also resized.
+	// Keeping that responsiveness would require a MutationObserver on the canvas
+	// stylesheets; deferred as an acceptable edge-case for now.
 	const [ formStyle, setFormStyle ] = useState< Record< string, string > | undefined >( undefined );
 	useEffect( () => {
 		const node = innerRef.current;
 		if ( ! node ) {
 			return;
 		}
+		let rafId: ReturnType< typeof requestAnimationFrame > | null = null;
 		const update = () => {
-			const styles = window.jetpackForms.generateStyleVariables( innerRef.current );
-			if ( styles ) {
-				setFormStyle( styles );
+			if ( rafId !== null ) {
+				cancelAnimationFrame( rafId );
 			}
+			rafId = requestAnimationFrame( () => {
+				const styles = window.jetpackForms.generateStyleVariables( node );
+				if ( styles ) {
+					setFormStyle( styles );
+				}
+				rafId = null;
+			} );
 		};
-		update();
+		// ResizeObserver fires once immediately on observe(), so no manual
+		// update() call is needed here.
 		const observer = new ResizeObserver( update );
 		observer.observe( node );
-		return () => observer.disconnect();
+		return () => {
+			observer.disconnect();
+			if ( rafId !== null ) {
+				cancelAnimationFrame( rafId );
+			}
+		};
 	}, [] );
 
 	const blockProps = useBlockProps( {
