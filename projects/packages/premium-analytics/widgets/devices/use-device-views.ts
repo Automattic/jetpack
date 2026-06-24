@@ -15,9 +15,10 @@ export interface DeviceView {
 }
 
 interface UseDeviceViewsArgs {
-	reportParams: ReportParams;
+	reportParams?: ReportParams;
 	max: number;
 	deviceProperty?: 'screensize' | 'browser';
+	enabled?: boolean;
 }
 
 interface DeviceViewsState {
@@ -67,15 +68,17 @@ function toDeviceView( item: StatsDevicesItem ): DeviceView {
  * Fetch device views for the Devices widget via the shared Stats data layer.
  *
  * @param args                - Hook arguments.
- * @param args.reportParams   - PA ReportParams from WidgetRoot context.
+ * @param args.reportParams   - PA ReportParams injected by the host via attributes.
  * @param args.max            - Maximum rows to display (0 = all).
  * @param args.deviceProperty - Device dimension to break down by.
+ * @param args.enabled        - When false, the query is skipped (e.g. picker preview).
  * @return The current data/loading/error state.
  */
 export default function useDeviceViews( {
 	reportParams,
 	max,
 	deviceProperty = 'screensize',
+	enabled = true,
 }: UseDeviceViewsArgs ): DeviceViewsState {
 	const statsParams = {
 		...reportParams,
@@ -83,7 +86,7 @@ export default function useDeviceViews( {
 		summarize: 1,
 	} as Parameters< typeof useStatsDevices >[ 0 ];
 
-	const { primary } = useStatsDevices( statsParams );
+	const { primary } = useStatsDevices( statsParams, { enabled } );
 
 	const isLoading = primary.isLoading;
 	const isError = primary.isError;
