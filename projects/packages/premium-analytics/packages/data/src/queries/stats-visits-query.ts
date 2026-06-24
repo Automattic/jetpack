@@ -16,7 +16,7 @@ export const statsVisitsQuery = ( params: StatsVisitsParams ) => {
 		unit: apiParams.period,
 		date: apiParams.date,
 		start_date: apiParams.start_date,
-		quantity: apiParams.days,
+		...( apiParams.period === 'day' ? { quantity: apiParams.days } : {} ),
 		stat_fields: params.stat_fields ?? 'views,visitors',
 	};
 
