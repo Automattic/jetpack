@@ -1,4 +1,4 @@
 Significance: patch
 Type: other
 
-Content Guidelines AI: persist the empty-state banner dismissal per-user (cross-device) instead of in browser localStorage.
+Content Guidelines AI: persist the empty-state dismissal (banner and upgrade notice) per-user (cross-device) instead of in browser localStorage. The upgrade notice now also dismisses when clicking Upgrade or its close icon.
