@@ -6,6 +6,8 @@ import { useStatsQuery } from './use-stats-query';
 import type { UseStatsOptions } from './use-stats-report';
 import type { StatsQueryParams } from '../utils/stats-params';
 
+export type { StatsInsightsResponse, StatsInsightsYear } from '../queries/stats-insights-query';
+
 export function useStatsInsights( params?: StatsQueryParams, options?: UseStatsOptions ) {
 	return useStatsQuery( statsInsightsQuery( params ), options );
 }
