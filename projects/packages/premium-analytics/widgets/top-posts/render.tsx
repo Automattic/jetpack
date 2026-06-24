@@ -29,9 +29,10 @@ import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 
 /**
  * A single normalized top-posts row, flattened from the designated
- * `useStatsTopPosts` report into the shape the leaderboard renders.
+ * `useStatsTopPosts` report into the shape the leaderboard renders. Exported so
+ * Storybook can build fixtures for `TopPostsLeaderboard`.
  */
-type TopPostRow = {
+export type TopPostRow = {
 	/**
 	 * Post or page title.
 	 */
@@ -74,32 +75,15 @@ type TopPostsProps = {
 };
 
 /**
- * Renders a post/page title as a link that opens in a new tab. The link fills
- * its row so the leaderboard overlay bar gets its height from the label.
- *
- * @param props       - Component props.
- * @param props.label - The post/page title.
- * @param props.href  - The published URL of the post/page.
- * @return The rendered label link.
- */
-const TopPostLabel = ( { label, href }: { label: string; href: string } ) => (
-	<Link
-		className={ styles.labelLink }
-		href={ href }
-		variant="unstyled"
-		openInNewTab
-		title={ label }
-	>
-		{ label }
-	</Link>
-);
-
-/**
  * Maps normalized top-posts rows onto the shape `LeaderboardChart` expects.
  * Current shares are computed relative to the most-viewed row so the overlay
  * bars are proportional. When `withComparison` is set, previous-period shares
  * and per-row deltas are derived from each row's `previousValue`; otherwise
  * the comparison fields are zeroed.
+ *
+ * Each row's label is a link that opens the published post/page in a new tab.
+ * The link fills its row so the leaderboard overlay bar gets its height from
+ * the label.
  *
  * @param rows           - The normalized top-posts rows.
  * @param withComparison - Whether to derive previous-period shares and deltas.
@@ -115,7 +99,17 @@ function buildLeaderboardData( rows: TopPostRow[], withComparison: boolean ): Le
 
 		return {
 			id: `${ index }-${ row.href }`,
-			label: <TopPostLabel label={ row.label } href={ row.href } />,
+			label: (
+				<Link
+					className={ styles.labelLink }
+					href={ row.href }
+					variant="unstyled"
+					openInNewTab
+					title={ row.label }
+				>
+					{ row.label }
+				</Link>
+			),
 			currentValue: row.value,
 			currentShare: ( row.value / maxCurrentViews ) * 100,
 			previousValue,
@@ -163,7 +157,9 @@ type TopPostsLeaderboardProps = {
  * published content.
  *
  * Takes already-fetched rows via props and is responsible only for the
- * loading, error, empty, and populated states.
+ * loading, error, empty, and populated states. Exported so Storybook can
+ * exercise those states with fixture rows (there is no analytics backend in
+ * Storybook, so the data-connected entry point would only ever show chrome).
  *
  * @param props                - Component props.
  * @param props.rows           - Normalized top-posts rows to render.
@@ -174,7 +170,7 @@ type TopPostsLeaderboardProps = {
  * @param props.legendLabels   - Custom labels for the current/comparison periods.
  * @return The rendered leaderboard.
  */
-const TopPostsLeaderboard = ( {
+export const TopPostsLeaderboard = ( {
 	rows = [],
 	isLoading = false,
 	isError = false,
