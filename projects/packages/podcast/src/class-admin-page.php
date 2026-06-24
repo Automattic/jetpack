@@ -7,7 +7,6 @@
 
 namespace Automattic\Jetpack\Podcast;
 
-use Automattic\Jetpack\Status\Host;
 use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills;
 
 /**
@@ -41,18 +40,21 @@ class Admin_Page {
 		self::$initialized = true;
 
 		add_action( 'admin_menu', array( __CLASS__, 'maybe_load_wp_build' ), 1 );
-
-		// Simple/Atomic register the submenu from wpcom-admin-menu.php; self-hosted has no such file.
-		$host = new Host();
-		if ( ! $host->is_wpcom_simple() && ! $host->is_woa_site() ) {
-			add_action( 'admin_menu', array( __CLASS__, 'add_wp_admin_submenu' ), 999999 );
-		}
+		add_action( 'admin_menu', array( __CLASS__, 'add_wp_admin_submenu' ), 999999 );
 	}
 
 	/**
 	 * Register the Podcast submenu under the Jetpack menu.
+	 *
+	 * Simple/Atomic also call this from `wpcom-admin-menu.php` at the same
+	 * priority, so bail when the submenu is already registered to avoid a
+	 * duplicate entry.
 	 */
 	public static function add_wp_admin_submenu() {
+		if ( self::is_submenu_registered() ) {
+			return;
+		}
+
 		$wp_build_render = 'jetpack_podcast_jetpack_podcast_dashboard_wp_admin_render_page';
 		$callback        = function_exists( $wp_build_render )
 			? $wp_build_render
@@ -71,6 +73,25 @@ class Admin_Page {
 		if ( $page_suffix ) {
 			add_action( 'load-' . $page_suffix, array( __CLASS__, 'admin_init' ) );
 		}
+	}
+
+	/**
+	 * Whether the Podcast submenu is already registered under the Jetpack menu.
+	 */
+	private static function is_submenu_registered() {
+		global $submenu;
+
+		if ( empty( $submenu['jetpack'] ) ) {
+			return false;
+		}
+
+		foreach ( $submenu['jetpack'] as $item ) {
+			if ( isset( $item[2] ) && self::ADMIN_PAGE_SLUG === $item[2] ) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	/**
