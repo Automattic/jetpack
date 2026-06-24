@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Pin @wordpress/private-apis to an exact version instead of the floating next tag

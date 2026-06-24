@@ -56,19 +56,16 @@ class Analytics {
 			self::$menu_title = $options['menu_title'];
 		}
 
-		WP_Build_Polyfills::register(
-			'jetpack-premium-analytics',
-			array_merge(
-				WP_Build_Polyfills::SCRIPT_HANDLES,
-				WP_Build_Polyfills::MODULE_IDS
-			)
-		);
+		// Always on: sync runs in cron; REST routes + registry serve REST requests
+		// (is_admin() false). REST_REQUEST isn't defined this early, so they
+		// self-gate on their own rest_api_init / init hooks.
+		Sync_Status_Tracker::configure();
 
-		// Load wp-build output (interceptor, modules, routes, page render).
-		$build_entry = __DIR__ . '/../build/build.php';
-		if ( file_exists( $build_entry ) ) {
-			require_once $build_entry;
-		}
+		// TEMPORARY (WOOA7S-1550): register the interim woocommerce_analytics sync module so
+		// Sync_Status_Tracker has a full sync to observe. Remove when the shared sync-modules package lands.
+		Sync_Configuration::register();
+		Api_Proxy_Controller::register();
+		Notices_Controller::register();
 
 		// Hydrate the widget type registry from the build manifest at init.
 		require_once __DIR__ . '/widget-types.php';
@@ -81,16 +78,61 @@ class Analytics {
 		// injection and the REST route the "reset to default" action reads.
 		require_once __DIR__ . '/dashboard-layout.php';
 
-		Sync_Status_Tracker::configure();
-		// TEMPORARY (WOOA7S-1550): register the interim woocommerce_analytics sync module so
-		// Sync_Status_Tracker has a full sync to observe. Remove when the shared sync-modules package lands.
-		Sync_Configuration::register();
-		Api_Proxy_Controller::register();
-		Notices_Controller::register();
+		// Below: admin-only render path (interceptor, assets, menu).
+		if ( ! is_admin() ) {
+			return;
+		}
+
+		// Polyfills force-replace core handles (wp-private-apis) on wp_default_scripts;
+		// scope to the dashboard page so no other admin page (e.g. block editor) is hit.
+		if ( self::is_dashboard_request() ) {
+			WP_Build_Polyfills::register(
+				'jetpack-premium-analytics',
+				array_merge(
+					WP_Build_Polyfills::SCRIPT_HANDLES,
+					WP_Build_Polyfills::MODULE_IDS
+				)
+			);
+		}
+
+		// Load wp-build output (interceptor, modules, routes, page render).
+		$build_entry = __DIR__ . '/../build/build.php';
+		if ( file_exists( $build_entry ) ) {
+			require_once $build_entry;
+		}
 
 		add_action( 'admin_menu', array( static::class, 'register_admin_menu' ) );
 		add_action( 'jetpack-premium-analytics_init', array( static::class, 'register_sidebar_items' ) );
 		add_action( 'jetpack-premium-analytics_init', array( static::class, 'ensure_script_data' ) );
+	}
+
+	/**
+	 * Admin page slugs that render the Premium Analytics dashboard.
+	 *
+	 * Mirrors the slugs the wp-build interceptor renders (full-page and the
+	 * wp-admin integrated variant).
+	 */
+	const DASHBOARD_PAGE_SLUGS = array( 'jetpack-premium-analytics', 'jetpack-premium-analytics-wp-admin' );
+
+	/**
+	 * Whether the current request is rendering a Premium Analytics dashboard page.
+	 *
+	 * Used to scope the wp-build polyfill registration (which force-replaces core
+	 * script handles) to this dashboard, so it never affects other admin pages.
+	 * Must be cheap and safe to call at plugin-load time, before current_screen
+	 * exists, so it reads the menu page slug directly like the build interceptor does.
+	 *
+	 * @return bool True when serving a dashboard page in wp-admin.
+	 */
+	public static function is_dashboard_request() {
+		if ( ! is_admin() ) {
+			return false;
+		}
+
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Reading the menu page slug to scope asset loading; no state is changed.
+		$page = isset( $_GET['page'] ) ? sanitize_key( wp_unslash( $_GET['page'] ) ) : '';
+
+		return in_array( $page, self::DASHBOARD_PAGE_SLUGS, true );
 	}
 
 	/**
