@@ -1,16 +1,10 @@
 /**
  * External dependencies
  */
-import {
-	useStatsTopAuthors,
-	type StatsNormalizedReport,
-	type StatsReportParams,
-	type StatsTopAuthorsItem,
-} from '@jetpack-premium-analytics/data';
+import { useStatsTopAuthors } from '@jetpack-premium-analytics/data';
 import { customer } from '@jetpack-premium-analytics/icons';
 import { __ } from '@wordpress/i18n';
 import { useMemo } from 'react';
-
 /**
  * Internal dependencies
  */
@@ -20,14 +14,14 @@ import { useWidgetRootContext } from '../../components/widget-root';
 import { buildTopAuthorsData, formatLegendLabels } from '../../helpers';
 import { useWidgetError } from '../../hooks';
 
+const DEFAULT_MAX = 7;
+
 type AuthorsWidgetProps = {
 	/**
 	 * Maximum number of authors to display.
 	 */
 	max?: number;
 };
-
-type StatsTopAuthorsReport = StatsNormalizedReport< StatsTopAuthorsItem >;
 
 /**
  * Authors Widget Component
@@ -51,6 +45,11 @@ type StatsTopAuthorsReport = StatsNormalizedReport< StatsTopAuthorsItem >;
  */
 export function AuthorsWidget( { max }: AuthorsWidgetProps ) {
 	const { reportParams } = useWidgetRootContext();
+	const maxAuthors = max ?? DEFAULT_MAX;
+	const statsParams = useMemo(
+		() => ( { ...reportParams, max: maxAuthors } ),
+		[ reportParams, maxAuthors ]
+	);
 
 	const {
 		primary,
@@ -62,18 +61,18 @@ export function AuthorsWidget( { max }: AuthorsWidgetProps ) {
 		isError,
 		error,
 		refetch,
-	} = useStatsTopAuthors( reportParams as StatsReportParams );
+	} = useStatsTopAuthors( statsParams );
 
 	// `primary.isPending` also covers the brief window where the query is disabled
 	// while the report params resolve (isLoading is false there).
 	const isInitialLoading = ( isLoading || primary.isPending ) && ! hasData;
 	const isRefetching = isFetching && hasData;
-	const primaryData = primary.data as StatsTopAuthorsReport | undefined;
-	const comparisonData = comparison.data as StatsTopAuthorsReport | undefined;
+	const primaryData = primary.data;
+	const comparisonData = comparison.data;
 
 	const chartData = useMemo(
-		() => buildTopAuthorsData( primaryData, comparisonData, max ),
-		[ primaryData, comparisonData, max ]
+		() => buildTopAuthorsData( primaryData, comparisonData, maxAuthors ),
+		[ primaryData, comparisonData, maxAuthors ]
 	);
 
 	const legendLabels = useMemo( () => formatLegendLabels( reportParams ), [ reportParams ] );

@@ -4,6 +4,9 @@
 	"private": true,
 	"type": "module",
 	"dependencies": {
+		"@jetpack-premium-analytics/widgets-toolkit": "workspace:*",
+		"@wordpress/i18n": "^6.9.0",
+		"@wordpress/icons": "^13.0.0",
 		"react": "18.3.1"
 	}
 }

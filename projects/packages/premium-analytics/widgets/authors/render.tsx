@@ -13,6 +13,7 @@ type AuthorsAttributes = NonNullable< ComponentProps< typeof WidgetRoot >[ 'attr
 
 type AuthorsRenderProps = {
 	attributes?: AuthorsAttributes;
+	setError?: ComponentProps< typeof WidgetRoot >[ 'setError' ];
 };
 
 const toPositiveInt = ( value: string | undefined, fallback: number ) => {
@@ -34,6 +35,8 @@ const toDateString = ( date: Date ) => {
  * survives WidgetRoot's normalization instead of the rolling default preset.
  *
  * TODO: Remove the default range once we have a way to pass the launched date to the widget.
+ *
+ * @return The default report params covering an all-time range.
  */
 const getDefaultReportParams = () => ( {
 	from: '2000-01-01T00:00:00',
@@ -49,8 +52,10 @@ const getDefaultReportParams = () => ( {
  *
  * @param props            - Render props.
  * @param props.attributes - Widget attributes.
+ * @param props.setError   - Dashboard error handler.
+ * @return The rendered Authors widget.
  */
-export default function Authors( { attributes }: AuthorsRenderProps ) {
+export default function Authors( { attributes, setError }: AuthorsRenderProps ) {
 	const attributesWithDefaults = useMemo( () => {
 		const hasReportParams =
 			!! attributes?.reportParams && Object.keys( attributes.reportParams ).length > 0;
@@ -59,7 +64,7 @@ export default function Authors( { attributes }: AuthorsRenderProps ) {
 	}, [ attributes ] );
 
 	return (
-		<WidgetRoot attributes={ attributesWithDefaults }>
+		<WidgetRoot attributes={ attributesWithDefaults } setError={ setError }>
 			<AuthorsWidget max={ toPositiveInt( attributes?.max, DEFAULT_MAX ) } />
 		</WidgetRoot>
 	);
