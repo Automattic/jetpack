@@ -9,7 +9,44 @@ import {
 import { useStatsAppQuery, type UseStatsAppOptions } from './use-stats-app-query';
 import type { StatsQueryParams } from '../utils/stats-params';
 
-export type StatsAppDashboardModules = Record< string, Record< string, boolean > >;
+/**
+ * Keep the traffic-page subset in sync with
+ * wp-content/lib/jetpack-stats-dashboard/class-module-settings.php on WPCOM.
+ */
+export type StatsAppDashboardTrafficModule =
+	| 'highlights'
+	| 'chart'
+	| 'posts-pages'
+	| 'referrers'
+	| 'countries'
+	| 'authors'
+	| 'search-terms'
+	| 'clicks'
+	| 'videos'
+	| 'app-promo';
+
+export type StatsAppDashboardModuleValue = boolean | Record< string, unknown >;
+
+export type StatsAppDashboardModules = {
+	traffic?: Partial< Record< StatsAppDashboardTrafficModule, StatsAppDashboardModuleValue > >;
+};
+
+export type StatsAppDashboardModulesSettings = {
+	traffic?: {
+		highlights?: {
+			period_in_days?: 7 | 30;
+		};
+		chart?: null;
+		'posts-pages'?: null;
+		referrers?: null;
+		countries?: null;
+		authors?: null;
+		'search-terms'?: null;
+		clicks?: null;
+		videos?: null;
+		'app-promo'?: null;
+	};
+};
 
 /**
  * @example

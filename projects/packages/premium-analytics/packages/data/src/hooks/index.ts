@@ -170,7 +170,12 @@ export {
 	useStatsAppDashboardModules,
 	useStatsAppDashboardModulesMutation,
 } from './use-stats-app-dashboard-modules';
-export type { StatsAppDashboardModules } from './use-stats-app-dashboard-modules';
+export type {
+	StatsAppDashboardModules,
+	StatsAppDashboardModulesSettings,
+	StatsAppDashboardModuleValue,
+	StatsAppDashboardTrafficModule,
+} from './use-stats-app-dashboard-modules';
 export type { UseStatsOptions } from './use-stats-report';
 
 /**

@@ -175,7 +175,12 @@ export {
 	useStatsAppDashboardModules,
 	useStatsAppDashboardModulesMutation,
 } from './hooks/use-stats-app-dashboard-modules';
-export type { StatsAppDashboardModules } from './hooks/use-stats-app-dashboard-modules';
+export type {
+	StatsAppDashboardModules,
+	StatsAppDashboardModulesSettings,
+	StatsAppDashboardModuleValue,
+	StatsAppDashboardTrafficModule,
+} from './hooks/use-stats-app-dashboard-modules';
 export type { UseStatsOptions } from './hooks/use-stats-report';
 export { prefetchReport } from './prefetch';
 export {
