@@ -384,12 +384,22 @@ if ( overlayEl ) {
 	overlayEl.addEventListener( 'click', handleOverlayClick );
 }
 
-// Honor the URL on initial paint the same way `popstate` does on back/forward:
-// if the page loaded with `?s=` or `?q=`, open the overlay. This matches the
-// legacy instant-search behavior where deep links and core-search-form GET
-// submissions surface results in the overlay without a click.
-if ( document.readyState === 'loading' ) {
-	document.addEventListener( 'DOMContentLoaded', handlePopState, { once: true } );
+/**
+ * Honor the URL on initial paint: if the page loaded with `?s=`/`?q=`, open the
+ * overlay (same as `popstate` on back/forward; matches legacy deep-link and
+ * core-search-form behavior).
+ *
+ * Deferred to a later frame so `ensureHydrated()` clones the overlay regions
+ * into the DOM after the Interactivity runtime's DOMContentLoaded hydration
+ * walk, not during it. Opening synchronously (this deferred module evaluates
+ * pre-DOMContentLoaded) lets the walk and `apis.render()` hydrate the same
+ * regions twice, which detaches their `data-wp-each` bindings.
+ */
+function openOverlayFromInitialUrl() {
+	requestAnimationFrame( handlePopState );
+}
+if ( document.readyState === 'complete' ) {
+	openOverlayFromInitialUrl();
 } else {
-	handlePopState();
+	document.addEventListener( 'DOMContentLoaded', openOverlayFromInitialUrl, { once: true } );
 }
