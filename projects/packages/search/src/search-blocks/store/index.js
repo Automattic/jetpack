@@ -549,6 +549,49 @@ function recordResultRenders( results ) {
 	}
 }
 
+/**
+ * Replace an array state slot without swapping its reference. The Interactivity
+ * runtime observes `data-wp-each` updates reliably when the initially-bound
+ * array is mutated in place.
+ *
+ * @param {string} slot - State property name.
+ * @param {Array}  next - Next array contents.
+ * @return {Array} The live state array.
+ */
+function replaceStateArray( slot, next ) {
+	const value = Array.isArray( next ) ? next : [];
+	if ( Array.isArray( state[ slot ] ) ) {
+		state[ slot ].splice( 0, state[ slot ].length, ...value );
+		return state[ slot ];
+	}
+	state[ slot ] = value;
+	return state[ slot ];
+}
+
+/**
+ * Replace an object state slot without swapping its reference.
+ *
+ * @param {string} slot - State property name.
+ * @param {object} next - Next object contents.
+ * @return {object} The live state object.
+ */
+function replaceStateObject( slot, next ) {
+	const value = next && typeof next === 'object' && ! Array.isArray( next ) ? next : {};
+	const current = state[ slot ];
+	if ( current === value ) {
+		return current;
+	}
+	if ( current && typeof current === 'object' && ! Array.isArray( current ) ) {
+		for ( const key of Object.keys( current ) ) {
+			delete current[ key ];
+		}
+		Object.assign( current, value );
+		return current;
+	}
+	state[ slot ] = { ...value };
+	return state[ slot ];
+}
+
 const { state, actions } = store( NAMESPACE, {
 	state: {
 		// Mutually exclusive popovers — only one open at a time.
@@ -584,6 +627,13 @@ const { state, actions } = store( NAMESPACE, {
 		aiExtendedLoadingText: '',
 		aiShowExtended: false,
 		aiSessionId: null,
+
+		// Server state seeds these too, but declaring them on the client store
+		// gives `data-wp-each` directives stable containers before async fetches
+		// replace their contents.
+		results: [],
+		aggregations: {},
+		retainedFilterOptions: {},
 
 		// `resultsCountText` lives on seeded state (not a getter) so SSR can
 		// resolve `data-wp-text` to a real string on first paint. See
@@ -838,7 +888,7 @@ const { state, actions } = store( NAMESPACE, {
 				// Pre-resolve href so `data-wp-bind--href` reads a plain string.
 				href: /^https?:\/\//i.test( url ) ? url : '#',
 				// `index`-prefixed key so duplicate URLs don't collide on the IA
-				// `data-wp-each --key` dedupe pass.
+				// `data-wp-each-key` dedupe pass.
 				key: `${ index }-${ url }`,
 			} ) );
 		},
@@ -985,21 +1035,25 @@ const { state, actions } = store( NAMESPACE, {
 				if ( myToken !== searchToken ) {
 					return;
 				}
-				state.results = ( data.results ?? [] ).map( ( r, i ) => ( {
+				const nextResults = ( data.results ?? [] ).map( ( r, i ) => ( {
 					...normalizeResult( r, state.locale, state.searchQuery ),
 					index: i,
 				} ) );
-				recordResultRenders( state.results );
+				replaceStateArray( 'results', nextResults );
+				recordResultRenders( nextResults );
 				state.totalResults = data.total ?? 0;
 				state.pageHandle = data.page_handle ?? null;
-				state.aggregations = remapAggregationsToFilterKeys(
-					data.aggregations,
-					state.filterConfigs
+				replaceStateObject(
+					'aggregations',
+					remapAggregationsToFilterKeys( data.aggregations, state.filterConfigs )
 				);
-				state.retainedFilterOptions = mergeRetainedFilterOptions(
-					state.retainedFilterOptions,
-					state.aggregations,
-					state.filterConfigs
+				replaceStateObject(
+					'retainedFilterOptions',
+					mergeRetainedFilterOptions(
+						state.retainedFilterOptions,
+						state.aggregations,
+						state.filterConfigs
+					)
 				);
 				if ( syncUrl ) {
 					actions.syncToUrl();
@@ -1011,10 +1065,10 @@ const { state, actions } = store( NAMESPACE, {
 					// `role="alert"` error. `loadMore()` deliberately doesn't do
 					// this — its existing pages are still valid.
 					state.hasError = true;
-					state.results = [];
+					replaceStateArray( 'results', [] );
 					state.totalResults = 0;
 					state.pageHandle = null;
-					state.aggregations = {};
+					replaceStateObject( 'aggregations', {} );
 				}
 			} finally {
 				if ( myToken === searchToken ) {
@@ -1047,7 +1101,7 @@ const { state, actions } = store( NAMESPACE, {
 					...normalizeResult( r, state.locale, state.searchQuery ),
 					index: offset + i,
 				} ) );
-				state.results = [ ...state.results, ...appended ];
+				state.results.push( ...appended );
 				recordResultRenders( appended );
 				state.pageHandle = data.page_handle ?? null;
 			} catch {

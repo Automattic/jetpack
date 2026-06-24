@@ -281,14 +281,18 @@ describe( 'store actions', () => {
 		state.pageHandle = 'old-page';
 		state.aggregations = { category: { buckets: [ { key: 'news', doc_count: 3 } ] } };
 		state.hasError = false;
+		const resultsRef = state.results;
+		const aggregationsRef = state.aggregations;
 
 		global.fetch.mockRejectedValueOnce( new Error( 'network down' ) );
 		await runGenerator( actions.search( { syncUrl: false } ) );
 
 		expect( state.hasError ).toBe( true );
+		expect( state.results ).toBe( resultsRef );
 		expect( state.results ).toEqual( [] );
 		expect( state.totalResults ).toBe( 0 );
 		expect( state.pageHandle ).toBeNull();
+		expect( state.aggregations ).toBe( aggregationsRef );
 		expect( state.aggregations ).toEqual( {} );
 		// `resultsCountText` reads from `totalResults` via `computeResultsCountText`,
 		// so an empty count string falls out for free — no extra wiring.
@@ -344,6 +348,47 @@ describe( 'store actions', () => {
 		// Slot key must not leak into state — downstream readers key off
 		// `filterKey`, never `effectiveSlug`.
 		expect( state.aggregations[ 'jetpack-search-tag1' ] ).toBeUndefined();
+	} );
+
+	it( 'keeps each-bound result and aggregation containers stable when search() resolves', async () => {
+		state.results = [];
+		state.aggregations = {};
+		state.retainedFilterOptions = {};
+		state.filterConfigs = {
+			category: {
+				filterKey: 'category',
+				filterType: 'taxonomy',
+				taxonomy: 'category',
+				effectiveSlug: 'category',
+				maxItems: 10,
+			},
+		};
+		const resultsRef = state.results;
+		const aggregationsRef = state.aggregations;
+		const retainedRef = state.retainedFilterOptions;
+
+		global.fetch.mockResolvedValueOnce(
+			createResponse( {
+				results: [ createResult( 'Fresh result' ) ],
+				total: 1,
+				page_handle: null,
+				aggregations: {
+					category: {
+						buckets: [ { key: 'news/News', doc_count: 4 } ],
+					},
+				},
+			} )
+		);
+
+		await runGenerator( actions.search( { syncUrl: false } ) );
+
+		expect( state.results ).toBe( resultsRef );
+		expect( state.results ).toHaveLength( 1 );
+		expect( state.results[ 0 ].title ).toBe( 'Fresh result' );
+		expect( state.aggregations ).toBe( aggregationsRef );
+		expect( state.aggregations.category.buckets[ 0 ].key ).toBe( 'news/News' );
+		expect( state.retainedFilterOptions ).toBe( retainedRef );
+		expect( state.retainedFilterOptions.category ).toEqual( [ { value: 'news', label: 'News' } ] );
 	} );
 
 	it( 'leaves the existing results in place when loadMore() errors out', async () => {
