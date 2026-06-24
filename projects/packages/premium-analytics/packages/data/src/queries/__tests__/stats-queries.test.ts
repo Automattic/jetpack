@@ -1,6 +1,7 @@
 /**
  * Internal dependencies
  */
+import { statsAppProxyQuery } from '../stats-app-query';
 import { statsLocationsQuery } from '../stats-locations-query';
 import { statsTopPostsQuery } from '../stats-top-posts-query';
 import type { StatsReportParams } from '../stats-query';
@@ -98,6 +99,42 @@ describe( 'Stats query factories', () => {
 					summarize: false,
 				} ),
 			] )
+		);
+	} );
+
+	it( 'builds app query keys without report param coercion', () => {
+		const query = statsAppProxyQuery( {
+			name: 'plan-usage',
+			version: '2',
+			endpoint: 'stats-app/plan-usage',
+			params: { date: '2026-06-16' },
+		} );
+
+		expect( query.queryKey ).toEqual( [
+			'stats-app',
+			'plan-usage',
+			'2',
+			'stats-app/plan-usage',
+			'GET',
+			{ date: '2026-06-16' },
+			{},
+		] );
+	} );
+
+	it( 'shares app query keys for empty and omitted params', () => {
+		expect(
+			statsAppProxyQuery( {
+				name: 'purchases',
+				version: '1.1',
+				endpoint: 'stats-app/purchases',
+			} ).queryKey
+		).toEqual(
+			statsAppProxyQuery( {
+				name: 'purchases',
+				version: '1.1',
+				endpoint: 'stats-app/purchases',
+				params: {},
+			} ).queryKey
 		);
 	} );
 } );
