@@ -171,22 +171,19 @@ class Initializer {
 
 		Divi::init();
 
-		// Priority 20 to override the email editor's own core/video renderer (priority 10).
-		add_filter( 'block_type_metadata_settings', array( __CLASS__, 'add_core_video_email_renderer' ), 20 );
+		// Hook render start, not block_type_metadata_settings: the WordPress.com mailer re-assigns
+		// core/video's render_email_callback after registration, so setting it here runs last.
+		add_action( 'woocommerce_email_editor_render_start', array( __CLASS__, 'add_core_video_email_renderer' ) );
 	}
 
 	/**
-	 * Attach the VideoPress email renderer to the core/video block.
-	 *
-	 * @param array $settings The block type registration settings.
-	 * @return array The settings, with the email renderer attached for core/video.
+	 * Attach the VideoPress email renderer to the core/video block for email rendering.
 	 */
-	public static function add_core_video_email_renderer( $settings ) {
-		if ( isset( $settings['name'] ) && 'core/video' === $settings['name'] ) {
-			$settings['render_email_callback'] = array( Video_Block_Email_Renderer::class, 'render' );
+	public static function add_core_video_email_renderer() {
+		$block_type = \WP_Block_Type_Registry::get_instance()->get_registered( 'core/video' );
+		if ( $block_type ) {
+			$block_type->render_email_callback = array( Video_Block_Email_Renderer::class, 'render' );
 		}
-
-		return $settings;
 	}
 
 	/**
