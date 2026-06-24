@@ -9,16 +9,53 @@ import {
 	type StatsNormalizedReport,
 	type StatsTopPostsItem,
 } from '@jetpack-premium-analytics/data';
-import { WidgetRoot } from '@jetpack-premium-analytics/widgets-toolkit';
+import {
+	LeaderboardChart,
+	WidgetLoadingOverlay,
+	WidgetRoot,
+	calculateDelta,
+	type LeaderboardChartData,
+	type LegendLabels,
+} from '@jetpack-premium-analytics/widgets-toolkit';
+import { __ } from '@wordpress/i18n';
+import { Link, Text } from '@wordpress/ui';
 import { format } from 'date-fns';
 import { useMemo } from 'react';
 /**
  * Internal dependencies
  */
-import { TopPostsWidget } from './top-posts-widget';
-import type { TopPostRow } from './types';
+import styles from './top-posts.module.css';
 
-export type TopPostsAttributes = {
+/**
+ * A single normalized top-posts row, flattened from the designated
+ * `useStatsTopPosts` report into the shape the leaderboard renders.
+ */
+type TopPostRow = {
+	/**
+	 * Post or page title.
+	 */
+	label: string;
+	/**
+	 * View count for the period.
+	 */
+	value: number;
+	/**
+	 * View count for the comparison (previous) period. Only used when the
+	 * leaderboard is rendered with `withComparison`; omit it for single-period
+	 * views.
+	 */
+	previousValue?: number;
+	/**
+	 * URL of the published post/page.
+	 */
+	href: string;
+	/**
+	 * Post type, e.g. `post` or `page`.
+	 */
+	type: string;
+};
+
+type TopPostsAttributes = {
 	/**
 	 * Date-range preset, e.g. `today`, `last-7-days`, `last-30-days`, `last-year`.
 	 * Resolved to an absolute window at render time.
@@ -36,9 +73,140 @@ type TopPostsProps = {
 };
 
 /**
+ * Renders a post/page title as a link that opens in a new tab. The link fills
+ * its row so the leaderboard overlay bar gets its height from the label.
+ *
+ * @param props       - Component props.
+ * @param props.label - The post/page title.
+ * @param props.href  - The published URL of the post/page.
+ * @return The rendered label link.
+ */
+const TopPostLabel = ( { label, href }: { label: string; href: string } ) => (
+	<Link
+		className={ styles.labelLink }
+		href={ href }
+		variant="unstyled"
+		openInNewTab
+		title={ label }
+	>
+		{ label }
+	</Link>
+);
+
+/**
+ * Maps normalized top-posts rows onto the shape `LeaderboardChart` expects.
+ * Current shares are computed relative to the most-viewed row so the overlay
+ * bars are proportional. When `withComparison` is set, previous-period shares
+ * and per-row deltas are derived from each row's `previousValue`; otherwise
+ * the comparison fields are zeroed.
+ *
+ * @param rows           - The normalized top-posts rows.
+ * @param withComparison - Whether to derive previous-period shares and deltas.
+ * @return The leaderboard chart data.
+ */
+function buildLeaderboardData( rows: TopPostRow[], withComparison: boolean ): LeaderboardChartData {
+	// `1` guards against division by zero when every value is 0.
+	const maxCurrentViews = Math.max( ...rows.map( row => row.value ), 1 );
+	const maxPreviousViews = Math.max( ...rows.map( row => row.previousValue ?? 0 ), 1 );
+
+	return rows.map( ( row, index ) => {
+		const previousValue = row.previousValue ?? 0;
+
+		return {
+			id: `${ index }-${ row.href }`,
+			label: <TopPostLabel label={ row.label } href={ row.href } />,
+			currentValue: row.value,
+			currentShare: ( row.value / maxCurrentViews ) * 100,
+			previousValue,
+			previousShare:
+				withComparison && previousValue > 0 ? ( previousValue / maxPreviousViews ) * 100 : 0,
+			delta: withComparison ? calculateDelta( row.value, previousValue ) : 0,
+		};
+	} );
+}
+
+type TopPostsLeaderboardProps = {
+	/**
+	 * Normalized top-posts rows to render. When omitted, the empty state is shown
+	 * (unless `isLoading` is set).
+	 */
+	rows?: TopPostRow[];
+	/**
+	 * When `true`, a loading overlay is rendered instead of data.
+	 */
+	isLoading?: boolean;
+	/**
+	 * When `true`, an error message is rendered in place of the chart.
+	 */
+	isError?: boolean;
+	/**
+	 * When `true`, render the comparison (previous-period) delta next to each
+	 * value, using `previousValue` from each row. Mirrors the overlay
+	 * comparison mode of the toolkit's `LeaderboardChart`.
+	 */
+	withComparison?: boolean;
+	/**
+	 * When `true`, show the period legend below the chart. Requires
+	 * `legendLabels` to be meaningful.
+	 */
+	showLegend?: boolean;
+	/**
+	 * Custom legend labels for the current/comparison periods.
+	 */
+	legendLabels?: LegendLabels;
+};
+
+/**
+ * Presentational leaderboard for the "Top posts & pages" widget. Renders the
+ * most-viewed posts and pages for the period, each row linking to the
+ * published content.
+ *
+ * Takes already-fetched rows via props and is responsible only for the
+ * loading, error, empty, and populated states.
+ *
+ * @param props                - Component props.
+ * @param props.rows           - Normalized top-posts rows to render.
+ * @param props.isLoading      - Whether the chart should render its loading overlay.
+ * @param props.isError        - Whether to render an error message in place of the chart.
+ * @param props.withComparison - Whether to render previous-period deltas.
+ * @param props.showLegend     - Whether to show the period legend below the chart.
+ * @param props.legendLabels   - Custom labels for the current/comparison periods.
+ * @return The rendered leaderboard.
+ */
+const TopPostsLeaderboard = ( {
+	rows = [],
+	isLoading = false,
+	isError = false,
+	withComparison = false,
+	showLegend = false,
+	legendLabels,
+}: TopPostsLeaderboardProps ) => {
+	if ( isError ) {
+		return <Text>{ __( 'Unable to load top posts.', 'jetpack-premium-analytics' ) }</Text>;
+	}
+
+	if ( isLoading && ( ! rows || rows.length === 0 ) ) {
+		return <WidgetLoadingOverlay />;
+	}
+
+	return (
+		<LeaderboardChart
+			data={ buildLeaderboardData( rows, withComparison ) }
+			loading={ isLoading }
+			withComparison={ withComparison }
+			withOverlayLabel
+			showLegend={ showLegend }
+			legendLabels={ legendLabels }
+			emptyStateText={ __( 'No views in this period.', 'jetpack-premium-analytics' ) }
+			dataFormat={ { type: 'number', options: { useMultipliers: true, decimals: 0 } } }
+		/>
+	);
+};
+
+/**
  * Flatten the designated `useStatsTopPosts` report into the `{ label, value,
- * href, type }` rows the presentational widget renders, dropping rows without a
- * link and (optionally) filtering by post type.
+ * href, type }` rows the leaderboard renders, dropping rows without a link and
+ * (optionally) filtering by post type.
  *
  * @param report       - The normalized top-posts report, or undefined while loading.
  * @param allowedTypes - Post types to keep, or null to keep all.
@@ -66,16 +234,13 @@ function toTopPostRows(
 /**
  * Fetches the top-posts report through the designated `useStatsTopPosts` Stats
  * traffic hook and hands the normalized rows to the presentational
- * `TopPostsWidget`, which owns the loading, error, empty, and populated states.
- *
- * Runs inside `WidgetRoot` so it can reach the analytics query client, keeping
- * the presentational widget prop-driven (and Storybook-friendly).
+ * `TopPostsLeaderboard`.
  *
  * @param props            - Component props.
  * @param props.attributes - Widget attributes.
  * @return The widget content.
  */
-function TopPosts( { attributes }: TopPostsProps ) {
+function TopPostsReport( { attributes }: TopPostsProps ) {
 	// Default to the trailing 7 days, matching the Jetpack Stats "Top posts &
 	// pages" card's default range.
 	const range = attributes?.range ?? 'last-7-days';
@@ -109,7 +274,7 @@ function TopPosts( { attributes }: TopPostsProps ) {
 		[ primary.data, allowedTypes ]
 	);
 
-	return <TopPostsWidget rows={ rows } isLoading={ isLoading } isError={ isError } />;
+	return <TopPostsLeaderboard rows={ rows } isLoading={ isLoading } isError={ isError } />;
 }
 
 /**
@@ -117,16 +282,18 @@ function TopPosts( { attributes }: TopPostsProps ) {
  *
  * Attributes flow to the inner component via props rather than
  * `WidgetRootContext` — the context's report params are WC-Analytics-shaped
- * and do not fit stats queries.
+ * and do not fit stats queries. Runs inside `WidgetRoot` so it can reach the
+ * analytics query client, keeping the leaderboard prop-driven (and
+ * Storybook-friendly).
  *
  * @param props            - Render props.
  * @param props.attributes - Widget attributes.
  * @return The rendered widget.
  */
-export default function TopPostsWidgetRoot( { attributes }: TopPostsProps ) {
+export default function TopPosts( { attributes }: TopPostsProps ) {
 	return (
 		<WidgetRoot>
-			<TopPosts attributes={ attributes } />
+			<TopPostsReport attributes={ attributes } />
 		</WidgetRoot>
 	);
 }

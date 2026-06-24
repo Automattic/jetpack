@@ -60,7 +60,9 @@ describe( 'TopPostsWidget', () => {
 	it( 'renders the fetched top posts as links', async () => {
 		render( <TopPostsWidget attributes={ { range: 'last-7-days', num: 10 } } /> );
 
-		const link = await screen.findByRole( 'link', { name: 'Hello World Post' } );
+		// The `@wordpress/ui` `Link` appends an "(opens in a new tab)" indicator
+		// to the accessible name, so match the title as a substring.
+		const link = await screen.findByRole( 'link', { name: /Hello World Post/ } );
 		expect( link ).toHaveAttribute( 'href', 'https://example.com/hello-world/' );
 		expect( screen.getByText( 'About Page' ) ).toBeInTheDocument();
 	} );

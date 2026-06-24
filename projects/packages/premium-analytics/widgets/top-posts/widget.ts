@@ -1,6 +1,7 @@
 /**
  * WordPress dependencies
  */
+import { __ } from '@wordpress/i18n';
 import { chartBar } from '@wordpress/icons';
 
 /**
@@ -12,24 +13,24 @@ import { chartBar } from '@wordpress/icons';
  */
 export default {
 	name: 'jpa/stats-top-posts',
-	title: 'Top pages by views',
+	title: __( 'Top pages by views', 'jetpack-premium-analytics' ),
 	icon: chartBar,
 	presentation: 'framed',
 	attributes: [
 		{
 			id: 'range',
-			label: 'Date range',
+			label: __( 'Date range', 'jetpack-premium-analytics' ),
 			type: 'text',
 			elements: [
-				{ label: 'Today', value: 'today' },
-				{ label: 'Last 7 days', value: 'last-7-days' },
-				{ label: 'Last 30 days', value: 'last-30-days' },
-				{ label: 'Last year', value: 'last-year' },
+				{ label: __( 'Today', 'jetpack-premium-analytics' ), value: 'today' },
+				{ label: __( 'Last 7 days', 'jetpack-premium-analytics' ), value: 'last-7-days' },
+				{ label: __( 'Last 30 days', 'jetpack-premium-analytics' ), value: 'last-30-days' },
+				{ label: __( 'Last year', 'jetpack-premium-analytics' ), value: 'last-year' },
 			],
 		},
 		{
 			id: 'num',
-			label: 'Number of results',
+			label: __( 'Number of results', 'jetpack-premium-analytics' ),
 			type: 'integer',
 		},
 	],
