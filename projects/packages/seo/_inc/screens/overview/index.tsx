@@ -6,9 +6,11 @@ import { __ } from '@wordpress/i18n';
 import { useNavigate } from '@wordpress/route';
 import { Notice } from '@wordpress/ui';
 import EnableSeoCard from '../../components/enable-seo-card';
+import { aiStore } from '../../data/ai-store';
 import { coverageStore } from '../../data/coverage-store';
 import getOverview from '../../data/get-overview';
 import { settingsStore } from '../../data/settings-store';
+import AiReadinessCard from './ai-readiness-card';
 import ContentCoverageCard from './content-coverage-card';
 import DisableSeoTools from './disable-seo-tools';
 import SiteVerificationCard from './site-verification-card';
@@ -30,6 +32,14 @@ const OverviewScreen: FC = () => {
 	// here until a full reload. The "View" link itself lives on the Settings tab.
 	const settings = useSelect( select => select( settingsStore ).getSettings(), [] );
 
+	// AI-tab settings drive the AI readiness card. Read from the AI store (seeded
+	// from the bootstrap, updated on each save in the AI route) so a change there
+	// reflects here on navigation without a reload — same pattern as the stores
+	// above.
+	const aiEnhancer = useSelect( select => select( aiStore ).getEnhancer(), [] );
+	const aiLlmsTxt = useSelect( select => select( aiStore ).getLlmsTxt(), [] );
+	const aiCrawlers = useSelect( select => select( aiStore ).getCrawlers(), [] );
+
 	// Deep-link to a Settings section: navigate to the Settings route with
 	// `?focus=`, which the Settings screen reads to scroll the section to top.
 	const goToSection = useCallback(
@@ -40,6 +50,10 @@ const OverviewScreen: FC = () => {
 
 	// Deep-link to the Content route.
 	const goToContent = useCallback( () => navigate( { href: '/content' } ), [ navigate ] );
+
+	// Deep-link to the AI route. The AI readiness card is comprehensive, so it
+	// targets the tab itself rather than a specific section.
+	const goToAi = useCallback( () => navigate( { href: '/ai' } ), [ navigate ] );
 
 	if ( ! data ) {
 		return (
@@ -86,6 +100,12 @@ const OverviewScreen: FC = () => {
 				<SiteVerificationCard
 					data={ data.site_verification }
 					onManage={ () => goToSection( 'verification' ) }
+				/>
+				<AiReadinessCard
+					enhancer={ aiEnhancer }
+					llmsTxt={ aiLlmsTxt }
+					crawlers={ aiCrawlers }
+					onManage={ goToAi }
 				/>
 			</div>
 			<div className="jetpack-seo-overview__content-card">
