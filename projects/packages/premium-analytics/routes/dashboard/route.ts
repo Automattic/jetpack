@@ -2,6 +2,7 @@
  * External dependencies
  */
 import { getScriptData } from '@automattic/jetpack-script-data';
+import { getDefaultQueryParams } from '@jetpack-premium-analytics/data';
 import { store as coreStore } from '@wordpress/core-data';
 import { dispatch, select } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
@@ -11,12 +12,19 @@ import { redirect } from '@wordpress/route';
  */
 import { DASHBOARD_REST_NAMESPACE } from './hooks/constants';
 
+type DashboardSearch = Record< string, string | undefined >;
+
 /**
  * Route lifecycle for the dashboard.
  *
  * Guard:
  * - Not connected → /connect
  * - Connected but sync pending → /syncing
+ *
+ * Seed the default date range into the URL on first visit so the date picker
+ * and the widgets share a populated search state. Defaults to the last 30 days
+ * with a previous-period comparison, resolved from the shared analytics
+ * defaults (`getDefaultQueryParams`).
  *
  * Then register the widget-modules discovery entity before the stage renders,
  * so the stage's `getEntityRecords` read resolves and feeds the records to
@@ -25,7 +33,7 @@ import { DASHBOARD_REST_NAMESPACE } from './hooks/constants';
  * Guarded for idempotency: beforeLoad re-runs on every navigation and preload.
  */
 export const route = {
-	beforeLoad: () => {
+	beforeLoad: ( { search }: { search?: DashboardSearch } = {} ) => {
 		const connectionStatus = getScriptData()?.connection?.connectionStatus;
 
 		if ( ! connectionStatus?.isRegistered ) {
@@ -35,6 +43,21 @@ export const route = {
 		const syncFinished = getScriptData()?.premium_analytics?.initial_full_sync_finished ?? 0;
 		if ( ! syncFinished ) {
 			throw redirect( { to: '/syncing' } );
+		}
+
+		const params = ( search ?? {} ) as DashboardSearch;
+		if ( ! params.from || ! params.to || ! params.interval ) {
+			throw redirect( {
+				to: '/',
+				replace: true,
+				/*
+				 * The router is built dynamically, so the '/' route has no
+				 * statically-typed search schema (tanstack widens it to
+				 * `never`). Cast the seeded params the same way the routing
+				 * package does when it writes the URL.
+				 */
+				search: { ...params, ...getDefaultQueryParams( true ) } as unknown as never,
+			} );
 		}
 
 		const coreSelect = select( coreStore ) as unknown as {

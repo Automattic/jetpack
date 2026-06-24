@@ -1,12 +1,20 @@
-import { GlobalErrorProvider } from '@jetpack-premium-analytics/data';
+import {
+	getSiteTimezone,
+	GlobalErrorProvider,
+	localTZDate,
+	type ReportQueryParams,
+} from '@jetpack-premium-analytics/data';
+import { encodeDateToSearchParam, useStagedSearch } from '@jetpack-premium-analytics/routing';
+import { DateFiltersPanel } from '@jetpack-premium-analytics/ui';
 import { Page } from '@wordpress/admin-ui';
 import { store as coreStore } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
-import { useState } from '@wordpress/element';
+import { useCallback, useMemo, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Tabs } from '@wordpress/ui';
 import { WidgetDashboard } from '@wordpress/widget-dashboard';
 import { useWidgetTypes, type WidgetModuleRecord } from '@wordpress/widget-primitives';
+import { endOfDay } from 'date-fns';
 import { DashboardSections } from './components';
 import {
 	DASHBOARD_NAME,
@@ -16,6 +24,19 @@ import {
 	useDashboardSections,
 } from './hooks';
 import styles from './stage.module.scss';
+import type {
+	ComparisonPresetId,
+	DateRange,
+	PrimaryPresetId,
+} from '@jetpack-premium-analytics/datetime';
+
+type ReportQuerySearchParams = Partial<
+	ReportQueryParams & {
+		preset?: PrimaryPresetId;
+		compare_preset?: ComparisonPresetId;
+		comp?: string;
+	}
+>;
 
 /**
  * Premium Analytics dashboard page stage component.
@@ -45,6 +66,85 @@ function Dashboard(): JSX.Element {
 
 	const [ editMode, setEditMode ] = useState( false );
 
+	/*
+	 * Date-range state lives in the URL search params. Edits are staged
+	 * locally and committed atomically on Apply (or immediately for
+	 * comparison changes), so widgets re-fetch only on commit.
+	 */
+	const { effective, stage, commit, revert, isDirty } = useStagedSearch<
+		ReportQuerySearchParams,
+		'/'
+	>( {
+		from: '/',
+	} );
+
+	const presetId = useMemo( () => effective.preset ?? undefined, [ effective.preset ] );
+
+	const range = useMemo( () => {
+		return {
+			from: effective.from ? localTZDate( effective.from ) : undefined,
+			to: effective.to ? localTZDate( effective.to ) : undefined,
+		};
+	}, [ effective.from, effective.to ] );
+
+	const onChange = useCallback(
+		( nextRange?: DateRange, nextPresetId?: PrimaryPresetId ) => {
+			if ( ! nextRange && ! nextPresetId ) {
+				return;
+			}
+
+			if ( nextRange && nextRange.from && nextRange.to ) {
+				/*
+				 * Stage `from` and `to` as ISO strings. The `to` date is
+				 * adjusted to the end of the day, since the date picker core
+				 * component sets the time to 00:00:00.
+				 */
+				stage( {
+					from: encodeDateToSearchParam( nextRange.from ),
+					to: encodeDateToSearchParam( endOfDay( nextRange.to ) ),
+				} );
+			}
+
+			if ( nextPresetId ) {
+				stage( { preset: nextPresetId } );
+			}
+		},
+		[ stage ]
+	);
+
+	const comparisonPresetId = useMemo(
+		() => effective.compare_preset ?? undefined,
+		[ effective.compare_preset ]
+	);
+
+	/**
+	 * Comparison changes commit immediately (no Apply step).
+	 */
+	const onComparisonChange = useCallback(
+		( nextComparisonRange: DateRange | undefined, nextComparisonPresetId?: ComparisonPresetId ) => {
+			stage( {
+				compare_from: encodeDateToSearchParam( nextComparisonRange?.from ),
+				compare_to: encodeDateToSearchParam( nextComparisonRange?.to ),
+				compare_preset: nextComparisonPresetId ?? undefined,
+				comp: nextComparisonRange ? '1' : undefined,
+			} );
+
+			commit();
+		},
+		[ stage, commit ]
+	);
+
+	const onApply = useCallback( () => {
+		commit();
+	}, [ commit ] );
+
+	const onCancel = useCallback( () => {
+		revert();
+	}, [ revert ] );
+
+	// Container element for the date filters panel responsive layout.
+	const [ containerElement, setContainerElement ] = useState< HTMLDivElement | null >( null );
+
 	return (
 		<GlobalErrorProvider>
 			<WidgetDashboard
@@ -72,6 +172,29 @@ function Dashboard(): JSX.Element {
 						value={ activeSection }
 						onChange={ setActiveSection }
 					>
+						{ /*
+						 * The date filters drive every section, so they render once
+						 * below the section tabs and above the widgets, sharing the
+						 * URL search state across all sections.
+						 *
+						 * The wrapper div is also the responsive-measurement target:
+						 * DateFiltersPanel reads its width to pick mobile/wide layouts
+						 * instead of relying on the viewport.
+						 */ }
+						<div ref={ setContainerElement } className={ styles.dateFilters }>
+							<DateFiltersPanel
+								presetId={ presetId }
+								range={ range }
+								comparisonPresetId={ comparisonPresetId }
+								onChange={ onChange }
+								onComparisonChange={ onComparisonChange }
+								onApply={ onApply }
+								onCancel={ onCancel }
+								canApply={ isDirty }
+								timeZone={ getSiteTimezone() }
+								containerElement={ containerElement }
+							/>
+						</div>
 						{ sections.map( section => (
 							<Tabs.Panel key={ section.id } value={ section.id } className={ styles.content }>
 								{ activeSection === section.id ? (
