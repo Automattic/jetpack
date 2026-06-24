@@ -1,0 +1,4 @@
+Significance: minor
+Type: other
+
+AI Editorial Review: gate the sidebar suggestion on Big Sky availability and AI features instead of the jetpack_ai_editorial_review_enabled filter, which is removed.

@@ -274,16 +274,14 @@ class Jetpack_AI_Sidebar {
 	 * UI feature flag for AI Editorial Review.
 	 *
 	 * Server-side permission checks still gate execution. This site-side flag
-	 * controls whether the sidebar suggestion is exposed, while keeping a
-	 * feature-specific filter available as a kill switch.
+	 * exposes the suggestion whenever the Big Sky sidebar is enabled and Jetpack
+	 * AI features are available — condition-based gating like the other sidebar
+	 * suggestions, with no per-feature filter override.
 	 *
 	 * @return bool
 	 */
 	private static function is_ai_editorial_review_enabled(): bool {
-		return (bool) apply_filters(
-			'jetpack_ai_editorial_review_enabled',
-			true
-		);
+		return self::is_jetpack_ai_sidebar_preview_enabled() && self::has_ai_features();
 	}
 
 	/**
@@ -402,8 +400,8 @@ class Jetpack_AI_Sidebar {
 
 		// Set our fields in place, leaving the rest of $data (including agentProviders)
 		// untouched so the client-side gate can drop Jetpack AI Sidebar while keeping
-		// fallbacks such as the Big Sky provider. Hosts that need intentional overrides
-		// should use the AI Editorial Review and preview filters.
+		// fallbacks such as the Big Sky provider. Hosts that need to force the
+		// sidebar on or off should use the jetpack_ai_sidebar_enabled filter.
 		foreach ( self::get_sidebar_am_fields() as $key => $value ) {
 			$data[ $key ] = $value;
 		}

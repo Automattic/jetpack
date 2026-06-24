@@ -103,7 +103,6 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 		remove_all_filters( 'jetpack_ai_sidebar_enabled' );
 		remove_all_filters( 'agents_manager_agent_providers' );
 		remove_all_filters( 'agents_manager_enabled_in_block_editor' );
-		remove_all_filters( 'jetpack_ai_editorial_review_enabled' );
 		remove_all_filters( 'jetpack_ai_sidebar_preview_enabled' );
 		remove_all_filters( 'jetpack_ai_sidebar_preview_features' );
 		remove_all_filters( 'jetpack_ai_sidebar_agents_manager_data' );
@@ -323,23 +322,6 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test that the preview surface can initialize without AI Editorial Review.
-	 */
-	public function test_init_registers_hooks_when_preview_is_enabled_without_ai_editorial_review() {
-		add_filter( 'jetpack_ai_editorial_review_enabled', '__return_false' );
-		Jetpack_AI_Sidebar::init();
-
-		$this->assertNotFalse(
-			has_filter( 'agents_manager_agent_providers', array( Jetpack_AI_Sidebar::class, 'register_provider' ) ),
-			'register_provider should be hooked when the preview gate is true.'
-		);
-		$this->assertNotFalse(
-			has_action( 'admin_enqueue_scripts', array( Jetpack_AI_Sidebar::class, 'maybe_enqueue_abilities_script' ) ),
-			'maybe_enqueue_abilities_script should be hooked when the preview gate is true.'
-		);
-	}
-
-	/**
 	 * Test that init() registers hooks when the feature filter is true.
 	 */
 	public function test_init_registers_hooks_when_enabled() {
@@ -482,23 +464,9 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	 * Test that the Agents Manager block-editor gate preserves existing true values.
 	 */
 	public function test_enable_agents_manager_in_post_editor_preserves_existing_true() {
-		add_filter( 'jetpack_ai_editorial_review_enabled', '__return_false' );
 		$this->set_page_block_editor_screen();
 
 		$this->assertTrue( Jetpack_AI_Sidebar::enable_agents_manager_in_post_editor( true ) );
-	}
-
-	/**
-	 * The AI Editorial Review filter is decoupled from this Agents Manager entrypoint.
-	 *
-	 * The preview gate is wpcom/Big Sky-based, so turning AI Editorial Review off
-	 * does not close the gate (AI Editorial Review only affects the exposed data).
-	 */
-	public function test_enable_agents_manager_in_post_editor_ignores_ai_editorial_review_filter() {
-		add_filter( 'jetpack_ai_editorial_review_enabled', '__return_false' );
-		$this->set_block_editor_screen();
-
-		$this->assertTrue( Jetpack_AI_Sidebar::enable_agents_manager_in_post_editor( false ) );
 	}
 
 	/**
@@ -520,7 +488,6 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	 */
 	public function test_add_agents_manager_data_exposes_ai_editorial_review_enabled() {
 		$this->set_block_editor_screen();
-		add_filter( 'jetpack_ai_editorial_review_enabled', '__return_true' );
 
 		$data = Jetpack_AI_Sidebar::add_agents_manager_data( array( 'sectionName' => 'gutenberg' ) );
 
@@ -615,22 +582,6 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Preview and AI Editorial Review have separate gates.
-	 */
-	public function test_add_agents_manager_data_allows_preview_without_ai_editorial_review() {
-		$this->set_block_editor_screen();
-		add_filter( 'jetpack_ai_editorial_review_enabled', '__return_false' );
-
-		$data = Jetpack_AI_Sidebar::add_agents_manager_data( array( 'sectionName' => 'gutenberg' ) );
-
-		$this->assertSame( 'wp-orchestrator', $data['agentId'] );
-		$this->assertSame( false, $data['aiEditorialReviewEnabled'] );
-		$this->assertSame( true, $data['jetpackAiSidebar']['enabled'] );
-		$this->assertSame( false, $data['jetpackAiSidebar']['features']['aiEditorialReview'] );
-		$this->assertSame( true, $data['jetpackAiSidebar']['features']['blockTransformations'] );
-	}
-
-	/**
 	 * Platform-emitted preview data is scoped to the post editor.
 	 */
 	public function test_add_agents_manager_data_skips_page_editor() {
@@ -639,6 +590,20 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 		$data = Jetpack_AI_Sidebar::add_agents_manager_data( array( 'sectionName' => 'gutenberg' ) );
 
 		$this->assertArrayNotHasKey( 'agentId', $data );
+		$this->assertArrayNotHasKey( 'aiEditorialReviewEnabled', $data );
+		$this->assertArrayNotHasKey( 'jetpackAiSidebar', $data );
+	}
+
+	/**
+	 * No preview fields are emitted when Jetpack AI features are unavailable, so
+	 * AI Editorial Review tracks the surface gate rather than a per-feature filter.
+	 */
+	public function test_add_agents_manager_data_skips_when_ai_disabled() {
+		$this->set_block_editor_screen();
+		add_filter( 'jetpack_ai_enabled', '__return_false' );
+
+		$data = Jetpack_AI_Sidebar::add_agents_manager_data( array( 'sectionName' => 'gutenberg' ) );
+
 		$this->assertArrayNotHasKey( 'aiEditorialReviewEnabled', $data );
 		$this->assertArrayNotHasKey( 'jetpackAiSidebar', $data );
 	}
