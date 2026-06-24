@@ -82,13 +82,13 @@ class Jetpack_Gutenberg {
 	 * eagerly on every admin/REST/editor request (see self::is_block_editor_context()).
 	 * For example, instagram-gallery and mailchimp register an external-connections
 	 * settings panel via External_Connections::add_settings_for_service(), which only
-	 * adds `admin_init`/`wp_ajax_*` hooks (plus, for mailchimp, a `load-options.php`
-	 * handler and an admin script handle) — none of which run on a front-end render.
+	 * adds admin-side hooks (`admin_init`, `wp_ajax_*`, and similar) — none of which run
+	 * on a front-end render.
 	 *
 	 * On plain front-end requests these blocks are NOT loaded on `init`. Instead they
 	 * are registered just-in-time the first time the block (or a block whose subtree
 	 * contains it) is encountered while rendering, via self::lazy_register_deferred_block()
-	 * on `pre_render_block`. On admin/REST/cron/CLI/XML-RPC (block-editor) requests they
+	 * on `pre_render_block`. On admin/REST/cron/CLI/XML-RPC (non-front-end) requests they
 	 * keep loading eagerly so the editor, the block-types REST endpoint and server-side
 	 * rendering are unaffected.
 	 *
