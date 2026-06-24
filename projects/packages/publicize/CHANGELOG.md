@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.81.3.1] - 2026-06-24
+### Fixed
+- Fix the Social admin page rendering blank, and restore the editor sharing panel, on WordPress 6.9. [#49859]
+
 ## [0.81.3] - 2026-06-08
 ### Removed
 - Revert the Jetpack-side changes that re-enabled X (Twitter) sharing in Jetpack Social. [#49309]
@@ -1483,6 +1487,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies.
 - Update package.json metadata.
 
+[0.81.3.1]: https://github.com/Automattic/jetpack-publicize/compare/v0.81.3...v0.81.3.1
 [0.81.3]: https://github.com/Automattic/jetpack-publicize/compare/v0.81.2...v0.81.3
 [0.81.2]: https://github.com/Automattic/jetpack-publicize/compare/v0.81.1...v0.81.2
 [0.81.1]: https://github.com/Automattic/jetpack-publicize/compare/v0.81.0...v0.81.1
