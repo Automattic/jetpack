@@ -6,9 +6,21 @@
  * `document.readyState`, then imports the module fresh via `jest.resetModules`.
  */
 
-// `ensureHydrated()` dynamically imports this; stub it so the hydration branch
-// no-ops instead of reaching for the real Interactivity runtime in jsdom.
-jest.mock( '@wordpress/interactivity', () => ( {} ), { virtual: true } );
+let mockActions;
+let mockApis;
+let mockResolveInitialVdom;
+
+// `ensureHydrated()` dynamically imports this; stub the private API shape so
+// bootstrap timing can be tested without reaching for the real Interactivity
+// runtime in jsdom.
+jest.mock(
+	'@wordpress/interactivity',
+	() => ( {
+		privateApis: jest.fn( () => mockApis ),
+		store: jest.fn( () => ( { actions: mockActions } ) ),
+	} ),
+	{ virtual: true }
+);
 // The bootstrap statically depends on the shared store as a side-effect
 // import (so the runtime store registers before the bootstrap dispatches
 // `dispatchInitialSearchIfNeeded` after hydration). The store module itself
@@ -45,6 +57,24 @@ function renderOverlayShell( { full = false } = {} ) {
 }
 
 /**
+ * Reset the mocked Interactivity private API for a fresh bootstrap import.
+ */
+function resetInteractivityMock() {
+	mockActions = {
+		closeAllPopovers: jest.fn(),
+		dispatchInitialSearchIfNeeded: jest.fn(),
+	};
+	mockApis = {
+		getRegionRootFragment: jest.fn( region => region.parentElement ),
+		initialVdomPromise: new Promise( resolve => {
+			mockResolveInitialVdom = resolve;
+		} ),
+		render: jest.fn(),
+		toVdom: jest.fn( region => region ),
+	};
+}
+
+/**
  * Point `window.location` at the given path+query without a real navigation.
  *
  * @param {string} url - Path with optional query string, e.g. `/?s=foo`.
@@ -67,10 +97,16 @@ function setReadyState( value ) {
 
 /**
  * Import the bootstrap fresh and let the fire-and-forget `openOverlay` settle.
+ *
+ * @param {object}  [options]                         - Import options.
+ * @param {boolean} [options.resolveInitialHydration] - Whether to resolve the mocked initial hydration before flushing.
  */
-async function loadBootstrap() {
+async function loadBootstrap( { resolveInitialHydration = true } = {} ) {
 	jest.resetModules();
 	await import( '../index.js' );
+	if ( resolveInitialHydration ) {
+		mockResolveInitialVdom( new WeakMap() );
+	}
 	// `handlePopState` → `openOverlay` awaits hydration before toggling `hidden`;
 	// flush the microtask queue so the attribute change has landed.
 	await new Promise( resolve => setTimeout( resolve, 0 ) );
@@ -84,6 +120,10 @@ const isOpen = () => ! document.getElementById( OVERLAY_ID ).hasAttribute( 'hidd
 // another Document" `console.error`. Reload-path tests assert
 // `expect( console ).toHaveErrored()` as evidence the call fired — that doubles
 // as the declaration that satisfies the jest-console strict guard.
+
+beforeEach( () => {
+	resetInteractivityMock();
+} );
 
 afterEach( () => {
 	setReadyState( 'complete' );
@@ -135,6 +175,27 @@ describe( 'overlay-bootstrap initial-load URL trigger', () => {
 		await new Promise( resolve => setTimeout( resolve, 0 ) );
 
 		expect( isOpen() ).toBe( true );
+	} );
+
+	it( 'waits for the initial Interactivity hydration before cloning the overlay template', async () => {
+		setReadyState( 'complete' );
+		renderOverlayShell();
+		document.getElementById( 'jetpack-search-block-overlay-template' ).innerHTML =
+			'<div data-wp-interactive="jetpack-search" id="clone-marker"></div>';
+		setUrl( '/?s=hello' );
+
+		await loadBootstrap( { resolveInitialHydration: false } );
+
+		expect( isOpen() ).toBe( false );
+		expect( document.getElementById( 'clone-marker' ) ).toBeNull();
+
+		mockResolveInitialVdom( new WeakMap() );
+		await new Promise( resolve => setTimeout( resolve, 0 ) );
+
+		expect( isOpen() ).toBe( true );
+		expect( document.getElementById( 'clone-marker' ) ).not.toBeNull();
+		expect( mockApis.render ).toHaveBeenCalled();
+		expect( mockActions.dispatchInitialSearchIfNeeded ).toHaveBeenCalled();
 	} );
 
 	it( 'is a no-op when the overlay shell is not rendered', async () => {

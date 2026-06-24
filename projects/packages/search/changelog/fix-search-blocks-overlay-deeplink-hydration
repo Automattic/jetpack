@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Search Blocks: Fix deep-linked overlay searches rendering empty result lists.

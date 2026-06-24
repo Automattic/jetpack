@@ -72,6 +72,22 @@ function ensureHydrated() {
 		return hydrationPromise;
 	}
 	hydrationPromise = ( async () => {
+		// Hydration uses the WP Interactivity API's private surface. There is
+		// no public API for hydrating content inserted after DOMContentLoaded.
+		// If the privateApis contract changes, the catch leaves the overlay
+		// rendered-but-inert rather than crashing the page; the IA store
+		// reading from a static seed already covers initial display.
+		let ia = null;
+		let apis = null;
+		try {
+			ia = await import( '@wordpress/interactivity' );
+			apis = typeof ia.privateApis === 'function' ? ia.privateApis( PRIVATE_API_CONSENT ) : null;
+			await apis?.initialVdomPromise;
+		} catch ( e ) {
+			// eslint-disable-next-line no-console
+			console.warn( '[jetpack-search] overlay hydration failed', e );
+		}
+
 		const overlay = getOverlay();
 		const template = document.getElementById( TEMPLATE_ID );
 		const content = overlay?.querySelector( '.jetpack-search-block-overlay__content' );
@@ -80,18 +96,9 @@ function ensureHydrated() {
 		}
 		content.appendChild( template.content.cloneNode( true ) );
 
-		// Hydration uses the WP Interactivity API's private surface. There is
-		// no public API for hydrating content inserted after DOMContentLoaded.
-		// If the privateApis contract changes, the catch leaves the overlay
-		// rendered-but-inert rather than crashing the page; the IA store
-		// reading from a static seed already covers initial display.
 		try {
-			const ia = await import( '@wordpress/interactivity' );
-			if ( typeof ia.privateApis !== 'function' ) {
-				return;
-			}
-			const apis = ia.privateApis( PRIVATE_API_CONSENT );
 			if (
+				! apis ||
 				typeof apis.render !== 'function' ||
 				typeof apis.toVdom !== 'function' ||
 				typeof apis.getRegionRootFragment !== 'function'
