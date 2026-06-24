@@ -79,6 +79,7 @@ export {
 	type StatsDevicesDeviceParam,
 	type StatsDevicesParams,
 } from './use-stats-devices';
+export { useStatsAppSiteHasNeverPublishedPost } from './use-stats-app-site-has-never-published-post';
 export type { UseStatsOptions } from './use-stats-report';
 
 /**

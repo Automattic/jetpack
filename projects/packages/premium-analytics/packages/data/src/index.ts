@@ -85,6 +85,7 @@ export {
 	type StatsDevicesDeviceParam,
 	type StatsDevicesParams,
 } from './hooks/use-stats-devices';
+export { useStatsAppSiteHasNeverPublishedPost } from './hooks/use-stats-app-site-has-never-published-post';
 export type { UseStatsOptions } from './hooks/use-stats-report';
 export { prefetchReport } from './prefetch';
 export {
