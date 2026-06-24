@@ -27,10 +27,10 @@ function jetpack_content_guidelines_ai_enqueue_scripts( $hook_suffix ) {
 		return;
 	}
 
-	// Only load on WordPress.com Simple and Atomic sites; self-hosted sites do
-	// not enqueue at all. Free-tier Simple/Atomic sites still load the bundle so
-	// the upgrade path can be shown — the paid-plan requirement is enforced by
-	// the suggest-guidelines API.
+	// Only load when Jetpack AI is enabled (currently WordPress.com Simple and
+	// Atomic sites by default). Free-tier Simple/Atomic sites still load the
+	// bundle so the upgrade path can be shown — the paid-plan requirement is
+	// enforced by the suggest-guidelines API.
 	if ( ! class_exists( 'Jetpack_AI_Helper' ) ) {
 		require_once JETPACK__PLUGIN_DIR . '_inc/lib/class-jetpack-ai-helper.php';
 	}
