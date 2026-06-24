@@ -1,4 +1,9 @@
-import { fetchStatsProxy, type StatsProxyMethod, type StatsProxyVersion } from '../api';
+import {
+	fetchStatsProxy,
+	type StatsProxyMethod,
+	type StatsProxyParams,
+	type StatsProxyVersion,
+} from '../api';
 import {
 	sanitizeStatsClicksResponse,
 	sanitizeStatsFileDownloadsResponse,

@@ -56,7 +56,7 @@ function LocationsInner( { attributes }: WidgetRenderProps< LocationsAttributes 
 	// Drill-down (region) takes priority over topMode; city mode disables drill-down.
 	const geoMode: GeoMode = selectedCountry ? 'region' : topMode;
 
-	const { data, isLoading } = useLocationViews( {
+	const { data, isLoading, isError } = useLocationViews( {
 		reportParams,
 		max,
 		geoMode,
@@ -123,6 +123,14 @@ function LocationsInner( { attributes }: WidgetRenderProps< LocationsAttributes 
 		return (
 			<Stack align="center" justify="center" className={ clsx( styles.root, styles.placeholder ) }>
 				<Text>{ __( 'Loading locations…', 'jetpack-premium-analytics' ) }</Text>
+			</Stack>
+		);
+	}
+
+	if ( isError ) {
+		return (
+			<Stack align="center" justify="center" className={ clsx( styles.root, styles.placeholder ) }>
+				<Text>{ __( 'Could not load location data.', 'jetpack-premium-analytics' ) }</Text>
 			</Stack>
 		);
 	}
