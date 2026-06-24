@@ -1,17 +1,17 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { fetchStatsProxy } from '../api';
-import type { StatsQueryParams } from '../utils/stats-params';
+
+export type StatsAppCommercialClassificationParams = Record< string, never >;
 
 export function useStatsAppCommercialClassificationMutation() {
 	const queryClient = useQueryClient();
 
 	return useMutation( {
-		mutationFn: ( params?: StatsQueryParams ) =>
+		mutationFn: ( params?: StatsAppCommercialClassificationParams ) =>
 			fetchStatsProxy( {
 				version: '2',
 				endpoint: 'commercial-classification',
 				method: 'POST',
-				// The WPCOM endpoint reads POST inputs from the query string.
 				params,
 			} ),
 		onSuccess: () => {
