@@ -2,6 +2,7 @@
  * Internal dependencies
  */
 import { statsAppProxyQuery } from '../stats-app-query';
+import { statsArchivesQuery } from '../stats-archives-query';
 import { statsLocationsQuery } from '../stats-locations-query';
 import { statsTopPostsQuery } from '../stats-top-posts-query';
 import type { StatsReportParams } from '../stats-query';
@@ -77,6 +78,25 @@ describe( 'Stats query factories', () => {
 					date: '2026-06-07',
 					start_date: '2026-06-01',
 					days: 7,
+					summarize: 1,
+				} ),
+			] )
+		);
+	} );
+
+	it( 'requests summarized archives data for multi-day ranges', () => {
+		const query = statsArchivesQuery( {
+			from: '2026-06-01',
+			to: '2026-06-07',
+			interval: 'day',
+		} );
+
+		expect( query.queryKey ).toEqual(
+			expect.arrayContaining( [
+				'stats/archives',
+				expect.objectContaining( {
+					date: '2026-06-07',
+					start_date: '2026-06-01',
 					summarize: 1,
 				} ),
 			] )

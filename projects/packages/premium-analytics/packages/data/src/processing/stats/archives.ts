@@ -44,6 +44,7 @@ function normalizeArchiveChildren(
 	}
 
 	return coerceStatsArray< StatsRecord >( archiveItems )
+		.filter( item => Boolean( item.value ) )
 		.map( item => ( {
 			label: archiveType === 'home' ? getStatsLabel( item.href ) : getStatsLabel( item.value ),
 			value: safeParseFloat( item.views ),

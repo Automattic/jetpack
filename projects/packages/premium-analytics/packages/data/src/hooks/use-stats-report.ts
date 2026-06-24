@@ -2,8 +2,8 @@
  * Internal dependencies
  */
 import { useReport } from './use-report';
-import type { UseQueryOptions } from '@tanstack/react-query';
 import type { StatsReportParams } from '../queries/stats-query';
+import type { UseQueryOptions } from '@tanstack/react-query';
 
 export type UseStatsOptions = {
 	enabled?: boolean;

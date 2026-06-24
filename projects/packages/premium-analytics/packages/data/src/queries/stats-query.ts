@@ -46,9 +46,8 @@ export type StatsSanitizerKey = keyof typeof statsSanitizers;
 type StatsSanitizerData< TSanitizer extends StatsSanitizerKey = StatsSanitizerKey > = ReturnType<
 	( typeof statsSanitizers )[ TSanitizer ]
 >;
-export type StatsReportQueryOptions<
-	TSanitizer extends StatsSanitizerKey = StatsSanitizerKey,
-> = UseQueryOptions< StatsSanitizerData< TSanitizer > >;
+export type StatsReportQueryOptions< TSanitizer extends StatsSanitizerKey = StatsSanitizerKey > =
+	UseQueryOptions< StatsSanitizerData< TSanitizer > >;
 
 export type StatsQueryConfig< TSanitizer extends StatsSanitizerKey = StatsSanitizerKey > = {
 	name: string;
@@ -64,7 +63,9 @@ export type StatsQueryConfig< TSanitizer extends StatsSanitizerKey = StatsSaniti
 export function statsProxyQuery< TSanitizer extends StatsSanitizerKey >(
 	config: StatsQueryConfig< TSanitizer > & { sanitizer: TSanitizer }
 ): StatsReportQueryOptions< TSanitizer >;
-export function statsProxyQuery( config: StatsQueryConfig ): StatsReportQueryOptions< 'passthrough' >;
+export function statsProxyQuery(
+	config: StatsQueryConfig
+): StatsReportQueryOptions< 'passthrough' >;
 export function statsProxyQuery( config: StatsQueryConfig ): StatsReportQueryOptions {
 	const { name, version, endpoint, params, method = 'GET', body, enabled = true } = config;
 	const sanitizer = config.sanitizer ?? 'passthrough';
