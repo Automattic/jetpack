@@ -775,7 +775,7 @@ class Jetpack {
 
 	/**
 	 * Whether the current request should eagerly initialize the admin/REST-only
-	 * packages (JITM, Import, My Jetpack) now, at `plugins_loaded` time.
+	 * packages (the Import package and My Jetpack) now, at `plugins_loaded` time.
 	 *
 	 * Returns true for admin, cron, POST, and WP-CLI requests — the contexts,
 	 * knowable this early, where those packages have work to do. Returns false
@@ -804,6 +804,7 @@ class Jetpack {
 
 		foreach (
 			array(
+				'jitm',
 				'sync',
 				'account_protection',
 				'waf',
@@ -817,34 +818,29 @@ class Jetpack {
 		}
 
 		/*
-		 * JITM and the Import package are only needed on admin, cron, POST,
-		 * WP-CLI, and REST requests — never on a plain front-end GET page view.
-		 * JITMs surface as admin notices (the `current_screen` hook) and a
-		 * `jetpack/v4/jitm` REST endpoint, and the Import package only registers
-		 * `jetpack/v4/import` REST routes; neither does any work when rendering
-		 * a front-end page. Gating their `ensure()` keeps their PHP out of
-		 * opcache on the front-end GET hot path while loading them unchanged on
-		 * every request type where they actually do something.
+		 * The Import package only registers `jetpack/v4/import` REST routes — it
+		 * does nothing when rendering a front-end page — so gate its `ensure()`
+		 * to keep its PHP out of opcache on the front-end GET hot path. It still
+		 * loads on admin, cron, POST, and WP-CLI requests, and on `rest_api_init`
+		 * for REST: a REST request can't be identified yet at `plugins_loaded`
+		 * (this runs before `Config::on_plugins_loaded`, and `rest_api_init`
+		 * fires later), so it is initialized directly when that hook fires, while
+		 * a plain page view never fires it and so loads nothing.
 		 *
-		 * A REST request can't be identified yet at `plugins_loaded` (this runs
-		 * before `Config::on_plugins_loaded`, and `rest_api_init` fires later),
-		 * so for the front-end/REST branch the packages are initialized directly
-		 * when `rest_api_init` fires. A plain page view never fires
-		 * `rest_api_init`, so they stay unloaded there.
+		 * JITM stays eager (above): unlike Import, its `register()` adds a
+		 * `jetpack_sync_before_send_updated_option` filter that records the
+		 * `jetpack_last_plugin_sync` transient, and a Jetpack Sync send can fire
+		 * on a plain front-end GET — including the dedicated-sync `spawn-sync`
+		 * GET, which runs on `init` and exits before `rest_api_init`. Deferring
+		 * JITM would skip that bookkeeping and leave its message cache stale after
+		 * a plugin change, so it loads on every request as before.
 		 */
 		if ( self::should_eager_load_packages() ) {
-			$config->ensure( 'jitm' );
 			$config->ensure( 'import' );
 		} else {
 			add_action(
 				'rest_api_init',
 				static function () {
-					// The namespace changed in jetpack-jitm v1.6; support both.
-					if ( class_exists( 'Automattic\\Jetpack\\JITMS\\JITM' ) ) {
-						\Automattic\Jetpack\JITMS\JITM::configure();
-					} elseif ( class_exists( 'Automattic\\Jetpack\\JITM' ) ) {
-						\Automattic\Jetpack\JITM::configure();
-					}
 					if ( class_exists( 'Automattic\\Jetpack\\Import\\Main' ) ) {
 						\Automattic\Jetpack\Import\Main::configure();
 					}
@@ -953,7 +949,7 @@ class Jetpack {
 		 * Gate the call to the request types where My Jetpack actually does work.
 		 * REST can't be detected yet at plugins_loaded, so initialize on
 		 * rest_api_init for that branch; a plain page view never fires it, so My
-		 * Jetpack (and the JITM package its init loads) stays unloaded there.
+		 * Jetpack stays unloaded there.
 		 */
 		if ( self::should_eager_load_packages() ) {
 			My_Jetpack_Initializer::init();
