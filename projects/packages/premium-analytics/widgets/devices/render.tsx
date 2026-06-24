@@ -13,31 +13,27 @@ import {
  */
 import useDeviceViews from './use-device-views';
 import type { DevicesAttributes } from './widget';
+import type { ReportParams } from '@jetpack-premium-analytics/data';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 
-/**
- * Devices widget render component.
- *
- * Reads report params from attributes.reportParams (injected by the host).
- * Renders a leaderboard of visitor counts broken down by device type.
- *
- * @param root0            - Render props.
- * @param root0.attributes - Widget attributes (reportParams, max, deviceProperty).
- * @return The rendered widget content.
- */
-export default function DevicesWidget( {
-	attributes = {},
-}: WidgetRenderProps< DevicesAttributes > ) {
-	const reportParams = attributes.reportParams;
-	const max = attributes.max ?? 5;
-	const deviceProperty = attributes.deviceProperty ?? 'screensize';
+interface DevicesInnerProps {
+	reportParams: ReportParams;
+	max: number;
+	deviceProperty: 'screensize' | 'browser';
+}
 
-	const { data, isLoading, isError } = useDeviceViews( {
-		reportParams,
-		max,
-		deviceProperty,
-		enabled: !! reportParams,
-	} );
+/**
+ * Inner component — only rendered when reportParams is available.
+ * Keeps all hook calls (TanStack Query) away from the picker preview path.
+ *
+ * @param root0                - Props.
+ * @param root0.reportParams   - Date range / comparison from the host.
+ * @param root0.max            - Max rows.
+ * @param root0.deviceProperty - Device dimension.
+ * @return The rendered leaderboard or state placeholder.
+ */
+function DevicesInner( { reportParams, max, deviceProperty }: DevicesInnerProps ) {
+	const { data, isLoading, isError } = useDeviceViews( { reportParams, max, deviceProperty } );
 
 	if ( isError ) {
 		return <Text>{ __( 'Could not load device data.', 'jetpack-premium-analytics' ) }</Text>;
@@ -66,5 +62,30 @@ export default function DevicesWidget( {
 			emptyStateText={ __( 'No device data in this period.', 'jetpack-premium-analytics' ) }
 			dataFormat={ { type: 'number', options: { useMultipliers: true, decimals: 0 } } }
 		/>
+	);
+}
+
+/**
+ * Devices widget render component.
+ *
+ * Gates data-fetching on reportParams presence so the widget picker preview
+ * (which provides no QueryClientProvider or reportParams) renders a static
+ * placeholder instead of crashing.
+ *
+ * @param root0            - Render props.
+ * @param root0.attributes - Widget attributes injected by the host.
+ * @return The rendered widget content.
+ */
+export default function DevicesWidget( {
+	attributes = {},
+}: WidgetRenderProps< DevicesAttributes > ) {
+	const { reportParams, max = 5, deviceProperty = 'screensize' } = attributes;
+
+	if ( ! reportParams ) {
+		return <WidgetLoadingOverlay />;
+	}
+
+	return (
+		<DevicesInner reportParams={ reportParams } max={ max } deviceProperty={ deviceProperty } />
 	);
 }
