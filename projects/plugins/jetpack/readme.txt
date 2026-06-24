@@ -326,6 +326,10 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
+### 15.9.1 - 2026-06-24
+#### Bug fixes
+- Fix the Social admin page rendering blank, and restore the editor sharing panel, on WordPress 6.9.
+
 ### 15.9 - 2026-06-09
 #### Major Enhancements
 - General: Update minimum WordPress version to 6.9.
