@@ -66,7 +66,7 @@ afterEach( () => {
 } );
 
 describe( 'registerCaptionCueBlock', () => {
-	it( 'registers the caption cue block with its default attributes', () => {
+	it( 'registers the subtitle cue block with its default attributes', () => {
 		const blockType = registerCaptionCueBlock();
 
 		expect( blockType?.name ).toBe( CAPTION_CUE_BLOCK_NAME );
@@ -112,15 +112,15 @@ describe( 'CaptionCueEdit', () => {
 	it( 'renders the cue fields with their current values', () => {
 		setup();
 
-		expect( screen.getByLabelText( 'Caption' ) ).toHaveValue( 'Hello' );
+		expect( screen.getByLabelText( 'Subtitle' ) ).toHaveValue( 'Hello' );
 		expect( screen.getByLabelText( 'Start' ) ).toHaveValue( '00:00:00.000' );
 		expect( screen.getByLabelText( 'End' ) ).toHaveValue( '00:00:02.000' );
 	} );
 
-	it( 'updates the caption text on change', async () => {
+	it( 'updates the subtitle text on change', async () => {
 		const { setAttributes } = setup( { text: '' } );
 
-		await userEvent.type( screen.getByLabelText( 'Caption' ), 'A' );
+		await userEvent.type( screen.getByLabelText( 'Subtitle' ), 'A' );
 
 		expect( setAttributes ).toHaveBeenCalledWith( { text: 'A' } );
 	} );

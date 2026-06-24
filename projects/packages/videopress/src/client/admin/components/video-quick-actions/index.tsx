@@ -4,13 +4,12 @@
 import { Text, Button, ThemeProvider } from '@automattic/jetpack-components';
 import { Popover, Dropdown } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { image, trash, formatListBullets, globe as siteDefaultPrivacyIcon } from '@wordpress/icons';
+import { image, trash, globe as siteDefaultPrivacyIcon } from '@wordpress/icons';
 import clsx from 'clsx';
 import { useState, useEffect } from 'react';
 /**
  * Internal dependencies
  */
-import CaptionManagerModal from '../../../components/caption-manager-modal';
 import privatePrivacyIcon from '../../../components/icons/crossed-eye-icon';
 import publicPrivacyIcon from '../../../components/icons/uncrossed-eye-icon';
 import {
@@ -39,7 +38,6 @@ import {
 	PrivacyActionsDropdownProps,
 	ConnectVideoQuickActionsProps,
 } from './types';
-import type { VideoTextTrack } from '../../../lib/video-tracks/types';
 
 const PopoverWithAnchor = ( {
 	showPopover = false,
@@ -261,8 +259,6 @@ const VideoQuickActions = ( {
 	onUpdateVideoThumbnail,
 	onUpdateVideoPrivacy,
 	onDeleteVideo,
-	onManageCaptions,
-	canManageCaptions = true,
 }: VideoQuickActionsProps ) => {
 	const { canPerformAction } = usePermission();
 
@@ -282,17 +278,6 @@ const VideoQuickActions = ( {
 				description={ __( 'Update privacy', 'jetpack-videopress-pkg' ) }
 				disabled={ ! canPerformAction }
 			/>
-
-			{ onManageCaptions && (
-				<ActionItem
-					icon={ formatListBullets }
-					aria-label={ __( 'Manage captions', 'jetpack-videopress-pkg' ) }
-					onClick={ onManageCaptions }
-					disabled={ ! canPerformAction || ! canManageCaptions }
-				>
-					{ __( 'Manage captions', 'jetpack-videopress-pkg' ) }
-				</ActionItem>
-			) }
 
 			<ActionItem
 				icon={ trash }
@@ -319,8 +304,6 @@ export const ConnectVideoQuickActions = ( props: ConnectVideoQuickActionsProps )
 	const { isFetchingPlaybackToken } = usePlaybackToken( data );
 
 	const [ showDeleteModal, setShowDeleteModal ] = useState( false );
-	const [ showCaptionManagerModal, setShowCaptionManagerModal ] = useState( false );
-	const [ captionTracks, setCaptionTracks ] = useState< VideoTextTrack[] >( [] );
 	const {
 		frameSelectorIsOpen,
 		handleCloseSelectFrame,
@@ -377,34 +360,17 @@ export const ConnectVideoQuickActions = ( props: ConnectVideoQuickActionsProps )
 	}
 
 	const { privacySetting } = data;
-	const hasCaptionManagerData = Boolean( data.guid );
 
 	return (
-		<>
-			<VideoQuickActions
-				{ ...props }
-				onUpdateVideoPrivacy={ updateVideoPrivacy }
-				onUpdateVideoThumbnail={ onUpdateVideoThumbnail }
-				onDeleteVideo={ () => setShowDeleteModal( true ) }
-				onManageCaptions={ () => setShowCaptionManagerModal( true ) }
-				canManageCaptions={ hasCaptionManagerData }
-				privacySetting={ privacySetting }
-				isUpdatingPrivacy={ isUpdatingPrivacy || isFetchingPlaybackToken }
-				isUpdatingPoster={ isUpdatingPoster }
-			/>
-			{ showCaptionManagerModal && data.guid && (
-				<CaptionManagerModal
-					isOpen
-					guid={ data.guid }
-					title={ data.title }
-					videoSrc={ data.url }
-					poster={ data.posterImage ?? data.thumbnail ?? data.poster?.src ?? null }
-					tracks={ captionTracks }
-					onClose={ () => setShowCaptionManagerModal( false ) }
-					onTracksChange={ setCaptionTracks }
-				/>
-			) }
-		</>
+		<VideoQuickActions
+			{ ...props }
+			onUpdateVideoPrivacy={ updateVideoPrivacy }
+			onUpdateVideoThumbnail={ onUpdateVideoThumbnail }
+			onDeleteVideo={ () => setShowDeleteModal( true ) }
+			privacySetting={ privacySetting }
+			isUpdatingPrivacy={ isUpdatingPrivacy || isFetchingPlaybackToken }
+			isUpdatingPoster={ isUpdatingPoster }
+		/>
 	);
 };
 
