@@ -1,7 +1,11 @@
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { fetchStatsProxy } from '../api';
-import { queryClient } from '../providers';
-import { statsAppDashboardModuleSettingsQuery } from '../queries/stats-app-dashboard-module-settings-query';
+import {
+	STATS_APP_DASHBOARD_MODULE_SETTINGS_ENDPOINT,
+	STATS_APP_DASHBOARD_MODULE_SETTINGS_NAME,
+	STATS_APP_DASHBOARD_MODULE_SETTINGS_VERSION,
+	statsAppDashboardModuleSettingsQuery,
+} from '../queries/stats-app-dashboard-module-settings-query';
 import { useStatsAppQuery, type UseStatsAppOptions } from './use-stats-app-query';
 import type { StatsQueryParams } from '../utils/stats-params';
 
@@ -13,17 +17,19 @@ export function useStatsAppDashboardModuleSettings(
 }
 
 export function useStatsAppDashboardModuleSettingsMutation() {
+	const queryClient = useQueryClient();
+
 	return useMutation( {
 		mutationFn: ( body: unknown ) =>
 			fetchStatsProxy( {
-				version: '2',
-				endpoint: 'jetpack-stats-dashboard/module-settings',
+				version: STATS_APP_DASHBOARD_MODULE_SETTINGS_VERSION,
+				endpoint: STATS_APP_DASHBOARD_MODULE_SETTINGS_ENDPOINT,
 				method: 'POST',
 				body,
 			} ),
 		onSuccess: () => {
 			queryClient.invalidateQueries( {
-				queryKey: [ 'stats-app', 'dashboard-module-settings' ],
+				queryKey: [ 'stats-app', STATS_APP_DASHBOARD_MODULE_SETTINGS_NAME ],
 			} );
 		},
 	} );
