@@ -3,6 +3,7 @@
  */
 import { AuthorsWidget, WidgetRoot } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useMemo } from 'react';
+import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 import type { ComponentProps } from 'react';
 
 const DEFAULT_MAX = 7;
@@ -11,8 +12,7 @@ type AuthorsAttributes = NonNullable< ComponentProps< typeof WidgetRoot >[ 'attr
 	max?: string;
 };
 
-type AuthorsRenderProps = {
-	attributes?: AuthorsAttributes;
+type AuthorsRenderProps = WidgetRenderProps< AuthorsAttributes > & {
 	setError?: ComponentProps< typeof WidgetRoot >[ 'setError' ];
 };
 
@@ -55,17 +55,17 @@ const getDefaultReportParams = () => ( {
  * @param props.setError   - Dashboard error handler.
  * @return The rendered Authors widget.
  */
-export default function Authors( { attributes, setError }: AuthorsRenderProps ) {
+export default function Authors( { attributes = {}, setError }: AuthorsRenderProps ) {
 	const attributesWithDefaults = useMemo( () => {
 		const hasReportParams =
-			!! attributes?.reportParams && Object.keys( attributes.reportParams ).length > 0;
+			!! attributes.reportParams && Object.keys( attributes.reportParams ).length > 0;
 
 		return hasReportParams ? attributes : { ...attributes, reportParams: getDefaultReportParams() };
 	}, [ attributes ] );
 
 	return (
 		<WidgetRoot attributes={ attributesWithDefaults } setError={ setError }>
-			<AuthorsWidget max={ toPositiveInt( attributes?.max, DEFAULT_MAX ) } />
+			<AuthorsWidget max={ toPositiveInt( attributes.max, DEFAULT_MAX ) } />
 		</WidgetRoot>
 	);
 }
