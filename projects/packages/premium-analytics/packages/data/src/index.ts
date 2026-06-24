@@ -45,6 +45,7 @@ export { useStatsArchives, type StatsArchivesResponse } from './hooks/use-stats-
 export { useStatsFollowers } from './hooks/use-stats-followers';
 export type { StatsFollowersParams, StatsFollowersResponse } from './hooks/use-stats-followers';
 export { useStatsPublicize } from './hooks/use-stats-publicize';
+export type { StatsPublicizeResponse } from './hooks/use-stats-publicize';
 export {
 	useStatsComments,
 	type StatsCommentsParams,
@@ -152,6 +153,7 @@ export type {
 	StatsPostWeek,
 	StatsPostWeekDay,
 	StatsPostYear,
+	StatsPublicizeItem,
 	StatsReferrersItem,
 	StatsSearchTermsItem,
 	StatsSubscribersCountsRawResponse,

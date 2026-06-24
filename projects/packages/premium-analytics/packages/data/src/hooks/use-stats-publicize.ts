@@ -6,6 +6,8 @@ import { useStatsReport } from './use-stats-report';
 import type { UseStatsOptions } from './use-stats-report';
 import type { StatsReportParams } from '../queries/stats-query';
 
+export type { StatsPublicizeResponse } from '../queries/stats-publicize-query';
+
 export function useStatsPublicize( params: StatsReportParams, options?: UseStatsOptions ) {
 	return useStatsReport(
 		statsPublicizeQuery,
