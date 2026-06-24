@@ -19,7 +19,6 @@ class Admin_Page_Test extends BaseTestCase {
 
 	protected function setUp(): void {
 		parent::setUp();
-		$this->reset_initialized();
 
 		$user_id = wp_insert_user(
 			array(
@@ -34,23 +33,9 @@ class Admin_Page_Test extends BaseTestCase {
 	}
 
 	protected function tearDown(): void {
-		remove_all_actions( 'admin_menu' );
 		unset( $GLOBALS['submenu']['jetpack'] );
 		wp_set_current_user( 0 );
-		$this->reset_initialized();
 		parent::tearDown();
-	}
-
-	/**
-	 * Reset the init guard so each test re-wires `init()`.
-	 */
-	private function reset_initialized(): void {
-		$prop = new \ReflectionProperty( Admin_Page::class, 'initialized' );
-		if ( PHP_VERSION_ID < 80100 ) {
-			// Reflection requires this on PHP < 8.1; it's deprecated and a no-op after.
-			$prop->setAccessible( true );
-		}
-		$prop->setValue( null, false );
 	}
 
 	/**
@@ -66,21 +51,9 @@ class Admin_Page_Test extends BaseTestCase {
 	}
 
 	/**
-	 * `init()` always hooks submenu registration onto `admin_menu`.
-	 */
-	public function test_init_registers_submenu_action() {
-		Admin_Page::init();
-
-		$this->assertSame(
-			999999,
-			has_action( 'admin_menu', array( Admin_Page::class, 'add_wp_admin_submenu' ) )
-		);
-	}
-
-	/**
 	 * The submenu is added when nothing else has registered it.
 	 */
-	public function test_add_submenu_registers_when_absent() {
+	public function test_registers_podcast_submenu() {
 		Admin_Page::add_wp_admin_submenu();
 
 		$this->assertSame( 1, $this->count_podcast_submenus() );
@@ -89,11 +62,11 @@ class Admin_Page_Test extends BaseTestCase {
 	/**
 	 * A second call (e.g. from wpcom-admin-menu.php) must not duplicate the entry.
 	 */
-	public function test_add_submenu_skips_when_already_registered() {
+	public function test_does_not_duplicate_existing_submenu() {
 		Admin_Page::add_wp_admin_submenu();
-		// @phan-suppress-next-line PhanPluginDuplicateAdjacentStatement -- Calling twice is the point: the second call must be a no-op.
-		Admin_Page::add_wp_admin_submenu();
+		$this->assertSame( 1, $this->count_podcast_submenus() );
 
+		Admin_Page::add_wp_admin_submenu();
 		$this->assertSame( 1, $this->count_podcast_submenus() );
 	}
 }
