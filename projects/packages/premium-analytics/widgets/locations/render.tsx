@@ -24,14 +24,11 @@ import useLocationViews, { type GeoMode } from './use-location-views';
  * Types
  */
 import type { GeoData } from '@automattic/charts';
+import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 
 interface LocationsAttributes {
 	max?: number;
 }
-
-type LocationsRenderProps = {
-	attributes?: LocationsAttributes;
-};
 
 /**
  * Locations widget inner component. Reads report params from WidgetRoot context.
@@ -40,7 +37,7 @@ type LocationsRenderProps = {
  * @param root0.attributes - Widget attributes (max).
  * @return The rendered widget content.
  */
-function LocationsInner( { attributes }: LocationsRenderProps ) {
+function LocationsInner( { attributes }: WidgetRenderProps< LocationsAttributes > ) {
 	const { reportParams } = useWidgetRootContext();
 	const max = attributes?.max ?? 10;
 
@@ -166,6 +163,8 @@ function LocationsInner( { attributes }: LocationsRenderProps ) {
 				</Stack>
 				<SelectControl
 					__nextHasNoMarginBottom
+					label={ __( 'View by', 'jetpack-premium-analytics' ) }
+					hideLabelFromVision
 					value={ topMode }
 					options={ [
 						{ label: __( 'Countries', 'jetpack-premium-analytics' ), value: 'country' },
@@ -218,7 +217,7 @@ function LocationsInner( { attributes }: LocationsRenderProps ) {
  * @param root0.attributes - Widget attributes (max).
  * @return The rendered Locations widget.
  */
-export default function Locations( { attributes }: LocationsRenderProps ) {
+export default function Locations( { attributes }: WidgetRenderProps< LocationsAttributes > ) {
 	return (
 		<WidgetRoot>
 			<LocationsInner attributes={ attributes } />
