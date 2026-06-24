@@ -86,24 +86,30 @@ class Cookie_Consent {
 	 * Create CCPA opt-out page if it doesn't exist
 	 */
 	public static function maybe_create_ccpa_page() {
-		// Check if we've already created the page (by ID, since slug can be changed).
-		$page_id = get_option( 'jetpack_cookie_consent_ccpa_page_id' );
-		if ( $page_id && get_post( $page_id ) ) {
+		// Create the page at most once per site. Once we have created or adopted
+		// a page, never recreate it — even if the owner later deletes it.
+		if ( get_option( 'jetpack_cookie_consent_ccpa_page_created' ) ) {
 			return;
 		}
 
-		// If we have a stale page ID (option exists but post doesn't), clear it.
+		// A page already exists for the stored ID: record that and stop.
+		$page_id = get_option( 'jetpack_cookie_consent_ccpa_page_id' );
+		if ( $page_id && get_post( $page_id ) ) {
+			update_option( 'jetpack_cookie_consent_ccpa_page_created', 1 );
+			return;
+		}
+
+		// Stale ID (option set but post gone): clear it before trying the slug.
 		if ( $page_id && ! get_post( $page_id ) ) {
 			delete_option( 'jetpack_cookie_consent_ccpa_page_id' );
 		}
 
-		// Fallback: check if page exists by slug (for backwards compatibility).
+		// Fallback: adopt an existing page by slug (backwards compatibility).
 		$page_slug = 'your-privacy-choices';
 		$page      = get_page_by_path( $page_slug );
-
-		// If page exists by slug, save its ID and we're done.
 		if ( $page ) {
 			update_option( 'jetpack_cookie_consent_ccpa_page_id', $page->ID );
+			update_option( 'jetpack_cookie_consent_ccpa_page_created', 1 );
 			return;
 		}
 
@@ -122,9 +128,10 @@ class Cookie_Consent {
 			)
 		);
 
-		// Store the page ID and update with content to create a first revision.
+		// Store the page ID, mark as created, and add content for a first revision.
 		if ( $page_id && ! is_wp_error( $page_id ) ) {
 			update_option( 'jetpack_cookie_consent_ccpa_page_id', $page_id );
+			update_option( 'jetpack_cookie_consent_ccpa_page_created', 1 );
 			wp_update_post(
 				array(
 					'ID'           => $page_id,
