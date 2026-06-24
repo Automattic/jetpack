@@ -56,10 +56,7 @@
 	color: var(--jp-gray-40);
 	font-size: var(--font-body-small);
 	line-height: 20px;
-
-	&::after {
-		content: "\200B"; // Pseudo element to keep height
-	}
+	min-height: 20px;
 }
 
 .promo-label {

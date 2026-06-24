@@ -1,0 +1,4 @@
+Significance: patch
+Type: bug
+
+Replace zero-width space in `.legend::after` pseudo-element with `min-height` to prevent junk text rendering in Chrome.
