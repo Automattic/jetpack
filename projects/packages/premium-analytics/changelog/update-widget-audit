@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Dashboard widgets: align the hello-world example widget with the widget render contract and translate its strings.
