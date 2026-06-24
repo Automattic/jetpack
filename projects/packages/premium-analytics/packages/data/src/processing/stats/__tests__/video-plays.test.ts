@@ -14,6 +14,7 @@ describe( 'Stats video plays normalizer', () => {
 				label: 'Launch video',
 				plays: 11,
 				link: 'https://example.com/video/',
+				actions: [ { type: 'link', data: 'https://example.com/video/' } ],
 			} )
 		);
 	} );

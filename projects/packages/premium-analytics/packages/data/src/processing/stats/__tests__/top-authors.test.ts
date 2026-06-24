@@ -25,6 +25,7 @@ describe( 'Stats top authors normalizer', () => {
 						label: 'Homepage',
 						views: 4157,
 						link: 'https://example.com/?p=265143',
+						actions: [ { type: 'link', data: 'https://example.com/?p=265143' } ],
 					} ),
 					expect.objectContaining( {
 						id: 345724,
