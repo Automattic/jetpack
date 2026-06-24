@@ -113,9 +113,9 @@ its render bundle can be lazy-loaded by the dashboard at runtime.
 
 > **Legacy note.** Widgets currently under `packages/widgets-toolkit/src/widgets/*` (e.g.
 > `sales-by-coupon`, `sales-by-utm`) predate this layout and are scheduled to be migrated.
-> Do not use them as templates for new work — follow the structure below instead. The
-> reference implementation is the **Average items per order** widget (added in
-> [#49505](https://github.com/Automattic/jetpack/pull/49505)).
+> Do not use them as templates for new work — follow the structure and story template below
+> instead. (This layout was first built for the **Average items per order** widget,
+> [#49505](https://github.com/Automattic/jetpack/pull/49505).)
 
 ### REQUIRED: widget folder structure
 
@@ -147,11 +147,12 @@ Every widget MUST have a Storybook story alongside it. New widgets without a sto
 not be merged.
 
 1. **Location**: `widgets/<widget-name>/stories/<widget-name>-widget.stories.tsx`.
-2. **Decorator**: Use `WidgetDashboardWithWidget` from
-   `widgets/stories/widget-dashboard-with-widget.tsx` as the rendered component. It mounts
-   the real `WidgetDashboard` with this single widget and exposes the standard dashboard
-   controls (size, edit mode, host environment, etc.) — wrapping the render output in an
-   ad-hoc div instead will not match how the widget actually renders in product.
+2. **Dashboard story**: Include a `WidgetDashboardWithWidget` story that renders through the
+   shared `WidgetDashboardWithWidget` helper from `widgets/stories/widget-dashboard-with-widget.tsx`.
+   It mounts the real `WidgetDashboard` with this single widget and exposes the standard
+   dashboard controls (size, edit mode, host environment, etc.), so it shows how the widget
+   actually renders in product. The `Default` / `WithComparison` close-up stories use the
+   simpler canvas decorator from the template below — but never ship *only* a bare-div story.
 3. **Mocks**: Call `registerReportMocks()` at module-level for any widget that fetches
    report data. Without this the widget renders an error state in Storybook.
 4. **Title**: `Packages/Premium Analytics/Widgets/<WidgetName>` (note: no "Widgets Toolkit"
@@ -163,8 +164,13 @@ not be merged.
 
 ### Story template
 
-Mirror the Average items per order widget. Wrap the dashboard story in a thin component so
-widget-specific args (e.g. comparison toggles, view selectors) become Storybook controls.
+Every widget ships three stories: a **Default** close-up, a **WithComparison** close-up, and a
+**WidgetDashboardWithWidget** story that mounts the real dashboard. This template is
+self-contained — copy it as the base rather than an existing widget's story file, which may
+have drifted. `meta.component` is the widget's render component; widget-specific args
+(comparison toggles, view selectors, …) are wired as Storybook controls.
+
+The shared imports, helpers, and `meta`:
 
 ```tsx
 import { getDefaultQueryParams } from '@jetpack-premium-analytics/data';
@@ -177,48 +183,40 @@ import {
 import { registerReportMocks } from '../../../packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
 import MyWidgetRender from '../render';
 import widgetDefinition from '../widget';
-import type { Meta, StoryObj } from '@storybook/react';
-import type { WidgetRenderProps } from '@automattic/jetpack-widget-primitives';
+import type { Decorator, Meta, StoryObj } from '@storybook/react';
+import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 import type { ComponentType } from 'react';
 
 registerReportMocks();
 
 const MY_WIDGET_RENDER_MODULE = 'storybook/<widget-name>';
 
-interface MyWidgetDashboardStoryProps extends WidgetDashboardWithWidgetControls {
+// Widget-specific controls — add view selectors, metric toggles, etc. here.
+interface MyWidgetStoryControls {
 	withComparison: boolean;
 }
 
-function MyWidgetDashboardStory( {
-	withComparison,
-	...dashboardStoryArgs
-}: MyWidgetDashboardStoryProps ) {
+function renderMyWidget( { withComparison }: MyWidgetStoryControls ) {
 	return (
-		<WidgetDashboardWithWidgetStory
-			{ ...dashboardStoryArgs }
-			widgetType={ widgetDefinition }
-			renderModule={ MY_WIDGET_RENDER_MODULE }
-			renderComponent={ MyWidgetRender as ComponentType< WidgetRenderProps< unknown > > }
-			attributes={ {
-				reportParams: getDefaultQueryParams( withComparison ),
-			} }
+		<MyWidgetRender
+			attributes={ { reportParams: getDefaultQueryParams( withComparison ) } }
 		/>
 	);
 }
 
+// Close-up canvas so the chart fills the frame outside the dashboard grid.
+const withWidgetCanvas: Decorator = Story => (
+	<div style={ { width: '100%', height: '300px' } }>
+		<Story />
+	</div>
+);
+
 const meta = {
 	title: 'Packages/Premium Analytics/Widgets/MyWidget',
-	component: MyWidgetDashboardStory,
+	component: MyWidgetRender,
 	tags: [ 'autodocs' ],
-	args: {
-		...DEFAULT_WIDGET_DASHBOARD_STORY_ARGS,
-		withComparison: true,
-	},
 	argTypes: {
-		...widgetDashboardWithWidgetArgTypes,
-		withComparison: {
-			control: 'boolean',
-		},
+		withComparison: { control: 'boolean' },
 	},
 	parameters: {
 		docs: {
@@ -227,19 +225,70 @@ const meta = {
 			},
 		},
 	},
-} satisfies Meta< typeof MyWidgetDashboardStory >;
+} satisfies Meta< MyWidgetStoryControls >;
 
 export default meta;
 
-type Story = StoryObj< typeof meta >;
+type Story = StoryObj< MyWidgetStoryControls >;
+```
 
-export const WidgetDashboardWithWidget: Story = {};
+**1. `Default`** — the widget on its own, current period only:
+
+```tsx
+export const Default: Story = {
+	render: renderMyWidget,
+	args: { withComparison: false },
+	decorators: [ withWidgetCanvas ],
+};
+```
+
+**2. `WithComparison`** — same close-up with the period-over-period delta + sparkline:
+
+```tsx
+export const WithComparison: Story = {
+	render: renderMyWidget,
+	args: { withComparison: true },
+	decorators: [ withWidgetCanvas ],
+};
+```
+
+**3. `WidgetDashboardWithWidget`** — mounts the real `WidgetDashboard` so the widget renders
+exactly as it does in product, inheriting the size / edit-mode / host-environment controls:
+
+```tsx
+interface MyWidgetDashboardStoryProps
+	extends WidgetDashboardWithWidgetControls,
+		MyWidgetStoryControls {}
+
+function MyWidgetDashboardStory( { withComparison, ...dashboardArgs }: MyWidgetDashboardStoryProps ) {
+	return (
+		<WidgetDashboardWithWidgetStory
+			{ ...dashboardArgs }
+			widgetType={ widgetDefinition }
+			renderModule={ MY_WIDGET_RENDER_MODULE }
+			renderComponent={ MyWidgetRender as ComponentType< WidgetRenderProps< unknown > > }
+			attributes={ { reportParams: getDefaultQueryParams( withComparison ) } }
+		/>
+	);
+}
+
+export const WidgetDashboardWithWidget: StoryObj< MyWidgetDashboardStoryProps > = {
+	render: args => <MyWidgetDashboardStory { ...args } />,
+	args: {
+		...DEFAULT_WIDGET_DASHBOARD_STORY_ARGS,
+		withComparison: true,
+	},
+	argTypes: {
+		...widgetDashboardWithWidgetArgTypes,
+		withComparison: { control: 'boolean' },
+	},
+};
 ```
 
 Expose additional widget-specific props (e.g. a `view: 'source' | 'channel' | 'campaign'`
-selector) as extra fields on the story-props interface plus matching `args` and `argTypes`.
-The shared `WidgetDashboardWithWidget` decorator already provides container width / edit-mode
-/ host-environment controls, so there's no need to add custom size decorators per widget.
+selector) as extra fields on the controls interface plus matching `args` and `argTypes`. The
+shared dashboard helper already provides container width / edit-mode / host-environment
+controls, so there's no need to add custom size decorators per widget.
 
 ### Widget pitfalls
 
