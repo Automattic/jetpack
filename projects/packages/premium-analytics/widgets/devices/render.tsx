@@ -1,12 +1,15 @@
 /**
  * WordPress dependencies
  */
+import { useContext } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Text } from '@wordpress/ui';
 import {
 	LeaderboardChart,
 	WidgetLoadingOverlay,
+	WidgetRootContext,
 	type LeaderboardChartData,
+	type WidgetRootContextValue,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 /**
  * Internal dependencies
@@ -27,7 +30,7 @@ interface DevicesInnerProps {
  * Keeps all hook calls (TanStack Query) away from the picker preview path.
  *
  * @param root0                - Props.
- * @param root0.reportParams   - Date range / comparison from the host.
+ * @param root0.reportParams   - Date range / comparison from WidgetRoot context.
  * @param root0.max            - Max rows.
  * @param root0.deviceProperty - Device dimension.
  * @return The rendered leaderboard or state placeholder.
@@ -68,9 +71,10 @@ function DevicesInner( { reportParams, max, deviceProperty }: DevicesInnerProps 
 /**
  * Devices widget render component.
  *
- * Gates data-fetching on reportParams presence so the widget picker preview
- * (which provides no QueryClientProvider or reportParams) renders a static
- * placeholder instead of crashing.
+ * Uses WidgetRootContext (non-throwing) to get reportParams so the widget
+ * picker preview (no WidgetRoot) renders a static placeholder instead of
+ * crashing. DevicesInner is only mounted when reportParams is available,
+ * keeping TanStack Query hooks away from the preview render path.
  *
  * @param root0            - Render props.
  * @param root0.attributes - Widget attributes injected by the host.
@@ -79,7 +83,10 @@ function DevicesInner( { reportParams, max, deviceProperty }: DevicesInnerProps 
 export default function DevicesWidget( {
 	attributes = {},
 }: WidgetRenderProps< DevicesAttributes > ) {
-	const { reportParams, max = 5, deviceProperty = 'screensize' } = attributes;
+	const context = useContext( WidgetRootContext ) as WidgetRootContextValue | null;
+	const reportParams = context?.reportParams;
+	const max = attributes.max ?? 5;
+	const deviceProperty = attributes.deviceProperty ?? 'screensize';
 
 	if ( ! reportParams ) {
 		return <WidgetLoadingOverlay />;
