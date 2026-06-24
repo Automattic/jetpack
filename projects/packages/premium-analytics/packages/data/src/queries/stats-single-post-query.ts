@@ -11,4 +11,5 @@ export const statsSinglePostQuery = ( postId: number, params: StatsQueryParams =
 		endpoint: `stats/post/${ postId }`,
 		params,
 		sanitizer: 'timeSeries',
+		enabled: postId > 0,
 	} );
