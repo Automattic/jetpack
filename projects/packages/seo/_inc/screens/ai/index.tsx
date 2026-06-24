@@ -1,6 +1,6 @@
 import { Button, ToggleControl } from '@wordpress/components';
 import { useCallback } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import { useNavigate } from '@wordpress/route';
 import { Card, CollapsibleCard, Link, Notice, Stack } from '@wordpress/ui';
 import './style.scss';
@@ -42,14 +42,30 @@ const CrawlerToggle: FC< CrawlerToggleProps > = ( { crawler, blocked, disabled, 
 	const blockedLabel = __( 'Blocked', 'jetpack-seo' );
 
 	return (
-		<ToggleControl
-			label={ crawler.label }
-			help={ blocked ? blockedLabel : allowedLabel }
-			checked={ ! blocked }
-			onChange={ handleChange }
-			disabled={ disabled }
-			__nextHasNoMarginBottom
-		/>
+		<div className="jetpack-seo-ai__crawler-row">
+			<ToggleControl
+				label={ crawler.label }
+				help={ blocked ? blockedLabel : allowedLabel }
+				checked={ ! blocked }
+				onChange={ handleChange }
+				disabled={ disabled }
+				__nextHasNoMarginBottom
+			/>
+			{ crawler.docUrl && (
+				<Link
+					className="jetpack-seo-ai__crawler-doc"
+					href={ crawler.docUrl }
+					openInNewTab
+					rel="noopener noreferrer"
+				>
+					{ sprintf(
+						/* translators: %s is an AI crawler's user-agent name, e.g. "GPTBot". */
+						__( 'Learn what %s does', 'jetpack-seo' ),
+						crawler.userAgent
+					) }
+				</Link>
+			) }
+		</div>
 	);
 };
 

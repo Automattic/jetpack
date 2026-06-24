@@ -35,8 +35,20 @@ export const SEEDED_AI: AiState = {
 	llmsTxt: { enabled: false, url: 'https://example.com/llms.txt' },
 	crawlers: {
 		catalog: [
-			{ slug: 'oai-searchbot', label: 'ChatGPT Search (OpenAI)', type: 'answer' },
-			{ slug: 'gptbot', label: 'ChatGPT (OpenAI)', type: 'training' },
+			{
+				slug: 'oai-searchbot',
+				label: 'ChatGPT Search (OpenAI)',
+				type: 'answer',
+				userAgent: 'OAI-SearchBot',
+				docUrl: 'https://example.com/openai-bots',
+			},
+			{
+				slug: 'gptbot',
+				label: 'ChatGPT (OpenAI)',
+				type: 'training',
+				userAgent: 'GPTBot',
+				docUrl: 'https://example.com/openai-bots',
+			},
 		],
 		blocked: [ 'gptbot' ],
 		searchEnginesVisible: true,

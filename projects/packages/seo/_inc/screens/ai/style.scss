@@ -23,3 +23,17 @@
 .jetpack-seo-ai__llms-link {
 	margin-inline-start: 40px;
 }
+
+// One crawler row: the allow/block toggle plus its "Learn what … does" link.
+.jetpack-seo-ai__crawler-row {
+	display: flex;
+	flex-direction: column;
+	gap: var(--wpds-dimension-gap-xs, 4px);
+}
+
+// Indent the doc link to align with the toggle's label/help text (not the
+// switch), matching the llms.txt link; sized to match the toggle's help text.
+.jetpack-seo-ai__crawler-doc {
+	margin-inline-start: 40px;
+	font-size: 12px;
+}

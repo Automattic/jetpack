@@ -903,15 +903,17 @@ class Initializer {
 			// @phan-suppress-next-line PhanUndeclaredClassMethod -- guarded by class_exists; host plugin provides the class.
 			&& \Automattic\Jetpack\Current_Plan::supports( 'ai-seo-enhancer' );
 
-		// Expose the AI crawler catalog (slug + label + type; the user-agent token
-		// stays server-side) so the AI tab can render a toggle per known crawler,
-		// grouped into its answer-engine and training sections.
+		// Expose the AI crawler catalog so the AI tab can render a toggle per known
+		// crawler, grouped into its answer-engine and training sections, each with a
+		// "Learn what <user-agent> does" link to the operator's own docs.
 		$crawler_catalog = array();
 		foreach ( Ai_Crawlers::get_catalog() as $slug => $info ) {
 			$crawler_catalog[] = array(
-				'slug'  => $slug,
-				'label' => $info['label'],
-				'type'  => $info['type'],
+				'slug'      => $slug,
+				'label'     => $info['label'],
+				'type'      => $info['type'],
+				'userAgent' => $info['user_agent'],
+				'docUrl'    => $info['doc_url'],
 			);
 		}
 

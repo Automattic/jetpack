@@ -17,6 +17,10 @@ export interface AiCrawler {
 	 * the two AI-crawler sections.
 	 */
 	type: 'answer' | 'training';
+	/** The crawler's user-agent token (e.g. "GPTBot"), shown in the doc link. */
+	userAgent: string;
+	/** The operator's documentation page for this bot; empty when none exists. */
+	docUrl: string;
 }
 
 export interface AiState {

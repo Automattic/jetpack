@@ -43,16 +43,18 @@ class Ai_Crawlers {
 	}
 
 	/**
-	 * The known AI crawler catalog: slug => [ label, user_agent ].
+	 * The known AI crawler catalog: slug => [ label, user_agent, type, doc_url ].
 	 *
 	 * `slug` is the stable key persisted in the option and sent by the AI tab;
-	 * `user_agent` is the token written to the `User-agent:` robots line;
-	 * `label` is the human name shown in the UI; `type` is `answer` (fetches to
-	 * cite in live AI answers) or `training` (collects to train models), which
-	 * drives the AI tab's two sections and the per-type default. Kept deliberately
-	 * small and recognizable — the better-known crawlers.
+	 * `user_agent` is the token written to the `User-agent:` robots line (and shown
+	 * in the "Learn what X does" link text); `label` is the human name shown in the
+	 * UI; `type` is `answer` (fetches to cite in live AI answers) or `training`
+	 * (collects to train models), which drives the AI tab's two sections and the
+	 * per-type default; `doc_url` is the operator's own documentation page for that
+	 * bot (empty when none exists, e.g. Bytespider). Kept deliberately small and
+	 * recognizable — the better-known crawlers.
 	 *
-	 * @return array<string, array{label: string, user_agent: string, type: string}>
+	 * @return array<string, array{label: string, user_agent: string, type: string, doc_url: string}>
 	 */
 	public static function get_catalog() {
 		return array(
@@ -62,21 +64,25 @@ class Ai_Crawlers {
 				'label'      => __( 'ChatGPT Search (OpenAI)', 'jetpack-seo' ),
 				'user_agent' => 'OAI-SearchBot',
 				'type'       => 'answer',
+				'doc_url'    => 'https://developers.openai.com/api/docs/bots',
 			),
 			'claude-searchbot'   => array(
 				'label'      => __( 'Claude Search (Anthropic)', 'jetpack-seo' ),
 				'user_agent' => 'Claude-SearchBot',
 				'type'       => 'answer',
+				'doc_url'    => 'https://support.claude.com/en/articles/8896518',
 			),
 			'perplexitybot'      => array(
 				'label'      => __( 'Perplexity', 'jetpack-seo' ),
 				'user_agent' => 'PerplexityBot',
 				'type'       => 'answer',
+				'doc_url'    => 'https://docs.perplexity.ai/guides/bots',
 			),
 			'amzn-searchbot'     => array(
 				'label'      => __( 'Amazon (Alexa)', 'jetpack-seo' ),
 				'user_agent' => 'Amzn-SearchBot',
 				'type'       => 'answer',
+				'doc_url'    => 'https://developer.amazon.com/amazonbot',
 			),
 			// Training crawlers collect content to train AI models. Blocked by
 			// default — blocking protects content with no AI-visibility downside.
@@ -84,36 +90,45 @@ class Ai_Crawlers {
 				'label'      => __( 'ChatGPT (OpenAI)', 'jetpack-seo' ),
 				'user_agent' => 'GPTBot',
 				'type'       => 'training',
+				'doc_url'    => 'https://developers.openai.com/api/docs/bots',
 			),
 			'claudebot'          => array(
 				'label'      => __( 'Claude (Anthropic)', 'jetpack-seo' ),
 				'user_agent' => 'ClaudeBot',
 				'type'       => 'training',
+				'doc_url'    => 'https://support.claude.com/en/articles/8896518',
 			),
 			'google-extended'    => array(
 				'label'      => __( 'Google AI (Gemini)', 'jetpack-seo' ),
 				'user_agent' => 'Google-Extended',
 				'type'       => 'training',
+				'doc_url'    => 'https://developers.google.com/search/docs/crawling-indexing/google-common-crawlers',
 			),
 			'applebot-extended'  => array(
 				'label'      => __( 'Apple Intelligence', 'jetpack-seo' ),
 				'user_agent' => 'Applebot-Extended',
 				'type'       => 'training',
+				'doc_url'    => 'https://support.apple.com/en-us/119829',
 			),
 			'meta-externalagent' => array(
 				'label'      => __( 'Meta AI', 'jetpack-seo' ),
 				'user_agent' => 'meta-externalagent',
 				'type'       => 'training',
+				'doc_url'    => 'https://developers.facebook.com/docs/sharing/webmasters/web-crawlers/',
 			),
 			'bytespider'         => array(
+				// ByteDance publishes no official English documentation page for
+				// Bytespider, so no "Learn what it does" link is shown for it.
 				'label'      => __( 'ByteDance', 'jetpack-seo' ),
 				'user_agent' => 'Bytespider',
 				'type'       => 'training',
+				'doc_url'    => '',
 			),
 			'ccbot'              => array(
 				'label'      => __( 'Common Crawl', 'jetpack-seo' ),
 				'user_agent' => 'CCBot',
 				'type'       => 'training',
+				'doc_url'    => 'https://commoncrawl.org/ccbot',
 			),
 			'amazonbot'          => array(
 				// Amazon's own docs: Amazonbot "may be used to train Amazon AI
@@ -121,6 +136,7 @@ class Ai_Crawlers {
 				'label'      => __( 'Amazon', 'jetpack-seo' ),
 				'user_agent' => 'Amazonbot',
 				'type'       => 'training',
+				'doc_url'    => 'https://developer.amazon.com/amazonbot',
 			),
 		);
 	}
