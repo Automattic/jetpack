@@ -90,9 +90,7 @@ class Podcast_Gate {
 	 */
 	private static function self_hosted_has_paid_plan(): bool {
 		foreach ( self::get_site_current_purchases() as $purchase ) {
-			$slug = is_object( $purchase )
-				? ( $purchase->product_slug ?? '' )
-				: ( $purchase['product_slug'] ?? '' );
+			$slug = is_array( $purchase ) && isset( $purchase['product_slug'] ) ? $purchase['product_slug'] : '';
 
 			foreach ( self::PAID_PLAN_SLUG_PREFIXES as $prefix ) {
 				if ( is_string( $slug ) && 0 === strpos( $slug, $prefix ) ) {

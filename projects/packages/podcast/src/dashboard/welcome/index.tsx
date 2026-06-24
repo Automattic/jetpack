@@ -1,6 +1,10 @@
 import jetpackAnalytics from '@automattic/jetpack-analytics';
 import { getProductCheckoutUrl } from '@automattic/jetpack-components';
-import { getScriptData, getSiteData } from '@automattic/jetpack-script-data';
+import {
+	getScriptData,
+	getSiteData,
+	isWpcomPlatformSite,
+} from '@automattic/jetpack-script-data';
 import {
 	Button,
 	Card,
@@ -89,18 +93,33 @@ const BENEFITS: ReadonlyArray< { icon: JSX.Element; title: string; body: string 
 	},
 ];
 
-const FREE_FEATURES: ReadonlyArray< string > = [
+// WordPress.com hosts the audio (and sells storage); self-hosted Jetpack sites
+// serve audio from their own media library, so the plan copy differs by host.
+const FREE_FEATURES_WPCOM: ReadonlyArray< string > = [
 	__( 'Publish a podcast with audio hosted on another site', 'jetpack-podcast' ),
 	__( 'Distribute to Apple, Spotify, and every major app', 'jetpack-podcast' ),
 	__( 'Submission-ready RSS feed for every directory', 'jetpack-podcast' ),
 ];
 
-const PREMIUM_FEATURES: ReadonlyArray< string > = [
+const FREE_FEATURES_SELF_HOSTED: ReadonlyArray< string > = [
+	__( 'Publish a podcast with audio from your own media library', 'jetpack-podcast' ),
+	__( 'Distribute to Apple, Spotify, and every major app', 'jetpack-podcast' ),
+	__( 'Submission-ready RSS feed for every directory', 'jetpack-podcast' ),
+];
+
+const PAID_FEATURES_WPCOM: ReadonlyArray< string > = [
 	__( 'Host your podcast on WordPress.com with 13 GB of storage', 'jetpack-podcast' ),
 	__( 'Distribute to Apple, Spotify, and every major app', 'jetpack-podcast' ),
 	__( 'Submission-ready RSS feed for every directory', 'jetpack-podcast' ),
 	__( 'Podcast stats including downloads by app and country', 'jetpack-podcast' ),
 	__( 'Episode dashboard', 'jetpack-podcast' ),
+	__( 'Episode player block for your posts', 'jetpack-podcast' ),
+];
+
+const PAID_FEATURES_SELF_HOSTED: ReadonlyArray< string > = [
+	__( 'Everything in the free plan', 'jetpack-podcast' ),
+	__( 'Podcast stats including downloads by app and country', 'jetpack-podcast' ),
+	__( 'Episode dashboard to manage your catalog', 'jetpack-podcast' ),
 	__( 'Episode player block for your posts', 'jetpack-podcast' ),
 ];
 
@@ -131,6 +150,19 @@ const STEPS: ReadonlyArray< { number: string; title: string; body: string } > = 
 const Welcome = ( { onEnable }: WelcomeProps ) => {
 	const upgradeCheckoutUrl = getUpgradeCheckoutUrl();
 	const planName = getUpgradePlanName();
+	const isWpcom = isWpcomPlatformSite();
+
+	const freeFeatures = isWpcom ? FREE_FEATURES_WPCOM : FREE_FEATURES_SELF_HOSTED;
+	const paidFeatures = isWpcom ? PAID_FEATURES_WPCOM : PAID_FEATURES_SELF_HOSTED;
+	const paidDescription = isWpcom
+		? __(
+				'Host your podcast at WordPress.com and get all the advanced features.',
+				'jetpack-podcast'
+		  )
+		: __(
+				'Unlock podcast stats, the episode dashboard, and the episode block.',
+				'jetpack-podcast'
+		  );
 
 	// Fire-and-forget Tracks; the anchor handles navigation so middle/cmd-click
 	// still opens checkout in a new tab and "copy link address" shows the URL.
@@ -182,7 +214,7 @@ const Welcome = ( { onEnable }: WelcomeProps ) => {
 									{ __( 'Start your podcast', 'jetpack-podcast' ) }
 								</Button>
 								<ul className="podcast__welcome-plan-features">
-									{ FREE_FEATURES.map( feature => (
+									{ freeFeatures.map( feature => (
 										<li key={ feature } className="podcast__welcome-plan-feature">
 											<span aria-hidden="true">
 												<Icon icon={ check } size={ 20 } />
@@ -210,12 +242,7 @@ const Welcome = ( { onEnable }: WelcomeProps ) => {
 											{ __( 'Popular', 'jetpack-podcast' ) }
 										</span>
 									</HStack>
-									<Text variant="muted">
-										{ __(
-											'Host your podcast at WordPress.com and get all the advanced features.',
-											'jetpack-podcast'
-										) }
-									</Text>
+									<Text variant="muted">{ paidDescription }</Text>
 								</VStack>
 								<Button variant="primary" href={ upgradeCheckoutUrl } onClick={ onPremiumClick }>
 									{ sprintf(
@@ -225,7 +252,7 @@ const Welcome = ( { onEnable }: WelcomeProps ) => {
 									) }
 								</Button>
 								<ul className="podcast__welcome-plan-features">
-									{ PREMIUM_FEATURES.map( feature => (
+									{ paidFeatures.map( feature => (
 										<li key={ feature } className="podcast__welcome-plan-feature">
 											<span aria-hidden="true">
 												<Icon icon={ check } size={ 20 } />
