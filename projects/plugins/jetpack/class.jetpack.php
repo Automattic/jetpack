@@ -774,21 +774,21 @@ class Jetpack {
 	}
 
 	/**
-	 * Whether to eagerly load packages whose surfaces are only ever used on
-	 * admin, REST, cron, POST, or WP-CLI requests — never on a plain front-end
-	 * GET page view.
+	 * Whether the current request should eagerly initialize the admin/REST-only
+	 * packages (JITM, Import, My Jetpack) now, at `plugins_loaded` time.
 	 *
-	 * Returns true for admin, cron, POST, and WP-CLI requests. It returns false
-	 * for a plain front-end GET *and* for a REST request, because the two can't
-	 * be told apart this early (REST runs at `plugins_loaded`, before
-	 * `rest_api_init`). Callers handle the REST case by initializing the package
-	 * directly on `rest_api_init`; a plain page view never fires that hook, so
-	 * the package stays unloaded there. This keeps admin/REST-only PHP out of
-	 * opcache on the front-end hot path with no change in behavior.
+	 * Returns true for admin, cron, POST, and WP-CLI requests — the contexts,
+	 * knowable this early, where those packages have work to do. Returns false
+	 * for a plain front-end GET *and* for a REST request: the two can't be told
+	 * apart yet (this runs before `rest_api_init`), so callers defer the REST
+	 * case by initializing the package on `rest_api_init` instead, while a plain
+	 * page view never fires that hook and so loads nothing. This keeps
+	 * admin/REST-only PHP out of opcache on the front-end GET hot path with no
+	 * change in behavior.
 	 *
 	 * @return bool
 	 */
-	private static function should_load_admin_rest_only_packages() {
+	private static function should_eager_load_packages() {
 		$is_post_request = isset( $_SERVER['REQUEST_METHOD'] ) && 'POST' === strtoupper( sanitize_text_field( wp_unslash( $_SERVER['REQUEST_METHOD'] ) ) );
 		$is_wp_cli       = defined( 'WP_CLI' ) && WP_CLI;
 
@@ -832,7 +832,7 @@ class Jetpack {
 		 * when `rest_api_init` fires. A plain page view never fires
 		 * `rest_api_init`, so they stay unloaded there.
 		 */
-		if ( self::should_load_admin_rest_only_packages() ) {
+		if ( self::should_eager_load_packages() ) {
 			$config->ensure( 'jitm' );
 			$config->ensure( 'import' );
 		} else {
@@ -955,7 +955,7 @@ class Jetpack {
 		 * rest_api_init for that branch; a plain page view never fires it, so My
 		 * Jetpack (and the JITM package its init loads) stays unloaded there.
 		 */
-		if ( self::should_load_admin_rest_only_packages() ) {
+		if ( self::should_eager_load_packages() ) {
 			My_Jetpack_Initializer::init();
 		} else {
 			add_action( 'rest_api_init', array( My_Jetpack_Initializer::class, 'init' ), 0 );
