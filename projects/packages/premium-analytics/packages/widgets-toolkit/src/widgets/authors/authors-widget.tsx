@@ -96,9 +96,8 @@ export function AuthorsWidget( { max }: AuthorsWidgetProps ) {
 					type: 'number',
 					options: { useMultipliers: false, decimals: 0 },
 				} }
-				emptyStateIcon={ customer }
 				emptyStateText={ __(
-					'Learn about your most popular authors to better understand how they contribute to grow your site.',
+					'Learn about your most popular authors to better understand how they contribute to growing your site.',
 					'jetpack-premium-analytics'
 				) }
 			/>
