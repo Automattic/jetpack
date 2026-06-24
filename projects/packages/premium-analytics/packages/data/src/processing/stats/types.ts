@@ -3,6 +3,7 @@ import type { StatsClicksItem } from './clicks';
 import type { StatsEmailBreakdownItem } from './email-breakdown';
 import type { StatsEmailSummaryItem } from './email-summary';
 import type { StatsFileDownloadsItem } from './file-downloads';
+import type { StatsFollowersItem } from './followers';
 import type { StatsLocationsItem } from './locations';
 import type { StatsReferrersItem } from './referrers';
 import type { StatsSearchTermsItem } from './search-terms';
@@ -31,7 +32,8 @@ export type StatsNormalizedItem =
 	| StatsVideoPlaysItem
 	| StatsEmailSummaryItem
 	| StatsEmailBreakdownItem
-	| StatsArchivesItem;
+	| StatsArchivesItem
+	| StatsFollowersItem;
 
 export type StatsNormalizedDataPoint< TItem extends StatsNormalizedItem = StatsNormalizedItem > = {
 	time_interval: string;
