@@ -220,7 +220,19 @@ class Social_Admin_Page {
 
 		require_once $build_index;
 
-		Publicize_Assets::register_wp_build_polyfills();
+		// The wp-build dashboard (unlike the Social bundles) uses the full polyfill set:
+		// the @wordpress/boot|route|a11y modules, wp-notices, wp-views, etc.
+		if ( ! class_exists( '\Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills' ) ) {
+			return;
+		}
+
+		\Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills::register(
+			'jetpack-social',
+			array_merge(
+				\Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills::SCRIPT_HANDLES,
+				\Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills::MODULE_IDS
+			)
+		);
 	}
 
 	/**

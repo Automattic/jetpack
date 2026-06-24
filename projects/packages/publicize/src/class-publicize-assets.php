@@ -80,6 +80,9 @@ class Publicize_Assets {
 	/**
 	 * Register polyfills for the wp-theme / wp-private-apis handles the Social bundles
 	 * depend on but WP < 7.0 does not ship (or ships with an incomplete allowlist).
+	 *
+	 * Only the two handles Social actually uses are requested, to keep the polyfill's
+	 * `wp-private-apis` force-replacement off any handle we don't need.
 	 */
 	public static function register_wp_build_polyfills() {
 		if ( ! class_exists( WP_Build_Polyfills::class ) ) {
@@ -88,7 +91,7 @@ class Publicize_Assets {
 
 		WP_Build_Polyfills::register(
 			'jetpack-social',
-			array_merge( WP_Build_Polyfills::SCRIPT_HANDLES, WP_Build_Polyfills::MODULE_IDS )
+			array( 'wp-theme', 'wp-private-apis' )
 		);
 	}
 }
