@@ -93,6 +93,24 @@ export {
 	type StatsAppSiteHasNeverPublishedPostParams,
 	type StatsAppSiteHasNeverPublishedPostResponse,
 } from './use-stats-app-site-has-never-published-post';
+export {
+	useStatsWordAdsStats,
+	useStatsWordAdsEarnings,
+	type StatsWordAdsEarnings,
+	type StatsWordAdsEarningsBreakdown,
+	type StatsWordAdsEarningsParams,
+	type StatsWordAdsEarningsPeriod,
+	type StatsWordAdsEarningsRaw,
+	type StatsWordAdsEarningsRawBreakdown,
+	type StatsWordAdsEarningsRawPeriod,
+	type StatsWordAdsEarningsRawResponse,
+	type StatsWordAdsEarningsResponse,
+	type StatsWordAdsStatsDataPoint,
+	type StatsWordAdsStatsParams,
+	type StatsWordAdsStatsRawField,
+	type StatsWordAdsStatsRawResponse,
+	type StatsWordAdsStatsResponse,
+} from './use-stats-wordads';
 export type { UseStatsOptions } from './use-stats-report';
 
 /**
