@@ -42,7 +42,10 @@ export type {
 	StatsAppPlanUsage,
 } from './hooks/use-stats-app-plan-usage';
 export { useStatsArchives, type StatsArchivesResponse } from './hooks/use-stats-archives';
-export { useStatsCommentFollowers } from './hooks/use-stats-comment-followers';
+export {
+	useStatsCommentFollowers,
+	type StatsCommentFollowersResponse,
+} from './hooks/use-stats-comment-followers';
 export { useStatsFollowers } from './hooks/use-stats-followers';
 export type { StatsFollowersParams, StatsFollowersResponse } from './hooks/use-stats-followers';
 export { useStatsPublicize } from './hooks/use-stats-publicize';
