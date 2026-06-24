@@ -46,6 +46,10 @@ class Admin_Page_Test extends BaseTestCase {
 	 */
 	private function reset_initialized(): void {
 		$prop = new \ReflectionProperty( Admin_Page::class, 'initialized' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			// Reflection requires this on PHP < 8.1; it's deprecated and a no-op after.
+			$prop->setAccessible( true );
+		}
 		$prop->setValue( null, false );
 	}
 
@@ -87,6 +91,7 @@ class Admin_Page_Test extends BaseTestCase {
 	 */
 	public function test_add_submenu_skips_when_already_registered() {
 		Admin_Page::add_wp_admin_submenu();
+		// @phan-suppress-next-line PhanPluginDuplicateAdjacentStatement -- Calling twice is the point: the second call must be a no-op.
 		Admin_Page::add_wp_admin_submenu();
 
 		$this->assertSame( 1, $this->count_podcast_submenus() );
