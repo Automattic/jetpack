@@ -25,7 +25,7 @@ export {
 } from './use-stats-app-dashboard-module-settings';
 export type { StatsAppDashboardModuleSettings } from './use-stats-app-dashboard-module-settings';
 export { useStatsArchives, type StatsArchivesResponse } from './use-stats-archives';
-export { useStatsSinglePost } from './use-stats-single-post';
+export { useStatsSinglePost, type StatsSinglePostResponse } from './use-stats-single-post';
 export type { UseStatsOptions } from './use-stats-report';
 
 /**
