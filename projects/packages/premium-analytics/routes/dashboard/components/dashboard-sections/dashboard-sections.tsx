@@ -4,7 +4,7 @@ import styles from './dashboard-sections.module.scss';
 import type { DashboardSection, DashboardSectionId } from '../../config';
 import type { ReactNode } from 'react';
 
-export type DashboardSectionsProps = {
+type DashboardSectionsProps = {
 	/**
 	 * The sections to render, in order.
 	 */
@@ -53,20 +53,14 @@ export function DashboardSections( {
 	);
 
 	return (
-		<Tabs.Root
-			className={ styles.dashboardSections }
-			value={ value }
-			onValueChange={ handleValueChange }
-		>
-			<div className={ styles.tabList }>
-				<Tabs.List variant="minimal">
-					{ sections.map( section => (
-						<Tabs.Tab key={ section.id } value={ section.id }>
-							{ section.label }
-						</Tabs.Tab>
-					) ) }
-				</Tabs.List>
-			</div>
+		<Tabs.Root value={ value } onValueChange={ handleValueChange }>
+			<Tabs.List variant="minimal" className={ styles.tabList }>
+				{ sections.map( section => (
+					<Tabs.Tab key={ section.id } value={ section.id }>
+						{ section.label }
+					</Tabs.Tab>
+				) ) }
+			</Tabs.List>
 			{ children }
 		</Tabs.Root>
 	);

@@ -7,11 +7,13 @@ import { useCallback } from 'react';
  * Internal dependencies
  */
 import { resolveSectionId, type DashboardSectionId } from '../config';
+import { route } from '../package.json';
 
 /**
- * The route path the dashboard is mounted on (see ./package.json `route.path`).
+ * Mirrors this route's `route.path` from package.json, so the staged-search
+ * `from` stays in sync if the mount path ever changes.
  */
-const ROUTE_FROM = '/';
+const ROUTE_FROM = route.path;
 
 type SectionSearch = {
 	section?: string;
