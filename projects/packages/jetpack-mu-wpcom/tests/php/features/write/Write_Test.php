@@ -86,7 +86,7 @@ class Write_Test extends \WorDBless\BaseTestCase {
 	 */
 	public function test_resolve_back_url_maps_known_source() {
 		$this->assertSame(
-			'https://wordpress.com/read',
+			'https://wordpress.com/reader',
 			wpcom_write_resolve_back_url( 'reader' )
 		);
 	}
@@ -119,10 +119,10 @@ class Write_Test extends \WorDBless\BaseTestCase {
 	 */
 	public function test_template_back_button_uses_resolved_url() {
 		ob_start();
-		wpcom_write_template( '', '', 0, array(), 'new', array(), false, '', array(), '', 'https://wordpress.com/read' );
+		wpcom_write_template( '', '', 0, array(), 'new', array(), false, '', array(), '', 'https://wordpress.com/reader' );
 		$html = ob_get_clean();
 
-		$this->assertStringContainsString( 'href="' . esc_url( 'https://wordpress.com/read' ) . '"', $html );
+		$this->assertStringContainsString( 'href="' . esc_url( 'https://wordpress.com/reader' ) . '"', $html );
 	}
 
 	/**
