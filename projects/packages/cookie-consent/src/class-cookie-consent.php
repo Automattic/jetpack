@@ -54,9 +54,6 @@ class Cookie_Consent {
 		// garden_site_provisioning hook is no longer available in this context.
 		add_action( 'init', array( __CLASS__, 'maybe_create_ccpa_page' ) );
 
-		// Prevent CCPA and Privacy Policy page deletion.
-		add_filter( 'map_meta_cap', array( __CLASS__, 'prevent_privacy_pages_deletion' ), 10, 4 );
-
 		// Hook Privacy Policy and CCPA links into navigation blocks using Block Hooks API.
 		add_filter( 'hooked_block_types', array( __CLASS__, 'register_footer_navigation_links' ), 10, 4 );
 		add_filter( 'hooked_block_core/navigation-link', array( __CLASS__, 'set_footer_navigation_link_attributes' ), 10, 4 );
@@ -223,38 +220,6 @@ class Cookie_Consent {
 				return (int) $page->ID !== (int) $ccpa_page_id;
 			}
 		);
-	}
-
-	/**
-	 * Prevent CCPA and Privacy Policy pages from being deleted
-	 *
-	 * @param array  $caps    Required capabilities.
-	 * @param string $cap     Capability being checked.
-	 * @param int    $user_id User ID.
-	 * @param array  $args    Additional arguments.
-	 * @return array Modified capabilities.
-	 */
-	public static function prevent_privacy_pages_deletion( $caps, $cap, $user_id, $args ) {
-		// Only intercept delete_post capability checks.
-		if ( 'delete_post' !== $cap ) {
-			return $caps;
-		}
-
-		$post_id = isset( $args[0] ) ? (int) $args[0] : 0;
-
-		// Prevent deletion of CCPA page.
-		$ccpa_page_id = get_option( 'jetpack_cookie_consent_ccpa_page_id' );
-		if ( $ccpa_page_id && $post_id === (int) $ccpa_page_id ) {
-			return array( 'do_not_allow' );
-		}
-
-		// Prevent deletion of Privacy Policy page.
-		$privacy_policy_page_id = (int) get_option( 'wp_page_for_privacy_policy' );
-		if ( $privacy_policy_page_id && $post_id === $privacy_policy_page_id ) {
-			return array( 'do_not_allow' );
-		}
-
-		return $caps;
 	}
 
 	/**

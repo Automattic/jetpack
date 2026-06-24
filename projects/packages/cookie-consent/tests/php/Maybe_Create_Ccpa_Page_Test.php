@@ -62,6 +62,16 @@ class Maybe_Create_Ccpa_Page_Test extends TestCase {
 	}
 
 	/**
+	 * The deletion lock is gone: the method no longer exists.
+	 */
+	public function test_deletion_lock_removed() {
+		$this->assertFalse(
+			method_exists( Cookie_Consent::class, 'prevent_privacy_pages_deletion' ),
+			'prevent_privacy_pages_deletion() should be removed so pages are deletable.'
+		);
+	}
+
+	/**
 	 * Migration: a pre-existing page with no flag gets the flag backfilled.
 	 */
 	public function test_backfills_flag_for_existing_page() {
