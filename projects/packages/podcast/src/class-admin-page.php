@@ -7,10 +7,11 @@
 
 namespace Automattic\Jetpack\Podcast;
 
+use Automattic\Jetpack\Status\Host;
 use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills;
 
 /**
- * Adds the "Jetpack > Podcast" wp-admin screen on Simple and Atomic.
+ * Adds the "Jetpack > Podcast" wp-admin screen.
  */
 class Admin_Page {
 
@@ -40,13 +41,16 @@ class Admin_Page {
 		self::$initialized = true;
 
 		add_action( 'admin_menu', array( __CLASS__, 'maybe_load_wp_build' ), 1 );
+
+		// Simple/Atomic register the submenu from wpcom-admin-menu.php; self-hosted has no such file.
+		$host = new Host();
+		if ( ! $host->is_wpcom_simple() && ! $host->is_woa_site() ) {
+			add_action( 'admin_menu', array( __CLASS__, 'add_wp_admin_submenu' ), 999999 );
+		}
 	}
 
 	/**
-	 * Register the Podcast submenu under Jetpack on Simple and Atomic.
-	 *
-	 * Called from `wpcom-admin-menu.php` at priority 999999 once the Jetpack
-	 * parent menu exists.
+	 * Register the Podcast submenu under the Jetpack menu.
 	 */
 	public static function add_wp_admin_submenu() {
 		$wp_build_render = 'jetpack_podcast_jetpack_podcast_dashboard_wp_admin_render_page';
