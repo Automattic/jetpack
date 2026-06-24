@@ -9,6 +9,9 @@
 require_once \Automattic\Jetpack\Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/launchpad/launchpad.php';
 //phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.NotAbsolutePath
 require_once \Automattic\Jetpack\Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/ai-launchpad/helpers.php';
+require_once __DIR__ . '/fixtures/memberships-stubs.php';
+//phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.NotAbsolutePath
+require_once \Automattic\Jetpack\Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/ai-launchpad/class-ai-launchpad-memberships.php';
 //phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.NotAbsolutePath
 require_once \Automattic\Jetpack\Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/ai-launchpad/class-ai-launchpad-rest.php';
 
@@ -282,6 +285,45 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 		$this->assertSame( 200, $result->get_status() );
 		$ids = array_column( $result->get_data()['tasks'], 'id' );
 		$this->assertContains( 'add_10_email_subscribers', $ids );
+	}
+
+	/**
+	 * Test that GET recomputes the membership tasks' completion from
+	 * Jetpack_Memberships' local signals, since their catalog callbacks are always
+	 * false on Atomic (membership settings are null there).
+	 */
+	public function test_get_overrides_membership_task_completion() {
+		wp_set_current_user( $this->admin_id );
+		AI_Launchpad_Stub_Jetpack_Memberships::$connected        = false;
+		AI_Launchpad_Stub_Jetpack_Memberships::$plans            = false;
+		AI_Launchpad_Stub_Jetpack_Memberships::$newsletter_plans = false;
+		$this->seed_ai_output_with_tasks( array( 'stripe_connected', 'paid_offer_created', 'site_launched' ) );
+
+		$get = function () {
+			$data = $this->call_api( Requests::GET )->get_data();
+			$map  = array();
+			foreach ( $data['tasks'] as $task ) {
+				$map[ $task['id'] ] = $task['completed'];
+			}
+			return array( $map, $data['checklist_statuses'] );
+		};
+
+		// No connected account / no plans: both incomplete.
+		list( $map, $statuses ) = $get();
+		$this->assertFalse( $map['stripe_connected'] );
+		$this->assertFalse( $map['paid_offer_created'] );
+
+		// Turn the local signals on: both complete, via the override (the catalog
+		// callback would still report false on Atomic).
+		AI_Launchpad_Stub_Jetpack_Memberships::$connected = true;
+		AI_Launchpad_Stub_Jetpack_Memberships::$plans     = true;
+		list( $map, $statuses )                           = $get();
+		$this->assertTrue( $map['stripe_connected'] );
+		$this->assertTrue( $map['paid_offer_created'] );
+
+		// checklist_statuses agrees with tasks[].completed for the overridden tasks.
+		$this->assertTrue( $statuses['stripe_connected'] );
+		$this->assertTrue( $statuses['paid_offer_created'] );
 	}
 
 	/**

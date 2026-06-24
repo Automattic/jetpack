@@ -233,11 +233,21 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 			$tasks = $this->build_tasks( $ai_output['payload']['tasks'] );
 		}
 
+		// The membership tasks' completion is recomputed in build_tasks() (their
+		// option is never written on Atomic), so overlay it here to keep
+		// checklist_statuses consistent with tasks[].completed for them.
+		$checklist_statuses = (array) get_option( 'launchpad_checklist_tasks_statuses', array() );
+		foreach ( $tasks as $task ) {
+			if ( AI_Launchpad_Memberships::has_override( $task['id'] ) ) {
+				$checklist_statuses[ $task['id'] ] = $task['completed'];
+			}
+		}
+
 		return array(
 			'wizard'             => is_array( $wizard ) ? $wizard : null,
 			'ai_output'          => is_array( $ai_output ) ? $ai_output : null,
 			'tasks'              => $tasks,
-			'checklist_statuses' => (array) get_option( 'launchpad_checklist_tasks_statuses', array() ),
+			'checklist_statuses' => $checklist_statuses,
 			'dismissed'          => (bool) get_option( self::OPTION_DISMISSED, false ),
 			'is_eligible'        => true,
 			// Site context the client needs: the front-end URL drives the launch-task
@@ -486,11 +496,18 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 				continue;
 			}
 
+			// The membership tasks' catalog callbacks recompute from membership
+			// settings that are null on Atomic (always false there); recompute them
+			// from Jetpack_Memberships' local signals instead.
+			$completed = AI_Launchpad_Memberships::has_override( $task['id'] )
+				? AI_Launchpad_Memberships::is_task_complete( $task['id'] )
+				: wpcom_launchpad_checklists()->is_task_complete( $definition );
+
 			$built[] = array(
 				'id'           => $task['id'],
 				'subtitle'     => $task['subtitle'],
 				'title'        => isset( $definition['get_title'] ) ? $definition['get_title']() : '',
-				'completed'    => wpcom_launchpad_checklists()->is_task_complete( $definition ),
+				'completed'    => $completed,
 				'calypso_path' => wpcom_launchpad_checklists()->load_calypso_path( $definition ),
 			);
 		}
