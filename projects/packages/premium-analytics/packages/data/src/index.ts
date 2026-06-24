@@ -28,6 +28,10 @@ export {
 	useStatsAppCommercialClassificationMutation,
 	type StatsAppCommercialClassificationParams,
 } from './hooks/use-stats-app-commercial-classification';
+export {
+	useStatsAppDashboardModuleSettings,
+	useStatsAppDashboardModuleSettingsMutation,
+} from './hooks/use-stats-app-dashboard-module-settings';
 export type { UseStatsOptions } from './hooks/use-stats-report';
 export { prefetchReport } from './prefetch';
 export {
