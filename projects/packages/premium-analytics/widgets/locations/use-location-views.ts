@@ -118,7 +118,10 @@ export default function useLocationViews( {
 
 	const { primary } = useStatsLocations( statsParams );
 
-	const isLoading = primary.isLoading || primary.isFetching;
+	// isLoading: true only on the initial fetch (no data yet) — used to show the
+	// full loading placeholder. isFetching covers background refetches where
+	// stale data is already available; those should not blank the widget.
+	const isLoading = primary.isLoading;
 	const isError = primary.isError;
 
 	// Only fall back to sample data when the query has never successfully completed
