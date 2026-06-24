@@ -436,16 +436,23 @@ class Jetpack_Form_Endpoint_Test extends TestCase {
 	 * endpoint runs so we can assert how it is scoped, and (b) return controlled rows so
 	 * the response shape can be asserted.
 	 *
-	 * @param array $captured_queries Reference that receives each matching query string.
-	 * @param array $rows             Map of post_status => count to return for the query.
+	 * @param array $captured_queries  Reference that receives each matching query string.
+	 * @param array $rows              Map of post_status => count to return for the query.
+	 * @param array $required_fragments Query fragments that must be present before returning stubbed rows.
 	 */
-	private function stub_status_count_query( array &$captured_queries, array $rows ): void {
-		$this->status_count_filter = function ( $results, $query ) use ( &$captured_queries, $rows ) {
+	private function stub_status_count_query( array &$captured_queries, array $rows, array $required_fragments = array() ): void {
+		$this->status_count_filter = function ( $results, $query ) use ( &$captured_queries, $rows, $required_fragments ) {
 			if ( false === strpos( $query, 'GROUP BY post_status' ) ) {
 				return $results;
 			}
 
 			$captured_queries[] = $query;
+
+			foreach ( $required_fragments as $fragment ) {
+				if ( false === strpos( $query, $fragment ) ) {
+					return $results;
+				}
+			}
 
 			$stubbed = array();
 			foreach ( $rows as $status => $count ) {
@@ -499,6 +506,10 @@ class Jetpack_Form_Endpoint_Test extends TestCase {
 				'draft'   => 2,
 				'pending' => 4,
 				'trash'   => 8,
+			),
+			array(
+				"post_type = 'jetpack_form'",
+				'post_author = ' . $author_id,
 			)
 		);
 
@@ -506,14 +517,23 @@ class Jetpack_Form_Endpoint_Test extends TestCase {
 
 		// The query must be scoped to the current author's own forms.
 		$this->assertNotEmpty( $captured_queries, 'Author should trigger a direct, author-scoped status query' );
+		$this->assertStringContainsString( "post_type = 'jetpack_form'", $captured_queries[0], 'Author query must filter to jetpack_form posts' );
 		$this->assertStringContainsString( 'post_author = ' . $author_id, $captured_queries[0], 'Author query must filter by the current author ID' );
 
 		// The response reflects only the author's own counts.
-		$this->assertSame( 1, $data['publish'], 'Author should only see their own published forms' );
-		$this->assertSame( 2, $data['draft'], 'Author should only see their own draft forms' );
-		$this->assertSame( 4, $data['pending'], 'Author should only see their own pending forms' );
-		$this->assertSame( 8, $data['trash'], 'Author should see their own trash count' );
-		$this->assertSame( 7, $data['all'], 'Author "all" count sums publish+draft+pending+future+private and excludes trash' );
+		$this->assertSame(
+			array(
+				'all'     => 7,
+				'publish' => 1,
+				'draft'   => 2,
+				'pending' => 4,
+				'future'  => 0,
+				'private' => 0,
+				'trash'   => 8,
+			),
+			$data,
+			'Author response should preserve all status-count keys, default missing statuses to zero, and exclude trash from all'
+		);
 	}
 
 	/**
