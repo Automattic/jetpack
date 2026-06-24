@@ -4,6 +4,7 @@
 import { statsAppProxyQuery } from '../stats-app-query';
 import { statsArchivesQuery } from '../stats-archives-query';
 import { statsCommentsQuery } from '../stats-comments-query';
+import { statsDevicesQuery } from '../stats-devices-query';
 import { STATS_HIGHLIGHTS_STALE_TIME, statsHighlightsQuery } from '../stats-highlights-query';
 import { statsInsightsQuery } from '../stats-insights-query';
 import { statsLocationsQuery } from '../stats-locations-query';
@@ -187,6 +188,38 @@ describe( 'Stats query factories', () => {
 			undefined,
 			'tags',
 		] );
+	} );
+
+	it( 'builds devices query keys from the selected device property', () => {
+		const query = statsDevicesQuery( {
+			from: '2026-06-16',
+			to: '2026-06-16',
+			interval: 'day',
+			deviceProperty: 'browser',
+		} );
+
+		expect( query.queryKey ).toEqual( [
+			'stats',
+			'devices',
+			'1.1',
+			'stats/devices/browser',
+			'GET',
+			expect.objectContaining( { date: '2026-06-16' } ),
+			undefined,
+			'devices',
+		] );
+	} );
+
+	it( 'defaults devices queries to screen size data', () => {
+		const query = statsDevicesQuery( {
+			from: '2026-06-16',
+			to: '2026-06-16',
+			interval: 'day',
+		} );
+
+		expect( query.queryKey ).toEqual(
+			expect.arrayContaining( [ 'stats/devices/screensize', 'devices' ] )
+		);
 	} );
 
 	it( 'preserves explicit summarize params', () => {

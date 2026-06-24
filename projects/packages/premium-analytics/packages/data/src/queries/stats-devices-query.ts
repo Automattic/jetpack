@@ -1,9 +1,24 @@
 /**
  * Internal dependencies
  */
-import { statsReportQuery, type StatsReportParams } from './stats-query';
+import {
+	statsReportQuery,
+	type StatsReportParams,
+	type StatsReportQueryOptions,
+} from './stats-query';
+import type { StatsDevicesItem, StatsNormalizedReport } from '../processing/stats';
 
-export const statsDevicesQuery = ( params: StatsReportParams & { deviceProperty?: string } ) =>
+export type StatsDevicesProperty = 'screensize' | 'browser' | 'platform';
+
+export type StatsDevicesParams = StatsReportParams & {
+	deviceProperty?: StatsDevicesProperty;
+};
+
+export type StatsDevices = StatsNormalizedReport< StatsDevicesItem >;
+
+export const statsDevicesQuery = (
+	params: StatsDevicesParams
+): StatsReportQueryOptions< 'devices' > =>
 	statsReportQuery(
 		'devices',
 		`stats/devices/${ params.deviceProperty ?? 'screensize' }`,

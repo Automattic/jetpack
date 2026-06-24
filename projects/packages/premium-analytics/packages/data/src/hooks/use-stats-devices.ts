@@ -4,11 +4,11 @@
 import { statsDevicesQuery } from '../queries/stats-devices-query';
 import { useStatsReport } from './use-stats-report';
 import type { UseStatsOptions } from './use-stats-report';
-import type { StatsReportParams } from '../queries/stats-query';
-
-export type StatsDevicesParams = StatsReportParams & {
-	deviceProperty?: string;
-};
+import type {
+	StatsDevices,
+	StatsDevicesParams,
+	StatsDevicesProperty,
+} from '../queries/stats-devices-query';
 
 export function useStatsDevices( params: StatsDevicesParams, options?: UseStatsOptions ) {
 	return useStatsReport(
@@ -18,3 +18,5 @@ export function useStatsDevices( params: StatsDevicesParams, options?: UseStatsO
 		options
 	);
 }
+
+export type { StatsDevices, StatsDevicesParams, StatsDevicesProperty };
