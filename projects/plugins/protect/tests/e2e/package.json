@@ -3,7 +3,7 @@
 	"type": "module",
 	"scripts": {
 		"allure-report": "allure generate --clean --output ./output/allure-report ./output/allure-results && allure open ./output/allure-report",
-		"build": "pnpm jetpack build js-packages/social-logos packages/wp-build-polyfills packages/assets packages/connection plugins/protect plugins/jetpack -v --no-pnpm-install --production",
+		"build": "pnpm jetpack build js-packages/social-logos js-packages/boost-score-api js-packages/components js-packages/number-formatters js-packages/charts packages/wp-build-polyfills packages/assets packages/connection plugins/protect plugins/jetpack -v --no-pnpm-install --production",
 		"clean": "rm -rf output",
 		"config:decrypt": "openssl enc -md sha1 -aes-256-cbc -pbkdf2 -iter 100000 -d -pass env:CONFIG_KEY -in ./node_modules/@automattic/_jetpack-e2e-commons/config/encrypted.enc -out ./config/local.cjs",
 		"distclean": "rm -rf node_modules",
