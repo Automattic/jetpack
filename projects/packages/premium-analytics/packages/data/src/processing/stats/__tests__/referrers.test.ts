@@ -169,4 +169,44 @@ describe( 'Stats referrers normalizer', () => {
 			} ),
 		] );
 	} );
+
+	it( 'adds spam actions when referrer URLs include the group name', () => {
+		const result = sanitizeStatsReferrersResponse(
+			{
+				date: '2026-06-22',
+				period: 'day',
+				summary: {
+					groups: [
+						{
+							name: 'example.com',
+							group: 'Example Domain',
+							total: 3,
+							url: 'https://example.com/source',
+							results: [
+								{
+									name: 'Example landing page',
+									views: 3,
+									url: 'https://example.com/source',
+								},
+							],
+						},
+					],
+				},
+			},
+			{
+				period: 'day',
+				start_date: '2026-06-16',
+				end_date: '2026-06-22',
+				summarize: true,
+			}
+		);
+
+		expect( result.data[ 0 ].items ).toEqual( [
+			expect.objectContaining( {
+				label: 'Example landing page',
+				actions: [ { type: 'spam', data: { domain: 'example.com' } } ],
+				actionMenu: 1,
+			} ),
+		] );
+	} );
 } );
