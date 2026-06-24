@@ -14,6 +14,7 @@ describe( 'Stats video plays normalizer', () => {
 				label: 'Launch video',
 				plays: 11,
 				link: 'https://example.com/video/',
+				actions: [ { type: 'link', data: 'https://example.com/video/' } ],
 			} )
 		);
 	} );
@@ -44,6 +45,38 @@ describe( 'Stats video plays normalizer', () => {
 				impressions: 42,
 				watch_time: 128.5,
 				retention_rate: 61.25,
+			} )
+		);
+	} );
+
+	it( 'does not add link actions when video rows have no URL', () => {
+		const result = sanitizeStatsVideoPlaysResponse(
+			{
+				date: '2026-06-22',
+				period: 'day',
+				days: {
+					'2026-06-22': {
+						plays: [
+							{
+								post_id: 12,
+								title: 'Launch video',
+								plays: 11,
+							},
+						],
+					},
+				},
+			},
+			{
+				period: 'day',
+				end_date: '2026-06-22',
+			}
+		);
+
+		expect( result.data[ 0 ].items[ 0 ] ).toEqual(
+			expect.objectContaining( {
+				label: 'Launch video',
+				link: null,
+				actions: [],
 			} )
 		);
 	} );

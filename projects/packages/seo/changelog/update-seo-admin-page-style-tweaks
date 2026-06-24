@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Improve contrast on the SEO admin pages: add an off-white page canvas so the white content cards stand out, and give the social link-preview body a recessed gray so it reads apart from the card and the page.
