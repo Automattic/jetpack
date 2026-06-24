@@ -111,7 +111,15 @@ class WPCOM_REST_API_V2_Endpoint_Search_Test extends Jetpack_REST_TestCase {
 		$endpoint = new WPCOM_REST_API_V2_Endpoint_Search();
 
 		$controller = new ReflectionProperty( $endpoint, 'controller' );
-		$controller->setAccessible( true );
+
+		/*
+		 * setAccessible() is required to read a protected property on PHP < 8.1,
+		 * but is a no-op on 8.1+ and emits a deprecation on 8.5+ (which the suite
+		 * treats as a risky-test failure), so only call it where it is needed.
+		 */
+		if ( PHP_VERSION_ID < 80100 ) {
+			$controller->setAccessible( true );
+		}
 
 		$this->assertNull(
 			$controller->getValue( $endpoint ),
