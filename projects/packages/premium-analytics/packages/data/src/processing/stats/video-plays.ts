@@ -9,6 +9,7 @@ import {
 	normalizeStatsSummary,
 } from './utils';
 import type {
+	StatsItemAction,
 	StatsNormalizedDataPoint,
 	StatsNormalizedItemBase,
 	StatsNormalizedReport,
@@ -23,6 +24,7 @@ export type StatsVideoPlaysItem = StatsNormalizedItemBase & {
 	watch_time: number;
 	retention_rate: number;
 	link: string | null;
+	actions?: StatsItemAction[];
 	children: null;
 };
 
@@ -42,6 +44,7 @@ export function sanitizeStatsVideoPlaysResponse(
 		watch_time: safeParseFloat( item.watch_time ),
 		retention_rate: safeParseFloat( item.retention_rate ),
 		link: typeof item.url === 'string' ? item.url : null,
+		actions: typeof item.url === 'string' ? [ { type: 'link', data: item.url } ] : [],
 		children: null,
 	} );
 	const getSummarySource = () => {
