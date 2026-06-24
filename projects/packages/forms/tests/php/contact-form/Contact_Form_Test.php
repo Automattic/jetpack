@@ -4085,9 +4085,10 @@ class Contact_Form_Test extends BaseTestCase {
 	/**
 	 * Build a Contact_Form whose source resolves to the given post id.
 	 *
-	 * @param array  $attributes  Form attributes.
-	 * @param int    $source_id   Source (post) id the form should report.
-	 * @param string $source_type Source type (single, widget, block_template, block_template_part).
+	 * @param array      $attributes  Form attributes.
+	 * @param int|string $source_id   Source id the form should report: a numeric post id, or a
+	 *                                non-numeric widget/block-template id.
+	 * @param string     $source_type Source type (single, widget, block_template, block_template_part).
 	 * @return Contact_Form
 	 */
 	private function make_form_with_source( $attributes, $source_id, $source_type = 'single' ) {
