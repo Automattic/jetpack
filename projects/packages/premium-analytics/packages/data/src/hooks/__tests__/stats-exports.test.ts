@@ -14,6 +14,7 @@ const statsHookNames = [
 	'useStatsLocations',
 	'useStatsCountryViews',
 	'useStatsVideoPlays',
+	'useStatsVisits',
 	'useStatsDevices',
 	'useStatsArchives',
 	'useStatsPublicize',
@@ -21,6 +22,20 @@ const statsHookNames = [
 	'useStatsTags',
 	'useStatsComments',
 	'useStatsCommentFollowers',
+	'useStatsStreak',
+	'useStatsInsights',
+	'useStatsHighlights',
+	'useStatsSubscribers',
+	'useStatsSubscribersCounts',
+	'useStatsSinglePost',
+	'useStatsSingleVideo',
+	'useStatsEmailSummary',
+	'useStatsEmailOpensBreakdown',
+	'useStatsEmailClicksBreakdown',
+	'useStatsEmailOpensTimeSeries',
+	'useStatsEmailClicksTimeSeries',
+	'useStatsWordAdsStats',
+	'useStatsWordAdsEarnings',
 ] as const satisfies ReadonlyArray< keyof typeof dataPackage >;
 
 describe( 'Stats public hook names', () => {

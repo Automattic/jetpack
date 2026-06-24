@@ -24,6 +24,7 @@ export { useStatsTopAuthors } from './hooks/use-stats-top-authors';
 export { useStatsLocations } from './hooks/use-stats-locations';
 export { useStatsCountryViews } from './hooks/use-stats-country-views';
 export { useStatsVideoPlays } from './hooks/use-stats-video-plays';
+export { useStatsVisits, type StatsVisitsParams } from './hooks/use-stats-visits';
 export { useStatsDevices, type StatsDevicesParams } from './hooks/use-stats-devices';
 export { useStatsArchives } from './hooks/use-stats-archives';
 export { useStatsPublicize } from './hooks/use-stats-publicize';
@@ -31,6 +32,24 @@ export { useStatsFollowers } from './hooks/use-stats-followers';
 export { useStatsTags } from './hooks/use-stats-tags';
 export { useStatsComments } from './hooks/use-stats-comments';
 export { useStatsCommentFollowers } from './hooks/use-stats-comment-followers';
+export { useStatsStreak } from './hooks/use-stats-streak';
+export { useStatsInsights } from './hooks/use-stats-insights';
+export { useStatsHighlights } from './hooks/use-stats-highlights';
+export { useStatsSubscribers, useStatsSubscribersCounts } from './hooks/use-stats-subscribers';
+export { useStatsSinglePost } from './hooks/use-stats-single-post';
+export { useStatsSingleVideo } from './hooks/use-stats-single-video';
+export { useStatsEmailSummary } from './hooks/use-stats-email-summary';
+export {
+	useStatsEmailOpensBreakdown,
+	useStatsEmailClicksBreakdown,
+	type StatsEmailClicksBreakdown,
+	type StatsEmailOpensBreakdown,
+} from './hooks/use-stats-email-breakdown';
+export {
+	useStatsEmailOpensTimeSeries,
+	useStatsEmailClicksTimeSeries,
+} from './hooks/use-stats-email-time-series';
+export { useStatsWordAdsStats, useStatsWordAdsEarnings } from './hooks/use-stats-wordads';
 export type { UseStatsOptions } from './hooks/use-stats-report';
 export { prefetchReport } from './prefetch';
 export {

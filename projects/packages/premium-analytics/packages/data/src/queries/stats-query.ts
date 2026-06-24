@@ -7,6 +7,8 @@ import {
 	sanitizeStatsCommentFollowersResponse,
 	sanitizeStatsCommentsResponse,
 	sanitizeStatsDevicesResponse,
+	sanitizeStatsEmailBreakdownResponse,
+	sanitizeStatsEmailSummaryResponse,
 	sanitizeStatsFollowersResponse,
 	sanitizeStatsPassthroughResponse,
 	sanitizeStatsPublicizeResponse,
@@ -14,8 +16,10 @@ import {
 	sanitizeStatsSearchTermsResponse,
 	sanitizeStatsSiteResponse,
 	sanitizeStatsTagsResponse,
+	sanitizeStatsTimeSeriesResponse,
 	sanitizeStatsTopAuthorsResponse,
 	sanitizeStatsTopPostsResponse,
+	sanitizeStatsVisitsResponse,
 	sanitizeStatsVideoPlaysResponse,
 } from '../processing/stats';
 import {
@@ -40,6 +44,8 @@ const statsSanitizers = {
 	topAuthors: sanitizeStatsTopAuthorsResponse,
 	locations: sanitizeStatsLocationsResponse,
 	videoPlays: sanitizeStatsVideoPlaysResponse,
+	visits: sanitizeStatsVisitsResponse,
+	timeSeries: sanitizeStatsTimeSeriesResponse,
 	devices: sanitizeStatsDevicesResponse,
 	archives: sanitizeStatsArchivesResponse,
 	publicize: sanitizeStatsPublicizeResponse,
@@ -47,6 +53,8 @@ const statsSanitizers = {
 	tags: sanitizeStatsTagsResponse,
 	comments: sanitizeStatsCommentsResponse,
 	commentFollowers: sanitizeStatsCommentFollowersResponse,
+	emailSummary: sanitizeStatsEmailSummaryResponse,
+	emailBreakdown: sanitizeStatsEmailBreakdownResponse,
 } satisfies Record< string, StatsSanitizer >;
 
 export type StatsSanitizerKey = keyof typeof statsSanitizers;
