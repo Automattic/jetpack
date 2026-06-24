@@ -37,7 +37,6 @@ import { ConnectVideoStorageMeter } from '../video-storage-meter';
 import VideoUploadArea from '../video-upload-area';
 import { LocalLibrary, VideoPressLibrary } from './libraries';
 import styles from './styles.module.scss';
-import type { LocalVideo, MetadataVideo, VideoPressVideo } from '../../types';
 
 const Admin = () => {
 	const {
@@ -175,7 +174,7 @@ const Admin = () => {
 							{ hasVideos ? (
 								<Col sm={ 4 } md={ 6 } lg={ 12 }>
 									<VideoPressLibrary
-										videos={ videos as ( VideoPressVideo & MetadataVideo )[] }
+										videos={ videos }
 										totalVideos={ uploadedVideoCount }
 										loading={ loading }
 									/>
@@ -191,7 +190,7 @@ const Admin = () => {
 							{ hasLocalVideos && (
 								<Col sm={ 4 } md={ 6 } lg={ 12 }>
 									<LocalLibrary
-										videos={ localVideos as LocalVideo[] }
+										videos={ localVideos }
 										totalVideos={ uploadedLocalVideoCount }
 										onUploadClick={ handleLocalVideoUpload }
 										uploading={ uploading }

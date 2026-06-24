@@ -1,9 +1,12 @@
+import type { FilterObject } from '../../components/video-filter/types';
+import type { AdminVideo, LocalVideo } from '../../types';
+
 type VideosResult = {
-	items: unknown[];
-	uploading: unknown[];
+	items: AdminVideo[];
+	uploading: AdminVideo[];
 	isUploading: boolean;
 	search: string;
-	filter: Record< string, unknown >;
+	filter: FilterObject;
 	uploadedVideoCount: number;
 	isFetching: boolean;
 	isFetchingUploadedVideoCount: boolean;
@@ -14,14 +17,14 @@ type VideosResult = {
 	itemsPerPage: number;
 	total: number;
 	storageUsed: number;
-	uploadErrors: unknown[];
+	uploadErrors: AdminVideo[];
 	setPage: ( page: number ) => void;
 	setSearch: ( search: string ) => void;
-	setFilter: ( filter: Record< string, unknown > ) => void;
+	setFilter: ( filter: string, value: number | string, isActive: boolean ) => void;
 };
 
 type LocalVideosResult = {
-	items: unknown[];
+	items: LocalVideo[];
 	uploadedLocalVideoCount: number;
 	isFetching: boolean;
 	page: number;

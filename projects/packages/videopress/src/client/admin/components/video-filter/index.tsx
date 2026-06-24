@@ -171,14 +171,14 @@ export const ConnectFilterSection = props => {
 	const { setFilter, filter } = useVideos();
 	const searchParams = useSearchParams();
 
-	const onFilterHandler = ( ...filterArgs: [ Record< string, unknown > ] ) => {
+	const onFilterHandler = ( filterName: string, value: number | string, isActive: boolean ) => {
 		// clear the pagination, setting it back to page 1
 		searchParams.deleteParam( 'page' );
 		searchParams.update();
-		setFilter( ...filterArgs );
+		setFilter( filterName, value, isActive );
 	};
 
-	const { items: users } = useUsers() as { items: unknown };
+	const { items: users } = useUsers() as { items: Array< { id: number; name: string } > };
 	return (
 		<FilterSection
 			{ ...props }

@@ -96,7 +96,7 @@ export const LocalVideoList = ( {
 	const isSmall = useViewportMatch( 'small', '<' );
 	const { hasVideoPressPurchase } = usePlan();
 	const { uploadedVideoCount, isFetching } = useVideos();
-	const hasVideos = uploadedVideoCount > 0 || isFetching || Boolean( uploading );
+	const hasVideos = uploadedVideoCount > 0 || isFetching || uploading;
 
 	const handleClickWithIndex = index => () => {
 		onActionClick?.( videos[ index ] );
