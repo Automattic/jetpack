@@ -3,6 +3,7 @@
  */
 import { LineChart } from '@automattic/charts';
 import { formatDate, formatMetricValue } from '@jetpack-premium-analytics/formatters';
+import { Stack } from '@wordpress/ui';
 import clsx from 'clsx';
 import { useCallback, useMemo } from 'react';
 import { type ComponentProps } from 'react';
@@ -317,7 +318,7 @@ export function ComparativeLineChart( {
 	] );
 
 	return (
-		<div className={ clsx( styles.chart, className ) }>
+		<Stack direction="column" className={ clsx( styles.chart, className ) }>
 			<LineChart
 				className={ styles.chartContent }
 				data={ styledSeries }
@@ -348,6 +349,6 @@ export function ComparativeLineChart( {
 					shapeStyles={ { margin: 0 } }
 				/>
 			</LineChart>
-		</div>
+		</Stack>
 	);
 }
