@@ -139,6 +139,7 @@ export {
 	type StatsEmailSummaryParams,
 	type StatsEmailSummarySortField,
 } from './hooks/use-stats-email-summary';
+export { useStatsSingleVideo } from './hooks/use-stats-single-video';
 export type { UseStatsOptions } from './hooks/use-stats-report';
 export { prefetchReport } from './prefetch';
 export {
