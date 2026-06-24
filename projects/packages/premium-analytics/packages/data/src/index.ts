@@ -42,6 +42,16 @@ export type {
 	StatsAppPlanUsage,
 } from './hooks/use-stats-app-plan-usage';
 export {
+	useStatsAppNotices,
+	useStatsAppNoticeMutation,
+	type StatsAppNoticeId,
+	type StatsAppNoticeMutationParams,
+	type StatsAppNoticeMutationResponse,
+	type StatsAppNotices,
+	type StatsAppNoticesParams,
+	type StatsAppNoticeStatus,
+} from './hooks/use-stats-app-notices';
+export {
 	useStatsAppPurchases,
 	type StatsAppPurchase,
 	type StatsAppPurchaseExpiryStatus,

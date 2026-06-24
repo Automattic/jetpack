@@ -1,6 +1,11 @@
 /**
+ * External dependencies
+ */
+import apiFetch from '@wordpress/api-fetch';
+/**
  * Internal dependencies
  */
+import { statsAppNoticesQuery, updateStatsAppNotice } from '../stats-app-notices-query';
 import { statsAppPurchasesQuery } from '../stats-app-purchases-query';
 import { statsAppProxyQuery } from '../stats-app-query';
 import {
@@ -38,7 +43,15 @@ import { statsVisitsQuery } from '../stats-visits-query';
 import { statsWordAdsEarningsQuery, statsWordAdsStatsQuery } from '../stats-wordads-query';
 import type { StatsReportParams } from '../stats-query';
 
+jest.mock( '@wordpress/api-fetch' );
+
+const mockApiFetch = apiFetch as jest.MockedFunction< typeof apiFetch >;
+
 describe( 'Stats query factories', () => {
+	beforeEach( () => {
+		mockApiFetch.mockReset();
+	} );
+
 	it( 'disables report queries until a date range is available', () => {
 		expect( statsTopPostsQuery( {} as StatsReportParams ).enabled ).toBe( false );
 	} );
@@ -512,6 +525,35 @@ describe( 'Stats query factories', () => {
 			{ date: '2026-06-16' },
 			{},
 		] );
+	} );
+
+	it( 'builds app notices query keys for the local REST endpoint', () => {
+		expect( statsAppNoticesQuery().queryKey ).toEqual( [ 'stats-app', 'notices', {} ] );
+		expect( statsAppNoticesQuery( { force_refresh: true } ).queryKey ).toEqual( [
+			'stats-app',
+			'notices',
+			{ force_refresh: true },
+		] );
+	} );
+
+	it( 'updates app notices through the local REST endpoint', async () => {
+		mockApiFetch.mockResolvedValue( { opt_in_new_stats: false } );
+
+		await updateStatsAppNotice( {
+			id: 'opt_in_new_stats',
+			status: 'postponed',
+			postponed_for: 300,
+		} );
+
+		expect( mockApiFetch ).toHaveBeenCalledWith( {
+			path: '/jetpack-premium-analytics/v1/notices',
+			method: 'POST',
+			data: {
+				id: 'opt_in_new_stats',
+				status: 'postponed',
+				postponed_for: 300,
+			},
+		} );
 	} );
 
 	it( 'builds highlights query keys with endpoint params and sanitizer', () => {
