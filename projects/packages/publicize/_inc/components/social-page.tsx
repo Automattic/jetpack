@@ -1,5 +1,5 @@
 import AdminPage from '@automattic/jetpack-components/admin-page';
-import { getSiteData } from '@automattic/jetpack-script-data';
+import { currentUserCan, getSiteData } from '@automattic/jetpack-script-data';
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { useNavigate } from '@wordpress/route';
@@ -56,6 +56,12 @@ export default function SocialPage( { activeTab, actions, children }: Props ): J
 	const { gate, dismissPricing } = useSocialGate();
 	const headerActions = gate === null ? actions : null;
 
+	// Both the Settings tab and the Overview stats chart require admin-only
+	// capabilities (`manage_options` / stats reads), so non-admins have nothing
+	// to switch between — drop the tab chrome entirely and show the lone
+	// connection-management surface the Overview route hands us.
+	const canManageOptions = currentUserCan( 'manage_options' );
+
 	// Keep the route at `/` and toggle tabs via a `?tab=` search param so the
 	// `Tabs.Root` mounts once and the active-tab indicator can animate.
 	const onTabChange = useCallback(
@@ -83,25 +89,31 @@ export default function SocialPage( { activeTab, actions, children }: Props ): J
 					actions={ headerActions }
 				>
 					<SocialGate gate={ gate } onDismissPricing={ dismissPricing }>
-						<Tabs.Root
-							className="jetpack-social-tabs"
-							value={ activeTab }
-							onValueChange={ onTabChange }
-						>
-							<div className="jp-admin-page-tabs jp-admin-page-tabs--minimal">
-								<Tabs.List variant="minimal">
-									<Tabs.Tab value="overview">
-										{ __( 'Overview', 'jetpack-publicize-pkg' ) }
-									</Tabs.Tab>
-									<Tabs.Tab value="settings">
-										{ __( 'Settings', 'jetpack-publicize-pkg' ) }
-									</Tabs.Tab>
-								</Tabs.List>
-							</div>
+						{ canManageOptions ? (
+							<Tabs.Root
+								className="jetpack-social-tabs"
+								value={ activeTab }
+								onValueChange={ onTabChange }
+							>
+								<div className="jp-admin-page-tabs jp-admin-page-tabs--minimal">
+									<Tabs.List variant="minimal">
+										<Tabs.Tab value="overview">
+											{ __( 'Overview', 'jetpack-publicize-pkg' ) }
+										</Tabs.Tab>
+										<Tabs.Tab value="settings">
+											{ __( 'Settings', 'jetpack-publicize-pkg' ) }
+										</Tabs.Tab>
+									</Tabs.List>
+								</div>
+								<div className="jetpack-social-page__content jetpack-social-page__content--padded">
+									{ children }
+								</div>
+							</Tabs.Root>
+						) : (
 							<div className="jetpack-social-page__content jetpack-social-page__content--padded">
 								{ children }
 							</div>
-						</Tabs.Root>
+						) }
 					</SocialGate>
 				</AdminPage>
 			</Tooltip.Provider>

@@ -1,5 +1,5 @@
 import analytics from '@automattic/jetpack-analytics';
-import { getScriptData } from '@automattic/jetpack-script-data';
+import { currentUserCan, getScriptData } from '@automattic/jetpack-script-data';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useDispatch } from '@wordpress/data';
 import { useEffect, useRef } from '@wordpress/element';
@@ -56,7 +56,13 @@ const Stage = () => {
 		strict: false,
 	} ) as StageSearch;
 
-	const activeTab: SocialTab = search.tab === 'settings' ? 'settings' : 'overview';
+	// Non-admins can't read stats or change settings, so the page collapses to
+	// the Overview (connection-management) surface — `SocialPage` drops the tab
+	// chrome for them, and we ignore any stale `?tab=settings` left in the URL.
+	const canManageOptions = currentUserCan( 'manage_options' );
+
+	const activeTab: SocialTab =
+		canManageOptions && search.tab === 'settings' ? 'settings' : 'overview';
 
 	const actions = activeTab === 'overview' ? <AddAccountAction /> : null;
 
@@ -87,12 +93,18 @@ const Stage = () => {
 	return (
 		<QueryClientProvider client={ queryClient }>
 			<SocialPage activeTab={ activeTab } actions={ actions }>
-				<Tabs.Panel value="overview">
-					{ activeTab === 'overview' ? <OverviewTab /> : null }
-				</Tabs.Panel>
-				<Tabs.Panel value="settings">
-					{ activeTab === 'settings' ? <SettingsTab /> : null }
-				</Tabs.Panel>
+				{ canManageOptions ? (
+					<>
+						<Tabs.Panel value="overview">
+							{ activeTab === 'overview' ? <OverviewTab /> : null }
+						</Tabs.Panel>
+						<Tabs.Panel value="settings">
+							{ activeTab === 'settings' ? <SettingsTab /> : null }
+						</Tabs.Panel>
+					</>
+				) : (
+					<OverviewTab />
+				) }
 			</SocialPage>
 		</QueryClientProvider>
 	);
