@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Move the missing connection owner and XML-RPC error heartbeat stats to the Connection package.

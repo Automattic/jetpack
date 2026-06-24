@@ -2777,6 +2777,7 @@ class Manager {
 	 * If the site-level connection is active, add the list of plugins using connection to the heartbeat (except Jetpack itself)
 	 *
 	 * @since 6.11.0 Add the list of Jetpack package versions to the heartbeat.
+	 * @since $$next-version$$ Add the missing connection owner and XML-RPC error stats to the heartbeat.
 	 *
 	 * @param array $stats The Heartbeat stats array.
 	 * @return array $stats
@@ -2798,6 +2799,15 @@ class Manager {
 		$stats['jetpack_package_versions'] = apply_filters( 'jetpack_package_versions', array() );
 
 		$stats['identitycrisis'] = Identity_Crisis::check_identity_crisis() ? 'yes' : 'no';
+
+		// Missing the connection owner?
+		$stats['missing-owner'] = $this->is_missing_connection_owner();
+
+		$xmlrpc_errors = \Jetpack_Options::get_option( 'xmlrpc_errors', array() );
+		if ( $xmlrpc_errors ) {
+			$stats['xmlrpc-errors'] = implode( ',', array_keys( $xmlrpc_errors ) );
+			\Jetpack_Options::delete_option( 'xmlrpc_errors' );
+		}
 
 		return $stats;
 	}
