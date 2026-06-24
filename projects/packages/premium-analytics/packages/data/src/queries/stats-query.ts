@@ -8,6 +8,7 @@ import {
 	sanitizeStatsClicksResponse,
 	sanitizeStatsFileDownloadsResponse,
 	sanitizeStatsLocationsResponse,
+	sanitizeStatsArchivesResponse,
 	sanitizeStatsPassthroughResponse,
 	sanitizeStatsReferrersResponse,
 	sanitizeStatsSearchTermsResponse,
@@ -38,23 +39,33 @@ const statsSanitizers = {
 	topAuthors: sanitizeStatsTopAuthorsResponse,
 	locations: sanitizeStatsLocationsResponse,
 	videoPlays: sanitizeStatsVideoPlaysResponse,
+	archives: sanitizeStatsArchivesResponse,
 } satisfies Record< string, StatsSanitizer >;
 
 export type StatsSanitizerKey = keyof typeof statsSanitizers;
-type StatsSanitizerData = ReturnType< ( typeof statsSanitizers )[ StatsSanitizerKey ] >;
-export type StatsReportQueryOptions = UseQueryOptions< StatsSanitizerData >;
+type StatsSanitizerData< TSanitizer extends StatsSanitizerKey = StatsSanitizerKey > = ReturnType<
+	( typeof statsSanitizers )[ TSanitizer ]
+>;
+export type StatsReportQueryOptions< TSanitizer extends StatsSanitizerKey = StatsSanitizerKey > =
+	UseQueryOptions< StatsSanitizerData< TSanitizer > >;
 
-export type StatsQueryConfig = {
+export type StatsQueryConfig< TSanitizer extends StatsSanitizerKey = StatsSanitizerKey > = {
 	name: string;
 	version: StatsProxyVersion;
 	endpoint: string;
 	params?: StatsQueryParams;
 	method?: StatsProxyMethod;
 	body?: unknown;
-	sanitizer?: StatsSanitizerKey;
+	sanitizer?: TSanitizer;
 	enabled?: boolean;
 };
 
+export function statsProxyQuery< TSanitizer extends StatsSanitizerKey >(
+	config: StatsQueryConfig< TSanitizer > & { sanitizer: TSanitizer }
+): StatsReportQueryOptions< TSanitizer >;
+export function statsProxyQuery(
+	config: StatsQueryConfig
+): StatsReportQueryOptions< 'passthrough' >;
 export function statsProxyQuery( config: StatsQueryConfig ): StatsReportQueryOptions {
 	const { name, version, endpoint, params, method = 'GET', body, enabled = true } = config;
 	const sanitizer = config.sanitizer ?? 'passthrough';
@@ -77,16 +88,16 @@ export function statsProxyQuery( config: StatsQueryConfig ): StatsReportQueryOpt
 	};
 }
 
-export function statsReportQuery(
+export function statsReportQuery< TSanitizer extends StatsSanitizerKey >(
 	name: string,
 	endpoint: string,
 	params: StatsReportParams,
-	sanitizer: StatsSanitizerKey,
+	sanitizer: TSanitizer,
 	version: StatsProxyVersion = '1.1',
 	// Endpoint-specific params that should reach the API but are not in the
 	// reportParamsToStatsQueryParams allow-list (e.g. filter_by_country).
 	extraParams?: StatsProxyParams
-): StatsReportQueryOptions {
+): StatsReportQueryOptions< TSanitizer > {
 	const statsParams = reportParamsToStatsQueryParams( params );
 	const reportParams = {
 		...statsParams,
