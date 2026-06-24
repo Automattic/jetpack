@@ -52,7 +52,7 @@ function get_download_signing_key() {
 	if ( $blog_token && ! is_wp_error( $blog_token ) && ! empty( $blog_token->secret ) ) {
 		// Blog tokens are stored as "key.secret"; sign with the secret part only.
 		$parts  = explode( '.', (string) $blog_token->secret );
-		$secret = isset( $parts[1] ) ? $parts[1] : '';
+		$secret = $parts[1] ?? '';
 	}
 
 	/**
@@ -168,6 +168,8 @@ function invalid_download_link( $code ) {
 			)
 		)
 	);
+
+	exit( 0 );
 }
 
 /**
