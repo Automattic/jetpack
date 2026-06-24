@@ -111,6 +111,11 @@ export {
 	type StatsWordAdsRawResponse,
 	type StatsWordAdsResponse,
 } from './use-stats-wordads';
+export {
+	useStatsAppReferrersSpam,
+	useStatsAppReferrersMarkSpamMutation,
+	useStatsAppReferrersUnmarkSpamMutation,
+} from './use-stats-app-referrers-spam';
 export type { UseStatsOptions } from './use-stats-report';
 
 /**

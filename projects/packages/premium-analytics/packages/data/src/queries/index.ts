@@ -59,3 +59,4 @@ export {
 	type StatsWordAdsEarningsParams,
 	type StatsWordAdsParams,
 } from './stats-wordads-query';
+export { statsAppReferrersSpamQuery } from './stats-app-referrers-spam-query';
