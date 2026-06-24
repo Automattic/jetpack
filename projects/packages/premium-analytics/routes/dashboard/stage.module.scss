@@ -1,0 +1,13 @@
+.dashboard {
+	min-block-size: 0;
+}
+
+.content {
+	flex: 1 1 auto;
+	min-block-size: 0;
+	overflow-y: auto;
+	// Match the horizontal padding of the page header and the section tabs so the
+	// widget grid lines up with them instead of sitting flush to the edge.
+	padding-block-end: 24px;
+	padding-inline: var(--wpds-dimension-padding-2xl, 24px);
+}

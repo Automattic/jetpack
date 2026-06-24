@@ -7,5 +7,10 @@
 		"@wordpress/icons": "^13.0.0",
 		"@wordpress/ui": "0.13.0",
 		"clsx": "^2.1.1"
+	},
+	"devDependencies": {
+		"@wordpress/element": "6.46.0",
+		"@wordpress/widget-dashboard": "next",
+		"@wordpress/widget-primitives": "next"
 	}
 }
