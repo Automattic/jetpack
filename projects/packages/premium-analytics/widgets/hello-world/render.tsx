@@ -3,12 +3,9 @@
  */
 import { __ } from '@wordpress/i18n';
 import { Stack, Text } from '@wordpress/ui';
-import type { WidgetRenderProps } from '@wordpress/widget-primitives';
-/**
- * Internal dependencies
- */
-import type { HelloWorldAttributes } from './widget';
 import styles from './style.module.css';
+import type { HelloWorldAttributes } from './widget';
+import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 
 type HelloWorldRenderProps = WidgetRenderProps< HelloWorldAttributes >;
 
@@ -18,9 +15,7 @@ type HelloWorldRenderProps = WidgetRenderProps< HelloWorldAttributes >;
  * @param {HelloWorldRenderProps} props - Component props
  * @return {React.ReactNode} The rendered widget.
  */
-export default function HelloWorld( {
-	attributes = {},
-}: HelloWorldRenderProps ): React.ReactNode {
+export default function HelloWorld( { attributes = {} }: HelloWorldRenderProps ): React.ReactNode {
 	return (
 		<Stack align="center" justify="center" className={ styles.root }>
 			<Text variant="heading-2xl" render={ <h2 /> }>
