@@ -1,14 +1,12 @@
 <?php
 /**
- * Dashboard Layout: Premium Analytics server-side defaults.
+ * Dashboard Layout: Premium Analytics server-side preference defaults.
  *
  * Premium Analytics owns its dashboard, so it ships its own default layout
  * rather than relying on the core dashboard endpoint (which is Gutenberg-only
- * and returns the core dashboard's widgets). Mirrors the two mechanisms the
- * core experiment uses:
- *   1. a `get_user_metadata` injection that surfaces the default through the
- *      `@wordpress/preferences` store on first load, and
- *   2. a REST route the client's "reset to default" action reads.
+ * and returns the core dashboard's widgets). Mirrors the first-load preference
+ * injection the core experiment uses while allowing additional dashboard
+ * preference keys to seed independently.
  *
  * The scope, key, dashboard name, and REST namespace are constants so they can
  * be renamed in one place — e.g. to fully isolate the stored preference from
@@ -48,13 +46,19 @@ const DASHBOARD_REST_NAMESPACE = 'jetpack/v4';
 const DASHBOARD_DEFAULT_LAYOUT_FILTER = 'jetpack_premium_analytics_dashboard_default_layout';
 
 /**
- * Injects the registered default dashboard layout into the user's
- * `persisted_preferences` read when the stored layout is empty.
+ * Filter through which dashboard preference defaults are resolved.
+ */
+const DASHBOARD_PREFERENCE_DEFAULTS_FILTER = 'jetpack_premium_analytics_dashboard_preference_defaults';
+
+/**
+ * Injects registered dashboard defaults into the user's `persisted_preferences`
+ * read when the corresponding stored preference is empty.
  *
  * Hooks into `get_user_metadata` so the default propagates through the same
  * persistence layer the dashboard's JS layer reads from. The JS side stays
- * oblivious: a default and a user-saved layout look identical at the
- * preferences-store boundary.
+ * oblivious: a default and a user-saved preference look identical at the
+ * preferences-store boundary. Each preference key is evaluated independently,
+ * so customizing one key never suppresses defaults registered for another.
  *
  * @global \wpdb $wpdb WordPress database abstraction object.
  *
@@ -65,7 +69,7 @@ const DASHBOARD_DEFAULT_LAYOUT_FILTER = 'jetpack_premium_analytics_dashboard_def
  * @return mixed The original value, or a single-element array containing the
  *               extended persisted preferences.
  */
-function inject_dashboard_default_layout( $value, $user_id, $meta_key ) {
+function inject_dashboard_preference_defaults( $value, $user_id, $meta_key ) {
 	global $wpdb;
 
 	$expected_key = $wpdb->get_blog_prefix() . 'persisted_preferences';
@@ -82,15 +86,8 @@ function inject_dashboard_default_layout( $value, $user_id, $meta_key ) {
 		$base = array();
 	}
 
-	$committed = $base[ DASHBOARD_LAYOUT_SCOPE ][ DASHBOARD_LAYOUT_KEY ] ?? array();
-
-	if ( ! empty( $committed ) ) {
-		return $value;
-	}
-
-	$default = get_dashboard_default_layout_for( DASHBOARD_NAME );
-
-	if ( empty( $default ) ) {
+	$defaults = get_dashboard_preference_defaults_for( DASHBOARD_NAME );
+	if ( empty( $defaults ) ) {
 		return $value;
 	}
 
@@ -98,11 +95,54 @@ function inject_dashboard_default_layout( $value, $user_id, $meta_key ) {
 		$base[ DASHBOARD_LAYOUT_SCOPE ] = array();
 	}
 
-	$base[ DASHBOARD_LAYOUT_SCOPE ][ DASHBOARD_LAYOUT_KEY ] = $default;
+	$updated = false;
+
+	foreach ( $defaults as $preference_key => $default_value ) {
+		if ( ! is_string( $preference_key ) || '' === $preference_key ) {
+			continue;
+		}
+
+		$committed = $base[ DASHBOARD_LAYOUT_SCOPE ][ $preference_key ] ?? null;
+		if ( ! empty( $committed ) ) {
+			continue;
+		}
+
+		$base[ DASHBOARD_LAYOUT_SCOPE ][ $preference_key ] = $default_value;
+		$updated = true;
+	}
+
+	if ( ! $updated ) {
+		return $value;
+	}
 
 	return array( $base );
 }
-add_filter( 'get_user_metadata', __NAMESPACE__ . '\\inject_dashboard_default_layout', 99, 3 );
+add_filter( 'get_user_metadata', __NAMESPACE__ . '\\inject_dashboard_preference_defaults', 99, 3 );
+
+/**
+ * Resolves preference defaults registered for a dashboard.
+ *
+ * @param string $dashboard_name Identifier of the dashboard.
+ * @return array Associative array of preference key => default value.
+ */
+function get_dashboard_preference_defaults_for( $dashboard_name ) {
+	/**
+	 * Filters dashboard preference defaults served to users who have not
+	 * customized the corresponding preference keys.
+	 *
+	 * @param array  $preference_defaults Associative array of preference key
+	 *                                    => default value.
+	 * @param string $dashboard_name      Identifier of the dashboard receiving
+	 *                                    the defaults.
+	 */
+	$defaults = apply_filters( DASHBOARD_PREFERENCE_DEFAULTS_FILTER, array(), $dashboard_name );
+
+	if ( ! is_array( $defaults ) ) {
+		return array();
+	}
+
+	return $defaults;
+}
 
 /**
  * Resolves the default layout registered for a dashboard.
@@ -212,3 +252,25 @@ function seed_default_dashboard_layout( $dashboard_layout, $dashboard_name = '' 
 	return $dashboard_layout;
 }
 add_filter( DASHBOARD_DEFAULT_LAYOUT_FILTER, __NAMESPACE__ . '\\seed_default_dashboard_layout', 10, 2 );
+
+/**
+ * Adds the flat dashboard layout to the preference defaults.
+ *
+ * @param array  $preference_defaults Preference defaults from earlier callbacks.
+ * @param string $dashboard_name      Identifier of the dashboard receiving the
+ *                                    defaults.
+ * @return array Preference defaults extended with the bundled dashboard layout.
+ */
+function seed_dashboard_layout_preference_default( $preference_defaults, $dashboard_name = '' ) {
+	if ( DASHBOARD_NAME !== $dashboard_name ) {
+		return $preference_defaults;
+	}
+
+	$default_layout = get_dashboard_default_layout_for( $dashboard_name );
+	if ( ! empty( $default_layout ) ) {
+		$preference_defaults[ DASHBOARD_LAYOUT_KEY ] = $default_layout;
+	}
+
+	return $preference_defaults;
+}
+add_filter( DASHBOARD_PREFERENCE_DEFAULTS_FILTER, __NAMESPACE__ . '\\seed_dashboard_layout_preference_default', 10, 2 );

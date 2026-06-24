@@ -77,6 +77,7 @@ class Analytics {
 		// Register the dashboard's default layout: the first-load preference
 		// injection and the REST route the "reset to default" action reads.
 		require_once __DIR__ . '/dashboard-layout.php';
+		require_once __DIR__ . '/dashboard-sections.php';
 
 		// Load wp-build output (interceptor, modules, routes, page render).
 		// Must stay above the is_admin() gate: build/widgets.php defines the
