@@ -26,15 +26,16 @@ class Attachment_Handler_Test extends BaseTestCase {
 	/**
 	 * Create a user with the given role and set as current user.
 	 *
-	 * @param string $role The user role.
+	 * @param string $role   The user role.
+	 * @param string $suffix Unique suffix for the login/email, so the same role can be created more than once.
 	 * @return int The new user ID.
 	 */
-	private function set_current_user_role( $role ) {
+	private function set_current_user_role( $role, $suffix = '_user' ) {
 		$user_id = wp_insert_user(
 			array(
-				'user_login' => $role . '_user',
+				'user_login' => $role . $suffix,
 				'user_pass'  => 'pass',
-				'user_email' => $role . '@test.com',
+				'user_email' => $role . $suffix . '@test.com',
 				'role'       => $role,
 			)
 		);
@@ -265,14 +266,7 @@ class Attachment_Handler_Test extends BaseTestCase {
 	 * to other users.
 	 */
 	public function test_heartbeat_received_skips_other_users_attachments() {
-		$owner_id = wp_insert_user(
-			array(
-				'user_login' => 'video_owner',
-				'user_pass'  => 'pass',
-				'user_email' => 'video_owner@test.com',
-				'role'       => 'author',
-			)
-		);
+		$owner_id = $this->set_current_user_role( 'author', '_owner' );
 
 		$post_id = wp_insert_post(
 			array(
