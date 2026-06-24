@@ -10,6 +10,38 @@ describe( 'Stats query factories', () => {
 		expect( statsTopPostsQuery( {} as StatsReportParams ).enabled ).toBe( false );
 	} );
 
+	it( 'includes filter_by_country in query params when provided', () => {
+		const query = statsLocationsQuery( {
+			from: '2026-06-16',
+			to: '2026-06-16',
+			interval: 'day',
+			geoMode: 'region',
+			filter_by_country: 'US',
+		} );
+
+		expect( query.queryKey ).toEqual( [
+			'stats',
+			'locations-region',
+			'1.1',
+			'stats/location-views/region',
+			'GET',
+			expect.objectContaining( { filter_by_country: 'US' } ),
+			undefined,
+			'locations',
+		] );
+	} );
+
+	it( 'omits filter_by_country from query params when not provided', () => {
+		const query = statsLocationsQuery( {
+			from: '2026-06-16',
+			to: '2026-06-16',
+			interval: 'day',
+			geoMode: 'country',
+		} );
+
+		expect( query.queryKey[ 5 ] ).not.toHaveProperty( 'filter_by_country' );
+	} );
+
 	it( 'builds location query keys from geoMode', () => {
 		const query = statsLocationsQuery( {
 			from: '2026-06-16',

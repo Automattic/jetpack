@@ -92,7 +92,7 @@ export default function useLocationViews( {
 	const items = rawItems
 		.map( toLocationView )
 		.filter( ( v ): v is LocationView => v !== null )
-		.slice( 0, max || undefined );
+		.slice( 0, max > 0 ? max : undefined );
 
 	return {
 		data: items,

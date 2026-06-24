@@ -13,7 +13,7 @@ import { mapMarker } from '@wordpress/icons';
  *
  * Data: fetched via the PA proxy at `stats/location-views/{country|region|city}`.
  * Date range comes from WidgetRoot's reportParams (the shared dashboard date
- * picker). Falls back to bundled sample data when the site is not connected.
+ * picker).
  *
  * Known limitations: delta/comparison rows all show 0 (follow-up). Google
  * GeoChart `provinces` resolution is unavailable for some territories (e.g.
