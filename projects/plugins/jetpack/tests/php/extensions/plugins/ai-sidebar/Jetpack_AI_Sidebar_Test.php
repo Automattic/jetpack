@@ -114,7 +114,7 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 		remove_filter( 'jetpack_set_available_extensions', array( __CLASS__, 'get_sidebar_extension_allowlist' ) );
 		remove_action( 'admin_enqueue_scripts', array( Jetpack_AI_Sidebar::class, 'maybe_enqueue_abilities_script' ), 201 );
 		remove_action( 'admin_enqueue_scripts', array( Jetpack_AI_Sidebar::class, 'maybe_patch_jetpack_ai_sidebar_preview_data' ), 250 );
-		remove_action( 'jetpack_register_gutenberg_extensions', array( Jetpack_AI_Sidebar::class, 'register_block_transformations_extension' ), 99 );
+		remove_action( 'jetpack_register_gutenberg_extensions', array( Jetpack_AI_Sidebar::class, 'register_toolbar_button_extension' ), 99 );
 	}
 
 	/**
@@ -123,7 +123,7 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	 * @return array
 	 */
 	public static function get_sidebar_extension_allowlist() {
-		return array( AiAssistantPlugin\AI_SIDEBAR_BLOCK_TRANSFORMATIONS_EXTENSION );
+		return array( AiAssistantPlugin\AI_SIDEBAR_TOOLBAR_BUTTON_EXTENSION );
 	}
 
 	/**
@@ -319,8 +319,8 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 			'maybe_patch_jetpack_ai_sidebar_preview_data should be hooked by default.'
 		);
 		$this->assertNotFalse(
-			has_action( 'jetpack_register_gutenberg_extensions', array( Jetpack_AI_Sidebar::class, 'register_block_transformations_extension' ) ),
-			'register_block_transformations_extension should be hooked by default.'
+			has_action( 'jetpack_register_gutenberg_extensions', array( Jetpack_AI_Sidebar::class, 'register_toolbar_button_extension' ) ),
+			'register_toolbar_button_extension should be hooked by default.'
 		);
 	}
 
@@ -340,8 +340,8 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 			'enable_agents_manager_in_post_editor should not be hooked when filter is false.'
 		);
 		$this->assertFalse(
-			has_action( 'jetpack_register_gutenberg_extensions', array( Jetpack_AI_Sidebar::class, 'register_block_transformations_extension' ) ),
-			'register_block_transformations_extension should not be hooked when filter is false.'
+			has_action( 'jetpack_register_gutenberg_extensions', array( Jetpack_AI_Sidebar::class, 'register_toolbar_button_extension' ) ),
+			'register_toolbar_button_extension should not be hooked when filter is false.'
 		);
 	}
 
@@ -362,8 +362,8 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 			'enable_agents_manager_in_post_editor should not be hooked on a self-hosted site.'
 		);
 		$this->assertFalse(
-			has_action( 'jetpack_register_gutenberg_extensions', array( Jetpack_AI_Sidebar::class, 'register_block_transformations_extension' ) ),
-			'register_block_transformations_extension should not be hooked when the preview gate is false.'
+			has_action( 'jetpack_register_gutenberg_extensions', array( Jetpack_AI_Sidebar::class, 'register_toolbar_button_extension' ) ),
+			'register_toolbar_button_extension should not be hooked when the preview gate is false.'
 		);
 	}
 
@@ -412,8 +412,8 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 			'maybe_patch_jetpack_ai_sidebar_preview_data should be hooked when filter is true.'
 		);
 		$this->assertNotFalse(
-			has_action( 'jetpack_register_gutenberg_extensions', array( Jetpack_AI_Sidebar::class, 'register_block_transformations_extension' ) ),
-			'register_block_transformations_extension should be hooked when filter is true.'
+			has_action( 'jetpack_register_gutenberg_extensions', array( Jetpack_AI_Sidebar::class, 'register_toolbar_button_extension' ) ),
+			'register_toolbar_button_extension should be hooked when filter is true.'
 		);
 	}
 
@@ -506,48 +506,55 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	}
 
 	// ──────────────────────────────────────────────────
-	// Sidebar block transformations tests
+	// Sidebar toolbar button tests
 	// ──────────────────────────────────────────────────
 
 	/**
-	 * Test that block transformations are active in the post editor by default.
+	 * Test that the toolbar button stays disabled until its preview feature is released.
 	 */
-	public function test_block_transformations_enabled_in_post_editor() {
+	public function test_toolbar_button_disabled_by_default() {
 		$this->set_block_editor_screen();
 
-		$this->assertTrue( Jetpack_AI_Sidebar::has_block_transformations_enabled() );
+		$this->assertFalse( Jetpack_AI_Sidebar::is_toolbar_button_enabled() );
 	}
 
 	/**
-	 * Test that the sidebar kill switch disables block transformations.
+	 * Test that the preview feature flag activates the toolbar button.
 	 */
-	public function test_block_transformations_respect_sidebar_kill_switch() {
-		$this->set_block_editor_screen();
-		add_filter( 'jetpack_ai_sidebar_enabled', '__return_false' );
-
-		$this->assertFalse( Jetpack_AI_Sidebar::has_block_transformations_enabled() );
-	}
-
-	/**
-	 * Test that the preview feature flag disables block transformations.
-	 */
-	public function test_block_transformations_respect_preview_feature_flag() {
+	public function test_toolbar_button_enabled_by_preview_feature_flag() {
 		$this->set_block_editor_screen();
 		add_filter(
 			'jetpack_ai_sidebar_preview_features',
 			static function ( $features ) {
-				$features['blockTransformations'] = false;
+				$features['blockToolbarButton'] = true;
 				return $features;
 			}
 		);
 
-		$this->assertFalse( Jetpack_AI_Sidebar::has_block_transformations_enabled() );
+		$this->assertTrue( Jetpack_AI_Sidebar::is_toolbar_button_enabled() );
 	}
 
 	/**
-	 * Test that the active sidebar registers the block transformations feature.
+	 * Test that the sidebar kill switch disables the toolbar button.
 	 */
-	public function test_register_block_transformations_extension_marks_feature_available() {
+	public function test_toolbar_button_respects_sidebar_kill_switch() {
+		$this->set_block_editor_screen();
+		add_filter(
+			'jetpack_ai_sidebar_preview_features',
+			static function ( $features ) {
+				$features['blockToolbarButton'] = true;
+				return $features;
+			}
+		);
+		add_filter( 'jetpack_ai_sidebar_enabled', '__return_false' );
+
+		$this->assertFalse( Jetpack_AI_Sidebar::is_toolbar_button_enabled() );
+	}
+
+	/**
+	 * Test that the active sidebar registers the toolbar button feature.
+	 */
+	public function test_register_toolbar_button_extension_marks_feature_available() {
 		$this->set_block_editor_screen();
 		$this->make_legacy_block_toolbar_extensions_available();
 		$this->enable_sidebar_extension_availability_checks();
@@ -556,76 +563,59 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 		add_filter(
 			'jetpack_ai_sidebar_preview_features',
 			static function ( $features ) {
-				$features['blockTransformations'] = true;
-				$features['blockToolbarButton']   = true;
+				$features['blockToolbarButton'] = true;
 				return $features;
 			}
 		);
 
-		Jetpack_AI_Sidebar::register_block_transformations_extension();
+		Jetpack_AI_Sidebar::register_toolbar_button_extension();
 
-		$this->assertTrue( \Jetpack_Gutenberg::is_available( AiAssistantPlugin\AI_SIDEBAR_BLOCK_TRANSFORMATIONS_EXTENSION ) );
+		$this->assertTrue( \Jetpack_Gutenberg::is_available( AiAssistantPlugin\AI_SIDEBAR_TOOLBAR_BUTTON_EXTENSION ) );
 		$this->assertTrue( \Jetpack_Gutenberg::is_available( 'ai-assistant-support' ) );
 		$this->assertTrue( \Jetpack_Gutenberg::is_available( 'ai-assistant-image-extension' ) );
-		$this->assertTrue( \Jetpack_Gutenberg::get_availability()[ AiAssistantPlugin\AI_SIDEBAR_BLOCK_TRANSFORMATIONS_EXTENSION ]['available'] );
+		$this->assertTrue( \Jetpack_Gutenberg::get_availability()[ AiAssistantPlugin\AI_SIDEBAR_TOOLBAR_BUTTON_EXTENSION ]['available'] );
 	}
 
 	/**
-	 * Test that the block transformations feature stays unavailable until the toolbar button is released.
+	 * Test that the toolbar button feature stays unavailable until the preview feature is released.
 	 */
-	public function test_register_block_transformations_extension_skips_when_toolbar_button_disabled() {
+	public function test_register_toolbar_button_extension_skips_when_toolbar_button_disabled() {
 		$this->set_block_editor_screen();
 		$this->make_legacy_block_toolbar_extensions_available();
 		$this->enable_sidebar_extension_availability_checks();
 		add_filter(
 			'jetpack_ai_sidebar_preview_features',
 			static function ( $features ) {
-				$features['blockTransformations'] = true;
-				$features['blockToolbarButton']   = false;
+				$features['blockToolbarButton'] = false;
 				return $features;
 			}
 		);
 
-		Jetpack_AI_Sidebar::register_block_transformations_extension();
+		Jetpack_AI_Sidebar::register_toolbar_button_extension();
 
-		$this->assertFalse( \Jetpack_Gutenberg::is_available( AiAssistantPlugin\AI_SIDEBAR_BLOCK_TRANSFORMATIONS_EXTENSION ) );
-		$availability = \Jetpack_Gutenberg::get_availability()[ AiAssistantPlugin\AI_SIDEBAR_BLOCK_TRANSFORMATIONS_EXTENSION ];
+		$this->assertFalse( \Jetpack_Gutenberg::is_available( AiAssistantPlugin\AI_SIDEBAR_TOOLBAR_BUTTON_EXTENSION ) );
+		$availability = \Jetpack_Gutenberg::get_availability()[ AiAssistantPlugin\AI_SIDEBAR_TOOLBAR_BUTTON_EXTENSION ];
 		$this->assertFalse( $availability['available'] );
 		$this->assertSame( 'jetpack_ai_sidebar_feature_disabled', $availability['unavailable_reason'] );
 	}
 
 	/**
-	 * Test that the block transformations feature stays unavailable when transformations are off.
+	 * Test that the toolbar button feature stays unavailable outside the post editor.
 	 */
-	public function test_register_block_transformations_extension_skips_when_transformations_disabled() {
-		$this->set_block_editor_screen();
+	public function test_register_toolbar_button_extension_skips_page_editor() {
+		$this->set_page_block_editor_screen();
 		$this->make_legacy_block_toolbar_extensions_available();
 		add_filter(
 			'jetpack_ai_sidebar_preview_features',
 			static function ( $features ) {
-				$features['blockTransformations'] = false;
-				$features['blockToolbarButton']   = true;
+				$features['blockToolbarButton'] = true;
 				return $features;
 			}
 		);
 
-		Jetpack_AI_Sidebar::register_block_transformations_extension();
+		Jetpack_AI_Sidebar::register_toolbar_button_extension();
 
-		$this->assertFalse( \Jetpack_Gutenberg::is_available( AiAssistantPlugin\AI_SIDEBAR_BLOCK_TRANSFORMATIONS_EXTENSION ) );
-		$this->assertTrue( \Jetpack_Gutenberg::is_available( 'ai-assistant-support' ) );
-		$this->assertTrue( \Jetpack_Gutenberg::is_available( 'ai-assistant-image-extension' ) );
-	}
-
-	/**
-	 * Test that the block transformations feature stays unavailable outside the post editor.
-	 */
-	public function test_register_block_transformations_extension_skips_page_editor() {
-		$this->set_page_block_editor_screen();
-		$this->make_legacy_block_toolbar_extensions_available();
-
-		Jetpack_AI_Sidebar::register_block_transformations_extension();
-
-		$this->assertFalse( \Jetpack_Gutenberg::is_available( AiAssistantPlugin\AI_SIDEBAR_BLOCK_TRANSFORMATIONS_EXTENSION ) );
+		$this->assertFalse( \Jetpack_Gutenberg::is_available( AiAssistantPlugin\AI_SIDEBAR_TOOLBAR_BUTTON_EXTENSION ) );
 		$this->assertTrue( \Jetpack_Gutenberg::is_available( 'ai-assistant-support' ) );
 		$this->assertTrue( \Jetpack_Gutenberg::is_available( 'ai-assistant-image-extension' ) );
 	}

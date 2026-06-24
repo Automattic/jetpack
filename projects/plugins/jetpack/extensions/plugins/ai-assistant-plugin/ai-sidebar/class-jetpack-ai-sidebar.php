@@ -17,14 +17,14 @@ use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
 
-const AM_ASSET_BASE_PATH                         = 'widgets.wp.com/agents-manager/';
-const AI_SIDEBAR_ASSET_TRANSIENT                 = 'jetpack_ai_sidebar_asset';
-const AI_SIDEBAR_JS_URL                          = 'https://' . AM_ASSET_BASE_PATH . 'jetpack-ai-sidebar.min.js';
-const AI_SIDEBAR_CSS_URL                         = 'https://' . AM_ASSET_BASE_PATH . 'jetpack-ai-sidebar.css';
-const AI_SIDEBAR_RTL_CSS_URL                     = 'https://' . AM_ASSET_BASE_PATH . 'jetpack-ai-sidebar.rtl.css';
-const AI_SIDEBAR_PROVIDER_URL                    = 'https://' . AM_ASSET_BASE_PATH . 'jetpack-ai-sidebar.provider.mjs';
-const AI_SIDEBAR_AGENT_ID                        = 'wp-orchestrator';
-const AI_SIDEBAR_BLOCK_TRANSFORMATIONS_EXTENSION = 'ai-sidebar-block-transformations';
+const AM_ASSET_BASE_PATH                  = 'widgets.wp.com/agents-manager/';
+const AI_SIDEBAR_ASSET_TRANSIENT          = 'jetpack_ai_sidebar_asset';
+const AI_SIDEBAR_JS_URL                   = 'https://' . AM_ASSET_BASE_PATH . 'jetpack-ai-sidebar.min.js';
+const AI_SIDEBAR_CSS_URL                  = 'https://' . AM_ASSET_BASE_PATH . 'jetpack-ai-sidebar.css';
+const AI_SIDEBAR_RTL_CSS_URL              = 'https://' . AM_ASSET_BASE_PATH . 'jetpack-ai-sidebar.rtl.css';
+const AI_SIDEBAR_PROVIDER_URL             = 'https://' . AM_ASSET_BASE_PATH . 'jetpack-ai-sidebar.provider.mjs';
+const AI_SIDEBAR_AGENT_ID                 = 'wp-orchestrator';
+const AI_SIDEBAR_TOOLBAR_BUTTON_EXTENSION = 'ai-sidebar-toolbar-button';
 
 /**
  * Initializes the Agents Manager package and registers the Jetpack AI
@@ -73,8 +73,8 @@ class Jetpack_AI_Sidebar {
 		// Agents Manager package enqueue (priority 101).
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'maybe_patch_jetpack_ai_sidebar_preview_data' ), 250 );
 
-		// Let editor JS know when Jetpack AI Sidebar block transformations are active.
-		add_action( 'jetpack_register_gutenberg_extensions', array( __CLASS__, 'register_block_transformations_extension' ), 99 );
+		// Let editor JS know when the Jetpack AI Sidebar toolbar button replaces the legacy AI toolbar.
+		add_action( 'jetpack_register_gutenberg_extensions', array( __CLASS__, 'register_toolbar_button_extension' ), 99 );
 	}
 
 	// ──────────────────────────────────────────────────
@@ -391,39 +391,32 @@ class Jetpack_AI_Sidebar {
 	}
 
 	/**
-	 * Whether Jetpack AI Sidebar block transformations are active.
+	 * Whether the Jetpack AI Sidebar toolbar button replaces the legacy AI toolbar.
 	 *
 	 * @return bool
 	 */
-	public static function has_block_transformations_enabled(): bool {
+	public static function is_toolbar_button_enabled(): bool {
 		$preview_config = self::get_jetpack_ai_sidebar_preview_config();
 
-		return self::is_post_editor()
-			&& self::has_ai_features()
-			&& true === $preview_config['enabled']
-			&& true === ( $preview_config['features']['blockTransformations'] ?? false );
+		return self::should_expose_sidebar()
+			&& true === ( $preview_config['features']['blockToolbarButton'] ?? false );
 	}
 
 	/**
-	 * Register the Jetpack AI Sidebar block transformations feature.
+	 * Register the Jetpack AI Sidebar toolbar button feature.
 	 *
 	 * @return void
 	 */
-	public static function register_block_transformations_extension(): void {
-		$preview_config = self::get_jetpack_ai_sidebar_preview_config();
-
-		if (
-			! self::has_block_transformations_enabled()
-			|| true !== ( $preview_config['features']['blockToolbarButton'] ?? false )
-		) {
+	public static function register_toolbar_button_extension(): void {
+		if ( ! self::is_toolbar_button_enabled() ) {
 			\Jetpack_Gutenberg::set_extension_unavailable(
-				AI_SIDEBAR_BLOCK_TRANSFORMATIONS_EXTENSION,
+				AI_SIDEBAR_TOOLBAR_BUTTON_EXTENSION,
 				'jetpack_ai_sidebar_feature_disabled'
 			);
 			return;
 		}
 
-		\Jetpack_Gutenberg::set_extension_available( AI_SIDEBAR_BLOCK_TRANSFORMATIONS_EXTENSION );
+		\Jetpack_Gutenberg::set_extension_available( AI_SIDEBAR_TOOLBAR_BUTTON_EXTENSION );
 	}
 
 	/**

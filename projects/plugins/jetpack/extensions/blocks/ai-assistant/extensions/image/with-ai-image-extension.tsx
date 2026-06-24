@@ -23,7 +23,7 @@ import useBlockModuleStatus from '../../hooks/use-block-module-status';
 import { getFeatureAvailability } from '../../lib/utils/get-feature-availability';
 import {
 	canAIAssistantBeEnabled,
-	isJetpackAiSidebarBlockTransformationsEnabled,
+	isAiSidebarToolbarButtonEnabled,
 } from '../lib/can-ai-assistant-be-enabled';
 import { preprocessImageContent } from '../lib/preprocess-image-content';
 import { TYPE_ALT_TEXT, TYPE_CAPTION } from '../types';
@@ -234,7 +234,7 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 		return (
 			<>
 				<BlockEdit { ...props } />
-				{ ! isJetpackAiSidebarBlockTransformationsEnabled && (
+				{ ! isAiSidebarToolbarButtonEnabled && (
 					<BlockControls { ...blockControlsProps }>
 						<AiAssistantImageExtensionToolbarDropdown
 							onRequestAltText={ () => request( TYPE_ALT_TEXT ) }
