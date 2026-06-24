@@ -1,4 +1,9 @@
-import { fetchStatsProxy, type StatsProxyMethod, type StatsProxyVersion } from '../api';
+import {
+	fetchStatsProxy,
+	type StatsProxyMethod,
+	type StatsProxyParams,
+	type StatsProxyVersion,
+} from '../api';
 import {
 	sanitizeStatsClicksResponse,
 	sanitizeStatsFileDownloadsResponse,
@@ -77,11 +82,15 @@ export function statsReportQuery(
 	endpoint: string,
 	params: StatsReportParams,
 	sanitizer: StatsSanitizerKey,
-	version: StatsProxyVersion = '1.1'
+	version: StatsProxyVersion = '1.1',
+	// Endpoint-specific params that should reach the API but are not in the
+	// reportParamsToStatsQueryParams allow-list (e.g. filter_by_country).
+	extraParams?: StatsProxyParams
 ): StatsReportQueryOptions {
 	const statsParams = reportParamsToStatsQueryParams( params );
 	const reportParams = {
 		...statsParams,
+		...extraParams,
 		...( statsParams.summarize === undefined &&
 		typeof statsParams.days === 'number' &&
 		statsParams.days > 1

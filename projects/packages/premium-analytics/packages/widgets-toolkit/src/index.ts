@@ -47,6 +47,7 @@ export {
 	buildTimeSeriesChartData,
 	type TimeSeriesData,
 	calculateDelta,
+	flagUrl,
 	BOOKINGS_FILTER,
 	PHYSICAL_PRODUCTS_FILTER,
 	FULFILLED_ORDERS_FILTER,
