@@ -17,23 +17,6 @@
 	}
 }
 
-.editor-styles-wrapper .wp-block-jetpack-form-step-navigation:has(.wp-block-jetpack-button[style*="width:"]),
-.editor-styles-wrapper .wp-block-jetpack-form-step-navigation:has(.wp-block-button[style*="width:"]) {
-	gap: var(--wp--style--block-gap, 1.5rem) 0;
-}
-
-.editor-styles-wrapper .wp-block-jetpack-form-step-navigation .wp-block-jetpack-button[style*="width:"] .wp-block-button__link,
-.editor-styles-wrapper .wp-block-jetpack-form-step-navigation .wp-block-button[style*="width:"] .wp-block-button__link {
-	width: calc(100% - var(--wp--style--block-gap, 1.5rem) / 2);
-}
-
-.editor-styles-wrapper .wp-block-jetpack-form-step-navigation .wp-block-jetpack-button[style*="width:"] .is-next,
-.editor-styles-wrapper .wp-block-jetpack-form-step-navigation .wp-block-jetpack-button[style*="width:"] .is-submit,
-.editor-styles-wrapper .wp-block-jetpack-form-step-navigation .wp-block-button[style*="width:"].is-next,
-.editor-styles-wrapper .wp-block-jetpack-form-step-navigation .wp-block-button[style*="width:"].is-submit {
-	float: right;
-}
-
 .wp-block-jetpack-form-step-navigation__wrapper {
 	width: 100%;
 }
