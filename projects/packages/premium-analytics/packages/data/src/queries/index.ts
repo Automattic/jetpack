@@ -25,3 +25,4 @@ export { statsVideoPlaysQuery } from './stats-video-plays-query';
 export { statsAppDashboardModuleSettingsQuery } from './stats-app-dashboard-module-settings-query';
 export { statsArchivesQuery } from './stats-archives-query';
 export { statsVisitsQuery } from './stats-visits-query';
+export { statsInsightsQuery } from './stats-insights-query';
