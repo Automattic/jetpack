@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Stats: resolve full ISO from/to dates to the site timezone before reducing them to the date-only range the Stats backend expects.

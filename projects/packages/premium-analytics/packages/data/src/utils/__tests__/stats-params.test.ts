@@ -39,6 +39,64 @@ describe( 'reportParamsToStatsQueryParams', () => {
 		);
 	} );
 
+	it( 'resolves offset-bearing dates to the matching calendar day in the site timezone', () => {
+		// 23:00 on 2026-06-23 at -08:00 is 2026-06-24 12:30 in +05:30, so both bounds shift forward a day.
+		expect(
+			reportParamsToStatsQueryParams(
+				{
+					from: '2026-06-23T23:00:00-08:00',
+					to: '2026-06-24T23:00:00-08:00',
+					interval: 'day',
+				},
+				'+05:30'
+			)
+		).toEqual(
+			expect.objectContaining( {
+				start_date: '2026-06-24',
+				end_date: '2026-06-25',
+				days: 2,
+			} )
+		);
+	} );
+
+	it( 'treats the end date as an inclusive calendar day', () => {
+		expect(
+			reportParamsToStatsQueryParams(
+				{
+					from: '2026-06-01T00:00:00Z',
+					to: '2026-06-01T00:00:00Z',
+					interval: 'day',
+				},
+				'+00:00'
+			)
+		).toEqual(
+			expect.objectContaining( {
+				start_date: '2026-06-01',
+				end_date: '2026-06-01',
+				days: 1,
+			} )
+		);
+	} );
+
+	it( 'passes timezone-naive and date-only inputs through as written', () => {
+		expect(
+			reportParamsToStatsQueryParams(
+				{
+					from: '2026-06-01',
+					to: '2026-06-07T23:59:59',
+					interval: 'day',
+				},
+				'+05:30'
+			)
+		).toEqual(
+			expect.objectContaining( {
+				start_date: '2026-06-01',
+				end_date: '2026-06-07',
+				days: 7,
+			} )
+		);
+	} );
+
 	it( 'maps the semantic end date to the Stats API date param', () => {
 		expect(
 			statsQueryParamsToApiParams( {

@@ -9,8 +9,9 @@ import { localTZDate } from './date';
 import type { IntervalType } from './search';
 
 export function getDaysBetweenInclusive( from: string, to: string ): number {
-	const fromDate = new Date( `${ from }T00:00:00Z` );
-	const toDate = new Date( `${ to }T00:00:00Z` );
+	// Compare calendar days only; tolerate full ISO inputs by dropping any time component.
+	const fromDate = new Date( `${ from.split( 'T' )[ 0 ] }T00:00:00Z` );
+	const toDate = new Date( `${ to.split( 'T' )[ 0 ] }T00:00:00Z` );
 	const days = differenceInCalendarDays( toDate, fromDate );
 
 	if ( Number.isNaN( days ) || days < 0 ) {

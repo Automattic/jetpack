@@ -1,6 +1,11 @@
 /**
+ * External dependencies
+ */
+import { formatToTimezoneNaiveString } from '@jetpack-premium-analytics/datetime';
+/**
  * Internal dependencies
  */
+import { getSiteTimezone, localTZDate } from './date';
 import { getDaysBetweenInclusive } from './interval';
 import type { ReportParams } from './search';
 import type { StatsProxyParams } from '../api/stats-proxy-fetch';
@@ -45,8 +50,27 @@ const reportOnlyKeys: ReportOnlyParam[] = [
 	'deviceProperty',
 ];
 
-function datePart( value?: string ) {
-	return value?.split( 'T' )[ 0 ];
+function hasTimeZoneDesignator( value: string ): boolean {
+	const timePart = value.split( 'T' )[ 1 ] ?? '';
+	return /[zZ]|[+-]\d{2}:?\d{2}$/.test( timePart );
+}
+
+/*
+ * The Stats backend interprets date boundaries in the site's timezone, so a full ISO `from` / `to`
+ * has to be resolved to the matching calendar day in that timezone before it is reduced to a date.
+ * Date-only and timezone-naive inputs already carry the intended calendar day, so they pass through
+ * verbatim; only offset-bearing inputs (`Z` / `±hh:mm`) need conversion.
+ */
+function toSiteCalendarDate( value: string | undefined, timezone: string ): string | undefined {
+	if ( ! value ) {
+		return undefined;
+	}
+
+	if ( ! hasTimeZoneDesignator( value ) ) {
+		return value.split( 'T' )[ 0 ];
+	}
+
+	return formatToTimezoneNaiveString( localTZDate( value, timezone ), timezone ).split( 'T' )[ 0 ];
 }
 
 export function getStatsPeriodFromInterval( interval?: string ): StatsPeriod {
@@ -67,16 +91,18 @@ export function getStatsPeriodFromInterval( interval?: string ): StatsPeriod {
 }
 
 export function reportParamsToStatsQueryParams(
-	params: StatsQueryParamInput = {}
+	params: StatsQueryParamInput = {},
+	timezone?: string
 ): StatsQueryParams {
+	const tz = timezone ?? getSiteTimezone();
 	const statsParams = { ...params };
 
 	reportOnlyKeys.forEach( key => {
 		delete statsParams[ key ];
 	} );
 
-	const from = datePart( params.from );
-	const to = datePart( params.to );
+	const from = toSiteCalendarDate( params.from, tz );
+	const to = toSiteCalendarDate( params.to, tz );
 	const period = params.period ?? getStatsPeriodFromInterval( params.interval );
 	const endDate = params.end_date ?? params.date ?? to;
 	const startDate = params.start_date ?? from;
