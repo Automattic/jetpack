@@ -80,4 +80,24 @@ describe( 'Stats UTM normalizer', () => {
 			data: [],
 		} );
 	} );
+
+	it( 'treats an empty top posts object as already resolved', () => {
+		const result = sanitizeStatsUtmResponse(
+			{
+				top_utm_values: {
+					direct: 7,
+				},
+				top_posts: {},
+			},
+			{ date: '2026-06-16' }
+		);
+
+		expect( result.data[ 0 ].items ).toEqual( [
+			{
+				label: 'direct',
+				value: 7,
+				children: null,
+			},
+		] );
+	} );
 } );

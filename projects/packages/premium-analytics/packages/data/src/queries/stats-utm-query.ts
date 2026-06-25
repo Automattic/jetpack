@@ -29,6 +29,8 @@ export const statsUtmQuery = ( params: StatsUtmParams ): StatsReportQueryOptions
 		max: apiParams.max ?? 10,
 		date: apiParams.date,
 		days: apiParams.days,
+		// Match Calypso's UTM request shape; the endpoint accepts empty values for
+		// missing optional filters.
 		start_date: apiParams.start_date ?? '',
 		post_id: params.post_id ?? '',
 		query_top_posts: queryTopPosts,

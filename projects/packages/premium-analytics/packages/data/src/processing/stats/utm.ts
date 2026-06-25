@@ -79,6 +79,8 @@ export function sanitizeStatsUtmResponse(
 	const payload = coerceStatsRecord( response );
 	const topUtmValues = coerceStatsRecord( payload.top_utm_values );
 	const topPosts = coerceStatsRecord( payload.top_posts );
+	// Calypso treats the presence of top_posts, even an empty object, as the signal
+	// that top-post fetching has already been resolved for this response.
 	const hasTopPosts = payload.top_posts !== undefined;
 	const utmParam = query?.utm_param;
 	const items = Object.entries( topUtmValues )
