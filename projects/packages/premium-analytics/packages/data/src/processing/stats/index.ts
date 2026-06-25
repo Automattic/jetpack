@@ -21,6 +21,10 @@ export { sanitizeStatsEmailSummaryResponse } from './email-summary';
 export { sanitizeStatsEmailBreakdownResponse } from './email-breakdown';
 export { sanitizeStatsArchivesResponse } from './archives';
 export { sanitizeStatsCommentsResponse } from './comments';
+export {
+	sanitizeStatsSubscribersResponse,
+	sanitizeStatsSubscribersCountsResponse,
+} from './subscribers';
 export { sanitizeStatsStreakResponse } from './streak';
 export { sanitizeStatsTagsResponse } from './tags';
 export type { StatsTopPostsItem } from './top-posts';
@@ -67,6 +71,13 @@ export type {
 	StatsCommentsRawResponse,
 	StatsCommentsResponse,
 } from './comments';
+export type {
+	StatsSubscribersCounts,
+	StatsSubscribersCountsRawResponse,
+	StatsSubscribersDataPoint,
+	StatsSubscribersRawResponse,
+	StatsSubscribersResponse,
+} from './subscribers';
 export type { StatsStreakRawResponse, StatsStreakResponse } from './streak';
 export type { StatsTimeSeriesDataPoint, StatsTimeSeriesReport } from './time-series';
 export type {

@@ -27,7 +27,12 @@ export { statsAppDashboardModuleSettingsQuery } from './stats-app-dashboard-modu
 export { statsAppPlanUsageQuery } from './stats-app-plan-usage-query';
 export { statsArchivesQuery } from './stats-archives-query';
 export { statsCommentsQuery, type StatsCommentsParams } from './stats-comments-query';
-export { statsSubscribersQuery, statsSubscribersCountsQuery } from './stats-subscribers-query';
+export {
+	statsSubscribersCountsQuery,
+	statsSubscribersQuery,
+	type StatsSubscribersCountsParams,
+	type StatsSubscribersParams,
+} from './stats-subscribers-query';
 export { statsStreakQuery } from './stats-streak-query';
 export { statsVisitsQuery } from './stats-visits-query';
 export { statsInsightsQuery } from './stats-insights-query';

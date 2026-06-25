@@ -7,26 +7,26 @@ import {
 } from '../queries/stats-subscribers-query';
 import { useStatsQuery } from './use-stats-query';
 import type { UseStatsOptions } from './use-stats-report';
-import type { StatsNormalizedReport } from '../processing/stats';
-import type { StatsQueryParams } from '../utils/stats-params';
+import type { StatsSubscribersCounts } from '../processing/stats';
+import type {
+	StatsSubscribersCountsParams,
+	StatsSubscribersParams,
+} from '../queries/stats-subscribers-query';
 
-export type StatsSubscribersResponse = StatsNormalizedReport;
+export type { StatsSubscribersCounts, StatsSubscribersResponse } from '../processing/stats';
+export type {
+	StatsSubscribersCountsParams,
+	StatsSubscribersParams,
+} from '../queries/stats-subscribers-query';
+export type StatsSubscribersCountsResponse = StatsSubscribersCounts;
 
-export type StatsSubscribersCounts = {
-	total_subscribers: number;
-	email_subscribers: number;
-	paid_subscribers: number;
-	social_followers: number;
-};
-
-export type StatsSubscribersCountsResponse = {
-	counts: StatsSubscribersCounts;
-};
-
-export function useStatsSubscribers( params?: StatsQueryParams, options?: UseStatsOptions ) {
-	return useStatsQuery< StatsSubscribersResponse >( statsSubscribersQuery( params ), options );
+export function useStatsSubscribers( params: StatsSubscribersParams, options?: UseStatsOptions ) {
+	return useStatsQuery( statsSubscribersQuery( params ), options );
 }
 
-export function useStatsSubscribersCounts( params?: StatsQueryParams, options?: UseStatsOptions ) {
+export function useStatsSubscribersCounts(
+	params?: StatsSubscribersCountsParams,
+	options?: UseStatsOptions
+) {
 	return useStatsQuery( statsSubscribersCountsQuery( params ), options );
 }

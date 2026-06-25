@@ -9,6 +9,7 @@ import { statsInsightsQuery } from '../stats-insights-query';
 import { statsLocationsQuery } from '../stats-locations-query';
 import { statsPostQuery } from '../stats-post-query';
 import { statsStreakQuery } from '../stats-streak-query';
+import { statsSubscribersCountsQuery, statsSubscribersQuery } from '../stats-subscribers-query';
 import { statsTagsQuery } from '../stats-tags-query';
 import { statsTopPostsQuery } from '../stats-top-posts-query';
 import { statsUtmQuery } from '../stats-utm-query';
@@ -273,6 +274,62 @@ describe( 'Stats query factories', () => {
 				params: {},
 			} ).queryKey
 		);
+	} );
+
+	it( 'builds subscribers query keys with Calypso endpoint params and default stat fields', () => {
+		const query = statsSubscribersQuery( {
+			unit: 'week',
+			quantity: 12,
+			date: '2026-06-25',
+		} );
+
+		expect( query.queryKey ).toEqual( [
+			'stats',
+			'subscribers',
+			'1.1',
+			'stats/subscribers',
+			'GET',
+			{
+				unit: 'week',
+				quantity: 12,
+				date: '2026-06-25',
+				stat_fields: 'subscribers,subscribers_paid',
+			},
+			undefined,
+			'subscribers',
+		] );
+	} );
+
+	it( 'preserves explicit subscribers stat fields', () => {
+		const query = statsSubscribersQuery( {
+			unit: 'day',
+			quantity: 30,
+			date: '2026-06-25',
+			stat_fields: 'subscribers',
+		} );
+
+		expect( query.queryKey ).toEqual(
+			expect.arrayContaining( [
+				expect.objectContaining( {
+					stat_fields: 'subscribers',
+				} ),
+			] )
+		);
+	} );
+
+	it( 'builds subscribers counts query keys with a typed sanitizer', () => {
+		const query = statsSubscribersCountsQuery();
+
+		expect( query.queryKey ).toEqual( [
+			'stats',
+			'subscribers-counts',
+			'2',
+			'subscribers/counts',
+			'GET',
+			{},
+			undefined,
+			'subscribersCounts',
+		] );
 	} );
 
 	it( 'sets visits quantity for day ranges', () => {

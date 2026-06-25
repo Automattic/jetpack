@@ -21,6 +21,8 @@ import {
 	sanitizeStatsReferrersResponse,
 	sanitizeStatsSearchTermsResponse,
 	sanitizeStatsSiteResponse,
+	sanitizeStatsSubscribersCountsResponse,
+	sanitizeStatsSubscribersResponse,
 	sanitizeStatsTopAuthorsResponse,
 	sanitizeStatsTopPostsResponse,
 	sanitizeStatsUtmResponse,
@@ -58,6 +60,8 @@ const statsSanitizers = {
 	utm: sanitizeStatsUtmResponse,
 	visits: sanitizeStatsVisitsResponse,
 	timeSeries: sanitizeStatsTimeSeriesResponse,
+	subscribers: sanitizeStatsSubscribersResponse,
+	subscribersCounts: sanitizeStatsSubscribersCountsResponse,
 } satisfies Record< string, StatsSanitizer >;
 
 export type StatsSanitizerKey = keyof typeof statsSanitizers;

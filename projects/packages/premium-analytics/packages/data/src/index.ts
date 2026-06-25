@@ -51,7 +51,9 @@ export {
 	useStatsSubscribers,
 	useStatsSubscribersCounts,
 	type StatsSubscribersCounts,
+	type StatsSubscribersCountsParams,
 	type StatsSubscribersCountsResponse,
+	type StatsSubscribersParams,
 	type StatsSubscribersResponse,
 } from './hooks/use-stats-subscribers';
 export {
@@ -136,6 +138,9 @@ export type {
 	StatsPostYear,
 	StatsReferrersItem,
 	StatsSearchTermsItem,
+	StatsSubscribersCountsRawResponse,
+	StatsSubscribersDataPoint,
+	StatsSubscribersRawResponse,
 	StatsStreakRawResponse,
 	StatsTagsChildItem,
 	StatsTagsItem,

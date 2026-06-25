@@ -46,7 +46,9 @@ export {
 	useStatsSubscribers,
 	useStatsSubscribersCounts,
 	type StatsSubscribersCounts,
+	type StatsSubscribersCountsParams,
 	type StatsSubscribersCountsResponse,
+	type StatsSubscribersParams,
 	type StatsSubscribersResponse,
 } from './use-stats-subscribers';
 export {
