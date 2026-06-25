@@ -1,41 +1,45 @@
 /**
  * WordPress dependencies
  */
-import { useContext } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Text } from '@wordpress/ui';
 import {
 	LeaderboardChart,
 	WidgetLoadingOverlay,
-	WidgetRootContext,
+	WidgetRoot,
+	useWidgetRootContext,
 	type LeaderboardChartData,
-	type WidgetRootContextValue,
+	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 /**
  * Internal dependencies
  */
 import useDeviceViews from './use-device-views';
-import type { DevicesAttributes } from './widget';
-import type { ReportParams } from '@jetpack-premium-analytics/data';
-import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 
-interface DevicesInnerProps {
-	reportParams: ReportParams;
-	max: number;
-	deviceProperty: 'screensize' | 'browser';
-}
+type DevicesRenderProps = {
+	attributes?: Partial< ReportParamsFieldAttributes > & {
+		max?: number;
+		deviceProperty?: 'screensize' | 'browser';
+	};
+};
 
 /**
- * Inner component — only rendered when reportParams is available.
- * Keeps all hook calls (TanStack Query) away from the picker preview path.
+ * Inner component — rendered inside WidgetRoot so useWidgetRootContext
+ * and useStatsDevices (TanStack Query) both have their required providers.
  *
  * @param root0                - Props.
- * @param root0.reportParams   - Date range / comparison from WidgetRoot context.
- * @param root0.max            - Max rows.
- * @param root0.deviceProperty - Device dimension.
+ * @param root0.max            - Max rows to display.
+ * @param root0.deviceProperty - Device dimension to break down by.
  * @return The rendered leaderboard or state placeholder.
  */
-function DevicesInner( { reportParams, max, deviceProperty }: DevicesInnerProps ) {
+function DevicesInner( {
+	max,
+	deviceProperty,
+}: {
+	max: number;
+	deviceProperty: 'screensize' | 'browser';
+} ) {
+	const { reportParams } = useWidgetRootContext();
 	const { data, isLoading, isError } = useDeviceViews( { reportParams, max, deviceProperty } );
 
 	if ( isError ) {
@@ -71,28 +75,21 @@ function DevicesInner( { reportParams, max, deviceProperty }: DevicesInnerProps 
 /**
  * Devices widget render component.
  *
- * Uses WidgetRootContext (non-throwing) to get reportParams so the widget
- * picker preview (no WidgetRoot) renders a static placeholder instead of
- * crashing. DevicesInner is only mounted when reportParams is available,
- * keeping TanStack Query hooks away from the preview render path.
+ * Wraps in WidgetRoot (same bundle) so the QueryClientProvider and
+ * WidgetRootContext are available to DevicesInner. The host passes
+ * reportParams via attributes.reportParams.
  *
  * @param root0            - Render props.
- * @param root0.attributes - Widget attributes injected by the host.
+ * @param root0.attributes - Widget attributes (reportParams, max, deviceProperty).
  * @return The rendered widget content.
  */
-export default function DevicesWidget( {
-	attributes = {},
-}: WidgetRenderProps< DevicesAttributes > ) {
-	const context = useContext( WidgetRootContext ) as WidgetRootContextValue | null;
-	const reportParams = context?.reportParams;
-	const max = attributes.max ?? 5;
-	const deviceProperty = attributes.deviceProperty ?? 'screensize';
-
-	if ( ! reportParams ) {
-		return <WidgetLoadingOverlay />;
-	}
+export default function DevicesWidget( { attributes }: DevicesRenderProps ) {
+	const max = attributes?.max ?? 5;
+	const deviceProperty = attributes?.deviceProperty ?? 'screensize';
 
 	return (
-		<DevicesInner reportParams={ reportParams } max={ max } deviceProperty={ deviceProperty } />
+		<WidgetRoot attributes={ attributes }>
+			<DevicesInner max={ max } deviceProperty={ deviceProperty } />
+		</WidgetRoot>
 	);
 }
