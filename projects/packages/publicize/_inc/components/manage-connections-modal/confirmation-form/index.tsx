@@ -1,5 +1,5 @@
 import { getRedirectUrl, useGlobalNotices } from '@automattic/jetpack-components';
-import { CheckboxControl, Notice, Button } from '@wordpress/components';
+import { CheckboxControl, Notice, Button, Spinner } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useCallback, useMemo, useState } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
@@ -129,6 +129,12 @@ export function ConfirmationForm( {
 	// Editor-opened tab: set once the connection is made, to show the "close this tab" terminal state.
 	const [ connected, setConnected ] = useState( false );
 
+	// Set the instant a valid account is confirmed. createConnection adds the connection optimistically
+	// (synchronously, before its network call), which would otherwise re-render this list with the
+	// account now "already connected" → a misleading "No more accounts/pages found." flash. Swapping to
+	// a busy state keeps that from showing while the connect completes / the modal closes.
+	const [ isSubmitting, setIsSubmitting ] = useState( false );
+
 	const onConfirm = useCallback(
 		async ( event: FormEvent ) => {
 			event.preventDefault();
@@ -166,12 +172,16 @@ export function ConfirmationForm( {
 				external_id: external_user_ID.toString(),
 			};
 
+			// Swap to the busy state before creating, so the account list never re-renders mid-connect.
+			setIsSubmitting( true );
+
 			// Editor-opened tab: create, tell the editor tab, then close this tab. The browser may
 			// block window.close() after a COOP redirect, so fall back to a "close this tab" state.
 			if ( connectSource === 'editor' ) {
 				const connection = await createConnection( data, optimisticData );
 
 				if ( ! connection ) {
+					setIsSubmitting( false );
 					onComplete();
 					return;
 				}
@@ -203,6 +213,18 @@ export function ConfirmationForm( {
 			accounts.not_connected,
 		]
 	);
+
+	// Connecting in progress: hold a busy state so the account list doesn't flash "no more accounts".
+	if ( isSubmitting && ! connected ) {
+		return (
+			<section className={ styles.confirmation }>
+				<p className={ styles[ 'header-text' ] }>
+					<Spinner />
+					{ __( 'Connecting your account…', 'jetpack-publicize-pkg' ) }
+				</p>
+			</section>
+		);
+	}
 
 	// Editor-opened tab where window.close() was blocked: tell the user they can close it.
 	if ( connected ) {
