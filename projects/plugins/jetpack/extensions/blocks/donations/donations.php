@@ -412,7 +412,7 @@ function render_email( $block_content, array $parsed_block, $rendering_context )
 		}
 
 		$heading = wp_kses_post( $interval['heading'] ?? $default_texts[ $key ]['heading'] );
-		$extra    = wp_kses_post( $interval['extraText'] ?? $default_texts['extraText'] );
+		$extra   = wp_kses_post( $interval['extraText'] ?? $default_texts['extraText'] );
 
 		$content = '';
 		if ( '' !== trim( wp_strip_all_tags( $heading ) ) ) {
