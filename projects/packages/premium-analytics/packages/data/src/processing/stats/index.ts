@@ -13,6 +13,7 @@ export { sanitizeStatsLocationsResponse } from './locations';
 export { sanitizeStatsVideoPlaysResponse } from './video-plays';
 export { isStatsTimeSeriesPayload, sanitizeStatsTimeSeriesResponse } from './time-series';
 export { sanitizeStatsVisitsResponse } from './visits';
+export { sanitizeStatsInsightsResponse } from './insights';
 export { sanitizeStatsEmailSummaryResponse } from './email-summary';
 export { sanitizeStatsEmailBreakdownResponse } from './email-breakdown';
 export { sanitizeStatsArchivesResponse } from './archives';
@@ -24,6 +25,11 @@ export type { StatsFileDownloadsItem } from './file-downloads';
 export type { StatsTopAuthorsItem } from './top-authors';
 export type { StatsLocationsItem } from './locations';
 export type { StatsVideoPlaysItem } from './video-plays';
+export type {
+	StatsInsightsHourlyViews,
+	StatsInsightsResponse,
+	StatsInsightsYear,
+} from './insights';
 export type { StatsEmailSummaryItem } from './email-summary';
 export type { StatsEmailBreakdownItem } from './email-breakdown';
 export type { StatsArchivesItem } from './archives';

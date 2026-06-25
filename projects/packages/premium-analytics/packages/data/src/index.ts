@@ -41,6 +41,12 @@ export {
 	type StatsVisitsStatField,
 	type StatsVisitsStatFields,
 } from './hooks/use-stats-visits';
+export { useStatsInsights } from './hooks/use-stats-insights';
+export type {
+	StatsInsightsParams,
+	StatsInsightsResponse,
+	StatsInsightsYear,
+} from './hooks/use-stats-insights';
 export type { UseStatsOptions } from './hooks/use-stats-report';
 export { prefetchReport } from './prefetch';
 export {

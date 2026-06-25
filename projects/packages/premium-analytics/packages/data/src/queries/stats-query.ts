@@ -9,6 +9,7 @@ import {
 	sanitizeStatsFileDownloadsResponse,
 	sanitizeStatsLocationsResponse,
 	sanitizeStatsArchivesResponse,
+	sanitizeStatsInsightsResponse,
 	sanitizeStatsVisitsResponse,
 	sanitizeStatsPassthroughResponse,
 	sanitizeStatsReferrersResponse,
@@ -41,6 +42,7 @@ const statsSanitizers = {
 	locations: sanitizeStatsLocationsResponse,
 	videoPlays: sanitizeStatsVideoPlaysResponse,
 	archives: sanitizeStatsArchivesResponse,
+	insights: sanitizeStatsInsightsResponse,
 	visits: sanitizeStatsVisitsResponse,
 } satisfies Record< string, StatsSanitizer >;
 
