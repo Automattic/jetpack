@@ -13,6 +13,7 @@ import {
 	sanitizeStatsStreakResponse,
 	sanitizeStatsVisitsResponse,
 	sanitizeStatsPassthroughResponse,
+	sanitizeStatsPostResponse,
 	sanitizeStatsReferrersResponse,
 	sanitizeStatsSearchTermsResponse,
 	sanitizeStatsSiteResponse,
@@ -34,6 +35,7 @@ type StatsSanitizer< TData = unknown > = ( response: unknown, params?: StatsQuer
 
 const statsSanitizers = {
 	passthrough: sanitizeStatsPassthroughResponse,
+	post: sanitizeStatsPostResponse,
 	site: sanitizeStatsSiteResponse,
 	topPosts: sanitizeStatsTopPostsResponse,
 	referrers: sanitizeStatsReferrersResponse,

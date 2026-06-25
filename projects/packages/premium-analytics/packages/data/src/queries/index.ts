@@ -13,6 +13,7 @@ export { reportBookingsQuery } from './report-bookings-query';
 export { statsProxyQuery, statsReportQuery } from './stats-query';
 export type { StatsQueryConfig, StatsReportParams, StatsSanitizerKey } from './stats-query';
 export { statsSiteQuery } from './stats-site-query';
+export { statsPostQuery } from './stats-post-query';
 export { statsTopPostsQuery } from './stats-top-posts-query';
 export { statsReferrersQuery } from './stats-referrers-query';
 export { statsClicksQuery } from './stats-clicks-query';

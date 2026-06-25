@@ -6,6 +6,12 @@ export { useReportCustomers } from './use-report-customers';
 export { useReportConversionRate } from './use-report-conversion-rate';
 export { useReportBookings } from './use-report-bookings';
 export { useStatsSite } from './use-stats-site';
+export {
+	useStatsPost,
+	type StatsPostField,
+	type StatsPostParams,
+	type StatsPostResponse,
+} from './use-stats-post';
 export { useStatsTopPosts } from './use-stats-top-posts';
 export { useStatsReferrers } from './use-stats-referrers';
 export { useStatsClicks } from './use-stats-clicks';
