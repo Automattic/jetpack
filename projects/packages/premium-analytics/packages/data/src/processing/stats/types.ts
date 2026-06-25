@@ -38,7 +38,6 @@ export type StatsNormalizedItem =
 	| StatsEmailBreakdownItem
 	| StatsArchivesItem
 	| StatsCommentsItem
-	| StatsCommentsItem
 	| StatsTagsItem
 	| StatsDevicesItem;
 
