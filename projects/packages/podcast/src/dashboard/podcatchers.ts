@@ -1,7 +1,6 @@
 import { getScriptData } from '@automattic/jetpack-script-data';
 import type { PodcatcherId } from './types';
 
-// PHP owns these values and injects them; we just read them.
 const DEFAULT_MAX_LENGTH = 2048;
 
 /**
