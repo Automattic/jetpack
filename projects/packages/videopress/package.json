@@ -80,7 +80,6 @@
 		"@automattic/jetpack-wp-build-polyfills": "workspace:*",
 		"@automattic/number-formatters": "workspace:*",
 		"@babel/core": "7.29.7",
-		"@babel/preset-react": "7.29.7",
 		"@csstools/postcss-global-data": "4.0.0",
 		"@jest/globals": "30.4.1",
 		"@storybook/addon-docs": "10.3.6",
