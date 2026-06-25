@@ -407,7 +407,11 @@ function render_email( $block_content, array $parsed_block, $rendering_context )
 				'email_attrs' => $email_attrs,
 			);
 
-			return \Automattic\Jetpack\Extensions\Button\render_email( '', $button_parsed_block, $rendering_context );
+			$button = \Automattic\Jetpack\Extensions\Button\render_email( '', $button_parsed_block, $rendering_context );
+
+			// The email renderer strips the block's margins, so add padding around the
+			// CTA button to keep the donation intervals from rendering cramped together.
+			return '<div style="padding-top:12px;padding-bottom:28px;">' . $button . '</div>';
 		},
 		$block_content
 	);

@@ -94,6 +94,9 @@ class Donations_Block_Email_Test extends WP_UnitTestCase {
 		$this->assertStringContainsString( 'Donate', $result );
 		$this->assertStringContainsString( 'Donate monthly', $result );
 		$this->assertStringContainsString( 'https://example.com/my-post', $result );
+
+		// Each button is wrapped with spacing so intervals aren't cramped.
+		$this->assertStringContainsString( 'padding-bottom:28px', $result );
 	}
 
 	/**
