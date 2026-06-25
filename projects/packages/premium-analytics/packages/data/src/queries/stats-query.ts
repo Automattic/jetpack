@@ -7,6 +7,7 @@ import {
 import {
 	sanitizeStatsClicksResponse,
 	sanitizeStatsFileDownloadsResponse,
+	sanitizeStatsHighlightsResponse,
 	sanitizeStatsLocationsResponse,
 	sanitizeStatsArchivesResponse,
 	sanitizeStatsInsightsResponse,
@@ -40,6 +41,7 @@ const statsSanitizers = {
 	clicks: sanitizeStatsClicksResponse,
 	searchTerms: sanitizeStatsSearchTermsResponse,
 	fileDownloads: sanitizeStatsFileDownloadsResponse,
+	highlights: sanitizeStatsHighlightsResponse,
 	topAuthors: sanitizeStatsTopAuthorsResponse,
 	locations: sanitizeStatsLocationsResponse,
 	videoPlays: sanitizeStatsVideoPlaysResponse,

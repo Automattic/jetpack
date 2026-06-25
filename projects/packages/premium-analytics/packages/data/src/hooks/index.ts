@@ -50,6 +50,8 @@ export type {
 	StatsInsightsYear,
 } from './use-stats-insights';
 export { useStatsUtm, type StatsUtmParams, type StatsUtmResponse } from './use-stats-utm';
+export { useStatsHighlights } from './use-stats-highlights';
+export type { StatsHighlightsParams, StatsHighlightsResponse } from './use-stats-highlights';
 export type { UseStatsOptions } from './use-stats-report';
 
 /**
