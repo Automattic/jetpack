@@ -37,10 +37,10 @@ function get_bundled_dashboard_section_layouts( $dashboard_name ) {
 	return array(
 		'traffic'     => array(
 			array(
-				'uuid'      => 'default-traffic-top-posts-widget-instance',
-				'type'      => 'jpa/stats-top-posts',
+				'uuid'      => 'default-locations-widget-instance',
+				'type'      => 'jpa/locations',
 				'placement' => array(
-					'width'  => 1,
+					'width'  => 2,
 					'height' => 1,
 					'order'  => 0,
 				),
