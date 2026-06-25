@@ -55,9 +55,6 @@ export type {
 	StatsHighlightsParams,
 	StatsHighlightsPeriod,
 	StatsHighlightsRange,
-	StatsHighlightsRawPeriod,
-	StatsHighlightsRawRange,
-	StatsHighlightsRawResponse,
 	StatsHighlightsResponse,
 } from './use-stats-highlights';
 export type { UseStatsOptions } from './use-stats-report';

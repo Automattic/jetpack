@@ -10,9 +10,6 @@ export type {
 	StatsHighlightsParams,
 	StatsHighlightsPeriod,
 	StatsHighlightsRange,
-	StatsHighlightsRawPeriod,
-	StatsHighlightsRawRange,
-	StatsHighlightsRawResponse,
 	StatsHighlightsResponse,
 } from '../queries/stats-highlights-query';
 

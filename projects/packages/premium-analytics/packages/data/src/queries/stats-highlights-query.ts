@@ -8,9 +8,6 @@ import type { StatsQueryParams } from '../utils/stats-params';
 export type {
 	StatsHighlightsPeriod,
 	StatsHighlightsRange,
-	StatsHighlightsRawPeriod,
-	StatsHighlightsRawRange,
-	StatsHighlightsRawResponse,
 	StatsHighlightsResponse,
 } from '../processing/stats';
 
