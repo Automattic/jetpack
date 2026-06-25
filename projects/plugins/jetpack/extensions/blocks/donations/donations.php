@@ -410,8 +410,8 @@ function render_email( $block_content, array $parsed_block, $rendering_context )
 
 	$table_style = sprintf( 'width:100%%;max-width:%dpx;border-collapse:collapse;', $target_width );
 
-	$sections   = '';
-	$first_key  = array_key_first( $intervals );
+	$sections  = '';
+	$first_key = array_key_first( $intervals );
 	foreach ( $intervals as $key => $interval ) {
 		$content = '';
 
