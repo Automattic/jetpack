@@ -65,9 +65,9 @@ type TopPostsAttributes = {
 	range?: PresetType;
 	num?: number;
 	/**
-	 * Post type(s) to keep. When undefined, all types are shown.
+	 * Post type(s) to keep. When undefined or empty, all types are shown.
 	 */
-	name?: string | string[];
+	postType?: string | string[];
 };
 
 type TopPostsProps = {
@@ -161,13 +161,7 @@ type TopPostsLeaderboardProps = {
  * exercise those states with fixture rows (there is no analytics backend in
  * Storybook, so the data-connected entry point would only ever show chrome).
  *
- * @param props                - Component props.
- * @param props.rows           - Normalized top-posts rows to render.
- * @param props.isLoading      - Whether the chart should render its loading overlay.
- * @param props.isError        - Whether to render an error message in place of the chart.
- * @param props.withComparison - Whether to render previous-period deltas.
- * @param props.showLegend     - Whether to show the period legend below the chart.
- * @param props.legendLabels   - Custom labels for the current/comparison periods.
+ * @param {TopPostsLeaderboardProps} props - The component props.
  * @return The rendered leaderboard.
  */
 export const TopPostsLeaderboard = ( {
@@ -242,7 +236,7 @@ function TopPostsReport( { attributes }: TopPostsProps ) {
 	// pages" card's default range.
 	const range = attributes?.range ?? 'last-7-days';
 	const num = attributes?.num ?? 10;
-	const name = attributes?.name;
+	const postType = attributes?.postType;
 
 	// Resolve the preset to an absolute window. `computeDateRangeFromPreset`
 	// returns ISO strings with a TZ offset; the stats query layer trims them to
@@ -260,11 +254,11 @@ function TopPostsReport( { attributes }: TopPostsProps ) {
 	} );
 
 	const allowedTypes = useMemo( () => {
-		if ( name === undefined ) {
+		if ( postType === undefined || postType === '' ) {
 			return null;
 		}
-		return Array.isArray( name ) ? name : [ name ];
-	}, [ name ] );
+		return Array.isArray( postType ) ? postType : [ postType ];
+	}, [ postType ] );
 
 	const rows = useMemo(
 		() => toTopPostRows( primary.data as StatsNormalizedReport< StatsTopPostsItem >, allowedTypes ),

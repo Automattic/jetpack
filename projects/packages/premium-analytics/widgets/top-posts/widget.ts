@@ -15,7 +15,6 @@ export default {
 	name: 'jpa/stats-top-posts',
 	title: __( 'Top pages by views', 'jetpack-premium-analytics' ),
 	icon: chartBar,
-	presentation: 'framed',
 	attributes: [
 		{
 			id: 'range',
@@ -32,6 +31,16 @@ export default {
 			id: 'num',
 			label: __( 'Number of results', 'jetpack-premium-analytics' ),
 			type: 'integer',
+		},
+		{
+			id: 'postType',
+			label: __( 'Post type', 'jetpack-premium-analytics' ),
+			type: 'text',
+			elements: [
+				{ label: __( 'All', 'jetpack-premium-analytics' ), value: '' },
+				{ label: __( 'Posts', 'jetpack-premium-analytics' ), value: 'post' },
+				{ label: __( 'Pages', 'jetpack-premium-analytics' ), value: 'page' },
+			],
 		},
 	],
 	example: {

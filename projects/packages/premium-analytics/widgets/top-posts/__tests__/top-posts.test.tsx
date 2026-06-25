@@ -67,8 +67,8 @@ describe( 'TopPostsWidget', () => {
 		expect( screen.getByText( 'About Page' ) ).toBeInTheDocument();
 	} );
 
-	it( 'filters rows by post type when the name attribute is set', async () => {
-		render( <TopPostsWidget attributes={ { range: 'last-7-days', num: 10, name: 'page' } } /> );
+	it( 'filters rows by post type when the postType attribute is set', async () => {
+		render( <TopPostsWidget attributes={ { range: 'last-7-days', num: 10, postType: 'page' } } /> );
 
 		await expect( screen.findByText( 'About Page' ) ).resolves.toBeInTheDocument();
 		expect( screen.queryByText( 'Hello World Post' ) ).not.toBeInTheDocument();
