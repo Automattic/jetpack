@@ -8,6 +8,7 @@ import {
 	SET_CONNECTING_SERVICE,
 	SET_PRESELECT_SERVICE,
 	SET_RECONNECTING_ACCOUNT,
+	TOGGLE_ADD_ACCOUNT_MODAL,
 	SET_CONNECTIONS,
 	SET_KEYRING_RESULT,
 	TOGGLE_CONNECTION,
@@ -165,6 +166,12 @@ const connectionData = ( state: ConnectionData = { connections: [] }, action: Ac
 			return {
 				...state,
 				preselectService: action.preselectService,
+			};
+
+		case TOGGLE_ADD_ACCOUNT_MODAL:
+			return {
+				...state,
+				isAddAccountModalOpen: action.isOpen,
 			};
 
 		case TOGGLE_CONNECTION:

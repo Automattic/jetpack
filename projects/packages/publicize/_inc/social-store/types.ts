@@ -52,6 +52,8 @@ export type ConnectionData = {
 	fetchingKeyringResult?: boolean;
 	abortControllers?: Record< string, Array< AbortController > >;
 	isConnectionsModalOpen?: boolean;
+	/** Whether the editor's "Add a new account" platform-picker modal is open. */
+	isAddAccountModalOpen?: boolean;
 };
 
 export type JetpackSettings = {

@@ -258,6 +258,17 @@ export function isConnectionsModalOpen( state: SocialStoreState ) {
 }
 
 /**
+ * Whether the "Add a new account" platform-picker modal is open.
+ *
+ * @param state - State object.
+ *
+ * @return Whether the modal is open.
+ */
+export function isAddAccountModalOpen( state: SocialStoreState ) {
+	return state.connectionData?.isAddAccountModalOpen ?? false;
+}
+
+/**
  * Whether the current user can manage the connection.
  */
 export const canUserManageConnection = createRegistrySelector(

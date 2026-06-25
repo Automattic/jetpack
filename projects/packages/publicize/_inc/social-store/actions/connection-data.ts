@@ -15,6 +15,7 @@ import {
 	SET_CONNECTING_SERVICE,
 	SET_PRESELECT_SERVICE,
 	SET_RECONNECTING_ACCOUNT,
+	TOGGLE_ADD_ACCOUNT_MODAL,
 	SET_CONNECTIONS,
 	SET_KEYRING_RESULT,
 	TOGGLE_CONNECTION,
@@ -727,6 +728,38 @@ export function toggleConnectionsModal( isOpen: boolean ) {
  */
 export function openConnectionsModal() {
 	return toggleConnectionsModal( true );
+}
+
+/**
+ * Toggles the "Add a new account" platform-picker modal (editor).
+ *
+ * @param isOpen - Whether the modal is open.
+ *
+ * @return An action object.
+ */
+export function toggleAddAccountModal( isOpen: boolean ) {
+	return {
+		type: TOGGLE_ADD_ACCOUNT_MODAL,
+		isOpen,
+	};
+}
+
+/**
+ * Opens the "Add a new account" modal.
+ *
+ * @return An action object.
+ */
+export function openAddAccountModal() {
+	return toggleAddAccountModal( true );
+}
+
+/**
+ * Closes the "Add a new account" modal.
+ *
+ * @return An action object.
+ */
+export function closeAddAccountModal() {
+	return toggleAddAccountModal( false );
 }
 
 /**
