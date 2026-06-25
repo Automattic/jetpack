@@ -1,4 +1,8 @@
 /**
+ * External dependencies
+ */
+import { formatMetricValue } from '@jetpack-premium-analytics/formatters';
+/**
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
@@ -8,8 +12,9 @@ import {
 	WidgetLoadingOverlay,
 	WidgetRoot,
 	useWidgetRootContext,
+	type LegendItem,
+	type ReportParamsFieldAttributes,
 	type SemiCircleChartData,
-	ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 /**
  * Internal dependencies
@@ -22,6 +27,8 @@ type DevicesRenderProps = {
 		deviceProperty?: 'screensize' | 'browser';
 	};
 };
+
+const DATA_FORMAT = { type: 'number' as const, options: { useMultipliers: true, decimals: 0 } };
 
 /**
  * Inner component — rendered inside WidgetRoot so useWidgetRootContext
@@ -57,12 +64,19 @@ function DevicesInner( {
 		value: item.views,
 	} ) );
 
+	const legendData: LegendItem[] = data.map( item => ( {
+		label: item.displayLabel,
+		value: item.views,
+		displayValue: formatMetricValue( item.views, DATA_FORMAT.type, DATA_FORMAT.options ),
+	} ) );
+
 	return (
 		<SemiCircleChart
 			chartData={ chartData }
 			value={ total }
+			legendData={ legendData }
 			showLegend
-			dataFormat={ { type: 'number', options: { useMultipliers: true, decimals: 0 } } }
+			dataFormat={ DATA_FORMAT }
 		/>
 	);
 }
