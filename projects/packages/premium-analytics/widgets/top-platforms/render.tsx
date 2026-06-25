@@ -9,7 +9,6 @@ import {
 	LeaderboardChart,
 	WidgetLoadingOverlay,
 	WidgetRoot,
-	calculateDelta,
 	useWidgetRootContext,
 	type LeaderboardChartData,
 	type ReportParamsFieldAttributes,
@@ -76,7 +75,7 @@ function TopPlatformsInner( { max }: { max: number } ) {
 		currentShare: ( item.views / maxViews ) * 100,
 		previousValue: 0,
 		previousShare: 0,
-		delta: calculateDelta( item.views, 0 ),
+		delta: 0,
 	} ) );
 
 	return (
