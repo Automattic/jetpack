@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { getScriptData } from '@automattic/jetpack-script-data';
-import { getDefaultQueryParams } from '@jetpack-premium-analytics/data';
+import { ensureCoreSettingsReady, getDefaultQueryParams } from '@jetpack-premium-analytics/data';
 import { isPrimaryPreset } from '@jetpack-premium-analytics/datetime';
 import { store as coreStore } from '@wordpress/core-data';
 import { dispatch, select } from '@wordpress/data';
@@ -25,7 +25,11 @@ type DashboardSearch = Record< string, string | undefined >;
  * Seed the default date range into the URL on first visit so the date picker
  * and the widgets share a populated search state. Defaults to the last 30 days
  * with a previous-period comparison, resolved from the shared analytics
- * defaults (`getDefaultQueryParams`).
+ * defaults (`getDefaultQueryParams`). The seed runs after
+ * `ensureCoreSettingsReady()` so the dates are encoded in the site timezone;
+ * otherwise `getDefaultQueryParams` would fall back to the browser timezone
+ * (core `site` settings not loaded yet) and the seeded `to` boundary would
+ * land on a different instant than a later Apply writes.
  *
  * Then register the widget-modules discovery entity before the stage renders,
  * so the stage's `getEntityRecords` read resolves and feeds the records to
@@ -34,7 +38,7 @@ type DashboardSearch = Record< string, string | undefined >;
  * Guarded for idempotency: beforeLoad re-runs on every navigation and preload.
  */
 export const route = {
-	beforeLoad: ( { search }: { search?: DashboardSearch } = {} ) => {
+	beforeLoad: async ( { search }: { search?: DashboardSearch } = {} ) => {
 		const connectionStatus = getScriptData()?.connection?.connectionStatus;
 
 		if ( ! connectionStatus?.isRegistered ) {
@@ -48,6 +52,9 @@ export const route = {
 
 		const params = ( search ?? {} ) as DashboardSearch;
 		if ( ! params.from || ! params.to || ! params.interval ) {
+			// Seed dates in the site timezone, not the browser's (see above).
+			await ensureCoreSettingsReady();
+
 			/*
 			 * Derive the seeded range from a supplied preset (when it maps to a
 			 * concrete range) so a `?preset=…` deep-link gets a matching
@@ -56,21 +63,39 @@ export const route = {
 			 */
 			const preset =
 				isPrimaryPreset( params.preset ) && params.preset !== 'custom' ? params.preset : undefined;
+
+			/*
+			 * Fill only the missing params: defaults first, then the
+			 * user-supplied values override them, so a partial URL (e.g. a
+			 * custom `from`/`to` without `interval`) keeps its provided
+			 * values instead of being reset to the defaults.
+			 */
+			const seeded: Record< string, unknown > = {
+				...getDefaultQueryParams( true, preset ),
+				...params,
+			};
+
+			/*
+			 * When the URL already carries a custom `from`/`to` but no valid
+			 * preset, mark the seed as `custom` so `normalizeReportParams` keeps
+			 * the supplied dates instead of recomputing them from the default
+			 * preset (which would otherwise show the widgets a different range
+			 * than the picker).
+			 */
+			if ( params.from && params.to && ! preset ) {
+				seeded.preset = 'custom';
+			}
+
 			throw redirect( {
 				to: '/',
 				replace: true,
 				/*
-				 * Fill only the missing params: defaults first, then the
-				 * user-supplied values override them, so a partial URL (e.g. a
-				 * custom `from`/`to` without `interval`) keeps its provided
-				 * values instead of being reset to the defaults.
-				 *
 				 * The router is built dynamically, so the '/' route has no
 				 * statically-typed search schema (tanstack widens it to
 				 * `never`). Cast the seeded params the same way the routing
 				 * package does when it writes the URL.
 				 */
-				search: { ...getDefaultQueryParams( true, preset ), ...params } as unknown as never,
+				search: seeded as unknown as never,
 			} );
 		}
 
