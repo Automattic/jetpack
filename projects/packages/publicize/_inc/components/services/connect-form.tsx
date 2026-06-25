@@ -1,11 +1,11 @@
 import { getAdminUrl } from '@automattic/jetpack-script-data';
 import { useSelect } from '@wordpress/data';
-import { store as editorStore } from '@wordpress/editor';
 import { useCallback, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Button } from '@wordpress/ui';
 import { addQueryArgs } from '@wordpress/url';
 import clsx from 'clsx';
+import { useIsEditor } from '../../hooks/use-is-editor';
 import { useIsModernized } from '../../hooks/use-is-modernized';
 import { store } from '../../social-store';
 import { CustomInputs } from './custom-inputs';
@@ -55,7 +55,7 @@ export function ConnectForm( {
 	const reconnectingAccount = useSelect( select => select( store ).getReconnectingAccount(), [] );
 
 	// In the editor we don't redirect the tab; we open the connect flow on the Social admin page.
-	const isEditor = useSelect( select => Boolean( select( editorStore )?.getCurrentPostId() ), [] );
+	const isEditor = useIsEditor();
 
 	const [ isConnecting, setIsConnecting ] = useState( false );
 

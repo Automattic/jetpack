@@ -1,6 +1,7 @@
 import { ThemeProvider } from '@automattic/jetpack-components';
 import { PostTypeSupportCheck } from '@wordpress/editor';
 import { useConnectionCreatedListener } from '../../hooks/use-connection-created-listener';
+import { IsEditorProvider } from '../../hooks/use-is-editor';
 import { getSocialScriptData } from '../../utils/script-data';
 import { GlobalModals } from '../global-modals';
 import PostPublishPanels from './post-publish-panels';
@@ -20,11 +21,13 @@ export function SocialPanels() {
 	}
 	return (
 		<PostTypeSupportCheck supportKeys="publicize">
-			<ThemeProvider targetDom={ document.body }>
-				<PrePublishPanels />
-				<PostPublishPanels />
-				<GlobalModals />
-			</ThemeProvider>
+			<IsEditorProvider value={ true }>
+				<ThemeProvider targetDom={ document.body }>
+					<PrePublishPanels />
+					<PostPublishPanels />
+					<GlobalModals />
+				</ThemeProvider>
+			</IsEditorProvider>
 		</PostTypeSupportCheck>
 	);
 }
