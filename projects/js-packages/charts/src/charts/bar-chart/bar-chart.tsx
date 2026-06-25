@@ -191,6 +191,14 @@ const BarChartInternal: FC< BarChartProps > = ( {
 		[ primaryEntries ]
 	);
 
+	// The keyboard-navigation index space and the highlight CSS both stride over primary
+	// bars only; the accessible tooltip must use the same list, or its datum diverges from
+	// the highlighted bar once a comparison series shifts the indices.
+	const primarySeries = useMemo(
+		() => primaryEntries.map( ( { series } ) => series ),
+		[ primaryEntries ]
+	);
+
 	const comparisonEntries = useMemo( () => {
 		const primaryByGroup = new Map< string | undefined, { label: string; index: number } >(
 			primaryEntries.map( ( { series, index } ) => [
@@ -622,7 +630,7 @@ const BarChartInternal: FC< BarChartProps > = ( {
 												keyboardFocusedClassName={
 													styles[ 'bar-chart__tooltip--keyboard-focused' ]
 												}
-												series={ data }
+												series={ primarySeries }
 												mode="individual"
 											/>
 										) }

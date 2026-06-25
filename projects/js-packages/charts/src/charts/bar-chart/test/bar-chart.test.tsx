@@ -415,6 +415,47 @@ describe( 'BarChart', () => {
 				expect( tooltip ).toHaveTextContent( 'Previous period' );
 				expect( tooltip ).toHaveTextContent( '15' );
 			} );
+
+			test( 'keyboard navigation past the first slot stays on the primary bar, not the comparison series', async () => {
+				const user = userEvent.setup();
+				renderWithTheme( {
+					withTooltips: true,
+					data: [
+						{
+							label: 'This period',
+							group: 'views',
+							data: [
+								{ label: 'Mon', value: 10 },
+								{ label: 'Tue', value: 20 },
+							],
+						},
+						{
+							label: 'Previous period',
+							group: 'views',
+							options: { type: 'comparison' as const },
+							data: [
+								{ label: 'Mon', value: 15 },
+								{ label: 'Tue', value: 25 },
+							],
+						},
+					],
+				} );
+
+				const chart = screen.getByRole( 'grid', { name: /bar chart/i } );
+				chart.focus();
+
+				// Slot 0 is the first primary bar (Mon); slot 1 must be the SECOND primary
+				// bar (Tue) — not the comparison series' first bar. The keyboard index space
+				// counts only primary bars, so the tooltip must too.
+				await user.keyboard( '{ArrowRight}' );
+				await user.keyboard( '{ArrowRight}' );
+				const tooltip = screen.getByTestId( 'chart-tooltip-1' );
+				expect( tooltip ).toHaveTextContent( 'Tue' );
+				expect( tooltip ).toHaveTextContent( 'This period' );
+				expect( tooltip ).toHaveTextContent( '20' );
+				expect( tooltip ).toHaveTextContent( 'Previous period' );
+				expect( tooltip ).toHaveTextContent( '25' );
+			} );
 		} );
 
 		describe( 'Tab Key Navigation', () => {
