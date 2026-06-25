@@ -11,6 +11,7 @@ import {
 	SemiCircleChart,
 	WidgetLoadingOverlay,
 	WidgetRoot,
+	useSegmentStyles,
 	useWidgetRootContext,
 	type LegendItem,
 	type ReportParamsFieldAttributes,
@@ -49,6 +50,14 @@ function DevicesInner( {
 	const { reportParams } = useWidgetRootContext();
 	const { data, isLoading, isError } = useDeviceViews( { reportParams, max, deviceProperty } );
 
+	const chartData: SemiCircleChartData = data.map( item => ( {
+		label: item.displayLabel,
+		value: item.views,
+	} ) );
+
+	// Must be called unconditionally before any early return.
+	const segmentStyles = useSegmentStyles( chartData );
+
 	if ( isError ) {
 		return <Text>{ __( 'Could not load device data.', 'jetpack-premium-analytics' ) }</Text>;
 	}
@@ -58,11 +67,6 @@ function DevicesInner( {
 	}
 
 	const total = data.reduce( ( sum, item ) => sum + item.views, 0 );
-
-	const chartData: SemiCircleChartData = data.map( item => ( {
-		label: item.displayLabel,
-		value: item.views,
-	} ) );
 
 	const legendData: LegendItem[] = data.map( item => ( {
 		label: item.displayLabel,
@@ -74,6 +78,7 @@ function DevicesInner( {
 		<SemiCircleChart
 			chartData={ chartData }
 			value={ total }
+			styles={ segmentStyles }
 			legendData={ legendData }
 			showLegend
 			dataFormat={ DATA_FORMAT }
