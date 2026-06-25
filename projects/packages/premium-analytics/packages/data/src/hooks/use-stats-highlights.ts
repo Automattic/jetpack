@@ -8,8 +8,6 @@ import type { StatsHighlightsParams } from '../queries/stats-highlights-query';
 
 export type {
 	StatsHighlightsParams,
-	StatsHighlightsPeriod,
-	StatsHighlightsRange,
 	StatsHighlightsResponse,
 } from '../queries/stats-highlights-query';
 

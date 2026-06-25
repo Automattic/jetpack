@@ -5,11 +5,7 @@ import { statsProxyQuery } from './stats-query';
 import type { StatsReportQueryOptions } from './stats-query';
 import type { StatsQueryParams } from '../utils/stats-params';
 
-export type {
-	StatsHighlightsPeriod,
-	StatsHighlightsRange,
-	StatsHighlightsResponse,
-} from '../processing/stats';
+export type { StatsHighlightsResponse } from '../processing/stats';
 
 export type StatsHighlightsParams = StatsQueryParams & {
 	source?: string;

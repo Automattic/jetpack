@@ -61,12 +61,7 @@ export type {
 export { useStatsUtm } from './hooks/use-stats-utm';
 export type { StatsUtmParams, StatsUtmResponse } from './hooks/use-stats-utm';
 export { useStatsHighlights } from './hooks/use-stats-highlights';
-export type {
-	StatsHighlightsParams,
-	StatsHighlightsPeriod,
-	StatsHighlightsRange,
-	StatsHighlightsResponse,
-} from './hooks/use-stats-highlights';
+export type { StatsHighlightsParams, StatsHighlightsResponse } from './hooks/use-stats-highlights';
 export type { UseStatsOptions } from './hooks/use-stats-report';
 export { prefetchReport } from './prefetch';
 export {
