@@ -297,6 +297,13 @@ class Forms_Abilities_Test extends BaseTestCase {
 		$this->assertEquals( 'missing_id', $result->get_error_code() );
 	}
 
+	public function test_update_form_response_requires_mutation_field() {
+		$result = Forms_Abilities::update_form_response( array( 'id' => 123 ) );
+
+		$this->assertInstanceOf( \WP_Error::class, $result, 'Should return WP_Error when no update field is provided' );
+		$this->assertEquals( 'missing_update', $result->get_error_code() );
+	}
+
 	/**
 	 * Test that abilities handle Abilities API not being available gracefully.
 	 */
@@ -416,6 +423,7 @@ class Forms_Abilities_Test extends BaseTestCase {
 		$this->assertSame( 'Name', $result['fields'][0]['label'] );
 		$this->assertSame( 'text', $result['fields'][0]['type'] );
 		$this->assertTrue( $result['fields'][0]['required'] );
+		$this->assertSame( get_edit_post_link( $post_id, 'raw' ), $result['edit_url'] );
 	}
 
 	/**
@@ -638,11 +646,167 @@ class Forms_Abilities_Test extends BaseTestCase {
 		$this->assertSame( array( $id ), $result['succeeded'], 'Duplicate IDs in input should collapse to one succeeded entry.' );
 	}
 
-	public function test_every_ability_opts_into_mcp_as_public_tool(): void {
-		foreach ( Forms_Abilities::get_abilities() as $slug => $spec ) {
+	public function test_ability_metadata_matches_public_contract(): void {
+		foreach ( self::expected_ability_contracts() as $slug => $expected ) {
+			$spec = Forms_Abilities::get_abilities()[ $slug ];
+
+			$this->assertArrayHasKey( 'meta', $spec, "{$slug} must publish meta." );
+			$this->assertSame( true, $spec['meta']['show_in_rest'] ?? null, "{$slug} must be available through the REST abilities endpoint." );
+			$this->assertArrayHasKey( 'annotations', $spec['meta'], "{$slug} must publish meta.annotations." );
+			$this->assertSame( $expected['annotations'], $spec['meta']['annotations'], "{$slug} annotations must match its current behavior." );
 			$this->assertArrayHasKey( 'mcp', $spec['meta'], "{$slug} must publish meta.mcp." );
-			$this->assertTrue( $spec['meta']['mcp']['public'], "{$slug} must opt into MCP." );
-			$this->assertSame( 'tool', $spec['meta']['mcp']['type'], "{$slug} must be exposed as an MCP tool." );
+			$this->assertSame( true, $spec['meta']['mcp']['public'] ?? null, "{$slug} must opt into MCP." );
+			$this->assertSame( 'tool', $spec['meta']['mcp']['type'] ?? null, "{$slug} must be exposed as an MCP tool." );
 		}
+	}
+
+	public function test_every_ability_declares_output_schema_for_current_return_shape(): void {
+		foreach ( self::expected_ability_contracts() as $slug => $expected ) {
+			$spec = Forms_Abilities::get_abilities()[ $slug ];
+
+			$this->assertArrayHasKey( 'output_schema', $spec, "{$slug} must document its output_schema." );
+			$this->assertSame( $expected['output_type'], $spec['output_schema']['type'] ?? null, "{$slug} output_schema type must match current return shape." );
+
+			if ( 'array' === $expected['output_type'] ) {
+				$this->assertSame( 'object', $spec['output_schema']['items']['type'] ?? null, "{$slug} array items must be objects." );
+				$this->assertSchemaProperties( $expected['properties'], $spec['output_schema']['items']['properties'] ?? array(), "{$slug} item" );
+			} else {
+				$this->assertSchemaProperties( $expected['properties'], $spec['output_schema']['properties'] ?? array(), $slug );
+			}
+		}
+	}
+
+	/**
+	 * Assert that the documented schema includes the expected property types.
+	 *
+	 * @param array  $expected Expected property => type map.
+	 * @param array  $actual   Actual schema properties.
+	 * @param string $context  Assertion context.
+	 */
+	private function assertSchemaProperties( array $expected, array $actual, string $context ): void {
+		foreach ( $expected as $property => $type ) {
+			$this->assertArrayHasKey( $property, $actual, "{$context} schema must include {$property}." );
+			$this->assertSame( $type, $actual[ $property ]['type'] ?? null, "{$context}.{$property} type must match current return shape." );
+		}
+	}
+
+	/**
+	 * Expected public contract for the eight Forms abilities.
+	 *
+	 * @return array
+	 */
+	private static function expected_ability_contracts(): array {
+		return array(
+			'jetpack-forms/list-forms'            => array(
+				'annotations' => array(
+					'readonly'    => true,
+					'destructive' => false,
+					'idempotent'  => true,
+				),
+				'output_type' => 'array',
+				'properties'  => array(
+					'id'            => 'integer',
+					'title'         => 'string',
+					'status'        => 'string',
+					'entries_count' => 'integer',
+					'edit_url'      => 'string',
+					'date'          => 'string',
+					'modified'      => 'string',
+				),
+			),
+			'jetpack-forms/get-form'              => array(
+				'annotations' => array(
+					'readonly'    => true,
+					'destructive' => false,
+					'idempotent'  => true,
+				),
+				'output_type' => 'object',
+				'properties'  => array(
+					'id'       => 'integer',
+					'title'    => 'string',
+					'status'   => 'string',
+					'fields'   => 'array',
+					'date'     => 'string',
+					'modified' => 'string',
+					'edit_url' => 'string',
+				),
+			),
+			'jetpack-forms/create-form'           => array(
+				'annotations' => array(
+					'readonly'    => false,
+					'destructive' => false,
+					'idempotent'  => false,
+				),
+				'output_type' => 'object',
+				'properties'  => array(
+					'id'       => 'integer',
+					'title'    => 'string',
+					'status'   => 'string',
+					'edit_url' => 'string',
+				),
+			),
+			'jetpack-forms/delete-form'           => array(
+				'annotations' => array(
+					'readonly'    => false,
+					'destructive' => true,
+					'idempotent'  => true,
+				),
+				'output_type' => 'object',
+				'properties'  => array(
+					'id'      => 'integer',
+					'deleted' => 'boolean',
+					'status'  => 'string',
+				),
+			),
+			'jetpack-forms/get-responses'         => array(
+				'annotations' => array(
+					'readonly'    => true,
+					'destructive' => false,
+					'idempotent'  => true,
+				),
+				'output_type' => 'array',
+				'properties'  => array(),
+			),
+			'jetpack-forms/update-response'       => array(
+				'annotations' => array(
+					'readonly'    => false,
+					'destructive' => false,
+					'idempotent'  => true,
+				),
+				'output_type' => 'object',
+				'properties'  => array(
+					'id'        => 'integer',
+					'status'    => 'string',
+					'is_unread' => 'boolean',
+					'count'     => 'integer',
+				),
+			),
+			'jetpack-forms/bulk-update-responses' => array(
+				'annotations' => array(
+					'readonly'    => false,
+					'destructive' => false,
+					'idempotent'  => true,
+				),
+				'output_type' => 'object',
+				'properties'  => array(
+					'action'    => 'string',
+					'succeeded' => 'array',
+					'failed'    => 'array',
+				),
+			),
+			'jetpack-forms/get-status-counts'     => array(
+				'annotations' => array(
+					'readonly'    => true,
+					'destructive' => false,
+					'idempotent'  => true,
+				),
+				'output_type' => 'object',
+				'properties'  => array(
+					'inbox' => 'integer',
+					'spam'  => 'integer',
+					'trash' => 'integer',
+				),
+			),
+		);
 	}
 }
