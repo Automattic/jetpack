@@ -10,7 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Update package dependencies. [#49831]
 
 ### Fixed
-- Fix `@wordpress/ui` 0.15 type error: use a valid Stack `gap` token (`xs`) in the responses dashboard. [#49800]
+- Fix a `@wordpress/ui` 0.15 type error in the responses dashboard. [#49800]
 
 ## [7.22.4] - 2026-06-22
 ### Changed

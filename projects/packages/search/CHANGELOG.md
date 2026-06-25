@@ -11,7 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Update package dependencies. [#49831]
 
 ### Fixed
-- Search Blocks: Fix deep-link searches (?s=) rendering no results or filter buckets by hydrating the overlay once, after the Interactivity runtime's initial walk. [#49944]
+- Search Blocks: Fix deep-link searches (?s=) rendering no results or filter buckets. [#49944]
 - Search Blocks: Fix result and filter lists rendering after results load. [#49876]
 
 ## [7.2.4] - 2026-06-22

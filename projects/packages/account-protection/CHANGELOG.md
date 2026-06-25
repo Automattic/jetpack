@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.3.5] - 2026-06-25
 ### Changed
-- Performance: defer loading the password feature classes until the Account Protection module is active, reducing the per-request PHP/opcache footprint. [#49806]
+- Defer loading the password feature classes until the Account Protection module is active, reducing the per-request PHP/opcache footprint. [#49806]
 
 ## [0.3.4] - 2026-06-15
 ### Added

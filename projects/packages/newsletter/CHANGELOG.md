@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.11.0] - 2026-06-25
 ### Changed
-- Stage the modernized Newsletter dashboard rollout: default the rsm_jetpack_ui_modernization_newsletter and jetpack_wp_admin_subscriber_management_enabled filters on for Automatticians and for a percentage cohort of all sites (currently 0%), bucketed by the stable wpcom blog ID so the cohort persists across a Simple→Atomic transfer. The Simple-site rollout is driven separately from the WordPress.com backend. [#49036]
+- Introduce the modernized dashboard and WP Admin subscriber management behind the `rsm_jetpack_ui_modernization_newsletter` and `jetpack_wp_admin_subscriber_management_enabled` filters, off by default. [#49036]
 - Update package dependencies. [#49831]
 
 ### Fixed

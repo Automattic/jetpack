@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [4.44.1] - 2026-06-25
 ### Fixed
-- Refresh the synced get_plugins callable when a plugin is deleted, so removed plugins no longer linger in cached plugin lists. [#49913]
+- Refresh the synced `get_plugins` callable when a plugin is deleted, so removed plugins no longer linger in cached plugin lists. [#49913]
 
 ## [4.44.0] - 2026-06-23
 ### Added

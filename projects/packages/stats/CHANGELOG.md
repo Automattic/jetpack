@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.19.7] - 2026-06-25
 ### Changed
-- Performance: defer loading the Stats REST API provider until a REST request is served, reducing the per-request PHP/opcache footprint. [#49806]
+- Defer loading the Stats REST API provider until a REST request is served, reducing the per-request PHP/opcache footprint. [#49806]
 
 ## [0.19.6] - 2026-06-15
 ### Changed

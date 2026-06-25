@@ -7,9 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.38.1] - 2026-06-25
 ### Changed
-- Performance: defer loading the VideoPress REST API endpoint classes until a REST request is served, reducing the per-request PHP/opcache footprint. [#49806]
+- Defer loading the VideoPress REST API endpoint classes until a REST request is served, reducing the per-request PHP/opcache footprint. [#49806]
+- Improve performance when receiving resumable video uploads. [#49666]
 - Update package dependencies. [#49831]
-- VideoPress: Improve performance when receiving resumable video uploads. [#49666]
 
 ## [0.38.0] - 2026-06-22
 ### Added

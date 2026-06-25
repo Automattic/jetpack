@@ -4,7 +4,7 @@
 
 ## [1.12.12] - 2026-06-25
 ### Fixed
-- Icon tooltip: type `iconCode` as `ReactElement` so it matches the `@wordpress/icons` Icon and `@wordpress/ui` 0.15 type definitions. [#49795]
+- Icon tooltip: Type `iconCode` as `ReactElement` so it matches the `@wordpress/icons` Icon and `@wordpress/ui` 0.15 type definitions. [#49795]
 
 ## [1.12.11] - 2026-06-24
 ### Removed

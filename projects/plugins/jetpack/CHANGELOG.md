@@ -4,31 +4,30 @@
 
 ## 16.0-a.5 - 2026-06-25
 ### Enhancements
-- Newsletter: Begin a staged rollout of the modernized Newsletter dashboard and wp-admin subscriber management, off by default during the initial rollout. Hosts can opt in or out with the rsm_jetpack_ui_modernization_newsletter and jetpack_wp_admin_subscriber_management_enabled filters. [#49036]
-- SEO: hide the legacy Traffic-page SEO and Sitemaps sections once a site is on the new SEO dashboard (fresh install, opted-in, or WordPress.com), pointing to the new page; existing self-hosted installs that haven't opted in keep the legacy sections. [#49697]
+- SEO: Hide the legacy Traffic-page SEO and Sitemaps sections once a site is on the new SEO dashboard (fresh install, opted-in, or WordPress.com); existing self-hosted installs that haven't opted in keep the legacy sections. [#49697]
 
 ### Bug fixes
 - AI Assistant: Hide legacy block toolbar controls when Jetpack AI Sidebar content editing is enabled. [#49219]
 - AI Chat block: Stop prompting to enable Jetpack Search when the Search module is active in a non-Instant Search experience (Theme, Inline, or Embedded). [#49870]
-- Fix `@wordpress/ui` 0.15 type errors: drop the unsupported `target` prop on Link (it is set via `openInNewTab`) in the mobile-app recommendation, and type the AI Assistant message icon as a `ReactElement`. [#49800]
-- Newsletter: fix "Sorry, you are not allowed to do this" error for Contributors on the first Submit for Review when the Subscriptions module is active. [#49813]
-- Paid Content: ensure paid subscribers on Atomic-hosted sites retain access to gated content by translating local user IDs to WordPress.com user IDs before querying subscriptions. [#48857]
-- SEO: default the Schema, Meta description, and Search post-list columns to hidden in Screen Options so they no longer crowd out the title column. [#49862]
-- Social: contain errors in the post-publish sharing status panel so they no longer crash the editor. [#49823]
+- Akismet: Show the Akismet logo (instead of the Jetpack logo) in the unified admin header. [#49837]
+- Newsletter: Fix "Sorry, you are not allowed to do this" error for Contributors on the first Submit for Review when the Subscriptions module is active. [#49813]
+- Paid Content: Ensure paid subscribers on Atomic-hosted sites retain access to gated content. [#48857]
+- SEO: Default the Schema, Meta description, and Search post-list columns to hidden in Screen Options. [#49862]
+- Social: Prevent errors in the post-publish sharing status panel from crashing the editor. [#49823]
 
 ### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
-- AI Sidebar: load the Agents Manager through the jetpack-agents-manager Composer package instead of a self-contained CDN loader. [#49603]
-- Akismet: show the Akismet logo (instead of the Jetpack logo) in the unified admin header. [#49837]
-- Content Guidelines: align the empty-state banner orbs on the same axis and reduce their size. [#49760]
+- AI Sidebar: Load the Agents Manager through the `jetpack-agents-manager` Composer package instead of a self-contained CDN loader. [#49603]
+- Content Guidelines: Align the empty-state banner orbs on the same axis and reduce their size. [#49760]
 - Defer loading Boost Speed Score classes until a REST request or Boost lifecycle action fires, reducing the per-request PHP/opcache footprint. [#49806]
-- Heartbeat: Connection owner and XML-RPC error stats are now provided by the Connection package. [#49922]
+- Fix `@wordpress/ui` 0.15 type errors in the mobile-app recommendation and the AI Assistant message icon. [#49800]
+- Heartbeat: Provide connection owner and XML-RPC error stats from the Connection package. [#49922]
 - JSON API: Require Jetpack 15.9 or later to dispatch the posts, users, site, and plugins endpoints over REST. [#49819]
-- Performance: load block render code only when a block is present, and skip editor-only extensions on front-end requests, to reduce per-request PHP/opcache footprint. [#49807]
-- Sync: add test coverage for refreshing the plugin list callable when a plugin is deleted. [#49913]
-- Sync: Append an order's total (total, currency) to the synced woocommerce_new_order and woocommerce_order_status_changed actions when the order reaches a paid status, so WPcom can aggregate revenue. [#49689]
-- Updated composer.lock for the Podcast package's new jetpack-admin-ui dependency. [#49918]
-- Updated package dependencies. [#49793]
-- Update package dependencies. [#49831]
+- Load block render code only when a block is present, and skip editor-only extensions on front-end requests, to reduce per-request PHP/opcache footprint. [#49807]
+- Newsletter: Begin a staged rollout of the modernized Newsletter dashboard and WP Admin subscriber management, off by default. Opt in or out with the `rsm_jetpack_ui_modernization_newsletter` and `jetpack_wp_admin_subscriber_management_enabled` filters. [#49036]
+- Sync: Add test coverage for refreshing the plugin list callable when a plugin is deleted. [#49913]
+- Sync: Append an order's total (total, currency) to the synced `woocommerce_new_order` and `woocommerce_order_status_changed` actions when the order reaches a paid status, so WordPress.com can aggregate revenue. [#49689]
+- Update composer.lock for the Podcast package's new `jetpack-admin-ui` dependency. [#49918]
+- Update package dependencies. [#49793] [#49831]
 
 ## 16.0-a.3 - 2026-06-22
 ### Enhancements

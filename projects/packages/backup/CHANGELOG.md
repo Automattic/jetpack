@@ -10,7 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Update package dependencies. [#49831]
 
 ### Fixed
-- Backup dashboard: align Text, Stack and Button props with the `@wordpress/ui` 0.15 API (valid typographic variants, gap tokens and button variants). [#49795]
+- Dashboard: Align component props with the `@wordpress/ui` 0.15 API. [#49795]
 
 ## [4.3.4] - 2026-06-22
 ### Changed

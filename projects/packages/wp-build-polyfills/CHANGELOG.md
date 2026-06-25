@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.1.17] - 2026-06-25
 ### Changed
-- Pin @wordpress/private-apis to an exact version instead of the floating next tag [#49838]
+- Pin `@wordpress/private-apis` to an exact version instead of the floating `next` tag. [#49838]
 
 ## [0.1.16] - 2026-06-23
 ### Fixed

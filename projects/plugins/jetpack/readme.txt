@@ -326,26 +326,19 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 16.0-a.3 - 2026-06-22
+### 16.0-a.5 - 2026-06-25
 #### Enhancements
-- Add AI-powered "Generate/Improve with Jetpack" buttons to the Content Guidelines admin page.
-- AI Sidebar: Enable Optimize Title suggestions.
-- Newsletter: Allow setting a custom description for the free tier and hiding it from the subscriber plan selector.
-- Render the unified Jetpack admin header and footer on Akismet's admin pages.
-- SEO: Add a per-post schema type control and SEO columns (schema, meta description, search visibility) to post-list tables.
-- SEO: Auto-discover the new SEO surface on fresh installs (opt-in on existing sites), and add an opt-in banner to the legacy Traffic > SEO settings page.
-- SEO: Surface SEO Tools as a Plugin Search Hint when users search the plugin directory for SEO-related terms.
-- Subscriptions: Replace the Subscribers menu link with a transitional announcement page when the Newsletter modernization filter is enabled.
+- Newsletter: Begin a staged rollout of the modernized Newsletter dashboard and wp-admin subscriber management, off by default during the initial rollout. Hosts can opt in or out with the rsm_jetpack_ui_modernization_newsletter and jetpack_wp_admin_subscriber_management_enabled filters.
+- SEO: hide the legacy Traffic-page SEO and Sitemaps sections once a site is on the new SEO dashboard (fresh install, opted-in, or WordPress.com), pointing to the new page; existing self-hosted installs that haven't opted in keep the legacy sections.
 
 #### Bug fixes
-- Akismet: Hide the empty `#screen-meta-links` container so it no longer reserves a blank slot above the Jetpack header (notably on WordPress.com Simple sites).
-- Blaze: Warn users with active campaigns before disabling the Blaze module.
-- Donations Form: Prevent the editor from flickering when hovering the block as an inserter preview.
-- Newsletter: When setting up paid subscriptions, only prompt for the steps that are actually missing (Stripe connection and/or a newsletter tier).
-- Subscriptions: Prevent a duplicate Subscribers menu entry on WordPress.com (Atomic) sites.
-- Top Posts & Pages: Use the live post permalink so links reflect the current site URL.
-- VideoPress: Load player scripts only once when a page contains multiple videos.
-- VideoPress: Fix the player overflowing the page on the non-iframe embed path.
+- AI Assistant: Hide legacy block toolbar controls when Jetpack AI Sidebar content editing is enabled.
+- AI Chat block: Stop prompting to enable Jetpack Search when the Search module is active in a non-Instant Search experience (Theme, Inline, or Embedded).
+- Fix `@wordpress/ui` 0.15 type errors: drop the unsupported `target` prop on Link (it is set via `openInNewTab`) in the mobile-app recommendation, and type the AI Assistant message icon as a `ReactElement`.
+- Newsletter: fix "Sorry, you are not allowed to do this" error for Contributors on the first Submit for Review when the Subscriptions module is active.
+- Paid Content: ensure paid subscribers on Atomic-hosted sites retain access to gated content by translating local user IDs to WordPress.com user IDs before querying subscriptions.
+- SEO: default the Schema, Meta description, and Search post-list columns to hidden in Screen Options so they no longer crowd out the title column.
+- Social: contain errors in the post-publish sharing status panel so they no longer crash the editor.
 
 --------
 

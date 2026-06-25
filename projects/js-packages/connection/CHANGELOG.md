@@ -4,7 +4,7 @@
 
 ## [1.4.65] - 2026-06-25
 ### Fixed
-- Connect screen: accept React synthetic events on the connect button click handler to satisfy the `@wordpress/ui` 0.15 Button onClick type. [#49795]
+- Connect screen: Accept React synthetic events on the connect button click handler to satisfy the `@wordpress/ui` 0.15 Button `onClick` type. [#49795]
 
 ## [1.4.64] - 2026-06-24
 ### Changed
