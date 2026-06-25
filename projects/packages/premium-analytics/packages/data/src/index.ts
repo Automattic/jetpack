@@ -79,6 +79,12 @@ export type { StatsUtmParams, StatsUtmResponse } from './hooks/use-stats-utm';
 export { useStatsHighlights } from './hooks/use-stats-highlights';
 export type { StatsHighlightsParams, StatsHighlightsResponse } from './hooks/use-stats-highlights';
 export { useStatsTags, type StatsTagsParams, type StatsTagsResponse } from './hooks/use-stats-tags';
+export {
+	useStatsDevices,
+	type StatsDevices,
+	type StatsDevicesDeviceParam,
+	type StatsDevicesParams,
+} from './hooks/use-stats-devices';
 export type { UseStatsOptions } from './hooks/use-stats-report';
 export { prefetchReport } from './prefetch';
 export {
@@ -126,6 +132,10 @@ export type {
 	StatsFileDownloadsItem,
 	StatsItemAction,
 	StatsLocationsItem,
+	StatsDevicesItem,
+	StatsDevicesResponse,
+	StatsDevicesResponseItem,
+	StatsDevicesTopValues,
 	StatsNormalizedDataPoint,
 	StatsNormalizedItem,
 	StatsNormalizedItemBase,

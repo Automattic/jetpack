@@ -1,6 +1,7 @@
 import type { StatsArchivesItem } from './archives';
 import type { StatsClicksItem } from './clicks';
 import type { StatsCommentsItem } from './comments';
+import type { StatsDevicesItem } from './devices';
 import type { StatsEmailBreakdownItem } from './email-breakdown';
 import type { StatsEmailSummaryItem } from './email-summary';
 import type { StatsFileDownloadsItem } from './file-downloads';
@@ -37,7 +38,8 @@ export type StatsNormalizedItem =
 	| StatsEmailBreakdownItem
 	| StatsArchivesItem
 	| StatsCommentsItem
-	| StatsTagsItem;
+	| StatsTagsItem
+	| StatsDevicesItem;
 
 export type StatsNormalizedDataPoint< TItem extends StatsNormalizedItem = StatsNormalizedItem > = {
 	time_interval: string;
