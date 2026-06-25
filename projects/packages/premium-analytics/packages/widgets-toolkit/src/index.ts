@@ -33,6 +33,8 @@ export {
 	SubscriberList,
 	type SubscriberListItem,
 	type SubscriberListProps,
+	SemiCircleChart,
+	type SemiCircleChartData,
 } from './components';
 
 /**

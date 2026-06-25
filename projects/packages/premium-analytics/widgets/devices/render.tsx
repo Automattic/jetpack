@@ -4,12 +4,12 @@
 import { __ } from '@wordpress/i18n';
 import { Text } from '@wordpress/ui';
 import {
-	LeaderboardChart,
+	SemiCircleChart,
 	WidgetLoadingOverlay,
 	WidgetRoot,
 	useWidgetRootContext,
-	type LeaderboardChartData,
-	type ReportParamsFieldAttributes,
+	type SemiCircleChartData,
+	ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 /**
  * Internal dependencies
@@ -30,7 +30,7 @@ type DevicesRenderProps = {
  * @param root0                - Props.
  * @param root0.max            - Max rows to display.
  * @param root0.deviceProperty - Device dimension to break down by.
- * @return The rendered leaderboard or state placeholder.
+ * @return The rendered semi-circle chart or state placeholder.
  */
 function DevicesInner( {
 	max,
@@ -50,23 +50,18 @@ function DevicesInner( {
 		return <WidgetLoadingOverlay />;
 	}
 
-	const maxViews = Math.max( ...data.map( d => d.views ), 1 );
-	const leaderboardData: LeaderboardChartData = data.map( ( item, index ) => ( {
-		id: `${ index }-${ item.label }`,
+	const total = data.reduce( ( sum, item ) => sum + item.views, 0 );
+
+	const chartData: SemiCircleChartData = data.map( item => ( {
 		label: item.displayLabel,
-		currentValue: item.views,
-		currentShare: ( item.views / maxViews ) * 100,
-		previousValue: 0,
-		previousShare: 0,
-		delta: 0,
+		value: item.views,
 	} ) );
 
 	return (
-		<LeaderboardChart
-			data={ leaderboardData }
-			loading={ isLoading }
-			withOverlayLabel
-			emptyStateText={ __( 'No device data in this period.', 'jetpack-premium-analytics' ) }
+		<SemiCircleChart
+			chartData={ chartData }
+			value={ total }
+			showLegend
 			dataFormat={ { type: 'number', options: { useMultipliers: true, decimals: 0 } } }
 		/>
 	);
@@ -76,11 +71,10 @@ function DevicesInner( {
  * Devices widget render component.
  *
  * Wraps in WidgetRoot (same bundle) so the QueryClientProvider and
- * WidgetRootContext are available to DevicesInner. The host passes
- * reportParams via attributes.reportParams.
+ * WidgetRootContext are available to DevicesInner.
  *
  * @param root0            - Render props.
- * @param root0.attributes - Widget attributes (reportParams, max, deviceProperty).
+ * @param root0.attributes - Widget attributes (max, deviceProperty).
  * @return The rendered widget content.
  */
 export default function DevicesWidget( { attributes }: DevicesRenderProps ) {

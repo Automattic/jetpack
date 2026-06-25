@@ -10,7 +10,7 @@ export {
 	type WidgetRootContextValue,
 } from './widget-root';
 
-export { SemiCircleChart } from './chart-semi-circle';
+export { SemiCircleChart, type SemiCircleChartData } from './chart-semi-circle';
 export { DonutChart, type DonutChartData } from './chart-donut';
 export { ReportMetricWidget } from './report-metric';
 export {
