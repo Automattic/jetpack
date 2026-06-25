@@ -7,23 +7,18 @@ import { desktop } from '@wordpress/icons';
 /**
  * Widget attributes shape.
  *
- * @property max            - Maximum rows to display (0 = all). Defaults to 5.
- * @property deviceProperty - Which device dimension to break down by.
+ * @property max - Maximum rows to display (0 = all). Defaults to 5.
  */
 export type DevicesAttributes = {
 	max?: number;
-	deviceProperty?: 'screensize' | 'browser';
 };
 
 /**
  * Devices widget type definition.
  *
- * Data: fetched via the PA proxy at `stats/devices/{deviceProperty}`.
- * Date range comes from WidgetRoot's reportParams (the shared dashboard date
- * picker). `presentation: 'full-bleed'` gives the widget the full grid-tile
- * height so the LeaderboardChart has room to render.
- *
- * Known limitations: delta/comparison rows all show 0 (follow-up).
+ * Shows screen size breakdown (Desktop / Mobile / Tablet) via the PA proxy
+ * at `stats/devices/screensize`. Date range comes from WidgetRoot's
+ * reportParams (the shared dashboard date picker).
  */
 export default {
 	name: 'jpa/devices',
@@ -32,15 +27,6 @@ export default {
 	presentation: 'full-bleed' as const,
 	attributes: [
 		{
-			id: 'deviceProperty',
-			label: __( 'View by', 'jetpack-premium-analytics' ),
-			type: 'select',
-			options: [
-				{ label: __( 'Screen size', 'jetpack-premium-analytics' ), value: 'screensize' },
-				{ label: __( 'Browser', 'jetpack-premium-analytics' ), value: 'browser' },
-			],
-		},
-		{
 			id: 'max',
 			label: __( 'Max rows', 'jetpack-premium-analytics' ),
 			type: 'number',
@@ -48,7 +34,6 @@ export default {
 	],
 	example: {
 		attributes: {
-			deviceProperty: 'screensize' as const,
 			max: 5,
 		},
 	},
