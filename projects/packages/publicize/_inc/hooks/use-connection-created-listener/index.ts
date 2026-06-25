@@ -14,8 +14,7 @@ const CONNECTING_TIMEOUT_MS = 3 * 60 * 1000;
  * missed.
  */
 export function useConnectionCreatedListener() {
-	const { refreshConnectionTestResults, closeConnectionsModal, setConnectingService } =
-		useDispatch( socialStore );
+	const { refreshConnectionTestResults, setConnectingService } = useDispatch( socialStore );
 
 	const { createSuccessNotice } = useDispatch( globalNoticesStore );
 
@@ -24,20 +23,16 @@ export function useConnectionCreatedListener() {
 	useEffect(
 		() =>
 			subscribeToConnectionCreated( () => {
+				// Keep the modal open so the user sees the new connection; just clear the busy
+				// state and refresh the list.
 				setConnectingService( undefined );
 				refreshConnectionTestResults();
-				closeConnectionsModal();
 				createSuccessNotice( __( 'Social account connected.', 'jetpack-publicize-pkg' ), {
 					type: 'snackbar',
 					isDismissible: true,
 				} );
 			} ),
-		[
-			closeConnectionsModal,
-			createSuccessNotice,
-			refreshConnectionTestResults,
-			setConnectingService,
-		]
+		[ createSuccessNotice, refreshConnectionTestResults, setConnectingService ]
 	);
 
 	useEffect( () => {
