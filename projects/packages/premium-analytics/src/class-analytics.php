@@ -81,7 +81,7 @@ class Analytics {
 		// Load wp-build output (interceptor, modules, routes, page render).
 		// Must stay above the is_admin() gate: build/widgets.php defines the
 		// manifest the widget registry reads, and the registry serves REST
-		// requests (e.g. /widget-modules) where is_admin() is false. The render
+		// requests (e.g. /jetpack/v4/widget-modules) where is_admin() is false. The render
 		// pieces here self-gate on admin_init, so loading them globally is inert
 		// off the dashboard. Only the polyfill registration below is admin-scoped.
 		$build_entry = __DIR__ . '/../build/build.php';
