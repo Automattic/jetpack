@@ -3,8 +3,9 @@ import { getAdminUrl } from '@automattic/jetpack-script-data';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { addQueryArgs } from '@wordpress/url';
 import { store } from '../../social-store';
-import { requestExternalAccess } from '../../utils';
+import { generateRequestId, startConnectRedirect } from '../../utils';
 import { SupportedService } from './types';
 
 const isValidMastodonUsername = ( username: string ) =>
@@ -34,7 +35,6 @@ function isValidBlueskyHandle( handle: string ) {
 
 export type RequestAccessOptions = {
 	service: SupportedService;
-	onConfirm: ( requestId: string ) => void | Promise< void >;
 };
 
 /**
@@ -46,18 +46,22 @@ export type RequestAccessArgs = {
 	 */
 	refresh?: boolean;
 	/**
-	 * Called when this auth_flow=v2 attempt looks abandoned (the user returned without a result, or the TTL elapsed).
+	 * When set, the connect was initiated from the editor (in a tab opened by it). It is carried
+	 * on the return URL so the return handler knows to broadcast + self-close when done.
 	 */
-	onAbort?: VoidFunction;
+	source?: 'editor';
 };
 
 /**
- * Hook to request access to a service.
+ * Hook to start connecting a service via a full-page OAuth redirect (no popup).
+ *
+ * Navigates the tab to the wpcom connect URL; wpcom redirects back to the Social admin page where
+ * the return handler picks up the result. No in-page callback — the tab navigates away.
  *
  * @param {RequestAccessOptions} options - Options
- * @return - Function to request access
+ * @return - Function to start the connection
  */
-export function useRequestAccess( { service, onConfirm }: RequestAccessOptions ) {
+export function useRequestAccess( { service }: RequestAccessOptions ) {
 	const { createErrorNotice } = useGlobalNotices();
 
 	const isMastodonAlreadyConnected = useSelect(
@@ -72,10 +76,10 @@ export function useRequestAccess( { service, onConfirm }: RequestAccessOptions )
 
 	const { refreshServicesList } = useDispatch( store );
 
-	const { getService } = useSelect( select => select( store ), [] );
+	const { getService, getReconnectingAccount } = useSelect( select => select( store ), [] );
 
 	return useCallback(
-		// Resolves to true when the connect popup opened, false on any early failure.
+		// Resolves to false on an early validation failure; otherwise the tab navigates away.
 		async ( formData: FormData, options: RequestAccessArgs = {} ): Promise< boolean > => {
 			let connectUrl = service.url;
 
@@ -99,6 +103,9 @@ export function useRequestAccess( { service, onConfirm }: RequestAccessOptions )
 
 			const url = new URL( connectUrl );
 
+			// Input-first services post their inputs (credentials never ride a URL); others GET.
+			const postFields: Record< string, string > = {};
+
 			switch ( service.id ) {
 				case 'mastodon': {
 					const instance = formData.get( 'instance' ).toString().trim();
@@ -119,7 +126,7 @@ export function useRequestAccess( { service, onConfirm }: RequestAccessOptions )
 						return false;
 					}
 
-					url.searchParams.set( 'instance', instance );
+					postFields.instance = instance;
 					break;
 				}
 
@@ -143,11 +150,8 @@ export function useRequestAccess( { service, onConfirm }: RequestAccessOptions )
 						return false;
 					}
 
-					url.searchParams.set( 'handle', handle );
-					url.searchParams.set(
-						'app_password',
-						( formData.get( 'app_password' )?.toString() || '' ).trim()
-					);
+					postFields.handle = handle;
+					postFields.app_password = ( formData.get( 'app_password' )?.toString() || '' ).trim();
 					break;
 				}
 
@@ -155,52 +159,47 @@ export function useRequestAccess( { service, onConfirm }: RequestAccessOptions )
 					break;
 			}
 
-			/*
-			 * auth_flow=v2 returns the connection result via a same-origin BroadcastChannel
-			 * instead of window.opener.postMessage (which Meta/Threads sever via COOP).
-			 * The unique request_id correlates the connect request with the stored result, and
-			 * return_url is where public-api redirects the popup back to so it can broadcast.
-			 */
-			const requestId = Math.random().toString( 36 ).slice( 2, 12 );
+			// auth_flow=v2 makes wpcom redirect back to return_url (the admin page, detected via
+			// connect_return=1); request_id correlates this attempt with the fetched result.
+			const requestId = generateRequestId();
+
+			const returnArgs: Record< string, string > = {
+				page: 'jetpack-social',
+				connect_return: '1',
+				service: service.id,
+			};
+
+			if ( options.source ) {
+				returnArgs.source = options.source;
+			}
+
+			// Carry the reconnecting connection id so the return handler can restore the
+			// reconnect context lost on the full-page reload.
+			const reconnectingAccount = options.refresh ? getReconnectingAccount() : undefined;
+
+			if ( reconnectingAccount ) {
+				returnArgs.reconnect_id = String( reconnectingAccount.connection_id );
+			}
 
 			url.searchParams.set( 'auth_flow', 'v2' );
 			url.searchParams.set( 'request_id', requestId );
-			url.searchParams.set(
-				'return_url',
-				getAdminUrl( 'admin-post.php?action=jetpack_social_keyring_done' )
-			);
+			url.searchParams.set( 'return_url', getAdminUrl( addQueryArgs( 'admin.php', returnArgs ) ) );
 
-			/*
-			 * refresh=1 tells keyring to re-authorize the account and refresh the token in
-			 * place (used for reconnect) rather than reuse an existing provider session.
-			 */
+			// refresh=1: keyring re-authorizes the account in place (reconnect).
 			if ( options.refresh ) {
 				url.searchParams.set( 'refresh', '1' );
 			}
 
-			const opened = requestExternalAccess(
-				url.toString(),
-				() => onConfirm( requestId ),
-				options.onAbort
-			);
+			startConnectRedirect( url.toString(), postFields );
 
-			if ( ! opened ) {
-				createErrorNotice(
-					__(
-						'The connection window could not be opened. Please allow pop-ups for this site and try again.',
-						'jetpack-publicize-pkg'
-					)
-				);
-			}
-
-			return opened;
+			return true;
 		},
 		[
 			createErrorNotice,
+			getReconnectingAccount,
 			getService,
 			isBlueskyAccountAlreadyConnected,
 			isMastodonAlreadyConnected,
-			onConfirm,
 			refreshServicesList,
 			service,
 		]

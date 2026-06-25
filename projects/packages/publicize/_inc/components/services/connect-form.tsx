@@ -1,4 +1,4 @@
-import { useDispatch, useSelect } from '@wordpress/data';
+import { useSelect } from '@wordpress/data';
 import { useCallback, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Button } from '@wordpress/ui';
@@ -40,7 +40,6 @@ export function ConnectForm( {
 	compact,
 }: ConnectFormProps ) {
 	const isModernized = useIsModernized();
-	const { fetchKeyringResult, setKeyringResult, completeReconnect } = useDispatch( store );
 
 	// In the modernized chassis the submit button sits flush in a compact
 	// disclosure row unless it accompanies the custom-input fields. Legacy
@@ -49,8 +48,6 @@ export function ConnectForm( {
 	if ( compact ) {
 		buttonSize = displayInputs ? 'default' : 'compact';
 	}
-
-	const { isConnectionsModalOpen } = useSelect( select => select( store ), [] );
 
 	const reconnectingAccount = useSelect( select => select( store ).getReconnectingAccount(), [] );
 
@@ -61,35 +58,7 @@ export function ConnectForm( {
 		[]
 	);
 
-	const isFetchingKeyringResult = useSelect(
-		select => select( store ).isFetchingKeyringResult(),
-		[]
-	);
-
-	const onConfirm = useCallback(
-		async ( requestId: string ) => {
-			// Fetch the keyring result only if the modal is open.
-			if ( ! isConnectionsModalOpen() ) {
-				return;
-			}
-
-			const result = await fetchKeyringResult( requestId );
-
-			// If this completed an in-place reconnect (same account), it's already handled;
-			// otherwise surface the result so it drives the regular confirmation view.
-			const handled = await completeReconnect( result );
-
-			if ( ! handled && result?.ID ) {
-				setKeyringResult( result );
-			}
-		},
-		[ completeReconnect, fetchKeyringResult, isConnectionsModalOpen, setKeyringResult ]
-	);
-
-	const requestAccess = useRequestAccess( {
-		service,
-		onConfirm,
-	} );
+	const requestAccess = useRequestAccess( { service } );
 
 	const onSubmitForm = useCallback(
 		async ( event: FormEvent ) => {
@@ -105,8 +74,13 @@ export function ConnectForm( {
 
 			const formData = new FormData( event.target as HTMLFormElement );
 
-			// Reconnecting re-auths the existing account, so refresh its token in place.
-			await requestAccess( formData, { refresh: Boolean( reconnectingAccount ) } );
+			// Reconnecting re-auths the existing account, so refresh its token in place. On success
+			// the tab navigates away; only reset the busy state if it didn't start.
+			const started = await requestAccess( formData, { refresh: Boolean( reconnectingAccount ) } );
+
+			if ( ! started ) {
+				setIsConnecting( false );
+			}
 		},
 		[ onSubmit, reconnectingAccount, requestAccess ]
 	);
@@ -131,14 +105,14 @@ export function ConnectForm( {
 					variant={ hasConnections ? 'outline' : 'solid' }
 					size={ buttonSize }
 					type="submit"
-					disabled={ isFetchingServicesList || isFetchingKeyringResult }
+					disabled={ isFetchingServicesList || isConnecting }
 				>
 					{ ( label => {
 						if ( label ) {
 							return label;
 						}
 
-						if ( ( isFetchingServicesList || isFetchingKeyringResult ) && isConnecting ) {
+						if ( isFetchingServicesList || isConnecting ) {
 							return __( 'Connecting…', 'jetpack-publicize-pkg' );
 						}
 

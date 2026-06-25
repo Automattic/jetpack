@@ -22,6 +22,7 @@ import { Button } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { useState, useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { useConnectReturnHandler } from '../../hooks/use-connect-return-handler';
 import { store as socialStore } from '../../social-store';
 import { features, getSocialScriptData, hasSocialPaidFeatures } from '../../utils';
 import ConnectionScreen from './connection-screen';
@@ -35,6 +36,9 @@ import SocialNotesToggle from './toggles/social-notes-toggle';
 import UtmToggle from './toggles/utm-toggle';
 
 export const SocialAdminPage = () => {
+	// Handle the return from a full-page OAuth connect redirect (before any gated early-returns).
+	useConnectReturnHandler();
+
 	const isSimple = isSimpleSite();
 
 	const isJetpackSite = isJetpackSelfHostedSite();
