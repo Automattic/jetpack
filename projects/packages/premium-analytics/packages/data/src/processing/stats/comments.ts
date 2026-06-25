@@ -3,38 +3,94 @@ import {
 	coerceStatsArray,
 	coerceStatsRecord,
 	createStatsListDataPoint,
+	getStatsLabel,
 	normalizeStatsSummary,
 } from './utils';
-import type {
-	StatsItemAction,
-	StatsNormalizedItemBase,
-	StatsNormalizedReport,
-	StatsRecord,
-} from './types';
+import type { StatsItemAction, StatsNormalizedItemBase, StatsNormalizedReport } from './types';
 import type { StatsQueryParams } from '../../utils/stats-params';
 
-export interface StatsCommentsItem extends StatsNormalizedItemBase< StatsCommentsItem > {
+export type StatsCommentsRawFollowData = {
+	params?: unknown;
+};
+
+export type StatsCommentsRawAuthor = {
+	name?: string | null;
+	comments?: string | number | null;
+	link?: string | null;
+	gravatar?: string | null;
+	follow_data?: StatsCommentsRawFollowData | null;
+};
+
+export type StatsCommentsRawPost = {
+	id?: string | number | null;
+	name?: string | null;
+	title?: string | null;
+	comments?: string | number | null;
+	link?: string | null;
+};
+
+export type StatsCommentsRawResponse = {
+	date?: string;
+	authors?: StatsCommentsRawAuthor[];
+	posts?: StatsCommentsRawPost[];
+	monthly_comments?: string | number;
+	total_comments?: string | number;
+	most_active_day?: string;
+	most_active_time?: string;
+	most_commented_post?: StatsCommentsRawPost;
+};
+
+export type StatsCommentsAuthorItem = StatsNormalizedItemBase< never > & {
 	value: number;
-	id?: unknown;
-	link?: unknown;
-	page?: string | null;
-	iconClassName?: string;
-	icon?: unknown;
+	iconClassName: 'avatar-user';
+	icon: string | null;
+	link: string | null;
 	className?: string;
-	actions?: StatsItemAction[];
+	actions: StatsItemAction[];
+	children: null;
+};
+
+export type StatsCommentsPostItem = StatsNormalizedItemBase< never > & {
+	id?: string | number | null;
+	value: number;
+	link: string | null;
+	page: string | null;
+	actions: StatsItemAction[];
+	children: null;
+};
+
+export type StatsCommentsGroupItem = StatsNormalizedItemBase<
+	StatsCommentsAuthorItem | StatsCommentsPostItem
+> & {
+	label: 'authors' | 'posts';
+	value: number;
+	children: Array< StatsCommentsAuthorItem | StatsCommentsPostItem >;
+};
+
+export type StatsCommentsItem =
+	| StatsCommentsAuthorItem
+	| StatsCommentsPostItem
+	| StatsCommentsGroupItem;
+
+export type StatsCommentsResponse = StatsNormalizedReport< StatsCommentsItem >;
+
+function normalizeCommentAvatar( avatar?: string | null ) {
+	return avatar ? `${ avatar.split( '?' )[ 0 ] }?d=mm` : null;
 }
 
 export function sanitizeStatsCommentsResponse(
 	response: unknown,
 	query?: StatsQueryParams
-): StatsNormalizedReport< StatsCommentsItem > {
+): StatsCommentsResponse {
 	const payload = coerceStatsRecord( response );
-	const authors = coerceStatsArray< StatsRecord >( payload.authors ).map( author => ( {
-		label: author.name,
+	const authors: StatsCommentsAuthorItem[] = coerceStatsArray< StatsCommentsRawAuthor >(
+		payload.authors
+	).map( author => ( {
+		label: getStatsLabel( author.name ),
 		value: safeParseFloat( author.comments ),
 		iconClassName: 'avatar-user',
-		icon: author.gravatar ?? null,
-		link: author.link ?? null,
+		icon: normalizeCommentAvatar( author.gravatar ),
+		link: typeof author.link === 'string' ? author.link : null,
 		className: 'module-content-list-item-large',
 		actions: [
 			{
@@ -44,16 +100,18 @@ export function sanitizeStatsCommentsResponse(
 		],
 		children: null,
 	} ) );
-	const posts = coerceStatsArray< StatsRecord >( payload.posts ).map( post => ( {
+	const posts: StatsCommentsPostItem[] = coerceStatsArray< StatsCommentsRawPost >(
+		payload.posts
+	).map( post => ( {
 		id: post.id,
-		label: post.name ?? post.title ?? '',
+		label: getStatsLabel( post.name ?? post.title ),
 		value: safeParseFloat( post.comments ),
-		link: post.link ?? null,
+		link: typeof post.link === 'string' ? post.link : null,
 		page: post.id ? `/stats/post/${ post.id }` : null,
-		actions: post.link ? [ { type: 'link', data: post.link } ] : [],
+		actions: typeof post.link === 'string' ? [ { type: 'link', data: post.link } ] : [],
 		children: null,
 	} ) );
-	const items = [
+	const groups: StatsCommentsGroupItem[] = [
 		{
 			label: 'authors',
 			value: authors.reduce( ( total, author ) => total + author.value, 0 ),
@@ -64,17 +122,11 @@ export function sanitizeStatsCommentsResponse(
 			value: posts.reduce( ( total, post ) => total + post.value, 0 ),
 			children: posts,
 		},
-	].filter( item => item.children.length );
+	];
+	const items = groups.filter( item => item.children.length );
 
 	return {
-		summary: {
-			...normalizeStatsSummary( {
-				total_comments: payload.total_comments,
-			} ),
-			most_active_day: payload.most_active_day,
-			most_active_time: payload.most_active_time,
-			monthly_comments: payload.monthly_comments,
-		},
+		summary: normalizeStatsSummary( payload, [ 'authors', 'posts' ] ),
 		data: items.length ? [ createStatsListDataPoint( response, query, items ) ] : [],
 	};
 }

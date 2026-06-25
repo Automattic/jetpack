@@ -2,18 +2,12 @@
  * Internal dependencies
  */
 import { statsCommentsQuery } from '../queries/stats-comments-query';
-import { useStatsReport } from './use-stats-report';
+import { useStatsQuery } from './use-stats-query';
 import type { UseStatsOptions } from './use-stats-report';
-import type { StatsCommentsItem, StatsNormalizedReport } from '../processing/stats';
-import type { StatsReportParams } from '../queries/stats-query';
+import type { StatsCommentsParams, StatsCommentsResponse } from '../queries/stats-comments-query';
 
-export type StatsCommentsResponse = StatsNormalizedReport< StatsCommentsItem >;
+export type { StatsCommentsParams, StatsCommentsResponse };
 
-export function useStatsComments( params: StatsReportParams, options?: UseStatsOptions ) {
-	return useStatsReport(
-		statsCommentsQuery,
-		params,
-		[ 'stats', 'comments', '__comparison__', 'disabled' ],
-		options
-	);
+export function useStatsComments( params?: StatsCommentsParams, options?: UseStatsOptions ) {
+	return useStatsQuery< StatsCommentsResponse >( statsCommentsQuery( params ), options );
 }

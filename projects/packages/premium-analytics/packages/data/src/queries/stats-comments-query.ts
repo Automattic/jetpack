@@ -1,7 +1,19 @@
 /**
  * Internal dependencies
  */
-import { statsReportQuery, type StatsReportParams } from './stats-query';
+import { statsProxyQuery, type StatsReportQueryOptions } from './stats-query';
 
-export const statsCommentsQuery = ( params: StatsReportParams ) =>
-	statsReportQuery( 'comments', 'stats/comments', params, 'comments' );
+export type StatsCommentsParams = Record< string, never >;
+
+export type { StatsCommentsResponse } from '../processing/stats';
+
+export const statsCommentsQuery = (
+	params: StatsCommentsParams = {}
+): StatsReportQueryOptions< 'comments' > =>
+	statsProxyQuery( {
+		name: 'comments',
+		version: '1.1',
+		endpoint: 'stats/comments',
+		params,
+		sanitizer: 'comments',
+	} );
