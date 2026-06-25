@@ -6,20 +6,19 @@
 	font-weight: var(--wpds-typography-font-weight-medium, 499);
 	line-height: 1;
 
-	// Trend colors resolve via the documented --charts-trend-* override,
-	// then the WPDS semantic token, then the chart's original palette.
-	// The deep fallback intentionally keeps the original values (not the
-	// WPDS spec) so the trend colors stay visually backward-compatible.
+	// Trend colors use the documented --charts-trend-* override API, falling
+	// back to the accessible WPDS semantic tokens (the original chart green/red
+	// did not meet contrast requirements).
 	&--up {
-		color: var(--charts-trend-up-color, var(--wpds-color-fg-content-success-weak, #1a8917));
+		color: var(--charts-trend-up-color, var(--wpds-color-fg-content-success-weak, #008030));
 	}
 
 	&--down {
-		color: var(--charts-trend-down-color, var(--wpds-color-fg-content-error-weak, #d63638));
+		color: var(--charts-trend-down-color, var(--wpds-color-fg-content-error-weak, #cc1818));
 	}
 
 	&--neutral {
-		color: var(--charts-trend-neutral-color, var(--wpds-color-fg-content-neutral-weak, #646970));
+		color: var(--charts-trend-neutral-color, var(--wpds-color-fg-content-neutral-weak, #707070));
 	}
 
 	&__icon {

@@ -73,13 +73,14 @@ The component uses CSS Modules with the following class structure:
 
 ## CSS Custom Properties
 
-The component exposes CSS custom properties for theming:
+The component exposes CSS custom properties for theming. When unset, each one
+resolves to the accessible WPDS semantic token shown below:
 
-| Property | Default | Description |
-|----------|---------|-------------|
-| `--charts-trend-up-color` | `#1a8917` | Color for upward trends (green) |
-| `--charts-trend-down-color` | `#d63638` | Color for downward trends (red) |
-| `--charts-trend-neutral-color` | `#646970` | Color for neutral trends (gray) |
+| Property | Default (WPDS token) | Description |
+|----------|----------------------|-------------|
+| `--charts-trend-up-color` | `--wpds-color-fg-content-success-weak` (`#008030`) | Color for upward trends (green) |
+| `--charts-trend-down-color` | `--wpds-color-fg-content-error-weak` (`#cc1818`) | Color for downward trends (red) |
+| `--charts-trend-neutral-color` | `--wpds-color-fg-content-neutral-weak` (`#707070`) | Color for neutral trends (gray) |
 
 ## Accessibility Attributes
 
