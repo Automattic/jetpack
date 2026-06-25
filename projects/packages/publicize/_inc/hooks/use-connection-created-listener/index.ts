@@ -1,7 +1,7 @@
 import { globalNoticesStore } from '@automattic/jetpack-components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useEffect } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import { store as socialStore } from '../../social-store';
 import { subscribeToConnectionEvents } from '../../utils';
 
@@ -14,29 +14,45 @@ const CONNECTING_TIMEOUT_MS = 3 * 60 * 1000;
  * missed.
  */
 export function useConnectionCreatedListener() {
-	const { refreshConnectionTestResults, setConnectingService } = useDispatch( socialStore );
+	const { refreshConnectionTestResults, setConnectingService, closeAddAccountModal } =
+		useDispatch( socialStore );
 
 	const { createSuccessNotice } = useDispatch( globalNoticesStore );
+
+	const getService = useSelect( select => select( socialStore ).getService, [] );
 
 	const connectingService = useSelect( select => select( socialStore ).getConnectingService(), [] );
 
 	useEffect(
 		() =>
 			subscribeToConnectionEvents( {
-				onCreated: () => {
-					// Keep the modal open so the user sees the new connection; just clear the busy
-					// state and refresh the list.
+				onCreated: message => {
+					// Connection landed: close the picker, clear the busy state, refresh the list, and
+					// announce it by name.
 					setConnectingService( undefined );
+					closeAddAccountModal();
 					refreshConnectionTestResults();
-					createSuccessNotice( __( 'Social account connected.', 'jetpack-publicize-pkg' ), {
-						type: 'snackbar',
-						isDismissible: true,
-					} );
+
+					const label = getService( message.service )?.label || message.service;
+					createSuccessNotice(
+						sprintf(
+							/* translators: %s is the social network name, e.g. "Bluesky". */
+							__( '%s account connected.', 'jetpack-publicize-pkg' ),
+							label
+						),
+						{ type: 'snackbar', isDismissible: true }
+					);
 				},
 				// The admin tab was dismissed without connecting — just drop the "Connecting…" state.
 				onCancelled: () => setConnectingService( undefined ),
 			} ),
-		[ createSuccessNotice, refreshConnectionTestResults, setConnectingService ]
+		[
+			closeAddAccountModal,
+			createSuccessNotice,
+			getService,
+			refreshConnectionTestResults,
+			setConnectingService,
+		]
 	);
 
 	useEffect( () => {

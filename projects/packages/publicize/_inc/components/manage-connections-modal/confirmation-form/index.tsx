@@ -182,10 +182,13 @@ export function ConfirmationForm( {
 				return;
 			}
 
+			// Close first, then create: createConnection optimistically adds the connection, which can
+			// remount the modal host (e.g. the empty-state → list swap). Closing up front keeps a
+			// freshly-mounted modal from re-showing this confirmation with the account now connected.
+			onComplete();
+
 			// Do not await the connection creation to unblock the UI
 			createConnection( data, optimisticData );
-
-			onComplete();
 		},
 		[
 			createConnection,
