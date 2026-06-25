@@ -120,6 +120,64 @@ class WPCOM_Admin_Bar_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * With no stored preference (a non-Simple, unconnected site) enrollment
+	 * resolves to false, the result is cached so the admin bar avoids a remote
+	 * lookup on every render, and a cached value short-circuits the resolution.
+	 */
+	public function test_hosting_dashboard_enrollment_resolves_and_caches() {
+		$user_id = wp_insert_user(
+			array(
+				'user_login' => 'dashboard_user',
+				'user_pass'  => 'pass',
+				'user_email' => 'dashboard@example.com',
+				'role'       => 'administrator',
+			)
+		);
+		wp_set_current_user( $user_id );
+		$cache_key = 'wpcom-hosting-dashboard-enrolled-' . $user_id;
+
+		$this->assertFalse( wpcom_admin_bar_is_hosting_dashboard_enrolled() );
+		$this->assertSame( 0, (int) get_transient( $cache_key ) );
+
+		set_transient( $cache_key, 1, HOUR_IN_SECONDS );
+		$this->assertTrue( wpcom_admin_bar_is_hosting_dashboard_enrolled() );
+	}
+
+	/**
+	 * When the user's default experience is the hosting dashboard, the Emails
+	 * node is surfaced and Plugins points at the my.wordpress.com dashboard.
+	 */
+	public function test_management_links_when_dashboard_enrolled() {
+		add_filter( 'wpcom_admin_bar_hosting_dashboard_enrolled', '__return_true' );
+		$admin_bar = self::make_test_admin_bar();
+		remove_filter( 'wpcom_admin_bar_hosting_dashboard_enrolled', '__return_true' );
+
+		$emails  = $admin_bar->get_node( 'wpcom-emails' );
+		$plugins = $admin_bar->get_node( 'wpcom-plugins' );
+
+		$this->assertNotNull( $emails, 'The wpcom-emails node should exist when enrolled.' );
+		$this->assertSame( 'https://my.wordpress.com/emails', $emails->href );
+		$this->assertNotNull( $plugins );
+		$this->assertSame( 'https://my.wordpress.com/plugins/manage', $plugins->href );
+	}
+
+	/**
+	 * When the user is not enrolled in the hosting dashboard, the Emails node is
+	 * omitted and Plugins points at classic Calypso.
+	 */
+	public function test_management_links_when_not_dashboard_enrolled() {
+		add_filter( 'wpcom_admin_bar_hosting_dashboard_enrolled', '__return_false' );
+		$admin_bar = self::make_test_admin_bar();
+		remove_filter( 'wpcom_admin_bar_hosting_dashboard_enrolled', '__return_false' );
+
+		$plugins = $admin_bar->get_node( 'wpcom-plugins' );
+
+		$this->assertNull( $admin_bar->get_node( 'wpcom-emails' ), 'The wpcom-emails node should be absent when not enrolled.' );
+		$this->assertNotNull( $plugins );
+		$this->assertSame( 'https://wordpress.com/plugins/manage/sites', $plugins->href );
+	}
+
+	/**
 	 * The plan badge must always render a clickable anchor, including on Atomic
 	 * sites where \WPCOM_Masterbar is absent and the slug falls back to the site
 	 * suffix. It must never render the old non-clickable <div>.
