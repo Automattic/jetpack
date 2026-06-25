@@ -27,6 +27,12 @@
 	float: right;
 }
 
+// Keep #44926 (no inner-text wrap) for width-set core/button nav buttons,
+// without the float / gap:0 / width-calc that caused the overlap (FORMS-576).
+.wp-block-jetpack-form-step-navigation .wp-block-button[style*="width:"] .wp-block-button__link {
+	white-space: nowrap;
+}
+
 .contact-form .wp-block-jetpack-form-step-navigation .wp-block-button__link {
 	width: 100%;
 }
