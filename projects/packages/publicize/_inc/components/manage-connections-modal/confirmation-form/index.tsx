@@ -1,7 +1,7 @@
 import { getRedirectUrl, useGlobalNotices } from '@automattic/jetpack-components';
 import { CheckboxControl, Notice, Button } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
-import { useCallback, useMemo } from '@wordpress/element';
+import { useCallback, useMemo, useState } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
 import { Link } from '@wordpress/ui';
 import { store as socialStore } from '../../../social-store';
@@ -126,6 +126,9 @@ export function ConfirmationForm( {
 
 	const { createConnection, setReconnectingAccount } = useDispatch( socialStore );
 
+	// Editor-opened tab: set once the connection is made, to show the "close this tab" terminal state.
+	const [ connected, setConnected ] = useState( false );
+
 	const onConfirm = useCallback(
 		async ( event: FormEvent ) => {
 			event.preventDefault();
@@ -163,16 +166,19 @@ export function ConfirmationForm( {
 				external_id: external_user_ID.toString(),
 			};
 
-			// Editor-opened tab: create, tell the editor tab, then close this tab.
+			// Editor-opened tab: create, tell the editor tab, then close this tab. The browser may
+			// block window.close() after a COOP redirect, so fall back to a "close this tab" state.
 			if ( connectSource === 'editor' ) {
 				const connection = await createConnection( data, optimisticData );
 
-				if ( connection ) {
-					broadcastConnectionCreated( service.id, String( connection.connection_id ) );
-					window.close();
+				if ( ! connection ) {
+					onComplete();
+					return;
 				}
 
-				onComplete();
+				broadcastConnectionCreated( service.id, String( connection.connection_id ) );
+				setConnected( true );
+				window.close();
 				return;
 			}
 
@@ -194,6 +200,20 @@ export function ConfirmationForm( {
 			accounts.not_connected,
 		]
 	);
+
+	// Editor-opened tab where window.close() was blocked: tell the user they can close it.
+	if ( connected ) {
+		return (
+			<section className={ styles.confirmation }>
+				<p className={ styles[ 'header-text' ] }>
+					{ __(
+						'✅ Account connected. You can close this tab and return to the editor.',
+						'jetpack-publicize-pkg'
+					) }
+				</p>
+			</section>
+		);
+	}
 
 	return (
 		<section className={ styles.confirmation }>
