@@ -1,5 +1,8 @@
 .x-zoom {
 
+	// The translucent rgba overlay colors (selection fill/stroke, reset
+	// background/border) have no WPDS equivalent and stay as-is; only the
+	// opaque foreground and focus colors are tokenized.
 	&__selection {
 		fill: var(--charts-zoom-selection-fill, rgba(56, 88, 233, 0.16));
 		stroke: var(--charts-zoom-selection-stroke, rgba(56, 88, 233, 0.65));
@@ -19,7 +22,7 @@
 		height: 28px;
 		padding: 0;
 		background: var(--charts-zoom-reset-bg, rgba(255, 255, 255, 0.92));
-		color: var(--charts-zoom-reset-fg, #1e1e1e);
+		color: var(--charts-zoom-reset-fg, var(--wpds-color-fg-content-neutral, #1e1e1e));
 		border:
 			var(--wpds-border-width-xs, 1px) solid
 			var(--charts-zoom-reset-border, rgba(0, 0, 0, 0.16));
@@ -32,7 +35,7 @@
 		}
 
 		&:focus-visible {
-			outline: 2px solid var(--charts-zoom-reset-focus, #3858e9);
+			outline: 2px solid var(--charts-zoom-reset-focus, var(--wpds-color-stroke-focus-brand, #3858e9));
 			outline-offset: 1px;
 		}
 	}
