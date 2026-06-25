@@ -9,6 +9,24 @@
 	flex-wrap: inherit;
 }
 
+// Legacy jetpack/button nav buttons only. The equivalent core/button rules were
+// removed (FORMS-576) because the float + zeroed gap made width-driven wrapping
+// overlap. These are kept untouched so existing jetpack/button forms (which
+// migrate to core/button on next edit) render exactly as before.
+.wp-block-jetpack-form-step-navigation:has(.wp-block-jetpack-button[style*="width:"]) {
+	gap: 0;
+}
+
+.wp-block-jetpack-form-step-navigation .wp-block-jetpack-button[style*="width:"] .wp-block-button__link {
+	width: calc(100% - var(--wp--style--block-gap, 1.5rem) / 2);
+	white-space: nowrap;
+}
+
+.wp-block-jetpack-form-step-navigation .wp-block-jetpack-button[style*="width:"] .is-next,
+.wp-block-jetpack-form-step-navigation .wp-block-jetpack-button[style*="width:"] .is-submit {
+	float: right;
+}
+
 .contact-form .wp-block-jetpack-form-step-navigation .wp-block-button__link {
 	width: 100%;
 }
