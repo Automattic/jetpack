@@ -1,10 +1,11 @@
 import { TabPanel } from '@wordpress/components';
+import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router';
 import useAnalytics from '../../hooks/use-analytics';
 import useIsJetpackUserNew from '../../hooks/use-is-jetpack-user-new';
-import { MY_JETPACK_SECTION_OVERVIEW } from './constants';
+import { MY_JETPACK_SECTION_OVERVIEW, MY_JETPACK_SECTION_PRODUCTS } from './constants';
 import { FullWidthSeparator } from './full-width-separator';
 import styles from './styles.module.scss';
 import { TabContent } from './tab-content';
@@ -17,9 +18,16 @@ import type { ReactNode } from 'react';
  *
  * @param {object}    root0               - Component props.
  * @param {ReactNode} root0.beforeContent - Content to render between the tab separator and tab content.
+ * @param {boolean}   root0.productsOnly  - When true, lock to the Products tab and hide the tab strip.
  * @return The rendered component.
  */
-export function MyJetpackTabPanel( { beforeContent }: { beforeContent?: ReactNode } ) {
+export function MyJetpackTabPanel( {
+	beforeContent,
+	productsOnly = false,
+}: {
+	beforeContent?: ReactNode;
+	productsOnly?: boolean;
+} ) {
 	const params = useParams();
 	const navigate = useNavigate();
 	const { recordEvent } = useAnalytics();
@@ -28,11 +36,16 @@ export function MyJetpackTabPanel( { beforeContent }: { beforeContent?: ReactNod
 	const [ tabKey, setTabKey ] = useState( 0 );
 	const lastNavigationSourceRef = useRef< 'internal' | 'external' >( 'external' );
 
-	// If the tab is not valid, use the default one.
+	// If the tab is not valid, use the default one. In products-only mode we lock to the
+	// Products tab (the tab strip itself is hidden via CSS) so the layout chrome — width,
+	// background and the separator below the header — is preserved without showing tabs.
 	const currentTab = useMemo( () => {
+		if ( productsOnly ) {
+			return MY_JETPACK_SECTION_PRODUCTS;
+		}
 		const validTab = isValidMyJetpackSection( params.section );
 		return validTab ? params.section : MY_JETPACK_SECTION_OVERVIEW;
-	}, [ params.section ] );
+	}, [ params.section, productsOnly ] );
 	const onTabSelect = useCallback(
 		( tabName: string ) => {
 			if ( tabName !== params.section ) {
@@ -96,7 +109,16 @@ export function MyJetpackTabPanel( { beforeContent }: { beforeContent?: ReactNod
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [] ); // track this only on page load
 
-	const tabs = useMemo( () => getMyJetpackSections(), [] );
+	const tabs = useMemo( () => {
+		// Build the Products tab directly in products-only mode: getMyJetpackSections() strips
+		// it for non-admins, and the tab strip is hidden anyway.
+		if ( productsOnly ) {
+			return [
+				{ name: MY_JETPACK_SECTION_PRODUCTS, title: __( 'Products', 'jetpack-my-jetpack' ) },
+			];
+		}
+		return getMyJetpackSections();
+	}, [ productsOnly ] );
 
 	return (
 		<TabPanel
@@ -104,6 +126,7 @@ export function MyJetpackTabPanel( { beforeContent }: { beforeContent?: ReactNod
 			className={ clsx(
 				styles[ 'tab-panel' ],
 				styles[ 'my-jetpack-tab-panel--full-width' ],
+				productsOnly && styles[ 'my-jetpack-tab-panel--products-only' ],
 				'jetpack-my-jetpack-tab-panel'
 			) }
 			initialTabName={ currentTab }
