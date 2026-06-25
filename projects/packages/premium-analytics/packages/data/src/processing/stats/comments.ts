@@ -90,7 +90,7 @@ export function sanitizeStatsCommentsResponse(
 		value: safeParseFloat( author.comments ),
 		iconClassName: 'avatar-user',
 		icon: normalizeCommentAvatar( author.gravatar ),
-		link: typeof author.link === 'string' ? author.link : null,
+		link: null,
 		className: 'module-content-list-item-large',
 		actions: [
 			{

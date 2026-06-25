@@ -28,7 +28,7 @@ describe( 'Stats comments normalizer', () => {
 								value: 12,
 								iconClassName: 'avatar-user',
 								icon: 'https://secure.gravatar.com/avatar/5a83891a81b057fed56930a6aaaf7b3c?d=mm',
-								link: '?user_id=1662656',
+								link: null,
 								className: 'module-content-list-item-large',
 								actions: [ { type: 'follow', data: false } ],
 								children: null,
