@@ -41,7 +41,7 @@ type StatsPostRawWeek = {
 	change?: StatsPostRawNumeric;
 };
 
-export type StatsPostRawResponse = {
+type StatsPostRawResponse = {
 	date?: string;
 	views?: StatsPostRawNumeric;
 	years?: Record< string, StatsPostRawYear >;
@@ -109,7 +109,7 @@ export function sanitizeStatsPostResponse( response: unknown ): StatsPostRespons
 		return {};
 	}
 
-	const payload = coerceStatsRecord( response );
+	const payload = response as StatsPostRawResponse;
 
 	return {
 		...( typeof payload.date === 'string' ? { date: payload.date } : {} ),
