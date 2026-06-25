@@ -29,7 +29,7 @@ class Podcast_Gate_Test extends BaseTestCase {
 		// self-hosted cases clear it explicitly via `as_self_hosted()`.
 		Constants::set_constant( 'IS_WPCOM', true );
 		self::reset_active_plan_cache();
-		self::reset_purchases_cache();
+		Podcast_Gate::flush_purchases_cache();
 	}
 
 	protected function tearDown(): void {
@@ -38,7 +38,7 @@ class Podcast_Gate_Test extends BaseTestCase {
 		Constants::clear_constants();
 		WorDBless_Options::init()->clear_options();
 		self::reset_active_plan_cache();
-		self::reset_purchases_cache();
+		Podcast_Gate::flush_purchases_cache();
 		parent::tearDown();
 	}
 
@@ -88,12 +88,14 @@ class Podcast_Gate_Test extends BaseTestCase {
 	 * @param array $slugs Product slugs to present as current purchases.
 	 */
 	private static function seed_purchases( array $slugs ): void {
+		// Clear the memo (and any stale transient) first, then seed, so the
+		// gate reads the seeded value fresh.
+		Podcast_Gate::flush_purchases_cache();
 		$purchases = array();
 		foreach ( $slugs as $slug ) {
 			$purchases[] = array( 'product_slug' => $slug );
 		}
 		set_transient( Podcast_Gate::PURCHASES_TRANSIENT, $purchases );
-		self::reset_purchases_cache();
 	}
 
 	/**
@@ -101,19 +103,8 @@ class Podcast_Gate_Test extends BaseTestCase {
 	 */
 	private static function reset_active_plan_cache(): void {
 		$property = ( new \ReflectionClass( Current_Plan::class ) )->getProperty( 'active_plan_cache' );
-		// @todo Remove once we drop PHP < 8.1 support.
-		if ( PHP_VERSION_ID < 80100 ) {
-			$property->setAccessible( true );
-		}
-		$property->setValue( null, null );
-	}
-
-	/**
-	 * The gate memoizes purchases per request; clear it between tests.
-	 */
-	private static function reset_purchases_cache(): void {
-		$property = ( new \ReflectionClass( Podcast_Gate::class ) )->getProperty( 'purchases_cache' );
-		// @todo Remove once we drop PHP < 8.1 support.
+		// @todo Remove once we drop PHP < 8.1 support. `setAccessible()` is
+		// deprecated in 8.5 (a no-op since 8.1), so only call it where it's needed.
 		if ( PHP_VERSION_ID < 80100 ) {
 			$property->setAccessible( true );
 		}

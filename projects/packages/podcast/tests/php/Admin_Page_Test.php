@@ -34,23 +34,11 @@ class Admin_Page_Test extends BaseTestCase {
 		remove_all_actions( 'load-jetpack_page_' . Admin_Page::ADMIN_PAGE_SLUG );
 		unset( $GLOBALS['menu'], $GLOBALS['submenu'] );
 		unset( $_GET[ Admin_Page::PURCHASE_RETURN_QUERY_VAR ] );
-		delete_transient( Podcast_Gate::PURCHASES_TRANSIENT );
-		self::reset_gate_purchases_cache();
+		// Drops the transient and the request-scoped memo so neither leaks into
+		// a sibling test.
+		Podcast_Gate::flush_purchases_cache();
 		wp_set_current_user( 0 );
 		parent::tearDown();
-	}
-
-	/**
-	 * Clear the gate's request-scoped purchases memo so a seeded transient is
-	 * read fresh (and never leaks into a sibling test).
-	 */
-	private static function reset_gate_purchases_cache(): void {
-		$property = ( new \ReflectionClass( Podcast_Gate::class ) )->getProperty( 'purchases_cache' );
-		// @todo Remove once we drop PHP < 8.1 support.
-		if ( PHP_VERSION_ID < 80100 ) {
-			$property->setAccessible( true );
-		}
-		$property->setValue( null, null );
 	}
 
 	/**
@@ -142,11 +130,12 @@ class Admin_Page_Test extends BaseTestCase {
 	 * `/upgrades` request).
 	 */
 	public function test_inject_script_data_targets_growth_on_self_hosted() {
+		// Clear the memo first, then seed, so the transient is read fresh.
+		Podcast_Gate::flush_purchases_cache();
 		set_transient(
 			Podcast_Gate::PURCHASES_TRANSIENT,
 			array( array( 'product_slug' => 'jetpack_growth_yearly' ) )
 		);
-		self::reset_gate_purchases_cache();
 
 		$data = Admin_Page::inject_podcast_script_data( array() );
 
@@ -166,8 +155,8 @@ class Admin_Page_Test extends BaseTestCase {
 	 */
 	public function test_inject_script_data_busts_stale_purchases_on_return() {
 		// Stale "free" lookup cached before the purchase completed.
+		Podcast_Gate::flush_purchases_cache();
 		set_transient( Podcast_Gate::PURCHASES_TRANSIENT, array() );
-		self::reset_gate_purchases_cache();
 		$_GET[ Admin_Page::PURCHASE_RETURN_QUERY_VAR ] = '1';
 
 		Admin_Page::inject_podcast_script_data( array() );
