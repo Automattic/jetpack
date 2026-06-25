@@ -3,6 +3,7 @@
  */
 import { statsAppProxyQuery } from '../stats-app-query';
 import { statsArchivesQuery } from '../stats-archives-query';
+import { statsInsightsQuery } from '../stats-insights-query';
 import { statsLocationsQuery } from '../stats-locations-query';
 import { statsTopPostsQuery } from '../stats-top-posts-query';
 import { statsVisitsQuery } from '../stats-visits-query';
@@ -194,5 +195,18 @@ describe( 'Stats query factories', () => {
 			} )
 		);
 		expect( apiParams ).not.toHaveProperty( 'quantity' );
+	} );
+
+	it( 'builds insights query keys without report params', () => {
+		expect( statsInsightsQuery().queryKey ).toEqual( [
+			'stats',
+			'insights',
+			'1.1',
+			'stats/insights',
+			'GET',
+			{},
+			undefined,
+			'insights',
+		] );
 	} );
 } );

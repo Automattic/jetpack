@@ -2,32 +2,19 @@
  * Internal dependencies
  */
 import { statsProxyQuery } from './stats-query';
-import type { StatsQueryParams } from '../utils/stats-params';
+import type { StatsReportQueryOptions } from './stats-query';
 
-export type StatsInsightsYear = {
-	year: string;
-	total_posts: number;
-	total_comments: number;
-	avg_comments: number;
-	total_likes: number;
-	avg_likes: number;
-	total_words: number;
-	avg_words: number;
-};
+export type StatsInsightsParams = Record< string, never >;
 
-export type StatsInsightsResponse = {
-	highest_hour: number;
-	highest_day_percent: number;
-	highest_day_of_week: number;
-	highest_hour_percent: number;
-	hourly_views: unknown[];
-	years: StatsInsightsYear[];
-};
+export type { StatsInsightsResponse, StatsInsightsYear } from '../processing/stats';
 
-export const statsInsightsQuery = ( params: StatsQueryParams = {} ) =>
+export const statsInsightsQuery = (
+	params: StatsInsightsParams = {}
+): StatsReportQueryOptions< 'insights' > =>
 	statsProxyQuery( {
 		name: 'insights',
 		version: '1.1',
 		endpoint: 'stats/insights',
 		params,
+		sanitizer: 'insights',
 	} );

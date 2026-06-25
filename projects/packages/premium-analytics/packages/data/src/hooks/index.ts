@@ -33,7 +33,11 @@ export {
 	type StatsVisitsStatFields,
 } from './use-stats-visits';
 export { useStatsInsights } from './use-stats-insights';
-export type { StatsInsightsResponse, StatsInsightsYear } from './use-stats-insights';
+export type {
+	StatsInsightsParams,
+	StatsInsightsResponse,
+	StatsInsightsYear,
+} from './use-stats-insights';
 export type { UseStatsOptions } from './use-stats-report';
 
 /**
