@@ -83,14 +83,6 @@ interface WidgetDashboardWithWidgetProps extends WidgetDashboardWithWidgetContro
 	widgetUuid?: string;
 }
 
-/**
- * Applies the target host root font size while the story is mounted.
- *
- * @param root0                 - Component props.
- * @param root0.children        - Story content.
- * @param root0.hostEnvironment - Host environment to emulate.
- * @return Story content wrapped with root font-size behavior.
- */
 function HostRootFontSize( {
 	children,
 	hostEnvironment,
@@ -114,21 +106,6 @@ function HostRootFontSize( {
 	return children;
 }
 
-/**
- * Renders one widget inside a lightweight dashboard-like shell.
- *
- * @param root0                 - Component props.
- * @param root0.widgetType      - Widget metadata.
- * @param root0.renderComponent - Widget render component.
- * @param root0.attributes      - Widget attributes.
- * @param root0.dashboardWidth  - Dashboard width for the story viewport.
- * @param root0.widgetWidth     - Widget width in dashboard columns.
- * @param root0.widgetHeight    - Widget height in dashboard rows.
- * @param root0.rowHeight       - Dashboard row height.
- * @param root0.hostEnvironment - Host environment to emulate.
- * @param root0.pageTitle       - Story page title.
- * @return Widget dashboard story element.
- */
 export function WidgetDashboardWithWidget( {
 	widgetType,
 	renderModule,

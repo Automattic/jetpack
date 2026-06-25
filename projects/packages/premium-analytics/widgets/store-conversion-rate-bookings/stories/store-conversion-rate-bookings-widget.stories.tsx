@@ -1,4 +1,5 @@
 import { getDefaultQueryParams } from '@jetpack-premium-analytics/data';
+import { SELECTABLE_PRESETS, type SelectablePresetId } from '@jetpack-premium-analytics/datetime';
 import apiFetch from '@wordpress/api-fetch';
 import { registerReportMocks } from '../../../packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
 import {
@@ -9,16 +10,41 @@ import {
 } from '../../stories/widget-dashboard-with-widget';
 import StoreConversionRateBookingsRender from '../render';
 import widgetDefinition from '../widget';
-import type { Meta, StoryObj } from '@storybook/react';
+import type { Decorator, Meta, StoryObj } from '@storybook/react';
 import type { APIFetchMiddleware } from '@wordpress/api-fetch';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
-import type { ComponentType } from 'react';
+import type { ComponentProps, ComponentType } from 'react';
 
 const API_BASE = '/jetpack-premium-analytics/v1/proxy/v2/analytics/reports';
 const CONVERSION_RATE_PATH = `${ API_BASE }/sessions/by-conversion-rate`;
+const STORE_CONVERSION_RATE_BOOKINGS_RENDER_MODULE = 'storybook/store-conversion-rate-bookings';
+const DEFAULT_PRESET = 'last-30-days' satisfies SelectablePresetId;
+const PRESET_OPTIONS = SELECTABLE_PRESETS;
 
 let conversionRateMocksRegistered = false;
 let conversionRateRequestCount = 0;
+
+type StoreConversionRateBookingsRenderProps = ComponentProps<
+	typeof StoreConversionRateBookingsRender
+>;
+
+interface StoreConversionRateBookingsStoryControls {
+	withComparison: boolean;
+	preset: SelectablePresetId;
+}
+
+type StoreConversionRateBookingsStoryProps = StoreConversionRateBookingsRenderProps &
+	StoreConversionRateBookingsStoryControls;
+
+interface StoreConversionRateBookingsDashboardStoryProps
+	extends WidgetDashboardWithWidgetControls,
+		StoreConversionRateBookingsStoryControls {}
+
+const withWidgetCanvas: Decorator = Story => (
+	<div style={ { width: '100%', height: '300px' } }>
+		<Story />
+	</div>
+);
 
 /**
  * Builds a mock conversion-rate report response.
@@ -75,13 +101,62 @@ function registerConversionRateMocks(): void {
 	apiFetch.use( conversionRateMiddleware );
 }
 
-registerReportMocks();
-registerConversionRateMocks();
+function getStoreConversionRateBookingsAttributes(
+	withComparison = false,
+	preset: SelectablePresetId = DEFAULT_PRESET
+): StoreConversionRateBookingsRenderProps[ 'attributes' ] {
+	return {
+		reportParams: getDefaultQueryParams( withComparison, preset ),
+	};
+}
 
-const STORE_CONVERSION_RATE_BOOKINGS_RENDER_MODULE = 'storybook/store-conversion-rate-bookings';
+function getDefaultQueryParamsSource( {
+	withComparison,
+	preset,
+}: Partial< StoreConversionRateBookingsStoryControls > ) {
+	const hasComparison = Boolean( withComparison );
+	const storyPreset = preset ?? DEFAULT_PRESET;
 
-interface StoreConversionRateBookingsDashboardStoryProps extends WidgetDashboardWithWidgetControls {
-	withComparison: boolean;
+	if ( ! hasComparison && storyPreset === DEFAULT_PRESET ) {
+		return 'getDefaultQueryParams()';
+	}
+
+	if ( hasComparison && storyPreset === DEFAULT_PRESET ) {
+		return 'getDefaultQueryParams( true )';
+	}
+
+	return `getDefaultQueryParams( ${ hasComparison ? 'true' : 'false' }, '${ storyPreset }' )`;
+}
+
+function getStoreConversionRateBookingsSource(
+	args: Partial< StoreConversionRateBookingsStoryControls >
+) {
+	return `import { getDefaultQueryParams } from '@jetpack-premium-analytics/data';
+
+<StoreConversionRateBookingsRender
+\tattributes={ {
+\t\treportParams: ${ getDefaultQueryParamsSource( args ) },
+\t} }
+/>`;
+}
+
+/**
+ * Renders the standalone store conversion rate bookings widget story.
+ *
+ * @param root0                - Story controls.
+ * @param root0.withComparison - Whether to include comparison report params.
+ * @param root0.preset         - Date-range preset to use for report params.
+ * @return Store conversion rate bookings widget story element.
+ */
+function renderStoreConversionRateBookings( {
+	withComparison,
+	preset,
+}: StoreConversionRateBookingsStoryControls ) {
+	return (
+		<StoreConversionRateBookingsRender
+			attributes={ getStoreConversionRateBookingsAttributes( withComparison, preset ) }
+		/>
+	);
 }
 
 /**
@@ -89,10 +164,12 @@ interface StoreConversionRateBookingsDashboardStoryProps extends WidgetDashboard
  *
  * @param root0                - Story controls.
  * @param root0.withComparison - Whether to include comparison report params.
+ * @param root0.preset         - Date-range preset to use for report params.
  * @return Store conversion rate bookings dashboard story element.
  */
 function StoreConversionRateBookingsDashboardStory( {
 	withComparison,
+	preset,
 	...dashboardStoryArgs
 }: StoreConversionRateBookingsDashboardStoryProps ) {
 	return (
@@ -103,25 +180,27 @@ function StoreConversionRateBookingsDashboardStory( {
 			renderComponent={
 				StoreConversionRateBookingsRender as ComponentType< WidgetRenderProps< unknown > >
 			}
-			attributes={ {
-				reportParams: getDefaultQueryParams( withComparison ),
-			} }
+			attributes={ getStoreConversionRateBookingsAttributes( withComparison, preset ) }
 		/>
 	);
 }
 
+registerReportMocks();
+registerConversionRateMocks();
+
 const meta = {
 	title: 'Packages/Premium Analytics/Widgets/StoreConversionRateBookings',
-	component: StoreConversionRateBookingsDashboardStory,
+	component: StoreConversionRateBookingsRender,
 	tags: [ 'autodocs' ],
-	args: {
-		...DEFAULT_WIDGET_DASHBOARD_STORY_ARGS,
-		withComparison: true,
-	},
 	argTypes: {
-		...widgetDashboardWithWidgetArgTypes,
+		preset: {
+			control: 'select',
+			options: PRESET_OPTIONS,
+			description: 'Date-range preset used to generate the widget report params.',
+		},
 		withComparison: {
 			control: 'boolean',
+			description: 'Include previous-period comparison report params.',
 		},
 	},
 	parameters: {
@@ -132,10 +211,93 @@ const meta = {
 			},
 		},
 	},
-} satisfies Meta< typeof StoreConversionRateBookingsDashboardStory >;
+} satisfies Meta< StoreConversionRateBookingsStoryProps >;
 
 export default meta;
 
 type Story = StoryObj< typeof meta >;
+type DashboardStory = StoryObj< StoreConversionRateBookingsDashboardStoryProps >;
 
-export const WidgetDashboardWithWidget: Story = {};
+/**
+ * Default state for the current report period.
+ */
+export const Default: Story = {
+	render: renderStoreConversionRateBookings,
+	args: {
+		preset: DEFAULT_PRESET,
+		withComparison: false,
+	},
+	decorators: [ withWidgetCanvas ],
+	parameters: {
+		docs: {
+			source: {
+				transform: (
+					_source: string,
+					storyContext: { args: Partial< StoreConversionRateBookingsStoryControls > }
+				) => getStoreConversionRateBookingsSource( storyContext.args ),
+			},
+		},
+	},
+};
+
+/**
+ * Comparison period enabled, showing period-over-period conversion change.
+ */
+export const WithComparison: Story = {
+	render: renderStoreConversionRateBookings,
+	args: {
+		preset: DEFAULT_PRESET,
+		withComparison: true,
+	},
+	decorators: [ withWidgetCanvas ],
+	parameters: {
+		docs: {
+			source: {
+				transform: (
+					_source: string,
+					storyContext: { args: Partial< StoreConversionRateBookingsStoryControls > }
+				) => getStoreConversionRateBookingsSource( storyContext.args ),
+			},
+		},
+	},
+};
+
+/**
+ * Renders the widget through the shared dashboard harness.
+ */
+export const WidgetDashboardWithWidget: DashboardStory = {
+	render: args => <StoreConversionRateBookingsDashboardStory { ...args } />,
+	args: {
+		...DEFAULT_WIDGET_DASHBOARD_STORY_ARGS,
+		preset: DEFAULT_PRESET,
+		withComparison: true,
+	},
+	argTypes: {
+		...widgetDashboardWithWidgetArgTypes,
+		preset: {
+			control: 'select',
+			options: PRESET_OPTIONS,
+			description: 'Date-range preset used to generate the widget report params.',
+		},
+		withComparison: {
+			control: 'boolean',
+			description: 'Include previous-period comparison report params.',
+		},
+	},
+	parameters: {
+		docs: {
+			source: {
+				code: `import { getDefaultQueryParams } from '@jetpack-premium-analytics/data';
+
+<WidgetDashboardWithWidget
+\twidgetType={ widgetDefinition }
+\trenderModule="storybook/store-conversion-rate-bookings"
+\trenderComponent={ StoreConversionRateBookingsRender }
+\tattributes={ {
+\t\treportParams: getDefaultQueryParams( true ),
+\t} }
+/>`,
+			},
+		},
+	},
+};
