@@ -17,6 +17,7 @@ export { sanitizeStatsInsightsResponse } from './insights';
 export { sanitizeStatsEmailSummaryResponse } from './email-summary';
 export { sanitizeStatsEmailBreakdownResponse } from './email-breakdown';
 export { sanitizeStatsArchivesResponse } from './archives';
+export { sanitizeStatsStreakResponse } from './streak';
 export type { StatsTopPostsItem } from './top-posts';
 export type { StatsReferrersItem } from './referrers';
 export type { StatsClicksItem } from './clicks';
@@ -33,6 +34,7 @@ export type {
 export type { StatsEmailSummaryItem } from './email-summary';
 export type { StatsEmailBreakdownItem } from './email-breakdown';
 export type { StatsArchivesItem } from './archives';
+export type { StatsStreakRawResponse, StatsStreakResponse } from './streak';
 export type { StatsTimeSeriesDataPoint, StatsTimeSeriesReport } from './time-series';
 export type {
 	StatsItemAction,

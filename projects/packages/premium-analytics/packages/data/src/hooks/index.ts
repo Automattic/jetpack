@@ -26,6 +26,11 @@ export {
 export type { StatsAppDashboardModuleSettings } from './use-stats-app-dashboard-module-settings';
 export { useStatsArchives, type StatsArchivesResponse } from './use-stats-archives';
 export {
+	useStatsStreak,
+	type StatsStreakParams,
+	type StatsStreakResponse,
+} from './use-stats-streak';
+export {
 	useStatsVisits,
 	type StatsVisitsParams,
 	type StatsVisitsResponse,
