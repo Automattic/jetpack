@@ -13,6 +13,27 @@ export type ConnectionCancelledMessage = {
 
 export type ConnectionMessage = ConnectionCreatedMessage | ConnectionCancelledMessage;
 
+let sendChannel: BroadcastChannel | undefined;
+
+/**
+ * Lazily create a persistent channel for sending. Closing a channel right after postMessage drops
+ * the message before it's dispatched to other tabs, so the sender channel is kept open for the
+ * page's lifetime (the tab usually closes itself moments later anyway).
+ *
+ * @return The shared send channel, or undefined when BroadcastChannel is unavailable.
+ */
+function getSendChannel(): BroadcastChannel | undefined {
+	if ( typeof BroadcastChannel === 'undefined' ) {
+		return undefined;
+	}
+
+	if ( ! sendChannel ) {
+		sendChannel = new BroadcastChannel( CONNECTION_BROADCAST_CHANNEL );
+	}
+
+	return sendChannel;
+}
+
 /**
  * Broadcast that a connection was created, so an editor tab that opened the flow can refresh.
  *
@@ -20,13 +41,7 @@ export type ConnectionMessage = ConnectionCreatedMessage | ConnectionCancelledMe
  * @param connectionId - The new connection id.
  */
 export function broadcastConnectionCreated( service: string, connectionId: string ): void {
-	if ( typeof BroadcastChannel === 'undefined' ) {
-		return;
-	}
-
-	const channel = new BroadcastChannel( CONNECTION_BROADCAST_CHANNEL );
-	channel.postMessage( { type: 'connection-created', service, connectionId } );
-	channel.close();
+	getSendChannel()?.postMessage( { type: 'connection-created', service, connectionId } );
 }
 
 /**
@@ -36,13 +51,7 @@ export function broadcastConnectionCreated( service: string, connectionId: strin
  * @param service - Service id the flow was for.
  */
 export function broadcastConnectionCancelled( service: string ): void {
-	if ( typeof BroadcastChannel === 'undefined' ) {
-		return;
-	}
-
-	const channel = new BroadcastChannel( CONNECTION_BROADCAST_CHANNEL );
-	channel.postMessage( { type: 'connection-cancelled', service } );
-	channel.close();
+	getSendChannel()?.postMessage( { type: 'connection-cancelled', service } );
 }
 
 /**
