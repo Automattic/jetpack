@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Donations Block: render the static fallback content with email-friendly CTA buttons in the block email renderer.

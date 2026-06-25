@@ -33,8 +33,9 @@ function register_block() {
 		Blocks::jetpack_register_block(
 			__DIR__,
 			array(
-				'render_callback' => __NAMESPACE__ . '\render_block',
-				'plan_check'      => true,
+				'render_callback'       => __NAMESPACE__ . '\render_block',
+				'render_email_callback' => __NAMESPACE__ . '\render_email',
+				'plan_check'            => true,
 			)
 		);
 	}
@@ -364,6 +365,55 @@ function render_block( $attr, $content ) {
 		$custom_styles ? '<style>' . $custom_styles . '</style>' : '',
 		esc_attr( $tab_content_class )
 	);
+}
+
+/**
+ * WooCommerce Email Editor render callback for the Donations block.
+ *
+ * Reuses the block's static fallback HTML (headings, supporting text and
+ * separators) and swaps each fallback donation link for an email-friendly CTA
+ * button rendered by the Button block's own email renderer.
+ *
+ * @param string $block_content     The rendered (fallback) block content.
+ * @param array  $parsed_block      The parsed block data.
+ * @param object $rendering_context The email rendering context.
+ *
+ * @return string
+ */
+function render_email( $block_content, array $parsed_block, $rendering_context ) {
+	if ( ! is_string( $block_content ) || '' === trim( $block_content )
+		|| ! function_exists( '\Automattic\Jetpack\Extensions\Button\render_email' )
+		|| ! class_exists( '\Automattic\WooCommerce\EmailEditor\Integrations\Core\Renderer\Blocks\Button' ) ) {
+		return $block_content;
+	}
+
+	$email_attrs = $parsed_block['email_attrs'] ?? array();
+
+	$rendered = preg_replace_callback(
+		'#<a\b[^>]*\bclass="[^"]*\bjetpack-donations-fallback-link\b[^"]*"[^>]*>(.*?)</a>#is',
+		static function ( $matches ) use ( $rendering_context, $email_attrs ) {
+			$text = trim( wp_strip_all_tags( $matches[1] ) );
+			$url  = '#';
+			if ( preg_match( '/\bhref="([^"]*)"/i', $matches[0], $href ) ) {
+				$url = html_entity_decode( $href[1], ENT_QUOTES );
+			}
+
+			$button_parsed_block = array(
+				'attrs'       => array(
+					'text'    => '' !== $text ? $text : __( 'Donate', 'jetpack' ),
+					'url'     => $url,
+					'element' => 'a',
+				),
+				'email_attrs' => $email_attrs,
+			);
+
+			return \Automattic\Jetpack\Extensions\Button\render_email( '', $button_parsed_block, $rendering_context );
+		},
+		$block_content
+	);
+
+	// preg_replace_callback returns null on PCRE failure (e.g. backtrack limit); keep the fallback content intact.
+	return null === $rendered ? $block_content : $rendered;
 }
 
 /**
