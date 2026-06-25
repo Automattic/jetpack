@@ -100,4 +100,10 @@ export {
 /**
  * Types
  */
-export type { OrderMetricKey, OrderMetrics, OrdersSummary, DataFormat } from './types';
+export type {
+	OrderMetricKey,
+	OrderMetrics,
+	OrdersSummary,
+	DataFormat,
+	WidgetErrorConfig,
+} from './types';

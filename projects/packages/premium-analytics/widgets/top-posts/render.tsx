@@ -11,6 +11,7 @@ import {
 	useWidgetRootContext,
 	WidgetRoot,
 	type ReportParamsFieldAttributes,
+	type WidgetErrorConfig,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useMemo } from 'react';
 /**
@@ -18,14 +19,6 @@ import { useMemo } from 'react';
  */
 import { TopPostsWidget } from './top-posts-widget';
 import type { TopPostRow } from './types';
-
-type WidgetErrorConfig = {
-	message: string;
-	action?: {
-		label: string;
-		onClick: () => void;
-	};
-};
 
 type TopPostsRenderProps = {
 	attributes?: Partial< ReportParamsFieldAttributes >;

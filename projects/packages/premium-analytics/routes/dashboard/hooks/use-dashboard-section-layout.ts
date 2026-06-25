@@ -63,7 +63,7 @@ export function useDashboardSectionLayout(
 
 	const resetLayout = useCallback( async () => {
 		const fresh = ( await apiFetch( {
-			path: `/${ DASHBOARD_REST_NAMESPACE }/dashboards/${ dashboardName }/default-layout`,
+			path: `/${ DASHBOARD_REST_NAMESPACE }/dashboards/${ dashboardName }/sections/${ activeSectionId }/default-layout`,
 		} ) ) as DashboardWidget[];
 
 		void set( DASHBOARD_PREFERENCES_SCOPE, PREFERENCES_KEY, {

@@ -94,6 +94,69 @@ function get_dashboard_section_layouts_for( $dashboard_name ) {
 }
 
 /**
+ * Resolves the default layout for a specific dashboard section.
+ *
+ * A present section key is authoritative even when its layout is an empty
+ * array. Missing section keys fall back to the flat dashboard default so older
+ * callers still have a sensible reset target.
+ *
+ * @param string $dashboard_name Identifier of the dashboard.
+ * @param string $section_id     Dashboard section ID.
+ * @return array Widget layout array.
+ */
+function get_dashboard_section_default_layout_for( $dashboard_name, $section_id ) {
+	$section_layouts = get_dashboard_section_layouts_for( $dashboard_name );
+
+	if ( is_string( $section_id ) && array_key_exists( $section_id, $section_layouts ) ) {
+		return $section_layouts[ $section_id ];
+	}
+
+	return get_dashboard_default_layout_for( $dashboard_name );
+}
+
+/**
+ * REST callback returning the default layout for a requested dashboard section.
+ *
+ * @param \WP_REST_Request $request REST request carrying the dashboard and section names.
+ * @return \WP_REST_Response Response wrapping the section default layout array.
+ */
+function get_dashboard_section_default_layout_response( $request ) {
+	return rest_ensure_response(
+		get_dashboard_section_default_layout_for( $request['name'], $request['section'] )
+	);
+}
+
+/**
+ * Registers the REST route that exposes per-section default layouts.
+ *
+ * @return void
+ */
+function register_dashboard_section_default_layout_route() {
+	register_rest_route(
+		DASHBOARD_REST_NAMESPACE,
+		'/dashboards/(?P<name>[a-z][a-z0-9-]*(?:_[a-z0-9-]+)+)/sections/(?P<section>[a-z][a-z0-9-]*)/default-layout',
+		array(
+			'methods'             => \WP_REST_Server::READABLE,
+			'callback'            => __NAMESPACE__ . '\\get_dashboard_section_default_layout_response',
+			'permission_callback' => static function () {
+				return current_user_can( 'manage_options' );
+			},
+			'args'                => array(
+				'name'    => array(
+					'description' => __( 'Dashboard identifier as produced by the build pipeline.', 'jetpack-premium-analytics' ),
+					'type'        => 'string',
+				),
+				'section' => array(
+					'description' => __( 'Dashboard section identifier.', 'jetpack-premium-analytics' ),
+					'type'        => 'string',
+				),
+			),
+		)
+	);
+}
+add_action( 'rest_api_init', __NAMESPACE__ . '\\register_dashboard_section_default_layout_route' );
+
+/**
  * Adds section layouts to the dashboard preference defaults.
  *
  * @param array  $preference_defaults Preference defaults from earlier callbacks.

@@ -13,4 +13,5 @@
 - The PHP preference scope and keys must mirror `routes/dashboard/hooks/constants.ts` and the section layout hook.
 - A missing section layout falls back to the flat dashboard layout on the client.
 - A present section layout with an empty array renders the dashboard's empty state instead of falling back to the flat default.
+- Resetting a section restores that section's server-provided default layout.
 - Section IDs are mirrored from `routes/dashboard/config/sections.ts`.
