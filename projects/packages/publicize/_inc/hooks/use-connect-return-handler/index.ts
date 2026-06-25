@@ -75,6 +75,8 @@ export function useConnectReturnHandler() {
 			if ( service?.url && ! NEEDS_INPUT_SERVICE_IDS.has( intentService ) ) {
 				startServiceConnect( service.url, intentService, { source: 'editor' } );
 			} else {
+				// The modal's ConnectForm will carry source=editor through to the result.
+				setConnectSource( 'editor' );
 				setPreselectService( intentService );
 				openConnectionsModal();
 			}
@@ -114,6 +116,7 @@ export function useConnectReturnHandler() {
 
 			if ( connection.service_name === 'bluesky' ) {
 				// Bluesky needs a fresh app password — finish in the modal.
+				setConnectSource( 'editor' );
 				setPreselectService( 'bluesky' );
 				openConnectionsModal();
 			} else if ( service?.url && connection.service_name === 'mastodon' ) {

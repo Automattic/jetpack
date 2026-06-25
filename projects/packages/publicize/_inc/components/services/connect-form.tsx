@@ -54,6 +54,9 @@ export function ConnectForm( {
 
 	const reconnectingAccount = useSelect( select => select( store ).getReconnectingAccount(), [] );
 
+	// Set on the admin tab when the flow was opened from the editor (input-first services).
+	const connectSource = useSelect( select => select( store ).getConnectSource(), [] );
+
 	// In the editor we don't redirect the tab; we open the connect flow on the Social admin page.
 	const isEditor = useIsEditor();
 
@@ -108,13 +111,24 @@ export function ConnectForm( {
 
 			// Reconnecting re-auths the existing account, so refresh its token in place. On success
 			// the tab navigates away; only reset the busy state if it didn't start.
-			const started = await requestAccess( formData, { refresh: Boolean( reconnectingAccount ) } );
+			const started = await requestAccess( formData, {
+				refresh: Boolean( reconnectingAccount ),
+				source: connectSource === 'editor' ? 'editor' : undefined,
+			} );
 
 			if ( ! started ) {
 				setIsConnecting( false );
 			}
 		},
-		[ isEditor, onSubmit, reconnectingAccount, requestAccess, service.id, setConnectingService ]
+		[
+			connectSource,
+			isEditor,
+			onSubmit,
+			reconnectingAccount,
+			requestAccess,
+			service.id,
+			setConnectingService,
+		]
 	);
 
 	// Only this button shows "Connecting…"; a global services fetch just disables all buttons.
