@@ -1707,7 +1707,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/podcast",
-                "reference": "6e99ee67210e9bc15e164c3c2709484a1cb5f830"
+                "reference": "8a89ed121998919f66c87e58c084442525610de5"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
@@ -1733,7 +1733,7 @@
                 "autotagger": true,
                 "mirror-repo": "Automattic/jetpack-podcast",
                 "branch-alias": {
-                    "dev-trunk": "1.1.x-dev"
+                    "dev-trunk": "1.2.x-dev"
                 },
                 "textdomain": "jetpack-podcast",
                 "version-constants": {

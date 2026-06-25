@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-Heartbeat: Connection owner and XML-RPC error stats are now provided by the Connection package.

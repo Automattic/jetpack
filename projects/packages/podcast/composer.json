@@ -59,7 +59,7 @@
 		"autotagger": true,
 		"mirror-repo": "Automattic/jetpack-podcast",
 		"branch-alias": {
-			"dev-trunk": "1.1.x-dev"
+			"dev-trunk": "1.2.x-dev"
 		},
 		"textdomain": "jetpack-podcast",
 		"version-constants": {

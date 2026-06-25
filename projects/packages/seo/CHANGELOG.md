@@ -5,6 +5,24 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.0] - 2026-06-25
+### Added
+- Expose `seo.surface_visible` on the admin script data so the legacy Traffic page can hide its SEO/Sitemaps sections for sites on the new SEO experience. [#49697]
+
+### Changed
+- Gate the Settings, Content, and AI tabs behind the enable-SEO-tools card when the SEO Tools module is off, matching the Overview, instead of rendering controls that can't save. [#49844]
+- Improve contrast on the SEO admin pages: add an off-white page canvas so the white content cards stand out, and give the social link-preview body a recessed gray so it reads apart from the card and the page. [#49874]
+- Show completion rings for all four Content SEO settings — schema, SEO title, meta description, and search engine visibility — in the order they appear on the Content page, instead of only schema and meta description. [#49847]
+- Simplify the search/social preview cards on the SEO Settings tab: drop the group border that boxed each platform heading together with its preview. Each preview keeps its own border (the Google result gains one; Facebook/X keep their card border) with the platform heading above it, removing the box-in-box look. [#49846]
+- Use explicit Save buttons for the SEO Settings text-heavy sections instead of auto-saving on blur: the front-page description saves per section, and the title-structure editor saves per page-type row. Toggle sections still save on change. Tidy the title-structure rows — separated by a divider, with each row's live preview and Save on one line. [#49845]
+
+### Fixed
+- Fix `@wordpress/ui` 0.15 type error: pass a valid Stack `wrap` value in the SEO title-structure field. [#49800]
+- Keep the SEO dashboard tab strip pinned while scrolling instead of letting it scroll away with the page content. [#49874]
+- Lay out the Content SEO coverage rings in a responsive grid so they wrap and stack as the screen narrows, instead of staying in a single row. [#49865]
+- SEO Settings: add a "View sitemap" link once the sitemap is generated, and disable the sitemap toggle while search engines are blocked. [#49799]
+- Stop shipping megabytes of unminified JS as part of the package. [#49699]
+
 ## [0.2.0] - 2026-06-22
 ### Added
 - Add a Canonical URLs toggle to the Settings tab that adds `rel="canonical"` tags to archive pages. [#49463]
@@ -24,7 +42,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Persist Settings and AI tab values across tab navigation, so a saved change shows when you return to the tab without a page reload. [#49351]
 
-
 ## [0.1.1] - 2026-06-15
 ### Changed
 - Update package dependencies. [#49273]
@@ -38,5 +55,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Create a Settings screen with site visibility, post title structure, front-page description, and site verification. [#49256]
 - Scaffold the new `jetpack-seo` package and mount its admin page. [#49203]
 
+[0.3.0]: https://github.com/Automattic/jetpack-seo/compare/0.2.0...0.3.0
 [0.2.0]: https://github.com/Automattic/jetpack-seo/compare/0.1.1...0.2.0
 [0.1.1]: https://github.com/Automattic/jetpack-seo/compare/0.1.0...0.1.1
