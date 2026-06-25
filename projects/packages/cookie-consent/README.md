@@ -73,6 +73,7 @@ Override the tokens to customize the look — via the Customizer/Site Editor **A
 	--jp-cookie-consent--color-text: #f0f4f8;
 	--jp-cookie-consent--color-text-muted: #9fb3c8;
 	--jp-cookie-consent--color-border: #334e68;
+	--jp-cookie-consent--color-surface-hover: #243b53;
 	--jp-cookie-consent--spacing: 20px;
 	--jp-cookie-consent--font-size: 16px;
 	--jp-cookie-consent--z-index: 50000; /* the modal sits at this value + 1 */

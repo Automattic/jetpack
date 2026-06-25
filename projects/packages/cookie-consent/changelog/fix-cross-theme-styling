@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Make the consent banner, modal, category toggles, and classic-theme footer-links fallback control render consistently across classic and block themes by driving spacing, color, and z-index from namespaced design tokens (--jp-cookie-consent--*) instead of theme presets, and by hardening the toggle against theme form styles. The tokens double as a customization surface via Additional CSS.
+Make the consent banner, modal, and controls render consistently across classic and block themes, and expose their colors, spacing, and stacking order as CSS custom properties so the appearance can be customized via Additional CSS.

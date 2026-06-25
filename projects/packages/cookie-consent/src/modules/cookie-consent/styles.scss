@@ -19,6 +19,7 @@
 	--jp-cookie-consent--color-text: #1e1e1e;
 	--jp-cookie-consent--color-text-muted: #686868;
 	--jp-cookie-consent--color-border: #dcdcde;
+	--jp-cookie-consent--color-surface-hover: #f0f0f0;
 	--jp-cookie-consent--spacing: 16px;
 	--jp-cookie-consent--font-size: 16px;
 	--jp-cookie-consent--z-index: 999999;
@@ -115,7 +116,7 @@
 }
 
 .jetpack-cookie-consent__button--tertiary:hover {
-	background: var(--jp-cookie-consent--color-border, #f0f0f0) !important;
+	background: var(--jp-cookie-consent--color-surface-hover, #f0f0f0) !important;
 }
 
 /* Modal Overlay - Aligned with WooCommerce Bookings modal pattern */
@@ -557,7 +558,7 @@ input[type="checkbox"]:focus-visible + label
 }
 
 /* The toggle is a <button>; classic themes ship high-specificity button resets
-   (e.g. Twenty Twenty-One's `button:not(:hover):not(:active)`, 0,3,1) that
+   (e.g. Twenty Twenty-One's `button:not(:hover):not(:active)`, 0,2,1) that
    out-specify a single class and recolor/repad it. Style the singleton control
    via its unique id so the token-driven appearance wins regardless of theme. */
 #jetpack-cookie-consent-footer-links-toggle {
@@ -577,7 +578,7 @@ input[type="checkbox"]:focus-visible + label
 }
 
 #jetpack-cookie-consent-footer-links-toggle:hover {
-	background: var(--jp-cookie-consent--color-border, #f0f0f0);
+	background: var(--jp-cookie-consent--color-surface-hover, #f0f0f0);
 }
 
 #jetpack-cookie-consent-footer-links-toggle:focus-visible {
@@ -625,7 +626,7 @@ input[type="checkbox"]:focus-visible + label
 
 .jetpack-cookie-consent-footer-links__link:hover {
 	text-decoration: underline;
-	background: var(--jp-cookie-consent--color-border, #f0f0f0);
+	background: var(--jp-cookie-consent--color-surface-hover, #f0f0f0);
 }
 
 .jetpack-cookie-consent-footer-links__link:focus-visible {
@@ -684,7 +685,7 @@ input[type="checkbox"]:focus-visible + label
 	align-items: center;
 	justify-content: space-between;
 	background-color: #f1f9f3;
-	color: var(--jp-cookie-consent--color-text, #1e1e1e);
+	color: #1e1e1e;
 	padding: 16px;
 	border-radius: 4px;
 	border: 1px solid #c3e8cd;
