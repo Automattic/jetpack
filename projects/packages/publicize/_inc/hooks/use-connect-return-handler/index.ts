@@ -3,7 +3,8 @@ import { useDispatch, useSelect } from '@wordpress/data';
 import { useEffect, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { store as socialStore } from '../../social-store';
-import { broadcastConnectionCreated, startServiceConnect } from '../../utils';
+import { broadcastConnectionCreated } from '../../utils';
+import { useConnectService } from '../use-connect-service';
 
 // Allowlist for the `service`/`connect` query value.
 const SUPPORTED_SERVICE_IDS = new Set( [
@@ -44,7 +45,9 @@ export function useConnectReturnHandler() {
 
 	const { createInfoNotice, createErrorNotice, removeNotice } = useDispatch( globalNoticesStore );
 
-	const { getConnectionById, getService } = useSelect( select => select( socialStore ), [] );
+	const { getConnectionById } = useSelect( select => select( socialStore ), [] );
+
+	const connectService = useConnectService();
 
 	useEffect( () => {
 		if ( hasRun.current ) {
@@ -69,11 +72,10 @@ export function useConnectReturnHandler() {
 			[ 'connect', 'source' ].forEach( key => cleanUrl.searchParams.delete( key ) );
 			window.history.replaceState( {}, '', cleanUrl.toString() );
 
-			const service = getService( intentService );
-
-			// Pure-OAuth auto-redirects; input-first (or not-yet-loaded) services finish in the grid.
-			if ( service?.url && ! NEEDS_INPUT_SERVICE_IDS.has( intentService ) ) {
-				startServiceConnect( service.url, intentService, { source: 'editor' } );
+			// Pure-OAuth services redirect straight to auth (fetching the connect URL if it isn't
+			// loaded yet); input-first services finish in the grid's credential form.
+			if ( ! NEEDS_INPUT_SERVICE_IDS.has( intentService ) ) {
+				connectService( intentService, { source: 'editor' } );
 			} else {
 				// The grid's ConnectForm will carry source=editor through to the result.
 				setConnectSource( 'editor' );
@@ -107,7 +109,6 @@ export function useConnectReturnHandler() {
 
 			setReconnectingAccount( connection );
 
-			const service = getService( connection.service_name );
 			const reconnectOptions = {
 				source: 'editor' as const,
 				refresh: true,
@@ -119,15 +120,13 @@ export function useConnectReturnHandler() {
 				setConnectSource( 'editor' );
 				setPreselectService( 'bluesky' );
 				openAddAccountModal();
-			} else if ( service?.url && connection.service_name === 'mastodon' ) {
-				startServiceConnect( service.url, 'mastodon', {
+			} else if ( connection.service_name === 'mastodon' ) {
+				connectService( 'mastodon', {
 					...reconnectOptions,
 					postFields: { instance: connection.external_handle },
 				} );
-			} else if ( service?.url ) {
-				startServiceConnect( service.url, connection.service_name, reconnectOptions );
 			} else {
-				openAddAccountModal();
+				connectService( connection.service_name, reconnectOptions );
 			}
 
 			return;
@@ -216,11 +215,11 @@ export function useConnectReturnHandler() {
 		} )();
 	}, [
 		completeReconnect,
+		connectService,
 		createErrorNotice,
 		createInfoNotice,
 		fetchKeyringResult,
 		getConnectionById,
-		getService,
 		openAddAccountModal,
 		removeNotice,
 		setConnectSource,

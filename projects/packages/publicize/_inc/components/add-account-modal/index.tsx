@@ -5,10 +5,10 @@ import { useCallback } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { Button } from '@wordpress/ui';
 import { useConnectInEditor } from '../../hooks/use-connect-in-editor';
+import { useConnectService } from '../../hooks/use-connect-service';
 import { useIsEditor } from '../../hooks/use-is-editor';
 import { useUserCanShareConnection } from '../../hooks/use-user-can-share-connection';
 import { store } from '../../social-store';
-import { startServiceConnect } from '../../utils';
 import { ConfirmationForm } from '../manage-connections-modal/confirmation-form';
 import { ConnectForm } from '../services/connect-form';
 import { SupportedService } from '../services/types';
@@ -94,6 +94,7 @@ export function AddAccountModal() {
 
 	const supportedServices = useSupportedServices();
 	const connectInEditor = useConnectInEditor();
+	const connectService = useConnectService();
 	const isEditor = useIsEditor();
 	const canMarkAsShared = useUserCanShareConnection();
 
@@ -132,11 +133,15 @@ export function AddAccountModal() {
 				return;
 			}
 
-			if ( service.url ) {
-				startServiceConnect( service.url, service.id );
-			}
+			// Spin the card while the connect URL is (re)fetched, then the tab redirects to auth.
+			setConnectingService( service.id );
+			connectService( service.id ).then( started => {
+				if ( ! started ) {
+					setConnectingService( undefined );
+				}
+			} );
 		},
-		[ connectInEditor, isEditor, setPreselectService ]
+		[ connectInEditor, connectService, isEditor, setConnectingService, setPreselectService ]
 	);
 
 	if ( ! isOpen ) {
