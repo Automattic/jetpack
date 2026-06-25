@@ -101,6 +101,27 @@ describe( 'Stats UTM normalizer', () => {
 		] );
 	} );
 
+	it( 'keeps param values when top posts are null', () => {
+		const result = sanitizeStatsUtmResponse(
+			{
+				top_utm_values: {
+					direct: 7,
+				},
+				top_posts: null,
+			},
+			{ date: '2026-06-16' }
+		);
+
+		expect( result.data[ 0 ].items ).toEqual( [
+			{
+				label: 'direct',
+				value: 7,
+				paramValues: 'direct',
+				children: null,
+			},
+		] );
+	} );
+
 	it( 'treats disabled top post queries as already resolved', () => {
 		const result = sanitizeStatsUtmResponse(
 			{
