@@ -33,6 +33,7 @@ export const statsUtmQuery = ( params: StatsUtmParams ): StatsReportQueryOptions
 		// missing optional filters.
 		start_date: apiParams.start_date ?? '',
 		post_id: params.post_id ?? '',
+		// Calypso sends booleans for this endpoint; keep parity with that request shape.
 		query_top_posts: queryTopPosts,
 	};
 
