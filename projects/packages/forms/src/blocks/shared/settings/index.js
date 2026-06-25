@@ -30,6 +30,11 @@ export default {
 	supports: {
 		reusable: false,
 		html: false,
+		// Device/viewport visibility ("Hide on…") is not honored on the field
+		// wrapper at render time, so disable the control on fields to avoid an
+		// option that does nothing. Labels keep visibility support (handled
+		// separately via labelhiddenbyblockvisibility). See FORMS-694.
+		visibility: false,
 		__experimentalExposeControlsToChildren: true,
 	},
 	transforms,

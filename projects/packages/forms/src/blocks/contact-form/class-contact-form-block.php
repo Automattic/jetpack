@@ -90,6 +90,35 @@ class Contact_Form_Block {
 		// Load AI integration after Jetpack_Gutenberg registers extensions (priority 10)
 		add_action( 'enqueue_block_editor_assets', array( __CLASS__, 'maybe_load_ai_integration' ), 11 );
 	}
+
+	/**
+	 * Disable the block "visibility" support on form field and input blocks.
+	 *
+	 * Device/viewport visibility ("Hide on…") is not honored on the field
+	 * wrapper at render time — the field render pipeline bypasses core's
+	 * render_block visibility filter — so the control would do nothing. We
+	 * disable the support so it does not appear. This mirrors the JS
+	 * registration (shared/settings/index.js and input/index.js). Labels keep
+	 * visibility support (handled separately via labelhiddenbyblockvisibility),
+	 * and the internal field-option-* blocks are left untouched to match JS.
+	 *
+	 * @param array  $args       Block type registration args.
+	 * @param string $block_name Block name being registered.
+	 * @return array
+	 */
+	public static function disable_field_visibility_support( $args, $block_name ) {
+		$is_field = strpos( $block_name, 'jetpack/field-' ) === 0 && strpos( $block_name, 'jetpack/field-option-' ) !== 0;
+
+		if ( 'jetpack/input' === $block_name || $is_field ) {
+			if ( ! isset( $args['supports'] ) || ! is_array( $args['supports'] ) ) {
+				$args['supports'] = array();
+			}
+			$args['supports']['visibility'] = false;
+		}
+
+		return $args;
+	}
+
 	/**
 	 * Register the contact form block feature flag.
 	 *
@@ -170,6 +199,11 @@ class Contact_Form_Block {
 		if ( ! self::can_manage_block() ) {
 			return;
 		}
+
+		// Keep the PHP-registered "visibility" support in sync with the JS
+		// registration (src/blocks/shared/settings/index.js and
+		// src/blocks/input/index.js), which disables it on fields and inputs.
+		add_filter( 'register_block_type_args', array( __CLASS__, 'disable_field_visibility_support' ), 10, 2 );
 
 		// Field inner block types.
 		Blocks::jetpack_register_block(

@@ -32,6 +32,9 @@ const settings = {
 	supports: {
 		reusable: false,
 		html: false,
+		// See FORMS-694: device/viewport visibility isn't honored on the field
+		// wrapper at render, so disable the control on the input too.
+		visibility: false,
 		color: {
 			text: true,
 			background: true,

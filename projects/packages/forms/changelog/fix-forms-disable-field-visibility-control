@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Forms: Disable the block visibility ("Hide on…") control on form fields and inputs, where it had no effect on the frontend. Labels keep their visibility support.
