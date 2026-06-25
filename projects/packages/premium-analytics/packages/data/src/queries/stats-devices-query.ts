@@ -3,7 +3,7 @@
  */
 import { statsReportQuery, type StatsReportParams } from './stats-query';
 
-export type StatsDeviceProperty = 'screensize' | 'browser' | 'client_type';
+export type StatsDeviceProperty = 'screensize' | 'browser' | 'platform' | 'client_type';
 
 export const statsDevicesQuery = (
 	params: StatsReportParams & { deviceProperty?: StatsDeviceProperty }

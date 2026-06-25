@@ -5,6 +5,8 @@ import { formatMetricValue } from '@jetpack-premium-analytics/formatters';
 /**
  * WordPress dependencies
  */
+import { SelectControl } from '@wordpress/components';
+import { useCallback, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Stack, Text } from '@wordpress/ui';
 import {
@@ -22,33 +24,38 @@ import {
  */
 import styles from './style.module.css';
 import useDeviceViews from './use-device-views';
+import type { StatsDeviceProperty } from '@jetpack-premium-analytics/data';
 
 type DevicesRenderProps = {
 	attributes?: Partial< ReportParamsFieldAttributes > & {
 		max?: number;
-		deviceProperty?: 'screensize' | 'browser';
 	};
 };
 
 const DATA_FORMAT = { type: 'number' as const, options: { useMultipliers: true, decimals: 0 } };
 
+const DEVICE_OPTIONS: { label: string; value: StatsDeviceProperty }[] = [
+	{ label: __( 'Screen size', 'jetpack-premium-analytics' ), value: 'screensize' },
+	{ label: __( 'Browser', 'jetpack-premium-analytics' ), value: 'browser' },
+	{ label: __( 'OS', 'jetpack-premium-analytics' ), value: 'platform' },
+];
+
 /**
  * Inner component — rendered inside WidgetRoot so useWidgetRootContext
  * and useStatsDevices (TanStack Query) both have their required providers.
  *
- * @param root0                - Props.
- * @param root0.max            - Max rows to display.
- * @param root0.deviceProperty - Device dimension to break down by.
+ * @param root0     - Props.
+ * @param root0.max - Max rows to display.
  * @return The rendered semi-circle chart or state placeholder.
  */
-function DevicesInner( {
-	max,
-	deviceProperty,
-}: {
-	max: number;
-	deviceProperty: 'screensize' | 'browser';
-} ) {
+function DevicesInner( { max }: { max: number } ) {
 	const { reportParams } = useWidgetRootContext();
+	const [ deviceProperty, setDeviceProperty ] = useState< StatsDeviceProperty >( 'screensize' );
+
+	const handleModeChange = useCallback( ( value: string ) => {
+		setDeviceProperty( value as StatsDeviceProperty );
+	}, [] );
+
 	const { data, isLoading, isError } = useDeviceViews( { reportParams, max, deviceProperty } );
 
 	const chartData: SemiCircleChartData = data.map( item => ( {
@@ -88,6 +95,15 @@ function DevicesInner( {
 				className={ styles.widgetHeader }
 			>
 				<Text>{ __( 'Devices', 'jetpack-premium-analytics' ) }</Text>
+				<SelectControl
+					__nextHasNoMarginBottom
+					label={ __( 'View by', 'jetpack-premium-analytics' ) }
+					hideLabelFromVision
+					value={ deviceProperty }
+					options={ DEVICE_OPTIONS }
+					onChange={ handleModeChange }
+					className={ styles.modeSelect }
+				/>
 			</Stack>
 			<div className={ styles.content }>
 				<SemiCircleChart
@@ -111,17 +127,16 @@ function DevicesInner( {
  * WidgetRootContext are available to DevicesInner.
  *
  * @param root0            - Render props.
- * @param root0.attributes - Widget attributes (max, deviceProperty).
+ * @param root0.attributes - Widget attributes (max).
  * @return The rendered widget content.
  */
 export default function DevicesWidget( { attributes }: DevicesRenderProps ) {
 	const max = attributes?.max ?? 5;
-	const deviceProperty = attributes?.deviceProperty ?? 'screensize';
 
 	return (
 		<WidgetRoot attributes={ attributes }>
 			<div className={ styles.root }>
-				<DevicesInner max={ max } deviceProperty={ deviceProperty } />
+				<DevicesInner max={ max } />
 			</div>
 		</WidgetRoot>
 	);

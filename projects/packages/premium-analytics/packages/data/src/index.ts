@@ -181,6 +181,7 @@ export type {
 	StatsAppDashboardWordAdsModule,
 	StatsAppDashboardStoreModule,
 } from './hooks/use-stats-app-dashboard-modules';
+export type { StatsDeviceProperty } from './queries/stats-devices-query';
 export type { UseStatsOptions } from './hooks/use-stats-report';
 export { prefetchReport } from './prefetch';
 export {

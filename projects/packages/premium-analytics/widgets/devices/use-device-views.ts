@@ -6,6 +6,7 @@ import type {
 	ReportParams,
 	StatsDevicesItem,
 	StatsNormalizedReport,
+	StatsDeviceProperty,
 } from '@jetpack-premium-analytics/data';
 
 export interface DeviceView {
@@ -17,7 +18,7 @@ export interface DeviceView {
 interface UseDeviceViewsArgs {
 	reportParams: ReportParams;
 	max: number;
-	deviceProperty?: 'screensize' | 'browser';
+	deviceProperty?: StatsDeviceProperty;
 }
 
 interface DeviceViewsState {
