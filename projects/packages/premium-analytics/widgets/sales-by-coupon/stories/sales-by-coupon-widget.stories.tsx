@@ -1,23 +1,60 @@
 import { getDefaultQueryParams } from '@jetpack-premium-analytics/data';
-import { registerReportMocks } from '../../../packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
+import { SELECTABLE_PRESETS, type SelectablePresetId } from '@jetpack-premium-analytics/datetime';
 import {
 	DEFAULT_WIDGET_DASHBOARD_STORY_ARGS,
 	WidgetDashboardWithWidget as WidgetDashboardWithWidgetStory,
 	widgetDashboardWithWidgetArgTypes,
 	type WidgetDashboardWithWidgetControls,
 } from '../../stories/widget-dashboard-with-widget';
+import { registerReportMocks } from '../../../packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
 import SalesByCouponRender from '../render';
 import widgetDefinition from '../widget';
-import type { Meta, StoryObj } from '@storybook/react';
+import type { Decorator, Meta, StoryObj } from '@storybook/react';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
-import type { ComponentType } from 'react';
+import type { ComponentProps, ComponentType } from 'react';
 
 registerReportMocks();
 
 const SALES_BY_COUPON_RENDER_MODULE = 'storybook/sales-by-coupon';
+const DEFAULT_PRESET = 'last-30-days' satisfies SelectablePresetId;
+const PRESET_OPTIONS = SELECTABLE_PRESETS;
 
-interface SalesByCouponDashboardStoryProps extends WidgetDashboardWithWidgetControls {
+type SalesByCouponRenderProps = ComponentProps< typeof SalesByCouponRender >;
+const setStoryError: SalesByCouponRenderProps[ 'setError' ] = () => undefined;
+
+interface SalesByCouponStoryControls {
 	withComparison: boolean;
+	preset: SelectablePresetId;
+}
+
+type SalesByCouponStoryProps = SalesByCouponRenderProps & SalesByCouponStoryControls;
+
+interface SalesByCouponDashboardStoryProps
+	extends WidgetDashboardWithWidgetControls,
+		SalesByCouponStoryControls {}
+
+const withWidgetCanvas: Decorator = Story => (
+	<div style={ { width: '100%', height: '300px' } }>
+		<Story />
+	</div>
+);
+
+function getSalesByCouponAttributes(
+	withComparison = false,
+	preset: SelectablePresetId = DEFAULT_PRESET
+): SalesByCouponRenderProps[ 'attributes' ] {
+	return {
+		reportParams: getDefaultQueryParams( withComparison, preset ),
+	};
+}
+
+function renderSalesByCoupon( { withComparison, preset }: SalesByCouponStoryControls ) {
+	return (
+		<SalesByCouponRender
+			attributes={ getSalesByCouponAttributes( withComparison, preset ) }
+			setError={ setStoryError }
+		/>
+	);
 }
 
 /**
@@ -25,10 +62,12 @@ interface SalesByCouponDashboardStoryProps extends WidgetDashboardWithWidgetCont
  *
  * @param root0                - Story controls.
  * @param root0.withComparison - Whether comparison report params are enabled.
+ * @param root0.preset         - Date-range preset used for report params.
  * @return The dashboard story surface with the widget rendered inside it.
  */
 function SalesByCouponDashboardStory( {
 	withComparison,
+	preset,
 	...dashboardStoryArgs
 }: SalesByCouponDashboardStoryProps ) {
 	return (
@@ -37,25 +76,24 @@ function SalesByCouponDashboardStory( {
 			widgetType={ widgetDefinition }
 			renderModule={ SALES_BY_COUPON_RENDER_MODULE }
 			renderComponent={ SalesByCouponRender as ComponentType< WidgetRenderProps< unknown > > }
-			attributes={ {
-				reportParams: getDefaultQueryParams( withComparison ),
-			} }
+			attributes={ getSalesByCouponAttributes( withComparison, preset ) }
 		/>
 	);
 }
 
 const meta = {
 	title: 'Packages/Premium Analytics/Widgets/SalesByCoupon',
-	component: SalesByCouponDashboardStory,
+	component: SalesByCouponRender,
 	tags: [ 'autodocs' ],
-	args: {
-		...DEFAULT_WIDGET_DASHBOARD_STORY_ARGS,
-		withComparison: true,
-	},
 	argTypes: {
-		...widgetDashboardWithWidgetArgTypes,
+		preset: {
+			control: 'select',
+			options: PRESET_OPTIONS,
+			description: 'Date-range preset used to generate the widget report params.',
+		},
 		withComparison: {
 			control: 'boolean',
+			description: 'Include previous-period comparison report params.',
 		},
 	},
 	parameters: {
@@ -66,10 +104,57 @@ const meta = {
 			},
 		},
 	},
-} satisfies Meta< typeof SalesByCouponDashboardStory >;
+} satisfies Meta< SalesByCouponStoryProps >;
 
 export default meta;
 
 type Story = StoryObj< typeof meta >;
+type DashboardStory = StoryObj< SalesByCouponDashboardStoryProps >;
 
-export const WidgetDashboardWithWidget: Story = {};
+/**
+ * Default state for the current report period.
+ */
+export const Default: Story = {
+	render: renderSalesByCoupon,
+	args: {
+		preset: DEFAULT_PRESET,
+		withComparison: false,
+	},
+	decorators: [ withWidgetCanvas ],
+};
+
+/**
+ * Comparison period enabled, showing period-over-period coupon revenue.
+ */
+export const WithComparison: Story = {
+	render: renderSalesByCoupon,
+	args: {
+		preset: DEFAULT_PRESET,
+		withComparison: true,
+	},
+	decorators: [ withWidgetCanvas ],
+};
+
+/**
+ * Renders the widget through the shared dashboard harness.
+ */
+export const WidgetDashboardWithWidget: DashboardStory = {
+	render: args => <SalesByCouponDashboardStory { ...args } />,
+	args: {
+		...DEFAULT_WIDGET_DASHBOARD_STORY_ARGS,
+		preset: DEFAULT_PRESET,
+		withComparison: true,
+	},
+	argTypes: {
+		...widgetDashboardWithWidgetArgTypes,
+		preset: {
+			control: 'select',
+			options: PRESET_OPTIONS,
+			description: 'Date-range preset used to generate the widget report params.',
+		},
+		withComparison: {
+			control: 'boolean',
+			description: 'Include previous-period comparison report params.',
+		},
+	},
+};
