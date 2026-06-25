@@ -9,6 +9,7 @@ import { useCallback, useMemo } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
 import { __ } from '@wordpress/i18n';
 import { store as noticesStore } from '@wordpress/notices';
+import { getPodcatcherIds } from '../podcatchers';
 import type {
 	PodcastSettings,
 	PodcastSettingsUpdate,
@@ -53,20 +54,15 @@ const PODCAST_KEYS: Array< keyof PodcastSettings > = [
 	'podcasting_show_states',
 ];
 
-// Keep in sync with `SHOW_URL_HOSTS` in src/class-settings.php.
-const PODCATCHER_IDS: readonly PodcatcherId[] = [
-	'pocketcasts',
-	'apple',
-	'spotify',
-	'youtube',
-	'amazon',
-	'podcastindex',
-] as const;
+// Podcatcher ids come from the server-injected host map; union in whatever keys
+// the (server-padded) record carries so a missing map never drops stored values.
+const podcatcherIds = ( source: Record< string, unknown > ): readonly PodcatcherId[] =>
+	[ ...new Set( [ ...getPodcatcherIds(), ...Object.keys( source ) ] ) ] as PodcatcherId[];
 
 const normalizeShowUrls = ( raw: unknown ): PodcastShowUrls => {
 	const source = ( raw && typeof raw === 'object' ? raw : {} ) as Record< string, unknown >;
 	const out = {} as PodcastShowUrls;
-	for ( const id of PODCATCHER_IDS ) {
+	for ( const id of podcatcherIds( source ) ) {
 		const value = source[ id ];
 		out[ id ] = typeof value === 'string' ? value : '';
 	}
@@ -78,7 +74,7 @@ const SHOW_STATES: readonly PodcastShowState[] = [ '', 'pending', 'active' ] as 
 const normalizeShowStates = ( raw: unknown ): PodcastShowStates => {
 	const source = ( raw && typeof raw === 'object' ? raw : {} ) as Record< string, unknown >;
 	const out = {} as PodcastShowStates;
-	for ( const id of PODCATCHER_IDS ) {
+	for ( const id of podcatcherIds( source ) ) {
 		const value = source[ id ];
 		out[ id ] =
 			typeof value === 'string' && ( SHOW_STATES as readonly string[] ).includes( value )

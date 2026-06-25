@@ -135,10 +135,43 @@ class Admin_Page {
 		}
 
 		$data['podcast'] = array(
-			'has_product_access' => Podcast_Gate::has_product_access(),
+			'has_product_access'  => Podcast_Gate::has_product_access(),
+			// Authoritative directory→host allowlist; the dashboard derives its
+			// podcatcher list and client-side URL validation from this so PHP stays
+			// the single source of truth (see Settings::SHOW_URL_HOSTS).
+			'show_url_hosts'      => Settings::SHOW_URL_HOSTS,
+			'show_url_max_length' => Settings::SHOW_URL_MAX_LENGTH,
+			// Seed apiFetch's cache with the two responses the dashboard resolves at
+			// mount (core-data settings + categories), removing those round-trips
+			// from first render. Paths must match the requests apiFetch issues.
+			'preload'             => self::build_preload(),
 		);
 
 		return $data;
+	}
+
+	/**
+	 * Server-render the REST responses the dashboard fetches on first paint so
+	 * apiFetch's preloading middleware can serve them without a network hit.
+	 *
+	 * Each path mirrors exactly what `@wordpress/core-data` requests: the bare
+	 * settings route, and the `category` taxonomy entity (which core-data fetches
+	 * with `context=edit`). Misses are silent — a mismatch just falls back to the
+	 * live request.
+	 *
+	 * @return array<string, array{body: mixed, headers: array<string, string>}>
+	 */
+	private static function build_preload() {
+		$preload = array();
+
+		foreach ( array(
+			'/wpcom/v2/podcast/settings',
+			'/wp/v2/categories?context=edit&per_page=-1',
+		) as $path ) {
+			$preload = rest_preload_api_request( $preload, $path );
+		}
+
+		return $preload;
 	}
 
 	/**
