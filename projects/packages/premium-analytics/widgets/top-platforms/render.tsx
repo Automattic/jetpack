@@ -104,6 +104,7 @@ function TopPlatformsInner( { max }: { max: number } ) {
 					data={ leaderboardData }
 					loading={ isLoading }
 					withOverlayLabel
+					showLegend={ false }
 					emptyStateText={ __( 'No platform data in this period.', 'jetpack-premium-analytics' ) }
 					dataFormat={ DATA_FORMAT }
 				/>
