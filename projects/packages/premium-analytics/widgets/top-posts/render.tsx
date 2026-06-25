@@ -5,7 +5,6 @@ import {
 	computeDateRangeFromPreset,
 	localTZDate,
 	useStatsTopPosts,
-	type PresetType,
 	type StatsNormalizedReport,
 	type StatsTopPostsItem,
 } from '@jetpack-premium-analytics/data';
@@ -25,6 +24,7 @@ import { useMemo } from 'react';
  * Internal dependencies
  */
 import styles from './top-posts.module.css';
+import type { TopPostsAttributes } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 
 /**
@@ -55,19 +55,6 @@ export type TopPostRow = {
 	 * Post type, e.g. `post` or `page`.
 	 */
 	type: string;
-};
-
-type TopPostsAttributes = {
-	/**
-	 * Date-range preset, e.g. `today`, `last-7-days`, `last-30-days`, `last-year`.
-	 * Resolved to an absolute window at render time.
-	 */
-	range?: PresetType;
-	num?: number;
-	/**
-	 * Post type(s) to keep. When undefined or empty, all types are shown.
-	 */
-	postType?: string | string[];
 };
 
 type TopPostsProps = {

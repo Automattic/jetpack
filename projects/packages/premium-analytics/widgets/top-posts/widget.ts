@@ -1,8 +1,30 @@
 /**
+ * External dependencies
+ */
+import type { PresetType } from '@jetpack-premium-analytics/data';
+/**
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
 import { chartBar } from '@wordpress/icons';
+
+/**
+ * Configurable attributes for the Top posts & pages widget. Mirrors the
+ * `attributes` declared on the widget definition below; the host passes the
+ * selected values through to `render.tsx`.
+ */
+export type TopPostsAttributes = {
+	/**
+	 * Date-range preset, e.g. `today`, `last-7-days`, `last-30-days`, `last-year`.
+	 * Resolved to an absolute window at render time.
+	 */
+	range?: PresetType;
+	num?: number;
+	/**
+	 * Post type(s) to keep. When undefined or empty, all types are shown.
+	 */
+	postType?: string | string[];
+};
 
 /**
  * Widget type definition.
