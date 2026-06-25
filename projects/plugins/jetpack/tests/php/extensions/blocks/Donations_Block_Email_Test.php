@@ -8,14 +8,6 @@
 require_once JETPACK__PLUGIN_DIR . 'extensions/blocks/donations/donations.php';
 require_once JETPACK__PLUGIN_DIR . 'extensions/blocks/button/button.php';
 
-if ( ! function_exists( 'Automattic\Jetpack\Extensions\Donations\render_email' ) ) {
-	require_once JETPACK__PLUGIN_DIR . 'extensions/blocks/donations/donations.php';
-}
-if ( ! function_exists( 'Automattic\Jetpack\Extensions\Button\render_email' ) ) {
-	require_once JETPACK__PLUGIN_DIR . 'extensions/blocks/button/button.php';
-}
-
-require_once __DIR__ . '/mocks/class-mock-styles-helper.php';
 require_once __DIR__ . '/mocks/class-mock-table-wrapper-helper.php';
 require_once __DIR__ . '/mocks/class-mock-woocommerce-button-renderer.php';
 
@@ -28,8 +20,12 @@ use PHPUnit\Framework\Attributes\CoversFunction;
  * its attributes, preserving per-interval customization and rendering CTA buttons.
  *
  * @covers ::Automattic\Jetpack\Extensions\Donations\render_email
+ * @covers ::Automattic\Jetpack\Extensions\Donations\render_email_donate_button
+ * @covers ::Automattic\Jetpack\Extensions\Donations\get_email_target_width
  */
 #[CoversFunction( 'Automattic\Jetpack\Extensions\Donations\render_email' )]
+#[CoversFunction( 'Automattic\Jetpack\Extensions\Donations\render_email_donate_button' )]
+#[CoversFunction( 'Automattic\Jetpack\Extensions\Donations\get_email_target_width' )]
 class Donations_Block_Email_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 
