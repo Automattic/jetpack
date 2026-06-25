@@ -3,7 +3,7 @@
  */
 import { statsAppProxyQuery } from '../stats-app-query';
 import { statsArchivesQuery } from '../stats-archives-query';
-import { statsHighlightsQuery } from '../stats-highlights-query';
+import { STATS_HIGHLIGHTS_STALE_TIME, statsHighlightsQuery } from '../stats-highlights-query';
 import { statsInsightsQuery } from '../stats-insights-query';
 import { statsLocationsQuery } from '../stats-locations-query';
 import { statsStreakQuery } from '../stats-streak-query';
@@ -159,6 +159,7 @@ describe( 'Stats query factories', () => {
 			undefined,
 			'highlights',
 		] );
+		expect( query.staleTime ).toBe( STATS_HIGHLIGHTS_STALE_TIME );
 	} );
 
 	it( 'shares app query keys for empty and omitted params', () => {
