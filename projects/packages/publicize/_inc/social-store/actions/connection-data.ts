@@ -423,7 +423,7 @@ let uniqueId = 1;
  * @param data           - The data for API call.
  * @param optimisticData - Optimistic data for the connection.
  *
- * @return A thunk to create a connection.
+ * @return A thunk that resolves to the created connection, or `null` if creation failed.
  */
 export function createConnection(
 	data: Record< string, unknown >,
@@ -477,7 +477,11 @@ export function createConnection(
 				if ( registry.select( editorStore ).getCurrentPostId() ) {
 					dispatch( syncConnectionsToPostMeta() );
 				}
+
+				return connection;
 			}
+
+			return null;
 		} catch ( error ) {
 			let message: string = __( 'Error connecting account.', 'jetpack-publicize-pkg' );
 
@@ -486,6 +490,8 @@ export function createConnection(
 			}
 
 			createErrorNotice( message, { type: 'snackbar', isDismissible: true } );
+
+			return null;
 		} finally {
 			dispatch( updatingConnection( tempId, false ) );
 			// If the connection was not created, delete it.
