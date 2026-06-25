@@ -82,8 +82,8 @@ export { useStatsTags, type StatsTagsParams, type StatsTagsResponse } from './ho
 export {
 	useStatsDevices,
 	type StatsDevices,
+	type StatsDevicesDeviceParam,
 	type StatsDevicesParams,
-	type StatsDevicesProperty,
 } from './hooks/use-stats-devices';
 export type { UseStatsOptions } from './hooks/use-stats-report';
 export { prefetchReport } from './prefetch';
@@ -133,6 +133,9 @@ export type {
 	StatsItemAction,
 	StatsLocationsItem,
 	StatsDevicesItem,
+	StatsDevicesResponse,
+	StatsDevicesResponseItem,
+	StatsDevicesTopValues,
 	StatsNormalizedDataPoint,
 	StatsNormalizedItem,
 	StatsNormalizedItemBase,

@@ -195,7 +195,7 @@ describe( 'Stats query factories', () => {
 			from: '2026-06-16',
 			to: '2026-06-16',
 			interval: 'day',
-			deviceProperty: 'browser',
+			deviceParam: 'browser',
 		} );
 
 		expect( query.queryKey ).toEqual( [

@@ -76,8 +76,8 @@ export { useStatsTags, type StatsTagsParams, type StatsTagsResponse } from './us
 export {
 	useStatsDevices,
 	type StatsDevices,
+	type StatsDevicesDeviceParam,
 	type StatsDevicesParams,
-	type StatsDevicesProperty,
 } from './use-stats-devices';
 export type { UseStatsOptions } from './use-stats-report';
 

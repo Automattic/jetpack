@@ -6,8 +6,8 @@ import { useStatsReport } from './use-stats-report';
 import type { UseStatsOptions } from './use-stats-report';
 import type {
 	StatsDevices,
+	StatsDevicesDeviceParam,
 	StatsDevicesParams,
-	StatsDevicesProperty,
 } from '../queries/stats-devices-query';
 
 export function useStatsDevices( params: StatsDevicesParams, options?: UseStatsOptions ) {
@@ -19,4 +19,4 @@ export function useStatsDevices( params: StatsDevicesParams, options?: UseStatsO
 	);
 }
 
-export type { StatsDevices, StatsDevicesParams, StatsDevicesProperty };
+export type { StatsDevices, StatsDevicesDeviceParam, StatsDevicesParams };

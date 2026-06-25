@@ -3,6 +3,14 @@ import { coerceStatsRecord, createStatsListDataPoint, emptyStatsReport } from '.
 import type { StatsNormalizedItemBase, StatsNormalizedReport } from './types';
 import type { StatsQueryParams } from '../../utils/stats-params';
 
+export type StatsDevicesResponseItem = number;
+
+export type StatsDevicesTopValues = Record< string, StatsDevicesResponseItem > | [];
+
+export type StatsDevicesResponse = {
+	top_values: StatsDevicesTopValues;
+};
+
 export interface StatsDevicesItem extends StatsNormalizedItemBase< null > {
 	value: number;
 	key: string;

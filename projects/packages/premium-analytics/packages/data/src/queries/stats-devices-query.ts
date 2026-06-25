@@ -8,10 +8,10 @@ import {
 } from './stats-query';
 import type { StatsDevicesItem, StatsNormalizedReport } from '../processing/stats';
 
-export type StatsDevicesProperty = 'screensize' | 'browser' | 'platform';
+export type StatsDevicesDeviceParam = 'screensize' | 'browser' | 'platform';
 
 export type StatsDevicesParams = StatsReportParams & {
-	deviceProperty?: StatsDevicesProperty;
+	deviceParam?: StatsDevicesDeviceParam;
 };
 
 export type StatsDevices = StatsNormalizedReport< StatsDevicesItem >;
@@ -21,7 +21,7 @@ export const statsDevicesQuery = (
 ): StatsReportQueryOptions< 'devices' > =>
 	statsReportQuery(
 		'devices',
-		`stats/devices/${ params.deviceProperty ?? 'screensize' }`,
+		`stats/devices/${ params.deviceParam ?? 'screensize' }`,
 		params,
 		'devices'
 	);

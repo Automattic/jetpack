@@ -1,8 +1,10 @@
 import { sanitizeStatsDevicesResponse } from '..';
 import {
 	devicesBrowserFixture,
+	devicesEmptyFixture,
 	devicesPlatformFixture,
 	devicesScreenSizeFixture,
+	devicesZeroValueFixture,
 } from '../__fixtures__/devices';
 
 describe( 'Stats devices normalizer', () => {
@@ -64,5 +66,31 @@ describe( 'Stats devices normalizer', () => {
 				value: 1,
 			} ),
 		] );
+	} );
+
+	it( 'preserves zero-value rows from the raw top-values payload', () => {
+		expect( sanitizeStatsDevicesResponse( devicesZeroValueFixture ).data[ 0 ].items ).toEqual( [
+			expect.objectContaining( {
+				key: 'mobile',
+				label: 'Mobile',
+				value: 0,
+			} ),
+			expect.objectContaining( {
+				key: 'desktop',
+				label: 'Desktop',
+				value: 4,
+			} ),
+		] );
+	} );
+
+	it( 'returns an empty report for empty or missing top-values payloads', () => {
+		expect( sanitizeStatsDevicesResponse( devicesEmptyFixture ) ).toEqual( {
+			summary: {},
+			data: [],
+		} );
+		expect( sanitizeStatsDevicesResponse( {} ) ).toEqual( {
+			summary: {},
+			data: [],
+		} );
 	} );
 } );
