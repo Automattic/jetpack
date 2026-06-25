@@ -59,11 +59,6 @@ function DevicesInner( {
 	// Must be called unconditionally before any early return.
 	const segmentStyles = useSegmentStyles( chartData );
 
-	const headerLabel =
-		deviceProperty === 'browser'
-			? __( 'Browsers', 'jetpack-premium-analytics' )
-			: __( 'Screen sizes', 'jetpack-premium-analytics' );
-
 	if ( isError ) {
 		return (
 			<Stack align="center" justify="center" className={ styles.placeholder }>
@@ -92,7 +87,7 @@ function DevicesInner( {
 				align="center"
 				className={ styles.widgetHeader }
 			>
-				<Text>{ headerLabel }</Text>
+				<Text>{ __( 'Devices', 'jetpack-premium-analytics' ) }</Text>
 			</Stack>
 			<div className={ styles.content }>
 				<SemiCircleChart
