@@ -34,6 +34,13 @@ export {
 } from './hooks/use-stats-app-dashboard-module-settings';
 export type { StatsAppDashboardModuleSettings } from './hooks/use-stats-app-dashboard-module-settings';
 export { useStatsArchives, type StatsArchivesResponse } from './hooks/use-stats-archives';
+export {
+	useStatsVisits,
+	type StatsVisitsParams,
+	type StatsVisitsResponse,
+	type StatsVisitsStatField,
+	type StatsVisitsStatFields,
+} from './hooks/use-stats-visits';
 export type { UseStatsOptions } from './hooks/use-stats-report';
 export { prefetchReport } from './prefetch';
 export {
@@ -80,6 +87,8 @@ export type {
 	StatsNormalizedSummary,
 	StatsReferrersItem,
 	StatsSearchTermsItem,
+	StatsTimeSeriesDataPoint,
+	StatsTimeSeriesReport,
 	StatsTopAuthorsItem,
 	StatsTopPostsItem,
 	StatsVideoPlaysItem,

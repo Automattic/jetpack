@@ -5,6 +5,7 @@ import { statsAppProxyQuery } from '../stats-app-query';
 import { statsArchivesQuery } from '../stats-archives-query';
 import { statsLocationsQuery } from '../stats-locations-query';
 import { statsTopPostsQuery } from '../stats-top-posts-query';
+import { statsVisitsQuery } from '../stats-visits-query';
 import type { StatsReportParams } from '../stats-query';
 
 describe( 'Stats query factories', () => {
@@ -156,5 +157,42 @@ describe( 'Stats query factories', () => {
 				params: {},
 			} ).queryKey
 		);
+	} );
+
+	it( 'sets visits quantity for day ranges', () => {
+		const query = statsVisitsQuery( {
+			from: '2026-06-01',
+			to: '2026-06-07',
+			interval: 'day',
+		} );
+
+		expect( query.queryKey ).toEqual(
+			expect.arrayContaining( [
+				expect.objectContaining( {
+					unit: 'day',
+					date: '2026-06-07',
+					start_date: '2026-06-01',
+					quantity: 7,
+				} ),
+			] )
+		);
+	} );
+
+	it( 'omits visits quantity for non-day ranges', () => {
+		const query = statsVisitsQuery( {
+			from: '2026-06-01',
+			to: '2026-06-30',
+			interval: 'month',
+		} );
+		const apiParams = query.queryKey[ 5 ] as Record< string, unknown >;
+
+		expect( apiParams ).toEqual(
+			expect.objectContaining( {
+				unit: 'month',
+				date: '2026-06-30',
+				start_date: '2026-06-01',
+			} )
+		);
+		expect( apiParams ).not.toHaveProperty( 'quantity' );
 	} );
 } );

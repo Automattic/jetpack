@@ -25,6 +25,13 @@ export {
 } from './use-stats-app-dashboard-module-settings';
 export type { StatsAppDashboardModuleSettings } from './use-stats-app-dashboard-module-settings';
 export { useStatsArchives, type StatsArchivesResponse } from './use-stats-archives';
+export {
+	useStatsVisits,
+	type StatsVisitsParams,
+	type StatsVisitsResponse,
+	type StatsVisitsStatField,
+	type StatsVisitsStatFields,
+} from './use-stats-visits';
 export type { UseStatsOptions } from './use-stats-report';
 
 /**
