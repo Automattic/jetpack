@@ -18,6 +18,10 @@
 	font-weight: 500;
 }
 
+.widgetHeader * {
+	font-weight: inherit;
+}
+
 .modeSelect {
 	flex-shrink: 0;
 }
