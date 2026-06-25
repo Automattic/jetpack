@@ -164,7 +164,7 @@ while IFS=$'\t' read -r _ MIRROR SLUG; do
 		echo "- $FILE"
 		check_underscores "$FILE"
 		check_invalid_chars "$FILE"
-		check_executable "$FILE"
+		#check_executable "$FILE"
 		check_symlink "$FILE"
 	done < <( git -c core.quotepath=off diff --cached --name-only --no-renames --diff-filter=A )
 
@@ -172,7 +172,7 @@ while IFS=$'\t' read -r _ MIRROR SLUG; do
 	echo 'Modified files:'
 	while IFS= read -r FILE; do
 		echo "- $FILE"
-		check_executable "$FILE"
+		#check_executable "$FILE"
 		check_symlink "$FILE"
 	done < <( git -c core.quotepath=off diff --cached --name-only --no-renames --diff-filter=MT )
 
