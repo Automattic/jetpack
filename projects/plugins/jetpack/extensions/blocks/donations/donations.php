@@ -393,8 +393,6 @@ function render_email( $block_content, array $parsed_block, $rendering_context )
 	$attr          = $parsed_block['attrs'];
 	$default_texts = get_default_texts();
 
-	// In email there's no interactive form, so every CTA points to the post that
-	// hosts the full Donations block, mirroring the static fallback link.
 	$url = get_permalink();
 	if ( ! is_string( $url ) || '' === $url ) {
 		$url = is_string( $attr['fallbackLinkUrl'] ?? null ) && '' !== $attr['fallbackLinkUrl'] ? $attr['fallbackLinkUrl'] : '#';
@@ -404,7 +402,6 @@ function render_email( $block_content, array $parsed_block, $rendering_context )
 	$email_attrs = $parsed_block['email_attrs'] ?? array();
 	$table_style = sprintf( 'width:100%%;max-width:%dpx;border-collapse:collapse;', get_email_target_width( $rendering_context ) );
 
-	// Intervals in priority order; one-time defaults to shown for legacy blocks.
 	$sections = '';
 	foreach ( array(
 		'oneTimeDonation' => true,
@@ -436,7 +433,6 @@ function render_email( $block_content, array $parsed_block, $rendering_context )
 		}
 		$content .= render_email_donate_button( $interval['buttonText'] ?? $default_texts[ $key ]['buttonText'], $url, $attr, $rendering_context, $email_attrs );
 
-		// First section sits flush; later ones get a top border + spacing as a separator.
 		$is_first   = '' === $sections;
 		$cell_style = sprintf(
 			'text-align:%1$s;padding:%2$s;%3$s',

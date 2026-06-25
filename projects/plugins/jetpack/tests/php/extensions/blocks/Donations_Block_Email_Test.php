@@ -8,7 +8,6 @@
 require_once JETPACK__PLUGIN_DIR . 'extensions/blocks/donations/donations.php';
 require_once JETPACK__PLUGIN_DIR . 'extensions/blocks/button/button.php';
 
-// Ensure the functions are available.
 if ( ! function_exists( 'Automattic\Jetpack\Extensions\Donations\render_email' ) ) {
 	require_once JETPACK__PLUGIN_DIR . 'extensions/blocks/donations/donations.php';
 }
@@ -16,7 +15,6 @@ if ( ! function_exists( 'Automattic\Jetpack\Extensions\Button\render_email' ) ) 
 	require_once JETPACK__PLUGIN_DIR . 'extensions/blocks/button/button.php';
 }
 
-// Include mock classes for WooCommerce Email Editor helpers.
 require_once __DIR__ . '/mocks/class-mock-styles-helper.php';
 require_once __DIR__ . '/mocks/class-mock-table-wrapper-helper.php';
 require_once __DIR__ . '/mocks/class-mock-woocommerce-button-renderer.php';
@@ -100,20 +98,16 @@ class Donations_Block_Email_Test extends WP_UnitTestCase {
 
 		$this->assertStringContainsString( '<table', $result );
 
-		// Custom headings.
 		$this->assertStringContainsString( 'Give once', $result );
 		$this->assertStringContainsString( 'Give monthly', $result );
 		$this->assertStringContainsString( 'Give yearly', $result );
 
-		// Custom button labels.
 		$this->assertStringContainsString( 'Give now', $result );
 		$this->assertStringContainsString( 'Subscribe monthly', $result );
 		$this->assertStringContainsString( 'Subscribe yearly', $result );
 
-		// Custom supporting text.
 		$this->assertStringContainsString( 'One-time thanks.', $result );
 
-		// CTA destination.
 		$this->assertStringContainsString( 'https://example.com/donate-post', $result );
 	}
 
