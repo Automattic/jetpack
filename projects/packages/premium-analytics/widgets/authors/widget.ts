@@ -15,7 +15,7 @@ export default {
 		{
 			id: 'max',
 			label: __( 'Maximum authors', 'jetpack-premium-analytics' ),
-			type: 'text',
+			type: 'integer',
 		},
 	],
 	example: {

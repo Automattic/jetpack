@@ -5,14 +5,20 @@ import { buildTopAuthorsData } from '../build-top-authors-data';
 import type { StatsNormalizedReport, StatsTopAuthorsItem } from '@jetpack-premium-analytics/data';
 
 type AuthorSeed = {
-	id?: string | number;
 	label?: string;
 	views: number;
 };
 
-function makeAuthor( { id, label = 'Author', views }: AuthorSeed ): StatsTopAuthorsItem {
+/**
+ * Builds a single normalized top-authors item from a compact seed.
+ *
+ * @param seed       - The author seed.
+ * @param seed.label - Display label (defaults to `Author`).
+ * @param seed.views - View count for the period.
+ * @return A normalized top-authors item.
+ */
+function makeAuthor( { label = 'Author', views }: AuthorSeed ): StatsTopAuthorsItem {
 	return {
-		id,
 		label,
 		views,
 		icon: null,
@@ -53,13 +59,13 @@ describe( 'buildTopAuthorsData', () => {
 
 	it( 'maps a single author into leaderboard data', () => {
 		const result = buildTopAuthorsData(
-			makeReport( [ [ { id: 1, label: 'Alice', views: 10 } ] ] ),
+			makeReport( [ [ { label: 'Alice', views: 10 } ] ] ),
 			undefined
 		);
 
 		expect( result ).toHaveLength( 1 );
 		expect( result[ 0 ] ).toMatchObject( {
-			id: '1',
+			id: 'Alice',
 			label: 'Alice',
 			currentValue: 10,
 			previousValue: 0,
@@ -72,10 +78,7 @@ describe( 'buildTopAuthorsData', () => {
 
 	it( 'aggregates views for the same author across data points', () => {
 		const result = buildTopAuthorsData(
-			makeReport( [
-				[ { id: 1, label: 'Alice', views: 4 } ],
-				[ { id: 1, label: 'Alice', views: 6 } ],
-			] ),
+			makeReport( [ [ { label: 'Alice', views: 4 } ], [ { label: 'Alice', views: 6 } ] ] ),
 			undefined
 		);
 
@@ -87,9 +90,9 @@ describe( 'buildTopAuthorsData', () => {
 		const result = buildTopAuthorsData(
 			makeReport( [
 				[
-					{ id: 1, label: 'Alice', views: 5 },
-					{ id: 2, label: 'Bob', views: 20 },
-					{ id: 3, label: 'Carol', views: 12 },
+					{ label: 'Alice', views: 5 },
+					{ label: 'Bob', views: 20 },
+					{ label: 'Carol', views: 12 },
 				],
 			] ),
 			undefined
@@ -102,9 +105,9 @@ describe( 'buildTopAuthorsData', () => {
 		const result = buildTopAuthorsData(
 			makeReport( [
 				[
-					{ id: 1, label: 'Alice', views: 50 },
-					{ id: 2, label: 'Bob', views: 40 },
-					{ id: 3, label: 'Carol', views: 30 },
+					{ label: 'Alice', views: 50 },
+					{ label: 'Bob', views: 40 },
+					{ label: 'Carol', views: 30 },
 				],
 			] ),
 			undefined,
@@ -114,10 +117,10 @@ describe( 'buildTopAuthorsData', () => {
 		expect( result.map( author => author.label ) ).toEqual( [ 'Alice', 'Bob' ] );
 	} );
 
-	it( 'aligns comparison values by author id', () => {
+	it( 'aligns comparison values by author label', () => {
 		const result = buildTopAuthorsData(
-			makeReport( [ [ { id: 1, label: 'Alice', views: 150 } ] ] ),
-			makeReport( [ [ { id: 1, label: 'Alice', views: 100 } ] ] )
+			makeReport( [ [ { label: 'Alice', views: 150 } ] ] ),
+			makeReport( [ [ { label: 'Alice', views: 100 } ] ] )
 		);
 
 		expect( result[ 0 ] ).toMatchObject( {
@@ -131,24 +134,14 @@ describe( 'buildTopAuthorsData', () => {
 		const result = buildTopAuthorsData(
 			makeReport( [
 				[
-					{ id: 1, label: 'Alice', views: 10 },
-					{ id: 2, label: 'Bob', views: 8 },
+					{ label: 'Alice', views: 10 },
+					{ label: 'Bob', views: 8 },
 				],
 			] ),
-			makeReport( [ [ { id: 1, label: 'Alice', views: 5 } ] ] )
+			makeReport( [ [ { label: 'Alice', views: 5 } ] ] )
 		);
 
 		const bob = result.find( author => author.label === 'Bob' );
 		expect( bob ).toMatchObject( { previousValue: 0, delta: 100 } );
-	} );
-
-	it( 'falls back to the display label as the key when no id is present', () => {
-		const result = buildTopAuthorsData(
-			makeReport( [ [ { label: 'Alice', views: 4 } ], [ { label: 'Alice', views: 6 } ] ] ),
-			undefined
-		);
-
-		expect( result ).toHaveLength( 1 );
-		expect( result[ 0 ] ).toMatchObject( { id: 'Alice', currentValue: 10 } );
 	} );
 } );

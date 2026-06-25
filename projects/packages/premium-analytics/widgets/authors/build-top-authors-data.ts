@@ -1,32 +1,41 @@
 /**
  * External dependencies
  */
+import {
+	calculateDelta,
+	type LeaderboardChartData,
+} from '@jetpack-premium-analytics/widgets-toolkit';
 import { __ } from '@wordpress/i18n';
-/**
- * Internal dependencies
- */
-import { calculateDelta } from './calculate-delta';
-import type { LeaderboardChartData } from '../components/chart-leaderboard';
 import type { StatsNormalizedReport, StatsTopAuthorsItem } from '@jetpack-premium-analytics/data';
 
 type TopAuthorLeaderboardEntry = {
-	// Stable key used to dedup and to align primary/comparison periods. Prefer
-	// the author id; fall back to the display label when no id is available.
-	key: string;
+	// Display label, also used as the key to dedup and align primary/comparison
+	// periods. The Stats top-authors response exposes no stable author id, so two
+	// distinct authors sharing a display name collapse into one row.
 	label: string;
 	views: number;
 };
 
+/**
+ * Resolve a display label for an author, falling back to a translated
+ * "Untracked authors" label when the API provides none.
+ *
+ * @param author - The top-authors item.
+ * @return The author's display label.
+ */
 function getAuthorLabel( author: StatsTopAuthorsItem ) {
 	return typeof author.label === 'string' && author.label
 		? author.label
 		: __( 'Untracked authors', 'jetpack-premium-analytics' );
 }
 
-function getAuthorKey( author: StatsTopAuthorsItem, label: string ) {
-	return author.id !== undefined && author.id !== null ? String( author.id ) : label;
-}
-
+/**
+ * Aggregate a top-authors report into per-author view totals, keyed by display
+ * label, summing across data points and sorting by views descending.
+ *
+ * @param report - The normalized top-authors report, or undefined while loading.
+ * @return The aggregated, sorted author entries.
+ */
 function summarizeAuthors(
 	report: StatsNormalizedReport< StatsTopAuthorsItem > | undefined
 ): TopAuthorLeaderboardEntry[] {
@@ -35,12 +44,10 @@ function summarizeAuthors(
 	for ( const dataPoint of report?.data ?? [] ) {
 		for ( const author of dataPoint.items ) {
 			const label = getAuthorLabel( author );
-			const key = getAuthorKey( author, label );
-			const existing = authorViews.get( key );
+			const existing = authorViews.get( label );
 
-			authorViews.set( key, {
-				key,
-				label: existing?.label ?? label,
+			authorViews.set( label, {
+				label,
 				views: ( existing?.views ?? 0 ) + author.views,
 			} );
 		}
@@ -53,9 +60,8 @@ function summarizeAuthors(
  * Builds leaderboard chart data for the Authors widget.
  *
  * Transforms Jetpack Stats top-authors data into the format required by
- * LeaderboardChart, with comparison values aligned by author (by stable author
- * id, falling back to display name when none is available; authors missing from
- * the comparison period count as zero).
+ * LeaderboardChart, with comparison values aligned by author display label
+ * (authors missing from the comparison period count as zero).
  *
  * @param primary    - Primary period top-authors data
  * @param comparison - Comparison period top-authors data
@@ -74,24 +80,24 @@ export function buildTopAuthorsData(
 	}
 
 	const comparisonViews = new Map(
-		summarizeAuthors( comparison ).map( author => [ author.key, author.views ] )
+		summarizeAuthors( comparison ).map( author => [ author.label, author.views ] )
 	);
 
 	const data = primaryAuthors.slice( 0, maxEntries );
 
 	// Find the max value for share calculation
 	const maxValue = Math.max(
-		...data.map( author => Math.max( author.views, comparisonViews.get( author.key ) ?? 0 ) ),
+		...data.map( author => Math.max( author.views, comparisonViews.get( author.label ) ?? 0 ) ),
 		1 // Prevent division by zero
 	);
 
 	return data.map( author => {
 		const currentValue = author.views;
-		const previousValue = comparisonViews.get( author.key ) ?? 0;
+		const previousValue = comparisonViews.get( author.label ) ?? 0;
 		const delta = calculateDelta( currentValue, previousValue );
 
 		return {
-			id: author.key,
+			id: author.label,
 			label: author.label,
 			currentValue,
 			previousValue,

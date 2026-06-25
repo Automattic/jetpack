@@ -1,23 +1,37 @@
 /**
  * External dependencies
  */
-import { AuthorsWidget, WidgetRoot } from '@jetpack-premium-analytics/widgets-toolkit';
+import { useStatsTopAuthors } from '@jetpack-premium-analytics/data';
+import {
+	LeaderboardChart,
+	WidgetLoadingOverlay,
+	WidgetRoot,
+	formatLegendLabels,
+	useWidgetError,
+	useWidgetRootContext,
+} from '@jetpack-premium-analytics/widgets-toolkit';
+import { __ } from '@wordpress/i18n';
+import { postAuthor } from '@wordpress/icons';
 import { useMemo } from 'react';
+/**
+ * Internal dependencies
+ */
+import { buildTopAuthorsData } from './build-top-authors-data';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 import type { ComponentProps } from 'react';
 
 const DEFAULT_MAX = 7;
 
 type AuthorsAttributes = NonNullable< ComponentProps< typeof WidgetRoot >[ 'attributes' ] > & {
-	max?: string;
+	max?: string | number;
 };
 
 type AuthorsRenderProps = WidgetRenderProps< AuthorsAttributes > & {
 	setError?: ComponentProps< typeof WidgetRoot >[ 'setError' ];
 };
 
-const toPositiveInt = ( value: string | undefined, fallback: number ) => {
-	const parsed = Number.parseInt( value ?? '', 10 );
+const toPositiveInt = ( value: string | number | undefined, fallback: number ) => {
+	const parsed = typeof value === 'number' ? value : Number.parseInt( value ?? '', 10 );
 
 	return Number.isFinite( parsed ) && parsed > 0 ? parsed : fallback;
 };
@@ -45,10 +59,79 @@ const getDefaultReportParams = () => ( {
 } );
 
 /**
+ * Authors widget inner component. Reads report params from WidgetRoot context,
+ * fetches the site's top authors by views from the Jetpack Stats API, and
+ * renders them as a leaderboard with optional period comparison.
+ *
+ * @param props     - Component props.
+ * @param props.max - Maximum number of authors to display.
+ * @return The rendered leaderboard content.
+ */
+function AuthorsLeaderboard( { max }: { max: number } ) {
+	const { reportParams } = useWidgetRootContext();
+	const statsParams = useMemo( () => ( { ...reportParams, max } ), [ reportParams, max ] );
+
+	const {
+		primary,
+		comparison,
+		hasComparison,
+		isLoading,
+		isFetching,
+		hasData,
+		isError,
+		error,
+		refetch,
+	} = useStatsTopAuthors( statsParams );
+
+	// `primary.isPending` also covers the brief window where the query is disabled
+	// while the report params resolve (isLoading is false there).
+	const isInitialLoading = ( isLoading || primary.isPending ) && ! hasData;
+	const isRefetching = isFetching && hasData;
+	const primaryData = primary.data;
+	const comparisonData = comparison.data;
+
+	const chartData = useMemo(
+		() => buildTopAuthorsData( primaryData, comparisonData, max ),
+		[ primaryData, comparisonData, max ]
+	);
+
+	const legendLabels = useMemo( () => formatLegendLabels( reportParams ), [ reportParams ] );
+
+	const hasError = useWidgetError( isError, error, refetch );
+	if ( hasError ) {
+		return null;
+	}
+
+	if ( isInitialLoading ) {
+		return <WidgetLoadingOverlay />;
+	}
+
+	return (
+		<>
+			<LeaderboardChart
+				data={ chartData }
+				withComparison={ hasComparison }
+				legendLabels={ legendLabels }
+				dataFormat={ {
+					type: 'number',
+					options: { useMultipliers: false, decimals: 0 },
+				} }
+				emptyStateIcon={ postAuthor }
+				emptyStateText={ __(
+					'Learn about your most popular authors to better understand how they contribute to growing your site.',
+					'jetpack-premium-analytics'
+				) }
+			/>
+			{ isRefetching && <WidgetLoadingOverlay /> }
+		</>
+	);
+}
+
+/**
  * Authors widget render entry point.
  *
  * WidgetRoot provides the analytics query client, chart theme, and the
- * resolved report params consumed by the toolkit widget.
+ * resolved report params consumed by the inner leaderboard.
  *
  * @param props            - Render props.
  * @param props.attributes - Widget attributes.
@@ -65,7 +148,7 @@ export default function Authors( { attributes = {}, setError }: AuthorsRenderPro
 
 	return (
 		<WidgetRoot attributes={ attributesWithDefaults } setError={ setError }>
-			<AuthorsWidget max={ toPositiveInt( attributes.max, DEFAULT_MAX ) } />
+			<AuthorsLeaderboard max={ toPositiveInt( attributes.max, DEFAULT_MAX ) } />
 		</WidgetRoot>
 	);
 }
