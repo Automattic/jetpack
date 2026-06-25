@@ -24,7 +24,8 @@ export const statsUtmQuery = ( params: StatsUtmParams ): StatsReportQueryOptions
 	const statsParams = reportParamsToStatsQueryParams( params );
 	const apiParams = statsQueryParamsToApiParams( statsParams );
 	const utmParam = params.utmParam ?? DEFAULT_UTM_PARAM;
-	const queryTopPosts = params.post_id ? false : params.query_top_posts ?? true;
+	const postId = params.post_id || '';
+	const queryTopPosts = postId ? false : params.query_top_posts ?? true;
 	const utmParams: StatsProxyParams = {
 		max: apiParams.max ?? 10,
 		date: apiParams.date,
@@ -32,7 +33,7 @@ export const statsUtmQuery = ( params: StatsUtmParams ): StatsReportQueryOptions
 		// Match Calypso's UTM request shape; the endpoint accepts empty values for
 		// missing optional filters.
 		start_date: apiParams.start_date ?? '',
-		post_id: params.post_id ?? '',
+		post_id: postId,
 		// Calypso sends booleans for this endpoint; keep parity with that request shape.
 		query_top_posts: queryTopPosts,
 	};

@@ -100,4 +100,27 @@ describe( 'Stats UTM normalizer', () => {
 			},
 		] );
 	} );
+
+	it( 'treats disabled top post queries as already resolved', () => {
+		const result = sanitizeStatsUtmResponse(
+			{
+				top_utm_values: {
+					'["newsletter","email"]': 24,
+				},
+			},
+			{
+				date: '2026-06-16',
+				query_top_posts: false,
+				utm_param: 'utm_source,utm_medium',
+			}
+		);
+
+		expect( result.data[ 0 ].items ).toEqual( [
+			{
+				label: 'newsletter / email',
+				value: 24,
+				children: null,
+			},
+		] );
+	} );
 } );

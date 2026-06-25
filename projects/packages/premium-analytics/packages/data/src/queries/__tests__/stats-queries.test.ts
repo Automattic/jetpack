@@ -229,6 +229,24 @@ describe( 'Stats query factories', () => {
 		);
 	} );
 
+	it( 'treats zero UTM post IDs as omitted', () => {
+		const query = statsUtmQuery( {
+			from: '2026-06-01',
+			to: '2026-06-07',
+			interval: 'day',
+			post_id: 0,
+		} );
+
+		expect( query.queryKey ).toEqual(
+			expect.arrayContaining( [
+				expect.objectContaining( {
+					post_id: '',
+					query_top_posts: true,
+				} ),
+			] )
+		);
+	} );
+
 	it( 'preserves explicit UTM top posts boolean params', () => {
 		const query = statsUtmQuery( {
 			from: '2026-06-01',
