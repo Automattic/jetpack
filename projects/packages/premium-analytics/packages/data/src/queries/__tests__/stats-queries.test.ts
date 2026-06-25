@@ -7,6 +7,7 @@ import { statsInsightsQuery } from '../stats-insights-query';
 import { statsLocationsQuery } from '../stats-locations-query';
 import { statsStreakQuery } from '../stats-streak-query';
 import { statsTopPostsQuery } from '../stats-top-posts-query';
+import { statsUtmQuery } from '../stats-utm-query';
 import { statsVisitsQuery } from '../stats-visits-query';
 import type { StatsReportParams } from '../stats-query';
 
@@ -175,6 +176,54 @@ describe( 'Stats query factories', () => {
 					date: '2026-06-07',
 					start_date: '2026-06-01',
 					quantity: 7,
+				} ),
+			] )
+		);
+	} );
+
+	it( 'builds UTM query keys from the selected UTM parameter', () => {
+		const query = statsUtmQuery( {
+			from: '2026-06-01',
+			to: '2026-06-07',
+			interval: 'day',
+			utmParam: 'utm_campaign,utm_source,utm_medium',
+		} );
+
+		expect( query.queryKey ).toEqual( [
+			'stats',
+			'utm',
+			'1.1',
+			'stats/utm/utm_campaign,utm_source,utm_medium',
+			'GET',
+			{
+				max: 10,
+				date: '2026-06-07',
+				days: 7,
+				start_date: '2026-06-01',
+				post_id: '',
+				query_top_posts: true,
+			},
+			undefined,
+			'utm',
+			{ utm_param: 'utm_campaign,utm_source,utm_medium' },
+		] );
+		expect( query.enabled ).toBe( true );
+	} );
+
+	it( 'disables UTM top posts when querying a post detail', () => {
+		const query = statsUtmQuery( {
+			from: '2026-06-01',
+			to: '2026-06-07',
+			interval: 'day',
+			post_id: 41,
+		} );
+
+		expect( query.queryKey ).toEqual(
+			expect.arrayContaining( [
+				'stats/utm/utm_source,utm_medium',
+				expect.objectContaining( {
+					post_id: 41,
+					query_top_posts: false,
 				} ),
 			] )
 		);

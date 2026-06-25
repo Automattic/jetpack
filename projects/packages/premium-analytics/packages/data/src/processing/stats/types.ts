@@ -8,6 +8,7 @@ import type { StatsReferrersItem } from './referrers';
 import type { StatsSearchTermsItem } from './search-terms';
 import type { StatsTopAuthorsItem } from './top-authors';
 import type { StatsTopPostsItem } from './top-posts';
+import type { StatsUtmItem } from './utm';
 import type { StatsVideoPlaysItem } from './video-plays';
 
 export type StatsNormalizedItemBase< TChild = unknown > = {
@@ -29,6 +30,7 @@ export type StatsNormalizedItem =
 	| StatsTopAuthorsItem
 	| StatsLocationsItem
 	| StatsVideoPlaysItem
+	| StatsUtmItem
 	| StatsEmailSummaryItem
 	| StatsEmailBreakdownItem
 	| StatsArchivesItem;

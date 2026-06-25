@@ -52,6 +52,8 @@ export type {
 	StatsInsightsResponse,
 	StatsInsightsYear,
 } from './hooks/use-stats-insights';
+export { useStatsUtm } from './hooks/use-stats-utm';
+export type { StatsUtmParams, StatsUtmResponse } from './hooks/use-stats-utm';
 export type { UseStatsOptions } from './hooks/use-stats-report';
 export { prefetchReport } from './prefetch';
 export {
@@ -103,6 +105,9 @@ export type {
 	StatsTimeSeriesReport,
 	StatsTopAuthorsItem,
 	StatsTopPostsItem,
+	StatsUtmItem,
+	StatsUtmParam,
+	StatsUtmTopPostItem,
 	StatsVideoPlaysItem,
 } from './processing/stats';
 export type { StatsReportParams } from './queries/stats-query';
