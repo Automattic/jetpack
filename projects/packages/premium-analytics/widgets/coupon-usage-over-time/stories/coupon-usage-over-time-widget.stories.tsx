@@ -76,10 +76,7 @@ function getCouponUsageOverTimeSource( args: Partial< CouponUsageOverTimeStoryCo
 />`;
 }
 
-function renderCouponUsageOverTime( {
-	withComparison,
-	preset,
-}: CouponUsageOverTimeStoryControls ) {
+function renderCouponUsageOverTime( { withComparison, preset }: CouponUsageOverTimeStoryControls ) {
 	return (
 		<CouponUsageOverTimeRender
 			attributes={ getCouponUsageOverTimeAttributes( withComparison, preset ) }
@@ -97,9 +94,7 @@ function CouponUsageOverTimeDashboardStory( {
 			{ ...dashboardStoryArgs }
 			widgetType={ widgetDefinition }
 			renderModule={ COUPON_USAGE_OVER_TIME_RENDER_MODULE }
-			renderComponent={
-				CouponUsageOverTimeRender as ComponentType< WidgetRenderProps< unknown > >
-			}
+			renderComponent={ CouponUsageOverTimeRender as ComponentType< WidgetRenderProps< unknown > > }
 			attributes={ getCouponUsageOverTimeAttributes( withComparison, preset ) }
 		/>
 	);
