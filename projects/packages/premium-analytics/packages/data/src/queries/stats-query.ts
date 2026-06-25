@@ -18,6 +18,7 @@ import {
 	sanitizeStatsSiteResponse,
 	sanitizeStatsTopAuthorsResponse,
 	sanitizeStatsTopPostsResponse,
+	sanitizeStatsUtmResponse,
 	sanitizeStatsVideoPlaysResponse,
 } from '../processing/stats';
 import {
@@ -45,6 +46,7 @@ const statsSanitizers = {
 	archives: sanitizeStatsArchivesResponse,
 	insights: sanitizeStatsInsightsResponse,
 	streak: sanitizeStatsStreakResponse,
+	utm: sanitizeStatsUtmResponse,
 	visits: sanitizeStatsVisitsResponse,
 } satisfies Record< string, StatsSanitizer >;
 
@@ -63,6 +65,7 @@ export type StatsQueryConfig< TSanitizer extends StatsSanitizerKey = StatsSaniti
 	method?: StatsProxyMethod;
 	body?: unknown;
 	sanitizer?: TSanitizer;
+	sanitizerParams?: StatsQueryParams;
 	enabled?: boolean;
 };
 
@@ -73,12 +76,31 @@ export function statsProxyQuery(
 	config: StatsQueryConfig
 ): StatsReportQueryOptions< 'passthrough' >;
 export function statsProxyQuery( config: StatsQueryConfig ): StatsReportQueryOptions {
-	const { name, version, endpoint, params, method = 'GET', body, enabled = true } = config;
+	const {
+		name,
+		version,
+		endpoint,
+		params,
+		method = 'GET',
+		body,
+		sanitizerParams,
+		enabled = true,
+	} = config;
 	const sanitizer = config.sanitizer ?? 'passthrough';
 	const apiParams = statsQueryParamsToApiParams( params );
 
 	return {
-		queryKey: [ 'stats', name, version, endpoint, method, apiParams, body, sanitizer ],
+		queryKey: [
+			'stats',
+			name,
+			version,
+			endpoint,
+			method,
+			apiParams,
+			body,
+			sanitizer,
+			...( sanitizerParams ? [ sanitizerParams ] : [] ),
+		],
 		queryFn: async () => {
 			const response = await fetchStatsProxy( {
 				version,
@@ -87,7 +109,10 @@ export function statsProxyQuery( config: StatsQueryConfig ): StatsReportQueryOpt
 				method,
 				body,
 			} );
-			return statsSanitizers[ sanitizer ]( response, apiParams );
+			return statsSanitizers[ sanitizer ]( response, {
+				...apiParams,
+				...sanitizerParams,
+			} );
 		},
 		enabled,
 		placeholderData: previousData => previousData,

@@ -27,3 +27,4 @@ export { statsArchivesQuery } from './stats-archives-query';
 export { statsStreakQuery } from './stats-streak-query';
 export { statsVisitsQuery } from './stats-visits-query';
 export { statsInsightsQuery } from './stats-insights-query';
+export { statsUtmQuery } from './stats-utm-query';

@@ -14,6 +14,7 @@ export { sanitizeStatsVideoPlaysResponse } from './video-plays';
 export { isStatsTimeSeriesPayload, sanitizeStatsTimeSeriesResponse } from './time-series';
 export { sanitizeStatsVisitsResponse } from './visits';
 export { sanitizeStatsInsightsResponse } from './insights';
+export { sanitizeStatsUtmResponse } from './utm';
 export { sanitizeStatsEmailSummaryResponse } from './email-summary';
 export { sanitizeStatsEmailBreakdownResponse } from './email-breakdown';
 export { sanitizeStatsArchivesResponse } from './archives';
@@ -31,6 +32,7 @@ export type {
 	StatsInsightsResponse,
 	StatsInsightsYear,
 } from './insights';
+export type { StatsUtmItem, StatsUtmParam, StatsUtmTopPostItem } from './utm';
 export type { StatsEmailSummaryItem } from './email-summary';
 export type { StatsEmailBreakdownItem } from './email-breakdown';
 export type { StatsArchivesItem } from './archives';

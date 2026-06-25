@@ -43,6 +43,7 @@ export type {
 	StatsInsightsResponse,
 	StatsInsightsYear,
 } from './use-stats-insights';
+export { useStatsUtm, type StatsUtmParams, type StatsUtmResponse } from './use-stats-utm';
 export type { UseStatsOptions } from './use-stats-report';
 
 /**
