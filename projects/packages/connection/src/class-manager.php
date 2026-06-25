@@ -2778,7 +2778,7 @@ class Manager {
 	 * If the site-level connection is active, add the list of plugins using connection to the heartbeat (except Jetpack itself)
 	 *
 	 * @since 6.11.0 Add the list of Jetpack package versions to the heartbeat.
-	 * @since $$next-version$$ Add the missing connection owner and XML-RPC error stats to the heartbeat.
+	 * @since 8.7.4 Add the missing connection owner and XML-RPC error stats to the heartbeat.
 	 *
 	 * @param array $stats The Heartbeat stats array.
 	 * @return array $stats
@@ -2821,7 +2821,7 @@ class Manager {
 	 * that the error occurred via a Jetpack option and send that data back in the
 	 * heartbeat. All this does is record the error code, but it's enough to find trends.
 	 *
-	 * @since $$next-version$$
+	 * @since 8.7.4
 	 *
 	 * @param \WP_Error $xmlrpc_error The error produced during signature validation.
 	 * @return void
