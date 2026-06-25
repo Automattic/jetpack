@@ -5,6 +5,7 @@ import * as dataPackage from '../../index';
 
 const statsHookNames = [
 	'useStatsSite',
+	'useStatsPost',
 	'useStatsTopPosts',
 	'useStatsReferrers',
 	'useStatsClicks',

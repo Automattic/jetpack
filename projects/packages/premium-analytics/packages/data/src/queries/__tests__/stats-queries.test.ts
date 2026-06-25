@@ -6,6 +6,7 @@ import { statsArchivesQuery } from '../stats-archives-query';
 import { STATS_HIGHLIGHTS_STALE_TIME, statsHighlightsQuery } from '../stats-highlights-query';
 import { statsInsightsQuery } from '../stats-insights-query';
 import { statsLocationsQuery } from '../stats-locations-query';
+import { statsPostQuery } from '../stats-post-query';
 import { statsStreakQuery } from '../stats-streak-query';
 import { statsTopPostsQuery } from '../stats-top-posts-query';
 import { statsUtmQuery } from '../stats-utm-query';
@@ -15,6 +16,45 @@ import type { StatsReportParams } from '../stats-query';
 describe( 'Stats query factories', () => {
 	it( 'disables report queries until a date range is available', () => {
 		expect( statsTopPostsQuery( {} as StatsReportParams ).enabled ).toBe( false );
+	} );
+
+	it( 'builds post stats query keys with fields', () => {
+		const query = statsPostQuery( {
+			postId: 41,
+			fields: [ 'views', 'years' ],
+		} );
+
+		expect( query.enabled ).toBe( true );
+		expect( query.queryKey ).toEqual( [
+			'stats',
+			'post',
+			'1.1',
+			'stats/post/41',
+			'GET',
+			{
+				fields: 'views,years',
+			},
+			undefined,
+			'post',
+		] );
+	} );
+
+	it( 'matches Calypso post stats requests when fields are omitted', () => {
+		const query = statsPostQuery( { postId: 41 } );
+
+		expect( query.queryKey ).toEqual(
+			expect.arrayContaining( [
+				'stats/post/41',
+				{
+					fields: '',
+				},
+			] )
+		);
+	} );
+
+	it( 'disables post stats queries until a positive post ID is available', () => {
+		expect( statsPostQuery( { postId: -1 } ).enabled ).toBe( false );
+		expect( statsPostQuery( { postId: 0 } ).enabled ).toBe( false );
 	} );
 
 	it( 'includes filter_by_country in query params when provided', () => {

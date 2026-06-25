@@ -4,6 +4,7 @@ export {
 	sanitizeStatsSiteResponse,
 } from './utils';
 export { sanitizeStatsTopPostsResponse } from './top-posts';
+export { sanitizeStatsPostResponse } from './post';
 export { sanitizeStatsReferrersResponse } from './referrers';
 export { sanitizeStatsClicksResponse } from './clicks';
 export { sanitizeStatsSearchTermsResponse } from './search-terms';
@@ -21,6 +22,14 @@ export { sanitizeStatsEmailBreakdownResponse } from './email-breakdown';
 export { sanitizeStatsArchivesResponse } from './archives';
 export { sanitizeStatsStreakResponse } from './streak';
 export type { StatsTopPostsItem } from './top-posts';
+export type {
+	StatsPostMonthValues,
+	StatsPostRawResponse,
+	StatsPostResponse,
+	StatsPostWeek,
+	StatsPostWeekDay,
+	StatsPostYear,
+} from './post';
 export type { StatsReferrersItem } from './referrers';
 export type { StatsClicksItem } from './clicks';
 export type { StatsSearchTermsItem } from './search-terms';

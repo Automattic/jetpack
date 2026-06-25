@@ -15,6 +15,8 @@ export { useReportVisitorsByLocation } from './hooks/use-report-visitors-by-loca
 export { useReportBookings } from './hooks/use-report-bookings';
 export { useReportSessionsByDevice } from './hooks/use-report-sessions-by-device';
 export { useStatsSite } from './hooks/use-stats-site';
+export { useStatsPost } from './hooks/use-stats-post';
+export type { StatsPostField, StatsPostParams, StatsPostResponse } from './hooks/use-stats-post';
 export { useStatsTopPosts } from './hooks/use-stats-top-posts';
 export { useStatsReferrers } from './hooks/use-stats-referrers';
 export { useStatsClicks } from './hooks/use-stats-clicks';
@@ -106,6 +108,11 @@ export type {
 	StatsNormalizedItemBase,
 	StatsNormalizedReport,
 	StatsNormalizedSummary,
+	StatsPostMonthValues,
+	StatsPostRawResponse,
+	StatsPostWeek,
+	StatsPostWeekDay,
+	StatsPostYear,
 	StatsReferrersItem,
 	StatsSearchTermsItem,
 	StatsStreakRawResponse,
