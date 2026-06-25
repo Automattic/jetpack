@@ -83,6 +83,7 @@ export type {
 	StatsCommentFollowersRawPost,
 	StatsCommentFollowersRawResponse,
 } from './comment-followers';
+export type { StatsDevicesItem } from './devices';
 export type {
 	StatsPublicizeApiResponse,
 	StatsPublicizeItem,
