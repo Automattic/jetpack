@@ -2,7 +2,7 @@
  * Internal dependencies
  */
 import { statsProxyQuery } from './stats-query';
-import type { StatsReportParams, StatsReportQueryOptions } from './stats-query';
+import type { StatsReportQueryOptions } from './stats-query';
 import type { StatsProxyParams } from '../api';
 import type { StatsPostResponse } from '../processing/stats';
 
@@ -17,7 +17,7 @@ export type StatsPostField =
 	| 'highest_week_average'
 	| 'post';
 
-export type StatsPostParams = Partial< StatsReportParams > & {
+export type StatsPostParams = {
 	postId: number;
 	fields?: StatsPostField[];
 };
@@ -35,6 +35,6 @@ export const statsPostQuery = ( params: StatsPostParams ): StatsReportQueryOptio
 		endpoint: `stats/post/${ params.postId }`,
 		params: postParams,
 		sanitizer: 'post',
-		enabled: Number.isInteger( params.postId ) && params.postId > -1,
+		enabled: Number.isInteger( params.postId ) && params.postId > 0,
 	} );
 };

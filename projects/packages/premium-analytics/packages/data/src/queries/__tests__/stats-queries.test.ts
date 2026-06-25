@@ -51,8 +51,9 @@ describe( 'Stats query factories', () => {
 		);
 	} );
 
-	it( 'disables post stats queries until a valid post ID is available', () => {
+	it( 'disables post stats queries until a positive post ID is available', () => {
 		expect( statsPostQuery( { postId: -1 } ).enabled ).toBe( false );
+		expect( statsPostQuery( { postId: 0 } ).enabled ).toBe( false );
 	} );
 
 	it( 'includes filter_by_country in query params when provided', () => {
