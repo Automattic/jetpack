@@ -23,16 +23,15 @@ const queryClient = new QueryClient();
 
 /**
  * "Add account" action rendered into the Page header on the Overview
- * tab. Dispatches `openConnectionsModal` so the existing
- * `ManageConnectionsModal` (rendered inside `ConnectionManagement`)
- * takes over from there.
+ * tab. Opens the self-contained platform-picker grid (`AddAccountModal`,
+ * rendered inside `ConnectionManagement`/`OverviewTab`).
  *
  * @return The page-header action button.
  */
 const AddAccountAction = () => {
-	const { openConnectionsModal } = useDispatch( socialStore );
+	const { openAddAccountModal } = useDispatch( socialStore );
 	return (
-		<Button variant="solid" size="compact" onClick={ openConnectionsModal }>
+		<Button variant="solid" size="compact" onClick={ openAddAccountModal }>
 			{ __( 'Add account', 'jetpack-publicize-pkg' ) }
 		</Button>
 	);

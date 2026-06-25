@@ -2,11 +2,15 @@ import { ThemeProvider } from '@automattic/jetpack-components';
 import { Modal, Spinner } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useCallback } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
+import { Button } from '@wordpress/ui';
 import { useConnectInEditor } from '../../hooks/use-connect-in-editor';
 import { useIsEditor } from '../../hooks/use-is-editor';
+import { useUserCanShareConnection } from '../../hooks/use-user-can-share-connection';
 import { store } from '../../social-store';
 import { startServiceConnect } from '../../utils';
+import { ConfirmationForm } from '../manage-connections-modal/confirmation-form';
+import { ConnectForm } from '../services/connect-form';
 import { SupportedService } from '../services/types';
 import { useSupportedServices } from '../services/use-supported-services';
 import styles from './style.module.scss';
@@ -66,25 +70,53 @@ function PlatformCard( { service, isConnecting, onSelect }: PlatformCardProps ) 
 }
 
 /**
- * The "Add a new account" platform-picker grid (editor). Picking a platform opens the connect flow
- * on the Social admin page in a new tab.
+ * The "Add a new account" flow. Self-contained: a platform-picker grid, the per-service credential
+ * form for input-first services (Bluesky/Mastodon), and the post-redirect confirmation — none of
+ * which touch the legacy connections modal. In the editor, picking a platform hands the connection
+ * off to a new Social admin page tab; on the admin page it connects in place.
  *
  * @return The modal, or null when closed.
  */
 export function AddAccountModal() {
 	const isOpen = useSelect( select => select( store ).isAddAccountModalOpen(), [] );
+	const keyringResult = useSelect( select => select( store ).getKeyringResult(), [] );
+	const preselectService = useSelect( select => select( store ).getPreselectService(), [] );
 	const connectingService = useSelect( select => select( store ).getConnectingService(), [] );
 
-	const { closeAddAccountModal, setConnectingService, setPreselectService, openConnectionsModal } =
-		useDispatch( store );
+	const {
+		closeAddAccountModal,
+		setConnectingService,
+		setPreselectService,
+		setKeyringResult,
+		setReconnectingAccount,
+		setConnectSource,
+	} = useDispatch( store );
+
 	const supportedServices = useSupportedServices();
 	const connectInEditor = useConnectInEditor();
 	const isEditor = useIsEditor();
+	const canMarkAsShared = useUserCanShareConnection();
 
 	const closeModal = useCallback( () => {
+		setKeyringResult( null );
+		setReconnectingAccount( undefined );
+		setConnectSource( undefined );
 		setConnectingService( undefined );
+		setPreselectService( undefined );
 		closeAddAccountModal();
-	}, [ closeAddAccountModal, setConnectingService ] );
+	}, [
+		closeAddAccountModal,
+		setConnectSource,
+		setConnectingService,
+		setKeyringResult,
+		setPreselectService,
+		setReconnectingAccount,
+	] );
+
+	const backToGrid = useCallback( () => {
+		setReconnectingAccount( undefined );
+		setPreselectService( undefined );
+	}, [ setPreselectService, setReconnectingAccount ] );
 
 	const onSelectPlatform = useCallback(
 		( service: SupportedService ) => {
@@ -94,12 +126,9 @@ export function AddAccountModal() {
 				return;
 			}
 
-			// Admin: input-first services collect credentials in the connections modal; pure-OAuth
-			// services redirect straight away.
+			// Admin: input-first services collect credentials here; pure-OAuth services redirect now.
 			if ( service.needsCustomInputs ) {
 				setPreselectService( service.id );
-				closeAddAccountModal();
-				openConnectionsModal();
 				return;
 			}
 
@@ -107,20 +136,49 @@ export function AddAccountModal() {
 				startServiceConnect( service.url, service.id );
 			}
 		},
-		[ closeAddAccountModal, connectInEditor, isEditor, openConnectionsModal, setPreselectService ]
+		[ connectInEditor, isEditor, setPreselectService ]
 	);
 
 	if ( ! isOpen ) {
 		return null;
 	}
 
-	return (
-		<ThemeProvider targetDom={ document.body }>
-			<Modal
-				className={ styles.modal }
-				title={ __( 'Add a new account', 'jetpack-publicize-pkg' ) }
-				onRequestClose={ closeModal }
-			>
+	const formService = ! keyringResult?.ID
+		? supportedServices.find( service => service.id === preselectService )
+		: undefined;
+
+	const title = keyringResult?.ID
+		? __( 'Connection confirmation', 'jetpack-publicize-pkg' )
+		: __( 'Add a new account', 'jetpack-publicize-pkg' );
+
+	let body: JSX.Element;
+	if ( keyringResult?.ID ) {
+		body = (
+			<ConfirmationForm
+				keyringResult={ keyringResult }
+				onComplete={ closeModal }
+				canMarkAsShared={ canMarkAsShared }
+			/>
+		);
+	} else if ( formService ) {
+		body = (
+			<div className={ styles[ 'credential-form' ] }>
+				<Button variant="minimal" size="compact" onClick={ backToGrid }>
+					{ __( '← Back to all platforms', 'jetpack-publicize-pkg' ) }
+				</Button>
+				<h3 className={ styles[ 'form-heading' ] }>
+					{ sprintf(
+						/* translators: %s is a social network name, e.g. "Bluesky". */
+						__( 'Connect your %s account', 'jetpack-publicize-pkg' ),
+						formService.label
+					) }
+				</h3>
+				<ConnectForm service={ formService } displayInputs />
+			</div>
+		);
+	} else {
+		body = (
+			<>
 				<p className={ styles.subtitle }>
 					{ __( 'Select your account platform', 'jetpack-publicize-pkg' ) }
 				</p>
@@ -135,6 +193,14 @@ export function AddAccountModal() {
 						</li>
 					) ) }
 				</ul>
+			</>
+		);
+	}
+
+	return (
+		<ThemeProvider targetDom={ document.body }>
+			<Modal className={ styles.modal } title={ title } onRequestClose={ closeModal }>
+				{ body }
 			</Modal>
 		</ThemeProvider>
 	);

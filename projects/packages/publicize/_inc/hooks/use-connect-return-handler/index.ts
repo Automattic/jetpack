@@ -24,10 +24,10 @@ const FETCH_NOTICE_ID = 'publicize-fetching-keyring';
 
 /**
  * Drives the full-page OAuth connect flow on the admin page. Handles the editor intent
- * (`?connect=<service>&source=editor` → auto-start the redirect, or open the modal for input-first
- * services) and the return (`?connect_return=1` → fetch the keyring result once, complete an
- * in-place reconnect or open confirmation). Restores reconnect context from `reconnect_id` and
- * strips params so a reload can't re-fire it. Mount once, high in the admin page tree.
+ * (`?connect=<service>&source=editor` → auto-start the redirect, or open the add-account grid for
+ * input-first services) and the return (`?connect_return=1` → fetch the keyring result once,
+ * complete an in-place reconnect or open confirmation in the grid). Restores reconnect context from
+ * `reconnect_id` and strips params so a reload can't re-fire it. Mount once, high in the admin tree.
  */
 export function useConnectReturnHandler() {
 	const hasRun = useRef( false );
@@ -35,7 +35,7 @@ export function useConnectReturnHandler() {
 	const {
 		fetchKeyringResult,
 		setKeyringResult,
-		openConnectionsModal,
+		openAddAccountModal,
 		completeReconnect,
 		setReconnectingAccount,
 		setConnectSource,
@@ -71,14 +71,14 @@ export function useConnectReturnHandler() {
 
 			const service = getService( intentService );
 
-			// Pure-OAuth auto-redirects; input-first (or not-yet-loaded) services finish in the modal.
+			// Pure-OAuth auto-redirects; input-first (or not-yet-loaded) services finish in the grid.
 			if ( service?.url && ! NEEDS_INPUT_SERVICE_IDS.has( intentService ) ) {
 				startServiceConnect( service.url, intentService, { source: 'editor' } );
 			} else {
-				// The modal's ConnectForm will carry source=editor through to the result.
+				// The grid's ConnectForm will carry source=editor through to the result.
 				setConnectSource( 'editor' );
 				setPreselectService( intentService );
-				openConnectionsModal();
+				openAddAccountModal();
 			}
 
 			return;
@@ -101,7 +101,7 @@ export function useConnectReturnHandler() {
 			const connection = getConnectionById( reconnectIntentId );
 
 			if ( ! connection ) {
-				openConnectionsModal();
+				openAddAccountModal();
 				return;
 			}
 
@@ -115,10 +115,10 @@ export function useConnectReturnHandler() {
 			};
 
 			if ( connection.service_name === 'bluesky' ) {
-				// Bluesky needs a fresh app password — finish in the modal.
+				// Bluesky needs a fresh app password — finish in the grid.
 				setConnectSource( 'editor' );
 				setPreselectService( 'bluesky' );
-				openConnectionsModal();
+				openAddAccountModal();
 			} else if ( service?.url && connection.service_name === 'mastodon' ) {
 				startServiceConnect( service.url, 'mastodon', {
 					...reconnectOptions,
@@ -127,7 +127,7 @@ export function useConnectReturnHandler() {
 			} else if ( service?.url ) {
 				startServiceConnect( service.url, connection.service_name, reconnectOptions );
 			} else {
-				openConnectionsModal();
+				openAddAccountModal();
 			}
 
 			return;
@@ -199,7 +199,7 @@ export function useConnectReturnHandler() {
 				if ( ! handled ) {
 					if ( data?.ID ) {
 						setKeyringResult( data );
-						openConnectionsModal();
+						openAddAccountModal();
 					} else {
 						createErrorNotice(
 							__(
@@ -221,7 +221,7 @@ export function useConnectReturnHandler() {
 		fetchKeyringResult,
 		getConnectionById,
 		getService,
-		openConnectionsModal,
+		openAddAccountModal,
 		removeNotice,
 		setConnectSource,
 		setKeyringResult,

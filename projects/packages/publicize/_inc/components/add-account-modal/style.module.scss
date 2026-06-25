@@ -55,3 +55,16 @@
 	font-size: 12px;
 	color: #50575e;
 }
+
+.credential-form {
+	display: flex;
+	flex-direction: column;
+	gap: 16px;
+	align-items: flex-start;
+}
+
+.form-heading {
+	margin: 0;
+	font-size: 16px;
+	font-weight: 600;
+}
