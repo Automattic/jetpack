@@ -17,6 +17,7 @@
 	&__tooltip,
 	&__annotation-label-popover {
 		background: var(--wpds-color-bg-surface-neutral-strong, #fff);
+		color: var(--wpds-color-fg-content-neutral, #1e1e1e);
 		padding: var(--wpds-dimension-padding-sm, 8px);
 	}
 
