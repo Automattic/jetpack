@@ -152,7 +152,7 @@ const Welcome = ( { onEnable }: WelcomeProps ) => {
 
 	// Fire-and-forget Tracks; the anchor handles navigation so middle/cmd-click
 	// still opens checkout in a new tab and "copy link address" shows the URL.
-	const onPremiumClick = useCallback( () => {
+	const onUpgradeClick = useCallback( () => {
 		const currentPlan = getSiteData()?.plan?.product_slug;
 		jetpackAnalytics.tracks.recordEvent( 'jetpack_podcast_premium_upgrade_clicked', {
 			current_plan: currentPlan ?? '',
@@ -230,7 +230,7 @@ const Welcome = ( { onEnable }: WelcomeProps ) => {
 									</HStack>
 									<Text variant="muted">{ paidDescription }</Text>
 								</VStack>
-								<Button variant="primary" href={ upgradeCheckoutUrl } onClick={ onPremiumClick }>
+								<Button variant="primary" href={ upgradeCheckoutUrl } onClick={ onUpgradeClick }>
 									{ sprintf(
 										/* translators: %s is the plan name, e.g. "Growth" or "Premium". */
 										__( 'Start your %s podcast', 'jetpack-podcast' ),

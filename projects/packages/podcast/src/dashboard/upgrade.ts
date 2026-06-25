@@ -32,6 +32,13 @@ interface UpgradeCheckoutUrlArgs {
 
 /**
  * Build the podcast upsell checkout URL for the injected upgrade product.
+ *
+ * @param {UpgradeCheckoutUrlArgs} args               - Checkout URL arguments.
+ * @param {string}                 args.siteSlug      - Calypso site fragment; empty falls back to `noSiteSlugUrl`.
+ * @param {string}                 args.returnUrl     - Where checkout returns after purchase (`redirect_to`).
+ * @param {object}                 [args.params]      - Extra query params to set on the checkout URL.
+ * @param {string}                 args.noSiteSlugUrl - URL to use when there's no site slug.
+ * @return {string} The checkout URL for the injected upgrade product.
  */
 export const buildUpgradeCheckoutUrl = ( {
 	siteSlug,
@@ -43,7 +50,9 @@ export const buildUpgradeCheckoutUrl = ( {
 		return noSiteSlugUrl;
 	}
 
-	const url = new URL( getProductCheckoutUrl( getUpgradeProductSlug(), siteSlug, returnUrl, true ) );
+	const url = new URL(
+		getProductCheckoutUrl( getUpgradeProductSlug(), siteSlug, returnUrl, true )
+	);
 	if ( params ) {
 		for ( const [ key, value ] of Object.entries( params ) ) {
 			url.searchParams.set( key, value );

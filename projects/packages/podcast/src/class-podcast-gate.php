@@ -124,7 +124,8 @@ class Podcast_Gate {
 
 		$response = Client::wpcom_json_api_request_as_blog(
 			sprintf( '/upgrades?site=%d', (int) Jetpack_Options::get_option( 'id' ) ),
-			'1.2'
+			'1.2',
+			array( 'method' => 'GET' )
 		);
 
 		if ( is_wp_error( $response ) || 200 !== (int) wp_remote_retrieve_response_code( $response ) ) {

@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\Podcast\Tests;
 
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Podcast\Admin_Page;
+use Automattic\Jetpack\Podcast\Podcast_Gate;
 use Automattic\Jetpack\Podcast\Settings;
 use PHPUnit\Framework\Attributes\CoversClass;
 use WorDBless\BaseTestCase;
@@ -32,8 +33,23 @@ class Admin_Page_Test extends BaseTestCase {
 		Constants::clear_constants();
 		remove_all_actions( 'load-jetpack_page_' . Admin_Page::ADMIN_PAGE_SLUG );
 		unset( $GLOBALS['menu'], $GLOBALS['submenu'] );
+		delete_transient( Podcast_Gate::PURCHASES_TRANSIENT );
+		self::reset_gate_purchases_cache();
 		wp_set_current_user( 0 );
 		parent::tearDown();
+	}
+
+	/**
+	 * Clear the gate's request-scoped purchases memo so a seeded transient is
+	 * read fresh (and never leaks into a sibling test).
+	 */
+	private static function reset_gate_purchases_cache(): void {
+		$property = ( new \ReflectionClass( Podcast_Gate::class ) )->getProperty( 'purchases_cache' );
+		// @todo Remove once we drop PHP < 8.1 support.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$property->setAccessible( true );
+		}
+		$property->setValue( null, null );
 	}
 
 	/**
@@ -100,5 +116,46 @@ class Admin_Page_Test extends BaseTestCase {
 
 		$this->assertArrayHasKey( 'preload', $data['podcast'] );
 		$this->assertIsArray( $data['podcast']['preload'] );
+	}
+
+	/**
+	 * WPCOM (Simple/Atomic): the injected upsell points at Premium + WordPress.com checkout.
+	 */
+	public function test_inject_script_data_targets_premium_on_wpcom() {
+		Constants::set_constant( 'IS_WPCOM', true );
+
+		$data = Admin_Page::inject_podcast_script_data( array() );
+
+		$this->assertSame(
+			array(
+				'product_slug' => 'premium',
+				'plan_name'    => 'Premium',
+			),
+			$data['podcast']['upgrade']
+		);
+	}
+
+	/**
+	 * Self-hosted Jetpack: the injected upsell points at the Growth plan. The
+	 * gate's purchases lookup is seeded so this stays a hermetic unit test (no
+	 * `/upgrades` request).
+	 */
+	public function test_inject_script_data_targets_growth_on_self_hosted() {
+		set_transient(
+			Podcast_Gate::PURCHASES_TRANSIENT,
+			array( array( 'product_slug' => 'jetpack_growth_yearly' ) )
+		);
+		self::reset_gate_purchases_cache();
+
+		$data = Admin_Page::inject_podcast_script_data( array() );
+
+		$this->assertSame(
+			array(
+				'product_slug' => 'jetpack_growth_yearly',
+				'plan_name'    => 'Growth',
+			),
+			$data['podcast']['upgrade']
+		);
+		$this->assertTrue( $data['podcast']['has_product_access'] );
 	}
 }

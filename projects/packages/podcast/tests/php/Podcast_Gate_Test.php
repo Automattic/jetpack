@@ -7,9 +7,11 @@
 
 namespace Automattic\Jetpack\Podcast\Tests;
 
+use Automattic\Jetpack\Connection\Tokens;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Current_Plan;
 use Automattic\Jetpack\Podcast\Podcast_Gate;
+use Jetpack_Options;
 use PHPUnit\Framework\Attributes\CoversClass;
 use WorDBless\BaseTestCase;
 use WorDBless\Options as WorDBless_Options;
@@ -32,6 +34,7 @@ class Podcast_Gate_Test extends BaseTestCase {
 
 	protected function tearDown(): void {
 		unset( $GLOBALS['jetpack_podcast_test_blog_details'] );
+		remove_all_filters( 'pre_http_request' );
 		Constants::clear_constants();
 		WorDBless_Options::init()->clear_options();
 		self::reset_active_plan_cache();
@@ -44,6 +47,39 @@ class Podcast_Gate_Test extends BaseTestCase {
 	 */
 	private static function as_self_hosted(): void {
 		Constants::clear_single_constant( 'IS_WPCOM' );
+	}
+
+	/**
+	 * Self-hosted path with a connected blog, so the gate's uncached lookup
+	 * actually issues the `/upgrades` request (intercepted via `pre_http_request`).
+	 */
+	private static function as_connected_self_hosted(): void {
+		self::as_self_hosted();
+		( new Tokens() )->update_blog_token( 'test.test' );
+		Jetpack_Options::update_option( 'id', 123 );
+		Constants::set_constant( 'JETPACK__WPCOM_JSON_API_BASE', 'https://public-api.wordpress.com' );
+	}
+
+	/**
+	 * A 200 `/upgrades` response carrying the given purchase slugs.
+	 *
+	 * @param string[] $slugs Product slugs to return as current purchases.
+	 * @return callable A `pre_http_request` filter.
+	 */
+	private static function upgrades_response( array $slugs ): callable {
+		$purchases = array();
+		foreach ( $slugs as $slug ) {
+			$purchases[] = array( 'product_slug' => $slug );
+		}
+		return static function () use ( $purchases ) {
+			return array(
+				'body'     => wp_json_encode( $purchases ),
+				'response' => array(
+					'code'    => 200,
+					'message' => 'OK',
+				),
+			);
+		};
 	}
 
 	/**
@@ -202,5 +238,56 @@ class Podcast_Gate_Test extends BaseTestCase {
 		self::seed_purchases( array() );
 
 		$this->assertFalse( Podcast_Gate::has_product_access() );
+	}
+
+	public function test_self_hosted_fetches_growth_over_connection_grants_access(): void {
+		self::as_connected_self_hosted();
+		add_filter( 'pre_http_request', self::upgrades_response( array( 'jetpack_growth_yearly' ) ) );
+
+		$this->assertTrue( Podcast_Gate::has_product_access() );
+		// A successful fetch is cached for reuse within the page load.
+		$this->assertSame(
+			array( array( 'product_slug' => 'jetpack_growth_yearly' ) ),
+			get_transient( Podcast_Gate::PURCHASES_TRANSIENT )
+		);
+	}
+
+	public function test_self_hosted_fetch_http_error_denies_and_does_not_cache(): void {
+		self::as_connected_self_hosted();
+		add_filter(
+			'pre_http_request',
+			static function () {
+				return array(
+					'body'     => '',
+					'response' => array(
+						'code'    => 500,
+						'message' => 'Internal Server Error',
+					),
+				);
+			}
+		);
+
+		$this->assertFalse( Podcast_Gate::has_product_access() );
+		// Fails closed without caching, so the next request retries.
+		$this->assertFalse( get_transient( Podcast_Gate::PURCHASES_TRANSIENT ) );
+	}
+
+	public function test_self_hosted_fetch_malformed_body_denies_access(): void {
+		self::as_connected_self_hosted();
+		add_filter(
+			'pre_http_request',
+			static function () {
+				return array(
+					'body'     => 'not-json',
+					'response' => array(
+						'code'    => 200,
+						'message' => 'OK',
+					),
+				);
+			}
+		);
+
+		$this->assertFalse( Podcast_Gate::has_product_access() );
+		$this->assertFalse( get_transient( Podcast_Gate::PURCHASES_TRANSIENT ) );
 	}
 }
