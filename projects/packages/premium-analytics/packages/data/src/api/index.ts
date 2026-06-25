@@ -43,6 +43,8 @@ export { fetchReportBookings } from './report-bookings-fetch';
 export { fetchReportSessionsByDevice } from './report-sessions-by-device-fetch';
 export { exportReport } from './report-export-fetch';
 export type { ExportReportParams, ExportReportResponse } from './report-export-fetch';
+export { fetchSiteHasNeverPublishedPost } from './site-has-never-published-post-fetch';
+export type { SiteHasNeverPublishedPostResponse } from './site-has-never-published-post-fetch';
 export {
 	fetchStatsProxy,
 	getStatsProxyPath,

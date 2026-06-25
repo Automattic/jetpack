@@ -211,6 +211,7 @@ class Api_Proxy_Controller_Test extends BaseTestCase {
 		$this->assertStringContainsString( 'analytics', $route );
 		$this->assertStringContainsString( 'stats', $route );
 		$this->assertStringContainsString( 'commercial', $route );
+		$this->assertStringNotContainsString( 'site-has-never-published-post', $route );
 		$this->assertStringNotContainsString( 'posts', $route );
 		$this->assertStringNotContainsString( 'media', $route );
 	}
@@ -422,6 +423,7 @@ class Api_Proxy_Controller_Test extends BaseTestCase {
 			'core wp namespace'     => array( 'wp/v2/users' ),
 			'me namespace'          => array( 'me/settings' ),
 			'raw sites passthrough' => array( 'sites/1/options' ),
+			'local site state'      => array( 'site-has-never-published-post' ),
 			'prefix extension'      => array( 'statsfoo' ),
 			'analytics extension'   => array( 'analyticsx' ),
 			'deep unsupported path' => array( 'posts/123/revisions/456' ),
@@ -566,7 +568,6 @@ class Api_Proxy_Controller_Test extends BaseTestCase {
 
 			// v2 / wpcom endpoints (view_stats).
 			'subscribers counts'   => array( 'subscribers/counts', $stats, false, '/sites/%d/subscribers/counts' ),
-			'never published'      => array( 'site-has-never-published-post', $stats, false, '/sites/%d/site-has-never-published-post' ),
 			'plan usage'           => array( 'jetpack-stats/usage', $stats, false, '/sites/%d/jetpack-stats/usage' ),
 			'dashboard modules'    => array( 'jetpack-stats-dashboard/modules', $stats, true, '/sites/%d/jetpack-stats-dashboard/modules' ),
 			'module settings'      => array( 'jetpack-stats-dashboard/module-settings', $stats, true, '/sites/%d/jetpack-stats-dashboard/module-settings' ),

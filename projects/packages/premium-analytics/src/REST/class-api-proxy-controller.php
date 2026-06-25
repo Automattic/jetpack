@@ -109,25 +109,24 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 	 * @var array<string, array<string, mixed>>
 	 */
 	private const PREFIX_CONFIG = array(
-		'analytics'                     => array( 'capability' => 'manage_options' ),
-		'stats'                         => array(
+		'analytics'                 => array( 'capability' => 'manage_options' ),
+		'stats'                     => array(
 			'capability' => 'view_stats',
 			'writes'     => array( 'stats/referrers/spam/' ),
 		),
-		'wordads'                       => array( 'capability' => 'activate_wordads' ),
-		'subscribers'                   => array( 'capability' => 'view_stats' ),
-		'site-has-never-published-post' => array( 'capability' => 'view_stats' ),
-		'jetpack-stats'                 => array( 'capability' => 'view_stats' ),
-		'jetpack-stats-dashboard'       => array(
+		'wordads'                   => array( 'capability' => 'activate_wordads' ),
+		'subscribers'               => array( 'capability' => 'view_stats' ),
+		'jetpack-stats'             => array( 'capability' => 'view_stats' ),
+		'jetpack-stats-dashboard'   => array(
 			'capability' => 'view_stats',
 			'writes'     => array( 'jetpack-stats-dashboard/' ),
 			'cache_bust' => true,
 		),
-		'commercial-classification'     => array(
+		'commercial-classification' => array(
 			'capability' => 'view_stats',
 			'writes'     => array( 'commercial-classification' ),
 		),
-		'upgrades'                      => array(
+		'upgrades'                  => array(
 			'capability' => 'view_stats',
 			'path'       => '/upgrades?site=%d',
 		),

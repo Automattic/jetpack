@@ -3,13 +3,9 @@
  */
 import { statsAppSiteHasNeverPublishedPostQuery } from '../queries/stats-app-site-has-never-published-post-query';
 import { useStatsAppQuery, type UseStatsAppOptions } from './use-stats-app-query';
-import type { StatsQueryParams } from '../utils/stats-params';
 
 export type { StatsAppSiteHasNeverPublishedPostResponse } from '../queries/stats-app-site-has-never-published-post-query';
 
-export function useStatsAppSiteHasNeverPublishedPost(
-	params?: StatsQueryParams,
-	options?: UseStatsAppOptions
-) {
-	return useStatsAppQuery( statsAppSiteHasNeverPublishedPostQuery( params ), options );
+export function useStatsAppSiteHasNeverPublishedPost( options?: UseStatsAppOptions ) {
+	return useStatsAppQuery( statsAppSiteHasNeverPublishedPostQuery(), options );
 }

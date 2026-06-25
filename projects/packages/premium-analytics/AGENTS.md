@@ -48,7 +48,7 @@ Depends on `jetpack-connection`, `jetpack-stats`, `jetpack-sync`, `jetpack-confi
 
 ## API
 
-Two local REST surfaces; almost all data comes from WordPress.com via one agnostic proxy.
+Three local REST surfaces; almost all data comes from WordPress.com via one agnostic proxy.
 
 ### Data proxy
 
@@ -67,7 +67,7 @@ Two local REST surfaces; almost all data comes from WordPress.com via one agnost
 | `analytics` (Woo store reports) | `manage_options` | — |
 | `stats` | `view_stats` | `stats/referrers/spam/` |
 | `wordads` | `activate_wordads` | — |
-| `subscribers` / `site-has-never-published-post` / `jetpack-stats` | `view_stats` | — |
+| `subscribers` / `jetpack-stats` | `view_stats` | — |
 | `jetpack-stats-dashboard` | `view_stats` | whole prefix (busts read cache) |
 | `commercial-classification` | `view_stats` | exact path |
 | `upgrades` (not under `/sites/`) | `view_stats` | — |
@@ -77,6 +77,11 @@ Writes column. Query params pass through except control params (`endpoint`, `ver
 `force_refresh`) and `site`. Successful `GET`s are cached 5 min (key: path+version+params); add
 `force_refresh` to bypass. `x-wp-total` / `x-wp-totalpages` are forwarded back. Errors:
 `403 no_connection`, `500`/`502 api_error`, `405 rest_read_only`, `401`/`403` on a failed cap.
+
+### Site state
+
+`GET /jetpack-premium-analytics/v1/site/has-never-published-post` returns a local boolean derived
+from Core `wp_count_posts( 'post' )` and `wp_count_posts( 'page' )`; keep it outside the WPCOM proxy.
 
 ### Notices
 

@@ -1,15 +1,14 @@
 /**
  * Internal dependencies
  */
-import { statsAppProxyQuery } from './stats-app-query';
-import type { StatsQueryParams } from '../utils/stats-params';
+import { fetchSiteHasNeverPublishedPost, type SiteHasNeverPublishedPostResponse } from '../api';
+import type { UseQueryOptions } from '@tanstack/react-query';
 
-export type StatsAppSiteHasNeverPublishedPostResponse = boolean;
+export type StatsAppSiteHasNeverPublishedPostResponse = SiteHasNeverPublishedPostResponse;
 
-export const statsAppSiteHasNeverPublishedPostQuery = ( params: StatsQueryParams = {} ) =>
-	statsAppProxyQuery< StatsAppSiteHasNeverPublishedPostResponse >( {
-		name: 'site-has-never-published-post',
-		version: '2',
-		endpoint: 'site-has-never-published-post',
-		params,
+export const statsAppSiteHasNeverPublishedPostQuery =
+	(): UseQueryOptions< StatsAppSiteHasNeverPublishedPostResponse > => ( {
+		queryKey: [ 'stats-app', 'site-has-never-published-post' ],
+		queryFn: fetchSiteHasNeverPublishedPost,
+		placeholderData: previousData => previousData,
 	} );
