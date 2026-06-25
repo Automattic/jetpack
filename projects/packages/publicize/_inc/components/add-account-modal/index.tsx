@@ -4,7 +4,9 @@ import { useDispatch, useSelect } from '@wordpress/data';
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { useConnectInEditor } from '../../hooks/use-connect-in-editor';
+import { useIsEditor } from '../../hooks/use-is-editor';
 import { store } from '../../social-store';
+import { startServiceConnect } from '../../utils';
 import { SupportedService } from '../services/types';
 import { useSupportedServices } from '../services/use-supported-services';
 import styles from './style.module.scss';
@@ -32,7 +34,7 @@ function accountTypeLabel( id: string ): string {
 type PlatformCardProps = {
 	service: SupportedService;
 	isConnecting: boolean;
-	onSelect: ( serviceId: string ) => void;
+	onSelect: ( service: SupportedService ) => void;
 };
 
 /**
@@ -41,11 +43,11 @@ type PlatformCardProps = {
  * @param props              - Component props.
  * @param props.service      - The service to render.
  * @param props.isConnecting - Whether this service is connecting.
- * @param props.onSelect     - Called with the service id when the card is clicked.
+ * @param props.onSelect     - Called with the service when the card is clicked.
  * @return The card.
  */
 function PlatformCard( { service, isConnecting, onSelect }: PlatformCardProps ) {
-	const handleClick = useCallback( () => onSelect( service.id ), [ onSelect, service.id ] );
+	const handleClick = useCallback( () => onSelect( service ), [ onSelect, service ] );
 
 	return (
 		<button
@@ -73,14 +75,40 @@ export function AddAccountModal() {
 	const isOpen = useSelect( select => select( store ).isAddAccountModalOpen(), [] );
 	const connectingService = useSelect( select => select( store ).getConnectingService(), [] );
 
-	const { closeAddAccountModal, setConnectingService } = useDispatch( store );
+	const { closeAddAccountModal, setConnectingService, setPreselectService, openConnectionsModal } =
+		useDispatch( store );
 	const supportedServices = useSupportedServices();
 	const connectInEditor = useConnectInEditor();
+	const isEditor = useIsEditor();
 
 	const closeModal = useCallback( () => {
 		setConnectingService( undefined );
 		closeAddAccountModal();
 	}, [ closeAddAccountModal, setConnectingService ] );
+
+	const onSelectPlatform = useCallback(
+		( service: SupportedService ) => {
+			// Editor: hand the connection off to a new Social admin page tab.
+			if ( isEditor ) {
+				connectInEditor( service.id );
+				return;
+			}
+
+			// Admin: input-first services collect credentials in the connections modal; pure-OAuth
+			// services redirect straight away.
+			if ( service.needsCustomInputs ) {
+				setPreselectService( service.id );
+				closeAddAccountModal();
+				openConnectionsModal();
+				return;
+			}
+
+			if ( service.url ) {
+				startServiceConnect( service.url, service.id );
+			}
+		},
+		[ closeAddAccountModal, connectInEditor, isEditor, openConnectionsModal, setPreselectService ]
+	);
 
 	if ( ! isOpen ) {
 		return null;
@@ -102,7 +130,7 @@ export function AddAccountModal() {
 							<PlatformCard
 								service={ service }
 								isConnecting={ connectingService === service.id }
-								onSelect={ connectInEditor }
+								onSelect={ onSelectPlatform }
 							/>
 						</li>
 					) ) }

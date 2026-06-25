@@ -6,6 +6,7 @@ import clsx from 'clsx';
 import { useIsModernized } from '../../hooks/use-is-modernized';
 import { useUserCanShareConnection } from '../../hooks/use-user-can-share-connection';
 import { store } from '../../social-store';
+import { AddAccountModal } from '../add-account-modal';
 import { ThemedConnectionsModal as ManageConnectionsModal } from '../manage-connections-modal';
 import { useService } from '../services/use-service';
 import { ConnectionInfo } from './connection-info';
@@ -51,7 +52,7 @@ const ConnectionManagement = ( {
 
 	const getService = useService();
 
-	const { openConnectionsModal } = useDispatch( store );
+	const { openAddAccountModal } = useDispatch( store );
 
 	const canMarkAsShared = useUserCanShareConnection();
 
@@ -95,10 +96,11 @@ const ConnectionManagement = ( {
 				</>
 			) : null }
 			<ManageConnectionsModal />
+			<AddAccountModal />
 			{ ! hideConnectButton && (
 				<Button
 					variant={ connections.length ? 'outline' : 'solid' }
-					onClick={ openConnectionsModal }
+					onClick={ openAddAccountModal }
 				>
 					{ __( 'Connect an account', 'jetpack-publicize-pkg' ) }
 				</Button>
