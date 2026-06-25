@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Charts: tokenize box-shadow, transition, and animation values with WPDS elevation and motion tokens. Shadows now use --wpds-elevation-sm and motion uses --wpds-motion-duration/easing tokens, making elevation and motion themeable; chart entrance animations move to the design system's motion scale (400ms).
