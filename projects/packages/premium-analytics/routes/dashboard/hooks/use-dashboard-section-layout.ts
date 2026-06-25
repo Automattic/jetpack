@@ -2,11 +2,12 @@ import apiFetch from '@wordpress/api-fetch';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { store as preferencesStore } from '@wordpress/preferences';
 import { useCallback, useMemo } from 'react';
-import { isDashboardSectionLayouts } from '../config';
+import { isDashboardSectionLayouts } from '../config/section-layouts';
 import { DASHBOARD_PREFERENCES_SCOPE, DASHBOARD_REST_NAMESPACE } from './constants';
 import { useDashboardLayout } from './use-dashboard-layout';
-import type { DashboardSectionId, DashboardSectionLayouts } from '../config';
 import type { DashboardName } from './use-dashboard-layout';
+import type { DashboardSectionLayouts } from '../config/section-layouts';
+import type { DashboardSectionId } from '../config/sections';
 import type { DashboardWidget } from '@wordpress/widget-dashboard';
 
 const PREFERENCES_KEY = 'dashboardSectionLayouts';

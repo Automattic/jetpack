@@ -53,16 +53,6 @@ const SECTION_DEFINITIONS: ReadonlyArray< {
 ];
 
 /**
- * Get the translated display label for a section.
- *
- * @param id - The section identifier.
- * @return Translated label for the section.
- */
-export function getSectionLabel( id: DashboardSectionId ): string {
-	return SECTION_DEFINITIONS.find( section => section.id === id )?.getLabel() ?? id;
-}
-
-/**
  * Build the ordered list of section definitions ({ id, label }).
  *
  * Labels are resolved lazily (at call time) so translations are applied after

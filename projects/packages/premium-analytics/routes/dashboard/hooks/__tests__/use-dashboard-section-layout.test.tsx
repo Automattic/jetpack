@@ -7,10 +7,14 @@ import { useDispatch, useSelect } from '@wordpress/data';
 /**
  * Internal dependencies
  */
-import { DASHBOARD_NAME, DASHBOARD_PREFERENCES_SCOPE, DASHBOARD_REST_NAMESPACE } from './constants';
-import { useDashboardLayout } from './use-dashboard-layout';
-import { useDashboardSectionLayout } from './use-dashboard-section-layout';
-import type { DashboardSectionLayouts } from '../config';
+import {
+	DASHBOARD_NAME,
+	DASHBOARD_PREFERENCES_SCOPE,
+	DASHBOARD_REST_NAMESPACE,
+} from '../constants';
+import { useDashboardLayout } from '../use-dashboard-layout';
+import { useDashboardSectionLayout } from '../use-dashboard-section-layout';
+import type { DashboardSectionLayouts } from '../../config/section-layouts';
 import type { DashboardWidget } from '@wordpress/widget-dashboard';
 
 jest.mock( '@wordpress/api-fetch' );
@@ -18,7 +22,7 @@ jest.mock( '@wordpress/data' );
 jest.mock( '@wordpress/preferences', () => ( {
 	store: { name: 'core/preferences' },
 } ) );
-jest.mock( './use-dashboard-layout' );
+jest.mock( '../use-dashboard-layout' );
 
 const mockApiFetch = apiFetch as jest.MockedFunction< typeof apiFetch >;
 const mockUseDispatch = useDispatch as jest.MockedFunction< typeof useDispatch >;

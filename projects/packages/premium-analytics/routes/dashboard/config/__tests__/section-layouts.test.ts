@@ -1,7 +1,7 @@
 /**
  * Internal dependencies
  */
-import { isDashboardSectionLayouts } from './section-layouts';
+import { isDashboardSectionLayouts } from '../section-layouts';
 
 describe( 'section layouts config', () => {
 	it( 'accepts a section-to-layout preference map', () => {

@@ -6,7 +6,7 @@ import { useCallback } from 'react';
 /**
  * Internal dependencies
  */
-import { resolveSectionId, type DashboardSectionId } from '../config';
+import { resolveSectionId, type DashboardSectionId } from '../config/sections';
 import { route } from '../package.json';
 
 /**

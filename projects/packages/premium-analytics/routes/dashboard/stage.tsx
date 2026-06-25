@@ -1,18 +1,17 @@
 import { Page } from '@wordpress/admin-ui';
 import { store as coreStore } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
-import { useState } from '@wordpress/element';
+import { useCallback, useMemo, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Tabs } from '@wordpress/ui';
 import { WidgetDashboard } from '@wordpress/widget-dashboard';
 import { useWidgetTypes, type WidgetModuleRecord } from '@wordpress/widget-primitives';
-import { DashboardSections } from './components';
+import { getDashboardSections, type DashboardSectionId } from './config/sections';
 import {
 	DASHBOARD_NAME,
 	useActiveSection,
 	useDashboardGridSettings,
 	useDashboardSectionLayout,
-	useDashboardSections,
 } from './hooks';
 import styles from './stage.module.scss';
 
@@ -22,7 +21,7 @@ import styles from './stage.module.scss';
  * @return {JSX.Element} The Premium Analytics dashboard.
  */
 function Dashboard(): JSX.Element {
-	const sections = useDashboardSections();
+	const sections = useMemo( () => getDashboardSections(), [] );
 	const [ activeSection, setActiveSection ] = useActiveSection();
 	const [ layout, setLayout, resetLayout ] = useDashboardSectionLayout(
 		DASHBOARD_NAME,
@@ -43,6 +42,11 @@ function Dashboard(): JSX.Element {
 	const [ widgetTypes, isResolvingWidgetTypes ] = useWidgetTypes( widgetModules );
 
 	const [ editMode, setEditMode ] = useState( false );
+
+	const handleSectionChange = useCallback(
+		( sectionId: string ) => setActiveSection( sectionId as DashboardSectionId ),
+		[ setActiveSection ]
+	);
 
 	return (
 		<WidgetDashboard
@@ -65,11 +69,16 @@ function Dashboard(): JSX.Element {
 				actions={ <WidgetDashboard.Actions /> }
 				className={ styles.dashboard }
 			>
-				<DashboardSections
-					sections={ sections }
-					value={ activeSection }
-					onChange={ setActiveSection }
-				>
+				<Tabs.Root value={ activeSection } onValueChange={ handleSectionChange }>
+					<div className={ styles.tabList }>
+						<Tabs.List variant="minimal">
+							{ sections.map( section => (
+								<Tabs.Tab key={ section.id } value={ section.id }>
+									{ section.label }
+								</Tabs.Tab>
+							) ) }
+						</Tabs.List>
+					</div>
 					{ sections.map( section => (
 						<Tabs.Panel
 							key={ section.id }
@@ -85,7 +94,7 @@ function Dashboard(): JSX.Element {
 							) : null }
 						</Tabs.Panel>
 					) ) }
-				</DashboardSections>
+				</Tabs.Root>
 
 				<WidgetDashboard.Commands />
 			</Page>

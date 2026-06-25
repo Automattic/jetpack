@@ -4,7 +4,7 @@ import {
 	DEFAULT_SECTION_ID,
 	getDashboardSections,
 	resolveSectionId,
-} from './sections';
+} from '../sections';
 
 jest.mock( '@wordpress/i18n', () => ( {
 	__: jest.fn( ( text: string ) => text ),
