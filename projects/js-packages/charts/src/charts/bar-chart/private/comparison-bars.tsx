@@ -12,9 +12,7 @@ import type { FC, ReactNode } from 'react';
 
 /*
  * `process.env.NODE_ENV` is replaced by the bundler at build time. Declare a
- * minimal `process` locally so this file type-checks when consumed as source by
- * packages that don't pull in `@types/node` (e.g. via the `jetpack:src` export
- * condition).
+ * minimal `process` locally so this file type-checks as source under `jetpack:src`.
  */
 declare const process: { env: Record< string, string | undefined > };
 

@@ -198,7 +198,7 @@ const EditVideoDetails = () => {
 	let thumbnail: string | JSX.Element = posterImage;
 
 	if ( posterImageSource === 'video' && useVideoAsThumbnail ) {
-		thumbnail = <VideoPlayer src={ url } currentTime={ selectedTime } videoRef={ null as never } />;
+		thumbnail = <VideoPlayer src={ url } currentTime={ selectedTime } videoRef={ null } />;
 	} else if ( posterImageSource === 'upload' ) {
 		thumbnail = libraryAttachment.url;
 	}

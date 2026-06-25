@@ -94,9 +94,8 @@ export const useDashboardVideos = () => {
 			Math.min( itemsPerPage, uploadedVideoCount - itemsPerPage * ( page - 1 ) ) // at most the number of videos in the page without query
 		);
 		/*
-		 * Loading skeletons only carry an `id`; the row/card components render
-		 * placeholder UI and read no other fields. Cast to the full video shape
-		 * so the assembled `videos` list below stays strongly typed.
+		 * Loading skeletons only carry an `id`; placeholder UI reads no other
+		 * fields, so the cast to the full video shape is safe.
 		 */
 		return Array.from( { length: numPlaceholders }, ( _, i ) => ( {
 			id: `placeholder-${ i }`,

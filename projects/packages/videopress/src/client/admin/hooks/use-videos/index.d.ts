@@ -1,5 +1,18 @@
+/**
+ * Hand-written type surface for the `useVideos` hooks in `index.js`. Must be
+ * kept in sync with that implementation until the hook is migrated to TS.
+ */
+
 import type { FilterObject } from '../../components/video-filter/types';
 import type { AdminVideo, LocalVideo } from '../../types';
+
+type VideosQuery = {
+	order: string;
+	orderBy: string;
+	itemsPerPage: number;
+	page: number;
+	type: string;
+};
 
 type VideosResult = {
 	items: AdminVideo[];
@@ -13,9 +26,13 @@ type VideosResult = {
 	firstUploadedVideoId: number | string;
 	firstVideoProcessed: boolean;
 	dismissedFirstVideoPopover: boolean;
+	order: string;
+	orderBy: string;
+	type: string;
 	page: number;
 	itemsPerPage: number;
 	total: number;
+	totalPages: number;
 	storageUsed: number;
 	uploadErrors: AdminVideo[];
 	setPage: ( page: number ) => void;
@@ -30,9 +47,10 @@ type LocalVideosResult = {
 	page: number;
 	itemsPerPage: number;
 	total: number;
+	totalPages: number;
 	setPage: ( page: number ) => void;
 };
 
 export default function useVideos(): VideosResult;
 export function useLocalVideos(): LocalVideosResult;
-export function useVideosQuery(): Record< string, unknown >;
+export function useVideosQuery(): VideosQuery;

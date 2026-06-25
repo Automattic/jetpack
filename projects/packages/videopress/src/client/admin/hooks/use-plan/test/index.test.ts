@@ -4,9 +4,7 @@
  * The hook now fetches features dynamically from the Redux store via useSelect.
  */
 
-// Type-only import for the global Window augmentation that declares
-// jetpackVideoPressInitialState. Erased from the emitted JS, but keeps this
-// file a module so the `require` declaration below stays block-scoped.
+// Type-only import of the Window augmentation; keeps this file a module so `require` stays block-scoped.
 import type {} from '../../../components/admin-page/types';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
