@@ -73,7 +73,7 @@ class Podcast_Gate_Test extends BaseTestCase {
 		}
 		return static function () use ( $purchases ) {
 			return array(
-				'body'     => wp_json_encode( $purchases ),
+				'body'     => wp_json_encode( $purchases, JSON_UNESCAPED_SLASHES ),
 				'response' => array(
 					'code'    => 200,
 					'message' => 'OK',
