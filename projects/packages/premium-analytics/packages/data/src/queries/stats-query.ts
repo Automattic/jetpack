@@ -14,6 +14,7 @@ import {
 	sanitizeStatsInsightsResponse,
 	sanitizeStatsStreakResponse,
 	sanitizeStatsVisitsResponse,
+	sanitizeStatsTagsResponse,
 	sanitizeStatsPassthroughResponse,
 	sanitizeStatsPostResponse,
 	sanitizeStatsReferrersResponse,
@@ -52,6 +53,7 @@ const statsSanitizers = {
 	comments: sanitizeStatsCommentsResponse,
 	insights: sanitizeStatsInsightsResponse,
 	streak: sanitizeStatsStreakResponse,
+	tags: sanitizeStatsTagsResponse,
 	utm: sanitizeStatsUtmResponse,
 	visits: sanitizeStatsVisitsResponse,
 } satisfies Record< string, StatsSanitizer >;

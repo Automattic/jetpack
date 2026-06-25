@@ -9,6 +9,7 @@ import { statsInsightsQuery } from '../stats-insights-query';
 import { statsLocationsQuery } from '../stats-locations-query';
 import { statsPostQuery } from '../stats-post-query';
 import { statsStreakQuery } from '../stats-streak-query';
+import { statsTagsQuery } from '../stats-tags-query';
 import { statsTopPostsQuery } from '../stats-top-posts-query';
 import { statsUtmQuery } from '../stats-utm-query';
 import { statsVisitsQuery } from '../stats-visits-query';
@@ -147,6 +148,44 @@ describe( 'Stats query factories', () => {
 				} ),
 			] )
 		);
+	} );
+
+	it( 'builds tags query keys for the Calypso endpoint path', () => {
+		const query = statsTagsQuery( {} );
+
+		expect( query.enabled ).toBe( true );
+		expect( query.queryKey ).toEqual( [
+			'stats',
+			'tags',
+			'1.1',
+			'stats/tags',
+			'GET',
+			{},
+			undefined,
+			'tags',
+		] );
+	} );
+
+	it( 'passes supported tags params through query keys', () => {
+		const query = statsTagsQuery( {
+			to: '2026-06-07',
+			max: 10,
+		} );
+
+		expect( query.enabled ).toBe( true );
+		expect( query.queryKey ).toEqual( [
+			'stats',
+			'tags',
+			'1.1',
+			'stats/tags',
+			'GET',
+			{
+				date: '2026-06-07',
+				max: 10,
+			},
+			undefined,
+			'tags',
+		] );
 	} );
 
 	it( 'preserves explicit summarize params', () => {

@@ -32,3 +32,4 @@ export { statsVisitsQuery } from './stats-visits-query';
 export { statsInsightsQuery } from './stats-insights-query';
 export { statsUtmQuery } from './stats-utm-query';
 export { statsHighlightsQuery } from './stats-highlights-query';
+export { statsTagsQuery } from './stats-tags-query';

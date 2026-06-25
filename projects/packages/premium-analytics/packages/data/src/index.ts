@@ -69,6 +69,7 @@ export { useStatsUtm } from './hooks/use-stats-utm';
 export type { StatsUtmParams, StatsUtmResponse } from './hooks/use-stats-utm';
 export { useStatsHighlights } from './hooks/use-stats-highlights';
 export type { StatsHighlightsParams, StatsHighlightsResponse } from './hooks/use-stats-highlights';
+export { useStatsTags, type StatsTagsParams, type StatsTagsResponse } from './hooks/use-stats-tags';
 export type { UseStatsOptions } from './hooks/use-stats-report';
 export { prefetchReport } from './prefetch';
 export {
@@ -129,6 +130,12 @@ export type {
 	StatsReferrersItem,
 	StatsSearchTermsItem,
 	StatsStreakRawResponse,
+	StatsTagsChildItem,
+	StatsTagsItem,
+	StatsTagsLabel,
+	StatsTagsRawItem,
+	StatsTagsRawResponse,
+	StatsTagsRawTag,
 	StatsTimeSeriesDataPoint,
 	StatsTimeSeriesReport,
 	StatsTopAuthorsItem,

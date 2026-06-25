@@ -26,6 +26,7 @@ const statsHookNames = [
 	'useStatsInsights',
 	'useStatsUtm',
 	'useStatsHighlights',
+	'useStatsTags',
 ] as const satisfies ReadonlyArray< keyof typeof dataPackage >;
 
 describe( 'Stats public hook names', () => {
