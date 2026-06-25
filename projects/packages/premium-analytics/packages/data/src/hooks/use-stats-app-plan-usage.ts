@@ -14,9 +14,9 @@ export type StatsAppPlanPeriodUsage = {
 
 export type StatsAppPlanPriceTier = {
 	maximum_price: number;
-	maximum_price_display: string;
-	maximum_price_monthly_display: string;
-	maximum_units: number;
+	maximum_price_display: string | null;
+	maximum_price_monthly_display: string | null;
+	maximum_units: number | null;
 	minimum_price: number;
 	minimum_price_display: string;
 	minimum_price_monthly_display: string;
