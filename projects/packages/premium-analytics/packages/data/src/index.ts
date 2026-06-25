@@ -33,6 +33,12 @@ export {
 	useStatsAppDashboardModuleSettingsMutation,
 } from './hooks/use-stats-app-dashboard-module-settings';
 export type { StatsAppDashboardModuleSettings } from './hooks/use-stats-app-dashboard-module-settings';
+export { useStatsAppPlanUsage } from './hooks/use-stats-app-plan-usage';
+export type {
+	StatsAppPlanPeriodUsage,
+	StatsAppPlanPriceTier,
+	StatsAppPlanUsage,
+} from './hooks/use-stats-app-plan-usage';
 export { useStatsArchives, type StatsArchivesResponse } from './hooks/use-stats-archives';
 export {
 	useStatsStreak,
