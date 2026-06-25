@@ -29,7 +29,7 @@ type StatsInsightsData = {
 export type StatsInsightsResponse = Partial< StatsInsightsData >;
 
 function getDayName( highestDayOfWeek: number ) {
-	const dayOfWeek = highestDayOfWeek + 1 > 6 ? 0 : highestDayOfWeek + 1;
+	const dayOfWeek = ( highestDayOfWeek + 1 ) % 7;
 	const date = new Date( 2026, 0, 4 + dayOfWeek, 12 );
 
 	return format( date, 'EEEE' );
