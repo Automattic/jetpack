@@ -46,14 +46,15 @@ beforeEach( () => {
 	mockApiFetch.mockResolvedValue( [] );
 	mockUseDashboardLayout.mockReturnValue( [ flatDefaultLayout, jest.fn(), jest.fn() ] );
 	mockUseDispatch.mockReturnValue( { set: mockSet } as never );
-	mockUseSelect.mockImplementation( callback =>
-		callback(
-			() =>
-				( {
-					get: () => sectionLayouts,
-				} ) as never
-		)
-	);
+	mockUseSelect.mockImplementation( callback => {
+		const select = () => ( {
+			get: () => sectionLayouts,
+		} );
+
+		return ( callback as unknown as ( mapSelect: typeof select ) => DashboardSectionLayouts )(
+			select
+		);
+	} );
 } );
 
 afterEach( () => {

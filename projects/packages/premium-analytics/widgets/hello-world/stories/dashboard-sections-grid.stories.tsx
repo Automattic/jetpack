@@ -1,8 +1,10 @@
 import { useState } from '@wordpress/element';
 import { Tabs } from '@wordpress/ui';
 import { WidgetDashboard, type DashboardWidget } from '@wordpress/widget-dashboard';
-import { DashboardSections } from '../../../routes/dashboard/components';
-import { DEFAULT_SECTION_ID, getDashboardSections } from '../../../routes/dashboard/config';
+import {
+	DEFAULT_SECTION_ID,
+	getDashboardSections,
+} from '../../../routes/dashboard/config/sections';
 import styles from '../../../routes/dashboard/stage.module.scss';
 import type { Meta, StoryObj } from '@storybook/react';
 import type {
@@ -124,11 +126,16 @@ function DashboardSectionsGridStory() {
 				</p>
 			</header>
 
-			<DashboardSections
-				sections={ sections }
-				value={ activeSection }
-				onChange={ setActiveSection }
-			>
+			<Tabs.Root value={ activeSection } onValueChange={ setActiveSection }>
+				<div className={ styles.tabList }>
+					<Tabs.List variant="minimal">
+						{ sections.map( section => (
+							<Tabs.Tab key={ section.id } value={ section.id }>
+								{ section.label }
+							</Tabs.Tab>
+						) ) }
+					</Tabs.List>
+				</div>
 				{ sections.map( section => (
 					<Tabs.Panel
 						key={ section.id }
@@ -150,7 +157,7 @@ function DashboardSectionsGridStory() {
 						) : null }
 					</Tabs.Panel>
 				) ) }
-			</DashboardSections>
+			</Tabs.Root>
 		</section>
 	);
 }

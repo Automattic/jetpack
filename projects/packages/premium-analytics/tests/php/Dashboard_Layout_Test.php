@@ -37,7 +37,7 @@ class Dashboard_Layout_Test extends BaseTestCase {
 		$scope       = $preferences[ DASHBOARD_LAYOUT_SCOPE ];
 
 		$this->assertSame( 'jpa/hello-world', $scope[ DASHBOARD_LAYOUT_KEY ][0]['type'] );
-		$this->assertSame( 'jpa/stats-top-posts', $scope[ DASHBOARD_SECTION_LAYOUTS_KEY ]['traffic'][0]['type'] );
+		$this->assertSame( 'jpa/locations', $scope[ DASHBOARD_SECTION_LAYOUTS_KEY ]['traffic'][0]['type'] );
 		$this->assertSame( array(), $scope[ DASHBOARD_SECTION_LAYOUTS_KEY ]['insights'] );
 		$this->assertSame( array(), $scope[ DASHBOARD_SECTION_LAYOUTS_KEY ]['subscribers'] );
 		$this->assertSame( array(), $scope[ DASHBOARD_SECTION_LAYOUTS_KEY ]['store'] );
@@ -69,7 +69,7 @@ class Dashboard_Layout_Test extends BaseTestCase {
 		$scope       = $preferences[ DASHBOARD_LAYOUT_SCOPE ];
 
 		$this->assertSame( $custom_layout, $scope[ DASHBOARD_LAYOUT_KEY ] );
-		$this->assertSame( 'jpa/stats-top-posts', $scope[ DASHBOARD_SECTION_LAYOUTS_KEY ]['traffic'][0]['type'] );
+		$this->assertSame( 'jpa/locations', $scope[ DASHBOARD_SECTION_LAYOUTS_KEY ]['traffic'][0]['type'] );
 	}
 
 	/**
@@ -124,6 +124,7 @@ class Dashboard_Layout_Test extends BaseTestCase {
 		};
 
 		add_filter( DASHBOARD_SECTION_LAYOUTS_FILTER, $filter, 20, 2 );
+		$layouts = array();
 		try {
 			$layouts = get_dashboard_section_layouts_for( DASHBOARD_NAME );
 		} finally {
@@ -141,7 +142,7 @@ class Dashboard_Layout_Test extends BaseTestCase {
 	public function test_section_default_layout_resolver_returns_section_defaults() {
 		$traffic_layout = get_dashboard_section_default_layout_for( DASHBOARD_NAME, 'traffic' );
 
-		$this->assertSame( 'jpa/stats-top-posts', $traffic_layout[0]['type'] );
+		$this->assertSame( 'jpa/locations', $traffic_layout[0]['type'] );
 		$this->assertSame( array(), get_dashboard_section_default_layout_for( DASHBOARD_NAME, 'insights' ) );
 		$this->assertSame( array(), get_dashboard_section_default_layout_for( DASHBOARD_NAME, 'subscribers' ) );
 		$this->assertSame( array(), get_dashboard_section_default_layout_for( DASHBOARD_NAME, 'store' ) );
