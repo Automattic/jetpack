@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Forms: fix the file upload field collapsing to its content width on the front end instead of filling the form like it does in the editor.
