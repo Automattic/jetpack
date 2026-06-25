@@ -392,10 +392,6 @@ function render_email( $block_content, array $parsed_block, $rendering_context )
 
 	$attr          = $parsed_block['attrs'];
 	$default_texts = get_default_texts();
-	$intervals     = get_email_intervals( $attr, $default_texts );
-	if ( empty( $intervals ) ) {
-		return '';
-	}
 
 	// In email there's no interactive form, so every CTA points to the post that
 	// hosts the full Donations block, mirroring the static fallback link.
@@ -404,18 +400,26 @@ function render_email( $block_content, array $parsed_block, $rendering_context )
 		$url = is_string( $attr['fallbackLinkUrl'] ?? null ) && '' !== $attr['fallbackLinkUrl'] ? $attr['fallbackLinkUrl'] : '#';
 	}
 
-	$target_width = get_email_target_width( $rendering_context );
-	$alignment    = in_array( $attr['contentAlignment'] ?? '', array( 'left', 'center', 'right' ), true ) ? $attr['contentAlignment'] : 'left';
-	$email_attrs  = $parsed_block['email_attrs'] ?? array();
+	$alignment   = in_array( $attr['contentAlignment'] ?? '', array( 'left', 'center', 'right' ), true ) ? $attr['contentAlignment'] : 'left';
+	$email_attrs = $parsed_block['email_attrs'] ?? array();
+	$table_style = sprintf( 'width:100%%;max-width:%dpx;border-collapse:collapse;', get_email_target_width( $rendering_context ) );
 
-	$table_style = sprintf( 'width:100%%;max-width:%dpx;border-collapse:collapse;', $target_width );
+	// Intervals in priority order; one-time defaults to shown for legacy blocks.
+	$sections = '';
+	foreach ( array(
+		'oneTimeDonation' => true,
+		'monthlyDonation' => false,
+		'annualDonation'  => false,
+	) as $key => $default_show ) {
+		if ( false === ( $attr[ $key ]['show'] ?? $default_show ) ) {
+			continue;
+		}
 
-	$sections  = '';
-	$first_key = array_key_first( $intervals );
-	foreach ( $intervals as $key => $interval ) {
+		$interval = is_array( $attr[ $key ] ?? null ) ? $attr[ $key ] : array();
+		$heading  = wp_kses_post( $interval['heading'] ?? $default_texts[ $key ]['heading'] );
+		$extra    = wp_kses_post( $interval['extraText'] ?? $default_texts['extraText'] );
+
 		$content = '';
-
-		$heading = wp_kses_post( $interval['heading'] );
 		if ( '' !== trim( wp_strip_all_tags( $heading ) ) ) {
 			$content .= sprintf(
 				'<p style="margin:0 0 4px;font-size:18px;font-weight:700;line-height:1.3;text-align:%s;">%s</p>',
@@ -423,29 +427,24 @@ function render_email( $block_content, array $parsed_block, $rendering_context )
 				$heading
 			);
 		}
-
-		$extra_text = wp_kses_post( $interval['extraText'] );
-		if ( '' !== trim( wp_strip_all_tags( $extra_text ) ) ) {
+		if ( '' !== trim( wp_strip_all_tags( $extra ) ) ) {
 			$content .= sprintf(
 				'<p style="margin:0 0 14px;font-size:15px;line-height:1.5;text-align:%s;">%s</p>',
 				esc_attr( $alignment ),
-				$extra_text
+				$extra
 			);
 		}
+		$content .= render_email_donate_button( $interval['buttonText'] ?? $default_texts[ $key ]['buttonText'], $url, $attr, $rendering_context, $email_attrs );
 
-		$content .= render_email_donate_button( $interval['buttonText'], $url, $attr, $rendering_context, $email_attrs );
-
-		// Vertical padding spaces the intervals out; a top border on subsequent
-		// sections mimics the block's interval separator.
-		$is_first   = $key === $first_key;
+		// First section sits flush; later ones get a top border + spacing as a separator.
+		$is_first   = '' === $sections;
 		$cell_style = sprintf(
 			'text-align:%1$s;padding:%2$s;%3$s',
 			esc_attr( $alignment ),
 			$is_first ? '0 0 24px' : '24px 0',
 			$is_first ? '' : 'border-top:1px solid #e0e0e0;'
 		);
-
-		$sections .= \Automattic\WooCommerce\EmailEditor\Integrations\Utils\Table_Wrapper_Helper::render_table_wrapper(
+		$sections  .= \Automattic\WooCommerce\EmailEditor\Integrations\Utils\Table_Wrapper_Helper::render_table_wrapper(
 			$content,
 			array( 'style' => $table_style ),
 			array( 'style' => $cell_style )
@@ -453,36 +452,6 @@ function render_email( $block_content, array $parsed_block, $rendering_context )
 	}
 
 	return $sections;
-}
-
-/**
- * Build the ordered list of donation intervals to render in email, preserving
- * any per-interval heading / button text / supporting text the user customized.
- *
- * @param array $attr          Block attributes.
- * @param array $default_texts Default texts from get_default_texts().
- * @return array List of intervals, each with 'heading', 'buttonText' and 'extraText'.
- */
-function get_email_intervals( $attr, $default_texts ) {
-	$config = array(
-		'oneTimeDonation' => true,  // Legacy blocks default one-time to shown.
-		'monthlyDonation' => false,
-		'annualDonation'  => false,
-	);
-
-	$intervals = array();
-	foreach ( $config as $attr_key => $default_show ) {
-		if ( false === ( $attr[ $attr_key ]['show'] ?? $default_show ) ) {
-			continue;
-		}
-		$intervals[] = array(
-			'heading'    => $attr[ $attr_key ]['heading'] ?? $default_texts[ $attr_key ]['heading'],
-			'buttonText' => $attr[ $attr_key ]['buttonText'] ?? $default_texts[ $attr_key ]['buttonText'],
-			'extraText'  => $attr[ $attr_key ]['extraText'] ?? $default_texts['extraText'],
-		);
-	}
-
-	return $intervals;
 }
 
 /**
