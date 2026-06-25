@@ -13,14 +13,14 @@ describe( 'Stats tags normalizer', () => {
 				date_end: '2026-06-22T23:59:59+00:00',
 				items: [
 					expect.objectContaining( {
-						label: 'News',
-						labels: [
+						label: [
 							{
 								label: 'News',
 								labelIcon: 'folder',
 								link: 'https://example.com/category/news/',
 							},
 						],
+						labelText: 'News',
 						value: 18,
 						link: 'https://example.com/category/news/',
 					} ),
@@ -33,8 +33,7 @@ describe( 'Stats tags normalizer', () => {
 	it( 'normalizes multi-tag rows with children', () => {
 		expect( sanitizeStatsTagsResponse( tagsFixture ).data[ 0 ].items[ 1 ] ).toEqual(
 			expect.objectContaining( {
-				label: 'Announcements, Release',
-				labels: [
+				label: [
 					{
 						label: 'Announcements',
 						labelIcon: 'folder',
@@ -46,6 +45,7 @@ describe( 'Stats tags normalizer', () => {
 						link: null,
 					},
 				],
+				labelText: 'Announcements, Release',
 				value: 7,
 				link: null,
 				children: [
@@ -82,14 +82,14 @@ describe( 'Stats tags normalizer', () => {
 				date_end: '2026-06-16T23:59:59+00:00',
 				items: [
 					expect.objectContaining( {
-						label: 'By date',
-						labels: [
+						label: [
 							{
 								label: 'By date',
 								labelIcon: 'folder',
 								link: 'https://example.com/category/by-date/',
 							},
 						],
+						labelText: 'By date',
 						value: 0,
 						link: 'https://example.com/category/by-date/',
 					} ),
@@ -119,14 +119,14 @@ describe( 'Stats tags normalizer', () => {
 					date_end: '2026-06-22T23:59:59+00:00',
 					items: [
 						expect.objectContaining( {
-							label: 'Summary',
-							labels: [
+							label: [
 								{
 									label: 'Summary',
 									labelIcon: 'tag',
 									link: 'https://example.com/tag/summary/',
 								},
 							],
+							labelText: 'Summary',
 							value: 34,
 							link: 'https://example.com/tag/summary/',
 						} ),

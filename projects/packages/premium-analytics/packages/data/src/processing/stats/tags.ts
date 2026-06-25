@@ -32,49 +32,58 @@ export type StatsTagsRawResponse = {
 };
 
 export type StatsTagsLabel = {
-	label: unknown;
+	label: string;
 	labelIcon: string;
-	link: unknown;
+	link: string | null;
 };
 
 export interface StatsTagsChildItem extends StatsNormalizedItemBase< null > {
+	label: string;
 	labelIcon: string;
 	value: null;
-	link: unknown;
+	link: string | null;
 	children: null;
 }
 
 export interface StatsTagsItem extends StatsNormalizedItemBase< StatsTagsChildItem > {
-	label: string;
-	labels: StatsTagsLabel[];
+	label: StatsTagsLabel[];
+	labelText: string;
 	value: number;
-	link: unknown;
+	link: string | null;
 	children?: StatsTagsChildItem[];
 }
 
 const tagIcon = ( type: unknown ) => ( type === 'category' ? 'folder' : String( type ?? '' ) );
 
+function getTagName( tag: StatsRecord ): string {
+	return typeof tag.name === 'string' ? tag.name : '';
+}
+
+function getTagLink( tag: StatsRecord ): string | null {
+	return typeof tag.link === 'string' ? tag.link : null;
+}
+
 function normalizeStatsTagsItem( item: StatsRecord ): StatsTagsItem {
 	const tagItems = coerceStatsArray< StatsRecord >( item.tags );
 	const hasChildren = tagItems.length > 1;
 	const labels = tagItems.map( tag => ( {
-		label: tag.name,
+		label: getTagName( tag ),
 		labelIcon: tagIcon( tag.type ),
-		link: hasChildren ? null : tag.link,
+		link: hasChildren ? null : getTagLink( tag ),
 	} ) );
 
 	return {
-		label: labels.map( label => label.label ).join( ', ' ),
-		labels,
-		link: hasChildren ? null : labels[ 0 ]?.link,
+		label: labels,
+		labelText: labels.map( label => label.label ).join( ', ' ),
+		link: hasChildren ? null : labels[ 0 ]?.link ?? null,
 		value: safeParseFloat( item.views ),
 		...( hasChildren
 			? {
 					children: tagItems.map( tag => ( {
-						label: tag.name,
+						label: getTagName( tag ),
 						labelIcon: tagIcon( tag.type ),
 						value: null,
-						link: tag.link,
+						link: getTagLink( tag ),
 						children: null,
 					} ) ),
 			  }
