@@ -292,7 +292,7 @@ function wpcom_replace_wp_logo_with_wpcom_logo_menu( $wp_admin_bar ) {
 		array(
 			'parent' => 'wp-logo',
 			'id'     => 'wpcom-themes',
-			'title'  => __( 'Themes', 'jetpack-mu-wpcom' ),
+			'title'  => __( 'Themes', 'jetpack-mu-wpcom' ) . ' ↗',
 			'href'   => 'https://wordpress.com/themes',
 			'meta'   => array(
 				'target' => '_blank',
