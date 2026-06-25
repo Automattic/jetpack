@@ -4100,6 +4100,17 @@ class Contact_Form_Test extends BaseTestCase {
 			)
 		);
 
+		return $this->make_form_with_source_object( $attributes, $source );
+	}
+
+	/**
+	 * Build a Contact_Form that reports the given (already constructed) source.
+	 *
+	 * @param array           $attributes Form attributes.
+	 * @param Feedback_Source $source     Source to report from get_source().
+	 * @return Contact_Form
+	 */
+	private function make_form_with_source_object( $attributes, $source ) {
 		return new class( $attributes, $source ) extends Contact_Form {
 			/**
 			 * Source to report from get_source().
@@ -4301,14 +4312,21 @@ class Contact_Form_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Test reconcile_content_destinations keeps destinations for a block-template source whose
-	 * (non-numeric) id has no post author but requires an admin-tier capability to author.
+	 * Test reconcile_content_destinations keeps destinations for a block-template source built
+	 * through the real render path: the source type comes from the render-scoped global, not from
+	 * a content attribute, so this exercises a reachable state.
 	 *
 	 * Regression test for forms placed in FSE block templates, template parts and widgets whose
 	 * webhooks/postToUrl/Salesforce destinations were silently dropped from Jetpack 15.9.
 	 */
 	public function test_reconcile_content_destinations_keeps_destinations_for_block_template_source() {
-		$form = $this->make_form_with_source(
+		$GLOBALS['grunion_block_template_id'] = 'mytheme//single';
+		$source                               = Feedback_Source::get_current( array() );
+		unset( $GLOBALS['grunion_block_template_id'] );
+
+		$this->assertSame( 'block_template', $source->get_source_type(), 'Render-scoped global should yield a block_template source.' );
+
+		$form = $this->make_form_with_source_object(
 			array(
 				'webhooks'       => array(
 					array(
@@ -4325,8 +4343,7 @@ class Contact_Form_Test extends BaseTestCase {
 				),
 				'salesforceData' => array( 'organizationId' => '12345' ),
 			),
-			'mytheme//page',
-			'block_template'
+			$source
 		);
 
 		$this->invoke_reconcile_content_destinations( $form );
@@ -4334,6 +4351,65 @@ class Contact_Form_Test extends BaseTestCase {
 		// postToUrl is migrated into the webhooks collection, so both entries survive.
 		$this->assertCount( 2, $form->attributes['webhooks'], 'Configured webhook and migrated postToUrl should remain for a block-template form.' );
 		$this->assertSame( array( 'organizationId' => '12345' ), $form->attributes['salesforceData'], 'salesforceData should be preserved for a block-template form.' );
+	}
+
+	/**
+	 * Test that Feedback_Source::get_current() anchors the block_template / block_template_part
+	 * source types to render-scoped globals, NOT to content attributes.
+	 *
+	 * A content attribute can be supplied by a post author who lacks edit_theme_options, so
+	 * trusting it would let a post-content form masquerade as an admin-authored template source
+	 * and have its content-declared destinations honored. This guards that hole.
+	 */
+	public function test_content_supplied_template_markers_are_not_trusted() {
+		unset( $GLOBALS['grunion_block_template_id'], $GLOBALS['grunion_block_template_part_id'] );
+
+		foreach ( array( 'block_template', 'block_template_part' ) as $marker ) {
+			$source = Feedback_Source::get_current(
+				array(
+					$marker    => 'mytheme//evil',
+					'webhooks' => array(
+						array(
+							'webhook_id' => 'w',
+							'url'        => 'https://example.com/x',
+							'enabled'    => true,
+							'format'     => 'json',
+							'method'     => 'POST',
+						),
+					),
+				)
+			);
+
+			$this->assertNotContains(
+				$source->get_source_type(),
+				Feedback_Source::ADMIN_TIER_SOURCE_TYPES,
+				"A content-supplied $marker attribute must not yield an admin-tier source type."
+			);
+		}
+	}
+
+	/**
+	 * Test that a block_template / block_template_part source built from the render-scoped global
+	 * (the legitimate path) is honored.
+	 */
+	public function test_render_anchored_template_sources_are_trusted() {
+		$GLOBALS['grunion_block_template_id'] = 'mytheme//single';
+		$template_source                      = Feedback_Source::get_current( array() );
+		unset( $GLOBALS['grunion_block_template_id'] );
+
+		$this->assertSame( 'block_template', $template_source->get_source_type() );
+		$this->assertTrue(
+			\Automattic\Jetpack\Forms\Jetpack_Forms::should_honor_content_destinations( $template_source->get_id(), $template_source->get_source_type() )
+		);
+
+		$GLOBALS['grunion_block_template_part_id'] = 'mytheme//footer';
+		$part_source                               = Feedback_Source::get_current( array() );
+		unset( $GLOBALS['grunion_block_template_part_id'] );
+
+		$this->assertSame( 'block_template_part', $part_source->get_source_type() );
+		$this->assertTrue(
+			\Automattic\Jetpack\Forms\Jetpack_Forms::should_honor_content_destinations( $part_source->get_id(), $part_source->get_source_type() )
+		);
 	}
 
 	/**
