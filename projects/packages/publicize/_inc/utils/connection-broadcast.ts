@@ -6,6 +6,13 @@ export type ConnectionCreatedMessage = {
 	connectionId: string;
 };
 
+export type ConnectionCancelledMessage = {
+	type: 'connection-cancelled';
+	service: string;
+};
+
+export type ConnectionMessage = ConnectionCreatedMessage | ConnectionCancelledMessage;
+
 /**
  * Broadcast that a connection was created, so an editor tab that opened the flow can refresh.
  *
@@ -23,14 +30,33 @@ export function broadcastConnectionCreated( service: string, connectionId: strin
 }
 
 /**
- * Subscribe to connection-created broadcasts.
+ * Broadcast that an editor-opened connect flow was dismissed before a connection was made, so the
+ * editor can clear its pending "Connecting…" state instead of waiting for the timeout.
  *
- * @param onCreated - Called when a connection is created in another tab.
+ * @param service - Service id the flow was for.
+ */
+export function broadcastConnectionCancelled( service: string ): void {
+	if ( typeof BroadcastChannel === 'undefined' ) {
+		return;
+	}
+
+	const channel = new BroadcastChannel( CONNECTION_BROADCAST_CHANNEL );
+	channel.postMessage( { type: 'connection-cancelled', service } );
+	channel.close();
+}
+
+/**
+ * Subscribe to connection broadcasts from a tab that opened the connect flow.
+ *
+ * @param handlers             - Event handlers.
+ * @param handlers.onCreated   - Called when a connection was created.
+ * @param handlers.onCancelled - Called when the flow was dismissed without connecting.
  * @return Unsubscribe function.
  */
-export function subscribeToConnectionCreated(
-	onCreated: ( message: ConnectionCreatedMessage ) => void
-): () => void {
+export function subscribeToConnectionEvents( handlers: {
+	onCreated?: ( message: ConnectionCreatedMessage ) => void;
+	onCancelled?: ( message: ConnectionCancelledMessage ) => void;
+} ): () => void {
 	if ( typeof BroadcastChannel === 'undefined' ) {
 		return () => undefined;
 	}
@@ -38,8 +64,12 @@ export function subscribeToConnectionCreated(
 	const channel = new BroadcastChannel( CONNECTION_BROADCAST_CHANNEL );
 
 	const handler = ( event: MessageEvent ) => {
-		if ( event.data?.type === 'connection-created' ) {
-			onCreated( event.data );
+		const data = event.data as ConnectionMessage | undefined;
+
+		if ( data?.type === 'connection-created' ) {
+			handlers.onCreated?.( data );
+		} else if ( data?.type === 'connection-cancelled' ) {
+			handlers.onCancelled?.( data );
 		}
 	};
 

@@ -3,7 +3,7 @@ import { useDispatch, useSelect } from '@wordpress/data';
 import { useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { store as socialStore } from '../../social-store';
-import { subscribeToConnectionCreated } from '../../utils';
+import { subscribeToConnectionEvents } from '../../utils';
 
 // Clear a stuck "Connecting…" state if no broadcast ever arrives (abandoned/blocked tab).
 const CONNECTING_TIMEOUT_MS = 3 * 60 * 1000;
@@ -22,15 +22,19 @@ export function useConnectionCreatedListener() {
 
 	useEffect(
 		() =>
-			subscribeToConnectionCreated( () => {
-				// Keep the modal open so the user sees the new connection; just clear the busy
-				// state and refresh the list.
-				setConnectingService( undefined );
-				refreshConnectionTestResults();
-				createSuccessNotice( __( 'Social account connected.', 'jetpack-publicize-pkg' ), {
-					type: 'snackbar',
-					isDismissible: true,
-				} );
+			subscribeToConnectionEvents( {
+				onCreated: () => {
+					// Keep the modal open so the user sees the new connection; just clear the busy
+					// state and refresh the list.
+					setConnectingService( undefined );
+					refreshConnectionTestResults();
+					createSuccessNotice( __( 'Social account connected.', 'jetpack-publicize-pkg' ), {
+						type: 'snackbar',
+						isDismissible: true,
+					} );
+				},
+				// The admin tab was dismissed without connecting — just drop the "Connecting…" state.
+				onCancelled: () => setConnectingService( undefined ),
 			} ),
 		[ createSuccessNotice, refreshConnectionTestResults, setConnectingService ]
 	);

@@ -9,6 +9,7 @@ import { useConnectService } from '../../hooks/use-connect-service';
 import { useIsEditor } from '../../hooks/use-is-editor';
 import { useUserCanShareConnection } from '../../hooks/use-user-can-share-connection';
 import { store } from '../../social-store';
+import { broadcastConnectionCancelled } from '../../utils';
 import { ConfirmationForm } from '../manage-connections-modal/confirmation-form';
 import { ConnectForm } from '../services/connect-form';
 import { SupportedService } from '../services/types';
@@ -82,6 +83,7 @@ export function AddAccountModal() {
 	const keyringResult = useSelect( select => select( store ).getKeyringResult(), [] );
 	const preselectService = useSelect( select => select( store ).getPreselectService(), [] );
 	const connectingService = useSelect( select => select( store ).getConnectingService(), [] );
+	const connectSource = useSelect( select => select( store ).getConnectSource(), [] );
 
 	const {
 		closeAddAccountModal,
@@ -99,6 +101,15 @@ export function AddAccountModal() {
 	const canMarkAsShared = useUserCanShareConnection();
 
 	const closeModal = useCallback( () => {
+		// On an editor-opened admin tab, dismissing the flow (Cancel, the X, or a "no accounts
+		// found" result) means no connection was made — tell the editor so it can drop its
+		// "Connecting…" state, then close this tab. On the dashboard's own tab connectSource is
+		// unset, so neither fires.
+		if ( connectSource === 'editor' ) {
+			broadcastConnectionCancelled( keyringResult?.service ?? preselectService ?? '' );
+			window.close();
+		}
+
 		setKeyringResult( null );
 		setReconnectingAccount( undefined );
 		setConnectSource( undefined );
@@ -107,6 +118,9 @@ export function AddAccountModal() {
 		closeAddAccountModal();
 	}, [
 		closeAddAccountModal,
+		connectSource,
+		keyringResult,
+		preselectService,
 		setConnectSource,
 		setConnectingService,
 		setKeyringResult,
