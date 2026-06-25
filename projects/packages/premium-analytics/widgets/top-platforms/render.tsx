@@ -70,7 +70,11 @@ function TopPlatformsInner( { max }: { max: number } ) {
 	const maxViews = Math.max( ...data.map( d => d.views ), 1 );
 	const leaderboardData: LeaderboardChartData = data.map( ( item, index ) => ( {
 		id: `${ index }-${ item.label }`,
-		label: <span className={ styles.rowLabel }>{ item.label }</span>,
+		label: (
+			<Stack align="center" style={ { padding: 'var(--wpds-dimension-padding-sm)' } }>
+				<Text>{ item.label }</Text>
+			</Stack>
+		),
 		currentValue: item.views,
 		currentShare: ( item.views / maxViews ) * 100,
 		previousValue: 0,

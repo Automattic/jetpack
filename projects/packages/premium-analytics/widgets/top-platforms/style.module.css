@@ -27,10 +27,3 @@
 	flex: 1 1 0;
 	min-height: 0;
 }
-
-.rowLabel {
-	display: flex;
-	align-items: center;
-	min-height: 36px;
-	padding: var(--wpds-dimension-padding-sm);
-}
