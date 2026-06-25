@@ -3,7 +3,6 @@
  */
 import { statsAppPlanUsageQuery } from '../queries/stats-app-plan-usage-query';
 import { useStatsAppQuery, type UseStatsAppOptions } from './use-stats-app-query';
-import type { StatsQueryParams } from '../utils/stats-params';
 
 export type StatsAppPlanPeriodUsage = {
 	current_start: string | null;
@@ -39,9 +38,9 @@ export type StatsAppPlanUsage = {
 	upgrade_deadline_date: string | null;
 };
 
-export function useStatsAppPlanUsage( params?: StatsQueryParams, options?: UseStatsAppOptions ) {
+export function useStatsAppPlanUsage( options?: UseStatsAppOptions ) {
 	return useStatsAppQuery< StatsAppPlanUsage >(
-		statsAppPlanUsageQuery< StatsAppPlanUsage >( params ),
+		statsAppPlanUsageQuery< StatsAppPlanUsage >(),
 		options
 	);
 }
