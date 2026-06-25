@@ -6,9 +6,9 @@ export const devicesFixture = {
 	date: '2026-06-25',
 	period: 'day',
 	top_values: [
-		{ label: 'Desktop', value: 1000 },
-		{ label: 'Mobile', value: 800 },
-		{ label: 'Tablet', value: 90 },
+		{ name: 'Desktop', value: 1000 },
+		{ name: 'Mobile', value: 800 },
+		{ name: 'Tablet', value: 90 },
 	],
 };
 

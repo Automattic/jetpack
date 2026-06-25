@@ -32,10 +32,11 @@ export interface StatsDevicesItem extends StatsNormalizedItemBase {
 function parseTopValues( topValues: StatsRecord[] ): StatsDevicesItem[] {
 	return topValues
 		.map( item => ( {
-			label: String( item.label ?? '' ),
+			label: String( item.name ?? item.label ?? '' ),
 			views: safeParseFloat( item.value ),
 			children: null as null,
 		} ) )
+		.filter( item => item.label )
 		.sort( ( a, b ) => b.views - a.views );
 }
 
