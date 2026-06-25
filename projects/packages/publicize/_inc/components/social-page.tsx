@@ -4,6 +4,7 @@ import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { useNavigate } from '@wordpress/route';
 import { Tabs, Tooltip } from '@wordpress/ui';
+import { useConnectReturnHandler } from '../hooks/use-connect-return-handler';
 import { ModernizationProvider } from '../hooks/use-is-modernized';
 import SocialGate from './social-gate';
 import useSocialGate from './social-gate/use-social-gate';
@@ -60,6 +61,9 @@ export default function SocialPage( {
 	children,
 	hideTabs = false,
 }: Props ): JSX.Element {
+	// Handle the return from a full-page OAuth connect redirect on the wp-build surface.
+	useConnectReturnHandler();
+
 	const navigate = useNavigate();
 
 	const { gate, dismissPricing } = useSocialGate();
