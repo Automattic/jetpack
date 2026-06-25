@@ -94,7 +94,9 @@ function DevicesInner( { max }: { max: number } ) {
 				align="center"
 				className={ styles.widgetHeader }
 			>
-				<Text>{ __( 'Devices', 'jetpack-premium-analytics' ) }</Text>
+				<Text variant="heading-md" render={ <h3 /> }>
+					{ __( 'Devices', 'jetpack-premium-analytics' ) }
+				</Text>
 				<SelectControl
 					__nextHasNoMarginBottom
 					label={ __( 'View by', 'jetpack-premium-analytics' ) }

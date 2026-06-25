@@ -14,12 +14,6 @@
 .widgetHeader {
 	padding: var(--wpds-dimension-padding-md) var(--wpds-dimension-padding-lg);
 	min-height: 32px;
-	font-size: 13px;
-	font-weight: 500;
-}
-
-.widgetHeader * {
-	font-weight: inherit;
 }
 
 .modeSelect {
