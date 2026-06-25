@@ -49,6 +49,10 @@
 - Notifications: Let users opt into the v3 notifications panel via the `notifications=v3` query parameter. [#49514]
 - Update package dependencies. [#49273] [#49448] [#49492]
 
+## 15.9.1 - 2026-06-24
+### Bug fixes
+- Fix the Social admin page rendering blank, and restore the editor sharing panel, on WordPress 6.9. [#49859]
+
 ## 15.9 - 2026-06-09
 ### Enhancements
 - Abilities API: Register Shortlinks support for the WP.me Shortlinks module on WordPress 6.9+. [#48334]
