@@ -927,6 +927,52 @@ describe( 'BarChart', () => {
 			expect( ( yScale.domain as number[] )[ 1 ] ).toBeGreaterThanOrEqual( 150 );
 		} );
 
+		it( 'keeps the value-axis baseline at zero so comparison bars encode magnitude truthfully', () => {
+			// All values are well above zero; the domain must still start at 0 so a bar's
+			// length stays proportional to its value (a non-zero baseline exaggerates differences).
+			const data = [
+				{
+					label: 'This period',
+					group: 'views',
+					data: [ { label: 'Mon', value: 420 } ],
+				},
+				{
+					label: 'Previous period',
+					group: 'views',
+					options: { type: 'comparison' as const },
+					data: [ { label: 'Mon', value: 510 } ],
+				},
+			];
+
+			const { result } = renderHook( () => useBarChartOptions( data, false, {} ) );
+			const yScale = result.current.yScale as { domain?: number[] };
+			expect( yScale.domain ).toBeDefined();
+			expect( ( yScale.domain as number[] )[ 0 ] ).toBe( 0 );
+		} );
+
+		it( 'zero-bases the value-axis domain in horizontal comparison charts', () => {
+			const data = [
+				{
+					label: 'This period',
+					group: 'views',
+					data: [ { label: 'Mon', value: 420 } ],
+				},
+				{
+					label: 'Previous period',
+					group: 'views',
+					options: { type: 'comparison' as const },
+					data: [ { label: 'Mon', value: 510 } ],
+				},
+			];
+
+			// In horizontal charts the value axis is x.
+			const { result } = renderHook( () => useBarChartOptions( data, true, {} ) );
+			const xScale = result.current.xScale as { domain?: number[] };
+			expect( xScale.domain ).toBeDefined();
+			expect( ( xScale.domain as number[] )[ 0 ] ).toBe( 0 );
+			expect( ( xScale.domain as number[] )[ 1 ] ).toBeGreaterThanOrEqual( 510 );
+		} );
+
 		it( 'counts only primary series for keyboard navigation when a comparison series is present', async () => {
 			const user = userEvent.setup();
 			// 2 primary + 1 comparison. totalPoints should be 2*2=4, not 3*2=6.
