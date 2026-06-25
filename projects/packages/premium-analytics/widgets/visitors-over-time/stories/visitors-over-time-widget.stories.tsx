@@ -1,112 +1,98 @@
 import { getDefaultQueryParams } from '@jetpack-premium-analytics/data';
-import apiFetch from '@wordpress/api-fetch';
+import { SELECTABLE_PRESETS, type SelectablePresetId } from '@jetpack-premium-analytics/datetime';
 import {
 	DEFAULT_WIDGET_DASHBOARD_STORY_ARGS,
 	WidgetDashboardWithWidget as WidgetDashboardWithWidgetStory,
 	widgetDashboardWithWidgetArgTypes,
 	type WidgetDashboardWithWidgetControls,
 } from '../../stories/widget-dashboard-with-widget';
+import { registerReportMocks } from '../../../packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
 import LineChart from '../../../../../js-packages/charts/src/charts/line-chart/line-chart';
 import VisitorsOverTimeRender from '../render';
 import widgetDefinition from '../widget';
-import type { Meta, StoryObj } from '@storybook/react';
+import type { Decorator, Meta, StoryObj } from '@storybook/react';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
-import type { ComponentType } from 'react';
+import type { ComponentProps, ComponentType } from 'react';
+
+registerReportMocks();
 
 const VISITORS_OVER_TIME_RENDER_MODULE = 'storybook/visitors-over-time';
-const API_BASE = '/jetpack-premium-analytics/v1/proxy/v2/analytics/reports';
-const DAY_MS = 24 * 60 * 60 * 1000;
+const DEFAULT_PRESET = 'last-30-days' satisfies SelectablePresetId;
+const PRESET_OPTIONS = SELECTABLE_PRESETS;
 // Static Storybook builds need this source import before ComparativeLineChart reads LineChart.Legend.
 const ensureLineChartComposition = () => LineChart.Legend;
 
-function toDayStart( date: Date ) {
-	return new Date( Date.UTC( date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate() ) );
+type VisitorsOverTimeRenderProps = ComponentProps< typeof VisitorsOverTimeRender >;
+const noopSetError: VisitorsOverTimeRenderProps[ 'setError' ] = () => {};
+
+interface VisitorsOverTimeStoryControls {
+	withComparison: boolean;
+	preset: SelectablePresetId;
 }
 
-function toDayEnd( date: Date ) {
-	const end = toDayStart( date );
-	end.setUTCHours( 23, 59, 59, 999 );
-	return end;
-}
+type VisitorsOverTimeStoryProps = VisitorsOverTimeRenderProps & VisitorsOverTimeStoryControls;
 
-function parseDateParam( value: string | null, fallback: Date ) {
-	if ( ! value ) {
-		return fallback;
-	}
+interface VisitorsOverTimeDashboardStoryProps
+	extends WidgetDashboardWithWidgetControls,
+		VisitorsOverTimeStoryControls {}
 
-	const date = new Date( value );
-	return Number.isNaN( date.getTime() ) ? fallback : date;
-}
+const withWidgetCanvas: Decorator = Story => (
+	<div style={ { width: '100%', height: '300px' } }>
+		<Story />
+	</div>
+);
 
-function buildVisitorsByDateResponse( query: URLSearchParams ) {
-	const fallbackTo = toDayEnd( new Date() );
-	const fallbackFrom = toDayStart( new Date( fallbackTo.getTime() - 29 * DAY_MS ) );
-	const from = toDayStart( parseDateParam( query.get( 'from' ), fallbackFrom ) );
-	const to = toDayStart( parseDateParam( query.get( 'to' ), fallbackTo ) );
-	const days = Math.max(
-		1,
-		Math.min( 60, Math.floor( ( to.getTime() - from.getTime() ) / DAY_MS ) + 1 )
-	);
-	const seed = from.getUTCDate() + from.getUTCMonth() * 7;
-	let visitorsTotal = 0;
-	let sessionsTotal = 0;
-
-	const data = Array.from( { length: days }, ( _, index ) => {
-		const date = new Date( from.getTime() + index * DAY_MS );
-		const visitors = Math.max(
-			40,
-			Math.round( 520 + index * 6 + Math.sin( ( index + seed ) / 2.6 ) * 180 )
-		);
-		const activeSessions = Math.round( visitors * 0.78 );
-
-		visitorsTotal += visitors;
-		sessionsTotal += activeSessions;
-
-		return {
-			date_start: date.toISOString(),
-			date_end: toDayEnd( date ).toISOString(),
-			time_interval: date.toISOString(),
-			active_sessions: String( activeSessions ),
-			visitors: String( visitors ),
-		};
-	} );
-
+function getVisitorsOverTimeAttributes(
+	withComparison = false,
+	preset: SelectablePresetId = DEFAULT_PRESET
+): VisitorsOverTimeRenderProps[ 'attributes' ] {
 	return {
-		summary: {
-			active_sessions: String( sessionsTotal ),
-			visitors: String( visitorsTotal ),
-			date_start: from.toISOString(),
-			date_end: toDayEnd( new Date( from.getTime() + ( days - 1 ) * DAY_MS ) ).toISOString(),
-		},
-		data,
+		reportParams: getDefaultQueryParams( withComparison, preset ),
 	};
 }
 
-apiFetch.use( async ( options, next ) => {
-	const requestPath = String( options.path ?? options.url ?? '' );
+function getDefaultQueryParamsSource( {
+	withComparison,
+	preset,
+}: Partial< VisitorsOverTimeStoryControls > ) {
+	const hasComparison = Boolean( withComparison );
+	const storyPreset = preset ?? DEFAULT_PRESET;
 
-	if ( requestPath.startsWith( API_BASE ) ) {
-		const withoutBase = requestPath.slice( API_BASE.length );
-		const queryIndex = withoutBase.indexOf( '?' );
-		const subPath = queryIndex === -1 ? withoutBase : withoutBase.slice( 0, queryIndex );
-		const query = new URLSearchParams(
-			queryIndex === -1 ? '' : withoutBase.slice( queryIndex + 1 )
-		);
-
-		if ( subPath === '/sessions/by-date' ) {
-			return buildVisitorsByDateResponse( query );
-		}
+	if ( ! hasComparison && storyPreset === DEFAULT_PRESET ) {
+		return 'getDefaultQueryParams()';
 	}
 
-	return next( options );
-} );
+	if ( hasComparison && storyPreset === DEFAULT_PRESET ) {
+		return 'getDefaultQueryParams( true )';
+	}
 
-interface VisitorsOverTimeDashboardStoryProps extends WidgetDashboardWithWidgetControls {
-	withComparison: boolean;
+	return `getDefaultQueryParams( ${ hasComparison ? 'true' : 'false' }, '${ storyPreset }' )`;
+}
+
+function getVisitorsOverTimeSource( args: Partial< VisitorsOverTimeStoryControls > ) {
+	return `import { getDefaultQueryParams } from '@jetpack-premium-analytics/data';
+
+<VisitorsOverTimeRender
+\tattributes={ {
+\t\treportParams: ${ getDefaultQueryParamsSource( args ) },
+\t} }
+/>`;
+}
+
+function renderVisitorsOverTime( { withComparison, preset }: VisitorsOverTimeStoryControls ) {
+	ensureLineChartComposition();
+
+	return (
+		<VisitorsOverTimeRender
+			attributes={ getVisitorsOverTimeAttributes( withComparison, preset ) }
+			setError={ noopSetError }
+		/>
+	);
 }
 
 function VisitorsOverTimeDashboardStory( {
 	withComparison,
+	preset,
 	...dashboardStoryArgs
 }: VisitorsOverTimeDashboardStoryProps ) {
 	ensureLineChartComposition();
@@ -117,25 +103,24 @@ function VisitorsOverTimeDashboardStory( {
 			widgetType={ widgetDefinition }
 			renderModule={ VISITORS_OVER_TIME_RENDER_MODULE }
 			renderComponent={ VisitorsOverTimeRender as ComponentType< WidgetRenderProps< unknown > > }
-			attributes={ {
-				reportParams: getDefaultQueryParams( withComparison ),
-			} }
+			attributes={ getVisitorsOverTimeAttributes( withComparison, preset ) }
 		/>
 	);
 }
 
 const meta = {
 	title: 'Packages/Premium Analytics/Widgets/VisitorsOverTime',
-	component: VisitorsOverTimeDashboardStory,
+	component: VisitorsOverTimeRender,
 	tags: [ 'autodocs' ],
-	args: {
-		...DEFAULT_WIDGET_DASHBOARD_STORY_ARGS,
-		withComparison: true,
-	},
 	argTypes: {
-		...widgetDashboardWithWidgetArgTypes,
+		preset: {
+			control: 'select',
+			options: PRESET_OPTIONS,
+			description: 'Date-range preset used to generate the widget report params.',
+		},
 		withComparison: {
 			control: 'boolean',
+			description: 'Include previous-period comparison report params.',
 		},
 	},
 	parameters: {
@@ -145,10 +130,93 @@ const meta = {
 			},
 		},
 	},
-} satisfies Meta< typeof VisitorsOverTimeDashboardStory >;
+} satisfies Meta< VisitorsOverTimeStoryProps >;
 
 export default meta;
 
 type Story = StoryObj< typeof meta >;
+type DashboardStory = StoryObj< VisitorsOverTimeDashboardStoryProps >;
 
-export const WidgetDashboardWithWidget: Story = {};
+/**
+ * Default state for the current report period.
+ */
+export const Default: Story = {
+	render: renderVisitorsOverTime,
+	args: {
+		preset: DEFAULT_PRESET,
+		withComparison: false,
+	},
+	decorators: [ withWidgetCanvas ],
+	parameters: {
+		docs: {
+			source: {
+				transform: (
+					_source: string,
+					storyContext: { args: Partial< VisitorsOverTimeStoryControls > }
+				) => getVisitorsOverTimeSource( storyContext.args ),
+			},
+		},
+	},
+};
+
+/**
+ * Comparison period enabled, showing period-over-period change and sparkline data.
+ */
+export const WithComparison: Story = {
+	render: renderVisitorsOverTime,
+	args: {
+		preset: DEFAULT_PRESET,
+		withComparison: true,
+	},
+	decorators: [ withWidgetCanvas ],
+	parameters: {
+		docs: {
+			source: {
+				transform: (
+					_source: string,
+					storyContext: { args: Partial< VisitorsOverTimeStoryControls > }
+				) => getVisitorsOverTimeSource( storyContext.args ),
+			},
+		},
+	},
+};
+
+/**
+ * Renders the widget through the shared dashboard harness.
+ */
+export const WidgetDashboardWithWidget: DashboardStory = {
+	render: args => <VisitorsOverTimeDashboardStory { ...args } />,
+	args: {
+		...DEFAULT_WIDGET_DASHBOARD_STORY_ARGS,
+		preset: DEFAULT_PRESET,
+		withComparison: true,
+	},
+	argTypes: {
+		...widgetDashboardWithWidgetArgTypes,
+		preset: {
+			control: 'select',
+			options: PRESET_OPTIONS,
+			description: 'Date-range preset used to generate the widget report params.',
+		},
+		withComparison: {
+			control: 'boolean',
+			description: 'Include previous-period comparison report params.',
+		},
+	},
+	parameters: {
+		docs: {
+			source: {
+				code: `import { getDefaultQueryParams } from '@jetpack-premium-analytics/data';
+
+<WidgetDashboardWithWidget
+\twidgetType={ widgetDefinition }
+\trenderModule="storybook/visitors-over-time"
+\trenderComponent={ VisitorsOverTimeRender }
+\tattributes={ {
+\t\treportParams: getDefaultQueryParams( true ),
+\t} }
+/>`,
+			},
+		},
+	},
+};
