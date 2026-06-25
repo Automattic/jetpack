@@ -5,7 +5,7 @@ import { getSiteData } from '@automattic/jetpack-script-data';
 import { Button } from '@wordpress/components';
 import { useId } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import { buildUpgradeCheckoutUrl, getUpgradePlanName } from '../upgrade';
+import { buildUpgradeCheckoutUrl, getUpgradePlanName, withPurchaseReturnMarker } from '../upgrade';
 import './style.scss';
 
 export type LockedPreviewVariant = 'episodes' | 'stats';
@@ -20,10 +20,12 @@ const LockedPreview = ( { variant }: LockedPreviewProps ) => {
 	const planName = getUpgradePlanName();
 	const returnUrl = window.location.href;
 	// `getProductCheckoutUrl` sets `redirect_to`; the cart's close button reads
-	// `cancel_to`, so both point back to the current dashboard view.
+	// `cancel_to`. Both point back to the current dashboard view, but only the
+	// post-purchase `redirect_to` carries the marker — a cancel shouldn't bust
+	// the cache for an unchanged plan.
 	const checkoutUrl = buildUpgradeCheckoutUrl( {
 		siteSlug: getSiteData()?.suffix ?? '',
-		returnUrl,
+		returnUrl: withPurchaseReturnMarker( returnUrl ),
 		params: { cancel_to: returnUrl },
 		noSiteSlugUrl: 'https://wordpress.com/pricing',
 	} );

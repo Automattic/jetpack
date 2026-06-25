@@ -19,6 +19,13 @@ class Admin_Page {
 	const ADMIN_PAGE_SLUG = 'jetpack-podcast';
 
 	/**
+	 * Query var the checkout return URL carries so the gate busts its cached
+	 * purchases lookup the instant a buyer lands back on the dashboard. Kept in
+	 * sync with `PURCHASE_RETURN_PARAM` in `src/dashboard/upgrade.ts`.
+	 */
+	const PURCHASE_RETURN_QUERY_VAR = 'podcast_purchased';
+
+	/**
 	 * Where the Podcast item sits in the Jetpack submenu on self-hosted.
 	 *
 	 * Placed after Subscribers (15) and Newsletter (10) to mirror the order
@@ -132,6 +139,14 @@ class Admin_Page {
 	public static function inject_podcast_script_data( $data ) {
 		if ( ! is_array( $data ) ) {
 			$data = array();
+		}
+
+		// A buyer returning from checkout carries the purchase marker; bust the
+		// cached purchases lookup so the gate re-reads `/upgrades` and unlocks
+		// the paid surfaces now instead of after the transient expires.
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		if ( isset( $_GET[ self::PURCHASE_RETURN_QUERY_VAR ] ) ) {
+			Podcast_Gate::flush_purchases_cache();
 		}
 
 		// Self-hosted upsells the Growth plan; WordPress.com keeps Premium.

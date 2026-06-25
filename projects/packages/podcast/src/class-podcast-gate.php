@@ -44,11 +44,19 @@ class Podcast_Gate {
 	const PAID_PLAN_SLUG_PREFIXES = array( 'jetpack_growth', 'jetpack_complete' );
 
 	/**
-	 * Transient holding the cached `/upgrades` response. Short-lived: long
-	 * enough to dedupe across a page load, short enough that a fresh Growth
-	 * purchase unlocks the surfaces without a long wait.
+	 * Transient holding the cached `/upgrades` response. Short-lived (see
+	 * `PURCHASES_TTL`): mainly dedupes the lookup across a single page load.
+	 * A buyer returning from checkout busts it outright via
+	 * `flush_purchases_cache()`, so the TTL only bounds the unlikely case where
+	 * that signal is missed.
 	 */
 	const PURCHASES_TRANSIENT = 'jetpack_podcast_site_purchases';
+
+	/**
+	 * How long the cached `/upgrades` response lives, in seconds. Kept short so
+	 * a plan change is reflected quickly even without the checkout-return bust.
+	 */
+	const PURCHASES_TTL = 30;
 
 	/**
 	 * Request-scoped memo of the purchases lookup (including failures, so a
@@ -78,6 +86,16 @@ class Podcast_Gate {
 		}
 
 		return (bool) Current_Plan::supports( self::FEATURE_SLUG );
+	}
+
+	/**
+	 * Drop the cached purchases lookup so the next access check re-reads
+	 * `/upgrades`. Called when a buyer returns from checkout so a fresh plan
+	 * unlocks the paid surfaces immediately rather than after the TTL.
+	 */
+	public static function flush_purchases_cache(): void {
+		delete_transient( self::PURCHASES_TRANSIENT );
+		self::$purchases_cache = null;
 	}
 
 	/**
@@ -139,7 +157,7 @@ class Podcast_Gate {
 			return self::$purchases_cache;
 		}
 
-		set_transient( self::PURCHASES_TRANSIENT, $decoded, 5 * MINUTE_IN_SECONDS );
+		set_transient( self::PURCHASES_TRANSIENT, $decoded, self::PURCHASES_TTL );
 		self::$purchases_cache = $decoded;
 		return self::$purchases_cache;
 	}

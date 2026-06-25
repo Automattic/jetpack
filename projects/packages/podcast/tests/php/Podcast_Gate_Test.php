@@ -290,4 +290,17 @@ class Podcast_Gate_Test extends BaseTestCase {
 		$this->assertFalse( Podcast_Gate::has_product_access() );
 		$this->assertFalse( get_transient( Podcast_Gate::PURCHASES_TRANSIENT ) );
 	}
+
+	public function test_flush_purchases_cache_drops_transient_and_memo(): void {
+		self::as_self_hosted();
+		self::seed_purchases( array( 'jetpack_growth_yearly' ) );
+		// Prime the request-scoped memo.
+		$this->assertTrue( Podcast_Gate::has_product_access() );
+
+		Podcast_Gate::flush_purchases_cache();
+
+		$this->assertFalse( get_transient( Podcast_Gate::PURCHASES_TRANSIENT ) );
+		// Memo cleared too: the uncached lookup now fails closed (no connection).
+		$this->assertFalse( Podcast_Gate::has_product_access() );
+	}
 }

@@ -33,6 +33,7 @@ class Admin_Page_Test extends BaseTestCase {
 		Constants::clear_constants();
 		remove_all_actions( 'load-jetpack_page_' . Admin_Page::ADMIN_PAGE_SLUG );
 		unset( $GLOBALS['menu'], $GLOBALS['submenu'] );
+		unset( $_GET[ Admin_Page::PURCHASE_RETURN_QUERY_VAR ] );
 		delete_transient( Podcast_Gate::PURCHASES_TRANSIENT );
 		self::reset_gate_purchases_cache();
 		wp_set_current_user( 0 );
@@ -157,5 +158,23 @@ class Admin_Page_Test extends BaseTestCase {
 			$data['podcast']['upgrade']
 		);
 		$this->assertTrue( $data['podcast']['has_product_access'] );
+	}
+
+	/**
+	 * A buyer returning from checkout carries the purchase marker, which drops
+	 * the stale (pre-purchase) cached purchases so access is recomputed fresh.
+	 */
+	public function test_inject_script_data_busts_stale_purchases_on_return() {
+		// Stale "free" lookup cached before the purchase completed.
+		set_transient( Podcast_Gate::PURCHASES_TRANSIENT, array() );
+		self::reset_gate_purchases_cache();
+		$_GET[ Admin_Page::PURCHASE_RETURN_QUERY_VAR ] = '1';
+
+		Admin_Page::inject_podcast_script_data( array() );
+
+		$this->assertFalse(
+			get_transient( Podcast_Gate::PURCHASES_TRANSIENT ),
+			'The purchase marker should drop the stale cached purchases.'
+		);
 	}
 }
