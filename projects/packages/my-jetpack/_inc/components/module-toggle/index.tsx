@@ -4,8 +4,8 @@ import { FormToggle } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { __, sprintf } from '@wordpress/i18n';
 import { useCallback } from 'react';
-import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
 import { MyJetpackModule } from '../../types';
+import { canManageModules } from '../../utils/can-manage-modules';
 import { getModuleActivationMessage } from '../../utils/module-benefit-messages';
 import { getSharingBlockEditorUrl } from '../../utils/sharing-block';
 import SecondaryButton from '../action-button/secondary-button';
@@ -32,13 +32,6 @@ const MODULES_REQUIRING_RELOAD = [ 'podcast', 'subscriptions', 'wpcom-reader' ];
  * @return The rendered component.
  */
 export function ModuleToggle( { module: $module, describedby }: ModuleToggleProps ) {
-	// In the products-only mode, sites that can't manage modules (e.g. Simple sites, or Atomic
-	// sites without a business plan) get no module toggle at all. The flag lives in the nested
-	// myJetpackFlags object so it survives wp_localize_script as a real boolean. Only an explicit
-	// `false` hides the toggle, so the standard UI is unaffected when the value is absent.
-	const canManageModules =
-		getMyJetpackWindowInitialState( 'myJetpackFlags' )?.canManageModules !== false;
-
 	const { updateJetpackModuleStatus: toggleModule } = useDispatch( modulesStore );
 	const { createSuccessNotice, createErrorNotice } = useGlobalNotices();
 	const { trackProductAction } = useProductFiltersContext() || {};
@@ -133,8 +126,9 @@ export function ModuleToggle( { module: $module, describedby }: ModuleToggleProp
 	);
 	const deactivateModule = useCallback( () => setModuleActive( false ), [ setModuleActive ] );
 
-	// Placed after all hooks to respect the rules of hooks.
-	if ( ! canManageModules ) {
+	// Sites that can't manage modules (Simple, or Atomic without a business plan) get no module
+	// toggle at all. Placed after all hooks to respect the rules of hooks.
+	if ( ! canManageModules() ) {
 		return null;
 	}
 

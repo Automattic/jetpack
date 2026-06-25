@@ -37,7 +37,7 @@ class Products_Page {
 	 *
 	 * @return bool
 	 */
-	public static function is_flag_enabled() {
+	private static function is_flag_enabled() {
 		return Constants::is_true( self::FLAG_CONSTANT );
 	}
 

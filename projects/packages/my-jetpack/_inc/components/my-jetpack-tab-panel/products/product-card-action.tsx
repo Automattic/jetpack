@@ -8,9 +8,9 @@ import useActivatePlugins from '../../../data/products/use-activate-plugins';
 import { useDeactivatePlugins } from '../../../data/products/use-deactivate-plugins';
 import useProduct from '../../../data/products/use-product';
 import { ProductCamelCase } from '../../../data/types';
-import { getMyJetpackWindowInitialState } from '../../../data/utils/get-my-jetpack-window-state';
 import { useInterstitialsState } from '../../../hooks/use-interstitials-state';
 import { MyJetpackModule } from '../../../types';
+import { canManageModules } from '../../../utils/can-manage-modules';
 import { PRODUCT_STATUSES } from '../../product-card';
 import { setPendingSuccessNotice } from './pending-notice';
 import { useProductFiltersContext } from './products-tracking-context';
@@ -105,6 +105,13 @@ function ActivationToggle( {
 		active ? deactivate( undefined, mutateOptions ) : activate( undefined, mutateOptions );
 	}, [ deactivate, activate, active, product, trackProductAction, reloadOnToggle ] );
 
+	// Sites that can't manage modules (Simple, or Atomic without a business plan) get no
+	// activate/deactivate toggle at all. Gating the leaf keeps every ProductCardAction branch
+	// covered. Placed after all hooks to respect the rules of hooks.
+	if ( ! canManageModules() ) {
+		return null;
+	}
+
 	return (
 		<Flex gap={ 4 }>
 			{ active ? <Badge intent="stable">{ __( 'Active', 'jetpack-my-jetpack' ) }</Badge> : null }
@@ -140,20 +147,9 @@ function ActivationToggle( {
 export function ProductCardAction( { product, module: $module }: ProductCardActionProps ) {
 	const { data: interstitials } = useInterstitialsState();
 
-	// In the products-only mode, sites that can't manage modules (e.g. Simple sites, or
-	// Atomic sites without a business plan) get no activate/deactivate toggle at all. The flag
-	// lives in the nested myJetpackFlags object so it survives wp_localize_script as a real
-	// boolean. Only an explicit `false` hides the toggle, so the standard tabbed UI is
-	// unaffected when the value is absent.
-	const canManageModules =
-		getMyJetpackWindowInitialState( 'myJetpackFlags' )?.canManageModules !== false;
-
 	// Forms is a free module feature with no interstitial yet — show the activation
 	// toggle directly instead of a "Learn more" link. (An interstitial may be added later.)
 	if ( product.slug === 'jetpack-forms' ) {
-		if ( ! canManageModules ) {
-			return null;
-		}
 		return (
 			<ActivationToggle
 				product={ product }
@@ -173,9 +169,6 @@ export function ProductCardAction( { product, module: $module }: ProductCardActi
 		PRODUCTS_MUST_HAVE_A_STANDALONE_PLUGIN.includes( product.slug ) &&
 		product.standalonePluginInfo?.isStandaloneInstalled
 	) {
-		if ( ! canManageModules ) {
-			return null;
-		}
 		return (
 			<ActivationToggle
 				product={ product }
@@ -194,9 +187,6 @@ export function ProductCardAction( { product, module: $module }: ProductCardActi
 			return <UpgradeAction product={ product } />;
 
 		default:
-			if ( ! canManageModules ) {
-				return null;
-			}
 			return <ActivationToggle product={ product } disabled={ ! $module?.available } />;
 	}
 }
