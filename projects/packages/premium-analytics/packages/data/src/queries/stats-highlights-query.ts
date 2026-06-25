@@ -5,10 +5,21 @@ import { statsProxyQuery } from './stats-query';
 import type { StatsReportQueryOptions } from './stats-query';
 import type { StatsQueryParams } from '../utils/stats-params';
 
-export type { StatsHighlightsResponse } from '../processing/stats';
+export type {
+	StatsHighlightsPeriod,
+	StatsHighlightsRange,
+	StatsHighlightsRawPeriod,
+	StatsHighlightsRawRange,
+	StatsHighlightsRawResponse,
+	StatsHighlightsResponse,
+} from '../processing/stats';
+
+export type StatsHighlightsParams = StatsQueryParams & {
+	source?: string;
+};
 
 export const statsHighlightsQuery = (
-	params: StatsQueryParams = {}
+	params: StatsHighlightsParams = {}
 ): StatsReportQueryOptions< 'highlights' > =>
 	statsProxyQuery( {
 		name: 'highlights',

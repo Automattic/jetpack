@@ -26,7 +26,14 @@ export type { StatsClicksItem } from './clicks';
 export type { StatsSearchTermsItem } from './search-terms';
 export type { StatsFileDownloadsItem } from './file-downloads';
 export type { StatsTopAuthorsItem } from './top-authors';
-export type { StatsHighlightsResponse } from './highlights';
+export type {
+	StatsHighlightsPeriod,
+	StatsHighlightsRange,
+	StatsHighlightsRawPeriod,
+	StatsHighlightsRawRange,
+	StatsHighlightsRawResponse,
+	StatsHighlightsResponse,
+} from './highlights';
 export type { StatsLocationsItem } from './locations';
 export type { StatsVideoPlaysItem } from './video-plays';
 export type {

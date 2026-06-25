@@ -51,7 +51,15 @@ export type {
 } from './use-stats-insights';
 export { useStatsUtm, type StatsUtmParams, type StatsUtmResponse } from './use-stats-utm';
 export { useStatsHighlights } from './use-stats-highlights';
-export type { StatsHighlightsResponse } from './use-stats-highlights';
+export type {
+	StatsHighlightsParams,
+	StatsHighlightsPeriod,
+	StatsHighlightsRange,
+	StatsHighlightsRawPeriod,
+	StatsHighlightsRawRange,
+	StatsHighlightsRawResponse,
+	StatsHighlightsResponse,
+} from './use-stats-highlights';
 export type { UseStatsOptions } from './use-stats-report';
 
 /**

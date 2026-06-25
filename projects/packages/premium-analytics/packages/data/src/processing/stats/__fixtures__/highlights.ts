@@ -1,3 +1,5 @@
+import type { StatsHighlightsRawResponse } from '../highlights';
+
 export const highlightsFixture = {
 	past_seven_days: {
 		range: {
@@ -19,4 +21,14 @@ export const highlightsFixture = {
 		views: 23,
 		visitors: '17',
 	},
-};
+	past_thirty_days: {
+		range: {
+			start: '2026-05-23',
+			end: '2026-06-21',
+		},
+		comments: '3',
+		likes: '6',
+		views: '10001',
+		visitors: '220',
+	},
+} satisfies StatsHighlightsRawResponse;

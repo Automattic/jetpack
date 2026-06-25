@@ -4,10 +4,18 @@
 import { statsHighlightsQuery } from '../queries/stats-highlights-query';
 import { useStatsQuery } from './use-stats-query';
 import type { UseStatsOptions } from './use-stats-report';
-import type { StatsQueryParams } from '../utils/stats-params';
+import type { StatsHighlightsParams } from '../queries/stats-highlights-query';
 
-export type { StatsHighlightsResponse } from '../queries/stats-highlights-query';
+export type {
+	StatsHighlightsParams,
+	StatsHighlightsPeriod,
+	StatsHighlightsRange,
+	StatsHighlightsRawPeriod,
+	StatsHighlightsRawRange,
+	StatsHighlightsRawResponse,
+	StatsHighlightsResponse,
+} from '../queries/stats-highlights-query';
 
-export function useStatsHighlights( params?: StatsQueryParams, options?: UseStatsOptions ) {
+export function useStatsHighlights( params?: StatsHighlightsParams, options?: UseStatsOptions ) {
 	return useStatsQuery( statsHighlightsQuery( params ), options );
 }

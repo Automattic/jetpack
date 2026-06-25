@@ -3,6 +3,7 @@
  */
 import { statsAppProxyQuery } from '../stats-app-query';
 import { statsArchivesQuery } from '../stats-archives-query';
+import { statsHighlightsQuery } from '../stats-highlights-query';
 import { statsInsightsQuery } from '../stats-insights-query';
 import { statsLocationsQuery } from '../stats-locations-query';
 import { statsStreakQuery } from '../stats-streak-query';
@@ -142,6 +143,21 @@ describe( 'Stats query factories', () => {
 			'GET',
 			{ date: '2026-06-16' },
 			{},
+		] );
+	} );
+
+	it( 'builds highlights query keys with endpoint params and sanitizer', () => {
+		const query = statsHighlightsQuery( { source: 'stats-feedback' } );
+
+		expect( query.queryKey ).toEqual( [
+			'stats',
+			'highlights',
+			'1.1',
+			'stats/highlights',
+			'GET',
+			{ source: 'stats-feedback' },
+			undefined,
+			'highlights',
 		] );
 	} );
 

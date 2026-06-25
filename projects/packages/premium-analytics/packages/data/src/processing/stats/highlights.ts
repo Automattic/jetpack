@@ -2,6 +2,23 @@ import { safeParseFloat } from '../../utils/parsing';
 import { coerceStatsRecord } from './utils';
 import type { StatsRecord } from './types';
 
+type StatsHighlightsMetricValue = number | string;
+
+export type StatsHighlightsRawRange = {
+	start: string;
+	end: string;
+};
+
+export type StatsHighlightsRawPeriod = {
+	range: StatsHighlightsRawRange;
+	comments: StatsHighlightsMetricValue;
+	likes: StatsHighlightsMetricValue;
+	views: StatsHighlightsMetricValue;
+	visitors: StatsHighlightsMetricValue;
+};
+
+export type StatsHighlightsRawResponse = Record< string, StatsHighlightsRawPeriod >;
+
 export type StatsHighlightsRange = {
 	start: string;
 	end: string;
