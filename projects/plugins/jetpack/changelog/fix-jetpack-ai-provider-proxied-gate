@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+AI Sidebar: Gate provider exposure to proxied preview requests.

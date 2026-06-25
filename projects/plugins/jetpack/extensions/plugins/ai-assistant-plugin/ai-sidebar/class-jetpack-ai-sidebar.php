@@ -92,7 +92,7 @@ class Jetpack_AI_Sidebar {
 	 * @return void
 	 */
 	public static function maybe_enqueue_abilities_script(): void {
-		if ( ! self::should_expose_sidebar() ) {
+		if ( ! self::should_expose_provider() ) {
 			return;
 		}
 
@@ -208,10 +208,10 @@ class Jetpack_AI_Sidebar {
 			return $providers;
 		}
 
-		// The provider IIFE is only enqueued in the post editor. Avoid registering
-		// the ESM wrapper on other block-editor surfaces, where AM may import it
-		// before window.__JetpackAIProvider exists.
-		if ( ! self::should_expose_sidebar() ) {
+		// The provider IIFE is enqueued on the same surfaces where the ESM
+		// wrapper is registered. Avoid registering the wrapper when AM may
+		// import it before window.__JetpackAIProvider exists.
+		if ( ! self::should_expose_provider() ) {
 			return $providers;
 		}
 
@@ -429,13 +429,31 @@ class Jetpack_AI_Sidebar {
 	}
 
 	/**
-	 * Whether the sidebar surface should be exposed for this request: the sidebar
-	 * gate is open, we are in the post editor, and AI features are available.
+	 * Whether the sidebar surface should be exposed for this request.
 	 *
 	 * @return bool
 	 */
 	private static function should_expose_sidebar(): bool {
-		return self::is_jetpack_ai_sidebar_preview_enabled() && self::is_post_editor() && self::has_ai_features();
+		return self::is_post_editor() && self::should_expose_provider();
+	}
+
+	/**
+	 * Whether the Jetpack AI provider bundle should be exposed for this request.
+	 *
+	 * This is intentionally broader than the sidebar data gate: page/site editor
+	 * can consume Jetpack AI tools through another host/agent, without Jetpack AI
+	 * setting the active Agents Manager agent ID. It still stays scoped to the same
+	 * internal rollout gate as Generate Feedback: preview enabled, proxied request,
+	 * Jetpack AI enabled, and AI features available.
+	 *
+	 * @return bool
+	 */
+	private static function should_expose_provider(): bool {
+		return self::is_jetpack_ai_sidebar_preview_enabled()
+			&& self::is_supported_provider_surface()
+			&& self::is_proxied_request()
+			&& self::has_ai_features()
+			&& apply_filters( 'jetpack_ai_enabled', true );
 	}
 
 	/**
@@ -519,7 +537,8 @@ class Jetpack_AI_Sidebar {
 			return $data;
 		}
 
-		if ( ! self::should_expose_sidebar() ) {
+		$fields = self::get_agents_manager_data_fields();
+		if ( ! $fields ) {
 			return $data;
 		}
 
@@ -527,7 +546,7 @@ class Jetpack_AI_Sidebar {
 		// untouched so the client-side gate can drop Jetpack AI Sidebar while keeping
 		// fallbacks such as the Big Sky provider. Hosts that need intentional overrides
 		// should use the AI Editorial Review and preview filters.
-		foreach ( self::get_sidebar_am_fields() as $key => $value ) {
+		foreach ( $fields as $key => $value ) {
 			$data[ $key ] = $value;
 		}
 		return $data;
@@ -546,6 +565,49 @@ class Jetpack_AI_Sidebar {
 			'agentId'          => AI_SIDEBAR_AGENT_ID,
 			'jetpackAiSidebar' => $config,
 		);
+	}
+
+	/**
+	 * Fields Jetpack contributes when another host owns Agents Manager.
+	 *
+	 * The page/site editor can consume Jetpack provider suggestions and tools, but
+	 * must keep the host-selected agent ID (for example Dolly).
+	 *
+	 * @return array
+	 */
+	private static function get_provider_am_fields(): array {
+		return array(
+			'jetpackAiSidebar' => self::get_jetpack_ai_sidebar_preview_config(),
+		);
+	}
+
+	/**
+	 * Whether the request is proxied through WordPress.com.
+	 *
+	 * @return bool
+	 */
+	private static function is_proxied_request(): bool {
+		$is_server_proxied = isset( $_SERVER['A8C_PROXIED_REQUEST'] )
+			&& (bool) sanitize_text_field( wp_unslash( $_SERVER['A8C_PROXIED_REQUEST'] ) );
+
+		return $is_server_proxied || ( defined( 'A8C_PROXIED_REQUEST' ) && A8C_PROXIED_REQUEST );
+	}
+
+	/**
+	 * Fields Jetpack should add to `agentsManagerData` for the current screen.
+	 *
+	 * @return array
+	 */
+	private static function get_agents_manager_data_fields(): array {
+		if ( self::should_expose_sidebar() ) {
+			return self::get_sidebar_am_fields();
+		}
+
+		if ( self::should_expose_provider() ) {
+			return self::get_provider_am_fields();
+		}
+
+		return array();
 	}
 
 	/**
@@ -583,7 +645,7 @@ class Jetpack_AI_Sidebar {
 		if ( ( new Host() )->is_wpcom_simple() ) {
 			return;
 		}
-		if ( ! self::should_expose_sidebar() ) {
+		if ( ! self::should_expose_provider() ) {
 			return;
 		}
 		// 'registered' rather than 'enqueued': wp_add_inline_script attaches to any
@@ -597,8 +659,13 @@ class Jetpack_AI_Sidebar {
 		// two emit paths cannot drift. agentProviders is left untouched so client-side
 		// gating can fall back to other providers (such as Big Sky) when Jetpack AI
 		// Sidebar is unavailable.
+		$fields = self::get_agents_manager_data_fields();
+		if ( ! $fields ) {
+			return;
+		}
+
 		$assignments = '';
-		foreach ( self::get_sidebar_am_fields() as $key => $value ) {
+		foreach ( $fields as $key => $value ) {
 			$assignments .= ' agentsManagerData.' . $key . ' = '
 				. wp_json_encode( $value, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ) . ';';
 		}
@@ -638,6 +705,30 @@ class Jetpack_AI_Sidebar {
 		return $screen instanceof \WP_Screen
 			&& 'post' === $screen->base
 			&& 'post' === $screen->post_type;
+	}
+
+	/**
+	 * Check if the current screen can consume the Jetpack AI provider bundle.
+	 *
+	 * @return bool
+	 */
+	private static function is_supported_provider_surface(): bool {
+		if ( ! function_exists( 'get_current_screen' ) ) {
+			return false;
+		}
+
+		$screen = get_current_screen();
+		if ( ! $screen instanceof \WP_Screen ) {
+			return false;
+		}
+
+		if ( 'site-editor' === $screen->base ) {
+			return true;
+		}
+
+		return self::is_block_editor()
+			&& 'post' === $screen->base
+			&& in_array( $screen->post_type, array( 'post', 'page' ), true );
 	}
 
 	/**
