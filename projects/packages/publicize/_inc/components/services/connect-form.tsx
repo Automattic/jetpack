@@ -117,7 +117,8 @@ export function ConnectForm( {
 		[ isEditor, onSubmit, reconnectingAccount, requestAccess, service.id, setConnectingService ]
 	);
 
-	const showConnecting = isFetchingServicesList || isConnecting || isConnectingThis;
+	// Only this button shows "Connecting…"; a global services fetch just disables all buttons.
+	const isBusy = isConnecting || isConnectingThis;
 
 	return (
 		<form
@@ -139,14 +140,14 @@ export function ConnectForm( {
 					variant={ hasConnections ? 'outline' : 'solid' }
 					size={ buttonSize }
 					type="submit"
-					disabled={ showConnecting }
+					disabled={ isFetchingServicesList || isBusy }
 				>
 					{ ( label => {
 						if ( label && ! isConnectingThis ) {
 							return label;
 						}
 
-						if ( showConnecting ) {
+						if ( isBusy ) {
 							return __( 'Connecting…', 'jetpack-publicize-pkg' );
 						}
 

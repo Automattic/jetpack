@@ -3,7 +3,7 @@ import { useDispatch, useSelect } from '@wordpress/data';
 import { useEffect, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { store as socialStore } from '../../social-store';
-import { startServiceConnect } from '../../utils';
+import { broadcastConnectionCreated, startServiceConnect } from '../../utils';
 
 // Allowlist for the `service`/`connect` query value.
 const SUPPORTED_SERVICE_IDS = new Set( [
@@ -82,6 +82,54 @@ export function useConnectReturnHandler() {
 			return;
 		}
 
+		// Editor intent: reconnect an existing connection.
+		const reconnectIntentId = params.get( 'reconnect' );
+
+		if ( reconnectIntentId ) {
+			if ( params.get( 'source' ) !== 'editor' ) {
+				return;
+			}
+
+			hasRun.current = true;
+
+			const cleanUrl = new URL( window.location.href );
+			[ 'reconnect', 'source' ].forEach( key => cleanUrl.searchParams.delete( key ) );
+			window.history.replaceState( {}, '', cleanUrl.toString() );
+
+			const connection = getConnectionById( reconnectIntentId );
+
+			if ( ! connection ) {
+				openConnectionsModal();
+				return;
+			}
+
+			setReconnectingAccount( connection );
+
+			const service = getService( connection.service_name );
+			const reconnectOptions = {
+				source: 'editor' as const,
+				refresh: true,
+				reconnectId: reconnectIntentId,
+			};
+
+			if ( connection.service_name === 'bluesky' ) {
+				// Bluesky needs a fresh app password — finish in the modal.
+				setPreselectService( 'bluesky' );
+				openConnectionsModal();
+			} else if ( service?.url && connection.service_name === 'mastodon' ) {
+				startServiceConnect( service.url, 'mastodon', {
+					...reconnectOptions,
+					postFields: { instance: connection.external_handle },
+				} );
+			} else if ( service?.url ) {
+				startServiceConnect( service.url, connection.service_name, reconnectOptions );
+			} else {
+				openConnectionsModal();
+			}
+
+			return;
+		}
+
 		if ( params.get( 'connect_return' ) !== '1' ) {
 			return;
 		}
@@ -137,6 +185,13 @@ export function useConnectReturnHandler() {
 
 				// If this was a reconnect and the account matched, it's handled in place.
 				const handled = await completeReconnect( data );
+
+				// An editor-opened reconnect completes here (no confirmation step), so it must
+				// signal the editor and self-close itself.
+				if ( handled && source === 'editor' ) {
+					broadcastConnectionCreated( data?.service ?? service, reconnectId ?? '' );
+					window.close();
+				}
 
 				if ( ! handled ) {
 					if ( data?.ID ) {

@@ -1,5 +1,7 @@
+import { globalNoticesStore } from '@automattic/jetpack-components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useEffect } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
 import { store as socialStore } from '../../social-store';
 import { subscribeToConnectionCreated } from '../../utils';
 
@@ -15,6 +17,8 @@ export function useConnectionCreatedListener() {
 	const { refreshConnectionTestResults, closeConnectionsModal, setConnectingService } =
 		useDispatch( socialStore );
 
+	const { createSuccessNotice } = useDispatch( globalNoticesStore );
+
 	const connectingService = useSelect( select => select( socialStore ).getConnectingService(), [] );
 
 	useEffect(
@@ -23,8 +27,17 @@ export function useConnectionCreatedListener() {
 				setConnectingService( undefined );
 				refreshConnectionTestResults();
 				closeConnectionsModal();
+				createSuccessNotice( __( 'Social account connected.', 'jetpack-publicize-pkg' ), {
+					type: 'snackbar',
+					isDismissible: true,
+				} );
 			} ),
-		[ closeConnectionsModal, refreshConnectionTestResults, setConnectingService ]
+		[
+			closeConnectionsModal,
+			createSuccessNotice,
+			refreshConnectionTestResults,
+			setConnectingService,
+		]
 	);
 
 	useEffect( () => {

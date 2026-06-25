@@ -1,7 +1,10 @@
+import { getAdminUrl } from '@automattic/jetpack-script-data';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useCallback, useEffect, useState } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
 import { Link } from '@wordpress/ui';
+import { addQueryArgs } from '@wordpress/url';
+import { useIsEditor } from '../../hooks/use-is-editor';
 import { store as socialStore } from '../../social-store';
 import { Connection } from '../../social-store/types';
 import { SupportedService } from '../services/types';
@@ -20,7 +23,10 @@ export type ReconnectProps = {
  * @return {import('react').ReactNode} - React element
  */
 export function Reconnect( { connection, service }: ReconnectProps ) {
-	const { openConnectionsModal, setReconnectingAccount } = useDispatch( socialStore );
+	const { openConnectionsModal, setReconnectingAccount, setConnectingService } =
+		useDispatch( socialStore );
+
+	const isEditor = useIsEditor();
 
 	const { canManageConnection, isReconnectingThis } = useSelect(
 		select => {
@@ -48,6 +54,24 @@ export function Reconnect( { connection, service }: ReconnectProps ) {
 
 	const onClickReconnect = useCallback( async () => {
 		setIsReconnecting( true );
+
+		// Editor: reconnect on the Social admin page in a new tab (synchronous window.open) instead
+		// of redirecting the editor tab.
+		if ( isEditor ) {
+			window.open(
+				getAdminUrl(
+					addQueryArgs( 'admin.php', {
+						page: 'jetpack-social',
+						reconnect: String( connection.connection_id ),
+						source: 'editor',
+					} )
+				),
+				'_blank'
+			);
+			setConnectingService( service.id );
+			return;
+		}
+
 		await setReconnectingAccount( connection );
 
 		// Bluesky needs a fresh app password, so it reconnects through the modal's credential form.
@@ -70,7 +94,15 @@ export function Reconnect( { connection, service }: ReconnectProps ) {
 			setIsReconnecting( false );
 			setReconnectingAccount( undefined );
 		}
-	}, [ connection, openConnectionsModal, requestAccess, service.id, setReconnectingAccount ] );
+	}, [
+		connection,
+		isEditor,
+		openConnectionsModal,
+		requestAccess,
+		service.id,
+		setConnectingService,
+		setReconnectingAccount,
+	] );
 
 	const onClick = useCallback(
 		( event: React.MouseEvent ) => {
