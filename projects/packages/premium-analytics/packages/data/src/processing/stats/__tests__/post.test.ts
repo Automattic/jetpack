@@ -63,6 +63,28 @@ describe( 'Stats post normalizer', () => {
 		} );
 	} );
 
+	it( 'coerces stringified numeric values defensively', () => {
+		expect(
+			sanitizeStatsPostResponse( {
+				views: '128',
+				years: {
+					'2026': {
+						total: '128',
+						months: { '6': '85' },
+					},
+				},
+			} )
+		).toEqual( {
+			views: 128,
+			years: {
+				'2026': {
+					total: 128,
+					months: { '6': 85 },
+				},
+			},
+		} );
+	} );
+
 	it( 'returns an empty object for missing or invalid payloads', () => {
 		expect( sanitizeStatsPostResponse( null ) ).toEqual( {} );
 		expect( sanitizeStatsPostResponse( [] ) ).toEqual( {} );

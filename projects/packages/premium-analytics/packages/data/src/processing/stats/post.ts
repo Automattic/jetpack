@@ -21,15 +21,35 @@ export type StatsPostWeek = {
 	change?: number;
 };
 
+type StatsPostRawNumeric = number | string;
+
+type StatsPostRawYear = {
+	total?: StatsPostRawNumeric;
+	overall?: StatsPostRawNumeric;
+	months?: Record< string, StatsPostRawNumeric >;
+};
+
+type StatsPostRawWeekDay = {
+	day?: string;
+	count?: StatsPostRawNumeric;
+};
+
+type StatsPostRawWeek = {
+	days?: StatsPostRawWeekDay[];
+	total?: StatsPostRawNumeric;
+	average?: StatsPostRawNumeric;
+	change?: StatsPostRawNumeric;
+};
+
 export type StatsPostRawResponse = {
 	date?: string;
-	views?: unknown;
-	years?: unknown;
-	averages?: unknown;
-	weeks?: unknown;
-	highest_month?: unknown;
-	highest_day_average?: unknown;
-	highest_week_average?: unknown;
+	views?: StatsPostRawNumeric;
+	years?: Record< string, StatsPostRawYear >;
+	averages?: Record< string, StatsPostRawYear >;
+	weeks?: StatsPostRawWeek[];
+	highest_month?: StatsPostRawNumeric;
+	highest_day_average?: StatsPostRawNumeric;
+	highest_week_average?: StatsPostRawNumeric;
 	post?: unknown;
 };
 
