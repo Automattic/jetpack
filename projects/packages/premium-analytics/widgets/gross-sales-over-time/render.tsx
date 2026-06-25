@@ -1,10 +1,12 @@
 import { OrderMetricWidget, WidgetRoot } from '@jetpack-premium-analytics/widgets-toolkit';
 import type { ComponentProps } from 'react';
 
-type GrossSalesOverTimeRenderProps = Pick<
-	ComponentProps< typeof WidgetRoot >,
-	'attributes' | 'setError'
->;
+type WidgetRootProps = ComponentProps< typeof WidgetRoot >;
+
+type GrossSalesOverTimeRenderProps = {
+	attributes?: WidgetRootProps[ 'attributes' ];
+	setError?: WidgetRootProps[ 'setError' ];
+};
 
 /**
  * Gross sales over time widget.
