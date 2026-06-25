@@ -1,11 +1,13 @@
 import type { StatsArchivesItem } from './archives';
 import type { StatsClicksItem } from './clicks';
+import type { StatsCommentsItem } from './comments';
 import type { StatsEmailBreakdownItem } from './email-breakdown';
 import type { StatsEmailSummaryItem } from './email-summary';
 import type { StatsFileDownloadsItem } from './file-downloads';
 import type { StatsLocationsItem } from './locations';
 import type { StatsReferrersItem } from './referrers';
 import type { StatsSearchTermsItem } from './search-terms';
+import type { StatsTagsItem } from './tags';
 import type { StatsTopAuthorsItem } from './top-authors';
 import type { StatsTopPostsItem } from './top-posts';
 import type { StatsUtmItem } from './utm';
@@ -33,7 +35,9 @@ export type StatsNormalizedItem =
 	| StatsUtmItem
 	| StatsEmailSummaryItem
 	| StatsEmailBreakdownItem
-	| StatsArchivesItem;
+	| StatsArchivesItem
+	| StatsCommentsItem
+	| StatsTagsItem;
 
 export type StatsNormalizedDataPoint< TItem extends StatsNormalizedItem = StatsNormalizedItem > = {
 	time_interval: string;

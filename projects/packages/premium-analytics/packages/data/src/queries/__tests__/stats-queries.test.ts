@@ -3,9 +3,14 @@
  */
 import { statsAppProxyQuery } from '../stats-app-query';
 import { statsArchivesQuery } from '../stats-archives-query';
+import { statsCommentsQuery } from '../stats-comments-query';
+import { STATS_HIGHLIGHTS_STALE_TIME, statsHighlightsQuery } from '../stats-highlights-query';
 import { statsInsightsQuery } from '../stats-insights-query';
 import { statsLocationsQuery } from '../stats-locations-query';
+import { statsPostQuery } from '../stats-post-query';
 import { statsStreakQuery } from '../stats-streak-query';
+import { statsSubscribersCountsQuery, statsSubscribersQuery } from '../stats-subscribers-query';
+import { statsTagsQuery } from '../stats-tags-query';
 import { statsTopPostsQuery } from '../stats-top-posts-query';
 import { statsUtmQuery } from '../stats-utm-query';
 import { statsVisitsQuery } from '../stats-visits-query';
@@ -14,6 +19,45 @@ import type { StatsReportParams } from '../stats-query';
 describe( 'Stats query factories', () => {
 	it( 'disables report queries until a date range is available', () => {
 		expect( statsTopPostsQuery( {} as StatsReportParams ).enabled ).toBe( false );
+	} );
+
+	it( 'builds post stats query keys with fields', () => {
+		const query = statsPostQuery( {
+			postId: 41,
+			fields: [ 'views', 'years' ],
+		} );
+
+		expect( query.enabled ).toBe( true );
+		expect( query.queryKey ).toEqual( [
+			'stats',
+			'post',
+			'1.1',
+			'stats/post/41',
+			'GET',
+			{
+				fields: 'views,years',
+			},
+			undefined,
+			'post',
+		] );
+	} );
+
+	it( 'matches Calypso post stats requests when fields are omitted', () => {
+		const query = statsPostQuery( { postId: 41 } );
+
+		expect( query.queryKey ).toEqual(
+			expect.arrayContaining( [
+				'stats/post/41',
+				{
+					fields: '',
+				},
+			] )
+		);
+	} );
+
+	it( 'disables post stats queries until a positive post ID is available', () => {
+		expect( statsPostQuery( { postId: -1 } ).enabled ).toBe( false );
+		expect( statsPostQuery( { postId: 0 } ).enabled ).toBe( false );
 	} );
 
 	it( 'includes filter_by_country in query params when provided', () => {
@@ -107,6 +151,44 @@ describe( 'Stats query factories', () => {
 		);
 	} );
 
+	it( 'builds tags query keys for the Calypso endpoint path', () => {
+		const query = statsTagsQuery( {} );
+
+		expect( query.enabled ).toBe( true );
+		expect( query.queryKey ).toEqual( [
+			'stats',
+			'tags',
+			'1.1',
+			'stats/tags',
+			'GET',
+			{},
+			undefined,
+			'tags',
+		] );
+	} );
+
+	it( 'passes supported tags params through query keys', () => {
+		const query = statsTagsQuery( {
+			to: '2026-06-07',
+			max: 10,
+		} );
+
+		expect( query.enabled ).toBe( true );
+		expect( query.queryKey ).toEqual( [
+			'stats',
+			'tags',
+			'1.1',
+			'stats/tags',
+			'GET',
+			{
+				date: '2026-06-07',
+				max: 10,
+			},
+			undefined,
+			'tags',
+		] );
+	} );
+
 	it( 'preserves explicit summarize params', () => {
 		const query = statsTopPostsQuery( {
 			from: '2026-06-01',
@@ -145,6 +227,38 @@ describe( 'Stats query factories', () => {
 		] );
 	} );
 
+	it( 'builds highlights query keys with endpoint params and sanitizer', () => {
+		const query = statsHighlightsQuery( { source: 'stats-feedback' } );
+
+		expect( query.queryKey ).toEqual( [
+			'stats',
+			'highlights',
+			'1.1',
+			'stats/highlights',
+			'GET',
+			{ source: 'stats-feedback' },
+			undefined,
+			'highlights',
+		] );
+		expect( query.staleTime ).toBe( STATS_HIGHLIGHTS_STALE_TIME );
+	} );
+
+	it( 'builds comments query keys without date params', () => {
+		const query = statsCommentsQuery();
+
+		expect( query.enabled ).toBe( true );
+		expect( query.queryKey ).toEqual( [
+			'stats',
+			'comments',
+			'1.1',
+			'stats/comments',
+			'GET',
+			{},
+			undefined,
+			'comments',
+		] );
+	} );
+
 	it( 'shares app query keys for empty and omitted params', () => {
 		expect(
 			statsAppProxyQuery( {
@@ -160,6 +274,62 @@ describe( 'Stats query factories', () => {
 				params: {},
 			} ).queryKey
 		);
+	} );
+
+	it( 'builds subscribers query keys with Calypso endpoint params and default stat fields', () => {
+		const query = statsSubscribersQuery( {
+			unit: 'week',
+			quantity: 12,
+			date: '2026-06-25',
+		} );
+
+		expect( query.queryKey ).toEqual( [
+			'stats',
+			'subscribers',
+			'1.1',
+			'stats/subscribers',
+			'GET',
+			{
+				unit: 'week',
+				quantity: 12,
+				date: '2026-06-25',
+				stat_fields: 'subscribers,subscribers_paid',
+			},
+			undefined,
+			'subscribers',
+		] );
+	} );
+
+	it( 'preserves explicit subscribers stat fields', () => {
+		const query = statsSubscribersQuery( {
+			unit: 'day',
+			quantity: 30,
+			date: '2026-06-25',
+			stat_fields: 'subscribers',
+		} );
+
+		expect( query.queryKey ).toEqual(
+			expect.arrayContaining( [
+				expect.objectContaining( {
+					stat_fields: 'subscribers',
+				} ),
+			] )
+		);
+	} );
+
+	it( 'builds subscribers counts query keys with a typed sanitizer', () => {
+		const query = statsSubscribersCountsQuery();
+
+		expect( query.queryKey ).toEqual( [
+			'stats',
+			'subscribers-counts',
+			'2',
+			'subscribers/counts',
+			'GET',
+			{},
+			undefined,
+			'subscribersCounts',
+		] );
 	} );
 
 	it( 'sets visits quantity for day ranges', () => {

@@ -78,7 +78,18 @@ class Analytics {
 		// injection and the REST route the "reset to default" action reads.
 		require_once __DIR__ . '/dashboard-layout.php';
 
-		// Below: admin-only render path (interceptor, assets, menu).
+		// Load wp-build output (interceptor, modules, routes, page render).
+		// Must stay above the is_admin() gate: build/widgets.php defines the
+		// manifest the widget registry reads, and the registry serves REST
+		// requests (e.g. /jetpack/v4/widget-modules) where is_admin() is false. The render
+		// pieces here self-gate on admin_init, so loading them globally is inert
+		// off the dashboard. Only the polyfill registration below is admin-scoped.
+		$build_entry = __DIR__ . '/../build/build.php';
+		if ( file_exists( $build_entry ) ) {
+			require_once $build_entry;
+		}
+
+		// Below: admin-only render path (assets, menu).
 		if ( ! is_admin() ) {
 			return;
 		}
@@ -93,12 +104,6 @@ class Analytics {
 					WP_Build_Polyfills::MODULE_IDS
 				)
 			);
-		}
-
-		// Load wp-build output (interceptor, modules, routes, page render).
-		$build_entry = __DIR__ . '/../build/build.php';
-		if ( file_exists( $build_entry ) ) {
-			require_once $build_entry;
 		}
 
 		add_action( 'admin_menu', array( static::class, 'register_admin_menu' ) );

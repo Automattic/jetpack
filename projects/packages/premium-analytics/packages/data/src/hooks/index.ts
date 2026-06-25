@@ -6,6 +6,12 @@ export { useReportCustomers } from './use-report-customers';
 export { useReportConversionRate } from './use-report-conversion-rate';
 export { useReportBookings } from './use-report-bookings';
 export { useStatsSite } from './use-stats-site';
+export {
+	useStatsPost,
+	type StatsPostField,
+	type StatsPostParams,
+	type StatsPostResponse,
+} from './use-stats-post';
 export { useStatsTopPosts } from './use-stats-top-posts';
 export { useStatsReferrers } from './use-stats-referrers';
 export { useStatsClicks } from './use-stats-clicks';
@@ -32,6 +38,20 @@ export type {
 } from './use-stats-app-plan-usage';
 export { useStatsArchives, type StatsArchivesResponse } from './use-stats-archives';
 export {
+	useStatsComments,
+	type StatsCommentsParams,
+	type StatsCommentsResponse,
+} from './use-stats-comments';
+export {
+	useStatsSubscribers,
+	useStatsSubscribersCounts,
+	type StatsSubscribersCounts,
+	type StatsSubscribersCountsParams,
+	type StatsSubscribersCountsResponse,
+	type StatsSubscribersParams,
+	type StatsSubscribersResponse,
+} from './use-stats-subscribers';
+export {
 	useStatsStreak,
 	type StatsStreakParams,
 	type StatsStreakResponse,
@@ -50,6 +70,9 @@ export type {
 	StatsInsightsYear,
 } from './use-stats-insights';
 export { useStatsUtm, type StatsUtmParams, type StatsUtmResponse } from './use-stats-utm';
+export { useStatsHighlights } from './use-stats-highlights';
+export type { StatsHighlightsParams, StatsHighlightsResponse } from './use-stats-highlights';
+export { useStatsTags, type StatsTagsParams, type StatsTagsResponse } from './use-stats-tags';
 export type { UseStatsOptions } from './use-stats-report';
 
 /**

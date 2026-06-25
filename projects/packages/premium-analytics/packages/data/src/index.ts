@@ -15,6 +15,8 @@ export { useReportVisitorsByLocation } from './hooks/use-report-visitors-by-loca
 export { useReportBookings } from './hooks/use-report-bookings';
 export { useReportSessionsByDevice } from './hooks/use-report-sessions-by-device';
 export { useStatsSite } from './hooks/use-stats-site';
+export { useStatsPost } from './hooks/use-stats-post';
+export type { StatsPostField, StatsPostParams, StatsPostResponse } from './hooks/use-stats-post';
 export { useStatsTopPosts } from './hooks/use-stats-top-posts';
 export { useStatsReferrers } from './hooks/use-stats-referrers';
 export { useStatsClicks } from './hooks/use-stats-clicks';
@@ -41,6 +43,20 @@ export type {
 } from './hooks/use-stats-app-plan-usage';
 export { useStatsArchives, type StatsArchivesResponse } from './hooks/use-stats-archives';
 export {
+	useStatsComments,
+	type StatsCommentsParams,
+	type StatsCommentsResponse,
+} from './hooks/use-stats-comments';
+export {
+	useStatsSubscribers,
+	useStatsSubscribersCounts,
+	type StatsSubscribersCounts,
+	type StatsSubscribersCountsParams,
+	type StatsSubscribersCountsResponse,
+	type StatsSubscribersParams,
+	type StatsSubscribersResponse,
+} from './hooks/use-stats-subscribers';
+export {
 	useStatsStreak,
 	type StatsStreakParams,
 	type StatsStreakResponse,
@@ -60,6 +76,9 @@ export type {
 } from './hooks/use-stats-insights';
 export { useStatsUtm } from './hooks/use-stats-utm';
 export type { StatsUtmParams, StatsUtmResponse } from './hooks/use-stats-utm';
+export { useStatsHighlights } from './hooks/use-stats-highlights';
+export type { StatsHighlightsParams, StatsHighlightsResponse } from './hooks/use-stats-highlights';
+export { useStatsTags, type StatsTagsParams, type StatsTagsResponse } from './hooks/use-stats-tags';
 export type { UseStatsOptions } from './hooks/use-stats-report';
 export { prefetchReport } from './prefetch';
 export {
@@ -96,6 +115,14 @@ export type {
 export type {
 	StatsArchivesItem,
 	StatsClicksItem,
+	StatsCommentsAuthorItem,
+	StatsCommentsGroupItem,
+	StatsCommentsItem,
+	StatsCommentsPostItem,
+	StatsCommentsRawAuthor,
+	StatsCommentsRawFollowData,
+	StatsCommentsRawPost,
+	StatsCommentsRawResponse,
 	StatsFileDownloadsItem,
 	StatsItemAction,
 	StatsLocationsItem,
@@ -104,9 +131,23 @@ export type {
 	StatsNormalizedItemBase,
 	StatsNormalizedReport,
 	StatsNormalizedSummary,
+	StatsPostMonthValues,
+	StatsPostRawResponse,
+	StatsPostWeek,
+	StatsPostWeekDay,
+	StatsPostYear,
 	StatsReferrersItem,
 	StatsSearchTermsItem,
+	StatsSubscribersCountsRawResponse,
+	StatsSubscribersDataPoint,
+	StatsSubscribersRawResponse,
 	StatsStreakRawResponse,
+	StatsTagsChildItem,
+	StatsTagsItem,
+	StatsTagsLabel,
+	StatsTagsRawItem,
+	StatsTagsRawResponse,
+	StatsTagsRawTag,
 	StatsTimeSeriesDataPoint,
 	StatsTimeSeriesReport,
 	StatsTopAuthorsItem,
