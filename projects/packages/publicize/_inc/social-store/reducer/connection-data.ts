@@ -6,6 +6,7 @@ import {
 	FETCHING_KEYRING_RESULT,
 	SET_CONNECT_SOURCE,
 	SET_CONNECTING_SERVICE,
+	SET_PRESELECT_SERVICE,
 	SET_RECONNECTING_ACCOUNT,
 	SET_CONNECTIONS,
 	SET_KEYRING_RESULT,
@@ -158,6 +159,12 @@ const connectionData = ( state: ConnectionData = { connections: [] }, action: Ac
 			return {
 				...state,
 				connectingService: action.connectingService,
+			};
+
+		case SET_PRESELECT_SERVICE:
+			return {
+				...state,
+				preselectService: action.preselectService,
 			};
 
 		case TOGGLE_CONNECTION:

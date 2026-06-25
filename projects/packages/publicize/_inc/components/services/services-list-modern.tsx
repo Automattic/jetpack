@@ -36,6 +36,8 @@ export function ModernServicesList() {
 
 	const reconnectingAccount = useSelect( select => select( store ).getReconnectingAccount(), [] );
 
+	const preselectService = useSelect( select => select( store ).getPreselectService(), [] );
+
 	return (
 		<Card.Root>
 			<ul className={ styles.services }>
@@ -44,7 +46,9 @@ export function ModernServicesList() {
 						<ModernServiceItem
 							service={ service }
 							serviceConnections={ connections[ service.id ] || [] }
-							isPanelDefaultOpen={ reconnectingAccount?.service_name === service.id }
+							isPanelDefaultOpen={
+								reconnectingAccount?.service_name === service.id || preselectService === service.id
+							}
 						/>
 					</li>
 				) ) }

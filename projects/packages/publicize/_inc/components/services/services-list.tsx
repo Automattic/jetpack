@@ -35,6 +35,8 @@ export function ServicesList() {
 
 	const reconnectingAccount = useSelect( select => select( store ).getReconnectingAccount(), [] );
 
+	const preselectService = useSelect( select => select( store ).getPreselectService(), [] );
+
 	return (
 		<ul className={ styles.services }>
 			{ supportedServices.map( service => (
@@ -42,7 +44,9 @@ export function ServicesList() {
 					<ServiceItem
 						service={ service }
 						serviceConnections={ connections[ service.id ] || [] }
-						isPanelDefaultOpen={ reconnectingAccount?.service_name === service.id }
+						isPanelDefaultOpen={
+							reconnectingAccount?.service_name === service.id || preselectService === service.id
+						}
 					/>
 				</li>
 			) ) }

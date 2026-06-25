@@ -44,6 +44,8 @@ export type ConnectionData = {
 	connectSource?: 'editor';
 	/** Service currently connecting from the editor (drives its "Connecting…" state). */
 	connectingService?: string;
+	/** Service whose panel should open by default in the connections modal. */
+	preselectService?: string;
 	/**
 	 * Whether the keyring result for an auth_flow=v2 connect request is being fetched.
 	 */

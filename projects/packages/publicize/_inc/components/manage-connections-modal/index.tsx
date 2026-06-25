@@ -29,6 +29,7 @@ export const ManageConnectionsModal = () => {
 		setReconnectingAccount,
 		setConnectSource,
 		setConnectingService,
+		setPreselectService,
 	} = useDispatch( store );
 
 	const isSmall = useViewportMatch( 'small', '<' );
@@ -38,12 +39,14 @@ export const ManageConnectionsModal = () => {
 		setReconnectingAccount( undefined );
 		setConnectSource( undefined );
 		setConnectingService( undefined );
+		setPreselectService( undefined );
 		closeConnectionsModal();
 	}, [
 		closeConnectionsModal,
 		setConnectSource,
 		setConnectingService,
 		setKeyringResult,
+		setPreselectService,
 		setReconnectingAccount,
 	] );
 

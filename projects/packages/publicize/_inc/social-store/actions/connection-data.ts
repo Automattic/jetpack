@@ -13,6 +13,7 @@ import {
 	FETCHING_KEYRING_RESULT,
 	SET_CONNECT_SOURCE,
 	SET_CONNECTING_SERVICE,
+	SET_PRESELECT_SERVICE,
 	SET_RECONNECTING_ACCOUNT,
 	SET_CONNECTIONS,
 	SET_KEYRING_RESULT,
@@ -71,6 +72,20 @@ export function setConnectingService( connectingService?: string ) {
 	return {
 		type: SET_CONNECTING_SERVICE,
 		connectingService,
+	};
+}
+
+/**
+ * Set the service whose panel should open by default in the connections modal.
+ *
+ * @param preselectService - The service id, or undefined to clear.
+ *
+ * @return An action object.
+ */
+export function setPreselectService( preselectService?: string ) {
+	return {
+		type: SET_PRESELECT_SERVICE,
+		preselectService,
 	};
 }
 

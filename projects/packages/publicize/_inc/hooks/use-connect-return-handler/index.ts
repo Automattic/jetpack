@@ -39,6 +39,7 @@ export function useConnectReturnHandler() {
 		completeReconnect,
 		setReconnectingAccount,
 		setConnectSource,
+		setPreselectService,
 	} = useDispatch( socialStore );
 
 	const { createInfoNotice, createErrorNotice, removeNotice } = useDispatch( globalNoticesStore );
@@ -74,6 +75,7 @@ export function useConnectReturnHandler() {
 			if ( service?.url && ! NEEDS_INPUT_SERVICE_IDS.has( intentService ) ) {
 				startServiceConnect( service.url, intentService, { source: 'editor' } );
 			} else {
+				setPreselectService( intentService );
 				openConnectionsModal();
 			}
 
@@ -165,6 +167,7 @@ export function useConnectReturnHandler() {
 		removeNotice,
 		setConnectSource,
 		setKeyringResult,
+		setPreselectService,
 		setReconnectingAccount,
 	] );
 }

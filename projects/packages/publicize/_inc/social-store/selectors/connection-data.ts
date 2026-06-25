@@ -226,6 +226,17 @@ export function getConnectingService( state: SocialStoreState ) {
 }
 
 /**
+ * Returns the service whose panel should open by default in the connections modal.
+ *
+ * @param state - State object.
+ *
+ * @return The preselected service id.
+ */
+export function getPreselectService( state: SocialStoreState ) {
+	return state.connectionData?.preselectService;
+}
+
+/**
  * Whether the keyring result for a completed connect request is being fetched.
  *
  * @param state - State object.
