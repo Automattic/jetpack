@@ -6,7 +6,8 @@
 		path {
 			transform-origin: 0 95%;
 			transform: scaleY(0);
-			animation: rise 1s ease-out forwards;
+			animation: rise var(--wpds-motion-duration-xl, 400ms)
+				var(--wpds-motion-easing-expressive, cubic-bezier(0.25, 0, 0, 1)) forwards;
 		}
 	}
 
