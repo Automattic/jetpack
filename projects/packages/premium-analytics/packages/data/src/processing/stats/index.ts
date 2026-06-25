@@ -23,6 +23,7 @@ export { sanitizeStatsStreakResponse } from './streak';
 export type { StatsTopPostsItem } from './top-posts';
 export type {
 	StatsPostMonthValues,
+	StatsPostRawResponse,
 	StatsPostResponse,
 	StatsPostWeek,
 	StatsPostWeekDay,

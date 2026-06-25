@@ -1,4 +1,6 @@
-export const postStatsFixture = {
+import type { StatsPostRawResponse } from '../post';
+
+export const postStatsFixture: StatsPostRawResponse = {
 	date: '2026-06-22',
 	views: 128,
 	years: {
@@ -49,6 +51,6 @@ export const postStatsFixture = {
 	},
 };
 
-export const postStatsViewsFixture = {
+export const postStatsViewsFixture: StatsPostRawResponse = {
 	views: 128,
 };

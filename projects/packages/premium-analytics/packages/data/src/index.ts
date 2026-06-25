@@ -107,6 +107,7 @@ export type {
 	StatsNormalizedReport,
 	StatsNormalizedSummary,
 	StatsPostMonthValues,
+	StatsPostRawResponse,
 	StatsPostWeek,
 	StatsPostWeekDay,
 	StatsPostYear,
