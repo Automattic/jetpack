@@ -243,10 +243,13 @@
 	}
 }
 
-/* Desktop: Center modal like WooCommerce Bookings */
+/* Desktop: Center modal like WooCommerce Bookings.
+   Scoped under the root class (not :where()) so the structural sizing wins over
+   classic-theme resets such as `html, body, div, … { max-width: none }`, which
+   would otherwise stretch the modal to full width. */
 @media ( min-width: 782px ) {
 
-	:where(.jetpack-cookie-consent__modal) {
+	.jetpack-cookie-consent .jetpack-cookie-consent__modal {
 		bottom: auto;
 		height: auto;
 		left: 50%;
@@ -257,11 +260,11 @@
 		width: 100%;
 	}
 
-	:where(.jetpack-cookie-consent__modal--visible) {
+	.jetpack-cookie-consent .jetpack-cookie-consent__modal--visible {
 		transform: translate(-50%, -50%);
 	}
 
-	:where(.jetpack-cookie-consent__modal-content) {
+	.jetpack-cookie-consent .jetpack-cookie-consent__modal-content {
 		max-height: 630px;
 	}
 }
@@ -537,7 +540,11 @@ input[type="checkbox"]:focus-visible + label
 	display: none;
 }
 
-.jetpack-cookie-consent-footer-links__toggle {
+/* The toggle is a <button>; classic themes ship high-specificity button resets
+   (e.g. Twenty Twenty-One's `button:not(:hover):not(:active)`, 0,3,1) that
+   out-specify a single class and recolor/repad it. Style the singleton control
+   via its unique id so the token-driven appearance wins regardless of theme. */
+#jetpack-cookie-consent-footer-links-toggle {
 	display: inline-flex;
 	align-items: center;
 	gap: 6px;
@@ -553,11 +560,11 @@ input[type="checkbox"]:focus-visible + label
 	box-shadow: 0 2px 8px 0 rgba(0, 0, 0, 0.12);
 }
 
-.jetpack-cookie-consent-footer-links__toggle:hover {
+#jetpack-cookie-consent-footer-links-toggle:hover {
 	background: var(--jp-cookie-consent--color-border, #f0f0f0);
 }
 
-.jetpack-cookie-consent-footer-links__toggle:focus-visible {
+#jetpack-cookie-consent-footer-links-toggle:focus-visible {
 	outline: 2px solid var(--jp-cookie-consent--color-text, #1e1e1e);
 	outline-offset: 2px;
 }
