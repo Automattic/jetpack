@@ -23,36 +23,4 @@
 	min-height: 0;
 	align-items: center;
 	justify-content: center;
-	gap: var(--wpds-dimension-gap-md);
-}
-
-.legend {
-	display: flex;
-	flex-direction: column;
-	gap: var(--wpds-dimension-gap-sm);
-	width: fit-content;
-}
-
-.legendRow {
-	display: flex;
-	align-items: center;
-	gap: var(--wpds-dimension-gap-sm);
-}
-
-.legendDot {
-	width: 8px;
-	height: 8px;
-	border-radius: 50%;
-	flex-shrink: 0;
-}
-
-.legendLabel {
-	white-space: nowrap;
-	font-size: 13px;
-}
-
-.legendValue {
-	font-size: 13px;
-	font-weight: 600;
-	white-space: nowrap;
 }

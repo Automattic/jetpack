@@ -13,6 +13,7 @@ import {
 	WidgetRoot,
 	useSegmentStyles,
 	useWidgetRootContext,
+	type LegendItem,
 	type ReportParamsFieldAttributes,
 	type SemiCircleChartData,
 } from '@jetpack-premium-analytics/widgets-toolkit';
@@ -77,6 +78,12 @@ function DevicesInner( {
 
 	const total = data.reduce( ( sum, item ) => sum + item.views, 0 );
 
+	const legendData: LegendItem[] = data.map( item => ( {
+		label: item.displayLabel,
+		value: item.views,
+		displayValue: formatMetricValue( item.views, DATA_FORMAT.type, DATA_FORMAT.options ),
+	} ) );
+
 	return (
 		<>
 			<Stack
@@ -92,23 +99,11 @@ function DevicesInner( {
 					chartData={ chartData }
 					value={ total }
 					styles={ segmentStyles }
-					maxWidth={ 250 }
+					legendData={ legendData }
+					showLegend
+					maxWidth={ 200 }
 					dataFormat={ DATA_FORMAT }
 				/>
-				<div className={ styles.legend }>
-					{ data.map( ( item, index ) => (
-						<div key={ item.label } className={ styles.legendRow }>
-							<span
-								className={ styles.legendDot }
-								style={ { backgroundColor: segmentStyles[ index ]?.color } }
-							/>
-							<span className={ styles.legendLabel }>{ item.displayLabel }</span>
-							<span className={ styles.legendValue }>
-								{ formatMetricValue( item.views, DATA_FORMAT.type, DATA_FORMAT.options ) }
-							</span>
-						</div>
-					) ) }
-				</div>
 			</div>
 		</>
 	);
