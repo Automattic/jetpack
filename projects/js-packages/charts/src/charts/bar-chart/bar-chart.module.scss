@@ -8,7 +8,8 @@
 		transform-origin: bottom;
 		transform-box: fill-box;
 		transform: scaleY(0);
-		animation: rise var(--wpds-motion-duration-xl, 400ms)
+		animation:
+			rise var(--wpds-motion-duration-xl, 400ms)
 			var(--wpds-motion-easing-expressive, cubic-bezier(0.25, 0, 0, 1)) forwards;
 	}
 
@@ -23,7 +24,8 @@
 		transform-origin: left;
 		transform-box: fill-box;
 		transform: scaleX(0);
-		animation: stretch var(--wpds-motion-duration-xl, 400ms)
+		animation:
+			stretch var(--wpds-motion-duration-xl, 400ms)
 			var(--wpds-motion-easing-expressive, cubic-bezier(0.25, 0, 0, 1)) forwards;
 	}
 

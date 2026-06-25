@@ -1,5 +1,6 @@
 .leaderboardChart {
-	transition: opacity var(--wpds-motion-duration-lg, 300ms)
+	transition:
+		opacity var(--wpds-motion-duration-lg, 300ms)
 		var(--wpds-motion-easing-subtle, cubic-bezier(0.15, 0, 0.15, 1));
 
 	&--responsive {
@@ -57,7 +58,8 @@
 			transform-origin: left;
 			transform-box: fill-box;
 			transform: scaleX(0);
-			animation: stretch var(--wpds-motion-duration-xl, 400ms)
+			animation:
+				stretch var(--wpds-motion-duration-xl, 400ms)
 				var(--wpds-motion-easing-expressive, cubic-bezier(0.25, 0, 0, 1)) forwards;
 		}
 
@@ -120,14 +122,16 @@
 	// a grid item aligned to the inline start, so its inset mirrors in RTL; the
 	// value slide is given an RTL override below. No row background.
 	.bar {
-		transition: opacity var(--wpds-motion-duration-sm, 100ms)
-				var(--wpds-motion-easing-subtle, cubic-bezier(0.15, 0, 0.15, 1)),
+		transition:
+			opacity var(--wpds-motion-duration-sm, 100ms)
+			var(--wpds-motion-easing-subtle, cubic-bezier(0.15, 0, 0.15, 1)),
 			width var(--wpds-motion-duration-sm, 100ms)
-				var(--wpds-motion-easing-subtle, cubic-bezier(0.15, 0, 0.15, 1));
+			var(--wpds-motion-easing-subtle, cubic-bezier(0.15, 0, 0.15, 1));
 	}
 
 	.valueContainer {
-		transition: transform var(--wpds-motion-duration-sm, 100ms)
+		transition:
+			transform var(--wpds-motion-duration-sm, 100ms)
 			var(--wpds-motion-easing-subtle, cubic-bezier(0.15, 0, 0.15, 1));
 	}
 
@@ -178,7 +182,8 @@
 	margin-block: auto;
 	opacity: 0;
 	color: var(--wpds-color-fg-content-neutral-weak, #707070);
-	transition: opacity var(--wpds-motion-duration-sm, 100ms)
+	transition:
+		opacity var(--wpds-motion-duration-sm, 100ms)
 		var(--wpds-motion-easing-subtle, cubic-bezier(0.15, 0, 0.15, 1));
 	pointer-events: none;
 
