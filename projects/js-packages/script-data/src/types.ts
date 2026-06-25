@@ -50,7 +50,16 @@ export interface UserData {
 	current_user: CurrentUserData;
 }
 
+export interface JetpackData {
+	flags?: {
+		showJetpackBranding?: boolean;
+	};
+	isMyJetpackAvailable?: boolean;
+	isOfflineMode?: boolean;
+}
+
 export interface JetpackScriptData {
+	jetpack?: JetpackData;
 	site: SiteData;
 	user: UserData;
 }

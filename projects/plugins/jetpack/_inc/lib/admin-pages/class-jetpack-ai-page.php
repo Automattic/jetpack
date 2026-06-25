@@ -34,6 +34,17 @@ class Jetpack_AI_Page extends Jetpack_Admin_Page {
 	protected $dont_show_if_not_active = true;
 
 	/**
+	 * Add common page actions only when Jetpack AI can be used.
+	 */
+	public function add_actions() {
+		if ( ( new Status() )->is_offline_mode() ) {
+			return;
+		}
+
+		parent::add_actions();
+	}
+
+	/**
 	 * Register the "AI" submenu under the Jetpack top-level menu.
 	 *
 	 * @return string|false Hook returned by Admin_Menu::add_menu().

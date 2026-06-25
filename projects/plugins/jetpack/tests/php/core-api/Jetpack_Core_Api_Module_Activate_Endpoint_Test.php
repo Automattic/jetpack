@@ -1,9 +1,11 @@
 <?php
 
+use Automattic\Jetpack\Status\Cache as StatusCache;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 
 require_once JETPACK__PLUGIN_DIR . '/tests/php/lib/Jetpack_REST_TestCase.php';
+require_once JETPACK__PLUGIN_DIR . '_inc/lib/class-jetpack-offline-mode-features.php';
 
 /**
  * @covers \Jetpack_Core_Json_Api_Endpoints
@@ -53,6 +55,79 @@ class Jetpack_Core_Api_Module_Activate_Endpoint_Test extends Jetpack_REST_TestCa
 			array( '/jetpack/v4/settings', 'POST', 'Jetpack_Core_API_Data' ),
 			array( '/jetpack/v4/settings/(?P<slug>[a-z\-]+)', 'POST', 'Jetpack_Core_API_Data' ),
 		);
+	}
+
+	public function test_module_list_keeps_allowed_partial_module_active_in_offline_mode() {
+		$this->set_offline_mode_active_modules( array( 'subscriptions', 'stats' ) );
+
+		try {
+			$modules = ( new Jetpack_Core_API_Module_List_Endpoint() )->get_modules();
+
+			$this->assertTrue( $modules['subscriptions']['activated'] );
+			$this->assertFalse( $modules['stats']['activated'] );
+		} finally {
+			$this->reset_offline_mode_active_modules();
+		}
+	}
+
+	public function test_single_module_keeps_allowed_partial_module_active_in_offline_mode() {
+		$this->set_offline_mode_active_modules( array( 'subscriptions', 'stats' ) );
+
+		try {
+			$subscriptions = ( new Jetpack_Core_API_Data() )->get_module( $this->create_module_request( 'subscriptions' ) );
+			$stats         = ( new Jetpack_Core_API_Data() )->get_module( $this->create_module_request( 'stats' ) );
+
+			$this->assertIsArray( $subscriptions );
+			$this->assertIsArray( $stats );
+			$this->assertTrue( $subscriptions['activated'] );
+			$this->assertFalse( $stats['activated'] );
+		} finally {
+			$this->reset_offline_mode_active_modules();
+		}
+	}
+
+	/**
+	 * Set up Offline Mode with curated partial loading for module response tests.
+	 *
+	 * @param array $modules Active modules.
+	 */
+	private function set_offline_mode_active_modules( $modules ) {
+		StatusCache::clear();
+		add_filter( 'jetpack_offline_mode', '__return_true' );
+		add_filter(
+			'jetpack_offline_mode_allow_module_loading',
+			array( 'Jetpack_Offline_Mode_Features', 'allow_partial_module_in_offline_mode' ),
+			10,
+			3
+		);
+		Jetpack::update_active_modules( $modules );
+	}
+
+	/**
+	 * Create a single-module data request.
+	 *
+	 * @param string $slug Module slug.
+	 * @return WP_REST_Request
+	 */
+	private function create_module_request( $slug ) {
+		$request = new WP_REST_Request( 'GET', '/jetpack/v4/module/' . $slug );
+		$request->set_param( 'slug', $slug );
+
+		return $request;
+	}
+
+	/**
+	 * Reset Offline Mode module response test state.
+	 */
+	private function reset_offline_mode_active_modules() {
+		Jetpack::update_active_modules( array() );
+		remove_filter(
+			'jetpack_offline_mode_allow_module_loading',
+			array( 'Jetpack_Offline_Mode_Features', 'allow_partial_module_in_offline_mode' ),
+			10
+		);
+		remove_filter( 'jetpack_offline_mode', '__return_true' );
+		StatusCache::clear();
 	}
 
 	/**

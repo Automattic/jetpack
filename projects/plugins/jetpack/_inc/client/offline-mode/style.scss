@@ -1,0 +1,160 @@
+@use "@automattic/jetpack-base-styles/admin-page-layout" as *;
+
+body.jetpack-offline-mode-page {
+	--jp-offline-mode-canvas-background: #fcfcfc;
+
+	@include jetpack-admin-page-layout-wp-build;
+
+	&,
+	.jp-admin-page,
+	.jp-admin-page__page {
+		background-color: var(--jp-offline-mode-canvas-background);
+	}
+}
+
+.jp-offline-mode__container {
+	box-sizing: border-box;
+	flex: 1 1 auto;
+	min-block-size: 0;
+	min-inline-size: 0;
+	overflow-y: auto;
+	padding-block-end: 0;
+	padding-block-start: 24px;
+	padding-inline: 24px;
+}
+
+.jp-offline-mode {
+	inline-size: 100%;
+}
+
+.jp-offline-mode__header-icon {
+	display: block;
+}
+
+.jp-offline-mode__recommended-button {
+	align-items: center;
+	display: inline-flex;
+	gap: 4px;
+}
+
+.jp-offline-mode__recommended-button-icon {
+	block-size: 16px;
+	display: block;
+	flex: 0 0 auto;
+	inline-size: 16px;
+}
+
+.jp-offline-mode--loading {
+	min-block-size: 160px;
+}
+
+.jp-offline-mode__content {
+	inline-size: 100%;
+	margin-inline: auto;
+	max-inline-size: 880px;
+	padding-block-end: 24px;
+}
+
+.jp-offline-mode__feature-group {
+	box-shadow: none;
+}
+
+.jp-offline-mode__feature-group-header {
+	background: #fff;
+	border-block-end: 1px solid #f0f0f0;
+	min-block-size: 48px;
+}
+
+.jp-offline-mode__feature-row {
+	align-items: flex-start;
+	display: grid;
+	gap: 16px 20px;
+	grid-template-columns: minmax(168px, 224px) minmax(0, 1fr) minmax(148px, max-content);
+
+	.components-toggle-control {
+		margin-block-start: -2px;
+	}
+
+	.components-toggle-control__label {
+		font-weight: 500;
+	}
+}
+
+.jp-offline-mode__feature-copy {
+	min-inline-size: 0;
+
+	p {
+		margin-block: 0;
+	}
+}
+
+.jp-offline-mode__feature-name {
+	margin-block: 0;
+}
+
+.jp-offline-mode__feature-documentation-link {
+	display: inline-flex;
+	font-size: inherit;
+	line-height: inherit;
+	margin-inline-start: 4px;
+	vertical-align: text-bottom;
+
+	.components-external-link__icon {
+		margin-inline-start: 0;
+	}
+}
+
+.jp-offline-mode__limitation {
+	grid-column: 2 / 4;
+	min-inline-size: 0;
+}
+
+.jp-offline-mode__limitation-notice {
+	margin-block: 0;
+	margin-inline: 0;
+}
+
+.jp-offline-mode__feature-badges {
+	min-inline-size: 0;
+
+	.components-badge {
+		white-space: nowrap;
+	}
+}
+
+.jp-offline-mode__status-badge {
+	align-items: center;
+	display: inline-flex;
+	gap: 4px;
+}
+
+.jp-offline-mode__status-badge-icon {
+	block-size: 12px;
+	display: block;
+	flex: 0 0 auto;
+	inline-size: 12px;
+}
+
+.jp-offline-mode__connection-required-badge {
+	justify-self: end;
+	white-space: nowrap;
+}
+
+@media ( max-width: 782px ) {
+
+	.jp-offline-mode__feature-row {
+		grid-template-columns: 1fr;
+	}
+
+	.jp-offline-mode__connection-required-badge {
+		justify-self: start;
+	}
+
+	.jp-offline-mode__limitation {
+		grid-column: 1;
+	}
+
+	.jp-offline-mode__feature-badges {
+		justify-content: flex-start;
+	}
+}

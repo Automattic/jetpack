@@ -60,18 +60,20 @@ class Jetpack_Core_Json_Api_Endpoints {
 
 		// Load API endpoints.
 		require_once JETPACK__PLUGIN_DIR . '_inc/lib/core-api/class.jetpack-core-api-module-endpoints.php';
+		require_once JETPACK__PLUGIN_DIR . '_inc/lib/core-api/class.jetpack-core-api-offline-mode-features-endpoint.php';
 		require_once JETPACK__PLUGIN_DIR . '_inc/lib/core-api/class.jetpack-core-api-site-endpoints.php';
 		require_once JETPACK__PLUGIN_DIR . '_inc/lib/core-api/class.jetpack-core-api-widgets-endpoints.php';
 
 		self::$stats_roles = array( 'administrator', 'editor', 'author', 'contributor', 'subscriber' );
 
-		$ixr_client             = new Jetpack_IXR_Client( array( 'user_id' => get_current_user_id() ) );
-		$core_api_endpoint      = new Jetpack_Core_API_Data( $ixr_client );
-		$module_list_endpoint   = new Jetpack_Core_API_Module_List_Endpoint();
-		$module_data_endpoint   = new Jetpack_Core_API_Module_Data_Endpoint();
-		$module_toggle_endpoint = new Jetpack_Core_API_Module_Toggle_Endpoint( new Jetpack_IXR_Client() );
-		$site_endpoint          = new Jetpack_Core_API_Site_Endpoint();
-		$widget_endpoint        = new Jetpack_Core_API_Widget_Endpoint();
+		$ixr_client                     = new Jetpack_IXR_Client( array( 'user_id' => get_current_user_id() ) );
+		$core_api_endpoint              = new Jetpack_Core_API_Data( $ixr_client );
+		$module_list_endpoint           = new Jetpack_Core_API_Module_List_Endpoint();
+		$module_data_endpoint           = new Jetpack_Core_API_Module_Data_Endpoint();
+		$module_toggle_endpoint         = new Jetpack_Core_API_Module_Toggle_Endpoint( new Jetpack_IXR_Client() );
+		$site_endpoint                  = new Jetpack_Core_API_Site_Endpoint();
+		$widget_endpoint                = new Jetpack_Core_API_Widget_Endpoint();
+		$offline_mode_features_endpoint = new Jetpack_Core_API_Offline_Mode_Features_Endpoint();
 
 		/**
 		 * TODO: Move me somewhere that makes more sense.
@@ -194,6 +196,16 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => array( $site_endpoint, 'get_features' ),
 				'permission_callback' => array( $site_endpoint, 'can_request' ),
+			)
+		);
+
+		register_rest_route(
+			'jetpack/v4',
+			'/offline-mode/features',
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => array( $offline_mode_features_endpoint, 'process' ),
+				'permission_callback' => array( $offline_mode_features_endpoint, 'can_request' ),
 			)
 		);
 

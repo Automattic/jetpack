@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Modules: Support explicitly allowed Jetpack modules in Offline Mode.

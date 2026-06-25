@@ -1333,7 +1333,12 @@ function JetpackConnectorCard( { name, label, description, logo, icon } ) {
 	if ( isConnected || isSiteRegistered ) {
 		// Site is registered with WordPress.com (with or without a connected owner).
 		let badgeProps;
-		if ( isInSafeMode ) {
+		if ( isOfflineMode ) {
+			badgeProps = {
+				label: __( 'Offline Mode', 'jetpack-connection' ),
+				modifier: 'offline-mode',
+			};
+		} else if ( isInSafeMode ) {
 			// Identity crisis: the recorded site URL no longer matches WordPress.com.
 			badgeProps = {
 				label: __( 'Safe Mode', 'jetpack-connection' ),

@@ -66,9 +66,13 @@ class Jetpack_Admin {
 		require_once JETPACK__PLUGIN_DIR . '_inc/lib/admin-pages/class-jetpack-ai-page.php';
 		$jetpack_ai = new Jetpack_AI_Page();
 
+		require_once JETPACK__PLUGIN_DIR . '_inc/lib/admin-pages/class-jetpack-offline-mode-page.php';
+		Jetpack_Offline_Mode_Page::add_actions();
+
 		add_action( 'admin_init', array( $jetpack_react, 'react_redirects' ), 0 );
 		add_action( 'admin_menu', array( $jetpack_react, 'add_actions' ), 998 );
-		add_action( 'admin_menu', array( $jetpack_react, 'remove_jetpack_menu' ), 2000 );
+		// Run after Jetpack package/admin submenus have registered so Offline Mode can simplify the sidebar.
+		add_action( 'admin_menu', array( $jetpack_react, 'remove_jetpack_menu' ), 1000000 );
 		add_action( 'jetpack_admin_menu', array( $jetpack_react, 'jetpack_add_settings_sub_nav_item' ) );
 		add_action( 'jetpack_admin_menu', array( $this, 'admin_menu_debugger' ) );
 		add_action( 'jetpack_admin_menu', array( $fallback_page, 'add_actions' ) );

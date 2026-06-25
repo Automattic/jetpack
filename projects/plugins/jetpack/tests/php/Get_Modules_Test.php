@@ -254,4 +254,76 @@ class Get_Modules_Test extends WP_UnitTestCase {
 	public function test_get_module_module_no_info() {
 		$this->assertFalse( Jetpack::get_module( 'module-extras' ) );
 	}
+
+	public function test_connection_required_module_cannot_activate_in_offline_mode_by_default() {
+		$module = 'comments';
+
+		StatusCache::clear();
+		add_filter( 'jetpack_offline_mode', '__return_true' );
+		add_filter( 'jetpack_is_connection_ready', '__return_false', 1000 );
+		remove_filter( 'jetpack_offline_mode_allow_module_activation', array( 'Jetpack_Offline_Mode_Features', 'allow_partial_module_in_offline_mode' ), 10 );
+
+		try {
+			$this->assertFalse( Jetpack::activate_module( $module, false, false ) );
+			$this->assertFalse( Jetpack::is_module_active( $module ) );
+		} finally {
+			Jetpack::update_active_modules( array() );
+			add_filter( 'jetpack_offline_mode_allow_module_activation', array( 'Jetpack_Offline_Mode_Features', 'allow_partial_module_in_offline_mode' ), 10, 3 );
+			remove_filter( 'jetpack_is_connection_ready', '__return_false', 1000 );
+			remove_filter( 'jetpack_offline_mode', '__return_true' );
+			StatusCache::clear();
+		}
+	}
+
+	public function test_connection_required_module_can_activate_in_offline_mode_when_allowed_by_filter() {
+		$module = 'comments';
+
+		StatusCache::clear();
+		add_filter( 'jetpack_offline_mode', '__return_true' );
+		add_filter( 'jetpack_is_connection_ready', '__return_false', 1000 );
+		add_filter( 'jetpack_offline_mode_allow_module_activation', '__return_true' );
+
+		try {
+			$this->assertTrue( Jetpack::activate_module( $module, false, false ) );
+			$this->assertTrue( Jetpack::is_module_active( $module ) );
+		} finally {
+			Jetpack::update_active_modules( array() );
+			remove_filter( 'jetpack_offline_mode_allow_module_activation', '__return_true' );
+			remove_filter( 'jetpack_is_connection_ready', '__return_false', 1000 );
+			remove_filter( 'jetpack_offline_mode', '__return_true' );
+			StatusCache::clear();
+		}
+	}
+
+	public function test_offline_mode_loads_allowed_partial_module_and_skips_blocked_connection_required_module() {
+		StatusCache::clear();
+		$this->reset_module_loaded_action_count( 'subscriptions' );
+		$this->reset_module_loaded_action_count( 'stats' );
+		add_filter( 'jetpack_offline_mode', '__return_true' );
+		Jetpack::update_active_modules( array( 'subscriptions', 'stats' ) );
+
+		try {
+			Jetpack::load_modules();
+
+			$this->assertSame( 1, did_action( 'jetpack_module_loaded_subscriptions' ) );
+			$this->assertSame( 0, did_action( 'jetpack_module_loaded_stats' ) );
+		} finally {
+			Jetpack::update_active_modules( array() );
+			$this->reset_module_loaded_action_count( 'subscriptions' );
+			$this->reset_module_loaded_action_count( 'stats' );
+			remove_filter( 'jetpack_offline_mode', '__return_true' );
+			StatusCache::clear();
+		}
+	}
+
+	/**
+	 * Reset module-loaded action counts so load_modules assertions only inspect this test.
+	 *
+	 * @param string $module Module slug.
+	 */
+	private function reset_module_loaded_action_count( $module ) {
+		global $wp_actions;
+
+		unset( $wp_actions[ 'jetpack_module_loaded_' . $module ] );
+	}
 }

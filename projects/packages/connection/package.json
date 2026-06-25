@@ -18,6 +18,7 @@
 		"build-production": "pnpm run clean && pnpm run build-production-js && pnpm run validate",
 		"build-production-js": "NODE_ENV=production BABEL_ENV=production pnpm run build-js",
 		"clean": "rm -rf dist",
+		"test": "node --test 'tests/js/**/*.test.js'",
 		"validate": "pnpm exec validate-es dist/",
 		"watch": "pnpm run build && pnpm webpack watch"
 	},

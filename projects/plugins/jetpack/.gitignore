@@ -4,6 +4,7 @@
 /allure-results/
 /_inc/blocks
 /_inc/build
+/build
 /css
 /logs
 /node_modules

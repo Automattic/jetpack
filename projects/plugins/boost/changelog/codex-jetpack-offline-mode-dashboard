@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Dashboard: Clarify local testing messaging when Boost Cloud cannot reach the site.

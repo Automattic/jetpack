@@ -5,6 +5,11 @@
 @use "@automattic/jetpack-base-styles/admin-page-layout" as *;
 @use "@wordpress/base-styles/breakpoints";
 
+// Keep the wp-build routes self-contained: the connected dashboard previously
+// got WPDS tokens from the legacy Forms stylesheet, but that bundle is skipped
+// on this page so it cannot collide with @wordpress/boot.
+@use "../design-tokens";
+
 body.jetpack_page_jetpack-forms-responses-wp-admin,
 body.jetpack-forms-responses {
 

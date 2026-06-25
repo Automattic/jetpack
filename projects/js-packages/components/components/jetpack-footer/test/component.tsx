@@ -8,6 +8,7 @@ describe( 'JetpackFooter', () => {
 
 	afterEach( () => {
 		delete window.JetpackNetworkAdminData;
+		delete ( window as Partial< Window > ).JetpackScriptData;
 	} );
 
 	describe( 'Render the component', () => {
@@ -80,6 +81,35 @@ describe( 'JetpackFooter', () => {
 			window.JetpackNetworkAdminData = {
 				sitesUrl: '/',
 				settingsUrl: '/',
+			};
+
+			render( <JetpackFooter /> );
+
+			expect( screen.queryByRole( 'link', { name: 'Products' } ) ).not.toBeInTheDocument();
+			expect( screen.queryByRole( 'link', { name: 'Help' } ) ).not.toBeInTheDocument();
+		} );
+
+		it( 'should hide default links when My Jetpack is unavailable', () => {
+			window.JetpackScriptData = {
+				site: {
+					admin_url: '/wp-admin/',
+					icon: '',
+					is_wpcom_platform: false,
+					title: 'Test Site',
+				},
+				user: {
+					current_user: {
+						id: 1,
+						display_name: 'Test User',
+						capabilities: {
+							manage_modules: true,
+							manage_options: true,
+						},
+					},
+				},
+				jetpack: {
+					isMyJetpackAvailable: false,
+				},
 			};
 
 			render( <JetpackFooter /> );

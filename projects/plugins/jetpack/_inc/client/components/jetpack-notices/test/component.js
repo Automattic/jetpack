@@ -1,7 +1,11 @@
 import { MemoryRouter } from 'react-router';
 import { render, screen } from 'test/test-utils';
-import { DevVersionNotice } from '../index';
+import { DevVersionNotice, OfflineModeNotice } from '../index';
 import { PlanConflictWarning } from '../plan-conflict-warning';
+
+jest.mock( '@automattic/jetpack-components', () => ( {
+	getRedirectUrl: source => `https://jetpack.com/redirect/?source=${ source }`,
+} ) );
 
 /**
  * Wrap the component in a `<MemoryRouter>` for testing.
@@ -149,5 +153,48 @@ describe( 'DevVersionNotice', () => {
 			screen.getByText( 'You are currently running a development version of Jetpack.' )
 		).toBeInTheDocument();
 		expect( screen.getByRole( 'link', { name: 'Submit Beta feedback' } ) ).toBeInTheDocument();
+	} );
+} );
+
+describe( 'OfflineModeNotice', () => {
+	it( 'shows a plain language WordPress notice when Jetpack is offline', () => {
+		const { container } = render(
+			<OfflineModeNotice siteConnectionStatus="offline" siteOfflineMode={ { url: true } } />
+		);
+
+		expect( container ).toHaveTextContent(
+			'Jetpack is running in Offline Mode because this site is local or unavailable to WordPress.com.'
+		);
+		expect( screen.getByRole( 'link', { name: 'Manage Offline Mode' } ) ).toHaveAttribute(
+			'href',
+			'admin.php?page=jetpack-offline-mode'
+		);
+	} );
+
+	it( 'shows the JETPACK_DEV_DEBUG signal without restoring the old reason copy', () => {
+		const { container } = render(
+			<OfflineModeNotice siteConnectionStatus="offline" siteOfflineMode={ { constant: true } } />
+		);
+
+		expect( container ).toHaveTextContent( 'Detected by: JETPACK_DEV_DEBUG constant.' );
+		expect(
+			screen.queryByText( 'The JETPACK_DEV_DEBUG constant is defined' )
+		).not.toBeInTheDocument();
+	} );
+
+	it( 'does not show offline reasons in the notice', () => {
+		render(
+			<OfflineModeNotice
+				siteConnectionStatus="offline"
+				siteOfflineMode={ { url: true, filter: true } }
+			/>
+		);
+
+		expect(
+			screen.queryByText( 'Your site URL is a known local development environment URL' )
+		).not.toBeInTheDocument();
+		expect(
+			screen.queryByText( 'The jetpack_offline_mode filter is active' )
+		).not.toBeInTheDocument();
 	} );
 } );

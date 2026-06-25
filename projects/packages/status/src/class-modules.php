@@ -423,7 +423,28 @@ class Modules {
 
 				// If we're not connected but in offline mode, make sure the module doesn't require a connection.
 				if ( $status->is_offline_mode() && $module_data['requires_connection'] ) {
-					return false;
+					/**
+					 * Allows selected connection-required modules to activate in Offline Mode.
+					 *
+					 * Connected-only behavior inside those modules must remain guarded by
+					 * connection checks.
+					 *
+					 * @since $$next-version$$
+					 *
+					 * @param bool   $allow       Whether to allow activation. Default false.
+					 * @param string $module      Module slug.
+					 * @param array  $module_data Module metadata.
+					 */
+					$allow_offline_activation = (bool) apply_filters(
+						'jetpack_offline_mode_allow_module_activation',
+						false,
+						$module,
+						$module_data
+					);
+
+					if ( ! $allow_offline_activation ) {
+						return false;
+					}
 				}
 			}
 

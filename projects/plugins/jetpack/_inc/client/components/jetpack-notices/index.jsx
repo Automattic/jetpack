@@ -1,5 +1,5 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
-import { createInterpolateElement } from '@wordpress/element';
+import { Notice } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
 import PropTypes from 'prop-types';
 import { Component } from 'react';
@@ -62,74 +62,59 @@ DevVersionNotice.propTypes = {
 	userIsSubscriber: PropTypes.bool.isRequired,
 };
 
+const getOfflineModeDetectedBy = offlineMode => {
+	if ( ! offlineMode || 'object' !== typeof offlineMode ) {
+		return '';
+	}
+
+	const detectedBy = [];
+
+	if ( offlineMode.constant ) {
+		detectedBy.push( __( 'JETPACK_DEV_DEBUG constant', 'jetpack' ) );
+	}
+	if ( offlineMode.wpLocalConstant ) {
+		detectedBy.push( __( 'WP_LOCAL_DEV constant', 'jetpack' ) );
+	}
+	if ( offlineMode.filter ) {
+		detectedBy.push( __( 'jetpack_offline_mode filter', 'jetpack' ) );
+	}
+	if ( offlineMode.option ) {
+		detectedBy.push( __( 'jetpack_offline_mode option', 'jetpack' ) );
+	}
+	if ( offlineMode.url ) {
+		detectedBy.push( __( 'local development URL', 'jetpack' ) );
+	}
+
+	return detectedBy.join( ', ' );
+};
+
 export class OfflineModeNotice extends Component {
 	static displayName = 'OfflineModeNotice';
 
 	render() {
 		if ( this.props.siteConnectionStatus === 'offline' ) {
-			const offlineMode = this.props.siteOfflineMode,
-				reasons = [];
-
-			if ( offlineMode.filter ) {
-				reasons.push( __( 'The jetpack_offline_mode filter is active', 'jetpack' ) );
-			}
-			if ( offlineMode.constant ) {
-				reasons.push(
-					sprintf(
-						/* translators: %s: a PHP constant, such as WP_LOCAL_DEV. */
-						__( 'The %s constant is defined', 'jetpack' ),
-						'JETPACK_DEV_DEBUG'
-					)
-				);
-			}
-			if ( offlineMode.wpLocalConstant ) {
-				reasons.push(
-					sprintf(
-						/* translators: %s: a PHP constant, such as WP_LOCAL_DEV. */
-						__( 'The %s constant is defined', 'jetpack' ),
-						'WP_LOCAL_DEV'
-					)
-				);
-			}
-			if ( offlineMode.url ) {
-				reasons.push(
-					__( 'Your site URL is a known local development environment URL', 'jetpack' )
-				);
-			}
-			if ( offlineMode.option ) {
-				reasons.push( __( 'The jetpack_offline_mode option is active', 'jetpack' ) );
-			}
-
-			const text = createInterpolateElement(
-				/* translators: reasons is an unordered list of reasons why a site may be in Offline mode. */
-				__(
-					'Currently in <a>Offline Mode</a> (some features are disabled) because: <reasons/>',
-					'jetpack'
-				),
-				{
-					a: (
-						<a
-							href={ getRedirectUrl( 'jetpack-support-development-mode' ) }
-							target="_blank"
-							rel="noopener noreferrer"
-						/>
-					),
-					reasons: (
-						<ul>
-							{ reasons.map( ( reason, i ) => {
-								return <li key={ i }>{ reason }</li>;
-							} ) }
-						</ul>
-					),
-				}
-			);
+			const detectedBy = getOfflineModeDetectedBy( this.props.siteOfflineMode );
 
 			return (
-				<SimpleNotice showDismiss={ false } status="is-info" text={ text }>
-					<NoticeAction href={ getRedirectUrl( 'jetpack-support-development-mode' ) }>
-						{ __( 'Learn More', 'jetpack' ) }
-					</NoticeAction>
-				</SimpleNotice>
+				<Notice isDismissible={ false } status="info">
+					{ __(
+						'Jetpack is running in Offline Mode because this site is local or unavailable to WordPress.com.',
+						'jetpack'
+					) }{ ' ' }
+					<a href="admin.php?page=jetpack-offline-mode">
+						{ __( 'Manage Offline Mode', 'jetpack' ) }
+					</a>
+					{ detectedBy && (
+						<>
+							<br />
+							{ sprintf(
+								/* translators: %s: a concise list of Offline Mode detection signals, such as "JETPACK_DEV_DEBUG constant". */
+								__( 'Detected by: %s.', 'jetpack' ),
+								detectedBy
+							) }
+						</>
+					) }
+				</Notice>
 			);
 		}
 

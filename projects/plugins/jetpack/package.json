@@ -13,20 +13,23 @@
 	"license": "GPL-2.0-or-later",
 	"author": "Automattic",
 	"scripts": {
-		"build": "pnpm run clean && pnpm run build-client && pnpm run build-extensions && pnpm run build-widget-visibility && pnpm run build-asset-cdn-json",
+		"build": "pnpm run clean && pnpm run build-client && pnpm run build:wp-build && pnpm run build:boot-asset && pnpm run build-extensions && pnpm run build-widget-visibility && pnpm run build-asset-cdn-json",
+		"build:boot-asset": "provide-boot-asset-file",
+		"build:wp-build": "wp-build",
 		"build-asset-cdn-json": "php tools/build-asset-cdn-json.php",
 		"build-client": "concurrently --names js,css,module-headings 'webpack --config ./tools/webpack.config.js' 'webpack --config ./tools/webpack.config.css.js' 'php tools/build-module-headings-translations.php'",
-		"build-concurrently": "pnpm run clean && concurrently 'pnpm:build-client' 'pnpm:build-extensions' 'pnpm:build-widget-visibility' && pnpm run build-asset-cdn-json",
+		"build-concurrently": "pnpm run clean && concurrently 'pnpm:build-client' 'pnpm:build:wp-build' 'pnpm:build-extensions' 'pnpm:build-widget-visibility' && pnpm run build:boot-asset && pnpm run build-asset-cdn-json",
 		"build-extensions": "webpack --config ./tools/webpack.config.extensions.js && tools/check-block-assets.php && php tools/build-block-manifest.php",
-		"build-production": "pnpm run clean && pnpm run build-production-client && pnpm run build-production-extensions && pnpm run build-production-widget-visibility && pnpm run build-asset-cdn-json",
+		"build-production": "pnpm run clean && pnpm run build-production-client && pnpm run build:wp-build && pnpm run build:boot-asset && pnpm run build-production-extensions && pnpm run build-production-widget-visibility && pnpm run build-asset-cdn-json",
 		"build-production-client": "NODE_ENV=production BABEL_ENV=production pnpm run build-client && pnpm exec validate-es ./_inc/build/",
-		"build-production-concurrently": "pnpm run clean && concurrently 'pnpm:build-production-client' 'pnpm:build-production-extensions' 'pnpm:build-production-widget-visibility' && pnpm run build-asset-cdn-json",
+		"build-production-concurrently": "pnpm run clean && concurrently 'pnpm:build-production-client' 'pnpm:build:wp-build' 'pnpm:build-production-extensions' 'pnpm:build-production-widget-visibility' && pnpm run build:boot-asset && pnpm run build-asset-cdn-json",
 		"build-production-extensions": "NODE_ENV=production BABEL_ENV=production pnpm run build-extensions && pnpm exec validate-es ./_inc/blocks",
 		"build-production-widget-visibility": "NODE_ENV=production BABEL_ENV=production pnpm run build-widget-visibility && pnpm exec validate-es ./_inc/build/widget-visibility/editor",
 		"build-widget-visibility": "webpack --config ./tools/webpack.config.widget-visibility.js",
-		"clean": "pnpm run clean-client && pnpm run clean-extensions",
+		"clean": "pnpm run clean-client && pnpm run clean-extensions && pnpm run clean-wp-build",
 		"clean-client": "rm -rf _inc/build/ css/",
 		"clean-extensions": "rm -rf _inc/blocks/ ",
+		"clean-wp-build": "rm -rf build/",
 		"fixtures:generate": "GENERATE_MISSING_FIXTURES=y pnpm test-extensions",
 		"fixtures:regenerate": "REGENERATE_FIXTURES=y GENERATE_MISSING_FIXTURES=y pnpm test-extensions",
 		"fixtures:test": "pnpm test-extensions validate.js",
@@ -35,7 +38,7 @@
 		"test-extensions": "TZ=UTC jest --config=tests/jest.config.extensions.js",
 		"test-gui": "NODE_PATH=tests:_inc/client jest --config=tests/jest.config.gui.js",
 		"typecheck": "tsgo --noEmit",
-		"watch": "concurrently --names client-js,client-css,extensions,widget-visibility 'webpack watch --config ./tools/webpack.config.js' 'webpack watch --config ./tools/webpack.config.css.js' 'webpack watch --config ./tools/webpack.config.extensions.js' 'webpack watch --config ./tools/webpack.config.widget-visibility.js'"
+		"watch": "concurrently --names client-js,client-css,wp-build,extensions,widget-visibility 'webpack watch --config ./tools/webpack.config.js' 'webpack watch --config ./tools/webpack.config.css.js' 'wp-build --watch' 'webpack watch --config ./tools/webpack.config.extensions.js' 'webpack watch --config ./tools/webpack.config.widget-visibility.js'"
 	},
 	"browserslist": [
 		"extends @wordpress/browserslist-config"
@@ -56,6 +59,7 @@
 		"@automattic/jetpack-script-data": "workspace:*",
 		"@automattic/jetpack-shared-extension-utils": "workspace:*",
 		"@automattic/jetpack-shared-stores": "workspace:*",
+		"@automattic/jetpack-wp-build-polyfills": "workspace:*",
 		"@automattic/number-formatters": "workspace:*",
 		"@automattic/popup-monitor": "1.0.2",
 		"@automattic/social-previews": "workspace:*",
@@ -67,9 +71,11 @@
 		"@visx/scale": "^3.12.0",
 		"@visx/xychart": "3.12.0",
 		"@wordpress/a11y": "4.48.1",
+		"@wordpress/admin-ui": "2.1.0",
 		"@wordpress/base-styles": "10.0.1",
 		"@wordpress/block-editor": "15.21.1",
 		"@wordpress/blocks": "15.21.1",
+		"@wordpress/boot": "0.14.1",
 		"@wordpress/browserslist-config": "6.48.1",
 		"@wordpress/commands": "1.48.1",
 		"@wordpress/compose": "8.1.1",
@@ -83,6 +89,7 @@
 		"@wordpress/plugins": "7.48.1",
 		"@wordpress/primitives": "4.48.1",
 		"@wordpress/rich-text": "7.48.1",
+		"@wordpress/route": "0.13.1",
 		"@wordpress/theme": "0.15.1",
 		"@wordpress/ui": "0.13.0",
 		"@wordpress/url": "4.48.1",
@@ -141,11 +148,13 @@
 		"@testing-library/user-event": "14.6.1",
 		"@types/jest": "30.0.0",
 		"@types/react": "18.3.28",
+		"@types/react-dom": "18.3.7",
 		"@types/wordpress__block-editor": "15.0.6",
 		"@typescript/native-preview": "7.0.0-dev.20260225.1",
 		"@wordpress/api-fetch": "7.48.1",
 		"@wordpress/blob": "4.48.1",
 		"@wordpress/block-serialization-default-parser": "5.48.1",
+		"@wordpress/build": "0.14.0",
 		"@wordpress/components": "35.0.1",
 		"@wordpress/core-data": "7.48.1",
 		"@wordpress/dom-ready": "4.48.1",
@@ -156,6 +165,7 @@
 		"@wordpress/token-list": "3.48.1",
 		"autoprefixer": "10.4.20",
 		"babel-jest": "30.4.1",
+		"browserslist": "^4.24.0",
 		"concurrently": "10.0.3",
 		"eval": "0.1.8",
 		"glob": "13.0.6",
@@ -169,5 +179,14 @@
 	"optionalDependencies": {
 		"react": "18.3.1",
 		"react-dom": "18.3.1"
+	},
+	"wpPlugin": {
+		"name": "jetpack_offline_mode",
+		"scriptGlobal": "jetpackOfflineMode",
+		"packageNamespace": "jetpack",
+		"handlePrefix": "jetpack-offline-mode",
+		"pages": [
+			"jetpack-offline-mode-page"
+		]
 	}
 }

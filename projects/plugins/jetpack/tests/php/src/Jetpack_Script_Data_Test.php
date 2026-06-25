@@ -6,6 +6,7 @@
  */
 
 use Automattic\Jetpack\Plugin\Jetpack_Script_Data;
+use Automattic\Jetpack\Status\Cache as Status_Cache;
 use PHPUnit\Framework\Attributes\CoversClass;
 
 /**
@@ -22,7 +23,9 @@ class Jetpack_Script_Data_Test extends WP_UnitTestCase {
 	 */
 	public function tear_down() {
 		remove_all_filters( 'jetpack_show_editor_panel_branding' );
+		remove_all_filters( 'jetpack_offline_mode' );
 		remove_all_filters( 'jetpack_admin_js_script_data' );
+		Status_Cache::clear();
 		parent::tear_down();
 	}
 
@@ -58,5 +61,17 @@ class Jetpack_Script_Data_Test extends WP_UnitTestCase {
 		$result = Jetpack_Script_Data::set_admin_script_data( array( 'existing' => 'value' ) );
 		$this->assertSame( 'value', $result['existing'] );
 		$this->assertArrayHasKey( 'jetpack', $result );
+	}
+
+	/**
+	 * Tests that offline mode and My Jetpack availability are set.
+	 */
+	public function test_sets_offline_mode_and_my_jetpack_availability() {
+		add_filter( 'jetpack_offline_mode', '__return_true' );
+
+		$result = Jetpack_Script_Data::set_admin_script_data( array() );
+
+		$this->assertTrue( $result['jetpack']['isOfflineMode'] );
+		$this->assertFalse( $result['jetpack']['isMyJetpackAvailable'] );
 	}
 }

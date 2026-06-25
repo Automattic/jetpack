@@ -17,6 +17,7 @@ import AppsCard from 'components/apps-card';
 import ContextualizedConnection from 'components/contextualized-connection';
 import QueryRewindStatus from 'components/data/query-rewind-status';
 import Footer from 'components/footer';
+import NoticesList from 'components/global-notices';
 import JetpackNotices from 'components/jetpack-notices';
 import Masthead from 'components/masthead';
 import Navigation from 'components/navigation';
@@ -136,6 +137,7 @@ const recommendationsRoutes = [
 
 const myJetpackRoutes = [ 'my-jetpack ' ];
 const dashboardRoutes = [ '/', '/dashboard', '/reconnect', '/my-plan', '/plans' ];
+const offlineModeRoutes = [ '/offline-mode' ];
 const settingsRoutes = [
 	'/settings',
 	'/security',
@@ -175,6 +177,8 @@ class Main extends Component {
 	}
 
 	componentDidMount() {
+		this.maybeRedirectToEffectiveRoute();
+
 		// If we have a div that's only found on the Jetpack dashboard when not connected,
 		// let's move the connection banner inside that div, inside the React page.
 		const connectReactContainer = jQuery( '.jp-jetpack-connect__container' );
@@ -272,6 +276,27 @@ class Main extends Component {
 		}
 
 		this.props.setConnectionStatus( this.props.connectionStatus );
+		this.maybeRedirectToEffectiveRoute();
+	}
+
+	getEffectiveRoute() {
+		if ( this.props.isOfflineMode && dashboardRoutes.includes( this.props.location.pathname ) ) {
+			return '/offline-mode';
+		}
+
+		return this.props.location.pathname;
+	}
+
+	getOfflineModeAdminUrl() {
+		return `${ this.props.siteAdminUrl }admin.php?page=jetpack-offline-mode`;
+	}
+
+	maybeRedirectToEffectiveRoute() {
+		const effectiveRoute = this.getEffectiveRoute();
+
+		if ( effectiveRoute !== this.props.location.pathname ) {
+			this.props.navigate( effectiveRoute, { replace: true } );
+		}
 	}
 
 	/**
@@ -536,6 +561,14 @@ class Main extends Component {
 			case '/plans-prompt':
 				window.location.href = getRedirectUrl( 'jetpack-plans', { site: this.props.siteRawUrl } );
 				break;
+			case '/offline-mode':
+				if ( ! this.props.isOfflineMode ) {
+					this.props.navigate( '/dashboard', { replace: true } );
+					pageComponent = this.getAtAGlance();
+					break;
+				}
+				window.location.href = this.getOfflineModeAdminUrl();
+				break;
 			case '/newsletter':
 				window.location.href = `${ this.props.siteAdminUrl }admin.php?page=jetpack-newsletter`;
 				break;
@@ -707,15 +740,19 @@ class Main extends Component {
 		}
 
 		// Only show on the setup pages, dashboard, and settings page
-		return [ ...dashboardRoutes, ...recommendationsRoutes, ...settingsRoutes ].includes(
-			this.props.location.pathname
-		);
+		return [
+			...dashboardRoutes,
+			...offlineModeRoutes,
+			...recommendationsRoutes,
+			...settingsRoutes,
+		].includes( this.props.location.pathname );
 	}
 
 	shouldShowFooter() {
 		// Only show on the dashboard, settings, and recommendations pages
 		return [
 			...dashboardRoutes,
+			...offlineModeRoutes,
 			...settingsRoutes,
 			...recommendationsRoutes,
 			...productDescriptionRoutes,
@@ -825,6 +862,10 @@ class Main extends Component {
 		return settingsRoutes.includes( this.props.location.pathname );
 	}
 
+	isOfflineModeRoute( route = this.props.location.pathname ) {
+		return offlineModeRoutes.includes( route );
+	}
+
 	render() {
 		const jpClasses = [ 'jp-lower' ];
 
@@ -840,7 +881,18 @@ class Main extends Component {
 			jpClasses.push( 'jp-licensing-screen' );
 		}
 
-		const pathname = this.props.location.pathname;
+		const pathname = this.getEffectiveRoute();
+
+		if ( this.isOfflineModeRoute( pathname ) && this.props.isOfflineMode ) {
+			return (
+				<div>
+					<NoticesList />
+					{ this.renderMainContent( pathname ) }
+					<Tracker analytics={ analytics } />
+				</div>
+			);
+		}
+
 		const mainNav = this.renderMainNav( pathname );
 
 		// Settings routes use the shared AdminPage component for header and footer.
@@ -992,53 +1044,55 @@ export default connect(
  */
 function jetpackPageOrder() {
 	const jetpackParentMenu = document.querySelector( '#toplevel_page_jetpack' );
-	const pageOrder = {};
 
-	if ( jetpackParentMenu ) {
-		const jetpackSubMenu = jetpackParentMenu.querySelector( '.wp-submenu' );
-
-		if ( jetpackSubMenu ) {
-			const subMenuItems = jetpackSubMenu.querySelectorAll( 'li:not(.wp-submenu-head) a' );
-
-			const urlPatterns = [
-				{
-					key: 'dashboard',
-					pattern: '/wp-admin/admin.php?page=jetpack#/dashboard',
-					matchType: 'end',
-				},
-				{
-					key: 'activityLog',
-					pattern: 'https://jetpack.com/redirect/?source=cloud-activity-log-wp-menu',
-					matchType: 'start',
-				},
-				{
-					key: 'settings',
-					pattern: '/wp-admin/admin.php?page=jetpack#/settings',
-					matchType: 'end',
-				},
-			];
-
-			const findIndex = ( urlPattern, matchType ) => {
-				let foundIndex = -1;
-				subMenuItems.forEach( ( item, index ) => {
-					const href = item.href;
-					if (
-						( matchType === 'end' && href.endsWith( urlPattern ) ) ||
-						( matchType === 'start' && href.startsWith( urlPattern ) )
-					) {
-						foundIndex = index + 1;
-					}
-				} );
-				return foundIndex;
-			};
-
-			urlPatterns.forEach( ( { key, pattern, matchType } ) => {
-				const index = findIndex( pattern, matchType );
-				pageOrder[ key ] = index;
-			} );
-			return pageOrder;
-		}
+	if ( ! jetpackParentMenu ) {
+		return;
 	}
+
+	const jetpackSubMenu = jetpackParentMenu.querySelector( '.wp-submenu' );
+
+	if ( ! jetpackSubMenu ) {
+		return;
+	}
+
+	const subMenuItems = jetpackSubMenu.querySelectorAll( 'li:not(.wp-submenu-head) a' );
+	const pageOrder = {};
+	const urlPatterns = [
+		{
+			key: 'dashboard',
+			pattern: '/wp-admin/admin.php?page=jetpack#/dashboard',
+			matchType: 'end',
+		},
+		{
+			key: 'activityLog',
+			pattern: 'https://jetpack.com/redirect/?source=cloud-activity-log-wp-menu',
+			matchType: 'start',
+		},
+		{
+			key: 'settings',
+			pattern: '/wp-admin/admin.php?page=jetpack#/settings',
+			matchType: 'end',
+		},
+	];
+
+	urlPatterns.forEach( ( { key, pattern, matchType } ) => {
+		let foundIndex = -1;
+
+		subMenuItems.forEach( ( item, index ) => {
+			const { href } = item;
+
+			if (
+				( matchType === 'end' && href.endsWith( pattern ) ) ||
+				( matchType === 'start' && href.startsWith( pattern ) )
+			) {
+				foundIndex = index + 1;
+			}
+		} );
+
+		pageOrder[ key ] = foundIndex;
+	} );
+
+	return pageOrder;
 }
 
 /**
@@ -1046,9 +1100,9 @@ function jetpackPageOrder() {
  *
  */
 window.wpNavMenuClassChange = function () {
-	const pageOrder = jetpackPageOrder();
+	const pageOrder = jetpackPageOrder() || {};
 
-	let hash = window.location.hash;
+	const hash = window.location.hash;
 	let page = new URLSearchParams( window.location.search );
 
 	// Clear currently highlighted sub-nav item
@@ -1065,19 +1119,28 @@ window.wpNavMenuClassChange = function () {
 	};
 
 	// Set the current sub-nav item according to the current hash route
-	hash = hash.split( '?' )[ 0 ].replace( /#/, '' );
 	page = page.get( 'page' );
 
+	let currentMenuKey;
+
 	if ( myJetpackRoutes.includes( page ) ) {
-		getJetpackSubNavItem( pageOrder.myJetpack )?.classList.add( 'current' );
-	} else if (
-		dashboardRoutes.includes( hash ) ||
-		recommendationsRoutes.includes( hash ) ||
-		productDescriptionRoutes.includes( hash )
-	) {
-		getJetpackSubNavItem( pageOrder.dashboard )?.classList.add( 'current' );
-	} else if ( settingsRoutes.includes( hash ) ) {
-		getJetpackSubNavItem( pageOrder.settings )?.classList.add( 'current' );
+		currentMenuKey = 'myJetpack';
+	} else {
+		const normalizedHash = hash.split( '?' )[ 0 ].replace( /#/, '' );
+
+		if (
+			dashboardRoutes.includes( normalizedHash ) ||
+			recommendationsRoutes.includes( normalizedHash ) ||
+			productDescriptionRoutes.includes( normalizedHash )
+		) {
+			currentMenuKey = 'dashboard';
+		} else if ( settingsRoutes.includes( normalizedHash ) ) {
+			currentMenuKey = 'settings';
+		}
+	}
+
+	if ( currentMenuKey ) {
+		getJetpackSubNavItem( pageOrder[ currentMenuKey ] )?.classList.add( 'current' );
 	}
 
 	const $body = jQuery( 'body' );

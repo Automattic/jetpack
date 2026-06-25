@@ -9,6 +9,9 @@
 
 namespace Automattic\Jetpack\Plugin;
 
+use Automattic\Jetpack\My_Jetpack\Initializer as My_Jetpack_Initializer;
+use Automattic\Jetpack\Status;
+
 /**
  * Jetpack_Script_Data class.
  */
@@ -30,6 +33,10 @@ class Jetpack_Script_Data {
 	 * @return array
 	 */
 	public static function set_admin_script_data( $data ) {
+		$jetpack_data = isset( $data['jetpack'] ) && is_array( $data['jetpack'] ) ? $data['jetpack'] : array();
+		$flags        = isset( $jetpack_data['flags'] ) && is_array( $jetpack_data['flags'] ) ? $jetpack_data['flags'] : array();
+		$status       = new Status();
+
 		/**
 		 * Whether to show the Jetpack branding in editor panels (e.g., SEO, AI Assistant).
 		 *
@@ -37,11 +44,12 @@ class Jetpack_Script_Data {
 		 *
 		 * @param bool $show Whether to show the Jetpack editor panel branding. Defaults to true.
 		 */
-		$data['jetpack'] = array(
-			'flags' => array(
-				'showJetpackBranding' => (bool) apply_filters( 'jetpack_show_editor_panel_branding', true ),
-			),
-		);
+		$flags['showJetpackBranding'] = (bool) apply_filters( 'jetpack_show_editor_panel_branding', true );
+
+		$jetpack_data['flags']                = $flags;
+		$jetpack_data['isMyJetpackAvailable'] = class_exists( My_Jetpack_Initializer::class ) ? My_Jetpack_Initializer::should_initialize() : false;
+		$jetpack_data['isOfflineMode']        = $status->is_offline_mode();
+		$data['jetpack']                      = $jetpack_data;
 
 		return $data;
 	}

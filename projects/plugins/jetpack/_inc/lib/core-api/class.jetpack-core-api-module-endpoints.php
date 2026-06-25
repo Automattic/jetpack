@@ -17,6 +17,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit( 0 );
 }
 
+require_once JETPACK__PLUGIN_DIR . '_inc/lib/core-api/class-jetpack-core-api-module-offline-mode-response.php';
+
 /**
  * This is the base class for every Core API endpoint Jetpack uses.
  */
@@ -220,9 +222,10 @@ class Jetpack_Core_API_Module_List_Endpoint {
 			$modules[ $slug ]['options'] =
 				Jetpack_Core_Json_Api_Endpoints::prepare_options_for_response( $slug );
 			if (
-				isset( $modules[ $slug ]['requires_connection'] )
-				&& $modules[ $slug ]['requires_connection']
-				&& ( new Status() )->is_offline_mode()
+				Jetpack_Core_API_Module_Offline_Mode_Response::should_mark_inactive(
+					$slug,
+					$modules[ $slug ]
+				)
 			) {
 				$modules[ $slug ]['activated'] = false;
 			}
@@ -398,11 +401,14 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 			$module['options'] = Jetpack_Core_Json_Api_Endpoints::prepare_options_for_response( $request['slug'] );
 
 			if (
-				isset( $module['requires_connection'] )
-				&& $module['requires_connection']
-				&& ( new Status() )->is_offline_mode()
+				Jetpack_Core_API_Module_Offline_Mode_Response::should_mark_inactive(
+					$request['slug'],
+					$module
+				)
 			) {
 				$module['activated'] = false;
+			} elseif ( ( new Status() )->is_offline_mode() && ! empty( $module['requires_connection'] ) ) {
+				$module['activated'] = Jetpack::is_module_active( $request['slug'] );
 			}
 
 			$i18n = jetpack_get_module_i18n( $request['slug'] );

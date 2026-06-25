@@ -73,6 +73,14 @@ class Initializer {
 	 * @return void
 	 */
 	public static function init() {
+		if ( ( new Status() )->is_offline_mode() ) {
+			if ( false === has_action( 'admin_menu', array( __CLASS__, 'add_my_jetpack_menu_item' ) ) ) {
+				add_action( 'admin_menu', array( __CLASS__, 'add_my_jetpack_menu_item' ) );
+			}
+
+			return;
+		}
+
 		if ( ! self::should_initialize() || did_action( 'my_jetpack_init' ) ) {
 			return;
 		}
@@ -155,6 +163,19 @@ class Initializer {
 	 * @return void
 	 */
 	public static function add_my_jetpack_menu_item() {
+		if ( ( new Status() )->is_offline_mode() ) {
+			Admin_Menu::add_menu(
+				__( 'Offline Mode', 'jetpack-my-jetpack' ),
+				__( 'Offline Mode', 'jetpack-my-jetpack' ),
+				'manage_options',
+				admin_url( 'admin.php?page=jetpack#/offline-mode' ),
+				null,
+				-1
+			);
+
+			return;
+		}
+
 		$page_suffix = Admin_Menu::add_menu(
 			__( 'My Jetpack', 'jetpack-my-jetpack' ),
 			__( 'My Jetpack', 'jetpack-my-jetpack' ),

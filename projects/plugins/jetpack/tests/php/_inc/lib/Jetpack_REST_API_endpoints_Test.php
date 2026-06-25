@@ -1290,6 +1290,7 @@ class Jetpack_REST_API_endpoints_Test extends WP_UnitTestCase {
 		$this->assertResponseStatus( 401, $response );
 		$this->assertResponseData( array( 'code' => 'invalid_permission_fetch_features' ), $response );
 	}
+
 	// ---- Connection test endpoints (migrated to Connection package) ----
 
 	/**
@@ -1323,5 +1324,75 @@ class Jetpack_REST_API_endpoints_Test extends WP_UnitTestCase {
 
 		$test_names = array_keys( $tests );
 		$this->assertContains( 'test__sync_health', $test_names, 'Jetpack sync health test should be registered on the connection test suite.' );
+	}
+
+	/**
+	 * Test the Offline Mode features endpoint blocks users without module management permissions.
+	 */
+	public function test_offline_mode_features_endpoint_is_blocked_without_manage_modules_permission() {
+		$user = $this->create_and_get_user();
+		wp_set_current_user( $user->ID );
+
+		StatusCache::clear();
+		add_filter( 'jetpack_offline_mode', '__return_true' );
+
+		try {
+			$response = $this->create_and_get_request( 'offline-mode/features' );
+
+			$this->assertResponseStatus( 403, $response );
+			$this->assertResponseData( array( 'code' => 'invalid_permission_offline_mode_features' ), $response );
+		} finally {
+			remove_filter( 'jetpack_offline_mode', '__return_true' );
+			StatusCache::clear();
+		}
+	}
+
+	/**
+	 * Test the Offline Mode features endpoint blocks requests when Offline Mode is inactive.
+	 */
+	public function test_offline_mode_features_endpoint_is_blocked_when_offline_mode_is_inactive() {
+		$user = $this->create_and_get_user( 'administrator' );
+		$user->add_cap( 'jetpack_manage_modules' );
+		wp_set_current_user( $user->ID );
+
+		StatusCache::clear();
+
+		try {
+			$response = $this->create_and_get_request( 'offline-mode/features' );
+
+			$this->assertResponseStatus( 403, $response );
+			$this->assertResponseData( array( 'code' => 'offline_mode_inactive' ), $response );
+		} finally {
+			$user->remove_cap( 'jetpack_manage_modules' );
+			StatusCache::clear();
+		}
+	}
+
+	/**
+	 * Test the Offline Mode features endpoint returns dashboard data when Offline Mode is active.
+	 */
+	public function test_offline_mode_features_endpoint_returns_dashboard_data_when_offline_mode_is_active() {
+		$user = $this->create_and_get_user( 'administrator' );
+		$user->add_cap( 'jetpack_manage_modules' );
+		wp_set_current_user( $user->ID );
+
+		StatusCache::clear();
+		add_filter( 'jetpack_offline_mode', '__return_true' );
+
+		try {
+			$response = $this->create_and_get_request( 'offline-mode/features' );
+			$data     = $response->get_data();
+
+			$this->assertResponseStatus( 200, $response );
+			$this->assertArrayHasKey( 'features', $data );
+			$this->assertArrayHasKey( 'groups', $data );
+			$this->assertArrayHasKey( 'counts', $data );
+			$this->assertContains( 'contact-form', wp_list_pluck( $data['features'], 'slug' ) );
+			$this->assertContains( 'newsletter', wp_list_pluck( $data['features'], 'slug' ) );
+		} finally {
+			$user->remove_cap( 'jetpack_manage_modules' );
+			remove_filter( 'jetpack_offline_mode', '__return_true' );
+			StatusCache::clear();
+		}
 	}
 } // class end

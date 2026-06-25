@@ -25,6 +25,9 @@ class Dashboard_Test extends BaseTestCase {
 	public function tear_down() {
 		$this->reset_wp_build_polyfills();
 		unset( $_GET['page'], $_GET['p'] );
+		remove_action( 'wp_default_scripts', 'jetpack_forms_register_package_scripts' );
+		wp_dequeue_script( Dashboard::SCRIPT_HANDLE );
+		wp_deregister_script( Dashboard::SCRIPT_HANDLE );
 		parent::tear_down();
 	}
 
@@ -196,6 +199,45 @@ class Dashboard_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Test load_wp_build does not override a Core/Gutenberg private API script.
+	 */
+	public function test_load_wp_build_does_not_override_existing_wp_private_apis_script() {
+		$_GET['page'] = Dashboard::FORMS_WPBUILD_ADMIN_SLUG;
+		$_GET['p']    = '/responses/inbox';
+
+		$original_wp_version = $GLOBALS['wp_version'] ?? null;
+
+		try {
+			$GLOBALS['wp_version'] = '7.0';
+
+			$scripts = new \WP_Scripts();
+			$scripts->remove( 'wp-private-apis' );
+			$scripts->add( 'wp-private-apis', 'https://example.com/core-private-apis.js', array(), '1.0.0-core' );
+
+			// The generated build callback is intentionally absent from clean
+			// package test checkouts; this test verifies load_wp_build() removes it.
+			// @phan-suppress-next-line PhanUndeclaredFunctionInCallable
+			add_action( 'wp_default_scripts', 'jetpack_forms_register_package_scripts' );
+
+			Dashboard::load_wp_build();
+
+			do_action_ref_array( 'wp_default_scripts', array( &$scripts ) );
+
+			$private_apis = $scripts->query( 'wp-private-apis', 'registered' );
+
+			$this->assertNotFalse( $private_apis );
+			$this->assertSame( 'https://example.com/core-private-apis.js', $private_apis->src );
+			$this->assertSame( '1.0.0-core', $private_apis->ver );
+		} finally {
+			if ( null === $original_wp_version ) {
+				unset( $GLOBALS['wp_version'] );
+			} else {
+				$GLOBALS['wp_version'] = $original_wp_version;
+			}
+		}
+	}
+
+	/**
 	 * Test load_wp_build does not register polyfills when on a different admin page.
 	 */
 	public function test_load_wp_build_does_not_register_polyfills_on_other_page() {
@@ -253,6 +295,21 @@ class Dashboard_Test extends BaseTestCase {
 		add_filter( 'jetpack_forms_notes_enable', '__return_true' );
 		$this->assertTrue( Dashboard::is_notes_enabled() );
 		remove_filter( 'jetpack_forms_notes_enable', '__return_true' );
+	}
+
+	/**
+	 * Test load_admin_scripts does not enqueue the legacy dashboard bundle on the wp-build page.
+	 */
+	public function test_load_admin_scripts_does_not_enqueue_legacy_bundle_on_wp_build_page() {
+		set_current_screen( 'jetpack_page_' . Dashboard::FORMS_WPBUILD_ADMIN_SLUG );
+
+		$dashboard = new Dashboard();
+		$dashboard->load_admin_scripts();
+
+		$this->assertFalse(
+			wp_script_is( Dashboard::SCRIPT_HANDLE, 'enqueued' ),
+			'The wp-build admin page should use the generated boot loader instead of the legacy dashboard bundle.'
+		);
 	}
 
 	/**

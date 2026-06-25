@@ -119,6 +119,11 @@
 	background-color: #fcf0e5;
 }
 
+.jetpack-connector__status-badge--offline-mode {
+	color: #4f3500;
+	background-color: #fcf0e5;
+}
+
 .jetpack-connector__section {
 	padding-block-end: 20px;
 }

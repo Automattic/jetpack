@@ -7,7 +7,7 @@ import { close } from '@wordpress/icons';
 import { Link } from '@wordpress/ui';
 import * as cookie from 'cookie';
 import { useState, Component } from 'react';
-import ReactDOM from 'react-dom';
+import * as ReactDOM from 'react-dom';
 import { FormFieldset } from 'components/forms';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import { ModuleToggle } from 'components/module-toggle';

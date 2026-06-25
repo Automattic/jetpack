@@ -72,6 +72,7 @@ jetpack_do_activate (bool)
 */
 
 require_once JETPACK__PLUGIN_DIR . '_inc/lib/class.media.php';
+require_once JETPACK__PLUGIN_DIR . '_inc/lib/class-jetpack-offline-mode-features.php';
 
 /**
  * The Jetpack class.
@@ -690,6 +691,8 @@ class Jetpack {
 
 		add_filter( 'jetpack_get_default_modules', array( $this, 'filter_default_modules' ) );
 		add_filter( 'jetpack_get_default_modules', array( $this, 'handle_deprecated_modules' ), 99 );
+		add_filter( 'jetpack_offline_mode_allow_module_activation', array( 'Jetpack_Offline_Mode_Features', 'allow_partial_module_in_offline_mode' ), 10, 3 );
+		add_filter( 'jetpack_offline_mode_allow_module_loading', array( 'Jetpack_Offline_Mode_Features', 'allow_partial_module_in_offline_mode' ), 10, 3 );
 
 		add_filter( 'jetpack_get_available_modules', array( $this, 'filter_available_modules_podcast' ) );
 
@@ -1710,9 +1713,30 @@ class Jetpack {
 				if ( empty( $modules_data[ $module ] ) ) {
 					$modules_data[ $module ] = self::get_module( $module );
 				}
-				// If the module requires a connection, but we're in local mode, don't include it.
+
 				if ( $status->is_offline_mode() && $modules_data[ $module ]['requires_connection'] ) {
-					continue;
+					/**
+					 * Allows selected connection-required modules to load in Offline Mode.
+					 *
+					 * Connected-only behavior inside those modules must remain guarded by
+					 * connection checks.
+					 *
+					 * @since $$next-version$$
+					 *
+					 * @param bool   $allow       Whether to allow loading. Default false.
+					 * @param string $module      Module slug.
+					 * @param array  $module_data Module metadata.
+					 */
+					$allow_offline_loading = (bool) apply_filters(
+						'jetpack_offline_mode_allow_module_loading',
+						false,
+						$module,
+						$modules_data[ $module ]
+					);
+
+					if ( ! $allow_offline_loading ) {
+						continue;
+					}
 				}
 
 				if ( $is_site_connection && $modules_data[ $module ]['requires_user_connection'] ) {
