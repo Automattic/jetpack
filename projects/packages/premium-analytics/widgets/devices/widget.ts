@@ -3,27 +3,25 @@
  */
 import { __ } from '@wordpress/i18n';
 import { desktop } from '@wordpress/icons';
-import type { ReportParams } from '@jetpack-premium-analytics/data';
 
 /**
  * Widget attributes shape.
  *
- * @property reportParams   - Date range and comparison params, injected by the host.
  * @property max            - Maximum rows to display (0 = all). Defaults to 5.
  * @property deviceProperty - Which device dimension to break down by.
  */
 export type DevicesAttributes = {
-	reportParams?: ReportParams;
 	max?: number;
 	deviceProperty?: 'screensize' | 'browser';
 };
 
 /**
- * Locations (by device) widget type definition.
+ * Devices widget type definition.
  *
  * Data: fetched via the PA proxy at `stats/devices/{deviceProperty}`.
  * Date range comes from WidgetRoot's reportParams (the shared dashboard date
- * picker).
+ * picker). `presentation: 'full-bleed'` gives the widget the full grid-tile
+ * height so the LeaderboardChart has room to render.
  *
  * Known limitations: delta/comparison rows all show 0 (follow-up).
  */
@@ -31,6 +29,7 @@ export default {
 	name: 'jpa/devices',
 	title: __( 'Devices', 'jetpack-premium-analytics' ),
 	icon: desktop,
+	presentation: 'full-bleed' as const,
 	attributes: [
 		{
 			id: 'deviceProperty',
@@ -49,7 +48,7 @@ export default {
 	],
 	example: {
 		attributes: {
-			deviceProperty: 'screensize',
+			deviceProperty: 'screensize' as const,
 			max: 5,
 		},
 	},
