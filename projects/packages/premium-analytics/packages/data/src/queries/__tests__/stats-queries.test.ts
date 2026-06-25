@@ -9,10 +9,12 @@ import { statsInsightsQuery } from '../stats-insights-query';
 import { statsLocationsQuery } from '../stats-locations-query';
 import { statsPostQuery } from '../stats-post-query';
 import { statsStreakQuery } from '../stats-streak-query';
+import { statsTagsQuery } from '../stats-tags-query';
 import { statsTopPostsQuery } from '../stats-top-posts-query';
 import { statsUtmQuery } from '../stats-utm-query';
 import { statsVisitsQuery } from '../stats-visits-query';
 import type { StatsReportParams } from '../stats-query';
+import type { StatsTagsParams } from '../stats-tags-query';
 
 describe( 'Stats query factories', () => {
 	it( 'disables report queries until a date range is available', () => {
@@ -143,6 +145,45 @@ describe( 'Stats query factories', () => {
 				expect.objectContaining( {
 					date: '2026-06-07',
 					start_date: '2026-06-01',
+					summarize: 1,
+				} ),
+			] )
+		);
+	} );
+
+	it( 'builds tags query keys for the Calypso endpoint path', () => {
+		const query = statsTagsQuery( {} as StatsTagsParams );
+
+		expect( query.enabled ).toBe( false );
+		expect( query.queryKey ).toEqual( [
+			'stats',
+			'tags',
+			'1.1',
+			'stats/tags',
+			'GET',
+			expect.objectContaining( { period: 'day' } ),
+			undefined,
+			'tags',
+		] );
+	} );
+
+	it( 'passes report range params through tags query keys', () => {
+		const query = statsTagsQuery( {
+			from: '2026-06-01',
+			to: '2026-06-07',
+			interval: 'day',
+			max: 10,
+		} );
+
+		expect( query.enabled ).toBe( true );
+		expect( query.queryKey ).toEqual(
+			expect.arrayContaining( [
+				'stats/tags',
+				expect.objectContaining( {
+					date: '2026-06-07',
+					start_date: '2026-06-01',
+					days: 7,
+					max: 10,
 					summarize: 1,
 				} ),
 			] )

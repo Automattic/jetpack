@@ -4,13 +4,14 @@
 import { statsTagsQuery } from '../queries/stats-tags-query';
 import { useStatsReport } from './use-stats-report';
 import type { UseStatsOptions } from './use-stats-report';
-import type { StatsReportParams } from '../queries/stats-query';
-import type { StatsTagsResponse } from '../queries/stats-tags-query';
+import type { StatsNormalizedReport, StatsTagsItem } from '../processing/stats';
+import type { StatsTagsParams } from '../queries/stats-tags-query';
 
-export type { StatsTagsResponse } from '../queries/stats-tags-query';
+export type StatsTagsResponse = StatsNormalizedReport< StatsTagsItem >;
+export type { StatsTagsParams } from '../queries/stats-tags-query';
 
-export function useStatsTags( params: StatsReportParams, options?: UseStatsOptions ) {
-	return useStatsReport< StatsReportParams, StatsTagsResponse >(
+export function useStatsTags( params: StatsTagsParams, options?: UseStatsOptions ) {
+	return useStatsReport< StatsTagsParams, StatsTagsResponse >(
 		statsTagsQuery,
 		params,
 		'tags',
