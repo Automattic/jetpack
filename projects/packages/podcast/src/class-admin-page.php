@@ -19,6 +19,14 @@ class Admin_Page {
 	const ADMIN_PAGE_SLUG = 'jetpack-podcast';
 
 	/**
+	 * Query var the checkout return URL carries so the gate busts its cached
+	 * purchases lookup the instant a buyer lands back on the dashboard. Kept in
+	 * sync with the `podcast_purchased` literal in `withPurchaseReturnMarker()`
+	 * (`src/dashboard/upgrade.ts`).
+	 */
+	const PURCHASE_RETURN_QUERY_VAR = 'podcast_purchased';
+
+	/**
 	 * Where the Podcast item sits in the Jetpack submenu on self-hosted.
 	 *
 	 * Placed after Subscribers (15) and Newsletter (10) to mirror the order
@@ -134,12 +142,29 @@ class Admin_Page {
 			$data = array();
 		}
 
+		// A buyer returning from checkout carries the purchase marker; bust the
+		// cached purchases lookup so the gate re-reads `/upgrades` and unlocks
+		// the paid surfaces now instead of after the transient expires.
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		if ( isset( $_GET[ self::PURCHASE_RETURN_QUERY_VAR ] ) ) {
+			Podcast_Gate::flush_purchases_cache();
+		}
+
+		// Self-hosted upsells the Growth plan; WordPress.com keeps Premium.
+		// `product_slug` is fed straight to the checkout URL; `plan_name` is a
+		// product name shown in the locked-preview copy (not translated).
+		$is_wpcom = ( new Host() )->is_wpcom_platform();
+
 		$data['podcast'] = array(
 			'has_product_access'  => Podcast_Gate::has_product_access(),
 			'show_url_hosts'      => Settings::SHOW_URL_HOSTS,
 			'show_url_max_length' => Settings::SHOW_URL_MAX_LENGTH,
 			// Settings only: categories rejects per_page=-1 server-side, stats is a live relay.
 			'preload'             => rest_preload_api_request( array(), '/wpcom/v2/podcast/settings' ),
+			'upgrade'             => array(
+				'product_slug' => $is_wpcom ? 'premium' : 'jetpack_growth_yearly',
+				'plan_name'    => $is_wpcom ? 'Premium' : 'Growth',
+			),
 		);
 
 		return $data;

@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\Podcast\Tests;
 
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Podcast\Admin_Page;
+use Automattic\Jetpack\Podcast\Podcast_Gate;
 use Automattic\Jetpack\Podcast\Settings;
 use PHPUnit\Framework\Attributes\CoversClass;
 use WorDBless\BaseTestCase;
@@ -32,6 +33,10 @@ class Admin_Page_Test extends BaseTestCase {
 		Constants::clear_constants();
 		remove_all_actions( 'load-jetpack_page_' . Admin_Page::ADMIN_PAGE_SLUG );
 		unset( $GLOBALS['menu'], $GLOBALS['submenu'] );
+		unset( $_GET[ Admin_Page::PURCHASE_RETURN_QUERY_VAR ] );
+		// Drops the transient and the request-scoped memo so neither leaks into
+		// a sibling test.
+		Podcast_Gate::flush_purchases_cache();
 		wp_set_current_user( 0 );
 		parent::tearDown();
 	}
@@ -100,5 +105,65 @@ class Admin_Page_Test extends BaseTestCase {
 
 		$this->assertArrayHasKey( 'preload', $data['podcast'] );
 		$this->assertIsArray( $data['podcast']['preload'] );
+	}
+
+	/**
+	 * WPCOM (Simple/Atomic): the injected upsell points at Premium + WordPress.com checkout.
+	 */
+	public function test_inject_script_data_targets_premium_on_wpcom() {
+		Constants::set_constant( 'IS_WPCOM', true );
+
+		$data = Admin_Page::inject_podcast_script_data( array() );
+
+		$this->assertSame(
+			array(
+				'product_slug' => 'premium',
+				'plan_name'    => 'Premium',
+			),
+			$data['podcast']['upgrade']
+		);
+	}
+
+	/**
+	 * Self-hosted Jetpack: the injected upsell points at the Growth plan. The
+	 * gate's purchases lookup is seeded so this stays a hermetic unit test (no
+	 * `/upgrades` request).
+	 */
+	public function test_inject_script_data_targets_growth_on_self_hosted() {
+		// Clear the memo first, then seed, so the transient is read fresh.
+		Podcast_Gate::flush_purchases_cache();
+		set_transient(
+			Podcast_Gate::PURCHASES_TRANSIENT,
+			array( array( 'product_slug' => 'jetpack_growth_yearly' ) )
+		);
+
+		$data = Admin_Page::inject_podcast_script_data( array() );
+
+		$this->assertSame(
+			array(
+				'product_slug' => 'jetpack_growth_yearly',
+				'plan_name'    => 'Growth',
+			),
+			$data['podcast']['upgrade']
+		);
+		$this->assertTrue( $data['podcast']['has_product_access'] );
+	}
+
+	/**
+	 * A buyer returning from checkout carries the purchase marker, which drops
+	 * the stale (pre-purchase) cached purchases so access is recomputed fresh.
+	 */
+	public function test_inject_script_data_busts_stale_purchases_on_return() {
+		// Stale "free" lookup cached before the purchase completed.
+		Podcast_Gate::flush_purchases_cache();
+		set_transient( Podcast_Gate::PURCHASES_TRANSIENT, array() );
+		$_GET[ Admin_Page::PURCHASE_RETURN_QUERY_VAR ] = '1';
+
+		Admin_Page::inject_podcast_script_data( array() );
+
+		$this->assertFalse(
+			get_transient( Podcast_Gate::PURCHASES_TRANSIENT ),
+			'The purchase marker should drop the stale cached purchases.'
+		);
 	}
 }
