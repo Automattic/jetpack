@@ -689,7 +689,6 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 		$data = Jetpack_AI_Sidebar::add_agents_manager_data( array( 'sectionName' => 'gutenberg' ) );
 
 		$this->assertSame( 'wp-orchestrator', $data['agentId'] );
-		$this->assertSame( true, $data['aiEditorialReviewEnabled'] );
 		$this->assertSame( true, $data['jetpackAiSidebar']['enabled'] );
 		$this->assertSame( true, $data['jetpackAiSidebar']['features']['aiEditorialReview'] );
 		$this->assertSame( true, $data['jetpackAiSidebar']['features']['blockTransformations'] );
@@ -789,7 +788,6 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 		$data = Jetpack_AI_Sidebar::add_agents_manager_data( array( 'sectionName' => 'gutenberg' ) );
 
 		$this->assertSame( 'wp-orchestrator', $data['agentId'] );
-		$this->assertSame( false, $data['aiEditorialReviewEnabled'] );
 		$this->assertSame( true, $data['jetpackAiSidebar']['enabled'] );
 		$this->assertSame( false, $data['jetpackAiSidebar']['features']['aiEditorialReview'] );
 		$this->assertSame( true, $data['jetpackAiSidebar']['features']['blockTransformations'] );
@@ -805,7 +803,6 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 		$data = Jetpack_AI_Sidebar::add_agents_manager_data( array( 'sectionName' => 'gutenberg' ) );
 
 		$this->assertArrayNotHasKey( 'agentId', $data );
-		$this->assertArrayNotHasKey( 'aiEditorialReviewEnabled', $data );
 		$this->assertArrayNotHasKey( 'jetpackAiSidebar', $data );
 	}
 
@@ -849,10 +846,6 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 			$this->get_agents_manager_inline_script()
 		);
 		$this->assertStringContainsString(
-			'agentsManagerData.aiEditorialReviewEnabled = true',
-			$this->get_agents_manager_inline_script()
-		);
-		$this->assertStringContainsString(
 			'agentsManagerData.jetpackAiSidebar = {"enabled":true',
 			$this->get_agents_manager_inline_script()
 		);
@@ -886,10 +879,6 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 			$this->get_agents_manager_inline_script()
 		);
 		$this->assertStringNotContainsString(
-			'agentsManagerData.aiEditorialReviewEnabled',
-			$this->get_agents_manager_inline_script()
-		);
-		$this->assertStringNotContainsString(
 			'agentsManagerData.jetpackAiSidebar',
 			$this->get_agents_manager_inline_script()
 		);
@@ -908,10 +897,6 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 
 		$this->assertStringNotContainsString(
 			'agentsManagerData.agentId',
-			$this->get_agents_manager_inline_script()
-		);
-		$this->assertStringNotContainsString(
-			'agentsManagerData.aiEditorialReviewEnabled',
 			$this->get_agents_manager_inline_script()
 		);
 		$this->assertStringNotContainsString(
@@ -1155,7 +1140,6 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 		);
 
 		$this->assertSame( 'wp-orchestrator', $data['agentId'] );
-		$this->assertSame( true, $data['aiEditorialReviewEnabled'] );
 		$this->assertSame( true, $data['jetpackAiSidebar']['enabled'] );
 	}
 
