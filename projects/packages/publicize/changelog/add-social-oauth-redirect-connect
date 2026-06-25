@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Social: connect social accounts via a full-page OAuth redirect instead of a popup window. From the editor, the connection opens on the Social admin page in a new tab and the editor updates automatically once connected.
