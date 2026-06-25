@@ -95,10 +95,13 @@
 	outline-offset: 2px;
 }
 
+/* Secondary/tertiary buttons set their own surface; !important keeps a classic
+   theme's high-specificity `button` reset from recoloring them. Primary buttons
+   intentionally inherit the theme button styling, so are left alone. */
 .jetpack-cookie-consent__button--secondary {
-	background: var(--jp-cookie-consent--color-background, #fff);
-	color: var(--jp-cookie-consent--color-text, #1e1e1e);
-	border-color: var(--jp-cookie-consent--color-text, #1e1e1e);
+	background: var(--jp-cookie-consent--color-background, #fff) !important;
+	color: var(--jp-cookie-consent--color-text, #1e1e1e) !important;
+	border: 1px solid var(--jp-cookie-consent--color-text, #1e1e1e) !important;
 }
 
 .jetpack-cookie-consent__button--secondary:hover {
@@ -106,13 +109,13 @@
 }
 
 .jetpack-cookie-consent__button--tertiary {
-	background: transparent;
-	color: var(--jp-cookie-consent--color-text, #1e1e1e);
-	border-color: var(--jp-cookie-consent--color-border, #dcdcde);
+	background: transparent !important;
+	color: var(--jp-cookie-consent--color-text, #1e1e1e) !important;
+	border: 1px solid var(--jp-cookie-consent--color-border, #dcdcde) !important;
 }
 
 .jetpack-cookie-consent__button--tertiary:hover {
-	background: var(--jp-cookie-consent--color-border, #f0f0f0);
+	background: var(--jp-cookie-consent--color-border, #f0f0f0) !important;
 }
 
 /* Modal Overlay - Aligned with WooCommerce Bookings modal pattern */
@@ -197,8 +200,12 @@
 }
 
 :where(.jetpack-cookie-consent__modal-close) {
-	background: none;
-	border: none;
+
+	/* !important defeats classic-theme button fills (e.g. Twenty Twenty-One's
+	   `button:not(:hover):not(:active)`) that would otherwise paint this icon
+	   button with the theme color; specificity alone can't beat that selector. */
+	background: none !important;
+	border: none !important;
 	cursor: pointer;
 	padding: 5px;
 	display: flex;
@@ -310,8 +317,10 @@
 	right: 0;
 	top: 0;
 	position: absolute;
-	background: none;
-	border: none;
+
+	/* !important defeats classic-theme button fills (see modal-close above). */
+	background: none !important;
+	border: none !important;
 	cursor: pointer;
 	padding: 0;
 	margin-left: auto;
@@ -440,7 +449,9 @@ input[type="checkbox"]:focus-visible + label
 	opacity: 0.66;
 }
 
-.jetpack-cookie-consent__category-checkbox--disabled label {
+/* Root-scoped to match the (also root-scoped) label rule's specificity so the
+   disabled "Required" row shows not-allowed rather than the pointer cursor. */
+.jetpack-cookie-consent .jetpack-cookie-consent__category-checkbox--disabled label {
 	cursor: not-allowed;
 }
 
