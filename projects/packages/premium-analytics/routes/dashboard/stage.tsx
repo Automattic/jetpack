@@ -18,7 +18,7 @@ import { __ } from '@wordpress/i18n';
 import { Tabs } from '@wordpress/ui';
 import { WidgetDashboard } from '@wordpress/widget-dashboard';
 import { useWidgetTypes, type WidgetModuleRecord } from '@wordpress/widget-primitives';
-import { endOfDay } from 'date-fns';
+import { endOfDay, isValid } from 'date-fns';
 import { DashboardSections } from './components';
 import {
 	DASHBOARD_NAME,
@@ -85,9 +85,25 @@ function Dashboard(): JSX.Element {
 	const presetId = useMemo( () => effective.preset ?? undefined, [ effective.preset ] );
 
 	const range = useMemo( () => {
+		/*
+		 * Parse a search-param date into a TZDate, returning `undefined` for an
+		 * unparseable value. The picker reads these straight from the URL, so a
+		 * malformed `from`/`to` (e.g. a hand-edited or under-encoded deep link
+		 * where the `+` offset decoded to a space) must not produce an invalid
+		 * Date — `formatDate` throws "Invalid time value" on one and would
+		 * white-screen the whole dashboard. `undefined` degrades gracefully.
+		 */
+		const parse = ( value?: string ) => {
+			if ( ! value ) {
+				return undefined;
+			}
+			const date = localTZDate( value );
+			return isValid( date ) ? date : undefined;
+		};
+
 		return {
-			from: effective.from ? localTZDate( effective.from ) : undefined,
-			to: effective.to ? localTZDate( effective.to ) : undefined,
+			from: parse( effective.from ),
+			to: parse( effective.to ),
 		};
 	}, [ effective.from, effective.to ] );
 
