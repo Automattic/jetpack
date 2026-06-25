@@ -43,6 +43,15 @@ export {
 	type StatsCommentsResponse,
 } from './use-stats-comments';
 export {
+	useStatsSubscribers,
+	useStatsSubscribersCounts,
+	type StatsSubscribersCounts,
+	type StatsSubscribersCountsParams,
+	type StatsSubscribersCountsResponse,
+	type StatsSubscribersParams,
+	type StatsSubscribersResponse,
+} from './use-stats-subscribers';
+export {
 	useStatsStreak,
 	type StatsStreakParams,
 	type StatsStreakResponse,

@@ -48,6 +48,15 @@ export {
 	type StatsCommentsResponse,
 } from './hooks/use-stats-comments';
 export {
+	useStatsSubscribers,
+	useStatsSubscribersCounts,
+	type StatsSubscribersCounts,
+	type StatsSubscribersCountsParams,
+	type StatsSubscribersCountsResponse,
+	type StatsSubscribersParams,
+	type StatsSubscribersResponse,
+} from './hooks/use-stats-subscribers';
+export {
 	useStatsStreak,
 	type StatsStreakParams,
 	type StatsStreakResponse,
@@ -129,6 +138,9 @@ export type {
 	StatsPostYear,
 	StatsReferrersItem,
 	StatsSearchTermsItem,
+	StatsSubscribersCountsRawResponse,
+	StatsSubscribersDataPoint,
+	StatsSubscribersRawResponse,
 	StatsStreakRawResponse,
 	StatsTagsChildItem,
 	StatsTagsItem,
