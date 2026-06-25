@@ -6,7 +6,7 @@ import { formatMetricValue } from '@jetpack-premium-analytics/formatters';
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { Text } from '@wordpress/ui';
+import { Stack, Text } from '@wordpress/ui';
 import {
 	SemiCircleChart,
 	WidgetLoadingOverlay,
@@ -20,8 +20,8 @@ import {
 /**
  * Internal dependencies
  */
-import useDeviceViews from './use-device-views';
 import styles from './style.module.css';
+import useDeviceViews from './use-device-views';
 
 type DevicesRenderProps = {
 	attributes?: Partial< ReportParamsFieldAttributes > & {
@@ -59,8 +59,17 @@ function DevicesInner( {
 	// Must be called unconditionally before any early return.
 	const segmentStyles = useSegmentStyles( chartData );
 
+	const headerLabel =
+		deviceProperty === 'browser'
+			? __( 'Browsers', 'jetpack-premium-analytics' )
+			: __( 'Screen sizes', 'jetpack-premium-analytics' );
+
 	if ( isError ) {
-		return <Text>{ __( 'Could not load device data.', 'jetpack-premium-analytics' ) }</Text>;
+		return (
+			<Stack align="center" justify="center" className={ styles.placeholder }>
+				<Text>{ __( 'Could not load device data.', 'jetpack-premium-analytics' ) }</Text>
+			</Stack>
+		);
 	}
 
 	if ( isLoading && data.length === 0 ) {
@@ -76,17 +85,27 @@ function DevicesInner( {
 	} ) );
 
 	return (
-		<div className={ styles.root }>
-			<SemiCircleChart
-				chartData={ chartData }
-				value={ total }
-				styles={ segmentStyles }
-				legendData={ legendData }
-				showLegend
-				maxWidth={ 250 }
-				dataFormat={ DATA_FORMAT }
-			/>
-		</div>
+		<>
+			<Stack
+				direction="row"
+				justify="space-between"
+				align="center"
+				className={ styles.widgetHeader }
+			>
+				<Text>{ headerLabel }</Text>
+			</Stack>
+			<div className={ styles.content }>
+				<SemiCircleChart
+					chartData={ chartData }
+					value={ total }
+					styles={ segmentStyles }
+					legendData={ legendData }
+					showLegend
+					maxWidth={ 250 }
+					dataFormat={ DATA_FORMAT }
+				/>
+			</div>
+		</>
 	);
 }
 
@@ -106,7 +125,9 @@ export default function DevicesWidget( { attributes }: DevicesRenderProps ) {
 
 	return (
 		<WidgetRoot attributes={ attributes }>
-			<DevicesInner max={ max } deviceProperty={ deviceProperty } />
+			<div className={ styles.root }>
+				<DevicesInner max={ max } deviceProperty={ deviceProperty } />
+			</div>
 		</WidgetRoot>
 	);
 }
