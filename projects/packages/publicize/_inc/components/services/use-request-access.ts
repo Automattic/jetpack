@@ -1,11 +1,9 @@
 import { useGlobalNotices } from '@automattic/jetpack-components';
-import { getAdminUrl } from '@automattic/jetpack-script-data';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { addQueryArgs } from '@wordpress/url';
 import { store } from '../../social-store';
-import { generateRequestId, startConnectRedirect } from '../../utils';
+import { startServiceConnect } from '../../utils';
 import { SupportedService } from './types';
 
 const isValidMastodonUsername = ( username: string ) =>
@@ -101,8 +99,6 @@ export function useRequestAccess( { service }: RequestAccessOptions ) {
 				}
 			}
 
-			const url = new URL( connectUrl );
-
 			// Input-first services post their inputs (credentials never ride a URL); others GET.
 			const postFields: Record< string, string > = {};
 
@@ -159,38 +155,15 @@ export function useRequestAccess( { service }: RequestAccessOptions ) {
 					break;
 			}
 
-			// auth_flow=v2 makes wpcom redirect back to return_url (the admin page, detected via
-			// connect_return=1); request_id correlates this attempt with the fetched result.
-			const requestId = generateRequestId();
-
-			const returnArgs: Record< string, string > = {
-				page: 'jetpack-social',
-				connect_return: '1',
-				service: service.id,
-			};
-
-			if ( options.source ) {
-				returnArgs.source = options.source;
-			}
-
-			// Carry the reconnecting connection id so the return handler can restore the
-			// reconnect context lost on the full-page reload.
+			// reconnect_id lets the return handler restore the reconnect context lost on reload.
 			const reconnectingAccount = options.refresh ? getReconnectingAccount() : undefined;
 
-			if ( reconnectingAccount ) {
-				returnArgs.reconnect_id = String( reconnectingAccount.connection_id );
-			}
-
-			url.searchParams.set( 'auth_flow', 'v2' );
-			url.searchParams.set( 'request_id', requestId );
-			url.searchParams.set( 'return_url', getAdminUrl( addQueryArgs( 'admin.php', returnArgs ) ) );
-
-			// refresh=1: keyring re-authorizes the account in place (reconnect).
-			if ( options.refresh ) {
-				url.searchParams.set( 'refresh', '1' );
-			}
-
-			startConnectRedirect( url.toString(), postFields );
+			startServiceConnect( connectUrl, service.id, {
+				source: options.source,
+				refresh: options.refresh,
+				reconnectId: reconnectingAccount ? String( reconnectingAccount.connection_id ) : undefined,
+				postFields,
+			} );
 
 			return true;
 		},

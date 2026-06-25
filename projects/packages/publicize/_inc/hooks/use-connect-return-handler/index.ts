@@ -3,8 +3,9 @@ import { useDispatch, useSelect } from '@wordpress/data';
 import { useEffect, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { store as socialStore } from '../../social-store';
+import { startServiceConnect } from '../../utils';
 
-// Allowlist for the returned `service` query value.
+// Allowlist for the `service`/`connect` query value.
 const SUPPORTED_SERVICE_IDS = new Set( [
 	'bluesky',
 	'facebook',
@@ -16,13 +17,17 @@ const SUPPORTED_SERVICE_IDS = new Set( [
 	'tumblr',
 ] );
 
+// Services that need user input before connecting — can't be auto-redirected.
+const NEEDS_INPUT_SERVICE_IDS = new Set( [ 'bluesky', 'mastodon' ] );
+
 const FETCH_NOTICE_ID = 'publicize-fetching-keyring';
 
 /**
- * Handles the return from the full-page OAuth connect redirect: fetch the keyring result once,
- * then complete an in-place reconnect or open the confirmation modal. Restores the reconnect
- * context from `reconnect_id` (lost on reload) and strips the return params so a reload can't
- * re-fire it. Mount once, high in the admin page tree.
+ * Drives the full-page OAuth connect flow on the admin page. Handles the editor intent
+ * (`?connect=<service>&source=editor` → auto-start the redirect, or open the modal for input-first
+ * services) and the return (`?connect_return=1` → fetch the keyring result once, complete an
+ * in-place reconnect or open confirmation). Restores reconnect context from `reconnect_id` and
+ * strips params so a reload can't re-fire it. Mount once, high in the admin page tree.
  */
 export function useConnectReturnHandler() {
 	const hasRun = useRef( false );
@@ -37,7 +42,7 @@ export function useConnectReturnHandler() {
 
 	const { createInfoNotice, createErrorNotice, removeNotice } = useDispatch( globalNoticesStore );
 
-	const { getConnectionById } = useSelect( select => select( socialStore ), [] );
+	const { getConnectionById, getService } = useSelect( select => select( socialStore ), [] );
 
 	useEffect( () => {
 		if ( hasRun.current ) {
@@ -45,6 +50,34 @@ export function useConnectReturnHandler() {
 		}
 
 		const params = new URLSearchParams( window.location.search );
+
+		// Editor intent: auto-start a connect for the opened service.
+		const intentService = params.get( 'connect' );
+
+		if ( intentService ) {
+			const intentSource = params.get( 'source' );
+
+			if ( ! SUPPORTED_SERVICE_IDS.has( intentService ) || intentSource !== 'editor' ) {
+				return;
+			}
+
+			hasRun.current = true;
+
+			const cleanUrl = new URL( window.location.href );
+			[ 'connect', 'source' ].forEach( key => cleanUrl.searchParams.delete( key ) );
+			window.history.replaceState( {}, '', cleanUrl.toString() );
+
+			const service = getService( intentService );
+
+			// Pure-OAuth auto-redirects; input-first (or not-yet-loaded) services finish in the modal.
+			if ( service?.url && ! NEEDS_INPUT_SERVICE_IDS.has( intentService ) ) {
+				startServiceConnect( service.url, intentService, { source: 'editor' } );
+			} else {
+				openConnectionsModal();
+			}
+
+			return;
+		}
 
 		if ( params.get( 'connect_return' ) !== '1' ) {
 			return;
@@ -121,6 +154,7 @@ export function useConnectReturnHandler() {
 		createInfoNotice,
 		fetchKeyringResult,
 		getConnectionById,
+		getService,
 		openConnectionsModal,
 		removeNotice,
 		setKeyringResult,

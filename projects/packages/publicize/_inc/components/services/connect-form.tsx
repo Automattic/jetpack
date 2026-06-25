@@ -1,7 +1,10 @@
+import { getAdminUrl } from '@automattic/jetpack-script-data';
 import { useSelect } from '@wordpress/data';
+import { store as editorStore } from '@wordpress/editor';
 import { useCallback, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Button } from '@wordpress/ui';
+import { addQueryArgs } from '@wordpress/url';
 import clsx from 'clsx';
 import { useIsModernized } from '../../hooks/use-is-modernized';
 import { store } from '../../social-store';
@@ -51,6 +54,9 @@ export function ConnectForm( {
 
 	const reconnectingAccount = useSelect( select => select( store ).getReconnectingAccount(), [] );
 
+	// In the editor we don't redirect the tab; we open the connect flow on the Social admin page.
+	const isEditor = useSelect( select => Boolean( select( editorStore )?.getCurrentPostId() ), [] );
+
 	const [ isConnecting, setIsConnecting ] = useState( false );
 
 	const isFetchingServicesList = useSelect(
@@ -70,6 +76,22 @@ export function ConnectForm( {
 				return onSubmit();
 			}
 
+			// Editor: open the Social admin page in a new tab to connect there (synchronous, to
+			// keep the user gesture for window.open).
+			if ( isEditor ) {
+				window.open(
+					getAdminUrl(
+						addQueryArgs( 'admin.php', {
+							page: 'jetpack-social',
+							connect: service.id,
+							source: 'editor',
+						} )
+					),
+					'_blank'
+				);
+				return;
+			}
+
 			setIsConnecting( true );
 
 			const formData = new FormData( event.target as HTMLFormElement );
@@ -82,7 +104,7 @@ export function ConnectForm( {
 				setIsConnecting( false );
 			}
 		},
-		[ onSubmit, reconnectingAccount, requestAccess ]
+		[ isEditor, onSubmit, reconnectingAccount, requestAccess, service.id ]
 	);
 
 	return (
@@ -90,7 +112,7 @@ export function ConnectForm( {
 			className={ clsx( styles[ 'connect-form' ], { [ styles.small ]: isSmall } ) }
 			onSubmit={ onSubmitForm }
 		>
-			{ displayInputs ? (
+			{ displayInputs && ! isEditor ? (
 				<div className={ clsx( styles[ 'fields-wrapper' ], styles.input ) }>
 					{ isModernized ? (
 						<ModernCustomInputs service={ service } />

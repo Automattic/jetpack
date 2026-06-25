@@ -1,3 +1,6 @@
+import { getAdminUrl } from '@automattic/jetpack-script-data';
+import { addQueryArgs } from '@wordpress/url';
+
 /**
  * Generate an unguessable request id correlating a connect attempt with its stored result.
  *
@@ -5,6 +8,60 @@
  */
 export function generateRequestId(): string {
 	return globalThis.crypto?.randomUUID?.() ?? Math.random().toString( 36 ).slice( 2, 14 );
+}
+
+export type StartServiceConnectOptions = {
+	/** Carried on return_url so the handler knows to broadcast + self-close (editor-opened tab). */
+	source?: 'editor';
+	/** Re-authorize the account in place (reconnect). */
+	refresh?: boolean;
+	/** Reconnecting connection id, restored by the return handler after the reload. */
+	reconnectId?: string;
+	/** POST body fields for input-first services (credentials / instance). */
+	postFields?: Record< string, string >;
+};
+
+/**
+ * Build the connect URL (auth_flow=v2, request_id, return_url back to the Social admin page) and
+ * start the outbound redirect for a service.
+ *
+ * @param serviceUrl          - The service's connect_URL from the services list.
+ * @param serviceId           - The service id.
+ * @param options             - Connect options.
+ * @param options.source      - Marks an editor-opened tab.
+ * @param options.refresh     - Re-authorize the account in place (reconnect).
+ * @param options.reconnectId - Reconnecting connection id.
+ * @param options.postFields  - POST body fields for input-first services.
+ */
+export function startServiceConnect(
+	serviceUrl: string,
+	serviceId: string,
+	{ source, refresh, reconnectId, postFields }: StartServiceConnectOptions = {}
+): void {
+	const returnArgs: Record< string, string > = {
+		page: 'jetpack-social',
+		connect_return: '1',
+		service: serviceId,
+	};
+
+	if ( source ) {
+		returnArgs.source = source;
+	}
+
+	if ( reconnectId ) {
+		returnArgs.reconnect_id = reconnectId;
+	}
+
+	const url = new URL( serviceUrl );
+	url.searchParams.set( 'auth_flow', 'v2' );
+	url.searchParams.set( 'request_id', generateRequestId() );
+	url.searchParams.set( 'return_url', getAdminUrl( addQueryArgs( 'admin.php', returnArgs ) ) );
+
+	if ( refresh ) {
+		url.searchParams.set( 'refresh', '1' );
+	}
+
+	startConnectRedirect( url.toString(), postFields );
 }
 
 /**
