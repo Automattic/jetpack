@@ -385,7 +385,6 @@ function render_block( $attr, $content ) {
 function render_email( $block_content, array $parsed_block, $rendering_context ) {
 	if ( ! isset( $parsed_block['attrs'] ) || ! is_array( $parsed_block['attrs'] )
 		|| ! function_exists( '\Automattic\Jetpack\Extensions\Button\render_email' )
-		|| ! class_exists( '\Automattic\WooCommerce\EmailEditor\Integrations\Core\Renderer\Blocks\Button' )
 		|| ! class_exists( '\Automattic\WooCommerce\EmailEditor\Integrations\Utils\Table_Wrapper_Helper' ) ) {
 		return '';
 	}
@@ -407,12 +406,12 @@ function render_email( $block_content, array $parsed_block, $rendering_context )
 		'monthlyDonation' => false,
 		'annualDonation'  => false,
 	) as $key => $default_show ) {
-		if ( false === ( $attr[ $key ]['show'] ?? $default_show ) ) {
+		$interval = is_array( $attr[ $key ] ?? null ) ? $attr[ $key ] : array();
+		if ( false === ( $interval['show'] ?? $default_show ) ) {
 			continue;
 		}
 
-		$interval = is_array( $attr[ $key ] ?? null ) ? $attr[ $key ] : array();
-		$heading  = wp_kses_post( $interval['heading'] ?? $default_texts[ $key ]['heading'] );
+		$heading = wp_kses_post( $interval['heading'] ?? $default_texts[ $key ]['heading'] );
 		$extra    = wp_kses_post( $interval['extraText'] ?? $default_texts['extraText'] );
 
 		$content = '';
