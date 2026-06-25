@@ -3,38 +3,110 @@
  */
 
 .jp-forms__single-response {
+	// `width: 100%` keeps the column a constant width regardless of each
+	// response's content. The page content area is a flex column, and an item
+	// with only `max-width` + auto inline margins shrink-wraps to its content
+	// (so width jumped per response); a definite width clamped by max-width
+	// pins it at a consistent, readable measure.
+	width: 100%;
 	max-width: 768px;
 	margin-inline: auto;
 	padding-block: 24px;
 	padding-inline: 16px;
 }
 
+// Breadcrumb trail in the page header. Hand-rolled (see breadcrumbs.tsx) so the
+// form crumb can carry a search param; styled to match admin-ui's breadcrumbs.
+.jp-forms__single-response-breadcrumbs {
+	display: flex;
+	align-items: center;
+	flex-wrap: wrap;
+
+	&__link {
+		color: var(--jp-gray-50, #646970);
+		font-size: 15px;
+		line-height: 20px;
+		text-decoration: none;
+
+		&:hover {
+			color: var(--jp-black, #1e1e1e);
+			text-decoration: underline;
+		}
+	}
+
+	&__sep {
+		color: var(--jp-gray-20, #dbdbdb);
+		margin-inline: 8px;
+		user-select: none;
+	}
+
+	&__current {
+		margin: 0;
+		font-size: 15px;
+		font-weight: 500;
+		line-height: 20px;
+		color: var(--jp-black, #1e1e1e);
+	}
+}
+
 .jp-forms__single-response-card {
 	background-color: #fff;
 	border: 1px solid #e0e0e0;
 	border-radius: 8px;
-	padding-block: 24px;
+	// The meta header carries its own top padding, so the card adds none of its
+	// own at the top (avoids the doubled gap above the avatar). `overflow: hidden`
+	// keeps the meta's background within the card's rounded corners.
+	overflow: hidden;
 
 	.jp-forms__inbox-response-meta,
 	.jp-forms__inbox-response-data {
 		padding-inline: 24px;
 	}
+
+	// The last field already supplies the bottom spacing; drop its separator so
+	// it doesn't double up with the card's own bottom border.
+	.jp-forms__inbox-response-data.is-collection-format .jp-forms__field-preview:last-child {
+		border-block-end: none;
+	}
 }
 
-.jp-forms__single-response-id {
-	padding-block-start: 16px;
-	padding-inline: 24px;
-	margin-block-start: 8px;
-	border-block-start: 1px solid #e0e0e0;
+// Prev/next navigation in the page header. The inbox defines these styles in
+// the inspector stylesheet (not loaded in this route bundle), so the relevant
+// flex bits are repeated here. No close button on the standalone page, so the
+// inbox's trailing separator is intentionally omitted.
+.jp-forms-response-navigation {
+	display: flex;
+	align-items: center;
+	gap: 8px;
 
-	.jp-forms__single-response-id-label {
-		font-size: 13px;
-		color: #757575;
-		margin-block-end: 4px;
+	.jp-forms-response-navigation__arrows {
+		display: flex;
+		align-items: center;
+	}
+}
+
+// Mobile: drop the outer card frame for an edge-to-edge layout, and hide the
+// prev/next arrows (navigation is via the dropdown/keyboard). Internal
+// separators (the meta border and field separators, minus the last field) are
+// kept so the fields stay visually delineated.
+@media (max-width: 782px) {
+
+	.jp-forms__single-response {
+		padding-inline: 0;
 	}
 
-	.jp-forms__single-response-id-value {
-		font-size: 14px;
-		color: #1e1e1e;
+	.jp-forms__single-response-card {
+		border: none;
+		border-radius: 0;
+
+		// Edge-to-edge mobile: clear the meta header's off-white background so the
+		// card reads as one uniform color (desktop keeps the original two-tone).
+		.jp-forms__inbox-response-meta {
+			background-color: transparent;
+		}
+	}
+
+	.jp-forms__single-response-actions .jp-forms-response-navigation {
+		display: none;
 	}
 }

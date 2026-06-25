@@ -5,7 +5,6 @@ import JetpackLogo from '@automattic/jetpack-components/jetpack-logo';
 /**
  * WordPress dependencies
  */
-import { Breadcrumbs } from '@wordpress/admin-ui';
 import apiFetch from '@wordpress/api-fetch';
 import { Modal, Spinner } from '@wordpress/components';
 import { store as coreStore } from '@wordpress/core-data';
@@ -23,9 +22,13 @@ import * as React from 'react';
 import PreviewFile from '../../src/dashboard/components/inspector/preview-file';
 import ResponseFieldsIterator from '../../src/dashboard/components/inspector/response-fields';
 import ResponseMeta from '../../src/dashboard/components/inspector/response-meta';
+import ResponseNavigation from '../../src/dashboard/components/inspector/response-navigation/index.tsx';
 import { getDisplayName } from '../../src/dashboard/components/inspector/utils.ts';
+import WpRouteDashboardSearchParamsProvider from '../../src/dashboard/router/wp-route-dashboard-search-params-provider.tsx';
 import FormsPage from '../../src/dashboard/wp-build/components/page';
+import SingleResponseBreadcrumbs from './breadcrumbs.tsx';
 import SingleResponseActions from './page-actions.tsx';
+import useResponsePageNavigation from './use-navigation.ts';
 import './style.scss';
 /**
  * Types
@@ -45,9 +48,13 @@ type PreviewFileItem = FileItem | { url: string; name: string };
  * Renders one feedback response (meta + fields + response ID) as a full page at
  * `/response/$responseId`. Not linked from anywhere yet.
  *
+ * Rendered inside `WpRouteDashboardSearchParamsProvider` (see `Stage` below) so
+ * that `useResponsePageNavigation` -> `useInboxData` can read the dashboard
+ * search params for prev/next navigation.
+ *
  * @return The single response page.
  */
-function Stage(): React.JSX.Element {
+function SingleResponse(): React.JSX.Element {
 	const params = useParams( { from: '/response/$responseId' } );
 	const id = Number( params.responseId );
 	const isValidId = Number.isFinite( id ) && id > 0;
@@ -80,6 +87,44 @@ function Stage(): React.JSX.Element {
 		},
 		[ id, isValidId ]
 	);
+
+	const { hasPrevious, hasNext, goPrevious, goNext } = useResponsePageNavigation( id );
+
+	// Arrow keys move between responses, matching the inbox inspector. Ignore the
+	// shortcut while typing in a field, when a modifier key is held, or while the
+	// file-preview modal is open. Only preventDefault when navigation will
+	// actually happen, so normal arrow-key page scrolling is preserved at the
+	// list edges.
+	useEffect( () => {
+		const handleKeyDown = ( event: KeyboardEvent ) => {
+			if ( event.defaultPrevented || event.metaKey || event.ctrlKey || event.altKey ) {
+				return;
+			}
+			if ( previewFile ) {
+				return;
+			}
+			const target = event.target as HTMLElement | null;
+			const tag = target?.tagName;
+			if (
+				tag === 'INPUT' ||
+				tag === 'TEXTAREA' ||
+				tag === 'SELECT' ||
+				target?.isContentEditable
+			) {
+				return;
+			}
+			if ( event.key === 'ArrowUp' && hasPrevious ) {
+				event.preventDefault();
+				goPrevious();
+			} else if ( event.key === 'ArrowDown' && hasNext ) {
+				event.preventDefault();
+				goNext();
+			}
+		};
+
+		window.addEventListener( 'keydown', handleKeyDown );
+		return () => window.removeEventListener( 'keydown', handleKeyDown );
+	}, [ goPrevious, goNext, hasPrevious, hasNext, previewFile ] );
 
 	// Mark the response as read when it is viewed.
 	useEffect( () => {
@@ -144,19 +189,30 @@ function Stage(): React.JSX.Element {
 	const formTitle = decodeEntities( response.entry_title || '' );
 	const subTitle = `${ displayName } · ${ dateI18n( dateSettings.formats.date, response.date ) }`;
 
-	const breadcrumbItems = [
-		{ label: __( 'Forms', 'jetpack-forms' ), to: '/responses/inbox' },
-		...( formTitle ? [ { label: formTitle } ] : [] ),
-		{ label: `#${ response.id }` },
-	];
-
 	return (
 		<FormsPage
 			visual={ <JetpackLogo showText={ false } height={ 20 } /> }
-			breadcrumbs={ <Breadcrumbs items={ breadcrumbItems } /> }
+			breadcrumbs={ <SingleResponseBreadcrumbs response={ response } formTitle={ formTitle } /> }
 			subTitle={ subTitle }
 			ariaLabel={ displayName }
-			actions={ <SingleResponseActions response={ response } /> }
+			actions={
+				<Stack
+					direction="row"
+					gap="s"
+					justify="end"
+					wrap="wrap"
+					className="jp-forms__single-response-actions"
+				>
+					<ResponseNavigation
+						hasNext={ hasNext }
+						hasPrevious={ hasPrevious }
+						onNext={ goNext }
+						onPrevious={ goPrevious }
+						onClose={ null }
+					/>
+					<SingleResponseActions response={ response } />
+				</Stack>
+			}
 			showFooter={ false }
 		>
 			<div className="jp-forms__single-response">
@@ -164,13 +220,6 @@ function Stage(): React.JSX.Element {
 					<ResponseMeta response={ response } />
 
 					<ResponseFieldsIterator fields={ response.fields } onFilePreview={ handleFilePreview } />
-
-					<div className="jp-forms__single-response-id">
-						<div className="jp-forms__single-response-id-label">
-							{ __( 'Response ID', 'jetpack-forms' ) }
-						</div>
-						<div className="jp-forms__single-response-id-value">{ response.id }</div>
-					</div>
 				</div>
 			</div>
 
@@ -184,6 +233,23 @@ function Stage(): React.JSX.Element {
 				</Modal>
 			) }
 		</FormsPage>
+	);
+}
+
+/**
+ * Standalone single response route entry.
+ *
+ * Wraps the page in `WpRouteDashboardSearchParamsProvider` (bound to this route)
+ * so shared dashboard hooks that read the URL search params — used here for
+ * prev/next navigation — work the same way they do on the responses list.
+ *
+ * @return The single response page.
+ */
+function Stage(): React.JSX.Element {
+	return (
+		<WpRouteDashboardSearchParamsProvider from="/response/$responseId">
+			<SingleResponse />
+		</WpRouteDashboardSearchParamsProvider>
 	);
 }
 
