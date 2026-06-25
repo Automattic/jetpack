@@ -901,6 +901,57 @@ describe( 'BarChart', () => {
 			expect( bars.length ).toBeGreaterThanOrEqual( 2 );
 		} );
 
+		it( 'hides the comparison shadow group from assistive technology', () => {
+			const data = [
+				{
+					label: 'This year',
+					group: 'views',
+					data: [ { label: 'Jan', value: 100 } ],
+				},
+				{
+					label: 'Last year',
+					group: 'views',
+					options: { type: 'comparison' as const },
+					data: [ { label: 'Jan', value: 80 } ],
+				},
+			];
+			render( <BarChart data={ data } width={ 400 } height={ 300 } /> );
+
+			// The shadow is decorative: no keyboard/hover target and its value is surfaced
+			// through the tooltip, so it must not be announced as a separate element.
+			expect( screen.getByTestId( 'bar-chart-comparison-bars' ) ).toHaveAttribute(
+				'aria-hidden',
+				'true'
+			);
+		} );
+
+		it( 'renders comparison shadows in horizontal orientation', () => {
+			const data = [
+				{
+					label: 'This year',
+					group: 'views',
+					data: [
+						{ label: 'Jan', value: 100 },
+						{ label: 'Feb', value: 120 },
+					],
+				},
+				{
+					label: 'Last year',
+					group: 'views',
+					options: { type: 'comparison' as const },
+					data: [
+						{ label: 'Jan', value: 80 },
+						{ label: 'Feb', value: 140 },
+					],
+				},
+			];
+			render( <BarChart data={ data } orientation="horizontal" width={ 400 } height={ 300 } /> );
+
+			const shadows = screen.getAllByTestId( /^bar-chart-comparison-\d+-\d+$/ );
+			expect( shadows ).toHaveLength( 2 );
+			expect( shadows[ 0 ] ).toHaveAttribute( 'opacity', '0.5' );
+		} );
+
 		it( 'expands value-axis domain to include comparison values exceeding the primary max', () => {
 			// Comparison value 150 exceeds primary max 100.
 			// Without domain expansion the value-axis scale config has no explicit domain,
