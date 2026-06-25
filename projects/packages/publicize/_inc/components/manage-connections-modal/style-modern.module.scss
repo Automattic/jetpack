@@ -36,9 +36,11 @@
 
 // Applies to both modal views: the services list (`services-list`, which also
 // gets the vertical pin above) and the post-connect confirmation
-// (`menu-aware`). `large` caps width at 960px via `max-inline-size`;
-// `max-width` is the same property, so `min()` keeps that ceiling while also
-// capping to the content column. `left: 50% + half-menu` shifts the anchor;
+// (`menu-aware`). `large` caps width at 960px via `max-inline-size`. In
+// horizontal writing mode `max-width` and `max-inline-size` resolve to the
+// same physical constraint, so our `max-width` replaces (rather than adds
+// to) the Dialog's 960px ceiling — `min()` reinstates it while also capping
+// to the content column. `left: 50% + half-menu` shifts the anchor;
 // the popup's `translateX(-50%)` (explicit on `services-list`, inherited from
 // the Dialog's default transform on `menu-aware`) then centers it there.
 .services-list,
