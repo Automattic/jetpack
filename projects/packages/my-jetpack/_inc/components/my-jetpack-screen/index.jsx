@@ -177,6 +177,10 @@ export default function MyJetpackScreen() {
 		onResetKeyDown: e => onKeyDownCallback( e, () => resetJetpackOptions() ),
 	} );
 
+	// Booleans live in the nested myJetpackFlags object — wp_localize_script stringifies
+	// top-level scalars (true -> "1", false -> ""), but JSON-encodes nested arrays.
+	const { productsOnly } = getMyJetpackWindowInitialState( 'myJetpackFlags' );
+
 	return (
 		<AdminPage
 			siteAdminUrl={ adminUrl }
@@ -191,11 +195,12 @@ export default function MyJetpackScreen() {
 			<h1 className="screen-reader-text">{ __( 'My Jetpack', 'jetpack-my-jetpack' ) }</h1>
 
 			<IDCModal />
-			{ isSectionVisible && userIsAdmin && <EvaluationRecommendations /> }
+			{ ! productsOnly && isSectionVisible && userIsAdmin && <EvaluationRecommendations /> }
 
-			{ isRedirectingFromOnboarding && <OnboardingTour /> }
+			{ ! productsOnly && isRedirectingFromOnboarding && <OnboardingTour /> }
 
 			<MyJetpackTabPanel
+				productsOnly={ productsOnly }
 				beforeContent={
 					<>
 						<GlobalNotices />

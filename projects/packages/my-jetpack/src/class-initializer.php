@@ -159,9 +159,13 @@ class Initializer {
 	 * @return void
 	 */
 	public static function add_my_jetpack_menu_item() {
+		$menu_label = Products_Page::is_products_only_enabled()
+			? __( 'Products', 'jetpack-my-jetpack' )
+			: __( 'My Jetpack', 'jetpack-my-jetpack' );
+
 		$page_suffix = Admin_Menu::add_menu(
 			__( 'My Jetpack', 'jetpack-my-jetpack' ),
-			__( 'My Jetpack', 'jetpack-my-jetpack' ),
+			$menu_label,
 			'edit_posts',
 			'my-jetpack',
 			array( __CLASS__, 'admin_page' ),
@@ -491,6 +495,8 @@ class Initializer {
 		$flags = array(
 			'videoPressStats'          => Jetpack_Constants::is_true( 'JETPACK_MY_JETPACK_VIDEOPRESS_STATS_ENABLED' ),
 			'showFullJetpackStatsCard' => class_exists( 'Jetpack' ),
+			'productsOnly'             => Products_Page::is_products_only_enabled(),
+			'canManageModules'         => Products_Page::can_manage_modules(),
 		);
 
 		return $flags;

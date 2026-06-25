@@ -42,6 +42,15 @@
 	margin: 0 auto;
 }
 
+// Products-only mode reuses the full-width tab panel chrome (width, background, and the
+// separator below the header) but hides the tab strip itself.
+.my-jetpack-tab-panel--products-only {
+
+	:global(.components-tab-panel__tabs) {
+		display: none;
+	}
+}
+
 .my-jetpack-tab-panel--full-width {
 
 	width: 100%;
