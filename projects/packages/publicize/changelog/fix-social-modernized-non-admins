@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+Comment: Social modernized dashboard (behind rsm_jetpack_ui_modernization_social): hide the Overview stats chart and the Settings tab from non-admins, leaving only the connection-management UI.
+
+
