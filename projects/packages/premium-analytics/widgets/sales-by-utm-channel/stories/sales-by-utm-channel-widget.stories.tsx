@@ -1,34 +1,63 @@
 import { getDefaultQueryParams } from '@jetpack-premium-analytics/data';
-import { registerReportMocks } from '../../../packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
+import { SELECTABLE_PRESETS, type SelectablePresetId } from '@jetpack-premium-analytics/datetime';
 import {
 	DEFAULT_WIDGET_DASHBOARD_STORY_ARGS,
 	WidgetDashboardWithWidget as WidgetDashboardWithWidgetStory,
 	widgetDashboardWithWidgetArgTypes,
 	type WidgetDashboardWithWidgetControls,
 } from '../../stories/widget-dashboard-with-widget';
+import { registerReportMocks } from '../../../packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
 import SalesByUtmChannelRender from '../render';
 import widgetDefinition from '../widget';
-import type { Meta, StoryObj } from '@storybook/react';
+import type { Decorator, Meta, StoryObj } from '@storybook/react';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
-import type { ComponentType } from 'react';
+import type { ComponentProps, ComponentType } from 'react';
 
 registerReportMocks();
 
 const SALES_BY_UTM_CHANNEL_RENDER_MODULE = 'storybook/sales-by-utm-channel';
+const DEFAULT_PRESET = 'last-30-days' satisfies SelectablePresetId;
+const PRESET_OPTIONS = SELECTABLE_PRESETS;
 
-interface SalesByUtmChannelDashboardStoryProps extends WidgetDashboardWithWidgetControls {
+type SalesByUtmChannelRenderProps = ComponentProps< typeof SalesByUtmChannelRender >;
+
+interface SalesByUtmChannelStoryControls {
 	withComparison: boolean;
+	preset: SelectablePresetId;
 }
 
-/**
- * Renders the Sales by UTM channel widget inside the dashboard story frame.
- *
- * @param root0                - Story args.
- * @param root0.withComparison - Whether to use comparison report params.
- * @return The rendered dashboard story.
- */
+type SalesByUtmChannelStoryProps = SalesByUtmChannelRenderProps & SalesByUtmChannelStoryControls;
+
+interface SalesByUtmChannelDashboardStoryProps
+	extends WidgetDashboardWithWidgetControls,
+		SalesByUtmChannelStoryControls {}
+
+const withWidgetCanvas: Decorator = Story => (
+	<div style={ { width: '100%', height: '300px' } }>
+		<Story />
+	</div>
+);
+
+function getSalesByUtmChannelAttributes(
+	withComparison = false,
+	preset: SelectablePresetId = DEFAULT_PRESET
+): SalesByUtmChannelRenderProps[ 'attributes' ] {
+	return {
+		reportParams: getDefaultQueryParams( withComparison, preset ),
+	};
+}
+
+function renderSalesByUtmChannel( { withComparison, preset }: SalesByUtmChannelStoryControls ) {
+	return (
+		<SalesByUtmChannelRender
+			attributes={ getSalesByUtmChannelAttributes( withComparison, preset ) }
+		/>
+	);
+}
+
 function SalesByUtmChannelDashboardStory( {
 	withComparison,
+	preset,
 	...dashboardStoryArgs
 }: SalesByUtmChannelDashboardStoryProps ) {
 	return (
@@ -37,25 +66,24 @@ function SalesByUtmChannelDashboardStory( {
 			widgetType={ widgetDefinition }
 			renderModule={ SALES_BY_UTM_CHANNEL_RENDER_MODULE }
 			renderComponent={ SalesByUtmChannelRender as ComponentType< WidgetRenderProps< unknown > > }
-			attributes={ {
-				reportParams: getDefaultQueryParams( withComparison ),
-			} }
+			attributes={ getSalesByUtmChannelAttributes( withComparison, preset ) }
 		/>
 	);
 }
 
 const meta = {
 	title: 'Packages/Premium Analytics/Widgets/SalesByUtmChannel',
-	component: SalesByUtmChannelDashboardStory,
+	component: SalesByUtmChannelRender,
 	tags: [ 'autodocs' ],
-	args: {
-		...DEFAULT_WIDGET_DASHBOARD_STORY_ARGS,
-		withComparison: true,
-	},
 	argTypes: {
-		...widgetDashboardWithWidgetArgTypes,
+		preset: {
+			control: 'select',
+			options: PRESET_OPTIONS,
+			description: 'Date-range preset used to generate the widget report params.',
+		},
 		withComparison: {
 			control: 'boolean',
+			description: 'Include previous-period comparison report params.',
 		},
 	},
 	parameters: {
@@ -66,10 +94,73 @@ const meta = {
 			},
 		},
 	},
-} satisfies Meta< typeof SalesByUtmChannelDashboardStory >;
+} satisfies Meta< SalesByUtmChannelStoryProps >;
 
 export default meta;
 
 type Story = StoryObj< typeof meta >;
+type DashboardStory = StoryObj< SalesByUtmChannelDashboardStoryProps >;
 
-export const WidgetDashboardWithWidget: Story = {};
+/**
+ * Default state for the current report period.
+ */
+export const Default: Story = {
+	render: renderSalesByUtmChannel,
+	args: {
+		preset: DEFAULT_PRESET,
+		withComparison: false,
+	},
+	decorators: [ withWidgetCanvas ],
+};
+
+/**
+ * Comparison period enabled, showing period-over-period UTM channel changes.
+ */
+export const WithComparison: Story = {
+	render: renderSalesByUtmChannel,
+	args: {
+		preset: DEFAULT_PRESET,
+		withComparison: true,
+	},
+	decorators: [ withWidgetCanvas ],
+};
+
+/**
+ * Renders the widget through the shared dashboard harness.
+ */
+export const WidgetDashboardWithWidget: DashboardStory = {
+	render: args => <SalesByUtmChannelDashboardStory { ...args } />,
+	args: {
+		...DEFAULT_WIDGET_DASHBOARD_STORY_ARGS,
+		preset: DEFAULT_PRESET,
+		withComparison: true,
+	},
+	argTypes: {
+		...widgetDashboardWithWidgetArgTypes,
+		preset: {
+			control: 'select',
+			options: PRESET_OPTIONS,
+			description: 'Date-range preset used to generate the widget report params.',
+		},
+		withComparison: {
+			control: 'boolean',
+			description: 'Include previous-period comparison report params.',
+		},
+	},
+	parameters: {
+		docs: {
+			source: {
+				code: `import { getDefaultQueryParams } from '@jetpack-premium-analytics/data';
+
+<WidgetDashboardWithWidget
+\twidgetType={ widgetDefinition }
+\trenderModule="storybook/sales-by-utm-channel"
+\trenderComponent={ SalesByUtmChannelRender }
+\tattributes={ {
+\t\treportParams: getDefaultQueryParams( true ),
+\t} }
+/>`,
+			},
+		},
+	},
+};

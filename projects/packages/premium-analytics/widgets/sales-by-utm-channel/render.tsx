@@ -1,10 +1,9 @@
 import { SalesByUtmWidget, WidgetRoot } from '@jetpack-premium-analytics/widgets-toolkit';
 import type { ComponentProps } from 'react';
 
-type SalesByUtmChannelRenderProps = Pick<
-	ComponentProps< typeof WidgetRoot >,
-	'attributes' | 'setError'
->;
+type SalesByUtmChannelRenderProps = Pick< ComponentProps< typeof WidgetRoot >, 'attributes' > & {
+	setError?: ComponentProps< typeof WidgetRoot >[ 'setError' ];
+};
 
 /**
  * Sales by UTM channel widget.
