@@ -29,7 +29,7 @@
 		"@wordpress/admin-ui": "2.3.1",
 		"@wordpress/boot": "^0.15.0",
 		"@wordpress/browserslist-config": "6.48.1",
-		"@wordpress/build": "0.14.0",
+		"@wordpress/build": "0.16.1",
 		"@wordpress/icons": "^13.0.0",
 		"@wordpress/lazy-editor": "^1.6.1",
 		"@wordpress/notices": "^5.40.0",
