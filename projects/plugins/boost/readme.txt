@@ -185,7 +185,7 @@ If you run into compatibility issues, please do let us know. You can drop us a l
 4. Historical performance tracking with the upgraded plan.
 
 == Changelog ==
-### 4.6.2-beta - 2026-06-24
+### 4.6.2 - 2026-06-24
 #### Added
 - Concatenate JS/CSS: allow administrators to test additional exclude handles per-request via jb-minify-js-excludes / jb-minify-css-excludes GET parameters, without changing saved settings. The parameters are ignored for non-administrators.
 - Defer JS: add an exclusion list so specific pages can be excluded by URL pattern without disabling the feature site-wide.
