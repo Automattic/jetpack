@@ -40,6 +40,8 @@ export type ConnectionData = {
 	updatingConnections?: Array< number | string >;
 	reconnectingAccount?: Connection;
 	keyringResult?: KeyringResult;
+	/** Source that initiated the current connect flow (drives editor broadcast + tab self-close). */
+	connectSource?: 'editor';
 	/**
 	 * Whether the keyring result for an auth_flow=v2 connect request is being fetched.
 	 */

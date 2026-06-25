@@ -19,15 +19,17 @@ export const ModernManageConnectionsModal = () => {
 		};
 	}, [] );
 
-	const { setKeyringResult, closeConnectionsModal, setReconnectingAccount } = useDispatch( store );
+	const { setKeyringResult, closeConnectionsModal, setReconnectingAccount, setConnectSource } =
+		useDispatch( store );
 
 	const isSmall = useViewportMatch( 'small', '<' );
 
 	const closeModal = useCallback( () => {
 		setKeyringResult( null );
 		setReconnectingAccount( undefined );
+		setConnectSource( undefined );
 		closeConnectionsModal();
-	}, [ closeConnectionsModal, setKeyringResult, setReconnectingAccount ] );
+	}, [ closeConnectionsModal, setConnectSource, setKeyringResult, setReconnectingAccount ] );
 
 	// The modal only mounts while open, so any close intent (Esc, backdrop
 	// click, close button) routes through here to tear down the store state.

@@ -6,6 +6,7 @@ import { __, _x } from '@wordpress/i18n';
 import { Link } from '@wordpress/ui';
 import { store as socialStore } from '../../../social-store';
 import { KeyringResult } from '../../../social-store/types';
+import { broadcastConnectionCreated } from '../../../utils';
 import { useSupportedServices } from '../../services/use-supported-services';
 import styles from './style.module.scss';
 import type { FormEvent } from 'react';
@@ -56,12 +57,13 @@ export function ConfirmationForm( {
 	canMarkAsShared,
 }: ConfirmationFormProps ) {
 	const supportedServices = useSupportedServices();
-	const { existingConnections, reconnectingAccount } = useSelect( select => {
+	const { existingConnections, reconnectingAccount, connectSource } = useSelect( select => {
 		const store = select( socialStore );
 
 		return {
 			existingConnections: store.getConnections(),
 			reconnectingAccount: store.getReconnectingAccount(),
+			connectSource: store.getConnectSource(),
 		};
 	}, [] );
 
@@ -154,18 +156,34 @@ export function ConfirmationForm( {
 				setReconnectingAccount( undefined );
 			}
 
-			// Do not await the connection creation to unblock the UI
-			createConnection( data, {
+			const optimisticData = {
 				display_name: accountInfo?.label,
 				profile_picture: accountInfo?.profile_picture,
 				service_name: service.id,
 				external_id: external_user_ID.toString(),
-			} );
+			};
+
+			// Editor-opened tab: create, tell the editor tab, then close this tab.
+			if ( connectSource === 'editor' ) {
+				const connection = await createConnection( data, optimisticData );
+
+				if ( connection ) {
+					broadcastConnectionCreated( service.id, String( connection.connection_id ) );
+					window.close();
+				}
+
+				onComplete();
+				return;
+			}
+
+			// Do not await the connection creation to unblock the UI
+			createConnection( data, optimisticData );
 
 			onComplete();
 		},
 		[
 			createConnection,
+			connectSource,
 			reconnectingAccount,
 			setReconnectingAccount,
 			createErrorNotice,

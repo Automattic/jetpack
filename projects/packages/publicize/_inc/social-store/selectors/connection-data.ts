@@ -204,6 +204,17 @@ export function getKeyringResult( state: SocialStoreState ) {
 }
 
 /**
+ * Returns the source that initiated the current connect flow (e.g. 'editor').
+ *
+ * @param state - State object.
+ *
+ * @return The connect source.
+ */
+export function getConnectSource( state: SocialStoreState ) {
+	return state.connectionData?.connectSource;
+}
+
+/**
  * Whether the keyring result for a completed connect request is being fetched.
  *
  * @param state - State object.

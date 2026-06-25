@@ -4,6 +4,7 @@ import {
 	DELETE_CONNECTION,
 	DELETING_CONNECTION,
 	FETCHING_KEYRING_RESULT,
+	SET_CONNECT_SOURCE,
 	SET_RECONNECTING_ACCOUNT,
 	SET_CONNECTIONS,
 	SET_KEYRING_RESULT,
@@ -144,6 +145,12 @@ const connectionData = ( state: ConnectionData = { connections: [] }, action: Ac
 			return {
 				...state,
 				fetchingKeyringResult: action.fetching,
+			};
+
+		case SET_CONNECT_SOURCE:
+			return {
+				...state,
+				connectSource: action.connectSource,
 			};
 
 		case TOGGLE_CONNECTION:

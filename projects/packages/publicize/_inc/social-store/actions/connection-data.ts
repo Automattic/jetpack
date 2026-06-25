@@ -11,6 +11,7 @@ import {
 	DELETE_CONNECTION,
 	DELETING_CONNECTION,
 	FETCHING_KEYRING_RESULT,
+	SET_CONNECT_SOURCE,
 	SET_RECONNECTING_ACCOUNT,
 	SET_CONNECTIONS,
 	SET_KEYRING_RESULT,
@@ -41,6 +42,20 @@ export function setConnections( connections: Array< Connection > ) {
 	return {
 		type: SET_CONNECTIONS,
 		connections,
+	};
+}
+
+/**
+ * Set the source that initiated the current connect flow (e.g. 'editor').
+ *
+ * @param connectSource - The source, or undefined to clear.
+ *
+ * @return An action object.
+ */
+export function setConnectSource( connectSource?: 'editor' ) {
+	return {
+		type: SET_CONNECT_SOURCE,
+		connectSource,
 	};
 }
 

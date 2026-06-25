@@ -23,15 +23,17 @@ export const ManageConnectionsModal = () => {
 		};
 	}, [] );
 
-	const { setKeyringResult, closeConnectionsModal, setReconnectingAccount } = useDispatch( store );
+	const { setKeyringResult, closeConnectionsModal, setReconnectingAccount, setConnectSource } =
+		useDispatch( store );
 
 	const isSmall = useViewportMatch( 'small', '<' );
 
 	const closeModal = useCallback( () => {
 		setKeyringResult( null );
 		setReconnectingAccount( undefined );
+		setConnectSource( undefined );
 		closeConnectionsModal();
-	}, [ closeConnectionsModal, setKeyringResult, setReconnectingAccount ] );
+	}, [ closeConnectionsModal, setConnectSource, setKeyringResult, setReconnectingAccount ] );
 
 	const hasKeyringResult = Boolean( keyringResult?.ID );
 

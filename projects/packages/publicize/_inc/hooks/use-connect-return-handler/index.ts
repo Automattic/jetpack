@@ -38,6 +38,7 @@ export function useConnectReturnHandler() {
 		openConnectionsModal,
 		completeReconnect,
 		setReconnectingAccount,
+		setConnectSource,
 	} = useDispatch( socialStore );
 
 	const { createInfoNotice, createErrorNotice, removeNotice } = useDispatch( globalNoticesStore );
@@ -101,6 +102,11 @@ export function useConnectReturnHandler() {
 
 		hasRun.current = true;
 
+		// Editor-sourced: the confirmation will broadcast + self-close once the connection is made.
+		if ( source === 'editor' ) {
+			setConnectSource( 'editor' );
+		}
+
 		// Strip the return params up front so a reload can't re-run this against a consumed result.
 		const cleanUrl = new URL( window.location.href );
 		[ 'connect_return', 'request_id', 'service', 'source', 'reconnect_id' ].forEach( key =>
@@ -157,6 +163,7 @@ export function useConnectReturnHandler() {
 		getService,
 		openConnectionsModal,
 		removeNotice,
+		setConnectSource,
 		setKeyringResult,
 		setReconnectingAccount,
 	] );
