@@ -1,6 +1,5 @@
 import jetpackAnalytics from '@automattic/jetpack-analytics';
-import { getProductCheckoutUrl } from '@automattic/jetpack-components';
-import { getScriptData, getSiteData, isWpcomPlatformSite } from '@automattic/jetpack-script-data';
+import { getAdminUrl, getSiteData, isWpcomPlatformSite } from '@automattic/jetpack-script-data';
 import {
 	Button,
 	Card,
@@ -15,6 +14,7 @@ import {
 import { useCallback } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { Icon, check, globe, layout, megaphone } from '@wordpress/icons';
+import { buildUpgradeCheckoutUrl, getUpgradeProductSlug, getUpgradePlanName } from '../upgrade';
 import './style.scss';
 
 interface WelcomeProps {
@@ -23,17 +23,9 @@ interface WelcomeProps {
 
 const CHECKOUT_SOURCE = 'jetpack-podcast-welcome';
 
-// Self-hosted upsells Growth, WordPress.com Premium; the server injects the
-// matching product slug.
-const getUpgradeProductSlug = (): string =>
-	getScriptData()?.podcast?.upgrade?.product_slug ?? 'premium';
-
-const getUpgradePlanName = (): string => getScriptData()?.podcast?.upgrade?.plan_name ?? 'Premium';
-
 const getUpgradeCheckoutUrl = (): string => {
 	const data = getSiteData();
 	const adminUrl = data?.admin_url ?? '';
-	const productSlug = getUpgradeProductSlug();
 
 	// Prefer `site.suffix` since it preserves the full Calypso site fragment
 	// (e.g. `example.com::path` for mapped subdirectory sites). Fall back to
@@ -47,19 +39,17 @@ const getUpgradeCheckoutUrl = (): string => {
 		}
 	}
 
-	if ( ! slug ) {
-		return `https://wordpress.com/checkout/${ productSlug }`;
-	}
-
 	// `tab=settings` bypasses the welcome gate so buyers continue configuring
 	// the podcast instead of re-seeing this same pricing card after checkout.
-	const returnTo = adminUrl
-		? `${ adminUrl.replace( /\/$/, '' ) }/admin.php?page=jetpack-podcast&tab=settings`
-		: '';
-	const url = new URL( getProductCheckoutUrl( productSlug, slug, returnTo, true ) );
-	// Calypso threads `source` through its downstream Tracks events.
-	url.searchParams.set( 'source', CHECKOUT_SOURCE );
-	return url.toString();
+	const returnTo = adminUrl ? getAdminUrl( 'admin.php?page=jetpack-podcast&tab=settings' ) : '';
+
+	return buildUpgradeCheckoutUrl( {
+		siteSlug: slug,
+		returnUrl: returnTo,
+		// Calypso threads `source` through its downstream Tracks events.
+		params: { source: CHECKOUT_SOURCE },
+		noSiteSlugUrl: `https://wordpress.com/checkout/${ getUpgradeProductSlug() }`,
+	} );
 };
 
 const BENEFITS: ReadonlyArray< { icon: JSX.Element; title: string; body: string } > = [

@@ -1,11 +1,11 @@
 // Locked-preview UX for Episodes + Stats on free plans. Renders a blurred,
 // non-language skeleton of the gated content behind a centered upgrade card.
 
-import { getProductCheckoutUrl } from '@automattic/jetpack-components';
-import { getScriptData, getSiteData } from '@automattic/jetpack-script-data';
+import { getSiteData } from '@automattic/jetpack-script-data';
 import { Button } from '@wordpress/components';
 import { useId } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
+import { buildUpgradeCheckoutUrl, getUpgradePlanName } from '../upgrade';
 import './style.scss';
 
 export type LockedPreviewVariant = 'episodes' | 'stats';
@@ -17,23 +17,16 @@ interface LockedPreviewProps {
 const Skeleton = () => <span className="podcast-locked-preview__cell-skeleton" />;
 
 const LockedPreview = ( { variant }: LockedPreviewProps ) => {
-	const siteSuffix = getSiteData()?.suffix ?? '';
-	// Self-hosted upsells Growth, WordPress.com Premium; the server picks the
-	// product slug + plan name to match the host.
-	const upgrade = getScriptData()?.podcast?.upgrade;
-	const productSlug = upgrade?.product_slug ?? 'premium';
-	const planName = upgrade?.plan_name ?? 'Premium';
+	const planName = getUpgradePlanName();
 	const returnUrl = window.location.href;
-	const checkoutUrl = ( () => {
-		if ( ! siteSuffix ) {
-			return 'https://wordpress.com/pricing';
-		}
-		// `getProductCheckoutUrl` sets `redirect_to`; the cart's close button
-		// reads `cancel_to`, so both need to point back to the dashboard.
-		const url = new URL( getProductCheckoutUrl( productSlug, siteSuffix, returnUrl, true ) );
-		url.searchParams.set( 'cancel_to', returnUrl );
-		return url.toString();
-	} )();
+	// `getProductCheckoutUrl` sets `redirect_to`; the cart's close button reads
+	// `cancel_to`, so both point back to the current dashboard view.
+	const checkoutUrl = buildUpgradeCheckoutUrl( {
+		siteSlug: getSiteData()?.suffix ?? '',
+		returnUrl,
+		params: { cancel_to: returnUrl },
+		noSiteSlugUrl: 'https://wordpress.com/pricing',
+	} );
 
 	const titleId = useId();
 	const title =
