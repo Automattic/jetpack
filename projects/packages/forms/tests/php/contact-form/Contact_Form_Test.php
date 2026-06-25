@@ -4143,6 +4143,22 @@ class Contact_Form_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Resolve a Feedback_Source through get_current() with a render-scoped global set, then clear
+	 * the global. Mirrors how a real template/template-part render establishes the source type.
+	 *
+	 * @param string $global_key The render-scoped global to set (e.g. grunion_block_template_id).
+	 * @param string $value      The value to set it to (the template/part id).
+	 * @param array  $attributes Attributes to pass to get_current().
+	 * @return Feedback_Source
+	 */
+	private function source_from_render_global( $global_key, $value, $attributes = array() ) {
+		$GLOBALS[ $global_key ] = $value;
+		$source                 = Feedback_Source::get_current( $attributes );
+		unset( $GLOBALS[ $global_key ] );
+		return $source;
+	}
+
+	/**
 	 * Invoke the private reconcile_content_destinations() method on the plugin singleton.
 	 *
 	 * @param Contact_Form $form Form to reconcile.
@@ -4320,9 +4336,7 @@ class Contact_Form_Test extends BaseTestCase {
 	 * webhooks/postToUrl/Salesforce destinations were silently dropped from Jetpack 15.9.
 	 */
 	public function test_reconcile_content_destinations_keeps_destinations_for_block_template_source() {
-		$GLOBALS['grunion_block_template_id'] = 'mytheme//single';
-		$source                               = Feedback_Source::get_current( array() );
-		unset( $GLOBALS['grunion_block_template_id'] );
+		$source = $this->source_from_render_global( 'grunion_block_template_id', 'mytheme//single' );
 
 		$this->assertSame( 'block_template', $source->get_source_type(), 'Render-scoped global should yield a block_template source.' );
 
@@ -4393,18 +4407,14 @@ class Contact_Form_Test extends BaseTestCase {
 	 * (the legitimate path) is honored.
 	 */
 	public function test_render_anchored_template_sources_are_trusted() {
-		$GLOBALS['grunion_block_template_id'] = 'mytheme//single';
-		$template_source                      = Feedback_Source::get_current( array() );
-		unset( $GLOBALS['grunion_block_template_id'] );
+		$template_source = $this->source_from_render_global( 'grunion_block_template_id', 'mytheme//single' );
 
 		$this->assertSame( 'block_template', $template_source->get_source_type() );
 		$this->assertTrue(
 			\Automattic\Jetpack\Forms\Jetpack_Forms::should_honor_content_destinations( $template_source->get_id(), $template_source->get_source_type() )
 		);
 
-		$GLOBALS['grunion_block_template_part_id'] = 'mytheme//footer';
-		$part_source                               = Feedback_Source::get_current( array() );
-		unset( $GLOBALS['grunion_block_template_part_id'] );
+		$part_source = $this->source_from_render_global( 'grunion_block_template_part_id', 'mytheme//footer' );
 
 		$this->assertSame( 'block_template_part', $part_source->get_source_type() );
 		$this->assertTrue(
