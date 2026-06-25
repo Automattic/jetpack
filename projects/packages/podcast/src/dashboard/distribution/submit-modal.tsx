@@ -49,8 +49,7 @@ const isValidShowUrl = ( url: string, allowedHosts: readonly string[] ): boolean
 	if ( parsed.protocol !== 'https:' ) {
 		return false;
 	}
-	// No injected host list (stale bundle vs. new PHP) → skip the allowlist and
-	// let the server's authoritative check be the backstop.
+	// No host list injected → skip the check; the server validates anyway.
 	if ( allowedHosts.length === 0 ) {
 		return true;
 	}

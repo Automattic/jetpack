@@ -1,39 +1,38 @@
 import { getScriptData } from '@automattic/jetpack-script-data';
 import type { PodcatcherId } from './types';
 
-// Server-injected mirror of Settings::SHOW_URL_HOSTS / SHOW_URL_MAX_LENGTH. PHP
-// is authoritative; the dashboard reads these instead of hand-copying the values.
+// PHP owns these values and injects them; we just read them.
 const DEFAULT_MAX_LENGTH = 2048;
 
 /**
- * Directory→allowed-host map, lowercase and `www.`-stripped.
+ * The directory→allowed-hosts map PHP sent us.
  *
- * @return The injected host map, or `{}` when absent.
+ * @return The map, or `{}` if missing.
  */
 export const getShowUrlHosts = (): Partial< Record< PodcatcherId, readonly string[] > > =>
 	getScriptData()?.podcast?.show_url_hosts ?? {};
 
 /**
- * Hosts allowed for a single directory.
+ * Hosts allowed for one directory.
  *
- * @param id - Podcatcher id.
- * @return Allowed hosts, or `[]` when the map is absent.
+ * @param id - Which directory.
+ * @return Its hosts, or `[]` if missing.
  */
 export const getShowHostsFor = ( id: PodcatcherId ): readonly string[] =>
 	getShowUrlHosts()[ id ] ?? [];
 
 /**
- * Known podcatcher ids, derived from the injected host map.
+ * The directories PHP knows about.
  *
- * @return The list of podcatcher ids.
+ * @return Their ids.
  */
 export const getPodcatcherIds = (): readonly PodcatcherId[] =>
 	Object.keys( getShowUrlHosts() ) as PodcatcherId[];
 
 /**
- * Max accepted show-URL length.
+ * Longest show URL we accept.
  *
- * @return The injected max length, or the default.
+ * @return The limit.
  */
 export const getShowUrlMaxLength = (): number =>
 	getScriptData()?.podcast?.show_url_max_length ?? DEFAULT_MAX_LENGTH;

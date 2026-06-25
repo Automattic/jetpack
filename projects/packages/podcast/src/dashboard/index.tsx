@@ -1,5 +1,4 @@
-// Side-effect import: registers the apiFetch preloading middleware before any
-// hook can fire a mount-time REST request. Must stay first.
+// Registers the apiFetch preload middleware; must stay first (runs before any fetch).
 import './preload';
 import AdminPage from '@automattic/jetpack-components/admin-page';
 import { getAdminUrl, getScriptData, getSiteData } from '@automattic/jetpack-script-data';

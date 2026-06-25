@@ -54,8 +54,8 @@ const PODCAST_KEYS: Array< keyof PodcastSettings > = [
 	'podcasting_show_states',
 ];
 
-// Podcatcher ids come from the server-injected host map; union in whatever keys
-// the (server-padded) record carries so a missing map never drops stored values.
+// Ids from the injected map, plus the record's own keys, so a missing map never
+// drops stored values.
 const podcatcherIds = ( source: Record< string, unknown > ): readonly PodcatcherId[] =>
 	[ ...new Set( [ ...getPodcatcherIds(), ...Object.keys( source ) ] ) ] as PodcatcherId[];
 

@@ -83,8 +83,7 @@ class Admin_Page_Test extends BaseTestCase {
 	}
 
 	/**
-	 * The host allowlist and max length ride to the dashboard verbatim so PHP
-	 * stays the single source of truth for client-side URL validation.
+	 * The host allowlist + max length reach the dashboard verbatim.
 	 */
 	public function test_inject_script_data_exposes_show_url_hosts() {
 		$data = Admin_Page::inject_podcast_script_data( array() );
@@ -94,8 +93,7 @@ class Admin_Page_Test extends BaseTestCase {
 	}
 
 	/**
-	 * The mount-time REST responses are preloaded into script data so the first
-	 * render serves them from cache instead of the network.
+	 * The preload map is present in script data.
 	 */
 	public function test_inject_script_data_includes_preload_map() {
 		$data = Admin_Page::inject_podcast_script_data( array() );
