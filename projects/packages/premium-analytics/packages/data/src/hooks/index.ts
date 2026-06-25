@@ -38,6 +38,11 @@ export type {
 } from './use-stats-app-plan-usage';
 export { useStatsArchives, type StatsArchivesResponse } from './use-stats-archives';
 export {
+	useStatsComments,
+	type StatsCommentsParams,
+	type StatsCommentsResponse,
+} from './use-stats-comments';
+export {
 	useStatsStreak,
 	type StatsStreakParams,
 	type StatsStreakResponse,

@@ -3,6 +3,7 @@
  */
 import { statsAppProxyQuery } from '../stats-app-query';
 import { statsArchivesQuery } from '../stats-archives-query';
+import { statsCommentsQuery } from '../stats-comments-query';
 import { STATS_HIGHLIGHTS_STALE_TIME, statsHighlightsQuery } from '../stats-highlights-query';
 import { statsInsightsQuery } from '../stats-insights-query';
 import { statsLocationsQuery } from '../stats-locations-query';
@@ -200,6 +201,22 @@ describe( 'Stats query factories', () => {
 			'highlights',
 		] );
 		expect( query.staleTime ).toBe( STATS_HIGHLIGHTS_STALE_TIME );
+	} );
+
+	it( 'builds comments query keys without date params', () => {
+		const query = statsCommentsQuery();
+
+		expect( query.enabled ).toBe( true );
+		expect( query.queryKey ).toEqual( [
+			'stats',
+			'comments',
+			'1.1',
+			'stats/comments',
+			'GET',
+			{},
+			undefined,
+			'comments',
+		] );
 	} );
 
 	it( 'shares app query keys for empty and omitted params', () => {

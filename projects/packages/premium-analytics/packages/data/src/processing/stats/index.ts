@@ -20,6 +20,7 @@ export { sanitizeStatsUtmResponse } from './utm';
 export { sanitizeStatsEmailSummaryResponse } from './email-summary';
 export { sanitizeStatsEmailBreakdownResponse } from './email-breakdown';
 export { sanitizeStatsArchivesResponse } from './archives';
+export { sanitizeStatsCommentsResponse } from './comments';
 export { sanitizeStatsStreakResponse } from './streak';
 export type { StatsTopPostsItem } from './top-posts';
 export type {
@@ -54,6 +55,17 @@ export type { StatsUtmItem, StatsUtmParam, StatsUtmTopPostItem } from './utm';
 export type { StatsEmailSummaryItem } from './email-summary';
 export type { StatsEmailBreakdownItem } from './email-breakdown';
 export type { StatsArchivesItem } from './archives';
+export type {
+	StatsCommentsAuthorItem,
+	StatsCommentsGroupItem,
+	StatsCommentsItem,
+	StatsCommentsPostItem,
+	StatsCommentsRawAuthor,
+	StatsCommentsRawFollowData,
+	StatsCommentsRawPost,
+	StatsCommentsRawResponse,
+	StatsCommentsResponse,
+} from './comments';
 export type { StatsStreakRawResponse, StatsStreakResponse } from './streak';
 export type { StatsTimeSeriesDataPoint, StatsTimeSeriesReport } from './time-series';
 export type {
