@@ -139,65 +139,13 @@ class Admin_Page {
 			// Source of truth for the dashboard's directory list + URL validation.
 			'show_url_hosts'      => Settings::SHOW_URL_HOSTS,
 			'show_url_max_length' => Settings::SHOW_URL_MAX_LENGTH,
-			// Lets the dashboard skip its mount-time REST fetches.
-			'preload'             => self::build_preload(),
+			// Seed the settings response so the dashboard skips its mount-time fetch.
+			// Only settings: categories rejects per_page=-1 server-side, and stats
+			// is a live wpcom relay we don't want to block page render on.
+			'preload'             => rest_preload_api_request( array(), '/wpcom/v2/podcast/settings' ),
 		);
 
 		return $data;
-	}
-
-	/**
-	 * Pre-fetch the settings + categories REST responses so the dashboard reads
-	 * them from cache instead of hitting the network on first render. Keys must
-	 * match what core-data requests, or the cache silently misses.
-	 *
-	 * @return array<string, array{body: mixed, headers: array<string, string>}>
-	 */
-	private static function build_preload() {
-		$preload = rest_preload_api_request( array(), '/wpcom/v2/podcast/settings' );
-
-		$preload = self::add_categories_preload( $preload );
-
-		return $preload;
-	}
-
-	/**
-	 * Add the category list to the preload map.
-	 *
-	 * The dashboard asks core-data for every category (`per_page=-1`), but the
-	 * terms endpoint rejects `-1`, so core-data paginates at `per_page=100`. We
-	 * fetch page one — a request the server accepts — and store it under the
-	 * `per_page=-1` key the dashboard's first request matches on. Skipped when the
-	 * list spans more than one page, or we'd truncate the picker (preloading
-	 * short-circuits the pagination that would fetch the rest).
-	 *
-	 * @param array $preload Preload map so far.
-	 * @return array
-	 */
-	private static function add_categories_preload( $preload ) {
-		$page_path = '/wp/v2/categories?context=edit&per_page=100';
-		$fetched   = rest_preload_api_request( array(), $page_path );
-
-		if ( ! isset( $fetched[ $page_path ] ) ) {
-			return $preload;
-		}
-
-		$entry   = $fetched[ $page_path ];
-		$headers = isset( $entry['headers'] ) && is_array( $entry['headers'] ) ? $entry['headers'] : array();
-
-		$total_pages = 1;
-		foreach ( $headers as $name => $value ) {
-			if ( 'x-wp-totalpages' === strtolower( (string) $name ) ) {
-				$total_pages = (int) $value;
-				break;
-			}
-		}
-
-		if ( $total_pages <= 1 ) {
-			$preload['/wp/v2/categories?context=edit&per_page=-1'] = $entry;
-		}
-
-		return $preload;
 	}
 
 	/**
