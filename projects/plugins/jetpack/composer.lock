@@ -2348,7 +2348,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/newsletter",
-                "reference": "e53e38787184924e6b2e524771505cdb4d001c7b"
+                "reference": "df4fd79f3320bb90180e5d45221b876e8d3b1cea"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
@@ -2374,7 +2374,7 @@
                 "autotagger": true,
                 "mirror-repo": "Automattic/jetpack-newsletter",
                 "branch-alias": {
-                    "dev-trunk": "0.10.x-dev"
+                    "dev-trunk": "0.11.x-dev"
                 },
                 "textdomain": "jetpack-newsletter",
                 "version-constants": {
@@ -2685,7 +2685,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/podcast",
-                "reference": "6e99ee67210e9bc15e164c3c2709484a1cb5f830"
+                "reference": "8a89ed121998919f66c87e58c084442525610de5"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
@@ -2711,7 +2711,7 @@
                 "autotagger": true,
                 "mirror-repo": "Automattic/jetpack-podcast",
                 "branch-alias": {
-                    "dev-trunk": "1.1.x-dev"
+                    "dev-trunk": "1.2.x-dev"
                 },
                 "textdomain": "jetpack-podcast",
                 "version-constants": {
@@ -3393,7 +3393,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/seo",
-                "reference": "02842a63809dacc79d1186ffcfa5182b7fd21431"
+                "reference": "d5f2a3a81b650a00fd065109ed5cee9bc95d98e7"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
@@ -3419,7 +3419,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-seo/compare/${old}...${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "0.2.x-dev"
+                    "dev-trunk": "0.3.x-dev"
                 },
                 "version-constants": {
                     "::PACKAGE_VERSION": "src/class-initializer.php"

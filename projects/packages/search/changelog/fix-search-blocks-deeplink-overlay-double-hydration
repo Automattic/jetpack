@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Search Blocks: Fix deep-link searches (?s=) rendering no results or filter buckets by hydrating the overlay once, after the Interactivity runtime's initial walk.

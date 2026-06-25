@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.41] - 2026-06-25
+### Changed
+- Update package dependencies. [#49831]
+
 ## [1.0.40] - 2026-06-08
 ### Changed
 - Internal updates.
@@ -176,6 +180,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Initial release.
 
+[1.0.41]: https://github.com/Automattic/remove-asset-webpack-plugin/compare/v1.0.40...v1.0.41
 [1.0.40]: https://github.com/Automattic/remove-asset-webpack-plugin/compare/v1.0.39...v1.0.40
 [1.0.39]: https://github.com/Automattic/remove-asset-webpack-plugin/compare/v1.0.38...v1.0.39
 [1.0.38]: https://github.com/Automattic/remove-asset-webpack-plugin/compare/v1.0.37...v1.0.38
