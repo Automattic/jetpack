@@ -21,7 +21,7 @@
 	--jp-cookie-consent--color-border: #dcdcde;
 	--jp-cookie-consent--spacing: 16px;
 	--jp-cookie-consent--font-size: 16px;
-	--jp-cookie-consent--z-index: 50000;
+	--jp-cookie-consent--z-index: 999999;
 }
 
 /* Banner */
@@ -31,7 +31,7 @@
 	bottom: 0;
 	left: 0;
 	right: 0;
-	z-index: var(--jp-cookie-consent--z-index, 50000);
+	z-index: var(--jp-cookie-consent--z-index, 999999);
 	pointer-events: auto;
 	align-items: flex-end;
 }
@@ -129,7 +129,7 @@
 	right: 0;
 	top: 0;
 	transition: opacity 0.3s;
-	z-index: var(--jp-cookie-consent--z-index, 50000);
+	z-index: var(--jp-cookie-consent--z-index, 999999);
 }
 
 :where(.jetpack-cookie-consent__modal-overlay[hidden]) {
@@ -163,7 +163,7 @@
 	position: fixed;
 	transform: translateY(50px);
 	width: 100%;
-	z-index: calc(var(--jp-cookie-consent--z-index, 50000) + 1);
+	z-index: calc(var(--jp-cookie-consent--z-index, 999999) + 1);
 }
 
 :where(.jetpack-cookie-consent__modal[hidden]) {
@@ -419,6 +419,11 @@
 	transition: all 0.2s ease;
 }
 
+/* The checkmark is iconographic, not directional, so keep it identical in RTL.
+   rtl:ignore stops rtlcss from mirroring the border/rotation into a backwards
+   check. */
+
+/* rtl:ignore */
 .jetpack-cookie-consent__category-checkbox-icon::after {
 	content: "";
 	position: absolute;
@@ -535,7 +540,7 @@ input[type="checkbox"]:focus-visible + label
 	position: fixed;
 	bottom: 20px;
 	left: 20px;
-	z-index: 50000;
+	z-index: var(--jp-cookie-consent--z-index, 999999);
 	display: flex;
 	flex-direction: column;
 	align-items: flex-start;
@@ -669,7 +674,7 @@ input[type="checkbox"]:focus-visible + label
 	position: fixed;
 	bottom: 20px;
 	left: 20px;
-	z-index: var(--jp-cookie-consent--z-index, 50000);
+	z-index: var(--jp-cookie-consent--z-index, 999999);
 	max-width: calc(100% - 100px);
 }
 
