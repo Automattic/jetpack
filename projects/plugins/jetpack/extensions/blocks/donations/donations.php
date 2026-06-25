@@ -399,7 +399,6 @@ function render_email( $block_content, array $parsed_block, $rendering_context )
 	}
 
 	$alignment   = in_array( $attr['contentAlignment'] ?? '', array( 'left', 'center', 'right' ), true ) ? $attr['contentAlignment'] : 'left';
-	$email_attrs = $parsed_block['email_attrs'] ?? array();
 	$table_style = sprintf( 'width:100%%;max-width:%dpx;border-collapse:collapse;', get_email_target_width( $rendering_context ) );
 
 	$sections = '';
@@ -431,7 +430,7 @@ function render_email( $block_content, array $parsed_block, $rendering_context )
 				$extra
 			);
 		}
-		$content .= render_email_donate_button( $interval['buttonText'] ?? $default_texts[ $key ]['buttonText'], $url, $attr, $rendering_context, $email_attrs );
+		$content .= render_email_donate_button( $interval['buttonText'] ?? $default_texts[ $key ]['buttonText'], $url, $attr, $rendering_context );
 
 		$is_first   = '' === $sections;
 		$cell_style = sprintf(
@@ -458,16 +457,14 @@ function render_email( $block_content, array $parsed_block, $rendering_context )
  * @param string $url               Button destination.
  * @param array  $attr              Donations block attributes.
  * @param object $rendering_context The email rendering context.
- * @param array  $email_attrs       Email-specific attributes passed through to the button.
  * @return string
  */
-function render_email_donate_button( $text, $url, $attr, $rendering_context, $email_attrs ) {
+function render_email_donate_button( $text, $url, $attr, $rendering_context ) {
 	$text = trim( wp_strip_all_tags( (string) $text ) );
 
 	$button_attrs = array(
-		'text'    => '' !== $text ? $text : __( 'Donate', 'jetpack' ),
-		'url'     => $url,
-		'element' => 'a',
+		'text' => '' !== $text ? $text : __( 'Donate', 'jetpack' ),
+		'url'  => $url,
 	);
 
 	if ( ! empty( $attr['buttonFontSize'] ) && is_string( $attr['buttonFontSize'] ) ) {
@@ -482,10 +479,7 @@ function render_email_donate_button( $text, $url, $attr, $rendering_context, $em
 
 	return \Automattic\Jetpack\Extensions\Button\render_email(
 		'',
-		array(
-			'attrs'       => $button_attrs,
-			'email_attrs' => $email_attrs,
-		),
+		array( 'attrs' => $button_attrs ),
 		$rendering_context
 	);
 }
@@ -501,7 +495,7 @@ function get_email_target_width( $rendering_context ) {
 	$target_width = 600;
 	if ( is_object( $rendering_context ) && method_exists( $rendering_context, 'get_layout_width_without_padding' ) ) {
 		$width = $rendering_context->get_layout_width_without_padding();
-		if ( is_string( $width ) && preg_match( '/(\d+)/', $width, $matches ) ) {
+		if ( is_string( $width ) && preg_match( '/(\d+)px/', $width, $matches ) ) {
 			$parsed = (int) $matches[1];
 			if ( $parsed > 0 ) {
 				$target_width = $parsed;
