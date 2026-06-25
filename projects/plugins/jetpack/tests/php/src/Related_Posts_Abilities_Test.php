@@ -89,6 +89,15 @@ class Related_Posts_Abilities_Test extends WP_UnitTestCase {
 		}
 	}
 
+	public function test_related_posts_description_references_current_module_abilities() {
+		$abilities   = Related_Posts_Abilities::get_abilities();
+		$description = $abilities['jetpack-related-posts/get-related-posts']['description'];
+
+		$this->assertStringContainsString( 'jetpack/get-modules', $description );
+		$this->assertStringContainsString( 'jetpack/set-module-status', $description );
+		$this->assertStringNotContainsString( 'jetpack-modules/', $description );
+	}
+
 	public function test_no_spec_sets_category_explicitly() {
 		foreach ( Related_Posts_Abilities::get_abilities() as $slug => $spec ) {
 			$this->assertArrayNotHasKey(
