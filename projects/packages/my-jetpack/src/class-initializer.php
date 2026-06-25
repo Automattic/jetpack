@@ -159,13 +159,9 @@ class Initializer {
 	 * @return void
 	 */
 	public static function add_my_jetpack_menu_item() {
-		$menu_label = Products_Page::is_products_only_enabled()
-			? __( 'Products', 'jetpack-my-jetpack' )
-			: __( 'My Jetpack', 'jetpack-my-jetpack' );
-
 		$page_suffix = Admin_Menu::add_menu(
 			__( 'My Jetpack', 'jetpack-my-jetpack' ),
-			$menu_label,
+			__( 'My Jetpack', 'jetpack-my-jetpack' ),
 			'edit_posts',
 			'my-jetpack',
 			array( __CLASS__, 'admin_page' ),
