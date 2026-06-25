@@ -8,24 +8,20 @@ import { getScriptData } from '@automattic/jetpack-script-data';
 
 // Self-hosted upsells Growth, WordPress.com Premium; the server injects the
 // matching slug + plan name (see Admin_Page::inject_podcast_script_data). The
-// defaults reproduce today's Premium/WordPress.com behavior for an old bundle
-// running against PHP that doesn't yet inject `upgrade`.
-const DEFAULT_PRODUCT_SLUG = 'premium';
-const DEFAULT_PLAN_NAME = 'Premium';
-
+// `'premium'` / `'Premium'` fallbacks reproduce today's Premium/WordPress.com
+// behavior for an old bundle running against PHP that doesn't yet inject
+// `upgrade`.
 export const getUpgradeProductSlug = (): string =>
-	getScriptData()?.podcast?.upgrade?.product_slug ?? DEFAULT_PRODUCT_SLUG;
+	getScriptData()?.podcast?.upgrade?.product_slug ?? 'premium';
 
 export const getUpgradePlanName = (): string =>
-	getScriptData()?.podcast?.upgrade?.plan_name ?? DEFAULT_PLAN_NAME;
-
-// Marker the server watches for (Admin_Page::PURCHASE_RETURN_QUERY_VAR) to bust
-// its cached purchases lookup the instant a buyer returns from checkout.
-export const PURCHASE_RETURN_PARAM = 'podcast_purchased';
+	getScriptData()?.podcast?.upgrade?.plan_name ?? 'Premium';
 
 /**
  * Append the post-checkout marker to a return URL so the server re-reads the
  * site's plan on arrival and unlocks the paid surfaces without waiting on cache.
+ *
+ * The `podcast_purchased` literal must match `Admin_Page::PURCHASE_RETURN_QUERY_VAR`.
  *
  * @param {string} url - The checkout return URL; an empty string is passed through.
  * @return {string} The URL carrying the purchase-return marker.
@@ -35,7 +31,7 @@ export const withPurchaseReturnMarker = ( url: string ): string => {
 		return url;
 	}
 	const next = new URL( url );
-	next.searchParams.set( PURCHASE_RETURN_PARAM, '1' );
+	next.searchParams.set( 'podcast_purchased', '1' );
 	return next.toString();
 };
 

@@ -21,7 +21,8 @@ class Admin_Page {
 	/**
 	 * Query var the checkout return URL carries so the gate busts its cached
 	 * purchases lookup the instant a buyer lands back on the dashboard. Kept in
-	 * sync with `PURCHASE_RETURN_PARAM` in `src/dashboard/upgrade.ts`.
+	 * sync with the `podcast_purchased` literal in `withPurchaseReturnMarker()`
+	 * (`src/dashboard/upgrade.ts`).
 	 */
 	const PURCHASE_RETURN_QUERY_VAR = 'podcast_purchased';
 

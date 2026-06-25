@@ -38,25 +38,12 @@ class Podcast_Gate {
 	const GRANDFATHER_CUTOFF_DATE = '2026-05-18';
 
 	/**
-	 * Product-slug prefixes that unlock the paid surfaces on self-hosted
-	 * Jetpack. Matched as prefixes so every billing term/tier counts.
-	 */
-	const PAID_PLAN_SLUG_PREFIXES = array( 'jetpack_growth', 'jetpack_complete' );
-
-	/**
-	 * Transient holding the cached `/upgrades` response. Short-lived (see
-	 * `PURCHASES_TTL`): mainly dedupes the lookup across a single page load.
-	 * A buyer returning from checkout busts it outright via
-	 * `flush_purchases_cache()`, so the TTL only bounds the unlikely case where
-	 * that signal is missed.
+	 * Transient holding the cached `/upgrades` response. Short-lived (30s, set
+	 * below): mainly dedupes the lookup across a single page load. A buyer
+	 * returning from checkout busts it outright via `flush_purchases_cache()`,
+	 * so the TTL only bounds the unlikely case where that signal is missed.
 	 */
 	const PURCHASES_TRANSIENT = 'jetpack_podcast_site_purchases';
-
-	/**
-	 * How long the cached `/upgrades` response lives, in seconds. Kept short so
-	 * a plan change is reflected quickly even without the checkout-return bust.
-	 */
-	const PURCHASES_TTL = 30;
 
 	/**
 	 * Request-scoped memo of the purchases lookup (including failures, so a
@@ -110,7 +97,9 @@ class Podcast_Gate {
 		foreach ( self::get_site_current_purchases() as $purchase ) {
 			$slug = is_array( $purchase ) && isset( $purchase['product_slug'] ) ? $purchase['product_slug'] : '';
 
-			foreach ( self::PAID_PLAN_SLUG_PREFIXES as $prefix ) {
+			// Growth and Complete bundles unlock the paid surfaces; matched as
+			// prefixes so every billing term/tier counts.
+			foreach ( array( 'jetpack_growth', 'jetpack_complete' ) as $prefix ) {
 				if ( is_string( $slug ) && 0 === strpos( $slug, $prefix ) ) {
 					return true;
 				}
@@ -157,7 +146,9 @@ class Podcast_Gate {
 			return self::$purchases_cache;
 		}
 
-		set_transient( self::PURCHASES_TRANSIENT, $decoded, self::PURCHASES_TTL );
+		// 30s: short enough that a plan change shows up quickly even if the
+		// checkout-return bust is missed, long enough to dedupe a page load.
+		set_transient( self::PURCHASES_TRANSIENT, $decoded, 30 );
 		self::$purchases_cache = $decoded;
 		return self::$purchases_cache;
 	}
