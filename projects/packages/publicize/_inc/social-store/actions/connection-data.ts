@@ -12,6 +12,7 @@ import {
 	DELETING_CONNECTION,
 	FETCHING_KEYRING_RESULT,
 	SET_CONNECT_SOURCE,
+	SET_CONNECTING_SERVICE,
 	SET_RECONNECTING_ACCOUNT,
 	SET_CONNECTIONS,
 	SET_KEYRING_RESULT,
@@ -56,6 +57,20 @@ export function setConnectSource( connectSource?: 'editor' ) {
 	return {
 		type: SET_CONNECT_SOURCE,
 		connectSource,
+	};
+}
+
+/**
+ * Set the service currently connecting from the editor (drives its "Connecting…" state).
+ *
+ * @param connectingService - The service id, or undefined to clear.
+ *
+ * @return An action object.
+ */
+export function setConnectingService( connectingService?: string ) {
+	return {
+		type: SET_CONNECTING_SERVICE,
+		connectingService,
 	};
 }
 

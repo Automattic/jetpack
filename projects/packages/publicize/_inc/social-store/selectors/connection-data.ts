@@ -215,6 +215,17 @@ export function getConnectSource( state: SocialStoreState ) {
 }
 
 /**
+ * Returns the service currently connecting from the editor.
+ *
+ * @param state - State object.
+ *
+ * @return The connecting service id.
+ */
+export function getConnectingService( state: SocialStoreState ) {
+	return state.connectionData?.connectingService;
+}
+
+/**
  * Whether the keyring result for a completed connect request is being fetched.
  *
  * @param state - State object.

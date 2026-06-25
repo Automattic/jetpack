@@ -23,8 +23,13 @@ export const ManageConnectionsModal = () => {
 		};
 	}, [] );
 
-	const { setKeyringResult, closeConnectionsModal, setReconnectingAccount, setConnectSource } =
-		useDispatch( store );
+	const {
+		setKeyringResult,
+		closeConnectionsModal,
+		setReconnectingAccount,
+		setConnectSource,
+		setConnectingService,
+	} = useDispatch( store );
 
 	const isSmall = useViewportMatch( 'small', '<' );
 
@@ -32,8 +37,15 @@ export const ManageConnectionsModal = () => {
 		setKeyringResult( null );
 		setReconnectingAccount( undefined );
 		setConnectSource( undefined );
+		setConnectingService( undefined );
 		closeConnectionsModal();
-	}, [ closeConnectionsModal, setConnectSource, setKeyringResult, setReconnectingAccount ] );
+	}, [
+		closeConnectionsModal,
+		setConnectSource,
+		setConnectingService,
+		setKeyringResult,
+		setReconnectingAccount,
+	] );
 
 	const hasKeyringResult = Boolean( keyringResult?.ID );
 

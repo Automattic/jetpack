@@ -1,5 +1,5 @@
 import { getAdminUrl } from '@automattic/jetpack-script-data';
-import { useSelect } from '@wordpress/data';
+import { useDispatch, useSelect } from '@wordpress/data';
 import { useCallback, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Button } from '@wordpress/ui';
@@ -57,6 +57,14 @@ export function ConnectForm( {
 	// In the editor we don't redirect the tab; we open the connect flow on the Social admin page.
 	const isEditor = useIsEditor();
 
+	const { setConnectingService } = useDispatch( store );
+
+	// In the editor, this service shows "Connecting…" while its admin tab is in flight.
+	const isConnectingThis = useSelect(
+		select => isEditor && select( store ).getConnectingService() === service.id,
+		[ isEditor, service.id ]
+	);
+
 	const [ isConnecting, setIsConnecting ] = useState( false );
 
 	const isFetchingServicesList = useSelect(
@@ -89,6 +97,8 @@ export function ConnectForm( {
 					),
 					'_blank'
 				);
+				// Keep the picker showing "Connecting…" until the connection lands (or times out).
+				setConnectingService( service.id );
 				return;
 			}
 
@@ -104,8 +114,10 @@ export function ConnectForm( {
 				setIsConnecting( false );
 			}
 		},
-		[ isEditor, onSubmit, reconnectingAccount, requestAccess, service.id ]
+		[ isEditor, onSubmit, reconnectingAccount, requestAccess, service.id, setConnectingService ]
 	);
+
+	const showConnecting = isFetchingServicesList || isConnecting || isConnectingThis;
 
 	return (
 		<form
@@ -127,14 +139,14 @@ export function ConnectForm( {
 					variant={ hasConnections ? 'outline' : 'solid' }
 					size={ buttonSize }
 					type="submit"
-					disabled={ isFetchingServicesList || isConnecting }
+					disabled={ showConnecting }
 				>
 					{ ( label => {
-						if ( label ) {
+						if ( label && ! isConnectingThis ) {
 							return label;
 						}
 
-						if ( isFetchingServicesList || isConnecting ) {
+						if ( showConnecting ) {
 							return __( 'Connecting…', 'jetpack-publicize-pkg' );
 						}
 

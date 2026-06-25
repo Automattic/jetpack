@@ -42,6 +42,8 @@ export type ConnectionData = {
 	keyringResult?: KeyringResult;
 	/** Source that initiated the current connect flow (drives editor broadcast + tab self-close). */
 	connectSource?: 'editor';
+	/** Service currently connecting from the editor (drives its "Connecting…" state). */
+	connectingService?: string;
 	/**
 	 * Whether the keyring result for an auth_flow=v2 connect request is being fetched.
 	 */
