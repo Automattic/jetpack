@@ -490,6 +490,15 @@ input[type="checkbox"]:focus-visible + label
 	gap: 8px;
 }
 
+/* The control ships with `hidden` and is only revealed when there's a
+   region-specific required link (see data-wp-bind--hidden in the template). The
+   `display: flex` above out-specifies the UA `[hidden] { display: none }`, so
+   restore it explicitly — otherwise the control stays visible and overlaps the
+   consent banner. */
+.jetpack-cookie-consent-footer-links[hidden] {
+	display: none;
+}
+
 .jetpack-cookie-consent-footer-links__toggle {
 	display: inline-flex;
 	align-items: center;
