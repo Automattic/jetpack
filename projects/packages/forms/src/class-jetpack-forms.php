@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Forms;
 
+use Automattic\Jetpack\Forms\ContactForm\Feedback_Source;
 use Automattic\Jetpack\Forms\ContactForm\Util;
 use Automattic\Jetpack\Forms\Dashboard\Dashboard;
 /**
@@ -172,7 +173,7 @@ class Jetpack_Forms {
 		// Block templates, template parts and widgets can only be authored by users with the
 		// administrator-tier `edit_theme_options` capability, so their destinations are trusted
 		// even though the source id is not a numeric post.
-		if ( in_array( $source_type, array( 'block_template', 'block_template_part', 'widget' ), true ) ) {
+		if ( in_array( $source_type, Feedback_Source::ADMIN_TIER_SOURCE_TYPES, true ) ) {
 			return true;
 		}
 

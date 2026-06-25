@@ -15,6 +15,15 @@ namespace Automattic\Jetpack\Forms\ContactForm;
 class Feedback_Source {
 
 	/**
+	 * Source types whose forms can only be placed by a user with the administrator-tier
+	 * `edit_theme_options` capability. Destinations declared in these surfaces are trusted
+	 * even though they have no numeric post author to check.
+	 *
+	 * @var string[]
+	 */
+	const ADMIN_TIER_SOURCE_TYPES = array( 'block_template', 'block_template_part', 'widget' );
+
+	/**
 	 * The ID of the post or page that the feedback was created on.
 	 *
 	 * @var string

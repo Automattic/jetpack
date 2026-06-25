@@ -4193,30 +4193,14 @@ class Contact_Form_Test extends BaseTestCase {
 	 * Test should_honor_content_destinations honors block-template, template-part and widget
 	 * sources, whose (non-numeric) ids have no post author but require an administrator-tier
 	 * `edit_theme_options` capability to author.
-	 *
-	 * @dataProvider data_admin_tier_source_types
-	 *
-	 * @param string $source_type The source type to honor.
 	 */
-	#[DataProvider( 'data_admin_tier_source_types' )]
-	public function test_should_honor_content_destinations_for_admin_tier_sources( $source_type ) {
-		$this->assertTrue(
-			\Automattic\Jetpack\Forms\Jetpack_Forms::should_honor_content_destinations( 'mytheme//page', $source_type ),
-			"Destinations should be honored for $source_type sources."
-		);
-	}
-
-	/**
-	 * Source types that can only be authored with an administrator-tier capability.
-	 *
-	 * @return array
-	 */
-	public static function data_admin_tier_source_types() {
-		return array(
-			'block template'      => array( 'block_template' ),
-			'block template part' => array( 'block_template_part' ),
-			'widget'              => array( 'widget' ),
-		);
+	public function test_should_honor_content_destinations_for_admin_tier_sources() {
+		foreach ( Feedback_Source::ADMIN_TIER_SOURCE_TYPES as $source_type ) {
+			$this->assertTrue(
+				\Automattic\Jetpack\Forms\Jetpack_Forms::should_honor_content_destinations( 'mytheme//page', $source_type ),
+				"Destinations should be honored for $source_type sources."
+			);
+		}
 	}
 
 	/**
