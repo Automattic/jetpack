@@ -13,7 +13,35 @@
 }
 
 // Persistent warning shown on a single form's responses view when the form
-// isn't collecting responses anywhere.
-.jetpack-forms__not-collecting-banner.components-notice {
+// isn't collecting responses anywhere (and the form already has responses).
+.jetpack-forms__not-collecting-banner {
 	margin: 16px;
+}
+
+// Front-and-center warning that replaces the responses table when a single form
+// isn't collecting responses and has none stored. The wrapper centers the state
+// horizontally without letting the surrounding flex column stretch it (which
+// otherwise distorts the icon and balloons the spacing).
+.jetpack-forms__not-collecting-callout {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	width: 100%;
+	min-height: 320px;
+	padding: 64px 32px;
+	box-sizing: border-box;
+	text-align: center;
+}
+
+.jetpack-forms__not-collecting-empty {
+	max-width: 420px;
+
+	// Keep the warning icon at its intended size; an unconstrained SVG in a tall
+	// flex parent stretches into an ellipse.
+	svg {
+		width: 48px;
+		height: 48px;
+		fill: var(--wpds-color-fg-content-error, #b32d2e);
+	}
 }

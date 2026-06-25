@@ -43,13 +43,19 @@ body.jetpack_page_jetpack-forms-admin {
 	padding-right: 24px;
 }
 
-// Warning icon next to a form that isn't collecting responses.
-.jetpack-forms__not-collecting-icon {
+// Tooltip trigger (button) wrapping the "not collecting" badge in the list.
+// The Badge carries its own intent colour; the button only needs a reset so
+// it sits inline with the form title.
+.jetpack-forms__not-collecting-badge {
 	display: inline-flex;
 	align-items: center;
-	color: #b32d2e;
+	padding: 0;
+	border: 0;
+	background: none;
+	cursor: help;
 
 	svg {
 		fill: currentColor;
+		margin-inline-end: 2px;
 	}
 }

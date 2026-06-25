@@ -442,7 +442,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 
 		return sprintf(
 			'<div class="jetpack-form-status-notice jetpack-form-status-notice--warning jetpack-form-not-collecting-notice"><p>%s</p></div>',
-			esc_html__( 'Only you can see this. This form isn’t collecting responses. Turn on email or saving to start.', 'jetpack-forms' )
+			esc_html__( 'Only you can see this. This form isn’t collecting responses. Turn on email notifications or response storage in form settings.', 'jetpack-forms' )
 		);
 	}
 

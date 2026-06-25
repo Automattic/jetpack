@@ -5,7 +5,7 @@ import { isSimpleSite } from '@automattic/jetpack-script-data';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { createInterpolateElement, useCallback, useMemo } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
-import { page, search, shield, trash } from '@wordpress/icons';
+import { caution, page, search, shield, trash } from '@wordpress/icons';
 import { Button, EmptyState, Link } from '@wordpress/ui';
 /**
  * Internal dependencies
@@ -38,6 +38,10 @@ type EmptyResponsesProps = {
 	isSingleFormView?: boolean;
 	readStatusFilter?: 'unread' | 'read';
 	status: string;
+	/** Whether the form isn't collecting responses anywhere (email + saving off). */
+	isNotCollecting?: boolean;
+	/** Editor deep links used by the not-collecting empty state. */
+	notCollectingLinks?: { email: string; storage: string };
 };
 
 /**
@@ -160,6 +164,8 @@ const EmptyResponses = ( {
 	isSingleFormView = false,
 	readStatusFilter,
 	status,
+	isNotCollecting = false,
+	notCollectingLinks,
 }: EmptyResponsesProps ) => {
 	const emptyTrashDays = useConfigValue( 'emptyTrashDays' ) ?? 0;
 	const {
@@ -232,6 +238,37 @@ const EmptyResponses = ( {
 				<EmptyState.Icon icon={ shield } />
 				<EmptyState.Title>{ noSpamHeading }</EmptyState.Title>
 				<EmptyState.Description>{ noSpamMessage }</EmptyState.Description>
+			</EmptyState.Root>
+		);
+	}
+
+	// A single form that isn't collecting responses anywhere: surface the warning
+	// front and center (large warning icon + action buttons) in place of the
+	// responses table, rather than the generic "no responses yet" message, so the
+	// problem is impossible to miss and the messaging doesn't contradict itself.
+	if ( isSingleFormView && isNotCollecting ) {
+		return (
+			<EmptyState.Root className="jetpack-forms__not-collecting-empty">
+				<EmptyState.Icon icon={ caution } />
+				<EmptyState.Title>
+					{ __( 'This form isn’t collecting responses', 'jetpack-forms' ) }
+				</EmptyState.Title>
+				<EmptyState.Description>
+					{ __(
+						'Submissions are silently dropped because this form has nowhere to send them.',
+						'jetpack-forms'
+					) }
+				</EmptyState.Description>
+				{ notCollectingLinks && (
+					<EmptyState.Actions>
+						<Link href={ notCollectingLinks.email }>
+							{ __( 'Turn on email notifications', 'jetpack-forms' ) }
+						</Link>
+						<Link href={ notCollectingLinks.storage }>
+							{ __( 'Turn on response storage', 'jetpack-forms' ) }
+						</Link>
+					</EmptyState.Actions>
+				) }
 			</EmptyState.Root>
 		);
 	}

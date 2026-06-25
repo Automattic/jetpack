@@ -6,19 +6,23 @@ import { formatNumber } from '@automattic/number-formatters';
 /**
  * WordPress dependencies
  */
-import {
-	Notice,
-	__experimentalText as Text, // eslint-disable-line @wordpress/no-unsafe-wp-apis
-} from '@wordpress/components';
+import { __experimentalText as Text } from '@wordpress/components'; // eslint-disable-line @wordpress/no-unsafe-wp-apis
 import { store as coreStore } from '@wordpress/core-data';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { DataViews } from '@wordpress/dataviews';
 import { dateI18n, getSettings as getDateSettings } from '@wordpress/date';
-import { useMemo, useState, useCallback, useEffect } from '@wordpress/element';
+import {
+	useMemo,
+	useState,
+	useCallback,
+	useEffect,
+	createInterpolateElement,
+} from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
 import { __, sprintf } from '@wordpress/i18n';
+import { caution } from '@wordpress/icons';
 import { useParams, useSearch, useNavigate } from '@wordpress/route';
-import { Badge, Link, Stack } from '@wordpress/ui';
+import { Badge, Link, Notice, Stack } from '@wordpress/ui';
 import * as React from 'react';
 /**
  * Internal dependencies
@@ -28,6 +32,7 @@ import EmptyResponses from '../../src/dashboard/components/empty-responses';
 import TextWithFlag from '../../src/dashboard/components/text-with-flag/index.tsx';
 import useInboxData from '../../src/dashboard/hooks/use-inbox-data.ts';
 import WpRouteDashboardSearchParamsProvider from '../../src/dashboard/router/wp-route-dashboard-search-params-provider.tsx';
+import { getFormEditUrl } from '../../src/dashboard/utils.ts';
 import DataViewsHeaderRow from '../../src/dashboard/wp-build/components/dataviews-header-row';
 import FormsPage from '../../src/dashboard/wp-build/components/page';
 import usePageHeaderDetails from '../../src/dashboard/wp-build/hooks/use-page-header-details';
@@ -171,6 +176,7 @@ function StageInner() {
 	const { refreshIntegrations } = useDispatch( INTEGRATIONS_STORE );
 	const isIntegrationsEnabled = useConfigValue( 'isIntegrationsEnabled' );
 	const showDashboardIntegrations = useConfigValue( 'showDashboardIntegrations' );
+	const adminUrl = ( useConfigValue( 'adminUrl' ) as string ) || '';
 
 	const [ view, setView ] = useState< View >( () => ( {
 		...DEFAULT_VIEW,
@@ -689,6 +695,26 @@ function StageInner() {
 		[ isSingleFormView, sourceIdNumber ]
 	);
 
+	// Deep link to the form editor with a specific settings panel pre-opened, so the
+	// "email notifications" / "response storage" links lead users straight to the fix.
+	const buildPanelEditUrl = useCallback(
+		( panel: 'form-notifications' | 'responses-storage' ) =>
+			`${ getFormEditUrl( sourceIdNumber, adminUrl ) }&jetpack-form-panel=${ panel }`,
+		[ adminUrl, sourceIdNumber ]
+	);
+
+	// Whether the form has any stored responses at all — across inbox, spam and
+	// trash, not just the current view — so a form with responses only in spam or
+	// trash still keeps the table (and its status tabs) and gets a banner above it.
+	// A form with no responses anywhere replaces the table entirely with a
+	// prominent, front-and-center warning so the problem is impossible to miss.
+	const totalResponseCount =
+		( totalItemsInbox ?? 0 ) + ( totalItemsSpam ?? 0 ) + ( totalItemsTrash ?? 0 );
+	const countsReady = ! isLoadingData && ! isQueryStale;
+	const hasAnyResponses = countsReady && totalResponseCount > 0;
+	const showNotCollectingCallout =
+		isFormNotCollecting && isSingleFormView && countsReady && totalResponseCount === 0;
+
 	// Check if read_status filter is applied
 	const readStatusFilter = view.filters?.find( filter => filter.field === 'read_status' )?.value;
 
@@ -711,54 +737,89 @@ function StageInner() {
 			hasPadding={ false }
 			showFooter={ false }
 		>
-			{ isFormNotCollecting && (
-				<Notice
-					status="warning"
-					isDismissible={ false }
+			{ isFormNotCollecting && hasAnyResponses && (
+				<Notice.Root
+					intent="error"
+					icon={ caution }
 					className="jetpack-forms__not-collecting-banner"
 				>
-					{ __(
-						'This form isn’t collecting responses. Turn on email or saving in the form’s settings to start.',
-						'jetpack-forms'
-					) }
-				</Notice>
+					<Notice.Title>
+						{ __( 'This form isn’t collecting responses', 'jetpack-forms' ) }
+					</Notice.Title>
+					<Notice.Description>
+						{ createInterpolateElement(
+							__(
+								'New submissions are being dropped. Turn on <email>email notifications</email> or <storage>response storage</storage> in form settings.',
+								'jetpack-forms'
+							),
+							{
+								email: (
+									<Link href={ buildPanelEditUrl( 'form-notifications' ) } children={ null } />
+								),
+								storage: (
+									<Link href={ buildPanelEditUrl( 'responses-storage' ) } children={ null } />
+								),
+							}
+						) }
+					</Notice.Description>
+				</Notice.Root>
 			) }
-			<DataViews
-				empty={
+			{ showNotCollectingCallout ? (
+				<div className="jetpack-forms__not-collecting-callout">
 					<EmptyResponses
-						isSearch={ !! view.search }
+						isSearch={ false }
 						isSingleFormView={ isSingleFormView }
-						readStatusFilter={ readStatusFilter }
 						status={ statusView }
+						isNotCollecting
+						notCollectingLinks={ {
+							email: buildPanelEditUrl( 'form-notifications' ),
+							storage: buildPanelEditUrl( 'responses-storage' ),
+						} }
 					/>
-				}
-				data={ isQueryStale ? EMPTY_ARRAY : records || EMPTY_ARRAY }
-				fields={ fields as Field< unknown >[] }
-				view={ view }
-				onChangeView={ onChangeView }
-				paginationInfo={ paginationInfo }
-				isLoading={ isLoadingData || isQueryStale }
-				getItemId={ getItemId }
-				defaultLayouts={ defaultLayouts }
-				selection={ selection }
-				onChangeSelection={ onChangeSelection }
-				onClickItem={ onClickItem }
-				actions={ actions as Action< unknown >[] }
-			>
-				<DataViewsHeaderRow
-					activeTab="responses"
-					isSingleFormView={ isSingleFormView }
-					activeStatus={ statusView }
-					statusCounts={ {
-						inbox: totalItemsInbox ?? 0,
-						spam: totalItemsSpam ?? 0,
-						trash: totalItemsTrash ?? 0,
-					} }
-					onStatusChange={ onStatusChange }
-				/>
-				<DataViews.Layout />
-				<DataViews.Footer />
-			</DataViews>
+				</div>
+			) : (
+				<DataViews
+					empty={
+						<EmptyResponses
+							isSearch={ !! view.search }
+							isSingleFormView={ isSingleFormView }
+							readStatusFilter={ readStatusFilter }
+							status={ statusView }
+							isNotCollecting={ isFormNotCollecting }
+							notCollectingLinks={ {
+								email: buildPanelEditUrl( 'form-notifications' ),
+								storage: buildPanelEditUrl( 'responses-storage' ),
+							} }
+						/>
+					}
+					data={ isQueryStale ? EMPTY_ARRAY : records || EMPTY_ARRAY }
+					fields={ fields as Field< unknown >[] }
+					view={ view }
+					onChangeView={ onChangeView }
+					paginationInfo={ paginationInfo }
+					isLoading={ isLoadingData || isQueryStale }
+					getItemId={ getItemId }
+					defaultLayouts={ defaultLayouts }
+					selection={ selection }
+					onChangeSelection={ onChangeSelection }
+					onClickItem={ onClickItem }
+					actions={ actions as Action< unknown >[] }
+				>
+					<DataViewsHeaderRow
+						activeTab="responses"
+						isSingleFormView={ isSingleFormView }
+						activeStatus={ statusView }
+						statusCounts={ {
+							inbox: totalItemsInbox ?? 0,
+							spam: totalItemsSpam ?? 0,
+							trash: totalItemsTrash ?? 0,
+						} }
+						onStatusChange={ onStatusChange }
+					/>
+					<DataViews.Layout />
+					<DataViews.Footer />
+				</DataViews>
+			) }
 			<IntegrationsModal
 				isOpen={ isIntegrationsModalOpen }
 				onClose={ closeIntegrationsModal }
