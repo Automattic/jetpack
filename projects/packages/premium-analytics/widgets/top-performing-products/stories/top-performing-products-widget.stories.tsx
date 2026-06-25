@@ -1,5 +1,6 @@
 import apiFetch from '@wordpress/api-fetch';
 import { getDefaultQueryParams } from '@jetpack-premium-analytics/data';
+import { SELECTABLE_PRESETS, type SelectablePresetId } from '@jetpack-premium-analytics/datetime';
 import { registerReportMocks } from '../../../packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
 import {
 	DEFAULT_WIDGET_DASHBOARD_STORY_ARGS,
@@ -10,9 +11,9 @@ import {
 import TopPerformingProductsRender from '../render';
 import widgetDefinition from '../widget';
 import type { APIFetchMiddleware } from '@wordpress/api-fetch';
-import type { Meta, StoryObj } from '@storybook/react';
+import type { Decorator, Meta, StoryObj } from '@storybook/react';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
-import type { ComponentType } from 'react';
+import type { ComponentProps, ComponentType } from 'react';
 
 registerReportMocks();
 
@@ -132,13 +133,83 @@ function registerProductLeaderboardMocks( products: ProductReportItem[] ) {
 registerProductLeaderboardMocks( physicalProducts );
 
 const TOP_PERFORMING_PRODUCTS_RENDER_MODULE = 'storybook/top-performing-products';
+const DEFAULT_PRESET = 'last-30-days' satisfies SelectablePresetId;
+const PRESET_OPTIONS = SELECTABLE_PRESETS;
 
-interface TopPerformingProductsDashboardStoryProps extends WidgetDashboardWithWidgetControls {
+type TopPerformingProductsRenderProps = ComponentProps< typeof TopPerformingProductsRender >;
+const noopSetError: TopPerformingProductsRenderProps[ 'setError' ] = () => undefined;
+
+interface TopPerformingProductsStoryControls {
 	withComparison: boolean;
+	preset: SelectablePresetId;
+}
+
+type TopPerformingProductsStoryProps = TopPerformingProductsRenderProps &
+	TopPerformingProductsStoryControls;
+
+interface TopPerformingProductsDashboardStoryProps
+	extends WidgetDashboardWithWidgetControls,
+		TopPerformingProductsStoryControls {}
+
+const withWidgetCanvas: Decorator = Story => (
+	<div style={ { width: '100%', height: '300px' } }>
+		<Story />
+	</div>
+);
+
+function getTopPerformingProductsAttributes(
+	withComparison = false,
+	preset: SelectablePresetId = DEFAULT_PRESET
+): TopPerformingProductsRenderProps[ 'attributes' ] {
+	return {
+		reportParams: getDefaultQueryParams( withComparison, preset ),
+	};
+}
+
+function getDefaultQueryParamsSource( {
+	withComparison,
+	preset,
+}: Partial< TopPerformingProductsStoryControls > ) {
+	const hasComparison = Boolean( withComparison );
+	const storyPreset = preset ?? DEFAULT_PRESET;
+
+	if ( ! hasComparison && storyPreset === DEFAULT_PRESET ) {
+		return 'getDefaultQueryParams()';
+	}
+
+	if ( hasComparison && storyPreset === DEFAULT_PRESET ) {
+		return 'getDefaultQueryParams( true )';
+	}
+
+	return `getDefaultQueryParams( ${ hasComparison ? 'true' : 'false' }, '${ storyPreset }' )`;
+}
+
+function getTopPerformingProductsSource( args: Partial< TopPerformingProductsStoryControls > ) {
+	return `import { getDefaultQueryParams } from '@jetpack-premium-analytics/data';
+
+<TopPerformingProductsRender
+\tattributes={ {
+\t\treportParams: ${ getDefaultQueryParamsSource( args ) },
+\t} }
+\tsetError={ () => undefined }
+/>`;
+}
+
+function renderTopPerformingProducts( {
+	withComparison,
+	preset,
+}: TopPerformingProductsStoryControls ) {
+	return (
+		<TopPerformingProductsRender
+			attributes={ getTopPerformingProductsAttributes( withComparison, preset ) }
+			setError={ noopSetError }
+		/>
+	);
 }
 
 function TopPerformingProductsDashboardStory( {
 	withComparison,
+	preset,
 	...dashboardStoryArgs
 }: TopPerformingProductsDashboardStoryProps ) {
 	return (
@@ -149,25 +220,24 @@ function TopPerformingProductsDashboardStory( {
 			renderComponent={
 				TopPerformingProductsRender as ComponentType< WidgetRenderProps< unknown > >
 			}
-			attributes={ {
-				reportParams: getDefaultQueryParams( withComparison ),
-			} }
+			attributes={ getTopPerformingProductsAttributes( withComparison, preset ) }
 		/>
 	);
 }
 
 const meta = {
 	title: 'Packages/Premium Analytics/Widgets/TopPerformingProducts',
-	component: TopPerformingProductsDashboardStory,
+	component: TopPerformingProductsRender,
 	tags: [ 'autodocs' ],
-	args: {
-		...DEFAULT_WIDGET_DASHBOARD_STORY_ARGS,
-		withComparison: true,
-	},
 	argTypes: {
-		...widgetDashboardWithWidgetArgTypes,
+		preset: {
+			control: 'select',
+			options: PRESET_OPTIONS,
+			description: 'Date-range preset used to generate the widget report params.',
+		},
 		withComparison: {
 			control: 'boolean',
+			description: 'Include previous-period comparison report params.',
 		},
 	},
 	parameters: {
@@ -178,10 +248,93 @@ const meta = {
 			},
 		},
 	},
-} satisfies Meta< typeof TopPerformingProductsDashboardStory >;
+} satisfies Meta< TopPerformingProductsStoryProps >;
 
 export default meta;
 
 type Story = StoryObj< typeof meta >;
+type DashboardStory = StoryObj< TopPerformingProductsDashboardStoryProps >;
 
-export const WidgetDashboardWithWidget: Story = {};
+/**
+ * Default state for the current report period.
+ */
+export const Default: Story = {
+	render: renderTopPerformingProducts,
+	args: {
+		preset: DEFAULT_PRESET,
+		withComparison: false,
+	},
+	decorators: [ withWidgetCanvas ],
+	parameters: {
+		docs: {
+			source: {
+				transform: (
+					_source: string,
+					storyContext: { args: Partial< TopPerformingProductsStoryControls > }
+				) => getTopPerformingProductsSource( storyContext.args ),
+			},
+		},
+	},
+};
+
+/**
+ * Comparison period enabled, showing period-over-period product revenue changes.
+ */
+export const WithComparison: Story = {
+	render: renderTopPerformingProducts,
+	args: {
+		preset: DEFAULT_PRESET,
+		withComparison: true,
+	},
+	decorators: [ withWidgetCanvas ],
+	parameters: {
+		docs: {
+			source: {
+				transform: (
+					_source: string,
+					storyContext: { args: Partial< TopPerformingProductsStoryControls > }
+				) => getTopPerformingProductsSource( storyContext.args ),
+			},
+		},
+	},
+};
+
+/**
+ * Renders the widget through the shared dashboard harness.
+ */
+export const WidgetDashboardWithWidget: DashboardStory = {
+	render: args => <TopPerformingProductsDashboardStory { ...args } />,
+	args: {
+		...DEFAULT_WIDGET_DASHBOARD_STORY_ARGS,
+		preset: DEFAULT_PRESET,
+		withComparison: true,
+	},
+	argTypes: {
+		...widgetDashboardWithWidgetArgTypes,
+		preset: {
+			control: 'select',
+			options: PRESET_OPTIONS,
+			description: 'Date-range preset used to generate the widget report params.',
+		},
+		withComparison: {
+			control: 'boolean',
+			description: 'Include previous-period comparison report params.',
+		},
+	},
+	parameters: {
+		docs: {
+			source: {
+				code: `import { getDefaultQueryParams } from '@jetpack-premium-analytics/data';
+
+<WidgetDashboardWithWidget
+\twidgetType={ widgetDefinition }
+\trenderModule="storybook/top-performing-products"
+\trenderComponent={ TopPerformingProductsRender }
+\tattributes={ {
+\t\treportParams: getDefaultQueryParams( true ),
+\t} }
+/>`,
+			},
+		},
+	},
+};
