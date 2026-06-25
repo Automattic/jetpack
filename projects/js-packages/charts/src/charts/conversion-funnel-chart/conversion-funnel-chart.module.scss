@@ -43,7 +43,8 @@
 	height: 100%;
 
 	&--animated {
-		transition: opacity 0.3s ease;
+		transition: opacity var(--wpds-motion-duration-lg, 300ms)
+			var(--wpds-motion-easing-subtle, cubic-bezier(0.15, 0, 0.15, 1));
 	}
 
 	&--blurred {

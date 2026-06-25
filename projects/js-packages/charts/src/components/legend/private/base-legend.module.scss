@@ -8,7 +8,8 @@
 	&--interactive {
 		cursor: pointer;
 		user-select: none;
-		transition: opacity 0.2s ease;
+		transition: opacity var(--wpds-motion-duration-md, 200ms)
+			var(--wpds-motion-easing-subtle, cubic-bezier(0.15, 0, 0.15, 1));
 
 		&:hover {
 			opacity: 0.8;

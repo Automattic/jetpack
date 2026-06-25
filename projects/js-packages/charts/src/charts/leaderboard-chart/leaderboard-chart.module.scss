@@ -1,5 +1,6 @@
 .leaderboardChart {
-	transition: opacity 0.3s ease-in-out;
+	transition: opacity var(--wpds-motion-duration-lg, 300ms)
+		var(--wpds-motion-easing-subtle, cubic-bezier(0.15, 0, 0.15, 1));
 
 	&--responsive {
 		height: 100%;
@@ -118,11 +119,15 @@
 	// a grid item aligned to the inline start, so its inset mirrors in RTL; the
 	// value slide is given an RTL override below. No row background.
 	.bar {
-		transition: opacity 0.15s ease, width 0.15s ease;
+		transition: opacity var(--wpds-motion-duration-sm, 100ms)
+				var(--wpds-motion-easing-subtle, cubic-bezier(0.15, 0, 0.15, 1)),
+			width var(--wpds-motion-duration-sm, 100ms)
+				var(--wpds-motion-easing-subtle, cubic-bezier(0.15, 0, 0.15, 1));
 	}
 
 	.valueContainer {
-		transition: transform 0.15s ease;
+		transition: transform var(--wpds-motion-duration-sm, 100ms)
+			var(--wpds-motion-easing-subtle, cubic-bezier(0.15, 0, 0.15, 1));
 	}
 
 	&:hover,
@@ -172,7 +177,8 @@
 	margin-block: auto;
 	opacity: 0;
 	color: var(--wpds-color-fg-content-neutral-weak, #707070);
-	transition: opacity 0.15s ease;
+	transition: opacity var(--wpds-motion-duration-sm, 100ms)
+		var(--wpds-motion-easing-subtle, cubic-bezier(0.15, 0, 0.15, 1));
 	pointer-events: none;
 
 	// The glyph points toward the inline end, so flip it to point left in RTL.
