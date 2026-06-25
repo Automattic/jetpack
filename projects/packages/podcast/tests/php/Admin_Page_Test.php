@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\Podcast\Tests;
 
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Podcast\Admin_Page;
+use Automattic\Jetpack\Podcast\Settings;
 use PHPUnit\Framework\Attributes\CoversClass;
 use WorDBless\BaseTestCase;
 
@@ -79,5 +80,25 @@ class Admin_Page_Test extends BaseTestCase {
 			$slugs,
 			'WPCOM should register the Podcast page directly under the Jetpack menu'
 		);
+	}
+
+	/**
+	 * The host allowlist + max length reach the dashboard verbatim.
+	 */
+	public function test_inject_script_data_exposes_show_url_hosts() {
+		$data = Admin_Page::inject_podcast_script_data( array() );
+
+		$this->assertSame( Settings::SHOW_URL_HOSTS, $data['podcast']['show_url_hosts'] );
+		$this->assertSame( Settings::SHOW_URL_MAX_LENGTH, $data['podcast']['show_url_max_length'] );
+	}
+
+	/**
+	 * The preload map is present in script data.
+	 */
+	public function test_inject_script_data_includes_preload_map() {
+		$data = Admin_Page::inject_podcast_script_data( array() );
+
+		$this->assertArrayHasKey( 'preload', $data['podcast'] );
+		$this->assertIsArray( $data['podcast']['preload'] );
 	}
 }

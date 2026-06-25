@@ -135,7 +135,11 @@ class Admin_Page {
 		}
 
 		$data['podcast'] = array(
-			'has_product_access' => Podcast_Gate::has_product_access(),
+			'has_product_access'  => Podcast_Gate::has_product_access(),
+			'show_url_hosts'      => Settings::SHOW_URL_HOSTS,
+			'show_url_max_length' => Settings::SHOW_URL_MAX_LENGTH,
+			// Settings only: categories rejects per_page=-1 server-side, stats is a live relay.
+			'preload'             => rest_preload_api_request( array(), '/wpcom/v2/podcast/settings' ),
 		);
 
 		return $data;
