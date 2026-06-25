@@ -21,6 +21,7 @@ import {
  * Internal dependencies
  */
 import useDeviceViews from './use-device-views';
+import styles from './style.module.css';
 
 type DevicesRenderProps = {
 	attributes?: Partial< ReportParamsFieldAttributes > & {
@@ -75,14 +76,17 @@ function DevicesInner( {
 	} ) );
 
 	return (
-		<SemiCircleChart
-			chartData={ chartData }
-			value={ total }
-			styles={ segmentStyles }
-			legendData={ legendData }
-			showLegend
-			dataFormat={ DATA_FORMAT }
-		/>
+		<div className={ styles.root }>
+			<SemiCircleChart
+				chartData={ chartData }
+				value={ total }
+				styles={ segmentStyles }
+				legendData={ legendData }
+				showLegend
+				maxWidth={ 250 }
+				dataFormat={ DATA_FORMAT }
+			/>
+		</div>
 	);
 }
 
