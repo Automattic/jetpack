@@ -3,21 +3,16 @@
  */
 import { safeParseFloat } from '../../utils/parsing';
 import {
+	coerceStatsArray,
 	coerceStatsRecord,
 	createStatsListDataPoint,
-	getStatsBuckets,
-	getStatsIntervalFields,
-	getStatsTopLevelPeriod,
 	normalizeStatsReportSummary,
 } from './utils';
-import type { StatsNormalizedItemBase, StatsNormalizedReport } from './types';
+import type { StatsNormalizedItemBase, StatsNormalizedReport, StatsRecord } from './types';
 import type { StatsQueryParams } from '../../utils/stats-params';
 
 /**
  * A single normalized device-views row.
- *
- * `label` is the raw device type key returned by the API (e.g. 'desktop',
- * 'mobile', 'tablet'); callers are responsible for mapping to display strings.
  */
 export interface StatsDevicesItem extends StatsNormalizedItemBase {
 	label: string;
@@ -26,21 +21,19 @@ export interface StatsDevicesItem extends StatsNormalizedItemBase {
 }
 
 /**
- * Convert the flat `{ desktop: N, mobile: N, tablet: N }` breakdown object
- * the Stats API returns under `days[date].views` (or `summary.views`) into an
- * array of normalized items, sorted descending by view count.
+ * Parse the `top_values` array returned by `stats/devices/{property}`.
  *
- * Keys `views` (the scalar total) and `other_views` are excluded because
- * they are aggregate fields, not individual breakdown rows.
+ * Each item has a `label` (device or browser name) and a `value` (view count).
+ * Items are sorted descending by view count.
+ *
+ * @param topValues - Raw top_values array from the API.
+ * @return Normalized device items.
  */
-function parseDeviceBreakdown( record: Record< string, unknown > ): StatsDevicesItem[] {
-	const excluded = new Set( [ 'views', 'other_views' ] );
-
-	return Object.entries( record )
-		.filter( ( [ key ] ) => ! excluded.has( key ) )
-		.map( ( [ key, value ] ) => ( {
-			label: key,
-			views: safeParseFloat( value ),
+function parseTopValues( topValues: StatsRecord[] ): StatsDevicesItem[] {
+	return topValues
+		.map( item => ( {
+			label: String( item.label ?? '' ),
+			views: safeParseFloat( item.value ),
 			children: null as null,
 		} ) )
 		.sort( ( a, b ) => b.views - a.views );
@@ -50,23 +43,9 @@ function parseDeviceBreakdown( record: Record< string, unknown > ): StatsDevices
  * Normalize a `stats/devices/{property}` response into the shared
  * `StatsNormalizedReport` shape.
  *
- * Assumed API shape (v1.1, non-summarized):
+ * Actual API shape (both summarized and non-summarized):
  * ```json
- * {
- *   "date": "2026-06-24",
- *   "period": "day",
- *   "days": {
- *     "2026-06-24": {
- *       "views": { "desktop": 1000, "mobile": 800, "tablet": 90 },
- *       "other_views": 0
- *     }
- *   }
- * }
- * ```
- *
- * Assumed API shape (summarize=true):
- * ```json
- * { "summary": { "views": { "desktop": 1000, "mobile": 800, "tablet": 90 } } }
+ * { "top_values": [{ "label": "Desktop", "value": 1234 }, ...] }
  * ```
  *
  * @param response - Raw WPCOM Stats API response.
@@ -78,32 +57,11 @@ export function sanitizeStatsDevicesResponse(
 	query?: StatsQueryParams
 ): StatsNormalizedReport< StatsDevicesItem > {
 	const payload = coerceStatsRecord( response );
-
-	if ( query?.summarize ) {
-		const summary = coerceStatsRecord( payload.summary );
-		const viewsBreakdown = coerceStatsRecord( summary.views );
-		const items = parseDeviceBreakdown( viewsBreakdown );
-
-		return {
-			summary: normalizeStatsReportSummary( response, query, [ 'views' ] ),
-			data: items.length ? [ createStatsListDataPoint( response, query, items ) ] : [],
-		};
-	}
-
-	const period = getStatsTopLevelPeriod( response, query );
-
-	const data = getStatsBuckets( response, query ).map( ( [ date, bucket ] ) => {
-		const viewsBreakdown = coerceStatsRecord( bucket.views );
-		const items = parseDeviceBreakdown( viewsBreakdown );
-
-		return {
-			...getStatsIntervalFields( date, period ),
-			items,
-		};
-	} );
+	const topValues = coerceStatsArray< StatsRecord >( payload.top_values );
+	const items = parseTopValues( topValues );
 
 	return {
 		summary: normalizeStatsReportSummary( response, query ),
-		data,
+		data: items.length ? [ createStatsListDataPoint( response, query, items ) ] : [],
 	};
 }

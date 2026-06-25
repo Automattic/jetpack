@@ -80,7 +80,6 @@ export default function useDeviceViews( {
 	const statsParams = {
 		...reportParams,
 		deviceProperty,
-		summarize: 1,
 	} as Parameters< typeof useStatsDevices >[ 0 ];
 
 	const { primary } = useStatsDevices( statsParams );
