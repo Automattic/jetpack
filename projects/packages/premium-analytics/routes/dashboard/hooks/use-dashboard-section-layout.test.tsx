@@ -1,17 +1,13 @@
 /**
  * External dependencies
  */
+import { act, renderHook } from '@testing-library/react';
 import apiFetch from '@wordpress/api-fetch';
 import { useDispatch, useSelect } from '@wordpress/data';
-import { act, renderHook } from '@testing-library/react';
 /**
  * Internal dependencies
  */
-import {
-	DASHBOARD_NAME,
-	DASHBOARD_PREFERENCES_SCOPE,
-	DASHBOARD_REST_NAMESPACE,
-} from './constants';
+import { DASHBOARD_NAME, DASHBOARD_PREFERENCES_SCOPE, DASHBOARD_REST_NAMESPACE } from './constants';
 import { useDashboardLayout } from './use-dashboard-layout';
 import { useDashboardSectionLayout } from './use-dashboard-section-layout';
 import type { DashboardSectionLayouts } from '../config';
@@ -68,7 +64,7 @@ describe( 'useDashboardSectionLayout', () => {
 
 		const { result } = renderHook( () => useDashboardSectionLayout( DASHBOARD_NAME, 'insights' ) );
 
-		expect( result.current[0] ).toEqual( [] );
+		expect( result.current[ 0 ] ).toEqual( [] );
 	} );
 
 	it( 'resets the active section from the section-aware default route', async () => {
@@ -93,7 +89,7 @@ describe( 'useDashboardSectionLayout', () => {
 		const { result } = renderHook( () => useDashboardSectionLayout( DASHBOARD_NAME, 'traffic' ) );
 
 		await act( async () => {
-			await result.current[2]();
+			await result.current[ 2 ]();
 		} );
 
 		expect( mockApiFetch ).toHaveBeenCalledWith( {
