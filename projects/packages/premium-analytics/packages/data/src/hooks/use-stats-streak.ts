@@ -4,13 +4,10 @@
 import { statsStreakQuery } from '../queries/stats-streak-query';
 import { useStatsQuery } from './use-stats-query';
 import type { UseStatsOptions } from './use-stats-report';
-import type { StatsQueryParams } from '../utils/stats-params';
+import type { StatsStreakParams, StatsStreakResponse } from '../queries/stats-streak-query';
 
-export type StatsStreakResponse = {
-	data: Record< string, number >;
-	streak?: Record< string, unknown >;
-};
+export type { StatsStreakParams, StatsStreakResponse } from '../queries/stats-streak-query';
 
-export function useStatsStreak( params?: StatsQueryParams, options?: UseStatsOptions ) {
-	return useStatsQuery( statsStreakQuery( params ), options );
+export function useStatsStreak( params: StatsStreakParams, options?: UseStatsOptions ) {
+	return useStatsQuery< StatsStreakResponse >( statsStreakQuery( params ), options );
 }

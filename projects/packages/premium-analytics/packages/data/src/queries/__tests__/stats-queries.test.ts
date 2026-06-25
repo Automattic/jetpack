@@ -5,6 +5,7 @@ import { statsAppProxyQuery } from '../stats-app-query';
 import { statsArchivesQuery } from '../stats-archives-query';
 import { statsInsightsQuery } from '../stats-insights-query';
 import { statsLocationsQuery } from '../stats-locations-query';
+import { statsStreakQuery } from '../stats-streak-query';
 import { statsTopPostsQuery } from '../stats-top-posts-query';
 import { statsVisitsQuery } from '../stats-visits-query';
 import type { StatsReportParams } from '../stats-query';
@@ -208,5 +209,36 @@ describe( 'Stats query factories', () => {
 			undefined,
 			'insights',
 		] );
+	} );
+
+	it( 'builds streak query keys with Calypso endpoint params', () => {
+		const query = statsStreakQuery( {
+			from: '2026-06-01',
+			to: '2026-06-30',
+			interval: 'day',
+			gmtOffset: 12,
+			max: 3000,
+		} );
+
+		expect( query.enabled ).toBe( true );
+		expect( query.queryKey ).toEqual( [
+			'stats',
+			'streak',
+			'1.1',
+			'stats/streak',
+			'GET',
+			{
+				startDate: '2026-06-01',
+				endDate: '2026-06-30',
+				gmtOffset: 12,
+				max: 3000,
+			},
+			undefined,
+			'streak',
+		] );
+	} );
+
+	it( 'disables streak queries until start and end dates are available', () => {
+		expect( statsStreakQuery( {} as StatsReportParams ).enabled ).toBe( false );
 	} );
 } );

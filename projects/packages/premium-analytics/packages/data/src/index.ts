@@ -34,7 +34,11 @@ export {
 } from './hooks/use-stats-app-dashboard-module-settings';
 export type { StatsAppDashboardModuleSettings } from './hooks/use-stats-app-dashboard-module-settings';
 export { useStatsArchives, type StatsArchivesResponse } from './hooks/use-stats-archives';
-export { useStatsStreak, type StatsStreakResponse } from './hooks/use-stats-streak';
+export {
+	useStatsStreak,
+	type StatsStreakParams,
+	type StatsStreakResponse,
+} from './hooks/use-stats-streak';
 export {
 	useStatsVisits,
 	type StatsVisitsParams,
@@ -94,6 +98,7 @@ export type {
 	StatsNormalizedSummary,
 	StatsReferrersItem,
 	StatsSearchTermsItem,
+	StatsStreakRawResponse,
 	StatsTimeSeriesDataPoint,
 	StatsTimeSeriesReport,
 	StatsTopAuthorsItem,
