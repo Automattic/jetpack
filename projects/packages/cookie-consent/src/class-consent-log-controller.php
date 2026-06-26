@@ -54,7 +54,7 @@ class Consent_Log_Controller extends WP_REST_Controller {
 	 *
 	 * @var string
 	 */
-	private const DB_VERSION = '0.0.1';
+	private const DB_VERSION = '0.0.2';
 
 	/**
 	 * Default retention period in days.
@@ -144,6 +144,8 @@ class Consent_Log_Controller extends WP_REST_Controller {
 			ip_address varchar(45) DEFAULT NULL,
 			url text DEFAULT NULL,
 			consent_types longtext DEFAULT NULL,
+			policy_version varchar(191) NOT NULL DEFAULT '1',
+			banner_version varchar(191) NOT NULL DEFAULT '1',
 			date_created datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
 			date_created_gmt datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
 			PRIMARY KEY (id),
@@ -166,8 +168,8 @@ class Consent_Log_Controller extends WP_REST_Controller {
 			$this->namespace,
 			'/' . $this->rest_base,
 			array(
+				// @phan-suppress-next-line PhanPluginMixedKeyNoKey -- `register_rest_route()` requires mixed key/no-key for `$args`, and then https://github.com/phan/phan/issues/4852 puts the error on the wrong line.
 				array(
-					// @phan-suppress-next-line PhanPluginMixedKeyNoKey -- `register_rest_route()` requires mixed key/no-key for `$args`, and then https://github.com/phan/phan/issues/4852 puts the error on the wrong line.
 					'methods'             => WP_REST_Server::CREATABLE,
 					'callback'            => array( $this, 'create_consent_log' ),
 					'permission_callback' => '__return_true', // Allow unauthenticated access.
@@ -209,8 +211,8 @@ class Consent_Log_Controller extends WP_REST_Controller {
 			$this->namespace,
 			'/' . $this->rest_base,
 			array(
+				// @phan-suppress-next-line PhanPluginMixedKeyNoKey -- `register_rest_route()` requires mixed key/no-key for `$args`, and then https://github.com/phan/phan/issues/4852 puts the error on the wrong line.
 				array(
-					// @phan-suppress-next-line PhanPluginMixedKeyNoKey -- `register_rest_route()` requires mixed key/no-key for `$args`, and then https://github.com/phan/phan/issues/4852 puts the error on the wrong line.
 					'methods'             => WP_REST_Server::READABLE,
 					'callback'            => array( $this, 'get_consent_logs' ),
 					'permission_callback' => array( $this, 'check_read_permission' ),
@@ -349,6 +351,7 @@ class Consent_Log_Controller extends WP_REST_Controller {
 		// Get consent types and encode as JSON.
 		$consent_types = $request->get_param( 'consent_types' );
 		$consent_json  = ! empty( $consent_types ) ? wp_json_encode( $consent_types, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE ) : null;
+		$log_versions  = $this->get_log_versions();
 
 		$data = array(
 			'consent_id'       => $consent_id,
@@ -357,6 +360,8 @@ class Consent_Log_Controller extends WP_REST_Controller {
 			'ip_address'       => $this->get_client_ip(),
 			'url'              => $request->get_param( 'url' ),
 			'consent_types'    => $consent_json,
+			'policy_version'   => $log_versions['policy_version'],
+			'banner_version'   => $log_versions['banner_version'],
 			'date_created'     => $current_time_local,
 			'date_created_gmt' => $current_time_gmt,
 		);
@@ -364,7 +369,7 @@ class Consent_Log_Controller extends WP_REST_Controller {
 		$result = $wpdb->insert( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
 			$this->get_table_name(),
 			$data,
-			array( '%s', '%s', '%d', '%s', '%s', '%s', '%s', '%s' )
+			array( '%s', '%s', '%d', '%s', '%s', '%s', '%s', '%s', '%s', '%s' )
 		);
 
 		if ( false === $result ) {
@@ -464,6 +469,39 @@ class Consent_Log_Controller extends WP_REST_Controller {
 	}
 
 	/**
+	 * Get configured log versions for proof-of-consent records.
+	 *
+	 * @return array
+	 */
+	private function get_log_versions() {
+		$log_versions = Cookie_Consent::get_log_versions();
+
+		return array(
+			'policy_version' => $this->sanitize_log_version( $log_versions['policy_version'] ?? '1' ),
+			'banner_version' => $this->sanitize_log_version( $log_versions['banner_version'] ?? '1' ),
+		);
+	}
+
+	/**
+	 * Sanitize a configured log version value for storage.
+	 *
+	 * @param mixed $version Version value from config.
+	 * @return string
+	 */
+	private function sanitize_log_version( $version ) {
+		if ( ! is_scalar( $version ) ) {
+			return '1';
+		}
+
+		$version = sanitize_text_field( (string) $version );
+		if ( '' === $version ) {
+			return '1';
+		}
+
+		return substr( $version, 0, 191 );
+	}
+
+	/**
 	 * Get the schema for the create consent endpoint.
 	 *
 	 * @return array
@@ -537,6 +575,18 @@ class Consent_Log_Controller extends WP_REST_Controller {
 					),
 					'consent_types'    => array(
 						'description' => __( 'Consent status for different cookie types as JSON string.', 'jetpack-cookie-consent' ),
+						'type'        => 'string',
+						'context'     => array( 'view' ),
+						'readonly'    => true,
+					),
+					'policy_version'   => array(
+						'description' => __( 'Policy version in effect when consent was captured.', 'jetpack-cookie-consent' ),
+						'type'        => 'string',
+						'context'     => array( 'view' ),
+						'readonly'    => true,
+					),
+					'banner_version'   => array(
+						'description' => __( 'Banner version in effect when consent was captured.', 'jetpack-cookie-consent' ),
 						'type'        => 'string',
 						'context'     => array( 'view' ),
 						'readonly'    => true,
