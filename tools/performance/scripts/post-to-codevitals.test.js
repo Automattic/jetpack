@@ -19,12 +19,14 @@ import { fileURLToPath } from 'node:url';
 import { inspect } from 'node:util';
 import {
 	checkSanityRange,
+	exitCodeForError,
 	extractScenarioMetrics,
 	isDirectInvocation,
 	postToCodeVitals,
 	redactToken,
 	VALIDATION_FAILED_EXIT_CODE,
 } from './post-to-codevitals.js';
+import { shouldFailBuildOnPostError } from './run-performance-tests.js';
 
 const SCRIPTS_DIR = path.dirname( fileURLToPath( import.meta.url ) );
 const LCP_KEY = 'wp-admin-dashboard-connection-sim-largestContentfulPaint';
@@ -128,6 +130,21 @@ test( 'a keyed scenario without a metricType is rejected, not posted unchecked',
 		() => extractScenarioMetrics( { key: 'future', metricKey: 'future-key' }, { median: 999999 } ),
 		/metricKey but no metricType/
 	);
+} );
+
+test( 'a scenario misconfiguration maps to the validation exit code, a transport error to 1', () => {
+	let configError;
+	try {
+		extractScenarioMetrics( { key: 'future', metricKey: 'future-key' }, { median: 1 } );
+	} catch ( e ) {
+		configError = e;
+	}
+	// A keyed-without-metricType config error is local bad data: it must always fail
+	// the build (the validation code), exactly like an out-of-range metric — never a
+	// suppressible transport exit 1. Otherwise --allow-codevitals-failure could mask it.
+	assert.equal( configError?.name, 'ValidationError' );
+	assert.equal( exitCodeForError( configError ), VALIDATION_FAILED_EXIT_CODE );
+	assert.equal( exitCodeForError( new Error( 'CodeVitals API error (500)' ) ), 1 );
 } );
 
 // --- redactToken (keeps the token out of logs and errors) ---
@@ -357,6 +374,37 @@ test( 'a token on a custom error property (and nested cause) is scrubbed too', a
 	);
 } );
 
+test( 'a token-bearing primitive string cause is scrubbed too', async () => {
+	const file = writeResults( 120 );
+	const origFetch = global.fetch;
+	// `Error.cause` accepts any value. A non-native client may throw
+	// `new Error( msg, { cause: someUrl } )` where the cause is a plain string, not an
+	// Error. cause is non-enumerable, so this must be caught by the chain walk, not the
+	// own-property pass — the gap this regression test pins.
+	global.fetch = async u => {
+		throw new Error( 'request failed', { cause: `connect to ${ String( u ) } refused` } );
+	};
+	let err;
+	try {
+		await silenced( () =>
+			postToCodeVitals( file, {
+				dryRun: false,
+				codeVitalsUrl: 'https://codevitals.test',
+				codeVitalsToken: 'tok-string-cause',
+			} )
+		);
+	} catch ( e ) {
+		err = e;
+	} finally {
+		global.fetch = origFetch;
+	}
+	assert.ok( err, 'the live post should reject' );
+	assert.ok(
+		! inspect( err, { depth: 5 } ).includes( 'tok-string-cause' ),
+		'token must not survive in a primitive string cause'
+	);
+} );
+
 // --- isDirectInvocation (the run-when-direct guard) ---
 
 test( 'isDirectInvocation: a file matches itself', () => {
@@ -419,4 +467,22 @@ test( 'the CLI exits with the validation code on an out-of-range dry run', () =>
 	// code (not a generic 1) so the runner can never suppress it.
 	assert.equal( status, VALIDATION_FAILED_EXIT_CODE );
 	assert.match( output, /Sanity check failed/ );
+} );
+
+// --- run-performance-tests.js: the build-fail decision (cross-file contract) ---
+// The poster sets the exit code; the runner decides whether it fails the build.
+// These pin that the validation/outage split survives a future runner refactor.
+
+test( 'shouldFailBuildOnPostError: a validation failure (exit 2) is always fatal', () => {
+	const validation = { status: VALIDATION_FAILED_EXIT_CODE };
+	// Even with --allow-codevitals-failure set, local bad data must fail the build.
+	assert.equal( shouldFailBuildOnPostError( validation, true ), true );
+	assert.equal( shouldFailBuildOnPostError( validation, false ), true );
+} );
+
+test( 'shouldFailBuildOnPostError: a transport failure is suppressible only with the flag', () => {
+	assert.equal( shouldFailBuildOnPostError( { status: 1 }, true ), false ); // outage tolerated
+	assert.equal( shouldFailBuildOnPostError( { status: 1 }, false ), true ); // fatal by default
+	assert.equal( shouldFailBuildOnPostError( undefined, true ), false ); // unknown exit, flag set
+	assert.equal( shouldFailBuildOnPostError( undefined, false ), true );
 } );

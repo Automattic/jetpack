@@ -14,6 +14,32 @@ import { SCENARIOS, SANITY_RANGES } from './scenarios.js';
 const VALIDATION_FAILED_EXIT_CODE = 2;
 
 /**
+ * A local data-integrity or scenario-configuration failure. A thrown error of this
+ * type must always fail the build (exit VALIDATION_FAILED_EXIT_CODE), so the runner
+ * can never suppress it under `--allow-codevitals-failure`. It is distinct from a
+ * CodeVitals transport/API error, which exits 1 and that flag may tolerate.
+ */
+class ValidationError extends Error {
+	constructor( message ) {
+		super( message );
+		this.name = 'ValidationError';
+	}
+}
+
+/**
+ * Map a thrown error to a process exit code. A local data-integrity failure
+ * (ValidationError, e.g. a misconfigured scenario) exits VALIDATION_FAILED_EXIT_CODE
+ * so the runner always fails the build on it; any other error (a CodeVitals
+ * transport/API failure) exits 1, which `--allow-codevitals-failure` may tolerate.
+ *
+ * @param {*} error - The caught error.
+ * @return {number} The exit code to use.
+ */
+function exitCodeForError( error ) {
+	return error instanceof ValidationError ? VALIDATION_FAILED_EXIT_CODE : 1;
+}
+
+/**
  * Extract metric entries for a single scenario.
  *
  * Each entry carries its CodeVitals key, value, and (optional) type. The type
@@ -28,7 +54,7 @@ function extractScenarioMetrics( scenario, summary ) {
 		// guard exists to close. A missing type is a scenario misconfiguration, so
 		// fail loud here (the dry-run CI smoke test catches it before any post).
 		if ( ! scenario.metricType ) {
-			throw new Error(
+			throw new ValidationError(
 				`Scenario "${
 					scenario.key ?? scenario.metricKey
 				}" sets metricKey but no metricType; refusing to post an unchecked keyed metric`
@@ -110,7 +136,8 @@ function redactToken( text, token ) {
  *
  * A re-thrown error keeps its caught cause for debugging, but that cause (and any
  * nested cause) can carry the token in its `message`, `stack`, or a custom string
- * field a client stashed a URL in (e.g. `requestUrl`). Walking the whole chain
+ * field a client stashed a URL in (e.g. `requestUrl`), or a primitive string
+ * `cause`. Walking the whole chain
  * scrubs each one so logging the full error never leaks the secret. Native fetch
  * never populates such fields, so the own-property pass is belt-and-suspenders for
  * a non-native HTTP client; it stays at string fields rather than recursing into
@@ -131,11 +158,19 @@ function sanitizeErrorChain( error, token ) {
 		if ( typeof current.stack === 'string' ) {
 			current.stack = redactToken( current.stack, token );
 		}
-		// Then scrub any enumerable string field (cause is an object, walked below).
+		// Then scrub any enumerable string field (an object `cause` is non-enumerable
+		// and is walked on the next iteration; a string `cause` is handled just below).
 		for ( const key of Object.keys( current ) ) {
 			if ( typeof current[ key ] === 'string' ) {
 				current[ key ] = redactToken( current[ key ], token );
 			}
+		}
+		// `cause` is non-enumerable on Error, so the pass above can't reach a primitive
+		// string cause (e.g. `new Error( m, { cause: someUrl } )`); it would otherwise
+		// survive untouched and leak the token. Redact it in place before advancing; an
+		// object cause is scrubbed when the loop walks into it next.
+		if ( typeof current.cause === 'string' ) {
+			current.cause = redactToken( current.cause, token );
 		}
 		current = current.cause;
 	}
@@ -314,7 +349,10 @@ async function main() {
 		process.exit( 0 );
 	} catch ( error ) {
 		console.error( '\n✗ Failed:', error.message );
-		process.exit( 1 );
+		// A scenario misconfiguration (ValidationError) is local bad data and must
+		// always fail the build, exactly like an out-of-range metric — not a
+		// suppressible exit 1. exitCodeForError encodes that split.
+		process.exit( exitCodeForError( error ) );
 	}
 }
 
@@ -352,7 +390,9 @@ export {
 	postToCodeVitals,
 	checkSanityRange,
 	extractScenarioMetrics,
+	exitCodeForError,
 	isDirectInvocation,
 	redactToken,
+	ValidationError,
 	VALIDATION_FAILED_EXIT_CODE,
 };
