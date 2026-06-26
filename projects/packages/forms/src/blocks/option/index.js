@@ -18,6 +18,9 @@ const settings = {
 	},
 	parent: [ 'jetpack/field-checkbox', 'jetpack/field-consent', 'jetpack/options' ],
 	supports: {
+		// Inner field sub-block: device visibility is controlled at the field (and label)
+		// level, so don't expose the per-block visibility controls here.
+		visibility: false,
 		reusable: false,
 		html: false,
 		splitting: true,

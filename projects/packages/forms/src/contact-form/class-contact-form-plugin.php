@@ -547,6 +547,39 @@ class Contact_Form_Plugin {
 	}
 
 	/**
+	 * Build the core block-visibility (device visibility) class names for a field wrapper.
+	 *
+	 * Mirrors the `wp-block-hidden-{viewport}` class names that core's block-visibility
+	 * `render_block` support generates from a block's `metadata.blockVisibility`. Form fields
+	 * render through the shortcode pipeline rather than `render_block`, so this re-derives the
+	 * same classes to place them back on the field wrapper (the CSS media queries that hide
+	 * them are still emitted by core).
+	 *
+	 * @param mixed $block_visibility The block's `metadata.blockVisibility` value (bool or array).
+	 *
+	 * @return string Space-separated `wp-block-hidden-*` class names, or '' when nothing is hidden per viewport.
+	 */
+	private static function get_block_visibility_classes( $block_visibility ) {
+		if ( ! is_array( $block_visibility ) ) {
+			return '';
+		}
+
+		$viewport_config = $block_visibility['viewport'] ?? null;
+		if ( ! is_array( $viewport_config ) ) {
+			return '';
+		}
+
+		$classes = array();
+		foreach ( array( 'mobile', 'tablet', 'desktop' ) as $viewport ) {
+			if ( isset( $viewport_config[ $viewport ] ) && false === $viewport_config[ $viewport ] ) {
+				$classes[] = 'wp-block-hidden-' . $viewport;
+			}
+		}
+
+		return implode( ' ', $classes );
+	}
+
+	/**
 	 * Turn block attribute to shortcode attributes.
 	 *
 	 * @param array         $atts  - the block attributes.
@@ -822,11 +855,20 @@ class Contact_Form_Plugin {
 					$atts['fieldwrapperclasses'] .= $block_style_classes['fieldwrapperclasses'];
 					// Return the rest of the classes without the block style classes.
 					$atts['class'] = $block_style_classes['classes'];
-					// Also apply remaining custom classes (e.g. device visibility classes) directly
-					// to the field wrapper so they take effect on the outermost wrapper element.
-					if ( ! empty( $atts['class'] ) ) {
-						$atts['fieldwrapperclasses'] .= ' ' . $atts['class'];
-					}
+				}
+
+				// Apply core block-visibility (device visibility) classes to the field wrapper.
+				//
+				// Core's `render_block` block-visibility support derives `wp-block-hidden-{viewport}`
+				// classes from a block's `metadata.blockVisibility` and adds them to the first tag of
+				// the block's rendered output, alongside the media-query CSS it emits. Form fields are
+				// rendered through the shortcode pipeline rather than `render_block`, so that class never
+				// reaches the rendered wrapper and the field stays visible on the front end. Re-derive
+				// the classes here so they land on the outermost wrapper, where the CSS expects them.
+				$block_visibility   = $block->parsed_block['attrs']['metadata']['blockVisibility'] ?? $atts['metadata']['blockVisibility'] ?? null;
+				$visibility_classes = self::get_block_visibility_classes( $block_visibility );
+				if ( '' !== $visibility_classes ) {
+					$atts['fieldwrapperclasses'] = trim( $atts['fieldwrapperclasses'] . ' ' . $visibility_classes );
 				}
 			}
 		}

@@ -27,6 +27,9 @@ const settings = {
 		'jetpack/field-slider-onChangeMaxLabel',
 	],
 	supports: {
+		// Inner field sub-block: device visibility is controlled at the field (and label)
+		// level, so don't expose the per-block visibility controls here.
+		visibility: false,
 		reusable: false,
 		html: false,
 		color: {

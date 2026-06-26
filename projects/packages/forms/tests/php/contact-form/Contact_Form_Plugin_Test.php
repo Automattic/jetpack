@@ -370,6 +370,82 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Test that core block-visibility (device visibility) metadata is converted into the
+	 * `wp-block-hidden-{viewport}` classes on the field wrapper.
+	 *
+	 * Core stores device visibility in `metadata.blockVisibility` and adds the class via a
+	 * `render_block` filter, but form fields render through the shortcode pipeline so the class
+	 * never reaches the wrapper. The field render re-derives it here instead.
+	 *
+	 * @dataProvider data_provider_block_visibility_classes
+	 *
+	 * @param mixed  $block_visibility The block's `metadata.blockVisibility` value.
+	 * @param string $expected         Expected `fieldwrapperclasses` value.
+	 */
+	#[DataProvider( 'data_provider_block_visibility_classes' )]
+	public function test_block_visibility_classes_applied_to_field_wrapper( $block_visibility, $expected ) {
+		$block = array(
+			'blockName'   => 'jetpack/field-text',
+			'attrs'       => array(
+				'metadata' => array( 'blockVisibility' => $block_visibility ),
+			),
+			'innerBlocks' => array(
+				array(
+					'blockName' => 'jetpack/label',
+					'attrs'     => array( 'label' => 'Field Label' ),
+				),
+				array(
+					'blockName' => 'jetpack/input',
+					'attrs'     => array( 'type' => 'text' ),
+				),
+			),
+		);
+
+		$shortcode_attributes = Contact_Form_Plugin::block_attributes_to_shortcode_attributes( array(), 'text', new WP_Block( $block ) );
+
+		$this->assertEquals( $expected, $shortcode_attributes['fieldwrapperclasses'] );
+	}
+
+	/**
+	 * Data provider for test_block_visibility_classes_applied_to_field_wrapper.
+	 *
+	 * @return array
+	 */
+	public static function data_provider_block_visibility_classes() {
+		return array(
+			'hidden on desktop'         => array(
+				array( 'viewport' => array( 'desktop' => false ) ),
+				'wp-block-jetpack-field-text wp-block-hidden-desktop',
+			),
+			'hidden on mobile'          => array(
+				array( 'viewport' => array( 'mobile' => false ) ),
+				'wp-block-jetpack-field-text wp-block-hidden-mobile',
+			),
+			'hidden on mobile and tablet' => array(
+				array(
+					'viewport' => array(
+						'mobile' => false,
+						'tablet' => false,
+					),
+				),
+				'wp-block-jetpack-field-text wp-block-hidden-mobile wp-block-hidden-tablet',
+			),
+			'viewport set to visible'   => array(
+				array( 'viewport' => array( 'desktop' => true ) ),
+				'wp-block-jetpack-field-text',
+			),
+			'visible everywhere (true)' => array(
+				true,
+				'wp-block-jetpack-field-text',
+			),
+			'no visibility metadata'    => array(
+				null,
+				'wp-block-jetpack-field-text',
+			),
+		);
+	}
+
+	/**
 	 * Data provider for test_block_attributes_to_shortcode_attributes_with_styles
 	 *
 	 * @return array
@@ -490,7 +566,7 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 					'label'                        => 'Label multiple options',
 					'type'                         => 'checkbox-multiple',
 					'requiredText'                 => 'Do it again',
-					'fieldwrapperclasses'          => 'wp-block-jetpack-field-checkbox-multiple is-style-button  is-style-button-wrap some-custom-class',
+					'fieldwrapperclasses'          => 'wp-block-jetpack-field-checkbox-multiple is-style-button  is-style-button-wrap',
 					'optionsclasses'               => 'wp-block-jetpack-options has-background',
 					'optionsstyles'                => 'background-color:green-tonight; border-top-width:2px;border-top-color:terrible-red;border-top-style:solid;',
 					'stylevariationclasses'        => ' has-background',
@@ -583,46 +659,6 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 					),
 				),
 				'type'         => 'checkbox-multiple',
-			),
-			'device visibility class on wrapper' => array(
-				'expected'     => array(
-					'class'                        => 'wp-hide-on-desktop',
-					'labelclasses'                 => 'wp-block-jetpack-label',
-					'labelstyles'                  => null,
-					'labelhiddenbyblockvisibility' => '',
-					'inputclasses'                 => 'wp-block-jetpack-input',
-					'inputstyles'                  => null,
-					'label'                        => 'Field Label',
-					'requiredText'                 => null,
-					'placeholder'                  => '',
-					'min'                          => '',
-					'max'                          => '',
-					'type'                         => 'text',
-					'fieldwrapperclasses'          => 'wp-block-jetpack-field-text wp-hide-on-desktop',
-					'stylevariationattributes'     => '',
-					'stylevariationclasses'        => '',
-					'stylevariationstyles'         => '',
-				),
-				'atts'         => array(
-					'className' => 'wp-hide-on-desktop',
-				),
-				'inner_blocks' => array(
-					array(
-						'blockName' => 'jetpack/label',
-						'attrs'     => array(
-							'label' => 'Field Label',
-						),
-					),
-					array(
-						'blockName' => 'jetpack/input',
-						'attrs'     => array(
-							'placeholder' => '',
-							'min'         => '',
-							'max'         => '',
-							'type'        => 'text',
-						),
-					),
-				),
 			),
 		);
 	}
