@@ -24,7 +24,6 @@ export default {
 	name: 'jpa/devices',
 	title: __( 'Devices', 'jetpack-premium-analytics' ),
 	icon: desktop,
-	presentation: 'full-bleed' as const,
 	attributes: [
 		{
 			id: 'max',

@@ -1,4 +1,8 @@
 /**
+ * WordPress dependencies
+ */
+import { __ } from '@wordpress/i18n';
+/**
  * Internal dependencies
  */
 import { useStatsDevices } from '@jetpack-premium-analytics/data';
@@ -32,11 +36,11 @@ interface DeviceViewsState {
  * Keys not in this map are title-cased as a fallback.
  */
 const DEVICE_LABELS: Record< string, string > = {
-	desktop: 'Desktop',
-	mobile: 'Mobile',
-	tablet: 'Tablet',
-	phone: 'Phone',
-	unknown: 'Unknown',
+	desktop: __( 'Desktop', 'jetpack-premium-analytics' ),
+	mobile: __( 'Mobile', 'jetpack-premium-analytics' ),
+	tablet: __( 'Tablet', 'jetpack-premium-analytics' ),
+	phone: __( 'Phone', 'jetpack-premium-analytics' ),
+	unknown: __( 'Unknown', 'jetpack-premium-analytics' ),
 };
 
 /**

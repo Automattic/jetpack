@@ -14,7 +14,6 @@ import {
 	useSegmentStyles,
 	useWidgetRootContext,
 	type LegendItem,
-	type ReportParamsFieldAttributes,
 	type SemiCircleChartData,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 /**
@@ -22,12 +21,11 @@ import {
  */
 import styles from './style.module.css';
 import useDeviceViews from './use-device-views';
-
-type DevicesRenderProps = {
-	attributes?: Partial< ReportParamsFieldAttributes > & {
-		max?: number;
-	};
-};
+import type { DevicesAttributes } from './widget';
+/**
+ * Types
+ */
+import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 
 const DATA_FORMAT = { type: 'number' as const, options: { useMultipliers: true, decimals: 0 } };
 
@@ -110,11 +108,11 @@ function DevicesInner( { max }: { max: number } ) {
  * @param root0.attributes - Widget attributes (max).
  * @return The rendered widget content.
  */
-export default function DevicesWidget( { attributes }: DevicesRenderProps ) {
+export default function DevicesWidget( { attributes }: WidgetRenderProps< DevicesAttributes > ) {
 	const max = attributes?.max ?? 5;
 
 	return (
-		<WidgetRoot attributes={ attributes }>
+		<WidgetRoot>
 			<div className={ styles.root }>
 				<DevicesInner max={ max } />
 			</div>

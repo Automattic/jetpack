@@ -24,7 +24,6 @@ export default {
 	name: 'jpa/top-platforms',
 	title: __( 'Top Platforms', 'jetpack-premium-analytics' ),
 	icon: chartBar,
-	presentation: 'full-bleed' as const,
 	attributes: [
 		{
 			id: 'max',

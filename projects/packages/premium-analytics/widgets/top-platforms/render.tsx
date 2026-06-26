@@ -11,19 +11,17 @@ import {
 	WidgetRoot,
 	useWidgetRootContext,
 	type LeaderboardChartData,
-	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 /**
  * Internal dependencies
  */
 import styles from './style.module.css';
 import usePlatformViews from './use-platform-views';
-
-type TopPlatformsRenderProps = {
-	attributes?: Partial< ReportParamsFieldAttributes > & {
-		max?: number;
-	};
-};
+import type { TopPlatformsAttributes } from './widget';
+/**
+ * Types
+ */
+import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 
 const DATA_FORMAT = { type: 'number' as const, options: { useMultipliers: true, decimals: 0 } };
 
@@ -71,7 +69,7 @@ function TopPlatformsInner( { max }: { max: number } ) {
 	const leaderboardData: LeaderboardChartData = data.map( ( item, index ) => ( {
 		id: `${ index }-${ item.label }`,
 		label: (
-			<Stack align="center" style={ { padding: 'var(--wpds-dimension-padding-sm)' } }>
+			<Stack align="center" className={ styles.itemLabel }>
 				<Text>{ item.label }</Text>
 			</Stack>
 		),
@@ -127,11 +125,13 @@ function TopPlatformsInner( { max }: { max: number } ) {
  * @param root0.attributes - Widget attributes (max).
  * @return The rendered widget content.
  */
-export default function TopPlatformsWidget( { attributes }: TopPlatformsRenderProps ) {
+export default function TopPlatformsWidget( {
+	attributes,
+}: WidgetRenderProps< TopPlatformsAttributes > ) {
 	const max = attributes?.max ?? 10;
 
 	return (
-		<WidgetRoot attributes={ attributes }>
+		<WidgetRoot>
 			<div className={ styles.root }>
 				<TopPlatformsInner max={ max } />
 			</div>
