@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { useStatsTopAuthors } from '@jetpack-premium-analytics/data';
+import { localTZDate, useStatsTopAuthors } from '@jetpack-premium-analytics/data';
 import {
 	LeaderboardChart,
 	WidgetLoadingOverlay,
@@ -14,6 +14,7 @@ import {
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __ } from '@wordpress/i18n';
 import { postAuthor } from '@wordpress/icons';
+import { format } from 'date-fns';
 import { useMemo } from 'react';
 /**
  * Internal dependencies
@@ -38,12 +39,6 @@ const toPositiveInt = ( value: string | number | undefined, fallback: number ) =
 	return Number.isFinite( parsed ) && parsed > 0 ? parsed : fallback;
 };
 
-const toDateString = ( date: Date ) => {
-	const pad = ( part: number ) => String( part ).padStart( 2, '0' );
-
-	return `${ date.getFullYear() }-${ pad( date.getMonth() + 1 ) }-${ pad( date.getDate() ) }`;
-};
-
 /**
  * Build a "very long" default report range (all time, through the end of
  * today) used when the host doesn't pass explicit report params. Explicit
@@ -56,7 +51,7 @@ const toDateString = ( date: Date ) => {
  */
 const getDefaultReportParams = () => ( {
 	from: '2000-01-01T00:00:00',
-	to: `${ toDateString( new Date() ) }T23:59:59`,
+	to: `${ format( localTZDate(), 'yyyy-MM-dd' ) }T23:59:59`,
 	interval: 'day' as const,
 } );
 
