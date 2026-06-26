@@ -2,8 +2,9 @@
  * External dependencies
  */
 import { PieChartUnresponsive as PieChart } from '@automattic/charts';
+import { useResizeObserver } from '@wordpress/compose';
 import { Icon, Stack } from '@wordpress/ui';
-import { useCallback, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useMemo, useRef, useState } from 'react';
 /**
  * Internal dependencies
  */
@@ -40,6 +41,15 @@ type ElementSize = {
 	height: number;
 };
 
+function getElementSize( element: Element ): ElementSize {
+	const { width, height } = element.getBoundingClientRect();
+
+	return {
+		width: Math.round( width ),
+		height: Math.round( height ),
+	};
+}
+
 function useElementSize< T extends HTMLElement >() {
 	const elementRef = useRef< T | null >( null );
 	const [ size, setSize ] = useState< ElementSize >( {
@@ -47,18 +57,7 @@ function useElementSize< T extends HTMLElement >() {
 		height: 0,
 	} );
 
-	const updateSize = useCallback( () => {
-		const element = elementRef.current;
-		if ( ! element ) {
-			return;
-		}
-
-		const { width, height } = element.getBoundingClientRect();
-		const nextSize = {
-			width: Math.round( width ),
-			height: Math.round( height ),
-		};
-
+	const updateSize = useCallback( ( nextSize: ElementSize ) => {
 		setSize( previousSize =>
 			previousSize.width === nextSize.width && previousSize.height === nextSize.height
 				? previousSize
@@ -66,26 +65,30 @@ function useElementSize< T extends HTMLElement >() {
 		);
 	}, [] );
 
+	const observerRef = useResizeObserver< T >( entries => {
+		const element = entries[ 0 ]?.target ?? elementRef.current;
+
+		if ( ! element ) {
+			return;
+		}
+
+		updateSize( getElementSize( element ) );
+	} );
+
 	const setElementRef = useCallback(
 		( element: T | null ) => {
 			elementRef.current = element;
-			updateSize();
+
+			if ( typeof ResizeObserver !== 'undefined' ) {
+				observerRef( element );
+			}
+
+			if ( element ) {
+				updateSize( getElementSize( element ) );
+			}
 		},
-		[ updateSize ]
+		[ observerRef, updateSize ]
 	);
-
-	useLayoutEffect( () => {
-		const element = elementRef.current;
-		if ( ! element || typeof ResizeObserver === 'undefined' ) {
-			return undefined;
-		}
-
-		updateSize();
-		const observer = new ResizeObserver( updateSize );
-		observer.observe( element );
-
-		return () => observer.disconnect();
-	}, [ updateSize ] );
 
 	return [ setElementRef, size ] as const;
 }
@@ -262,57 +265,61 @@ export function DonutChart( {
 	}
 
 	return (
-		<div className={ styles.reference } ref={ containerRef }>
+		<Stack
+			className={ styles.reference }
+			direction="column"
+			align="center"
+			justify="center"
+			gap={ stackGap }
+			ref={ containerRef }
+		>
 			<Stack
-				className={ styles.wrapper }
-				direction="column"
+				className={ styles.chart }
 				align="center"
 				justify="center"
-				gap={ stackGap }
+				style={ { width: chartSize, height: chartSize } }
 			>
-				<div className={ styles.chart } style={ { width: chartSize, height: chartSize } }>
-					<PieChart
-						data={ styledChartData }
-						className={ styles.pieChart }
-						width={ chartSize }
-						height={ chartSize }
-						thickness={ thickness }
-						cornerScale={ DEFAULT_CORNER_SCALE }
-						gapScale={ DEFAULT_GAP_SCALE }
-						padding={ 0 }
-						size={ chartSize }
-						showLegend={ false }
-						withTooltips={ withTooltips }
-						{ ...( tooltipOffsetX !== undefined && {
-							tooltipOffsetX,
-						} ) }
-						{ ...( tooltipOffsetY !== undefined && {
-							tooltipOffsetY,
-						} ) }
-						renderTooltip={ ( { tooltipData } ) => (
-							<PieChartTooltip
-								tooltipData={ tooltipData }
-								dataFormat={ tooltipDataFormat ?? dataFormat }
-							/>
-						) }
-						showLabels={ false }
-					/>
-					<MetricWithComparison
-						className={ styles.metricContainer }
-						value={ value }
-						dataFormat={ dataFormat }
-						previousValue={ hasComparison ? comparisonValue : null }
-						direction="column"
-						align="center"
-					/>
-				</div>
-
-				{ hasLegend && styledLegendData && (
-					<div className={ styles.legendContainer } ref={ legendRef }>
-						<LegendPure items={ styledLegendData } withComparison={ hasComparison } />
-					</div>
-				) }
+				<PieChart
+					data={ styledChartData }
+					className={ styles.pieChart }
+					width={ chartSize }
+					height={ chartSize }
+					thickness={ thickness }
+					cornerScale={ DEFAULT_CORNER_SCALE }
+					gapScale={ DEFAULT_GAP_SCALE }
+					padding={ 0 }
+					size={ chartSize }
+					showLegend={ false }
+					withTooltips={ withTooltips }
+					{ ...( tooltipOffsetX !== undefined && {
+						tooltipOffsetX,
+					} ) }
+					{ ...( tooltipOffsetY !== undefined && {
+						tooltipOffsetY,
+					} ) }
+					renderTooltip={ ( { tooltipData } ) => (
+						<PieChartTooltip
+							tooltipData={ tooltipData }
+							dataFormat={ tooltipDataFormat ?? dataFormat }
+						/>
+					) }
+					showLabels={ false }
+				/>
+				<MetricWithComparison
+					className={ styles.metricContainer }
+					value={ value }
+					dataFormat={ dataFormat }
+					previousValue={ hasComparison ? comparisonValue : null }
+					direction="column"
+					align="center"
+				/>
 			</Stack>
-		</div>
+
+			{ hasLegend && styledLegendData && (
+				<Stack className={ styles.legendContainer } ref={ legendRef }>
+					<LegendPure items={ styledLegendData } withComparison={ hasComparison } />
+				</Stack>
+			) }
+		</Stack>
 	);
 }
