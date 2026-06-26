@@ -101,8 +101,10 @@ class Cookie_Consent {
 		// Register the CCPA page id setting for REST access.
 		add_action( 'rest_api_init', array( __CLASS__, 'register_ccpa_page_setting' ) );
 
-		// Keep the geolocation cookies out of Jetpack Boost's page-cache key.
-		add_filter( 'jetpack_boost_ignore_cookies', array( __CLASS__, 'ignore_geo_cookies_in_page_cache' ) );
+		// Keep the geolocation cookies out of Jetpack Boost's page-cache key when geo is enabled.
+		if ( self::is_geo_enabled() ) {
+			add_filter( 'jetpack_boost_ignore_cookies', array( __CLASS__, 'ignore_geo_cookies_in_page_cache' ) );
+		}
 
 		// Consent log REST controller: table, cron cleanup, routes.
 		Consent_Log_Controller::init();
@@ -274,9 +276,13 @@ class Cookie_Consent {
 	 * @return array Patterns with the geolocation cookies appended.
 	 */
 	public static function ignore_geo_cookies_in_page_cache( $cookies ) {
-		$config       = self::get_config();
-		$country_code = $config['country_code_cookie'] ?? 'country_code';
-		$region       = $config['region_cookie'] ?? 'region';
+		$config = self::get_config();
+		if ( ! self::is_geo_enabled( $config ) ) {
+			return $cookies;
+		}
+
+		$country_code = $config['geo']['country_code_cookie'];
+		$region       = $config['geo']['region_cookie'];
 		$cookies[]    = preg_quote( $country_code, '/' );
 		$cookies[]    = preg_quote( $region, '/' );
 
@@ -649,80 +655,217 @@ class Cookie_Consent {
 	}
 
 	/**
-	 * Get configuration with filters
+	 * Get default GDPR country list.
 	 *
-	 * @return array Configuration array
+	 * @return string[] Country codes where opt-in consent applies.
 	 */
-	private static function get_config() {
-		$default_config = array(
-			'geo_api_url'         => 'https://public-api.wordpress.com/geo/',
-			'geo_cookie_duration' => 6 * HOUR_IN_SECONDS, // 6 hours.
+	private static function get_default_gdpr_countries() {
+		return array(
+			// European Member countries.
+			'AT', // Austria.
+			'BE', // Belgium.
+			'BG', // Bulgaria.
+			'CY', // Cyprus.
+			'CZ', // Czech Republic.
+			'DE', // Germany.
+			'DK', // Denmark.
+			'EE', // Estonia.
+			'ES', // Spain.
+			'FI', // Finland.
+			'FR', // France.
+			'GR', // Greece.
+			'HR', // Croatia.
+			'HU', // Hungary.
+			'IE', // Ireland.
+			'IT', // Italy.
+			'LT', // Lithuania.
+			'LU', // Luxembourg.
+			'LV', // Latvia.
+			'MT', // Malta.
+			'NL', // Netherlands.
+			'PL', // Poland.
+			'PT', // Portugal.
+			'RO', // Romania.
+			'SE', // Sweden.
+			'SI', // Slovenia.
+			'SK', // Slovakia.
+			'GB', // United Kingdom.
+			// Single Market Countries that GDPR applies to.
+			'CH', // Switzerland.
+			'IS', // Iceland.
+			'LI', // Liechtenstein.
+			'NO', // Norway.
+		);
+	}
+
+	/**
+	 * Get default CCPA-style region list.
+	 *
+	 * @return string[] Lower-case region names where opt-out consent applies.
+	 */
+	private static function get_default_ccpa_regions() {
+		return array(
+			/* US regions/states that are treated like California for Do Not Sell requests. */
+			'california',
+			'utah',
+			'virginia',
+			'colorado',
+			'connecticut',
+			'texas',
+			'tennessee',
+			'oregon',
+			'new jersey',
+			'montana',
+			'iowa',
+			'indiana',
+			'delaware',
+		);
+	}
+
+	/**
+	 * Get default geo provider configuration.
+	 *
+	 * @return array Geo configuration.
+	 */
+	private static function get_default_geo_config() {
+		return array(
+			'provider'            => 'wpcom',
+			'api_url'             => 'https://public-api.wordpress.com/geo/',
 			'country_code_cookie' => 'country_code',
 			'region_cookie'       => 'region',
-			'cookie_policy_url'   => 'https://automattic.com/cookies/',
-			'gdpr_countries'      => array(
-				// European Member countries.
-				'AT', // Austria.
-				'BE', // Belgium.
-				'BG', // Bulgaria.
-				'CY', // Cyprus.
-				'CZ', // Czech Republic.
-				'DE', // Germany.
-				'DK', // Denmark.
-				'EE', // Estonia.
-				'ES', // Spain.
-				'FI', // Finland.
-				'FR', // France.
-				'GR', // Greece.
-				'HR', // Croatia.
-				'HU', // Hungary.
-				'IE', // Ireland.
-				'IT', // Italy.
-				'LT', // Lithuania.
-				'LU', // Luxembourg.
-				'LV', // Latvia.
-				'MT', // Malta.
-				'NL', // Netherlands.
-				'PL', // Poland.
-				'PT', // Portugal.
-				'RO', // Romania.
-				'SE', // Sweden.
-				'SI', // Slovenia.
-				'SK', // Slovakia.
-				'GB', // United Kingdom.
-				// Single Market Countries that GDPR applies to.
-				'CH', // Switzerland.
-				'IS', // Iceland.
-				'LI', // Liechtenstein.
-				'NO', // Norway.
-			),
-			'ccpa_regions'        => array(
-				/* US regions/states that are treated like California for Do Not Sell requests. */
-				'california',
-				'utah',
-				'virginia',
-				'colorado',
-				'connecticut',
-				'texas',
-				'tennessee',
-				'oregon',
-				'new jersey',
-				'montana',
-				'iowa',
-				'indiana',
-				'delaware',
-			),
+			'cookie_duration'     => 6 * HOUR_IN_SECONDS, // 6 hours.
+			'gdpr_countries'      => self::get_default_gdpr_countries(),
+			'ccpa_regions'        => self::get_default_ccpa_regions(),
 			'show_on_error'       => true, // Show banner if geolocation fails.
+		);
+	}
+
+	/**
+	 * Get default configuration.
+	 *
+	 * Legacy top-level geo keys are included so existing filters that append to the
+	 * defaults keep working. normalize_config() folds them into the nested geo schema.
+	 *
+	 * @return array Configuration array.
+	 */
+	private static function get_default_config() {
+		$geo_config = self::get_default_geo_config();
+
+		return array(
+			'features'            => array(
+				'geo' => true,
+			),
+			'geo'                 => $geo_config,
+			'geo_provider'        => $geo_config['provider'],
+			'geo_api_url'         => $geo_config['api_url'],
+			'geo_cookie_duration' => $geo_config['cookie_duration'],
+			'country_code_cookie' => $geo_config['country_code_cookie'],
+			'region_cookie'       => $geo_config['region_cookie'],
+			'gdpr_countries'      => $geo_config['gdpr_countries'],
+			'ccpa_regions'        => $geo_config['ccpa_regions'],
+			'show_on_error'       => $geo_config['show_on_error'],
 			'gdpr_honors_gpc'     => true, // Honor a Global Privacy Control signal as an opt-out in GDPR regions.
+			'cookie_policy_url'   => 'https://automattic.com/cookies/',
 			'event_prefix'        => 'jetpack', // Tracks event name prefix; set to 'woocommerceanalytics' for Unified Analytics continuity.
 		);
+	}
+
+	/**
+	 * Normalize filtered configuration into the current schema.
+	 *
+	 * @param array $config         Filtered configuration.
+	 * @param array $default_config Default configuration.
+	 * @return array Normalized configuration.
+	 */
+	private static function normalize_config( $config, $default_config ) {
+		if ( ! is_array( $config ) ) {
+			$config = array();
+		}
+
+		$features        = isset( $config['features'] ) && is_array( $config['features'] ) ? $config['features'] : array();
+		$features        = array_merge( $default_config['features'], $features );
+		$features['geo'] = (bool) $features['geo'];
+
+		$geo = isset( $config['geo'] ) && is_array( $config['geo'] ) ? $config['geo'] : array();
+		$geo = array_merge( $default_config['geo'], $geo );
+
+		$legacy_geo_keys = array(
+			'geo_provider'        => 'provider',
+			'geo_api_url'         => 'api_url',
+			'geo_cookie_duration' => 'cookie_duration',
+			'country_code_cookie' => 'country_code_cookie',
+			'region_cookie'       => 'region_cookie',
+			'gdpr_countries'      => 'gdpr_countries',
+			'ccpa_regions'        => 'ccpa_regions',
+			'show_on_error'       => 'show_on_error',
+		);
+
+		foreach ( $legacy_geo_keys as $legacy_key => $geo_key ) {
+			if ( array_key_exists( $legacy_key, $config ) && $config[ $legacy_key ] !== $default_config[ $legacy_key ] ) {
+				$geo[ $geo_key ] = $config[ $legacy_key ];
+			}
+		}
+
+		if ( ! in_array( $geo['provider'], array( 'wpcom', 'custom' ), true ) ) {
+			$geo['provider'] = 'wpcom';
+		}
+		if ( ! is_string( $geo['api_url'] ) ) {
+			$geo['api_url'] = '';
+		}
+		if ( 'wpcom' === $geo['provider'] && '' === $geo['api_url'] ) {
+			$geo['api_url'] = $default_config['geo']['api_url'];
+		}
+		$geo['country_code_cookie'] = is_string( $geo['country_code_cookie'] ) && '' !== $geo['country_code_cookie'] ? $geo['country_code_cookie'] : $default_config['geo']['country_code_cookie'];
+		$geo['region_cookie']       = is_string( $geo['region_cookie'] ) && '' !== $geo['region_cookie'] ? $geo['region_cookie'] : $default_config['geo']['region_cookie'];
+		$geo['cookie_duration']     = is_numeric( $geo['cookie_duration'] ) ? (int) $geo['cookie_duration'] : $default_config['geo']['cookie_duration'];
+		$geo['gdpr_countries']      = is_array( $geo['gdpr_countries'] ) ? array_values( $geo['gdpr_countries'] ) : $default_config['geo']['gdpr_countries'];
+		$geo['ccpa_regions']        = is_array( $geo['ccpa_regions'] ) ? array_values( $geo['ccpa_regions'] ) : $default_config['geo']['ccpa_regions'];
+		$geo['show_on_error']       = (bool) $geo['show_on_error'];
+
+		$config['features']            = $features;
+		$config['geo']                 = $geo;
+		$config['geo_provider']        = $geo['provider'];
+		$config['geo_api_url']         = $geo['api_url'];
+		$config['geo_cookie_duration'] = $geo['cookie_duration'];
+		$config['country_code_cookie'] = $geo['country_code_cookie'];
+		$config['region_cookie']       = $geo['region_cookie'];
+		$config['gdpr_countries']      = $geo['gdpr_countries'];
+		$config['ccpa_regions']        = $geo['ccpa_regions'];
+		$config['show_on_error']       = $geo['show_on_error'];
+		$config['cookie_policy_url']   = isset( $config['cookie_policy_url'] ) ? $config['cookie_policy_url'] : $default_config['cookie_policy_url'];
+		$config['event_prefix']        = isset( $config['event_prefix'] ) ? $config['event_prefix'] : $default_config['event_prefix'];
+
+		return $config;
+	}
+
+	/**
+	 * Get configuration with filters.
+	 *
+	 * @return array Configuration array.
+	 */
+	private static function get_config() {
+		$default_config = self::get_default_config();
 
 		/**
 		 * Filter cookie consent configuration
 		 *
 		 * @param array $config Configuration array
 		 */
-		return apply_filters( 'jetpack_cookie_consent_config', $default_config );
+		return self::normalize_config( apply_filters( 'jetpack_cookie_consent_config', $default_config ), $default_config );
+	}
+
+	/**
+	 * Whether geo resolution is enabled.
+	 *
+	 * @param array|null $config Optional normalized configuration.
+	 * @return bool True when the geo feature is enabled.
+	 */
+	private static function is_geo_enabled( $config = null ) {
+		if ( null === $config ) {
+			$config = self::get_config();
+		}
+
+		return ! empty( $config['features']['geo'] );
 	}
 
 	/**
@@ -797,22 +940,28 @@ class Cookie_Consent {
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		$force_preview = isset( $_GET['preview_cookie_consent'] ) && '1' === $_GET['preview_cookie_consent'];
 
-		// Pass configuration to frontend using wp_interactivity_config.
-		wp_interactivity_config(
-			'jetpack/cookie-consent',
-			array(
-				'geoApiUrl'         => $config['geo_api_url'],
-				'geoCookieDuration' => $config['geo_cookie_duration'],
-				'countryCodeCookie' => $config['country_code_cookie'],
-				'regionCookie'      => $config['region_cookie'],
-				'cookiePolicyUrl'   => $config['cookie_policy_url'],
-				'gdprCountries'     => $config['gdpr_countries'],
-				'ccpaRegions'       => $config['ccpa_regions'],
-				'gdprHonorsGpc'     => $config['gdpr_honors_gpc'] ?? true,
-				'showOnError'       => $config['show_on_error'],
-				'forcePreview'      => $force_preview,
-			)
+		$frontend_config = array(
+			'features'        => $config['features'],
+			'cookiePolicyUrl' => $config['cookie_policy_url'],
+			'gdprHonorsGpc'   => $config['gdpr_honors_gpc'] ?? true,
+			'forcePreview'    => $force_preview,
 		);
+
+		if ( self::is_geo_enabled( $config ) ) {
+			$frontend_config['geo'] = array(
+				'provider'          => $config['geo']['provider'],
+				'apiUrl'            => $config['geo']['api_url'],
+				'countryCodeCookie' => $config['geo']['country_code_cookie'],
+				'regionCookie'      => $config['geo']['region_cookie'],
+				'cookieDuration'    => $config['geo']['cookie_duration'],
+				'gdprCountries'     => $config['geo']['gdpr_countries'],
+				'ccpaRegions'       => $config['geo']['ccpa_regions'],
+				'showOnError'       => $config['geo']['show_on_error'],
+			);
+		}
+
+		// Pass configuration to frontend using wp_interactivity_config.
+		wp_interactivity_config( 'jetpack/cookie-consent', $frontend_config );
 	}
 
 	/**

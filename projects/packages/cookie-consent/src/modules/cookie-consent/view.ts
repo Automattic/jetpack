@@ -21,6 +21,8 @@ import {
 	readConsentChoices,
 	saveConsentChoices,
 	isGdprCountry,
+	isGeoEnabled,
+	getGeoConfig,
 	pertainsToCCPA,
 	handleConsentByRegion,
 } from './utils';
@@ -52,15 +54,21 @@ interface GdprManageLinkContext {
 }
 
 interface StoreConfig {
-	geoApiUrl: string;
-	geoCookieDuration: number;
-	countryCodeCookie: string;
-	regionCookie: string;
+	features: {
+		geo: boolean;
+	};
+	geo?: {
+		provider: 'wpcom' | 'custom';
+		apiUrl: string;
+		countryCodeCookie: string;
+		regionCookie: string;
+		cookieDuration: number;
+		gdprCountries: string[];
+		ccpaRegions: string[];
+		showOnError: boolean;
+	};
 	cookiePolicyUrl: string;
-	gdprCountries: string[];
-	ccpaRegions: string[];
 	gdprHonorsGpc: boolean;
-	showOnError: boolean;
 	forcePreview: boolean;
 }
 
@@ -90,7 +98,12 @@ let manageLinkConsentListenerRegistered = false;
 const gdprManageLinkContexts = new Set< GdprManageLinkContext >();
 
 function shouldShowManagePreferencesLink( config: StoreConfig ): boolean {
-	return isGdprCountry( geoState.countryCode || UNKNOWN_COUNTRY_CODE, config ) && hasConsentSet();
+	return (
+		isGeoEnabled( config ) &&
+		geoState.countryCode !== null &&
+		isGdprCountry( geoState.countryCode, config ) &&
+		hasConsentSet()
+	);
 }
 
 function focusModal(): void {
@@ -397,10 +410,19 @@ const { actions } = store( 'jetpack/cookie-consent', {
 
 			// getConfig() is not typed, so we need to assert the type.
 			const config = getConfig() as unknown as StoreConfig;
+			if ( ! isGeoEnabled( config ) ) {
+				geoState = {
+					initialized: true,
+					countryCode: null,
+					region: null,
+				};
+				return geoState;
+			}
+			const geoConfig = getGeoConfig( config );
 
 			// Check if we already have country code from cookies
-			const cachedCountryCode = getCookie( config.countryCodeCookie );
-			const cachedRegion = getCookie( config.regionCookie );
+			const cachedCountryCode = getCookie( geoConfig.countryCodeCookie );
+			const cachedRegion = getCookie( geoConfig.regionCookie );
 
 			if ( cachedCountryCode !== null && cachedRegion !== null ) {
 				geoState = {
@@ -414,7 +436,11 @@ const { actions } = store( 'jetpack/cookie-consent', {
 			// If either the country_code or region cookie is missing, fetch geolocation.
 			// `no-store` avoids using the browser HTTP cache for this visitor-specific response.
 			try {
-				const response = ( yield fetch( config.geoApiUrl, { cache: 'no-store' } ) ) as Response;
+				if ( ! geoConfig.apiUrl ) {
+					throw new Error( 'Geolocation provider URL is not configured' );
+				}
+
+				const response = ( yield fetch( geoConfig.apiUrl, { cache: 'no-store' } ) ) as Response;
 				if ( ! response.ok ) {
 					throw new Error( 'Geolocation request failed' );
 				}
@@ -424,8 +450,8 @@ const { actions } = store( 'jetpack/cookie-consent', {
 				const region = data.region || '';
 
 				// Store country code and region in cookies
-				setCookie( config.countryCodeCookie, countryCode, config.geoCookieDuration );
-				setCookie( config.regionCookie, region, config.geoCookieDuration );
+				setCookie( geoConfig.countryCodeCookie, countryCode, geoConfig.cookieDuration );
+				setCookie( geoConfig.regionCookie, region, geoConfig.cookieDuration );
 
 				geoState = {
 					initialized: true,
@@ -435,13 +461,22 @@ const { actions } = store( 'jetpack/cookie-consent', {
 			} catch ( error: unknown ) {
 				// eslint-disable-next-line no-console
 				console.debug( error );
-				// On error, set to unknown
+				if ( ! geoConfig.showOnError ) {
+					geoState = {
+						initialized: true,
+						countryCode: null,
+						region: null,
+					};
+					return geoState;
+				}
+
+				// On error, set to unknown so the default path shows the banner.
 				geoState = {
 					initialized: true,
 					countryCode: UNKNOWN_COUNTRY_CODE,
 					region: '',
 				};
-				setCookie( config.countryCodeCookie, UNKNOWN_COUNTRY_CODE, config.geoCookieDuration );
+				setCookie( geoConfig.countryCodeCookie, UNKNOWN_COUNTRY_CODE, geoConfig.cookieDuration );
 			}
 
 			return geoState;
@@ -459,9 +494,15 @@ const { actions } = store( 'jetpack/cookie-consent', {
 				| ( CookieBannerContext & CcpaContext );
 			// getConfig() is not typed, so we need to assert the type.
 			const config = getConfig() as unknown as StoreConfig;
+			if ( ! isGeoEnabled( config ) ) {
+				return;
+			}
 
 			// Initialize geolocation (will use cache if already done)
 			const geoData: GeoState = yield actions.initializeGeolocation();
+			if ( null === geoData.countryCode ) {
+				return;
+			}
 
 			// Update cookie banner context if present
 			if ( 'showBanner' in context ) {

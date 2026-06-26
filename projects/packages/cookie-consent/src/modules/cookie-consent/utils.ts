@@ -8,8 +8,18 @@ import type { ConsentType, ConsentEventType, ConsentEventChoices } from './types
 export const UNKNOWN_COUNTRY_CODE = 'UNKNOWN';
 
 interface Config {
-	gdprCountries: string[];
-	ccpaRegions: string[];
+	features?: {
+		geo?: boolean;
+	};
+	geo?: Partial< GeoConfig >;
+	geoProvider?: 'wpcom' | 'custom';
+	geoApiUrl?: string;
+	geoCookieDuration?: number;
+	countryCodeCookie?: string;
+	regionCookie?: string;
+	gdprCountries?: string[];
+	ccpaRegions?: string[];
+	showOnError?: boolean;
 	// Whether a Global Privacy Control signal force-denies non-essential cookies in GDPR
 	// regions. Conservative default (honor GPC) applies when the flag is omitted.
 	gdprHonorsGpc?: boolean;
@@ -20,6 +30,28 @@ interface Context {
 }
 
 type SameSiteValue = 'Lax' | 'Strict' | 'None';
+
+export interface GeoConfig {
+	provider: 'wpcom' | 'custom';
+	apiUrl: string;
+	countryCodeCookie: string;
+	regionCookie: string;
+	cookieDuration: number;
+	gdprCountries: string[];
+	ccpaRegions: string[];
+	showOnError: boolean;
+}
+
+const DEFAULT_GEO_CONFIG: GeoConfig = {
+	provider: 'wpcom',
+	apiUrl: 'https://public-api.wordpress.com/geo/',
+	countryCodeCookie: 'country_code',
+	regionCookie: 'region',
+	cookieDuration: 6 * 60 * 60,
+	gdprCountries: [],
+	ccpaRegions: [],
+	showOnError: true,
+};
 
 export function getCookie( name: string ): string | null {
 	const value = `; ${ document.cookie }`;
@@ -105,13 +137,39 @@ export function setConsentType( consentType: ConsentType ): void {
 	window.dispatchEvent( new CustomEvent( 'wp_consent_type_defined' ) );
 }
 
+export function isGeoEnabled( config: Config ): boolean {
+	return config.features?.geo !== false;
+}
+
+export function getGeoConfig( config: Config ): GeoConfig {
+	return {
+		...DEFAULT_GEO_CONFIG,
+		...config.geo,
+		provider: config.geo?.provider || config.geoProvider || DEFAULT_GEO_CONFIG.provider,
+		apiUrl: config.geo?.apiUrl ?? config.geoApiUrl ?? DEFAULT_GEO_CONFIG.apiUrl,
+		countryCodeCookie:
+			config.geo?.countryCodeCookie ??
+			config.countryCodeCookie ??
+			DEFAULT_GEO_CONFIG.countryCodeCookie,
+		regionCookie:
+			config.geo?.regionCookie ?? config.regionCookie ?? DEFAULT_GEO_CONFIG.regionCookie,
+		cookieDuration:
+			config.geo?.cookieDuration ?? config.geoCookieDuration ?? DEFAULT_GEO_CONFIG.cookieDuration,
+		gdprCountries: config.geo?.gdprCountries ?? config.gdprCountries ?? [],
+		ccpaRegions: config.geo?.ccpaRegions ?? config.ccpaRegions ?? [],
+		showOnError: config.geo?.showOnError ?? config.showOnError ?? DEFAULT_GEO_CONFIG.showOnError,
+	};
+}
+
 export function isGdprCountry( countryCode: string, config: Config ): boolean {
-	return countryCode === UNKNOWN_COUNTRY_CODE || config.gdprCountries.includes( countryCode );
+	const geoConfig = getGeoConfig( config );
+	return countryCode === UNKNOWN_COUNTRY_CODE || geoConfig.gdprCountries.includes( countryCode );
 }
 
 export function pertainsToCCPA( countryCode: string, region: string, config: Config ): boolean {
 	const _region = ( region || '' ).toLowerCase();
-	return countryCode === 'US' && config.ccpaRegions.includes( _region );
+	const geoConfig = getGeoConfig( config );
+	return countryCode === 'US' && geoConfig.ccpaRegions.includes( _region );
 }
 
 export function hasOptedOutViaGlobalPrivacyControl(): boolean {

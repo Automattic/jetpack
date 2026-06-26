@@ -4,7 +4,16 @@
  * @jest-environment-options {"url": "https://shop.example.co.uk/"}
  */
 
-import { getCookie, setCookie, handleConsentByRegion } from '../src/modules/cookie-consent/utils';
+import {
+	UNKNOWN_COUNTRY_CODE,
+	getCookie,
+	getGeoConfig,
+	handleConsentByRegion,
+	isGdprCountry,
+	isGeoEnabled,
+	pertainsToCCPA,
+	setCookie,
+} from '../src/modules/cookie-consent/utils';
 
 describe( 'setCookie', () => {
 	let writes: string[];
@@ -192,5 +201,67 @@ describe( 'handleConsentByRegion (GDPR + GPC)', () => {
 
 		expect( context.showBanner ).toBe( false );
 		expect( wasDenied( 'statistics' ) ).toBe( true );
+	} );
+} );
+
+describe( 'geo configuration helpers', () => {
+	it( 'treats geo as enabled by default', () => {
+		expect( isGeoEnabled( {} ) ).toBe( true );
+	} );
+
+	it( 'honours features.geo=false', () => {
+		expect( isGeoEnabled( { features: { geo: false } } ) ).toBe( false );
+	} );
+
+	it( 'prefers the nested geo schema over legacy top-level keys', () => {
+		const config = getGeoConfig( {
+			geoApiUrl: 'https://legacy.example.test/geo',
+			countryCodeCookie: 'legacy_country',
+			geo: {
+				provider: 'custom',
+				apiUrl: 'https://geo.example.test/lookup',
+				countryCodeCookie: 'shopper_country',
+				regionCookie: 'shopper_region',
+				cookieDuration: 120,
+				gdprCountries: [ 'GB' ],
+				ccpaRegions: [ 'california' ],
+				showOnError: false,
+			},
+		} );
+
+		expect( config ).toMatchObject( {
+			provider: 'custom',
+			apiUrl: 'https://geo.example.test/lookup',
+			countryCodeCookie: 'shopper_country',
+			regionCookie: 'shopper_region',
+			cookieDuration: 120,
+			gdprCountries: [ 'GB' ],
+			ccpaRegions: [ 'california' ],
+			showOnError: false,
+		} );
+	} );
+
+	it( 'uses configured GDPR country lists', () => {
+		const config = {
+			geo: {
+				gdprCountries: [ 'CA' ],
+			},
+		};
+
+		expect( isGdprCountry( 'CA', config ) ).toBe( true );
+		expect( isGdprCountry( 'GB', config ) ).toBe( false );
+		expect( isGdprCountry( UNKNOWN_COUNTRY_CODE, config ) ).toBe( true );
+	} );
+
+	it( 'uses configured CCPA regions case-insensitively', () => {
+		const config = {
+			geo: {
+				ccpaRegions: [ 'quebec' ],
+			},
+		};
+
+		expect( pertainsToCCPA( 'US', 'Quebec', config ) ).toBe( true );
+		expect( pertainsToCCPA( 'CA', 'Quebec', config ) ).toBe( false );
+		expect( pertainsToCCPA( 'US', 'California', config ) ).toBe( false );
 	} );
 } );
