@@ -84,10 +84,11 @@ function jetpack_content_guidelines_ai_enqueue_scripts( $hook_suffix ) {
 
 	// Preload the per-user "banner dismissed" flag so the empty-state banner
 	// doesn't flash before an async read. Persisted via the
-	// guidelines-banner-dismissed REST endpoint.
+	// guidelines-banner-dismissed REST endpoint. Defaults to dismissed so a
+	// load error hides the banner rather than showing it on every visit.
 	$banner_dismissed = class_exists( 'WPCOM_REST_API_V2_Endpoint_Guidelines_Banner_Dismissed' )
 		? WPCOM_REST_API_V2_Endpoint_Guidelines_Banner_Dismissed::is_dismissed()
-		: false;
+		: true;
 	wp_add_inline_script(
 		'jetpack-content-guidelines-ai',
 		'window.jetpackContentGuidelinesAi = ' . wp_json_encode(

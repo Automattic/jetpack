@@ -16,6 +16,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 /**
  * Class WPCOM_REST_API_V2_Endpoint_Guidelines_Banner_Dismissed
+ *
+ * @since 16.0
  */
 class WPCOM_REST_API_V2_Endpoint_Guidelines_Banner_Dismissed extends WP_REST_Controller {
 	/**
@@ -102,7 +104,8 @@ class WPCOM_REST_API_V2_Endpoint_Guidelines_Banner_Dismissed extends WP_REST_Con
 	public function set_dismissed() {
 		update_user_meta( get_current_user_id(), self::META_KEY, '1' );
 
-		return rest_ensure_response( array( 'dismissed' => self::is_dismissed() ) );
+		// Just set above — return it directly instead of re-reading the meta.
+		return rest_ensure_response( array( 'dismissed' => true ) );
 	}
 }
 

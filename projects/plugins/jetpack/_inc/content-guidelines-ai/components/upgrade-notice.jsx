@@ -13,14 +13,12 @@ export default function UpgradeNotice() {
 	const dismissed = useSelect( select => select( AI_STORE_NAME ).isBannerDismissed(), [] );
 
 	const handleUpgradeClick = useCallback( () => {
+		// Record the click only. Dismissal is persisted by the close button
+		// ( onRemove ), so the nudge returns if checkout is opened and abandoned.
 		recordAiEvent( 'jetpack_ai_upgrade_button', {
 			placement: 'content-guidelines',
 		} );
-		// Persist dismissal so the empty-state prompt doesn't reappear once the
-		// user has acted on it. Reuses the same per-user flag as the banner —
-		// the two prompts are mutually exclusive (feature vs. no feature).
-		dismissBanner();
-	}, [ dismissBanner ] );
+	}, [] );
 
 	if ( hasFeature || dismissed ) {
 		return null;

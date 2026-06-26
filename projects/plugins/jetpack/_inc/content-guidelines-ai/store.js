@@ -33,14 +33,20 @@ const actions = {
 		return { type: 'STOP_SECTION_LOADING', slug };
 	},
 	dismissBanner() {
-		// Optimistic: update state now, persist per-user in the background. A
-		// failed write is ignored — the banner stays hidden this session and
-		// re-syncs from the preloaded value on the next page load.
-		apiFetch( {
-			method: 'PUT',
-			path: DISMISS_PATH,
-		} ).catch( () => {} );
-		return { type: 'DISMISS_BANNER' };
+		return ( { select, dispatch } ) => {
+			// One-way flag — skip the write if already dismissed.
+			if ( select.isBannerDismissed() ) {
+				return;
+			}
+			// Optimistic: update state now, persist per-user in the background.
+			// A failed write is ignored — re-syncs from the preloaded value on
+			// the next page load.
+			dispatch( { type: 'DISMISS_BANNER' } );
+			apiFetch( {
+				method: 'PUT',
+				path: DISMISS_PATH,
+			} ).catch( () => {} );
+		};
 	},
 };
 
