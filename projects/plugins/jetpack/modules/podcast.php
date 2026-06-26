@@ -21,4 +21,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 // The package self-gates on the `jetpack_podcast_for_the_world` filter for
 // self-hosted sites, and the module itself is only listed when that filter is
 // true (see Jetpack::filter_available_modules_podcast()).
+//
+// Jetpack::late_initialization() already calls Podcast::init() on every request
+// so the feed + dashboard load even while disconnected (the module loader skips
+// all modules on a disconnected site). This call is the idempotent no-op for the
+// connected module path; init() guards against running twice.
 Podcast::init();
