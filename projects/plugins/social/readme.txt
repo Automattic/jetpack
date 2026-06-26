@@ -104,9 +104,9 @@ The easiest way is to use the Custom Message option in the publishing options bo
 6. Managing Social media accounts in the post editor
 
 == Changelog ==
-### 9.0.2 - 2026-06-24
+### 9.0.3 - 2026-06-26
 #### Fixed
-- Fix the Social admin page rendering blank, and restore the editor sharing panel, on WordPress 6.9.
+- Fix fatal error on My Jetpack when the current stable Jetpack plugin is active.
 
 == Upgrade Notice ==
 
