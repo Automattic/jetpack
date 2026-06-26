@@ -107,6 +107,7 @@ class Contact_Form_Block {
 	 * @return array
 	 */
 	public static function disable_field_visibility_support( $args, $block_name ) {
+		// TODO: refactor into an array_merge'd shared supports array mirroring the JS defaultSettings, instead of this filter.
 		$is_field = strpos( $block_name, 'jetpack/field-' ) === 0 && strpos( $block_name, 'jetpack/field-option-' ) !== 0;
 
 		if ( 'jetpack/input' === $block_name || $is_field ) {
