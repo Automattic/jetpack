@@ -9,6 +9,8 @@ import {
 	formatLegendLabels,
 	useWidgetError,
 	useWidgetRootContext,
+	type LeaderboardChartData,
+	type LegendLabels,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __ } from '@wordpress/i18n';
 import { postAuthor } from '@wordpress/icons';
@@ -58,16 +60,89 @@ const getDefaultReportParams = () => ( {
 	interval: 'day' as const,
 } );
 
+export type AuthorsLeaderboardProps = {
+	/**
+	 * Leaderboard rows to render, already built from the top-authors report.
+	 * When omitted, the empty state is shown (unless `isLoading` is set).
+	 */
+	data?: LeaderboardChartData;
+	/**
+	 * When `true`, the initial loading overlay is rendered instead of the chart.
+	 */
+	isLoading?: boolean;
+	/**
+	 * When `true`, a loading overlay is layered over the chart while data
+	 * refetches in the background.
+	 */
+	isRefetching?: boolean;
+	/**
+	 * When `true`, render each row's previous-period delta next to its value.
+	 */
+	withComparison?: boolean;
+	/**
+	 * Custom legend labels for the current/comparison periods.
+	 */
+	legendLabels?: LegendLabels;
+};
+
 /**
- * Authors widget inner component. Reads report params from WidgetRoot context,
- * fetches the site's top authors by views from the Jetpack Stats API, and
- * renders them as a leaderboard with optional period comparison.
+ * Presentational leaderboard for the Authors widget. Renders the site's top
+ * authors by views, and is responsible only for the loading, empty, and
+ * populated states.
+ *
+ * Takes already-built rows via props (and is exported) so Storybook can
+ * exercise those states with fixture data — there is no Stats backend in
+ * Storybook, so the data-connected entry point would only ever show chrome.
+ *
+ * @param props                - Component props.
+ * @param props.data           - Leaderboard rows to render.
+ * @param props.isLoading      - Whether to render the initial loading overlay.
+ * @param props.isRefetching   - Whether to layer a loading overlay over the chart.
+ * @param props.withComparison - Whether to render previous-period deltas.
+ * @param props.legendLabels   - Custom labels for the current/comparison periods.
+ * @return The rendered leaderboard.
+ */
+export function AuthorsLeaderboard( {
+	data = [],
+	isLoading = false,
+	isRefetching = false,
+	withComparison = false,
+	legendLabels,
+}: AuthorsLeaderboardProps ) {
+	if ( isLoading ) {
+		return <WidgetLoadingOverlay />;
+	}
+
+	return (
+		<>
+			<LeaderboardChart
+				data={ data }
+				withComparison={ withComparison }
+				legendLabels={ legendLabels }
+				dataFormat={ {
+					type: 'number',
+					options: { useMultipliers: false, decimals: 0 },
+				} }
+				emptyStateIcon={ postAuthor }
+				emptyStateText={ __(
+					'Learn about your most popular authors to better understand how they contribute to growing your site.',
+					'jetpack-premium-analytics'
+				) }
+			/>
+			{ isRefetching && <WidgetLoadingOverlay /> }
+		</>
+	);
+}
+
+/**
+ * Fetches the top-authors report through the Jetpack Stats hook, builds the
+ * leaderboard rows, and hands them to the presentational `AuthorsLeaderboard`.
  *
  * @param props     - Component props.
  * @param props.max - Maximum number of authors to display.
- * @return The rendered leaderboard content.
+ * @return The widget content.
  */
-function AuthorsLeaderboard( { max }: { max: number } ) {
+function AuthorsReport( { max }: { max: number } ) {
 	const { reportParams } = useWidgetRootContext();
 	const statsParams = useMemo( () => ( { ...reportParams, max } ), [ reportParams, max ] );
 
@@ -91,8 +166,8 @@ function AuthorsLeaderboard( { max }: { max: number } ) {
 	const comparisonData = comparison.data;
 
 	const chartData = useMemo(
-		() => buildTopAuthorsData( primaryData, comparisonData, max ),
-		[ primaryData, comparisonData, max ]
+		() => buildTopAuthorsData( primaryData, comparisonData ),
+		[ primaryData, comparisonData ]
 	);
 
 	const legendLabels = useMemo( () => formatLegendLabels( reportParams ), [ reportParams ] );
@@ -102,28 +177,14 @@ function AuthorsLeaderboard( { max }: { max: number } ) {
 		return null;
 	}
 
-	if ( isInitialLoading ) {
-		return <WidgetLoadingOverlay />;
-	}
-
 	return (
-		<>
-			<LeaderboardChart
-				data={ chartData }
-				withComparison={ hasComparison }
-				legendLabels={ legendLabels }
-				dataFormat={ {
-					type: 'number',
-					options: { useMultipliers: false, decimals: 0 },
-				} }
-				emptyStateIcon={ postAuthor }
-				emptyStateText={ __(
-					'Learn about your most popular authors to better understand how they contribute to growing your site.',
-					'jetpack-premium-analytics'
-				) }
-			/>
-			{ isRefetching && <WidgetLoadingOverlay /> }
-		</>
+		<AuthorsLeaderboard
+			data={ chartData }
+			isLoading={ isInitialLoading }
+			isRefetching={ isRefetching }
+			withComparison={ hasComparison }
+			legendLabels={ legendLabels }
+		/>
 	);
 }
 
@@ -148,7 +209,7 @@ export default function Authors( { attributes = {}, setError }: AuthorsRenderPro
 
 	return (
 		<WidgetRoot attributes={ attributesWithDefaults } setError={ setError }>
-			<AuthorsLeaderboard max={ toPositiveInt( attributes.max, DEFAULT_MAX ) } />
+			<AuthorsReport max={ toPositiveInt( attributes.max, DEFAULT_MAX ) } />
 		</WidgetRoot>
 	);
 }

@@ -29,22 +29,24 @@ function makeAuthor( { label = 'Author', views }: AuthorSeed ): StatsTopAuthorsI
 }
 
 /**
- * Builds a normalized top-authors report. Each inner array represents the
- * authors for one data point (time interval), so multiple data points can be
- * passed to exercise cross-interval aggregation.
+ * Builds a normalized top-authors report. The Stats query layer summarizes
+ * multi-day ranges server-side, so the report carries a single data point of
+ * per-author totals — which is what the widget consumes.
  *
- * @param dataPoints - Authors grouped per data point.
+ * @param authors - The authors for the period, already ranked by the API.
  * @return A normalized top-authors report.
  */
-function makeReport( dataPoints: AuthorSeed[][] ): StatsNormalizedReport< StatsTopAuthorsItem > {
+function makeReport( authors: AuthorSeed[] ): StatsNormalizedReport< StatsTopAuthorsItem > {
 	return {
 		summary: { date_start: '2024-01-01', date_end: '2024-01-31' },
-		data: dataPoints.map( ( authors, index ) => ( {
-			time_interval: `2024-01-${ String( index + 1 ).padStart( 2, '0' ) }`,
-			date_start: '2024-01-01',
-			date_end: '2024-01-31',
-			items: authors.map( makeAuthor ),
-		} ) ),
+		data: [
+			{
+				time_interval: '2024-01-01',
+				date_start: '2024-01-01',
+				date_end: '2024-01-31',
+				items: authors.map( makeAuthor ),
+			},
+		],
 	};
 }
 
@@ -54,12 +56,12 @@ describe( 'buildTopAuthorsData', () => {
 	} );
 
 	it( 'returns an empty array when the primary report has no authors', () => {
-		expect( buildTopAuthorsData( makeReport( [ [] ] ), undefined ) ).toEqual( [] );
+		expect( buildTopAuthorsData( makeReport( [] ), undefined ) ).toEqual( [] );
 	} );
 
 	it( 'maps a single author into leaderboard data', () => {
 		const result = buildTopAuthorsData(
-			makeReport( [ [ { label: 'Alice', views: 10 } ] ] ),
+			makeReport( [ { label: 'Alice', views: 10 } ] ),
 			undefined
 		);
 
@@ -76,24 +78,12 @@ describe( 'buildTopAuthorsData', () => {
 		} );
 	} );
 
-	it( 'aggregates views for the same author across data points', () => {
-		const result = buildTopAuthorsData(
-			makeReport( [ [ { label: 'Alice', views: 4 } ], [ { label: 'Alice', views: 6 } ] ] ),
-			undefined
-		);
-
-		expect( result ).toHaveLength( 1 );
-		expect( result[ 0 ].currentValue ).toBe( 10 );
-	} );
-
-	it( 'sorts authors by views in descending order', () => {
+	it( 'preserves the order the API returns authors in', () => {
 		const result = buildTopAuthorsData(
 			makeReport( [
-				[
-					{ label: 'Alice', views: 5 },
-					{ label: 'Bob', views: 20 },
-					{ label: 'Carol', views: 12 },
-				],
+				{ label: 'Bob', views: 20 },
+				{ label: 'Carol', views: 12 },
+				{ label: 'Alice', views: 5 },
 			] ),
 			undefined
 		);
@@ -101,26 +91,10 @@ describe( 'buildTopAuthorsData', () => {
 		expect( result.map( author => author.label ) ).toEqual( [ 'Bob', 'Carol', 'Alice' ] );
 	} );
 
-	it( 'truncates the leaderboard to maxEntries', () => {
-		const result = buildTopAuthorsData(
-			makeReport( [
-				[
-					{ label: 'Alice', views: 50 },
-					{ label: 'Bob', views: 40 },
-					{ label: 'Carol', views: 30 },
-				],
-			] ),
-			undefined,
-			2
-		);
-
-		expect( result.map( author => author.label ) ).toEqual( [ 'Alice', 'Bob' ] );
-	} );
-
 	it( 'aligns comparison values by author label', () => {
 		const result = buildTopAuthorsData(
-			makeReport( [ [ { label: 'Alice', views: 150 } ] ] ),
-			makeReport( [ [ { label: 'Alice', views: 100 } ] ] )
+			makeReport( [ { label: 'Alice', views: 150 } ] ),
+			makeReport( [ { label: 'Alice', views: 100 } ] )
 		);
 
 		expect( result[ 0 ] ).toMatchObject( {
@@ -133,12 +107,10 @@ describe( 'buildTopAuthorsData', () => {
 	it( 'treats authors missing from the comparison period as zero', () => {
 		const result = buildTopAuthorsData(
 			makeReport( [
-				[
-					{ label: 'Alice', views: 10 },
-					{ label: 'Bob', views: 8 },
-				],
+				{ label: 'Alice', views: 10 },
+				{ label: 'Bob', views: 8 },
 			] ),
-			makeReport( [ [ { label: 'Alice', views: 5 } ] ] )
+			makeReport( [ { label: 'Alice', views: 5 } ] )
 		);
 
 		const bob = result.find( author => author.label === 'Bob' );
