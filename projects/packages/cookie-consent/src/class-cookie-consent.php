@@ -221,6 +221,8 @@ class Cookie_Consent {
 
 		// Build the page content with blocks.
 		$content = self::get_ccpa_page_content();
+		$config  = self::get_config();
+		$copy    = $config['copy'];
 
 		// Create the page in a single call so the created-once flag is only set
 		// once the full page (with content) has actually persisted. A two-step
@@ -228,7 +230,7 @@ class Cookie_Consent {
 		// failed update would leave a permanently published, empty page.
 		$page_id = wp_insert_post(
 			array(
-				'post_title'     => __( 'Your Privacy Choices', 'jetpack-cookie-consent' ),
+				'post_title'     => $copy['ccpa_page_title'],
 				'post_name'      => $page_slug,
 				'post_status'    => 'publish',
 				'post_type'      => 'page',
@@ -330,6 +332,7 @@ class Cookie_Consent {
 		}
 
 		ob_start();
+		$config = self::get_config(); // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		include $template_path;
 		return ob_get_clean();
 	}
@@ -469,8 +472,9 @@ class Cookie_Consent {
 
 		// Process GDPR "Manage Privacy Preferences" link last.
 		if ( ! $manage_preferences_processed ) {
+			$config                            = self::get_config();
 			$hooked_block['attrs']['url']      = '#manage-preferences';
-			$hooked_block['attrs']['label']    = __( 'Manage Privacy Preferences', 'jetpack-cookie-consent' );
+			$hooked_block['attrs']['label']    = $config['copy']['manage_preferences_link'];
 			$hooked_block['attrs']['kind']     = 'custom';
 			$hooked_block['attrs']['metadata'] = array(
 				'name' => 'jetpack-cookie-consent-gdpr-manage-preferences-link',
@@ -627,6 +631,9 @@ class Cookie_Consent {
 			$block_content = $tags->get_updated_html();
 		}
 
+		$config = self::get_config();
+		$copy   = $config['copy'];
+
 		// Build the snackbar HTML.
 		$snackbar_html = sprintf(
 			'<div class="jetpack-cookie-consent-ccpa-snackbar" data-wp-bind--hidden="!state.showSnackbar">
@@ -635,8 +642,8 @@ class Cookie_Consent {
 					<button type="button" class="jetpack-cookie-consent-ccpa-snackbar__dismiss" data-wp-on--click="actions.dismissSnackbar" aria-label="%s">×</button>
 				</div>
 			</div>',
-			esc_html__( 'Your browser has been successfully opted out from sharing personal data.', 'jetpack-cookie-consent' ),
-			esc_attr__( 'Dismiss', 'jetpack-cookie-consent' )
+			esc_html( $copy['ccpa_snackbar_success'] ),
+			esc_attr( $copy['ccpa_snackbar_dismiss_label'] )
 		);
 
 		// Insert the snackbar inside the group block (before the closing </div>).
@@ -649,11 +656,84 @@ class Cookie_Consent {
 	}
 
 	/**
+	 * Get default UI copy.
+	 *
+	 * Defaults are translated in the package text domain. Consumers can override
+	 * any key through the `copy` config group and translate those overrides in
+	 * their own text domain before returning them from the config filter.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return array Default copy keyed by semantic UI location.
+	 */
+	public static function get_default_copy() {
+		return array(
+			'banner_title'                     => __( 'Use of your personal data', 'jetpack-cookie-consent' ),
+			'banner_description'               => __( 'We and our partners process your personal data, such as browsing data, IP addresses, cookie information, and other unique identifiers, based on your consent and/or our legitimate interest to improve our website, marketing activities, and your user experience.', 'jetpack-cookie-consent' ),
+			'banner_accept_button'             => __( 'Accept', 'jetpack-cookie-consent' ),
+			'banner_reject_button'             => __( 'Reject', 'jetpack-cookie-consent' ),
+			'banner_customize_button'          => __( 'Customize', 'jetpack-cookie-consent' ),
+			'modal_title'                      => __( 'Customize preferences', 'jetpack-cookie-consent' ),
+			'modal_close_label'                => __( 'Close modal', 'jetpack-cookie-consent' ),
+			'modal_description'                => __( 'Your privacy is important to us. We and our partners use, store, and process your personal data to improve our website, such as by improving security or conducting analytics, marketing activities to help deliver relevant marketing or content, and your user experience, such as by remembering your account name or language settings where applicable. You can customize your cookie settings below. Learn more in our', 'jetpack-cookie-consent' ),
+			'privacy_policy_link'              => __( 'Privacy Policy', 'jetpack-cookie-consent' ),
+			'modal_links_conjunction'          => __( 'and', 'jetpack-cookie-consent' ),
+			'cookie_policy_link'               => __( 'Cookie Policy', 'jetpack-cookie-consent' ),
+			'category_toggle_label'            => __( 'Toggle category description', 'jetpack-cookie-consent' ),
+			'required_category_label'          => __( 'Required', 'jetpack-cookie-consent' ),
+			'always_active_label'              => __( 'Always active', 'jetpack-cookie-consent' ),
+			'required_category_description'    => __( 'These cookies are essential for our websites and services to perform basic functions and are necessary for us to operate certain features. Examples include your IP address, browser type, requested URLs, response codes, and operating system data.', 'jetpack-cookie-consent' ),
+			'analytics_category_label'         => __( 'Analytics', 'jetpack-cookie-consent' ),
+			'analytics_category_description'   => __( 'These cookies allow us to improve performance by collecting information on how users interact with our websites.', 'jetpack-cookie-consent' ),
+			'advertising_category_label'       => __( 'Advertising', 'jetpack-cookie-consent' ),
+			'advertising_category_description' => __( 'These cookies are set by us and our advertising partners to provide you with relevant content and to understand that content\'s effectiveness.', 'jetpack-cookie-consent' ),
+			'save_preferences_button'          => __( 'Save preferences', 'jetpack-cookie-consent' ),
+			'accept_all_button'                => __( 'Accept all', 'jetpack-cookie-consent' ),
+			'reject_all_button'                => __( 'Reject all', 'jetpack-cookie-consent' ),
+			'manage_preferences_link'          => __( 'Manage Privacy Preferences', 'jetpack-cookie-consent' ),
+			'ccpa_page_title'                  => __( 'Your Privacy Choices', 'jetpack-cookie-consent' ),
+			'ccpa_intro'                       => __( 'We value your privacy and want you to feel in control of your personal information. Like most websites, we use cookies and similar tools to improve your website experience and show you relevant ads. Sometimes we share this information with trusted partners to do so.', 'jetpack-cookie-consent' ),
+			'ccpa_laws_notice'                 => __( 'Some U.S. state laws consider this kind of data sharing a sale or sharing of personal information. Depending on where you live, you may have the right to opt out.', 'jetpack-cookie-consent' ),
+			'ccpa_heading'                     => __( 'How to Opt Out', 'jetpack-cookie-consent' ),
+			'ccpa_browser_opt_out'             => __( 'Browser Opt-Out: Click the Opt Out button below to stop your browser from sharing this data.', 'jetpack-cookie-consent' ),
+			'ccpa_account_opt_out'             => __( 'Account Opt-Out: To apply this choice to your account, check the box and enter your email.', 'jetpack-cookie-consent' ),
+			'ccpa_gpc_opt_out'                 => __( 'Automatic Opt-Out: If you use a browser with Global Privacy Control (GPC) turned on, we will recognize it and respect your choice automatically.', 'jetpack-cookie-consent' ),
+			'ccpa_preferences_notice'          => __( 'Your preferences will only affect how we use your information for personalized ads and similar activities. It will not affect how we use your information for other purposes, like security or site functionality.', 'jetpack-cookie-consent' ),
+			'ccpa_button_instruction'          => __( 'Click the Opt Out button to stop this browser from sharing personal data.', 'jetpack-cookie-consent' ),
+			'ccpa_opt_out_button'              => __( 'Opt Out', 'jetpack-cookie-consent' ),
+			'ccpa_snackbar_success'            => __( 'Your browser has been successfully opted out from sharing personal data.', 'jetpack-cookie-consent' ),
+			'ccpa_snackbar_dismiss_label'      => __( 'Dismiss', 'jetpack-cookie-consent' ),
+		);
+	}
+
+	/**
+	 * Normalize configured copy by merging consumer overrides with defaults.
+	 *
+	 * @param array $copy     Copy values supplied by configuration.
+	 * @param array $defaults Default copy values.
+	 * @return array Normalized copy.
+	 */
+	private static function normalize_copy( $copy, $defaults ) {
+		if ( ! is_array( $copy ) ) {
+			return $defaults;
+		}
+
+		foreach ( $copy as $key => $value ) {
+			if ( is_string( $key ) && is_scalar( $value ) ) {
+				$defaults[ $key ] = (string) $value;
+			}
+		}
+
+		return $defaults;
+	}
+
+	/**
 	 * Get configuration with filters
 	 *
 	 * @return array Configuration array
 	 */
 	private static function get_config() {
+		$default_copy   = self::get_default_copy();
 		$default_config = array(
 			'geo_api_url'         => 'https://public-api.wordpress.com/geo/',
 			'geo_cookie_duration' => 6 * HOUR_IN_SECONDS, // 6 hours.
@@ -715,6 +795,7 @@ class Cookie_Consent {
 			'show_on_error'       => true, // Show banner if geolocation fails.
 			'gdpr_honors_gpc'     => true, // Honor a Global Privacy Control signal as an opt-out in GDPR regions.
 			'event_prefix'        => 'jetpack', // Tracks event name prefix; set to 'woocommerceanalytics' for Unified Analytics continuity.
+			'copy'                => $default_copy,
 		);
 
 		/**
@@ -722,7 +803,14 @@ class Cookie_Consent {
 		 *
 		 * @param array $config Configuration array
 		 */
-		return apply_filters( 'jetpack_cookie_consent_config', $default_config );
+		$config = apply_filters( 'jetpack_cookie_consent_config', $default_config );
+		if ( ! is_array( $config ) ) {
+			$config = $default_config;
+		}
+
+		$config['copy'] = self::normalize_copy( $config['copy'] ?? array(), $default_copy );
+
+		return $config;
 	}
 
 	/**
