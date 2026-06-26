@@ -14,7 +14,6 @@ import {
 	sanitizeStatsCommentFollowersResponse,
 	sanitizeStatsFollowersResponse,
 	sanitizeStatsCommentsResponse,
-	sanitizeStatsDevicesResponse,
 	sanitizeStatsInsightsResponse,
 	sanitizeStatsStreakResponse,
 	sanitizeStatsVisitsResponse,

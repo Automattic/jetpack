@@ -95,12 +95,6 @@ export type {
 	StatsFollowersRawResponse,
 } from './followers';
 export type {
-	StatsDevicesItem,
-	StatsDevicesResponse,
-	StatsDevicesResponseItem,
-	StatsDevicesTopValues,
-} from './devices';
-export type {
 	StatsCommentsAuthorItem,
 	StatsCommentsGroupItem,
 	StatsCommentsItem,
