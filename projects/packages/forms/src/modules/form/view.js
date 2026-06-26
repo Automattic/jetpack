@@ -450,11 +450,9 @@ const { state, actions } = store( NAMESPACE, {
 					if ( context.isMultiStep && field.step !== context.currentStep ) {
 						return;
 					}
-					// Don't surface errors for fields hidden for the current viewport.
-					if ( isFieldHidden( field.id ) ) {
-						return;
-					}
-					if ( field.error && field.error !== 'yes' ) {
+					// Check visibility only for fields that would otherwise show an error, so a
+					// valid form never reads layout (offsetParent) for every field.
+					if ( field.error && field.error !== 'yes' && ! isFieldHidden( field.id ) ) {
 						errors.push( {
 							anchor: '#' + field.id,
 							label: stripHtml( field.label ) + ': ' + getError( field ),

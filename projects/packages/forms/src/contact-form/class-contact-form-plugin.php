@@ -571,7 +571,7 @@ class Contact_Form_Plugin {
 
 		$classes = array();
 		foreach ( array( 'mobile', 'tablet', 'desktop' ) as $viewport ) {
-			if ( isset( $viewport_config[ $viewport ] ) && false === $viewport_config[ $viewport ] ) {
+			if ( false === ( $viewport_config[ $viewport ] ?? null ) ) {
 				$classes[] = 'wp-block-hidden-' . $viewport;
 			}
 		}
@@ -865,8 +865,9 @@ class Contact_Form_Plugin {
 				// rendered through the shortcode pipeline rather than `render_block`, so that class never
 				// reaches the rendered wrapper and the field stays visible on the front end. Re-derive
 				// the classes here so they land on the outermost wrapper, where the CSS expects them.
-				$block_visibility   = $block->parsed_block['attrs']['metadata']['blockVisibility'] ?? $atts['metadata']['blockVisibility'] ?? null;
-				$visibility_classes = self::get_block_visibility_classes( $block_visibility );
+				$block_visibility                      = $block->parsed_block['attrs']['metadata']['blockVisibility'] ?? $atts['metadata']['blockVisibility'] ?? null;
+				$visibility_classes                    = self::get_block_visibility_classes( $block_visibility );
+				$atts['fieldhiddenbydevicevisibility'] = '' !== $visibility_classes;
 				if ( '' !== $visibility_classes ) {
 					$atts['fieldwrapperclasses'] = trim( $atts['fieldwrapperclasses'] . ' ' . $visibility_classes );
 				}

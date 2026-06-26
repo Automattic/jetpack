@@ -177,6 +177,8 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 				'showotheroption'              => null,
 				// derived from block metadata for blockVisibility support
 				'labelhiddenbyblockvisibility' => null,
+				// Whether the field can be hidden for some device via block device visibility.
+				'fieldhiddenbydevicevisibility' => null,
 			),
 			$attributes,
 			'contact-field'
@@ -536,18 +538,18 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	}
 
 	/**
-	 * Whether the field is hidden for at least one device via block device visibility.
+	 * Whether the field can be hidden for some device via block device visibility.
 	 *
-	 * Core's block-visibility support adds `wp-block-hidden-{viewport}` classes to the field
-	 * wrapper (see Contact_Form_Plugin::get_block_visibility_classes()). When a field can be
-	 * hidden, the visitor may be on a viewport where it isn't shown, so an empty value should
-	 * not be treated as a missing required field.
+	 * The flag is derived from the block's `metadata.blockVisibility` in
+	 * Contact_Form_Plugin::block_attributes_to_shortcode_attributes() (the same place the
+	 * `wp-block-hidden-{viewport}` wrapper classes are added). When a field can be hidden, the
+	 * visitor may be on a viewport where it isn't shown, so an empty value should not be treated
+	 * as a missing required field.
 	 *
-	 * @return bool True when the field wrapper carries a device-visibility class.
+	 * @return bool True when the field carries a device-visibility restriction.
 	 */
 	public function is_hidden_by_device_visibility() {
-		$wrapper_classes = (string) $this->get_attribute( 'fieldwrapperclasses' );
-		return str_contains( $wrapper_classes, 'wp-block-hidden-' );
+		return (bool) $this->get_attribute( 'fieldhiddenbydevicevisibility' );
 	}
 
 	/**

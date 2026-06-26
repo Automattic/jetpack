@@ -122,11 +122,11 @@ class Contact_Form_Field_Test extends BaseTestCase {
 	public function test_required_field_hidden_by_device_visibility_skips_validation() {
 		$field = $this->get_new_field_instance(
 			array(
-				'type'                => 'text',
-				'id'                  => 'hidden_required',
-				'label'               => 'Hidden Field',
-				'required'            => true,
-				'fieldwrapperclasses' => 'wp-block-jetpack-field-text wp-block-hidden-tablet',
+				'type'                          => 'text',
+				'id'                            => 'hidden_required',
+				'label'                         => 'Hidden Field',
+				'required'                      => true,
+				'fieldhiddenbydevicevisibility' => true,
 			)
 		);
 
@@ -144,11 +144,10 @@ class Contact_Form_Field_Test extends BaseTestCase {
 	public function test_required_visible_field_still_validates() {
 		$field = $this->get_new_field_instance(
 			array(
-				'type'                => 'text',
-				'id'                  => 'visible_required',
-				'label'               => 'Visible Field',
-				'required'            => true,
-				'fieldwrapperclasses' => 'wp-block-jetpack-field-text',
+				'type'     => 'text',
+				'id'       => 'visible_required',
+				'label'    => 'Visible Field',
+				'required' => true,
 			)
 		);
 

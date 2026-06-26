@@ -680,7 +680,7 @@ class Feedback_Fields_Test extends BaseTestCase {
 			'g' . $form_id
 		);
 
-		$form     = new Contact_Form( array(), '[contact-field label="Name" type="name" fieldwrapperclasses="wp-block-jetpack-field-name wp-block-hidden-tablet"][contact-field label="Email" type="email"]' );
+		$form     = new Contact_Form( array(), '[contact-field label="Name" type="name" fieldhiddenbydevicevisibility="1"][contact-field label="Email" type="email"]' );
 		$response = Feedback::from_submission( $_post_data, $form );
 
 		$web     = $response->get_compiled_fields( 'web' );
@@ -714,7 +714,7 @@ class Feedback_Fields_Test extends BaseTestCase {
 			'g' . $form_id
 		);
 
-		$form     = new Contact_Form( array(), '[contact-field label="Name" type="name" fieldwrapperclasses="wp-block-jetpack-field-name wp-block-hidden-tablet"][contact-field label="Email" type="email"]' );
+		$form     = new Contact_Form( array(), '[contact-field label="Name" type="name" fieldhiddenbydevicevisibility="1"][contact-field label="Email" type="email"]' );
 		$response = Feedback::from_submission( $_post_data, $form );
 
 		$web = $response->get_compiled_fields( 'web' );
