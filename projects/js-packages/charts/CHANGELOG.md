@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.8.1] - 2026-06-26
 ### Fixed
-- Charts: fix Bar Chart comparison mode — pair the keyboard tooltip with the focused bar, keep the value axis zero-based, and make the tooltip label/value separator translatable. [#49959]
+- Fix Bar Chart comparison mode — pair the keyboard tooltip with the focused bar, keep the value axis zero-based, and make the tooltip label/value separator translatable. [#49959]
 
 ## [1.8.0] - 2026-06-24
 ### Added
