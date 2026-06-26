@@ -1,6 +1,7 @@
 /**
  * WordPress dependencies
  */
+import { __ } from '@wordpress/i18n';
 import { bug } from '@wordpress/icons';
 
 /**
@@ -12,7 +13,6 @@ import { bug } from '@wordpress/icons';
  */
 export default {
 	name: 'jpa/react-query-dev-tool',
-	title: 'React Query Devtools',
+	title: __( 'React Query Devtools', 'jetpack-premium-analytics' ),
 	icon: bug,
-	presentation: 'full-bleed',
 };
