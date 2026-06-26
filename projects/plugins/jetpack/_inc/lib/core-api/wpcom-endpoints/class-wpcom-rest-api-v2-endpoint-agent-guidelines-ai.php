@@ -39,6 +39,18 @@ class WPCOM_REST_API_V2_Endpoint_Agent_Guidelines_AI extends WP_REST_Controller 
 		$this->is_wpcom                     = true;
 		$this->wpcom_is_wpcom_only_endpoint = true;
 
+		add_action( 'rest_api_init', array( $this, 'maybe_register_routes' ) );
+	}
+
+	/**
+	 * Register routes on `rest_api_init`, gating on the AI feature state.
+	 *
+	 * The Jetpack_AI_Helper check (which loads the helper and instantiates
+	 * Status/Host classes) runs here rather than in the constructor so that code
+	 * is only loaded when the REST API is actually in use, not on every
+	 * front-end, cron, or login request.
+	 */
+	public function maybe_register_routes() {
 		if ( ! class_exists( 'Jetpack_AI_Helper' ) ) {
 			require_once JETPACK__PLUGIN_DIR . '_inc/lib/class-jetpack-ai-helper.php';
 		}
@@ -50,7 +62,7 @@ class WPCOM_REST_API_V2_Endpoint_Agent_Guidelines_AI extends WP_REST_Controller 
 			return;
 		}
 
-		add_action( 'rest_api_init', array( $this, 'register_routes' ) );
+		$this->register_routes();
 	}
 
 	/**

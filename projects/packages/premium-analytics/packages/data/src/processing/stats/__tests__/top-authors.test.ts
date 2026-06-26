@@ -25,6 +25,7 @@ describe( 'Stats top authors normalizer', () => {
 						label: 'Homepage',
 						views: 4157,
 						link: 'https://example.com/?p=265143',
+						actions: [ { type: 'link', data: 'https://example.com/?p=265143' } ],
 					} ),
 					expect.objectContaining( {
 						id: 345724,
@@ -63,5 +64,37 @@ describe( 'Stats top authors normalizer', () => {
 				],
 			} )
 		);
+	} );
+
+	it( 'does not add link actions when author posts have no URL', () => {
+		const result = sanitizeStatsTopAuthorsResponse(
+			{
+				date: '2026-06-22',
+				period: 'day',
+				summary: {
+					authors: [
+						{
+							name: 'Jetpack Team',
+							views: 3,
+							posts: [ { id: 123, title: 'Homepage', views: 3 } ],
+						},
+					],
+				},
+			},
+			{
+				period: 'day',
+				start_date: '2026-06-16',
+				end_date: '2026-06-22',
+				summarize: true,
+			}
+		);
+
+		expect( result.data[ 0 ].items[ 0 ].children ).toEqual( [
+			expect.objectContaining( {
+				label: 'Homepage',
+				link: null,
+				actions: [],
+			} ),
+		] );
 	} );
 } );

@@ -8,33 +8,47 @@
 namespace Automattic\Jetpack\CookieConsent;
 
 use PHPUnit\Framework\TestCase as PHPUnit_TestCase;
-use WorDBless\Options as WorDBless_Options;
-use WorDBless\Users as WorDBless_Users;
 
 /**
- * Base TestCase: resets WorDBless state between tests and provides consent-log
+ * Base TestCase: resets database state between tests and provides consent-log
  * table/row helpers (create_consent_table, insert_consent_row).
  */
 abstract class TestCase extends PHPUnit_TestCase {
 
 	/**
-	 * Set up: clear WorDBless state.
+	 * Set up: reset database state.
 	 */
 	public function setUp(): void {
 		parent::setUp();
-		WorDBless_Options::init()->clear_options();
-		WorDBless_Users::init()->clear_all_users();
-		wp_set_current_user( 0 );
+		$this->reset_state();
 		$this->create_consent_table();
 	}
 
 	/**
-	 * Tear down: clear WorDBless state.
+	 * Tear down: reset database state.
 	 */
 	public function tearDown(): void {
 		parent::tearDown();
-		WorDBless_Options::init()->clear_options();
-		WorDBless_Users::init()->clear_all_users();
+		$this->reset_state();
+	}
+
+	/**
+	 * Reset state between tests.
+	 *
+	 * The suite runs on the sqlite engine (the consent-log tests need real
+	 * tables), which persists across tests, so WorDBless' in-memory clears are
+	 * no-ops here. Truncate the real tables and drop the package's options
+	 * directly instead, then flush the object cache so reads don't return
+	 * already-deleted rows.
+	 */
+	private function reset_state() {
+		global $wpdb;
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		$wpdb->query( "DELETE FROM {$wpdb->posts}" );
+		$wpdb->query( "DELETE FROM {$wpdb->postmeta}" );
+		$wpdb->query( "DELETE FROM {$wpdb->options} WHERE option_name LIKE 'jetpack_cookie_consent_%'" );
+		// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		wp_cache_flush();
 		wp_set_current_user( 0 );
 	}
 

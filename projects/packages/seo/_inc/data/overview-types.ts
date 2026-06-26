@@ -18,8 +18,10 @@ export interface SiteVerification {
 
 export interface ContentCoverage {
 	total: number;
-	with_description: number;
 	with_schema: number;
+	with_title: number;
+	with_description: number;
+	with_search_visible: number;
 }
 
 export interface OverviewResponse {

@@ -36,11 +36,10 @@ export function setCookie(
 	const date = new Date();
 	date.setTime( date.getTime() + durationSeconds * 1000 );
 	const expires = `expires=${ date.toUTCString() }`;
-	const domain = window.location.hostname;
-	const domainPart = domain.includes( '.' )
-		? `domain=.${ domain.split( '.' ).slice( -2 ).join( '.' ) }`
-		: '';
-	document.cookie = `${ name }=${ value };${ expires };path=/;${ domainPart };SameSite=${ sameSite }`;
+	// Host-only cookie (no domain attribute), matching the WP Consent API. Deriving a
+	// cross-subdomain domain from the hostname breaks on multi-level TLDs (e.g. `.co.uk`,
+	// `.com.br`), where the last two labels are a public suffix that browsers reject.
+	document.cookie = `${ name }=${ value };${ expires };path=/;SameSite=${ sameSite }`;
 }
 
 export function hasConsentSet(): boolean {

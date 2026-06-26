@@ -331,7 +331,7 @@ class WooCommerce extends Module {
 	 * trailing order-total payload (total, currency) that the Activity Log aggregates into
 	 * revenue; otherwise only the order ID is synced (the action still syncs for other purposes).
 	 *
-	 * @since $$next-version$$ Appends a trailing [ 'total', 'currency' ] payload when the new order is paid.
+	 * @since 4.44.0 Appends a trailing [ 'total', 'currency' ] payload when the new order is paid.
 	 *
 	 * @param array $args Hook args: [ order_id, WC_Order ]. The order object is WooCommerce's 2nd arg.
 	 * @return array|false The args ( [ order_id ] ), with a trailing order-total payload appended when paid, or false when invalid.
@@ -365,7 +365,7 @@ class WooCommerce extends Module {
 	 * reads; otherwise only [ order_id, status_from, status_to ] is synced (the action still syncs for
 	 * other purposes).
 	 *
-	 * @since $$next-version$$ Appends a trailing [ 'total', 'currency' ] payload on the paid transition.
+	 * @since 4.44.0 Appends a trailing [ 'total', 'currency' ] payload on the paid transition.
 	 *
 	 * @param array $args Hook args: [ order_id, status_from, status_to, WC_Order ]. The order is the 4th arg.
 	 * @return array|false The args ( [ order_id, status_from, status_to ] ), with a trailing payload on the paid transition, or false when invalid.

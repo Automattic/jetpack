@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-external-media",
-	"version": "0.8.22",
+	"version": "0.8.23",
 	"private": true,
 	"description": "The external media feature allows users to select and import photos from external media",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/packages/external-media/#readme",
@@ -51,8 +51,6 @@
 	"devDependencies": {
 		"@automattic/jetpack-webpack-config": "workspace:*",
 		"@babel/core": "7.29.7",
-		"@babel/plugin-transform-react-jsx": "7.29.7",
-		"@babel/preset-react": "7.29.7",
 		"@typescript/native-preview": "7.0.0-dev.20260225.1",
 		"jetpack-js-tools": "workspace:*",
 		"sass-embedded": "1.97.3",

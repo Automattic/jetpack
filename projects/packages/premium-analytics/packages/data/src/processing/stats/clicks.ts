@@ -28,7 +28,7 @@ export function sanitizeStatsClicksResponse(
 		children: mapNestedItems( coerceStatsArray( item.children ), child => ( {
 			label:
 				typeof child.name === 'string' && typeof item.name === 'string' && item.name
-					? child.name.split( item.name ).join( '' ) || '/'
+					? child.name.replace( item.name, '' ) || '/'
 					: '/',
 			views: safeParseFloat( child.views ),
 			link: typeof child.url === 'string' ? child.url : null,

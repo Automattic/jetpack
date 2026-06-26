@@ -2,7 +2,6 @@ import { Group } from '@visx/group';
 import { Pie } from '@visx/shape';
 import { useTooltip, useTooltipInPortal } from '@visx/tooltip';
 import { __ } from '@wordpress/i18n';
-import { Stack } from '@wordpress/ui';
 import clsx from 'clsx';
 import { useCallback, useContext, useMemo } from 'react';
 import { Legend, useChartLegendItems } from '../../components/legend';
@@ -22,6 +21,7 @@ import {
 } from '../../providers';
 import { attachSubComponents, resolveFontSize } from '../../utils';
 import { getStringWidth } from '../../visx/text';
+import { Center } from '../private/center';
 import { ChartSVG, ChartHTML, useChartChildren } from '../private/chart-composition';
 import { ChartLayout } from '../private/chart-layout';
 import { RadialWipeAnimation } from '../private/radial-wipe-animation/';
@@ -358,12 +358,7 @@ const PieChartInternal = ( {
 						: 0;
 
 					return (
-						<Stack
-							ref={ containerRef }
-							align="center"
-							justify="center"
-							className={ styles[ 'pie-chart__centering' ] }
-						>
+						<Center ref={ containerRef }>
 							<svg
 								viewBox={ `0 0 ${ width } ${ height }` }
 								preserveAspectRatio="xMidYMid meet"
@@ -493,7 +488,7 @@ const PieChartInternal = ( {
 									{ ! allSegmentsHidden && svgChildren }
 								</Group>
 							</svg>
-						</Stack>
+						</Center>
 					);
 				} }
 			</ChartLayout>

@@ -5,6 +5,24 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.0] - 2026-06-25
+### Added
+- Expose `seo.surface_visible` on the admin script data so the legacy Traffic page can hide its SEO/Sitemaps sections for sites on the new SEO experience. [#49697]
+
+### Changed
+- Gate the Settings, Content, and AI tabs behind the enable-SEO-tools card when the SEO Tools module is off. [#49844]
+- Improve contrast on the SEO admin pages so content cards and the social link preview stand out. [#49874]
+- Show completion rings for all four Content SEO settings instead of only schema and meta description. [#49847]
+- Simplify the search/social preview cards on the SEO Settings tab. [#49846]
+- Use explicit Save buttons for the SEO Settings text-heavy sections instead of auto-saving on blur. [#49845]
+
+### Fixed
+- Fix a `@wordpress/ui` 0.15 type error in the title-structure field. [#49800]
+- Keep the SEO dashboard tab strip pinned while scrolling. [#49874]
+- Lay out the Content SEO coverage rings in a responsive grid. [#49865]
+- SEO Settings: Add a "View sitemap" link once the sitemap is generated, and disable the sitemap toggle while search engines are blocked. [#49799]
+- Stop shipping megabytes of unminified JS as part of the package. [#49699]
+
 ## [0.2.0] - 2026-06-22
 ### Added
 - Add a Canonical URLs toggle to the Settings tab that adds `rel="canonical"` tags to archive pages. [#49463]
@@ -24,7 +42,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Persist Settings and AI tab values across tab navigation, so a saved change shows when you return to the tab without a page reload. [#49351]
 
-
 ## [0.1.1] - 2026-06-15
 ### Changed
 - Update package dependencies. [#49273]
@@ -38,5 +55,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Create a Settings screen with site visibility, post title structure, front-page description, and site verification. [#49256]
 - Scaffold the new `jetpack-seo` package and mount its admin page. [#49203]
 
+[0.3.0]: https://github.com/Automattic/jetpack-seo/compare/0.2.0...0.3.0
 [0.2.0]: https://github.com/Automattic/jetpack-seo/compare/0.1.1...0.2.0
 [0.1.1]: https://github.com/Automattic/jetpack-seo/compare/0.1.0...0.1.1

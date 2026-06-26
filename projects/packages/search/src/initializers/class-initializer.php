@@ -131,7 +131,7 @@ class Initializer {
 	 */
 	protected static function init_before_connection() {
 		// Set up Search API endpoints.
-		add_action( 'rest_api_init', array( new REST_Controller(), 'register_rest_routes' ) );
+		add_action( 'rest_api_init', array( REST_Controller::class, 'register' ) );
 		// The dashboard has to be initialized before connection.
 		( new Dashboard() )->init_hooks();
 		( new AI_Answers() )->init();

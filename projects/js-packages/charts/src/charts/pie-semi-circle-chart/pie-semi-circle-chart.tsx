@@ -3,7 +3,6 @@ import { Pie } from '@visx/shape';
 import { Text } from '@visx/text';
 import { useTooltip, useTooltipInPortal } from '@visx/tooltip';
 import { __ } from '@wordpress/i18n';
-import { Stack } from '@wordpress/ui';
 import clsx from 'clsx';
 import { useCallback, useContext, useMemo } from 'react';
 import { Legend, useChartLegendItems } from '../../components/legend';
@@ -21,6 +20,7 @@ import {
 	GlobalChartsContext,
 } from '../../providers';
 import { attachSubComponents } from '../../utils';
+import { Center } from '../private/center';
 import { ChartSVG, ChartHTML, useChartChildren } from '../private/chart-composition';
 import { ChartLayout } from '../private/chart-layout';
 import { RadialWipeAnimation } from '../private/radial-wipe-animation';
@@ -397,12 +397,7 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 					const innerRadius = radius * ( 1 - thickness );
 
 					return (
-						<Stack
-							ref={ containerRef }
-							align="center"
-							justify="center"
-							className={ styles[ 'pie-semi-circle-chart__centering' ] }
-						>
+						<Center ref={ containerRef }>
 							<svg
 								width={ width }
 								height={ height }
@@ -491,7 +486,7 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 									) }
 								</Group>
 							</svg>
-						</Stack>
+						</Center>
 					);
 				} }
 			</ChartLayout>
