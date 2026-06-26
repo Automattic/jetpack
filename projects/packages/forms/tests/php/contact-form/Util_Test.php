@@ -781,8 +781,9 @@ EOT
 	 */
 	public function test_set_block_template_attribute_marks_block_template_global() {
 		global $_wp_current_template_content, $_wp_current_template_id;
-		$prev_content = $_wp_current_template_content ?? null;
-		$prev_id      = $_wp_current_template_id ?? null;
+		// The `global` declaration above defines both (null if unset), so no null-guard is needed.
+		$prev_content = $_wp_current_template_content;
+		$prev_id      = $_wp_current_template_id;
 
 		$_wp_current_template_content = '<!-- wp:paragraph --><p>hi</p><!-- /wp:paragraph -->';
 		$_wp_current_template_id      = 'twentytwentyfour//single';
