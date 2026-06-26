@@ -12,7 +12,6 @@
 namespace Automattic\Jetpack\My_Jetpack;
 
 use Automattic\Jetpack\Constants;
-use Automattic\Jetpack\Status\Host;
 
 /**
  * Computes whether the products-only mode is active.
@@ -40,38 +39,19 @@ class Products_Page {
 	}
 
 	/**
-	 * Whether this is a WordPress.com Simple or Atomic site.
-	 *
-	 * @return bool
-	 */
-	private static function is_wpcom_site() {
-		$host = new Host();
-		return $host->is_wpcom_simple() || $host->is_woa_site();
-	}
-
-	/**
-	 * Whether the site can manage Jetpack modules (and so access more than just products).
-	 *
-	 * Uses the wpcom "site has feature" lookup, which only exists on WordPress.com / Atomic.
-	 * Self-hosted sites (no such function) are unaffected by this feature.
-	 *
-	 * @return bool
-	 */
-	private static function can_manage_modules() {
-		return function_exists( 'wpcom_site_has_feature' )
-			&& wpcom_site_has_feature( self::MANAGE_MODULES_FEATURE );
-	}
-
-	/**
 	 * Whether the products-only interface should be shown.
 	 *
-	 * True when the flag is on and the site is a Simple/Atomic site that cannot manage modules.
+	 * The wpcom "site has feature" lookup only exists on WordPress.com / Atomic sites, so its
+	 * presence gates this to those sites (self-hosted sites are unaffected). Within them, sites
+	 * that cannot manage modules get the products-only experience.
 	 *
 	 * @return bool
 	 */
 	public static function is_products_only_enabled() {
-		return self::is_flag_enabled()
-			&& self::is_wpcom_site()
-			&& ! self::can_manage_modules();
+		if ( ! self::is_flag_enabled() || ! function_exists( 'wpcom_site_has_feature' ) ) {
+			return false;
+		}
+
+		return ! wpcom_site_has_feature( self::MANAGE_MODULES_FEATURE );
 	}
 }
