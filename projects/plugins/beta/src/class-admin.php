@@ -215,8 +215,10 @@ class Admin {
 
 		// Bust the asset cache whenever the file changes (e.g. between dev/alpha
 		// builds that share a JPBETA_VERSION) by appending the file mtime.
-		$css_mtime = filemtime( __DIR__ . '/admin/admin.css' );
-		$js_mtime  = filemtime( __DIR__ . '/admin/admin.js' );
+		$css_file  = __DIR__ . '/admin/admin.css';
+		$js_file   = __DIR__ . '/admin/admin.js';
+		$css_mtime = file_exists( $css_file ) ? filemtime( $css_file ) : false;
+		$js_mtime  = file_exists( $js_file ) ? filemtime( $js_file ) : false;
 		$css_ver   = JPBETA_VERSION . '-' . ( false !== $css_mtime ? $css_mtime : '0' );
 		$js_ver    = JPBETA_VERSION . '-' . ( false !== $js_mtime ? $js_mtime : '0' );
 

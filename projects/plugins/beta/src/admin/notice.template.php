@@ -27,7 +27,7 @@ $is_notice = ( 'plugins' === $current_screen->base );
 				box-shadow: 0 0 0 1px rgba(200, 215, 225, 0.5), 0 1px 2px #e9eff3;
 				position: relative;
 			}
-			#jetpack-beta-tester__start.updated {
+			#jetpack-beta-tester__start.notice-updated {
 				border-left: 3px solid #8CC258;
 			}
 			#jetpack-beta-tester__start h1 {

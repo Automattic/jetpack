@@ -12,7 +12,8 @@
 /* ==========================================================================
    Design tokens
    ========================================================================== */
-:root {
+:root,
+.jetpack-beta-app {
 	--jpbeta-color-text: #1e1e1e;
 	--jpbeta-color-text-muted: #757575;
 	--jpbeta-color-text-secondary: #50575e;
@@ -70,12 +71,19 @@
 	.jetpack-beta-app {
 		min-height: calc(100vh - 46px);
 	}
+
+	.jetpack-beta-header {
+		top: 46px; /* Taller admin bar on small screens. */
+	}
 }
 
 /* ==========================================================================
    Header
    ========================================================================== */
 .jetpack-beta-header {
+	position: sticky;
+	top: 32px; /* Sit below the fixed wp-admin bar. */
+	z-index: 10;
 	background: var(--jpbeta-color-surface);
 	border-bottom: 1px solid var(--jpbeta-color-border);
 	padding: 20px var(--jpbeta-pad);
@@ -124,10 +132,20 @@
 	color: var(--jpbeta-color-text);
 }
 
+.jetpack-beta-header__subtitle {
+	margin: 6px 0 0;
+	font-size: 13px;
+	font-weight: 400;
+	color: var(--jpbeta-color-text-secondary);
+}
+
 /* ==========================================================================
    Footer — tiny Jetpack logo on the left, Automattic byline on the right.
    ========================================================================== */
 .jetpack-beta-footer {
+	position: sticky;
+	bottom: 0;
+	z-index: 10;
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
@@ -350,7 +368,7 @@
 
 .jetpack-beta-badge--active {
 	background: #e6ecff;
-	color: var(--jpbeta-color-accent-hover);
+	color: #2145e6;
 }
 
 .jetpack-beta-badge--dev {
@@ -361,6 +379,21 @@
 /* ==========================================================================
    Toggles (Autoupdates / Email Notifications)
    ========================================================================== */
+
+/* Keep the two settings toggles on a single compact row beside the label
+   rather than a tall stacked card. */
+.jetpack-beta-settings {
+	display: flex;
+	align-items: center;
+	flex-wrap: wrap;
+	gap: 10px 24px;
+	padding: 14px var(--jpbeta-pad);
+}
+
+.jetpack-beta-settings .jetpack-beta-section-label {
+	margin: 0;
+}
+
 .jetpack-beta-toggles {
 	display: flex;
 	flex-wrap: wrap;
@@ -656,7 +689,7 @@ a.jetpack-beta-list-row:focus {
 	line-height: 1.6;
 	border-radius: 2px;
 	background: #e6ecff;
-	color: var(--jpbeta-color-accent-hover);
+	color: #2145e6;
 }
 
 .branch-card.branch-card-hide {

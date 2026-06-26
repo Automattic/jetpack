@@ -17,7 +17,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	<div class="jetpack-beta-card jetpack-beta-settings">
 		<div class="jetpack-beta-section-label"><?php esc_html_e( 'Settings', 'jetpack-beta' ); ?></div>
 		<div class="jetpack-beta-toggles">
-			<?php Admin::show_toggle_emails(); ?>
 			<?php Admin::show_toggle_autoupdates(); ?>
+			<?php Admin::show_toggle_emails(); ?>
 		</div>
 	</div>

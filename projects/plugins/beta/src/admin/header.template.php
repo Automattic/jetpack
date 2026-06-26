@@ -22,7 +22,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 // On the manage screen a Plugin is in scope; on the overview it's null.
-$jpbeta_has_plugin = isset( $plugin ) && $plugin instanceof Plugin;
+$jpbeta_has_plugin = $plugin instanceof Plugin;
 
 ?>
 <div class="jetpack-beta-header">
@@ -42,4 +42,7 @@ $jpbeta_has_plugin = isset( $plugin ) && $plugin instanceof Plugin;
 			<?php } ?>
 		</nav>
 	</div>
+	<?php if ( ! $jpbeta_has_plugin ) { ?>
+		<p class="jetpack-beta-header__subtitle"><?php esc_html_e( 'Test beta features and pull requests for Jetpack plugins.', 'jetpack-beta' ); ?></p>
+	<?php } ?>
 </div>
