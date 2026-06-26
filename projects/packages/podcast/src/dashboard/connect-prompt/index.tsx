@@ -31,10 +31,12 @@ const ConnectPrompt = ( { variant }: { variant: ConnectPromptVariant } ) => {
 			<Card.Content>
 				<Stack direction="column" gap="md" align="center" className="podcast-connect-prompt__inner">
 					<span className="podcast-connect-prompt__icon" aria-hidden="true">
-						<Icon icon={ link } />
+						<Icon icon={ link } size={ 28 } />
 					</span>
 					<Stack direction="column" gap="sm" align="center">
-						<h2 className="podcast-connect-prompt__title">{ title }</h2>
+						<Text variant="heading-xl" render={ <h2 /> }>
+							{ title }
+						</Text>
 						<Text variant="body-md" className="podcast-connect-prompt__description">
 							{ description }
 						</Text>
