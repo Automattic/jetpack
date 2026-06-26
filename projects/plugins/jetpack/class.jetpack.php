@@ -885,14 +885,7 @@ class Jetpack {
 		Activity_Log_Init::initialize();
 		Scan_Page_Init::initialize();
 		Jetpack_SEO_Initializer::init();
-
-		// The Podcast package's feed customization and dashboard shell work without
-		// a WordPress.com connection, but Jetpack's module loader skips every module
-		// on a disconnected site (Jetpack::load_modules() bails before the loop).
-		// Bootstrap the package here — outside that loader — so the podcast feed and
-		// the "connect" prompt survive a disconnect. Self-gates on host + the
-		// `jetpack_podcast_for_the_world` filter and is idempotent, so the connected
-		// module path (modules/podcast.php) is a harmless no-op once this has run.
+		// Loaded here, outside the connection-gated module loader, so the podcast feed and dashboard survive a disconnect.
 		\Automattic\Jetpack\Podcast\Podcast::init();
 
 		/*
