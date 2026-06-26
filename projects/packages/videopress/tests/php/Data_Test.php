@@ -283,4 +283,34 @@ class Data_Test extends BaseTestCase {
 
 		$this->assertNull( $result['thumbnail'] );
 	}
+
+	/**
+	 * Test that auto-generated captions are not disabled by default (captions on).
+	 */
+	public function test_auto_generated_captions_disabled_defaults_to_false() {
+		delete_option( 'videopress_auto_generated_captions_disabled' );
+
+		$this->assertFalse( Data::get_videopress_auto_generated_captions_disabled() );
+	}
+
+	/**
+	 * Test that the stored auto-generated captions opt-out option is honored.
+	 */
+	public function test_auto_generated_captions_disabled_reflects_stored_option() {
+		update_option( 'videopress_auto_generated_captions_disabled', true );
+
+		$this->assertTrue( Data::get_videopress_auto_generated_captions_disabled() );
+	}
+
+	/**
+	 * Test that get_videopress_settings exposes the auto-generated captions opt-out value.
+	 */
+	public function test_get_videopress_settings_includes_auto_generated_captions() {
+		update_option( 'videopress_auto_generated_captions_disabled', true );
+
+		$settings = Data::get_videopress_settings();
+
+		$this->assertArrayHasKey( 'videopress_auto_generated_captions_disabled', $settings );
+		$this->assertTrue( $settings['videopress_auto_generated_captions_disabled'] );
+	}
 }

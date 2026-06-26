@@ -1,0 +1,3 @@
+Significance: patch
+Type: other
+Comment: Add test coverage for syncing the videopress_auto_generated_captions_disabled option.
