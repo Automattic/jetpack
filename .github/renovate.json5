@@ -114,33 +114,30 @@
 		// Bundled WordPress dependencies are separated from 'monorepo:wordpress' while
 		// they're still considered unstable and can have significant breaking changes.
 		// Since they're not externalized to WP, they have higher chance of impacting functionality.
-		// See the list at https://github.com/WordPress/gutenberg/blob/trunk/packages/dependency-extraction-webpack-plugin/lib/util.js#L2
 		//
-		// @wordpress/theme is grouped here because many bundled packages (notably @wordpress/ui)
-		// rely on its design tokens (--wpds-*).
-		//
-		// @wordpress/stylelint-config is grouped with theme because its WPDS rules lint against
-		// the token set shipped in @wordpress/theme — the two should be updated in lockstep.
-		//
-		// @wordpress/build is still heavily developed; its dashboards share the same bundled
-		// packages and test surface, so exercising build alongside the rest is practical.
-		//
-		// Bundled @wordpress/grid is missing here as its updates with "Widgets Dashboard" grouping separately.
+		// Some related packages are included here too.
 		{
 			groupName: 'Bundled @wordpress/* monorepo',
 			matchPackageNames: [
+				// Bundled packages, from the list at https://github.com/WordPress/gutenberg/blob/trunk/packages/dependency-extraction-webpack-plugin/lib/util.js#L2
 				'@wordpress/admin-ui',
-				'@wordpress/build',
 				'@wordpress/dataviews',
 				'@wordpress/fields',
 				'@wordpress/icons',
 				'@wordpress/interface',
 				'@wordpress/style-runtime',
-				'@wordpress/stylelint-config',
-				'@wordpress/theme',
 				'@wordpress/ui',
 				'@wordpress/undo-manager',
 				'@wordpress/views',
+				// @wordpress/theme is grouped here because many bundled packages (notably @wordpress/ui)
+				// rely on its design tokens (--wpds-*).
+				'@wordpress/theme',
+				// @wordpress/stylelint-config is grouped with theme because its WPDS rules lint against
+				// the token set shipped in @wordpress/theme — the two should be updated in lockstep.
+				'@wordpress/stylelint-config',
+				// @wordpress/build is still heavily developed; its dashboards share the same bundled
+				// packages and test surface, so exercising build alongside the rest is practical.
+				'@wordpress/build',
 			],
 			separateMajorMinor: false,
 			// Teams that can help test the update
