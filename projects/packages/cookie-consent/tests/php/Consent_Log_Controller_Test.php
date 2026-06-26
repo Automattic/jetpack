@@ -207,7 +207,12 @@ class Consent_Log_Controller_Test extends TestCase {
 	 */
 	private function get_consent_log_ip_address() {
 		$method = new ReflectionMethod( Consent_Log_Controller::class, 'get_consent_log_ip_address' );
-		$method->setAccessible( true );
+
+		// setAccessible() is required to invoke private methods on PHP < 8.1, but
+		// is a no-op (and deprecated as of 8.5) on newer versions.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true );
+		}
 
 		return $method->invoke( $this->controller );
 	}
