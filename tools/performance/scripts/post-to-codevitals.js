@@ -2,27 +2,45 @@
 
 import fs from 'fs';
 import path from 'path';
-import { SCENARIOS } from './scenarios.js';
+import { SCENARIOS, SANITY_RANGES } from './scenarios.js';
 
-/** Extract metrics for a single scenario. */
+/**
+ * Extract metric entries for a single scenario.
+ *
+ * Each entry carries its CodeVitals key, value, and (optional) type. The type
+ * drives the sanity-range check; untyped legacy entries are posted unchecked.
+ */
 function extractScenarioMetrics( scenario, summary ) {
-	const metrics = {};
-
 	// Use explicit metricKey if defined, otherwise fall back to prefix-based keys
 	if ( scenario.metricKey ) {
 		// Single metric with exact key
-		metrics[ scenario.metricKey ] = summary.median;
-	} else {
-		// Legacy: prefix-based keys with suffixes
-		const prefix = scenario.metricPrefix;
-		metrics[ `${ prefix }_ms` ] = summary.median;
-		metrics[ `${ prefix }_mean_ms` ] = summary.mean;
-		metrics[ `${ prefix }_min_ms` ] = summary.min;
-		metrics[ `${ prefix }_max_ms` ] = summary.max;
-		metrics[ `${ prefix }_stddev_ms` ] = summary.stdDev;
+		return [ { key: scenario.metricKey, value: summary.median, type: scenario.metricType } ];
 	}
 
-	return metrics;
+	// Legacy: prefix-based keys with suffixes (untyped — not range-checked)
+	const prefix = scenario.metricPrefix;
+	return [
+		{ key: `${ prefix }_ms`, value: summary.median },
+		{ key: `${ prefix }_mean_ms`, value: summary.mean },
+		{ key: `${ prefix }_min_ms`, value: summary.min },
+		{ key: `${ prefix }_max_ms`, value: summary.max },
+		{ key: `${ prefix }_stddev_ms`, value: summary.stdDev },
+	];
+}
+
+/**
+ * Check a metric value against its sanity range.
+ *
+ * Returns true when the value is safe to post: either the type has no range
+ * defined, or the value falls within it. CodeVitals is append-only, so an
+ * out-of-range value must never reach it.
+ */
+function isWithinSanityRange( type, value ) {
+	const range = type && SANITY_RANGES[ type ];
+	if ( ! range ) {
+		return true;
+	}
+	return value >= range.min && value <= range.max;
 }
 
 /** Post metrics to CodeVitals. */
@@ -34,8 +52,9 @@ async function postToCodeVitals( resultsPath, config ) {
 
 	const results = JSON.parse( fs.readFileSync( resultsPath, 'utf8' ) );
 
-	// Extract metrics from results
+	// Extract and sanity-check metrics from results
 	const metrics = {};
+	let validationFailed = false;
 
 	// Process only scenarios marked for CodeVitals posting
 	for ( const scenario of SCENARIOS ) {
@@ -50,13 +69,26 @@ async function postToCodeVitals( resultsPath, config ) {
 			continue;
 		}
 
-		const scenarioMetrics = extractScenarioMetrics( scenario, measurement.summary );
-
-		Object.assign( metrics, scenarioMetrics );
+		for ( const entry of extractScenarioMetrics( scenario, measurement.summary ) ) {
+			if ( ! isWithinSanityRange( entry.type, entry.value ) ) {
+				const range = SANITY_RANGES[ entry.type ];
+				console.error(
+					`✗ Sanity check failed for "${ entry.key }" (${ entry.type }): ${ entry.value } ` +
+						`is outside [${ range.min }, ${ range.max }] — skipping this metric.`
+				);
+				validationFailed = true;
+				continue;
+			}
+			metrics[ entry.key ] = entry.value;
+		}
 	}
 
-	// Validate we have metrics to post
+	// Nothing valid left to post.
 	if ( Object.keys( metrics ).length === 0 ) {
+		if ( validationFailed ) {
+			// Every metric was skipped by a sanity check (failures already logged).
+			return { posted: false, validationFailed };
+		}
 		throw new Error( 'No metrics to post - check scenario configuration and measurement results' );
 	}
 
@@ -68,6 +100,13 @@ async function postToCodeVitals( resultsPath, config ) {
 		timestamp: Date.now(),
 		branch: results.git?.branch || config.gitBranch || 'trunk',
 	};
+
+	// Dry run: show exactly what would be posted, then stop short of the POST.
+	if ( config.dryRun ) {
+		console.log( '— DRY RUN — building payload only, not posting to CodeVitals —' );
+		console.log( JSON.stringify( payload, null, 2 ) );
+		return { posted: false, validationFailed };
+	}
 
 	console.log( 'Posting metrics to CodeVitals...' );
 	console.log( 'Metrics:', JSON.stringify( metrics, null, 2 ) );
@@ -105,7 +144,7 @@ async function postToCodeVitals( resultsPath, config ) {
 			} );
 		}
 		console.log( '✓ Metrics posted successfully to CodeVitals' );
-		return data;
+		return { posted: true, data, validationFailed };
 	} catch ( error ) {
 		clearTimeout( timeoutId );
 		const message =
@@ -121,6 +160,8 @@ async function main() {
 	console.log( 'CodeVitals Integration' );
 	console.log( '=====================\n' );
 
+	const dryRun = process.argv.includes( '--dry-run' );
+
 	// Configuration from environment
 	const config = {
 		codeVitalsUrl: process.env.CODEVITALS_URL || 'https://www.codevitals.run',
@@ -129,15 +170,17 @@ async function main() {
 		gitBranch: process.env.GIT_BRANCH || 'trunk',
 		resultsPath:
 			process.env.RESULTS_PATH || path.join( import.meta.dirname, '../results/lcp-results.json' ),
+		dryRun,
 	};
 
-	// Validate required config
-	if ( ! config.codeVitalsToken ) {
+	// A live post needs a token; a dry run does not, so CI can smoke-test it.
+	if ( ! dryRun && ! config.codeVitalsToken ) {
 		console.error( 'ERROR: CODEVITALS_TOKEN environment variable is required' );
 		process.exit( 1 );
 	}
 
 	console.log( 'Configuration:' );
+	console.log( `  Mode: ${ dryRun ? 'DRY RUN (no POST)' : 'live post' }` );
 	console.log( `  CodeVitals URL: ${ config.codeVitalsUrl }` );
 	console.log( `  Results Path: ${ config.resultsPath }` );
 	console.log( `  Git Hash: ${ config.gitHash || 'unknown' }` );
@@ -145,8 +188,14 @@ async function main() {
 	console.log( '' );
 
 	try {
-		await postToCodeVitals( config.resultsPath, config );
-		console.log( '\n✓ All done!' );
+		const result = await postToCodeVitals( config.resultsPath, config );
+		if ( result.validationFailed ) {
+			console.error(
+				'\n✗ One or more metrics failed sanity checks (see above). Any valid metrics were still processed.'
+			);
+			process.exit( 1 );
+		}
+		console.log( dryRun ? '\n✓ Dry run complete!' : '\n✓ All done!' );
 		process.exit( 0 );
 	} catch ( error ) {
 		console.error( '\n✗ Failed:', error.message );
