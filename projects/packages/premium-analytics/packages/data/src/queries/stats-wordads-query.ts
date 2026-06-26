@@ -1,48 +1,57 @@
 /**
  * Internal dependencies
  */
-import { statsProxyQuery } from './stats-query';
-import type { StatsReportQueryOptions } from './stats-query';
-import type { StatsTimeSeriesReport } from '../processing/stats';
-import type { StatsQueryParams } from '../utils/stats-params';
+import { reportParamsToStatsQueryParams, statsQueryParamsToApiParams } from '../utils/stats-params';
+import {
+	statsProxyQuery,
+	type StatsReportParams,
+	type StatsReportQueryOptions,
+} from './stats-query';
+import type { StatsProxyParams } from '../api';
+import type { StatsWordAdsEarningsResponse, StatsWordAdsStatsResponse } from '../processing/stats';
 
-export type StatsWordAdsStatsResponse = StatsTimeSeriesReport;
-
-export type StatsWordAdsEarningsPeriod = {
-	amount: number | string;
-	pageviews: number | string;
-	status: number;
+export type StatsWordAdsStatsParams = StatsReportParams & {
+	quantity?: number;
 };
 
-export type StatsWordAdsEarningsBreakdown = Record< string, StatsWordAdsEarningsPeriod >;
-
-export type StatsWordAdsEarnings = {
-	total_earnings?: number | string;
-	total_amount_owed?: number | string;
-	wordads?: StatsWordAdsEarningsBreakdown;
-	sponsored?: StatsWordAdsEarningsBreakdown;
-	adjustment?: StatsWordAdsEarningsBreakdown;
-};
-
-export type StatsWordAdsEarningsResponse = {
-	earnings: StatsWordAdsEarnings;
-};
+export type StatsWordAdsEarningsParams = Record< string, never >;
 
 export const statsWordAdsStatsQuery = (
-	params: StatsQueryParams = {}
-): StatsReportQueryOptions< 'timeSeries' > =>
-	statsProxyQuery( {
+	params: StatsWordAdsStatsParams
+): StatsReportQueryOptions< 'wordAdsStats' > => {
+	const statsParams = reportParamsToStatsQueryParams( params );
+	const apiParams = statsQueryParamsToApiParams( statsParams );
+	const unit = String( apiParams.period ?? 'day' );
+	const date = typeof apiParams.date === 'string' ? apiParams.date : undefined;
+	const wordAdsParams: StatsProxyParams = {
+		unit,
+		...( date ? { date } : {} ),
+		quantity: params.quantity ?? ( unit === 'year' ? 10 : 30 ),
+	};
+
+	return statsProxyQuery( {
 		name: 'wordads-stats',
 		version: '1.1',
 		endpoint: 'wordads/stats',
-		params,
-		sanitizer: 'timeSeries',
+		params: wordAdsParams,
+		sanitizer: 'wordAdsStats',
+		sanitizerParams: {
+			period: unit,
+			...( date ? { date } : {} ),
+		},
+		enabled: !! date,
 	} );
+};
 
-export const statsWordAdsEarningsQuery = ( params: StatsQueryParams = {} ) =>
+export const statsWordAdsEarningsQuery = (
+	params: StatsWordAdsEarningsParams = {}
+): StatsReportQueryOptions< 'wordAdsEarnings' > =>
 	statsProxyQuery( {
 		name: 'wordads-earnings',
 		version: '1.1',
 		endpoint: 'wordads/earnings',
 		params,
+		sanitizer: 'wordAdsEarnings',
 	} );
+
+export type { StatsWordAdsEarningsResponse, StatsWordAdsStatsResponse };
