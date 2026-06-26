@@ -649,9 +649,9 @@ class Cookie_Consent {
 	}
 
 	/**
-	 * Get configuration with filters.
+	 * Get package configuration with filters.
 	 *
-	 * @internal For package use only.
+	 * @internal This accessor is for package classes only and is not part of the public API.
 	 *
 	 * @return array Configuration array.
 	 */

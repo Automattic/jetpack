@@ -112,8 +112,8 @@ class Consent_Log_Controller_Test extends TestCase {
 		$stored_ip = $this->get_consent_log_ip_address();
 
 		$this->assertNotSame( $ip_address, $stored_ip );
-		$this->assertSame( 44, strlen( $stored_ip ) );
-		$this->assertSame( base64_encode( hash_hmac( 'sha256', $ip_address, wp_salt( 'auth' ), true ) ), $stored_ip );
+		$this->assertSame( 64, strlen( $stored_ip ) );
+		$this->assertSame( hash_hmac( 'sha256', $ip_address, wp_salt( 'auth' ) ), $stored_ip );
 	}
 
 	/**

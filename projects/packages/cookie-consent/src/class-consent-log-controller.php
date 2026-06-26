@@ -480,7 +480,7 @@ class Consent_Log_Controller extends WP_REST_Controller {
 				return $ip_address;
 
 			case 'hash':
-				return base64_encode( hash_hmac( 'sha256', $ip_address, wp_salt( 'auth' ), true ) );
+				return hash_hmac( 'sha256', $ip_address, wp_salt( 'auth' ) );
 
 			case 'truncate':
 				return $this->truncate_ip_address( $ip_address );
