@@ -60,3 +60,8 @@ export {
 	type StatsWordAdsParams,
 } from './stats-wordads-query';
 export { statsAppReferrersSpamQuery } from './stats-app-referrers-spam-query';
+export type {
+	StatsAppReferrersSpamMutationParams,
+	StatsAppReferrersSpamMutationResponse,
+	StatsAppReferrersSpamResponse,
+} from './stats-app-referrers-spam-query';

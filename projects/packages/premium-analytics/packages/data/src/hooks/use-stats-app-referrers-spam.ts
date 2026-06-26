@@ -1,45 +1,63 @@
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient, type QueryClient } from '@tanstack/react-query';
 import { fetchStatsProxy } from '../api';
-import { queryClient } from '../providers';
-import { statsAppReferrersSpamQuery } from '../queries/stats-app-referrers-spam-query';
+import {
+	STATS_APP_REFERRERS_MARK_SPAM_ENDPOINT,
+	STATS_APP_REFERRERS_SPAM_NAME,
+	STATS_APP_REFERRERS_SPAM_VERSION,
+	STATS_APP_REFERRERS_UNMARK_SPAM_ENDPOINT,
+	statsAppReferrersSpamQuery,
+	type StatsAppReferrersSpamMutationParams,
+	type StatsAppReferrersSpamMutationResponse,
+	type StatsAppReferrersSpamResponse,
+} from '../queries/stats-app-referrers-spam-query';
 import { useStatsAppQuery, type UseStatsAppOptions } from './use-stats-app-query';
 
-function invalidateReferrersSpamQueries() {
+function invalidateReferrersSpamQueries( queryClient: QueryClient ) {
 	// Spam mutations affect both the report data and the app-managed spam list.
 	queryClient.invalidateQueries( { queryKey: [ 'stats', 'referrers' ] } );
-	queryClient.invalidateQueries( { queryKey: [ 'stats-app', 'referrers-spam' ] } );
+	queryClient.invalidateQueries( { queryKey: [ 'stats-app', STATS_APP_REFERRERS_SPAM_NAME ] } );
 }
 
 export function useStatsAppReferrersSpam( options?: UseStatsAppOptions ) {
-	return useStatsAppQuery( statsAppReferrersSpamQuery(), options );
+	return useStatsAppQuery< StatsAppReferrersSpamResponse >( statsAppReferrersSpamQuery(), options );
 }
 
 export function useStatsAppReferrersMarkSpamMutation() {
+	const queryClient = useQueryClient();
+
 	return useMutation( {
-		mutationFn: ( domain: string ) =>
-			fetchStatsProxy( {
-				version: '1.1',
-				endpoint: 'stats/referrers/spam/new',
+		mutationFn: ( params: StatsAppReferrersSpamMutationParams ) =>
+			fetchStatsProxy< StatsAppReferrersSpamMutationResponse >( {
+				version: STATS_APP_REFERRERS_SPAM_VERSION,
+				endpoint: STATS_APP_REFERRERS_MARK_SPAM_ENDPOINT,
 				method: 'POST',
-				params: { domain },
+				params,
 			} ),
 		onSuccess: () => {
-			invalidateReferrersSpamQueries();
+			invalidateReferrersSpamQueries( queryClient );
 		},
 	} );
 }
 
 export function useStatsAppReferrersUnmarkSpamMutation() {
+	const queryClient = useQueryClient();
+
 	return useMutation( {
-		mutationFn: ( domain: string ) =>
-			fetchStatsProxy( {
-				version: '1.1',
-				endpoint: 'stats/referrers/spam/delete',
+		mutationFn: ( params: StatsAppReferrersSpamMutationParams ) =>
+			fetchStatsProxy< StatsAppReferrersSpamMutationResponse >( {
+				version: STATS_APP_REFERRERS_SPAM_VERSION,
+				endpoint: STATS_APP_REFERRERS_UNMARK_SPAM_ENDPOINT,
 				method: 'POST',
-				params: { domain },
+				params,
 			} ),
 		onSuccess: () => {
-			invalidateReferrersSpamQueries();
+			invalidateReferrersSpamQueries( queryClient );
 		},
 	} );
 }
+
+export type {
+	StatsAppReferrersSpamMutationParams,
+	StatsAppReferrersSpamMutationResponse,
+	StatsAppReferrersSpamResponse,
+};

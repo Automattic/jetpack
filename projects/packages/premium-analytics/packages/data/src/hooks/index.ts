@@ -116,6 +116,11 @@ export {
 	useStatsAppReferrersMarkSpamMutation,
 	useStatsAppReferrersUnmarkSpamMutation,
 } from './use-stats-app-referrers-spam';
+export type {
+	StatsAppReferrersSpamMutationParams,
+	StatsAppReferrersSpamMutationResponse,
+	StatsAppReferrersSpamResponse,
+} from './use-stats-app-referrers-spam';
 export type { UseStatsOptions } from './use-stats-report';
 
 /**

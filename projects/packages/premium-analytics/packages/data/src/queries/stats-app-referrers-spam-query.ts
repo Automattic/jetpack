@@ -3,9 +3,23 @@
  */
 import { statsAppProxyQuery } from './stats-app-query';
 
+export const STATS_APP_REFERRERS_SPAM_NAME = 'referrers-spam';
+export const STATS_APP_REFERRERS_SPAM_VERSION = '1.1';
+export const STATS_APP_REFERRERS_SPAM_ENDPOINT = 'stats/referrers/spam';
+export const STATS_APP_REFERRERS_MARK_SPAM_ENDPOINT = 'stats/referrers/spam/new';
+export const STATS_APP_REFERRERS_UNMARK_SPAM_ENDPOINT = 'stats/referrers/spam/delete';
+
+export type StatsAppReferrersSpamResponse = string[];
+export type StatsAppReferrersSpamMutationParams = {
+	domain: string;
+};
+export type StatsAppReferrersSpamMutationResponse = {
+	success: boolean;
+};
+
 export const statsAppReferrersSpamQuery = () =>
-	statsAppProxyQuery( {
-		name: 'referrers-spam',
-		version: '1.1',
-		endpoint: 'stats/referrers/spam',
+	statsAppProxyQuery< StatsAppReferrersSpamResponse >( {
+		name: STATS_APP_REFERRERS_SPAM_NAME,
+		version: STATS_APP_REFERRERS_SPAM_VERSION,
+		endpoint: STATS_APP_REFERRERS_SPAM_ENDPOINT,
 	} );
