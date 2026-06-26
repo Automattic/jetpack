@@ -146,6 +146,7 @@ export const ComparisonBars: FC< {
 		<g
 			className="bar-chart__comparison-bars"
 			pointerEvents="none"
+			aria-hidden="true"
 			data-testid="bar-chart-comparison-bars"
 		>
 			{ rects }

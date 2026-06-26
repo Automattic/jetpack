@@ -26,6 +26,14 @@ export { statsVideoPlaysQuery } from './stats-video-plays-query';
 export { statsAppDashboardModuleSettingsQuery } from './stats-app-dashboard-module-settings-query';
 export { statsAppPlanUsageQuery } from './stats-app-plan-usage-query';
 export { statsArchivesQuery } from './stats-archives-query';
+export { statsCommentFollowersQuery } from './stats-comment-followers-query';
+export type {
+	StatsCommentFollowersParams,
+	StatsCommentFollowersResponse,
+} from './stats-comment-followers-query';
+export { statsFollowersQuery } from './stats-followers-query';
+export type { StatsFollowersParams, StatsFollowersResponse } from './stats-followers-query';
+export { statsPublicizeQuery } from './stats-publicize-query';
 export { statsCommentsQuery, type StatsCommentsParams } from './stats-comments-query';
 export {
 	statsSubscribersCountsQuery,
@@ -39,3 +47,21 @@ export { statsInsightsQuery } from './stats-insights-query';
 export { statsUtmQuery } from './stats-utm-query';
 export { statsHighlightsQuery } from './stats-highlights-query';
 export { statsTagsQuery } from './stats-tags-query';
+export { statsDevicesQuery } from './stats-devices-query';
+export {
+	statsAppSiteHasNeverPublishedPostQuery,
+	type StatsAppSiteHasNeverPublishedPostParams,
+	type StatsAppSiteHasNeverPublishedPostResponse,
+} from './stats-app-site-has-never-published-post-query';
+export {
+	statsWordAdsStatsQuery,
+	statsWordAdsEarningsQuery,
+	type StatsWordAdsEarningsParams,
+	type StatsWordAdsParams,
+} from './stats-wordads-query';
+export { statsAppReferrersSpamQuery } from './stats-app-referrers-spam-query';
+export type {
+	StatsAppReferrersSpamMutationParams,
+	StatsAppReferrersSpamMutationResponse,
+	StatsAppReferrersSpamResponse,
+} from './stats-app-referrers-spam-query';

@@ -20,6 +20,8 @@ export { sanitizeStatsUtmResponse } from './utm';
 export { sanitizeStatsEmailSummaryResponse } from './email-summary';
 export { sanitizeStatsEmailBreakdownResponse } from './email-breakdown';
 export { sanitizeStatsArchivesResponse } from './archives';
+export { sanitizeStatsCommentFollowersResponse } from './comment-followers';
+export { sanitizeStatsFollowersResponse } from './followers';
 export { sanitizeStatsCommentsResponse } from './comments';
 export {
 	sanitizeStatsSubscribersResponse,
@@ -27,6 +29,9 @@ export {
 } from './subscribers';
 export { sanitizeStatsStreakResponse } from './streak';
 export { sanitizeStatsTagsResponse } from './tags';
+export { sanitizeStatsDevicesResponse } from './devices';
+export { sanitizeStatsPublicizeResponse } from './publicize';
+export { sanitizeStatsWordAdsStatsResponse, sanitizeStatsWordAdsEarningsResponse } from './wordads';
 export type { StatsTopPostsItem } from './top-posts';
 export type {
 	StatsPostMonthValues,
@@ -60,6 +65,28 @@ export type { StatsUtmItem, StatsUtmParam, StatsUtmTopPostItem } from './utm';
 export type { StatsEmailSummaryItem } from './email-summary';
 export type { StatsEmailBreakdownItem } from './email-breakdown';
 export type { StatsArchivesItem } from './archives';
+export type { StatsTimeSeriesDataPoint, StatsTimeSeriesReport } from './time-series';
+export type {
+	StatsCommentFollowersItem,
+	StatsCommentFollowersRawPost,
+	StatsCommentFollowersRawResponse,
+} from './comment-followers';
+export type {
+	StatsPublicizeApiResponse,
+	StatsPublicizeItem,
+	StatsPublicizeService,
+} from './publicize';
+export type {
+	StatsFollowersItem,
+	StatsFollowersRawItem,
+	StatsFollowersRawResponse,
+} from './followers';
+export type {
+	StatsDevicesItem,
+	StatsDevicesResponse,
+	StatsDevicesResponseItem,
+	StatsDevicesTopValues,
+} from './devices';
 export type {
 	StatsCommentsAuthorItem,
 	StatsCommentsGroupItem,
@@ -79,7 +106,6 @@ export type {
 	StatsSubscribersResponse,
 } from './subscribers';
 export type { StatsStreakRawResponse, StatsStreakResponse } from './streak';
-export type { StatsTimeSeriesDataPoint, StatsTimeSeriesReport } from './time-series';
 export type {
 	StatsTagsChildItem,
 	StatsTagsItem,
@@ -88,6 +114,20 @@ export type {
 	StatsTagsRawResponse,
 	StatsTagsRawTag,
 } from './tags';
+export type {
+	StatsWordAdsEarnings,
+	StatsWordAdsEarningsBreakdown,
+	StatsWordAdsEarningsPeriod,
+	StatsWordAdsEarningsRaw,
+	StatsWordAdsEarningsRawBreakdown,
+	StatsWordAdsEarningsRawPeriod,
+	StatsWordAdsEarningsRawResponse,
+	StatsWordAdsEarningsResponse,
+	StatsWordAdsDataPoint,
+	StatsWordAdsRawField,
+	StatsWordAdsRawResponse,
+	StatsWordAdsResponse,
+} from './wordads';
 export type {
 	StatsItemAction,
 	StatsNormalizedDataPoint,

@@ -111,9 +111,47 @@ class Consent_Log_Controller extends WP_REST_Controller {
 	 *
 	 * @return string
 	 */
-	private function get_table_name() {
+	private static function get_table_name() {
 		global $wpdb;
 		return $wpdb->prefix . self::TABLE_NAME;
+	}
+
+	/**
+	 * Remove scheduled events and optionally delete persisted consent logs.
+	 *
+	 * Consumers should call this from their uninstall hook. Consent logs are
+	 * retained by default because they may be compliance records; pass true only
+	 * when the consuming plugin has decided uninstall should delete them.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param bool $delete_consent_logs Whether to drop the consent-log table.
+	 */
+	public static function uninstall( $delete_consent_logs = false ) {
+		self::deactivate();
+
+		if ( $delete_consent_logs ) {
+			self::drop_table();
+		}
+	}
+
+	/**
+	 * Remove scheduled consent-log cleanup hooks.
+	 *
+	 * Consumers should call this from their deactivation hook when they want to
+	 * stop background cleanup while retaining consent-log data.
+	 *
+	 * @since $$next-version$$
+	 */
+	public static function deactivate() {
+		self::unschedule_cleanup();
+
+		if ( null === self::$instance ) {
+			return;
+		}
+
+		remove_action( 'rest_api_init', array( self::$instance, 'register_routes' ) );
+		remove_action( self::CLEANUP_HOOK, array( self::$instance, 'cleanup_expired_logs' ) );
 	}
 
 	/**
@@ -133,7 +171,7 @@ class Consent_Log_Controller extends WP_REST_Controller {
 	 */
 	private function create_table() {
 		global $wpdb;
-		$table_name      = $this->get_table_name();
+		$table_name      = self::get_table_name();
 		$charset_collate = $wpdb->get_charset_collate();
 
 		$sql = "CREATE TABLE {$table_name} (
@@ -362,7 +400,7 @@ class Consent_Log_Controller extends WP_REST_Controller {
 		);
 
 		$result = $wpdb->insert( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
-			$this->get_table_name(),
+			self::get_table_name(),
 			$data,
 			array( '%s', '%s', '%d', '%s', '%s', '%s', '%s', '%s' )
 		);
@@ -386,7 +424,7 @@ class Consent_Log_Controller extends WP_REST_Controller {
 	 */
 	public function get_consent_logs( WP_REST_Request $request ) {
 		global $wpdb;
-		$table_name = $this->get_table_name();
+		$table_name = self::get_table_name();
 
 		// Build WHERE clause.
 		$where  = array( '1=1' );
@@ -584,7 +622,7 @@ class Consent_Log_Controller extends WP_REST_Controller {
 		$cutoff_timestamp = time() - ( $retention_days * DAY_IN_SECONDS );
 		$cutoff_date      = gmdate( 'Y-m-d H:i:s', $cutoff_timestamp );
 
-		$table_name = $this->get_table_name();
+		$table_name = self::get_table_name();
 		$batch_size = 1000;
 
 		// Delete in batches until all expired records are removed.
@@ -619,10 +657,18 @@ class Consent_Log_Controller extends WP_REST_Controller {
 	 * Unschedule cleanup event.
 	 * This method can be called on plugin deactivation.
 	 */
-	public function unschedule_cleanup() {
-		$timestamp = wp_next_scheduled( self::CLEANUP_HOOK );
-		if ( $timestamp ) {
-			wp_unschedule_event( $timestamp, self::CLEANUP_HOOK );
-		}
+	public static function unschedule_cleanup() {
+		wp_clear_scheduled_hook( self::CLEANUP_HOOK );
+	}
+
+	/**
+	 * Drop the consent logs table and clear its schema-version option.
+	 */
+	private static function drop_table() {
+		global $wpdb;
+		$table_name = self::get_table_name();
+
+		$wpdb->query( $wpdb->prepare( 'DROP TABLE IF EXISTS %i', $table_name ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.DirectDatabaseQuery.SchemaChange
+		delete_option( self::DB_VERSION_OPTION );
 	}
 }

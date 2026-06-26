@@ -322,6 +322,8 @@ describe( 'BarChart', () => {
 				await user.keyboard( '{ArrowRight}' );
 				expect( screen.getByTestId( 'chart-tooltip-0' ) ).toHaveFocus();
 				expect( screen.getByTestId( 'chart-tooltip-0' ) ).toHaveTextContent( 'Series A' );
+				// The category/value row joins with a space after the colon.
+				expect( screen.getByTestId( 'chart-tooltip-0' ) ).toHaveTextContent( 'Jan 1: 10' );
 				expect( screen.queryByTestId( 'chart-tooltip-1' ) ).not.toBeInTheDocument();
 
 				// Second tab should focus on the second tooltip.
@@ -409,11 +411,50 @@ describe( 'BarChart', () => {
 
 				await user.keyboard( '{ArrowRight}' );
 				const tooltip = screen.getByTestId( 'chart-tooltip-0' );
-				// Both the current and previous period values are shown.
+				// Both periods are shown, each as "label: value" with a space after the colon.
+				expect( tooltip ).toHaveTextContent( 'This period: 10' );
+				expect( tooltip ).toHaveTextContent( 'Previous period: 15' );
+			} );
+
+			test( 'keyboard navigation past the first slot stays on the primary bar, not the comparison series', async () => {
+				const user = userEvent.setup();
+				renderWithTheme( {
+					withTooltips: true,
+					data: [
+						{
+							label: 'This period',
+							group: 'views',
+							data: [
+								{ label: 'Mon', value: 10 },
+								{ label: 'Tue', value: 20 },
+							],
+						},
+						{
+							label: 'Previous period',
+							group: 'views',
+							options: { type: 'comparison' as const },
+							data: [
+								{ label: 'Mon', value: 15 },
+								{ label: 'Tue', value: 25 },
+							],
+						},
+					],
+				} );
+
+				const chart = screen.getByRole( 'grid', { name: /bar chart/i } );
+				chart.focus();
+
+				// Slot 0 is the first primary bar (Mon); slot 1 must be the SECOND primary
+				// bar (Tue) — not the comparison series' first bar. The keyboard index space
+				// counts only primary bars, so the tooltip must too.
+				await user.keyboard( '{ArrowRight}' );
+				await user.keyboard( '{ArrowRight}' );
+				const tooltip = screen.getByTestId( 'chart-tooltip-1' );
+				expect( tooltip ).toHaveTextContent( 'Tue' );
 				expect( tooltip ).toHaveTextContent( 'This period' );
-				expect( tooltip ).toHaveTextContent( '10' );
+				expect( tooltip ).toHaveTextContent( '20' );
 				expect( tooltip ).toHaveTextContent( 'Previous period' );
-				expect( tooltip ).toHaveTextContent( '15' );
+				expect( tooltip ).toHaveTextContent( '25' );
 			} );
 		} );
 
@@ -860,6 +901,57 @@ describe( 'BarChart', () => {
 			expect( bars.length ).toBeGreaterThanOrEqual( 2 );
 		} );
 
+		it( 'hides the comparison shadow group from assistive technology', () => {
+			const data = [
+				{
+					label: 'This year',
+					group: 'views',
+					data: [ { label: 'Jan', value: 100 } ],
+				},
+				{
+					label: 'Last year',
+					group: 'views',
+					options: { type: 'comparison' as const },
+					data: [ { label: 'Jan', value: 80 } ],
+				},
+			];
+			render( <BarChart data={ data } width={ 400 } height={ 300 } /> );
+
+			// The shadow is decorative: no keyboard/hover target and its value is surfaced
+			// through the tooltip, so it must not be announced as a separate element.
+			expect( screen.getByTestId( 'bar-chart-comparison-bars' ) ).toHaveAttribute(
+				'aria-hidden',
+				'true'
+			);
+		} );
+
+		it( 'renders comparison shadows in horizontal orientation', () => {
+			const data = [
+				{
+					label: 'This year',
+					group: 'views',
+					data: [
+						{ label: 'Jan', value: 100 },
+						{ label: 'Feb', value: 120 },
+					],
+				},
+				{
+					label: 'Last year',
+					group: 'views',
+					options: { type: 'comparison' as const },
+					data: [
+						{ label: 'Jan', value: 80 },
+						{ label: 'Feb', value: 140 },
+					],
+				},
+			];
+			render( <BarChart data={ data } orientation="horizontal" width={ 400 } height={ 300 } /> );
+
+			const shadows = screen.getAllByTestId( /^bar-chart-comparison-\d+-\d+$/ );
+			expect( shadows ).toHaveLength( 2 );
+			expect( shadows[ 0 ] ).toHaveAttribute( 'opacity', '0.5' );
+		} );
+
 		it( 'expands value-axis domain to include comparison values exceeding the primary max', () => {
 			// Comparison value 150 exceeds primary max 100.
 			// Without domain expansion the value-axis scale config has no explicit domain,
@@ -884,6 +976,52 @@ describe( 'BarChart', () => {
 			// domain must be set explicitly and its max must be >= 150
 			expect( yScale.domain ).toBeDefined();
 			expect( ( yScale.domain as number[] )[ 1 ] ).toBeGreaterThanOrEqual( 150 );
+		} );
+
+		it( 'keeps the value-axis baseline at zero so comparison bars encode magnitude truthfully', () => {
+			// All values are well above zero; the domain must still start at 0 so a bar's
+			// length stays proportional to its value (a non-zero baseline exaggerates differences).
+			const data = [
+				{
+					label: 'This period',
+					group: 'views',
+					data: [ { label: 'Mon', value: 420 } ],
+				},
+				{
+					label: 'Previous period',
+					group: 'views',
+					options: { type: 'comparison' as const },
+					data: [ { label: 'Mon', value: 510 } ],
+				},
+			];
+
+			const { result } = renderHook( () => useBarChartOptions( data, false, {} ) );
+			const yScale = result.current.yScale as { domain?: number[] };
+			expect( yScale.domain ).toBeDefined();
+			expect( ( yScale.domain as number[] )[ 0 ] ).toBe( 0 );
+		} );
+
+		it( 'zero-bases the value-axis domain in horizontal comparison charts', () => {
+			const data = [
+				{
+					label: 'This period',
+					group: 'views',
+					data: [ { label: 'Mon', value: 420 } ],
+				},
+				{
+					label: 'Previous period',
+					group: 'views',
+					options: { type: 'comparison' as const },
+					data: [ { label: 'Mon', value: 510 } ],
+				},
+			];
+
+			// In horizontal charts the value axis is x.
+			const { result } = renderHook( () => useBarChartOptions( data, true, {} ) );
+			const xScale = result.current.xScale as { domain?: number[] };
+			expect( xScale.domain ).toBeDefined();
+			expect( ( xScale.domain as number[] )[ 0 ] ).toBe( 0 );
+			expect( ( xScale.domain as number[] )[ 1 ] ).toBeGreaterThanOrEqual( 510 );
 		} );
 
 		it( 'counts only primary series for keyboard navigation when a comparison series is present', async () => {

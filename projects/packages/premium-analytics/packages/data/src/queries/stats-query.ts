@@ -10,12 +10,16 @@ import {
 	sanitizeStatsHighlightsResponse,
 	sanitizeStatsLocationsResponse,
 	sanitizeStatsArchivesResponse,
+	sanitizeStatsCommentFollowersResponse,
+	sanitizeStatsFollowersResponse,
 	sanitizeStatsCommentsResponse,
+	sanitizeStatsDevicesResponse,
 	sanitizeStatsInsightsResponse,
 	sanitizeStatsStreakResponse,
 	sanitizeStatsVisitsResponse,
 	sanitizeStatsTagsResponse,
 	sanitizeStatsTimeSeriesResponse,
+	sanitizeStatsPublicizeResponse,
 	sanitizeStatsPassthroughResponse,
 	sanitizeStatsPostResponse,
 	sanitizeStatsReferrersResponse,
@@ -27,6 +31,8 @@ import {
 	sanitizeStatsTopPostsResponse,
 	sanitizeStatsUtmResponse,
 	sanitizeStatsVideoPlaysResponse,
+	sanitizeStatsWordAdsEarningsResponse,
+	sanitizeStatsWordAdsStatsResponse,
 } from '../processing/stats';
 import {
 	reportParamsToStatsQueryParams,
@@ -53,7 +59,10 @@ const statsSanitizers = {
 	locations: sanitizeStatsLocationsResponse,
 	videoPlays: sanitizeStatsVideoPlaysResponse,
 	archives: sanitizeStatsArchivesResponse,
+	commentFollowers: sanitizeStatsCommentFollowersResponse,
+	followers: sanitizeStatsFollowersResponse,
 	comments: sanitizeStatsCommentsResponse,
+	devices: sanitizeStatsDevicesResponse,
 	insights: sanitizeStatsInsightsResponse,
 	streak: sanitizeStatsStreakResponse,
 	tags: sanitizeStatsTagsResponse,
@@ -62,6 +71,9 @@ const statsSanitizers = {
 	timeSeries: sanitizeStatsTimeSeriesResponse,
 	subscribers: sanitizeStatsSubscribersResponse,
 	subscribersCounts: sanitizeStatsSubscribersCountsResponse,
+	publicize: sanitizeStatsPublicizeResponse,
+	wordAdsStats: sanitizeStatsWordAdsStatsResponse,
+	wordAdsEarnings: sanitizeStatsWordAdsEarningsResponse,
 } satisfies Record< string, StatsSanitizer >;
 
 export type StatsSanitizerKey = keyof typeof statsSanitizers;

@@ -1,7 +1,8 @@
 <?php
 /**
  * Unit Tests for Jetpack_Form.
-register* @package automattic/jetpack-forms
+ *
+ * @package automattic/jetpack-forms
  */
 
 namespace Automattic\Jetpack\Forms\ContactForm;
@@ -36,6 +37,13 @@ class Jetpack_Form_Endpoint_Test extends TestCase {
 	private static $user_id;
 
 	/**
+	 * The status-count query stub filter currently registered, if any.
+	 *
+	 * @var callable|null
+	 */
+	private $status_count_filter = null;
+
+	/**
 	 * Setting up the test.
 	 */
 	public function setUp(): void {
@@ -64,6 +72,11 @@ class Jetpack_Form_Endpoint_Test extends TestCase {
 		parent::tearDown();
 		WorDBless_Options::init()->clear_options();
 		WorDBless_Users::init()->clear_all_users();
+
+		if ( null !== $this->status_count_filter ) {
+			remove_filter( 'wordbless_wpdb_query_results', $this->status_count_filter, 10 );
+			$this->status_count_filter = null;
+		}
 
 		unset( $_SERVER['REQUEST_METHOD'] );
 		$_GET = array();
@@ -413,6 +426,160 @@ class Jetpack_Form_Endpoint_Test extends TestCase {
 
 		$this->assertStringContainsString( $existing_where, $clauses['where'] );
 		$this->assertStringContainsString( 'EXISTS', $clauses['where'] );
+	}
+
+	/**
+	 * Capture and stub the grouped status-count SQL query.
+	 *
+	 * The forms package runs tests against WorDBless' "dbless" engine, which does not
+	 * execute real aggregate SQL. We hook its query filter to (a) record the query the
+	 * endpoint runs so we can assert how it is scoped, and (b) return controlled rows so
+	 * the response shape can be asserted.
+	 *
+	 * @param array $captured_queries  Reference that receives each matching query string.
+	 * @param array $rows              Map of post_status => count to return for the query.
+	 * @param array $required_fragments Query fragments that must be present before returning stubbed rows.
+	 */
+	private function stub_status_count_query( array &$captured_queries, array $rows, array $required_fragments = array() ): void {
+		$this->status_count_filter = function ( $results, $query ) use ( &$captured_queries, $rows, $required_fragments ) {
+			if ( false === strpos( $query, 'GROUP BY post_status' ) ) {
+				return $results;
+			}
+
+			$captured_queries[] = $query;
+
+			foreach ( $required_fragments as $fragment ) {
+				if ( false === strpos( $query, $fragment ) ) {
+					return $results;
+				}
+			}
+
+			$stubbed = array();
+			foreach ( $rows as $status => $count ) {
+				$stubbed[] = (object) array(
+					'post_status' => $status,
+					'num_posts'   => $count,
+				);
+			}
+			return $stubbed;
+		};
+
+		add_filter( 'wordbless_wpdb_query_results', $this->status_count_filter, 10, 2 );
+	}
+
+	/**
+	 * Dispatch the status-counts endpoint and return the response data.
+	 *
+	 * @return array The status counts response data.
+	 */
+	private function dispatch_status_counts(): array {
+		$request  = new WP_REST_Request( 'GET', '/wp/v2/jetpack-forms/status-counts' );
+		$response = $this->server->dispatch( $request );
+
+		$this->assertEquals( 200, $response->get_status(), 'status-counts request should return 200' );
+
+		return $response->get_data();
+	}
+
+	/**
+	 * Test that a user who cannot edit others' forms only sees counts for their own forms.
+	 */
+	public function test_status_counts_scoped_to_author_for_non_editor() {
+		Contact_Form::register_post_type();
+		do_action( 'rest_api_init' );
+
+		// An author can edit_posts but not edit_others_posts.
+		$author_id = wp_insert_user(
+			array(
+				'user_login' => 'test_author',
+				'user_pass'  => '123',
+				'role'       => 'author',
+			)
+		);
+		wp_set_current_user( $author_id );
+
+		$captured_queries = array();
+		$this->stub_status_count_query(
+			$captured_queries,
+			array(
+				'publish' => 1,
+				'draft'   => 2,
+				'pending' => 4,
+				'trash'   => 8,
+			),
+			array(
+				"post_type = 'jetpack_form'",
+				'post_author = ' . $author_id,
+			)
+		);
+
+		$data = $this->dispatch_status_counts();
+
+		// The query must be scoped to the current author's own forms.
+		$this->assertNotEmpty( $captured_queries, 'Author should trigger a direct, author-scoped status query' );
+		$this->assertStringContainsString( "post_type = 'jetpack_form'", $captured_queries[0], 'Author query must filter to jetpack_form posts' );
+		$this->assertStringContainsString( 'post_author = ' . $author_id, $captured_queries[0], 'Author query must filter by the current author ID' );
+
+		// The response reflects only the author's own counts.
+		$this->assertSame(
+			array(
+				'all'     => 7,
+				'publish' => 1,
+				'draft'   => 2,
+				'pending' => 4,
+				'future'  => 0,
+				'private' => 0,
+				'trash'   => 8,
+			),
+			$data,
+			'Author response should preserve all status-count keys, default missing statuses to zero, and exclude trash from all'
+		);
+	}
+
+	/**
+	 * Test that a user who can edit others' forms still sees site-wide status counts.
+	 */
+	public function test_status_counts_global_for_editor() {
+		Contact_Form::register_post_type();
+		do_action( 'rest_api_init' );
+
+		// Current user is the administrator from setUp(), who can edit_others_posts.
+		$captured_queries = array();
+		$this->stub_status_count_query(
+			$captured_queries,
+			array(
+				'publish' => 3,
+				'draft'   => 2,
+			)
+		);
+
+		$data = $this->dispatch_status_counts();
+
+		// Admins/editors get site-wide counts via wp_count_posts(), which is not author-scoped.
+		$this->assertNotEmpty( $captured_queries, 'Admin should trigger the site-wide status query' );
+		$this->assertStringNotContainsString( 'post_author', $captured_queries[0], 'Admin query must not be scoped by author' );
+
+		$this->assertSame( 3, $data['publish'], 'Admin should see every user\'s published forms' );
+		$this->assertSame( 2, $data['draft'], 'Admin should see every user\'s draft forms' );
+		$this->assertSame( 5, $data['all'], 'Admin "all" count should include every user\'s forms' );
+	}
+
+	/**
+	 * Test that the status-counts route denies users who cannot edit forms.
+	 *
+	 * This guards the permission gate on the route so the author-scoped branch is
+	 * never reached for a logged-out user (post_author = 0).
+	 */
+	public function test_status_counts_denied_for_logged_out_user() {
+		Contact_Form::register_post_type();
+		do_action( 'rest_api_init' );
+
+		wp_set_current_user( 0 );
+
+		$request  = new WP_REST_Request( 'GET', '/wp/v2/jetpack-forms/status-counts' );
+		$response = $this->server->dispatch( $request );
+
+		$this->assertContains( $response->get_status(), array( 401, 403 ), 'Logged-out users must not access status-counts' );
 	}
 
 	/**

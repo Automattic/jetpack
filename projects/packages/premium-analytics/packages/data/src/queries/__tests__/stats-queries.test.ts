@@ -2,18 +2,29 @@
  * Internal dependencies
  */
 import { statsAppProxyQuery } from '../stats-app-query';
+import {
+	statsAppReferrersMarkSpamMutation,
+	statsAppReferrersSpamQuery,
+	statsAppReferrersUnmarkSpamMutation,
+} from '../stats-app-referrers-spam-query';
+import { statsAppSiteHasNeverPublishedPostQuery } from '../stats-app-site-has-never-published-post-query';
 import { statsArchivesQuery } from '../stats-archives-query';
+import { statsCommentFollowersQuery } from '../stats-comment-followers-query';
 import { statsCommentsQuery } from '../stats-comments-query';
+import { statsDevicesQuery } from '../stats-devices-query';
+import { statsFollowersQuery } from '../stats-followers-query';
 import { STATS_HIGHLIGHTS_STALE_TIME, statsHighlightsQuery } from '../stats-highlights-query';
 import { statsInsightsQuery } from '../stats-insights-query';
 import { statsLocationsQuery } from '../stats-locations-query';
 import { statsPostQuery } from '../stats-post-query';
+import { statsPublicizeQuery } from '../stats-publicize-query';
 import { statsStreakQuery } from '../stats-streak-query';
 import { statsSubscribersCountsQuery, statsSubscribersQuery } from '../stats-subscribers-query';
 import { statsTagsQuery } from '../stats-tags-query';
 import { statsTopPostsQuery } from '../stats-top-posts-query';
 import { statsUtmQuery } from '../stats-utm-query';
 import { statsVisitsQuery } from '../stats-visits-query';
+import { statsWordAdsEarningsQuery, statsWordAdsStatsQuery } from '../stats-wordads-query';
 import type { StatsReportParams } from '../stats-query';
 
 describe( 'Stats query factories', () => {
@@ -189,6 +200,61 @@ describe( 'Stats query factories', () => {
 		] );
 	} );
 
+	it( 'builds devices query keys from the selected device property', () => {
+		const query = statsDevicesQuery( {
+			from: '2026-06-16',
+			to: '2026-06-16',
+			interval: 'day',
+			deviceParam: 'browser',
+		} );
+
+		expect( query.queryKey ).toEqual( [
+			'stats',
+			'devices',
+			'1.1',
+			'stats/devices/browser',
+			'GET',
+			expect.objectContaining( { date: '2026-06-16' } ),
+			undefined,
+			'devices',
+		] );
+	} );
+
+	it( 'defaults devices queries to screen size data', () => {
+		const query = statsDevicesQuery( {
+			from: '2026-06-16',
+			to: '2026-06-16',
+			interval: 'day',
+		} );
+
+		expect( query.queryKey ).toEqual(
+			expect.arrayContaining( [ 'stats/devices/screensize', 'devices' ] )
+		);
+	} );
+
+	it( 'builds comment followers query keys from pagination params without a date', () => {
+		const query = statsCommentFollowersQuery( {
+			max: 20,
+			page: 3,
+		} );
+
+		expect( query.enabled ).toBe( true );
+		expect( query.queryKey ).toEqual( [
+			'stats',
+			'comment-followers',
+			'1.1',
+			'stats/comment-followers',
+			'GET',
+			expect.objectContaining( {
+				max: 20,
+				page: 3,
+			} ),
+			undefined,
+			'commentFollowers',
+		] );
+		expect( query.queryKey[ 5 ] ).not.toHaveProperty( 'period' );
+	} );
+
 	it( 'preserves explicit summarize params', () => {
 		const query = statsTopPostsQuery( {
 			from: '2026-06-01',
@@ -206,6 +272,40 @@ describe( 'Stats query factories', () => {
 				} ),
 			] )
 		);
+	} );
+
+	it( 'builds followers query keys from Calypso endpoint defaults', () => {
+		const query = statsFollowersQuery();
+
+		expect( query.queryKey ).toEqual( [
+			'stats',
+			'followers',
+			'1.1',
+			'stats/followers',
+			'GET',
+			{ type: 'all', filter_admin: false, max: 10 },
+			undefined,
+			'followers',
+		] );
+	} );
+
+	it( 'includes followers endpoint-specific params in query keys', () => {
+		const query = statsFollowersQuery( {
+			type: 'wpcom',
+			filter_admin: true,
+			max: 20,
+		} );
+
+		expect( query.queryKey ).toEqual( [
+			'stats',
+			'followers',
+			'1.1',
+			'stats/followers',
+			'GET',
+			{ type: 'wpcom', filter_admin: true, max: 20 },
+			undefined,
+			'followers',
+		] );
 	} );
 
 	it( 'builds app query keys without report param coercion', () => {
@@ -245,7 +345,6 @@ describe( 'Stats query factories', () => {
 
 	it( 'builds comments query keys without date params', () => {
 		const query = statsCommentsQuery();
-
 		expect( query.enabled ).toBe( true );
 		expect( query.queryKey ).toEqual( [
 			'stats',
@@ -256,6 +355,22 @@ describe( 'Stats query factories', () => {
 			{},
 			undefined,
 			'comments',
+		] );
+	} );
+
+	it( 'builds publicize query keys without date-gating or report param coercion', () => {
+		const query = statsPublicizeQuery();
+
+		expect( query.enabled ).toBe( true );
+		expect( query.queryKey ).toEqual( [
+			'stats',
+			'publicize',
+			'1.1',
+			'stats/publicize',
+			'GET',
+			{},
+			undefined,
+			'publicize',
 		] );
 	} );
 
@@ -329,6 +444,83 @@ describe( 'Stats query factories', () => {
 			{},
 			undefined,
 			'subscribersCounts',
+		] );
+	} );
+
+	it( 'builds WordAds stats query keys with Calypso endpoint params', () => {
+		const query = statsWordAdsStatsQuery( {
+			from: '2026-05-01',
+			to: '2026-06-30',
+			interval: 'month',
+		} );
+
+		expect( query.enabled ).toBe( true );
+		expect( query.queryKey ).toEqual( [
+			'stats',
+			'wordads-stats',
+			'1.1',
+			'wordads/stats',
+			'GET',
+			{
+				unit: 'month',
+				date: '2026-06-30',
+				quantity: 30,
+			},
+			undefined,
+			'wordAdsStats',
+			{
+				period: 'month',
+				date: '2026-06-30',
+			},
+		] );
+	} );
+
+	it( 'uses the WordAds yearly quantity default and preserves explicit quantity params', () => {
+		expect(
+			statsWordAdsStatsQuery( {
+				from: '2026-01-01',
+				to: '2026-12-31',
+				interval: 'year',
+			} ).queryKey
+		).toEqual(
+			expect.arrayContaining( [
+				expect.objectContaining( {
+					unit: 'year',
+					quantity: 10,
+				} ),
+			] )
+		);
+		expect(
+			statsWordAdsStatsQuery( {
+				from: '2026-06-01',
+				to: '2026-06-30',
+				interval: 'day',
+				quantity: 14,
+			} ).queryKey
+		).toEqual(
+			expect.arrayContaining( [
+				expect.objectContaining( {
+					unit: 'day',
+					quantity: 14,
+				} ),
+			] )
+		);
+	} );
+
+	it( 'disables WordAds stats queries until a date is available', () => {
+		expect( statsWordAdsStatsQuery( {} as StatsReportParams ).enabled ).toBe( false );
+	} );
+
+	it( 'builds WordAds earnings query keys without request params', () => {
+		expect( statsWordAdsEarningsQuery().queryKey ).toEqual( [
+			'stats',
+			'wordads-earnings',
+			'1.1',
+			'wordads/earnings',
+			'GET',
+			{},
+			undefined,
+			'wordAdsEarnings',
 		] );
 	} );
 
@@ -494,5 +686,46 @@ describe( 'Stats query factories', () => {
 
 	it( 'disables streak queries until start and end dates are available', () => {
 		expect( statsStreakQuery( {} as StatsReportParams ).enabled ).toBe( false );
+	} );
+
+	it( 'builds the published state query against the WPCOM proxy endpoint', () => {
+		expect( statsAppSiteHasNeverPublishedPostQuery( { 'include-pages': true } ).queryKey ).toEqual(
+			[
+				'stats-app',
+				'site-has-never-published-post',
+				'2',
+				'site-has-never-published-post',
+				'GET',
+				{ 'include-pages': true },
+				{},
+			]
+		);
+	} );
+
+	it( 'builds the referrers spam app query key', () => {
+		expect( statsAppReferrersSpamQuery().queryKey ).toEqual( [
+			'stats-app',
+			'referrers-spam',
+			'1.1',
+			'stats/referrers/spam',
+			'GET',
+			{},
+			{},
+		] );
+	} );
+
+	it( 'builds referrers spam mutation requests with domain query params', () => {
+		expect( statsAppReferrersMarkSpamMutation( { domain: 'spam.example' } ) ).toEqual( {
+			version: '1.1',
+			endpoint: 'stats/referrers/spam/new',
+			method: 'POST',
+			params: { domain: 'spam.example' },
+		} );
+		expect( statsAppReferrersUnmarkSpamMutation( { domain: 'spam.example' } ) ).toEqual( {
+			version: '1.1',
+			endpoint: 'stats/referrers/spam/delete',
+			method: 'POST',
+			params: { domain: 'spam.example' },
+		} );
 	} );
 } );

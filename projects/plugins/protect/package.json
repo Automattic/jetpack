@@ -53,7 +53,6 @@
 	"devDependencies": {
 		"@automattic/jetpack-webpack-config": "workspace:*",
 		"@babel/core": "7.29.7",
-		"@babel/preset-env": "7.29.7",
 		"@babel/runtime": "7.29.7",
 		"@types/react": "18.3.28",
 		"@typescript/native-preview": "7.0.0-dev.20260225.1",
