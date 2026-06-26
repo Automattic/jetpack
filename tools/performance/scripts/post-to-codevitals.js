@@ -164,7 +164,9 @@ async function main() {
 
 	// Configuration from environment
 	const config = {
-		codeVitalsUrl: process.env.CODEVITALS_URL || 'https://www.codevitals.run',
+		// Default to the apex host. www.codevitals.run 301-redirects the API, and on a
+		// 301 fetch retries a POST as a GET with no body, so the metric never lands.
+		codeVitalsUrl: process.env.CODEVITALS_URL || 'https://codevitals.run',
 		codeVitalsToken: process.env.CODEVITALS_TOKEN,
 		gitHash: process.env.GIT_COMMIT,
 		gitBranch: process.env.GIT_BRANCH || 'trunk',
