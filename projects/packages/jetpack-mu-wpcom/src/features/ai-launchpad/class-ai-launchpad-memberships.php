@@ -3,6 +3,8 @@
  * AI Launchpad memberships completion override.
  *
  * @package automattic/jetpack-mu-wpcom
+ *
+ * @phan-file-suppress PhanUndeclaredClassMethod -- Jetpack_Memberships ships in the Jetpack plugin, available at runtime on Atomic; calls are guarded by class_exists.
  */
 
 /**

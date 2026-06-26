@@ -1,4 +1,0 @@
-Significance: patch
-Type: added
-
-AI Launchpad: complete the subscriber tasks (import subscribers, get your first 10 subscribers) from wp-admin by reading the site's email subscriber count on Atomic, and show the first-10 task there despite its WordPress.com-only visibility gate.

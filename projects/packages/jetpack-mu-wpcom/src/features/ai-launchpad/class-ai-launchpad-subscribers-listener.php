@@ -3,6 +3,8 @@
  * AI Launchpad subscriber-count completion listener.
  *
  * @package automattic/jetpack-mu-wpcom
+ *
+ * @phan-file-suppress PhanUndeclaredFunction -- fetch_subscriber_counts() ships in the Jetpack plugin, available at runtime on Atomic; the call is guarded by function_exists.
  */
 
 use Automattic\Jetpack\Jetpack_Mu_Wpcom\AI_Launchpad;

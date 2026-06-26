@@ -10,6 +10,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 // phpcs:disable Generic.Files.OneObjectStructurePerFile.MultipleFound -- the test double and its test case share this file.
 
 require_once __DIR__ . '/fixtures/social-stubs.php';
+require_once __DIR__ . '/fixtures/subscriptions-stubs.php';
 //phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.NotAbsolutePath
 require_once \Automattic\Jetpack\Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/ai-launchpad/helpers.php';
 //phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.NotAbsolutePath
@@ -34,6 +35,19 @@ class AI_Launchpad_Subscribers_Listener_Test_Double extends AI_Launchpad_Subscri
 	 */
 	protected static function get_email_subscriber_count() {
 		return self::$count;
+	}
+}
+
+/**
+ * Probe that exposes the real (non-overridden) fetch so its parsing of
+ * fetch_subscriber_counts() can be tested against the stubbed helper.
+ */
+class AI_Launchpad_Subscribers_Listener_Real_Probe extends AI_Launchpad_Subscribers_Listener {
+	/**
+	 * @return int|null
+	 */
+	public static function probe() {
+		return parent::get_email_subscriber_count();
 	}
 }
 
@@ -172,5 +186,36 @@ class AI_Launchpad_Subscribers_Listener_Test extends \WorDBless\BaseTestCase {
 		AI_Launchpad_Subscribers_Listener_Test_Double::maybe_complete_subscriber_tasks();
 
 		$this->assertTrue( $task_lists->is_task_id_complete( 'add_10_email_subscribers' ) );
+	}
+
+	/**
+	 * The real fetch reads email_subscribers from Jetpack's fetch_subscriber_counts().
+	 */
+	public function test_real_fetch_returns_email_subscriber_count() {
+		$GLOBALS['ai_launchpad_stub_subscriber_counts'] = array(
+			'status' => 'success',
+			'value'  => array( 'email_subscribers' => 7 ),
+		);
+		$this->assertSame( 7, AI_Launchpad_Subscribers_Listener_Real_Probe::probe() );
+	}
+
+	/**
+	 * A failed counts lookup is treated as unknown (null), not zero, so a transient
+	 * failure never sticks a task as incomplete-forever or completes it wrongly.
+	 */
+	public function test_real_fetch_returns_null_on_failed_status() {
+		$GLOBALS['ai_launchpad_stub_subscriber_counts'] = array(
+			'status' => 'failed',
+			'value'  => array( 'email_subscribers' => 7 ),
+		);
+		$this->assertNull( AI_Launchpad_Subscribers_Listener_Real_Probe::probe() );
+	}
+
+	/**
+	 * A counts payload missing the email_subscribers key is unknown (null).
+	 */
+	public function test_real_fetch_returns_null_when_count_absent() {
+		$GLOBALS['ai_launchpad_stub_subscriber_counts'] = array( 'value' => array() );
+		$this->assertNull( AI_Launchpad_Subscribers_Listener_Real_Probe::probe() );
 	}
 }

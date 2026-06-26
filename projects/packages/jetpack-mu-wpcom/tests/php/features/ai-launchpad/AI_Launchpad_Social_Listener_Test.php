@@ -3,6 +3,8 @@
  * Test class for AI_Launchpad_Social_Listener.
  *
  * @package automattic/jetpack-mu-wpcom
+ *
+ * @phan-file-suppress PhanUndeclaredClassStaticProperty -- The Publicize stubs are aliased onto the real (Jetpack-plugin) class names at runtime; phan can't see the aliased static props.
  */
 
 use Automattic\Jetpack\Publicize\Connections;

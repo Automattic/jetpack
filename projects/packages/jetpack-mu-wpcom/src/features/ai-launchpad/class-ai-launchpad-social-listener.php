@@ -3,6 +3,8 @@
  * AI Launchpad Jetpack Social completion listener.
  *
  * @package automattic/jetpack-mu-wpcom
+ *
+ * @phan-file-suppress PhanUndeclaredClassReference, PhanUndeclaredClassMethod -- The Publicize classes (Connections, Publicize_Utils) ship in the Jetpack plugin, available at runtime on Atomic; calls are guarded by class_exists.
  */
 
 use Automattic\Jetpack\Jetpack_Mu_Wpcom\AI_Launchpad;

@@ -1,4 +1,0 @@
-Significance: patch
-Type: added
-
-AI Launchpad: add a "Mark as complete" button for tasks with no CTA destination (Share your site), so they can be completed from wp-admin where they otherwise had no action.

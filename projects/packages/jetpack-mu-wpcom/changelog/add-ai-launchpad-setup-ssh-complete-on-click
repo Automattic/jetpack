@@ -1,4 +1,0 @@
-Significance: patch
-Type: added
-
-AI Launchpad: complete the Set up SSH task when its CTA is clicked, reusing Calypso's optimistic hosting-form completion since the real SSH-user signal is unreachable from the Atomic context.

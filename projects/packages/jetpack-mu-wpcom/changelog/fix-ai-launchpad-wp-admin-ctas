@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-AI Launchpad: point the social and design task CTAs at wp-admin (Jetpack Social, the theme browser) instead of Calypso flows, so they match where the tasks complete and keep the user in wp-admin.
