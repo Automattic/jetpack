@@ -313,7 +313,7 @@ class Jetpack_AI_Sidebar {
 	}
 
 	/**
-	 * UI feature flag for Proofreader (spelling & grammar).
+	 * UI feature flag for Proofreader (spelling and grammar).
 	 *
 	 * Server-side permission checks still gate execution. This site-side flag
 	 * controls whether the Jetpack AI Sidebar exposes the Proofreader

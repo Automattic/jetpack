@@ -702,8 +702,8 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * In an internal testing environment, the in-development suggestions (Generate
-	 * Feedback, Proofreader and Optimize Title) are exposed.
+	 * In an internal testing environment, the in-development suggestions
+	 * (Generate Feedback, Proofreader, and Optimize Title) are exposed.
 	 */
 	public function test_add_agents_manager_data_exposes_in_development_features_in_testing_environment() {
 		$this->set_block_editor_screen();
