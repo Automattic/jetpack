@@ -322,6 +322,8 @@ describe( 'BarChart', () => {
 				await user.keyboard( '{ArrowRight}' );
 				expect( screen.getByTestId( 'chart-tooltip-0' ) ).toHaveFocus();
 				expect( screen.getByTestId( 'chart-tooltip-0' ) ).toHaveTextContent( 'Series A' );
+				// The category/value row joins with a space after the colon.
+				expect( screen.getByTestId( 'chart-tooltip-0' ) ).toHaveTextContent( 'Jan 1: 10' );
 				expect( screen.queryByTestId( 'chart-tooltip-1' ) ).not.toBeInTheDocument();
 
 				// Second tab should focus on the second tooltip.
@@ -409,11 +411,9 @@ describe( 'BarChart', () => {
 
 				await user.keyboard( '{ArrowRight}' );
 				const tooltip = screen.getByTestId( 'chart-tooltip-0' );
-				// Both the current and previous period values are shown.
-				expect( tooltip ).toHaveTextContent( 'This period' );
-				expect( tooltip ).toHaveTextContent( '10' );
-				expect( tooltip ).toHaveTextContent( 'Previous period' );
-				expect( tooltip ).toHaveTextContent( '15' );
+				// Both periods are shown, each as "label: value" with a space after the colon.
+				expect( tooltip ).toHaveTextContent( 'This period: 10' );
+				expect( tooltip ).toHaveTextContent( 'Previous period: 15' );
 			} );
 
 			test( 'keyboard navigation past the first slot stays on the primary bar, not the comparison series', async () => {
