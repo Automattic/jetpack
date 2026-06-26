@@ -519,7 +519,7 @@ class Consent_Log_Controller extends WP_REST_Controller {
 				return null;
 			}
 
-			for ( $i = 7; $i <= 16; $i++ ) {
+			for ( $i = 9; $i <= 16; $i++ ) {
 				$bytes[ $i ] = 0;
 			}
 
@@ -677,7 +677,7 @@ class Consent_Log_Controller extends WP_REST_Controller {
 					),
 					'ip_address'       => array(
 						'description' => __( 'The stored client IP address value.', 'jetpack-cookie-consent' ),
-						'type'        => 'string',
+						'type'        => array( 'string', 'null' ),
 						'context'     => array( 'view' ),
 						'readonly'    => true,
 					),

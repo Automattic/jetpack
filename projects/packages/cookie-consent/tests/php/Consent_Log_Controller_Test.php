@@ -110,6 +110,15 @@ class Consent_Log_Controller_Test extends TestCase {
 	}
 
 	/**
+	 * Test that the read schema allows dropped IP addresses.
+	 */
+	public function test_consent_logs_schema_allows_null_ip_address() {
+		$schema = $this->controller->get_consent_logs_schema();
+
+		$this->assertSame( array( 'string', 'null' ), $schema['items']['properties']['ip_address']['type'] );
+	}
+
+	/**
 	 * Get IP mode test cases.
 	 *
 	 * @return array
@@ -118,7 +127,7 @@ class Consent_Log_Controller_Test extends TestCase {
 		return array(
 			'raw'           => array( 'raw', '203.0.113.42', '203.0.113.42' ),
 			'truncate IPv4' => array( 'truncate', '203.0.113.42', '203.0.113.0' ),
-			'truncate IPv6' => array( 'truncate', '2001:db8:abcd:1234:5678:90ab:cdef:1234', '2001:db8:abcd::' ),
+			'truncate IPv6' => array( 'truncate', '2001:db8:abcd:1234:5678:90ab:cdef:1234', '2001:db8:abcd:1234::' ),
 			'drop'          => array( 'drop', '203.0.113.42', null ),
 		);
 	}
