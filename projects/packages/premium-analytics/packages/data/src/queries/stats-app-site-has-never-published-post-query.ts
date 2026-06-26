@@ -2,11 +2,16 @@
  * Internal dependencies
  */
 import { statsAppProxyQuery } from './stats-app-query';
-import type { StatsQueryParams } from '../utils/stats-params';
+
+export type StatsAppSiteHasNeverPublishedPostParams = {
+	'include-pages': boolean;
+};
 
 export type StatsAppSiteHasNeverPublishedPostResponse = boolean;
 
-export const statsAppSiteHasNeverPublishedPostQuery = ( params: StatsQueryParams = {} ) =>
+export const statsAppSiteHasNeverPublishedPostQuery = (
+	params: StatsAppSiteHasNeverPublishedPostParams
+) =>
 	statsAppProxyQuery< StatsAppSiteHasNeverPublishedPostResponse >( {
 		name: 'site-has-never-published-post',
 		version: '2',

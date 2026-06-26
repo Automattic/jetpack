@@ -3,12 +3,15 @@
  */
 import { statsAppSiteHasNeverPublishedPostQuery } from '../queries/stats-app-site-has-never-published-post-query';
 import { useStatsAppQuery, type UseStatsAppOptions } from './use-stats-app-query';
-import type { StatsQueryParams } from '../utils/stats-params';
+import type { StatsAppSiteHasNeverPublishedPostParams } from '../queries/stats-app-site-has-never-published-post-query';
 
-export type { StatsAppSiteHasNeverPublishedPostResponse } from '../queries/stats-app-site-has-never-published-post-query';
+export type {
+	StatsAppSiteHasNeverPublishedPostParams,
+	StatsAppSiteHasNeverPublishedPostResponse,
+} from '../queries/stats-app-site-has-never-published-post-query';
 
 export function useStatsAppSiteHasNeverPublishedPost(
-	params?: StatsQueryParams,
+	params: StatsAppSiteHasNeverPublishedPostParams,
 	options?: UseStatsAppOptions
 ) {
 	return useStatsAppQuery( statsAppSiteHasNeverPublishedPostQuery( params ), options );

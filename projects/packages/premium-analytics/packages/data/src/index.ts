@@ -87,6 +87,7 @@ export {
 } from './hooks/use-stats-devices';
 export {
 	useStatsAppSiteHasNeverPublishedPost,
+	type StatsAppSiteHasNeverPublishedPostParams,
 	type StatsAppSiteHasNeverPublishedPostResponse,
 } from './hooks/use-stats-app-site-has-never-published-post';
 export type { UseStatsOptions } from './hooks/use-stats-report';

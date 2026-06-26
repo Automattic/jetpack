@@ -42,5 +42,6 @@ export { statsTagsQuery } from './stats-tags-query';
 export { statsDevicesQuery } from './stats-devices-query';
 export {
 	statsAppSiteHasNeverPublishedPostQuery,
+	type StatsAppSiteHasNeverPublishedPostParams,
 	type StatsAppSiteHasNeverPublishedPostResponse,
 } from './stats-app-site-has-never-published-post-query';

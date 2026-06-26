@@ -81,6 +81,7 @@ export {
 } from './use-stats-devices';
 export {
 	useStatsAppSiteHasNeverPublishedPost,
+	type StatsAppSiteHasNeverPublishedPostParams,
 	type StatsAppSiteHasNeverPublishedPostResponse,
 } from './use-stats-app-site-has-never-published-post';
 export type { UseStatsOptions } from './use-stats-report';

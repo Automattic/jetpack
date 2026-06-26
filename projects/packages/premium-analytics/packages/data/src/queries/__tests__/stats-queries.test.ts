@@ -531,14 +531,16 @@ describe( 'Stats query factories', () => {
 	} );
 
 	it( 'builds the published state query against the WPCOM proxy endpoint', () => {
-		expect( statsAppSiteHasNeverPublishedPostQuery().queryKey ).toEqual( [
-			'stats-app',
-			'site-has-never-published-post',
-			'2',
-			'site-has-never-published-post',
-			'GET',
-			{},
-			{},
-		] );
+		expect( statsAppSiteHasNeverPublishedPostQuery( { 'include-pages': true } ).queryKey ).toEqual(
+			[
+				'stats-app',
+				'site-has-never-published-post',
+				'2',
+				'site-has-never-published-post',
+				'GET',
+				{ 'include-pages': true },
+				{},
+			]
+		);
 	} );
 } );
