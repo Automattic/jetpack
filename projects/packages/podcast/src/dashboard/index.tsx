@@ -33,10 +33,6 @@ const TabFallback = () => (
 	</div>
 );
 
-// A paid surface (Stats, Episodes) gates in two steps: connect first (no plan
-// can be read or bought while disconnected), then the product-access upsell.
-// `children` is only mounted once both pass — the element is created eagerly but
-// React doesn't load its lazy chunk until it actually renders.
 const GatedTab = ( {
 	connected,
 	hasAccess,
@@ -74,8 +70,6 @@ const App = () => {
 	const { data: settings, isLoading } = usePodcastSettings();
 	const isSetUp = !! settings && settings.podcasting_category_id > 0;
 	const hasAccess = hasProductAccess();
-	// Connecting precedes any plan: a disconnected site can't read or buy one, so
-	// the connection-dependent surfaces prompt to connect rather than to upgrade.
 	const connected = isSiteConnected();
 
 	// `?tab=` owns the active tab; absent `?tab=` falls back to `defaultTab`.

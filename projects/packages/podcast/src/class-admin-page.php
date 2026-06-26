@@ -143,10 +143,6 @@ class Admin_Page {
 			$data = array();
 		}
 
-		// jetpack-mu-wpcom populates `site.wpcom.blog_id` on Simple/Atomic, but it
-		// doesn't run on self-hosted. The dashboard addresses the stats proxy with
-		// that value, so mirror the connected blog ID here via the canonical
-		// resolver (returns 0 while disconnected).
 		if ( ! ( new Host() )->is_wpcom_platform() && empty( $data['site']['wpcom']['blog_id'] ) ) {
 			$blog_id = (int) Connection_Manager::get_site_id( true );
 			if ( $blog_id > 0 ) {
@@ -169,9 +165,6 @@ class Admin_Page {
 
 		$data['podcast'] = array(
 			'has_product_access'  => Podcast_Gate::has_product_access(),
-			// Canonical connection check. The dashboard gates its WPCOM-proxied
-			// surfaces (stats, episodes, Pocket Casts) on this rather than
-			// inferring connection from the presence of a blog ID.
 			'is_connected'        => ( new Connection_Manager( 'jetpack' ) )->is_connected(),
 			'show_url_hosts'      => Settings::SHOW_URL_HOSTS,
 			'show_url_max_length' => Settings::SHOW_URL_MAX_LENGTH,

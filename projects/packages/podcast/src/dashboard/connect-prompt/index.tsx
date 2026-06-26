@@ -1,8 +1,3 @@
-// Shown on the connection-dependent surfaces (Stats, Episodes) when the site
-// has Jetpack installed but not connected. The free podcast feed and the
-// Settings/Welcome setup work without a connection, so this replaces only the
-// paid upsell — connecting comes before any plan can be read or purchased.
-
 import {
 	Button,
 	Card,

@@ -40,8 +40,6 @@ class Admin_Page_Test extends BaseTestCase {
 		// Drops the transient and the request-scoped memo so neither leaks into
 		// a sibling test.
 		Podcast_Gate::flush_purchases_cache();
-		// `is_connected()` memoizes in a static; reset it so a connection state
-		// computed here doesn't leak into a sibling test.
 		( new Connection_Manager() )->reset_connection_status();
 		WorDBless_Options::init()->clear_options();
 		wp_set_current_user( 0 );

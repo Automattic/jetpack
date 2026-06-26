@@ -64,8 +64,6 @@ const PocketCastsSubmitModal = ( { app, feedUrl, onClose, onFirstSave }: Podcast
 	const { submit, isSubmitting, result, errorMessage } = usePocketCastsSubmit();
 	const celebratedRef = useRef( false );
 
-	// Pocket Casts submits through the WordPress.com relay, so it needs a
-	// connection. Surface that up front rather than letting the request fail.
 	const connected = isSiteConnected();
 
 	// Live result wins over the persisted state until the modal is reopened.

@@ -1,8 +1,3 @@
-// Connection helpers for the podcast dashboard. `podcast.is_connected` is the
-// canonical server-side signal (Connection_Manager::is_connected()); the
-// WPCOM-proxied surfaces gate on it rather than inferring connection from the
-// blog ID (which is set at registration, before a token exists).
-
 import { getMyJetpackUrl, getScriptData } from '@automattic/jetpack-script-data';
 
 /**
