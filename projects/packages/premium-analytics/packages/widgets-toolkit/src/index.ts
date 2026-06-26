@@ -5,9 +5,11 @@ export {
 	MetricDelta,
 	MetricWithComparison,
 	ComparativeLineChart,
+	DonutChart,
 	Legend,
 	WidgetRoot,
 	useWidgetRootContext,
+	type DonutChartData,
 	type LegendItem,
 	type SeriesStyle,
 	LeaderboardChart,
@@ -53,6 +55,8 @@ export {
 	FULFILLED_ORDERS_FILTER,
 	UNFULFILLED_ORDERS_FILTER,
 	PAYMENT_STATUS_FILTERS,
+	buildPaymentStatusData,
+	type PaymentStatusData,
 } from './helpers';
 
 /**
@@ -64,6 +68,7 @@ export {
 	useSeriesStyles,
 	useWidgetError,
 } from './hooks';
+export { useSegmentStyles } from './widgets/common';
 
 /**
  * Widget components
@@ -79,7 +84,6 @@ export {
 	RevenueByCustomerTypeWidget,
 	NewVsReturningCustomerWidget,
 	OrderMetricWidget,
-	PaymentStatusWidget,
 	OrdersFulfillmentWidget,
 	SalesByCouponWidget,
 	TotalReturnsWidget,

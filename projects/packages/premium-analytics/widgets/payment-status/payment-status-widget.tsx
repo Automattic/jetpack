@@ -3,18 +3,21 @@
  */
 import { useReportOrders } from '@jetpack-premium-analytics/data';
 import { payment } from '@jetpack-premium-analytics/icons';
+import {
+	DonutChart,
+	PAYMENT_STATUS_FILTERS,
+	WidgetLoadingOverlay,
+	buildPaymentStatusData,
+	useSegmentStyles,
+	useWidgetError,
+	useWidgetRootContext,
+} from '@jetpack-premium-analytics/widgets-toolkit';
 import { Stack } from '@wordpress/ui';
 import { useMemo } from 'react';
-import { DonutChart } from '../../components';
-import { WidgetLoadingOverlay } from '../../components/widget-loading-overlay';
 /**
  * Internal dependencies
  */
-import { useWidgetRootContext } from '../../components/widget-root';
-import { buildPaymentStatusData, PAYMENT_STATUS_FILTERS } from '../../helpers';
-import { useWidgetError } from '../../hooks';
-import { useSegmentStyles } from '../common';
-import styles from '../common/donut-widget.module.scss';
+import styles from './payment-status-widget.module.scss';
 
 /**
  * Payment Status Widget Component
@@ -82,6 +85,7 @@ export function PaymentStatusWidget() {
 						type: 'currency',
 						options: { useMultipliers: true, decimals: 1 },
 					} }
+					maxSize={ null }
 					emptyStateIcon={ payment }
 					withTooltips
 				/>
