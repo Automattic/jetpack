@@ -9,12 +9,15 @@ import { channel, megaphone, search } from '@jetpack-premium-analytics/icons';
 import {
 	LeaderboardChart,
 	WidgetLoadingOverlay,
-	buildSalesByUtmData,
 	formatLegendLabels,
 	useWidgetError,
 	useWidgetRootContext,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useMemo, type CSSProperties } from 'react';
+/**
+ * Internal dependencies
+ */
+import { buildSalesByUtmData } from './build-sales-by-utm-data';
 
 type OrderAttributionView = ( typeof ORDER_ATTRIBUTION_VIEWS )[ number ];
 
