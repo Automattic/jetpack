@@ -6,8 +6,11 @@ allowed-tools: Read, Glob, Grep, Bash(grep:*), Bash(find:*), Bash(ls:*), Bash(ca
 Audit one `widgets/<slug>/` against the widget contract and this repo's conventions.
 Report only — do not rewrite files unless the user asks.
 
-**Argument**: `$ARGUMENTS` is a widget slug or path. If it resolves to a
-`widgets/<slug>/`, audit it; otherwise list the `widgets/` folder and ask which.
+**Argument**: `$ARGUMENTS` is a widget slug or path. If it resolves to a registered
+dashboard widget folder, audit it; otherwise list the `widgets/` folder and ask which.
+A registered dashboard widget has `package.json`, `widget.json`, `widget.ts`, and
+`render.tsx`. Presentational-only component folders under `widgets/` are out of scope
+unless the user asks to convert them into registered widgets.
 
 The invariants live in the shared widgets rule (`.agents/rules/widgets.md`). This
 command is how to verify a widget against them, plus the specifics the rule cannot
@@ -41,11 +44,21 @@ assume: namespace, text domain, and the dependency versions the package resolves
 
 **Contract**
 - `render.tsx` props are typed by `WidgetRenderProps<T>` from
-  `@wordpress/widget-primitives`, not a hand-rolled shape. `T` is the attribute type
-  imported from `../widget` — it is NOT re-declared in `render.tsx`.
+  `@wordpress/widget-primitives`, not a hand-rolled shape. `T` imports the widget's own
+  attribute type from `./widget`; it may compose that imported type with a host field
+  type such as `Partial<ReportParamsFieldAttributes>`, but it must not re-declare the
+  widget attribute shape in `render.tsx`.
 - `attributes` is defended — the host may pass it empty or undefined, so default it.
 - The component receives only `{ attributes, setAttributes }`; no dashboard /
   surface / wp-admin imports, no `onRemove` / header / kebab.
+- If the component wraps children in `<WidgetRoot>`, the outer component passes host
+  attributes through as `<WidgetRoot attributes={ attributes }>` so injected
+  `reportParams` and comparison controls reach the context.
+
+**Stories**
+- If stories expose `withComparison`, both the close-up and dashboard stories pass
+  `reportParams: getDefaultQueryParams(withComparison)` into the render component, and
+  the render component passes those attributes into `<WidgetRoot>`.
 
 **Chrome**
 - The body renders content only — never a `Card`, header, title bar, or remove

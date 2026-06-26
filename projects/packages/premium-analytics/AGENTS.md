@@ -124,6 +124,11 @@ lazy-loaded by the dashboard at runtime.
 > Do not use them as templates for new work — follow the structure and story template below
 > instead.
 
+These rules apply to registered dashboard widgets: folders with `package.json`,
+`widget.json`, `widget.ts`, and `render.tsx` that the dashboard can lazy-load.
+Presentational-only component folders under `widgets/` are out of scope unless they
+are being converted into registered widgets.
+
 ### REQUIRED: widget folder structure
 
 Each new widget MUST ship as a self-contained folder with these files:
@@ -147,6 +152,53 @@ Notes:
 - Per-widget React/`@wordpress/*` dependencies go in the widget's own `package.json` using
   `link:` for internal packages (e.g.
   `"@jetpack-premium-analytics/widgets-toolkit": "link:../../packages/widgets-toolkit"`).
+
+### REQUIRED: render component contract
+
+The render component receives only widget host props. Type it with
+`WidgetRenderProps<T>` from `@wordpress/widget-primitives`, default `attributes`, and pass
+host-provided attributes into `<WidgetRoot>`. This is how Storybook and the dashboard inject
+`reportParams` for date range and comparison state.
+
+```tsx
+import {
+	WidgetRoot,
+	type ReportParamsFieldAttributes,
+} from '@jetpack-premium-analytics/widgets-toolkit';
+import type { WidgetRenderProps } from '@wordpress/widget-primitives';
+import type { MyWidgetAttributes } from './widget';
+
+type MyWidgetRenderAttributes =
+	MyWidgetAttributes & Partial< ReportParamsFieldAttributes >;
+
+export default function MyWidget( {
+	attributes = {},
+}: WidgetRenderProps< MyWidgetRenderAttributes > ) {
+	return (
+		<WidgetRoot attributes={ attributes }>
+			<MyWidgetInner max={ attributes.max } />
+		</WidgetRoot>
+	);
+}
+```
+
+The widget's own attribute shape is declared and exported once from `widget.ts`,
+alongside the `attributes`/`example` schema it describes. `render.tsx` imports that type;
+it may compose a render-only type with host fields like `Partial<ReportParamsFieldAttributes>`,
+but it must not re-declare the widget's own attributes.
+
+Dashboard state is read inside the component wrapped by `<WidgetRoot>`:
+
+```tsx
+function MyWidgetInner( { max }: { max?: number } ) {
+	const { reportParams } = useWidgetRootContext();
+	// Fetch data with hooks that accept reportParams.
+}
+```
+
+Do not call `useWidgetRootContext()` in the outer render component before `<WidgetRoot>`
+exists, and do not read the dashboard date range directly from `attributes` in the inner
+component.
 
 ### REQUIRED: Storybook story for every widget
 
@@ -297,6 +349,11 @@ selector) as extra fields on the controls interface plus matching `args` and `ar
 shared dashboard helper already provides container width / edit-mode / host-environment
 controls, so there's no need to add custom size decorators per widget.
 
+If a story exposes `withComparison`, both the close-up story and the dashboard story must pass
+`reportParams: getDefaultQueryParams( withComparison )` into the render component, and the render
+component must pass those attributes into `<WidgetRoot>`. A visible Storybook control that is not
+wired into the render/data flow gives reviewers a false comparison test.
+
 ### Widget pitfalls
 
 - Putting new widgets under `packages/widgets-toolkit/src/widgets/*` — that path is for the
@@ -306,8 +363,10 @@ controls, so there's no need to add custom size decorators per widget.
 - Declaring `presentation` in `widget.ts` — `widget.json` is the source of truth for that
   field; omit it from `widget.ts` entirely.
 - Re-declaring the attribute type in `render.tsx` — the shape is declared once in `widget.ts`
-  and imported in `render.tsx` via `WidgetRenderProps<YourAttributesType>`. Duplicating it
-  lets the schema and the render props drift silently.
+  and imported in `render.tsx`; render-only types may compose that imported shape with host
+  fields like `Partial<ReportParamsFieldAttributes>`, but must not duplicate the shape.
+- Dropping `attributes` at the `<WidgetRoot>` boundary — this discards host-provided
+  `reportParams` and makes date/comparison Storybook controls misleading.
 - Writing `<button>` without an explicit `type` — the HTML default is `type="submit"`, which
   can fire accidental form submissions. Use `type="button"` for non-submit actions.
 - Do not use inline `style={{ … }}` props in production widget render files — all widget
@@ -361,16 +420,19 @@ the primary row (post ID/URL, country code, search term, device key, etc.), then
 `previousValue`, `previousShare`, and `delta` from the matched comparison row. Do not assume
 primary and comparison arrays have the same order or the same rows.
 
-Use `previousValue: 0` and `delta: 0` only as an intentional placeholder when the widget has
-not implemented comparison mapping yet, and keep comparison UI disabled until the mapped
-comparison data is ready to display.
+Using `previousValue: 0` and `delta: 0` as placeholders is only acceptable when the chart
+comparison UI is disabled (`withComparison={ false }` or omitted). Do not expose a
+`withComparison` story/control as meaningful until the widget maps `comparison.data` into real
+previous-period values.
 
 **Visual conventions**
 
 - Widget title: `<Text variant="heading-md" render={ <h3 /> }>`
 - View count format: `dataFormat={ { type: 'number', options: { useMultipliers: true, decimals: 0 } } }`
-- Leaderboard row height: wrap the label in a container with `min-height: 36px` via the
-  CSS Module so all leaderboard widgets have consistent row height.
+- Leaderboard row height: custom labels should produce a stable 36px row height. For the common
+  `<Text>` label case, `padding: var(--wpds-dimension-padding-sm)` is enough when the text
+  line-height plus vertical padding yields 36px. Use `min-height: 36px` when the label content
+  or typography does not naturally produce that height.
 - Empty state: pass `emptyStateText` to `LeaderboardChart` — do not add a separate
   `data.length === 0` render branch in the widget.
 - Widget picker preview: add this to the CSS Module so the preview tile renders at a
