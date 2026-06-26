@@ -120,6 +120,15 @@ test( 'legacy prefix yields five untyped entries', () => {
 	);
 } );
 
+test( 'a keyed scenario without a metricType is rejected, not posted unchecked', () => {
+	// Without this guard the entry would emit type:undefined and pass the range
+	// check as a "legacy" metric — posting any finite value to an append-only store.
+	assert.throws(
+		() => extractScenarioMetrics( { key: 'future', metricKey: 'future-key' }, { median: 999999 } ),
+		/metricKey but no metricType/
+	);
+} );
+
 // --- redactToken (keeps the token out of logs and errors) ---
 
 test( 'redactToken strips the exact token and any token query param', () => {
@@ -142,6 +151,28 @@ test( 'dry-run posts an in-range metric into the payload, nothing rejected', asy
 	assert.equal( result.posted, false ); // dry run never posts
 	assert.equal( result.validationFailed, false );
 	assert.equal( result.payload.metrics[ LCP_KEY ], 120 );
+} );
+
+test( 'a dry run never calls fetch, even with a malformed URL and a token set', async () => {
+	const file = writeResults( 120 );
+	const origFetch = global.fetch;
+	// Poison fetch: a dry run must short-circuit before any network call.
+	global.fetch = async () => {
+		throw new Error( 'fetch must not be called during a dry run' );
+	};
+	try {
+		const result = await silenced( () =>
+			postToCodeVitals( file, {
+				dryRun: true,
+				codeVitalsUrl: 'http://[::1', // malformed; must not even be constructed
+				codeVitalsToken: 'tok-dry',
+			} )
+		);
+		assert.equal( result.posted, false );
+		assert.equal( result.payload.metrics[ LCP_KEY ], 120 );
+	} finally {
+		global.fetch = origFetch;
+	}
 } );
 
 test( 'an out-of-range metric is skipped and flags validationFailed', async () => {
@@ -192,10 +223,16 @@ test( 'a live post sends the payload as POST and returns posted:true', async () 
 	}
 } );
 
-test( 'a non-OK CodeVitals response throws without leaking the token', async () => {
+test( 'a non-OK CodeVitals response throws without leaking the token, even from the body', async () => {
 	const file = writeResults( 120 );
 	const origFetch = global.fetch;
-	global.fetch = async () => ( { ok: false, status: 500, text: async () => 'upstream boom' } );
+	// A hostile/echoing error body that includes the token query param must still
+	// be scrubbed everywhere, not just in the top-level message.
+	global.fetch = async () => ( {
+		ok: false,
+		status: 500,
+		text: async () => 'boom for token=tok-secret-500',
+	} );
 	try {
 		await assert.rejects(
 			() =>
@@ -208,7 +245,15 @@ test( 'a non-OK CodeVitals response throws without leaking the token', async () 
 				),
 			err => {
 				assert.match( err.message, /CodeVitals API error \(500\)/ );
-				assert.ok( ! err.message.includes( 'tok-secret-500' ) );
+				assert.ok( ! err.message.includes( 'tok-secret-500' ), 'message must be scrubbed' );
+				assert.ok(
+					! ( err.cause?.message ?? '' ).includes( 'tok-secret-500' ),
+					'cause must be scrubbed'
+				);
+				assert.ok(
+					! inspect( err, { depth: 5 } ).includes( 'tok-secret-500' ),
+					'util.inspect must be scrubbed'
+				);
 				return true;
 			}
 		);

@@ -13,6 +13,18 @@ import { SCENARIOS, SANITY_RANGES } from './scenarios.js';
 function extractScenarioMetrics( scenario, summary ) {
 	// Use explicit metricKey if defined, otherwise fall back to prefix-based keys
 	if ( scenario.metricKey ) {
+		// A posted exact-key metric must declare a metricType so checkSanityRange can
+		// range-check it. Without one it would fall through as an untyped "legacy"
+		// entry and post any finite value unchecked — the exact hole this fail-closed
+		// guard exists to close. A missing type is a scenario misconfiguration, so
+		// fail loud here (the dry-run CI smoke test catches it before any post).
+		if ( ! scenario.metricType ) {
+			throw new Error(
+				`Scenario "${
+					scenario.key ?? scenario.metricKey
+				}" sets metricKey but no metricType; refusing to post an unchecked keyed metric`
+			);
+		}
 		// Single metric with exact key
 		return [ { key: scenario.metricKey, value: summary.median, type: scenario.metricType } ];
 	}
