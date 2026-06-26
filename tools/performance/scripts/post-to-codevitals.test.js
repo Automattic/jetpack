@@ -16,6 +16,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { test } from 'node:test';
 import { fileURLToPath } from 'node:url';
+import { inspect } from 'node:util';
 import {
 	checkSanityRange,
 	extractScenarioMetrics,
@@ -242,6 +243,41 @@ test( 'a malformed CODEVITALS_URL leaks the token into neither the error nor the
 	);
 } );
 
+test( 'a token-bearing upstream error is redacted in the message, the cause, and util.inspect', async () => {
+	const file = writeResults( 120 );
+	const origFetch = global.fetch;
+	// Simulate an upstream (e.g. undici) error that echoes the full request URL,
+	// token included, in its message AND in a nested cause.
+	global.fetch = async u => {
+		const inner = new Error( `connect to ${ String( u ) } refused` );
+		throw new Error( `request to ${ String( u ) } failed`, { cause: inner } );
+	};
+	let err;
+	try {
+		await silenced( () =>
+			postToCodeVitals( file, {
+				dryRun: false,
+				codeVitalsUrl: 'https://codevitals.test',
+				codeVitalsToken: 'tok-cause-leak',
+			} )
+		);
+	} catch ( e ) {
+		err = e;
+	} finally {
+		global.fetch = origFetch;
+	}
+	assert.ok( err, 'the live post should reject' );
+	assert.ok( ! err.message.includes( 'tok-cause-leak' ), 'token must not be in the message' );
+	assert.ok(
+		! ( err.cause?.message ?? '' ).includes( 'tok-cause-leak' ),
+		'token must not be in the cause message'
+	);
+	assert.ok(
+		! inspect( err, { depth: 5 } ).includes( 'tok-cause-leak' ),
+		'token must not survive in util.inspect of the whole error'
+	);
+} );
+
 // --- isDirectInvocation (the run-when-direct guard) ---
 
 test( 'isDirectInvocation: a file matches itself', () => {
@@ -266,6 +302,11 @@ test( 'the CLI runs main() when invoked directly from a path containing a space'
 		path.join( dir, 'post-to-codevitals.js' )
 	);
 	fs.copyFileSync( path.join( SCRIPTS_DIR, 'scenarios.js' ), path.join( dir, 'scenarios.js' ) );
+	// Declare the temp copy as ESM. Without this, a `.js` file with `import` only
+	// runs as a module on Node versions where syntax detection is on by default
+	// (22.7+); on the lower half of this package's >=20.11 range it throws
+	// "Cannot use import statement outside a module" and the test fails spuriously.
+	fs.writeFileSync( path.join( dir, 'package.json' ), '{ "type": "module" }' );
 	const results = writeResults( 120 );
 	try {
 		const out = execFileSync( 'node', [ path.join( dir, 'post-to-codevitals.js' ), '--dry-run' ], {

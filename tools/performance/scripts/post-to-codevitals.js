@@ -84,6 +84,31 @@ function redactToken( text, token ) {
 	return safe.replace( /token=[^&\s]+/g, 'token=REDACTED' );
 }
 
+/**
+ * Redact the token from an error and every error in its `cause` chain, in place.
+ *
+ * A re-thrown error keeps its caught cause for debugging, but that cause (and any
+ * nested cause) can carry the token in its `message` or `stack`. Walking the
+ * whole chain scrubs each one so logging the full error never leaks the secret.
+ *
+ * @param {*}      error - The caught error (or any thrown value).
+ * @param {string} token - The token value to strip from messages and stacks.
+ */
+function sanitizeErrorChain( error, token ) {
+	const seen = new Set();
+	let current = error;
+	while ( current && typeof current === 'object' && ! seen.has( current ) ) {
+		seen.add( current );
+		if ( typeof current.message === 'string' ) {
+			current.message = redactToken( current.message, token );
+		}
+		if ( typeof current.stack === 'string' ) {
+			current.stack = redactToken( current.stack, token );
+		}
+		current = current.cause;
+	}
+}
+
 /** Post metrics to CodeVitals. */
 async function postToCodeVitals( resultsPath, config ) {
 	// Read results file
@@ -195,13 +220,16 @@ async function postToCodeVitals( resultsPath, config ) {
 		return { posted: true, data, validationFailed };
 	} catch ( error ) {
 		clearTimeout( timeoutId );
-		// Redact the token from any error before it reaches a log or a re-throw.
-		// Safe URL construction already keeps the secret out of parse errors; this
-		// is defense in depth so no upstream message carries it into a build log.
+		// Scrub the token from the caught error and its whole cause chain before we
+		// log it or re-use it as `cause`. fetch/undici can echo the token-bearing
+		// URL in a message or stack, so a caller that logs err.cause or
+		// util.inspect( err ) would otherwise re-expose the secret. This is defense
+		// in depth: safe URL construction already keeps it out of parse errors.
+		sanitizeErrorChain( error, config.codeVitalsToken );
 		const message =
 			error.name === 'AbortError'
 				? `CodeVitals request timed out after ${ TIMEOUT_MS / 1000 }s`
-				: redactToken( error.message, config.codeVitalsToken );
+				: error.message;
 		console.error( '✗ Failed to post metrics to CodeVitals:', message );
 		throw new Error( message, { cause: error } );
 	}

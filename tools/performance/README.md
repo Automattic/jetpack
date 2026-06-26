@@ -16,16 +16,16 @@ The test suite is designed to run in TeamCity. See `TEAMCITY-SETUP.md` for detai
 
 ### Environment Variables
 
-| Variable | Description |
-|----------|-------------|
-| `CODEVITALS_TOKEN` | API token for posting results to CodeVitals |
-| `CODEVITALS_URL` | CodeVitals API URL (default: https://codevitals.run). Use the apex host, not `www.`: the `www.` host 301-redirects the API and the redirect drops the POST body. |
-| `COMPOSE_PROJECT_NAME` | Unique Docker project name for build isolation |
-| `GIT_COMMIT` | Git commit SHA for tracking (auto-detected from plugin) |
-| `GIT_BRANCH` | Git branch for tracking (default: trunk) |
-| `ITERATIONS` | Number of measurement iterations (default: 5) |
-| `WP_ADMIN_USER` | WordPress admin username (default: admin) |
-| `WP_ADMIN_PASS` | WordPress admin password (default: password) |
+| Variable               | Description                                                                                                                                                                                                                                                                           |
+| ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `CODEVITALS_TOKEN`     | API token for posting results to CodeVitals                                                                                                                                                                                                                                           |
+| `CODEVITALS_URL`       | CodeVitals API URL (default: https://codevitals.run). Use the apex host, not `www.`: the `www.` host 301-redirects the API and the redirect drops the POST body. Set an origin-only URL (scheme + host); the API path is appended, so any path prefix on this value is not preserved. |
+| `COMPOSE_PROJECT_NAME` | Unique Docker project name for build isolation                                                                                                                                                                                                                                        |
+| `GIT_COMMIT`           | Git commit SHA for tracking (auto-detected from plugin)                                                                                                                                                                                                                               |
+| `GIT_BRANCH`           | Git branch for tracking (default: trunk)                                                                                                                                                                                                                                              |
+| `ITERATIONS`           | Number of measurement iterations (default: 5)                                                                                                                                                                                                                                         |
+| `WP_ADMIN_USER`        | WordPress admin username (default: admin)                                                                                                                                                                                                                                             |
+| `WP_ADMIN_PASS`        | WordPress admin password (default: password)                                                                                                                                                                                                                                          |
 
 ## Metric
 
@@ -41,15 +41,15 @@ The test suite is designed to run in TeamCity. See `TEAMCITY-SETUP.md` for detai
 
 ## Scripts
 
-| Script | Description |
-|--------|-------------|
-| `pnpm test` | Run full test suite (auto-clones plugin if needed) |
-| `pnpm test:quick` | Quick test with 2 iterations |
-| `pnpm calibrate` | Run CPU throttling calibration |
-| `pnpm measure` | Run LCP measurement only |
-| `pnpm report` | Post results to CodeVitals only |
-| `pnpm report:dry` | Build and print the CodeVitals payload without posting (CI smoke test) |
-| `pnpm test -- --skip-codevitals` | Run tests without posting to CodeVitals |
+| Script                           | Description                                                            |
+| -------------------------------- | ---------------------------------------------------------------------- |
+| `pnpm test`                      | Run full test suite (auto-clones plugin if needed)                     |
+| `pnpm test:quick`                | Quick test with 2 iterations                                           |
+| `pnpm calibrate`                 | Run CPU throttling calibration                                         |
+| `pnpm measure`                   | Run LCP measurement only                                               |
+| `pnpm report`                    | Post results to CodeVitals only                                        |
+| `pnpm report:dry`                | Build and print the CodeVitals payload without posting (CI smoke test) |
+| `pnpm test -- --skip-codevitals` | Run tests without posting to CodeVitals                                |
 
 ## Safeguards
 
@@ -63,13 +63,13 @@ CodeVitals is an **append-only** store with no self-service rollback. Once a bad
 
 `post-to-codevitals.js` checks every typed metric against `SANITY_RANGES` in `scenarios.js` before posting. A value outside its range is logged and skipped (not posted), and the script exits non-zero so CI surfaces the failure. Other valid metrics in the same run still post.
 
-| Metric | Min | Max |
-|--------|-----|-----|
+| Metric | Min | Max   |
+| ------ | --- | ----- |
 | `lcp`  | 100 | 60000 |
 | `ttfb` | 10  | 10000 |
 | `fcp`  | 50  | 30000 |
 | `tbt`  | 0   | 10000 |
-| `cls`  | 0   | 5 |
+| `cls`  | 0   | 5     |
 
 Add a row when a new metric type starts being posted, and set `metricType` on the scenario so the check applies to it.
 
