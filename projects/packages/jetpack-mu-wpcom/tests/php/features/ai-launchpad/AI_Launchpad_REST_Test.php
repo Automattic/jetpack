@@ -370,6 +370,38 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * Test that the Jetpack Social tasks are hidden on a private site, where wpcom
+	 * doesn't load the Social admin page their CTA points to.
+	 */
+	public function test_get_hides_social_tasks_on_private_site() {
+		wp_set_current_user( $this->admin_id );
+		$this->seed_ai_output_with_tasks(
+			array( 'connect_social_media', 'drive_traffic', 'post_sharing_enabled', 'first_post_published', 'site_launched' )
+		);
+
+		$ids = function () {
+			return array_column( $this->call_api( Requests::GET )->get_data()['tasks'], 'id' );
+		};
+
+		// Public site: the Social tasks show.
+		update_option( 'blog_public', '1' );
+		$public_ids = $ids();
+		$this->assertContains( 'connect_social_media', $public_ids );
+		$this->assertContains( 'drive_traffic', $public_ids );
+		$this->assertContains( 'post_sharing_enabled', $public_ids );
+
+		// Private site: the Social tasks are gone, the rest remain.
+		update_option( 'blog_public', '-1' );
+		$private_ids = $ids();
+		$this->assertNotContains( 'connect_social_media', $private_ids );
+		$this->assertNotContains( 'drive_traffic', $private_ids );
+		$this->assertNotContains( 'post_sharing_enabled', $private_ids );
+		$this->assertContains( 'first_post_published', $private_ids );
+
+		update_option( 'blog_public', '1' );
+	}
+
+	/**
 	 * Test that GET requires authentication.
 	 */
 	public function test_get_requires_authentication() {

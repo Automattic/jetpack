@@ -82,6 +82,32 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 	);
 
 	/**
+	 * Jetpack Social tasks, hidden on private sites. wpcom does not load Publicize
+	 * (and so the Jetpack Social admin page their CTA points to) on a private site,
+	 * mirroring Publicize_Setup::should_load(). The AI Launchpad runs only on the
+	 * wpcom platform, so the private-site flag (`blog_public = -1`) is the whole
+	 * condition — Publicize's additional `is_wpcom_platform()` check is always true
+	 * here.
+	 */
+	const SOCIAL_PAGE_TASK_IDS = array(
+		'connect_social_media',
+		'drive_traffic',
+		'post_sharing_enabled',
+	);
+
+	/**
+	 * Whether the site's visibility is set to private (`blog_public = -1`), the
+	 * core of Jetpack's Status::is_private_site(). Read directly to avoid a hard
+	 * dependency on the Status package in this read path; the launchpad is
+	 * wpcom-only, where this option is the private-site signal.
+	 *
+	 * @return bool
+	 */
+	private function is_private_site() {
+		return '-1' === (string) get_option( 'blog_public' );
+	}
+
+	/**
 	 * Class constructor.
 	 */
 	public function __construct() {
@@ -538,12 +564,20 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 			require_once ABSPATH . 'wp-admin/includes/plugin.php';
 		}
 
+		$is_private_site = $this->is_private_site();
+
 		foreach ( $tasks as $task ) {
 			if ( ! is_array( $task ) || ! isset( $task['id'] ) || ! isset( $task['subtitle'] ) ) {
 				continue;
 			}
 
 			if ( ! isset( $definitions[ $task['id'] ] ) ) {
+				continue;
+			}
+
+			// The Jetpack Social tasks point at an admin page wpcom doesn't load on
+			// a private site, so hide them there — their CTA would 404.
+			if ( $is_private_site && in_array( $task['id'], self::SOCIAL_PAGE_TASK_IDS, true ) ) {
 				continue;
 			}
 
