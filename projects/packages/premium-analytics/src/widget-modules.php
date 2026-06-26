@@ -2,12 +2,10 @@
 /**
  * Dashboard widget modules: REST exposure + import-map wiring.
  *
- * Reads the available widget types (the registry from widget-types.php, run
- * through the availability filter in widget-availability.php) and exposes them
- * to the client through the `/jetpack/v4/widget-modules` REST endpoint.
- *
- * Plus, it adds each widget's render and metadata modules to the dashboard page's
- * import map so the client can dynamically `import()` them on demand.
+ * Reads get_available_widget_types() (the registry filtered by
+ * widget-availability.php) and exposes it two ways: the
+ * `/jetpack/v4/widget-modules` REST list, and the page import map, where each
+ * widget's render and metadata modules are registered for dynamic `import()`.
  *
  * @package automattic/jetpack-premium-analytics
  */
@@ -35,7 +33,7 @@ function register_widget_modules_rest_route() {
 add_action( 'rest_api_init', __NAMESPACE__ . '\\register_widget_modules_rest_route' );
 
 /**
- * Build the REST response: one record per registered widget.
+ * Build the REST response: one record per available widget type.
  *
  * @return \WP_REST_Response
  */
@@ -55,8 +53,8 @@ function get_widget_modules_response() {
 }
 
 /**
- * Add registered widget modules to the dashboard page import map as dynamic
- * dependencies, so the client can `import()` them on demand.
+ * Add available widget modules to the page import map as dynamic dependencies,
+ * so the client can `import()` them on demand.
  *
  * @param array $boot_dependencies Boot dependencies for the page.
  * @return array Updated boot dependencies.

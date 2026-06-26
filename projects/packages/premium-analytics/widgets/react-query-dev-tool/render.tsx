@@ -9,17 +9,14 @@ import { ReactQueryDevtoolsPanel } from '@tanstack/react-query-devtools';
 import styles from './style.module.css';
 
 /**
- * Renders the React Query Devtools as a dashboard widget.
+ * React Query Devtools as a dashboard widget.
  *
- * The panel is bound to the dashboard's shared `queryClient` singleton through
- * the explicit `client` prop rather than React context: this widget bundles its
- * own copy of `@tanstack/react-query`, while `queryClient` comes from the shared
- * data module. Passing the instance directly keeps the panel inspecting the very
- * cache every other widget reads from, sidestepping the duplicate-context issue.
+ * Bound to the shared `queryClient` via the explicit `client` prop, not context:
+ * the widget bundles its own `@tanstack/react-query`, so passing the instance
+ * directly inspects the real cache and sidesteps the duplicate-context problem.
  *
- * Visibility is gated server-side — the `jpa/react-query-dev-tool` type is
- * removed from the widget list in production (see `src/widget-availability.php`),
- * so this render module is never requested there.
+ * Server-gated: widget-availability.php drops `jpa/react-query-dev-tool` in
+ * production, so this module is never requested there.
  *
  * @return The rendered devtools panel.
  */
