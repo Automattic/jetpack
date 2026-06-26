@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Add design doc for the flexible consumer API (config schema, feature toggles, layered settings).
