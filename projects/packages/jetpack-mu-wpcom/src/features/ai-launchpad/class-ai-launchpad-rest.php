@@ -66,6 +66,22 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 	);
 
 	/**
+	 * CTA destinations the AI Launchpad repoints to wp-admin, keyed by task id and
+	 * mapping to an `admin_url()` path. The catalog sends these to Calypso flows
+	 * that are a poor fit for the wp-admin AI Launchpad: connect_social_media goes
+	 * to Calypso `/marketing/connections` even though it completes on the wp-admin
+	 * Jetpack Social page (where this lands it, matching drive_traffic), and the
+	 * design "Select a design" tasks go to a Calypso setup step-flow rather than the
+	 * theme browser. Overridden on read so the shared catalog (used by the legacy
+	 * launchpad too) is left untouched.
+	 */
+	const CTA_OVERRIDES = array(
+		'connect_social_media' => 'admin.php?page=jetpack-social',
+		'design_completed'     => 'themes.php',
+		'design_selected'      => 'themes.php',
+	);
+
+	/**
 	 * Class constructor.
 	 */
 	public function __construct() {
@@ -508,12 +524,16 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 				? AI_Launchpad_Memberships::is_task_complete( $task['id'] )
 				: wpcom_launchpad_checklists()->is_task_complete( $definition );
 
+			$calypso_path = isset( self::CTA_OVERRIDES[ $task['id'] ] )
+				? admin_url( self::CTA_OVERRIDES[ $task['id'] ] )
+				: wpcom_launchpad_checklists()->load_calypso_path( $definition );
+
 			$built[] = array(
 				'id'           => $task['id'],
 				'subtitle'     => $task['subtitle'],
 				'title'        => isset( $definition['get_title'] ) ? $definition['get_title']() : '',
 				'completed'    => $completed,
-				'calypso_path' => wpcom_launchpad_checklists()->load_calypso_path( $definition ),
+				'calypso_path' => $calypso_path,
 			);
 		}
 

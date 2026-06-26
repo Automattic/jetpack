@@ -327,6 +327,29 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * Test that GET repoints the social/design CTAs to wp-admin targets, since the
+	 * catalog sends them to Calypso flows that are a poor fit for the wp-admin AI
+	 * Launchpad (and connect_social_media completes on the wp-admin Jetpack Social
+	 * page, where its CTA should land).
+	 */
+	public function test_get_overrides_calypso_ctas_with_wp_admin_targets() {
+		wp_set_current_user( $this->admin_id );
+		$this->seed_ai_output_with_tasks( array( 'connect_social_media', 'design_selected', 'site_launched' ) );
+
+		$paths = array();
+		foreach ( $this->call_api( Requests::GET )->get_data()['tasks'] as $task ) {
+			$paths[ $task['id'] ] = $task['calypso_path'];
+		}
+
+		$this->assertSame( admin_url( 'admin.php?page=jetpack-social' ), $paths['connect_social_media'] );
+		$this->assertSame( admin_url( 'themes.php' ), $paths['design_selected'] );
+		// A task without an override keeps its catalog path unchanged (null for the
+		// launch task, which routes to the wordpress.com launch flow client-side).
+		$this->assertArrayHasKey( 'site_launched', $paths );
+		$this->assertNull( $paths['site_launched'] );
+	}
+
+	/**
 	 * Test that GET requires authentication.
 	 */
 	public function test_get_requires_authentication() {
