@@ -19,7 +19,7 @@ The test suite is designed to run in TeamCity. See `TEAMCITY-SETUP.md` for detai
 | Variable | Description |
 |----------|-------------|
 | `CODEVITALS_TOKEN` | API token for posting results to CodeVitals |
-| `CODEVITALS_URL` | CodeVitals API URL (default: https://www.codevitals.run) |
+| `CODEVITALS_URL` | CodeVitals API URL (default: https://codevitals.run). Use the apex host, not `www.`: the `www.` host 301-redirects the API and the redirect drops the POST body. |
 | `COMPOSE_PROJECT_NAME` | Unique Docker project name for build isolation |
 | `GIT_COMMIT` | Git commit SHA for tracking (auto-detected from plugin) |
 | `GIT_BRANCH` | Git branch for tracking (default: trunk) |

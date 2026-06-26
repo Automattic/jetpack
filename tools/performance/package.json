@@ -15,7 +15,7 @@
 		"report": "node scripts/post-to-codevitals.js",
 		"report:dry": "node scripts/post-to-codevitals.js --dry-run",
 		"setup:browsers": "playwright install chromium",
-		"test": "node scripts/run-performance-tests.js",
+		"test": "node --test && node scripts/run-performance-tests.js",
 		"test:quick": "ITERATIONS=2 node scripts/run-performance-tests.js",
 		"test:unit": "node --test"
 	},

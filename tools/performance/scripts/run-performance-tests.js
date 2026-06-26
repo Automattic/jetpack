@@ -482,9 +482,7 @@ async function main() {
 
 	if ( process.env.CODEVITALS_TOKEN ) {
 		console.log( 'View detailed results in CodeVitals:' );
-		console.log(
-			`  ${ process.env.CODEVITALS_URL || 'https://www.codevitals.run' }/project/jetpack`
-		);
+		console.log( `  ${ process.env.CODEVITALS_URL || 'https://codevitals.run' }/project/jetpack` );
 		console.log( '' );
 	}
 }

@@ -41,6 +41,13 @@ function extractScenarioMetrics( scenario, summary ) {
  * @return {{ ok: boolean, reason?: string }} Whether the value may be posted, and why not.
  */
 function checkSanityRange( type, value ) {
+	// Never post a non-finite value, regardless of type. null, NaN, Infinity, and
+	// numeric strings are always wrong for an append-only store, so this check
+	// comes before the untyped early return below.
+	if ( typeof value !== 'number' || ! Number.isFinite( value ) ) {
+		return { ok: false, reason: `value ${ JSON.stringify( value ) } is not a finite number` };
+	}
+
 	// Genuinely untyped legacy entry: no declared type, so no range to enforce.
 	if ( ! type ) {
 		return { ok: true };
@@ -49,10 +56,6 @@ function checkSanityRange( type, value ) {
 	const range = SANITY_RANGES[ type ];
 	if ( ! range ) {
 		return { ok: false, reason: `no sanity range is defined for type "${ type }"` };
-	}
-
-	if ( typeof value !== 'number' || ! Number.isFinite( value ) ) {
-		return { ok: false, reason: `value ${ JSON.stringify( value ) } is not a finite number` };
 	}
 
 	if ( value < range.min || value > range.max ) {
@@ -123,7 +126,7 @@ async function postToCodeVitals( resultsPath, config ) {
 	if ( config.dryRun ) {
 		console.log( '— DRY RUN — building payload only, not posting to CodeVitals —' );
 		console.log( JSON.stringify( payload, null, 2 ) );
-		return { posted: false, validationFailed };
+		return { posted: false, validationFailed, payload };
 	}
 
 	console.log( 'Posting metrics to CodeVitals...' );
@@ -223,10 +226,34 @@ async function main() {
 	}
 }
 
-// Run only when executed directly, not when imported (e.g. by the unit test),
+/**
+ * Whether this module was run directly (`node post-to-codevitals.js`) rather than imported.
+ *
+ * Compares real filesystem paths so spaces, non-ASCII characters, and symlinks
+ * (e.g. /tmp → /private/tmp) cannot make the match fail and silently skip main().
+ * A raw ``file://${ process.argv[1] }`` comparison breaks on all three: Node
+ * percent-encodes and symlink-resolves import.meta.url but argv[1] stays raw.
+ *
+ * @param {string|undefined} moduleFilename - Absolute path of this module (import.meta.filename).
+ * @param {string|undefined} invokedPath    - The path Node was invoked with (process.argv[1]).
+ * @return {boolean} True when both resolve to the same file.
+ */
+function isDirectInvocation( moduleFilename, invokedPath ) {
+	if ( ! moduleFilename || ! invokedPath ) {
+		return false;
+	}
+	try {
+		return fs.realpathSync( moduleFilename ) === fs.realpathSync( invokedPath );
+	} catch {
+		// realpathSync throws when invokedPath does not exist (e.g. `node --test`).
+		return false;
+	}
+}
+
+// Run only when executed directly, not when imported (e.g. by the unit tests),
 // so importing the pure helpers does not trigger main()'s env checks or exits.
-if ( import.meta.url === `file://${ process.argv[ 1 ] }` ) {
+if ( isDirectInvocation( import.meta.filename, process.argv[ 1 ] ) ) {
 	main();
 }
 
-export { postToCodeVitals, checkSanityRange, extractScenarioMetrics };
+export { postToCodeVitals, checkSanityRange, extractScenarioMetrics, isDirectInvocation };
