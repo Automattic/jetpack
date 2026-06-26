@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+My Jetpack: migrate ProductDetailCard typography from the in-house @automattic/jetpack-components Text to @wordpress/ui Text, adopting the closest design-system variants.

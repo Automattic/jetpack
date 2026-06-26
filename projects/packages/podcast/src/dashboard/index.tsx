@@ -1,3 +1,5 @@
+// Side-effect import: registers the apiFetch preload middleware.
+import './preload';
 import AdminPage from '@automattic/jetpack-components/admin-page';
 import { getAdminUrl, getScriptData, getSiteData } from '@automattic/jetpack-script-data';
 import { Spinner } from '@wordpress/components';

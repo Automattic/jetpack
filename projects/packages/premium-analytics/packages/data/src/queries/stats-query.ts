@@ -7,15 +7,27 @@ import {
 import {
 	sanitizeStatsClicksResponse,
 	sanitizeStatsFileDownloadsResponse,
+	sanitizeStatsHighlightsResponse,
 	sanitizeStatsLocationsResponse,
 	sanitizeStatsArchivesResponse,
 	sanitizeStatsFollowersResponse,
+	sanitizeStatsCommentsResponse,
+	sanitizeStatsDevicesResponse,
+	sanitizeStatsInsightsResponse,
+	sanitizeStatsStreakResponse,
+	sanitizeStatsVisitsResponse,
+	sanitizeStatsTagsResponse,
+	sanitizeStatsTimeSeriesResponse,
 	sanitizeStatsPassthroughResponse,
+	sanitizeStatsPostResponse,
 	sanitizeStatsReferrersResponse,
 	sanitizeStatsSearchTermsResponse,
 	sanitizeStatsSiteResponse,
+	sanitizeStatsSubscribersCountsResponse,
+	sanitizeStatsSubscribersResponse,
 	sanitizeStatsTopAuthorsResponse,
 	sanitizeStatsTopPostsResponse,
+	sanitizeStatsUtmResponse,
 	sanitizeStatsVideoPlaysResponse,
 } from '../processing/stats';
 import {
@@ -31,17 +43,29 @@ type StatsSanitizer< TData = unknown > = ( response: unknown, params?: StatsQuer
 
 const statsSanitizers = {
 	passthrough: sanitizeStatsPassthroughResponse,
+	post: sanitizeStatsPostResponse,
 	site: sanitizeStatsSiteResponse,
 	topPosts: sanitizeStatsTopPostsResponse,
 	referrers: sanitizeStatsReferrersResponse,
 	clicks: sanitizeStatsClicksResponse,
 	searchTerms: sanitizeStatsSearchTermsResponse,
 	fileDownloads: sanitizeStatsFileDownloadsResponse,
+	highlights: sanitizeStatsHighlightsResponse,
 	topAuthors: sanitizeStatsTopAuthorsResponse,
 	locations: sanitizeStatsLocationsResponse,
 	videoPlays: sanitizeStatsVideoPlaysResponse,
 	archives: sanitizeStatsArchivesResponse,
 	followers: sanitizeStatsFollowersResponse,
+	comments: sanitizeStatsCommentsResponse,
+	devices: sanitizeStatsDevicesResponse,
+	insights: sanitizeStatsInsightsResponse,
+	streak: sanitizeStatsStreakResponse,
+	tags: sanitizeStatsTagsResponse,
+	utm: sanitizeStatsUtmResponse,
+	visits: sanitizeStatsVisitsResponse,
+	timeSeries: sanitizeStatsTimeSeriesResponse,
+	subscribers: sanitizeStatsSubscribersResponse,
+	subscribersCounts: sanitizeStatsSubscribersCountsResponse,
 } satisfies Record< string, StatsSanitizer >;
 
 export type StatsSanitizerKey = keyof typeof statsSanitizers;
@@ -59,6 +83,7 @@ export type StatsQueryConfig< TSanitizer extends StatsSanitizerKey = StatsSaniti
 	method?: StatsProxyMethod;
 	body?: unknown;
 	sanitizer?: TSanitizer;
+	sanitizerParams?: StatsQueryParams;
 	enabled?: boolean;
 };
 
@@ -69,12 +94,31 @@ export function statsProxyQuery(
 	config: StatsQueryConfig
 ): StatsReportQueryOptions< 'passthrough' >;
 export function statsProxyQuery( config: StatsQueryConfig ): StatsReportQueryOptions {
-	const { name, version, endpoint, params, method = 'GET', body, enabled = true } = config;
+	const {
+		name,
+		version,
+		endpoint,
+		params,
+		method = 'GET',
+		body,
+		sanitizerParams,
+		enabled = true,
+	} = config;
 	const sanitizer = config.sanitizer ?? 'passthrough';
 	const apiParams = statsQueryParamsToApiParams( params );
 
 	return {
-		queryKey: [ 'stats', name, version, endpoint, method, apiParams, body, sanitizer ],
+		queryKey: [
+			'stats',
+			name,
+			version,
+			endpoint,
+			method,
+			apiParams,
+			body,
+			sanitizer,
+			...( sanitizerParams ? [ sanitizerParams ] : [] ),
+		],
 		queryFn: async () => {
 			const response = await fetchStatsProxy( {
 				version,
@@ -83,7 +127,10 @@ export function statsProxyQuery( config: StatsQueryConfig ): StatsReportQueryOpt
 				method,
 				body,
 			} );
-			return statsSanitizers[ sanitizer ]( response, apiParams );
+			return statsSanitizers[ sanitizer ]( response, {
+				...apiParams,
+				...sanitizerParams,
+			} );
 		},
 		enabled,
 		placeholderData: previousData => previousData,

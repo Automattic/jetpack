@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix dashboard widgets rendering "Widget is no longer available" by loading the widget manifest on REST requests, not just admin page loads.

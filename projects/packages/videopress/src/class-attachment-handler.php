@@ -368,7 +368,12 @@ class Attachment_Handler {
 
 		$statuses = array();
 		foreach ( $data['videopress_processing_ids'] as $id ) {
-			$id     = (int) $id;
+			$id = (int) $id;
+
+			if ( ! current_user_can( 'edit_post', $id ) ) {
+				continue;
+			}
+
 			$status = get_post_meta( $id, 'videopress_status', true );
 			if ( $status ) {
 				$statuses[ $id ] = $status;

@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add `/targets` entry point, which returns the configured browserslist targets, defaulting to `@wordpress/browserslist-config` rather than browserslist's own defaults.

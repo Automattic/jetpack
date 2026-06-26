@@ -1,0 +1,4 @@
+Significance: patch
+Type: security
+
+Status counts: Restrict counts to a user's own forms when they cannot edit others' forms.

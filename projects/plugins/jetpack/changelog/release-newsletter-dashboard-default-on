@@ -1,4 +1,0 @@
-Significance: minor
-Type: enhancement
-
-Newsletter: Begin a staged rollout of the modernized Newsletter dashboard and wp-admin subscriber management, off by default during the initial rollout. Hosts can opt in or out with the rsm_jetpack_ui_modernization_newsletter and jetpack_wp_admin_subscriber_management_enabled filters.

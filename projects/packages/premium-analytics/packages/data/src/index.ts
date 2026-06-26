@@ -15,6 +15,8 @@ export { useReportVisitorsByLocation } from './hooks/use-report-visitors-by-loca
 export { useReportBookings } from './hooks/use-report-bookings';
 export { useReportSessionsByDevice } from './hooks/use-report-sessions-by-device';
 export { useStatsSite } from './hooks/use-stats-site';
+export { useStatsPost } from './hooks/use-stats-post';
+export type { StatsPostField, StatsPostParams, StatsPostResponse } from './hooks/use-stats-post';
 export { useStatsTopPosts } from './hooks/use-stats-top-posts';
 export { useStatsReferrers } from './hooks/use-stats-referrers';
 export { useStatsClicks } from './hooks/use-stats-clicks';
@@ -33,9 +35,58 @@ export {
 	useStatsAppDashboardModuleSettingsMutation,
 } from './hooks/use-stats-app-dashboard-module-settings';
 export type { StatsAppDashboardModuleSettings } from './hooks/use-stats-app-dashboard-module-settings';
+export { useStatsAppPlanUsage } from './hooks/use-stats-app-plan-usage';
+export type {
+	StatsAppPlanPeriodUsage,
+	StatsAppPlanPriceTier,
+	StatsAppPlanUsage,
+} from './hooks/use-stats-app-plan-usage';
 export { useStatsArchives, type StatsArchivesResponse } from './hooks/use-stats-archives';
 export { useStatsFollowers } from './hooks/use-stats-followers';
 export type { StatsFollowersParams, StatsFollowersResponse } from './hooks/use-stats-followers';
+export {
+	useStatsComments,
+	type StatsCommentsParams,
+	type StatsCommentsResponse,
+} from './hooks/use-stats-comments';
+export {
+	useStatsSubscribers,
+	useStatsSubscribersCounts,
+	type StatsSubscribersCounts,
+	type StatsSubscribersCountsParams,
+	type StatsSubscribersCountsResponse,
+	type StatsSubscribersParams,
+	type StatsSubscribersResponse,
+} from './hooks/use-stats-subscribers';
+export {
+	useStatsStreak,
+	type StatsStreakParams,
+	type StatsStreakResponse,
+} from './hooks/use-stats-streak';
+export {
+	useStatsVisits,
+	type StatsVisitsParams,
+	type StatsVisitsResponse,
+	type StatsVisitsStatField,
+	type StatsVisitsStatFields,
+} from './hooks/use-stats-visits';
+export { useStatsInsights } from './hooks/use-stats-insights';
+export type {
+	StatsInsightsParams,
+	StatsInsightsResponse,
+	StatsInsightsYear,
+} from './hooks/use-stats-insights';
+export { useStatsUtm } from './hooks/use-stats-utm';
+export type { StatsUtmParams, StatsUtmResponse } from './hooks/use-stats-utm';
+export { useStatsHighlights } from './hooks/use-stats-highlights';
+export type { StatsHighlightsParams, StatsHighlightsResponse } from './hooks/use-stats-highlights';
+export { useStatsTags, type StatsTagsParams, type StatsTagsResponse } from './hooks/use-stats-tags';
+export {
+	useStatsDevices,
+	type StatsDevices,
+	type StatsDevicesDeviceParam,
+	type StatsDevicesParams,
+} from './hooks/use-stats-devices';
 export type { UseStatsOptions } from './hooks/use-stats-report';
 export { prefetchReport } from './prefetch';
 export {
@@ -72,21 +123,53 @@ export type {
 export type {
 	StatsArchivesItem,
 	StatsClicksItem,
+	StatsCommentsAuthorItem,
+	StatsCommentsGroupItem,
+	StatsCommentsItem,
+	StatsCommentsPostItem,
+	StatsCommentsRawAuthor,
+	StatsCommentsRawFollowData,
+	StatsCommentsRawPost,
+	StatsCommentsRawResponse,
 	StatsFileDownloadsItem,
 	StatsFollowersItem,
 	StatsFollowersRawItem,
 	StatsFollowersRawResponse,
 	StatsItemAction,
 	StatsLocationsItem,
+	StatsDevicesItem,
+	StatsDevicesResponse,
+	StatsDevicesResponseItem,
+	StatsDevicesTopValues,
 	StatsNormalizedDataPoint,
 	StatsNormalizedItem,
 	StatsNormalizedItemBase,
 	StatsNormalizedReport,
 	StatsNormalizedSummary,
+	StatsPostMonthValues,
+	StatsPostRawResponse,
+	StatsPostWeek,
+	StatsPostWeekDay,
+	StatsPostYear,
 	StatsReferrersItem,
 	StatsSearchTermsItem,
+	StatsSubscribersCountsRawResponse,
+	StatsSubscribersDataPoint,
+	StatsSubscribersRawResponse,
+	StatsStreakRawResponse,
+	StatsTagsChildItem,
+	StatsTagsItem,
+	StatsTagsLabel,
+	StatsTagsRawItem,
+	StatsTagsRawResponse,
+	StatsTagsRawTag,
+	StatsTimeSeriesDataPoint,
+	StatsTimeSeriesReport,
 	StatsTopAuthorsItem,
 	StatsTopPostsItem,
+	StatsUtmItem,
+	StatsUtmParam,
+	StatsUtmTopPostItem,
 	StatsVideoPlaysItem,
 } from './processing/stats';
 export type { StatsReportParams } from './queries/stats-query';
