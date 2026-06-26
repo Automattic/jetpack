@@ -11,6 +11,7 @@ import { STATS_HIGHLIGHTS_STALE_TIME, statsHighlightsQuery } from '../stats-high
 import { statsInsightsQuery } from '../stats-insights-query';
 import { statsLocationsQuery } from '../stats-locations-query';
 import { statsPostQuery } from '../stats-post-query';
+import { statsPublicizeQuery } from '../stats-publicize-query';
 import { statsStreakQuery } from '../stats-streak-query';
 import { statsSubscribersCountsQuery, statsSubscribersQuery } from '../stats-subscribers-query';
 import { statsTagsQuery } from '../stats-tags-query';
@@ -314,7 +315,6 @@ describe( 'Stats query factories', () => {
 
 	it( 'builds comments query keys without date params', () => {
 		const query = statsCommentsQuery();
-
 		expect( query.enabled ).toBe( true );
 		expect( query.queryKey ).toEqual( [
 			'stats',
@@ -325,6 +325,22 @@ describe( 'Stats query factories', () => {
 			{},
 			undefined,
 			'comments',
+		] );
+	} );
+
+	it( 'builds publicize query keys without date-gating or report param coercion', () => {
+		const query = statsPublicizeQuery();
+
+		expect( query.enabled ).toBe( true );
+		expect( query.queryKey ).toEqual( [
+			'stats',
+			'publicize',
+			'1.1',
+			'stats/publicize',
+			'GET',
+			{},
+			undefined,
+			'publicize',
 		] );
 	} );
 

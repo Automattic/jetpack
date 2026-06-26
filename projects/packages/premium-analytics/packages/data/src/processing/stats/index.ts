@@ -29,6 +29,7 @@ export {
 export { sanitizeStatsStreakResponse } from './streak';
 export { sanitizeStatsTagsResponse } from './tags';
 export { sanitizeStatsDevicesResponse } from './devices';
+export { sanitizeStatsPublicizeResponse } from './publicize';
 export type { StatsTopPostsItem } from './top-posts';
 export type {
 	StatsPostMonthValues,
@@ -62,6 +63,11 @@ export type { StatsUtmItem, StatsUtmParam, StatsUtmTopPostItem } from './utm';
 export type { StatsEmailSummaryItem } from './email-summary';
 export type { StatsEmailBreakdownItem } from './email-breakdown';
 export type { StatsArchivesItem } from './archives';
+export type {
+	StatsPublicizeApiResponse,
+	StatsPublicizeItem,
+	StatsPublicizeService,
+} from './publicize';
 export type {
 	StatsFollowersItem,
 	StatsFollowersRawItem,

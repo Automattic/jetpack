@@ -21,6 +21,7 @@ const statsHookNames = [
 	'useStatsAppPlanUsage',
 	'useStatsArchives',
 	'useStatsFollowers',
+	'useStatsPublicize',
 	'useStatsComments',
 	'useStatsSubscribers',
 	'useStatsSubscribersCounts',
