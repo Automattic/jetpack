@@ -26,7 +26,7 @@ export default {
 		{
 			id: 'max',
 			label: __( 'Number of results', 'jetpack-premium-analytics' ),
-			type: 'integer',
+			type: 'integer' as const,
 		},
 	],
 	example: {

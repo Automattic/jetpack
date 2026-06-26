@@ -46,7 +46,9 @@ export default function useSearchTermViews( {
 	reportParams,
 	max,
 }: UseSearchTermViewsArgs ): SearchTermViewsState {
-	const { primary } = useStatsSearchTerms( reportParams );
+	const { primary } = useStatsSearchTerms(
+		reportParams as Parameters< typeof useStatsSearchTerms >[ 0 ]
+	);
 
 	const isLoading = primary.isLoading;
 	const isError = primary.isError;
