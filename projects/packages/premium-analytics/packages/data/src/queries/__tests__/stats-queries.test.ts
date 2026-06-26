@@ -2,6 +2,7 @@
  * Internal dependencies
  */
 import { statsAppProxyQuery } from '../stats-app-query';
+import { statsAppSiteHasNeverPublishedPostQuery } from '../stats-app-site-has-never-published-post-query';
 import { statsArchivesQuery } from '../stats-archives-query';
 import { statsCommentsQuery } from '../stats-comments-query';
 import { statsDevicesQuery } from '../stats-devices-query';
@@ -562,5 +563,19 @@ describe( 'Stats query factories', () => {
 
 	it( 'disables streak queries until start and end dates are available', () => {
 		expect( statsStreakQuery( {} as StatsReportParams ).enabled ).toBe( false );
+	} );
+
+	it( 'builds the published state query against the WPCOM proxy endpoint', () => {
+		expect( statsAppSiteHasNeverPublishedPostQuery( { 'include-pages': true } ).queryKey ).toEqual(
+			[
+				'stats-app',
+				'site-has-never-published-post',
+				'2',
+				'site-has-never-published-post',
+				'GET',
+				{ 'include-pages': true },
+				{},
+			]
+		);
 	} );
 } );
