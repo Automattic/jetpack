@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Forms: Don't block submission on a required field that is hidden for the visitor's device via block visibility.

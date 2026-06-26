@@ -116,6 +116,51 @@ class Contact_Form_Field_Test extends BaseTestCase {
 	}
 
 	/**
+	 * An empty required field that is hidden for some device (block device visibility) should
+	 * not block submission: the visitor may be on a viewport where it isn't shown.
+	 */
+	public function test_required_field_hidden_by_device_visibility_skips_validation() {
+		$field = $this->get_new_field_instance(
+			array(
+				'type'                => 'text',
+				'id'                  => 'hidden_required',
+				'label'               => 'Hidden Field',
+				'required'            => true,
+				'fieldwrapperclasses' => 'wp-block-jetpack-field-text wp-block-hidden-tablet',
+			)
+		);
+
+		$field->validate();
+
+		$this->assertFalse(
+			$field->is_error(),
+			'An empty required field hidden by device visibility should not produce a validation error.'
+		);
+	}
+
+	/**
+	 * A required field that is not hidden by device visibility should still be validated.
+	 */
+	public function test_required_visible_field_still_validates() {
+		$field = $this->get_new_field_instance(
+			array(
+				'type'                => 'text',
+				'id'                  => 'visible_required',
+				'label'               => 'Visible Field',
+				'required'            => true,
+				'fieldwrapperclasses' => 'wp-block-jetpack-field-text',
+			)
+		);
+
+		$field->validate();
+
+		$this->assertTrue(
+			$field->is_error(),
+			'An empty required field that is always visible should produce a validation error.'
+		);
+	}
+
+	/**
 	 * Test logged-in user email return
 	 */
 	public function test_returns_logged_in_user_email() {

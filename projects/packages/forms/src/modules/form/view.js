@@ -133,6 +133,21 @@ const getError = field => {
 };
 
 /**
+ * Whether a field is currently hidden from the visitor — e.g. by block device visibility
+ * ("Hide on desktop/tablet/mobile") for the current viewport. A field the visitor can't see
+ * must not block submission, so hidden required fields are skipped during validation.
+ *
+ * @param {string} fieldId - The field id.
+ * @return {boolean} True when the field's element is not rendered for the current viewport.
+ */
+const isFieldHidden = fieldId => {
+	const element = document.getElementById( fieldId );
+	// offsetParent is null when the element (or an ancestor) is display:none, which is how
+	// block device visibility hides the field wrapper for the current viewport.
+	return !! element && element.offsetParent === null;
+};
+
+/**
  * Capture file preview data (thumbnail URLs and icons) from the DOM before form submission.
  * This allows us to preserve the client-side preview for the confirmation page.
  *
@@ -382,10 +397,15 @@ const { state, actions } = store( NAMESPACE, {
 			if ( context.isMultiStep ) {
 				// For multistep forms, we only validate fields that are part of the current step.
 				return ! Object.values( context.fields ).some(
-					field => field.error !== 'yes' && field.step === context.currentStep
+					field =>
+						field.error !== 'yes' &&
+						field.step === context.currentStep &&
+						! isFieldHidden( field.id )
 				);
 			}
-			return ! Object.values( context.fields ).some( field => field.error !== 'yes' );
+			return ! Object.values( context.fields ).some(
+				field => field.error !== 'yes' && ! isFieldHidden( field.id )
+			);
 		},
 
 		get showFormErrors() {
@@ -428,6 +448,10 @@ const { state, actions } = store( NAMESPACE, {
 			if ( context.showErrors ) {
 				Object.values( context.fields ).forEach( field => {
 					if ( context.isMultiStep && field.step !== context.currentStep ) {
+						return;
+					}
+					// Don't surface errors for fields hidden for the current viewport.
+					if ( isFieldHidden( field.id ) ) {
 						return;
 					}
 					if ( field.error && field.error !== 'yes' ) {
