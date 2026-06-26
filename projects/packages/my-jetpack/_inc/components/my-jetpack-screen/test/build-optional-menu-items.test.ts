@@ -9,6 +9,7 @@ const baseArgs = {
 	userIsAdmin: true,
 	isSiteConnected: true,
 	isJetpackPluginActive: true,
+	canManageModules: true,
 	onModulesClick: jest.fn(),
 	onResetClick: jest.fn(),
 	onResetKeyDown: jest.fn(),
@@ -40,6 +41,12 @@ describe( 'buildOptionalMenuItems', () => {
 
 		it( 'omits the Modules link when the main Jetpack plugin is not active', () => {
 			const items = buildOptionalMenuItems( { ...baseArgs, isJetpackPluginActive: false } );
+
+			expect( items.find( item => item.label === 'Modules' ) ).toBeUndefined();
+		} );
+
+		it( 'omits the Modules link when the site cannot manage modules (products-only)', () => {
+			const items = buildOptionalMenuItems( { ...baseArgs, canManageModules: false } );
 
 			expect( items.find( item => item.label === 'Modules' ) ).toBeUndefined();
 		} );

@@ -14,6 +14,7 @@ type BuildOptionalMenuItemsArgs = {
 	userIsAdmin: boolean;
 	isSiteConnected: boolean;
 	isJetpackPluginActive: boolean;
+	canManageModules: boolean;
 	onModulesClick: () => void;
 	onResetClick: () => void;
 	onResetKeyDown: ( event: KeyboardEvent ) => void;
@@ -25,13 +26,14 @@ const buildOptionalMenuItems = ( {
 	userIsAdmin,
 	isSiteConnected,
 	isJetpackPluginActive,
+	canManageModules,
 	onModulesClick,
 	onResetClick,
 	onResetKeyDown,
 }: BuildOptionalMenuItemsArgs ): FooterMenuItem[] => {
 	const items: FooterMenuItem[] = [];
 
-	if ( userIsAdmin && isSiteConnected && isJetpackPluginActive ) {
+	if ( userIsAdmin && isSiteConnected && isJetpackPluginActive && canManageModules ) {
 		items.push( {
 			label: _x(
 				'Modules',

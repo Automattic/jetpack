@@ -29,6 +29,7 @@ import useIsJetpackUserNew from '../../hooks/use-is-jetpack-user-new';
 import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
 import useNotificationWatcher from '../../hooks/use-notification-watcher';
 import { useQueryParameter } from '../../hooks/use-query-parameter';
+import { isProductsOnlyMode } from '../../utils/is-products-only-mode';
 import EvaluationRecommendations from '../evaluation-recommendations';
 import IDCModal from '../idc-modal';
 import { MyJetpackTabPanel } from '../my-jetpack-tab-panel';
@@ -166,20 +167,20 @@ export default function MyJetpackScreen() {
 		return null;
 	}
 
+	const productsOnly = isProductsOnlyMode();
+
 	const optionalMenuItems = buildOptionalMenuItems( {
 		adminUrl,
 		isDevVersion,
 		userIsAdmin,
 		isSiteConnected,
 		isJetpackPluginActive,
+		// Products-only sites can't manage modules, so hide the modules footer link.
+		canManageModules: ! productsOnly,
 		onModulesClick: () => recordEvent( 'jetpack_myjetpack_footer_link_click', { link: 'modules' } ),
 		onResetClick: () => resetJetpackOptions(),
 		onResetKeyDown: e => onKeyDownCallback( e, () => resetJetpackOptions() ),
 	} );
-
-	// Booleans live in the nested myJetpackFlags object — wp_localize_script stringifies
-	// top-level scalars (true -> "1", false -> ""), but JSON-encodes nested arrays.
-	const { productsOnly } = getMyJetpackWindowInitialState( 'myJetpackFlags' );
 
 	return (
 		<AdminPage
