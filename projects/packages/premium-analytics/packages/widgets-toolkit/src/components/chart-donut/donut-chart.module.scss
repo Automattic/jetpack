@@ -1,15 +1,13 @@
 .reference {
+	position: relative;
 	width: 100%;
 	height: 100%;
-	position: relative;
+	min-height: 0;
 }
 
 .wrapper {
-	position: absolute;
-	top: 0;
-	left: 0;
-	bottom: 0;
-	right: 0;
+	height: 100%;
+	min-height: 0;
 }
 
 .chart {
@@ -17,14 +15,28 @@
 	display: flex;
 	justify-content: center;
 	align-items: center;
-	min-width: 96px;
-	max-width: 192px;
+	min-width: 0;
+	max-width: 100%;
+	flex: 0 0 auto;
+}
+
+.pieChart {
+	position: relative;
+	display: flex;
+	align-items: stretch;
+	justify-content: center;
 	width: 100%;
+	height: 100%;
 }
 
 .metricContainer {
 	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
 	pointer-events: none;
+	text-align: center;
+	white-space: nowrap;
 }
 
 .noChart {
@@ -32,5 +44,8 @@
 }
 
 .legendContainer {
+	position: relative;
 	width: 200px;
+	max-width: 100%;
+	flex: 0 0 auto;
 }
