@@ -1,14 +1,6 @@
-import {
-	Button,
-	Card,
-	CardBody,
-	// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
-	__experimentalText as Text,
-	// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
-	__experimentalVStack as VStack,
-} from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { Icon, link } from '@wordpress/icons';
+import { Button, Card, Stack, Text } from '@wordpress/ui';
 import { getConnectUrl } from '../connection';
 import './style.scss';
 
@@ -35,24 +27,24 @@ const ConnectPrompt = ( { variant }: { variant: ConnectPromptVariant } ) => {
 	const { title, description } = COPY[ variant ];
 
 	return (
-		<Card className="podcast-connect-prompt">
-			<CardBody>
-				<VStack spacing={ 4 } alignment="center" className="podcast-connect-prompt__inner">
+		<Card.Root className="podcast-connect-prompt">
+			<Card.Content>
+				<Stack direction="column" gap="md" align="center" className="podcast-connect-prompt__inner">
 					<span className="podcast-connect-prompt__icon" aria-hidden="true">
 						<Icon icon={ link } />
 					</span>
-					<VStack spacing={ 2 } alignment="center">
+					<Stack direction="column" gap="sm" align="center">
 						<h2 className="podcast-connect-prompt__title">{ title }</h2>
-						<Text variant="muted" className="podcast-connect-prompt__description">
+						<Text variant="body-md" className="podcast-connect-prompt__description">
 							{ description }
 						</Text>
-					</VStack>
-					<Button variant="primary" href={ getConnectUrl() } __next40pxDefaultSize>
+					</Stack>
+					<Button variant="solid" render={ <a href={ getConnectUrl() } /> }>
 						{ __( 'Connect Jetpack', 'jetpack-podcast' ) }
 					</Button>
-				</VStack>
-			</CardBody>
-		</Card>
+				</Stack>
+			</Card.Content>
+		</Card.Root>
 	);
 };
 
