@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Podcast\Tests;
 
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Podcast\Admin_Page;
 use Automattic\Jetpack\Podcast\Podcast_Gate;
@@ -39,6 +40,9 @@ class Admin_Page_Test extends BaseTestCase {
 		// Drops the transient and the request-scoped memo so neither leaks into
 		// a sibling test.
 		Podcast_Gate::flush_purchases_cache();
+		// `is_connected()` memoizes in a static; reset it so a connection state
+		// computed here doesn't leak into a sibling test.
+		( new Connection_Manager() )->reset_connection_status();
 		WorDBless_Options::init()->clear_options();
 		wp_set_current_user( 0 );
 		parent::tearDown();
@@ -153,10 +157,10 @@ class Admin_Page_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Self-hosted connected: the connected blog ID is mirrored into
-	 * `site.wpcom.blog_id` (nothing else populates it off WordPress.com), giving
-	 * the dashboard its connection signal. Purchases are seeded empty to keep
-	 * the gate's access check hermetic.
+	 * Self-hosted: the blog ID is mirrored into `site.wpcom.blog_id` (nothing
+	 * else populates it off WordPress.com) so the dashboard can address the
+	 * stats proxy. Purchases are seeded empty to keep the gate's access check
+	 * hermetic.
 	 */
 	public function test_inject_script_data_sets_blog_id_when_connected_on_self_hosted() {
 		Podcast_Gate::flush_purchases_cache();
@@ -169,12 +173,14 @@ class Admin_Page_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Self-hosted disconnected: no blog ID to mirror, so the dashboard reads a
-	 * falsy value and renders a connect prompt instead of the paid upsell.
+	 * Self-hosted disconnected: no token, so `podcast.is_connected` is false and
+	 * there's no blog ID to mirror. The dashboard reads the falsy connection flag
+	 * and renders a connect prompt instead of the paid upsell.
 	 */
 	public function test_inject_script_data_leaves_blog_id_unset_when_disconnected() {
 		$data = Admin_Page::inject_podcast_script_data( array() );
 
+		$this->assertFalse( $data['podcast']['is_connected'] );
 		$this->assertEmpty( $data['site']['wpcom']['blog_id'] ?? null );
 	}
 

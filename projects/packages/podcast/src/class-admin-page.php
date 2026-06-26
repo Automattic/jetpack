@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Podcast;
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Status\Host;
 use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills;
 
@@ -143,15 +144,11 @@ class Admin_Page {
 		}
 
 		// jetpack-mu-wpcom populates `site.wpcom.blog_id` on Simple/Atomic, but it
-		// doesn't run on self-hosted. The dashboard reads that value both as the
-		// "connected" signal and to address the stats proxy, so mirror the
-		// connected blog ID here. It stays 0 while disconnected, which the SPA
-		// renders as a connect prompt rather than the paid upsell.
-		if ( ! ( new Host() )->is_wpcom_platform()
-			&& empty( $data['site']['wpcom']['blog_id'] )
-			&& class_exists( '\\Jetpack_Options' )
-		) {
-			$blog_id = (int) \Jetpack_Options::get_option( 'id' );
+		// doesn't run on self-hosted. The dashboard addresses the stats proxy with
+		// that value, so mirror the connected blog ID here via the canonical
+		// resolver (returns 0 while disconnected).
+		if ( ! ( new Host() )->is_wpcom_platform() && empty( $data['site']['wpcom']['blog_id'] ) ) {
+			$blog_id = (int) Connection_Manager::get_site_id( true );
 			if ( $blog_id > 0 ) {
 				$data['site']['wpcom']['blog_id'] = $blog_id;
 			}
@@ -172,6 +169,10 @@ class Admin_Page {
 
 		$data['podcast'] = array(
 			'has_product_access'  => Podcast_Gate::has_product_access(),
+			// Canonical connection check. The dashboard gates its WPCOM-proxied
+			// surfaces (stats, episodes, Pocket Casts) on this rather than
+			// inferring connection from the presence of a blog ID.
+			'is_connected'        => ( new Connection_Manager( 'jetpack' ) )->is_connected(),
 			'show_url_hosts'      => Settings::SHOW_URL_HOSTS,
 			'show_url_max_length' => Settings::SHOW_URL_MAX_LENGTH,
 			// Settings only: categories rejects per_page=-1 server-side, stats is a live relay.

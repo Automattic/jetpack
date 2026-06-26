@@ -1,16 +1,16 @@
-// Connection helpers for the podcast dashboard. The WP.com blog ID is only
-// present once the site is connected to WordPress.com (0 when installed but not
-// connected), and it's the same signal the stats/distribution proxies gate on
-// server-side — so the dashboard treats it as the connection check.
+// Connection helpers for the podcast dashboard. `podcast.is_connected` is the
+// canonical server-side signal (Connection_Manager::is_connected()); the
+// WPCOM-proxied surfaces gate on it rather than inferring connection from the
+// blog ID (which is set at registration, before a token exists).
 
-import { getMyJetpackUrl, getSiteData } from '@automattic/jetpack-script-data';
+import { getMyJetpackUrl, getScriptData } from '@automattic/jetpack-script-data';
 
 /**
  * Whether the site is connected to WordPress.com.
  *
- * @return {boolean} True once a WP.com blog ID is present.
+ * @return {boolean} True when the site has a usable WP.com connection.
  */
-export const isSiteConnected = (): boolean => Number( getSiteData()?.wpcom?.blog_id ?? 0 ) > 0;
+export const isSiteConnected = (): boolean => getScriptData()?.podcast?.is_connected ?? false;
 
 /**
  * URL of the My Jetpack connection screen, where a disconnected site links its
