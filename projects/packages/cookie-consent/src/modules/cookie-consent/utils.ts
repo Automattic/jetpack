@@ -145,7 +145,7 @@ export function getGeoConfig( config: Config ): GeoConfig {
 	return {
 		...DEFAULT_GEO_CONFIG,
 		...config.geo,
-		provider: config.geo?.provider || config.geoProvider || DEFAULT_GEO_CONFIG.provider,
+		provider: config.geo?.provider ?? config.geoProvider ?? DEFAULT_GEO_CONFIG.provider,
 		apiUrl: config.geo?.apiUrl ?? config.geoApiUrl ?? DEFAULT_GEO_CONFIG.apiUrl,
 		countryCodeCookie:
 			config.geo?.countryCodeCookie ??
@@ -155,8 +155,9 @@ export function getGeoConfig( config: Config ): GeoConfig {
 			config.geo?.regionCookie ?? config.regionCookie ?? DEFAULT_GEO_CONFIG.regionCookie,
 		cookieDuration:
 			config.geo?.cookieDuration ?? config.geoCookieDuration ?? DEFAULT_GEO_CONFIG.cookieDuration,
-		gdprCountries: config.geo?.gdprCountries ?? config.gdprCountries ?? [],
-		ccpaRegions: config.geo?.ccpaRegions ?? config.ccpaRegions ?? [],
+		gdprCountries:
+			config.geo?.gdprCountries ?? config.gdprCountries ?? DEFAULT_GEO_CONFIG.gdprCountries,
+		ccpaRegions: config.geo?.ccpaRegions ?? config.ccpaRegions ?? DEFAULT_GEO_CONFIG.ccpaRegions,
 		showOnError: config.geo?.showOnError ?? config.showOnError ?? DEFAULT_GEO_CONFIG.showOnError,
 	};
 }

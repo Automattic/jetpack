@@ -799,7 +799,7 @@ class Cookie_Consent {
 		);
 
 		foreach ( $legacy_geo_keys as $legacy_key => $geo_key ) {
-			$has_nested_override = array_key_exists( $geo_key, $nested_geo ) && $nested_geo[ $geo_key ] !== $default_config['geo'][ $geo_key ];
+			$has_nested_override = array_key_exists( $geo_key, $nested_geo );
 			if ( ! $has_nested_override && array_key_exists( $legacy_key, $config ) && $config[ $legacy_key ] !== $default_config[ $legacy_key ] ) {
 				$geo[ $geo_key ] = $config[ $legacy_key ];
 			}
