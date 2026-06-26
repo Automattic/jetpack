@@ -1,4 +1,4 @@
 Significance: minor
 Type: changed
 
-Degrade gracefully when Jetpack is installed but not connected: the free feed and setup still work, the dashboard mirrors the connected blog ID so stats address correctly on self-hosted, and the stats, episodes, and Pocket Casts surfaces show a connect prompt instead of the paid upsell or an error.
+Podcast: show a "Connect Jetpack" prompt on Stats and Episodes when the site isn't connected, instead of an upsell or an error.
