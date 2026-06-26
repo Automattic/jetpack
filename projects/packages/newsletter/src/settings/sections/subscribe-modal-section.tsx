@@ -2,11 +2,12 @@
  * External dependencies
  */
 import analytics from '@automattic/jetpack-analytics';
-import { getSiteType } from '@automattic/jetpack-script-data';
+import { getSiteType, isWpcomPlatformSite } from '@automattic/jetpack-script-data';
+import { WpcomSupportLink } from '@automattic/jetpack-shared-extension-utils/components/wpcom-support-link';
 import { DataForm, type Field } from '@wordpress/dataviews';
-import { useCallback, useMemo } from '@wordpress/element';
+import { createInterpolateElement, useCallback, useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { Button, Card, Fieldset, Text } from '@wordpress/ui';
+import { Button, Card, Fieldset, Link, Text } from '@wordpress/ui';
 /**
  * Internal dependencies
  */
@@ -68,6 +69,17 @@ export function SubscribeModalSection( {
 		onSave();
 	}, [ changedKeys, onSave, siteType ] );
 
+	const isWpcom = isWpcomPlatformSite();
+	const buttonOnlyStyleUrl = isWpcom
+		? 'https://wordpress.com/support/wordpress-editor/blocks/subscribe-block/#change-the-subscription-box-appearance'
+		: 'https://jetpack.com/support/jetpack-blocks/subscription-form-block/#use-the-button-only-style';
+
+	const ButtonOnlyStyleLink = isWpcom ? (
+		<WpcomSupportLink supportLink={ buttonOnlyStyleUrl } supportPostId={ 170164 } />
+	) : (
+		<Link openInNewTab href={ buttonOnlyStyleUrl } children={ null } />
+	);
+
 	const fields: Field< SubscribeModalFormData >[] = [
 		{
 			id: 'subscribe_modal_heading',
@@ -75,9 +87,14 @@ export function SubscribeModalSection( {
 			type: 'text' as const,
 			Edit: 'textarea' as const,
 			placeholder: __( 'Subscribe now to stay ahead and never miss a beat!', 'jetpack-newsletter' ),
-			description: __(
-				'Only affects Subscribe blocks using the "Button only" style. Leave blank to use the default heading.',
-				'jetpack-newsletter'
+			description: createInterpolateElement(
+				__(
+					'Only affects Subscribe blocks using the <link>"Button only" style</link>. Leave blank to use the default heading.',
+					'jetpack-newsletter'
+				),
+				{
+					link: ButtonOnlyStyleLink,
+				}
 			),
 		},
 	];

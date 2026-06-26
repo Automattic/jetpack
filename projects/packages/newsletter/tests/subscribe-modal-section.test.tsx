@@ -40,6 +40,19 @@ jest.mock( '@wordpress/ui', () => ( {
 		),
 	},
 	Text: ( { children }: { children: React.ReactNode } ) => <span>{ children }</span>,
+	Link: ( {
+		children,
+		href,
+		openInNewTab,
+	}: {
+		children: React.ReactNode;
+		href: string;
+		openInNewTab?: boolean;
+	} ) => (
+		<a href={ href } target={ openInNewTab ? '_blank' : undefined } rel="noreferrer">
+			{ children }
+		</a>
+	),
 } ) );
 
 jest.mock( '@wordpress/dataviews', () => ( {
@@ -50,24 +63,47 @@ jest.mock( '@wordpress/dataviews', () => ( {
 		onChange,
 	}: {
 		data: Record< string, string >;
-		fields: Array< { id: string; label: string; placeholder?: string } >;
+		fields: Array< {
+			id: string;
+			label: string;
+			placeholder?: string;
+			description?: React.ReactNode;
+		} >;
 		onChange: ( updates: Record< string, string > ) => void;
 	} ) => {
 		const field = fields[ 0 ];
 		const handleChange = ( e: React.ChangeEvent< HTMLTextAreaElement > ) =>
 			onChange( { [ field.id ]: e.target.value } );
 		return (
-			<textarea
-				aria-label={ field.label }
-				placeholder={ field.placeholder }
-				value={ data[ field.id ] ?? '' }
-				// Test-only mock — the closure over `field.id` is intentional and
-				// the re-bind-per-render cost is irrelevant in a jest render.
-				// eslint-disable-next-line react/jsx-no-bind
-				onChange={ handleChange }
-			/>
+			<>
+				<textarea
+					aria-label={ field.label }
+					placeholder={ field.placeholder }
+					value={ data[ field.id ] ?? '' }
+					// Test-only mock — the closure over `field.id` is intentional and
+					// the re-bind-per-render cost is irrelevant in a jest render.
+					// eslint-disable-next-line react/jsx-no-bind
+					onChange={ handleChange }
+				/>
+				{ field.description && <p data-testid="field-description">{ field.description }</p> }
+			</>
 		);
 	},
+} ) );
+
+jest.mock( '@automattic/jetpack-shared-extension-utils/components/wpcom-support-link', () => ( {
+	__esModule: true,
+	WpcomSupportLink: ( {
+		children,
+		supportLink,
+	}: {
+		children: React.ReactNode;
+		supportLink: string;
+	} ) => (
+		<a href={ supportLink } data-testid="wpcom-support-link">
+			{ children }
+		</a>
+	),
 } ) );
 
 jest.mock( '@automattic/jetpack-analytics', () => ( {
@@ -79,9 +115,11 @@ jest.mock( '@automattic/jetpack-analytics', () => ( {
 
 jest.mock( '@automattic/jetpack-script-data', () => ( {
 	getSiteType: jest.fn( () => 'jetpack' ),
+	isWpcomPlatformSite: jest.fn( () => false ),
 } ) );
 
 import analytics from '@automattic/jetpack-analytics';
+import { isWpcomPlatformSite } from '@automattic/jetpack-script-data';
 import { render, screen } from '@testing-library/react';
 import { SubscribeModalSection } from '../src/settings/sections/subscribe-modal-section';
 import type { NewsletterSettings } from '../src/settings/types';
@@ -167,6 +205,7 @@ function setTextareaValue( textarea: HTMLTextAreaElement, value: string ) {
 describe( 'SubscribeModalSection', () => {
 	beforeEach( () => {
 		jest.clearAllMocks();
+		jest.mocked( isWpcomPlatformSite ).mockReturnValue( false );
 	} );
 
 	it( 'renders the card title and a description mentioning the Button only style', () => {
@@ -175,7 +214,29 @@ describe( 'SubscribeModalSection', () => {
 		expect(
 			screen.getByRole( 'heading', { name: 'Subscribe modal heading' } )
 		).toBeInTheDocument();
-		expect( screen.getByText( /"Button only" style/ ) ).toBeInTheDocument();
+		expect( screen.getByTestId( 'field-description' ) ).toHaveTextContent( /"Button only" style/ );
+	} );
+
+	it( 'links the Button only style hint to Jetpack support docs on self-hosted sites', () => {
+		renderSection();
+
+		const link = screen.getByRole( 'link', { name: '"Button only" style' } );
+		expect( link ).toHaveAttribute(
+			'href',
+			'https://jetpack.com/support/jetpack-blocks/subscription-form-block/#use-the-button-only-style'
+		);
+	} );
+
+	it( 'links the Button only style hint to WordPress.com support docs on platform sites', () => {
+		jest.mocked( isWpcomPlatformSite ).mockReturnValue( true );
+		renderSection();
+
+		const link = screen.getByTestId( 'wpcom-support-link' );
+		expect( link ).toHaveAttribute(
+			'href',
+			'https://wordpress.com/support/wordpress-editor/blocks/subscribe-block/#change-the-subscription-box-appearance'
+		);
+		expect( link ).toHaveTextContent( '"Button only" style' );
 	} );
 
 	it( 'renders the textarea with the default placeholder and the current heading value', () => {
