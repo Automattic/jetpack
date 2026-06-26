@@ -88,6 +88,23 @@ function SingleResponse(): React.JSX.Element {
 		[ id, isValidId ]
 	);
 
+	// For managed forms, resolve the actual jetpack_form post title so the
+	// breadcrumb matches the header of the list it links to (response.entry_title
+	// is the embedding page/post title, which can differ from the form's name).
+	const formName = useSelect(
+		select => {
+			const formId = response?.form_id;
+			if ( ! formId ) {
+				return '';
+			}
+			const record = select( coreStore ).getEntityRecord( 'postType', 'jetpack_form', formId ) as
+				| { title?: { rendered?: string } }
+				| undefined;
+			return record ? decodeEntities( record.title?.rendered || '' ) : '';
+		},
+		[ response?.form_id ]
+	);
+
 	const { hasPrevious, hasNext, goPrevious, goNext } = useResponsePageNavigation( id );
 
 	// Arrow keys move between responses, matching the inbox inspector. Ignore the
@@ -192,7 +209,9 @@ function SingleResponse(): React.JSX.Element {
 	return (
 		<FormsPage
 			visual={ <JetpackLogo showText={ false } height={ 20 } /> }
-			breadcrumbs={ <SingleResponseBreadcrumbs response={ response } formTitle={ formTitle } /> }
+			breadcrumbs={
+				<SingleResponseBreadcrumbs response={ response } formTitle={ formName || formTitle } />
+			}
 			subTitle={ subTitle }
 			ariaLabel={ displayName }
 			actions={
