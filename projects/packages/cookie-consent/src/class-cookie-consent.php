@@ -653,7 +653,7 @@ class Cookie_Consent {
 	 *
 	 * @return array Configuration array
 	 */
-	private static function get_config() {
+	public static function get_config() {
 		$default_config = array(
 			'geo_api_url'         => 'https://public-api.wordpress.com/geo/',
 			'geo_cookie_duration' => 6 * HOUR_IN_SECONDS, // 6 hours.
@@ -715,6 +715,9 @@ class Cookie_Consent {
 			'show_on_error'       => true, // Show banner if geolocation fails.
 			'gdpr_honors_gpc'     => true, // Honor a Global Privacy Control signal as an opt-out in GDPR regions.
 			'event_prefix'        => 'jetpack', // Tracks event name prefix; set to 'woocommerceanalytics' for Unified Analytics continuity.
+			'log'                 => array(
+				'ip_mode' => 'drop',
+			),
 		);
 
 		/**

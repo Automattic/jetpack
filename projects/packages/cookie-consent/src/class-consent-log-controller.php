@@ -71,6 +71,20 @@ class Consent_Log_Controller extends WP_REST_Controller {
 	private const DEFAULT_CONSENT_TYPES = array( 'functional', 'analytics', 'marketing' );
 
 	/**
+	 * Default IP address handling mode.
+	 *
+	 * @var string
+	 */
+	private const DEFAULT_IP_MODE = 'drop';
+
+	/**
+	 * Supported IP address handling modes.
+	 *
+	 * @var array
+	 */
+	private const IP_MODES = array( 'drop', 'hash', 'truncate', 'raw' );
+
+	/**
 	 * Cleanup cron hook name.
 	 *
 	 * @var string
@@ -392,7 +406,7 @@ class Consent_Log_Controller extends WP_REST_Controller {
 			'consent_id'       => $consent_id,
 			'event_type'       => $request->get_param( 'event_type' ),
 			'customer_id'      => get_current_user_id(),
-			'ip_address'       => $this->get_client_ip(),
+			'ip_address'       => $this->get_consent_log_ip_address(),
 			'url'              => $request->get_param( 'url' ),
 			'consent_types'    => $consent_json,
 			'date_created'     => $current_time_local,
@@ -414,6 +428,106 @@ class Consent_Log_Controller extends WP_REST_Controller {
 		}
 
 		return rest_ensure_response( array( 'consent_id' => $consent_id ) );
+	}
+
+	/**
+	 * Get the IP address value to persist for the consent log.
+	 *
+	 * @return string|null
+	 */
+	private function get_consent_log_ip_address() {
+		$ip_mode = $this->get_ip_mode();
+
+		if ( 'drop' === $ip_mode ) {
+			return null;
+		}
+
+		$ip_address = $this->get_client_ip();
+		if ( null === $ip_address ) {
+			return null;
+		}
+
+		return $this->format_ip_address_for_log( $ip_address, $ip_mode );
+	}
+
+	/**
+	 * Get the configured IP address handling mode.
+	 *
+	 * @return string
+	 */
+	private function get_ip_mode() {
+		$config     = Cookie_Consent::get_config();
+		$log_config = isset( $config['log'] ) && is_array( $config['log'] ) ? $config['log'] : array();
+		$ip_mode    = isset( $log_config['ip_mode'] ) ? sanitize_key( $log_config['ip_mode'] ) : self::DEFAULT_IP_MODE;
+
+		if ( ! in_array( $ip_mode, self::IP_MODES, true ) ) {
+			return self::DEFAULT_IP_MODE;
+		}
+
+		return $ip_mode;
+	}
+
+	/**
+	 * Format an IP address for the configured log storage mode.
+	 *
+	 * @param string $ip_address Valid IP address.
+	 * @param string $ip_mode    IP address handling mode.
+	 * @return string|null
+	 */
+	private function format_ip_address_for_log( $ip_address, $ip_mode ) {
+		switch ( $ip_mode ) {
+			case 'raw':
+				return $ip_address;
+
+			case 'hash':
+				return base64_encode( hash_hmac( 'sha256', $ip_address, wp_salt( 'auth' ), true ) );
+
+			case 'truncate':
+				return $this->truncate_ip_address( $ip_address );
+
+			case 'drop':
+			default:
+				return null;
+		}
+	}
+
+	/**
+	 * Truncate an IP address so the full address is not persisted.
+	 *
+	 * @param string $ip_address Valid IP address.
+	 * @return string|null
+	 */
+	private function truncate_ip_address( $ip_address ) {
+		if ( function_exists( 'wp_privacy_anonymize_ip' ) ) {
+			return wp_privacy_anonymize_ip( $ip_address );
+		}
+
+		if ( filter_var( $ip_address, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4 ) ) {
+			$octets    = explode( '.', $ip_address );
+			$octets[3] = '0';
+			return implode( '.', $octets );
+		}
+
+		if ( filter_var( $ip_address, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6 ) ) {
+			$packed = inet_pton( $ip_address );
+			if ( false === $packed ) {
+				return null;
+			}
+
+			$bytes = unpack( 'C*', $packed );
+			if ( false === $bytes ) {
+				return null;
+			}
+
+			for ( $i = 7; $i <= 16; $i++ ) {
+				$bytes[ $i ] = 0;
+			}
+
+			$truncated = inet_ntop( pack( 'C*', ...array_values( $bytes ) ) );
+			return false === $truncated ? null : $truncated;
+		}
+
+		return null;
 	}
 
 	/**
@@ -562,7 +676,7 @@ class Consent_Log_Controller extends WP_REST_Controller {
 						'readonly'    => true,
 					),
 					'ip_address'       => array(
-						'description' => __( 'The client IP address.', 'jetpack-cookie-consent' ),
+						'description' => __( 'The stored client IP address value.', 'jetpack-cookie-consent' ),
 						'type'        => 'string',
 						'context'     => array( 'view' ),
 						'readonly'    => true,
